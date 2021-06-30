@@ -81,6 +81,7 @@ include("SoloLeveling/Tools/OOGOverrides.js");
 
 if (!FileTools.exists("data/" + me.profile + ".json")) {
 	DataFile.create();
+	DataFile.updateStats("currentBuild", "Start");
 	delay(Math.floor(rand(1, 20)));
 }
 
