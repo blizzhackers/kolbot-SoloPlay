@@ -1,0 +1,325 @@
+// default.dbj gets executed upon gamejoin
+js_strict(true);
+
+include("json2.js");
+include("NTItemParser.dbl");
+include("OOG.js");
+include("AutoMule.js");
+include("Gambling.js");
+include("CraftingSystem.js");
+include("TorchSystem.js");
+include("MuleLogger.js");
+include("GameAction.js");
+include("common/Attack.js");
+include("common/Cubing.js");
+include("common/CollMap.js");
+include("common/Config.js");
+include("common/Loader.js");
+include("common/misc.js");
+include("common/util.js");
+include("common/Pickit.js");
+include("common/Pather.js");
+include("common/Precast.js");
+include("common/Prototypes.js");
+include("common/Runewords.js");
+include("common/Storage.js");
+include("common/Town.js");
+
+function main () {
+	D2Bot.init(); // Get D2Bot# handle
+	D2Bot.ingame();
+
+	// wait until game is ready
+	while (!me.gameReady) {
+		delay(50);
+	}
+
+	clearAllEvents() // remove any event listeners from game crash
+
+	if (!getScript("tools/heartbeat.js")) {
+		load("tools/heartbeat.js");
+	}
+
+	if (getScript("d2botmap.dbj")) {
+		load("tools/mapthread.js");
+		load("tools/toolsthread.js");
+		Config.init(true);
+		LocalChat.init();
+
+		if (Config.PublicMode) {
+			load("tools/party.js");
+		}
+
+		if (Config.ManualPlayPick) {
+			load("tools/pickthread.js");
+		}
+
+		if (Config.AutoMap) {
+			me.automap = true;
+		}
+
+		while (true) {
+			delay(1000);
+		}
+	}
+	
+	// don't load default for dropper/mules
+	if (getScript("D2BotMule.dbj")) {
+		while(true) {
+			try {
+				if (me.area === 2) {
+					D2Bot.printToConsole("Saved from suicide walk!");
+					D2Bot.restart();
+				}
+			} catch (e) {
+				D2Bot.restart();
+			}
+			delay(1000);
+		}
+		return true;
+	}
+
+	// MuleLogger handler
+	if (MuleLogger.inGameCheck()) {
+		return true;
+	}
+
+	var i, sojPause, stats, anni,
+		sojCounter = 0,
+		startTime = getTickCount();
+
+	this.itemEvent = function (gid, mode, code, global) {
+		if (gid > 0 && mode === 0) {
+			Pickit.gidList.push(gid);
+		}
+	};
+
+	this.scriptEvent = function (msg) {
+		switch (msg) {
+		case "soj":
+			sojPause = true;
+			sojCounter = 0;
+
+			break;
+		}
+	};
+
+	this.copyDataEvent = function (mode, msg) {
+		if (mode === 0 && msg === "mule") { // "Mule Profile" option from D2Bot#
+			if (AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("muleInfo")) {
+				if (AutoMule.getMuleItems().length > 0) {
+					D2Bot.printToConsole("Mule triggered");
+					scriptBroadcast("mule");
+					scriptBroadcast("quit");
+				} else {
+					D2Bot.printToConsole("No items to mule.");
+				}
+			} else {
+				D2Bot.printToConsole("Profile not enabled for muling.");
+			}
+		}
+
+		if (mode === 1638) { // getProfile
+			msg = JSON.parse(msg);
+
+			if (msg.Tag) {
+				GameAction.init(msg.Tag);
+			}
+		}
+	};
+
+	// Initialize libs - load config variables, build pickit list, attacks, containers and cubing and runeword recipes
+	Config.init(true);
+	Pickit.init(true);
+	Attack.init();
+	Storage.Init();
+	CraftingSystem.buildLists();
+	Runewords.init();
+	Cubing.init();
+	LocalChat.init();
+
+	// Load events
+	addEventListener("scriptmsg", this.scriptEvent);
+	addEventListener("copydata", this.copyDataEvent);
+
+	// GameAction handler
+	if (GameAction.inGameCheck()) {
+		return true;
+	}
+
+	// AutoMule handler
+	if (AutoMule.inGameCheck()) {
+		return true;
+	}
+
+	// TorchSystem handler
+	if (TorchSystem.inGameCheck()) {
+		return true;
+	}
+
+	// Gambling System handler
+	if (Gambling.inGameCheck()) {
+		return true;
+	}
+
+	// Crafting System handler
+	if (CraftingSystem.inGameCheck()) {
+		return true;
+	}
+
+	me.maxgametime = Config.MaxGameTime * 1000;
+	stats = DataFile.getStats();
+
+	// Check for experience decrease -> log death. Skip report if life chicken is disabled.
+	if (stats.name === me.name && me.getStat(13) < stats.experience && Config.LifeChicken > 0) {
+		D2Bot.printToConsole("You died in last game", 9);
+		D2Bot.printToConsole("Experience decreased by " + (stats.experience - me.getStat(13)), 9);
+		DataFile.updateStats("deaths");
+		D2Bot.updateDeaths();
+	}
+
+	DataFile.updateStats(["experience", "name"]);
+
+	// Load threads
+	if (getScript("D2BotSoloLevelingEntry.dbj")) {
+		if (!isIncluded("SoloLeveling/Tools/Developer.js")) {
+			include("SoloLeveling/Tools/Developer.js");
+		}
+
+		if (!isIncluded("SoloLeveling/Tools/Tracker.js")) {
+			include("SoloLeveling/Tools/Tracker.js");
+		}
+
+		if (!isIncluded("libs/SoloLeveling/Functions/Globals.js")) {
+			include("libs/SoloLeveling/Functions/Globals.js");
+			SetUp.include();
+		}
+
+		load("libs/SoloLeveling/Tools/ToolsThread.js");
+	} else {
+		load("tools/ToolsThread.js");
+	}
+
+	if (Config.TownCheck || Config.TownHP || Config.TownMP) {
+		load("tools/TownChicken.js");
+	}
+
+	if (Config.PublicMode) {
+		if (Config.PublicMode === true) {
+			require('libs/modules/SimpleParty');
+		} else {
+			load("tools/Party.js");
+		}
+	}
+
+	if (Config.AntiHostile) {
+		load("tools/AntiHostile.js");
+	}
+
+	if (Config.FastPick) {
+		print("ÿc2Fast pickit active.");
+		addEventListener("itemaction", this.itemEvent);
+	}
+
+	// One time maintenance - get corpse, clear leftover items, pick items in case anything important was dropped
+	if (!Scripts.UserAddon && !Scripts.Test) {
+		Town.getCorpse();
+		Town.clearBelt();
+
+		if (Config.ClearInvOnStart) {
+			Town.clearInventory();
+		}
+
+		//Pickit.pickItems();
+	}
+
+	me.automap = Config.AutoMap;
+
+	// Next game = drop keys
+	if (TorchSystem.keyCheck()) {
+		scriptBroadcast("torch");
+	}
+
+	// Auto skill and stat
+	if (Config.AutoSkill.Enabled && include("common/AutoSkill.js")) {
+		AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
+	}
+
+	if (Config.AutoStat.Enabled && include("common/AutoStat.js")) {
+		AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
+	}
+
+	// Go
+	Loader.init();
+
+	if (Config.MinGameTime && getTickCount() - startTime < Config.MinGameTime * 1000) {
+		try {
+			Town.goToTown();
+
+			while (getTickCount() - startTime < Config.MinGameTime * 1000) {
+				me.overhead("Stalling for " + Math.round(((startTime + (Config.MinGameTime * 1000)) - getTickCount()) / 1000) + " Seconds");
+				delay(1000);
+			}
+		} catch (e1) {
+			print(e1);
+		}
+	}
+
+	DataFile.updateStats("gold");
+
+	if (sojPause) {
+		try {
+			Town.goToTown();
+			Town.doChores();
+
+			me.maxgametime = 0;
+
+			while (sojCounter < Config.SoJWaitTime) {
+				me.overhead("Waiting for SoJ sales... " + (Config.SoJWaitTime - sojCounter) + " min");
+				delay(6e4);
+
+				sojCounter += 1;
+			}
+		} catch (e2) {
+			print(e2);
+		}
+	}
+
+	if (Config.LastMessage) {
+		switch (typeof Config.LastMessage) {
+		case "string":
+			say(Config.LastMessage.replace("$nextgame", DataFile.getStats().nextGame, "i"));
+
+			break;
+		case "object":
+			for (i = 0; i < Config.LastMessage.length; i += 1) {
+				say(Config.LastMessage[i].replace("$nextgame", DataFile.getStats().nextGame, "i"));
+			}
+
+			break;
+		}
+	}
+
+	if (AutoMule.muleCheck()) {
+		scriptBroadcast("mule");
+	}
+
+	// Anni handler. Mule Anni if it's in unlocked space and profile is set to mule torch/anni.
+	anni = me.findItem(603, 0, -1, 7);
+
+	if (anni && !Storage.Inventory.IsLocked(anni, Config.Inventory) && AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("torchMuleInfo")) {
+		scriptBroadcast("muleAnni");
+	}
+
+	if (CraftingSystem.checkFullSets()) {
+		scriptBroadcast("crafting");
+	}
+
+	if (TorchSystem.keyCheck()) {
+		scriptBroadcast("torch");
+	}
+
+	scriptBroadcast("quit");
+
+	return true;
+}
