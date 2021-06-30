@@ -228,43 +228,46 @@ var tierscore = function (item) {
 			return resistRating;
 		}
 
-		let bodyloc = itembodyloc[0]; // extract bodyloc from array
-		// get item resists stats from olditem equipped on body location
-		let equippedItems = me.getItems()
-			.filter(item =>
-				item.bodylocation === bodyloc // filter equipped items to body location
-				&& [1].indexOf(item.location) > -1); // limit search to equipped body parts
-		let oldItem = equippedItems[0]; // extract oldItem from array
-		let olditemFR = oldItem !== undefined ? oldItem.getStatEx(39) : 0; // equipped fire resist
-		let olditemCR = oldItem !== undefined ? oldItem.getStatEx(43) : 0; // equipped cold resist
-		let olditemLR = oldItem !== undefined ? oldItem.getStatEx(41) : 0; // equipped lite resist
-		let olditemPR = oldItem !== undefined ? oldItem.getStatEx(45) : 0; // equipped poison resist
-		// subtract olditem resists from current total resists
-		let baseFR = currFR - olditemFR;
-		let baseCR = currCR - olditemCR;
-		let baseLR = currLR - olditemLR;
-		let basePR = currPR - olditemPR;
-		// if baseRes < max resists give score value upto max resists reached
-		let maxRes = !me.classic ? 175 : 125;
-		let FRlimit = Math.max(maxRes - baseFR, 0);
-		let CRlimit = Math.max(maxRes - baseCR, 0);
-		let LRlimit = Math.max(maxRes - baseLR, 0);
-		let PRlimit = Math.max(maxRes - basePR, 0);
-		// get new item stats
-		let newitemFR = Math.max(item.getStatEx(39), 0); // fire resist
-		let newitemCR = Math.max(item.getStatEx(43), 0); // cold resist
-		let newitemLR = Math.max(item.getStatEx(41), 0); // lite resist
-		let newitemPR = Math.max(item.getStatEx(45), 0); // poison resist
-		// newitemRes upto reslimit
-		let effectiveFR = Math.min(newitemFR, FRlimit);
-		let effectiveCR = Math.min(newitemCR, CRlimit);
-		let effectiveLR = Math.min(newitemLR, LRlimit);
-		let effectivePR = Math.min(newitemPR, PRlimit);
-		// sum resistRatings
-		resistRating += effectiveFR * resistWeights.FR; // add fireresist
-		resistRating += effectiveCR * resistWeights.CR; // add coldresist
-		resistRating += effectiveLR * resistWeights.LR; // add literesist
-		resistRating += effectivePR * resistWeights.PR; // add poisonresist
+		if (item.itemType !== 10) {		// Temp fix for ring-loop is to just not do this for rings
+			let bodyloc = itembodyloc[0]; // extract bodyloc from array
+			// get item resists stats from olditem equipped on body location
+			let equippedItems = me.getItems()
+				.filter(item =>
+					item.bodylocation === bodyloc // filter equipped items to body location
+					&& [1].indexOf(item.location) > -1); // limit search to equipped body parts
+			let oldItem = equippedItems[0]; // extract oldItem from array
+			let olditemFR = oldItem !== undefined ? oldItem.getStatEx(39) : 0; // equipped fire resist
+			let olditemCR = oldItem !== undefined ? oldItem.getStatEx(43) : 0; // equipped cold resist
+			let olditemLR = oldItem !== undefined ? oldItem.getStatEx(41) : 0; // equipped lite resist
+			let olditemPR = oldItem !== undefined ? oldItem.getStatEx(45) : 0; // equipped poison resist
+			// subtract olditem resists from current total resists
+			let baseFR = currFR - olditemFR;
+			let baseCR = currCR - olditemCR;
+			let baseLR = currLR - olditemLR;
+			let basePR = currPR - olditemPR;
+			// if baseRes < max resists give score value upto max resists reached
+			let maxRes = !me.classic ? 175 : 125;
+			let FRlimit = Math.max(maxRes - baseFR, 0);
+			let CRlimit = Math.max(maxRes - baseCR, 0);
+			let LRlimit = Math.max(maxRes - baseLR, 0);
+			let PRlimit = Math.max(maxRes - basePR, 0);
+			// get new item stats
+			let newitemFR = Math.max(item.getStatEx(39), 0); // fire resist
+			let newitemCR = Math.max(item.getStatEx(43), 0); // cold resist
+			let newitemLR = Math.max(item.getStatEx(41), 0); // lite resist
+			let newitemPR = Math.max(item.getStatEx(45), 0); // poison resist
+			// newitemRes upto reslimit
+			let effectiveFR = Math.min(newitemFR, FRlimit);
+			let effectiveCR = Math.min(newitemCR, CRlimit);
+			let effectiveLR = Math.min(newitemLR, LRlimit);
+			let effectivePR = Math.min(newitemPR, PRlimit);
+			// sum resistRatings
+			resistRating += effectiveFR * resistWeights.FR; // add fireresist
+			resistRating += effectiveCR * resistWeights.CR; // add coldresist
+			resistRating += effectiveLR * resistWeights.LR; // add literesist
+			resistRating += effectivePR * resistWeights.PR; // add poisonresist
+		}
+
 		resistRating += (item.getStatEx(142) + item.getStatEx(144) + item.getStatEx(146) + item.getStatEx(148)) * resistWeights.ABS; // add absorb damage
 
 		return resistRating;
