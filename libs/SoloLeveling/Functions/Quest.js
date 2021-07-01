@@ -449,10 +449,13 @@ var Quest = {
 			
 		if (item.location === 7) {
 			Town.openStash();
+
 			if (!Storage.Inventory.MoveTo(item)) {
 				print("ÿc9SoloLevelingÿc0: Failed to move item from stash to inventory");
 				return false;
 			}
+
+			me.cancel;
 		}
 			
 		invo = me.findItems(-1, 0, 3);
@@ -478,13 +481,21 @@ var Quest = {
 			print("ÿc9SoloLevelingÿc0: Couldn't find larzuk");
 			return false;
 		}			
-			
+
+		Town.npcInteract("larzuk");
+		delay(10 + me.ping * 2);
+
+		if (!Misc.useMenu(0x58DC)) {
+			return false;
+		}
+
 		if (!item.toCursor()) {
 			print("ÿc9SoloLevelingÿc0: Couldn't get item");
 			return false;
 		}
 			
-		sendPacket(1, 0x38, 4, 0x00, 4, larzuk.gid, 4, item.gid);
+		//sendPacket(1, 0x38, 4, 0x00, 4, larzuk.gid, 4, item.gid);
+		submitItem();
 		delay(500 + me.ping);
 		sendPacket(1, 0x40);
 			
@@ -498,12 +509,24 @@ var Quest = {
 		}
 			
 		if (!item || item.getStat(194) === 0) {
+			if (me.itemoncursor) {
+				Storage.Stash.MoveTo(item);
+			}
+
 			print("Failed to socket item");
 			return false;
 		}
 
 		let diffSting = ['Normal', 'Nightmare', 'Hell'][me.diff];	
 		Misc.logItem("Used my " + diffSting + " socket quest on : ", item);
+
+		if (!slot && item.location !== 7) {	
+			if (Storage.Stash.CanFit(selected)) { //move selected back to stash
+				Town.move('stash');
+				Storage.Stash.MoveTo(selected);
+				me.cancel;
+			}
+		}
 
 		if (slot) {
 			Item.equip(item, slot);
@@ -553,6 +576,7 @@ var Quest = {
 			
 		if (item.location === 7) {
 			Town.openStash();
+
 			if (!Storage.Inventory.MoveTo(item)) {
 				print("ÿc9SoloLevelingÿc0: Failed to move item from stash to inventory");
 				return false;
@@ -583,12 +607,20 @@ var Quest = {
 			return false;
 		}
 
+		Town.npcInteract("charsi");
+		delay(10 + me.ping * 2);
+
+		if (!Misc.useMenu(0x58DC)) {
+			return false;
+		}
+
 		if (!item.toCursor()) {
 			print("ÿc9SoloLevelingÿc0: Couldn't get item");
 			return false;
 		}
-			
-		sendPacket(1, 0x38, 4, 0x00, 4, charsi.gid, 4, item.gid);
+		
+		submitItem();
+		//sendPacket(1, 0x38, 4, 0x00, 4, charsi.gid, 4, item.gid);
 		delay(500 + me.ping);
 		sendPacket(1, 0x40);
 			
@@ -608,6 +640,14 @@ var Quest = {
 
 		let diffSting = ['Normal', 'Nightmare', 'Hell'][me.diff];	
 		Misc.logItem("Used my " + diffSting + " imbue quest on : ", item);
+
+		if (!slot && item.location !== 7) {	
+			if (Storage.Stash.CanFit(selected)) { //move selected back to stash
+				Town.move('stash');
+				Storage.Stash.MoveTo(selected);
+				me.cancel;
+			}
+		}
 
 		if (slot) {
 			Item.equip(item, slot);
