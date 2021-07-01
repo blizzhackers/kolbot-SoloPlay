@@ -13,7 +13,7 @@ var Difficulty = ['Normal', 'Nightmare', 'Hell'];
 
 var SetUp = {
 	scripts: [
-		"den", "bloodraven", "tristram", "countess", /*"smith",*/ "pits", "andariel", "cows", // Act 1
+		"den", "bloodraven", "tristram", "countess", "smith", "pits", "andariel", "cows", // Act 1
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel", // Act 2
 		"templeruns", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
 		"izual", "hellforge", "diablo", //Act 4
@@ -246,7 +246,7 @@ var Check = {
 
 			break;
 		case "smith": //tools of the trade
-			if (me.normal && !me.smith) {
+			if (!me.smith || !Misc.checkQuest(3, 1)) {
 				return true;
 			}
 

@@ -358,6 +358,16 @@ function LoadConfig () {
 			Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
 		}
 
+		var imbueables = [
+			"me.diff == 0 && [name] == jared'sstone && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [MaxQuantity] == 1",
+			"me.diff == 1 && [name] == swirlingcrystal && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [MaxQuantity] == 1",
+			"me.diff == 2 && [name] == dimensionalshard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [MaxQuantity] == 1",
+		];
+
+		if (!me.smith) {
+			NTIP.arrayLooping(imbueables);
+		}
+
 		if (!Check.haveItem("sword", "runeword", "Call To Arms")) {
 			var CTA = [
 				"[Name] == AmnRune # # [MaxQuantity] == 1",
