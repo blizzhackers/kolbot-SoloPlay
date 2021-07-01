@@ -56,6 +56,7 @@ var SetUp = {
 
 	levelCap: [33, 65, 100][me.diff],
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
+	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
 	respecOne: [ 25, 28, 26, 19, 24, 24, 30][me.classid],
 
