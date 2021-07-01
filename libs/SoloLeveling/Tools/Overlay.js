@@ -1,8 +1,8 @@
 /*
 *	@filename	Overlay.js
-*	@author		isid0re
+*	@author		theBGuy
 *	@desc		overlay thread from SoloLeveling
-*	@credits 	theBGuy and Adpist for first gen Overlay, laz for his manual play, dzik for his hookHandler, securitycat, kolton libs
+*	@credits 	Adpist for first gen Overlay, isid0re for styleing, laz for his manual play, dzik for his hookHandler, securitycat, kolton libs
 */
 
 if (!isIncluded("SoloLeveling/Tools/Developer.js")) {
@@ -20,6 +20,8 @@ var Overlay = {
 	questY: 302,
 	dashboardX: 410,
 	dashboardY: 480,
+	timerX: 700,
+	timerY: 75,
 	text: {
 		hooks: [],
 		enabled: true,
@@ -36,6 +38,8 @@ var Overlay = {
 				return PrettyIG;
 			case "OOG":
 				return Developer.formatTime(GameTracker.OOG);
+			case "InGameTimer":
+				return " (" + new Date(getTickCount() - me.gamestarttime).toISOString().slice(11, -5) + ")";
 			}
 
 			return true;
@@ -78,13 +82,29 @@ var Overlay = {
 			if (!this.getHook("credits")) {
 				this.add("credits");
 			} else {
-				this.getHook("credits").hook.text = "SoloLeveling by ÿc0 isidOre";
+				this.getHook("credits").hook.text = "MySoloLeveling by ÿc0 TheBGuy";
 			}
 
 			if (!this.getHook("times")) {
 				this.add("times");
 			} else {
 				this.getHook("times").hook.text = "Total: ÿc0" + this.clock("Total") + "ÿc4 InGame: ÿc0" + this.clock("InGame") + "ÿc4 OOG: ÿc0" + this.clock("OOG");
+			}
+
+			if (Developer.showInGameTimer) {
+				if (!this.getHook("timerboard")) {
+					this.add("timerboard");
+				}
+
+				if (!this.getHook("timerframe")) {
+					this.add("timerframe");
+				}
+
+				if (!this.getHook("InGameTimer")) {
+					this.add("InGameTimer");
+				} else {
+					this.getHook("InGameTimer").hook.text = "In Game Timer: ÿc0" + this.clock("InGameTimer");
+				}
 			}
 
 			if (!this.getHook("level")) {
@@ -375,7 +395,7 @@ var Overlay = {
 			case "credits":
 				this.hooks.push({
 					name: "credits",
-					hook: new Text("SoloLeveling by ÿc0 isidOre", Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 15, 4, 13, 2)
+					hook: new Text("MySoloLeveling by ÿc0 TheBGuy", Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 15, 4, 13, 2)
 				});
 
 				break;
@@ -399,6 +419,27 @@ var Overlay = {
 					name: "resistances",
 					hook: new Text(
 						"FR: ÿc1" + this.getRes("fire") + "ÿc4   CR: ÿc3" + this.getRes("cold") + "ÿc4   LR: ÿc9" + this.getRes("light") + "ÿc4   PR: ÿc2" + this.getRes("poison"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 45, 4, 13, 2)
+				});
+
+				break;
+			case "timerboard":
+				this.hooks.push({
+					name: "timerboard",
+					hook: new Box(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY, 182, 30, 0x0, 1, 2)
+				});
+
+				break;
+			case "timerframe":
+				this.hooks.push({
+					name: "timerframe",
+					hook: new Frame(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY, 182, 30, 2)
+				});
+
+				break;
+			case "InGameTimer":
+				this.hooks.push({
+					name: "InGameTimer",
+					hook: new Text("In Game Timer: ÿc0" + this.clock("InGameTimer"), Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY + 20, 4, 13, 2)
 				});
 
 				break;
