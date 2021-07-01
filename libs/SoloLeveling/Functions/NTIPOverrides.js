@@ -1,6 +1,6 @@
 /*
 *	@filename	NTIPOverrides.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		NTIPItemParser fixes to improve functionality and custom looping for performance
 */
 
@@ -489,6 +489,14 @@ NTIP.ParseLineInt = function (input, info) {
 			let keyword = p_keyword.toLowerCase();
 
 			switch (keyword) {
+			case "invoquantity":
+				value = Number(p_section[i].split("==")[1].match(/\d+/g));
+
+				if (!isNaN(value)) {
+					p_result[2].InvoQuantity = value;
+				}
+
+				break;
 			case "maxquantity":
 				value = Number(p_section[i].split("==")[1].match(/\d+/g));
 
