@@ -658,6 +658,13 @@ Misc.checkItemForSocketing = function () {
 					break;
 				}
 			}
+
+			for (let i = 0; i < items.length; i++) {
+				if (items[i].classid === 29 && items[i].ilvl >= 26 && items[i].ilvl <= 40 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Crystal Sword
+					item = items[i];
+					break;
+				}
+			}
 		} else if (me.diff === 1) {
 			for (let i = 0; i < items.length; i++) {
 				if ([151, 254].indexOf(items[i].classid) > -1 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1 && items[i].getFlag(0x400000)) {	//Eth Bill or Colossus Volgue
@@ -1099,6 +1106,263 @@ Misc.addSocketableToItem = function (item, rune) {
 	}
 
 	return false;
+};
+
+// Log kept item stats in the manager.
+Misc.logItem = function (action, unit, keptLine) {
+	if (!this.useItemLog) {
+		return false;
+	}
+
+	var i;
+
+	if (Config.loaded) { // Don't check for config settings if there's no config loaded	
+		if (!Config.LogKeys && ["pk1", "pk2", "pk3"].indexOf(unit.code) > -1) {
+			return false;
+		}
+
+		if (!Config.LogOrgans && ["dhn", "bey", "mbr"].indexOf(unit.code) > -1) {
+			return false;
+		}
+
+		if (!Config.LogLowRunes && ["r01", "r02", "r03", "r04", "r05", "r06", "r07", "r08", "r09", "r10", "r11", "r12", "r13", "r14"].indexOf(unit.code) > -1) {
+			return false;
+		}
+
+		if (!Config.LogMiddleRunes && ["r15", "r16", "r17", "r18", "r19", "r20", "r21", "r22", "r23"].indexOf(unit.code) > -1) {
+			return false;
+		}
+
+		if (!Config.LogHighRunes && ["r24", "r25", "r26", "r27", "r28", "r29", "r30", "r31", "r32", "r33"].indexOf(unit.code) > -1) {
+			return false;
+		}
+
+		if (!Config.LogLowGems && ["gcv", "gcy", "gcb", "gcg", "gcr", "gcw", "skc", "gfv", "gfy", "gfb", "gfg", "gfr", "gfw", "skf", "gsv", "gsy", "gsb", "gsg", "gsr", "gsw", "sku"].indexOf(unit.code) > -1) {
+			return false;
+		}
+
+		if (!Config.LogHighGems && ["gzv", "gly", "glb", "glg", "glr", "glw", "skl", "gpv", "gpy", "gpb", "gpg", "gpr", "gpw", "skz"].indexOf(unit.code) > -1) {
+			return false;
+		}
+
+		for (i = 0; i < Config.SkipLogging.length; i++) {
+			if (Config.SkipLogging[i] === unit.classid || Config.SkipLogging[i] === unit.code) {
+				return false;
+			}
+		}
+	}
+
+	var lastArea, code, desc, sock, itemObj,
+		color = -1,
+		name = unit.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<:;.*]|\/|\\/g, "").trim();
+
+	desc = this.getItemDesc(unit);
+	color = unit.getColor();
+
+	if (action.match("kept", "i")) {
+		lastArea = DataFile.getStats().lastArea;
+
+		if (lastArea) {
+			desc += ("\n\\xffc0Area: " + lastArea);
+		}
+	}
+
+	let mercCheck = false;
+
+	if (action.match("Merc")) {
+		mercCheck = true;
+	}
+
+	if (!action.match("kept", "i") && !action.match("Shopped") && (NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0)) {
+		if (!mercCheck) {
+			if (NTIP.GetCharmTier(unit) > 0) {
+				desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit));
+			}
+
+			if (NTIP.GetTier(unit) > 0) {
+				desc += ("\n\\xffc0Autoequip char tier: " + NTIP.GetTier(unit));
+			}
+		} else {
+			desc += ("\n\\xffc0Autoequip merc tier: " + NTIP.GetMercTier(unit));
+
+		}
+		
+	}
+
+	if (unit.getFlag(0x10)) {
+		switch (unit.quality) {
+		case 5: // Set
+			switch (unit.classid) {
+			case 27: // Angelic sabre
+				code = "inv9sbu";
+
+				break;
+			case 74: // Arctic short war bow
+				code = "invswbu";
+
+				break;
+			case 308: // Berserker's helm
+				code = "invhlmu";
+
+				break;
+			case 330: // Civerb's large shield
+				code = "invlrgu";
+
+				break;
+			case 31: // Cleglaw's long sword
+			case 227: // Szabi's cryptic sword
+				code = "invlsdu";
+
+				break;
+			case 329: // Cleglaw's small shield
+				code = "invsmlu";
+
+				break;
+			case 328: // Hsaru's buckler
+				code = "invbucu";
+
+				break;
+			case 306: // Infernal cap / Sander's cap
+				code = "invcapu";
+
+				break;
+			case 30: // Isenhart's broad sword
+				code = "invbsdu";
+
+				break;
+			case 309: // Isenhart's full helm
+				code = "invfhlu";
+
+				break;
+			case 333: // Isenhart's gothic shield
+				code = "invgtsu";
+
+				break;
+			case 326: // Milabrega's ancient armor
+			case 442: // Immortal King's sacred armor
+				code = "invaaru";
+
+				break;
+			case 331: // Milabrega's kite shield
+				code = "invkitu";
+
+				break;
+			case 332: // Sigon's tower shield
+				code = "invtowu";
+
+				break;
+			case 325: // Tancred's full plate mail
+				code = "invfulu";
+
+				break;
+			case 3: // Tancred's military pick
+				code = "invmpiu";
+
+				break;
+			case 113: // Aldur's jagged star
+				code = "invmstu";
+
+				break;
+			case 234: // Bul-Kathos' colossus blade
+				code = "invgsdu";
+
+				break;
+			case 372: // Grizwold's ornate plate
+				code = "invxaru";
+
+				break;
+			case 366: // Heaven's cuirass
+			case 215: // Heaven's reinforced mace
+			case 449: // Heaven's ward
+			case 426: // Heaven's spired helm
+				code = "inv" + unit.code + "s";
+
+				break;
+			case 357: // Hwanin's grand crown
+				code = "invxrnu";
+
+				break;
+			case 195: // Nalya's scissors suwayyah
+				code = "invskru";
+
+				break;
+			case 395: // Nalya's grim helm
+			case 465: // Trang-Oul's bone visage
+				code = "invbhmu";
+
+				break;
+			case 261: // Naj's elder staff
+				code = "invcstu";
+
+				break;
+			case 375: // Orphan's round shield
+				code = "invxmlu";
+
+				break;
+			case 12: // Sander's bone wand
+				code = "invbwnu";
+
+				break;
+			}
+
+			break;
+		case 7: // Unique
+			for (i = 0; i < 401; i += 1) {
+				if (unit.code === getBaseStat(17, i, 4).trim() && unit.fname.split("\n").reverse()[0].indexOf(getLocaleString(getBaseStat(17, i, 2))) > -1) {
+					code = getBaseStat(17, i, "invfile");
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+
+	if (!code) {
+		if (["ci2", "ci3"].indexOf(unit.code) > -1) { // Tiara/Diadem
+			code = unit.code;
+		} else {
+			code = getBaseStat(0, unit.classid, 'normcode') || unit.code;
+		}
+
+		code = code.replace(" ", "");
+
+		if ([10, 12, 58, 82, 83, 84].indexOf(unit.itemType) > -1) {
+			code += (unit.gfx + 1);
+		}
+	}
+
+	sock = unit.getItem();
+
+	if (sock) {
+		do {
+			if (sock.itemType === 58) {
+				desc += "\n\n";
+				desc += this.getItemDesc(sock);
+			}
+		} while (sock.getNext());
+	}
+
+	if (keptLine) {
+		desc += ("\n\\xffc0Line: " + keptLine);
+	}
+
+	desc += "$" + (unit.getFlag(0x400000) ? ":eth" : "");
+
+	itemObj = {
+		title: action + " " + name,
+		description: desc,
+		image: code,
+		textColor: unit.quality,
+		itemColor: color,
+		header: "",
+		sockets: this.getItemSockets(unit)
+	};
+
+	D2Bot.printToItemLog(itemObj);
+
+	return true;
 };
 
 Packet.openMenu = function (unit) { // singleplayer delay(0) fix
