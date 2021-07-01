@@ -650,7 +650,7 @@ Misc.checkItemForSocketing = function () {
 	let item;
 	let items = me.getItems();
 
-	if (SetUp.buildCheck().caster) {
+	if (Check.Build().caster) {
 		if (me.diff === 0) {
 			for (let i = 0; i < items.length; i++) {
 				if (items[i].classid === 30 && items[i].ilvl >= 15 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Broad Sword
