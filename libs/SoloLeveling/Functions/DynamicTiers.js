@@ -276,6 +276,12 @@ var tierscore = function (item) {
 	this.buildScore = function (item) {
 		var buildWeights = Check.Build().caster ? casterWeights : meleeWeights;
 
+		if (me.amazon === 0) {
+			if (item.getStatEx(253)) {
+				buildRating += 50;
+			}
+		}
+
 		let buildRating = 0;
 		buildRating += item.getStatEx(105) * buildWeights.FCR; // add FCR
 		buildRating += item.getStatEx(93) * buildWeights.IAS; // add IAS

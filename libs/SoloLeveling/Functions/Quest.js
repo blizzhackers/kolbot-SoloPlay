@@ -408,62 +408,211 @@ var Quest = {
 		return true;
 	},
 
-	holePunch: function (itemID) {
-		if (me.classic || !Misc.checkQuest(35, 1)) { // not expansion || used larzuk reward
-			return true;
+	//Credit dzik or laz unsure who for this
+	useSocketQuest: function (item) {
+		var larzuk, slot, invo, i, items;
+			
+		if (!item || item === undefined || item.mode === 3) { //No item
+			print("ÿc9SoloLevelingÿc0: No item");
+			return false;
 		}
-
-		let selected = me.getItems(itemID)
-			.filter(item =>
-				item.classid === itemID //
-				&& item.getStat(194) === 0 //no sockets
-				&& (item.quality === 2 || item.quality === 3) // Normal, Superior only
-				&& [3, 7].indexOf(item.location) > -1 // Needs to be on either of these locations
-			)
-			.sort((a, b) => a.location - b.location) // Sort on location, low to high. So if you have one already equiped, it comes first
-			.first();
-
-		if (selected) {
-			if (!Storage.Inventory.CanFit(selected)) { // not able to keep
-
+			
+		if (!me.getQuest(35, 1)) { //Quest not available
+			print("ÿc9SoloLevelingÿc0: Quest unavailable");
+			return false;
+		}
+			
+		if (item.getStat(194) > 0 || getBaseStat("items", item.classid, "gemsockets") === 0) { //Item can't be socketed
+			print("ÿc9SoloLevelingÿc0:Item cannot be socketed");
+			return false;
+		}
+			
+		if (!isIncluded("common/Storage.js")) {
+			include("common/Storage.js");
+		}
+			
+		if (!isIncluded("common/Town.js")) {
+			include("common/Town.js");
+		}
+			
+		if (!Storage.Inventory.CanFit(item)) { //No space to get the item back
+			print("ÿc9SoloLevelingÿc0: No space to get item back");
+			return false;
+		}
+			
+		if (me.act !== 5 || !me.inTown) {
+			if (!Town.goToTown(5)) {
+				print("ÿc9SoloLevelingÿc0:Failed to go to act 5");
 				return false;
 			}
-
-			if (selected.location === 7 && Storage.Inventory.CanFit(selected)) { //move selected to inventory
-				Town.move('stash');
-				Storage.Inventory.MoveTo(selected);
-				me.cancel;
-			}
-
-			me.overhead("hole punch");
-
-			//socket item
-			Town.goToTown(5);
-			Town.npcInteract("larzuk");
-			delay(10 + me.ping * 2);
-
-			if (!Misc.useMenu(0x58DC)) {
+		}
+			
+		if (item.location === 7) {
+			Town.openStash();
+			if (!Storage.Inventory.MoveTo(item)) {
+				print("ÿc9SoloLevelingÿc0: Failed to move item from stash to inventory");
 				return false;
 			}
-
-			selected.toCursor();
-			submitItem();
-			delay(500 + me.ping);
-			selected = false; //reset item gid
-			selected = me.findItem(itemID, 0, 3);
-
-			if (selected) {
-				if (Storage.Stash.CanFit(selected)) { //move selected back to stash
-					Town.move('stash');
-					Storage.Stash.MoveTo(selected);
-					me.cancel;
-					print('ÿc9SoloLevelingÿc0: used hole punch on ' + selected.name);
-
-					return true;
-				}
+		}
+			
+		invo = me.findItems(-1, 0, 3);
+		slot = item.bodylocation;
+			
+		for (i = 0; i < invo.length; i++) { //Take note of all the items in the invo minus the item to socket
+			if (item.gid !== invo[i].gid) {
+				invo[i] = invo[i].x + "/" + invo[i].y;
 			}
 		}
+			
+		for (i = 0; i < 3; i++) {
+			larzuk = getUnit(1, "Larzuk");
+				
+			if (larzuk) {
+				break;
+			} else {
+				Town.move("stash");
+			}
+		}
+			
+		if (!larzuk) {
+			print("ÿc9SoloLevelingÿc0: Couldn't find larzuk");
+			return false;
+		}			
+			
+		if (!item.toCursor()) {
+			print("ÿc9SoloLevelingÿc0: Couldn't get item");
+			return false;
+		}
+			
+		sendPacket(1, 0x38, 4, 0x00, 4, larzuk.gid, 4, item.gid);
+		delay(500 + me.ping);
+		sendPacket(1, 0x40);
+			
+		item = false; //Delete item reference, it's not longer valid anyway
+		items = me.findItems(-1, 0, 3);
+			
+		for (i = 0; i < items.length; i++) {
+			if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {
+				item = items[i];
+			}
+		}
+			
+		if (!item || item.getStat(194) === 0) {
+			print("Failed to socket item");
+			return false;
+		}
 
-		return false;
+		let diffSting = ['Normal', 'Nightmare', 'Hell'][me.diff];	
+		Misc.logItem("Used my " + diffSting + " socket quest on : ", item);
+
+		if (slot) {
+			Item.equip(item, slot);
+		}
+		
+		return true;
+	},
+
+	//Credit whoever did useSocketQuest, I modified that to come up with this
+	useImbueQuest: function (item) {
+		var charsi, slot, invo, i, items;
+			
+		if (!item || item === undefined || item.mode === 3) { //No item
+			print("ÿc9SoloLevelingÿc0: No item");
+			return false;
+		}
+			
+		if (!Misc.checkQuest(3, 1)) { //Quest not available
+			print("ÿc9SoloLevelingÿc0: Quest not done yet");
+			return false;
+		}
+			
+		if (item.getStat(194) > 0 || item.quality > 3) { //Item can't be imbued
+			print("ÿc9SoloLevelingÿc0:Item cannot be imbued");
+			return false;
+		}
+			
+		if (!isIncluded("common/Storage.js")) {
+			include("common/Storage.js");
+		}
+			
+		if (!isIncluded("common/Town.js")) {
+			include("common/Town.js");
+		}
+			
+		if (!Storage.Inventory.CanFit(item)) { //No space to get the item back
+			print("ÿc9SoloLevelingÿc0: No space to get item back");
+			return false;
+		}
+			
+		if (me.act !== 1 || !me.inTown) {
+			if (!Town.goToTown(1)) {
+				print("ÿc9SoloLevelingÿc0:Failed to go to act 1");
+				return false;
+			}
+		}
+			
+		if (item.location === 7) {
+			Town.openStash();
+			if (!Storage.Inventory.MoveTo(item)) {
+				print("ÿc9SoloLevelingÿc0: Failed to move item from stash to inventory");
+				return false;
+			}
+		}
+			
+		invo = me.findItems(-1, 0, 3);
+		slot = item.bodylocation;
+			
+		for (i = 0; i < invo.length; i++) { //Take note of all the items in the invo minus the item to imbue
+			if (item.gid !== invo[i].gid) {
+				invo[i] = invo[i].x + "/" + invo[i].y;
+			}
+		}
+			
+		for (i = 0; i < 3; i++) {
+			charsi = getUnit(1, NPC.Charsi);
+				
+			if (charsi) {
+				break;
+			} else {
+				Town.move("stash");
+			}
+		}
+			
+		if (!charsi) {
+			print("ÿc9SoloLevelingÿc0: Couldn't find charsi");
+			return false;
+		}
+
+		if (!item.toCursor()) {
+			print("ÿc9SoloLevelingÿc0: Couldn't get item");
+			return false;
+		}
+			
+		sendPacket(1, 0x38, 4, 0x00, 4, charsi.gid, 4, item.gid);
+		delay(500 + me.ping);
+		sendPacket(1, 0x40);
+			
+		item = false; //Delete item reference, it's not longer valid anyway
+		items = me.findItems(-1, 0, 3);
+			
+		for (i = 0; i < items.length; i++) {
+			if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {
+				item = items[i];
+			}
+		}
+			
+		if (!item || item.quality !== 6) {
+			print("Failed to imbue item");
+			return false;
+		}
+
+		let diffSting = ['Normal', 'Nightmare', 'Hell'][me.diff];	
+		Misc.logItem("Used my " + diffSting + " imbue quest on : ", item);
+
+		if (slot) {
+			Item.equip(item, slot);
+		}
+		
+		return true;
 	},
 };

@@ -642,6 +642,266 @@ Misc.gamePacket = function (bytes) {// various game events
 	}
 };
 
+Misc.checkItemForSocketing = function () {
+	if (me.gametype === 0 || !me.getQuest(35, 1)) {
+		return false;
+	}
+
+	let item;
+	let items = me.getItems();
+
+	if (SetUp.buildCheck().caster) {
+		if (me.diff === 0) {
+			for (let i = 0; i < items.length; i++) {
+				if (items[i].classid === 30 && items[i].ilvl >= 15 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Broad Sword
+					item = items[i];
+					break;
+				}
+			}
+		} else if (me.diff === 1) {
+			for (let i = 0; i < items.length; i++) {
+				if ([151, 254].indexOf(items[i].classid) > -1 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1 && items[i].getFlag(0x400000)) {	//Eth Bill or Colossus Volgue
+					item = items[i];
+					break;
+				}
+			}
+		} else if (me.classid === 1) {	//Sorc uses tal helm
+			for (let i = 0; i < items.length; i++) {
+				if (items[i].classid === 358 && items[i].getStat(194) === 0 && items[i].quality === 5) {	//Tal Helm
+					item = items[i];
+					break;
+				}
+			}
+		} else if (me.classid === 5) {	//Druid uses Jalal's
+			for (let i = 0; i < items.length; i++) {
+				if (items[i].classid === 472 && items[i].getStat(194) === 0 && items[i].quality === 5) {	//Jalal's
+					item = items[i];
+					break;
+				}
+			}
+		} else {						//Otherwise Shako
+			for (let i = 0; i < items.length; i++) {
+				if (items[i].classid === 422 && items[i].getStat(194) === 0 && items[i].quality === 7) {	//Shako
+					item = items[i];
+					break;
+				}
+			}
+		}
+	} else {	
+		if (me.classid === 0) {		//Amazon
+			if (me.diff === 0) {
+				for (let i = 0; i < items.length; i++) {
+					if (items[i].classid === 151 && items[i].ilvl >= 25 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Bill
+						item = items[i];
+						break;
+					}
+				}
+			} else if (me.diff === 1) {
+				for (let i = 0; i < items.length; i++) {
+					if ([151, 254].indexOf(items[i].classid) > -1 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1 && items[i].getFlag(0x400000)) {	//Eth Bill or Colossus Volgue
+						item = items[i];
+						break;
+					}
+				}
+			} else {
+				for (let i = 0; i < items.length; i++) {
+					if (items[i].classid === 422 && items[i].getStat(194) === 0 && items[i].quality === 7) {	//Shako
+						item = items[i];
+						break;
+					}
+				}
+			}	
+		}
+
+		if (me.classid === 4) {		//Barbarian
+			if (me.diff === 0) {
+				if (!haveItem("scepter", "runeword", "Honor")) {
+					for (let i = 0; i < items.length; i++) {
+						if (items[i].classid === 17 && items[i].ilvl >= 21 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+							item = items[i];
+							break;
+						}
+					}
+				} else {
+					for (let i = 0; i < items.length; i++) {
+						if (items[i].classid === 477 && items[i].getStat(194) === 0 && items[i].quality === 7) {	//Arreat's
+							item = items[i];
+							break;
+						}
+					}
+				}
+			}		
+		}
+		
+	}
+
+	return item;
+};
+
+Misc.addSocketables = function () {
+	let item;
+	let items = me.getItems();
+
+	for (let i = 0; i < items.length; i++) {
+		if (items[i].classid === 422 && items[i].getStat(194) === 1 && items[i].quality === 7 && !items[i].getItem()) {	//Shako
+			item = items[i];
+			break;
+		}
+
+		if (items[i].classid === 477 && items[i].getStat(194) === 1 && items[i].quality === 7 && !items[i].getItem()) {	//Arreats
+			item = items[i];
+			break;
+		}
+
+		if (items[i].classid === 472 && items[i].getStat(194) === 1 && items[i].quality === 7 && !items[i].getItem()) {	//Jalal's
+			item = items[i];
+			break;
+		}
+
+		if (items[i].classid === 358 && items[i].getStat(194) === 1 && items[i].quality === 5 && !items[i].getItem()) {	//Tal Helm
+			item = items[i];
+			break;
+		}
+
+		if (items[i].classid === 427 && items[i].getStat(194) >= 1 && items[i].quality === 7 && !items[i].getItem()) {	//Crown of Ages
+			item = items[i];
+			break;
+		}
+
+		if (items[i].classid === 375 && items[i].getStat(194) >= 1 && items[i].quality === 7 && !items[i].getItem()) {	//Moser's
+			item = items[i];
+			break;
+		}
+	}
+
+	if (item) {
+		let socketable;
+		let multiple = [];
+		let ready = false; 
+
+		for (let i = 0; i < items.length; i++) {
+			if (items[i].classid === 631 && [422, 472, 358].indexOf(item.classid) > -1) {	//Um Rune and Shako, Jalal's, Tal Helm
+				socketable = items[i];
+				break;
+			}
+
+			if (items[i].classid === 641 && item.classid === 477) {	//Cham Rune and Arreat's
+				socketable = items[i];
+				break;
+			}
+
+			if (items[i].classid === 631 && item.classid === 427 && multiple.indexOf(items[i]) === -1) {	//Um Rune and CoA
+				if (item.getStat(194) === 2) {
+					if (multiple.length < item.getStat(194)) {
+						multiple.push(items[i]);
+						continue;
+					} else {
+						ready = true;
+						break;
+					}	
+				} else {
+					socketable = items[i];
+					break;
+				}	
+			}
+
+			if (items[i].classid === 586 && item.classid === 375 && multiple.indexOf(items[i]) === -1) {	//P-diamond to Moser's
+				if (item.getStat(194) === 2) {
+					if (multiple.length < item.getStat(194)) {
+						multiple.push(items[i]);
+						continue;
+					} else {
+						ready = true;
+						break;
+					}	
+				} else {
+					socketable = items[i];
+					break;
+				}	
+			}
+		}
+
+		if (socketable) {
+			if (Misc.addSocketableToItem(item, socketable)) {
+				D2Bot.printToConsole("Added socketable: " + socketable.fname + " to " + item.fname, 6);
+			} else {
+				print("Failed to add socketable to item");
+			}
+			
+		}
+
+		if (multiple.length > 0 && ready) {
+			for (let i = 0; i < multiple.length; i++) {
+				if (Misc.addSocketableToItem(item, multiple[i])) {
+					D2Bot.printToConsole("Added socketable: " + multiple[i].fname + " to " + item.fname, 6);
+					delay(250 + me.ping);
+				} else {
+					print("Failed to add socketable to item");
+				}
+			}
+		}
+	}
+};
+
+Misc.addSocketableToItem = function (item, rune) {
+	if (item.getStat(194) === 0) {
+		return false;
+	}
+
+	if (item.mode === 1) {
+		let i, tick, bodyLoc = item.bodylocation;
+
+		if (!Storage.Inventory.CanFit(item)) { //No space to get the item back
+			print("No space to get item back");
+			return false;
+		} else {
+			if(!Storage.Inventory.MoveTo(item)) {
+				return false;
+			}	
+		}
+
+		if (!rune.toCursor()) {
+			return false;
+		}
+
+		for (i = 0; i < 3; i += 1) {
+			sendPacket(1, 0x28, 4, rune.gid, 4, item.gid);
+
+			tick = getTickCount();
+
+			while (getTickCount() - tick < 2000) {
+				if (!me.itemoncursor) {
+					delay(300);
+
+					break;
+				}
+
+				delay(10);
+			}
+
+			if (item.getItem()) {
+				Misc.logItem("Added " + rune.name + " to: ", item);
+
+				if (bodyLoc) {
+					Item.equip(item, bodyLoc);
+				} 
+
+				return true;	
+			}
+		}
+
+		return false;
+	} else {
+		if (Runewords.socketItem(item, rune)) {
+			Misc.logItem("Added " + rune.name + " to: ", item);
+			return true;
+		}
+			
+	}
+
+	return false;
+};
+
 Packet.openMenu = function (unit) { // singleplayer delay(0) fix
 	if (unit.type !== 1) {
 		throw new Error("openMenu: Must be used on NPCs.");
