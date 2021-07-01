@@ -245,8 +245,17 @@ function LoadConfig () {
 				];
 				NTIP.arrayLooping(Inf);
 
-				if (!me.getItem(639)) {
-					Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // sur to ber
+				if (!me.getItem(639)) {		// Ber Rune
+					if (Check.haveItem("sword", "runeword", "Call To Arms")) {
+						Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
+						Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
+						Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
+						Config.Recipes.push([Recipe.Rune, "Vex Rune"]); // Vex to Ohm
+						Config.Recipes.push([Recipe.Rune, "Ohm Rune"]); // Ohm to Lo
+					}
+
+					Config.Recipes.push([Recipe.Rune, "Lo Rune"]); // Lo to Sur
+					Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // Sur to Ber
 				}
 
 				Config.Recipes.push([Recipe.Socket.Weapon, "Giant Thresher"]);
@@ -284,12 +293,24 @@ function LoadConfig () {
 					"[Name] == UmRune",
 					"[Name] == BerRune",
 					"[Name] == IstRune",
-					"([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # ([Sockets] == 0 || [Sockets] == 4) # [MaxQuantity] == 1",
 				];
 				NTIP.arrayLooping(CoH);
 
-				if (!me.getItem(639)) {
-					Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // sur to ber
+				if (!me.getItem(639)) {		// Ber Rune
+					if (Check.haveItem("sword", "runeword", "Call To Arms")) {
+						Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
+						Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
+						Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
+						Config.Recipes.push([Recipe.Rune, "Vex Rune"]); // Vex to Ohm
+						Config.Recipes.push([Recipe.Rune, "Ohm Rune"]); // Ohm to Lo
+					}
+
+					Config.Recipes.push([Recipe.Rune, "Lo Rune"]); // Lo to Sur
+					Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // Sur to Ber
+				}
+
+				if (me.getItem(639)) {
+					NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # ([Sockets] == 0 || [Sockets] == 4) # [MaxQuantity] == 1");
 				}
 
 				Config.Recipes.push([Recipe.Socket.Armor, "Archon Plate", Roll.NonEth]);
@@ -345,6 +366,15 @@ function LoadConfig () {
 
 			if (me.getItem(636)) { // have Ohm before collecting base
 				NTIP.addLine("[Name] == CrystalSword && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 5 # [MaxQuantity] == 1");
+			}
+
+			if (!me.getItem(632)) {
+				Config.Recipes.push([Recipe.Rune, "Um Rune"]); // Um to Mal
+			}
+
+			if (!me.getItem(636)) { // Ohm Rune
+				Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
+				Config.Recipes.push([Recipe.Rune, "Vex Rune"]); // Vex to Ohm
 			}
 
 			Config.Runewords.push([Runeword.CallToArms, "Crystal Sword"]);
@@ -548,7 +578,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[Type] == armor # [ias] == 45 && [coldresist] == 30");
 		}
 
-		if (Item.getEquippedItem(3).tier < 634) { // Smoke
+		if (Item.getEquippedItem(3).tier < 450) { // Smoke
 			if (!Check.haveItem("armor", "runeword", "Smoke") && !me.hell) {
 				if (!me.getItem(626)) { // Cube to Lum Rune
 					Config.Recipes.push([Recipe.Rune, "Io Rune"]); // cube Io to Lum
