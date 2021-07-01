@@ -564,6 +564,12 @@ Town.unfinishedQuests = function () {
 		Town.npcInteract("charsi");
 	}
 
+	let imbueItem = Misc.checkItemForImbueing();
+	if (imbueItem) {
+		Quest.useImbueQuest(imbueItem);
+		Item.autoEquip();
+	}
+
 	if (leg) { // drop wirts leg at startup to avoid selling and d/c
 		Town.goToTown(1);
 
@@ -663,19 +669,12 @@ Town.unfinishedQuests = function () {
 	}
 
 	//Act 5
-	if (!Item.getEquippedItemMerc(3).prefixnum === 20568 && me.getItem(58)) { // Larzuk reward
-		Quest.holePunch(58); // insight voulge
+	let socketItem = Misc.checkItemForSocketing();
+	if (socketItem) {
+		Quest.useSocketQuest(socketItem);
 	}
 
-	if (!Check.haveItem("sword", "runeword", "Spirit") && (me.getItem(29) || me.getItem(30))) {
-		if (me.getItem(29)) { // spirit crystal sword
-			Quest.holePunch(29);
-		}
-
-		if (me.getItem(30)) { // spirit broad sword
-			Quest.holePunch(30);
-		}
-	}
+	Misc.addSocketables();
 
 	if (me.getItem(646)) {
 		let sor = me.getItem(646);
