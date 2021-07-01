@@ -3,6 +3,7 @@
 ## What is this?
 This is my version of SoloLeveling forked from the master branch on 6/30/2021. Everything from then on is my code.
 
+## About SoloLeveling
 SoloLeveling is an automated leveling script for any Diablo 2 characters using Kolbot. The overall goal of the project is to be the easiest and fastest leveling script for any character class.
 
 **NOTE:** This script is designed to be only run from [https://github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot). Most errors occur from using the wrong Kolbot repo installation. 
