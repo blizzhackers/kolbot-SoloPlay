@@ -354,6 +354,10 @@ function LoadConfig () {
 			break;
 		}
 
+		if (Check.haveItem("shield", "unique", "Moser's Blessed Circle")) {
+			Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
+		}
+
 		if (!Check.haveItem("sword", "runeword", "Call To Arms")) {
 			var CTA = [
 				"[Name] == AmnRune # # [MaxQuantity] == 1",
