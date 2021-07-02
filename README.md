@@ -18,8 +18,6 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 
 **NOTE:** This script is designed to be only run from [https://github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot). Most errors occur from using the wrong Kolbot repo installation. 
 
-If you enjoy using SoloLeveling consider supporting me at [buymeacoffee.com/isid0re](https://www.buymeacoffee.com/isid0re).
-
 ## Features
 - Operates in Hell difficulty within 24 hours
 - Includes character build options for final respec
