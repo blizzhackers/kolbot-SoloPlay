@@ -1,4 +1,4 @@
-![SoloLeveling](https://i.imgur.com/6UMDGFk.png)
+![image](https://user-images.githubusercontent.com/60308670/124204971-36979300-daae-11eb-84e1-5c424dc36578.png)
 
 ## What is this?
 This is my version of SoloLeveling forked from the master branch on 6/30/2021. Everything from then on is my code.
@@ -31,6 +31,10 @@ If you enjoy using SoloLeveling consider supporting me at [buymeacoffee.com/isid
 **Q: Why isn't the bot making the build I selected?**
 
 **A:** The bot follows a set build progression. As it progresses, it will respecialize 2 times transitioning from a start build to a leveling build, ending at the selected finalbuild.
+
+**Q: When will the bot change to the final build I selected?**
+
+**A:** In classic the bot will switch to the final build based on level. In expansion it transitions to the final build when final gear requirements are met.
 
 **Q: The bot has beaten diablo (classic) / baal, so why isn't moving on to the next difficulty?**
 
