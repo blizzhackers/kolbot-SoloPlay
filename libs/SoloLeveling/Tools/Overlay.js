@@ -82,7 +82,7 @@ var Overlay = {
 			if (!this.getHook("credits")) {
 				this.add("credits");
 			} else {
-				this.getHook("credits").hook.text = "MySoloLeveling by ÿc0 theBGuy";
+				this.getHook("credits").hook.text = "GuysSoloLeveling by ÿc0 theBGuy";
 			}
 
 			if (!this.getHook("times")) {
@@ -395,7 +395,7 @@ var Overlay = {
 			case "credits":
 				this.hooks.push({
 					name: "credits",
-					hook: new Text("MySoloLeveling by ÿc0 theBGuy", Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 15, 4, 13, 2)
+					hook: new Text("GuysSoloLeveling by ÿc0 theBGuy", Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 15, 4, 13, 2)
 				});
 
 				break;
