@@ -8,7 +8,7 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 ## Statistics
 | Level | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
 |:------:|:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
-| 1-80 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
+| 1-80 | N/A | N/A | N/A | N/A | N/A | 36h | N/A |
 | 1-90 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
 | 1-95 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
 | 1-99 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
