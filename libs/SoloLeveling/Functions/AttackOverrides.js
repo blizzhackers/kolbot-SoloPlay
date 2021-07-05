@@ -71,12 +71,13 @@ Attack.killTarget = function (name) {
 		attackCount += 1;
 		ClassAttack.afterAttack();
 
-		if ( !target || !copyUnit(target).x || target.dead) {
+		// spectype check from isid0re SoloLeveling commit 44d25cb
+		if ( !target || !copyUnit(target).x || target.dead || target.spectype === 0) {
 			break;
 		}
 	}
 
-	if ( !target || !copyUnit(target).x || target.dead) {
+	if ( !target || !copyUnit(target).x || target.dead || target.spectype === 0) {
 		Pickit.pickItems();
 	}
 

@@ -140,6 +140,8 @@ var Merc = {
 						break;
 					}
 				}
+				
+				delay(500 + me.ping);
 			}
 		}
 

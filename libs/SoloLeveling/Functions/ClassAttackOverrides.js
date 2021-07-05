@@ -1,6 +1,6 @@
 /*
 *	@filename	ClassAttackOverides.js
-*	@author		isid0re
+*	@author		theBGuy, isid0re
 *	@desc		fixes to improve class attack functionality per class
 */
 
@@ -294,8 +294,10 @@ case 2: // Necromancer
 		case 433: // Barricade Door
 		case 434: // Prison Door
 		case 435: // Barricade Tower
+		case 499: // Catapult
 		case 524: // Barricade Wall Right
 		case 525: // Barricade Wall Left
+		case 563: // Festering Appendages
 		case 528: // Evil Demon Hut
 		case 681: // maggotegg1 (WSK)
 			return false;

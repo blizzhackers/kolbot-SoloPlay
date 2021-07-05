@@ -871,6 +871,7 @@ function locationAction (location) {
 		if (connectFail) {
 			ControlAction.timeoutDelay("Unable to Connect", StarterConfig.UnableToConnectDelay * 6e4);
 
+			ControlAction.click(6, 335, 412, 128, 35);
 			connectFail = false;
 		}
 

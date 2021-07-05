@@ -52,25 +52,22 @@ Pickit.checkItem = function (unit) {
 		};
 	}
 
-	if (NTIP.GetTier(unit) > 0 && [603, 604, 605].indexOf(unit.classid) !== -1 && !unit.getFlag(0x10)) {
+	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0) && !unit.getFlag(0x10)) {
 		return {
 			result: -1,
 			line: null
 		};
 	}
 
-	if (NTIP.GetCharmTier(unit) > 0 && [603, 604, 605].indexOf(unit.classid) !== -1 && unit.getFlag(0x10)) {
-		return {
-			result: NTIP.CheckItem(unit),
-			line: "Autoequip CharmTier: " + NTIP.GetTier(unit)
-		};
-	}
+	if ([603, 604, 605].indexOf(unit.classid) > -1 && unit.getFlag(0x10)) {
+		if (Item.autoEquipCharmCheck(unit) && NTIP.GetCharmTier(unit) > 0) {
+			return {
+				result: 1,
+				line: "Inventory charm tier: " + NTIP.GetCharmTier(unit)
+			};
+		}
 
-	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0) && !unit.getFlag(0x10)) {
-		return {
-			result: -1,
-			line: null
-		};
+		return NTIP.CheckItem(unit, NTIP_CheckListNoTier, true);	
 	}
 
 	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0) && unit.getFlag(0x10)) {
@@ -208,6 +205,7 @@ Pickit.pickItems = function () {
 Pickit.pickItem = function (unit, status, keptLine) {
 	function ItemStats (unit) {
 		this.ilvl = unit.ilvl;
+		this.sockets = unit.getStat(194);
 		this.type = unit.itemType;
 		this.classid = unit.classid;
 		this.name = unit.name;
@@ -319,7 +317,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 
 		switch (status) {
 		case 1:
-			print("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (keptLine ? ") (" + keptLine + ")" : ")"));
+			print("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (stats.sockets > 0 ? ") (sockets " + stats.sockets : "") + (keptLine ? ") (" + keptLine + ")" : ")"));
 
 			if (this.ignoreLog.indexOf(stats.type) === -1) {
 				Misc.itemLogger("Kept", item);

@@ -13,7 +13,7 @@ var build = {
 	mercAuraWanted: 108,
 	mercDiff: 0,
 	stats: [
-		["strength", 48], ["vitality", 165], ["strength", 61], ["vitality", 252], ["strength", 156], ["vitality", "all"]
+		["strength", 48], ["dexterity", 35], ["vitality", 165], ["strength", 61], ["vitality", 252], ["strength", 156], ["vitality", "all"]
 	],
 	skills: [
 		[221, 1, false], //Raven

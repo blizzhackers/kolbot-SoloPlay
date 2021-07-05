@@ -94,3 +94,31 @@ var Runeword = {
 
 	Test: [624, 624, 624]
 };
+
+Runewords.getBase = function (runeword, base, ethFlag, reroll) {
+	var item;
+
+	if (typeof base === "object") {
+		item = base;
+	} else {
+		item = me.getItem(base, 0);
+	}
+
+	if (item) {
+		do {
+			if (item && item.quality < 4 && item.getStat(194) === runeword.length) {
+				/* check if item has items socketed in it
+					better check than getFlag(0x4000000) because randomly socketed items return false for it
+				*/
+
+				if ((!reroll && !item.getItem() && Town.betterBaseThanWearing(item)) || (reroll && item.getItem() && !NTIP.CheckItem(item, this.pickitEntries))) {
+					if (!ethFlag || (ethFlag === 1 && item.getFlag(0x400000)) || (ethFlag === 2 && !item.getFlag(0x400000))) {
+						return copyUnit(item);
+					}
+				}
+			}
+		} while (typeof base !== "object" && item.getNext());
+	}
+
+	return false;
+};

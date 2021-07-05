@@ -220,7 +220,9 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 84, -1, 84, -1, -1, -1];
+			if (me.getSkill(84, 1) > 0) {
+				Config.AttackSkill = [-1, 84, -1, 84, -1, -1, -1];
+			}
 		}
 	},
 
@@ -228,7 +230,9 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 84, -1, 84, -1, -1, -1];
+			if (me.getSkill(84, 1) > 0) {
+				Config.AttackSkill = [-1, 84, -1, 84, -1, -1, -1];
+			}
 		}
 	},
 

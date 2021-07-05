@@ -7,13 +7,13 @@
 var build = {
 	caster: true,
 	skillstab: 17, //bone
-	wantedskills: [93, 84], // bonespirit, bonespear
-	usefulskills: [66, 68, 87], //ampdamage, bone armor, decrepify
+	wantedskills: [93, 84, 67], // bonespirit, bonespear, teeth
+	usefulskills: [66, 68, 87, 78, 88], //ampdamage, bone armor, decrepify, bone wall, bone prison
 	mercAuraName: "Might",
 	mercAuraWanted: 98,
 	mercDiff: 1,
 	stats: [
-		["strength", 48], ["vitality", 165], ["strength", 61], ["vitality", 252], ["strength", 156], ["vitality", "all"]
+		["strength", 48], ["dexterity", 35], ["vitality", 165], ["strength", 61], ["vitality", 252], ["strength", 156], ["vitality", "all"]
 	],
 	skills: [
 		[66, 1], // amplified damage
@@ -52,6 +52,8 @@ var build = {
 		//rings
 		"[name] == ring && [quality] == unique # [maxhp] >= 40 && [magicdamagereduction] >= 12 # [tier] == 99000", // dwarfstar
 		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", //soj
+		//Charms
+		"[name] == grandcharm && [quality] == magic # [poisonandboneskilltab] == 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		//merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000",	//Eth Andy's

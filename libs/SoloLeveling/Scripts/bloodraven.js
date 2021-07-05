@@ -36,5 +36,11 @@ function bloodraven () {
 
 	Attack.clearLevel();
 
+	if (me.hell && me.charlvl >= 80 && me.charlvl <= 85 && ((me.sorceress || me.druid || me.assassin) && Item.getEquippedItem(4).tier < 100000)) {
+		me.overhead("crypt");
+		Pather.journeyTo(18);
+		Attack.clearLevel();
+	}
+
 	return true;
 }

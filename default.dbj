@@ -42,7 +42,7 @@ function main () {
 
 	if (getScript("d2botmap.dbj")) {
 		load("tools/mapthread.js");
-		load("tools/toolsthread.js");
+		load("tools/maptoolsthread.js");
 		Config.init(true);
 		LocalChat.init();
 
@@ -63,8 +63,12 @@ function main () {
 		}
 	}
 	
+	if (getScript("D2BotShopDrop.dbj")) {
+		return true;
+	}
+	
 	// don't load default for dropper/mules
-	if (getScript("D2BotMule.dbj")) {
+	if (getScript("D2BotDropper.dbj") || getScript("D2BotMule.dbj") || getScript("D2BotDrop.dbj")) {
 		while(true) {
 			try {
 				if (me.area === 2) {
@@ -196,12 +200,20 @@ function main () {
 		}
 
 		load("libs/SoloLeveling/Tools/ToolsThread.js");
+
+		if (Config.TownCheck || Config.TownHP || Config.TownMP) {
+			if (FileTools.exists("libs/SoloLeveling/Tools/TownChicken.js")) {
+				load("libs/SoloLeveling/Tools/TownChicken.js");
+			} else {
+				load("tools/TownChicken.js");
+			}
+		}
 	} else {
 		load("tools/ToolsThread.js");
-	}
 
-	if (Config.TownCheck || Config.TownHP || Config.TownMP) {
-		load("tools/TownChicken.js");
+		if (Config.TownCheck || Config.TownHP || Config.TownMP) {
+			load("tools/TownChicken.js");
+		}
 	}
 
 	if (Config.PublicMode) {
@@ -230,7 +242,7 @@ function main () {
 			Town.clearInventory();
 		}
 
-		//Pickit.pickItems();
+		Pickit.pickItems();
 	}
 
 	me.automap = Config.AutoMap;

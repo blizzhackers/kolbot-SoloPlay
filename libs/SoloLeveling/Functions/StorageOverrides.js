@@ -208,7 +208,7 @@ var Container = function (name, width, height, location) {
 			}
 		}
 
-		this.Dump();
+		//this.Dump();
 
 		return true;
 	};

@@ -1,6 +1,7 @@
 /*
 *	@filename	MiscOverrides.js
-*	@author		isid0re
+*	@author		theBGuy
+*	@credits	isid0re
 *	@desc		Misc.js fixes to improve functionality and Merc Hiring/Autoequip
 */
 
@@ -15,7 +16,11 @@ if (!isIncluded("SoloLeveling/Tools/Developer.js")) {
 // Cast a skill on self, Unit or coords. Always use packet casting for caster skills becasue it's more stable.
 if (Developer.forcePacketCasting) {
 	Skill.cast = function (skillId, hand, x, y, item) {
-		var casterSkills = [36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 67, 84, 87, 92, 93, 101, 112, 121, 130, 137, 138, 146, 149, 154, 155, 225, 229, 230, 234, 240, 244, 245, 249, 250, 251, 256, 261, 262, 271, 276];
+		var casterSkills = [36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 84, 87, 92, 93, 101, 112, 121, 130, 137, 138, 146, 149, 154, 155, 225, 229, 230, 234, 240, 244, 249, 250, 251, 256, 261, 262, 271, 276];
+
+		if (me.realm) {
+			casterSkills += [67, 245];
+		}
 
 		if (me.inTown && !this.townSkill(skillId)) {
 			return false;
@@ -435,6 +440,11 @@ Misc.openChests = function (range) {
 				unitList.push(copyUnit(unit));
 			}
 
+			// Open evil urns for their champion packs but only after baal has been completed. Better chance to be able to handle the pack without dying
+			if (unit.name && getDistance(me.x, me.y, unit.x, unit.y) <= range && unit.name.toLowerCase() === "evilurn" && me.baal) {
+				unitList.push(copyUnit(unit));
+			}
+
 		} while (unit.getNext());
 	}
 
@@ -643,7 +653,7 @@ Misc.gamePacket = function (bytes) {// various game events
 };
 
 Misc.checkItemForSocketing = function () {
-	if (me.gametype === 0 || !me.getQuest(35, 1)) {
+	if (me.classic || !me.getQuest(35, 1)) {
 		return false;
 	}
 
@@ -652,34 +662,47 @@ Misc.checkItemForSocketing = function () {
 
 	if (Check.Build().caster) {
 		if (me.diff === 0) {
+			//Broad Sword
 			for (let i = 0; i < items.length; i++) {
-				if (items[i].classid === 30 && items[i].ilvl >= 15 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Broad Sword
+				if (items[i].classid === 30 && items[i].ilvl >= 26 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 					item = items[i];
 					break;
 				}
 			}
 
+			//Crystal Sword
 			for (let i = 0; i < items.length; i++) {
-				if (items[i].classid === 29 && items[i].ilvl >= 26 && items[i].ilvl <= 40 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Crystal Sword
+				if (items[i].classid === 29 && items[i].ilvl >= 26 && items[i].ilvl <= 40 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 					item = items[i];
 					break;
 				}
 			}
 		} else if (me.diff === 1) {
+			//Eth Bill or Colossus Volgue
 			for (let i = 0; i < items.length; i++) {
-				if ([151, 254].indexOf(items[i].classid) > -1 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1 && items[i].getFlag(0x400000)) {	//Eth Bill or Colossus Volgue
+				if ([151, 254].indexOf(items[i].classid) > -1 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1 && items[i].getFlag(0x400000)) {
 					item = items[i];
 					break;
 				}
 			}
-		} else if (me.classid === 1) {	//Sorc uses tal helm
+
+			// Monarch
+			if (!me.paladin) {
+				for (let i = 0; i < items.length; i++) {
+					if (items[i].classid === 447 && items[i].ilvl >= 41 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1 && items[i].getFlag(0x400000)) {
+						item = items[i];
+						break;
+					}
+				}
+			}
+		} else if (me.sorceress && ["Blova", "Lightning"].indexOf(SetUp.finalBuild) === -1) {	// Non-light sorc uses tal helm
 			for (let i = 0; i < items.length; i++) {
 				if (items[i].classid === 358 && items[i].getStat(194) === 0 && items[i].quality === 5) {	//Tal Helm
 					item = items[i];
 					break;
 				}
 			}
-		} else if (me.classid === 5) {	//Druid uses Jalal's
+		} else if (me.druid === 5) {	//Druid uses Jalal's
 			for (let i = 0; i < items.length; i++) {
 				if (items[i].classid === 472 && items[i].getStat(194) === 0 && items[i].quality === 5) {	//Jalal's
 					item = items[i];
@@ -722,7 +745,7 @@ Misc.checkItemForSocketing = function () {
 
 		if (me.classid === 4) {		//Barbarian
 			if (me.diff === 0) {
-				if (!haveItem("scepter", "runeword", "Honor")) {
+				if (!Check.haveItem("scepter", "runeword", "Honor")) {
 					for (let i = 0; i < items.length; i++) {
 						if (items[i].classid === 17 && items[i].ilvl >= 21 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 							item = items[i];
@@ -753,7 +776,7 @@ Misc.checkItemForImbueing = function () {
 	let item;
 	let items = me.getItems();
 
-	switch(me.classid) {
+	switch (me.classid) {
 	case 0: 	//Amazon
 		if (Item.getEquippedItem(4).tier < 100000) { //Only use imbue if not using final weapon
 			if (me.diff === 0) {
@@ -840,7 +863,7 @@ Misc.checkItemForImbueing = function () {
 		if (Item.getEquippedItem(4).tier < 777) {	//Less than a spirit sword
 			if (me.diff === 0) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 17  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//War Scepter
+					if (items[i].classid === 17  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {		//War Scepter
 						item = items[i];
 						break;
 					}
@@ -941,6 +964,31 @@ Misc.checkItemForImbueing = function () {
 		break;
 	}
 
+	if (item === undefined || !item) {
+		if (me.diff === 0) {
+			for (let i = 0; i < items.length; i++) {
+				if (items[i].classid === 348  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {		//Plated Belt
+					item = items[i];
+					break;
+				}
+			}
+		} else if (me.diff === 1) {
+			for (let i = 0; i < items.length; i++) {
+				if (items[i].classid === 394  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//War Belt
+					item = items[i];
+					break;
+				}
+			}
+		} else {
+			for (let i = 0; i < items.length; i++) {
+				if (items[i].classid === 462  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Mithril Coil
+					item = items[i];
+					break;
+				}
+			}
+		}
+	}
+
 	return item;
 };
 
@@ -986,17 +1034,20 @@ Misc.addSocketables = function () {
 		let ready = false; 
 
 		for (let i = 0; i < items.length; i++) {
-			if (items[i].classid === 631 && [422, 472, 358].indexOf(item.classid) > -1) {	//Um Rune and Shako, Jalal's, Tal Helm
+			//Um Rune and Shako, Jalal's, Tal Helm
+			if (items[i].classid === 631 && [422, 472, 358].indexOf(item.classid) > -1) {
 				socketable = items[i];
 				break;
 			}
 
-			if (items[i].classid === 641 && item.classid === 477) {	//Cham Rune and Arreat's
+			//Cham Rune and Arreat's
+			if (items[i].classid === 641 && item.classid === 477) {
 				socketable = items[i];
 				break;
 			}
 
-			if (items[i].classid === 631 && item.classid === 427 && multiple.indexOf(items[i]) === -1) {	//Um Rune and CoA
+			//Um Rune and CoA
+			if (items[i].classid === 631 && item.classid === 427 && multiple.indexOf(items[i]) === -1) {
 				if (item.getStat(194) === 2) {
 					if (multiple.length < item.getStat(194)) {
 						multiple.push(items[i]);
@@ -1011,7 +1062,8 @@ Misc.addSocketables = function () {
 				}	
 			}
 
-			if (items[i].classid === 586 && item.classid === 375 && multiple.indexOf(items[i]) === -1) {	//P-diamond to Moser's
+			//P-diamond to Moser's
+			if (items[i].classid === 586 && item.classid === 375 && multiple.indexOf(items[i]) === -1) {
 				if (item.getStat(194) === 2) {
 					if (multiple.length < item.getStat(194)) {
 						multiple.push(items[i]);
@@ -1031,7 +1083,7 @@ Misc.addSocketables = function () {
 			if (Misc.addSocketableToItem(item, socketable)) {
 				D2Bot.printToConsole("Added socketable: " + socketable.fname + " to " + item.fname, 6);
 			} else {
-				print("Failed to add socketable to item");
+				print("ÿc9GuysSoloLevelingÿc0: Failed to add socketable to item");
 			}
 			
 		}
@@ -1042,7 +1094,7 @@ Misc.addSocketables = function () {
 					D2Bot.printToConsole("Added socketable: " + multiple[i].fname + " to " + item.fname, 6);
 					delay(250 + me.ping);
 				} else {
-					print("Failed to add socketable to item");
+					print("ÿc9GuysSoloLevelingÿc0: Failed to add socketable to item");
 				}
 			}
 		}
@@ -1061,6 +1113,10 @@ Misc.addSocketableToItem = function (item, rune) {
 			print("No space to get item back");
 			return false;
 		} else {
+			if (item.location === 7) {
+				Town.openStash();
+			}
+
 			if(!Storage.Inventory.MoveTo(item)) {
 				return false;
 			}	
@@ -1110,7 +1166,7 @@ Misc.addSocketableToItem = function (item, rune) {
 
 // Log kept item stats in the manager.
 Misc.logItem = function (action, unit, keptLine) {
-	if (!this.useItemLog) {
+	if (!this.useItemLog || unit === undefined || !unit) {
 		return false;
 	}
 
@@ -1150,6 +1206,10 @@ Misc.logItem = function (action, unit, keptLine) {
 				return false;
 			}
 		}
+	}
+
+	if (!unit.fname) {
+		return false;
 	}
 
 	var lastArea, code, desc, sock, itemObj,

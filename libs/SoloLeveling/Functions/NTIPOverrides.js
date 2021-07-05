@@ -43,6 +43,111 @@ NTIP.arrayLooping = function (arraytoloop) {
 	return true;
 };
 
+NTIP.hasStats = function (item, entryList, verbose) {
+	let list, identified, hasStat = false;
+
+	if (!entryList) {
+		list = NTIP_CheckList;
+	} else {
+		list = entryList;
+	}
+
+	identified = item.getFlag(0x10);
+
+	for (let i = 0; i < list.length; i++) {
+		try {
+			let [type, stat, wanted] = list[i];
+
+			if (typeof type === 'function') {
+				if (type(item)) {
+					if (typeof stat === 'function') {
+						if (stat(item)) {
+							hasStat = true; 
+
+							break;
+						} 
+					} else {
+						hasStat = false; 
+
+						break;
+					}
+				}
+			}
+		} catch (e) {
+			print(e);
+			hasStat = false;
+
+			break;
+		}
+	}
+
+	return hasStat;
+};
+
+NTIP.getInvoQuantity = function (item, entryList, verbose) {
+	var i, list, identified, num,
+		rval = {},
+		invoquantity = -1;
+
+	if (!entryList) {
+		list = NTIP_CheckList;
+	} else {
+		list = entryList;
+	}
+
+	identified = item.getFlag(0x10);
+
+	for (i = 0; i < list.length; i++) {
+		try {
+			let [type, stat, wanted] = list[i];
+
+			if (typeof type === 'function') {
+				if (type(item)) {
+					if (typeof stat === 'function') {
+						if (stat(item)) {
+							if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+								invoquantity = wanted.InvoQuantity;
+								
+								break;
+							} else if (wanted && !isNaN(wanted.InvoQuantity) && wanted.InvoQuantity === 0) {
+								invoquantity = wanted.InvoQuantity;
+								
+								break;
+							} 
+						} 
+					} else {
+						if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+							invoquantity = wanted.InvoQuantity;
+
+							break;
+						} else if (wanted && !isNaN(wanted.MaxQuantity) && wanted.InvoQuantity === 0) {
+							invoquantity = wanted.InvoQuantity;
+							
+							break;	
+						} 
+					}
+				}
+			} else if (typeof stat === 'function') {
+				if (stat(item)) {
+					if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+						invoquantity = wanted.InvoQuantity;
+
+						break;
+					} else if (wanted && !isNaN(wanted.InvoQuantity) && wanted.InvoQuantity === 0) {
+						invoquantity = wanted.InvoQuantity;
+						
+						break;		
+					} 
+				} 
+			}
+		} catch (e) {
+			return -1;
+		}
+	}
+
+	return invoquantity;
+};
+
 NTIP.CheckItem = function (item, entryList, verbose) {
 	var i, list, identified, num,
 		rval = {},

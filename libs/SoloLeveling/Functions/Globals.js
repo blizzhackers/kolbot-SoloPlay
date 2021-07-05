@@ -1,6 +1,6 @@
 /*
 *	@filename	Globals.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		Global variables Settings, general functions for SoloLeveling functionality
 */
 
@@ -13,11 +13,11 @@ var Difficulty = ['Normal', 'Nightmare', 'Hell'];
 
 var SetUp = {
 	scripts: [
-		"den", "bloodraven", "tristram", "countess", "smith", "pits", "andariel", "cows", // Act 1
+		"den", "bloodraven", "tristram", "countess", "smith", "pits", "andariel", "a1chests", "cows", // Act 1
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel", // Act 2
 		"templeruns", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
 		"izual", "hellforge", "diablo", //Act 4
-		"shenk", "savebarby", "anya", "ancients", "baal", // Act 5
+		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests", // Act 5
 	],
 
 	include: function () {
@@ -54,7 +54,8 @@ var SetUp = {
 		],
 	},
 
-	levelCap: [33, 65, 100][me.diff],
+	//			Amazon					Sorceress				Necromancer					Paladin				Barbarian				Druid					Assassin					
+	levelCap: [[33, 65, 100][me.diff], [33, 70, 100][me.diff], [33, 65, 100][me.diff], [33, 65, 100][me.diff], [33, 65, 100][me.diff], [33, 73, 100][me.diff], [33, 65, 100][me.diff]][me.classid],
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
@@ -106,13 +107,16 @@ var SetUp = {
 			case "Plaguewolf":
 				respec = Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("armor", "runeword", "Chains of Honor") ? me.charlvl : 100;
 				break;
-
-
-
 			case "Auradin":
 				respec = Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream") ? me.charlvl : 100;
 				break;			
 			}
+		}
+
+		if (respec === me.charlvl && me.charlvl < 60) {
+			showConsole();
+			print("ÿc9GuysSoloLevelingÿc0: Bot has respecTwo items but is too low a level to respec.");
+			print("ÿc9GuysSoloLevelingÿc0: This only happens with user intervention. Remove the items you gave the bot until at least level 60");
 		}
 
 		return respec;
@@ -240,13 +244,13 @@ var Check = {
 
 			break;
 		case "bloodraven": //bloodaraven
-			if (me.normal && !me.bloodraven) {
+			if ((!me.bloodraven && me.normal) || (me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || (!me.amazon && !me.paladin)))) {
 				return true;
 			}
 
 			break;
 		case "smith": //tools of the trade
-			if (!me.smith || !Misc.checkQuest(3, 1)) {
+			if (!me.smith && !Misc.checkQuest(3, 1)) {
 				return true;
 			}
 
@@ -258,19 +262,25 @@ var Check = {
 
 			break;
 		case "countess": //countess
-			if (me.classic && !me.countess || !me.classic && needRunes) { // classic quest completed normal || have runes for difficulty
+			if ((me.classic && !me.countess) || (!me.classic && needRunes)) { // classic quest completed normal || have runes for difficultyi
 				return true;
 			}
 
 			break;
 		case "pits": //pits
-			if (me.hell) {
+			if (me.hell && ((!me.sorceress && !me.druid) || (me.sorceress && me.charlvl >= 70) || (me.druid && ["Plaguewolf", "Wolf"].indexOf(SetUp.currentBuild) > -1))) {
 				return true;
 			}
 
 			break;
 		case "andariel": //andy
-			if (me.classic && me.hell || !me.classic && !me.normal || !me.andariel) {
+			if ((me.classic && me.hell) || (!me.classic && (!me.normal && (Pather.canTeleport() || me.charlvl <= 60)) || (me.hell && me.charlvl !== 100)) || !me.andariel) {
+				return true;
+			}
+
+			break;
+		case "a1chests": //a1chests
+			if (!me.classic && me.charlvl >= 70 && Pather.canTeleport()) {
 				return true;
 			}
 
@@ -354,7 +364,7 @@ var Check = {
 
 			break;
 		case "mephisto": //mephisto
-			if (Pather.accessToAct(3) && (!me.normal || !me.mephisto)) {
+			if (Pather.accessToAct(3) && (!me.normal && (Pather.canTeleport() || me.charlvl <= 65) || !me.mephisto || (me.hell && me.charlvl !== 100))) {
 				return true;
 			}
 
@@ -366,7 +376,7 @@ var Check = {
 
 			break;
 		case "diablo": //diablo
-			if (Pather.accessToAct(4)) {
+			if (Pather.accessToAct(4) && ((me.normal && (Pather.canTeleport() || me.charlvl < 35)) || (me.nightmare && !me.druid || me.charlvl <= 70) || (me.hell && me.charlvl !== 100))) {
 				return true;
 			}
 
@@ -378,7 +388,7 @@ var Check = {
 
 			break;
 		case "shenk": // shenk
-			if (!me.classic && Pather.accessToAct(5)) {
+			if (!me.classic && Pather.accessToAct(5) && (!me.druid || me.charlvl <= 70)) {
 				return true;
 			}
 
@@ -408,7 +418,13 @@ var Check = {
 
 			break;
 		case "cows": //cows
-			if (!me.normal && !me.cows && (me.classic && me.diablo || me.baal)) {
+			if (!me.normal && !me.cows && (me.classic && me.diablo || me.baal) && (!me.druid || me.charlvl <= 65)) {
+				return true;
+			}
+
+			break;
+		case "a5chests": //cows
+			if (!me.normal && me.baal) {
 				return true;
 			}
 
@@ -454,6 +470,32 @@ var Check = {
 			LR: lrRes,
 			PR: prRes,
 		};
+	},
+
+	mercResistance: function () {
+		let mercenary = Merc.getMercFix();
+
+		if (!mercenary) { // dont have merc or he is dead
+			return {
+				FR: 0,
+				CR: 0,
+				LR: 0,
+				PR: 0,
+			};
+		}
+
+		let resPenalty = me.classic ? [0, 20, 50, 50][me.diff + 1] : [ 0, 40, 100, 100][me.diff + 1],
+			frRes = mercenary.getStat(39) - resPenalty,
+			lrRes = mercenary.getStat(41) - resPenalty,
+			crRes = mercenary.getStat(43) - resPenalty,
+			prRes = mercenary.getStat(45) - resPenalty;
+
+		return {
+			FR: frRes,
+			CR: crRes,
+			LR: lrRes,
+			PR: prRes,
+		};	
 	},
 
 	nextDifficulty: function () {

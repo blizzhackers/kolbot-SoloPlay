@@ -1,6 +1,6 @@
 /*
 *	@filename	TownOverrides.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		Town.js fixes and custom tasks to improve functionality
 */
 
@@ -48,6 +48,7 @@ Town.townTasks = function () {
 	this.reviveMerc();
 	this.gamble();
 	Item.autoEquip();
+	Item.autoEquipCharms();
 	Merc.hireMerc();
 	Merc.equipMerc();
 	this.stash();
@@ -110,6 +111,7 @@ Town.doChores = function (repair = false) {
 	this.reviveMerc();
 	this.gamble();
 	Item.autoEquip();
+	Item.autoEquipCharms();
 	Merc.hireMerc();
 	Merc.equipMerc();
 	this.stash();
@@ -162,7 +164,7 @@ Town.identify = function () {
 	// Avoid unnecessary NPC visits
 	for (i = 0; i < list.length; i += 1) {
 		// Only unid items or sellable junk (low level) should trigger a NPC visit
-		if ((!list[i].getFlag(0x10) || Config.LowGold > 0) && ([-1, 4].indexOf(Pickit.checkItem(list[i]).result) > -1 || (!list[i].getFlag(0x10) && (Item.hasTier(list[i]) || Item.hasMercTier(list[i]))))) {
+		if ((!list[i].getFlag(0x10) || Config.LowGold > 0) && ([-1, 4].indexOf(Pickit.checkItem(list[i]).result) > -1 || (!list[i].getFlag(0x10) && (Item.hasTier(list[i]) || Item.hasMercTier(list[i]) || Item.hasCharmTier(list[i]))))) {
 			break;
 		}
 	}
@@ -191,7 +193,7 @@ Town.identify = function () {
 			result = Pickit.checkItem(item);
 
 			// Force ID for unid items matching autoEquip criteria
-			if (result.result === 1 && !item.getFlag(0x10) && (Item.hasTier(item) || Item.hasMercTier(item))) {
+			if (result.result === 1 && !item.getFlag(0x10) && (Item.hasTier(item) || Item.hasMercTier(item) || Item.hasCharmTier(item))) {
 				result.result = -1;
 			}
 
@@ -260,6 +262,10 @@ Town.identify = function () {
 
 					break;
 				default:
+					if ([603, 604, 605].indexOf(item.classid) > -1 || item.quality > 4) {
+						Misc.logItem("Sold", item);
+					}
+
 					Misc.itemLogger("Sold", item);
 					item.sell();
 
@@ -513,9 +519,18 @@ Town.shopItems = function () {
 		if (result.result === 1 && NTIP.CheckItem(items[i], NTIP_CheckListNoTier, true).result !== 0) {
 			try {
 				if (Storage.Inventory.CanFit(items[i]) && me.getStat(14) + me.getStat(15) >= items[i].getItemCost(0)) {
-					Misc.itemLogger("Shopped", items[i]);
-					Misc.logItem("Shopped", items[i], result.line);
-					items[i].buy();
+					if ([2, 3].indexOf(items[i].quality) > -1) {
+						if (this.betterBaseThanStashed(items[i])) {
+							Misc.itemLogger("Shopped", items[i]);
+							Misc.logItem("Shopped", items[i], result.line);
+							print("ÿc9GuysSoloLevelingÿc0: Bought better base");
+							items[i].buy();
+						}
+					} else {
+						Misc.itemLogger("Shopped", items[i]);
+						Misc.logItem("Shopped", items[i], result.line);
+						items[i].buy();
+					}
 				}
 			} catch (e) {
 				print(e);
@@ -575,6 +590,7 @@ Town.unfinishedQuests = function () {
 
 		if (leg.location === 7) {
 			Town.move('stash');
+			Town.openStash();
 			Storage.Inventory.MoveTo(leg);
 			delay(300 + me.ping);
 			me.cancel();
@@ -622,6 +638,7 @@ Town.unfinishedQuests = function () {
 	if (tome) { //LamEssen's Tome
 		if (tome.location === 7) {
 			Town.move('stash');
+			Town.openStash();
 			Storage.Inventory.MoveTo(tome);
 			delay(300 + me.ping);
 		}
@@ -647,6 +664,7 @@ Town.unfinishedQuests = function () {
 
 		if (hammer.location === 7) {
 			Town.move('stash');
+			Town.openStash();
 			Storage.Inventory.MoveTo(hammer);
 			delay(300 + me.ping);
 			me.cancel();
@@ -660,6 +678,7 @@ Town.unfinishedQuests = function () {
 
 		if (soulstone.location === 7) {
 			Town.move('stash');
+			Town.openStash();
 			Storage.Inventory.MoveTo(soulstone);
 			delay(300 + me.ping);
 			me.cancel();
@@ -706,6 +725,7 @@ Town.equipSWAP = function () {
 	if (spirit) {
 		if (Item.getEquippedItem(12).tier < 0) {
 			Town.move('stash');
+			Town.openStash();
 			Storage.Inventory.MoveTo(spirit);
 			Attack.weaponSwitch(); // switch to slot 2
 			spirit.equip();
@@ -726,6 +746,7 @@ Town.equipSWAP = function () {
 			return true;
 		} else {
 			Town.move('stash');
+			Town.openStash();
 			Storage.Inventory.MoveTo(cta);
 			Attack.weaponSwitch(); // switch to slot 2
 			cta.equip();
@@ -810,7 +831,7 @@ Town.buyPots = function (quantity, type) {
 };
 
 Town.drinkPots = function () {
-	let classIds = ["yps", "wms", "vps", ];
+	let classIds = ["yps", "wms", "vps"];
 
 	for (let totalpots = 0; totalpots < classIds.length; totalpots++) {
 		let chugs = me.getItem(classIds[totalpots]);
@@ -822,6 +843,126 @@ Town.drinkPots = function () {
 			} while (chugs.getNext());
 
 			print('ÿc9SoloLevelingÿc0: drank Special Potions');
+		}
+	}
+
+	return true;
+};
+
+Town.buyMercPots = function (quantity, type) {
+	let npc, jugs;
+
+	if (type === "Thawing" && Check.mercResistance().CR >= 75) {	// Don't buy if already at max res
+		return true;
+	}
+
+	if (type === "Antidote" && Check.mercResistance().PR >= 75) {	// Don't buy if already at max res
+		return true;
+	}
+
+	switch (me.area) {
+	case 1:
+		Town.move(NPC.Akara);
+		npc = getUnit(1, NPC.Akara);
+		break;
+	case 40:
+		Town.move(NPC.Lysander);
+		npc = getUnit(1, NPC.Lysander);
+		break;
+	case 75:
+		Town.move(NPC.Alkor);
+		npc = getUnit(1, NPC.Alkor);
+		break;
+	case 103:
+		Town.move(NPC.Jamella);
+		npc = getUnit(1, NPC.Jamella);
+		break;
+	case 109:
+		Town.move(NPC.Malah);
+		npc = getUnit(1, NPC.Malah);
+		break;
+	}
+
+	if (!npc || !npc.openMenu()) {
+		return false;
+	}
+
+	Misc.useMenu(0x0D44);
+
+	switch (type) {
+	case "Thawing":
+		jugs = npc.getItem("wms");
+
+		break;
+	case "Stamina":
+		jugs = npc.getItem("vps");
+
+		break;
+	case "Antidote":
+		jugs = npc.getItem("yps");
+
+		break;
+	}
+
+	print('ÿc9GuysSoloLevelingÿc0: buying ' + quantity + ' ' + type + ' Potions for merc');
+
+	for (let totalspecialpotions = 0; totalspecialpotions < quantity; totalspecialpotions++) {
+
+		if (jugs) {
+			jugs.buy(false);
+		}
+	}
+
+	me.cancel();
+
+	return true;
+};
+
+Town.giveMercPots = function () {
+	let classIds = ["yps", "wms"];
+	let mercenary = Merc.getMercFix();
+
+	if (!mercenary) {
+		return false;
+	}
+
+	for (let totalpots = 0; totalpots < classIds.length; totalpots++) {
+		let chugs = me.getItem(classIds[totalpots]);
+
+		if (chugs) {
+			do {
+				try {
+					if (chugs.toCursor()) {
+						//clickItem(4, 0);
+						(new PacketBuilder).byte(0x61).word(0).send()
+					}
+					//sendPacket(1, 0x26, 4, chugs.gid);
+				} catch (e) {
+					print("Couldn't give the potion to merc.");
+				}
+
+				if (getCursorType() === 3) {
+					let cursorItem = getUnit(100);
+
+					if (cursorItem) {
+						if (Pickit.checkItem(cursorItem).result === 1) { // only keep wanted items
+							if (Storage.Inventory.CanFit(cursorItem)) {
+								Storage.Inventory.MoveTo(cursorItem);
+							}
+						}
+
+						cursorItem = getUnit(100);
+
+						if (cursorItem) {
+							cursorItem.drop();
+						}
+					}
+				}
+
+				delay(500 + me.ping * 2);
+			} while (chugs.getNext());
+
+			print('ÿc9GuysSoloLevelingÿc0: gave merc Special Potions');
 		}
 	}
 
@@ -862,7 +1003,7 @@ Town.stash = function (stashGold) {
 	if (items) {
 		for (i = 0; i < items.length; i += 1) {
 			if (this.canStash(items[i])) {
-				result = (Pickit.checkItem(items[i]).result > 0 && Pickit.checkItem(items[i]).result < 4) || Cubing.keepItem(items[i]) || Runewords.keepItem(items[i]) || CraftingSystem.keepItem(items[i]);
+				result = (Pickit.checkItem(items[i]).result > 0 && Pickit.checkItem(items[i]).result < 4 && !Item.autoEquipCharmCheck(items[i])) || Cubing.keepItem(items[i]) || Runewords.keepItem(items[i]) || CraftingSystem.keepItem(items[i]);
 
 				if (result) {
 					Misc.itemLogger("Stashed", items[i]);
@@ -1019,6 +1160,15 @@ Town.clearInventory = function () {
 		) {
 			result = Pickit.checkItem(items[i]).result;
 
+			if ([0, 4].indexOf(result) === -1) {
+				if (([2, 69, 70, 3, 37, 71, 72, 75, 25, 24, 26, 27, 28, 29, 30, 31, 33, 35, 36, 68, 85, 86, 67, 88, 34].indexOf(items[i].itemType) > -1 && items[i].quality < 4 && items[i].getStat(194) > 0) || 
+					([25, 70, 72].indexOf(items[i].itemType) > -1 && items[i].quality === 2 && items[i].getStat(194) === 0)) {
+					if (!this.betterBaseThanStashed(items[i])) {
+						result = 4;
+					}
+				}
+			}
+
 			if (!items[i].getFlag(0x10)) {
 				result = -1;
 			}
@@ -1061,51 +1211,768 @@ Town.clearInventory = function () {
 	return true;
 };
 
+Town.betterBaseThanWearing = function (base) {
+	let equippedItem = {}, bodyLoc = [], check;
+	let itemsResists, baseResists, itemsMinDmg, itemsMaxDmg, itemsTotalDmg, baseDmg, ED, itemsDefense, baseDefense;
+	let allSkills, classSkills, tabSkills, specificSkills = [], wantedSkills = [];
+	let baseSkillsTier, equippedSkillsTier;
+	let result = true;
+
+	function skillsScore (item) {
+		let skillsRating = 0;
+		skillsRating += item.getStatEx(83, me.classid) * 200; // + class skills
+		skillsRating += item.getStatEx(188, Check.Build().tabSkills) * 100; // + TAB skills
+		let selectedWeights = [30, 20];
+		let selectedSkills = [Check.Build().wantedSkills, Check.Build().usefulSkills];
+
+		for (let i = 0; i < selectedWeights.length; i++) {
+			for (let j = 0; j < selectedSkills.length; j++) {
+				for (let k = 0; k < selectedSkills[j].length; k++) {
+					skillsRating += item.getStatEx(107, selectedSkills[j][k]) * selectedWeights[i];
+				}
+			}
+		}
+
+		return skillsRating;
+	};
+
+	if (base === undefined || !base) {
+		return false;
+	}
+
+	if (base.quality > 4 || base.getStat(194) <= 0) {
+		return false;	//Not a runeword base
+	}
+
+	bodyLoc = Item.getBodyLoc(base);
+
+	let item = me.getItem();
+		
+	if (item) {
+		do {
+			if (item.location === 1 && item.bodylocation === bodyLoc[0]) {
+				equippedItem = {
+					classid: item.classid,
+					type: item.itemType,
+					sockets: item.getStatEx(194),
+					name: item.name,
+					tier: NTIP.GetTier(item),
+					prefixnum: item.prefixnum,
+					str: item.getStatEx(0),
+					dex: item.getStatEx(2),
+					def: item.getStatEx(31),
+					eDef: item.getStatEx(16),
+					fr: item.getStatEx(39),
+					lr: item.getStatEx(41),
+					cr: item.getStatEx(43),
+					pr: item.getStatEx(45),
+					minDmg: item.getStatEx(21),
+					maxDmg: item.getStatEx(22),
+					eDmg: item.getStatEx(18),
+					runeword: item.getFlag(NTIPAliasFlag["runeword"])
+				};
+				check = item;
+				break;
+			}
+		} while (item.getNext());
+	}
+
+	if (!equippedItem.runeword) {
+		return true;	//Equipped item is not a runeword no need to try and compare it. Keep the base
+	}
+
+	if (base.getStat(194) === equippedItem.sockets) {
+		switch(equippedItem.prefixnum) {
+		case 20507: 	//Ancient's Pledge
+			if (me.paladin) {
+				itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 187;
+				baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+
+				if (baseResists !== itemsResists) {
+					print("ÿc9BaseCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+
+					if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+						//base.drop();
+						result = false;
+
+						break;
+					}
+				}
+			} else {
+				itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
+				baseDefense = base.getStatEx(31);
+
+				if (baseDefense !== itemsDefense) {
+					print("ÿc9BaseCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+					if (baseDefense < itemsDefense) {	//base has lower defense
+						//base.drop();
+						result = false;
+
+						break;
+					}
+				}				
+			}
+			
+			break;
+		case 20543: 	//Exile
+			itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr);
+			baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+
+			if (baseResists !== itemsResists) {
+				print("ÿc9BaseCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+				if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+					//base.drop();
+					result = false;
+
+					break;
+				}
+			}
+
+			break;
+		case 20581: 	//Lore
+			itemsDefense = check.getStatEx(31);
+			baseDefense = base.getStatEx(31);
+				
+			if (me.barbarian || me.druid) {	//Barbarian or Druid (PrimalHelms and Pelts)
+				equippedSkillsTier = skillsScore(check);
+				baseSkillsTier = skillsScore(base);
+
+				if (equippedSkillsTier !== baseSkillsTier) {
+					print("ÿc9BaseCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+					if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense helm
+						//base.drop();
+						result = false;
+
+						break;
+					}
+				} else if (baseDefense !== itemsDefense) {
+					print("ÿc9BaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+					if (baseDefense < itemsDefense) {	//base has lower defense
+						//base.drop();
+						result = false;
+
+						break;
+					}
+				}
+			} else {
+				if (baseDefense !== itemsDefense) {
+					print("ÿc9BaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+					if (baseDefense < itemsDefense) {	//base has lower defense
+						//base.drop();
+						result = false;
+
+						break;
+					}
+				}
+			}
+
+			break;
+		case 20625: 	//Rhyme
+			itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 100;
+			baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+
+			if (me.necromancer) {	//Necromancer
+				equippedSkillsTier = skillsScore(check);
+				baseSkillsTier = skillsScore(base);
+
+				if (equippedSkillsTier !== baseSkillsTier) {
+					print("ÿc9BaseCheckÿc0 :: RW(Rhyme) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+					if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense shield
+						//base.drop();
+						result = false;
+
+						break;
+					}
+				}
+			}
+
+			if (baseResists !== itemsResists) {
+				print("ÿc9BaseCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+				if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+					//base.drop();
+					result = false;
+
+					break;
+				}
+			}
+
+			break;
+		case 20635: 	//Spirit
+			if (me.paladin) {
+				itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 115;
+				baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+			} else {
+				break;
+			}
+
+			if (baseResists !== itemsResists) {
+				print("ÿc9BaseCheckÿc0 :: RW(spirit) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+				if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+					//base.drop();
+					result = false;
+
+					break;
+				}
+			}
+
+			break;
+		case 20667: 	//White
+			if (me.necromancer) {	//Necromancer
+				equippedSkillsTier = skillsScore(check) - 550;
+				baseSkillsTier = skillsScore(base);
+
+				if (equippedSkillsTier !== baseSkillsTier) {
+					print("ÿc9BaseCheckÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier + "BaseSkillsTier: " + baseSkillsTier);
+					if (baseSkillsTier < equippedSkillsTier) {
+						//base.drop();
+						result = false;
+
+						break;
+					}
+				}
+			}
+
+			break;
+		default:
+			return true;	// Runeword base isn't in the list, keep the base
+		}
+	}
+
+	return result;
+};
+
+Town.betterBaseThanStashed = function (base, clearJunkCheck) {
+	if (base === undefined || !base) {
+		return false;
+	}
+
+	if (base.quality > 4) {
+		return false;
+	}
+
+	if (clearJunkCheck === undefined) {
+		clearJunkCheck = false;
+	}
+
+	function generalScore (item) {
+		let generalScore = 0;
+		generalScore += item.getStatEx(83, me.classid) * 200; // + class skills
+		generalScore += item.getStatEx(188, Check.Build().tabSkills) * 100; // + TAB skills
+		let selectedWeights = [30, 20];
+		let selectedSkills = [Check.Build().wantedSkills, Check.Build().usefulSkills];
+
+		for (let i = 0; i < selectedWeights.length; i++) {
+			for (let j = 0; j < selectedSkills.length; j++) {
+				for (let k = 0; k < selectedSkills[j].length; k++) {
+					generalScore += item.getStatEx(107, selectedSkills[j][k]) * selectedWeights[i];
+				}
+			}
+		}
+
+		if (generalScore === 0) {
+			if (me.paladin) {
+				generalScore += item.getStatEx(39);	// Resist
+			}
+
+			generalScore += item.getStatEx(31) * 0.5;		// Defense
+			generalScore += item.getStatEx(21); // add MIN damage
+			generalScore += item.getStatEx(22); // add MAX damage
+			generalScore += item.getStatEx(23); // add MIN damage
+			generalScore += item.getStatEx(24); // add MAX damage
+		}
+
+		return generalScore;
+	};
+
+	let itemsToCheck, result = false;
+
+	switch (base.itemType) {
+	case 2: // Shield
+	case 69: //Voodoo heads
+	case 70: // Auric Shields
+		if (me.paladin) {
+			itemsToCheck = me.getItems()
+				.filter(item =>
+					[2, 70].indexOf(item.itemType) > -1// same item type as current
+					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& [3, 7].indexOf(item.location) > -1 // locations
+				)
+				.sort((a, b) => {
+					if (a.getStatEx(39) - b.getStatEx(39) !== 0) {
+						a.getStatEx(39) - b.getStatEx(39)	// Sort on resist, low to high.
+					} else {
+						a.getStatEx(31) - b.getStatEx(31)	// Sort on defense, low to high.
+					}
+				})
+				.last(); // select last
+
+			if (itemsToCheck === undefined) {
+				return false;
+			}
+
+			if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
+				return true;
+			}
+
+			if (base.getStat(194) > 0) {
+				if ((base.location === 7 || base.location === 3) &&
+					(base.getStatEx(39) < itemsToCheck.getStatEx(39) ||
+					(base.getStatEx(39) === itemsToCheck.getStatEx(39) && base.getStatEx(31) < itemsToCheck.getStatEx(31)))) {
+					result = true;
+				}
+			}
+		} else if (me.necromancer) {
+			itemsToCheck = me.getItems()
+				.filter(item =>
+					[2, 69].indexOf(item.itemType) > -1// same item type as current
+					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& [3, 7].indexOf(item.location) > -1 // locations
+				)
+				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
+				.last(); // select last
+
+			if (itemsToCheck === undefined) {
+				return false;
+			}
+
+			if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
+				return true;
+			}
+
+			if (base.getStat(194) > 0) {
+				if ((base.location === 7 || base.location === 3) &&
+					(generalScore(base) < generalScore(itemsToCheck))) {
+					result = true;
+				}
+			}
+		} else {
+			itemsToCheck = me.getItems()
+				.filter(item =>
+					item.itemType === 2// same item type as current
+					&& !item.getFlag(NTIPAliasFlag["ethereal"]) // only noneth runeword bases
+					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& [3, 7].indexOf(item.location) > -1 // locations
+				)
+				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on tier value, (better for skills)
+				.last(); // select last
+
+			if (itemsToCheck === undefined) {
+				return false;
+			}
+
+			if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
+				return true;
+			}
+
+			if (base.getStat(194) > 0) {
+				if ((base.location === 7 || base.location === 3) &&
+					!base.getFlag(NTIPAliasFlag["ethereal"]) &&
+					base.getStatEx(31) < itemsToCheck.getStatEx(31)) {
+					result = true;
+				}
+			}
+		}
+
+		break;
+	case 3: // Armor
+		itemsToCheck = me.getItems()
+			.filter(item =>
+				item.itemType === 3// same item type as current
+				&& !item.getFlag(NTIPAliasFlag["ethereal"]) // only noneth runeword bases
+				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+				&& [3, 7].indexOf(item.location) > -1 // locations
+			)
+			.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on tier value, (better for skills)
+			.last(); // select last
+
+		if (itemsToCheck === undefined) {
+			return false;
+		}
+
+		if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
+			return true;
+		}
+
+		if (base.getStat(194) > 0) {
+			if ((base.location === 7 || base.location === 3) &&
+				!base.getFlag(NTIPAliasFlag["ethereal"]) &&
+				base.getStatEx(31) < itemsToCheck.getStatEx(31)) {
+				result = true;
+			}
+		}
+
+		break;
+	case 37: // Helm
+	case 71: // Barb Helm
+	case 72: //	Druid Pelt
+	case 75: // Circlet
+		if (me.barbarian || me.druid) {
+			itemsToCheck = me.getItems()
+				.filter(item =>
+					[37, 75, 71, 72].indexOf(item.itemType) > -1// same item type as current
+					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& [3, 7].indexOf(item.location) > -1 // locations
+				)
+				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
+				.last(); // select last
+
+			if (itemsToCheck === undefined) {
+				return false;
+			}
+
+			if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
+				return true;
+			}
+
+			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+				if ((base.location === 7 || base.location === 3) &&
+					(generalScore(base) < generalScore(itemsToCheck) ||
+						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl < itemsToCheck.ilvl))) {
+					result = true;
+				}
+			}
+		} else {
+			itemsToCheck = me.getItems()
+				.filter(item =>
+					[37, 75].indexOf(item.itemType) > -1// same item type as current
+					&& !item.getFlag(NTIPAliasFlag["ethereal"]) // only noneth runeword bases
+					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& [3, 7].indexOf(item.location) > -1 // locations
+				)
+				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on tier value, (better for skills)
+				.last(); // select last
+
+			if (itemsToCheck === undefined) {
+				return false;
+			}
+
+			if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
+				return true;
+			}
+
+			if (base.getStat(194) > 0) {
+				if ((base.location === 7 || base.location === 3) &&
+					!base.getFlag(NTIPAliasFlag["ethereal"]) &&
+					base.getStatEx(31) < itemsToCheck.getStatEx(31)) {
+					result = true;
+				}
+			}
+		}
+
+		break;
+	case 25: //	Wand
+		if (me.necromancer) {
+			itemsToCheck = me.getItems()
+				.filter(item =>
+					[25].indexOf(item.itemType) > -1// same item type as current
+					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& [3, 7].indexOf(item.location) > -1 // locations
+				)
+				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
+				.last(); // select last
+
+			if (itemsToCheck === undefined) {
+				return false;
+			}
+
+			if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
+				return true;
+			}
+
+			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+				if ((base.location === 7 || base.location === 3) &&
+					(generalScore(base) < generalScore(itemsToCheck) || 
+						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl < itemsToCheck.ilvl))) {
+					result = true;
+				}
+			}
+		}
+
+		break;
+	case 24: //	Scepter
+	case 26: //	Staff
+	case 27: //	Bow
+	case 28: //	Axe
+	case 29: //	Club
+	case 30: //	Sword
+	case 31: //	Hammer
+	case 33: //	Spear
+	case 35: //	Crossbow
+	case 36: //	Mace
+	case 68: //	Orb
+	case 85: //	Amazon Bow
+	case 86: //	Amazon Spear
+		itemsToCheck = me.getItems()
+			.filter(item =>
+				item.itemType === base.itemType// same item type as current
+				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+				&& [3, 7].indexOf(item.location) > -1 // locations
+			)
+			.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
+			.last(); // select last
+
+		if (itemsToCheck === undefined) {
+			return false;
+		}
+
+		if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
+			return true;
+		}
+
+		if (base.getStat(194) > 0) {
+			if ((base.location === 7 || base.location === 3) &&
+				(generalScore(base) < generalScore(itemsToCheck))) {
+				result = true;
+			}
+		}
+		
+		break;
+	case 67: // Handtohand (Assasin Claw)
+	case 88: //	Assassin Claw
+		if (me.assassin) {
+			itemsToCheck = me.getItems()
+				.filter(item =>
+					[67, 88].indexOf(item.itemType) > -1// same item type as current
+					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& [3, 7].indexOf(item.location) > -1 // locations
+				)
+				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
+				.last(); // select last
+
+			if (itemsToCheck === undefined) {
+				return false;
+			}
+
+			if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
+				return true;
+			}
+
+			if (base.getStat(194) > 0) {
+				if ((base.location === 7 || base.location === 3) &&
+					(generalScore(base) < generalScore(itemsToCheck))) {
+					result = true;
+				}
+			}
+		}
+
+		break;
+	case 34: //	Polearm
+		itemsToCheck = me.getItems()
+			.filter(item =>
+				[34].indexOf(item.itemType) > -1// same item type as current
+				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+				&& [3, 7].indexOf(item.location) > -1 // locations
+			)
+			.sort((a, b) => (a.getStatEx(23) + a.getStatEx(24)) - (b.getStatEx(23) + b.getStatEx(24))) // Sort on damage, low to high.
+			.last(); // select last
+
+		if (itemsToCheck === undefined) {
+			return false;
+		}
+
+		if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
+			return true;
+		}
+
+		if (base.getStat(194) > 0) {
+			if ((base.location === 7 || base.location === 3) &&
+				(base.getStatEx(23) + base.getStatEx(24)) < (itemsToCheck.getStatEx(23) + itemsToCheck.getStatEx(24))) {
+				result = true;
+			}
+		}
+
+		break;
+	default:
+		return false;
+	}
+
+	return result;
+};
+
 Town.clearJunk = function () {
 	let junk = me.findItems(-1, 0);
+	let junkToSell = [];
+	let questItemClassids = [88, 89, 524, 525, 549, 92, 521, 91, 552, 545, 546, 547, 548, 553, 554, 555, 173, 174, 551, 91, 644, 646];
+	let cancelFlags = [0x01, 0x02, 0x04, 0x08, 0x14, 0x16, 0x0c, 0x0f, 0x19, 0x1a];
 
 	if (!junk) {
 		return false;
 	}
 
 	while (junk.length > 0) {
-		if ((junk[0].location === 7 || junk[0].location === 3) && // stash or inventory
-			!Pickit.checkItem(junk[0]).result === 1 && // Don't throw pickit wanted items
+		if (([3, 7].indexOf(junk[0].location) > -1) && // stash or inventory
+			([1, 2, 3, 5].indexOf(Pickit.checkItem(junk[0]).result) === -1) &&
 			!Cubing.keepItem(junk[0]) && // Don't throw cubing ingredients
 			!Runewords.keepItem(junk[0]) && // Don't throw runeword ingredients
 			!CraftingSystem.keepItem(junk[0]) && // Don't throw crafting system ingredients
-			(Pickit.checkItem(junk[0]).result === 0 || Pickit.checkItem(junk[0]).result === 4) // only drop unwanted
+			[18, 41, 76, 77, 78].indexOf(junk[0].itemType) === -1 && // Don't drop tomes, keys or potions
+			(questItemClassids.indexOf(junk[0].classid) === -1) &&	// Don't drop quest items
+			(junk[0].classid !== 603 && junk[0].quality !== 7) && // Anni
+			(junk[0].classid !== 604 && junk[0].quality !== 7) && // Torch
+			(junk[0].classid !== 605 && junk[0].quality !== 7) && // Gheeds
+			([0, 4].indexOf(Pickit.checkItem(junk[0]).result) > -1) // only drop unwanted
 		) {
-			if (junk[0].drop()) {
-				me.overhead('cleared junk');
-				print("ÿc9SoloLevelingÿc0: Cleared junk - " + junk[0].name);
-				delay(50 + me.ping);
+			if (!getUIFlag(0x19)) {
+				Town.openStash();
 			}
+
+			print("First Check: " + junk[0].name + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+
+			if (Storage.Inventory.CanFit(junk[0])) {
+				if (Storage.Inventory.MoveTo(junk[0])) {
+					junkToSell.push(junk[0]);
+
+					junk.shift();
+					continue;
+				} else {
+					if (junk[0].drop()) {
+						me.overhead('cleared junk');
+						print("ÿc9GuysSoloLevelingÿc0: Failed to move item to inventory. Dropping instead");
+						print("ÿc9GuysSoloLevelingÿc0: Cleared junk - " + junk[0].name);
+						delay(50 + me.ping);
+
+						continue;
+					}
+				}
+			} else if (junk[0].drop()) {
+				me.overhead('cleared junk');
+				print("ÿc9GuysSoloLevelingÿc0: Cleared junk - " + junk[0].name);
+				delay(50 + me.ping);
+
+				continue;
+			}
+
 		}
 
-		let rwBase = me.getItems()
-			.filter(item =>
-				item.itemType === junk[0].itemType// same item type as current
-				&& !item.getFlag(NTIPAliasFlag["ethereal"]) // only noneth runeword bases
-				&& item.getStat(194) === junk[0].getStat(194) // sockets match junk in review
-				&& [3, 7].indexOf(item.location) > -1 // locations
-			)
-			.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on defense, low to high.
-			.last(); // select last
-
-		if (junk[0].getStat(194) > 0) {
-			if ((junk[0].location === 7 || junk[0].location === 3) &&
-				!junk[0].getFlag(NTIPAliasFlag["ethereal"]) &&
-				junk[0].itemType !== 30 && junk[0].getStatEx(31) < rwBase.getStatEx(31)) { // only drop noneth armors helms shields
-				if (junk[0].drop()) {
-					me.overhead('cleared runeword junk');
-					print("ÿc9SoloLevelingÿc0: Cleared runeword junk - " + junk[0].name);
-					delay(50 + me.ping);
+		if (([3, 7].indexOf(junk[0].location) > -1 && [18, 41, 76, 77, 78, 80, 81, 39, 74, 82, 83, 84].indexOf(junk[0].itemType) === -1) &&
+			(questItemClassids.indexOf(junk[0].classid) === -1)) {
+			if (this.betterBaseThanStashed(junk[0], true)) {
+				if (!getUIFlag(0x19)) {
+					Town.openStash();
 				}
+
+				print("Junk: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+
+				if (Storage.Inventory.CanFit(junk[0])) {
+					if (Storage.Inventory.MoveTo(junk[0])) {
+						junkToSell.push(junk[0]);
+
+						junk.shift();
+						continue;
+					} else {
+						if (junk[0].drop()) {
+							me.overhead('cleared runeword base junk');
+							print("ÿc9GuysSoloLevelingÿc0: Failed to move item to inventory. Dropping instead");
+							print("ÿc9GuysSoloLevelingÿc0: Cleared runeword base junk - " + junk[0].name);
+							delay(50 + me.ping);
+
+							continue;
+						}
+					}
+				} else if (junk[0].drop()) {
+					me.overhead('cleared runeword base junk');
+					print("ÿc9GuysSoloLevelingÿc0: Cleared runeword base junk - " + junk[0].name);
+					delay(50 + me.ping);
+
+					continue;
+				}
+			}
+
+			if (junk[0].getFlag(NTIPAliasFlag["runeword"]) && !Item.autoEquipKeepCheck(junk[0]) && !Item.autoEquipKeepCheckMerc(junk[0])) {
+				if (!getUIFlag(0x19)) {
+					Town.openStash();
+				}
+
+				print("ÿc9JunkCheckÿc0 :: Junk: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+
+				if (Storage.Inventory.CanFit(junk[0])) {
+					if (Storage.Inventory.MoveTo(junk[0])) {
+						junkToSell.push(junk[0]);
+
+						junk.shift();
+						continue;
+					} else {
+						if (junk[0].drop()) {
+							me.overhead('cleared runeword base junk');
+							print("ÿc9GuysSoloLevelingÿc0: Failed to move item to inventory. Dropping instead");
+							print("ÿc9GuysSoloLevelingÿc0: Cleared old runeword junk - " + junk[0].name);
+							delay(50 + me.ping);
+
+							continue;
+						}
+					}
+				} else if (junk[0].drop()) {
+					me.overhead('cleared old runeword junk');
+					print("ÿc9GuysSoloLevelingÿc0: Cleared old runeword junk - " + junk[0].name);
+					delay(50 + me.ping);
+
+					continue;
+				}
+			}
+
+			if (junk[0].getStat(194) > 0 && [2, 69, 70, 3, 37, 71, 72, 75, 25, 24, 26, 27, 28, 29, 30, 31, 33, 35, 36, 68, 85, 86, 67, 88, 34].indexOf(junk[0].itemType) > -1) {
+				if (!this.betterBaseThanWearing(junk[0])) {
+					print("ÿc9BadBaseCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+
+					if (!getUIFlag(0x19)) {
+						Town.openStash();
+					}
+
+					if (Storage.Inventory.CanFit(junk[0])) {
+						if (Storage.Inventory.MoveTo(junk[0])) {
+							junkToSell.push(junk[0]);
+
+							junk.shift();
+							continue;
+						} else {
+							if (junk[0].drop()) {
+								me.overhead('cleared bad runeword base junk');
+								print("ÿc9GuysSoloLevelingÿc0: Failed to move item to inventory. Dropping instead");
+								print("ÿc9GuysSoloLevelingÿc0: Cleared bad runeword base junk - " + junk[0].name);
+								delay(50 + me.ping);
+
+								continue;
+							}
+						}
+					} else if (junk[0].drop()) {
+						me.overhead('cleared bad runeword base junk');
+						print("ÿc9GuysSoloLevelingÿc0: Cleared bad runeword base junk - " + junk[0].name);
+						delay(50 + me.ping);
+
+						continue;
+					}
+				}
+				
 			}
 		}
 
 		junk.shift();
+	}
+
+	if (junkToSell.length > 0) {
+		print("ÿc9GuysSoloLevelingÿc0: Junk items to sell: " + junkToSell.length);
+
+		Town.initNPC("Shop", "clearInventory");
+
+		if (getUIFlag(0xC) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
+			for (let i = 0; i < junkToSell.length; i++) {
+				print("ÿc9JunkCheckÿc0 :: Sell " + junkToSell[i].name);
+				Misc.itemLogger("Sold", junkToSell[i]);
+				Misc.logItem("JunkCheck Sold", junkToSell[i]);
+				junkToSell[i].sell();
+			}
+		}
+
+		for (let i = 0; i < cancelFlags.length; i += 1) {
+			if (getUIFlag(cancelFlags[i])) {
+				delay(500 + me.ping);
+				me.cancel();
+
+				break;
+			}
+		}
+
+		me.cancel();
 	}
 
 	return true;

@@ -9,7 +9,8 @@ if (!isIncluded("common/Pather.js")) {
 }
 
 NodeAction.killMonsters = function (arg) {
-	var monList;
+	// sanityCheck from isid0re
+	var monList, sanityCheck = [62, 63, 64, 74].indexOf(me.area) > -1 ? true : false;
 
 	if (Config.Countess.KillGhosts && [21, 22, 23, 24, 25].indexOf(me.area) > -1) {
 		monList = Attack.getMob(38, 0, 30);
@@ -44,17 +45,32 @@ NodeAction.killMonsters = function (arg) {
 		}
 	}
 
+	if (me.area === 8 && me.hell && me.druid) {
+		let corpsefire = getUnit(1, getLocaleString(3319));
+
+		if (corpsefire) {
+			do {
+				if (Attack.getResist(corpsefire, "cold") >= 100 && Attack.getResist(corpsefire, "physical") >= 100) {
+					Town.goToTown();
+					print('ÿc9GuysSoloLevelingÿc0: Exit den. Corpsefire is immune to cold and physical');
+					me.overhead('Exit den. Corpsefire is immune to cold and physical');
+					D2Bot.printToConsole('ÿc9GuysSoloLevelingÿc0: exit den. Corpsefire is immune to cold and physical');
+				}
+			} while (corpsefire.getNext());
+		}
+	}
+
 	if ((typeof Config.ClearPath === "number" || typeof Config.ClearPath === "object") && arg.clearPath === false) {
 		switch (typeof Config.ClearPath) {
 		case "number":
 			Attack.clear(7, 0);
-			Attack.clear(30, Config.ClearPath);
+			Attack.clear(sanityCheck ? 7 : 30, Config.ClearPath);
 
 			break;
 		case "object":
 			if (!Config.ClearPath.hasOwnProperty("Areas") || Config.ClearPath.Areas.length === 0 || Config.ClearPath.Areas.indexOf(me.area) > -1) {
 				Attack.clear(7, 0);
-				Attack.clear(Config.ClearPath.Range, Config.ClearPath.Spectype);
+				Attack.clear(sanityCheck ? 7 : Config.ClearPath.Range, Config.ClearPath.Spectype);
 			}
 
 			break;
@@ -62,8 +78,11 @@ NodeAction.killMonsters = function (arg) {
 	}
 
 	if (arg.clearPath !== false) {
-		Attack.clear(7, 0);
-		Attack.clear(15, typeof arg.clearPath === "number" ? arg.clearPath : 0);
+		if (!Pather.useTeleport()) {	// If teleporting its not necessary to clear all mobs, just hit champions/uniques for xp/drops
+			Attack.clear(7, 0);
+		}
+
+		Attack.clear(sanityCheck ? 7 : 15, typeof arg.clearPath === "number" ? arg.clearPath : 0);
 	}
 };
 
@@ -115,6 +134,10 @@ Pather.checkWP = function (area) {
 	}
 
 	return getWaypoint(Pather.wpAreas.indexOf(area));
+};
+
+Pather.canTeleport = function () {
+	return this.teleport && !Config.NoTele && !me.getState(139) && !me.getState(140) && ((me.sorceress && me.getSkill(54, 1)) || me.getStat(97, 54));
 };
 
 Pather.useTeleport = function () { //XCon provided. to turn off teleport if below 20% mana
@@ -556,4 +579,167 @@ Pather.useUnit = function (type, id, targetArea) {
 	}
 
 	return targetArea ? me.area === targetArea : me.area !== preArea;
+};
+
+//Add check in case "random" to return false if bot doesn't have cold plains wp yet and me.gameReady check
+Pather.useWaypoint = function useWaypoint(targetArea, check) {
+	switch (targetArea) {
+	case undefined:
+		throw new Error("useWaypoint: Invalid targetArea parameter: " + targetArea);
+	case null:
+	case "random":
+		check = true;
+
+		break;
+	default:
+		if (typeof targetArea !== "number") {
+			throw new Error("useWaypoint: Invalid targetArea parameter");
+		}
+
+		if (this.wpAreas.indexOf(targetArea) < 0) {
+			throw new Error("useWaypoint: Invalid area");
+		}
+
+		break;
+	}
+
+	var i, tick, wp, coord, retry, npc;
+
+	for (i = 0; i < 12; i += 1) {
+		if (me.area === targetArea || me.dead) {
+			break;
+		}
+
+		if (me.inTown) {
+			npc = getUnit(1, NPC.Warriv);
+
+			if (me.area === 40 && npc && getDistance(me, npc) < 50) {
+				if (npc && npc.openMenu()) {
+					Misc.useMenu(0x0D37);
+
+					if (!Misc.poll(function () {
+						return me.area === 1;
+					}, 2000, 100)) {
+						throw new Error("Failed to go to act 1 using Warriv");
+					}
+				}
+			}
+
+			Town.move("waypoint");
+		}
+
+		wp = getUnit(2, "waypoint");
+
+		if (wp && wp.area === me.area) {
+			if (!me.inTown && getDistance(me, wp) > 7) {
+				this.moveToUnit(wp);
+			}
+
+			if (check || Config.WaypointMenu) {
+				if (getDistance(me, wp) > 5) {
+					this.moveToUnit(wp);
+				}
+
+				Misc.click(0, 0, wp);
+
+				tick = getTickCount();
+
+				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), me.ping * 2)) {
+					if (getUIFlag(0x14)) { // Waypoint screen is open
+						delay(500);
+
+						switch (targetArea) {
+						case "random":
+							if (!Pather.checkWP(3)) {
+								return false;
+							}
+
+							while (true) {
+								targetArea = this.wpAreas[rand(0, this.wpAreas.length - 1)];
+
+								// get a valid wp, avoid towns
+								if ([1, 40, 75, 103, 109].indexOf(targetArea) === -1 && getWaypoint(this.wpAreas.indexOf(targetArea))) {
+										break;
+								}
+
+								delay(5);
+							}
+
+							break;
+						case null:
+							me.cancel();
+
+							return true;
+						}
+
+						if (!getWaypoint(this.wpAreas.indexOf(targetArea))) {
+							me.cancel();
+							me.overhead("Trying to get the waypoint");
+
+							if (this.getWP(targetArea)) {
+								return true;
+							}
+
+							throw new Error("Pather.useWaypoint: Failed to go to waypoint");
+						}
+
+						break;
+					}
+
+					delay(10);
+				}
+
+				if (!getUIFlag(0x14)) {
+					print("waypoint retry " + (i + 1));
+					retry = Math.min(i + 1, 5)
+					coord = CollMap.getRandCoordinate(me.x, -5 * retry, 5 * retry, me.y, -5 * retry, 5 * retry);
+					this.moveTo(coord.x, coord.y);
+					delay(200 + me.ping);
+
+					Packet.flash(me.gid);
+
+					continue;
+				}
+			}
+
+			if (!check || getUIFlag(0x14)) {
+				delay(200);
+				wp.interact(targetArea);
+
+				tick = getTickCount();
+
+				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), me.ping * 2)) {
+					if (me.area === targetArea && me.gameReady) {
+						delay(100 + me.ping);
+
+						return true;
+					}
+
+					delay(10 + me.ping);
+				}
+
+				while (!me.gameReady) {		// In case of hang up
+					delay(100);
+				}
+
+				me.cancel(); // In case lag causes the wp menu to stay open
+			}
+
+			Packet.flash(me.gid);
+
+			if (i > 1) { // Activate check if we fail direct interact twice
+				check = true;
+			}
+		} else {
+			Packet.flash(me.gid);
+		}
+
+		delay(200 + me.ping);
+	}
+
+	if (me.area === targetArea) {
+		return true;
+	}
+
+	throw new Error("useWaypoint: Failed to use waypoint");
 };

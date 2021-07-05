@@ -413,17 +413,17 @@ var Quest = {
 		var larzuk, slot, invo, i, items;
 			
 		if (!item || item === undefined || item.mode === 3) { //No item
-			print("ÿc9SoloLevelingÿc0: No item");
+			print("ÿc9GuysSoloLevelingÿc0: No item");
 			return false;
 		}
 			
 		if (!me.getQuest(35, 1)) { //Quest not available
-			print("ÿc9SoloLevelingÿc0: Quest unavailable");
+			print("ÿc9GuysSoloLevelingÿc0: Quest unavailable");
 			return false;
 		}
 			
 		if (item.getStat(194) > 0 || getBaseStat("items", item.classid, "gemsockets") === 0) { //Item can't be socketed
-			print("ÿc9SoloLevelingÿc0:Item cannot be socketed");
+			print("ÿc9GuysSoloLevelingÿc0: Item cannot be socketed");
 			return false;
 		}
 			
@@ -436,13 +436,13 @@ var Quest = {
 		}
 			
 		if (!Storage.Inventory.CanFit(item)) { //No space to get the item back
-			print("ÿc9SoloLevelingÿc0: No space to get item back");
+			print("ÿc9GuysSoloLevelingÿc0: No space to get item back");
 			return false;
 		}
 			
 		if (me.act !== 5 || !me.inTown) {
 			if (!Town.goToTown(5)) {
-				print("ÿc9SoloLevelingÿc0:Failed to go to act 5");
+				print("ÿc9GuysSoloLevelingÿc0:Failed to go to act 5");
 				return false;
 			}
 		}
@@ -451,7 +451,7 @@ var Quest = {
 			Town.openStash();
 
 			if (!Storage.Inventory.MoveTo(item)) {
-				print("ÿc9SoloLevelingÿc0: Failed to move item from stash to inventory");
+				print("ÿc9GuysSoloLevelingÿc0: Failed to move item from stash to inventory");
 				return false;
 			}
 
@@ -478,7 +478,7 @@ var Quest = {
 		}
 			
 		if (!larzuk) {
-			print("ÿc9SoloLevelingÿc0: Couldn't find larzuk");
+			print("ÿc9GuysSoloLevelingÿc0: Couldn't find larzuk");
 			return false;
 		}			
 
@@ -490,7 +490,7 @@ var Quest = {
 		}
 
 		if (!item.toCursor()) {
-			print("ÿc9SoloLevelingÿc0: Couldn't get item");
+			print("ÿc9GuysSoloLevelingÿc0: Couldn't get item");
 			return false;
 		}
 			
@@ -521,9 +521,9 @@ var Quest = {
 		Misc.logItem("Used my " + diffSting + " socket quest on : ", item);
 
 		if (!slot && item.location !== 7) {	
-			if (Storage.Stash.CanFit(selected)) { //move selected back to stash
+			if (Storage.Stash.CanFit(item)) { //move item back to stash
 				Town.move('stash');
-				Storage.Stash.MoveTo(selected);
+				Storage.Stash.MoveTo(item);
 				me.cancel;
 			}
 		}
@@ -540,17 +540,17 @@ var Quest = {
 		var charsi, slot, invo, i, items;
 			
 		if (!item || item === undefined || item.mode === 3) { //No item
-			print("ÿc9SoloLevelingÿc0: No item");
+			print("ÿc9GuysSoloLevelingÿc0: No item");
 			return false;
 		}
 			
 		if (!Misc.checkQuest(3, 1)) { //Quest not available
-			print("ÿc9SoloLevelingÿc0: Quest not done yet");
+			print("ÿc9GuysSoloLevelingÿc0: Quest not done yet");
 			return false;
 		}
 			
 		if (item.getStat(194) > 0 || item.quality > 3) { //Item can't be imbued
-			print("ÿc9SoloLevelingÿc0:Item cannot be imbued");
+			print("ÿc9GuysSoloLevelingÿc0:Item cannot be imbued");
 			return false;
 		}
 			
@@ -563,13 +563,13 @@ var Quest = {
 		}
 			
 		if (!Storage.Inventory.CanFit(item)) { //No space to get the item back
-			print("ÿc9SoloLevelingÿc0: No space to get item back");
+			print("ÿc9GuysSoloLevelingÿc0: No space to get item back");
 			return false;
 		}
 			
 		if (me.act !== 1 || !me.inTown) {
 			if (!Town.goToTown(1)) {
-				print("ÿc9SoloLevelingÿc0:Failed to go to act 1");
+				print("ÿc9GuysSoloLevelingÿc0: Failed to go to act 1");
 				return false;
 			}
 		}
@@ -578,7 +578,7 @@ var Quest = {
 			Town.openStash();
 
 			if (!Storage.Inventory.MoveTo(item)) {
-				print("ÿc9SoloLevelingÿc0: Failed to move item from stash to inventory");
+				print("ÿc9GuysSoloLevelingÿc0: Failed to move item from stash to inventory");
 				return false;
 			}
 		}
@@ -603,19 +603,19 @@ var Quest = {
 		}
 			
 		if (!charsi) {
-			print("ÿc9SoloLevelingÿc0: Couldn't find charsi");
+			print("ÿc9GuysSoloLevelingÿc0: Couldn't find charsi");
 			return false;
 		}
 
 		Town.npcInteract("charsi");
 		delay(10 + me.ping * 2);
 
-		if (!Misc.useMenu(0x58DC)) {
+		if (!Misc.useMenu(4017)) {
 			return false;
 		}
 
 		if (!item.toCursor()) {
-			print("ÿc9SoloLevelingÿc0: Couldn't get item");
+			print("ÿc9GuysSoloLevelingÿc0: Couldn't get item");
 			return false;
 		}
 		
@@ -642,9 +642,9 @@ var Quest = {
 		Misc.logItem("Used my " + diffSting + " imbue quest on : ", item);
 
 		if (!slot && item.location !== 7) {	
-			if (Storage.Stash.CanFit(selected)) { //move selected back to stash
+			if (Storage.Stash.CanFit(item)) { //move item back to stash
 				Town.move('stash');
-				Storage.Stash.MoveTo(selected);
+				Storage.Stash.MoveTo(item);
 				me.cancel;
 			}
 		}

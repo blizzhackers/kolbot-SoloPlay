@@ -1,6 +1,6 @@
 /*
 *	@filename	DynamicTiers.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		Dynamic tiers calculators for SoloLeveling
 */
 
@@ -349,4 +349,59 @@ var tierscore = function (item) {
 	}
 
 	return tier;
+};
+
+var charmscore = function (item) {
+	let generalWeights = {
+		ALL:	180, // + all skills
+		CLASS:	175, // + class tab
+		TAB: 300, // + skill tab
+		FR: 3.5, // fire resist
+		LR: 4, // lightning resist
+		CR: 2, // cold resist
+		PR: 1, // poison resist
+		FRW: 1, // faster run/walk
+		FHR: 3, // faster hit recovery
+		DEF: 0.05, // defense
+		MF: 2.0, //Magic Find
+		// base stats
+		HP:	1.75,
+		MANA: 0.8,
+		STR: 1.0,
+		DEX: 1.0,
+	};
+
+	let charmRating = 0;
+	charmRating += item.getStatEx(188, Check.Build().tabSkills) * generalWeights.TAB; // + TAB skills
+	charmRating += item.getStatEx(39) * generalWeights.FR; // add FR
+	charmRating += item.getStatEx(43) * generalWeights.CR; // add CR
+	charmRating += item.getStatEx(41) * generalWeights.LR; // add LR
+	charmRating += item.getStatEx(45) * generalWeights.PR; // add PR
+	charmRating += item.getStatEx(96) * generalWeights.FRW; // add faster run walk
+	charmRating += item.getStatEx(99) * generalWeights.FHR; // add faster hit recovery
+	charmRating += item.getStatEx(31) * generalWeights.DEF; //	add Defense
+	charmRating += item.getStatEx(80) * generalWeights.MF; // add magic find
+	charmRating += (item.getStatEx(3) + item.getStatEx(7) + (item.getStatEx(216) / 2048 * me.charlvl)) * generalWeights.HP; // add HP
+	charmRating += (item.getStatEx(1) + item.getStatEx(9) + (item.getStatEx(217) / 2048 * me.charlvl)) * generalWeights.MANA;// add mana
+	charmRating += item.getStatEx(0) * generalWeights.STR; // add STR
+	charmRating += item.getStatEx(2) * generalWeights.DEX; // add DEX
+
+	if (!Check.Build().caster) {
+		charmRating += item.getStatEx(21) * 3; // add MIN damage
+		charmRating += item.getStatEx(22) * 3; // add MAX damage
+		charmRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 256)); // add elemental damage PSN damage adjusted for damage per frame (125/256)
+		charmRating += item.getStatEx(19) * 0.5; // add AR
+	}
+
+	// Gheeds, Torch, annhi
+	if (item.quality === 7) {
+		charmRating += item.getStatEx(127) * generalWeights.ALL; // + all skills
+		charmRating += item.getStatEx(83, me.classid) * generalWeights.CLASS; // + class skills
+		charmRating += item.getStatEx(79); // add gold find
+		charmRating += item.getStatEx(80) * generalWeights.MF; // add magic find
+		charmRating += item.getStatEx(87) * 1.5; // add reduced vendor prices
+		charmRating += item.getStatEx(0); // add STR
+	}
+
+	return charmRating;
 };

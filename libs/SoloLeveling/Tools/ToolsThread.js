@@ -53,7 +53,7 @@ function main () {
 		canQuit = true,
 		timerLastDrink = [];
 
-	print("ÿc9SoloLeveling:ÿc3 Start Custom ToolsThread script");
+	print("ÿc9GuysSoloLevelingÿc0: Start Custom ToolsThread script");
 	D2Bot.init();
 	Config.init(false);
 	Pickit.init(false);
@@ -162,7 +162,7 @@ function main () {
 
 	this.togglePause = function () {
 		var l,	script,
-			scripts = ["default.dbj", "tools/townchicken.js", "tools/antihostile.js", "tools/party.js", "tools/rushthread.js"];
+			scripts = ["default.dbj", "libs/SoloLeveling/Tools/TownChicken.js", "tools/antihostile.js", "tools/party.js", "tools/rushthread.js"];
 
 		for (l = 0; l < scripts.length; l += 1) {
 			script = getScript(scripts[l]);
@@ -174,7 +174,7 @@ function main () {
 					}
 
 					// don't pause townchicken during clone walk
-					if (scripts[l] !== "tools/townchicken.js" || !cloneWalked) {
+					if (scripts[l] !== "libs/SoloLeveling/Tools/TownChicken.js" || !cloneWalked) {
 						script.pause();
 					}
 				} else {

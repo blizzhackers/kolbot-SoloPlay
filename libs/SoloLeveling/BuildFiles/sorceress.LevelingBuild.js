@@ -1,6 +1,6 @@
 /*
  *    @filename 	Sorceress.BlizzballerBuild.js
- *	  @author	  	isid0re
+ *	  @author	  	isid0re, theBGuy
  *    @desc    		Sorceress blizzballer build for after respecOne
  */
 
@@ -37,8 +37,10 @@ var build = {
 		[65, 1, false], // cold mastery
 		[47, 20], // fireball 20
 		[59, 20], // blizzard 20
-		[55, 20], // gspike
-		[56, 20], // meteor
+		[55, 15], // gspike	15
+		[56, 15], // meteor 15
+		[55, 20], // gspike 20
+		[56, 20], // meteor 20
 		[65, 5], // cold mastery
 		[36, 20], // Fire Bolt
 	]
