@@ -65,6 +65,11 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 
 **A:** There was a bad installation OR the profile settings are wrong. First verify that you using the kolbot version linked the install guide below. Next, confirm you have installed all the files into their proper locations (including overwriting the existing `_customconfig.js` and `default.dbj`). Finally, verify the profile name and infotag follow the format of the install guide's instructions.
 
+## Really Dumb Frequently Asked Questions
+**Q: Can I make my solo bots work together?**
+
+**A:** NO. It is SOLO not team, not group, but SoloLeveling
+
 ## Install Guide
 | Step | Instructions | |
 |:------:|:-------|-------:|
@@ -115,10 +120,7 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 - **HCCNL-SORC** would make a hardcore classic nonladder sorceress
 
 ## Discord
-Join me on Discord. Link is here: https://discord.gg/q7tME8RAHh
-
-## Support SoloLeveling
-This is a hobby project that I'm doing in my spare time. So if you enjoy using SoloLeveling consider supporting me at [buymeacoffee.com/isid0re](https://www.buymeacoffee.com/isid0re).
+No personal one as of yet
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
