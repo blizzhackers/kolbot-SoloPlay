@@ -234,7 +234,7 @@ function LoadConfig () {
 
 	/* LOD gear */
 	if (!me.classic) {
-		let finalGear = Check.Build().finalGear;
+		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
 
 		switch (SetUp.finalBuild) { // finalbuild setup
@@ -477,7 +477,7 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(Insight);
 
-			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568) {
+			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568 && !Check.haveBase("polearm", 4)) {
 				NTIP.addLine("[Name] == voulge && [flag] != ethereal && [Quality] == Normal && [Level] >= 26 && [Level] <= 40 # [Sockets] == 0 # [MaxQuantity] == 1");
 			}
 

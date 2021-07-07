@@ -18,7 +18,7 @@ var build = {
 		["vitality", 91], ["dexterity", 44], ["strength", 30],
 		["vitality", 96], ["dexterity", 59], ["strength", 60],
 		["vitality", 109], ["dexterity", 77], ["strength", 89],
-		["vitality", 137], ["dexterity", 89],
+		["vitality", 137], ["dexterity", 89], ["strength", 103],
 		["vitality", 173], ["dexterity", 103],
 		["vitality", 208], ["dexterity", 118],
 		["vitality", 243], ["dexterity", 133],

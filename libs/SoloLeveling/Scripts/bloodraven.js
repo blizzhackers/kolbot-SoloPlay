@@ -26,6 +26,14 @@ function bloodraven () {
 		Town.npcInteract("kashya");
 
 		return true;
+	} else if (me.paladin && !Attack.IsAuradin || (!Check.haveItem("armor", "runeword", "Enigma") || !Pather.accessToAct(3))) {
+		me.overhead("blood raven");
+		Pather.moveToExit([3, 17], true);
+		Pather.moveToPreset(17, 1, 805);
+		Attack.killTarget("Blood Raven");
+		Pickit.pickItems();
+
+		return true;
 	}
 
 	me.overhead("mausoleum");

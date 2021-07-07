@@ -14,7 +14,9 @@ function a5chests() {
 
 	for (let i = 0; i < areas.length; i++) {
 		try {
-			if (!Pather.canTeleport() && me.nightmare && me.charlvl >= 70 && [125, 126, 127, 115, 116].indexOf(areas[i]) > -1) {
+			if (!Pather.canTeleport() && me.nightmare && [125, 126, 127].indexOf(areas[i]) > -1) {
+				continue;
+			} else if (!Pather.canTeleport() && me.nightmare && me.charlvl >= 70 && [125, 126, 127, 115, 116].indexOf(areas[i]) > -1) {
 				continue;
 			}
 

@@ -274,7 +274,7 @@ var tierscore = function (item) {
 	};
 
 	this.buildScore = function (item) {
-		var buildWeights = Check.Build().caster ? casterWeights : meleeWeights;
+		var buildWeights = Check.currentBuild().caster ? casterWeights : meleeWeights;
 
 		if (me.amazon === 0) {
 			if (item.getStatEx(253)) {
@@ -305,9 +305,9 @@ var tierscore = function (item) {
 		let skillsRating = 0;
 		skillsRating += item.getStatEx(127) * skillsWeights.ALL; // + all skills
 		skillsRating += item.getStatEx(83, me.classid) * skillsWeights.CLASS; // + class skills
-		skillsRating += item.getStatEx(188, Check.Build().tabSkills) * skillsWeights.TAB; // + TAB skills
+		skillsRating += item.getStatEx(188, Check.currentBuild().tabSkills) * skillsWeights.TAB; // + TAB skills
 		let selectedWeights = [skillsWeights.WANTED, skillsWeights.USEFUL];
-		let selectedSkills = [Check.Build().wantedSkills, Check.Build().usefulSkills];
+		let selectedSkills = [Check.currentBuild().wantedSkills, Check.currentBuild().usefulSkills];
 
 		for (let i = 0; i < selectedWeights.length; i++) {
 			for (let j = 0; j < selectedSkills.length; j++) {
@@ -372,7 +372,7 @@ var charmscore = function (item) {
 	};
 
 	let charmRating = 0;
-	charmRating += item.getStatEx(188, Check.Build().tabSkills) * generalWeights.TAB; // + TAB skills
+	charmRating += item.getStatEx(188, Check.currentBuild().tabSkills) * generalWeights.TAB; // + TAB skills
 	charmRating += item.getStatEx(39) * generalWeights.FR; // add FR
 	charmRating += item.getStatEx(43) * generalWeights.CR; // add CR
 	charmRating += item.getStatEx(41) * generalWeights.LR; // add LR
@@ -386,7 +386,7 @@ var charmscore = function (item) {
 	charmRating += item.getStatEx(0) * generalWeights.STR; // add STR
 	charmRating += item.getStatEx(2) * generalWeights.DEX; // add DEX
 
-	if (!Check.Build().caster) {
+	if (!Check.currentBuild().caster) {
 		charmRating += item.getStatEx(21) * 3; // add MIN damage
 		charmRating += item.getStatEx(22) * 3; // add MAX damage
 		charmRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 256)); // add elemental damage PSN damage adjusted for damage per frame (125/256)

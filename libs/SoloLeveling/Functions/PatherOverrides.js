@@ -144,6 +144,74 @@ Pather.useTeleport = function () { //XCon provided. to turn off teleport if belo
 	return this.teleport && !Config.NoTele && !me.getState(139) && !me.getState(140) && !me.inTown && ((me.classid === 1 && me.getSkill(54, 1) && ((me.getStat(8) / me.getStat(9)) * 100) >= 20) || me.getStat(97, 54));
 };
 
+Pather.deploy = function (unit, distance, spread, range) {
+	if (arguments.length < 4) {
+		throw new Error("deploy: Not enough arguments supplied");
+	}
+
+	var i, grid, index, currCount,
+		tick = getTickCount(),
+		monList = [],
+		count = 999,
+		idealPos = {
+			x: Math.round(Math.cos(Math.atan2(me.y - unit.y, me.x - unit.x)) * Config.DodgeRange + unit.x),
+			y: Math.round(Math.sin(Math.atan2(me.y - unit.y, me.x - unit.x)) * Config.DodgeRange + unit.y)
+		};
+
+	monList = this.buildMonsterList();
+
+	monList.sort(Sort.units);
+
+	if (this.getMonsterCount(me.x, me.y, 15, monList) === 0) {
+		return true;
+	}
+
+	CollMap.getNearbyRooms(unit.x, unit.y);
+
+	grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
+
+	if (!grid.length) {
+		return false;
+	}
+
+	function sortGrid(a, b) {
+		return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
+	}
+
+	grid.sort(sortGrid);
+
+	for (i = 0; i < grid.length; i += 1) {
+		if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & 0x1) && !CollMap.checkColl(unit, {x: grid[i].x, y: grid[i].y}, 0x4)) {
+			currCount = this.getMonsterCount(grid[i].x, grid[i].y, range, monList);
+
+			if (currCount < count) {
+				index = i;
+				count = currCount;
+			}
+
+			if (currCount === 0) {
+				break;
+			}
+		}
+	}
+
+	if (typeof index === "number") {
+		if (me.necromancer) {
+			if (me.getSkill(77, 1) >= 1 && Skill.getManaCost(77) < me.mp) {
+				if (ClassAttack.isCursable(monList[0])) {
+					Skill.cast(77, Skill.getHand(77));
+				}
+
+				print("got here");
+			}
+		}
+
+		return Pather.moveTo(grid[index].x, grid[index].y, 0);
+	}
+
+	return false;
+};
+
 Pather.openDoors = function (x, y) { //fixed monsterdoors/walls in act 5
 	if (me.inTown) {
 		return false;
@@ -485,6 +553,86 @@ Pather.makePortal = function (use) {
 	return false;
 };
 
+// from isid0re SoloLeveling commit eb818af
+Pather.usePortal = function (targetArea, owner, unit) {
+	if (targetArea && me.area === targetArea) {
+		return true;
+	}
+
+	me.cancel();
+
+	var i, tick, portal,
+		preArea = me.area;
+
+	for (i = 0; i < 10; i += 1) {
+		if (me.dead) {
+			break;
+		}
+
+		if (i > 0 && owner && me.inTown) {
+			Town.move("portalspot");
+		}
+
+		portal = unit ? copyUnit(unit) : this.getPortal(targetArea, owner);
+
+		if (portal) {
+			if (portal.area === me.area) {
+				if (getDistance(me, portal) > 5) {
+					this.moveToUnit(portal);
+				}
+
+				if (getTickCount() - this.lastPortalTick > 2500) {
+					if (i < 2) {
+						sendPacket(1, 0x13, 4, 0x2, 4, portal.gid);
+					} else {
+						Misc.click(0, 0, portal);
+					}
+				} else {
+					delay(300 + me.ping);
+					continue;
+				}
+			}
+
+			if (portal.classid === 298 && portal.mode !== 2) { // Portal to/from Arcane
+				Misc.click(0, 0, portal);
+
+				tick = getTickCount();
+
+				while (getTickCount() - tick < 2000) {
+					if (portal.mode === 2 || me.area === 74) {
+						break;
+					}
+
+					delay(10 + me.ping);
+				}
+			}
+
+			tick = getTickCount();
+
+			while (getTickCount() - tick < 500 + me.ping) {
+				if (me.area !== preArea) {
+					this.lastPortalTick = getTickCount();
+					delay(100 + me.ping);
+
+					return true;
+				}
+
+				delay(10 + me.ping);
+			}
+
+			if (i > 1) {
+				Packet.flash(me.gid);
+			}
+		} else {
+			Packet.flash(me.gid);
+		}
+
+		delay(200 + me.ping);
+	}
+
+	return targetArea ? me.area === targetArea : me.area !== preArea;
+};
+
 Pather.moveToUnit = function (unit, offX, offY, clearPath, pop) {
 	var useTeleport = this.useTeleport();
 
@@ -513,7 +661,7 @@ Pather.moveToUnit = function (unit, offX, offY, clearPath, pop) {
 	}
 
 	if (!useTeleport) {
-		this.moveTo(unit.x + offX, unit.y + offY, 0, clearPath, true);	// The unit will most likely be moving so call the first walk with 'pop' parameter
+		this.moveTo(unit.x + offX, unit.y + offY, 15, clearPath, true);	// The unit will most likely be moving so call the first walk with 'pop' parameter
 	}
 
 	return this.moveTo(unit.x + offX, unit.y + offY, useTeleport && unit.type && unit.type === 1 ? 3 : 0, clearPath, pop);
@@ -716,10 +864,6 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 					}
 
 					delay(10 + me.ping);
-				}
-
-				while (!me.gameReady) {		// In case of hang up
-					delay(100);
 				}
 
 				me.cancel(); // In case lag causes the wp menu to stay open

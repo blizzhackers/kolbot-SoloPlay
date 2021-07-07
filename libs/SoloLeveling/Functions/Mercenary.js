@@ -57,9 +57,9 @@ var Merc = {
 	},
 
 	hireMerc: function () {
-		let mercAuraName = Check.Build().mercAuraName;
-		let mercAuraWanted = Check.Build().mercAuraWanted;
-		let mercDiff = Check.Build().mercDiff;
+		let mercAuraName = Check.finalBuild().mercAuraName;
+		let mercAuraWanted = Check.finalBuild().mercAuraWanted;
+		let mercDiff = Check.finalBuild().mercDiff;
 		let tempMercAura = 99; //prayer only one not used -- replacing merc will bug out if changed.
 		let mercAura = [[104, 99, 108], [103, 98, 114]];
 		let mercenary;

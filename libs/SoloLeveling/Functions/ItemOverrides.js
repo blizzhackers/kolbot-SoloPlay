@@ -55,26 +55,26 @@ Item.getBodyLoc = function (item) {
 		bodyLoc = 1;
 
 		break;
-	case 24: //
-	case 25: //
-	case 26: //
-	case 27: //
-	case 28: //
-	case 29: //
-	case 30: //
-	case 31: //
-	case 32: //
-	case 33: //
-	case 34: //
-	case 35: //
-	case 36: //
-	case 42: //
-	case 43: //
-	case 44: //
-	case 68: //
-	case 85: //
-	case 86: //
-	case 87: //
+	case 24: //	Scepter
+	case 25: //	Wand
+	case 26: //	Staff
+	case 27: //	Bow
+	case 28: //	Axe
+	case 29: //	Club
+	case 30: //	Sword
+	case 31: //	Hammer
+	case 32: //	Knife
+	case 33: //	Spear
+	case 34: //	Polearm
+	case 35: //	Crossbow
+	case 36: //	Mace
+	case 42: //	Throwing Knife
+	case 43: //	Throwing Axe
+	case 44: //	Javelin
+	case 68: //	Orb
+	case 85: //	Amazon Bow
+	case 86: //	Amazon Spear
+	case 87: //	Amazon Javelin
 		if (me.barbarian) {
 			bodyLoc = [4, 5];
 
@@ -393,6 +393,12 @@ Item.getBodyLocMerc = function (item) {
 	}
 
 	switch (item.itemType) {
+	case 2: //	Shield
+		if (mercenary.classid === 359) {
+			bodyLoc = 5;
+		}
+
+		break;
 	case 3: // Armor
 		bodyLoc = 3;
 
@@ -411,6 +417,12 @@ Item.getBodyLocMerc = function (item) {
 	case 33: //
 	case 34: //
 		if (mercenary.classid === 338) {
+			bodyLoc = 4;
+		}
+
+		break;
+	case 30: //	Sword
+		if (mercenary.classid === 359 || mercenary.classid === 561) {
 			bodyLoc = 4;
 		}
 
@@ -1592,7 +1604,11 @@ Item.autoEquipCharms = function (verbose) {
 		print("ÿc9GuysSoloLevelingÿc0: Total Charms Sell: " + totalSell.length);
 
 		for (let i = 0; i < totalSell.length; i++) {
-			if (totalSell[i].location === 7 && !Town.openStash() && !Storage.Inventory.MoveTo(totalSell[i])) {
+			if (totalSell[i].location === 7 && !getUIFlag(0x19)) {
+				Town.openStash();
+			}
+
+			if (totalSell[i].location === 7 && !Storage.Inventory.MoveTo(totalSell[i])) {
 				totalSell[i].drop();
 
 				totalSell.splice(i, 1);
@@ -1605,9 +1621,9 @@ Item.autoEquipCharms = function (verbose) {
 
 		if (getUIFlag(0xC) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
 			for (let i = 0; i < totalSell.length; i++) {
-				print("clearInventory sell " + totalSell[i].name);
+				print("ÿc9GuysSoloLevelingÿc0: Sell old charm " + totalSell[i].name);
 				Misc.itemLogger("Sold", totalSell[i]);
-				Misc.logItem("Sold", totalSell[i]);
+				Misc.logItem("CharmEquip Sold", totalSell[i]);
 				totalSell[i].sell();
 			}
 		}

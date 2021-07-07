@@ -79,9 +79,23 @@ include("SoloLeveling/Tools/Tracker.js");
 include("SoloLeveling/Tools/NameGen.js");
 include("SoloLeveling/Tools/OOGOverrides.js");
 
+if (Developer.fillAccount) {
+    if (!!DataFile.getStats().makeNext) {
+        D2Bot.printToConsole('Making next character...', 6);
+        FileTools.remove("data/" + me.profile + ".json");
+        FileTools.remove("libs/SoloLeveling/Data/" + me.profile + ".GameTime" + ".json");
+        D2Bot.setProfile(null, null, "");
+    }
+}
+
 if (!FileTools.exists("data/" + me.profile + ".json")) {
 	DataFile.create();
 	DataFile.updateStats("currentBuild", "Start");
+
+	if (Developer.fillAccount) {
+        DataFile.updateStats("makeNext", false);
+    }
+
 	delay(Math.floor(rand(1, 20)));
 }
 
@@ -732,7 +746,11 @@ function locationAction (location) {
 							deleteAndRemakeChar(setUp);
 
 						} else {
-							ControlAction.makeCharacter(setUp);
+							if (!ControlAction.makeCharacter(setUp)) {
+								D2Bot.printToConsole("GuysSoloLeveling: Account is full");
+								D2Bot.stop();
+							}
+							
 						}
 						
 					}
@@ -1028,7 +1046,10 @@ function locationAction (location) {
 					D2Bot.printToConsole("Avoid Creating New Character - Restart");
 					D2Bot.restart();
 				} else {
-					ControlAction.makeCharacter(setUp);
+					if (!ControlAction.makeCharacter(setUp)) {
+						D2Bot.printToConsole("GuysSoloLeveling: Account is full");
+						D2Bot.stop();
+					}
 				}
 			} else {
 				ControlAction.loginCharacter(setUp);

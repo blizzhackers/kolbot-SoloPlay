@@ -96,6 +96,7 @@ function main() {
 
 			try {
 				me.overhead("Going to town");
+				print("Going to town");
 				if (useHowl && Skill.getManaCost(130) > me.mp) {
 					Skill.cast(130, 0);
 				}

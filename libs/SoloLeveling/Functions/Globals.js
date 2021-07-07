@@ -13,7 +13,7 @@ var Difficulty = ['Normal', 'Nightmare', 'Hell'];
 
 var SetUp = {
 	scripts: [
-		"den", "bloodraven", "tristram", "countess", "smith", "pits", "andariel", "a1chests", "cows", // Act 1
+		"den", "bloodraven", "tristram", "treehead","countess", "smith", "pits", "andariel", "a1chests", "cows", // Act 1
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel", // Act 2
 		"templeruns", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
 		"izual", "hellforge", "diablo", //Act 4
@@ -55,7 +55,7 @@ var SetUp = {
 	},
 
 	//			Amazon					Sorceress				Necromancer					Paladin				Barbarian				Druid					Assassin					
-	levelCap: [[33, 65, 100][me.diff], [33, 70, 100][me.diff], [33, 65, 100][me.diff], [33, 65, 100][me.diff], [33, 65, 100][me.diff], [33, 73, 100][me.diff], [33, 65, 100][me.diff]][me.classid],
+	levelCap: [[33, 65, 100][me.diff], [33, 70, 100][me.diff], [33, 70, 100][me.diff], [33, 65, 100][me.diff], [33, 65, 100][me.diff], [33, 73, 100][me.diff], [33, 65, 100][me.diff]][me.classid],
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
@@ -109,7 +109,10 @@ var SetUp = {
 				break;
 			case "Auradin":
 				respec = Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream") ? me.charlvl : 100;
-				break;			
+				break;
+			default:
+				respec = 100;
+				break;
 			}
 		}
 
@@ -165,6 +168,14 @@ var SetUp = {
 
 		return specCheck;
 	},
+
+	makeNext: function () {
+        DataFile.updateStats("makeNext", true);
+        print("ÿc9GuysSoloLevelingÿc0: " + this.finalBuild + " goal reached. On to the next.");
+        me.overhead("GuysSoloLeveling: " + this.finalBuild + " goal reached. On to the next.");
+        delay(100 + me.ping);
+        D2Bot.restart();
+    },
 };
 
 // SoloLeveling Pickit Items
@@ -244,7 +255,13 @@ var Check = {
 
 			break;
 		case "bloodraven": //bloodaraven
-			if ((!me.bloodraven && me.normal) || (me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || (!me.amazon && !me.paladin)))) {
+			if ((!me.bloodraven && me.normal) || (me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || !me.amazon))) {
+				return true;
+			}
+
+			break;
+		case "treehead": //treehead
+			if (me.hell && (me.paladin && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma") || !Pather.accessToAct(3)))) {
 				return true;
 			}
 
@@ -256,7 +273,7 @@ var Check = {
 
 			break;
 		case "tristram": //tristram
-			if (me.normal && me.charlvl < 15 || !me.normal && !me.tristram && (me.classic && me.diablo || me.baal)) {
+			if ((me.normal && me.charlvl < 15) || (!me.normal && (!me.tristram && (me.classic && me.diablo || me.baal)) || (me.paladin && me.hell && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma") || !Pather.accessToAct(3))))) {
 				return true;
 			}
 
@@ -268,7 +285,7 @@ var Check = {
 
 			break;
 		case "pits": //pits
-			if (me.hell && ((!me.sorceress && !me.druid) || (me.sorceress && me.charlvl >= 70) || (me.druid && ["Plaguewolf", "Wolf"].indexOf(SetUp.currentBuild) > -1))) {
+			if (me.hell && ((!me.sorceress && !me.druid && (!me.paladin || Attack.IsAuradin)) || (me.sorceress && me.charlvl >= 70) || (me.druid && ["Plaguewolf", "Wolf"].indexOf(SetUp.currentBuild) > -1))) {
 				return true;
 			}
 
@@ -340,7 +357,13 @@ var Check = {
 
 			break;
 		case "templeruns": //temple runs
-			if (Pather.accessToAct(3) && (!me.lamessen || me.nightmare && me.charlvl < 50 || me.hell)) {
+			if (Pather.accessToAct(3) && ((!me.lamessen || me.nightmare && me.charlvl < 50 || me.hell) && (!me.paladin || Attack.IsAuradin))) {
+				return true;
+			}
+
+			break;
+		case "lamessen": //temple runs
+			if (Pather.accessToAct(3) && !me.lamessen && me.paladin) {
 				return true;
 			}
 
@@ -358,7 +381,7 @@ var Check = {
 
 			break;
 		case "travincal": //travincal
-			if (Pather.accessToAct(3) && (me.charlvl < 25 || !me.travincal)) {
+			if (Pather.accessToAct(3) && (me.charlvl < 25 || (me.hell && me.paladin && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))) || !me.travincal)) {
 				return true;
 			}
 
@@ -376,7 +399,7 @@ var Check = {
 
 			break;
 		case "diablo": //diablo
-			if (Pather.accessToAct(4) && ((me.normal && (Pather.canTeleport() || me.charlvl < 35)) || (me.nightmare && !me.druid || me.charlvl <= 70) || (me.hell && me.charlvl !== 100))) {
+			if (Pather.accessToAct(4) && ((me.normal && (Pather.canTeleport() || me.charlvl < 35)) || (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)) || (me.hell && me.charlvl !== 100))) {
 				return true;
 			}
 
@@ -501,7 +524,7 @@ var Check = {
 	nextDifficulty: function () {
 		let diffShift = me.diff;
 		let lowRes = !this.Resistance().Status;
-		let lvlReq = me.charlvl >= SetUp.levelCap ? true : false;
+		let lvlReq = (me.charlvl >= SetUp.levelCap) && ["Bumper", "Socketmule"].indexOf(SetUp.finalBuild) === -1 ? true : false;
 		let diffCompleted = !me.classic && me.baal ? true : me.classic && me.diablo ? true : false;
 
 		if (diffCompleted) {
@@ -631,7 +654,61 @@ var Check = {
 		return itemCHECK;
 	},
 
-	Build: function () {
+	haveBase: function (type, sockets) {
+		if (type === undefined || sockets === undefined) {
+			return false;
+		}
+
+		switch (typeof type) {
+		case "number":
+			break;
+		case "string":
+			type = type.toLowerCase();
+			type =  NTIPAliasType[type];
+			break;
+		}
+
+		let baseCheck = false;
+		let items = me.getItems()
+			.filter(item => 
+				[2, 3].indexOf(item.quality) > -1 &&
+				[3, 7].indexOf(item.location) > -1);
+
+		for (let i = 0; i < items.length; i++) {
+			if (items[i].getStat(194) === sockets && items[i].itemType === type) {
+				baseCheck = true;
+				break;
+			}
+		}
+
+		return baseCheck;
+	},
+
+	currentBuild: function () {
+		function getBuildTemplate () {
+			let buildType = SetUp.currentBuild;
+			let build = buildType + "Build" ;
+			let classname = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid];
+			let template = "SoloLeveling/BuildFiles/" + classname + "." + build + ".js";
+
+			return template.toLowerCase();
+		}
+
+		var template = getBuildTemplate();
+
+		if (!include(template)) {
+			throw new Error("currentBuild(): Failed to include template: " + template);
+		}
+
+		return {
+			caster: build.caster,
+			tabSkills: build.skillstab,
+			wantedSkills: build.wantedskills,
+			usefulSkills: build.usefulskills,
+		};
+	},
+
+	finalBuild: function () {
 		function getBuildTemplate () {
 			let buildType = SetUp.finalBuild;
 			let build = buildType + "Build" ;
@@ -644,7 +721,7 @@ var Check = {
 		var template = getBuildTemplate();
 
 		if (!include(template)) {
-			throw new Error("buildCheck(): Failed to include template: " + template);
+			throw new Error("finalBuild(): Failed to include template: " + template);
 		}
 
 		return {
@@ -657,6 +734,36 @@ var Check = {
 			mercDiff: build.mercDiff,
 			finalGear: build.autoEquipTiers,
 		};
+	},
+
+	checkSpecialCase: function () {
+		let goalReached = false;
+
+		switch (SetUp.finalBuild) {
+		case "Bumper":
+			if (SetUp.finalBuild === "Bumper" && me.charlvl >= 40) {
+				goalReached = true;
+			}
+
+			break;
+		case "Socketmule":
+			if (SetUp.finalBuild === "Socketmule" && Misc.checkQuest(35, 1)) {
+				goalReached = true;
+			}
+
+			break;
+		default:
+			break;
+		}
+
+		if (goalReached) {
+			if (Developer.fillAccount) {
+				SetUp.makeNext();
+			} else {
+				D2Bot.printToConsole("GuysSoloLeveling " + SetUp.finalBuild + " goal reached.", 6);
+				D2Bot.stop();
+			}
+		}
 	},
 };
 

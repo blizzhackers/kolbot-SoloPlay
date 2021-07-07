@@ -231,7 +231,7 @@ function LoadConfig () {
 
 	/* LOD gear */
 	if (!me.classic) {
-		let finalGear = Check.Build().finalGear;
+		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
 
 		switch (SetUp.finalBuild) { // finalbuilld autoequip setup
@@ -435,7 +435,7 @@ function LoadConfig () {
 			}
 
 			if (Check.haveItem("sword", "runeword", "Hand of Justice") && Check.haveItem("armor", "runeword", "Dragon") && Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream") && 
-				!Item.getEquippedItemMerc(3).prefixnum === 20547) {
+				Item.getEquippedItemMerc(3).prefixnum !== 20547) {
 				var Fortitude = [
 					"[Name] == ElRune # # [MaxQuantity] == 1",
 					"[Name] == SolRune",
@@ -585,7 +585,8 @@ function LoadConfig () {
 				NTIP.arrayLooping(SpiritShield);
 			}
 
-			NTIP.addLine("([Name] == Targe || [Name] == Rondache || [Name] == HeraldicShield ||[Name] == AerinShield || [Name] == AkaranTarge || [Name] == AkaranRondache || [Name] == GildedShield ||[Name] == ProtectorShield || [Name] == SacredTarge) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [fireresist] > 0 && [Sockets] == 4");
+			NTIP.addLine("([Name] == Targe || [Name] == Rondache || [Name] == HeraldicShield ||[Name] == AerinShield || [Name] == AkaranTarge || [Name] == AkaranRondache || [Name] == GildedShield ||[Name] == ProtectorShield || [Name] == SacredTarge) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [fireresist] > 0 && ([Sockets] == 0 || [Sockets] == 4)");
+			
 			Config.Runewords.push([Runeword.Spirit, "Targe"]);
 			Config.Runewords.push([Runeword.Spirit, "Rondache"]);
 			Config.Runewords.push([Runeword.Spirit, "Heraldic Shield"]);
@@ -595,6 +596,17 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.Spirit, "Protector Shield"]);
 			Config.Runewords.push([Runeword.Spirit, "Gilded Shield"]);
 			Config.Runewords.push([Runeword.Spirit, "Sacred Targe"]);
+
+			Config.Recipes.push([Recipe.Socket.Shield, "Targe"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Rondache"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Heraldic Shield"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Aerin Shield"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Akaran Targe"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Akaran Rondache"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Protector Shield"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Gilded Shield"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Sacred Targe"]);
+
 			Config.KeepRunewords.push("([type] == shield || [type] == auricshields) # [fcr] >= 25 && [maxmana] >= 89");
 		}
 
@@ -606,8 +618,12 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(Insight);
 
-			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568) {
+			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568 && !Check.haveBase("polearm", 4)) {
 				NTIP.addLine("[Name] == voulge && [flag] != ethereal && [Quality] == Normal && [Level] >= 26 && [Level] <= 40 # [Sockets] == 0 # [MaxQuantity] == 1");
+			}
+
+			if (!me.getItem(621) && Item.getEquippedItemMerc(4).prefixnum !== 20568) {
+				Config.Recipes.push([Recipe.Rune, "Amn Rune"]);		// Amn -> Sol
 			}
 
 			Config.Recipes.push([Recipe.Socket.Weapon, "Giant Thresher"]);

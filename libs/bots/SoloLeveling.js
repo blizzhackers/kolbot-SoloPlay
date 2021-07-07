@@ -39,6 +39,8 @@ function SoloLeveling () {
 			me.cancel();
 		}
 
+		Check.checkSpecialCase();
+
 		return true;
 	};
 
@@ -54,6 +56,8 @@ function SoloLeveling () {
 				DataFile.updateStats("setDifficulty", updatedDifficulty);
 				D2Bot.setProfile(null, null, null, updatedDifficulty);
 			}
+
+			Check.checkSpecialCase();
 
 			if (Check.Task(SetUp.scripts[k])) {
 				if (!isIncluded("SoloLeveling/Scripts/" + SetUp.scripts[k] + ".js")) {

@@ -87,6 +87,10 @@ function baal () {
 		delay(500 + me.ping);
 	}
 
+	if (SetUp.finalBuild === "Bumper") {
+		return true;
+	}
+
 	let portal = getUnit(2, 563);
 
 	if (portal) {

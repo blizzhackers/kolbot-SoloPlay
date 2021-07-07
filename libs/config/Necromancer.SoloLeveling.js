@@ -228,8 +228,9 @@ function LoadConfig () {
 	Config.AutoBuild.Template = SetUp.getBuild();
 
 	/* Class specific configuration. */
-	Config.Dodge = false;
-	Config.DodgeRange = 5;
+	Config.Dodge = Check.haveItem("armor", "runeword", "Enigma") ? true : me.getSkill(77, 0) ? true : false;
+	Config.DodgeRange = Check.haveItem("armor", "runeword", "Enigma") ? 10 : 5;
+	Config.DodgeHP = 90; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
 
 	Config.Curse[0] = me.getSkill(87, 0) ? 87 : me.getSkill(66, 0) ? 66 : 0; // Boss curse.
 	Config.Curse[1] = me.getSkill(66, 0) ? 66 : 0; // Other monsters curse.
@@ -246,7 +247,7 @@ function LoadConfig () {
 
 	/* LOD gear */
 	if (!me.classic) {
-		let finalGear = Check.Build().finalGear;
+		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
 
 		if (Check.haveItem("shield", "unique", "Moser's Blessed Circle")) {
@@ -340,6 +341,49 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == wand # [fcr] >= 20");
 		}
 
+		if (Item.getEquippedItem(5).tier < 650) {
+			var rhyme = [
+				"[Name] == ShaelRune # # [MaxQuantity] == 1",
+				"[Name] == EthRune # # [MaxQuantity] == 1",
+				"[type] == voodooheads && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2",
+				"[type] == voodooheads && [Quality] == Normal # ([necromancerskills]+[poisonandboneskilltab]+[skillbonespear]+[skillbonespirit]+[skillteeth]+[skillbonewall]+[skillboneprison]+[skillamplifydamage]) >= 1 && [Sockets] == 0",
+			];
+			NTIP.arrayLooping(rhyme);
+
+			Config.Runewords.push([Runeword.Rhyme, "Preserved Head"]);
+			Config.Runewords.push([Runeword.Rhyme, "Zombie Head"]);
+			Config.Runewords.push([Runeword.Rhyme, "Unraveller Head"]);
+			Config.Runewords.push([Runeword.Rhyme, "Gargoyle Head"]);
+			Config.Runewords.push([Runeword.Rhyme, "Demon Head"]);
+			Config.Runewords.push([Runeword.Rhyme, "Mummified Trophy"]);
+			Config.Runewords.push([Runeword.Rhyme, "Fetish Trophy"]);
+			Config.Runewords.push([Runeword.Rhyme, "Sexton Trophy"]);
+			Config.Runewords.push([Runeword.Rhyme, "Cantor Trophy"]);
+			Config.Runewords.push([Runeword.Rhyme, "Hierophant Trophy"]);
+			Config.Runewords.push([Runeword.Rhyme, "Minion Skull"]);
+			Config.Runewords.push([Runeword.Rhyme, "Hellspawn Skull"]);
+			Config.Runewords.push([Runeword.Rhyme, "Overseer Skull"]);
+			Config.Runewords.push([Runeword.Rhyme, "Succubus Skull"]);
+			Config.Runewords.push([Runeword.Rhyme, "Bloodlord Skull"]);
+
+			Config.Recipes.push([Recipe.Socket.Shield, "Preserved Head"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Zombie Head"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Unraveller Head"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Gargoyle Head"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Demon Head"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Mummified Trophy"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Fetish Trophy"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Cantor Trophy"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Hierophant Trophy"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Minion Skull"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Hellspawn Skull"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Overseer Skull"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Succubus Skull"]);
+			Config.Recipes.push([Recipe.Socket.Shield, "Bloodlord Skull"]);
+
+			Config.KeepRunewords.push("[type] == voodooheads # [fireresist] >= 25 && [itemmagicbonus] >= 25");
+		}
+		
 		if (!Check.haveItem("armor", "runeword", "Enigma")) { // Enigma
 			var Enigma = [
 				"[Name] == JahRune",
@@ -423,7 +467,7 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(Insight);
 
-			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568) {
+			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568 && !Check.haveBase("polearm", 4)) {
 				NTIP.addLine("[Name] == voulge && [flag] != ethereal && [Quality] == Normal && [Level] >= 26 && [Level] <= 40 # [Sockets] == 0 # [MaxQuantity] == 1");
 			}
 

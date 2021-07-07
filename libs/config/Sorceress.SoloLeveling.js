@@ -237,7 +237,7 @@ function LoadConfig () {
 
 	/* LOD gear */
 	if (!me.classic) {
-		let finalGear = Check.Build().finalGear;
+		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
 
 		switch (SetUp.finalBuild) { // finalbuilld autoequip setup

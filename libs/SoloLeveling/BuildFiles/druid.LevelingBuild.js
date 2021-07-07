@@ -7,7 +7,7 @@
 var build = {
 	caster: true,
 	skillstab: 42, // elemental
-	wantedskills: [245, 250], // tornado, hurricane
+	wantedskills: [245, 250, 240], // tornado, hurricane, twister
 	usefulskills: [235], // cyclone armor
 	mercAuraName: "Blessed Aim",
 	mercAuraWanted: 108,

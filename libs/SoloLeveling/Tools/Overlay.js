@@ -72,12 +72,8 @@ var Overlay = {
 			}
 
 			// Double check in case still got here before being ready
-			/*if (!me.gameReady && !me.ingame && [1, 2, 3, 4, 5].indexOf(me.act) === -1) {
+			if (!me.gameReady && !me.ingame && [1, 2, 3, 4, 5].indexOf(me.act) === -1) {
 				return;
-			}*/
-
-			while (!me.ingame && !me.gameReady && !me.area) {
-				delay(100 + me.ping);
 			}
 
 			if (!this.getHook("dashboard")) {
@@ -91,7 +87,7 @@ var Overlay = {
 			if (!this.getHook("credits")) {
 				this.add("credits");
 			} else {
-				this.getHook("credits").hook.text = "GuysSoloLeveling by ÿc0 theBGuy";
+				this.getHook("credits").hook.text = "GuysSoloLeveling by ÿc0 theBGuy" + "ÿc4  Realm: ÿc0" + (me.realm ? me.realm : "SP");
 			}
 
 			if (!this.getHook("times")) {
@@ -404,7 +400,7 @@ var Overlay = {
 			case "credits":
 				this.hooks.push({
 					name: "credits",
-					hook: new Text("GuysSoloLeveling by ÿc0 theBGuy", Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 15, 4, 13, 2)
+					hook: new Text("GuysSoloLeveling by ÿc0 theBGuy" + "ÿc4  Realm: ÿc0" + (me.realm ? me.realm : "SP"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 15, 4, 13, 2)
 				});
 
 				break;
@@ -434,21 +430,21 @@ var Overlay = {
 			case "timerboard":
 				this.hooks.push({
 					name: "timerboard",
-					hook: new Box(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY, 182, 30, 0x0, 1, 2)
+					hook: new Box(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY, 187, 30, 0x0, 1, 2)
 				});
 
 				break;
 			case "timerframe":
 				this.hooks.push({
 					name: "timerframe",
-					hook: new Frame(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY, 182, 30, 2)
+					hook: new Frame(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY, 187, 30, 2)
 				});
 
 				break;
 			case "InGameTimer":
 				this.hooks.push({
 					name: "InGameTimer",
-					hook: new Text("In Game Timer: ÿc0" + this.clock("InGameTimer"), Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY + 20, 4, 13, 2)
+					hook: new Text("In Game Timer: ÿc0" + this.clock("InGameTimer"), Overlay.timerX + Overlay.resfixX + 1, Overlay.timerY + Overlay.resfixY + 20, 4, 13, 2)
 				});
 
 				break;

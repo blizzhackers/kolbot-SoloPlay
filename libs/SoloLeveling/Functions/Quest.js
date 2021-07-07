@@ -1,6 +1,6 @@
 /*
 *	@filename	Quest.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		Miscellaneous quest tasks for leveling adapted from blizzhackers autosmurf
 *	@credits	Dark-f, JeanMax for original functions
 */
@@ -411,6 +411,11 @@ var Quest = {
 	//Credit dzik or laz unsure who for this
 	useSocketQuest: function (item) {
 		var larzuk, slot, invo, i, items;
+
+		if (SetUp.finalBuild === "Socketmule") {
+			print("ÿc9GuysSoloLevelingÿc0: Socketmules cannot use their socket quest");
+			return false;
+		}
 			
 		if (!item || item === undefined || item.mode === 3) { //No item
 			print("ÿc9GuysSoloLevelingÿc0: No item");

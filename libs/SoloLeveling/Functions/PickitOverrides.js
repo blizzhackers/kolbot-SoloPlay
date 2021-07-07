@@ -63,7 +63,7 @@ Pickit.checkItem = function (unit) {
 		if (Item.autoEquipCharmCheck(unit) && NTIP.GetCharmTier(unit) > 0) {
 			return {
 				result: 1,
-				line: "Inventory charm tier: " + NTIP.GetCharmTier(unit)
+				line: "Autoequip charm tier: " + NTIP.GetCharmTier(unit)
 			};
 		}
 

@@ -390,3 +390,32 @@ Cubing.buildRecipes = function () {
 		}
 	}
 };
+
+// Added try again to emptying cube if it fails it will clear inventory then organize it
+Cubing.emptyCube = function () {
+	var cube = me.getItem(549),
+		items = me.findItems(-1, -1, 6);
+
+	if (!cube) {
+		return false;
+	}
+
+	if (!items) {
+		return true;
+	}
+
+	while (items.length) {
+		if (!Storage.Stash.MoveTo(items[0]) && !Storage.Inventory.MoveTo(items[0])) {
+			Town.clearInventory();
+			Town.sortInventory();
+
+			if (!Storage.Stash.MoveTo(items[0]) && !Storage.Inventory.MoveTo(items[0])) {
+				return false;
+			}
+		}
+
+		items.shift();
+	}
+
+	return true;
+};

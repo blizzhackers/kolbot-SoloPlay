@@ -8,7 +8,7 @@ var build = {
 	caster: true,
 	skillstab: 17, //bone
 	wantedskills: [74, 84], // corpseexplosion, bonespear
-	usefulskills: [66, 68, 87], //ampdamage, bone armor, decrepify
+	usefulskills: [66, 68, 87, 78, 88, 93, 67], //ampdamage, bone armor, decrepify, bone wall, bone prison, bonespirit, teeth
 	mercAuraName: "Might",
 	mercAuraWanted: 98,
 	mercDiff: 1,

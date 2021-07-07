@@ -256,8 +256,13 @@ Skill.getRange = function (skillId) {
 		return leap[Math.min(me.getSkill(132, 1) - 1, 24)];
 	case 230: // Arctic Blast
 		var arctic = [5, 6, 6, 6, 6, 7, 7, 8, 8, 8, 8, 9, 9, 10, 10, 10, 10, 11, 11, 12];
+		let range = arctic[Math.min(me.getSkill(230, 1) - 1, 19)];
+		// Druid using this on physical immunes needs the monsters to be within range of hurricane
+		if (range > 7 && Config.AttackSkill[5] === 230) {
+			range = 7;
+		}
 
-		return arctic[Math.min(me.getSkill(230, 1) - 1, 19)];
+		return range;
 	case 49: // Lightning
 	case 84: // Bone Spear
 	case 93: // Bone Spirit
@@ -299,8 +304,8 @@ Misc.townCheck = function () {
 		needhp = true,
 		needmp = true;
 
-	// Can't tp from uber trist or when dead
-	if (me.area === 136 || me.dead) {
+	// Can't tp from uber trist or when dead. Don't tp from Arreat Summit
+	if (me.area === 136 || me.area === 120 || me.dead) {
 		return false;
 	}
 
@@ -660,7 +665,7 @@ Misc.checkItemForSocketing = function () {
 	let item;
 	let items = me.getItems();
 
-	if (Check.Build().caster) {
+	if (Check.currentBuild().caster) {
 		if (me.diff === 0) {
 			//Broad Sword
 			for (let i = 0; i < items.length; i++) {

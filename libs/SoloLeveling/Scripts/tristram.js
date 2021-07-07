@@ -51,22 +51,26 @@ function tristram () {
 	Attack.clear(20, 0x7); // kill rakanishu
 	Pather.moveToPreset(4, 2, 17);
 
-	try { // go to tristram
-		for (let touch = 0; touch < 5; touch += 1) {
-			for (let piece = 17; piece < 22; piece += 1) {
-				let stone = getUnit(2, piece);
+	if (!Pather.getPortal(38)) {
+		try { // go to tristram
+			for (let touch = 0; touch < 5; touch += 1) {
+				for (let piece = 17; piece < 22; piece += 1) {
+					let stone = getUnit(2, piece);
 
-				if (stone) {
-					Misc.openChest(stone);
-					Attack.clear(10);
+					if (stone) {
+						Misc.openChest(stone);
+						Attack.clear(10);
+					}
 				}
 			}
-		}
 
-		while (!Pather.usePortal(38)) {
-			Attack.securePosition(me.x, me.y, 10, 1000);
+			while (!Pather.usePortal(38)) {
+				Attack.securePosition(me.x, me.y, 10, 1000);
+			}
+		} catch (err) {
+			Pather.usePortal(38);
 		}
-	} catch (err) {
+	} else {
 		Pather.usePortal(38);
 	}
 

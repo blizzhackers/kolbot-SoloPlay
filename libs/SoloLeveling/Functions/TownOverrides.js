@@ -82,7 +82,7 @@ Town.townTasks = function () {
 	}
 
 	Config.NoTele = me.normal && me.gold < 10000 ? true : !me.normal && me.gold < 50000 ? true : false;
-	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54)) ? !Config.NoTele : Config.Dodge;
+	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54) || (me.necromancer && me.getSkill(77, 0))) ? !Config.NoTele : Config.Dodge;
 
 	return true;
 };
@@ -144,7 +144,7 @@ Town.doChores = function (repair = false) {
 	}
 
 	Config.NoTele = me.normal && me.gold < 10000 ? true : !me.normal && me.gold < 50000 ? true : false;
-	Config.Dodge = me.getSkill(54, 0) && me.sorceress ? !Config.NoTele : false;
+	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54) || (me.necromancer && me.getSkill(77, 0))) ? !Config.NoTele : Config.Dodge;
 
 	return true;
 };
@@ -262,7 +262,7 @@ Town.identify = function () {
 
 					break;
 				default:
-					if ([603, 604, 605].indexOf(item.classid) > -1 || item.quality > 4) {
+					if ([603, 605].indexOf(item.classid) > -1 || [5, 7].indexOf(item.quality) > -1) {
 						Misc.logItem("Sold", item);
 					}
 
@@ -1162,7 +1162,7 @@ Town.clearInventory = function () {
 
 			if ([0, 4].indexOf(result) === -1) {
 				if (([2, 69, 70, 3, 37, 71, 72, 75, 25, 24, 26, 27, 28, 29, 30, 31, 33, 35, 36, 68, 85, 86, 67, 88, 34].indexOf(items[i].itemType) > -1 && items[i].quality < 4 && items[i].getStat(194) > 0) || 
-					([25, 70, 72].indexOf(items[i].itemType) > -1 && items[i].quality === 2 && items[i].getStat(194) === 0)) {
+					([25, 69, 70, 71, 72].indexOf(items[i].itemType) > -1 && items[i].quality === 2 && items[i].getStat(194) === 0)) {
 					if (!this.betterBaseThanStashed(items[i])) {
 						result = 4;
 					}
@@ -1211,19 +1211,27 @@ Town.clearInventory = function () {
 	return true;
 };
 
-Town.betterBaseThanWearing = function (base) {
+Town.betterBaseThanWearing = function (base, verbose) {
 	let equippedItem = {}, bodyLoc = [], check;
 	let itemsResists, baseResists, itemsMinDmg, itemsMaxDmg, itemsTotalDmg, baseDmg, ED, itemsDefense, baseDefense;
 	let allSkills, classSkills, tabSkills, specificSkills = [], wantedSkills = [];
 	let baseSkillsTier, equippedSkillsTier;
-	let result = true;
+	let result = true, preSocketCheck = false;
+
+	if (verbose === undefined) {
+		verbose = true;
+	}
+
+	if (preSocketCheck === undefined) {
+		preSocketCheck = false;
+	}
 
 	function skillsScore (item) {
 		let skillsRating = 0;
 		skillsRating += item.getStatEx(83, me.classid) * 200; // + class skills
-		skillsRating += item.getStatEx(188, Check.Build().tabSkills) * 100; // + TAB skills
+		skillsRating += item.getStatEx(188, Check.currentBuild().tabSkills) * 100; // + TAB skills
 		let selectedWeights = [30, 20];
-		let selectedSkills = [Check.Build().wantedSkills, Check.Build().usefulSkills];
+		let selectedSkills = [Check.currentBuild().wantedSkills, Check.currentBuild().usefulSkills];
 
 		for (let i = 0; i < selectedWeights.length; i++) {
 			for (let j = 0; j < selectedSkills.length; j++) {
@@ -1240,9 +1248,10 @@ Town.betterBaseThanWearing = function (base) {
 		return false;
 	}
 
-	if (base.quality > 4 || base.getStat(194) <= 0) {
+	if (base.quality > 4) {
 		return false;	//Not a runeword base
 	}
+
 
 	bodyLoc = Item.getBodyLoc(base);
 
@@ -1281,18 +1290,36 @@ Town.betterBaseThanWearing = function (base) {
 		return true;	//Equipped item is not a runeword no need to try and compare it. Keep the base
 	}
 
-	if (base.getStat(194) === equippedItem.sockets) {
-		switch(equippedItem.prefixnum) {
+	switch (equippedItem.prefixnum) {
+		case 20507: 	//Ancient's Pledge
+		case 20543: 	//Exile
+		case 20581: 	//Lore
+		case 20635: 	//Spirit
+		case 20667: 	//White
+		case 20625: 	//Rhyme
+			preSocketCheck = true;
+			break;
+		default:
+			break;
+	}
+
+	if (base.getStat(194) <= 0 && !preSocketCheck) {
+		return false;
+	}
+
+	if (base.getStat(194) === equippedItem.sockets || preSocketCheck) {
+		switch (equippedItem.prefixnum) {
 		case 20507: 	//Ancient's Pledge
 			if (me.paladin) {
 				itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 187;
 				baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
 
 				if (baseResists !== itemsResists) {
-					print("ÿc9BaseCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+					if (verbose) {
+						print("ÿc9BaseCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+					}
 
 					if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
-						//base.drop();
 						result = false;
 
 						break;
@@ -1303,9 +1330,11 @@ Town.betterBaseThanWearing = function (base) {
 				baseDefense = base.getStatEx(31);
 
 				if (baseDefense !== itemsDefense) {
-					print("ÿc9BaseCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+					if (verbose) {
+						print("ÿc9BaseCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+					}
+
 					if (baseDefense < itemsDefense) {	//base has lower defense
-						//base.drop();
 						result = false;
 
 						break;
@@ -1319,9 +1348,11 @@ Town.betterBaseThanWearing = function (base) {
 			baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
 
 			if (baseResists !== itemsResists) {
-				print("ÿc9BaseCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+				if (verbose) {
+					print("ÿc9BaseCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+				}
+
 				if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
-					//base.drop();
 					result = false;
 
 					break;
@@ -1338,17 +1369,21 @@ Town.betterBaseThanWearing = function (base) {
 				baseSkillsTier = skillsScore(base);
 
 				if (equippedSkillsTier !== baseSkillsTier) {
-					print("ÿc9BaseCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+					if (verbose) {
+						print("ÿc9BaseCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+					}
+
 					if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense helm
-						//base.drop();
 						result = false;
 
 						break;
 					}
 				} else if (baseDefense !== itemsDefense) {
-					print("ÿc9BaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+					if (verbose) {
+						print("ÿc9BaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+					}
+
 					if (baseDefense < itemsDefense) {	//base has lower defense
-						//base.drop();
 						result = false;
 
 						break;
@@ -1356,9 +1391,11 @@ Town.betterBaseThanWearing = function (base) {
 				}
 			} else {
 				if (baseDefense !== itemsDefense) {
-					print("ÿc9BaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+					if (verbose) {
+						print("ÿc9BaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+					}
+
 					if (baseDefense < itemsDefense) {	//base has lower defense
-						//base.drop();
 						result = false;
 
 						break;
@@ -1376,9 +1413,11 @@ Town.betterBaseThanWearing = function (base) {
 				baseSkillsTier = skillsScore(base);
 
 				if (equippedSkillsTier !== baseSkillsTier) {
-					print("ÿc9BaseCheckÿc0 :: RW(Rhyme) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+					if (verbose) {
+						print("ÿc9BaseCheckÿc0 :: RW(Rhyme) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+					}
+
 					if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense shield
-						//base.drop();
 						result = false;
 
 						break;
@@ -1387,9 +1426,11 @@ Town.betterBaseThanWearing = function (base) {
 			}
 
 			if (baseResists !== itemsResists) {
-				print("ÿc9BaseCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+				if (verbose) {
+					print("ÿc9BaseCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+				}
+
 				if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
-					//base.drop();
 					result = false;
 
 					break;
@@ -1406,9 +1447,11 @@ Town.betterBaseThanWearing = function (base) {
 			}
 
 			if (baseResists !== itemsResists) {
-				print("ÿc9BaseCheckÿc0 :: RW(spirit) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+				if (verbose) {
+					print("ÿc9BaseCheckÿc0 :: RW(spirit) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+				}
+
 				if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
-					//base.drop();
 					result = false;
 
 					break;
@@ -1422,13 +1465,70 @@ Town.betterBaseThanWearing = function (base) {
 				baseSkillsTier = skillsScore(base);
 
 				if (equippedSkillsTier !== baseSkillsTier) {
-					print("ÿc9BaseCheckÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier + "BaseSkillsTier: " + baseSkillsTier);
+					if (verbose) {
+						print("ÿc9BaseCheckÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+					}
+
 					if (baseSkillsTier < equippedSkillsTier) {
-						//base.drop();
 						result = false;
 
 						break;
 					}
+				}
+			}
+
+			break;
+		case 20633: 	// Smoke
+		case 20638: 	// Stealth
+			itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
+			baseDefense = base.getStatEx(31);
+
+			if (baseDefense !== itemsDefense) {
+				if (verbose) {
+					print("ÿc9BaseCheckÿc0 :: RW(Stealth/Smoke) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+				}
+
+				if (baseDefense < itemsDefense) {	//base has lower defense
+					result = false;
+
+					break;
+				}
+			}
+
+			break;
+		case 20514: 	// Bone
+		case 20592: 	// Myth
+		case 20603: 	// Peace
+		case 20653: 	// Treachery
+			let name = "";
+
+			switch (equippedItem.prefixnum) {
+			case 20514: 	// Bone
+				name = "Bone";
+				break;
+			case 20592: 	// Myth
+				name = "Myth";
+				break;
+			case 20603: 	// Peace
+				name = "Peace";
+				break;
+			case 20653: 	// Treachery
+				name = "Treachery";
+				break;
+			}
+
+			itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
+			baseDefense = base.getStatEx(31);
+
+			if (baseDefense !== itemsDefense) {
+				if (verbose) {
+					print("ÿc9BaseCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+				}
+
+				if (baseDefense < itemsDefense) {	//base has lower defense
+					result = false;
+
+					break;
 				}
 			}
 
@@ -1457,9 +1557,9 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 	function generalScore (item) {
 		let generalScore = 0;
 		generalScore += item.getStatEx(83, me.classid) * 200; // + class skills
-		generalScore += item.getStatEx(188, Check.Build().tabSkills) * 100; // + TAB skills
+		generalScore += item.getStatEx(188, Check.currentBuild().tabSkills) * 100; // + TAB skills
 		let selectedWeights = [30, 20];
-		let selectedSkills = [Check.Build().wantedSkills, Check.Build().usefulSkills];
+		let selectedSkills = [Check.currentBuild().wantedSkills, Check.currentBuild().usefulSkills];
 
 		for (let i = 0; i < selectedWeights.length; i++) {
 			for (let j = 0; j < selectedSkills.length; j++) {
@@ -1497,13 +1597,7 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
-				.sort((a, b) => {
-					if (a.getStatEx(39) - b.getStatEx(39) !== 0) {
-						a.getStatEx(39) - b.getStatEx(39)	// Sort on resist, low to high.
-					} else {
-						a.getStatEx(31) - b.getStatEx(31)	// Sort on defense, low to high.
-					}
-				})
+				.sort((a, b) => generalScore(a) - generalScore(b))
 				.last(); // select last
 
 			if (itemsToCheck === undefined) {
@@ -1516,8 +1610,8 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 
 			if (base.getStat(194) > 0) {
 				if ((base.location === 7 || base.location === 3) &&
-					(base.getStatEx(39) < itemsToCheck.getStatEx(39) ||
-					(base.getStatEx(39) === itemsToCheck.getStatEx(39) && base.getStatEx(31) < itemsToCheck.getStatEx(31)))) {
+					(generalScore(base) < generalScore(itemsToCheck) ||
+						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl < itemsToCheck.ilvl))) {
 					result = true;
 				}
 			}
@@ -1539,7 +1633,7 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 				return true;
 			}
 
-			if (base.getStat(194) > 0) {
+			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
 				if ((base.location === 7 || base.location === 3) &&
 					(generalScore(base) < generalScore(itemsToCheck))) {
 					result = true;
@@ -2147,6 +2241,10 @@ Town.visitTown = function (repair = false) {
 		this.move("stash");
 
 		return true;
+	}
+
+	if (me.area === 120) {	//Arreat Summit
+		return false;
 	}
 
 	var preArea = me.area,
