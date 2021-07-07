@@ -8,7 +8,7 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 ## Statistics
 | Level | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
 |:------:|:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
-| 1-70 | N/A | 17h | N/A | N/A | N/A | 19h | N/A |
+| 1-70 | N/A | 17h | 24h | 23h | N/A | 19h | N/A |
 | 1-80 | N/A | 26h | N/A | N/A | N/A | 34h | N/A |
 | 1-90 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
 | 1-95 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
@@ -36,6 +36,13 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 | | Meteorb | Summon | Auradin | | Plaguewolf |
 | | Blova | | | | Wolf |
 | | Lightning | |
+
+## New modes
+| Bumper | Socketmule |
+|:------:|:-------:|
+
+- Two new modes are available: Bumper and Socketmule. Enter either of these into your D2Bot# profile info tag to make. The bot will then stop after shenk quest for Socketmule and after it hits level 40 for a Bumper.
+- Note: These two options only work in expansion.
 
 ## Frequently Asked Questions
 **Q: Why isn't the bot making the build I selected?**
