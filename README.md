@@ -82,7 +82,7 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 | 4.c|***Optional*** Input your account password. If no name than a random password is created. | |
 | 4.d|***Optional*** Input your character name. If no name than a random name is created. | ![enter character name](https://i.imgur.com/Casmjbc.jpg) |
 |5.| Select Entry Script `D2BotSoloLevelingEntry.dbj`.| ![Select Entry Script](https://imgur.com/tZnH7kU.jpg)|
-|6.| Input your Info Tag Information. See **Available Characters and Builds** for a a list of options. <br><br> Make sure the spelling matches the listed builds and there are no trailing spaces. | ![enter image description here](https://i.imgur.com/gmUQvbw.jpg)|
+|6.| Input your Info Tag Information. See **Available Characters and Builds** or **New modes** for a a list of options. <br><br> Make sure the spelling matches the listed builds and there are no trailing spaces. | ![enter image description here](https://i.imgur.com/gmUQvbw.jpg)|
 |7.|Ensure your Game Path, Key List, Realm, Mode are all set on the settings you want to use then click Apply.||
 |8.|Run the Bot.||
 |9.|Enjoy!||
