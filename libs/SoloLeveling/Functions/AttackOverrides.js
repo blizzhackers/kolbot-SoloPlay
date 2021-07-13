@@ -195,3 +195,47 @@ Attack.checkResist = function (unit, val, maxres) {
 
 	return this.getResist(unit, damageType) < maxres;
 };
+
+Attack.isCursable = function (unit) {
+	if (copyUnit(unit).name === undefined || unit.name.indexOf(getLocaleString(11086)) > -1) { // "Possessed"
+		return false;
+	}
+
+	if (unit.getState(57)) { // attract can't be overridden
+		return false;
+	}
+
+	switch (unit.classid) {
+	case 190: // maggotegg1
+	case 191: // maggotegg1
+	case 192: // maggotegg1
+	case 193: // maggotegg1
+	case 194: // maggotegg1
+	case 206: // Foul Crow Nest
+	case 207: // BloodHawkNest
+	case 208: // BlackVultureNest
+	case 228: // sarcophagus
+	case 258: // Water Watcher
+	case 261: // Water Watcher
+	case 266: // Flavie
+	case 273: // gargoyle trap
+	case 348: // Turret
+	case 349: // Turret
+	case 350: // Turret
+	case 371: // lightning spire
+	case 372: // firetower
+	case 432: // Barricade Door
+	case 433: // Barricade Door
+	case 434: // Prison Door
+	case 435: // Barricade Tower
+	case 499: // Catapult
+	case 524: // Barricade Wall Right
+	case 525: // Barricade Wall Left
+	case 563: // Festering Appendages
+	case 528: // Evil Demon Hut
+	case 681: // maggotegg1 (WSK)
+		return false;
+	}
+
+	return true;
+};

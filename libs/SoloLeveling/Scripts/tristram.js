@@ -53,19 +53,21 @@ function tristram () {
 
 	if (!Pather.getPortal(38)) {
 		try { // go to tristram
-			for (let touch = 0; touch < 5; touch += 1) {
-				for (let piece = 17; piece < 22; piece += 1) {
-					let stone = getUnit(2, piece);
+			if (me.getItem(525)) {
+				for (let touch = 0; touch < 5; touch += 1) {
+					for (let piece = 17; piece < 22; piece += 1) {
+						let stone = getUnit(2, piece);
 
-					if (stone) {
-						Misc.openChest(stone);
-						Attack.clear(10);
+						if (stone) {
+							Misc.openChest(stone);
+							Attack.clear(10);
+						}
 					}
 				}
-			}
 
-			while (!Pather.usePortal(38)) {
-				Attack.securePosition(me.x, me.y, 10, 1000);
+				while (!Pather.usePortal(38)) {
+					Attack.securePosition(me.x, me.y, 10, 1000);
+				}
 			}
 		} catch (err) {
 			Pather.usePortal(38);

@@ -162,12 +162,28 @@ function LoadConfig () {
 		"[Type] == Amulet && [Quality] >= Magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//rings
 		"[Type] == Ring && [Quality] >= Magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		//Charms
+		"[name] == smallcharm && [quality] == magic # # [invoquantity] == 8 && [charmtier] == charmscore(item)",
+		//Special Charms
+		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
+		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
+		"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [charmtier] == 100000",
 		//merc
 		"([type] == circlet || [type] == helm) && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 		"[Type] == armor && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 		"me.charlvl > 14 && [Type] == Polearm && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 	NTIP.arrayLooping(levelingTiers);
+
+	var imbueables = [
+		"me.diff == 0 && [name] == avengerguard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [MaxQuantity] == 1",
+		"me.diff == 1 && [name] == slayerguard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [MaxQuantity] == 1",
+		"me.diff == 2 && [name] == carnagehelm && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [MaxQuantity] == 1",
+	];
+
+	if (!me.getQuest(3, 0)) {
+		NTIP.arrayLooping(imbueables);
+	}
 
 	/* FastMod configuration. */
 	Config.FCR = 255;

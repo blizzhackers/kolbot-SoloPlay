@@ -11,6 +11,7 @@ if (!isIncluded("NTItemParser.dbl")) {
 var NTIP_CheckListNoTier = [];
 
 NTIP.GetCharmTier = NTIP.generateTierFunc('Charmtier');
+NTIP.GetSecondaryTier = NTIP.generateTierFunc('Secondarytier');
 
 NTIP.addLine = function (itemString) {
 	let info = {
@@ -20,6 +21,7 @@ NTIP.addLine = function (itemString) {
 	};
 
 	let line = NTIP.ParseLineInt(itemString, info);
+	NTIP.setUpFinalCharmQuantity(itemString, info);
 
 	if (line) {
 		if (!itemString.toLowerCase().includes("tier")) {
@@ -44,7 +46,7 @@ NTIP.arrayLooping = function (arraytoloop) {
 };
 
 NTIP.hasStats = function (item, entryList, verbose) {
-	let list, identified, hasStat = false;
+	let list, identified, hasStat = false, line = "", stats;
 
 	if (!entryList) {
 		list = NTIP_CheckList;
@@ -62,7 +64,9 @@ NTIP.hasStats = function (item, entryList, verbose) {
 				if (type(item)) {
 					if (typeof stat === 'function') {
 						if (stat(item)) {
-							hasStat = true; 
+							hasStat = true;
+							stats = stat;
+							line = stringArray[i].file + " #" + stringArray[i].line + " " + stringArray[i].string;
 
 							break;
 						} 
@@ -81,13 +85,105 @@ NTIP.hasStats = function (item, entryList, verbose) {
 		}
 	}
 
+	if (hasStat && verbose) {
+		print(stats);
+	}
+
 	return hasStat;
 };
 
-NTIP.getInvoQuantity = function (item, entryList, verbose) {
-	var i, list, identified, num,
-		rval = {},
+NTIP.getInvoQuantity = function (item, entryList) {
+	var i, list, identified,
 		invoquantity = -1;
+
+	if (!entryList) {
+		list = NTIP_CheckList;
+	} else {
+		list = entryList;
+	}
+
+	identified = item.getFlag(0x10);
+
+	if (!NTIP.checkFinalCharm(item)) {
+		for (i  = 0; i < list.length; i++) {
+			try {
+				let [type, stat, wanted] = list[i];
+
+				if (typeof type === 'function') {
+					if (type(item)) {
+						if (typeof stat === 'function') {
+							if (stat(item)) {
+								if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+									invoquantity = wanted.InvoQuantity;
+
+									break;
+								}
+							} 
+						} else {
+							if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+								invoquantity = wanted.InvoQuantity;
+
+								break;
+							} 
+						}
+					}
+				} else if (typeof stat === 'function') {
+					if (stat(item)) {
+						if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+							invoquantity = wanted.InvoQuantity;
+
+							break;
+						}
+					} 
+				}
+			} catch (e) {
+				return -1;
+			}
+		}
+	} else {
+		for (i = list.length - 1; i >= 0; i--) {
+			try {
+				let [type, stat, wanted] = list[i];
+
+				if (typeof type === 'function') {
+					if (type(item)) {
+						if (typeof stat === 'function') {
+							if (stat(item)) {
+								if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+									invoquantity = wanted.InvoQuantity;
+
+									break;
+								}
+							} 
+						} else {
+							if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+								invoquantity = wanted.InvoQuantity;
+
+								break;
+							} 
+						}
+					}
+				} else if (typeof stat === 'function') {
+					if (stat(item)) {
+						if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+							invoquantity = wanted.InvoQuantity;
+
+							break;
+						}
+					} 
+				}
+			} catch (e) {
+				return -1;
+			}
+		}
+	}
+
+	return invoquantity;
+};
+
+NTIP.checkFinalCharm = function (item, entryList) {
+	var i, list, identified,
+		finalcharm = false;
 
 	if (!entryList) {
 		list = NTIP_CheckList;
@@ -105,47 +201,166 @@ NTIP.getInvoQuantity = function (item, entryList, verbose) {
 				if (type(item)) {
 					if (typeof stat === 'function') {
 						if (stat(item)) {
-							if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
-								invoquantity = wanted.InvoQuantity;
-								
-								break;
-							} else if (wanted && !isNaN(wanted.InvoQuantity) && wanted.InvoQuantity === 0) {
-								invoquantity = wanted.InvoQuantity;
+							if (wanted && wanted.FinalCharm && !isNaN(wanted.FinalCharm)) {
+								finalcharm = wanted.FinalCharm;
 								
 								break;
 							} 
 						} 
 					} else {
-						if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
-							invoquantity = wanted.InvoQuantity;
+						if (wanted && wanted.FinalCharm && !isNaN(wanted.FinalCharm)) {
+							finalcharm = wanted.FinalCharm;
 
 							break;
-						} else if (wanted && !isNaN(wanted.MaxQuantity) && wanted.InvoQuantity === 0) {
-							invoquantity = wanted.InvoQuantity;
-							
-							break;	
-						} 
+						}
 					}
 				}
 			} else if (typeof stat === 'function') {
 				if (stat(item)) {
-					if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
-						invoquantity = wanted.InvoQuantity;
+					if (wanted && wanted.FinalCharm && !isNaN(wanted.FinalCharm)) {
+						finalcharm = wanted.FinalCharm;
 
 						break;
-					} else if (wanted && !isNaN(wanted.InvoQuantity) && wanted.InvoQuantity === 0) {
-						invoquantity = wanted.InvoQuantity;
-						
-						break;		
 					} 
 				} 
 			}
 		} catch (e) {
-			return -1;
+			return false;
 		}
 	}
 
-	return invoquantity;
+	return finalcharm;
+};
+
+NTIP.setUpFinalCharmQuantity = function (input, info) {
+	let i, property, p_start, p_end, p_section, p_keyword, p_result, value;
+	let charmType, check;
+
+	p_end = input.indexOf("//");
+
+	if (p_end !== -1) {
+		input = input.substring(0, p_end);
+	}
+
+	input = input.replace(/\s+/g, "").toLowerCase();
+
+	if (input.length < 5) {
+		return null;
+	}
+
+	p_result = input.split("#");
+
+	if (p_result[0] && p_result[0].length > 4) {
+		p_section = p_result[0].split("[");
+
+		p_result[0] = p_section[0];
+
+		for (i = 1; i < p_section.length; i += 1) {
+			p_end = p_section[i].indexOf("]") + 1;
+			property = p_section[i].substring(0, p_end - 1);
+
+			if (property === 'name') {
+				p_result[0] += "item.classid"; 
+			} else {
+				continue;
+			}
+
+			for (p_start = p_end; p_end < p_section[i].length; p_end += 1) {
+				if (!NTIP.IsSyntaxInt(p_section[i][p_end])) {
+					break;
+				}
+			}
+
+			p_result[0] += p_section[i].substring(p_start, p_end);
+
+			if (p_section[i].substring(p_start, p_end) === "=") {
+				Misc.errorReport("Unexpected = at line " + info.line + " in " + info.file);
+
+				return false;
+			}
+
+			for (p_start = p_end; p_end < p_section[i].length; p_end += 1) {
+				if (NTIP.IsSyntaxInt(p_section[i][p_end])) {
+					break;
+				}
+			}
+
+			p_keyword = p_section[i].substring(p_start, p_end);
+
+			if (isNaN(p_keyword)) {
+				switch (property) {
+				case 'name':
+					if (NTIPAliasClassID[p_keyword] === undefined) {
+						Misc.errorReport("Unknown type: " + p_keyword + " File: " + info.file + " Line: " + info.line);
+
+						return false;
+					}
+
+					charmType = NTIPAliasClassID[p_keyword];
+
+					if ([603, 604, 605].indexOf(charmType) === -1) {
+						return false;
+					}
+
+					break;	
+				}
+			}
+		}
+	} else {
+		p_result[0] = "";
+	}
+
+	if (p_result[2] && p_result[2].length > 0) {
+		p_section = p_result[2].split("[");
+		p_result[2] = {};
+
+		for (i = 1; i < p_section.length; i += 1) {
+			p_end = p_section[i].indexOf("]");
+			p_keyword = p_section[i].substring(0, p_end);
+
+			let keyword = p_keyword.toLowerCase();
+
+			switch (keyword) {
+				case "invoquantity":
+				value = Number(p_section[i].split("==")[1].match(/\d+/g));
+
+				if (!isNaN(value)) {
+					p_result[2].InvoQuantity = value;
+				}
+
+				break;
+			case "finalcharm":
+				let check = Boolean(p_section[i].split("==")[1].match(/(\b(?!split\b)[^ $]+\b)/g));
+
+				if (!isNaN(check)) {
+					p_result[2].FinalCharm = check;
+				}
+
+				break;
+			}
+		}
+
+		if (!!p_result[2].InvoQuantity && !!p_result[2].FinalCharm) {
+			if (p_result[2].FinalCharm === true) {
+				switch (charmType) {
+				case 603:
+					Item.maxFinalSCs += p_result[2].InvoQuantity;
+
+					break;
+				case 604:
+					Item.maxFinalLCs += p_result[2].InvoQuantity;
+
+					break;
+				case 605:
+					Item.maxFinalGCs += p_result[2].InvoQuantity;
+
+					break;
+				}
+			}
+		}
+	}
+
+	return true;
 };
 
 NTIP.CheckItem = function (item, entryList, verbose) {
@@ -374,6 +589,11 @@ NTIP.ParseLineInt = function (input, info) {
 			property = p_section[i].substring(0, p_end - 1);
 
 			switch (property) {
+			case 'wsm':
+			case 'weaponspeed':
+				p_result[0] += 'getBaseStat("items", item.classid, "speed")';
+
+				break;
 			case 'color':
 				p_result[0] += "item.getColor()";
 
@@ -594,11 +814,20 @@ NTIP.ParseLineInt = function (input, info) {
 			let keyword = p_keyword.toLowerCase();
 
 			switch (keyword) {
+			// Charm equip specific
 			case "invoquantity":
 				value = Number(p_section[i].split("==")[1].match(/\d+/g));
 
 				if (!isNaN(value)) {
 					p_result[2].InvoQuantity = value;
+				}
+
+				break;
+			case "finalcharm":
+				let check = Boolean(p_section[i].split("==")[1].match(/(\b(?!split\b)[^ $]+\b)/g));
+
+				if (!isNaN(check)) {
+					p_result[2].FinalCharm = check;
 				}
 
 				break;
@@ -610,11 +839,11 @@ NTIP.ParseLineInt = function (input, info) {
 				}
 
 				break;
+			case "tier":
+			case "secondarytier":
 			case "charmtier":
 			case "merctier":
-			case "tier":
 				try {
-					// p_result[2].Tier = function(item) { return value };
 					p_result[2][keyword.charAt(0).toUpperCase() + keyword.slice(1)] = (new Function('return function(item) { return ' + p_section[i].split("==")[1] + ';}')).call(null); // generate function out of
 				} catch (e) {
 					Misc.errorReport("ÿc1Pickit Tier (" + keyword + ") error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message);

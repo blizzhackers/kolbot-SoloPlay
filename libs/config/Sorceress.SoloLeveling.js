@@ -170,11 +170,11 @@ function LoadConfig () {
 		//Charms
 		"[name] == smallcharm && [quality] == magic # [maxhp] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
+		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		//Special Charms
-		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [invoquantity] == 1 && [charmtier] == 100000",
-		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [invoquantity] == 1 && [charmtier] == 100000",
-		"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [invoquantity] == 1 && [charmtier] == 100000",
+		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
+		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
+		"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [charmtier] == 100000",
 		//merc
 		"([type] == circlet || [type] == helm) && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 		"[Type] == armor && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
@@ -285,15 +285,19 @@ function LoadConfig () {
 						"[Name] == ThulRune # # [MaxQuantity] == 1",
 						"[Name] == OrtRune # # [MaxQuantity] == 1",
 						"[Name] == AmnRune # # [MaxQuantity] == 1",
-						"[Name] == Monarch && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # ([Sockets] == 0 || [Sockets] == 4) # [MaxQuantity] == 1",
+						"[Name] == Monarch && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
 					];
 					NTIP.arrayLooping(SpiritShield);
+				}
+
+				if (!Check.haveBase("shield", 4)) {
+					NTIP.addLine("[Name] == Monarch && [Flag] != Ethereal && [Quality] == Normal # [Sockets] == 0 # [MaxQuantity] == 1");
 				}
 
 				Config.Recipes.push([Recipe.Socket.Shield, "Monarch", Roll.NonEth]);
 				Config.Runewords.push([Runeword.Spirit, "Monarch"]);
 
-				Config.KeepRunewords.push("[type] == shield # [fcr] >= 35 && [maxmana] >= 89");
+				Config.KeepRunewords.push("[type] == shield # [fcr] >= 25 && [maxmana] >= 89");
 			}
 
 			if (!Check.haveItem("armor", "runeword", "Chains of Honor")) { // CoH
@@ -318,8 +322,17 @@ function LoadConfig () {
 					Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // Sur to Ber
 				}
 
+				if (!me.getItem(631)) {
+					Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
+					Config.Recipes.push([Recipe.Rune, "Pul Rune"]);	// Pul -> Um
+				}
+
 				if (me.getItem(639)) {
-					NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # ([Sockets] == 0 || [Sockets] == 4) # [MaxQuantity] == 1");
+					if (!Check.haveBase("armor", 4)) {
+						NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] == Normal && [Quality] <= Superior # [Sockets] == 0 # [MaxQuantity] == 1");
+					}
+
+					NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
 				}
 
 				Config.Recipes.push([Recipe.Socket.Armor, "Archon Plate", Roll.NonEth]);
@@ -459,7 +472,7 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(Insight);
 
-			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568 && me.getItem(621)) {
+			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568 && !Check.haveBase("polearm", 4)) {
 				NTIP.addLine("[Name] == voulge && [flag] == ethereal && [Quality] == Normal && [Level] >= 26 && [Level] <= 40 # [Sockets] == 0 # [MaxQuantity] == 1");
 			}
 

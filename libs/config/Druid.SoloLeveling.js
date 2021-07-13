@@ -171,9 +171,9 @@ function LoadConfig () {
 		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		//Special Charms
-		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [invoquantity] == 1 && [charmtier] == 100000",
-		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [invoquantity] == 1 && [charmtier] == 100000",
-		"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [invoquantity] == 1 && [charmtier] == 100000",
+		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
+		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
+		"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [charmtier] == 100000",
 		//merc
 		"([type] == circlet || [type] == helm) && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 		"[Type] == armor && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
@@ -459,9 +459,13 @@ function LoadConfig () {
 					"[Name] == ThulRune # # [MaxQuantity] == 1",
 					"[Name] == OrtRune # # [MaxQuantity] == 1",
 					"[Name] == AmnRune # # [MaxQuantity] == 1",
-					"[Name] == Monarch && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # ([Sockets] == 0 || [Sockets] == 4) # [MaxQuantity] == 1",
+					"[Name] == Monarch && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
 				];
 				NTIP.arrayLooping(SpiritShield);
+			}
+
+			if (!Check.haveBase("shield", 4)) {
+				NTIP.addLine("[Name] == Monarch && [Flag] != Ethereal && [Quality] == Normal # [Sockets] == 0 # [MaxQuantity] == 1");
 			}
 
 			Config.Recipes.push([Recipe.Socket.Shield, "Monarch", Roll.NonEth]);

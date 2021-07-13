@@ -170,9 +170,9 @@ function LoadConfig () {
 		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		//Special Charms
-		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [invoquantity] == 1 && [charmtier] == 100000",
-		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [invoquantity] == 1 && [charmtier] == 100000",
-		"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [invoquantity] == 1 && [charmtier] == 100000",
+		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
+		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
+		"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [charmtier] == 100000",
 		//merc
 		"([type] == circlet || [type] == helm) && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 		"[Type] == armor && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
@@ -292,9 +292,13 @@ function LoadConfig () {
 					"[Name] == IoRune # # [MaxQuantity] == 1",
 					"[Name] == JahRune",
 					"[Name] == PulRune",
-					"[Name] == SacredTarge && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [fireresist] >= 45 && ([Sockets] == 0 || [Sockets] == 3) # [MaxQuantity] == 1",
+					"[Name] == SacredTarge && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [fireresist] >= 45 && [Sockets] == 3 # [MaxQuantity] == 1",
 				];
 				NTIP.arrayLooping(DreamShield);
+
+				if (!Check.haveBase("sacred targe", 3)) {
+					NTIP.addLine("[Name] == SacredTarge && [Flag] != Ethereal && [Quality] == Normal # [fireresist] >= 45 && [Sockets] == 0 # [MaxQuantity] == 1");
+				}
 
 				Config.Recipes.push([Recipe.Socket.Shield, "Sacred Targe", Roll.NonEth]);
 				Config.Runewords.push([Runeword.Dream, "Sacred Targe"]);
@@ -585,8 +589,9 @@ function LoadConfig () {
 				NTIP.arrayLooping(SpiritShield);
 			}
 
-			NTIP.addLine("([Name] == Targe || [Name] == Rondache || [Name] == HeraldicShield ||[Name] == AerinShield || [Name] == AkaranTarge || [Name] == AkaranRondache || [Name] == GildedShield ||[Name] == ProtectorShield || [Name] == SacredTarge) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [fireresist] > 0 && ([Sockets] == 0 || [Sockets] == 4)");
-			
+			NTIP.addLine("([Name] == Targe || [Name] == Rondache || [Name] == HeraldicShield ||[Name] == AerinShield || [Name] == AkaranTarge || [Name] == AkaranRondache || [Name] == GildedShield ||[Name] == ProtectorShield || [Name] == SacredTarge) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [fireresist] > 0 && [Sockets] == 4");
+			NTIP.addLine("([Name] == Targe || [Name] == Rondache || [Name] == HeraldicShield ||[Name] == AerinShield || [Name] == AkaranTarge || [Name] == AkaranRondache || [Name] == GildedShield ||[Name] == ProtectorShield || [Name] == SacredTarge) && [Flag] != Ethereal && [Quality] == Normal # [fireresist] > 0 && [Sockets] == 0");
+
 			Config.Runewords.push([Runeword.Spirit, "Targe"]);
 			Config.Runewords.push([Runeword.Spirit, "Rondache"]);
 			Config.Runewords.push([Runeword.Spirit, "Heraldic Shield"]);

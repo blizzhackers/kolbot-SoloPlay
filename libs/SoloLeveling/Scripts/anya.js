@@ -35,6 +35,8 @@ function anya () {
 		Town.doChores();
 		Pather.usePortal(114, me.name);
 
+		frozenanya = getUnit(2, 558);	// Check again in case she's no longer there from first intereaction
+
 		if (frozenanya) {
 			while (!frozenanya.mode) {
 				sendPacket(1, 0x13, 4, 0x2, 4, frozenanya.gid);

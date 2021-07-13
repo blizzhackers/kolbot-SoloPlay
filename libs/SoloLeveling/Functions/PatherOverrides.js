@@ -10,7 +10,7 @@ if (!isIncluded("common/Pather.js")) {
 
 NodeAction.killMonsters = function (arg) {
 	// sanityCheck from isid0re
-	var monList, sanityCheck = [62, 63, 64, 74].indexOf(me.area) > -1 ? true : false;
+	var monList, sanityCheck = ([62, 63, 64, 74].indexOf(me.area) > -1 || (me.paladin && [8, 9, 10, 11, 12, 13, 14, 15, 16, 94, 95, 96, 97, 98, 99].indexOf(me.area) > -1 )) ? true : false;
 
 	if (Config.Countess.KillGhosts && [21, 22, 23, 24, 25].indexOf(me.area) > -1) {
 		monList = Attack.getMob(38, 0, 30);
@@ -196,16 +196,6 @@ Pather.deploy = function (unit, distance, spread, range) {
 	}
 
 	if (typeof index === "number") {
-		if (me.necromancer) {
-			if (me.getSkill(77, 1) >= 1 && Skill.getManaCost(77) < me.mp) {
-				if (ClassAttack.isCursable(monList[0])) {
-					Skill.cast(77, Skill.getHand(77));
-				}
-
-				print("got here");
-			}
-		}
-
 		return Pather.moveTo(grid[index].x, grid[index].y, 0);
 	}
 

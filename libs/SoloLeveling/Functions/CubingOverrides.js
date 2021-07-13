@@ -405,6 +405,10 @@ Cubing.emptyCube = function () {
 	}
 
 	while (items.length) {
+		if (!getUIFlag(0x1a)) {
+			Cubing.openCube();
+		}
+
 		if (!Storage.Stash.MoveTo(items[0]) && !Storage.Inventory.MoveTo(items[0])) {
 			Town.clearInventory();
 			Town.sortInventory();

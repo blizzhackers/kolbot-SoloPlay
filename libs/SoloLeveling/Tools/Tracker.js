@@ -74,6 +74,11 @@ var Tracker = {
 			PR = me.getStat(45),
 			string = Developer.formatTime(newTotal) + "," + Developer.formatTime(newIG) + "," + Developer.formatTime(scriptTime) + "," + subscript + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n";
 
+		if (newTotal < 0 || newIG < 0 || newSave < 0) {
+			D2Bot.printToConsole("ERROR in Tracker.Script negative time detected. newTick: " + newTick + " | InGame: " + GameTracker.InGame + " | newTotal: " + newTotal + " | GameTracker.Total: " + GameTracker.Total + " | gamestarttime: " + me.gamestarttime, 9);
+			return false;
+		}
+
 		GameTracker.Total = newTotal;
 		GameTracker.InGame = newIG;
 		GameTracker.LastSave = newSave;
@@ -103,6 +108,11 @@ var Tracker = {
 			PR = me.getStat(45),
 			string = Developer.formatTime(newTotal) + "," + Developer.formatTime(newIG) + "," + Developer.formatTime(splitTime) + "," + areaName + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n";
 
+		if (newTotal < 0 || newIG < 0 || newOOG < 0 || newSave < 0) {
+			D2Bot.printToConsole("ERROR in Tracker.Leveling negative time detected. newTick: " + newTick + " | InGame: " + GameTracker.InGame + " | newTotal: " + newTotal + " | GameTracker.Total: " + GameTracker.Total + " | gamestarttime: " + me.gamestarttime, 9);
+			return false;
+		}
+
 		GameTracker.Total = newTotal;
 		GameTracker.InGame = newIG;
 		GameTracker.OOG = newOOG;
@@ -122,6 +132,11 @@ var Tracker = {
 			newTotal = GameTracker.Total + Developer.Timer(totalTick),
 			newOOG = newTotal - newIG,
 			newSave = getTickCount();
+
+		if (newTotal < 0 || newIG < 0 || newOOG < 0 || newSave < 0) {
+			D2Bot.printToConsole("ERROR in Tracker.Update negative time detected. newTick: " + newTick + " | InGame: " + GameTracker.InGame + " | newTotal: " + newTotal + " | GameTracker.Total: " + GameTracker.Total + " | gamestarttime: " + me.gamestarttime, 9);
+			return false;
+		}
 
 		GameTracker.Total = newTotal;
 		GameTracker.InGame = newIG;

@@ -430,21 +430,21 @@ var Overlay = {
 			case "timerboard":
 				this.hooks.push({
 					name: "timerboard",
-					hook: new Box(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY, 187, 30, 0x0, 1, 2)
+					hook: new Box(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY + 8 * (Number(!!me.diff) + Number(!!me.gamepassword) + Number(!!me.gametype) + Number(!!me.gamename)), 187, 30, 0x0, 1, 2)
 				});
 
 				break;
 			case "timerframe":
 				this.hooks.push({
 					name: "timerframe",
-					hook: new Frame(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY, 187, 30, 2)
+					hook: new Frame(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY + 8 * (Number(!!me.diff) + Number(!!me.gamepassword) + Number(!!me.gametype) + Number(!!me.gamename)), 187, 30, 2)
 				});
 
 				break;
 			case "InGameTimer":
 				this.hooks.push({
 					name: "InGameTimer",
-					hook: new Text("In Game Timer: ÿc0" + this.clock("InGameTimer"), Overlay.timerX + Overlay.resfixX + 1, Overlay.timerY + Overlay.resfixY + 20, 4, 13, 2)
+					hook: new Text("In Game Timer: ÿc0" + this.clock("InGameTimer"), Overlay.timerX + Overlay.resfixX + 1, Overlay.timerY + Overlay.resfixY + 20 + 8 * (Number(!!me.diff) + Number(!!me.gamepassword) + Number(!!me.gametype) + Number(!!me.gamename)), 4, 13, 2)
 				});
 
 				break;
@@ -664,7 +664,7 @@ var Overlay = {
 			Overlay.text.check();
 		}
 
-		return msg ? true : me.gameReady && me.ingame && !me.dead ? status() : false;
+		return msg ? true : (me.gameReady && me.ingame && !me.dead) ? status() : false;
 	},
 
 	flush: function () {

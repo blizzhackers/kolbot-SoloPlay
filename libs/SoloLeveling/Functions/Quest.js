@@ -295,8 +295,7 @@ var Quest = {
 		if (Storage.Inventory.CanFit(questItem)) {
 			Pickit.pickItem(questItem);
 		} else {
-			Town.clearJunk();
-			Town.sortInventory();
+			Town.doChores();
 			Pickit.pickItem(questItem);
 			Pickit.pickItems();
 		}

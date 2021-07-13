@@ -356,14 +356,14 @@ var charmscore = function (item) {
 		ALL:	180, // + all skills
 		CLASS:	175, // + class tab
 		TAB: 300, // + skill tab
-		FR: 3.5, // fire resist
-		LR: 4, // lightning resist
+		FR: 2, // fire resist
+		LR: 2, // lightning resist
 		CR: 2, // cold resist
 		PR: 1, // poison resist
 		FRW: 1, // faster run/walk
-		FHR: 3, // faster hit recovery
+		FHR: 2, // faster hit recovery
 		DEF: 0.05, // defense
-		MF: 2.0, //Magic Find
+		MF: 2, //Magic Find
 		// base stats
 		HP:	1.75,
 		MANA: 0.8,
@@ -398,7 +398,6 @@ var charmscore = function (item) {
 		charmRating += item.getStatEx(127) * generalWeights.ALL; // + all skills
 		charmRating += item.getStatEx(83, me.classid) * generalWeights.CLASS; // + class skills
 		charmRating += item.getStatEx(79); // add gold find
-		charmRating += item.getStatEx(80) * generalWeights.MF; // add magic find
 		charmRating += item.getStatEx(87) * 1.5; // add reduced vendor prices
 		charmRating += item.getStatEx(0); // add STR
 	}

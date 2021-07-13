@@ -116,17 +116,32 @@ function ancients () {
 		}
 	}
 
-	Attack.clear(50);
-	Pather.moveTo(10048, 12628);
+	for (let i = 0; i < 3 && !me.ancients; i++) {
+		Attack.clear(50);
+		Pather.moveTo(10048, 12628);
+
+		if (!Misc.checkQuest(39, 0)) {
+			me.overhead("Failed to kill anicents. Attempt: " + i);
+			touchAltar(); //activate altar
+		}
+	}
+	
 	me.cancel();
 	me.overhead('restored settings');
 	Object.assign(Config, tempConfig);
 	Precast.doPrecast(true);
 
 	try {
-		Pather.moveToExit([128, 129], true);
+		let retry = 0;
 
-		if (!Pather.checkWP(129)) {
+		if (me.ancients) {
+			while (me.area !== 128 && retry < 5) {
+				Pather.moveToExit(128, true);
+				delay(250 + me.ping);
+				retry++;
+			}
+
+			Pather.moveToExit(129, true);
 			Pather.getWP(129);
 		}
 	} catch (err) {

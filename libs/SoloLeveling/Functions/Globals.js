@@ -59,7 +59,7 @@ var SetUp = {
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
-	respecOne: [ 25, 28, 26, 19, 24, 24, 30][me.classid],
+	respecOne: [ 64, 28, 26, 19, 24, 24, 30][me.classid],
 
 	respecTwo: function () {
 		let respec;
@@ -664,7 +664,6 @@ var Check = {
 			break;
 		case "string":
 			type = type.toLowerCase();
-			type =  NTIPAliasType[type];
 			break;
 		}
 
@@ -675,8 +674,44 @@ var Check = {
 				[3, 7].indexOf(item.location) > -1);
 
 		for (let i = 0; i < items.length; i++) {
-			if (items[i].getStat(194) === sockets && items[i].itemType === type) {
-				baseCheck = true;
+			if (items[i].getStat(194) === sockets) {
+				switch (type) {
+				case "helm":
+				case "primalhelm":
+				case "pelt":
+				case "armor":
+				case "shield":
+				case "auricshields":
+				case "voodooheads":
+				case "gloves":
+				case "belt":
+				case "boots":
+				case "ring":
+				case "amulet":
+				case "axe":
+				case "bow":
+				case "amazonbow":
+				case "crossbow":
+				case "dagger":
+				case "javelin":
+				case "amazonjavelin":
+				case "mace":
+				case "polearm":
+				case "scepter":
+				case "spear":
+				case "amazonspear":
+				case "staff":
+				case "sword":
+				case "wand":
+				case "assassinclaw":
+				case "weapon":
+					baseCheck = items[i].itemType === NTIPAliasType[type];
+					break;
+				default:
+					baseCheck = items[i].classid === NTIPAliasClassID[type];
+					break;
+				}
+
 				break;
 			}
 		}
@@ -711,7 +746,14 @@ var Check = {
 	finalBuild: function () {
 		function getBuildTemplate () {
 			let buildType = SetUp.finalBuild;
-			let build = buildType + "Build" ;
+			let build;
+
+			if (["Bumper", "Socketmule"].indexOf(SetUp.finalBuild) > -1) {
+				build = ["Javazon", "Lightning", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid] + "Build";
+			} else  {
+				build = buildType + "Build";
+			}
+
 			let classname = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid];
 			let template = "SoloLeveling/BuildFiles/" + classname + "." + build + ".js";
 
@@ -757,7 +799,7 @@ var Check = {
 		}
 
 		if (goalReached) {
-			if (Developer.fillAccount) {
+			if (Developer.fillAccount.Bumpers || Developer.fillAccount.Socketmules) {
 				SetUp.makeNext();
 			} else {
 				D2Bot.printToConsole("GuysSoloLeveling " + SetUp.finalBuild + " goal reached.", 6);

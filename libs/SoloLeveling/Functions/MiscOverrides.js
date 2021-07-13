@@ -258,8 +258,8 @@ Skill.getRange = function (skillId) {
 		var arctic = [5, 6, 6, 6, 6, 7, 7, 8, 8, 8, 8, 9, 9, 10, 10, 10, 10, 11, 11, 12];
 		let range = arctic[Math.min(me.getSkill(230, 1) - 1, 19)];
 		// Druid using this on physical immunes needs the monsters to be within range of hurricane
-		if (range > 7 && Config.AttackSkill[5] === 230) {
-			range = 7;
+		if (range > 6 && Config.AttackSkill[5] === 230) {
+			range = 6;
 		}
 
 		return range;
@@ -617,11 +617,15 @@ Misc.gamePacket = function (bytes) {// various game events
 
 		break;	*/
 	case 0xa4: //baalwave
-		if (me.hell && !Attack.IsAuradin) {
+		if (me.hell && me.paladin && !Attack.IsAuradin) {
 			waveMonster = ((bytes[1]) | (bytes[2] << 8));
 			wave = [23, 381, 557, 558, 571].indexOf(waveMonster);
 
 			if (wave > -1) {
+				if (wave !== 1) {		// Wave 2 magic immunes are the only ones that need to be skipped
+					break;
+				}
+
 				Misc.gamePause();
 				tick = getTickCount();
 				print('ÿc9SoloLevelingÿc0: baal wave #' + (wave + 1));

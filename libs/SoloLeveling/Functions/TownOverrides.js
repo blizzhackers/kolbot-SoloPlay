@@ -23,6 +23,8 @@ Town.ignoredItemTypes = [ // Items that won't be stashed
 	81 // Thawing Potion
 ];
 
+Town.questItemClassids = [87, 88, 89, 90, 91, 92, 173, 174, 521, 524, 525, 545, 546, 547, 548, 549, 552, 553, 554, 555, 644];
+
 Town.townTasks = function () {
 	if (!me.inTown) {
 		Town.goToTown();
@@ -31,10 +33,6 @@ Town.townTasks = function () {
 	let preAct = me.act, i, cancelFlags = [0x01, 0x02, 0x04, 0x08, 0x14, 0x16, 0x0c, 0x0f, 0x19, 0x1a];
 	Attack.weaponSwitch(Attack.getPrimarySlot());
 	this.unfinishedQuests();
-	Runewords.makeRunewords();
-	Cubing.doCubing();
-	Runewords.makeRunewords();
-	this.equipSWAP();
 	this.heal();
 	this.identify();
 	this.clearInventory();
@@ -47,7 +45,12 @@ Town.townTasks = function () {
 	this.shopItems();
 	this.reviveMerc();
 	this.gamble();
+	Cubing.emptyCube();
+	Runewords.makeRunewords();
+	Cubing.doCubing();
+	Runewords.makeRunewords();
 	Item.autoEquip();
+	Item.autoEquipSecondary();
 	Item.autoEquipCharms();
 	Merc.hireMerc();
 	Merc.equipMerc();
@@ -56,17 +59,6 @@ Town.townTasks = function () {
 	this.sortInventory();
 	this.sortStash();
 	Quest.characterRespec();
-
-	for (i = 0; i < cancelFlags.length; i += 1) {
-		if (getUIFlag(cancelFlags[i])) {
-			delay(500);
-			me.cancel();
-
-			break;
-		}
-	}
-
-	me.cancel();
 
 	if (me.area === 40 || me.area === 75) {
 		Town.buyPots(8, "Stamina");
@@ -81,8 +73,19 @@ Town.townTasks = function () {
 		Precast.doPrecast(false);
 	}
 
+	for (i = 0; i < cancelFlags.length; i += 1) {
+		if (getUIFlag(cancelFlags[i])) {
+			delay(500);
+			me.cancel();
+
+			break;
+		}
+	}
+
+	me.cancel();
+
 	Config.NoTele = me.normal && me.gold < 10000 ? true : !me.normal && me.gold < 50000 ? true : false;
-	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54) || (me.necromancer && me.getSkill(77, 0))) ? !Config.NoTele : Config.Dodge;
+	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54)) ? !Config.NoTele : Config.Dodge;
 
 	return true;
 };
@@ -94,10 +97,6 @@ Town.doChores = function (repair = false) {
 
 	let preAct = me.act, i, cancelFlags = [0x01, 0x02, 0x04, 0x08, 0x14, 0x16, 0x0c, 0x0f, 0x19, 0x1a];
 	Attack.weaponSwitch(Attack.getPrimarySlot());
-	Runewords.makeRunewords();
-	Cubing.doCubing();
-	Runewords.makeRunewords();
-	this.equipSWAP();
 	this.heal();
 	this.identify();
 	this.clearInventory();
@@ -110,7 +109,12 @@ Town.doChores = function (repair = false) {
 	this.shopItems();
 	this.reviveMerc();
 	this.gamble();
+	Cubing.emptyCube();
+	Runewords.makeRunewords();
+	Cubing.doCubing();
+	Runewords.makeRunewords();
 	Item.autoEquip();
+	Item.autoEquipSecondary();
 	Item.autoEquipCharms();
 	Merc.hireMerc();
 	Merc.equipMerc();
@@ -124,6 +128,14 @@ Town.doChores = function (repair = false) {
 	this.sortInventory();
 	Quest.characterRespec();
 
+	if (me.act !== preAct) {
+		this.goToTown(preAct);
+	}
+
+	if (me.barbarian && !Precast.checkCTA()) {	//If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
+		Precast.doPrecast(false);
+	}
+
 	for (i = 0; i < cancelFlags.length; i += 1) {
 		if (getUIFlag(cancelFlags[i])) {
 			delay(500);
@@ -135,16 +147,8 @@ Town.doChores = function (repair = false) {
 
 	me.cancel();
 
-	if (me.act !== preAct) {
-		this.goToTown(preAct);
-	}
-
-	if (me.barbarian && !Precast.checkCTA()) {	//If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
-		Precast.doPrecast(false);
-	}
-
 	Config.NoTele = me.normal && me.gold < 10000 ? true : !me.normal && me.gold < 50000 ? true : false;
-	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54) || (me.necromancer && me.getSkill(77, 0))) ? !Config.NoTele : Config.Dodge;
+	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54)) ? !Config.NoTele : Config.Dodge;
 
 	return true;
 };
@@ -164,7 +168,7 @@ Town.identify = function () {
 	// Avoid unnecessary NPC visits
 	for (i = 0; i < list.length; i += 1) {
 		// Only unid items or sellable junk (low level) should trigger a NPC visit
-		if ((!list[i].getFlag(0x10) || Config.LowGold > 0) && ([-1, 4].indexOf(Pickit.checkItem(list[i]).result) > -1 || (!list[i].getFlag(0x10) && (Item.hasTier(list[i]) || Item.hasMercTier(list[i]) || Item.hasCharmTier(list[i]))))) {
+		if ((!list[i].getFlag(0x10) || Config.LowGold > 0) && ([-1, 4].indexOf(Pickit.checkItem(list[i]).result) > -1 || (!list[i].getFlag(0x10) && (Item.hasTier(list[i]) || Item.hasSecondaryTier(list[i]) || Item.hasMercTier(list[i]) || Item.hasCharmTier(list[i]))))) {
 			break;
 		}
 	}
@@ -193,7 +197,7 @@ Town.identify = function () {
 			result = Pickit.checkItem(item);
 
 			// Force ID for unid items matching autoEquip criteria
-			if (result.result === 1 && !item.getFlag(0x10) && (Item.hasTier(item) || Item.hasMercTier(item) || Item.hasCharmTier(item))) {
+			if (result.result === 1 && !item.getFlag(0x10) && (Item.hasTier(item) || Item.hasSecondaryTier(item) || Item.hasMercTier(item) || Item.hasCharmTier(item))) {
 				result.result = -1;
 			}
 
@@ -538,7 +542,7 @@ Town.shopItems = function () {
 		}
 
 		// tier'ed items
-		if (result.result === 1 && (Item.autoEquipCheck(items[i]) || Item.autoEquipCheckMerc(items[i]))) {
+		if (result.result === 1 && (Item.autoEquipCheck(items[i]) || Item.autoEquipCheckMerc(items[i]) || Item.autoEquipCheckSecondary(items[i]))) {
 			try {
 				if (Storage.Inventory.CanFit(items[i]) && me.getStat(14) + me.getStat(15) >= items[i].getItemCost(0)) {
 					if (Item.hasTier(items[i]) &&
@@ -556,6 +560,15 @@ Town.shopItems = function () {
 					NTIP.GetMercTier(items[i]) > Item.getEquippedItemMerc(Item.getBodyLocMerc(items[i])[0]).tier) {
 						Misc.itemLogger("AutoEquipMerc Shopped", items[i]);
 						Misc.logItem("AutoEquipMerc Shopped", items[i], result.line);
+						items[i].buy();
+					}
+
+					if (Item.hasSecondaryTier(items[i]) &&
+					Item.getBodyLocSecondary(items[i])[0] !== undefined &&
+					Item.canEquip(items[i], Item.getBodyLocSecondary(items[i])[0]) &&
+					NTIP.GetSecondaryTier(items[i]) > Item.getEquippedItem(Item.getBodyLocSecondary(items[i])[0]).secondarytier) {
+						Misc.itemLogger("AutoEquip Switch Shopped", items[i]);
+						Misc.logItem("AutoEquip Switch Shopped", items[i], result.line);
 						items[i].buy();
 					}
 				}
@@ -1127,28 +1140,7 @@ Town.clearInventory = function () {
 
 	for (i = 0; !!items && i < items.length; i += 1) {
 		if ([18, 41, 76, 77, 78].indexOf(items[i].itemType) === -1 && // Don't drop tomes, keys or potions
-			items[i].classid !== 88 && // wirt's leg
-			items[i].classid !== 89 && // horadric malus
-			items[i].classid !== 524 && // Scroll of Inifuss
-			items[i].classid !== 525 && // Key to Cairn Stones
-			items[i].classid !== 549 && // Horadric Cube
-			items[i].classid !== 92 && // Staff of Kings
-			items[i].classid !== 521 && // Viper Amulet
-			items[i].classid !== 91 && // Horadric Staff
-			items[i].classid !== 552 && // Book of Skill
-			items[i].classid !== 545 && // Potion of Life
-			items[i].classid !== 546 && // A Jade Figurine
-			items[i].classid !== 547 && // The Golden Bird
-			items[i].classid !== 548 && // Lam Esen's Tome
-			items[i].classid !== 553 && // Khalim's Eye
-			items[i].classid !== 554 && // Khalim's Heart
-			items[i].classid !== 555 && // Khalim's Brain
-			items[i].classid !== 173 && // Khalim's Flail
-			items[i].classid !== 174 && // Khalim's Will
-			items[i].classid !== 551 && // Mephisto's Soulstone
-			items[i].classid !== 90 && // Hellforge Hammer
-			items[i].classid !== 644 && // Malah's Potion
-			items[i].classid !== 646 && // Scroll of Resistance
+			(Town.questItemClassids.indexOf(items[i].classid) === -1) &&	// Don't drop quest items
 			(items[i].classid !== 603 && items[i].quality !== 7) && // Anni
 			(items[i].classid !== 604 && items[i].quality !== 7) && // Torch
 			(items[i].classid !== 605 && items[i].quality !== 7) && // Gheeds
@@ -1244,6 +1236,22 @@ Town.betterBaseThanWearing = function (base, verbose) {
 		return skillsRating;
 	};
 
+	function nonRunewordEquippedBaseCheck (base, bodyLoc) {
+		let baseTier = 0;
+
+		switch (base.itemType) {
+		case 69: //Voodoo heads
+		case 70: // Auric Shields
+		case 71: // Barb Helm
+		case 72: //	Druid Pelt
+		case 25: //	Wand
+			baseTier = tierscore(base);
+			break;
+		}
+
+		return (baseTier > Item.getEquippedItem(bodyLoc).tier);
+	};
+
 	if (base === undefined || !base) {
 		return false;
 	}
@@ -1316,7 +1324,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 				if (baseResists !== itemsResists) {
 					if (verbose) {
-						print("ÿc9BaseCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+						print("ÿc9BadBaseCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
 					}
 
 					if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
@@ -1331,7 +1339,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 				if (baseDefense !== itemsDefense) {
 					if (verbose) {
-						print("ÿc9BaseCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+						print("ÿc9BadBaseCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 					}
 
 					if (baseDefense < itemsDefense) {	//base has lower defense
@@ -1343,16 +1351,116 @@ Town.betterBaseThanWearing = function (base, verbose) {
 			}
 			
 			break;
+		case 20512: 	//Black
+			ED = equippedItem.eDmg > 120 ? 120 : equippedItem.eDmg;
+			itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
+			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+			baseDmg = base.getStat(21) + base.getStat(22);
+				
+			if (baseDmg !== itemsTotalDmg) {
+				if (verbose) {
+					print("ÿc9BadBaseCheckÿc0 :: RW(Black) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+				}
+
+				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					result = false;
+
+					break;
+				}
+			}
+
+			break;
+		case 20523: 	//Crescent Moon
+			ED = equippedItem.eDmg > 220 ? 220 : equippedItem.eDmg;
+			itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
+			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+			baseDmg = base.getStat(21) + base.getStat(22);
+				
+			if (baseDmg !== itemsTotalDmg) {
+				if (verbose) {
+					print("ÿc9BadBaseCheckÿc0 :: RW(Crescent Moon) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+				}
+
+				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					result = false;
+
+					break;
+				}
+			}
+
+			break;
 		case 20543: 	//Exile
 			itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr);
 			baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
 
 			if (baseResists !== itemsResists) {
 				if (verbose) {
-					print("ÿc9BaseCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+					print("ÿc9BadBaseCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
 				}
 
 				if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+					result = false;
+
+					break;
+				}
+			}
+
+			break;
+		case 20561: 	//Honor
+			ED = equippedItem.eDmg > 160 ? 160 : equippedItem.eDmg;
+			itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
+			itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 9) / ((ED + 100) / 100)));
+			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+			baseDmg = base.getStat(21) + base.getStat(22);
+				
+			if (baseDmg !== itemsTotalDmg) {
+				if (verbose) {
+					print("ÿc9BadBaseCheckÿc0 :: RW(Honor) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+				}
+
+				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					result = false;
+
+					break;
+				}
+			}
+
+			break;
+		case 20571: 	//King's Grace
+			ED = equippedItem.eDmg > 100 ? 100 : equippedItem.eDmg;
+			itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
+			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+			baseDmg = base.getStat(21) + base.getStat(22);
+				
+			if (baseDmg !== itemsTotalDmg) {
+				if (verbose) {
+					print("ÿc9BadBaseCheckÿc0 :: RW(King's Grace) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+				}
+
+				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					result = false;
+
+					break;
+				}
+			}
+
+			break;
+		case 20577: 	//Lawbringer
+			ED = equippedItem.eDmg;
+			itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
+			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+			baseDmg = base.getStat(21) + base.getStat(22);
+				
+			if (baseDmg !== itemsTotalDmg) {
+				if (verbose) {
+					print("ÿc9BadBaseCheckÿc0 :: RW(Lawbringer) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+				}
+
+				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
 					result = false;
 
 					break;
@@ -1370,7 +1478,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 				if (equippedSkillsTier !== baseSkillsTier) {
 					if (verbose) {
-						print("ÿc9BaseCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+						print("ÿc9BadBaseCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 					}
 
 					if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense helm
@@ -1380,7 +1488,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 					}
 				} else if (baseDefense !== itemsDefense) {
 					if (verbose) {
-						print("ÿc9BaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+						print("ÿc9BadBaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 					}
 
 					if (baseDefense < itemsDefense) {	//base has lower defense
@@ -1392,7 +1500,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 			} else {
 				if (baseDefense !== itemsDefense) {
 					if (verbose) {
-						print("ÿc9BaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+						print("ÿc9BadBaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 					}
 
 					if (baseDefense < itemsDefense) {	//base has lower defense
@@ -1400,6 +1508,31 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 						break;
 					}
+				}
+			}
+
+			break;
+		case 20586: 	//Malice
+			ED = equippedItem.eDmg > 33 ? 33 : equippedItem.eDmg;
+			itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
+			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+			baseDmg = base.getStat(21) + base.getStat(22);
+
+			if (me.classid === 3) {	//Paladin TODO: See if its worth it to calculate the added damage skills would add
+				equippedSkillsTier = skillsScore(check);
+				baseSkillsTier = skillsScore(base);
+			}
+				
+			if (baseDmg !== itemsTotalDmg) {
+				if (verbose) {
+					print("ÿc9BadBaseCheckÿc0 :: RW(Malice) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+				}
+
+				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					result = false;
+
+					break;
 				}
 			}
 
@@ -1414,7 +1547,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 				if (equippedSkillsTier !== baseSkillsTier) {
 					if (verbose) {
-						print("ÿc9BaseCheckÿc0 :: RW(Rhyme) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+						print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 					}
 
 					if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense shield
@@ -1427,7 +1560,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 			if (baseResists !== itemsResists) {
 				if (verbose) {
-					print("ÿc9BaseCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+					print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
 				}
 
 				if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
@@ -1438,8 +1571,28 @@ Town.betterBaseThanWearing = function (base, verbose) {
 			}
 
 			break;
+		case 20626: 	//Rift
+			ED = equippedItem.eDmg;
+			itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
+			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+			baseDmg = base.getStat(21) + base.getStat(22);
+				
+			if (baseDmg !== itemsTotalDmg) {
+				if (verbose) {
+					print("ÿc9BadBaseCheckÿc0 :: RW(Rift) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+				}
+
+				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					result = false;
+
+					break;
+				}
+			}
+
+			break;
 		case 20635: 	//Spirit
-			if (me.paladin) {
+			if (me.paladin && bodyLoc === 5) {
 				itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 115;
 				baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
 			} else {
@@ -1448,10 +1601,50 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 			if (baseResists !== itemsResists) {
 				if (verbose) {
-					print("ÿc9BaseCheckÿc0 :: RW(spirit) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+					print("ÿc9BadBaseCheckÿc0 :: RW(spirit) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
 				}
 
 				if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+					result = false;
+
+					break;
+				}
+			}
+
+			break;
+		case 20639: 	//Steel
+			ED = equippedItem.eDmg > 20 ? 20 : equippedItem.eDmg;
+			itemsMinDmg = Math.ceil(((equippedItem.minDmg - 3) / ((ED + 100) / 100)));
+			itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 3) / ((ED + 100) / 100)));
+			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+			baseDmg = base.getStat(21) + base.getStat(22);
+				
+			if (baseDmg !== itemsTotalDmg) {
+				if (verbose) {
+					print("ÿc9BadBaseCheckÿc0 :: RW(Steel) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+				}
+
+				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					result = false;
+
+					break;
+				}
+			}
+
+			break;
+		case 20644: 	//Strength
+			ED = equippedItem.eDmg > 35 ? 35 : equippedItem.eDmg;
+			itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
+			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+			baseDmg = base.getStat(21) + base.getStat(22);
+				
+			if (baseDmg !== itemsTotalDmg) {
+				if (verbose) {
+					print("ÿc9BadBaseCheckÿc0 :: RW(Strength) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+				}
+
+				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
 					result = false;
 
 					break;
@@ -1466,7 +1659,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 				if (equippedSkillsTier !== baseSkillsTier) {
 					if (verbose) {
-						print("ÿc9BaseCheckÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+						print("ÿc9BadBaseCheckÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 					}
 
 					if (baseSkillsTier < equippedSkillsTier) {
@@ -1485,7 +1678,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 			if (baseDefense !== itemsDefense) {
 				if (verbose) {
-					print("ÿc9BaseCheckÿc0 :: RW(Stealth/Smoke) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+					print("ÿc9BadBaseCheckÿc0 :: RW(Stealth/Smoke) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 				}
 
 				if (baseDefense < itemsDefense) {	//base has lower defense
@@ -1522,7 +1715,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 			if (baseDefense !== itemsDefense) {
 				if (verbose) {
-					print("ÿc9BaseCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+					print("ÿc9BadBaseCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 				}
 
 				if (baseDefense < itemsDefense) {	//base has lower defense
@@ -1571,7 +1764,7 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 
 		if (generalScore === 0) {
 			if (me.paladin) {
-				generalScore += item.getStatEx(39);	// Resist
+				generalScore += item.getStatEx(39) * 2;	// Resist
 			}
 
 			generalScore += item.getStatEx(31) * 0.5;		// Defense
@@ -1608,7 +1801,7 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 				return true;
 			}
 
-			if (base.getStat(194) > 0) {
+			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
 				if ((base.location === 7 || base.location === 3) &&
 					(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl < itemsToCheck.ilvl))) {
@@ -1900,17 +2093,17 @@ Town.clearJunk = function () {
 			!Runewords.keepItem(junk[0]) && // Don't throw runeword ingredients
 			!CraftingSystem.keepItem(junk[0]) && // Don't throw crafting system ingredients
 			[18, 41, 76, 77, 78].indexOf(junk[0].itemType) === -1 && // Don't drop tomes, keys or potions
-			(questItemClassids.indexOf(junk[0].classid) === -1) &&	// Don't drop quest items
+			(Town.questItemClassids.indexOf(junk[0].classid) === -1) &&	// Don't drop quest items
 			(junk[0].classid !== 603 && junk[0].quality !== 7) && // Anni
 			(junk[0].classid !== 604 && junk[0].quality !== 7) && // Torch
 			(junk[0].classid !== 605 && junk[0].quality !== 7) && // Gheeds
 			([0, 4].indexOf(Pickit.checkItem(junk[0]).result) > -1) // only drop unwanted
 		) {
-			if (!getUIFlag(0x19)) {
+			if (!getUIFlag(0x19) && junk[0].location === 7) {
 				Town.openStash();
 			}
 
-			print("First Check: " + junk[0].name + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+			print("ÿcJunkCheckÿc0 :: Junk: " + junk[0].name + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
 
 			if (Storage.Inventory.CanFit(junk[0])) {
 				if (Storage.Inventory.MoveTo(junk[0])) {
@@ -1939,13 +2132,13 @@ Town.clearJunk = function () {
 		}
 
 		if (([3, 7].indexOf(junk[0].location) > -1 && [18, 41, 76, 77, 78, 80, 81, 39, 74, 82, 83, 84].indexOf(junk[0].itemType) === -1) &&
-			(questItemClassids.indexOf(junk[0].classid) === -1)) {
+			(Town.questItemClassids.indexOf(junk[0].classid) === -1)) {
 			if (this.betterBaseThanStashed(junk[0], true)) {
-				if (!getUIFlag(0x19)) {
+				if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
 					Town.openStash();
 				}
 
-				print("Junk: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+				print("ÿc9BadBaseCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
 
 				if (Storage.Inventory.CanFit(junk[0])) {
 					if (Storage.Inventory.MoveTo(junk[0])) {
@@ -1972,12 +2165,16 @@ Town.clearJunk = function () {
 				}
 			}
 
-			if (junk[0].getFlag(NTIPAliasFlag["runeword"]) && !Item.autoEquipKeepCheck(junk[0]) && !Item.autoEquipKeepCheckMerc(junk[0])) {
-				if (!getUIFlag(0x19)) {
+			if (junk[0].getFlag(NTIPAliasFlag["runeword"]) && !Item.autoEquipKeepCheck(junk[0]) && !Item.autoEquipCheckSecondary(junk[0]) && !Item.autoEquipKeepCheckMerc(junk[0])) {
+				if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
 					Town.openStash();
 				}
 
-				print("ÿc9JunkCheckÿc0 :: Junk: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+				if (junk[0].location === 6) {	// Something got stuck in the cube
+					Cubing.emptyCube();
+				}
+
+				print("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
 
 				if (Storage.Inventory.CanFit(junk[0])) {
 					if (Storage.Inventory.MoveTo(junk[0])) {
@@ -2008,7 +2205,7 @@ Town.clearJunk = function () {
 				if (!this.betterBaseThanWearing(junk[0])) {
 					print("ÿc9BadBaseCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
 
-					if (!getUIFlag(0x19)) {
+					if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
 						Town.openStash();
 					}
 

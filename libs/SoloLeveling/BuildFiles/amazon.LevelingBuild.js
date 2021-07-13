@@ -1,7 +1,7 @@
 /*
  *    @filename   amazon.LevelingBuild.js
- *	  @author	  isid0re
- *    @desc       customized javazon for nm and hell before final respec
+ *	  @author	  theBGuy
+ *    @desc       amazon build for after respecOne
  */
 
 var build = {
@@ -13,36 +13,37 @@ var build = {
 	mercAuraWanted: 114,
 	mercDiff: 1,
 	stats: [
-		["vitality", 60], ["dexterity", 30], ["strength", 27], ["vitality", 91], ["dexterity", 47], ["strength", 30], ["vitality", 96], ["dexterity", 59], ["strength", 60], ["vitality", 109], ["dexterity", 77], ["strength", 89], ["vitality", 137], ["dexterity", 89], ["vitality", 173], ["dexterity", 103], ["vitality", 208], ["dexterity", 118], ["vitality", 243], ["dexterity", 133], ["vitality", 279], ["dexterity", 147], ["vitality", "all"]
+		["strength", 34], ["vitality", 30], ["dexterity", 47], 
+		["vitality", 45], ["strength", 47], ["dexterity", 65],
+		["vitality", 65], ["strength", 53], ["dexterity", 118], 
+		["vitality", 100], ["strength", 118], ["dexterity", 151], 
+		["strength", 156], ["vitality", "all"],
 	],
 	skills: [
-		[9, 1], // Critical Strike
-		[23, 1], // Penetrate
-		[10, 1], // Jab
-		[14, 1], // Power Strike
-		[15, 1], // Poison Javelin
-		[20, 1], // Lightning Bolt
-		[25, 1], // Plague Javelin
-		[24, 13], // Charged Strike
-		[14, 12], // Power Strike
-		[33, 1], // Pierce
-		[35, 1], // Lightning Fury
-		[33, 2], // Pierce
-		[35, 2], // Lightning Fury
-		[33, 3], // Pierce
-		[35, 3], // Lightning Fury
-		[33, 5], // Pierce
-		[35, 20], // Lightning Fury
-		[24, 20], // Charged Strike
-		[13, 1], // Dodge
-		[18, 1], // Avoid
-		[29, 1], // Evade
-		[8, 1], // inners sight
-		[17, 1], // slow missiles
-		[28, 1], // decoy
-		[32, 1], // Valkyrie
-		[14, 20], // Power Strike
-		[34, 20], // Lightning Strike
-		[20, 20], // Lightning Bolt
+		[10, 1, false], // Jab 1 // -> charlvl 2
+		[8, 1, false], // Inner Sight 1 // -> charlvl 3
+		[9, 2, false], // Critical Strike 2 // -> charlvl 5
+		[14, 1, false], // Power Strike 1 // -> charlvl 6
+		[13, 1, false], // Dodge 1 // -> charlvl 7
+		[14, 1, false], // Power Strike 4 // -> charlvl 11
+		[17, 1, false], // Slow Missles 1 // -> charlvl 12
+		[18, 1, false], // Avoid 1 // -> charlvl 13
+		[14, 1, false], // Power Strike 8 // -> charlvl 17
+		[24, 1, false], // Charged Strike 1 // -> charlvl 18
+		[23, 1, false], // Penetrate 1 // -> charlvl 18
+		[24, 5, false], // Charged Strike 5 // -> charlvl 23
+		[29, 1, false], // Evade 1 // charLvl 24
+		[28, 1, false], // Decoy 1 // -> charlvl 25
+		[32, 1, false], // Valkyrie 1 // -> charlvl 30
+		[34, 1, false], // Lightning Strike 1 // -> charlvl 31
+		[24, 20, false], // Charged Strike 20 // -> charlvl 42
+		[28, 5, false], // Decoy 5 // -> charlvl 47
+		[34, 20, false], // Lightning Strike 20 // -> charlvl 63
+		[35, 8, false], // Lightning Fury 20 // -> charlvl ?
+		[25, 20, true], // Plague Javelin 10 // -> charlvl ?
+		[35, 15, false], // Lightning Fury 20 // -> charlvl ? 
+		[32, 17, true], // Valkyrie 20 // -> charlvl ? 
+		[35, 20, false], // Lightning Fury 20 // -> charlvl ? 
+		[14, 20, false], // Power Strike 20 // -> charlvl ?
 	]
 };

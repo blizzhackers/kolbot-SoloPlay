@@ -59,8 +59,8 @@ Pickit.checkItem = function (unit) {
 		};
 	}
 
-	if ([603, 604, 605].indexOf(unit.classid) > -1 && unit.getFlag(0x10)) {
-		if (Item.autoEquipCharmCheck(unit) && NTIP.GetCharmTier(unit) > 0) {
+	if ([603, 604, 605].indexOf(unit.classid) > -1 && NTIP.GetCharmTier(unit) > 0 && unit.getFlag(0x10)) {
+		if (Item.autoEquipCharmCheck(unit)) {
 			return {
 				result: 1,
 				line: "Autoequip charm tier: " + NTIP.GetCharmTier(unit)
@@ -82,6 +82,13 @@ Pickit.checkItem = function (unit) {
 			return {
 				result: 1,
 				line: "Autoequip MercTier: " + NTIP.GetMercTier(unit)
+			};
+		}
+
+		if (Item.autoEquipCheckSecondary(unit)) {
+			return {
+				result: 1,
+				line: "Autoequip Secondary Tier: " + NTIP.GetSecondaryTier(unit)
 			};
 		}
 
