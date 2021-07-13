@@ -142,6 +142,16 @@ var tierscore = function (item) {
 		// regen
 		HPREGEN: 2,
 		MANAREGEN: 2,
+		// CTC on attack
+		CTCOANOVA: 5,
+		CTCOAFNOVA: 10,
+		CTCOAAMP: 5,
+		CTCOADECREP: 10,
+		// CTC on striking
+		CTCOSNOVA: 3,
+		CTCOSFNOVA: 8,
+		CTCOSAMP: 3,
+		CTCOSDECREP: 8,
 	};
 
 	var skillsWeights = {
@@ -297,6 +307,19 @@ var tierscore = function (item) {
 		buildRating += item.getStatEx(62) * buildWeights.ML; // add ML
 		buildRating += item.getStatEx(74) * buildWeights.HPREGEN; // add hp regeneration
 		buildRating += item.getStatEx(26) * buildWeights.MANAREGEN; // add mana recovery
+
+		// Melee Specific
+		if (!Check.currentBuild().caster) {
+			buildRating += item.getStatEx(195, 3135) * buildWeights.CTCOANOVA; // add CTC nova on attack
+			buildRating += item.getStatEx(195, 2879) * buildWeights.CTCOAFNOVA; // add CTC frost nova on attack
+			buildRating += item.getStatEx(195, 4225) * buildWeights.CTCOAAMP; // add CTC amplify damage on attack
+			buildRating += item.getStatEx(195, 5631) * buildWeights.CTCOADECREP; // add CTC decrepify on attack
+			buildRating += item.getStatEx(198, 3135) * buildWeights.CTCOSNOVA; // add CTC nova on strikng
+			buildRating += item.getStatEx(198, 2879) * buildWeights.CTCOSFNOVA; // add CTC frost nova on strikng
+			buildRating += item.getStatEx(198, 4225) * buildWeights.CTCOSAMP; // add CTC amplify damage on strikng
+			buildRating += item.getStatEx(198, 5631) * buildWeights.CTCOSDECREP; // add CTC decrepify on strikng
+
+		}
 
 		return buildRating;
 	},
