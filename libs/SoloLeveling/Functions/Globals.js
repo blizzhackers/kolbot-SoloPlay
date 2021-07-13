@@ -170,11 +170,19 @@ var SetUp = {
 	},
 
 	makeNext: function () {
-        DataFile.updateStats("makeNext", true);
-        print("ÿc9GuysSoloLevelingÿc0: " + this.finalBuild + " goal reached. On to the next.");
-        me.overhead("GuysSoloLeveling: " + this.finalBuild + " goal reached. On to the next.");
-        delay(100 + me.ping);
-        D2Bot.restart();
+		if (!isIncluded("SoloLeveling/Tools/NameGen.js")) {
+			include("SoloLeveling/Tools/NameGen.js");
+		}
+
+		print("ÿc9GuysSoloLevelingÿc0: " + this.finalBuild + " goal reached. On to the next.");
+		me.overhead("GuysSoloLeveling: " + this.finalBuild + " goal reached. On to the next.");
+
+		D2Bot.printToConsole('Making next character...', 6);
+		D2Bot.setProfile(null, null, NameGen());
+		FileTools.remove("data/" + me.profile + ".json");
+		FileTools.remove("libs/SoloLeveling/Data/" + me.profile + ".GameTime" + ".json");
+		delay(100 + me.ping);
+		D2Bot.restart();
     },
 };
 

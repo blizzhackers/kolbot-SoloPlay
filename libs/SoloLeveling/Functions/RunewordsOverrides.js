@@ -111,7 +111,7 @@ Runewords.getBase = function (runeword, base, ethFlag, reroll) {
 					better check than getFlag(0x4000000) because randomly socketed items return false for it
 				*/
 
-				if ((!reroll && !item.getItem() && Town.betterBaseThanWearing(item, false)) || (reroll && item.getItem() && !NTIP.CheckItem(item, this.pickitEntries))) {
+				if ((!reroll && !item.getItem() && Town.betterBaseThanWearing(item, Developer.Debugging.junkCheckVerbose)) || (reroll && item.getItem() && !NTIP.CheckItem(item, this.pickitEntries))) {
 					if (!ethFlag || (ethFlag === 1 && item.getFlag(0x400000)) || (ethFlag === 2 && !item.getFlag(0x400000))) {
 						return copyUnit(item);
 					}

@@ -233,7 +233,11 @@ Item.autoEquip = function () {
 					print(items[0].name);
 
 					if (this.equip(items[0], bodyLoc[j])) {
-						Misc.logItem("Equipped", me.getItem(-1, -1, gid));
+						print("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname);
+
+						if (Developer.Debugging.autoEquip) {
+							Misc.logItem("Equipped", me.getItem(-1, -1, gid));
+						}
 
 						if (Developer.logEquipped) {
 							MuleLogger.logEquippedItems();
@@ -492,7 +496,11 @@ Item.autoEquipSecondary = function () {
 					print(items[0].name);
 
 					if (this.secondaryEquip(items[0], bodyLoc[j])) {
-						Misc.logItem("Equipped switch", me.getItem(-1, -1, gid));
+						print("ÿc9SecondaryEquipÿc0 :: Equipped: " + items[0].fname);
+
+						if (Developer.Debugging.autoEquip) {
+							Misc.logItem("Equipped switch", me.getItem(-1, -1, gid));
+						}
 
 						if (Developer.logEquipped) {
 							MuleLogger.logEquippedItems();
@@ -564,7 +572,11 @@ Item.equipMerc = function (item, bodyLoc) {
 		if (item.toCursor()) {
 			if (clickItem(4, bodyLoc)) {
 				delay(500 + me.ping * 2);
-				Misc.logItem("Merc Equipped", mercenary.getItem(item.classid));
+				print("ÿc9MercEquipÿc0 :: Equipped: " + item.fname);
+
+				if (Developer.Debugging.autoEquip) {
+					Misc.logItem("Merc Equipped", mercenary.getItem(item.classid));
+				}
 			}
 
 			if (item.bodylocation === bodyLoc) {
@@ -797,7 +809,10 @@ Item.autoEquipMerc = function () {
 
 					if (cursorItem) {
 						cursorItem.drop();
-						Misc.logItem("Merc Dropped", cursorItem);
+
+						if (Developer.Debugging.autoEquip) {
+							Misc.logItem("Merc Dropped", cursorItem);
+						}
 					}
 
 					break;
@@ -872,7 +887,7 @@ Item.autoEquipSC = function () {
 		}
 	}
 
-	let charms = Item.autoEquipCharmSort(items, true);
+	let charms = Item.autoEquipCharmSort(items, Developer.Debugging.smallCharmVerbose);
 
 	keep = keep.concat(charms.resCharms, charms.healthCharms, charms.mfCharms, charms.dmgCharms, charms.eleDmgCharms, charms.backupCheck);
 
@@ -948,7 +963,7 @@ Item.autoEquipLC = function () {
 		}
 	}
 
-	let charms = Item.autoEquipCharmSort(items, false);
+	let charms = Item.autoEquipCharmSort(items, Developer.Debugging.largeCharmVerbose);
 
 	keep = keep.concat(charms.resCharms, charms.healthCharms, charms.mfCharms, charms.dmgCharms, charms.eleDmgCharms, charms.backupCheck);
 
@@ -1022,7 +1037,7 @@ Item.autoEquipGC = function () {
 		}
 	}
 
-	let charms = Item.autoEquipCharmSort(items, false);
+	let charms = Item.autoEquipCharmSort(items, Developer.Debugging.grandCharmVerbose);
 
 	keep = keep.concat(charms.typeA, charms.typeB, charms.typeC, charms.resCharms, charms.healthCharms, charms.mfCharms, charms.dmgCharms, charms.eleDmgCharms, charms.backupCheck);
 

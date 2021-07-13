@@ -266,7 +266,15 @@ Town.identify = function () {
 
 					break;
 				default:
-					if ([603, 605].indexOf(item.classid) > -1 || [5, 7].indexOf(item.quality) > -1) {
+					if (Developer.Debugging.smallCharmVerbose && item.classid === 603) {
+						Misc.logItem("Sold", item);
+					}
+
+					if (Developer.Debugging.largeCharmVerbose && item.classid === 604) {
+						Misc.logItem("Sold", item);
+					}
+
+					if (Developer.Debugging.grandCharmVerbose && item.classid === 605) {
 						Misc.logItem("Sold", item);
 					}
 
@@ -526,7 +534,11 @@ Town.shopItems = function () {
 					if ([2, 3].indexOf(items[i].quality) > -1) {
 						if (this.betterBaseThanStashed(items[i])) {
 							Misc.itemLogger("Shopped", items[i]);
-							Misc.logItem("Shopped", items[i], result.line);
+
+							if (Developer.Debugging.autoEquip) {
+								Misc.logItem("Shopped", items[i], result.line);
+							}
+
 							print("ÿc9GuysSoloLevelingÿc0: Bought better base");
 							items[i].buy();
 						}
@@ -550,7 +562,12 @@ Town.shopItems = function () {
 					Item.canEquip(items[i]) &&
 					NTIP.GetTier(items[i]) > Item.getEquippedItem(Item.getBodyLoc(items[i])[0]).tier) {
 						Misc.itemLogger("AutoEquip Shopped", items[i]);
-						Misc.logItem("AutoEquip Shopped", items[i], result.line);
+						print("ÿc9ShopItemsÿc0 :: AutoEquip Shopped: " + items[i].fname);
+
+						if (Developer.Debugging.autoEquip) {
+							Misc.logItem("AutoEquip Shopped", items[i], result.line);
+						}
+
 						items[i].buy();
 					}
 
@@ -559,7 +576,12 @@ Town.shopItems = function () {
 					Item.canEquipMerc(items[i], Item.getBodyLocMerc(items[i])[0]) &&
 					NTIP.GetMercTier(items[i]) > Item.getEquippedItemMerc(Item.getBodyLocMerc(items[i])[0]).tier) {
 						Misc.itemLogger("AutoEquipMerc Shopped", items[i]);
-						Misc.logItem("AutoEquipMerc Shopped", items[i], result.line);
+						print("ÿc9ShopItemsÿc0 :: AutoEquipMerc Shopped: " + items[i].fname);
+
+						if (Developer.Debugging.autoEquip) {
+							Misc.logItem("AutoEquipMerc Shopped", items[i], result.line);
+						}
+
 						items[i].buy();
 					}
 
@@ -568,7 +590,12 @@ Town.shopItems = function () {
 					Item.canEquip(items[i], Item.getBodyLocSecondary(items[i])[0]) &&
 					NTIP.GetSecondaryTier(items[i]) > Item.getEquippedItem(Item.getBodyLocSecondary(items[i])[0]).secondarytier) {
 						Misc.itemLogger("AutoEquip Switch Shopped", items[i]);
-						Misc.logItem("AutoEquip Switch Shopped", items[i], result.line);
+						print("ÿc9ShopItemsÿc0 :: AutoEquip Switch Shopped: " + items[i].fname);
+						
+						if (Developer.Debugging.autoEquip) {
+							Misc.logItem("AutoEquip Switch Shopped", items[i], result.line);
+						}
+
 						items[i].buy();
 					}
 				}
@@ -2202,7 +2229,7 @@ Town.clearJunk = function () {
 			}
 
 			if (junk[0].getStat(194) > 0 && [2, 69, 70, 3, 37, 71, 72, 75, 25, 24, 26, 27, 28, 29, 30, 31, 33, 35, 36, 68, 85, 86, 67, 88, 34].indexOf(junk[0].itemType) > -1) {
-				if (!this.betterBaseThanWearing(junk[0])) {
+				if (!this.betterBaseThanWearing(junk[0], Developer.Debugging.junkCheckVerbose)) {
 					print("ÿc9BadBaseCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
 
 					if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
@@ -2249,7 +2276,11 @@ Town.clearJunk = function () {
 			for (let i = 0; i < junkToSell.length; i++) {
 				print("ÿc9JunkCheckÿc0 :: Sell " + junkToSell[i].name);
 				Misc.itemLogger("Sold", junkToSell[i]);
-				Misc.logItem("JunkCheck Sold", junkToSell[i]);
+
+				if (Developer.Debugging.junkCheckVerbose) {
+					Misc.logItem("JunkCheck Sold", junkToSell[i]);
+				}
+
 				junkToSell[i].sell();
 			}
 		}

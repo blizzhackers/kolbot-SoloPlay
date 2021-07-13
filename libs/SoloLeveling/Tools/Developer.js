@@ -16,7 +16,14 @@ const Developer = {
 	fillAccount: {		// set to true in use with tag Bumper or Socketmule to fill to make next character after reaching goal until account is full
 		Bumpers: true,
 		Socketmules: false,
-	}, 
+	},
+	Debugging: {
+		smallCharmVerbose: false,
+		largeCharmVerbose: false,
+		grandCharmVerbose: false,
+		junkCheckVerbose: false,
+		autoEquip: false,
+	},
 
 	/*  Developer tools */
 	getObj: function (path) {
