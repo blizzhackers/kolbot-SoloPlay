@@ -9,6 +9,7 @@ var build = {
 	skillstab: 2, // Jav N Spear Skills
 	wantedskills: [24, 34], // Charged Strike, Lightning Strike
 	usefulskills: [9, 23, 32, 33], // Critical Strike, Penetrate, Valkyrie, Pierce
+	precastSkills: [32], // Valkyrie
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: 114,
 	mercDiff: 1,

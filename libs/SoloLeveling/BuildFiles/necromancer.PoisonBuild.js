@@ -9,6 +9,7 @@ var build = {
 	skillstab: 17, //poison
 	wantedskills: [92, 74], // poison nova, corpse explosion
 	usefulskills: [66, 68, 91], //ampdamage, bone armor, lower resist
+	precastSkills: [68], // Bone armor
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: 114,
 	mercDiff: 1,

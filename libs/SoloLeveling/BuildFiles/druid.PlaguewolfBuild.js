@@ -9,6 +9,7 @@ var build = {
 	skillstab: 41, // shape-shifting
 	wantedskills: [223, 224, 248], // werewolf, lycanthropy, fury
 	usefulskills: [246, 247], // spirit of the barbs, summon grizzly
+	precastSkills: [223, 246, 247], // Werewolf, SoB, grizzly
 	mercAuraName: "Might",
 	mercAuraWanted: 98,
 	mercDiff: 1,

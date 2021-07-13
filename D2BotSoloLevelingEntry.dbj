@@ -642,6 +642,10 @@ function locationAction (location) {
 
 		gameInfo.gameName = DataFile.getStats().gameName;
 
+		if (gameInfo.gameName === "") {
+			gameInfo.gameName = randomString(8, true);
+		}
+
 		// FTJ handler
 		if (lastGameStatus === "pending") {
 			isUp = "no";

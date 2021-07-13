@@ -281,13 +281,13 @@ var Check = {
 
 			break;
 		case "tristram": //tristram
-			if ((me.normal && me.charlvl < 15) || (!me.normal && (!me.tristram && (me.classic && me.diablo || me.baal)) || (me.paladin && me.hell && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma") || !Pather.accessToAct(3))))) {
+			if ((me.normal && me.charlvl < 15) || (!me.normal && (!me.tristram && (me.classic && me.diablo || me.baal)) || (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
 				return true;
 			}
 
 			break;
 		case "countess": //countess
-			if ((me.classic && !me.countess) || (!me.classic && needRunes)) { // classic quest completed normal || have runes for difficultyi
+			if ((me.classic && !me.countess) || (!me.classic && needRunes)) { // classic quest completed normal || have runes for difficulty
 				return true;
 			}
 
@@ -779,6 +779,7 @@ var Check = {
 			tabSkills: build.skillstab,
 			wantedSkills: build.wantedskills,
 			usefulSkills: build.usefulskills,
+			precastSkills: build.precastSkills,
 			mercAuraName: build.mercAuraName,
 			mercAuraWanted: build.mercAuraWanted,
 			mercDiff: build.mercDiff,

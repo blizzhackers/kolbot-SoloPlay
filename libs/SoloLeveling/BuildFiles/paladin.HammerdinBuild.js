@@ -10,6 +10,7 @@ var build = {
 	skillstab: 24, //combat
 	wantedskills: [112, 113], // hammers, concentration
 	usefulskills: [117, 108], // holy shield, blessed aim
+	precastSkills: [117], // Holy shield
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: 114,
 	mercDiff: 1,

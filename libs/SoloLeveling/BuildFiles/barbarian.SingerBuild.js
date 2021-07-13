@@ -10,6 +10,7 @@ var build = {
 	skillstab: 32, // Combat
 	wantedskills: [154, 138], //warcry, shout
 	usefulskills: [148, 153], //increased speed, natural resistance
+	precastSkills: [149], // Battle orders
 	mercAuraName: "Might",
 	mercAuraWanted: 98,
 	mercDiff: 1,

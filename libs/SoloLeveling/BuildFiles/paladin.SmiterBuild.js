@@ -9,6 +9,7 @@ var build = {
 	skillstab: 24, //combat
 	wantedskills: [97, 122], //smite, fanaticism
 	usefulskills: [117, 125], //holy shield, salvation
+	precastSkills: [117], // Holy Shield
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: 114,
 	mercDiff: 1,

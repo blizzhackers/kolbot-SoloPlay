@@ -9,6 +9,7 @@ var build = {
 	skillstab: 24, //combat
 	wantedskills: [106, 123], //Zeal, Conviction
 	usefulskills: [117, 100, 110], //holy shield, Resist Fire, Resist Lighting
+	precastSkills: [117], // Holy shield
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: 114,
 	mercDiff: 1,

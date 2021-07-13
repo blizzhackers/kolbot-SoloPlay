@@ -9,6 +9,7 @@ var build = {
 	skillstab: 10, //cold
 	wantedskills: [59, 65], // blizzard, cold mastery
 	usefulskills: [55, 45, 42], // glacial spike, ice blast, static
+	precastSkills: [40], // Frozen armor
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: 114,
 	mercDiff: 1,

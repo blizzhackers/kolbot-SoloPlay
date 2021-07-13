@@ -9,6 +9,7 @@ var build = {
 	skillstab: 42, // elemental
 	wantedskills: [245, 250, 240], // tornado, hurricane, twister
 	usefulskills: [235], // cyclone armor
+	precastSkills: [235], // Valkyrie
 	mercAuraName: "Blessed Aim",
 	mercAuraWanted: 108,
 	mercDiff: 0,

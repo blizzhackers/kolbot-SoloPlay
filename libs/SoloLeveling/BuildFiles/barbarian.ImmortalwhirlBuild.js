@@ -9,6 +9,7 @@ var build = {
 	skillstab: 32, // Barbarian Combat
 	wantedskills: [126, 151], // Bash, Whirlwind
 	usefulskills: [130, 138], // Howl, Shout
+	precastSkills: [149], // Battle orders
 	mercAuraName: "Might",
 	mercAuraWanted: 98,
 	mercDiff: 1,

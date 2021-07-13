@@ -9,6 +9,7 @@ var build = {
 	skillstab: 0, // Bow and Crossbow Skills
 	wantedskills: [26], // strafe
 	usefulskills: [23, 32, 33], //Penetrate, Valkyrie, Pierce
+	precastSkills: [32], // Valkyrie
 	mercAuraName: "Might",
 	mercAuraWanted: 98,
 	mercDiff: 1,
