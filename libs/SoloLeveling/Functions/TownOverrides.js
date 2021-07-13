@@ -562,7 +562,7 @@ Town.shopItems = function () {
 					Item.canEquip(items[i]) &&
 					NTIP.GetTier(items[i]) > Item.getEquippedItem(Item.getBodyLoc(items[i])[0]).tier) {
 						Misc.itemLogger("AutoEquip Shopped", items[i]);
-						print("ÿc9ShopItemsÿc0 :: AutoEquip Shopped: " + items[i].fname);
+						print("ÿc9ShopItemsÿc0 :: AutoEquip Shopped: " + items[i].fname + " Tier: " + NTIP.GetTier(items[i]));
 
 						if (Developer.Debugging.autoEquip) {
 							Misc.logItem("AutoEquip Shopped", items[i], result.line);
@@ -576,7 +576,7 @@ Town.shopItems = function () {
 					Item.canEquipMerc(items[i], Item.getBodyLocMerc(items[i])[0]) &&
 					NTIP.GetMercTier(items[i]) > Item.getEquippedItemMerc(Item.getBodyLocMerc(items[i])[0]).tier) {
 						Misc.itemLogger("AutoEquipMerc Shopped", items[i]);
-						print("ÿc9ShopItemsÿc0 :: AutoEquipMerc Shopped: " + items[i].fname);
+						print("ÿc9ShopItemsÿc0 :: AutoEquipMerc Shopped: " + items[i].fname + " MercTier: " + NTIP.GetMercTier(items[i]));
 
 						if (Developer.Debugging.autoEquip) {
 							Misc.logItem("AutoEquipMerc Shopped", items[i], result.line);
@@ -590,8 +590,8 @@ Town.shopItems = function () {
 					Item.canEquip(items[i], Item.getBodyLocSecondary(items[i])[0]) &&
 					NTIP.GetSecondaryTier(items[i]) > Item.getEquippedItem(Item.getBodyLocSecondary(items[i])[0]).secondarytier) {
 						Misc.itemLogger("AutoEquip Switch Shopped", items[i]);
-						print("ÿc9ShopItemsÿc0 :: AutoEquip Switch Shopped: " + items[i].fname);
-						
+						print("ÿc9ShopItemsÿc0 :: AutoEquip Switch Shopped: " + items[i].fname + " SecondaryTier: " + NTIP.GetSecondaryTier(items[i]));
+
 						if (Developer.Debugging.autoEquip) {
 							Misc.logItem("AutoEquip Switch Shopped", items[i], result.line);
 						}
