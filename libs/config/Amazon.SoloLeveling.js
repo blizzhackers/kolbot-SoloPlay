@@ -286,7 +286,7 @@ function LoadConfig () {
 				};
 			}
 
-			if ((me.ladder || Developer.addLadderRW) && !Item.getEquippedItemMerc(4).prefixnum === 20566) { //infinity
+			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== 20566) { //infinity
 				var Inf = [
 					"[Name] == BerRune",
 					"[Name] == MalRune",
