@@ -572,7 +572,6 @@ Item.equipMerc = function (item, bodyLoc) {
 		if (item.toCursor()) {
 			if (clickItem(4, bodyLoc)) {
 				delay(500 + me.ping * 2);
-				print("ÿc9MercEquipÿc0 :: Equipped: " + item.fname + " MercTier: " + NTIP.GetMercTier(item));
 
 				if (Developer.Debugging.autoEquip) {
 					Misc.logItem("Merc Equipped", mercenary.getItem(item.classid));
@@ -803,8 +802,11 @@ Item.autoEquipMerc = function () {
 					}
 
 					print("Merc " + items[0].name);
-					this.equipMerc(items[0], bodyLoc[j]);
-
+					
+					if (this.equipMerc(items[0], bodyLoc[j])) {
+						print("ÿc9MercEquipÿc0 :: Equipped: " + items[0].fname + " MercTier: " + NTIP.GetMercTier(items[0]));
+					}
+					
 					let cursorItem = getUnit(100);
 
 					if (cursorItem) {
