@@ -900,12 +900,22 @@ Item.autoEquipSC = function () {
 
 		for (let i = 0; i < Item.maxFinalSCs; i++) {
 			if (NTIP.checkFinalCharm(keep[i])) {
-				Item.finalEquippedSCs.push(keep[i]);
+				if (Item.finalEquippedSCs.indexOf(item) === -1) {
+					Item.finalEquippedSCs.push(keep[i]);
+
+					if (Developer.Debugging.smallCharmVerbose) {
+						print("ÿc9GuysSoloLevelingÿc0: CharmEquip Equipped Final SC " + keep[i].fname);
+					}
+				}
 			}
 		}
 
 		for (let i = Item.maxFinalSCs; i < keep.length; i++) {
 			charms.checkList.push(keep[i]);
+
+			if (Developer.Debugging.smallCharmVerbose) {
+				print("ÿc9GuysSoloLevelingÿc0: CharmEquip Add " + keep[i].fname + " to checkList");
+			}
 
 			keep.splice(i, 1);
 			i -= 1;
@@ -976,12 +986,22 @@ Item.autoEquipLC = function () {
 
 		for (let i = 0; i < Item.maxFinalLCs; i++) {
 			if (NTIP.checkFinalCharm(keep[i])) {
-				Item.finalEquippedLCs.push(keep[i]);
+				if (Item.finalEquippedLCs.indexOf(item) === -1) {
+					Item.finalEquippedLCs.push(keep[i]);
+
+					if (Developer.Debugging.largeCharmVerbose) {
+						print("ÿc9GuysSoloLevelingÿc0: CharmEquip Equipped Final LC " + keep[i].fname);
+					}
+				}
 			}
 		}
 
 		for (let i = Item.maxFinalLCs; i < keep.length; i++) {
 			charms.checkList.push(keep[i]);
+
+			if (Developer.Debugging.largeCharmVerbose) {
+				print("ÿc9GuysSoloLevelingÿc0: CharmEquip Add " + keep[i].fname + " to checkList");
+			}
 
 			keep.splice(i, 1);
 			i -= 1;
@@ -1052,7 +1072,9 @@ Item.autoEquipGC = function () {
 
 		for (let i = 0; i < Item.maxFinalGCs; i++) {
 			if (NTIP.checkFinalCharm(keep[i])) {
-				Item.finalEquippedGCs.push(keep[i]);
+				if (Item.finalEquippedGCs.indexOf(item) === -1) {
+					Item.finalEquippedGCs.push(keep[i]);
+				}
 			}
 		}
 
@@ -1603,6 +1625,12 @@ Item.autoEquipCharmSort = function (items, verbose) {
 			
 	}
 
+	if (verbose) {
+		for (let i = 0; i < checkList.length; i++) {
+			print("checkList[" + i + "] = " + NTIP.GetCharmTier(checkList[i]) + " " + checkList[i].fname);
+		}	
+	}
+
 	return {
 		typeA: typeA,
 		typeB: typeB,
@@ -1635,6 +1663,10 @@ Item.autoEquipCharmCheck = function (item) {
 	let charms, items = me.findItems(-1, 0), lowestCharm;
 
 	if (!items) {
+		return false;
+	}
+
+	if (NTIP.GetCharmTier(item) <= 0) {
 		return false;
 	}
 
@@ -2014,7 +2046,7 @@ Item.getCharmType = function (charm) {
 			charmType = "Magicfind";
 			break;
 		case "of Life":
-		case "of Sustenance":
+		case "of Substinence": 	// Odd issue, seems to be misspelled wherever item.suffix pulls info from
 		case "of Vita":
 			charmType = "Life";
 			break;

@@ -1,8 +1,8 @@
 /*
 *	@filename	Developer.js
-*	@author		isid0re
+*	@author		theBGuy (this was really based off my orignal performance tracking)
 *	@desc		Developer tools for SoloLeveling
-*	@credits	kolton, D3STROY3R, theBGuy, Adaptist
+*	@credits	kolton, D3STROY3R, Adaptist, isid0re
 */
 
 const Developer = {
@@ -13,7 +13,7 @@ const Developer = {
 	hideChickens: true, // disable printing chicken info in D2Bot console
 	addLadderRW: true, // set to true to enable single player ladder runewords ONLY WORKS IF RUNEWORDS.TXT IS INSTALLED AND D2BS PROFILE IS CONFIGURED
 	showInGameTimer: true,	// Shows in game timer on the overlay
-	fillAccount: {		// set to true in use with tag Bumper or Socketmule to fill to make next character after reaching goal until account is full
+	fillAccount: {		// set to true in use with tag Bumper or Socketmule to make next character after reaching goal until account is full
 		Bumpers: true,
 		Socketmules: false,
 	},

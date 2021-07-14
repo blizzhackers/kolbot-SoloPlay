@@ -48,7 +48,7 @@ var AutoBuildTemplate = {
 			Config.MinColumn[2] = Config.BeltColumn[2] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
 			Config.MinColumn[3] = Config.BeltColumn[3] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
 			Config.HPBuffer = 4;
-			Config.MPBuffer = 2;
+			Config.MPBuffer = 4;
 		}
 	},
 

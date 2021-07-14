@@ -20,6 +20,7 @@ var SetUp = {
 		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests", // Act 5
 	],
 
+	// mine - theBGuy
 	include: function () {
 		var folders = ["Functions"];
 		folders.forEach( (folder) => {
@@ -36,6 +37,7 @@ var SetUp = {
 		});
 	},
 
+	// mine - theBGuy
 	//Storage Settings
 	sortSettings: {
 		ItemsSortedFromLeft: [], // default: everything not in Config.ItemsSortedFromRight
@@ -61,6 +63,7 @@ var SetUp = {
 	finalBuild: DataFile.getStats().finalBuild,
 	respecOne: [ 64, 28, 26, 19, 24, 24, 30][me.classid],
 
+	// mine - theBGuy
 	respecTwo: function () {
 		let respec;
 

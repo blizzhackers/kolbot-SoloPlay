@@ -374,6 +374,21 @@ var tierscore = function (item) {
 	return tier;
 };
 
+var secondaryscore = function (item) {
+	let tier = 0;
+
+	tier += item.getStatEx(127) * 200; // + all skills
+	tier += item.getStatEx(83, me.classid) * 100; // + class skills
+	tier += item.getStatEx(188, Check.finalBuild().tabSkills) * 75; // + TAB skills
+	let precastSkills = [Check.finalBuild().precastSkills];
+
+	for (let i = 0; i < precastSkills.length; i++) {
+		tier += item.getStatEx(107, precastSkills[i]) * 50;
+	}
+
+	return tier;
+};
+
 var charmscore = function (item) {
 	let generalWeights = {
 		ALL:	180, // + all skills

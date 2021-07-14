@@ -1,8 +1,8 @@
 /*
 *	@filename	PickitOverrides.js
-*	@author		theBGuy, isid0re
+*	@author		theBGuy
 *	@desc		Pickit.js fixes to improve functionality
-*	@credits	based on existing pickit.js from PBP autoplays (Sonic, AutoSorc, etc)
+*	@credits	based on existing pickit.js from PBP autoplays (Sonic, AutoSorc, etc), isid0re for formatting
 */
 
 if (!isIncluded("common/Pickit.js")) {
@@ -52,7 +52,7 @@ Pickit.checkItem = function (unit) {
 		};
 	}
 
-	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0) && !unit.getFlag(0x10)) {
+	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) && !unit.getFlag(0x10)) {
 		return {
 			result: -1,
 			line: null
@@ -70,7 +70,7 @@ Pickit.checkItem = function (unit) {
 		return NTIP.CheckItem(unit, NTIP_CheckListNoTier, true);	
 	}
 
-	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0) && unit.getFlag(0x10)) {
+	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) && unit.getFlag(0x10)) {
 		if (Item.autoEquipCheck(unit)) {
 			return {
 				result: 1,

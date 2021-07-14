@@ -491,16 +491,27 @@ function main () {
 		case 109: // Numpad -
 			D2Bot.printToConsole('getTier: ' + NTIP.GetTier(getUnit(101)));
 			D2Bot.printToConsole('tierscore: ' + tierscore(getUnit(101)));
+			D2Bot.printToConsole('getSecondaryTier: ' + NTIP.GetSecondaryTier(getUnit(101)));
+			D2Bot.printToConsole('charmTier: ' + NTIP.GetCharmTier(getUnit(101)));
 			D2Bot.printToConsole('getMercTier: ' + NTIP.GetMercTier(getUnit(101)));
 			D2Bot.printToConsole('mercscore: ' + mercscore(getUnit(101)));
 
 			break;
 		case 110: // decimal point
-			say("/fps");
+			print("InvoQuantity: " + NTIP.getInvoQuantity(getUnit(101)));
+			print("FinalCharm: " + NTIP.checkFinalCharm(getUnit(101)));
+			print("Pickit: " + Pickit.checkItem(getUnit(101)).result);
+			print("hasStats: " + NTIP.hasStats(getUnit(101)));
+			print("charmType: " + Item.getCharmType(getUnit(101)));
+			print("AutoEquipCheck: " + Item.autoEquipCharmCheck(getUnit(101)));
+			print("NTIP.CheckItem: " + NTIP.CheckItem(getUnit(101), NTIP_CheckListNoTier, true).result);
 
 			break;
 		case 105: // numpad 9 - get nearest preset unit id
-			print(this.getNearestPreset());
+			//print(this.getNearestPreset());
+			print("FinalSmallCharmAmount: " + Item.maxFinalSCs);
+			print("FinalLargeCharmAmount: " + Item.maxFinalLCs);
+			print("FinalGrandCharmAmount: " + Item.maxFinalGCs);
 
 			break;
 		case 106: // numpad * - precast
@@ -572,7 +583,7 @@ function main () {
 				break;
 			}
 
-			if (Config.StopOnDClone && me.gametype === 1) { // only do this in expansion
+			if (Config.StopOnDClone && me.gametype === 1 && me.hell) { // only do this in expansion
 				D2Bot.printToConsole("Diablo Walks the Earth", 7);
 
 				cloneWalked = true;

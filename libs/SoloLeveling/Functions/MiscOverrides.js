@@ -2,7 +2,7 @@
 *	@filename	MiscOverrides.js
 *	@author		theBGuy
 *	@credits	isid0re
-*	@desc		Misc.js fixes to improve functionality and Merc Hiring/Autoequip
+*	@desc		Misc.js fixes to improve functionality
 */
 
 if (!isIncluded("common/Misc.js")) {
@@ -12,6 +12,107 @@ if (!isIncluded("common/Misc.js")) {
 if (!isIncluded("SoloLeveling/Tools/Developer.js")) {
 	include("SoloLeveling/Tools/Developer.js");
 }
+
+Skill.getHand = function (skillId) {
+	switch (skillId) {
+		case 6: // Magic Arrow
+		case 7: // Fire Arrow
+		case 9: // Critical Strike
+		case 11: // Cold Arrow
+		case 12: // Multiple Shot
+		case 13: // Dodge
+		case 15: // Poison Javelin
+		case 16: // Exploding Arrow
+		case 18: // Avoid
+		case 19: // Impale
+		case 20: // Lightning Bolt
+		case 21: // Ice Arrow
+		case 22: // Guided Arrow
+		case 23: // Penetrate
+		case 25: // Plague Javelin
+		case 26: // Strafe
+		case 27: // Immolation Arrow
+		case 29: // Evade
+		case 30: // Fend
+		case 31: // Freezing Arrow
+		case 33: // Pierce
+		case 35: // Lightning Fury
+		case 36: // Fire Bolt
+		case 37: // Warmth
+		case 38: // Charged Bolt
+		case 39: // Ice Bolt
+		case 41: // Inferno
+		case 45: // Ice Blast
+		case 47: // Fire Ball
+		case 49: // Lightning
+		case 53: // Chain Lightning
+		case 55: // Glacial Spike
+		case 61: // Fire Mastery
+		case 63: // Lightning Mastery
+		case 64: // Frozen Orb
+		case 65: // Cold Mastery
+		case 67: // Teeth
+		case 73: // Poison Dagger
+		case 79: // Golem Mastery
+		case 84: // Bone Spear
+		case 89: // Summon Resist
+		case 93: // Bone Spirit
+		case 101: // Holy Bolt
+		case 107: // Charge
+		case 112: // Blessed Hammer
+		case 121: // Fist of the Heavens
+		case 132: // Leap
+		case 140: // Double Throw
+		case 143: // Leap Attack
+		case 151: // Whirlwind
+		case 225: // Firestorm
+		case 229: // Molten Boulder
+		case 230: // Arctic Blast
+		case 240: // Twister
+		case 243: // Shock Wave
+		case 245: // Tornado
+		case 251: // Fire Trauma
+		case 254: // Tiger Strike
+		case 256: // Shock Field
+		case 257: // Blade Sentinel
+		case 259: // Fists of Fire
+		case 263: // Weapon Block
+		case 265: // Cobra Strike
+		case 266: // Blade Fury
+		case 269: // Claws of Thunder
+		case 274: // Blades of Ice
+		case 275: // Dragon Flight
+			return 1;
+		case 0: // Normal Attack
+		case 10: // Jab
+		case 14: // Power Strike
+		case 24: // Charged Strike
+		case 34: // Lightning Strike
+		case 96: // Sacrifice
+		case 97: // Smite
+		case 106: // Zeal
+		case 111: // Vengeance
+		case 116: // Conversion
+		case 126: // Bash
+		case 133: // Double Swing
+		case 139: // Stun
+		case 144: // Concentrate
+		case 147: // Frenzy
+		case 152: // Berserk
+		case 232: // Feral Rage
+		case 233: // Maul
+		case 238: // Rabies
+		case 239: // Fire Claws
+		case 242: // Hunger
+		case 248: // Fury
+		case 255: // Dragon Talon
+		case 260: // Dragon Claw
+		case 270: // Dragon Tail
+			return 2; // Shift bypass
+	}
+	// Every other skill
+	return 0;
+};
 
 // Cast a skill on self, Unit or coords. Always use packet casting for caster skills becasue it's more stable.
 if (Developer.forcePacketCasting) {
