@@ -116,8 +116,6 @@ var AutoBuildTemplate = {
 			Config.AttackSkill = [8, 14, 0, 14, 0, -1, -1];
 			Config.TownCheck = me.findItem("tbk", 0, 3);
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
-			Config.Dodge = true;
-			Config.DodgeRange = 10;
 		}
 	},
 
