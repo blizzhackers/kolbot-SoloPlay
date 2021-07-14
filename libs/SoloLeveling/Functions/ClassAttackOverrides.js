@@ -1100,6 +1100,61 @@ MainLoop:
 
 	break;
 case 3: // Paladin
+	if (!isIncluded("common/Attacks/Paladin.js")) {
+		include("common/Attacks/Paladin.js");
+	}
+
+	ClassAttack.getHammerPosition = function (unit) {
+		var i, x, y, positions, check,
+			baseId = getBaseStat("monstats", unit.classid, "baseid"),
+			size = getBaseStat("monstats2", baseId, "sizex");
+
+		// in case base stat returns something outrageous
+		if (typeof size !== "number" || size < 1 || size > 3) {
+			size = 3;
+		}
+
+		switch (unit.type) {
+		case 0: // Player
+			x = unit.x;
+			y = unit.y;
+			positions = [[x + 2, y], [x + 2, y + 1]];
+
+			break;
+		case 1: // Monster
+			x = (unit.mode === 2 || unit.mode === 15) && getDistance(me, unit) < 10 && getDistance(me, unit.targetx, unit.targety) > 5 ? unit.targetx : unit.x;
+			y = (unit.mode === 2 || unit.mode === 15) && getDistance(me, unit) < 10 && getDistance(me, unit.targetx, unit.targety) > 5 ? unit.targety : unit.y;
+			positions = [[x + 2, y + 1], [x, y + 3], [x + 2, y - 1], [x - 2, y + 2], [x - 5, y]];
+
+			if (size === 3) {
+				positions.unshift([x + 2, y + 2]);
+			}
+
+			break;
+		}
+
+		for (i = 0; i < positions.length; i += 1) {
+			if (getDistance(me, positions[i][0], positions[i][1]) < 1) {
+				return true;
+			}
+		}
+
+		for (i = 0; i < positions.length; i += 1) {
+			check = {
+				x: positions[i][0],
+				y: positions[i][1]
+			};
+
+			if (Attack.validSpot(check.x, check.y) && !CollMap.checkColl(unit, check, 0x4, 0) && (Pather.useTeleport() || !checkCollision(me, unit, 0x1))) {
+				if (this.reposition(positions[i][0], positions[i][1])) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	};
+
 	break;
 case 4: // Barbarian - theBGuy
 	if (!isIncluded("common/Attacks/Barbarian.js")) {

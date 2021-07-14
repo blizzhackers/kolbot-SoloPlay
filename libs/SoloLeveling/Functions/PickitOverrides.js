@@ -24,6 +24,15 @@ if (!isIncluded("SoloLeveling/Functions/ProtoTypesOverrides.js")) {
 Pickit.checkItem = function (unit) {
 	var rval = NTIP.CheckItem(unit, false, true);
 
+	var durability = unit.getStat(72);
+
+	if (typeof durability === "number" && durability * 100 / unit.getStat(73) <= 0) {
+		return {
+			result: 4,
+			line: null
+		};
+	}
+
 	if ((unit.classid === 617 || unit.classid === 618) && Town.repairIngredientCheck(unit)) {
 		return {
 			result: 6,
