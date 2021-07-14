@@ -407,7 +407,7 @@ var Check = {
 
 			break;
 		case "diablo": //diablo
-			if (Pather.accessToAct(4) && ((me.normal && (Pather.canTeleport() || me.charlvl < 35)) || (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)) || (me.hell && me.charlvl !== 100))) {
+			if (Pather.accessToAct(4) && ((me.normal && me.charlvl < 35) || (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)) || (me.hell && me.charlvl !== 100))) {
 				return true;
 			}
 

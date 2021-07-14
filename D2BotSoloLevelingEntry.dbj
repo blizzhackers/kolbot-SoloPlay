@@ -643,7 +643,7 @@ function locationAction (location) {
 		gameInfo.gameName = DataFile.getStats().gameName;
 
 		if (gameInfo.gameName === "") {
-			gameInfo.gameName = randomString(8, true);
+			gameInfo.gameName = setUp.charName.substring(0, 7) + "-" + randomString(3, false) + "-";
 		}
 
 		// FTJ handler
@@ -1190,7 +1190,7 @@ function main () {
 		D2Bot.setProfile(null, null, setUp.charName);
 		print("Generating Character Name");
 
-		let gamename = setUp.charName.substring(0, 6) + randomString(3, false);
+		let gamename = setUp.charName.substring(0, 7) + "-" + randomString(3, false) + "-";
 		DataFile.updateStats("gameName", gamename);
 
 		delay(50);
