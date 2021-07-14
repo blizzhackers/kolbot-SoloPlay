@@ -263,7 +263,7 @@ case 0: //Amazon - theBGuy
 
 		Precast.doPrecast(false);
 
-		if(me.charlvl > 5){
+		if (me.charlvl > 5){
 			needRepair = Town.needRepair();	
 		}
 		

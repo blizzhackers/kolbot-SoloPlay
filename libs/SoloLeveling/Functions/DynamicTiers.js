@@ -409,7 +409,7 @@ var charmscore = function (item) {
 		DEX: 1.0,
 	};
 
-	let charmRating = 0;
+	let charmRating = 1;
 	charmRating += item.getStatEx(188, Check.currentBuild().tabSkills) * generalWeights.TAB; // + TAB skills
 	charmRating += item.getStatEx(39) * generalWeights.FR; // add FR
 	charmRating += item.getStatEx(43) * generalWeights.CR; // add CR

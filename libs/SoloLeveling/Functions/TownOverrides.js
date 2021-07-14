@@ -712,6 +712,15 @@ Town.unfinishedQuests = function () {
 		}
 	}
 
+	if (!Misc.checkQuest(21, 0) && Misc.checkQuest(21, 4)) {	// Killed council but haven't talked to cain
+		me.overhead("Finishing Travincal by talking to cain");
+		Town.goToTown(3);
+		Town.npcInteract("cain");
+		delay(300 + me.ping);
+
+		me.cancel();
+	}
+
 	//Act 4
 	if (hammer) { // drop hellforge hammer and soulstone at startup to avoid selling and d/c
 		Town.goToTown(1);
