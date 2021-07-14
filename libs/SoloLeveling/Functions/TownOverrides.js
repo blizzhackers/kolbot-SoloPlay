@@ -69,10 +69,6 @@ Town.townTasks = function () {
 		this.goToTown(preAct);
 	}
 
-	if (!me.barbarian && !Precast.checkCTA()) {	//If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
-		Precast.doPrecast(false);
-	}
-
 	for (i = 0; i < cancelFlags.length; i += 1) {
 		if (getUIFlag(cancelFlags[i])) {
 			delay(500);
@@ -83,6 +79,10 @@ Town.townTasks = function () {
 	}
 
 	me.cancel();
+
+	if (!me.barbarian && !Precast.checkCTA()) {	//If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
+		Precast.doPrecast(false);
+	}
 
 	Config.NoTele = me.normal && me.gold < 10000 ? true : !me.normal && me.gold < 50000 ? true : false;
 	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54)) ? !Config.NoTele : Config.Dodge;
@@ -132,10 +132,6 @@ Town.doChores = function (repair = false) {
 		this.goToTown(preAct);
 	}
 
-	if (me.barbarian && !Precast.checkCTA()) {	//If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
-		Precast.doPrecast(false);
-	}
-
 	for (i = 0; i < cancelFlags.length; i += 1) {
 		if (getUIFlag(cancelFlags[i])) {
 			delay(500);
@@ -146,6 +142,10 @@ Town.doChores = function (repair = false) {
 	}
 
 	me.cancel();
+
+	if (me.barbarian && !Precast.checkCTA()) {	//If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
+		Precast.doPrecast(false);
+	}
 
 	Config.NoTele = me.normal && me.gold < 10000 ? true : !me.normal && me.gold < 50000 ? true : false;
 	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54)) ? !Config.NoTele : Config.Dodge;
@@ -562,7 +562,11 @@ Town.shopItems = function () {
 					Item.canEquip(items[i]) &&
 					NTIP.GetTier(items[i]) > Item.getEquippedItem(Item.getBodyLoc(items[i])[0]).tier) {
 						Misc.itemLogger("AutoEquip Shopped", items[i]);
-						print("ÿc9ShopItemsÿc0 :: AutoEquip Shopped: " + items[i].fname + " Tier: " + NTIP.GetTier(items[i]));
+						try {
+							print("ÿc9ShopItemsÿc0 :: AutoEquip Shopped: " + items[i].fname + " Tier: " + NTIP.GetTier(items[i]));
+						} catch (e) {
+							print(e);
+						}
 
 						if (Developer.Debugging.autoEquip) {
 							Misc.logItem("AutoEquip Shopped", items[i], result.line);
@@ -576,7 +580,11 @@ Town.shopItems = function () {
 					Item.canEquipMerc(items[i], Item.getBodyLocMerc(items[i])[0]) &&
 					NTIP.GetMercTier(items[i]) > Item.getEquippedItemMerc(Item.getBodyLocMerc(items[i])[0]).tier) {
 						Misc.itemLogger("AutoEquipMerc Shopped", items[i]);
-						print("ÿc9ShopItemsÿc0 :: AutoEquipMerc Shopped: " + items[i].fname + " MercTier: " + NTIP.GetMercTier(items[i]));
+						try {
+							print("ÿc9ShopItemsÿc0 :: AutoEquipMerc Shopped: " + items[i].fname + " MercTier: " + NTIP.GetMercTier(items[i]));
+						} catch (e) {
+							print(e);
+						}
 
 						if (Developer.Debugging.autoEquip) {
 							Misc.logItem("AutoEquipMerc Shopped", items[i], result.line);
@@ -590,7 +598,11 @@ Town.shopItems = function () {
 					Item.canEquip(items[i], Item.getBodyLocSecondary(items[i])[0]) &&
 					NTIP.GetSecondaryTier(items[i]) > Item.getEquippedItem(Item.getBodyLocSecondary(items[i])[0]).secondarytier) {
 						Misc.itemLogger("AutoEquip Switch Shopped", items[i]);
-						print("ÿc9ShopItemsÿc0 :: AutoEquip Switch Shopped: " + items[i].fname + " SecondaryTier: " + NTIP.GetSecondaryTier(items[i]));
+						try {
+							print("ÿc9ShopItemsÿc0 :: AutoEquip Switch Shopped: " + items[i].fname + " SecondaryTier: " + NTIP.GetSecondaryTier(items[i]));
+						} catch (e) {
+							print(e);
+						}
 
 						if (Developer.Debugging.autoEquip) {
 							Misc.logItem("AutoEquip Switch Shopped", items[i], result.line);
@@ -1265,18 +1277,47 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 	function nonRunewordEquippedBaseCheck (base, bodyLoc) {
 		let baseTier = 0;
+		let sockets = base.getStat(194);
 
 		switch (base.itemType) {
-		case 69: //Voodoo heads
+		case 69: // Voodoo heads
+			baseTier += 310;
+
+			break;
 		case 70: // Auric Shields
+			switch (sockets) {
+			case 3:
+				if (!me.hell) {
+					baseTier += 260;
+				}
+
+				break;
+			case 4:
+				baseTier += 900;
+
+				break;
+			default:
+				break;
+			}
+
+			break;
 		case 71: // Barb Helm
 		case 72: //	Druid Pelt
+			baseTier += 260;
+
+			break;
 		case 25: //	Wand
 			baseTier = tierscore(base);
 			break;
 		}
 
-		return (baseTier > Item.getEquippedItem(bodyLoc).tier);
+		baseTier += tierscore(base);
+
+		if (verbose) {
+			print("ÿc9BadBaseCheckÿc0 :: BaseTier: " + baseTier + " EquippedTier: " + Item.getEquippedItem(bodyLoc).tier);
+		}
+
+		return (baseTier < Item.getEquippedItem(bodyLoc).tier);
 	};
 
 	if (base === undefined || !base) {
@@ -1313,7 +1354,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 					minDmg: item.getStatEx(21),
 					maxDmg: item.getStatEx(22),
 					eDmg: item.getStatEx(18),
-					runeword: item.getFlag(NTIPAliasFlag["runeword"])
+					runeword: item.getFlag(NTIPAliasFlag["runeword"]),
 				};
 				check = item;
 				break;
@@ -1322,7 +1363,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 	}
 
 	if (!equippedItem.runeword) {
-		return true;	//Equipped item is not a runeword no need to try and compare it. Keep the base
+		return nonRunewordEquippedBaseCheck(base, bodyLoc[0]);	//Equipped item is not a runeword, check certain leveling runewords to see if base + runeword stats > equipped item but if not on that list return true and keep the base
 	}
 
 	switch (equippedItem.prefixnum) {
@@ -1565,9 +1606,6 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 			break;
 		case 20625: 	//Rhyme
-			itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 100;
-			baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
-
 			if (me.necromancer) {	//Necromancer
 				equippedSkillsTier = skillsScore(check);
 				baseSkillsTier = skillsScore(base);
@@ -1582,19 +1620,35 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 						break;
 					}
-				}
-			}
+				} else if (equippedSkillsTier === baseSkillsTier) {
+					baseDefense = base.getStatEx(31);
 
-			if (baseResists !== itemsResists) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+					if (verbose) {
+						print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) EquippedDefense: " + equippedItem.def + " BaseDefense: " + baseDefense);
+					}
+
+					if (baseDefense < equippedItem.def) {
+						result = false;
+
+						break;
+					}
+				}
+			} else if (me.paladin) {
+				itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 100;
+				baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+
+				if (baseResists !== itemsResists) {
+					if (verbose) {
+						print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+					}
+
+					if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+						result = false;
+
+						break;
+					}
 				}
 
-				if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
-					result = false;
-
-					break;
-				}
 			}
 
 			break;
@@ -2130,7 +2184,7 @@ Town.clearJunk = function () {
 				Town.openStash();
 			}
 
-			print("ÿcJunkCheckÿc0 :: Junk: " + junk[0].name + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+			print("ÿc9JunkCheckÿc0 :: Junk: " + junk[0].name + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
 
 			if (Storage.Inventory.CanFit(junk[0])) {
 				if (Storage.Inventory.MoveTo(junk[0])) {
@@ -2228,7 +2282,7 @@ Town.clearJunk = function () {
 				}
 			}
 
-			if (junk[0].getStat(194) > 0 && [2, 69, 70, 3, 37, 71, 72, 75, 25, 24, 26, 27, 28, 29, 30, 31, 33, 35, 36, 68, 85, 86, 67, 88, 34].indexOf(junk[0].itemType) > -1) {
+			if ([3, 6, 7].indexOf(junk[0].location) > -1 && [2, 69, 70, 3, 37, 71, 72, 75, 25, 24, 26, 27, 28, 29, 30, 31, 33, 35, 36, 68, 85, 86, 67, 88, 34].indexOf(junk[0].itemType) > -1) {
 				if (!this.betterBaseThanWearing(junk[0], Developer.Debugging.junkCheckVerbose)) {
 					print("ÿc9BadBaseCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
 

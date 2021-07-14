@@ -802,7 +802,7 @@ Item.autoEquipMerc = function () {
 					}
 
 					print("Merc " + items[0].name);
-					
+
 					if (this.equipMerc(items[0], bodyLoc[j])) {
 						print("ÿc9MercEquipÿc0 :: Equipped: " + items[0].fname + " MercTier: " + NTIP.GetMercTier(items[0]));
 					}
@@ -1943,7 +1943,11 @@ Item.getCharmType = function (charm) {
 		charmType = "skillerTypeB";
 	} else if (charm.getStat(188, skillerStats[2])) {
 		charmType = "skillerTypeC";
-	} 
+	}
+
+	if (!NTIP.hasStats(charm) && NTIP.GetCharmTier(charm) > 0) {
+		return "Misc";
+	}
 
 	switch (charm.prefix) {
 	case "Red":

@@ -177,7 +177,7 @@ var SetUp = {
 		print("ÿc9GuysSoloLevelingÿc0: " + this.finalBuild + " goal reached. On to the next.");
 		me.overhead("GuysSoloLeveling: " + this.finalBuild + " goal reached. On to the next.");
 
-		D2Bot.printToConsole('Making next character...', 6);
+		D2Bot.printToConsole("GuysSoloLeveling: " + this.finalBuild + " goal reached. Making next...", 6);
 		D2Bot.setProfile(null, null, NameGen());
 		FileTools.remove("data/" + me.profile + ".json");
 		FileTools.remove("libs/SoloLeveling/Data/" + me.profile + ".GameTime" + ".json");
