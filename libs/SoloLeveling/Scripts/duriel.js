@@ -36,10 +36,20 @@ function duriel () {
 		Quest.tyraelTomb();
 	}
 
-	if (!me.duriel && !Misc.checkQuest(14, 4)) {
-		Town.move("palace");
-		Town.npcInteract("jerhyn");
-		Pather.moveToExit(50, true);
+	if (Misc.checkQuest(14, 3)) {
+		for (let i = 0; i < 3; i++) {
+			if (!me.duriel && !Misc.checkQuest(14, 4)) {
+				Town.move("palace");
+				Town.npcInteract("jerhyn");
+			}
+
+			if (Misc.checkQuest(14, 4)) {
+				Pather.moveToExit(50, true);
+				break;
+			} else {
+				delay(250 + me.ping);
+			}
+		}
 	}
 
 	Pather.changeAct();
