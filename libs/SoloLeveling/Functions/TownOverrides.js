@@ -582,11 +582,11 @@ Town.shopItems = function () {
 					Item.canEquipMerc(items[i], Item.getBodyLocMerc(items[i])[0]) &&
 					NTIP.GetMercTier(items[i]) > Item.getEquippedItemMerc(Item.getBodyLocMerc(items[i])[0]).tier) {
 						Misc.itemLogger("AutoEquipMerc Shopped", items[i]);
-						try {
+						/*try {
 							print("ÿc9ShopItemsÿc0 :: AutoEquipMerc Shopped: " + items[i].fname + " MercTier: " + NTIP.GetMercTier(items[i]));
 						} catch (e) {
 							print(e);
-						}
+						}*/
 
 						if (Developer.Debugging.autoEquip) {
 							Misc.logItem("AutoEquipMerc Shopped", items[i], result.line);

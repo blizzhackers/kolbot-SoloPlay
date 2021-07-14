@@ -208,7 +208,7 @@ function LoadConfig () {
 	Config.AttackSkill = [0, 0, 0, 0, 0];
 	Config.LowManaSkill = [-1, -1];
 	Config.MaxAttackCount = 1000;
-	Config.BossPriority = me.normal ? true : false;
+	Config.BossPriority = false;
 	Config.ClearType = 0;
 	Config.ClearPath = {
 		Range: 30,
@@ -330,7 +330,7 @@ function LoadConfig () {
 
 				Config.Recipes.push([Recipe.Socket.Shield, "Monarch", Roll.NonEth]);
 				Config.Runewords.push([Runeword.Spirit, "Monarch"]);
-				Config.KeepRunewords.push("([type] == shield || [type] == auricshields) # [fcr] >= 35 && [maxmana] >= 89");
+				Config.KeepRunewords.push("([type] == shield || [type] == auricshields) # [fcr] >= 25 && [maxmana] >= 89");
 			}
 
 			break;
