@@ -1313,7 +1313,9 @@ Town.betterBaseThanWearing = function (base, verbose) {
 			break;
 		}
 
-		baseTier += tierscore(base);
+		if (baseTier > 0) {
+			baseTier += tierscore(base);
+		}
 
 		if (verbose) {
 			print("ÿc9BadBaseCheckÿc0 :: BaseTier: " + baseTier + " EquippedTier: " + Item.getEquippedItem(bodyLoc).tier);
@@ -2611,7 +2613,7 @@ Town.needRepair = function () {
 			repairAction.push("repair");
 		}
 	} else {
-		print("ÿc4Town: ÿc1Can't afford repairs.");
+		//print("ÿc4Town: ÿc1Can't afford repairs.");
 	}
 
 	return repairAction;
