@@ -900,7 +900,7 @@ Item.autoEquipSC = function () {
 
 		for (let i = 0; i < Item.maxFinalSCs; i++) {
 			if (NTIP.checkFinalCharm(keep[i])) {
-				if (Item.finalEquippedSCs.indexOf(item) === -1) {
+				if (Item.finalEquippedSCs.indexOf(keep[i]) === -1) {
 					Item.finalEquippedSCs.push(keep[i]);
 
 					if (Developer.Debugging.smallCharmVerbose) {
@@ -1338,7 +1338,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 			}
 
 			for (let i = 0; i < typeB.length; i++) {
-				if (NTIP.checkFinalCharm(typeC[i]) && NTIP.getInvoQuantity(typeB[i]) !== invoquantity && (
+				if (NTIP.checkFinalCharm(typeB[i]) && NTIP.getInvoQuantity(typeB[i]) !== invoquantity && (
 					(typeB[i].classid === 605 && invoquantity < Item.maxFinalGCs))) {
 					invoquantity += NTIP.getInvoQuantity(typeB[i]);
 				}
