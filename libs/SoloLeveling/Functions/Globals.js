@@ -296,7 +296,7 @@ var Check = {
 
 			break;
 		case "pits": //pits
-			if (me.hell && ((!me.sorceress && !me.druid && (!me.paladin || Attack.IsAuradin)) || (me.sorceress && me.charlvl >= 70) || (me.druid && ["Plaguewolf", "Wolf"].indexOf(SetUp.currentBuild) > -1))) {
+			if (me.hell && ((!me.sorceress && !me.druid && (!me.paladin || Attack.IsAuradin) && (me.amazon && SetUp.currentBuild === SetUp.finalBuild)) || (me.sorceress && me.charlvl >= 70) || (me.druid && ["Plaguewolf", "Wolf"].indexOf(SetUp.currentBuild) > -1))) {
 				return true;
 			}
 
@@ -392,7 +392,7 @@ var Check = {
 
 			break;
 		case "travincal": //travincal
-			if (Pather.accessToAct(3) && (me.charlvl < 25 || (me.hell && me.paladin && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))) || !me.travincal)) {
+			if (Pather.accessToAct(3) && (me.charlvl < 25 || (me.charlvl > 25 && me.normal && !me.diablo && !Check.Gold()) || (me.hell && me.paladin && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))) || !me.travincal)) {
 				return true;
 			}
 
@@ -472,7 +472,7 @@ var Check = {
 
 	Gold: function () {
 		let gold = me.getStat(14) + me.getStat(15);
-		let goldLimit = [10000, 50000, 100000][me.diff];
+		let goldLimit = [25000, 50000, 100000][me.diff];
 
 		if (me.normal && !Pather.accessToAct(2) || gold >= goldLimit) {
 			return true;
