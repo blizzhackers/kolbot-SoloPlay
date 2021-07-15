@@ -286,24 +286,6 @@ function LoadConfig () {
 			break;
 		}
 
-		if (!Check.haveItem("sword", "runeword", "Call To Arms")) {
-			var CTA = [
-				"[Name] == AmnRune # # [MaxQuantity] == 1",
-				"[Name] == RalRune # # [MaxQuantity] == 1",
-				"[Name] == MalRune",
-				"[Name] == IstRune",
-				"[Name] == OhmRune",
-			];
-			NTIP.arrayLooping(CTA);
-
-			if (me.getItem(636)) { // have Ohm before collecting base
-				NTIP.addLine("[Name] == CrystalSword && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 5 # [MaxQuantity] == 1");
-			}
-
-			Config.Runewords.push([Runeword.CallToArms, "Crystal Sword"]);
-			Config.KeepRunewords.push("[type] == sword # [plusskillbattleorders] >= 1");
-		}
-
 		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(12).tier < 1000) { // Spirit shield
 			if (!Check.haveItem("shield", "runeword", "Spirit") && me.hell) {
 				var SpiritShield = [
@@ -343,6 +325,8 @@ function LoadConfig () {
 				Config.Runewords.push([Runeword.Enigma, "DuskShroud", Roll.NonEth]);
 				Config.Runewords.push([Runeword.Enigma, "WyrmHide", Roll.NonEth]);
 				Config.Runewords.push([Runeword.Enigma, "ScarabHusk", Roll.NonEth]);
+			} else {
+				NTIP.addLine("([Name] == MagePlate || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Flag] != Ethereal && [Quality] == Superior # [enhanceddefense] >= 10 && [Sockets] == 3 # [MaxQuantity] == 1");
 			}
 
 			Config.KeepRunewords.push("[type] == armor # [frw] >= 45");

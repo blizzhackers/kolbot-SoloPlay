@@ -322,6 +322,8 @@ function LoadConfig () {
 					Config.Runewords.push([Runeword.Enigma, "ScarabHusk", Roll.NonEth]);
 
 					NTIP.addLine("([Name] == MagePlate || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
+				} else {
+					NTIP.addLine("([Name] == MagePlate || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Flag] != Ethereal && [Quality] == Superior # [enhanceddefense] >= 10 && [Sockets] == 3 # [MaxQuantity] == 1");
 				}
 
 				Config.KeepRunewords.push("[type] == armor # [frw] >= 45");
@@ -336,12 +338,32 @@ function LoadConfig () {
 					"[Name] == UmRune",
 					"[Name] == BerRune",
 					"[Name] == IstRune",
-					"([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # ([Sockets] == 0 || [Sockets] == 4) # [MaxQuantity] == 1",
 				];
 				NTIP.arrayLooping(CoH);
 
-				if (!me.getItem(639)) {
-					Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // sur to ber
+				if (!me.getItem(639)) {		// Ber Rune
+					Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
+					Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
+					Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
+					Config.Recipes.push([Recipe.Rune, "Vex Rune"]); // Vex to Ohm
+					Config.Recipes.push([Recipe.Rune, "Ohm Rune"]); // Ohm to Lo
+					Config.Recipes.push([Recipe.Rune, "Lo Rune"]); // Lo to Sur
+					Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // Sur to Ber
+				}
+
+				if (!me.getItem(631)) {
+					Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
+					Config.Recipes.push([Recipe.Rune, "Pul Rune"]);	// Pul -> Um
+				}
+
+				if (me.getItem(639)) {
+					if (!Check.haveBase("armor", 4)) {
+						NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] == Normal && [Quality] <= Superior # [Sockets] == 0 # [MaxQuantity] == 1");
+					}
+
+					NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
+				} else {
+					NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] == Superior # [enhanceddefense] >= 10 && [Sockets] == 4 # [MaxQuantity] == 1");
 				}
 
 				Config.Recipes.push([Recipe.Socket.Armor, "Archon Plate", Roll.NonEth]);

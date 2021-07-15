@@ -236,14 +236,13 @@ function LoadConfig () {
 
 		switch (SetUp.finalBuild) { // finalbuilld autoequip setup
 		case 'Smiter':
-			if (!Check.haveItem("sword", "runeword", "Grief")) {
+			if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("sword", "runeword", "Grief")) {
 				var Grief = [
 					"[Name] == EthRune # # [MaxQuantity] == 1",
 					"[Name] == TirRune # # [MaxQuantity] == 1",
-					"[Name] == LoRune # # [MaxQuantity] == 1",
+					"[Name] == LoRune",
 					"[Name] == MalRune # # [MaxQuantity] == 1",
 					"[Name] == RalRune # # [MaxQuantity] == 1",
-					"[Name] == PhaseBlade && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 5 # [MaxQuantity] == 1",
 				];
 				NTIP.arrayLooping(Grief);
 
@@ -252,6 +251,12 @@ function LoadConfig () {
 					Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
 					Config.Recipes.push([Recipe.Rune, "Vex Rune"]); // Vex to Ohm
 					Config.Recipes.push([Recipe.Rune, "Ohm Rune"]); // Ohm to Lo
+				}
+
+				if (me.getItem(637)) {	// Lo Rune
+					NTIP.addLine("[Name] == PhaseBlade && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 5 # [MaxQuantity] == 1");
+				} else {
+					NTIP.addLine("[Name] == PhaseBlade && [Quality] == Superior # [enhanceddamage] >= 10 && [Sockets] == 5 # [MaxQuantity] == 1");
 				}
 
 				Config.Runewords.push([Runeword.Grief, "Phase Blade"]);
@@ -287,7 +292,7 @@ function LoadConfig () {
 
 			break;
 		case 'Auradin':
-			if (me.ladder > 0 && !Check.haveItem("auricshields", "runeword", "Dream")) { // Dream shield
+			if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("auricshields", "runeword", "Dream")) { // Dream shield
 				var DreamShield = [
 					"[Name] == IoRune # # [MaxQuantity] == 1",
 					"[Name] == JahRune",
@@ -305,7 +310,7 @@ function LoadConfig () {
 				Config.KeepRunewords.push("[type] == auricshields # [holyshockaura] >= 15");
 			}
 
-			if (me.ladder > 0 && !Check.haveItem("helm", "runeword", "Dream")) { // Dream helm
+			if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("helm", "runeword", "Dream")) { // Dream helm
 				var DreamHelm = [
 					"[Name] == IoRune # # [MaxQuantity] == 1",
 					"[Name] == JahRune",
@@ -318,7 +323,7 @@ function LoadConfig () {
 				Config.KeepRunewords.push("[type] == helm # [holyshockaura] >= 15");
 			}
 
-			if (!Check.haveItem("auricshields", "runeword", "Dream") || !Check.haveItem("helm", "runeword", "Dream") && me.ladder > 0) {
+			if (!Check.haveItem("auricshields", "runeword", "Dream") || !Check.haveItem("helm", "runeword", "Dream") && (me.ladder || Developer.addLadderRW)) {
 				if (!me.getItem(640)) {		// Jah Rune
 					if (Check.haveItem("sword", "runeword", "Call To Arms")) {
 						Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
@@ -346,7 +351,7 @@ function LoadConfig () {
 				}
 			}
 
-			if (me.ladder > 0 && !Check.haveItem("armor", "runeword", "Dragon") && Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream")) { // Dragon
+			if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("armor", "runeword", "Dragon") && Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream")) { // Dragon
 				var Dragon = [
 					"[Name] == SurRune",
 					"[Name] == LoRune",
@@ -439,7 +444,7 @@ function LoadConfig () {
 			}
 
 			if (Check.haveItem("sword", "runeword", "Hand of Justice") && Check.haveItem("armor", "runeword", "Dragon") && Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream") && 
-				Item.getEquippedItemMerc(3).prefixnum !== 20547) {
+				Item.getEquippedItemMerc(3).prefixnum !== 20547 && (me.ladder || Developer.addLadderRW)) {
 				var Fortitude = [
 					"[Name] == ElRune # # [MaxQuantity] == 1",
 					"[Name] == SolRune",
@@ -543,6 +548,8 @@ function LoadConfig () {
 				Config.Runewords.push([Runeword.Enigma, "ScarabHusk", Roll.NonEth]);
 
 				NTIP.addLine("([Name] == MagePlate || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
+			} else {
+				NTIP.addLine("([Name] == MagePlate || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Flag] != Ethereal && [Quality] == Superior # [enhanceddefense] >= 10 && [Sockets] == 3 # [MaxQuantity] == 1");
 			}
 
 			Config.KeepRunewords.push("[type] == armor # [frw] >= 45");

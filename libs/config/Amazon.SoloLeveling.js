@@ -403,6 +403,8 @@ function LoadConfig () {
 				}
 
 				NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
+			} else {
+				NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] == Superior # [enhanceddefense] >= 10 && [Sockets] == 4 # [MaxQuantity] == 1");
 			}
 
 			Config.Recipes.push([Recipe.Socket.Armor, "Archon Plate", Roll.NonEth]);
@@ -425,7 +427,7 @@ function LoadConfig () {
 			NTIP.arrayLooping(Insight);
 
 			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568 && !Check.haveBase("polearm", 4)) {
-				NTIP.addLine("[Name] == voulge && [flag] != ethereal && [Quality] == Normal && [Level] >= 26 && [Level] <= 40 # [Sockets] == 0 # [MaxQuantity] == 1");
+				NTIP.addLine("[Name] == bill && [flag] != ethereal && [Quality] == Normal && [Level] >= 26 # [Sockets] == 0 # [MaxQuantity] == 1");
 			}
 
 			Config.Recipes.push([Recipe.Socket.Weapon, "Giant Thresher"]);
