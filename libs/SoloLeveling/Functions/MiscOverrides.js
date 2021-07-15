@@ -771,23 +771,21 @@ Misc.checkItemForSocketing = function () {
 	let items = me.getItems();
 
 	if (Check.currentBuild().caster) {
-		if (me.diff === 0) {
-			//Broad Sword
+		if (me.normal) {
 			for (let i = 0; i < items.length; i++) {
+				//Broad Sword
 				if (items[i].classid === 30 && items[i].ilvl >= 26 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 					item = items[i];
 					break;
 				}
-			}
 
-			//Crystal Sword
-			for (let i = 0; i < items.length; i++) {
+				//Crystal Sword
 				if (items[i].classid === 29 && items[i].ilvl >= 26 && items[i].ilvl <= 40 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 					item = items[i];
 					break;
 				}
 			}
-		} else if (me.diff === 1) {
+		} else if (me.nightmare) {
 			//Eth Bill or Colossus Volgue
 			for (let i = 0; i < items.length; i++) {
 				if ([151, 254].indexOf(items[i].classid) > -1 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1 && items[i].getFlag(0x400000)) {
@@ -812,7 +810,7 @@ Misc.checkItemForSocketing = function () {
 					break;
 				}
 			}
-		} else if (me.druid === 5) {	//Druid uses Jalal's
+		} else if (me.druid) {	//Druid uses Jalal's
 			for (let i = 0; i < items.length; i++) {
 				if (items[i].classid === 472 && items[i].getStat(194) === 0 && items[i].quality === 5) {	//Jalal's
 					item = items[i];
@@ -828,7 +826,7 @@ Misc.checkItemForSocketing = function () {
 			}
 		}
 	} else {	
-		if (me.classid === 0) {		//Amazon
+		if (me.amazon) {		//Amazon
 			if (me.diff === 0) {
 				for (let i = 0; i < items.length; i++) {
 					if (items[i].classid === 151 && items[i].ilvl >= 25 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Bill
@@ -836,7 +834,7 @@ Misc.checkItemForSocketing = function () {
 						break;
 					}
 				}
-			} else if (me.diff === 1) {
+			} else if (me.nightmare) {
 				for (let i = 0; i < items.length; i++) {
 					if ([151, 254].indexOf(items[i].classid) > -1 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1 && items[i].getFlag(0x400000)) {	//Eth Bill or Colossus Volgue
 						item = items[i];
@@ -853,7 +851,7 @@ Misc.checkItemForSocketing = function () {
 			}	
 		}
 
-		if (me.classid === 4) {		//Barbarian
+		if (me.barbarian) {		//Barbarian
 			if (me.diff === 0) {
 				if (!Check.haveItem("scepter", "runeword", "Honor")) {
 					for (let i = 0; i < items.length; i++) {
