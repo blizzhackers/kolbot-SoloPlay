@@ -24,6 +24,13 @@ function SoloLeveling () {
 		print('ÿc9SoloLevelingÿc0: start run');
 		me.overhead('starting run');
 
+		if (["Bumper", "Socketmule"].indexOf(SetUp.finalBuild) > -1 && me.classic) {
+			D2Bot.printToConsole("GuysSoloLeveling: " + SetUp.finalBuild + " cannot be used in classic. Change the info tag or remake as an expansion character...Shutting down", 9);
+			FileTools.remove("data/" + me.profile + ".json");
+			FileTools.remove("libs/SoloLeveling/Data/" + me.profile + ".GameTime" + ".json");
+			D2Bot.stop();
+		}
+
 		if (me.charlvl === 1) {
 			let buckler = me.getItem(328);
 
@@ -47,14 +54,14 @@ function SoloLeveling () {
 	this.runScripts = function () {
 		let j, k, updatedDifficulty = Check.nextDifficulty();
 
+		if (updatedDifficulty) {
+			DataFile.updateStats("setDifficulty", updatedDifficulty);
+			D2Bot.setProfile(null, null, null, updatedDifficulty);
+		}
+
 		for (k = 0; k < SetUp.scripts.length; k += 1) {
 			if (!me.inTown) {
 				Town.goToTown();
-			}
-
-			if (updatedDifficulty) {
-				DataFile.updateStats("setDifficulty", updatedDifficulty);
-				D2Bot.setProfile(null, null, null, updatedDifficulty);
 			}
 
 			Check.checkSpecialCase();
