@@ -4,7 +4,7 @@
  *    @desc       poison necro build for after respecOne
  */
 
-var build = {
+var finalBuild = {
 	caster: true,
 	skillstab: 17, //poison
 	wantedskills: [92, 74], // poison nova, corpse explosion

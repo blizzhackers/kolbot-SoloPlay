@@ -4,7 +4,7 @@
  *    @desc       based off of https://diabloii.net/forums/threads/chipmcs-witchwild-string-strafeazon-guide-v-0-05-beta-if.240912/
  */
 
-var build = {
+var finalBuild = {
 	caster: false,
 	skillstab: 0, // Bow and Crossbow Skills
 	wantedskills: [26], // strafe

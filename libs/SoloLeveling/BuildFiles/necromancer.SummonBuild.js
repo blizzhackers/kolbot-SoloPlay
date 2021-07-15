@@ -4,7 +4,7 @@
  *    @desc       FishyMancer build for after respecOne
  */
 
-var build = {
+var finalBuild = {
 	caster: true,
 	skillstab: 18, //summon
 	wantedskills: [70, 74], // raise skelly, corpse explosion

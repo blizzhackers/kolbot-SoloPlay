@@ -4,7 +4,7 @@
  *    @desc     	Sorceress cold build (blizzard sorc)
  */
 
-var build = {
+var finalBuild = {
 	caster: true,
 	skillstab: 10, //cold
 	wantedskills: [59, 65], // blizzard, cold mastery

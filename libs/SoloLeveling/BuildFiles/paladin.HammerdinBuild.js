@@ -5,7 +5,7 @@
  * 					skills based on https://www.diabloii.net/forums/threads/max-damage-hammerdin-guide-by-captain_bogus-repost.127596/
  */
 
-var build = {
+var finalBuild = {
 	caster: true,
 	skillstab: 24, //combat
 	wantedskills: [112, 113], // hammers, concentration

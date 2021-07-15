@@ -4,7 +4,7 @@
  *    @desc       	Immortal King Whirlwind build
  */
 
-var build = {
+var finalBuild = {
 	caster: false,
 	skillstab: 32, // Barbarian Combat
 	wantedskills: [126, 151], // Bash, Whirlwind

@@ -4,7 +4,7 @@
  *    @desc       Druid wind build for after respecOne
  */
 
-var build = {
+var finalBuild = {
 	caster: true,
 	skillstab: 42, // elemental
 	wantedskills: [245, 250, 240], // tornado, hurricane, twister

@@ -4,7 +4,7 @@
  *    @desc       Javazon build
  */
 
-var build = {
+var finalBuild = {
 	caster: false,
 	skillstab: 2, // Jav N Spear Skills
 	wantedskills: [24, 34], // Charged Strike, Lightning Strike

@@ -4,7 +4,7 @@
  *    @desc			Druid elemental build for after respecOne
  */
 
-var build = {
+var finalBuild = {
 	caster: true,
 	skillstab: 42, // elemental
 	wantedskills: [225, 234], // firestorm, fissure

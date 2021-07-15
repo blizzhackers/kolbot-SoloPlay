@@ -4,7 +4,7 @@
  *    @desc       bone necro build for after respecOne
  */
 
-var build = {
+var finalBuild = {
 	caster: true,
 	skillstab: 17, //bone
 	wantedskills: [93, 84, 67], // bonespirit, bonespear, teeth

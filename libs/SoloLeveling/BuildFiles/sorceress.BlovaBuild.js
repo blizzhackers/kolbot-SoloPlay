@@ -4,7 +4,7 @@
  *    @desc      	Sorceress blizzard nova build
  */
 
-var build = {
+var finalBuild = {
 	caster: true,
 	skillstab: 10, //cold
 	wantedskills: [59, 48], // blizzard, nova

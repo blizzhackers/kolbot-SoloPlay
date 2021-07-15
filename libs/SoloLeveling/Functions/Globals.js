@@ -778,15 +778,15 @@ var Check = {
 		}
 
 		return {
-			caster: build.caster,
-			tabSkills: build.skillstab,
-			wantedSkills: build.wantedskills,
-			usefulSkills: build.usefulskills,
-			precastSkills: build.precastSkills,
-			mercAuraName: build.mercAuraName,
-			mercAuraWanted: build.mercAuraWanted,
-			mercDiff: build.mercDiff,
-			finalGear: build.autoEquipTiers,
+			caster: finalBuild.caster,
+			tabSkills: finalBuild.skillstab,
+			wantedSkills: finalBuild.wantedskills,
+			usefulSkills: finalBuild.usefulskills,
+			precastSkills: finalBuild.precastSkills,
+			mercAuraName: finalBuild.mercAuraName,
+			mercAuraWanted: finalBuild.mercAuraWanted,
+			mercDiff: finalBuild.mercDiff,
+			finalGear: finalBuild.autoEquipTiers,
 		};
 	},
 

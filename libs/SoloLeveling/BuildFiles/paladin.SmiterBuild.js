@@ -4,7 +4,7 @@
  *    @desc       End-game smiter build
  */
 
-var build = {
+var finalBuild = {
 	caster: false,
 	skillstab: 24, //combat
 	wantedskills: [97, 122], //smite, fanaticism

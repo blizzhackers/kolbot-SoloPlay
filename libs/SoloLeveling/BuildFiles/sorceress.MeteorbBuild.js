@@ -4,7 +4,7 @@
  *    @desc      	Sorceress meteorb build
  */
 
-var build = {
+var finalBuild = {
 	caster: true,
 	skillstab: 8, //fire
 	wantedskills: [64, 56, 65], // frozen orb, meteor, cold mastery

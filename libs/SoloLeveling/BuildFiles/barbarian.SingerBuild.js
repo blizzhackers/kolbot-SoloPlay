@@ -5,7 +5,7 @@
  *    @credits		ebner20
  */
 
-var build = {
+var finalBuild = {
 	caster: true,
 	skillstab: 32, // Combat
 	wantedskills: [154, 138], //warcry, shout

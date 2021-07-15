@@ -4,7 +4,7 @@
  *    @desc       assassin build for after respecOne
  */
 
-var build = {
+var finalBuild = {
 	caster: false,
 	skillstab: 48, // traps
 	wantedskills: [251, 271, 276], // fireblast, lightning sentry, death sentry

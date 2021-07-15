@@ -4,7 +4,7 @@
  *    @desc     	Sorceress lightning build for after respecTwo
  */
 
-var build = {
+var finalBuild = {
 	caster: true,
 	skillstab: 9, //light
 	wantedskills: [53, 49], // Chain-light, lightning

@@ -4,7 +4,7 @@
  *    @desc			Plague wolf final build
  */
 
-var build = {
+var finalBuild = {
 	caster: false,
 	skillstab: 41, // shape-shifting
 	wantedskills: [223, 224, 248], // werewolf, lycanthropy, fury

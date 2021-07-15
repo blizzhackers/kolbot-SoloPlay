@@ -4,7 +4,7 @@
  *    @desc       End-game Auradin build
  */
 
-var build = {
+var finalBuild = {
 	caster: false,
 	skillstab: 24, //combat
 	wantedskills: [106, 123], //Zeal, Conviction
