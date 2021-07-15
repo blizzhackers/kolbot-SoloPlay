@@ -877,3 +877,30 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 
 	throw new Error("useWaypoint: Failed to use waypoint");
 };
+
+//No more failing to get some place credit - Legacy Autosmurf
+Pather.clearToExit = function (currentarea, targetarea, cleartype) {
+	print("ÿc9GuysSoloLevelingÿc0: Start clearToExit");
+
+	print("Currently in: " + Pather.getAreaName(me.area));
+	print("Currentarea arg: " + Pather.getAreaName(me.area));
+
+	delay(250 + me.ping);
+	print("Clearing to: " + Pather.getAreaName(targetarea));
+
+	while (me.area == currentarea) {
+		try {
+			Pather.moveToExit(targetarea, true, cleartype);
+		} catch (e) {
+			print("Caught Error.");
+
+			print(e);
+		}
+
+		Packet.flash(me.gid);
+
+		delay(me.ping * 2 + 500);
+	}
+
+	print("ÿc9GuysSoloLevelingÿc0: End clearToExit");
+};
