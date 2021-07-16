@@ -42,7 +42,6 @@ Town.townTasks = function () {
 	this.shopItems();
 	this.buyKeys();
 	this.repair(true);
-	this.shopItems();
 	this.reviveMerc();
 	this.gamble();
 	Cubing.emptyCube();
@@ -78,8 +77,6 @@ Town.townTasks = function () {
 		}
 	}
 
-	me.cancel();
-
 	if (!me.barbarian && !Precast.checkCTA()) {	//If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
 		Precast.doPrecast(false);
 	}
@@ -106,7 +103,6 @@ Town.doChores = function (repair = false) {
 	this.shopItems();
 	this.buyKeys();
 	this.repair(repair);
-	this.shopItems();
 	this.reviveMerc();
 	this.gamble();
 	Cubing.emptyCube();
@@ -140,8 +136,6 @@ Town.doChores = function (repair = false) {
 			break;
 		}
 	}
-
-	me.cancel();
 
 	if (me.barbarian && !Precast.checkCTA()) {	//If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
 		Precast.doPrecast(false);
@@ -2020,7 +2014,7 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
-				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on tier value, (better for skills)
+				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on defense
 				.last(); // select last
 
 			if (itemsToCheck === undefined) {
@@ -2225,7 +2219,7 @@ Town.clearJunk = function () {
 
 		}
 
-		if (([3, 7].indexOf(junk[0].location) > -1 && [18, 41, 76, 77, 78, 80, 81, 39, 74, 82, 83, 84].indexOf(junk[0].itemType) === -1) &&
+		if (([3, 7].indexOf(junk[0].location) > -1 && [18, 34, 41, 76, 77, 78, 80, 81, 39, 74, 82, 83, 84].indexOf(junk[0].itemType) === -1) &&
 			(Town.questItemClassids.indexOf(junk[0].classid) === -1)) {
 			if (this.betterBaseThanStashed(junk[0], true)) {
 				if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
