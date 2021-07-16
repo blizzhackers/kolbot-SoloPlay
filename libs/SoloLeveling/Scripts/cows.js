@@ -145,7 +145,13 @@ function cows () {
 	Town.doChores();
 	this.openPortal(39, 88, 518);
 	Town.buyBook();
-	Misc.getExpShrine([4, 5, 6]);
+
+	if (Pather.canTeleport()) {
+		Misc.getExpShrine([4, 5, 6]);
+	} else {
+		Misc.getExpShrine([2]);
+	}
+	
 	Town.move("stash");
 	Pather.usePortal(39);
 	Precast.doPrecast(true);

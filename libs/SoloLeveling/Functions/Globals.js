@@ -458,7 +458,7 @@ var Check = {
 
 			break;
 		case "cows": //cows
-			if (!me.normal && !me.cows && (me.classic && me.diablo || me.baal) && (!me.druid || me.charlvl <= 65)) {
+			if (!me.normal && !me.cows && (me.classic && me.diablo || me.baal) && ((me.nightmare && (!me.druid || me.charlvl <= 65) || me.hell))) {
 				return true;
 			}
 

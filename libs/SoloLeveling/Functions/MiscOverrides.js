@@ -631,10 +631,14 @@ Misc.getExpShrine = function (shrineLocs) {
 	}
 
 	for (let get = 0; get < shrineLocs.length; get++) {
-		if (!Pather.checkWP(shrineLocs[get])) {
-			Pather.getWP(shrineLocs[get]);
+		if (shrineLocs[get] === 2) {
+			Pather.journeyTo(shrineLocs[get]);
 		} else {
-			Pather.useWaypoint(shrineLocs[get]);
+			if (!Pather.checkWP(shrineLocs[get])) {
+				Pather.getWP(shrineLocs[get]);
+			} else {
+				Pather.useWaypoint(shrineLocs[get]);
+			}
 		}
 
 		Precast.doPrecast(true);
