@@ -25,6 +25,11 @@ function radament () {
 
 	if (Misc.checkQuest(9, 1)) {
 		Town.npcInteract("atma");
+
+		if (getUIFlag(0x08)) {	// NPC menu
+			delay(500);
+			me.cancel();
+		}
 	}
 
 	Town.unfinishedQuests();

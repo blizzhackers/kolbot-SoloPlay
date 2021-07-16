@@ -302,7 +302,7 @@ var Check = {
 
 			break;
 		case "jail":
-			if (me.hell && me.amazon && !me.duriel) {
+			if (me.hell && me.amazon && !me.mephisto) {
 				return true;
 			}
 
@@ -326,7 +326,7 @@ var Check = {
 
 			break;
 		case "radament": //radament
-			if (Pather.accessToAct(2) && !me.radament || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild)) {
+			if (Pather.accessToAct(2) && (!me.radament || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild))) {
 				return true;
 			}
 
@@ -463,7 +463,7 @@ var Check = {
 			}
 
 			break;
-		case "a5chests": //cows
+		case "a5chests": //a5chests
 			if (!me.normal && me.baal) {
 				return true;
 			}

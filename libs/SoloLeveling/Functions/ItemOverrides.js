@@ -86,7 +86,13 @@ Item.getBodyLoc = function (item) {
 		break;
 	case 67: // Handtohand (Assasin Claw)
 	case 88: //
-		bodyLoc = [4, 5];
+		if (!Check.currentBuild().caster) {
+			bodyLoc = [4, 5];
+
+			break;
+		} 
+
+		bodyLoc = 4;
 
 		break;
 	default:
