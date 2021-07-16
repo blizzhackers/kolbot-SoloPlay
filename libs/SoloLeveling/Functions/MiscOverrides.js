@@ -114,6 +114,11 @@ Skill.getHand = function (skillId) {
 	return 0;
 };
 
+// Skills that cn be cast in town
+Skill.townSkill = function (skillId) {
+	return [32, 40, 43, 50, 52, 58, 60, 68, 75, 85, 94, 117, 221, 222, 226, 227, 231, 235, 236, 237, 241, 246, 247, 258, 267, 268, 277, 278, 279].indexOf(skillId) > -1;
+};
+
 // Cast a skill on self, Unit or coords. Always use packet casting for caster skills becasue it's more stable.
 if (Developer.forcePacketCasting) {
 	Skill.cast = function (skillId, hand, x, y, item) {
