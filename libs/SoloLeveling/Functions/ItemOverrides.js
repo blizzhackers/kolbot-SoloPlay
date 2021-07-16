@@ -2041,7 +2041,7 @@ Item.getCharmType = function (charm) {
 		case "of Maiming":
 			charmType = "Damage";
 			break;
-		case "of Fourtune":
+		case "of Fortune":
 		case "of Good Luck":
 			charmType = "Magicfind";
 			break;

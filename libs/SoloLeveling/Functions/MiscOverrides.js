@@ -1075,7 +1075,7 @@ Misc.checkItemForImbueing = function () {
 	if (item === undefined || !item) {
 		if (me.diff === 0) {
 			for (let i = 0; i < items.length; i++) {
-				if (items[i].classid === 348  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {		//Plated Belt
+				if (items[i].classid === 348  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Plated Belt
 					item = items[i];
 					break;
 				}
@@ -1134,6 +1134,16 @@ Misc.addSocketables = function () {
 			item = items[i];
 			break;
 		}
+
+		if (me.barbarian && items[i].classid === 219 && items[i].getStat(194) === 2 && items[i].quality === 5 && !items[i].getItem()) {	// IK Maul
+			item = items[i];
+			break;
+		}
+
+		if (me.barbarian && items[i].classid === 407 && items[i].getStat(194) === 2 && items[i].quality === 5 && !items[i].getItem()) {	// IK Helm
+			item = items[i];
+			break;
+		}
 	}
 
 	if (item) {
@@ -1172,6 +1182,38 @@ Misc.addSocketables = function () {
 
 			//P-diamond to Moser's
 			if (items[i].classid === 586 && item.classid === 375 && multiple.indexOf(items[i]) === -1) {
+				if (item.getStat(194) === 2) {
+					if (multiple.length < item.getStat(194)) {
+						multiple.push(items[i]);
+						continue;
+					} else {
+						ready = true;
+						break;
+					}	
+				} else {
+					socketable = items[i];
+					break;
+				}	
+			}
+
+			//Shael Rune and IK Mauls
+			if (items[i].classid === 622 && item.classid === 219 && multiple.indexOf(items[i]) === -1) {
+				if (item.getStat(194) === 2) {
+					if (multiple.length < item.getStat(194)) {
+						multiple.push(items[i]);
+						continue;
+					} else {
+						ready = true;
+						break;
+					}	
+				} else {
+					socketable = items[i];
+					break;
+				}	
+			}
+
+			//Ber Rune and IK Helm
+			if (items[i].classid === 639 && item.classid === 407 && multiple.indexOf(items[i]) === -1) {
 				if (item.getStat(194) === 2) {
 					if (multiple.length < item.getStat(194)) {
 						multiple.push(items[i]);

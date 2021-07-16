@@ -319,11 +319,6 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit) { // probabl
 		delay(40);
 	}
 
-	if (Config.MFLeader && !!bossId) {
-		Pather.makePortal();
-		say("clear " + bossId);
-	}
-
 	if (range === undefined) {
 		range = 25;
 	}

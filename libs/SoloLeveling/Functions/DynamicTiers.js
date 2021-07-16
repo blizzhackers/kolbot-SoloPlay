@@ -103,13 +103,13 @@ var tierscore = function (item) {
 		// CTC when struck
 		CTCWSNOVA: 5,
 		CTCWSFNOVA: 10,
-		CTCWSFADE: 10,
+		CTCWSFADE: 20,
 	};
 
 	var casterWeights = {
 		//breakpoint stats
 		FCR: 5,
-		IAS: 0,
+		IAS: me.assassin ? 4 : 0,
 		// Attack
 		MINDMG:	0, // min damage
 		MAXDMG: 0, // max damage
@@ -129,8 +129,8 @@ var tierscore = function (item) {
 
 	var meleeWeights = {
 		//breakpoint stats
-		FCR: 1,
-		IAS: 3.5,
+		FCR: 0.5,
+		IAS: 4,
 		// Attack
 		MINDMG:	3, // min damage
 		MAXDMG: 3, // max damage
@@ -156,7 +156,7 @@ var tierscore = function (item) {
 		CTCOSFNOVA: 8,
 		CTCOSAMP: 3,
 		CTCOSDECREP: 8,
-		CTCOSVENOM: 8,
+		CTCOSVENOM: 10,
 		CTCOSFORB: 8,
 		CTCOSIBLAST: 4,
 		CTCOSGSPIKE: 4,

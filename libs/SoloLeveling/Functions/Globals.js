@@ -398,7 +398,7 @@ var Check = {
 
 			break;
 		case "travincal": //travincal
-			if (Pather.accessToAct(3) && (me.charlvl < 25 || (me.charlvl > 25 && me.normal && !me.diablo && !Check.Gold()) || (me.hell && me.paladin && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))) || !me.travincal)) {
+			if (Pather.accessToAct(3) && (me.charlvl < 25 || (me.charlvl > 25 && me.normal && !me.diablo && !Check.Gold()) || (me.hell && me.paladin && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma") || me.charlvl > 85)) || !me.travincal)) {
 				return true;
 			}
 

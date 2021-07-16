@@ -5,7 +5,7 @@
  */
 
 var build = {
-	caster: false,
+	caster: true,
 	skillstab: 48, // traps
 	wantedskills: [251, 271, 276], // fireblast, lightning sentry, death sentry
 	usefulskills: [261, 263], // charged bolt sentry, weapon block
