@@ -184,6 +184,13 @@ function ReceiveCopyData (mode, msg) {
 		setUp.hardcore = buildCheck[0].indexOf("HC") !== -1; // SC softcore = false
 		setUp.expansion = buildCheck[0].indexOf("CC") === -1; // not CC so not classic - true
 		setUp.ladder = buildCheck[0].indexOf("NL") === -1; // not NL so its ladder - true
+
+		if (buildCheck[1] === undefined || !buildCheck[1]) {
+			D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', 6);
+			D2Bot.printToConsole("If you are still confused please read the included readMe. https://github.com/theBGuy/GuysSoloLeveling/blob/main/README.md", 6);
+			D2Bot.stop();
+		}
+
 		buildCheck[1] = buildCheck[1].toString().substring(0, 3); // removes numbers ZON for switch
 
 		switch (buildCheck[1]) {
