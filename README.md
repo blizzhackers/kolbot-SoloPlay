@@ -9,7 +9,7 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 | Level | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
 |:------:|:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
 | 1-70 | 22h | 17h | 24h | 23h | N/A | 19h | N/A |
-| 1-80 | N/A | 26h | N/A | N/A | N/A | 34h | N/A |
+| 1-80 | N/A | 26h | N/A | 32h | N/A | 34h | N/A |
 | 1-90 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
 | 1-95 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
 | 1-99 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
