@@ -302,7 +302,7 @@ var Check = {
 
 			break;
 		case "jail":
-			if (me.amazon && !me.duriel) {
+			if (me.hell && me.amazon && !me.duriel) {
 				return true;
 			}
 
