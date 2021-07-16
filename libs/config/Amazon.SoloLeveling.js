@@ -507,7 +507,38 @@ function LoadConfig () {
 			Config.KeepRunewords.push("([type] == shield || [type] == auricshields) # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 187");
 		}
 
-		if (Item.getEquippedItem(3).tier < 700) { // Peace
+		if (Item.getEquippedItem(3).tier < 634) {	// Treachery
+			var treach = [
+				"[Name] == ShaelRune # # [MaxQuantity] == 1",
+				"[Name] == ThulRune # # [MaxQuantity] == 1",
+				"[Name] == LemRune # # [MaxQuantity] == 1",
+			];
+			NTIP.arrayLooping(treach);
+
+			if (!me.getItem(629)) {		// Lem rune
+				Config.Recipes.push([Recipe.Rune, "Io Rune"]);
+				Config.Recipes.push([Recipe.Rune, "Lum Rune"]);
+				Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
+				Config.Recipes.push([Recipe.Rune, "Fal Rune"]);
+			}
+
+			if (me.getItem(629)) {
+				NTIP.addLine("([Name] == demonhidearmor || [Name] == DuskShroud || [Name] == GhostArmor || [Name] == LightPlate || [Name] == MagePlate || [Name] == SerpentskinArmor || [Name] == trellisedarmor || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
+			}
+
+			Config.Runewords.push([Runeword.Treachery, "demonhide armor"]);
+			Config.Runewords.push([Runeword.Treachery, "Dusk Shroud"]);
+			Config.Runewords.push([Runeword.Treachery, "Ghost Armor"]);
+			Config.Runewords.push([Runeword.Treachery, "Light Plate"]);
+			Config.Runewords.push([Runeword.Treachery, "Mage Plate"]);
+			Config.Runewords.push([Runeword.Treachery, "Serpentskin Armor"]);
+			Config.Runewords.push([Runeword.Treachery, "trellised armor"]);
+			Config.Runewords.push([Runeword.Treachery, "WyrmHide"]);
+
+			Config.KeepRunewords.push("[Type] == armor # [ias] == 45 && [coldresist] == 30");
+		}
+
+		/*if (Item.getEquippedItem(3).tier < 700) { // Peace
 			if (!Check.haveItem("armor", "runeword", "Peace") && !me.hell) {
 				var peaceRunes = [
 					"[Name] == ShaelRune # # [MaxQuantity] == 1",
@@ -529,7 +560,7 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.Peace, "WyrmHide"]);
 
 			Config.KeepRunewords.push("[type] == armor # [coldresist] == 30");
-		}
+		}*/
 
 		if (Item.getEquippedItemMerc(3).prefixnum !== 20547) { // Merc Fortitude
 			var fort = [

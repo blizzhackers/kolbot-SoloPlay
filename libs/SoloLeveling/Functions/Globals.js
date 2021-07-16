@@ -13,7 +13,7 @@ var Difficulty = ['Normal', 'Nightmare', 'Hell'];
 
 var SetUp = {
 	scripts: [
-		"den", "bloodraven", "tristram", "treehead","countess", "smith", "pits", "andariel", "a1chests", "cows", // Act 1
+		"den", "bloodraven", "tristram", "treehead","countess", "smith", "pits", "jail", "andariel", "a1chests", "cows", // Act 1
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel", // Act 2
 		"templeruns", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
 		"izual", "hellforge", "diablo", //Act 4
@@ -301,8 +301,14 @@ var Check = {
 			}
 
 			break;
+		case "jail":
+			if (me.amazon && !me.duriel) {
+				return true;
+			}
+
+			break;
 		case "andariel": //andy
-			if ((me.classic && me.hell) || (!me.classic && (!me.normal && (Pather.canTeleport() || me.charlvl <= 60)) || (me.hell && me.charlvl !== 100)) || !me.andariel) {
+			if ((me.classic && me.hell) || (!me.classic && (!me.normal && (Pather.canTeleport() || me.charlvl <= 60)) || (me.hell && me.charlvl !== 100 && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild)))) || !me.andariel) {
 				return true;
 			}
 
@@ -338,7 +344,7 @@ var Check = {
 
 			break;
 		case "ancienttunnels": // ancient tunnels
-			if (Pather.accessToAct(2) && me.hell && (!me.paladin || Attack.IsAuradin)) { // no pally in hell magic immunes unless is auradin
+			if (Pather.accessToAct(2) && me.hell && (!me.paladin || Attack.IsAuradin) && (!me.amazon || (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild)))) { // no pally in hell magic immunes unless is auradin, No zon in hell unless at final build becasue light/poison immunes
 				return true;
 			}
 

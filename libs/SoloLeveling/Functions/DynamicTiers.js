@@ -100,6 +100,10 @@ var tierscore = function (item) {
 		MANA: 0.5,
 		STR: 1,
 		DEX: 1,
+		// CTC when struck
+		CTCWSNOVA: 5,
+		CTCWSFNOVA: 10,
+		CTCWSFADE: 10,
 	};
 
 	var casterWeights = {
@@ -152,6 +156,10 @@ var tierscore = function (item) {
 		CTCOSFNOVA: 8,
 		CTCOSAMP: 3,
 		CTCOSDECREP: 8,
+		CTCOSVENOM: 8,
+		CTCOSFORB: 8,
+		CTCOSIBLAST: 4,
+		CTCOSGSPIKE: 4,
 	};
 
 	var skillsWeights = {
@@ -220,6 +228,9 @@ var tierscore = function (item) {
 		generalRating += (item.getStatEx(1) + item.getStatEx(9) + (item.getStatEx(217) / 2048 * me.charlvl)) * generalWeights.MANA;// add mana
 		generalRating += item.getStatEx(0) * generalWeights.STR; // add STR
 		generalRating += item.getStatEx(2) * generalWeights.DEX; // add DEX
+		generalRating += item.getStatEx(201, 3135) * generalWeights.CTCWSNOVA; // add CTC nova when struck
+		generalRating += item.getStatEx(201, 2879) * generalWeights.CTCWSFNOVA; // add CTC frost nova when struck
+		generalRating += item.getStatEx(201, 17151) * generalWeights.CTCWSFADE; // add CTC fade when struck
 
 		return generalRating;
 	};
@@ -278,6 +289,13 @@ var tierscore = function (item) {
 			resistRating += effectivePR * resistWeights.PR; // add poisonresist
 		}
 
+		if (item.itemType === 10) {		// Ringss
+			resistRating += item.getStatEx(39) * resistWeights.FR; // add fireresist
+			resistRating += item.getStatEx(43) * resistWeights.CR; // add coldresist
+			resistRating += item.getStatEx(41) * resistWeights.LR; // add literesist
+			resistRating += item.getStatEx(35) * resistWeights.PR; // add poisonresist
+		}
+
 		resistRating += (item.getStatEx(142) + item.getStatEx(144) + item.getStatEx(146) + item.getStatEx(148)) * resistWeights.ABS; // add absorb damage
 
 		return resistRating;
@@ -310,6 +328,7 @@ var tierscore = function (item) {
 
 		// Melee Specific
 		if (!Check.currentBuild().caster) {
+			buildRating += item.getStatEx(151, 119) * 10; // sanctuary aura
 			buildRating += item.getStatEx(195, 3135) * buildWeights.CTCOANOVA; // add CTC nova on attack
 			buildRating += item.getStatEx(195, 2879) * buildWeights.CTCOAFNOVA; // add CTC frost nova on attack
 			buildRating += item.getStatEx(195, 4225) * buildWeights.CTCOAAMP; // add CTC amplify damage on attack
@@ -318,6 +337,10 @@ var tierscore = function (item) {
 			buildRating += item.getStatEx(198, 2879) * buildWeights.CTCOSFNOVA; // add CTC frost nova on strikng
 			buildRating += item.getStatEx(198, 4225) * buildWeights.CTCOSAMP; // add CTC amplify damage on strikng
 			buildRating += item.getStatEx(198, 5631) * buildWeights.CTCOSDECREP; // add CTC decrepify on strikng
+			buildRating += item.getStatEx(198, 17855) * buildWeights.CTCOSVENOM; // add CTC venom on strikng
+			buildRating += item.getStatEx(198, 4159) * buildWeights.CTCOSFORB; // add CTC frozen orb on strikng
+			buildRating += item.getStatEx(198, 2943) * buildWeights.CTCOSIBLAST; // add CTC ice blast on strikng
+			buildRating += item.getStatEx(198, 3583) * buildWeights.CTCOSGSPIKE; // add CTC glacial spike on strikng
 
 		}
 
