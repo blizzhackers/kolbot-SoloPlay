@@ -326,7 +326,7 @@ var Check = {
 
 			break;
 		case "radament": //radament
-			if (Pather.accessToAct(2) && !me.radament) {
+			if (Pather.accessToAct(2) && !me.radament || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild)) {
 				return true;
 			}
 
@@ -398,7 +398,7 @@ var Check = {
 
 			break;
 		case "travincal": //travincal
-			if (Pather.accessToAct(3) && (me.charlvl < 25 || (me.charlvl > 25 && me.normal && !me.diablo && !Check.Gold()) || (me.hell && me.paladin && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma") || me.charlvl > 85)) || !me.travincal)) {
+			if (Pather.accessToAct(3) && (me.charlvl < 25 || (me.charlvl > 25 && me.normal && !me.diablo && !Check.Gold()) || (me.hell && me.paladin && me.charlvl > 85 && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))) || !me.travincal)) {
 				return true;
 			}
 

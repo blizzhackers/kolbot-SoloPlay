@@ -18,11 +18,15 @@ function radament () {
 	}
 
 	Precast.doPrecast(true);
-	Pather.moveToExit(49, true);
+	Pather.clearToExit(48, 49, true);
 	Pather.moveToPreset(me.area, 2, 355);
 	Attack.killTarget("Radament");
 	Pickit.pickItems();
-	Town.npcInteract("atma");
+
+	if (Misc.checkQuest(9, 1)) {
+		Town.npcInteract("atma");
+	}
+
 	Town.unfinishedQuests();
 
 	return true;

@@ -15,9 +15,9 @@ case 0: //Amazon - theBGuy
 
 	ClassAttack.doAttack = function (unit, preattack) {
 		var needRepair = [];
-		let useDecoy = (me.getSkill(28, 1) && me.diff > 0);
+		let useDecoy = (me.getSkill(28, 1) >= 1 && !me.normal);
 		let useLightFury = me.getSkill(35, 1) >= 10;
-		let usePlague = me.diff > 0 && me.getSkill(25, 1) >= 1;
+		let usePlague = !me.normal && me.getSkill(25, 1) >= 1;
 		let useJab = Item.getEquippedItem(4).tier >= 1000;
 		let forcePlague = me.getSkill(25, 1) >= 15;	//Extra poison damage then attack
 
@@ -27,6 +27,20 @@ case 0: //Amazon - theBGuy
 
 		if ((Config.MercWatch && Town.needMerc()) || needRepair.length > 0) {
 			Town.visitTown(!!needRepair.length);
+		}
+
+		if (Config.AttackSkill[0] === 17) {
+			if (!unit.getState(87)) {
+				if (Math.round(getDistance(me, unit)) < Skill.getRange(Config.AttackSkill[0]) || !checkCollision(me, unit, 0x4)) {
+					if ([156, 211, 242, 243, 544, 571, 391].indexOf(unit.classid) > -1) {	//Act Bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
+						if(!unit.getState(17)) {	//Check if already in this state
+							Skill.cast(8, Skill.getHand(8), unit);
+						}
+					} else {
+						Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
+					}
+				}
+			}
 		}
 
 		if (useDecoy) {
@@ -114,7 +128,7 @@ case 0: //Amazon - theBGuy
 					}
 				}
 
-				if(Attack.checkResist(unit, 10) && !unit.dead) {	//Make sure monster is not physical immune
+				if (Attack.checkResist(unit, 10) && !unit.dead) {	//Make sure monster is not physical immune
 					Skill.cast(10, Skill.getHand(10), unit);	
 				}
 				
@@ -320,6 +334,13 @@ case 0: //Amazon - theBGuy
 
 				break;
 			default:
+				// If main attack skill is lightning strike and charged strike's skill level is at least level 15, check current monster count. If monster count is less than 3, use CS as its more effective with small mobs
+				if (timedSkill === 34 && me.getSkill(24, 1) >= 15) {
+					if (Attack.getMonsterCount(me.x, me.y, 15) <= 3) {
+						timedSkill = 24;
+					}
+				}
+
 				if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
 					return 0;
 				}

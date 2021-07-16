@@ -510,3 +510,34 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit) { // probabl
 
 	return true;
 };
+
+Attack.getMonsterCount = function (x, y, range, list) {
+	var i,
+		fire,
+		count = 0,
+		ignored = [243];
+
+	if (list === undefined || !list.length) {
+		list = this.buildMonsterList();
+		list.sort(Sort.units);
+
+	}
+
+	for (i = 0; i < list.length; i += 1) {
+		if (ignored.indexOf(list[i].classid) === -1 && this.checkMonster(list[i]) && getDistance(x, y, list[i].x, list[i].y) <= range) {
+			count += 1;
+		}
+	}
+
+	fire = getUnit(2, "fire");
+
+	if (fire) {
+		do {
+			if (getDistance(x, y, fire.x, fire.y) <= 4) {
+				count += 100;
+			}
+		} while (fire.getNext());
+	}
+
+	return count;
+};
