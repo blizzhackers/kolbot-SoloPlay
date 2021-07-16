@@ -1,6 +1,6 @@
 /**
  *    @filename   druid.StartBuild.js
- *	  @author	  isid0re
+ *	  @author	  isid0re, theBGuy
  *    @desc       druid build for before respecOne
  */
 
@@ -19,8 +19,9 @@ var build = {
 		["vitality", "all"]
 	],
 	skills: [
+		[222, 2], // poison creeper
 		[225, 4], // firestorm
-		[229, 2], // molten boulder
+		[229, 1], // molten boulder
 		[225, 8], // firestorm
 		[234, 8], // fissure
 		[225, 11], // firestorm

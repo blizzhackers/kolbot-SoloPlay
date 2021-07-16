@@ -48,8 +48,9 @@ var AutoBuildTemplate = {
 			Config.MinColumn[2] = Config.BeltColumn[2] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
 			Config.MinColumn[3] = Config.BeltColumn[3] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
 			Config.HPBuffer = 4;
-			Config.MPBuffer = 2;
+			Config.MPBuffer = 4;
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
+			Config.SummonVine = 1; // 0 = disabled, 1 / "Poison Creeper", 2 / "Carrion Vine", 3 / "Solar Creeper"
 		}
 	},
 
@@ -57,7 +58,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 225, -1, 225, -1, 0, 0];
+			Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
 			Config.TownCheck = me.findItem("tbk", 0, 3);
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
 		}
@@ -67,7 +68,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 225, -1, 225, -1, 0, 0];
+			Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
 			Config.TownCheck = me.findItem("tbk", 0, 3);
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
 		}
@@ -97,7 +98,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 229, 225, 229, 225, 0, 0];
+			Config.AttackSkill = [-1, 225, -1, 225, -1, 0, 0];
 			Config.TownCheck = me.findItem("tbk", 0, 3);
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
@@ -114,7 +115,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 229, 225, 229, 225, 0, 0];
+			Config.AttackSkill = [-1, 225, -1, 225, -1, 0, 0];
 			Config.TownCheck = me.findItem("tbk", 0, 3);
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
 		}
@@ -124,7 +125,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 229, 225, 229, 225, 0, 0];
+			Config.AttackSkill = [-1, 225, -1, 225, -1, 0, 0];
 			Config.TownCheck = me.findItem("tbk", 0, 3);
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
 		}
@@ -134,7 +135,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 229, 225, 229, 225, 0, 0];
+			Config.AttackSkill = [-1, 225, -1, 225, -1, 0, 0];
 			Config.TownCheck = me.findItem("tbk", 0, 3);
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
 		}
@@ -144,7 +145,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 229, 225, 229, 225, 0, 0];
+			Config.AttackSkill = [-1, 225, -1, 225, -1, 0, 0];
 			Config.TownCheck = me.findItem("tbk", 0, 3);
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
 		}
@@ -154,8 +155,8 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 229, 225, 229, 225, 0, 0];
-
+			Config.AttackSkill = [-1, 225, -1, 225, -1, 0, 0];
+			Config.SummonVine = 0; // 0 = disabled, 1 / "Poison Creeper", 2 / "Carrion Vine", 3 / "Solar Creeper"
 		}
 	},
 
@@ -163,7 +164,11 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 229, 225, 229, 225, 0, 0];
+			if (me.getSkill(234, 0)) {
+				Config.AttackSkill = [-1, 234, 225, 234, 225, 0, 0];
+			} else {
+				Config.AttackSkill = [-1, 225, -1, 225, -1, 0, 0];
+			}
 
 		}
 	},
