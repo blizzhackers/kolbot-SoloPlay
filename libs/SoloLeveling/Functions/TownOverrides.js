@@ -42,7 +42,6 @@ Town.townTasks = function () {
 	this.shopItems();
 	this.buyKeys();
 	this.repair(true);
-	this.shopItems();
 	this.reviveMerc();
 	this.gamble();
 	Cubing.emptyCube();
@@ -106,7 +105,6 @@ Town.doChores = function (repair = false) {
 	this.shopItems();
 	this.buyKeys();
 	this.repair(repair);
-	this.shopItems();
 	this.reviveMerc();
 	this.gamble();
 	Cubing.emptyCube();
@@ -582,11 +580,6 @@ Town.shopItems = function () {
 					Item.canEquipMerc(items[i], Item.getBodyLocMerc(items[i])[0]) &&
 					NTIP.GetMercTier(items[i]) > Item.getEquippedItemMerc(Item.getBodyLocMerc(items[i])[0]).tier) {
 						Misc.itemLogger("AutoEquipMerc Shopped", items[i]);
-						/*try {
-							print("ÿc9ShopItemsÿc0 :: AutoEquipMerc Shopped: " + items[i].fname + " MercTier: " + NTIP.GetMercTier(items[i]));
-						} catch (e) {
-							print(e);
-						}*/
 
 						if (Developer.Debugging.autoEquip) {
 							Misc.logItem("AutoEquipMerc Shopped", items[i], result.line);
@@ -768,53 +761,6 @@ Town.unfinishedQuests = function () {
 
 		sor.interact();
 		print('ÿc9SoloLevelingÿc0: used scroll of resistance');
-	}
-
-	return true;
-};
-
-Town.equipSWAP = function () {
-	let spirit = me.getItems()
-		.filter(item =>
-			item.getPrefix(20635) // The spirit shield prefix
-			&& item.classid !== 29 // no broad sword
-			&& item.classid !== 30 // no crystal sword
-			&& item.classid !== 31 // no long sword
-			&& [3, 6, 7].indexOf(item.location) > -1 // Needs to be on either of these locations
-		)
-		.sort((a, b) => a.location - b.location) // Sort on location, low to high. So if you have one already equiped, it comes first
-		.first();
-
-	if (spirit) {
-		if (Item.getEquippedItem(12).tier < 0) {
-			Town.move('stash');
-			Town.openStash();
-			Storage.Inventory.MoveTo(spirit);
-			Attack.weaponSwitch(); // switch to slot 2
-			spirit.equip();
-			Attack.weaponSwitch();
-		}
-	}
-
-	let cta = me.getItems()
-		.filter(item =>
-			item.getPrefix(20519) // The call to arms prefix
-			&& [1, 3, 6, 7].indexOf(item.location) > -1 // Needs to be on one these locations
-		)
-		.sort((a, b) => a.location - b.location) // Sort on location, low to high. So if you have one already equiped, it comes first
-		.first();
-
-	if (cta) {
-		if (cta.location === 1) {
-			return true;
-		} else {
-			Town.move('stash');
-			Town.openStash();
-			Storage.Inventory.MoveTo(cta);
-			Attack.weaponSwitch(); // switch to slot 2
-			cta.equip();
-			Attack.weaponSwitch();
-		}
 	}
 
 	return true;
@@ -1376,7 +1322,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 	}
 
 	if (!equippedItem.runeword) {
-		return nonRunewordEquippedBaseCheck(base, bodyLoc[0]);	//Equipped item is not a runeword, check certain leveling runewords to see if base + runeword stats > equipped item but if not on that list return true and keep the base
+		return true	//Equipped item is not a runeword, keep the base
 	}
 
 	switch (equippedItem.prefixnum) {
@@ -2020,7 +1966,7 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
-				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on tier value, (better for skills)
+				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on defense
 				.last(); // select last
 
 			if (itemsToCheck === undefined) {
@@ -2031,7 +1977,7 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 				return true;
 			}
 
-			if (base.getStat(194) > 0) {
+			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
 				if ((base.location === 7 || base.location === 3) &&
 					!base.getFlag(NTIPAliasFlag["ethereal"]) &&
 					base.getStatEx(31) < itemsToCheck.getStatEx(31)) {
