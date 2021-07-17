@@ -230,7 +230,7 @@ var tierscore = function (item) {
 		generalRating += item.getStatEx(2) * generalWeights.DEX; // add DEX
 		generalRating += item.getStatEx(201, 3135) * generalWeights.CTCWSNOVA; // add CTC nova when struck
 		generalRating += item.getStatEx(201, 2879) * generalWeights.CTCWSFNOVA; // add CTC frost nova when struck
-		generalRating += item.getStatEx(201, 17151) * generalWeights.CTCWSFADE; // add CTC fade when struck
+		generalRating += item.getStatEx(201, 17103) * generalWeights.CTCWSFADE; // add CTC fade when struck
 
 		return generalRating;
 	};
@@ -337,7 +337,7 @@ var tierscore = function (item) {
 			buildRating += item.getStatEx(198, 2879) * buildWeights.CTCOSFNOVA; // add CTC frost nova on strikng
 			buildRating += item.getStatEx(198, 4225) * buildWeights.CTCOSAMP; // add CTC amplify damage on strikng
 			buildRating += item.getStatEx(198, 5631) * buildWeights.CTCOSDECREP; // add CTC decrepify on strikng
-			buildRating += item.getStatEx(198, 17855) * buildWeights.CTCOSVENOM; // add CTC venom on strikng
+			buildRating += item.getStatEx(198, 17807) * buildWeights.CTCOSVENOM; // add CTC venom on strikng
 			buildRating += item.getStatEx(198, 4159) * buildWeights.CTCOSFORB; // add CTC frozen orb on strikng
 			buildRating += item.getStatEx(198, 2943) * buildWeights.CTCOSIBLAST; // add CTC ice blast on strikng
 			buildRating += item.getStatEx(198, 3583) * buildWeights.CTCOSGSPIKE; // add CTC glacial spike on strikng
