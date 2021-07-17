@@ -181,6 +181,58 @@ NTIP.getInvoQuantity = function (item, entryList) {
 	return invoquantity;
 };
 
+NTIP.getMaxQuantity = function (item, entryList, verbose) {
+	var i, list, identified, num,
+		rval = {},
+		maxquantity = -1;
+
+	if (!entryList) {
+		list = NTIP_CheckList;
+	} else {
+		list = entryList;
+	}
+
+	identified = item.getFlag(0x10);
+
+	for (i = 0; i < list.length; i++) {
+		try {
+			let [type, stat, wanted] = list[i];
+
+			if (typeof type === 'function') {
+				if (type(item)) {
+					if (typeof stat === 'function') {
+						if (stat(item)) {
+							if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
+								maxquantity = wanted.MaxQuantity;
+								
+								break;
+							} 
+						} 
+					} else {
+						if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
+							maxquantity = wanted.MaxQuantity;
+
+							break;
+						} 
+					}
+				}
+			} else if (typeof stat === 'function') {
+				if (stat(item)) {
+					if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
+						maxquantity = wanted.MaxQuantity;
+
+						break;
+					} 
+				} 
+			}
+		} catch (e) {
+			return -1;
+		}
+	}
+
+	return maxquantity;
+};
+
 NTIP.checkFinalCharm = function (item, entryList) {
 	var i, list, identified,
 		finalcharm = false;
@@ -594,6 +646,10 @@ NTIP.ParseLineInt = function (input, info) {
 				p_result[0] += 'getBaseStat("items", item.classid, "speed")';
 
 				break;
+			case 'strreq':
+				p_result[0] += 'getBaseStat("items", item.classid, "reqstr")';
+
+				break;
 			case 'color':
 				p_result[0] += "item.getColor()";
 
@@ -816,10 +872,10 @@ NTIP.ParseLineInt = function (input, info) {
 			switch (keyword) {
 			// Charm equip specific
 			case "invoquantity":
-				value = Number(p_section[i].split("==")[1].match(/\d+/g));
+				let quantity = Number(p_section[i].split("==")[1].match(/\d+/g));
 
-				if (!isNaN(value)) {
-					p_result[2].InvoQuantity = value;
+				if (!isNaN(quantity)) {
+					p_result[2].InvoQuantity = quantity;
 				}
 
 				break;

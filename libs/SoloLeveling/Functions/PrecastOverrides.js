@@ -80,7 +80,13 @@ Precast.doPrecast = function (force) {
 
 		break;
 	case 4: // Barbarian - TODO: BO duration
-		if (!me.getState(32) || !me.getState(51) || !me.getState(26) || force) {
+		if (me.charlvl < 24) {
+			if (me.getSkill(138, 0) && (!me.getState(26) || force) && Skill.getManaCost(138) < me.mp) {
+				Skill.cast(138, 0); // Shout
+
+				break;
+			}
+		} else if (!me.getState(32) || !me.getState(51) || !me.getState(26) || force) {
 			var swap = me.weaponswitch;
 
 			Attack.weaponSwitch(this.getBetterSlot(149));

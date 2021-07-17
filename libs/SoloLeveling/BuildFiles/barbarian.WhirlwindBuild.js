@@ -65,7 +65,7 @@ var finalBuild = {
 		//gloves
 		"[name] == bramblemitts && [quality] == set && [flag] != ethereal # [ias] == 20 # [tier] == 100000", //laying of hands
 		//ammy
-		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 100000", //highlords
+		"[type] == amulet && [quality] == unique # [poisonresist] == 75 # [tier] == 100000", //Atma's
 		//rings
 		"[type] == ring && [quality] == unique # [tohit] >= 180 && [dexterity] >= 15 # [tier] == 100000", // ravenfrost
 		"[type] == ring && [quality] == unique # [lifeleech] >= 5 && [maxstamina] == 50 # [tier] == 100000", // bul-kathos' wedding band

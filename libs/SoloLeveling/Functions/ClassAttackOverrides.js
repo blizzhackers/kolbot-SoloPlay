@@ -1185,6 +1185,7 @@ case 4: // Barbarian - theBGuy
 	ClassAttack.doAttack = function (unit, preattack) {
 		var needRepair = [];
 		var useBerserk = me.getSkill(152, 1) >= 5;
+		var useHowl = me.getSkill(130, 0);
 
 		if (me.charlvl >= 5){
 			needRepair = Town.needRepair();
@@ -1206,6 +1207,10 @@ case 4: // Barbarian - theBGuy
 
 			}
 
+		}
+
+		if (useHowl && Attack.getMonsterCount(me.x, me.y, 5) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 50 / 100)) {
+			Skill.cast(130, Skill.getHand(130));
 		}
 
 		if (preattack && Config.AttackSkill[0] > 0 && !unit.dead && [154].indexOf(Config.AttackSkill[0] > -1 && [156, 211, 242, 243, 544].indexOf(unit.classid) === -1 && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp) && Attack.checkResist(unit, 154) && (!me.getState(121)))) {
