@@ -33,7 +33,7 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 |:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
 | Javazon | Cold | Poison | Hammerdin| Whirlwind | Wind |Trapsin|
 | Witchyzon | BlizzBaller |   Bone | Smiter| Immortalwhirl | Elemental |
-| | Meteorb | Summon | Auradin | | Plaguewolf |
+| | Meteorb | Summon | Auradin | Frenzy | Plaguewolf |
 | | Blova | | | | Wolf |
 | | Lightning | |
 
