@@ -82,7 +82,7 @@ function main() {
 	Runewords.init();
 	Cubing.init();
 
-	let useHowl = me.barbarian && me.getSkill(130, 1) > 1;
+	let useHowl = me.barbarian && me.getSkill(130, 0);
 
 	while (true) {
 		if (!me.inTown && (townCheck ||
@@ -97,7 +97,8 @@ function main() {
 			try {
 				me.overhead("Going to town");
 				print("Going to town");
-				if (useHowl && Skill.getManaCost(130) > me.mp) {
+				
+				if (useHowl && Skill.getManaCost(130) < me.mp) {
 					Skill.cast(130, 0);
 				}
 				
