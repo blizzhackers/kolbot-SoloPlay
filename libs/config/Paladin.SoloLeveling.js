@@ -585,7 +585,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == sword # [fcr] >= 25 && [maxmana] >= 89");
 		}
 
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(5).tier < 1000) { // Spirit shield
+		if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 1000 || Item.getEquippedItem(12).prefixnum !== 20635)) { // Spirit shield
 			if (!Check.haveItem("auricshields", "runeword", "Spirit")) {
 				var SpiritShield = [
 					"[Name] == TalRune # # [MaxQuantity] == 1",

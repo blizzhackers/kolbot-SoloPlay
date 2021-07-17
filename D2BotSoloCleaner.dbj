@@ -54,7 +54,7 @@ var profiles = [
 		"hcnl-pal123",
 	*/
 	//Enter your lines under here
-
+	
 ];
 
 function dataCleaner() {
@@ -68,6 +68,7 @@ function dataCleaner() {
 
 	for (let i = 0; i < profiles.length; i++) {
 		let buildCheck = profiles[i].toUpperCase();
+		let profileExists = false;
 		buildCheck = profiles[i].split("-"); // SCL-ZON123
 		
 		if (buildCheck[0].indexOf("CC", "cc") === -1) { // not CC so not classic - true
@@ -107,28 +108,33 @@ function dataCleaner() {
 		}
 
 		if (StarterConfig.SaveFiles) {
-			if (!FileTools.exists("libs/SoloLeveling/Data/" + charType)) {
-				folder = dopen("libs/SoloLeveling/Data");
-				folder.create(charType);
-			}
+			if (FileTools.exists("data/" + profiles[i] + ".json") || FileTools.exists("libs/SoloLeveling/Data/" + profiles[i] + ".GameTime" + ".json") || 
+				FileTools.exists("libs/SoloLeveling/Data/" + profiles[i] + ".LevelingPerformance" + ".csv") || FileTools.exists("libs/SoloLeveling/Data/" + profiles[i] + ".ScriptPerformance" + ".csv")) {
+				if (!FileTools.exists("libs/SoloLeveling/Data/" + charType)) {
+					folder = dopen("libs/SoloLeveling/Data");
+					folder.create(charType);
+				}
 
-			if (!FileTools.exists("libs/SoloLeveling/Data/" + charType + "/" + charClass)) {
-				folder = dopen("libs/SoloLeveling/Data/" + charType);
-				folder.create(charClass);
-			}
+				if (!FileTools.exists("libs/SoloLeveling/Data/" + charType + "/" + charClass)) {
+					folder = dopen("libs/SoloLeveling/Data/" + charType);
+					folder.create(charClass);
+				}
 
-			var files = dopen("libs/SoloLeveling/Data/" + charType + "/" + charClass + "/").getFolders();
-			var j = 1;
+				var files = dopen("libs/SoloLeveling/Data/" + charType + "/" + charClass + "/").getFolders();
+				var j = 1;
 
-			files.forEach( (file) => {
-				if (FileTools.exists("libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j.toString())){
-					j++;
-				}	
-			});
+				files.forEach( (file) => {
+					if (FileTools.exists("libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j.toString())){
+						j++;
+					}	
+				});
 
-			if (!FileTools.exists("libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j.toString())) {
-				folder = dopen("libs/SoloLeveling/Data/" + charType + "/" + charClass);
-				folder.create(j.toString());
+				if (!FileTools.exists("libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j.toString())) {
+					folder = dopen("libs/SoloLeveling/Data/" + charType + "/" + charClass);
+					folder.create(j.toString());
+				}
+
+				profileExists = true;
 			}
 		}
 				
@@ -164,8 +170,8 @@ function dataCleaner() {
 			FileTools.remove("libs/SoloLeveling/Data/" + profiles[i] + ".ScriptPerformance" + ".csv");
 		}
 		
-		if (StarterConfig.SaveFiles) {
-			D2Bot.printToConsole("SoloCleaner: Files saved to -> libs/SoloLeveling/Data/" + charType + "/" + charClass, 6);
+		if (StarterConfig.SaveFiles && profileExists) {
+			D2Bot.printToConsole("SoloCleaner: Files saved to -> libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j, 6);
 		}
 
 		D2Bot.printToConsole("SoloCleaner: Cleaned files for -> " + profiles[i], 6);

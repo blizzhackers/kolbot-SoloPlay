@@ -22,7 +22,9 @@ var build = {
 		[222, 2], // poison creeper
 		[225, 4], // firestorm
 		[229, 1], // molten boulder
-		[225, 8], // firestorm
+		[225, 7], // firestorm
+		[234, 1], // fissure
+		[231, 1], // carrion vine
 		[234, 8], // fissure
 		[225, 11], // firestorm
 		[234, 20], // fissure
