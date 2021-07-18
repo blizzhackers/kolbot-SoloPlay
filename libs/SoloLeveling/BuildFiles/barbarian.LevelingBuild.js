@@ -7,7 +7,7 @@
 var build = {
 	caster: false,
 	skillstab: 32, // Combat skills
-	wantedskills: [149, 147, 133], // Battle Orders, Frenzy, Double Swing
+	wantedskills: [149, 147, 133, 127], // Battle Orders, Frenzy, Double Swing, Sword Mastery
 	usefulskills: [153, 145, 148], // Natural Resistance, Iron Skin, Incresed Speed
 	mercAuraName: "Might",
 	mercAuraWanted: 98,

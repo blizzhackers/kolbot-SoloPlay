@@ -1195,7 +1195,11 @@ case 4: // Barbarian - theBGuy
 			Town.visitTown(!!needRepair.length);
 		}
 
-		if (preattack && Config.AttackSkill[0] > 0 && !unit.dead && [154].indexOf(Config.AttackSkill[0] > -1 && (!me.getState(121)))) {
+		if (useHowl && Attack.getMonsterCount(me.x, me.y, 6) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+			Skill.cast(130, Skill.getHand(130));
+		}
+
+		if (preattack && Config.AttackSkill[0] > 0 && !unit.dead && Config.AttackSkill[0] === 154 && !me.getState(121)) {
 			if (!unit.getState(89) && !unit.getState(60)) {		//Unit not already in Battle Cry state or unit not in decrepify state. Don't want to overwrite helpful cureses
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(146) || checkCollision(me, unit, 0x4)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(146), 0x4)) {
@@ -1209,11 +1213,7 @@ case 4: // Barbarian - theBGuy
 
 		}
 
-		if (useHowl && Attack.getMonsterCount(me.x, me.y, 5) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 50 / 100)) {
-			Skill.cast(130, Skill.getHand(130));
-		}
-
-		if (preattack && Config.AttackSkill[0] > 0 && !unit.dead && [154].indexOf(Config.AttackSkill[0] > -1 && [156, 211, 242, 243, 544].indexOf(unit.classid) === -1 && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp) && Attack.checkResist(unit, 154) && (!me.getState(121)))) {
+		if (preattack && Config.AttackSkill[0] > 0 && !unit.dead && Config.AttackSkill[0] === 154 && [156, 211, 242, 243, 544].indexOf(unit.classid) === -1 && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp) && Attack.checkResist(unit, 154) && !me.getState(121)) {
 			if (!unit.getState(21)) {
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(154) || checkCollision(me, unit, 0x4)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
@@ -1222,7 +1222,7 @@ case 4: // Barbarian - theBGuy
 				}
 
 				if (me.getSkill(154, 1) >= 15) {
-					for (let i = 0; i < 5; i++) {
+					for (let i = 0; i < 2; i++) {
 						if (Skill.getManaCost(Config.AttackSkill[0]) < me.mp) {
 							Skill.cast(154, Skill.getHand(154), unit);
 						}

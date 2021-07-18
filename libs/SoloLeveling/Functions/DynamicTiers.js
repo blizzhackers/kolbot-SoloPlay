@@ -165,6 +165,7 @@ var tierscore = function (item) {
 		CTCOSGSPIKE: 4,
 		CTCOSBONESPEAR: 10,
 		CTCOSBONESPIRIT: 10,
+		CTCOSPNOVA: 10,
 		CTCOSSTATIC: 10,
 		CTCOSCHAINLIGHT: 10,
 		CTCOSCHARGEDBOLT: 10,
@@ -356,6 +357,7 @@ var tierscore = function (item) {
 			buildRating += item.getStatEx(198, 3538) * buildWeights.CTCOSGSPIKE; // add CTC glacial spike on strikng
 			buildRating += item.getStatEx(198, 5394) * buildWeights.CTCOSBONESPEAR; // add CTC bone spirit on strikng
 			buildRating += item.getStatEx(198, 5972) * buildWeights.CTCOSBONESPIRIT; // add CTC bone spirit on strikng
+			buildRating += item.getStatEx(198, 5908) * buildWeights.CTCOSPNOVA; // add CTC poison nova on strikng
 			buildRating += item.getStatEx(198, 2701) * buildWeights.CTCOSSTATIC; // add CTC static on strikng
 			buildRating += item.getStatEx(198, 3409) * buildWeights.CTCOSCHAINLIGHT; // add CTC chain light on strikng
 			buildRating += item.getStatEx(198, 2441) * buildWeights.CTCOSCHARGEDBOLT; // add CTC charged bolt on strikng
