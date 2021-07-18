@@ -206,7 +206,7 @@ var AutoBuildTemplate = {
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.AttackSkill = [139, 133, -1, 133, -1];
-
+			Config.LowManaSkill = [133, 0];
 		}
 	},
 
