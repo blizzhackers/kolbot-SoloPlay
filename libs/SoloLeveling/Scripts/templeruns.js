@@ -40,9 +40,11 @@ function templeruns () {
 	if (!me.inTown) {
 		Town.goToTown();
 
-		if (!Pather.checkWP(83)) {
-			Pather.getWP(83);
-			Town.goToTown();
+		if (!me.mephisto) {
+			if (!Pather.checkWP(83)) {
+				Pather.getWP(83);
+				Town.goToTown();
+			}
 		}
 	}
 

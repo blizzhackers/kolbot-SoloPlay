@@ -33,7 +33,7 @@ function travincal () {
 	Attack.clear(10); // clear area around orb
 
 	if (!me.travincal) { // khalim's will quest not complete
-		if (!me.getItem(173)) { // cleared council didn't pick flail
+		if (!me.getItem(173) && !me.getItem(174)) { // cleared council didn't pick flail and hasn't already made flail
 			let flail = getUnit(4, 173);
 
 			Pather.moveToUnit(flail);
@@ -44,6 +44,16 @@ function travincal () {
 		if (!me.getItem(174) && me.getItem(173)) { // cube flail to will
 			Quest.cubeItems(174, 553, 554, 555, 173);
 			delay(250 + me.ping);
+		}
+
+		// From SoloLeveling Commit eb818af
+		if (!me.inTown && me.getItem(174)) {
+			Town.goToTown();
+		}
+
+		// From SoloLeveling Commit eb818af
+		if ([2, 69, 70].indexOf(Item.getEquippedItem(5).itemType) === -1) { //dual weild fix for assassin/barbarian
+			Item.removeItem(5);
 		}
 
 		Quest.equipItem(174, 4);

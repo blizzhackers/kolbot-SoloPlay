@@ -32,11 +32,25 @@ function hellforge () {
 	Town.doChores();
 	Town.npcInteract("cain");
 
+	// From SoloLeveling Commit eb818af
 	if (me.getItem(90)) {
+		if ([2, 69, 70].indexOf(Item.getEquippedItem(5).itemType) === -1) { //dual weild fix for assassin/barbarian
+			Item.removeItem(5);
+		}
+
 		Quest.equipItem(90, 4);
 	}
 
 	Pather.usePortal(null, me.name);
+
+	// From SoloLeveling Commit eb818af
+	if (me.getItem(90)) {
+		if ([2, 69, 70].indexOf(Item.getEquippedItem(5).itemType) === -1) { //dual weild fix for assassin/barbarian
+			Item.removeItem(5);
+		}
+
+		Quest.equipItem(90, 4);
+	}
 
 	if (!me.getItem(90)) {
 		Pickit.pickItems();

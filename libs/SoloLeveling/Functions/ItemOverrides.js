@@ -307,6 +307,36 @@ Item.equip = function (item, bodyLoc) {
 	return false;
 };
 
+// From SoloLeveling Commit eb818af
+Item.removeItem = function (bodyLoc) {
+	let cursorItem,
+		removable = me.getItems()
+			.filter(item =>
+				item.location === 1 // Needs to be equipped
+				&& item.bodylocation === bodyLoc
+			)
+			.first();
+
+	if (removable) {
+		removable.toCursor();
+		cursorItem = getUnit(100);
+
+		if (cursorItem) {
+			if (Pickit.checkItem(cursorItem).result === 1) { // only keep wanted items
+				if (Storage.Inventory.CanFit(cursorItem)) {
+					Storage.Inventory.MoveTo(cursorItem);
+				}
+			} else {
+				cursorItem.drop();
+			}
+		}
+
+		return true;
+	}
+
+	return false;
+};
+
 Item.hasSecondaryTier = function (item) {
 	return Config.AutoEquip && NTIP.GetSecondaryTier(item) > 0 && !me.classic;
 };
