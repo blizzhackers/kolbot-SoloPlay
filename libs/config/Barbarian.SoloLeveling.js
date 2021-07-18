@@ -235,6 +235,11 @@ function LoadConfig () {
 		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
 
+		if (!me.getQuest(35, 0)) {
+			NTIP.addLine("me.diff == 0 && [Name] == longsword && [quality] >= normal && [quality] <= superior && [level] <= 25 # [Sockets] == 0 # [MaxQuantity] == 1");
+			NTIP.addLine("me.diff == 1 && [Name] == runesword && [quality] >= normal && [quality] <= superior && [level] >= 26 # [Sockets] == 0 # [MaxQuantity] == 1");
+		}
+
 		switch (SetUp.finalBuild) { // finalbuild autoequip setup
 		case 'Whirlwind':
 			if (!Check.haveItem("sword", "runeword", "Grief")) {

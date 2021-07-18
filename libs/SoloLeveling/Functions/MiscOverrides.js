@@ -726,7 +726,7 @@ Misc.gamePacket = function (bytes) {// various game events
 		}
 
 		break;	*/
-	case 0xa4: //baalwave
+	/*case 0xa4: //baalwave
 		if (me.hell && me.paladin && !Attack.IsAuradin) {
 			waveMonster = ((bytes[1]) | (bytes[2] << 8));
 			wave = [23, 381, 557, 558, 571].indexOf(waveMonster);
@@ -765,7 +765,7 @@ Misc.gamePacket = function (bytes) {// various game events
 			}
 		}
 
-		break;
+		break;*/
 	default:
 		break;
 	}
@@ -861,22 +861,29 @@ Misc.checkItemForSocketing = function () {
 		}
 
 		if (me.barbarian) {		//Barbarian
-			if (me.diff === 0) {
-				if (!Check.haveItem("scepter", "runeword", "Honor")) {
+			if (me.normal) {
+				if (Item.getEquippedItem(5).prefixnum !== 20571) {	// King's Grace
 					for (let i = 0; i < items.length; i++) {
-						if (items[i].classid === 17 && items[i].ilvl >= 21 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+						if (items[i].classid === 31 && items[i].ilvl <= 25 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	// Long Sword
 							item = items[i];
 							break;
 						}
 					}
-				} else {
-					for (let i = 0; i < items.length; i++) {
-						if (items[i].classid === 477 && items[i].getStat(194) === 0 && items[i].quality === 7) {	//Arreat's
-							item = items[i];
-							break;
-						}
+				}
+			} else {
+				for (let i = 0; i < items.length; i++) {
+					if (items[i].classid === 477 && items[i].getStat(194) === 0 && items[i].quality === 7) {	//Arreat's
+						item = items[i];
+						break;
+					}
 
-						if (items[i].classid === 442 && items[i].getStat(194) === 0 && items[i].quality === 5) {	//IK Armor
+					if (items[i].classid === 442 && items[i].getStat(194) === 0 && items[i].quality === 5) {	//IK Armor
+						item = items[i];
+						break;
+					}
+
+					if (me.nightmare && Item.getEquippedItem(5).prefixnum !== 20661) {	// VoR
+						if (items[i].classid === 124 && items[i].ilvl >= 26 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	// Rune Sword
 							item = items[i];
 							break;
 						}
