@@ -121,7 +121,7 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 
 ## Discord
 **Big shout-out to Xcon for setting up this discord channel**
-https://discord.gg/cF6gNwVtAU
+https://discord.gg/5pjTC2zH6N
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
