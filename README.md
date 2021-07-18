@@ -120,7 +120,8 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 - **HCCNL-SORC** would make a hardcore classic nonladder sorceress
 
 ## Discord
-No personal one as of yet
+**Big shout-out to Xcon for setting up this discord channel**
+https://discord.gg/cF6gNwVtAU
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
