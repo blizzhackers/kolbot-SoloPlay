@@ -20,6 +20,7 @@ var build = {
 		["vitality", 241],
 		["strength", 79],
 		["dexterity", 79],
+		["strength", 156],
 		["vitality", "all"]
 	],
 	skills: [
