@@ -27,6 +27,7 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 - Fully configured Autoequip for bot and mercenary
 - Makes and equips CTA and spirit shield on swap
 - Uses and dynamically equips charms
+- Add socketables to end game gear (for example Perfect Diamonds to Moser's Blessed Shield)
 
 ## Available Characters and Builds
 | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
