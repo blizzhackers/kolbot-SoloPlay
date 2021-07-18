@@ -235,7 +235,7 @@ function LoadConfig () {
 		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
 
-		switch (SetUp.finalBuild) { // finalbuilld autoequip setup
+		switch (SetUp.finalBuild) { // finalbuild autoequip setup
 		case 'Whirlwind':
 			if (!Check.haveItem("sword", "runeword", "Grief")) {
 				var Grief = [
@@ -253,8 +253,53 @@ function LoadConfig () {
 			}
 
 			break;
+		case 'Frenzy':
+			if (!Check.haveItem("sword", "runeword", "Grief")) {
+				var Grief = [
+					"[Name] == EthRune # # [MaxQuantity] == 1",
+					"[Name] == TirRune # # [MaxQuantity] == 1",
+					"[Name] == LoRune",
+					"[Name] == MalRune",
+					"[Name] == RalRune # # [MaxQuantity] == 1",
+					"[Name] == PhaseBlade && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 5 # [MaxQuantity] == 1",
+				];
+				NTIP.arrayLooping(Grief);
+
+				if (!Check.haveBase("PhaseBlade", 5)) {
+					NTIP.addLine("[Name] == PhaseBlade && [Quality] == Normal # [Sockets] == 0 # [MaxQuantity] == 1");
+				}
+
+				Config.Recipes.push([Recipe.Socket.Weapon, "Phase Blade"]);
+				Config.Runewords.push([Runeword.Grief, "Phase Blade"]);
+
+				Config.KeepRunewords.push("[Type] == sword # [ias] >= 30");
+			}
+
+			if (!Check.haveItem("sword", "runeword", "Breath of the Dying")) {
+				var BoTD = [
+					"[Name] == VexRune",
+					"[Name] == HelRune # # [MaxQuantity] == 1",
+					"[Name] == ElRune # # [MaxQuantity] == 1",
+					"[Name] == EldRune # # [MaxQuantity] == 1",
+					"[Name] == ZodRune",
+					"[Name] == EthRune # # [MaxQuantity] == 1",
+					"[Name] == colossusblade && [Flag] == Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 6 # [MaxQuantity] == 1",
+				];
+				NTIP.arrayLooping(BoTD);
+
+				if (!Check.haveBase("colossusblade", 6)) {
+					NTIP.addLine("[Name] == colossusblade && [Flag] == Ethereal && [Quality] == Normal # [Sockets] == 0 # [MaxQuantity] == 1");
+				}
+
+				Config.Recipes.push([Recipe.Socket.Weapon, "Colossus Blade", Roll.Eth]);
+				Config.Runewords.push([Runeword.BreathoftheDying, "Colossus Blade"]);
+
+				Config.KeepRunewords.push("[Type] == sword # [ias] >= 60 && [enhanceddamage] >= 350");
+			}
+
+			break;
 		case 'Singer':
-			if (!Check.haveItem("mace", "runeword", "Heart of the Oak")) {
+			if (Item.getEquippedItem(5).prefixnum !== 20557) {
 				var HotO = [
 					"[Name] == ThulRune # # [MaxQuantity] == 1",
 					"[Name] == PulRune",
@@ -280,11 +325,49 @@ function LoadConfig () {
 			}
 
 			break;
+		case 'Immortalwhirl':
+			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== 20566) { //infinity
+				var Inf = [
+					"[Name] == BerRune",
+					"[Name] == MalRune",
+					"[Name] == IstRune",
+					"([Name] == thresher || [Name] == crypticaxe || [Name] == greatpoleaxe || [Name] == giantthresher) && [Flag] == Ethereal && [Quality] == Normal # [Sockets] == 0 # [MaxQuantity] == 1",
+					"([Name] == thresher || [Name] == crypticaxe || [Name] == greatpoleaxe || [Name] == giantthresher) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
+				];
+				NTIP.arrayLooping(Inf);
+
+				if (!me.getItem(639)) {		// Ber Rune
+					Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
+					Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
+					Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
+					Config.Recipes.push([Recipe.Rune, "Vex Rune"]); // Vex to Ohm
+					Config.Recipes.push([Recipe.Rune, "Ohm Rune"]); // Ohm to Lo
+					Config.Recipes.push([Recipe.Rune, "Lo Rune"]); // Lo to Sur
+					Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // Sur to Ber
+				}
+
+				Config.Recipes.push([Recipe.Socket.Weapon, "Giant Thresher"]);
+				Config.Recipes.push([Recipe.Socket.Weapon, "Great Poleaxe"]);
+				Config.Recipes.push([Recipe.Socket.Weapon, "Cryptic Axe"]);
+				Config.Recipes.push([Recipe.Socket.Weapon, "thresher"]);
+
+				Config.Runewords.push([Runeword.Infinity, "Giant Thresher"]);
+				Config.Runewords.push([Runeword.Infinity, "Great Poleaxe"]);
+				Config.Runewords.push([Runeword.Infinity, "Cryptic Axe"]);
+				Config.Runewords.push([Runeword.Infinity, "Thresher"]);
+				Config.KeepRunewords.push("[type] == polearm # [convictionaura] >= 13");
+			}
+
+			if (Check.haveItem("mace", "set", "Immortal King's Stone Crusher")) {
+				NTIP.addLine("[Name] == ShaelRune # # [MaxQuantity] == 2",)
+			}
+
+			break;
 		default:
 			break;
 		}
 
-		if (!Check.haveItem("armor", "runeword", "Enigma")) { // Enigma
+		if (!Check.haveItem("armor", "runeword", "Enigma") && SetUp.finalBuild !== "Immortalwhirl") { // Enigma
 			var Enigma = [
 				"[Name] == JahRune",
 				"[Name] == IthRune # # [MaxQuantity] == 1",
@@ -348,7 +431,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == polearm # [meditationaura] >= 12");
 		}
 
-		if (Item.getEquippedItem(4).tier < 1200) {	//Lawbringer - Amn/Lem/Ko
+		if (Item.getEquippedItem(5).tier < 1200) {	//Lawbringer - Amn/Lem/Ko
 			var Lawbringer = [
 				"[Name] == AmnRune # # [MaxQuantity] == 1",
 				"[Name] == LemRune",
@@ -380,7 +463,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == sword # [sanctuaryaura] >= 16");
 		}
 
-		if (Item.getEquippedItem(4).tier < 1200) {	//Voice Of Reason - Lem/Ko/El/Eld
+		if (Item.getEquippedItem(5).tier < 1200) {	//Voice Of Reason - Lem/Ko/El/Eld
 			var VoiceofReason = [
 				"[Name] == LemRune",
 				"[Name] == KoRune",
@@ -413,7 +496,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == sword # [passivecoldpierce] >= 24");
 		}
 
-		if (Item.getEquippedItem(4).tier < 1000) {	//Honor - Amn/El/Ith/Tir/Sol
+		if (Item.getEquippedItem(5).tier < 1000) {	//Honor - Amn/El/Ith/Tir/Sol
 			var Honor = [
 				"[Name] == AmnRune # # [MaxQuantity] == 1",
 				"[Name] == ElRune # # [MaxQuantity] == 1",
@@ -653,7 +736,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[Type] == armor # [barbarianskills] == 2");
 		}
 
-		if (Item.getEquippedItem(4).tier < 500) {	//Kings Grace - Amn/Ral/Thul
+		if (Item.getEquippedItem(5).tier < 500) {	//Kings Grace - Amn/Ral/Thul
 			var KingsGrace = [
 				"[Name] == AmnRune # # [MaxQuantity] == 1",
 				"[Name] == RalRune # # [MaxQuantity] == 1",
@@ -674,7 +757,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == sword # [enhanceddamage] >= 100 && [lifeleech] >= 7");
 		}
 
-		if (Item.getEquippedItem(4).tier < 175) {	//Malice - IthElEth
+		if (Item.getEquippedItem(5).tier < 175) {	//Malice - IthElEth
 			var Malice = [
 				"[Name] == IthRune # # [MaxQuantity] == 1",
 				"[Name] == ElRune # # [MaxQuantity] == 1",

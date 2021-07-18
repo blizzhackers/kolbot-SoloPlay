@@ -1,7 +1,7 @@
 /**
- *    @filename   barbarian.LevelingBuild.js
+ *    @filename   barbarian.FrenzyBuild.js
  *	  @author	  theBGuy
- *    @desc       barb build for before respecTwo
+ *    @desc       Frenzy final build
  */
 
 var build = {

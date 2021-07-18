@@ -875,6 +875,11 @@ Misc.checkItemForSocketing = function () {
 							item = items[i];
 							break;
 						}
+
+						if (items[i].classid === 442 && items[i].getStat(194) === 0 && items[i].quality === 5) {	//IK Armor
+							item = items[i];
+							break;
+						}
 					}
 				}
 			}		

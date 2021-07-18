@@ -69,7 +69,7 @@ var SetUp = {
 
 		switch (me.gametype) {
 		case 0:
-			respec = [75, 75, 75, 85, 0, 75, 75][me.classid];
+			respec = [75, 75, 75, 85, 80, 75, 75][me.classid];
 			break;
 
 		case 1:
@@ -112,6 +112,9 @@ var SetUp = {
 				break;
 			case "Auradin":
 				respec = Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream") ? me.charlvl : 100;
+				break;
+			case "Immortalwhirl":
+				respec = Check.haveItem("mace", "set", "Immortal King's Stone Crusher") && Check.haveItem("boots", "set", "Immortal King's Pillar") && Check.haveItem("belt", "set", "Immortal King's Detail") && Check.haveItem("armor", "set", "Immortal King's Soul Cage") && Check.haveItem("primalhelm", "set", "Immortal King's Will") && Check.haveItem("gloves", "set", "Immortal King's Forge") ? me.charlvl : 100; // Whole IK Set
 				break;
 			default:
 				respec = 100;
