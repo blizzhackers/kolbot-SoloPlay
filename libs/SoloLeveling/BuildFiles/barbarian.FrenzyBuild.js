@@ -9,6 +9,7 @@ var build = {
 	skillstab: 32, // Combat skills
 	wantedskills: [149, 147, 133], // Battle Orders, Frenzy, Double Swing
 	usefulskills: [153, 145, 148], // Natural Resistance, Iron Skin, Incresed Speed
+	precastSkills: [149], // Battle orders
 	mercAuraName: "Might",
 	mercAuraWanted: 98,
 	mercDiff: 1,
@@ -64,5 +65,36 @@ var build = {
 		[149, 20, false], // Battle Orders -> charlvl 72
 		[127, 20, false], // Sword Mastery -> charlvl 86
 		[133, 20, false], // Double Swing -> charlvl 99
+	],
+	autoEquipTiers: [ // autoequip final gear
+		//weapon
+		"[name] == phaseblade && [flag] == runeword # [ias] >= 30 # [tier] == 100000", //Grief
+		"[name] == colossusblade && [flag] == runeword # [ias] >= 60 && [enhanceddamage] >= 350 # [tier] == 100000", //BoTD
+		//Helmet
+		"[name] == slayerguard && [quality] == unique && [flag] != ethereal # [barbarianskills] == 2 # [tier] == 100000", //Arreat's Face
+		//belt
+		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [damageresist] >= 10 && [vitality] >= 30 # [tier] == 100000", //Dungo's
+		//boots
+		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 100000", //gorerider's
+		//armor
+		"[type] == armor && [flag] != ethereal && [flag] == runeword # [frw] >= 45 # [tier] == 100000", //Enigma
+		//gloves
+		"[name] == bramblemitts && [quality] == set && [flag] != ethereal # [ias] == 20 # [tier] == 100000", //laying of hands
+		//ammy
+		"[type] == amulet && [quality] == unique # [poisonresist] == 75 # [tier] == 100000", //Atma's
+		//rings
+		"[type] == ring && [quality] == unique # [tohit] >= 180 && [dexterity] >= 15 # [tier] == 100000", // ravenfrost
+		"[type] == ring && [quality] == unique # [lifeleech] >= 5 && [maxstamina] == 50 # [tier] == 100000", // bul-kathos' wedding band
+		//Charms
+		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 4 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
+		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
+		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [fhr] >= 5 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
+		"[name] == grandcharm && [quality] == magic # [masteriesskilltab] == 1 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
+		"[name] == grandcharm && [quality] == magic # [barbcombatskilltab] == 1 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
+		//Switch
+		"([type] == club || [type] == sword || [type] == knife || [type] == throwingknife || [type] == mace) && [quality] == magic # [warcriesskilltab] >= 1 && [secondarymindamage] == 0 # [secondarytier] == 100000 + tierscore(item)",
+		//merc
+		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
+		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000",	//Eth Andy's
 	]
 };
