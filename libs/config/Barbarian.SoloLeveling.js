@@ -359,7 +359,7 @@ function LoadConfig () {
 			}
 
 			if (Check.haveItem("mace", "set", "Immortal King's Stone Crusher")) {
-				NTIP.addLine("[Name] == ShaelRune # # [MaxQuantity] == 2",)
+				NTIP.addLine("[Name] == ShaelRune # # [MaxQuantity] == 2");
 			}
 
 			break;

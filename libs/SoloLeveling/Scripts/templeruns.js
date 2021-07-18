@@ -37,5 +37,14 @@ function templeruns () {
 		Town.goToTown();
 	}
 
+	if (!me.inTown) {
+		Town.goToTown();
+
+		if (!Pather.checkWP(83)) {
+			Pather.getWP(83);
+			Town.goToTown();
+		}
+	}
+
 	return true;
 }
