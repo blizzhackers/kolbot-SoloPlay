@@ -2026,19 +2026,6 @@ Item.getCharmType = function (charm) {
 	}
 
 	switch (charm.prefix) {
-	case "Red":
-	case "Sanguinary":
-	case "Bloody":
-	case "Jagged":
-	case "Forked":
-	case "Serrated":
-	case "Bronze":
-	case "Iron":
-	case "Steel":
-	case "Fine":
-	case "Sharp":
-		charmType = "Damage";
-		break;
 	case "Shimmering":
 	case "Azure":
 	case "Lapis":
@@ -2058,33 +2045,10 @@ Item.getCharmType = function (charm) {
 	case "Emerald":
 		charmType = "Resist";
 		break;
-	case "Snowy":
-	case "Shivering":
-	case "Boreal":
-	case "Hibernal":
-	case "Ember":
-	case "Smoldering":
-	case "Smoking":
-	case "Flaming":
-	case "Static":
-	case "Glowing":
-	case "Arcing":
-	case "Shocking":
-	case "Septic":
-	case "Foul":
-	case "Toxic":
-	case "Pestilant":
-		charmType = "Elemental";
-		break;
 	}
 
 	if (!charmType || charmType === "") {
 		switch (charm.suffix) {
-		case "of Craftmanship":
-		case "of Quality":
-		case "of Maiming":
-			charmType = "Damage";
-			break;
 		case "of Fortune":
 		case "of Good Luck":
 			charmType = "Magicfind";
@@ -2093,6 +2057,52 @@ Item.getCharmType = function (charm) {
 		case "of Substinence": 	// Odd issue, seems to be misspelled wherever item.suffix pulls info from
 		case "of Vita":
 			charmType = "Life";
+			break;
+		}
+	}
+
+	if (!charmType || charmType === "") {
+		switch (charm.prefix) {
+		case "Red":
+		case "Sanguinary":
+		case "Bloody":
+		case "Jagged":
+		case "Forked":
+		case "Serrated":
+		case "Bronze":
+		case "Iron":
+		case "Steel":
+		case "Fine":
+		case "Sharp":
+			charmType = "Damage";
+			break;
+		case "Snowy":
+		case "Shivering":
+		case "Boreal":
+		case "Hibernal":
+		case "Ember":
+		case "Smoldering":
+		case "Smoking":
+		case "Flaming":
+		case "Static":
+		case "Glowing":
+		case "Arcing":
+		case "Shocking":
+		case "Septic":
+		case "Foul":
+		case "Toxic":
+		case "Pestilant":
+			charmType = "Elemental";
+			break;
+		}
+	}
+
+	if (!charmType || charmType === "") {
+		switch (charm.suffix) {
+		case "of Craftmanship":
+		case "of Quality":
+		case "of Maiming":
+			charmType = "Damage";
 			break;
 		case "of Strength":
 		case "of Dexterity":
