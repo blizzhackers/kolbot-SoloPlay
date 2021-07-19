@@ -140,7 +140,7 @@ var tierscore = function (item) {
 		ELEDMG: 1, // elemental damage
 		AR:	0.5, // attack rating
 		CB: 3, // crushing blow
-		OW: 3, // open wounds
+		OW: 1.5, // open wounds
 		// leaching
 		LL: 1.5, //lifeleach
 		ML:	1.5, //manaleach
