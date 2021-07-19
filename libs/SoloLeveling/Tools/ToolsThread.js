@@ -498,6 +498,9 @@ function main () {
 
 			break;
 		case 110: // decimal point
+			showConsole();
+			print("ÿc9GuysSoloLevelingÿc<: Item Info Start");
+			print("MaxQuantity: " + NTIP.getMaxQuantity(getUnit(101)));
 			print("InvoQuantity: " + NTIP.getInvoQuantity(getUnit(101)));
 			print("FinalCharm: " + NTIP.checkFinalCharm(getUnit(101)));
 			print("Pickit: " + Pickit.checkItem(getUnit(101)).result);
@@ -505,6 +508,7 @@ function main () {
 			print("charmType: " + Item.getCharmType(getUnit(101)));
 			print("AutoEquipCheck: " + Item.autoEquipCharmCheck(getUnit(101)));
 			print("NTIP.CheckItem: " + NTIP.CheckItem(getUnit(101), NTIP_CheckListNoTier, true).result);
+			print("ÿc9GuysSoloLevelingÿc1: Item Info End");
 
 			break;
 		case 105: // numpad 9 - get nearest preset unit id
@@ -787,11 +791,13 @@ function main () {
 
 		if (Developer.Overlay) {
 			if (Developer.logPerformance) {
-				Overlay.update(quitFlag);
+				if (me.ingame && me.gameReady) {
+					Overlay.update(quitFlag);
 
-				if (me.act !== myAct) {
-					Overlay.flush();
-					myAct = me.act;
+					if (me.act !== myAct) {
+						Overlay.flush();
+						myAct = me.act;
+					}
 				}
 			} else {
 				D2Bot.printToConsole('Overlay cannot work without Developer.logPerformance = true;', 4);
