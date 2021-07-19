@@ -31,6 +31,7 @@ Town.townTasks = function () {
 	}
 
 	let preAct = me.act, i, cancelFlags = [0x01, 0x02, 0x04, 0x08, 0x14, 0x16, 0x0c, 0x0f, 0x19, 0x1a];
+
 	Attack.weaponSwitch(Attack.getPrimarySlot());
 	this.unfinishedQuests();
 	this.heal();
@@ -85,6 +86,8 @@ Town.townTasks = function () {
 
 	Config.NoTele = me.normal && me.gold < 10000 ? true : !me.normal && me.gold < 50000 ? true : false;
 	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54)) ? !Config.NoTele : Config.Dodge;
+
+	delay(200 + me.ping * 2);
 
 	return true;
 };
@@ -141,7 +144,7 @@ Town.doChores = function (repair = false) {
 
 	me.cancel();
 
-	if (me.barbarian && !Precast.checkCTA()) {	//If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
+	if (!me.barbarian && !Precast.checkCTA()) {	//If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
 		Precast.doPrecast(false);
 	}
 
@@ -994,6 +997,53 @@ Town.canStash = function (item) {
 	}
 
 	return true;
+};
+
+Town.openStash = function () {
+	var i, tick, stash, telekinesis;
+
+	if (getUIFlag(0x1a) && !Cubing.closeCube()) {
+		return false;
+	}
+
+	if (getUIFlag(0x19)) {
+		return true;
+	}
+	
+	telekinesis = me.sorceress && me.getSkill(43, 1);
+
+	for (i = 0; i < 5; i += 1) {
+		me.cancel();
+
+		if (this.move("stash")) {
+			stash = getUnit(2, 267);
+
+			if (stash) {
+				if (telekinesis) {
+					Pather.walkTo(stash.x, stash.y, 23); //Fix for out of range telek
+					Skill.cast(43, 0, stash);
+				} else {
+					Misc.click(0, 0, stash);
+				}
+
+				tick = getTickCount();
+
+				while (getTickCount() - tick < 5000) {
+					if (getUIFlag(0x19)) {
+						delay(100 + me.ping * 2); // allow UI to initialize
+
+						return true;
+					}
+
+					delay(100);
+				}
+			}
+		}
+
+		Packet.flash(me.gid);
+	}
+
+	return false;
 };
 
 Town.stash = function (stashGold) {
@@ -2511,10 +2561,6 @@ Town.visitTown = function (repair = false) {
 		} catch (e) {
 			throw new Error("Town.visitTown: Failed to go back from town");
 		}
-	}
-
-	if (Config.PublicMode) {
-		Pather.makePortal();
 	}
 
 	return true;

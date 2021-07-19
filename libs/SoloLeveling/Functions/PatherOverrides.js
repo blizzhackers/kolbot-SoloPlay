@@ -1,6 +1,6 @@
 /*
 *	@filename	PatherOverrides.js
-*	@author		isid0re
+*	@author		theBGuy, isid0re
 *	@desc		Pather.js fixes to improve functionality
 */
 
@@ -788,18 +788,30 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 
 						switch (targetArea) {
 						case "random":
-							if (!Pather.checkWP(3)) {
-								return false;
-							}
+							let retry = 0;
 
 							while (true) {
 								targetArea = this.wpAreas[rand(0, this.wpAreas.length - 1)];
 
 								// get a valid wp, avoid towns
 								if ([1, 40, 75, 103, 109].indexOf(targetArea) === -1 && getWaypoint(this.wpAreas.indexOf(targetArea))) {
-										break;
+									break;
 								}
 
+								if (retry >= 10) {
+									if (!getWaypoint(this.wpAreas.indexOf(3))) {
+										me.cancel();
+										me.overhead("Trying to get the waypoint");
+
+										if (this.getWP(3)) {
+											return true;
+										}
+
+										throw new Error("Pather.useWaypoint: Failed to go to waypoint");
+									}
+								}
+
+								retry++;
 								delay(5);
 							}
 
@@ -841,14 +853,14 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 			}
 
 			if (!check || getUIFlag(0x14)) {
-				delay(200);
+				delay(200 + me.ping);
 				wp.interact(targetArea);
 
 				tick = getTickCount();
 
-				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), me.ping * 2)) {
-					if (me.area === targetArea && me.gameReady) {
-						delay(100 + me.ping);
+				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), me.ping * 4)) {
+					if (me.area === targetArea) {
+						delay(500 + me.ping);
 
 						return true;
 					}
@@ -872,10 +884,103 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 	}
 
 	if (me.area === targetArea) {
+		delay(200 + me.ping);
 		return true;
 	}
 
 	throw new Error("useWaypoint: Failed to use waypoint");
+};
+
+Pather.usePortal = function (targetArea, owner, unit) {
+	if (targetArea && me.area === targetArea) {
+		return true;
+	}
+
+	me.cancel();
+
+	var i, tick, portal, useTK,
+		preArea = me.area;
+
+	for (i = 0; i < 10; i += 1) {
+		if (me.dead) {
+			break;
+		}
+
+		if (i > 0 && owner && me.inTown) {
+			Town.move("portalspot");
+		}
+
+		portal = unit ? copyUnit(unit) : this.getPortal(targetArea, owner);
+
+		if (portal) {
+			if (i === 0) {
+				useTK = me.classid === 1 && me.getSkill(43, 1) && me.inTown && portal.getParent();
+			}
+
+			if (portal.area === me.area) {
+				if (useTK) {
+					if (getDistance(me, portal) > 13) {
+						Attack.getIntoPosition(portal, 13, 0x4);
+					}
+
+					Skill.cast(43, 0, portal);
+				} else {
+					if (getDistance(me, portal) > 5) {
+						this.moveToUnit(portal);
+					}
+
+					if (getTickCount() - this.lastPortalTick > 2500) {
+						if (i < 2) {
+							sendPacket(1, 0x13, 4, 0x2, 4, portal.gid);
+						} else {
+							Misc.click(0, 0, portal);
+						}
+					} else {
+						delay(300 + me.ping);
+						continue;
+					}
+				}
+			}
+
+			if (portal.classid === 298 && portal.mode !== 2) { // Portal to/from Arcane
+				Misc.click(0, 0, portal);
+
+				tick = getTickCount();
+
+				while (getTickCount() - tick < 2000) {
+					if (portal.mode === 2 || me.area === 74) {
+						break;
+					}
+
+					delay(10 + me.ping);
+				}
+			}
+
+			tick = getTickCount();
+
+			while (getTickCount() - tick < 500 + me.ping) {
+				if (me.area !== preArea) {
+					this.lastPortalTick = getTickCount();
+					delay(100 + me.ping);
+
+					return true;
+				}
+
+				delay(10 + me.ping);
+			}
+
+			if (i > 1) {
+				Packet.flash(me.gid);
+				useTK = false;
+			}
+		} else {
+			Packet.flash(me.gid);
+		}
+
+		delay(200 + me.ping);
+	}
+
+	return targetArea ? me.area === targetArea : me.area !== preArea;
 };
 
 //No more failing to get some place credit - Legacy Autosmurf
