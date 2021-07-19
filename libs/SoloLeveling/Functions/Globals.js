@@ -425,7 +425,7 @@ var Check = {
 
 			break;
 		case "hellforge": // hellforge
-			if (Pather.accessToAct(4) && !me.normal && !me.hellforge) {
+			if (Pather.accessToAct(4) && !me.hellforge) {
 				return true;
 			}
 

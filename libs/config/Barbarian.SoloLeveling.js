@@ -713,7 +713,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[Type] == armor # [ias] == 45 && [coldresist] == 30");
 		}
 
-		if (Item.getEquippedItem(3).tier < 400) {	// Myth
+		if (Item.getEquippedItem(3).tier < 500) {	// Myth
 			var Myth = [
 				"[Name] == HelRune # # [MaxQuantity] == 1",
 				"[Name] == AmnRune # # [MaxQuantity] == 1",
@@ -751,7 +751,6 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(KingsGrace);
 
-			Config.Runewords.push([Runeword.KingsGrace, "Crystal Sword"]);
 			Config.Runewords.push([Runeword.KingsGrace, "Broad Sword"]);
 			Config.Runewords.push([Runeword.KingsGrace, "Long Sword"]);
 			Config.Runewords.push([Runeword.KingsGrace, "War Sword"]);
@@ -761,6 +760,24 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.KingsGrace, "Ancient Sword"]);
 
 			Config.KeepRunewords.push("[type] == sword # [enhanceddamage] >= 100 && [lifeleech] >= 7");
+		}
+
+		if (Item.getEquippedItem(5).tier < 300) {	//Strength - Amn/Tir
+			var Strength = [
+				"[Name] == AmnRune # # [MaxQuantity] == 1",
+				"[Name] == TirRune # # [MaxQuantity] == 1",
+				"([name] == longsword || [name] == warsword || [name] == dimensionalblade || [Name] == battlesword || [name] == runesword || [name] == ancientsword) && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [secondarymindamage] == 0 && [Sockets] == 2",
+			];
+			NTIP.arrayLooping(Strength);
+
+			Config.Runewords.push([Runeword.Strength, "Long Sword"]);
+			Config.Runewords.push([Runeword.Strength, "War Sword"]);
+			Config.Runewords.push([Runeword.Strength, "Dimensional Blade"]);
+			Config.Runewords.push([Runeword.Strength, "Battle Sword"]);
+			Config.Runewords.push([Runeword.Strength, "Rune Sword"]);
+			Config.Runewords.push([Runeword.Strength, "Ancient Sword"]);
+
+			Config.KeepRunewords.push("[type] == sword # [enhanceddamage] >= 35 && [lifeleech] >= 7 && [vitality] == 10");
 		}
 
 		if (Item.getEquippedItem(5).tier < 175) {	//Malice - IthElEth

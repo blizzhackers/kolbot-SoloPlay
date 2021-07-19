@@ -205,7 +205,7 @@ var tierscore = function (item) {
 			}
 
 			if (!haveCBF) {
-				cbfRating = generalWeights.CBF;
+				cbfRating = Check.currentBuild().caster ? generalWeights.CBF : generalWeights.CBF * 4;	// Cannot be frozen is very important for Melee chars
 			}
 		}
 
