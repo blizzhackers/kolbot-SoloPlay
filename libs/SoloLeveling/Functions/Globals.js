@@ -15,7 +15,7 @@ var SetUp = {
 	scripts: [
 		"den", "bloodraven", "tristram", "treehead","countess", "smith", "pits", "jail", "andariel", "a1chests", "cows", // Act 1
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel", // Act 2
-		"templeruns", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
+		"templeruns", "lowerkurast", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
 		"izual", "hellforge", "diablo", //Act 4
 		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests", // Act 5
 	],
@@ -388,6 +388,12 @@ var Check = {
 			}
 
 			break;
+		case "lowerkurast": //lower kurast
+			if (Pather.accessToAct(3) && me.nightmare && me.charlvl >= 50 && me.barbarian && !Check.haveItem("weapon", "runeword", "Voice of Reason")) {
+				return true;
+			}
+
+			break;
 		case "heart": //heart
 			if (Pather.accessToAct(3) && !me.heart && !me.khalimswill && !me.travincal) {
 				return true;
@@ -580,7 +586,9 @@ var Check = {
 
 			break;
 		case 1: //nightmare
-			if (me.getItem(616) && me.getItem(619) && me.getItem(618) && me.getItem(620) || !me.paladin && this.haveItem("sword", "runeword", "Spirit") || me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit")) {
+			if ((me.getItem(616) && me.getItem(619) && me.getItem(618) && me.getItem(620) && Check.currentBuild().caster) || 
+				(!me.paladin && this.haveItem("sword", "runeword", "Spirit")) || (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit")) || 
+				(me.barbarian && Check.haveItem("weapon", "runeword", "Voice of Reason"))) {
 				needRunes = false;
 			}
 
