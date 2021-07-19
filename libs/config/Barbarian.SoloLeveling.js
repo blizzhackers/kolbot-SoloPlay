@@ -237,8 +237,10 @@ function LoadConfig () {
 		NTIP.arrayLooping(finalGear);
 
 		if (!me.getQuest(35, 0)) {
-			NTIP.addLine("me.diff == 0 && [Name] == longsword && [quality] >= normal && [quality] <= superior && [level] <= 25 # [Sockets] == 0 # [MaxQuantity] == 1");
-			NTIP.addLine("me.diff == 1 && [Name] == runesword && [quality] >= normal && [quality] <= superior && [level] >= 26 # [Sockets] == 0 # [MaxQuantity] == 1");
+			if (Pather.accessToAct(5)) {
+				NTIP.addLine("me.diff == 0 && [Name] == longsword && [quality] >= normal && [quality] <= superior && [level] <= 25 # [Sockets] == 0 # [MaxQuantity] == 1");
+				NTIP.addLine("me.diff == 1 && [Name] == runesword && [quality] >= normal && [quality] <= superior && [level] >= 26 # [Sockets] == 0 # [MaxQuantity] == 1");
+			}
 		}
 
 		switch (SetUp.finalBuild) { // finalbuild autoequip setup
@@ -411,7 +413,7 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(Insight);
 
-			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568 && !Check.haveBase("polearm", 4)) {
+			if (!me.hell && !Check.haveBase("polearm", 4)) {
 				NTIP.addLine("[Name] == voulge && [flag] != ethereal && [Quality] == Normal && [Level] >= 26 && [Level] <= 40 # [Sockets] == 0 # [MaxQuantity] == 1");
 			}
 
@@ -486,6 +488,7 @@ function LoadConfig () {
 			}
 
 			if (!me.getItem(629)) {		// Lem Rune
+				Config.Recipes.push([Recipe.Rune, "Dol Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Io Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Lum Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
@@ -779,6 +782,36 @@ function LoadConfig () {
 
 			Config.KeepRunewords.push("[type] == sword # [enhanceddamage] >= 35 && [lifeleech] >= 7 && [vitality] == 10");
 		}
+
+		/*if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(12).tier < 1000) { // Spirit Sword
+			if (!Check.haveItem("sword", "runeword", "Spirit") && !me.hell) {
+				var SpiritSword = [
+					"[Name] == TalRune # # [MaxQuantity] == 1",
+					"[Name] == ThulRune # # [MaxQuantity] == 1",
+					"[Name] == OrtRune # # [MaxQuantity] == 1",
+					"[Name] == AmnRune # # [MaxQuantity] == 1",
+				];
+				NTIP.arrayLooping(SpiritSword);
+
+				if (!me.getItem(620)) { //Amn Rune
+					Config.Recipes.push([Recipe.Rune, "Ral Rune"]);
+					Config.Recipes.push([Recipe.Rune, "Ort Rune"]);
+					Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
+				}
+
+				NTIP.addLine("([Name] == BroadSword || [Name] == CrystalSword) && [flag] != ethereal && [Quality] == Normal && [Level] >= 26 && [Level] <= 40 # ([Sockets] == 0 || [Sockets] == 4) # [MaxQuantity] == 1");
+				
+				Config.Recipes.push([Recipe.Socket.Weapon, "Crystal Sword", Roll.NonEth]);
+				Config.Recipes.push([Recipe.Socket.Weapon, "Broad Sword", Roll.NonEth]);
+			} else {
+				NTIP.addLine("([Name] == BroadSword || [Name] == CrystalSword) && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
+			}
+
+			Config.Runewords.push([Runeword.Spirit, "Crystal Sword"]);
+			Config.Runewords.push([Runeword.Spirit, "Broad Sword"]);
+
+			Config.KeepRunewords.push("[type] == sword # [fcr] >= 25 && [maxmana] >= 89");
+		}*/
 
 		if (Item.getEquippedItem(5).tier < 175) {	//Malice - IthElEth
 			var Malice = [

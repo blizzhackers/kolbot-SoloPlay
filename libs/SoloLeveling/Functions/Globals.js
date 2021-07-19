@@ -726,13 +726,18 @@ var Check = {
 				case "assassinclaw":
 				case "weapon":
 					baseCheck = items[i].itemType === NTIPAliasType[type];
+
 					break;
 				default:
 					baseCheck = items[i].classid === NTIPAliasClassID[type];
+
 					break;
 				}
 
-				break;
+				if (baseCheck) {
+					break;
+				}
+
 			}
 		}
 
