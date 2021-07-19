@@ -1,7 +1,7 @@
 ![image](https://user-images.githubusercontent.com/60308670/124204971-36979300-daae-11eb-84e1-5c424dc36578.png)
 
 ## What is this?
-This is my version of SoloLeveling forked from the master branch on 6/30/2021. Everything from then on is my code unless otherwise stated.
+This is my version of SoloLeveling cloned from the master branch on 6/30/2021. Everything from then on is my code unless otherwise stated. My verison includes new builds, bug fixes, feature updates, and more.
 
 If you are enjoying my version consider supporting me at https://www.buymeacoffee.com/theBGuy
 
@@ -39,11 +39,13 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 | | Lightning | |
 
 ## New modes
-| Bumper | Socketmule |
-|:------:|:-------:|
+- Two new modes are available: **Bumper** and **Socketmule**. Enter either of these into your D2Bot# profile info tag to make. The bot will then stop after shenk quest for Socketmule and after it hits level 40 for a Bumper.
+- Note: These options only work in expansion.
 
-- Two new modes are available: Bumper and Socketmule. Enter either of these into your D2Bot# profile info tag to make. The bot will then stop after shenk quest for Socketmule and after it hits level 40 for a Bumper.
-- Note: These two options only work in expansion.
+| Mode | Example |
+|:------:|:-------:|
+| Bumper | ![image](https://user-images.githubusercontent.com/60308670/126102739-d7d90796-a5db-4476-bd2f-61d3121a974d.png) |
+| Socketmule | ![image](https://user-images.githubusercontent.com/60308670/126102898-5c4422b7-a2a8-49d9-b366-df773d3a96ed.png) |
 
 ## Frequently Asked Questions
 **Q: Why isn't the bot making the build I selected?**
