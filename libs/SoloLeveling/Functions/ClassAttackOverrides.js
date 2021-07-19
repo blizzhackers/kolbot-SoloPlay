@@ -15,7 +15,7 @@ case 0: //Amazon - theBGuy
 
 	ClassAttack.doAttack = function (unit, preattack) {
 		var needRepair = [];
-		let useDecoy = (me.getSkill(28, 1) >= 1 && !me.normal);
+		let useDecoy = (me.getSkill(28, 0) && !me.normal);
 		let useLightFury = me.getSkill(35, 1) >= 10;
 		let usePlague = !me.normal && me.getSkill(25, 1) >= 1;
 		let useJab = Item.getEquippedItem(4).tier >= 1000;

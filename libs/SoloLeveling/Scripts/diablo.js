@@ -173,7 +173,7 @@ function diablo () {
 		for (let sealspot = 0; sealspot < 5; sealspot += 1) {
 			Pather.moveToPreset(108, 2, classid, classid === 394 ? 5 : 2, classid === 394 ? 5 : 0);
 
-			if (sealspot > 1) {
+			if (sealspot > 1 || classid === 392) {	// Clear around Infector seal, Any leftover abyss knights casting decrep is bad news with Infector
 				Attack.clear(15);
 			}
 
@@ -303,6 +303,15 @@ function diablo () {
 	this.vizier();
 	this.seis();
 	this.infector();
+
+	if (Check.Resistance().CR < 75 || Check.Resistance().PR < 75) {
+		Town.goToTown();
+		Town.buyPots(10, "Thawing"); // thawing
+		Town.buyPots(10, "Antidote"); // antidote
+		Town.move("portalspot");
+		Pather.usePortal(108, me.name);
+	}
+
 	Config.MercWatch = false;
 	Pather.moveTo(7788, 5292, 3, 30);
 	this.diabloPrep();

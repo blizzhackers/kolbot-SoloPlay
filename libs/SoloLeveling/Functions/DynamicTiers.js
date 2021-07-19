@@ -111,18 +111,6 @@ var tierscore = function (item) {
 		//breakpoint stats
 		FCR: 5,
 		IAS: (me.assassin ? 4 : 0),
-		// Attack
-		MINDMG:	0, // min damage
-		MAXDMG: 0, // max damage
-		SECMINDMG: 0, // secondary min damage
-		SECMAXDMG: 0, // secondary max damage
-		ELEDMG: 0, // elemental damage
-		AR:	0, // attack rating
-		CB: 0, // crushing blow
-		OW: 0, // open wounds
-		// leaching
-		LL:	0, //lifeleach
-		ML:	0, //manaleach
 		// regen
 		HPREGEN: 2,
 		MANAREGEN: 2.2,
@@ -141,6 +129,7 @@ var tierscore = function (item) {
 		AR:	0.5, // attack rating
 		CB: 3, // crushing blow
 		OW: 1.5, // open wounds
+		DS: 1.5, // deadly strike
 		// leaching
 		LL: 1.5, //lifeleach
 		ML:	1.5, //manaleach
@@ -324,22 +313,24 @@ var tierscore = function (item) {
 		let buildRating = 0;
 		buildRating += item.getStatEx(105) * buildWeights.FCR; // add FCR
 		buildRating += item.getStatEx(93) * buildWeights.IAS; // add IAS
-		buildRating += item.getStatEx(21) * buildWeights.MINDMG; // add MIN damage
-		buildRating += item.getStatEx(22) * buildWeights.MAXDMG; // add MAX damage
-		buildRating += item.getStatEx(23) * buildWeights.SECMINDMG; // add MIN damage
-		buildRating += item.getStatEx(24) * buildWeights.SECMAXDMG; // add MAX damage
-		buildRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 256)) * buildWeights.ELEDMG; // add elemental damage PSN damage adjusted for damage per frame (125/256)
-		buildRating += item.getStatEx(19) * buildWeights.AR; // add AR
-		buildRating += item.getStatEx(136) * buildWeights.CB; // add crushing blow
-		buildRating += item.getStatEx(135) * buildWeights.OW; // add open wounds
-		buildRating += item.getStatEx(60) * buildWeights.LL; // add LL
-		buildRating += item.getStatEx(62) * buildWeights.ML; // add ML
 		buildRating += item.getStatEx(74) * buildWeights.HPREGEN; // add hp regeneration
 		buildRating += item.getStatEx(26) * buildWeights.MANAREGEN; // add mana recovery
 
 		// Melee Specific
 		if (!Check.currentBuild().caster) {
+			buildRating += item.getStatEx(21) * buildWeights.MINDMG; // add MIN damage
+			buildRating += item.getStatEx(22) * buildWeights.MAXDMG; // add MAX damage
+			buildRating += item.getStatEx(23) * buildWeights.SECMINDMG; // add MIN damage
+			buildRating += item.getStatEx(24) * buildWeights.SECMAXDMG; // add MAX damage
+			buildRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 256)) * buildWeights.ELEDMG; // add elemental damage PSN damage adjusted for damage per frame (125/256)
+			buildRating += item.getStatEx(19) * buildWeights.AR; // add AR
+			buildRating += item.getStatEx(136) * buildWeights.CB; // add crushing blow
+			buildRating += item.getStatEx(135) * buildWeights.OW; // add open wounds
+			buildRating += item.getStatEx(141) * buildWeights.DS; // add deadly strike
+			buildRating += item.getStatEx(60) * buildWeights.LL; // add LL
+			buildRating += item.getStatEx(62) * buildWeights.ML; // add ML
 			buildRating += item.getStatEx(151, 119) * 10; // sanctuary aura
+
 			buildRating += item.getStatEx(195, 3135) * buildWeights.CTCOANOVA; // add CTC nova on attack
 			buildRating += item.getStatEx(195, 2838) * buildWeights.CTCOAFNOVA; // add CTC frost nova on attack
 			buildRating += item.getStatEx(195, 4238) * buildWeights.CTCOAAMP; // add CTC amplify damage on attack

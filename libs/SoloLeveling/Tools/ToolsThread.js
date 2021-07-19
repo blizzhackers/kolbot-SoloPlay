@@ -791,7 +791,7 @@ function main () {
 
 		if (Developer.Overlay) {
 			if (Developer.logPerformance) {
-				if (me.ingame && me.gameReady) {
+				if (me.ingame && me.gameReady && me.area) {
 					Overlay.update(quitFlag);
 
 					if (me.act !== myAct) {
