@@ -249,6 +249,7 @@ function LoadConfig () {
 	if (!me.classic) {
 		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
+		NTIP.addLine("[name] >= vexrune && [name] <= zodrune");
 
 		if (Check.haveItem("shield", "unique", "Moser's Blessed Circle")) {
 			Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
@@ -473,7 +474,7 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(Insight);
 
-			if (!me.hell && !Check.haveBase("polearm", 4)) {
+			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568 && !Check.haveBase("polearm", 4)) {
 				NTIP.addLine("[Name] == voulge && [flag] != ethereal && [Quality] == Normal && [Level] >= 26 && [Level] <= 40 # [Sockets] == 0 # [MaxQuantity] == 1");
 			}
 

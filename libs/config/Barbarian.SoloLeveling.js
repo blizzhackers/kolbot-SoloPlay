@@ -235,6 +235,7 @@ function LoadConfig () {
 	if (!me.classic) {
 		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
+		NTIP.addLine("[name] >= vexrune && [name] <= zodrune");
 
 		if (!me.getQuest(35, 0)) {
 			if (Pather.accessToAct(5)) {

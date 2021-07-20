@@ -239,6 +239,7 @@ function LoadConfig () {
 	if (!me.classic) {
 		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
+		NTIP.addLine("[name] >= vexrune && [name] <= zodrune");
 
 		switch (SetUp.finalBuild) { // finalbuilld autoequip setup
 		case 'Blova':

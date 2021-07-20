@@ -250,6 +250,7 @@ function LoadConfig () {
 		let WWS;
 		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
+		NTIP.addLine("[name] >= vexrune && [name] <= zodrune");
 
 		switch (SetUp.finalBuild) { // finalbuilld autoequip setup
 		case 'Witchyzon':
@@ -426,7 +427,7 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(Insight);
 
-			if (!me.hell && !Check.haveBase("polearm", 4)) {
+			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568 && !Check.haveBase("polearm", 4)) {
 				NTIP.addLine("[Name] == bill && [flag] != ethereal && [Quality] == Normal && [Level] >= 26 # [Sockets] == 0 # [MaxQuantity] == 1");
 			}
 
