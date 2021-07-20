@@ -1341,67 +1341,141 @@ Town.betterBaseThanWearing = function (base, verbose) {
 	bodyLoc = Item.getBodyLoc(base);
 
 	let item = me.getItem();
-		
-	if (item) {
-		do {
-			if (item.location === 1 && item.bodylocation === bodyLoc[0]) {
-				equippedItem = {
-					classid: item.classid,
-					type: item.itemType,
-					sockets: item.getStatEx(194),
-					name: item.name,
-					tier: NTIP.GetTier(item),
-					prefixnum: item.prefixnum,
-					str: item.getStatEx(0),
-					dex: item.getStatEx(2),
-					def: item.getStatEx(31),
-					eDef: item.getStatEx(16),
-					fr: item.getStatEx(39),
-					lr: item.getStatEx(41),
-					cr: item.getStatEx(43),
-					pr: item.getStatEx(45),
-					minDmg: item.getStatEx(21),
-					maxDmg: item.getStatEx(22),
-					eDmg: item.getStatEx(18),
-					runeword: item.getFlag(NTIPAliasFlag["runeword"]),
-				};
-				check = item;
-				break;
-			}
-		} while (item.getNext());
-	}
 
-	if (!equippedItem.runeword) {
-		return true	//Equipped item is not a runeword, keep the base
-	}
+	for (let i = 0; i < bodyLoc.length; i++) {
+		if (item) {
+			do {
+				if (item.location === 1 && item.bodylocation === bodyLoc[i]) {
+					equippedItem = {
+						classid: item.classid,
+						type: item.itemType,
+						sockets: item.getStatEx(194),
+						name: item.name,
+						tier: NTIP.GetTier(item),
+						prefixnum: item.prefixnum,
+						str: item.getStatEx(0),
+						dex: item.getStatEx(2),
+						def: item.getStatEx(31),
+						eDef: item.getStatEx(16),
+						fr: item.getStatEx(39),
+						lr: item.getStatEx(41),
+						cr: item.getStatEx(43),
+						pr: item.getStatEx(45),
+						minDmg: item.getStatEx(21),
+						maxDmg: item.getStatEx(22),
+						eDmg: item.getStatEx(18),
+						runeword: item.getFlag(NTIPAliasFlag["runeword"]),
+					};
+					check = item;
+					break;
+				}
+			} while (item.getNext());
+		}
 
-	switch (equippedItem.prefixnum) {
-		case 20507: 	//Ancient's Pledge
-		case 20543: 	//Exile
-		case 20581: 	//Lore
-		case 20635: 	//Spirit
-		case 20667: 	//White
-		case 20625: 	//Rhyme
-			preSocketCheck = true;
-			break;
-		default:
-			break;
-	}
+		if (!equippedItem.runeword) {
+			continue;	//Equipped item is not a runeword, keep the base
+		}
 
-	if (base.getStat(194) <= 0 && !preSocketCheck) {
-		return false;
-	}
-
-	if (base.getStat(194) === equippedItem.sockets || preSocketCheck) {
 		switch (equippedItem.prefixnum) {
-		case 20507: 	//Ancient's Pledge
-			if (me.paladin) {
-				itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 187;
+			case 20507: 	//Ancient's Pledge
+			case 20543: 	//Exile
+			case 20581: 	//Lore
+			case 20635: 	//Spirit
+			case 20667: 	//White
+			case 20625: 	//Rhyme
+				preSocketCheck = true;
+				break;
+			default:
+				break;
+		}
+
+		if (base.getStat(194) <= 0 && !preSocketCheck) {
+			return false;
+		}
+
+		if (base.getStat(194) === equippedItem.sockets || preSocketCheck) {
+			switch (equippedItem.prefixnum) {
+			case 20507: 	//Ancient's Pledge
+				if (me.paladin) {
+					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 187;
+					baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+
+					if (baseResists !== itemsResists) {
+						if (verbose) {
+							print("ÿc9BadBaseCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+						}
+
+						if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+							result = false;
+
+							break;
+						}
+					}
+				} else {
+					itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
+					baseDefense = base.getStatEx(31);
+
+					if (baseDefense !== itemsDefense) {
+						if (verbose) {
+							print("ÿc9BadBaseCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+						}
+
+						if (baseDefense < itemsDefense) {	//base has lower defense
+							result = false;
+
+							break;
+						}
+					}				
+				}
+				
+				break;
+			case 20512: 	//Black
+				ED = equippedItem.eDmg > 120 ? 120 : equippedItem.eDmg;
+				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
+				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+				baseDmg = base.getStat(21) + base.getStat(22);
+					
+				if (baseDmg !== itemsTotalDmg) {
+					if (verbose) {
+						print("ÿc9BadBaseCheckÿc0 :: RW(Black) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					}
+
+					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+						result = false;
+
+						break;
+					}
+				}
+
+				break;
+			case 20523: 	//Crescent Moon
+				ED = equippedItem.eDmg > 220 ? 220 : equippedItem.eDmg;
+				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
+				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+				baseDmg = base.getStat(21) + base.getStat(22);
+					
+				if (baseDmg !== itemsTotalDmg) {
+					if (verbose) {
+						print("ÿc9BadBaseCheckÿc0 :: RW(Crescent Moon) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					}
+
+					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+						result = false;
+
+						break;
+					}
+				}
+
+				break;
+			case 20543: 	//Exile
+				itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr);
 				baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
 
 				if (baseResists !== itemsResists) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+						print("ÿc9BadBaseCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
 					}
 
 					if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
@@ -1410,162 +1484,292 @@ Town.betterBaseThanWearing = function (base, verbose) {
 						break;
 					}
 				}
-			} else {
+
+				break;
+			case 20561: 	//Honor
+				ED = equippedItem.eDmg > 160 ? 160 : equippedItem.eDmg;
+				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
+				itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 9) / ((ED + 100) / 100)));
+				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+				baseDmg = base.getStat(21) + base.getStat(22);
+					
+				if (baseDmg !== itemsTotalDmg) {
+					if (verbose) {
+						print("ÿc9BadBaseCheckÿc0 :: RW(Honor) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					}
+
+					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+						result = false;
+
+						break;
+					}
+				}
+
+				break;
+			case 20571: 	//King's Grace
+				ED = equippedItem.eDmg > 100 ? 100 : equippedItem.eDmg;
+				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
+				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+				baseDmg = base.getStat(21) + base.getStat(22);
+					
+				if (baseDmg !== itemsTotalDmg) {
+					if (verbose) {
+						print("ÿc9BadBaseCheckÿc0 :: RW(King's Grace) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					}
+
+					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+						result = false;
+
+						break;
+					}
+				}
+
+				break;
+			case 20577: 	//Lawbringer
+				ED = equippedItem.eDmg;
+				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
+				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+				baseDmg = base.getStat(21) + base.getStat(22);
+					
+				if (baseDmg !== itemsTotalDmg) {
+					if (verbose) {
+						print("ÿc9BadBaseCheckÿc0 :: RW(Lawbringer) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					}
+
+					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+						result = false;
+
+						break;
+					}
+				}
+
+				break;
+			case 20581: 	//Lore
+				itemsDefense = check.getStatEx(31);
+				baseDefense = base.getStatEx(31);
+					
+				if (me.barbarian || me.druid) {	//Barbarian or Druid (PrimalHelms and Pelts)
+					equippedSkillsTier = skillsScore(check);
+					baseSkillsTier = skillsScore(base);
+
+					if (equippedSkillsTier !== baseSkillsTier) {
+						if (verbose) {
+							print("ÿc9BadBaseCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+						}
+
+						if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense helm
+							result = false;
+
+							break;
+						}
+					} else if (baseDefense !== itemsDefense) {
+						if (verbose) {
+							print("ÿc9BadBaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+						}
+
+						if (baseDefense < itemsDefense) {	//base has lower defense
+							result = false;
+
+							break;
+						}
+					}
+				} else {
+					if (baseDefense !== itemsDefense) {
+						if (verbose) {
+							print("ÿc9BadBaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+						}
+
+						if (baseDefense < itemsDefense) {	//base has lower defense
+							result = false;
+
+							break;
+						}
+					}
+				}
+
+				break;
+			case 20586: 	//Malice
+				ED = equippedItem.eDmg > 33 ? 33 : equippedItem.eDmg;
+				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
+				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+				baseDmg = base.getStat(21) + base.getStat(22);
+
+				if (me.classid === 3) {	//Paladin TODO: See if its worth it to calculate the added damage skills would add
+					equippedSkillsTier = skillsScore(check);
+					baseSkillsTier = skillsScore(base);
+				}
+					
+				if (baseDmg !== itemsTotalDmg) {
+					if (verbose) {
+						print("ÿc9BadBaseCheckÿc0 :: RW(Malice) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					}
+
+					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+						result = false;
+
+						break;
+					}
+				}
+
+				break;
+			case 20625: 	//Rhyme
+				if (me.necromancer) {	//Necromancer
+					equippedSkillsTier = skillsScore(check);
+					baseSkillsTier = skillsScore(base);
+
+					if (equippedSkillsTier !== baseSkillsTier) {
+						if (verbose) {
+							print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+						}
+
+						if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense shield
+							result = false;
+
+							break;
+						}
+					} else if (equippedSkillsTier === baseSkillsTier) {
+						baseDefense = base.getStatEx(31);
+
+						if (verbose) {
+							print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) EquippedDefense: " + equippedItem.def + " BaseDefense: " + baseDefense);
+						}
+
+						if (baseDefense < equippedItem.def) {
+							result = false;
+
+							break;
+						}
+					}
+				} else if (me.paladin) {
+					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 100;
+					baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+
+					if (baseResists !== itemsResists) {
+						if (verbose) {
+							print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+						}
+
+						if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+							result = false;
+
+							break;
+						}
+					}
+
+				}
+
+				break;
+			case 20626: 	//Rift
+				ED = equippedItem.eDmg;
+				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
+				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+				baseDmg = base.getStat(21) + base.getStat(22);
+					
+				if (baseDmg !== itemsTotalDmg) {
+					if (verbose) {
+						print("ÿc9BadBaseCheckÿc0 :: RW(Rift) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					}
+
+					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+						result = false;
+
+						break;
+					}
+				}
+
+				break;
+			case 20635: 	//Spirit
+				if (me.paladin && bodyLoc === 5) {
+					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 115;
+					baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+				} else {
+					break;
+				}
+
+				if (baseResists !== itemsResists) {
+					if (verbose) {
+						print("ÿc9BadBaseCheckÿc0 :: RW(spirit) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+					}
+
+					if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+						result = false;
+
+						break;
+					}
+				}
+
+				break;
+			case 20639: 	//Steel
+				ED = equippedItem.eDmg > 20 ? 20 : equippedItem.eDmg;
+				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 3) / ((ED + 100) / 100)));
+				itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 3) / ((ED + 100) / 100)));
+				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+				baseDmg = base.getStat(21) + base.getStat(22);
+					
+				if (baseDmg !== itemsTotalDmg) {
+					if (verbose) {
+						print("ÿc9BadBaseCheckÿc0 :: RW(Steel) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					}
+
+					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+						result = false;
+
+						break;
+					}
+				}
+
+				break;
+			case 20644: 	//Strength
+				ED = equippedItem.eDmg > 35 ? 35 : equippedItem.eDmg;
+				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
+				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
+				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
+				baseDmg = base.getStat(21) + base.getStat(22);
+					
+				if (baseDmg !== itemsTotalDmg) {
+					if (verbose) {
+						print("ÿc9BadBaseCheckÿc0 :: RW(Strength) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					}
+
+					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+						result = false;
+
+						break;
+					}
+				}
+
+				break;
+			case 20667: 	//White
+				if (me.necromancer) {	//Necromancer
+					equippedSkillsTier = skillsScore(check) - 550;
+					baseSkillsTier = skillsScore(base);
+
+					if (equippedSkillsTier !== baseSkillsTier) {
+						if (verbose) {
+							print("ÿc9BadBaseCheckÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+						}
+
+						if (baseSkillsTier < equippedSkillsTier) {
+							result = false;
+
+							break;
+						}
+					}
+				}
+
+				break;
+			case 20633: 	// Smoke
+			case 20638: 	// Stealth
 				itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
 				baseDefense = base.getStatEx(31);
 
 				if (baseDefense !== itemsDefense) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
-					}
-
-					if (baseDefense < itemsDefense) {	//base has lower defense
-						result = false;
-
-						break;
-					}
-				}				
-			}
-			
-			break;
-		case 20512: 	//Black
-			ED = equippedItem.eDmg > 120 ? 120 : equippedItem.eDmg;
-			itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
-			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-			baseDmg = base.getStat(21) + base.getStat(22);
-				
-			if (baseDmg !== itemsTotalDmg) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(Black) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-				}
-
-				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
-					result = false;
-
-					break;
-				}
-			}
-
-			break;
-		case 20523: 	//Crescent Moon
-			ED = equippedItem.eDmg > 220 ? 220 : equippedItem.eDmg;
-			itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
-			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-			baseDmg = base.getStat(21) + base.getStat(22);
-				
-			if (baseDmg !== itemsTotalDmg) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(Crescent Moon) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-				}
-
-				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
-					result = false;
-
-					break;
-				}
-			}
-
-			break;
-		case 20543: 	//Exile
-			itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr);
-			baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
-
-			if (baseResists !== itemsResists) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
-				}
-
-				if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
-					result = false;
-
-					break;
-				}
-			}
-
-			break;
-		case 20561: 	//Honor
-			ED = equippedItem.eDmg > 160 ? 160 : equippedItem.eDmg;
-			itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
-			itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 9) / ((ED + 100) / 100)));
-			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-			baseDmg = base.getStat(21) + base.getStat(22);
-				
-			if (baseDmg !== itemsTotalDmg) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(Honor) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-				}
-
-				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
-					result = false;
-
-					break;
-				}
-			}
-
-			break;
-		case 20571: 	//King's Grace
-			ED = equippedItem.eDmg > 100 ? 100 : equippedItem.eDmg;
-			itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
-			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-			baseDmg = base.getStat(21) + base.getStat(22);
-				
-			if (baseDmg !== itemsTotalDmg) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(King's Grace) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-				}
-
-				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
-					result = false;
-
-					break;
-				}
-			}
-
-			break;
-		case 20577: 	//Lawbringer
-			ED = equippedItem.eDmg;
-			itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
-			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-			baseDmg = base.getStat(21) + base.getStat(22);
-				
-			if (baseDmg !== itemsTotalDmg) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(Lawbringer) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-				}
-
-				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
-					result = false;
-
-					break;
-				}
-			}
-
-			break;
-		case 20581: 	//Lore
-			itemsDefense = check.getStatEx(31);
-			baseDefense = base.getStatEx(31);
-				
-			if (me.barbarian || me.druid) {	//Barbarian or Druid (PrimalHelms and Pelts)
-				equippedSkillsTier = skillsScore(check);
-				baseSkillsTier = skillsScore(base);
-
-				if (equippedSkillsTier !== baseSkillsTier) {
-					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
-					}
-
-					if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense helm
-						result = false;
-
-						break;
-					}
-				} else if (baseDefense !== itemsDefense) {
-					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+						print("ÿc9BadBaseCheckÿc0 :: RW(Stealth/Smoke) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 					}
 
 					if (baseDefense < itemsDefense) {	//base has lower defense
@@ -1574,10 +1778,35 @@ Town.betterBaseThanWearing = function (base, verbose) {
 						break;
 					}
 				}
-			} else {
+
+				break;
+			case 20514: 	// Bone
+			case 20592: 	// Myth
+			case 20603: 	// Peace
+			case 20653: 	// Treachery
+				let name = "";
+
+				switch (equippedItem.prefixnum) {
+				case 20514: 	// Bone
+					name = "Bone";
+					break;
+				case 20592: 	// Myth
+					name = "Myth";
+					break;
+				case 20603: 	// Peace
+					name = "Peace";
+					break;
+				case 20653: 	// Treachery
+					name = "Treachery";
+					break;
+				}
+
+				itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
+				baseDefense = base.getStatEx(31);
+
 				if (baseDefense !== itemsDefense) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+						print("ÿc9BadBaseCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 					}
 
 					if (baseDefense < itemsDefense) {	//base has lower defense
@@ -1586,241 +1815,14 @@ Town.betterBaseThanWearing = function (base, verbose) {
 						break;
 					}
 				}
-			}
 
-			break;
-		case 20586: 	//Malice
-			ED = equippedItem.eDmg > 33 ? 33 : equippedItem.eDmg;
-			itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
-			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-			baseDmg = base.getStat(21) + base.getStat(22);
-
-			if (me.classid === 3) {	//Paladin TODO: See if its worth it to calculate the added damage skills would add
-				equippedSkillsTier = skillsScore(check);
-				baseSkillsTier = skillsScore(base);
-			}
-				
-			if (baseDmg !== itemsTotalDmg) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(Malice) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-				}
-
-				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
-					result = false;
-
-					break;
-				}
-			}
-
-			break;
-		case 20625: 	//Rhyme
-			if (me.necromancer) {	//Necromancer
-				equippedSkillsTier = skillsScore(check);
-				baseSkillsTier = skillsScore(base);
-
-				if (equippedSkillsTier !== baseSkillsTier) {
-					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
-					}
-
-					if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense shield
-						result = false;
-
-						break;
-					}
-				} else if (equippedSkillsTier === baseSkillsTier) {
-					baseDefense = base.getStatEx(31);
-
-					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) EquippedDefense: " + equippedItem.def + " BaseDefense: " + baseDefense);
-					}
-
-					if (baseDefense < equippedItem.def) {
-						result = false;
-
-						break;
-					}
-				}
-			} else if (me.paladin) {
-				itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 100;
-				baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
-
-				if (baseResists !== itemsResists) {
-					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
-					}
-
-					if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
-						result = false;
-
-						break;
-					}
-				}
-
-			}
-
-			break;
-		case 20626: 	//Rift
-			ED = equippedItem.eDmg;
-			itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
-			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-			baseDmg = base.getStat(21) + base.getStat(22);
-				
-			if (baseDmg !== itemsTotalDmg) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(Rift) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-				}
-
-				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
-					result = false;
-
-					break;
-				}
-			}
-
-			break;
-		case 20635: 	//Spirit
-			if (me.paladin && bodyLoc === 5) {
-				itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 115;
-				baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
-			} else {
 				break;
+			default:
+				return true;	// Runeword base isn't in the list, keep the base
 			}
-
-			if (baseResists !== itemsResists) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(spirit) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
-				}
-
-				if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
-					result = false;
-
-					break;
-				}
-			}
-
-			break;
-		case 20639: 	//Steel
-			ED = equippedItem.eDmg > 20 ? 20 : equippedItem.eDmg;
-			itemsMinDmg = Math.ceil(((equippedItem.minDmg - 3) / ((ED + 100) / 100)));
-			itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 3) / ((ED + 100) / 100)));
-			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-			baseDmg = base.getStat(21) + base.getStat(22);
-				
-			if (baseDmg !== itemsTotalDmg) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(Steel) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-				}
-
-				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
-					result = false;
-
-					break;
-				}
-			}
-
-			break;
-		case 20644: 	//Strength
-			ED = equippedItem.eDmg > 35 ? 35 : equippedItem.eDmg;
-			itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
-			itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-			itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-			baseDmg = base.getStat(21) + base.getStat(22);
-				
-			if (baseDmg !== itemsTotalDmg) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(Strength) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-				}
-
-				if (baseDmg < itemsTotalDmg) {	//base has lower damage.
-					result = false;
-
-					break;
-				}
-			}
-
-			break;
-		case 20667: 	//White
-			if (me.necromancer) {	//Necromancer
-				equippedSkillsTier = skillsScore(check) - 550;
-				baseSkillsTier = skillsScore(base);
-
-				if (equippedSkillsTier !== baseSkillsTier) {
-					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
-					}
-
-					if (baseSkillsTier < equippedSkillsTier) {
-						result = false;
-
-						break;
-					}
-				}
-			}
-
-			break;
-		case 20633: 	// Smoke
-		case 20638: 	// Stealth
-			itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
-			baseDefense = base.getStatEx(31);
-
-			if (baseDefense !== itemsDefense) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(Stealth/Smoke) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
-				}
-
-				if (baseDefense < itemsDefense) {	//base has lower defense
-					result = false;
-
-					break;
-				}
-			}
-
-			break;
-		case 20514: 	// Bone
-		case 20592: 	// Myth
-		case 20603: 	// Peace
-		case 20653: 	// Treachery
-			let name = "";
-
-			switch (equippedItem.prefixnum) {
-			case 20514: 	// Bone
-				name = "Bone";
-				break;
-			case 20592: 	// Myth
-				name = "Myth";
-				break;
-			case 20603: 	// Peace
-				name = "Peace";
-				break;
-			case 20653: 	// Treachery
-				name = "Treachery";
-				break;
-			}
-
-			itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
-			baseDefense = base.getStatEx(31);
-
-			if (baseDefense !== itemsDefense) {
-				if (verbose) {
-					print("ÿc9BadBaseCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
-				}
-
-				if (baseDefense < itemsDefense) {	//base has lower defense
-					result = false;
-
-					break;
-				}
-			}
-
-			break;
-		default:
-			return true;	// Runeword base isn't in the list, keep the base
-		}
+		}	
 	}
-
+		
 	return result;
 };
 
@@ -2187,6 +2189,7 @@ Town.clearJunk = function () {
 			(junk[0].classid !== 603 && junk[0].quality !== 7) && // Anni
 			(junk[0].classid !== 604 && junk[0].quality !== 7) && // Torch
 			(junk[0].classid !== 605 && junk[0].quality !== 7) && // Gheeds
+			(junk[0].getFlag(NTIPAliasFlag["runeword"]) && !Item.autoEquipKeepCheck(junk[0]) && !Item.autoEquipCheckSecondary(junk[0])) && 
 			([0, 4].indexOf(Pickit.checkItem(junk[0]).result) > -1) // only drop unwanted
 		) {
 			if (!getUIFlag(0x19) && junk[0].location === 7) {
