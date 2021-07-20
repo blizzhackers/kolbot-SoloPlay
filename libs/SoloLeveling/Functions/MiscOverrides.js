@@ -1612,6 +1612,53 @@ Misc.logItem = function (action, unit, keptLine) {
 	return true;
 };
 
+Misc.shapeShift = function (mode) {
+	var i, tick, skill, state;
+
+	switch (mode.toString().toLowerCase()) {
+	case "0":
+		return false;
+	case "1":
+	case "werewolf":
+		state = 139;
+		skill = 223;
+
+		break;
+	case "2":
+	case "werebear":
+		state = 140;
+		skill = 228;
+
+		break;
+	default:
+		throw new Error("shapeShift: Invalid parameter");
+	}
+
+	if (me.getState(state)) {
+		return true;
+	}
+
+	Attack.weaponSwitch(Precast.getBetterSlot(skill));
+
+	for (i = 0; i < 3; i += 1) {
+		Skill.cast(skill, 0);
+
+		tick = getTickCount();
+
+		while (getTickCount() - tick < 2000) {
+			if (me.getState(state)) {
+				delay(250);
+
+				return true;
+			}
+
+			delay(10);
+		}
+	}
+
+	return false;
+};
+
 Packet.openMenu = function (unit) { // singleplayer delay(0) fix
 	if (unit.type !== 1) {
 		throw new Error("openMenu: Must be used on NPCs.");

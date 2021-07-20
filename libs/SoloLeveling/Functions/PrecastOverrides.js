@@ -8,6 +8,99 @@ if (!isIncluded("common/Precast.js")) {
 	include("common/Precast.js");
 }
 
+Precast.getBetterSlot = function (skillId) {
+	if (this.bestSlot[skillId] !== undefined) {
+		return this.bestSlot[skillId];
+	}
+
+	var item, classid, skillTab,
+		sumCurr = 0,
+		sumSwap = 0;
+
+	switch (skillId) {
+	case 40: // Frozen Armor
+	case 50: // Shiver Armor
+	case 60: // Chilling Armor
+		classid = 1;
+		skillTab = 10;
+
+		break;
+	case 52: // Enchant
+		classid = 1;
+		skillTab = 8;
+
+		break;
+	case 57: // Thunder Storm
+	case 58: // Energy Shield
+		classid = 1;
+		skillTab = 9;
+
+		break;
+	case 68: // Bone Armor
+		classid = 2;
+		skillTab = 17;
+
+		break;
+	case 117: // Holy Shield
+		classid = 3;
+		skillTab = 24;
+
+		break;
+	case 138: // Shout
+	case 149: // Battle Orders
+	case 155: // Battle Command
+		classid = 4;
+		skillTab = 34;
+
+		break;
+	case 235: // Cyclone Armor
+		classid = 5;
+		skillTab = 42;
+
+		break;
+	case 258: // Burst of Speed
+	case 267: // Fade
+		classid = 6;
+		skillTab = 49;
+
+		break;
+	case 277: // Blade Shield
+		classid = 6;
+		skillTab = 48;
+
+		break;
+	case 223: // Wearwolf
+		classid = 5;
+		skillTab = 223;
+
+		break;
+	case 228: // Wearbear
+		classid = 5;
+		skillTab = 228;
+
+		break;
+	default:
+		return me.weaponswitch;
+	}
+
+	item = me.getItem();
+
+	if (item) {
+		do {
+			if (item.bodylocation === 4 || item.bodylocation === 5) {
+				sumCurr += (item.getStat(127) + item.getStat(83, classid) + item.getStat(188, skillTab) + item.getStat(107, skillId) + item.getStat(97, skillId));
+			}
+
+			if (item.bodylocation === 11 || item.bodylocation === 12) {
+				sumSwap += (item.getStat(127) + item.getStat(83, classid) + item.getStat(188, skillTab) + item.getStat(107, skillId) + item.getStat(97, skillId));
+			}
+		} while (item.getNext());
+	}
+
+	this.bestSlot[skillId] = (sumSwap > sumCurr) ? me.weaponswitch ^ 1 : me.weaponswitch;
+	return this.bestSlot[skillId];
+};
+
 Precast.doPrecast = function (force) {
 	var buffSummons = false;
 
