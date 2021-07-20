@@ -1,7 +1,7 @@
 /*
 *	@filename	MuleloggerOverrides.js
 *	@author		theBguy
-*	@desc		Added tiers to mulelogging
+*	@desc		Add override to log equipped items while running GuysSoloLeveling
 */
 
 if (!isIncluded("MuleLogger.js")) {
@@ -96,10 +96,17 @@ MuleLogger.logItem = function (unit, logIlvl, type) {
 	desc = this.getItemDesc(unit, logIlvl);/* + "$" + unit.gid + ":" + unit.classid + ":" + unit.location + ":" + unit.x + ":" + unit.y + (unit.getFlag(0x400000) ? ":eth" : "");*/
 	color = unit.getColor();
 
-	if (NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0) {
+	if (NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) {
 		if (unit.mode === 1 && type === "Player") {
-			desc += ("\n\\xffc0Autoequip tier: " + NTIP.GetTier(unit));
+			if ([603, 604, 605].indexOf(unit.classid) > -1) {
+				desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit));
+			} else {
+				desc += ("\n\\xffc0Autoequip tier: " + NTIP.GetTier(unit));
 
+				if (NTIP.GetSecondaryTier(unit) > 0) {
+					desc += ("\n\\xffc0Autoequip Secondary tier: " + NTIP.GetSecondaryTier(unit));
+				}
+			}
 		} else if (unit.mode === 1 && type === "Merc") {
 			desc += ("\n\\xffc0Autoequip merctier: " + NTIP.GetMercTier(unit));
 
@@ -288,14 +295,14 @@ MuleLogger.logEquippedItems = function () {
 		folder.create(realm);
 	}
 
-	if (!FileTools.exists("mules/" + realm + "/" + "SoloLeveling")) {
+	if (!FileTools.exists("mules/" + realm + "/" + "GuysSoloLeveling")) {
 		folder = dopen("mules/" + realm);
 
-		folder.create("SoloLeveling");
+		folder.create("GuysSoloLeveling");
 	}
 
-	if (!FileTools.exists("mules/" + realm + "/" + "SoloLeveling/" + me.account)) {
-		folder = dopen("mules/" + realm + "/SoloLeveling");
+	if (!FileTools.exists("mules/" + realm + "/" + "GuysSoloLeveling/" + me.account)) {
+		folder = dopen("mules/" + realm + "/GuysSoloLeveling");
 
 		folder.create(me.account);
 	}
@@ -311,7 +318,7 @@ MuleLogger.logEquippedItems = function () {
 	items.sort(itemSort);
 
 	for (i = 0; i < items.length; i += 1) {
-		if ((items[i].mode === 1 && (items[i].quality !== 2 || !Misc.skipItem(items[i].classid))) || (items[i].mode === 0 && items[i].itemType === 74) || (items[i].location === 3 && [603, 604, 605].indexOf(items[i].classid) > -1) ) {
+		if ((items[i].mode === 1 && (items[i].quality !== 2 || !Misc.skipItem(items[i].classid))) || (items[i].mode === 0 && items[i].itemType === 74) || (items[i].location === 3 && [603, 604, 605].indexOf(items[i].classid) > -1)) {
 			parsedItem = this.logItem(items[i], true, "Player");
 
 			// Always put name on Char Viewer items
@@ -361,10 +368,10 @@ MuleLogger.logEquippedItems = function () {
 
 	}
 
-	charClass = ["amazon.", "sorceress.", "necromancer.", "paladin.", "barbarian.", "druid.", "assassin."][me.classid];
+	charClass = ["amazon-", "sorceress-", "necromancer-", "paladin-", "barbarian-", "druid-", "assassin-"][me.classid];
 
 	// hccl = hardcore classic ladder
 	// scnl = softcore expan nonladder
-	FileTools.writeText("mules/" + realm + "/" + "SoloLeveling/" + me.account + "/" + charClass + "." + me.profile + "-" + me.name + "." + ( me.playertype ? "hc" : "sc" ) + (me.classic ? "c" : "" ) + ( me.ladder > 0 ? "l" : "nl" ) + ".txt", finalString);
+	FileTools.writeText("mules/" + realm + "/" + "GuysSoloLeveling/" + me.account + "/" + charClass + "-" + me.profile + "-" + me.name + "." + ( me.playertype ? "hc" : "sc" ) + (me.classic ? "c" : "" ) + ( me.ladder > 0 ? "l" : "nl" ) + ".txt", finalString);
 	print("Item logging done.");
 };
