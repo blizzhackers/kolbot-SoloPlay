@@ -246,8 +246,9 @@ function LoadConfig () {
 		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= vexrune && [name] <= zodrune");
 
-		if (Check.haveItem("shield", "unique", "Moser's Blessed Circle")) {
+		if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
 			Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
+			NTIP.addLine("[name] == perfectdiamond # # [MaxQuantity] == 2");
 		}
 
 		var imbueableClassItems = [

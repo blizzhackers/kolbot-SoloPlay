@@ -232,7 +232,6 @@ var nipItems = {
 		"[name] == perfectdiamond # # [MaxQuantity] == 2",
 		"[name] == perfectruby # # [MaxQuantity] == 2",
 		"[name] == perfectsapphire # # [MaxQuantity] == 2",
-		"[name] >= pulrune && [name] <= zodrune"
 	],
 
 	Quest: [
@@ -425,7 +424,7 @@ var Check = {
 
 			break;
 		case "diablo": //diablo
-			if (Pather.accessToAct(4) && ((me.normal && me.charlvl < 35) || (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)) || (me.hell && me.charlvl !== 100))) {
+			if (Pather.accessToAct(4) && ((me.normal && me.charlvl < 35) || (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)) || (me.hell && me.charlvl !== 100)) || !me.diablo) {
 				return true;
 			}
 
@@ -676,6 +675,84 @@ var Check = {
 
 			if (type) {
 				itemCHECK = itemCHECK && typeCHECK;
+			}
+		}
+
+		return itemCHECK;
+	},
+
+	haveItemAndNotSocketed: function (type, flag, iName) {
+		if (type && !NTIPAliasType[type] && !NTIPAliasClassID[type]) {
+			print("ÿc9GuysSoloLevelingÿc0: No NTIPalias for '" + type + "'");
+		}
+
+		type = type.toLowerCase();
+		flag = flag.toLowerCase();
+
+		if (iName !== undefined) {
+			iName = iName.toLowerCase();
+		}
+
+		let typeCHECK = false;
+		let items = me.getItems();
+		let itemCHECK = false;
+
+		for (let i = 0; i < items.length && !itemCHECK; i++) {
+
+			switch (flag) {
+			case 'set':
+				itemCHECK = !!(items[i].quality === 5) && items[i].fname.toLowerCase().includes(iName);
+				break;
+			case 'unique':
+				itemCHECK = !!(items[i].quality === 7) && items[i].fname.toLowerCase().includes(iName);
+				break;
+			case 'crafted':
+				itemCHECK = !!(items[i].getFlag(NTIPAliasQuality["crafted"]));
+				break;
+			case 'runeword':
+				itemCHECK = !!(items[i].getFlag(NTIPAliasFlag["runeword"])) && items[i].fname.toLowerCase().includes(iName);
+				break;
+			}
+
+			switch (type) {
+			case "helm":
+			case "primalhelm":
+			case "pelt":
+			case "armor":
+			case "shield":
+			case "auricshields":
+			case "voodooheads":
+			case "gloves":
+			case "belt":
+			case "boots":
+			case "ring":
+			case "amulet":
+			case "axe":
+			case "bow":
+			case "amazonbow":
+			case "crossbow":
+			case "dagger":
+			case "javelin":
+			case "amazonjavelin":
+			case "mace":
+			case "polearm":
+			case "scepter":
+			case "spear":
+			case "amazonspear":
+			case "staff":
+			case "sword":
+			case "wand":
+			case "assassinclaw":
+			case "weapon":
+				typeCHECK = items[i].itemType === NTIPAliasType[type];
+				break;
+			default:
+				typeCHECK = items[i].classid === NTIPAliasClassID[type];
+				break;
+			}
+
+			if (type) {
+				itemCHECK = itemCHECK && typeCHECK && !items[i].getItem();
 			}
 		}
 
