@@ -146,7 +146,7 @@ function LoadConfig () {
 	var levelingTiers = [ // autoequip setup
 		//weapon
 		"me.charlvl < 12 && [Type] == Sword && ([Quality] >= Normal || [flag] == runeword) && [flag] != ethereal && [wsm] <= 10 && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"[Type] == Sword && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal && [wsm] <= 0 # [secondarymindamage] == 0 && [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"[Type] == Sword && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal && [wsm] <= 0 && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//Helmet
 		"([type] == helm || [type] == primalhelm) && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//belt
