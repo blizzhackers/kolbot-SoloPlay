@@ -1291,6 +1291,52 @@ case 4: // Barbarian - theBGuy
 		return this.doCast(unit, attackSkill);
 	};
 
+	ClassAttack.doCast = function (unit, attackSkill) {
+		var walk;
+		let useConc = me.getSkill(144, 0) && attackSkill === 147;
+
+		if (attackSkill < 0) {
+			return 2;
+		}
+
+		switch (attackSkill) {
+		case 151:
+			if (Math.ceil(getDistance(me, unit)) > Skill.getRange(attackSkill) || checkCollision(me, unit, 0x1)) {
+				if (!Attack.getIntoPosition(unit, Skill.getRange(attackSkill), 0x1, 2)) {
+					return 0;
+				}
+			}
+
+			if (!unit.dead) {
+				this.whirlwind(unit);
+			}
+
+			return 1;
+		default:
+			if (Skill.getRange(attackSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
+				return 0;
+			}
+
+			if (Math.round(getDistance(me, unit)) > Skill.getRange(attackSkill) || checkCollision(me, unit, 0x4)) {
+				walk = Skill.getRange(attackSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
+
+				if (!Attack.getIntoPosition(unit, Skill.getRange(attackSkill), 0x4, walk)) {
+					return 0;
+				}
+			}
+
+			if (!unit.dead) {
+				Skill.cast(attackSkill, Skill.getHand(attackSkill), unit);
+
+				if (useConc && !unit.dead) {
+					Skill.cast(144, Skill.getHand(144), unit);
+				}
+			}
+
+			return 1;
+		}
+	};
+
 	ClassAttack.afterAttack = function (pickit) {
 		var needRepair;
 
