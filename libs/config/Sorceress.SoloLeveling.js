@@ -384,6 +384,8 @@ function LoadConfig () {
 		if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
 			Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
 			NTIP.addLine("[name] == perfectdiamond # # [MaxQuantity] == 2");
+			Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+			NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 2");
 		}
 
 		var imbueableClassItems = [

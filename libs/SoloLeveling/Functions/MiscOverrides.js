@@ -1201,6 +1201,22 @@ Misc.addSocketables = function () {
 				}	
 			}
 
+			//Um to Moser's
+			if (items[i].classid === 631 && item.classid === 375 && multiple.indexOf(items[i]) === -1) {
+				if (item.getStat(194) === 2) {
+					if (multiple.length < item.getStat(194)) {
+						multiple.push(items[i]);
+						continue;
+					} else {
+						ready = true;
+						break;
+					}	
+				} else {
+					socketable = items[i];
+					break;
+				}	
+			}
+
 			//P-diamond to Moser's
 			if (items[i].classid === 586 && item.classid === 375 && multiple.indexOf(items[i]) === -1) {
 				if (item.getStat(194) === 2) {
