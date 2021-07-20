@@ -650,6 +650,10 @@ NTIP.ParseLineInt = function (input, info) {
 				p_result[0] += 'getBaseStat("items", item.classid, "reqstr")';
 
 				break;
+			case '2handed':
+				p_result[0] += 'getBaseStat("items", item.classid, "2handed")';
+
+				break;
 			case 'color':
 				p_result[0] += "item.getColor()";
 
