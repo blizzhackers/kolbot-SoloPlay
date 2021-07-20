@@ -244,25 +244,7 @@ function LoadConfig () {
 			}
 		}
 
-		switch (SetUp.finalBuild) { // finalbuild autoequip setup
-		case 'Whirlwind':
-			if (!Check.haveItem("sword", "runeword", "Grief")) {
-				var Grief = [
-					"me.diff == 2 && [Name] == EthRune # # [MaxQuantity] == 1",
-					"me.diff == 2 && [Name] == TirRune # # [MaxQuantity] == 1",
-					"[Name] == LoRune",
-					"[Name] == MalRune",
-					"me.diff == 2 && [Name] == RalRune # # [MaxQuantity] == 1",
-					"[Name] == PhaseBlade && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 5 # [MaxQuantity] == 1",
-				];
-				NTIP.arrayLooping(Grief);
-
-				Config.Runewords.push([Runeword.Grief, "Phase Blade"]);
-				Config.KeepRunewords.push("[Type] == sword # [ias] >= 30");
-			}
-
-			break;
-		case 'Frenzy':
+		if (["Immortalwhirl", "Singer"].indexOf(SetUp.finalBuild) === -1) {
 			if (!Check.haveItem("sword", "runeword", "Grief")) {
 				var Grief = [
 					"me.diff == 2 && [Name] == EthRune # # [MaxQuantity] == 1",
@@ -283,7 +265,65 @@ function LoadConfig () {
 
 				Config.KeepRunewords.push("[Type] == sword # [ias] >= 30");
 			}
+		}
 
+		switch (SetUp.finalBuild) { // finalbuild autoequip setup
+		case 'Uberconc':
+			if (Check.haveItem("sword", "runeword", "Grief") && SetUp.finalBuild === "Uberconc") {
+				NTIP.addLine("[Name] == monarch && [Quality] == unique && [flag] != ethereal  # [damageresist] >= 35 # [tier] == 100000"); //Stormshield
+			}
+
+			if (!Check.haveItem("armor", "runeword", "Chains of Honor")) { // CoH
+				var CoH = [
+					"[Name] == DolRune # # [MaxQuantity] == 1",
+					"[Name] == UmRune",
+					"[Name] == BerRune",
+					"[Name] == IstRune",
+				];
+				NTIP.arrayLooping(CoH);
+
+				if (!me.getItem(639)) {		// Ber Rune
+					Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
+					Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
+					Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
+					Config.Recipes.push([Recipe.Rune, "Vex Rune"]); // Vex to Ohm
+					Config.Recipes.push([Recipe.Rune, "Ohm Rune"]); // Ohm to Lo
+
+					if (Check.haveItem("sword", "runeword", "Grief")) {
+						Config.Recipes.push([Recipe.Rune, "Lo Rune"]); // Lo to Sur
+					}
+
+					Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // Sur to Ber
+				}
+
+				if (!me.getItem(631)) {
+					Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
+					Config.Recipes.push([Recipe.Rune, "Pul Rune"]);	// Pul -> Um
+				}
+
+				if (me.getItem(639)) {
+					if (!Check.haveBase("armor", 4)) {
+						NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] == Normal && [Quality] <= Superior # [Sockets] == 0 # [MaxQuantity] == 1");
+					}
+
+					NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
+				} else {
+					NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] == Superior # [enhanceddefense] >= 10 && [Sockets] == 4 # [MaxQuantity] == 1");
+				}
+
+				Config.Recipes.push([Recipe.Socket.Armor, "Archon Plate", Roll.NonEth]);
+				Config.Recipes.push([Recipe.Socket.Armor, "Dusk Shroud", Roll.NonEth]);
+				Config.Recipes.push([Recipe.Socket.Armor, "WyrmHide", Roll.NonEth]);
+
+				Config.Runewords.push([Runeword.ChainsofHonor, "Archon Plate"]);
+				Config.Runewords.push([Runeword.ChainsofHonor, "Dusk Shroud"]);
+				Config.Runewords.push([Runeword.ChainsofHonor, "WyrmHide"]);
+
+				Config.KeepRunewords.push("[type] == armor # [fireresist] == 65 && [hpregen] == 7");
+			}
+
+			break;
+		case 'Frenzy':
 			if (!Check.haveItem("sword", "runeword", "Breath of the Dying")) {
 				var BoTD = [
 					"[Name] == VexRune",
@@ -367,16 +407,18 @@ function LoadConfig () {
 				Config.KeepRunewords.push("[type] == polearm # [convictionaura] >= 13");
 			}
 
-			if (Check.haveItem("mace", "set", "Immortal King's Stone Crusher")) {
+			if (Check.haveItemAndNotSocketed("mace", "set", "Immortal King's Stone Crusher")) {
 				NTIP.addLine("[Name] == ShaelRune # # [MaxQuantity] == 2");
 			}
 
+			break;
+		case 'Whirlwind':
 			break;
 		default:
 			break;
 		}
 
-		if (!Check.haveItem("armor", "runeword", "Enigma") && SetUp.finalBuild !== "Immortalwhirl") { // Enigma
+		if (!Check.haveItem("armor", "runeword", "Enigma") && ["Immortalwhirl", "Uberconc"].indexOf(SetUp.finalBuild) === -1) { // Enigma
 			var Enigma = [
 				"[Name] == JahRune",
 				"me.diff == 2 && [Name] == IthRune # # [MaxQuantity] == 1",

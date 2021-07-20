@@ -1,4 +1,4 @@
-//	/d2bs/kolbot/libs/config/Builds/Barbarian.Leveling.js
+//	/d2bs/kolbot/libs/config/Builds/Barbarian.Frenzy.js
 
 /**
 *

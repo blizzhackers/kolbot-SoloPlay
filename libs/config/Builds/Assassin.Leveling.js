@@ -39,7 +39,7 @@ var AutoBuildTemplate = {
 		//StatPoints: [-1,-1,-1,-1,-1],						// This doesn't matter. We don't have stat points to spend at lvl 1
 		Update: function () {
 			Config.AttackSkill = [-1, 256, 251, 256, 251, -1, -1];
-			Config.LowManaSkill = [0, 0];
+			Config.LowManaSkill = [-1, -1];
 			Config.UseTraps = true;
 			Config.Traps = [271, 271, 271, 276, 276];
 			Config.BossTraps = [271, 271, 271, 271, 271];

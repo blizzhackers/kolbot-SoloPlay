@@ -38,7 +38,7 @@ var AutoBuildTemplate = {
 		//SkillPoints: [-1],								// This doesn't matter. We don't have skill points to spend at lvl 1
 		//StatPoints: [-1,-1,-1,-1,-1],						// This doesn't matter. We don't have stat points to spend at lvl 1
 		Update: function () {
-			Config.LowManaSkill = [0, 0];
+			Config.LowManaSkill = [-1, -1];
 			Config.AttackSkill = [-1, 84, -1, 84, -1, -1, -1];
 			Config.Curse[0] = 87; // Boss curse.
 			Config.Curse[1] = 66; // Other monsters curse.

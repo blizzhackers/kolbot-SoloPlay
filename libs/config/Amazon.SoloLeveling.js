@@ -190,8 +190,16 @@ function LoadConfig () {
 		Config.GambleItems.push("Throwing Spear");
 	}
 
-	if (Check.haveItem("shield", "unique", "Moser's Blessed Circle")) {
+	if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
 		Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
+		NTIP.addLine("[name] == perfectdiamond # # [MaxQuantity] == 2");
+		Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+		NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 2");
+	}
+
+	if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
+		Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
+		NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 1");
 	}
 
 	if (!me.getQuest(3, 0)) {

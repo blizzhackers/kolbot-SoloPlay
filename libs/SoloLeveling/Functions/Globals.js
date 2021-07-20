@@ -101,6 +101,9 @@ var SetUp = {
 			case "Smiter":
 				respec = Check.haveItem("sword", "runeword", "Grief") ? me.charlvl : 100;
 				break;
+			case "Uberconc":
+				respec = Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("monarch", "unique", "Stormshield") ? me.charlvl : 100;
+				break;
 			case "Frenzy":
 				respec = Check.haveItem("weapon", "runeword", "Grief") && Check.haveItem("weapon", "runeword", "Breath of the Dying") ? me.charlvl : 100;
 				break;

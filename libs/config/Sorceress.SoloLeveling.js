@@ -388,6 +388,11 @@ function LoadConfig () {
 			NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 2");
 		}
 
+		if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
+			Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
+			NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 1");
+		}
+
 		var imbueableClassItems = [
 			"me.diff == 0 && [name] == jared'sstone && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [MaxQuantity] == 1",
 			"me.diff == 1 && [name] == swirlingcrystal && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [MaxQuantity] == 1",
