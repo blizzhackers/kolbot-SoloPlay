@@ -122,8 +122,16 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 - **SCCNL-PAL** would make a softcore classic nonladder paladin
 - **HCCNL-SORC** would make a hardcore classic nonladder sorceress
 
+## Extras
+- Navigate to libs\SoloLeveling\Tools\Developer.js for extra options
+- Developer.js includes options such as:
+  - logging equipped items
+  - Turning on/off the overlay
+  - Options to fillAccount for Socketmule/Bumper
+
 ## Discord
 **Big shout-out to Xcon for setting up this discord channel**
+- If you have any questions please join me on my discord
 https://discord.gg/5pjTC2zH6N
 
 ## Contributing
