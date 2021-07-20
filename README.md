@@ -108,7 +108,7 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 |SORC| Sorceress Class|
 |NECRO| Necromancer Class|
 |PAL| Paladin Class|
-|BARB| Barbarian Class **NOT CURRENTLY AVAILABLE**|
+|BARB| Barbarian Class
 |DRU| Druid Class|
 |SIN| Assassin Class|
 
