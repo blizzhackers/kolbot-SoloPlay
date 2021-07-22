@@ -114,6 +114,38 @@ Skill.getHand = function (skillId) {
 	return 0;
 };
 
+//Thank you @sakana
+Skill.getManaCost = function (skillId) {
+	if (skillId < 6) {
+		return 0;
+	}
+
+	if (skillId === 28) {
+		if(me.getSkill(28, 1) >= 25) {
+			return ret = 1;
+		} else {
+			ret = [19, 18.2, 17.5, 16.7, 16, 15.2, 14.5, 13.7, 13, 12.2, 11.5, 10.7, 10, 9.2, 8.5, 7.7, 7, 6.2, 5.5, 4.7, 4, 3.2, 2.5, 1.7, 1, 1][me.getSkill(28, 1)];
+			return Math.max(ret);
+		}
+			
+	}
+
+	if (this.manaCostList.hasOwnProperty(skillId)) {
+		return this.manaCostList[skillId];
+	}
+
+	var skillLvl = me.getSkill(skillId, 1),
+		effectiveShift = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024],
+		lvlmana = getBaseStat(3, skillId, "lvlmana") === 65535 ? -1 : getBaseStat(3, skillId, "lvlmana"), // Correction for skills that need less mana with levels (kolton)
+		ret = Math.max((getBaseStat(3, skillId, "mana") + lvlmana * (skillLvl - 1)) * (effectiveShift[getBaseStat(3, skillId, "manashift")] / 256), getBaseStat(3, skillId, "minmana"));
+
+	if (!this.manaCostList.hasOwnProperty(skillId)) {
+		this.manaCostList[skillId] = ret;
+	}
+
+	return ret;
+};
+
 // Skills that cn be cast in town
 Skill.townSkill = function (skillId) {
 	return [32, 40, 43, 50, 52, 58, 60, 68, 75, 85, 94, 117, 221, 222, 226, 227, 231, 235, 236, 237, 241, 246, 247, 258, 267, 268, 277, 278, 279].indexOf(skillId) > -1;

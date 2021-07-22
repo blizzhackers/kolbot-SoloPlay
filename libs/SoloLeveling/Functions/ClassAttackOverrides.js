@@ -1182,10 +1182,74 @@ case 4: // Barbarian - theBGuy
 		include("common/Attacks/Barbarian.js");
 	}
 
+	ClassAttack.tauntMonsters = function (unit, attackSkill) {
+		if (!me.getSkill(137, 0)) {
+			return;
+		}
+
+		if ([156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1) {
+			return;
+		}
+
+		if (me.area === 120) {
+			return;
+		}
+
+		let useHowl = me.getSkill(130, 0) && !me.getSkill(154, 0);
+		let useWarCry = me.getSkill(154, 0);
+		let amoOfMobs = me.area !== 131 ? 2 : 1;
+		let range = me.area !== 131 ? 15 : 30;
+
+		let rangedMobsClassIDs = [10, 11, 12, 13, 14, 118, 119, 120, 121, 131, 132, 133, 134, 135, 170, 171, 172, 173, 174, 238, 239, 240, 362, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 580, 581, 582, 583, 584, 645, 646, 647, 697];
+		let dangerousAndSummoners = [636, 637, 638, 639, 640, 58, 59, 60, 61, 101, 102, 103, 104, 669, 670, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478];
+		let list = Attack.buildMonsterList();
+
+		if ([107, 108].indexOf(me.area) > -1) {
+			rangedMobsClassIDs.push(305, 306);
+		}
+
+		//print("List length before sorting: " + list.length);
+
+		if (dangerousAndSummoners.some(check => list.indexOf(check) > -1)) {
+			//print("Worked");
+			amoOfMobs = 1;
+		}
+
+		list.sort(Sort.units);
+
+		let newList = list.filter(mob => mob.spectype === 0 && !mob.getState(27) && 
+			((rangedMobsClassIDs.indexOf(mob.classid) > -1 && Math.round(getDistance(me, mob)) <= range) || (dangerousAndSummoners.indexOf(mob.classid) > -1 && Math.round(getDistance(me, mob)) <= 30)));
+
+		//print("List length after sorting: " + newList.length);
+
+		if (newList.length >= amoOfMobs) {
+			for (let i = 0; i < newList.length; i++) {
+				if (useHowl && Attack.getMonsterCount(me.x, me.y, 6) >= 3 && Skill.getManaCost(130) < me.mp) {
+					Skill.cast(130, Skill.getHand(130));
+				} else if (useWarCry && Attack.getMonsterCount(me.x, me.y, 6) >= 3 && Skill.getManaCost(154) < me.mp) {
+					Skill.cast(154, Skill.getHand(154));
+				}
+
+				if (!newList[i].getState(27) && !newList[i].getState(56) && !newList[i].getState(21) && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
+					print("Casting on: " + newList[i].name);
+					Skill.cast(137, Skill.getHand(137), newList[i]);
+				}
+
+				this.doCast(unit, attackSkill);
+			}
+		}
+	};
+
 	ClassAttack.doAttack = function (unit, preattack) {
 		var needRepair = [];
 		var useBerserk = me.getSkill(152, 1) >= 5;
 		var useHowl = me.getSkill(130, 0);
+		var useTaunt = me.getSkill(137, 0);
+		let useConc = me.getSkill(144, 0) && attackSkill === 147;
+		var index,
+			attackSkill = -1;
+
+		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
 		if (me.charlvl >= 5){
 			needRepair = Town.needRepair();
@@ -1195,12 +1259,35 @@ case 4: // Barbarian - theBGuy
 			Town.visitTown(!!needRepair.length);
 		}
 
-		if (useHowl && Attack.getMonsterCount(me.x, me.y, 6) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+		if (Attack.getCustomAttack(unit)) {
+			attackSkill = Attack.getCustomAttack(unit)[0];
+		} else {
+			attackSkill = Config.AttackSkill[index];
+		}
+
+		if (!Attack.checkResist(unit, attackSkill)) {
+			attackSkill = -1;
+
+			if (Config.AttackSkill[index + 1] > -1 && Attack.checkResist(unit, Config.AttackSkill[index + 1])) {
+				attackSkill = Config.AttackSkill[index + 1];
+			}
+		}
+
+		// Low mana skill
+		if (Skill.getManaCost(attackSkill) > me.mp && Config.LowManaSkill[0] > -1 && Attack.checkResist(unit, Config.LowManaSkill[0])) {
+			attackSkill = Config.LowManaSkill[0];
+		}
+
+		if (useHowl && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
 			Skill.cast(130, Skill.getHand(130));
 		}
 
+		if (useTaunt) {
+			this.tauntMonsters(unit, attackSkill);
+		}
+
 		if (preattack && Config.AttackSkill[0] > 0 && !unit.dead && Config.AttackSkill[0] === 154 && !me.getState(121)) {
-			if (!unit.getState(89) && !unit.getState(60)) {		//Unit not already in Battle Cry state or unit not in decrepify state. Don't want to overwrite helpful cureses
+			if (!unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27)) {		//Unit not already in Battle Cry, decrepify, or terror state. Don't want to overwrite helpful cureses
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(146) || checkCollision(me, unit, 0x4)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(146), 0x4)) {
 						return 0;
@@ -1263,28 +1350,10 @@ case 4: // Barbarian - theBGuy
 			return 1;
 		}
 
-		var index,
-			attackSkill = -1;
-
-		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
-
-		if (Attack.getCustomAttack(unit)) {
-			attackSkill = Attack.getCustomAttack(unit)[0];
-		} else {
-			attackSkill = Config.AttackSkill[index];
-		}
-
-		if (!Attack.checkResist(unit, attackSkill)) {
-			attackSkill = -1;
-
-			if (Config.AttackSkill[index + 1] > -1 && Attack.checkResist(unit, Config.AttackSkill[index + 1])) {
-				attackSkill = Config.AttackSkill[index + 1];
+		if (index === 1) {
+			if (useHowl && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(130) < me.mp) {
+				Skill.cast(130, Skill.getHand(130));
 			}
-		}
-
-		// Low mana skill
-		if (Skill.getManaCost(attackSkill) > me.mp && Config.LowManaSkill[0] > -1 && Attack.checkResist(unit, Config.LowManaSkill[0])) {
-			attackSkill = Config.LowManaSkill[0];
 		}
 
 		// Telestomp with barb is pointless

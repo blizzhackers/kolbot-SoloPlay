@@ -26,9 +26,10 @@ var build = {
 		[130, 1, false], // Howl -> charlvl 4
 		[127, 2, false], // Sword Mastery -> charlvl 3 (1 point from den)
 		[133, 1, false], // Double Swing -> charlvl 6
-		[138, 1, false], // Shout -> charlvl 6
+		[137, 1, false], // Taunt -> charlvl 6
+		[138, 1, false], // Shout -> charlvl 7
 		[139, 1, false], // Stun -> charlvl 12
-		[133, 9, true], // Double Swing -> charlvl 14
+		[133, 13, true], // Double Swing -> charlvl ? (13 is when it starts giving mana by being -1)
 		[146, 1, true], // Battle Cry -> charlvl 18
 		[145, 1, true], // Iron Skin -> charlvl 18
 		[127, 6, false], // Sword Mastery -> charlvl 23

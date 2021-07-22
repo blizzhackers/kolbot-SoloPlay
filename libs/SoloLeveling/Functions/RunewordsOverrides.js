@@ -1,8 +1,8 @@
 /*
 *	@filename	RunewordsOverrides.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		Runewords.js patch for offline ladder runewords
-*	@credits	kolton
+*	@credits	kolton, theBGuy (this was my idea)
 */
 
 var Runeword = {

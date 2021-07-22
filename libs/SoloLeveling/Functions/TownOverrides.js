@@ -87,6 +87,10 @@ Town.townTasks = function () {
 	Config.NoTele = me.normal && me.gold < 10000 ? true : !me.normal && me.gold < 50000 ? true : false;
 	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54)) ? !Config.NoTele : Config.Dodge;
 
+	if (me.barbarian && SetUp.currentBuild !== "Singer") {
+		Config.Dodge = false;
+	}
+
 	delay(200 + me.ping * 2);
 
 	return true;
@@ -150,6 +154,10 @@ Town.doChores = function (repair = false) {
 
 	Config.NoTele = me.normal && me.gold < 10000 ? true : !me.normal && me.gold < 50000 ? true : false;
 	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54)) ? !Config.NoTele : Config.Dodge;
+
+	if (me.barbarian && SetUp.currentBuild !== "Singer") {
+		Config.Dodge = false;
+	}
 
 	delay(200 + me.ping * 2);
 

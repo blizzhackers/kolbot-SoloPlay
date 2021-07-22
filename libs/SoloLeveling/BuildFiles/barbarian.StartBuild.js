@@ -26,12 +26,13 @@ var build = {
 		[130, 1, false], // Howl -> charlvl 4
 		[127, 2, false], // Sword Mastery -> charlvl 3 (1 point from den)
 		[133, 1, false], // Double Swing -> charlvl 6
-		[138, 1, false], // Shout -> charlvl 6
+		[137, 1, false], // Taunt -> charlvl 6
+		[138, 1, false], // Shout -> charlvl 7
 		[139, 1, false], // Stun -> charlvl 12
-		[133, 9, true], // Double Swing -> charlvl 14
+		[133, 13, true], // Double Swing -> charlvl 14
 		[146, 1, true], // Battle Cry -> charlvl 18
 		[145, 1, true], // Iron Skin -> charlvl 18
-		[127, 6, false], // Sword Mastery -> charlvl 23
+		[127, 3, false], // Sword Mastery -> charlvl 23
 		[147, 1, true], // Frenzy -> charlvl 24
 		[149, 1, true], // Battle Orders -> charlvl 24
 		[147, 2, false], // Frenzy -> charlvl 25
@@ -53,15 +54,20 @@ var build = {
 		[149, 8, false], // Battle Orders -> charlvl 43
 		[147, 9, false], // Frenzy -> charlvl 44
 		[149, 9, false], // Battle Orders -> charlvl 45
-		[147, 10, false], // Frenzy -> charlvl 46
+		[127, 4, false], // Sword Mastery -> charlvl 46
+		//[147, 10, false], // Frenzy -> charlvl 46
 		[149, 10, false], // Battle Orders -> charlvl 47
-		[147, 11, false], // Frenzy -> charlvl 48
+		[127, 5, false], // Sword Mastery -> charlvl 46
+		//[147, 11, false], // Frenzy -> charlvl 48
 		[149, 11, false], // Battle Orders -> charlvl 49
-		[147, 12, false], // Frenzy -> charlvl 50
+		[127, 6, false], // Sword Mastery -> charlvl 46
+		//[147, 12, false], // Frenzy -> charlvl 50
 		[149, 12, false], // Battle Orders -> charlvl 51
-		[147, 13, false], // Frenzy -> charlvl 52
+		[127, 7, false], // Sword Mastery -> charlvl 46
+		//[147, 13, false], // Frenzy -> charlvl 52
 		[149, 13, false], // Battle Orders -> charlvl 53 (BO now lasts 2 minutes, so lets max Frenzy)
-		[147, 20, false], // Frenzy -> charlvl 61
+		[127, 20, false], // Sword Mastery -> charlvl 46
 		[149, 20, false], // Battle Orders -> charlvl 69
+		[147, 20, false], // Frenzy -> charlvl 61
 	]
 };

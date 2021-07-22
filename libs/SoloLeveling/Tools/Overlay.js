@@ -1,7 +1,7 @@
 /*
 *	@filename	Overlay.js
 *	@author		theBGuy
-*	@desc		overlay thread from SoloLeveling
+*	@desc		overlay thread for SoloLeveling
 *	@credits 	Adpist for first gen Overlay, isid0re for styleing, timer, and tracker, laz for his manual play, dzik for his hookHandler, securitycat, kolton libs
 */
 
@@ -43,25 +43,6 @@ var Overlay = {
 			}
 
 			return true;
-		},
-
-		getRes: function (resistance) {
-			var penalty = [[0, 20, 50], [0, 40, 100]][me.gametype][me.diff];
-
-			switch (resistance) {
-			case "fire":
-				return me.getStat(39) - penalty;
-			case "cold":
-				return me.getStat(43) - penalty;
-			case "light":
-				return me.getStat(41) - penalty;
-			case "poison":
-				return me.getStat(45) - penalty;
-			default:
-				break;
-			}
-
-			return -1;
 		},
 
 		check: function () {
@@ -118,11 +99,137 @@ var Overlay = {
 				this.getHook("level").hook.text = "Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + Difficulty[me.diff] + "ÿc4  Level: ÿc0" + me.charlvl;
 			}
 
+		},
+
+		add: function (name) {
+			switch (name) {
+			case "dashboard":
+				this.hooks.push({
+					name: "dashboard",
+					hook: new Box(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 370, 65, 0x0, 1, 2)
+				});
+
+				break;
+			case "dashboardframe":
+				this.hooks.push({
+					name: "dashboardframe",
+					hook: new Frame(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 370, 65, 2)
+				});
+
+				break;
+			case "credits":
+				this.hooks.push({
+					name: "credits",
+					hook: new Text("GuysSoloLeveling by ÿc0 theBGuy" + "ÿc4  Realm: ÿc0" + (me.realm ? me.realm : "SP"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 15, 4, 13, 2)
+				});
+
+				break;
+
+			case "level":
+				this.hooks.push({
+					name: "level",
+					hook: new Text("Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + Difficulty[me.diff] + "ÿc4  Level: ÿc0" + me.charlvl, Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 30, 4, 13, 2)
+				});
+
+				break;
+			case "times":
+				this.hooks.push({
+					name: "times",
+					hook: new Text("Total: ÿc0" + this.clock("Total") + "ÿc4 InGame: ÿc0" + this.clock("InGame") + "ÿc4 OOG: ÿc0" + this.clock("OOG"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 60, 4, 13, 2)
+				});
+
+				break;
+			case "timerboard":
+				this.hooks.push({
+					name: "timerboard",
+					hook: new Box(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY + 8 * (Number(!!me.diff) + Number(!!me.gamepassword) + Number(!!me.gametype) + Number(!!me.gamename)), 187, 30, 0x0, 1, 2)
+				});
+
+				break;
+			case "timerframe":
+				this.hooks.push({
+					name: "timerframe",
+					hook: new Frame(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY + 8 * (Number(!!me.diff) + Number(!!me.gamepassword) + Number(!!me.gametype) + Number(!!me.gamename)), 187, 30, 2)
+				});
+
+				break;
+			case "InGameTimer":
+				this.hooks.push({
+					name: "InGameTimer",
+					hook: new Text("In Game Timer: ÿc0" + this.clock("InGameTimer"), Overlay.timerX + Overlay.resfixX + 1, Overlay.timerY + Overlay.resfixY + 20 + 8 * (Number(!!me.diff) + Number(!!me.gamepassword) + Number(!!me.gametype) + Number(!!me.gamename)), 4, 13, 2)
+				});
+
+				break;
+			}
+		},
+
+		getHook: function (name) {
+			var i;
+
+			for (i = 0; i < this.hooks.length; i += 1) {
+				if (this.hooks[i].name === name) {
+					return this.hooks[i];
+				}
+			}
+
+			return false;
+		},
+
+		flush: function () {
+			while (this.hooks.length) {
+				this.hooks.shift().hook.remove();
+			}
+		}
+	},
+
+	quests: {
+		hooks: [],
+		enabled: true,
+
+		getRes: function (resistance) {
+			var penalty = [[0, 20, 50], [0, 40, 100]][me.gametype][me.diff];
+
+			// Double check in case still got here before being ready
+			if (!me.gameReady || !me.ingame || [1, 2, 3, 4, 5].indexOf(me.act) === -1) {
+				return -1;
+			}
+
+			switch (resistance) {
+			case "fire":
+				return me.getStat(39) - penalty;
+			case "cold":
+				return me.getStat(43) - penalty;
+			case "light":
+				return me.getStat(41) - penalty;
+			case "poison":
+				return me.getStat(45) - penalty;
+			default:
+				break;
+			}
+
+			return -1;
+		},
+
+		check: function () {
+			if (!this.enabled) {
+				this.flush();
+
+				return;
+			}
+
+			while (!me.ingame && !me.gameReady && !me.area) {
+				if (me.dead) {
+					return;
+				}
+
+				delay(500 + me.ping);
+			}
+
 			if (!this.getHook("resistances")) {
 				this.add("resistances");
 			} else {
 				this.getHook("resistances").hook.text = "FR: ÿc1" + this.getRes("fire") + "ÿc4   CR: ÿc3" + this.getRes("cold") + "ÿc4   LR: ÿc9" + this.getRes("light") + "ÿc4   PR: ÿc2" + this.getRes("poison");
-			}
+			}			
 
 			switch (me.act) {
 			case 1:
@@ -361,17 +468,11 @@ var Overlay = {
 
 		add: function (name) {
 			switch (name) {
-			case "dashboard":
+			case "resistances":
 				this.hooks.push({
-					name: "dashboard",
-					hook: new Box(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 370, 65, 0x0, 1, 2)
-				});
-
-				break;
-			case "dashboardframe":
-				this.hooks.push({
-					name: "dashboardframe",
-					hook: new Frame(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 370, 65, 2)
+					name: "resistances",
+					hook: new Text(
+						"FR: ÿc1" + this.getRes("fire") + "ÿc4   CR: ÿc3" + this.getRes("cold") + "ÿc4   LR: ÿc9" + this.getRes("light") + "ÿc4   PR: ÿc2" + this.getRes("poison"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 45, 4, 13, 2)
 				});
 
 				break;
@@ -393,58 +494,6 @@ var Overlay = {
 				this.hooks.push({
 					name: "questheader",
 					hook: new Text("Quests in Act: ÿc0" + me.act, Overlay.questX, Overlay.questY + Overlay.resfixY, 4, 13, 0)
-				});
-
-				break;
-
-			case "credits":
-				this.hooks.push({
-					name: "credits",
-					hook: new Text("GuysSoloLeveling by ÿc0 theBGuy" + "ÿc4  Realm: ÿc0" + (me.realm ? me.realm : "SP"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 15, 4, 13, 2)
-				});
-
-				break;
-
-			case "level":
-				this.hooks.push({
-					name: "level",
-					hook: new Text("Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + Difficulty[me.diff] + "ÿc4  Level: ÿc0" + me.charlvl, Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 30, 4, 13, 2)
-				});
-
-				break;
-			case "times":
-				this.hooks.push({
-					name: "times",
-					hook: new Text("Total: ÿc0" + this.clock("Total") + "ÿc4 InGame: ÿc0" + this.clock("InGame") + "ÿc4 OOG: ÿc0" + this.clock("OOG"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 60, 4, 13, 2)
-				});
-
-				break;
-			case "resistances":
-				this.hooks.push({
-					name: "resistances",
-					hook: new Text(
-						"FR: ÿc1" + this.getRes("fire") + "ÿc4   CR: ÿc3" + this.getRes("cold") + "ÿc4   LR: ÿc9" + this.getRes("light") + "ÿc4   PR: ÿc2" + this.getRes("poison"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 45, 4, 13, 2)
-				});
-
-				break;
-			case "timerboard":
-				this.hooks.push({
-					name: "timerboard",
-					hook: new Box(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY + 8 * (Number(!!me.diff) + Number(!!me.gamepassword) + Number(!!me.gametype) + Number(!!me.gamename)), 187, 30, 0x0, 1, 2)
-				});
-
-				break;
-			case "timerframe":
-				this.hooks.push({
-					name: "timerframe",
-					hook: new Frame(Overlay.timerX + Overlay.resfixX, Overlay.timerY + Overlay.resfixY + 8 * (Number(!!me.diff) + Number(!!me.gamepassword) + Number(!!me.gametype) + Number(!!me.gamename)), 187, 30, 2)
-				});
-
-				break;
-			case "InGameTimer":
-				this.hooks.push({
-					name: "InGameTimer",
-					hook: new Text("In Game Timer: ÿc0" + this.clock("InGameTimer"), Overlay.timerX + Overlay.resfixX + 1, Overlay.timerY + Overlay.resfixY + 20 + 8 * (Number(!!me.diff) + Number(!!me.gamepassword) + Number(!!me.gametype) + Number(!!me.gamename)), 4, 13, 2)
 				});
 
 				break;
@@ -622,6 +671,10 @@ var Overlay = {
 		getHook: function (name) {
 			var i;
 
+			while (!me.gameReady || !me.ingame || !me.area) {
+				delay(500 + me.ping);
+			}
+
 			for (i = 0; i < this.hooks.length; i += 1) {
 				if (this.hooks[i].name === name) {
 					return this.hooks[i];
@@ -632,10 +685,6 @@ var Overlay = {
 		},
 
 		flush: function () {
-			if (getUIFlag(0x0D)) {
-				return;
-			}
-
 			while (this.hooks.length) {
 				this.hooks.shift().hook.remove();
 			}
@@ -644,15 +693,24 @@ var Overlay = {
 
 	update: function (msg = false) {
 		function status () {
-			let hide = [0x01, 0x02, 0x03, 0x04, 0x05, 0x09, 0x0C, 0x0D, 0x0F, 0x14, 0x18, 0x19, 0x1A, 0x21, 0x24];
+			let hide = [0x01, 0x02, 0x03, 0x04, 0x05, 0x09, 0x0C, 0x0F, 0x18, 0x19, 0x1A, 0x21, 0x24];
 
 			// from commit eb818af SoloLeveling
-			if (!me.gameReady && !me.ingame && [1, 2, 3, 4, 5].indexOf(me.act) === -1) {
-				Overlay.text.enabled = false;
+			if (!me.gameReady || !me.ingame || [1, 2, 3, 4, 5].indexOf(me.act) === -1) {
+				Overlay.Disable(true);
 			} else {
+				while (!me.gameReady) {
+					delay(100);
+				}
+			
 				for (let flag = 0; flag < hide.length; flag++) {
 					if (getUIFlag(hide[flag])) {
-						Overlay.text.enabled = false;
+						while (getUIFlag(hide[flag])) {
+							Overlay.text.flush();
+							Overlay.quests.flush();
+							delay(100);
+						}
+
 						break;
 					} else {
 						Overlay.text.enabled = true;
@@ -662,13 +720,40 @@ var Overlay = {
 			}
 
 			Overlay.text.check();
+
+			if (Overlay.quests.enabled) {
+				Overlay.quests.check();
+			} else {
+				Overlay.quests.flush();
+			}
+
 		}
 
 		return msg ? true : (me.gameReady && me.ingame && !me.dead) ? status() : false;
 	},
 
+	Disable: function (all) {
+		me.overhead("Disable");
+
+		if (!!all) {
+			me.overhead("Disable All");
+			Overlay.text.flush();
+			Overlay.quests.flush();
+			Overlay.text.enabled = false;
+			Overlay.quests.enabled = false;
+		} else {
+			Overlay.quests.flush();
+			Overlay.quests.enabled = false;
+			print(Overlay.quests.enabled);
+		}
+
+		delay(100);
+
+		return true;
+	},
+
 	flush: function () {
-		this.text.flush();
+		Overlay.quests.flush();
 
 		return true;
 	},

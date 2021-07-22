@@ -83,6 +83,7 @@ function main() {
 	Cubing.init();
 
 	let useHowl = me.barbarian && me.getSkill(130, 0);
+	let useTerror = me.necromancer && me.getSkill(77, 0);
 
 	while (true) {
 		if (!me.inTown && (townCheck ||
@@ -100,6 +101,10 @@ function main() {
 				
 				if (useHowl && Skill.getManaCost(130) < me.mp) {
 					Skill.cast(130, 0);
+				}
+
+				if (useTerror && Skill.getManaCost(77) < me.mp) {
+					Skill.cast(77, 0);
 				}
 				
 				Town.visitTown();

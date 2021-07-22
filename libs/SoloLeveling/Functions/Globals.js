@@ -13,7 +13,7 @@ var Difficulty = ['Normal', 'Nightmare', 'Hell'];
 
 var SetUp = {
 	scripts: [
-		"den", "bloodraven", "tristram", "treehead","countess", "smith", "pits", "jail", "andariel", "a1chests", "cows", // Act 1
+		"den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "andariel", "a1chests", "cows", // Act 1
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel", // Act 2
 		"templeruns", "lowerkurast", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
 		"izual", "hellforge", "diablo", //Act 4
@@ -271,7 +271,7 @@ var Check = {
 
 			break;
 		case "bloodraven": //bloodaraven
-			if ((!me.bloodraven && me.normal) || (me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || !me.amazon))) {
+			if ((!me.bloodraven && me.normal || (me.charlvl > 10 && !Check.Gold())) || (me.normal && !me.tristram && me.barbarian) || (me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || !me.amazon))) {
 				return true;
 			}
 
@@ -289,7 +289,7 @@ var Check = {
 
 			break;
 		case "tristram": //tristram
-			if ((me.normal && me.charlvl < 15) || (!me.normal && (!me.tristram && (me.classic && me.diablo || me.baal)) || (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
+			if ((me.normal && me.charlvl < 15 || !Check.Gold()) || (!me.normal && (!me.tristram && (me.classic && me.diablo || me.baal)) || (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
 				return true;
 			}
 
@@ -469,7 +469,7 @@ var Check = {
 
 			break;
 		case "cows": //cows
-			if (!me.normal && !me.cows && (me.classic && me.diablo || me.baal) && ((me.nightmare && (!me.druid || me.charlvl <= 65) || me.hell))) {
+			if (!me.normal && !me.cows && (!me.barbarian || ["Whirlwind", "Immortalwhirl", "Singer"].indexOf(SetUp.currentBuild) > -1) && (me.classic && me.diablo || me.baal) && ((me.nightmare && (!me.druid || me.charlvl <= 65) || me.hell))) {
 				return true;
 			}
 

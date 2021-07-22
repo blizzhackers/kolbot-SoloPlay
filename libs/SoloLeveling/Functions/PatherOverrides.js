@@ -346,7 +346,7 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 		throw new Error("moveTo: Coords must be numbers");
 	}
 
-	if (retry === undefined) {
+	if (retry === undefined || retry === 3) {
 		retry = 15;
 	}
 
@@ -541,86 +541,6 @@ Pather.makePortal = function (use) {
 	}
 
 	return false;
-};
-
-// from isid0re SoloLeveling commit eb818af
-Pather.usePortal = function (targetArea, owner, unit) {
-	if (targetArea && me.area === targetArea) {
-		return true;
-	}
-
-	me.cancel();
-
-	var i, tick, portal,
-		preArea = me.area;
-
-	for (i = 0; i < 10; i += 1) {
-		if (me.dead) {
-			break;
-		}
-
-		if (i > 0 && owner && me.inTown) {
-			Town.move("portalspot");
-		}
-
-		portal = unit ? copyUnit(unit) : this.getPortal(targetArea, owner);
-
-		if (portal) {
-			if (portal.area === me.area) {
-				if (getDistance(me, portal) > 5) {
-					this.moveToUnit(portal);
-				}
-
-				if (getTickCount() - this.lastPortalTick > 2500) {
-					if (i < 2) {
-						sendPacket(1, 0x13, 4, 0x2, 4, portal.gid);
-					} else {
-						Misc.click(0, 0, portal);
-					}
-				} else {
-					delay(300 + me.ping);
-					continue;
-				}
-			}
-
-			if (portal.classid === 298 && portal.mode !== 2) { // Portal to/from Arcane
-				Misc.click(0, 0, portal);
-
-				tick = getTickCount();
-
-				while (getTickCount() - tick < 2000) {
-					if (portal.mode === 2 || me.area === 74) {
-						break;
-					}
-
-					delay(10 + me.ping);
-				}
-			}
-
-			tick = getTickCount();
-
-			while (getTickCount() - tick < 500 + me.ping) {
-				if (me.area !== preArea) {
-					this.lastPortalTick = getTickCount();
-					delay(100 + me.ping);
-
-					return true;
-				}
-
-				delay(10 + me.ping);
-			}
-
-			if (i > 1) {
-				Packet.flash(me.gid);
-			}
-		} else {
-			Packet.flash(me.gid);
-		}
-
-		delay(200 + me.ping);
-	}
-
-	return targetArea ? me.area === targetArea : me.area !== preArea;
 };
 
 Pather.moveToUnit = function (unit, offX, offY, clearPath, pop) {
@@ -860,7 +780,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 
 				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), me.ping * 4)) {
 					if (me.area === targetArea) {
-						delay(500 + me.ping);
+						delay(1000 + me.ping);
 
 						return true;
 					}
@@ -868,7 +788,11 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 					delay(10 + me.ping);
 				}
 
-				me.cancel(); // In case lag causes the wp menu to stay open
+				delay(500 + me.ping);
+
+				if (getUIFlag(0x14)) {
+					me.cancel(); // In case lag causes the wp menu to stay open
+				}
 			}
 
 			Packet.flash(me.gid);

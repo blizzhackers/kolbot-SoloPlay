@@ -511,16 +511,34 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit) { // probabl
 	return true;
 };
 
-Attack.getMonsterCount = function (x, y, range, list) {
+Attack.getMonsterCount = function (x, y, range, list, filter) {
 	var i,
 		fire,
 		count = 0,
 		ignored = [243];
 
+	let rangedMobsClassIDs = [10, 11, 12, 13, 14, 58, 59, 60, 61, 62, 101, 102, 103, 104, 118, 119, 120, 121, 131, 132, 133, 134, 135, 170, 171, 172, 173, 174, 238, 239, 240, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 580, 581, 582, 583, 584, 636, 637, 638, 639, 640, 641, 645, 646, 647, 697];
+
+	if (filter === undefined) {
+		filter = false;
+	}
+
 	if (list === undefined || !list.length) {
 		list = this.buildMonsterList();
 		list.sort(Sort.units);
+		let newList;
 
+		if (filter) {
+			newList = list.filter(mob => mob.spectype === 0);
+
+			for (i = 0; i < newList.length; i++) {
+				if (ignored.indexOf(newList[i].classid) === -1 && this.checkMonster(newList[i]) && getDistance(x, y, newList[i].x, newList[i].y) <= range) {
+					count += 1;
+				}
+			}
+
+			return count;
+		}
 	}
 
 	for (i = 0; i < list.length; i += 1) {
@@ -540,4 +558,9 @@ Attack.getMonsterCount = function (x, y, range, list) {
 	}
 
 	return count;
+};
+
+Attack.test = function () {
+
+	return true;
 };
