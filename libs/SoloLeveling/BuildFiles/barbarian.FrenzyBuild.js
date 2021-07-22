@@ -4,7 +4,7 @@
  *    @desc       Frenzy final build
  */
 
-var build = {
+var finalBuild = {
 	caster: false,
 	skillstab: 32, // Combat skills
 	wantedskills: [149, 147, 133], // Battle Orders, Frenzy, Double Swing
