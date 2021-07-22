@@ -61,7 +61,8 @@ var finalBuild = {
 		//ammy
 		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 110000", // highlords
 		//rings
-		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000", // raven frost
+		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == # [tier] == 100000", // raven frost
+		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000", // Perfect raven frost
 		"[name] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == 100000", //Wisp
 		"[name] == ring && [quality] == unique # [itemabsorblightpercent] == 20 # [tier] == 110000", //Perfect Wisp
 		//Charms
