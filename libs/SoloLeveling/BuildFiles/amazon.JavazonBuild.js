@@ -51,7 +51,7 @@ var finalBuild = {
 		//Helmet
 		"[name] == shako && [quality] == unique && [flag] != ethereal # [itemallskills] == 2 # [tier] == 100000 + tierscore(item)", //harlequin's crest
 		//boots
-		"[name] == scarabshellboots && [quality] == unique && [flag] != ethereal # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)", //sandstorm treks
+		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)", //sandstorm treks
 		//belt
 		"[name] == warbelt && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)", //thundergod's vigor
 		//armor
