@@ -64,8 +64,7 @@ var finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		//weapon
-		"[Type] == mace && [flag] == runeword # [FCR] == 40 # [tier] == 200000", // HotO
-		"[name] == greatertalons && [quality] == unique && [flag] != ethereal # [enhanceddamage] >= 150 && [lifeleech] >= 5 # [tier] == 100000", //bartuc's
+		"[Type] == mace && [flag] == runeword # [FCR] == 40 # [tier] == 100000", // HotO
 		//Helmet
 		"[name] == shako && [quality] == unique && [flag] != ethereal # [DamageResist] == 10 # [tier] == 100000", // harlequin's crest
 		//belt
