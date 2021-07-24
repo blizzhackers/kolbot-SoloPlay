@@ -542,12 +542,25 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(Enigma);
 
-			if (!me.getItem(639)) {
-				Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // sur to ber
+			if (!me.getItem(640)) {		// Jah Rune
+				Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
+				Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
+				Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
+				Config.Recipes.push([Recipe.Rune, "Vex Rune"]); // Vex to Ohm
+				Config.Recipes.push([Recipe.Rune, "Ohm Rune"]); // Ohm to Lo
+				Config.Recipes.push([Recipe.Rune, "Lo Rune"]); // Lo to Sur
+				Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // Sur to Ber
+				Config.Recipes.push([Recipe.Rune, "Ber Rune"]); // Ber to Jah
 			}
 
-			if (!me.getItem(640)) {
-				Config.Recipes.push([Recipe.Rune, "Ber Rune"]); // ber to jah
+			if (!me.getItem(639)) {		// Ber rune
+				Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
+				Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
+				Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
+				Config.Recipes.push([Recipe.Rune, "Vex Rune"]); // Vex to Ohm
+				Config.Recipes.push([Recipe.Rune, "Ohm Rune"]); // Ohm to Lo
+				Config.Recipes.push([Recipe.Rune, "Lo Rune"]); // Lo to Sur
+				Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // Sur to Ber
 			}
 
 			if (me.getItem(639) && me.getItem(640)) {
