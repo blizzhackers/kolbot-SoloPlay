@@ -296,7 +296,7 @@ function diablo () {
 		switch (sealBoss) {
 		case "infector":
 			if (this.infLayout === 1) {
-				Pather.moveTo(7886, 5300);
+				Pather.moveTo(7876, 5299);
 				delay(100 + me.ping);
 			} else {
 				Pather.moveTo(7933, 5319);
@@ -323,8 +323,7 @@ function diablo () {
 		let list = Attack.buildMonsterList();
 		list.sort(Sort.units);
 		let newList = list.filter(mob => [310, 362].indexOf(mob.classid) > -1 && [0, 8].indexOf(mob.spectype) > -1);
-
-		//print("List length after sorting: " + newList.length);
+		me.overhead("Attemping farCast");
 
 		switch (me.classid) {
 		case 0: //Amazon
@@ -396,6 +395,7 @@ function diablo () {
 	if (Check.Resistance().CR < 75 || Check.Resistance().PR < 75) {
 		Town.doChores();
 		Town.buyPots(10, "Thawing"); // thawing
+		Town.drinkPots();
 		Town.buyPots(10, "Antidote"); // antidote
 		Town.drinkPots();
 		Town.move("portalspot");
