@@ -9,6 +9,26 @@ if (!isIncluded("common/Misc.js")) {
 	include("common/Misc.js");
 }
 
+Item.getQuantityOwned = function (item) {
+	let owned = 0, list = [];
+
+	let myItems = me.getItems()
+		.filter(check =>
+				check.itemType === item.itemType// same item type as current
+				&& check.classid === item.classid// same item classid as current
+				&& check.getStat(194) === item.getStat(194) // sockets match junk in review
+				&& [3, 7].indexOf(check.location) > -1 // locations
+			);
+
+	for (let i = 0; i < myItems.length; i++) {
+		if (list.indexOf(myItems[i]) === -1) {
+			list.push(myItems[i]);	
+		}
+	}
+
+	return myItems.length;
+};
+
 Item.getBodyLoc = function (item) {
 	var bodyLoc;
 

@@ -164,6 +164,75 @@ Town.doChores = function (repair = false) {
 	return true;
 };
 
+Town.repair = function (force = false) {
+	var i, quiver, myQuiver, npc, repairAction, bowCheck;
+
+	this.cubeRepair();
+
+	repairAction = this.needRepair();
+
+	if (force && repairAction.indexOf("repair") === -1) {
+		repairAction.push("repair");
+	}
+
+	if (!repairAction || !repairAction.length) {
+		return true;
+	}
+
+	for (i = 0; i < repairAction.length; i += 1) {
+		switch (repairAction[i]) {
+		case "repair":
+			if (me.act === 3) {
+				this.goToTown(2);
+			}
+
+			npc = this.initNPC("Repair", "repair");
+
+			if (!npc) {
+				return false;
+			}
+
+			me.repair();
+
+			break;
+		case "buyQuiver":
+			bowCheck = Attack.usingBow();
+
+			if (bowCheck) {
+				if (bowCheck === "bow") {
+					quiver = "aqv"; // Arrows
+				} else {
+					quiver = "cqv"; // Bolts
+				}
+
+				myQuiver = me.getItem(quiver, 1);
+
+				if (myQuiver) {
+					myQuiver.drop();
+				}
+
+				npc = this.initNPC("Repair", "repair");
+
+				if (!npc) {
+					return false;
+				}
+
+				quiver = npc.getItem(quiver);
+
+				if (quiver) {
+					quiver.buy();
+				}
+			}
+
+			break;
+		}
+	}
+
+	//this.shopItems();
+
+	return true;
+};
+
 Town.identify = function () {
 	var i, item, tome, scroll, npc, list, timer, tpTome, result,
 		tpTomePos = {};
@@ -790,6 +859,11 @@ Town.buyPots = function (quantity, type) {
 
 	if (type === "Stamina" && (me.paladin && me.getSkill(115, 0) || me.sorceress && me.getSkill(54, 0))) {	// Don't buy if teleport or vigor
 		return true;
+	}
+
+	// avoid Alkor
+	if (me.act === 3) {
+		this.goToTown(2);
 	}
 
 	switch (me.area) {
@@ -2014,7 +2088,7 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
 				if ((base.location === 7 || base.location === 3) &&
 					(generalScore(base) < generalScore(itemsToCheck) ||
-						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl < itemsToCheck.ilvl))) {
+						(generalScore(base) === generalScore(itemsToCheck) && base.getStatEx(31) < itemsToCheck.getStatEx(31)))) {
 					result = true;
 				}
 			}
@@ -2108,7 +2182,8 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 
 		if (base.getStat(194) > 0) {
 			if ((base.location === 7 || base.location === 3) &&
-				(generalScore(base) < generalScore(itemsToCheck))) {
+				(generalScore(base) < generalScore(itemsToCheck) || 
+						(generalScore(base) === generalScore(itemsToCheck) && Item.getQuantityOwned(base) > 2))) {
 				result = true;
 			}
 		}
