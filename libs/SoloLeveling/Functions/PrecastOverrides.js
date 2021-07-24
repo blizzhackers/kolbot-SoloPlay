@@ -47,6 +47,7 @@ Precast.getBetterSlot = function (skillId) {
 
 		break;
 	case 138: // Shout
+	case 142: // Find Item
 	case 149: // Battle Orders
 	case 155: // Battle Command
 		classid = 4;
@@ -70,13 +71,9 @@ Precast.getBetterSlot = function (skillId) {
 
 		break;
 	case 223: // Wearwolf
-		classid = 5;
-		skillTab = 223;
-
-		break;
 	case 228: // Wearbear
 		classid = 5;
-		skillTab = 228;
+		skillTab = 41;
 
 		break;
 	default:
