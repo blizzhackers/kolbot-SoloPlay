@@ -62,12 +62,19 @@ function main() {
 	addEventListener("scriptmsg",
 		function (msg) {
 			if (msg === "townCheck") {
-				if (me.area === 136) {
-					print("Can't tp from uber trist.");
-				} else if (me.area === 120) {
+				switch (me.area) {
+				case 120:
 					print("Don't tp from Arreat Summit.");
-				} else {
+
+					break;
+				case 136:
+					print("Can't tp from uber trist.");
+
+					break;
+				default:
 					townCheck = true;
+
+					break;
 				}
 			}
 		});
@@ -84,6 +91,18 @@ function main() {
 
 	let useHowl = me.barbarian && me.getSkill(130, 0);
 	let useTerror = me.necromancer && me.getSkill(77, 0);
+	/*let canGoToTown = false;
+	let book = me.getItem(518);
+
+	if (book.getStat(70) >= 1) {
+		canGoToTown = true;
+	} else {
+		let scroll = me.getItem(529)
+
+		if (scroll) {
+			canGoToTown = true;
+		}
+	}*/
 
 	while (true) {
 		if (!me.inTown && (townCheck ||

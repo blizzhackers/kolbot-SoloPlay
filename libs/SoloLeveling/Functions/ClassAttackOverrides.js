@@ -1340,6 +1340,7 @@ case 4: // Barbarian - theBGuy
 	ClassAttack.doCast = function (unit, attackSkill) {
 		var walk;
 		let useConc = me.getSkill(144, 0);
+		let useWhirl = me.getSkill(151, 1) && attackSkill !== 151; // If main attack skill is already whirlwind no need to use it twice
 
 		if (attackSkill < 0) {
 			return 2;
@@ -1376,6 +1377,10 @@ case 4: // Barbarian - theBGuy
 
 				if (useConc && !unit.dead) {
 					Skill.cast(144, Skill.getHand(144), unit);
+				}
+
+				if (useWhirl && !unit.dead && Attack.getMonsterCount(me.x, me.y, 6) >= 3) {
+					this.whirlwind(unit);
 				}
 			}
 

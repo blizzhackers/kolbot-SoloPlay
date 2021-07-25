@@ -185,10 +185,10 @@ function LoadConfig () {
 	}
 
 	/* FastMod configuration. */
-	Config.FCR = 255;
-	Config.FHR = 255;
-	Config.FBR = 255;
-	Config.IAS = me.realm ? 0 : 255;
+	Config.FCR = 0;
+	Config.FHR = 0;
+	Config.FBR = 0;
+	Config.IAS = 0;
 
 	/* Attack configuration. */
 	Config.AttackSkill = [-1, 0, 0, 0, 0];
@@ -207,7 +207,12 @@ function LoadConfig () {
 	Config.SkipAura = [];
 
 	/* Shrine scan configuration. */
-	Config.ScanShrines = [15, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14];
+
+	if (Check.currentBuild().caster) {
+		Config.ScanShrines = [15, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14];
+	} else {
+		Config.ScanShrines = [15, 1, 2, 3, 4, 5, 7, 12, 6, 8, 9, 10, 11, 13, 14];
+	}
 
 	/* AutoStat configuration. */
 	Config.AutoStat.Enabled = true;
@@ -487,9 +492,12 @@ function LoadConfig () {
 				"[Name] == AmnRune # # [MaxQuantity] == 1",
 				"[Name] == LemRune",
 				"[Name] == KoRune",
-				"[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [secondarymindamage] == 0 && [Sockets] == 3",
 			];
 			NTIP.arrayLooping(Lawbringer);
+
+			if (me.getItem(629)) {
+				NTIP.addLine("[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [secondarymindamage] == 0 && [Sockets] == 3");
+			}
 
 			Config.Runewords.push([Runeword.Lawbringer, "Dimensional Blade"]);
 			Config.Runewords.push([Runeword.Lawbringer, "Battle Sword"]);
@@ -507,9 +515,12 @@ function LoadConfig () {
 				"[Name] == KoRune",
 				"[Name] == ElRune # # [MaxQuantity] == 1",
 				"[Name] == EldRune # # [MaxQuantity] == 1",
-				"[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [secondarymindamage] == 0 && [Sockets] == 4",
 			];
 			NTIP.arrayLooping(VoiceofReason);
+
+			if (me.getItem(629)) {
+				NTIP.addLine("[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [secondarymindamage] == 0 && [Sockets] == 4")
+			}
 
 			Config.Runewords.push([Runeword.VoiceofReason, "Dimensional Blade"]);
 			Config.Runewords.push([Runeword.VoiceofReason, "Battle Sword"]);
@@ -555,25 +566,25 @@ function LoadConfig () {
 		}
 
 		if (Item.getEquippedItem(1).tier < 100000) { // Lore
-			if (!Check.haveItem("helm", "runeword", "Lore")) {
-				var loreRunes = [
-					"[Name] == OrtRune # # [MaxQuantity] == 1",
-					"[Name] == SolRune # # [MaxQuantity] == 1",
-				];
-				NTIP.arrayLooping(loreRunes);
-
-				Config.Recipes.push([Recipe.Rune, "Ort Rune"]);
-				Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
-				Config.Recipes.push([Recipe.Rune, "Amn Rune"]);
-			}
-
-			var loreHelm = [
+			var lore = [
+				"[Name] == OrtRune # # [MaxQuantity] == 1",
+				"[Name] == SolRune # # [MaxQuantity] == 1",
 				"!me.hell && ([Name] == Crown || [Name] == BoneHelm || [Name] == FullHelm) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1",
 				"([Name] == Casque || [Name] == Sallet || [Name] == DeathMask || [Name] == GrimHelm) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1",
 				"[type] == primalhelm && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior && [strreq] <= 150 # [Sockets] == 2",
-				"[type] == primalhelm && [Quality] == Normal && [strreq] <= 150 # ([barbarianskills]+[barbcombatskilltab]+[skillbattleorders]+[skillfrenzy]+[skilldoubleswing]+[skillnaturalresistance]) >= 1 && [Sockets] == 0",
+				"[type] == primalhelm && [Flag] != Ethereal && [Quality] == Normal && [strreq] <= 150 # ([barbarianskills]+[barbcombatskilltab]+[skillbattleorders]+[skillfrenzy]+[skilldoubleswing]+[skillnaturalresistance]) >= 1 && [Sockets] == 0",
 			];
-			NTIP.arrayLooping(loreHelm);
+			NTIP.arrayLooping(lore);
+
+			if (me.normal && !me.getItem(621)) {	// Sol rune 
+				Config.Recipes.push([Recipe.Rune, "Ort Rune"]);
+				Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
+				Config.Recipes.push([Recipe.Rune, "Amn Rune"]);
+			} else {
+				if (!me.getItem(621)) {	// Sol rune
+					Config.Recipes.push([Recipe.Rune, "Amn Rune"]);
+				}
+			}
 
 			Config.Runewords.push([Runeword.Lore, "Jawbone Cap"]);
 			Config.Runewords.push([Runeword.Lore, "Fanged Helm"]);
@@ -734,7 +745,9 @@ function LoadConfig () {
 				NTIP.arrayLooping(smokeRunes);
 			}
 
-			NTIP.addLine("([Name] == demonhidearmor || [Name] == DuskShroud || [Name] == GhostArmor || [Name] == LightPlate || [Name] == MagePlate || [Name] == SerpentskinArmor || [Name] == trellisedarmor || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1");
+			if (me.getItem(626)) {
+				NTIP.addLine("([Name] == demonhidearmor || [Name] == DuskShroud || [Name] == GhostArmor || [Name] == LightPlate || [Name] == MagePlate || [Name] == SerpentskinArmor || [Name] == trellisedarmor || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1");
+			}
 
 			Config.Runewords.push([Runeword.Smoke, "demonhide armor"]);
 			Config.Runewords.push([Runeword.Smoke, "Dusk Shroud"]);
