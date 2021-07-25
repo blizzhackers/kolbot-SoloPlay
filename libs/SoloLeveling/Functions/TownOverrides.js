@@ -847,7 +847,7 @@ Town.unfinishedQuests = function () {
 };
 
 Town.buyPots = function (quantity, type) {
-	let npc, jugs, preAct = me.act;
+	let npc, jugs;
 
 	if (type === "Thawing" && Check.Resistance().CR >= 75) {	// Don't buy if already at max res
 		return true;
@@ -859,11 +859,6 @@ Town.buyPots = function (quantity, type) {
 
 	if (type === "Stamina" && (me.paladin && me.getSkill(115, 0) || me.sorceress && me.getSkill(54, 0))) {	// Don't buy if teleport or vigor
 		return true;
-	}
-
-	// avoid Alkor
-	if (me.act === 3) {
-		this.goToTown(2);
 	}
 
 	switch (me.area) {
@@ -920,10 +915,6 @@ Town.buyPots = function (quantity, type) {
 	}
 
 	me.cancel();
-
-	if (me.act !== preAct) {
-		this.goToTown(preAct);
-	}
 
 	return true;
 };
