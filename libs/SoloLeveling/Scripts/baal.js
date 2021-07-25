@@ -200,7 +200,7 @@ function baal () {
 				while (Math.round(getDistance(me, newList[i])) > 3) {
 					Attack.clear(6);
 
-					if ((getTickCount() - tick) > 6000) {
+					if ((getTickCount() - tick) > 6000 || newList[i].dead) {
 						break;
 					}
 
@@ -230,16 +230,15 @@ function baal () {
 		Pather.moveTo(15093, 5065);
 		
 		if (!Pather.useTeleport() && wave > 1) {
-			this.quickTown();
+			this.repositionMerc();
 		}
 	};
 
-	this.quickTown = function () {
+	this.repositionMerc = function () {
 		me.overhead("FarCast: Repositioning merc");
-		Pather.moveTo(15098, 5082);
-		Town.goToTown();
-		delay(100 + me.ping);
-		Pather.usePortal(null, me.name);
+		Pather.moveTo(15092, 5071);
+		delay(500);
+		Pather.moveTo(15093, 5065);
 	};
 
 	this.lureLister = function () {
