@@ -847,7 +847,7 @@ Town.unfinishedQuests = function () {
 };
 
 Town.buyPots = function (quantity, type) {
-	let npc, jugs;
+	let npc, jugs, preAct = me.act;
 
 	if (type === "Thawing" && Check.Resistance().CR >= 75) {	// Don't buy if already at max res
 		return true;
@@ -920,6 +920,10 @@ Town.buyPots = function (quantity, type) {
 	}
 
 	me.cancel();
+
+	if (me.act !== preAct) {
+		this.goToTown(preAct);
+	}
 
 	return true;
 };
