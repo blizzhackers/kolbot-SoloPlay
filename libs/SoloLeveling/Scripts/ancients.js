@@ -132,16 +132,9 @@ function ancients () {
 	Precast.doPrecast(true);
 
 	try {
-		let retry = 0;
-
-		if (me.ancients) {
-			while (me.area !== 128 && retry < 5) {
-				Pather.moveToExit(128, true);
-				delay(250 + me.ping);
-				retry++;
-			}
-
-			Pather.moveToExit(129, true);
+		if (Misc.checkQuest(39, 0)) {
+			Pather.clearToExit(120, 128, true);
+			Pather.clearToExit(128, 129, true);
 			Pather.getWP(129);
 		}
 	} catch (err) {
