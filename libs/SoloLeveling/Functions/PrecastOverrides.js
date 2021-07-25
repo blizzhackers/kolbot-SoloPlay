@@ -8,6 +8,40 @@ if (!isIncluded("common/Precast.js")) {
 	include("common/Precast.js");
 }
 
+Precast.precastCTA = function (force) {
+	/*print("Current State for BO: " + me.getState(32));
+	print("Current State for BC: " + me.getState(51));
+	print("Bo Tick: " + this.BOTick);
+	print("BODuration: " + this.BODuration);
+	print("Tick counter: " + (getTickCount() - this.BOTick < this.BODuration - 30000));*/
+
+	if (me.classic || me.barbarian || me.inTown) {
+		return false;
+	}
+
+	if (!force && (me.getState(32) || (getTickCount() - this.BOTick < this.BODuration - 30000))) {
+		return true;
+	}
+
+	if (this.checkCTA()) {
+		var slot = me.weaponswitch;
+
+		Attack.weaponSwitch(this.haveCTA);
+		Skill.cast(155, 0); // Battle Command
+		Skill.cast(155, 0); // Battle Command
+		Skill.cast(149, 0); // Battle Orders
+
+		this.BODuration = (20 + me.getSkill(149, 1) * 10 + (me.getSkill(138, 0) + me.getSkill(155, 0)) * 5) * 1000;
+		this.BOTick = getTickCount();
+
+		Attack.weaponSwitch(slot);
+
+		return true;
+	}
+
+	return false;
+};
+
 Precast.getBetterSlot = function (skillId) {
 	if (this.bestSlot[skillId] !== undefined) {
 		return this.bestSlot[skillId];
@@ -102,12 +136,18 @@ Precast.doPrecast = function (force) {
 	var buffSummons = false;
 
 	// Force BO 30 seconds before it expires
-	this.precastCTA(!me.getState(32) || force || (getTickCount() - this.BOTick >= this.BODuration - 30000));
+	if (this.haveCTA) {
+		this.precastCTA(!me.getState(51) || force || (getTickCount() - this.BOTick >= this.BODuration - 30000));
+	}
 
 	switch (me.classid) {
 	case 0: // Amazon
 		if (Config.SummonValkyrie) {
-			this.summon(32); // Valkyrie
+			buffSummons = this.summon(32); // Valkyrie
+		}
+
+		if (buffSummons) {
+			this.precastCTA(force);
 		}
 
 		break;

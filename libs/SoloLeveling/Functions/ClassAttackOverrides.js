@@ -89,15 +89,15 @@ case 0: //Amazon - theBGuy
 
 		if ((usePlague) && !Attack.checkResist(unit, Config.AttackSkill[1])) { //Only try attacking light immunes if I have my end game javelin - preAttack with Plague Javelin
 			if ((Math.round(getDistance(me, unit)) <= 15) && !checkCollision(me, unit, 0x4)) {
-				if(!unit.getState(87)) {	//Cast Slow-Missles, then proceed with Plague Jav. Lowers amount of damage from projectiles.
+				if (!unit.getState(87)) {	//Cast Slow-Missles, then proceed with Plague Jav. Lowers amount of damage from projectiles.
 					Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
 				}
 
-				if(Attack.checkResist(unit, 25) && !me.getState(121) && !unit.dead) {
+				if (Attack.checkResist(unit, 25) && !me.getState(121) && !unit.dead) {
 					Skill.cast(25, Skill.getHand(25), unit);	
 				}
 
-				if(!useJab) {
+				if (!useJab) {
 					if (Math.round(getDistance(me, unit)) < 4) {	//We are within melee distance might as well use jab rather than stand there
 						if (me.getSkill(10, 1)) {
 							if (Math.round(getDistance(me, unit)) > Skill.getRange(10) || checkCollision(me, unit, 0x4)) {
@@ -106,7 +106,7 @@ case 0: //Amazon - theBGuy
 								}
 							}
 
-							if(Attack.checkResist(unit, 10) && !unit.dead) {	//Make sure monster is not physical immune
+							if (Attack.checkResist(unit, 10) && !unit.dead) {	//Make sure monster is not physical immune
 								Skill.cast(10, Skill.getHand(10), unit);	
 							}
 							
@@ -732,6 +732,12 @@ case 2: // Necromancer
 			timedSkill = -1,
 			untimedSkill = -1;
 
+		let useTerror = me.getSkill(77, 0);
+
+		if (useTerror && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(77) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+			Skill.cast(77, Skill.getHand(77));
+		}
+
 		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
 		if (Config.Curse[0] > 0 && Attack.isCursable(unit) && (unit.spectype & 0x7) && !unit.getState(this.curseState[0])) {
@@ -1197,9 +1203,7 @@ case 4: // Barbarian - theBGuy
 
 		let useHowl = me.getSkill(130, 0) && !me.getSkill(154, 0);
 		let useWarCry = me.getSkill(154, 0);
-		let amoOfMobs = me.area !== 131 ? 2 : 1;
 		let range = me.area !== 131 ? 15 : 30;
-
 		let rangedMobsClassIDs = [10, 11, 12, 13, 14, 118, 119, 120, 121, 131, 132, 133, 134, 135, 170, 171, 172, 173, 174, 238, 239, 240, 362, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 580, 581, 582, 583, 584, 645, 646, 647, 697];
 		let dangerousAndSummoners = [636, 637, 638, 639, 640, 58, 59, 60, 61, 101, 102, 103, 104, 669, 670, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478];
 		let list = Attack.buildMonsterList();
@@ -1208,21 +1212,12 @@ case 4: // Barbarian - theBGuy
 			rangedMobsClassIDs.push(305, 306);
 		}
 
-		//print("List length before sorting: " + list.length);
-
-		if (dangerousAndSummoners.some(check => list.indexOf(check) > -1)) {
-			//print("Worked");
-			amoOfMobs = 1;
-		}
-
 		list.sort(Sort.units);
 
 		let newList = list.filter(mob => mob.spectype === 0 && !mob.getState(27) && 
 			((rangedMobsClassIDs.indexOf(mob.classid) > -1 && Math.round(getDistance(me, mob)) <= range) || (dangerousAndSummoners.indexOf(mob.classid) > -1 && Math.round(getDistance(me, mob)) <= 30)));
 
-		//print("List length after sorting: " + newList.length);
-
-		if (newList.length >= amoOfMobs) {
+		if (newList.length >= 1) {
 			for (let i = 0; i < newList.length; i++) {
 				if (useHowl && Attack.getMonsterCount(me.x, me.y, 6) >= 3 && Skill.getManaCost(130) < me.mp) {
 					Skill.cast(130, Skill.getHand(130));
@@ -1230,7 +1225,7 @@ case 4: // Barbarian - theBGuy
 					Skill.cast(154, Skill.getHand(154));
 				}
 
-				if (!newList[i].getState(27) && !newList[i].getState(56) && !newList[i].getState(21) && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
+				if (!newList[i].getState(27) && !newList[i].getState(56) && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
 					print("Casting on: " + newList[i].name);
 					Skill.cast(137, Skill.getHand(137), newList[i]);
 				}
@@ -1241,14 +1236,11 @@ case 4: // Barbarian - theBGuy
 	};
 
 	ClassAttack.doAttack = function (unit, preattack) {
-		var needRepair = [];
-		var useBerserk = me.getSkill(152, 1) >= 5;
-		var useHowl = me.getSkill(130, 0);
-		var useTaunt = me.getSkill(137, 0);
-		let useConc = me.getSkill(144, 0) && attackSkill === 147;
-		var index,
-			attackSkill = -1;
-
+		let useHowl = me.getSkill(130, 0);
+		let useTaunt = me.getSkill(137, 0);
+		let useConc = me.getSkill(144, 0);
+		var index, needRepair = [], attackSkill = -1;
+			
 		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
 		if (me.charlvl >= 5){
@@ -1268,7 +1260,7 @@ case 4: // Barbarian - theBGuy
 		if (!Attack.checkResist(unit, attackSkill)) {
 			attackSkill = -1;
 
-			if (Config.AttackSkill[index + 1] > -1 && Attack.checkResist(unit, Config.AttackSkill[index + 1])) {
+			if (Config.AttackSkill[index + 1] > -1 && me.getSkill(Config.AttackSkill[index + 1], 0) && Attack.checkResist(unit, Config.AttackSkill[index + 1])) {
 				attackSkill = Config.AttackSkill[index + 1];
 			}
 		}
@@ -1287,7 +1279,7 @@ case 4: // Barbarian - theBGuy
 		}
 
 		if (preattack && Config.AttackSkill[0] > 0 && !unit.dead && Config.AttackSkill[0] === 154 && !me.getState(121)) {
-			if (!unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27)) {		//Unit not already in Battle Cry, decrepify, or terror state. Don't want to overwrite helpful cureses
+			if (!unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27)) {		//Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(146) || checkCollision(me, unit, 0x4)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(146), 0x4)) {
 						return 0;
@@ -1295,9 +1287,7 @@ case 4: // Barbarian - theBGuy
 				}
 
 				Skill.cast(146, Skill.getHand(146), unit);
-
 			}
-
 		}
 
 		if (preattack && Config.AttackSkill[0] > 0 && !unit.dead && Config.AttackSkill[0] === 154 && [156, 211, 242, 243, 544].indexOf(unit.classid) === -1 && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp) && Attack.checkResist(unit, 154) && !me.getState(121)) {
@@ -1325,7 +1315,6 @@ case 4: // Barbarian - theBGuy
 				}
 			
 			}
-
 		} else if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Attack.getSkillElement(Config.AttackSkill[0])) && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
 			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
@@ -1334,18 +1323,6 @@ case 4: // Barbarian - theBGuy
 			}
 
 			Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
-
-			return 1;
-		}
-
-		if (useBerserk && !Attack.checkResist(unit, "physical") && (!me.getState(121))) {
-			if (Math.round(getDistance(me, unit)) > Skill.getRange(152) || checkCollision(me, unit, 0x4)) {
-				if (!Attack.getIntoPosition(unit, Skill.getRange(152), 0x4)) {
-					return 0;
-				}
-			}
-
-			Skill.cast(152, Skill.getHand(152), unit);
 
 			return 1;
 		}
@@ -1362,7 +1339,7 @@ case 4: // Barbarian - theBGuy
 
 	ClassAttack.doCast = function (unit, attackSkill) {
 		var walk;
-		let useConc = me.getSkill(144, 0) && attackSkill === 147;
+		let useConc = me.getSkill(144, 0);
 
 		if (attackSkill < 0) {
 			return 2;

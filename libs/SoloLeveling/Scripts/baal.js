@@ -175,7 +175,6 @@ function baal () {
 
 		let list = Attack.buildMonsterList();
 		let checkList = list.filter(mob => mob.y < 5080);
-		//print("checkList length: " + checkList.length);
 
 		if (!checkList.length || checkList.length === 0) {
 			Attack.clear(5);
@@ -183,13 +182,13 @@ function baal () {
 			return;
 		}
 
+		let wave = this.checkThrone();
+
 		list.sort(Sort.units);
 		let newList = list.filter(mob => mobTypes.indexOf(mob.classid) > -1 && [0, 8].indexOf(mob.spectype) > -1 && mob.y < 5080);
 
-		//print("List length after sorting: " + newList.length);
-
 		for (let i = 0; i < newList.length; i++) {
-			if (!newList[i].getState(27) && !newList[i].getState(56) && !newList[i].getState(21) && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
+			if (!newList[i].getState(27) && !newList[i].getState(56) && !newList[i].dead && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
 				print("Casting on: " + newList[i].name);
 				Skill.cast(137, Skill.getHand(137), newList[i]);
 			}
@@ -229,6 +228,18 @@ function baal () {
 		}
 
 		Pather.moveTo(15093, 5065);
+		
+		if (!Pather.useTeleport() && wave > 1) {
+			this.quickTown();
+		}
+	};
+
+	this.quickTown = function () {
+		me.overhead("FarCast: Repositioning merc");
+		Pather.moveTo(15098, 5082);
+		Town.goToTown();
+		delay(100 + me.ping);
+		Pather.usePortal(null, me.name);
 	};
 
 	this.lureLister = function () {

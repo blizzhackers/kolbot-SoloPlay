@@ -10,7 +10,7 @@ if (!isIncluded("common/Pather.js")) {
 
 NodeAction.killMonsters = function (arg) {
 	// sanityCheck from isid0re - added paladin specific areas - theBGuy
-	var monList, sanityCheck = ([62, 63, 64, 74].indexOf(me.area) > -1 || (me.paladin && [8, 9, 10, 11, 12, 13, 14, 15, 16, 94, 95, 96, 97, 98, 99].indexOf(me.area) > -1 )) ? true : false;
+	var monList, sanityCheck = ([62, 63, 64, 74].indexOf(me.area) > -1 || (me.paladin && [8, 9, 10, 11, 12, 13, 14, 15, 16, 94, 95, 96, 97, 98, 99].indexOf(me.area) > -1)) ? true : false;
 
 	if (Config.Countess.KillGhosts && [21, 22, 23, 24, 25].indexOf(me.area) > -1) {
 		monList = Attack.getMob(38, 0, 30);

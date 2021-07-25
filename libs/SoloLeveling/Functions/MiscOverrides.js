@@ -154,7 +154,7 @@ Skill.townSkill = function (skillId) {
 // Cast a skill on self, Unit or coords. Always use packet casting for caster skills becasue it's more stable.
 if (Developer.forcePacketCasting) {
 	Skill.cast = function (skillId, hand, x, y, item) {
-		var casterSkills = [36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 84, 87, 92, 93, 101, 112, 121, 130, 137, 138, 146, 149, 154, 155, 225, 229, 230, 234, 240, 244, 249, 250, 251, 256, 261, 262, 271, 276];
+		var casterSkills = [36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 84, 87, 92, 93, 101, 112, 121, 130, 137, 138, 146, 154, 155, 225, 229, 230, 234, 240, 244, 249, 250, 251, 256, 261, 262, 271, 276];
 
 		if (me.realm) {
 			casterSkills.push(67, 245);

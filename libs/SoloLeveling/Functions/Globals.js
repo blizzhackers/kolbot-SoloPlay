@@ -61,7 +61,8 @@ var SetUp = {
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
-	respecOne: [ 64, 28, 26, 19, 64, 24, 30][me.classid],
+	respecOne: [ 64, 28, 26, 19, 24, 24, 30][me.classid],
+	respecOneB: [ 0, 0, 0, 0, 64, 0, 0][me.classid],
 
 	// mine - theBGuy
 	respecTwo: function () {
@@ -141,6 +142,8 @@ var SetUp = {
 			buildType = "Start";
 		} else if (me.charlvl >= SetUp.respecTwo()) {
 			buildType = SetUp.finalBuild;
+		} else if (me.barbarian && me.charlvl >= SetUp.respecOne && me.charlvl < SetUp.respecOneB) {
+			buildType = "Stepping";
 		} else {
 			buildType = "Leveling";
 		}
@@ -271,7 +274,7 @@ var Check = {
 
 			break;
 		case "bloodraven": //bloodaraven
-			if ((!me.bloodraven && me.normal || (me.charlvl > 10 && !Check.Gold())) || (me.normal && !me.tristram && me.barbarian) || (me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || !me.amazon))) {
+			if ((!me.bloodraven && me.normal || (!me.summoner && !Check.brokeAf())) || (me.normal && !me.tristram && me.barbarian) || (me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || !me.amazon))) {
 				return true;
 			}
 
@@ -289,13 +292,13 @@ var Check = {
 
 			break;
 		case "tristram": //tristram
-			if ((me.normal && me.charlvl < 15 || !Check.Gold()) || (!me.normal && (!me.tristram && (me.classic && me.diablo || me.baal)) || (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
+			if ((me.normal && me.charlvl < 15 || !Check.brokeAf()) || (!me.normal && (!me.tristram && (me.classic && me.diablo || me.baal)) || (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
 				return true;
 			}
 
 			break;
 		case "countess": //countess
-			if ((me.classic && !me.countess) || (!me.classic && needRunes)) { // classic quest completed normal || have runes for difficulty
+			if ((me.classic && !me.countess) || (!me.classic && needRunes || !Check.brokeAf())) { // classic quest completed normal || have runes for difficulty
 				return true;
 			}
 
@@ -427,7 +430,7 @@ var Check = {
 
 			break;
 		case "diablo": //diablo
-			if (Pather.accessToAct(4) && ((me.normal && me.charlvl < 35) || (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)) || (me.hell && me.charlvl !== 100)) || !me.diablo) {
+			if (Pather.accessToAct(4) && ((me.normal && me.charlvl < 35) || (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)) || (me.hell && me.charlvl !== 100) || !me.diablo)) {
 				return true;
 			}
 
@@ -491,11 +494,24 @@ var Check = {
 		let gold = me.getStat(14) + me.getStat(15);
 		let goldLimit = [25000, 50000, 100000][me.diff];
 
-		if (me.normal && !Pather.accessToAct(2) || gold >= goldLimit) {
+		if ((me.normal && !Pather.accessToAct(2)) || gold >= goldLimit) {
 			return true;
 		}
 
 		me.overhead('low gold');
+
+		return false;
+	},
+
+	brokeAf: function () {
+		let gold = me.getStat(14) + me.getStat(15);
+		let goldLimit = [10000, 25000, 50000][me.diff];
+
+		if (gold >= goldLimit || me.charlvl < 15) {
+			return true;
+		}
+
+		me.overhead("I am broke af");
 
 		return false;
 	},
