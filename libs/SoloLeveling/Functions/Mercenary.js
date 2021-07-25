@@ -60,7 +60,7 @@ var Merc = {
 		let mercAuraName = Check.finalBuild().mercAuraName;
 		let mercAuraWanted = Check.finalBuild().mercAuraWanted;
 		let mercDiff = Check.finalBuild().mercDiff;
-		let tempMercAura = 99; //prayer only one not used -- replacing merc will bug out if changed.
+		let tempMercAura = mercAuraWanted === 114 ? 99 : 104; //use defiance if mercAuraWanted is not gonna be holy freeze. Use prayer otherwise as holyfreeze and defiance return as the same aura for some reason
 		let mercAura = [[104, 99, 108], [103, 98, 114]];
 		let mercenary;
 
@@ -92,7 +92,7 @@ var Merc = {
 
 		let mercSelected = getmercAura();
 
-		if (mercSelected === mercAuraWanted || me.diff !== mercDiff && mercSelected === tempMercAura) {
+		if (mercSelected === mercAuraWanted || (me.diff !== mercDiff && mercSelected === tempMercAura)) {
 			return true;
 		}
 
@@ -109,7 +109,7 @@ var Merc = {
 		Pather.moveTo(5041, 5055);
 		Town.move(NPC.Greiz);
 
-		if (mercSelected !== mercAuraWanted && me.diff === mercDiff || mercSelected !== tempMercAura && me.normal) { // replace merc
+		if ((mercSelected !== mercAuraWanted && me.diff === mercDiff) || (mercSelected !== tempMercAura && me.normal)) { // replace merc
 			me.overhead('replacing merc');
 			Town.sortInventory();
 			Item.removeItemsMerc(); // strip temp merc gear
