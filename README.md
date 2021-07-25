@@ -141,4 +141,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 [GPL-3.0](https://choosealicense.com/licenses/gpl-3.0/)
 
 ## Banner Image 
-The banner for SoloLeveling was graciously provided by [Patricia Dias](https://www.behance.net/patricia_dias).
+The banner for SoloLeveling was graciously provided by [Patricia Dias].
