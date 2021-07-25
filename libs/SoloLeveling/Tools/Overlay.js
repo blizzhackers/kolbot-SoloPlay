@@ -53,7 +53,7 @@ var Overlay = {
 			}
 
 			// Double check in case still got here before being ready
-			if (!me.gameReady && !me.ingame && [1, 2, 3, 4, 5].indexOf(me.act) === -1) {
+			if (!me.gameReady && !me.ingame && !me.area) {
 				return;
 			}
 
@@ -190,7 +190,7 @@ var Overlay = {
 			var penalty = [[0, 20, 50], [0, 40, 100]][me.gametype][me.diff];
 
 			// Double check in case still got here before being ready
-			if (!me.gameReady || !me.ingame || [1, 2, 3, 4, 5].indexOf(me.act) === -1) {
+			if (!me.gameReady || !me.ingame || !me.area) {
 				return -1;
 			}
 
@@ -217,12 +217,10 @@ var Overlay = {
 				return;
 			}
 
-			while (!me.ingame && !me.gameReady && !me.area) {
-				if (me.dead) {
-					return;
-				}
+			if (!me.gameReady || !me.ingame || !me.area || me.dead) {
+				this.flush();
 
-				delay(500 + me.ping);
+				return;
 			}
 
 			if (!this.getHook("resistances")) {
@@ -696,7 +694,7 @@ var Overlay = {
 			let hide = [0x01, 0x02, 0x03, 0x04, 0x05, 0x09, 0x0C, 0x0F, 0x18, 0x19, 0x1A, 0x21, 0x24];
 
 			// from commit eb818af SoloLeveling
-			if (!me.gameReady || !me.ingame || [1, 2, 3, 4, 5].indexOf(me.act) === -1) {
+			if (!me.gameReady || !me.ingame || !me.area || me.dead) {
 				Overlay.Disable(true);
 			} else {
 				while (!me.gameReady) {
