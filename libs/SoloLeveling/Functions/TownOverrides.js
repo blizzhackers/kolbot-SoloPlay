@@ -2249,7 +2249,6 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 Town.clearJunk = function () {
 	let junk = me.findItems(-1, 0);
 	let junkToSell = [];
-	let questItemClassids = [88, 89, 524, 525, 549, 92, 521, 91, 552, 545, 546, 547, 548, 553, 554, 555, 173, 174, 551, 91, 644, 646];
 	let cancelFlags = [0x01, 0x02, 0x04, 0x08, 0x14, 0x16, 0x0c, 0x0f, 0x19, 0x1a];
 
 	if (!junk) {
@@ -2267,7 +2266,7 @@ Town.clearJunk = function () {
 			(junk[0].classid !== 603 && junk[0].quality !== 7) && // Anni
 			(junk[0].classid !== 604 && junk[0].quality !== 7) && // Torch
 			(junk[0].classid !== 605 && junk[0].quality !== 7) && // Gheeds
-			(junk[0].getFlag(NTIPAliasFlag["runeword"]) && !Item.autoEquipKeepCheck(junk[0]) && !Item.autoEquipCheckSecondary(junk[0])) && 
+			(!Item.autoEquipKeepCheckMerc(junk[0]) && !Item.autoEquipKeepCheck(junk[0]) && !Item.autoEquipCheckSecondary(junk[0])) && 
 			([0, 4].indexOf(Pickit.checkItem(junk[0]).result) > -1) // only drop unwanted
 		) {
 			if (!getUIFlag(0x19) && junk[0].location === 7) {
