@@ -293,6 +293,10 @@ function diablo () {
 	};
 
 	this.farCast = function (sealBoss) {
+		if (!me.barbarian) {
+			return;
+		}
+
 		switch (sealBoss) {
 		case "infector":
 			if (this.infLayout === 1) {
@@ -402,7 +406,6 @@ function diablo () {
 		Pather.usePortal(108, me.name);
 	}
 	this.initLayout();
-	//Attack.clearLocations(pathLocations);
 	this.vizier();
 	this.seis();
 	this.infector();
