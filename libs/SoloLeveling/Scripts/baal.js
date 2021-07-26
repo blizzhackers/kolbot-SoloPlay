@@ -1,256 +1,225 @@
 /*
 *	@filename	baal.js
 *	@author		theBGuy
+*	@credits 	sonic
 *	@desc		clear throne and kill baal
 */
 
 function baal () {
 	Config.BossPriority = false;
 
-	this.preattack = function () {// Start Baal
-		var decoyTick = getTickCount();
-    	var decoyDuration = (10 + me.getSkill(28, 1) * 5) * 1000;
+	let clearThrone = function () {
+        let pos = [
+            { x: 15097, y: 5054 }, { x: 15085, y: 5053 },
+            { x: 15085, y: 5040 }, { x: 15098, y: 5040 },
+            { x: 15099, y: 5022 }, { x: 15086, y: 5024 }
+        ];
+        return pos.forEach((node) => {
+            Pather.moveTo(node.x, node.y);
+            Attack.clear(30);
+        })
+    };
 
-		switch (me.classid) {
-		case 0: // Amazon
-			if(me.getSkill(28, 1)) {	
-				let decoy = getUnit(1, 356);
+    let preattack = function () {
+        switch (me.classid) {
+            case 1:
+                if ([56, 59, 64].indexOf(Config.AttackSkill[1]) > -1) {
+                    if (me.getState(121)) {
+                        delay(50);
+                    } else {
+                        Skill.cast(Config.AttackSkill[1], 0, 15093, 5024);
+                    }
+                }
 
-				if(!decoy || (getTickCount() - decoyTick >= decoyDuration)){
-					Skill.cast(28, 0, 15092, 5028);
-				}
-			}
+                return true;
+            case 3: // Paladin
+                if (Config.AttackSkill[3] !== 112) {
+                    return false;
+                }
 
-			break;
-		case 1: // Sorceress
-			switch (Config.AttackSkill[3]) {
-			case 49:
-			case 53:
-			case 56:
-			case 59:
-			case 64:
-				if (me.getState(121)) {
-					while (me.getState(121)) {
-						delay(100 + me.ping);
-					}
-				} else {
-					return Skill.cast(Config.AttackSkill[1], 0, 15094 + rand(-1, 1), 5028);
-				}
+                if (getDistance(me, 15093, 5029) > 3) {
+                    Pather.moveTo(15093, 5029);
+                }
 
-				break;
-			}
+                if (Config.AttackSkill[4] > 0) {
+                    Skill.setSkill(Config.AttackSkill[4], 0);
+                }
 
-			break;
-		case 3: // Paladin
-			if (Config.AttackSkill[3] === 112) {
-				if (Config.AttackSkill[4] > 0) {
-					Skill.setSkill(Config.AttackSkill[4], 0);
-				}
+                Skill.cast(Config.AttackSkill[3], 1);
 
-				return Skill.cast(Config.AttackSkill[3], 1);
-			}
+                return true;
+            case 5: // Druid
+                if (Config.AttackSkill[3] === 245) {
+                    Skill.cast(Config.AttackSkill[3], 0, 15093, 5029);
 
-			break;
-		case 5: // Druid
-			if (Config.AttackSkill[3] === 245) {
-				return Skill.cast(Config.AttackSkill[3], 0, 15094 + rand(-1, 1), 5028);
-			}
+                    return true;
+                }
 
-			break;
-		case 6: // Assassin
-			if (Config.UseTraps) {
-				let check = ClassAttack.checkTraps({x: 15094, y: 5028});
+                break;
+            case 6:
+                if (Config.UseTraps) {
+                    let check = ClassAttack.checkTraps({x: 15093, y: 5029});
 
-				if (check) {
-					return ClassAttack.placeTraps({x: 15094, y: 5028}, 5);
-				}
-			}
+                    if (check) {
+                        ClassAttack.placeTraps({x: 15093, y: 5029}, 5);
 
-			if (Config.AttackSkill[3] === 256) { // shock-web
-				return Skill.cast(Config.AttackSkill[3], 0, 15094, 5028);
-			}
+                        return true;
+                    }
+                }
 
-			break;
-		}
+                break;
+        }
 
-		return false;
-	};
+        return false;
+    };
 
-	this.checkThrone = function () {
-		let monster = getUnit(1);
+    let checkThrone = function () {
+        let monster = getUnit(1);
 
-		if (monster) {
-			do {
-				if (Attack.checkMonster(monster) && monster.y < 5080) {
-					switch (monster.classid) {
-					case 23:
-					case 62:
-						return 1;
-					case 105:
-					case 381:
-						return 2;
-					case 557:
-						return 3;
-					case 558:
-						return 4;
-					case 571:
-						return 5;
-					default:
-						Attack.getIntoPosition(monster, 10, 0x4);
-						Attack.clear(15);
+        if (monster) {
+            do {
+                if (Attack.checkMonster(monster) && monster.y < 5080) {
+                    switch (monster.classid) {
+                        case 23:
+                        case 62:
+                            return 1;
+                        case 105:
+                        case 381:
+                            return 2;
+                        case 557:
+                            return 3;
+                        case 558:
+                            return 4;
+                        case 571:
+                            return 5;
+                        default:
+                            Attack.getIntoPosition(monster, 10, 0x4);
+                            Attack.clear(15);
 
-						return false;
-					}
-				}
-			} while (monster.getNext());
-		}
+                            return false;
+                    }
+                }
+            } while (monster.getNext());
+        }
 
-		return false;
-	};
+        return false;
+    };
 
-	this.clearThrone = function () {
-		let monsterList = [];
-		let position = [15094, 5022, 15094, 5041, 15094, 5060, 15094, 5041, 15094, 5022];
+    let clearWaves = function () {
+        let boss;
+        let tick = getTickCount();
 
-		if (Config.AvoidDolls) {
-			let monster = getUnit(1, 691);
+        MainLoop:
+            while (true) {
+                if (getDistance(me, 15116, 5026) > 3) {
+                    Pather.moveTo(15116, 5026);
+                }
 
-			if (monster) {
-				do {
-					if (monster.x >= 15072 && monster.x <= 15118 && monster.y >= 5002 && monster.y <= 5079 && Attack.checkMonster(monster) && Attack.skipCheck(monster)) {
-						monsterList.push(copyUnit(monster));
-					}
-				} while (monster.getNext());
-			}
+                if (!getUnit(1, 543)) {
+                    break;
+                }
 
-			if (monsterList.length) {
-				Attack.clearList(monsterList);
-			}
-		}
+                Misc.townCheck();
 
-		if (me.barbarian) {
-			Pather.moveTo(15093, 5066);
-			this.tauntBaalsMinions();
-		}
+                switch (checkThrone()) {
+                    case 1:
+                        Attack.clearClassids(23, 62);
+                        //Attack.clear(40);
 
-		for (let location = 0; location < position.length; location += 2) {
-			Pather.moveTo(position[location], position[location + 1]);
-			Attack.clear(25);
-		}
-	};
+                        tick = getTickCount();
 
-	this.checkHydra = function () {
-		var hydra = getUnit(1, getLocaleString(3325));
+                        break;
+                    case 2:
+                        boss = getUnit(1, "Achmel the Cursed");
 
-		if (hydra) {
-			do {
-				if (hydra.mode !== 12 && hydra.getStat(172) !== 2) {
-					Pather.moveTo(15072, 5002);
+                        if (boss && !Attack.canAttack(boss)) {
+                            me.overhead("immune achmel");
+                            return false;
+                        }
 
-					while (hydra.mode !== 12) {
-						delay(500 + me.ping);
+                        Attack.clearClassids(105, 381);
 
-						if (!copyUnit(hydra).x) {
-							break;
-						}
-					}
+                        tick = getTickCount();
 
-					break;
-				}
-			} while (hydra.getNext());
-		}
+                        break;
+                    case 4:
+                        Attack.clearClassids(558);
 
-		return true;
-	};
+                        tick = getTickCount();
 
-	this.tauntBaalsMinions = function () {
-		if (!me.getSkill(137, 0) || me.area !== 131) {
-			return;
-		}
+                        break;
+                    case 3:
+                        Attack.clearClassids(557);
 
-		let mobTypes = [641, 23, 62, 105, 381, 557, 558];
-		let retry = 0;
+                        tick = getTickCount();
 
-		Pather.moveTo(15093, 5065);
+                        break;
+                    case 5:
+                        boss = getUnit(1, "Lister the Tormentor");
 
-		let list = Attack.buildMonsterList();
-		let checkList = list.filter(mob => mob.y < 5080);
+                        if (boss && !Attack.canAttack(boss)) {
+                            me.overhead("immune lister");
+                            return false;
+                        }
 
-		if (!checkList.length || checkList.length === 0) {
-			Attack.clear(5);
-			delay(1000 + me.ping);
-			return;
-		}
+                        Attack.clearClassids(571);
 
-		let wave = this.checkThrone();
+                        break MainLoop;
+                    default:
+                        if (getTickCount() - tick < 7e3) {
+                            if (me.getState(2)) {
+                                Skill.setSkill(109, 0);
+                            }
+                        }
 
-		list.sort(Sort.units);
-		let newList = list.filter(mob => mobTypes.indexOf(mob.classid) > -1 && [0, 8].indexOf(mob.spectype) > -1 && mob.y < 5080);
+                        if (getTickCount() - tick > 20000) {
+                            tick = getTickCount();
+                            clearThrone();
+                        }
 
-		for (let i = 0; i < newList.length; i++) {
-			if (!newList[i].getState(27) && !newList[i].getState(56) && !newList[i].dead && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
-				print("Casting on: " + newList[i].name);
-				Skill.cast(137, Skill.getHand(137), newList[i]);
-			}
+                        if (!preattack()) {
+                            delay(50);
+                        }
 
-			if (newList[i].getState(27)) {
-				print("Casting worked, Now waiting for mob to reach me");
-				let tick = getTickCount();
+                        break;
+                }
 
-				while (Math.round(getDistance(me, newList[i])) > 3) {
-					Attack.clear(6);
+                delay(10);
+            }
 
-					if ((getTickCount() - tick) > 6000 || newList[i].dead) {
-						break;
-					}
+        return true;
+    };
 
-					delay(50 + me.ping);
-				}
-				
-				Attack.clear(5);
-				Pather.moveTo(15093, 5065);
-			} else {
-				retry++;
-				delay(100 + me.ping);
+    let unSafeCheck = function (soulAmount, totalAmount) {
+        let soul = getUnit(1, 641);
+        let count = 0;
 
-				if (retry > 3) {
-					retry = 0;
-					continue;
-				}
+        if (soul) {
+            do {
+                if (getDistance(me, soul) < 45) {
+                    count += 1;
+                }
+            } while (soul.getNext());
+        }
 
-				i--;
-			}
-		}
+        if (count > soulAmount) {
+            return true;
+        }
 
-		if (checkList.length > 0) {
-			Pather.moveTo(15094, 5038);
-			Attack.clear(30);
-		}
+        let monster = getUnit(1);
 
-		Pather.moveTo(15093, 5065);
-		
-		if (!Pather.useTeleport() && wave > 1) {
-			this.repositionMerc();
-		}
-	};
+        if (monster) {
+            do {
+                if (!monster.getParent() && monster.classid != 641 && getDistance(me, monster) < 45) {
+                    count += 1;
+                }
+            } while (monster.getNext());
+        }
 
-	this.repositionMerc = function () {
-		me.overhead("FarCast: Repositioning merc");
-		Pather.moveTo(15092, 5071);
-		delay(500);
-		Pather.moveTo(15093, 5065);
-	};
+        return count > totalAmount;
+    };
 
-	this.lureLister = function () {
-		while (Attack.getMonsterCount(me.x, 5070, 20) > 1) {
-			Pather.moveTo(15092, 5054);
-			Pather.moveTo(15092, 5073);
-			Attack.clear(5);
-			delay(50 + me.ping);
-		}
-	};
-
-	Town.townTasks();
+   	Town.townTasks();
 	print('ÿc9SoloLevelingÿc0: starting baal');
 	me.overhead("baal");
 
@@ -263,112 +232,31 @@ function baal () {
 	Precast.doPrecast(true);
 	Pather.clearToExit(129, 130, true); 	//WS2 -> WS3
 	Pather.clearToExit(130, 131, true); 	//WS3 -> Throne
-	Pather.moveTo(15095, 5029);
 
-	if (me.hell && getUnit(1, 691)) {
-		print("ÿc9SoloLevelingÿc0: Dolls found! NG.");
-		me.overhead("Dolls found! NG.");
+    Pather.moveTo(15095, 5029, 5);
+    Pather.moveTo(15113, 5040, 5);
 
-		return true;
-	}
+    // souls hurt
+    if (unSafeCheck(8, 20) && Check.Resistance().LR < 70 && me.nightmare) {
+        return false;
+    }
 
-	if (me.hell && getUnit(1, 641) && !me.barbarian || (me.amazon && !Attack.checkInfinity())) {
-		print("ÿc9SoloLevelingÿc0: Souls found! NG.");
-		me.overhead("Souls found! NG.");
+    Attack.clear(15);
+    clearThrone();
 
-		return true;
-	}
+    if (!clearWaves()) {
+        return false;
+    }
 
-	if (me.amazon && getUnit(1, 641) && !Attack.checkInfinity()) {
-		print("ÿc9SoloLevelingÿc0: Souls found! NG.");
-		me.overhead("Souls found! NG.");
+    clearThrone(); // double check
 
-		return true;
-	}
-
-	this.clearThrone();
-	let tick = getTickCount();
-
-	if (!me.barbarian) {
-		Pather.moveTo(15094, me.classid === 3 ? 5029 : 5038);
-	}
-
-	MainLoop:
-	while (true) {
-		if (!me.barbarian) {
-			if (getDistance(me, 15094, me.classid === 3 ? 5029 : 5038) > 3) {
-				Pather.moveTo(15094, me.classid === 3 ? 5029 : 5038);
-			}
-		}
-
-		if (!getUnit(1, 543)) {
-			break MainLoop;
-		}
-
-		if (me.barbarian && this.checkThrone() !== 5) {
-			this.tauntBaalsMinions();
-		} else {
-			switch (this.checkThrone()) {
-			case 1:
-				Attack.clear(40);
-
-				tick = getTickCount();
-
-				Precast.doPrecast(true);
-
-				break;
-			case 2:
-				Attack.clear(40);
-
-				tick = getTickCount();
-
-				break;
-			case 4:
-				Attack.clear(40);
-
-				tick = getTickCount();
-
-				break;
-			case 3:
-				Attack.clear(40);
-				this.checkHydra();
-
-				tick = getTickCount();
-
-				break;
-			case 5:
-				if (me.barbarian) {
-					this.lureLister();
-				}
-
-				Attack.clear(40);
-
-				break MainLoop;
-			default:
-				if (getTickCount() - tick < 7e3) {
-					if (me.getState(2)) {
-						Skill.setSkill(109, 0);
-					}
-
-					break;
-				}
-
-				if (!this.preattack()) {
-					delay(100 + me.ping);
-				}
-
-				break;
-			}
-		}
-
-		delay(10 + me.ping);
-	}
+    Pather.moveTo(15094, me.classid === 3 ? 5029 : 5038);
+	Pickit.pickItems();
 
 	Pather.moveTo(15094, me.classid === 3 ? 5029 : 5038);
 	Pickit.pickItems();
-
 	Pather.moveTo(15090, 5008);
-	delay(5000 + me.ping);
+	delay(2500 + me.ping);
 	Precast.doPrecast(true);
 
 	while (getUnit(1, 543)) {

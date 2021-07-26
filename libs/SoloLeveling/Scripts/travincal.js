@@ -17,6 +17,7 @@ function travincal () {
 	}
 
 	Precast.doPrecast(true);
+
 	let council = {
 		x: me.x + 76,
 		y: me.y - 67
