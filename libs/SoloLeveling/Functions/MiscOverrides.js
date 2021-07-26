@@ -894,9 +894,9 @@ Misc.checkItemForSocketing = function () {
 
 		if (me.barbarian) {		//Barbarian
 			if (me.normal) {
-				if (Item.getEquippedItem(5).prefixnum !== 20571) {	// King's Grace
+				if (Item.getEquippedItem(5).prefixnum !== 20561) {	// Honor
 					for (let i = 0; i < items.length; i++) {
-						if (items[i].classid === 31 && items[i].ilvl <= 25 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	// Long Sword
+						if (items[i].classid === 37 && items[i].ilvl >= 41 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	// Flamberge
 							item = items[i];
 							break;
 						}
@@ -914,8 +914,8 @@ Misc.checkItemForSocketing = function () {
 						break;
 					}
 
-					if (me.nightmare && Item.getEquippedItem(5).prefixnum !== 20661) {	// VoR
-						if (items[i].classid === 124 && items[i].ilvl >= 26 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	// Rune Sword
+					if (Item.getEquippedItem(5).prefixnum !== 20561) {	// Honor
+						if (items[i].classid === 130 && items[i].ilvl >= 41 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	// zweihander
 							item = items[i];
 							break;
 						}

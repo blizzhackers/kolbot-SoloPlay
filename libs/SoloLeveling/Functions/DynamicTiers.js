@@ -131,7 +131,7 @@ var tierscore = function (item) {
 		OW: 1.5, // open wounds
 		DS: 1.5, // deadly strike
 		// leaching
-		LL: 1.5, //lifeleach
+		LL: 3, //lifeleach
 		ML:	1.5, //manaleach
 		// regen
 		HPREGEN: 2,
