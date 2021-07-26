@@ -32,8 +32,8 @@ case 0: //Amazon - theBGuy
 		if (Config.AttackSkill[0] === 17) {
 			if (!unit.getState(87)) {
 				if (Math.round(getDistance(me, unit)) < Skill.getRange(Config.AttackSkill[0]) || !checkCollision(me, unit, 0x4)) {
-					if ([156, 211, 242, 243, 544, 571, 391].indexOf(unit.classid) > -1) {	//Act Bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
-						if(!unit.getState(17)) {	//Check if already in this state
+					if ([156, 211, 242, 243, 544, 571, 391, 365, 267].indexOf(unit.classid) > -1) {	//Act Bosses and mini-bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
+						if (!unit.getState(17)) {	//Check if already in this state
 							Skill.cast(8, Skill.getHand(8), unit);
 						}
 					} else {
@@ -47,7 +47,7 @@ case 0: //Amazon - theBGuy
 			let decoy;
 			let decoyDuration = (10 + me.getSkill(28, 1) * 5) * 1000;
 
-			if(([156, 211, 242, 243, 544].indexOf(unit.classid) > -1) || !Attack.checkResist(unit, Config.AttackSkill[1])) {	//Act Bosses or Light Immunes
+			if (([156, 211, 242, 243, 544].indexOf(unit.classid) > -1) || !Attack.checkResist(unit, Config.AttackSkill[1])) {	//Act Bosses or Light Immunes
 				for (let i = 0; i < 25; i += 1) {
 					if (!me.getState(121)) {
 						break;

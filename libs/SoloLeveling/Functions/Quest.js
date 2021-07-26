@@ -382,7 +382,7 @@ var Quest = {
 			return true;
 		}
 
-		if (me.charlvl === SetUp.respecOne || me.charlvl === SetUp.respecTwo()) {
+		if (me.charlvl === SetUp.respecOne || (me.barbarian && me.charlvl === SetUp.respecOneB) || me.charlvl === SetUp.respecTwo()) {
 			Precast.doPrecast(true);
 			Town.goToTown(1);
 			me.overhead('time to respec');
