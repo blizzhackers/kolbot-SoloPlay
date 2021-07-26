@@ -57,7 +57,7 @@ var SetUp = {
 	},
 
 	//			Amazon					Sorceress				Necromancer					Paladin				Barbarian				Druid					Assassin					
-	levelCap: [[33, 65, 100][me.diff], [33, 70, 100][me.diff], [33, 70, 100][me.diff], [33, 65, 100][me.diff], [33, 65, 100][me.diff], [33, 73, 100][me.diff], [33, 65, 100][me.diff]][me.classid],
+	levelCap: [[33, 65, 100][me.diff], [33, 70, 100][me.diff], [33, 70, 100][me.diff], [33, 65, 100][me.diff], [33, 70, 100][me.diff], [33, 73, 100][me.diff], [33, 65, 100][me.diff]][me.classid],
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,

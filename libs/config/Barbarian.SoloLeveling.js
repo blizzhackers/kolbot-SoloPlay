@@ -145,8 +145,8 @@ function LoadConfig () {
 
 	var levelingTiers = [ // autoequip setup
 		//weapon
-		"me.charlvl < 12 && [Type] == Sword && ([Quality] >= Normal || [flag] == runeword) && [flag] != ethereal && [wsm] <= 10 && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"[Type] == Sword && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal && [wsm] <= 0 && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"me.charlvl < 12 && [Type] == Sword && ([Quality] >= Normal || [flag] == runeword) && [flag] != ethereal && [wsm] <= 10 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"[Type] == Sword && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal && [wsm] <= 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//Helmet
 		"([type] == helm || [type] == primalhelm) && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//belt
@@ -797,17 +797,22 @@ function LoadConfig () {
 				"[Name] == AmnRune # # [MaxQuantity] == 1",
 				"[Name] == RalRune # # [MaxQuantity] == 1",
 				"[Name] == ThulRune # # [MaxQuantity] == 1",
-				"[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [secondarymindamage] == 0 && [Sockets] == 3",
+				"[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [Sockets] == 3",
 			];
 			NTIP.arrayLooping(KingsGrace);
 
 			Config.Runewords.push([Runeword.KingsGrace, "Broad Sword"]);
 			Config.Runewords.push([Runeword.KingsGrace, "Long Sword"]);
 			Config.Runewords.push([Runeword.KingsGrace, "War Sword"]);
+			Config.Runewords.push([Runeword.KingsGrace, "Giant Sword"]);
+			Config.Runewords.push([Runeword.KingsGrace, "Flamberge"]);
 			Config.Runewords.push([Runeword.KingsGrace, "Dimensional Blade"]);
 			Config.Runewords.push([Runeword.KingsGrace, "Battle Sword"]);
 			Config.Runewords.push([Runeword.KingsGrace, "Rune Sword"]);
 			Config.Runewords.push([Runeword.KingsGrace, "Ancient Sword"]);
+			Config.Runewords.push([Runeword.KingsGrace, "Espandon"]);
+			Config.Runewords.push([Runeword.KingsGrace, "Tusk Sword"]);
+			Config.Runewords.push([Runeword.KingsGrace, "Zweihander"]);
 
 			Config.KeepRunewords.push("[type] == sword # [enhanceddamage] >= 100 && [lifeleech] >= 7");
 		}
@@ -816,7 +821,7 @@ function LoadConfig () {
 			var Steel = [
 				"[Name] == TirRune # # [MaxQuantity] == 1",
 				"[Name] == ElRune # # [MaxQuantity] == 1",
-				"[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [secondarymindamage] == 0 && [Sockets] == 2",
+				"[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [Sockets] == 2",
 			];
 			NTIP.arrayLooping(Steel);
 
@@ -827,6 +832,8 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.Steel, "Broad Sword"]);
 			Config.Runewords.push([Runeword.Steel, "Long Sword"]);
 			Config.Runewords.push([Runeword.Steel, "War Sword"]);
+			Config.Runewords.push([Runeword.Steel, "Giant Sword"]);
+			Config.Runewords.push([Runeword.Steel, "Flamberge"]);
 			Config.Runewords.push([Runeword.Steel, "Gladius"]);
 			Config.Runewords.push([Runeword.Steel, "Cutlass"]);
 			Config.Runewords.push([Runeword.Steel, "Shamshir"]);
@@ -834,6 +841,9 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.Steel, "Battle Sword"]);
 			Config.Runewords.push([Runeword.Steel, "Rune Sword"]);
 			Config.Runewords.push([Runeword.Steel, "Ancient Sword"]);
+			Config.Runewords.push([Runeword.Steel, "Espandon"]);
+			Config.Runewords.push([Runeword.Steel, "Tusk Sword"]);
+			Config.Runewords.push([Runeword.Steel, "Zweihander"]);
 			Config.Runewords.push([Runeword.Steel, "Falcata"]);
 			Config.Runewords.push([Runeword.Steel, "Ataghan"]);
 			Config.Runewords.push([Runeword.Steel, "Elegant Blade"]);
@@ -880,7 +890,7 @@ function LoadConfig () {
 				"[Name] == IthRune # # [MaxQuantity] == 1",
 				"[Name] == ElRune # # [MaxQuantity] == 1",
 				"[Name] == EthRune # # [MaxQuantity] == 1",
-				"[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [secondarymindamage] == 0 && [Sockets] == 3",
+				"[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [Sockets] == 3",
 			];
 			NTIP.arrayLooping(Malice);
 
@@ -888,6 +898,11 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.Malice, "Broad Sword"]);
 			Config.Runewords.push([Runeword.Malice, "Long Sword"]);
 			Config.Runewords.push([Runeword.Malice, "War Sword"]);
+			Config.Runewords.push([Runeword.Malice, "Giant Sword"]);
+			Config.Runewords.push([Runeword.Malice, "Flamberge"]);
+			Config.Runewords.push([Runeword.Malice, "Espandon"]);
+			Config.Runewords.push([Runeword.Malice, "Tusk Sword"]);
+			Config.Runewords.push([Runeword.Malice, "Zweihander"]);
 
 			Config.KeepRunewords.push("[type] == sword # [enhanceddamage] >= 33 && [tohit] >= 50");
 		}

@@ -1,13 +1,10 @@
 /*
 *	@filename	Diablo.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		customized Diablo script
 */
 
 function diablo () {
-	let pathLocations = [[7794, 5563], [7795, 5542], [7794, 5527], [7792, 5503], [7775, 5487], [7769, 5460], [7777, 5440], 
-						[7777, 5420], [7767, 5391], [7773, 5358], [7778, 5335], [7772, 5313]];
-
 	this.getLayout = function (seal, value) {// Start Diablo Quest
 		let sealPreset = getPresetUnit(108, 2, seal);
 
@@ -261,13 +258,10 @@ function diablo () {
 
 	this.seis = function () {
 		this.openSeal(394);
-		this.farCast("seis");
 
 		if (this.seisLayout === 1) {
-			// Pather.moveTo(7771, 5196);
 			Pather.moveTo(7798, 5194, 3, 30); // safe location
 		} else {
-			// Pather.moveTo(7798, 5186);
 			Pather.moveTo(7796, 5155, 3, 30); // safe location
 		}
 
@@ -279,7 +273,6 @@ function diablo () {
 	this.infector = function () {
 		this.openSeal(393);
 		this.openSeal(392);
-		this.farCast("infector");
 
 		if (this.infLayout === 1) {
 			delay(1 + me.ping);
@@ -289,98 +282,6 @@ function diablo () {
 
 		if (!this.getBoss(getLocaleString(2853))) {
 			print("ÿc9SoloLevelingÿc0: Failed Infector");
-		}
-	};
-
-	this.farCast = function (sealBoss) {
-		if (!me.barbarian) {
-			return;
-		}
-
-		switch (sealBoss) {
-		case "infector":
-			if (this.infLayout === 1) {
-				Pather.moveTo(7876, 5299);
-				delay(100 + me.ping);
-			} else {
-				Pather.moveTo(7933, 5319);
-				delay(100 + me.ping);
-			}
-
-			break;
-		case "seis":
-			if (this.seisLayout === 1) {
-				Pather.moveTo(7801, 5153);
-				delay(100 + me.ping);
-			} else {
-				Pather.moveTo(7804, 5191);
-				delay(100 + me.ping);
-			}
-
-			break;
-		default:
-			break;
-		}
-
-		let orgX = me.x, orgY = me.y;
-		let retry = 0;
-		let list = Attack.buildMonsterList();
-		list.sort(Sort.units);
-		let newList = list.filter(mob => [310, 362].indexOf(mob.classid) > -1 && [0, 8].indexOf(mob.spectype) > -1);
-		me.overhead("Attemping farCast");
-
-		switch (me.classid) {
-		case 0: //Amazon
-			break;
-		case 1: // Sorceress
-			break;
-		case 2: // Necromancer
-			break;
-		case 4: // Barbarian
-			if (!me.getSkill(137, 0)) {
-				return;
-			}
-
-			for (let i = 0; i < newList.length; i++) {
-				if (!newList[i].getState(27) && !newList[i].getState(56) && !newList[i].getState(21) && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
-					print("Casting on: " + newList[i].name);
-					Skill.cast(137, Skill.getHand(137), newList[i]);
-				}
-
-				if (newList[i].getState(27)) {
-					print("Casting worked, Now waiting for mob to reach me");
-					let tick = getTickCount();
-
-					while (Math.round(getDistance(me, newList[i])) > 3) {
-						Attack.clear(6);
-
-						if ((getTickCount() - tick) > 6000) {
-							break;
-						}
-
-						delay(50 + me.ping);
-					}
-					
-					Attack.clear(5);
-					Pather.moveTo(orgX, orgY);
-				} else {
-					retry++;
-					delay(100 + me.ping);
-
-					if (retry > 3) {
-						retry = 0;
-						continue;
-					}
-
-					i--;
-				}
-			}
-
-			break;
-		case 6: // Assasin
-			break;
-		default:
-			break;
 		}
 	};
 
@@ -396,6 +297,7 @@ function diablo () {
 
 	Precast.doPrecast(true);
 	Pather.clearToExit(107, 108, true);
+
 	if (Check.Resistance().CR < 75 || Check.Resistance().PR < 75) {
 		Town.doChores();
 		Town.buyPots(10, "Thawing"); // thawing
@@ -405,11 +307,16 @@ function diablo () {
 		Town.move("portalspot");
 		Pather.usePortal(108, me.name);
 	}
+
 	this.initLayout();
+
+	if (!me.diablo && me.barbarian) {
+		Config.BossPriority = true;
+	}
+
 	this.vizier();
 	this.seis();
 	this.infector();
-
 
 	Config.MercWatch = false;
 	Pather.moveTo(7788, 5292, 3, 30);
@@ -425,7 +332,10 @@ function diablo () {
 		this.diabloPrep();
 	}
 
-	Attack.killTarget(243); //diablo
+	if (!Attack.blitzkrieg(243)) {
+		Attack.killTarget(243); //diablo
+	}
+
 	Pickit.pickItems();
 
 	if (me.classic) {

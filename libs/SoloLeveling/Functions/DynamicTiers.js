@@ -320,8 +320,8 @@ var tierscore = function (item) {
 		if (!Check.currentBuild().caster) {
 			buildRating += item.getStatEx(21) * buildWeights.MINDMG; // add MIN damage
 			buildRating += item.getStatEx(22) * buildWeights.MAXDMG; // add MAX damage
-			buildRating += item.getStatEx(23) * buildWeights.SECMINDMG; // add MIN damage
-			buildRating += item.getStatEx(24) * buildWeights.SECMAXDMG; // add MAX damage
+			//buildRating += item.getStatEx(23) * buildWeights.SECMINDMG; // add MIN damage
+			//buildRating += item.getStatEx(24) * buildWeights.SECMAXDMG; // add MAX damage
 			buildRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 256)) * buildWeights.ELEDMG; // add elemental damage PSN damage adjusted for damage per frame (125/256)
 			buildRating += item.getStatEx(19) * buildWeights.AR; // add AR
 			buildRating += item.getStatEx(136) * buildWeights.CB; // add crushing blow
@@ -361,9 +361,11 @@ var tierscore = function (item) {
 
 	this.skillsScore = function (item) {
 		let skillsRating = 0;
-		skillsRating += item.getStatEx(127) * skillsWeights.ALL; // + all skills
-		skillsRating += item.getStatEx(83, me.classid) * skillsWeights.CLASS; // + class skills
-		skillsRating += item.getStatEx(188, Check.currentBuild().tabSkills) * skillsWeights.TAB; // + TAB skills
+		let weaponModifer = !Check.currentBuild().caster && [24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36].indexOf(item.itemType) ? 2 : 1;
+
+		skillsRating += item.getStatEx(127) * (skillsWeights.ALL / weaponModifer); // + all skills
+		skillsRating += item.getStatEx(83, me.classid) * (skillsWeights.CLASS / weaponModifer); // + class skills
+		skillsRating += item.getStatEx(188, Check.currentBuild().tabSkills) * (skillsWeights.TAB / weaponModifer); // + TAB skills
 		let selectedWeights = [skillsWeights.WANTED, skillsWeights.USEFUL];
 		let selectedSkills = [Check.currentBuild().wantedSkills, Check.currentBuild().usefulSkills];
 

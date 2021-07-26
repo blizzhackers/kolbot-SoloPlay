@@ -34,18 +34,20 @@ var build = {
 		[144, 1, true], // Concentrate -> charlvl 18
 		[146, 1, true], // Battle Cry -> charlvl 18
 		[145, 1, false], // Iron Skin -> charlvl 18
+		[143, 1, true], // Leap Attack -> charlvl 20
 		[127, 12, false], // Sword Mastery -> charlvl 22
 		[147, 1, true], // Frenzy -> charlvl 24
-		[149, 1, true], // Battle Orders -> charlvl 24
+		[149, 1, false], // Battle Orders -> charlvl 24
 		[147, 2, false], // Frenzy -> charlvl 25
 		[149, 2, false], // Battle Orders -> charlvl 26
 		[147, 3, false], // Frenzy -> charlvl 26
 		[149, 3, false], // Battle Orders -> charlvl 27
 		[147, 4, false], // Frenzy -> charlvl 27
 		[149, 4, false], // Battle Orders -> charlvl 28
-		[155, 1, true], // Battle Command -> charlvl 30
+		[151, 1, true], // Whirlwind -> charlvl 30
 		[154, 1, true], // War Cry -> charlvl 30
-		[153, 5, true], // Natural Resistance 5 // charLvl 35 (enough res to get out or normal)
+		[155, 1, true], // Battle Command -> charlvl 31
+		[153, 5, true], // Natural Resistance 5 // charLvl 36 (enough res to get out or normal)
 		[147, 5, false], // Frenzy -> charlvl 36
 		[149, 5, false], // Battle Orders -> charlvl 37
 		[147, 6, false], // Frenzy -> charlvl 38

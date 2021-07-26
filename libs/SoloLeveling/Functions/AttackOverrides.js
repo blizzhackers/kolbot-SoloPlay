@@ -22,7 +22,7 @@ Attack.killTarget = function (name) {
 	}
 
 	if (!target) {
-		print("ÿc9SoloLevelingÿc0: Target not found. Performing Attack.Clear(25)");
+		print("ÿc9SoloLevelingÿc0: " + name + " not found. Performing Attack.Clear(25)");
 		Attack.clear(25);
 		Pickit.pickItems();
 
@@ -70,6 +70,104 @@ Attack.killTarget = function (name) {
 
 		attackCount += 1;
 		ClassAttack.afterAttack();
+
+		// spectype check from isid0re SoloLeveling commit 44d25cb
+		if ( !target || !copyUnit(target).x || target.dead || target.spectype === 0) {
+			break;
+		}
+	}
+
+	if ( !target || !copyUnit(target).x || target.dead || target.spectype === 0) {
+		Pickit.pickItems();
+	}
+
+	return true;
+};
+
+Attack.blitzkrieg = function (name) {
+	if ((!me.getSkill(143, 1) && me.barbarian) || (!me.getSkill(143, 1) && !Pather.canTeleport())) {
+		return false;
+	}
+
+	if (name === undefined || !name) {
+		return false;
+	}
+
+	if (name !== 243) {	// Only do this for diablo at the moment
+		return false;
+	}
+
+	var target,	attackCount = 0, blitzSkill = me.barbarian ? 143 : 54;
+
+	for (let i = 0; !target && i < 5; i += 1) {
+		target = getUnit(1, name);
+
+		if (target) {
+			break;
+		}
+
+		delay(200);
+	}
+
+	if (!target) {
+		print("ÿc9SoloLevelingÿc0: " + name + " not found. Performing Attack.Clear(25)");
+		Attack.clear(25);
+		Pickit.pickItems();
+
+		return true;
+	}
+
+	if (target && !Attack.canAttack(target)) { // exit if target is immune
+		print("ÿc9SoloLevelingÿc0: Attack failed. " + target.name + " is immune.");
+
+		return true;
+	}
+
+	me.overhead("blitzkrieg");
+
+	while (attackCount < Config.MaxAttackCount) {
+		if (Misc.townCheck()) {
+			for (let i = 0; !target && i < 5; i += 1) {
+				target = getUnit(1, name);
+
+				if (target) {
+					break;
+				}
+
+				delay(200);
+			}
+		}
+
+		if (!target || !copyUnit(target).x) { // Check if unit got invalidated, happens if necro raises a skeleton from the boss's corpse.
+			target = getUnit(1, name);
+
+			if (!target) {
+				break;
+			}
+		}
+
+		if (blitzSkill === 143) {
+			Skill.cast(blitzSkill, 0, target.x, target.y);
+		}
+
+		if (Config.Dodge && me.hp * 100 / me.hpmax <= Config.DodgeHP) {
+			this.deploy(target, Config.DodgeRange, 5, 9);
+		}
+
+		if (attackCount > 0 && attackCount % 15 === 0 && Skill.getRange(Config.AttackSkill[1]) < 4) {
+			Packet.flash(me.gid);
+		}
+
+		if (!ClassAttack.doAttack(target, attackCount % 15 === 0)) {
+			Packet.flash(me.gid);
+		}
+
+		attackCount += 1;
+		ClassAttack.afterAttack();
+
+		let range = me.classid === 4 ? 15 : 20;
+		let coord = CollMap.getRandCoordinate(target.x + 5, -1 * range, range, target.y + 5, -1 * range, range);
+		Skill.cast(blitzSkill, 0, coord.x, coord.y);
 
 		// spectype check from isid0re SoloLeveling commit 44d25cb
 		if ( !target || !copyUnit(target).x || target.dead || target.spectype === 0) {
@@ -640,4 +738,12 @@ Attack.clearClassids = function (...ids) {
     }
 
     return true;
+};
+
+Attack.test = function () {
+	return true;
+};
+
+Attack.test2 = function () {
+	return true;
 };

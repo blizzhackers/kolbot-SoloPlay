@@ -1212,10 +1212,10 @@ case 4: // Barbarian - theBGuy
 			rangedMobsClassIDs.push(305, 306);
 		}
 
-		list.sort(Sort.units);
-
 		let newList = list.filter(mob => mob.spectype === 0 && !mob.getState(27) && 
 			((rangedMobsClassIDs.indexOf(mob.classid) > -1 && Math.round(getDistance(me, mob)) <= range) || (dangerousAndSummoners.indexOf(mob.classid) > -1 && Math.round(getDistance(me, mob)) <= 30)));
+
+		newList.sort(Sort.units);
 
 		if (newList.length >= 1) {
 			for (let i = 0; i < newList.length; i++) {
@@ -1379,7 +1379,7 @@ case 4: // Barbarian - theBGuy
 					Skill.cast(144, Skill.getHand(144), unit);
 				}
 
-				if (useWhirl && !unit.dead && Attack.getMonsterCount(me.x, me.y, 6) >= 3) {
+				if (useWhirl && !unit.dead && Attack.getMonsterCount(me.x, me.y, 6) >= 3 || [156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1) {
 					this.whirlwind(unit);
 				}
 			}

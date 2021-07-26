@@ -8,6 +8,11 @@
 function baal () {
 	Config.BossPriority = false;
 
+    if (me.amazon) {
+        var decoyTick = 0;
+        var decoyDuration = (10 + me.getSkill(28, 1) * 5) * 1000;
+    }
+
 	let clearThrone = function () {
         let pos = [
             { x: 15097, y: 5054 }, { x: 15085, y: 5053 },
@@ -22,6 +27,17 @@ function baal () {
 
     let preattack = function () {
         switch (me.classid) {
+            case 0: // Amazon
+                if (me.getSkill(28, 1)) {    
+                    let decoy = getUnit(1, 356);
+
+                    if (!decoy || (getTickCount() - decoyTick >= decoyDuration)){
+                        Skill.cast(28, 0, 15092, 5028);
+                        decoyTick = getTickCount();
+                    }
+                }
+
+                break;
             case 1:
                 if ([56, 59, 64].indexOf(Config.AttackSkill[1]) > -1) {
                     if (me.getState(121)) {
@@ -124,7 +140,6 @@ function baal () {
                 switch (checkThrone()) {
                     case 1:
                         Attack.clearClassids(23, 62);
-                        //Attack.clear(40);
 
                         tick = getTickCount();
 

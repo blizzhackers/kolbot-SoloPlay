@@ -1939,8 +1939,8 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 			generalScore += item.getStatEx(31) * 0.5;		// Defense
 			generalScore += item.getStatEx(21); // add MIN damage
 			generalScore += item.getStatEx(22); // add MAX damage
-			generalScore += item.getStatEx(23); // add MIN damage
-			generalScore += item.getStatEx(24); // add MAX damage
+			//generalScore += item.getStatEx(23); // add MIN damage
+			//generalScore += item.getStatEx(24); // add MAX damage
 		}
 
 		return generalScore;
