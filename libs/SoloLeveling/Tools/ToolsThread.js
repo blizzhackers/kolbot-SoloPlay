@@ -498,24 +498,29 @@ function main () {
 
 			break;
 		case 110: // decimal point
-			showConsole();
-			print("ÿc9GuysSoloLevelingÿc<: Item Info Start");
-			print("MaxQuantity: " + NTIP.getMaxQuantity(getUnit(101)));
-			print("InvoQuantity: " + NTIP.getInvoQuantity(getUnit(101)));
-			print("FinalCharm: " + NTIP.checkFinalCharm(getUnit(101)));
-			print("Pickit: " + Pickit.checkItem(getUnit(101)).result);
-			print("hasStats: " + NTIP.hasStats(getUnit(101)));
-			print("charmType: " + Item.getCharmType(getUnit(101)));
-			print("AutoEquipCheck: " + Item.autoEquipCharmCheck(getUnit(101)));
-			print("NTIP.CheckItem: " + NTIP.CheckItem(getUnit(101), NTIP_CheckListNoTier, true).result);
-			print("ÿc9GuysSoloLevelingÿc1: Item Info End");
+			let itemString = "";
+			let charmString = "";
+			let generalString = "";
+			let itemToCheck = getUnit(101);
+			itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) + 
+							" | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n" + 
+						 	"ÿc4AutoEquipKeepCheck: ÿc0" + Item.autoEquipKeepCheck(itemToCheck) + " | ÿc4AutoEquipCheckSecondary: ÿc0" + Item.autoEquipCheckSecondary(itemToCheck) + 
+						 	"\nÿc4AutoEquipKeepCheckMerc: ÿc0" + Item.autoEquipKeepCheckMerc(itemToCheck) + " | ÿc4ItemType: ÿc0" + itemToCheck.itemType + "| ÿc4Classid: ÿc0" + itemToCheck.classid;
+			charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + NTIP.checkFinalCharm(itemToCheck) + "\n" + 
+					"ÿc4CharmType: ÿc0" + Item.getCharmType(itemToCheck) + " | ÿc4AutoEquipCharmCheck: ÿc0" + Item.autoEquipCharmCheck(itemToCheck) + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck);
+			generalString = "ÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(getUnit(101), NTIP_CheckListNoTier, true).result;
+			
+			print("ÿc9GuysSoloLevelingÿc2: Item Info Start");
+			print(itemString);
+			print("ÿc9GuysSoloLevelingÿc2: Charm Info Start");
+			print(charmString);
+			print("ÿc9GuysSoloLevelingÿc2: General Info Start");
+			print(generalString);
+			print("ÿc9GuysSoloLevelingÿc1: ****************Info End****************");
 
 			break;
 		case 105: // numpad 9 - get nearest preset unit id
-			//print(this.getNearestPreset());
-			print("FinalSmallCharmAmount: " + Item.maxFinalSCs);
-			print("FinalLargeCharmAmount: " + Item.maxFinalLCs);
-			print("FinalGrandCharmAmount: " + Item.maxFinalGCs);
+			print(this.getNearestPreset());
 
 			break;
 		case 106: // numpad * - precast
