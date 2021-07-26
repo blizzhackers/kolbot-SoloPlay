@@ -32,7 +32,7 @@ case 0: //Amazon - theBGuy
 		if (Config.AttackSkill[0] === 17) {
 			if (!unit.getState(87)) {
 				if (Math.round(getDistance(me, unit)) < Skill.getRange(Config.AttackSkill[0]) || !checkCollision(me, unit, 0x4)) {
-					if ([156, 211, 242, 243, 544, 571, 391, 365, 267].indexOf(unit.classid) > -1) {	//Act Bosses and mini-bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
+					if ([156, 211, 242, 243, 544, 571, 391, 365, 267, 229].indexOf(unit.classid) > -1) {	//Act Bosses and mini-bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
 						if (!unit.getState(17)) {	//Check if already in this state
 							Skill.cast(8, Skill.getHand(8), unit);
 						}

@@ -639,7 +639,7 @@ Pather.useUnit = function (type, id, targetArea) {
 	return targetArea ? me.area === targetArea : me.area !== preArea;
 };
 
-//Add check in case "random" to return false if bot doesn't have cold plains wp yet and me.gameReady check
+//Add check in case "random" to return false if bot doesn't have cold plains wp yet
 Pather.useWaypoint = function useWaypoint(targetArea, check) {
 	switch (targetArea) {
 	case undefined:

@@ -334,7 +334,7 @@ var Check = {
 
 			break;
 		case "radament": //radament
-			if (Pather.accessToAct(2) && (!me.radament || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild))) {
+			if (Pather.accessToAct(2) && (!me.radament || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild && me.hell))) {
 				return true;
 			}
 
