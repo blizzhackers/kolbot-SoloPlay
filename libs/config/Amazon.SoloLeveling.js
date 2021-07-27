@@ -156,8 +156,6 @@ function LoadConfig () {
 		"[Type] == Boots && [Quality] >= Magic && [Flag] != Ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//armor
 		"[type] == armor && ([Quality] >= Magic || [flag] == runeword) && [Flag] != Ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		//shield
-		"[type] == shield && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//gloves
 		"[Type] == Gloves && [Quality] >= Magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//ammy
@@ -176,6 +174,10 @@ function LoadConfig () {
 		"me.charlvl > 14 && [Type] == Polearm && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 	NTIP.arrayLooping(levelingTiers);
+
+	if (SetUp.currentBuild !== "Witchyzon") {
+		NTIP.addLine("[type] == shield && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
+	}
 
 	var imbueables = [
 		"me.diff == 0 && [name] == maidenjavelin && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [MaxQuantity] == 1",
@@ -260,7 +262,7 @@ function LoadConfig () {
 		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= vexrune && [name] <= zodrune");
 
-		switch (SetUp.finalBuild) { // finalbuilld autoequip setup
+		switch (SetUp.finalBuild) { // finalbuild autoequip setup
 		case 'Witchyzon':
 			WWS = me.getItems()
 				.filter(item =>
@@ -280,7 +282,6 @@ function LoadConfig () {
 				var arrows = [
 					"[name] == arrows # # [tier] == 100000", //max tier to avoid shield swap
 					"[Type] == bowquiver # # [MaxQuantity] == 2",
-					"[type] == shield # # [tier] == -1",
 				];
 				NTIP.arrayLooping(arrows);
 			}
@@ -321,7 +322,7 @@ function LoadConfig () {
 				Config.KeepRunewords.push("[type] == polearm # [convictionaura] >= 13");
 			}
 
-			if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 1000 || Item.getEquippedItem(12).prefixnum !== 20635)) { // Spirit shield
+			if ((me.ladder || Developer.addLadderRW) && ((Item.getEquippedItem(5).tier < 1000 && SetUp.currentBuild !== "Witchyzon") || Item.getEquippedItem(12).prefixnum !== 20635)) { // Spirit shield
 				if (!Check.haveItem("shield", "runeword", "Spirit") && me.hell) {
 					var SpiritShield = [
 						"[Name] == TalRune # # [MaxQuantity] == 1",
@@ -489,7 +490,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("([type] == circlet || [type] == helm) # [LightResist] >= 25");
 		}
 
-		if (Item.getEquippedItem(5).tier < 500) { // Ancients' Pledge
+		if (Item.getEquippedItem(5).tier < 500 && SetUp.currentBuild !== "Witchyzon") { // Ancients' Pledge
 			if (!Check.haveItem("shield", "runeword", "Ancients' Pledge") && !me.hell) {
 				if (me.normal && !me.getItem(618)) {
 					Config.Recipes.push([Recipe.Rune, "Ral Rune"]);
@@ -546,30 +547,6 @@ function LoadConfig () {
 
 			Config.KeepRunewords.push("[Type] == armor # [ias] == 45 && [coldresist] == 30");
 		}
-
-		/*if (Item.getEquippedItem(3).tier < 700) { // Peace
-			if (!Check.haveItem("armor", "runeword", "Peace") && !me.hell) {
-				var peaceRunes = [
-					"[Name] == ShaelRune # # [MaxQuantity] == 1",
-					"[Name] == ThulRune # # [MaxQuantity] == 1",
-					"[Name] == AmnRune # # [MaxQuantity] == 1",
-				];
-				NTIP.arrayLooping(peaceRunes);
-			}
-
-			NTIP.addLine("([Name] == demonhidearmor || [Name] == DuskShroud || [Name] == GhostArmor || [Name] == LightPlate || [Name] == MagePlate || [Name] == SerpentskinArmor || [Name] == trellisedarmor || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
-
-			Config.Runewords.push([Runeword.Peace, "demonhide armor"]);
-			Config.Runewords.push([Runeword.Peace, "Dusk Shroud"]);
-			Config.Runewords.push([Runeword.Peace, "Ghost Armor"]);
-			Config.Runewords.push([Runeword.Peace, "Light Plate"]);
-			Config.Runewords.push([Runeword.Peace, "Mage Plate"]);
-			Config.Runewords.push([Runeword.Peace, "Serpentskin Armor"]);
-			Config.Runewords.push([Runeword.Peace, "trellised armor"]);
-			Config.Runewords.push([Runeword.Peace, "WyrmHide"]);
-
-			Config.KeepRunewords.push("[type] == armor # [coldresist] == 30");
-		}*/
 
 		if (Item.getEquippedItemMerc(3).prefixnum !== 20547) { // Merc Fortitude
 			var fort = [
