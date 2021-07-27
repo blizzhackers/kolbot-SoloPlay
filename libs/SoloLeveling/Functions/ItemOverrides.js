@@ -132,7 +132,7 @@ Item.getEquippedItem = function (bodyLoc) {
 
 	if (item) {
 		do {
-			if (item.location === 1 && (item.bodylocation === bodyLoc || (((bodyLoc === 4 && item.bodylocation === 5) || (bodyLoc === 5 && item.bodylocation === 4)) && getBaseStat("items", item.classid, "2handed") === 1))) {
+			if (item.location === 1 && item.bodylocation === bodyLoc) {
 				return {
 					classid: item.classid,
 					name: item.name,
