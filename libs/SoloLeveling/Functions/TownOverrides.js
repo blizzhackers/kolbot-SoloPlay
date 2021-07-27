@@ -24,6 +24,7 @@ Town.ignoredItemTypes = [ // Items that won't be stashed
 ];
 
 Town.questItemClassids = [87, 88, 89, 90, 91, 92, 173, 174, 521, 524, 525, 545, 546, 547, 548, 549, 552, 553, 554, 555, 644];
+Town.unsellablesClassids = [647, 648, 649, 650, 651, 652, 653, 654, 655, 656, 657, 658];
 
 Town.townTasks = function () {
 	if (!me.inTown) {
@@ -1264,6 +1265,7 @@ Town.clearInventory = function () {
 	for (i = 0; !!items && i < items.length; i += 1) {
 		if ([18, 41, 76, 77, 78].indexOf(items[i].itemType) === -1 && // Don't drop tomes, keys or potions
 			(Town.questItemClassids.indexOf(items[i].classid) === -1) &&	// Don't drop quest items
+			(Town.unsellablesClassids.indexOf(items[i].classid) === -1) &&	// Don't try to sell keys/essences/tokens/organs
 			(items[i].classid !== 603 && items[i].quality !== 7) && // Anni
 			(items[i].classid !== 604 && items[i].quality !== 7) && // Torch
 			(items[i].classid !== 605 && items[i].quality !== 7) && // Gheeds
@@ -2263,6 +2265,7 @@ Town.clearJunk = function () {
 			!CraftingSystem.keepItem(junk[0]) && // Don't throw crafting system ingredients
 			[18, 41, 76, 77, 78].indexOf(junk[0].itemType) === -1 && // Don't drop tomes, keys or potions
 			(Town.questItemClassids.indexOf(junk[0].classid) === -1) &&	// Don't drop quest items
+			(Town.unsellablesClassids.indexOf(junk[0].classid) === -1) &&	// Don't try to sell keys/essences/tokens/organs
 			(junk[0].classid !== 603 && junk[0].quality !== 7) && // Anni
 			(junk[0].classid !== 604 && junk[0].quality !== 7) && // Torch
 			(junk[0].classid !== 605 && junk[0].quality !== 7) && // Gheeds

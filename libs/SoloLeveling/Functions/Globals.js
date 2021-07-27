@@ -16,7 +16,7 @@ var SetUp = {
 		"den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "andariel", "a1chests", "cows", // Act 1
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel", // Act 2
 		"templeruns", "lowerkurast", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
-		"izual", "hellforge", "diablo", //Act 4
+		"izual", "hellforge", "river", "diablo", //Act 4
 		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests", // Act 5
 	],
 
@@ -220,12 +220,12 @@ var nipItems = {
 		"[name] == tomeoftownportal",
 		"[name] == tomeofidentify",
 		"[name] == gold # [gold] >= me.charlvl * 3 * me.diff",
-		"[name] == minorhealingpotion",
+		"me.charlvl < 20 && [name] == minorhealingpotion",
 		"[name] == lighthealingpotion",
 		"[name] == healingpotion",
 		"[name] == greaterhealingpotion",
 		"[name] == superhealingpotion",
-		"[name] == minormanapotion",
+		"me.charlvl < 20 && [name] == minormanapotion",
 		"[name] == lightmanapotion",
 		"[name] == manapotion",
 		"[name] == greatermanapotion",
@@ -325,7 +325,7 @@ var Check = {
 
 			break;
 		case "a1chests": //a1chests
-			if (!me.classic && me.charlvl >= 70 && Pather.canTeleport()) {
+			if (!me.classic && (me.charlvl >= 70 && Pather.canTeleport() || (me.barbarian && !me.normal && !Pather.accessToAct(4) && !Check.haveItem("weapon", "runeword", "Voice of Reason")))) {
 				return true;
 			}
 
@@ -428,6 +428,12 @@ var Check = {
 			break;
 		case "izual": // izzy
 			if (Pather.accessToAct(4) && !me.izual) {
+				return true;
+			}
+
+			break;
+		case "river": // river
+			if (Pather.accessToAct(4) && !me.diablo && !me.normal && (me.barbarian && !Check.haveItem("weapon", "runeword", "Voice of Reason"))) {
 				return true;
 			}
 
