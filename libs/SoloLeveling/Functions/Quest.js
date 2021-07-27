@@ -397,11 +397,9 @@ var Quest = {
 
 			delay(750 + me.ping * 2);
 			Town.clearBelt();
-			delay(250 + me.ping);
-			let script = getScript("default.dbj");
-			script.stop();
-			load("default.dbj");
-			Item.autoEquip();
+			me.overhead('respec done, restarting');
+			delay(1000 + me.ping);
+			quit();
 		}
 
 		return true;
