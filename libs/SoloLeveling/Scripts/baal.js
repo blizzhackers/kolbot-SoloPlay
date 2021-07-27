@@ -6,14 +6,14 @@
 */
 
 function baal () {
-	Config.BossPriority = false;
+    Config.BossPriority = false;
 
     if (me.amazon) {
         var decoyTick = 0;
         var decoyDuration = (10 + me.getSkill(28, 1) * 5) * 1000;
     }
 
-	let clearThrone = function () {
+    let clearThrone = function () {
         let pos = [
             { x: 15097, y: 5054 }, { x: 15085, y: 5053 },
             { x: 15085, y: 5040 }, { x: 15098, y: 5040 },
@@ -131,9 +131,13 @@ function baal () {
                     Pather.moveTo(15116, 5026);
                 }
 
+                SetUp.walkToggle = true;
+
                 if (!getUnit(1, 543)) {
                     break;
                 }
+
+                me.runwalk = 0;
 
                 Misc.townCheck();
 
@@ -234,19 +238,19 @@ function baal () {
         return count > totalAmount;
     };
 
-   	Town.townTasks();
-	print('ÿc9SoloLevelingÿc0: starting baal');
-	me.overhead("baal");
+    Town.townTasks();
+    print('ÿc9SoloLevelingÿc0: starting baal');
+    me.overhead("baal");
 
-	if (!Pather.checkWP(129)) {
-		Pather.getWP(129, true);
-	} else {
-		Pather.useWaypoint(129);
-	}
+    if (!Pather.checkWP(129)) {
+    	Pather.getWP(129, true);
+    } else {
+    	Pather.useWaypoint(129);
+    }
 
-	Precast.doPrecast(true);
-	Pather.clearToExit(129, 130, true); 	//WS2 -> WS3
-	Pather.clearToExit(130, 131, true); 	//WS3 -> Throne
+    Precast.doPrecast(true);
+    Pather.clearToExit(129, 130, true); 	//WS2 -> WS3
+    Pather.clearToExit(130, 131, true); 	//WS3 -> Throne
 
     Pather.moveTo(15095, 5029, 5);
     Pather.moveTo(15113, 5040, 5);
@@ -259,6 +263,16 @@ function baal () {
     Attack.clear(15);
     clearThrone();
 
+    if (Check.Resistance().CR < 75 || Check.Resistance().PR < 75) {
+        Town.doChores();
+        Town.buyPots(10, "Thawing"); // thawing
+        Town.drinkPots();
+        Town.buyPots(10, "Antidote"); // antidote
+        Town.drinkPots();
+        Town.move("portalspot");
+        Pather.usePortal(131, me.name);
+    }
+
     if (!clearWaves()) {
         return false;
     }
@@ -266,34 +280,35 @@ function baal () {
     clearThrone(); // double check
 
     Pather.moveTo(15094, me.classid === 3 ? 5029 : 5038);
-	Pickit.pickItems();
+    Pickit.pickItems();
 
-	Pather.moveTo(15094, me.classid === 3 ? 5029 : 5038);
-	Pickit.pickItems();
-	Pather.moveTo(15090, 5008);
-	delay(2500 + me.ping);
-	Precast.doPrecast(true);
+    Pather.moveTo(15094, me.classid === 3 ? 5029 : 5038);
+    Pickit.pickItems();
+    Pather.moveTo(15090, 5008);
+    delay(2500 + me.ping);
+    Precast.doPrecast(true);
+    SetUp.walkToggle = false;
 
-	while (getUnit(1, 543)) {
-		delay(500 + me.ping);
-	}
+    while (getUnit(1, 543)) {
+    	delay(500 + me.ping);
+    }
 
-	if (SetUp.finalBuild === "Bumper") {
-		return true;
-	}
+    if (SetUp.finalBuild === "Bumper") {
+    	return true;
+    }
 
-	let portal = getUnit(2, 563);
+    let portal = getUnit(2, 563);
 
-	if (portal) {
-		Pather.usePortal(null, null, portal);
-	} else {
-		print("ÿc9SoloLevelingÿc0: Couldn't access portal.");
-	}
+    if (portal) {
+    	Pather.usePortal(null, null, portal);
+    } else {
+    	print("ÿc9SoloLevelingÿc0: Couldn't access portal.");
+    }
 
-	Config.BossPriority = true;
-	Pather.moveTo(15134, 5923);
-	Attack.killTarget(544); // Baal	
-	Pickit.pickItems();
+    Config.BossPriority = true;
+    Pather.moveTo(15134, 5923);
+    Attack.killTarget(544); // Baal	
+    Pickit.pickItems();
 
-	return true;
+    return true;
 }

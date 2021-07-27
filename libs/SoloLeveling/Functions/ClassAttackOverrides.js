@@ -1205,14 +1205,14 @@ case 4: // Barbarian - theBGuy
 		let useWarCry = me.getSkill(154, 0);
 		let range = me.area !== 131 ? 15 : 30;
 		let rangedMobsClassIDs = [10, 11, 12, 13, 14, 118, 119, 120, 121, 131, 132, 133, 134, 135, 170, 171, 172, 173, 174, 238, 239, 240, 362, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 580, 581, 582, 583, 584, 645, 646, 647, 697];
-		let dangerousAndSummoners = [636, 637, 638, 639, 640, 58, 59, 60, 61, 101, 102, 103, 104, 669, 670, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478];
+		let dangerousAndSummoners = [636, 637, 638, 639, 640, 641, 58, 59, 60, 61, 101, 102, 103, 104, 105, 557, 558, 669, 670, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478];
 		let list = Attack.buildMonsterList();
 
 		if ([107, 108].indexOf(me.area) > -1) {
 			rangedMobsClassIDs.push(305, 306);
 		}
 
-		let newList = list.filter(mob => mob.spectype === 0 && !mob.getState(27) && 
+		let newList = list.filter(mob => [0, 8].indexOf(mob.spectype) > -1 && !mob.getState(27) && 
 			((rangedMobsClassIDs.indexOf(mob.classid) > -1 && Math.round(getDistance(me, mob)) <= range) || (dangerousAndSummoners.indexOf(mob.classid) > -1 && Math.round(getDistance(me, mob)) <= 30)));
 
 		newList.sort(Sort.units);
@@ -1341,6 +1341,7 @@ case 4: // Barbarian - theBGuy
 		var walk;
 		let useConc = me.getSkill(144, 0);
 		let useWhirl = me.getSkill(151, 1) && attackSkill !== 151; // If main attack skill is already whirlwind no need to use it twice
+		let useLeap = me.getSkill(143, 1);
 
 		if (attackSkill < 0) {
 			return 2;
@@ -1367,6 +1368,10 @@ case 4: // Barbarian - theBGuy
 			if (Math.round(getDistance(me, unit)) > Skill.getRange(attackSkill) || checkCollision(me, unit, 0x4)) {
 				walk = Skill.getRange(attackSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
 
+				if (useLeap && !checkCollision(me, unit, 0x1)) {
+					Skill.cast(143, 0, unit.x, unit.y);
+				}
+
 				if (!Attack.getIntoPosition(unit, Skill.getRange(attackSkill), 0x4, walk)) {
 					return 0;
 				}
@@ -1379,7 +1384,7 @@ case 4: // Barbarian - theBGuy
 					Skill.cast(144, Skill.getHand(144), unit);
 				}
 
-				if (useWhirl && !unit.dead && Attack.getMonsterCount(me.x, me.y, 6) >= 3 || [156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1) {
+				if (useWhirl && !unit.dead && (Attack.getMonsterCount(me.x, me.y, 6) >= 3 || [156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1)) {
 					this.whirlwind(unit);
 				}
 			}
