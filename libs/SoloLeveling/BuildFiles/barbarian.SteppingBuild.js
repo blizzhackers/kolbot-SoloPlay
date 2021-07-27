@@ -47,26 +47,20 @@ var build = {
 		[151, 1, true], // Whirlwind -> charlvl 30
 		[154, 1, true], // War Cry -> charlvl 30
 		[155, 1, true], // Battle Command -> charlvl 31
-		[153, 5, true], // Natural Resistance 5 // charLvl 36 (enough res to get out or normal)
+		[153, 3, true], // Natural Resistance 5 // charLvl 34 (enough res to get out or normal)
+		[151, 6, true], // Whirlwind -> charlvl 39
 		[147, 5, false], // Frenzy -> charlvl 36
-		[149, 5, false], // Battle Orders -> charlvl 37
-		[147, 6, false], // Frenzy -> charlvl 38
-		[149, 6, false], // Battle Orders -> charlvl 39
-		[147, 7, false], // Frenzy -> charlvl 40
-		[149, 7, false], // Battle Orders -> charlvl 41
-		[147, 8, false], // Frenzy -> charlvl 42
-		[149, 8, false], // Battle Orders -> charlvl 43
-		[147, 9, false], // Frenzy -> charlvl 44
-		[149, 9, false], // Battle Orders -> charlvl 45
-		[127, 11, false], // Sword Mastery -> charlvl 46
-		[149, 10, false], // Battle Orders -> charlvl 47
-		[127, 12, false], // Sword Mastery -> charlvl 46
-		[149, 11, false], // Battle Orders -> charlvl 49
 		[127, 13, false], // Sword Mastery -> charlvl 46
-		[149, 12, false], // Battle Orders -> charlvl 51
+		[147, 6, false], // Frenzy -> charlvl 38
 		[127, 14, false], // Sword Mastery -> charlvl 46
-		[149, 13, false], // Battle Orders -> charlvl 53 (BO now lasts 2 minutes)
+		[147, 7, false], // Frenzy -> charlvl 40
+		[127, 15, false], // Sword Mastery -> charlvl 46
+		[147, 8, false], // Frenzy -> charlvl 42
+		[127, 16, false], // Sword Mastery -> charlvl 46
+		[147, 9, false], // Frenzy -> charlvl 44
+		[133, 8, true], // Double Swing -> charlvl 6
 		[127, 20, false], // Sword Mastery -> charlvl 46
+		[153, 5, true], // Natural Resistance 5
 		[149, 20, false], // Battle Orders -> charlvl 69
 		[147, 20, false], // Frenzy -> charlvl 61
 	]
