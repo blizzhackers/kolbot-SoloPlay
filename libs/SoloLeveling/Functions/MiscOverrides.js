@@ -558,9 +558,13 @@ Misc.openChest = function (unit) {
 Misc.openChests = function (range) {
 	var unit,
 		unitList = [],
-		containers = [ "loose rock", "hidden stash", "loose boulder", "chest", "chest3", "armorstand", "holeanim", "weaponrack"],
+		containers = [
+			"loose rock", "hidden stash", "loose boulder", "chest", "chest3", "armorstand", 
+			"holeanim", "weaponrack", "roguecorpse", "tomb2", "tomb3", "tomb3l", "tomb1l",
+			"groundtomb","groundtombl","casket","burialchestr","burialchestl"
+		],
 		pita = ["barrel", "largeurn", "jar3", "jar2", "jar1", "urn", "jug"]; // pain in the ass
-
+							
 	if (!range) {
 		range = 15;
 	}

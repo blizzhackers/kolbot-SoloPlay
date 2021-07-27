@@ -2597,7 +2597,7 @@ Town.reviveMerc = function () {
 	Attack.checkInfinity();
 
 	if (!!Merc.getMercFix()) {
-		if (Config.MercWatch && (me.barbarian || Precast.checkCTA())) { // Cast BO on merc so he doesn't just die again. Only Do this is you are a barb or actually have a cta. Otherwise its just a waste of time.
+		if (Config.MercWatch && ((me.barbarian && (me.getSkill(138,1) || me.getSkill(149, 1))) || Precast.checkCTA())) { // Cast BO on merc so he doesn't just die again. Only Do this is you are a barb or actually have a cta. Otherwise its just a waste of time.
 			print("MercWatch precast");
 			Pather.useWaypoint("random");
 			Precast.doPrecast(true);

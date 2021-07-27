@@ -145,7 +145,7 @@ function LoadConfig () {
 
 	var levelingTiers = [ // autoequip setup
 		//weapon
-		"me.charlvl < 12 && [Type] == Sword && ([Quality] >= Normal || [flag] == runeword) && [flag] != ethereal && [wsm] <= 10 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"me.charlvl < 12 && [Type] == Sword && ([Quality] >= Normal || [flag] == runeword) && [flag] != ethereal && [wsm] <= 20 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"[Type] == Sword && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal && [wsm] <= 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//Helmet
 		"([type] == helm || [type] == primalhelm) && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
@@ -461,7 +461,7 @@ function LoadConfig () {
 				"!me.hell && ([Name] == voulge || [Name] == scythe || [Name] == poleaxe || [Name] == halberd || [Name] == warscythe || [Name] == bill || [Name] == battlescythe || [Name] == partizan || [Name] == grimscythe) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
 				"([Name] == thresher || [Name] == crypticaxe || [Name] == greatpoleaxe || [Name] == giantthresher) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
 			];
-			
+
 			if (me.getItem(621)) {	// Sol rune
 				NTIP.arrayLooping(Insight);
 			}

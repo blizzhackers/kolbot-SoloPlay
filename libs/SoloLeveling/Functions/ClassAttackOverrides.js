@@ -1225,8 +1225,8 @@ case 4: // Barbarian - theBGuy
 					Skill.cast(154, Skill.getHand(154));
 				}
 
-				if (!newList[i].getState(27) && !newList[i].getState(56) && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
-					print("Casting on: " + newList[i].name);
+				if (!newList[i].getState(27) && !newList[i].getState(56) && !newList[i].dead && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
+					//print("Casting on: " + newList[i].name);
 					Skill.cast(137, Skill.getHand(137), newList[i]);
 				}
 
@@ -1342,6 +1342,8 @@ case 4: // Barbarian - theBGuy
 		let useConc = me.getSkill(144, 0);
 		let useWhirl = me.getSkill(151, 1) && attackSkill !== 151; // If main attack skill is already whirlwind no need to use it twice
 		let useLeap = me.getSkill(143, 1);
+		let useWarCry = me.getSkill(154, 1);
+		let useBattleCry = me.getSkill(146, 1);
 
 		if (attackSkill < 0) {
 			return 2;
@@ -1380,8 +1382,16 @@ case 4: // Barbarian - theBGuy
 			if (!unit.dead) {
 				Skill.cast(attackSkill, Skill.getHand(attackSkill), unit);
 
+				if (useBattleCry && !unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27) && Skill.getManaCost(146) < me.mp) {		//Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
+					Skill.cast(146, Skill.getHand(146), unit);
+				}
+
 				if (useConc && !unit.dead) {
 					Skill.cast(144, Skill.getHand(144), unit);
+				}
+
+				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544].indexOf(unit.classid) === -1 && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
+					Skill.cast(154, Skill.getHand(154));
 				}
 
 				if (useWhirl && !unit.dead && (Attack.getMonsterCount(me.x, me.y, 6) >= 3 || [156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1)) {
