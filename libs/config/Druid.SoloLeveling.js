@@ -558,12 +558,15 @@ function LoadConfig () {
 			}
 
 			var loreHelm = [
-				"!me.hell && ([Name] == Crown || [Name] == BoneHelm || [Name] == FullHelm) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1",
-				"([Name] == Casque || [Name] == Sallet || [Name] == DeathMask || [Name] == GrimHelm) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1",
 				"[type] == pelt && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2",
 				"[type] == pelt && [Quality] == Normal # ([druidskills]+[elementalskilltab]+[skillcyclonearmor]+[skilltwister]+[skilltornado]+[skillhurricane]) >= 1 && [Sockets] == 0",
 			];
 			NTIP.arrayLooping(loreHelm);
+
+			if (Item.getEquippedItem(1).tier < 150) {
+				NTIP.addLine("!me.hell && ([Name] == Crown || [Name] == BoneHelm || [Name] == FullHelm) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1");
+				NTIP.addLine("([Name] == Casque || [Name] == Sallet || [Name] == DeathMask || [Name] == GrimHelm) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1")
+			}
 
 			Config.Runewords.push([Runeword.Lore, "Wolf Head"]);
 			Config.Runewords.push([Runeword.Lore, "Hawk Helm"]);
