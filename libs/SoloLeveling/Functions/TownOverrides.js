@@ -2269,6 +2269,10 @@ Town.clearJunk = function () {
 			(!Item.autoEquipKeepCheckMerc(junk[0]) && !Item.autoEquipKeepCheck(junk[0]) && !Item.autoEquipCheckSecondary(junk[0])) && 
 			([0, 4].indexOf(Pickit.checkItem(junk[0]).result) > -1) // only drop unwanted
 		) {
+			if ([0, 4].indexOf(Pickit.checkItem(junk[0]).result) === -1) {
+				continue;
+			}
+
 			if (!getUIFlag(0x19) && junk[0].location === 7) {
 				Town.openStash();
 			}
@@ -2301,7 +2305,7 @@ Town.clearJunk = function () {
 
 		}
 
-		if (([3, 7].indexOf(junk[0].location) > -1 && [18, 41, 76, 77, 78, 80, 81, 39, 74, 82, 83, 84].indexOf(junk[0].itemType) === -1) &&
+		if (([3, 7].indexOf(junk[0].location) > -1 && junk[0].quality < 4 && [18, 41, 76, 77, 78, 80, 81, 39, 74, 82, 83, 84].indexOf(junk[0].itemType) === -1) &&
 			(Town.questItemClassids.indexOf(junk[0].classid) === -1)) {
 			if (this.betterBaseThanStashed(junk[0], true)) {
 				if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
@@ -2371,7 +2375,7 @@ Town.clearJunk = function () {
 				}
 			}
 
-			if ([3, 6, 7].indexOf(junk[0].location) > -1 && [2, 69, 70, 3, 37, 71, 72, 75, 25, 24, 26, 27, 28, 29, 30, 31, 33, 35, 36, 68, 85, 86, 67, 88, 34].indexOf(junk[0].itemType) > -1) {
+			if ([3, 6, 7].indexOf(junk[0].location) > -1 && junk[0].quality < 4 && [2, 69, 70, 3, 37, 71, 72, 75, 25, 24, 26, 27, 28, 29, 30, 31, 33, 35, 36, 68, 85, 86, 67, 88, 34].indexOf(junk[0].itemType) > -1) {
 				if (!this.betterBaseThanWearing(junk[0], Developer.Debugging.junkCheckVerbose)) {
 					print("ÿc9BadBaseCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
 
