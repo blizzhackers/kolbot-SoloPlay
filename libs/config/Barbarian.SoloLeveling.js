@@ -501,7 +501,7 @@ function LoadConfig () {
 			NTIP.arrayLooping(Lawbringer);
 
 			if (me.getItem(629)) {
-				NTIP.addLine("[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [secondarymindamage] == 0 && [Sockets] == 3");
+				NTIP.addLine("[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [Sockets] == 3");
 			}
 
 			Config.Runewords.push([Runeword.Lawbringer, "Dimensional Blade"]);
@@ -510,6 +510,9 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.Lawbringer, "Conquest Sword"]);
 			Config.Runewords.push([Runeword.Lawbringer, "Cryptic Sword"]);
 			Config.Runewords.push([Runeword.Lawbringer, "Phase Blade"]);
+			Config.Runewords.push([Runeword.Lawbringer, "Espandon"]);
+			Config.Runewords.push([Runeword.Lawbringer, "Tusk Sword"]);
+			Config.Runewords.push([Runeword.Lawbringer, "Zweihander"]);
 
 			Config.KeepRunewords.push("[type] == sword # [sanctuaryaura] >= 16");
 		}
@@ -524,7 +527,7 @@ function LoadConfig () {
 			NTIP.arrayLooping(VoiceofReason);
 
 			if (me.getItem(629)) {
-				NTIP.addLine("[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [secondarymindamage] == 0 && [Sockets] == 4")
+				NTIP.addLine("[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [Sockets] == 4")
 			}
 
 			Config.Runewords.push([Runeword.VoiceofReason, "Dimensional Blade"]);
@@ -533,6 +536,8 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.VoiceofReason, "Conquest Sword"]);
 			Config.Runewords.push([Runeword.VoiceofReason, "Cryptic Sword"]);
 			Config.Runewords.push([Runeword.VoiceofReason, "Phase Blade"]);
+			Config.Runewords.push([Runeword.VoiceofReason, "Tusk Sword"]);
+			Config.Runewords.push([Runeword.VoiceofReason, "Zweihander"]);
 
 			Config.KeepRunewords.push("[type] == sword # [passivecoldpierce] >= 24");
 		}
@@ -790,7 +795,11 @@ function LoadConfig () {
 			}
 
 			if (me.getItem(624)) {
-				NTIP.addLine("([Name] == BreastPlate || [Name] == demonhidearmor || [Name] == DuskShroud || [Name] == GhostArmor || [Name] == LightPlate || [Name] == MagePlate || [Name] == SerpentskinArmor || [Name] == trellisedarmor || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
+				NTIP.addLine("([Name] == demonhidearmor || [Name] == DuskShroud || [Name] == GhostArmor || [Name] == LightPlate || [Name] == MagePlate || [Name] == SerpentskinArmor || [Name] == trellisedarmor || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
+			}
+
+			if (me.getItem(624) && Item.getEquippedItem(3).tier < 200) {
+				NTIP.addLine("[Name] == BreastPlate && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
 			}
 
 			Config.Runewords.push([Runeword.Myth, "Breast Plate"]);
