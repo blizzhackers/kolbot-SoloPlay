@@ -36,7 +36,7 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 | Witchyzon | BlizzBaller |   Bone | Smiter| Immortalwhirl | Elemental |
 | | Meteorb | Summon | Auradin | Frenzy | Plaguewolf |
 | | Blova | | Zealer | Uberconc | Wolf |
-| | Lightning | |
+| | Lightning | | | Singer |
 
 ## New modes
 - Two new modes are available: **Bumper** and **Socketmule**. Enter either of these into your D2Bot# profile info tag to make. The bot will then stop after shenk quest for Socketmule and after it hits level 40 for a Bumper.
