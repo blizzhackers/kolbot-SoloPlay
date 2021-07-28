@@ -630,4 +630,40 @@ var AutoBuildTemplate = {
 
 		}
 	},
+
+	66:	{
+		SkillPoints: [-1],
+		StatPoints: [-1, -1, -1, -1, -1],
+		Update: function () {
+			Config.AttackSkill = [154, 147, -1, 147, -1];
+
+		}
+	},
+
+	67:	{
+		SkillPoints: [-1],
+		StatPoints: [-1, -1, -1, -1, -1],
+		Update: function () {
+			Config.AttackSkill = [154, 147, -1, 147, -1];
+
+		}
+	},
+
+	68:	{
+		SkillPoints: [-1],
+		StatPoints: [-1, -1, -1, -1, -1],
+		Update: function () {
+			Config.AttackSkill = [154, 147, -1, 147, -1];
+
+		}
+	},
+
+	69:	{
+		SkillPoints: [-1],
+		StatPoints: [-1, -1, -1, -1, -1],
+		Update: function () {
+			Config.AttackSkill = [154, 147, -1, 147, -1];
+
+		}
+	},
 };
