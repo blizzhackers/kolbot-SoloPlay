@@ -235,8 +235,9 @@ function LoadConfig () {
 		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= vexrune && [name] <= zodrune");
 
-		switch (SetUp.finalBuild) { // finalbuilld autoequip setup
+		switch (SetUp.finalBuild) { // finalbuild autoequip setup
 		case 'Smiter':
+		case 'Zealer':
 			if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("sword", "runeword", "Grief")) {
 				var Grief = [
 					"[Name] == EthRune # # [MaxQuantity] == 1",
@@ -262,6 +263,34 @@ function LoadConfig () {
 
 				Config.Runewords.push([Runeword.Grief, "Phase Blade"]);
 				Config.KeepRunewords.push("[Type] == sword # [ias] >= 30");
+			}
+
+			if (SetUp.finalBuild === "Zealer") {
+				if (Check.haveItemAndNotSocketed("helm", "unique", "Vampire Gaze")) {
+					Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // Sur to Ber
+				}
+
+				if (!Check.haveItem("BoneVisage", "unique", "Vampire Gaze")) {
+					Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Grim Helm", Roll.NonEth]); // Upgrade Vamp Gaze to Elite
+				}
+
+				if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("armor", "runeword", "Fortitude")) {
+					if (!me.getItem(637)) {		// Lo Rune
+						Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
+						Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
+						Config.Recipes.push([Recipe.Rune, "Vex Rune"]); // Vex to Ohm
+						Config.Recipes.push([Recipe.Rune, "Ohm Rune"]); // Ohm to Lo
+					}
+
+					if (me.getItem(637)) {	// Lo Rune
+						NTIP.addLine("[name] == archonplate && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
+					} else {
+						NTIP.addLine("[name] == archonplate && [flag] != ethereal && [Quality] == Superior # [Sockets] == 4 && [enhanceddefense] >= 10 # [MaxQuantity] == 1");
+					}
+
+					Config.Runewords.push([Runeword.Fortitude, "Archon Plate"]);
+					Config.KeepRunewords.push("[type] == armor # [enhanceddamage] >= 300 && [enhanceddefense] >= 200");
+				}
 			}
 
 			break;

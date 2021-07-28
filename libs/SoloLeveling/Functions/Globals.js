@@ -65,7 +65,7 @@ var SetUp = {
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
 	respecOne: [ 64, 28, 26, 19, 24, 24, 30][me.classid],
-	respecOneB: [ 0, 0, 0, 0, 64, 0, 0][me.classid],
+	respecOneB: [ 0, 0, 0, 0, 69, 0, 0][me.classid],
 
 	// mine - theBGuy
 	respecTwo: function () {
@@ -103,6 +103,7 @@ var SetUp = {
 				break;
 			case "Whirlwind":
 			case "Smiter":
+			case "Zealer":
 				respec = Check.haveItem("sword", "runeword", "Grief") ? me.charlvl : 100;
 				break;
 			case "Uberconc":
@@ -277,7 +278,9 @@ var Check = {
 
 			break;
 		case "bloodraven": //bloodaraven
-			if ((!me.bloodraven && me.normal || (!me.summoner && !Check.brokeAf())) || (me.normal && !me.tristram && me.barbarian) || (me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || !me.amazon))) {
+			if ((!me.bloodraven && me.normal || (!me.summoner && !Check.brokeAf())) || 
+				(me.normal && !me.tristram && me.barbarian) || 
+				(me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || !me.amazon))) {
 				return true;
 			}
 
@@ -295,7 +298,9 @@ var Check = {
 
 			break;
 		case "tristram": //tristram
-			if ((me.normal && me.charlvl < 15 || !Check.brokeAf()) || (!me.normal && (!me.tristram && (me.classic && me.diablo || me.baal)) || (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
+			if ((me.normal && me.charlvl < 15 || !Check.brokeAf()) || 
+				(!me.normal && (!me.tristram && (me.classic && me.diablo || me.baal)) || 
+					(me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
 				return true;
 			}
 
@@ -307,7 +312,10 @@ var Check = {
 
 			break;
 		case "pits": //pits
-			if (me.hell && ((!me.sorceress && !me.druid && (!me.paladin || Attack.IsAuradin) && (me.amazon && SetUp.currentBuild === SetUp.finalBuild)) || (me.sorceress && me.charlvl >= 70) || (me.druid && ["Plaguewolf", "Wolf"].indexOf(SetUp.currentBuild) > -1))) {
+			if (me.hell && 
+				((!me.sorceress && !me.druid && (!me.paladin || Attack.IsAuradin) && (me.amazon && SetUp.currentBuild === SetUp.finalBuild)) || 
+					(me.sorceress && me.charlvl >= 70) || 
+					(me.druid && ["Plaguewolf", "Wolf"].indexOf(SetUp.currentBuild) > -1))) {
 				return true;
 			}
 
@@ -319,13 +327,19 @@ var Check = {
 
 			break;
 		case "andariel": //andy
-			if ((me.classic && me.hell) || (!me.classic && (!me.normal && (Pather.canTeleport() || me.charlvl <= 60)) || (me.hell && me.charlvl !== 100 && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild)))) || !me.andariel) {
+			if (!me.andariel || 
+				(me.classic && me.hell) || 
+				(!me.classic && 
+					(!me.normal && (Pather.canTeleport() || me.charlvl <= 60)) || 
+					(me.hell && me.charlvl !== 100 && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))))) {
 				return true;
 			}
 
 			break;
 		case "a1chests": //a1chests
-			if (!me.classic && (me.charlvl >= 70 && Pather.canTeleport() || (me.barbarian && !me.normal && !Pather.accessToAct(4) && !Check.haveItem("weapon", "runeword", "Voice of Reason")))) {
+			if (!me.classic && 
+				(me.charlvl >= 70 && Pather.canTeleport() || 
+					(me.barbarian && !me.normal && !Pather.accessToAct(4) && !Check.haveItem("weapon", "runeword", "Voice of Reason")))) {
 				return true;
 			}
 
@@ -415,7 +429,11 @@ var Check = {
 
 			break;
 		case "travincal": //travincal
-			if (Pather.accessToAct(3) && (me.charlvl < 25 || (me.charlvl > 25 && me.normal && !me.diablo && !Check.Gold()) || (me.hell && me.paladin && me.charlvl > 85 && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))) || !me.travincal)) {
+			if (Pather.accessToAct(3) && !me.travincal ||
+				(me.charlvl < 25 || 
+					(me.charlvl > 25 && me.normal && !me.diablo && !Check.Gold()) ||
+					(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("weapon", "runeword", "Voice of Reason")) || 
+					(me.hell && me.paladin && me.charlvl > 85 && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
 				return true;
 			}
 
@@ -481,7 +499,10 @@ var Check = {
 
 			break;
 		case "cows": //cows
-			if (!me.normal && !me.cows && (!me.barbarian || ["Whirlwind", "Immortalwhirl", "Singer"].indexOf(SetUp.currentBuild) > -1) && (me.classic && me.diablo || me.baal) && ((me.nightmare && (!me.druid || me.charlvl <= 65) || me.hell))) {
+			if (!me.normal && !me.cows && 
+				(!me.barbarian || ["Whirlwind", "Immortalwhirl", "Singer"].indexOf(SetUp.currentBuild) > -1) && 
+				(me.classic && me.diablo || me.baal) && 
+				((me.nightmare && (!me.druid || me.charlvl <= 65) || me.hell))) {
 				return true;
 			}
 
