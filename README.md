@@ -129,6 +129,14 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
   - Turning on/off the overlay
   - Options to fillAccount for Socketmule/Bumper
 
+## D2BotSoloCleaner
+- The purpose of this entryscript is to delete old characters and optional related files.
+- Extra Features
+   - DataCleaner to delete old files associated with running SoloLeveling 
+   - SaveFiles to save important files to SoloLeveling/Data/ for performance review
+   - single player option
+   - **Note:** DataCleaner and SaveFiles can both be used for cleaning/saving files without having to delete associated characters
+
 ## Discord
 **Big shout-out to Xcon for setting up this discord channel**
 - If you have any questions please join me on my discord
