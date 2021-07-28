@@ -274,6 +274,25 @@ function LoadConfig () {
 					Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Grim Helm", Roll.NonEth]); // Upgrade Vamp Gaze to Elite
 				}
 
+				if (!Check.haveItem("auricshields", "runeword", "Exile")) {
+					var Exile = [
+						"[Name] == VexRune",
+						"[Name] == OhmRune",
+						"[Name] == IstRune",
+						"[Name] == DolRune # # [MaxQuantity] == 1",
+						"[Name] == SacredTarge && [Quality] >= Normal && [Quality] <= Superior # [fireresist] >= 30 && [Sockets] == 3 # [MaxQuantity] == 1",
+					];
+					NTIP.arrayLooping(Exile);
+
+					if (!Check.haveBase("sacred targe", 4)) {
+						NTIP.addLine("[Name] == SacredTarge && [Quality] == Normal # [fireresist] >= 30 && [Sockets] == 0 # [MaxQuantity] == 1");
+					}
+
+					Config.Recipes.push([Recipe.Socket.Shield, "Sacred Targe"]);
+					Config.Runewords.push([Runeword.Exile, "Sacred Targe"]);
+					Config.KeepRunewords.push("[type] == auricshields # [defianceaura] >= 13");
+				}
+
 				if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("armor", "runeword", "Fortitude")) {
 					if (!me.getItem(637)) {		// Lo Rune
 						Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
