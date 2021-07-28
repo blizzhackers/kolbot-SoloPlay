@@ -7,7 +7,9 @@
 
 var StarterConfig = {
 	// New Stuff - DataCleaner to delete old files associated with running SoloLeveling, SaveFiles to save important files to SoloLeveling/Data/ for performance review
-	// DataCleaner and SaveFiles can both be used for cleaning/saving files without having to delete associated characters
+	//***********************************************************************************************************************//
+	//	DataCleaner and SaveFiles can both be used for cleaning/saving files without having to delete associated characters  //
+	//***********************************************************************************************************************//
 	DataCleaner:		true,	// Highly recommened to run this, if using either peformance tracking or the overlay system
 	SaveFiles:		false,	// Highly recommened to run this if using the peformance tracking system
 	
