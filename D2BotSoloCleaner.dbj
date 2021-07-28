@@ -145,6 +145,7 @@ function dataCleaner() {
 				FileTools.copy("data/" + profiles[i] + ".json", "libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j.toString() + "/dataFile.json");
 			}
 			
+			profileExists = true;
 			FileTools.remove("data/" + profiles[i] + ".json");
 		}
 		
@@ -176,9 +177,11 @@ function dataCleaner() {
 			D2Bot.printToConsole("SoloCleaner: Files saved to -> libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j, 6);
 		}
 
-		D2Bot.printToConsole("SoloCleaner: Cleaned files for -> " + profiles[i], 6);
+		if (profileExists) {
+			D2Bot.printToConsole("SoloCleaner: Cleaned files for -> " + profiles[i], 6);
+		}
+
 		delay(500);
-		
 	}
 
 	D2Bot.printToConsole("SoloCleaner: Done cleaning files", 6);	
