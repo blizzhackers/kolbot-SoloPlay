@@ -114,6 +114,10 @@ function main() {
 				delay(100);
 			}
 
+			if (me.dead) {
+				break;
+			}
+
 			try {
 				me.overhead("Going to town");
 				print("Going to town");
