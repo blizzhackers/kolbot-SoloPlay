@@ -63,9 +63,10 @@ var build = {
 		[133, 8, true], // Double Swing -> charlvl 6
 		[127, 20, false], // Sword Mastery -> charlvl 46
 		[153, 5, true], // Natural Resistance 5
-		[147, 20, false], // Frenzy -> charlvl 61
+		[137, 20, false], // Taunt -> charlvl ?
 		[149, 11, false], // Battle Orders -> charlvl 69
-		[133, 20, false], // Double Swing -> charlvl 6
-		[149, 20, false], // Battle Orders -> charlvl 69
+		[147, 20, false], // Frenzy -> charlvl 61
+		[149, 20, false], // Battle Orders -> charlvl ?
+		[133, 20, false], // Double Swing -> charlvl ?
 	]
 };

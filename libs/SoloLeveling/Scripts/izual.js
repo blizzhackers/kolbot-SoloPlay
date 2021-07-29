@@ -6,6 +6,12 @@
 
 function izual () {
 	Town.townTasks();
+	
+	Town.buyPots(8, "Antidote");
+	Town.drinkPots();
+	Town.buyPots(8, "Thawing");
+	Town.drinkPots();
+
 	print('ÿc9SoloLevelingÿc0: starting izual');
 	me.overhead("izual");
 

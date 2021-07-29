@@ -27,25 +27,16 @@ var build = {
 		[127, 2, false], // Sword Mastery -> charlvl 4 (1 point from den)
 		[133, 1, false], // Double Swing -> charlvl 6
 		[137, 1, false], // Taunt -> charlvl 6
-		[138, 1, false], // Shout -> charlvl 7
 		[127, 3, false], // Sword Mastery -> charlvl 8
-		[126, 2, false], // Bash -> charlvl 9
+		[133, 2, false], // Double Swing -> charlvl 9
 		[127, 4, false], // Sword Mastery -> charlvl 10
-		[126, 3, false], // Bash -> charlvl 11
-		[139, 1, false], // Stun -> charlvl 12
-		[127, 5, false], // Sword Mastery -> charlvl 13
-		[126, 4, false], // Bash -> charlvl 14
-		[127, 6, false], // Sword Mastery -> charlvl 15
-		[126, 5, false], // Bash -> charlvl 16
-		[144, 1, true], // Concentrate -> charlvl 18
+		[133, 4, false], // Double Swing -> charlvl 11
+		[127, 8, false], // Sword Mastery -> charlvl 16
+		[143, 1, true], // Leap Attack -> charlvl 18
 		[146, 1, true], // Battle Cry -> charlvl 18
 		[145, 1, false], // Iron Skin -> charlvl 18
-		[127, 7, false], // Sword Mastery -> charlvl 19
-		[126, 6, false], // Bash -> charlvl 20
-		[127, 8, false], // Sword Mastery -> charlvl 21
-		[126, 7, false], // Bash -> charlvl 22
-		[127, 9, false], // Sword Mastery -> charlvl 23
-		[126, 8, false], // Bash -> charlvl 24
-		[149, 1, true], // Battle Orders -> charlvl 24
+		[147, 4, false], // Frenzy -> charlvl 24
+		[127, 13, false], // Sword Mastery
+		[137, 20, false], // Taunt -> charlvl 6
 	]
 };

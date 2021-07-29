@@ -7,7 +7,13 @@
 function hellforge () {
 	NTIP.addLine("[name] == hellforgehammer");
 	NTIP.addLine("[name] == mephisto'ssoulstone");
+
 	Town.townTasks();
+	Town.buyPots(8, "Antidote");
+	Town.drinkPots();
+	Town.buyPots(8, "Thawing");
+	Town.drinkPots();
+	
 	print('ÿc9SoloLevelingÿc0: starting hellforge');
 	me.overhead("hellforge");
 

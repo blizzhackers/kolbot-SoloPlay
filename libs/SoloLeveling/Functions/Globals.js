@@ -13,10 +13,10 @@ var Difficulty = ['Normal', 'Nightmare', 'Hell'];
 
 var SetUp = {
 	scripts: [
-		"den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "andariel", "a1chests", "cows", // Act 1
+		"corpsefire", "den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "andariel", "a1chests", "cows", // Act 1
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel", // Act 2
 		"templeruns", "lowerkurast", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
-		"izual", "hellforge", "river", "diablo", //Act 4
+		"izual", "hellforge", "river", "hephasto", "diablo", //Act 4
 		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests", // Act 5
 	],
 
@@ -64,7 +64,7 @@ var SetUp = {
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
-	respecOne: [ 64, 28, 26, 19, 24, 24, 30][me.classid],
+	respecOne: [ 64, 28, 26, 19, 30, 24, 30][me.classid],
 	respecOneB: [ 0, 0, 0, 0, 69, 0, 0][me.classid],
 
 	// mine - theBGuy
@@ -98,8 +98,10 @@ var SetUp = {
 			case "Elemental":
 			case "Wind":
 			case "Trapsin":
-			case "Singer":
 				respec = Check.haveItem("armor", "runeword", "Enigma") ? me.charlvl : 100;
+				break;
+			case "Singer":
+				respec = Check.haveItem("armor", "runeword", "Enigma") && Check.haveItem("mace", "runeword", "Heart of the Oak") ? me.charlvl : 100;
 				break;
 			case "Whirlwind":
 			case "Smiter":
@@ -277,6 +279,12 @@ var Check = {
 			}
 
 			break;
+		case "corpsefire": //corpsefire
+			if (me.den && me.hell && (!me.andy || !Check.brokeAf()) && !me.druid && !me.paladin) {
+				return true;
+			}
+
+			break;
 		case "bloodraven": //bloodaraven
 			if ((!me.bloodraven && me.normal || (!me.summoner && !Check.brokeAf())) || 
 				(me.normal && !me.tristram && me.barbarian) || 
@@ -298,8 +306,10 @@ var Check = {
 
 			break;
 		case "tristram": //tristram
-			if ((me.normal && me.charlvl < 15 || !Check.brokeAf()) || 
-				(!me.normal && (!me.tristram && (me.classic && me.diablo || me.baal)) || 
+			if ((me.normal && me.charlvl < 12 || !Check.brokeAf()) || 
+				(!me.normal && 
+					(!me.tristram && (me.classic && me.diablo || me.baal)) ||
+					(me.barbarian && !Pather.accessToAct(4) && !Check.haveItem("sword", "runeword", "Voice of Reason")) ||
 					(me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
 				return true;
 			}
@@ -339,7 +349,7 @@ var Check = {
 		case "a1chests": //a1chests
 			if (!me.classic && 
 				(me.charlvl >= 70 && Pather.canTeleport() || 
-					(me.barbarian && !me.normal && !Pather.accessToAct(4) && !Check.haveItem("weapon", "runeword", "Voice of Reason")))) {
+					(me.barbarian && !me.normal && !Pather.accessToAct(4) && !Check.haveItem("sword", "runeword", "Voice of Reason")))) {
 				return true;
 			}
 
@@ -411,7 +421,7 @@ var Check = {
 
 			break;
 		case "lowerkurast": //lower kurast
-			if (Pather.accessToAct(3) && me.nightmare && me.charlvl >= 50 && me.barbarian && !Check.haveItem("weapon", "runeword", "Voice of Reason")) {
+			if (Pather.accessToAct(3) && me.nightmare && me.charlvl >= 50 && me.barbarian && !Check.haveItem("sword", "runeword", "Voice of Reason")) {
 				return true;
 			}
 
@@ -432,7 +442,7 @@ var Check = {
 			if (Pather.accessToAct(3) && !me.travincal ||
 				(me.charlvl < 25 || 
 					(me.charlvl > 25 && me.normal && !me.diablo && !Check.Gold()) ||
-					(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("weapon", "runeword", "Voice of Reason")) || 
+					(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Voice of Reason")) || 
 					(me.hell && me.paladin && me.charlvl > 85 && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
 				return true;
 			}
@@ -451,7 +461,13 @@ var Check = {
 
 			break;
 		case "river": // river
-			if (Pather.accessToAct(4) && !me.diablo && !me.normal && (me.barbarian && !Check.haveItem("weapon", "runeword", "Voice of Reason"))) {
+			if (Pather.accessToAct(4) && !me.diablo && !me.normal && me.barbarian && !Check.haveItem("sword", "runeword", "Voice of Reason")) {
+				return true;
+			}
+
+			break;
+		case "hephasto":
+			if (Pather.accessToAct(4) && !me.normal && me.diablo && me.barbarian && me.charlvl <= 70 && !Check.haveItem("sword", "runeword", "Voice of Reason")) {
 				return true;
 			}
 
@@ -636,7 +652,7 @@ var Check = {
 		case 1: //nightmare
 			if ((me.getItem(616) && me.getItem(619) && me.getItem(618) && me.getItem(620) && Check.currentBuild().caster) || 
 				(!me.paladin && this.haveItem("sword", "runeword", "Spirit")) || (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit")) || 
-				(me.barbarian && Check.haveItem("weapon", "runeword", "Voice of Reason"))) {
+				(me.barbarian && Check.haveItem("sword", "runeword", "Voice of Reason"))) {
 				needRunes = false;
 			}
 

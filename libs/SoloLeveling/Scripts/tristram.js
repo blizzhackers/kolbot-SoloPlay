@@ -82,12 +82,14 @@ function tristram () {
 			let gibbet = getUnit(2, 26);
 
 			if (!gibbet.mode) {
-				if (!Pather.moveToPreset(38, 2, 26, 0, 0, true, true)) {
+				if (!Pather.moveToPreset(38, 2, 26, 2, 2, true, true)) {
 					print("ÿc9SoloLevelingÿc0: Failed to move to Cain's Gibbet");
 				}
 
 				for (let x = 0; x < 5; x++) {
-					Misc.openChest(gibbet);
+					if (Misc.openChest(gibbet)) {
+						break;
+					}
 				}
 			}
 

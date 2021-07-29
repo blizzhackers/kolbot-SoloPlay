@@ -9,6 +9,12 @@ function worldstone() {
 	me.overhead("worldstone");
 
 	Town.doChores();
+
+	Town.buyPots(8, "Antidote");
+	Town.drinkPots();
+	Town.buyPots(8, "Thawing");
+	Town.drinkPots();
+
 	Pather.useWaypoint(129);
 	Precast.doPrecast(true);
 	Attack.clearLevel(Config.ClearType);

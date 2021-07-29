@@ -333,8 +333,8 @@ function LoadConfig () {
 				var BoTD = [
 					"[Name] == VexRune",
 					"me.diff == 2 && [Name] == HelRune # # [MaxQuantity] == 1",
-					"me.diff == 2 && [Name] == ElRune # # [MaxQuantity] == 1",
-					"me.diff == 2 && [Name] == EldRune # # [MaxQuantity] == 1",
+					"[Name] == ElRune # # [MaxQuantity] == 1",
+					"[Name] == EldRune # # [MaxQuantity] == 1",
 					"[Name] == ZodRune",
 					"me.diff == 2 && [Name] == EthRune # # [MaxQuantity] == 1",
 					"[Name] == colossusblade && [Flag] == Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 6 # [MaxQuantity] == 1",
@@ -353,7 +353,7 @@ function LoadConfig () {
 
 			break;
 		case 'Singer':
-			if (Item.getEquippedItem(5).prefixnum !== 20557) {
+			if (Item.getEquippedItem(5).prefixnum !== 20557 && Check.haveItem("armor", "runeword", "Enigma")) {
 				var HotO = [
 					"[Name] == ThulRune # # [MaxQuantity] == 1",
 					"[Name] == PulRune",
@@ -455,43 +455,6 @@ function LoadConfig () {
 
 		Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Gladius", Roll.NonEth]); // Upgrade Bloodletter to Elite
 
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).tier < 3600) { // Merc Insight
-			var Insight = [
-				"([Name] == thresher || [Name] == crypticaxe || [Name] == greatpoleaxe || [Name] == giantthresher) && [Flag] == Ethereal && [Quality] == Normal # [Sockets] == 0 # [MaxQuantity] == 1",
-				"!me.hell && ([Name] == voulge || [Name] == scythe || [Name] == poleaxe || [Name] == halberd || [Name] == warscythe || [Name] == bill || [Name] == battlescythe || [Name] == partizan || [Name] == grimscythe) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
-				"([Name] == thresher || [Name] == crypticaxe || [Name] == greatpoleaxe || [Name] == giantthresher) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
-			];
-
-			if (me.getItem(621)) {	// Sol rune
-				NTIP.arrayLooping(Insight);
-			}
-
-			/*if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568 && !Check.haveBase("polearm", 4)) {
-				NTIP.addLine("[Name] == voulge && [flag] != ethereal && [Quality] == Normal && [Level] >= 26 && [Level] <= 40 # [Sockets] == 0 # [MaxQuantity] == 1");
-			}*/
-
-			Config.Recipes.push([Recipe.Socket.Weapon, "Giant Thresher"]);
-			Config.Recipes.push([Recipe.Socket.Weapon, "Great Poleaxe"]);
-			Config.Recipes.push([Recipe.Socket.Weapon, "Cryptic Axe"]);
-			Config.Recipes.push([Recipe.Socket.Weapon, "thresher"]);
-
-			Config.Runewords.push([Runeword.Insight, "Giant Thresher"]);
-			Config.Runewords.push([Runeword.Insight, "Great Poleaxe"]);
-			Config.Runewords.push([Runeword.Insight, "Cryptic Axe"]);
-			Config.Runewords.push([Runeword.Insight, "Thresher"]);
-			Config.Runewords.push([Runeword.Insight, "Grim Scythe"]);
-			Config.Runewords.push([Runeword.Insight, "Partizan"]);
-			Config.Runewords.push([Runeword.Insight, "Battle Scythe"]);
-			Config.Runewords.push([Runeword.Insight, "Bill"]);
-			Config.Runewords.push([Runeword.Insight, "War Scythe"]);
-			Config.Runewords.push([Runeword.Insight, "Halberd"]);
-			Config.Runewords.push([Runeword.Insight, "Poleaxe"]);
-			Config.Runewords.push([Runeword.Insight, "Scythe"]);
-			Config.Runewords.push([Runeword.Insight, "Voulge"]);
-
-			Config.KeepRunewords.push("[type] == polearm # [meditationaura] >= 12");
-		}
-
 		if (Item.getEquippedItem(5).tier < 1200) {	//Lawbringer - Amn/Lem/Ko
 			var Lawbringer = [
 				"[Name] == AmnRune # # [MaxQuantity] == 1",
@@ -575,15 +538,57 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.Honor, "Phase Blade"]);
 
 			if (!Check.haveBase("sword", 5)) {
-				NTIP.addLine("me.diff == 0 && [name] == Flamberge && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [level] >= 41 # [Sockets] == 0");
-				NTIP.addLine("me.diff > 0 && [name] == Zweihander && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [level] >= 41 # [Sockets] == 0");
+				if (Pather.accessToAct(5) && !me.getQuest(35, 0)) {
+					NTIP.addLine("me.diff == 0 && [name] == Flamberge && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [level] >= 41 # [Sockets] == 0");
+					NTIP.addLine("me.diff > 0 && [name] == Zweihander && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [level] >= 41 # [Sockets] == 0");
+				} else {
+					NTIP.addLine("([name] == Flamberge || [Name] == Zweihander || [Name] == DimensionalBlade || [Name] == PhaseBlade) && [flag] != ethereal && [Quality] == Normal && [level] >= 41 # [Sockets] == 0");
+				}
 			}
+
+			Config.Recipes.push([Recipe.Socket.Weapon, "Flamberge"]);
+			Config.Recipes.push([Recipe.Socket.Weapon, "Zweihander"]);
+			Config.Recipes.push([Recipe.Socket.Weapon, "Dimensional Blade"]);
+			Config.Recipes.push([Recipe.Socket.Weapon, "Phase Blade"]);
 
 			if (!me.getItem(620)) {		// Amn rune
 				Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
 			}
 
 			Config.KeepRunewords.push("[type] == sword # [enhanceddamage] >= 160 && [tohit] >= 250 && [itemallskills] >= 1");
+		}
+
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).tier < 3600) { // Merc Insight
+			var Insight = [
+				"([Name] == thresher || [Name] == crypticaxe || [Name] == greatpoleaxe || [Name] == giantthresher) && [Flag] == Ethereal && [Quality] == Normal # [Sockets] == 0 # [MaxQuantity] == 1",
+				"!me.hell && ([Name] == voulge || [Name] == scythe || [Name] == poleaxe || [Name] == halberd || [Name] == warscythe || [Name] == bill || [Name] == battlescythe || [Name] == partizan || [Name] == grimscythe) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
+				"([Name] == thresher || [Name] == crypticaxe || [Name] == greatpoleaxe || [Name] == giantthresher) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
+			];
+
+			if (me.getItem(621)) {	// Sol rune
+				NTIP.arrayLooping(Insight);
+			}
+
+			Config.Recipes.push([Recipe.Socket.Weapon, "Giant Thresher"]);
+			Config.Recipes.push([Recipe.Socket.Weapon, "Great Poleaxe"]);
+			Config.Recipes.push([Recipe.Socket.Weapon, "Cryptic Axe"]);
+			Config.Recipes.push([Recipe.Socket.Weapon, "thresher"]);
+
+			Config.Runewords.push([Runeword.Insight, "Giant Thresher"]);
+			Config.Runewords.push([Runeword.Insight, "Great Poleaxe"]);
+			Config.Runewords.push([Runeword.Insight, "Cryptic Axe"]);
+			Config.Runewords.push([Runeword.Insight, "Thresher"]);
+			Config.Runewords.push([Runeword.Insight, "Grim Scythe"]);
+			Config.Runewords.push([Runeword.Insight, "Partizan"]);
+			Config.Runewords.push([Runeword.Insight, "Battle Scythe"]);
+			Config.Runewords.push([Runeword.Insight, "Bill"]);
+			Config.Runewords.push([Runeword.Insight, "War Scythe"]);
+			Config.Runewords.push([Runeword.Insight, "Halberd"]);
+			Config.Runewords.push([Runeword.Insight, "Poleaxe"]);
+			Config.Runewords.push([Runeword.Insight, "Scythe"]);
+			Config.Runewords.push([Runeword.Insight, "Voulge"]);
+
+			Config.KeepRunewords.push("[type] == polearm # [meditationaura] >= 12");
 		}
 
 		if (Item.getEquippedItem(1).tier < 100000) { // Lore
