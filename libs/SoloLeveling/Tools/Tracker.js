@@ -76,6 +76,7 @@ var Tracker = {
 
 		if (newTotal < 0 || newIG < 0 || newSave < 0) {
 			D2Bot.printToConsole("ERROR in Tracker.Script negative time detected. newTick: " + newTick + " | InGame: " + GameTracker.InGame + " | newTotal: " + newTotal + " | GameTracker.Total: " + GameTracker.Total + " | gamestarttime: " + me.gamestarttime, 9);
+			D2Bot.printToConsole("ERROR in Tracker.Script negative time detected. LastSave: " + GameTracker.LastSave, 9);
 			return false;
 		}
 
@@ -110,6 +111,7 @@ var Tracker = {
 
 		if (newTotal < 0 || newIG < 0 || newOOG < 0 || newSave < 0) {
 			D2Bot.printToConsole("ERROR in Tracker.Leveling negative time detected. newTick: " + newTick + " | InGame: " + GameTracker.InGame + " | newTotal: " + newTotal + " | GameTracker.Total: " + GameTracker.Total + " | gamestarttime: " + me.gamestarttime, 9);
+			D2Bot.printToConsole("ERROR in Tracker.Leveling negative time detected. LastSave: " + GameTracker.LastSave, 9);
 			return false;
 		}
 
@@ -135,6 +137,7 @@ var Tracker = {
 
 		if (newTotal < 0 || newIG < 0 || newOOG < 0 || newSave < 0) {
 			D2Bot.printToConsole("ERROR in Tracker.Update negative time detected. newTick: " + newTick + " | InGame: " + GameTracker.InGame + " | newTotal: " + newTotal + " | GameTracker.Total: " + GameTracker.Total + " | gamestarttime: " + me.gamestarttime, 9);
+			D2Bot.printToConsole("ERROR in Tracker.Update negative time detected. LastSave: " + GameTracker.LastSave, 9);
 			return false;
 		}
 

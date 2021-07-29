@@ -14,7 +14,7 @@ const Developer = {
 	hideChickens: true, // disable printing chicken info in D2Bot console
 	addLadderRW: true, // set to true to enable single player ladder runewords ONLY WORKS IF RUNEWORDS.TXT IS INSTALLED AND D2BS PROFILE IS CONFIGURED
 	fillAccount: {		// set to true in use with tag Bumper or Socketmule to make next character after reaching goal until account is full
-		Bumpers: true,
+		Bumpers: false,
 		Socketmules: false,
 	},
 	Debugging: {
@@ -29,12 +29,15 @@ const Developer = {
 	getObj: function (path) {
 		let obj, OBJstring = Misc.fileAction(path, 0);
 
-		while (!obj) {
-			try {
-				obj = JSON.parse(OBJstring);
-			} catch (e) {
-				Misc.errorReport(e, "Developer");
-			}
+		try {
+			obj = JSON.parse(OBJstring);
+		} catch (e) {
+			// If we failed, file might be corrupted, so create a new one
+			Misc.errorReport(e, "Developer");
+			FileTools.remove(path);
+			Tracker.initialize();
+			OBJstring = Misc.fileAction(Path, 0);
+			obj = JSON.parse(OBJstring);
 		}
 
 		if (obj) {
