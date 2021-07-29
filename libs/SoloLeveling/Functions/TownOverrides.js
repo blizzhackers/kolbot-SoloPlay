@@ -229,7 +229,7 @@ Town.repair = function (force = false) {
 		}
 	}
 
-	//this.shopItems();
+	this.shopItems();
 
 	return true;
 };
@@ -2170,10 +2170,18 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 			.last(); // select last
 
 		if (itemsToCheck === undefined) {
+			if (Developer.Debugging.junkCheckVerbose) {
+				print("ÿc9BadBaseCheckÿc0 :: itemsToCheck is undefined");
+			}
+
 			return false;
 		}
 
 		if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
+			if (Developer.Debugging.junkCheckVerbose) {
+				print("ÿc9BadBaseCheckÿc0 :: same item");
+			}
+
 			return true;
 		}
 
@@ -2181,6 +2189,10 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 			if ((base.location === 7 || base.location === 3) &&
 				(generalScore(base) < generalScore(itemsToCheck) || 
 						(generalScore(base) === generalScore(itemsToCheck) && Item.getQuantityOwned(base) > 2))) {
+				if (Developer.Debugging.junkCheckVerbose) {
+					print("ÿc9BadBaseCheckÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
+				}
+
 				result = true;
 			}
 		}
@@ -2242,6 +2254,10 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 
 		break;
 	default:
+		if (Developer.Debugging.junkCheckVerbose) {
+			print("ÿc9BadBaseCheckÿc0 :: No itemType to check for base");
+		}
+
 		return false;
 	}
 

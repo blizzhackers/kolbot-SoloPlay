@@ -753,12 +753,12 @@ function locationAction (location) {
 
 						} else {
 							if (!ControlAction.makeCharacter(setUp)) {
-								D2Bot.printToConsole("GuysSoloLeveling: Account is full");
-								D2Bot.stop();
+								if (ControlAction.getCharacters().length >= 18) {
+									D2Bot.printToConsole("GuysSoloLeveling: Account is full");
+									D2Bot.stop();
+								}
 							}
-							
 						}
-						
 					}
 				}
 			}
@@ -1043,7 +1043,9 @@ function locationAction (location) {
 		if (deadCheck) {
 			deleteAndRemakeChar(setUp);
 			deadCheck = false;
-		}                    
+		}
+
+
 
 		if (setUp) {
 			if (!ControlAction.findCharacter(setUp)) {
@@ -1053,8 +1055,10 @@ function locationAction (location) {
 					D2Bot.restart();
 				} else {
 					if (!ControlAction.makeCharacter(setUp)) {
-						D2Bot.printToConsole("GuysSoloLeveling: Account is full");
-						D2Bot.stop();
+						if (ControlAction.getCharacters().length >= 18) {
+							D2Bot.printToConsole("GuysSoloLeveling: Account is full");
+							D2Bot.stop();
+						}
 					}
 				}
 			} else {
