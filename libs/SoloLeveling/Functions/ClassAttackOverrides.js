@@ -1270,7 +1270,7 @@ case 4: // Barbarian - theBGuy
 			attackSkill = Config.LowManaSkill[0];
 		}
 
-		if (useHowl && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+		if (useHowl && attackSkill !== 151 && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
 			Skill.cast(130, Skill.getHand(130));
 		}
 
@@ -1315,7 +1315,7 @@ case 4: // Barbarian - theBGuy
 				}
 			
 			}
-		} else if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Attack.getSkillElement(Config.AttackSkill[0])) && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
+		} else if (preattack && Config.AttackSkill[0] > 0 && me.getSkill(Config.AttackSkill[0], 1) && Attack.checkResist(unit, Attack.getSkillElement(Config.AttackSkill[0])) && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
 			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 					return 0;
@@ -1328,7 +1328,7 @@ case 4: // Barbarian - theBGuy
 		}
 
 		if (index === 1) {
-			if (useHowl && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(130) < me.mp) {
+			if (useHowl && attackSkill !== 151 && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(130) < me.mp) {
 				Skill.cast(130, Skill.getHand(130));
 			}
 		}
@@ -1339,7 +1339,7 @@ case 4: // Barbarian - theBGuy
 
 	ClassAttack.doCast = function (unit, attackSkill) {
 		var walk;
-		let useConc = me.getSkill(144, 0);
+		let useConc = me.getSkill(144, 0) && attackSkill === 152;
 		let useWhirl = me.getSkill(151, 1) && attackSkill !== 151; // If main attack skill is already whirlwind no need to use it twice
 		let useLeap = me.getSkill(143, 1);
 		let useWarCry = me.getSkill(154, 1);
