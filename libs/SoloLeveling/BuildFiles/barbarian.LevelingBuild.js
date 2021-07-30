@@ -29,9 +29,7 @@ var build = {
 		[137, 1, false], // Taunt -> charlvl 6
 		[138, 1, false], // Shout -> charlvl 7
 		[127, 6, false], // Sword Mastery -> charlvl 11
-		[139, 1, false], // Stun -> charlvl 12
 		[127, 8, false], // Sword Mastery -> charlvl 15
-		[144, 1, true], // Concentrate -> charlvl 18
 		[146, 1, true], // Battle Cry -> charlvl 18
 		[145, 1, false], // Iron Skin -> charlvl 18
 		[143, 1, true], // Leap Attack -> charlvl 20

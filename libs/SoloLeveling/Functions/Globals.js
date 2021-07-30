@@ -280,7 +280,7 @@ var Check = {
 
 			break;
 		case "corpsefire": //corpsefire
-			if (me.den && me.hell && (!me.andy || !Check.brokeAf()) && !me.druid && !me.paladin) {
+			if (me.den && me.hell && (!me.andariel || !Check.brokeAf()) && !me.druid && !me.paladin) {
 				return true;
 			}
 
@@ -308,9 +308,9 @@ var Check = {
 		case "tristram": //tristram
 			if ((me.normal && me.charlvl < 12 || !Check.brokeAf()) || 
 				(!me.normal && 
-					(!me.tristram && (me.classic && me.diablo || me.baal)) ||
-					(me.barbarian && !Pather.accessToAct(4) && !Check.haveItem("sword", "runeword", "Voice of Reason")) ||
-					(me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
+					((!me.tristram && (me.classic && me.diablo || me.baal)) ||
+					 (me.barbarian && !Pather.accessToAct(4) && !Check.haveItem("sword", "runeword", "Voice of Reason")) ||
+					 (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
 				return true;
 			}
 
@@ -323,7 +323,8 @@ var Check = {
 			break;
 		case "pits": //pits
 			if (me.hell && 
-				((!me.sorceress && !me.druid && (!me.paladin || Attack.IsAuradin) && (me.amazon && SetUp.currentBuild === SetUp.finalBuild)) || 
+				((!me.sorceress && !me.druid && (!me.paladin || Attack.IsAuradin)) ||
+					(me.amazon && SetUp.currentBuild === SetUp.finalBuild) || 
 					(me.sorceress && me.charlvl >= 70) || 
 					(me.druid && ["Plaguewolf", "Wolf"].indexOf(SetUp.currentBuild) > -1))) {
 				return true;
@@ -441,7 +442,7 @@ var Check = {
 		case "travincal": //travincal
 			if (Pather.accessToAct(3) && !me.travincal ||
 				(me.charlvl < 25 || 
-					(me.charlvl > 25 && me.normal && !me.diablo && !Check.Gold()) ||
+					(me.charlvl >= 25 && me.normal && !me.diablo && !Check.Gold()) ||
 					(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Voice of Reason")) || 
 					(me.hell && me.paladin && me.charlvl > 85 && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
 				return true;
