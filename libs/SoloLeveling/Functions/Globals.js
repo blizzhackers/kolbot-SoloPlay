@@ -316,15 +316,17 @@ var Check = {
 
 			break;
 		case "countess": //countess
-			if ((me.classic && !me.countess) || (!me.classic && needRunes || !Check.brokeAf())) { // classic quest completed normal || have runes for difficulty
+			if ((me.classic && !me.countess) || 
+				(!me.classic && (needRunes || !Check.brokeAf() || Check.haveItem("sword", "runeword", "Lawbringer")))) { // classic quest completed normal || have runes for difficulty
 				return true;
 			}
 
 			break;
 		case "pits": //pits
 			if (me.hell && 
-				((!me.sorceress && !me.druid && (!me.paladin || Attack.IsAuradin)) ||
-					(me.amazon && SetUp.currentBuild === SetUp.finalBuild) || 
+				((me.necromancer || me.barbarian || me.assassin) ||
+					(me.paladin && ["Zealer", "Auradin"].indexOf(SetUp.currentBuild) > -1) ||
+					(me.amazon && (SetUp.currentBuild === SetUp.finalBuild || me.charlvl >= 85)) || 
 					(me.sorceress && me.charlvl >= 70) || 
 					(me.druid && ["Plaguewolf", "Wolf"].indexOf(SetUp.currentBuild) > -1))) {
 				return true;
@@ -565,7 +567,7 @@ var Check = {
 
 	Resistance: function () {
 		let resStatus,
-			resPenalty = me.classic ? [0, 20, 50, 50][me.diff + 1] : [ 0, 40, 100, 100][me.diff + 1],
+			resPenalty = me.classic ? [0, 20, 50][me.diff] : [ 0, 40, 100][me.diff],
 			frRes = me.getStat(39) - resPenalty,
 			lrRes = me.getStat(41) - resPenalty,
 			crRes = me.getStat(43) - resPenalty,
