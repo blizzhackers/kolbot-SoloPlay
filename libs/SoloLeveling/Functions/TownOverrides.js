@@ -25,6 +25,7 @@ Town.ignoredItemTypes = [ // Items that won't be stashed
 
 Town.questItemClassids = [87, 88, 89, 90, 91, 92, 173, 174, 521, 524, 525, 545, 546, 547, 548, 549, 552, 553, 554, 555, 644];
 Town.unsellablesClassids = [647, 648, 649, 650, 651, 652, 653, 654, 655, 656, 657, 658];
+Town.baseItemTypes = [2, 3, 24, 25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 36, 37, 67, 68, 69, 70, 71, 72, 75, 85, 86, 88];
 
 Town.townTasks = function () {
 	if (!me.inTown) {
@@ -1278,7 +1279,7 @@ Town.clearInventory = function () {
 			result = Pickit.checkItem(items[i]).result;
 
 			if ([0, 4].indexOf(result) === -1) {
-				if (([2, 69, 70, 3, 37, 71, 72, 75, 25, 24, 26, 27, 28, 29, 30, 31, 33, 35, 36, 68, 85, 86, 67, 88, 34].indexOf(items[i].itemType) > -1 && items[i].quality < 4 && items[i].getStat(194) > 0) || 
+				if (([2, 3].indexOf(items[i].quality) > -1 && Town.baseItemTypes.indexOf(items[i].itemType) > -1 && items[i].getStat(194) > 0) || 
 					([25, 69, 70, 71, 72].indexOf(items[i].itemType) > -1 && items[i].quality === 2 && items[i].getStat(194) === 0)) {
 					if (!this.betterBaseThanStashed(items[i])) {
 						result = 4;
@@ -2255,7 +2256,7 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 		break;
 	default:
 		if (Developer.Debugging.junkCheckVerbose) {
-			print("ÿc9BadBaseCheckÿc0 :: No itemType to check for base");
+			print("ÿc9BadBaseCheckÿc0 :: No itemType to check for " + base.name);
 		}
 
 		return false;
@@ -2324,40 +2325,7 @@ Town.clearJunk = function () {
 
 		}
 
-		if (([3, 7].indexOf(junk[0].location) > -1 && junk[0].quality < 4 && [18, 41, 76, 77, 78, 80, 81, 39, 74, 82, 83, 84].indexOf(junk[0].itemType) === -1) &&
-			(Town.questItemClassids.indexOf(junk[0].classid) === -1)) {
-			if (this.betterBaseThanStashed(junk[0], true)) {
-				if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
-					Town.openStash();
-				}
-
-				print("ÿc9BadBaseCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
-
-				if (Storage.Inventory.CanFit(junk[0])) {
-					if (Storage.Inventory.MoveTo(junk[0])) {
-						junkToSell.push(junk[0]);
-
-						junk.shift();
-						continue;
-					} else {
-						if (junk[0].drop()) {
-							me.overhead('cleared runeword base junk');
-							print("ÿc9GuysSoloLevelingÿc0: Failed to move item to inventory. Dropping instead");
-							print("ÿc9GuysSoloLevelingÿc0: Cleared runeword base junk - " + junk[0].name);
-							delay(50 + me.ping);
-
-							continue;
-						}
-					}
-				} else if (junk[0].drop()) {
-					me.overhead('cleared runeword base junk');
-					print("ÿc9GuysSoloLevelingÿc0: Cleared runeword base junk - " + junk[0].name);
-					delay(50 + me.ping);
-
-					continue;
-				}
-			}
-
+		if ([3, 6, 7].indexOf(junk[0].location) > -1 && Town.questItemClassids.indexOf(junk[0].classid) === -1 && Town.unsellablesClassids.indexOf(junk[0].classid) === -1) {
 			if (junk[0].getFlag(NTIPAliasFlag["runeword"]) && !Item.autoEquipKeepCheck(junk[0]) && !Item.autoEquipCheckSecondary(junk[0]) && !Item.autoEquipKeepCheckMerc(junk[0])) {
 				if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
 					Town.openStash();
@@ -2377,7 +2345,7 @@ Town.clearJunk = function () {
 						continue;
 					} else {
 						if (junk[0].drop()) {
-							me.overhead('cleared runeword base junk');
+							me.overhead('cleared runeword junk');
 							print("ÿc9GuysSoloLevelingÿc0: Failed to move item to inventory. Dropping instead");
 							print("ÿc9GuysSoloLevelingÿc0: Cleared old runeword junk - " + junk[0].name);
 							delay(50 + me.ping);
@@ -2394,12 +2362,52 @@ Town.clearJunk = function () {
 				}
 			}
 
-			if ([3, 6, 7].indexOf(junk[0].location) > -1 && junk[0].quality < 4 && [2, 69, 70, 3, 37, 71, 72, 75, 25, 24, 26, 27, 28, 29, 30, 31, 33, 35, 36, 68, 85, 86, 67, 88, 34].indexOf(junk[0].itemType) > -1) {
+			if ([2, 3].indexOf(junk[0].quality) > -1 && Town.baseItemTypes.indexOf(junk[0].itemType) > -1) {
+				if (this.betterBaseThanStashed(junk[0], true)) {
+					if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
+						Town.openStash();
+					}
+
+					if (junk[0].location === 6) {	// Something got stuck in the cube
+						Cubing.emptyCube();
+					}
+
+					print("ÿc9BetterThanStashedCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+
+					if (Storage.Inventory.CanFit(junk[0])) {
+						if (Storage.Inventory.MoveTo(junk[0])) {
+							junkToSell.push(junk[0]);
+
+							junk.shift();
+							continue;
+						} else {
+							if (junk[0].drop()) {
+								me.overhead('cleared runeword base junk');
+								print("ÿc9GuysSoloLevelingÿc0: Failed to move item to inventory. Dropping instead");
+								print("ÿc9GuysSoloLevelingÿc0: Cleared runeword base junk - " + junk[0].name);
+								delay(50 + me.ping);
+
+								continue;
+							}
+						}
+					} else if (junk[0].drop()) {
+						me.overhead('cleared runeword base junk');
+						print("ÿc9GuysSoloLevelingÿc0: Cleared runeword base junk - " + junk[0].name);
+						delay(50 + me.ping);
+
+						continue;
+					}
+				}
+
 				if (!this.betterBaseThanWearing(junk[0], Developer.Debugging.junkCheckVerbose)) {
-					print("ÿc9BadBaseCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+					print("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
 
 					if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
 						Town.openStash();
+					}
+
+					if (junk[0].location === 6) {	// Something got stuck in the cube
+						Cubing.emptyCube();
 					}
 
 					if (Storage.Inventory.CanFit(junk[0])) {
@@ -2426,7 +2434,6 @@ Town.clearJunk = function () {
 						continue;
 					}
 				}
-				
 			}
 		}
 
