@@ -131,13 +131,13 @@ function baal () {
                     Pather.moveTo(15116, 5026);
                 }
 
-                SetUp.walkToggle = true;
+                //SetUp.walkToggle = true;
 
                 if (!getUnit(1, 543)) {
                     break;
                 }
 
-                me.runwalk = 0;
+                //me.runwalk = 0;
 
                 Misc.townCheck();
 
