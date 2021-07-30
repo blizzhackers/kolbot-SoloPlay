@@ -853,10 +853,14 @@ Town.buyPots = function (quantity, type) {
 
 	if (type === "Thawing" && Check.Resistance().CR >= 75) {	// Don't buy if already at max res
 		return true;
+	} else if (type === "Thawing") {
+		print("ÿc9buyPotsÿc0 :: Current cold resistance: " + Check.Resistance().CR);
 	}
 
 	if (type === "Antidote" && Check.Resistance().PR >= 75) {	// Don't buy if already at max res
 		return true;
+	} else if (type === "Antidote") {
+		print("ÿc9buyPotsÿc0 :: Current poison resistance: " + Check.Resistance().PR);
 	}
 
 	if (type === "Stamina" && (me.paladin && me.getSkill(115, 0) || me.sorceress && me.getSkill(54, 0))) {	// Don't buy if teleport or vigor
@@ -2186,7 +2190,7 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 			return true;
 		}
 
-		if (base.getStat(194) > 0) {
+		if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
 			if ((base.location === 7 || base.location === 3) &&
 				(generalScore(base) < generalScore(itemsToCheck) || 
 						(generalScore(base) === generalScore(itemsToCheck) && Item.getQuantityOwned(base) > 2))) {

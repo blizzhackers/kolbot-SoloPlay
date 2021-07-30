@@ -1370,7 +1370,7 @@ case 4: // Barbarian - theBGuy
 			if (Math.round(getDistance(me, unit)) > Skill.getRange(attackSkill) || checkCollision(me, unit, 0x4)) {
 				walk = Skill.getRange(attackSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
 
-				if (useLeap && !checkCollision(me, unit, 0x1)) {
+				if (useLeap && !checkCollision(me, unit, 0x1) && Math.round(getDistance(me, unit)) > 6) {
 					Skill.cast(143, 0, unit.x, unit.y);
 				}
 
@@ -1390,11 +1390,11 @@ case 4: // Barbarian - theBGuy
 					Skill.cast(144, Skill.getHand(144), unit);
 				}
 
-				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544].indexOf(unit.classid) === -1 && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
+				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, true) >= 3 && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
 					Skill.cast(154, Skill.getHand(154));
 				}
 
-				if (useWhirl && !unit.dead && (Attack.getMonsterCount(me.x, me.y, 6) >= 3 || [156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1)) {
+				if (useWhirl && !unit.dead && (Attack.getMonsterCount(me.x, me.y, 6) >= 3 || ([156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1) && !me.hell)) {
 					this.whirlwind(unit);
 				}
 			}

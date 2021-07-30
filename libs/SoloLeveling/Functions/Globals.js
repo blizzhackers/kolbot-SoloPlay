@@ -317,7 +317,7 @@ var Check = {
 			break;
 		case "countess": //countess
 			if ((me.classic && !me.countess) || 
-				(!me.classic && (needRunes || !Check.brokeAf() || Check.haveItem("sword", "runeword", "Lawbringer")))) { // classic quest completed normal || have runes for difficulty
+				(!me.classic && (needRunes || !Check.brokeAf() || (me.barbarian && Check.haveItem("sword", "runeword", "Lawbringer"))))) { // classic quest completed normal || have runes for difficulty
 				return true;
 			}
 

@@ -127,12 +127,12 @@ var tierscore = function (item) {
 		SECMAXDMG: 2, // secondary max damage
 		ELEDMG: 1, // elemental damage
 		AR:	0.5, // attack rating
-		CB: 3, // crushing blow
-		OW: 1.5, // open wounds
+		CB: 4, // crushing blow
+		OW: 1, // open wounds
 		DS: 1.5, // deadly strike
 		// leaching
-		LL: 3, //lifeleach
-		ML:	1.5, //manaleach
+		LL: 4, //lifeleach
+		ML:	2, //manaleach
 		// regen
 		HPREGEN: 2,
 		MANAREGEN: 2,
@@ -436,7 +436,7 @@ var charmscore = function (item) {
 		CR: 2, // cold resist
 		PR: 1, // poison resist
 		FRW: 1, // faster run/walk
-		FHR: 2, // faster hit recovery
+		FHR: (me.barbarian ? 4 : 2), // faster hit recovery
 		DEF: 0.05, // defense
 		MF: 2, //Magic Find
 		// base stats
