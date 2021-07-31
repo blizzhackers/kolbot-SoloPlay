@@ -1206,6 +1206,11 @@ Misc.addSocketables = function () {
 			item = items[i];
 			break;
 		}
+
+		if (items[i].classid === 363 && items[i].getStat(194) >= 1 && items[i].quality === 7 && !items[i].getItem()) {	//Spirit Forge
+			item = items[i];
+			break;
+		}
 	}
 
 	if (item) {
@@ -1347,6 +1352,28 @@ Misc.addSocketables = function () {
 							break;
 						}
 
+						continue;
+					} else {
+						ready = true;
+						break;
+					}	
+				} else {
+					socketable = items[i];
+					break;
+				}	
+			}
+
+			//Shael Rune and Spirit Forge
+			if (items[i].classid === 622 && item.classid === 363 && multiple.indexOf(items[i]) === -1) {
+				if (item.getStat(194) === 2) {
+					if (multiple.length < item.getStat(194)) {
+						multiple.push(items[i]);
+						
+						if (multiple.length === item.getStat(194)) {
+							ready = true;
+							break;
+						}
+						
 						continue;
 					} else {
 						ready = true;
