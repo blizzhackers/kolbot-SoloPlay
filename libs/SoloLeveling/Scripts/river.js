@@ -1,7 +1,7 @@
 /**
 *	@filename	river.js
 *	@author		theBGuy
-*	@desc		Clear Worldstone levels
+*	@desc		clear river of flame from city of the damned to hephasto then to the waypoint
 */
 
 function river() {
@@ -15,14 +15,26 @@ function river() {
 	Town.buyPots(8, "Thawing");
 	Town.drinkPots();
 
-	if (!Pather.checkWP(107)) {
-		Pather.getWP(107);
+	if (!Pather.checkWP(106)) {
+		Pather.getWP(106);
 	} else {
-		Pather.useWaypoint(107);
+		Pather.useWaypoint(106);
 	}
 
 	Precast.doPrecast(true);
-	Attack.clearLevel(Config.ClearType);
+	Pather.clearToExit(106, 107, true);
+
+	if (!Pather.moveToPreset(me.area, 2, 376)) {
+		print("ÿc9GuysSoloLevelingÿc0: Failed to move to Hephasto");
+	}
+
+	try {
+		Attack.clear(20, 0, getLocaleString(1067)); // Hephasto The Armorer
+	} catch (err) {
+		print('ÿc9GuysSoloLevelingÿc0: Failed to kill Hephasto');
+	}
+
+	Pather.getWP(107, true);
 
 	return true;
 }

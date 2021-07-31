@@ -1,6 +1,6 @@
 /**
 *	@filename	cows.js
-*	@author		kolton, modified by isid0re for SoloLeveling
+*	@author		kolton, modified by isid0re for SoloLeveling, leave if near cow king by theBGuy
 *	@desc		clear the Moo Moo Farm without killing the Cow King
 */
 
