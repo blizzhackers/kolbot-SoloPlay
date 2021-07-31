@@ -12,7 +12,7 @@
 *			Cold
 *			BlizzBaller
 *			Blova
-*			Lighting
+*			Lightning
 *		4. Save the profile and start
 */
 
@@ -241,7 +241,7 @@ function LoadConfig () {
 		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= vexrune && [name] <= zodrune");
 
-		switch (SetUp.finalBuild) { // finalbuilld autoequip setup
+		switch (SetUp.finalBuild) { // finalbuild autoequip setup
 		case 'Blova':
 		case 'Lightning':
 			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== 20566) { //infinity

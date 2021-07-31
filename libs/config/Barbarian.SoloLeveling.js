@@ -9,6 +9,9 @@
 *		2. Select the Bots profile
 *		3. In the info tag box enter one of the following choices:
 *			Whirlwind
+*			Immortalwhirl
+*			Frenzy
+*			Uberconc
 *           Singer
 *		4. Save the profile and start
 */
@@ -847,8 +850,8 @@ function LoadConfig () {
 
 		if (Item.getEquippedItem(5).tier < 500) {	//Steel - Tir/El
 			var Steel = [
-				"[Name] == TirRune # # [MaxQuantity] == 1",
-				"[Name] == ElRune # # [MaxQuantity] == 1",
+				"[Name] == TirRune # # [MaxQuantity] == 2",
+				"[Name] == ElRune # # [MaxQuantity] == 2",
 				"[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [Sockets] == 2",
 			];
 			NTIP.arrayLooping(Steel);

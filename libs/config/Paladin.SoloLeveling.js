@@ -11,6 +11,7 @@
 *			Hammerdin
 *			Smiter
 *			Auradin
+*			Zealer
 *		4. Save the profile and start
 */
 
