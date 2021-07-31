@@ -1201,6 +1201,11 @@ Misc.addSocketables = function () {
 			item = items[i];
 			break;
 		}
+
+		if (items[i].classid === 222 && items[i].getStat(194) >= 1 && items[i].quality === 7 && !items[i].getItem()) {	//Dijjin Slayer
+			item = items[i];
+			break;
+		}
 	}
 
 	if (item) {
@@ -1226,6 +1231,12 @@ Misc.addSocketables = function () {
 				if (item.getStat(194) === 2) {
 					if (multiple.length < item.getStat(194)) {
 						multiple.push(items[i]);
+						
+						if (multiple.length === item.getStat(194)) {
+							ready = true;
+							break;
+						}
+						
 						continue;
 					} else {
 						ready = true;
@@ -1242,6 +1253,12 @@ Misc.addSocketables = function () {
 				if (item.getStat(194) === 2) {
 					if (multiple.length < item.getStat(194)) {
 						multiple.push(items[i]);
+						
+						if (multiple.length === item.getStat(194)) {
+							ready = true;
+							break;
+						}
+						
 						continue;
 					} else {
 						ready = true;
@@ -1258,6 +1275,12 @@ Misc.addSocketables = function () {
 				if (item.getStat(194) === 2) {
 					if (multiple.length < item.getStat(194)) {
 						multiple.push(items[i]);
+						
+						if (multiple.length === item.getStat(194)) {
+							ready = true;
+							break;
+						}
+						
 						continue;
 					} else {
 						ready = true;
@@ -1274,6 +1297,12 @@ Misc.addSocketables = function () {
 				if (item.getStat(194) === 2) {
 					if (multiple.length < item.getStat(194)) {
 						multiple.push(items[i]);
+						
+						if (multiple.length === item.getStat(194)) {
+							ready = true;
+							break;
+						}
+						
 						continue;
 					} else {
 						ready = true;
@@ -1290,6 +1319,34 @@ Misc.addSocketables = function () {
 				if (item.getStat(194) === 2) {
 					if (multiple.length < item.getStat(194)) {
 						multiple.push(items[i]);
+						
+						if (multiple.length === item.getStat(194)) {
+							ready = true;
+							break;
+						}
+						
+						continue;
+					} else {
+						ready = true;
+						break;
+					}	
+				} else {
+					socketable = items[i];
+					break;
+				}	
+			}
+
+			//Amn Rune and Dijjin Slayer
+			if (items[i].classid === 620 && item.classid === 222 && multiple.indexOf(items[i]) === -1) {
+				if (item.getStat(194) === 2) {
+					if (multiple.length < item.getStat(194)) {
+						multiple.push(items[i]);
+
+						if (multiple.length === item.getStat(194)) {
+							ready = true;
+							break;
+						}
+
 						continue;
 					} else {
 						ready = true;
