@@ -399,7 +399,7 @@ var Quest = {
 			Town.clearBelt();
 			me.overhead('respec done, restarting');
 			delay(1000 + me.ping);
-			quit();
+			scriptBroadcast("quit");
 		}
 
 		return true;
@@ -495,8 +495,7 @@ var Quest = {
 			print("ÿc9GuysSoloLevelingÿc0: Couldn't get item");
 			return false;
 		}
-			
-		//sendPacket(1, 0x38, 4, 0x00, 4, larzuk.gid, 4, item.gid);
+		
 		submitItem();
 		delay(500 + me.ping);
 		sendPacket(1, 0x40);
@@ -521,6 +520,7 @@ var Quest = {
 
 		let diffSting = ['Normal', 'Nightmare', 'Hell'][me.diff];	
 		Misc.logItem("Used my " + diffSting + " socket quest on : ", item);
+		D2Bot.printToConsole("GuysSoloLeveling :: Used my " + diffSting + " socket quest on : " + item.name, 6);
 
 		if (!slot && item.location !== 7) {	
 			if (Storage.Stash.CanFit(item)) { //move item back to stash
@@ -622,7 +622,6 @@ var Quest = {
 		}
 		
 		submitItem();
-		//sendPacket(1, 0x38, 4, 0x00, 4, charsi.gid, 4, item.gid);
 		delay(500 + me.ping);
 		sendPacket(1, 0x40);
 			
@@ -642,6 +641,7 @@ var Quest = {
 
 		let diffSting = ['Normal', 'Nightmare', 'Hell'][me.diff];	
 		Misc.logItem("Used my " + diffSting + " imbue quest on : ", item);
+		D2Bot.printToConsole("GuysSoloLeveling :: Used my " + diffSting + " imbue quest on : " + item.name, 6);
 
 		if (!slot && item.location !== 7) {	
 			if (Storage.Stash.CanFit(item)) { //move item back to stash
