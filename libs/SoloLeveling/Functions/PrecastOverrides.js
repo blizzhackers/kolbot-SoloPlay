@@ -26,7 +26,7 @@ Precast.precastCTA = function (force) {
 	if (this.checkCTA()) {
 		var slot = me.weaponswitch;
 
-		Attack.weaponSwitch(this.haveCTA);
+		me.switchWeapons(this.haveCTA);
 		Skill.cast(155, 0); // Battle Command
 		Skill.cast(155, 0); // Battle Command
 		Skill.cast(149, 0); // Battle Orders
@@ -34,7 +34,7 @@ Precast.precastCTA = function (force) {
 		this.BODuration = (20 + me.getSkill(149, 1) * 10 + (me.getSkill(138, 0) + me.getSkill(155, 0)) * 5) * 1000;
 		this.BOTick = getTickCount();
 
-		Attack.weaponSwitch(slot);
+		me.switchWeapons(slot);
 
 		return true;
 	}
@@ -83,6 +83,7 @@ Precast.getBetterSlot = function (skillId) {
 	case 138: // Shout
 	case 142: // Find Item
 	case 149: // Battle Orders
+	case 154: // War Cry
 	case 155: // Battle Command
 		classid = 4;
 		skillTab = 34;
@@ -215,7 +216,7 @@ Precast.doPrecast = function (force) {
 
 			if (me.charlvl > 30 && me.getSkill(155, 0)) {
 				swap = me.weaponswitch;
-				Attack.weaponSwitch(this.getBetterSlot(149));
+				me.switchWeapons(this.getBetterSlot(149));
 
 			}
 
@@ -247,7 +248,7 @@ Precast.doPrecast = function (force) {
 				}
 			}
 
-			Attack.weaponSwitch(swap);
+			me.switchWeapons(swap);
 		}
 
 		break;
@@ -370,7 +371,7 @@ Precast.doPrecast = function (force) {
 		break;
 	}
 
-	Attack.weaponSwitch(Attack.getPrimarySlot());
+	me.switchWeapons(Attack.getPrimarySlot());
 };
 
 Precast.summon = function (skillId) {

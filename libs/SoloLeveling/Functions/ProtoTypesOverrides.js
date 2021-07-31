@@ -1,6 +1,6 @@
 /*
 *	@filename	ProtoTypesOverrides.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		additions for improved SoloLeveling functionality and code readability
 */
 
@@ -12,6 +12,49 @@ Unit.prototype.getItems = function (...args) {
 	}
 
 	return items;
+};
+
+// Credit @Jaenster
+Unit.prototype.switchWeapons = function (slot) {
+	if (this.gametype === 0 || this.weaponswitch === slot && slot !== undefined) {
+		return true;
+	}
+
+	while (typeof me !== 'object') delay(10);
+
+	let originalSlot = this.weaponswitch;
+
+
+	let i, tick, switched = false,
+		packetHandler = (bytes) => bytes.length > 0 && bytes[0] === 0x97 && (switched = true) && false; // false to not block
+	addEventListener('gamepacket', packetHandler);
+	try {
+		for (i = 0; i < 10; i += 1) {
+			//print('Switch weapons -- attempt #' + (i + 1));
+
+			for (let j = 10; --j && me.idle;) {
+				delay(3);
+			}
+
+			i > 0 && delay(Math.min(1 + (me.ping * 1.5), 10));
+			!switched && sendPacket(1, 0x60); // Swap weapons
+
+			tick = getTickCount();
+			while (getTickCount() - tick < 250 + (me.ping * 5)) {
+				if (switched || originalSlot !== me.weaponswitch) {
+					return true;
+				}
+
+				delay(3);
+			}
+			// Retry
+		}
+	} finally {
+		removeEventListener('gamepacket', packetHandler);
+	}
+
+
+	return false;
 };
 
 Unit.prototype.getStatEx = function (id, subid) {
