@@ -80,11 +80,13 @@ var mercscore = function (item) {
 
 var tierscore = function (item) {
 	var resistWeights = {
-		FR: 2, // fire resist
-		LR: 2, // lightning resist
+		FR: 3, // fire resist
+		LR: 3, // lightning resist
 		CR: 1.5, // cold resist
 		PR: 1, // poison resist
-		ABS: 2.7 // absorb damage (fire light magic cold)
+		ABS: 2.7, // absorb damage (fire light magic cold)
+		DR: 2, // Damage resist
+		MR: 3, // Magic damage resist
 	};
 
 	var generalWeights = {
@@ -299,6 +301,8 @@ var tierscore = function (item) {
 		}
 
 		resistRating += (item.getStatEx(142) + item.getStatEx(144) + item.getStatEx(146) + item.getStatEx(148)) * resistWeights.ABS; // add absorb damage
+		resistRating += (item.getStatEx(34) + item.getStatEx(36)) * resistWeights.DR; // add damage resist
+		resistRating += (item.getStatEx(35) + item.getStatEx(37)) * resistWeights.MR; // add magic damage resist
 
 		return resistRating;
 	};
@@ -306,7 +310,7 @@ var tierscore = function (item) {
 	this.buildScore = function (item) {
 		var buildWeights = Check.currentBuild().caster ? casterWeights : meleeWeights;
 
-		if (me.amazon === 0) {
+		if (me.amazon) {
 			if (item.getStatEx(253)) {
 				buildRating += 50;
 			}

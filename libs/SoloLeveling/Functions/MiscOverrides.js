@@ -692,6 +692,38 @@ Misc.getExpShrine = function (shrineLocs) {
 	return true;
 };
 
+Misc.getLightResShrine = function (shrineLocs) {
+	if (me.getState(5) || Check.Resistance().LR >= 75) {
+		return true;
+	}
+
+	for (let get = 0; get < shrineLocs.length; get++) {
+		if (shrineLocs[get] === 2) {
+			Pather.journeyTo(shrineLocs[get]);
+		} else {
+			if (!Pather.checkWP(shrineLocs[get])) {
+				Pather.getWP(shrineLocs[get]);
+			} else {
+				Pather.useWaypoint(shrineLocs[get]);
+			}
+		}
+
+		Precast.doPrecast(true);
+		Misc.getShrinesInArea(shrineLocs[get], 10, true);
+
+		if (me.getState(5)) {
+			Town.goToTown();
+			break;
+		}
+
+		if (!me.inTown) {
+			Town.goToTown();
+		}
+	}
+
+	return true;
+};
+
 Misc.gamePause = function () {
 	let script = getScript("default.dbj");
 
