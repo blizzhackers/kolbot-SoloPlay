@@ -556,7 +556,7 @@ var Check = {
 		let gold = me.getStat(14) + me.getStat(15);
 		let goldLimit = [10000, 25000, 50000][me.diff];
 
-		if (gold >= goldLimit || me.charlvl < 15) {
+		if (gold >= goldLimit || me.charlvl < 15 || (me.charlvl >= 15 && Item.getEquippedItem(4).durability !== 0)) {
 			return true;
 		}
 

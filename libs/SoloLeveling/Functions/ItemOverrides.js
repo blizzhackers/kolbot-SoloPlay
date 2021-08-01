@@ -141,7 +141,8 @@ Item.getEquippedItem = function (bodyLoc) {
 					tier: NTIP.GetTier(item),
 					secondarytier: NTIP.GetSecondaryTier(item),
 					str: item.getStatEx(0),
-					dex: item.getStatEx(2)
+					dex: item.getStatEx(2),
+					durability: (item.getStat(72) * 100 / item.getStat(73)),
 				};
 			}
 		} while (item.getNext());
