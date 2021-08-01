@@ -80,6 +80,7 @@ Precast.getBetterSlot = function (skillId) {
 		skillTab = 24;
 
 		break;
+	case 137: // Taunt
 	case 138: // Shout
 	case 142: // Find Item
 	case 149: // Battle Orders
@@ -211,10 +212,10 @@ Precast.doPrecast = function (force) {
 
 		break;
 	case 4: // Barbarian - TODO: BO duration
-		if (!me.getState(32) || !me.getState(51) || !me.getState(26) || force) {
+		if ((!me.getState(26) && me.getSkill(138, 0)) || (!me.getState(32) && me.getSkill(149, 0)) || (!me.getState(51) && me.getSkill(155, 0)) || force) {
 			var swap = 0;
 
-			if (me.charlvl > 30 && me.getSkill(155, 0)) {
+			if (me.charlvl >= 24 && me.getSkill(149, 0)) {
 				swap = me.weaponswitch;
 				me.switchWeapons(this.getBetterSlot(149));
 
