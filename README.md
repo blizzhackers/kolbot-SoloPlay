@@ -68,6 +68,10 @@ SoloLeveling is an automated leveling script for any Diablo 2 characters using K
 
 **A:** There was a bad installation OR the profile settings are wrong. First verify that you using the kolbot version linked the install guide below. Next, confirm you have installed all the files into their proper locations (including overwriting the existing `_customconfig.js` and `default.dbj`). Finally, verify the profile name and infotag follow the format of the install guide's instructions.
 
+**Q: What is a Bumper?**
+
+**A:** A Bumper is a level 40 character that has not done baal quest in normal and is used to "bump" low level characters to hell difficulty where they can power level following chaos runs. 
+
 ## Really Dumb Frequently Asked Questions
 **Q: Can I make my solo bots work together?**
 
