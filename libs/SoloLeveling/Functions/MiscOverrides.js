@@ -730,11 +730,15 @@ Misc.gamePacket = function (bytes) {// various game events
 		}
 
 		break;
-		/*	case 0x4c: // diablo lightning dodge
-		if (bytes[6] === 193 && !me.getSkill(54, 0)) {
+	/*case 0x4c: // diablo lightning dodge
+		if (bytes[6] === 193 && (me.getSkill(143, 1) && me.barbarian)) {
 			diablo = getUnit(1, 243);
-			tick = getTickCount();
-			Misc.gamePause();
+			//tick = getTickCount();
+			//Misc.gamePause();
+			if (diablo) {
+				let coord = CollMap.getRandCoordinate(diablo.x + 5, -15, 15, diablo.y + 5, -15, 15);
+				Skill.cast(143, 0, coord.x, coord.y);
+			}
 
 			while (getTickCount() - tick < 2000) {
 				if (me.y <= diablo.y) { // above D
@@ -758,10 +762,10 @@ Misc.gamePacket = function (bytes) {// various game events
 				}
 			}
 
-			Misc.gamePause();
+			//Misc.gamePause();
 		}
 
-		break;	*/
+		break;*/	
 	/*case 0xa4: //baalwave
 		if (me.hell && me.paladin && !Attack.IsAuradin) {
 			waveMonster = ((bytes[1]) | (bytes[2] << 8));

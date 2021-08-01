@@ -394,7 +394,7 @@ var Check = {
 
 			break;
 		case "tombs": //tombs
-			if (Pather.accessToAct(2) && me.normal && me.charlvl < 25) {
+			if (Pather.accessToAct(2) && me.normal && me.charlvl < 24) {
 				return true;
 			}
 

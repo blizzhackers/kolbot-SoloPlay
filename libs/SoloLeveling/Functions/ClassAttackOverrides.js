@@ -1328,7 +1328,7 @@ case 4: // Barbarian - theBGuy
 		}
 
 		if (index === 1) {
-			if (useHowl && attackSkill !== 151 && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(130) < me.mp) {
+			if (useHowl && attackSkill !== 151 && unit.classid !== 571 && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(130) < me.mp) {
 				Skill.cast(130, Skill.getHand(130));
 			}
 		}
@@ -1344,6 +1344,7 @@ case 4: // Barbarian - theBGuy
 		let useLeap = me.getSkill(143, 1);
 		let useWarCry = me.getSkill(154, 1);
 		let useBattleCry = me.getSkill(146, 1);
+		let warCrySwitch = Precast.getBetterSlot(154) === 1 ? true : false;
 
 		if (attackSkill < 0) {
 			return 2;
@@ -1391,7 +1392,15 @@ case 4: // Barbarian - theBGuy
 				}
 
 				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, true) >= 3 && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
+					if (warCrySwitch) {
+						me.switchWeapons(1);
+					}
+
 					Skill.cast(154, Skill.getHand(154));
+
+					if (warCrySwitch) {
+						me.switchWeapons(0);
+					}
 				}
 
 				if (useWhirl && !unit.dead && (Attack.getMonsterCount(me.x, me.y, 6) >= 3 || ([156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1) && !me.hell)) {

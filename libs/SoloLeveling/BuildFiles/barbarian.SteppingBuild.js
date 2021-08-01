@@ -1,6 +1,7 @@
 /**
  *    @filename   barbarian.SteppingBuild.js
  *	  @author	  theBGuy
+ *	  @credits	  aim2kill (big shout out for all the testing an ideas for this build)
  *    @desc       barb stepping stone build for after Start but before Leveling
  */
 
@@ -13,14 +14,11 @@ var build = {
 	mercAuraWanted: 98,
 	mercDiff: 1,
 	stats: [
-		["strength", 25], ["dexterity", 25], ["vitality", 30],
-		["strength", 48], ["dexterity", 39], ["vitality", 50],
-		["strength", 55], ["dexterity", 45], ["vitality", 60],
-		["strength", 58], ["dexterity", 58], ["vitality", 70],
-		["strength", 85], ["dexterity", 60], ["vitality", 80],
-		["strength", 103], ["dexterity", 79], ["vitality", 90],
-		["dexterity", 136], ["strength", 150], ["vitality", "all"],
-	],
+        ["strength", 71], ["dexterity", 50], ["vitality", 90],
+        ["strength", 85], ["dexterity", 60], ["vitality", 100],
+        ["strength", 103], ["dexterity", 79], ["vitality", 110],
+        ["dexterity", 105], ["strength", 125], ["vitality", "all"],
+    ],
 	skills: [
 		[126, 1, false], // Bash -> charlvl 2
 		[130, 1, false], // Howl -> charlvl 3
@@ -39,14 +37,15 @@ var build = {
 		[147, 2, false], // Frenzy -> charlvl 25
 		[149, 2, false], // Battle Orders -> charlvl 26
 		[147, 3, false], // Frenzy -> charlvl 26
-		[149, 3, false], // Battle Orders -> charlvl 27
+		//[149, 3, false], // Battle Orders -> charlvl 27
 		[147, 4, false], // Frenzy -> charlvl 27
-		[149, 4, false], // Battle Orders -> charlvl 28
+		//[149, 4, false], // Battle Orders -> charlvl 28
 		[151, 1, true], // Whirlwind -> charlvl 30
 		[154, 1, true], // War Cry -> charlvl 30
 		[155, 1, true], // Battle Command -> charlvl 31
-		[153, 3, true], // Natural Resistance 5 // charLvl 34 (enough res to get out or normal)
-		[151, 6, true], // Whirlwind -> charlvl 39
+		[153, 3, false], // Natural Resistance 5 // charLvl 34 (enough res to get out or normal)
+		[151, 6, false], // Whirlwind -> charlvl 39
+		[154, 5, true], // War Cry -> charlvl 30
 		[147, 5, false], // Frenzy -> charlvl 36
 		[127, 13, false], // Sword Mastery -> charlvl 46
 		[147, 6, false], // Frenzy -> charlvl 38

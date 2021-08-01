@@ -1,6 +1,7 @@
 /**
  *    @filename   barbarian.StartBuild.js
  *	  @author	  theBGuy
+ *	  @credits	  aim2kill (big shout out for all the testing an ideas for this build)
  *    @desc       barb build for before respecOne
  */
 
@@ -13,13 +14,11 @@ var build = {
 	mercAuraWanted: 98,
 	mercDiff: 1,
 	stats: [
-		["strength", 25], ["dexterity", 25], ["vitality", 30],
-		["strength", 48], ["dexterity", 39], ["vitality", 50],
-		["strength", 55], ["dexterity", 45], ["vitality", 60],
-		["strength", 58], ["dexterity", 58], ["vitality", 70],
-		["strength", 85], ["dexterity", 60], ["vitality", 80],
-		["strength", 103], ["dexterity", 79], ["vitality", 90],
-		["dexterity", 136], ["strength", 150], ["vitality", "all"],
+		["strength", 30], ["dexterity", 27], ["strength", 35], ["vitality", 40],
+        ["strength", 48], ["dexterity", 39], ["vitality", 50],
+        ["strength", 56], ["dexterity", 45], ["vitality", 60],
+        ["strength", 58], ["dexterity", 50], ["vitality", 70],
+        ["strength", 71], ["vitality", "all"],
 	],
 	skills: [
 		[126, 1, false], // Bash -> charlvl 2
@@ -35,8 +34,10 @@ var build = {
 		[143, 1, true], // Leap Attack -> charlvl 18
 		[146, 1, true], // Battle Cry -> charlvl 18
 		[145, 1, false], // Iron Skin -> charlvl 18
+		[147, 1, false], // Frenzy -> charlvl 24
+		[149, 1, true], // Battle Orders -> charlvl 24
 		[147, 4, false], // Frenzy -> charlvl 24
-		[127, 13, false], // Sword Mastery
+		[127, 13, false], // Sword Mastery 29
 		[137, 20, false], // Taunt -> charlvl 6
 	]
 };

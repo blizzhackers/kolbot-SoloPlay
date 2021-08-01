@@ -886,6 +886,36 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == sword # [enhanceddamage] >= 20 && [ias] >= 25");
 		}
 
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(12).prefixnum !== 20635) { // Spirit Sword
+			if (!Check.haveItem("sword", "runeword", "Spirit") && !me.hell) {
+				var SpiritSword = [
+					"[Name] == TalRune # # [MaxQuantity] == 1",
+					"[Name] == ThulRune # # [MaxQuantity] == 1",
+					"[Name] == OrtRune # # [MaxQuantity] == 1",
+					"[Name] == AmnRune # # [MaxQuantity] == 1",
+				];
+				NTIP.arrayLooping(SpiritSword);
+
+				if (!me.getItem(620)) { //Amn Rune
+					Config.Recipes.push([Recipe.Rune, "Ral Rune"]);
+					Config.Recipes.push([Recipe.Rune, "Ort Rune"]);
+					Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
+				}
+
+				NTIP.addLine("([Name] == BroadSword || [Name] == CrystalSword) && [flag] != ethereal && [Quality] == Normal && [Level] >= 26 && [Level] <= 40 # ([Sockets] == 0 || [Sockets] == 4) # [MaxQuantity] == 1");
+				
+				Config.Recipes.push([Recipe.Socket.Weapon, "Crystal Sword", Roll.NonEth]);
+				Config.Recipes.push([Recipe.Socket.Weapon, "Broad Sword", Roll.NonEth]);
+			} else {
+				NTIP.addLine("([Name] == BroadSword || [Name] == CrystalSword) && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
+			}
+
+			Config.Runewords.push([Runeword.Spirit, "Crystal Sword"]);
+			Config.Runewords.push([Runeword.Spirit, "Broad Sword"]);
+
+			Config.KeepRunewords.push("[type] == sword # [fcr] >= 25 && [maxmana] >= 89");
+		}
+
 		if (Item.getEquippedItem(5).tier < 175) {	//Malice - IthElEth
 			var Malice = [
 				"[Name] == IthRune # # [MaxQuantity] == 1",
@@ -931,6 +961,15 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.Stealth, "Studded Leather"]);
 
 			Config.KeepRunewords.push("[type] == armor # [frw] == 25");
+		}
+
+		/*if (Item.getEquippedItem(10).tier < 233) {
+			NTIP.addLine("[name] == heavygloves && [flag] != ethereal && [Quality] == magic # [itemchargedskill] >= 0 # [MaxQuantity] == 1");
+			Config.Recipes.push([Recipe.Blood.Gloves, "Heavy Gloves"]); // Craft Blood Gloves
+		}*/
+
+		if (Check.haveItemAndNotSocketed("sword", "unique", "Djinn Slayer")) {
+			NTIP.addLine("[name] == AmnRune # # [MaxQuantity] == 2");
 		}
 	}
 }

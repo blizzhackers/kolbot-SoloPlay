@@ -126,10 +126,12 @@ var tierscore = function (item) {
 		SECMINDMG: 2, // secondary min damage
 		SECMAXDMG: 2, // secondary max damage
 		ELEDMG: 1, // elemental damage
-		AR:	0.5, // attack rating
+		AR:	0.2, // attack rating
 		CB: 4, // crushing blow
 		OW: 1, // open wounds
 		DS: 1.5, // deadly strike
+		DMGTOUNDEAD: 0.5,	// damage % to undead
+		DMGTODEMONS: 0.5,	// damage % to demons
 		// leaching
 		LL: 4, //lifeleach
 		ML:	2, //manaleach
@@ -330,6 +332,8 @@ var tierscore = function (item) {
 			buildRating += item.getStatEx(60) * buildWeights.LL; // add LL
 			buildRating += item.getStatEx(62) * buildWeights.ML; // add ML
 			buildRating += item.getStatEx(151, 119) * 10; // sanctuary aura
+			buildRating += item.getStatEx(121) * buildWeights.DMGTODEMONS; // add damage % to demons
+			buildRating += item.getStatEx(122) * buildWeights.DMGTOUNDEAD; // add damage % to undead
 
 			buildRating += item.getStatEx(195, 3135) * buildWeights.CTCOANOVA; // add CTC nova on attack
 			buildRating += item.getStatEx(195, 2838) * buildWeights.CTCOAFNOVA; // add CTC frost nova on attack
@@ -422,6 +426,9 @@ var secondaryscore = function (item) {
 	for (let i = 0; i < precastSkills.length; i++) {
 		tier += item.getStatEx(107, precastSkills[i]) * 50;
 	}
+
+	tier += item.getStatEx(105) * 5; // add FCR
+	tier += item.getStatEx(99) * 3; // add faster hit recovery
 
 	return tier;
 };
