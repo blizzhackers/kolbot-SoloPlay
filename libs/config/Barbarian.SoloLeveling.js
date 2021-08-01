@@ -598,12 +598,15 @@ function LoadConfig () {
 			var lore = [
 				"[Name] == OrtRune # # [MaxQuantity] == 1",
 				"[Name] == SolRune # # [MaxQuantity] == 1",
-				"!me.hell && ([Name] == Crown || [Name] == BoneHelm || [Name] == FullHelm) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1",
-				"([Name] == Casque || [Name] == Sallet || [Name] == DeathMask || [Name] == GrimHelm) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1",
 				"[type] == primalhelm && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior && [strreq] <= 150 # [Sockets] == 2",
 				"[type] == primalhelm && [Flag] != Ethereal && [Quality] == Normal && [strreq] <= 150 # ([barbarianskills]+[barbcombatskilltab]+[skillbattleorders]+[skillfrenzy]+[skilldoubleswing]+[skillnaturalresistance]) >= 1 && [Sockets] == 0",
 			];
 			NTIP.arrayLooping(lore);
+
+			if (Item.getEquippedItem(1).tier < 150) {
+				NTIP.addLine("!me.hell && ([Name] == Crown || [Name] == BoneHelm || [Name] == FullHelm) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1");
+				NTIP.addLine("([Name] == Casque || [Name] == Sallet || [Name] == DeathMask || [Name] == GrimHelm) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1")
+			}
 
 			if (me.normal && !me.getItem(621)) {	// Sol rune 
 				Config.Recipes.push([Recipe.Rune, "Ort Rune"]);
