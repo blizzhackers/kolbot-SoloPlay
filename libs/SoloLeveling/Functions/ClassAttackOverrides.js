@@ -1270,7 +1270,7 @@ case 4: // Barbarian - theBGuy
 			attackSkill = Config.LowManaSkill[0];
 		}
 
-		if (useHowl && attackSkill !== 151 && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+		if (useHowl && attackSkill !== 151 && unit.classid !== 571 && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
 			Skill.cast(130, Skill.getHand(130));
 		}
 

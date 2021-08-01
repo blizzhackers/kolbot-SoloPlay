@@ -173,7 +173,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [139, 133, -1, 133, -1];
+			Config.AttackSkill = [-1, 133, -1, 133, -1];
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			Config.MinColumn[0] = Config.BeltColumn[0] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
 			Config.MinColumn[1] = Config.BeltColumn[1] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
@@ -187,7 +187,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [139, 133, -1, 133, -1];
+			Config.AttackSkill = [-1, 133, -1, 133, -1];
 
 		}
 	},
@@ -196,7 +196,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [139, 133, -1, 133, -1];
+			Config.AttackSkill = [-1, 133, -1, 133, -1];
 
 		}
 	},
@@ -205,7 +205,8 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [139, 133, -1, 133, -1];
+			Config.AttackSkill = [-1, 133, -1, 133, -1];
+
 			if (me.getSkill(133, 1) >= 9) {
 				Config.LowManaSkill = [133, 0];
 			}
@@ -216,7 +217,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [139, 133, -1, 133, -1];
+			Config.AttackSkill = [-1, 133, -1, 133, -1];
 
 		}
 	},
@@ -225,7 +226,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [139, 133, -1, 133, -1];
+			Config.AttackSkill = [-1, 133, -1, 133, -1];
 
 		}
 	},

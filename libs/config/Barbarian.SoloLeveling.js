@@ -178,9 +178,9 @@ function LoadConfig () {
 	NTIP.arrayLooping(levelingTiers);
 
 	var imbueables = [
-		"me.diff == 0 && [name] == avengerguard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [MaxQuantity] == 1",
-		"me.diff == 1 && [name] == slayerguard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [MaxQuantity] == 1",
-		"me.diff == 2 && [name] == carnagehelm && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [MaxQuantity] == 1",
+		"me.diff == 0 && [name] == avengerguard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [MaxQuantity] == 1",
+		"me.diff == 1 && [name] == slayerguard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [MaxQuantity] == 1",
+		"me.diff == 2 && [name] == carnagehelm && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [MaxQuantity] == 1",
 	];
 
 	if (!me.getQuest(3, 0)) {
@@ -195,7 +195,7 @@ function LoadConfig () {
 
 	/* Attack configuration. */
 	Config.AttackSkill = [-1, 0, 0, 0, 0];
-	Config.LowManaSkill = [0, -1];
+	Config.LowManaSkill = me.getSkill(133, 1) >= 9 ? [133, 0] : [0, -1];
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal ? true : false;
 	Config.ClearType = 0;
