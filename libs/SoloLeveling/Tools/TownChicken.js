@@ -124,7 +124,7 @@ function main() {
 				print("Going to town");
 				unit = getUnit(1);
 				
-				if ([156, 211, 242, 243, 544, 571].indexOf(unit.classid) === -1) {
+				if ([156, 211, 242, 243, 544, 571, 345].indexOf(unit.classid) === -1) {
 					if (useHowl && Skill.getManaCost(130) < me.mp) {
 						Skill.cast(130, 0);
 					}
