@@ -279,7 +279,7 @@ Town.identify = function () {
 			result = Pickit.checkItem(item);
 
 			// Force ID for unid items matching autoEquip criteria
-			if (result.result === 1 && !item.getFlag(0x10) && (Item.hasTier(item) || Item.hasSecondaryTier(item) || Item.hasMercTier(item) || Item.hasCharmTier(item))) {
+			if ([1, 2].indexOf(result.result) > -1 && !item.getFlag(0x10) && (Item.hasTier(item) || Item.hasSecondaryTier(item) || Item.hasMercTier(item) || Item.hasCharmTier(item))) {
 				result.result = -1;
 			}
 
@@ -1474,7 +1474,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 		}
 
 		if (base.getStat(194) <= 0 && !preSocketCheck) {
-			return false;
+			return true;
 		}
 
 		if (base.getStat(194) === equippedItem.sockets || preSocketCheck) {

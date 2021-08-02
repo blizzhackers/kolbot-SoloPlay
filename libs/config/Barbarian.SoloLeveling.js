@@ -1,6 +1,6 @@
 /*
 *	@filename	Barbarian.SoloLeveling.js
-*	@author		isid0re
+*	@author		theBGuy
 *	@desc		Config Settings for SoloLeveling Barbarian
 *
 *	FinalBuild choices
@@ -457,6 +457,11 @@ function LoadConfig () {
 		}
 
 		Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Gladius", Roll.NonEth]); // Upgrade Bloodletter to Elite
+
+		if (!Check.haveItem("falcata", "unique", "Bloodletter")) {
+			NTIP.addLine("[name] == Gladius && [quality] == unique # [enhanceddamage] >= 140 && [ias] >= 20 # [MaxQuantity] == 1");	// Bloodletter
+			NTIP.addLine("[name] == falcata && [quality] == unique # [enhanceddamage] >= 140 && [ias] >= 20 # [MaxQuantity] == 1");	// upped Bloodletter
+		}
 
 		if (Item.getEquippedItem(5).tier < 1200) {	//Lawbringer - Amn/Lem/Ko
 			var Lawbringer = [
