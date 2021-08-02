@@ -459,6 +459,7 @@ function LoadConfig () {
 		Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Gladius", Roll.NonEth]); // Upgrade Bloodletter to Elite
 
 		if (!Check.haveItem("falcata", "unique", "Bloodletter")) {
+			NTIP.addLine("[name] == PulRune # # [MaxQuantity] == 1");
 			NTIP.addLine("[name] == Gladius && [quality] == unique # [enhanceddamage] >= 140 && [ias] >= 20 # [MaxQuantity] == 1");	// Bloodletter
 			NTIP.addLine("[name] == falcata && [quality] == unique # [enhanceddamage] >= 140 && [ias] >= 20 # [MaxQuantity] == 1");	// upped Bloodletter
 		}
@@ -550,7 +551,7 @@ function LoadConfig () {
 					NTIP.addLine("me.diff == 0 && [name] == Flamberge && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [level] >= 41 # [Sockets] == 0");
 					NTIP.addLine("me.diff > 0 && [name] == Zweihander && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [level] >= 41 # [Sockets] == 0");
 				} else {
-					NTIP.addLine("([name] == Flamberge || [Name] == Zweihander || [Name] == DimensionalBlade || [Name] == PhaseBlade) && [flag] != ethereal && [Quality] == Normal && [level] >= 41 # [Sockets] == 0");
+					NTIP.addLine("([name] == Flamberge || [Name] == Zweihander || [Name] == DimensionalBlade || [Name] == PhaseBlade) && [flag] != ethereal && [Quality] == Normal && [level] >= 41 # [Sockets] == 0 # [MaxQuantity] == 1");
 				}
 			}
 
