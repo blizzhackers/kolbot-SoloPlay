@@ -106,7 +106,7 @@ function main() {
 	}*/
 
 	while (true) {
-		if (!me.inTown && (townCheck ||
+		if (!me.inTown && [120, 136].indexOf(me.area) === -1 && (townCheck ||
 			(Config.TownHP > 0 && me.hp < Math.floor(me.hpmax * Config.TownHP / 100)) ||
 			(Config.TownMP > 0 && me.mp < Math.floor(me.mpmax * Config.TownMP / 100)))) {
 			this.togglePause();
