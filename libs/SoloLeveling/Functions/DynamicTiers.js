@@ -107,6 +107,8 @@ var tierscore = function (item) {
 		CTCWSFNOVA: 10,
 		CTCWSFADE: 20,
 		CTCWSHOWL: 10,
+		CTCWSBARMOR: 10,
+		CTCWSCARMOR: 10,
 	};
 
 	var casterWeights = {
@@ -163,6 +165,7 @@ var tierscore = function (item) {
 		CTCOSCHAINLIGHT: 10,
 		CTCOSCHARGEDBOLT: 10,
 		CTCOSTAUNT: 10,
+		CTCOSTWISTER: 10,
 	};
 
 	var skillsWeights = {
@@ -232,9 +235,13 @@ var tierscore = function (item) {
 		generalRating += item.getStatEx(0) * generalWeights.STR; // add STR
 		generalRating += item.getStatEx(2) * generalWeights.DEX; // add DEX
 		generalRating += item.getStatEx(201, 3135) * generalWeights.CTCWSNOVA; // add CTC nova when struck
+		generalRating += item.getStatEx(201, 3135) * generalWeights.CTCWSNOVA; // add CTC nova when struck (magic items)
 		generalRating += item.getStatEx(201, 2838) * generalWeights.CTCWSFNOVA; // add CTC frost nova when struck
+		generalRating += item.getStatEx(201, 2879) * generalWeights.CTCWSFNOVA; // add CTC frost nova when struck (magic items)
 		generalRating += item.getStatEx(201, 17103) * generalWeights.CTCWSFADE; // add CTC fade when struck
 		generalRating += item.getStatEx(201, 8321) * generalWeights.CTCWSHOWL; // add CTC howl when struck
+		generalRating += item.getStatEx(201, 4362) * generalWeights.CTCWSBARMOR; // add CTC bone armor when struck
+		generalRating += item.getStatEx(201, 15055) * generalWeights.CTCWSCARMOR; // add CTC cyclone armor when struck
 
 		return generalRating;
 	};
@@ -340,15 +347,23 @@ var tierscore = function (item) {
 			buildRating += item.getStatEx(122) * buildWeights.DMGTOUNDEAD; // add damage % to undead
 
 			buildRating += item.getStatEx(195, 3135) * buildWeights.CTCOANOVA; // add CTC nova on attack
+			buildRating += item.getStatEx(195, 3135) * buildWeights.CTCOANOVA; // add CTC nova on attack (magic items)
 			buildRating += item.getStatEx(195, 2838) * buildWeights.CTCOAFNOVA; // add CTC frost nova on attack
+			buildRating += item.getStatEx(195, 2879) * buildWeights.CTCOAFNOVA; // add CTC frost nova on attack (magic items)
 			buildRating += item.getStatEx(195, 4238) * buildWeights.CTCOAAMP; // add CTC amplify damage on attack
+			buildRating += item.getStatEx(195, 4225) * buildWeights.CTCOAAMP; // add CTC amplify damage on attack (magic items)
 			buildRating += item.getStatEx(195, 5583) * buildWeights.CTCOADECREP; // add CTC decrepify on attack
+			buildRating += item.getStatEx(195, 5631) * buildWeights.CTCOADECREP; // add CTC decrepify on attack (magic items)
 			buildRating += item.getStatEx(195, 3538) * buildWeights.CTCOAGSPIKE; // add CTC glacial spike on attack
 
 			buildRating += item.getStatEx(198, 3135) * buildWeights.CTCOSNOVA; // add CTC nova on strikng
+			buildRating += item.getStatEx(198, 3135) * buildWeights.CTCOSNOVA; // add CTC nova on strikng (magic items)
 			buildRating += item.getStatEx(198, 2838) * buildWeights.CTCOSFNOVA; // add CTC frost nova on strikng
+			buildRating += item.getStatEx(198, 2879) * buildWeights.CTCOSFNOVA; // add CTC frost nova on strikng (magic items)
 			buildRating += item.getStatEx(198, 4238) * buildWeights.CTCOSAMP; // add CTC amplify damage on strikng
+			buildRating += item.getStatEx(198, 4225) * buildWeights.CTCOSAMP; // add CTC amplify damage on strikng (magic items)
 			buildRating += item.getStatEx(198, 5583) * buildWeights.CTCOSDECREP; // add CTC decrepify on strikng
+			buildRating += item.getStatEx(198, 5631) * buildWeights.CTCOSDECREP; // add CTC decrepify on strikng (magic items)
 			buildRating += item.getStatEx(198, 5266) * buildWeights.CTCOSLIFETAP; // add CTC life tap on strikng
 			buildRating += item.getStatEx(198, 17807) * buildWeights.CTCOSVENOM; // add CTC venom on strikng
 			buildRating += item.getStatEx(198, 4109) * buildWeights.CTCOSFORB; // add CTC frozen orb on strikng
@@ -361,6 +376,7 @@ var tierscore = function (item) {
 			buildRating += item.getStatEx(198, 3409) * buildWeights.CTCOSCHAINLIGHT; // add CTC chain light on strikng
 			buildRating += item.getStatEx(198, 2441) * buildWeights.CTCOSCHARGEDBOLT; // add CTC charged bolt on strikng
 			buildRating += item.getStatEx(198, 8769) * buildWeights.CTCOSTAUNT; // add CTC taunt on strikng
+			buildRating += item.getStatEx(198, 15375) * buildWeights.CTCOSTWISTER; // add CTC twister on strikng
 
 		}
 
