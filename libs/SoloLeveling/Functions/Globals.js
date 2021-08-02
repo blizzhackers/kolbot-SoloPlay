@@ -672,12 +672,12 @@ var Check = {
 	},
 
 	haveItem: function (type, flag, iName) {
+		type = type.toLowerCase();
+		flag = flag.toLowerCase();
+
 		if (type && !NTIPAliasType[type] && !NTIPAliasClassID[type]) {
 			print("ÿc9SoloLevelingÿc0: No NTIPalias for '" + type + "'");
 		}
-
-		type = type.toLowerCase();
-		flag = flag.toLowerCase();
 
 		if (iName !== undefined) {
 			iName = iName.toLowerCase();
@@ -750,12 +750,12 @@ var Check = {
 	},
 
 	haveItemAndNotSocketed: function (type, flag, iName) {
+		type = type.toLowerCase();
+		flag = flag.toLowerCase();
+
 		if (type && !NTIPAliasType[type] && !NTIPAliasClassID[type]) {
 			print("ÿc9GuysSoloLevelingÿc0: No NTIPalias for '" + type + "'");
 		}
-
-		type = type.toLowerCase();
-		flag = flag.toLowerCase();
 
 		if (iName !== undefined) {
 			iName = iName.toLowerCase();
