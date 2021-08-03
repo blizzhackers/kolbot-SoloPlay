@@ -83,7 +83,7 @@ function LoadConfig () {
 	/* Potions configuration. */
 	Config.UseHP = me.playertype ? 90 : 75;
 	Config.UseRejuvHP = me.playertype ? 65 : 40;
-	Config.UseMP = me.playertype ? 75 : 55;
+	Config.UseMP = me.playertype ? 75 : 45;
 	Config.UseMercHP = 75;
 
 	/* Belt configuration. */
@@ -706,7 +706,10 @@ function LoadConfig () {
 				"([Name] == BreastPlate || [Name] == MagePlate || [Name] == HellforgePlate || [Name] == KrakenShell || [Name] == ArchonPlate || [Name] == BalrogSkin || [Name] == BoneWeave || [Name] == GreatHauberk || [Name] == LoricatedMail || [Name] == DiamondMail || [Name] == WireFleece || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1",
 				"!me.normal && ([Name] == HellforgePlate || [Name] == KrakenShell || [Name] == ArchonPlate || [Name] == BalrogSkin || [Name] == BoneWeave || [Name] == GreatHauberk || [Name] == LoricatedMail || [Name] == DiamondMail || [Name] == WireFleece || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Quality] == Normal && [Flag] == Ethereal # [Sockets] == 0 # [MaxQuantity] == 1",
 			];
-			NTIP.arrayLooping(Treachery);
+
+			if (me.getItem(629)) { 		// Lem rune
+				NTIP.arrayLooping(Treachery);
+			}
 
 			Config.Recipes.push([Recipe.Socket.Armor, "Hellforge Plate"]);
 			Config.Recipes.push([Recipe.Socket.Armor, "Kraken Shell"]);

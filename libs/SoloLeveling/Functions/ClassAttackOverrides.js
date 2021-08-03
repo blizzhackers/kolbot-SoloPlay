@@ -1383,7 +1383,8 @@ case 4: // Barbarian - theBGuy
 			if (!unit.dead) {
 				Skill.cast(attackSkill, Skill.getHand(attackSkill), unit);
 
-				if (useBattleCry && !unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27) && Skill.getManaCost(146) < me.mp) {		//Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
+				// Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
+				if (useBattleCry && !unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27) && Skill.getManaCost(146) < me.mp) {
 					Skill.cast(146, Skill.getHand(146), unit);
 				}
 
@@ -1391,7 +1392,7 @@ case 4: // Barbarian - theBGuy
 					Skill.cast(144, Skill.getHand(144), unit);
 				}
 
-				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, true) >= 3 && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
+				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, true) >= (me.area === 131 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
 					if (warCrySwitch) {
 						me.switchWeapons(1);
 					}

@@ -1,6 +1,6 @@
 /**
 *	@filename	TownChicken.js
-*	@author		kolton
+*	@author		kolton, theBGuy (modified for GuysSoloLeveling)
 *	@desc		handle town chicken
 */
 
@@ -57,6 +57,39 @@ function main() {
 		}
 
 		return true;
+	};
+
+	this.getNearestMonster = function () {
+		var gid, distance,
+			monster = getUnit(1),
+			range = 30;
+
+		if (monster) {
+			do {
+				if (monster.hp > 0 && Attack.checkMonster(monster) && !monster.getParent()) {
+					distance = getDistance(me, monster);
+
+					if (distance < range) {
+						range = distance;
+						gid = monster.gid;
+					}
+				}
+			} while (monster.getNext());
+		}
+
+		if (gid) {
+			monster = getUnit(1, -1, -1, gid);
+		} else {
+			monster = false;
+		}
+
+		if (monster) {
+			print("ÿc9TownChickenÿc0 :: Closest monster to me: " + monster.name + " | Monster classid: " + monster.classid);
+
+			return monster.classid;
+		}
+
+		return -1;
 	};
 
 	addEventListener("scriptmsg",
@@ -124,7 +157,7 @@ function main() {
 				print("Going to town");
 				unit = getUnit(1);
 				
-				if ([156, 211, 242, 243, 544, 571, 345].indexOf(unit.classid) === -1) {
+				if ([156, 211, 242, 243, 544, 571, 345].indexOf(this.getNearestMonster()) === -1) {
 					if (useHowl && Skill.getManaCost(130) < me.mp) {
 						Skill.cast(130, 0);
 					}
