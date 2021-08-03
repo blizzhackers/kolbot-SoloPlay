@@ -60,12 +60,12 @@ var SetUp = {
 	walkToggle: false,
 
 	//			Amazon					Sorceress				Necromancer					Paladin				Barbarian				Druid					Assassin					
-	levelCap: [[33, 65, 100][me.diff], [33, 70, 100][me.diff], [33, 70, 100][me.diff], [33, 65, 100][me.diff], [33, 70, 100][me.diff], [33, 73, 100][me.diff], [33, 65, 100][me.diff]][me.classid],
+	levelCap: [[33, 65, 100][me.diff], [33, 70, 100][me.diff], [33, 70, 100][me.diff], [33, 65, 100][me.diff], [33, 72, 100][me.diff], [33, 73, 100][me.diff], [33, 65, 100][me.diff]][me.classid],
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
 	respecOne: [ 64, 28, 26, 19, 30, 24, 30][me.classid],
-	respecOneB: [ 0, 0, 0, 0, 69, 0, 0][me.classid],
+	respecOneB: [ 0, 0, 0, 0, 71, 0, 0][me.classid],
 
 	// mine - theBGuy
 	respecTwo: function () {
@@ -175,13 +175,24 @@ var SetUp = {
 
 		let specCheck = [];
 
-		switch (specType) {
-		case "skills":
-			specCheck = JSON.parse(JSON.stringify(build.skills));	//push skills value from template file
-			break;
-		case "stats":
-			specCheck = JSON.parse(JSON.stringify(build.stats)); //push stats value from template file
-			break;
+		if (SetUp.getBuild() === SetUp.finalBuild) {
+			switch (specType) {
+			case "skills":
+				specCheck = JSON.parse(JSON.stringify(finalBuild.skills));	//push skills value from template file
+				break;
+			case "stats":
+				specCheck = JSON.parse(JSON.stringify(finalBuild.stats)); //push stats value from template file
+				break;
+			}
+		} else {
+			switch (specType) {
+			case "skills":
+				specCheck = JSON.parse(JSON.stringify(build.skills));	//push skills value from template file
+				break;
+			case "stats":
+				specCheck = JSON.parse(JSON.stringify(build.stats)); //push stats value from template file
+				break;
+			}
 		}
 
 		return specCheck;
@@ -560,7 +571,14 @@ var Check = {
 			return true;
 		}
 
+		/*if (Item.getEquippedItem(4).durability === 0 && me.charlvl >= 15 && !me.normal) {
+			D2Bot.setProfile(null, null, null, "Normal");
+			print("ÿc9GuysSoloLevelingÿc0: Oof I am broken, going back to normal to get easy gold");
+			return false;
+		}*/
+
 		me.overhead("I am broke af");
+		NTIP.addLine("[name] == gold # [gold] >= 1");
 
 		return false;
 	},
@@ -911,6 +929,20 @@ var Check = {
 
 		if (!include(template)) {
 			throw new Error("currentBuild(): Failed to include template: " + template);
+		}
+
+		if (SetUp.currentBuild === SetUp.finalBuild) {
+			return {
+				caster: finalBuild.caster,
+				tabSkills: finalBuild.skillstab,
+				wantedSkills: finalBuild.wantedskills,
+				usefulSkills: finalBuild.usefulskills,
+				precastSkills: finalBuild.precastSkills,
+				mercAuraName: finalBuild.mercAuraName,
+				mercAuraWanted: finalBuild.mercAuraWanted,
+				mercDiff: finalBuild.mercDiff,
+				finalGear: finalBuild.autoEquipTiers,
+			};
 		}
 
 		return {
