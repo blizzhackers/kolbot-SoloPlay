@@ -437,7 +437,7 @@ function LoadConfig () {
 			var Sanctuary = [
 				"[Name] == KoRune # # [MaxQuantity] == 2",
 				"[Name] == MalRune",
-				"[Name] == Hyperion && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
+				"[Name] == Hyperion && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1",
 			];
 			NTIP.arrayLooping(Sanctuary);
 
