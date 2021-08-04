@@ -1,8 +1,8 @@
 /*
  *    @filename   	barbarian.Singer.js
- *	  @author	  	isid0re
+ *	  @author	  	theBGuy
  *    @desc       	Warcry (Singer/Shout) build
- *    @credits		ebner20
+ *    @credits		isid0re, ebner20
  */
 
 var finalBuild = {
@@ -15,41 +15,18 @@ var finalBuild = {
 	mercAuraWanted: 98,
 	mercDiff: 1,
 	stats: [
-		["vit", 40],
-		["str", 60],
-		["vit", 100],
-		["str", 85],
-		["vit", 150],
-		["dex", 35],
-		["str", 100],
-		["vit", 180],
-		["str", 125],
-		["vit", 205],
-		["str", 156],
-		["vit", "all"]
+		["dexterity", 35], ["strength", 103], ["vitality", "all"]
 	],
 	skills: [
-		[130, 1, false], // Howl
-		[131, 1, false], //Find Potion
-		[138, 6, false], //Shout
-		[142, 1, false], //Find Item
-		[141, 1, false], //Increased Stamina level
-		[138, 11, false], //Shout
-		[145, 1, false], //Iron Skin
-		[138, 15, false], //Shout
-		[149, 1, false], //Battle Orders
-		[148, 1, false], //Increased Speed
-		[149, 5, false], //Battle Orders
-		[154, 1, false], //War Cry
-		[155, 1, false], //Battle Command
-		[153, 1, false], //Natural Resistance
-		[149, 20, false], //Max battle orders
-		[138, 20, false], //Max shout
-		[153, 11, false], //Natural Resistance
-		[148, 5, false], //Increased Speed
-		[145, 20, false], //Iron Skin
-		[142, 10, false], //Find Item
-		[155, 20, false] //Battle Command
+		[154, 20, true], 	// War Cry
+		[153, 4, true], 	// Natural Resistance
+		[146, 20, true], 	// Battle Cry
+		[155, 1, true], 	// Battle Command
+		[149, 20, true], 	// Battle Orders
+		[137, 20, true], 	// Taunt
+		[138, 11, false], 	// Shout
+		[130, 15, false], 	// Howl
+		// Total 110 skill points done at 99
 	],
 	autoEquipTiers: [ // autoequip final gear
 		//weapon
@@ -68,7 +45,7 @@ var finalBuild = {
 		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 100000", //maras
 		//rings
 		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", //soj
-		"[type] == ring && [quality] == unique # [lifeleech] >= 3 && [maxstamina] == 50 # [tier] == 100000", // bul-kathos' wedding band
+		//"[type] == ring && [quality] == unique # [lifeleech] >= 3 && [maxstamina] == 50 # [tier] == 100000", // bul-kathos' wedding band
 		//Charms
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 3 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
