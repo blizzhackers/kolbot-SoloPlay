@@ -607,14 +607,14 @@ Item.getMyHardStats = function (type) {
 
 	var i, statID,
 		addedStat = 0,
-		items = me.getItems(),
-		cursorItem = getUnit(100);
+		items = me.getItems();
+		//cursorItem = getUnit(100);
 		
-	if (cursorItem) {
+	/*if (cursorItem) {
 		if (!Storage.Inventory.CanFit(cursorItem) || !Storage.Inventory.MoveTo(cursorItem)) {
 			cursorItem.drop();
 		}
-	}
+	}*/
 
 	switch (type) {
 		case 0: // strength
@@ -656,7 +656,7 @@ Item.getMyHardStats = function (type) {
 		}
 	}
 
-	return (me.getStat(type) - addedStat - this.setBonus(type));
+	return (me.getStat(type) - addedStat/* - this.setBonus(type)*/);
 };
 
 Item.autoEquipCheck = function (item) {
