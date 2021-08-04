@@ -377,6 +377,20 @@ function LoadConfig () {
 			}
 
 			break;
+		case "Meteorb":
+		case "Cold":
+		case "Blizzballer":
+			if (Check.haveItemAndNotSocketed("armor", "set", "Tal Rasha's Guardianship")) {
+				Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
+				NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 2");
+			}
+
+			if (Check.haveItemAndNotSocketed("helm", "set", "Tal Rasha's Horadric Crest")) {
+				Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
+				NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 2");
+			}
+
+			break;
 		default:
 			break;
 		}
