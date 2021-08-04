@@ -1,6 +1,6 @@
 /*
 *	@filename	Sorceress.SoloLeveling.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		Config Settings for SoloLeveling Sorceress
 *
 *	FinalBuild choices
@@ -279,7 +279,7 @@ function LoadConfig () {
 				Config.KeepRunewords.push("[type] == polearm # [convictionaura] >= 13");
 			}
 
-			if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 1000 || Item.getEquippedItem(12).prefixnum !== 20635)) { // Spirit shield
+			if ((me.ladder || Developer.addLadderRW) && SetUp.currentBuild === SetUp.finalBuild && (Item.getEquippedItem(5).tier < 1000 || Item.getEquippedItem(12).prefixnum !== 20635)) { // Spirit shield
 				if (!Check.haveItem("shield", "runeword", "Spirit") && me.hell) {
 					var SpiritShield = [
 						"[Name] == TalRune # # [MaxQuantity] == 1",
@@ -376,6 +376,11 @@ function LoadConfig () {
 				Config.KeepRunewords.push("[type] == mace # [fcr] == 40");
 			}
 
+			if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
+				Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
+				NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 1");
+			}
+
 			break;
 		case "Meteorb":
 		case "Cold":
@@ -395,16 +400,17 @@ function LoadConfig () {
 			break;
 		}
 
+		// Go ahead and keep two P-diamonds prior to finding a moser's unless already using a better shield
+		if (!Check.haveItem("shield", "unique", "Moser's Blessed Circle") && (!Check.haveItem("shield", "runeword", "Sanctuary") || !Check.haveItem("shield", "runeword", "Spirit"))) {
+			Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
+			NTIP.addLine("[name] == perfectdiamond # # [MaxQuantity] == 2");
+		}
+
 		if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
 			Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
 			NTIP.addLine("[name] == perfectdiamond # # [MaxQuantity] == 2");
 			Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 			NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 2");
-		}
-
-		if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
-			Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
-			NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 1");
 		}
 
 		var imbueableClassItems = [
@@ -425,6 +431,34 @@ function LoadConfig () {
 			} else {
 				NTIP.arrayLooping(imbueableBelts);
 			}
+		}
+
+		if (!Check.haveItem("shield", "runeword", "Sanctuary") && !Check.haveItem("shield", "runeword", "Spirit") && ["Blova", "Lightning"].indexOf(SetUp.currentBuild) === -1) {
+			var Sanctuary = [
+				"[Name] == KoRune # # [MaxQuantity] == 2",
+				"[Name] == MalRune",
+				"[Name] == Hyperion && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
+			];
+			NTIP.arrayLooping(Sanctuary);
+
+			if (!me.getItem(632)) {		// Mal rune
+				Config.Recipes.push([Recipe.Rune, "Um Rune"]); // Um to Mal
+			}
+
+			if (!me.getItem(627)) {		// Ko Rune
+				Config.Recipes.push([Recipe.Rune, "Hel Rune"]);	//Hel -> Io
+				Config.Recipes.push([Recipe.Rune, "Io Rune"]);	//Io -> Lum
+				Config.Recipes.push([Recipe.Rune, "Lum Rune"]);	//Lum -> Ko			
+			}
+
+			if (!Check.haveBase("shield", 4)) {
+				NTIP.addLine("[Name] == Hyperion && [Flag] != Ethereal && [Quality] == Normal # [Sockets] == 0 # [MaxQuantity] == 1");
+			}
+
+			Config.Recipes.push([Recipe.Socket.Shield, "Hyperion", Roll.NonEth]);
+			Config.Runewords.push([Runeword.Sanctuary, "Hyperion"]);
+
+			Config.KeepRunewords.push("[type] == shield # [fhr] >= 20 && [enhanceddefense] >= 130 && [fireresist] >= 50");
 		}
 
 		if (!Check.haveItem("sword", "runeword", "Call To Arms")) {

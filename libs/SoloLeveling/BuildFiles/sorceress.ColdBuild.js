@@ -1,6 +1,6 @@
 /**
  *    @filename   	Sorceress.ColdBuild.js
- *	  @author	  	isid0re
+ *	  @author	  	isid0re, theBGuy
  *    @desc     	Sorceress cold build (blizzard sorc)
  */
 
@@ -14,7 +14,7 @@ var finalBuild = {
 	mercAuraWanted: 114,
 	mercDiff: 1,
 	stats: [
-		["strength", 48], ["vitality", 165], ["strength", 61], ["vitality", 252], ["strength", 156], ["dexterity", "block"], ["vitality", "all"]
+		["strength", 48], ["vitality", 165], ["strength", 61], ["vitality", 252], ["strength", 127], ["dexterity", "block"], ["vitality", "all"]
 	],
 	skills: [
 		[37, 1], // warmth
@@ -47,7 +47,8 @@ var finalBuild = {
 		//armor
 		"[name] == lacqueredplate && [quality] == set # [coldresist] >= 1 # [tier] == 100000", //tals armor
 		//shield
-		"[name] == roundshield && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 180 # [tier] == 100000", //mosers
+		"[name] == roundshield && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 180 # [tier] == 50000", //mosers
+		"[name] == hyperion && [flag] == runeword # [fhr] >= 20 && [enhanceddefense] >= 130 && [fireresist] >= 50 # [tier] == 100000", //Sanctuary
 		//gloves
 		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 # [tier] == 100000 + tierscore(item)", //magefist
 		//ammy
@@ -62,7 +63,7 @@ var finalBuild = {
 		"[name] == grandcharm && [quality] == magic # [coldskilltab] == 1 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		//Switch
 		"[name] == crystalsword && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
-		"([name] == monarch || [type] == auricshields) && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000", //spirit
+		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == 100000 + tierscore(item)", //Any 1+ all skill shield
 		//merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000",	//Eth Andy's
