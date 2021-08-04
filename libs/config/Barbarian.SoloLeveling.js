@@ -245,13 +245,6 @@ function LoadConfig () {
 		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= vexrune && [name] <= zodrune");
 
-		if (!me.getQuest(35, 0)) {
-			if (Pather.accessToAct(5)) {
-				NTIP.addLine("me.diff == 0 && [Name] == longsword && [quality] >= normal && [quality] <= superior && [level] <= 25 # [Sockets] == 0 # [MaxQuantity] == 1");
-				NTIP.addLine("me.diff == 1 && [Name] == runesword && [quality] >= normal && [quality] <= superior && [level] >= 26 # [Sockets] == 0 # [MaxQuantity] == 1");
-			}
-		}
-
 		if (["Immortalwhirl", "Singer"].indexOf(SetUp.finalBuild) === -1) {
 			if (!Check.haveItem("sword", "runeword", "Grief")) {
 				var Grief = [
@@ -272,6 +265,36 @@ function LoadConfig () {
 				Config.Runewords.push([Runeword.Grief, "Phase Blade"]);
 
 				Config.KeepRunewords.push("[Type] == sword # [ias] >= 30");
+			}
+
+			if (SetUp.finalBuild !== "Uberconc" && Check.haveItem("sword", "runeword", "Grief") || !Check.haveItem("armor", "runeword", "Fortitude")) { // Fortitude
+				var Fortitude = [
+					"[Name] == ElRune # # [MaxQuantity] == 1",
+					"[Name] == SolRune # # [MaxQuantity] == 1",
+					"[Name] == DolRune # # [MaxQuantity] == 1",
+					"[Name] == LoRune",
+				];
+				NTIP.arrayLooping(Fortitude);
+
+				if (me.getItem(637)) {
+					if (!Check.haveBase("armor", 4)) {
+						NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] == Normal && [Quality] <= Superior # [Sockets] == 0 # [MaxQuantity] == 1");
+					}
+
+					NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
+				} else {
+					NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] == Superior # [enhanceddefense] >= 10 && [Sockets] == 4 # [MaxQuantity] == 1");
+				}
+
+				Config.Recipes.push([Recipe.Socket.Armor, "Archon Plate", Roll.NonEth]);
+				Config.Recipes.push([Recipe.Socket.Armor, "Dusk Shroud", Roll.NonEth]);
+				Config.Recipes.push([Recipe.Socket.Armor, "WyrmHide", Roll.NonEth]);
+
+				Config.Runewords.push([Runeword.Fortitude, "Archon Plate"]);
+				Config.Runewords.push([Runeword.Fortitude, "Dusk Shroud"]);
+				Config.Runewords.push([Runeword.Fortitude, "WyrmHide"]);
+
+				Config.KeepRunewords.push("[type] == armor # [enhanceddefense] >= 200 && [enhanceddamage] >= 300");
 			}
 		}
 
@@ -426,7 +449,7 @@ function LoadConfig () {
 			break;
 		}
 
-		if (!Check.haveItem("armor", "runeword", "Enigma") && ["Immortalwhirl", "Uberconc"].indexOf(SetUp.finalBuild) === -1) { // Enigma
+		if (!Check.haveItem("armor", "runeword", "Enigma") && SetUp.finalBuild === "Singer") { // Enigma
 			var Enigma = [
 				"[Name] == JahRune",
 				"me.diff == 2 && [Name] == IthRune # # [MaxQuantity] == 1",
@@ -472,7 +495,7 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(Lawbringer);
 
-			if (me.getItem(629)) {
+			if (me.getItem(629) && me.getItem(627)) {		// Lem and Ko rune
 				NTIP.addLine("[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [Sockets] == 3");
 			}
 
@@ -498,7 +521,7 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(VoiceofReason);
 
-			if (me.getItem(629)) {
+			if (me.getItem(629) && me.getItem(627)) {		// Lem and Ko rune
 				NTIP.addLine("[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [Sockets] == 4")
 			}
 
@@ -864,9 +887,16 @@ function LoadConfig () {
 			var Steel = [
 				"[Name] == TirRune # # [MaxQuantity] == 2",
 				"[Name] == ElRune # # [MaxQuantity] == 2",
-				"[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [Sockets] == 2",
 			];
 			NTIP.arrayLooping(Steel);
+
+			if (Item.getEquippedItem(5).tier < 500 && Item.getEquippedItem(5).tier > 395) {
+				NTIP.addLine("[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 && [class] == elite # [Sockets] == 2");
+			} else if (Item.getEquippedItem(5).tier < 500 && Item.getEquippedItem(5).tier > 278) {
+				NTIP.addLine("[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 && [class] > normal # [Sockets] == 2");
+			} else {
+				NTIP.addLine("[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [Sockets] == 2");
+			}
 
 			Config.Runewords.push([Runeword.Steel, "Short Sword"]);
 			Config.Runewords.push([Runeword.Steel, "Scimitar"]);
