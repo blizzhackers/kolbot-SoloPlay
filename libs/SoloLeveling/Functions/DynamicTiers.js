@@ -332,6 +332,10 @@ var tierscore = function (item) {
 
 		// Melee Specific
 		if (!Check.currentBuild().caster) {
+			if (item.getStatEx(252)) {	// replenish durabilty, really only matters for non-casters
+				buildRating += 50;
+			}
+
 			buildRating += item.getStatEx(21) * buildWeights.MINDMG; // add MIN damage
 			buildRating += item.getStatEx(22) * buildWeights.MAXDMG; // add MAX damage
 			//buildRating += item.getStatEx(23) * buildWeights.SECMINDMG; // add MIN damage
@@ -348,7 +352,7 @@ var tierscore = function (item) {
 			buildRating += item.getStatEx(122) * buildWeights.DMGTOUNDEAD; // add damage % to undead
 
 			buildRating += item.getStatEx(195, 3135) * buildWeights.CTCOANOVA; // add CTC nova on attack
-			buildRating += item.getStatEx(195, 3135) * buildWeights.CTCOANOVA; // add CTC nova on attack (magic items)
+			buildRating += item.getStatEx(195, 3076) * buildWeights.CTCOANOVA; // add CTC nova on attack (magic items)
 			buildRating += item.getStatEx(195, 2838) * buildWeights.CTCOAFNOVA; // add CTC frost nova on attack
 			buildRating += item.getStatEx(195, 2879) * buildWeights.CTCOAFNOVA; // add CTC frost nova on attack (magic items)
 			buildRating += item.getStatEx(195, 4238) * buildWeights.CTCOAAMP; // add CTC amplify damage on attack
@@ -360,7 +364,7 @@ var tierscore = function (item) {
 			buildRating += item.getStatEx(195, 3412) * buildWeights.CTCOACHAINLIGHT; // add CTC chain light on attack (magic items)
 
 			buildRating += item.getStatEx(198, 3135) * buildWeights.CTCOSNOVA; // add CTC nova on strikng
-			buildRating += item.getStatEx(198, 3135) * buildWeights.CTCOSNOVA; // add CTC nova on strikng (magic items)
+			buildRating += item.getStatEx(198, 3076) * buildWeights.CTCOSNOVA; // add CTC nova on strikng (magic items)
 			buildRating += item.getStatEx(198, 2838) * buildWeights.CTCOSFNOVA; // add CTC frost nova on strikng
 			buildRating += item.getStatEx(198, 2879) * buildWeights.CTCOSFNOVA; // add CTC frost nova on strikng (magic items)
 			buildRating += item.getStatEx(198, 4238) * buildWeights.CTCOSAMP; // add CTC amplify damage on strikng
@@ -391,7 +395,7 @@ var tierscore = function (item) {
 
 	this.skillsScore = function (item) {
 		let skillsRating = 0;
-		let weaponModifer = !Check.currentBuild().caster && [24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36].indexOf(item.itemType) ? 2 : 1;
+		let weaponModifer = !Check.currentBuild().caster && [24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36].indexOf(item.itemType) ? 4 : 1;
 
 		skillsRating += item.getStatEx(127) * (skillsWeights.ALL / weaponModifer); // + all skills
 		skillsRating += item.getStatEx(83, me.classid) * (skillsWeights.CLASS / weaponModifer); // + class skills

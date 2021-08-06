@@ -235,8 +235,8 @@ var nipItems = {
 		"[name] == tomeofidentify",
 		"[name] == gold # [gold] >= me.charlvl * 3 * me.diff",
 		"me.charlvl < 20 && [name] == minorhealingpotion",
-		"[name] == lighthealingpotion",
-		"[name] == healingpotion",
+		"me.charlvl < 25 && [name] == lighthealingpotion",
+		"me.charlvl < 29 && [name] == healingpotion",
 		"[name] == greaterhealingpotion",
 		"[name] == superhealingpotion",
 		"me.charlvl < 20 && [name] == minormanapotion",
@@ -317,10 +317,10 @@ var Check = {
 
 			break;
 		case "tristram": //tristram
-			if ((me.normal && me.charlvl < 12 || !Check.brokeAf()) || 
+			if ((me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || !Check.brokeAf())) || 
 				(!me.normal && 
 					((!me.tristram && (me.classic && me.diablo || me.baal)) ||
-					 (me.barbarian && !Pather.accessToAct(4) && !Check.haveItem("sword", "runeword", "Voice of Reason")) ||
+					 (me.barbarian && !Pather.accessToAct(3) && !Check.haveItem("sword", "runeword", "Voice of Reason")) ||
 					 (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
 				return true;
 			}
@@ -455,7 +455,7 @@ var Check = {
 		case "travincal": //travincal
 			if (Pather.accessToAct(3) && !me.travincal ||
 				(me.charlvl < 25 || 
-					(me.charlvl >= 25 && me.normal && !me.diablo && !Check.Gold()) ||
+					(me.charlvl >= 25 && me.normal && !me.baal && !Check.Gold()) ||
 					(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Voice of Reason")) || 
 					(me.hell && me.paladin && me.charlvl > 85 && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
 				return true;
@@ -463,7 +463,10 @@ var Check = {
 
 			break;
 		case "mephisto": //mephisto
-			if (Pather.accessToAct(3) && (!me.normal && (Pather.canTeleport() || me.charlvl <= 65) || !me.mephisto || (me.hell && me.charlvl !== 100))) {
+			if (Pather.accessToAct(3) && (!me.mephisto ||
+					(me.normal && (!me.baal || !Check.Gold())) ||
+					(!me.normal && (Pather.canTeleport() || me.charlvl <= 65)) || 
+					(me.hell && me.charlvl !== 100))) {
 				return true;
 			}
 
@@ -572,8 +575,10 @@ var Check = {
 		}
 
 		/*if (Item.getEquippedItem(4).durability === 0 && me.charlvl >= 15 && !me.normal) {
+			DataFile.updateStats("setDifficulty", "Normal");
 			D2Bot.setProfile(null, null, null, "Normal");
 			print("ÿc9GuysSoloLevelingÿc0: Oof I am broken, going back to normal to get easy gold");
+			me.overhead("Oof I am broken, going back to normal to get easy gold");
 			return false;
 		}*/
 
@@ -955,6 +960,13 @@ var Check = {
 
 	finalBuild: function () {
 		function getBuildTemplate () {
+			if (SetUp.finalBuild.includes("Build") || SetUp.finalBuild.includes("build")) {
+				SetUp.finalBuild = SetUp.finalBuild.substring(0, SetUp.finalBuild.length - 5);
+				D2Bot.printToConsole("GuysSoloLeveling: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
+				DataFile.updateStats("finalBuild", SetUp.finalBuild);
+			}
+
 			let buildType = SetUp.finalBuild;
 			let build;
 
@@ -973,6 +985,7 @@ var Check = {
 		var template = getBuildTemplate();
 
 		if (!include(template)) {
+			print("ÿc9GuysSoloLevelingÿc0: Failed to include finalBuild template. Please check that you have actually entered it in correctly. Here is what you currently have: " + SetUp.finalBuild);
 			throw new Error("finalBuild(): Failed to include template: " + template);
 		}
 
