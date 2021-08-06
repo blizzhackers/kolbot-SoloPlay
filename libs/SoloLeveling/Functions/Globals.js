@@ -363,7 +363,7 @@ var Check = {
 		case "a1chests": //a1chests
 			if (!me.classic && 
 				(me.charlvl >= 70 && Pather.canTeleport() || 
-					(me.barbarian && !me.normal && !Pather.accessToAct(4) && !Check.haveItem("sword", "runeword", "Voice of Reason")))) {
+					(me.barbarian && me.hell && !Pather.accessToAct(3) && !Check.haveItem("sword", "runeword", "Voice of Reason")))) {
 				return true;
 			}
 
@@ -570,7 +570,7 @@ var Check = {
 		let gold = me.getStat(14) + me.getStat(15);
 		let goldLimit = [10000, 25000, 50000][me.diff];
 
-		if (gold >= goldLimit || me.charlvl < 15 || (me.charlvl >= 15 && Item.getEquippedItem(4).durability !== 0)) {
+		if (gold >= goldLimit || me.charlvl < 15 || (me.charlvl >= 15 && gold > 1000 && Item.getEquippedItem(4).durability !== 0)) {
 			return true;
 		}
 
@@ -579,7 +579,8 @@ var Check = {
 			D2Bot.setProfile(null, null, null, "Normal");
 			print("ÿc9GuysSoloLevelingÿc0: Oof I am broken, going back to normal to get easy gold");
 			me.overhead("Oof I am broken, going back to normal to get easy gold");
-			return false;
+			delay(1000);
+			scriptBroadcast('quit');
 		}*/
 
 		me.overhead("I am broke af");

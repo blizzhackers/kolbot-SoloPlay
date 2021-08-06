@@ -1,9 +1,9 @@
 /**
- *    @filename   barbarian.StartBuild.js
- *	  @author	  theBGuy
- *	  @credits	  aim2kill (big shout out for all the testing an ideas for this build)
- *    @desc       barb build for before respecOne
- */
+*   @filename   barbarian.StartBuild.js
+*   @author     theBGuy
+*   @credits    aim2kill (big shout out for all the testing an ideas for this build)
+*   @desc       barb build for before respecOne
+*/
 
 var build = {
 	caster: false,
@@ -14,14 +14,14 @@ var build = {
 	mercAuraWanted: 98,
 	mercDiff: 1,
 	stats: [
-		["strength", 35], ["dexterity", 27], ["vitality", 45],
+        ["strength", 35], ["dexterity", 27], ["vitality", 45],
         ["strength", 48], ["dexterity", 30], ["vitality", 55],
         ["strength", 55], ["dexterity", 39], ["vitality", 65],
         ["strength", 60], ["dexterity", 40], ["vitality", 75],
         ["strength", 71], ["dexterity", 49], ["vitality", "all"],
 	],
 	skills: [
-		[126, 1], // Bash -> Level 2
+        [126, 1], // Bash -> Level 2
         [130, 1], // Howl -> Level 3
         [133, 6, false], // Double Swing -> Level 9
         [127, 5], // Sword Mastery -> Level 13
@@ -37,5 +37,5 @@ var build = {
         //[148, 1], // Increased Speed
         [149, 4, false], // Battle Orders
         [137, 20], // Taunt
-	]
+    ]
 };

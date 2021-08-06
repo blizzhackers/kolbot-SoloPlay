@@ -1,9 +1,9 @@
 /**
- *    @filename   barbarian.SteppingBuild.js
- *	  @author	  theBGuy
- *	  @credits	  aim2kill (big shout out for all the testing an ideas for this build)
- *    @desc       barb stepping stone build for after Start but before Leveling
- */
+*   @filename   barbarian.StartBuild.js
+*   @author     theBGuy
+*   @credits    aim2kill (big shout out for all the testing an ideas for this build)
+*   @desc       barb build for before respecOne
+*/
 
 var build = {
 	caster: false,
@@ -14,51 +14,37 @@ var build = {
 	mercAuraWanted: 98,
 	mercDiff: 1,
 	stats: [
-        ["strength", 71], ["dexterity", 50], ["vitality", 90],
-        ["strength", 85], ["dexterity", 60], ["vitality", 100],
-        ["strength", 103], ["dexterity", 79], ["vitality", 110],
-        ["dexterity", 105], ["strength", 125], ["vitality", "all"],
+		["strength", 71], ["dexterity", 50], ["vitality", 100],
+		["strength", 85], ["dexterity", 60], ["vitality", 110],
+		["strength", 103], ["dexterity", 79], ["vitality", 125],
+		["dexterity", 94], ["strength", 125], ["vitality", 130],
+		["strength", 140], ["vitality", 135], ["strength", 150],
+		["vitality", "all"],
     ],
 	skills: [
-		[126, 1, false], // Bash -> charlvl 2
-		[130, 1, false], // Howl -> charlvl 3
-		[127, 2, false], // Sword Mastery -> charlvl 4 (1 point from den)
-		[133, 1, false], // Double Swing -> charlvl 6
-		[137, 1, false], // Taunt -> charlvl 6
-		[138, 1, false], // Shout -> charlvl 7
-		[127, 6, false], // Sword Mastery -> charlvl 11
-		[127, 8, false], // Sword Mastery -> charlvl 15
-		[146, 1, true], // Battle Cry -> charlvl 18
-		[145, 1, false], // Iron Skin -> charlvl 18
-		[143, 1, true], // Leap Attack -> charlvl 20
-		[127, 12, false], // Sword Mastery -> charlvl 22
-		[147, 1, true], // Frenzy -> charlvl 24
-		[149, 1, false], // Battle Orders -> charlvl 24
-		[147, 2, false], // Frenzy -> charlvl 25
-		[149, 2, false], // Battle Orders -> charlvl 26
-		[147, 3, false], // Frenzy -> charlvl 26
-		//[149, 3, false], // Battle Orders -> charlvl 27
-		[147, 4, false], // Frenzy -> charlvl 27
-		//[149, 4, false], // Battle Orders -> charlvl 28
-		[151, 1, true], // Whirlwind -> charlvl 30
-		[154, 1, true], // War Cry -> charlvl 30
-		[155, 1, true], // Battle Command -> charlvl 31
-		[153, 3, false], // Natural Resistance 5 // charLvl 34 (enough res to get out or normal)
-		[151, 6, false], // Whirlwind -> charlvl 39
-		[154, 5, true], // War Cry -> charlvl 30
-		[147, 5, false], // Frenzy -> charlvl 36
-		[127, 13, false], // Sword Mastery -> charlvl 46
-		[147, 6, false], // Frenzy -> charlvl 38
-		[127, 14, false], // Sword Mastery -> charlvl 46
-		[147, 7, false], // Frenzy -> charlvl 40
-		[127, 15, false], // Sword Mastery -> charlvl 46
-		[147, 8, false], // Frenzy -> charlvl 42
-		[127, 16, false], // Sword Mastery -> charlvl 46
-		[147, 9, false], // Frenzy -> charlvl 44
-		[133, 8, true], // Double Swing -> charlvl 6
-		[127, 20, false], // Sword Mastery -> charlvl 46
-		[153, 5, true], // Natural Resistance 5
-		[149, 20, false], // Battle Orders -> charlvl 69
-		[147, 20, false], // Frenzy -> charlvl 61
+		// Total points at time of respec 33
+		[127, 11, true], // Sword Mastery -> total left 22
+		[137, 1, true], // Taunt -> total left 21
+		[149, 4, true], // Battle Orders -> total left 16
+		[155, 1, true], // Battle Command -> charlvl 15
+		[153, 1, true], // Natural Resistance -> total left 13
+		[147, 2, true], // Frenzy -> total left 7
+		[154, 1, true], // War Cry -> total left 5
+		[133, 5, true], // Double Swing -> total left 0
+		// End of respec points, Start of Stepping build
+		[153, 2, false], // Natural Resistance -> charlvl 31
+		[154, 2, false], // War Cry -> charlvl 32
+		[153, 3, false], // Natural Resistance -> charlvl 33
+		[154, 3, false], // War Cry -> charlvl 34
+		[137, 11, false], // Taunt -> charlvl 45
+		[153, 4, false], // Natural Resistance -> charlvl 46
+		[147, 6, false], // Frenzy -> charlvl 50
+		[154, 5, false], // War Cry -> charlvl 52
+		[147, 9, false], // Frenzy -> charlvl 53
+		[149, 6, false], // Battle Orders -> charlvl 54
+		[153, 5, false], // Natural Resistance -> charlvl 56
+		[154, 6, false], // War Cry -> charlvl 59
+		[127, 20, false], // Sword Mastery -> charlvl 67
+		[137, 20, false], // Taunt -> charlvl 76
 	]
 };
