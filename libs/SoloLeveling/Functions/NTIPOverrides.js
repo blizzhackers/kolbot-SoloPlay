@@ -10,6 +10,56 @@ if (!isIncluded("NTItemParser.dbl")) {
 
 var NTIP_CheckListNoTier = [];
 
+NTIP.generateTierFunc = function (tierType) {
+	return function (item) {
+		let i, tier = -1;
+
+		const updateTier = (wanted) => {
+			const tmpTier = wanted[tierType](item);
+
+			if (tier < tmpTier) {
+				tier = tmpTier;
+			}
+		};
+
+		// Go through ALL lines that describe the item
+		for (i = 0; i < NTIP_CheckList.length; i += 1) {
+
+			if (NTIP_CheckList[i].length !== 3) {
+				continue;
+			}
+
+			let [type,stat,wanted] = NTIP_CheckList[i];
+
+			// If the line doesnt have a tier of this type, we dont need to call it
+			if (typeof wanted === 'object' && wanted && typeof wanted[tierType] === 'function') {
+				try {
+					if (typeof type === 'function') {
+						if (type(item)) {
+							if (typeof stat === 'function') {
+								if (stat(item)) {
+									updateTier(wanted);
+								}
+							} else {
+								updateTier(wanted);
+							}
+						}
+					} else if (typeof stat === 'function') {
+						if (stat(item)) {
+							updateTier(wanted);
+						}
+					}
+				} catch (e) {
+					const info = stringArray[i];
+					Misc.errorReport("ÿc1Pickit Tier ("+tierType+") error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message + " Trigger item: " + item.fname.split("\n").reverse().join(" "));
+				}
+			}
+		}
+
+		return tier;
+	};
+};
+
 NTIP.GetCharmTier = NTIP.generateTierFunc('Charmtier');
 NTIP.GetSecondaryTier = NTIP.generateTierFunc('Secondarytier');
 
