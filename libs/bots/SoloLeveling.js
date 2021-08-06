@@ -1,6 +1,6 @@
 /*
 *	@filename	SoloLeveling.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		Leveling for any class type. Uses predefined build templates.
 */
 
@@ -83,6 +83,10 @@ function SoloLeveling () {
 				if (Developer.logPerformance) {
 					Tracker.Script(tick, SetUp.scripts[k], currentExp);
 				}
+
+				print("ÿc9GuysSoloLevelingÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));
+				me.maxgametime += (getTickCount() - tick);
+				print("ÿc9GuysSoloLevelingÿc0: New maxgametime: " + Developer.formatTime(me.maxgametime));
 
 				if (j === 5) {
 					me.overhead("script " + SetUp.scripts[k] + " failed.");
