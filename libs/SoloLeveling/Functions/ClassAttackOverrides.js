@@ -1278,7 +1278,7 @@ case 4: // Barbarian - theBGuy
 			this.tauntMonsters(unit, attackSkill);
 		}
 
-		if (preattack && Config.AttackSkill[0] > 0 && !unit.dead && Config.AttackSkill[0] === 154 && !me.getState(121)) {
+		if (preattack && !unit.dead && Config.AttackSkill[0] === 154 && !me.getState(121)) {
 			if (!unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27)) {		//Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(146) || checkCollision(me, unit, 0x4)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(146), 0x4)) {
@@ -1290,7 +1290,7 @@ case 4: // Barbarian - theBGuy
 			}
 		}
 
-		if (preattack && Config.AttackSkill[0] > 0 && !unit.dead && Config.AttackSkill[0] === 154 && [156, 211, 242, 243, 544].indexOf(unit.classid) === -1 && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp) && Attack.checkResist(unit, 154) && !me.getState(121)) {
+		if (preattack && !unit.dead && Config.AttackSkill[0] === 154 && [156, 211, 242, 243, 544, 562, 570, 747, 748, 749].indexOf(unit.classid) === -1 && Skill.getManaCost(Config.AttackSkill[0]) < me.mp && Attack.checkResist(unit, 154) && !me.getState(121)) {
 			if (!unit.getState(21)) {
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(154) || checkCollision(me, unit, 0x4)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
@@ -1328,7 +1328,7 @@ case 4: // Barbarian - theBGuy
 		}
 
 		if (index === 1) {
-			if (useHowl && attackSkill !== 151 && unit.classid !== 571 && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(130) < me.mp) {
+			if (useHowl && attackSkill !== 151 && [211, 243, 544, 562, 570, 571, 747, 748, 749].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, true) >= 3 && Skill.getManaCost(130) < me.mp) {
 				Skill.cast(130, Skill.getHand(130));
 			}
 		}
@@ -1340,7 +1340,7 @@ case 4: // Barbarian - theBGuy
 	ClassAttack.doCast = function (unit, attackSkill) {
 		var walk;
 		let useConc = me.getSkill(144, 0) && attackSkill === 152;
-		let useWhirl = me.getSkill(151, 1) && attackSkill !== 151; // If main attack skill is already whirlwind no need to use it twice
+		let useWhirl = me.getSkill(151, 0) && attackSkill !== 151; // If main attack skill is already whirlwind no need to use it twice
 		let useLeap = me.getSkill(143, 1);
 		let useWarCry = me.getSkill(154, 1);
 		let useBattleCry = me.getSkill(146, 1);
@@ -1384,7 +1384,7 @@ case 4: // Barbarian - theBGuy
 				Skill.cast(attackSkill, Skill.getHand(attackSkill), unit);
 
 				// Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
-				if (useBattleCry && !unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27) && Skill.getManaCost(146) < me.mp) {
+				if (useBattleCry && Attack.getMonsterCount(me.x, me.y, 4) >= 1 && !unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27) && Skill.getManaCost(146) < me.mp) {
 					Skill.cast(146, Skill.getHand(146), unit);
 				}
 
@@ -1392,7 +1392,7 @@ case 4: // Barbarian - theBGuy
 					Skill.cast(144, Skill.getHand(144), unit);
 				}
 
-				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, true) >= (me.area === 131 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
+				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 747, 748, 749].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, true) >= (me.area === 131 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
 					if (warCrySwitch) {
 						me.switchWeapons(1);
 					}
