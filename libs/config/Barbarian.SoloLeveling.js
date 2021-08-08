@@ -929,7 +929,7 @@ function LoadConfig () {
 		}
 
 		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(12).prefixnum !== 20635) { // Spirit Sword
-			if (!Check.haveItem("sword", "runeword", "Spirit") && !me.hell) {
+			/*if (!Check.haveItem("sword", "runeword", "Spirit") && !me.hell) {
 				var SpiritSword = [
 					"[Name] == TalRune # # [MaxQuantity] == 1",
 					"[Name] == ThulRune # # [MaxQuantity] == 1",
@@ -950,7 +950,17 @@ function LoadConfig () {
 				Config.Recipes.push([Recipe.Socket.Weapon, "Broad Sword", Roll.NonEth]);
 			} else {
 				NTIP.addLine("([Name] == BroadSword || [Name] == CrystalSword) && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
-			}
+			}*/
+
+			var SpiritSword = [
+				"[Name] == TalRune # # [MaxQuantity] == 1",
+				"[Name] == ThulRune # # [MaxQuantity] == 1",
+				"[Name] == OrtRune # # [MaxQuantity] == 1",
+				"[Name] == AmnRune # # [MaxQuantity] == 1",
+			];
+			NTIP.arrayLooping(SpiritSword);
+
+			NTIP.addLine("([Name] == BroadSword || [Name] == CrystalSword) && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
 
 			Config.Runewords.push([Runeword.Spirit, "Crystal Sword"]);
 			Config.Runewords.push([Runeword.Spirit, "Broad Sword"]);
