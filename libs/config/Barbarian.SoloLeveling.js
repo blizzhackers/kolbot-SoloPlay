@@ -74,7 +74,7 @@ function LoadConfig () {
 	Config.ClearInvOnStart = false;
 
 	/* Chicken configuration. */
-	Config.LifeChicken = me.playertype ? 60 : 10;
+	Config.LifeChicken = me.playertype ? 45 : 10;
 	Config.ManaChicken = 0;
 	Config.MercChicken = 0;
 	Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
@@ -929,29 +929,6 @@ function LoadConfig () {
 		}
 
 		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(12).prefixnum !== 20635) { // Spirit Sword
-			/*if (!Check.haveItem("sword", "runeword", "Spirit") && !me.hell) {
-				var SpiritSword = [
-					"[Name] == TalRune # # [MaxQuantity] == 1",
-					"[Name] == ThulRune # # [MaxQuantity] == 1",
-					"[Name] == OrtRune # # [MaxQuantity] == 1",
-					"[Name] == AmnRune # # [MaxQuantity] == 1",
-				];
-				NTIP.arrayLooping(SpiritSword);
-
-				if (!me.getItem(620)) { //Amn Rune
-					Config.Recipes.push([Recipe.Rune, "Ral Rune"]);
-					Config.Recipes.push([Recipe.Rune, "Ort Rune"]);
-					Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
-				}
-
-				NTIP.addLine("([Name] == BroadSword || [Name] == CrystalSword) && [flag] != ethereal && [Quality] == Normal && [Level] >= 26 && [Level] <= 40 # ([Sockets] == 0 || [Sockets] == 4) # [MaxQuantity] == 1");
-				
-				Config.Recipes.push([Recipe.Socket.Weapon, "Crystal Sword", Roll.NonEth]);
-				Config.Recipes.push([Recipe.Socket.Weapon, "Broad Sword", Roll.NonEth]);
-			} else {
-				NTIP.addLine("([Name] == BroadSword || [Name] == CrystalSword) && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
-			}*/
-
 			var SpiritSword = [
 				"[Name] == TalRune # # [MaxQuantity] == 1",
 				"[Name] == ThulRune # # [MaxQuantity] == 1",
