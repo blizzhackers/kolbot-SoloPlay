@@ -411,6 +411,10 @@ var tierscore = function (item) {
 			}
 		}
 
+		if (item.prefixnum === 20635 && !Check.currentBuild().caster) {		// Spirit Fix
+			skillsRating -= 400;
+		}
+
 		return skillsRating;
 	};
 
