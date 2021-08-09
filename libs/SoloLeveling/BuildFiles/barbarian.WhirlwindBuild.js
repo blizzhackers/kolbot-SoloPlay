@@ -1,8 +1,7 @@
 /*
  *    @filename   	barbarian.WhirlwindBuild.js
- *	  @author	  	isid0re
+ *	  @author	  	theBGuy
  *    @desc       	Whirlwind build
- *    @credits		ebner20
  */
 
 var finalBuild = {
@@ -15,49 +14,26 @@ var finalBuild = {
 	mercAuraWanted: 98,
 	mercDiff: 1,
 	stats: [
-		["vit", 40],
-		["str", 60],
-		["vit", 100],
-		["str", 85],
-		["vit", 150],
-		["dex", 35],
-		["str", 100],
-		["vit", 180],
-		["str", 125],
-		["vit", 205],
-		["str", 156],
-		["vit", "all"]
+		["strength", 103], ["dexterity", 136], ["vitality", "all"]
 	],
 	skills: [
-		[129, 1, false], //Mace Mastery
-		[130, 1, false], //Howl
-		[126, 1, false], //Bash
-		[138, 1, false], //Shout
-		[155, 1, false], //Battle Command
-		[151, 1, false], //Whirlwind
-		[153, 1, false], //Natural resistance
-		[148, 1, false], //Increased Speed
-		[145, 1, false], //Iron Skin
-		[138, 9, false], //Level shout
-		[149, 7, false], //Level Battle orders
-		[149, 20, false], //Max Battle orders
-		[138, 20, false], //Max Shout
-		[151, 10, false], //whirlwind
-		[129, 10, false], //Mace Matery
-		[153, 10, false], //Natural resistance
-		[151, 20, false], //Max whirlwind
-		[129, 20, false], //Max Mace Matery
-		[153, 16, false], //Natural resistance
-		[145, 10, false], //Iron Skin
-		[145, 20, false] //Max iron Skin
+		[151, 20, true], 	// Whirlwind
+		[127, 20, true], 	// Sword Mastery
+		[153, 5, true], 	// Natural resistance
+		[155, 1, true], 	// Battle Command
+		[152, 5, true], 	// Berserk
+		[148, 1, true], 	// Increased Speed
+		[154, 5, true], 	// War Cry
+		[149, 20, true], 	// Battle orders
+		[138, 20, true], 	// Shout
 	],
 	autoEquipTiers: [ // autoequip final gear
 		//weapon
 		"[Type] == sword && [flag] == runeword # [ias] >= 30 # [tier] == 100000", //Grief x2 dual weild
 		//Helmet
-		"[name] == wingedhelm && [quality] == set && [flag] != ethereal # [fhr] >= 30 # [tier] == 100000", // gface
+		"[name] == slayerguard && [quality] == unique && [flag] != ethereal # [barbarianskills] == 2 # [tier] == 100000", //Arreat's Face
 		//belt
-		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 100000", //arach's
+		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [damageresist] >= 10 && [vitality] >= 30 # [tier] == 100000", //Dungo's
 		//boots
 		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 100000", //gorerider's
 		//armor
