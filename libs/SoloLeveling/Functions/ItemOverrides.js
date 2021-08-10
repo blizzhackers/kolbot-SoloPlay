@@ -814,7 +814,7 @@ Item.equip = function (item, bodyLoc) {
 					cursorItem = getUnit(100);
 
 					if (cursorItem) {
-						if ([1, 2].indexOf(Pickit.checkItem(cursorItem).result) > -1) { // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
+						if (Pickit.checkItem(cursorItem).result === 1 || (cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2)) { // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
 							if (Storage.Inventory.CanFit(cursorItem)) {
 								Storage.Inventory.MoveTo(cursorItem);
 							}
