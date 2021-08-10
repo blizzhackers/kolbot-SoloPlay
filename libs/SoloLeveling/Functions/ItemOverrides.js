@@ -763,7 +763,7 @@ Item.autoEquip = function () {
 					print(items[0].name);
 
 					if (this.equip(items[0], bodyLoc[j])) {
-						print("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + NTIP.GetTier(items[0]));
+						print("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
 
 						if (Developer.Debugging.autoEquip) {
 							Misc.logItem("Equipped", me.getItem(-1, -1, gid));
@@ -1066,7 +1066,7 @@ Item.autoEquipSecondary = function () {
 					print(items[0].name);
 
 					if (this.secondaryEquip(items[0], bodyLoc[j])) {
-						print("ÿc9SecondaryEquipÿc0 :: Equipped: " + items[0].fname + " SecondaryTier: " + NTIP.GetSecondaryTier(items[0]));
+						print("ÿc9SecondaryEquipÿc0 :: Equipped: " + items[0].fname + " SecondaryTier: " + tier);
 
 						if (Developer.Debugging.autoEquip) {
 							Misc.logItem("Equipped switch", me.getItem(-1, -1, gid));
@@ -1375,7 +1375,7 @@ Item.autoEquipMerc = function () {
 					print("Merc " + items[0].name);
 
 					if (this.equipMerc(items[0], bodyLoc[j])) {
-						print("ÿc9MercEquipÿc0 :: Equipped: " + items[0].fname + " MercTier: " + NTIP.GetMercTier(items[0]));
+						print("ÿc9MercEquipÿc0 :: Equipped: " + items[0].fname + " MercTier: " + tier);
 					}
 					
 					let cursorItem = getUnit(100);
