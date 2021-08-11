@@ -1189,6 +1189,8 @@ case 4: // Barbarian - theBGuy
 		include("common/Attacks/Barbarian.js");
 	}
 
+	ClassAttack.warCryTick = 0;
+
 	ClassAttack.tauntMonsters = function (unit, attackSkill) {
 		if (!me.getSkill(137, 0)) {
 			return;
@@ -1303,7 +1305,8 @@ case 4: // Barbarian - theBGuy
 			}
 		}
 
-		if (!unit.dead && useWarCry && [156, 211, 242, 243, 544, 562, 570, 747, 748, 749].indexOf(unit.classid) === -1 && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154) && !me.getState(121) && Attack.getMonsterCount(me.x, me.y, 5, null, true) >= 1) {
+		if (!unit.dead && useWarCry && [156, 211, 242, 243, 544, 562, 570, 747, 748, 749].indexOf(unit.classid) === -1 && (!unit.getState(21) || getTickCount() - this.warCryTick >= 1500) && 
+			Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154) && !me.getState(121) && Attack.getMonsterCount(me.x, me.y, 5, null, true) >= 1) {
 			if (!unit.getState(21)) {
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(154) || checkCollision(me, unit, 0x4)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(154), 0x4)) {
@@ -1314,6 +1317,8 @@ case 4: // Barbarian - theBGuy
 				if (switchCast) {
 					me.switchWeapons(1);
 				}
+
+				//print("ÿc9doAttack ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMonsterCount(me.x, me.y, 5, null, true));
 
 				if (me.getSkill(154, 1) >= 15) {
 					for (let i = 0; i < 2; i++) {
@@ -1332,6 +1337,8 @@ case 4: // Barbarian - theBGuy
 				if (switchCast) {
 					me.switchWeapons(0);
 				}
+
+				this.warCryTick = getTickCount();
 			
 				return 1;
 			}
@@ -1422,12 +1429,16 @@ case 4: // Barbarian - theBGuy
 					}
 				}
 
-				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 747, 748, 749].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, null, true) >= (me.area === 131 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
+				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 747, 748, 749].indexOf(unit.classid) === -1 && (!unit.getState(21) || getTickCount() - this.warCryTick >= 1500) && 
+					Attack.getMonsterCount(me.x, me.y, 5, null, true) >= (me.area === 131 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
 					if (switchCast) {
 						me.switchWeapons(1);
 					}
 
+					//print("ÿc9doCast ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMonsterCount(me.x, me.y, 5, null, true));
+
 					Skill.cast(154, Skill.getHand(154));
+					this.warCryTick = getTickCount();
 
 					if (switchCast) {
 						me.switchWeapons(0);
