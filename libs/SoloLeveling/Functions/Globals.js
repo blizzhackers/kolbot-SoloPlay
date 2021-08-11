@@ -338,7 +338,7 @@ var Check = {
 				((me.necromancer || me.barbarian || me.assassin) ||
 					(me.paladin && ["Zealer", "Auradin"].indexOf(SetUp.currentBuild) > -1) ||
 					(me.amazon && (SetUp.currentBuild === SetUp.finalBuild || me.charlvl >= 85)) || 
-					(me.sorceress && me.charlvl >= 70) || 
+					(me.sorceress && me.charlvl >= 80) || 
 					(me.druid && ["Plaguewolf", "Wolf"].indexOf(SetUp.currentBuild) > -1))) {
 				return true;
 			}
