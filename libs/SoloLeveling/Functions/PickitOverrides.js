@@ -123,6 +123,25 @@ Pickit.checkItem = function (unit) {
 		}
 	}
 
+	// If total gold is less than 500k pick up anything worth 2k gold per
+	// square to sell in town.
+	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && Town.ignoredItemTypes.indexOf(unit.itemType) === -1 && unit.itemType !== 39 && (unit.location === 3 || me.gold < 500000)) {
+		// Gold doesn't take up room, just pick it up
+		if (unit.classid === 523) {
+			return {
+				result: 4,
+				line: null
+			};
+		}
+
+		if (unit.getItemCost(1) / (unit.sizex * unit.sizey) >= 2000) {
+			return {
+				result: 4,
+				line: "Valuable Item: " + unit.getItemCost(1)
+			};
+		}
+	}
+
 	return rval;
 };
 
