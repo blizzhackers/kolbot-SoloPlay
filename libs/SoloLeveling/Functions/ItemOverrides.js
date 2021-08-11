@@ -808,13 +808,14 @@ Item.equip = function (item, bodyLoc) {
 		if (item.toCursor()) {
 			clickItemAndWait(0, bodyLoc);
 
-
 			if (item.bodylocation === bodyLoc) {
 				if (getCursorType() === 3) {
 					cursorItem = getUnit(100);
 
 					if (cursorItem) {
-						if (Pickit.checkItem(cursorItem).result === 1 || (cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2)) { // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
+						if (Pickit.checkItem(cursorItem).result === 1 || 
+						(cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2) || // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
+						(cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= 1000)) {	// or keep if item is worth selling
 							if (Storage.Inventory.CanFit(cursorItem)) {
 								Storage.Inventory.MoveTo(cursorItem);
 							}

@@ -310,5 +310,12 @@ function baal () {
     Attack.killTarget(544); // Baal	
     Pickit.pickItems();
 
+    // Grab static gold
+    NTIP.addLine("[name] == gold # [gold] >= 25");
+    Pather.moveTo(15072, 5894);
+    Pickit.pickItems();
+    Pather.moveTo(15095, 5881);
+    Pickit.pickItems();
+
     return true;
 }
