@@ -68,6 +68,8 @@ function SoloLeveling () {
 			D2Bot.restart();
 		}
 
+		Check.usePreviousSocketQuest(); // Currently only supports going back to nightmare to socket a lidless if one is equipped. 
+
 		for (k = 0; k < SetUp.scripts.length; k += 1) {
 			if (!me.inTown) {
 				Town.goToTown();
