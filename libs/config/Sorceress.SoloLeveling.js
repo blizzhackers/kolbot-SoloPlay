@@ -202,8 +202,11 @@ function LoadConfig () {
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];
-	Config.SkipEnchant = [];
 	Config.SkipAura = [];
+
+	if (Check.Resistance().LR < 75) {
+		Config.SkipEnchant = ["lightning enchanted"];
+	}
 
 	/* Shrine scan configuration. */
 	Config.ScanShrines = [15, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14];
