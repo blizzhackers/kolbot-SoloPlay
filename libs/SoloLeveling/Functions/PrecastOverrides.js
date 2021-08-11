@@ -83,6 +83,7 @@ Precast.getBetterSlot = function (skillId) {
 	case 137: // Taunt
 	case 138: // Shout
 	case 142: // Find Item
+	case 146: // Battle Cry
 	case 149: // Battle Orders
 	case 154: // War Cry
 	case 155: // Battle Command
