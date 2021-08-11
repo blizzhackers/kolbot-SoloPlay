@@ -60,7 +60,7 @@ var Merc = {
 		let mercAuraName = Check.finalBuild().mercAuraName;
 		let mercAuraWanted = Check.finalBuild().mercAuraWanted;
 		let mercDiff = Check.finalBuild().mercDiff;
-		let tempMercAura = mercAuraWanted === 114 ? 99 : 104; //use defiance if mercAuraWanted is not gonna be holy freeze. Use prayer otherwise as holyfreeze and defiance return as the same aura for some reason
+		let tempMercAura = mercAuraWanted === 114 ? 99 : 104; //use defiance if mercAuraWanted is not gonna be holy freeze. Use prayer otherwise as holy freeze and defiance return as the same aura for some reason
 		let mercAura = [[104, 99, 108], [103, 98, 114]];
 		let mercenary;
 
@@ -96,8 +96,14 @@ var Merc = {
 			return true;
 		}
 
+		if (me.charlvl > SetUp.levelCap + 10) {
+			print("ÿc9Mercenaryÿc0 :: I went back a difficulty. Don't hire another merc");
+
+			return true;
+		}
+
 		if (me.normal && me.gold < 10000 || !me.normal && me.gold < 100000) {
-			print('ÿc9SoloLevelingÿc0: not enough gold to hire merc.');
+			print('ÿc9Mercenaryÿc0 :: I do not have enough gold to hire merc. My current gold amount: ' + me.gold);
 
 			return true;
 		}
@@ -127,7 +133,7 @@ var Merc = {
 
 				if (me.diff === mercDiff) {
 					if (mercenary.getSkill(mercAuraWanted, 1)) {
-						print('ÿc9SoloLevelingÿc0: ' + mercAuraName + ' merc hired.');
+						print('ÿc9ÿc9Mercenaryÿc0 :: ' + mercAuraName + ' merc hired.');
 
 						break;
 					}
@@ -135,7 +141,11 @@ var Merc = {
 
 				if (me.diff !== mercDiff && me.normal) {
 					if (mercenary.getSkill(tempMercAura, 1)) {
-						print('ÿc9SoloLevelingÿc0: prayer merc hired.');
+						if (tempMercAura === 99) {
+							print('ÿc9ÿc9Mercenaryÿc0 :: prayer merc hired.');
+						} else {
+							print('ÿc9ÿc9Mercenaryÿc0 :: defiance merc hired.');
+						}
 
 						break;
 					}
@@ -148,11 +158,11 @@ var Merc = {
 		mercenary = Merc.getMercFix();
 
 		if (me.diff !== mercDiff && me.normal && mercenary && !mercenary.getSkill(tempMercAura, 1)) {
-			print('ÿc9SoloLevelingÿc0: temp merc not available. will try later');
+			print('ÿc9ÿc9Mercenaryÿc0 :: temp merc not available. will try later');
 		}
 
 		if (me.diff === mercDiff && mercenary && !mercenary.getSkill(mercAuraWanted, 1)) {
-			print('ÿc9SoloLevelingÿc0: ' + mercAuraName + ' merc not available. try later.');
+			print('ÿc9ÿc9Mercenaryÿc0 :: ' + mercAuraName + ' merc not available. try later.');
 		}
 
 		this.equipMerc();

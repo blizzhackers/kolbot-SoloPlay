@@ -291,13 +291,13 @@ var Check = {
 
 			break;
 		case "corpsefire": //corpsefire
-			if (me.den && me.hell && (!me.andariel || !Check.brokeAf()) && !me.druid && !me.paladin) {
+			if (me.den && me.hell && (!me.andariel || Check.brokeAf()) && !me.druid && !me.paladin) {
 				return true;
 			}
 
 			break;
 		case "bloodraven": //bloodaraven
-			if ((!me.bloodraven && me.normal || (!me.summoner && !Check.brokeAf())) || 
+			if ((!me.bloodraven && me.normal || (!me.summoner && Check.brokeAf())) || 
 				(me.normal && !me.tristram && me.barbarian) || 
 				(me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || !me.amazon))) {
 				return true;
@@ -317,7 +317,7 @@ var Check = {
 
 			break;
 		case "tristram": //tristram
-			if ((me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || !Check.brokeAf())) || 
+			if ((me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf())) || 
 				(!me.normal && 
 					((!me.tristram && (me.classic && me.diablo || me.baal)) ||
 					 (me.barbarian && !Pather.accessToAct(3) && !Check.haveItem("sword", "runeword", "Voice of Reason")) ||
@@ -328,7 +328,7 @@ var Check = {
 			break;
 		case "countess": //countess
 			if ((me.classic && !me.countess) || 
-				(!me.classic && (needRunes || !Check.brokeAf() || (me.barbarian && Check.haveItem("sword", "runeword", "Lawbringer"))))) { // classic quest completed normal || have runes for difficulty
+				(!me.classic && (needRunes || Check.brokeAf() || (me.barbarian && Check.haveItem("sword", "runeword", "Lawbringer"))))) { // classic quest completed normal || have runes for difficulty
 				return true;
 			}
 
@@ -571,27 +571,28 @@ var Check = {
 		let goldLimit = [10000, 25000, 50000][me.diff];
 
 		if (gold >= goldLimit || me.charlvl < 15 || (me.charlvl >= 15 && gold > 1000 && Item.getEquippedItem(4).durability !== 0)) {
-			return true;
+			return false;
 		}
-
-		/*if (Item.getEquippedItem(4).durability === 0 && me.charlvl >= 15 && !me.normal) {
-			DataFile.updateStats("setDifficulty", "Normal");
-			D2Bot.setProfile(null, null, null, "Normal");
-			print("ÿc9GuysSoloLevelingÿc0: Oof I am broken, going back to normal to get easy gold");
-			me.overhead("Oof I am broken, going back to normal to get easy gold");
-			delay(1000);
-			scriptBroadcast('quit');
-		}*/
 
 		me.overhead("I am broke af");
 		NTIP.addLine("[name] == gold # [gold] >= 1");
+
+		return true;
+	},
+
+	broken: function () {
+		let gold = me.getStat(14) + me.getStat(15);
+
+		if (Item.getEquippedItem(4).durability === 0 && me.charlvl >= 15 && !me.normal && gold < 1000) {
+			return true;
+		}
 
 		return false;
 	},
 
 	Resistance: function () {
 		let resStatus,
-			resPenalty = me.classic ? [0, 20, 50][me.diff] : [ 0, 40, 100][me.diff],
+			resPenalty = me.classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff],
 			frRes = me.getStat(39) - resPenalty,
 			lrRes = me.getStat(41) - resPenalty,
 			crRes = me.getStat(43) - resPenalty,
@@ -641,7 +642,7 @@ var Check = {
 	nextDifficulty: function () {
 		let diffShift = me.diff;
 		let lowRes = !this.Resistance().Status;
-		let lvlReq = (me.charlvl >= SetUp.levelCap) && ["Bumper", "Socketmule"].indexOf(SetUp.finalBuild) === -1 ? true : false;
+		let lvlReq = (me.charlvl >= SetUp.levelCap) && ["Bumper", "Socketmule"].indexOf(SetUp.finalBuild) === -1 && Item.getEquippedItem(4).durability !== 0 ? true : false;
 		let diffCompleted = !me.classic && me.baal ? true : me.classic && me.diablo ? true : false;
 
 		if (diffCompleted) {

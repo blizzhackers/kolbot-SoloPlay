@@ -59,6 +59,15 @@ function SoloLeveling () {
 			D2Bot.setProfile(null, null, null, updatedDifficulty);
 		}
 
+		if (Check.broken()) {
+			D2Bot.setProfile(null, null, null, 'Normal');
+			DataFile.updateStats("setDifficulty", 'Normal');
+			D2Bot.printToConsole('GuysSoloLeveling: Oof I am broken, going back to normal to get easy gold');
+			print("ÿc9GuysSoloLevelingÿc0: Oof I am broken, going back to normal to get easy gold");
+			me.overhead("Oof I am broken, going back to normal to get easy gold");
+			D2Bot.restart();
+		}
+
 		for (k = 0; k < SetUp.scripts.length; k += 1) {
 			if (!me.inTown) {
 				Town.goToTown();
