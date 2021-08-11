@@ -97,13 +97,13 @@ var Merc = {
 		}
 
 		if (me.charlvl > SetUp.levelCap + 10) {
-			print("ÿc9Mercenaryÿc0 :: I went back a difficulty. Don't hire another merc");
+			print("ÿc9Mercenaryÿc0 :: I went back a difficulty, don't hire another merc");
 
 			return true;
 		}
 
 		if (me.normal && me.gold < 10000 || !me.normal && me.gold < 100000) {
-			print('ÿc9Mercenaryÿc0 :: I do not have enough gold to hire merc. My current gold amount: ' + me.gold);
+			print("ÿc9Mercenaryÿc0 :: I don't have enough gold to hire merc. My current gold amount: " + me.gold);
 
 			return true;
 		}
@@ -158,11 +158,11 @@ var Merc = {
 		mercenary = Merc.getMercFix();
 
 		if (me.diff !== mercDiff && me.normal && mercenary && !mercenary.getSkill(tempMercAura, 1)) {
-			print('ÿc9ÿc9Mercenaryÿc0 :: temp merc not available. will try later');
+			print('ÿc9ÿc9Mercenaryÿc0 :: temp merc not available, will try again later');
 		}
 
 		if (me.diff === mercDiff && mercenary && !mercenary.getSkill(mercAuraWanted, 1)) {
-			print('ÿc9ÿc9Mercenaryÿc0 :: ' + mercAuraName + ' merc not available. try later.');
+			print('ÿc9ÿc9Mercenaryÿc0 :: ' + mercAuraName + ' merc not available, try again later.');
 		}
 
 		this.equipMerc();
