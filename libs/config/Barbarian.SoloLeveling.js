@@ -479,7 +479,9 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == armor # [frw] >= 45");
 		}
 
-		Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Gladius", Roll.NonEth]); // Upgrade Bloodletter to Elite
+		if (Item.getMyHardStats(0) >= 150 && Item.getMyHardStats(2) >= 88) {
+			Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Gladius", Roll.NonEth]); // Upgrade Bloodletter to Elite
+		}
 
 		if (!Check.haveItem("falcata", "unique", "Bloodletter")) {
 			NTIP.addLine("[name] == PulRune # # [MaxQuantity] == 1");

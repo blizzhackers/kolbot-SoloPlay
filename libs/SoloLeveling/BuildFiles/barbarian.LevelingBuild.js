@@ -1,70 +1,36 @@
 /**
- *    @filename   barbarian.LevelingBuild.js
- *	  @author	  theBGuy
- *    @desc       barb build for before respecTwo
+ *		@filename   barbarian.LevelingBuild.js
+ *		@author	  	theBGuy
+ *		@desc       barb build for before respecTwo
  */
 
 var build = {
 	caster: false,
 	skillstab: 32, // Combat skills
-	wantedskills: [149, 147, 133, 127, 151], // Battle Orders, Frenzy, Double Swing, Sword Mastery, whirlwind
-	usefulskills: [153, 145, 148], // Natural Resistance, Iron Skin, Incresed Speed
+	wantedskills: [149, 147, 133, 127], // Battle Orders, Frenzy, Double Swing, Sword Mastery
+	usefulskills: [153, 145, 148, 138], // Natural Resistance, Iron Skin, Increased Speed, Shout
 	mercAuraName: "Might",
 	mercAuraWanted: 98,
 	mercDiff: 1,
 	stats: [
-		["strength", 25], ["dexterity", 25], ["vitality", 30],
-		["strength", 48], ["dexterity", 39], ["vitality", 50],
-		["strength", 55], ["dexterity", 45], ["vitality", 60],
-		["strength", 58], ["dexterity", 58], ["vitality", 70],
-		["strength", 85], ["dexterity", 60], ["vitality", 80],
-		["strength", 103], ["dexterity", 79], ["vitality", 90],
 		["dexterity", 136], ["strength", 150], ["vitality", "all"],
 	],
 	skills: [
-		[126, 1, false], // Bash -> charlvl 2
-		[130, 1, false], // Howl -> charlvl 3
-		[127, 2, false], // Sword Mastery -> charlvl 4 (1 point from den)
-		[133, 1, false], // Double Swing -> charlvl 6
-		[137, 1, false], // Taunt -> charlvl 6
-		[138, 1, false], // Shout -> charlvl 7
-		[127, 6, false], // Sword Mastery -> charlvl 11
-		[127, 8, false], // Sword Mastery -> charlvl 15
-		[146, 1, true], // Battle Cry -> charlvl 18
-		[145, 1, false], // Iron Skin -> charlvl 18
-		[143, 1, true], // Leap Attack -> charlvl 20
-		[127, 12, false], // Sword Mastery -> charlvl 22
-		[147, 1, true], // Frenzy -> charlvl 24
-		[149, 1, false], // Battle Orders -> charlvl 24
-		[147, 2, false], // Frenzy -> charlvl 25
-		[149, 2, false], // Battle Orders -> charlvl 26
-		[147, 3, false], // Frenzy -> charlvl 26
-		[149, 3, false], // Battle Orders -> charlvl 27
-		[147, 4, false], // Frenzy -> charlvl 27
-		[149, 4, false], // Battle Orders -> charlvl 28
-		[151, 1, true], // Whirlwind -> charlvl 30
-		[154, 1, true], // War Cry -> charlvl 30
-		[155, 1, true], // Battle Command -> charlvl 31
-		[153, 3, true], // Natural Resistance 5 // charLvl 34 (enough res to get out or normal)
-		[151, 6, true], // Whirlwind -> charlvl 39
-		[152, 5, true], // berserk -> charlvl 44
-		[133, 6, false], // Double Swing -> charlvl 6
-		[147, 5, false], // Frenzy -> charlvl 36
-		[127, 13, false], // Sword Mastery -> charlvl 46
-		[147, 6, false], // Frenzy -> charlvl 38
-		[127, 14, false], // Sword Mastery -> charlvl 46
-		[147, 7, false], // Frenzy -> charlvl 40
-		[127, 15, false], // Sword Mastery -> charlvl 46
-		[147, 8, false], // Frenzy -> charlvl 42
-		[127, 16, false], // Sword Mastery -> charlvl 46
-		[147, 9, false], // Frenzy -> charlvl 44
-		[133, 8, true], // Double Swing -> charlvl 6
-		[127, 20, false], // Sword Mastery -> charlvl 46
-		[153, 5, true], // Natural Resistance 5
-		[137, 20, false], // Taunt -> charlvl ?
-		[149, 11, false], // Battle Orders -> charlvl 69
-		[147, 20, false], // Frenzy -> charlvl 61
-		[149, 20, false], // Battle Orders -> charlvl ?
-		[133, 20, false], // Double Swing -> charlvl ?
+		// Total points at time of respec 79
+		[127, 13, true], // Sword Mastery -> total left 66
+		[133, 9, true], // Double Swing -> total left 56
+		[153, 5, true], // Natural Resistance -> total left 51
+		[147, 9, true], // Frenzy -> total left 42
+		[152, 5, true], // Berserk -> total left 35
+		[154, 5, true], // War Cry -> total left 25
+		[155, 1, true], // Battle Command -> total left 24
+		[149, 8, true], // Battle Orders -> total left 16
+		[137, 16, true], // Taunt -> total left 0
+		// End of respec points, Start of Leveling build - total points left to use 31
+		[137, 20, false], // Taunt -> charlvl 75 -> total left 27
+		[149, 10, false], // Battle Orders -> charlvl 77 -> total left 25
+		[127, 20, false], // Sword Mastery -> charlvl 84 -> total left 18
+		[147, 20, false], // Frenzy -> total left 7
+		[149, 15, false], // Battle Orders -> total left 0
 	]
 };
