@@ -172,6 +172,10 @@ function dataCleaner() {
 			
 			FileTools.remove("libs/SoloLeveling/Data/" + profiles[i] + ".ScriptPerformance" + ".csv");
 		}
+
+		if (FileTools.exists("libs/SoloLeveling/Data/" + profiles[i] + ".SocketData" + ".json")) {
+			FileTools.remove("libs/SoloLeveling/Data/" + profiles[i] + ".SocketData" + ".json");
+		}
 		
 		if (StarterConfig.SaveFiles && profileExists) {
 			D2Bot.printToConsole("SoloCleaner: Files saved to -> libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j, 6);

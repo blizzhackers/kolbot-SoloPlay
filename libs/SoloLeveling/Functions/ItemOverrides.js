@@ -136,6 +136,7 @@ Item.getEquippedItem = function (bodyLoc) {
 				return {
 					classid: item.classid,
 					name: item.name,
+					fname: item.fname,
 					prefixnum: item.prefixnum,
 					itemType: item.itemType,
 					tier: NTIP.GetTier(item),
@@ -143,6 +144,7 @@ Item.getEquippedItem = function (bodyLoc) {
 					str: item.getStatEx(0),
 					dex: item.getStatEx(2),
 					durability: (item.getStat(72) * 100 / item.getStat(73)),
+					socketed: !item.getItems(),
 				};
 			}
 		} while (item.getNext());
@@ -152,12 +154,15 @@ Item.getEquippedItem = function (bodyLoc) {
 	return {
 		classid: -1,
 		name: "none",
+		fname: "none",
 		prefixnum: -1,
 		itemType: -1,
 		tier: -1,
 		secondarytier: -1,
 		str: 0,
-		dex: 0
+		dex: 0,
+		durability: 0,
+		socketed: false,
 	};
 };
 

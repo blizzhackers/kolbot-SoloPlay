@@ -686,7 +686,7 @@ var Check = {
 
 			break;
 		case 2: //hell
-			if (!me.baal || me.sorceress) {
+			if (!me.baal || (me.sorceress && ["Blova", "Lightning"].indexOf(SetUp.currentBuild) === -1)) {
 				needRunes = false;
 			}
 
@@ -1030,6 +1030,24 @@ var Check = {
 			} else {
 				D2Bot.printToConsole("GuysSoloLeveling " + SetUp.finalBuild + " goal reached.", 6);
 				D2Bot.stop();
+			}
+		}
+	},
+
+	usePreviousSocketQuest: function () {
+		if (!Check.Resistance().Status) {
+			if (Item.getEquippedItem(5).fname.includes("Lidless Wall") && !Item.getEquippedItem(5).socketed) {
+				if (me.hell) {
+					let data = Developer.readObj("libs/SoloLeveling/Data/" + me.profile + ".SocketData.json");
+					if (data.Nightmare === false) {
+						D2Bot.setProfile(null, null, null, 'Nightmare');
+						DataFile.updateStats("setDifficulty", 'Nightmare');
+						D2Bot.printToConsole('GuysSoloLeveling: Going back to Nightmare to use socket quest');
+						print("ÿc9GuysSoloLevelingÿc0: Going back to Nightmare to use socket quest");
+						me.overhead("Going back to Nightmare to use socket quest");
+						D2Bot.restart();
+					}
+				}
 			}
 		}
 	},

@@ -436,6 +436,14 @@ var Quest = {
 		if (!isIncluded("common/Town.js")) {
 			include("common/Town.js");
 		}
+
+		if (!isIncluded("SoloLeveling/Tools/Developer.js")) {
+			include("SoloLeveling/Tools/Developer.js");
+		}
+
+		if (!FileTools.exists("libs/SoloLeveling/Data/" + me.profile + ".SocketData.json")) {
+			Developer.writeObj({Nightmare: false}, "libs/SoloLeveling/Data/" + me.profile + ".SocketData.json");
+		}
 			
 		if (!Storage.Inventory.CanFit(item)) { //No space to get the item back
 			print("ÿc9GuysSoloLevelingÿc0: No space to get item back");
@@ -521,6 +529,10 @@ var Quest = {
 		let diffSting = ['Normal', 'Nightmare', 'Hell'][me.diff];	
 		Misc.logItem("Used my " + diffSting + " socket quest on : ", item);
 		D2Bot.printToConsole("GuysSoloLeveling :: Used my " + diffSting + " socket quest on : " + item.name, 6);
+
+		if (me.nightmare) {
+			Developer.writeObj({Nightmare: true}, "libs/SoloLeveling/Data/" + me.profile + ".SocketData.json");("libs/SoloLeveling/Data/" + me.profile + ".SocketData.json");
+		}
 
 		if (!slot && item.location !== 7) {	
 			if (Storage.Stash.CanFit(item)) { //move item back to stash

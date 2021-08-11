@@ -697,6 +697,13 @@ Misc.getLightResShrine = function (shrineLocs) {
 		return true;
 	}
 
+	let oldAttack = [];
+
+	if (me.barbarian && me.normal && me.getSkill(133, 1) >= 6) {
+		oldAttack = Config.AttackSkill.slice();
+		Config.AttackSkill = [-1, 133, -1, 133, -1];
+	}
+
 	for (let get = 0; get < shrineLocs.length; get++) {
 		if (shrineLocs[get] === 2) {
 			Pather.journeyTo(shrineLocs[get]);
@@ -721,7 +728,47 @@ Misc.getLightResShrine = function (shrineLocs) {
 		}
 	}
 
+	if (oldAttack.length > 0) {
+		Config.AttackSkill = oldAttack.slice();
+	}
+
 	return true;
+};
+
+// Add use of tk for shrine - from autoplay
+Misc.getShrine = function (unit) {
+	if (unit.mode) {
+		return false;
+	}
+
+	var i, tick,
+		telek = me.classid === 1 && me.getSkill(43, 1);
+
+	for (i = 0; i < 3; i += 1) {
+		if (telek) {
+			if (getDistance(me, unit) > 13) {
+				Attack.getIntoPosition(unit, 13, 0x4);
+			}
+			
+			Skill.cast(43, 0, unit);
+		} else {
+			if (getDistance(me, unit) < 4 || Pather.moveToUnit(unit, 3, 0)) {
+				Misc.click(0, 0, unit);
+			}
+		}
+
+		tick = getTickCount();
+
+		while (getTickCount() - tick < 1000) {
+			if (unit.mode) {
+				return true;
+			}
+
+			delay(10);
+		}
+	}
+
+	return false;
 };
 
 Misc.gamePause = function () {
@@ -867,9 +914,15 @@ Misc.checkItemForSocketing = function () {
 				}
 			}
 		} else if (me.nightmare) {
-			//Eth Bill or Colossus Volgue
+			//Eth Bill or Colossus Volgue or lidless
 			for (let i = 0; i < items.length; i++) {
 				if ([151, 254].indexOf(items[i].classid) > -1 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1 && items[i].getFlag(0x400000)) {
+					item = items[i];
+					break;
+				}
+
+				//Lidless
+				if (items[i].classid === 396 && items[i].getStat(194) === 0 && items[i].quality === 7) {
 					item = items[i];
 					break;
 				}
@@ -1228,6 +1281,11 @@ Misc.addSocketables = function () {
 			break;
 		}
 
+		if (items[i].classid === 396 && items[i].getStat(194) >= 1 && items[i].quality === 7 && !items[i].getItem()) {	//Lidless
+			item = items[i];
+			break;
+		}
+
 		if (me.barbarian && items[i].classid === 219 && items[i].getStat(194) === 2 && items[i].quality === 5 && !items[i].getItem()) {	// IK Maul
 			item = items[i];
 			break;
@@ -1247,7 +1305,123 @@ Misc.addSocketables = function () {
 			item = items[i];
 			break;
 		}
+
+		if ([4, 6].indexOf(items[i].quality) > -1 && items[i].mode === 1 && items[i].getStat(194) >= 1 && !items[i].getItem()) {	// Any magic or rare with sockets
+			item = items[i];
+			break;
+		}
 	}
+
+	function highestGemAvailable (gem, checkList) {
+		let highest = false;
+		let myItems = me.getItems().filter(item => item.classid >= 557 && item.classid <= 601 && [587, 588, 589, 590, 591, 592, 593, 594, 595, 596].indexOf(item.classid) === -1);
+
+		for (let i = 0; i < myItems.length; i++) {
+			switch (gem.classid) {
+			case 562: 	// chipped Topaz
+			case 563: 	// flawed Topaz
+			case 564: 	// regular Topaz
+			case 565: 	// flawless Topaz
+			case 566: 	// perfect Topaz
+				if (myItems[i].classid === 566 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 565 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 564 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 563 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 562 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;;
+					break;
+				}
+
+				break;
+			case 577: 	// chipped Ruby
+			case 578: 	// flawed Ruby
+			case 579: 	// regular Ruby
+			case 580: 	// flawless Ruby
+			case 581: 	// perfect Ruby
+				if (myItems[i].classid === 581 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 580 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 579 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 578 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 577 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				}
+
+				break;
+			case 582: 	// chipped Diamond
+			case 583: 	// flawed Diamond
+			case 584: 	// regular Diamond
+			case 585: 	// flawless Diamond
+			case 586: 	// perfect Diamond
+				if (myItems[i].classid === 586 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 585 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 584 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 583 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 582 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				}
+
+				break;
+			case 597: 	// chipped Skull
+			case 598: 	// flawed Skull
+			case 599: 	// regular Skull
+			case 600: 	// flawless Skull
+			case 601: 	// perfect Skull
+				if (myItems[i].classid === 601 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 600 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 599 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 598 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				} else if (myItems[i].classid === 597 && checkList.indexOf(myItems[i]) === -1) {
+					highest = true;
+					break;
+				}
+
+				break;
+			default:
+				break;
+			}
+			
+
+			if (highest) {
+				break;
+			}
+		}
+
+		return highest;
+	};
 
 	if (item) {
 		let socketable;
@@ -1331,6 +1505,18 @@ Misc.addSocketables = function () {
 					socketable = items[i];
 					break;
 				}	
+			}
+
+			//Um Rune to Lidless
+			if (items[i].classid === 631 && item.classid === 396) {
+				socketable = items[i];
+				break;
+			}
+
+			//P-diamond to Lidless
+			if (items[i].classid === 586 && item.classid === 396) {
+				socketable = items[i];
+				break;
 			}
 
 			//Shael Rune and IK Mauls
@@ -1419,6 +1605,98 @@ Misc.addSocketables = function () {
 					socketable = items[i];
 					break;
 				}	
+			}
+
+			if ([4, 6].indexOf(item.quality) > -1 && multiple.indexOf(items[i]) === -1) {
+				switch (item.itemType) {
+				case 2: // Shield
+				case 69: // Voodoo Heads
+				case 70: // Auric Shields
+					if ([582, 583, 584, 585, 586].indexOf(items[i].classid) > -1) {
+						if (highestGemAvailable(items[i], multiple)) {
+							if (item.getStat(194) > 1) {
+								if (multiple.length < item.getStat(194)) {
+									multiple.push(items[i]);
+									
+									if (multiple.length === item.getStat(194)) {
+										ready = true;
+										break;
+									}
+									
+									continue;
+								} else {
+									ready = true;
+									break;
+								}	
+							} else {
+								socketable = items[i];
+								break;
+							}
+
+							break;
+						}
+					}
+
+					break;
+				case 3: // Armor
+				case 37: // Helm
+				case 71: // Barb Helm
+				case 75: // Circlet
+				case 72: // Druid Pelts
+					if ([577, 578, 579, 580, 581].indexOf(items[i].classid) > -1) {
+						if (highestGemAvailable(items[i], multiple)) {
+							if (item.getStat(194) > 1) {
+								if (multiple.length < item.getStat(194)) {
+									multiple.push(items[i]);
+									
+									if (multiple.length === item.getStat(194)) {
+										ready = true;
+										break;
+									}
+									
+									continue;
+								} else {
+									ready = true;
+									break;
+								}	
+							} else {
+								socketable = items[i];
+								break;
+							}
+
+							break;
+						}
+					}
+
+					break;
+				default:
+					if ([597, 598, 599, 600, 601].indexOf(items[i].classid) > -1) {
+						if (highestGemAvailable(items[i], multiple)) {
+							if (item.getStat(194) > 1) {
+								if (multiple.length < item.getStat(194)) {
+									multiple.push(items[i]);
+									
+									if (multiple.length === item.getStat(194)) {
+										ready = true;
+										break;
+									}
+									
+									continue;
+								} else {
+									ready = true;
+									break;
+								}	
+							} else {
+								socketable = items[i];
+								break;
+							}
+
+							break;
+						}
+					}
+
+					break;
+				}
 			}
 		}
 
