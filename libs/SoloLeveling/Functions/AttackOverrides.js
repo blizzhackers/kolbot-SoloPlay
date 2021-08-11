@@ -621,7 +621,7 @@ Attack.getMonsterCount = function (x, y, range, list, filter) {
 		filter = false;
 	}
 
-	if (list === undefined || !list.length) {
+	if (list === undefined || list === null || !list.length) {
 		list = this.buildMonsterList();
 		list.sort(Sort.units);
 		let newList;

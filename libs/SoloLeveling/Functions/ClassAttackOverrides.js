@@ -409,7 +409,8 @@ case 1: // Sorceress
 		var index, staticRange, checkSkill, mark,
 			merc = Merc.getMercFix(),
 			timedSkill = -1,
-			untimedSkill = -1;
+			untimedSkill = -1,
+			gold = me.getStat(14) + me.getStat(15);
 
 		index = (unit.spectype !== 0 || unit.type === 0) ? 1 : 3;
 
@@ -734,7 +735,7 @@ case 2: // Necromancer
 
 		let useTerror = me.getSkill(77, 0);
 
-		if (useTerror && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(77) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+		if (useTerror && Attack.getMonsterCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(77) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
 			Skill.cast(77, Skill.getHand(77));
 		}
 
@@ -1219,10 +1220,10 @@ case 4: // Barbarian - theBGuy
 
 		if (newList.length >= 1) {
 			for (let i = 0; i < newList.length; i++) {
-				if (useHowl && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(130) < me.mp) {
+				if (useHowl && Attack.getMonsterCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(130) < me.mp) {
 					Skill.cast(130, Skill.getHand(130));
 					this.doCast(unit, attackSkill);
-				} else if (useWarCry && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(154) < me.mp) {
+				} else if (useWarCry && Attack.getMonsterCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(154) < me.mp) {
 					Skill.cast(154, Skill.getHand(154));
 				}
 
@@ -1274,7 +1275,7 @@ case 4: // Barbarian - theBGuy
 			attackSkill = Config.LowManaSkill[0];
 		}
 
-		if (useHowl && attackSkill !== 151 && [345, 571].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 6, true) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+		if (useHowl && attackSkill !== 151 && [345, 571].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
 			Skill.cast(130, Skill.getHand(130));
 		}
 
@@ -1302,7 +1303,7 @@ case 4: // Barbarian - theBGuy
 			}
 		}
 
-		if (!unit.dead && useWarCry && [156, 211, 242, 243, 544, 562, 570, 747, 748, 749].indexOf(unit.classid) === -1 && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154) && !me.getState(121)) {
+		if (!unit.dead && useWarCry && [156, 211, 242, 243, 544, 562, 570, 747, 748, 749].indexOf(unit.classid) === -1 && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154) && !me.getState(121) && Attack.getMonsterCount(me.x, me.y, 5, null, true) >= 1) {
 			if (!unit.getState(21)) {
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(154) || checkCollision(me, unit, 0x4)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(154), 0x4)) {
@@ -1334,7 +1335,7 @@ case 4: // Barbarian - theBGuy
 			
 				return 1;
 			}
-		} 
+		}
 
 		if (preattack && Config.AttackSkill[0] > 0 && Config.AttackSkill[0] !== 154 && me.getSkill(Config.AttackSkill[0], 1) && Attack.checkResist(unit, Attack.getSkillElement(Config.AttackSkill[0])) && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
 			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
@@ -1349,7 +1350,7 @@ case 4: // Barbarian - theBGuy
 		}
 
 		if (index === 1) {
-			if (useHowl && attackSkill !== 151 && [211, 243, 544, 562, 570, 571, 747, 748, 749].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, true) >= 3 && Skill.getManaCost(130) < me.mp) {
+			if (useHowl && attackSkill !== 151 && [211, 243, 544, 562, 570, 571, 747, 748, 749].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, null, true) >= 3 && Skill.getManaCost(130) < me.mp) {
 				Skill.cast(130, Skill.getHand(130));
 			}
 		}
@@ -1421,7 +1422,7 @@ case 4: // Barbarian - theBGuy
 					}
 				}
 
-				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 747, 748, 749].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, true) >= (me.area === 131 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
+				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 747, 748, 749].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, null, true) >= (me.area === 131 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
 					if (switchCast) {
 						me.switchWeapons(1);
 					}
