@@ -791,7 +791,23 @@ Attack.switchCastCharges = function (skillId, unit) {
 	return true;
 };
 
-Attack.BossAndMiniBosses = [156, 211, 242, 243, 544, 229, 250, 256, 267, 365, 409];
+Attack.BossAndMiniBosses = [156, 211, 242, 243, 544, 229, 250, 256, 267, 365, 409, 540, 541, 542];
+
+Attack.dollAvoid = function (unit) {
+	var i, cx, cy,
+		distance = 14;
+
+	for (i = 0; i < 2 * Math.PI; i += Math.PI / 6) {
+		cx = Math.round(Math.cos(i) * distance);
+		cy = Math.round(Math.sin(i) * distance);
+
+		if (Attack.validSpot(unit.x + cx, unit.y + cy)) {
+			return Pather.moveTo(unit.x + cx, unit.y + cy);
+		}
+	}
+
+	return false;
+};
 
 Attack.test = function () {
 	return true;

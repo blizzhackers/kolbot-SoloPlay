@@ -1142,6 +1142,93 @@ case 3: // Paladin
 		include("common/Attacks/Paladin.js");
 	}
 
+	ClassAttack.doAttack = function (unit, preattack) {
+		var index, result,
+			mercRevive = 0,
+			attackSkill = -1,
+			aura = -1;
+
+		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+
+		if (Config.MercWatch && Town.needMerc()) {
+			print("mercwatch");
+			Town.visitTown();
+		}
+
+		if (index === 1 && !unit.dead) {
+			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && (Math.round(getDistance(me, unit)) < Skill.getRange(72) || !checkCollision(me, unit, 0x4))) {
+				Attack.switchCastCharges(72, unit);		// Switch cast weaken - will only cast if actually has wand with charges in switch spot - TODO: Clean this up, maybe some type of switch statement based on what charges are on the switch wep
+			}
+
+			if (!unit.getState(60) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && (Math.round(getDistance(me, unit)) < Skill.getRange(87) || !checkCollision(me, unit, 0x4))) {
+				Attack.switchCastCharges(87, unit);		// Switch cast decrepify
+			}
+		}
+
+		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
+			if (getDistance(me, unit) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
+				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
+					return 0;
+				}
+			}
+
+			Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
+
+			return 1;
+		}
+
+		if (Attack.getCustomAttack(unit)) {
+			attackSkill = Attack.getCustomAttack(unit)[0];
+			aura = Attack.getCustomAttack(unit)[1];
+		} else {
+			attackSkill = Config.AttackSkill[index];
+			aura = Config.AttackSkill[index + 1];
+		}
+
+		// Monster immune to primary skill
+		if (!Attack.checkResist(unit, attackSkill)) {
+			// Reset skills
+			attackSkill = -1;
+			aura = -1;
+
+			// Set to secondary if not immune
+			if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5])) {
+				attackSkill = Config.AttackSkill[5];
+				aura = Config.AttackSkill[6];
+			}
+		}
+
+		// Low mana skill
+		if (Config.LowManaSkill[0] > -1 && Skill.getManaCost(attackSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[0])) {
+			attackSkill = Config.LowManaSkill[0];
+			aura = Config.LowManaSkill[1];
+		}
+
+		result = this.doCast(unit, attackSkill, aura);
+
+		if (result === 2 && Config.TeleStomp && Attack.checkResist(unit, "physical") && !!me.getMerc()) {
+			while (Attack.checkMonster(unit)) {
+				if (Town.needMerc()) {
+					if (Config.MercWatch && mercRevive++ < 1) {
+						Town.visitTown();
+					} else {
+						return 2;
+					}
+				}
+
+				if (getDistance(me, unit) > 3) {
+					Pather.moveToUnit(unit);
+				}
+
+				this.doCast(unit, Config.AttackSkill[1], Config.AttackSkill[2]);
+			}
+
+			return 1;
+		}
+
+		return result;
+	};
+
 	ClassAttack.getHammerPosition = function (unit) {
 		var i, x, y, positions, check,
 			baseId = getBaseStat("monstats", unit.classid, "baseid"),
@@ -1315,7 +1402,7 @@ case 4: // Barbarian - theBGuy
 			}
 		}
 
-		if (!unit.dead && useWarCry && [156, 211, 242, 243, 544, 562, 570, 747, 748, 749].indexOf(unit.classid) === -1 && (!unit.getState(21) || getTickCount() - this.warCryTick >= 1500) && 
+		if (!unit.dead && useWarCry && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && (!unit.getState(21) || getTickCount() - this.warCryTick >= 1500) && 
 			Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154) && !me.getState(121) && Attack.getMonsterCount(me.x, me.y, 5, null, true) >= 1) {
 			if (!unit.getState(21)) {
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(154) || checkCollision(me, unit, 0x4)) {
@@ -1367,7 +1454,7 @@ case 4: // Barbarian - theBGuy
 		}
 
 		if (index === 1) {
-			if (useHowl && attackSkill !== 151 && [211, 243, 544, 562, 570, 571, 747, 748, 749].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, null, true) >= 3 && Skill.getManaCost(130) < me.mp) {
+			if (useHowl && attackSkill !== 151 && [211, 243, 544, 562, 570, 571, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, null, true) >= 3 && Skill.getManaCost(130) < me.mp) {
 				Skill.cast(130, Skill.getHand(130));
 			}
 		}
@@ -1439,7 +1526,7 @@ case 4: // Barbarian - theBGuy
 					}
 				}
 
-				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 747, 748, 749].indexOf(unit.classid) === -1 && (!unit.getState(21) || getTickCount() - this.warCryTick >= 1500) && 
+				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && (!unit.getState(21) || getTickCount() - this.warCryTick >= 1500) && 
 					Attack.getMonsterCount(me.x, me.y, 5, null, true) >= (me.area === 131 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
 					if (switchCast) {
 						me.switchWeapons(1);
