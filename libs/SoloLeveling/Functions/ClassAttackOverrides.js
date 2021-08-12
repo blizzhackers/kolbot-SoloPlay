@@ -1490,6 +1490,90 @@ case 4: // Barbarian - theBGuy
 		}
 	};
 
+	ClassAttack.findItem = function (range) {
+		if (!Config.FindItem || !me.getSkill(142, 1)) {
+			return false;
+		}
+
+		var i, j, tick, corpse, orgX, orgY, retry,
+			corpseList = [];
+
+		Config.FindItemSwitch = Precast.getBetterSlot(142);
+
+		orgX = me.x;
+		orgY = me.y;
+
+MainLoop:
+		for (i = 0; i < 3; i += 1) {
+			corpse = getUnit(1);
+
+			if (corpse) {
+				do {
+					if ((corpse.mode === 0 || corpse.mode === 12) && getDistance(corpse, orgX, orgY) <= range && this.checkCorpse(corpse)) {
+						corpseList.push(copyUnit(corpse));
+					}
+				} while (corpse.getNext());
+			}
+
+			while (corpseList.length > 0) {
+				if (this.checkCloseMonsters(5)) {
+					if (Config.FindItemSwitch) {
+						me.switchWeapons(Attack.getPrimarySlot());
+					}
+
+					Attack.clear(10, false, false, false, false);
+
+					retry = true;
+
+					break MainLoop;
+				}
+
+				corpseList.sort(Sort.units);
+
+				corpse = corpseList.shift();
+
+				if (this.checkCorpse(corpse)) {
+					if (getDistance(me, corpse) > 30 || checkCollision(me, corpse, 0x1)) {
+						Pather.moveToUnit(corpse);
+					}
+
+					if (Config.FindItemSwitch) {
+						me.switchWeapons(Attack.getPrimarySlot() ^ 1);
+					}
+
+CorpseLoop:
+					for (j = 0; j < 3; j += 1) {
+						Skill.cast(142, 0, corpse);
+
+						tick = getTickCount();
+
+						while (getTickCount() - tick < 1000) {
+							if (corpse.getState(118)) {
+								Pickit.fastPick();
+
+								break CorpseLoop;
+							}
+
+							delay(10);
+						}
+					}
+				}
+			}
+		}
+
+		if (retry) {
+			return this.findItem(me.area === 83 ? 60 : 20);
+		}
+
+		if (Config.FindItemSwitch) {
+			me.switchWeapons(Attack.getPrimarySlot());
+		}
+
+		Pickit.pickItems();
+
+		return true;
+	};
+
 	break;
 case 5: // Druid
 	if (!isIncluded("common/Attacks/Druid.js")) {

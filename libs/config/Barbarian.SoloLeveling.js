@@ -514,7 +514,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == sword # [sanctuaryaura] >= 16");
 		}
 
-		if (Item.getEquippedItem(5).tier < 1200) {	//Voice Of Reason - Lem/Ko/El/Eld
+		if (Item.getEquippedItem(5).tier < 1200 && !Check.haveItem("ring", "unique", "Ravenfrost")) {	//Voice Of Reason - Lem/Ko/El/Eld
 			var VoiceofReason = [
 				"[Name] == LemRune",
 				"[Name] == KoRune",
@@ -537,6 +537,35 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.VoiceofReason, "Zweihander"]);
 
 			Config.KeepRunewords.push("[type] == sword # [passivecoldpierce] >= 24");
+		}
+
+		if (Item.getEquippedItem(5).tier < 1200) {	//Crescent Moon - Shael/Um/Tir
+			var Crescent = [
+				"[Name] == ShaelRune # # [MaxQuantity] == 2",
+				"[Name] == UmRune",
+				"[Name] == TirRune # # [MaxQuantity] == 1",
+			];
+			NTIP.arrayLooping(Crescent);
+
+			if (!me.getItem(631)) {		// Um Rune
+				Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
+			}
+
+			if (me.getItem(622) && me.getItem(631)) {		// Shael and Um rune
+				NTIP.addLine("[Type] == Sword && [flag] != ethereal && [Quality] >= Normal && [Quality] <= Superior && [wsm] <= 0 && [strreq] <= 150 # [Sockets] == 3");
+			}
+
+			Config.Runewords.push([Runeword.CrescentMoon, "Dimensional Blade"]);
+			Config.Runewords.push([Runeword.CrescentMoon, "Battle Sword"]);
+			Config.Runewords.push([Runeword.CrescentMoon, "Rune Sword"]);
+			Config.Runewords.push([Runeword.CrescentMoon, "Conquest Sword"]);
+			Config.Runewords.push([Runeword.CrescentMoon, "Cryptic Sword"]);
+			Config.Runewords.push([Runeword.CrescentMoon, "Phase Blade"]);
+			Config.Runewords.push([Runeword.CrescentMoon, "Espandon"]);
+			Config.Runewords.push([Runeword.CrescentMoon, "Tusk Sword"]);
+			Config.Runewords.push([Runeword.CrescentMoon, "Zweihander"]);
+
+			Config.KeepRunewords.push("[Type] == sword # [ias] >= 20 && [passiveltngpierce] >= 35");
 		}
 
 		if (Item.getEquippedItem(5).tier < 1200) {
