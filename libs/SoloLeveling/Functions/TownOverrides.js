@@ -590,6 +590,8 @@ Town.shopItems = function () {
 		return false;
 	}
 
+	let tick = getTickCount();
+
 	item = npc.getItem();
 
 	if (!item) {
@@ -695,6 +697,8 @@ Town.shopItems = function () {
 
 		delay(2);
 	}
+
+	print("ÿc9GuysSoloLevelingÿc0: Exiting Town.shopItems. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
 
 	return true;
 };
@@ -854,13 +858,13 @@ Town.buyPots = function (quantity, type) {
 	if (type === "Thawing" && Check.Resistance().CR >= 75) {	// Don't buy if already at max res
 		return true;
 	} else if (type === "Thawing") {
-		print("ÿc9buyPotsÿc0 :: Current cold resistance: " + Check.Resistance().CR);
+		print("ÿc9BuyPotsÿc0 :: Current cold resistance: " + Check.Resistance().CR);
 	}
 
 	if (type === "Antidote" && Check.Resistance().PR >= 75) {	// Don't buy if already at max res
 		return true;
 	} else if (type === "Antidote") {
-		print("ÿc9buyPotsÿc0 :: Current poison resistance: " + Check.Resistance().PR);
+		print("ÿc9BuyPotsÿc0 :: Current poison resistance: " + Check.Resistance().PR);
 	}
 
 	if (type === "Stamina" && (me.paladin && me.getSkill(115, 0) || me.sorceress && me.getSkill(54, 0))) {	// Don't buy if teleport or vigor
@@ -1364,53 +1368,6 @@ Town.betterBaseThanWearing = function (base, verbose) {
 		}
 
 		return skillsRating;
-	};
-
-	function nonRunewordEquippedBaseCheck (base, bodyLoc) {
-		let baseTier = 0;
-		let sockets = base.getStat(194);
-
-		switch (base.itemType) {
-		case 69: // Voodoo heads
-			baseTier += 310;
-
-			break;
-		case 70: // Auric Shields
-			switch (sockets) {
-			case 3:
-				if (!me.hell) {
-					baseTier += 260;
-				}
-
-				break;
-			case 4:
-				baseTier += 900;
-
-				break;
-			default:
-				break;
-			}
-
-			break;
-		case 71: // Barb Helm
-		case 72: //	Druid Pelt
-			baseTier += 260;
-
-			break;
-		case 25: //	Wand
-			baseTier = tierscore(base);
-			break;
-		}
-
-		if (baseTier > 0) {
-			baseTier += tierscore(base);
-		}
-
-		if (verbose) {
-			print("ÿc9BadBaseCheckÿc0 :: BaseTier: " + baseTier + " EquippedTier: " + Item.getEquippedItem(bodyLoc).tier);
-		}
-
-		return (baseTier < Item.getEquippedItem(bodyLoc).tier);
 	};
 
 	if (base === undefined || !base) {
@@ -2287,9 +2244,9 @@ Town.clearJunk = function () {
 			[18, 41, 76, 77, 78].indexOf(junk[0].itemType) === -1 && // Don't drop tomes, keys or potions
 			(Town.questItemClassids.indexOf(junk[0].classid) === -1) &&	// Don't drop quest items
 			(Town.unsellablesClassids.indexOf(junk[0].classid) === -1) &&	// Don't try to sell keys/essences/tokens/organs
-			(junk[0].classid !== 603 && junk[0].quality !== 7) && // Anni
-			(junk[0].classid !== 604 && junk[0].quality !== 7) && // Torch
-			(junk[0].classid !== 605 && junk[0].quality !== 7) && // Gheeds
+			!(junk[0].classid !== 603 && junk[0].quality !== 7) && // Anni
+			!(junk[0].classid !== 604 && junk[0].quality !== 7) && // Torch
+			!(junk[0].classid !== 605 && junk[0].quality !== 7) && // Gheeds
 			(!Item.autoEquipKeepCheckMerc(junk[0]) && !Item.autoEquipKeepCheck(junk[0]) && !Item.autoEquipCheckSecondary(junk[0])) && 
 			([0, 4].indexOf(Pickit.checkItem(junk[0]).result) > -1) // only drop unwanted
 		) {
@@ -2648,7 +2605,7 @@ Town.visitTown = function (repair = false) {
 		return true;
 	}
 
-	if (me.area === 120) {	//Arreat Summit
+	if ([120, 136].indexOf(me.area) > -1 || me.dead) {	//Arreat Summit, Uber Trist or I died while trying to townchicken
 		return false;
 	}
 

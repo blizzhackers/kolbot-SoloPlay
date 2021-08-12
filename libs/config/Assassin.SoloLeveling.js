@@ -70,7 +70,7 @@ function LoadConfig () {
 	Config.ClearInvOnStart = false;
 
 	/* Chicken configuration. */
-	Config.LifeChicken = me.playertype ? 60 : 10;
+	Config.LifeChicken = me.playertype ? 45 : 10;
 	Config.ManaChicken = 0;
 	Config.MercChicken = 0;
 	Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
