@@ -72,12 +72,12 @@ Attack.killTarget = function (name) {
 		ClassAttack.afterAttack();
 
 		// spectype check from isid0re SoloLeveling commit 44d25cb
-		if ( !target || !copyUnit(target).x || target.dead || target.spectype === 0) {
+		if (!target || !copyUnit(target).x || target.dead || target.spectype === 0) {
 			break;
 		}
 	}
 
-	if ( !target || !copyUnit(target).x || target.dead || target.spectype === 0) {
+	if (!target || !copyUnit(target).x || target.dead || target.spectype === 0) {
 		Pickit.pickItems();
 	}
 
@@ -739,6 +739,59 @@ Attack.clearClassids = function (...ids) {
 
     return true;
 };
+
+Attack.getSwitchItemCharges = function (skillId) {
+	if (skillId === undefined || !skillId) {
+		return false;
+	}
+
+	let chargedItems;
+
+	let validCharge = function (itemCharge) {
+		return itemCharge.skill === skillId && itemCharge.charges > 1;
+	};
+
+	chargedItems = [];
+
+	me.getItems(-1)
+		.filter(item => item && item.bodylocation === 11)	//Switch weapon
+			.forEach(function (item) {
+				let stats = item.getStat(-2);
+
+				if (stats.hasOwnProperty(204)) {
+					stats = stats[204].filter(validCharge);
+					stats.length && chargedItems.push({
+						charge: stats.first(),
+						item: item
+					});
+				}
+			});
+
+	if (chargedItems.length === 0) {
+		return false;
+	}
+
+	return true;
+};
+
+Attack.switchCastCharges = function (skillId, unit) {
+	if (skillId === undefined || unit === undefined) {
+		return false;
+	}
+
+	if (Attack.getSwitchItemCharges(skillId)) {
+		me.switchWeapons(1);
+		me.castChargedSkill(skillId, unit);
+		me.switchWeapons(0);
+	} else {
+		//print("ÿc9GuysSoloLevelingÿc0: No item with charges or no charges available");
+		return false;
+	}
+
+	return true;
+};
+
+Attack.BossAndMiniBosses = [156, 211, 242, 243, 544, 229, 250, 256, 267, 365, 409];
 
 Attack.test = function () {
 	return true;

@@ -467,13 +467,58 @@ var secondaryscore = function (item) {
 	return tier;
 };
 
+var chargeditemscore = function (item, skillId) {
+	let tier = 0;
+
+	let validCharge = function (itemCharge) {
+		return itemCharge.skill === skillId && itemCharge.charges > 1;
+	};
+
+	let stats = item.getStat(-2);
+	let chargedItems = [];
+
+	if (stats.hasOwnProperty(204)) {
+		if (stats[204] instanceof Array) {
+			for (let i = 0; i < stats[204].length; i += 1) {
+				if (stats[204][i] !== undefined) {
+					chargedItems.push({
+						unit: copyUnit(item),
+						gid: item.gid,
+						skill: stats[204][i].skill,
+						level: stats[204][i].level,
+						charges: stats[204][i].charges,
+						maxcharges: stats[204][i].maxcharges
+					});
+				}
+			}
+		} else {
+			chargedItems.push({
+				unit: copyUnit(item),
+				gid: item.gid,
+				skill: stats[204].skill,
+				level: stats[204].level,
+				charges: stats[204].charges,
+				maxcharges: stats[204].maxcharges
+			});
+		}
+	}
+
+	chargedItems = chargedItems.filter(check => check.skill === skillId);
+
+	for (let i = 0; i < chargedItems.length; i++) {
+		tier += chargedItems[i].level * 5;
+	}
+
+	return tier;
+};
+
 var charmscore = function (item) {
 	let generalWeights = {
 		ALL:	180, // + all skills
 		CLASS:	175, // + class tab
 		TAB: 300, // + skill tab
 		FR: 2, // fire resist
-		LR: 2, // lightning resist
+		LR: 5, // lightning resist
 		CR: 2, // cold resist
 		PR: 1, // poison resist
 		FRW: 1, // faster run/walk

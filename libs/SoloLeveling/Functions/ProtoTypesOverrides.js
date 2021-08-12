@@ -57,6 +57,118 @@ Unit.prototype.switchWeapons = function (slot) {
 	return false;
 };
 
+Unit.prototype.castChargedSkill = function (...args) {
+	let skillId, x, y, unit, chargedItem, charge,
+		chargedItems = [],
+		validCharge = function (itemCharge) {
+			return itemCharge.skill === skillId && itemCharge.charges;
+		};
+
+	switch (args.length) {
+	case 0: // item.castChargedSkill()
+		break;
+	case 1:
+		if (args[0] instanceof Unit) { // hellfire.castChargedSkill(monster);
+			unit = args[0];
+		} else {
+			skillId = args[0];
+		}
+
+		break;
+	case 2:
+		if (typeof args[0] === 'number') {
+			if (args[1] instanceof Unit) { // me.castChargedSkill(skillId,unit)
+				[skillId, unit] = [...args];
+			} else if (typeof args[1] === 'number') { // item.castChargedSkill(x,y)
+				[x, y] = [...args];
+			}
+		} else {
+			throw new Error(' invalid arguments, expected (skillId, unit) or (x, y)');
+		}
+
+		break;
+	case 3:
+		// If all arguments are numbers
+		if (typeof args[0] === 'number' && typeof args[1] === 'number' && typeof args[2] === 'number') {
+			[skillId, x, y] = [...args];
+		}
+
+		break;
+	default:
+		throw new Error("invalid arguments, expected 'me' object or 'item' unit");
+	}
+
+	// Charged skills can only be casted on x, y coordinates
+	unit && ([x, y] = [unit.x, unit.y]);
+
+	if (this !== me && this.type !== 4) {
+		throw Error("invalid arguments, expected 'me' object or 'item' unit");
+	}
+
+	if (this === me) { // Called the function the unit, me.
+		if (!skillId) {
+			throw Error('Must supply skillId on me.castChargedSkill');
+		}
+
+		chargedItems = [];
+
+		this.getItems(-1) // Item must be in inventory, or a charm in inventory
+			.filter(item => item && (item.location === 1 || (item.location === 3 && item.itemType === 82)))
+			.forEach(function (item) {
+				let stats = item.getStat(-2);
+
+				if (stats.hasOwnProperty(204)) {
+					stats = stats[204].filter(validCharge);
+					stats.length && chargedItems.push({
+						charge: stats.first(),
+						item: item
+					});
+				}
+			});
+
+		if (chargedItems.length === 0) {
+			print("ÿc9CastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
+			return false;
+		}
+
+		chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
+
+		return chargedItem.castChargedSkill.apply(chargedItem, args);
+	} else if (this.type === 4) {
+		charge = this.getStat(-2)[204]; // WARNING. Somehow this gives duplicates
+
+		if (!charge) {
+			throw Error('No charged skill on this item');
+		}
+
+		if (skillId) {
+			charge = charge.filter(item => (skillId && item.skill === skillId) && !!item.charges); // Filter out all other charged skills
+		} else if (charge.length > 1) {
+			throw new Error('multiple charges on this item without a given skillId');
+		}
+
+		charge = charge.first();
+
+		if (charge) {
+			// Setting skill on hand
+			if (!Config.PacketCasting || Config.PacketCasting === 1 && skillId !== 54) {
+				return Skill.cast(skillId, 0, x || me.x, y || me.y, this); // Non packet casting
+			}
+
+			// Packet casting
+			sendPacket(1, 0x3c, 2, charge.skill, 1, 0x0, 1, 0x00, 4, this.gid);
+			// No need for a delay, since its TCP, the server recv's the next statement always after the send cast skill packet
+
+			// The result of "successfully" casted is different, so we cant wait for it here. We have to assume it worked
+			sendPacket(1, 0x0C, 2, x || me.x, 2, y || me.y); // Cast the skill
+
+			return true;
+		}
+	}
+
+	return false;
+};
+
 Unit.prototype.getStatEx = function (id, subid) {
 	var i, temp, rval, regex;
 

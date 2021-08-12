@@ -423,6 +423,16 @@ case 1: // Sorceress
 			Skill.cast(58, 0);
 		}
 
+		if (index === 1 && !unit.dead) {
+			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && (Math.round(getDistance(me, unit)) < Skill.getRange(72) || !checkCollision(me, unit, 0x4))) {
+				Attack.switchCastCharges(72, unit);		// Switch cast weaken - will only cast if actually has wand with charges in switch spot - TODO: Clean this up, maybe some type of switch statement based on what charges are on the switch wep
+			}
+
+			if (!unit.getState(61) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && (Math.round(getDistance(me, unit)) < Skill.getRange(91) || !checkCollision(me, unit, 0x4))) {
+				Attack.switchCastCharges(91, unit);		// Switch cast lower resist
+			}
+		}
+
 		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
 			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
@@ -1318,7 +1328,7 @@ case 4: // Barbarian - theBGuy
 					me.switchWeapons(1);
 				}
 
-				//print("ÿc9doAttack ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMonsterCount(me.x, me.y, 5, null, true));
+				print("ÿc9doAttack ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMonsterCount(me.x, me.y, 5, null, true));
 
 				if (me.getSkill(154, 1) >= 15) {
 					for (let i = 0; i < 2; i++) {
@@ -1435,7 +1445,7 @@ case 4: // Barbarian - theBGuy
 						me.switchWeapons(1);
 					}
 
-					//print("ÿc9doCast ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMonsterCount(me.x, me.y, 5, null, true));
+					print("ÿc9doCast ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMonsterCount(me.x, me.y, 5, null, true));
 
 					Skill.cast(154, Skill.getHand(154));
 					this.warCryTick = getTickCount();
@@ -1485,6 +1495,109 @@ case 5: // Druid
 	if (!isIncluded("common/Attacks/Druid.js")) {
 		include("common/Attacks/Druid.js");
 	}
+
+	ClassAttack.doAttack = function (unit, preattack) {
+		var index, checkSkill, result,
+			mercRevive = 0,
+			timedSkill = -1,
+			untimedSkill = -1;
+
+		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+
+		if (Config.MercWatch && Town.needMerc()) {
+			Town.visitTown();
+		}
+
+		if (me.getSkill(250, 1) && !me.getState(144)) { // Rebuff Hurricane
+			Skill.cast(250, 0);
+		}
+
+		if (me.getSkill(235, 1) && !me.getState(151)) { // Rebuff Cyclone Armor
+			Skill.cast(235, 0);
+		}
+
+		if (index === 1 && !unit.dead) {
+			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && (Math.round(getDistance(me, unit)) < Skill.getRange(72) || !checkCollision(me, unit, 0x4))) {
+				Attack.switchCastCharges(72, unit);		// Switch cast weaken - will only cast if actually has wand with charges in switch spot - TODO: Clean this up, maybe some type of switch statement based on what charges are on the switch wep
+			}
+
+			if (!unit.getState(60) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && (Math.round(getDistance(me, unit)) < Skill.getRange(87) || !checkCollision(me, unit, 0x4))) {
+				Attack.switchCastCharges(87, unit);		// Switch cast decrepify
+			}
+		}
+
+		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
+			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
+				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
+					return 0;
+				}
+			}
+
+			Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
+
+			return 1;
+		}
+
+		// Get timed skill
+		if (Attack.getCustomAttack(unit)) {
+			checkSkill = Attack.getCustomAttack(unit)[0];
+		} else {
+			checkSkill = Config.AttackSkill[index];
+		}
+
+		if (Attack.checkResist(unit, checkSkill)) {
+			timedSkill = checkSkill;
+		} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([56, 59].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+			timedSkill = Config.AttackSkill[5];
+		}
+
+		// Get untimed skill
+		if (Attack.getCustomAttack(unit)) {
+			checkSkill = Attack.getCustomAttack(unit)[1];
+		} else {
+			checkSkill = Config.AttackSkill[index + 1];
+		}
+
+		if (Attack.checkResist(unit, checkSkill)) {
+			untimedSkill = checkSkill;
+		} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([56, 59].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+			untimedSkill = Config.AttackSkill[6];
+		}
+
+		// Low mana timed skill
+		if (Config.LowManaSkill[0] > -1 && Skill.getManaCost(timedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[0])) {
+			timedSkill = Config.LowManaSkill[0];
+		}
+
+		// Low mana untimed skill
+		if (Config.LowManaSkill[1] > -1 && Skill.getManaCost(untimedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[1])) {
+			untimedSkill = Config.LowManaSkill[1];
+		}
+
+		result = this.doCast(unit, timedSkill, untimedSkill);
+
+		if (result === 2 && Config.TeleStomp && Attack.checkResist(unit, "physical") && !!me.getMerc()) {
+			while (Attack.checkMonster(unit)) {
+				if (Town.needMerc()) {
+					if (Config.MercWatch && mercRevive++ < 1) {
+						Town.visitTown();
+					} else {
+						return 2;
+					}
+				}
+
+				if (getDistance(me, unit) > 3) {
+					Pather.moveToUnit(unit);
+				}
+
+				this.doCast(unit, Config.AttackSkill[1], Config.AttackSkill[2]);
+			}
+
+			return 1;
+		}
+
+		return result;
+	};
 
 	ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		var i, walk;

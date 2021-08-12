@@ -583,7 +583,7 @@ Misc.openChests = function (range) {
 				unitList.push(copyUnit(unit));
 			}
 
-			if (unit.name && getDistance(me.x, me.y, unit.x, unit.y) <= 2 && pita.indexOf(unit.name.toLowerCase()) > -1) {
+			if (unit.name && getDistance(me.x, me.y, unit.x, unit.y) <= 2 && pita.indexOf(unit.name.toLowerCase()) > -1 && !Pather.useTeleport()) {
 				unitList.push(copyUnit(unit));
 			}
 
