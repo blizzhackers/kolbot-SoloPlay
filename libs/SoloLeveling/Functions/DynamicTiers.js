@@ -336,6 +336,10 @@ var tierscore = function (item) {
 				buildRating += 50;
 			}
 
+			if (item.getStatEx(252)) {	// ignore target defense, really only matters for non-casters
+				buildRating += 50;
+			}
+
 			buildRating += item.getStatEx(21) * buildWeights.MINDMG; // add MIN damage
 			buildRating += item.getStatEx(22) * buildWeights.MAXDMG; // add MAX damage
 			//buildRating += item.getStatEx(23) * buildWeights.SECMINDMG; // add MIN damage

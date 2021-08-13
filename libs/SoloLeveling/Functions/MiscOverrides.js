@@ -2093,6 +2093,42 @@ Misc.shapeShift = function (mode) {
 	return false;
 };
 
+Misc.buyItem = function (unit, shiftBuy, gamble) {
+	var i, tick,
+		oldGold = me.getStat(14) + me.getStat(15),
+		itemCount = me.itemcount,
+		npc = getInteractedNPC();
+
+	if (!npc) {
+		print("buyItem: No NPC menu open.");
+		return false;
+	}
+
+	if (me.getStat(14) + me.getStat(15) < unit.getItemCost(0)) { // Can we afford the item?
+		return false;
+	}
+
+	for (i = 0; i < 3; i += 1) {
+		sendPacket(1, 0x32, 4, npc.gid, 4, unit.gid, 4, shiftBuy ? 0x80000000 : gamble ? 0x2 : 0x0, 4, 0);
+
+		tick = getTickCount();
+
+		while (getTickCount() - tick < Math.max(2000, me.ping * 2 + 500)) {
+			if (shiftBuy && me.getStat(14) + me.getStat(15) < oldGold) {
+				return true;
+			}
+
+			if (itemCount !== me.itemcount) {
+				return true;
+			}
+
+			delay(10);
+		}
+	}
+
+	return false;
+};
+
 Packet.openMenu = function (unit) { // singleplayer delay(0) fix
 	if (unit.type !== 1) {
 		throw new Error("openMenu: Must be used on NPCs.");

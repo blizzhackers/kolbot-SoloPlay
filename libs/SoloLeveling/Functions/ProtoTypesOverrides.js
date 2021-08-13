@@ -118,11 +118,20 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 				let stats = item.getStat(-2);
 
 				if (stats.hasOwnProperty(204)) {
-					stats = stats[204].filter(validCharge);
-					stats.length && chargedItems.push({
-						charge: stats.first(),
-						item: item
-					});
+					if (stats[204] instanceof Array) {
+						stats = stats[204].filter(validCharge);
+						stats.length && chargedItems.push({
+							charge: stats.first(),
+							item: item
+						});
+					} else {
+						if (stats[204].skill === skillId && stats[204].charges > 1) {
+							chargedItems.push({
+								charge: stats[204].charges,
+								item: item
+							});
+						}
+					}
 				}
 			});
 

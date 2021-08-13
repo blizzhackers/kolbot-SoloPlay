@@ -616,7 +616,7 @@ Town.shopItems = function () {
 			try {
 				if (Storage.Inventory.CanFit(items[i]) && me.getStat(14) + me.getStat(15) >= items[i].getItemCost(0)) {
 					if ([2, 3].indexOf(items[i].quality) > -1) {
-						if (this.betterBaseThanStashed(items[i])) {
+						if (!this.worseBaseThanStashed(items[i])) {
 							Misc.itemLogger("Shopped", items[i]);
 
 							if (Developer.Debugging.autoEquip) {
@@ -1289,7 +1289,7 @@ Town.clearInventory = function () {
 			if ([0, 4].indexOf(result) === -1) {
 				if (([2, 3].indexOf(items[i].quality) > -1 && Town.baseItemTypes.indexOf(items[i].itemType) > -1 && items[i].getStat(194) > 0) || 
 					([25, 69, 70, 71, 72].indexOf(items[i].itemType) > -1 && items[i].quality === 2 && items[i].getStat(194) === 0)) {
-					if (!this.betterBaseThanStashed(items[i]) || !this.betterBaseThanWearing(items[i], Developer.Debugging.junkCheckVerbose)) {
+					if (this.worseBaseThanStashed(items[i]) || !this.betterBaseThanWearing(items[i], Developer.Debugging.junkCheckVerbose)) {
 						result = 4;
 					}
 				}
@@ -1867,7 +1867,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 	return result;
 };
 
-Town.betterBaseThanStashed = function (base, clearJunkCheck) {
+Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 	if (base === undefined || !base) {
 		return false;
 	}
@@ -1913,8 +1913,8 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 	let itemsToCheck, result = false;
 
 	switch (base.itemType) {
-	case 2: // Shield
-	case 69: //Voodoo heads
+	case 2:  // Shield
+	case 69: // Voodoo heads
 	case 70: // Auric Shields
 		if (me.paladin) {
 			itemsToCheck = me.getItems()
@@ -1935,9 +1935,13 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 			}
 
 			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
-				if ((base.location === 7 || base.location === 3) &&
+				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck) ||
-						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl < itemsToCheck.ilvl))) {
+						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
+					if (Developer.Debugging.junkCheckVerbose) {
+						print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
+					}
+
 					result = true;
 				}
 			}
@@ -1960,8 +1964,12 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 			}
 
 			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
-				if ((base.location === 7 || base.location === 3) &&
+				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck))) {
+					if (Developer.Debugging.junkCheckVerbose) {
+						print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
+					}
+
 					result = true;
 				}
 			}
@@ -1985,9 +1993,13 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 			}
 
 			if (base.getStat(194) > 0) {
-				if ((base.location === 7 || base.location === 3) &&
+				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					!base.getFlag(NTIPAliasFlag["ethereal"]) &&
 					base.getStatEx(31) < itemsToCheck.getStatEx(31)) {
+					if (Developer.Debugging.junkCheckVerbose) {
+						print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(31) + " itemToCheckDefense: " + itemsToCheck.getStatEx(31));
+					}
+
 					result = true;
 				}
 			}
@@ -2014,9 +2026,13 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 		}
 
 		if (base.getStat(194) > 0) {
-			if ((base.location === 7 || base.location === 3) &&
+			if (([3, 6, 7].indexOf(base.location) > -1) &&
 				!base.getFlag(NTIPAliasFlag["ethereal"]) &&
 				base.getStatEx(31) < itemsToCheck.getStatEx(31)) {
+				if (Developer.Debugging.junkCheckVerbose) {
+					print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(31) + " itemToCheckDefense: " + itemsToCheck.getStatEx(31));
+				}
+
 				result = true;
 			}
 		}
@@ -2045,9 +2061,13 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 			}
 
 			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
-				if ((base.location === 7 || base.location === 3) &&
+				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.getStatEx(31) < itemsToCheck.getStatEx(31)))) {
+					if (Developer.Debugging.junkCheckVerbose) {
+						print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
+					}
+
 					result = true;
 				}
 			}
@@ -2071,9 +2091,13 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 			}
 
 			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
-				if ((base.location === 7 || base.location === 3) &&
+				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					!base.getFlag(NTIPAliasFlag["ethereal"]) &&
 					base.getStatEx(31) < itemsToCheck.getStatEx(31)) {
+					if (Developer.Debugging.junkCheckVerbose) {
+						print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStat(31) + " itemToCheckDefense: " + itemsToCheck.getStat(31));
+					}
+
 					result = true;
 				}
 			}
@@ -2100,9 +2124,13 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 			}
 
 			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
-				if ((base.location === 7 || base.location === 3) &&
+				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck) || 
-						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl < itemsToCheck.ilvl))) {
+						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
+					if (Developer.Debugging.junkCheckVerbose) {
+						print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
+					}
+
 					result = true;
 				}
 			}
@@ -2133,7 +2161,7 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 
 		if (itemsToCheck === undefined) {
 			if (Developer.Debugging.junkCheckVerbose) {
-				print("ÿc9BadBaseCheckÿc0 :: itemsToCheck is undefined");
+				print("ÿc9WorseBaseThanStashedÿc0 :: itemsToCheck is undefined");
 			}
 
 			return false;
@@ -2141,18 +2169,18 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 
 		if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
 			if (Developer.Debugging.junkCheckVerbose) {
-				print("ÿc9BadBaseCheckÿc0 :: same item");
+				print("ÿc9WorseBaseThanStashedÿc0 :: same item");
 			}
 
 			return true;
 		}
 
 		if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
-			if ((base.location === 7 || base.location === 3) &&
+			if (([3, 4, 7].indexOf(base.location) > -1) &&
 				(generalScore(base) < generalScore(itemsToCheck) || 
 						(generalScore(base) === generalScore(itemsToCheck) && Item.getQuantityOwned(base) > 2))) {
 				if (Developer.Debugging.junkCheckVerbose) {
-					print("ÿc9BadBaseCheckÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
+					print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 				}
 
 				result = true;
@@ -2181,8 +2209,12 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 			}
 
 			if (base.getStat(194) > 0) {
-				if ((base.location === 7 || base.location === 3) &&
+				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck))) {
+					if (Developer.Debugging.junkCheckVerbose) {
+						print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
+					}
+
 					result = true;
 				}
 			}
@@ -2208,8 +2240,12 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 		}
 
 		if (base.getStat(194) > 0) {
-			if ((base.location === 7 || base.location === 3) &&
+			if (([3, 4, 7].indexOf(base.location) > -1) &&
 				(base.getStatEx(23) + base.getStatEx(24)) < (itemsToCheck.getStatEx(23) + itemsToCheck.getStatEx(24))) {
+				if (Developer.Debugging.junkCheckVerbose) {
+					print("ÿc9WorseBaseThanStashedÿc0 :: BaseDamage: " + (base.getStatEx(23) + base.getStatEx(24)) + " itemToCheckDamage: " + (itemsToCheck.getStatEx(23) + itemsToCheck.getStatEx(24)));
+				}
+
 				result = true;
 			}
 		}
@@ -2217,7 +2253,7 @@ Town.betterBaseThanStashed = function (base, clearJunkCheck) {
 		break;
 	default:
 		if (Developer.Debugging.junkCheckVerbose) {
-			print("ÿc9BadBaseCheckÿc0 :: No itemType to check for " + base.name);
+			print("ÿc9WorseBaseThanStashedÿc0 :: No itemType to check for " + base.name);
 		}
 
 		return false;
@@ -2244,9 +2280,9 @@ Town.clearJunk = function () {
 			[18, 41, 76, 77, 78].indexOf(junk[0].itemType) === -1 && // Don't drop tomes, keys or potions
 			(Town.questItemClassids.indexOf(junk[0].classid) === -1) &&	// Don't drop quest items
 			(Town.unsellablesClassids.indexOf(junk[0].classid) === -1) &&	// Don't try to sell keys/essences/tokens/organs
-			!(junk[0].classid !== 603 && junk[0].quality !== 7) && // Anni
+			/*!(junk[0].classid === 603 && junk[0].quality !== 7) && // Anni
 			!(junk[0].classid !== 604 && junk[0].quality !== 7) && // Torch
-			!(junk[0].classid !== 605 && junk[0].quality !== 7) && // Gheeds
+			!(junk[0].classid !== 605 && junk[0].quality !== 7) && // Gheeds*/
 			(!Item.autoEquipKeepCheckMerc(junk[0]) && !Item.autoEquipKeepCheck(junk[0]) && !Item.autoEquipCheckSecondary(junk[0])) && 
 			([0, 4].indexOf(Pickit.checkItem(junk[0]).result) > -1) // only drop unwanted
 		) {
@@ -2324,7 +2360,7 @@ Town.clearJunk = function () {
 			}
 
 			if ([2, 3].indexOf(junk[0].quality) > -1 && Town.baseItemTypes.indexOf(junk[0].itemType) > -1) {
-				if (this.betterBaseThanStashed(junk[0], true)) {
+				if (this.worseBaseThanStashed(junk[0], true)) {
 					if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
 						Town.openStash();
 					}
@@ -2333,7 +2369,7 @@ Town.clearJunk = function () {
 						Cubing.emptyCube();
 					}
 
-					print("ÿc9BetterThanStashedCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+					print("ÿc9WorseBaseThanStashedCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
 
 					if (Storage.Inventory.CanFit(junk[0])) {
 						if (Storage.Inventory.MoveTo(junk[0])) {

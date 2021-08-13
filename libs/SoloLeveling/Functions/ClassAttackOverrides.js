@@ -1527,7 +1527,7 @@ case 4: // Barbarian - theBGuy
 				}
 
 				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && (!unit.getState(21) || getTickCount() - this.warCryTick >= 1500) && 
-					Attack.getMonsterCount(me.x, me.y, 5, null, true) >= (me.area === 131 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
+					Attack.getMonsterCount(me.x, me.y, 5, null, true) >= (me.area === 131 || Item.getEquippedItem(4).durability === 0 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
 					if (switchCast) {
 						me.switchWeapons(1);
 					}
