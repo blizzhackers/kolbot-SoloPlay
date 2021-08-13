@@ -781,7 +781,7 @@ Attack.switchCastCharges = function (skillId, unit) {
 
 	if (Attack.getSwitchItemCharges(skillId)) {
 		me.switchWeapons(1);
-		me.castChargedSkill(skillId, unit);
+		me.castSwitchChargedSkill(skillId, unit);
 		me.switchWeapons(0);
 	} else {
 		//print("ÿc9GuysSoloLevelingÿc0: No item with charges or no charges available");

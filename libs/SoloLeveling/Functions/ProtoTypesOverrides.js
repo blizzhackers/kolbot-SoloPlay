@@ -57,7 +57,7 @@ Unit.prototype.switchWeapons = function (slot) {
 	return false;
 };
 
-Unit.prototype.castChargedSkill = function (...args) {
+Unit.prototype.castSwitchChargedSkill = function (...args) {
 	let skillId, x, y, unit, chargedItem, charge,
 		chargedItems = [],
 		validCharge = function (itemCharge) {
@@ -113,7 +113,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 		chargedItems = [];
 
 		this.getItems(-1) // Item must be in inventory, or a charm in inventory
-			.filter(item => item && (item.location === 1 || (item.location === 3 && item.itemType === 82)))
+			.filter(item => item && ((me.weaponswitch === 0 && item.bodylocation === 11) || (me.weaponswitch === 1 && item.bodylocation === 4)))
 			.forEach(function (item) {
 				let stats = item.getStat(-2);
 
