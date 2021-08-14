@@ -1343,6 +1343,7 @@ case 4: // Barbarian - theBGuy
 		let useWarCry = me.getSkill(154, 1);
 		let useBattleCry = me.getSkill(146, 1);
 		let switchCast = (Precast.getBetterSlot(146) === 1 || Precast.getBetterSlot(154) === 1) ? true : false;
+
 		var index, needRepair = [], attackSkill = -1;
 			
 		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
@@ -1475,6 +1476,7 @@ case 4: // Barbarian - theBGuy
 		let useWarCry = me.getSkill(154, 1);
 		let useBattleCry = me.getSkill(146, 1);
 		let switchCast = (Precast.getBetterSlot(146) === 1 || Precast.getBetterSlot(154) === 1) ? true : false;
+		Config.FindItem = me.getSkill(142, 0);	// Only use if hard points are put into the skill
 
 		if (attackSkill < 0) {
 			return 2;

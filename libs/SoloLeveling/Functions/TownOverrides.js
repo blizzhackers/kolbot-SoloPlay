@@ -616,7 +616,7 @@ Town.shopItems = function () {
 			try {
 				if (Storage.Inventory.CanFit(items[i]) && me.getStat(14) + me.getStat(15) >= items[i].getItemCost(0)) {
 					if ([2, 3].indexOf(items[i].quality) > -1) {
-						if (!this.worseBaseThanStashed(items[i])) {
+						if (!this.worseBaseThanStashed(items[i]) && this.betterBaseThanWearing(items[i], Developer.Debugging.junkCheckVerbose)) {
 							Misc.itemLogger("Shopped", items[i]);
 
 							if (Developer.Debugging.autoEquip) {
@@ -1443,7 +1443,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 					if (baseResists !== itemsResists) {
 						if (verbose) {
-							print("ÿc9BadBaseCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+							print("ÿc9BetterThanWearingCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
 						}
 
 						if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
@@ -1458,7 +1458,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 					if (baseDefense !== itemsDefense) {
 						if (verbose) {
-							print("ÿc9BadBaseCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+							print("ÿc9BetterThanWearingCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 						}
 
 						if (baseDefense < itemsDefense) {	//base has lower defense
@@ -1479,7 +1479,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 					
 				if (baseDmg !== itemsTotalDmg) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Black) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+						print("ÿc9BetterThanWearingCheckÿc0 :: RW(Black) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 					}
 
 					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
@@ -1499,7 +1499,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 					
 				if (baseDmg !== itemsTotalDmg) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Crescent Moon) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+						print("ÿc9BetterThanWearingCheckÿc0 :: RW(Crescent Moon) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 					}
 
 					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
@@ -1516,7 +1516,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 				if (baseResists !== itemsResists) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+						print("ÿc9BetterThanWearingCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
 					}
 
 					if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
@@ -1536,7 +1536,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 					
 				if (baseDmg !== itemsTotalDmg) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Honor) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+						print("ÿc9BetterThanWearingCheckÿc0 :: RW(Honor) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 					}
 
 					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
@@ -1556,7 +1556,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 					
 				if (baseDmg !== itemsTotalDmg) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(King's Grace) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+						print("ÿc9BetterThanWearingCheckÿc0 :: RW(King's Grace) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 					}
 
 					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
@@ -1576,7 +1576,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 					
 				if (baseDmg !== itemsTotalDmg) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Lawbringer) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+						print("ÿc9BetterThanWearingCheckÿc0 :: RW(Lawbringer) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 					}
 
 					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
@@ -1597,7 +1597,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 					if (equippedSkillsTier !== baseSkillsTier) {
 						if (verbose) {
-							print("ÿc9BadBaseCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+							print("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 						}
 
 						if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense helm
@@ -1607,7 +1607,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 						}
 					} else if (baseDefense !== itemsDefense) {
 						if (verbose) {
-							print("ÿc9BadBaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+							print("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 						}
 
 						if (baseDefense < itemsDefense) {	//base has lower defense
@@ -1619,7 +1619,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 				} else {
 					if (baseDefense !== itemsDefense) {
 						if (verbose) {
-							print("ÿc9BadBaseCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+							print("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 						}
 
 						if (baseDefense < itemsDefense) {	//base has lower defense
@@ -1645,7 +1645,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 					
 				if (baseDmg !== itemsTotalDmg) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Malice) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+						print("ÿc9BetterThanWearingCheckÿc0 :: RW(Malice) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 					}
 
 					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
@@ -1663,7 +1663,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 					if (equippedSkillsTier !== baseSkillsTier) {
 						if (verbose) {
-							print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+							print("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 						}
 
 						if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense shield
@@ -1675,7 +1675,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 						baseDefense = base.getStatEx(31);
 
 						if (verbose) {
-							print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) EquippedDefense: " + equippedItem.def + " BaseDefense: " + baseDefense);
+							print("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) EquippedDefense: " + equippedItem.def + " BaseDefense: " + baseDefense);
 						}
 
 						if (baseDefense < equippedItem.def) {
@@ -1690,7 +1690,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 					if (baseResists !== itemsResists) {
 						if (verbose) {
-							print("ÿc9BadBaseCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+							print("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
 						}
 
 						if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
@@ -1712,7 +1712,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 					
 				if (baseDmg !== itemsTotalDmg) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Rift) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+						print("ÿc9BetterThanWearingCheckÿc0 :: RW(Rift) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 					}
 
 					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
@@ -1733,7 +1733,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 				if (baseResists !== itemsResists) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(spirit) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+						print("ÿc9BetterThanWearingCheckÿc0 :: RW(spirit) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
 					}
 
 					if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
@@ -1753,7 +1753,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 					
 				if (baseDmg !== itemsTotalDmg) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Steel) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+						print("ÿc9BetterThanWearingCheckÿc0 :: RW(Steel) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 					}
 
 					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
@@ -1773,7 +1773,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 					
 				if (baseDmg !== itemsTotalDmg) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Strength) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+						print("ÿc9BetterThanWearingCheckÿc0 :: RW(Strength) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 					}
 
 					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
@@ -1791,7 +1791,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 					if (equippedSkillsTier !== baseSkillsTier) {
 						if (verbose) {
-							print("ÿc9BadBaseCheckÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+							print("ÿc9BetterThanWearingCheckÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 						}
 
 						if (baseSkillsTier < equippedSkillsTier) {
@@ -1810,7 +1810,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 				if (baseDefense !== itemsDefense) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(Stealth/Smoke) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+						print("ÿc9BetterThanWearingCheckÿc0 :: RW(Stealth/Smoke) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 					}
 
 					if (baseDefense < itemsDefense) {	//base has lower defense
@@ -1847,7 +1847,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 				if (baseDefense !== itemsDefense) {
 					if (verbose) {
-						print("ÿc9BadBaseCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+						print("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 					}
 
 					if (baseDefense < itemsDefense) {	//base has lower defense
