@@ -112,7 +112,7 @@ var SetUp = {
 				respec = Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("monarch", "unique", "Stormshield") ? me.charlvl : 100;
 				break;
 			case "Frenzy":
-				respec = Check.haveItem("weapon", "runeword", "Grief") && Check.haveItem("weapon", "runeword", "Breath of the Dying") ? me.charlvl : 100;
+				respec = Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("sword", "runeword", "Breath of the Dying") ? me.charlvl : 100;
 				break;
 			case "Wolf":
 				respec = Check.haveItem("stalagmite", "unique", "Ribcracker") && Check.haveItem("armor", "runeword", "Chains of Honor") ? me.charlvl : 100;
@@ -1036,16 +1036,18 @@ var Check = {
 
 	usePreviousSocketQuest: function () {
 		if (!Check.Resistance().Status) {
-			if (Item.getEquippedItem(5).fname.includes("Lidless Wall") && !Item.getEquippedItem(5).socketed) {
+			if (me.weaponswitch === 0 && Item.getEquippedItem(5).fname.includes("Lidless Wall") && !Item.getEquippedItem(5).socketed) {
 				if (me.hell) {
-					let data = Developer.readObj("libs/SoloLeveling/Data/" + me.profile + ".SocketData.json");
-					if (data.Nightmare === false) {
-						D2Bot.setProfile(null, null, null, 'Nightmare');
-						DataFile.updateStats("setDifficulty", 'Nightmare');
-						D2Bot.printToConsole('GuysSoloLeveling: Going back to Nightmare to use socket quest');
-						print("ÿc9GuysSoloLevelingÿc0: Going back to Nightmare to use socket quest");
-						me.overhead("Going back to Nightmare to use socket quest");
-						D2Bot.restart();
+					if (FileTools.exists("libs/SoloLeveling/Data/" + me.profile + ".SocketData.json")) {
+						let data = Developer.readObj("libs/SoloLeveling/Data/" + me.profile + ".SocketData.json");
+						if (data.Nightmare === false) {
+							D2Bot.setProfile(null, null, null, 'Nightmare');
+							DataFile.updateStats("setDifficulty", 'Nightmare');
+							D2Bot.printToConsole('GuysSoloLeveling: Going back to Nightmare to use socket quest');
+							print("ÿc9GuysSoloLevelingÿc0: Going back to Nightmare to use socket quest");
+							me.overhead("Going back to Nightmare to use socket quest");
+							D2Bot.restart();
+						}
 					}
 				}
 			}
