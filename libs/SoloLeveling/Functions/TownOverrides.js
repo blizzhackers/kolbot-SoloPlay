@@ -615,7 +615,7 @@ Town.shopItems = function () {
 		if (result.result === 1 && NTIP.CheckItem(items[i], NTIP_CheckListNoTier, true).result !== 0) {
 			try {
 				if (Storage.Inventory.CanFit(items[i]) && me.getStat(14) + me.getStat(15) >= items[i].getItemCost(0)) {
-					if ([2, 3].indexOf(items[i].quality) > -1) {
+					if ([2, 3].indexOf(items[i].quality) > -1 && Town.baseItemTypes.indexOf(items[i].itemType) > -1) {
 						if (!this.worseBaseThanStashed(items[i]) && this.betterBaseThanWearing(items[i], Developer.Debugging.junkCheckVerbose)) {
 							Misc.itemLogger("Shopped", items[i]);
 
