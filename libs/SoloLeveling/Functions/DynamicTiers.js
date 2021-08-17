@@ -342,11 +342,13 @@ var tierscore = function (item) {
 				buildRating += 50;
 			}
 
+			let eleDmgModifer = item.itemType === 10 ? 2 : 1;	// Rings
+
 			buildRating += item.getStatEx(21) * buildWeights.MINDMG; // add MIN damage
 			buildRating += item.getStatEx(22) * buildWeights.MAXDMG; // add MAX damage
 			//buildRating += item.getStatEx(23) * buildWeights.SECMINDMG; // add MIN damage
 			//buildRating += item.getStatEx(24) * buildWeights.SECMAXDMG; // add MAX damage
-			buildRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 256)) * buildWeights.ELEDMG; // add elemental damage PSN damage adjusted for damage per frame (125/256)
+			buildRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 256)) * (buildWeights.ELEDMG / eleDmgModifer); // add elemental damage PSN damage adjusted for damage per frame (125/256)
 			buildRating += item.getStatEx(19) * buildWeights.AR; // add AR
 			buildRating += item.getStatEx(136) * buildWeights.CB; // add crushing blow
 			buildRating += item.getStatEx(135) * buildWeights.OW; // add open wounds
