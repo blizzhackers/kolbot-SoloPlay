@@ -39,6 +39,7 @@ function tombs () {
 		}
 
 		Town.goToTown();
+		Town.heal();
 	}
 
 	return true;
