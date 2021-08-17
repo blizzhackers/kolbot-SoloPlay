@@ -338,7 +338,7 @@ Attack.isCursable = function (unit) {
 	return true;
 };
 
-Attack.stopClearLevel = false;
+Attack.stopClear = false;
 
 // Clear an entire area based on monster spectype
 Attack.clearLevel = function (spectype) {
@@ -390,10 +390,10 @@ Attack.clearLevel = function (spectype) {
 			previousArea = result;
 
 			if ([29, 30, 31].indexOf(me.area) > -1 && me.amazon && me.hell) {
-				if (Attack.stopClearLevel) {
+				if (Attack.stopClear) {
 					me.overhead("Tainted monster type found. Moving to next sequence");
 					print("ÿc9GuysSoloLevelingÿc0: Tainted monster type found. Moving to next sequence");
-					Attack.stopClearLevel = false;	// Reset value
+					Attack.stopClear = false;	// Reset value
 					return true;
 				}
 			}
@@ -506,7 +506,7 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit) { // probabl
 
 		if ([29, 30, 31].indexOf(me.area) > -1 && me.amazon && me.hell) {
 			if ([11, 12, 13, 14].indexOf(target.classid) > -1) {
-				Attack.stopClearLevel = true;
+				Attack.stopClear = true;
 			}
 		}
 

@@ -790,34 +790,59 @@ Misc.gamePause = function () {
 Misc.gamePacket = function (bytes) {// various game events
 	let diablo, tick, wave, waveMonster;
 
-	switch (bytes[0]) {
-	case 0x89: // den completion lights
-		if (me.area === 8) {
-			Misc.gamePause();
-			Pickit.pickItems();
+	function skip () {
+		let script = getScript("default.dbj");
+		let oldPickRange = Config.PickRange;
+		Precast.enabled = false;
 
-			if (!me.getItem(518) || me.getItem(518).getStat(70) === 0) {
-				Pather.moveToExit([2, 3], true);
-				Pather.getWP(3);
-				Pather.useWaypoint(1);
-			} else {
-				Town.goToTown();
-			}
-
-			Town.npcInteract("akara");
-			Misc.gamePause();
+		if (script && script.running) {
+			print("ÿc1Pausing.");
+			script.pause();
 		}
 
-		break;
-	/*case 0x4c: // diablo lightning dodge
-		if (bytes[6] === 193 && (me.getSkill(143, 1) && me.barbarian)) {
-			diablo = getUnit(1, 243);
-			//tick = getTickCount();
-			//Misc.gamePause();
-			if (diablo) {
-				let coord = CollMap.getRandCoordinate(diablo.x + 5, -15, 15, diablo.y + 5, -15, 15);
-				Skill.cast(143, 0, coord.x, coord.y);
+		tick = getTickCount();
+
+		while (getTickCount() - tick < 6500) { // prep
+			Pather.moveTo(15091, 5073);
+		}
+
+		Config.NoTele = true;
+		tick = getTickCount();
+
+		while (getTickCount() - tick < 5000) { // 5 second delay (5000ms)
+			Pather.moveTo(15098, 5082);	// leave throne
+		}
+
+		tick = getTickCount();
+		Pather.moveTo(15099, 5078); // reenter throne
+
+		while (getTickCount() - tick < 2000) {	// 2 second delay (2000ms)
+			Pather.moveTo(15098, 5082);
+		}
+
+		Pather.moveTo(15099, 5078);
+		Config.NoTele = false;
+		Config.PickRange = oldPickRange;
+		Precast.enabled = true;
+
+		if (script && !script.running) {
+			print("ÿc2Resuming.");
+			script.resume();
+		}
+	}
+
+	function dodge () {
+		let script = getScript("default.dbj");
+		diablo = getUnit(1, 243);
+		tick = getTickCount();
+		
+		if (diablo) {
+			if (script && script.running) {
+				print("ÿc1Pausing.");
+				script.pause();
 			}
+
+			Attack.stopClear = true;
 
 			while (getTickCount() - tick < 2000) {
 				if (me.y <= diablo.y) { // above D
@@ -841,50 +866,69 @@ Misc.gamePacket = function (bytes) {// various game events
 				}
 			}
 
-			//Misc.gamePause();
+			Attack.stopClear = false;
+
+			if (script && !script.running) {
+				print("ÿc2Resuming.");
+				script.resume();
+			}
+		}
+	}
+
+	switch (bytes[0]) {
+	case 0x89: // den completion lights
+		if (me.area === 8) {
+			Misc.gamePause();
+			Pickit.pickItems();
+
+			if (!me.getItem(518) || me.getItem(518).getStat(70) === 0) {
+				Pather.moveToExit([2, 3], true);
+				Pather.getWP(3);
+				Pather.useWaypoint(1);
+			} else {
+				Town.goToTown();
+			}
+
+			Town.npcInteract("akara");
+			Misc.gamePause();
 		}
 
-		break;*/	
-	/*case 0xa4: //baalwave
-		if (me.hell && me.paladin && !Attack.IsAuradin) {
-			waveMonster = ((bytes[1]) | (bytes[2] << 8));
-			wave = [23, 381, 557, 558, 571].indexOf(waveMonster);
-
-			if (wave > -1) {
-				if (wave !== 1) {		// Wave 2 magic immunes are the only ones that need to be skipped
-					break;
-				}
-
-				Misc.gamePause();
-				tick = getTickCount();
-				print('ÿc9SoloLevelingÿc0: baal wave #' + (wave + 1));
-				me.overhead("wave " + (wave + 1));
-
-				while (getTickCount() - tick < 6500) { //prep
-					Pather.moveTo(15092, 5073);
-				}
-
-				Config.NoTele = true;
-				tick = getTickCount();
-
-				while (getTickCount() - tick < 5000) { // 5 second delay (5000ms)
-					Pather.moveTo(15098, 5082);	// leave throne
-				}
-
-				tick = getTickCount();
-				Pather.moveTo(15099, 5078); // reenter throne
-
-				while (getTickCount() - tick < 2000) {// 2 second delay (2000ms)
-					Pather.moveTo(15098, 5082);
-				}
-
-				Pather.moveTo(15098, 5073);
-				Config.NoTele = false;
-				Misc.gamePause();
+		break;
+	case 0x4c: // diablo lightning dodge
+		if (bytes[6] === 193) {
+			if (!Pather,useTeleport()) {
+				dodge();
 			}
 		}
 
-		break;*/
+		break;	
+	case 0xa4: //baalwave
+		if ((me.hell && me.paladin && !Attack.IsAuradin) || me.barbarian) {
+			waveMonster = ((bytes[1]) | (bytes[2] << 8));
+			wave = [62, 105, 557, 558, 571].indexOf(waveMonster);
+
+			switch (wave) {
+			case 0: 
+				break;
+			case 1:
+				if ((me.paladin && !Attack.IsAuradin && me.hell) || (me.barbarian && me.charlvl < SetUp.levelCap && !me.baal)) {
+					skip();
+				}
+
+				break;
+			case 2:
+			case 3:
+				break;
+			case 4:
+				if (me.barbarian && (me.charlvl < SetUp.levelCap || !me.baal)) {
+					skip();
+				}
+
+				break;
+			}
+		}
+
+		break;
 	default:
 		break;
 	}

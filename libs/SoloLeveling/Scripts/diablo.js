@@ -312,6 +312,7 @@ function diablo () {
 
 	if (!me.diablo && me.barbarian) {
 		Config.BossPriority = true;
+		//Config.MercWatch = me.normal ? false : true;
 	}
 
 	this.vizier();

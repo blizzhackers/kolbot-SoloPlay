@@ -127,10 +127,6 @@ function baal () {
 
         MainLoop:
             while (true) {
-                if (getDistance(me, 15116, 5026) > 3) {
-                    Pather.moveTo(15116, 5026);
-                }
-
                 //SetUp.walkToggle = true;
 
                 if (!getUnit(1, 543)) {
@@ -201,6 +197,10 @@ function baal () {
                         }
 
                         break;
+                }
+
+                if (me.classid === 4 ? getDistance(me, 15112, 5062) : getDistance(me, 15116, 5026) > 3) {       // Thanks aim2kill
+                    me.classid === 4 ? Pather.moveTo(15112, 5062) : Pather.moveTo(15116, 5026);
                 }
 
                 delay(10);
@@ -316,6 +316,8 @@ function baal () {
     Pickit.pickItems();
     Pather.moveTo(15095, 5881);
     Pickit.pickItems();
+
+    removeEventListener("gamepacket", Misc.gamePacket);
 
     return true;
 }

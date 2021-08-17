@@ -309,8 +309,10 @@ var tierscore = function (item) {
 		}
 
 		resistRating += (item.getStatEx(142) + item.getStatEx(144) + item.getStatEx(146) + item.getStatEx(148)) * resistWeights.ABS; // add absorb damage
-		resistRating += (item.getStatEx(34) + item.getStatEx(36)) * resistWeights.DR; // add damage resist
-		resistRating += (item.getStatEx(35) + item.getStatEx(37)) * resistWeights.MR; // add magic damage resist
+		resistRating += item.getStatEx(34) * resistWeights.DR; // add integer damage resist
+		resistRating += item.getStatEx(36) * resistWeights.DR * 2; // add damage resist %
+		resistRating += item.getStatEx(35) * resistWeights.MR; // add integer magic damage resist
+		resistRating += item.getStatEx(37) * resistWeights.MR * 2; // add magic damage resist %
 
 		return resistRating;
 	};

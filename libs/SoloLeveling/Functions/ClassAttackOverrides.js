@@ -1343,6 +1343,7 @@ case 4: // Barbarian - theBGuy
 		let useWarCry = me.getSkill(154, 1);
 		let useBattleCry = me.getSkill(146, 1);
 		let switchCast = (Precast.getBetterSlot(146) === 1 || Precast.getBetterSlot(154) === 1) ? true : false;
+		Config.FindItemSwitch = Precast.getBetterSlot(142);
 
 		var index, needRepair = [], attackSkill = -1;
 			
@@ -1584,10 +1585,8 @@ case 4: // Barbarian - theBGuy
 			return false;
 		}
 
-		var i, j, tick, corpse, orgX, orgY, retry,
+		var i, j, tick, corpse, orgX, orgY, retry, pick = false,
 			corpseList = [];
-
-		Config.FindItemSwitch = Precast.getBetterSlot(142);
 
 		orgX = me.x;
 		orgY = me.y;
@@ -1604,46 +1603,50 @@ MainLoop:
 				} while (corpse.getNext());
 			}
 
-			while (corpseList.length > 0) {
-				if (this.checkCloseMonsters(5)) {
-					if (Config.FindItemSwitch) {
-						me.switchWeapons(Attack.getPrimarySlot());
+			if (corpseList.length > 0) {
+				pick = true;
+
+				while (corpseList.length > 0) {
+					if (this.checkCloseMonsters(5)) {
+						if (Config.FindItemSwitch) {
+							me.switchWeapons(Attack.getPrimarySlot());
+						}
+
+						Attack.clear(10, false, false, false, false);
+
+						retry = true;
+
+						break MainLoop;
 					}
 
-					Attack.clear(10, false, false, false, false);
+					corpseList.sort(Sort.units);
 
-					retry = true;
+					corpse = corpseList.shift();
 
-					break MainLoop;
-				}
+					if (this.checkCorpse(corpse)) {
+						if (getDistance(me, corpse) > 30 || checkCollision(me, corpse, 0x1)) {
+							Pather.moveToUnit(corpse);
+						}
 
-				corpseList.sort(Sort.units);
+						if (Config.FindItemSwitch) {
+							me.switchWeapons(Attack.getPrimarySlot() ^ 1);
+						}
 
-				corpse = corpseList.shift();
+	CorpseLoop:
+						for (j = 0; j < 3; j += 1) {
+							Skill.cast(142, 0, corpse);
 
-				if (this.checkCorpse(corpse)) {
-					if (getDistance(me, corpse) > 30 || checkCollision(me, corpse, 0x1)) {
-						Pather.moveToUnit(corpse);
-					}
+							tick = getTickCount();
 
-					if (Config.FindItemSwitch) {
-						me.switchWeapons(Attack.getPrimarySlot() ^ 1);
-					}
+							while (getTickCount() - tick < 1000) {
+								if (corpse.getState(118)) {
+									Pickit.fastPick();
 
-CorpseLoop:
-					for (j = 0; j < 3; j += 1) {
-						Skill.cast(142, 0, corpse);
+									break CorpseLoop;
+								}
 
-						tick = getTickCount();
-
-						while (getTickCount() - tick < 1000) {
-							if (corpse.getState(118)) {
-								Pickit.fastPick();
-
-								break CorpseLoop;
+								delay(10);
 							}
-
-							delay(10);
 						}
 					}
 				}
@@ -1654,11 +1657,13 @@ CorpseLoop:
 			return this.findItem(me.area === 83 ? 60 : 20);
 		}
 
-		if (Config.FindItemSwitch) {
+		if (Config.FindItemSwitch && me.weaponswitch === 1) {
 			me.switchWeapons(Attack.getPrimarySlot());
 		}
 
-		Pickit.pickItems();
+		if (pick) {
+			Pickit.pickItems();
+		}
 
 		return true;
 	};

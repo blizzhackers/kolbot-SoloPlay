@@ -8,6 +8,8 @@ if (!isIncluded("common/Precast.js")) {
 	include("common/Precast.js");
 }
 
+Precast.enabled = true;
+
 Precast.precastCTA = function (force) {
 	/*print("Current State for BO: " + me.getState(32));
 	print("Current State for BC: " + me.getState(51));
@@ -137,6 +139,10 @@ Precast.getBetterSlot = function (skillId) {
 
 Precast.doPrecast = function (force) {
 	var buffSummons = false;
+
+	if (!Precast.enabled) {
+		return;
+	}
 
 	// Force BO 30 seconds before it expires
 	if (this.haveCTA) {
@@ -457,6 +463,8 @@ Precast.summon = function (skillId) {
 			} else {
 				coord = CollMap.getRandCoordinate(me.x, -5, 5, me.y, -5, 5);	//Keeps bots from getting stuck trying to summon
 				Pather.moveTo(coord.x, coord.y);
+
+				print("Retry Amount: " + retry + " | Coordinates: " + coord.x + " " + coord.y);
 			}
 
 			retry = 0;
