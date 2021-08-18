@@ -1000,8 +1000,8 @@ Misc.gamePacket = function (bytes) {// various game events
 			switch (wave) {
 			case 0: 
 				break;
-			case 1:
-				if ((me.paladin && !Attack.IsAuradin && me.hell) || (me.barbarian && me.charlvl < SetUp.levelCap && !me.baal)) {
+			case 1: 	// Achmel
+				if ((me.paladin && !Attack.IsAuradin && me.hell) || (me.barbarian && ((me.charlvl < SetUp.levelCap && !me.baal) || me.playertype))) {
 					skip();
 				}
 
@@ -1009,8 +1009,8 @@ Misc.gamePacket = function (bytes) {// various game events
 			case 2:
 			case 3:
 				break;
-			case 4:
-				if (me.barbarian && (me.charlvl < SetUp.levelCap || !me.baal)) {
+			case 4: 	// Lister
+				if (me.barbarian && (me.charlvl < SetUp.levelCap || !me.baal || me.playertype)) {
 					skip();
 				}
 
