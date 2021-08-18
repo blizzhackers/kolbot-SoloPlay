@@ -319,13 +319,13 @@ function diablo () {
 	this.seis();
 	this.infector();
 
-	if (Check.Resistance().LR < 75) {
+	/*if (Check.Resistance().LR < 75) {
 		Town.goToTown();
 		Misc.getLightResShrine([2, 3, 4]);
 		Pather.useWaypoint(107);
 		Precast.doPrecast(true);
 		Pather.clearToExit(107, 108, true);
-	}
+	}*/
 
 	Config.MercWatch = false;
 	Pather.moveTo(7788, 5292, 3, 30);
