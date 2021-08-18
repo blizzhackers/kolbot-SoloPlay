@@ -221,7 +221,7 @@ var nipItems = {
 		'([type] == ring || [type] == amulet) && [quality] >= magic # [fcr] >= 600',
 		'([type] == armor || [type] == boots || [type] == gloves || [type] == belt) && [quality] >= magic # [fcr] >= 600',
 		'([type] == helm || [type] == circlet || [type] == primalhelm || [type] == pelt) && [quality] >= magic # [fcr] >= 600',
-		'([type] == anyshield || [type] == voodooheads) && [quality] >= magic # [fcr] >= 600',
+		'([type] == shield || [type] == voodooheads) && [quality] >= magic # [fcr] >= 600',
 		'([type] == javelin || [type] == amazonspear || [type] == amazonjavelin) && [quality] >= rare # [fcr] >= 600',
 		'([type] == orb || [type] == wand || [type] == staff) && [quality] >= normal # [fcr] >= 600',
 		'([type] == throwingaxe || [type] == axe || [type] == mace || [type] == club || [type] == scepter || [type] == hammer) && [quality] >= magic # [fcr] >= 600',

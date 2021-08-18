@@ -792,7 +792,9 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 					delay(10 + me.ping);
 				}
 
-				delay(500 + me.ping);
+				while (!me.gameReady) {
+					delay(500 + me.ping);
+				}
 
 				if (getUIFlag(0x14)) {
 					me.cancel(); // In case lag causes the wp menu to stay open

@@ -437,13 +437,15 @@ Misc.checkQuest = function (id, state) {
 	return me.getQuest(id, state);
 };
 
+Misc.townEnabled = true;
+
 Misc.townCheck = function () {
 	var i, potion, check,
 		needhp = true,
 		needmp = true;
 
 	// Can't tp from uber trist or when dead. Don't tp from Arreat Summit
-	if (me.area === 136 || me.area === 120 || me.dead) {
+	if ([120, 136].indexOf(me.area) > -1 || me.dead || !Misc.townEnabled) {
 		return false;
 	}
 
@@ -735,6 +737,90 @@ Misc.getLightResShrine = function (shrineLocs) {
 	return true;
 };
 
+/*Misc.getGoodShrine = function (shrineLocs, shrines) {
+	function checkState (shrineType) {
+		let result = false;
+
+		switch (shrineType) {
+		case 6: // Armor
+			if (me.getState(128)) {
+				result = true;
+			}
+
+			break;
+		case 7: // Combat
+			if (me.getState(129)) {
+				result = true;
+			}
+
+			break;
+		case 8: // Resist Fire
+			if (me.getState(131) || Check.Resistance().FR >= 75) {
+				result = true;
+			}
+
+			break;
+		case 10: // Resist Light
+			if (me.getState(131) || Check.Resistance().LR >= 75) {
+				result = true;
+			}
+
+			break;
+		case 12: // Skill
+			if (me.getState(134)) {
+				result = true;
+			}
+
+			break;
+		case 15: // Exp
+			if (me.getState(137)) {
+				result = true;
+			}
+
+			break;
+		}
+
+		return result;
+	}
+
+	let oldAttack = [];
+
+	if (me.barbarian && me.normal && me.getSkill(133, 1) >= 6) {
+		oldAttack = Config.AttackSkill.slice();
+		Config.AttackSkill = [-1, 133, -1, 133, -1];
+	}
+
+	for (let get = 0; get < shrineLocs.length; get++) {
+		if (shrineLocs[get] === 2) {
+			Pather.journeyTo(shrineLocs[get]);
+		} else {
+			if (!Pather.checkWP(shrineLocs[get])) {
+				Pather.getWP(shrineLocs[get]);
+			} else {
+				Pather.useWaypoint(shrineLocs[get]);
+			}
+		}
+
+		Precast.doPrecast(true);
+		Misc.getShrinesInArea(shrineLocs[get], 10, true);
+
+		if (me.getState(5)) {
+			Town.goToTown();
+			break;
+		}
+
+		if (!me.inTown) {
+			Town.goToTown();
+		}
+	}
+
+	if (oldAttack.length > 0) {
+		Config.AttackSkill = oldAttack.slice();
+	}
+
+	return true;
+};*/
+
 // Add use of tk for shrine - from autoplay
 Misc.getShrine = function (unit) {
 	if (unit.mode) {
@@ -794,6 +880,7 @@ Misc.gamePacket = function (bytes) {// various game events
 		let script = getScript("default.dbj");
 		let oldPickRange = Config.PickRange;
 		Precast.enabled = false;
+		Misc.townEnabled = false;
 
 		if (script && script.running) {
 			print("ÿc1Pausing.");
@@ -824,6 +911,7 @@ Misc.gamePacket = function (bytes) {// various game events
 		Config.NoTele = false;
 		Config.PickRange = oldPickRange;
 		Precast.enabled = true;
+		Misc.townEnabled = true;
 
 		if (script && !script.running) {
 			print("ÿc2Resuming.");
@@ -843,6 +931,7 @@ Misc.gamePacket = function (bytes) {// various game events
 			}
 
 			Attack.stopClear = true;
+			Misc.townEnabled = false;
 
 			while (getTickCount() - tick < 2000) {
 				if (me.y <= diablo.y) { // above D
@@ -867,6 +956,7 @@ Misc.gamePacket = function (bytes) {// various game events
 			}
 
 			Attack.stopClear = false;
+			Misc.townEnabled = true;
 
 			if (script && !script.running) {
 				print("ÿc2Resuming.");

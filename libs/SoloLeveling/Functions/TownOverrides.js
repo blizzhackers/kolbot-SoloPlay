@@ -1289,7 +1289,7 @@ Town.clearInventory = function () {
 			if ([0, 4].indexOf(result) === -1) {
 				if (([2, 3].indexOf(items[i].quality) > -1 && Town.baseItemTypes.indexOf(items[i].itemType) > -1 && items[i].getStat(194) > 0) || 
 					([25, 69, 70, 71, 72].indexOf(items[i].itemType) > -1 && items[i].quality === 2 && items[i].getStat(194) === 0)) {
-					if (this.worseBaseThanStashed(items[i]) || !this.betterBaseThanWearing(items[i], Developer.Debugging.junkCheckVerbose)) {
+					if (this.worseBaseThanStashed(items[i]) && !this.betterBaseThanWearing(items[i], Developer.Debugging.junkCheckVerbose)) {
 						result = 4;
 					}
 				}
