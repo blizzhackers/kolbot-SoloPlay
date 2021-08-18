@@ -896,7 +896,7 @@ Misc.gamePacket = function (bytes) {// various game events
 		break;
 	case 0x4c: // diablo lightning dodge
 		if (bytes[6] === 193) {
-			if (!Pather,useTeleport()) {
+			if (!Pather.useTeleport()) {
 				dodge();
 			}
 		}
