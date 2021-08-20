@@ -1374,10 +1374,13 @@ Town.betterBaseThanWearing = function (base, verbose) {
 		return false;
 	}
 
+	if (me.getStat(0) < base.strreq || me.getStat(2) < base.dexreq) {
+		return false; // Can't use so its worse then what we already have
+	}
+
 	if (base.quality > 4) {
 		return false;	//Not a runeword base
 	}
-
 
 	bodyLoc = Item.getBodyLoc(base);
 
@@ -2150,11 +2153,16 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 	case 68: //	Orb
 	case 85: //	Amazon Bow
 	case 86: //	Amazon Spear
+		if (me.getStat(0) < base.strreq || me.getStat(2) < base.dexreq) {
+			return true; // Can't use so it's worse then what we already have
+		}
+
 		itemsToCheck = me.getItems()
 			.filter(item =>
 				item.itemType === base.itemType// same item type as current
 				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
 				&& [3, 7].indexOf(item.location) > -1 // locations
+				&& me.getStat(0) >= item.strreq && me.getStat(2) >= item.dexreq // I have enough str/dex for this item
 			)
 			.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
 			.last(); // select last
@@ -2280,9 +2288,7 @@ Town.clearJunk = function () {
 			[18, 41, 76, 77, 78].indexOf(junk[0].itemType) === -1 && // Don't drop tomes, keys or potions
 			(Town.questItemClassids.indexOf(junk[0].classid) === -1) &&	// Don't drop quest items
 			(Town.unsellablesClassids.indexOf(junk[0].classid) === -1) &&	// Don't try to sell keys/essences/tokens/organs
-			/*!(junk[0].classid === 603 && junk[0].quality !== 7) && // Anni
-			!(junk[0].classid !== 604 && junk[0].quality !== 7) && // Torch
-			!(junk[0].classid !== 605 && junk[0].quality !== 7) && // Gheeds*/
+			([603, 604, 605].indexOf(junk[0].classid) === -1) && // charm equip takes care of this
 			(!Item.autoEquipKeepCheckMerc(junk[0]) && !Item.autoEquipKeepCheck(junk[0]) && !Item.autoEquipCheckSecondary(junk[0])) && 
 			([0, 4].indexOf(Pickit.checkItem(junk[0]).result) > -1) // only drop unwanted
 		) {
@@ -2641,7 +2647,7 @@ Town.visitTown = function (repair = false) {
 		return true;
 	}
 
-	if ([120, 136].indexOf(me.area) > -1 || me.dead) {	//Arreat Summit, Uber Trist or I died while trying to townchicken
+	if ([120, 136].indexOf(me.area) > -1 || me.dead || !Misc.townEnabled) {	//Arreat Summit, Uber Trist or I died while trying to townchicken or town isn't enabled at the moment
 		return false;
 	}
 
