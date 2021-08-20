@@ -1669,6 +1669,34 @@ MainLoop:
 		return true;
 	};
 
+	ClassAttack.checkCorpse = function (unit) {
+		if (unit.mode !== 0 && unit.mode !== 12) {
+			return false;
+		}
+
+		if ([345, 346, 347].indexOf(unit.classid) === -1 && unit.spectype === 0) {
+			return false;
+		}
+
+		if (unit.classid <= 575 && !getBaseStat("monstats2", unit.classid, "corpseSel")) { // monstats2 doesn't contain guest monsters info. sigh..
+			return false;
+		}
+
+		if (getDistance(me, unit) <= 25 &&
+				!unit.getState(1) && 	// freeze
+				!unit.getState(96) && 	// revive
+				!unit.getState(99) && 	// redeemed
+				!unit.getState(104) && 	// nodraw
+				!unit.getState(107) && 	// shatter
+				!unit.getState(118) && 	// noselect
+				!unit.getState(172) 	// rest in peace
+				) {
+			return true;
+		}
+
+		return false;
+	};
+
 	break;
 case 5: // Druid
 	if (!isIncluded("common/Attacks/Druid.js")) {

@@ -942,21 +942,21 @@ Misc.gamePacket = function (bytes) {// various game events
 			while (getTickCount() - tick < 2000) {
 				if (me.y <= diablo.y) { // above D
 					if (me.x <= diablo.x) { //move east
-						Pather.moveTo(diablo.x + 3, diablo.y);
+						Pather.moveTo(diablo.x + 3, diablo.y, null, false);
 					}
 
 					if (me.x > diablo.x) { //move south
-						Pather.moveTo(diablo.x, diablo.y + 3);
+						Pather.moveTo(diablo.x, diablo.y + 3, null, false);
 					}
 				}
 
 				if (me.y > diablo.y) { // below D
 					if (me.x >= diablo.x) { //move west
-						Pather.moveTo(diablo.x - 3, diablo.y);
+						Pather.moveTo(diablo.x - 3, diablo.y, null, false);
 					}
 
 					if (me.x < diablo.x) { //move north
-						Pather.moveTo(diablo.x, diablo.y - 3);
+						Pather.moveTo(diablo.x, diablo.y - 3, null, false);
 					}
 				}
 			}
