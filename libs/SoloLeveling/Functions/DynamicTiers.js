@@ -335,14 +335,14 @@ var tierscore = function (item) {
 		// Melee Specific
 		if (!Check.currentBuild().caster) {
 			if (item.getStatEx(252)) {	// replenish durabilty, really only matters for non-casters
+				buildRating += 15;
+			}
+
+			if (item.getStatEx(115)) {	// ignore target defense, really only matters for non-casters
 				buildRating += 50;
 			}
 
-			if (item.getStatEx(252)) {	// ignore target defense, really only matters for non-casters
-				buildRating += 50;
-			}
-
-			let eleDmgModifer = item.itemType === 10 ? 2 : 1;	// Rings
+			let eleDmgModifer = [10, 12].indexOf(item.itemType) > -1 ? 2 : 1;	// Rings and Amulets
 
 			buildRating += item.getStatEx(21) * buildWeights.MINDMG; // add MIN damage
 			buildRating += item.getStatEx(22) * buildWeights.MAXDMG; // add MAX damage

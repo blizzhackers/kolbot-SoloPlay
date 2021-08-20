@@ -125,21 +125,20 @@ function main() {
 	let useHowl = me.barbarian && me.getSkill(130, 0);
 	let useTerror = me.necromancer && me.getSkill(77, 0);
 	let unit;
-	/*let canGoToTown = false;
-	let book = me.getItem(518);
 
-	if (book.getStat(70) >= 1) {
-		canGoToTown = true;
-	} else {
-		let scroll = me.getItem(529)
+	function haveTpTome () {
+		let book = me.getItem(518);
 
-		if (scroll) {
-			canGoToTown = true;
+		if (!book || book.getStat(70) == 0) {
+			return false;
 		}
-	}*/
+
+		return true;
+	};
+
 
 	while (true) {
-		if (!me.inTown && [120, 136].indexOf(me.area) === -1 && (townCheck ||
+		if (!me.inTown && [120, 136].indexOf(me.area) === -1 && haveTpTome() && (townCheck ||
 			(Config.TownHP > 0 && me.hp < Math.floor(me.hpmax * Config.TownHP / 100)) ||
 			(Config.TownMP > 0 && me.mp < Math.floor(me.mpmax * Config.TownMP / 100)))) {
 			this.togglePause();

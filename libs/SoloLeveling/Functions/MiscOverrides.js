@@ -921,13 +921,19 @@ Misc.gamePacket = function (bytes) {// various game events
 
 	function dodge () {
 		let script = getScript("default.dbj");
+		let townChicken = getScript("libs/SoloLeveling/Tools/TownChicken.js");
 		diablo = getUnit(1, 243);
 		tick = getTickCount();
 		
 		if (diablo) {
 			if (script && script.running) {
-				print("ÿc1Pausing.");
+				print("ÿc1Pausing Default.");
 				script.pause();
+			}
+
+			if (townChicken && townChicken.running) {
+				print("ÿc1Pausing TownChicken.");
+				townChicken.pause();
 			}
 
 			Attack.stopClear = true;
@@ -959,8 +965,13 @@ Misc.gamePacket = function (bytes) {// various game events
 			Misc.townEnabled = true;
 
 			if (script && !script.running) {
-				print("ÿc2Resuming.");
+				print("ÿc2Resuming Default.");
 				script.resume();
+			}
+
+			if (townChicken && !townChicken.running) {
+				print("ÿc2Resuming TownChicken.");
+				townChicken.resume();
 			}
 		}
 	}
