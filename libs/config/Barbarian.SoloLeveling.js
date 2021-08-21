@@ -497,8 +497,8 @@ function LoadConfig () {
 		if (!Check.haveItem("falcata", "unique", "Bloodletter")) {
 			NTIP.addLine("[name] == PulRune # # [MaxQuantity] == 1");
 			NTIP.addLine("[name] == perfectemerald # # [MaxQuantity] == 1");
-			NTIP.addLine("[name] == Gladius && [quality] == unique # [enhanceddamage] >= 140 && [ias] >= 20 # [MaxQuantity] == 1");	// Bloodletter
-			NTIP.addLine("[name] == falcata && [quality] == unique # [enhanceddamage] >= 140 && [ias] >= 20 # [MaxQuantity] == 1");	// upped Bloodletter
+			NTIP.addLine("[name] == Gladius && [quality] == unique && [flag] != ethereal # [enhanceddamage] >= 140 && [ias] >= 20 # [MaxQuantity] == 1");	// Bloodletter
+			NTIP.addLine("[name] == falcata && [quality] == unique && [flag] != ethereal # [enhanceddamage] >= 140 && [ias] >= 20 # [MaxQuantity] == 1");	// upped Bloodletter
 		}
 
 		if (!Check.haveItem("DimensionalBlade", "unique", "Ginther's Rift")) {
