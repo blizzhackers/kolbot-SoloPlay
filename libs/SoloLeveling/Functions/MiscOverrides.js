@@ -1,7 +1,6 @@
 /*
 *	@filename	MiscOverrides.js
-*	@author		theBGuy
-*	@credits	isid0re
+*	@author		theBGuy, isid0re
 *	@desc		Misc.js fixes to improve functionality
 */
 
@@ -924,6 +923,11 @@ Misc.gamePacket = function (bytes) {// various game events
 		let townChicken = getScript("libs/SoloLeveling/Tools/TownChicken.js");
 		diablo = getUnit(1, 243);
 		tick = getTickCount();
+
+		if (script && !script.running) {
+			print("ÿc1Trying to townChicken, don't try dodgeing.");
+			return;
+		}
 		
 		if (diablo) {
 			if (script && script.running) {
