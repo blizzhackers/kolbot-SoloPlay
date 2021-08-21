@@ -1998,7 +1998,8 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 			if (base.getStat(194) > 0) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					!base.getFlag(NTIPAliasFlag["ethereal"]) &&
-					base.getStatEx(31) < itemsToCheck.getStatEx(31)) {
+					(base.getStatEx(31) < itemsToCheck.getStatEx(31) || 
+						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
 					if (Developer.Debugging.junkCheckVerbose) {
 						print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(31) + " itemToCheckDefense: " + itemsToCheck.getStatEx(31));
 					}
@@ -2031,7 +2032,8 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 		if (base.getStat(194) > 0) {
 			if (([3, 6, 7].indexOf(base.location) > -1) &&
 				!base.getFlag(NTIPAliasFlag["ethereal"]) &&
-				base.getStatEx(31) < itemsToCheck.getStatEx(31)) {
+				(base.getStatEx(31) < itemsToCheck.getStatEx(31) || 
+						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
 				if (Developer.Debugging.junkCheckVerbose) {
 					print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(31) + " itemToCheckDefense: " + itemsToCheck.getStatEx(31));
 				}
@@ -2096,7 +2098,8 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					!base.getFlag(NTIPAliasFlag["ethereal"]) &&
-					base.getStatEx(31) < itemsToCheck.getStatEx(31)) {
+					(base.getStatEx(31) < itemsToCheck.getStatEx(31) || 
+						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
 					if (Developer.Debugging.junkCheckVerbose) {
 						print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStat(31) + " itemToCheckDefense: " + itemsToCheck.getStat(31));
 					}
@@ -2153,7 +2156,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 	case 68: //	Orb
 	case 85: //	Amazon Bow
 	case 86: //	Amazon Spear
-		if (me.getStat(0) < base.strreq || me.getStat(2) < base.dexreq) {
+		if ((me.getStat(0) < base.strreq || me.getStat(2) < base.dexreq) && !me.paladin) {	// don't toss grief base
 			return true; // Can't use so it's worse then what we already have
 		}
 
@@ -2186,7 +2189,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 		if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
 			if (([3, 4, 7].indexOf(base.location) > -1) &&
 				(generalScore(base) < generalScore(itemsToCheck) || 
-						(generalScore(base) === generalScore(itemsToCheck) && Item.getQuantityOwned(base) > 2))) {
+						(generalScore(base) === generalScore(itemsToCheck) && (Item.getQuantityOwned(base) > 2 || base.getStatEx(18) < itemsToCheck.getStatEx(18))))) {
 				if (Developer.Debugging.junkCheckVerbose) {
 					print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 				}
