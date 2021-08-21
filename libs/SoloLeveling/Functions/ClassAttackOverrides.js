@@ -1302,6 +1302,7 @@ case 4: // Barbarian - theBGuy
 		}
 
 		let useHowl = me.getSkill(130, 0) && !me.getSkill(154, 0);
+		let useBattleCry = me.getSkill(146, 1);
 		let useWarCry = me.getSkill(154, 0);
 		let range = me.area !== 131 ? 15 : 30;
 		let rangedMobsClassIDs = [10, 11, 12, 13, 14, 118, 119, 120, 121, 131, 132, 133, 134, 135, 170, 171, 172, 173, 174, 238, 239, 240, 310, 362, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 580, 581, 582, 583, 584, 645, 646, 647, 697];
@@ -1319,14 +1320,20 @@ case 4: // Barbarian - theBGuy
 
 		if (newList.length >= 1) {
 			for (let i = 0; i < newList.length; i++) {
+				if (Math.round(getDistance(me, newList[i])) <= 4 && useBattleCry) {
+					Skill.cast(146, Skill.getHand(146));
+
+					continue;
+				}
+
 				if (useHowl && Attack.getMonsterCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(130) < me.mp) {
 					Skill.cast(130, Skill.getHand(130));
 					this.doCast(unit, attackSkill);
-				} else if (useWarCry && Attack.getMonsterCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(154) < me.mp) {
+				} else if (useWarCry && Attack.getMonsterCount(me.x, me.y, 6, null, true) >= 1 && Skill.getManaCost(154) < me.mp) {
 					Skill.cast(154, Skill.getHand(154));
 				}
 
-				if (!newList[i].getState(27) && !newList[i].getState(56) && !newList[i].dead && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
+				if (!newList[i].getState(27) && !newList[i].getState(56) && !unit.getState(89) && !newList[i].dead && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
 					me.overhead("Taunting: " + newList[i].name + " | classid: " + newList[i].classid);
 					//print("Casting on: " + newList[i].name + " | spectype: " + newList[i].spectype + " | classid: " + newList[i].classid);
 					Skill.cast(137, Skill.getHand(137), newList[i]);
@@ -1478,7 +1485,7 @@ case 4: // Barbarian - theBGuy
 		let useWarCry = me.getSkill(154, 1);
 		let useBattleCry = me.getSkill(146, 1);
 		let switchCast = (Precast.getBetterSlot(146) === 1 || Precast.getBetterSlot(154) === 1) ? true : false;
-		Config.FindItem = me.getSkill(142, 0);	// Only use if hard points are put into the skill
+		Config.FindItem = me.getSkill(142, 1);	// Any points into the skill
 
 		if (attackSkill < 0) {
 			return 2;

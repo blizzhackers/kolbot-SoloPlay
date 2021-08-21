@@ -583,11 +583,15 @@ var Check = {
 	broken: function () {
 		let gold = me.getStat(14) + me.getStat(15);
 
-		if (Item.getEquippedItem(4).durability === 0 && me.charlvl >= 15 && !me.normal && gold < 1000) {
-			return true;
+		if ((Item.getEquippedItem(4).durability <= 30 && Item.getEquippedItem(4).durability > 0) && !me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000) {	// Almost broken but not quite
+			return 1;
 		}
 
-		return false;
+		if (Item.getEquippedItem(4).durability === 0 && me.charlvl >= 15 && !me.normal && gold < 1000) {
+			return 2;
+		}
+
+		return -1;
 	},
 
 	Resistance: function () {

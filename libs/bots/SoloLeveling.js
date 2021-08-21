@@ -59,13 +59,27 @@ function SoloLeveling () {
 			D2Bot.setProfile(null, null, null, updatedDifficulty);
 		}
 
-		if (Check.broken()) {
+		switch (Check.broken()) {
+		case 1:
+			D2Bot.setProfile(null, null, null, 'Nightmare');
+			DataFile.updateStats("setDifficulty", 'Nightmare');
+			D2Bot.printToConsole('GuysSoloLeveling: Oof I am nearly broken, going back to nightmare to get back on my feet');
+			print("ÿc9GuysSoloLevelingÿc0: Oof I am nearly broken, going back to nightmare to get back on my feet");
+			me.overhead("Oof I am nearly broken, going back to nightmare to get back on my feet");
+			D2Bot.restart();
+
+			break;
+		case 2:
 			D2Bot.setProfile(null, null, null, 'Normal');
 			DataFile.updateStats("setDifficulty", 'Normal');
 			D2Bot.printToConsole('GuysSoloLeveling: Oof I am broken, going back to normal to get easy gold');
 			print("ÿc9GuysSoloLevelingÿc0: Oof I am broken, going back to normal to get easy gold");
 			me.overhead("Oof I am broken, going back to normal to get easy gold");
 			D2Bot.restart();
+
+			break;
+		default:
+			break;
 		}
 
 		Check.usePreviousSocketQuest(); // Currently only supports going back to nightmare to socket a lidless if one is equipped. 
