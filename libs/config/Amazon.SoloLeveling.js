@@ -175,6 +175,8 @@ function LoadConfig () {
 	];
 	NTIP.arrayLooping(levelingTiers);
 
+	NTIP.arrayLooping(nipItems.Gems);
+
 	if (SetUp.currentBuild !== "Witchyzon") {
 		NTIP.addLine("[type] == shield && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
 	}

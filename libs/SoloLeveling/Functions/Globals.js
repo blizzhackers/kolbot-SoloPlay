@@ -249,12 +249,12 @@ var nipItems = {
 		"[name] == ScrollofTownPortal # # [MaxQuantity] == 20",
 		"[name] == scrollofidentify # # [MaxQuantity] == 20",
 		"[name] == key # # [maxquantity] == 12",
-		"[name] == perfectamethyst # # [MaxQuantity] == 2",
-		"[name] == perfectemerald # # [MaxQuantity] == 2",
+	],
+
+	Gems: [
 		"[name] == perfecttopaz # # [MaxQuantity] == 2",
 		"[name] == perfectdiamond # # [MaxQuantity] == 2",
 		"[name] == perfectruby # # [MaxQuantity] == 2",
-		"[name] == perfectsapphire # # [MaxQuantity] == 2",
 	],
 
 	Quest: [

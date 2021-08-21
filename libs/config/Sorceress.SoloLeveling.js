@@ -185,6 +185,8 @@ function LoadConfig () {
 	];
 	NTIP.arrayLooping(levelingTiers);
 
+	NTIP.arrayLooping(nipItems.Gems);
+
 	/* FastMod configuration. */
 	Config.FCR = 255;
 	Config.FHR = 255;

@@ -8,16 +8,18 @@ var build = {
 	caster: false,
 	skillstab: 32, // Combat skills
 	wantedskills: [149, 147, 133, 127], // Battle Orders, Frenzy, Double Swing, Sword Mastery
-	usefulskills: [153, 145, 148, 138], // Natural Resistance, Iron Skin, Increased Speed, Shout
+	usefulskills: [153, 145, 148, 138, 142], // Natural Resistance, Iron Skin, Increased Speed, Shout, Find Item
 	mercAuraName: "Might",
 	mercAuraWanted: 98,
 	mercDiff: 1,
 	stats: [
-		["dexterity", 136], ["strength", 150], ["vitality", "all"],
+		["dexterity", 136], ["strength", 150], ["vitality", 125],
+		["strength", 185], ["vitality", "all"],
 	],
 	skills: [
 		// Total points at time of respec 79
-		[127, 13, true], // Sword Mastery -> total left 66
+		[127, 11, true], // Sword Mastery -> total left 68
+		[142, 1, true], // Find Item -> total left 66
 		[133, 9, true], // Double Swing -> total left 56
 		[153, 5, true], // Natural Resistance -> total left 51
 		[147, 9, true], // Frenzy -> total left 42
