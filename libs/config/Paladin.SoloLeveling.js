@@ -168,7 +168,7 @@ function LoadConfig () {
 		"[Type] == Ring && [Quality] >= Magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//Switch
 		"[type] == wand && [Quality] >= Normal # [itemchargedskill] == 72 # [secondarytier] == 25000",	// Weaken charged wand
-		"[type] == wand && [Quality] >= Normal # [itemchargedskill] == 87 # [secondarytier] == 50000",	// Decrepify charged wand
+		"[name] == beardedaxe && [Quality] == unique # [itemchargedskill] == 87 # [secondarytier] == 50000",	// Spellsteel Decrepify charged axe
 		//Charms
 		"[name] == smallcharm && [quality] == magic # [maxhp] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
@@ -240,6 +240,10 @@ function LoadConfig () {
 		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= vexrune && [name] <= zodrune");
+
+		if (Check.haveItem("sword", "runeword", "Call To Arms")) {
+			NTIP.addLine("[name] == auricshields && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000"); //spirit
+		}
 
 		switch (SetUp.finalBuild) { // finalbuild autoequip setup
 		case 'Smiter':

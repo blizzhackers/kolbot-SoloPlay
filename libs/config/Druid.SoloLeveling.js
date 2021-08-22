@@ -342,6 +342,13 @@ function LoadConfig () {
 			break;
 		case 'Wolf':
 		case 'Plaguewolf':
+			if (SetUp.currentBuild === SetUp.finalBuild) {
+				NTIP.addLine("[type] == wand && [Quality] >= Normal # [itemchargedskill] == 72 # [secondarytier] == -1"); // Weaken charged wand
+				NTIP.addLine("[name] == beardedaxe && [Quality] == unique # [itemchargedskill] == 87 # [secondarytier] == -1"); // Spellsteel Decrepify charged axe
+				NTIP.addLine("[name] == elderstaff && [Quality] == unique # [itemallskills] >= 2 # [secondarytier] == tierscore(item)"); // Ondal's
+				NTIP.addLine("[name] == archonstaff && [Quality] == unique # [itemallskills] == 5 # [secondarytier] == tierscore(item)"); // Mang Song's
+			}
+
 			if (!Check.haveItem("armor", "runeword", "Chains of Honor")) { // CoH
 				var CoH = [
 					"[Name] == DolRune # # [MaxQuantity] == 1",
@@ -438,6 +445,11 @@ function LoadConfig () {
 		}
 
 		if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
+			Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
+			NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 1");
+		}
+
+		if (Check.haveItemAndNotSocketed("pelt", "unique", "Jalal's Mane")) {
 			Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
 			NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 1");
 		}
