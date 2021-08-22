@@ -436,6 +436,14 @@ function main () {
 			this.togglePause();
 
 			break;
+		case 96: // numpad 0
+			if (Developer.logPerformance) {
+				Tracker.Update();
+			}
+
+			D2Bot.stop(me.profile, true);
+
+			break;
 		case 35: // End key
 			if (Developer.logEquipped) {
 				MuleLogger.logEquippedItems();
