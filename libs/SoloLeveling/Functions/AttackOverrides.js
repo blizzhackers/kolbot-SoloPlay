@@ -329,6 +329,7 @@ Attack.isCursable = function (unit) {
 	case 499: // Catapult
 	case 524: // Barricade Wall Right
 	case 525: // Barricade Wall Left
+	case 562: // Festering Appendages
 	case 563: // Festering Appendages
 	case 528: // Evil Demon Hut
 	case 681: // maggotegg1 (WSK)
