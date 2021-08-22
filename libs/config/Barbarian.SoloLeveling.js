@@ -281,7 +281,7 @@ function LoadConfig () {
 				Config.KeepRunewords.push("[Type] == sword # [ias] >= 30");
 			}
 
-			if (SetUp.finalBuild !== "Uberconc" && Check.haveItem("sword", "runeword", "Grief") || !Check.haveItem("armor", "runeword", "Fortitude")) { // Fortitude
+			if (SetUp.finalBuild !== "Uberconc" && Check.haveItem("sword", "runeword", "Grief") && !Check.haveItem("armor", "runeword", "Fortitude")) { // Fortitude
 				var Fortitude = [
 					"[Name] == ElRune # # [MaxQuantity] == 1",
 					"[Name] == SolRune # # [MaxQuantity] == 1",
