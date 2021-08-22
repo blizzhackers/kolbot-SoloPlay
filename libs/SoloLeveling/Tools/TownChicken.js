@@ -151,6 +151,8 @@ function main() {
 				break;
 			}
 
+			Attack.stopClear = true;
+
 			try {
 				me.overhead("Going to town");
 				print("Going to town");
@@ -175,6 +177,7 @@ function main() {
 			} finally {
 				this.togglePause();
 
+				Attack.stopClear = false;
 				townCheck = false;
 			}
 		}

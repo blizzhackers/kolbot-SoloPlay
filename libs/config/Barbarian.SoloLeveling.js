@@ -543,7 +543,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == sword # [sanctuaryaura] >= 16");
 		}
 
-		if (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("ring", "unique", "Ravenfrost")) {	//Voice Of Reason - Lem/Ko/El/Eld
+		if (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("ring", "unique", "Raven Frost")) {	//Voice Of Reason - Lem/Ko/El/Eld
 			var VoiceofReason = [
 				"[Name] == LemRune",
 				"[Name] == KoRune",
