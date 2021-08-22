@@ -574,8 +574,6 @@ function LoadConfig () {
 			Config.Recipes.push([Recipe.Socket.Armor, "WyrmHide"]);
 			Config.Recipes.push([Recipe.Socket.Armor, "Dusk Shroud"]);
 
-			Config.Runewords.push([Runeword.Fortitude, "Breast Plate"]);
-			Config.Runewords.push([Runeword.Fortitude, "Mage Plate"]);
 			Config.Runewords.push([Runeword.Fortitude, "Hellforge Plate"]);
 			Config.Runewords.push([Runeword.Fortitude, "Kraken Shell"]);
 			Config.Runewords.push([Runeword.Fortitude, "Archon Plate"]);

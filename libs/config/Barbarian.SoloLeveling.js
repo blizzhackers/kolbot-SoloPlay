@@ -268,6 +268,13 @@ function LoadConfig () {
 					NTIP.addLine("[Name] == PhaseBlade && [Quality] == Normal # [Sockets] == 0 # [MaxQuantity] == 1");
 				}
 
+				if (!me.getItem(637)) {		// Lo Rune
+					Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
+					Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
+					Config.Recipes.push([Recipe.Rune, "Vex Rune"]); // Vex to Ohm
+					Config.Recipes.push([Recipe.Rune, "Ohm Rune"]); // Ohm to Lo
+				}
+
 				Config.Recipes.push([Recipe.Socket.Weapon, "Phase Blade"]);
 				Config.Runewords.push([Runeword.Grief, "Phase Blade"]);
 
@@ -291,6 +298,13 @@ function LoadConfig () {
 					NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
 				} else {
 					NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] == Superior # [enhanceddefense] >= 10 && [Sockets] == 4 # [MaxQuantity] == 1");
+				}
+
+				if (!me.getItem(637)) {		// Lo Rune
+					Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
+					Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
+					Config.Recipes.push([Recipe.Rune, "Vex Rune"]); // Vex to Ohm
+					Config.Recipes.push([Recipe.Rune, "Ohm Rune"]); // Ohm to Lo
 				}
 
 				Config.Recipes.push([Recipe.Socket.Armor, "Archon Plate", Roll.NonEth]);
@@ -768,6 +782,12 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(fort);
 
+			if (["Immortalwhirl", "Singer"].indexOf(SetUp.finalBuild) === -1) {
+				if (Check.haveItem("sword", "runeword", "Grief")) {
+					NTIP.arrayLooping(fort);	// Make Grief first, if using it for final build
+				}
+			}
+
 			Config.Recipes.push([Recipe.Socket.Armor, "Hellforge Plate"]);
 			Config.Recipes.push([Recipe.Socket.Armor, "Kraken Shell"]);
 			Config.Recipes.push([Recipe.Socket.Armor, "Archon Plate"]);
@@ -781,8 +801,6 @@ function LoadConfig () {
 			Config.Recipes.push([Recipe.Socket.Armor, "WyrmHide"]);
 			Config.Recipes.push([Recipe.Socket.Armor, "Dusk Shroud"]);
 
-			Config.Runewords.push([Runeword.Fortitude, "Breast Plate"]);
-			Config.Runewords.push([Runeword.Fortitude, "Mage Plate"]);
 			Config.Runewords.push([Runeword.Fortitude, "Hellforge Plate"]);
 			Config.Runewords.push([Runeword.Fortitude, "Kraken Shell"]);
 			Config.Runewords.push([Runeword.Fortitude, "Archon Plate"]);
