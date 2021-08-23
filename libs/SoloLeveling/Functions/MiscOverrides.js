@@ -819,7 +819,7 @@ Misc.getGoodShrine = function (shrineLocs) {
 
 		Precast.doPrecast(true);
 
-		if (Misc.getGoodShrinesInArea(shrineLocs[get], shrineToLookFor, true)) {
+		if (Misc.getGoodShrinesInArea(shrineLocs[get], shrines, true)) {
 			Town.goToTown();
 
 			break;
