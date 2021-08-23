@@ -522,7 +522,7 @@ function LoadConfig () {
 
 			Config.Recipes.push([Recipe.Socket.Shield, "Monarch", Roll.NonEth]);
 			Config.Runewords.push([Runeword.Spirit, "Monarch"]);
-			Config.KeepRunewords.push("([type] == shield || [type] == auricshields) # [fcr] >= 25 && [maxmana] >= 89");
+			Config.KeepRunewords.push("[type] == shield # [fcr] >= 25 && [maxmana] >= 89");
 		}
 
 		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).tier < 3600) { // Merc Insight

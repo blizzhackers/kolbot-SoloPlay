@@ -342,7 +342,7 @@ function LoadConfig () {
 
 				Config.Recipes.push([Recipe.Socket.Shield, "Monarch", Roll.NonEth]);
 				Config.Runewords.push([Runeword.Spirit, "Monarch"]);
-				Config.KeepRunewords.push("([type] == shield || [type] == auricshields) # [fcr] >= 25 && [maxmana] >= 89");
+				Config.KeepRunewords.push("[type] == shield # [fcr] >= 25 && [maxmana] >= 89");
 			}
 
 			break;
@@ -516,7 +516,7 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.AncientsPledge, "Scutum"]);
 			Config.Runewords.push([Runeword.AncientsPledge, "Large Shield"]);
 
-			Config.KeepRunewords.push("([type] == shield || [type] == auricshields) # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 187");
+			Config.KeepRunewords.push("[type] == shield # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 187");
 		}
 
 		if (Item.getEquippedItem(3).tier < 634) {	// Treachery

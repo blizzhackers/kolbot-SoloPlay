@@ -619,7 +619,7 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.AncientsPledge, "Scutum"]);
 			Config.Runewords.push([Runeword.AncientsPledge, "Large Shield"]);
 
-			Config.KeepRunewords.push("([type] == shield || [type] == auricshields) # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 187");
+			Config.KeepRunewords.push("[type] == shield # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 187");
 		}
 
 		if (Item.getEquippedItemMerc(3).prefixnum !== 20547) { // Merc Fortitude
