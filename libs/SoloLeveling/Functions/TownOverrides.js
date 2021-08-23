@@ -849,8 +849,10 @@ Town.unfinishedQuests = function () {
 		print('ÿc9SoloLevelingÿc0: used scroll of resistance');
 	}
 
-	Town.heal();
-
+	if (Town.heal()) {
+		me.cancel();
+	}
+	
 	return true;
 };
 
