@@ -736,13 +736,13 @@ Misc.getLightResShrine = function (shrineLocs) {
 	return true;
 };
 
-/*Misc.getGoodShrine = function (shrineLocs, shrines) {
+Misc.getGoodShrine = function (shrineLocs) {
 	function checkState (shrineType) {
 		let result = false;
 
 		switch (shrineType) {
 		case 6: // Armor
-			if (me.getState(128)) {
+			if (me.getState(128) && !me.paladin) {
 				result = true;
 			}
 
@@ -784,6 +784,23 @@ Misc.getLightResShrine = function (shrineLocs) {
 
 	let oldAttack = [];
 
+	// Build shrine array
+	let shrines = [];
+
+	if (Check.Resistance().LR < 75) {
+		shrines.push(10);	// Light Resist
+	}
+
+	shrines.push(12);	// Skill
+
+	if (me.barbarian || me.amazon) {
+		shrines.push(7);	// Combat
+	}
+
+	if (!me.paladin) {
+		shrines.push(6);	// Armor (paladin has holy shield, this would be unnecessary)
+	}
+
 	if (me.barbarian && me.normal && me.getSkill(133, 1) >= 6) {
 		oldAttack = Config.AttackSkill.slice();
 		Config.AttackSkill = [-1, 133, -1, 133, -1];
@@ -801,12 +818,17 @@ Misc.getLightResShrine = function (shrineLocs) {
 		}
 
 		Precast.doPrecast(true);
-		Misc.getShrinesInArea(shrineLocs[get], 10, true);
 
-		if (me.getState(5)) {
+		if (Misc.getGoodShrinesInArea(shrineLocs[get], shrineToLookFor, true)) {
 			Town.goToTown();
+
 			break;
 		}
+		
+		/*if (checkState(shrineToLookFor)) {
+			Town.goToTown();
+			break;
+		}*/
 
 		if (!me.inTown) {
 			Town.goToTown();
@@ -818,7 +840,46 @@ Misc.getLightResShrine = function (shrineLocs) {
 	}
 
 	return true;
-};*/
+};
+
+Misc.getGoodShrinesInArea = function (area, types, use) {
+	var i, coords, shrine,
+		shrineLocs = [],
+		shrineIds = [2, 81, 83],
+		unit = getPresetUnits(area);
+
+	if (unit) {
+		for (i = 0; i < unit.length; i += 1) {
+			if (shrineIds.indexOf(unit[i].id) > -1) {
+				shrineLocs.push([unit[i].roomx * 5 + unit[i].x, unit[i].roomy * 5 + unit[i].y]);
+			}
+		}
+	}
+
+	while (shrineLocs.length > 0) {
+		shrineLocs.sort(Sort.points);
+
+		coords = shrineLocs.shift();
+
+		Pather.moveTo(coords[0], coords[1], 2);
+
+		shrine = getUnit(2, "shrine");
+
+		if (shrine) {
+			do {
+				if (types.indexOf(shrine.objtype) > -1 && shrine.mode === 0) {
+					Pather.moveTo(shrine.x - 2, shrine.y - 2);
+
+					if (!use || this.getShrine(shrine)) {
+						return true;
+					}
+				}
+			} while (shrine.getNext());
+		}
+	}
+
+	return false;
+};
 
 // Add use of tk for shrine - from autoplay
 Misc.getShrine = function (unit) {
@@ -827,7 +888,7 @@ Misc.getShrine = function (unit) {
 	}
 
 	var i, tick,
-		telek = me.classid === 1 && me.getSkill(43, 1);
+		telek = me.sorceress && me.getSkill(43, 1);
 
 	for (i = 0; i < 3; i += 1) {
 		if (telek) {
@@ -880,6 +941,10 @@ Misc.gamePacket = function (bytes) {// various game events
 		let oldPickRange = Config.PickRange;
 		Precast.enabled = false;
 		Misc.townEnabled = false;
+
+		if (me.barbarian) {
+			Config.FindItem = false;
+		}
 
 		if (script && script.running) {
 			print("ÿc1Pausing.");
@@ -1455,7 +1520,7 @@ Misc.addSocketables = function () {
 			break;
 		}
 
-		if ([4, 6].indexOf(items[i].quality) > -1 && items[i].mode === 1 && items[i].getStat(194) >= 1 && !items[i].getItem()) {	// Any magic or rare with sockets
+		if ([4, 6].indexOf(items[i].quality) > -1 && items[i].mode === 1 && [1, 3, 4, 5].indexOf(items[i].bodylocation) > -1 && items[i].getStat(194) >= 1 && !items[i].getItem()) {	// Any magic or rare with sockets
 			item = items[i];
 			break;
 		}
@@ -1853,7 +1918,7 @@ Misc.addSocketables = function () {
 			if (Misc.addSocketableToItem(item, socketable)) {
 				D2Bot.printToConsole("Added socketable: " + socketable.fname + " to " + item.fname, 6);
 			} else {
-				print("ÿc9GuysSoloLevelingÿc0: Failed to add socketable to item");
+				print("ÿc9GuysSoloLevelingÿc0: Failed to add socketable to " + item.fname);
 			}
 			
 		}
@@ -1864,7 +1929,7 @@ Misc.addSocketables = function () {
 					D2Bot.printToConsole("Added socketable: " + multiple[i].fname + " to " + item.fname, 6);
 					delay(250 + me.ping);
 				} else {
-					print("ÿc9GuysSoloLevelingÿc0: Failed to add socketable to item");
+					print("ÿc9GuysSoloLevelingÿc0: Failed to add socketable to " + item.fname);
 				}
 			}
 		}

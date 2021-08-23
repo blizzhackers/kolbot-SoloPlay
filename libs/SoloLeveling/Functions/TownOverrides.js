@@ -849,6 +849,8 @@ Town.unfinishedQuests = function () {
 		print('ÿc9SoloLevelingÿc0: used scroll of resistance');
 	}
 
+	Town.heal();
+
 	return true;
 };
 
@@ -1374,15 +1376,15 @@ Town.betterBaseThanWearing = function (base, verbose) {
 		return false;
 	}
 
-	if (me.getStat(0) < base.strreq || me.getStat(2) < base.dexreq) {
-		return false; // Can't use so its worse then what we already have
-	}
-
 	if (base.quality > 4) {
 		return false;	//Not a runeword base
 	}
 
 	bodyLoc = Item.getBodyLoc(base);
+
+	if ((me.getStat(0) < base.strreq || me.getStat(2) < base.dexreq)) {
+		return false; // Can't use so its worse then what we already have
+	}
 
 	let item = me.getItem();
 
@@ -2189,7 +2191,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 		if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
 			if (([3, 4, 7].indexOf(base.location) > -1) &&
 				(generalScore(base) < generalScore(itemsToCheck) || 
-						(generalScore(base) === generalScore(itemsToCheck) && (Item.getQuantityOwned(base) > 2 || base.getStatEx(18) < itemsToCheck.getStatEx(18))))) {
+						(generalScore(base) === generalScore(itemsToCheck) && (Item.getQuantityOwned(base) > 1 || base.getStatEx(18) < itemsToCheck.getStatEx(18))))) {
 				if (Developer.Debugging.junkCheckVerbose) {
 					print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 				}

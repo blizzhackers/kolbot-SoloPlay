@@ -442,14 +442,15 @@ function LoadConfig () {
 				}
 
 				if (me.getItem(639) && me.getItem(640)) {
+					Config.Runewords.push([Runeword.Enigma, "Archon Plate", Roll.NonEth]);
 					Config.Runewords.push([Runeword.Enigma, "Mage Plate", Roll.NonEth]);
 					Config.Runewords.push([Runeword.Enigma, "DuskShroud", Roll.NonEth]);
 					Config.Runewords.push([Runeword.Enigma, "WyrmHide", Roll.NonEth]);
 					Config.Runewords.push([Runeword.Enigma, "ScarabHusk", Roll.NonEth]);
 
-					NTIP.addLine("([Name] == MagePlate || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
+					NTIP.addLine("([Name] == ArchonPlate || [Name] == MagePlate || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
 				} else {
-					NTIP.addLine("([Name] == MagePlate || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Flag] != Ethereal && [Quality] == Superior # [enhanceddefense] >= 10 && [Sockets] == 3 # [MaxQuantity] == 1");
+					NTIP.addLine("([Name] == ArchonPlate || [Name] == MagePlate || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Flag] != Ethereal && [Quality] == Superior # [enhanceddefense] >= 10 && [Sockets] == 3 # [MaxQuantity] == 1");
 				}
 
 				Config.KeepRunewords.push("[type] == armor # [frw] >= 45");
