@@ -336,7 +336,7 @@ case 0: //Amazon - theBGuy
 			default:
 				// If main attack skill is lightning strike and charged strike's skill level is at least level 15, check current monster count. If monster count is less than 3, use CS as its more effective with small mobs
 				if (timedSkill === 34 && me.getSkill(24, 1) >= 15) {
-					if (Attack.getMonsterCount(me.x, me.y, 15) <= 3) {
+					if (Attack.getMobCount(me.x, me.y, 15) <= 3) {
 						timedSkill = 24;
 					}
 				}
@@ -406,7 +406,8 @@ case 1: // Sorceress
 	}
 
 	ClassAttack.doAttack = function (unit, preattack) {
-		var index, staticRange, checkSkill, mark,
+		var index, checkSkill, mark,
+			staticRange = Math.floor((me.getSkill(42, 1) + 3) * 2 / 3),
 			merc = Merc.getMercFix(),
 			timedSkill = -1,
 			untimedSkill = -1,
@@ -442,7 +443,7 @@ case 1: // Sorceress
 
 			Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
 
-			if (me.getSkill(42, 1)) {
+			if (me.getSkill(42, 1) && Attack.getMobCount(me.x, me.y, staticRange) >= 1) {
 				for (let castStatic = 0; castStatic < 2; castStatic++) {
 					if ((Skill.getManaCost(42) * 3) < me.mp) {
 						Skill.cast(42, 0);
@@ -745,7 +746,7 @@ case 2: // Necromancer
 
 		let useTerror = me.getSkill(77, 0);
 
-		if (useTerror && Attack.getMonsterCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(77) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+		if (useTerror && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(77) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
 			Skill.cast(77, Skill.getHand(77));
 		}
 
@@ -1326,10 +1327,10 @@ case 4: // Barbarian - theBGuy
 					continue;
 				}
 
-				if (useHowl && Attack.getMonsterCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(130) < me.mp) {
+				if (useHowl && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(130) < me.mp) {
 					Skill.cast(130, Skill.getHand(130));
 					this.doCast(unit, attackSkill);
-				} else if (useWarCry && Attack.getMonsterCount(me.x, me.y, 6, null, true) >= 1 && Skill.getManaCost(154) < me.mp) {
+				} else if (useWarCry && Attack.getMobCount(me.x, me.y, 6, null, true) >= 1 && Skill.getManaCost(154) < me.mp) {
 					Skill.cast(154, Skill.getHand(154));
 				}
 
@@ -1346,6 +1347,7 @@ case 4: // Barbarian - theBGuy
 
 	ClassAttack.doAttack = function (unit, preattack) {
 		let useHowl = me.getSkill(130, 1);
+		let useGrimWard = me.getSkill(150, 1);
 		let useTaunt = me.getSkill(137, 1);
 		let useWarCry = me.getSkill(154, 1);
 		let useBattleCry = me.getSkill(146, 1);
@@ -1383,8 +1385,12 @@ case 4: // Barbarian - theBGuy
 			attackSkill = Config.LowManaSkill[0];
 		}
 
-		if (useHowl && attackSkill !== 151 && [345, 571].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
-			Skill.cast(130, Skill.getHand(130));
+		if (useHowl && attackSkill !== 151 && [345, 571].indexOf(unit.classid) === -1 && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+			if (useGrimWard && !this.grimWard(6)) {
+				Skill.cast(130, Skill.getHand(130));
+			} else {
+				Skill.cast(130, Skill.getHand(130));
+			}
 		}
 
 		if (useTaunt) {
@@ -1413,7 +1419,7 @@ case 4: // Barbarian - theBGuy
 
 		if (!unit.dead && useWarCry && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.isCursable(unit) && 
 			(!unit.getState(21) || getTickCount() - this.warCryTick >= 1500) && 
-			Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154) && !me.getState(121) && Attack.getMonsterCount(me.x, me.y, 5, null, true) >= 1) {
+			Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154) && !me.getState(121) && Attack.getMobCount(me.x, me.y, 5, null, true) >= 1) {
 			if (!unit.getState(21)) {
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(154) || checkCollision(me, unit, 0x4)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(154), 0x4)) {
@@ -1425,7 +1431,7 @@ case 4: // Barbarian - theBGuy
 					me.switchWeapons(1);
 				}
 
-				print("ÿc9doAttack ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMonsterCount(me.x, me.y, 5, null, true));
+				print("ÿc9doAttack ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMobCount(me.x, me.y, 5, null, true));
 
 				if (me.getSkill(154, 1) >= 15) {
 					for (let i = 0; i < 2; i++) {
@@ -1464,8 +1470,12 @@ case 4: // Barbarian - theBGuy
 		}
 
 		if (index === 1) {
-			if (useHowl && !useWarCry && attackSkill !== 151 && [211, 243, 544, 562, 570, 571, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.getMonsterCount(me.x, me.y, 5, null, true) >= 3 && Skill.getManaCost(130) < me.mp) {
-				Skill.cast(130, Skill.getHand(130));
+			if (useHowl && attackSkill !== 151 && [211, 243, 544, 562, 570, 571, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.getMobCount(me.x, me.y, 5, null, true) >= 3 && Skill.getManaCost(130) < me.mp) {
+				if (useGrimWard && !this.grimWard(6)) {
+					Skill.cast(130, Skill.getHand(130));
+				} else if (!useWarCry) {
+					Skill.cast(130, Skill.getHand(130));
+				}
 			}
 		}
 
@@ -1480,6 +1490,7 @@ case 4: // Barbarian - theBGuy
 
 		var walk;
 		let useConc = me.getSkill(144, 0) && attackSkill === 152;
+		let useFrenzy = me.getSkill(147, 0) && attackSkill === 152;
 		let useWhirl = me.getSkill(151, 0) && attackSkill !== 151; // If main attack skill is already whirlwind no need to use it twice
 		let useLeap = me.getSkill(143, 1);
 		let useWarCry = me.getSkill(154, 1);
@@ -1525,7 +1536,7 @@ case 4: // Barbarian - theBGuy
 				Skill.cast(attackSkill, Skill.getHand(attackSkill), unit);
 
 				// Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
-				if (useBattleCry && Attack.getMonsterCount(me.x, me.y, 4) >= 1 && !unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27) && Skill.getManaCost(146) < me.mp) {
+				if (useBattleCry && Attack.getMobCount(me.x, me.y, 4) >= 1 && !unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27) && Skill.getManaCost(146) < me.mp) {
 					if (switchCast) {
 						me.switchWeapons(1);
 					}
@@ -1538,12 +1549,12 @@ case 4: // Barbarian - theBGuy
 				}
 
 				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.isCursable(unit) && (!unit.getState(21) || getTickCount() - this.warCryTick >= 1500) && 
-					Attack.getMonsterCount(me.x, me.y, 5, null, true) >= (me.area === 131 || Item.getEquippedItem(4).durability === 0 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
+					Attack.getMobCount(me.x, me.y, 5, null, true) >= (me.area === 131 || Item.getEquippedItem(4).durability === 0 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
 					if (switchCast) {
 						me.switchWeapons(1);
 					}
 
-					print("ÿc9doCast ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMonsterCount(me.x, me.y, 5, null, true));
+					print("ÿc9doCast ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMobCount(me.x, me.y, 5, null, true));
 
 					Skill.cast(154, Skill.getHand(154));
 					this.warCryTick = getTickCount();
@@ -1553,11 +1564,15 @@ case 4: // Barbarian - theBGuy
 					}
 				}
 
+				if (useFrenzy && !unit.dead && !me.getState(94)) {
+					Skill.cast(144, Skill.getHand(144), unit);
+				}
+
 				if (useConc && !unit.dead) {
 					Skill.cast(144, Skill.getHand(144), unit);
 				}
 
-				if (useWhirl && !unit.dead && (Attack.getMonsterCount(me.x, me.y, 6) >= 3 || ([156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1) && !me.hell)) {
+				if (useWhirl && !unit.dead && (Attack.getMobCount(me.x, me.y, 6) >= 3 || ([156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1) && !me.hell)) {
 					this.whirlwind(unit);
 				}
 			}
@@ -1587,6 +1602,8 @@ case 4: // Barbarian - theBGuy
 			this.findItem(10);
 		}
 	};
+
+	ClassAttack.findItemIgnoreGids = [];
 
 	ClassAttack.findItem = function (range) {
 		if (!Config.FindItem || !me.getSkill(142, 1)) {
@@ -1671,6 +1688,65 @@ MainLoop:
 
 		if (pick) {
 			Pickit.pickItems();
+		}
+
+		return true;
+	};
+
+	ClassAttack.grimWard = function (range) {
+		if (!me.getSkill(150, 1)) {
+			return false;
+		}
+
+		var i, j, tick, corpse, orgX, orgY, retry,
+			corpseList = [];
+
+		orgX = me.x;
+		orgY = me.y;
+
+MainLoop:
+		for (i = 0; i < 3; i += 1) {
+			corpse = getUnit(1);
+
+			if (corpse) {
+				do {
+					if ((corpse.mode === 0 || corpse.mode === 12) && getDistance(corpse, orgX, orgY) <= range && this.checkCorpse(corpse)) {
+						corpseList.push(copyUnit(corpse));
+					}
+				} while (corpse.getNext());
+			}
+
+			if (corpseList.length > 0) {
+
+				while (corpseList.length > 0) {
+
+					corpseList.sort(Sort.units);
+
+					corpse = corpseList.shift();
+
+					if (this.checkCorpse(corpse)) {
+						if (getDistance(me, corpse) > 30 || checkCollision(me, corpse, 0x1)) {
+							Pather.moveToUnit(corpse);
+						}
+
+	CorpseLoop:
+						for (j = 0; j < 3; j += 1) {
+							Skill.cast(150, 0, corpse);
+
+							tick = getTickCount();
+
+							while (getTickCount() - tick < 1000) {
+								if (corpse.getState(118)) {
+
+									break CorpseLoop;
+								}
+
+								delay(10);
+							}
+						}
+					}
+				}
+			}
 		}
 
 		return true;

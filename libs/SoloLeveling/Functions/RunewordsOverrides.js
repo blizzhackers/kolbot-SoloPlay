@@ -1,7 +1,7 @@
 /*
 *	@filename	RunewordsOverrides.js
 *	@author		isid0re, theBGuy
-*	@desc		Runewords.js patch for offline ladder runewords
+*	@desc		Runewords.js patch for offline ladder runewords, and Runeword.js improvements for leveling
 *	@credits	kolton, theBGuy (this was my idea)
 */
 
@@ -118,6 +118,18 @@ Runewords.getBase = function (runeword, base, ethFlag, reroll) {
 				}
 			}
 		} while (typeof base !== "object" && item.getNext());
+	}
+
+	return false;
+};
+
+Runewords.checkRune = function (classid) {
+	if (!Config.MakeRunewords || classid === undefined) {
+		return false;
+	}
+
+	if (this.needList.indexOf(classid) > -1) { // rune
+		return true;
 	}
 
 	return false;

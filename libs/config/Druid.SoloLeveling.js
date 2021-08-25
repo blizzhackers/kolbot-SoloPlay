@@ -438,20 +438,62 @@ function LoadConfig () {
 		}
 
 		if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
-			Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
 			NTIP.addLine("[name] == perfectdiamond # # [MaxQuantity] == 2");
-			Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+
+			if (Item.getQuantityOwned(me.getItem(586) < 2)) {
+				Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
+			}
+
+			if (Item.getQuantityOwned(me.getItem(631) < 2)) {
+				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+			}
+
 			NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 2");
 		}
 
 		if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
-			Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
+			if (!me.getItem(631)) {
+				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+			}
+
 			NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 1");
 		}
 
 		if (Check.haveItemAndNotSocketed("pelt", "unique", "Jalal's Mane")) {
-			Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
+			if (!me.getItem(631)) {
+				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+			}
+
 			NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 1");
+		}
+
+		let helm = Item.getEquippedItem(1);
+		let body = Item.getEquippedItem(3);
+		let wep = Item.getEquippedItem(4);
+		let shield = Item.getEquippedItem(5);
+
+		if (!helm.isRuneword && [4, 6].indexOf(helm.quality) > -1 && helm.sockets > 0 && !helm.socketed) {
+			if (Item.getQuantityOwned(me.getItem(581) < 2)) {
+				Config.Recipes.push([Recipe.Gem, "Flawless Ruby"]);
+			}
+		}
+
+		if (!body.isRuneword && [4, 6].indexOf(body.quality) > -1 && body.sockets > 0 && !body.socketed) {
+			if (Item.getQuantityOwned(me.getItem(581) < 2)) {
+				Config.Recipes.push([Recipe.Gem, "Flawless Ruby"]);
+			}
+		}
+
+		if (!wep.isRuneword && [4, 6].indexOf(wep.quality) > -1 && wep.sockets > 0 && !wep.socketed) {
+			if (Item.getQuantityOwned(me.getItem(566) < 2)) {
+				Config.Recipes.push([Recipe.Gem, "Flawless Topaz"]);
+			}
+		}
+
+		if (!shield.isRuneword && [4, 6].indexOf(shield.quality) > -1 && shield.sockets > 0 && !shield.socketed) {
+			if (Item.getQuantityOwned(me.getItem(586) < 2)) {
+				Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
+			}
 		}
 
 		var imbueableClassItems = [

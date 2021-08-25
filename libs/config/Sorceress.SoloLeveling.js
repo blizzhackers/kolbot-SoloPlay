@@ -284,6 +284,7 @@ function LoadConfig () {
 				Config.Runewords.push([Runeword.Infinity, "Great Poleaxe"]);
 				Config.Runewords.push([Runeword.Infinity, "Cryptic Axe"]);
 				Config.Runewords.push([Runeword.Infinity, "Thresher"]);
+
 				Config.KeepRunewords.push("[type] == polearm # [convictionaura] >= 13");
 			}
 
@@ -385,7 +386,10 @@ function LoadConfig () {
 			}
 
 			if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
-				Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
+				if (!me.getItem(631)) {
+					Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+				}
+
 				NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 1");
 			}
 
@@ -394,12 +398,18 @@ function LoadConfig () {
 		case "Cold":
 		case "Blizzballer":
 			if (Check.haveItemAndNotSocketed("armor", "set", "Tal Rasha's Guardianship")) {
-				Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
+				if (Item.getQuantityOwned(me.getItem(631) < 2)) {
+					Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+				}
+
 				NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 2");
 			}
 
 			if (Check.haveItemAndNotSocketed("helm", "set", "Tal Rasha's Horadric Crest")) {
-				Config.Recipes.push([Recipe.Rune, "Pul Rune"]); // Pul to Um
+				if (Item.getQuantityOwned(me.getItem(631) < 2)) {
+					Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+				}
+
 				NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 2");
 			}
 
@@ -410,15 +420,54 @@ function LoadConfig () {
 
 		// Go ahead and keep two P-diamonds prior to finding a moser's unless already using a better shield
 		if (!Check.haveItem("shield", "unique", "Moser's Blessed Circle") && (!Check.haveItem("shield", "runeword", "Sanctuary") || !Check.haveItem("shield", "runeword", "Spirit"))) {
-			Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
 			NTIP.addLine("[name] == perfectdiamond # # [MaxQuantity] == 2");
+
+			if (Item.getQuantityOwned(me.getItem(586) < 2)) {
+				Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
+			}
 		}
 
 		if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
-			Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
 			NTIP.addLine("[name] == perfectdiamond # # [MaxQuantity] == 2");
-			Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+
+			if (Item.getQuantityOwned(me.getItem(586) < 2)) {
+				Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
+			}
+
+			if (Item.getQuantityOwned(me.getItem(631) < 2)) {
+				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+			}
+
 			NTIP.addLine("[name] == UmRune # # [MaxQuantity] == 2");
+		}
+
+		let helm = Item.getEquippedItem(1);
+		let body = Item.getEquippedItem(3);
+		let wep = Item.getEquippedItem(4);
+		let shield = Item.getEquippedItem(5);
+
+		if (!helm.isRuneword && [4, 6].indexOf(helm.quality) > -1 && helm.sockets > 0 && !helm.socketed) {
+			if (Item.getQuantityOwned(me.getItem(581) < 2)) {
+				Config.Recipes.push([Recipe.Gem, "Flawless Ruby"]);
+			}
+		}
+
+		if (!body.isRuneword && [4, 6].indexOf(body.quality) > -1 && body.sockets > 0 && !body.socketed) {
+			if (Item.getQuantityOwned(me.getItem(581) < 2)) {
+				Config.Recipes.push([Recipe.Gem, "Flawless Ruby"]);
+			}
+		}
+
+		if (!wep.isRuneword && [4, 6].indexOf(wep.quality) > -1 && wep.sockets > 0 && !wep.socketed) {
+			if (Item.getQuantityOwned(me.getItem(566) < 2)) {
+				Config.Recipes.push([Recipe.Gem, "Flawless Topaz"]);
+			}
+		}
+
+		if (!shield.isRuneword && [4, 6].indexOf(shield.quality) > -1 && shield.sockets > 0 && !shield.socketed) {
+			if (Item.getQuantityOwned(me.getItem(586) < 2)) {
+				Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
+			}
 		}
 
 		var imbueableClassItems = [
@@ -622,7 +671,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == shield # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 187");
 		}
 
-		if (Item.getEquippedItemMerc(3).prefixnum !== 20547) { // Merc Fortitude
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(3).prefixnum !== 20547) { // Merc Fortitude
 			var fort = [
 				"[Name] == ElRune # # [MaxQuantity] == 1",
 				"[Name] == SolRune # # [MaxQuantity] == 1",
@@ -631,7 +680,12 @@ function LoadConfig () {
 				"([Name] == HellforgePlate || [Name] == KrakenShell || [Name] == ArchonPlate || [Name] == BalrogSkin || [Name] == BoneWeave || [Name] == GreatHauberk || [Name] == LoricatedMail || [Name] == DiamondMail || [Name] == WireFleece || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Quality] == Normal && [Flag] == Ethereal # [Defense] >= 1000 && [Sockets] == 4 # [MaxQuantity] == 1",
 				"([Name] == HellforgePlate || [Name] == KrakenShell || [Name] == ArchonPlate || [Name] == BalrogSkin || [Name] == BoneWeave || [Name] == GreatHauberk || [Name] == LoricatedMail || [Name] == DiamondMail || [Name] == WireFleece || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Quality] == Normal && [Flag] == Ethereal # [Defense] >= 700 && [Sockets] == 0 # [MaxQuantity] == 1",
 			];
-			NTIP.arrayLooping(fort);
+
+			if (["Blova", "Lightning"].indexOf(SetUp.currentBuild) > -1 && (Check.haveItem("armor", "runeword", "Chains of Honor") || me.getItem(639))) {	// Make CoH first for Blova/Lightning, or already have ber so Lo isn't needed for cubing
+				NTIP.arrayLooping(fort);
+			} else {
+				NTIP.arrayLooping(fort);
+			}
 
 			Config.Recipes.push([Recipe.Socket.Armor, "Hellforge Plate"]);
 			Config.Recipes.push([Recipe.Socket.Armor, "Kraken Shell"]);
@@ -660,6 +714,36 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.Fortitude, "Dusk Shroud"]);
 
 			Config.KeepRunewords.push("[type] == armor # [enhanceddefense] >= 200 && [enhanceddamage] >= 300");
+		}
+
+		if (Item.getEquippedItem(3).tier < 450) { // Bone
+			if (!me.getItem(631)) { // Cube to Um Rune
+				Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
+				Config.Recipes.push([Recipe.Rune, "Fal Rune"]);
+				Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
+				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);	// Pul -> Um
+			}
+
+			var Bone = [
+				"[Name] == UmRune # # [MaxQuantity] == 2",
+				"[Name] == SolRune # # [MaxQuantity] == 1",
+			];
+			NTIP.arrayLooping(Bone);
+
+			if (me.getItem(626)) {
+				NTIP.addLine("([Name] == demonhidearmor || [Name] == DuskShroud || [Name] == GhostArmor || [Name] == LightPlate || [Name] == MagePlate || [Name] == SerpentskinArmor || [Name] == trellisedarmor || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
+			}
+
+			Config.Runewords.push([Runeword.Bone, "demonhide armor"]);
+			Config.Runewords.push([Runeword.Bone, "Dusk Shroud"]);
+			Config.Runewords.push([Runeword.Bone, "Ghost Armor"]);
+			Config.Runewords.push([Runeword.Bone, "Light Plate"]);
+			Config.Runewords.push([Runeword.Bone, "Mage Plate"]);
+			Config.Runewords.push([Runeword.Bone, "Serpentskin Armor"]);
+			Config.Runewords.push([Runeword.Bone, "trellised armor"]);
+			Config.Runewords.push([Runeword.Bone, "WyrmHide"]);
+
+			Config.KeepRunewords.push("[type] == armor # [fireresist] == 30 && [normaldamagereduction] == 7");
 		}
 
 		if (Item.getEquippedItemMerc(3).tier < 15000) { // Merc Treachery
@@ -703,7 +787,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[Type] == armor # [ias] == 45 && [coldresist] == 30");
 		}
 
-		if (Item.getEquippedItem(3).tier < 450) { // Smoke
+		if (Item.getEquippedItem(3).tier < 300) { // Smoke
 			if (!Check.haveItem("armor", "runeword", "Smoke") && !me.hell) {
 				if (!me.getItem(626)) { // Cube to Lum Rune
 					Config.Recipes.push([Recipe.Rune, "Io Rune"]); // cube Io to Lum

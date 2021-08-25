@@ -193,6 +193,107 @@ Attack.clearLocations = function (list) {
 	return true;
 };
 
+Attack.clearPosition = function (x, y, range, skipBlocked) {
+	var monster, monList, tick;
+
+	if (skipBlocked === true) {
+		skipBlocked = 0x4;
+	}
+
+	while (true) {
+		if (getDistance(me, x, y) > 5) {
+			Pather.moveTo(x, y);
+		}
+
+		monster = getUnit(1);
+		monList = [];
+
+		if (monster) {
+			do {
+				if (getDistance(monster, x, y) <= range && this.checkMonster(monster) && this.canAttack(monster) &&
+						(!skipBlocked || !checkCollision(me, monster, skipBlocked)) &&
+						((me.classid === 1 && me.getSkill(54, 1)) || me.getStat(97, 54) || !checkCollision(me, monster, 0x1))) {
+					monList.push(copyUnit(monster));
+				}
+			} while (monster.getNext());
+		}
+
+		if (!monList.length) {		
+			return true;
+		} else {
+			this.clearList(monList);
+		}
+
+		delay(100);
+	}
+
+	return true;
+};
+
+Attack.buildMonsterList = function (skipBlocked) {
+	var monster,
+		monList = [];
+
+	if (skipBlocked === true) {
+		skipBlocked = 0x4;
+	}
+
+	monster = getUnit(1);
+
+	if (monster) {
+		do {
+			if (this.checkMonster(monster)) {
+				monList.push(copyUnit(monster));
+			}
+		} while (monster.getNext());
+	}
+
+	if (skipBlocked === 0x4) {
+		return monList.filter(monster => !checkCollision(me, monster, skipBlocked))
+	}
+
+	return monList;
+};
+
+Attack.getMobCount = function (x, y, range, list, filter) {
+	var i,
+		fire,
+		count = 0,
+		ignored = [243];
+
+	let rangedMobsClassIDs = [10, 11, 12, 13, 14, 58, 59, 60, 61, 62, 101, 102, 103, 104, 118, 119, 120, 121, 131, 132, 133, 134, 135, 170, 171, 172, 173, 174, 238, 239, 240, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 580, 581, 582, 583, 584, 636, 637, 638, 639, 640, 641, 645, 646, 647, 697];
+
+	if (filter === undefined) {
+		filter = false;
+	}
+
+	if (list === undefined || list === null || !list.length) {
+		list = this.buildMonsterList(true);
+		list.sort(Sort.units);
+		let newList;
+
+		if (filter) {
+			newList = list.filter(mob => mob.spectype === 0);
+
+			for (i = 0; i < newList.length; i++) {
+				if (ignored.indexOf(newList[i].classid) === -1 && this.checkMonster(newList[i]) && getDistance(x, y, newList[i].x, newList[i].y) <= range) {
+					count += 1;
+				}
+			}
+
+			return count;
+		}
+	}
+
+	for (i = 0; i < list.length; i += 1) {
+		if (ignored.indexOf(list[i].classid) === -1 && this.checkMonster(list[i]) && getDistance(x, y, list[i].x, list[i].y) <= range) {
+			count += 1;
+		}
+	}
+
+	return count;
+};
+
 Attack.IsAuradin = false;
 
 Attack.init = function () {
@@ -608,55 +709,6 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit) { // probabl
 	}
 
 	return true;
-};
-
-Attack.getMonsterCount = function (x, y, range, list, filter) {
-	var i,
-		fire,
-		count = 0,
-		ignored = [243];
-
-	let rangedMobsClassIDs = [10, 11, 12, 13, 14, 58, 59, 60, 61, 62, 101, 102, 103, 104, 118, 119, 120, 121, 131, 132, 133, 134, 135, 170, 171, 172, 173, 174, 238, 239, 240, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 580, 581, 582, 583, 584, 636, 637, 638, 639, 640, 641, 645, 646, 647, 697];
-
-	if (filter === undefined) {
-		filter = false;
-	}
-
-	if (list === undefined || list === null || !list.length) {
-		list = this.buildMonsterList();
-		list.sort(Sort.units);
-		let newList;
-
-		if (filter) {
-			newList = list.filter(mob => mob.spectype === 0);
-
-			for (i = 0; i < newList.length; i++) {
-				if (ignored.indexOf(newList[i].classid) === -1 && this.checkMonster(newList[i]) && getDistance(x, y, newList[i].x, newList[i].y) <= range) {
-					count += 1;
-				}
-			}
-
-			return count;
-		}
-	}
-
-	for (i = 0; i < list.length; i += 1) {
-		if (ignored.indexOf(list[i].classid) === -1 && this.checkMonster(list[i]) && getDistance(x, y, list[i].x, list[i].y) <= range) {
-			count += 1;
-		}
-	}
-
-	fire = getUnit(2, "fire");
-
-	if (fire) {
-		do {
-			if (getDistance(x, y, fire.x, fire.y) <= 4) {
-				count += 100;
-			}
-		} while (fire.getNext());
-	}
-
-	return count;
 };
 
 // Sort monsters based on distance, spectype and classId (summoners are attacked first)

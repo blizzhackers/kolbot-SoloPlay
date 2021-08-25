@@ -12,6 +12,10 @@ if (!isIncluded("common/Misc.js")) {
 Item.getQuantityOwned = function (item) {
 	let owned = 0, list = [];
 
+	if (item === undefined) {
+		return 0;
+	}
+
 	let myItems = me.getItems()
 		.filter(check =>
 				check.itemType === item.itemType// same item type as current
@@ -139,12 +143,15 @@ Item.getEquippedItem = function (bodyLoc) {
 					fname: item.fname,
 					prefixnum: item.prefixnum,
 					itemType: item.itemType,
+					quality: item.quality,
 					tier: NTIP.GetTier(item),
 					secondarytier: NTIP.GetSecondaryTier(item),
 					str: item.getStatEx(0),
 					dex: item.getStatEx(2),
 					durability: (item.getStat(72) * 100 / item.getStat(73)),
+					sockets: item.getStat(194),
 					socketed: !item.getItems(),
+					isRuneword: item.getFlag(0x4000000),
 				};
 			}
 		} while (item.getNext());
@@ -157,12 +164,15 @@ Item.getEquippedItem = function (bodyLoc) {
 		fname: "none",
 		prefixnum: -1,
 		itemType: -1,
+		quality: -1,
 		tier: -1,
 		secondarytier: -1,
 		str: 0,
 		dex: 0,
 		durability: 0,
+		sockets: 0,
 		socketed: false,
+		isRuneword: false,
 	};
 };
 

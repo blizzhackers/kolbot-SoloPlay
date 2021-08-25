@@ -60,12 +60,12 @@ var SetUp = {
 	walkToggle: false,
 
 	//			Amazon					Sorceress				Necromancer					Paladin				Barbarian				Druid					Assassin					
-	levelCap: [[33, 65, 100][me.diff], [33, 70, 100][me.diff], [33, 70, 100][me.diff], [33, 65, 100][me.diff], [33, 72, 100][me.diff], [33, 73, 100][me.diff], [33, 65, 100][me.diff]][me.classid],
+	levelCap: [[33, 65, 100][me.diff], [33, 67, 100][me.diff], [33, 70, 100][me.diff], [33, 65, 100][me.diff], [33, 75, 100][me.diff], [33, 73, 100][me.diff], [33, 65, 100][me.diff]][me.classid],
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
 	respecOne: [ 64, 28, 26, 19, 30, 24, 30][me.classid],
-	respecOneB: [ 0, 0, 0, 0, 71, 0, 0][me.classid],
+	respecOneB: [ 0, 0, 0, 0, 74, 0, 0][me.classid],
 
 	// mine - theBGuy
 	respecTwo: function () {
@@ -320,7 +320,7 @@ var Check = {
 			if ((me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf())) || 
 				(!me.normal && 
 					((!me.tristram && (me.classic && me.diablo || me.baal)) ||
-					 (me.barbarian && !Pather.accessToAct(3) && !Check.haveItem("sword", "runeword", "Voice of Reason")) ||
+					 (me.barbarian && !Pather.accessToAct(3) && !Check.haveItem("sword", "runeword", "Lawbringer")) ||
 					 (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
 				return true;
 			}
@@ -363,7 +363,7 @@ var Check = {
 		case "a1chests": //a1chests
 			if (!me.classic && 
 				(me.charlvl >= 70 && Pather.canTeleport() || 
-					(me.barbarian && me.hell && !Pather.accessToAct(3) && !Check.haveItem("sword", "runeword", "Voice of Reason")))) {
+					(me.barbarian && me.hell && !Pather.accessToAct(3) && (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("sword", "runeword", "Voice of Reason"))))) {
 				return true;
 			}
 
@@ -456,7 +456,7 @@ var Check = {
 			if (Pather.accessToAct(3) && !me.travincal ||
 				(me.charlvl < 25 || 
 					(me.charlvl >= 25 && me.normal && !me.baal && !Check.Gold()) ||
-					(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Voice of Reason")) || 
+					(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) || 
 					(me.hell && me.paladin && me.charlvl > 85 && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
 				return true;
 			}
@@ -478,13 +478,13 @@ var Check = {
 
 			break;
 		case "river": // river
-			if (Pather.accessToAct(4) && !me.diablo && !me.normal && me.barbarian && !Check.haveItem("sword", "runeword", "Voice of Reason")) {
+			if (Pather.accessToAct(4) && !me.diablo && !me.normal && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) {
 				return true;
 			}
 
 			break;
 		case "hephasto":
-			if (Pather.accessToAct(4) && !me.normal && me.diablo && me.barbarian && me.charlvl <= 70 && !Check.haveItem("sword", "runeword", "Voice of Reason")) {
+			if (Pather.accessToAct(4) && !me.normal && me.diablo && me.barbarian && me.charlvl <= 70 && !Check.haveItem("sword", "runeword", "Lawbringer")) {
 				return true;
 			}
 
@@ -508,7 +508,7 @@ var Check = {
 
 			break;
 		case "savebarby": //barbies
-			if (!me.classic && Pather.accessToAct(5) && me.normal && !me.savebarby) {
+			if (!me.classic && Pather.accessToAct(5) && !me.savebarby && (Runewords.checkRune(616) || Runewords.checkRune(617) || Runewords.checkRune(618))) {	// I need tal, ral, or ort rune for runewords
 				return true;
 			}
 
@@ -536,6 +536,10 @@ var Check = {
 				(!me.barbarian || ["Whirlwind", "Immortalwhirl", "Singer"].indexOf(SetUp.currentBuild) > -1) && 
 				(me.classic && me.diablo || me.baal) && 
 				((me.nightmare && (!me.druid || me.charlvl <= 65) || me.hell))) {
+				return true;
+			}
+
+			if (me.normal && !me.cows && (me.classic && me.diablo || me.baal) && Check.brokeAf()) {
 				return true;
 			}
 
@@ -685,7 +689,7 @@ var Check = {
 		case 1: //nightmare
 			if ((me.getItem(616) && me.getItem(619) && me.getItem(618) && me.getItem(620) && Check.currentBuild().caster) || 
 				(!me.paladin && this.haveItem("sword", "runeword", "Spirit")) || (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit")) || 
-				(me.barbarian && Check.haveItem("sword", "runeword", "Voice of Reason"))) {
+				(me.barbarian && (Check.haveItem("sword", "runeword", "Lawbringer") || me.baal))) {
 				needRunes = false;
 			}
 

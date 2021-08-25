@@ -572,7 +572,12 @@ Misc.openChests = function (range) {
 
 	if (Config.OpenChests === 2) {
 		containers = [
-			"chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack", "barrel", "holeanim", "tomb2", "tomb3", "roguecorpse", "ratnest", "corpse", "goo pile", "largeurn", "urn", "chest3", "jug", "skeleton", "guardcorpse", "sarcophagus", "object2", "cocoon", "basket", "stash", "hollow log", "hungskeleton", "pillar", "skullpile", "skull pile", "jar3", "jar2", "jar1", "bonechest", "woodchestl", "woodchestr", "barrel wilderness", "burialchestr", "burialchestl", "explodingchest", "chestl", "chestr", "groundtomb", "icecavejar1", "icecavejar2", "icecavejar3", "icecavejar4", "deadperson", "deadperson2", "evilurn", "tomb1l", "tomb3l", "groundtombl"
+			"chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack",
+			"barrel", "holeanim", "tomb2", "tomb3", "roguecorpse", "ratnest", "corpse", "goo pile", "largeurn", "urn", "chest3",
+			"jug", "skeleton", "guardcorpse", "sarcophagus", "object2", "cocoon", "basket", "stash", "hollow log", "hungskeleton",
+			"pillar", "skullpile", "skull pile", "jar3", "jar2", "jar1", "bonechest", "woodchestl", "woodchestr", "barrel wilderness",
+			"burialchestr", "burialchestl", "explodingchest", "chestl", "chestr", "groundtomb", "icecavejar1", "icecavejar2", "icecavejar3",
+			"icecavejar4", "deadperson", "deadperson2", "evilurn", "tomb1l", "tomb3l", "groundtombl"
 		];
 	}
 
@@ -941,6 +946,7 @@ Misc.gamePacket = function (bytes) {// various game events
 		let oldPickRange = Config.PickRange;
 		Precast.enabled = false;
 		Misc.townEnabled = false;
+		Config.PickRange = 0;
 
 		if (me.barbarian) {
 			Config.FindItem = false;
@@ -1826,7 +1832,7 @@ Misc.addSocketables = function () {
 				case 2: // Shield
 				case 69: // Voodoo Heads
 				case 70: // Auric Shields
-					if ([582, 583, 584, 585, 586].indexOf(items[i].classid) > -1) {
+					if ([582, 583, 584, 585, 586].indexOf(items[i].classid) > -1) {		// Diamonds
 						if (highestGemAvailable(items[i], multiple)) {
 							if (item.getStat(194) > 1) {
 								if (multiple.length < item.getStat(194)) {
@@ -1857,7 +1863,7 @@ Misc.addSocketables = function () {
 				case 71: // Barb Helm
 				case 75: // Circlet
 				case 72: // Druid Pelts
-					if ([577, 578, 579, 580, 581].indexOf(items[i].classid) > -1) {
+					if ([577, 578, 579, 580, 581].indexOf(items[i].classid) > -1) {		// Ruby
 						if (highestGemAvailable(items[i], multiple)) {
 							if (item.getStat(194) > 1) {
 								if (multiple.length < item.getStat(194)) {
@@ -1884,28 +1890,55 @@ Misc.addSocketables = function () {
 
 					break;
 				default:
-					if ([597, 598, 599, 600, 601].indexOf(items[i].classid) > -1) {
-						if (highestGemAvailable(items[i], multiple)) {
-							if (item.getStat(194) > 1) {
-								if (multiple.length < item.getStat(194)) {
-									multiple.push(items[i]);
-									
-									if (multiple.length === item.getStat(194)) {
+					if (!Check.currentBuild().caster) {
+						if ([597, 598, 599, 600, 601].indexOf(items[i].classid) > -1) {		// Skulls
+							if (highestGemAvailable(items[i], multiple)) {
+								if (item.getStat(194) > 1) {
+									if (multiple.length < item.getStat(194)) {
+										multiple.push(items[i]);
+										
+										if (multiple.length === item.getStat(194)) {
+											ready = true;
+											break;
+										}
+										
+										continue;
+									} else {
 										ready = true;
 										break;
-									}
-									
-									continue;
+									}	
 								} else {
-									ready = true;
+									socketable = items[i];
 									break;
-								}	
-							} else {
-								socketable = items[i];
+								}
+
 								break;
 							}
+						}
+					} else {
+						if ([562, 563, 564, 565, 566].indexOf(items[i].classid) > -1) {		// Topaz
+							if (highestGemAvailable(items[i], multiple)) {
+								if (item.getStat(194) > 1) {
+									if (multiple.length < item.getStat(194)) {
+										multiple.push(items[i]);
+										
+										if (multiple.length === item.getStat(194)) {
+											ready = true;
+											break;
+										}
+										
+										continue;
+									} else {
+										ready = true;
+										break;
+									}	
+								} else {
+									socketable = items[i];
+									break;
+								}
 
-							break;
+								break;
+							}
 						}
 					}
 
