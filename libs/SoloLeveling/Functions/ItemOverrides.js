@@ -858,6 +858,14 @@ Item.removeItem = function (bodyLoc) {
 			)
 			.first();
 
+	if (!me.inTown) {
+		Town.goToTown();
+	}
+
+	if (!getUIFlag(0x19)) {
+		Town.openStash();
+	}
+
 	if (removable) {
 		removable.toCursor();
 		cursorItem = getUnit(100);
@@ -866,8 +874,13 @@ Item.removeItem = function (bodyLoc) {
 			if (Pickit.checkItem(cursorItem).result === 1) { // only keep wanted items
 				if (Storage.Inventory.CanFit(cursorItem)) {
 					Storage.Inventory.MoveTo(cursorItem);
+				} else if (Storage.Stash.CanFit(cursorItem)) {
+					Storage.Stash.MoveTo(cursorItem);
+				} else if (Storage.Cube.CanFit(cursorItem)) {
+					Storage.Cube.MoveTo(cursorItem);
 				}
 			} else {
+				D2Bot.printToConsole("Dropped " + cursorItem.fname + " during un-equip process", 9);
 				cursorItem.drop();
 			}
 		}
