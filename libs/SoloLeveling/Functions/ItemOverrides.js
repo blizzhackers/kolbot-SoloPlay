@@ -760,7 +760,7 @@ Item.autoEquip = function () {
 
 		if (tier > 0 && bodyLoc) {
 			for (j = 0; j < bodyLoc.length; j += 1) {
-				if ([3, 7].indexOf(items[0].location) > -1 && tier > this.getEquippedItem(bodyLoc[j]).tier && this.getEquippedItem(bodyLoc[j]).classid !== 174) { // khalim's will adjustment
+				if ([3, 6, 7].indexOf(items[0].location) > -1 && tier > this.getEquippedItem(bodyLoc[j]).tier && this.getEquippedItem(bodyLoc[j]).classid !== 174) { // khalim's will adjustment
 					if (!items[0].getFlag(0x10)) { // unid
 						tome = me.findItem(519, 0, 3);
 
@@ -815,6 +815,12 @@ Item.equip = function (item, bodyLoc) {
 
 	if (item.location === 7) {
 		if (!Town.openStash()) {
+			return false;
+		}
+	}
+
+	if (item.location === 6) {
+		if (!Town.openStash() && !Cubing.openCube()) {
 			return false;
 		}
 	}
