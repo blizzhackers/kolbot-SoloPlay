@@ -35,6 +35,8 @@ function hellforge () {
 		print('ÿc9SoloLevelingÿc0: Failed to kill Hephasto');
 	}
 
+	Pickit.pickItems();
+
 	Town.doChores();
 	Town.npcInteract("cain");
 
@@ -47,16 +49,7 @@ function hellforge () {
 		Quest.equipItem(90, 4);
 	}
 
-	Pather.usePortal(null, me.name);
-
-	// From SoloLeveling Commit eb818af
-	if (me.getItem(90)) {
-		if ([2, 69, 70].indexOf(Item.getEquippedItem(5).itemType) === -1) { //dual weild fix for assassin/barbarian
-			Item.removeItem(5);
-		}
-
-		Quest.equipItem(90, 4);
-	}
+	Pather.usePortal(107, me.name);
 
 	if (!me.getItem(90)) {
 		Pickit.pickItems();
