@@ -1,7 +1,7 @@
 ![image](https://user-images.githubusercontent.com/60308670/124204971-36979300-daae-11eb-84e1-5c424dc36578.png)
 
 ## What is this?
-This is my version of SoloLeveling cloned from the master branch on 6/30/2021. Everything from then on is my code unless otherwise stated. My verison includes new builds, bug fixes, feature updates, and more.
+GuysSoloLeveling is an hands-off autoplay script to take any charcter diablo 2 character class from 1-99 using Kolbot. It will level towards an end-game build that you choose. My verison includes new builds, bug fixes, feature updates, and more. See ```Brief History``` for more info. 
 
 If you are enjoying my version consider supporting me at https://www.buymeacoffee.com/theBGuy
 
@@ -11,16 +11,11 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 | 1-70 | 22h | 17h | 24h | 23h | 38h | 19h | 22h |
 | 1-80 |  | 26h |  | 32h |  | 34h |  |
 | 1-90 |  |  |  |  |  |  |  |
-| 1-95 |  |  |  |  |  |  |  |
-| 1-99 |  |  |  |  |  |  |  |
-
-## About SoloLeveling
-SoloLeveling is an automated leveling script for any Diablo 2 characters using Kolbot. The overall goal of the project is to be the easiest and fastest leveling script for any character class.
 
 **NOTE:** This script is designed to be only run from [https://github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot). Most errors occur from using the wrong Kolbot repo installation. 
 
 ## Features
-- Operates in Hell difficulty within 24 hours
+- Operates in Hell difficulty within 24 hours (the exception is the barbarian class that takes 48)
 - Includes character build options for final respec
 - Plays and finishes the game through Act 5 Hell
 - Hires class/build specific mercenary
