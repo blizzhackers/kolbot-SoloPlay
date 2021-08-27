@@ -242,7 +242,7 @@ function LoadConfig () {
 		NTIP.addLine("[name] >= vexrune && [name] <= zodrune");
 
 		if (Check.haveItem("sword", "runeword", "Call To Arms")) {
-			NTIP.addLine("[name] == auricshields && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000"); //spirit
+			NTIP.addLine("[type] == auricshields && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000"); //spirit
 		}
 
 		switch (SetUp.finalBuild) { // finalbuild autoequip setup
