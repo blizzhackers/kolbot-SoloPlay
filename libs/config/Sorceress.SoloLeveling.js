@@ -261,7 +261,7 @@ function LoadConfig () {
 					"([Name] == thresher || [Name] == crypticaxe || [Name] == greatpoleaxe || [Name] == giantthresher) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
 				];
 				NTIP.arrayLooping(Inf);
-				
+
 				if (Item.getQuantityOwned(me.getItem(639) < 2)) {		// Ber Rune
 					if (Check.haveItem("sword", "runeword", "Call To Arms")) {
 						Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
@@ -508,7 +508,7 @@ function LoadConfig () {
 				Config.Recipes.push([Recipe.Rune, "Lum Rune"]);	//Lum -> Ko			
 			}
 
-			if (!Check.haveBase("shield", 4)) {
+			if (!Check.haveBase("shield", 3)) {
 				NTIP.addLine("[Name] == Hyperion && [Flag] != Ethereal && [Quality] == Normal # [Sockets] == 0 # [MaxQuantity] == 1");
 			}
 
