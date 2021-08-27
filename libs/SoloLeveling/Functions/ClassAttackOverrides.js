@@ -479,7 +479,6 @@ case 1: // Sorceress
 				return 0;
 			}
 		) && Math.round(unit.hp * 100 / unit.hpmax) > Config.CastStatic) {
-			staticRange = Math.floor((me.getSkill(42, 1) + 3) * 2 / 3); // adjusted static range (CuteBeast)
 
 			while (!me.dead && Math.round(unit.hp * 100 / unit.hpmax) > Config.CastStatic && Attack.checkMonster(unit)) {
 				Misc.townCheck();
@@ -1147,7 +1146,8 @@ case 3: // Paladin
 		var index, result,
 			mercRevive = 0,
 			attackSkill = -1,
-			aura = -1;
+			aura = -1,
+			gold = me.getStat(14) + me.getStat(15);
 
 		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
@@ -1279,6 +1279,26 @@ case 3: // Paladin
 		}
 
 		return false;
+	};
+
+	ClassAttack.afterAttack = function () {
+		Misc.unShift();
+		Precast.doPrecast(false);
+
+		if (me.getState(2) && Attack.getMobCount(me.x, me.y, 10) === 0 && Skill.setSkill(109, 0)) {
+			let tick = getTickCount();
+			while (getTickCount() - tick < 1500) {
+				if (!me.getState(2)) {
+					break;
+				}
+
+				delay(10);
+			}
+		}
+
+		if (Config.Redemption instanceof Array && (me.hp * 100 / me.hpmax < Config.Redemption[0] || me.mp * 100 / me.mpmax < Config.Redemption[1]) && Skill.setSkill(124, 0)) {
+			delay(1500);
+		}
 	};
 
 	break;
@@ -1790,7 +1810,8 @@ case 5: // Druid
 		var index, checkSkill, result,
 			mercRevive = 0,
 			timedSkill = -1,
-			untimedSkill = -1;
+			untimedSkill = -1,
+			gold = me.getStat(14) + me.getStat(15);
 
 		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
