@@ -419,7 +419,7 @@ function LoadConfig () {
 
 				if (me.getItem(639)) {
 					if (!Check.haveBase("armor", 4)) {
-						NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] == Normal && [Quality] <= Superior # [Sockets] == 0 # [MaxQuantity] == 1");
+						NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 0 # [MaxQuantity] == 1");
 					}
 
 					NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
@@ -532,7 +532,7 @@ function LoadConfig () {
 				];
 				NTIP.arrayLooping(Inf);
 
-				if (!me.getItem(639)) {		// Ber Rune
+				if (Item.getQuantityOwned(me.getItem(639) < 2)) {		// Ber Rune
 					Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
 					Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
 					Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
