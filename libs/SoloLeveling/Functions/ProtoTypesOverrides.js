@@ -4,6 +4,9 @@
 *	@desc		additions for improved SoloLeveling functionality and code readability
 */
 
+var sdk = require('../../libs/modules/sdk');
+
+// Credit @Jaenster
 Unit.prototype.getItems = function (...args) {
 	let items = this.getItems.apply(this, args);
 
@@ -13,6 +16,92 @@ Unit.prototype.getItems = function (...args) {
 
 	return items;
 };
+
+// Credit @Jaenster
+Unit.prototype.getItemsEx = function (...args) {
+	let item = this.getItem.apply(this, args), items = [];
+
+	if (item) {
+		do {
+			items.push(copyUnit(item));
+		} while (item.getNext());
+		return items;
+	}
+
+	return [];
+};
+
+// Credit @Jaenster
+Object.defineProperties(Unit.prototype, {
+    rawStrength: {
+        get: function () {
+            var lvl = this.getStat(sdk.stats.Level);
+            var rawBonus = function (i) { return i.getStat(sdk.stats.Strength); };
+            var perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelStrength) / 8; };
+            var bonus = ~~(this.getItemsEx()
+                .filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
+                .map(function (i) { return rawBonus(i) + perLvlBonus(i); })
+                .reduce(function (acc, v) { return acc + v; }, 0));
+            return this.getStat(sdk.stats.Strength) - bonus;
+        },
+    },
+    rawDexterity: {
+        get: function () {
+            var lvl = this.getStat(sdk.stats.Level);
+            var rawBonus = function (i) { return i.getStat(sdk.stats.Dexterity); };
+            var perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelDexterity) / 8; };
+            var bonus = ~~(this.getItemsEx()
+                .filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
+                .map(function (i) { return rawBonus(i) + perLvlBonus(i); })
+                .reduce(function (acc, v) { return acc + v; }, 0));
+            return this.getStat(sdk.stats.Dexterity) - bonus;
+        },
+    }
+});
+
+// Credit @Jaenster
+Object.defineProperties(Unit.prototype, {
+    isEquipped: {
+        get: function () {
+            if (this.type !== sdk.unittype.Item)
+                return false;
+            return this.location === sdk.storage.Equipment;
+        }
+    },
+    isInInventory: {
+        get: function () {
+            return this.location === sdk.storage.Inventory && this.mode === sdk.itemmode.inStorage;
+        }
+    },
+    isInBelt: {
+        get: function () {
+            return this.location === sdk.storage.Belt && this.mode === sdk.itemmode.inBelt;
+        }
+    },
+    isInStash: {
+        get: function () {
+            return this.location === sdk.storage.Stash && this.mode === sdk.itemmode.inStorage;
+        }
+    },
+    isRuneword: {
+        get: function () {
+            if (this.type !== sdk.unittype.Item)
+                return false;
+            return !!this.getFlag(0x4000000);
+        }
+    },
+    isQuestItem: {
+        get: function () {
+            return this.itemType === 39 ||
+                [173, 174, 92, 91, 521].includes(this.classid);
+        }
+    },
+    isEquippedCharm: {
+        get: function () {
+            return (this.location === sdk.storage.Inventory && [82, 83, 84].indexOf(this.itemType) > -1);
+        }
+    }
+});
 
 // Credit @Jaenster
 Unit.prototype.switchWeapons = function (slot) {

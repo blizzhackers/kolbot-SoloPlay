@@ -566,11 +566,11 @@ function LoadConfig () {
 			break;
 		}
 
-		if (Item.getMyHardStats(0) >= 150 && Item.getMyHardStats(2) >= 88) {
+		if (me.rawStrength >= 150 && me.rawDexterity >= 88) {
 			Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Gladius", Roll.NonEth]); // Upgrade Bloodletter to Elite
 		}
 
-		if (Item.getMyHardStats(0) >= 25 && Item.getMyHardStats(2) >= 136) {
+		if (me.rawStrength >= 25 && me.rawDexterity >= 136) {
 			Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Dimensional Blade", Roll.Eth]); // Upgrade Ginther's Rift to Elite
 		}
 

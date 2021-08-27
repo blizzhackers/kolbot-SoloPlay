@@ -41,7 +41,7 @@ if (!isIncluded("SoloLeveling/Functions/globals.js")) {
 	include("SoloLeveling/Functions/globals.js");
 }
 
-const sdk = require('../../libs/modules/sdk');
+var sdk = require('../../libs/modules/sdk');
 
 function main () {
 	var i, mercHP, ironGolem, tick, merc,

@@ -2193,7 +2193,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 		if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
 			if (([3, 4, 7].indexOf(base.location) > -1) &&
 				(generalScore(base) < generalScore(itemsToCheck) || 
-						(generalScore(base) === generalScore(itemsToCheck) && (Item.getQuantityOwned(base) > 1 || base.getStatEx(18) < itemsToCheck.getStatEx(18))))) {
+						(generalScore(base) === generalScore(itemsToCheck) && (Item.getQuantityOwned(base) > 2 || base.getStatEx(18) < itemsToCheck.getStatEx(18))))) {
 				if (Developer.Debugging.junkCheckVerbose) {
 					print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 				}

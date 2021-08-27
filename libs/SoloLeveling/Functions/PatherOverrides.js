@@ -100,6 +100,43 @@ NodeAction.popChests = function () {
 	Misc.useWell(range);
 };
 
+Pather.teleportTo = function (x, y, maxRange) {
+	var i, tick;
+
+	if (maxRange === undefined) {
+		maxRange = 5;
+	}
+
+MainLoop:
+	for (i = 0; i < 3; i += 1) {
+		/*let mobsAtPos = Attack.getMobCount(x, y, 6);
+
+		if ((typeof Config.ClearPath === "number" || typeof Config.ClearPath === "object") && mobsAtPos > 1) {
+			me.overhead("Mobs at my next node: " + mobsAtPos);
+			Attack.clearPosition(x, y, 6, true);
+		}*/
+
+		if (Config.PacketCasting) {
+			Skill.setSkill(54, 0);
+			Packet.castSkill(0, x, y);
+		} else {
+			Skill.cast(54, 0, x, y);
+		}
+
+		tick = getTickCount();
+
+		while (getTickCount() - tick < Math.max(500, me.ping * 2 + 200)) {
+			if (getDistance(me.x, me.y, x, y) < maxRange) {
+				return true;
+			}
+
+			delay(10);
+		}
+	}
+
+	return false;
+};
+
 Pather.checkWP = function (area) {
 	if (!getWaypoint(Pather.wpAreas.indexOf(area))) {
 		if (me.inTown) {
@@ -404,7 +441,8 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 				}
 			}
 
-			if (useTeleport ? this.teleportTo(node.x, node.y) : this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
+			let tpMana = Skill.getManaCost(54);	// Credit @Jaenster
+			if (useTeleport && tpMana <= me.mp ? this.teleportTo(node.x, node.y) : this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
 				if (!me.inTown) {
 					if (this.recursion) {
 						this.recursion = false;
