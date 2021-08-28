@@ -898,6 +898,7 @@ Misc.getGoodShrinesInArea = function (area, types, use) {
 					Pather.moveTo(shrine.x - 2, shrine.y - 2);
 
 					if (!use || this.getShrine(shrine)) {
+						me.overhead("Got shrine type: " + shrine.objtype);
 						return true;
 					}
 				}
@@ -1094,7 +1095,7 @@ Misc.gamePacket = function (bytes) {// various game events
 		break;
 	case 0x4c: // diablo lightning dodge
 		if (bytes[6] === 193) {
-			if (!Pather.useTeleport() || (me.necromancer && ["Poison", "Summon"].indexOf(SetUp.currentBuild) > -1) || !me.assassin) {
+			if (!Pather.useTeleport() && (["Poison", "Summon"].indexOf(SetUp.currentBuild) > -1 || me.paladin || me.barbarian || me.druid || me.amazon)) {
 				dodge();
 			}
 		}

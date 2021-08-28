@@ -319,7 +319,7 @@ function diablo () {
 	this.seis();
 	this.infector();
 
-	if (!me.diablo) {
+	if (!me.diablo && (me.paladin || me.barbarian || me.druid || me.amazon)) {
 		Town.goToTown();
 		Misc.getGoodShrine([2, 3]);
 		Pather.useWaypoint(107);
