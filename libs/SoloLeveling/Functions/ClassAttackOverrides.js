@@ -719,13 +719,182 @@ case 2: // Necromancer
 		return true;
 	};
 
+	ClassAttack.getCurseState = function (unit, curseID) {
+		let state = 0;
+
+		if (unit === undefined || unit.dead) {
+			return false;
+		}
+
+		switch (curseID) {
+		case 0: //nothing
+			state = 0;
+
+			break;
+		case 66: //amplify damage
+			state = 9;
+
+			break;
+		case 71: //dim vision
+			state = 23;
+
+			break;
+		case 72: //weaken
+			state = 19;
+
+			break;
+		case 76: //iron maiden
+			state = 55;
+
+			break;
+		case 77: //terror
+			state = 56;
+
+			break;
+		case 81: //confuse
+			state = 59;
+
+			break;
+		case 82: //life tap
+			state = 58;
+
+			break;
+		case 86: //attract
+			state = 57;
+
+			break;
+		case 87: //decrepify
+			state = 60;
+
+			break;
+		case 91: //lower resist
+			state = 61;
+
+			break;
+		default:
+
+			break;
+		}
+
+		return unit.getState(state);
+	};
+
+	ClassAttack.smartCurse = function (unit, index) {
+		if (unit === undefined || unit.dead) {
+			return false;
+		}
+
+		let type = index === 1 ? "Boss" : "Normal";
+		let curseToCast = -1;
+		let useBP = me.getSkill(88, 1);
+		let useWeaken = me.getSkill(72, 1);
+		let useDim = me.getSkill(71, 1);
+		let useAttract = me.getSkill(86, 1);
+		let useDecrep = me.getSkill(87, 1);
+		let useMaiden = me.getSkill(76, 1) && me.area === 73 && me.normal;
+		let useAmp = (me.getSkill(66, 1) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical"));
+
+		switch (type) {
+		case "Boss":
+			if (useMaiden && !this.getCurseState(unit, 71)) {
+				curseToCast = 76;
+
+				break;
+			}
+
+			if (useAmp && !this.getCurseState(unit, 66)) {
+				curseToCast = 66;
+
+				break;
+			}
+
+			if (useWeaken && !useDecrep && !useAmp && !useMaiden && Math.round(getDistance(me, unit)) < 15 && !this.getCurseState(unit, 72)) {
+				curseToCast = 72;
+
+				break;
+			}
+
+			if (useDecrep && !useMaiden && !this.getCurseState(unit, 87)) {
+				curseToCast = 87;
+
+				break;
+			}
+
+			break;
+		case "Normal":
+			if (useAttract && Math.round(getDistance(me, unit)) > 15 && !checkCollision(me, unit, 0x4) && !this.getCurseState(unit, 86)) {
+				curseToCast = 86;
+
+				break;
+			}
+
+			// Dim doesn't work on oblivion knights
+			if (useDim && Math.round(getDistance(me, unit)) > 15 && !checkCollision(me, unit, 0x4) && [312, 701, 702].indexOf(unit.classid) === -1 && !this.getCurseState(unit, 71)) {
+				curseToCast = 71;
+
+				break;
+			} 
+
+			if (useAmp && !this.getCurseState(unit, 66)) {
+				curseToCast = 66;
+
+				break;
+			}
+
+			if (useWeaken && !useDecrep && Math.round(getDistance(me, unit)) < 15 && !this.getCurseState(unit, 72)) {
+				curseToCast = 72;
+
+				break;
+			}
+
+			if (useDecrep && !this.getCurseState(unit, 87)) {
+				curseToCast = 87;
+
+				break;
+			}
+
+			break;
+		}
+
+		if (curseToCast > 0) {
+			me.overhead("Cursing " + unit.name + " with " + curseToCast + " monster is " + type);
+		}
+
+		if (curseToCast > 0 && Attack.isCursable(unit) && Skill.getManaCost(curseToCast) < me.mp) {
+			if (getDistance(me, unit) > 25 || checkCollision(me, unit, 0x4)) {
+				if (!Attack.getIntoPosition(unit, 25, 0x4)) {
+					return 0;
+				}
+			}
+
+			return Skill.cast(curseToCast, 0, unit);
+		}
+
+		return false;
+	};
+
+	ClassAttack.bpTick = 0;
+
 	ClassAttack.doAttack = function (unit, preattack) {
+		var index, checkSkill, result,
+			mercRevive = 0,
+			timedSkill = -1,
+			untimedSkill = -1;
+
+		let useTerror = me.getSkill(77, 0);
+
 		if (!this.cursesSet) {
 			this.initCurses();
 		}
 
 		if (Config.MercWatch && Town.needMerc()) {
 			Town.visitTown();
+		}
+
+		if (Math.round(getDistance(me, unit)) > 10 && !checkCollision(me, unit, 0x4) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {		// Bone prison
+			if (Skill.cast(88, 0, unit)) {
+				this.bpTick = getTickCount();
+			}
 		}
 
 		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
@@ -740,12 +909,6 @@ case 2: // Necromancer
 			return 1;
 		}
 
-		var index, checkSkill, result,
-			mercRevive = 0,
-			timedSkill = -1,
-			untimedSkill = -1;
-
-		let useTerror = me.getSkill(77, 0);
 
 		if (useTerror && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(77) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
 			Skill.cast(77, Skill.getHand(77));
@@ -753,29 +916,7 @@ case 2: // Necromancer
 
 		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
-		if (Config.Curse[0] > 0 && Attack.isCursable(unit) && (unit.spectype & 0x7) && Skill.getManaCost(Config.Curse[0]) < me.mp && !unit.getState(this.curseState[0])) {
-			if (getDistance(me, unit) > 25 || checkCollision(me, unit, 0x4)) {
-				if (!Attack.getIntoPosition(unit, 25, 0x4)) {
-					return 0;
-				}
-			}
-
-			Skill.cast(Config.Curse[0], 0, unit);
-
-			return 1;
-		}
-
-		if (Config.Curse[1] > 0 && Attack.isCursable(unit) && !(unit.spectype & 0x7) && Skill.getManaCost(Config.Curse[1]) < me.mp && !unit.getState(this.curseState[1])) {
-			if (getDistance(me, unit) > 25 || checkCollision(me, unit, 0x4)) {
-				if (!Attack.getIntoPosition(unit, 25, 0x4)) {
-					return 0;
-				}
-			}
-
-			Skill.cast(Config.Curse[1], 0, unit);
-
-			return 1;
-		}
+		this.smartCurse(unit, index);
 
 		// Get timed skill
 		if (Attack.getCustomAttack(unit)) {
@@ -812,15 +953,6 @@ case 2: // Necromancer
 		if (Config.LowManaSkill[1] > -1 && Skill.getManaCost(untimedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[1])) {
 			untimedSkill = Config.LowManaSkill[1];
 		}
-
-		/*if ((Config.LowManaSkill[0] === -1 && Config.LowManaSkill[1] === -1)) {
-			if (me.getSkill(77, 1) && Skill.getManaCost(77) < me.mp && Attack.isCursable(unit) && Attack.getMobCount(me.x, me.y, 10)) {
-				if (!checkCollision(me, unit, 0x4)) {
-					Skill.cast(77, Skill.getHand(77), unit);
-
-				}
-			}
-		}*/
 
 		result = this.doCast(unit, timedSkill, untimedSkill);
 
@@ -1053,6 +1185,8 @@ MainLoop:
 			range = Math.floor((me.getSkill(Config.ExplodeCorpses, 1) + 7) / 3),
 			corpse = getUnit(1, -1, 12);
 
+		let useAmp = me.getSkill(66, 1);
+
 		if (corpse) {
 			do {
 				if (getDistance(unit, corpse) <= range && this.checkCorpse(corpse)) {
@@ -1074,6 +1208,10 @@ MainLoop:
 						if (!unit.dead && this.checkCorpse(corpse) && getDistance(corpse, unit) <= range) {
 							me.overhead("Exploding: " + corpse.classid + " " + corpse.name + " id:" + corpse.gid); // Added corpse ID so I can see when it blows another monster with the same ClassID and Name
 
+							if (useAmp && !this.getCurseState(unit, 66) && !this.getCurseState(unit, 87) && me.mp > (Skill.getManaCost(66) + Skill.getManaCost(Config.ExplodeCorpses))) {
+								Skill.cast(66, 0, unit);
+							}
+
 							if (Skill.cast(Config.ExplodeCorpses, 0, corpse)) {
 								delay(me.ping + 1);
 							}
@@ -1088,6 +1226,10 @@ MainLoop:
 
 						if (corpse) {
 							me.overhead("Exploding: " + corpse.classid + " " + corpse.name);
+
+							if (useAmp && !this.getCurseState(unit, 66) && !this.getCurseState(unit, 87) && me.mp > (Skill.getManaCost(66) + Skill.getManaCost(Config.ExplodeCorpses))) {
+								Skill.cast(66, 0, unit);
+							}
 
 							if (Skill.cast(Config.ExplodeCorpses, 0, corpse)) {
 								delay(200);

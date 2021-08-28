@@ -560,9 +560,12 @@ Misc.openChests = function (range) {
 	var unit,
 		unitList = [],
 		containers = [
-			"loose rock", "hidden stash", "loose boulder", "chest", "chest3", "armorstand", 
-			"holeanim", "weaponrack", "roguecorpse", "tomb2", "tomb3", "tomb3l", "tomb1l",
-			"groundtomb","groundtombl","casket","burialchestr","burialchestl"
+			"chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack",
+			"holeanim", "roguecorpse", "corpse", "tomb2", "tomb3", "chest3",
+			"skeleton", "guardcorpse", "sarcophagus", "object2", "cocoon", "hollow log", "hungskeleton",
+			"bonechest", "woodchestl", "woodchestr",
+			"burialchestr","burialchestl", "chestl", "chestr", "groundtomb", "tomb3l", "tomb1l",
+			"deadperson", "deadperson2", "groundtombl","casket"
 		],
 		pita = ["barrel", "largeurn", "jar3", "jar2", "jar1", "urn", "jug"]; // pain in the ass
 							
@@ -602,8 +605,27 @@ Misc.openChests = function (range) {
 	}
 
 	while (unitList.length > 0) {
+		let retry = false;
 		unitList.sort(Sort.units);
 		unit = unitList.shift();
+
+		/*if (unit) {
+			if ((Pather.useTeleport() || (!checkCollision(me, unit, 0x4) && Attack.getMobCount(me.x, me.y, 10) === 0 && Attack.getMobCount(unit.x, unit.y, 10) === 0))) {
+				if (this.openChest(unit)) {
+					Pickit.pickItems();
+				}
+			} else {
+				retry = true;
+				me.overhead("Clearing chest area");
+				Attack.clearPosition(unit.x, unit.y, 10, true);
+			}
+
+			if (retry) {
+				if (this.openChest(unit)) {
+					Pickit.pickItems();
+				}
+			}
+		}*/
 
 		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, 0x4)) && this.openChest(unit)) {
 			Pickit.pickItems();
@@ -1072,7 +1094,7 @@ Misc.gamePacket = function (bytes) {// various game events
 		break;
 	case 0x4c: // diablo lightning dodge
 		if (bytes[6] === 193) {
-			if (!Pather.useTeleport()) {
+			if (!Pather.useTeleport() || (me.necromancer && ["Poison", "Summon"].indexOf(SetUp.currentBuild) > -1) || !me.assassin) {
 				dodge();
 			}
 		}

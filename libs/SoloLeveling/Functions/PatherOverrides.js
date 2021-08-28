@@ -406,6 +406,12 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 		throw new Error("moveTo: Failed to generate path.");
 	}
 
+	if (!useTeleport) {
+		let inMyWayShit = getUnits().filter(chest => chest.type === 2 && getDistance(me, chest) < 3);
+		if (inMyWayShit.length > 0) {me.overhead("Shit in my way " + inMyWayShit.length);}
+		inMyWayShit.length && inMyWayShit.forEach(function (chest) { return Misc.openChest(chest); });
+	}
+
 	path.reverse();
 
 	if (pop) {

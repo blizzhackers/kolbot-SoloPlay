@@ -199,6 +199,7 @@ Precast.doPrecast = function (force) {
 			break;
 		case 1:
 		case "Clay":
+			// TODO: Write a check to see if with an act boss, if so cast golem revive golem right on top of them
 			this.summon(75);
 			break;
 		case 2:

@@ -319,13 +319,13 @@ function diablo () {
 	this.seis();
 	this.infector();
 
-	/*if (Check.Resistance().LR < 75) {
+	if (!me.diablo) {
 		Town.goToTown();
-		Misc.getLightResShrine([2, 3, 4]);
+		Misc.getGoodShrine([2, 3]);
 		Pather.useWaypoint(107);
 		Precast.doPrecast(true);
 		Pather.clearToExit(107, 108, true);
-	}*/
+	}
 
 	Config.MercWatch = false;
 	Pather.moveTo(7788, 5292, 3, 30);
@@ -341,9 +341,9 @@ function diablo () {
 		this.diabloPrep();
 	}
 
-	//if (!Attack.blitzkrieg(243)) {
+	if (!Attack.pwnDia()) {
 		Attack.killTarget(243); //diablo
-	//}
+	}
 
 	Pickit.pickItems();
 

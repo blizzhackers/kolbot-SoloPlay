@@ -151,7 +151,8 @@ function LoadConfig () {
 
 	var levelingTiers = [ // autoequip setup
 		//weapon
-		"([type] == wand || [type] == sword && ([Quality] >= Normal || [flag] == runeword) || [type] == knife && [Quality] >= Magic) && [flag] != ethereal # [secondarymindamage] == 0 && [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"([type] == wand || [type] == sword || [type] == knife) && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [secondarymindamage] == 0 && [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"[type] == wand && [Quality] >= Normal && [flag] != ethereal # [itemchargedskill] >= 0 && [Sockets] != 2 # [tier] == tierscore(item)",
 		//Helmet
 		"([type] == helm || [type] == circlet) && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//belt
@@ -243,7 +244,7 @@ function LoadConfig () {
 	Config.SkeletonMages = "max";
 	Config.Revives = "max";
 	Config.PoisonNovaDelay = 2;
-	Config.ActiveSummon = true;
+	Config.ActiveSummon = me.charlvl < 10 || SetUp.currentBuild === "Summon";
 	Config.ReviveUnstackable = true;
 	Config.IronGolemChicken = 30;
 
@@ -360,8 +361,8 @@ function LoadConfig () {
 			var white = [
 				"[Name] == DolRune # # [MaxQuantity] == 1",
 				"[Name] == IoRune # # [MaxQuantity] == 1",
-				"[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2",
-				"[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand) && [Quality] == Normal # ([necromancerskills]+[poisonandboneskilltab]+[skillbonespear]+[skillbonespirit]+[skillteeth]+[skillbonewall]+[skillboneprison]+[skillamplifydamage]) >= 1 && [Sockets] == 0",
+				"[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1",
+				"[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand) && [Quality] == Normal # ([necromancerskills]+[poisonandboneskilltab]+[skillbonespear]+[skillbonespirit]+[skillteeth]+[skillbonewall]+[skillboneprison]+[skillamplifydamage]) >= 1 && [Sockets] == 0 # [MaxQuantity] == 1",
 			];
 			NTIP.arrayLooping(white);
 
@@ -395,8 +396,8 @@ function LoadConfig () {
 			var rhyme = [
 				"[Name] == ShaelRune # # [MaxQuantity] == 1",
 				"[Name] == EthRune # # [MaxQuantity] == 1",
-				"[type] == voodooheads && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2",
-				"[type] == voodooheads && [Quality] == Normal # ([necromancerskills]+[poisonandboneskilltab]+[skillbonespear]+[skillbonespirit]+[skillteeth]+[skillbonewall]+[skillboneprison]+[skillamplifydamage]) >= 1 && [Sockets] == 0",
+				"[type] == voodooheads && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1",
+				"[type] == voodooheads && [Quality] == Normal # ([necromancerskills]+[poisonandboneskilltab]+[skillbonespear]+[skillbonespirit]+[skillteeth]+[skillbonewall]+[skillboneprison]+[skillamplifydamage]) >= 1 && [Sockets] == 0 # [MaxQuantity] == 1",
 			];
 			NTIP.arrayLooping(rhyme);
 

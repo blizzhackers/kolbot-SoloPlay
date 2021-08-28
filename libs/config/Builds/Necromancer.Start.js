@@ -211,7 +211,6 @@ var AutoBuildTemplate = {
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.AttackSkill = [-1, 67, -1, 67, -1, -1, -1];
-			Config.Curse[1] = 66;
 			Config.ExplodeCorpses = 74;
 		}
 	},
