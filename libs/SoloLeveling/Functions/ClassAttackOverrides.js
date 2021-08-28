@@ -1408,8 +1408,8 @@ case 4: // Barbarian - theBGuy
 		}
 
 		if (useHowl && attackSkill !== 151 && [345, 571].indexOf(unit.classid) === -1 && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
-			if (useGrimWard && !this.grimWard(6)) {
-				Skill.cast(130, Skill.getHand(130));
+			if (useGrimWard) {
+				this.grimWard(6);
 			} else {
 				Skill.cast(130, Skill.getHand(130));
 			}
@@ -1493,8 +1493,8 @@ case 4: // Barbarian - theBGuy
 
 		if (index === 1) {
 			if (useHowl && attackSkill !== 151 && [211, 243, 544, 562, 570, 571, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.getMobCount(me.x, me.y, 5, null, true) >= 3 && Skill.getManaCost(130) < me.mp) {
-				if (useGrimWard && !this.grimWard(6)) {
-					Skill.cast(130, Skill.getHand(130));
+				if (useGrimWard) {
+					this.grimWard(6);
 				} else if (!useWarCry) {
 					Skill.cast(130, Skill.getHand(130));
 				}
