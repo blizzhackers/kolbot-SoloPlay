@@ -717,6 +717,7 @@ function LoadConfig () {
 			Config.Runewords.push([Runeword.CrescentMoon, "Legend Sword"]);
 			Config.Runewords.push([Runeword.CrescentMoon, "Highland Blade"]);
 			Config.Runewords.push([Runeword.CrescentMoon, "Balrog Blade"]);
+			Config.Runewords.push([Runeword.CrescentMoon, "Champion Sword"]);
 			Config.Runewords.push([Runeword.CrescentMoon, "Colossus Sword"]);
 
 			Config.KeepRunewords.push("[Type] == sword # [ias] >= 20 && [passiveltngpierce] >= 35");

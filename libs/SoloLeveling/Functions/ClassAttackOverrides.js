@@ -668,6 +668,8 @@ case 2: // Necromancer
 	ClassAttack.maxMages = 0;
 	ClassAttack.maxRevives = 0;
 
+	// TODO: Write bone wall or bone prison function to keep mobs at bay
+
 	ClassAttack.setArmySize = function () {
 		let skillNum;
 		if (Config.Skeletons === "max") {
@@ -751,7 +753,7 @@ case 2: // Necromancer
 
 		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
-		if (Config.Curse[0] > 0 && Attack.isCursable(unit) && (unit.spectype & 0x7) && !unit.getState(this.curseState[0])) {
+		if (Config.Curse[0] > 0 && Attack.isCursable(unit) && (unit.spectype & 0x7) && Skill.getManaCost(Config.Curse[0]) < me.mp && !unit.getState(this.curseState[0])) {
 			if (getDistance(me, unit) > 25 || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, 25, 0x4)) {
 					return 0;
@@ -763,7 +765,7 @@ case 2: // Necromancer
 			return 1;
 		}
 
-		if (Config.Curse[1] > 0 && Attack.isCursable(unit) && !(unit.spectype & 0x7) && !unit.getState(this.curseState[1])) {
+		if (Config.Curse[1] > 0 && Attack.isCursable(unit) && !(unit.spectype & 0x7) && Skill.getManaCost(Config.Curse[1]) < me.mp && !unit.getState(this.curseState[1])) {
 			if (getDistance(me, unit) > 25 || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, 25, 0x4)) {
 					return 0;
@@ -811,14 +813,14 @@ case 2: // Necromancer
 			untimedSkill = Config.LowManaSkill[1];
 		}
 
-		if ((Config.LowManaSkill[0] === -1 && Config.LowManaSkill[1] === -1)) {
-			if (me.getSkill(77, 1) >= 1 && Skill.getManaCost(77) > me.mp) {
+		/*if ((Config.LowManaSkill[0] === -1 && Config.LowManaSkill[1] === -1)) {
+			if (me.getSkill(77, 1) && Skill.getManaCost(77) < me.mp && Attack.isCursable(unit) && Attack.getMobCount(me.x, me.y, 10)) {
 				if (!checkCollision(me, unit, 0x4)) {
 					Skill.cast(77, Skill.getHand(77), unit);
 
 				}
 			}
-		}
+		}*/
 
 		result = this.doCast(unit, timedSkill, untimedSkill);
 
