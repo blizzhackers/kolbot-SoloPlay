@@ -861,13 +861,15 @@ case 2: // Necromancer
 		}
 
 		if (curseToCast > 0 && Attack.isCursable(unit) && Skill.getManaCost(curseToCast) < me.mp) {
-			if (getDistance(me, unit) > 25 || checkCollision(me, unit, 0x4)) {
+			/*if (getDistance(me, unit) > 25 || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, 25, 0x4)) {
 					return 0;
 				}
-			}
+			}*/
 
-			return Skill.cast(curseToCast, 0, unit);
+			if (!checkCollision(me, unit, 0x4)) {
+				return Skill.cast(curseToCast, 0, unit);
+			}
 		}
 
 		return false;

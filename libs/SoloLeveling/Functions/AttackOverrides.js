@@ -871,6 +871,16 @@ Attack.dollAvoid = function (unit) {
 	return false;
 };
 
+Attack.spotOnDistance = function (spot, distance, area) {
+	if (area === void 0) { area = me.area; }
+	var nodes = getPath(area, me.x, me.y, spot.x, spot.y, 2, 5);
+	if (!nodes) {
+		return { x: me.x, y: me.y };
+	}
+
+	return nodes.find(function (node) { return getDistance(spot, node) < distance; }) || { x: me.x, y: me.y };
+};
+
 // Credit @Jaenster
 Attack.pwnDia = function () {
 	if (!me.sorceress && !me.necromancer && !me.assassin) {
@@ -897,19 +907,9 @@ Attack.pwnDia = function () {
             .filter(function (el) { return Attack.validSpot(el.x, el.y); });
     };
 
-    var spotOnDistance = function (spot, distance, area) {
-        if (area === void 0) { area = me.area; }
-        var nodes = getPath(area, me.x, me.y, spot.x, spot.y, 2, 5);
-        if (!nodes) {
-            return { x: me.x, y: me.y };
-        }
-
-        return nodes.find(function (node) { return getDistance(spot, node) < distance; }) || { x: me.x, y: me.y };
-    };
-
 	var getDiablo = function () { return getUnit(1, 243); };
 	{
-		let nearSpot = spotOnDistance({ x: 7792, y: 5292 }, 35);
+		let nearSpot = Attack.spotOnDistance({ x: 7792, y: 5292 }, 35);
 		Pather.moveToUnit(nearSpot);
 	}
 

@@ -161,7 +161,7 @@ Precast.doPrecast = function (force) {
 
 		break;
 	case 1: // Sorceress
-		if (me.getSkill(57, 0) && (!me.getState(38) || force)) {
+		if (me.getSkill(57, 1) && (!me.getState(38) || force)) {
 			this.precastSkill(57); // Thunder Storm
 		}
 
