@@ -896,16 +896,16 @@ Attack.pwnDia = function () {
 	var Coords_1 = require("../Modules/Coords");
 
 	var calculateSpots = function (center, skillRange) {
-        var coords = [];
-        for (var i = 0; i < 360; i++) {
-            coords.push({
-                x: Math.floor(center.x + skillRange * Math.cos(i) + .5),
-                y: Math.floor(center.y + skillRange * Math.sin(i) + .5),
-            });
-        }
-        return coords.filter(function (e, i, s) { return s.indexOf(e) === i; }) // only unique spots
-            .filter(function (el) { return Attack.validSpot(el.x, el.y); });
-    };
+	var coords = [];
+	for (var i = 0; i < 360; i++) {
+		coords.push({
+		x: Math.floor(center.x + skillRange * Math.cos(i) + .5),
+		y: Math.floor(center.y + skillRange * Math.sin(i) + .5),
+		});
+	}
+	return coords.filter(function (e, i, s) { return s.indexOf(e) === i; }) // only unique spots
+		.filter(function (el) { return Attack.validSpot(el.x, el.y); });
+	};
 
 	var getDiablo = function () { return getUnit(1, 243); };
 	{
@@ -926,80 +926,83 @@ Attack.pwnDia = function () {
 	}
 
 	let tick = getTickCount();
-    let lastPosition = { x: 7791, y: 5293 };
-    let maxRange = me.assassin ? 15 : me.necromancer ? 30 : 58;
+	let lastPosition = { x: 7791, y: 5293 };
+	let maxRange = me.assassin ? 15 : me.necromancer ? 30 : 58;
 
-    do {
-        // give up in 10 minutes
-        if (getTickCount() - tick > 60 * 1000 * 10) {
-            break;
-        }
+	do {
+		// give up in 10 minutes
+		if (getTickCount() - tick > 60 * 1000 * 10) {
+			break;
+		}
 
-        while ((dia = getDiablo())) {
-            if (dia.dead){
-                break;
-            }
+		while ((dia = getDiablo())) {
+			if (dia.dead) {
+				me.overhead("Diablo's dead");
+				break;
+			}
 
-            if (getDistance(me, dia) < 40 || getDistance(me, dia) > 45 || getTickCount() - tick > 25e3) {
-                var spot = calculateSpots(dia, 42.5)
-                    .filter(function (spot) { return getDistance(me, spot) > 15 && getDistance(me, spot) < maxRange; } /*todo, in neighbour room*/)
-                    .filter(function (spot) {
-                    var collision = getCollision(me.area, spot.x, spot.y);
-                    // noinspection JSBitwiseOperatorUsage
-                    var isLava = !!(collision & Coords_1.BlockBits.IsOnFloor);
-                    if (isLava) {
-                        return false; // this spot is on lava, fuck this
-                    }
-                    // noinspection JSBitwiseOperatorUsage
-                    return !(collision & (Coords_1.BlockBits.BlockWall));
-                })
-                    .sort(function (a, b) { return getDistance(me, a) - getDistance(me, b); })
-                    .first();
-                tick = getTickCount();
-                if (spot !== undefined) {
-	                Pather.moveTo(spot.x, spot.y, 15, false);
-                }
-            }
+			if (getDistance(me, dia) < 40 || getDistance(me, dia) > 45 || getTickCount() - tick > 25e3) {
+				var spot = calculateSpots(dia, 42.5)
+					.filter(function (spot) { return getDistance(me, spot) > 15 && getDistance(me, spot) < maxRange; } /*todo, in neighbour room*/)
+					.filter(function (spot) {
+					var collision = getCollision(me.area, spot.x, spot.y);
+					// noinspection JSBitwiseOperatorUsage
+					var isLava = !!(collision & Coords_1.BlockBits.IsOnFloor);
+					if (isLava) {
+						return false; // this spot is on lava, fuck this
+					}
+					// noinspection JSBitwiseOperatorUsage
+					return !(collision & (Coords_1.BlockBits.BlockWall));
+				})
+					.sort(function (a, b) { return getDistance(me, a) - getDistance(me, b); })
+					.first();
+				tick = getTickCount();
+				if (spot !== undefined) {
+					Pather.moveTo(spot.x, spot.y, 15, false);
+				}
+			}
 
-            if (me.necromancer) {
-            	ClassAttack.farCast(dia);
-            } else {
-	            Skill.cast(Config.AttackSkill[1], 0, dia);
-            }
-        }
+			me.overhead("FarCasting: Diablo's health " + ((dia.hp / dia.hpmax) * 100) + " % left");
 
-        if (dia && dia.dead) {
-            break;
-        }
+			if (me.necromancer) {
+				ClassAttack.farCast(dia);
+			} else {
+				Skill.cast(Config.AttackSkill[1], 0, dia);
+			}
+		}
 
-        if (!dia) {
-            var path = getPath(me.area, me.x, me.y, lastPosition.x, lastPosition.y, 1, 5);
+		if (dia && dia.dead) {
+			break;
+		}
 
-            if (!path) {
-                break; // failed to make a path from me to the old spot
-            }
+		if (!dia) {
+			var path = getPath(me.area, me.x, me.y, lastPosition.x, lastPosition.y, 1, 5);
 
-            // walk close to old node, if we dont find dia continue
-            if (!path.some(function (node) {
-                Pather.walkTo(node.x, node.y);
-                return getDiablo();
-            }))
-                break;
-        }
-    } while (true);
+			if (!path) {
+				break; // failed to make a path from me to the old spot
+			}
 
-    if (dia) {
-        Pather.moveTo(dia);
-    } else {
-        Pather.moveTo(7774, 5305);
-    }
+			// walk close to old node, if we dont find dia continue
+			if (!path.some(function (node) {
+				Pather.walkTo(node.x, node.y);
+				return getDiablo();
+			}))
+			break;
+		}
+	} while (true);
 
-    Pickit.pickItems();
+	if (dia) {
+		Pather.moveTo(dia);
+	} else {
+		Pather.moveTo(7774, 5305);
+	}
 
-    Pather.moveTo(7792, 5291);	// Move back to star
-    Pickit.pickItems();
+	Pickit.pickItems();
 
-    return dia;
+	Pather.moveTo(7792, 5291);	// Move back to star
+	Pickit.pickItems();
+
+	return dia;
 };
 
 Attack.test2 = function () {
