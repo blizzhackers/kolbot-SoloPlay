@@ -847,7 +847,7 @@ case 2: // Necromancer
 				break;
 			}
 
-			if (useDecrep && !this.getCurseState(unit, 87)) {
+			if (useDecrep && !this.getCurseState(unit, 87) && (!this.getCurseState(unit, 71) || Math.round(getDistance(me, unit)) < 15)) {
 				curseToCast = 87;
 
 				break;

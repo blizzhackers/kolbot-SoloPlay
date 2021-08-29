@@ -240,9 +240,9 @@ function LoadConfig () {
 
 	Config.ExplodeCorpses = me.getSkill(74, 0) ? 74 : me.getSkill(83, 0) ? 83 : 0;
 	Config.Golem = me.getSkill(75, 0) ? "Clay" : "None";
-	Config.Skeletons = "max";
-	Config.SkeletonMages = "max";
-	Config.Revives = "max";
+	Config.Skeletons = (me.charlvl > 10 || SetUp.currentBuild !== "Summon") ? 0 : "max";
+	Config.SkeletonMages = (me.charlvl > 10 || SetUp.currentBuild !== "Summon") ? 0 : "max";
+	Config.Revives = (me.charlvl > 10 || SetUp.currentBuild !== "Summon") ? 0 : "max";
 	Config.PoisonNovaDelay = 2;
 	Config.ActiveSummon = me.charlvl < 10 || SetUp.currentBuild === "Summon";
 	Config.ReviveUnstackable = true;
