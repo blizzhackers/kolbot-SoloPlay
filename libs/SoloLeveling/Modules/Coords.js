@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getSpotsFor = exports.findCastingSpotRange = exports.findCastingSpotSkill = exports.isBlockedBetween = exports.getCollisionBetweenCoords = exports.convertToCoordArray = exports.getCoordsBetween = exports.Collision = exports.BlockBits = void 0;
-    var sdk_1 = __importDefault(require("../../libs/modules/sdk"));
+    var sdk_1 = require("../../libs/modules/sdk");
     var BlockBits;
     (function (BlockBits) {
         BlockBits[BlockBits["BlockWall"] = 1] = "BlockWall";
@@ -154,7 +154,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (thickness === void 0) { thickness = 5; }
         if (collision === void 0) { collision = Collision.BLOCK_MISSILE; }
         var range = Skill.getRange(skill);
-        console.log('Searching range for', skill, Object.keys(sdk_1.default.skills).find(function (el) { return sdk_1.default.skills[el] === skill; }), range);
+        print('Searching range for', skill, Object.keys(sdk_1.skills).find(function (el) { return sdk_1.skills[el] === skill; }), range);
         return findCastingSpotRange(range, unit, minRange, thickness, collision);
     }
     exports.findCastingSpotSkill = findCastingSpotSkill;
@@ -164,11 +164,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (collision === void 0) { collision = Collision.BLOCK_MISSILE; }
         var spots = getSpotsFor(collision, thickness, unit)
             .sort(function (a, b) {
-            if (checkCollisionBetween(a.x, a.y, me.x, me.y, 7, BlockBits.BlockWall))
+            if (CollMap.checkColl(a, me, BlockBits.BlockWall, 7))
                 return 1;
-            return a.distance - b.distance;
+            return getDistance(me, a) - getDistance(me, b);
         });
-        console.log(spots);
         return spots.find(function (a) {
             var dist = getDistance(unit.x, unit.y, a.x, a.y);
             return dist < range && dist > minRange;
@@ -196,12 +195,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 }
             }
         }
-        spots = spots.filter(function (el) { return !checkCollisionBetween(el.x, el.y, unit.x, unit.y, thickness, collision); });
-        lines.splice(0, lines.length);
-        spots.map(function (_a) {
+        spots = spots.filter(function (el) { return !CollMap.checkColl(el, unit, collision, thickness); });
+        //lines.splice(0, lines.length);
+        /*spots.map(function (_a) {
             var x = _a.x, y = _a.y;
             return lines.push(new Line(x + 1, y + 1, x, y, 0x70, true));
-        });
+        });*/
         return spots;
     }
     exports.getSpotsFor = getSpotsFor;

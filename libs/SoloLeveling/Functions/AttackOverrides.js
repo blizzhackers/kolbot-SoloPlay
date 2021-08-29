@@ -916,6 +916,11 @@ Attack.pwnDia = function () {
 	let dia = Misc.poll(getDiablo, 15e3, 30);
 
 	if (!dia) {
+		Pather.moveTo(7788, 5292, 3, 30);	// Move to Star
+		dia = Misc.poll(getDiablo, 15e3, 30);
+	}
+
+	if (!dia) {
 		print("No diablo");
 		return false;
 	}
@@ -952,11 +957,15 @@ Attack.pwnDia = function () {
                     .first();
                 tick = getTickCount();
                 if (spot !== undefined) {
-	                Pather.moveTo(spot.x, spot.y);
+	                Pather.moveTo(spot.x, spot.y, 15, false);
                 }
             }
 
-            Skill.cast(Config.AttackSkill[1], 0, dia);
+            if (me.necromancer) {
+            	ClassAttack.farCast(dia);
+            } else {
+	            Skill.cast(Config.AttackSkill[1], 0, dia);
+            }
         }
 
         if (dia && dia.dead) {

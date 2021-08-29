@@ -1096,6 +1096,75 @@ case 2: // Necromancer
 		return 1;
 	};
 
+	ClassAttack.farCast = function (unit) {
+		var i, walk, timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
+
+		// No valid skills can be found
+		if (timedSkill < 0 && untimedSkill < 0) {
+			return 2;
+		}
+
+		let bpAllowedAreas = [37, 38, 39, 41, 42, 43, 44, 46, 73, 76, 77, 78, 79, 80, 81, 83, 102, 104, 105, 106, 108, 110, 111, 120, 121, 128, 129, 130, 131];
+
+		if (Math.round(getDistance(me, unit)) > 10 && bpAllowedAreas.indexOf(me.area) > -1 && !checkCollision(me, unit, 0x4) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {		// Bone prison
+			if (Skill.cast(88, 0, unit)) {
+				this.bpTick = getTickCount();
+			}
+		}
+
+		this.smartCurse(unit, 1);
+
+		// Check for bodies to exploit for CorpseExplosion before committing to an attack for non-summoner type necros
+		if (Config.Skeletons + Config.SkeletonMages + Config.Revives === 0) {
+			if (this.checkCorpseNearMonster(unit)) {
+				this.explodeCorpses(unit);
+			}
+		}
+
+		if (timedSkill > -1 && (!me.getState(121) || !Skill.isTimed(timedSkill))) {
+			switch (timedSkill) {
+			case 92: // Poison Nova
+
+				break;
+			case 500: // Pure Summoner
+
+				break;
+			default:
+				if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
+					return 0;
+				}
+
+				if (!unit.dead && !checkCollision(me, unit, 0x4)) {
+					Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
+				}
+
+				break;
+			}
+		}
+
+		if (untimedSkill > -1) {
+			if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
+				return 0;
+			}
+
+			if (!unit.dead && !checkCollision(me, unit, 0x4)) {
+				Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
+			}
+
+			return 1;
+		}
+
+		for (i = 0; i < 25; i += 1) {
+			if (!me.getState(121)) {
+				break;
+			}
+
+			delay(40);
+		}
+
+		return 1;
+	};
+
 	ClassAttack.raiseArmy = function (range) {
 		var i, tick, count, corpse, corpseList, skill;
 
