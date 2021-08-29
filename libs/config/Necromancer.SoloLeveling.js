@@ -180,7 +180,7 @@ function LoadConfig () {
 		//merc
 		"([type] == circlet || [type] == helm) && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 		"[Type] == armor && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		"me.charlvl > 14 && [Type] == Polearm && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+		"me.charlvl > 14 && ([Type] == Polearm || [Type] == Spear) && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 	NTIP.arrayLooping(levelingTiers);
 
@@ -559,6 +559,10 @@ function LoadConfig () {
 			
 			if (me.getItem(631)) {	// Um rune
 				NTIP.addLine("([Name] == Cuirass || [Name] == MagePlate || [Name] == ArchonPlate || [Name] == GreatHauberk || [Name] == WireFleece || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
+			}
+
+			if (Item.getQuantityOwned(me.getItem(631) < 2)) {
+				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 			}
 
 			Config.Runewords.push([Runeword.Bone, "Mage Plate"]);

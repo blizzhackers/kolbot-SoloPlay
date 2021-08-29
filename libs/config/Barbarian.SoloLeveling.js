@@ -48,7 +48,7 @@ function LoadConfig () {
 	Config.LogExperience = false;
 	Config.PingQuit = [{Ping: 600, Duration: 10}];
 	Config.Silence = true;
-	Config.OpenChests = me.hell ? 2 : true;
+	Config.OpenChests = true;
 	Config.LowGold = me.normal ? 25000 : me.nightmare ? 50000 : 100000;
 	Config.PrimarySlot = 0;
 	Config.PacketCasting = 1;
@@ -174,7 +174,7 @@ function LoadConfig () {
 		//merc
 		"([type] == circlet || [type] == helm) && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 		"[Type] == armor && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		"me.charlvl > 14 && [Type] == Polearm && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+		"me.charlvl > 14 && ([Type] == Polearm || [Type] == Spear) && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 	NTIP.arrayLooping(levelingTiers);
 
