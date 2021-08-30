@@ -185,64 +185,6 @@ Pather.useTeleport = function () { //XCon provided. to turn off teleport if belo
 	return this.teleport && !Config.NoTele && !me.getState(139) && !me.getState(140) && !me.inTown && ((me.sorceress && me.getSkill(54, 1) && ((me.getStat(8) / me.getStat(9)) * 100) >= 20) || me.getStat(97, 54));
 };
 
-Pather.deploy = function (unit, distance, spread, range) {
-	if (arguments.length < 4) {
-		throw new Error("deploy: Not enough arguments supplied");
-	}
-
-	var i, grid, index, currCount,
-		tick = getTickCount(),
-		monList = [],
-		count = 999,
-		idealPos = {
-			x: Math.round(Math.cos(Math.atan2(me.y - unit.y, me.x - unit.x)) * Config.DodgeRange + unit.x),
-			y: Math.round(Math.sin(Math.atan2(me.y - unit.y, me.x - unit.x)) * Config.DodgeRange + unit.y)
-		};
-
-	monList = this.buildMonsterList();
-
-	monList.sort(Sort.units);
-
-	if (this.getMonsterCount(me.x, me.y, 15, monList) === 0) {
-		return true;
-	}
-
-	CollMap.getNearbyRooms(unit.x, unit.y);
-
-	grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
-
-	if (!grid.length) {
-		return false;
-	}
-
-	function sortGrid(a, b) {
-		return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
-	}
-
-	grid.sort(sortGrid);
-
-	for (i = 0; i < grid.length; i += 1) {
-		if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & 0x1) && !CollMap.checkColl(unit, {x: grid[i].x, y: grid[i].y}, 0x4)) {
-			currCount = this.getMonsterCount(grid[i].x, grid[i].y, range, monList);
-
-			if (currCount < count) {
-				index = i;
-				count = currCount;
-			}
-
-			if (currCount === 0) {
-				break;
-			}
-		}
-	}
-
-	if (typeof index === "number") {
-		return Pather.moveTo(grid[index].x, grid[index].y, 0);
-	}
-
-	return false;
-};
-
 Pather.openDoors = function (x, y) { //fixed monsterdoors/walls in act 5
 	if (me.inTown) {
 		return false;

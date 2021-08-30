@@ -1005,6 +1005,95 @@ Attack.pwnDia = function () {
 	return dia;
 };
 
+Attack.getNearestMonster = function () {
+	var gid, distance,
+		monster = getUnit(1),
+		range = 30;
+
+	if (monster) {
+		do {
+			if (monster.hp > 0 && Attack.checkMonster(monster) && !monster.getParent()) {
+				distance = getDistance(me, monster);
+
+				if (distance < range) {
+					range = distance;
+					gid = monster.gid;
+				}
+			}
+		} while (monster.getNext());
+	}
+
+	if (gid) {
+		monster = getUnit(1, -1, -1, gid);
+	} else {
+		monster = false;
+	}
+
+	if (monster) {
+		return monster;
+	}
+
+	return false;
+};
+
+Attack.deploy = function (unit, distance, spread, range) {
+	if (arguments.length < 4) {
+		throw new Error("deploy: Not enough arguments supplied");
+	}
+
+	var i, grid, index, currCount,
+		tick = getTickCount(),
+		monList = [],
+		count = 999,
+		idealPos = {
+			x: Math.round(Math.cos(Math.atan2(me.y - unit.y, me.x - unit.x)) * Config.DodgeRange + unit.x),
+			y: Math.round(Math.sin(Math.atan2(me.y - unit.y, me.x - unit.x)) * Config.DodgeRange + unit.y)
+		};
+
+	monList = this.buildMonsterList();
+
+	monList.sort(Sort.units);
+
+	if (this.getMonsterCount(me.x, me.y, 15, monList) === 0) {
+		return true;
+	}
+
+	CollMap.getNearbyRooms(unit.x, unit.y);
+
+	grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
+
+	if (!grid.length) {
+		return false;
+	}
+
+	function sortGrid(a, b) {
+		return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
+	}
+
+	grid.sort(sortGrid);
+
+	for (i = 0; i < grid.length; i += 1) {
+		if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & 0x1) && !CollMap.checkColl(unit, {x: grid[i].x, y: grid[i].y}, 0x4)) {
+			currCount = this.getMonsterCount(grid[i].x, grid[i].y, range, monList);
+
+			if (currCount < count) {
+				index = i;
+				count = currCount;
+			}
+
+			if (currCount === 0) {
+				break;
+			}
+		}
+	}
+
+	if (typeof index === "number") {
+		return Pather.moveTo(grid[index].x, grid[index].y, 0);
+	}
+
+	return false;
+};
+
 Attack.test2 = function () {
 	return true;
 };
