@@ -425,11 +425,11 @@ case 1: // Sorceress
 		}
 
 		if (index === 1 && !unit.dead) {
-			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && (Math.round(getDistance(me, unit)) < Skill.getRange(72) || !checkCollision(me, unit, 0x4))) {
+			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				Attack.switchCastCharges(72, unit);		// Switch cast weaken - will only cast if actually has wand with charges in switch spot - TODO: Clean this up, maybe some type of switch statement based on what charges are on the switch wep
 			}
 
-			if (!unit.getState(61) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && (Math.round(getDistance(me, unit)) < Skill.getRange(91) || !checkCollision(me, unit, 0x4))) {
+			if (!unit.getState(61) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				Attack.switchCastCharges(91, unit);		// Switch cast lower resist
 			}
 		}
@@ -780,23 +780,29 @@ case 2: // Necromancer
 	};
 
 	ClassAttack.smartCurse = function (unit, index) {
-		if (unit === undefined || unit.dead) {
+		if (unit === undefined || unit.dead || !Attack.isCursable(unit)) {
 			return false;
 		}
 
 		let type = index === 1 ? "Boss" : "Normal";
 		let curseToCast = -1;
-		let useBP = me.getSkill(88, 1);
 		let useWeaken = me.getSkill(72, 1);
 		let useDim = me.getSkill(71, 1);
 		let useAttract = me.getSkill(86, 1);
 		let useDecrep = me.getSkill(87, 1);
 		let useMaiden = me.getSkill(76, 1) && me.area === 73 && me.normal;
 		let useAmp = (me.getSkill(66, 1) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical"));
+		let useLowerRes = (me.getSkill(91, 1) && SetUp.currentBuild === "Poison" && Attack.checkResist(unit, "poison"));
 
 		switch (type) {
 		case "Boss":
 			if (useMaiden && !this.getCurseState(unit, 71)) {
+				curseToCast = 76;
+
+				break;
+			}
+
+			if (useLowerRes && !this.getCurseState(unit, 61)) {
 				curseToCast = 76;
 
 				break;
@@ -822,8 +828,16 @@ case 2: // Necromancer
 
 			break;
 		case "Normal":
-			if (useAttract && Math.round(getDistance(me, unit)) > 15 && !checkCollision(me, unit, 0x4) && !this.getCurseState(unit, 86)) {
-				curseToCast = 86;
+			if (useAttract && unit.classid !== 571 && Math.round(getDistance(me, unit)) > 8 && !checkCollision(me, unit, 0x4) && !this.getCurseState(unit, 86)) {
+				if (Attack.getMobCountAtPosition(unit.x, unit.y, 6, false, false) >= 2) {	// Save resources by only doing this check if all the other ones are met
+					curseToCast = 86;
+				}
+
+				break;
+			}
+
+			if (useLowerRes && !this.getCurseState(unit, 61)) {
+				curseToCast = 76;
 
 				break;
 			}
@@ -856,19 +870,13 @@ case 2: // Necromancer
 			break;
 		}
 
-		if (curseToCast > 0) {
-			me.overhead("Cursing " + unit.name + " with " + curseToCast + " monster is " + type);
-		}
-
-		if (curseToCast > 0 && Attack.isCursable(unit) && Skill.getManaCost(curseToCast) < me.mp) {
-			/*if (getDistance(me, unit) > 25 || checkCollision(me, unit, 0x4)) {
-				if (!Attack.getIntoPosition(unit, 25, 0x4)) {
-					return 0;
-				}
-			}*/
-
+		if (curseToCast > 0 && Skill.getManaCost(curseToCast) < me.mp) {
 			if (!checkCollision(me, unit, 0x4)) {
+				me.overhead("Cursing " + unit.name + " with " + curseToCast + " monster is " + type);
 				return Skill.cast(curseToCast, 0, unit);
+			} else {
+				me.overhead(unit.name + " is blocked, skipping attempt to curse");
+				this.doCast(unit, Config.AttackSkill[type === "Boss" ? 1 : 3], Config.AttackSkill[type === "Boss" ? 2 : 5]);
 			}
 		}
 
@@ -884,6 +892,7 @@ case 2: // Necromancer
 			untimedSkill = -1;
 
 		let useTerror = me.getSkill(77, 0);
+		let useBP = me.getSkill(88, 1);
 
 		if (!this.cursesSet) {
 			this.initCurses();
@@ -893,9 +902,11 @@ case 2: // Necromancer
 			Town.visitTown();
 		}
 
+		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+
 		let bpAllowedAreas = [37, 38, 39, 41, 42, 43, 44, 46, 73, 76, 77, 78, 79, 80, 81, 83, 102, 104, 105, 106, 108, 110, 111, 120, 121, 128, 129, 130, 131];
 
-		if (Math.round(getDistance(me, unit)) > 10 && bpAllowedAreas.indexOf(me.area) > -1 && !checkCollision(me, unit, 0x4) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {		// Bone prison
+		if (useBP && Math.round(getDistance(me, unit)) > ([73, 120].indexOf(me.area) > -1 ? 6 : 10) && bpAllowedAreas.indexOf(me.area) > -1 && (index === 1 || [571, 391].indexOf(unit.classid) > -1) && !checkCollision(me, unit, 0x4) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {		// Bone prison
 			if (Skill.cast(88, 0, unit)) {
 				this.bpTick = getTickCount();
 			}
@@ -917,8 +928,6 @@ case 2: // Necromancer
 		if (useTerror && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(77) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
 			Skill.cast(77, Skill.getHand(77));
 		}
-
-		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
 		this.smartCurse(unit, index);
 
@@ -1042,16 +1051,26 @@ case 2: // Necromancer
 					return 0;
 				}
 
-				if (Math.round(getDistance(me, unit)) > Skill.getRange(timedSkill) || checkCollision(me, unit, 0x4)) {
-					// Allow short-distance walking for melee skills
-					walk = Skill.getRange(timedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
+				let range = Skill.getRange(timedSkill);
 
-					if (!Attack.getIntoPosition(unit, Skill.getRange(timedSkill), 0x4, walk)) {
+				if (timedSkill === 67) {	// Teeth
+					range = Attack.getMobCount(unit.x, unit.y, 6) <= 3 ? 6 : range;
+				}
+
+				if (Math.round(getDistance(me, unit)) > range || checkCollision(me, unit, 0x4)) {
+					// Allow short-distance walking for melee skills
+					walk = range < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
+
+					if (!Attack.getIntoPosition(unit, range, 0x4, walk)) {
 						return 0;
 					}
 				}
 
 				if (!unit.dead) {
+					if (Math.round(getDistance(me, unit)) < 4 && Skill.getRange(timedSkill) > 6) {
+						Attack.deploy(unit, 4, 5, 5);	// Try to find better spot
+					}
+
 					Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
 				}
 
@@ -1374,11 +1393,11 @@ case 3: // Paladin
 		}
 
 		if (index === 1 && !unit.dead) {
-			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && (Math.round(getDistance(me, unit)) < Skill.getRange(72) || !checkCollision(me, unit, 0x4))) {
+			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				Attack.switchCastCharges(72, unit);		// Switch cast weaken - will only cast if actually has wand with charges in switch spot - TODO: Clean this up, maybe some type of switch statement based on what charges are on the switch wep
 			}
 
-			if (!unit.getState(60) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && (Math.round(getDistance(me, unit)) < Skill.getRange(87) || !checkCollision(me, unit, 0x4))) {
+			if (!unit.getState(60) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				Attack.switchCastCharges(87, unit);		// Switch cast decrepify
 			}
 		}
@@ -1535,7 +1554,7 @@ case 4: // Barbarian - theBGuy
 			return;
 		}
 
-		if (me.area === 120) {
+		if ([73, 120, 132].indexOf(me.area) > -1) {		// Duriel's Lair, Arreat Summit, Worldstone Chamber
 			return;
 		}
 
@@ -2045,11 +2064,11 @@ case 5: // Druid
 		}
 
 		if (index === 1 && !unit.dead) {
-			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && (Math.round(getDistance(me, unit)) < Skill.getRange(72) || !checkCollision(me, unit, 0x4))) {
+			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				Attack.switchCastCharges(72, unit);		// Switch cast weaken - will only cast if actually has wand with charges in switch spot - TODO: Clean this up, maybe some type of switch statement based on what charges are on the switch wep
 			}
 
-			if (!unit.getState(60) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && (Math.round(getDistance(me, unit)) < Skill.getRange(87) || !checkCollision(me, unit, 0x4))) {
+			if (!unit.getState(60) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				Attack.switchCastCharges(87, unit);		// Switch cast decrepify
 			}
 		}
@@ -2307,5 +2326,74 @@ case 5: // Druid
 
 	break;
 case 6: // Assasin
+	ClassAttack.farCast = function (unit) {
+		var i, walk, timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
+
+		// No valid skills can be found
+		if (timedSkill < 0 && untimedSkill < 0) {
+			return 2;
+		}
+
+		// Cloak of Shadows (Aggressive) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
+		if (Config.AggressiveCloak && Config.UseCloakofShadows && me.getSkill(264, 1) && !me.getState(121) && !me.getState(153)) {
+			if (getDistance(me, unit) < 20) {
+				Skill.cast(264, 0);
+			} else if (!Attack.getIntoPosition(unit, 20, 0x4)) {
+				return 0;
+			}
+		}
+
+		let checkTraps = this.checkTraps(unit);
+
+		if (checkTraps) {
+			if (Math.round(getDistance(me, unit)) > this.trapRange || checkCollision(me, unit, 0x4)) {
+				if (!Attack.getIntoPosition(unit, this.trapRange, 0x4) || (checkCollision(me, unit, 0x1) && (getCollision(unit.area, unit.x, unit.y) & 0x1))) {
+					return 0;
+				}
+			}
+
+			this.placeTraps(unit, checkTraps);
+		}
+
+		// Cloak of Shadows (Defensive; default) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
+		if (!Config.AggressiveCloak && Config.UseCloakofShadows && me.getSkill(264, 1) && getDistance(me, unit) < 20 && !me.getState(121) && !me.getState(153)) {
+			Skill.cast(264, 0);
+		}
+
+		if (timedSkill > -1 && (!me.getState(121) || !Skill.isTimed(timedSkill))) {
+			switch (timedSkill) {
+			case 151: // Whirlwind
+
+				return 2;
+			default:
+
+				if (!unit.dead) {
+					Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
+				}
+
+				return 1;
+			}
+		}
+
+		if (untimedSkill > -1) {
+
+			if (!unit.dead) {
+				Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
+			}
+
+			return 1;
+		}
+
+		for (i = 0; i < 25; i += 1) {
+			if (!me.getState(121)) {
+				break;
+			}
+
+			delay(40);
+		}
+
+		return 1;
+	};
+
 	break;
 }
