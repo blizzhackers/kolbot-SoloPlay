@@ -1305,6 +1305,7 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 		angles = [0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 135, -135, 180];
 
 	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+	let caster = Skill.getRange(Config.AttackSkill[index]) > 4;
 
 	t = getTickCount();
 
@@ -1331,7 +1332,7 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 		if (coords.length > 0) {
 			coords.sort(Sort.units);
 
-			if (Skill.getRange(Config.AttackSkill[index]) > 4) {	// Not a melee skill 
+			if (caster) {	// Not a melee skill 
 				coords.sort(sortLoc);
 			}
 
@@ -1362,8 +1363,10 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 
 						break;
 					}
-
-					print("Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + Attack.getMobCountAtPosition(coords[i].x, coords[i].y, 5));
+					
+					if (caster) {
+						print("Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + Attack.getMobCountAtPosition(coords[i].x, coords[i].y, 5));
+					}
 
 					return true;
 				}

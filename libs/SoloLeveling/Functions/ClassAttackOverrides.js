@@ -1067,6 +1067,8 @@ case 2: // Necromancer
 				}
 
 				if (!unit.dead) {
+					let closeMobCheck = Attack.getNearestMonster();
+
 					if (Math.round(getDistance(me, unit)) < 4 && Skill.getRange(timedSkill) > 6) {
 						Attack.deploy(unit, 4, 5, 5);	// Try to find better spot
 					}
@@ -1687,7 +1689,7 @@ case 4: // Barbarian - theBGuy
 					me.switchWeapons(1);
 				}
 
-				print("ÿc9doAttack ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMobCount(me.x, me.y, 5, null, true));
+				//print("ÿc9doAttack ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMobCount(me.x, me.y, 5, null, true));
 
 				if (me.getSkill(154, 1) >= 15) {
 					for (let i = 0; i < 2; i++) {
@@ -1810,7 +1812,7 @@ case 4: // Barbarian - theBGuy
 						me.switchWeapons(1);
 					}
 
-					print("ÿc9doCast ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMobCount(me.x, me.y, 5, null, true));
+					//print("ÿc9doCast ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMobCount(me.x, me.y, 5, null, true));
 
 					Skill.cast(154, Skill.getHand(154));
 					this.warCryTick = getTickCount();
