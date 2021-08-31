@@ -31,6 +31,7 @@ var build = {
 		[88, 1], // Bone Prison
 		[71, 1], // dim vision
 		[84, 20, false], // Bone Spear
+		[93, 1], // Bone Spirit
 		[86, 1], // attract
 		[88, 20, false], // Bone Prison
 		[74, 20, false], // Corpse Explosion

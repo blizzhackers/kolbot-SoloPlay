@@ -346,7 +346,7 @@ function LoadConfig () {
 
 				Config.Runewords.push([Runeword.HeartoftheOak, "Knout"]);
 				Config.Runewords.push([Runeword.HeartoftheOak, "Flail"]);
-				Config.KeepRunewords.push("[Type] == mace # [FCR] == 40");
+				Config.KeepRunewords.push("[type] == mace # [itemallskills] == 3");
 			}
 
 			break;

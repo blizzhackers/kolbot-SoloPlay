@@ -382,7 +382,7 @@ function LoadConfig () {
 
 				Config.Runewords.push([Runeword.HeartoftheOak, "Knout"]);
 				Config.Runewords.push([Runeword.HeartoftheOak, "Flail"]);
-				Config.KeepRunewords.push("[type] == mace # [fcr] == 40");
+				Config.KeepRunewords.push("[type] == mace # [itemallskills] == 3");
 			}
 
 			if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {

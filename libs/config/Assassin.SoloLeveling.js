@@ -374,7 +374,7 @@ function LoadConfig () {
 
 			Config.Runewords.push([Runeword.HeartoftheOak, "Knout"]);
 			Config.Runewords.push([Runeword.HeartoftheOak, "Flail"]);
-			Config.KeepRunewords.push("[Type] == mace # [FCR] == 40");
+			Config.KeepRunewords.push("[type] == mace # [itemallskills] == 3");
 		}
 
 		if (!Check.haveItem("armor", "runeword", "Enigma")) { // Enigma
@@ -404,7 +404,7 @@ function LoadConfig () {
 				NTIP.addLine("([Name] == MagePlate || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Flag] != Ethereal && [Quality] == Superior # [enhanceddefense] >= 10 && [Sockets] == 3 # [MaxQuantity] == 1");
 			}
 
-			Config.KeepRunewords.push("[type] == armor # [frw] >= 45");
+			Config.KeepRunewords.push("[type] == armor # [itemallskills] == 2");
 		}
 
 		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(4).tier < 777) { // Spirit Sword

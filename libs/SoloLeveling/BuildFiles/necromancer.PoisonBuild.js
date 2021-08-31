@@ -1,6 +1,6 @@
 /**
  *    @filename   necromancer.PoisonBuild.js
- *	  @author	  isid0re
+ *	  @author	  isid0re, theBGuy
  *    @desc       poison necro build for after respecOne
  */
 
@@ -17,25 +17,19 @@ var finalBuild = {
 		["strength", 48], ["vitality", 165], ["strength", 61], ["vitality", 252], ["strength", 156], ["vitality", "all"]
 	],
 	skills: [
-		[73, 1], // Poison Dagger
-		[67, 1], // Teeth
-		[74, 1], // Corpse Explosion
-		[83, 1], // Poison Explosion
-		[92, 20, false], // Poison Nova
-		[83, 20, false], // poison explosion
-		[73, 20, false], // Poison Dagger
-		[68, 1], // Bone Armor
+		[91, 1], // lower resist -> Main curse
+		[87, 1], // Decrepify -> For psn immunes
 		[75, 1], // Clay Golem
 		[79, 1], // Golem Mastery
 		[89, 1], // Summon Resist
-		[66, 1], // Amplified Damage
-		[72, 1], // Weaken
-		[77, 1], // Terror
-		[87, 1], // Decrepify
-		[76, 1], // Iron Maiden
-		[82, 1], // Life Tap
-		[91, 20, false], // lower resist
-		[74, 20, false], // corpse explosion
+		[68, 1], // Bone Armor
+		[92, 20], // Poison Nova
+		[83, 20], // poison explosion
+		[73, 20], // Poison Dagger
+		[88, 10], // Bone Prison
+		[84, 10], // Bone Spear -> For psn immunes
+		[88, 20], // Bone Prison
+		[84, 20], // Bone Spear -> For psn immunes
 	],
 	autoEquipTiers: [ // autoequip final gear
 		//weapon
@@ -48,7 +42,7 @@ var finalBuild = {
 		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 50 # [tier] == 5000 + tierscore(item)", //war traveler
 		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)", //sandstorm treks
 		//armor
-		"[type] == armor && [flag] != ethereal && [flag] == runeword # [frw] >= 45 # [tier] == 100000", //Enigma
+		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000", //Enigma
 		//shield
 		"([type] == shield && ([Quality] >= Magic || [flag] == runeword) || [type] == voodooheads) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//gloves
