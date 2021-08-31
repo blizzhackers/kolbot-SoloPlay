@@ -979,6 +979,14 @@ var Check = {
 				DataFile.updateStats("finalBuild", SetUp.finalBuild);
 			}
 
+			if (SetUp.finalBuild.includes(".")) {
+				SetUp.finalBuild = SetUp.finalBuild.substring(SetUp.finalBuild.indexOf(".") + 1);
+				SetUp.finalBuild = SetUp.finalBuild[0].toUpperCase() + SetUp.finalBuild.substring(1).toLowerCase();
+				D2Bot.printToConsole("GuysSoloLeveling: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
+				DataFile.updateStats("finalBuild", SetUp.finalBuild);
+			}
+
 			let buildType = SetUp.finalBuild;
 			let build;
 
