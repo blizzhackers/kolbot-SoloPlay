@@ -25,6 +25,11 @@ const Developer = {
 		autoEquip: false,
 	},
 
+	developerMode: {
+		enabled: false,
+		profiles: [""],		// Enter in the profiles that you wish to start in developermode, i.e "scl-sorc"
+	},
+
 	/*  Developer tools */
 	getObj: function (path) {
 		let obj, OBJstring = Misc.fileAction(path, 0);
