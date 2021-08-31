@@ -27,7 +27,7 @@ var build = {
 		[79, 1], // Golem Mastery -> Charlvl 12
 		[76, 1], // iron maiden -> Charlvl 13
 		[74, 1], // corpse explosion -> Charlvl 14
-		[76, 3], // Bone Wall -> Charlvl 17
+		[78, 3], // Bone Wall -> Charlvl 17
 		//[67, 10], // teeth -> Charlvl 17
 		[84, 6], // bone spear -> Charlvl 23
 		[87, 1], // decrep -> Charlvl 24
