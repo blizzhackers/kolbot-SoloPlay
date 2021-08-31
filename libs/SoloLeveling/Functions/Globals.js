@@ -363,7 +363,7 @@ var Check = {
 		case "a1chests": //a1chests
 			if (!me.classic && 
 				(me.charlvl >= 70 && Pather.canTeleport() || 
-					(me.barbarian && me.hell && !Pather.accessToAct(3) && (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("sword", "runeword", "Voice of Reason"))))) {
+					(me.barbarian && me.hell && !Pather.accessToAct(3) && (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("sword", "runeword", "Lawbringer"))))) {
 				return true;
 			}
 
