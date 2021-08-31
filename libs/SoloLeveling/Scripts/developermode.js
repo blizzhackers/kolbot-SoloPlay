@@ -6,6 +6,7 @@
 
 function developermode() {
 	let done = false;
+	let action = false;
 	let runCommand = function (msg) {
 		if (msg.length <= 1) {
 			return;
@@ -13,7 +14,6 @@ function developermode() {
 
 		let cmd = msg.split(" ")[0].split(".")[1];
 		let msgList = msg.split(" ");
-		let script = "";
 
 		switch (cmd.toLowerCase()) {
 		case "run":
@@ -22,21 +22,7 @@ function developermode() {
 				break;
 			}
 
-			script =  msgList[1].toLowerCase();
-
-			if (!isIncluded("SoloLeveling/Scripts/" + script + ".js")) {
-				include("SoloLeveling/Scripts/" + script + ".js");
-			}
-
-			if (isIncluded("SoloLeveling/Scripts/" + script + ".js")) {
-				for (let j = 0; j < 5; j += 1) {
-					if (this[script]()) {
-						break;
-					}
-				}
-			} else {
-				print("Failed to include: " + script);
-			}
+			action =  msgList[1].toLowerCase();
 
 			break;
 		case "done":
@@ -74,10 +60,30 @@ function developermode() {
 	Config.Silence = false;
 
 	while (!done) {
+		if (action) {
+			if (!isIncluded("SoloLeveling/Scripts/" + action + ".js")) {
+				include("SoloLeveling/Scripts/" + action + ".js");
+			}
+
+			if (isIncluded("SoloLeveling/Scripts/" + action + ".js")) {
+				for (let j = 0; j < 5; j += 1) {
+					if (this[action]()) {
+						break;
+					}
+				}
+			} else {
+				print("Failed to include: " + action);
+			}
+
+			me.overhead("Done with action");
+			action = false;
+		}
+
 		delay(100);
 	}
 
 	removeEventListener("gamepacketsent", PacketSent);
 	Config.Silence = true;
+	
 	return true;
 }
