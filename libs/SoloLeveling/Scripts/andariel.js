@@ -15,6 +15,11 @@ function andariel () {
 		return true;
 	}
 
+	let questBug = false;
+	if (!me.normal && !me.andariel) {
+		questBug = true;
+	}
+
 	if (!Pather.checkWP(35)) {
 		Pather.getWP(35);
 	} else {
@@ -39,7 +44,43 @@ function andariel () {
 	Pather.moveTo(22554, 9566);
 	Pather.moveTo(22546, 9554);
 	Config.MercWatch = false;
+
+	if (questBug) {
+		Config.PickRange = 0;
+
+		if (me.barbarian) {
+			Config.FindItem = false;
+		}
+	}
+
 	Attack.killTarget("Andariel");
+
+	if (questBug) {
+		let tempConfig = Misc.copy(Config); // save and update config settings
+		let updateConfig = {
+			TownCheck: false,
+			MercWatch: false,
+			HealStatus: false,
+			TownHP: 0,
+			TownMP: 0,
+			PickRange: -1
+		};
+
+		Misc.townEnabled = false;
+		Object.assign(Config, updateConfig);
+		if (Pather.changeAct()) {
+			delay(2000 + me.ping);
+
+			// Now check my area
+			if (me.act === 2) {
+				// Act change sucessful, Andy has been bugged
+				print("ÿc9GuysSoloLevelingÿc0: Andy bugged, leaving game to ensure it stays that way");
+				me.overhead("Andy bugged, leaving game to ensure it stays that way");
+				scriptBroadcast('quit');
+			}
+		}
+	}
+
 	delay(2000 + me.ping); // Wait for minions to die.
 	Pickit.pickItems();
 	Config.MercWatch = true;

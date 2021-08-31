@@ -156,6 +156,10 @@ Pickit.pickItems = function () {
 		return false;
 	}
 
+	if (Config.PickRange < 0) {
+		return false;
+	}
+
 	while (!me.idle) {
 		delay(40);
 	}
