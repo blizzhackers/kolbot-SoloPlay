@@ -301,9 +301,9 @@ MainLoop:
 			Skill.cast(43, 0, item);
 		} else {
 			if (getDistance(me, item) > (i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
-				if (Attack.getMobCountAtPosition(item.x, item.y, 5) !== 0) {
+				if (Attack.getMobCountAtPosition(item.x, item.y, 8) !== 0) {
 					print("Clearing area around item I want to pick");
-					Attack.clearPos(item.x, item.y, 5, false);
+					Attack.clearPos(item.x, item.y, 8, false);
 
 					retry = true;
 
