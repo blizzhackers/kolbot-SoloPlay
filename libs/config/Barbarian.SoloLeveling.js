@@ -320,7 +320,7 @@ function LoadConfig () {
 
 			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== 20532) { //Doom
 				var Doom = [
-					"[Name] == HelRune",
+					"[Name] == HelRune # # [MaxQuantity] == 1",
 					"[Name] == OhmRune",
 					"[Name] == LoRune",
 					"[Name] == UmRune",
