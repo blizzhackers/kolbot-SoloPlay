@@ -793,7 +793,7 @@ case 2: // Necromancer
 		let curseToCast = -1;
 		let useWeaken = me.getSkill(72, 1);
 		let useDim = me.getSkill(71, 1);
-		let useAttract = me.getSkill(86, 1);
+		let useAttract = me.getSkill(86, 1) && me.area !== 131;
 		let useDecrep = me.getSkill(87, 1);
 		let useMaiden = me.getSkill(76, 1) && me.area === 73 && me.normal;
 		let useAmp = (me.getSkill(66, 1) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical"));
