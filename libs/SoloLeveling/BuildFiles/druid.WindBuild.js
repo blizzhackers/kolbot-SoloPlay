@@ -26,7 +26,7 @@ var finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		//weapon
-		"[Type] == mace && [flag] == runeword # [FCR] == 40 # [tier] == 100000", // HotO
+		"[Type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000", // HotO
 		//Helmet
 		"[name] == totemicmask && [quality] == unique # [druidskills] == 2 && [shapeshiftingskilltab] == 2 # [tier] == 110000 + tierscore(item)", //Jalal's mane
 		//belt
@@ -35,7 +35,7 @@ var finalBuild = {
 		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 50 # [tier] == 5000 + tierscore(item)", //war traveler
 		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)", //sandstorm treks
 		//armor
-		"[type] == armor && [flag] != ethereal && [flag] == runeword # [frw] >= 45 # [tier] == 100000", //Enigma
+		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000", //Enigma
 		//shield
 		"[Name] == Monarch && [Flag] != Ethereal && [flag] == runeword # [fcr] >= 35 # [tier] == 100000", //spirit shield
 		//gloves

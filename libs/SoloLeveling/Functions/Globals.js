@@ -363,7 +363,7 @@ var Check = {
 		case "a1chests": //a1chests
 			if (!me.classic && 
 				(me.charlvl >= 70 && Pather.canTeleport() || 
-					(me.barbarian && me.hell && !Pather.accessToAct(3) && (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("sword", "runeword", "Voice of Reason"))))) {
+					(me.barbarian && me.hell && !Pather.accessToAct(3) && (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("sword", "runeword", "Lawbringer"))))) {
 				return true;
 			}
 
@@ -688,7 +688,8 @@ var Check = {
 			break;
 		case 1: //nightmare
 			if ((me.getItem(616) && me.getItem(619) && me.getItem(618) && me.getItem(620) && Check.currentBuild().caster) || 
-				(!me.paladin && this.haveItem("sword", "runeword", "Spirit")) || (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit")) || 
+				(!me.paladin && this.haveItem("sword", "runeword", "Spirit")) || (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit")) ||
+				(me.necromancer && this.haveItem("wand", "runeword", "White") && (this.haveItem("voodooheads", "runeword", "Rhyme") || Item.getEquippedItem(5).tier > 800)) ||
 				(me.barbarian && (Check.haveItem("sword", "runeword", "Lawbringer") || me.baal))) {
 				needRunes = false;
 			}
@@ -974,6 +975,14 @@ var Check = {
 			if (SetUp.finalBuild.includes("Build") || SetUp.finalBuild.includes("build")) {
 				SetUp.finalBuild = SetUp.finalBuild.substring(0, SetUp.finalBuild.length - 5);
 				D2Bot.printToConsole("GuysSoloLeveling: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
+				DataFile.updateStats("finalBuild", SetUp.finalBuild);
+			}
+
+			if (SetUp.finalBuild.includes(".")) {
+				SetUp.finalBuild = SetUp.finalBuild.substring(SetUp.finalBuild.indexOf(".") + 1);
+				SetUp.finalBuild = SetUp.finalBuild[0].toUpperCase() + SetUp.finalBuild.substring(1).toLowerCase();
+				D2Bot.printToConsole("GuysSoloLeveling: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
 				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
 				DataFile.updateStats("finalBuild", SetUp.finalBuild);
 			}

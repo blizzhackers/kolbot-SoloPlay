@@ -40,8 +40,6 @@ var AutoBuildTemplate = {
 		Update: function () {
 			Config.LowManaSkill = [-1, -1];
 			Config.AttackSkill = [-1, 84, -1, 84, -1, -1, -1];
-			Config.Curse[0] = 87; // Boss curse.
-			Config.Curse[1] = 66; // Other monsters curse.
 			Config.ExplodeCorpses = 74; // Explode corpses.
 			Config.Golem = "Clay"; // Golem.
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];

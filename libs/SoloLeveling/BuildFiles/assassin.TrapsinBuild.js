@@ -64,7 +64,7 @@ var finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		//weapon
-		"[Type] == mace && [flag] == runeword # [FCR] == 40 # [tier] == 100000", // HotO
+		"[Type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000", // HotO
 		//Helmet
 		"[name] == shako && [quality] == unique && [flag] != ethereal # [DamageResist] == 10 # [tier] == 100000 + tierscore(item)", // harlequin's crest
 		//belt
@@ -72,7 +72,7 @@ var finalBuild = {
 		//boots
 		"[Name] == SharkskinBoots && [Quality] == Unique && [Flag] != Ethereal # [MaxHP] >= 65 # [tier] == 100000 + tierscore(item)", //waterwalks
 		//armor
-		"[type] == armor && [flag] != ethereal && [flag] == runeword # [frw] >= 45 # [tier] == 100000", //Enigma
+		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000", //Enigma
 		//shield
 		"[type] == shield && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//gloves

@@ -30,7 +30,7 @@ var finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		//weapon
-		"[Type] == mace && [flag] == runeword # [FCR] == 40 # [tier] == 100000", // HotO x2 dual weild
+		"[Type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000", // HotO x2 dual weild
 		//Helmet
 		"[name] == shako && [quality] == unique && [flag] != ethereal # [DamageResist] == 10 # [tier] == 100000 + tierscore(item)", // harlequin's crest
 		//belt
@@ -38,7 +38,7 @@ var finalBuild = {
 		//boots
 		"[Name] == MeshBoots && [Quality] == Unique && [Flag] != Ethereal # [frw] >= 30 # [tier] == 100000 + tierscore(item)", //silkweave
 		//armor
-		"[type] == armor && [flag] != ethereal && [flag] == runeword # [frw] >= 45 # [tier] == 100000", //Enigma
+		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000", //Enigma
 		//gloves
 		"[name] == gauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 10 # [tier] == 100000", //frostburns
 		//ammy

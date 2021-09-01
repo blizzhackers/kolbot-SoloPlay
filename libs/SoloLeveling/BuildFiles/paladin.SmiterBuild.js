@@ -41,7 +41,7 @@ var finalBuild = {
 		//boots
 		"[name] == lightplatedboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 50 # [tier] == 100000 + tierscore(item)", //goblin toes
 		//armor
-		"[type] == armor && [flag] != ethereal && [flag] == runeword # [frw] >= 45 # [tier] == 100000", //Enigma
+		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000", //Enigma
 		//shield
 		"[Name] == GildedShield && [Quality] == unique && [flag] != ethereal  # [EnhancedDefense] >= 150 # [tier] == 100000 + tierscore(item)", //hoz
 		//gloves

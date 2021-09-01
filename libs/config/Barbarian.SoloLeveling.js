@@ -48,7 +48,7 @@ function LoadConfig () {
 	Config.LogExperience = false;
 	Config.PingQuit = [{Ping: 600, Duration: 10}];
 	Config.Silence = true;
-	Config.OpenChests = me.hell ? 2 : true;
+	Config.OpenChests = true;
 	Config.LowGold = me.normal ? 25000 : me.nightmare ? 50000 : 100000;
 	Config.PrimarySlot = 0;
 	Config.PacketCasting = 1;
@@ -174,7 +174,7 @@ function LoadConfig () {
 		//merc
 		"([type] == circlet || [type] == helm) && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 		"[Type] == armor && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		"me.charlvl > 14 && [Type] == Polearm && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+		"me.charlvl > 14 && ([Type] == Polearm || [Type] == Spear) && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 	NTIP.arrayLooping(levelingTiers);
 
@@ -320,7 +320,7 @@ function LoadConfig () {
 
 			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== 20532) { //Doom
 				var Doom = [
-					"[Name] == HelRune",
+					"[Name] == HelRune # # [MaxQuantity] == 1",
 					"[Name] == OhmRune",
 					"[Name] == LoRune",
 					"[Name] == UmRune",
@@ -486,7 +486,7 @@ function LoadConfig () {
 
 				Config.Runewords.push([Runeword.HeartoftheOak, "Knout"]);
 				Config.Runewords.push([Runeword.HeartoftheOak, "Flail"]);
-				Config.KeepRunewords.push("[Type] == mace # [FCR] == 40");
+				Config.KeepRunewords.push("[type] == mace # [itemallskills] == 3");
 			}
 
 			if (!Check.haveItem("armor", "runeword", "Enigma")) { // Enigma
@@ -517,7 +517,7 @@ function LoadConfig () {
 					NTIP.addLine("([Name] == ArchonPlate || [Name] == MagePlate || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Flag] != Ethereal && [Quality] == Superior # [enhanceddefense] >= 10 && [Sockets] == 3 # [MaxQuantity] == 1");
 				}
 
-				Config.KeepRunewords.push("[type] == armor # [frw] >= 45");
+				Config.KeepRunewords.push("[type] == armor # [itemallskills] == 2");
 			}
 
 			break;

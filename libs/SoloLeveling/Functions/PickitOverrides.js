@@ -21,6 +21,8 @@ if (!isIncluded("SoloLeveling/Functions/ProtoTypesOverrides.js")) {
 	include("SoloLeveling/Functions/ProtoTypesOverrides.js");
 }
 
+Pickit.enabled = true;
+
 Pickit.checkItem = function (unit) {
 	var rval = NTIP.CheckItem(unit, false, true);
 
@@ -156,6 +158,10 @@ Pickit.pickItems = function () {
 		return false;
 	}
 
+	if (Config.PickRange < 0 || !Pickit.enabled) {
+		return false;
+	}
+
 	while (!me.idle) {
 		delay(40);
 	}
@@ -251,7 +257,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		this.picked = false;
 	}
 
-	var i, item, tick, gid, stats,
+	var i, item, tick, gid, stats, retry = false,
 		cancelFlags = [0x01, 0x08, 0x14, 0x0c, 0x19, 0x1a],
 		itemCount = me.itemcount;
 
@@ -275,7 +281,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 
 	stats = new ItemStats(item);
 
-	MainLoop:
+MainLoop:
 	for (i = 0; i < 3; i += 1) {
 		if (!getUnit(4, -1, -1, gid)) {
 			break MainLoop;
@@ -297,6 +303,17 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			Skill.cast(43, 0, item);
 		} else {
 			if (getDistance(me, item) > (i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
+				if (Attack.getMobCountAtPosition(item.x, item.y, 8) !== 0) {
+					print("Clearing area around item I want to pick");
+					Pickit.enabled = false;		// Don't pick while trying to clear
+					Attack.clearPos(item.x, item.y, 8, false);
+					Pickit.enabled = true;		// Reset value
+
+					retry = true;
+
+					break MainLoop;
+				}
+
 				if (Pather.useTeleport()) {
 					Pather.moveToUnit(item);
 				} else if (!Pather.moveTo(item.x, item.y, 0)) {
@@ -343,6 +360,10 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		stats.useTk = false;
 
 		//print("pick retry");
+	}
+
+	if (retry) {
+		return this.pickItem(unit, status, keptLine);
 	}
 
 	stats.picked = me.itemcount > itemCount || !!me.getItem(-1, -1, gid);

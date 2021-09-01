@@ -14,6 +14,11 @@ function a1chests() {
 
 	for (let i = 0; i < areas.length; i++) {
 		try {
+			// Don't run pits for its chest, when it was cleared during the pits script
+			if (((me.sorceress && me.charlvl >= 80) || me.barbarian) && areas[i] === 16) {
+				continue;
+			}
+
 			print("ÿc9GuysSoloLevelingÿc0: Moving to " + Pather.getAreaName(areas[i]));
 			me.overhead("Moving to " + Pather.getAreaName(areas[i]));
 			Pather.journeyTo(areas[i]);

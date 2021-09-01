@@ -124,6 +124,21 @@ function SoloLeveling () {
 
 	// Start Running Script
 	this.setup();
+
+	if (Developer.developerMode.enabled) {
+		if (Developer.developerMode.profiles.indexOf(me.profile) > -1) {
+			if (!isIncluded("SoloLeveling/Scripts/developermode.js")) {
+				include("SoloLeveling/Scripts/developermode.js");
+			}
+
+			if (isIncluded("SoloLeveling/Scripts/developermode.js")) {
+				this.developermode();
+			} else {
+				print("ÿc9GuysSoloLevelingÿc0: Failed to include developermode");
+			}
+		}
+	}
+
 	this.runScripts();
 	scriptBroadcast('quit');
 

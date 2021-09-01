@@ -2661,6 +2661,8 @@ Town.visitTown = function (repair = false) {
 	var preArea = me.area,
 		preAct = me.act;
 
+	// TODO: Add tptome/scroll check
+
 	try { // not an essential function -> handle thrown errors
 		this.goToTown();
 	} catch (e) {

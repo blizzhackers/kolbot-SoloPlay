@@ -10,19 +10,29 @@ const Developer = {
 	Overlay: true,	//enables overlay
 	showInGameTimer: true,	// Shows in game timer on the overlay
 	logEquipped: false,	//enables equipped items viewable from D2Bot# charviewer tab
-	forcePacketCasting: true, //enables forced packet casting for skill.cast
+	forcePacketCasting: {		//enables forced packet casting for skill.cast
+		enabled: true,
+		excludeProfiles: [""],	// Exclude these profiles
+	},
+
 	hideChickens: true, // disable printing chicken info in D2Bot console
 	addLadderRW: true, // set to true to enable single player ladder runewords ONLY WORKS IF RUNEWORDS.TXT IS INSTALLED AND D2BS PROFILE IS CONFIGURED
 	fillAccount: {		// set to true in use with tag Bumper or Socketmule to make next character after reaching goal until account is full
 		Bumpers: false,
 		Socketmules: false,
 	},
+
 	Debugging: {
 		smallCharmVerbose: false,
 		largeCharmVerbose: false,
 		grandCharmVerbose: false,
 		junkCheckVerbose: false,
 		autoEquip: false,
+	},
+
+	developerMode: {		// Enables bot to load up without proceeding to run scripts. Allows easy testing of functions or scripts
+		enabled: false,
+		profiles: [""],		// Enter in the profiles that you wish to start in developermode, i.e "scl-sorc"
 	},
 
 	/*  Developer tools */

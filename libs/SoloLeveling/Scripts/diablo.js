@@ -319,16 +319,24 @@ function diablo () {
 	this.seis();
 	this.infector();
 
-	/*if (Check.Resistance().LR < 75) {
+	if (!me.diablo && (me.paladin || me.barbarian || me.druid || me.amazon)) {
 		Town.goToTown();
-		Misc.getLightResShrine([2, 3, 4]);
+		Misc.getGoodShrine([2, 3]);
 		Pather.useWaypoint(107);
 		Precast.doPrecast(true);
 		Pather.clearToExit(107, 108, true);
-	}*/
+	}
 
 	Config.MercWatch = false;
-	Pather.moveTo(7788, 5292, 3, 30);
+	let nearSpot;
+
+	if (!me.sorceress && !me.necromancer && !me.assassin) {
+		Pather.moveTo(7788, 5292, 3, 30);
+	} else {
+		nearSpot = Attack.spotOnDistance({ x: 7792, y: 5292 }, 35);
+		Pather.moveToUnit(nearSpot);
+	}
+
 	this.diabloPrep();
 	let theD = getUnit(1, 243);
 
@@ -337,13 +345,20 @@ function diablo () {
 		this.infector();
 		this.seis();
 		this.vizier();
-		Pather.moveTo(7788, 5292, 3, 30);
+
+		if (!me.sorceress && !me.necromancer && !me.assassin) {
+			Pather.moveTo(7788, 5292, 3, 30);
+		} else {
+			nearSpot = Attack.spotOnDistance({ x: 7792, y: 5292 }, 35);
+			Pather.moveToUnit(nearSpot);
+		}
+
 		this.diabloPrep();
 	}
 
-	//if (!Attack.blitzkrieg(243)) {
+	if (!Attack.pwnDia()) {
 		Attack.killTarget(243); //diablo
-	//}
+	}
 
 	Pickit.pickItems();
 

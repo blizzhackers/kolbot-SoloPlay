@@ -151,7 +151,8 @@ function LoadConfig () {
 
 	var levelingTiers = [ // autoequip setup
 		//weapon
-		"([type] == wand || [type] == sword && ([Quality] >= Normal || [flag] == runeword) || [type] == knife && [Quality] >= Magic) && [flag] != ethereal # [secondarymindamage] == 0 && [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"([type] == wand || [type] == sword || [type] == knife) && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [secondarymindamage] == 0 && [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"[type] == wand && [Quality] >= Normal && [flag] != ethereal # [itemchargedskill] >= 0 && [Sockets] != 2 # [tier] == tierscore(item)",
 		//Helmet
 		"([type] == helm || [type] == circlet) && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//belt
@@ -179,7 +180,7 @@ function LoadConfig () {
 		//merc
 		"([type] == circlet || [type] == helm) && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 		"[Type] == armor && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		"me.charlvl > 14 && [Type] == Polearm && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+		"me.charlvl > 14 && ([Type] == Polearm || [Type] == Spear) && ([Quality] >= Magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 	NTIP.arrayLooping(levelingTiers);
 
@@ -239,11 +240,11 @@ function LoadConfig () {
 
 	Config.ExplodeCorpses = me.getSkill(74, 0) ? 74 : me.getSkill(83, 0) ? 83 : 0;
 	Config.Golem = me.getSkill(75, 0) ? "Clay" : "None";
-	Config.Skeletons = "max";
-	Config.SkeletonMages = "max";
-	Config.Revives = "max";
+	Config.Skeletons = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
+	Config.SkeletonMages = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
+	Config.Revives = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
 	Config.PoisonNovaDelay = 2;
-	Config.ActiveSummon = true;
+	Config.ActiveSummon = me.charlvl < 10 || SetUp.currentBuild === "Summon";
 	Config.ReviveUnstackable = true;
 	Config.IronGolemChicken = 30;
 
@@ -360,8 +361,8 @@ function LoadConfig () {
 			var white = [
 				"[Name] == DolRune # # [MaxQuantity] == 1",
 				"[Name] == IoRune # # [MaxQuantity] == 1",
-				"[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2",
-				"[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand) && [Quality] == Normal # ([necromancerskills]+[poisonandboneskilltab]+[skillbonespear]+[skillbonespirit]+[skillteeth]+[skillbonewall]+[skillboneprison]+[skillamplifydamage]) >= 1 && [Sockets] == 0",
+				"[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1",
+				"[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand) && [Quality] == Normal # ([necromancerskills]+[poisonandboneskilltab]+[skillbonespear]+[skillbonespirit]+[skillteeth]+[skillbonewall]+[skillboneprison]+[skillamplifydamage]) >= 1 && [Sockets] == 0 # [MaxQuantity] == 1",
 			];
 			NTIP.arrayLooping(white);
 
@@ -395,8 +396,8 @@ function LoadConfig () {
 			var rhyme = [
 				"[Name] == ShaelRune # # [MaxQuantity] == 1",
 				"[Name] == EthRune # # [MaxQuantity] == 1",
-				"[type] == voodooheads && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2",
-				"[type] == voodooheads && [Quality] == Normal # ([necromancerskills]+[poisonandboneskilltab]+[skillbonespear]+[skillbonespirit]+[skillteeth]+[skillbonewall]+[skillboneprison]+[skillamplifydamage]) >= 1 && [Sockets] == 0",
+				"[type] == voodooheads && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1",
+				"[type] == voodooheads && [Quality] == Normal # ([necromancerskills]+[poisonandboneskilltab]+[skillbonespear]+[skillbonespirit]+[skillteeth]+[skillbonewall]+[skillboneprison]+[skillamplifydamage]) >= 1 && [Sockets] == 0 # [MaxQuantity] == 1",
 			];
 			NTIP.arrayLooping(rhyme);
 
@@ -461,7 +462,7 @@ function LoadConfig () {
 				NTIP.addLine("([Name] == MagePlate || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Flag] != Ethereal && [Quality] == Superior # [enhanceddefense] >= 10 && [Sockets] == 3 # [MaxQuantity] == 1");
 			}
 
-			Config.KeepRunewords.push("[type] == armor # [frw] >= 45");
+			Config.KeepRunewords.push("[type] == armor # [itemallskills] == 2");
 		}
 
 		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(4).tier < 777) { // Spirit Sword
@@ -558,6 +559,10 @@ function LoadConfig () {
 			
 			if (me.getItem(631)) {	// Um rune
 				NTIP.addLine("([Name] == Cuirass || [Name] == MagePlate || [Name] == ArchonPlate || [Name] == GreatHauberk || [Name] == WireFleece || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
+			}
+
+			if (Item.getQuantityOwned(me.getItem(631) < 2)) {
+				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 			}
 
 			Config.Runewords.push([Runeword.Bone, "Mage Plate"]);

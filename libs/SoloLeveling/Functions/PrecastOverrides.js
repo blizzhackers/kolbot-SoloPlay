@@ -161,7 +161,7 @@ Precast.doPrecast = function (force) {
 
 		break;
 	case 1: // Sorceress
-		if (me.getSkill(57, 0) && (!me.getState(38) || force)) {
+		if (me.getSkill(57, 1) && (!me.getState(38) || force)) {
 			this.precastSkill(57); // Thunder Storm
 		}
 
@@ -199,6 +199,7 @@ Precast.doPrecast = function (force) {
 			break;
 		case 1:
 		case "Clay":
+			// TODO: Write a check to see if with an act boss, if so cast golem revive golem right on top of them
 			this.summon(75);
 			break;
 		case 2:
@@ -441,7 +442,20 @@ Precast.summon = function (skillId) {
 
 	while (me.getMinionCount(minion) < count) {
 		rv = true;
-		let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	//Keeps bots from getting stuck trying to summon
+		let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	// Get a random coordinate to summon using
+		let unit = Attack.getNearestMonster(true);
+
+		if (unit && [3, 15, 16].indexOf(minion) > -1 && getDistance(me, unit) < 20) {
+			try {
+				if (Skill.cast(skillId, 0, unit)) {
+					continue;
+				} else if (Skill.cast(skillId, 0, me.x, me.y)) {
+					continue;
+				}
+			} catch (e) {
+				print(e);
+			}
+		}
 
 		if (coord) {
 			Skill.cast(skillId, 0, coord.x, coord.y);
@@ -449,22 +463,23 @@ Precast.summon = function (skillId) {
 			Skill.cast(skillId, 0, me.x, me.y);
 		}
 
-		if (Skill.getManaCost(skillId) > me.mp) {
+		if (Skill.getManaCost(skillId) > me.mp) {		// May remove this
 			delay(1000);
 			retry++;
 		}
 
 		if (retry > count * 2) {
 			if (me.inTown) {
-				Town.heal();
-				delay(1000 + me.ping);
-				coord = CollMap.getRandCoordinate(me.x, -5, 5, me.y, -5, 5);	//Keeps bots from getting stuck trying to summon
-				Pather.moveTo(coord.x, coord.y);
+				if (Town.heal()) {
+					delay(100 + me.ping);
+					me.cancel();
+				}
+				
+				Town.move("portalspot");
+				Skill.cast(skillId, 0, me.x, me.y);
 			} else {
-				coord = CollMap.getRandCoordinate(me.x, -5, 5, me.y, -5, 5);	//Keeps bots from getting stuck trying to summon
+				coord = CollMap.getRandCoordinate(me.x, -6, 6, me.y, -6, 6);	//Keeps bots from getting stuck trying to summon
 				Pather.moveTo(coord.x, coord.y);
-
-				print("Retry Amount: " + retry + " | Coordinates: " + coord.x + " " + coord.y);
 			}
 
 			retry = 0;
