@@ -689,7 +689,7 @@ var Check = {
 		case 1: //nightmare
 			if ((me.getItem(616) && me.getItem(619) && me.getItem(618) && me.getItem(620) && Check.currentBuild().caster) || 
 				(!me.paladin && this.haveItem("sword", "runeword", "Spirit")) || (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit")) ||
-				(me.necromancer && this.haveItem("wand", "runeword", "White") && this.haveItem("voodooheads", "runeword", "Rhyme")) ||
+				(me.necromancer && this.haveItem("wand", "runeword", "White") && (this.haveItem("voodooheads", "runeword", "Rhyme") || Item.getEquippedItem(5).tier > 800)) ||
 				(me.barbarian && (Check.haveItem("sword", "runeword", "Lawbringer") || me.baal))) {
 				needRunes = false;
 			}

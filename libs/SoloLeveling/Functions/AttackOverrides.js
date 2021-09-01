@@ -575,6 +575,10 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit) { // probabl
 		return false;
 	}
 
+	if (Attack.stopClear) {
+		return false;
+	}
+
 	if (!sortfunc) {
 		sortfunc = this.sortMonsters;
 	}
@@ -620,7 +624,7 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit) { // probabl
 			orgy = boss.y;
 		}
 
-		if (me.dead) {
+		if (me.dead || Attack.stopClear) {
 			return false;
 		}
 
@@ -760,6 +764,10 @@ Attack.clearPos = function (x, y, range, pickit) { // probably going to change t
 		return false;
 	}
 
+	if (Attack.stopClear) {
+		return false;
+	}
+
 	monsterList = [];
 	target = getUnit(1);
 
@@ -778,7 +786,7 @@ Attack.clearPos = function (x, y, range, pickit) { // probably going to change t
 	}
 
 	while (start && monsterList.length > 0 && attackCount < 300) {
-		if (me.dead) {
+		if (me.dead || Attack.stopClear) {
 			return false;
 		}
 
@@ -907,6 +915,15 @@ Attack.sortMonsters = function (unitA, unitB) {
 		if (!Attack.checkResist(unitB, Attack.getSkillElement(Config.AttackSkill[(unitB.spectype & 0x7) ? 1 : 3]))) {
 			return -1;
 		}
+	}
+
+	// Put monsters under Attract curse at the end of the list - They are helping us
+	if (unitA.getState(57)) {
+		return 1;
+	}
+
+	if (unitB.getState(57)) {
+		return -1;
 	}
 
 	// Added Oblivion Knights
