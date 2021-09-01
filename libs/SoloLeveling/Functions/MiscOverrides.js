@@ -919,7 +919,7 @@ Misc.getShrine = function (unit) {
 		telek = me.sorceress && me.getSkill(43, 1);
 
 	for (i = 0; i < 3; i += 1) {
-		if (telek) {
+		if (telek && i < 2) {
 			if (getDistance(me, unit) > 13) {
 				Attack.getIntoPosition(unit, 13, 0x4);
 			}

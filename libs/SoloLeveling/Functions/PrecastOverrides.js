@@ -445,11 +445,13 @@ Precast.summon = function (skillId) {
 		let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	// Get a random coordinate to summon using
 		let unit = Attack.getNearestMonster(true);
 
-		if (unit && [3, 15, 16].indexOf(minion) > -1) {
+		if (unit && [3, 15, 16].indexOf(minion) > -1 && getDistance(me, unit) < 20) {
 			try {
-				Skill.cast(skillId, 0, unit);
-
-				continue;
+				if (Skill.cast(skillId, 0, unit)) {
+					continue;
+				} else if (Skill.cast(skillId, 0, me.x, me.y)) {
+					continue;
+				}
 			} catch (e) {
 				print(e);
 			}

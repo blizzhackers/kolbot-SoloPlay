@@ -21,6 +21,8 @@ if (!isIncluded("SoloLeveling/Functions/ProtoTypesOverrides.js")) {
 	include("SoloLeveling/Functions/ProtoTypesOverrides.js");
 }
 
+Pickit.enabled = true;
+
 Pickit.checkItem = function (unit) {
 	var rval = NTIP.CheckItem(unit, false, true);
 
@@ -156,7 +158,7 @@ Pickit.pickItems = function () {
 		return false;
 	}
 
-	if (Config.PickRange < 0) {
+	if (Config.PickRange < 0 || !Pickit.enabled) {
 		return false;
 	}
 
@@ -303,7 +305,9 @@ MainLoop:
 			if (getDistance(me, item) > (i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
 				if (Attack.getMobCountAtPosition(item.x, item.y, 8) !== 0) {
 					print("Clearing area around item I want to pick");
+					Pickit.enabled = false;		// Don't pick while trying to clear
 					Attack.clearPos(item.x, item.y, 8, false);
+					Pickit.enabled = true;		// Reset value
 
 					retry = true;
 

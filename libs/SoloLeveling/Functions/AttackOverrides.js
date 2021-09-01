@@ -1185,7 +1185,7 @@ Attack.pwnDia = function () {
 	return dia;
 };
 
-Attack.getNearestMonster = function () {
+Attack.getNearestMonster = function (skipBlocked = false) {
 	var gid, distance,
 		monster = getUnit(1),
 		range = 30;
@@ -1195,7 +1195,7 @@ Attack.getNearestMonster = function () {
 			if (monster.hp > 0 && Attack.checkMonster(monster) && !monster.getParent()) {
 				distance = getDistance(me, monster);
 
-				if (distance < range) {
+				if (distance < range && (!skipBlocked || (!checkCollision(me, monster, 0x4) && !checkCollision(me, monster, 0x1)))) {
 					range = distance;
 					gid = monster.gid;
 				}
@@ -1341,7 +1341,7 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 				if (!CollMap.checkColl({x: coords[i].x, y: coords[i].y}, unit, coll, 1)) {
 					//print("ÿc9optimal pos build time: ÿc2" + (getTickCount() - t) + " ÿc9distance from target: ÿc2" + getDistance(cx, cy, unit.x, unit.y));
 
-					if (getDistance(me, coords[i]) < 2) {
+					if (Math.round(getDistance(me, coords[i])) < 3) {
 						return true;	// I am already in my optimal position
 					}
 
@@ -1363,7 +1363,7 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 
 						break;
 					}
-					
+
 					if (caster) {
 						print("Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + Attack.getMobCountAtPosition(coords[i].x, coords[i].y, 5));
 					}
