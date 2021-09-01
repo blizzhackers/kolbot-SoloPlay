@@ -6,7 +6,7 @@
 */
 
 var StarterConfig = {
-	// New Stuff - DataCleaner to delete old files associated with running SoloLeveling, SaveFiles to save important files to SoloLeveling/Data/ for performance review
+	// New Stuff - DataCleaner to delete old files associated with running SoloPlay, SaveFiles to save important files to SoloPlay/Data/ for performance review
 	//***********************************************************************************************************************//
 	//	DataCleaner and SaveFiles can both be used for cleaning/saving files without having to delete associated characters  //
 	//***********************************************************************************************************************//
@@ -110,29 +110,29 @@ function dataCleaner() {
 		}
 
 		if (StarterConfig.SaveFiles) {
-			if (FileTools.exists("data/" + profiles[i] + ".json") || FileTools.exists("libs/SoloLeveling/Data/" + profiles[i] + ".GameTime" + ".json") || 
-				FileTools.exists("libs/SoloLeveling/Data/" + profiles[i] + ".LevelingPerformance" + ".csv") || FileTools.exists("libs/SoloLeveling/Data/" + profiles[i] + ".ScriptPerformance" + ".csv")) {
-				if (!FileTools.exists("libs/SoloLeveling/Data/" + charType)) {
-					folder = dopen("libs/SoloLeveling/Data");
+			if (FileTools.exists("data/" + profiles[i] + ".json") || FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".GameTime" + ".json") || 
+				FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".LevelingPerformance" + ".csv") || FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".ScriptPerformance" + ".csv")) {
+				if (!FileTools.exists("libs/SoloPlay/Data/" + charType)) {
+					folder = dopen("libs/SoloPlay/Data");
 					folder.create(charType);
 				}
 
-				if (!FileTools.exists("libs/SoloLeveling/Data/" + charType + "/" + charClass)) {
-					folder = dopen("libs/SoloLeveling/Data/" + charType);
+				if (!FileTools.exists("libs/SoloPlay/Data/" + charType + "/" + charClass)) {
+					folder = dopen("libs/SoloPlay/Data/" + charType);
 					folder.create(charClass);
 				}
 
-				var files = dopen("libs/SoloLeveling/Data/" + charType + "/" + charClass + "/").getFolders();
+				var files = dopen("libs/SoloPlay/Data/" + charType + "/" + charClass + "/").getFolders();
 				var j = 1;
 
 				files.forEach( (file) => {
-					if (FileTools.exists("libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j.toString())){
+					if (FileTools.exists("libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString())){
 						j++;
 					}	
 				});
 
-				if (!FileTools.exists("libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j.toString())) {
-					folder = dopen("libs/SoloLeveling/Data/" + charType + "/" + charClass);
+				if (!FileTools.exists("libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString())) {
+					folder = dopen("libs/SoloPlay/Data/" + charType + "/" + charClass);
 					folder.create(j.toString());
 				}
 
@@ -142,43 +142,43 @@ function dataCleaner() {
 				
 		if (FileTools.exists("data/" + profiles[i] + ".json")) {
 			if (StarterConfig.SaveFiles){
-				FileTools.copy("data/" + profiles[i] + ".json", "libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j.toString() + "/dataFile.json");
+				FileTools.copy("data/" + profiles[i] + ".json", "libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString() + "/dataFile.json");
 			}
 			
 			profileExists = true;
 			FileTools.remove("data/" + profiles[i] + ".json");
 		}
 		
-		if (FileTools.exists("libs/SoloLeveling/Data/" + profiles[i] + ".GameTime" + ".json")) {
+		if (FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".GameTime" + ".json")) {
 			if (StarterConfig.SaveFiles) {
-				FileTools.copy("libs/SoloLeveling/Data/" + profiles[i] + ".GameTime" + ".json", "libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j.toString() + "/GameTime.json");
+				FileTools.copy("libs/SoloPlay/Data/" + profiles[i] + ".GameTime" + ".json", "libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString() + "/GameTime.json");
 			}
 			
-			FileTools.remove("libs/SoloLeveling/Data/" + profiles[i] + ".GameTime" + ".json");
+			FileTools.remove("libs/SoloPlay/Data/" + profiles[i] + ".GameTime" + ".json");
 		}
 		
-		if (FileTools.exists("libs/SoloLeveling/Data/" + profiles[i] + ".LevelingPerformance" + ".csv")) {
+		if (FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".LevelingPerformance" + ".csv")) {
 			if (StarterConfig.SaveFiles) {
-				FileTools.copy("libs/SoloLeveling/Data/" + profiles[i] + ".LevelingPerformance" + ".csv", "libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j.toString() + "/LevelingPerformance.csv");
+				FileTools.copy("libs/SoloPlay/Data/" + profiles[i] + ".LevelingPerformance" + ".csv", "libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString() + "/LevelingPerformance.csv");
 			}
 			
-			FileTools.remove("libs/SoloLeveling/Data/" + profiles[i] + ".LevelingPerformance" + ".csv");
+			FileTools.remove("libs/SoloPlay/Data/" + profiles[i] + ".LevelingPerformance" + ".csv");
 		}
 
-		if (FileTools.exists("libs/SoloLeveling/Data/" + profiles[i] + ".ScriptPerformance" + ".csv")) {
+		if (FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".ScriptPerformance" + ".csv")) {
 			if (StarterConfig.SaveFiles) {
-				FileTools.copy("libs/SoloLeveling/Data/" + profiles[i] + ".ScriptPerformance" + ".csv", "libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j.toString() + "/ScriptPerformance.csv");
+				FileTools.copy("libs/SoloPlay/Data/" + profiles[i] + ".ScriptPerformance" + ".csv", "libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString() + "/ScriptPerformance.csv");
 			}
 			
-			FileTools.remove("libs/SoloLeveling/Data/" + profiles[i] + ".ScriptPerformance" + ".csv");
+			FileTools.remove("libs/SoloPlay/Data/" + profiles[i] + ".ScriptPerformance" + ".csv");
 		}
 
-		if (FileTools.exists("libs/SoloLeveling/Data/" + profiles[i] + ".SocketData" + ".json")) {
-			FileTools.remove("libs/SoloLeveling/Data/" + profiles[i] + ".SocketData" + ".json");
+		if (FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".SocketData" + ".json")) {
+			FileTools.remove("libs/SoloPlay/Data/" + profiles[i] + ".SocketData" + ".json");
 		}
 		
 		if (StarterConfig.SaveFiles && profileExists) {
-			D2Bot.printToConsole("SoloCleaner: Files saved to -> libs/SoloLeveling/Data/" + charType + "/" + charClass + "/" + j, 6);
+			D2Bot.printToConsole("SoloCleaner: Files saved to -> libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j, 6);
 		}
 
 		if (profileExists) {
