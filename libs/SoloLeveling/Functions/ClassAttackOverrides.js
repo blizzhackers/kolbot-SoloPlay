@@ -574,7 +574,8 @@ case 1: // Sorceress
 	};
 
 	ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-		var i, walk, tick;
+		var i, walk, tick,
+			manaCostTimedSkill, manaCostUntimedSkill;
 
 		// No valid skills can be found
 		if (timedSkill < 0 && untimedSkill < 0) {
@@ -582,6 +583,8 @@ case 1: // Sorceress
 		}
 
 		if (timedSkill > -1 && (!me.getState(121) || !Skill.isTimed(timedSkill))) {
+			manaCostTimedSkill = Skill.getManaCost(timedSkill)
+
 			if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
 				return 0;
 			}
@@ -598,8 +601,8 @@ case 1: // Sorceress
 			if (Skill.getManaCost(timedSkill) > me.mp) {
 				tick = getTickCount();
 
-				while (getTickCount() - tick < 1500) {
-					if (Skill.getManaCost(timedSkill) < me.mp) {
+				while (getTickCount() - tick < 750) {
+					if (manaCostTimedSkill < me.mp) {
 						break;
 					}
 
@@ -615,6 +618,8 @@ case 1: // Sorceress
 		}
 
 		if (untimedSkill > -1) {
+			manaCostUntimedSkill = Skill.getManaCost(untimedSkill)
+
 			if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
 				return 0;
 			}
@@ -631,8 +636,8 @@ case 1: // Sorceress
 			if (Skill.getManaCost(untimedSkill) > me.mp) {
 				tick = getTickCount();
 
-				while (getTickCount() - tick < 1500) {
-					if (Skill.getManaCost(untimedSkill) < me.mp) {
+				while (getTickCount() - tick < 750) {
+					if (manaCostUntimedSkill < me.mp) {
 						break;
 					}
 
@@ -1070,7 +1075,7 @@ case 2: // Necromancer
 					let closeMobCheck = Attack.getNearestMonster();
 
 					if (Math.round(getDistance(me, unit)) < 4 && Skill.getRange(timedSkill) > 6) {
-						Attack.deploy(unit, 4, 5, 5);	// Try to find better spot
+						Attack.deploy(unit, 4, 5, 9);	// Try to find better spot
 					}
 
 					Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
