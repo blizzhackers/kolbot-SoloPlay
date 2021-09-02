@@ -318,6 +318,29 @@ function deleteAndRemakeChar (info) {
 	return true;
 }
 
+function saveInfo (info) {
+	if (FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName)) {		// Data already exists
+		return;
+	}
+
+	let folder, string;
+
+	if (!FileTools.exists("logs/Kolbot-SoloPlay")) {
+		folder = dopen("logs");
+		folder.create("Kolbot-SoloPlay");
+	}
+
+	if (!FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm)) {
+		folder = dopen("logs/Kolbot-SoloPlay");
+		folder.create(info.realm);
+	}
+
+	if (!FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charName)) {
+		string = JSON.stringify(info);
+		FileTools.writeText("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName + ".json", string);
+	}
+}
+
 function setNextGame () {
 	var nextGame = gameInfo.gameName;
 
@@ -422,6 +445,7 @@ function locationAction (location) {
 		break;
 	case 1:	// Lobby
 		D2Bot.updateStatus("Lobby");
+		saveInfo(setUp);
 
 		me.blockKeys = false;
 
@@ -760,7 +784,6 @@ function locationAction (location) {
 							ControlAction.click(6, 351, 337, 96, 32);	//Exit from that pop-up
 							D2Bot.printToConsole("Character died", 9);
 							deleteAndRemakeChar(setUp);
-
 						} else {
 							if (!ControlAction.makeCharacter(setUp)) {
 								if (ControlAction.getCharacters().length >= 18) {
@@ -1049,13 +1072,10 @@ function locationAction (location) {
 			}
 		}
 
-
 		if (deadCheck) {
 			deleteAndRemakeChar(setUp);
 			deadCheck = false;
 		}
-
-
 
 		if (setUp) {
 			if (!ControlAction.findCharacter(setUp)) {
@@ -1216,8 +1236,6 @@ function main () {
 
 		delay(50);
 	}
-
-	var wasInGame = false;
 
 	while (true) {
 		while (me.ingame) { // returns true before actually in game so we can't only use this check
