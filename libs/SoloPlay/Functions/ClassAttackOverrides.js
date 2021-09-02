@@ -794,6 +794,7 @@ case 2: // Necromancer
 		let useWeaken = me.getSkill(72, 1);
 		let useDim = me.getSkill(71, 1);
 		let useAttract = me.getSkill(86, 1) && me.area !== 131;
+		let useConfuse = me.getSkill(81, 1) && me.area === 131;
 		let useDecrep = me.getSkill(87, 1);
 		let useMaiden = me.getSkill(76, 1) && me.area === 73 && me.normal;
 		let useAmp = (me.getSkill(66, 1) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical"));
@@ -836,6 +837,14 @@ case 2: // Necromancer
 			if (useAttract && unit.classid !== 571 && Math.round(getDistance(me, unit)) > 8 && !checkCollision(me, unit, 0x4) && !this.getCurseState(unit, 86)) {
 				if (Attack.getMobCountAtPosition(unit.x, unit.y, 6, false, false) >= 2) {	// Save resources by only doing this check if all the other ones are met
 					curseToCast = 86;
+				}
+
+				break;
+			}
+
+			if (useConfuse && unit.classid !== 571 && Math.round(getDistance(me, unit)) > 8 && !checkCollision(me, unit, 0x4) && !this.getCurseState(unit, 81)) {
+				if (Attack.getMobCountAtPosition(unit.x, unit.y, 6, false, false) >= 2) {	// Save resources by only doing this check if all the other ones are met
+					curseToCast = 81;
 				}
 
 				break;
