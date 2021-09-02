@@ -187,7 +187,7 @@ function ReceiveCopyData (mode, msg) {
 
 		if (buildCheck[1] === undefined || !buildCheck[1]) {
 			D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', 6);
-			D2Bot.printToConsole("If you are still confused please read the included readMe. https://github.com/theBGuy/GuysSoloLeveling/blob/main/README.md", 6);
+			D2Bot.printToConsole("If you are still confused please read the included readMe. https://github.com/theBGuy/Kolbot-SoloPlay/blob/main/README.md", 6);
 			D2Bot.stop();
 		}
 
