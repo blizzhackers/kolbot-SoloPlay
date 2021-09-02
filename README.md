@@ -1,7 +1,7 @@
 ![extract into](https://i.imgur.com/TcRmoRm.png)
 
 ## What is this?
-Kolbot-SoloPlay is an hands-off autoplay script to take any charcter diablo 2 character class from 1-99 using Kolbot. It will level towards an end-game build that you choose. See ```Brief History``` for more info. 
+Kolbot-SoloPlay is an hands-off autoplay script to take any diablo 2 character class from 1-99 using Kolbot. It will level towards an end-game build that you choose. See ```Brief History``` for more info. 
 
 If you are enjoying my version consider supporting me at https://www.buymeacoffee.com/theBGuy
 
@@ -62,6 +62,10 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 **Q: HELP!!! There an error when starting the bot?**
 
 **A:** There was a bad installation OR the profile settings are wrong. First verify that you using the kolbot version linked the install guide below. Next, confirm you have installed all the files into their proper locations (including overwriting the existing `_customconfig.js` and `default.dbj`). Finally, verify the profile name and infotag follow the format of the install guide's instructions.
+
+**Q: HELP!!! The bot auto created my account and I can't find the password!**
+
+**A:** The info for each character created is saved under logs/Kolbot-SoloPlay/realm/ , look for the name of the character whos info you're trying to find and open up the .json file. 
 
 **Q: What is a Bumper?**
 
