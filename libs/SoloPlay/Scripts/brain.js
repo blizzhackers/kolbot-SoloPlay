@@ -16,9 +16,9 @@ function brain () {
 	}
 
 	Precast.doPrecast(true);
-	Pather.clearToExit(79, 88, Pather.useWaypoint());
-	Pather.clearToExit(88, 89, Pather.useWaypoint());
-	Pather.clearToExit(89, 91, Pather.useWaypoint());
+	Pather.clearToExit(78, 88, Pather.useTeleport());
+	Pather.clearToExit(88, 89, Pather.useTeleport());
+	Pather.clearToExit(89, 91, Pather.useTeleport());
 
 	if (!Pather.moveToPreset(me.area, 2, 406)) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to get the Brain');
