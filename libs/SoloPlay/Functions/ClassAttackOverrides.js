@@ -533,6 +533,28 @@ case 1: // Sorceress
 			untimedSkill = Config.LowManaSkill[1];
 		}
 
+		if (me.normal && (gold < 5000 || Skill.getManaCost(timedSkill) * 1.5 > me.mp)) {
+			if (SetUp.currentBuild === "Start") {
+				if (Attack.getMobCountAtPosition(me.x, me.y, 6) >= 2 && Skill.getManaCost(38) < me.mp) {
+					timedSkill = 38;	// Charged Bolt
+				} else if (Attack.getMobCountAtPosition(unit.x, unit.y, 6) >= 2 && Skill.getManaCost(45) < me.mp) {
+					timedSkill = 45;	// Ice Blast
+				} else {
+					timedSkill = 39;	// Ice Bolt
+				}
+			} else if (SetUp.currentBuild === "Leveling") {
+				if (Attack.checkResist(unit, "fire") && Skill.getManaCost(36) < me.mp) {
+					timedSkill = 36;	// Fire Bolt
+				} else {
+					timedSkill = 39;	// Ice Bolt
+				}
+			}
+
+			if (Skill.getManaCost(timedSkill) > me.mp && Attack.getMobCountAtPosition(me.x, me.y, 6) >= 2) {
+				timedSkill = 0;	// I have no mana and there are mobs around me, just attack
+			}
+		}
+
 		switch (ClassAttack.doCast(unit, timedSkill, untimedSkill)) {
 		case 0: // Fail
 			break;
