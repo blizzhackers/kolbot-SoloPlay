@@ -234,12 +234,12 @@ var nipItems = {
 		"[name] == tomeoftownportal",
 		"[name] == tomeofidentify",
 		"[name] == gold # [gold] >= me.charlvl * 3 * me.diff",
-		"me.charlvl < 20 && [name] == minorhealingpotion",
-		"me.charlvl < 25 && [name] == lighthealingpotion",
-		"me.charlvl < 29 && [name] == healingpotion",
+		"(me.charlvl < 20 || me.gold < 500) && [name] == minorhealingpotion",
+		"(me.charlvl < 25 || me.gold < 2000) && [name] == lighthealingpotion",
+		"(me.charlvl < 29 || me.gold < 5000) && [name] == healingpotion",
 		"[name] == greaterhealingpotion",
 		"[name] == superhealingpotion",
-		"me.charlvl < 20 && [name] == minormanapotion",
+		"(me.charlvl < 20 || me.gold < 1000) && [name] == minormanapotion",
 		"[name] == lightmanapotion",
 		"[name] == manapotion",
 		"[name] == greatermanapotion",
@@ -985,6 +985,16 @@ var Check = {
 				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
 				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
 				DataFile.updateStats("finalBuild", SetUp.finalBuild);
+			}
+
+			if (SetUp.finalBuild.includes(" ")) {
+				if (SetUp.finalBuild.indexOf(" ") === (SetUp.finalBuild.length - 1)) {	// Trailing space
+					SetUp.finalBuild = SetUp.finalBuild.split(" ")[0];
+					SetUp.finalBuild = SetUp.finalBuild[0].toUpperCase() + SetUp.finalBuild.substring(1).toLowerCase();
+					D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+					D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
+					DataFile.updateStats("finalBuild", SetUp.finalBuild);
+				}
 			}
 
 			let buildType = SetUp.finalBuild;
