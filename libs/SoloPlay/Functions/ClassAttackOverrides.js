@@ -534,7 +534,7 @@ case 1: // Sorceress
 		}
 
 		if (me.normal && (gold < 5000 || Skill.getManaCost(timedSkill) * 1.5 > me.mp)) {
-			if (SetUp.currentBuild === "Start") {
+			if (SetUp.currentBuild === "Start" && (me.getSkill(38, 1) && me.getSkill(45, 1) && (me.getSkill(39, 1)))) {
 				if (Attack.getMobCountAtPosition(me.x, me.y, 6) >= 2 && Skill.getManaCost(38) < me.mp) {
 					timedSkill = 38;	// Charged Bolt
 				} else if (Attack.getMobCountAtPosition(unit.x, unit.y, 6) >= 2 && Skill.getManaCost(45) < me.mp) {
@@ -542,7 +542,7 @@ case 1: // Sorceress
 				} else {
 					timedSkill = 39;	// Ice Bolt
 				}
-			} else if (SetUp.currentBuild === "Leveling") {
+			} else if (SetUp.currentBuild === "Leveling" && (me.getSkill(36, 1) && me.getSkill(39, 1))) {
 				if (Attack.checkResist(unit, "fire") && Skill.getManaCost(36) < me.mp) {
 					timedSkill = 36;	// Fire Bolt
 				} else {
