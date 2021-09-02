@@ -1212,7 +1212,7 @@ Attack.getNearestMonster = function (skipBlocked = false) {
 			if (monster.hp > 0 && Attack.checkMonster(monster) && !monster.getParent()) {
 				distance = getDistance(me, monster);
 
-				if (distance < range && (!skipBlocked || (!checkCollision(me, monster, 0x4) && !checkCollision(me, monster, 0x1)))) {
+				if (distance < range && (!skipBlocked || (!checkCollision(me, monster, 0x4) || !checkCollision(me, monster, 0x1)))) {
 					range = distance;
 					gid = monster.gid;
 				}
