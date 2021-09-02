@@ -9,7 +9,7 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 | Level | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
 |:------:|:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
 | 1-70 | 22h | 17h | 24h | 23h | 38h | 19h | 22h |
-| 1-80 |  | 26h |  | 32h | 82h | 34h |  |
+| 1-80 |  | 26h | 35h | 32h | 82h | 34h |  |
 | 1-90 |  |  |  |  |  |  |  |
 
 **NOTE:** This script is designed to be only run from [https://github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot). Most errors occur from using the wrong Kolbot repo installation. 
