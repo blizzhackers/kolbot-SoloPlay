@@ -142,6 +142,8 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 - If you have any questions please join me on my discord
 https://discord.gg/5pjTC2zH6N
 
+![image](https://user-images.githubusercontent.com/60308670/131765716-16be931a-3499-4508-9c4f-f280d2e5d68f.png)
+
 ## Brief History
 SoloLeveling was created by isid0re, he wanted the ability to level a smiter easily somthing that Sonic, AutoPlay, and AutoSorc weren't able to do. He started off SoloLeveling by modding Questing.js, then started having to add new functions for pathing, ntip, ect. Almost from the beginning, Isid0re and I were bouncing ideas off each other. At that time I was working on a separate project, but we discussed ideas that helped both of our projects. I officially joined in around 4 months or so after the Github repo went public and was actively involved in the project until 6/30/2021. I contributed updates including but not limited to: item based respec, the overlay, logging equipped items, showing tier values on items, bug fixes, sorting, D2BotSoloCleaner, performance tracking, ect. Due to some personal conflicts between isid0re and myself, I decided to create GuysSoloLeveling to have all of my ideas in one place. On 6/30/2021 I created this repo and on 7/13/2021 I made it public. On 9/1/2021, I changed the name to Kolbot-SoloPlay after some major changes in structure.
 
