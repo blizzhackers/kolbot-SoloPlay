@@ -584,7 +584,9 @@ Town.shopItems = function () {
 
 	var i, item, result,
 		items = [],
-		npc = getInteractedNPC();
+		npc = getInteractedNPC(),
+		myGold,
+		goldLimit = [5000, 10000, 25000][me.diff];
 
 	if (!npc || !npc.itemcount) {
 		return false;
@@ -610,11 +612,12 @@ Town.shopItems = function () {
 
 	for (i = 0; i < items.length; i += 1) {
 		result = Pickit.checkItem(items[i]);
+		myGold = me.getStat(14) + me.getStat(15);
 
 		// no tier'ed items
 		if (result.result === 1 && NTIP.CheckItem(items[i], NTIP_CheckListNoTier, true).result !== 0) {
 			try {
-				if (Storage.Inventory.CanFit(items[i]) && me.getStat(14) + me.getStat(15) >= items[i].getItemCost(0)) {
+				if (Storage.Inventory.CanFit(items[i]) && myGold >= items[i].getItemCost(0) && (myGold - items[i].getItemCost(0) > goldLimit)) {
 					if ([2, 3].indexOf(items[i].quality) > -1 && Town.baseItemTypes.indexOf(items[i].itemType) > -1) {
 						if (!this.worseBaseThanStashed(items[i]) && this.betterBaseThanWearing(items[i], Developer.Debugging.junkCheckVerbose)) {
 							Misc.itemLogger("Shopped", items[i]);
@@ -625,11 +628,15 @@ Town.shopItems = function () {
 
 							print("ÿc8Kolbot-SoloPlayÿc0: Bought better base");
 							items[i].buy();
+
+							continue;
 						}
 					} else {
 						Misc.itemLogger("Shopped", items[i]);
 						Misc.logItem("Shopped", items[i], result.line);
 						items[i].buy();
+
+						continue;
 					}
 				}
 			} catch (e) {
@@ -640,7 +647,7 @@ Town.shopItems = function () {
 		// tier'ed items
 		if (result.result === 1 && (Item.autoEquipCheck(items[i]) || Item.autoEquipCheckMerc(items[i]) || Item.autoEquipCheckSecondary(items[i]))) {
 			try {
-				if (Storage.Inventory.CanFit(items[i]) && me.getStat(14) + me.getStat(15) >= items[i].getItemCost(0)) {
+				if (Storage.Inventory.CanFit(items[i]) && myGold >= items[i].getItemCost(0) && (myGold - items[i].getItemCost(0) > goldLimit)) {
 					if (Item.hasTier(items[i]) &&
 					Item.getBodyLoc(items[i])[0] !== undefined &&
 					Item.canEquip(items[i]) &&
@@ -657,6 +664,8 @@ Town.shopItems = function () {
 						}
 
 						items[i].buy();
+
+						continue;
 					}
 
 					if (Item.hasMercTier(items[i]) &&
@@ -670,6 +679,8 @@ Town.shopItems = function () {
 						}
 
 						items[i].buy();
+
+						continue;
 					}
 
 					if (Item.hasSecondaryTier(items[i]) &&
@@ -688,6 +699,8 @@ Town.shopItems = function () {
 						}
 
 						items[i].buy();
+
+						continue;
 					}
 				}
 			} catch (e) {

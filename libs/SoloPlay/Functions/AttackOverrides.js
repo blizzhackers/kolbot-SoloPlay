@@ -299,6 +299,7 @@ Attack.getMobCountAtPosition = function (x, y, range, filter = false, debug = tr
 
 	list = this.buildMonsterList(true);
 	list.sort(Sort.units);
+	debug = Developer.Debugging.pathing;
 
 	if (filter) {
 		list = list.filter(mob => mob.spectype === 0);
@@ -1381,7 +1382,7 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 						break;
 					}
 
-					if (caster) {
+					if (Developer.Debugging.pathing) {
 						print("Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + Attack.getMobCountAtPosition(coords[i].x, coords[i].y, 5));
 					}
 

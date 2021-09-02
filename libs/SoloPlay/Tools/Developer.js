@@ -12,7 +12,7 @@ const Developer = {
 	logEquipped: false,	//enables equipped items viewable from D2Bot# charviewer tab
 	forcePacketCasting: { //enables forced packet casting for skill.cast
 		enabled: true,
-		excludeProfiles: ["scl-nec1", "scl-nec-002"],
+		excludeProfiles: [""],
 	},
 	hideChickens: true, // disable printing chicken info in D2Bot console
 	addLadderRW: true, // set to true to enable single player ladder runewords ONLY WORKS IF RUNEWORDS.TXT IS INSTALLED AND D2BS PROFILE IS CONFIGURED
@@ -26,11 +26,12 @@ const Developer = {
 		grandCharmVerbose: false,
 		junkCheckVerbose: false,
 		autoEquip: false,
+		pathing: false,
 	},
 
 	developerMode: {
-		enabled: true,
-		profiles: ["scl-sorc-004", "scl-pal-003", "scl-nec-003"],		// Enter in the profiles that you wish to start in developermode, i.e "scl-sorc"
+		enabled: false,
+		profiles: [""],		// Enter in the profiles that you wish to start in developermode, i.e "scl-sorc"
 	},
 
 	/*  Developer tools */
