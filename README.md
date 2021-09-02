@@ -1,7 +1,7 @@
-![image](https://user-images.githubusercontent.com/60308670/124204971-36979300-daae-11eb-84e1-5c424dc36578.png)
+![extract into](https://i.imgur.com/TcRmoRm.png)
 
 ## What is this?
-GuysSoloLeveling is an hands-off autoplay script to take any charcter diablo 2 character class from 1-99 using Kolbot. It will level towards an end-game build that you choose. My verison includes new builds, bug fixes, feature updates, and more. See ```Brief History``` for more info. 
+Kolbot-SoloPlay is an hands-off autoplay script to take any charcter diablo 2 character class from 1-99 using Kolbot. It will level towards an end-game build that you choose. See ```Brief History``` for more info. 
 
 If you are enjoying my version consider supporting me at https://www.buymeacoffee.com/theBGuy
 
@@ -35,12 +35,12 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 
 ## New modes
 - Two new modes are available: **Bumper** and **Socketmule**. Enter either of these into your D2Bot# profile info tag to make. The bot will then stop after shenk quest for Socketmule and after it hits level 40 for a Bumper.
-- Note: These options only work in expansion.
+- **Note: These options only work in expansion.**
 
 | Mode | Example |
 |:------:|:-------:|
-| Bumper | ![image](https://user-images.githubusercontent.com/60308670/126102739-d7d90796-a5db-4476-bd2f-61d3121a974d.png) |
-| Socketmule | ![image](https://user-images.githubusercontent.com/60308670/126102898-5c4422b7-a2a8-49d9-b366-df773d3a96ed.png) |
+| Bumper | ![image](https://user-images.githubusercontent.com/60308670/131758626-46b8e886-726d-4751-bc33-aa750e2c5b0e.png) |
+| Socketmule | ![image](https://user-images.githubusercontent.com/60308670/131758691-5fce3c06-05a0-4058-8abb-8d81d6d538a9.png) |
 
 ## Frequently Asked Questions
 **Q: Why isn't the bot making the build I selected?**
@@ -70,21 +70,21 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 ## Really Dumb Frequently Asked Questions
 **Q: Can I make my solo bots work together?**
 
-**A:** NO. It is SOLO not team, not group, but SoloLeveling
+**A:** NO. It is SOLO not team, not group, but SoloPlay
 
 ## Install Guide
 | Step | Instructions | |
 |:------:|:-------|-------:|
 | 1.| Download Kolbot here: [github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot). |![blizzhackers github](https://i.imgur.com/RksqKEA.jpg) |
-| 2.| Click the green button to Download SoloLeveling. |![enter image description here](https://i.imgur.com/cNqZDbW.jpg) |
-| 3.a| Copy and paste the following: `default.dbj`, `D2BotSoloLevelingEntry.dbj`, `D2BotSoloCleaner.dbj`, and the entire `\libs` folder into `\d2bs\kolbot`.| |
-|3.b|A successful installation will show 2 new files in the folder and look similar to the second image|![extract into](https://i.imgur.com/5OxVVNH.jpg)| 4.| Select Add for new a Kolbot Profile. | ![Add-profile.jpg](https://imgur.com/tHs9ZoH.jpg)|
-| 4.a| Select and Input a profile name. See the **Possible Profile Name Choices** below for a list of available options. | ![set profile name](https://imgur.com/B865nPU.jpg) |
+| 2.| Click the green button to Download SoloPlay. |![enter image description here](https://i.imgur.com/cNqZDbW.jpg) |
+| 3.a| Copy and paste the following: `default.dbj`, `D2BotSoloPlay.dbj`, `D2BotSoloCleaner.dbj`, and the entire `\libs` folder into `\d2bs\kolbot`.| |
+|3.b|A successful installation will show 2 new files in the folder and look similar to the second image|![image](https://user-images.githubusercontent.com/60308670/131760184-ba777302-908e-4247-b9b7-1c9331028b2c.png)| 4.| Select Add for new a Kolbot Profile. | ![Add-profile.jpg](https://imgur.com/tHs9ZoH.jpg)|
+| 4.a| Select and Input a profile name. See the **Possible Profile Name Choices** below for a list of available options. | ![extract into](https://i.imgur.com/2YcGKVH.png) |
 | 4.b| ***Optional*** Input your account name. If no name than a random account is created. | |
 | 4.c|***Optional*** Input your account password. If no name than a random password is created. | |
-| 4.d|***Optional*** Input your character name. If no name than a random name is created. | ![enter character name](https://i.imgur.com/Casmjbc.jpg) |
-|5.| Select Entry Script `D2BotSoloLevelingEntry.dbj`.| ![Select Entry Script](https://imgur.com/tZnH7kU.jpg)|
-|6.| Input your Info Tag Information. See **Available Characters and Builds** or **New modes** for a a list of options. <br><br> Make sure the spelling matches the listed builds and there are no trailing spaces. | ![enter image description here](https://i.imgur.com/gmUQvbw.jpg)|
+| 4.d|***Optional*** Input your character name. If no name than a random name is created. | ![enter character name](https://i.imgur.com/0jxaS8j.png) |
+|5.| Select Entry Script `D2BotSoloLPlay.dbj`.| ![Select Entry Script](https://i.imgur.com/f0vTLqC.png)|
+|6.| Input your Info Tag Information. See **Available Characters and Builds** or **New modes** for a a list of options. <br><br> Make sure the spelling matches the listed builds and there are no trailing spaces. | ![enter image description here](https://i.imgur.com/zVzOBQ7.png)|
 |7.|Ensure your Game Path, Key List, Realm, Mode are all set on the settings you want to use then click Apply.||
 |8.|Run the Bot.||
 |9.|Enjoy!||
@@ -122,7 +122,7 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 - **HCCNL-SORC** would make a hardcore classic nonladder sorceress
 
 ## Extras
-- Navigate to libs\SoloLeveling\Tools\Developer.js for extra options
+- Navigate to libs\SoloPlay\Tools\Developer.js for extra options
 - Developer.js includes options such as:
   - logging equipped items
   - Turning on/off the overlay
@@ -132,8 +132,8 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 ## D2BotSoloCleaner
 - The purpose of this entryscript is to delete old characters and optional related files.
 - Extra Features
-   - DataCleaner to delete old files associated with running SoloLeveling 
-   - SaveFiles to save important files to SoloLeveling/Data/ for performance review
+   - DataCleaner to delete old files associated with running SoloPlay 
+   - SaveFiles to save important files to SoloPlay/Data/ for performance review
    - single player option
    - **Note:** DataCleaner and SaveFiles can both be used for cleaning/saving files without having to delete associated characters
 
@@ -143,13 +143,10 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 https://discord.gg/5pjTC2zH6N
 
 ## Brief History
-SoloLeveling was created by isid0re, he wanted the ability to level a smiter easily somthing that Sonic, AutoPlay, and AutoSorc weren't able to do. He started off SoloLeveling by modding Questing.js, then started having to add new functions for pathing, ntip, ect. Almost from the beginning, Isid0re and I were bouncing ideas off each other. At that time I was working on a separate project, but we discussed ideas that helped both of our projects. I officially joined in around 4 months or so after the Github repo went public and was actively involved in the project until 6/30/2021. I contributed updates including but not limited to: item based respec, the overlay, logging equipped items, showing tier values on items, bug fixes, sorting, D2BotSoloCleaner, performance tracking, ect. Due to some personal conflicts between isid0re and myself, I decided to create GuysSoloLeveling to have all of my ideas in one place. On 6/30/2021 I created this repo and on 7/13/2021 I made it public.
+SoloLeveling was created by isid0re, he wanted the ability to level a smiter easily somthing that Sonic, AutoPlay, and AutoSorc weren't able to do. He started off SoloLeveling by modding Questing.js, then started having to add new functions for pathing, ntip, ect. Almost from the beginning, Isid0re and I were bouncing ideas off each other. At that time I was working on a separate project, but we discussed ideas that helped both of our projects. I officially joined in around 4 months or so after the Github repo went public and was actively involved in the project until 6/30/2021. I contributed updates including but not limited to: item based respec, the overlay, logging equipped items, showing tier values on items, bug fixes, sorting, D2BotSoloCleaner, performance tracking, ect. Due to some personal conflicts between isid0re and myself, I decided to create GuysSoloLeveling to have all of my ideas in one place. On 6/30/2021 I created this repo and on 7/13/2021 I made it public. On 9/1/2021, I changed the name to Kolbot-SoloPlay after some major changes in structure.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
 [GPL-3.0](https://choosealicense.com/licenses/gpl-3.0/)
-
-## Banner Image 
-The banner for SoloLeveling was graciously provided by [Patricia Dias].
