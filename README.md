@@ -83,7 +83,7 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 | 4.b| ***Optional*** Input your account name. If no name than a random account is created. | |
 | 4.c|***Optional*** Input your account password. If no name than a random password is created. | |
 | 4.d|***Optional*** Input your character name. If no name than a random name is created. | ![enter character name](https://i.imgur.com/0jxaS8j.png) |
-|5.| Select Entry Script `D2BotSoloLPlay.dbj`.| ![Select Entry Script](https://i.imgur.com/f0vTLqC.png)|
+|5.| Select Entry Script `D2BotSoloPlay.dbj`.| ![Select Entry Script](https://i.imgur.com/f0vTLqC.png)|
 |6.| Input your Info Tag Information. See **Available Characters and Builds** or **New modes** for a a list of options. <br><br> Make sure the spelling matches the listed builds and there are no trailing spaces. | ![enter image description here](https://i.imgur.com/zVzOBQ7.png)|
 |7.|Ensure your Game Path, Key List, Realm, Mode are all set on the settings you want to use then click Apply.||
 |8.|Run the Bot.||
