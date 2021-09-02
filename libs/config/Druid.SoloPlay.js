@@ -485,8 +485,31 @@ function LoadConfig () {
 		}
 
 		if (!wep.isRuneword && [4, 6].indexOf(wep.quality) > -1 && wep.sockets > 0 && !wep.socketed) {
-			if (Item.getQuantityOwned(me.getItem(566) < 2)) {
-				Config.Recipes.push([Recipe.Gem, "Flawless Topaz"]);
+			switch (wep.sockets) {
+			case 1:
+				if (me.normal) {
+					NTIP.addLine("[name] == TirRune # # [MaxQuantity] == 1");	// Mana after kill
+				} else {
+					NTIP.addLine("[name] == IoRune # # [MaxQuantity] == 1");	// 10 to vitality
+				}
+
+				break;
+			case 2:
+				if (me.normal) {
+					NTIP.addLine("[name] == TirRune # # [MaxQuantity] == 2");	// Mana after kill
+				} else {
+					NTIP.addLine("[name] == IoRune # # [MaxQuantity] == 2");	// 10 to vitality
+				}
+
+				break;
+			case 3:
+				if (me.normal) {
+					NTIP.addLine("[name] == TirRune # # [MaxQuantity] == 3");	// Mana after kill
+				} else {
+					NTIP.addLine("[name] == IoRune # # [MaxQuantity] == 3");	// 10 to vitality
+				}
+
+				break;
 			}
 		}
 

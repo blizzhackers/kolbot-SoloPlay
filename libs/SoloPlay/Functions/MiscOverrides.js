@@ -1104,7 +1104,7 @@ Misc.gamePacket = function (bytes) {// various game events
 
 		break;	
 	case 0xa4: //baalwave
-		if ((me.hell && me.paladin && !Attack.IsAuradin) || me.barbarian) {
+		if ((me.hell && me.paladin && !Attack.IsAuradin) || me.barbarian || me.gold < 5000) {
 			waveMonster = ((bytes[1]) | (bytes[2] << 8));
 			wave = [62, 105, 557, 558, 571].indexOf(waveMonster);
 
@@ -1121,7 +1121,7 @@ Misc.gamePacket = function (bytes) {// various game events
 			case 3:
 				break;
 			case 4: 	// Lister
-				if (me.barbarian && (me.charlvl < SetUp.levelCap || !me.baal || me.playertype)) {
+				if ((me.barbarian && (me.charlvl < SetUp.levelCap || !me.baal || me.playertype)) || (me.charlvl < SetUp.levelCap && me.gold < 5000)) {
 					skip();
 				}
 
@@ -1941,27 +1941,23 @@ Misc.addSocketables = function () {
 							}
 						}
 					} else {
-						if ([562, 563, 564, 565, 566].indexOf(items[i].classid) > -1) {		// Topaz
-							if (highestGemAvailable(items[i], multiple)) {
-								if (item.getStat(194) > 1) {
-									if (multiple.length < item.getStat(194)) {
-										multiple.push(items[i]);
-										
-										if (multiple.length === item.getStat(194)) {
-											ready = true;
-											break;
-										}
-										
-										continue;
-									} else {
+						if ((items[i].classid === 612 && me.normal) || (items[i].classid === 625 && !me.normal)) {		// Tir rune in normal, Io rune otherwise
+							if (item.getStat(194) > 1) {
+								if (multiple.length < item.getStat(194)) {
+									multiple.push(items[i]);
+									
+									if (multiple.length === item.getStat(194)) {
 										ready = true;
 										break;
-									}	
+									}
+									
+									continue;
 								} else {
-									socketable = items[i];
+									ready = true;
 									break;
-								}
-
+								}	
+							} else {
+								socketable = items[i];
 								break;
 							}
 						}
