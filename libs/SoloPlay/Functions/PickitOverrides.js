@@ -306,12 +306,12 @@ MainLoop:
 				if (Attack.getMobCountAtPosition(item.x, item.y, 8) !== 0) {
 					print("Clearing area around item I want to pick");
 					Pickit.enabled = false;		// Don't pick while trying to clear
-					Attack.clearPos(item.x, item.y, 8, false);
+					Attack.clearPos(item.x, item.y, 10, false);
 					Pickit.enabled = true;		// Reset value
 
-					retry = true;
+					//retry = true;
 
-					break MainLoop;
+					//break MainLoop;
 				}
 
 				if (Pather.useTeleport()) {
