@@ -19,7 +19,7 @@ var Overlay = {
 	questX: 12,
 	questY: 302,
 	dashboardX: 410,
-	dashboardY: 480,
+	dashboardY: 470,
 	timerX: 700,
 	timerY: 75,
 	text: {
@@ -106,14 +106,14 @@ var Overlay = {
 			case "dashboard":
 				this.hooks.push({
 					name: "dashboard",
-					hook: new Box(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 370, 65, 0x0, 1, 2)
+					hook: new Box(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 370, 80, 0x0, 1, 2)
 				});
 
 				break;
 			case "dashboardframe":
 				this.hooks.push({
 					name: "dashboardframe",
-					hook: new Frame(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 370, 65, 2)
+					hook: new Frame(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 370, 80, 2)
 				});
 
 				break;
@@ -135,7 +135,7 @@ var Overlay = {
 			case "times":
 				this.hooks.push({
 					name: "times",
-					hook: new Text("Total: ÿc0" + this.clock("Total") + "ÿc4 InGame: ÿc0" + this.clock("InGame") + "ÿc4 OOG: ÿc0" + this.clock("OOG"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 60, 4, 13, 2)
+					hook: new Text("Total: ÿc0" + this.clock("Total") + "ÿc4 InGame: ÿc0" + this.clock("InGame") + "ÿc4 OOG: ÿc0" + this.clock("OOG"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 75, 4, 13, 2)
 				});
 
 				break;
@@ -186,28 +186,29 @@ var Overlay = {
 		hooks: [],
 		enabled: true,
 
-		getRes: function (resistance) {
+		getRes: function () {
 			var penalty = [[0, 20, 50], [0, 40, 100]][me.gametype][me.diff];
 
 			// Double check in case still got here before being ready
 			if (!me.gameReady || !me.ingame || !me.area) {
-				return -1;
+				return "";
 			}
 
-			switch (resistance) {
-			case "fire":
-				return me.getStat(39) - penalty;
-			case "cold":
-				return me.getStat(43) - penalty;
-			case "light":
-				return me.getStat(41) - penalty;
-			case "poison":
-				return me.getStat(45) - penalty;
-			default:
-				break;
+			let textLine = "FR: ÿc1" + (me.getStat(39) - penalty) + "ÿc4   CR: ÿc3" + (me.getStat(43) - penalty) + "ÿc4   LR: ÿc9" + (me.getStat(41) - penalty) + "ÿc4   PR: ÿc2" + (me.getStat(45) - penalty);
+
+			return textLine;
+		},
+
+		getStats: function () {
+			// Double check in case still got here before being ready
+			if (!me.gameReady || !me.ingame || !me.area) {
+				return "";
 			}
 
-			return -1;
+			let textLine = "MF: ÿc8" + me.getStat(80) + "ÿc4   FHR: ÿc8" + (me.getStat(99) - Config.FHR) + "ÿc4   FBR: ÿc8" + (me.getStat(102) - Config.FBR) + "ÿc4   FCR: ÿc8" + (me.getStat(105) - Config.FCR)
+				+ "ÿc4   IAS: ÿc8" + (me.getStat(93) - Config.IAS);
+
+			return textLine;
 		},
 
 		check: function () {
@@ -226,8 +227,14 @@ var Overlay = {
 			if (!this.getHook("resistances")) {
 				this.add("resistances");
 			} else {
-				this.getHook("resistances").hook.text = "FR: ÿc1" + this.getRes("fire") + "ÿc4   CR: ÿc3" + this.getRes("cold") + "ÿc4   LR: ÿc9" + this.getRes("light") + "ÿc4   PR: ÿc2" + this.getRes("poison");
-			}			
+				this.getHook("resistances").hook.text = this.getRes();
+			}
+
+			if (!this.getHook("stats")) {
+				this.add("stats");
+			} else {
+				this.getHook("stats").hook.text = this.getStats();
+			}		
 
 			switch (me.act) {
 			case 1:
@@ -470,7 +477,15 @@ var Overlay = {
 				this.hooks.push({
 					name: "resistances",
 					hook: new Text(
-						"FR: ÿc1" + this.getRes("fire") + "ÿc4   CR: ÿc3" + this.getRes("cold") + "ÿc4   LR: ÿc9" + this.getRes("light") + "ÿc4   PR: ÿc2" + this.getRes("poison"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 45, 4, 13, 2)
+						this.getRes(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 45, 4, 13, 2)
+				});
+
+				break;
+			case "stats":
+				this.hooks.push({
+					name: "stats",
+					hook: new Text(
+						this.getStats(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 60, 4, 13, 2)
 				});
 
 				break;
