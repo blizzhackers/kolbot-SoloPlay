@@ -37,6 +37,15 @@ function andariel () {
 	}
 
 	Precast.doPrecast(true);
+	
+	if (questBug) {
+		Config.PickRange = -1;
+
+		if (me.barbarian) {
+			Config.FindItem = false;
+		}
+	}
+
 	Pather.moveTo(22572, 9635);
 	Pather.moveTo(22554, 9618);
 	Pather.moveTo(22542, 9600);
@@ -44,14 +53,6 @@ function andariel () {
 	Pather.moveTo(22554, 9566);
 	Pather.moveTo(22546, 9554);
 	Config.MercWatch = false;
-
-	if (questBug) {
-		Config.PickRange = 0;
-
-		if (me.barbarian) {
-			Config.FindItem = false;
-		}
-	}
 
 	Attack.killTarget("Andariel");
 
