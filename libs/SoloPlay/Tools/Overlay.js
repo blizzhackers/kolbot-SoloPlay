@@ -24,12 +24,12 @@ var Overlay = {
 	timerY: 75,
 	text: {
 		hooks: [],
+		GameTracker: Developer.readObj(Tracker.GTPath),
 		enabled: true,
 
 		clock: function (name) {
-			var GameTracker = Developer.readObj(Tracker.GTPath),
-				PrettyTotal = Developer.formatTime(GameTracker.Total + Developer.Timer(GameTracker.LastSave)),
-				PrettyIG = Developer.formatTime(GameTracker.InGame + Developer.Timer(GameTracker.LastSave));
+			var PrettyTotal = Developer.formatTime(this.GameTracker.Total + Developer.Timer(this.GameTracker.LastSave)),
+				PrettyIG = Developer.formatTime(this.GameTracker.InGame + Developer.Timer(this.GameTracker.LastSave));
 
 			switch (name) {
 			case "Total":
@@ -37,12 +37,14 @@ var Overlay = {
 			case "InGame":
 				return PrettyIG;
 			case "OOG":
-				return Developer.formatTime(GameTracker.OOG);
-			case "InGameTimer":
-				return " (" + new Date(getTickCount() - me.gamestarttime).toISOString().slice(11, -5) + ")";
+				return Developer.formatTime(this.GameTracker.OOG);
 			}
 
 			return true;
+		},
+
+		timer: function () {
+			return " (" + new Date(getTickCount() - me.gamestarttime).toISOString().slice(11, -5) + ")";
 		},
 
 		check: function () {
@@ -55,6 +57,10 @@ var Overlay = {
 			// Double check in case still got here before being ready
 			if (!me.gameReady && !me.ingame && !me.area) {
 				return;
+			}
+
+			if (this.GameTracker === undefined) {
+				this.GameTracker = Developer.readObj(Tracker.GTPath);
 			}
 
 			if (!this.getHook("dashboard")) {
@@ -89,7 +95,7 @@ var Overlay = {
 				if (!this.getHook("InGameTimer")) {
 					this.add("InGameTimer");
 				} else {
-					this.getHook("InGameTimer").hook.text = "In Game Timer: ÿc0" + this.clock("InGameTimer");
+					this.getHook("InGameTimer").hook.text = "In Game Timer: ÿc0" + this.timer();
 				}
 			}
 
@@ -156,7 +162,7 @@ var Overlay = {
 			case "InGameTimer":
 				this.hooks.push({
 					name: "InGameTimer",
-					hook: new Text("In Game Timer: ÿc0" + this.clock("InGameTimer"), Overlay.timerX + Overlay.resfixX + 1, Overlay.timerY + Overlay.resfixY + 20 + 8 * (Number(!!me.diff) + Number(!!me.gamepassword) + Number(!!me.gametype) + Number(!!me.gamename)), 4, 13, 2)
+					hook: new Text("In Game Timer: ÿc0" + this.timer(), Overlay.timerX + Overlay.resfixX + 1, Overlay.timerY + Overlay.resfixY + 20 + 8 * (Number(!!me.diff) + Number(!!me.gamepassword) + Number(!!me.gametype) + Number(!!me.gamename)), 4, 13, 2)
 				});
 
 				break;
