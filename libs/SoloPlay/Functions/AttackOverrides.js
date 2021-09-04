@@ -1,12 +1,14 @@
 /*
 *	@filename	AttackOverrides.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy. isid0re
 *	@desc		Attack.js fixes to improve functionality
 */
 
 if (!isIncluded("common/Attack.js")) {
 	include("common/Attack.js");
 }
+
+var Coords_1 = require("../Modules/Coords");
 
 Attack.killTarget = function (name) {
 	var target,	attackCount = 0;
@@ -55,6 +57,8 @@ Attack.killTarget = function (name) {
 				break;
 			}
 		}
+
+		me.overhead("KillTarget: " + target.name + " health " + ((target.hp / target.hpmax) * 100) + " % left");
 
 		if (Config.Dodge && me.hp * 100 / me.hpmax <= Config.DodgeHP) {
 			this.deploy(target, Config.DodgeRange, 5, 9);
@@ -1091,8 +1095,6 @@ Attack.pwnDia = function () {
 		return false;
 	}
 
-	var Coords_1 = require("../Modules/Coords");
-
 	var calculateSpots = function (center, skillRange) {
 	var coords = [];
 	for (var i = 0; i < 360; i++) {
@@ -1397,6 +1399,28 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 	}
 
 	return false;
+};
+
+Attack.castableSpot = function (x, y) {
+	var result;
+
+	if (!me.area || !x || !y) { // Just in case
+		return false;
+	}
+
+	try { // Treat thrown errors as invalid spot
+		result = getCollision(me.area, x, y);
+	} catch (e) {
+		return false;
+	}
+
+	// Avoid non-walkable spots, objects
+	if (result === undefined || !!(result & Coords_1.BlockBits.Casting) || (result & 0x400) || (result & 0x1)) {
+		me.overhead("Cant cast here");
+		return false;
+	}
+
+	return true;
 };
 
 Attack.test2 = function (unit, distance, spread, range) {

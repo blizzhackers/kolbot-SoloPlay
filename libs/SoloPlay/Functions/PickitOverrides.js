@@ -304,7 +304,7 @@ MainLoop:
 		} else {
 			if (getDistance(me, item) > (i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
 				if (Attack.getMobCountAtPosition(item.x, item.y, 8) !== 0) {
-					print("Clearing area around item I want to pick");
+					print("ÿc8PickItemÿc0 :: Clearing area around item I want to pick");
 					Pickit.enabled = false;		// Don't pick while trying to clear
 					Attack.clearPos(item.x, item.y, 10, false);
 					Pickit.enabled = true;		// Reset value

@@ -457,7 +457,7 @@ Precast.summon = function (skillId) {
 			}
 		}
 
-		if (coord) {
+		if (coord && Attack.castableSpot(coord.x, coord.y)) {
 			Skill.cast(skillId, 0, coord.x, coord.y);
 		} else {
 			Skill.cast(skillId, 0, me.x, me.y);
@@ -479,7 +479,11 @@ Precast.summon = function (skillId) {
 				Skill.cast(skillId, 0, me.x, me.y);
 			} else {
 				coord = CollMap.getRandCoordinate(me.x, -6, 6, me.y, -6, 6);	//Keeps bots from getting stuck trying to summon
-				Pather.moveTo(coord.x, coord.y);
+
+				if (coord && Attack.validSpot(coord.x, coord.y)) {
+					Pather.moveTo(coord.x, coord.y);
+					Skill.cast(skillId, 0, me.x, me.y);
+				}
 			}
 
 			retry = 0;

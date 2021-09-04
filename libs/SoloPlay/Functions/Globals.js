@@ -136,6 +136,7 @@ var SetUp = {
 			showConsole();
 			print("ÿc8Kolbot-SoloPlayÿc0: Bot has respecTwo items but is too low a level to respec.");
 			print("ÿc8Kolbot-SoloPlayÿc0: This only happens with user intervention. Remove the items you gave the bot until at least level 60");
+			respec = 100;
 		}
 
 		return respec;
@@ -658,7 +659,7 @@ var Check = {
 			if (lvlReq) {
 				if (!lowRes) {
 					diffShift = me.diff + 1;
-					D2Bot.printToConsole('Kolbot-SoloPlay: next difficulty requirements met. Starting: ' + Difficulty[diffShift]);
+					D2Bot.printToConsole('Kolbot-SoloPlay: next difficulty requirements met. Starting: ' + Difficulty[diffShift], 8);
 				} else {
 					if (me.charlvl >= SetUp.levelCap + 5) {
 						diffShift = me.diff + 1;
