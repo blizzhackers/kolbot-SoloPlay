@@ -28,7 +28,7 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
 |:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
 | Javazon | Cold | Poison | Hammerdin| Whirlwind | Wind |Trapsin|
-| Witchyzon | BlizzBaller |   Bone | Smiter| Immortalwhirl | Elemental |
+| Witchyzon | Blizzballer |   Bone | Smiter| Immortalwhirl | Elemental |
 | | Meteorb | Summon | Auradin | Frenzy | Plaguewolf |
 | | Blova | | Zealer | Uberconc | Wolf |
 | | Lightning | | | Singer |
