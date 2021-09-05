@@ -2364,6 +2364,10 @@ case 5: // Druid
 
 	break;
 case 6: // Assasin
+	if (!isIncluded("common/Attacks/Assassin.js")) {
+		include("common/Attacks/Assassin.js");
+	}
+
 	ClassAttack.farCast = function (unit) {
 		var i, walk, timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
 

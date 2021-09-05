@@ -1086,12 +1086,10 @@ Attack.spotOnDistance = function (spot, distance, area) {
 // Credit @Jaenster
 Attack.pwnDia = function () {
 	if (!me.sorceress && !me.necromancer && !me.assassin) {
-		print("Not a far caster");
 		return false;
 	}
 
 	if ((["Poison", "Summon"].indexOf(SetUp.currentBuild) > -1)) {
-		print("Not a far caster");
 		return false;
 	}
 
@@ -1164,7 +1162,7 @@ Attack.pwnDia = function () {
 
 			me.overhead("FarCasting: Diablo's health " + ((dia.hp / dia.hpmax) * 100) + " % left");
 
-			if (me.necromancer) {
+			if (me.necromancer || me.assassin) {
 				ClassAttack.farCast(dia);
 			} else {
 				Skill.cast(Config.AttackSkill[1], 0, dia);
