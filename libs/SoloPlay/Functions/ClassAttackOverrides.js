@@ -2388,8 +2388,8 @@ case 6: // Assasin
 		let checkTraps = this.checkTraps(unit);
 
 		if (checkTraps) {
-			if (Math.round(getDistance(me, unit)) > this.trapRange || checkCollision(me, unit, 0x4)) {
-				if (!Attack.getIntoPosition(unit, this.trapRange, 0x4) || (checkCollision(me, unit, 0x1) && (getCollision(unit.area, unit.x, unit.y) & 0x1))) {
+			if (Math.round(getDistance(me, unit)) > 30 || checkCollision(me, unit, 0x4)) {
+				if (!Attack.getIntoPosition(unit, 30, 0x4) || (checkCollision(me, unit, 0x1) && (getCollision(unit.area, unit.x, unit.y) & 0x1))) {
 					return 0;
 				}
 			}

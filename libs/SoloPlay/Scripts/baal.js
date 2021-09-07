@@ -317,7 +317,7 @@ function baal () {
     Pather.moveTo(15095, 5881);
     Pickit.pickItems();
 
-    removeEventListener("gamepacket", Misc.gamePacket);
+    removeEventListener("gamepacket", Events.gamePacket);
 
     return true;
 }

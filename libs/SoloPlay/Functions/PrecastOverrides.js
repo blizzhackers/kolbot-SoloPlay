@@ -448,9 +448,17 @@ Precast.summon = function (skillId) {
 		if (unit && [3, 15, 16].indexOf(minion) > -1 && getDistance(me, unit) < 20) {
 			try {
 				if (Skill.cast(skillId, 0, unit)) {
-					continue;
+					if (me.getMinionCount(minion) === count) {
+						continue;
+					} else {
+						retry++;
+					}
 				} else if (Skill.cast(skillId, 0, me.x, me.y)) {
-					continue;
+					if (me.getMinionCount(minion) === count) {
+						continue;
+					} else {
+						retry++;
+					}
 				}
 			} catch (e) {
 				print(e);
@@ -459,8 +467,20 @@ Precast.summon = function (skillId) {
 
 		if (coord && Attack.castableSpot(coord.x, coord.y)) {
 			Skill.cast(skillId, 0, coord.x, coord.y);
-		} else {
+
+			if (me.getMinionCount(minion) === count) {
+				continue;
+			} else {
+				retry++;
+			}
+		} else if (Attack.castableSpot(me.x, me.y)) {
 			Skill.cast(skillId, 0, me.x, me.y);
+
+			if (me.getMinionCount(minion) === count) {
+				continue;
+			} else {
+				retry++;
+			}
 		}
 
 		if (Skill.getManaCost(skillId) > me.mp) {		// May remove this

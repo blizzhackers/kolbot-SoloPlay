@@ -675,7 +675,6 @@ function main () {
 	addEventListener("keyup", this.keyEvent);
 	addEventListener("gameevent", this.gameEvent);
 	addEventListener("scriptmsg", this.scriptEvent);
-	addEventListener("gamepacket", Misc.gamePacket);
 	addEventListener("scriptmsg", Tracker.logLeveling);
 
 	// Load Fastmod

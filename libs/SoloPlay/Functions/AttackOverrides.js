@@ -1085,7 +1085,7 @@ Attack.spotOnDistance = function (spot, distance, area) {
 
 // Credit @Jaenster
 Attack.pwnDia = function () {
-	if (!me.sorceress && !me.necromancer && !me.assassin) {
+	if (!me.sorceress && !me.necromancer) {
 		return false;
 	}
 
@@ -1125,7 +1125,7 @@ Attack.pwnDia = function () {
 
 	let tick = getTickCount();
 	let lastPosition = { x: 7791, y: 5293 };
-	let maxRange = me.assassin ? 15 : me.necromancer ? 30 : 58;
+	let maxRange = me.necromancer ? 30 : 58;
 
 	do {
 		// give up in 10 minutes
@@ -1162,7 +1162,7 @@ Attack.pwnDia = function () {
 
 			me.overhead("FarCasting: Diablo's health " + ((dia.hp / dia.hpmax) * 100) + " % left");
 
-			if (me.necromancer || me.assassin) {
+			if (me.necromancer) {
 				ClassAttack.farCast(dia);
 			} else {
 				Skill.cast(Config.AttackSkill[1], 0, dia);

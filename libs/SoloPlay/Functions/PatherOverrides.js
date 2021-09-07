@@ -717,7 +717,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 											return true;
 										}
 
-										throw new Error("Pather.useWaypoint: Failed to go to waypoint");
+										throw new Error("Pather.useWaypoint: Failed to go to waypoint " + targetArea);
 									}
 								}
 
@@ -740,7 +740,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 								return true;
 							}
 
-							throw new Error("Pather.useWaypoint: Failed to go to waypoint");
+							throw new Error("Pather.useWaypoint: Failed to go to waypoint " + targetArea);
 						}
 
 						break;
@@ -804,7 +804,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 		return true;
 	}
 
-	throw new Error("useWaypoint: Failed to use waypoint");
+	throw new Error("useWaypoint: Failed to use waypoint to " + targetArea);
 };
 
 Pather.usePortal = function (targetArea, owner, unit) {
@@ -924,4 +924,34 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype) {
 	}
 
 	print("ÿc8Kolbot-SoloPlayÿc0: End clearToExit");
+};
+
+Pather.moveToPreset = function (area, unitType, unitId, offX, offY, clearPath, pop) {
+	if (area === undefined || unitType === undefined || unitId === undefined) {
+		throw new Error("moveToPreset: Invalid parameters.");
+	}
+
+	if (offX === undefined) {
+		offX = 0;
+	}
+
+	if (offY === undefined) {
+		offY = 0;
+	}
+
+	if (clearPath === undefined) {
+		clearPath = false;
+	}
+
+	if (pop === undefined) {
+		pop = false;
+	}
+
+	var presetUnit = getPresetUnit(area, unitType, unitId);
+
+	if (!presetUnit) {
+		throw new Error("moveToPreset: Couldn't find preset unit - id: " + unitId + " unitType: " + unitType + " in area: " + area);
+	}
+
+	return this.moveTo(presetUnit.roomx * 5 + presetUnit.x + offX, presetUnit.roomy * 5 + presetUnit.y + offY, 3, clearPath, pop);
 };
