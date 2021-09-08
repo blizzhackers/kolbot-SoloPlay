@@ -139,7 +139,7 @@ var Events = {
 		case 0x4c: // diablo lightning dodge
 			if (me.area === 108) {
 				if (bytes[6] === 193) {
-					if (!Pather.useTeleport() && (["Poison", "Summon"].indexOf(SetUp.currentBuild) > -1 || me.paladin || me.barbarian || me.druid || me.amazon)) {
+					if (!Pather.useTeleport() && (["Poison", "Summon"].indexOf(SetUp.currentBuild) > -1 || me.paladin || me.barbarian || me.druid || me.amazon || me.assassin)) {
 						scriptBroadcast('dodge');
 					}
 				}
