@@ -67,6 +67,10 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 
 **A:** The info for each character created is saved under logs/Kolbot-SoloPlay/realm/ , look for the name of the character whos info you're trying to find and open up the .json file. 
 
+**Q: HELP!!! The bot isn't casting any skills!**
+
+**A:** The bot uses packet casting for stability, which doesn't show the casting animations. It is actually casting the skills, if you would like to see the casting animations you will need to navigate to libs\SoloPlay\Tools\Developer.js and change forcePacketCasting.enabled to false.
+
 **Q: What is a Bumper?**
 
 **A:** A Bumper is a level 40 character that has not done baal quest in normal and is used to "bump" low level characters to hell difficulty where they can power level following chaos runs. 
