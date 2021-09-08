@@ -1,7 +1,7 @@
 ![extract into](https://i.imgur.com/TcRmoRm.png)
 
 ## What is this?
-Kolbot-SoloPlay is an hands-off autoplay script to take any diablo 2 character class from 1-99 using Kolbot. It will level towards an end-game build that you choose. See ```Brief History``` for more info. 
+Kolbot-SoloPlay is a hands-off autoplay script to take any diablo 2 character class from 1-99 using Kolbot. After easy set up it will play all the way through the game and level towards an end-game build that you choose. 
 
 If you are enjoying my version consider supporting me at https://www.buymeacoffee.com/theBGuy
 
@@ -16,7 +16,7 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 
 ## Features
 - Operates in Hell difficulty within 24 hours (the exception is the barbarian class that takes 48)
-- Includes character build options for final respec
+- Includes character build options for final respec (see **Frequently Asked Questions** for more info)
 - Plays and finishes the game through Act 5 Hell
 - Hires class/build specific mercenary
 - Fully configured Autoequip for bot and mercenary
@@ -49,7 +49,7 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 
 **Q: When will the bot change to the final build I selected?**
 
-**A:** In classic the bot will switch to the final build based on level. In expansion it transitions to the final build when final gear requirements are met.
+**A:** In classic the bot will switch to the final build based on a level requirement. In expansion it transition to the final build when final gear requirements are met.
 
 **Q: The bot has beaten diablo (classic) / baal, so why isn't moving on to the next difficulty?**
 
@@ -153,7 +153,7 @@ https://discord.gg/5pjTC2zH6N
 ![image](https://user-images.githubusercontent.com/60308670/131765716-16be931a-3499-4508-9c4f-f280d2e5d68f.png)
 
 ## Brief History
-SoloLeveling was created by isid0re, he wanted the ability to level a smiter easily somthing that Sonic, AutoPlay, and AutoSorc weren't able to do. He started off SoloLeveling by modding Questing.js, then started having to add new functions for pathing, ntip, ect. Almost from the beginning, Isid0re and I were bouncing ideas off each other. At that time I was working on a separate project, but we discussed ideas that helped both of our projects. I officially joined in around 4 months or so after the Github repo went public and was actively involved in the project until 6/30/2021. I contributed updates including but not limited to: item based respec, the overlay, logging equipped items, showing tier values on items, bug fixes, sorting, D2BotSoloCleaner, performance tracking, ect. Due to some personal conflicts between isid0re and myself, I decided to create GuysSoloLeveling to have all of my ideas in one place. On 6/30/2021 I created this repo and on 7/13/2021 I made it public. On 9/1/2021, I changed the name to Kolbot-SoloPlay after some major changes in structure.
+Kolbot-SoloPlay was built off the base of SoloLeveling by isid0re. Isid0re wanted the ability to level a smiter easily something that Sonic, AutoPlay, and AutoSorc weren't able to do. He started off SoloLeveling by modding Questing.js, then started having to add new functions for pathing, ntip, ect. Almost from the beginning, Isid0re and I were bouncing ideas off each other. At that time, I was working on a separate project. We discussed ideas that helped both of our projects. I officially joined in around 4 months or so after the Github repo went public and was actively involved in the project until 6/30/2021. I contributed updates including but not limited to: item based respec, the overlay, logging equipped items, showing tier values on items, many bug fixes, sorting, D2BotSoloCleaner, performance tracking, ect. Due to some personal conflicts between isid0re and myself, I decided to create GuysSoloLeveling to have all of my ideas in one place. On 6/30/2021 I created this repo and on 7/13/2021 I made it public. On 9/1/2021, I changed the name to Kolbot-SoloPlay after some major changes in structure.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
