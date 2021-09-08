@@ -329,7 +329,7 @@ var Check = {
 			break;
 		case "countess": //countess
 			if ((me.classic && !me.countess) || 
-				(!me.classic && (needRunes || Check.brokeAf() || (me.barbarian && Check.haveItem("sword", "runeword", "Lawbringer"))))) { // classic quest completed normal || have runes for difficulty
+				(!me.classic && (needRunes || Check.brokeAf() || (me.barbarian && me.hell && Check.haveItem("sword", "runeword", "Lawbringer"))))) { // classic quest not completed normal || don't have runes for difficulty || barb in hell and have lawbringer
 				return true;
 			}
 
@@ -770,6 +770,9 @@ var Check = {
 			case "wand":
 			case "assassinclaw":
 			case "weapon":
+			case "smallcharm":
+			case "mediumcharm":
+			case "largecharm":
 				typeCHECK = items[i].itemType === NTIPAliasType[type];
 				break;
 			default:
