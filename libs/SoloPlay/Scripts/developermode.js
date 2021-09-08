@@ -29,6 +29,10 @@ function developermode() {
 			done = true;
 
 			break;
+		case "testing":
+			scriptBroadcast('testing');
+
+			break;
 		}
 	};
 

@@ -30,7 +30,7 @@ function den () {
 	while (me.area === 8) {
 		Attack.clearLevel();
 
-		if (Misc.checkQuest(1, 0)) {
+		if (Misc.checkQuest(1, 13)) {
 			if (!me.getItem(518) || me.getItem(518).getStat(70) === 0) {
 				Pather.moveToExit([2, 3], true);
 				Pather.getWP(3);
