@@ -126,6 +126,49 @@ var Events = {
 		}
 	},
 
+	getProfiles: function () {
+		let profileInfo, realm = me.realm.toLowerCase(), profileList = [];
+		realm = "useast";	// testing purposes
+
+		if (!FileTools.exists("logs/Kolbot-SoloPlay/" + realm)) {
+			return profileList;
+		}
+
+		let files = dopen("logs/Kolbot-SoloPlay/" + realm + "/").getFiles();
+
+		for (let i = 0; i < files.length; i++) {
+			try {
+				profileInfo = Developer.readObj("logs/Kolbot-SoloPlay/" + realm + "/" + files[i]);
+				profileList.push(profileInfo.profile);
+
+			} catch (e) {
+				print(e);
+			}
+		}
+
+		return profileList;
+	},
+
+	sendToProfile: function (profile, message, mode=65) {
+		if (profile.toLowerCase() !== me.profile.toLowerCase()) {
+			sendCopyData(null, profile, mode, JSON.stringify(message));
+		}
+	},
+
+	sendToList: function (message, mode=55) {
+		let profiles = this.getProfiles();
+
+		if (!profiles || profiles === undefined) {
+			return false;
+		}
+
+		return profiles.forEach((profileName) => {
+			if (profileName.toLowerCase() !== me.profile.toLowerCase()) {
+				sendCopyData(null, profileName, mode, JSON.stringify(message));
+			}
+		});
+	},
+
 	gamePacket: function (bytes) {
 		let wave, waveMonster;
 
