@@ -1,12 +1,13 @@
 /**
 *	@filename	developermode.js
 *	@author		theBGuy
-*	@desc		developer mode made easy
+*	@desc		developer mode made easy, run scripts by typing .run scriptname and run functions by typeing .command function name. Example being .run andariel or .command Town.doChores()
 */
 
 function developermode() {
 	let done = false;
 	let action = false;
+	let command = false;
 	let runCommand = function (msg) {
 		if (msg.length <= 1) {
 			return;
@@ -31,6 +32,15 @@ function developermode() {
 			break;
 		case "testing":
 			scriptBroadcast('testing');
+
+			break;
+		case "command":
+			if (msgList.length < 2) {
+				print("ÿc1Missing arguments");
+				break;
+			}
+			
+			command = msgList[1];
 
 			break;
 		}
@@ -81,6 +91,17 @@ function developermode() {
 
 			me.overhead("Done with action");
 			action = false;
+		}
+
+		if (command) {
+			try {
+				eval(command);
+			} catch (e) {
+				print(e);
+			}
+
+			me.overhead("Done with action");
+			command = false;
 		}
 
 		delay(100);
