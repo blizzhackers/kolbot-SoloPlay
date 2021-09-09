@@ -254,52 +254,78 @@ Pather.openDoors = function (x, y) { //fixed monsterdoors/walls in act 5
 };
 
 Pather.changeAct = function () {
-	let tick, code, prevAct = me.act, targetAct;
+	let npc, loc, act = me.act + 1;
 
-	if (!me.inTown) {
-		Town.goToTown();
-	}
-
-	switch (prevAct) {
-	case 1:
-		Town.npcInteract("warriv");
-		code = 0x0D36;
-		targetAct = 2;
-
-		break;
+	switch (act) {
 	case 2:
+		npc = "warriv";
+		loc = 40;
+		Town.npcInteract("warriv");
+
+		if (!Misc.checkQuest(6, 0)) {
+			me.overhead("Incomplete Quest");
+			print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to act " + act);
+			return false;
+		}
+
+		Town.move(NPC.Warriv);
+
+		break;
+	case 3:
+		npc = "meshif";
+		loc = 75;
 		Town.npcInteract("meshif");
-		code = 0x0D38;
-		targetAct = 3;
+
+		if (!Misc.checkQuest(14, 0)) {
+			me.overhead("Incomplete Quest");
+			print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to act " + act);
+			return false;
+		}
+
+		Town.move(NPC.Meshif);
 
 		break;
-	case 4:
+	case 5:
+		npc = "tyrael";
+		loc = 109;
 		Town.npcInteract("tyrael");
-		code = 0x58D2;
-		targetAct = 5;
 
-		break;
-	default:
+		if (!Misc.checkQuest(26, 0)) {
+			me.overhead("Incomplete Quest");
+			print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to act " + act);
+			return false;
+		}
+
+		Town.move(NPC.Tyrael);
+
 		break;
 	}
 
-	if (Misc.useMenu(code)) {
-		for (let i = 0; i < 4; i += 1) {
-			tick = getTickCount();
+	let npcUnit = getUnit(1, npc);
+	let timeout = getTickCount() + 3000;
 
-			while (getTickCount() - tick < 3000) {
-				if (me.inTown && (me.act !== prevAct || me.act === targetAct)) {
-					delay(100);
+	while (!npcUnit && timeout < getTickCount()) {
+		Town.move(npc);
+		Packet.flash(me.gid);
+		delay(me.ping * 2 + 100);
+		npcUnit = getUnit(1, npc);
+	}
 
-					return true;
-				}
+	if (npcUnit) {
+		for (let i = 0; i < 5; i += 1) {
+			sendPacket(1, 56, 4, 0, 4, npcUnit.gid, 4, loc);
+			delay(500 + me.ping);
 
-				delay(10);
+			if (me.act === act) {
+				break;
 			}
 		}
+	} else {
+		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to " + npc);
+		me.overhead("Failed to move to " + npc);
 	}
 
-	throw new Error("Kolbot-SoloPlay: Failed to change Act");
+	return me.act === act;
 };
 
 Pather.moveTo = function (x, y, retry, clearPath, pop) {

@@ -14,7 +14,7 @@ var finalBuild = {
 	mercAuraWanted: 98,
 	mercDiff: 1,
 	stats: [
-		["strength", 103], ["dexterity", 136], ["vitality", "all"]
+		["strength", 118], ["dexterity", 136], ["vitality", "all"]
 	],
 	skills: [
 		[151, 20, true], 	// Whirlwind
@@ -31,7 +31,8 @@ var finalBuild = {
 		//weapon
 		"[Type] == sword && [flag] == runeword # [ias] >= 30 # [tier] == 100000", //Grief x2 dual weild
 		//Helmet
-		"[name] == slayerguard && [quality] == unique && [flag] != ethereal # [barbarianskills] == 2 # [tier] == 100000 + tierscore(item)", //Arreat's Face
+		"[name] == slayerguard && [quality] == unique && [flag] != ethereal # [barbarianskills] == 2 && [fhr] >= 30 # [tier] == 100000 + tierscore(item)", //Arreat's Face
+		"[name] == guardiancrown && [quality] == unique && [flag] != ethereal # [barbarianskills] == 2 && [fhr] >= 30 # [tier] == 150000 + tierscore(item)", // Upp'ed Arreat's Face
 		//belt
 		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [damageresist] >= 10 && [vitality] >= 30 # [tier] == 100000 + tierscore(item)", //Dungo's
 		//boots
