@@ -1,6 +1,6 @@
 /*
 *	@filename	Tristram.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		rescue cain and leveling
 */
 
@@ -47,7 +47,7 @@ function tristram () {
 	}
 
 	Precast.doPrecast(true);
-	Pather.moveToPreset(4, 2, 17, 10, 10, true);
+	Pather.moveToPreset(4, 1, 737, 10, 10, false, true);
 	Attack.clear(15, 0, getLocaleString(2872)); // Rakanishu
 	Pather.moveToPreset(4, 2, 17, null, null, true);
 
