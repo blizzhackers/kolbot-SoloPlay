@@ -48,7 +48,7 @@ function tristram () {
 
 	Precast.doPrecast(true);
 	Pather.moveToPreset(4, 1, 737, 10, 10, false, true);
-	Attack.clear(15, 0, getLocaleString(2872)); // Rakanishu
+	Attack.killTarget(getLocaleString(2872)); // Rakanishu
 	Pather.moveToPreset(4, 2, 17, null, null, true);
 
 	if (!Misc.checkQuest(4, 4)) {

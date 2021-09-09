@@ -300,7 +300,7 @@ var Check = {
 		case "bloodraven": //bloodaraven
 			if ((!me.bloodraven && me.normal || (!me.summoner && Check.brokeAf())) || 
 				(me.normal && !me.tristram && me.barbarian) || 
-				(me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || !me.amazon))) {
+				(me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || ((me.amazon || me.assassin) && Attack.checkInfinity()) || (me.barbarian || me.paladin || me.necromancer || me.druid)))) {
 				return true;
 			}
 
@@ -454,17 +454,19 @@ var Check = {
 
 			break;
 		case "travincal": //travincal
-			if (Pather.accessToAct(3) && !me.travincal ||
-				(me.charlvl < 25 || 
-					(me.charlvl >= 25 && me.normal && !me.baal && !Check.Gold()) ||
-					(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) || 
-					(me.hell && me.paladin && me.charlvl > 85 && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))))) {
+			if (Pather.accessToAct(3) && 
+					(!me.travincal ||
+						(me.charlvl < 25 || 
+						(me.charlvl >= 25 && me.normal && !me.baal && !Check.Gold()) ||
+						(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) || 
+						(me.hell && me.paladin && me.charlvl > 85 && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
 				return true;
 			}
 
 			break;
 		case "mephisto": //mephisto
-			if (Pather.accessToAct(3) && (!me.mephisto ||
+			if (Pather.accessToAct(3) && 
+				(!me.mephisto ||
 					(me.normal && (!me.baal || !Check.Gold())) ||
 					(!me.normal && (Pather.canTeleport() || me.charlvl <= 65)) || 
 					(me.hell && me.charlvl !== 100))) {
