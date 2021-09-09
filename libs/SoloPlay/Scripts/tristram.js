@@ -47,27 +47,31 @@ function tristram () {
 	}
 
 	Precast.doPrecast(true);
-	Pather.moveToPreset(4, 2, 17);
-	Attack.clear(20, 0x7); // kill rakanishu
-	Pather.moveToPreset(4, 2, 17);
+	Pather.moveToPreset(4, 2, 17, 10, 10, true);
+	Attack.clear(15, 0, getLocaleString(2872)); // Rakanishu
+	Pather.moveToPreset(4, 2, 17, null, null, true);
 
-	if (!Pather.getPortal(38)) {
-		try { // go to tristram
-			if (me.getItem(525)) {
-				for (let touch = 0; touch < 5; touch += 1) {
-					for (let piece = 17; piece < 22; piece += 1) {
-						let stone = getUnit(2, piece);
+	if (!Misc.checkQuest(4, 4)) {
+		try { // go to tristram @jaenster
+			let stones = [
+				getUnit(2, 17),
+				getUnit(2, 18),
+				getUnit(2, 19),
+				getUnit(2, 20),
+				getUnit(2, 21)
+			];
 
-						if (stone) {
-							Misc.openChest(stone);
-							Attack.clear(10);
-						}
-					}
+			while (stones.some(function (stone) { return !stone.mode; })) {
+				for (var i = 0, stone = void 0; i < stones.length; i++) {
+					stone = stones[i];
+					Misc.openChest(stone);
+					Attack.securePosition(me.x, me.y, 10, 0);
+					delay(10);
 				}
+			}
 
-				while (!Pather.usePortal(38)) {
-					Attack.securePosition(me.x, me.y, 10, 1000);
-				}
+			while (!Pather.usePortal(38)) {
+				Attack.securePosition(me.x, me.y, 10, 1000);
 			}
 		} catch (err) {
 			Pather.usePortal(38);
@@ -78,19 +82,22 @@ function tristram () {
 
 	if (me.area === 38) {
 		if (!me.tristram) {
-			Pather.moveTo(me.x, me.y + 6);
+			let clearCoords = [
+				{"x":25166,"y":5108,"radius":10},
+				{"x":25164,"y":5115,"radius":10},
+				{"x":25163,"y":5121,"radius":10},
+				{"x":25158,"y":5126,"radius":10},
+				{"x":25151,"y":5125,"radius":10},
+				{"x":25145,"y":5129,"radius":10},
+				{"x":25142,"y":5135,"radius":10}
+			];
+        	Attack.clearCoordList(clearCoords);
+
 			let gibbet = getUnit(2, 26);
 
-			if (!gibbet.mode) {
-				if (!Pather.moveToPreset(38, 2, 26, 2, 2, true, true)) {
-					print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Cain's Gibbet");
-				}
-
-				for (let x = 0; x < 5; x++) {
-					if (Misc.openChest(gibbet)) {
-						break;
-					}
-				}
+			if (gibbet && !gibbet.mode) {
+				Pather.moveTo(gibbet.x, gibbet.y);
+				Misc.openChest(gibbet);
 			}
 
 			Town.npcInteract("akara");

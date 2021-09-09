@@ -995,6 +995,21 @@ Attack.clearClassids = function (...ids) {
     return true;
 };
 
+// Take a array of coords - path and clear
+// pick parameter is range of items to pick
+// From legacy sonic
+Attack.clearCoordList = function (list, pick) {
+	for (let node of list) {
+		Attack.clear(node.radius);
+		Pather.moveTo(node.x, node.y);
+		Attack.clear(node.radius);
+
+		if (pick) {
+			Pickit.pickItems(pick);
+		}
+	}
+};
+
 Attack.getSwitchItemCharges = function (skillId) {
 	if (skillId === undefined || !skillId) {
 		return false;

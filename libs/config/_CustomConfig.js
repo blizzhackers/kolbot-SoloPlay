@@ -10,7 +10,7 @@
 
 var CustomConfig, configCheck = me.profile.toUpperCase().split("-");
 
-if (getScript("D2BotMap.dbj")) {
+if (getScript("D2BotMap.dbj") && FileTools.exists("libs/config/ManualPlay.js")) {
 	CustomConfig = {
 		"ManualPlay": me.profile,
 	};
