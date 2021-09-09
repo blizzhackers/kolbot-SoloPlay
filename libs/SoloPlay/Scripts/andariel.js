@@ -15,10 +15,7 @@ function andariel () {
 		return true;
 	}
 
-	let questBug = false;
-	if (!me.normal && !me.andariel) {
-		questBug = true;
-	}
+	let questBug = (!me.normal && !me.andariel);
 
 	if (!Pather.checkWP(35)) {
 		Pather.getWP(35);
@@ -37,6 +34,8 @@ function andariel () {
 	}
 
 	Precast.doPrecast(true);
+
+	let oldPickRange = Config.PickRange;
 	
 	if (questBug) {
 		Config.PickRange = -1;
@@ -44,14 +43,29 @@ function andariel () {
 		if (me.barbarian) {
 			Config.FindItem = false;
 		}
+	} else {
+		Config.PickRange = 5;	// Only pick what is directly around me
 	}
 
-	Pather.moveTo(22572, 9635);
-	Pather.moveTo(22554, 9618);
-	Pather.moveTo(22542, 9600);
-	Pather.moveTo(22572, 9582);
-	Pather.moveTo(22554, 9566);
-	Pather.moveTo(22546, 9554);
+	let coords = [
+		[22572, 9635], [22554, 9618],
+		[22542, 9600], [22572, 9582],
+		[22554, 9566]
+	];
+
+	if (Pather.useTeleport()) {
+		Pather.moveTo(22571, 9590);
+	} else {
+		while (coords.length) {
+			if (getUnit(1, 156) && Math.round(getDistance(me, getUnit(1, 156)) < 15)) {
+				break;
+			}
+			Pather.moveTo(coords[0][0], coords[0][1]);
+			Attack.clearClassids(61);
+			coords.shift();
+		}
+	}
+	
 	Config.MercWatch = false;
 
 	Attack.killTarget("Andariel");
@@ -69,6 +83,7 @@ function andariel () {
 
 		Misc.townEnabled = false;
 		Object.assign(Config, updateConfig);
+
 		if (Pather.changeAct()) {
 			delay(2000 + me.ping);
 
@@ -83,6 +98,7 @@ function andariel () {
 	}
 
 	delay(2000 + me.ping); // Wait for minions to die.
+	Config.PickRange = oldPickRange;	// Reset to normal value
 	Pickit.pickItems();
 	Config.MercWatch = true;
 
