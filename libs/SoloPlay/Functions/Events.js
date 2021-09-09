@@ -139,8 +139,9 @@ var Events = {
 		for (let i = 0; i < files.length; i++) {
 			try {
 				profileInfo = Developer.readObj("logs/Kolbot-SoloPlay/" + realm + "/" + files[i]);
-				profileList.push(profileInfo.profile);
-
+				if (profileList.indexOf(profileInfo.profile) === -1) {
+					profileList.push(profileInfo.profile);
+				}
 			} catch (e) {
 				print(e);
 			}
