@@ -1276,6 +1276,8 @@ Item.autoEquipCharmSort = function (items, verbose) {
 	}
 	
 	while (items.length > 0) {
+		let gid = items[0].gid;
+
 		if (!items[0].getFlag(0x10)) { // unid
 			tome = me.findItem(519, 0, 3);
 			scroll = me.findItem(530, 0, 3);
@@ -1289,6 +1291,15 @@ Item.autoEquipCharmSort = function (items, verbose) {
 			} else if (items[0].location === 7 && Town.openStash()) {
 				Storage.Inventory.MoveTo(items[0]);
 				Town.identify();
+			}
+
+			if (!getUnit(4, -1, -1, gid)) {
+				if (verbose) {
+					print("Sold charm during Town.identify()");
+				}
+
+				items.shift();
+				continue;
 			}
 		}
 
