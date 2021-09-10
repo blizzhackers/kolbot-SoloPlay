@@ -16,19 +16,31 @@ function mephisto () {
 	}
 
 	Precast.doPrecast(true);
-	Pather.moveToExit(102, true);
+	Pather.moveToExit(102, true);	// Enter Durance Level 3
+
+	// Town stuff
 	Town.doChores();
 	Town.buyPots(10, "Thawing"); // thawing
 	Town.drinkPots();
 	Town.buyPots(10, "Antidote"); // antidote
 	Town.drinkPots();
+
+	// Re-enter portal
 	Pather.usePortal(102, me.name);
 	Precast.doPrecast(true);
+
+	let oldPickRange = Config.PickRange;
+
 	Pather.moveTo(17692, 8048);
 	Pather.moveTo(17563, 8072);
+
 	Config.MercWatch = false;
+
 	Attack.killTarget("Mephisto");
+
 	Config.MercWatch = true;
+	Config.PickRange = oldPickRange;	// Reset to normal value
+	
 	Pickit.pickItems();
 	Pather.moveTo(17581, 8070);
 	delay(250 + me.ping * 2);

@@ -203,6 +203,13 @@ var Quest = {
 		submitItem();
 		delay(750 + me.ping);
 
+		// Clear cursor of staff - credit @Jaenster
+		let item = (me.getItems() || []).filter(function (el) { return el.location === 3; }).first();
+		let _b = [item.x, item.y, item.location], x = _b[0], y = _b[1], loc = _b[2];
+		clickItemAndWait(0, item);
+		clickItemAndWait(0, x, y, loc);
+		delay(750 + me.ping);
+
 		return true;
 	},
 

@@ -28,7 +28,29 @@ function duriel () {
 	Config.MercWatch = false;
 	Pather.usePortal(null, me.name);
 	delay(1000 + me.ping);
-	Pather.useUnit(2, 100, 73);
+
+	if (me.sorceress && me.getSkill(43, 1)) {
+		let unit = Misc.poll(function () { return getUnit(2, 100); });
+
+		if (unit) {
+			for (let i = 0; i < 3; i++) {
+				if (me.area !== 73) {
+					Skill.cast(43, 0, unit);
+				}
+
+				if (me.area === 73) {
+					break;
+				}
+			}
+		}
+
+		if (me.area !== 73) {
+			Pather.useUnit(2, 100, 73);
+		}
+	} else {
+		Pather.useUnit(2, 100, 73);
+	}
+
 	Attack.killTarget("Duriel");
 	Pickit.pickItems();
 
