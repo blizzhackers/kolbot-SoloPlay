@@ -542,18 +542,25 @@ case 1: // Sorceress
 			untimedSkill = Config.LowManaSkill[1];
 		}
 
-		if (me.normal && (gold < 5000 || Skill.getManaCost(timedSkill) * 1.5 > me.mp)) {
+		// TODO: Figure out a way to dynamically use lower level/mana skills 
+		/*if (me.normal && (gold < 5000 || Skill.getManaCost(timedSkill) * 1.5 > me.mp)) {
 			if (SetUp.currentBuild === "Start" && (me.getSkill(38, 1) && me.getSkill(45, 1) && (me.getSkill(39, 1)))) {
-				if (Attack.getMobCountAtPosition(me.x, me.y, 6) >= 2 && Skill.getManaCost(38) < me.mp) {
+				if (me.getSkill(55, 1) && Skill.getManaCost(55) < me.mp) {
+					timedSkill = 55;	// Glacial Spike
+				} else if (Attack.getMobCountAtPosition(me.x, me.y, 6) >= 2 && Skill.getManaCost(38) < me.mp) {
 					timedSkill = 38;	// Charged Bolt
-				} else if (Attack.getMobCountAtPosition(unit.x, unit.y, 6) >= 2 && Skill.getManaCost(45) < me.mp) {
+				} else if (Skill.getManaCost(45) < me.mp) {
 					timedSkill = 45;	// Ice Blast
 				} else {
 					timedSkill = 39;	// Ice Bolt
 				}
 			} else if (SetUp.currentBuild === "Leveling" && (me.getSkill(36, 1) && me.getSkill(39, 1))) {
-				if (Attack.checkResist(unit, "fire") && Skill.getManaCost(36) < me.mp) {
+				if (me.getSkill(36, 1) && Attack.checkResist(unit, "fire") && !Attack.checkResist(unit, "cold") && Skill.getManaCost(36) < me.mp) {
 					timedSkill = 36;	// Fire Bolt
+				} else if (Skill.getManaCost(45) < me.mp) {
+					timedSkill = 45;	// Glacial Spike
+				} else if (Skill.getManaCost(45) < me.mp) {
+					timedSkill = 45;	// Ice Blast
 				} else {
 					timedSkill = 39;	// Ice Bolt
 				}
@@ -562,7 +569,7 @@ case 1: // Sorceress
 			if (Skill.getManaCost(timedSkill) > me.mp && Attack.getMobCountAtPosition(me.x, me.y, 6) >= 1) {
 				timedSkill = 0;	// I have no mana and there are mobs around me, just attack
 			}
-		}
+		}*/
 
 		switch (ClassAttack.doCast(unit, timedSkill, untimedSkill)) {
 		case 0: // Fail
@@ -644,7 +651,7 @@ case 1: // Sorceress
 			if (!unit.dead && !checkCollision(me, unit, 0x4)) {
 				let closeMobCheck = Attack.getNearestMonster();
 
-				if (Math.round(getDistance(me, closeMobCheck)) < 4 && Skill.getRange(timedSkill) > 10) {
+				if (Math.round(getDistance(me, closeMobCheck)) < 4 && Skill.getRange(timedSkill) > 10 && [36, 39, 45].indexOf(timedSkill) === -1) {
 					Attack.deploy(unit, 4, 5, 9);	// Try to find better spot
 				}
 
