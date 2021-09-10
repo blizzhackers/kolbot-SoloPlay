@@ -191,7 +191,7 @@ var Events = {
 
 			break;	
 		case 0xa4: //baalwave
-			if ((me.hell && me.paladin && !Attack.IsAuradin) || me.barbarian || me.gold < 5000 || me.druid) {
+			if ((me.hell && me.paladin && !Attack.IsAuradin) || me.barbarian || me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")) {
 				waveMonster = ((bytes[1]) | (bytes[2] << 8));
 				wave = [62, 105, 557, 558, 571].indexOf(waveMonster);
 
@@ -208,7 +208,7 @@ var Events = {
 				case 3:
 					break;
 				case 4: 	// Lister
-					if ((me.barbarian && (me.charlvl < SetUp.levelCap || !me.baal || me.playertype)) || (me.charlvl < SetUp.levelCap && me.gold < 5000)) {
+					if ((me.barbarian && (me.charlvl < SetUp.levelCap || !me.baal || me.playertype)) || (me.charlvl < SetUp.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
 						scriptBroadcast('skip');
 					}
 
