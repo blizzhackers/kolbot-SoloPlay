@@ -424,6 +424,9 @@ case 1: // Sorceress
 			Skill.cast(58, 0);
 		}
 
+		let closeMobCheck;
+		let useFNova = me.getSkill(44, 0);
+
 		if (index === 1 && !unit.dead) {
 			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				Attack.switchCastCharges(72, unit);		// Switch cast weaken - will only cast if actually has wand with charges in switch spot - TODO: Clean this up, maybe some type of switch statement based on what charges are on the switch wep
@@ -434,24 +437,22 @@ case 1: // Sorceress
 			}
 		}
 
-		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
-			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
-				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
-					return false;
+		if (useFNova && Skill.getManaCost(44) * 2 < me.mp && Attack.getMobCount(me.x, me.y, 6) >= 2) {
+			closeMobCheck = Attack.getNearestMonster();
+
+			if (Attack.checkResist(closeMobCheck, "cold") && !closeMobCheck.getState(11) && !closeMobCheck.dead) {
+				Skill.cast(44, 0, closeMobCheck);
+			}
+		}
+
+		if (me.getSkill(42, 1) && Attack.getMobCount(me.x, me.y, staticRange) >= (me.area === 131 ? 1 : 2)) {
+			closeMobCheck = Attack.getNearestMonster();
+
+			for (let castStatic = 0; castStatic < 2; castStatic++) {
+				if (Attack.checkResist(unit, "lightning") && (Skill.getManaCost(42) * 3) < me.mp && !closeMobCheck.dead && Math.round(closeMobCheck.hp * 100 / closeMobCheck.hpmax) > Config.CastStatic) {
+					Skill.cast(42, 0);
 				}
 			}
-
-			Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
-
-			if (me.getSkill(42, 1) && Attack.getMobCount(me.x, me.y, staticRange) >= 1) {
-				for (let castStatic = 0; castStatic < 2; castStatic++) {
-					if ((Skill.getManaCost(42) * 3) < me.mp) {
-						Skill.cast(42, 0);
-					}
-				}
-			}
-
-			return true;
 		}
 
 		// Static
@@ -479,7 +480,6 @@ case 1: // Sorceress
 				return 0;
 			}
 		) && Math.round(unit.hp * 100 / unit.hpmax) > Config.CastStatic) {
-
 			while (!me.dead && Math.round(unit.hp * 100 / unit.hpmax) > Config.CastStatic && Attack.checkMonster(unit)) {
 				Misc.townCheck();
 				ClassAttack.doCast(unit, Config.AttackSkill[1], -1);
@@ -491,8 +491,8 @@ case 1: // Sorceress
 					}
 				}
 
-				if (!Skill.cast(42, 0)) {
-					break;
+				if ((Skill.getManaCost(42) * 2) < me.mp) {
+					Skill.cast(42, 0, unit);
 				}
 			}
 		}
@@ -633,6 +633,12 @@ case 1: // Sorceress
 			}
 
 			if (!unit.dead && !checkCollision(me, unit, 0x4)) {
+				let closeMobCheck = Attack.getNearestMonster();
+
+				if (Math.round(getDistance(me, closeMobCheck)) < 4 && Skill.getRange(timedSkill) > 10) {
+					Attack.deploy(unit, 4, 5, 9);	// Try to find better spot
+				}
+
 				Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
 			}
 
