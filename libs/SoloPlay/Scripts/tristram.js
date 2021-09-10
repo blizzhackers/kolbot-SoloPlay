@@ -51,7 +51,7 @@ function tristram () {
 	Attack.killTarget(getLocaleString(2872)); // Rakanishu
 	Pather.moveToPreset(4, 2, 17, null, null, true);
 
-	if (!Misc.checkQuest(4, 4)) {
+	if (!Misc.checkQuest(4, 4) && me.getItem(525)) {
 		try { // go to tristram @jaenster
 			let stones = [
 				getUnit(2, 17),
