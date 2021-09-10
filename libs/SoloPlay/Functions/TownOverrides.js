@@ -586,7 +586,7 @@ Town.shopItems = function () {
 		items = [],
 		npc = getInteractedNPC(),
 		myGold,
-		goldLimit = [5000, 10000, 25000][me.diff];
+		goldLimit = [10000, 20000, 30000][me.diff];
 
 	if (!npc || !npc.itemcount) {
 		return false;
