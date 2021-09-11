@@ -1,9 +1,9 @@
 ![extract into](https://i.imgur.com/TcRmoRm.png)
 
 ## What is this?
-Kolbot-SoloPlay is a hands-off autoplay script to take any diablo 2 character class from 1-99 using Kolbot. After easy set up it will play all the way through the game and level towards an end-game build that you choose. 
+Kolbot-SoloPlay is a hands-off autoplay script to take any diablo 2 character class from 1-99 using Kolbot. After easy set up, it will play all the way through the game and level towards an end-game build of your choosing (see **Available Characters and Builds**. 
 
-If you are enjoying my version consider supporting me at https://www.buymeacoffee.com/theBGuy
+If you are enjoying my script consider supporting me at https://www.buymeacoffee.com/theBGuy
 
 ## Statistics (will become filled out as data becomes available)
 | Level | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
@@ -49,7 +49,7 @@ If you are enjoying my version consider supporting me at https://www.buymeacoffe
 
 **Q: When will the bot change to the final build I selected?**
 
-**A:** In classic the bot will switch to the final build based on a level requirement. In expansion it transition to the final build when final gear requirements are met.
+**A:** In classic, the bot will switch to the final build based on a level requirement. In expansion, it transition to the final build when final gear requirements are met (Navigate to libs\SoloPlay\Functions\Globals.js and look for respecTwo to see what items are needed for each build).
 
 **Q: The bot has beaten diablo (classic) / baal, so why isn't moving on to the next difficulty?**
 

@@ -1,7 +1,7 @@
 /*
  *    @filename   	sorceress.startBuild.js
- *	  @author	  	isid0re
- *    @desc       	sorceress build for before respecOne
+ *	  @author	  	isid0re, theBGuy
+ *    @desc       	sorceress build for before respecOne - respecs at level 28
  */
 
 var build = {
@@ -13,32 +13,24 @@ var build = {
 	mercAuraWanted: 114,
 	mercDiff: 1,
 	stats: [
-		["energy", 40],
-		["vitality", 15],
-		["energy", 45],
-		["vitality", 20],
-		["energy", 50],
-		["strength", 15],
-		["vitality", 25],
-		["energy", 60],
-		["vitality", 40],
-		["strength", 35],
-		["vitality", "all"]
+		["energy", 40], ["vitality", 15], ["energy", 45],
+		["vitality", 20], ["energy", 50], ["strength", 15],
+		["vitality", 25], ["energy", 60], ["vitality", 40],
+		["strength", 35], ["vitality", "all"]
 	],
 	skills: [
-		[38, 4], // charged Bolt 5
-		[43, 1], // Telekinesis 6
-		[44, 1], // Frost Nova 6/7
-		[42, 4], // Static
-		[48, 7], // Nova
-		[54, 1], // Teleport
-		[40, 1], // Frozen Armor
-		[42, 6], // Static
-		[39, 1], // ice bolt
-		[45, 1], // ice blast
-		[55, 1], // gspike
-		[59, 6], // blizzard
-		[65, 1], // cold mastery
-		[59, 8], // blizzard
+		[38, 4, false], // charged Bolt -> charlvl 3 (3 lvls + den)
+		[40, 1], // Frozen Armor -> charlvl 4
+		[43, 1], // Telekinesis -> charlvl 5
+		[44, 1], // Frost Nova -> charlvl 6
+		[42, 4], // Static -> charlvl 10
+		[48, 7], // Nova -> charlvl 17
+		[54, 1], // Teleport -> charlvl 18
+		[42, 6], // Static -> charlvl 20
+		[39, 1], // ice bolt -> charlvl 21
+		[45, 1], // ice blast -> charlvl 22
+		[55, 1], // gspike -> charlvl 23
+		[59, 6, false], // blizzard -> charlvl 29 (never gets here)
+		[65, 1, false], // cold mastery -> charlvl 30 (never gets here)
 	]
 };
