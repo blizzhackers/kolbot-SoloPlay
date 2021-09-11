@@ -257,7 +257,7 @@ function baal () {
 
     // souls hurt
     if (unSafeCheck(8, 20) && Check.Resistance().LR < 70 && me.nightmare) {
-        return false;
+        return true;
     }
 
     Attack.clear(15);
@@ -274,7 +274,7 @@ function baal () {
     }
 
     if (!clearWaves()) {
-        return false;
+        return true;
     }
 
     clearThrone(); // double check
