@@ -406,24 +406,35 @@ case 1: // Sorceress
 	}
 
 	ClassAttack.doAttack = function (unit, preattack) {
-		var index, checkSkill, mark,
-			staticRange = Math.floor((me.getSkill(42, 1) + 3) * 2 / 3),
+		var checkSkill, mark,
 			merc = Merc.getMercFix(),
 			timedSkill = -1,
 			untimedSkill = -1,
+			index = (unit.spectype !== 0 || unit.type === 0) ? 1 : 3,
+			staticRange = Math.floor((me.getSkill(42, 1) + 3) * 2 / 3),
 			gold = me.getStat(14) + me.getStat(15);
-
-		index = (unit.spectype !== 0 || unit.type === 0) ? 1 : 3;
 
 		if (Config.MercWatch && Town.needMerc()) {
 			print("mercwatch");
 			Town.visitTown();
 		}
 
+		// Keep Energy Shield active
 		if (!me.getState(30) && me.getSkill(58, 1)) {
 			Skill.cast(58, 0);
 		}
 
+		// Keep Thunder-Storm active
+		if (!me.getState(38) && me.getSkill(57, 1)) {
+			Skill.cast(57, 0);
+		}
+
+		// Skills
+		let closeMobCheck;
+		let useFNova = me.getSkill(44, 0);
+		let useStatic = me.getSkill(42, 1);
+
+		// Handle Switch casting
 		if (index === 1 && !unit.dead) {
 			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				Attack.switchCastCharges(72, unit);		// Switch cast weaken - will only cast if actually has wand with charges in switch spot - TODO: Clean this up, maybe some type of switch statement based on what charges are on the switch wep
@@ -434,28 +445,27 @@ case 1: // Sorceress
 			}
 		}
 
-		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
-			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
-				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
-					return false;
+		// If we have enough mana for FNova and there are 2 or mobs around us
+		if (useFNova && Skill.getManaCost(44) * 2 < me.mp && Attack.getMobCount(me.x, me.y, 6) >= 2) {
+			closeMobCheck = Attack.getNearestMonster();
+
+			if (!!closeMobCheck && Attack.checkResist(closeMobCheck, "cold") && !closeMobCheck.isChilled && !closeMobCheck.dead) {
+				Skill.cast(44, 0, closeMobCheck);
+			}
+		}
+
+		// If we have enough mana for Static and there are 2 or more mobs around us, get the closest one and cast static on them
+		if (useStatic && Attack.getMobCount(me.x, me.y, staticRange) >= (me.area === 131 ? 1 : 2) && (Skill.getManaCost(42) * 3) < me.mp) {
+			for (let castStatic = 0; castStatic < 2; castStatic++) {
+				closeMobCheck = Attack.getNearestMonster();
+				if (!!closeMobCheck && Attack.checkResist(unit, "lightning") && Skill.getManaCost(42) < me.mp && !closeMobCheck.dead && Math.round(closeMobCheck.hp * 100 / closeMobCheck.hpmax) > Config.CastStatic) {
+					Skill.cast(42, 0);
 				}
 			}
-
-			Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
-
-			if (me.getSkill(42, 1) && Attack.getMobCount(me.x, me.y, staticRange) >= 1) {
-				for (let castStatic = 0; castStatic < 2; castStatic++) {
-					if ((Skill.getManaCost(42) * 3) < me.mp) {
-						Skill.cast(42, 0);
-					}
-				}
-			}
-
-			return true;
 		}
 
 		// Static
-		if (Config.CastStatic < 100 && me.getSkill(42, 1) && Attack.checkResist(unit, "lightning") && Config.StaticList.some(
+		if (Config.CastStatic < 100 && useStatic && Attack.checkResist(unit, "lightning") && Config.StaticList.some(
 			function (id) {
 				if (unit) {
 					switch (typeof id) {
@@ -479,7 +489,6 @@ case 1: // Sorceress
 				return 0;
 			}
 		) && Math.round(unit.hp * 100 / unit.hpmax) > Config.CastStatic) {
-
 			while (!me.dead && Math.round(unit.hp * 100 / unit.hpmax) > Config.CastStatic && Attack.checkMonster(unit)) {
 				Misc.townCheck();
 				ClassAttack.doCast(unit, Config.AttackSkill[1], -1);
@@ -491,8 +500,8 @@ case 1: // Sorceress
 					}
 				}
 
-				if (!Skill.cast(42, 0)) {
-					break;
+				if ((Skill.getManaCost(42) * 2) < me.mp) {
+					Skill.cast(42, 0, unit);
 				}
 			}
 		}
@@ -533,27 +542,40 @@ case 1: // Sorceress
 			untimedSkill = Config.LowManaSkill[1];
 		}
 
-		if (me.normal && (gold < 5000 || Skill.getManaCost(timedSkill) * 1.5 > me.mp)) {
+		if (untimedSkill === 55) {
+			if (me.getSkill(45, 1) > me.getSkill(55, 1)) {
+				untimedSkill = 45; // Ice blast
+			}
+		}
+
+		// TODO: Figure out a way to dynamically use lower level/mana skills, no point in useing a 24+ mana skill if it would take a 4 mana skill to kill mob
+		/*if (me.normal && (gold < 5000 || Skill.getManaCost(timedSkill) * 1.5 > me.mp)) {
 			if (SetUp.currentBuild === "Start" && (me.getSkill(38, 1) && me.getSkill(45, 1) && (me.getSkill(39, 1)))) {
-				if (Attack.getMobCountAtPosition(me.x, me.y, 6) >= 2 && Skill.getManaCost(38) < me.mp) {
+				if (me.getSkill(55, 1) && Skill.getManaCost(55) < me.mp) {
+					timedSkill = 55;	// Glacial Spike
+				} else if (Attack.getMobCountAtPosition(me.x, me.y, 6) >= 2 && Skill.getManaCost(38) < me.mp) {
 					timedSkill = 38;	// Charged Bolt
-				} else if (Attack.getMobCountAtPosition(unit.x, unit.y, 6) >= 2 && Skill.getManaCost(45) < me.mp) {
+				} else if (Skill.getManaCost(45) < me.mp) {
 					timedSkill = 45;	// Ice Blast
 				} else {
 					timedSkill = 39;	// Ice Bolt
 				}
 			} else if (SetUp.currentBuild === "Leveling" && (me.getSkill(36, 1) && me.getSkill(39, 1))) {
-				if (Attack.checkResist(unit, "fire") && Skill.getManaCost(36) < me.mp) {
+				if (me.getSkill(36, 1) && Attack.checkResist(unit, "fire") && !Attack.checkResist(unit, "cold") && Skill.getManaCost(36) < me.mp) {
 					timedSkill = 36;	// Fire Bolt
+				} else if (Skill.getManaCost(45) < me.mp) {
+					timedSkill = 45;	// Glacial Spike
+				} else if (Skill.getManaCost(45) < me.mp) {
+					timedSkill = 45;	// Ice Blast
 				} else {
 					timedSkill = 39;	// Ice Bolt
 				}
 			}
 
-			if (Skill.getManaCost(timedSkill) > me.mp && Attack.getMobCountAtPosition(me.x, me.y, 6) >= 2) {
+			if (Skill.getManaCost(timedSkill) > me.mp && Attack.getMobCountAtPosition(me.x, me.y, 6) >= 1) {
 				timedSkill = 0;	// I have no mana and there are mobs around me, just attack
 			}
-		}
+		}*/
 
 		switch (ClassAttack.doCast(unit, timedSkill, untimedSkill)) {
 		case 0: // Fail
@@ -633,6 +655,18 @@ case 1: // Sorceress
 			}
 
 			if (!unit.dead && !checkCollision(me, unit, 0x4)) {
+				let closeMobCheck = Attack.getNearestMonster();
+
+				if (!!closeMobCheck && [36, 39, 45, 44, 48].indexOf(timedSkill) === -1 && [44, 48].indexOf(untimedSkill) === -1 && Skill.getRange(timedSkill) > 10) {
+					if (Math.round(getDistance(me, closeMobCheck)) < 4 && Attack.getMobCountAtPosition(closeMobCheck.x, closeMobCheck.y, 6) > 2) {
+						if (me.getSkill(55, 0) && me.mp > (Skill.getManaCost(55) + Skill.getManaCost(timedSkill)) && !closeMobCheck.isFrozen && !closeMobCheck.dead && !checkCollision(me, closeMobCheck, 0x4)) {
+							Skill.cast(55, 0, closeMobCheck);
+						}
+
+						Attack.deploy(unit, 4, 5, 9);	// Try to find better spot
+					}
+				}
+
 				Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
 			}
 
@@ -655,6 +689,7 @@ case 1: // Sorceress
 				}
 			}
 
+			// Mana throttle, worth it?
 			if (Skill.getManaCost(untimedSkill) > me.mp) {
 				tick = getTickCount();
 
@@ -669,6 +704,10 @@ case 1: // Sorceress
 
 			if (!unit.dead) {
 				Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
+
+				if (!unit.dead && untimedSkill === 48 && (me.getSkill(55, 0))) {	// Cast gspike, we are in close with nova so this can freeze the mobs around us
+					Skill.cast(55, 0, unit);
+				}
 			}
 
 			return 1;

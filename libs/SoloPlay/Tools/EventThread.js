@@ -121,8 +121,33 @@ function main () {
 		}
 	};
 
+	this.receiveCopyData = function (id, info) {
+		let list = [];
+
+		if (id === 55) {
+			let { profile, ladder, torchType } = JSON.parse(info);
+			print("Mesage recived...processing");
+
+			if (profile !== me.profile /*&& me.charlvl >= 65*/ && me.ladder === ladder) {
+				if (torchType === me.classid && !me.findItem(604, 0, null, 7)) {
+					print("Sent Response");
+					Events.sendToProfile(profile, {profile: me.profile, level: me.charlvl})
+				}
+			}
+
+			return;
+		}
+
+		if (id === 65) {
+			let { profile, level } = JSON.parse(info);
+
+			print("Sucess: profile that contacted me: " + profile + " level of char: " + level);
+		}
+	};
+
 	addEventListener("scriptmsg", this.scriptEvent);
 	addEventListener("gamepacket", Events.gamePacket);
+	addEventListener('copydata', this.receiveCopyData);
 
 	// Start
 	while (true) {

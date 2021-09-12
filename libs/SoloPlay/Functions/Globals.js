@@ -64,8 +64,8 @@ var SetUp = {
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
-	respecOne: [ 64, 28, 26, 19, 30, 24, 30][me.classid],
-	respecOneB: [ 0, 0, 0, 0, 74, 0, 0][me.classid],
+	respecOne: [ 64, 26, 26, 19, 30, 24, 30][me.classid],
+	respecOneB: [ 0, 65, 0, 0, 74, 0, 0][me.classid],
 
 	// mine - theBGuy
 	respecTwo: function () {
@@ -149,7 +149,7 @@ var SetUp = {
 			buildType = "Start";
 		} else if (me.charlvl >= SetUp.respecTwo()) {
 			buildType = SetUp.finalBuild;
-		} else if (me.barbarian && me.charlvl >= SetUp.respecOne && me.charlvl < SetUp.respecOneB) {
+		} else if ((me.barbarian || me.sorceress) && me.charlvl >= SetUp.respecOne && me.charlvl < SetUp.respecOneB) {
 			buildType = "Stepping";
 		} else {
 			buildType = "Leveling";

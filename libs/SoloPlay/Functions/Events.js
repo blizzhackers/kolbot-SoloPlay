@@ -126,6 +126,50 @@ var Events = {
 		}
 	},
 
+	getProfiles: function () {
+		let profileInfo, realm = me.realm.toLowerCase(), profileList = [];
+		realm = "useast";	// testing purposes
+
+		if (!FileTools.exists("logs/Kolbot-SoloPlay/" + realm)) {
+			return profileList;
+		}
+
+		let files = dopen("logs/Kolbot-SoloPlay/" + realm + "/").getFiles();
+
+		for (let i = 0; i < files.length; i++) {
+			try {
+				profileInfo = Developer.readObj("logs/Kolbot-SoloPlay/" + realm + "/" + files[i]);
+				if (profileList.indexOf(profileInfo.profile) === -1) {
+					profileList.push(profileInfo.profile);
+				}
+			} catch (e) {
+				print(e);
+			}
+		}
+
+		return profileList;
+	},
+
+	sendToProfile: function (profile, message, mode=65) {
+		if (profile.toLowerCase() !== me.profile.toLowerCase()) {
+			sendCopyData(null, profile, mode, JSON.stringify(message));
+		}
+	},
+
+	sendToList: function (message, mode=55) {
+		let profiles = this.getProfiles();
+
+		if (!profiles || profiles === undefined) {
+			return false;
+		}
+
+		return profiles.forEach((profileName) => {
+			if (profileName.toLowerCase() !== me.profile.toLowerCase()) {
+				sendCopyData(null, profileName, mode, JSON.stringify(message));
+			}
+		});
+	},
+
 	gamePacket: function (bytes) {
 		let wave, waveMonster;
 
@@ -147,7 +191,7 @@ var Events = {
 
 			break;	
 		case 0xa4: //baalwave
-			if ((me.hell && me.paladin && !Attack.IsAuradin) || me.barbarian || me.gold < 5000 || me.druid) {
+			if ((me.hell && me.paladin && !Attack.IsAuradin) || me.barbarian || me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")) {
 				waveMonster = ((bytes[1]) | (bytes[2] << 8));
 				wave = [62, 105, 557, 558, 571].indexOf(waveMonster);
 
@@ -164,7 +208,7 @@ var Events = {
 				case 3:
 					break;
 				case 4: 	// Lister
-					if ((me.barbarian && (me.charlvl < SetUp.levelCap || !me.baal || me.playertype)) || (me.charlvl < SetUp.levelCap && me.gold < 5000)) {
+					if ((me.barbarian && (me.charlvl < SetUp.levelCap || !me.baal || me.playertype)) || (me.charlvl < SetUp.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
 						scriptBroadcast('skip');
 					}
 

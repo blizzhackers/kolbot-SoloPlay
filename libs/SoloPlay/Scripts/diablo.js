@@ -169,6 +169,31 @@ function diablo () {
 		return false;
 	};
 
+	this.tkSeal = function (unit) {
+		if (!me.getSkill(43, 1) || !unit || unit === undefined) {
+			return false;
+		}
+
+		for (let i = 0; i < 3; i++) {
+			if (getDistance(me, unit) > 13) {
+				Attack.getIntoPosition(unit, 13, 0x4);
+			}
+
+			Skill.cast(43, 0, unit);
+
+			if (unit.mode) {
+				return true;
+			}
+		}
+
+		if (!unit.mode) {
+			Pather.moveTo(unit);
+			unit.interact();
+		}
+
+		return unit.mode;
+	};
+
 	this.openSeal = function (classid) {
 		for (let sealspot = 0; sealspot < 5; sealspot += 1) {
 			Pather.moveToPreset(108, 2, classid, classid === 394 ? 5 : 2, classid === 394 ? 5 : 0);
@@ -180,7 +205,6 @@ function diablo () {
 			let seal = getUnit(2, classid);
 
 			for (let z = 0; z < 3; z += 1) {
-
 				if (seal) {
 					break;
 				}
@@ -207,7 +231,7 @@ function diablo () {
 
 				if (!seal) {
 					print("ÿc8Kolbot-SoloPlayÿc0: Seal not found (id " + classid + ")");
-					D2Bot.printToConsole("SoloLeveling: Seal not found (id " + classid + ")");
+					D2Bot.printToConsole("Kolbot-SoloPlay: Seal not found (id " + classid + ")", 8);
 				}
 			}
 
@@ -215,10 +239,14 @@ function diablo () {
 				return true;
 			}
 
-			if (classid === 394) {
-				Misc.click(0, 0, seal);
+			if (me.sorceress) {
+				this.tkSeal(seal);
 			} else {
-				seal.interact();
+				if (classid === 394) {
+					Misc.click(0, 0, seal);
+				} else {
+					seal.interact();
+				}
 			}
 
 			delay(classid === 394 ? 1000 + me.ping : 500 + me.ping);
@@ -246,8 +274,10 @@ function diablo () {
 		this.openSeal(396);
 
 		if (this.vizLayout === 1) {
+			delay(1 + me.ping);
 			Pather.moveTo(7691, 5292, 3, 30);
 		} else {
+			delay(1 + me.ping);
 			Pather.moveTo(7695, 5316, 3, 30);
 		}
 
@@ -275,8 +305,13 @@ function diablo () {
 		this.openSeal(392);
 
 		if (this.infLayout === 1) {
+			if (me.sorceress) {
+				Pather.moveTo(7876, 5296);
+			}
+
 			delay(1 + me.ping);
 		} else {
+			delay(1 + me.ping);
 			Pather.moveTo(7928, 5295, 3, 30); // temp
 		}
 
