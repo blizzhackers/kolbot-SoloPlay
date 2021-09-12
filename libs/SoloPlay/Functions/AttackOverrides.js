@@ -1104,7 +1104,13 @@ Attack.pwnDia = function () {
 		return false;
 	}
 
+	// Can't farcast if our skill main attack isn't meant for it
 	if ((["Poison", "Summon"].indexOf(SetUp.currentBuild) > -1)) {
+		return false;
+	}
+
+	// Can't farcast if our skill main attack isn't meant for it
+	if (Skill.getRange(Config.AttackSkill[1]) < 10) {
 		return false;
 	}
 
@@ -1171,7 +1177,11 @@ Attack.pwnDia = function () {
 					.first();
 				tick = getTickCount();
 				if (spot !== undefined) {
-					Pather.moveTo(spot.x, spot.y, 15, false);
+					if (me.gold < 10000 && me.sorceress) {
+						Pather.walkTo(spot.x, spot.y);
+					} else {
+						Pather.moveTo(spot.x, spot.y, 15, false);
+					}
 				}
 			}
 
@@ -1181,6 +1191,10 @@ Attack.pwnDia = function () {
 				ClassAttack.farCast(dia);
 			} else {
 				Skill.cast(Config.AttackSkill[1], 0, dia);
+
+				if (!!dia && !checkCollision(me, dia, Coords_1.Collision.BLOCK_MISSILE) && Skill.getRange(Config.AttackSkill[2]) > 15) {
+					Skill.cast(Config.AttackSkill[2], 0, dia);
+				}
 			}
 		}
 

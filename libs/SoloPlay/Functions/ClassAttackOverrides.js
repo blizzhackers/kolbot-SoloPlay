@@ -449,7 +449,7 @@ case 1: // Sorceress
 		if (useFNova && Skill.getManaCost(44) * 2 < me.mp && Attack.getMobCount(me.x, me.y, 6) >= 2) {
 			closeMobCheck = Attack.getNearestMonster();
 
-			if (!!closeMobCheck && Attack.checkResist(closeMobCheck, "cold") && !closeMobCheck.getState(11) && !closeMobCheck.dead) {
+			if (!!closeMobCheck && Attack.checkResist(closeMobCheck, "cold") && !closeMobCheck.isChilled && !closeMobCheck.dead) {
 				Skill.cast(44, 0, closeMobCheck);
 			}
 		}
@@ -542,7 +542,13 @@ case 1: // Sorceress
 			untimedSkill = Config.LowManaSkill[1];
 		}
 
-		// TODO: Figure out a way to dynamically use lower level/mana skills 
+		if (untimedSkill === 55) {
+			if (me.getSkill(45, 1) > me.getSkill(55, 1)) {
+				untimedSkill = 45; // Ice blast
+			}
+		}
+
+		// TODO: Figure out a way to dynamically use lower level/mana skills, no point in useing a 24+ mana skill if it would take a 4 mana skill to kill mob
 		/*if (me.normal && (gold < 5000 || Skill.getManaCost(timedSkill) * 1.5 > me.mp)) {
 			if (SetUp.currentBuild === "Start" && (me.getSkill(38, 1) && me.getSkill(45, 1) && (me.getSkill(39, 1)))) {
 				if (me.getSkill(55, 1) && Skill.getManaCost(55) < me.mp) {
@@ -651,8 +657,14 @@ case 1: // Sorceress
 			if (!unit.dead && !checkCollision(me, unit, 0x4)) {
 				let closeMobCheck = Attack.getNearestMonster();
 
-				if (Math.round(getDistance(me, closeMobCheck)) < 4 && Skill.getRange(timedSkill) > 10 && [36, 39, 45].indexOf(timedSkill) === -1) {
-					Attack.deploy(unit, 4, 5, 9);	// Try to find better spot
+				if (!!closeMobCheck && [36, 39, 45, 44, 48].indexOf(timedSkill) === -1 && [44, 48].indexOf(untimedSkill) === -1 && Skill.getRange(timedSkill) > 10) {
+					if (Math.round(getDistance(me, closeMobCheck)) < 4 && Attack.getMobCountAtPosition(closeMobCheck.x, closeMobCheck.y, 6) > 2) {
+						if (me.getSkill(55, 0) && me.mp > (Skill.getManaCost(55) + Skill.getManaCost(timedSkill)) && !closeMobCheck.isFrozen && !closeMobCheck.dead && !checkCollision(me, closeMobCheck, 0x4)) {
+							Skill.cast(55, 0, closeMobCheck);
+						}
+
+						Attack.deploy(unit, 4, 5, 9);	// Try to find better spot
+					}
 				}
 
 				Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
@@ -677,6 +689,7 @@ case 1: // Sorceress
 				}
 			}
 
+			// Mana throttle, worth it?
 			if (Skill.getManaCost(untimedSkill) > me.mp) {
 				tick = getTickCount();
 
@@ -691,6 +704,10 @@ case 1: // Sorceress
 
 			if (!unit.dead) {
 				Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
+
+				if (!unit.dead && untimedSkill === 48 && (me.getSkill(55, 0))) {	// Cast gspike, we are in close with nova so this can freeze the mobs around us
+					Skill.cast(55, 0, unit);
+				}
 			}
 
 			return 1;

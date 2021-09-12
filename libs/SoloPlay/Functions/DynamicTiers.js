@@ -16,6 +16,12 @@ var mercscore = function (item) {
 		CB: 3, // crushing blow
 		OW: 3, // open wounds
 		LL: 1.5, //lifeleach
+		// CTC on attack
+		CTCOAAMP: 5,
+		CTCOADECREP: 10,
+		// CTC on striking
+		CTCOSAMP: 3,
+		CTCOSDECREP: 8,
 		// regen
 		HPREGEN: 2,
 		FHR: 3, // faster hit recovery
@@ -59,6 +65,17 @@ var mercscore = function (item) {
 	mercRating += item.getStatEx(43) * mercWeights.CR; // add CR
 	mercRating += item.getStatEx(41) * mercWeights.LR; // add LR
 	mercRating += item.getStatEx(45) * mercWeights.PR; // add PR
+
+	if (!me.sorceress && !me.necromancer && !me.assassin) {
+		mercRating += item.getStatEx(195, 4238) * buildWeights.CTCOAAMP; // add CTC amplify damage on attack
+		mercRating += item.getStatEx(195, 4225) * buildWeights.CTCOAAMP; // add CTC amplify damage on attack (magic items)
+		mercRating += item.getStatEx(195, 5583) * buildWeights.CTCOADECREP; // add CTC decrepify on attack
+		mercRating += item.getStatEx(195, 5631) * buildWeights.CTCOADECREP; // add CTC decrepify on attack (magic items)
+		mercRating += item.getStatEx(198, 4238) * buildWeights.CTCOSAMP; // add CTC amplify damage on strikng
+		mercRating += item.getStatEx(198, 4225) * buildWeights.CTCOSAMP; // add CTC amplify damage on strikng (magic items)
+		mercRating += item.getStatEx(198, 5583) * buildWeights.CTCOSDECREP; // add CTC decrepify on strikng
+		mercRating += item.getStatEx(198, 5631) * buildWeights.CTCOSDECREP; // add CTC decrepify on strikng (magic items)
+	}
 
 	let rwBase;
 

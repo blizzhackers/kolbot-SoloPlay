@@ -34,6 +34,16 @@ Unit.prototype.getItemsEx = function (...args) {
 
 // Credit @Jaenster
 Object.defineProperties(Unit.prototype, {
+	isChilled: {
+		get: function () {
+			return this.getState(11);
+		},
+	},
+	isFrozen: {
+		get: function () {
+			return this.getState(1);
+		},
+	},
     rawStrength: {
         get: function () {
             var lvl = this.getStat(sdk.stats.Level);

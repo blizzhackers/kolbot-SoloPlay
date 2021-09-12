@@ -1,7 +1,7 @@
 /*
  *    @filename   	sorceress.startBuild.js
  *	  @author	  	isid0re, theBGuy
- *    @desc       	sorceress build for before respecOne - respecs at level 28
+ *    @desc       	sorceress Blova build for before respecOne - respecs at level 26
  */
 
 var build = {
@@ -29,7 +29,8 @@ var build = {
 		[42, 6], // Static -> charlvl 20
 		[39, 1], // ice bolt -> charlvl 21
 		[45, 1], // ice blast -> charlvl 22
-		[55, 1], // gspike -> charlvl 23
+		[55, 1], // gspike -> charlvl 
+		[45, 3], // ice blast -> charlvl 23
 		[59, 6, false], // blizzard -> charlvl 29 (never gets here)
 		[65, 1, false], // cold mastery -> charlvl 30 (never gets here)
 	]
