@@ -274,8 +274,10 @@ function diablo () {
 		this.openSeal(396);
 
 		if (this.vizLayout === 1) {
+			delay(1 + me.ping);
 			Pather.moveTo(7691, 5292, 3, 30);
 		} else {
+			delay(1 + me.ping);
 			Pather.moveTo(7695, 5316, 3, 30);
 		}
 
@@ -306,9 +308,10 @@ function diablo () {
 			if (me.sorceress) {
 				Pather.moveTo(7876, 5296);
 			}
-			
+
 			delay(1 + me.ping);
 		} else {
+			delay(1 + me.ping);
 			Pather.moveTo(7928, 5295, 3, 30); // temp
 		}
 
