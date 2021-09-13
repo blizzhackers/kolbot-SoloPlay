@@ -162,6 +162,7 @@ function ReceiveCopyData (mode, msg) {
 		setUp = {};
 		setUp.profile = me.profile.toUpperCase();
 		setUp.account = obj.Account;
+		setUp.password = "";
 		setUp.charName = obj.Character;
 		setUp.tag = obj.Tag;
 
@@ -319,7 +320,7 @@ function deleteAndRemakeChar (info) {
 }
 
 function saveInfo (info) {
-	if (FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName)) {		// Data already exists
+	if (FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charClass + "-" + info.charName + ".json")) {		// Data-file already exists
 		return;
 	}
 
@@ -335,7 +336,7 @@ function saveInfo (info) {
 		folder.create(info.realm);
 	}
 
-	if (!FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charName)) {
+	if (!FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName + ".json")) {
 		string = JSON.stringify(info);
 		FileTools.writeText("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName + ".json", string);
 	}
