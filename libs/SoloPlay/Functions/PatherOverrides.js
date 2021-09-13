@@ -392,6 +392,8 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 		Attack.weaponSwitch(Attack.getPrimarySlot() ^ 1);
 	}
 
+	let tpMana = Skill.getManaCost(54);	// Credit @Jaenster
+
 	while (path.length > 0) {
 		if (me.dead) { // Abort if dead
 			return false;
@@ -415,7 +417,6 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 				}
 			}
 
-			let tpMana = Skill.getManaCost(54);	// Credit @Jaenster
 			if (useTeleport && tpMana <= me.mp ? this.teleportTo(node.x, node.y) : this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
 				if (!me.inTown) {
 					if (this.recursion) {

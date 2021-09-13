@@ -30,9 +30,9 @@ var build = {
 		[64, 1], // frozen orb -> points left 51
 		[47, 20], // fireball 20 -> points left 33
 		[59, 20], // blizzard 20 -> points left 13
-		[55, 15], // gspike	15
+		[45, 15], // Ice blast
 		[56, 15], // meteor 15
-		[55, 20], // gspike 20
+		[45, 20], // Ice blast
 		[56, 20], // meteor 20
 		[65, 5], // cold mastery
 		[36, 20], // Fire Bolt

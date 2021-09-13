@@ -618,7 +618,7 @@ case 1: // Sorceress
 	};
 
 	ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-		var i, walk, tick,
+		var i, walk, tick, timedSkillRange, untimedSkillRange,
 			manaCostTimedSkill, manaCostUntimedSkill;
 
 		// No valid skills can be found
@@ -628,21 +628,28 @@ case 1: // Sorceress
 
 		if (timedSkill > -1 && (!me.getState(121) || !Skill.isTimed(timedSkill))) {
 			manaCostTimedSkill = Skill.getManaCost(timedSkill)
+			timedSkillRange = Skill.getRange(timedSkill);
+
+			if (timedSkill === 38) {	// Charged bolt
+				if (Attack.getMobCountAtPosition(unit.x, unit.y, 6) < 3) {
+					timedSkillRange = 5;
+				}
+			}
 
 			if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
 				return 0;
 			}
 
-			if (Math.round(getDistance(me, unit)) > Skill.getRange(timedSkill) || checkCollision(me, unit, 0x4)) {
+			if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, 0x4)) {
 				// Allow short-distance walking for melee skills
-				walk = Skill.getRange(timedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
+				walk = (timedSkillRange < 4 || (timedSkill === 38 && timedSkillRange === 5)) && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
 
-				if (!Attack.getIntoPosition(unit, Skill.getRange(timedSkill), 0x4, walk)) {
+				if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4, walk)) {
 					return 0;
 				}
 			}
 
-			if (Skill.getManaCost(timedSkill) > me.mp) {
+			if (manaCostTimedSkill > me.mp) {
 				tick = getTickCount();
 
 				while (getTickCount() - tick < 750) {
@@ -657,9 +664,9 @@ case 1: // Sorceress
 			if (!unit.dead && !checkCollision(me, unit, 0x4)) {
 				let closeMobCheck = Attack.getNearestMonster();
 
-				if (!!closeMobCheck && [36, 39, 45, 44, 48].indexOf(timedSkill) === -1 && [44, 48].indexOf(untimedSkill) === -1 && Skill.getRange(timedSkill) > 10) {
+				if (!!closeMobCheck && [36, 39, 45, 44, 48].indexOf(timedSkill) === -1 && [44, 48].indexOf(untimedSkill) === -1 && timedSkillRange > 10) {
 					if (Math.round(getDistance(me, closeMobCheck)) < 4 && Attack.getMobCountAtPosition(closeMobCheck.x, closeMobCheck.y, 6) > 2) {
-						if (me.getSkill(55, 0) && me.mp > (Skill.getManaCost(55) + Skill.getManaCost(timedSkill)) && !closeMobCheck.isFrozen && !closeMobCheck.dead && !checkCollision(me, closeMobCheck, 0x4)) {
+						if (me.getSkill(55, 0) && me.mp > (Skill.getManaCost(55) + manaCostTimedSkill) && !closeMobCheck.isFrozen && !closeMobCheck.dead && !checkCollision(me, closeMobCheck, 0x4)) {
 							Skill.cast(55, 0, closeMobCheck);
 						}
 
@@ -674,23 +681,24 @@ case 1: // Sorceress
 		}
 
 		if (untimedSkill > -1) {
-			manaCostUntimedSkill = Skill.getManaCost(untimedSkill)
+			manaCostUntimedSkill = Skill.getManaCost(untimedSkill);
+			untimedSkillRange = Skill.getRange(untimedSkill);
 
-			if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
+			if (untimedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) {
 				return 0;
 			}
 
-			if (Math.round(getDistance(me, unit)) > Skill.getRange(untimedSkill) || checkCollision(me, unit, 0x4)) {
+			if (Math.round(getDistance(me, unit)) > untimedSkillRange || checkCollision(me, unit, 0x4)) {
 				// Allow short-distance walking for melee skills
-				walk = Skill.getRange(untimedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
+				walk = untimedSkillRange < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
 
-				if (!Attack.getIntoPosition(unit, Skill.getRange(untimedSkill), 0x4, walk)) {
+				if (!Attack.getIntoPosition(unit, untimedSkillRange, 0x4, walk)) {
 					return 0;
 				}
 			}
 
 			// Mana throttle, worth it?
-			if (Skill.getManaCost(untimedSkill) > me.mp) {
+			if (manaCostUntimedSkill > me.mp) {
 				tick = getTickCount();
 
 				while (getTickCount() - tick < 750) {

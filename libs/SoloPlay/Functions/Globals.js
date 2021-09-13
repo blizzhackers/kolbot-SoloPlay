@@ -149,7 +149,7 @@ var SetUp = {
 			buildType = "Start";
 		} else if (me.charlvl >= SetUp.respecTwo()) {
 			buildType = SetUp.finalBuild;
-		} else if ((me.barbarian || me.sorceress) && me.charlvl >= SetUp.respecOne && me.charlvl < SetUp.respecOneB) {
+		} else if (SetUp.respecOneB > 0 && me.charlvl >= SetUp.respecOne && me.charlvl < SetUp.respecOneB) {
 			buildType = "Stepping";
 		} else {
 			buildType = "Leveling";
