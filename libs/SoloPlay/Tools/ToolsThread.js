@@ -635,6 +635,11 @@ function main () {
 	this.scriptEvent = function (msg) {
 		var obj;
 
+		// Added from Autosorc/Sorc.js
+		if (msg && typeof msg === "string" && msg !== "" && msg.substring(0, 8) === "config--") {
+			Config = JSON.parse(msg.split("config--")[1]);
+		}
+
 		switch (msg) {
 		case "toggleQuitlist":
 			canQuit = !canQuit;

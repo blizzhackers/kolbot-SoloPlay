@@ -596,11 +596,14 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit) { // probabl
 		}
 
 		if (!boss) {
-			throw new Error("Attack.clear: " + bossId + " not found");
-		}
+			print("Attack.clear: " + bossId + " not found");
 
-		orgx = boss.x;
-		orgy = boss.y;
+			orgx = me.x;
+			orgy = me.y;
+		} else {
+			orgx = boss.x;
+			orgy = boss.y;
+		}
 	} else {
 		orgx = me.x;
 		orgy = me.y;
@@ -633,7 +636,6 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit) { // probabl
 			return false;
 		}
 
-		//monsterList.sort(Sort.units);
 		monsterList.sort(sortfunc);
 
 		target = copyUnit(monsterList[0]);

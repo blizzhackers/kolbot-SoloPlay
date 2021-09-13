@@ -436,6 +436,11 @@ Misc.checkQuest = function (id, state) {
 	return me.getQuest(id, state);
 };
 
+// updates config obj across all threads - from legacy sonic
+Misc.updateConfig = function() {
+	scriptBroadcast("config--" + JSON.stringify(Misc.copy(Config)));
+};
+
 Misc.townEnabled = true;
 
 Misc.townCheck = function () {

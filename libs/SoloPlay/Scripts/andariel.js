@@ -72,17 +72,15 @@ function andariel () {
 
 	if (questBug) {
 		let tempConfig = Misc.copy(Config); // save and update config settings
-		let updateConfig = {
-			TownCheck: false,
-			MercWatch: false,
-			HealStatus: false,
-			TownHP: 0,
-			TownMP: 0,
-			PickRange: -1
-		};
-
+		Config.TownCheck = false;
+		Config.MercWatch = false;
+		Config.HealStatus = false;
+		Config.UseMerc = false;
+		Config.TownHP = 0;
+		Config.TownMP = 0;
+		Config.PickRange = -1;
 		Misc.townEnabled = false;
-		Object.assign(Config, updateConfig);
+		Misc.updateConfig();
 
 		if (Pather.changeAct()) {
 			delay(2000 + me.ping);
@@ -90,8 +88,9 @@ function andariel () {
 			// Now check my area
 			if (me.act === 2) {
 				// Act change sucessful, Andy has been bugged
-				print("ÿc8Kolbot-SoloPlayÿc0: Andy bugged, leaving game to ensure it stays that way");
-				me.overhead("Andy bugged, leaving game to ensure it stays that way");
+				let result = (Misc.checkQuest(6, 15) ? 'Sucessful' : 'Unsucessful');
+				print("ÿc8Kolbot-SoloPlayÿc0: Andy bugged was " + result);
+				me.overhead("Andy bug was " + result);
 				scriptBroadcast('quit');
 			}
 		}

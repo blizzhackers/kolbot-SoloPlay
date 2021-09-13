@@ -1753,7 +1753,7 @@ case 4: // Barbarian - theBGuy
 				Skill.cast(146, Skill.getHand(146), unit);
 
 				if (switchCast && !useWarCry) {
-					me.switchWeapons(1);
+					me.switchWeapons(0);
 				}
 			}
 		}

@@ -69,33 +69,30 @@ function ancients () {
 
 	Precast.doPrecast(true);
 	Pather.moveToExit(120, true); // enter at ancients plateau
-	let tempConfig = Misc.copy(Config); // save and update config settings
-	let updateConfig = {
-		TownCheck: false,
-		MercWatch: false,
-		HealStatus: false,
-		TownHP: 0,
-		TownMP: 0,
-		MPBuffer: 15,
-		HPBuffer: 15,
-		UseMercRejuv: 25,
-		LifeChicken: 5,
-		ManaChicken: 0,
-		MercChicken: 0
-	};
 
 	Town.townTasks();
-	me.overhead('updated settings');
-	Object.assign(Config, updateConfig);
 	Town.buyPots(10, "Thawing"); // prep to revised settings
 	Town.drinkPots();
 	Town.buyPots(10, "Antidote");
 	Town.drinkPots();
+
+	let tempConfig = Misc.copy(Config); // save and update config settings
+
+	Config.TownCheck = false;
+	Config.MercWatch = false;
+	Config.TownHP = 0;
+	Config.TownMP = 0;
+	Config.HPBuffer = 15;
+	Config.MPBuffer = 15;
+	Config.LifeChicken = 10;
+	Misc.updateConfig();
+	me.overhead('updated settings');
+
 	Town.buyPotions();
 	Pather.usePortal(120, me.name);
 	Precast.doPrecast(true);
 
-	if (!Pather.moveToPreset(me.area, 2, 546)) { // move to altar
+	if (!Pather.moveToPreset(120, 2, 546)) { // move to altar
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to ancients' altar");
 	}
 
@@ -127,8 +124,9 @@ function ancients () {
 	}
 	
 	me.cancel();
+	Config = tempConfig;
+	Misc.updateConfig();
 	me.overhead('restored settings');
-	Object.assign(Config, tempConfig);
 	Precast.doPrecast(true);
 
 	try {
