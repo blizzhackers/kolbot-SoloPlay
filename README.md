@@ -97,6 +97,9 @@ If you are enjoying my script consider supporting me at https://www.buymeacoffee
 |8.|Run the Bot.||
 |9.|Enjoy!||
 
+### Quick YouTube tutorial
+https://youtu.be/YtwxSMsVD1g
+
 ## Possible Profile Names 
 | Prefix | Description|
 |:----|:--|
