@@ -382,6 +382,15 @@ Town.identify = function () {
 	return true;
 };
 
+Town.canTpToTown = function () {
+	// No TP tome or tome with no scrolls or No scrolls and no TP tome
+	if ((!me.getItem(518) || me.getItem(518).getStat(70) === 0) || (!me.getItem(529) && !me.getItem(518))) {
+		return false;
+	}
+
+	return true;
+};
+
 Town.buyBook = function () {
 	if (me.findItem(518, 0, 3)) {
 		return true;

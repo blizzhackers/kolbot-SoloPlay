@@ -242,6 +242,16 @@ function diablo () {
 			if (me.sorceress) {
 				this.tkSeal(seal);
 			} else {
+				if (classid === 392 && me.assassin && this.infLayout === 1) {
+					if (Config.UseTraps) {
+						let check = ClassAttack.checkTraps({x: 7899, y: 5293});
+
+						if (check) {
+							ClassAttack.placeTraps({x: 7899, y: 5293}, check);
+						}
+					}
+				}
+
 				if (classid === 394) {
 					Misc.click(0, 0, seal);
 				} else {
@@ -305,7 +315,7 @@ function diablo () {
 		this.openSeal(392);
 
 		if (this.infLayout === 1) {
-			if (me.sorceress) {
+			if (me.sorceress || me.assassin) {
 				Pather.moveTo(7876, 5296);
 			}
 

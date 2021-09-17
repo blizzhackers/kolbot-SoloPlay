@@ -30,10 +30,10 @@ var build = {
 		[264, 1], // cloak of shadows -> points left 15
 		[279, 1], // shadow master -> points left 13
 		[276, 1], // death sentry -> points left 11
-		[271, 7], // lightning sentry -> points left 5
-		[251, 6], // fireblast	-> points left 2
-		[256, 10], // shock web -> points left 0
-		//[273, 1], // mind blast
+		[273, 1], // mind blast -> points left 10
+		[271, 7], // lightning sentry -> points left 4
+		[251, 6], // fireblast	-> points left 3
+		[256, 9], // shock web -> points left 0
 		[271, 20, false], // lightning sentry
 		[276, 10], // death sentry
 		[256, 9], // shock web

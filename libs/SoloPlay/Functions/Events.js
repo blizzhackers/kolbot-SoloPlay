@@ -63,30 +63,44 @@ var Events = {
 	dodge: function () {
 		let diablo = getUnit(1, 243);
 		let tick = getTickCount();
+		// Credit @Jaenster
+		let shouldDodge = function (coord) {
+			return diablo && getUnits(3)
+				// for every missle that isnt from our merc
+				.filter(function (missile) { return missile && diablo && diablo.gid === missile.owner; })
+				// if any
+				.some(function (missile) {
+				var xoff = Math.abs(coord.x - missile.targetx), yoff = Math.abs(coord.y - missile.targety), xdist = Math.abs(coord.x - missile.x), ydist = Math.abs(coord.y - missile.y);
+				// If missile wants to hit is and is close to us
+				return xoff < 10 && yoff < 10 && xdist < 15 && ydist < 15;
+			});
+		};
 		
-		if (diablo) {
+		if (diablo && shouldDodge(me)) {
+			print("DODGE");
 			// Disable things that will cause us to stop
 			Attack.stopClear = true;
 			Misc.townEnabled = false;
+			let dist = me.assassin ? 15 : 3;
 
 			while (getTickCount() - tick < 2000) {
 				if (me.y <= diablo.y) { // above D
 					if (me.x <= diablo.x) { //move east
-						Pather.moveTo(diablo.x + 3, diablo.y, null, false);
+						Pather.moveTo(diablo.x + dist, diablo.y, null, false);
 					}
 
 					if (me.x > diablo.x) { //move south
-						Pather.moveTo(diablo.x, diablo.y + 3, null, false);
+						Pather.moveTo(diablo.x, diablo.y + dist, null, false);
 					}
 				}
 
 				if (me.y > diablo.y) { // below D
 					if (me.x >= diablo.x) { //move west
-						Pather.moveTo(diablo.x - 3, diablo.y, null, false);
+						Pather.moveTo(diablo.x - dist, diablo.y, null, false);
 					}
 
 					if (me.x < diablo.x) { //move north
-						Pather.moveTo(diablo.x, diablo.y - 3, null, false);
+						Pather.moveTo(diablo.x, diablo.y - dist, null, false);
 					}
 				}
 			}
@@ -101,7 +115,7 @@ var Events = {
 		Pickit.pickItems();
 
 		// No Tome, or tome has no tps, or no scrolls
-		if ((!me.getItem(518) || me.getItem(518).getStat(70) === 0) || (!me.getItem(529) && !me.getItem(518))) {
+		if (!Town.canTpToTown()) {
 			Pather.moveToExit([2, 3], true);
 			Pather.getWP(3);
 			Pather.useWaypoint(1);
