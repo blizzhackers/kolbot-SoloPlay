@@ -34,7 +34,7 @@ case 0: //Amazon - theBGuy
 				if (Math.round(getDistance(me, unit)) < Skill.getRange(Config.AttackSkill[0]) || !checkCollision(me, unit, 0x4)) {
 					if ([156, 211, 242, 243, 544, 571, 391, 365, 267, 229].indexOf(unit.classid) > -1) {	//Act Bosses and mini-bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
 						if (!unit.getState(17)) {	//Check if already in this state
-							Skill.cast(8, Skill.getHand(8), unit);
+							Skill.cast(8, 0, unit);
 						}
 					} else {
 						Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
@@ -2431,7 +2431,8 @@ case 6: // Assasin
 
 		let list = Attack.buildMonsterList();
 		let mindBlastMpCost = Skill.getManaCost(273);
-		let list = list.filter(mob => !mob.isStunned && !checkCollision(me, mob, 0x4) && (Math.round(getDistance(me, mob)) <= 4 || (Math.round(getDistance(me, mob)) >= 20 && Math.round(getDistance(me, mob)) <= 30)));
+		let list = list.filter(mob => !mob.isStunned && [156, 211, 242, 243, 544].indexOf(mob.classid) === -1 && !checkCollision(me, mob, 0x4) &&
+		 	(Math.round(getDistance(me, mob)) <= 6 || (Math.round(getDistance(me, mob)) >= 20 && Math.round(getDistance(me, mob)) <= 30)));
 
 		// Cast on close mobs first
 		list.sort(function (a, b) {
@@ -2472,7 +2473,7 @@ case 6: // Assasin
 						if (traps >= Config.Traps.length) {
 							return true;
 						}
-						
+
 						switch (Config.Traps[traps]) {
 						case 261: 	// Charged Bolt Sentry
 						case 271: 	// Lightning Sentry
@@ -2534,15 +2535,16 @@ case 6: // Assasin
 			return 1;
 		}
 
-		var index, checkTraps, checkSkill, result,
+		var checkTraps, checkSkill, result,
 			mercRevive = 0,
 			timedSkill = -1,
-			untimedSkill = -1;
+			untimedSkill = -1,
+			index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
-		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+		let shouldUseCloak = me.getSkill(264, 1) && ([156, 211, 242, 243, 544].indexOf(unit.classid) === -1 || ([156, 211, 242, 243, 544].indexOf(unit.classid) > -1 && Attack.getMobCountAtPosition(unit.x, unit.y, 20) > 1));
 
 		// Cloak of Shadows (Aggressive) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
-		if (Config.AggressiveCloak && Config.UseCloakofShadows && me.getSkill(264, 1) && !me.getState(121) && !me.getState(153)) {
+		if (Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && !me.getState(121) && !me.getState(153)) {
 			if (getDistance(me, unit) < 20) {
 				Skill.cast(264, 0);
 			} else if (!Attack.getIntoPosition(unit, 20, 0x4)) {
@@ -2563,7 +2565,7 @@ case 6: // Assasin
 		}
 
 		// Cloak of Shadows (Defensive; default) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
-		if (!Config.AggressiveCloak && Config.UseCloakofShadows && me.getSkill(264, 1) && getDistance(me, unit) < 20 && !me.getState(121) && !me.getState(153)) {
+		if (!Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && getDistance(me, unit) < 20 && !me.getState(121) && !me.getState(153)) {
 			Skill.cast(264, 0);
 		}
 
