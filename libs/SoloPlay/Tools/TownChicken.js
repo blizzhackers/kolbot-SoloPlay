@@ -171,7 +171,7 @@ function main() {
 				Misc.errorReport(e, "TownChicken.js");
 				scriptBroadcast("quit");
 
-				return;
+				return false;
 			} finally {
 				this.togglePause();
 

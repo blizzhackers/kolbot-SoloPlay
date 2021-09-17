@@ -7,8 +7,8 @@
 var build = {
 	caster: true,
 	skillstab: 48, // traps
-	wantedskills: [251, 271, 276], // fireblast, lightning sentry, death sentry
-	usefulskills: [261, 263], // charged bolt sentry, weapon block
+	wantedskills: [251, 271, 276, 279], // fireblast, lightning sentry, death sentry, shadow master
+	usefulskills: [261, 277, 267], // charged bolt sentry, blade shield, fade
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: 114,
 	mercDiff: 1,
@@ -33,7 +33,8 @@ var build = {
 		[273, 1], // mind blast -> points left 10
 		[271, 7], // lightning sentry -> points left 4
 		[251, 6], // fireblast	-> points left 3
-		[256, 9], // shock web -> points left 0
+		[256, 8], // shock web -> points left 1
+		[262, 1], // wake of fire -> points left 0
 		[271, 20, false], // lightning sentry
 		[276, 10], // death sentry
 		[256, 9], // shock web

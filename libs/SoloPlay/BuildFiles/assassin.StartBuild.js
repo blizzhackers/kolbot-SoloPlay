@@ -8,7 +8,7 @@ var build = {
 	caster: true,
 	skillstab: 48, // traps
 	wantedskills: [251, 262], // fireblast, wake of fire
-	usefulskills: [264], // Cloak of shadows
+	usefulskills: [264, 268], // Cloak of shadows, shadow warrior
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: 114,
 	mercDiff: 1,
@@ -25,8 +25,6 @@ var build = {
 		[258, 5], // burst of speed -> level 11
 		[262, 1, false], // wake of fire -> level 12
 		[264, 1, true], // CoS -> level 13
-		//[262, 5, false], // wake of fire -> level 17
-		//[279, 1], // shadow warrior -> charlvl 18
 		[262, 10, false], // wake of fire -> level 24
 		[251, 6, false], // fireblast -> level 26
 		[262, 20, false], // wake of fire -> level 36
