@@ -605,7 +605,7 @@ Attack.clearLevel = function (spectype) {
 };
 
 // Clear an entire area until area is done or level is reached
-Attack.clearLevelWhileLevel = function (charlvl) {
+Attack.clearLevelUntilLevel = function (charlvl, spectype) {
 	var room, result, rooms, myRoom, currentArea, previousArea;
 
 	function RoomSort(a, b) {
@@ -629,6 +629,9 @@ Attack.clearLevelWhileLevel = function (charlvl) {
 	do {
 		rooms.push([room.x * 5 + room.xsize / 2, room.y * 5 + room.ysize / 2]);
 	} while (room.getNext());
+
+	print("ÿc8Kolbot-SoloPlayÿc0: Starting Clear until level My level: " + me.charlvl + " wanted level: " + charlvl);
+	me.overhead("Starting Clear until level My level: " + me.charlvl + " wanted level: " + charlvl);
 
 	while (rooms.length > 0) {
 		// get the first room + initialize myRoom var
@@ -659,8 +662,9 @@ Attack.clearLevelWhileLevel = function (charlvl) {
 			}
 
 			if (me.charlvl >= charlvl) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Clear while level requirment met. My level: " + me.charlvl + " wanted level: " + charlvl);
-				break;
+				print("ÿc8Kolbot-SoloPlayÿc0: Clear until level requirment met. My level: " + me.charlvl + " wanted level: " + charlvl);
+				me.overhead("Clear until level requirment met. My level: " + me.charlvl + " wanted level: " + charlvl);
+				return true;
 			}
 
 			if (!this.clear(40, spectype)) {
