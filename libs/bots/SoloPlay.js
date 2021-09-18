@@ -137,6 +137,14 @@ function SoloPlay () {
 	}
 
 	this.runScripts();
+
+	let nextDifficulty = Check.nextDifficulty();
+
+	if (nextDifficulty) {
+		DataFile.updateStats("setDifficulty", nextDifficulty);
+		D2Bot.setProfile(null, null, null, nextDifficulty);
+	}
+
 	scriptBroadcast('quit');
 
 	return true;
