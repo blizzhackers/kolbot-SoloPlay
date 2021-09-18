@@ -2485,6 +2485,8 @@ case 6: // Assasin
 								}
 
 								break;
+							} else {
+								Skill.cast(Config.Traps[traps], 0, unit.x + i, unit.y + j);
 							}
 
 							break;
@@ -2498,6 +2500,8 @@ case 6: // Assasin
 								}
 
 								break;
+							} else {
+								Skill.cast(Config.Traps[traps], 0, unit.x + i, unit.y + j);
 							}
 
 							break;
