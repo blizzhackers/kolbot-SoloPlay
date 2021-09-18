@@ -64,7 +64,7 @@ Attack.getSkillElement = function (skillId) {
 	case 139: // Stun
 	case 144: // Concentrate
 	case 147: // Frenzy
-	case 273: // Minge Blast
+	case 273: // Mind Blast
 	case 500: // Summoner
 		return "physical";
 	case 101: // Holy Bolt
@@ -82,7 +82,7 @@ Attack.getSkillElement = function (skillId) {
 };
 
 Attack.checkResist = function (unit, val, maxres) {
-	if (!unit || unit === undefined) {
+	if (!unit || !unit.type || unit === undefined) {
 		return true;
 	}
 
@@ -903,6 +903,17 @@ Attack.sortMonsters = function (unitA, unitB) {
 
 		if (!Attack.checkResist(unitB, Attack.getSkillElement(Config.AttackSkill[(unitB.spectype & 0x7) ? 1 : 3]))) {
 			return -1;
+		}
+	}
+
+	// Baal optimization
+	if (me.area === 132) {
+		if (unitA.classid === 544) {
+			return -1;
+		}
+
+		if (unitB.classid === 544) {
+			return 1;
 		}
 	}
 

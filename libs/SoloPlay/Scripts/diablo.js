@@ -235,7 +235,11 @@ function diablo () {
 				}
 			}
 
-			if (seal === undefined || seal.mode) {
+			if (seal === undefined) {
+				return false;
+			}
+
+			if (seal.mode) {
 				return true;
 			}
 
@@ -274,9 +278,28 @@ function diablo () {
 			}
 		}
 
+		if (!seal.mode) {
+			print("ÿc8Kolbot-SoloPlayÿc0: Failed to open seal (id " + classid + ")" + ". Attempting portal trick");
+			Town.goToTown();
+			delay(25 + me.ping);
+			Pather.usePortal(null, me.name);
+
+			for (let a = 0; a < 3; a += 1) {
+				if (seal.mode) {
+					return true;
+				}
+
+				if (classid === 394) {
+					Misc.click(0, 0, seal);
+				} else {
+					seal.interact();
+				}
+			}
+		}
+
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to open seal (id " + classid + ")");
 
-		return true;
+		return false;
 	};
 
 	this.vizier = function () {
