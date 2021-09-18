@@ -220,6 +220,7 @@ function diablo () {
 				Pather.usePortal(null, me.name);
 
 				for (let a = 0; a < 3; a += 1) {
+					seal = getUnit(2, classid);
 
 					if (seal) {
 						break;
@@ -283,6 +284,12 @@ function diablo () {
 			Town.goToTown();
 			delay(25 + me.ping);
 			Pather.usePortal(null, me.name);
+			seal = Misc.poll(function () { return getUnit(2, classid); });
+
+			if (!seal) {
+				print("ÿc8Kolbot-SoloPlayÿc0: Failed to open seal (id " + classid + ")");
+				return false;
+			}
 
 			for (let a = 0; a < 3; a += 1) {
 				if (seal.mode) {
