@@ -49,12 +49,7 @@ function SoloPlay () {
 	};
 
 	this.runScripts = function () {
-		let j, k, updatedDifficulty = Check.nextDifficulty();
-
-		if (updatedDifficulty) {
-			DataFile.updateStats("setDifficulty", updatedDifficulty);
-			D2Bot.setProfile(null, null, null, updatedDifficulty);
-		}
+		let j, k;
 
 		switch (Check.broken()) {
 		case 1:
@@ -136,13 +131,23 @@ function SoloPlay () {
 		}
 	}
 
+	let updatedDifficulty = Check.nextDifficulty();
+
+	if (updatedDifficulty) {
+		DataFile.updateStats("setDifficulty", updatedDifficulty);
+		D2Bot.setProfile(null, null, null, updatedDifficulty);
+	}
+
 	this.runScripts();
 
-	let nextDifficulty = Check.nextDifficulty();
+	// Re-check to see if after this run we now meet difficulty requirments
+	if (!updatedDifficulty) {
+		updatedDifficulty = Check.nextDifficulty(false);
 
-	if (nextDifficulty) {
-		DataFile.updateStats("setDifficulty", nextDifficulty);
-		D2Bot.setProfile(null, null, null, nextDifficulty);
+		if (updatedDifficulty) {
+			DataFile.updateStats("setDifficulty", updatedDifficulty);
+			D2Bot.setProfile(null, null, null, updatedDifficulty);
+		}
 	}
 
 	scriptBroadcast('quit');

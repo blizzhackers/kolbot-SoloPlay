@@ -651,7 +651,7 @@ var Check = {
 		};	
 	},
 
-	nextDifficulty: function () {
+	nextDifficulty: function (announce = true) {
 		let diffShift = me.diff;
 		let lowRes = !this.Resistance().Status;
 		let lvlReq = (me.charlvl >= SetUp.levelCap) && ["Bumper", "Socketmule"].indexOf(SetUp.finalBuild) === -1 && Item.getEquippedItem(4).durability !== 0 ? true : false;
@@ -661,16 +661,19 @@ var Check = {
 			if (lvlReq) {
 				if (!lowRes) {
 					diffShift = me.diff + 1;
-					D2Bot.printToConsole('Kolbot-SoloPlay: next difficulty requirements met. Starting: ' + Difficulty[diffShift], 8);
+					if (announce) {D2Bot.printToConsole('Kolbot-SoloPlay: next difficulty requirements met. Starting: ' + Difficulty[diffShift], 8);}
 				} else {
 					if (me.charlvl >= SetUp.levelCap + 5) {
 						diffShift = me.diff + 1;
-						D2Bot.printToConsole('Kolbot-SoloPlay: Over leveled. Starting: ' + Difficulty[diffShift]);
+						if (announce) {D2Bot.printToConsole('Kolbot-SoloPlay: Over leveled. Starting: ' + Difficulty[diffShift]);}
 					} else {
-						D2Bot.printToConsole('Kolbot-SoloPlay: ' + Difficulty[diffShift + 1] + ' requirements not met. Negative resistance. FR: ' + Check.Resistance().FR + ' | CR: ' + Check.Resistance().CR + ' | LR: ' + Check.Resistance().LR);
+						if (announce) {D2Bot.printToConsole('Kolbot-SoloPlay: ' + Difficulty[diffShift + 1] + ' requirements not met. Negative resistance. FR: ' + Check.Resistance().FR + ' | CR: ' + Check.Resistance().CR + ' | LR: ' + Check.Resistance().LR);}
+						return false;
 					}
 				}
 			}
+		} else {
+			return false;
 		}
 
 		let nextDiff = Difficulty[diffShift];
