@@ -82,6 +82,10 @@ Attack.getSkillElement = function (skillId) {
 };
 
 Attack.checkResist = function (unit, val, maxres) {
+	if (!unit || unit === undefined) {
+		return true;
+	}
+
 	// Ignore player resistances
 	if (unit.type === 0) {
 		return true;
