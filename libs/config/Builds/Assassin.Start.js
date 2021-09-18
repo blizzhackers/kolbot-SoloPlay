@@ -56,7 +56,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 			Config.LowManaSkill = [0, 0];
 			Config.TownCheck = me.findItem("tbk", 0, 3);
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
@@ -74,7 +74,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 			Config.TownCheck = me.findItem("tbk", 0, 3);
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
 		}
@@ -84,7 +84,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 			Config.TownCheck = me.findItem("tbk", 0, 3);
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
 		}
@@ -94,7 +94,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 			Config.TownCheck = me.findItem("tbk", 0, 3);
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
 		}
@@ -164,7 +164,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 			Config.UseTraps = true;
 			Config.Traps = [262, 262, 262, -1, -1]; // Skill IDs for traps to be cast on all mosters except act bosses.
 			Config.BossTraps = [262, 262, 262, 262, 262]; // Skill IDs for traps to be cast on act bosses.
@@ -175,7 +175,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -184,7 +184,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -193,7 +193,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -202,7 +202,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -211,7 +211,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -220,7 +220,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -229,7 +229,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -238,7 +238,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -247,7 +247,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -256,7 +256,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -265,7 +265,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -274,7 +274,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -283,7 +283,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -291,7 +291,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -299,7 +299,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -307,7 +307,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -315,7 +315,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -323,7 +323,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},
@@ -331,7 +331,7 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 251, -1, 251, -1, 0, 0];
+			Config.AttackSkill = [-1, 251, -1, 251, -1, me.getSkill(253, 1) ? 253 : 0, 0];
 
 		}
 	},

@@ -130,29 +130,22 @@ function main() {
 	let useHowl = me.barbarian && me.getSkill(130, 0);
 	let useTerror = me.necromancer && me.getSkill(77, 0);
 
-	function haveTpTome () {
-		let book = me.getItem(518);
-
-		if (!book || book.getStat(70) == 0) {
-			return false;
-		}
-
-		return true;
-	};
-
-
 	while (true) {
-		if (!me.inTown && [120, 136].indexOf(me.area) === -1 && haveTpTome() && (townCheck ||
+		if (!me.inTown && [120, 136].indexOf(me.area) === -1 && Town.canTpToTown() && (townCheck ||
 			(Config.TownHP > 0 && me.hp < Math.floor(me.hpmax * Config.TownHP / 100)) ||
 			(Config.TownMP > 0 && me.mp < Math.floor(me.mpmax * Config.TownMP / 100)))) {
 			this.togglePause();
 
 			while (!me.gameReady) {
+				if (me.dead) {
+					return false;
+				}
+			
 				delay(100);
 			}
 
 			if (me.dead) {
-				break;
+				return false;
 			}
 
 			Attack.stopClear = true;
@@ -178,7 +171,7 @@ function main() {
 				Misc.errorReport(e, "TownChicken.js");
 				scriptBroadcast("quit");
 
-				return;
+				return false;
 			} finally {
 				this.togglePause();
 

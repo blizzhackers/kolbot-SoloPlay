@@ -44,34 +44,44 @@ Object.defineProperties(Unit.prototype, {
 			return this.getState(1);
 		},
 	},
-    rawStrength: {
-        get: function () {
-            var lvl = this.getStat(sdk.stats.Level);
-            var rawBonus = function (i) { return i.getStat(sdk.stats.Strength); };
-            var perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelStrength) / 8; };
-            var bonus = ~~(this.getItemsEx()
-                .filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
-                .map(function (i) { return rawBonus(i) + perLvlBonus(i); })
-                .reduce(function (acc, v) { return acc + v; }, 0));
-            return this.getStat(sdk.stats.Strength) - bonus;
-        },
-    },
-    rawDexterity: {
-        get: function () {
-            var lvl = this.getStat(sdk.stats.Level);
-            var rawBonus = function (i) { return i.getStat(sdk.stats.Dexterity); };
-            var perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelDexterity) / 8; };
-            var bonus = ~~(this.getItemsEx()
-                .filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
-                .map(function (i) { return rawBonus(i) + perLvlBonus(i); })
-                .reduce(function (acc, v) { return acc + v; }, 0));
-            return this.getStat(sdk.stats.Dexterity) - bonus;
-        },
-    }
+    isStunned: {
+		get: function () {
+			return this.getState(21);
+		},
+	},
+	isUnderCoS: {
+		get: function () {
+			return this.getState(156);
+		},
+	},
 });
 
 // Credit @Jaenster
 Object.defineProperties(Unit.prototype, {
+	rawStrength: {
+		get: function () {
+			var lvl = this.getStat(sdk.stats.Level);
+			var rawBonus = function (i) { return i.getStat(sdk.stats.Strength); };
+			var perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelStrength) / 8; };
+			var bonus = ~~(this.getItemsEx()
+				.filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
+				.map(function (i) { return rawBonus(i) + perLvlBonus(i); })
+				.reduce(function (acc, v) { return acc + v; }, 0));
+			return this.getStat(sdk.stats.Strength) - bonus;
+		},
+	},
+	rawDexterity: {
+		get: function () {
+			var lvl = this.getStat(sdk.stats.Level);
+			var rawBonus = function (i) { return i.getStat(sdk.stats.Dexterity); };
+			var perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelDexterity) / 8; };
+			var bonus = ~~(this.getItemsEx()
+				.filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
+				.map(function (i) { return rawBonus(i) + perLvlBonus(i); })
+				.reduce(function (acc, v) { return acc + v; }, 0));
+			return this.getStat(sdk.stats.Dexterity) - bonus;
+		},
+	},
     isEquipped: {
         get: function () {
             if (this.type !== sdk.unittype.Item)

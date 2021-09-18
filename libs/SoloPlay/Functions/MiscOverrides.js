@@ -448,8 +448,8 @@ Misc.townCheck = function () {
 		needhp = true,
 		needmp = true;
 
-	// Can't tp from uber trist or when dead. Don't tp from Arreat Summit
-	if ([120, 136].indexOf(me.area) > -1 || me.dead || !Misc.townEnabled) {
+	// Can't tp from uber trist or when dead. Don't tp from Arreat Summit. Can't tp at all if No TP tome or scrolls
+	if ([120, 136].indexOf(me.area) > -1 || me.dead || !Misc.townEnabled || !Town.canTpToTown()) {
 		return false;
 	}
 

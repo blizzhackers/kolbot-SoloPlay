@@ -34,7 +34,7 @@ case 0: //Amazon - theBGuy
 				if (Math.round(getDistance(me, unit)) < Skill.getRange(Config.AttackSkill[0]) || !checkCollision(me, unit, 0x4)) {
 					if ([156, 211, 242, 243, 544, 571, 391, 365, 267, 229].indexOf(unit.classid) > -1) {	//Act Bosses and mini-bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
 						if (!unit.getState(17)) {	//Check if already in this state
-							Skill.cast(8, Skill.getHand(8), unit);
+							Skill.cast(8, 0, unit);
 						}
 					} else {
 						Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
@@ -2415,16 +2415,140 @@ case 6: // Assasin
 		include("common/Attacks/Assassin.js");
 	}
 
-	ClassAttack.farCast = function (unit) {
-		var i, walk, timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
-
-		// No valid skills can be found
-		if (timedSkill < 0 && untimedSkill < 0) {
-			return 2;
+	ClassAttack.mindBlast = function (unit) {
+		if (!me.getSkill(273, 1)) {
+			return;
 		}
 
+		// Main bosses
+		if ([156, 211, 242, 243, 544].indexOf(unit.classid) > -1) {
+			return;
+		}
+
+		if ([73, 120, 132].indexOf(me.area) > -1) {		// Duriel's Lair, Arreat Summit, Worldstone Chamber
+			return;
+		}
+
+		let list = Attack.buildMonsterList();
+		let mindBlastMpCost = Skill.getManaCost(273);
+		let list = list.filter(mob => !mob.isStunned && [156, 211, 242, 243, 544].indexOf(mob.classid) === -1 && !checkCollision(me, mob, 0x4) &&
+		 	(Math.round(getDistance(me, mob)) <= 6 || (Math.round(getDistance(me, mob)) >= 20 && Math.round(getDistance(me, mob)) <= 30)));
+
+		// Cast on close mobs first
+		list.sort(function (a, b) {
+			return Math.round(getDistance(me, a)) - Math.round(getDistance(me, b));
+		});
+
+		if (list.length >= 1) {
+			for (let i = 0; i < list.length; i++) {
+				if (!list[i].dead && !checkCollision(me, list[i], 0x1) && me.mp > mindBlastMpCost) {
+					me.overhead("MindBlasting " + list[i].name);
+					Skill.cast(273, 0, list[i]);
+				}
+			}
+		}
+	};
+
+	ClassAttack.placeTraps = function (unit, amount) {
+		var i, j,
+			traps = 0;
+
+		this.lastTrapPos = {x: unit.x, y: unit.y};
+
+		for (i = -1; i <= 1; i += 1) {
+			for (j = -1; j <= 1; j += 1) {
+				if (Math.abs(i) === Math.abs(j)) { // used for X formation
+					// unit can be an object with x, y props too, that's why having "mode" prop is checked
+					if (traps >= amount || (unit.hasOwnProperty("mode") && (unit.mode === 0 || unit.mode === 12))) {
+						return true;
+					}
+
+					if ((unit.hasOwnProperty("classid") && [211, 242, 243, 544].indexOf(unit.classid) > -1) || (unit.hasOwnProperty("type") && unit.type === 0)) { // Duriel, Mephisto, Diablo, Baal, other players
+						if (traps >= Config.BossTraps.length) {
+							return true;
+						}
+
+						Skill.cast(Config.BossTraps[traps], 0, unit.x + i, unit.y + j);
+					} else {
+						if (traps >= Config.Traps.length) {
+							return true;
+						}
+
+						switch (Config.Traps[traps]) {
+						case 261: 	// Charged Bolt Sentry
+						case 271: 	// Lightning Sentry
+							if (!Attack.checkResist(unit, "lightning") && Attack.checkResist(unit, "fire")) {
+								if (me.getSkill(262, 1)) {	// Wake of Fire
+									Skill.cast(262, 0, unit.x + i, unit.y + j);
+								} else if (!me.getSkill(262, 1) && me.getSkill(272, 1)) {	// Inferno
+									Skill.cast(272, 0, unit.x + i, unit.y + j);
+								}
+
+								break;
+							} else {
+								Skill.cast(Config.Traps[traps], 0, unit.x + i, unit.y + j);
+							}
+
+							break;
+						case 262: 	// Wake of Fire
+						case 272: 	// Inferno
+							if (Attack.checkResist(unit, "lightning") && !Attack.checkResist(unit, "fire")) {
+								if (me.getSkill(271, 1)) {	// Lightning Sentry
+									Skill.cast(271, 0, unit.x + i, unit.y + j);
+								} else if (!me.getSkill(271, 1) && me.getSkill(261, 1)) {	// Inferno
+									Skill.cast(261, 0, unit.x + i, unit.y + j);
+								}
+
+								break;
+							} else {
+								Skill.cast(Config.Traps[traps], 0, unit.x + i, unit.y + j);
+							}
+
+							break;
+						default:
+							Skill.cast(Config.Traps[traps], 0, unit.x + i, unit.y + j);
+
+							break;
+						}
+					}
+
+					traps += 1;
+				}
+			}
+		}
+
+		return true;
+	};
+
+	ClassAttack.doAttack = function (unit, preattack) {
+		if (Config.MercWatch && Town.needMerc()) {
+			Town.visitTown();
+		}
+
+		this.mindBlast(unit);
+
+		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
+			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
+				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
+					return 0;
+				}
+			}
+
+			Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
+
+			return 1;
+		}
+
+		var checkTraps, checkSkill, result,
+			mercRevive = 0,
+			timedSkill = -1,
+			untimedSkill = -1,
+			index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+
+		let shouldUseCloak = me.getSkill(264, 1) && ([156, 211, 242, 243, 544].indexOf(unit.classid) === -1 || ([156, 211, 242, 243, 544].indexOf(unit.classid) > -1 && Attack.getMobCountAtPosition(unit.x, unit.y, 20) > 1));
+
 		// Cloak of Shadows (Aggressive) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
-		if (Config.AggressiveCloak && Config.UseCloakofShadows && me.getSkill(264, 1) && !me.getState(121) && !me.getState(153)) {
+		if (Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && !me.getState(121) && !me.getState(153)) {
 			if (getDistance(me, unit) < 20) {
 				Skill.cast(264, 0);
 			} else if (!Attack.getIntoPosition(unit, 20, 0x4)) {
@@ -2432,11 +2556,11 @@ case 6: // Assasin
 			}
 		}
 
-		let checkTraps = this.checkTraps(unit);
+		checkTraps = this.checkTraps(unit);
 
 		if (checkTraps) {
-			if (Math.round(getDistance(me, unit)) > 30 || checkCollision(me, unit, 0x4)) {
-				if (!Attack.getIntoPosition(unit, 30, 0x4) || (checkCollision(me, unit, 0x1) && (getCollision(unit.area, unit.x, unit.y) & 0x1))) {
+			if (Math.round(getDistance(me, unit)) > this.trapRange || checkCollision(me, unit, 0x4)) {
+				if (!Attack.getIntoPosition(unit, this.trapRange, 0x4) || (checkCollision(me, unit, 0x1) && (getCollision(unit.area, unit.x, unit.y) & 0x1))) {
 					return 0;
 				}
 			}
@@ -2445,43 +2569,106 @@ case 6: // Assasin
 		}
 
 		// Cloak of Shadows (Defensive; default) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
-		if (!Config.AggressiveCloak && Config.UseCloakofShadows && me.getSkill(264, 1) && getDistance(me, unit) < 20 && !me.getState(121) && !me.getState(153)) {
+		if (!Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && getDistance(me, unit) < 20 && !me.getState(121) && !me.getState(153)) {
 			Skill.cast(264, 0);
 		}
 
-		if (timedSkill > -1 && (!me.getState(121) || !Skill.isTimed(timedSkill))) {
-			switch (timedSkill) {
-			case 151: // Whirlwind
-
-				return 2;
-			default:
-
-				if (!unit.dead) {
-					Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
-				}
-
-				return 1;
-			}
+		// Get timed skill
+		if (Attack.getCustomAttack(unit)) {
+			checkSkill = Attack.getCustomAttack(unit)[0];
+		} else {
+			checkSkill = Config.AttackSkill[index];
 		}
 
-		if (untimedSkill > -1) {
+		if (Attack.checkResist(unit, checkSkill)) {
+			timedSkill = checkSkill;
+		} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([56, 59].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+			timedSkill = Config.AttackSkill[5];
+		}
 
-			if (!unit.dead) {
-				Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
+		// Get untimed skill
+		if (Attack.getCustomAttack(unit)) {
+			checkSkill = Attack.getCustomAttack(unit)[1];
+		} else {
+			checkSkill = Config.AttackSkill[index + 1];
+		}
+
+		if (Attack.checkResist(unit, checkSkill)) {
+			untimedSkill = checkSkill;
+		} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([56, 59].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+			untimedSkill = Config.AttackSkill[6];
+		}
+
+		// Low mana timed skill
+		if (Config.LowManaSkill[0] > -1 && Skill.getManaCost(timedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[0])) {
+			timedSkill = Config.LowManaSkill[0];
+		}
+
+		// Low mana untimed skill
+		if (Config.LowManaSkill[1] > -1 && Skill.getManaCost(untimedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[1])) {
+			untimedSkill = Config.LowManaSkill[1];
+		}
+
+		result = this.doCast(unit, timedSkill, untimedSkill);
+
+		if (result === 2 && Config.TeleStomp && Attack.checkResist(unit, "physical") && !!me.getMerc()) {
+			while (Attack.checkMonster(unit)) {
+				if (Town.needMerc()) {
+					if (Config.MercWatch && mercRevive++ < 1) {
+						Town.visitTown();
+					} else {
+						return 2;
+					}
+				}
+
+				if (getDistance(me, unit) > 3) {
+					Pather.moveToUnit(unit);
+				}
+
+				this.doCast(unit, Config.AttackSkill[1], Config.AttackSkill[2]);
 			}
 
 			return 1;
 		}
 
-		for (i = 0; i < 25; i += 1) {
-			if (!me.getState(121)) {
-				break;
-			}
+		return result;
+	};
 
-			delay(40);
+	ClassAttack.farCast = function (unit) {
+		var timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
+
+		// No valid skills can be found
+		if (timedSkill < 0 && untimedSkill < 0) {
+			return false;
 		}
 
-		return 1;
+		let checkTraps = this.checkTraps(unit);
+
+		if (checkTraps) {
+			if (Math.round(getDistance(me, unit)) > 30 || checkCollision(me, unit, 0x4)) {
+				if (!Attack.getIntoPosition(unit, 30, 0x4) || (checkCollision(me, unit, 0x1) && (getCollision(unit.area, unit.x, unit.y) & 0x1))) {
+					return false;
+				}
+			}
+
+			this.placeTraps(unit, checkTraps);
+		}
+
+		if (timedSkill > -1 && (!me.getState(121) || !Skill.isTimed(timedSkill))) {
+			if (!unit.dead) {
+				Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
+			}
+		}
+
+		if (untimedSkill > -1) {
+			if (!unit.dead) {
+				Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
+			}
+		}
+
+		//print("FarCasting: Diablo's health " + ((unit.hp / unit.hpmax) * 100) + " % left" + " my distance from diablo: " + Math.round(getDistance(me, unit)));
+
+		return true;
 	};
 
 	break;

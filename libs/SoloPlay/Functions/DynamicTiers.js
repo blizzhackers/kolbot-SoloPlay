@@ -130,7 +130,7 @@ var tierscore = function (item) {
 
 	var casterWeights = {
 		//breakpoint stats
-		FCR: 5,
+		FCR: (me.assassin ? 2 : 5),
 		IAS: (me.assassin ? 4 : 0),
 		// regen
 		HPREGEN: 2,

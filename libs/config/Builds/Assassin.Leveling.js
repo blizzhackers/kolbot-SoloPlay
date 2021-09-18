@@ -41,6 +41,7 @@ var AutoBuildTemplate = {
 			Config.AttackSkill = [-1, 256, 251, 256, 251, -1, -1];
 			Config.LowManaSkill = [-1, -1];
 			Config.UseTraps = true;
+			Config.UseFade = true;
 			Config.Traps = [271, 271, 271, 276, 276];
 			Config.BossTraps = [271, 271, 271, 271, 271];
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
