@@ -350,7 +350,7 @@ Item.equip = function (item, bodyLoc) {
 					if (cursorItem) {
 						if (Pickit.checkItem(cursorItem).result === 1 || 
 						(cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2) || // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						(cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= 1000)) {	// or keep if item is worth selling
+						(cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {	// or keep if item is worth selling
 							if (Storage.Inventory.CanFit(cursorItem)) {
 								Storage.Inventory.MoveTo(cursorItem);
 							}
@@ -705,7 +705,7 @@ Item.equipMerc = function (item, bodyLoc) {
 					if (cursorItem) {
 						if (Pickit.checkItem(cursorItem).result === 1 || 
 						(cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2) || // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						(cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= 1000)) {	// or keep if item is worth selling
+						(cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {	// or keep if item is worth selling
 							if (Storage.Inventory.CanFit(cursorItem)) {
 								Storage.Inventory.MoveTo(cursorItem);
 							}
