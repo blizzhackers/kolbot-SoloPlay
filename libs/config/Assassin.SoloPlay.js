@@ -151,7 +151,7 @@ function LoadConfig () {
 		//weapon
 		"([type] == knife || [type] == sword && [flag] == runeword || ([type] == handtohand || [type] == assassinclaw) && [Quality] >= Magic) && [flag] != ethereal # [secondarymindamage] == 0 && [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//Helmet
-		"([type] == helm || [type] == circlet) && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal #  [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"([type] == helm || [type] == circlet) && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//belt
 		"[type] == belt && [Quality] >= Magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		//boots
@@ -293,7 +293,7 @@ function LoadConfig () {
 				if (me.normal) {
 					NTIP.addLine("[name] == TirRune # # [MaxQuantity] == 1");	// Mana after kill
 				} else {
-					NTIP.addLine("[name] == IoRune # # [MaxQuantity] == 1");	// 10 to vitality
+					NTIP.addLine("[name] == ShaelRune # # [MaxQuantity] == 1");	// 20 IAS
 				}
 
 				break;
@@ -301,7 +301,7 @@ function LoadConfig () {
 				if (me.normal) {
 					NTIP.addLine("[name] == TirRune # # [MaxQuantity] == 2");	// Mana after kill
 				} else {
-					NTIP.addLine("[name] == IoRune # # [MaxQuantity] == 2");	// 10 to vitality
+					NTIP.addLine("[name] == ShaelRune # # [MaxQuantity] == 2");	// 20 IAS
 				}
 
 				break;
@@ -309,7 +309,7 @@ function LoadConfig () {
 				if (me.normal) {
 					NTIP.addLine("[name] == TirRune # # [MaxQuantity] == 3");	// Mana after kill
 				} else {
-					NTIP.addLine("[name] == IoRune # # [MaxQuantity] == 3");	// 10 to vitality
+					NTIP.addLine("[name] == ShaelRune # # [MaxQuantity] == 3");	// 20 IAS
 				}
 
 				break;
@@ -339,6 +339,42 @@ function LoadConfig () {
 			} else {
 				NTIP.arrayLooping(imbueableBelts);
 			}
+		}
+
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== 20566) { //infinity
+			var Inf = [
+				"[Name] == BerRune",
+				"[Name] == MalRune",
+				"[Name] == IstRune",
+				"([Name] == thresher || [Name] == crypticaxe || [Name] == greatpoleaxe || [Name] == giantthresher) && [Flag] == Ethereal && [Quality] == Normal # [Sockets] == 0 # [MaxQuantity] == 1",
+				"([Name] == thresher || [Name] == crypticaxe || [Name] == greatpoleaxe || [Name] == giantthresher) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
+			];
+			NTIP.arrayLooping(Inf);
+
+			if (Item.getQuantityOwned(me.getItem(639) < 2)) {		// Ber Rune
+				if (Check.haveItem("sword", "runeword", "Call To Arms")) {
+					Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
+					Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
+					Config.Recipes.push([Recipe.Rune, "Gul Rune"]); // Gul to Vex
+					Config.Recipes.push([Recipe.Rune, "Vex Rune"]); // Vex to Ohm
+					Config.Recipes.push([Recipe.Rune, "Ohm Rune"]); // Ohm to Lo
+				}
+
+				Config.Recipes.push([Recipe.Rune, "Lo Rune"]); // Lo to Sur
+				Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // Sur to Ber
+			}
+
+			Config.Recipes.push([Recipe.Socket.Weapon, "Giant Thresher"]);
+			Config.Recipes.push([Recipe.Socket.Weapon, "Great Poleaxe"]);
+			Config.Recipes.push([Recipe.Socket.Weapon, "Cryptic Axe"]);
+			Config.Recipes.push([Recipe.Socket.Weapon, "thresher"]);
+
+			Config.Runewords.push([Runeword.Infinity, "Giant Thresher"]);
+			Config.Runewords.push([Runeword.Infinity, "Great Poleaxe"]);
+			Config.Runewords.push([Runeword.Infinity, "Cryptic Axe"]);
+			Config.Runewords.push([Runeword.Infinity, "Thresher"]);
+
+			Config.KeepRunewords.push("[type] == polearm # [convictionaura] >= 13");
 		}
 
 		if (!Check.haveItem("sword", "runeword", "Call To Arms")) {
