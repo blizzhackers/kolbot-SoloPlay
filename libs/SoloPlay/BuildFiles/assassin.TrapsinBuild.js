@@ -1,7 +1,7 @@
 /**
  *    @filename   assassin.TrapsinBuild.js
  *	  @author	  theBGuy
- *    @desc       assassin build for after respecOne
+ *    @desc       assassin build for after respecOne (11 fpa trap laying, 9 fps tele)
  */
 
 var finalBuild = {
@@ -54,13 +54,13 @@ var finalBuild = {
 		//Helmet
 		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [tier] == 100000 + tierscore(item)", // Andy's
 		//belt
-		"[name] == warbelt && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160  # [tier] == 100000 + tierscore(item)", //tgods
+		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 100000 + tierscore(item)", //arach's
 		//boots
 		"[Name] == SharkskinBoots && [Quality] == Unique && [Flag] != Ethereal # [MaxHP] >= 65 # [tier] == 100000 + tierscore(item)", //waterwalks
 		//armor
 		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000", //Enigma
 		//shield
-		"[type] == shield && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [tier] == 110000 + tierscore(item)", //spirit
 		//gloves
 		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [ias] == 20 # [tier] == 100000 + tierscore(item)", //Lava gout
 		//ammy

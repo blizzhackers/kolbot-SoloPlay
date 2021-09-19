@@ -77,6 +77,21 @@ function cows () {
 			return me.getItem(88);
 		}
 
+		// Cain is incomplete, complete it then continue
+		if (!me.tristram) {
+			if (!isIncluded("SoloPlay/Scripts/tristram.js")) {
+				include("SoloPlay/Scripts/tristram.js");
+			}
+
+			for (let i = 0; i < 5; i++) {
+				tristram();
+
+				if (me.tristram) {
+					break;
+				}
+			}
+		}
+
 		Pather.useWaypoint(4); // get leg
 		Precast.doPrecast(true);
 		Pather.moveToPreset(4, 1, 737, 8, 8);
