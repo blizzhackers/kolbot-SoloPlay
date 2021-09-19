@@ -32,6 +32,11 @@ Town.townTasks = function () {
 		Town.goToTown();
 	}
 
+	// Burst of speed while in town
+	if (me.inTown && me.assassin && me.getSkill(258, 1) && !me.getState(157)) {
+		Skill.cast(258, 0);
+	}
+
 	let preAct = me.act, i, cancelFlags = [0x01, 0x02, 0x04, 0x08, 0x14, 0x16, 0x0c, 0x0f, 0x19, 0x1a];
 
 	Attack.weaponSwitch(Attack.getPrimarySlot());
@@ -103,6 +108,11 @@ Town.doChores = function (repair = false) {
 		this.goToTown();
 	}
 
+	// Burst of speed while in town
+	if (me.inTown && me.assassin && me.getSkill(258, 1) && !me.getState(157)) {
+		Skill.cast(258, 0);
+	}
+
 	let preAct = me.act, i, cancelFlags = [0x01, 0x02, 0x04, 0x08, 0x14, 0x16, 0x0c, 0x0f, 0x19, 0x1a];
 	Attack.weaponSwitch(Attack.getPrimarySlot());
 	this.heal();
@@ -150,7 +160,8 @@ Town.doChores = function (repair = false) {
 
 	me.cancel();
 
-	if (!me.barbarian && !Precast.checkCTA()) {	//If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
+	// If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
+	if (!me.barbarian && !Precast.checkCTA()) {
 		Precast.doPrecast(false);
 	}
 
@@ -2676,14 +2687,13 @@ Town.visitTown = function (repair = false) {
 		return true;
 	}
 
-	if ([120, 136].indexOf(me.area) > -1 || me.dead || !Misc.townEnabled) {	//Arreat Summit, Uber Trist or I died while trying to townchicken or town isn't enabled at the moment
+	// Currently in Arreat Summit or Uber Tristram or I died while trying to townchicken or town isn't enabled at the moment or I don't have a tp tome or scrolls
+	if ([120, 136].indexOf(me.area) > -1 || me.dead || !Misc.townEnabled || !Town.canTpToTown()) {
 		return false;
 	}
 
 	var preArea = me.area,
 		preAct = me.act;
-
-	// TODO: Add tptome/scroll check
 
 	try { // not an essential function -> handle thrown errors
 		this.goToTown();
