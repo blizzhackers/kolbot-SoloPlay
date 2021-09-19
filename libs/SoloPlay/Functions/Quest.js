@@ -384,14 +384,30 @@ var Quest = {
 		return !me.getItem(tool);
 	},
 
-	characterRespec: function () {// Akara reset for build change
+	// Akara reset for build change
+	characterRespec: function () {
 		if (me.respec || SetUp.currentBuild === SetUp.finalBuild) {
 			return true;
 		}
 
 		if (me.charlvl === SetUp.respecOne || (SetUp.respecOneB > 0 && me.charlvl === SetUp.respecOneB) || me.charlvl === SetUp.respecTwo()) {
+			if (!me.den) {
+				if (!isIncluded("SoloPlay/Scripts/den.js")) {
+					include("SoloPlay/Scripts/den.js");
+				}
+
+				for (let i = 0; i < 5; i++) {
+					den();
+
+					if (me.den) {
+						break;
+					}
+				}
+			}
+
 			Precast.doPrecast(true);
 			Town.goToTown(1);
+			print("ÿc8Kolbot-SoloPlayÿc0: time to respec");
 			me.overhead('time to respec');
 			Town.npcInteract("akara");
 			delay(10 + me.ping * 2);
@@ -400,13 +416,18 @@ var Quest = {
 				return false;
 			}
 
-			DataFile.updateStats("currentBuild", SetUp.getBuild());
+			sendPacket(1, 0x40);
+			delay(10 + me.ping * 2);
 
-			delay(750 + me.ping * 2);
-			Town.clearBelt();
-			me.overhead('respec done, restarting');
-			delay(1000 + me.ping);
-			scriptBroadcast("quit");
+			if (me.respec) {
+				DataFile.updateStats("currentBuild", SetUp.getBuild());
+				delay(750 + me.ping * 2);
+				Town.clearBelt();
+				print("ÿc8Kolbot-SoloPlayÿc0: respec done, restarting");
+				me.overhead('respec done, restarting');
+				delay(1000 + me.ping);
+				scriptBroadcast("quit");
+			}
 		}
 
 		return true;
