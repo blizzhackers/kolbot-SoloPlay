@@ -46,7 +46,7 @@ case 0: //Amazon - theBGuy
 		// Precast Section -----------------------------------------------------------------------------------------------------------------//
 		if (useSlowMissiles) {
 			if (!unit.getState(sdk.states.SlowMissiles)) {
-				if (Math.round(getDistance(me, unit)) < 13 && !checkCollision(me, unit, 0x4)) {
+				if ((Math.round(getDistance(me, unit)) > 3 || unit.getEnchant(sdk.enchant.LightningEnchanted)) && Math.round(getDistance(me, unit)) < 13 && !checkCollision(me, unit, 0x4)) {
 					// Act Bosses and mini-bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
 					if ([156, 211, 242, 243, 544, 571, 391, 365, 267, 229].indexOf(unit.classid) > -1) {
 						// Check if already in this state
@@ -60,9 +60,17 @@ case 0: //Amazon - theBGuy
 			}
 		}
 
+		if (unit.getEnchant(sdk.enchant.ManaBurn) && me.getSkill(sdk.skills.LightningFury, 1) && Attack.getMobCountAtPosition(unit.x, unit.y, 7) > 2) {
+			useLightFury = true;
+		}
+
+		if (unit.getEnchant(sdk.enchant.ManaBurn) && me.getSkill(sdk.skills.PlagueJavelin, 1) && Attack.getMobCountAtPosition(unit.x, unit.y, 7) > 2) {
+			forcePlague = true;
+		}
+
 		if (useInnerSight) {
 			if (!unit.getState(sdk.states.InnerSight)) {
-				if (Math.round(getDistance(me, unit)) < 13 && !checkCollision(me, unit, 0x4)) {
+				if (Math.round(getDistance(me, unit)) > 3 && Math.round(getDistance(me, unit)) < 13 && !checkCollision(me, unit, 0x4)) {
 					Skill.cast(sdk.skills.InnerSight, 0, unit);
 				}
 			}
