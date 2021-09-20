@@ -5,7 +5,7 @@
 *	@desc		additions for improved Kolbot-SoloPlay functionality and code readability
 */
 
-var sdk = require('../../libs/modules/sdk');
+var sdk = require('../modules/sdk');
 
 // Credit @Jaenster
 Unit.prototype.getItems = function (...args) {
