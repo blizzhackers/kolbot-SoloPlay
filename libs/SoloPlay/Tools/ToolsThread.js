@@ -41,7 +41,7 @@ if (!isIncluded("SoloPlay/Functions/globals.js")) {
 	include("SoloPlay/Functions/globals.js");
 }
 
-var sdk = require('../../libs/modules/sdk');
+var sdk = require('../modules/sdk');
 
 function main () {
 	var i, mercHP, ironGolem, tick, merc,

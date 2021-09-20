@@ -4,6 +4,8 @@
 *	@desc		fixes to improve class attack functionality per class
 */
 
+var sdk = require('../modules/sdk');
+
 // Class Specific Attacks
 switch (me.classid) {
 case 0: //Amazon - theBGuy
@@ -29,29 +31,51 @@ case 0: //Amazon - theBGuy
 			timedSkill = -1,
 			untimedSkill = -1,
 			preattackRange = Skill.getRange(Config.AttackSkill[0]),
-			decoyDuration = (10 + me.getSkill(28, 1) * 5) * 1000,
+			decoyDuration = (10 + me.getSkill(sdk.skills.Dopplezon, 1) * 5) * 1000,
+			gold = me.getStat(14) + me.getStat(15),
 			index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
-		let useDecoy = (me.getSkill(28, 1) && !me.normal);
-		let useLightFury = me.getSkill(35, 1) >= 10;
-		let usePlague = !me.normal && me.getSkill(25, 1) >= 1;
-		let useJab = Item.getEquippedItem(4).tier >= 1000;
-		let forcePlague = me.getSkill(25, 1) >= 15;	//Extra poison damage then attack
+		let useInnerSight = me.getSkill(sdk.skills.InnerSight, 1);
+		let useSlowMissiles = me.getSkill(sdk.skills.SlowMissiles, 1);
+		let useDecoy = (me.getSkill(sdk.skills.Dopplezon, 1) && !me.normal);
+		let useLightFury = me.getSkill(sdk.skills.LightningFury, 1) >= 10;
+		let usePlague = !me.normal && me.getSkill(sdk.skills.PlagueJavelin, 1) >= 1;
+		let useJab = Item.getEquippedItem(4).tier >= 1000 && me.getSkill(sdk.skills.Jab, 1);
+		let forcePlague = me.getSkill(sdk.skills.PlagueJavelin, 1) >= 15;	//Extra poison damage then attack
 
-		// Slow-Missles
-		if (Config.AttackSkill[0] === 17) {
-			if (!unit.getState(87)) {
-				if (Math.round(getDistance(me, unit)) < Skill.getRange(Config.AttackSkill[0]) || !checkCollision(me, unit, 0x4)) {
+		// Precast Section -----------------------------------------------------------------------------------------------------------------//
+		if (useSlowMissiles) {
+			if (!unit.getState(sdk.states.SlowMissiles)) {
+				if (Math.round(getDistance(me, unit)) < 13 && !checkCollision(me, unit, 0x4)) {
 					// Act Bosses and mini-bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
 					if ([156, 211, 242, 243, 544, 571, 391, 365, 267, 229].indexOf(unit.classid) > -1) {
 						// Check if already in this state
-						if (!unit.getState(17)) {
-							Skill.cast(8, 0, unit);
+						if (!unit.getState(sdk.states.InnerSight)) {
+							Skill.cast(sdk.skills.InnerSight, 0, unit);
 						}
 					} else {
-						Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
+						Skill.cast(sdk.skills.SlowMissiles, 0, unit);
 					}
 				}
+			}
+		}
+
+		if (useInnerSight) {
+			if (!unit.getState(sdk.states.InnerSight)) {
+				if (Math.round(getDistance(me, unit)) < 13 && !checkCollision(me, unit, 0x4)) {
+					Skill.cast(sdk.skills.InnerSight, 0, unit);
+				}
+			}
+		}
+
+		// Handle Switch casting
+		if (index === 1 && !unit.dead) {
+			if (!unit.getState(sdk.states.Weaken) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+				Attack.switchCastCharges(sdk.skills.Weaken, unit);		// Switch cast weaken
+			}
+
+			if (!unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+				Attack.switchCastCharges(sdk.skills.LowerResist, unit);		// Switch cast lower resist
 			}
 		}
 
@@ -59,14 +83,12 @@ case 0: //Amazon - theBGuy
 			// Act Bosses or Immune to my main boss skill
 			if (([156, 211, 242, 243, 544].indexOf(unit.classid) > -1) || !Attack.checkResist(unit, Config.AttackSkill[1])) {
 				for (let i = 0; i < 25; i += 1) {
-					if (!me.getState(121)) {
+					if (!me.getState(sdk.states.SkillDelay)) {
 						break;
 					}
 
 					delay(40);
 				}
-
-				let coord = CollMap.getRandCoordinate(unit.x, -2, 2, unit.y, -2, 2);
 
 				// Don't use decoy if within melee distance
 				if (Math.round(getDistance(me, unit)) > 4) {
@@ -86,7 +108,11 @@ case 0: //Amazon - theBGuy
 							}
 						}
 
-						Skill.cast(28, 0, coord.x, coord.y);
+						let coord = CollMap.getRandCoordinate(unit.x, -2, 2, unit.y, -2, 2);
+
+						if (!!coord) {
+							Skill.cast(sdk.skills.Dopplezon, 0, coord.x, coord.y);
+						}
 
 						// Check if it was a sucess
 						if (!!me.getMinionCount(8)) {
@@ -101,18 +127,25 @@ case 0: //Amazon - theBGuy
 		if ((usePlague) && !Attack.checkResist(unit, "lightning")) {
 			if ((Math.round(getDistance(me, unit)) <= 15) && !checkCollision(me, unit, 0x4)) {
 				// Cast Slow-Missles, then proceed with Plague Jav. Lowers amount of damage from projectiles.
-				if (!unit.getState(87)) {
-					Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
+				if (!unit.getState(sdk.states.SlowMissiles) && useSlowMissiles) {
+					Skill.cast(sdk.skills.SlowMissiles, 0, unit);
 				}
 
-				if (Attack.checkResist(unit, "poison") && !me.getState(121) && !unit.dead) {
-					Skill.cast(25, Skill.getHand(25), unit);	
+				// Handle Switch casting
+				if (!unit.dead) {
+					if (!unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+						Attack.switchCastCharges(sdk.skills.LowerResist, unit);		// Switch cast lower resist
+					}
+				}
+
+				if (Attack.checkResist(unit, "poison") && !me.getState(sdk.states.SkillDelay) && !unit.dead) {
+					Skill.cast(sdk.skills.PlagueJavelin, Skill.getHand(sdk.skills.PlagueJavelin), unit);	
 				}
 
 				if (!useJab) {
 					// We are within melee distance might as well use jab rather than stand there
 					if (Math.round(getDistance(me, unit)) < 4) {
-						if (me.getSkill(10, 1)) {
+						if (me.getSkill(sdk.skills.Jab, 1)) {
 							if (Math.round(getDistance(me, unit)) > 3 || checkCollision(me, unit, 0x4)) {
 								if (!Attack.getIntoPosition(unit, 3, 0x4)) {
 									return 0;
@@ -121,7 +154,7 @@ case 0: //Amazon - theBGuy
 
 							// Make sure monster is not physical immune
 							if (Attack.checkResist(unit, "physical") && !unit.dead) {
-								Skill.cast(10, Skill.getHand(10), unit);	
+								Skill.cast(sdk.skills.Jab, Skill.getHand(sdk.skills.Jab), unit);	
 							}
 							
 							return 1;
@@ -133,76 +166,34 @@ case 0: //Amazon - theBGuy
 			}
 		}
 
-		// Only try attacking light immunes if I have my end game javelin and they aren't lightning enchanted - use jab as main attack
-		if (useJab && !Attack.checkResist(unit, Config.AttackSkill[1]) && !unit.getEnchant(17)) {
-			if (me.getSkill(10, 1)) {
-				if (Math.round(getDistance(me, unit)) > Skill.getRange(10) || checkCollision(me, unit, 0x4)) {
-					if (!Attack.getIntoPosition(unit, Skill.getRange(10), 0x4)) {
-						return 0;
-					}
+		// Only try attacking immunes if I have my end game javelin and they aren't lightning enchanted - use jab as main attack
+		if (useJab && !Attack.checkResist(unit, Config.AttackSkill[1]) && Attack.checkResist(unit, "physical") && !unit.getEnchant(17)) {
+			if (Math.round(getDistance(me, unit)) > 3 || checkCollision(me, unit, 0x4)) {
+				if (!Attack.getIntoPosition(unit, 3, 0x4)) {
+					return 0;
 				}
-
-				// Make sure monster is not physical immune
-				if (Attack.checkResist(unit, "physical") && !unit.dead) {
-					Skill.cast(10, Skill.getHand(10), unit);	
-				}
-				
-				return 1;
 			}
+
+			if (!unit.dead) {
+				Skill.cast(sdk.skills.Jab, Skill.getHand(sdk.skills.Jab), unit);	
+			}
+			
+			return 1;
 		}
 
-		if (forcePlague && Attack.checkResist(unit, "poison") && !unit.getState(2) && !me.getState(121)) {
+		if (forcePlague && Attack.checkResist(unit, "poison") && !unit.getState(sdk.states.Poison) && !me.getState(sdk.states.SkillDelay)) {
 			if ((Math.round(getDistance(me, unit)) >= 8 && Math.round(getDistance(me, unit)) <= 15) && !checkCollision(me, unit, 0x4)) {
-				Skill.cast(25, Skill.getHand(35), unit);
+				Skill.cast(sdk.skills.PlagueJavelin, Skill.getHand(sdk.skills.PlagueJavelin), unit);
 			}
 		}
 
 		if (useLightFury) {
 			if ((Math.round(getDistance(me, unit)) >= 8 && Math.round(getDistance(me, unit)) <= 15) && !checkCollision(me, unit, 0x4)) {
-				Skill.cast(35, Skill.getHand(35), unit);
+				Skill.cast(sdk.skills.LightningFury, Skill.getHand(sdk.skills.LightningFury), unit);
 			}
 		}
 
-		if (preattack && Config.AttackSkill[0] > 0 && !unit.dead && [8, 17].indexOf(Config.AttackSkill[0]) > -1 && Attack.isCursable(unit) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
-			switch (Config.AttackSkill[0]) {
-			case 8: 	// Inner Sight
-				if (!unit.getState(17)) {
-					if (Math.round(getDistance(me, unit)) > preattackRange || checkCollision(me, unit, 0x4)) {
-						if (!Attack.getIntoPosition(unit, preattackRange, 0x4)) {
-							return 0;
-						}
-					}
-
-					Skill.cast(8, 0, unit);
-				}
-
-				break;
-			case 17:	// Slow-Missles
-				if (!unit.getState(87)) {
-					if (Math.round(getDistance(me, unit)) > preattackRange || checkCollision(me, unit, 0x4)) {
-						if (!Attack.getIntoPosition(unit, preattackRange, 0x4)) {
-							return 0;
-						}
-					}
-
-					// Act Bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
-					if ([156, 211, 242, 243, 544, 571, 391].indexOf(unit.classid) > -1) {
-						// Check if already in this state
-						if (!unit.getState(17)) {
-							Skill.cast(8, Skill.getHand(8), unit);
-						}
-					} else {
-						Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
-					}
-				}
-
-				break;
-			default:
-				return 0;
-			}
-
-			return 1;
-		} else if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
+		if (preattack && Config.AttackSkill[0] > 0 && [8, 17].indexOf(Config.AttackSkill[0]) === -1 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
 			if (Math.round(getDistance(me, unit)) > preattackRange || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, preattackRange, 0x4)) {
 					return 0;
@@ -322,7 +313,7 @@ case 0: //Amazon - theBGuy
 			}
 		}
 
-		if (timedSkill > -1 && (!me.getState(121) || !Skill.isTimed(timedSkill))) {
+		if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 			switch (timedSkill) {
 			case 35:
 				if (!this.lightFuryTick || getTickCount() - this.lightFuryTick > Config.LightningFuryDelay * 1000) {
@@ -342,7 +333,7 @@ case 0: //Amazon - theBGuy
 				break;
 			default:
 				// If main attack skill is lightning strike and charged strike's skill level is at least level 15, check current monster count. If monster count is less than 3, use CS as its more effective with small mobs
-				if (timedSkill === 34 && me.getSkill(24, 1) >= 15) {
+				if (timedSkill === sdk.skills.LightningStrike && me.getSkill(sdk.skills.ChargedStrike, 1) >= 15) {
 					if (Attack.getMobCount(me.x, me.y, 15) <= 3) {
 						timedSkill = 24;
 					}
@@ -391,7 +382,7 @@ case 0: //Amazon - theBGuy
 		}
 
 		for (i = 0; i < 25; i += 1) {
-			if (!me.getState(121)) {
+			if (!me.getState(sdk.states.SkillDelay)) {
 				break;
 			}
 
@@ -648,7 +639,7 @@ case 1: // Sorceress
 			return 2;
 		}
 
-		if (timedSkill > -1 && (!me.getState(121) || !Skill.isTimed(timedSkill))) {
+		if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 			manaCostTimedSkill = Skill.getManaCost(timedSkill)
 			timedSkillRange = Skill.getRange(timedSkill);
 
@@ -745,7 +736,7 @@ case 1: // Sorceress
 		}
 
 		for (i = 0; i < 25; i += 1) {
-			if (!me.getState(121)) {
+			if (!me.getState(sdk.states.SkillDelay)) {
 				break;
 			}
 
@@ -1018,7 +1009,7 @@ case 2: // Necromancer
 			}
 		}
 
-		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
+		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
 			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 					return 0;
@@ -1126,7 +1117,7 @@ case 2: // Necromancer
 			}
 		}
 
-		if (timedSkill > -1 && (!me.getState(121) || !Skill.isTimed(timedSkill))) {
+		if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 			switch (timedSkill) {
 			case 92: // Poison Nova
 				if (!this.novaTick || getTickCount() - this.novaTick > Config.PoisonNovaDelay * 1000) {
@@ -1208,7 +1199,7 @@ case 2: // Necromancer
 		}
 
 		for (i = 0; i < 25; i += 1) {
-			if (!me.getState(121)) {
+			if (!me.getState(sdk.states.SkillDelay)) {
 				break;
 			}
 
@@ -1248,7 +1239,7 @@ case 2: // Necromancer
 			}
 		}
 
-		if (timedSkill > -1 && (!me.getState(121) || !Skill.isTimed(timedSkill))) {
+		if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 			switch (timedSkill) {
 			case 92: // Poison Nova
 
@@ -1282,7 +1273,7 @@ case 2: // Necromancer
 		}
 
 		for (i = 0; i < 25; i += 1) {
-			if (!me.getState(121)) {
+			if (!me.getState(sdk.states.SkillDelay)) {
 				break;
 			}
 
@@ -1510,7 +1501,7 @@ case 3: // Paladin
 			}
 		}
 
-		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
+		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
 			if (getDistance(me, unit) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 					return 0;
@@ -1761,7 +1752,7 @@ case 4: // Barbarian - theBGuy
 			this.tauntMonsters(unit, attackSkill);
 		}
 
-		if (!unit.dead && useBattleCry && !me.getState(121)) {
+		if (!unit.dead && useBattleCry && !me.getState(sdk.states.SkillDelay)) {
 			if (!unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27)) {		//Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(146) || checkCollision(me, unit, 0x4)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(146), 0x4)) {
@@ -1783,7 +1774,7 @@ case 4: // Barbarian - theBGuy
 
 		if (!unit.dead && useWarCry && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.isCursable(unit) && 
 			(!unit.getState(21) || getTickCount() - this.warCryTick >= 1500) && 
-			Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154) && !me.getState(121) && Attack.getMobCount(me.x, me.y, 5, null, true) >= 1) {
+			Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154) && !me.getState(sdk.states.SkillDelay) && Attack.getMobCount(me.x, me.y, 5, null, true) >= 1) {
 			if (!unit.getState(21)) {
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(154) || checkCollision(me, unit, 0x4)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(154), 0x4)) {
@@ -1821,7 +1812,7 @@ case 4: // Barbarian - theBGuy
 			}
 		}
 
-		if (preattack && Config.AttackSkill[0] > 0 && Config.AttackSkill[0] !== 154 && me.getSkill(Config.AttackSkill[0], 1) && Attack.checkResist(unit, Attack.getSkillElement(Config.AttackSkill[0])) && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
+		if (preattack && Config.AttackSkill[0] > 0 && Config.AttackSkill[0] !== 154 && me.getSkill(Config.AttackSkill[0], 1) && Attack.checkResist(unit, Attack.getSkillElement(Config.AttackSkill[0])) && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
 			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 					return 0;
@@ -2181,7 +2172,7 @@ case 5: // Druid
 			}
 		}
 
-		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
+		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
 			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 					return 0;
@@ -2262,7 +2253,7 @@ case 5: // Druid
 			return 2;
 		}
 
-		if (timedSkill > -1 && (!me.getState(121) || !Skill.isTimed(timedSkill))) {
+		if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 			switch (timedSkill) {
 			case 245: // Tornado
 				if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(timedSkill)) || checkCollision(me, unit, 0x4)) {
@@ -2321,7 +2312,7 @@ case 5: // Druid
 		}
 
 		for (i = 0; i < 25; i += 1) {
-			if (!me.getState(121)) {
+			if (!me.getState(sdk.states.SkillDelay)) {
 				break;
 			}
 
@@ -2344,7 +2335,7 @@ case 5: // Druid
 				return 2;
 			}
 
-			if (timedSkill > -1 && (!me.getState(121) || !Skill.isTimed(timedSkill))) {
+			if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 				if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
 					return 0;
 				}
@@ -2421,7 +2412,7 @@ case 5: // Druid
 			}
 
 			for (i = 0; i < 25; i += 1) {
-				if (!me.getState(121)) {
+				if (!me.getState(sdk.states.SkillDelay)) {
 					break;
 				}
 
@@ -2558,7 +2549,7 @@ case 6: // Assasin
 
 		this.mindBlast(unit);
 
-		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
+		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
 			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 					return 0;
@@ -2571,7 +2562,7 @@ case 6: // Assasin
 		}
 
 		// Cloak of Shadows (Aggressive) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
-		if (Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && !me.getState(121) && !me.getState(153)) {
+		if (Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && !me.getState(sdk.states.SkillDelay) && !me.getState(153)) {
 			if (getDistance(me, unit) < 20) {
 				Skill.cast(264, 0);
 			} else if (!Attack.getIntoPosition(unit, 20, 0x4)) {
@@ -2592,7 +2583,7 @@ case 6: // Assasin
 		}
 
 		// Cloak of Shadows (Defensive; default) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
-		if (!Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && getDistance(me, unit) < 20 && !me.getState(121) && !me.getState(153)) {
+		if (!Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && getDistance(me, unit) < 20 && !me.getState(sdk.states.SkillDelay) && !me.getState(153)) {
 			Skill.cast(264, 0);
 		}
 
@@ -2684,7 +2675,7 @@ case 6: // Assasin
 			this.placeTraps(unit, checkTraps);
 		}
 
-		if (timedSkill > -1 && (!me.getState(121) || !Skill.isTimed(timedSkill))) {
+		if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 			if (!unit.dead) {
 				Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
 			}

@@ -1126,24 +1126,28 @@ Misc.checkItemForImbueing = function () {
 
 	switch (me.classid) {
 	case 0: 	//Amazon
-		if (Item.getEquippedItem(4).tier < 100000) { //Only use imbue if not using final weapon
+		// Only use imbue if not using final weapon
+		if (Item.getEquippedItem(4).tier < 100000) {
 			if (me.diff === 0) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 285  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Maiden Javelin
+					// Maiden Javelin
+					if (items[i].classid === 285 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
 				}
 			} else if (me.diff === 1) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 295  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Ceremonial Javelin
+					// Ceremonial Javelin
+					if (items[i].classid === 295 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
 				}
 			} else {	
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 305  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Matriarchal Javelin
+					// Matriarchal Javelin
+					if (items[i].classid === 305 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
@@ -1154,24 +1158,28 @@ Misc.checkItemForImbueing = function () {
 		
 		break;
 	case 1: 	//Sorceress
-		if (Item.getEquippedItem(4).tier < 777) {	//Less than a spirit sword
+		// Less than a spirit sword
+		if (Item.getEquippedItem(4).tier < 777) {
 			if (me.diff === 0) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 280  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Jared's Stone
+					// Jared's Stone
+					if (items[i].classid === 280 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
 				}
 			} else if (me.diff === 1) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 290  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Swirling Crystal
+					// Swirling Crystal
+					if (items[i].classid === 290 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
 				}
 			} else {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 300  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Dimensional Shard
+					// Dimensional Shard
+					if (items[i].classid === 300 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
@@ -1181,24 +1189,28 @@ Misc.checkItemForImbueing = function () {
 		
 		break;
 	case 2: 	//Necromancer
-		if (Item.getEquippedItem(5).tier < 1000) {	//Less than spirit shield
+		// Less than spirit shield
+		if (Item.getEquippedItem(5).tier < 1000) {
 			if (me.diff === 0) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 417  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Demon Head
+					// Demon Head
+					if (items[i].classid === 417 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
 				}
 			} else if (me.diff === 1) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 487  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Hierophant Trophy
+					// Hierophant Trophy
+					if (items[i].classid === 487 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
 				}
 			} else {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 507  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Bloodlord Skull
+					// Bloodlord Skull
+					if (items[i].classid === 507 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
@@ -1208,24 +1220,28 @@ Misc.checkItemForImbueing = function () {
 		
 		break;
 	case 3: 	//Paladin
-		if (Item.getEquippedItem(4).tier < 777) {	//Less than a spirit sword
+		// Less than a spirit sword
+		if (Item.getEquippedItem(4).tier < 777) {
 			if (me.diff === 0) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 17  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {		//War Scepter
+					// War Scepter
+					if (items[i].classid === 17 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
 				}
 			} else if (me.diff === 1) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 110  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Divine Scepter
+					// Divine Scepter
+					if (items[i].classid === 110 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
 				}
 			} else {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 213  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Caduceus
+					// Caduceus
+					if (items[i].classid === 213 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
@@ -1235,24 +1251,28 @@ Misc.checkItemForImbueing = function () {
 		
 		break;
 	case 4: 	//Barbarian
-		if (Item.getEquippedItem(1).tier < 100000) {	//Less than final helm
+		// Less than final helm
+		if (Item.getEquippedItem(1).tier < 100000) {
 			if (me.diff === 0) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 407  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Avenger Guard
+					// Avenger Guard
+					if (items[i].classid === 407 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
 				}
 			} else if (me.diff === 1) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 477  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Slayer Guard
+					// Slayer Guard
+					if (items[i].classid === 477 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
 				}
 			} else {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 493  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Carnage Helm
+					// Carnage Helm
+					if (items[i].classid === 493 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
@@ -1262,24 +1282,28 @@ Misc.checkItemForImbueing = function () {
 		
 		break;
 	case 5: 	//Druid
-		if (Item.getEquippedItem(1).tier < 100000) {	//Less than final helm
+		// Less than final helm
+		if (Item.getEquippedItem(1).tier < 100000) {
 			if (me.diff === 0) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 402  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Spirit Mask
+					// Spirit Mask
+					if (items[i].classid === 402 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
 				}
 			} else if (me.diff === 1) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 472  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Totemic Mask
+					// Totemic Mask
+					if (items[i].classid === 472 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
 				}
 			} else {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 492  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Dream Spirit
+					// Dream Spirit
+					if (items[i].classid === 492 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
@@ -1289,17 +1313,20 @@ Misc.checkItemForImbueing = function () {
 
 		break;
 	case 6: 	//Assassin
-		if (Item.getEquippedItem(4).tier < 777) {	//Less than a spirit sword
+		// Less than a spirit sword
+		if (Item.getEquippedItem(4).tier < 777) {
 			if (me.diff === 0) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 179  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Claws
+					// Claws
+					if (items[i].classid === 179 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
 				}
 			} else if (me.diff > 0) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].classid === 187  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Greater Talons
+					// Greater Talons
+					if (items[i].classid === 187 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
@@ -1315,21 +1342,24 @@ Misc.checkItemForImbueing = function () {
 	if (item === undefined || !item) {
 		if (me.diff === 0) {
 			for (let i = 0; i < items.length; i++) {
-				if (items[i].classid === 348  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Plated Belt
+				// Plated Belt
+				if (items[i].classid === 348 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 					item = items[i];
 					break;
 				}
 			}
 		} else if (me.diff === 1) {
 			for (let i = 0; i < items.length; i++) {
-				if (items[i].classid === 394  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//War Belt
+				// War Belt
+				if (items[i].classid === 394 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 					item = items[i];
 					break;
 				}
 			}
 		} else {
 			for (let i = 0; i < items.length; i++) {
-				if (items[i].classid === 462  && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {	//Mithril Coil
+				// Mithril Coil
+				if (items[i].classid === 462 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
 					item = items[i];
 					break;
 				}

@@ -627,8 +627,9 @@ var Quest = {
 			
 		invo = me.findItems(-1, 0, 3);
 		slot = item.bodylocation;
-			
-		for (i = 0; i < invo.length; i++) { //Take note of all the items in the invo minus the item to imbue
+		
+		// Take note of all the items in the invo minus the item to imbue
+		for (i = 0; i < invo.length; i++) {
 			if (item.gid !== invo[i].gid) {
 				invo[i] = invo[i].x + "/" + invo[i].y;
 			}
@@ -652,7 +653,7 @@ var Quest = {
 		Town.npcInteract("charsi");
 		delay(10 + me.ping * 2);
 
-		if (!Misc.useMenu(4017)) {
+		if (!Misc.useMenu(0x0FB1)) {
 			return false;
 		}
 

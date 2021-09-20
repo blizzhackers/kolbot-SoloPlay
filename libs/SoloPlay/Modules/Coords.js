@@ -7,13 +7,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../../libs/modules/sdk"], factory);
+        define(["require", "exports", "../modules/sdk"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getSpotsFor = exports.findCastingSpotRange = exports.findCastingSpotSkill = exports.isBlockedBetween = exports.getCollisionBetweenCoords = exports.convertToCoordArray = exports.getCoordsBetween = exports.Collision = exports.BlockBits = void 0;
-    var sdk_1 = require("../../libs/modules/sdk");
+    var sdk_1 = require("../modules/sdk");
     var BlockBits;
     (function (BlockBits) {
         BlockBits[BlockBits["BlockWall"] = 1] = "BlockWall";
