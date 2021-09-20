@@ -105,6 +105,7 @@ function main() {
 
 					break;
 				default:
+					print("townCheck message recieved. First check passed.");
 					townCheck = true;
 
 					break;

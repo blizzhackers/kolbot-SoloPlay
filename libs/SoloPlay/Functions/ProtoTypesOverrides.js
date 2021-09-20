@@ -54,6 +54,26 @@ Object.defineProperties(Unit.prototype, {
 			return this.getState(156);
 		},
 	},
+	isUnderWeaken: {
+		get: function () {
+			return this.getState(19);
+		},
+	},
+	isUnderLowerRes: {
+		get: function () {
+			return this.getState(61);
+		},
+	},
+	isUnderAmplify: {
+		get: function () {
+			return this.getState(9);
+		},
+	},
+	isUnderDecrep: {
+		get: function () {
+			return this.getState(87);
+		},
+	},
 });
 
 // Credit @Jaenster

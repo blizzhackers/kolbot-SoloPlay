@@ -509,6 +509,7 @@ Misc.townCheck = function () {
 
 	if (check) {
 		scriptBroadcast("townCheck");
+		print("BroadCasted townCheck");
 		delay(500);
 
 		return true;

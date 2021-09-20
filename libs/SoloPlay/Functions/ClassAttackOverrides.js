@@ -548,6 +548,21 @@ case 1: // Sorceress
 			}
 		}
 
+		if (me.normal && me.charlvl > 12 && gold < 5000 && Skill.getManaCost(timedSkill) > me.mp) {
+			switch (SetUp.currentBuild) {
+			case "Start":
+				if (me.getSkill(38, 1) && Skill.getManaCost(38) < me.mp) {
+					timedSkill = 38;	// Charged Bolt
+				} else if (Attack.getMobCount(me.x, me.y, 6) >= 1) {
+					timedSkill = 0;	// I have no mana and there are mobs around me, just attack
+				}
+
+				break;
+			default:
+				break;	
+			}
+		}
+
 		// TODO: Figure out a way to dynamically use lower level/mana skills, no point in useing a 24+ mana skill if it would take a 4 mana skill to kill mob
 		/*if (me.normal && (gold < 5000 || Skill.getManaCost(timedSkill) * 1.5 > me.mp)) {
 			if (SetUp.currentBuild === "Start" && (me.getSkill(38, 1) && me.getSkill(45, 1) && (me.getSkill(39, 1)))) {
@@ -649,7 +664,8 @@ case 1: // Sorceress
 				}
 			}
 
-			if (manaCostTimedSkill > me.mp) {
+			// Only delay if there are no mobs in our immediate area
+			if (manaCostTimedSkill > me.mp && Attack.getMobCount(me.x, me.y, 8) === 0) {
 				tick = getTickCount();
 
 				while (getTickCount() - tick < 750) {
@@ -697,8 +713,8 @@ case 1: // Sorceress
 				}
 			}
 
-			// Mana throttle, worth it?
-			if (manaCostUntimedSkill > me.mp) {
+			// Only delay if there are no mobs in our immediate area
+			if (manaCostUntimedSkill > me.mp && Attack.getMobCount(me.x, me.y, 8) === 0) {
 				tick = getTickCount();
 
 				while (getTickCount() - tick < 750) {
@@ -2431,7 +2447,7 @@ case 6: // Assasin
 
 		let list = Attack.buildMonsterList();
 		let mindBlastMpCost = Skill.getManaCost(273);
-		let list = list.filter(mob => !mob.isStunned && [156, 211, 242, 243, 544].indexOf(mob.classid) === -1 && !checkCollision(me, mob, 0x4) &&
+		let list = list.filter(mob => !mob.isStunned && !mob.isUnderLowerRes && [156, 211, 242, 243, 544].indexOf(mob.classid) === -1 && !checkCollision(me, mob, 0x4) &&
 		 	(Math.round(getDistance(me, mob)) <= 6 || (Math.round(getDistance(me, mob)) >= 20 && Math.round(getDistance(me, mob)) <= 30)));
 
 		// Cast on close mobs first
@@ -2441,7 +2457,7 @@ case 6: // Assasin
 
 		if (list.length >= 1) {
 			for (let i = 0; i < list.length; i++) {
-				if (!list[i].dead && !checkCollision(me, list[i], 0x1) && me.mp > mindBlastMpCost) {
+				if (!list[i].dead && !checkCollision(me, list[i], 0x1) && me.mp > mindBlastMpCost * 2) {
 					me.overhead("MindBlasting " + list[i].name);
 					Skill.cast(273, 0, list[i]);
 				}
@@ -2525,6 +2541,14 @@ case 6: // Assasin
 			Town.visitTown();
 		}
 
+		var checkTraps, checkSkill, result,
+			mercRevive = 0,
+			timedSkill = -1,
+			untimedSkill = -1,
+			index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3,
+			gold = me.getStat(14) + me.getStat(15),
+			shouldUseCloak = me.getSkill(264, 1) && !unit.isUnderLowerRes && ([156, 211, 242, 243, 544].indexOf(unit.classid) === -1 || ([156, 211, 242, 243, 544].indexOf(unit.classid) > -1 && Attack.getMobCountAtPosition(unit.x, unit.y, 20) > 1));
+
 		this.mindBlast(unit);
 
 		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(121) || !Skill.isTimed(Config.AttackSkill[0]))) {
@@ -2538,14 +2562,6 @@ case 6: // Assasin
 
 			return 1;
 		}
-
-		var checkTraps, checkSkill, result,
-			mercRevive = 0,
-			timedSkill = -1,
-			untimedSkill = -1,
-			index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
-
-		let shouldUseCloak = me.getSkill(264, 1) && ([156, 211, 242, 243, 544].indexOf(unit.classid) === -1 || ([156, 211, 242, 243, 544].indexOf(unit.classid) > -1 && Attack.getMobCountAtPosition(unit.x, unit.y, 20) > 1));
 
 		// Cloak of Shadows (Aggressive) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
 		if (Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && !me.getState(121) && !me.getState(153)) {
@@ -2571,6 +2587,13 @@ case 6: // Assasin
 		// Cloak of Shadows (Defensive; default) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
 		if (!Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && getDistance(me, unit) < 20 && !me.getState(121) && !me.getState(153)) {
 			Skill.cast(264, 0);
+		}
+
+		// Handle Switch casting
+		if (index === 1 && !unit.dead) {
+			if (!unit.getState(61) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+				Attack.switchCastCharges(91, unit);		// Switch cast lower resist
+			}
 		}
 
 		// Get timed skill

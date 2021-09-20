@@ -64,7 +64,7 @@ var SetUp = {
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
-	respecOne: [ 64, 26, 26, 19, 30, 24, 30][me.classid],
+	respecOne: [ 64, 26, 26, 19, 30, 24, 32][me.classid],
 	respecOneB: [ 0, 65, 0, 0, 74, 0, 0][me.classid],
 
 	// mine - theBGuy
@@ -86,6 +86,9 @@ var SetUp = {
 			case "Blova":
 				respec = Attack.checkInfinity() ? me.charlvl : 100;
 				break;
+			case "Trapsin":
+				respec = Attack.checkInfinity() && Check.haveItem("armor", "runeword", "Enigma") ? me.charlvl : 100;
+				break;
 			case "Cold":
 			case "Meteorb":
 			case "Blizzballer":
@@ -97,7 +100,6 @@ var SetUp = {
 			case "Hammerdin":
 			case "Elemental":
 			case "Wind":
-			case "Trapsin":
 				respec = Check.haveItem("armor", "runeword", "Enigma") ? me.charlvl : 100;
 				break;
 			case "Singer":
