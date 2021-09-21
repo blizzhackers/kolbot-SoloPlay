@@ -204,7 +204,7 @@ function LoadConfig () {
 			Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
 		}
 
-		if (Item.getQuantityOwned(me.getItem(631) < 2)) {
+		if (Item.getQuantityOwned(me.getItem(sdk.runes.Um) < 2)) {
 			Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 		}
 
@@ -212,7 +212,7 @@ function LoadConfig () {
 	}
 
 	if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
-		if (!me.getItem(631)) {
+		if (!me.getItem(sdk.runes.Um)) {
 			Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 		}
 
@@ -321,7 +321,7 @@ function LoadConfig () {
 				];
 				NTIP.arrayLooping(Inf);
 
-				if (!me.getItem(639)) {
+				if (!me.getItem(sdk.runes.Ber)) {
 					Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // sur to ber
 				}
 
@@ -395,15 +395,15 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(CTA);
 
-			if (me.getItem(636)) { // have Ohm before collecting base
+			if (me.getItem(sdk.runes.Ohm)) { // have Ohm before collecting base
 				NTIP.addLine("[Name] == CrystalSword && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 5 # [MaxQuantity] == 1");
 			}
 
-			if (!me.getItem(632)) {
+			if (!me.getItem(sdk.runes.Mal)) {
 				Config.Recipes.push([Recipe.Rune, "Um Rune"]); // Um to Mal
 			}
 
-			if (!me.getItem(636)) { // Ohm Rune
+			if (!me.getItem(sdk.runes.Ohm)) { // Ohm Rune
 				Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Um Rune"]);
@@ -426,7 +426,7 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(CoH);
 
-			if (!me.getItem(639)) {		// Ber Rune
+			if (!me.getItem(sdk.runes.Ber)) {		// Ber Rune
 				if (Check.haveItem("sword", "runeword", "Call To Arms")) {
 					Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
 					Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
@@ -439,12 +439,12 @@ function LoadConfig () {
 				Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // Sur to Ber
 			}
 
-			if (!me.getItem(631)) {
+			if (!me.getItem(sdk.runes.Um)) {
 				Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);	// Pul -> Um
 			}
 
-			if (me.getItem(639)) {
+			if (me.getItem(sdk.runes.Ber)) {
 				if (!Check.haveBase("armor", 4)) {
 					NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 0 # [MaxQuantity] == 1");
 				}
@@ -529,7 +529,7 @@ function LoadConfig () {
 
 		if (Item.getEquippedItem(5).tier < 500 && SetUp.currentBuild !== "Witchyzon") { // Ancients' Pledge
 			if (!Check.haveItem("shield", "runeword", "Ancients' Pledge") && !me.hell) {
-				if (me.normal && !me.getItem(618)) {
+				if (me.normal && !me.getItem(sdk.runes.Ort)) {
 					Config.Recipes.push([Recipe.Rune, "Ral Rune"]);
 				}
 
@@ -562,14 +562,14 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(treach);
 
-			if (!me.getItem(629)) {		// Lem rune
+			if (!me.getItem(sdk.runes.Lem)) {		// Lem rune
 				Config.Recipes.push([Recipe.Rune, "Io Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Lum Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Fal Rune"]);
 			}
 
-			if (me.getItem(629)) {
+			if (me.getItem(sdk.runes.Lem)) {
 				NTIP.addLine("([Name] == demonhidearmor || [Name] == DuskShroud || [Name] == GhostArmor || [Name] == LightPlate || [Name] == MagePlate || [Name] == SerpentskinArmor || [Name] == trellisedarmor || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
 			}
 
@@ -665,7 +665,7 @@ function LoadConfig () {
 
 		if (Item.getEquippedItem(3).tier < 634) { // Smoke
 			if (!Check.haveItem("armor", "runeword", "Smoke") && !me.hell) {
-				if (!me.getItem(626)) { // Cube to Lum Rune
+				if (!me.getItem(sdk.runes.Lum)) { // Cube to Lum Rune
 					Config.Recipes.push([Recipe.Rune, "Io Rune"]); // cube Io to Lum
 				}
 

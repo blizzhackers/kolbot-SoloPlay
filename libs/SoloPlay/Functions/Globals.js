@@ -11,6 +11,8 @@ if (!isIncluded("OOG.js")) {
 // general settings
 var Difficulty = ['Normal', 'Nightmare', 'Hell'];
 
+const sdk = require('../modules/sdk');
+
 var SetUp = {
 	scripts: [
 		"corpsefire", "den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "andariel", "a1chests", "cows", // Act 1
@@ -64,8 +66,8 @@ var SetUp = {
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
-	respecOne: [ 64, 26, 26, 19, 30, 24, 32][me.classid],
-	respecOneB: [ 0, 65, 0, 0, 74, 0, 0][me.classid],
+	respecOne: [ 30, 26, 26, 19, 30, 24, 32][me.classid],
+	respecOneB: [ 64, 65, 0, 0, 74, 0, 0][me.classid],
 
 	// mine - theBGuy
 	respecTwo: function () {
@@ -689,13 +691,13 @@ var Check = {
 		switch (me.diff) {
 		case 0: //normal
 			//have runes or stealth and ancients pledge
-			if (me.getItem(616) && me.getItem(614) || this.haveItem("armor", "runeword", "Stealth")) {
+			if ((me.getItem(sdk.runes.Tal) && me.getItem(sdk.runes.Eth)) || this.haveItem("armor", "runeword", "Stealth")) {
 				needRunes = false;
 			}
 
 			break;
 		case 1: //nightmare
-			if ((me.getItem(616) && me.getItem(619) && me.getItem(618) && me.getItem(620) && Check.currentBuild().caster) || 
+			if ((me.getItem(sdk.runes.Tal) && me.getItem(sdk.runes.Thul) && me.getItem(sdk.runes.Ort) && me.getItem(sdk.runes.Amn) && Check.currentBuild().caster) || 
 				(!me.paladin && this.haveItem("sword", "runeword", "Spirit")) || (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit")) ||
 				(me.necromancer && this.haveItem("wand", "runeword", "White") && (this.haveItem("voodooheads", "runeword", "Rhyme") || Item.getEquippedItem(5).tier > 800)) ||
 				(me.barbarian && (Check.haveItem("sword", "runeword", "Lawbringer") || me.baal))) {

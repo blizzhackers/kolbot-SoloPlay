@@ -4,7 +4,7 @@
 *	@desc		fixes to improve class attack functionality per class
 */
 
-var sdk = require('../modules/sdk');
+//var sdk = require('../modules/sdk');
 
 // Class Specific Attacks
 switch (me.classid) {
@@ -39,7 +39,7 @@ case 0: //Amazon - theBGuy
 		let useSlowMissiles = me.getSkill(sdk.skills.SlowMissiles, 1);
 		let useDecoy = (me.getSkill(sdk.skills.Dopplezon, 1) && !me.normal);
 		let useLightFury = me.getSkill(sdk.skills.LightningFury, 1) >= 10;
-		let usePlague = !me.normal && me.getSkill(sdk.skills.PlagueJavelin, 1) >= 1;
+		let usePlague = !me.normal && me.getSkill(sdk.skills.PlagueJavelin, 1);
 		let useJab = Item.getEquippedItem(4).tier >= 1000 && me.getSkill(sdk.skills.Jab, 1);
 		let forcePlague = me.getSkill(sdk.skills.PlagueJavelin, 1) >= 15;	//Extra poison damage then attack
 
@@ -283,7 +283,7 @@ case 0: //Amazon - theBGuy
 
 		Precast.doPrecast(false);
 
-		if (me.charlvl > 5){
+		if (me.charlvl > 5) {
 			needRepair = Town.needRepair();	
 		}
 		

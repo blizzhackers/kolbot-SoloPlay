@@ -1065,6 +1065,36 @@ Attack.switchCastCharges = function (skillId, unit) {
 	return true;
 };
 
+Attack.throwPotion = function (unit) {
+	if (!unit || unit === undefined) {
+		return false;
+	}
+
+	me.switchWeapons(0);
+
+	let onSwap = false;
+	let throwPotion = me.getItems()
+		.filter(item => item.mode === 1 && item.itemType === 38 && item.getStat(70))
+		.last();
+
+	if (!!throwPotion) {
+		if ([11, 12].indexOf(throwPotion.bodylocation) && me.weaponswitch === 0) {
+			me.switchWeapons(1);
+			onSwap = true;
+		}
+
+		Skill.cast(2, 1, unit);
+
+		if (onSwap) {
+			me.switchWeapons(0);
+		}
+	} else {
+		return false;
+	}
+
+	return true;
+};
+
 Attack.dollAvoid = function (unit) {
 	var i, cx, cy,
 		distance = 14;
@@ -1454,68 +1484,7 @@ Attack.test = function () {
 		return false;
 	}
 
-	while (attackCount < Config.MaxAttackCount && this.checkMonster(target) && this.skipCheck(target)) {
-		Misc.townCheck();
-
-		if (!target || !copyUnit(target).x) { // Check if unit got invalidated, happens if necro raises a skeleton from the boss's corpse.
-			target = getUnit(1, -1, -1, gid);
-
-			if (!target) {
-				break;
-			}
-		}
-
-		if (Config.Dodge && me.hp * 100 / me.hpmax <= Config.DodgeHP) {
-			this.deploy(target, Config.DodgeRange, 5, 9);
-		}
-
-		if (Config.MFSwitchPercent && target.hp / 128 * 100 < Config.MFSwitchPercent) {
-			this.weaponSwitch(this.getPrimarySlot() ^ 1);
-		}
-
-		if (attackCount > 0 && attackCount % 15 === 0 && Skill.getRange(Config.AttackSkill[1]) < 4) {
-			Packet.flash(me.gid);
-		}
-
-		result = ClassAttack.doAttack(target, attackCount % 15 === 0);
-
-		if (result === 0) {
-			if (retry++ > 3) {
-				errorInfo = " (doAttack failed)";
-
-				break;
-			}
-
-			Packet.flash(me.gid);
-		} else if (result === 2) {
-			errorInfo = " (No valid attack skills)";
-
-			break;
-		} else {
-			retry = 0;
-		}
-
-		attackCount += 1;
-	}
-
-	if (attackCount === Config.MaxAttackCount) {
-		errorInfo = " (attackCount exceeded)";
-	}
-
-	if (Config.MFSwitchPercent) {
-		this.weaponSwitch(this.getPrimarySlot());
-	}
-
-	ClassAttack.afterAttack();
-
-	if (!target || !copyUnit(target).x) {
-		return true;
-	}
-
-	if (target.hp > 0 && target.mode !== 0 && target.mode !== 12) {
-		print("Failed to kill " + target.name + errorInfo);
-		return false;
-	}
+	Attack.throwPotion(target);
 
 	return true;
 };

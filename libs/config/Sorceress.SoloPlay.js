@@ -241,7 +241,7 @@ function LoadConfig () {
 	Config.DodgeHP = 90; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
 	Config.TeleStomp = false; // Use merc to attack bosses if they're immune to attacks, but not to physical damage
 	Config.CastStatic = me.normal ? 25 : me.nightmare ? 33 : 50;
-	Config.StaticList = me.normal ? ["Andariel", "Duriel", "Mephisto", "Izual", "Diablo", "Talic", "Madawc", "Korlic", "Baal"] : ["Andariel", "Duriel", "Mephisto", "Izual", "Diablo", "Baal"];
+	Config.StaticList = me.normal ? ["Andariel", "Duriel", "Mephisto", "Izual", "Diablo", "Talic", "Madawc", "Korlic", "Baal"] : ["Duriel", "Mephisto", "Izual", "Diablo", "Baal"];
 
 	/* LOD gear */
 	if (!me.classic) {
@@ -262,7 +262,7 @@ function LoadConfig () {
 				];
 				NTIP.arrayLooping(Inf);
 
-				if (Item.getQuantityOwned(me.getItem(639) < 2)) {		// Ber Rune
+				if (Item.getQuantityOwned(me.getItem(sdk.runes.Ber) < 2)) {		// Ber Rune
 					if (Check.haveItem("sword", "runeword", "Call To Arms")) {
 						Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
 						Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
@@ -319,7 +319,7 @@ function LoadConfig () {
 				];
 				NTIP.arrayLooping(CoH);
 
-				if (!me.getItem(639)) {		// Ber Rune
+				if (!me.getItem(sdk.runes.Ber)) {		// Ber Rune
 					if (Check.haveItem("sword", "runeword", "Call To Arms")) {
 						Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
 						Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
@@ -332,12 +332,12 @@ function LoadConfig () {
 					Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // Sur to Ber
 				}
 
-				if (!me.getItem(631)) {
+				if (!me.getItem(sdk.runes.Um)) {
 					Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
 					Config.Recipes.push([Recipe.Rune, "Pul Rune"]);	// Pul -> Um
 				}
 
-				if (me.getItem(639)) {
+				if (me.getItem(sdk.runes.Ber)) {
 					if (!Check.haveBase("armor", 4)) {
 						NTIP.addLine("([Name] == ArchonPlate || [Name] == DuskShroud || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 0 # [MaxQuantity] == 1");
 					}
@@ -367,11 +367,11 @@ function LoadConfig () {
 				];
 				NTIP.arrayLooping(HotO);
 
-				if (me.getItem(635)) {
+				if (me.getItem(sdk.runes.Vex)) {
 					NTIP.addLine("([Name] == Flail || [Name] == Knout) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1");
 				}
 
-				if (!me.getItem(635)) {
+				if (!me.getItem(sdk.runes.Vex)) {
 					Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
 					Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 					Config.Recipes.push([Recipe.Rune, "Um Rune"]);
@@ -386,7 +386,7 @@ function LoadConfig () {
 			}
 
 			if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
-				if (!me.getItem(631)) {
+				if (!me.getItem(sdk.runes.Um)) {
 					Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 				}
 
@@ -398,7 +398,7 @@ function LoadConfig () {
 		case "Cold":
 		case "Blizzballer":
 			if (Check.haveItemAndNotSocketed("armor", "set", "Tal Rasha's Guardianship")) {
-				if (Item.getQuantityOwned(me.getItem(631) < 2)) {
+				if (Item.getQuantityOwned(me.getItem(sdk.runes.Um) < 2)) {
 					Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 				}
 
@@ -406,7 +406,7 @@ function LoadConfig () {
 			}
 
 			if (Check.haveItemAndNotSocketed("helm", "set", "Tal Rasha's Horadric Crest")) {
-				if (Item.getQuantityOwned(me.getItem(631) < 2)) {
+				if (Item.getQuantityOwned(me.getItem(sdk.runes.Um) < 2)) {
 					Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 				}
 
@@ -434,7 +434,7 @@ function LoadConfig () {
 				Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
 			}
 
-			if (Item.getQuantityOwned(me.getItem(631) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.runes.Um) < 2)) {
 				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 			}
 
@@ -521,11 +521,11 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(Sanctuary);
 
-			if (!me.getItem(632)) {		// Mal rune
+			if (!me.getItem(sdk.runes.Mal)) {		// Mal rune
 				Config.Recipes.push([Recipe.Rune, "Um Rune"]); // Um to Mal
 			}
 
-			if (!me.getItem(627)) {		// Ko Rune
+			if (!me.getItem(sdk.runes.Ko)) {		// Ko Rune
 				Config.Recipes.push([Recipe.Rune, "Hel Rune"]);	//Hel -> Io
 				Config.Recipes.push([Recipe.Rune, "Io Rune"]);	//Io -> Lum
 				Config.Recipes.push([Recipe.Rune, "Lum Rune"]);	//Lum -> Ko			
@@ -551,15 +551,15 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(CTA);
 
-			if (me.getItem(636)) { // have Ohm before collecting base
+			if (me.getItem(sdk.runes.Ohm)) { // have Ohm before collecting base
 				NTIP.addLine("[Name] == CrystalSword && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 5 # [MaxQuantity] == 1");
 			}
 
-			if (!me.getItem(632)) {
+			if (!me.getItem(sdk.runes.Mal)) {
 				Config.Recipes.push([Recipe.Rune, "Um Rune"]); // Um to Mal
 			}
 
-			if (!me.getItem(636) && (["Blova", "Lightning"].indexOf(SetUp.finalBuild) === -1 || Check.haveItem("mace", "runeword", "Heart of the Oak"))) { // Ohm Rune
+			if (!me.getItem(sdk.runes.Ohm) && (["Blova", "Lightning"].indexOf(SetUp.finalBuild) === -1 || Check.haveItem("mace", "runeword", "Heart of the Oak"))) { // Ohm Rune
 				Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Um Rune"]);
@@ -583,7 +583,7 @@ function LoadConfig () {
 				];
 				NTIP.arrayLooping(SpiritSword);
 
-				if (!me.getItem(620)) { //Amn Rune
+				if (!me.getItem(sdk.runes.Amn)) { //Amn Rune
 					Config.Recipes.push([Recipe.Rune, "Ral Rune"]);
 					Config.Recipes.push([Recipe.Rune, "Ort Rune"]);
 					Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
@@ -645,7 +645,7 @@ function LoadConfig () {
 				];
 				NTIP.arrayLooping(loreRunes);
 
-				if (!me.getItem(621)) {
+				if (!me.getItem(sdk.runes.Sol)) {
 					Config.Recipes.push([Recipe.Rune, "Ort Rune"]);
 					Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
 					Config.Recipes.push([Recipe.Rune, "Amn Rune"]);
@@ -670,7 +670,7 @@ function LoadConfig () {
 
 		if (Item.getEquippedItem(5).tier < 500) { // Ancients' Pledge
 			if (!Check.haveItem("shield", "runeword", "Ancients' Pledge") && !me.hell) {
-				if (me.normal && !me.getItem(618)) {
+				if (me.normal && !me.getItem(sdk.runes.Ort)) {
 					Config.Recipes.push([Recipe.Rune, "Ral Rune"]);
 				}
 
@@ -704,7 +704,7 @@ function LoadConfig () {
 				"([Name] == HellforgePlate || [Name] == KrakenShell || [Name] == ArchonPlate || [Name] == BalrogSkin || [Name] == BoneWeave || [Name] == GreatHauberk || [Name] == LoricatedMail || [Name] == DiamondMail || [Name] == WireFleece || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Quality] == Normal && [Flag] == Ethereal # [Defense] >= 700 && [Sockets] == 0 # [MaxQuantity] == 1",
 			];
 
-			if (["Blova", "Lightning"].indexOf(SetUp.currentBuild) > -1 && (Check.haveItem("armor", "runeword", "Chains of Honor") || me.getItem(639))) {	// Make CoH first for Blova/Lightning, or already have ber so Lo isn't needed for cubing
+			if (["Blova", "Lightning"].indexOf(SetUp.currentBuild) > -1 && (Check.haveItem("armor", "runeword", "Chains of Honor") || me.getItem(sdk.runes.Ber))) {	// Make CoH first for Blova/Lightning, or already have ber so Lo isn't needed for cubing
 				NTIP.arrayLooping(fort);
 			} else {
 				NTIP.arrayLooping(fort);
@@ -740,7 +740,7 @@ function LoadConfig () {
 		}
 
 		if (Item.getEquippedItem(3).tier < 450) { // Bone
-			if (!me.getItem(631)) { // Cube to Um Rune
+			if (!me.getItem(sdk.runes.Um)) { // Cube to Um Rune
 				Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Fal Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
@@ -753,7 +753,7 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(Bone);
 
-			if (me.getItem(626)) {
+			if (me.getItem(sdk.runes.Lum)) {
 				NTIP.addLine("([Name] == demonhidearmor || [Name] == DuskShroud || [Name] == GhostArmor || [Name] == LightPlate || [Name] == MagePlate || [Name] == SerpentskinArmor || [Name] == trellisedarmor || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1");
 			}
 
@@ -775,7 +775,7 @@ function LoadConfig () {
 				"!me.normal && ([Name] == HellforgePlate || [Name] == KrakenShell || [Name] == ArchonPlate || [Name] == BalrogSkin || [Name] == BoneWeave || [Name] == GreatHauberk || [Name] == LoricatedMail || [Name] == DiamondMail || [Name] == WireFleece || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Quality] == Normal && [Flag] == Ethereal # [Sockets] == 0 # [MaxQuantity] == 1",
 			];
 
-			if (me.getItem(622) && me.getItem(629)) {	// Shael and Lem
+			if (me.getItem(sdk.runes.Shael) && me.getItem(sdk.runes.Lem)) {	// Shael and Lem
 				NTIP.arrayLooping(Treachery);
 			}
 
@@ -812,7 +812,7 @@ function LoadConfig () {
 
 		if (Item.getEquippedItem(3).tier < 300) { // Smoke
 			if (!Check.haveItem("armor", "runeword", "Smoke") && !me.hell) {
-				if (!me.getItem(626)) { // Cube to Lum Rune
+				if (!me.getItem(sdk.runes.Lum)) { // Cube to Lum Rune
 					Config.Recipes.push([Recipe.Rune, "Io Rune"]); // cube Io to Lum
 				}
 
@@ -823,7 +823,7 @@ function LoadConfig () {
 				NTIP.arrayLooping(smokeRunes);
 			}
 
-			if (me.getItem(626)) {
+			if (me.getItem(sdk.runes.Lum)) {
 				NTIP.addLine("([Name] == demonhidearmor || [Name] == DuskShroud || [Name] == GhostArmor || [Name] == LightPlate || [Name] == MagePlate || [Name] == SerpentskinArmor || [Name] == trellisedarmor || [Name] == WyrmHide) && [Flag] != Ethereal && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 2 # [MaxQuantity] == 1");
 			}
 

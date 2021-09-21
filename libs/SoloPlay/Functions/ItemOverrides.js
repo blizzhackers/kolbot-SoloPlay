@@ -443,6 +443,7 @@ Item.getBodyLocSecondary = function (item) {
 	case 34: //	Polearm
 	case 35: //	Crossbow
 	case 36: //	Mace
+	case 38: // Missile Potion
 	case 42: //	Throwing Knife
 	case 43: //	Throwing Axe
 	case 44: //	Javelin
@@ -1047,7 +1048,7 @@ Item.autoEquipSC = function () {
 			continue;
 		} else {
 			if (charms.checkList[i].location !== 7 && !NTIP.checkFinalCharm(charms.checkList[i])) {
-				if (!Storage.Stash.MoveTo(charms.checkList[i])){
+				if (!Storage.Stash.MoveTo(charms.checkList[i])) {
 					Misc.itemLogger("Dropped", charms.checkList[i]);
 					checkList[i].drop();
 				} else {
@@ -1055,10 +1056,8 @@ Item.autoEquipSC = function () {
 						Misc.logItem("Stashed Cubing Ingredient", charms.checkList[i]);
 					} else {
 						Misc.logItem("Stashed", charms.checkList[i]);
-					}
-					
+					}	
 				}
-
 			}
 
 			charms.checkList.splice(i, 1);
