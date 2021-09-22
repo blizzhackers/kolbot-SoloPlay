@@ -624,7 +624,7 @@ case 1: // Sorceress
 
 					if (mark) {
 						ClassAttack.doCast(mark, Config.AttackSkill[1], Config.AttackSkill[2]);
-					} else if (me.getSkill(43, 0)) {
+					} else if (me.getSkill(sdk.skills.Telekinesis, 0)) {
 						Skill.cast(43, 0, unit.x, unit.y);
 					}
 				}

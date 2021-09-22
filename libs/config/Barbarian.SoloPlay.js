@@ -53,7 +53,7 @@ function LoadConfig () {
 	Config.PrimarySlot = 0;
 	Config.PacketCasting = 1;
 	Config.WaypointMenu = true;
-	Config.Cubing = !me.classic ? me.getItem(549) : false;
+	Config.Cubing = !me.classic ? me.getItem(sdk.quest.cube) : false;
 	Config.MakeRunewords = !me.classic ? true : false;
 
 	/* General logging. */
@@ -522,7 +522,7 @@ function LoadConfig () {
 
 			break;
 		case 'Immortalwhirl':
-			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== 20566) { //infinity
+			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Infinity) { //infinity
 				var Inf = [
 					"[Name] == BerRune",
 					"[Name] == MalRune",
@@ -598,13 +598,13 @@ function LoadConfig () {
 		let wep2 = Item.getEquippedItem(5);
 
 		if (!helm.isRuneword && [4, 6].indexOf(helm.quality) > -1 && helm.sockets > 0 && !helm.socketed) {
-			if (Item.getQuantityOwned(me.getItem(581) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Ruby) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "Flawless Ruby"]);
 			}
 		}
 
 		if (!body.isRuneword && [4, 6].indexOf(body.quality) > -1 && body.sockets > 0 && !body.socketed) {
-			if (Item.getQuantityOwned(me.getItem(581) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Ruby) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "Flawless Ruby"]);
 			}
 		}
@@ -873,7 +873,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("([type] == circlet || [type] == helm || [type] == primalhelm) # [LightResist] >= 25");
 		}
 
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(3).prefixnum !== 20547) { // Merc Fortitude
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(3).prefixnum !== sdk.locale.items.Fortitude) { // Merc Fortitude
 			var fort = [
 				"[Name] == ElRune # # [MaxQuantity] == 1",
 				"[Name] == SolRune # # [MaxQuantity] == 1",
@@ -1162,7 +1162,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == sword # [enhanceddamage] >= 20 && [ias] >= 25");
 		}
 
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(12).prefixnum !== 20635) { // Spirit Sword
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit) { // Spirit Sword
 			var SpiritSword = [
 				"[Name] == TalRune # # [MaxQuantity] == 1",
 				"[Name] == ThulRune # # [MaxQuantity] == 1",

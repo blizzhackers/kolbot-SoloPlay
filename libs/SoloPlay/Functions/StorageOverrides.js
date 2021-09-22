@@ -108,7 +108,7 @@ var Container = function (name, width, height, location) {
 			return true;
 		}
 
-		let cube = me.getItem(549);
+		let cube = me.getItem(sdk.quest.cube);
 
 		if (!cube) {
 			return false;
@@ -155,7 +155,7 @@ var Container = function (name, width, height, location) {
 
 				item = this.itemList[this.buffer[x][y] - 1];
 
-				if ( item.classid === 549 && item.location === 7 && item.x === 0 && item.y === 0) {
+				if ( item.classid === sdk.quest.cube && item.location === 7 && item.x === 0 && item.y === 0) {
 					continue; // dont touch the cube
 				}
 
@@ -408,7 +408,7 @@ var Container = function (name, width, height, location) {
 					break;
 				case 6: // cube
 					cItem = getUnit(100);
-					cube = me.getItem(549);
+					cube = me.getItem(sdk.quest.cube);
 
 					if (cItem !== null && cube !== null) {
 						sendPacket(1, 0x2a, 4, cItem.gid, 4, cube.gid);

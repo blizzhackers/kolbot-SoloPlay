@@ -51,7 +51,7 @@ function LoadConfig () {
 	Config.PrimarySlot = 0;
 	Config.PacketCasting = 1;
 	Config.WaypointMenu = true;
-	Config.Cubing = !me.classic ? me.getItem(549) : false;
+	Config.Cubing = !me.classic ? me.getItem(sdk.quest.cube) : false;
 	Config.MakeRunewords = !me.classic ? true : false;
 
 	/* General logging. */
@@ -257,7 +257,7 @@ function LoadConfig () {
 		if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
 			NTIP.addLine("[name] == perfectdiamond # # [MaxQuantity] == 2");
 
-			if (Item.getQuantityOwned(me.getItem(586) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Diamond) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
 			}
 
@@ -282,13 +282,13 @@ function LoadConfig () {
 		let shield = Item.getEquippedItem(5);
 
 		if (!helm.isRuneword && [4, 6].indexOf(helm.quality) > -1 && helm.sockets > 0 && !helm.socketed) {
-			if (Item.getQuantityOwned(me.getItem(581) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Ruby) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "Flawless Ruby"]);
 			}
 		}
 
 		if (!body.isRuneword && [4, 6].indexOf(body.quality) > -1 && body.sockets > 0 && !body.socketed) {
-			if (Item.getQuantityOwned(me.getItem(581) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Ruby) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "Flawless Ruby"]);
 			}
 		}
@@ -323,7 +323,7 @@ function LoadConfig () {
 		}
 
 		if (!shield.isRuneword && [4, 6].indexOf(shield.quality) > -1 && shield.sockets > 0 && !shield.socketed) {
-			if (Item.getQuantityOwned(me.getItem(586) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Diamond) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "Flawless Diamond"]);
 			}
 		}
@@ -518,7 +518,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == sword # [fcr] >= 25 && [maxmana] >= 89");
 		}
 
-		if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 1000 || Item.getEquippedItem(12).prefixnum !== 20635)) { // Spirit shield
+		if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 1000 || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit)) { // Spirit shield
 			if (!Check.haveItem("shield", "runeword", "Spirit") && me.hell) {
 				var SpiritShield = [
 					"[Name] == TalRune # # [MaxQuantity] == 1",
@@ -547,7 +547,7 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(Insight);
 
-			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== 20568 && !Check.haveBase("polearm", 4)) {
+			if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Insight && !Check.haveBase("polearm", 4)) {
 				NTIP.addLine("[Name] == voulge && [flag] != ethereal && [Quality] == Normal && [Level] >= 26 && [Level] <= 40 # [Sockets] == 0 # [MaxQuantity] == 1");
 			}
 
@@ -659,7 +659,7 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == shield # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 187");
 		}
 
-		if (Item.getEquippedItemMerc(3).prefixnum !== 20547) { // Merc Fortitude
+		if (Item.getEquippedItemMerc(3).prefixnum !== sdk.locale.items.Fortitude) { // Merc Fortitude
 			var fort = [
 				"[Name] == ElRune # # [MaxQuantity] == 1",
 				"[Name] == SolRune # # [MaxQuantity] == 1",
