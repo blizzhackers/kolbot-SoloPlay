@@ -681,6 +681,7 @@
             BurstOfSpeed: 157, // External name
             BladeShield: 158,
             Fade: 159,
+            RestInPeace: 172,
         },
         enchant: {
             ExtraStrong: 5,

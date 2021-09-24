@@ -79,11 +79,13 @@ case 0: //Amazon - theBGuy
 		// Handle Switch casting
 		if (index === 1 && !unit.dead) {
 			if (!unit.getState(sdk.states.Weaken) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-				Attack.switchCastCharges(sdk.skills.Weaken, unit);		// Switch cast weaken
+				// Switch cast weaken
+				Attack.switchCastCharges(sdk.skills.Weaken, unit);
 			}
 
 			if (!unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-				Attack.switchCastCharges(sdk.skills.LowerResist, unit);		// Switch cast lower resist
+				// Switch cast lower resist
+				Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 			}
 		}
 
@@ -222,7 +224,7 @@ case 0: //Amazon - theBGuy
 
 		if (Attack.checkResist(unit, checkSkill)) {
 			timedSkill = checkSkill;
-		} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([56, 59].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+		} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			timedSkill = Config.AttackSkill[5];
 		}
 
@@ -235,7 +237,7 @@ case 0: //Amazon - theBGuy
 
 		if (Attack.checkResist(unit, checkSkill)) {
 			untimedSkill = checkSkill;
-		} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([56, 59].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+		} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			untimedSkill = Config.AttackSkill[6];
 		}
 
@@ -287,7 +289,8 @@ case 0: //Amazon - theBGuy
 			needRepair = Town.needRepair();	
 		}
 		
-		if (needRepair && needRepair.length > 0 && me.getItem(518)) { // Repair check, make sure i have a tome
+		// Repair check, make sure i have a tome
+		if (needRepair && needRepair.length > 0 && me.getItem(518)) {
 			Town.visitTown(true);
 		}
 
@@ -417,7 +420,7 @@ case 1: // Sorceress
 			timedSkill = -1,
 			untimedSkill = -1,
 			index = (unit.spectype !== 0 || unit.type === 0) ? 1 : 3,
-			staticRange = Math.floor((me.getSkill(42, 1) + 3) * 2 / 3),
+			staticRange = Math.floor((me.getSkill(sdk.skills.StaticField, 1) + 3) * 2 / 3),
 			gold = me.getStat(14) + me.getStat(15);
 
 		if (Config.MercWatch && Town.needMerc()) {
@@ -426,45 +429,48 @@ case 1: // Sorceress
 		}
 
 		// Keep Energy Shield active
-		if (!me.getState(30) && me.getSkill(58, 1)) {
-			Skill.cast(58, 0);
+		if (!me.getState(sdk.states.EnergyShield) && me.getSkill(sdk.skills.EnergyShield, 1)) {
+			Skill.cast(sdk.skills.EnergyShield, 0);
 		}
 
 		// Keep Thunder-Storm active
-		if (!me.getState(38) && me.getSkill(57, 1)) {
-			Skill.cast(57, 0);
+		if (!me.getState(sdk.states.ThunderStorm) && me.getSkill(sdk.skills.ThunderStorm, 1)) {
+			Skill.cast(sdk.skills.ThunderStorm, 0);
 		}
 
 		// Skills
 		let closeMobCheck;
-		let useFNova = me.getSkill(44, 0);
-		let useStatic = me.getSkill(42, 1);
+		let useFNova = me.getSkill(sdk.skills.FrostNova, 0);
+		let useStatic = me.getSkill(sdk.skills.StaticField, 1);
+		let staticManaCost = Skill.getManaCost(sdk.skills.StaticField);
 
 		// Handle Switch casting
 		if (index === 1 && !unit.dead) {
-			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-				Attack.switchCastCharges(72, unit);		// Switch cast weaken - will only cast if actually has wand with charges in switch spot - TODO: Clean this up, maybe some type of switch statement based on what charges are on the switch wep
+			if (!unit.getState(sdk.states.Weaken) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+				// Switch cast weaken
+				Attack.switchCastCharges(sdk.skills.Weaken, unit);
 			}
 
-			if (!unit.getState(61) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-				Attack.switchCastCharges(91, unit);		// Switch cast lower resist
+			if (!unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+				// Switch cast lower resist
+				Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 			}
 		}
 
 		// If we have enough mana for FNova and there are 2 or mobs around us
-		if (useFNova && Skill.getManaCost(44) * 2 < me.mp && Attack.getMobCount(me.x, me.y, 6) >= 2) {
+		if (useFNova && Skill.getManaCost(sdk.skills.FrostNova) * 2 < me.mp && Attack.getMobCount(me.x, me.y, 6) >= 2) {
 			closeMobCheck = Attack.getNearestMonster();
 
 			if (!!closeMobCheck && Attack.checkResist(closeMobCheck, "cold") && !closeMobCheck.isChilled && !closeMobCheck.dead) {
-				Skill.cast(44, 0, closeMobCheck);
+				Skill.cast(sdk.skills.FrostNova, 0, closeMobCheck);
 			}
 		}
 
 		// If we have enough mana for Static and there are 2 or more mobs around us, get the closest one and cast static on them
-		if (useStatic && Attack.getMobCount(me.x, me.y, staticRange) >= (me.area === 131 ? 1 : 2) && (Skill.getManaCost(42) * 3) < me.mp) {
+		if (useStatic && Attack.getMobCount(me.x, me.y, staticRange) >= (me.area === 131 ? 1 : 2) && (staticManaCost * 3) < me.mp) {
 			for (let castStatic = 0; castStatic < 2; castStatic++) {
 				closeMobCheck = Attack.getNearestMonster();
-				if (!!closeMobCheck && Attack.checkResist(unit, "lightning") && Skill.getManaCost(42) < me.mp && !closeMobCheck.dead && Math.round(closeMobCheck.hp * 100 / closeMobCheck.hpmax) > Config.CastStatic) {
+				if (!!closeMobCheck && Attack.checkResist(unit, "lightning") && staticManaCost < me.mp && !closeMobCheck.dead && Math.round(closeMobCheck.hp * 100 / closeMobCheck.hpmax) > Config.CastStatic) {
 					Skill.cast(42, 0);
 				}
 			}
@@ -506,8 +512,8 @@ case 1: // Sorceress
 					}
 				}
 
-				if ((Skill.getManaCost(42) * 2) < me.mp) {
-					Skill.cast(42, 0, unit);
+				if ((staticManaCost * 2) < me.mp) {
+					Skill.cast(sdk.skills.StaticField, 0, unit);
 				}
 			}
 		}
@@ -519,9 +525,9 @@ case 1: // Sorceress
 			checkSkill = Config.AttackSkill[index];
 		}
 
-		if (Attack.checkResist(unit, checkSkill) && ([56, 59].indexOf(checkSkill) === -1 || Attack.validSpot(unit.x, unit.y))) {
+		if (Attack.checkResist(unit, checkSkill) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(checkSkill) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			timedSkill = checkSkill;
-		} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([56, 59].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+		} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			timedSkill = Config.AttackSkill[5];
 		}
 
@@ -532,9 +538,9 @@ case 1: // Sorceress
 			checkSkill = Config.AttackSkill[index + 1];
 		}
 
-		if (Attack.checkResist(unit, checkSkill) && ([56, 59].indexOf(checkSkill) === -1 || Attack.validSpot(unit.x, unit.y))) {
+		if (Attack.checkResist(unit, checkSkill) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(checkSkill) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			untimedSkill = checkSkill;
-		} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([56, 59].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+		} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			untimedSkill = Config.AttackSkill[6];
 		}
 
@@ -548,19 +554,20 @@ case 1: // Sorceress
 			untimedSkill = Config.LowManaSkill[1];
 		}
 
-		if (untimedSkill === 55) {
-			if (me.getSkill(45, 1) > me.getSkill(55, 1)) {
-				untimedSkill = 45; // Ice blast
+		if (untimedSkill === sdk.skills.GlacialSpike) {
+			if (me.getSkill(sdk.skills.IceBlast, 1) > me.getSkill(sdk.skills.GlacialSpike, 1)) {
+				untimedSkill = sdk.skills.IceBlast;
 			}
 		}
 
 		if (me.normal && me.charlvl > 12 && gold < 5000 && Skill.getManaCost(timedSkill) > me.mp) {
 			switch (SetUp.currentBuild) {
 			case "Start":
-				if (me.getSkill(38, 1) && Skill.getManaCost(38) < me.mp) {
-					timedSkill = 38;	// Charged Bolt
+				if (me.getSkill(sdk.skills.ChargedBolt, 1) && Skill.getManaCost(sdk.skills.ChargedBolt) < me.mp) {
+					timedSkill = sdk.skills.ChargedBolt;
 				} else if (Attack.getMobCount(me.x, me.y, 6) >= 1) {
-					timedSkill = 0;	// I have no mana and there are mobs around me, just attack
+					// I have no mana and there are mobs around me, just attack
+					timedSkill = sdk.skills.Attack;
 				}
 
 				break;
@@ -616,8 +623,8 @@ case 1: // Sorceress
 						Pather.moveToUnit(unit);
 					}
 
-					if (Attack.checkResist(unit, "lightning") && me.getSkill(42, 1) && Math.round(unit.hp * 100 / unit.hpmax) > Config.CastStatic) {
-						Skill.cast(42, 0);
+					if (Attack.checkResist(unit, "lightning") && me.getSkill(sdk.skills.StaticField, 1) && Math.round(unit.hp * 100 / unit.hpmax) > Config.CastStatic) {
+						Skill.cast(sdk.skills.StaticField, 0);
 					}
 
 					mark = Attack.getNearestMonster();
@@ -625,7 +632,7 @@ case 1: // Sorceress
 					if (mark) {
 						ClassAttack.doCast(mark, Config.AttackSkill[1], Config.AttackSkill[2]);
 					} else if (me.getSkill(sdk.skills.Telekinesis, 0)) {
-						Skill.cast(43, 0, unit.x, unit.y);
+						Skill.cast(sdk.skills.Telekinesis, 0, unit.x, unit.y);
 					}
 				}
 
@@ -651,7 +658,7 @@ case 1: // Sorceress
 			manaCostTimedSkill = Skill.getManaCost(timedSkill)
 			timedSkillRange = Skill.getRange(timedSkill);
 
-			if (timedSkill === 38) {	// Charged bolt
+			if (timedSkill === sdk.skills.ChargedBolt) {
 				if (Attack.getMobCountAtPosition(unit.x, unit.y, 6) < 3) {
 					timedSkillRange = 5;
 				}
@@ -688,11 +695,12 @@ case 1: // Sorceress
 
 				if (!!closeMobCheck && [36, 39, 45, 44, 48].indexOf(timedSkill) === -1 && [44, 48].indexOf(untimedSkill) === -1 && timedSkillRange > 10) {
 					if (Math.round(getDistance(me, closeMobCheck)) < 4 && Attack.getMobCountAtPosition(closeMobCheck.x, closeMobCheck.y, 6) > 2) {
-						if (me.getSkill(55, 0) && me.mp > (Skill.getManaCost(55) + manaCostTimedSkill) && !closeMobCheck.isFrozen && !closeMobCheck.dead && !checkCollision(me, closeMobCheck, 0x4)) {
-							Skill.cast(55, 0, closeMobCheck);
+						if (me.getSkill(sdk.skills.GlacialSpike, 0) && me.mp > (Skill.getManaCost(sdk.skills.GlacialSpike) + manaCostTimedSkill) &&
+							!closeMobCheck.isFrozen && !closeMobCheck.dead && !checkCollision(me, closeMobCheck, 0x4)) {
+							Skill.cast(sdk.skills.GlacialSpike, 0, closeMobCheck);
 						}
-
-						Attack.deploy(unit, 4, 5, 9);	// Try to find better spot
+						// Try to find better spot
+						Attack.deploy(unit, 4, 5, 9);
 					}
 				}
 
@@ -735,8 +743,9 @@ case 1: // Sorceress
 			if (!unit.dead) {
 				Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
 
-				if (!unit.dead && untimedSkill === 48 && (me.getSkill(55, 0))) {	// Cast gspike, we are in close with nova so this can freeze the mobs around us
-					Skill.cast(55, 0, unit);
+				// Cast gspike, we are in close with nova so this can freeze the mobs around us
+				if (!unit.dead && untimedSkill === sdk.skills.Nova && (me.getSkill(sdk.skills.GlacialSpike, 0))) {
+					Skill.cast(sdk.skills.GlacialSpike, 0, unit);
 				}
 			}
 
@@ -764,26 +773,25 @@ case 2: // Necromancer
 	ClassAttack.maxMages = 0;
 	ClassAttack.maxRevives = 0;
 
-	// TODO: Write bone wall or bone prison function to keep mobs at bay
-
 	ClassAttack.setArmySize = function () {
 		let skillNum;
+
 		if (Config.Skeletons === "max") {
-			skillNum = me.getSkill(70, 1);
+			skillNum = me.getSkill(sdk.skills.RaiseSkeleton, 1);
 			this.maxSkeletons = skillNum < 4 ? skillNum : (Math.floor(skillNum / 3) + 2);
 		} else {
 			this.maxSkeletons = Config.Skeletons;
 		}
 
 		if (Config.SkeletonMages === "max") {
-			skillNum = me.getSkill(80, 1);
+			skillNum = me.getSkill(sdk.skills.RaiseSkeletalMage, 1);
 			this.maxMages = skillNum < 4 ? skillNum : (Math.floor(skillNum / 3) + 2);
 		} else {
 			this.maxMages = Config.SkeletonMages;
 		}
 
 		if (Config.Revives === "max") {
-			skillNum = me.getSkill(95, 1);
+			skillNum = me.getSkill(sdk.skills.Revive, 1);
 			this.maxRevives = skillNum;
 		} else {
 			this.maxRevives = Config.Revives;
@@ -882,14 +890,14 @@ case 2: // Necromancer
 
 		let type = index === 1 ? "Boss" : "Normal";
 		let curseToCast = -1;
-		let useWeaken = me.getSkill(72, 1);
-		let useDim = me.getSkill(71, 1);
-		let useAttract = me.getSkill(86, 1) && me.area !== 131;
-		let useConfuse = me.getSkill(81, 1) && me.area === 131;
-		let useDecrep = me.getSkill(87, 1);
-		let useMaiden = me.getSkill(76, 1) && me.area === 73 && me.normal;
-		let useAmp = (me.getSkill(66, 1) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical"));
-		let useLowerRes = (me.getSkill(91, 1) && SetUp.currentBuild === "Poison" && Attack.checkResist(unit, "poison"));
+		let useWeaken = me.getSkill(sdk.skills.Weaken, 1);
+		let useDim = me.getSkill(sdk.skills.DimVision, 1);
+		let useAttract = me.getSkill(sdk.skills.Attract, 1) && me.area !== 131;
+		let useConfuse = me.getSkill(sdk.skills.Confuse, 1) && me.area === 131;
+		let useDecrep = me.getSkill(sdk.skills.Decrepify, 1);
+		let useMaiden = me.getSkill(sdk.skills.IronMaiden, 1) && me.area === 73 && me.normal;
+		let useAmp = (me.getSkill(sdk.skills.AmplifyDamage, 1) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical"));
+		let useLowerRes = (me.getSkill(sdk.skills.LowerResist, 1) && SetUp.currentBuild === "Poison" && Attack.checkResist(unit, "poison"));
 
 		switch (type) {
 		case "Boss":
@@ -926,7 +934,8 @@ case 2: // Necromancer
 			break;
 		case "Normal":
 			if (useAttract && unit.classid !== 571 && Math.round(getDistance(me, unit)) > 8 && !checkCollision(me, unit, 0x4) && !this.getCurseState(unit, 86)) {
-				if (Attack.getMobCountAtPosition(unit.x, unit.y, 6, false, false) >= 2) {	// Save resources by only doing this check if all the other ones are met
+				// Save resources by only doing this check if all the other ones are met
+				if (Attack.getMobCountAtPosition(unit.x, unit.y, 6, false, false) >= 2) {
 					curseToCast = 86;
 				}
 
@@ -934,7 +943,8 @@ case 2: // Necromancer
 			}
 
 			if (useConfuse && unit.classid !== 571 && Math.round(getDistance(me, unit)) > 8 && !checkCollision(me, unit, 0x4) && !this.getCurseState(unit, 81)) {
-				if (Attack.getMobCountAtPosition(unit.x, unit.y, 6, false, false) >= 2) {	// Save resources by only doing this check if all the other ones are met
+				// Save resources by only doing this check if all the other ones are met
+				if (Attack.getMobCountAtPosition(unit.x, unit.y, 6, false, false) >= 2) {
 					curseToCast = 81;
 				}
 
@@ -996,8 +1006,8 @@ case 2: // Necromancer
 			timedSkill = -1,
 			untimedSkill = -1;
 
-		let useTerror = me.getSkill(77, 0);
-		let useBP = me.getSkill(88, 1);
+		let useTerror = me.getSkill(sdk.skills.Terror, 0);
+		let useBP = me.getSkill(sdk.skills.BonePrison, 1);
 
 		if (!this.cursesSet) {
 			this.initCurses();
@@ -1011,7 +1021,9 @@ case 2: // Necromancer
 
 		let bpAllowedAreas = [37, 38, 39, 41, 42, 43, 44, 46, 73, 76, 77, 78, 79, 80, 81, 83, 102, 104, 105, 106, 108, 110, 111, 120, 121, 128, 129, 130, 131];
 
-		if (useBP && Math.round(getDistance(me, unit)) > ([73, 120].indexOf(me.area) > -1 ? 6 : 10) && bpAllowedAreas.indexOf(me.area) > -1 && (index === 1 || [571, 391].indexOf(unit.classid) > -1) && !checkCollision(me, unit, 0x4) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {		// Bone prison
+		// Bone prison
+		if (useBP && Math.round(getDistance(me, unit)) > ([73, 120].indexOf(me.area) > -1 ? 6 : 10) && bpAllowedAreas.indexOf(me.area) > -1 && (index === 1 || [571, 391].indexOf(unit.classid) > -1)
+			&& !checkCollision(me, unit, 0x4) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
 			if (Skill.cast(88, 0, unit)) {
 				this.bpTick = getTickCount();
 			}
@@ -1030,8 +1042,8 @@ case 2: // Necromancer
 		}
 
 
-		if (useTerror && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(77) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
-			Skill.cast(77, Skill.getHand(77));
+		if (useTerror && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+			Skill.cast(sdk.skills.Terror, 0);
 		}
 
 		this.smartCurse(unit, index);
@@ -1045,7 +1057,7 @@ case 2: // Necromancer
 
 		if (Attack.checkResist(unit, checkSkill)) {
 			timedSkill = checkSkill;
-		} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([56, 59].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+		} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			timedSkill = Config.AttackSkill[5];
 		}
 
@@ -1058,7 +1070,7 @@ case 2: // Necromancer
 
 		if (Attack.checkResist(unit, checkSkill)) {
 			untimedSkill = checkSkill;
-		} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([56, 59].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+		} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			untimedSkill = Config.AttackSkill[6];
 		}
 
@@ -1111,7 +1123,7 @@ case 2: // Necromancer
 
 	// Returns: 0 - fail, 1 - success, 2 - no valid attack skills
 	ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-		var i, walk;
+		var i, walk, timedSkillRange, untimedSkillRange;
 
 		// No valid skills can be found
 		if (timedSkill < 0 && untimedSkill < 0) {
@@ -1126,11 +1138,13 @@ case 2: // Necromancer
 		}
 
 		if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
+			timedSkillRange = Skill.getRange(timedSkill);
+
 			switch (timedSkill) {
-			case 92: // Poison Nova
+			case sdk.skills.PoisonNova:
 				if (!this.novaTick || getTickCount() - this.novaTick > Config.PoisonNovaDelay * 1000) {
-					if (Math.round(getDistance(me, unit)) > Skill.getRange(timedSkill) || checkCollision(me, unit, 0x4)) {
-						if (!Attack.getIntoPosition(unit, Skill.getRange(timedSkill), 0x4)) {
+					if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, 0x4)) {
+						if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4)) {
 							return 0;
 						}
 					}
@@ -1142,8 +1156,8 @@ case 2: // Necromancer
 
 				break;
 			case 500: // Pure Summoner
-				if (Math.round(getDistance(me, unit)) > Skill.getRange(timedSkill) || checkCollision(me, unit, 0x4)) {
-					if (!Attack.getIntoPosition(unit, Skill.getRange(timedSkill), 0x4)) {
+				if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, 0x4)) {
+					if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4)) {
 						return 0;
 					}
 				}
@@ -1152,21 +1166,19 @@ case 2: // Necromancer
 
 				break;
 			default:
-				if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
+				if (timedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) {
 					return 0;
 				}
 
-				let range = Skill.getRange(timedSkill);
-
-				if (timedSkill === 67) {	// Teeth
-					range = Attack.getMobCount(unit.x, unit.y, 6) <= 3 ? 6 : range;
+				if (timedSkill === sdk.skills.Teeth) {
+					timedSkillRange = Attack.getMobCount(unit.x, unit.y, 6) <= 3 ? 6 : timedSkillRange;
 				}
 
-				if (Math.round(getDistance(me, unit)) > range || checkCollision(me, unit, 0x4)) {
+				if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, 0x4)) {
 					// Allow short-distance walking for melee skills
-					walk = range < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
+					walk = timedSkillRange < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
 
-					if (!Attack.getIntoPosition(unit, range, 0x4, walk)) {
+					if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4, walk)) {
 						return 0;
 					}
 				}
@@ -1174,8 +1186,9 @@ case 2: // Necromancer
 				if (!unit.dead) {
 					let closeMobCheck = Attack.getNearestMonster();
 
-					if (Math.round(getDistance(me, unit)) < 4 && Skill.getRange(timedSkill) > 6) {
-						Attack.deploy(unit, 4, 5, 9);	// Try to find better spot
+					if (Math.round(getDistance(me, unit)) < 4 && timedSkillRange > 6) {
+						// Try to find better spot
+						Attack.deploy(unit, 4, 5, 9);
 					}
 
 					Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
@@ -1186,15 +1199,17 @@ case 2: // Necromancer
 		}
 
 		if (untimedSkill > -1) {
-			if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
+			untimedSkillRange = Skill.getRange(untimedSkill);
+
+			if (untimedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) {
 				return 0;
 			}
 
-			if (Math.round(getDistance(me, unit)) > Skill.getRange(untimedSkill) || checkCollision(me, unit, 0x4)) {
+			if (Math.round(getDistance(me, unit)) > untimedSkillRange || checkCollision(me, unit, 0x4)) {
 				// Allow short-distance walking for melee skills
 				walk = Skill.getRange(untimedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
 
-				if (!Attack.getIntoPosition(unit, Skill.getRange(untimedSkill), 0x4, walk)) {
+				if (!Attack.getIntoPosition(unit, untimedSkillRange, 0x4, walk)) {
 					return 0;
 				}
 			}
@@ -1230,9 +1245,13 @@ case 2: // Necromancer
 			return 2;
 		}
 
-		let bpAllowedAreas = [37, 38, 39, 41, 42, 43, 44, 46, 73, 76, 77, 78, 79, 80, 81, 83, 102, 104, 105, 106, 108, 110, 111, 120, 121, 128, 129, 130, 131];
+		// Far to low a range for far casting
+		if (Skill.getRange(timedSkill) < 4 && Skill.getRange(untimedSkill) < 4) {
+			return 2;
+		}
 
-		if (Math.round(getDistance(me, unit)) > 10 && bpAllowedAreas.indexOf(me.area) > -1 && !checkCollision(me, unit, 0x4) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {		// Bone prison
+		// Bone prison
+		if (Math.round(getDistance(me, unit)) > 10 && !checkCollision(me, unit, 0x4) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
 			if (Skill.cast(88, 0, unit)) {
 				this.bpTick = getTickCount();
 			}
@@ -1249,17 +1268,10 @@ case 2: // Necromancer
 
 		if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 			switch (timedSkill) {
-			case 92: // Poison Nova
-
-				break;
-			case 500: // Pure Summoner
-
+			case 92: 	// Poison Nova
+			case 500: 	// Pure Summoner (Note: unsure where the 500 is coming from)
 				break;
 			default:
-				if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
-					return 0;
-				}
-
 				if (!unit.dead && !checkCollision(me, unit, 0x4)) {
 					Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
 				}
@@ -1306,7 +1318,8 @@ case 2: // Necromancer
 
 			if (corpse) {
 				do {
-					if (getDistance(me, corpse) <= range && this.checkCorpse(corpse)) { // within casting distance
+					// within casting distance
+					if (getDistance(me, corpse) <= range && this.checkCorpse(corpse)) {
 						corpseList.push(copyUnit(corpse));
 					}
 				} while (corpse.getNext());
@@ -1317,7 +1330,7 @@ MainLoop:
 				corpse = corpseList.shift();
 
 				if (me.getMinionCount(4) < this.maxSkeletons) {
-					if (!Skill.cast(70, 0, corpse)) {
+					if (!Skill.cast(sdk.skills.RaiseSkeleton, 0, corpse)) {
 						return false;
 					}
 
@@ -1332,7 +1345,7 @@ MainLoop:
 						delay(10);
 					}
 				} else if (me.getMinionCount(5) < this.maxMages) {
-					if (!Skill.cast(80, 0, corpse)) {
+					if (!Skill.cast(sdk.skills.RaiseSkeletalMage, 0, corpse)) {
 						return false;
 					}
 
@@ -1350,7 +1363,7 @@ MainLoop:
 					if (this.checkCorpse(corpse, true)) {
 						print("Reviving " + corpse.name);
 
-						if (!Skill.cast(95, 0, corpse)) {
+						if (!Skill.cast(sdk.skills.Revive, 0, corpse)) {
 							return false;
 						}
 
@@ -1381,10 +1394,11 @@ MainLoop:
 
 		var i,
 			corpseList = [],
+			useAmp = me.getSkill(sdk.skills.AmplifyDamage, 1),
+			ampManaCost = Skill.getManaCost(66),
+			explodeCorpsesManaCost = Skill.getManaCost(Config.ExplodeCorpses),
 			range = Math.floor((me.getSkill(Config.ExplodeCorpses, 1) + 7) / 3),
 			corpse = getUnit(1, -1, 12);
-
-		let useAmp = me.getSkill(66, 1);
 
 		if (corpse) {
 			do {
@@ -1405,10 +1419,11 @@ MainLoop:
 
 					if (corpse) {
 						if (!unit.dead && this.checkCorpse(corpse) && getDistance(corpse, unit) <= range) {
-							me.overhead("Exploding: " + corpse.classid + " " + corpse.name + " id:" + corpse.gid); // Added corpse ID so I can see when it blows another monster with the same ClassID and Name
+							// Added corpse ID so I can see when it blows another monster with the same ClassID and Name
+							me.overhead("Exploding: " + corpse.classid + " " + corpse.name + " id:" + corpse.gid);
 
-							if (useAmp && !this.getCurseState(unit, 66) && !this.getCurseState(unit, 87) && me.mp > (Skill.getManaCost(66) + Skill.getManaCost(Config.ExplodeCorpses))) {
-								Skill.cast(66, 0, unit);
+							if (useAmp && !unit.getState(sdk.states.AmplifyDamage) && !unit.getState(sdk.states.Decrepify) && me.mp > (ampManaCost + explodeCorpsesManaCost)) {
+								Skill.cast(sdk.skills.AmplifyDamage, 0, unit);
 							}
 
 							if (Skill.cast(Config.ExplodeCorpses, 0, corpse)) {
@@ -1426,8 +1441,8 @@ MainLoop:
 						if (corpse) {
 							me.overhead("Exploding: " + corpse.classid + " " + corpse.name);
 
-							if (useAmp && !this.getCurseState(unit, 66) && !this.getCurseState(unit, 87) && me.mp > (Skill.getManaCost(66) + Skill.getManaCost(Config.ExplodeCorpses))) {
-								Skill.cast(66, 0, unit);
+							if (useAmp && !unit.getState(sdk.states.AmplifyDamage) && !unit.getState(sdk.states.Decrepify) && me.mp > (ampManaCost + explodeCorpsesManaCost)) {
+								Skill.cast(sdk.skills.AmplifyDamage, 0, unit);
 							}
 
 							if (Skill.cast(Config.ExplodeCorpses, 0, corpse)) {
@@ -1465,13 +1480,13 @@ MainLoop:
 		}
 
 		if (getDistance(me, unit) <= 25 && !checkCollision(me, unit, 0x4) &&
-                    !unit.getState(1) && // freeze
-                    !unit.getState(96) && // revive
-                    !unit.getState(99) && // redeemed
-                    !unit.getState(104) && // nodraw
-                    !unit.getState(107) && // shatter
-                    !unit.getState(172) && // rest in peace
-                    !unit.getState(118) // noselect
+                    !unit.getState(sdk.states.Freeze) &&
+                    !unit.getState(sdk.states.Revive) &&
+                    !unit.getState(sdk.states.Redeemed) &&
+                    !unit.getState(sdk.states.CorpseNoDraw) &&
+                    !unit.getState(sdk.states.Shatter) &&
+                    !unit.getState(sdk.states.RestInPeace) &&
+                    !unit.getState(sdk.states.CorpseNoSelect)
 		) {
 			return true;
 		}
@@ -1500,11 +1515,12 @@ case 3: // Paladin
 		}
 
 		if (index === 1 && !unit.dead) {
-			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-				Attack.switchCastCharges(72, unit);		// Switch cast weaken - will only cast if actually has wand with charges in switch spot - TODO: Clean this up, maybe some type of switch statement based on what charges are on the switch wep
+			if (!unit.getState(sdk.states.Weaken) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+				// Switch cast weaken
+				Attack.switchCastCharges(sdk.skills.Weaken, unit);
 			}
 
-			if (!unit.getState(60) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			if (!unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				Attack.switchCastCharges(87, unit);		// Switch cast decrepify
 			}
 		}
@@ -1661,14 +1677,15 @@ case 4: // Barbarian - theBGuy
 			return;
 		}
 
-		if ([73, 120, 132].indexOf(me.area) > -1) {		// Duriel's Lair, Arreat Summit, Worldstone Chamber
+		// Duriel's Lair, Arreat Summit, Worldstone Chamber
+		if ([73, 120, 132].indexOf(me.area) > -1) {
 			return;
 		}
 
-		let useHowl = me.getSkill(130, 0) && !me.getSkill(154, 0);
-		let useBattleCry = me.getSkill(146, 1);
-		let useWarCry = me.getSkill(154, 0);
 		let range = me.area !== 131 ? 15 : 30;
+		let useHowl = me.getSkill(sdk.skills.Howl, 0) && !me.getSkill(sdk.skills.WarCry, 0);
+		let useBattleCry = me.getSkill(sdk.skills.BattleCry, 1);
+		let useWarCry = me.getSkill(sdk.skills.WarCry, 0);
 		let rangedMobsClassIDs = [10, 11, 12, 13, 14, 118, 119, 120, 121, 131, 132, 133, 134, 135, 170, 171, 172, 173, 174, 238, 239, 240, 310, 362, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 580, 581, 582, 583, 584, 645, 646, 647, 697];
 		let dangerousAndSummoners = [636, 637, 638, 639, 640, 641, 58, 59, 60, 61, 101, 102, 103, 104, 105, 557, 558, 669, 670, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478];
 		let list = Attack.buildMonsterList();
@@ -1677,7 +1694,7 @@ case 4: // Barbarian - theBGuy
 			rangedMobsClassIDs.push(305, 306);
 		}
 
-		let newList = list.filter(mob => [0, 8].indexOf(mob.spectype) > -1 && !mob.getState(27) && !unit.getState(89) && !unit.getState(60) && // Taunt, Battle Cry, or Decrep state 
+		let newList = list.filter(mob => [0, 8].indexOf(mob.spectype) > -1 && !mob.getState(sdk.states.Taunt) && !unit.getState(sdk.states.BattleCry) && !unit.getState(sdk.states.Decrepify) &&
 			((rangedMobsClassIDs.indexOf(mob.classid) > -1 && Math.round(getDistance(me, mob)) <= range) || (dangerousAndSummoners.indexOf(mob.classid) > -1 && Math.round(getDistance(me, mob)) <= 30)));
 
 		newList.sort(Sort.units);
@@ -1685,19 +1702,19 @@ case 4: // Barbarian - theBGuy
 		if (newList.length >= 1) {
 			for (let i = 0; i < newList.length; i++) {
 				if (Math.round(getDistance(me, newList[i])) <= 4 && useBattleCry) {
-					Skill.cast(146, Skill.getHand(146));
+					Skill.cast(sdk.skills.BattleCry, 0);
 
 					continue;
 				}
 
-				if (useHowl && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(130) < me.mp) {
-					Skill.cast(130, Skill.getHand(130));
+				if (useHowl && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(sdk.skills.Howl) < me.mp) {
+					Skill.cast(sdk.skills.Howl, 0);
 					this.doCast(unit, attackSkill);
-				} else if (useWarCry && Attack.getMobCount(me.x, me.y, 6, null, true) >= 1 && Skill.getManaCost(154) < me.mp) {
-					Skill.cast(154, Skill.getHand(154));
+				} else if (useWarCry && Attack.getMobCount(me.x, me.y, 6, null, true) >= 1 && Skill.getManaCost(sdk.skills.WarCry) < me.mp) {
+					Skill.cast(sdk.skills.WarCry, 0);
 				}
 
-				if (!newList[i].getState(27) && !newList[i].getState(56) && !unit.getState(89) && !newList[i].dead && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
+				if (!newList[i].getState(27) && !newList[i].getState(56) && !unit.getState(sdk.states.BattleCry) && !newList[i].dead && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
 					me.overhead("Taunting: " + newList[i].name + " | classid: " + newList[i].classid);
 					//print("Casting on: " + newList[i].name + " | spectype: " + newList[i].spectype + " | classid: " + newList[i].classid);
 					Skill.cast(137, Skill.getHand(137), newList[i]);
@@ -1761,7 +1778,7 @@ case 4: // Barbarian - theBGuy
 		}
 
 		if (!unit.dead && useBattleCry && !me.getState(sdk.states.SkillDelay)) {
-			if (!unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27)) {		//Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
+			if (!unit.getState(sdk.states.BattleCry) && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.Terror) && !unit.getState(sdk.states.Taunt)) {		//Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(146) || checkCollision(me, unit, 0x4)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(146), 0x4)) {
 						return 0;
@@ -1781,9 +1798,9 @@ case 4: // Barbarian - theBGuy
 		}
 
 		if (!unit.dead && useWarCry && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.isCursable(unit) && 
-			(!unit.getState(21) || getTickCount() - this.warCryTick >= 1500) && 
+			(!unit.getState(sdk.states.Stunned) || getTickCount() - this.warCryTick >= 1500) && 
 			Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154) && !me.getState(sdk.states.SkillDelay) && Attack.getMobCount(me.x, me.y, 5, null, true) >= 1) {
-			if (!unit.getState(21)) {
+			if (!unit.getState(sdk.states.Stunned)) {
 				if (Math.round(getDistance(me, unit)) > Skill.getRange(154) || checkCollision(me, unit, 0x4)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(154), 0x4)) {
 						return 0;
@@ -1847,7 +1864,8 @@ case 4: // Barbarian - theBGuy
 	};
 
 	ClassAttack.doCast = function (unit, attackSkill) {
-		if (me.weaponswitch === 1) {	// In case of failing to switch back to main weapon slot
+		// In case of failing to switch back to main weapon slot
+		if (me.weaponswitch === 1) {
 			me.switchWeapons(0);
 		}
 
@@ -1859,7 +1877,7 @@ case 4: // Barbarian - theBGuy
 		let useWarCry = me.getSkill(154, 1);
 		let useBattleCry = me.getSkill(146, 1);
 		let switchCast = (Precast.getBetterSlot(146) === 1 || Precast.getBetterSlot(154) === 1) ? true : false;
-		Config.FindItem = me.getSkill(142, 1);	// Any points into the skill
+		Config.FindItem = me.getSkill(sdk.skills.FindItem, 1);	// Any points into the skill
 
 		if (attackSkill < 0) {
 			return 2;
@@ -1899,7 +1917,8 @@ case 4: // Barbarian - theBGuy
 				Skill.cast(attackSkill, Skill.getHand(attackSkill), unit);
 
 				// Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
-				if (useBattleCry && Attack.getMobCount(me.x, me.y, 4) >= 1 && !unit.getState(89) && !unit.getState(60) && !unit.getState(56) && !unit.getState(27) && Skill.getManaCost(146) < me.mp) {
+				if (useBattleCry && Attack.getMobCount(me.x, me.y, 4) >= 1 &&
+					!unit.getState(sdk.states.BattleCry) && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.Terror) && !unit.getState(sdk.states.Taunt) && Skill.getManaCost(146) < me.mp) {
 					if (switchCast) {
 						me.switchWeapons(1);
 					}
@@ -1911,7 +1930,7 @@ case 4: // Barbarian - theBGuy
 					}
 				}
 
-				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.isCursable(unit) && (!unit.getState(21) || getTickCount() - this.warCryTick >= 1500) && 
+				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.isCursable(unit) && (!unit.getState(sdk.states.Stunned) || getTickCount() - this.warCryTick >= 1500) && 
 					Attack.getMobCount(me.x, me.y, 5, null, true) >= (me.area === 131 || Item.getEquippedItem(4).durability === 0 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
 					if (switchCast) {
 						me.switchWeapons(1);
@@ -1927,7 +1946,7 @@ case 4: // Barbarian - theBGuy
 					}
 				}
 
-				if (useFrenzy && !unit.dead && !me.getState(94)) {
+				if (useFrenzy && !unit.dead && !me.getState(sdk.states.Frenzy)) {
 					Skill.cast(144, Skill.getHand(144), unit);
 				}
 
@@ -1957,7 +1976,8 @@ case 4: // Barbarian - theBGuy
 			needRepair = Town.needRepair();	
 		}
 		
-		if (needRepair && needRepair.length > 0 && me.getItem(518)) { // Repair check, make sure i have a tome
+		// Repair check, make sure i have a tome
+		if (needRepair && needRepair.length > 0 && me.getItem(518)) {
 			Town.visitTown(true);
 		}
 
@@ -1969,7 +1989,7 @@ case 4: // Barbarian - theBGuy
 	ClassAttack.findItemIgnoreGids = [];
 
 	ClassAttack.findItem = function (range) {
-		if (!Config.FindItem || !me.getSkill(142, 1)) {
+		if (!Config.FindItem || !me.getSkill(sdk.skills.FindItem, 1)) {
 			return false;
 		}
 
@@ -2022,12 +2042,12 @@ MainLoop:
 
 	CorpseLoop:
 						for (j = 0; j < 3; j += 1) {
-							Skill.cast(142, 0, corpse);
+							Skill.cast(sdk.skills.FindItem, 0, corpse);
 
 							tick = getTickCount();
 
 							while (getTickCount() - tick < 1000) {
-								if (corpse.getState(118)) {
+								if (corpse.getState(sdk.states.CorpseNoSelect)) {
 									Pickit.fastPick();
 
 									break CorpseLoop;
@@ -2057,7 +2077,7 @@ MainLoop:
 	};
 
 	ClassAttack.grimWard = function (range) {
-		if (!me.getSkill(150, 1)) {
+		if (!me.getSkill(sdk.skills.GrimWard, 1)) {
 			return false;
 		}
 
@@ -2094,12 +2114,12 @@ MainLoop:
 
 	CorpseLoop:
 						for (j = 0; j < 3; j += 1) {
-							Skill.cast(150, 0, corpse);
+							Skill.cast(sdk.skills.GrimWard, 0, corpse);
 
 							tick = getTickCount();
 
 							while (getTickCount() - tick < 1000) {
-								if (corpse.getState(118)) {
+								if (corpse.getState(sdk.states.CorpseNoSelect)) {
 
 									break CorpseLoop;
 								}
@@ -2124,18 +2144,19 @@ MainLoop:
 			return false;
 		}
 
-		if (unit.classid <= 575 && !getBaseStat("monstats2", unit.classid, "corpseSel")) { // monstats2 doesn't contain guest monsters info. sigh..
+		// monstats2 doesn't contain guest monsters info. sigh..
+		if (unit.classid <= 575 && !getBaseStat("monstats2", unit.classid, "corpseSel")) {
 			return false;
 		}
 
-		if (getDistance(me, unit) <= 25 &&
-				!unit.getState(1) && 	// freeze
-				!unit.getState(96) && 	// revive
-				!unit.getState(99) && 	// redeemed
-				!unit.getState(104) && 	// nodraw
-				!unit.getState(107) && 	// shatter
-				!unit.getState(118) && 	// noselect
-				!unit.getState(172) 	// rest in peace
+		if (getDistance(me, unit) <= 25 && !checkCollision(me, unit, 0x4) &&
+				!unit.getState(sdk.states.Freeze) &&
+                !unit.getState(sdk.states.Revive) &&
+                !unit.getState(sdk.states.Redeemed) &&
+                !unit.getState(sdk.states.CorpseNoDraw) &&
+                !unit.getState(sdk.states.Shatter) &&
+                !unit.getState(sdk.states.RestInPeace) &&
+                !unit.getState(sdk.states.CorpseNoSelect)
 				) {
 			return true;
 		}
@@ -2145,202 +2166,35 @@ MainLoop:
 
 	break;
 case 5: // Druid
-	if (!isIncluded("common/Attacks/Druid.js")) {
-		include("common/Attacks/Druid.js");
-	}
-
-	ClassAttack.doAttack = function (unit, preattack) {
-		var index, checkSkill, result,
-			mercRevive = 0,
-			timedSkill = -1,
-			untimedSkill = -1,
-			gold = me.getStat(14) + me.getStat(15);
-
-		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
-
-		if (Config.MercWatch && Town.needMerc()) {
-			Town.visitTown();
-		}
-
-		if (me.getSkill(250, 1) && !me.getState(144)) { // Rebuff Hurricane
-			Skill.cast(250, 0);
-		}
-
-		if (me.getSkill(235, 1) && !me.getState(151)) { // Rebuff Cyclone Armor
-			Skill.cast(235, 0);
-		}
-
-		if (index === 1 && !unit.dead) {
-			if (!unit.getState(19) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-				Attack.switchCastCharges(72, unit);		// Switch cast weaken - will only cast if actually has wand with charges in switch spot - TODO: Clean this up, maybe some type of switch statement based on what charges are on the switch wep
-			}
-
-			if (!unit.getState(60) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-				Attack.switchCastCharges(87, unit);		// Switch cast decrepify
-			}
-		}
-
-		if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
-			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
-				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
-					return 0;
-				}
-			}
-
-			Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
-
-			return 1;
-		}
-
-		// Get timed skill
-		if (Attack.getCustomAttack(unit)) {
-			checkSkill = Attack.getCustomAttack(unit)[0];
-		} else {
-			checkSkill = Config.AttackSkill[index];
-		}
-
-		if (Attack.checkResist(unit, checkSkill)) {
-			timedSkill = checkSkill;
-		} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([56, 59].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
-			timedSkill = Config.AttackSkill[5];
-		}
-
-		// Get untimed skill
-		if (Attack.getCustomAttack(unit)) {
-			checkSkill = Attack.getCustomAttack(unit)[1];
-		} else {
-			checkSkill = Config.AttackSkill[index + 1];
-		}
-
-		if (Attack.checkResist(unit, checkSkill)) {
-			untimedSkill = checkSkill;
-		} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([56, 59].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
-			untimedSkill = Config.AttackSkill[6];
-		}
-
-		// Low mana timed skill
-		if (Config.LowManaSkill[0] > -1 && Skill.getManaCost(timedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[0])) {
-			timedSkill = Config.LowManaSkill[0];
-		}
-
-		// Low mana untimed skill
-		if (Config.LowManaSkill[1] > -1 && Skill.getManaCost(untimedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[1])) {
-			untimedSkill = Config.LowManaSkill[1];
-		}
-
-		result = this.doCast(unit, timedSkill, untimedSkill);
-
-		if (result === 2 && Config.TeleStomp && Attack.checkResist(unit, "physical") && !!me.getMerc()) {
-			while (Attack.checkMonster(unit)) {
-				if (Town.needMerc()) {
-					if (Config.MercWatch && mercRevive++ < 1) {
-						Town.visitTown();
-					} else {
-						return 2;
-					}
-				}
-
-				if (getDistance(me, unit) > 3) {
-					Pather.moveToUnit(unit);
-				}
-
-				this.doCast(unit, Config.AttackSkill[1], Config.AttackSkill[2]);
-			}
-
-			return 1;
-		}
-
-		return result;
-	};
-
-	ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-		var i, walk;
-
-		// No valid skills can be found
-		if (timedSkill < 0 && untimedSkill < 0) {
-			return 2;
-		}
-
-		if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
-			switch (timedSkill) {
-			case 245: // Tornado
-				if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(timedSkill)) || checkCollision(me, unit, 0x4)) {
-					if (!Attack.getIntoPosition(unit, (Skill.getRange(timedSkill)), 0x4)) {
-						return 0;
-					}
-				}
-
-				// Randomized x coord changes tornado path and prevents constant missing
-				if (!unit.dead) {
-					Skill.cast(timedSkill, Skill.getHand(timedSkill), unit.x + rand(-1, 1), unit.y);
-				}
-
-				return 1;
-			default:
-				if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
-					return 0;
-				}
-
-				if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(timedSkill)) || checkCollision(me, unit, 0x4)) {
-					// Allow short-distance walking for melee skills
-					walk = Skill.getRange(timedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
-
-					if (!Attack.getIntoPosition(unit, (Skill.getRange(timedSkill)), 0x4, walk)) {
-						return 0;
-					}
-				}
-
-				if (!unit.dead) {
-					Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
-				}
-
-				return 1;
-			}
-		}
-
-		if (untimedSkill > -1) {
-			if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
-				return 0;
-			}
-
-			if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(untimedSkill)) || checkCollision(me, unit, 0x4)) {
-				// Allow short-distance walking for melee skills
-				walk = Skill.getRange(untimedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
-
-				if (!Attack.getIntoPosition(unit, (Skill.getRange(untimedSkill)), 0x4, walk)) {
-					return 0;
-				}
-			}
-
-			if (!unit.dead) {
-				Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
-			}
-
-			return 1;
-		}
-
-		for (i = 0; i < 25; i += 1) {
-			if (!me.getState(sdk.states.SkillDelay)) {
-				break;
-			}
-
-			delay(40);
-		}
-
-		return 1;
-	};
-
-	if (["Plaguewolf", "Wolf"].indexOf(SetUp.finalBuild) > -1 && me.charlvl >= SetUp.respecTwo()) {	//Make sure to only load this after finalBuild respec
+	switch (SetUp.currentBuild) {
+	case "Wolf":
+	case "Plaguewolf":
 		if (!isIncluded("common/Attacks/Wereform.js")) {
 			include("common/Attacks/Wereform.js");
 		}
 
 		ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-			var i;
-
 			// No valid skills can be found
 			if (timedSkill < 0 && untimedSkill < 0) {
 				return 2;
+			}
+
+			// Make sure I am in my choosen Wereform
+			switch (Config.Wereform.toString().toLowerCase()) {
+			case "1":
+			case "werewolf":
+				if (!me.getState(sdk.states.Wolf)) {
+					Misc.shapeShift(Config.Wereform);
+				}
+
+				break;
+			case "2":
+			case "werebear":
+				if (!me.getState(sdk.states.Bear)) {
+					Misc.shapeShift(Config.Wereform);
+				}
+
+				break;	
 			}
 
 			if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
@@ -2371,18 +2225,14 @@ case 5: // Druid
 					Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
 				}
 
-				if (untimedSkill > -1 && (untimedSkill === 232 || untimedSkill === 238)) {		//Feral rage or Rabies
-					if (Math.round(getDistance(me, unit)) > Skill.getRange(untimedSkill) || checkCollision(me, unit, 0x4)) {
-						if (!Attack.getIntoPosition(unit, Skill.getRange(untimedSkill), 0x4, true)) {
-							return 0;
-						}
+				if (me.getSkill(sdk.skills.FeralRage, 1) && !me.getState(sdk.states.FeralRage)) {
+					for (let i = 0; i < 2 && !unit.dead; i++) {
+						Skill.cast(sdk.skills.FeralRage, Skill.getHand(sdk.skills.FeralRage), unit);
 					}
+				}
 
-					if (!unit.dead) {
-						Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
-					}
-
-					return 1;
+				if (me.getSkill(sdk.skills.Rabies, 1) && !unit.getState(sdk.states.Rabies) && !unit.dead) {
+					Skill.cast(sdk.skills.Rabies, Skill.getHand(sdk.skills.Rabies), unit);
 				}
 
 				return 1;
@@ -2419,7 +2269,7 @@ case 5: // Druid
 				return 1;
 			}
 
-			for (i = 0; i < 25; i += 1) {
+			for (let i = 0; i < 25; i += 1) {
 				if (!me.getState(sdk.states.SkillDelay)) {
 					break;
 				}
@@ -2429,6 +2279,204 @@ case 5: // Druid
 
 			return 1;
 		}
+
+		ClassAttack.afterAttack = function () {
+			if (Pather.useTeleport()){
+				Misc.unShift();
+			}
+
+			Precast.doPrecast(false);
+		};
+
+		break;
+	default:
+		if (!isIncluded("common/Attacks/Druid.js")) {
+			include("common/Attacks/Druid.js");
+		}
+
+		ClassAttack.doAttack = function (unit, preattack) {
+			var index, checkSkill, result,
+				mercRevive = 0,
+				timedSkill = -1,
+				untimedSkill = -1,
+				gold = me.getStat(14) + me.getStat(15);
+
+			index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+
+			if (Config.MercWatch && Town.needMerc()) {
+				Town.visitTown();
+			}
+
+			if (me.getSkill(250, 1) && !me.getState(sdk.states.Hurricane)) { // Rebuff Hurricane
+				Skill.cast(250, 0);
+			}
+
+			if (me.getSkill(235, 1) && !me.getState(sdk.states.CycloneArmor)) { // Rebuff Cyclone Armor
+				Skill.cast(235, 0);
+			}
+
+			if (index === 1 && !unit.dead) {
+				if (!unit.getState(sdk.states.Weaken) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+					// Switch cast weaken
+					Attack.switchCastCharges(sdk.skills.Weaken, unit);
+				}
+
+				if (!unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+					Attack.switchCastCharges(87, unit);		// Switch cast decrepify
+				}
+			}
+
+			if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
+				if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
+					if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
+						return 0;
+					}
+				}
+
+				Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
+
+				return 1;
+			}
+
+			// Get timed skill
+			if (Attack.getCustomAttack(unit)) {
+				checkSkill = Attack.getCustomAttack(unit)[0];
+			} else {
+				checkSkill = Config.AttackSkill[index];
+			}
+
+			if (Attack.checkResist(unit, checkSkill)) {
+				timedSkill = checkSkill;
+			} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+				timedSkill = Config.AttackSkill[5];
+			}
+
+			// Get untimed skill
+			if (Attack.getCustomAttack(unit)) {
+				checkSkill = Attack.getCustomAttack(unit)[1];
+			} else {
+				checkSkill = Config.AttackSkill[index + 1];
+			}
+
+			if (Attack.checkResist(unit, checkSkill)) {
+				untimedSkill = checkSkill;
+			} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+				untimedSkill = Config.AttackSkill[6];
+			}
+
+			// Low mana timed skill
+			if (Config.LowManaSkill[0] > -1 && Skill.getManaCost(timedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[0])) {
+				timedSkill = Config.LowManaSkill[0];
+			}
+
+			// Low mana untimed skill
+			if (Config.LowManaSkill[1] > -1 && Skill.getManaCost(untimedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[1])) {
+				untimedSkill = Config.LowManaSkill[1];
+			}
+
+			result = this.doCast(unit, timedSkill, untimedSkill);
+
+			if (result === 2 && Config.TeleStomp && Attack.checkResist(unit, "physical") && !!me.getMerc()) {
+				while (Attack.checkMonster(unit)) {
+					if (Town.needMerc()) {
+						if (Config.MercWatch && mercRevive++ < 1) {
+							Town.visitTown();
+						} else {
+							return 2;
+						}
+					}
+
+					if (getDistance(me, unit) > 3) {
+						Pather.moveToUnit(unit);
+					}
+
+					this.doCast(unit, Config.AttackSkill[1], Config.AttackSkill[2]);
+				}
+
+				return 1;
+			}
+
+			return result;
+		};
+
+		ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
+			var i, walk;
+
+			// No valid skills can be found
+			if (timedSkill < 0 && untimedSkill < 0) {
+				return 2;
+			}
+
+			if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
+				switch (timedSkill) {
+				case 245: // Tornado
+					if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(timedSkill)) || checkCollision(me, unit, 0x4)) {
+						if (!Attack.getIntoPosition(unit, (Skill.getRange(timedSkill)), 0x4)) {
+							return 0;
+						}
+					}
+
+					// Randomized x coord changes tornado path and prevents constant missing
+					if (!unit.dead) {
+						Skill.cast(timedSkill, Skill.getHand(timedSkill), unit.x + rand(-1, 1), unit.y);
+					}
+
+					return 1;
+				default:
+					if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
+						return 0;
+					}
+
+					if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(timedSkill)) || checkCollision(me, unit, 0x4)) {
+						// Allow short-distance walking for melee skills
+						walk = Skill.getRange(timedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
+
+						if (!Attack.getIntoPosition(unit, (Skill.getRange(timedSkill)), 0x4, walk)) {
+							return 0;
+						}
+					}
+
+					if (!unit.dead) {
+						Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
+					}
+
+					return 1;
+				}
+			}
+
+			if (untimedSkill > -1) {
+				if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
+					return 0;
+				}
+
+				if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(untimedSkill)) || checkCollision(me, unit, 0x4)) {
+					// Allow short-distance walking for melee skills
+					walk = Skill.getRange(untimedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
+
+					if (!Attack.getIntoPosition(unit, (Skill.getRange(untimedSkill)), 0x4, walk)) {
+						return 0;
+					}
+				}
+
+				if (!unit.dead) {
+					Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
+				}
+
+				return 1;
+			}
+
+			for (i = 0; i < 25; i += 1) {
+				if (!me.getState(sdk.states.SkillDelay)) {
+					break;
+				}
+
+				delay(40);
+			}
+
+			return 1;
+		};
+
+		break;	
 	}
 
 	break;
@@ -2611,7 +2659,7 @@ case 6: // Assasin
 
 		if (Attack.checkResist(unit, checkSkill)) {
 			timedSkill = checkSkill;
-		} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([56, 59].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+		} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			timedSkill = Config.AttackSkill[5];
 		}
 
@@ -2624,7 +2672,7 @@ case 6: // Assasin
 
 		if (Attack.checkResist(unit, checkSkill)) {
 			untimedSkill = checkSkill;
-		} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([56, 59].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+		} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			untimedSkill = Config.AttackSkill[6];
 		}
 

@@ -145,7 +145,8 @@ function LoadConfig () {
 	/* AutoEquip configuration. */
 	Config.AutoEquip = true;
 
-	var levelingTiers = [ // autoequip setup
+	// AutoEquip setup
+	var levelingTiers = [
 		//weapon
 		"([type] == javelin || [type] == amazonjavelin) && [quality] >= normal && [flag] != ethereal && [wsm] <= 10 # [itemchargedskill] >= 0 && [secondarymindamage] == 0 # [tier] == tierscore(item)",
 		//Helmet
@@ -305,13 +306,14 @@ function LoadConfig () {
 		case 'Javazon':
 			Config.SkipImmune = ["lightning and physical"];
 
-			if (me.getSkill(24, 0)) {	//Charged Strike
-				Config.CustomAttack = { //"Monster Name": [-1, -1]
+			if (me.getSkill(sdk.skills.ChargedStrike, 0)) {
+				Config.CustomAttack = {
+					// "Monster Name": [-1, -1],
 					"Fire Tower": [24, -1],
 				};
 			}
 
-			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Infinity) { //infinity
+			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Infinity) {
 				var Inf = [
 					"[Name] == BerRune",
 					"[Name] == MalRune",
@@ -337,7 +339,8 @@ function LoadConfig () {
 				Config.KeepRunewords.push("[type] == polearm # [convictionaura] >= 13");
 			}
 
-			if ((me.ladder || Developer.addLadderRW) && ((Item.getEquippedItem(5).tier < 1000 && SetUp.currentBuild !== "Witchyzon") || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit)) { // Spirit shield
+			// Spirit shield
+			if ((me.ladder || Developer.addLadderRW) && ((Item.getEquippedItem(5).tier < 1000 && SetUp.currentBuild !== "Witchyzon") || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit)) {
 				if (!Check.haveItem("shield", "runeword", "Spirit") && me.hell) {
 					var SpiritShield = [
 						"[Name] == TalRune # # [MaxQuantity] == 1",
@@ -395,7 +398,8 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(CTA);
 
-			if (me.getItem(sdk.runes.Ohm)) { // have Ohm before collecting base
+			// have Ohm before collecting base
+			if (me.getItem(sdk.runes.Ohm)) {
 				NTIP.addLine("[Name] == CrystalSword && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 5 # [MaxQuantity] == 1");
 			}
 
@@ -417,7 +421,8 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == sword # [plusskillbattleorders] >= 1");
 		}
 
-		if (!Check.haveItem("armor", "runeword", "Chains of Honor")) { // CoH
+		// Chains of Honor
+		if (!Check.haveItem("armor", "runeword", "Chains of Honor")) {
 			var CoH = [
 				"[Name] == DolRune # # [MaxQuantity] == 1",
 				"[Name] == UmRune",
@@ -426,7 +431,7 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(CoH);
 
-			if (!me.getItem(sdk.runes.Ber)) {		// Ber Rune
+			if (!me.getItem(sdk.runes.Ber)) {
 				if (Check.haveItem("sword", "runeword", "Call To Arms")) {
 					Config.Recipes.push([Recipe.Rune, "Mal Rune"]); // Mal to Ist
 					Config.Recipes.push([Recipe.Rune, "Ist Rune"]); // Ist to Gul
@@ -435,7 +440,7 @@ function LoadConfig () {
 					Config.Recipes.push([Recipe.Rune, "Ohm Rune"]); // Ohm to Lo
 				}
 
-				Config.Recipes.push([Recipe.Rune, "Lo Rune"]); // Lo to Sur
+				Config.Recipes.push([Recipe.Rune, "Lo Rune"]); 	// Lo to Sur
 				Config.Recipes.push([Recipe.Rune, "Sur Rune"]); // Sur to Ber
 			}
 
@@ -465,7 +470,8 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == armor # [fireresist] == 65 && [hpregen] == 7");
 		}
 
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).tier < 3600) { // Merc Insight
+		// Merc Insight
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).tier < 3600) {
 			var Insight = [
 				"([Name] == thresher || [Name] == crypticaxe || [Name] == greatpoleaxe || [Name] == giantthresher) && [Flag] == Ethereal && [Quality] == Normal # [Sockets] == 0 # [MaxQuantity] == 1",
 				"!me.hell && ([Name] == voulge || [Name] == scythe || [Name] == poleaxe || [Name] == halberd || [Name] == warscythe || [Name] == bill || [Name] == battlescythe || [Name] == partizan || [Name] == grimscythe) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 4 # [MaxQuantity] == 1",
@@ -499,7 +505,8 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == polearm # [meditationaura] >= 12");
 		}
 
-		if (Item.getEquippedItem(1).tier < 250) { // Lore
+		// Lore
+		if (Item.getEquippedItem(1).tier < 250) {
 			if (!Check.haveItem("helm", "runeword", "Lore")) {
 				var loreRunes = [
 					"[Name] == OrtRune # # [MaxQuantity] == 1",
@@ -527,7 +534,8 @@ function LoadConfig () {
 			Config.KeepRunewords.push("([type] == circlet || [type] == helm) # [LightResist] >= 25");
 		}
 
-		if (Item.getEquippedItem(5).tier < 500 && SetUp.currentBuild !== "Witchyzon") { // Ancients' Pledge
+		// Ancients' Pledge
+		if (Item.getEquippedItem(5).tier < 500 && SetUp.currentBuild !== "Witchyzon") {
 			if (!Check.haveItem("shield", "runeword", "Ancients' Pledge") && !me.hell) {
 				if (me.normal && !me.getItem(sdk.runes.Ort)) {
 					Config.Recipes.push([Recipe.Rune, "Ral Rune"]);
@@ -554,7 +562,8 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == shield # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 187");
 		}
 
-		if (Item.getEquippedItem(3).tier < 634) {	// Treachery
+		// Treachery
+		if (Item.getEquippedItem(3).tier < 634) {
 			var treach = [
 				"[Name] == ShaelRune # # [MaxQuantity] == 1",
 				"[Name] == ThulRune # # [MaxQuantity] == 1",
@@ -585,7 +594,8 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[Type] == armor # [ias] == 45 && [coldresist] == 30");
 		}
 
-		if (Item.getEquippedItemMerc(3).prefixnum !== sdk.locale.items.Fortitude) { // Merc Fortitude
+		// Merc Fortitude
+		if (Item.getEquippedItemMerc(3).prefixnum !== sdk.locale.items.Fortitude) {
 			var fort = [
 				"[Name] == ElRune # # [MaxQuantity] == 1",
 				"[Name] == SolRune # # [MaxQuantity] == 1",
@@ -625,7 +635,8 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == armor # [enhanceddefense] >= 200 && [enhanceddamage] >= 300");
 		}
 
-		if (Item.getEquippedItemMerc(3).tier < 15000) { // Merc Treachery
+		// Merc Treachery
+		if (Item.getEquippedItemMerc(3).tier < 15000) {
 			var Treachery = [
 				"([Name] == BreastPlate || [Name] == MagePlate || [Name] == HellforgePlate || [Name] == KrakenShell || [Name] == ArchonPlate || [Name] == BalrogSkin || [Name] == BoneWeave || [Name] == GreatHauberk || [Name] == LoricatedMail || [Name] == DiamondMail || [Name] == WireFleece || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 3 # [MaxQuantity] == 1",
 				"!me.normal && ([Name] == HellforgePlate || [Name] == KrakenShell || [Name] == ArchonPlate || [Name] == BalrogSkin || [Name] == BoneWeave || [Name] == GreatHauberk || [Name] == LoricatedMail || [Name] == DiamondMail || [Name] == WireFleece || [Name] == ScarabHusk || [Name] == WyrmHide || [Name] == DuskShroud) && [Quality] == Normal && [Flag] == Ethereal # [Sockets] == 0 # [MaxQuantity] == 1",
@@ -663,9 +674,11 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[Type] == armor # [ias] == 45 && [coldresist] == 30");
 		}
 
-		if (Item.getEquippedItem(3).tier < 634) { // Smoke
+		// Smoke
+		if (Item.getEquippedItem(3).tier < 634) {
 			if (!Check.haveItem("armor", "runeword", "Smoke") && !me.hell) {
-				if (!me.getItem(sdk.runes.Lum)) { // Cube to Lum Rune
+				// Cube to Lum Rune
+				if (!me.getItem(sdk.runes.Lum)) {
 					Config.Recipes.push([Recipe.Rune, "Io Rune"]); // cube Io to Lum
 				}
 
@@ -690,7 +703,8 @@ function LoadConfig () {
 			Config.KeepRunewords.push("[type] == armor # [fireresist] == 50");
 		}
 
-		if (Item.getEquippedItem(3).tier < 233) { // Stealth
+		// Stealth
+		if (Item.getEquippedItem(3).tier < 233) {
 			if (!Check.haveItem("armor", "runeword", "Stealth") && me.normal) {
 				var stealthRunes = [
 					"[Name] == TalRune # # [MaxQuantity] == 1",

@@ -33,7 +33,7 @@ Town.townTasks = function () {
 	}
 
 	// Burst of speed while in town
-	if (me.inTown && me.assassin && me.getSkill(258, 1) && !me.getState(157)) {
+	if (me.inTown && me.assassin && me.getSkill(258, 1) && !me.getState(sdk.states.BurstOfSpeed)) {
 		Skill.cast(258, 0);
 	}
 
@@ -109,7 +109,7 @@ Town.doChores = function (repair = false) {
 	}
 
 	// Burst of speed while in town
-	if (me.inTown && me.assassin && me.getSkill(258, 1) && !me.getState(157)) {
+	if (me.inTown && me.assassin && me.getSkill(258, 1) && !me.getState(sdk.states.BurstOfSpeed)) {
 		Skill.cast(258, 0);
 	}
 
@@ -1324,7 +1324,7 @@ Town.clearInventory = function () {
 			result = Pickit.checkItem(items[i]).result;
 
 			if ([0, 4].indexOf(result) === -1) {
-				if (([2, 3].indexOf(items[i].quality) > -1 && Town.baseItemTypes.indexOf(items[i].itemType) > -1 && items[i].getStat(194) > 0) || 
+				if (([2, 3].indexOf(items[i].quality) > -1 && !items[i].getFlag(NTIPAliasFlag["runeword"]) && Town.baseItemTypes.indexOf(items[i].itemType) > -1 && items[i].getStat(194) > 0) || 
 					([25, 69, 70, 71, 72].indexOf(items[i].itemType) > -1 && items[i].quality === 2 && items[i].getStat(194) === 0)) {
 					if (this.worseBaseThanStashed(items[i]) && !this.betterBaseThanWearing(items[i], Developer.Debugging.junkCheckVerbose)) {
 						result = 4;
@@ -1912,7 +1912,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 		return false;
 	}
 
-	if (base.quality > 4) {
+	if (base.quality > 4 || base.getFlag(NTIPAliasFlag["runeword"])) {
 		return false;
 	}
 
@@ -2405,7 +2405,7 @@ Town.clearJunk = function () {
 				}
 			}
 
-			if ([2, 3].indexOf(junk[0].quality) > -1 && Town.baseItemTypes.indexOf(junk[0].itemType) > -1) {
+			if ([2, 3].indexOf(junk[0].quality) > -1 && !junk[0].getFlag(NTIPAliasFlag["runeword"]) && Town.baseItemTypes.indexOf(junk[0].itemType) > -1) {
 				if (this.worseBaseThanStashed(junk[0], true)) {
 					if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
 						Town.openStash();

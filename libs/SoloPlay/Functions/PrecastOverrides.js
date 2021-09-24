@@ -11,8 +11,8 @@ if (!isIncluded("common/Precast.js")) {
 Precast.enabled = true;
 
 Precast.precastCTA = function (force) {
-	/*print("Current State for BO: " + me.getState(32));
-	print("Current State for BC: " + me.getState(51));
+	/*print("Current State for BO: " + me.getState(sdk.states.BattleOrders));
+	print("Current State for BC: " + me.getState(sdk.states.BattleCommand));
 	print("Bo Tick: " + this.BOTick);
 	print("BODuration: " + this.BODuration);
 	print("Tick counter: " + (getTickCount() - this.BOTick < this.BODuration - 30000));*/
@@ -21,7 +21,7 @@ Precast.precastCTA = function (force) {
 		return false;
 	}
 
-	if (!force && (me.getState(32) || (getTickCount() - this.BOTick < this.BODuration - 30000))) {
+	if (!force && (me.getState(sdk.states.BattleOrders) || (getTickCount() - this.BOTick < this.BODuration - 30000))) {
 		return true;
 	}
 
@@ -137,6 +137,16 @@ Precast.getBetterSlot = function (skillId) {
 	return this.bestSlot[skillId];
 };
 
+Precast.precastSkill = function (skillId) {
+	var swap = me.weaponswitch;
+
+	me.switchWeapons(this.getBetterSlot(skillId));
+	Skill.cast(skillId, 0);
+	me.switchWeapons(swap);
+
+	return true;
+};
+
 Precast.doPrecast = function (force) {
 	var buffSummons = false;
 
@@ -146,7 +156,7 @@ Precast.doPrecast = function (force) {
 
 	// Force BO 30 seconds before it expires
 	if (this.haveCTA) {
-		this.precastCTA(!me.getState(51) || force || (getTickCount() - this.BOTick >= this.BODuration - 30000));
+		this.precastCTA(!me.getState(sdk.states.BattleCommand) || force || (getTickCount() - this.BOTick >= this.BODuration - 30000));
 	}
 
 	switch (me.classid) {
@@ -161,35 +171,35 @@ Precast.doPrecast = function (force) {
 
 		break;
 	case 1: // Sorceress
-		if (me.getSkill(57, 1) && (!me.getState(38) || force)) {
+		if (me.getSkill(57, 1) && (!me.getState(sdk.states.ThunderStorm) || force)) {
 			this.precastSkill(57); // Thunder Storm
 		}
 
-		if (me.getSkill(58, 0) && (!me.getState(30) || force)) {
+		if (me.getSkill(58, 0) && (!me.getState(sdk.states.EnergyShield) || force)) {
 			this.precastSkill(58); // Energy Shield
 		}
 
 		if (me.getSkill(50, 0)) {
-			if (!me.getState(88) || force) {
+			if (!me.getState(sdk.states.ShiverArmor) || force) {
 				this.precastSkill(50); // Shiver Armor
 			}
 		} else if (me.getSkill(60, 0)) {
-			if (!me.getState(20) || force) {
+			if (!me.getState(sdk.states.ChillingArmor) || force) {
 				this.precastSkill(60); // Chilling Armor
 			}
 		} else if (me.getSkill(40, 0)) {
-			if (!me.getState(10) || force) {
+			if (!me.getState(sdk.states.FrozenArmor) || force) {
 				this.precastSkill(40); // Frozen Armor
 			}
 		}
 
-		if (me.getSkill(52, 0) && (!me.getState(16) || force)) {
+		if (me.getSkill(52, 0) && (!me.getState(sdk.states.Enchant) || force)) {
 			this.enchant();
 		}
 
 		break;
 	case 2: // Necromancer
-		if (me.getSkill(68, 0) && (!me.getState(14) || force)) {
+		if (me.getSkill(68, 0) && (!me.getState(sdk.states.BoneArmor) || force)) {
 			this.precastSkill(68); // Bone Armor
 		}
 
@@ -199,7 +209,6 @@ Precast.doPrecast = function (force) {
 			break;
 		case 1:
 		case "Clay":
-			// TODO: Write a check to see if with an act boss, if so cast golem revive golem right on top of them
 			this.summon(75);
 			break;
 		case 2:
@@ -214,35 +223,33 @@ Precast.doPrecast = function (force) {
 
 		break;
 	case 3: // Paladin
-		if (me.getSkill(117, 0) && (!me.getState(101) || force)) {
+		if (me.getSkill(117, 0) && (!me.getState(sdk.states.HolyShield) || force)) {
 			this.precastSkill(117); // Holy Shield
 		}
 
 		break;
 	case 4: // Barbarian - TODO: BO duration
-		if ((!me.getState(26) && me.getSkill(138, 0)) || (!me.getState(32) && me.getSkill(149, 0)) || (!me.getState(51) && me.getSkill(155, 0)) || force) {
+		if ((!me.getState(sdk.states.Shout) && me.getSkill(138, 0)) || (!me.getState(sdk.states.BattleOrders) && me.getSkill(149, 0)) || (!me.getState(sdk.states.BattleCommand) && me.getSkill(155, 0)) || force) {
 			var swap = 0;
 
 			if (me.charlvl >= 24 && me.getSkill(149, 0)) {
 				swap = me.weaponswitch;
 				me.switchWeapons(this.getBetterSlot(149));
-
 			}
 
 			if (me.charlvl >= 30) {
-				if (me.getSkill(155, 0) && (!me.getState(51) || force) && Skill.getManaCost(155) < me.mp) {
+				if (me.getSkill(155, 0) && (!me.getState(sdk.states.BattleCommand) || force) && Skill.getManaCost(155) < me.mp) {
 					Skill.cast(155, 0); // Battle Command
 
 					if (Skill.getManaCost(155) < me.mp) {
 						delay(me.ping + 30);
 						Skill.cast(155, 0); // Cast twice. It works on itself
-					}
-					
+					}	
 				}
 			}
 
 			if (me.charlvl >= 24) {
-				if (me.getSkill(149, 0) && (!me.getState(32) || force) && Skill.getManaCost(149) < me.mp) {
+				if (me.getSkill(149, 0) && (!me.getState(sdk.states.BattleOrders) || force) && Skill.getManaCost(149) < me.mp) {
 					Skill.cast(149, 0); // Battle Orders
 
 					delay(me.ping + 30);
@@ -250,7 +257,7 @@ Precast.doPrecast = function (force) {
 			}
 
 			if (me.charlvl >= 6) {
-				if (me.getSkill(138, 0) && (!me.getState(26) || force) && Skill.getManaCost(138) < me.mp) {
+				if (me.getSkill(138, 0) && (!me.getState(sdk.states.Shout) || force) && Skill.getManaCost(138) < me.mp) {
 					Skill.cast(138, 0); // Shout
 
 					delay(me.ping + 30);
@@ -262,7 +269,7 @@ Precast.doPrecast = function (force) {
 
 		break;
 	case 5: // Druid
-		if (me.getSkill(235, 0) && (!me.getState(151) || force)) {
+		if (me.getSkill(235, 0) && (!me.getState(sdk.states.CycloneArmor) || force)) {
 			this.precastSkill(235); // Cyclone Armor
 		}
 
@@ -324,19 +331,23 @@ Precast.doPrecast = function (force) {
 			break;
 		}
 
-		if (me.getSkill(250, 0) && (!me.getState(144) || force)) {
-			Skill.cast(250, 0); // Hurricane
+		if (me.getSkill(sdk.skills.Hurricane, 0) && (!me.getState(sdk.states.Hurricane) || force)) {
+			Skill.cast(sdk.skills.Hurricane, 0);
 		}
 
-		if (Config.SummonSpirit === 1 && me.getSkill(226, 1) && (!me.getState(149) || force)) {
+		if (me.getSkill(sdk.skills.Armageddon, 0) && (!me.getState(sdk.states.Armageddon) || force)) {
+			Skill.cast(sdk.skills.Armageddon, 0);
+		}
+
+		if (Config.SummonSpirit === 1 && me.getSkill(226, 1) && (!me.getState(sdk.states.OakSage) || force)) {
 			Skill.cast(226, 0); // Oak Sage
 		}
 
-		if (Config.SummonSpirit === 2 && me.getSkill(236, 1) && (!me.getState(148) || force)) {
+		if (Config.SummonSpirit === 2 && me.getSkill(236, 1) && (!me.getState(sdk.states.HeartofWolverine) || force)) {
 			Skill.cast(236, 0); // Heart of Wolverine
 		}
 
-		if (Config.SummonSpirit === 3 && me.getSkill(246, 1) && (!me.getState(147) || force)) {
+		if (Config.SummonSpirit === 3 && me.getSkill(246, 1) && (!me.getState(sdk.states.Barbs) || force)) {
 			Skill.cast(246, 0); // Spirit of Barbs
 		}
 
@@ -350,19 +361,19 @@ Precast.doPrecast = function (force) {
 
 		break;
 	case 6: // Assassin
-		if (me.getSkill(267, 0) && Config.UseFade && (!me.getState(159) || force)) {
+		if (me.getSkill(267, 0) && Config.UseFade && (!me.getState(sdk.states.Fade) || force)) {
 			this.precastSkill(267); // Fade
 		}
 
-		if (me.getSkill(278, 0) && Config.UseVenom && (!me.getState(31) || force)) {
+		if (me.getSkill(278, 0) && Config.UseVenom && (!me.getState(sdk.states.Venom) || force)) {
 			Skill.cast(278, 0); // Venom
 		}
 
-		if (me.getSkill(277, 0) && (!me.getState(158) || force)) {
+		if (me.getSkill(277, 0) && (!me.getState(sdk.states.BladeShield) || force)) {
 			this.precastSkill(277); // Blade Shield
 		}
 
-		if (me.getSkill(258, 0) && !Config.UseFade && Config.UseBoS && (!me.getState(157) || force)) {
+		if (me.getSkill(258, 0) && !Config.UseFade && Config.UseBoS && (!me.getState(sdk.states.BurstOfSpeed) || force)) {
 			this.precastSkill(258); // Burst of Speed
 		}
 

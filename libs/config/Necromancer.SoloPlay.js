@@ -75,6 +75,7 @@ function LoadConfig () {
 	Config.LifeChicken = me.playertype ? 45 : 10;
 	Config.ManaChicken = 0;
 	Config.MercChicken = 0;
+	Config.IronGolemChicken = 30;
 	Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
 	Config.TownMP = 0;
 
@@ -149,7 +150,8 @@ function LoadConfig () {
 	/* AutoEquip configuration. */
 	Config.AutoEquip = true;
 
-	var levelingTiers = [ // autoequip setup
+	// AutoEquip setup
+	var levelingTiers = [
 		//weapon
 		"([type] == wand || [type] == sword || [type] == knife) && ([Quality] >= Magic || [flag] == runeword) && [flag] != ethereal # [secondarymindamage] == 0 && [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"[type] == wand && [Quality] >= Normal && [flag] != ethereal # [itemchargedskill] >= 0 && [Sockets] != 2 # [tier] == tierscore(item)",
@@ -231,22 +233,25 @@ function LoadConfig () {
 	Config.AutoBuild.Template = SetUp.getBuild();
 
 	/* Class specific configuration. */
-	Config.Dodge = Check.haveItem("armor", "runeword", "Enigma") ? true : me.getSkill(77, 0) ? true : false;
+	Config.Dodge = Check.haveItem("armor", "runeword", "Enigma");
 	Config.DodgeRange = Check.haveItem("armor", "runeword", "Enigma") ? 10 : 5;
 	Config.DodgeHP = 90; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
 
-	Config.Curse[0] = me.getSkill(87, 0) ? 87 : me.getSkill(66, 0) ? 66 : 0; // Boss curse.
-	Config.Curse[1] = me.getSkill(66, 0) ? 66 : 0; // Other monsters curse.
+	/* Curses. */ 
+	Config.Curse[0] = -1; // Boss curse.
+	Config.Curse[1] = -1; // Other monsters curse.
 
-	Config.ExplodeCorpses = me.getSkill(74, 0) ? 74 : me.getSkill(83, 0) ? 83 : 0;
-	Config.Golem = me.getSkill(75, 0) ? "Clay" : "None";
+	/* Summons. */
+	Config.ReviveUnstackable = true;
+	Config.ActiveSummon = me.charlvl < 10 || SetUp.currentBuild === "Summon";
+	Config.Golem = me.getSkill(sdk.skills.ClayGolem, 0) ? "Clay" : "None";
 	Config.Skeletons = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
 	Config.SkeletonMages = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
 	Config.Revives = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
-	Config.PoisonNovaDelay = 2;
-	Config.ActiveSummon = me.charlvl < 10 || SetUp.currentBuild === "Summon";
-	Config.ReviveUnstackable = true;
-	Config.IronGolemChicken = 30;
+
+	/* Skill Specific */
+	Config.PoisonNovaDelay = 1;		// In Seconds
+	Config.ExplodeCorpses = me.getSkill(sdk.skills.CorpseExplosion, 0) ? sdk.skills.CorpseExplosion : me.getSkill(sdk.skills.PoisonExplosion, 0) ? sdk.skills.PoisonExplosion : 0;
 
 	/* LOD gear */
 	if (!me.classic) {
@@ -358,7 +363,8 @@ function LoadConfig () {
 			];
 			NTIP.arrayLooping(CTA);
 
-			if (me.getItem(sdk.runes.Ohm)) { // have Ohm before collecting base
+			// Have Ohm before collecting base
+			if (me.getItem(sdk.runes.Ohm)) {
 				NTIP.addLine("[Name] == CrystalSword && [Quality] >= Normal && [Quality] <= Superior # [Sockets] == 5 # [MaxQuantity] == 1");
 			}
 

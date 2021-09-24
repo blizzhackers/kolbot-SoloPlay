@@ -90,7 +90,7 @@ function orgtorch() {
 	// Get fade in River of Flames
 	this.getFade = function () {
 		if (Check.haveItem("sword", "runeword", "Last Wish") || Check.haveItem("armor", "runeword", "Treachery")) {
-			if (!me.getState(159)) {
+			if (!me.getState(sdk.states.Fade)) {
 				print("ÿc8Kolbot-SoloPlayÿc0: Getting Fade");
 				Pather.useWaypoint(107);
 				Precast.doPrecast(true);
@@ -100,7 +100,7 @@ function orgtorch() {
 					Skill.setSkill(125, 0);
 				}
 
-				while (!me.getState(159)) {
+				while (!me.getState(sdk.states.Fade)) {
 					delay(100);
 				}
 

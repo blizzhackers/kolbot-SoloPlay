@@ -279,7 +279,7 @@ function diablo () {
 			}
 		}
 
-		if (!seal.mode) {
+		if (!!seal && !seal.mode) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed to open seal (id " + classid + ")" + ". Attempting portal trick");
 			Town.goToTown();
 			delay(25 + me.ping);
