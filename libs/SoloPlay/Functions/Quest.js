@@ -392,17 +392,9 @@ var Quest = {
 
 		if (me.charlvl === SetUp.respecOne || (SetUp.respecOneB > 0 && me.charlvl === SetUp.respecOneB) || me.charlvl === SetUp.respecTwo()) {
 			if (!me.den) {
-				if (!isIncluded("SoloPlay/Scripts/den.js")) {
-					include("SoloPlay/Scripts/den.js");
-				}
-
-				for (let i = 0; i < 5; i++) {
-					den();
-
-					if (me.den) {
-						break;
-					}
-				}
+				print("ÿc8Kolbot-SoloPlayÿc0: time to respec, but den is incomplete");
+				me.overhead('time to respec, but den is incomplete');
+				return false;
 			}
 
 			Precast.doPrecast(true);
