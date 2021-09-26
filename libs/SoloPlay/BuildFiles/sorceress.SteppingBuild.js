@@ -6,11 +6,11 @@
 
 var build = {
 	caster: true,
-	skillstab: 10, //cold
-	wantedskills: [59, 55, 65], // blizzard, gspike, cold mastery
-	usefulskills: [45, 37, 42], // ice blast, warmth, static
+	skillstab: sdk.skills.tabs.Cold,
+	wantedskills: [sdk.skills.Blizzard, sdk.skills.GlacialSpike, sdk.skills.ColdMastery],
+	usefulskills: [sdk.skills.IceBlast, sdk.skills.Warmth, sdk.skills.StaticField],
 	mercAuraName: "Holy Freeze",
-	mercAuraWanted: 114,
+	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
 		["energy", 69], ["strength", 48], ["vitality", 165],
@@ -19,17 +19,17 @@ var build = {
 	],
 	skills: [
 		// Total skills at respec = 25 
-		[37, 1], // Warmth -> points left 24
-		[40, 1], // Frozen Armor -> points left 23
-		[42, 1], // Static -> points left 22
-		[54, 4], // Teleport -> points left 17
-		[59, 1], // blizzard -> points left 12
-		[45, 15], // Ice blast -> points left 0
-		[65, 1, false], // cold mastery
-		[64, 1, false], // frozen orb
-		[59, 20, false], // blizzard 20
-		[45, 20, false], // Ice blast
-		[65, 5], // cold mastery
-		[55, 20, false], // gspike 20
+		[sdk.skills.Warmth, 1], 		// points left 24
+		[sdk.skills.FrozenArmor, 1], 	// points left 23
+		[sdk.skills.StaticField, 1], 	// points left 22
+		[sdk.skills.Teleport, 4], 		// points left 17
+		[sdk.skills.Blizzard, 1], 		// points left 12
+		[sdk.skills.IceBlast, 15], 		// points left 0
+		[sdk.skills.ColdMastery, 1, false],
+		[sdk.skills.FrozenOrb, 1, false],
+		[sdk.skills.Blizzard, 20, false],
+		[sdk.skills.IceBlast, 20, false],
+		[sdk.skills.ColdMastery, 5],
+		[sdk.skills.GlacialSpike, 20, false],
 	]
 };

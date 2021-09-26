@@ -7,11 +7,11 @@
 
 var build = {
 	caster: false,
-	skillstab: 32, // Combat skills
-	wantedskills: [149, 147, 133, 127], // Battle Orders, Frenzy, Double Swing, Sword Mastery
-	usefulskills: [153, 145, 148, 138], // Natural Resistance, Iron Skin, Increased Speed, Shout
+	skillstab: sdk.skills.tabs.CombatBarb,
+	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing, sdk.skills.SwordMastery],
+	usefulskills: [sdk.skills.NaturalResistance, sdk.skills.IronSkin, sdk.skills.IncreasedSpeed, sdk.skills.Shout],
 	mercAuraName: "Might",
-	mercAuraWanted: 98,
+	mercAuraWanted: sdk.skills.Might,
 	mercDiff: 1,
 	stats: [
 		["strength", 35], ["dexterity", 27], ["vitality", 45],
@@ -21,19 +21,19 @@ var build = {
         ["strength", 71], ["dexterity", 49], ["vitality", "all"],
 	],
 	skills: [
-		[126, 1], // Bash -> Level 2
-        [130, 1], // Howl -> Level 3
-        [133, 6, false], // Double Swing -> Level 9
-        [127, 5], // Sword Mastery -> Level 13
-        [137, 1], // Taunt  -> Level 14
-        [127, 6], // Sword Mastery -> Level 15
-        [145, 1], // Iron Skin  -> Level 18
-        [146, 1], // Battle Cry  -> Level 18
-        [127, 9], // Sword Mastery
-        [140, 1], // Double Throw
-        [138, 1], // Shout
-        [147, 1], // Frenzy
-        [149, 4, false], // Battle Orders
-        [137, 20], // Taunt
+		[sdk.skills.Bash, 1],                   // charlevel 2
+        [sdk.skills.Howl, 1],                   // charlevel 3
+        [sdk.skills.DoubleSwing, 6, false],     // charlevel 9
+        [sdk.skills.SwordMastery, 5],           // charlevel 13
+        [sdk.skills.Taunt, 1],                  // charlevel 14
+        [sdk.skills.SwordMastery, 6],           // charlevel 15
+        [sdk.skills.IronSkin, 1],               // charlevel 18
+        [sdk.skills.BattleCry, 1],              // charlevel 18
+        [sdk.skills.SwordMastery, 9],
+        [sdk.skills.DoubleThrow, 1],
+        [sdk.skills.Shout, 1],
+        [sdk.skills.Frenzy, 1],
+        [sdk.skills.BattleOrders, 4, false],
+        [sdk.skills.Taunt, 20],
 	]
 };

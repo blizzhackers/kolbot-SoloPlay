@@ -1,71 +1,71 @@
 /**
  *    @filename		druid.ElementalBuild.js
- *	  @author		thatflykid, isid0re
+ *	  @author		thatflykid, isid0re, theBGuy
  *    @desc			Druid elemental build for after respecOne
  */
 
 var finalBuild = {
 	caster: true,
-	skillstab: 42, // elemental
-	wantedskills: [225, 234], // firestorm, fissure
-	usefulskills: [235], // cyclone armor
-	precastSkills: [235], // cyclone armor
+	skillstab: sdk.skills.tabs.Elemental,
+	wantedskills: [sdk.skills.FireStorm, sdk.skills.Fissure],
+	usefulskills: [sdk.skills.CycloneArmor],
+	precastSkills: [sdk.skills.CycloneArmor],
 	mercAuraName: "Blessed Aim",
-	mercAuraWanted: 108,
+	mercAuraWanted: sdk.skills.BlessedAim,
 	mercDiff: 0,
 	stats: [
 		["dexterity", 35], ["strength", 48], ["vitality", 165], ["strength", 61], ["vitality", 252], ["strength", 156], ["vitality", "all"]
 	],
 	skills: [
-		[225, 2, false], // fire storm 3
-		[221, 1, false], // Raven 4
-		[229, 1, false], // molten boulder 5
-		[226, 1, false], // Oak Sage 6
-		[227, 1, false], // Summon Wolf 7
-		[225, 6, false], // fire storm 11
-		[234, 1, false], // fissure 12
-		[237, 1, false], // Summon Dire Wolf 13
-		[234, 11, false], // fissure 23
-		[247, 1, false], // Grizzly 24
-		[244, 1, false], // volcano 25
-		[234, 20, false], // fissure 34
-		[226, 6, false], // Oak Sage 39
-		[230, 1, false], // artic blast 40
-		[235, 1, false], // cyclone armor 41
-		[225, 20, false], // firestorm 55
-		[244, 20, false], // volcano 74
-		[226, 20, false], // Oak Sage 88
-		[235, 20, false], //cyclone armor 107
+		[sdk.skills.FireStorm, 2, false],
+		[sdk.skills.Raven, 1, false],
+		[sdk.skills.MoltenBoulder, 1, false],
+		[sdk.skills.OakSage, 1, false],
+		[sdk.skills.SpiritWolf, 1, false],
+		[sdk.skills.FireStorm, 6, false],
+		[sdk.skills.Fissure, 1, false],
+		[sdk.skills.DireWolf, 1, false],
+		[sdk.skills.Fissure, 11, false],
+		[sdk.skills.Grizzly, 1, false],
+		[sdk.skills.Volcano, 1, false],
+		[sdk.skills.Fissure, 20, false],
+		[sdk.skills.OakSage, 6, false],
+		[sdk.skills.ArcticBlast, 1, false],
+		[sdk.skills.CycloneArmor, 1, false],
+		[sdk.skills.FireStorm, 20, false],
+		[sdk.skills.Volcano, 20, false],
+		[sdk.skills.OakSage, 20, false],
+		[sdk.skills.CycloneArmor, 20, false],
 	],
 	autoEquipTiers: [ // autoequip final gear
-		//weapon
-		"[Type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000", // HotO
-		//Helmet
-		"[Name] == SkySpirit && [Quality] == Unique # [PassiveFirePierce] >= 10 # [tier] == 100000 + tierscore(item)", // ravenlore
-		//belt
+		// Weapon
+		"[type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000", // HotO
+		// Helmet
+		"[name] == skyspirit && [quality] == unique # [passivefirepierce] >= 10 # [tier] == 100000 + tierscore(item)", // ravenlore
+		// Belt
 		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 100000 + tierscore(item)", //arach's
-		//boots
+		// Boots
 		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 50 # [tier] == 5000 + tierscore(item)", //war traveler
 		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)", //sandstorm treks
-		//armor
+		// Armor
 		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000", //Enigma
-		//shield
-		"[Name] == Monarch && [Flag] != Ethereal && [flag] == runeword # [fcr] >= 25 # [tier] == 100000 + tierscore(item)", //spirit shield
-		//gloves
+		// Shield
+		"[name] == monarch && [flag] != ethereal && [flag] == runeword # [fcr] >= 25 # [tier] == 100000 + tierscore(item)", //spirit shield
+		// Gloves
 		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 # [tier] == 100000 + tierscore(item)", //magefist
-		//ammy
+		// Amulet
 		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 100000 + tierscore(item)", //maras
-		//rings
+		// Rings
 		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", //soj
-		//Charms
+		// Charms
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 3 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [fhr] >= 5 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # [elementalskilltab] == 1 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		//Switch
+		// Switch
 		"[name] == crystalsword && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
-		//merc
+		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
-		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000",	//Eth Andy's
+		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	]
 };

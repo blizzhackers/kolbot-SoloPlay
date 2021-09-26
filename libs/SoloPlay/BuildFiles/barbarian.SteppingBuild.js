@@ -7,11 +7,11 @@
 
 var build = {
 	caster: false,
-	skillstab: 32, // Combat skills
-	wantedskills: [149, 147, 133, 127], // Battle Orders, Frenzy, Double Swing, Sword Mastery
-	usefulskills: [153, 145, 148, 146, 142], // Natural Resistance, Iron Skin, Increased Speed, Find Item
+	skillstab: sdk.skills.tabs.CombatBarb,
+	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing, sdk.skills.SwordMastery],
+	usefulskills: [sdk.skills.NaturalResistance, sdk.skills.IronSkin, sdk.skills.IncreasedSpeed, sdk.skills.Shout, sdk.skills.FindItem],
 	mercAuraName: "Might",
-	mercAuraWanted: 98,
+	mercAuraWanted: sdk.skills.Might,
 	mercDiff: 1,
 	stats: [
 		["strength", 71], ["dexterity", 50], ["vitality", 100],
@@ -23,29 +23,29 @@ var build = {
     ],
 	skills: [
 		// Total points at time of respec 33
-		[127, 9, true], // Sword Mastery -> total left 24
-		[142, 1, true], // Find Item -> total left 22
-		[137, 1, true], // Taunt -> total left 21
-		[149, 4, true], // Battle Orders -> total left 16
-		[155, 1, true], // Battle Command -> charlvl 15
-		[153, 1, true], // Natural Resistance -> total left 13
-		[147, 2, true], // Frenzy -> total left 7
-		[154, 1, true], // War Cry -> total left 5
-		[133, 5, true], // Double Swing -> total left 0
+		[sdk.skills.SwordMastery, 9, true], 		// total left 24
+		[sdk.skills.FindItem, 1, true], 			// total left 22
+		[sdk.skills.Taunt, 1, true], 				// total left 21
+		[sdk.skills.BattleOrders, 4, true], 		// total left 16
+		[sdk.skills.BattleCommand, 1, true], 		// charlvl 15
+		[sdk.skills.NaturalResistance, 1, true],	// total left 13
+		[sdk.skills.Frenzy, 2, true], 				// total left 7
+		[sdk.skills.WarCry, 1, true], 				// total left 5
+		[sdk.skills.DoubleSwing, 5, true], 			// total left 0
 		// End of respec points, Start of Stepping build
-		[153, 2, false], // Natural Resistance -> charlvl 31
-		[154, 2, false], // War Cry -> charlvl 32
-		[153, 3, false], // Natural Resistance -> charlvl 33
-		[154, 3, false], // War Cry -> charlvl 34
-		[137, 11, false], // Taunt -> charlvl 45
-		[153, 4, false], // Natural Resistance -> charlvl 46
-		[147, 6, false], // Frenzy -> charlvl 50
-		[154, 5, false], // War Cry -> charlvl 52
-		[147, 9, false], // Frenzy -> charlvl 53
-		[149, 6, false], // Battle Orders -> charlvl 54
-		[153, 5, false], // Natural Resistance -> charlvl 56
-		[154, 6, false], // War Cry -> charlvl 59
-		[127, 20, false], // Sword Mastery -> charlvl 67
-		[137, 20, false], // Taunt -> charlvl 76
+		[sdk.skills.NaturalResistance, 2, false], 	// charlvl 31
+		[sdk.skills.WarCry, 2, false], 				// charlvl 32
+		[sdk.skills.NaturalResistance, 3, false], 	// charlvl 33
+		[sdk.skills.WarCry, 3, false], 				// charlvl 34
+		[sdk.skills.Taunt, 11, false], 				// charlvl 45
+		[sdk.skills.NaturalResistance, 4, false], 	// charlvl 46
+		[sdk.skills.Frenzy, 6, false], 				// charlvl 50
+		[sdk.skills.WarCry, 5, false], 				// charlvl 52
+		[sdk.skills.Frenzy, 9, false], 				// charlvl 53
+		[sdk.skills.BattleOrders, 6, false], 		// charlvl 54
+		[sdk.skills.NaturalResistance, 5, false], 	// charlvl 56
+		[sdk.skills.WarCry, 6, false], 				// charlvl 59
+		[sdk.skills.SwordMastery, 20, false], 		// charlvl 67
+		[sdk.skills.Taunt, 20, false], 				// charlvl 76
 	]
 };

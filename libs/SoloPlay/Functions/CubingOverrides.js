@@ -393,7 +393,7 @@ Cubing.buildRecipes = function () {
 
 // Added try again to emptying cube if it fails it will clear inventory then organize it
 Cubing.emptyCube = function () {
-	var cube = me.getItem(sdk.quest.cube),
+	var cube = me.getItem(sdk.items.quest.Cube),
 		items = me.findItems(-1, -1, 6);
 
 	if (!cube) {

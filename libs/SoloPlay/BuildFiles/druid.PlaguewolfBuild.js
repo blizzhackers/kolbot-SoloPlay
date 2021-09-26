@@ -6,53 +6,53 @@
 
 var finalBuild = {
 	caster: false,
-	skillstab: 41, // shape-shifting
-	wantedskills: [223, 224, 248], // werewolf, lycanthropy, fury
-	usefulskills: [246, 247], // spirit of the barbs, summon grizzly
-	precastSkills: [223, 246, 247], // Werewolf, SoB, grizzly
+	skillstab: sdk.skills.tabs.ShapeShifting,
+	wantedskills: [sdk.skills.Werewolf, sdk.skills.Lycanthropy, sdk.skills.Fury],
+	usefulskills: [sdk.skills.HeartofWolverine, sdk.skills.Grizzly],
+	precastSkills: [sdk.skills.Werewolf, sdk.skills.HeartofWolverine, sdk.skills.Grizzly],
 	mercAuraName: "Might",
-	mercAuraWanted: 98,
+	mercAuraWanted: sdk.skills.Might,
 	mercDiff: 1,
 	stats: [
 		["strength", 156], ["dexterity", 136], ["vitality", "all"]
 	],
 	skills: [
-		[223, 20, false], // werewolf
-		[224, 20, false], // lycanthropy
-		[222, 1, false], // Poison Creeper
-		[247, 1, false], // Grizzly
-		[248, 20, false], // fury
-		[236, 10, false], // heart of wolverine
-		[238, 20, false], // rabies
-		[236, 20, false], // heart of wolverine
-		[222, 20, false], // Poison Creeper
+		[sdk.skills.Werewolf, 20, false],
+		[sdk.skills.Lycanthropy, 20, false],
+		[sdk.skills.PoisonCreeper, 1, false],
+		[sdk.skills.Grizzly, 1, false],
+		[sdk.skills.Fury, 20, false],
+		[sdk.skills.HeartofWolverine, 10, false],
+		[sdk.skills.Rabies, 20, false],
+		[sdk.skills.HeartofWolverine, 20, false],
+		[sdk.skills.PoisonCreeper, 20, false],
 	],
 	autoEquipTiers: [ // autoequip final gear
-		//weapon
-		"[Type] == sword && [flag] == runeword # [ias] >= 30 # [tier] == 110000", //Grief
+		// Weapon
+		"[type] == sword && [flag] == runeword # [ias] >= 30 # [tier] == 110000", //Grief
 		//Shield
 		"[name] == monarch && [quality] == unique # [damageresist] >= 35 # [tier] == 110000",	//Stormshield
-		//Helmet
+		// Helmet
 		"[name] == totemicmask && [quality] == unique # [druidskills] == 2 && [shapeshiftingskilltab] == 2 # [tier] == 110000 + tierscore(item)", //Jalal's mane
-		//belt
+		// Belt
 		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 110000 + tierscore(item)", //Verdungo's
-		//armor
+		// Armor
 		"[type] == armor && [flag] == runeword  && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 110000", //CoH
-		//gloves
+		// Gloves
 		"[name] == vampirebonegloves && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 110000 + tierscore(item)", //Dracul's
-		//ammy
+		// Amulet
 		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 110000 + tierscore(item)", //maras
-		//rings
+		// Rings
 		"[type] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == 110000 + tierscore(item)", //Wisp
 		"[name] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] >= 3 # [tier] == 110000 + tierscore(item)", //bk ring
-		//Charms
+		// Charms
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [poisonlength]*[poisonmaxdam]/256 >= 141 # [invoquantity] == 6 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # [shapeshiftingskilltab] == 1 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == charmscore(item)",
-		//Merc
+		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000", //Fortitude
-		"[type] == armor && [flag] == runeword # [ias] == 45 && [coldresist] == 30 # [merctier] == 50000", //Treachery
-		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000", //Eth Andy's
+		"[type] == armor && [flag] == runeword # [ias] == 45 && [coldresist] == 30 # [merctier] == 50000 + mercscore(item)", //Treachery
+		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)", //Eth Andy's
 		"[name] == thresher && [quality] == unique # [enhanceddamage] >= 190 && [lifeleech] >= 11 # [merctier] == 100000 + mercscore(item)",	// Reaper's Toll
 	]
 };

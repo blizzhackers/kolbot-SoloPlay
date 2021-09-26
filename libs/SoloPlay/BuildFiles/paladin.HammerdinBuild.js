@@ -7,12 +7,12 @@
 
 var finalBuild = {
 	caster: true,
-	skillstab: 24, //combat
-	wantedskills: [112, 113], // hammers, concentration
-	usefulskills: [117, 108], // holy shield, blessed aim
-	precastSkills: [117], // Holy shield
+	skillstab: sdk.skills.tabs.PalaCombat,
+	wantedskills: [sdk.skills.BlessedHammer, sdk.skills.Concentration],
+	usefulskills: [sdk.skills.HolyShield, sdk.skills.BlessedAim],
+	precastSkills: [sdk.skills.HolyShield],
 	mercAuraName: "Holy Freeze",
-	mercAuraWanted: 114,
+	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
 		["vitality", 60], ["dexterity", 30], ["strength", 27],
@@ -27,99 +27,99 @@ var finalBuild = {
 		["vitality", "all"]
 	],
 	skills: [
-		[98, 1], // might
-		[97, 1], // smite
-		[99, 1], // prayer
-		[101, 1], // holy bolt
-		[104, 1], // defiance
-		[107, 1], // charge
-		[108, 1], // blessed aim
-		[109, 1], // cleansing
-		[108, 6], // blessed aim
-		[112, 1], // blessed hammers
-		[113, 1], // concentration
-		[115, 1], // vigor
-		[108, 7], // blessed aim
-		[112, 2], // blessed hammers
-		[113, 2], // concentration
-		[115, 2], // vigor
-		[112, 7], // blessed hammers
-		[117, 1], // holy shield
-		[120, 1], // mediation
-		[112, 12], // blessed hammers
-		[124, 1], // redemption
-		[112, 20], // max hammers
-		[113, 3], // level concentration
-		[115, 3], // level vigor
-		[113, 4], // level concentration
-		[115, 4], // level vigor
-		[113, 5], // level concentration
-		[115, 5], // level vigor
-		[113, 6], // level concentration
-		[115, 6], // level vigor
-		[113, 7], // level concentration
-		[115, 7], // level vigor
-		[113, 8], // level concentration
-		[115, 8], // level vigor
-		[113, 9], // level concentration
-		[115, 9], // level vigor
-		[113, 10], // level concentration
-		[115, 10], // level vigor
-		[113, 11], // level concentration
-		[115, 11], // level vigor
-		[113, 12], // level concentration
-		[115, 12], // level vigor
-		[113, 13], // level concentration
-		[115, 13], // level vigor
-		[113, 14], // level concentration
-		[115, 14], // level vigor
-		[113, 15], // level concentration
-		[115, 15], // level vigor
-		[113, 16], // level concentration
-		[115, 16], // level vigor
-		[113, 17], // level concentration
-		[115, 17], // level vigor
-		[113, 18], // level concentration
-		[115, 18], // level vigor
-		[113, 19], // level concentration
-		[115, 19], // level vigor
-		[113, 20], // max concentration
-		[115, 20], // max vigor
-		[108, 20], // max blessed aim
-		[117, 20] // max holy shield
+		[sdk.skills.Might, 1],
+		[sdk.skills.Smite, 1],
+		[sdk.skills.Prayer, 1],
+		[sdk.skills.HolyBolt, 1],
+		[sdk.skills.Defiance, 1],
+		[sdk.skills.Charge, 1],
+		[sdk.skills.BlessedAim, 1],
+		[sdk.skills.Cleansing, 1],
+		[sdk.skills.BlessedAim, 6],
+		[sdk.skills.BlessedHammer, 1],
+		[sdk.skills.Concentration, 1],
+		[sdk.skills.Vigor, 1],
+		[sdk.skills.BlessedAim, 7],
+		[sdk.skills.BlessedHammer, 2],
+		[sdk.skills.Concentration, 2],
+		[sdk.skills.Vigor, 2],
+		[sdk.skills.BlessedHammer, 7],
+		[sdk.skills.HolyShield, 1],
+		[sdk.skills.Meditation, 1],
+		[sdk.skills.BlessedHammer, 12],
+		[sdk.skills.Redemption, 1],
+		[sdk.skills.BlessedHammer, 20],
+		[sdk.skills.Concentration, 3],
+		[sdk.skills.Vigor, 3],
+		[sdk.skills.Concentration, 4],
+		[sdk.skills.Vigor, 4],
+		[sdk.skills.Concentration, 5],
+		[sdk.skills.Vigor, 5],
+		[sdk.skills.Concentration, 6],
+		[sdk.skills.Vigor, 6],
+		[sdk.skills.Concentration, 7],
+		[sdk.skills.Vigor, 7],
+		[sdk.skills.Concentration, 8],
+		[sdk.skills.Vigor, 8],
+		[sdk.skills.Concentration, 9],
+		[sdk.skills.Vigor, 9],
+		[sdk.skills.Concentration, 10],
+		[sdk.skills.Vigor, 10],
+		[sdk.skills.Concentration, 11],
+		[sdk.skills.Vigor, 11],
+		[sdk.skills.Concentration, 12],
+		[sdk.skills.Vigor, 12],
+		[sdk.skills.Concentration, 13],
+		[sdk.skills.Vigor, 13],
+		[sdk.skills.Concentration, 14],
+		[sdk.skills.Vigor, 14],
+		[sdk.skills.Concentration, 15],
+		[sdk.skills.Vigor, 15],
+		[sdk.skills.Concentration, 16],
+		[sdk.skills.Vigor, 16],
+		[sdk.skills.Concentration, 17],
+		[sdk.skills.Vigor, 17],
+		[sdk.skills.Concentration, 18],
+		[sdk.skills.Vigor, 18],
+		[sdk.skills.Concentration, 19],
+		[sdk.skills.Vigor, 19],
+		[sdk.skills.Concentration, 20],
+		[sdk.skills.Vigor, 20],
+		[sdk.skills.BlessedAim, 20],
+		[sdk.skills.HolyShield, 20] 
 	],
 	autoEquipTiers: [ // autoequip final gear
-		//weapon
-		"[Type] == mace && [flag] == runeword # [fcr] == 40 # [tier] == 100000", // HotO
-		//helmet
-		"[name] == shako && [quality] == unique && [flag] != ethereal # [DamageResist] == 10 # [tier] == 100000 + tierscore(item)", // harlequin's crest
-		//belt
+		// Weapon
+		"[type] == mace && [flag] == runeword # [fcr] == 40 # [tier] == 100000", // HotO
+		// Helm
+		"[name] == shako && [quality] == unique && [flag] != ethereal # [damageresist] == 10 # [tier] == 100000 + tierscore(item)", // harlequin's crest
+		// Belt
 		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 100000 + tierscore(item)", //arach's
-		//boots
+		// Boots
 		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 50 # [tier] == 5000 + tierscore(item)", //war traveler
 		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)", //sandstorm treks
-		//armor
+		// Armor
 		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000", //Enigma
-		//shield
-		"[Name] == GildedShield && [Quality] == unique && [flag] != ethereal # [EnhancedDefense] >= 150 # [tier] == 50000 + tierscore(item)", //hoz
+		// Shield
+		"[name] == gildedshield && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 150 # [tier] == 50000 + tierscore(item)", //hoz
 		"[type] == auricshields && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [tier] == 100000 + tierscore(item)", // spirit
-		//gloves
+		// Gloves
 		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 # [tier] == 100000 + tierscore(item)",	//Magefist
-		//ammy
+		// Amulet
 		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 100000 + tierscore(item)", //maras
-		//rings
+		// Rings
 		"[name] == ring && [quality] == unique # [maxhp] >= 40 && [magicdamagereduction] >= 12 # [tier] == 99000", // dwarfstar
 		"[type] == ring && [quality] == unique # [dexterity] >= 20 # [tier] == 100000", //ravenfrost
 		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", //soj
-		//Charms
+		// Charms
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 3 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [fhr] >= 5 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # [palicombatskilltab] == 1 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		//Switch
+		// Switch
 		"[name] == crystalsword && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
-		//merc
+		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
-		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000",	//Eth Andy's
+		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	]
 };

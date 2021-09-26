@@ -6,11 +6,11 @@
 
 var build = {
 	caster: true,
-	skillstab: 10, //cold
-	wantedskills: [59, 47, 65], // blizzard, fireball, cold mastery
-	usefulskills: [55, 56, 61, 42], // glacial spike, meteor, fire mastery, static
+	skillstab: sdk.skills.tabs.Cold,
+	wantedskills: [sdk.skills.Blizzard, sdk.skills.FireBall, sdk.skills.ColdMastery],
+	usefulskills: [sdk.skills.GlacialSpike, sdk.skills.Meteor, sdk.skills.FireMastery, sdk.skills.StaticField],
 	mercAuraName: "Holy Freeze",
-	mercAuraWanted: 114,
+	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
 		["energy", 50], ["strength", 48], ["vitality", 165],
@@ -19,22 +19,22 @@ var build = {
 	],
 	skills: [
 		// Total skills at respec = 70
-		[37, 1], // Warmth -> points left 69
-		[40, 1], // Frozen Armor -> points left 68
-		[42, 1], // Static -> points left 67
-		[54, 1], // Teleport -> points left 65
-		[59, 1], // blizzard -> points left 60
-		[56, 1], // meteor -> points left 54
-		[61, 1], // Fire Mastery -> points left 53
-		[65, 1], // cold mastery -> points left 52
-		[64, 1], // frozen orb -> points left 51
-		[47, 20], // fireball 20 -> points left 33
-		[59, 20], // blizzard 20 -> points left 13
-		[45, 15], // Ice blast
-		[56, 15], // meteor 15
-		[45, 20], // Ice blast
-		[56, 20], // meteor 20
-		[65, 5], // cold mastery
-		[36, 20], // Fire Bolt
+		[sdk.skills.Warmth, 1], 	// points left 69
+		[sdk.skills.FrozenArmor, 1],// points left 68
+		[sdk.skills.StaticField, 1],// points left 67
+		[sdk.skills.Teleport, 1], 	// points left 65
+		[sdk.skills.Blizzard, 1], 	// points left 60
+		[sdk.skills.Meteor, 1], 	// points left 54
+		[sdk.skills.FireMastery, 1],// points left 53
+		[sdk.skills.ColdMastery, 1],// points left 52
+		[sdk.skills.FrozenOrb, 1], 	// points left 51
+		[sdk.skills.FireBall, 20], 	// points left 33
+		[sdk.skills.Blizzard, 20], 	// points left 13
+		[sdk.skills.IceBlast, 15], 	// points left 0
+		[sdk.skills.Meteor, 15],
+		[sdk.skills.IceBlast, 20],
+		[sdk.skills.Meteor, 20],
+		[sdk.skills.ColdMastery, 5],
+		[sdk.skills.FireBolt, 20],
 	]
 };

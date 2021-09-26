@@ -6,11 +6,11 @@
 
 var build = {
 	caster: true,
-	skillstab: 48, // traps
-	wantedskills: [251, 262], // fireblast, wake of fire
-	usefulskills: [264, 268], // Cloak of shadows, shadow warrior
+	skillstab: sdk.skills.tabs.Traps,
+	wantedskills: [sdk.skills.FireBlast, sdk.skills.WakeOfFire],
+	usefulskills: [sdk.skills.CloakOfShadows, sdk.skills.ShadowWarrior],
 	mercAuraName: "Holy Freeze",
-	mercAuraWanted: 114,
+	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
 		["vitality", 35], ["energy", 35], ["strength", 33], ["dexterity", 33],
@@ -19,15 +19,15 @@ var build = {
 		["energy", 50], ["vitality", "all"]
 	],
 	skills: [
-		[251, 4, false], // fireblast -> level 4
-		[252, 1], // claw mastery -> level 5 (den)
-		[253, 1], // physic hammer -> level 6
-		[258, 5], // burst of speed -> level 11
-		[262, 1, false], // wake of fire -> level 12
-		[264, 1, true], // CoS -> level 13
-		[262, 10, false], // wake of fire -> level 24
-		[251, 6, false], // fireblast -> level 26
-		[262, 20, false], // wake of fire -> level 36
-		[251, 10], // fireblast -> level 42
+		[sdk.skills.FireBlast, 4, false], 		// level 4
+		[sdk.skills.ClawMastery, 1], 			// level 5 (den)
+		[sdk.skills.PhysicHammer, 1], 			// level 6
+		[sdk.skills.BurstOfSpeed, 5], 			// level 11
+		[sdk.skills.WakeOfFire, 1, false], 		// level 12
+		[sdk.skills.CloakOfShadows, 1, true], 	// level 13
+		[sdk.skills.WakeOfFire, 10, false], 	// level 24
+		[sdk.skills.FireBlast, 6, false], 		// level 26
+		[sdk.skills.WakeOfFire, 20, false], 	// level 36
+		[sdk.skills.FireBlast, 10], 			// level 42
 	]
 };

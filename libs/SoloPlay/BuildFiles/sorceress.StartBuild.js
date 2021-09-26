@@ -7,10 +7,10 @@
 var build = {
 	caster: true,
 	skillstab: 9, //lightning
-	wantedskills: [38, 42], // charged bolt, static
-	usefulskills: [40, 49], // frozen armor, lightning
+	wantedskills: [sdk.skills.ChargedBolt, sdk.skills.StaticField],
+	usefulskills: [sdk.skills.FrozenArmor, sdk.skills.Lightning],
 	mercAuraName: "Holy Freeze",
-	mercAuraWanted: 114,
+	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
 		["energy", 40], ["vitality", 15], ["energy", 45],
@@ -19,19 +19,19 @@ var build = {
 		["strength", 35], ["vitality", "all"]
 	],
 	skills: [
-		[38, 4, false], // charged Bolt -> charlvl 3 (3 lvls + den)
-		[40, 1], // Frozen Armor -> charlvl 4
-		[43, 1], // Telekinesis -> charlvl 5
-		[44, 1], // Frost Nova -> charlvl 6
-		[42, 4], // Static -> charlvl 10
-		[48, 7], // Nova -> charlvl 17
-		[54, 1], // Teleport -> charlvl 18
-		[42, 6], // Static -> charlvl 20
-		[39, 1], // ice bolt -> charlvl 21
-		[45, 1], // ice blast -> charlvl 22
-		[55, 1], // gspike -> charlvl 
-		[45, 3], // ice blast -> charlvl 23
-		[59, 6, false], // blizzard -> charlvl 29 (never gets here)
-		[65, 1, false], // cold mastery -> charlvl 30 (never gets here)
+		[sdk.skills.ChargedBolt, 4, false], // charlvl 3 (3 lvls + den)
+		[sdk.skills.FrozenArmor, 1], 		// charlvl 4
+		[sdk.skills.Telekinesis, 1], 		// charlvl 5
+		[sdk.skills.FrostNova, 1], 			// charlvl 6
+		[sdk.skills.StaticField, 4], 		// charlvl 10
+		[sdk.skills.Nova, 7], 				// charlvl 17
+		[sdk.skills.Teleport, 1], 			// charlvl 18
+		[sdk.skills.StaticField, 6], 		// charlvl 20
+		[sdk.skills.IceBolt, 1], 			// charlvl 21
+		[sdk.skills.IceBlast, 1], 			// charlvl 22
+		[sdk.skills.GlacialSpike, 1], 		// charlvl 
+		[sdk.skills.IceBlast, 3], 			// charlvl 23
+		[sdk.skills.Blizzard, 6, false], 	// charlvl 29 (never gets here)
+		[sdk.skills.ColdMastery, 1, false], // charlvl 30 (never gets here)
 	]
 };

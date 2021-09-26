@@ -6,11 +6,11 @@
 
 var build = {
 	caster: false,
-	skillstab: 2, // Jav N Spear Skills
-	wantedskills: [24, 34], // Charged Strike, Lightning Strike
-	usefulskills: [9, 23, 32, 33], // Critical Strike, Penetrate, Valkyrie, Pierce
+	skillstab: sdk.skills.tabs.JavelinSpear,
+	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
+	usefulskills: [sdk.skills.CriticalStrike, sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
 	mercAuraName: "Holy Freeze",
-	mercAuraWanted: 114,
+	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
 		["strength", 34], ["vitality", 30], ["dexterity", 47], 
@@ -21,14 +21,14 @@ var build = {
 	],
 	skills: [
 		// points at respec 33
-		[34, 1], 	// Lightning Strike -> points left 27
-		[32, 1], 	// Valkyrie 		-> points left 20
-		[23, 1], 	// Penetrate 		-> points left 18
-		[24, 13], 	// Charged Strike 	-> points left 6
-		[14, 5], 	// Power Strike		-> pointe left 2
-		[35, 1], 	// Lightning Fury 	-> points left 0
-		[34, 20, false], 	// Lightning Strike -> charlvl ?
-		[24, 20, false], 	// Charged Strike 	-> charlvl 52
-		[35, 20, false], 	// Lightning Fury 	-> respec at 64
+		[sdk.skills.LightningStrike, 1], 		// points left 27
+		[sdk.skills.Valkyrie, 1], 				// points left 20
+		[sdk.skills.Penetrate, 1], 				// points left 18
+		[sdk.skills.ChargedStrike, 13], 		// points left 6
+		[sdk.skills.PowerStrike, 5], 			// points left 2
+		[sdk.skills.LightningFury, 1], 			// points left 0
+		[sdk.skills.LightningStrike, 20, false],// charlvl ?
+		[sdk.skills.ChargedStrike, 20, false], 	// charlvl 52
+		[sdk.skills.LightningFury, 20, false], 	// respec at 64
 	]
 };

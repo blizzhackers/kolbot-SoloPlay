@@ -6,11 +6,11 @@
 
 var build = {
 	caster: true,
-	skillstab: 48, // traps
-	wantedskills: [251, 271, 276, 279], // fireblast, lightning sentry, death sentry, shadow master
-	usefulskills: [261, 277, 267], // charged bolt sentry, blade shield, fade
+	skillstab: sdk.skills.tabs.Traps, // traps
+	wantedskills: [sdk.skills.FireBlast, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.ShadowMaster],
+	usefulskills: [sdk.skills.ChargedBoltSentry, sdk.skills.BladeShield, sdk.skills.Fade],
 	mercAuraName: "Holy Freeze",
-	mercAuraWanted: 114,
+	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
 		["strength", 47], ["dexterity", 46], ["vitality", 166],
@@ -19,47 +19,47 @@ var build = {
 	],
 	skills: [
 		// Skills points at respec 33
-		[251, 3], // fireblast	-> points left 30
-		[256, 8], // shock web -> points left 23
-		[261, 1], // charged bolt sentry -> points left 21
-		[252, 1], // claw mastery -> points left 20
-		[253, 1], // psychic hammer -> points left 19
-		[258, 1], // burst of speed -> points left 18
-		[267, 1], // fade -> points left 17
-		[263, 1], // weapon block -> points left 16
-		[264, 1], // cloak of shadows -> points left 15
-		[279, 1], // shadow master -> points left 13
-		[276, 1], // death sentry -> points left 11
-		[273, 1], // mind blast -> points left 10
-		[271, 7], // lightning sentry -> points left 4
-		[251, 6], // fireblast	-> points left 3
-		[256, 8], // shock web -> points left 1
-		[262, 1], // wake of fire -> points left 0
-		[271, 20, false], // lightning sentry
-		[276, 10], // death sentry
-		[256, 9], // shock web
-		[251, 8], // fireblast
-		[276, 12], // death sentry
-		[256, 11], // shock web
-		[251, 11], // fireblast
-		[276, 13], // death sentry
-		[256, 13], // shock web
-		[251, 12], // fireblast
-		[276, 14], // death sentry
-		[256, 15], // shock web
-		[251, 14], // fireblast
-		[276, 15], // death sentry
-		[256, 16], // shock web
-		[251, 15], // fireblast
-		[276, 16], // death sentry
-		[256, 18], // shock web
-		[251, 16], // fireblast
-		[276, 17], // death sentry
-		[256, 20], // shock web
-		[251, 18], // fireblast
-		[276, 20], // death sentry
-		[256, 20], // shock web
-		[251, 20], // fireblast
-		[261, 20], // charged bolt sentry
+		[sdk.skills.FireBlast, 3], 			// points left 30
+		[sdk.skills.ShockWeb, 8], 			// points left 23
+		[sdk.skills.ChargedBoltSentry, 1], 	// points left 21
+		[sdk.skills.ClawMastery, 1], 		// points left 20
+		[sdk.skills.PsychicHammer, 1], 		// points left 19
+		[sdk.skills.BurstOfSpeed, 1], 		// points left 18
+		[sdk.skills.Fade, 1], 				// points left 17
+		[sdk.skills.WeaponBlock, 1], 		// points left 16
+		[sdk.skills.CloakOfShadows, 1], 	// points left 15
+		[sdk.skills.ShadowMaster, 1], 		// points left 13
+		[sdk.skills.DeathSentry, 1], 		// points left 11
+		[sdk.skills.MindBlast, 1], 			// points left 10
+		[sdk.skills.LightningSentry, 7], 	// points left 4
+		[sdk.skills.FireBlast, 6], 			// points left 3
+		[sdk.skills.ShockWeb, 8], 			// points left 1
+		[sdk.skills.WakeOfFire, 1], 		// points left 0
+		[sdk.skills.LightningSentry, 20, false],
+		[sdk.skills.DeathSentry, 10],
+		[sdk.skills.ShockWeb, 9],
+		[sdk.skills.FireBlast, 8],
+		[sdk.skills.DeathSentry, 12],
+		[sdk.skills.ShockWeb, 11],
+		[sdk.skills.FireBlast, 11],
+		[sdk.skills.DeathSentry, 13],
+		[sdk.skills.ShockWeb, 13],
+		[sdk.skills.FireBlast, 12],
+		[sdk.skills.DeathSentry, 14],
+		[sdk.skills.ShockWeb, 15],
+		[sdk.skills.FireBlast, 14],
+		[sdk.skills.DeathSentry, 15],
+		[sdk.skills.ShockWeb, 16],
+		[sdk.skills.FireBlast, 15],
+		[sdk.skills.DeathSentry, 16],
+		[sdk.skills.ShockWeb, 18],
+		[sdk.skills.FireBlast, 16],
+		[sdk.skills.DeathSentry, 17],
+		[sdk.skills.ShockWeb, 20],
+		[sdk.skills.FireBlast, 18],
+		[sdk.skills.DeathSentry, 20],
+		[sdk.skills.ShockWeb, 20],
+		[sdk.skills.FireBlast, 20],
+		[sdk.skills.ChargedBoltSentry, 20],
 	]
 };

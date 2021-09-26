@@ -6,31 +6,30 @@
 
 var build = {
 	caster: true,
-	skillstab: 17, //bone
-	wantedskills: [67, 84], // teeth, bonespear
-	usefulskills: [66, 68, 87], //ampdamage, bone armor, decrepify
+	skillstab: sdk.skills.tabs.PoisonBone,
+	wantedskills: [sdk.skills.Teeth, sdk.skills.BoneSpear],
+	usefulskills: [sdk.skills.AmplifyDamage, sdk.skills.BoneArmor, sdk.skills.Decrepify, sdk.skills.BoneWall],
 	mercAuraName: "Might",
-	mercAuraWanted: 98,
+	mercAuraWanted: sdk.skills.Might,
 	mercDiff: 1,
 	stats: [
 		["strength", 20], ["vitality", 70], ["strength", 35],
 		["energy", 85], ["vitality", "all"]
 	],
 	skills: [
-		[67, 4], // teeth -> Charlvl 4
-		[66, 1], // amplified damage - > Charlvl 5
-		[75, 1], // clay golem -> Charlvl 6
-		[68, 1], // bone armor -> Charlvl 7
-		[72, 1], // weaken -> Charlvl 8
-		[71, 1], // dim vision -> Charlvl 9
-		[67, 7], // teeth -> Charlvl 11
-		[79, 1], // Golem Mastery -> Charlvl 12
-		[76, 1], // iron maiden -> Charlvl 13
-		[74, 1], // corpse explosion -> Charlvl 14
-		[78, 3], // Bone Wall -> Charlvl 17
-		//[67, 10], // teeth -> Charlvl 17
-		[84, 6], // bone spear -> Charlvl 23
-		[87, 1], // decrep -> Charlvl 24
-		[84, 20], // bone spear -> Charlvl -> Until respec at 26
+		[sdk.skills.Teeth, 4], 			// charlvl 4
+		[sdk.skills.AmplifyDamage, 1], 	// charlvl 5
+		[sdk.skills.ClayGolem, 1], 		// charlvl 6
+		[sdk.skills.BoneArmor, 1], 		// charlvl 7
+		[sdk.skills.Weaken, 1], 		// charlvl 8
+		[sdk.skills.DimVision, 1], 		// charlvl 9
+		[sdk.skills.Teeth, 7], 			// charlvl 11
+		[sdk.skills.GolemMastery, 1], 	// charlvl 12
+		[sdk.skills.IronMaiden, 1], 	// charlvl 13
+		[sdk.skills.CorpseExplosion, 1],// charlvl 14
+		[sdk.skills.BoneWall, 3], 		// charlvl 17
+		[sdk.skills.BoneSpear, 6], 		// charlvl 23
+		[sdk.skills.Decrepify, 1], 		// charlvl 24
+		[sdk.skills.BoneSpear, 20], 	// charlvl -> Until respec at 26
 	]
 };

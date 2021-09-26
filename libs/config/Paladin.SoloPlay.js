@@ -52,7 +52,7 @@ function LoadConfig () {
 	Config.PrimarySlot = 0;
 	Config.PacketCasting = 1;
 	Config.WaypointMenu = true;
-	Config.Cubing = !me.classic ? me.getItem(sdk.quest.cube) : false;
+	Config.Cubing = !me.classic ? me.getItem(sdk.items.quest.Cube) : false;
 	Config.MakeRunewords = !me.classic ? true : false;
 
 	/* General logging. */

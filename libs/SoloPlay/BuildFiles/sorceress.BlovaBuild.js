@@ -1,75 +1,75 @@
 /*
  *    @filename   	Sorceress.BlovaBuild.js
- *	  @author	  	isid0re
+ *	  @author	  	isid0re, theBGuy
  *    @desc      	Sorceress blizzard nova build
  */
 
 var finalBuild = {
 	caster: true,
-	skillstab: 10, //cold
-	wantedskills: [59, 48], // blizzard, nova
-	usefulskills: [63, 65, 55], // light-mastery, cold mastery
-	precastSkills: [40], // Frozen armor
+	skillstab: sdk.skills.tabs.Cold,
+	wantedskills: [sdk.skills.Blizzard, sdk.skills.Nova],
+	usefulskills: [sdk.skills.LightningMastery, sdk.skills.ColdMastery, sdk.skills.GlacialSpike],
+	precastSkills: [sdk.skills.FrozenArmor],
 	mercAuraName: "Holy Freeze",
-	mercAuraWanted: 114,
+	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
 		["strength", 156], ["dexterity", 35], ["vitality", "all"]
 	],
 	skills: [
-		[37, 1], // warmth
-		[40, 1], // Frozen Armor
-		[39, 1], // ice bolt
-		[45, 1], // ice blast
-		[42, 1], // Static
-		[43, 1], // telekensis
-		[44, 1], // Frost nova
-		[54, 1], // Teleport
-		[55, 1], // gspike
-		[59, 1], // blizzard
-		[65, 1], // cold mastery
-		[48, 20], // nova
-		[63, 20], // light-mastery
-		[59, 20], // blizzard
-		[65, 5], // cold mastery
-		[45, 20], // ice blast
-		[55, 5], // gspike
-		[39, 14], // ice bolt
+		[sdk.skills.Warmth, 1],
+		[sdk.skills.FrozenArmor, 1],
+		[sdk.skills.IceBolt, 1],
+		[sdk.skills.IceBlast, 1],
+		[sdk.skills.StaticField, 1],
+		[sdk.skills.Telekinesis, 1],
+		[sdk.skills.FrostNova, 1],
+		[sdk.skills.Teleport, 1],
+		[sdk.skills.GlacialSpike, 1],
+		[sdk.skills.Blizzard, 1],
+		[sdk.skills.ColdMastery, 1],
+		[sdk.skills.Nova, 20],
+		[sdk.skills.LightningMastery, 20],
+		[sdk.skills.Blizzard, 20],
+		[sdk.skills.ColdMastery, 5],
+		[sdk.skills.IceBlast, 20],
+		[sdk.skills.GlacialSpike, 5],
+		[sdk.skills.IceBolt, 14],
 	],
 	autoEquipTiers: [ // autoequip final gear
-		//weapon
-		"[Type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000", // HotO
-		//Helmet
+		// Weapon
+		"[type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000", // HotO
+		// Helmet
 		"[name] == diadem && [quality] == unique && [flag] != ethereal # [fcr] == 25 # [tier] == 100000 + tierscore(item)", //griffons
-		//belt
+		// Belt
 		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 100000 + tierscore(item)", //arach's
-		//boots
+		// Boots
 		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 50 # [tier] == 5000 + tierscore(item)", //war traveler
 		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)", //sandstorm treks
-		//armor
+		// Armor
 		"[type] == armor && [flag] == runeword  && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 100000", //CoH
-		//shield
+		// Shield
 		"[type] == shield # [fcr] >= 25 && [maxmana] >= 89 # [tier] == 100000 + tierscore(item)", //spirit
-		//gloves
+		// Gloves
 		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 # [tier] == 100000 + tierscore(item)", //magefist
-		//ammy
+		// Amulet
 		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 100000 + tierscore(item)", //maras
-		//rings
+		// Rings
 		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", //soj
 		"[name] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] >= 3 # [tier] == 100000", //bk ring
-		//Charms
+		// Charms
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 3 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [fhr] >= 5 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [maxhp] == 20 && [maxmana] == 17 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # [coldskilltab] == 1 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # [lightningskilltab] == 1 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		//Switch
+		// Switch
 		"[name] == crystalsword && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
 		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == 50000 + tierscore(item)", //Any 1+ all skill shield
 		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000", //spirit
-		//merc
+		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
-		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000",	//Eth Andy's
+		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	]
 };

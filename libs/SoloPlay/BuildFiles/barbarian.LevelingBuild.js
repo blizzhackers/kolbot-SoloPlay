@@ -6,11 +6,11 @@
 
 var build = {
 	caster: false,
-	skillstab: 32, // Combat skills
-	wantedskills: [149, 147, 133, 127], // Battle Orders, Frenzy, Double Swing, Sword Mastery
-	usefulskills: [153, 145, 148, 138, 142], // Natural Resistance, Iron Skin, Increased Speed, Shout, Find Item
+	skillstab: sdk.skills.tabs.CombatBarb,
+	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing, sdk.skills.SwordMastery],
+	usefulskills: [sdk.skills.NaturalResistance, sdk.skills.IronSkin, sdk.skills.IncreasedSpeed, sdk.skills.Shout, sdk.skills.FindItem],
 	mercAuraName: "Might",
-	mercAuraWanted: 98,
+	mercAuraWanted: sdk.skills.Might,
 	mercDiff: 1,
 	stats: [
 		["dexterity", 136], ["strength", 150], ["vitality", 125],
@@ -18,21 +18,21 @@ var build = {
 	],
 	skills: [
 		// Total points at time of respec 79
-		[127, 11, true], // Sword Mastery -> total left 68
-		[142, 1, true], // Find Item -> total left 66
-		[133, 9, true], // Double Swing -> total left 56
-		[153, 5, true], // Natural Resistance -> total left 51
-		[147, 9, true], // Frenzy -> total left 42
-		[152, 5, true], // Berserk -> total left 35
-		[154, 5, true], // War Cry -> total left 25
-		[155, 1, true], // Battle Command -> total left 24
-		[149, 8, true], // Battle Orders -> total left 16
-		[137, 16, true], // Taunt -> total left 0
+		[sdk.skills.SwordMastery, 11, true], 	// total left 68
+		[sdk.skills.FindItem, 1, true], 		// total left 66
+		[sdk.skills.DoubleSwing, 9, true], 		// total left 56
+		[sdk.skills.NaturalResistance, 5, true],// total left 51
+		[sdk.skills.Frenzy, 9, true], 			// total left 42
+		[sdk.skills.Berserk, 5, true], 			// total left 35
+		[sdk.skills.WarCry, 5, true], 			// total left 25
+		[sdk.skills.BattleCommand, 1, true], 	// total left 24
+		[sdk.skills.BattleOrders, 8, true], 	// total left 16
+		[sdk.skills.Taunt, 16, true], // total left 0
 		// End of respec points, Start of Leveling build - total points left to use 31
-		[137, 20, false], // Taunt -> charlvl 75 -> total left 27
-		[149, 10, false], // Battle Orders -> charlvl 77 -> total left 25
-		[127, 20, false], // Sword Mastery -> charlvl 84 -> total left 18
-		[147, 20, false], // Frenzy -> total left 7
-		[149, 15, false], // Battle Orders -> total left 0
+		[sdk.skills.Taunt, 20, false], 			// charlvl 75 -> total left 27
+		[sdk.skills.BattleOrders, 10, false], 	// charlvl 77 -> total left 25
+		[sdk.skills.SwordMastery, 20, false], 	// charlvl 84 -> total left 18
+		[sdk.skills.Frenzy, 20, false], 		// total left 7
+		[sdk.skills.BattleOrders, 15, false], 	// total left 0
 	]
 };

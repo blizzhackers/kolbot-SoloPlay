@@ -6,12 +6,12 @@
 
 var finalBuild = {
 	caster: false,
-	skillstab: 2, // Jav N Spear Skills
-	wantedskills: [24, 34], // Charged Strike, Lightning Strike
-	usefulskills: [9, 23, 32, 33], // Critical Strike, Penetrate, Valkyrie, Pierce
-	precastSkills: [32], // Valkyrie
+	skillstab: sdk.skills.tabs.JavelinSpear,
+	wantedskills: [sdk.skills.ChargedStrike, 34],
+	usefulskills: [sdk.skills.CriticalStrike, 23, 32, 33],
+	precastSkills: [sdk.skills.Valkyrie],
 	mercAuraName: "Holy Freeze",
-	mercAuraWanted: 114,
+	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
 		["strength", 34], ["vitality", 30], ["dexterity", 47], 
@@ -21,60 +21,60 @@ var finalBuild = {
 		["strength", 156], ["vitality", "all"],
 	],
 	skills: [
-		[10, 1, false], // Jab 1 // -> charlvl 2
-		[8, 1, false], // Inner Sight 1 // -> charlvl 3
-		[9, 2, false], // Critical Strike 2 // -> charlvl 5
-		[14, 1, false], // Power Strike 1 // -> charlvl 6
-		[13, 1, false], // Dodge 1 // -> charlvl 7
-		[14, 4, false], // Power Strike 4 // -> charlvl 11
-		[17, 1, false], // Slow Missles 1 // -> charlvl 12
-		[18, 1, false], // Avoid 1 // -> charlvl 13
-		[14, 8, false], // Power Strike 8 // -> charlvl 17
-		[24, 1, false], // Charged Strike 1 // -> charlvl 18
-		[23, 1, false], // Penetrate 1 // -> charlvl 18
-		[24, 5, false], // Charged Strike 5 // -> charlvl 23
-		[29, 1, false], // Evade 1 // charLvl 24
-		[28, 1, false], // Decoy 1 // -> charlvl 25
-		[24, 9, false], // Charged Strike 9 // -> charlvl 29
-		[32, 1, false], // Valkyrie 1 // -> charlvl 30
-		[34, 1, false], // Lightning Strike 1 // -> charlvl 31
-		[24, 20, true], // Charged Strike 20 // -> charlvl 42
-		[34, 20, true], // Lightning Strike 20 // -> charlvl 63
-		[35, 20, true], // Lightning Fury 20 // -> charlvl ?
-		[28, 5, false], // Decoy 5 // -> charlvl 47
-		[32, 17, true], // Valkyrie 20 // -> charlvl ? 
-		[14, 20, false], // Power Strike 20 // -> charlvl ?
+		[sdk.skills.Jab, 1, false], 			// charlvl 2
+		[sdk.skills.InnerSight, 1, false], 		// charlvl 3
+		[sdk.skills.CriticalStrike, 2, false], 	// charlvl 5
+		[sdk.skills.PowerStrike, 1, false], 	// charlvl 6
+		[sdk.skills.Dodge, 1, false], 			// charlvl 7
+		[sdk.skills.PowerStrike, 4, false], 	// charlvl 11
+		[sdk.skills.SlowMissiles, 1, false], 	// charlvl 12
+		[sdk.skills.Avoid, 1, false], 			// charlvl 13
+		[sdk.skills.PowerStrike, 8, false], 	// charlvl 17
+		[sdk.skills.ChargedStrike, 1, false], 	// charlvl 18
+		[sdk.skills.Penetrate, 1, false], 		// charlvl 18
+		[sdk.skills.ChargedStrike, 5, false], 	// charlvl 23
+		[sdk.skills.Evade, 1, false], 			// charLvl 24
+		[sdk.skills.Decoy, 1, false], 			// charlvl 25
+		[sdk.skills.ChargedStrike, 9, false], 	// charlvl 29
+		[sdk.skills.Valkyrie, 1, false], 		// charlvl 30
+		[sdk.skills.LightningStrike, 1, false], // charlvl 31
+		[sdk.skills.ChargedStrike, 20, true], 	// charlvl 42
+		[sdk.skills.LightningStrike, 20, true], // charlvl 63
+		[sdk.skills.LightningFury, 20, true], 	// charlvl ?
+		[sdk.skills.Decoy, 5, false], 			// charlvl 47
+		[sdk.skills.Valkyrie, 17, true], 		// charlvl ? 
+		[sdk.skills.PowerStrike, 20, false], 	// charlvl ?
 	],
 	autoEquipTiers: [ // autoequip final gear
-		//weapon
+		// Weapon
 		"[name] == ceremonialjavelin && [quality] == unique # [itemchargedskill] >= 0 # [tier] == 100000 + tierscore(item)", //Titan's Revenge
-		//Helmet
+		// Helmet
 		"[name] == shako && [quality] == unique && [flag] != ethereal # [itemallskills] == 2 # [tier] == 100000 + tierscore(item)", //harlequin's crest
-		//boots
+		// Boots
 		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)", //sandstorm treks
-		//belt
+		// Belt
 		"[name] == warbelt && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)", //thundergod's vigor
-		//armor
+		// Armor
 		"[type] == armor && [flag] == runeword  && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 110000", //CoH
-		//shield
+		// Shield
 		"[type] == shield # [fcr] >= 25 && [maxmana] >= 89 # [tier] == 110000 + tierscore(item)", //spirit
-		//ammy
+		// Amulet
 		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 110000", // highlords
-		//rings
+		// Rings
 		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == # [tier] == 100000", // raven frost
 		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000", // Perfect raven frost
 		"[name] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == 100000", //Wisp
 		"[name] == ring && [quality] == unique # [itemabsorblightpercent] == 20 # [tier] == 110000", //Perfect Wisp
-		//Charms
+		// Charms
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 5 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [fhr] >= 5 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # [javelinandspearskilltab] == 1 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		//Switch
+		// Switch
 		"[name] == crystalsword && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
 		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000", //spirit
-		//merc
+		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
-		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000",	//Eth Andy's
+		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	]
 };

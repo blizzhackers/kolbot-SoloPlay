@@ -1760,7 +1760,8 @@ Misc.addSocketables = function () {
 				case 2: // Shield
 				case 69: // Voodoo Heads
 				case 70: // Auric Shields
-					if ([582, 583, 584, 585, 586].indexOf(items[i].classid) > -1) {		// Diamonds
+					// Diamonds
+					if ([582, 583, 584, 585, 586].indexOf(items[i].classid) > -1) {
 						if (highestGemAvailable(items[i], multiple)) {
 							if (item.getStat(194) > 1) {
 								if (multiple.length < item.getStat(194)) {
@@ -1791,7 +1792,8 @@ Misc.addSocketables = function () {
 				case 71: // Barb Helm
 				case 75: // Circlet
 				case 72: // Druid Pelts
-					if ([577, 578, 579, 580, 581].indexOf(items[i].classid) > -1) {		// Ruby
+					// Rubys
+					if ([577, 578, 579, 580, 581].indexOf(items[i].classid) > -1) {
 						if (highestGemAvailable(items[i], multiple)) {
 							if (item.getStat(194) > 1) {
 								if (multiple.length < item.getStat(194)) {
@@ -1819,7 +1821,8 @@ Misc.addSocketables = function () {
 					break;
 				default:
 					if (!Check.currentBuild().caster) {
-						if ([597, 598, 599, 600, 601].indexOf(items[i].classid) > -1) {		// Skulls
+						// Skulls
+						if ([597, 598, 599, 600, 601].indexOf(items[i].classid) > -1) {
 							if (highestGemAvailable(items[i], multiple)) {
 								if (item.getStat(194) > 1) {
 									if (multiple.length < item.getStat(194)) {
@@ -1902,8 +1905,9 @@ Misc.addSocketableToItem = function (item, rune) {
 	if (item.mode === 1) {
 		let i, tick, bodyLoc = item.bodylocation;
 
-		if (!Storage.Inventory.CanFit(item)) { //No space to get the item back
-			print("No space to get item back");
+		// No space to get the item back
+		if (!Storage.Inventory.CanFit(item)) {
+			print("ÿc8AddSocketableToItemÿc0 :: No space to get item back");
 			return false;
 		} else {
 			if (item.location === 7) {
@@ -1965,7 +1969,8 @@ Misc.logItem = function (action, unit, keptLine) {
 
 	var i;
 
-	if (Config.loaded) { // Don't check for config settings if there's no config loaded	
+	// Don't check for config settings if there's no config loaded	
+	if (Config.loaded) {
 		if (!Config.LogKeys && ["pk1", "pk2", "pk3"].indexOf(unit.code) > -1) {
 			return false;
 		}
@@ -2276,7 +2281,8 @@ Misc.buyItem = function (unit, shiftBuy, gamble) {
 		return false;
 	}
 
-	if (me.getStat(14) + me.getStat(15) < unit.getItemCost(0)) { // Can we afford the item?
+	// Can we afford the item?
+	if (me.getStat(14) + me.getStat(15) < unit.getItemCost(0)) {
 		return false;
 	}
 
@@ -2301,7 +2307,8 @@ Misc.buyItem = function (unit, shiftBuy, gamble) {
 	return false;
 };
 
-Packet.openMenu = function (unit) { // singleplayer delay(0) fix
+// singleplayer delay(0) fix
+Packet.openMenu = function (unit) {
 	if (unit.type !== 1) {
 		throw new Error("openMenu: Must be used on NPCs.");
 	}

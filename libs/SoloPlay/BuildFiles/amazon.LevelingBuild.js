@@ -6,11 +6,11 @@
 
 var build = {
 	caster: false,
-	skillstab: 2, // Jav N Spear Skills
-	wantedskills: [24, 34], // Charged Strike, Lightning Strike
-	usefulskills: [9, 23, 32, 33], // Critical Strike, Penetrate, Valkyrie, Pierce
+	skillstab: sdk.skills.tabs.JavelinSpear,
+	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
+	usefulskills: [sdk.skills.CriticalStrike, sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
 	mercAuraName: "Holy Freeze",
-	mercAuraWanted: 114,
+	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
 		["strength", 34], ["vitality", 30], ["dexterity", 47], 
@@ -21,21 +21,21 @@ var build = {
 	],
 	skills: [
 		// Points at respec 71
-		[32, 1], 	// Valkyrie 1 -> points left 64
-		[35, 1], 	// Lightning Fury -> points left 57
-		[34, 1], 	// Lightning Strike -> points left 56
-		[33, 1], 	// Pierce -> points left 53
-		[24, 10], 	// Charged Strike -> points left 44
-		[34, 10], 	// Lightning Strike -> points left 35
-		[25, 20], 	// Plague Javelin -> points left 16
-		[28, 5], 	// Decoy -> points left 11
-		[24, 15], 	// Charged Strike -> points left 7
-		[34, 15], 	// Lightning Strike -> points left 2
-		[24, 17], 	// Charged Strike -> points left 0
-		[34, 20, false], // Lightning Strike
-		[24, 20, false], // Lightning Strike
-		[35, 20, false], // Lightning Fury
-		[32, 17, false], // Valkyrie
-		[14, 20, false], // Power Strike
+		[sdk.skills.Valkyrie, 1], 			// points left 64
+		[sdk.skills.LightningFury, 1], 		// points left 57
+		[sdk.skills.LightningStrike, 1], 	// points left 56
+		[sdk.skills.Pierce, 1], 			// points left 53
+		[sdk.skills.ChargedStrike, 10], 	// points left 44
+		[sdk.skills.LightningStrike, 10], 	// points left 35
+		[sdk.skills.PlagueJavelin, 20], 	// points left 16
+		[sdk.skills.Decoy, 5], 				// points left 11
+		[sdk.skills.ChargedStrike, 15], 	// points left 7
+		[sdk.skills.LightningStrike, 15], 	// points left 2
+		[sdk.skills.ChargedStrike, 17], 	// points left 0
+		[sdk.skills.LightningStrike, 20, false],
+		[sdk.skills.ChargedStrike, 20, false],
+		[sdk.skills.LightningFury, 20, false],
+		[sdk.skills.Valkyrie, 17, false],
+		[sdk.skills.PowerStrike, 20, false],
 	]
 };
