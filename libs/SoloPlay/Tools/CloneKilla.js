@@ -48,7 +48,7 @@ function main() {
 		}
 	}
 
-	quit();
+	scriptBroadcast("quit");
 
 	return true;
 }

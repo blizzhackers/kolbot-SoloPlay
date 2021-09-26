@@ -628,7 +628,7 @@ function main () {
 				me.maxgametime = 0;
 
 				if (Config.KillDclone) {
-					load("SoloPlay/Tools/CloneKilla.js");
+					load("libs/SoloPlay/Tools/CloneKilla.js");
 				}
 			}
 
