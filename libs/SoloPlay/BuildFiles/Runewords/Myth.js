@@ -30,4 +30,4 @@ Config.Runewords.push([Runeword.Myth, "serpentskinarmor"]);
 Config.Runewords.push([Runeword.Myth, "trellisedarmor"]);
 Config.Runewords.push([Runeword.Myth, "wyrmhide"]);
 
-Config.KeepRunewords.push("[Type] == armor # [barbarianskills] == 2");
+Config.KeepRunewords.push("[type] == armor # [barbarianskills] == 2");

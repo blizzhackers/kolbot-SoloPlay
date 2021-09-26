@@ -23,6 +23,7 @@ if (me.barbarian) {
 	Config.Runewords.push([Runeword.VoiceofReason, "phaseblade"]);
 	Config.Runewords.push([Runeword.VoiceofReason, "tusksword"]);
 	Config.Runewords.push([Runeword.VoiceofReason, "zweihander"]);
+	Config.Runewords.push([Runeword.VoiceofReason, "legendsword"]);
 	Config.Runewords.push([Runeword.VoiceofReason, "highlandblade"]);
 	Config.Runewords.push([Runeword.VoiceofReason, "balrogblade"]);
 	Config.Runewords.push([Runeword.VoiceofReason, "championsword"]);

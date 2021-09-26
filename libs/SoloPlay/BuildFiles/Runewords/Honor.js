@@ -22,7 +22,7 @@ if (me.getItem(sdk.runes.Sol)) {
 		}
 	}
 
-	NTIP.addLine("[Type] == Sword && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [wsm] <= 10 && [strreq] <= 187 # [sockets] == 5 # [maxquantity] == 1");
+	NTIP.addLine("[type] == Sword && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [wsm] <= 10 && [strreq] <= 187 # [sockets] == 5 # [maxquantity] == 1");
 }
 
 Config.Runewords.push([Runeword.Honor, "dimensionalblade"]);

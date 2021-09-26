@@ -14,7 +14,7 @@ if (!Check.haveBase("colossusblade", 6) && me.getItem(sdk.runes.Zod)) {
 	NTIP.addLine("[name] == colossusblade && [flag] == ethereal && [quality] == normal # [sockets] == 0 # [maxquantity] == 1");
 }
 
-Config.Recipes.push([Recipe.Socket.Weapon, "Colossus Blade", Roll.Eth]);
-Config.Runewords.push([Runeword.BreathoftheDying, "Colossus Blade"]);
+Config.Recipes.push([Recipe.Socket.Weapon, "colossusblade", Roll.Eth]);
+Config.Runewords.push([Runeword.BreathoftheDying, "colossusblade"]);
 
-Config.KeepRunewords.push("[Type] == sword # [ias] >= 60 && [enhanceddamage] >= 350");
+Config.KeepRunewords.push("[type] == sword # [ias] >= 60 && [enhanceddamage] >= 350");

@@ -277,7 +277,7 @@ function LoadConfig () {
 		let WWS;
 		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
-		NTIP.addLine("[name] >= vexrune && [name] <= zodrune");
+		NTIP.addLine("[name] >= Vexrune && [name] <= Zodrune");
 
 		// FinalBuild specific setup
 		switch (SetUp.finalBuild) {
