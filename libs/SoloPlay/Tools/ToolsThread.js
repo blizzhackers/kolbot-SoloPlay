@@ -575,14 +575,16 @@ function main () {
 			}
 
 			break;
-		case 0x06: // "%Name1 was Slain by %Name2"
+		case 0x06:
+			// "%Name1 was Slain by %Name2"
 			if (Config.AntiHostile && param2 === 0x00 && name2 === me.name) {
 				scriptBroadcast("mugshot " + name1);
 			}
 
 			break;
 		case 0x07:
-			if (Config.AntiHostile && param2 === 0x03) { // "%Player has declared hostility towards you."
+			// "%Player has declared hostility towards you."
+			if (Config.AntiHostile && param2 === 0x03) {
 				scriptBroadcast("findHostiles");
 			}
 
@@ -596,6 +598,7 @@ function main () {
 				break;
 			}
 
+			// Only do this in expansion
 			if (Config.SoJWaitTime && me.gametype === 1) { // only do this in expansion
 				D2Bot.printToConsole(param1 + " Stones of Jordan Sold to Merchants on IP " + me.gameserverip.split(".")[3], 7);
 				Messaging.sendToScript("default.dbj", "soj");
@@ -611,7 +614,8 @@ function main () {
 				break;
 			}
 
-			if (Config.StopOnDClone && me.gametype === 1 && me.hell) { // only do this in expansion
+			// Only do this in expansion
+			if (Config.StopOnDClone && me.gametype === 1 && me.hell) {
 				D2Bot.printToConsole("Diablo Walks the Earth", 7);
 
 				cloneWalked = true;
@@ -624,7 +628,7 @@ function main () {
 				me.maxgametime = 0;
 
 				if (Config.KillDclone) {
-					load("tools/clonekilla.js");
+					load("SoloPlay/Tools/CloneKilla.js");
 				}
 			}
 

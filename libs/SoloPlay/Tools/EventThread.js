@@ -166,6 +166,8 @@ function main () {
 					}
 
 					this.resumeThreadsAfterEvent();
+				} else {
+					action.shift();
 				}
 			}
 		} catch (e) {

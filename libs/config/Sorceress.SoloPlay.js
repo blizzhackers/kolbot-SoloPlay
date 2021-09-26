@@ -64,6 +64,12 @@ function LoadConfig () {
 	Config.LogHighRunes = true;
 	Config.ShowCubingInfo = true;
 
+	/* DClone. */
+	Config.StopOnDClone = true; // Go to town and idle as soon as Diablo walks the Earth
+	Config.SoJWaitTime = 5; 	// Time in minutes to wait for another SoJ sale before leaving game. 0 = disabled
+	Config.KillDclone = true;
+	Config.DCloneQuit = false; 	// 1 = quit when Diablo walks, 2 = quit on soj sales, false = disabled
+
 	/* Town configuration. */
 	Config.HealHP = 99;
 	Config.HealMP = 99;
