@@ -7,8 +7,8 @@
 var finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.JavelinSpear,
-	wantedskills: [sdk.skills.ChargedStrike, 34],
-	usefulskills: [sdk.skills.CriticalStrike, 23, 32, 33],
+	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
+	usefulskills: [sdk.skills.CriticalStrike, sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
 	precastSkills: [sdk.skills.Valkyrie],
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: sdk.skills.HolyFreeze,

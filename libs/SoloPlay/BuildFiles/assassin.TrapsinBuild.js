@@ -56,7 +56,7 @@ var finalBuild = {
 		// Belt
 		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 100000 + tierscore(item)", //arach's
 		// Boots
-		"[name] == sharkskinboots && [quality] == unique && [flag] != ethereal # [MaxHP] >= 65 # [tier] == 100000 + tierscore(item)", //waterwalks
+		"[name] == sharkskinboots && [quality] == unique && [flag] != ethereal # [maxhp] >= 65 # [tier] == 100000 + tierscore(item)", //waterwalks
 		// Armor
 		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000", //Enigma
 		// Shield
