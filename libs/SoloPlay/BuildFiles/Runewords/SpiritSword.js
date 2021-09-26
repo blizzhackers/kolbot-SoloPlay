@@ -15,11 +15,11 @@ if (!Check.haveItem("sword", "runeword", "Spirit") && !me.hell) {
 	}
 
 	if (!me.barbarian) {
-		NTIP.addLine("([name] == broadsword || [name] == crystalsword) && [flag] != ethereal && [quality] == normal && [Level] >= 26 && [Level] <= 40 # ([sockets] == 0 || [sockets] == 4) # [maxquantity] == 1");
+		NTIP.addLine("([name] == broadsword || [name] == crystalsword) && [flag] != ethereal && [quality] == normal && [level] >= 26 && [level] <= 40 # ([sockets] == 0 || [sockets] == 4) # [maxquantity] == 1");
 	} else {
 		// Have Thul and Amn before looking for base
 		if (me.getItem(sdk.runes.Thul) && me.getItem(sdk.runes.Amn)) {
-			NTIP.addLine("([name] == BroadSword || [name] == CrystalSword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
+			NTIP.addLine("([name] == broadsword || [name] == crystalsword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
 		}
 	}
 	
@@ -31,7 +31,7 @@ if (!Check.haveItem("sword", "runeword", "Spirit") && !me.hell) {
 	} else {
 		// Have Thul and Amn before looking for base
 		if (me.getItem(sdk.runes.Thul) && me.getItem(sdk.runes.Amn)) {
-			NTIP.addLine("([name] == BroadSword || [name] == CrystalSword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
+			NTIP.addLine("([name] == broadsword || [name] == crystalsword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
 		}
 	}
 }

@@ -21,13 +21,14 @@ if (Item.getQuantityOwned(me.getItem(sdk.runes.Ber) < 2)) {
 	Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
 }
 
-Config.Recipes.push([Recipe.Socket.Weapon, "Giant Thresher"]);
-Config.Recipes.push([Recipe.Socket.Weapon, "Great Poleaxe"]);
-Config.Recipes.push([Recipe.Socket.Weapon, "Cryptic Axe"]);
+Config.Recipes.push([Recipe.Socket.Weapon, "giantthresher"]);
+Config.Recipes.push([Recipe.Socket.Weapon, "greatpoleaxe"]);
+Config.Recipes.push([Recipe.Socket.Weapon, "crypticaxe"]);
 Config.Recipes.push([Recipe.Socket.Weapon, "thresher"]);
 
-Config.Runewords.push([Runeword.Infinity, "Giant Thresher"]);
-Config.Runewords.push([Runeword.Infinity, "Great Poleaxe"]);
-Config.Runewords.push([Runeword.Infinity, "Cryptic Axe"]);
-Config.Runewords.push([Runeword.Infinity, "Thresher"]);
+Config.Runewords.push([Runeword.Infinity, "giantthresher"]);
+Config.Runewords.push([Runeword.Infinity, "greatpoleaxe"]);
+Config.Runewords.push([Runeword.Infinity, "crypticaxe"]);
+Config.Runewords.push([Runeword.Infinity, "thresher"]);
+
 Config.KeepRunewords.push("[type] == polearm # [convictionaura] >= 13");

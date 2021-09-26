@@ -2,6 +2,12 @@
     let sdk = {
         wpIDs: [119, 145, 156, 157, 237, 238, 288, 323, 324, 398, 402, 429, 494, 496, 511, 539],
 
+        difficulty: {
+            Normal: 0,
+            Nightmare: 1,
+            Hell: 2,
+        },
+
         areas: {
             None: 0,
 
@@ -2438,6 +2444,12 @@
             Soulstone: 551,
             BookOfSkill: 552,
             LamEsensTome: 548,
+            KeyOfTerror: 647,
+            KeyOfHate: 648,
+            KeyOfDestruction: 649,
+            DiablosHorn: 650,
+            BaalsEye: 651,
+            MephistosBrain: 652,
         },
         runes: {
             El: 610,

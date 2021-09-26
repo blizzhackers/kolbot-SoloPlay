@@ -38,8 +38,8 @@ if (me.paladin) {
 		Config.Recipes.push([Recipe.Rune, "Fal Rune"]);
 	}
 
-	Config.Recipes.push([Recipe.Socket.Weapon, "Phase Blade", Roll.NonEth]);
-	Config.Runewords.push([Runeword.VoiceofReason, "Phase Blade"]);
+	Config.Recipes.push([Recipe.Socket.Weapon, "phaseblade", Roll.NonEth]);
+	Config.Runewords.push([Runeword.VoiceofReason, "phaseblade"]);
 }
 
 Config.KeepRunewords.push("[type] == sword # [passivecoldpierce] >= 24");

@@ -6,7 +6,7 @@ var Insight = [
 NTIP.arrayLooping(Insight);
 
 if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Insight && !Check.haveBase("polearm", 4)) {
-	NTIP.addLine("[name] == voulge && [flag] != ethereal && [quality] == normal && [Level] >= 26 && [Level] <= 40 # [sockets] == 0 # [maxquantity] == 1");
+	NTIP.addLine("[name] == voulge && [flag] != ethereal && [quality] == normal && [level] >= 26 && [level] <= 40 # [sockets] == 0 # [maxquantity] == 1");
 }
 
 Config.Recipes.push([Recipe.Socket.Weapon, "giantthresher"]);

@@ -40,7 +40,7 @@ var SetUp = {
 	},
 
 	// mine - theBGuy
-	//Storage Settings
+	// Storage Settings
 	sortSettings: {
 		ItemsSortedFromLeft: [], // default: everything not in Config.ItemsSortedFromRight
 		ItemsSortedFromRight: [
@@ -94,7 +94,9 @@ var SetUp = {
 			case "Cold":
 			case "Meteorb":
 			case "Blizzballer":
-				respec = Check.haveItem("amulet", "set", "Tal Rasha's Adjudication") && Check.haveItem("belt", "set", "Tal Rasha's Fine-Spun Cloth") && Check.haveItem("armor", "set", "Tal Rasha's Guardianship") && Check.haveItem("swirlingcrystal", "set", "Tal Rasha's Lidless Eye") ? me.charlvl : 100; //Tal ammy, belt, armor, and wep
+				// Tal amulet, belt, armor, and orb
+				respec = Check.haveItem("amulet", "set", "Tal Rasha's Adjudication") && Check.haveItem("belt", "set", "Tal Rasha's Fine-Spun Cloth") &&
+					Check.haveItem("armor", "set", "Tal Rasha's Guardianship") && Check.haveItem("swirlingcrystal", "set", "Tal Rasha's Lidless Eye") ? me.charlvl : 100;
 				break;
 			case "Bone":
 			case "Poison":
@@ -128,7 +130,10 @@ var SetUp = {
 				respec = Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream") ? me.charlvl : 100;
 				break;
 			case "Immortalwhirl":
-				respec = Check.haveItem("mace", "set", "Immortal King's Stone Crusher") && Check.haveItem("boots", "set", "Immortal King's Pillar") && Check.haveItem("belt", "set", "Immortal King's Detail") && Check.haveItem("armor", "set", "Immortal King's Soul Cage") && Check.haveItem("primalhelm", "set", "Immortal King's Will") && Check.haveItem("gloves", "set", "Immortal King's Forge") ? me.charlvl : 100; // Whole IK Set
+				// Whole IK Set
+				respec = Check.haveItem("mace", "set", "Immortal King's Stone Crusher") && Check.haveItem("boots", "set", "Immortal King's Pillar") &&
+					Check.haveItem("belt", "set", "Immortal King's Detail") && Check.haveItem("armor", "set", "Immortal King's Soul Cage") &&
+					Check.haveItem("primalhelm", "set", "Immortal King's Will") && Check.haveItem("gloves", "set", "Immortal King's Forge") ? me.charlvl : 100;
 				break;
 			default:
 				respec = 100;
@@ -183,19 +188,23 @@ var SetUp = {
 		if (SetUp.getBuild() === SetUp.finalBuild) {
 			switch (specType) {
 			case "skills":
-				specCheck = JSON.parse(JSON.stringify(finalBuild.skills));	//push skills value from template file
+				// Push skills value from template file
+				specCheck = JSON.parse(JSON.stringify(finalBuild.skills));
 				break;
 			case "stats":
-				specCheck = JSON.parse(JSON.stringify(finalBuild.stats)); //push stats value from template file
+				// Push stats value from template file
+				specCheck = JSON.parse(JSON.stringify(finalBuild.stats));
 				break;
 			}
 		} else {
 			switch (specType) {
 			case "skills":
-				specCheck = JSON.parse(JSON.stringify(build.skills));	//push skills value from template file
+				// Push skills value from template file
+				specCheck = JSON.parse(JSON.stringify(build.skills));
 				break;
 			case "stats":
-				specCheck = JSON.parse(JSON.stringify(build.stats)); //push stats value from template file
+				// Push stats value from template file
+				specCheck = JSON.parse(JSON.stringify(build.stats));
 				break;
 			}
 		}
@@ -251,35 +260,37 @@ var nipItems = {
 		"[name] == supermanapotion",
 		"[name] == rejuvenationpotion",
 		"[name] == fullrejuvenationpotion",
-		"[name] == ScrollofTownPortal # # [MaxQuantity] == 20",
-		"[name] == scrollofidentify # # [MaxQuantity] == 20",
+		"[name] == scrolloftownportal # # [maxquantity] == 20",
+		"[name] == scrollofidentify # # [maxquantity] == 20",
 		"[name] == key # # [maxquantity] == 12",
 	],
 
 	Gems: [
-		"[name] == perfecttopaz # # [MaxQuantity] == 2",
-		"[name] == perfectdiamond # # [MaxQuantity] == 2",
-		"[name] == perfectruby # # [MaxQuantity] == 2",
+		"[name] == perfecttopaz # # [maxquantity] == 2",
+		"[name] == perfectdiamond # # [maxquantity] == 2",
+		"[name] == perfectruby # # [maxquantity] == 2",
 	],
 
 	Quest: [
-		"[Name] == ScrollOfInifuss",
-		"[Name] == KeyToTheCairnStones",
-		"[name] == BookOfSkill",
-		"[Name] == HoradricCube",
-		"[Name] == ShaftOfTheHoradricStaff",
-		"[Name] == TopOfTheHoradricStaff",
-		"[Name] == HoradricStaff",
-		"[Name] == ajadefigurine",
-		"[Name] == TheGoldenBird",
-		"[Name] == potionoflife",
-		"[Name] == lamesen'stome",
-		"[Name] == Khalim'sEye",
-		"[Name] == Khalim'sHeart",
-		"[Name] == Khalim'sBrain",
-		"[Name] == Khalim'sFlail",
-		"[Name] == Khalim'sWill",
-		"[Name] == ScrollofResistance",
+		"[name] == mephisto'ssoulstone",
+		"[name] == hellforgehammer",
+		"[name] == scrollofinifuss",
+		"[name] == keytothecairnstones",
+		"[name] == bookofskill",
+		"[name] == horadriccube",
+		"[name] == shaftofthehoradricstaff",
+		"[name] == topofthehoradricstaff",
+		"[name] == horadricstaff",
+		"[name] == ajadefigurine",
+		"[name] == thegoldenbird",
+		"[name] == potionoflife",
+		"[name] == lamesen'stome",
+		"[name] == khalim'seye",
+		"[name] == khalim'sheart",
+		"[name] == khalim'sbrain",
+		"[name] == khalim'sflail",
+		"[name] == khalim'swill",
+		"[name] == scrollofresistance",
 	],
 };
 
@@ -289,19 +300,19 @@ var Check = {
 		let needRunes = this.Runes();
 
 		switch (sequenceName.toLowerCase()) {
-		case "den": //den
+		case "den":
 			if (!me.den) {
 				return true;
 			}
 
 			break;
-		case "corpsefire": //corpsefire
+		case "corpsefire":
 			if (me.den && me.hell && (!me.andariel || Check.brokeAf()) && !me.druid && !me.paladin) {
 				return true;
 			}
 
 			break;
-		case "bloodraven": //bloodaraven
+		case "bloodraven":
 			if ((!me.bloodraven && me.normal || (!me.summoner && Check.brokeAf())) || 
 				(me.normal && !me.tristram && me.barbarian) || 
 				(me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || ((me.amazon || me.assassin) && Attack.checkInfinity()) || (me.barbarian || me.paladin || me.necromancer || me.druid)))) {
@@ -309,19 +320,19 @@ var Check = {
 			}
 
 			break;
-		case "treehead": //treehead
+		case "treehead":
 			if (me.hell && (me.paladin && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma") || !Pather.accessToAct(3)))) {
 				return true;
 			}
 
 			break;
-		case "smith": //tools of the trade
+		case "smith":
 			if (!me.smith && !Misc.checkQuest(3, 1)) {
 				return true;
 			}
 
 			break;
-		case "tristram": //tristram
+		case "tristram":
 			if ((me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf())) || 
 				(!me.normal && 
 					((!me.tristram && (me.classic && me.diablo || me.baal)) ||
@@ -331,14 +342,15 @@ var Check = {
 			}
 
 			break;
-		case "countess": //countess
+		case "countess":
+			// classic quest not completed normal || don't have runes for difficulty || barb in hell and have lawbringer
 			if ((me.classic && !me.countess) || 
-				(!me.classic && (needRunes || Check.brokeAf() || (me.barbarian && me.hell && Check.haveItem("sword", "runeword", "Lawbringer"))))) { // classic quest not completed normal || don't have runes for difficulty || barb in hell and have lawbringer
+				(!me.classic && (needRunes || Check.brokeAf() || (me.barbarian && me.hell && Check.haveItem("sword", "runeword", "Lawbringer"))))) {
 				return true;
 			}
 
 			break;
-		case "pits": //pits
+		case "pits":
 			if (me.hell && 
 				((me.necromancer || me.barbarian || me.assassin) ||
 					(me.paladin && ["Zealer", "Auradin"].indexOf(SetUp.currentBuild) > -1) ||
@@ -355,7 +367,7 @@ var Check = {
 			}
 
 			break;
-		case "andariel": //andy
+		case "andariel":
 			if (!me.andariel || 
 				(me.classic && me.hell) || 
 				(!me.classic && 
@@ -365,7 +377,7 @@ var Check = {
 			}
 
 			break;
-		case "a1chests": //a1chests
+		case "a1chests":
 			if (!me.classic && 
 				(me.charlvl >= 70 && Pather.canTeleport() || 
 					(me.barbarian && me.hell && !Pather.accessToAct(3) && (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("sword", "runeword", "Lawbringer"))))) {
@@ -373,91 +385,92 @@ var Check = {
 			}
 
 			break;
-		case "cube": //cube
+		case "cube":
 			if (Pather.accessToAct(2) && !me.cube) {
 				return true;
 			}
 
 			break;
-		case "radament": //radament
+		case "radament":
 			if (Pather.accessToAct(2) && (!me.radament || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild && me.hell))) {
 				return true;
 			}
 
 			break;
-		case "staff": //staff
+		case "staff":
 			if (Pather.accessToAct(2) && !me.shaft && !me.staff && !me.horadricstaff) {
 				return true;
 			}
 
 			break;
-		case "amulet": //ammy
+		case "amulet":
 			if (Pather.accessToAct(2) && !me.amulet && !me.staff && !me.horadricstaff) {
 				return true;
 			}
 
 			break;
-		case "ancienttunnels": // ancient tunnels
-			if (Pather.accessToAct(2) && me.hell && (!me.paladin || Attack.IsAuradin) && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))) { // no pally in hell magic immunes unless is auradin, No zon in hell unless at final build becasue light/poison immunes
+		case "ancienttunnels":
+			// No pally in hell due to magic immunes unless is auradin, No zon in hell unless at final build becasue light/poison immunes
+			if (Pather.accessToAct(2) && me.hell && (!me.paladin || Attack.IsAuradin) && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))) {
 				return true;
 			}
 
 			break;
-		case "summoner": //summoner
+		case "summoner":
 			if (Pather.accessToAct(2) && !me.summoner) {
 				return true;
 			}
 
 			break;
-		case "tombs": //tombs
+		case "tombs":
 			if (Pather.accessToAct(2) && me.normal && me.charlvl < 24) {
 				return true;
 			}
 
 			break;
-		case "duriel": //duriel
+		case "duriel":
 			if (Pather.accessToAct(2) && !me.duriel) {
 				return true;
 			}
 
 			break;
-		case "eye": // eye
+		case "eye":
 			if (Pather.accessToAct(3) && !me.eye && !me.khalimswill && !me.travincal) {
 				return true;
 			}
 
 			break;
-		case "templeruns": //temple runs
+		case "templeruns":
 			if (Pather.accessToAct(3) && ((!me.lamessen || me.nightmare && me.charlvl < 50 || me.hell) && (!me.paladin || Attack.IsAuradin))) {
 				return true;
 			}
 
 			break;
-		case "lamessen": //temple runs
+		case "lamessen":
 			if (Pather.accessToAct(3) && !me.lamessen && me.paladin) {
 				return true;
 			}
 
 			break;
-		case "lowerkurast": //lower kurast
+		case "lowerkurast":
 			if (Pather.accessToAct(3) && me.nightmare && me.charlvl >= 50 && me.barbarian && !Check.haveItem("sword", "runeword", "Voice of Reason")) {
 				return true;
 			}
 
 			break;
-		case "heart": //heart
+		case "heart":
 			if (Pather.accessToAct(3) && !me.heart && !me.khalimswill && !me.travincal) {
 				return true;
 			}
 
 			break;
-		case "brain": //brain
+		case "brain":
 			if (Pather.accessToAct(3) && !me.brain && !me.khalimswill && !me.travincal) {
 				return true;
 			}
 
 			break;
-		case "travincal": //travincal
+		case "travincal":
 			if (Pather.accessToAct(3) && 
 					(!me.travincal ||
 						(me.charlvl < 25 || 
@@ -468,7 +481,7 @@ var Check = {
 			}
 
 			break;
-		case "mephisto": //mephisto
+		case "mephisto":
 			if (Pather.accessToAct(3) && 
 				(!me.mephisto ||
 					(me.normal && (!me.baal || !Check.Gold())) ||
@@ -478,13 +491,13 @@ var Check = {
 			}
 
 			break;
-		case "izual": // izzy
+		case "izual":
 			if (Pather.accessToAct(4) && !me.izual) {
 				return true;
 			}
 
 			break;
-		case "river": // river
+		case "river":
 			if (Pather.accessToAct(4) && !me.diablo && !me.normal && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) {
 				return true;
 			}
@@ -496,49 +509,50 @@ var Check = {
 			}
 
 			break;
-		case "diablo": //diablo
+		case "diablo":
 			if (Pather.accessToAct(4) && ((me.normal && me.charlvl < 35) || (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)) || (me.hell && me.charlvl !== 100) || !me.diablo)) {
 				return true;
 			}
 
 			break;
-		case "hellforge": // hellforge
+		case "hellforge":
 			if (Pather.accessToAct(4) && !me.hellforge) {
 				return true;
 			}
 
 			break;
-		case "shenk": // shenk
+		case "shenk":
 			if (!me.classic && Pather.accessToAct(5) && (!me.druid || me.charlvl <= 70)) {
 				return true;
 			}
 
 			break;
-		case "savebarby": //barbies
-			if (!me.classic && Pather.accessToAct(5) && !me.savebarby && (Runewords.checkRune(616) || Runewords.checkRune(617) || Runewords.checkRune(618))) {	// I need tal, ral, or ort rune for runewords
+		case "savebarby":
+			// I need tal, ral, or ort rune for runewords
+			if (!me.classic && Pather.accessToAct(5) && !me.savebarby && (Runewords.checkRune(616) || Runewords.checkRune(617) || Runewords.checkRune(618))) {
 				return true;
 			}
 
 			break;
-		case "anya": //anya
+		case "anya":
 			if (!me.classic && Pather.accessToAct(5)) {
 				return true;
 			}
 
 			break;
-		case "ancients": //ancients
+		case "ancients":
 			if (!me.classic && Pather.accessToAct(5) && !me.ancients) {
 				return true;
 			}
 
 			break;
-		case "baal": //baal
+		case "baal":
 			if (!me.classic && Pather.accessToAct(5)) {
 				return true;
 			}
 
 			break;
-		case "cows": //cows
+		case "cows":
 			if (!me.normal && !me.cows && 
 				(!me.barbarian || ["Whirlwind", "Immortalwhirl", "Singer"].indexOf(SetUp.currentBuild) > -1) && 
 				(me.classic && me.diablo || me.baal) && 
@@ -551,8 +565,14 @@ var Check = {
 			}
 
 			break;
-		case "a5chests": //a5chests
+		case "a5chests":
 			if (!me.normal && me.baal) {
+				return true;
+			}
+
+			break;
+		case "getkeys":
+			if (Pather.accessToAct(5) && me.hell && ["Zealer", "Smiter", "Uberconc"].indexOf(SetUp.currentBuild) > -1) {
 				return true;
 			}
 
@@ -594,11 +614,13 @@ var Check = {
 	broken: function () {
 		let gold = me.getStat(14) + me.getStat(15);
 
+		// Almost broken but not quite
 		if (((Item.getEquippedItem(4).durability <= 30 && Item.getEquippedItem(4).durability > 0) || Item.getEquippedItem(5).durability <= 30 && Item.getEquippedItem(5).durability > 0) && 
-			!me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000) {	// Almost broken but not quite
+			!me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000) {
 			return 1;
 		}
 
+		// Broken
 		if ((Item.getEquippedItem(4).durability === 0 || Item.getEquippedItem(5).durability === 0) && me.charlvl >= 15 && !me.normal && gold < 1000) {
 			return 2;
 		}
@@ -632,7 +654,8 @@ var Check = {
 	mercResistance: function () {
 		let mercenary = Merc.getMercFix();
 
-		if (!mercenary) { // dont have merc or he is dead
+		// Dont have merc or he is dead
+		if (!mercenary) {
 			return {
 				FR: 0,
 				CR: 0,
@@ -689,14 +712,14 @@ var Check = {
 		let needRunes = true;
 
 		switch (me.diff) {
-		case 0: //normal
-			//have runes or stealth and ancients pledge
+		case sdk.difficulty.Normal:
+			// Have runes or stealth and ancients pledge
 			if ((me.getItem(sdk.runes.Tal) && me.getItem(sdk.runes.Eth)) || this.haveItem("armor", "runeword", "Stealth")) {
 				needRunes = false;
 			}
 
 			break;
-		case 1: //nightmare
+		case sdk.difficulty.Nightmare:
 			if ((me.getItem(sdk.runes.Tal) && me.getItem(sdk.runes.Thul) && me.getItem(sdk.runes.Ort) && me.getItem(sdk.runes.Amn) && Check.currentBuild().caster) || 
 				(!me.paladin && this.haveItem("sword", "runeword", "Spirit")) || (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit")) ||
 				(me.necromancer && this.haveItem("wand", "runeword", "White") && (this.haveItem("voodooheads", "runeword", "Rhyme") || Item.getEquippedItem(5).tier > 800)) ||
@@ -705,7 +728,7 @@ var Check = {
 			}
 
 			break;
-		case 2: //hell
+		case sdk.difficulty.Hell:
 			if (!me.baal || (me.sorceress && ["Blova", "Lightning"].indexOf(SetUp.currentBuild) === -1)) {
 				needRunes = false;
 			}

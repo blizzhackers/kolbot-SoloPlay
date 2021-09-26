@@ -17,14 +17,14 @@ if (!me.getItem(sdk.runes.Um)) {
 
 // Have Um and Shael runes before looking for base
 if (me.getItem(sdk.runes.Um) && me.getItem(sdk.runes.Shael)) {
-	NTIP.addLine("([name] == ArchonPlate || [name] == demonhidearmor || [name] == duskshroud || [name] == ghostarmor || [name] == BoneWeave || [name] == serpentskinarmor || [name] == trellisedarmor || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1");
+	NTIP.addLine("([name] == archonplate || [name] == demonhidearmor || [name] == duskshroud || [name] == ghostarmor || [name] == boneweave || [name] == serpentskinarmor || [name] == trellisedarmor || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1");
 }
 
-Config.Runewords.push([Runeword.Duress, "ArchonPlate"]);
+Config.Runewords.push([Runeword.Duress, "archonplate"]);
 Config.Runewords.push([Runeword.Duress, "demonhidearmor"]);
 Config.Runewords.push([Runeword.Duress, "duskshroud"]);
 Config.Runewords.push([Runeword.Duress, "ghostarmor"]);
-Config.Runewords.push([Runeword.Duress, "BoneWeave"]);
+Config.Runewords.push([Runeword.Duress, "boneweave"]);
 Config.Runewords.push([Runeword.Duress, "serpentskinarmor"]);
 Config.Runewords.push([Runeword.Duress, "trellisedarmor"]);
 Config.Runewords.push([Runeword.Duress, "wyrmhide"]);

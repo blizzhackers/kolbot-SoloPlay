@@ -1,7 +1,7 @@
 /*
 *	@filename	countess.js
 *	@author		isid0re
-*	@desc		countess runs for rune based gear.
+*	@desc		countess runs for rune based gear and Terror keys
 */
 
 function countess () {

@@ -31,5 +31,5 @@ if (!me.getItem(sdk.runes.Ohm)) {
 	}
 }
 
-Config.Runewords.push([Runeword.CallToArms, "crystal sword"]);
+Config.Runewords.push([Runeword.CallToArms, "crystalsword"]);
 Config.KeepRunewords.push("[type] == sword # [plusskillbattleorders] >= 1");

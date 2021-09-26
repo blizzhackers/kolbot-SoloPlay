@@ -46,8 +46,8 @@ if (me.paladin) {
 		Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 	}
 
-	Config.Recipes.push([Recipe.Socket.Weapon, "Phase Blade", Roll.NonEth]);
-	Config.Runewords.push([Runeword.CrescentMoon, "Phase Blade"]);
+	Config.Recipes.push([Recipe.Socket.Weapon, "phaseblade", Roll.NonEth]);
+	Config.Runewords.push([Runeword.CrescentMoon, "phaseblade"]);
 }
 
 Config.KeepRunewords.push("[type] == sword # [ias] >= 20 && [passiveltngpierce] >= 35");

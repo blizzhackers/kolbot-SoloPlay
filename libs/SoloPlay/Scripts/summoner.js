@@ -1,7 +1,7 @@
 /*
 *	@filename	summoner.js
 *	@author		isid0re
-*	@desc		summoner quest
+*	@desc		summoner quest and Hate key hunting
 */
 
 function summoner () {
