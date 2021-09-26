@@ -20,6 +20,7 @@ var Events = {
 	},
 
 	killdclone: function () {
+		D2Bot.printToConsole("Kolbot-SoloPlay :: Trying to kill DClone.", 8);
 		let orginalLocation = {area: me.area, x: me.x, y: me.y};
 
 		if (Pather.accessToAct(2) && Pather.checkWP(sdk.areas.ArcaneSanctuary)) {
