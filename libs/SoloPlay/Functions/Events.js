@@ -19,6 +19,37 @@ var Events = {
 		return true;
 	},
 
+	killdclone: function () {
+		let orginalLocation = {area: me.area, x: me.x, y: me.y};
+
+		if (Pather.accessToAct(2) && Pather.checkWP(sdk.areas.ArcaneSanctuary)) {
+			Pather.useWaypoint(sdk.areas.ArcaneSanctuary);
+			Precast.doPrecast(true);
+
+			if (!Pather.usePortal(null)) {
+				print("Failed to move to Palace Cellar");
+			}
+		} else if (Pather.checkWP(sdk.areas.InnerCloister)) {
+			Pather.moveTo(20047, 4898);
+		} else {
+			Pather.useWaypoint(sdk.areas.RogueEncampment);
+			Pather.moveToExit(sdk.areas.ColdPlains, true);
+			Pather.clearToExit(sdk.areas.ColdPlains, sdk.areas.DenOfEvil, true);
+			Pather.moveToPreset(me.area, 1, 774, 0, 0, false, true);
+		}
+
+		Attack.killTarget(333);
+		Pickit.pickItems();
+
+		if (AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("torchMuleInfo")) {
+			scriptBroadcast("muleAnni");
+		}
+
+		// Move back to where we orignally where
+		Pather.journeyTo(orginalLocation.area);
+		Pather.moveTo(orginalLocation.x, orginalLocation.y);
+	},
+
 	skip: function () {
 		let oldPickRange = Config.PickRange;
 
@@ -33,21 +64,26 @@ var Events = {
 		let tick = getTickCount();
 		me.overhead("Attempting baal wave skip");
 
-		while (getTickCount() - tick < 6500) { // prep
+		// prep
+		while (getTickCount() - tick < 6500) {
 			Pather.moveTo(15091, 5073);
 		}
 
 		Config.NoTele = true;
 		tick = getTickCount();
 
-		while (getTickCount() - tick < 5000) { // 5 second delay (5000ms)
-			Pather.moveTo(15098, 5082);	// leave throne
+		// 5 second delay (5000ms)
+		while (getTickCount() - tick < 5000) {
+			// leave throne
+			Pather.moveTo(15098, 5082);
 		}
 
 		tick = getTickCount();
-		Pather.moveTo(15099, 5078); // reenter throne
+		// reenter throne
+		Pather.moveTo(15099, 5078);
 
-		while (getTickCount() - tick < 2000) {	// 2 second delay (2000ms)
+		// 2 second delay (2000ms)
+		while (getTickCount() - tick < 2000) {
 			Pather.moveTo(15098, 5082);
 		}
 
@@ -189,13 +225,13 @@ var Events = {
 
 		switch (bytes[0]) {
 		case 0x89: // d2gs unique event
-			if (me.area === 8) {	// den lights
+			if (me.area === sdk.areas.DenOfEvil) {
 				scriptBroadcast('finishDen');
 			}
 
 			break;
 		case 0x4c: // diablo lightning dodge
-			if (me.area === 108) {
+			if (me.area === sdk.areas.ChaosSanctuary) {
 				if (bytes[6] === 193) {
 					if (!Pather.useTeleport() && (["Poison", "Summon"].indexOf(SetUp.currentBuild) > -1 || me.paladin || me.barbarian || me.druid || me.amazon || me.assassin)) {
 						scriptBroadcast('dodge');

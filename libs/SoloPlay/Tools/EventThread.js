@@ -65,11 +65,13 @@ function main () {
 
 			if (script) {
 				if (script.running) {
-					if (l === 0) { // default.dbj
+					// default.dbj
+					if (l === 0) {
 						print("ÿc1Pausing " + scripts[l]);
 					}
 
-					if (l === 1) { // Townchicken.dbj
+					// Townchicken.dbj
+					if (l === 1) {
 						print("ÿc1Pausing " + scripts[l]);
 					}
 
@@ -90,11 +92,13 @@ function main () {
 
 			if (script) {
 				if (!script.running) {
-					if (l === 0) { // default.dbj
+					// default.dbj
+					if (l === 0) {
 						print("ÿc2Resuming " + scripts[l]);
 					}
 
-					if (l === 1) { // default.dbj
+					// TownChicken
+					if (l === 1) {
 						print("ÿc2Resuming " + scripts[l]);
 					}
 
@@ -117,11 +121,11 @@ function main () {
 		case "finishDen":
 		case "dodge":
 		case "skip":
+		case "killdclone":
 			action.push(msg);
 
 			break;
 		default:
-
 			break;
 		}
 	};
