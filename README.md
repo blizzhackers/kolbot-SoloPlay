@@ -75,6 +75,10 @@ If you are enjoying my script consider supporting me at https://www.buymeacoffee
 
 **A:** A Bumper is a level 40 character that has not done baal quest in normal and is used to "bump" low level characters to hell difficulty where they can power level following chaos runs. 
 
+**Q: Does this work for Diablo 2 Resurected?**
+
+**A:** No, Kolbot does not work with d2r and SoloPlay runs using Kolbot. SoloPlay only works on diablo 2. 
+
 ## Really Dumb Frequently Asked Questions
 **Q: Can I make my solo bots work together?**
 
