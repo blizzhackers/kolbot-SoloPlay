@@ -9,19 +9,19 @@ function lamessen () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting lamessen');
 	me.overhead("lamessen");
 
-	if (!Pather.checkWP(80)) {
-		Pather.getWP(80);
+	if (!Pather.checkWP(sdk.areas.KurastBazaar)) {
+		Pather.getWP(sdk.areas.KurastBazaar);
 	} else {
-		Pather.useWaypoint(80);
+		Pather.useWaypoint(sdk.areas.KurastBazaar);
 	}
 
 	Precast.doPrecast(true);
 
-	if (!Pather.moveToExit(94, true) || !Pather.moveToPreset(me.area, 2, 193)) {
+	if (!Pather.moveToExit(sdk.areas.RuinedTemple, true) || !Pather.moveToPreset(me.area, 2, 193)) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to move to LamEssen Tome');
 	}
 
-	Quest.collectItem(548, 193);
+	Quest.collectItem(sdk.items.quest.LamEsensTome, 193);
 	Town.unfinishedQuests();
 
 	return true;

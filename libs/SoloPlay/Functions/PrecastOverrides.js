@@ -373,7 +373,7 @@ Precast.doPrecast = function (force) {
 			this.precastSkill(277); // Blade Shield
 		}
 
-		if (me.getSkill(258, 0) && !Config.UseFade && Config.UseBoS && (!me.getState(sdk.states.BurstOfSpeed) || force)) {
+		if (me.getSkill(258, 0) && !Config.UseFade && Config.UseBoS && (!me.getState(sdk.states.BurstofSpeed) || force)) {
 			this.precastSkill(258); // Burst of Speed
 		}
 

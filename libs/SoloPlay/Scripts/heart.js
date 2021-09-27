@@ -9,22 +9,22 @@ function heart () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting heart');
 	me.overhead("heart");
 
-	if (!Pather.checkWP(80)) {
-		Pather.getWP(80);
+	if (!Pather.checkWP(sdk.areas.KurastBazaar)) {
+		Pather.getWP(sdk.areas.KurastBazaar);
 	} else {
-		Pather.useWaypoint(80);
+		Pather.useWaypoint(sdk.areas.KurastBazaar);
 	}
 
 	Precast.doPrecast(true);
 
-	if (!Pather.moveToExit([80, 92, 93], true) || !Pather.moveToPreset(me.area, 2, 405)) {
+	if (!Pather.moveToExit([sdk.areas.KurastBazaar, sdk.areas.A3SewersLvl1, sdk.areas.A3SewersLvl2], true) || !Pather.moveToPreset(me.area, 2, 405)) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to get the heart');
 		return false;
 	}
 
 	Attack.clear(0x7); // clear level
-	Quest.collectItem(554, 405);
-	Quest.stashItem(554);
+	Quest.collectItem(sdk.items.quest.KhalimsHeart, 405);
+	Quest.stashItem(sdk.items.quest.KhalimsHeart);
 
 	return true;
 }

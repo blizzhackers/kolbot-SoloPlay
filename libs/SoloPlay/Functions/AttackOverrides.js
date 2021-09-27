@@ -12,6 +12,7 @@ var Coords_1 = require("../Modules/Coords");
 
 Attack.IsAuradin = false;
 Attack.stopClear = false;
+Attack.MainBosses = [156, 211, 242, 243, 544];
 Attack.BossAndMiniBosses = [156, 211, 242, 243, 544, 229, 250, 256, 267, 365, 409, 540, 541, 542];
 
 Attack.init = function () {

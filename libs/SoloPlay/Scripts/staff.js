@@ -9,17 +9,17 @@ function staff () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting staff');
 	me.overhead("staff");
 
-	if (!Pather.checkWP(43)) {
-		Pather.getWP(43);
+	if (!Pather.checkWP(sdk.areas.FarOasis)) {
+		Pather.getWP(sdk.areas.FarOasis);
 	} else {
-		Pather.useWaypoint(43);
+		Pather.useWaypoint(sdk.areas.FarOasis);
 	}
 
 	Precast.doPrecast(true);
 
-	Pather.clearToExit(43, 62, true); //Far Oasis -> ML1
-	Pather.clearToExit(62, 63, true); //ML1 -> ML2
-	Pather.clearToExit(63, 64, true); //ML2 -> ML3
+	Pather.clearToExit(sdk.areas.FarOasis, sdk.areas.MaggotLairLvl1, true);
+	Pather.clearToExit(sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, true);
+	Pather.clearToExit(sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3, true);
 
 	if (!Pather.moveToPreset(me.area, 2, 356)) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to get staff');

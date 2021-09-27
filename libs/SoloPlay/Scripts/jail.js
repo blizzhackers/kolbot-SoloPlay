@@ -8,12 +8,12 @@ function jail () {
 	Town.townTasks();
 	print('ÿc8Kolbot-SoloPlayÿc0: starting jail');
 	me.overhead("jail");
-	let levels = [29, 30, 31];
+	let levels = [sdk.areas.JailLvl1, sdk.areas.JailLvl2, sdk.areas.JailLvl3];
 
-	if (!Pather.checkWP(29)) {
-		Pather.getWP(29);
+	if (!Pather.checkWP(sdk.areas.JailLvl1)) {
+		Pather.getWP(sdk.areas.JailLvl1);
 	} else {
-		Pather.useWaypoint(29);
+		Pather.useWaypoint(sdk.areas.JailLvl1);
 	}
 
 	for (let i = 1; i < levels.length; i++) {

@@ -16,18 +16,20 @@ function tristram () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting tristram');
 	me.overhead("tristram");
 
-	if (!Misc.checkQuest(4, 4) && !me.getItem(525)) { // missing task or key
-		if (!me.getItem(524)) { // missing scroll 
-			if (!Pather.checkWP(6)) {
-				Pather.getWP(6);
-				Pather.useWaypoint(5);
+	// missing task or key
+	if (!Misc.checkQuest(4, 4) && !me.getItem(525)) {
+		// missing scroll 
+		if (!me.getItem(524)) {
+			if (!Pather.checkWP(sdk.areas.BlackMarsh)) {
+				Pather.getWP(sdk.areas.BlackMarsh);
+				Pather.useWaypoint(sdk.areas.DarkWood);
 			} else {
-				Pather.useWaypoint(5);
+				Pather.useWaypoint(sdk.areas.DarkWood);
 			}
 
 			Precast.doPrecast(true);
 
-			if (!Pather.moveToPreset(5, 2, 30, 5, 5)) {
+			if (!Pather.moveToPreset(sdk.areas.DarkWood, 2, 30, 5, 5)) {
 				print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Tree of Inifuss");
 			}
 
@@ -40,16 +42,16 @@ function tristram () {
 		}
 	}
 
-	if (!Pather.checkWP(4)) {
-		Pather.getWP(4);
+	if (!Pather.checkWP(sdk.areas.StonyField)) {
+		Pather.getWP(sdk.areas.StonyField);
 	} else {
-		Pather.useWaypoint(4);
+		Pather.useWaypoint(sdk.areas.StonyField);
 	}
 
 	Precast.doPrecast(true);
-	Pather.moveToPreset(4, 1, 737, 10, 10, false, true);
+	Pather.moveToPreset(sdk.areas.StonyField, 1, 737, 10, 10, false, true);
 	Attack.killTarget(getLocaleString(2872)); // Rakanishu
-	Pather.moveToPreset(4, 2, 17, null, null, true);
+	Pather.moveToPreset(sdk.areas.StonyField, 2, 17, null, null, true);
 
 	if (!Misc.checkQuest(4, 4) && me.getItem(525)) {
 		try { // go to tristram @jaenster
@@ -70,17 +72,17 @@ function tristram () {
 				}
 			}
 
-			while (!Pather.usePortal(38)) {
+			while (!Pather.usePortal(sdk.areas.Tristram)) {
 				Attack.securePosition(me.x, me.y, 10, 1000);
 			}
 		} catch (err) {
-			Pather.usePortal(38);
+			Pather.usePortal(sdk.areas.Tristram);
 		}
 	} else {
-		Pather.usePortal(38);
+		Pather.usePortal(sdk.areas.Tristram);
 	}
 
-	if (me.area === 38) {
+	if (me.area === sdk.areas.Tristram) {
 		if (!me.tristram) {
 			let clearCoords = [
 				{"x":25166,"y":5108,"radius":10},
@@ -101,7 +103,7 @@ function tristram () {
 			}
 
 			Town.npcInteract("akara");
-			Pather.usePortal(38, me.name);
+			Pather.usePortal(sdk.areas.Tristram, me.name);
 		}
 
 		Attack.clearLocations(spots);

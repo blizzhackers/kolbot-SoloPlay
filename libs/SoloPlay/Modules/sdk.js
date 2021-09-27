@@ -19,7 +19,7 @@
             DarkWood: 5,
             BlackMarsh: 6,
             TamoeHighland: 7,
-            DenOfEvil: 8,
+            DenofEvil: 8,
             CaveLvl1: 9,
             UndergroundPassageLvl1: 10,
             HoleLvl1: 11,
@@ -58,8 +58,8 @@
             DryHills: 42,
             FarOasis: 43,
             LostCity: 44,
-            ValleyOfSnakes: 45,
-            CanyonOfMagi: 46,
+            ValleyofSnakes: 45,
+            CanyonofMagic: 46,
             A2SewersLvl1: 47,
             A2SewersLvl2: 48,
             A2SewersLvl3: 49,
@@ -69,11 +69,11 @@
             PalaceCellarLvl2: 53,
             PalaceCellarLvl3: 54,
             StonyTombLvl1: 55,
-            HallsOfDeadLvl1: 56,
-            HallsOfDeadLvl2: 57,
+            HallsoftheDeadLvl1: 56,
+            HallsoftheDeadLvl2: 57,
             ClawViperTempleLvl1: 58,
             StonyTombLvl2: 59,
-            HallsOfDeadLvl3: 60,
+            HallsoftheDeadLvl3: 60,
             ClawViperTempleLvl2: 61,
             MaggotLairLvl1: 62,
             MaggotLairLvl2: 63,
@@ -115,16 +115,16 @@
             ForgottenTemple: 97,
             RuinedFane: 98,
             DisusedReliquary: 99,
-            DuranceOfHateLvl1: 100,
-            DuranceOfHateLvl2: 101,
-            DuranceOfHateLvl3: 102,
+            DuranceofHateLvl1: 100,
+            DuranceofHateLvl2: 101,
+            DuranceofHateLvl3: 102,
 
             // Act 4
             PandemoniumFortress: 103,
             OuterSteppes: 104,
-            PlainsOfDespair: 105,
-            CityOfDamned: 106,
-            RiverOfFlame: 107,
+            PlainsofDespair: 105,
+            CityoftheDamned: 106,
+            RiverofFlame: 107,
             ChaosSanctuary: 108,
 
             // Act 5
@@ -141,16 +141,16 @@
             IcyCellar: 119,
             ArreatSummit: 120,
             NihlathaksTemple: 121,
-            HallsOfAnguish: 122,
-            HallsOfPain: 123,
-            HallsOfVaught: 124,
+            HallsofAnguish: 122,
+            HallsofPain: 123,
+            HallsofVaught: 124,
             Abaddon: 125,
-            PitOfAcheron: 126,
+            PitofAcheron: 126,
             InfernalPit: 127,
             WorldstoneLvl1: 128,
             WorldstoneLvl2: 129,
             WorldstoneLvl3: 130,
-            ThroneOfDestruction: 131,
+            ThroneofDestruction: 131,
             WorldstoneChamber: 132,
 
             // Ubers
@@ -403,7 +403,7 @@
             ShockField: 256, // Internal
             BladeSentinel: 257,
             Quickness: 258, // Internal name
-            BurstOfSpeed: 258, // Shown name
+            BurstofSpeed: 258, // Shown name
             FistsofFire: 259,
             DragonClaw: 260,
             ChargedBoltSentry: 261,
@@ -429,14 +429,14 @@
             ShadowMaster: 279,
             PhoenixStrike: 280, // External
             RoyalStrike: 280, // Internal
-            WakeOfDestructionSentry: 281, // Not used?
+            WakeofDestructionSentry: 281, // Not used?
             tabs: {
                 // Ama
                 BowCrossbow: 0,
                 PassiveMagic: 1,
                 JavelinSpear: 2,
 
-                //sorc
+                // Sorc
                 Fire: 8,
                 Lightning: 9,
                 Cold: 10,
@@ -592,6 +592,7 @@
             LowerResist: 61,
             OpenWounds: 62,
             Dopplezon: 63,
+            Decoy: 63,
             CriticalStrike: 64,
             Dodge: 65,
             Avoid: 66,
@@ -685,7 +686,7 @@
             WeaponBlock: 155,
             Cloaked: 156,
             Quickness: 157, // Internal name
-            BurstOfSpeed: 157, // External name
+            BurstofSpeed: 157, // External name
             BladeShield: 158,
             Fade: 159,
             RestInPeace: 172,
@@ -760,7 +761,7 @@
             Target1: 174,
             Goldlost: 175,
             ConversionLevel: 176,
-            ConversionMaxhp: 177,
+            ConversionMaxHp: 177,
             UnitDooverlay: 178,
             AttackVsMontype: 179,
             DamageVsMontype: 180,
@@ -1095,10 +1096,10 @@
         locale: {
             monsters: {
                 TheCowKing: 2850,
-                GrandVizierOfChaos: 2851,
+                GrandVizierofChaos: 2851,
                 LordDeSeis: 2852,
                 ShenkTheOverseer: 22435,
-                InfectorOfSouls: 2853,
+                InfectorofSouls: 2853,
                 RiftwraithTheCannibal: 2854,
                 Taintbreeder: 2855,
                 TheTormentor: 2856,
@@ -1680,7 +1681,7 @@
             TrapDoorA2: 74, // ancienttunnel/sewers act 2
             DoorbyDockAct2: 75,
             ForestAltar: 81,
-            BubblingPoolOfBlood: 82,
+            BubblingPoolofBlood: 82,
             HornShrine: 83,
             PortaltoDurielsLair: 100,
             Malus: 108,
@@ -2378,9 +2379,9 @@
             TheTormentor: 737,
             Taintbreeder: 738,
             RiftwraithTheCannibal: 739,
-            InfectorOfSouls: 740,
+            InfectorofSouls: 740,
             LordDeSeis: 741,
-            GrandVizierOfChaos: 742,
+            GrandVizierofChaos: 742,
             TheCowKing: 743,
             Corpsefire: 744,
             Hephasto: 745,
@@ -2424,30 +2425,40 @@
             bolts: 528,
             tpScroll: 529,
             idScroll: 530,
-            ResScroll: 646,
             key: 543,
 
             quest: {
-                Cube: 549,
-                ScrollOfInifuss: 524,
-                ScrollOfInifussActive: 525,
+                // Act 1
+                WirtsLeg: 88,
+                HoardricMalus: 89,
+                ScrollofInifuss: 524,
+                ScrollofInifussActive: 525,
+                // Act 2
                 FinishedStaff: 91,
                 IncompleteStaff: 92,
+                ViperAmulet: 521,
+                Cube: 549,
+                BookofSkill: 552,
+                // Act 3
                 KhalimsFlail: 173,
                 KhalimsWill: 174,
-                KhalimsEye: 553,
-                KhalimHeart: 554,
-                KhalimBrain: 555,
-                ViperAmulet: 521,
-                PotOfLife: 545,
+                PotofLife: 545,
                 JadeFigurine: 546,
                 TheGoldenBird: 547,
-                Soulstone: 551,
-                BookOfSkill: 552,
                 LamEsensTome: 548,
-                KeyOfTerror: 647,
-                KeyOfHate: 648,
-                KeyOfDestruction: 649,
+                KhalimsEye: 553,
+                KhalimsHeart: 554,
+                KhalimsBrain: 555,
+                // Act 4
+                HellForgeHammer: 90,
+                Soulstone: 551,
+                // Act 5
+                MalahsPotion: 644,
+                ScrollofResistance: 646,
+                // Misc
+                KeyofTerror: 647,
+                KeyofHate: 648,
+                KeyofDestruction: 649,
                 DiablosHorn: 650,
                 BaalsEye: 651,
                 MephistosBrain: 652,
@@ -2705,11 +2716,11 @@
         },
         quests: {
             SpokeToWarriv: 0,
-            DenOfEvil: 1,
+            DenofEvil: 1,
             SistersBurialGrounds: 2,
             TheSearchForCain: 4,
             ForgottenTower: 5,
-            ToolsOfTheTrade: 3,
+            ToolsoftheTrade: 3,
             SistersToTheSlaughter: 6,
             AbleToGotoActII: 7,
             SpokeToJerhyn: 8,
@@ -2722,7 +2733,7 @@
             AbleToGotoActIII: 15,
             SpokeToHratli: 16,
             TheGoldenBird: 20,
-            BladeOfTheOldReligion: 19,
+            BladeoftheOldReligion: 19,
             KhalimsWill: 18,
             LamEsensTome: 17,
             TheBlackenedTemple: 21,
@@ -2735,10 +2746,10 @@
             AbleToGotoActV: 28,
             SiegeOnHarrogath: 35,
             RescueonMountArreat: 36,
-            PrisonOfIce: 37,
-            BetrayalOfHaggorath: 38,
-            RiteOfPassage: 39,
-            EveOfDestruction: 40,
+            PrisonofIce: 37,
+            BetrayalofHaggorath: 38,
+            RiteofPassage: 39,
+            EveofDestruction: 40,
             SecretCowLevel: 41,
         },
         skillTabs: undefined,
@@ -2862,7 +2873,7 @@
             },
             shadowDisciplines: {
                 id: 49,
-                skills: [sdk.skills.ClawMastery, sdk.skills.PsychicHammer, sdk.skills.BurstOfSpeed, sdk.skills.WeaponBlock, sdk.skills.CloakofShadows, sdk.skills.Fade, sdk.skills.ShadowWarrior, sdk.skills.MindBlast, sdk.skills.Venom, sdk.skills.ShadowMaster],
+                skills: [sdk.skills.ClawMastery, sdk.skills.PsychicHammer, sdk.skills.BurstofSpeed, sdk.skills.WeaponBlock, sdk.skills.CloakofShadows, sdk.skills.Fade, sdk.skills.ShadowWarrior, sdk.skills.MindBlast, sdk.skills.Venom, sdk.skills.ShadowMaster],
             },
             martialArts: {
                 id: 50,

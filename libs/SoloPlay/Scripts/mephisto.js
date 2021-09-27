@@ -9,24 +9,24 @@ function mephisto () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting mephisto');
 	me.overhead("mephisto");
 
-	if (!Pather.checkWP(101)) {
-		Pather.getWP(101);
+	if (!Pather.checkWP(sdk.areas.DuranceofHateLvl2)) {
+		Pather.getWP(sdk.areas.DuranceofHateLvl2);
 	} else {
-		Pather.useWaypoint(101);
+		Pather.useWaypoint(sdk.areas.DuranceofHateLvl2);
 	}
 
 	Precast.doPrecast(true);
-	Pather.moveToExit(102, true);	// Enter Durance Level 3
+	Pather.moveToExit(sdk.areas.DuranceofHateLvl3, true);
 
 	// Town stuff
 	Town.doChores();
-	Town.buyPots(10, "Thawing"); // thawing
+	Town.buyPots(10, "Thawing");
 	Town.drinkPots();
-	Town.buyPots(10, "Antidote"); // antidote
+	Town.buyPots(10, "Antidote");
 	Town.drinkPots();
 
 	// Re-enter portal
-	Pather.usePortal(102, me.name);
+	Pather.usePortal(sdk.areas.DuranceofHateLvl3, me.name);
 	Precast.doPrecast(true);
 
 	let oldPickRange = Config.PickRange;
@@ -39,7 +39,8 @@ function mephisto () {
 	Attack.killTarget("Mephisto");
 
 	Config.MercWatch = true;
-	Config.PickRange = oldPickRange;	// Reset to normal value
+	// Reset to normal value
+	Config.PickRange = oldPickRange;	
 	
 	Pickit.pickItems();
 	Pather.moveTo(17581, 8070);

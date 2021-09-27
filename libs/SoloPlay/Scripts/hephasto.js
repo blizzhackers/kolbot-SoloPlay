@@ -6,18 +6,18 @@
 
 function hephasto() {
 	Town.doChores();
-	Town.buyPots(10, "Thawing"); // thawing
+	Town.buyPots(10, "Thawing");
 	Town.drinkPots();
-	Town.buyPots(10, "Antidote"); // antidote
+	Town.buyPots(10, "Antidote");
 	Town.drinkPots();
 
 	print('ÿc8Kolbot-SoloPlayÿc0: starting hephasto');
 	me.overhead("starting hephasto");
 
-	if (!Pather.checkWP(107)) {
-		Pather.getWP(107);
+	if (!Pather.checkWP(sdk.areas.RiverofFlame)) {
+		Pather.getWP(sdk.areas.RiverofFlame);
 	} else {
-		Pather.useWaypoint(107);
+		Pather.useWaypoint(sdk.areas.RiverofFlame);
 	}
 
 	Precast.doPrecast(true);

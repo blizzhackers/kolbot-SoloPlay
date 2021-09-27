@@ -8,14 +8,14 @@ function tombs () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting tombs');
 	me.overhead("tombs");
 
-	let tombID = [66, 67, 68, 69, 70, 71, 72];
+	let tombID = [sdk.areas.TalRashasTomb1, sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb3, sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7];
 	Town.townTasks();
 
 	for (let number = 0; number < tombID.length; number += 1) {
-		if (!Pather.checkWP(46)) {
-			Pather.getWP(46);
+		if (!Pather.checkWP(sdk.areas.CanyonofMagic)) {
+			Pather.getWP(sdk.areas.CanyonofMagic);
 		} else {
-			Pather.useWaypoint(46);
+			Pather.useWaypoint(sdk.areas.CanyonofMagic);
 		}
 
 		Precast.doPrecast(true);

@@ -4,11 +4,9 @@
 *	@desc		fixes to improve class attack functionality per class
 */
 
-//var sdk = require('../modules/sdk');
-
 // Class Specific Attacks
 switch (me.classid) {
-case 0: //Amazon - theBGuy
+case sdk.charclass.Amazon:
 	if (!isIncluded("common/Attacks/Amazon.js")) {
 		include("common/Attacks/Amazon.js");
 	}
@@ -31,7 +29,7 @@ case 0: //Amazon - theBGuy
 			timedSkill = -1,
 			untimedSkill = -1,
 			preattackRange = Skill.getRange(Config.AttackSkill[0]),
-			decoyDuration = (10 + me.getSkill(sdk.skills.Dopplezon, 1) * 5) * 1000,
+			decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, 1) * 5) * 1000,
 			gold = me.getStat(14) + me.getStat(15),
 			index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
@@ -78,12 +76,14 @@ case 0: //Amazon - theBGuy
 
 		// Handle Switch casting
 		if (index === 1 && !unit.dead) {
-			if (!unit.getState(sdk.states.Weaken) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			if (!unit.getState(sdk.states.Weaken) && Attack.isCursable(unit) &&
+				(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				// Switch cast weaken
 				Attack.switchCastCharges(sdk.skills.Weaken, unit);
 			}
 
-			if (!unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			if (!unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
+				(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				// Switch cast lower resist
 				Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 			}
@@ -91,7 +91,7 @@ case 0: //Amazon - theBGuy
 
 		if (useDecoy) {
 			// Act Bosses or Immune to my main boss skill
-			if (([156, 211, 242, 243, 544].indexOf(unit.classid) > -1) || !Attack.checkResist(unit, Config.AttackSkill[1])) {
+			if ((Attack.MainBosses.indexOf(unit.classid) > -1) || !Attack.checkResist(unit, Config.AttackSkill[1])) {
 				for (let i = 0; i < 25; i += 1) {
 					if (!me.getState(sdk.states.SkillDelay)) {
 						break;
@@ -121,7 +121,7 @@ case 0: //Amazon - theBGuy
 						let coord = CollMap.getRandCoordinate(unit.x, -2, 2, unit.y, -2, 2);
 
 						if (!!coord) {
-							Skill.cast(sdk.skills.Dopplezon, 0, coord.x, coord.y);
+							Skill.cast(sdk.skills.Decoy, 0, coord.x, coord.y);
 						}
 
 						// Check if it was a sucess
@@ -143,8 +143,10 @@ case 0: //Amazon - theBGuy
 
 				// Handle Switch casting
 				if (!unit.dead) {
-					if (!unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-						Attack.switchCastCharges(sdk.skills.LowerResist, unit);		// Switch cast lower resist
+					if (!unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
+						(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+						// Switch cast lower resist
+						Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 					}
 				}
 
@@ -177,7 +179,7 @@ case 0: //Amazon - theBGuy
 		}
 
 		// Only try attacking immunes if I have my end game javelin and they aren't lightning enchanted - use jab as main attack
-		if (useJab && !Attack.checkResist(unit, Config.AttackSkill[1]) && Attack.checkResist(unit, "physical") && !unit.getEnchant(17)) {
+		if (useJab && !Attack.checkResist(unit, Config.AttackSkill[1]) && Attack.checkResist(unit, "physical") && !unit.getEnchant(sdk.enchant.LightningEnchanted)) {
 			if (Math.round(getDistance(me, unit)) > 3 || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, 3, 0x4)) {
 					return 0;
@@ -326,7 +328,7 @@ case 0: //Amazon - theBGuy
 
 		if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 			switch (timedSkill) {
-			case 35:
+			case sdk.skills.LightningFury:
 				if (!this.lightFuryTick || getTickCount() - this.lightFuryTick > Config.LightningFuryDelay * 1000) {
 					if (Math.round(getDistance(me, unit)) > Skill.getRange(timedSkill) || checkCollision(me, unit, 0x4)) {
 						if (!Attack.getIntoPosition(unit, Skill.getRange(timedSkill), 0x4)) {
@@ -346,7 +348,7 @@ case 0: //Amazon - theBGuy
 				// If main attack skill is lightning strike and charged strike's skill level is at least level 15, check current monster count. If monster count is less than 3, use CS as its more effective with small mobs
 				if (timedSkill === sdk.skills.LightningStrike && me.getSkill(sdk.skills.ChargedStrike, 1) >= 15) {
 					if (Attack.getMobCount(me.x, me.y, 15) <= 3) {
-						timedSkill = 24;
+						timedSkill = sdk.skills.ChargedStrike;
 					}
 				}
 
@@ -409,7 +411,7 @@ case 0: //Amazon - theBGuy
 	};
 
 	break;
-case 1: // Sorceress
+case sdk.charclass.Sorceress:
 	if (!isIncluded("common/Attacks/Sorceress.js")) {
 		include("common/Attacks/Sorceress.js");
 	}
@@ -446,12 +448,14 @@ case 1: // Sorceress
 
 		// Handle Switch casting
 		if (index === 1 && !unit.dead) {
-			if (!unit.getState(sdk.states.Weaken) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			if (!unit.getState(sdk.states.Weaken) && Attack.isCursable(unit) &&
+				(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				// Switch cast weaken
 				Attack.switchCastCharges(sdk.skills.Weaken, unit);
 			}
 
-			if (!unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			if (!unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
+				(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				// Switch cast lower resist
 				Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 			}
@@ -467,7 +471,7 @@ case 1: // Sorceress
 		}
 
 		// If we have enough mana for Static and there are 2 or more mobs around us, get the closest one and cast static on them
-		if (useStatic && Attack.getMobCount(me.x, me.y, staticRange) >= (me.area === 131 ? 1 : 2) && (staticManaCost * 3) < me.mp) {
+		if (useStatic && Attack.getMobCount(me.x, me.y, staticRange) >= (me.area === sdk.areas.ThroneofDestruction ? 1 : 2) && (staticManaCost * 3) < me.mp) {
 			for (let castStatic = 0; castStatic < 2; castStatic++) {
 				closeMobCheck = Attack.getNearestMonster();
 				if (!!closeMobCheck && Attack.checkResist(unit, "lightning") && staticManaCost < me.mp && !closeMobCheck.dead && Math.round(closeMobCheck.hp * 100 / closeMobCheck.hpmax) > Config.CastStatic) {
@@ -764,7 +768,7 @@ case 1: // Sorceress
 	};
 
 	break;
-case 2: // Necromancer
+case sdk.charclass.Necromancer:
 	if (!isIncluded("common/Attacks/Necromancer.js")) {
 		include("common/Attacks/Necromancer.js");
 	}
@@ -892,10 +896,10 @@ case 2: // Necromancer
 		let curseToCast = -1;
 		let useWeaken = me.getSkill(sdk.skills.Weaken, 1);
 		let useDim = me.getSkill(sdk.skills.DimVision, 1);
-		let useAttract = me.getSkill(sdk.skills.Attract, 1) && me.area !== 131;
-		let useConfuse = me.getSkill(sdk.skills.Confuse, 1) && me.area === 131;
+		let useAttract = me.getSkill(sdk.skills.Attract, 1) && me.area !== sdk.areas.ThroneofDestruction;
+		let useConfuse = me.getSkill(sdk.skills.Confuse, 1) && me.area === sdk.areas.ThroneofDestruction;
 		let useDecrep = me.getSkill(sdk.skills.Decrepify, 1);
-		let useMaiden = me.getSkill(sdk.skills.IronMaiden, 1) && me.area === 73 && me.normal;
+		let useMaiden = me.getSkill(sdk.skills.IronMaiden, 1) && me.area === sdk.areas.DurielsLair && me.normal;
 		let useAmp = (me.getSkill(sdk.skills.AmplifyDamage, 1) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical"));
 		let useLowerRes = (me.getSkill(sdk.skills.LowerResist, 1) && SetUp.currentBuild === "Poison" && Attack.checkResist(unit, "poison"));
 
@@ -1023,8 +1027,8 @@ case 2: // Necromancer
 
 		// Bone prison
 		if (useBP && Math.round(getDistance(me, unit)) > ([73, 120].indexOf(me.area) > -1 ? 6 : 10) && bpAllowedAreas.indexOf(me.area) > -1 && (index === 1 || [571, 391].indexOf(unit.classid) > -1)
-			&& !checkCollision(me, unit, 0x4) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
-			if (Skill.cast(88, 0, unit)) {
+			&& !checkCollision(me, unit, 0x4) && Skill.getManaCost(sdk.skills.BonePrison) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
+			if (Skill.cast(sdk.skills.BonePrison, 0, unit)) {
 				this.bpTick = getTickCount();
 			}
 		}
@@ -1252,7 +1256,7 @@ case 2: // Necromancer
 
 		// Bone prison
 		if (Math.round(getDistance(me, unit)) > 10 && !checkCollision(me, unit, 0x4) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
-			if (Skill.cast(88, 0, unit)) {
+			if (Skill.cast(sdk.skills.BonePrison, 0, unit)) {
 				this.bpTick = getTickCount();
 			}
 		}
@@ -1268,7 +1272,7 @@ case 2: // Necromancer
 
 		if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 			switch (timedSkill) {
-			case 92: 	// Poison Nova
+			case sdk.skills.PoisonNova:
 			case 500: 	// Pure Summoner (Note: unsure where the 500 is coming from)
 				break;
 			default:
@@ -1395,7 +1399,7 @@ MainLoop:
 		var i,
 			corpseList = [],
 			useAmp = me.getSkill(sdk.skills.AmplifyDamage, 1),
-			ampManaCost = Skill.getManaCost(66),
+			ampManaCost = Skill.getManaCost(sdk.skills.AmplifyDamage),
 			explodeCorpsesManaCost = Skill.getManaCost(Config.ExplodeCorpses),
 			range = Math.floor((me.getSkill(Config.ExplodeCorpses, 1) + 7) / 3),
 			corpse = getUnit(1, -1, 12);
@@ -1495,7 +1499,7 @@ MainLoop:
 	};
 
 	break;
-case 3: // Paladin
+case sdk.charclass.Paladin:
 	if (!isIncluded("common/Attacks/Paladin.js")) {
 		include("common/Attacks/Paladin.js");
 	}
@@ -1515,12 +1519,12 @@ case 3: // Paladin
 		}
 
 		if (index === 1 && !unit.dead) {
-			if (!unit.getState(sdk.states.Weaken) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			if (!unit.getState(sdk.states.Weaken) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				// Switch cast weaken
 				Attack.switchCastCharges(sdk.skills.Weaken, unit);
 			}
 
-			if (!unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			if (!unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				Attack.switchCastCharges(87, unit);		// Switch cast decrepify
 			}
 		}
@@ -1644,10 +1648,10 @@ case 3: // Paladin
 		Misc.unShift();
 		Precast.doPrecast(false);
 
-		if (me.getState(2) && Attack.getMobCount(me.x, me.y, 10) === 0 && Skill.setSkill(109, 0)) {
+		if (me.getState(sdk.states.Poison) && Attack.getMobCount(me.x, me.y, 10) === 0 && Skill.setSkill(sdk.skills.Cleansing, 0)) {
 			let tick = getTickCount();
 			while (getTickCount() - tick < 1500) {
-				if (!me.getState(2)) {
+				if (!me.getState(sdk.states.Poison)) {
 					break;
 				}
 
@@ -1655,13 +1659,13 @@ case 3: // Paladin
 			}
 		}
 
-		if (Config.Redemption instanceof Array && (me.hp * 100 / me.hpmax < Config.Redemption[0] || me.mp * 100 / me.mpmax < Config.Redemption[1]) && Skill.setSkill(124, 0)) {
+		if (Config.Redemption instanceof Array && (me.hp * 100 / me.hpmax < Config.Redemption[0] || me.mp * 100 / me.mpmax < Config.Redemption[1]) && Skill.setSkill(sdk.skills.Redemption, 0)) {
 			delay(1500);
 		}
 	};
 
 	break;
-case 4: // Barbarian - theBGuy
+case sdk.charclass.Barbarian:
 	if (!isIncluded("common/Attacks/Barbarian.js")) {
 		include("common/Attacks/Barbarian.js");
 	}
@@ -1669,20 +1673,20 @@ case 4: // Barbarian - theBGuy
 	ClassAttack.warCryTick = 0;
 
 	ClassAttack.tauntMonsters = function (unit, attackSkill) {
-		if (!me.getSkill(137, 0)) {
+		if (!me.getSkill(sdk.skills.Taunt, 0)) {
 			return;
 		}
 
-		if ([156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1) {
+		if (Attack.MainBosses.indexOf(unit.classid) > -1 || unit.classid === 571) {
 			return;
 		}
 
 		// Duriel's Lair, Arreat Summit, Worldstone Chamber
-		if ([73, 120, 132].indexOf(me.area) > -1) {
+		if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].indexOf(me.area) > -1) {		
 			return;
 		}
 
-		let range = me.area !== 131 ? 15 : 30;
+		let range = me.area !== sdk.areas.ThroneofDestruction ? 15 : 30;
 		let useHowl = me.getSkill(sdk.skills.Howl, 0) && !me.getSkill(sdk.skills.WarCry, 0);
 		let useBattleCry = me.getSkill(sdk.skills.BattleCry, 1);
 		let useWarCry = me.getSkill(sdk.skills.WarCry, 0);
@@ -1690,7 +1694,7 @@ case 4: // Barbarian - theBGuy
 		let dangerousAndSummoners = [636, 637, 638, 639, 640, 641, 58, 59, 60, 61, 101, 102, 103, 104, 105, 557, 558, 669, 670, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478];
 		let list = Attack.buildMonsterList();
 
-		if ([107, 108].indexOf(me.area) > -1) {
+		if ([sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary].indexOf(me.area) > -1) {
 			rangedMobsClassIDs.push(305, 306);
 		}
 
@@ -1714,10 +1718,11 @@ case 4: // Barbarian - theBGuy
 					Skill.cast(sdk.skills.WarCry, 0);
 				}
 
-				if (!newList[i].getState(27) && !newList[i].getState(56) && !unit.getState(sdk.states.BattleCry) && !newList[i].dead && Skill.getManaCost(137) < me.mp && !checkCollision(me, newList[i], 0x4)) {
+				if (!newList[i].getState(sdk.states.Taunt) && !newList[i].getState(sdk.states.Terror) && !unit.getState(sdk.states.BattleCry) &&
+					!newList[i].dead && Skill.getManaCost(sdk.skills.Taunt) < me.mp && !checkCollision(me, newList[i], 0x4)) {
 					me.overhead("Taunting: " + newList[i].name + " | classid: " + newList[i].classid);
 					//print("Casting on: " + newList[i].name + " | spectype: " + newList[i].spectype + " | classid: " + newList[i].classid);
-					Skill.cast(137, Skill.getHand(137), newList[i]);
+					Skill.cast(sdk.skills.Taunt, Skill.getHand(sdk.skills.Taunt), newList[i]);
 				}
 
 				this.doCast(unit, attackSkill);
@@ -1726,19 +1731,19 @@ case 4: // Barbarian - theBGuy
 	};
 
 	ClassAttack.doAttack = function (unit, preattack) {
-		let useHowl = me.getSkill(130, 1);
-		let useGrimWard = me.getSkill(150, 1);
-		let useTaunt = me.getSkill(137, 1);
-		let useWarCry = me.getSkill(154, 1);
-		let useBattleCry = me.getSkill(146, 1);
-		let switchCast = (Precast.getBetterSlot(146) === 1 || Precast.getBetterSlot(154) === 1) ? true : false;
-		Config.FindItemSwitch = Precast.getBetterSlot(142);
+		let useHowl = me.getSkill(sdk.skills.Howl, 1);
+		let useGrimWard = me.getSkill(sdk.skills.GrimWard, 1);
+		let useTaunt = me.getSkill(sdk.skills.Taunt, 1);
+		let useWarCry = me.getSkill(sdk.skills.WarCry, 1);
+		let useBattleCry = me.getSkill(sdk.skills.BattleCry, 1);
+		let switchCast = (Precast.getBetterSlot(sdk.skills.BattleCry) === 1 || Precast.getBetterSlot(sdk.skills.WarCry) === 1) ? true : false;
+		Config.FindItemSwitch = Precast.getBetterSlot(sdk.skills.FindItem);
 
 		var index, needRepair = [], attackSkill = -1;
 			
 		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
-		if (me.charlvl >= 5){
+		if (me.charlvl >= 5) {
 			needRepair = Town.needRepair();
 		}
 
@@ -1765,11 +1770,11 @@ case 4: // Barbarian - theBGuy
 			attackSkill = Config.LowManaSkill[0];
 		}
 
-		if (useHowl && attackSkill !== 151 && [345, 571].indexOf(unit.classid) === -1 && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(130) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+		if (useHowl && attackSkill !== 151 && [345, 571].indexOf(unit.classid) === -1 && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(sdk.skills.Howl) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
 			if (useGrimWard) {
 				this.grimWard(6);
 			} else {
-				Skill.cast(130, Skill.getHand(130));
+				Skill.cast(sdk.skills.Howl, Skill.getHand(sdk.skills.Howl));
 			}
 		}
 
@@ -1778,9 +1783,10 @@ case 4: // Barbarian - theBGuy
 		}
 
 		if (!unit.dead && useBattleCry && !me.getState(sdk.states.SkillDelay)) {
-			if (!unit.getState(sdk.states.BattleCry) && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.Terror) && !unit.getState(sdk.states.Taunt)) {		//Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
-				if (Math.round(getDistance(me, unit)) > Skill.getRange(146) || checkCollision(me, unit, 0x4)) {
-					if (!Attack.getIntoPosition(unit, Skill.getRange(146), 0x4)) {
+			// Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
+			if (!unit.getState(sdk.states.BattleCry) && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.Terror) && !unit.getState(sdk.states.Taunt)) {
+				if (Math.round(getDistance(me, unit)) > Skill.getRange(sdk.skills.BattleCry) || checkCollision(me, unit, 0x4)) {
+					if (!Attack.getIntoPosition(unit, Skill.getRange(sdk.skills.BattleCry), 0x4)) {
 						return 0;
 					}
 				}
@@ -1789,7 +1795,7 @@ case 4: // Barbarian - theBGuy
 					me.switchWeapons(1);
 				}
 
-				Skill.cast(146, Skill.getHand(146), unit);
+				Skill.cast(sdk.skills.BattleCry, Skill.getHand(sdk.skills.BattleCry), unit);
 
 				if (switchCast && !useWarCry) {
 					me.switchWeapons(0);
@@ -1799,10 +1805,10 @@ case 4: // Barbarian - theBGuy
 
 		if (!unit.dead && useWarCry && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.isCursable(unit) && 
 			(!unit.getState(sdk.states.Stunned) || getTickCount() - this.warCryTick >= 1500) && 
-			Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154) && !me.getState(sdk.states.SkillDelay) && Attack.getMobCount(me.x, me.y, 5, null, true) >= 1) {
+			Skill.getManaCost(sdk.skills.WarCry) < me.mp && Attack.checkResist(unit, sdk.skills.WarCry) && !me.getState(sdk.states.SkillDelay) && Attack.getMobCount(me.x, me.y, 5, null, true) >= 1) {
 			if (!unit.getState(sdk.states.Stunned)) {
-				if (Math.round(getDistance(me, unit)) > Skill.getRange(154) || checkCollision(me, unit, 0x4)) {
-					if (!Attack.getIntoPosition(unit, Skill.getRange(154), 0x4)) {
+				if (Math.round(getDistance(me, unit)) > Skill.getRange(sdk.skills.WarCry) || checkCollision(me, unit, 0x4)) {
+					if (!Attack.getIntoPosition(unit, Skill.getRange(sdk.skills.WarCry), 0x4)) {
 						return 0;
 					}
 				}
@@ -1813,10 +1819,10 @@ case 4: // Barbarian - theBGuy
 
 				//print("ÿc9doAttack ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMobCount(me.x, me.y, 5, null, true));
 
-				if (me.getSkill(154, 1) >= 15) {
+				if (me.getSkill(sdk.skills.WarCry, 1) >= 15) {
 					for (let i = 0; i < 2; i++) {
-						if (Skill.getManaCost(154) < me.mp) {
-							Skill.cast(154, Skill.getHand(154), unit);
+						if (Skill.getManaCost(sdk.skills.WarCry) < me.mp) {
+							Skill.cast(sdk.skills.WarCry, Skill.getHand(sdk.skills.WarCry), unit);
 						}
 
 						delay(50 + me.ping);
@@ -1824,7 +1830,7 @@ case 4: // Barbarian - theBGuy
 
 					return 1;
 				} else {
-					Skill.cast(154, Skill.getHand(154), unit);
+					Skill.cast(sdk.skills.WarCry, Skill.getHand(sdk.skills.WarCry), unit);
 				}
 
 				if (switchCast) {
@@ -1837,7 +1843,8 @@ case 4: // Barbarian - theBGuy
 			}
 		}
 
-		if (preattack && Config.AttackSkill[0] > 0 && Config.AttackSkill[0] !== 154 && me.getSkill(Config.AttackSkill[0], 1) && Attack.checkResist(unit, Attack.getSkillElement(Config.AttackSkill[0])) && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
+		if (preattack && Config.AttackSkill[0] > 0 && Config.AttackSkill[0] !== sdk.skills.WarCry && me.getSkill(Config.AttackSkill[0], 1) && Attack.checkResist(unit, Attack.getSkillElement(Config.AttackSkill[0])) &&
+			(Skill.getManaCost(Config.AttackSkill[0]) < me.mp) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
 			if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 					return 0;
@@ -1850,11 +1857,12 @@ case 4: // Barbarian - theBGuy
 		}
 
 		if (index === 1) {
-			if (useHowl && attackSkill !== 151 && [211, 243, 544, 562, 570, 571, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.getMobCount(me.x, me.y, 5, null, true) >= 3 && Skill.getManaCost(130) < me.mp) {
+			if (useHowl && attackSkill !== sdk.skills.Whirlwind && [211, 243, 544, 562, 570, 571, 540, 541, 542].indexOf(unit.classid) === -1 &&
+				Attack.getMobCount(me.x, me.y, 5, null, true) >= 3 && Skill.getManaCost(sdk.skills.Howl) < me.mp) {
 				if (useGrimWard) {
 					this.grimWard(6);
 				} else if (!useWarCry) {
-					Skill.cast(130, Skill.getHand(130));
+					Skill.cast(sdk.skills.Howl, Skill.getHand(sdk.skills.Howl));
 				}
 			}
 		}
@@ -1870,13 +1878,13 @@ case 4: // Barbarian - theBGuy
 		}
 
 		var walk;
-		let useConc = me.getSkill(144, 0) && attackSkill === 152;
-		let useFrenzy = me.getSkill(147, 0) && attackSkill === 152;
-		let useWhirl = me.getSkill(151, 0) && attackSkill !== 151; // If main attack skill is already whirlwind no need to use it twice
-		let useLeap = me.getSkill(143, 1);
-		let useWarCry = me.getSkill(154, 1);
-		let useBattleCry = me.getSkill(146, 1);
-		let switchCast = (Precast.getBetterSlot(146) === 1 || Precast.getBetterSlot(154) === 1) ? true : false;
+		let useConc = me.getSkill(sdk.skills.Concentrate, 0) && attackSkill === sdk.skills.Berserk;
+		let useFrenzy = me.getSkill(sdk.skills.Frenzy, 0) && attackSkill === sdk.skills.Berserk;
+		let useWhirl = me.getSkill(sdk.skills.Whirlwind, 0) && attackSkill !== sdk.skills.Whirlwind; // If main attack skill is already whirlwind no need to use it twice
+		let useLeap = me.getSkill(sdk.skills.LeapAttack, 1);
+		let useWarCry = me.getSkill(sdk.skills.WarCry, 1);
+		let useBattleCry = me.getSkill(sdk.skills.BattleCry, 1);
+		let switchCast = (Precast.getBetterSlot(sdk.skills.BattleCry) === 1 || Precast.getBetterSlot(sdk.skills.WarCry) === 1) ? true : false;
 		Config.FindItem = me.getSkill(sdk.skills.FindItem, 1);	// Any points into the skill
 
 		if (attackSkill < 0) {
@@ -1884,7 +1892,7 @@ case 4: // Barbarian - theBGuy
 		}
 
 		switch (attackSkill) {
-		case 151:
+		case sdk.skills.Whirlwind:
 			if (Math.ceil(getDistance(me, unit)) > Skill.getRange(attackSkill) || checkCollision(me, unit, 0x1)) {
 				if (!Attack.getIntoPosition(unit, Skill.getRange(attackSkill), 0x1, 2)) {
 					return 0;
@@ -1905,7 +1913,7 @@ case 4: // Barbarian - theBGuy
 				walk = Skill.getRange(attackSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
 
 				if (useLeap && !checkCollision(me, unit, 0x1) && Math.round(getDistance(me, unit)) > 6) {
-					Skill.cast(143, 0, unit.x, unit.y);
+					Skill.cast(sdk.skills.LeapAttack, 0, unit.x, unit.y);
 				}
 
 				if (!Attack.getIntoPosition(unit, Skill.getRange(attackSkill), 0x4, walk)) {
@@ -1918,27 +1926,29 @@ case 4: // Barbarian - theBGuy
 
 				// Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
 				if (useBattleCry && Attack.getMobCount(me.x, me.y, 4) >= 1 &&
-					!unit.getState(sdk.states.BattleCry) && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.Terror) && !unit.getState(sdk.states.Taunt) && Skill.getManaCost(146) < me.mp) {
+					!unit.getState(sdk.states.BattleCry) && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.Terror) && !unit.getState(sdk.states.Taunt) && Skill.getManaCost(sdk.skills.BattleCry) < me.mp) {
 					if (switchCast) {
 						me.switchWeapons(1);
 					}
 
-					Skill.cast(146, Skill.getHand(146), unit);
+					Skill.cast(sdk.skills.BattleCry, Skill.getHand(sdk.skills.BattleCry), unit);
 
 					if (switchCast && !useWarCry) {
 						me.switchWeapons(1);
 					}
 				}
 
-				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.isCursable(unit) && (!unit.getState(sdk.states.Stunned) || getTickCount() - this.warCryTick >= 1500) && 
-					Attack.getMobCount(me.x, me.y, 5, null, true) >= (me.area === 131 || Item.getEquippedItem(4).durability === 0 ? 1 : 3) && Skill.getManaCost(154) < me.mp && Attack.checkResist(unit, 154)) {
+				if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 &&
+					Attack.isCursable(unit) && (!unit.getState(sdk.states.Stunned) || getTickCount() - this.warCryTick >= 1500) && 
+					Attack.getMobCount(me.x, me.y, 5, null, true) >= (me.area === sdk.areas.ThroneofDestruction || Item.getEquippedItem(4).durability === 0 ? 1 : 3)
+					&& Skill.getManaCost(sdk.skills.WarCry) < me.mp && Attack.checkResist(unit, sdk.skills.WarCry)) {
 					if (switchCast) {
 						me.switchWeapons(1);
 					}
 
 					//print("ÿc9doCast ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMobCount(me.x, me.y, 5, null, true));
 
-					Skill.cast(154, Skill.getHand(154));
+					Skill.cast(sdk.skills.WarCry, Skill.getHand(sdk.skills.WarCry));
 					this.warCryTick = getTickCount();
 
 					if (switchCast) {
@@ -1947,11 +1957,11 @@ case 4: // Barbarian - theBGuy
 				}
 
 				if (useFrenzy && !unit.dead && !me.getState(sdk.states.Frenzy)) {
-					Skill.cast(144, Skill.getHand(144), unit);
+					Skill.cast(sdk.skills.Frenzy, Skill.getHand(sdk.skills.Frenzy), unit);
 				}
 
 				if (useConc && !unit.dead) {
-					Skill.cast(144, Skill.getHand(144), unit);
+					Skill.cast(sdk.skills.Concentrate, Skill.getHand(sdk.skills.Concentrate), unit);
 				}
 
 				if (useWhirl && !unit.dead && (Attack.getMobCount(me.x, me.y, 6) >= 3 || ([156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1) && !me.hell)) {
@@ -2062,7 +2072,7 @@ MainLoop:
 		}
 
 		if (retry) {
-			return this.findItem(me.area === 83 ? 60 : 20);
+			return this.findItem(me.area === sdk.areas.Travincal ? 60 : 20);
 		}
 
 		if (Config.FindItemSwitch && me.weaponswitch === 1) {
@@ -2165,7 +2175,7 @@ MainLoop:
 	};
 
 	break;
-case 5: // Druid
+case sdk.charclass.Druid:
 	switch (SetUp.currentBuild) {
 	case "Wolf":
 	case "Plaguewolf":
@@ -2307,22 +2317,27 @@ case 5: // Druid
 				Town.visitTown();
 			}
 
-			if (me.getSkill(250, 1) && !me.getState(sdk.states.Hurricane)) { // Rebuff Hurricane
-				Skill.cast(250, 0);
+			// Rebuff Hurricane
+			if (me.getSkill(sdk.skills.Hurricane, 1) && !me.getState(sdk.states.Hurricane)) {
+				Skill.cast(sdk.skills.Hurricane, 0);
 			}
 
-			if (me.getSkill(235, 1) && !me.getState(sdk.states.CycloneArmor)) { // Rebuff Cyclone Armor
-				Skill.cast(235, 0);
+			// Rebuff Cyclone Armor
+			if (me.getSkill(sdk.skills.CycloneArmor, 1) && !me.getState(sdk.states.CycloneArmor)) { 
+				Skill.cast(sdk.skills.CycloneArmor, 0);
 			}
 
 			if (index === 1 && !unit.dead) {
-				if (!unit.getState(sdk.states.Weaken) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+				if (!unit.getState(sdk.states.Weaken) && Attack.isCursable(unit) &&
+					(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 					// Switch cast weaken
 					Attack.switchCastCharges(sdk.skills.Weaken, unit);
 				}
 
-				if (!unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-					Attack.switchCastCharges(87, unit);		// Switch cast decrepify
+				if (!unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
+					(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+					// Switch cast decrepify
+					Attack.switchCastCharges(sdk.skills.Decrepify, unit);		
 				}
 			}
 
@@ -2407,9 +2422,14 @@ case 5: // Druid
 				return 2;
 			}
 
+			// Rebuff Hurricane
+			if (me.getSkill(sdk.skills.Hurricane, 1) && !me.getState(sdk.states.Hurricane)) { 
+				Skill.cast(sdk.skills.Hurricane, 0);
+			}
+
 			if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 				switch (timedSkill) {
-				case 245: // Tornado
+				case sdk.skills.Tornado:
 					if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(timedSkill)) || checkCollision(me, unit, 0x4)) {
 						if (!Attack.getIntoPosition(unit, (Skill.getRange(timedSkill)), 0x4)) {
 							return 0;
@@ -2480,28 +2500,29 @@ case 5: // Druid
 	}
 
 	break;
-case 6: // Assasin
+case sdk.charclass.Assassin: // Assasin
 	if (!isIncluded("common/Attacks/Assassin.js")) {
 		include("common/Attacks/Assassin.js");
 	}
 
 	ClassAttack.mindBlast = function (unit) {
-		if (!me.getSkill(273, 1)) {
+		if (!me.getSkill(sdk.skills.MindBlast, 1)) {
 			return;
 		}
 
 		// Main bosses
-		if ([156, 211, 242, 243, 544].indexOf(unit.classid) > -1) {
+		if (Attack.MainBosses.indexOf(unit.classid) > -1) {
 			return;
 		}
 
-		if ([73, 120, 132].indexOf(me.area) > -1) {		// Duriel's Lair, Arreat Summit, Worldstone Chamber
+		// Duriel's Lair, Arreat Summit, Worldstone Chamber
+		if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].indexOf(me.area) > -1) {		
 			return;
 		}
 
 		let list = Attack.buildMonsterList();
-		let mindBlastMpCost = Skill.getManaCost(273);
-		let list = list.filter(mob => !mob.isStunned && !mob.isUnderLowerRes && [156, 211, 242, 243, 544].indexOf(mob.classid) === -1 && !checkCollision(me, mob, 0x4) &&
+		let mindBlastMpCost = Skill.getManaCost(sdk.skills.MindBlast);
+		let list = list.filter(mob => !mob.isStunned && !mob.isUnderLowerRes && Attack.MainBosses.indexOf(mob.classid) === -1 && !checkCollision(me, mob, 0x4) &&
 		 	(Math.round(getDistance(me, mob)) <= 6 || (Math.round(getDistance(me, mob)) >= 20 && Math.round(getDistance(me, mob)) <= 30)));
 
 		// Cast on close mobs first
@@ -2513,7 +2534,7 @@ case 6: // Assasin
 			for (let i = 0; i < list.length; i++) {
 				if (!list[i].dead && !checkCollision(me, list[i], 0x1) && me.mp > mindBlastMpCost * 2) {
 					me.overhead("MindBlasting " + list[i].name);
-					Skill.cast(273, 0, list[i]);
+					Skill.cast(sdk.skills.MindBlast, 0, list[i]);
 				}
 			}
 		}
@@ -2527,13 +2548,15 @@ case 6: // Assasin
 
 		for (i = -1; i <= 1; i += 1) {
 			for (j = -1; j <= 1; j += 1) {
-				if (Math.abs(i) === Math.abs(j)) { // used for X formation
-					// unit can be an object with x, y props too, that's why having "mode" prop is checked
+				// Used for X formation
+				if (Math.abs(i) === Math.abs(j)) {
+					// Unit can be an object with x, y props too, that's why having "mode" prop is checked
 					if (traps >= amount || (unit.hasOwnProperty("mode") && (unit.mode === 0 || unit.mode === 12))) {
 						return true;
 					}
 
-					if ((unit.hasOwnProperty("classid") && [211, 242, 243, 544].indexOf(unit.classid) > -1) || (unit.hasOwnProperty("type") && unit.type === 0)) { // Duriel, Mephisto, Diablo, Baal, other players
+					// Duriel, Mephisto, Diablo, Baal, other players
+					if ((unit.hasOwnProperty("classid") && [211, 242, 243, 544].indexOf(unit.classid) > -1) || (unit.hasOwnProperty("type") && unit.type === 0)) { 
 						if (traps >= Config.BossTraps.length) {
 							return true;
 						}
@@ -2545,13 +2568,14 @@ case 6: // Assasin
 						}
 
 						switch (Config.Traps[traps]) {
-						case 261: 	// Charged Bolt Sentry
-						case 271: 	// Lightning Sentry
+						case sdk.skills.ChargedBoltSentry:
+						case sdk.skills.LightningSentry:
+							// Immune to lightning but not immune to fire, use fire trap if available
 							if (!Attack.checkResist(unit, "lightning") && Attack.checkResist(unit, "fire")) {
-								if (me.getSkill(262, 1)) {	// Wake of Fire
-									Skill.cast(262, 0, unit.x + i, unit.y + j);
-								} else if (!me.getSkill(262, 1) && me.getSkill(272, 1)) {	// Inferno
-									Skill.cast(272, 0, unit.x + i, unit.y + j);
+								if (me.getSkill(sdk.skills.WakeofFire, 1)) {
+									Skill.cast(sdk.skills.WakeofFire, 0, unit.x + i, unit.y + j);
+								} else if (!me.getSkill(sdk.skills.WakeofFire, 1) && me.getSkill(sdk.skills.WakeofInferno, 1)) {
+									Skill.cast(sdk.skills.WakeofInferno, 0, unit.x + i, unit.y + j);
 								}
 
 								break;
@@ -2560,13 +2584,14 @@ case 6: // Assasin
 							}
 
 							break;
-						case 262: 	// Wake of Fire
-						case 272: 	// Inferno
+						case sdk.skills.WakeofFire:
+						case sdk.skills.WakeofInferno:
+							// Immune to fire but not immune to lightning, use light trap if available
 							if (Attack.checkResist(unit, "lightning") && !Attack.checkResist(unit, "fire")) {
-								if (me.getSkill(271, 1)) {	// Lightning Sentry
-									Skill.cast(271, 0, unit.x + i, unit.y + j);
-								} else if (!me.getSkill(271, 1) && me.getSkill(261, 1)) {	// Inferno
-									Skill.cast(261, 0, unit.x + i, unit.y + j);
+								if (me.getSkill(sdk.skills.LightningSentry, 1)) {
+									Skill.cast(sdk.skills.LightningSentry, 0, unit.x + i, unit.y + j);
+								} else if (!me.getSkill(sdk.skills.LightningSentry, 1) && me.getSkill(sdk.skills.ChargedBoltSentry, 1)) {
+									Skill.cast(sdk.skills.ChargedBoltSentry, 0, unit.x + i, unit.y + j);
 								}
 
 								break;
@@ -2601,7 +2626,8 @@ case 6: // Assasin
 			untimedSkill = -1,
 			index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3,
 			gold = me.getStat(14) + me.getStat(15),
-			shouldUseCloak = me.getSkill(264, 1) && !unit.isUnderLowerRes && ([156, 211, 242, 243, 544].indexOf(unit.classid) === -1 || ([156, 211, 242, 243, 544].indexOf(unit.classid) > -1 && Attack.getMobCountAtPosition(unit.x, unit.y, 20) > 1));
+			shouldUseCloak = (me.getSkill(sdk.skills.CloakofShadows, 1) && !unit.isUnderLowerRes && 
+							(Attack.MainBosses.indexOf(unit.classid) === -1 || (Attack.MainBosses.indexOf(unit.classid) > -1 && Attack.getMobCountAtPosition(unit.x, unit.y, 20) > 1)));
 
 		this.mindBlast(unit);
 
@@ -2618,9 +2644,9 @@ case 6: // Assasin
 		}
 
 		// Cloak of Shadows (Aggressive) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
-		if (Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && !me.getState(sdk.states.SkillDelay) && !me.getState(153)) {
+		if (Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && !me.getState(sdk.states.SkillDelay) && !me.getState(sdk.states.CloakofShadows)) {
 			if (getDistance(me, unit) < 20) {
-				Skill.cast(264, 0);
+				Skill.cast(sdk.skills.CloakofShadows, 0);
 			} else if (!Attack.getIntoPosition(unit, 20, 0x4)) {
 				return 0;
 			}
@@ -2639,14 +2665,16 @@ case 6: // Assasin
 		}
 
 		// Cloak of Shadows (Defensive; default) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
-		if (!Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && getDistance(me, unit) < 20 && !me.getState(sdk.states.SkillDelay) && !me.getState(153)) {
-			Skill.cast(264, 0);
+		if (!Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && getDistance(me, unit) < 20 && !me.getState(sdk.states.SkillDelay) && !me.getState(sdk.states.CloakofShadows)) {
+			Skill.cast(sdk.skills.CloakofShadows, 0);
 		}
 
 		// Handle Switch casting
 		if (index === 1 && !unit.dead) {
-			if (!unit.getState(61) && Attack.isCursable(unit) && (gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [108, 131].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-				Attack.switchCastCharges(91, unit);		// Switch cast lower resist
+			if (!unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
+				(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+				// Switch cast lower resist
+				Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 			}
 		}
 

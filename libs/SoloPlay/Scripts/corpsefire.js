@@ -6,24 +6,24 @@
 
 function corpsefire() {
 	Town.doChores();
-	Town.buyPots(10, "Thawing"); // thawing
+	Town.buyPots(10, "Thawing");
 	Town.drinkPots();
-	Town.buyPots(10, "Antidote"); // antidote
+	Town.buyPots(10, "Antidote");
 	Town.drinkPots();
 
 	print('ÿc8Kolbot-SoloPlayÿc0: starting corpsefire');
 	me.overhead("starting corpsefire");
 
-	if (!Pather.checkWP(3)) {
-		Pather.getWP(3);
+	if (!Pather.checkWP(sdk.areas.ColdPlains)) {
+		Pather.getWP(sdk.areas.ColdPlains);
 	} else {
-		Pather.useWaypoint(3);
+		Pather.useWaypoint(sdk.areas.ColdPlains);
 	}
 
 	Precast.doPrecast(true);
 
-	Pather.clearToExit(3, 2, true);
-	Pather.clearToExit(2, 8, true);
+	Pather.clearToExit(sdk.areas.ColdPlains, sdk.areas.BloodMoor, true);
+	Pather.clearToExit(sdk.areas.BloodMoor, sdk.areas.DenofEvil, true);
 	Attack.clearLevel();
 
 	return true;

@@ -18,7 +18,7 @@ var SetUp = {
 		"corpsefire", "den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "andariel", "a1chests", "cows", // Act 1
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel", // Act 2
 		"templeruns", "lowerkurast", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
-		"izual", "hellforge", "river", "hephasto", "diablo", //Act 4
+		"izual", "hellforge", "river", "hephasto", "diablo", // Act 4
 		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests", // Act 5
 	],
 

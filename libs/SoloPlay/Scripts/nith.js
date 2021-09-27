@@ -10,15 +10,15 @@ function nith() {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting nith');
 	me.overhead("nith");
 
-	if (!Pather.checkWP(123)) {
-		Pather.getWP(123);
+	if (!Pather.checkWP(sdk.areas.HallsofPain)) {
+		Pather.getWP(sdk.areas.HallsofPain);
 	} else {
-		Pather.useWaypoint(123);
+		Pather.useWaypoint(sdk.areas.HallsofPain);
 	}
 
 	Precast.doPrecast(false);
 
-	if (!Pather.moveToExit(124, true)) {
+	if (!Pather.moveToExit(sdk.areas.HallsofVaught, true)) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to go to Nihlathak");
 		
 		return true;
@@ -26,6 +26,7 @@ function nith() {
 
 	Pather.moveToPreset(me.area, 2, 462);
 
+	// Stop script in hardcore mode if vipers are found
 	if (me.playertype && getUnit(1, 597)) {
 		print("Tomb Vipers found.");
 

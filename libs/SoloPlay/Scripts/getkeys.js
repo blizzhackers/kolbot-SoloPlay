@@ -7,7 +7,7 @@
 function getkeys() {
 	Town.doChores();
 
-	if (!me.findItems(sdk.quest.KeyOfTerror) || me.findItems(sdk.quest.KeyOfTerror).length < 3) {
+	if (!me.findItems(sdk.items.quest.KeyofTerror) || me.findItems(sdk.items.quest.KeyofTerror).length < 3) {
 		try {
 			if (!isIncluded("SoloPlay/Scripts/countess.js")) {
 				include("SoloPlay/Scripts/countess.js");
@@ -21,7 +21,7 @@ function getkeys() {
 		}
 	}
 
-	if (!me.findItems(sdk.quest.KeyOfHate) || me.findItems(sdk.quest.KeyOfHate).length < 3) {
+	if (!me.findItems(sdk.items.quest.KeyofHate) || me.findItems(sdk.items.quest.KeyofHate).length < 3) {
 		try {
 			if (!isIncluded("SoloPlay/Scripts/summoner.js")) {
 				include("SoloPlay/Scripts/summoner.js");
@@ -35,7 +35,7 @@ function getkeys() {
 		}
 	}
 
-	if (!me.findItems(sdk.quest.KeyOfDestruction) || me.findItems(sdk.quest.KeyOfDestruction).length < 3) {
+	if (!me.findItems(sdk.items.quest.KeyofDestruction) || me.findItems(sdk.items.quest.KeyofDestruction).length < 3) {
 		try {
 			if (!isIncluded("SoloPlay/Scripts/nith.js")) {
 				include("SoloPlay/Scripts/nith.js");

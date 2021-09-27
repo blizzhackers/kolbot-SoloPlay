@@ -24,7 +24,7 @@ var build = {
 		[sdk.skills.ChargedBoltSentry, 1], 	// points left 21
 		[sdk.skills.ClawMastery, 1], 		// points left 20
 		[sdk.skills.PsychicHammer, 1], 		// points left 19
-		[sdk.skills.BurstOfSpeed, 1], 		// points left 18
+		[sdk.skills.BurstofSpeed, 1], 		// points left 18
 		[sdk.skills.Fade, 1], 				// points left 17
 		[sdk.skills.WeaponBlock, 1], 		// points left 16
 		[sdk.skills.CloakOfShadows, 1], 	// points left 15

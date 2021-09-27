@@ -9,24 +9,24 @@ function radament () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting radament');
 	me.overhead("radament");
 
-	if (!Pather.checkWP(48)) {
+	if (!Pather.checkWP(sdk.areas.A2SewersLvl2)) {
 		Town.goToTown(2);
-		Pather.moveToExit(47, true);
-		Pather.getWP(48);
+		Pather.moveToExit(sdk.areas.A2SewersLvl1, true);
+		Pather.getWP(sdk.areas.A2SewersLvl2);
 	} else {
-		Pather.useWaypoint(48);
+		Pather.useWaypoint(sdk.areas.A2SewersLvl2);
 	}
 
 	Precast.doPrecast(true);
-	Pather.clearToExit(48, 49, true);
+	Pather.clearToExit(sdk.areas.A2SewersLvl2, sdk.areas.A2SewersLvl3, true);
 	Pather.moveToPreset(me.area, 2, 355);
 	Attack.killTarget("Radament");
 	Pickit.pickItems();
 
 	if (Misc.checkQuest(9, 1)) {
 		Town.npcInteract("atma");
-
-		if (getUIFlag(0x08)) {	// NPC menu
+		// NPC menu
+		if (getUIFlag(0x08)) {
 			delay(500);
 			me.cancel();
 		}

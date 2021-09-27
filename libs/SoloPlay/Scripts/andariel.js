@@ -17,20 +17,20 @@ function andariel () {
 
 	let questBug = (!me.normal && !me.andariel);
 
-	if (!Pather.checkWP(35)) {
-		Pather.getWP(35);
+	if (!Pather.checkWP(sdk.areas.CatacombsLvl2)) {
+		Pather.getWP(sdk.areas.CatacombsLvl2);
 	} else {
-		Pather.useWaypoint(35);
+		Pather.useWaypoint(sdk.areas.CatacombsLvl2);
 	}
 
 	Precast.doPrecast(true);
-	Pather.moveToExit([36, 37], true);
+	Pather.moveToExit([sdk.areas.CatacombsLvl3, sdk.areas.CatacombsLvl4], true);
 
 	if (Check.Resistance().PR < 75 + me.getStat(46)) {
 		Town.doChores();
 		Town.buyPots(10, "Antidote"); // antidote
 		Town.drinkPots();
-		Pather.usePortal(37, me.name);
+		Pather.usePortal(sdk.areas.CatacombsLvl4, me.name);
 	}
 
 	Precast.doPrecast(true);

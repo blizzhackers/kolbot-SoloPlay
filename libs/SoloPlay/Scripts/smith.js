@@ -10,16 +10,16 @@ function smith () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting smith');
 	me.overhead("smith");
 
-	if (!Pather.checkWP(27)) {
-		Pather.getWP(27);
+	if (!Pather.checkWP(sdk.areas.OuterCloister)) {
+		Pather.getWP(sdk.areas.OuterCloister);
 	} else {
-		Pather.useWaypoint(27);
+		Pather.useWaypoint(sdk.areas.OuterCloister);
 	}
 
 	Precast.doPrecast(true);
-	Pather.moveToExit(28);
+	Pather.moveToExit(sdk.areas.Barracks);
 
-	if (!Pather.moveToPreset(28, 2, 108)) {
+	if (!Pather.moveToPreset(sdk.areas.Barracks, 2, 108)) {
 		throw new Error("ÿc8Kolbot-SoloPlayÿc0: Failed to move to the Smith");
 	}
 
@@ -29,12 +29,12 @@ function smith () {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Smith');
 	}
 
-	Quest.collectItem(89, 108);
+	Quest.collectItem(sdk.items.quest.HoardricMalus, 108);
 	Pickit.pickItems();
 	Town.goToTown();
 	Town.npcInteract("charsi");
 	Pather.usePortal(null, me.name);
-	Pather.getWP(29);
+	Pather.getWP(sdk.areas.JailLvl1);
 	Pather.useWaypoint(1);
 
 	return true;

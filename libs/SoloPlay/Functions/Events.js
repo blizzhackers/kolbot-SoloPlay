@@ -35,7 +35,7 @@ var Events = {
 		} else {
 			Pather.useWaypoint(sdk.areas.RogueEncampment);
 			Pather.moveToExit(sdk.areas.ColdPlains, true);
-			Pather.clearToExit(sdk.areas.ColdPlains, sdk.areas.DenOfEvil, true);
+			Pather.clearToExit(sdk.areas.ColdPlains, sdk.areas.DenofEvil, true);
 			Pather.moveToPreset(me.area, 1, 774, 0, 0, false, true);
 		}
 
@@ -226,7 +226,7 @@ var Events = {
 
 		switch (bytes[0]) {
 		case 0x89: // d2gs unique event
-			if (me.area === sdk.areas.DenOfEvil) {
+			if (me.area === sdk.areas.DenofEvil) {
 				scriptBroadcast('finishDen');
 			}
 

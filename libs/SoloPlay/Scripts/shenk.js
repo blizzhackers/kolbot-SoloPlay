@@ -9,10 +9,10 @@ function shenk () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting shenk');
 	me.overhead("shenk");
 
-	if (!Pather.checkWP(111)) {
-		Pather.getWP(111);
+	if (!Pather.checkWP(sdk.areas.FrigidHighlands)) {
+		Pather.getWP(sdk.areas.FrigidHighlands);
 	} else {
-		Pather.useWaypoint(111);
+		Pather.useWaypoint(sdk.areas.FrigidHighlands);
 	}
 
 	Precast.doPrecast(true);
@@ -24,7 +24,7 @@ function shenk () {
 		Pickit.pickItems();
 	}
 
-	Pather.moveTo(110, true);
+	Pather.moveToExit(sdk.areas.BloodyFoothills, true);
 	Pather.moveTo(3883, 5113);
 	Attack.killTarget(getLocaleString(22435)); // Shenk the Overseer
 	Pickit.pickItems();

@@ -8,10 +8,10 @@ function beetleburst () {
 	Town.townTasks();
 	print('ÿc8Kolbot-SoloPlayÿc0: starting beetleburst');
 
-	if (!Pather.checkWP(43)) {
-		Pather.getWP(43);
+	if (!Pather.checkWP(sdk.areas.FarOasis)) {
+		Pather.getWP(sdk.areas.FarOasis);
 	} else {
-		Pather.useWaypoint(43);
+		Pather.useWaypoint(sdk.areas.FarOasis);
 	}
 
 	Precast.doPrecast(true);

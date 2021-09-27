@@ -15,14 +15,14 @@ function river() {
 	Town.buyPots(8, "Thawing");
 	Town.drinkPots();
 
-	if (!Pather.checkWP(106)) {
-		Pather.getWP(106);
+	if (!Pather.checkWP(sdk.areas.CityoftheDamned)) {
+		Pather.getWP(sdk.areas.CityoftheDamned);
 	} else {
-		Pather.useWaypoint(106);
+		Pather.useWaypoint(sdk.areas.CityoftheDamned);
 	}
 
 	Precast.doPrecast(true);
-	Pather.clearToExit(106, 107, true);
+	Pather.clearToExit(sdk.areas.CityoftheDamned, sdk.areas.RiverofFlame, true);
 
 	if (!Pather.moveToPreset(me.area, 2, 376)) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Hephasto");
@@ -34,7 +34,7 @@ function river() {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Hephasto');
 	}
 
-	Pather.getWP(107, true);
+	Pather.getWP(sdk.areas.RiverofFlame, true);
 
 	return true;
 }

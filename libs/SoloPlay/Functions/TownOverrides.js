@@ -33,7 +33,7 @@ Town.townTasks = function () {
 	}
 
 	// Burst of speed while in town
-	if (me.inTown && me.assassin && me.getSkill(258, 1) && !me.getState(sdk.states.BurstOfSpeed)) {
+	if (me.inTown && me.assassin && me.getSkill(258, 1) && !me.getState(sdk.states.BurstofSpeed)) {
 		Skill.cast(258, 0);
 	}
 
@@ -109,7 +109,7 @@ Town.doChores = function (repair = false) {
 	}
 
 	// Burst of speed while in town
-	if (me.inTown && me.assassin && me.getSkill(258, 1) && !me.getState(sdk.states.BurstOfSpeed)) {
+	if (me.inTown && me.assassin && me.getSkill(258, 1) && !me.getState(sdk.states.BurstofSpeed)) {
 		Skill.cast(258, 0);
 	}
 

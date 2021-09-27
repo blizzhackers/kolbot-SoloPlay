@@ -12,10 +12,10 @@ function savebarby () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting barbies');
 	me.overhead("barbies");
 
-	if (!Pather.checkWP(111)) {
-		Pather.getWP(111);
+	if (!Pather.checkWP(sdk.areas.FrigidHighlands)) {
+		Pather.getWP(sdk.areas.FrigidHighlands);
 	} else {
-		Pather.useWaypoint(111);
+		Pather.useWaypoint(sdk.areas.FrigidHighlands);
 	}
 
 	Precast.doPrecast(true);
@@ -33,7 +33,7 @@ function savebarby () {
 	}
 
 	for ( let k = 0 ; k < coords.length ; k += 1) {
-		me.overhead("come on Barby let's go party... " + (k + 1) + "/" + barbies.length);
+		me.overhead("let my barby go! " + (k + 1) + "/" + barbies.length);
 		Pather.moveToUnit(coords[k], 2, 0);
 		let door = getUnit(1, 434);
 

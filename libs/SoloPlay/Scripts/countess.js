@@ -9,14 +9,14 @@ function countess () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting countess');
 	me.overhead("countess");
 
-	if (!Pather.checkWP(6)) {
-		Pather.getWP(6);
+	if (!Pather.checkWP(sdk.areas.BlackMarsh)) {
+		Pather.getWP(sdk.areas.BlackMarsh);
 	} else {
-		Pather.useWaypoint(6);
+		Pather.useWaypoint(sdk.areas.BlackMarsh);
 	}
 
 	Precast.doPrecast(true);
-	let floors = [20, 21, 22, 23, 24, 25];
+	let floors = [sdk.areas.ForgottenTower, sdk.areas.TowerCellarLvl1, sdk.areas.TowerCellarLvl2, sdk.areas.TowerCellarLvl3, sdk.areas.TowerCellarLvl4, sdk.areas.TowerCellarLvl5];
 
 	try {
 		if (me.charlvl < 15) {

@@ -6,7 +6,7 @@
 
 function treehead() {
 	Town.doChores();
-	Pather.useWaypoint(5);
+	Pather.useWaypoint(sdk.areas.DarkWood);
 	Precast.doPrecast(true);
 
 	try {
@@ -19,7 +19,6 @@ function treehead() {
 		}
 	}
 
-	//Attack.clear(15, 0, getLocaleString(2873)); // Treehead Woodfist
 	Attack.killTarget(getLocaleString(2873));
 
 	return true;

@@ -8,15 +8,15 @@ function a5chests() {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting a5 chests');
 	me.overhead("a5 chests");
 
-	let areas = [125, 126, 127, 115, 116, 119];
+	let areas = [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit, sdk.areas.GlacialTrail, sdk.areas.DrifterCavern, sdk.areas.IcyCellar];
 
 	Town.doChores();
 
 	for (let i = 0; i < areas.length; i++) {
 		try {
-			if (!Pather.canTeleport() && me.nightmare && [125, 126, 127].indexOf(areas[i]) > -1) {
+			if (!Pather.canTeleport() && me.nightmare && [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit].indexOf(areas[i]) > -1) {
 				continue;
-			} else if (!Pather.canTeleport() && me.nightmare && me.charlvl >= 70 && [125, 126, 127, 115, 116].indexOf(areas[i]) > -1) {
+			} else if (!Pather.canTeleport() && me.nightmare && me.charlvl >= 70 && [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit, sdk.areas.GlacialTrail, sdk.areas.DrifterCavern].indexOf(areas[i]) > -1) {
 				continue;
 			}
 

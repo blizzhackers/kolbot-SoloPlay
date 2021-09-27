@@ -10,9 +10,9 @@ function orgtorch() {
 
 	// Identify & mule
 	this.checkTorch = function () {
-		if (me.area === 136) {
+		if (me.area === sdk.areas.UberTristram) {
 			Pather.moveTo(25105, 5140);
-			Pather.usePortal(109);
+			Pather.usePortal(sdk.areas.Harrogath);
 		}
 
 		Town.doChores();
@@ -96,7 +96,7 @@ function orgtorch() {
 				Precast.doPrecast(true);
 				Pather.moveTo(7811, 5872);
 
-				if (me.classid === 3 && me.getSkill(125, 1)) {
+				if (me.paladin && me.getSkill(125, 1)) {
 					Skill.setSkill(125, 0);
 				}
 
@@ -139,7 +139,7 @@ function orgtorch() {
 				do {
 					switch (mode) {
 					case 0:
-						if ([133, 134, 135].indexOf(portal.objtype) > -1 && this.doneAreas.indexOf(portal.objtype) === -1) {
+						if ([sdk.areas.MatronsDen, sdk.areas.ForgottenSands, sdk.areas.FurnaceofPain].indexOf(portal.objtype) > -1 && this.doneAreas.indexOf(portal.objtype) === -1) {
 							this.doneAreas.push(portal.objtype);
 
 							return copyUnit(portal);
@@ -147,7 +147,7 @@ function orgtorch() {
 
 						break;
 					case 1:
-						if (portal.objtype === 136) {
+						if (portal.objtype === sdk.areas.UberTristram) {
 							return copyUnit(portal);
 						}
 
@@ -165,15 +165,15 @@ function orgtorch() {
 		let i, findLoc, skillBackup;
 
 		switch (me.area) {
-		case 133: // Matron's Den
+		case sdk.areas.MatronsDen:
 			Precast.doPrecast(true);
-			Pather.moveToPreset(133, 2, 397, 2, 2);
+			Pather.moveToPreset(sdk.areas.MatronsDen, 2, 397, 2, 2);
 			Attack.killTarget(707);
 			Pickit.pickItems();
 			Town.goToTown();
 
 			break;
-		case 134: // Forgotten Sands
+		case sdk.areas.ForgottenSands:
 			Precast.doPrecast(true);
 
 			findLoc = [20196, 8694, 20308, 8588, 20187, 8639, 20100, 8550, 20103, 8688, 20144, 8709, 20263, 8811, 20247, 8665];
@@ -192,15 +192,15 @@ function orgtorch() {
 			Town.goToTown();
 
 			break;
-		case 135: // Furnace of Pain
+		case sdk.areas.FurnaceofPain:
 			Precast.doPrecast(true);
-			Pather.moveToPreset(135, 2, 397, 2, 2);
+			Pather.moveToPreset(sdk.areas.FurnaceofPain, 2, 397, 2, 2);
 			Attack.killTarget(706);
 			Pickit.pickItems();
 			Town.goToTown();
 
 			break;
-		case 136: // Tristram
+		case sdk.areas.UberTristram:
 			Pather.moveTo(25068, 5078);
 			Precast.doPrecast(true);
 
@@ -320,24 +320,24 @@ function orgtorch() {
 
 			if (portal) {
 				switch (portal.objtype) {
-				case 133: 	// Matron's
-					Town.buyPots(10, "Thawing"); // thawing
+				case sdk.areas.MatronsDen:
+					Town.buyPots(10, "Thawing");
 					Town.drinkPots();
-					Town.buyPots(10, "Antidote"); // antidote
+					Town.buyPots(10, "Antidote");
 					Town.drinkPots();
-					Town.buyPots(10, "Antidote"); // antidote	// Double stack to ensure it lasts
-					Town.drinkPots();
-
-					break;
-				case 134: 	// Sand's
-					Town.buyPots(10, "Thawing"); // thawing
+					Town.buyPots(10, "Antidote"); // Double stack to ensure it lasts
 					Town.drinkPots();
 
 					break;
-				case 135: 	// Furnace
-					Town.buyPots(10, "Thawing"); // thawing
+				case sdk.areas.ForgottenSands:
+					Town.buyPots(10, "Thawing");
 					Town.drinkPots();
-					Town.buyPots(10, "Antidote"); // antidote
+
+					break;
+				case sdk.areas.FurnaceofPain:
+					Town.buyPots(10, "Thawing");
+					Town.drinkPots();
+					Town.buyPots(10, "Antidote");
 					Town.drinkPots();
 
 					break;

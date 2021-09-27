@@ -9,7 +9,10 @@ function templeruns () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting temple runs');
 	me.overhead("temple runs");
 
-	let temples = [[78, 79], [80, 94], [80, 95], [81, 96], [81, 97], [81, 82, 98], [81, 82, 99]];
+	let temples = [
+		[sdk.areas.FlayerJungle, sdk.areas.LowerKurast], [sdk.areas.KurastBazaar, sdk.areas.RuinedTemple],
+		[sdk.areas.KurastBazaar, sdk.areas.DisusedFane], [sdk.areas.UpperKurast, sdk.areas.ForgottenReliquary],
+		[sdk.areas.UpperKurast, sdk.areas.ForgottenTemple], [sdk.areas.UpperKurast, sdk.areas.KurastCauseway, sdk.areas.RuinedFane], [sdk.areas.UpperKurast, sdk.areas.KurastCauseway, sdk.areas.DisusedReliquary]];
 	Town.townTasks();
 
 	for (let run = 0; run < temples.length; run++) {
@@ -22,11 +25,11 @@ function templeruns () {
 		Precast.doPrecast(true);
 
 		if (Pather.moveToExit(temples[run], true, true)) {
-			if (me.area === 79) {
-				Misc.openChestsInArea(79);
-			} else if (me.area === 94 && !me.lamessen) {
+			if (me.area === sdk.areas.LowerKurast) {
+				Misc.openChestsInArea(sdk.areas.LowerKurast);
+			} else if (me.area === sdk.areas.RuinedTemple && !me.lamessen) {
 				me.overhead("lamessen");
-				Pather.moveToPreset(94, 2, 193);
+				Pather.moveToPreset(sdk.areas.RuinedTemple, 2, 193);
 				Quest.collectItem(548, 193);
 				Town.unfinishedQuests();
 			} else {
@@ -41,8 +44,8 @@ function templeruns () {
 		Town.goToTown();
 
 		if (!me.mephisto) {
-			if (!Pather.checkWP(83)) {
-				Pather.getWP(83);
+			if (!Pather.checkWP(sdk.areas.Travincal)) {
+				Pather.getWP(sdk.areas.Travincal);
 				Town.goToTown();
 			}
 		}

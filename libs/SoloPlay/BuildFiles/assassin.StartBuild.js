@@ -22,7 +22,7 @@ var build = {
 		[sdk.skills.FireBlast, 4, false], 		// level 4
 		[sdk.skills.ClawMastery, 1], 			// level 5 (den)
 		[sdk.skills.PhysicHammer, 1], 			// level 6
-		[sdk.skills.BurstOfSpeed, 5], 			// level 11
+		[sdk.skills.BurstofSpeed, 5], 			// level 11
 		[sdk.skills.WakeOfFire, 1, false], 		// level 12
 		[sdk.skills.CloakOfShadows, 1, true], 	// level 13
 		[sdk.skills.WakeOfFire, 10, false], 	// level 24

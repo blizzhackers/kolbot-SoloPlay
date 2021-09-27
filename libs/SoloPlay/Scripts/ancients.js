@@ -54,21 +54,21 @@ function ancients () {
 		Town.buyPots(10, "Antidote");
 		Town.drinkPots();
 		Town.buyPotions();
-		Pather.usePortal(120, me.name);
+		Pather.usePortal(sdk.areas.ArreatSummit, me.name);
 	};
 
 	Town.townTasks();
 	print('ÿc8Kolbot-SoloPlayÿc0: starting ancients');
 	me.overhead("ancients");
 
-	if (!Pather.checkWP(118)) {
-		Pather.getWP(118);
+	if (!Pather.checkWP(sdk.areas.AncientsWay)) {
+		Pather.getWP(sdk.areas.AncientsWay);
 	} else {
-		Pather.useWaypoint(118);
+		Pather.useWaypoint(sdk.areas.AncientsWay);
 	}
 
 	Precast.doPrecast(true);
-	Pather.moveToExit(120, true); // enter at ancients plateau
+	Pather.moveToExit(sdk.areas.ArreatSummit, true); // enter at ancients plateau
 
 	Town.townTasks();
 	Town.buyPots(10, "Thawing"); // prep to revised settings
@@ -89,10 +89,10 @@ function ancients () {
 	me.overhead('updated settings');
 
 	Town.buyPotions();
-	Pather.usePortal(120, me.name);
+	Pather.usePortal(sdk.areas.ArreatSummit, me.name);
 	Precast.doPrecast(true);
 
-	if (!Pather.moveToPreset(120, 2, 546)) { // move to altar
+	if (!Pather.moveToPreset(sdk.areas.ArreatSummit, 2, 546)) { // move to altar
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to ancients' altar");
 	}
 
@@ -105,7 +105,7 @@ function ancients () {
 	while (!canAncients()) {// reroll ancients if unable to attack
 		Pather.makePortal(true);
 		ancientsPrep();
-		Pather.usePortal(120, me.name);
+		Pather.usePortal(sdk.areas.ArreatSummit, me.name);
 		touchAltar();
 
 		while (!getUnit(1, 542)) {
@@ -131,9 +131,9 @@ function ancients () {
 
 	try {
 		if (Misc.checkQuest(39, 0)) {
-			Pather.clearToExit(120, 128, true);
-			Pather.clearToExit(128, 129, true);
-			Pather.getWP(129);
+			Pather.clearToExit(sdk.areas.ArreatSummit, sdk.areas.WorldstoneLvl1, true);
+			Pather.clearToExit(sdk.areas.WorldstoneLvl1, sdk.areas.WorldstoneLvl2, true);
+			Pather.getWP(sdk.areas.WorldstoneLvl2);
 		}
 	} catch (err) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Cleared Ancients. Failed to get WSK Waypoint');

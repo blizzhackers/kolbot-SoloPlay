@@ -15,15 +15,15 @@ function worldstone() {
 	Town.buyPots(8, "Thawing");
 	Town.drinkPots();
 
-	Pather.useWaypoint(129);
+	Pather.useWaypoint(sdk.areas.WorldstoneLvl2);
 	Precast.doPrecast(true);
 	Attack.clearLevel(Config.ClearType);
 
-	if (Pather.moveToExit(128, true)) {
+	if (Pather.moveToExit(sdk.areas.WorldstoneLvl1, true)) {
 		Attack.clearLevel(Config.ClearType);
 	}
 
-	if (Pather.moveToExit([129, 130], true)) {
+	if (Pather.moveToExit([sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3], true)) {
 		Attack.clearLevel(Config.ClearType);
 	}
 

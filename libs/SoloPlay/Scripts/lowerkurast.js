@@ -9,14 +9,14 @@ function lowerkurast () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting lower kurast');
 	me.overhead("lower kurast");
 
-	if (!Pather.checkWP(79)) {
-		Pather.getWP(79);
+	if (!Pather.checkWP(sdk.areas.LowerKurast)) {
+		Pather.getWP(sdk.areas.LowerKurast);
 	} else {
-		Pather.useWaypoint(79);
+		Pather.useWaypoint(sdk.areas.LowerKurast);
 	}
 
 	Precast.doPrecast(true);
-	Misc.openChestsInArea(79);
+	Misc.openChestsInArea(sdk.areas.LowerKurast);
 
 	return true;
 }

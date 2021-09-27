@@ -9,10 +9,10 @@ function ancienttunnels () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting ancient tunnels');
 	me.overhead("ancient tunnels");
 
-	if (!Pather.checkWP(44)) {
-		Pather.getWP(44);
+	if (!Pather.checkWP(sdk.areas.LostCity)) {
+		Pather.getWP(sdk.areas.LostCity);
 	} else {
-		Pather.useWaypoint(44);
+		Pather.useWaypoint(sdk.areas.LostCity);
 	}
 
 	Precast.doPrecast(true);
@@ -29,7 +29,7 @@ function ancienttunnels () {
 		}
 	}
 
-	if (!Pather.moveToExit(65, true)) {
+	if (!Pather.moveToExit(sdk.areas.AncientTunnels, true)) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Ancient Tunnels");
 
 		return false;

@@ -8,38 +8,38 @@ function den () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting den');
 	me.overhead("den");
 
-	if (!Pather.checkWP(3)) {
-		Pather.moveToExit(2, true);
-		Pather.moveToExit(8, false, true);
+	if (!Pather.checkWP(sdk.areas.ColdPlains)) {
+		Pather.moveToExit(sdk.areas.BloodMoor, true);
+		Pather.moveToExit(sdk.areas.DenofEvil, false, true);
 		Pather.makePortal();
-		Pather.getWP(3);
+		Pather.getWP(sdk.areas.ColdPlains);
 
 		if (me.normal) {
-			Attack.clearLevelUntilLevel(3);
+			Attack.clearLevelUntilLevel(sdk.areas.ColdPlains);
 		}
 
-		Pather.getWP(3);
-		Pather.useWaypoint(1);
+		Pather.getWP(sdk.areas.ColdPlains);
+		Pather.useWaypoint(sdk.areas.RogueEncampment);
 	}
 
 	Town.doChores();
 
-	if (!Pather.usePortal(2, me.name)) {
-		Pather.moveToExit(2, true);
+	if (!Pather.usePortal(sdk.areas.BloodMoor, me.name)) {
+		Pather.moveToExit(sdk.areas.BloodMoor, true);
 	}
 
 	Precast.doPrecast(true);
 	Attack.clear(50);
-	Pather.moveToExit(8, true);
+	Pather.moveToExit(sdk.areas.DenofEvil, true);
 
-	while (me.area === 8) {
+	while (me.area === sdk.areas.DenofEvil) {
 		Attack.clearLevel();
 
 		if (Misc.checkQuest(1, 13)) {
 			if (!Town.canTpToTown()) {
-				Pather.moveToExit([2, 3], true);
-				Pather.getWP(3);
-				Pather.useWaypoint(1);
+				Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.ColdPlains], true);
+				Pather.getWP(sdk.areas.ColdPlains);
+				Pather.useWaypoint(sdk.areas.RogueEncampment);
 			} else {
 				Town.goToTown();
 			}

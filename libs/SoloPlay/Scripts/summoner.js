@@ -6,7 +6,7 @@
 
 function summoner () {
 	var teleportPads = function () {
-		if (me.area !== 74 || (me.getSkill(54, 0) || me.getStat(97, 54))) {
+		if (me.area !== sdk.areas.ArcaneSanctuary || (me.getSkill(54, 0) || me.getStat(97, 54))) {
 			return true;
 		}
 
@@ -72,21 +72,21 @@ function summoner () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting summoner');
 	me.overhead("summoner");
 
-	if (!Pather.checkWP(74)) {
-		Pather.getWP(74);
+	if (!Pather.checkWP(sdk.areas.ArcaneSanctuary)) {
+		Pather.getWP(sdk.areas.ArcaneSanctuary);
 	} else {
-		Pather.useWaypoint(74);
+		Pather.useWaypoint(sdk.areas.ArcaneSanctuary);
 	}
 
 	Precast.doPrecast(true);
 	teleportPads();
 
 	try {
-		Pather.moveToPreset(74, 2, 357, -3, -3);
+		Pather.moveToPreset(sdk.areas.ArcaneSanctuary, 2, 357, -3, -3);
 	} catch (err) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to reach Summoner. Retry');
 
-		if (!Pather.moveToPreset(74, 2, 357, -3, -3)) {
+		if (!Pather.moveToPreset(sdk.areas.ArcaneSanctuary, 2, 357, -3, -3)) {
 			print('ÿc8Kolbot-SoloPlayÿc0: Failed to reach summoner');
 
 			return false;
@@ -104,20 +104,20 @@ function summoner () {
 	let journal = getUnit(2, 357);
 
 	if (journal) {
-		while (!Pather.getPortal(46)) {
+		while (!Pather.getPortal(sdk.areas.CanyonofMagic)) {
 			Misc.openChest(journal);
 			delay(1000 + me.ping);
 			me.cancel();
 		}
 	}
 
-	Pather.usePortal(46);
+	Pather.usePortal(sdk.areas.CanyonofMagic);
 
-	if (!Pather.checkWP(46)) {
-		Pather.getWP(46);
-		Pather.useWaypoint(40);
+	if (!Pather.checkWP(sdk.areas.CanyonofMagic)) {
+		Pather.getWP(sdk.areas.CanyonofMagic);
+		Pather.useWaypoint(sdk.areas.LutGholein);
 	} else {
-		Pather.useWaypoint(40);
+		Pather.useWaypoint(sdk.areas.LutGholein);
 	}
 
 	return true;

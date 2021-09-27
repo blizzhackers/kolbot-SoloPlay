@@ -9,18 +9,18 @@ function cube () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting cube');
 	me.overhead("cube");
 
-	if (!Pather.checkWP(57)) {
-		Pather.getWP(57);
+	if (!Pather.checkWP(sdk.areas.HallsoftheDeadLvl2)) {
+		Pather.getWP(sdk.areas.HallsoftheDeadLvl2);
 	} else {
-		Pather.useWaypoint(57);
+		Pather.useWaypoint(sdk.areas.HallsoftheDeadLvl2);
 	}
 
 	Precast.doPrecast(true);
-	Pather.clearToExit(57, 60, Pather.useTeleport());
+	Pather.clearToExit(sdk.areas.HallsoftheDeadLvl2, sdk.areas.HallsoftheDeadLvl3, Pather.useTeleport());
 	Pather.moveToPreset(me.area, 2, 354);
 	Attack.securePosition(me.x, me.y, 30, 3000, true);
-	Quest.collectItem(549, 354);
-	Quest.stashItem(549);
+	Quest.collectItem(sdk.items.quest.Cube, 354);
+	Quest.stashItem(sdk.items.quest.Cube);
 
 	return true;
 }

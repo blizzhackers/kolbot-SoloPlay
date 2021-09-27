@@ -17,10 +17,10 @@ function hellforge () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting hellforge');
 	me.overhead("hellforge");
 
-	if (!Pather.checkWP(107)) {
-		Pather.getWP(107);
+	if (!Pather.checkWP(sdk.areas.RiverofFlame)) {
+		Pather.getWP(sdk.areas.RiverofFlame);
 	} else {
-		Pather.useWaypoint(107);
+		Pather.useWaypoint(sdk.areas.RiverofFlame);
 	}
 
 	Precast.doPrecast(true);
@@ -41,19 +41,20 @@ function hellforge () {
 	Town.npcInteract("cain");
 
 	// From SoloLeveling Commit eb818af
-	if (me.getItem(90)) {
-		if ([2, 69, 70].indexOf(Item.getEquippedItem(5).itemType) === -1) { //dual weild fix for assassin/barbarian
+	if (me.getItem(sdk.items.quest.HellForgeHammer)) {
+		// Dual weild fix for assassin/barbarian
+		if ([2, 69, 70].indexOf(Item.getEquippedItem(5).itemType) === -1) {
 			Item.removeItem(5);
 		}
 
-		Quest.equipItem(90, 4);
+		Quest.equipItem(sdk.items.quest.HellForgeHammer, 4);
 	}
 
-	Pather.usePortal(107, me.name);
+	Pather.usePortal(sdk.areas.RiverofFlame, me.name);
 
-	if (!me.getItem(90)) {
+	if (!me.getItem(sdk.items.quest.HellForgeHammer)) {
 		Pickit.pickItems();
-		Quest.equipItem(90, 4);
+		Quest.equipItem(sdk.items.quest.HellForgeHammer, 4);
 	}
 
 	if (!Pather.moveToPreset(me.area, 2, 376)) {

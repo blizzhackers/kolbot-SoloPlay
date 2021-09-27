@@ -8,9 +8,11 @@
 function baal () {
     Config.BossPriority = false;
 
+    let decoyTick, decoyDuration;
+
     if (me.amazon) {
-        var decoyTick = 0;
-        var decoyDuration = (10 + me.getSkill(28, 1) * 5) * 1000;
+        decoyTick = 0;
+        decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, 1) * 5) * 1000;
     }
 
     let clearThrone = function () {
@@ -27,20 +29,20 @@ function baal () {
 
     let preattack = function () {
         switch (me.classid) {
-            case 0: // Amazon
-                if (me.getSkill(28, 1)) {    
+            case sdk.charclass.Amazon:
+                if (me.getSkill(sdk.skills.Decoy, 1)) {    
                     let decoy = getUnit(1, 356);
 
                     if (!decoy || (getTickCount() - decoyTick >= decoyDuration)){
-                        Skill.cast(28, 0, 15092, 5028);
+                        Skill.cast(sdk.skills.Decoy, 0, 15092, 5028);
                         decoyTick = getTickCount();
                     }
                 }
 
                 break;
-            case 1:
-                if ([56, 59, 64].indexOf(Config.AttackSkill[1]) > -1) {
-                    if (me.getState(121)) {
+            case sdk.charclass.Sorceress:
+                if ([sdk.skills.Meteor, sdk.skills.Blizzard, sdk.skills.FrozenOrb].indexOf(Config.AttackSkill[1]) > -1) {
+                    if (me.getState(sdk.states.SkillDelay)) {
                         delay(50);
                     } else {
                         Skill.cast(Config.AttackSkill[1], 0, 15093, 5024);
@@ -48,8 +50,8 @@ function baal () {
                 }
 
                 return true;
-            case 3: // Paladin
-                if (Config.AttackSkill[3] !== 112) {
+            case sdk.charclass.Paladin:
+                if (Config.AttackSkill[3] !== sdk.skills.BlessedHammer) {
                     return false;
                 }
 
@@ -64,15 +66,15 @@ function baal () {
                 Skill.cast(Config.AttackSkill[3], 1);
 
                 return true;
-            case 5: // Druid
-                if (Config.AttackSkill[3] === 245) {
+            case sdk.charclass.Druid:
+                if (Config.AttackSkill[3] === sdk.skills.Tornado) {
                     Skill.cast(Config.AttackSkill[3], 0, 15093, 5029);
 
                     return true;
                 }
 
                 break;
-            case 6:
+            case sdk.charclass.Assassin:
                 if (Config.UseTraps) {
                     let check = ClassAttack.checkTraps({x: 15093, y: 5029});
 
@@ -182,8 +184,8 @@ function baal () {
                         break MainLoop;
                     default:
                         if (getTickCount() - tick < 7e3) {
-                            if (me.getState(2)) {
-                                Skill.setSkill(109, 0);
+                            if (me.getState(sdk.states.Poison)) {
+                                Skill.setSkill(sdk.skills.Cleansing, 0);
                             }
                         }
 
@@ -199,8 +201,9 @@ function baal () {
                         break;
                 }
 
-                if (me.classid === 4 ? getDistance(me, 15112, 5062) : getDistance(me, 15116, 5026) > 3) {       // Thanks aim2kill
-                    me.classid === 4 ? Pather.moveTo(15112, 5062) : Pather.moveTo(15116, 5026);
+                // Thanks aim2kill
+                if (me.barbarian ? getDistance(me, 15112, 5062) : getDistance(me, 15116, 5026) > 3) {
+                    me.barbarian ? Pather.moveTo(15112, 5062) : Pather.moveTo(15116, 5026);
                 }
 
                 delay(10);
@@ -242,15 +245,15 @@ function baal () {
     print('ÿc8Kolbot-SoloPlayÿc0: starting baal');
     me.overhead("baal");
 
-    if (!Pather.checkWP(129)) {
-    	Pather.getWP(129, true);
+    if (!Pather.checkWP(sdk.areas.WorldstoneLvl2)) {
+    	Pather.getWP(sdk.areas.WorldstoneLvl2, true);
     } else {
-    	Pather.useWaypoint(129);
+    	Pather.useWaypoint(sdk.areas.WorldstoneLvl2);
     }
 
     Precast.doPrecast(true);
-    Pather.clearToExit(129, 130, true); 	//WS2 -> WS3
-    Pather.clearToExit(130, 131, true); 	//WS3 -> Throne
+    Pather.clearToExit(sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, true);
+    Pather.clearToExit(sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction, true);
 
     Pather.moveTo(15095, 5029, 5);
     Pather.moveTo(15113, 5040, 5);
@@ -265,12 +268,12 @@ function baal () {
 
     if (Check.Resistance().CR < 75 || Check.Resistance().PR < 75) {
         Town.doChores();
-        Town.buyPots(10, "Thawing"); // thawing
+        Town.buyPots(10, "Thawing");
         Town.drinkPots();
-        Town.buyPots(10, "Antidote"); // antidote
+        Town.buyPots(10, "Antidote");
         Town.drinkPots();
         Town.move("portalspot");
-        Pather.usePortal(131, me.name);
+        Pather.usePortal(sdk.areas.ThroneofDestruction, me.name);
     }
 
     if (!clearWaves()) {
@@ -279,10 +282,10 @@ function baal () {
 
     clearThrone(); // double check
 
-    Pather.moveTo(15094, me.classid === 3 ? 5029 : 5038);
+    Pather.moveTo(15094, me.paladin ? 5029 : 5038);
     Pickit.pickItems();
 
-    Pather.moveTo(15094, me.classid === 3 ? 5029 : 5038);
+    Pather.moveTo(15094, me.paladin ? 5029 : 5038);
     Pickit.pickItems();
     Pather.moveTo(15090, 5008);
     delay(2500 + me.ping);

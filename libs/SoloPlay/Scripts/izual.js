@@ -15,16 +15,16 @@ function izual () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting izual');
 	me.overhead("izual");
 
-	if (!Pather.checkWP(106)) {
-		Pather.getWP(106);
+	if (!Pather.checkWP(sdk.areas.CityoftheDamned)) {
+		Pather.getWP(sdk.areas.CityoftheDamned);
 	} else {
-		Pather.useWaypoint(106);
+		Pather.useWaypoint(sdk.areas.CityoftheDamned);
 	}
 
 	Precast.doPrecast(true);
 
 	if (!Misc.checkQuest(25, 1)) {
-		Pather.moveToPreset(105, 1, 256);
+		Pather.moveToPreset(sdk.areas.PlainsofDespair, 1, 256);
 		Attack.killTarget("Izual");
 	}
 

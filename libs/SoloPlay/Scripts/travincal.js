@@ -10,10 +10,10 @@ function travincal () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting travincal');
 	me.overhead("travincal");
 
-	if (!Pather.checkWP(83)) {
-		Pather.getWP(83);
+	if (!Pather.checkWP(sdk.areas.Travincal)) {
+		Pather.getWP(sdk.areas.Travincal);
 	} else {
-		Pather.useWaypoint(83);
+		Pather.useWaypoint(sdk.areas.Travincal);
 	}
 
 	Precast.doPrecast(true);
@@ -27,22 +27,26 @@ function travincal () {
 	Attack.killTarget("Ismail Vilehand");
 	Pickit.pickItems();
 
-	if (!Pather.moveToPreset(83, 2, 404)) { // go to orb
+	// go to orb
+	if (!Pather.moveToPreset(sdk.areas.Travincal, 2, 404)) { 
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to move to compelling orb');
 	}
 
 	Attack.clear(10); // clear area around orb
 
-	if (!me.travincal) { // khalim's will quest not complete
-		if (!me.getItem(173) && !me.getItem(174)) { // cleared council didn't pick flail and hasn't already made flail
+	// khalim's will quest not complete
+	if (!me.travincal) {
+		// cleared council didn't pick flail and hasn't already made flail
+		if (!me.getItem(173) && !me.getItem(174)) { 
 			let flail = getUnit(4, 173);
 
 			Pather.moveToUnit(flail);
 			Pickit.pickItems();
-			Pather.moveToPreset(83, 2, 404);
+			Pather.moveToPreset(sdk.areas.Travincal, 2, 404);
 		}
 
-		if (!me.getItem(174) && me.getItem(173)) { // cube flail to will
+		// cube flail to will
+		if (!me.getItem(174) && me.getItem(173)) { 
 			Quest.cubeItems(174, 553, 554, 555, 173);
 			delay(250 + me.ping);
 		}
@@ -53,14 +57,16 @@ function travincal () {
 		}
 
 		// From SoloLeveling Commit eb818af
-		if ([2, 69, 70].indexOf(Item.getEquippedItem(5).itemType) === -1) { //dual weild fix for assassin/barbarian
+		//dual weild fix for assassin/barbarian
+		if ([2, 69, 70].indexOf(Item.getEquippedItem(5).itemType) === -1) { 
 			Item.removeItem(5);
 		}
 
 		Quest.equipItem(174, 4);
 		delay(250 + me.ping);
 
-		if (!Pather.usePortal(83, me.name)) { // return to Trav
+		// return to Trav
+		if (!Pather.usePortal(sdk.areas.Travincal, me.name)) { 
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed to go back to Travincal and smash orb");
 		}
 
@@ -68,17 +74,18 @@ function travincal () {
 		Item.autoEquip(); // equip previous weapon
 		Town.doChores();
 
-		if (!Pather.usePortal(83, me.name)) { // return to Trav
+		// return to Trav
+		if (!Pather.usePortal(sdk.areas.Travincal, me.name)) { 
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed to go back to Travincal and take entrance");
 		}
 
-		if (!Pather.moveToExit(100, true)) {
+		if (!Pather.moveToExit(sdk.areas.DuranceofHateLvl1, true)) {
 			delay(250 + me.ping * 2);
-			Pather.moveToExit(100, true);
+			Pather.moveToExit(sdk.areas.DuranceofHateLvl1, true);
 		}
 
-		if (!Pather.checkWP(101)) {
-			Pather.getWP(101);
+		if (!Pather.checkWP(sdk.areas.DuranceofHateLvl2)) {
+			Pather.getWP(sdk.areas.DuranceofHateLvl2);
 		}
 	}
 
