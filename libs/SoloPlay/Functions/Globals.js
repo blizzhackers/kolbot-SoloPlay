@@ -10,6 +10,7 @@ if (!isIncluded("OOG.js")) {
 
 // general settings
 var Difficulty = ['Normal', 'Nightmare', 'Hell'];
+var classes = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"];
 
 const sdk = require('../modules/sdk');
 
@@ -37,6 +38,13 @@ var SetUp = {
 				}
 			});
 		});
+		// Include custom attacks
+		let filePath = "SoloPlay/Functions/ClassAttackOverrides/" + classes[me.classid] + "Attacks.js";
+		if (!isIncluded(filePath)) {
+			if (!include(filePath)) {
+				throw new Error("Failed to include: " + filePath);
+			}
+		}
 	},
 
 	// mine - theBGuy

@@ -262,7 +262,7 @@ function LoadConfig () {
 
 	Config.SummonShadow = me.getSkill(sdk.skills.ShadowMaster, 0) ? "Master" : 0;
 	Config.UseFade = !!me.getSkill(sdk.skills.Fade, 0);
-	Config.UseBoS = !!me.getSkill(sdk.skills.BurstOfSpeed, 0);
+	Config.UseBoS = !!me.getSkill(sdk.skills.BurstofSpeed, 0);
 	Config.UseVenom = false;
 	Config.UseCloakofShadows = !!me.getSkill(sdk.skills.CloakofShadows, 0);
 	Config.AggressiveCloak = false;
