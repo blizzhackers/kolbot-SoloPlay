@@ -585,6 +585,12 @@ var Check = {
 			}
 
 			break;
+		case "orgtorch":
+			if (Pather.accessToAct(5) && me.hell && ["Zealer", "Smiter", "Uberconc"].indexOf(SetUp.currentBuild) > -1) {
+				return true;
+			}
+
+			break;
 		default:
 			break;
 		}

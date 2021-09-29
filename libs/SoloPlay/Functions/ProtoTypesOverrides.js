@@ -5,8 +5,6 @@
 *	@desc		additions for improved Kolbot-SoloPlay functionality and code readability
 */
 
-//var sdk = require('../modules/sdk');
-
 // Credit @Jaenster
 Unit.prototype.getItems = function (...args) {
 	let items = this.getItems.apply(this, args);
@@ -131,6 +129,30 @@ Object.defineProperties(Unit.prototype, {
             return !!this.getFlag(0x4000000);
         }
     },
+	identified: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) {
+				// Can't tell, as it isn't an item
+				return undefined; 
+			}
+			// Is also true for white items
+			return this.getFlag(0x10);
+		}
+	},
+	ethereal: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) {
+				// Can't tell, as it isn't an item
+				return undefined;
+			}
+			return this.getFlag(0x400000);
+		}
+	},
+	twoHanded: {
+		get: function () {
+			return getBaseStat("items", this.classid, "2handed") === 1;
+		}
+	},
     isQuestItem: {
         get: function () {
             return this.itemType === 39 ||

@@ -39,6 +39,8 @@ if (!isIncluded("SoloPlay/Functions/globals.js")) {
 
 function main () {
 	let action = [];
+	let profiles = [];
+	let tickDelay = 0;
 
 	print("ÿc8Kolbot-SoloPlayÿc0: Start EventThread");
 	D2Bot.init();
@@ -70,7 +72,7 @@ function main () {
 						print("ÿc1Pausing " + scripts[l]);
 					}
 
-					// Townchicken.dbj
+					// TownChicken
 					if (l === 1) {
 						print("ÿc1Pausing " + scripts[l]);
 					}
@@ -131,16 +133,30 @@ function main () {
 	};
 
 	this.receiveCopyData = function (id, info) {
-		let list = [];
-
+		// Torch
 		if (id === 55) {
 			let { profile, ladder, torchType } = JSON.parse(info);
-			print("Mesage recived...processing");
+			print("Mesage recived for torch...processing");
 
-			if (profile !== me.profile /*&& me.charlvl >= 65*/ && me.ladder === ladder) {
+			if (profile !== me.profile && me.hell && me.ladder === ladder) {
 				if (torchType === me.classid && !me.findItem(604, 0, null, 7)) {
 					print("Sent Response");
-					Events.sendToProfile(profile, {profile: me.profile, level: me.charlvl})
+					Events.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 604});
+				}
+			}
+
+			return;
+		}
+
+		// Annhilus
+		if (id === 60) {
+			let { profile, ladder } = JSON.parse(info);
+			print("Mesage recived for Annhilus...processing");
+
+			if (profile !== me.profile && me.hell && me.ladder === ladder) {
+				if (!me.findItem(603, 0, null, 7)) {
+					print("Sent Response");
+					Events.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 603});
 				}
 			}
 
@@ -148,9 +164,18 @@ function main () {
 		}
 
 		if (id === 65) {
-			let { profile, level } = JSON.parse(info);
+			let { profile, level, event } = JSON.parse(info);
 
 			print("Sucess: profile that contacted me: " + profile + " level of char: " + level);
+			Events.profileResponded = true;
+			profiles.push({profile: profile, level: level, event: event});
+			tickDelay += 1000;
+		}
+
+		if (id === 70) {
+			scriptBroadcast("event");
+			delay(100 + me.ping);
+			scriptBroadcast("quit");
 		}
 	};
 
@@ -173,6 +198,24 @@ function main () {
 				} else {
 					action.shift();
 				}
+			}
+
+			if (profiles.length > 0) {
+				let tick = getTickCount();
+
+				while (getTickCount() - tick < tickDelay) {
+					delay(500);
+				}
+
+				profiles.sort(function(a, b) {
+					return a.level - b.level;
+				});
+
+				let lowestLevelProf = profiles.first();
+
+				Events.sendToProfile(lowestLevelProf.profile, lowestLevelProf.event, 70);
+				D2Bot.joinMe(lowestLevelProf.profile, me.gamename.toLowerCase(), "", me.gamepassword.toLowerCase(), true);
+				profiles = [];
 			}
 		} catch (e) {
 			D2Bot.printToConsole(JSON.stringify(e));

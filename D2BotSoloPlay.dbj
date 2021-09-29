@@ -78,6 +78,7 @@ include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
 include("SoloPlay/Tools/NameGen.js");
 include("SoloPlay/Tools/OOGOverrides.js");
+include("SoloPlay/Functions/Events.js");
 
 if (!FileTools.exists("data/" + me.profile + ".json")) {
 	DataFile.create();
@@ -90,7 +91,7 @@ if (Developer.logPerformance) {
 	Tracker.initialize();
 }
 
-var gameInfo, gameStart, ingame, chatActionsDone, pingQuit, myExp, myGold, resPenalty, frRes, crRes, lrRes, prRes, areaName, diffName,
+var gameInfo, joinInfo, gameStart, ingame, chatActionsDone, pingQuit, myExp, myGold, resPenalty, frRes, crRes, lrRes, prRes, areaName, diffName,
 	handle, useChat, firstLogin, connectFail, setUp, deadCheck, connectFailRetry,
 	battlenet = Profile().type === 2 ? true : false,
 	gameCount = DataFile.getStats().runs + 1,
@@ -122,6 +123,13 @@ function ReceiveCopyData (mode, msg) {
 	}
 
 	switch (mode) {
+	case 1: // Join Info
+		print("Got Join Info");
+		joinInfo = JSON.parse(msg);
+		Events.gameInfo.gameName = joinInfo.gameName.toLowerCase();
+		Events.gameInfo.gamePass = joinInfo.gamePass.toLowerCase();
+
+		break;
 	case 2: // Game info
 		print("Received Game Info");
 
@@ -253,7 +261,8 @@ function deleteAndRemakeChar (info) {
 	ControlAction.findCharacter(info); //Scroll down until the specific control is visible
 
 	MainLoop:
-		while (getLocation() !== 1) { // cycle until in lobby
+		// Cycle until in lobby
+		while (getLocation() !== 1) { 
 			switch (getLocation()) {
 				case 12: // character select
 					control = getControl(4, 37, 178, 200, 92);
@@ -415,6 +424,10 @@ function ScriptMsgEvent (msg) {
 		pingQuit = true;
 
 		break;
+	case "event":
+		Events.check = true;
+
+		break;
 	}
 }
 
@@ -475,13 +488,13 @@ function locationAction (location) {
 				gameStart = DataFile.getStats().ingameTick;
 			}
 
-			if (getTickCount() - gameStart < StarterConfig.MinGameTime * 1e3) {
+			if (getTickCount() - gameStart < StarterConfig.MinGameTime * 1e3 && !joinInfo) {
 				ControlAction.timeoutDelay("Min game time wait", StarterConfig.MinGameTime * 1e3 + gameStart - getTickCount());
 			}
 		}
 
 		if (ingame) {
-			if (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck()) {
+			if (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || Events.outOfGameCheck()) {
 				break;
 			}
 
@@ -498,7 +511,8 @@ function locationAction (location) {
 			}
 		}
 
-		if (!ControlAction.click(6, 533, 469, 120, 20)) { // Create
+		// Create
+		if (!ControlAction.click(6, 533, 469, 120, 20)) {
 			break;
 		}
 
@@ -512,12 +526,15 @@ function locationAction (location) {
 			break;
 		}
 
-		if (!locationTimeout(5000, location)) { // in case create button gets bugged
-			if (!ControlAction.click(6, 652, 469, 120, 20)) { // Join
+		// In case create button gets bugged
+		if (!locationTimeout(5000, location)) { 
+			// Join
+			if (!ControlAction.click(6, 652, 469, 120, 20)) {
 				break;
 			}
 
-			if (!ControlAction.click(6, 533, 469, 120, 20)) { // Create
+			// Create
+			if (!ControlAction.click(6, 533, 469, 120, 20)) {
 				break;
 			}
 		}
@@ -549,7 +566,7 @@ function locationAction (location) {
 		if (ingame) {
 			//D2Bot.store(JSON.stringify({currScript: "none", area: "out of game"}));
 
-			if (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck()) {
+			if (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || Events.outOfGameCheck()) {
 				break;
 			}
 
@@ -638,16 +655,20 @@ function locationAction (location) {
 			sayMsg("Next game is " + gameInfo.gameName + gameCount + (gameInfo.gamePass === "" ? "" : "//" + gameInfo.gamePass));
 		}
 
-		if (!ControlAction.click(6, 533, 469, 120, 20)) { // Create
+		// Create
+		if (!ControlAction.click(6, 533, 469, 120, 20)) {
 			break;
 		}
 
-		if (!locationTimeout(5000, location)) { // in case create button gets bugged
-			if (!ControlAction.click(6, 652, 469, 120, 20)) { // Join
+		// In case create button gets bugged
+		if (!locationTimeout(5000, location)) {
+			// Join
+			if (!ControlAction.click(6, 652, 469, 120, 20)) {
 				break;
 			}
 
-			if (!ControlAction.click(6, 533, 469, 120, 20)) { // Create
+			// Create
+			if (!ControlAction.click(6, 533, 469, 120, 20)) {
 				break;
 			}
 		}
@@ -719,7 +740,8 @@ function locationAction (location) {
 			break;
 		}
 
-		if (firstLogin && getLocation() === 9) { // multiple realm botting fix in case of R/D or disconnect
+		// Multiple realm botting fix in case of R/D or disconnect
+		if (firstLogin && getLocation() === 9) {
 			ControlAction.click(6, 33, 572, 128, 35);
 		}
 
