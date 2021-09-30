@@ -103,7 +103,7 @@ If you are enjoying this project consider supporting me at https://www.buymeacof
 |9.|Enjoy!||
 
 ### Quick YouTube tutorial
-https://youtu.be/YtwxSMsVD1g
+https://youtu.be/qYHUw6nNn74
 
 ## Possible Profile Names 
 | Prefix | Description|
