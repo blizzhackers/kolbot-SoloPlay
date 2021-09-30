@@ -138,7 +138,7 @@ function main () {
 			let { profile, ladder, torchType } = JSON.parse(info);
 			print("Mesage recived for torch...processing");
 
-			if (profile !== me.profile && me.hell && me.ladder === ladder) {
+			if (profile !== me.profile && (me.hell || (me.nightmare && me.baal)) && me.ladder === ladder) {
 				if (torchType === me.classid && !me.findItem(604, 0, null, 7)) {
 					print("Sent Response");
 					Events.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 604});
@@ -153,7 +153,7 @@ function main () {
 			let { profile, ladder } = JSON.parse(info);
 			print("Mesage recived for Annhilus...processing");
 
-			if (profile !== me.profile && me.hell && me.ladder === ladder) {
+			if (profile !== me.profile && (me.hell || (me.nightmare && me.baal)) && me.ladder === ladder) {
 				if (!me.findItem(603, 0, null, 7)) {
 					print("Sent Response");
 					Events.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 603});
@@ -173,7 +173,7 @@ function main () {
 		}
 
 		if (id === 70) {
-			scriptBroadcast("event");
+			Messaging.sendToScript("D2BotSoloPlay.dbj", "event");
 			delay(100 + me.ping);
 			scriptBroadcast("quit");
 		}

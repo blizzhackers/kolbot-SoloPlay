@@ -19,7 +19,7 @@ var Events = {
 		}
 
 		if (this.gameInfo.gameName.length > 0) {
-			D2Bot.printToConsole("Kolbot-SoloPlay :: Events.outOfGameCheck(): Attempting to join other bots game", 8);
+			D2Bot.printToConsole("Kolbot-SoloPlay :: Events.outOfGameCheck(): Attempting to join other bots game", 6);
 			this.inGame = true;
 			me.blockmouse = true;
 
@@ -60,6 +60,7 @@ var Events = {
 
 					let torch, anni, tick = getTickCount();
 
+					me.overhead("Waiting for charm to drop");
 					while (getTickCount() - tick < 120 * 1000) {
 						anni = me.findItem(603, 3, null, 7);
 						torch = me.findItem(604, 3, null, 7);
@@ -70,12 +71,14 @@ var Events = {
 					}
 
 					if (torch || anni) {
-						for (let i = 0; i < 12 || me.findItem((anni ? 603 : 604), 0, 3, 7); i++) {
+						for (let i = 0; i < 12 || me.findItem((anni ? 603 : 604), 0, -1, 7); i++) {
 							Town.move("stash");
 							me.overhead("Looking for " + (anni ? "Annihilus" : "Torch"));
 							Pickit.pickItems();
 							delay(10000);	// 10 seconds
 						}
+					} else {
+						me.overhead("No charm on ground");
 					}
 
 					quit();
@@ -91,7 +94,7 @@ var Events = {
 
 	getProfiles: function () {
 		let profileInfo, realm = me.realm.toLowerCase(), profileList = [];
-		realm = "useast";	// testing purposes
+		//realm = "useast";	// testing purposes
 
 		if (!FileTools.exists("logs/Kolbot-SoloPlay/" + realm)) {
 			return profileList;
@@ -395,7 +398,7 @@ var Events = {
 		switch (bytes[0]) {
 		case 0x89: // d2gs unique event
 			if (me.area === sdk.areas.DenofEvil) {
-				scriptBroadcast('finishDen');
+				Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'finishDen');
 			}
 
 			break;
@@ -403,7 +406,7 @@ var Events = {
 			if (me.area === sdk.areas.ChaosSanctuary) {
 				if (bytes[6] === 193) {
 					if (!Pather.useTeleport() && (["Poison", "Summon"].indexOf(SetUp.currentBuild) > -1 || me.paladin || me.barbarian || me.druid || me.amazon || me.assassin)) {
-						scriptBroadcast('dodge');
+						Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'dodge');
 					}
 				}
 			}
@@ -419,7 +422,7 @@ var Events = {
 					break;
 				case 1: 	// Achmel
 					if ((me.paladin && !Attack.IsAuradin && me.hell) || (me.barbarian && ((me.charlvl < SetUp.levelCap && !me.baal) || me.playertype))) {
-						scriptBroadcast('skip');
+						Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'skip');
 					}
 
 					break;
@@ -428,7 +431,7 @@ var Events = {
 					break;
 				case 4: 	// Lister
 					if ((me.barbarian && (me.charlvl < SetUp.levelCap || !me.baal || me.playertype)) || (me.charlvl < SetUp.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
-						scriptBroadcast('skip');
+						Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'skip');
 					}
 
 					break;
