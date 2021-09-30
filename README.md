@@ -1,9 +1,9 @@
 ![extract into](https://i.imgur.com/TcRmoRm.png)
 
 ## What is this?
-Kolbot-SoloPlay is a hands-off autoplay script to take any legacy diablo 2 character class from 1-99 using Kolbot. After easy set up, it will play all the way through the game and level towards an end-game build of your choosing (see **Available Characters and Builds**. 
+SoloPlay is a Kolbot based autoplay system to level any legacy diablo 2 character class from 1-99. The goal of this project is to be the fastest and easiest leveling system there is.
 
-If you are enjoying my script consider supporting me at https://www.buymeacoffee.com/theBGuy
+If you are enjoying this project consider supporting me at https://www.buymeacoffee.com/theBGuy
 
 ## Statistics (will become filled out as data becomes available)
 | Level | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
@@ -22,8 +22,8 @@ If you are enjoying my script consider supporting me at https://www.buymeacoffee
 - Fully configured Autoequip for bot and mercenary
 - Makes and equips CTA and spirit shield on swap
 - Uses and dynamically equips charms
-- Add socketables to end game gear (for example Perfect Diamonds to Moser's Blessed Shield or Um rune to Shako)
-- Kill diablo clone and share Annhilus charm with other profiles, if current one already has one
+- Add socketables to gear (for example Perfect Diamonds to Moser's Blessed Shield or Um rune to Shako)
+- Kill diablo clone and share Annhilus charm with other profiles, if current profile already has one
 
 ## Available Characters and Builds
 | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
@@ -60,7 +60,7 @@ If you are enjoying my script consider supporting me at https://www.buymeacoffee
 
 **A:** Simply append a number after the class name. For example, if you want to run 5 sorceresses just name the profiles: `SCL-SORC-1`, `SCL-SORC-2`, `SCL-SORC-3`, `SCL-SORC-4`, `SCL-SORC-5`. Example Profile Names are listed at the bottom of the install guide.
 
-**Q: HELP!!! There an error when starting the bot?**
+**Q: HELP!!! There is an error when starting the bot?**
 
 **A:** There was a bad installation OR the profile settings are wrong. First verify that you using the kolbot version linked the install guide below. Next, confirm you have installed all the files into their proper locations (including overwriting the existing `_customconfig.js` and `default.dbj`). Finally, verify the profile name and infotag follow the format of the install guide's instructions.
 
