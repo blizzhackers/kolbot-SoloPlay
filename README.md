@@ -90,8 +90,8 @@ If you are enjoying this project consider supporting me at https://www.buymeacof
 |:------:|:-------|-------:|
 | 1.| Download Kolbot here: [github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot). |![blizzhackers github](https://i.imgur.com/RksqKEA.jpg) |
 | 2.| Click the green button to Download SoloPlay. |![enter image description here](https://i.imgur.com/cNqZDbW.jpg) |
-| 3.a| Copy and paste the following: `default.dbj`, `D2BotSoloPlay.dbj`, `D2BotSoloCleaner.dbj`, and the entire `\libs` folder into `\d2bs\kolbot`.| |
-|3.b|A successful installation will show 2 new files in the folder and look similar to the second image|![image](https://user-images.githubusercontent.com/60308670/131760184-ba777302-908e-4247-b9b7-1c9331028b2c.png)| 4.| Select Add for new a Kolbot Profile. | ![Add-profile.jpg](https://imgur.com/tHs9ZoH.jpg)|
+| 3.a| Copy and paste the following: `default.dbj`, `D2BotSoloPlay.dbj`, `D2BotSoloCleaner.dbj`, and the entire `\libs` folder into `\d2bs\kolbot\`.| ![kolbot](https://i.imgur.com/WNxJOhq.png) |
+|3.b|A successful installation will show 2 new files in the folder and look similar to the following image|![image](https://user-images.githubusercontent.com/60308670/131760184-ba777302-908e-4247-b9b7-1c9331028b2c.png)| 4.| Select Add for new a Kolbot Profile. | ![Add-profile.jpg](https://imgur.com/tHs9ZoH.jpg)|
 | 4.a| Select and Input a profile name. See the **Possible Profile Name Choices** below for a list of available options. | ![extract into](https://i.imgur.com/2YcGKVH.png) |
 | 4.b| ***Optional*** Input your account name. If no name than a random account is created. | |
 | 4.c|***Optional*** Input your account password. If no name than a random password is created. | |
