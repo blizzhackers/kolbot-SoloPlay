@@ -1,7 +1,7 @@
 ![extract into](https://i.imgur.com/TcRmoRm.png)
 
 ## What is this?
-Kolbot-SoloPlay is a hands-off autoplay script to take any diablo 2 character class from 1-99 using Kolbot. After easy set up, it will play all the way through the game and level towards an end-game build of your choosing (see **Available Characters and Builds**. 
+Kolbot-SoloPlay is a hands-off autoplay script to take any legacy diablo 2 character class from 1-99 using Kolbot. After easy set up, it will play all the way through the game and level towards an end-game build of your choosing (see **Available Characters and Builds**. 
 
 If you are enjoying my script consider supporting me at https://www.buymeacoffee.com/theBGuy
 
@@ -23,6 +23,7 @@ If you are enjoying my script consider supporting me at https://www.buymeacoffee
 - Makes and equips CTA and spirit shield on swap
 - Uses and dynamically equips charms
 - Add socketables to end game gear (for example Perfect Diamonds to Moser's Blessed Shield or Um rune to Shako)
+- Kill diablo clone and share Annhilus charm with other profiles, if current one already has one
 
 ## Available Characters and Builds
 | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
@@ -143,9 +144,11 @@ https://youtu.be/YtwxSMsVD1g
   - Turning on/off the overlay
   - Options to fillAccount for Socketmule/Bumper
   - showing or hiding casting animations
+  - developerMode
+  - Debugging
 
 ## D2BotSoloCleaner
-- The purpose of this entryscript is to delete old characters and optional related files.
+- The purpose of this entryscript is to delete old characters and/or related data files.
 - Extra Features
    - DataCleaner to delete old files associated with running SoloPlay 
    - SaveFiles to save important files to SoloPlay/Data/ for performance review
@@ -161,7 +164,7 @@ https://discord.gg/5pjTC2zH6N
 ![Kolbot-SoloPlay Sorceress](https://imgur.com/SKIkmzL.png)
 
 ## Brief History
-Kolbot-SoloPlay was built off the base of SoloLeveling by isid0re. Isid0re wanted the ability to level a smiter easily something that Sonic, AutoPlay, and AutoSorc weren't able to do. He started off SoloLeveling by modding Questing.js, then started having to add new functions for pathing, ntip, ect. Almost from the beginning, Isid0re and I were bouncing ideas off each other. At that time, I was working on a separate project. We discussed ideas that helped both of our projects. I officially joined in around 4 months or so after the Github repo went public and was actively involved in the project until 6/30/2021. I contributed updates including but not limited to: item based respec, the overlay, logging equipped items, showing tier values on items, many bug fixes, sorting, D2BotSoloCleaner, performance tracking, ect. Due to some personal conflicts between isid0re and myself, I decided to create GuysSoloLeveling to have all of my ideas in one place. On 6/30/2021 I created this repo and on 7/13/2021 I made it public. On 9/1/2021, I changed the name to Kolbot-SoloPlay after some major changes in structure.
+Kolbot-SoloPlay was built off the base structure of SoloLeveling by isid0re. Autoplay scripts/systems aren't a new concept, some to note are sonic, autoplay, and AutoSorc. None of the exisitng ones were able to do other character classes though so SoloLeveling was created by modding Questing.js. Almost from the beginning, Isid0re and I were bouncing ideas off each other. At that time, I was working on a separate project. We discussed ideas that helped both of our projects. I officially joined in around 4 months or so after the Github repo went public and was actively involved in the project until 6/30/2021. I contributed updates including but not limited to: item based respec, the overlay, logging equipped items, showing tier values on items, many bug fixes, sorting, D2BotSoloCleaner, performance tracking, ect. Due to some personal conflicts between isid0re and myself, I decided to create GuysSoloLeveling to have all of my ideas in one place. On 6/30/2021 I created this repo and on 7/13/2021 I made it public. On 9/1/2021, I changed the name to Kolbot-SoloPlay after some major changes in structure and continue to update to make SoloPlay the best leveling system for legacy diablo 2
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
