@@ -72,12 +72,10 @@ function main () {
 						print("ÿc1Pausing " + scripts[l]);
 					}
 
-					// TownChicken
-					if (l === 1) {
-						print("ÿc1Pausing " + scripts[l]);
+					// don't pause townchicken during clone walk
+					if (scripts[l] !== "libs/SoloPlay/Tools/TownChicken.js" || !Events.cloneWalked) {
+						script.pause();
 					}
-
-					script.pause();
 				}
 			}
 		}

@@ -174,7 +174,7 @@ function main () {
 					}
 
 					// don't pause townchicken during clone walk
-					if (scripts[l] !== "libs/SoloPlay/Tools/TownChicken.js" || !cloneWalked) {
+					if (scripts[l] !== "libs/SoloPlay/Tools/TownChicken.js" || !Events.cloneWalked) {
 						script.pause();
 					}
 				} else {
@@ -618,7 +618,7 @@ function main () {
 			if (Config.StopOnDClone && me.gametype === 1 && me.hell) {
 				D2Bot.printToConsole("Diablo Walks the Earth", 7);
 
-				cloneWalked = true;
+				Events.cloneWalked = true;
 
 				this.togglePause();
 				Town.goToTown();

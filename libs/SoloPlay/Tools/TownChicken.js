@@ -38,14 +38,17 @@ function main() {
 
 			if (script) {
 				if (script.running) {
-					if (i === 0) { // default.dbj
+					// default.dbj
+					if (i === 0) {
 						print("ÿc1Pausing.");
 					}
 
 					script.pause();
 				} else {
-					if (i === 0) { // default.dbj
-						if (!getScript("tools/clonekilla.js")) { // resume only if clonekilla isn't running
+					// default.dbj
+					if (i === 0) {
+						// don't resume if dclone walked
+						if (!Events.cloneWalked) { 
 							print("ÿc2Resuming.");
 							script.resume();
 						}

@@ -7,6 +7,7 @@
 var Events = {
 	check: false,
 	inGame: false,
+	cloneWalked: false,
 	profileResponded: false,
 	gameInfo: {
 		gameName: "",
@@ -260,6 +261,7 @@ var Events = {
 		// Move back to where we orignally where
 		Pather.journeyTo(orginalLocation.area);
 		Pather.moveTo(orginalLocation.x, orginalLocation.y);
+		this.cloneWalked = false;
 	},
 
 	skip: function () {
