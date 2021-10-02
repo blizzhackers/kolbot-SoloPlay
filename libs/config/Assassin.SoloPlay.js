@@ -41,7 +41,7 @@ function LoadConfig () {
 	Config.MaxGameTime = 7200;
 	Config.MiniShopBot = true;
 	Config.PacketShopping = true;
-	Config.TownCheck = me.findItem("tbk", 0, 3);
+	Config.TownCheck = true;
 	Config.LogExperience = false;
 	Config.PingQuit = [{Ping: 600, Duration: 10}];
 	Config.Silence = true;
