@@ -397,6 +397,8 @@ var Quest = {
 				return false;
 			}
 
+			let preSkillAmount = me.getStat(sdk.stats.NewSkills);
+			let preStatAmount = me.getStat(sdk.stats.StatPts);
 			Precast.doPrecast(true);
 			Town.goToTown(1);
 			print("ÿc8Kolbot-SoloPlayÿc0: time to respec");
@@ -411,7 +413,7 @@ var Quest = {
 			sendPacket(1, 0x40);
 			delay(10 + me.ping * 2);
 
-			if (me.respec) {
+			if (me.respec || (me.getStat(sdk.stats.NewSkills) > preSkillAmount && me.getStat(sdk.stats.StatPts) > preStatAmount)) {
 				DataFile.updateStats("currentBuild", SetUp.getBuild());
 				delay(750 + me.ping * 2);
 				Town.clearBelt();
