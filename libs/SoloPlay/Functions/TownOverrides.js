@@ -447,7 +447,7 @@ Town.buyBook = function () {
 		if (tpBook && me.getStat(14) + me.getStat(15) >= tpBook.getItemCost(0) && Storage.Inventory.CanFit(tpBook)) {
 			try {
 				if (tpBook.buy()) {
-					print('ÿc9SoloLevelingÿc0: bought Tome of Town Portal');
+					print('ÿc9BuyBookÿc0 :: bought Tome of Town Portal');
 					this.fillTome(518);
 				}
 			} catch (e1) {
@@ -459,7 +459,7 @@ Town.buyBook = function () {
 			if (tpScroll && me.getStat(14) + me.getStat(15) >= tpScroll.getItemCost(0) && Storage.Inventory.CanFit(tpScroll)) {
 				try {
 					if (tpScroll.buy()) {
-						print('ÿc9SoloLevelingÿc0: bought Scroll of Town Portal');
+						print('ÿc9BuyBookÿc0 :: bought Scroll of Town Portal');
 					}
 				} catch (e1) {
 					print(e1);
@@ -737,10 +737,17 @@ Town.shopItems = function () {
 };
 
 Town.unfinishedQuests = function () {
-	let malus = me.getItem(89), leg = me.getItem(88), book = me.getItem(552), tome = me.getItem(548), kw = me.getItem(174), hammer = me.getItem(90), soulstone = me.getItem(551);
+	let malus = me.getItem(89),
+		leg = me.getItem(88),
+		book = me.getItem(552),
+		tome = me.getItem(548),
+		kw = me.getItem(174),
+		hammer = me.getItem(90),
+		soulstone = me.getItem(551);
 
-	//Act 1
-	if (malus) { //tools of the trade
+	// Act 1
+	// Tools of the trade
+	if (malus) {
 		Town.goToTown(1);
 		Town.npcInteract("charsi");
 	}
@@ -751,7 +758,8 @@ Town.unfinishedQuests = function () {
 		Item.autoEquip();
 	}
 
-	if (leg) { // drop wirts leg at startup to avoid selling and d/c
+	// Drop wirts leg at startup to avoid selling and d/c
+	if (leg) {
 		Town.goToTown(1);
 
 		if (leg.location === 7) {
@@ -765,31 +773,35 @@ Town.unfinishedQuests = function () {
 		leg.drop();
 	}
 
-	//Act 2
-	if (book) { //Radament skill book
+	// Act 2
+	// Radament skill book
+	if (book) {
 		if (book.location === 7) {
 			this.openStash();
 			delay(300 + me.ping);
 		}
 
 		book.interact();
-		print('ÿc9SoloLevelingÿc0: used Radament skill book');
+		print('ÿc8Kolbot-SoloPlayÿc0: used Radament skill book');
 	}
 
-	//Act 3
-	if (me.getItem(546)) { // golden bird
-		print("ÿc9SoloLevelingÿc0: starting jade figurine");
+	// Act 3
+	// Golden bird
+	if (me.getItem(546)) {
+		print("ÿc8Kolbot-SoloPlayÿc0: starting jade figurine");
 		me.overhead('jade figurine');
 		Town.goToTown(3);
 		Town.npcInteract("meshif");
 	}
 
-	if (me.getItem(547)) { // ashes
+	// Ashes
+	if (me.getItem(547)) {
 		Town.goToTown(3);
 		Town.npcInteract("alkor");
 	}
 
-	if (me.getItem(545)) { // potion of life
+	// Potion of life
+	if (me.getItem(545)) {
 		let pol = me.getItem(545);
 
 		if (pol.location === 7) {
@@ -798,10 +810,11 @@ Town.unfinishedQuests = function () {
 		}
 
 		pol.interact();
-		print('ÿc9SoloLevelingÿc0: used potion of life');
+		print('ÿc8Kolbot-SoloPlayÿc0: used potion of life');
 	}
 
-	if (tome) { //LamEssen's Tome
+	// LamEssen's Tome
+	if (tome) {
 		if (tome.location === 7) {
 			Town.move('stash');
 			Town.openStash();
@@ -811,20 +824,22 @@ Town.unfinishedQuests = function () {
 
 		Town.goToTown(3);
 		Town.npcInteract("alkor");
-		print('ÿc9SoloLevelingÿc0: LamEssen Tome completed');
+		print('ÿc8Kolbot-SoloPlayÿc0: LamEssen Tome completed');
 	}
 
-	if (kw) { //remove Khalim's Will if quest not completed and restarting run.
+	// Remove Khalim's Will if quest not completed and restarting run.
+	if (kw) {
 		if (Item.getEquippedItem(4).classid === 174) {
 			Town.clearInventory();
 			delay(500 + me.ping * 2);
 			Quest.stashItem(174);
-			print('ÿc9SoloLevelingÿc0: removed khalims will');
+			print('ÿc8Kolbot-SoloPlayÿc0: removed khalims will');
 			Item.autoEquip();
 		}
 	}
 
-	if (!Misc.checkQuest(21, 0) && Misc.checkQuest(21, 4)) {	// Killed council but haven't talked to cain
+	// Killed council but haven't talked to cain
+	if (!Misc.checkQuest(21, 0) && Misc.checkQuest(21, 4)) {
 		me.overhead("Finishing Travincal by talking to cain");
 		Town.goToTown(3);
 		Town.npcInteract("cain");
@@ -833,8 +848,9 @@ Town.unfinishedQuests = function () {
 		me.cancel();
 	}
 
-	//Act 4
-	if (hammer) { // drop hellforge hammer and soulstone at startup to avoid selling and d/c
+	// Act 4
+	// Drop hellforge hammer and soulstone at startup to avoid selling and d/c
+	if (hammer) {
 		Town.goToTown(1);
 
 		if (hammer.location === 7) {
@@ -862,7 +878,7 @@ Town.unfinishedQuests = function () {
 		soulstone.drop();
 	}
 
-	//Act 5
+	// Act 5
 	let socketItem = Misc.checkItemForSocketing();
 	if (socketItem) {
 		Quest.useSocketQuest(socketItem);
@@ -870,16 +886,17 @@ Town.unfinishedQuests = function () {
 
 	Misc.addSocketables();
 
+	// Scroll of resistance
 	if (me.getItem(646)) {
 		let sor = me.getItem(646);
 
-		if (sor.location === 7) { // anya scroll of resistance
+		if (sor.location === 7) { 
 			this.openStash();
 			delay(300 + me.ping);
 		}
 
 		sor.interact();
-		print('ÿc9SoloLevelingÿc0: used scroll of resistance');
+		print('ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance');
 	}
 
 	if (Town.heal()) {
@@ -892,19 +909,22 @@ Town.unfinishedQuests = function () {
 Town.buyPots = function (quantity, type) {
 	let npc, jugs;
 
-	if (type === "Thawing" && Check.Resistance().CR >= 75) {	// Don't buy if already at max res
+	// Don't buy if already at max res
+	if (type === "Thawing" && Check.Resistance().CR >= 75) {
 		return true;
 	} else if (type === "Thawing") {
 		print("ÿc9BuyPotsÿc0 :: Current cold resistance: " + Check.Resistance().CR);
 	}
 
-	if (type === "Antidote" && Check.Resistance().PR >= 75) {	// Don't buy if already at max res
+	// Don't buy if already at max res
+	if (type === "Antidote" && Check.Resistance().PR >= 75) {
 		return true;
 	} else if (type === "Antidote") {
 		print("ÿc9BuyPotsÿc0 :: Current poison resistance: " + Check.Resistance().PR);
 	}
 
-	if (type === "Stamina" && (me.paladin && me.getSkill(115, 0) || me.sorceress && me.getSkill(54, 0))) {	// Don't buy if teleport or vigor
+	// Don't buy if teleport or vigor
+	if (type === "Stamina" && (me.paladin && me.getSkill(115, 0) || me.sorceress && me.getSkill(54, 0))) {
 		return true;
 	}
 
@@ -952,7 +972,7 @@ Town.buyPots = function (quantity, type) {
 		break;
 	}
 
-	print('ÿc9SoloLevelingÿc0: buying ' + quantity + ' ' + type + ' Potions');
+	print('ÿc9BuyPotsÿc0 :: buying ' + quantity + ' ' + type + ' Potions');
 
 	for (let totalspecialpotions = 0; totalspecialpotions < quantity; totalspecialpotions++) {
 
@@ -978,7 +998,7 @@ Town.drinkPots = function () {
 				chugs.interact();
 			} while (chugs.getNext());
 
-			print('ÿc9SoloLevelingÿc0: drank Special Potions');
+			print('ÿc9DrinkPotsÿc0 :: drank Special Potions');
 		}
 	}
 
@@ -988,11 +1008,13 @@ Town.drinkPots = function () {
 Town.buyMercPots = function (quantity, type) {
 	let npc, jugs;
 
-	if (type === "Thawing" && Check.mercResistance().CR >= 75) {	// Don't buy if already at max res
+	// Don't buy if already at max res
+	if (type === "Thawing" && Check.mercResistance().CR >= 75) {
 		return true;
 	}
 
-	if (type === "Antidote" && Check.mercResistance().PR >= 75) {	// Don't buy if already at max res
+	// Don't buy if already at max res
+	if (type === "Antidote" && Check.mercResistance().PR >= 75) {
 		return true;
 	}
 

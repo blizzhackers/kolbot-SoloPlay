@@ -177,7 +177,7 @@ Attack.killTarget = function (name) {
 	}
 
 	if (!target) {
-		print("ÿc9SoloLevelingÿc0: " + name + " not found. Performing Attack.Clear(25)");
+		print("ÿc8KillTargetÿc0 :: " + name + " not found. Performing Attack.Clear(25)");
 		Attack.clear(25);
 		Pickit.pickItems();
 
@@ -185,7 +185,7 @@ Attack.killTarget = function (name) {
 	}
 
 	if (target && !Attack.canAttack(target)) { // exit if target is immune
-		print("ÿc9SoloLevelingÿc0: Attack failed. " + target.name + " is immune.");
+		print("ÿc8KillTargetÿc0 :: Attack failed. " + target.name + " is immune.");
 
 		return true;
 	}
@@ -1006,21 +1006,57 @@ Attack.clearCoordList = function (list, pick) {
 	}
 };
 
+Attack.getItemCharges = function (skillId) {
+	if (skillId === undefined || !skillId) {
+		return false;
+	}
+
+	let chargedItems = [], validCharge = function (itemCharge) {
+		return itemCharge.skill === skillId && itemCharge.charges > 1;
+	};
+
+	// Item must be in inventory, or a charm in inventory
+	me.getItems(-1)
+		.filter(item => item && (item.location === 1 || (item.location === 3 && item.itemType === 82)))
+			.forEach(function (item) {
+				let stats = item.getStat(-2);
+
+				if (stats.hasOwnProperty(204)) {
+					if (stats[204] instanceof Array) {
+						stats = stats[204].filter(validCharge);
+						stats.length && chargedItems.push({
+							charge: stats.first(),
+							item: item
+						});
+					} else {
+						if (stats[204].skill === skillId && stats[204].charges > 1) {
+							chargedItems.push({
+								charge: stats[204].charges,
+								item: item
+							});
+						}
+					}
+				}
+			});
+
+	if (chargedItems.length === 0) {
+		return false;
+	}
+
+	return true;
+};
+
 Attack.getSwitchItemCharges = function (skillId) {
 	if (skillId === undefined || !skillId) {
 		return false;
 	}
 
-	let chargedItems;
-
-	let validCharge = function (itemCharge) {
+	let chargedItems = [], validCharge = function (itemCharge) {
 		return itemCharge.skill === skillId && itemCharge.charges > 1;
 	};
 
-	chargedItems = [];
-
 	me.getItems(-1)
-		.filter(item => item && item.bodylocation === 11)	//Switch weapon
+		.filter(item => item && ((me.weaponswitch === 0 && [11, 12].indexOf(item.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(item.bodylocation) > -1)))	//Switch weapon
 			.forEach(function (item) {
 				let stats = item.getStat(-2);
 

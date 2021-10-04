@@ -312,10 +312,6 @@ MainLoop:
 					Pickit.enabled = false;		// Don't pick while trying to clear
 					Attack.clearPos(item.x, item.y, 10, false);
 					Pickit.enabled = true;		// Reset value
-
-					//retry = true;
-
-					//break MainLoop;
 				}
 
 				if (Pather.useTeleport()) {

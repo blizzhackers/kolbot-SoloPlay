@@ -8,6 +8,8 @@ if (!isIncluded("common/Pather.js")) {
 	include("common/Pather.js");
 }
 
+var Coords_1 = require("../Modules/Coords");
+
 NodeAction.killMonsters = function (arg) {
 	// sanityCheck from isid0re - added paladin specific areas - theBGuy
 	var monList, sanityCheck = ([62, 63, 64, 74].indexOf(me.area) > -1 || (me.paladin && [8, 9, 10, 11, 12, 13, 14, 15, 16, 94, 95, 96, 97, 98, 99].indexOf(me.area) > -1)) ? true : false;
@@ -122,6 +124,31 @@ MainLoop:
 		} else {
 			Skill.cast(54, 0, x, y);
 		}
+
+		tick = getTickCount();
+
+		while (getTickCount() - tick < Math.max(500, me.ping * 2 + 200)) {
+			if (getDistance(me.x, me.y, x, y) < maxRange) {
+				return true;
+			}
+
+			delay(10);
+		}
+	}
+
+	return false;
+};
+
+Pather.teleportToUsingChargedSkill = function (x, y, maxRange) {
+	var i, tick;
+
+	if (maxRange === undefined) {
+		maxRange = 5;
+	}
+
+MainLoop:
+	for (i = 0; i < 3; i += 1) {
+		me.castChargedSkill(54, x, y);
 
 		tick = getTickCount();
 
@@ -328,6 +355,129 @@ Pather.changeAct = function () {
 	return me.act === act;
 };
 
+Pather.walkTo = function (x, y, minDist) {
+	while (!me.gameReady) {
+		delay(100);
+	}
+
+	if (minDist === undefined) {
+		minDist = me.inTown ? 2 : 4;
+	}
+
+	var i, angle, angles, nTimer, whereToClick, tick, _a, stam,
+		nFail = 0,
+		attemptCount = 0;
+
+	// credit @Jaenster
+	// Stamina handler and Charge
+	if (!me.inTown && !me.dead) {
+		if (me.stamina / me.staminamax * 100 <= 75 || me.runwalk === 0) {
+        	// Look on the ground around me to see if there is a stamina potion
+        	stam = getUnit(4, sdk.items.staminapotion, 3);
+			if (!!stam && getDistance(me, stam) <= 15 && !checkCollision(me, stam, 0x1) && !me.getItem(sdk.items.staminapotion)) {
+				Pickit.pickItem(stam);
+				stam = false;
+			}
+		}
+        if (me.stamina / me.staminamax * 100 <= 20) {
+        	// Check if I have a stamina potion and use it if I do
+            (_a = me.getItemsEx()
+                .filter(function (i) { return i.classid === sdk.items.staminapotion &&
+                i.isInInventory; })
+                .first()) === null || _a === void 0 ? void 0 : _a.interact();
+        }
+        if (me.runwalk === 1 && me.stamina / me.staminamax * 100 <= 15) {
+            me.runwalk = 0;
+        }
+        // the less stamina you have, the more you wait to recover
+        var recover = me.staminaMaxDuration < 30 ? 80 : 50;
+        if (me.runwalk === 0 && me.stamina / me.staminamax * 100 >= recover) {
+            me.runwalk = 1;
+        }
+        if (Config.Charge && me.classid === 3 && me.mp >= 9 && getDistance(me.x, me.y, x, y) > 8 && Skill.setSkill(107, 1)) {
+            if (Config.Vigor) {
+                Skill.setSkill(115, 0);
+            }
+            Misc.click(0, 1, x, y);
+            while (me.mode !== 1 && me.mode !== 5 && !me.dead) {
+                delay(40);
+            }
+        }
+    }
+
+	if (me.inTown && me.runwalk === 0) {
+		me.runwalk = 1;
+	}
+
+	while (getDistance(me.x, me.y, x, y) > minDist && !me.dead) {
+		if (me.classid === 3 && Config.Vigor) {
+			Skill.setSkill(115, 0);
+		}
+
+		if (this.openDoors(x, y) && getDistance(me.x, me.y, x, y) <= minDist) {
+			return true;
+		}
+
+		Misc.click(0, 0, x, y);
+
+		attemptCount += 1;
+		nTimer = getTickCount();
+
+ModeLoop:
+		while (me.mode !== 2 && me.mode !== 3 && me.mode !== 6) {
+			if (me.dead) {
+				return false;
+			}
+
+			if ((getTickCount() - nTimer) > 500) {
+				nFail += 1;
+
+				if (nFail >= 3) {
+					return false;
+				}
+
+				angle = Math.atan2(me.y - y, me.x - x);
+				angles = [Math.PI / 2, -Math.PI / 2];
+
+				for (i = 0; i < angles.length; i += 1) {
+					// TODO: might need rework into getnearestwalkable
+					whereToClick = {
+						x: Math.round(Math.cos(angle + angles[i]) * 5 + me.x),
+						y: Math.round(Math.sin(angle + angles[i]) * 5 + me.y)
+					};
+
+					if (Attack.validSpot(whereToClick.x, whereToClick.y)) {
+						Misc.click(0, 0, whereToClick.x, whereToClick.y);
+
+						tick = getTickCount();
+
+						while (getDistance(me, whereToClick) > 2 && getTickCount() - tick < 1000) {
+							delay(40);
+						}
+
+						break;
+					}
+				}
+
+				break ModeLoop;
+			}
+
+			delay(10);
+		}
+
+		// Wait until we're done walking - idle or dead
+		while (getDistance(me.x, me.y, x, y) > minDist && me.mode !== 1 && me.mode !== 5 && !me.dead) {
+			delay(10);
+		}
+
+		if (attemptCount >= 3) {
+			return false;
+		}
+	}
+
+	return !me.dead && getDistance(me.x, me.y, x, y) <= minDist;
+};
+
 Pather.moveTo = function (x, y, retry, clearPath, pop) {
 	if (me.dead) { // Abort if dead
 		return false;
@@ -368,6 +518,7 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 	}
 
 	useTeleport = this.useTeleport();
+	let useChargedSkillTele = !me.getState(139) && !me.getState(140) && !me.inTown && Attack.getItemCharges(54);
 	path = getPath(me.area, x, y, me.x, me.y, useTeleport ? 1 : 0, useTeleport ? ([62, 63, 64].indexOf(me.area) > -1 ? 30 : this.teleDistance) : this.walkDistance);
 
 	if (!path) {
@@ -440,6 +591,10 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 						Misc.openChests(2);
 
 						cleared = true;
+					}
+
+					if (fail > 1 && useChargedSkillTele) {
+						Pather.teleportToUsingChargedSkill(node.x, node.y);
 					}
 
 					if (fail > 1 && me.getSkill(143, 1)) {

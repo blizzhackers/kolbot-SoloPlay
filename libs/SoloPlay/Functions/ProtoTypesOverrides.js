@@ -52,24 +52,9 @@ Object.defineProperties(Unit.prototype, {
 			return this.getState(156);
 		},
 	},
-	isUnderWeaken: {
-		get: function () {
-			return this.getState(19);
-		},
-	},
 	isUnderLowerRes: {
 		get: function () {
 			return this.getState(61);
-		},
-	},
-	isUnderAmplify: {
-		get: function () {
-			return this.getState(9);
-		},
-	},
-	isUnderDecrep: {
-		get: function () {
-			return this.getState(87);
 		},
 	},
 });
@@ -167,6 +152,38 @@ Object.defineProperties(Unit.prototype, {
 });
 
 // Credit @Jaenster
+Object.defineProperties(me, {
+    highestAct: {
+        get: function () {
+            var acts = [true,
+                me.getQuest(sdk.quests.AbleToGotoActII, 0),
+                me.getQuest(sdk.quests.AbleToGotoActIII, 0),
+                me.getQuest(sdk.quests.AbleToGotoActIV, 0),
+                me.getQuest(sdk.quests.AbleToGotoActV, 0)];
+            var index = acts.findIndex(function (i) { return !i; }); // find first false, returns between 1 and 5
+            return index == -1 ? 5 : index;
+        }
+    },
+    staminaDrainPerSec: {
+        get: function () {
+            var bonusReduction = me.getStat(sdk.stats.StaminaRecoveryBonus);
+            var armorMalusReduction = 0; // TODO
+            return 25 * Math.max(40 * (1 + armorMalusReduction / 10) * (100 - bonusReduction) / 100, 1) / 256;
+        }
+    },
+    staminaTimeLeft: {
+        get: function () {
+            return me.stamina / me.staminaDrainPerSec;
+        }
+    },
+    staminaMaxDuration: {
+        get: function () {
+            return me.staminamax / me.staminaDrainPerSec;
+        }
+    },
+});
+
+// Credit @Jaenster
 Unit.prototype.switchWeapons = function (slot) {
 	if (this.gametype === 0 || this.weaponswitch === slot && slot !== undefined) {
 		return true;
@@ -175,7 +192,6 @@ Unit.prototype.switchWeapons = function (slot) {
 	while (typeof me !== 'object') delay(10);
 
 	let originalSlot = this.weaponswitch;
-
 
 	let i, tick, switched = false,
 		packetHandler = (bytes) => bytes.length > 0 && bytes[0] === 0x97 && (switched = true) && false; // false to not block
@@ -209,7 +225,31 @@ Unit.prototype.switchWeapons = function (slot) {
 	return false;
 };
 
-Unit.prototype.castSwitchChargedSkill = function (...args) {
+Unit.prototype.castingFrames = function (skillId, fcr, charClass) {
+	if (this !== me) {
+		print("invalid arguments, expected 'me' object");
+		return false;
+	}
+
+	if (fcr === void 0) { fcr = this.getStat(sdk.stats.FCR); }
+	if (charClass === void 0) { charClass = this.classid; }
+	// https://diablo.fandom.com/wiki/Faster_Cast_Rate
+	var effectiveFCR = Math.min(75, (fcr * 120 / (fcr + 120)) | 0);
+	var isLightning = skillId === sdk.skills.Lightning || skillId === sdk.skills.ChainLightning;
+	var baseCastRate = [20, isLightning ? 19 : 14, 16, 16, 14, 15, 17][charClass];
+	if (isLightning) {
+		return Math.round(256 * baseCastRate / (256 * (100 + effectiveFCR) / 100));
+	}
+	var animationSpeed = {
+		normal: 256,
+		human: 208,
+		wolf: 229,
+		bear: 228
+	}[charClass === sdk.charclass.Druid ? (this.getState(sdk.states.Wolf) || this.getState(sdk.states.Bear)) : "normal"];
+	return Math.ceil(256 * baseCastRate / Math.floor(animationSpeed * (100 + effectiveFCR) / 100)) - 1;
+};
+
+Unit.prototype.castChargedSkill = function (...args) {
 	let skillId, x, y, unit, chargedItem, charge,
 		chargedItems = [],
 		validCharge = function (itemCharge) {
@@ -257,15 +297,17 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 		throw Error("invalid arguments, expected 'me' object or 'item' unit");
 	}
 
-	if (this === me) { // Called the function the unit, me.
+	// Called the function the unit, me.
+	if (this === me) {
 		if (!skillId) {
 			throw Error('Must supply skillId on me.castChargedSkill');
 		}
 
 		chargedItems = [];
 
-		this.getItems(-1) // Item must be in inventory, or a charm in inventory
-			.filter(item => item && ((me.weaponswitch === 0 && item.bodylocation === 11) || (me.weaponswitch === 1 && item.bodylocation === 4)))
+		// Item must be in inventory, or a charm in inventory
+		this.getItems(-1)
+			.filter(item => item && (item.location === 1 || (item.location === 3 && item.itemType === 82)))
 			.forEach(function (item) {
 				let stats = item.getStat(-2);
 
@@ -288,11 +330,15 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 			});
 
 		if (chargedItems.length === 0) {
-			print("ÿc9CastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
-			return false;
+			throw Error("Don't have the charged skill (" + skillId + "), or not enough charges");
 		}
 
 		chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
+
+		// Check if item with charges is equipped on the switch spot
+		if (this.weaponswitch === 0 && [11, 12].indexOf(chargedItem.bodylocation) > -1) {
+			this.switchWeapons(1);
+		}
 
 		return chargedItem.castChargedSkill.apply(chargedItem, args);
 	} else if (this.type === 4) {
@@ -330,9 +376,96 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 	return false;
 };
 
+Unit.prototype.castSwitchChargedSkill = function (...args) {
+	let skillId, x, y, unit, chargedItem, charge,
+		chargedItems = [],
+		validCharge = function (itemCharge) {
+			return itemCharge.skill === skillId && itemCharge.charges;
+		};
+
+	switch (args.length) {
+	case 0: // item.castChargedSkill()
+		break;
+	case 1: // hellfire.castChargedSkill(monster);
+		break;
+	case 2:
+		if (typeof args[0] === 'number') {
+			if (args[1] instanceof Unit) {
+				// me.castChargedSkill(skillId, unit)
+				[skillId, unit] = [...args];
+			} else if (typeof args[1] === 'number') {
+				// item.castChargedSkill(x, y)
+				[x, y] = [...args];
+			}
+		} else {
+			throw new Error(' invalid arguments, expected (skillId, unit) or (x, y)');
+		}
+
+		break;
+	case 3: // If all arguments are numbers
+		if (typeof args[0] === 'number' && typeof args[1] === 'number' && typeof args[2] === 'number') {
+			[skillId, x, y] = [...args];
+		}
+
+		break;
+	default:
+		throw new Error("invalid arguments, expected 'me' object or 'item' unit");
+	}
+
+	// Charged skills can only be casted on x, y coordinates
+	unit && ([x, y] = [unit.x, unit.y]);
+
+	if (this !== me) {
+		throw Error("invalid arguments, expected 'me' object");
+	}
+
+	// Called the function the unit, me.
+	if (this === me) { 
+		if (!skillId) {
+			throw Error('Must supply skillId on me.castChargedSkill');
+		}
+
+		chargedItems = [];
+
+		// Item must on equipped in the switch position
+		this.getItems(-1)
+			.filter(item => item && ((me.weaponswitch === 0 && [11, 12].indexOf(item.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(item.bodylocation) > -1)))
+			.forEach(function (item) {
+				let stats = item.getStat(-2);
+
+				if (stats.hasOwnProperty(204)) {
+					if (stats[204] instanceof Array) {
+						stats = stats[204].filter(validCharge);
+						stats.length && chargedItems.push({
+							charge: stats.first(),
+							item: item
+						});
+					} else {
+						if (stats[204].skill === skillId && stats[204].charges > 1) {
+							chargedItems.push({
+								charge: stats[204].charges,
+								item: item
+							});
+						}
+					}
+				}
+			});
+
+		if (chargedItems.length === 0) {
+			print("ÿc9CastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
+			return false;
+		}
+
+		chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
+
+		return chargedItem.castChargedSkill.apply(chargedItem, args);
+	}
+
+	return false;
+};
+
 Unit.prototype.getStatEx = function (id, subid) {
 	var i, temp, rval, regex;
-
 
 	switch (id) {
 	case 555: //calculates all res, doesnt exists trough
