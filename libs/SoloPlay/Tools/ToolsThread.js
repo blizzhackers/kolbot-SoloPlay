@@ -625,7 +625,7 @@ function main () {
 				showConsole();
 				print("ÿc4Diablo Walks the Earth");
 
-				me.maxgametime = 0;
+				me.maxgametime += (30 * 1000 * 60);		// Add 30 minutes to current maxgametime
 
 				if (Config.KillDclone) {
 					Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", "killdclone");

@@ -157,6 +157,7 @@ function main() {
 			try {
 				me.overhead("Going to town");
 				print("Going to town");
+				Events.townChicken = true;
 				
 				if (useHowl || useTerror) {
 					if ([156, 211, 242, 243, 544, 571, 345].indexOf(this.getNearestMonster()) === -1) {
@@ -180,6 +181,7 @@ function main() {
 				this.togglePause();
 
 				Attack.stopClear = false;
+				Events.townChicken = false;
 				townCheck = false;
 			}
 		}

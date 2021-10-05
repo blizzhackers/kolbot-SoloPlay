@@ -8,6 +8,7 @@ var Events = {
 	check: false,
 	inGame: false,
 	cloneWalked: false,
+	townChicken: false,
 	profileResponded: false,
 	gameInfo: {
 		gameName: "",

@@ -59,9 +59,8 @@ function main () {
 		for (l = 0; l < scripts.length; l += 1) {
 			script = getScript(scripts[l]);
 
-			if (script && !script.running) {
+			if (Events.townChicken) {
 				print("ÿc1Trying to townChicken, don't interfere.");
-
 				return false;
 			}
 
