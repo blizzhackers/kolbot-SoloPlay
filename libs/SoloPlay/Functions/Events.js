@@ -207,6 +207,10 @@ var Events = {
 		D2Bot.printToConsole("Kolbot-SoloPlay :: Trying to kill DClone.", 8);
 		let orginalLocation = {area: me.area, x: me.x, y: me.y};
 
+		if (!me.inTown) {
+			Town.goToTown();
+		}
+
 		if (Pather.accessToAct(2) && Pather.checkWP(sdk.areas.ArcaneSanctuary)) {
 			Pather.useWaypoint(sdk.areas.ArcaneSanctuary);
 			Precast.doPrecast(true);
@@ -215,11 +219,12 @@ var Events = {
 				print("ÿc8Kolbot-SoloPlayÿc1: Failed to move to Palace Cellar");
 			}
 		} else if (Pather.checkWP(sdk.areas.InnerCloister)) {
+			Pather.useWaypoint(sdk.areas.InnerCloister);
 			Pather.moveTo(20047, 4898);
 		} else {
-			Pather.useWaypoint(sdk.areas.RogueEncampment);
-			Pather.moveToExit(sdk.areas.ColdPlains, true);
-			Pather.clearToExit(sdk.areas.ColdPlains, sdk.areas.DenofEvil, true);
+			Pather.useWaypoint(sdk.areas.ColdPlains);
+			Pather.moveToExit(sdk.areas.BloodMoor, true);
+			Pather.clearToExit(sdk.areas.BloodMoor, sdk.areas.DenofEvil, true);
 			Pather.moveToPreset(me.area, 1, 774, 0, 0, false, true);
 		}
 
