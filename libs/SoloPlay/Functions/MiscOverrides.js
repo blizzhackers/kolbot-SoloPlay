@@ -992,12 +992,13 @@ Misc.checkItemForSocketing = function () {
 				}
 
 				// Lidless
-				if (items[i].classid === 396 && items[i].getStat(194) === 0 && items[i].quality === 7) {
+				if (items[i].classid === 396 && items[i].getStat(194) === 0 && items[i].quality === 7 &&
+					([sdk.storage.Inventory, sdk.storage.Stash].indexOf(items[i].location) > -1 || (me.weaponswitch === 0 && [4, 5].indexOf(items[i].bodylocation) > -1))) {
 					item = items[i];
 					break;
 				}
 
-				if (!me.paladin) {
+				if (!me.paladin && ["Cold", "Meteorb", "Blizzballer"].indexOf(SetUp.finalBuild) === -1) {
 					// Monarch
 					if (items[i].classid === 447 && items[i].ilvl >= 41 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1 && !items[i].getFlag(0x400000)) {
 						item = items[i];
