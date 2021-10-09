@@ -1090,16 +1090,15 @@ Attack.switchCastCharges = function (skillId, unit) {
 		return false;
 	}
 
-	if (Attack.getSwitchItemCharges(skillId)) {
-		me.switchWeapons(1);
-		me.castSwitchChargedSkill(skillId, unit);
-		me.switchWeapons(0);
-	} else {
-		//print("ÿc8Kolbot-SoloPlayÿc0: No item with charges or no charges available");
+	if (me.inTown && !Skill.townSkill(skillId)) {
 		return false;
 	}
 
-	return true;
+	if (!Skill.wereFormCheck(skillId)) {
+		return false;
+	}
+
+	return me.castSwitchChargedSkill(skillId, unit);
 };
 
 Attack.throwPotion = function (unit) {

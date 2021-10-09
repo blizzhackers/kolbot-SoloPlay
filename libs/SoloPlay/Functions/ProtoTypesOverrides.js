@@ -303,6 +303,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 			throw Error('Must supply skillId on me.castChargedSkill');
 		}
 
+		let onSwitch = false;
 		chargedItems = [];
 
 		// Item must be in inventory, or a charm in inventory
@@ -330,17 +331,19 @@ Unit.prototype.castChargedSkill = function (...args) {
 			});
 
 		if (chargedItems.length === 0) {
-			throw Error("Don't have the charged skill (" + skillId + "), or not enough charges");
+			print("ÿc9CastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
+			return false;
 		}
 
 		chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
 
 		// Check if item with charges is equipped on the switch spot
 		if (this.weaponswitch === 0 && [11, 12].indexOf(chargedItem.bodylocation) > -1) {
+			onSwitch = true;
 			this.switchWeapons(1);
 		}
 
-		return chargedItem.castChargedSkill.apply(chargedItem, args);
+		return chargedItem.castChargedSkill.apply(chargedItem, args) && onSwitch ? this.switchWeapons(0) : true;
 	} else if (this.type === 4) {
 		charge = this.getStat(-2)[204]; // WARNING. Somehow this gives duplicates
 
@@ -452,13 +455,17 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 			});
 
 		if (chargedItems.length === 0) {
-			print("ÿc9CastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
+			print("ÿc9SwitchCastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
 			return false;
+		}
+
+		if (me.weaponswitch === 0) {
+			me.switchWeapons(1);
 		}
 
 		chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
 
-		return chargedItem.castChargedSkill.apply(chargedItem, args);
+		return chargedItem.castChargedSkill.apply(chargedItem, args) && me.switchWeapons(0);
 	}
 
 	return false;

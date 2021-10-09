@@ -140,6 +140,14 @@ MainLoop:
 };
 
 Pather.teleportToUsingChargedSkill = function (x, y, maxRange) {
+	if (me.inTown && !Skill.townSkill(sdk.skills.Teleport)) {
+		return false;
+	}
+
+	if (!Skill.wereFormCheck(sdk.skills.Teleport)) {
+		return false;
+	}
+
 	var i, tick;
 
 	if (maxRange === undefined) {
@@ -148,7 +156,7 @@ Pather.teleportToUsingChargedSkill = function (x, y, maxRange) {
 
 MainLoop:
 	for (i = 0; i < 3; i += 1) {
-		me.castChargedSkill(54, x, y);
+		me.castChargedSkill(sdk.skills.Teleport, x, y);
 
 		tick = getTickCount();
 
@@ -518,7 +526,6 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 	}
 
 	useTeleport = this.useTeleport();
-	let useChargedSkillTele = !me.getState(139) && !me.getState(140) && !me.inTown && Attack.getItemCharges(54);
 	path = getPath(me.area, x, y, me.x, me.y, useTeleport ? 1 : 0, useTeleport ? ([62, 63, 64].indexOf(me.area) > -1 ? 30 : this.teleDistance) : this.walkDistance);
 
 	if (!path) {
@@ -540,7 +547,7 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 	PathDebug.drawPath(path);
 
 	if (useTeleport && Config.TeleSwitch && path.length > 5) {
-		Attack.weaponSwitch(Attack.getPrimarySlot() ^ 1);
+		me.switchWeapons(Attack.getPrimarySlot() ^ 1);
 	}
 
 	let tpMana = Skill.getManaCost(54);	// Credit @Jaenster
@@ -593,11 +600,7 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 						cleared = true;
 					}
 
-					if (fail > 1 && useChargedSkillTele) {
-						Pather.teleportToUsingChargedSkill(node.x, node.y);
-					}
-
-					if (fail > 1 && me.getSkill(143, 1)) {
+					if (fail > 1 && !Pather.teleportToUsingChargedSkill(node.x, node.y) && me.getSkill(143, 1)) {
 						Skill.cast(143, 0, node.x, node.y);
 					}
 				}
@@ -634,7 +637,7 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 	}
 
 	if (useTeleport && Config.TeleSwitch) {
-		Attack.weaponSwitch(Attack.getPrimarySlot());
+		me.switchWeapons(Attack.getPrimarySlot());
 	}
 
 	PathDebug.removeHooks();
