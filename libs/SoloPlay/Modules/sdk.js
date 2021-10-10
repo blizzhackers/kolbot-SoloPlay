@@ -826,7 +826,7 @@
             Level: 12,
             Experience: 13,
             Gold: 14,
-            Goldbank: 15,
+            GoldBank: 15,
             ToHit: 19,
             ToBlock: 20,
             MinDamage: 21,

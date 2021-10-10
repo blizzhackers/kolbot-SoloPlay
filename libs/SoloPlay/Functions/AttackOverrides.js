@@ -14,6 +14,7 @@ Attack.IsAuradin = false;
 Attack.stopClear = false;
 Attack.MainBosses = [156, 211, 242, 243, 544];
 Attack.BossAndMiniBosses = [156, 211, 242, 243, 544, 229, 250, 256, 267, 365, 409, 540, 541, 542];
+Attack.skillOnSwitch = -1;
 
 Attack.init = function () {
 	if (Config.Wereform) {
@@ -1006,6 +1007,49 @@ Attack.clearCoordList = function (list, pick) {
 	}
 };
 
+Attack.checkCharges = function (skillIds, onSwitch = false) {
+	if (!Skill.charges) {
+		Skill.charges = [];
+	}
+
+	var i, stats,
+		item = me.getItem(-1, 1);
+
+	if (item) {
+		do {
+			stats = item.getStat(-2);
+
+			if (stats.hasOwnProperty(204)) {
+				if (stats[204] instanceof Array) {
+					for (i = 0; i < stats[204].length; i += 1) {
+						if (stats[204][i] !== undefined) {
+							Skill.charges.push({
+								unit: copyUnit(item),
+								gid: item.gid,
+								skill: stats[204][i].skill,
+								level: stats[204][i].level,
+								charges: stats[204][i].charges,
+								maxcharges: stats[204][i].maxcharges
+							});
+						}
+					}
+				} else {
+					Skill.charges.push({
+						unit: copyUnit(item),
+						gid: item.gid,
+						skill: stats[204].skill,
+						level: stats[204].level,
+						charges: stats[204].charges,
+						maxcharges: stats[204].maxcharges
+					});
+				}
+			}
+		} while (item.getNext());
+	}
+
+	return true;
+};
+
 Attack.getItemCharges = function (skillId) {
 	if (skillId === undefined || !skillId) {
 		return false;
@@ -1015,7 +1059,7 @@ Attack.getItemCharges = function (skillId) {
 		return itemCharge.skill === skillId && itemCharge.charges > 1;
 	};
 
-	// Item must be in inventory, or a charm in inventory
+	// Item must equipped, or a charm in inventory
 	me.getItems(-1)
 		.filter(item => item && (item.location === 1 || (item.location === 3 && item.itemType === 82)))
 			.forEach(function (item) {
@@ -1095,6 +1139,10 @@ Attack.switchCastCharges = function (skillId, unit) {
 	}
 
 	if (!Skill.wereFormCheck(skillId)) {
+		return false;
+	}
+
+	if (!this.getSwitchItemCharges(skillId)) {
 		return false;
 	}
 

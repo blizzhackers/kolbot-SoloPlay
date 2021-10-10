@@ -102,6 +102,35 @@ NodeAction.popChests = function () {
 	Misc.useWell(range);
 };
 
+Pather.haveTeleCharges = false;
+
+Pather.canTeleport = function () {
+	return this.teleport && !Config.NoTele && !me.getState(139) && !me.getState(140) && ((me.sorceress && me.getSkill(54, 1)) || me.getStat(97, 54));
+};
+
+Pather.useTeleport = function () { //XCon provided. to turn off teleport if below 20% mana
+	return this.teleport && !Config.NoTele && !me.getState(139) && !me.getState(140) && !me.inTown && ((me.sorceress && me.getSkill(54, 1) && ((me.getStat(8) / me.getStat(9)) * 100) >= 20) || me.getStat(97, 54));
+};
+
+Pather.checkForTeleCharges = function () {
+	this.haveTeleCharges = Attack.getItemCharges(sdk.skills.Teleport);
+};
+
+Pather.canUseTeleCharges = function () {
+	if (me.inTown || me.getState(sdk.states.Wearwolf) || me.getState(sdk.states.Wearbear)) {
+		return false;
+	}
+
+	let gold = me.getStat(sdk.stats.Gold) + me.getStat(sdk.stats.GoldBank);
+
+	// Charges are costly so make sure we have enough gold to handle repairs unless we are in maggot lair since thats a pita and worth the gold spent
+	if (gold < 500000 && [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].indexOf(me.area) === -1) {
+		return false;
+	}
+
+	return this.haveTeleCharges;
+};
+
 Pather.teleportTo = function (x, y, maxRange) {
 	var i, tick;
 
@@ -139,20 +168,14 @@ MainLoop:
 	return false;
 };
 
-Pather.teleportToUsingChargedSkill = function (x, y, maxRange) {
-	if (me.inTown && !Skill.townSkill(sdk.skills.Teleport)) {
-		return false;
-	}
-
-	if (!Skill.wereFormCheck(sdk.skills.Teleport)) {
-		return false;
-	}
-
+Pather.teleportToUsingCharges = function (x, y, maxRange) {
 	var i, tick;
 
 	if (maxRange === undefined) {
 		maxRange = 5;
 	}
+
+	print("Got here, haveTeleCharges = " + this.haveTeleCharges);
 
 MainLoop:
 	for (i = 0; i < 3; i += 1) {
@@ -210,14 +233,6 @@ Pather.checkWP = function (area) {
 	}
 
 	return getWaypoint(Pather.wpAreas.indexOf(area));
-};
-
-Pather.canTeleport = function () {
-	return this.teleport && !Config.NoTele && !me.getState(139) && !me.getState(140) && ((me.sorceress && me.getSkill(54, 1)) || me.getStat(97, 54));
-};
-
-Pather.useTeleport = function () { //XCon provided. to turn off teleport if below 20% mana
-	return this.teleport && !Config.NoTele && !me.getState(139) && !me.getState(140) && !me.inTown && ((me.sorceress && me.getSkill(54, 1) && ((me.getStat(8) / me.getStat(9)) * 100) >= 20) || me.getStat(97, 54));
 };
 
 Pather.openDoors = function (x, y) { //fixed monsterdoors/walls in act 5
@@ -491,7 +506,7 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 		return false;
 	}
 
-	var i, path, adjustedNode, cleared, useTeleport,
+	var i, path, adjustedNode, cleared, useTeleport, useChargedTele,
 		node = {x: x, y: y},
 		fail = 0;
 
@@ -526,7 +541,8 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 	}
 
 	useTeleport = this.useTeleport();
-	path = getPath(me.area, x, y, me.x, me.y, useTeleport ? 1 : 0, useTeleport ? ([62, 63, 64].indexOf(me.area) > -1 ? 30 : this.teleDistance) : this.walkDistance);
+	useChargedTele = this.canUseTeleCharges();
+	path = getPath(me.area, x, y, me.x, me.y, useTeleport || useChargedTele ? 1 : 0, useTeleport || useChargedTele ? ([62, 63, 64].indexOf(me.area) > -1 ? 30 : this.teleDistance) : this.walkDistance);
 
 	if (!path) {
 		throw new Error("moveTo: Failed to generate path.");
@@ -575,7 +591,7 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 				}
 			}
 
-			if (useTeleport && tpMana <= me.mp ? this.teleportTo(node.x, node.y) : this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
+			if (useTeleport && tpMana <= me.mp ? this.teleportTo(node.x, node.y) : useChargedTele && getDistance(me, node) >= 15 ? this.teleportToUsingCharges(node.x, node.y) : this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
 				if (!me.inTown) {
 					if (this.recursion) {
 						this.recursion = false;
@@ -600,7 +616,7 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 						cleared = true;
 					}
 
-					if (fail > 1 && !Pather.teleportToUsingChargedSkill(node.x, node.y) && me.getSkill(143, 1)) {
+					if (fail > 1 && me.getSkill(143, 1)) {
 						Skill.cast(143, 0, node.x, node.y);
 					}
 				}

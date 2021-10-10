@@ -336,6 +336,7 @@ var tierscore = function (item) {
 
 	this.buildScore = function (item) {
 		var buildWeights = Check.currentBuild().caster ? casterWeights : meleeWeights;
+		let buildRating = 0;
 
 		if (me.amazon) {
 			if (item.getStatEx(253)) {
@@ -343,7 +344,13 @@ var tierscore = function (item) {
 			}
 		}
 
-		let buildRating = 0;
+		if ((me.sorceress && !me.getSkill(54, 1)) || !me.getStat(97, 54)) {
+			// Teleport charges
+			if (item.getStatEx(204, 3461)) {
+				buildRating += 50;
+			}
+		}
+
 		buildRating += item.getStatEx(105) * buildWeights.FCR; // add FCR
 		buildRating += item.getStatEx(93) * buildWeights.IAS; // add IAS
 		buildRating += item.getStatEx(74) * buildWeights.HPREGEN; // add hp regeneration

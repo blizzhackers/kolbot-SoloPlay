@@ -98,6 +98,8 @@ Town.townTasks = function () {
 		Config.Dodge = false;
 	}
 
+	Pather.checkForTeleCharges();
+
 	delay(200 + me.ping * 2);
 
 	return true;
@@ -171,6 +173,8 @@ Town.doChores = function (repair = false) {
 	if (me.barbarian && SetUp.currentBuild !== "Singer") {
 		Config.Dodge = false;
 	}
+
+	Pather.checkForTeleCharges();
 
 	delay(200 + me.ping * 2);
 

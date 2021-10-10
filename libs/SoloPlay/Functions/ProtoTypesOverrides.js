@@ -294,7 +294,8 @@ Unit.prototype.castChargedSkill = function (...args) {
 	unit && ([x, y] = [unit.x, unit.y]);
 
 	if (this !== me && this.type !== 4) {
-		throw Error("invalid arguments, expected 'me' object or 'item' unit");
+		print("ÿc9CastChargedSkillÿc0 :: Wierd Error, invalid arguments, expected 'me' object or 'item' unit" + " this === me ? " + (this === me) + " unit type : " + this.type);
+		return false;
 	}
 
 	// Called the function the unit, me.
@@ -306,7 +307,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 		let onSwitch = false;
 		chargedItems = [];
 
-		// Item must be in inventory, or a charm in inventory
+		// Item must be equipped, or a charm in inventory
 		this.getItems(-1)
 			.filter(item => item && (item.location === 1 || (item.location === 3 && item.itemType === 82)))
 			.forEach(function (item) {
@@ -338,12 +339,12 @@ Unit.prototype.castChargedSkill = function (...args) {
 		chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
 
 		// Check if item with charges is equipped on the switch spot
-		if (this.weaponswitch === 0 && [11, 12].indexOf(chargedItem.bodylocation) > -1) {
+		if (me.weaponswitch === 0 && [11, 12].indexOf(chargedItem.bodylocation) > -1) {
 			onSwitch = true;
-			this.switchWeapons(1);
+			me.switchWeapons(1);
 		}
 
-		return chargedItem.castChargedSkill.apply(chargedItem, args) && onSwitch ? this.switchWeapons(0) : true;
+		return chargedItem.castChargedSkill.apply(chargedItem, args) && onSwitch ? me.switchWeapons(0) : true;
 	} else if (this.type === 4) {
 		charge = this.getStat(-2)[204]; // WARNING. Somehow this gives duplicates
 
@@ -352,12 +353,18 @@ Unit.prototype.castChargedSkill = function (...args) {
 		}
 
 		if (skillId) {
-			charge = charge.filter(item => (skillId && item.skill === skillId) && !!item.charges); // Filter out all other charged skills
+			if (charge instanceof Array) {
+				charge = charge.filter(item => (skillId && item.skill === skillId) && !!item.charges); // Filter out all other charged skills
+				charge = charge.first();
+			} else {
+				if (charge.skill !== skillId || !charge.charges) {
+					print("No charges matching skillId");
+					charge = false;
+				}
+			}
 		} else if (charge.length > 1) {
 			throw new Error('multiple charges on this item without a given skillId');
 		}
-
-		charge = charge.first();
 
 		if (charge) {
 			// Setting skill on hand
@@ -412,7 +419,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 
 		break;
 	default:
-		throw new Error("invalid arguments, expected 'me' object or 'item' unit");
+		throw new Error("invalid arguments, expected 'me' object");
 	}
 
 	// Charged skills can only be casted on x, y coordinates
@@ -430,7 +437,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 
 		chargedItems = [];
 
-		// Item must on equipped in the switch position
+		// Item must be equipped in the switch position
 		this.getItems(-1)
 			.filter(item => item && ((me.weaponswitch === 0 && [11, 12].indexOf(item.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(item.bodylocation) > -1)))
 			.forEach(function (item) {
