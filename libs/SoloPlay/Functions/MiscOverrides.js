@@ -1025,7 +1025,7 @@ Misc.checkItemForSocketing = function () {
 		} else if (me.druid) {	// Druid uses Jalal's
 			for (let i = 0; i < items.length; i++) {
 				// Jalal's
-				if (items[i].classid === 472 && items[i].getStat(194) === 0 && items[i].quality === 5) {
+				if (items[i].classid === 472 && items[i].getStat(194) === 0 && items[i].quality === 7) {
 					item = items[i];
 					break;
 				}
@@ -1033,7 +1033,7 @@ Misc.checkItemForSocketing = function () {
 		} else if (me.assassin) {	// Assassin uses Andys's
 			for (let i = 0; i < items.length; i++) {
 				// Non-Eth Andys's
-				if (items[i].classid === 428 && items[i].getStat(194) === 0 && items[i].quality === 5 && !items[i].getFlag(0x400000)) {
+				if (items[i].classid === 428 && items[i].getStat(194) === 0 && items[i].quality === 7 && !items[i].getFlag(0x400000)) {
 					item = items[i];
 					break;
 				}
