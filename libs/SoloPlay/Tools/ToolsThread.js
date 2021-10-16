@@ -600,7 +600,9 @@ function main () {
 
 			// Only do this in expansion
 			if (Config.SoJWaitTime && me.gametype === 1) { // only do this in expansion
-				D2Bot.printToConsole(param1 + " Stones of Jordan Sold to Merchants on IP " + me.gameserverip.split(".")[3], 7);
+				if (!!me.gameserverip) {
+					D2Bot.printToConsole(param1 + " Stones of Jordan Sold to Merchants on IP " + me.gameserverip.split(".")[3], 7);
+				}
 				Messaging.sendToScript("default.dbj", "soj");
 			}
 
