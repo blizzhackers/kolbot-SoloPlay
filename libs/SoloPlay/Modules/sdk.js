@@ -719,7 +719,7 @@
             ConfigControls: 0x0B,
             Shop: 0x0C,
             ShowItem: 0x0D,
-            Cash: 0x0E,
+            SubmitItem: 0x0E,
             Quest: 0x0F,
             QuestLog: 0x11,
             StatusArea: 0x12,
