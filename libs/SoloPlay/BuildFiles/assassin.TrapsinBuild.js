@@ -17,7 +17,7 @@ var finalBuild = {
 		["strength", 156], ["dexterity", 79], ["vitality", "all"]
 	],
 	skills: [
-		[sdk.skills.CloakOfShadows, 1],
+		[sdk.skills.CloakofShadows, 1],
 		[sdk.skills.ShadowMaster, 1],
 		[sdk.skills.Fade, 1],
 		[sdk.skills.LightningSentry, 20, false],
