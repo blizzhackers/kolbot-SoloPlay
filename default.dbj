@@ -240,8 +240,11 @@ function main () {
 		addEventListener("itemaction", this.itemEvent);
 	}
 
-	// One time maintenance - get corpse, clear leftover items, pick items in case anything important was dropped
+	// One time maintenance - check cursor, get corpse, clear leftover items, pick items in case anything important was dropped
 	if (!Scripts.UserAddon && !Scripts.Test) {
+		let orgx = me.x, orgy = me.y;
+
+		Cubing.cursorCheck();
 		Town.getCorpse();
 		Town.clearBelt();
 
@@ -249,7 +252,11 @@ function main () {
 			Town.clearInventory();
 		}
 
-		//Pickit.pickItems();
+		if (getDistance(me, orgx, orgy) > 3) {
+			Pather.moveTo(orgx, orgx);
+		}
+		
+		Pickit.pickItems();
 	}
 
 	me.automap = Config.AutoMap;
