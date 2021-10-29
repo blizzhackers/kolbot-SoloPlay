@@ -183,6 +183,16 @@ Object.defineProperties(me, {
     },
 });
 
+Object.defineProperty(me, 'trueStr', {
+	value: 0,
+	writable: true,
+});
+
+Object.defineProperty(me, 'trueDex', {
+	value: 0,
+	writable: true,
+});
+
 // Credit @Jaenster
 Unit.prototype.switchWeapons = function (slot) {
 	if (this.gametype === 0 || this.weaponswitch === slot && slot !== undefined) {

@@ -185,7 +185,7 @@ Item.canEquip = function (item, bodyLoc) {
 		return false;
 	}
 	
-	return me.charlvl >= item.getStat(92) && me.rawStrength >= item.strreq && me.rawDexterity >= item.dexreq;
+	return me.charlvl >= item.getStat(92) && me.trueStr >= item.strreq && me.trueDex >= item.dexreq;
 };
 
 Item.autoEquipCheck = function (item) {
@@ -235,6 +235,15 @@ Item.autoEquip = function () {
 
 	print("ÿc8Kolbot-SoloPlayÿc0: Entering auto equip");
 	let tick = getTickCount();
+
+	// Set trueStr and trueDex values rather than having to find them everytime.
+	if (me.trueStr < me.rawStrength) {
+		me.trueStr = me.rawStrength;
+	}
+
+	if (me.trueDex < me.rawDexterity) {
+		me.trueDex = me.rawDexterity;
+	}
 
 	var i, j, tier, bodyLoc, tome, gid,
 		items = me.findItems(-1, 0);
