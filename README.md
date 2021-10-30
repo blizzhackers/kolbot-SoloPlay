@@ -150,10 +150,10 @@ https://youtu.be/qYHUw6nNn74
 ## Single Player Additons
 - Enable ladder runewords
   - Close D2Bot# then copy and paste the following into data/patch.json
-    - {"Name": "ladderrunewords", "Version":"1.14d","Module":14,"Offset":1452043, "Data": "kJCQkJCQkJCQkJCQkJCQkJCQkJA="}
+    - `{"Name": "ladderrunewords", "Version":"1.14d","Module":14,"Offset":1452043, "Data": "kJCQkJCQkJCQkJCQkJCQkJCQkJA="}`
 - Regenerate map each game
   - Close D2Bot# then copy and paste the following into data/patch.json
-    - {"Name": "regenmaps", "Version": "1.14d", "Module": 14, "Offset": 1483264, "Data": "6w=="}
+    - `{"Name": "regenmaps", "Version": "1.14d", "Module": 14, "Offset": 1483264, "Data": "6w=="}`
 - **Note:** After re-launching D2Bot# a message will appear at the top saying *UPDATE AVAILABLE*, ignore this message there is no update. The application sees that patch.json is different than the standard download.
 
 ## D2BotSoloCleaner
