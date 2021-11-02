@@ -119,13 +119,6 @@ var tierscore = function (item) {
 		MANA: 0.5,
 		STR: 1,
 		DEX: 1,
-		// CTC when struck
-		CTCWSNOVA: 5,
-		CTCWSFNOVA: 10,
-		CTCWSFADE: 20,
-		CTCWSHOWL: 10,
-		CTCWSBARMOR: 10,
-		CTCWSCARMOR: 10,
 	};
 
 	var casterWeights = {
@@ -159,31 +152,41 @@ var tierscore = function (item) {
 		// regen
 		HPREGEN: 2,
 		MANAREGEN: 2,
-		// CTC on attack
-		CTCOANOVA: 5,
-		CTCOAFNOVA: 10,
-		CTCOAAMP: 5,
-		CTCOADECREP: 10,
-		CTCOAGSPIKE: 4,
-		CTCOACHAINLIGHT: 10,
-		// CTC on striking
-		CTCOSNOVA: 3,
-		CTCOSFNOVA: 8,
-		CTCOSAMP: 3,
-		CTCOSDECREP: 8,
-		CTCOSLIFETAP: 8,
-		CTCOSVENOM: 10,
-		CTCOSFORB: 8,
-		CTCOSIBLAST: 4,
-		CTCOSGSPIKE: 4,
-		CTCOSBONESPEAR: 10,
-		CTCOSBONESPIRIT: 10,
-		CTCOSPNOVA: 10,
-		CTCOSSTATIC: 10,
-		CTCOSCHAINLIGHT: 10,
-		CTCOSCHARGEDBOLT: 10,
-		CTCOSTAUNT: 10,
-		CTCOSTWISTER: 10,
+	};
+
+	var ctcWeights = {
+		onStruck: 2,
+		onAttack: 2,
+		onStrike: 1,
+		skills: {
+			// Sorc skills
+			Nova: 2,
+			FrostNova: 4,
+			IceBlast: 4,
+			ChargedBolt: 4,
+			StaticField: 5,
+			GlacialSpike: 6,
+			ChainLightning: 6,
+			Blizzard: 4,
+			FrozenOrb: 8,
+			// Necro skills
+			AmplifyDamage: 5,
+			Decrepify: 10,
+			LifeTap: 10,
+			BoneArmor: 10,
+			BoneSpear: 8,
+			BoneSpirit: 8,
+			PoisonNova: 10,
+			// Barb skills
+			Taunt: 5,
+			Howl: 5,
+			// Druid skills
+			CycloneArmor: 10,
+			Twister: 5,
+			// Sin skills
+			Fade: 10,
+			Venom: 8,
+		}
 	};
 
 	var skillsWeights = {
@@ -239,7 +242,7 @@ var tierscore = function (item) {
 			beltRating = Storage.BeltSize() * 4 * generalWeights.BELTSLOTS; // rows * columns * weight
 		}
 
-		//start generalRating
+		// start generalRating
 		let generalRating = 0;
 		generalRating += cbfRating; // add cannot be frozen
 		generalRating += frwRating; // add faster run walk
@@ -252,14 +255,6 @@ var tierscore = function (item) {
 		generalRating += (item.getStatEx(1) + item.getStatEx(9) + (item.getStatEx(217) / 2048 * me.charlvl)) * generalWeights.MANA;// add mana
 		generalRating += item.getStatEx(0) * generalWeights.STR; // add STR
 		generalRating += item.getStatEx(2) * generalWeights.DEX; // add DEX
-		generalRating += item.getStatEx(201, 3135) * generalWeights.CTCWSNOVA; // add CTC nova when struck
-		generalRating += item.getStatEx(201, 3076) * generalWeights.CTCWSNOVA; // add CTC nova when struck (magic items)
-		generalRating += item.getStatEx(201, 2838) * generalWeights.CTCWSFNOVA; // add CTC frost nova when struck
-		generalRating += item.getStatEx(201, 2879) * generalWeights.CTCWSFNOVA; // add CTC frost nova when struck (magic items)
-		generalRating += item.getStatEx(201, 17103) * generalWeights.CTCWSFADE; // add CTC fade when struck
-		generalRating += item.getStatEx(201, 8321) * generalWeights.CTCWSHOWL; // add CTC howl when struck
-		generalRating += item.getStatEx(201, 4362) * generalWeights.CTCWSBARMOR; // add CTC bone armor when struck
-		generalRating += item.getStatEx(201, 15055) * generalWeights.CTCWSCARMOR; // add CTC cyclone armor when struck
 
 		return generalRating;
 	};
@@ -382,48 +377,10 @@ var tierscore = function (item) {
 			buildRating += item.getStatEx(151, 119) * 10; // sanctuary aura
 			buildRating += item.getStatEx(121) * buildWeights.DMGTODEMONS; // add damage % to demons
 			buildRating += item.getStatEx(122) * buildWeights.DMGTOUNDEAD; // add damage % to undead
-
-			buildRating += item.getStatEx(195, 3135) * buildWeights.CTCOANOVA; // add CTC nova on attack
-			buildRating += item.getStatEx(195, 3076) * buildWeights.CTCOANOVA; // add CTC nova on attack (magic items)
-			buildRating += item.getStatEx(195, 2838) * buildWeights.CTCOAFNOVA; // add CTC frost nova on attack
-			buildRating += item.getStatEx(195, 2879) * buildWeights.CTCOAFNOVA; // add CTC frost nova on attack (magic items)
-			buildRating += item.getStatEx(195, 4238) * buildWeights.CTCOAAMP; // add CTC amplify damage on attack
-			buildRating += item.getStatEx(195, 4225) * buildWeights.CTCOAAMP; // add CTC amplify damage on attack (magic items)
-			buildRating += item.getStatEx(195, 5583) * buildWeights.CTCOADECREP; // add CTC decrepify on attack
-			buildRating += item.getStatEx(195, 5631) * buildWeights.CTCOADECREP; // add CTC decrepify on attack (magic items)
-			buildRating += item.getStatEx(195, 3538) * buildWeights.CTCOAGSPIKE; // add CTC glacial spike on attack
-			buildRating += item.getStatEx(195, 3409) * buildWeights.CTCOACHAINLIGHT; // add CTC chain light on attack
-			buildRating += item.getStatEx(195, 3412) * buildWeights.CTCOACHAINLIGHT; // add CTC chain light on attack (magic items)
-
-			buildRating += item.getStatEx(198, 3135) * buildWeights.CTCOSNOVA; // add CTC nova on strikng
-			buildRating += item.getStatEx(198, 3076) * buildWeights.CTCOSNOVA; // add CTC nova on strikng (magic items)
-			buildRating += item.getStatEx(198, 2838) * buildWeights.CTCOSFNOVA; // add CTC frost nova on strikng
-			buildRating += item.getStatEx(198, 2879) * buildWeights.CTCOSFNOVA; // add CTC frost nova on strikng (magic items)
-			buildRating += item.getStatEx(198, 4238) * buildWeights.CTCOSAMP; // add CTC amplify damage on strikng
-			buildRating += item.getStatEx(198, 4225) * buildWeights.CTCOSAMP; // add CTC amplify damage on strikng (magic items)
-			buildRating += item.getStatEx(198, 5583) * buildWeights.CTCOSDECREP; // add CTC decrepify on strikng
-			buildRating += item.getStatEx(198, 5631) * buildWeights.CTCOSDECREP; // add CTC decrepify on strikng (magic items)
-			buildRating += item.getStatEx(198, 5266) * buildWeights.CTCOSLIFETAP; // add CTC life tap on strikng
-			buildRating += item.getStatEx(198, 17807) * buildWeights.CTCOSVENOM; // add CTC venom on strikng
-			buildRating += item.getStatEx(198, 4109) * buildWeights.CTCOSFORB; // add CTC frozen orb on strikng
-			buildRating += item.getStatEx(198, 4099) * buildWeights.CTCOSFORB; // add CTC frozen orb on strikng (magic items)
-			buildRating += item.getStatEx(198, 2900) * buildWeights.CTCOSIBLAST; // add CTC ice blast on strikng
-			buildRating += item.getStatEx(198, 3538) * buildWeights.CTCOSGSPIKE; // add CTC glacial spike on strikng
-			buildRating += item.getStatEx(198, 5394) * buildWeights.CTCOSBONESPEAR; // add CTC bone spirit on strikng
-			buildRating += item.getStatEx(198, 5972) * buildWeights.CTCOSBONESPIRIT; // add CTC bone spirit on strikng
-			buildRating += item.getStatEx(198, 5908) * buildWeights.CTCOSPNOVA; // add CTC poison nova on strikng
-			buildRating += item.getStatEx(198, 5892) * buildWeights.CTCOSPNOVA; // add CTC poison nova on strikng (magic items)
-			buildRating += item.getStatEx(198, 2701) * buildWeights.CTCOSSTATIC; // add CTC static on strikng
-			buildRating += item.getStatEx(198, 3409) * buildWeights.CTCOSCHAINLIGHT; // add CTC chain light on strikng
-			buildRating += item.getStatEx(198, 3412) * buildWeights.CTCOSCHAINLIGHT; // add CTC chain light on strikng (magic items)
-			buildRating += item.getStatEx(198, 2441) * buildWeights.CTCOSCHARGEDBOLT; // add CTC charged bolt on strikng
-			buildRating += item.getStatEx(198, 8769) * buildWeights.CTCOSTAUNT; // add CTC taunt on strikng
-			buildRating += item.getStatEx(198, 15375) * buildWeights.CTCOSTWISTER; // add CTC twister on strikng
-
 		}
 
 		return buildRating;
-	},
+	};
 
 	this.skillsScore = function (item) {
 		let skillsRating = 0;
@@ -450,11 +407,103 @@ var tierscore = function (item) {
 		return skillsRating;
 	};
 
+	this.ctcScore = function (item) {
+		let ctcRating = 0, ctcItems = [];
+		let stats = item.getStat(-2);
+		let meleeCheck = !Check.currentBuild().caster;
+
+		// TODO: Figure out why all ctc stats are duplicates or a way to check to see if that stat has already been added to the ctcItems array
+
+		if (stats.hasOwnProperty(sdk.stats.SkillWhenStruck)) {
+			if (stats[sdk.stats.SkillWhenStruck] instanceof Array) {
+				for (let i = 0; i < stats[sdk.stats.SkillWhenStruck].length; i++) {
+					if (stats[sdk.stats.SkillWhenStruck][i] !== undefined) {
+						ctcItems.push({
+							ctcType: sdk.stats.SkillWhenStruck,
+							skill: stats[sdk.stats.SkillWhenStruck][i].skill,
+							level: stats[sdk.stats.SkillWhenStruck][i].level
+						});
+					}
+				}
+			} else {
+				ctcItems.push({
+					ctcType: sdk.stats.SkillWhenStruck,
+					skill: stats[sdk.stats.SkillWhenStruck].skill,
+					level: stats[sdk.stats.SkillWhenStruck].level
+				});
+			}
+		}
+
+		if (stats.hasOwnProperty(sdk.stats.SkillOnAttack)) {
+			if (stats[sdk.stats.SkillOnAttack] instanceof Array) {
+				for (let i = 0; i < stats[sdk.stats.SkillOnAttack].length; i++) {
+					if (stats[sdk.stats.SkillOnAttack][i] !== undefined) {
+						ctcItems.push({
+							ctcType: sdk.stats.SkillOnAttack,
+							skill: stats[sdk.stats.SkillOnAttack][i].skill,
+							level: stats[sdk.stats.SkillOnAttack][i].level
+						});
+					}
+				}
+			} else {
+				ctcItems.push({
+					ctcType: sdk.stats.SkillOnAttack,
+					skill: stats[sdk.stats.SkillOnAttack].skill,
+					level: stats[sdk.stats.SkillOnAttack].level
+				});
+			}
+		}
+
+		if (stats.hasOwnProperty(sdk.stats.SkillOnStrike)) {
+			if (stats[sdk.stats.SkillOnStrike] instanceof Array) {
+				for (let i = 0; i < stats[sdk.stats.SkillOnStrike].length; i++) {
+					if (stats[sdk.stats.SkillOnStrike][i] !== undefined) {
+						ctcItems.push({
+							ctcType: sdk.stats.SkillOnStrike,
+							skill: stats[sdk.stats.SkillOnStrike][i].skill,
+							level: stats[sdk.stats.SkillOnStrike][i].level
+						});
+					}
+				}
+			} else {
+				ctcItems.push({
+					ctcType: sdk.stats.SkillOnStrike,
+					skill: stats[sdk.stats.SkillOnStrike].skill,
+					level: stats[sdk.stats.SkillOnStrike].level
+				});
+			}
+		}
+
+		for (let i = 0; i < ctcItems.length; i++) {
+			try {
+				let skillName = getSkillById(ctcItems[i].skill).split(" ").join("");
+				switch (ctcItems[i].ctcType) {
+				case sdk.stats.SkillOnAttack:
+					ctcRating += (meleeCheck ? ctcItems[i].level * ctcWeights.skills[skillName] * ctcWeights.onAttack : 0);
+					break;
+				case sdk.stats.SkillOnStrike:
+					ctcRating += (meleeCheck ? ctcItems[i].level * ctcWeights.skills[skillName] * ctcWeights.onStrike : 0);
+					break;
+				case sdk.stats.SkillWhenStruck:
+					ctcRating += ctcItems[i].level * ctcWeights.skills[skillName] * ctcWeights.onStruck;
+					break;
+				default:
+					break;
+				}
+			} catch (e) {
+				print(e);
+			}
+		}
+
+		return Math.floor(ctcRating / 2);
+	};
+
 	let tier = 1; // set to 1 for native autoequip to use items.
 	tier += this.generalScore(item);
 	tier += this.resistScore(item);
 	tier += this.buildScore(item);
 	tier += this.skillsScore(item);
+	tier += this.ctcScore(item);
 
 	let rwBase; // don't score runeword base armors
 	let questItem, itemsList = [521, 92, 173, 174, 90]; // don't score viper amulet, staff of kings, khalim's flail, hellforge hammer
@@ -762,10 +811,6 @@ var tierscore = function (item) {
 			buildRating += item.getStat(121) * buildWeights.DMGTODEMONS; // add damage % to demons
 			buildRating += item.getStat(122) * buildWeights.DMGTOUNDEAD; // add damage % to undead
 
-			buildRating += item.getStat(195, 3135) * buildWeights.CTCOANOVA; // add CTC nova on attack
-			buildRating += item.getStat(195, 3076) * buildWeights.CTCOANOVA; // add CTC nova on attack (magic items)
-			buildRating += item.getStat(195, 2838) * buildWeights.CTCOAFNOVA; // add CTC frost nova on attack
-			buildRating += item.getStat(195, 2879) * buildWeights.CTCOAFNOVA; // add CTC frost nova on attack (magic items)
 			buildRating += item.getStat(195, 4238) * buildWeights.CTCOAAMP; // add CTC amplify damage on attack
 			buildRating += item.getStat(195, 4225) * buildWeights.CTCOAAMP; // add CTC amplify damage on attack (magic items)
 			buildRating += item.getStat(195, 5583) * buildWeights.CTCOADECREP; // add CTC decrepify on attack
@@ -774,10 +819,6 @@ var tierscore = function (item) {
 			buildRating += item.getStat(195, 3409) * buildWeights.CTCOACHAINLIGHT; // add CTC chain light on attack
 			buildRating += item.getStat(195, 3412) * buildWeights.CTCOACHAINLIGHT; // add CTC chain light on attack (magic items)
 
-			buildRating += item.getStat(198, 3135) * buildWeights.CTCOSNOVA; // add CTC nova on strikng
-			buildRating += item.getStat(198, 3076) * buildWeights.CTCOSNOVA; // add CTC nova on strikng (magic items)
-			buildRating += item.getStat(198, 2838) * buildWeights.CTCOSFNOVA; // add CTC frost nova on strikng
-			buildRating += item.getStat(198, 2879) * buildWeights.CTCOSFNOVA; // add CTC frost nova on strikng (magic items)
 			buildRating += item.getStat(198, 4238) * buildWeights.CTCOSAMP; // add CTC amplify damage on strikng
 			buildRating += item.getStat(198, 4225) * buildWeights.CTCOSAMP; // add CTC amplify damage on strikng (magic items)
 			buildRating += item.getStat(198, 5583) * buildWeights.CTCOSDECREP; // add CTC decrepify on strikng
@@ -786,7 +827,6 @@ var tierscore = function (item) {
 			buildRating += item.getStat(198, 17807) * buildWeights.CTCOSVENOM; // add CTC venom on strikng
 			buildRating += item.getStat(198, 4109) * buildWeights.CTCOSFORB; // add CTC frozen orb on strikng
 			buildRating += item.getStat(198, 4099) * buildWeights.CTCOSFORB; // add CTC frozen orb on strikng (magic items)
-			buildRating += item.getStat(198, 2900) * buildWeights.CTCOSIBLAST; // add CTC ice blast on strikng
 			buildRating += item.getStat(198, 3538) * buildWeights.CTCOSGSPIKE; // add CTC glacial spike on strikng
 			buildRating += item.getStat(198, 5394) * buildWeights.CTCOSBONESPEAR; // add CTC bone spirit on strikng
 			buildRating += item.getStat(198, 5972) * buildWeights.CTCOSBONESPIRIT; // add CTC bone spirit on strikng
