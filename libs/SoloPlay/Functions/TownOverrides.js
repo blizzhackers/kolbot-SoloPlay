@@ -1134,7 +1134,8 @@ Town.giveMercPots = function () {
 Town.canStash = function (item) {
 	var ignoredClassids = [91, 174]; // Some quest items that have to be in inventory or equipped
 
-	if (this.ignoredItemTypes.indexOf(item.itemType) > -1 || ignoredClassids.indexOf(item.classid) > -1) {
+	if (this.ignoredItemTypes.indexOf(item.itemType) > -1 || ignoredClassids.indexOf(item.classid) > -1 || 
+		([sdk.itemtype.smallcharm, sdk.itemtype.mediumcharm, sdk.itemtype.largecharm].indexOf(item.itemType) > -1 && Item.autoEquipCharmCheck(item))) {
 		return false;
 	}
 
