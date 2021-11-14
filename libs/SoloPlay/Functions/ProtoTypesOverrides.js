@@ -359,7 +359,8 @@ Unit.prototype.castChargedSkill = function (...args) {
 		charge = this.getStat(-2)[204]; // WARNING. Somehow this gives duplicates
 
 		if (!charge) {
-			throw Error('No charged skill on this item');
+			print("ÿc9CastChargedSkillÿc0 :: No charged skill on this item");
+			return false;
 		}
 
 		if (skillId) {
