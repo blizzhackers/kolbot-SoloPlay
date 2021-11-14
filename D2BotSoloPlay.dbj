@@ -1016,6 +1016,14 @@ function locationAction (location) {
 
 		break;
 	case 20: // Single Player - Select Difficulty
+		if (!battlenet) {
+			print("ÿc8Kolbot-SoloPlayÿc0: Stuck on select difficulty screen. Exiting to main menu.");
+			sendKey(0x1B);
+			if (getLocation() === 12 && !getControl(4, 626, 100, 151, 44)) {
+				ControlAction.click(6, 33, 572, 128, 35);
+			}
+		}
+
 		break;
 	case 21: // Main Menu - Connecting
 		if (!locationTimeout(StarterConfig.ConnectingTimeout * 1e3, location)) {
