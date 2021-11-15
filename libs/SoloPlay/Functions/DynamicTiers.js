@@ -155,7 +155,7 @@ var tierscore = function (item) {
 	};
 
 	var ctcWeights = {
-		onStruck: 2,
+		whenStruck: 2,
 		onAttack: 2,
 		onStrike: 1,
 		skills: {
@@ -169,6 +169,7 @@ var tierscore = function (item) {
 			ChainLightning: 6,
 			Blizzard: 4,
 			FrozenOrb: 8,
+			Hydra: 4,
 			// Necro skills
 			AmplifyDamage: 5,
 			Decrepify: 10,
@@ -477,18 +478,20 @@ var tierscore = function (item) {
 		for (let i = 0; i < ctcItems.length; i++) {
 			try {
 				let skillName = getSkillById(ctcItems[i].skill).split(" ").join("");
-				switch (ctcItems[i].ctcType) {
-				case sdk.stats.SkillOnAttack:
-					ctcRating += (meleeCheck ? ctcItems[i].level * ctcWeights.skills[skillName] * ctcWeights.onAttack : 0);
-					break;
-				case sdk.stats.SkillOnStrike:
-					ctcRating += (meleeCheck ? ctcItems[i].level * ctcWeights.skills[skillName] * ctcWeights.onStrike : 0);
-					break;
-				case sdk.stats.SkillWhenStruck:
-					ctcRating += ctcItems[i].level * ctcWeights.skills[skillName] * ctcWeights.onStruck;
-					break;
-				default:
-					break;
+				if (!!ctcWeights.skills[skillName]) {
+					switch (ctcItems[i].ctcType) {
+					case sdk.stats.SkillOnAttack:
+						ctcRating += (meleeCheck ? ctcItems[i].level * ctcWeights.skills[skillName] * ctcWeights.onAttack : 0);
+						break;
+					case sdk.stats.SkillOnStrike:
+						ctcRating += (meleeCheck ? ctcItems[i].level * ctcWeights.skills[skillName] * ctcWeights.onStrike : 0);
+						break;
+					case sdk.stats.SkillWhenStruck:
+						ctcRating += ctcItems[i].level * ctcWeights.skills[skillName] * ctcWeights.whenStruck;
+						break;
+					default:
+						break;
+					}
 				}
 			} catch (e) {
 				print(e);
