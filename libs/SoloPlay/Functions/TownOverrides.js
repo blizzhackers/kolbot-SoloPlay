@@ -8,7 +8,7 @@ if (!isIncluded("common/Town.js")) {
 	include("common/Town.js");
 }
 
-//Removed Missle Potions for easy gold
+// Removed Missle Potions for easy gold
 Town.ignoredItemTypes = [ // Items that won't be stashed
 	5, // Arrows
 	6, // Bolts
@@ -33,8 +33,8 @@ Town.townTasks = function () {
 	}
 
 	// Burst of speed while in town
-	if (me.inTown && me.assassin && me.getSkill(258, 1) && !me.getState(sdk.states.BurstofSpeed)) {
-		Skill.cast(258, 0);
+	if (me.inTown && me.assassin && me.getSkill(sdk.skills.BurstofSpeed, 1) && !me.getState(sdk.states.BurstofSpeed)) {
+		Skill.cast(sdk.skills.BurstofSpeed, 0);
 	}
 
 	let preAct = me.act, i, cancelFlags = [0x01, 0x02, 0x04, 0x08, 0x14, 0x16, 0x0c, 0x0f, 0x19, 0x1a];
@@ -98,7 +98,10 @@ Town.townTasks = function () {
 		Config.Dodge = false;
 	}
 
-	Pather.checkForTeleCharges();
+	if (!me.classic) {
+		Attack.getCurrentChargedSkillIds();
+		Pather.checkForTeleCharges();
+	}
 
 	delay(200 + me.ping * 2);
 
@@ -111,8 +114,8 @@ Town.doChores = function (repair = false) {
 	}
 
 	// Burst of speed while in town
-	if (me.inTown && me.assassin && me.getSkill(258, 1) && !me.getState(sdk.states.BurstofSpeed)) {
-		Skill.cast(258, 0);
+	if (me.inTown && me.assassin && me.getSkill(sdk.skills.BurstofSpeed, 1) && !me.getState(sdk.states.BurstofSpeed)) {
+		Skill.cast(sdk.skills.BurstofSpeed, 0);
 	}
 
 	let preAct = me.act, i, cancelFlags = [0x01, 0x02, 0x04, 0x08, 0x14, 0x16, 0x0c, 0x0f, 0x19, 0x1a];
@@ -174,7 +177,10 @@ Town.doChores = function (repair = false) {
 		Config.Dodge = false;
 	}
 
-	Pather.checkForTeleCharges();
+	if (!me.classic) {
+		Attack.getCurrentChargedSkillIds();
+		Pather.checkForTeleCharges();
+	}
 
 	delay(200 + me.ping * 2);
 
@@ -1134,7 +1140,8 @@ Town.giveMercPots = function () {
 Town.canStash = function (item) {
 	var ignoredClassids = [91, 174]; // Some quest items that have to be in inventory or equipped
 
-	if (this.ignoredItemTypes.indexOf(item.itemType) > -1 || ignoredClassids.indexOf(item.classid) > -1) {
+	if (this.ignoredItemTypes.indexOf(item.itemType) > -1 || ignoredClassids.indexOf(item.classid) > -1 || 
+		([sdk.itemtype.smallcharm, sdk.itemtype.mediumcharm, sdk.itemtype.largecharm].indexOf(item.itemType) > -1 && Item.autoEquipCharmCheck(item))) {
 		return false;
 	}
 

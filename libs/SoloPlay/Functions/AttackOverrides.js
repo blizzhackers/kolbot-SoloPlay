@@ -14,7 +14,7 @@ Attack.IsAuradin = false;
 Attack.stopClear = false;
 Attack.MainBosses = [156, 211, 242, 243, 544];
 Attack.BossAndMiniBosses = [156, 211, 242, 243, 544, 229, 250, 256, 267, 365, 409, 540, 541, 542];
-Attack.skillOnSwitch = -1;
+Attack.currentChargedSkills = [];
 
 Attack.init = function () {
 	if (Config.Wereform) {
@@ -1007,45 +1007,32 @@ Attack.clearCoordList = function (list, pick) {
 	}
 };
 
-Attack.checkCharges = function (skillIds, onSwitch = false) {
-	if (!Skill.charges) {
-		Skill.charges = [];
-	}
+Attack.getCurrentChargedSkillIds = function () {
+	// Reset value
+	Attack.currentChargedSkills = [];
 
-	var i, stats,
-		item = me.getItem(-1, 1);
-
-	if (item) {
-		do {
-			stats = item.getStat(-2);
+	// Item must be equipped, or a charm in inventory
+	me.getItems(-1)
+		.filter(item => item && (item.location === 1 || (item.location === 3 && [sdk.itemtype.smallcharm, sdk.itemtype.mediumcharm, sdk.itemtype.largecharm].indexOf(item.itemType) > -1)))
+		.forEach(function (item) {
+			let stats = item.getStat(-2);
 
 			if (stats.hasOwnProperty(204)) {
 				if (stats[204] instanceof Array) {
-					for (i = 0; i < stats[204].length; i += 1) {
+					for (let i = 0; i < stats[204].length; i += 1) {
 						if (stats[204][i] !== undefined) {
-							Skill.charges.push({
-								unit: copyUnit(item),
-								gid: item.gid,
-								skill: stats[204][i].skill,
-								level: stats[204][i].level,
-								charges: stats[204][i].charges,
-								maxcharges: stats[204][i].maxcharges
-							});
+							if (stats[204][i].charges > 0 && Attack.currentChargedSkills.indexOf(stats[204][i].skill) === -1) {
+								Attack.currentChargedSkills.push(stats[204][i].skill);
+							}
 						}
 					}
 				} else {
-					Skill.charges.push({
-						unit: copyUnit(item),
-						gid: item.gid,
-						skill: stats[204].skill,
-						level: stats[204].level,
-						charges: stats[204].charges,
-						maxcharges: stats[204].maxcharges
-					});
+					if (stats[204].charges > 0 && Attack.currentChargedSkills.indexOf(stats[204].skill) === -1) {
+						Attack.currentChargedSkills.push(stats[204].skill);
+					}
 				}
 			}
-		} while (item.getNext());
-	}
+		});
 
 	return true;
 };
@@ -1061,46 +1048,7 @@ Attack.getItemCharges = function (skillId) {
 
 	// Item must equipped, or a charm in inventory
 	me.getItems(-1)
-		.filter(item => item && (item.location === 1 || (item.location === 3 && item.itemType === 82)))
-			.forEach(function (item) {
-				let stats = item.getStat(-2);
-
-				if (stats.hasOwnProperty(204)) {
-					if (stats[204] instanceof Array) {
-						stats = stats[204].filter(validCharge);
-						stats.length && chargedItems.push({
-							charge: stats.first(),
-							item: item
-						});
-					} else {
-						if (stats[204].skill === skillId && stats[204].charges > 1) {
-							chargedItems.push({
-								charge: stats[204].charges,
-								item: item
-							});
-						}
-					}
-				}
-			});
-
-	if (chargedItems.length === 0) {
-		return false;
-	}
-
-	return true;
-};
-
-Attack.getSwitchItemCharges = function (skillId) {
-	if (skillId === undefined || !skillId) {
-		return false;
-	}
-
-	let chargedItems = [], validCharge = function (itemCharge) {
-		return itemCharge.skill === skillId && itemCharge.charges > 1;
-	};
-
-	me.getItems(-1)
-		.filter(item => item && ((me.weaponswitch === 0 && [11, 12].indexOf(item.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(item.bodylocation) > -1)))	//Switch weapon
+		.filter(item => item && (item.location === 1 || (item.location === 3 && [sdk.itemtype.smallcharm, sdk.itemtype.mediumcharm, sdk.itemtype.largecharm].indexOf(item.itemType) > -1)))
 			.forEach(function (item) {
 				let stats = item.getStat(-2);
 
@@ -1130,23 +1078,17 @@ Attack.getSwitchItemCharges = function (skillId) {
 };
 
 Attack.switchCastCharges = function (skillId, unit) {
-	if (skillId === undefined || unit === undefined) {
+	if (skillId === undefined || unit === undefined || !Skill.wereFormCheck(skillId) || (me.inTown && !Skill.townSkill(skillId))) {
 		return false;
 	}
 
-	if (me.inTown && !Skill.townSkill(skillId)) {
-		return false;
+	me.castSwitchChargedSkill(skillId, unit);
+
+	if (me.weaponswitch === 1) {
+		me.switchWeapons(0);
 	}
 
-	if (!Skill.wereFormCheck(skillId)) {
-		return false;
-	}
-
-	if (!this.getSwitchItemCharges(skillId)) {
-		return false;
-	}
-
-	return me.castSwitchChargedSkill(skillId, unit);
+	return true;
 };
 
 Attack.throwPotion = function (unit) {

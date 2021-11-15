@@ -1099,6 +1099,20 @@ var Check = {
 
 			break;
 		default:
+			if (Developer.stopAtLevel.enabled) {
+				for (let i = 0; i < Developer.stopAtLevel.profiles.length; i++) {
+					if (Developer.stopAtLevel.profiles[i][0].toLowerCase() === me.profile.toLowerCase()) {
+						if (me.charlvl >= Developer.stopAtLevel.profiles[i][1]) {
+							D2Bot.printToConsole("Kolbot-SoloPlay level goal reached. Current level: " + me.charlvl, 6);
+							if (Developer.logPerformance) {
+								Tracker.Update();
+							}
+							D2Bot.stop();
+						}
+					}
+				}
+			}
+
 			break;
 		}
 
@@ -1107,6 +1121,9 @@ var Check = {
 				SetUp.makeNext();
 			} else {
 				D2Bot.printToConsole("Kolbot-SoloPlay " + SetUp.finalBuild + " goal reached.", 6);
+				if (Developer.logPerformance) {
+					Tracker.Update();
+				}
 				D2Bot.stop();
 			}
 		}

@@ -1,37 +1,43 @@
 /*
 *	@filename	Developer.js
-*	@author		theBGuy (this was really based off my orignal performance tracking)
+*	@author		theBGuy
 *	@desc		Developer tools for Kolbot-SoloPlay
 *	@credits	kolton, D3STROY3R, Adaptist, isid0re
 */
 
 const Developer = {
-	logPerformance: true,	// enables logging statistics
-	Overlay: true,	//enables overlay
-	showInGameTimer: true,	// Shows in game timer on the overlay
-	logEquipped: false,	//enables equipped items viewable from D2Bot# charviewer tab
-	forcePacketCasting: { //enables forced packet casting for skill.cast
+	logPerformance: true,	// log game/bot statistics to .csv files located at SoloPlay/Data/
+	Overlay: true,			// show in game overlay (see bottom of README.md for example)
+	showInGameTimer: true,	// show in game timer on the overlay
+	logEquipped: false,		// log currently equipped items to D2Bot# charviewer tab
+	hideChickens: true, 	// disable printing chicken info in D2Bot console
+	addLadderRW: true, 		// enable ladder runewords in single player mode ONLY WORKS IF RUNEWORDS.TXT IS INSTALLED AND D2BS PROFILE IS CONFIGURED or patch.json has been updated (see Single Player Additions in README.md)
+	forcePacketCasting: { 	// hide casting animations for better stability (reduce d2bs crashes)
 		enabled: true,
-		excludeProfiles: [""],
+		excludeProfiles: [""],	// allow specific profiles to show casting animations without disabling it for every profile running (helpful when debugging)
 	},
-	hideChickens: true, // disable printing chicken info in D2Bot console
-	addLadderRW: true, // set to true to enable single player ladder runewords ONLY WORKS IF RUNEWORDS.TXT IS INSTALLED AND D2BS PROFILE IS CONFIGURED
-	fillAccount: {		// set to true in use with tag Bumper or Socketmule to make next character after reaching goal until account is full
+	fillAccount: {			// set to true in use with info-tag Bumper or Socketmule to make next character after reaching goal until account is full
 		Bumpers: false,
 		Socketmules: false,
 	},
-	Debugging: {
+	stopAtLevel: { 			// stop a profile once it reaches a certain level
+		enabled: false,
+		profiles: [
+			// ["scl-example-001", 60],
+			// ["hcl-example-001", 40]
+		],
+	},
+	developerMode: { 		// allows a profile to loaded without starting any of the scripts. enables chat commands for testing. See Scripts/developermode.js for more info.
+		enabled: false,
+		profiles: [""],		// Enter in the profiles that you wish to start in developermode, i.e "scl-sorc"
+	},
+	Debugging: { 			// print more info to the in game console
 		smallCharmVerbose: false,
 		largeCharmVerbose: false,
 		grandCharmVerbose: false,
 		junkCheckVerbose: false,
 		autoEquip: false,
 		pathing: false,
-	},
-
-	developerMode: {
-		enabled: false,
-		profiles: [""],		// Enter in the profiles that you wish to start in developermode, i.e "scl-sorc"
 	},
 
 	/*  Developer tools */

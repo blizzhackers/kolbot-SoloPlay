@@ -169,7 +169,7 @@ MainLoop:
 };
 
 Pather.teleportToUsingCharges = function (x, y, maxRange) {
-	var i, tick;
+	var i, tick, orgSlot = me.weaponswitch;
 
 	if (maxRange === undefined) {
 		maxRange = 5;
@@ -185,11 +185,18 @@ MainLoop:
 
 		while (getTickCount() - tick < Math.max(500, me.ping * 2 + 200)) {
 			if (getDistance(me.x, me.y, x, y) < maxRange) {
+				if (me.weaponswitch !== orgSlot) {
+					me.switchWeapons(orgSlot);
+				}
 				return true;
 			}
 
 			delay(10);
 		}
+	}
+
+	if (me.weaponswitch !== orgSlot) {
+		me.switchWeapons(orgSlot);
 	}
 
 	return false;
