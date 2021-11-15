@@ -2017,6 +2017,11 @@ Item.autoEquipCharmCheck = function (item) {
 };
 
 Item.autoEquipCharms = function (verbose) {
+	// No charms in classic
+	if (me.classic) {
+		return;
+	}
+
 	print("ÿc8Kolbot-SoloPlayÿc0: Entering charm auto equip");
 	let tick = getTickCount();
 
