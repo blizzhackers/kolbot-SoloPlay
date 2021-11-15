@@ -304,7 +304,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 	unit && ([x, y] = [unit.x, unit.y]);
 
 	if (this !== me && this.type !== 4) {
-		print("ÿc9CastChargedSkillÿc0 :: Wierd Error, invalid arguments, expected 'me' object or 'item' unit" + " this === me ? " + (this === me) + " unit type : " + this.type);
+		print("ÿc9CastChargedSkillÿc0 :: Wierd Error, invalid arguments, expected 'me' object or 'item' unit" + " unit type : " + this.type);
 		return false;
 	}
 
@@ -314,12 +314,11 @@ Unit.prototype.castChargedSkill = function (...args) {
 			throw Error('Must supply skillId on me.castChargedSkill');
 		}
 
-		let onSwitch = false;
 		chargedItems = [];
 
 		// Item must be equipped, or a charm in inventory
 		this.getItems(-1)
-			.filter(item => item && (item.location === 1 || (item.location === 3 && item.itemType === 82)))
+			.filter(item => item && (item.location === 1 || (item.location === 3 && [sdk.itemtype.smallcharm, sdk.itemtype.mediumcharm, sdk.itemtype.largecharm].indexOf(item.itemType) > -1)))
 			.forEach(function (item) {
 				let stats = item.getStat(-2);
 
@@ -350,11 +349,10 @@ Unit.prototype.castChargedSkill = function (...args) {
 
 		// Check if item with charges is equipped on the switch spot
 		if (me.weaponswitch === 0 && [11, 12].indexOf(chargedItem.bodylocation) > -1) {
-			onSwitch = true;
 			me.switchWeapons(1);
 		}
 
-		return chargedItem.castChargedSkill.apply(chargedItem, args) && onSwitch ? me.switchWeapons(0) : true;
+		return chargedItem.castChargedSkill.apply(chargedItem, args);
 	} else if (this.type === 4) {
 		charge = this.getStat(-2)[204]; // WARNING. Somehow this gives duplicates
 
@@ -483,7 +481,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 
 		chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
 
-		return chargedItem.castChargedSkill.apply(chargedItem, args) && me.switchWeapons(0);
+		return chargedItem.castChargedSkill.apply(chargedItem, args);
 	}
 
 	return false;
