@@ -10,6 +10,10 @@ if (!isIncluded("common/Storage.js")) {
 	include("common/Storage.js");
 }
 
+if (!isIncluded("SoloPlay/Tools/Developer.js")) {
+	include("SoloPlay/Tools/Developer.js");
+}
+
 var Container = function (name, width, height, location) {
 	var h, w;
 
@@ -33,12 +37,12 @@ var Container = function (name, width, height, location) {
 	this.Mark = function (item) {
 		var x, y;
 
-		//Make sure it is in this container.
-		if (item.location !== this.location || item.mode !== 0) {
+		// Make sure it is in this container.
+		if (item.location !== this.location || (item.mode !== sdk.itemmode.inStorage && item.mode !== sdk.itemmode.inBelt)) {
 			return false;
 		}
 
-		//Mark item in buffer.
+		// Mark item in buffer.
 		for (x = item.x; x < (item.x + item.sizex); x += 1) {
 			for (y = item.y; y < (item.y + item.sizey); y += 1) {
 				this.buffer[y][x] = this.itemList.length + 1;
@@ -46,7 +50,7 @@ var Container = function (name, width, height, location) {
 			}
 		}
 
-		//Add item to list.
+		// Add item to list.
 		this.itemList.push(copyUnit(item));
 
 		return true;
@@ -57,7 +61,7 @@ var Container = function (name, width, height, location) {
 
 		reference = baseRef.slice(0);
 
-		//Make sure it is in this container.
+		// Make sure it is in this container.
 		if (item.mode !== 0 || item.location !== this.location) {
 			return false;
 		}
@@ -380,17 +384,17 @@ var Container = function (name, width, height, location) {
 	this.MoveToSpot = function (item, x, y) {
 		var n, nDelay, cItem, cube;
 
-		//Cube -> Stash, must place item in inventory first
+		// Cube -> Stash, must place item in inventory first
 		if (item.location === 6 && this.location === 7 && !Storage.Inventory.MoveTo(item)) {
 			return false;
 		}
 
-		//Can't deal with items on ground!
+		// Can't deal with items on ground!
 		if (item.mode === 3) {
 			return false;
 		}
 
-		//Item already on the cursor.
+		// Item already on the cursor.
 		if (me.itemoncursor && item.mode !== 4) {
 			return false;
 		}
@@ -403,10 +407,18 @@ var Container = function (name, width, height, location) {
 		if (Packet.itemToCursor(item)) {
 			for (n = 0; n < 5; n += 1) {
 				switch (this.location) {
-				case 3: // inventory
+				case sdk.storage.Belt:
+					cItem = getUnit(100);
+
+					if (cItem !== null) {
+						sendPacket(1, 0x23, 4, cItem.gid, 4, nPos.y);
+					}
+
+					break;
+				case sdk.storage.Inventory:
 					sendPacket(1, 0x18, 4, item.gid, 4, x, 4, y, 4, 0x00);
 					break;
-				case 6: // cube
+				case sdk.storage.Cube:
 					cItem = getUnit(100);
 					cube = me.getItem(sdk.items.quest.Cube);
 
@@ -415,7 +427,7 @@ var Container = function (name, width, height, location) {
 					}
 
 					break;
-				case 7: // stash
+				case sdk.storage.Stash:
 					sendPacket(1, 0x18, 4, item.gid, 4, x, 4, y, 4, 0x04);
 					break;
 				default:
@@ -538,5 +550,85 @@ var Container = function (name, width, height, location) {
 
 	this.toSource = function () {
 		return this.buffer.toSource();
+	};
+};
+
+var Storage = new function () {
+	this.Init = function () {
+		this.StashY = me.gametype === 0 ? 4 : Developer.plugyMode ? 10 : 8;
+		this.Inventory = new Container("Inventory", 10, 4, 3);
+		this.TradeScreen = new Container("Inventory", 10, 4, 5);
+		this.Stash = new Container("Stash", (Developer.plugyMode ? 10 : 6), this.StashY, 7);
+		this.Belt = new Container("Belt", 4 * this.BeltSize(), 1, 2);
+		this.Cube = new Container("Horadric Cube", 3, 4, 6);
+		this.InvRef = [];
+
+		this.Reload();
+	};
+
+	this.BeltSize = function () {
+		var item = me.getItem(-1, 1); // get equipped item
+
+		if (!item) { // nothing equipped
+			return 1;
+		}
+
+		do {
+			if (item.bodylocation === 8) { // belt slot
+				switch (item.code) {
+				case "lbl": // sash
+				case "vbl": // light belt
+					return 2;
+				case "mbl": // belt
+				case "tbl": // heavy belt
+					return 3;
+				default: // everything else
+					return 4;
+				}
+			}
+		} while (item.getNext());
+
+		return 1; // no belt
+	};
+
+	this.Reload = function () {
+		this.Inventory.Reset();
+		this.Stash.Reset();
+		this.Belt.Reset();
+		this.Cube.Reset();
+		this.TradeScreen.Reset();
+
+		var item = me.getItem();
+
+		if (!item) {
+			return false;
+		}
+
+		do {
+			switch (item.location) {
+			case 3:
+				this.Inventory.Mark(item);
+
+				break;
+			case 5:
+				this.TradeScreen.Mark(item);
+
+				break;
+			case 2:
+				this.Belt.Mark(item);
+
+				break;
+			case 6:
+				this.Cube.Mark(item);
+
+				break;
+			case 7:
+				this.Stash.Mark(item);
+
+				break;
+			}
+		} while (item.getNext());
+
+		return true;
 	};
 };
