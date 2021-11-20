@@ -183,14 +183,25 @@ Object.defineProperties(me, {
     },
 });
 
+var str = 0, dex = 0;
 Object.defineProperty(me, 'trueStr', {
-	value: 0,
-	writable: true,
+	get: function() {
+		if (str === 0) {
+			str = me.rawStrength;
+		} 
+		return str; 
+	},
+	set: function(newValue) { str = newValue }
 });
 
 Object.defineProperty(me, 'trueDex', {
-	value: 0,
-	writable: true,
+	get: function() {
+		if (dex === 0) {
+			dex = me.rawDexterity;
+		} 
+		return dex; 
+	},
+	set: function(newValue) { dex = newValue }
 });
 
 // Credit @Jaenster
