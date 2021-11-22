@@ -183,11 +183,12 @@ Object.defineProperties(me, {
     },
 });
 
-var str = 0, dex = 0;
+var str = 0, levelCheckS = 0, dex = 0, levelCheckD = 0;
 Object.defineProperty(me, 'trueStr', {
 	get: function() {
-		if (str === 0) {
+		if (str === 0 || levelCheckS < me.charlvl) {
 			str = me.rawStrength;
+			levelCheckS = me.charlvl;
 		} 
 		return str; 
 	},
@@ -196,8 +197,9 @@ Object.defineProperty(me, 'trueStr', {
 
 Object.defineProperty(me, 'trueDex', {
 	get: function() {
-		if (dex === 0) {
+		if (dex === 0 || levelCheckD < me.charlvl) {
 			dex = me.rawDexterity;
+			levelCheckD = me.charlvl;
 		} 
 		return dex; 
 	},
