@@ -173,6 +173,7 @@ function ReceiveCopyData (mode, msg) {
 		setUp.password = "";
 		setUp.charName = obj.Character;
 		setUp.tag = obj.Tag;
+		setUp.difficulty = obj.Difficulty;
 
 		switch (obj.Realm.toLowerCase()) {
 		case "east":
@@ -234,13 +235,15 @@ function ReceiveCopyData (mode, msg) {
 
 		if (setUp.tag !== "") {
 			setUp.tag = setUp.tag[0].toUpperCase() + setUp.tag.substring(1).toLowerCase();
-			D2Bot.setProfile(null, null, null, null, null, setUp.tag);
-			DataFile.updateStats("finalBuild", setUp.tag);
+
+			if (!DataFile.getStats().finalBuild || DataFile.getStats().finalBuild !== setUp.tag) {
+				D2Bot.setProfile(null, null, null, null, null, setUp.tag);
+				DataFile.updateStats("finalBuild", setUp.tag);
+			}
 
 			if (!DataFile.getStats().currentBuild) {
 				DataFile.updateStats("currentBuild", "Start");
 			}
-
 		} else {
 			D2Bot.updateStatus('Please update profile InfoTag. Missing the finalBuild.');
 			D2Bot.printToConsole('Please update profile InfoTag. Missing the finalBuild.', 6);
@@ -329,7 +332,8 @@ function deleteAndRemakeChar (info) {
 }
 
 function saveInfo (info) {
-	if (FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charClass + "-" + info.charName + ".json")) {		// Data-file already exists
+	// Data-file already exists
+	if (FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charClass + "-" + info.charName + ".json")) {
 		return;
 	}
 
@@ -699,7 +703,11 @@ function locationAction (location) {
 
 		if (DataFile.getStats().setDifficulty) {
 			gameInfo.difficulty = DataFile.getStats().setDifficulty;
-			D2Bot.setProfile(null, null, null, gameInfo.difficulty);
+
+			// only set the profile if the values aren't already the same
+			if (gameInfo.difficulty !== setUp.difficulty) {
+				D2Bot.setProfile(null, null, null, gameInfo.difficulty);
+			}
 			delay(200);
 		}
 
@@ -748,10 +756,11 @@ function locationAction (location) {
 		D2Bot.updateStatus("Logging In");
 
 		try {
-			if (battlenet) { // make battlenet accounts/characters
+			// make battlenet accounts/characters
+			if (battlenet) {
 				ControlAction.timeoutDelay("Login Delay", StarterConfig.DelayBeforeLogin * 1e3);
-
-				if (setUp.account !== "") { // existing account
+				// existing account
+				if (setUp.account !== "") {
 					try {
 						login(me.profile);
 					} catch (error) {
@@ -770,8 +779,9 @@ function locationAction (location) {
 							}
 						}
 					}
-				} else { // new account
-					if (setUp.account === "") { // make char if not found
+				} else {
+					// new account
+					if (setUp.account === "") {
 						if (StarterConfig.GlobalAccountPassword) {
 							setUp.account = randomString(12, true);
 							setUp.password = StarterConfig.GlobalAccountPassword;
@@ -785,7 +795,7 @@ function locationAction (location) {
 						}
 
 						if (ControlAction.makeAccount(setUp)) {
-							D2Bot.setProfile(setUp.account, setUp.password);
+							D2Bot.setProfile(setUp.account, setUp.password, null, "Normal");
 							DataFile.updateStats("AcctName", setUp.account);
 							DataFile.updateStats("AcctPswd", setUp.password);
 
@@ -793,7 +803,7 @@ function locationAction (location) {
 						} else {
 							setUp.account = "";
 							setUp.password = "";
-							D2Bot.setProfile(setUp.account, setUp.password);
+							D2Bot.setProfile(setUp.account, setUp.password, null, "Normal");
 							D2Bot.restart(true);
 						}
 					}
@@ -802,13 +812,17 @@ function locationAction (location) {
 				try {
 					login(me.profile);
 				} catch (err) {
-					if (!ControlAction.findCharacter(setUp)) { // make char if not found
-						if (getLocation() === 30) {	// Pop-up that happens when choosing a dead HC char
-							ControlAction.click(6, 351, 337, 96, 32);	//Exit from that pop-up
+					// Try to find the character and if that fails, make character
+					if (!ControlAction.findCharacter(setUp)) {
+						// Pop-up that happens when choosing a dead HC char
+						if (getLocation() === 30) {
+							ControlAction.click(6, 351, 337, 96, 32);	// Exit from that pop-up
 							D2Bot.printToConsole("Character died", 9);
 							deleteAndRemakeChar(setUp);
 						} else {
+							// If make character fails, check how many characters are on that account
 							if (!ControlAction.makeCharacter(setUp)) {
+								// Account is full
 								if (ControlAction.getCharacters().length >= 18) {
 									D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", 8);
 									D2Bot.stop();
@@ -1259,7 +1273,7 @@ function main () {
 
 	if (setUp.charName === "") {
 		setUp.charName = NameGen();
-		D2Bot.setProfile(null, null, setUp.charName);
+		D2Bot.setProfile(null, null, setUp.charName, "Normal");
 		print("Generating Character Name");
 
 		let gamename = setUp.charName.substring(0, 7) + "-" + randomString(3, false) + "-";
