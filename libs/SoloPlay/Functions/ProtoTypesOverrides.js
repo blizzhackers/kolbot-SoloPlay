@@ -183,14 +183,27 @@ Object.defineProperties(me, {
     },
 });
 
+var str = 0, levelCheckS = 0, dex = 0, levelCheckD = 0;
 Object.defineProperty(me, 'trueStr', {
-	value: 0,
-	writable: true,
+	get: function() {
+		if (str === 0 || levelCheckS < me.charlvl) {
+			str = me.rawStrength;
+			levelCheckS = me.charlvl;
+		} 
+		return str; 
+	},
+	set: function(newValue) { str = newValue }
 });
 
 Object.defineProperty(me, 'trueDex', {
-	value: 0,
-	writable: true,
+	get: function() {
+		if (dex === 0 || levelCheckD < me.charlvl) {
+			dex = me.rawDexterity;
+			levelCheckD = me.charlvl;
+		} 
+		return dex; 
+	},
+	set: function(newValue) { dex = newValue }
 });
 
 // Credit @Jaenster

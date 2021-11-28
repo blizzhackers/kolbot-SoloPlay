@@ -1,5 +1,5 @@
 /*
-*	@filename	Tristram.js
+*	@filename	tristram.js
 *	@author		isid0re, theBGuy
 *	@desc		rescue cain and leveling
 */
@@ -16,10 +16,10 @@ function tristram () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting tristram');
 	me.overhead("tristram");
 
-	// missing task or key
-	if (!Misc.checkQuest(4, 4) && !me.getItem(525)) {
-		// missing scroll 
-		if (!me.getItem(524)) {
+	// Tristram portal hasn't been opened
+	if (!Misc.checkQuest(4, 4)) {
+		// missing scroll and key
+		if (!me.getItem(sdk.items.quest.ScrollofInifuss) && !me.getItem(sdk.items.quest.KeytotheCairnStones)) {
 			if (!Pather.checkWP(sdk.areas.BlackMarsh)) {
 				Pather.getWP(sdk.areas.BlackMarsh);
 				Pather.useWaypoint(sdk.areas.DarkWood);
@@ -31,13 +31,18 @@ function tristram () {
 
 			if (!Pather.moveToPreset(sdk.areas.DarkWood, 2, 30, 5, 5)) {
 				print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Tree of Inifuss");
+				return false;
 			}
 
 			Quest.collectItem(524, 30);
 			Pickit.pickItems();
 		}
 
-		if (me.getItem(524)) {
+		if (me.getItem(sdk.items.quest.ScrollofInifuss)) {
+			if (!me.inTown) {
+				Town.goToTown();
+			}
+
 			Town.npcInteract("akara");
 		}
 	}
@@ -53,7 +58,7 @@ function tristram () {
 	Attack.killTarget(getLocaleString(2872)); // Rakanishu
 	Pather.moveToPreset(sdk.areas.StonyField, 2, 17, null, null, true);
 
-	if (!Misc.checkQuest(4, 4) && me.getItem(525)) {
+	if (!Misc.checkQuest(4, 4) && me.getItem(sdk.items.quest.KeytotheCairnStones)) {
 		try { // go to tristram @jaenster
 			let stones = [
 				getUnit(2, 17),
@@ -72,7 +77,12 @@ function tristram () {
 				}
 			}
 
-			while (!Pather.usePortal(sdk.areas.Tristram)) {
+			let tick = getTickCount();
+			// wait up to two minutes
+			while (getTickCount() - tick < 60 * 1000 * 2) {
+				if (Pather.usePortal(sdk.areas.Tristram)) {
+					break;
+				}
 				Attack.securePosition(me.x, me.y, 10, 1000);
 			}
 		} catch (err) {

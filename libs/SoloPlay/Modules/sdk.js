@@ -715,6 +715,7 @@
             ChatBox: 0x05,
             NPCMenu: 0x08,
             EscMenu: 0x09,
+            KeytotheCairnStonesScreen: 0x10,
             AutoMap: 0x0A,
             ConfigControls: 0x0B,
             Shop: 0x0C,
@@ -1679,7 +1680,6 @@
         },
 
         units: {
-
             StoneAlpha: 17,
             StoneBeta: 18,
             StoneGamma: 19,
@@ -2444,7 +2444,7 @@
                 WirtsLeg: 88,
                 HoardricMalus: 89,
                 ScrollofInifuss: 524,
-                ScrollofInifussActive: 525,
+                KeytotheCairnStones: 525,
                 // Act 2
                 FinishedStaff: 91,
                 IncompleteStaff: 92,

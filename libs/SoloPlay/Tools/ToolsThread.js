@@ -41,8 +41,6 @@ if (!isIncluded("SoloPlay/Functions/globals.js")) {
 	include("SoloPlay/Functions/globals.js");
 }
 
-//var sdk = require('../modules/sdk');
-
 function main () {
 	var i, mercHP, ironGolem, tick, merc,
 		debugInfo = {area: 0, currScript: "no entry"},
@@ -366,10 +364,10 @@ function main () {
 	};
 
 	this.getStatsString = function (unit) {
-		var realFCR = unit.getStat(sdk.stats.Fastercastrate);
-		var realIAS = unit.getStat(sdk.stats.Fasterattackrate);
-		var realFBR = unit.getStat(sdk.stats.Fasterblockrate);
-		var realFHR = unit.getStat(sdk.stats.Fastergethitrate);
+		var realFCR = unit.getStat(sdk.stats.FCR);
+		var realIAS = unit.getStat(sdk.stats.IAS);
+		var realFBR = unit.getStat(sdk.stats.FBR);
+		var realFHR = unit.getStat(sdk.stats.FHR);
 		// me.getStat(105) will return real FCR from gear + Config.FCR from char cfg
 
 		if (unit === me) {
@@ -379,50 +377,50 @@ function main () {
 			realFHR -= Config.FHR;
 		}
 
-		var maxHellFireRes = 75 + unit.getStat(sdk.stats.Maxfireresist);
-		var hellFireRes = unit.getStat(sdk.stats.Fireresist) - 100;
+		var maxHellFireRes = 75 + unit.getStat(sdk.stats.MaxFireResist);
+		var hellFireRes = unit.getStat(sdk.stats.FireResist) - 100;
 
 		if (hellFireRes > maxHellFireRes) {
 			hellFireRes = maxHellFireRes;
 		}
 
-		var maxHellColdRes = 75 + unit.getStat(sdk.stats.Maxcoldresist);
-		var hellColdRes = unit.getStat(sdk.stats.Coldresist) - 100;
+		var maxHellColdRes = 75 + unit.getStat(sdk.stats.MaxColdResist);
+		var hellColdRes = unit.getStat(sdk.stats.ColdResist) - 100;
 
 		if (hellColdRes > maxHellColdRes) {
 			hellColdRes = maxHellColdRes;
 		}
 
-		var maxHellLightRes = 75 + unit.getStat(sdk.stats.Maxlightresist);
-		var hellLightRes = unit.getStat(sdk.stats.Lightresist) - 100;
+		var maxHellLightRes = 75 + unit.getStat(sdk.stats.MaxLightResist);
+		var hellLightRes = unit.getStat(sdk.stats.LightResist) - 100;
 
 		if (hellLightRes > maxHellLightRes) {
 			hellLightRes = maxHellLightRes;
 		}
 
-		var maxHellPoisonRes = 75 + unit.getStat(sdk.stats.Maxpoisonresist);
-		var hellPoisonRes = unit.getStat(sdk.stats.Poisonresist) - 100;
+		var maxHellPoisonRes = 75 + unit.getStat(sdk.stats.MaxPoisonResist);
+		var hellPoisonRes = unit.getStat(sdk.stats.PoisonResist) - 100;
 
 		if (hellPoisonRes > maxHellPoisonRes) {
 			hellPoisonRes = maxHellPoisonRes;
 		}
 
 		var str = "ÿc4MF: ÿc0" + unit.getStat(sdk.stats.Magicbonus) + "ÿc4 GF: ÿc0" + unit.getStat(sdk.stats.Goldbonus) +
-		"ÿc1 FR: ÿc0" + unit.getStat(sdk.stats.Fireresist) + "ÿc1 Max FR: ÿc0" + unit.getStat(sdk.stats.Maxfireresist) +
-		"ÿc3 CR: ÿc0" + unit.getStat(sdk.stats.Coldresist) + "ÿc3 Max CR: ÿc0" + unit.getStat(sdk.stats.Maxcoldresist) +
-		"ÿc9 LR: ÿc0" + unit.getStat(sdk.stats.Lightresist) + "ÿc9 Max LR: ÿc0" + unit.getStat(sdk.stats.Maxlightresist) +
-		"ÿc2 PR: ÿc0" + unit.getStat(sdk.stats.Poisonresist) + "ÿc2 Max PR: ÿc0" + unit.getStat(sdk.stats.Maxpoisonresist) +
+		"ÿc1 FR: ÿc0" + unit.getStat(sdk.stats.FireResist) + "ÿc1 Max FR: ÿc0" + unit.getStat(sdk.stats.MaxFireResist) +
+		"ÿc3 CR: ÿc0" + unit.getStat(sdk.stats.ColdResist) + "ÿc3 Max CR: ÿc0" + unit.getStat(sdk.stats.MaxColdResist) +
+		"ÿc9 LR: ÿc0" + unit.getStat(sdk.stats.LightResist) + "ÿc9 Max LR: ÿc0" + unit.getStat(sdk.stats.MaxLightResist) +
+		"ÿc2 PR: ÿc0" + unit.getStat(sdk.stats.PoisonResist) + "ÿc2 Max PR: ÿc0" + unit.getStat(sdk.stats.MaxPoisonResist) +
 		"\n" +
 		"Hell res: ÿc1" + hellFireRes + "ÿc0/ÿc3" + hellColdRes + "ÿc0/ÿc9" + hellLightRes + "ÿc0/ÿc2" + hellPoisonRes +
 		"ÿc0\n" +
 		"FCR: " + realFCR + " IAS: " + realIAS + " FBR: " + realFBR +
-		" FHR: " + realFHR + " FRW: " + unit.getStat(sdk.stats.Fastermovevelocity) +
+		" FHR: " + realFHR + " FRW: " + unit.getStat(sdk.stats.FRW) +
 		"\n" +
 		"CB: " + unit.getStat(sdk.stats.Crushingblow) + " DS: " + unit.getStat(sdk.stats.Deadlystrike) +
 		" OW: " + unit.getStat(sdk.stats.Openwounds) +
 		" ÿc1LL: ÿc0" + unit.getStat(sdk.stats.Lifedrainmindam) + " ÿc3ML: ÿc0" + unit.getStat(sdk.stats.Manadrainmindam) +
-		" DR: " + unit.getStat(sdk.stats.Damageresist) + "% + " + unit.getStat(sdk.stats.NormalDamageReduction) +
-		" MDR: " + unit.getStat(sdk.stats.Magicresist) + "% + " + unit.getStat(sdk.stats.MagicDamageReduction) +
+		" DR: " + unit.getStat(sdk.stats.DamageResist) + "% + " + unit.getStat(sdk.stats.NormalDamageReduction) +
+		" MDR: " + unit.getStat(sdk.stats.MagicResist) + "% + " + unit.getStat(sdk.stats.MagicDamageReduction) +
 		"\n" +
 		(unit.getStat(sdk.stats.Cannotbefrozen) > 0 ? "ÿc3Cannot be Frozenÿc1\n" : "\n");
 
@@ -519,15 +517,17 @@ function main () {
 			let charmString = "";
 			let generalString = "";
 			let itemToCheck = getUnit(101);
-			itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) + 
-							" | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n" + 
-						 	"ÿc4AutoEquipKeepCheck: ÿc0" + Item.autoEquipKeepCheck(itemToCheck) + " | ÿc4AutoEquipCheckSecondary: ÿc0" + Item.autoEquipCheckSecondary(itemToCheck) + 
-						 	" | ÿc4AutoEquipKeepCheckMerc: ÿc0" + Item.autoEquipKeepCheckMerc(itemToCheck) + "\nÿc4Cubing Item: ÿc0" + Cubing.keepItem(itemToCheck) + 
-						 	" | ÿc4Runeword Item: ÿc0" + Runewords.keepItem(itemToCheck) + " | ÿc4Crafting Item: ÿc0" + CraftingSystem.keepItem(itemToCheck) + 
-						 	"\nÿc4ItemType: ÿc0" + itemToCheck.itemType + "| ÿc4Classid: ÿc0" + itemToCheck.classid + "| ÿc4Quality: ÿc0" + itemToCheck.quality;
-			charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + NTIP.checkFinalCharm(itemToCheck) + "\n" + 
-					"ÿc4CharmType: ÿc0" + Item.getCharmType(itemToCheck) + " | ÿc4AutoEquipCharmCheck: ÿc0" + Item.autoEquipCharmCheck(itemToCheck) + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck);
-			generalString = "ÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(getUnit(101), NTIP_CheckListNoTier, true).result;
+			if (!!itemToCheck) {
+				itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) + 
+								" | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n" + 
+							 	"ÿc4AutoEquipKeepCheck: ÿc0" + Item.autoEquipKeepCheck(itemToCheck) + " | ÿc4AutoEquipCheckSecondary: ÿc0" + Item.autoEquipCheckSecondary(itemToCheck) + 
+							 	" | ÿc4AutoEquipKeepCheckMerc: ÿc0" + Item.autoEquipKeepCheckMerc(itemToCheck) + "\nÿc4Cubing Item: ÿc0" + Cubing.keepItem(itemToCheck) + 
+							 	" | ÿc4Runeword Item: ÿc0" + Runewords.keepItem(itemToCheck) + " | ÿc4Crafting Item: ÿc0" + CraftingSystem.keepItem(itemToCheck) + 
+							 	"\nÿc4ItemType: ÿc0" + itemToCheck.itemType + "| ÿc4Classid: ÿc0" + itemToCheck.classid + "| ÿc4Quality: ÿc0" + itemToCheck.quality;
+				charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + NTIP.checkFinalCharm(itemToCheck) + "\n" + 
+						"ÿc4CharmType: ÿc0" + Item.getCharmType(itemToCheck) + " | ÿc4AutoEquipCharmCheck: ÿc0" + Item.autoEquipCharmCheck(itemToCheck) + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck);
+				generalString = "ÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(getUnit(101), NTIP_CheckListNoTier, true).result;
+			}
 			
 			print("ÿc8Kolbot-SoloPlay: ÿc2Item Info Start");
 			print(itemString);
