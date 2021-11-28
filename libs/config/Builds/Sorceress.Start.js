@@ -257,7 +257,9 @@ var AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [44, 59, 48, 59, 48, 48, 0];
+			if (!!me.getSkill(59, 0)) {
+				Config.AttackSkill = [44, 59, 48, 59, 48, 48, 0];
+			}
 
 		}
 	},

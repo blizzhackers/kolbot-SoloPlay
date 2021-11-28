@@ -28,7 +28,7 @@ Pickit.checkItem = function (unit) {
 
 	var durability = unit.getStat(72);
 
-	if (typeof durability === "number" && durability * 100 / unit.getStat(73) <= 0) {
+	if (unit.getStat(73) > 0 && typeof durability === "number" && durability * 100 / unit.getStat(73) <= 0) {
 		return {
 			result: 4,
 			line: null
@@ -154,11 +154,7 @@ Pickit.pickItems = function () {
 
 	Town.clearBelt();
 
-	if (me.dead) {
-		return false;
-	}
-
-	if (Config.PickRange < 0 || !Pickit.enabled) {
+	if (me.dead || Config.PickRange < 0 || !Pickit.enabled) {
 		return false;
 	}
 
@@ -184,7 +180,8 @@ Pickit.pickItems = function () {
 		pickList.sort(this.sortItems);
 
 		// Check if the item unit is still valid and if it's on ground or being dropped
-		if (copyUnit(pickList[0]).x !== undefined && (pickList[0].mode === 3 || pickList[0].mode === 5) && (Pather.useTeleport() || me.inTown || !checkCollision(me, pickList[0], 0x1))) { // Don't pick items behind walls/obstacles when walking
+		// Don't pick items behind walls/obstacles when walking
+		if (copyUnit(pickList[0]).x !== undefined && (pickList[0].mode === 3 || pickList[0].mode === 5) && (Pather.useTeleport() || me.inTown || !checkCollision(me, pickList[0], 0x1))) {
 			// Check if the item should be picked
 			status = this.checkItem(pickList[0]);
 
