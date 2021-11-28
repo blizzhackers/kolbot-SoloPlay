@@ -20,6 +20,7 @@ Item.getQuantityOwned = function (item) {
 		.filter(check =>
 				check.itemType === item.itemType// same item type as current
 				&& check.classid === item.classid// same item classid as current
+				&& check.quality === item.quality// same item quality as current
 				&& check.getStat(194) === item.getStat(194) // sockets match junk in review
 				&& [3, 7].indexOf(check.location) > -1 // locations
 			);

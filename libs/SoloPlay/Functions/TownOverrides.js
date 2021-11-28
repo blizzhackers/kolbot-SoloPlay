@@ -746,6 +746,115 @@ Town.shopItems = function () {
 	return true;
 };
 
+Town.gamble = function () {
+	if (!this.needGamble() || Config.GambleItems.length === 0) {
+		return true;
+	}
+
+	var i, item, items, npc, newItem, result,
+		list = [];
+
+	if (this.gambleIds.length === 0) {
+		// change text to classid
+		for (i = 0; i < Config.GambleItems.length; i += 1) {
+			if (isNaN(Config.GambleItems[i])) {
+				if (NTIPAliasClassID.hasOwnProperty(Config.GambleItems[i].replace(/\s+/g, "").toLowerCase())) {
+					this.gambleIds.push(NTIPAliasClassID[Config.GambleItems[i].replace(/\s+/g, "").toLowerCase()]);
+				} else {
+					Misc.errorReport("ÿc1Invalid gamble entry:ÿc0 " + Config.GambleItems[i]);
+				}
+			} else {
+				this.gambleIds.push(Config.GambleItems[i]);
+			}
+		}
+	}
+
+	if (this.gambleIds.length === 0) {
+		return true;
+	}
+
+	// avoid Alkor
+	if (me.act === 3) {
+		this.goToTown(2);
+	}
+
+	npc = this.initNPC("Gamble", "gamble");
+
+	if (!npc) {
+		return false;
+	}
+
+	items = me.findItems(-1, 0, 3);
+
+	while (items && items.length > 0) {
+		list.push(items.shift().gid);
+	}
+
+	while (me.gold >= Config.GambleGoldStop) {
+		if (!getInteractedNPC()) {
+			npc.startTrade("Gamble");
+		}
+
+		item = npc.getItem();
+		items = [];
+
+		if (item) {
+			do {
+				if (this.gambleIds.indexOf(item.classid) > -1) {
+					items.push(copyUnit(item));
+				}
+			} while (item.getNext());
+
+			for (i = 0; i < items.length; i += 1) {
+				if (!Storage.Inventory.CanFit(items[i])) {
+					return false;
+				}
+
+				//me.overhead("Buy: " + items[i].name);
+				items[i].buy(false, true);
+
+				newItem = this.getGambledItem(list);
+
+				if (newItem) {
+					result = Pickit.checkItem(newItem);
+
+					switch (result.result) {
+					case 1:
+						Misc.itemLogger("Gambled", newItem);
+						Misc.logItem("Gambled", newItem, result.line);
+						list.push(newItem.gid);
+
+						break;
+					case 2:
+						list.push(newItem.gid);
+						Cubing.update();
+
+						break;
+					case 5: // Crafting System
+						CraftingSystem.update(newItem);
+
+						break;
+					default:
+						Misc.itemLogger("Sold", newItem, "Gambling");
+						//me.overhead("Sell: " + newItem.name);
+						newItem.sell();
+
+						if (!Config.PacketShopping) {
+							delay(500);
+						}
+
+						break;
+					}
+				}
+			}
+		}
+
+		me.cancel();
+	}
+
+	return true;
+};
+
 Town.unfinishedQuests = function () {
 	let malus = me.getItem(89),
 		leg = me.getItem(88),

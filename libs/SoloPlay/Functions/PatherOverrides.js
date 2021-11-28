@@ -1038,7 +1038,7 @@ Pather.usePortal = function (targetArea, owner, unit) {
 
 		if (portal) {
 			if (i === 0) {
-				useTK = me.classid === 1 && me.getSkill(43, 1) && me.inTown && portal.getParent();
+				useTK = me.sorceress && me.getSkill(sdk.skills.Telekinesis, 1) && me.inTown && portal.getParent();
 			}
 
 			if (portal.area === me.area) {
@@ -1072,7 +1072,7 @@ Pather.usePortal = function (targetArea, owner, unit) {
 				tick = getTickCount();
 
 				while (getTickCount() - tick < 2000) {
-					if (portal.mode === 2 || me.area === 74) {
+					if (portal.mode === 2 || me.area === sdk.areas.ArcaneSanctuary) {
 						break;
 					}
 
