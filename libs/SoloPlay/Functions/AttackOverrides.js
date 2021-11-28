@@ -15,6 +15,7 @@ Attack.stopClear = false;
 Attack.MainBosses = [156, 211, 242, 243, 544];
 Attack.BossAndMiniBosses = [156, 211, 242, 243, 544, 229, 250, 256, 267, 365, 409, 540, 541, 542];
 Attack.currentChargedSkills = [];
+Attack.chargedSkillsOnSwitch = [];
 
 Attack.init = function () {
 	if (Config.Wereform) {
@@ -1008,8 +1009,9 @@ Attack.clearCoordList = function (list, pick) {
 };
 
 Attack.getCurrentChargedSkillIds = function () {
-	// Reset value
+	// Reset values
 	Attack.currentChargedSkills = [];
+	Attack.chargedSkillsOnSwitch = [];
 
 	// Item must be equipped, or a charm in inventory
 	me.getItems(-1)
@@ -1021,14 +1023,28 @@ Attack.getCurrentChargedSkillIds = function () {
 				if (stats[204] instanceof Array) {
 					for (let i = 0; i < stats[204].length; i += 1) {
 						if (stats[204][i] !== undefined) {
+							// add to total list
 							if (stats[204][i].charges > 0 && Attack.currentChargedSkills.indexOf(stats[204][i].skill) === -1) {
 								Attack.currentChargedSkills.push(stats[204][i].skill);
+							}
+
+							// add to switch only list for use with swtich casting
+							if (stats[204][i].charges > 0 && Attack.chargedSkillsOnSwitch.indexOf(stats[204][i].skill) === -1 && 
+								((me.weaponswitch === 0 && [11, 12].indexOf(item.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(item.bodylocation) > -1))) {
+								Attack.chargedSkillsOnSwitch.push(stats[204][i].skill);
 							}
 						}
 					}
 				} else {
+					// add to total list
 					if (stats[204].charges > 0 && Attack.currentChargedSkills.indexOf(stats[204].skill) === -1) {
 						Attack.currentChargedSkills.push(stats[204].skill);
+					}
+
+					// add to switch only list for use with swtich casting
+					if (stats[204].charges > 0 && Attack.chargedSkillsOnSwitch.indexOf(stats[204].skill) === -1 && 
+						((me.weaponswitch === 0 && [11, 12].indexOf(item.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(item.bodylocation) > -1))) {
+						Attack.chargedSkillsOnSwitch.push(stats[204][i].skill);
 					}
 				}
 			}
