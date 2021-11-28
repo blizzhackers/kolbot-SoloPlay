@@ -437,7 +437,7 @@ Misc.checkQuest = function (id, state) {
 };
 
 // updates config obj across all threads - from legacy sonic
-Misc.updateConfig = function() {
+Misc.updateConfig = function () {
 	scriptBroadcast("config--" + JSON.stringify(Misc.copy(Config)));
 };
 
@@ -1876,7 +1876,7 @@ Misc.addSocketables = function () {
 			}
 		}
 
-		if (socketable) {
+		if (socketable && me.charlvl >= socketable.lvlreq) {
 			if (Misc.addSocketableToItem(item, socketable)) {
 				D2Bot.printToConsole("Added socketable: " + socketable.fname + " to " + item.fname, 6);
 			} else {
@@ -1885,7 +1885,15 @@ Misc.addSocketables = function () {
 			
 		}
 
-		if (multiple.length > 0 && ready) {
+		if (multiple.length > 0 && ready && me.charlvl >= socketable.lvlreq) {
+			// check to ensure I am a high enough level to use wanted socketables
+			for (let i = 0; i < multiple.length; i++) {
+				if (me.charlvl < multiple[i].lvlreq) {
+					print("ÿc8Kolbot-SoloPlayÿc0: Not high enough level for " + multiple[i].fname);
+					return;
+				}
+			}
+			
 			for (let i = 0; i < multiple.length; i++) {
 				if (Misc.addSocketableToItem(item, multiple[i])) {
 					D2Bot.printToConsole("Added socketable: " + multiple[i].fname + " to " + item.fname, 6);
