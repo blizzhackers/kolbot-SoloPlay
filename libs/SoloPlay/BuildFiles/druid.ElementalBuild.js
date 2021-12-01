@@ -24,7 +24,7 @@ var finalBuild = {
 		[sdk.skills.SpiritWolf, 1, false],
 		[sdk.skills.FireStorm, 6, false],
 		[sdk.skills.Fissure, 1, false],
-		[sdk.skills.DireWolf, 1, false],
+		[sdk.skills.SummonDireWolf, 1, false],
 		[sdk.skills.Fissure, 11, false],
 		[sdk.skills.Grizzly, 1, false],
 		[sdk.skills.Volcano, 1, false],

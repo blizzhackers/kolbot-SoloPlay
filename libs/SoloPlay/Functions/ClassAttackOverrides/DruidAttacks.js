@@ -35,6 +35,11 @@ case "Plaguewolf":
 			break;	
 		}
 
+		// Rebuff Armageddon
+		if (me.getSkill(sdk.skills.Armageddon, 1) && !me.getState(sdk.states.Armageddon)) {
+			Skill.cast(sdk.skills.Armageddon, 0);
+		}
+
 		if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 			if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
 				return 0;
@@ -215,6 +220,22 @@ default:
 		// Low mana untimed skill
 		if (Config.LowManaSkill[1] > -1 && Skill.getManaCost(untimedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[1])) {
 			untimedSkill = Config.LowManaSkill[1];
+		}
+
+		if (me.normal && me.charlvl > 12 && gold < 5000 && Skill.getManaCost(timedSkill) > me.mp) {
+			switch (SetUp.currentBuild) {
+			case "Start":
+				if (me.getSkill(sdk.skills.Firestorm, 1) && Skill.getManaCost(sdk.skills.Firestorm) < me.mp) {
+					timedSkill = sdk.skills.Firestorm;
+				} else if (Attack.getMobCount(me.x, me.y, 6) >= 1) {
+					// I have no mana and there are mobs around me, just attack
+					timedSkill = sdk.skills.Attack;
+				}
+
+				break;
+			default:
+				break;	
+			}
 		}
 
 		result = this.doCast(unit, timedSkill, untimedSkill);
