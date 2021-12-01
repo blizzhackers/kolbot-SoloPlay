@@ -280,11 +280,11 @@ function LoadConfig () {
 		if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
 			NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");
 
-			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Diamond) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "flawlessdiamond"]);
 			}
 
-			if (Item.getQuantityOwned(me.getItem(sdk.runes.Um) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Um) < 2)) {
 				Config.Recipes.push([Recipe.Rune, "PulRune"]);
 			}
 
@@ -292,7 +292,7 @@ function LoadConfig () {
 		}
 
 		if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
-			if (!me.getItem(sdk.runes.Um)) {
+			if (!me.getItem(sdk.items.runes.Um)) {
 				Config.Recipes.push([Recipe.Rune, "PulRune"]);
 			}
 
@@ -305,13 +305,13 @@ function LoadConfig () {
 		let shield = Item.getEquippedItem(5);
 
 		if (!helm.isRuneword && [4, 6].indexOf(helm.quality) > -1 && helm.sockets > 0 && !helm.socketed) {
-			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Ruby) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Ruby) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "flawlessruby"]);
 			}
 		}
 
 		if (!body.isRuneword && [4, 6].indexOf(body.quality) > -1 && body.sockets > 0 && !body.socketed) {
-			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Ruby) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Ruby) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "flawlessruby"]);
 			}
 		}
@@ -348,7 +348,7 @@ function LoadConfig () {
 		}
 
 		if (!shield.isRuneword && [4, 6].indexOf(shield.quality) > -1 && shield.sockets > 0 && !shield.socketed) {
-			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Diamond) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "flawlessdiamond"]);
 			}
 		}

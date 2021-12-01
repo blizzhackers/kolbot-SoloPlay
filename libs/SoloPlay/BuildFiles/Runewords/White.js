@@ -7,7 +7,7 @@ var white = [
 NTIP.arrayLooping(white);
 
 // Cube to Io rune
-if (!me.getItem(sdk.runes.Io)) {
+if (!me.getItem(sdk.items.runes.Io)) {
 	Config.Recipes.push([Recipe.Rune, "Hel Rune"]);
 }
 

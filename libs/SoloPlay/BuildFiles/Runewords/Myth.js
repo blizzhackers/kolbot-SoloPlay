@@ -6,17 +6,17 @@ var Myth = [
 NTIP.arrayLooping(Myth);
 
 // Cube to Hel rune
-if (!me.getItem(sdk.runes.Hel)) {
+if (!me.getItem(sdk.items.runes.Hel)) {
 	Config.Recipes.push([Recipe.Rune, "Dol Rune"]);
 }
 
 // Have Hel rune before looking for base
-if (me.getItem(sdk.runes.Hel)) {
+if (me.getItem(sdk.items.runes.Hel)) {
 	NTIP.addLine("([name] == demonhidearmor || [name] == duskshroud || [name] == ghostarmor || [name] == lightplate || [name] == mageplate || [name] == serpentskinarmor || [name] == trellisedarmor || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1");
 }
 
 // Have Hel rune and currently equipped armor is low tier
-if (me.getItem(sdk.runes.Hel) && Item.getEquippedItem(3).tier < 200) {
+if (me.getItem(sdk.items.runes.Hel) && Item.getEquippedItem(3).tier < 200) {
 	NTIP.addLine("[name] == breastplate && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1");
 }
 

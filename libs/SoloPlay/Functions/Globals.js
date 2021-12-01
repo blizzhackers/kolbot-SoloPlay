@@ -8,11 +8,11 @@ if (!isIncluded("OOG.js")) {
 	include("OOG.js");
 }
 
+const sdk = require('../modules/sdk');
+
 // general settings
 var Difficulty = ['Normal', 'Nightmare', 'Hell'];
 var classes = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"];
-
-const sdk = require('../modules/sdk');
 
 var SetUp = {
 	scripts: [
@@ -728,13 +728,13 @@ var Check = {
 		switch (me.diff) {
 		case sdk.difficulty.Normal:
 			// Have runes or stealth and ancients pledge
-			if ((me.getItem(sdk.runes.Tal) && me.getItem(sdk.runes.Eth)) || this.haveItem("armor", "runeword", "Stealth")) {
+			if ((me.getItem(sdk.items.runes.Tal) && me.getItem(sdk.items.runes.Eth)) || this.haveItem("armor", "runeword", "Stealth")) {
 				needRunes = false;
 			}
 
 			break;
 		case sdk.difficulty.Nightmare:
-			if ((me.getItem(sdk.runes.Tal) && me.getItem(sdk.runes.Thul) && me.getItem(sdk.runes.Ort) && me.getItem(sdk.runes.Amn) && Check.currentBuild().caster) || 
+			if ((me.getItem(sdk.items.runes.Tal) && me.getItem(sdk.items.runes.Thul) && me.getItem(sdk.items.runes.Ort) && me.getItem(sdk.items.runes.Amn) && Check.currentBuild().caster) || 
 				(!me.paladin && this.haveItem("sword", "runeword", "Spirit")) || (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit")) ||
 				(me.necromancer && this.haveItem("wand", "runeword", "White") && (this.haveItem("voodooheads", "runeword", "Rhyme") || Item.getEquippedItem(5).tier > 800)) ||
 				(me.barbarian && (Check.haveItem("sword", "runeword", "Lawbringer") || me.baal))) {

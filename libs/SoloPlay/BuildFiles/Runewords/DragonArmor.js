@@ -6,12 +6,12 @@ var DragonArmor = [
 NTIP.arrayLooping(DragonArmor);
 
 // Cube to Sur rune
-if (!me.getItem(sdk.runes.Sur)) {
+if (!me.getItem(sdk.items.runes.Sur)) {
 	Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
 }
 
 // Have Sur and Lo rune before attempting to make runeword
-if (me.getItem(sdk.runes.Lo) && me.getItem(sdk.runes.Sur)) {
+if (me.getItem(sdk.items.runes.Lo) && me.getItem(sdk.items.runes.Sur)) {
 	Config.Runewords.push([Runeword.Dragon, "archonplate", Roll.NonEth]);
 }
 

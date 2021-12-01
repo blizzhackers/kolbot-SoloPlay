@@ -1,6 +1,6 @@
 if (!Check.haveItem("shield", "runeword", "Ancients' Pledge") && !me.hell) {
 	// Cube to Ort rune
-	if (me.normal && !me.getItem(sdk.runes.Ort)) {
+	if (me.normal && !me.getItem(sdk.items.runes.Ort)) {
 		Config.Recipes.push([Recipe.Rune, "Ral Rune"]);
 	}
 

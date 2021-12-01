@@ -8,7 +8,7 @@ var HoJ = [
 NTIP.arrayLooping(HoJ);
 
 // Cube to Lo rune
-if (!me.getItem(sdk.runes.Lo)) {
+if (!me.getItem(sdk.items.runes.Lo)) {
 	Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
@@ -20,7 +20,7 @@ if (!me.getItem(sdk.runes.Lo)) {
 }
 
 // Cube to Cham rune
-if (!me.getItem(sdk.runes.Cham)) {
+if (!me.getItem(sdk.items.runes.Cham)) {
 	Config.Recipes.push([Recipe.Rune, "Ber Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Jah Rune"]);
 }

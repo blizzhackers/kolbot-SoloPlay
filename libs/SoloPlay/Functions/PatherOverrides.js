@@ -403,8 +403,8 @@ Pather.walkTo = function (x, y, minDist) {
 	if (!me.inTown && !me.dead) {
 		if (me.stamina / me.staminamax * 100 <= 75 || me.runwalk === 0) {
         	// Look on the ground around me to see if there is a stamina potion
-        	stam = getUnit(4, sdk.items.staminapotion, 3);
-			if (!!stam && getDistance(me, stam) <= 15 && !checkCollision(me, stam, 0x1) && !me.getItem(sdk.items.staminapotion)) {
+        	stam = getUnit(4, sdk.items.StaminaPotion, 3);
+			if (!!stam && getDistance(me, stam) <= 15 && !checkCollision(me, stam, 0x1) && !me.getItem(sdk.items.StaminaPotion)) {
 				Pickit.pickItem(stam);
 				stam = false;
 			}
@@ -412,7 +412,7 @@ Pather.walkTo = function (x, y, minDist) {
         if (me.stamina / me.staminamax * 100 <= 20) {
         	// Check if I have a stamina potion and use it if I do
             (_a = me.getItemsEx()
-                .filter(function (i) { return i.classid === sdk.items.staminapotion &&
+                .filter(function (i) { return i.classid === sdk.items.StaminaPotion &&
                 i.isInInventory; })
                 .first()) === null || _a === void 0 ? void 0 : _a.interact();
         }

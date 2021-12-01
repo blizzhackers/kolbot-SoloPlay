@@ -146,7 +146,7 @@ Object.defineProperties(Unit.prototype, {
     },
     isEquippedCharm: {
         get: function () {
-            return (this.location === sdk.storage.Inventory && [82, 83, 84].indexOf(this.itemType) > -1);
+            return (this.location === sdk.storage.Inventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(this.itemType) > -1);
         }
     }
 });
@@ -331,7 +331,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 
 		// Item must be equipped, or a charm in inventory
 		this.getItems(-1)
-			.filter(item => item && (item.location === 1 || (item.location === 3 && [sdk.itemtype.smallcharm, sdk.itemtype.mediumcharm, sdk.itemtype.largecharm].indexOf(item.itemType) > -1)))
+			.filter(item => item && (item.location === 1 || (item.location === 3 && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(item.itemType) > -1)))
 			.forEach(function (item) {
 				let stats = item.getStat(-2);
 

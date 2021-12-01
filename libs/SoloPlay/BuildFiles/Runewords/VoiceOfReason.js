@@ -8,7 +8,7 @@ NTIP.arrayLooping(VoiceofReason);
 
 if (me.barbarian) {
 	// Have Lem and Ko runes before looking for normal base
-	if (me.getItem(sdk.runes.Lem) && me.getItem(sdk.runes.Ko)) {
+	if (me.getItem(sdk.items.runes.Lem) && me.getItem(sdk.items.runes.Ko)) {
 		NTIP.addLine("[type] == sword && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [wsm] <= 10 && [strreq] <= 150 # [sockets] == 4")
 		NTIP.addLine("([name] == legendsword || [name] == highlandblade || [name] == balrogblade || [name] == championsword || [name] == colossussword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4");
 	} else {
@@ -34,7 +34,7 @@ if (me.paladin) {
 	NTIP.addLine("[name] == phaseblade && [quality] == normal # ([sockets] == 0 || [sockets] == 4) # [maxquantity] == 1");
 
 	// Cube to Lem rune
-	if (!me.getItem(sdk.runes.Lem)) {
+	if (!me.getItem(sdk.items.runes.Lem)) {
 		Config.Recipes.push([Recipe.Rune, "Fal Rune"]);
 	}
 

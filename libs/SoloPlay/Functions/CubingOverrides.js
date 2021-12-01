@@ -748,17 +748,17 @@ Cubing.validItem = function (unit, recipe) {
 	if (recipe.Index === Recipe.Reroll.Charm) {
 		if (unit.quality === 4 && NTIP.CheckItem(unit) === 0) {
 			switch (unit.itemType) {
-			case sdk.itemtype.smallcharm:
+			case sdk.itemtype.SmallCharm:
 				if (unit.ilvl >= recipe.Level["cm1"].ilvl) {
 					return true;
 				}
 				break;
-			case sdk.itemtype.mediumcharm:
+			case sdk.itemtype.MediumCharm:
 				if (unit.ilvl >= recipe.Level["cm2"].ilvl) {
 					return true;
 				}
 				break;
-			case sdk.itemtype.largecharm:
+			case sdk.itemtype.LargeCharm:
 				if (unit.ilvl >= recipe.Level["cm2"].ilvl) {
 					return true;
 				}

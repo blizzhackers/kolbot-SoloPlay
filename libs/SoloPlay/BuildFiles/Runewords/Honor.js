@@ -8,12 +8,12 @@ var Honor = [
 NTIP.arrayLooping(Honor);
 
 // Cube to Amn rune
-if (!me.getItem(sdk.runes.Amn)) {
+if (!me.getItem(sdk.items.runes.Amn)) {
 	Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
 }
 
 // Have Sol rune before looking for base
-if (me.getItem(sdk.runes.Sol)) {
+if (me.getItem(sdk.items.runes.Sol)) {
 	if (!Check.haveBase("sword", 5)) {
 		if (Pather.accessToAct(5) && !me.getQuest(35, 0)) {
 			NTIP.addLine("((me.diff == 0 && [name] == flamberge) || (me.diff > 0 && [name] == zweihander) || (me.diff == 2 && [name] == colossussword)) && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [level] >= 41 # [sockets] == 0 # [maxquantity] == 1");

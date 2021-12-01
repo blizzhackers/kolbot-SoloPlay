@@ -8,17 +8,17 @@ var CTA = [
 NTIP.arrayLooping(CTA);
 
 // Have Ohm before collecting base
-if (me.getItem(sdk.runes.Ohm)) {
+if (me.getItem(sdk.items.runes.Ohm)) {
 	NTIP.addLine("[name] == crystalsword && [quality] >= normal && [quality] <= superior # [sockets] == 5 # [maxquantity] == 1");
 }
 
 // Cube to Mal rune
-if (!me.getItem(sdk.runes.Mal)) {
+if (!me.getItem(sdk.items.runes.Mal)) {
 	Config.Recipes.push([Recipe.Rune, "Um Rune"]);
 }
 
 // Cube to Ohm Rune
-if (!me.getItem(sdk.runes.Ohm)) {
+if (!me.getItem(sdk.items.runes.Ohm)) {
 	Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Um Rune"]);

@@ -1,6 +1,6 @@
 if (!Check.haveItem("armor", "runeword", "Smoke") && !me.hell) {
 	// Cube to Lum Rune
-	if (!me.getItem(sdk.runes.Lum)) {
+	if (!me.getItem(sdk.items.runes.Lum)) {
 		Config.Recipes.push([Recipe.Rune, "Io Rune"]);
 	}
 
@@ -12,7 +12,7 @@ if (!Check.haveItem("armor", "runeword", "Smoke") && !me.hell) {
 }
 
 // Have Lum rune before looking for base
-if (me.getItem(sdk.runes.Lum)) {
+if (me.getItem(sdk.items.runes.Lum)) {
 	NTIP.addLine("([name] == demonhidearmor || [name] == duskshroud || [name] == ghostarmor || [name] == lightplate || [name] == mageplate || [name] == serpentskinarmor || [name] == trellisedarmor || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1");
 }
 

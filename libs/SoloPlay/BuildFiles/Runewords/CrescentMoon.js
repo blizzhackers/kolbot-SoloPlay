@@ -7,12 +7,12 @@ NTIP.arrayLooping(Crescent);
 
 if (me.barbarian) {
 	// Cube to Um Rune
-	if (!me.getItem(sdk.runes.Um)) {
+	if (!me.getItem(sdk.items.runes.Um)) {
 		Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 	}
 
 	// Have Shael and Um runes before looking for base
-	if (me.getItem(sdk.runes.Shael) && me.getItem(sdk.runes.Um)) {
+	if (me.getItem(sdk.items.runes.Shael) && me.getItem(sdk.items.runes.Um)) {
 		NTIP.addLine("[type] == sword && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [wsm] <= 10 && [strreq] <= 150 # [sockets] == 3");
 		NTIP.addLine("([name] == legendsword || [name] == highlandblade || [name] == balrogblade || [name] == championsword || [name] == colossussword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3");
 	} else {
@@ -39,7 +39,7 @@ if (me.paladin) {
 	NTIP.addLine("[name] == phaseblade && [quality] == normal # ([sockets] == 0 || [sockets] == 3) # [maxquantity] == 1");
 
 	// Cube to Um rune
-	if (!me.getItem(sdk.runes.Um)) {
+	if (!me.getItem(sdk.items.runes.Um)) {
 		Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Fal Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Lem Rune"]);

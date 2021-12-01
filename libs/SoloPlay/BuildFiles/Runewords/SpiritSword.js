@@ -8,7 +8,7 @@ if (!Check.haveItem("sword", "runeword", "Spirit") && !me.hell) {
 	NTIP.arrayLooping(SpiritSword);
 
 	// Cube to Amn Rune
-	if (!me.getItem(sdk.runes.Amn)) {
+	if (!me.getItem(sdk.items.runes.Amn)) {
 		Config.Recipes.push([Recipe.Rune, "Ral Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Ort Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
@@ -18,7 +18,7 @@ if (!Check.haveItem("sword", "runeword", "Spirit") && !me.hell) {
 		NTIP.addLine("([name] == broadsword || [name] == crystalsword) && [flag] != ethereal && [quality] == normal && [level] >= 26 && [level] <= 40 # ([sockets] == 0 || [sockets] == 4) # [maxquantity] == 1");
 	} else {
 		// Have Thul and Amn before looking for base
-		if (me.getItem(sdk.runes.Thul) && me.getItem(sdk.runes.Amn)) {
+		if (me.getItem(sdk.items.runes.Thul) && me.getItem(sdk.items.runes.Amn)) {
 			NTIP.addLine("([name] == broadsword || [name] == crystalsword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
 		}
 	}
@@ -30,7 +30,7 @@ if (!Check.haveItem("sword", "runeword", "Spirit") && !me.hell) {
 		NTIP.addLine("([name] == broadsword || [name] == crystalsword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
 	} else {
 		// Have Thul and Amn before looking for base
-		if (me.getItem(sdk.runes.Thul) && me.getItem(sdk.runes.Amn)) {
+		if (me.getItem(sdk.items.runes.Thul) && me.getItem(sdk.items.runes.Amn)) {
 			NTIP.addLine("([name] == broadsword || [name] == crystalsword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
 		}
 	}

@@ -8,7 +8,7 @@ var Doom = [
 NTIP.arrayLooping(Doom);
 
 // Have Cham, Lo, and Ohm Rune before looking for normal base
-if (me.getItem(sdk.runes.Cham) && me.getItem(sdk.runes.Lo) && me.getItem(sdk.runes.Ohm)) {
+if (me.getItem(sdk.items.runes.Cham) && me.getItem(sdk.items.runes.Lo) && me.getItem(sdk.items.runes.Ohm)) {
 	if (!Check.haveBase("polearm", 5)) {
 		NTIP.addLine("([name] == thresher || [name] == crypticaxe || [name] == greatpoleaxe || [name] == giantthresher) && [flag] == ethereal && [quality] == normal # [sockets] == 0 # [maxquantity] == 1");
 	}
@@ -19,7 +19,7 @@ if (me.getItem(sdk.runes.Cham) && me.getItem(sdk.runes.Lo) && me.getItem(sdk.run
 }
 
 // Cube to Cham
-if (!me.getItem(sdk.runes.Cham)) {
+if (!me.getItem(sdk.items.runes.Cham)) {
 	Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
@@ -36,7 +36,7 @@ if (!me.getItem(sdk.runes.Cham)) {
 }
 
 // Cube to Lo
-if (!me.getItem(sdk.runes.Lo)) {
+if (!me.getItem(sdk.items.runes.Lo)) {
 	Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
@@ -45,7 +45,7 @@ if (!me.getItem(sdk.runes.Lo)) {
 }
 
 // Cube to Ohm
-if (!me.getItem(sdk.runes.Ohm)) {
+if (!me.getItem(sdk.items.runes.Ohm)) {
 	Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);

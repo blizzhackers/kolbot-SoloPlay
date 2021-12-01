@@ -6,7 +6,7 @@ var Duress = [
 NTIP.arrayLooping(Duress);
 
 // Cube to Um rune
-if (!me.getItem(sdk.runes.Um)) {
+if (!me.getItem(sdk.items.runes.Um)) {
 	Config.Recipes.push([Recipe.Rune, "Io Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Lum Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
@@ -16,7 +16,7 @@ if (!me.getItem(sdk.runes.Um)) {
 }
 
 // Have Um and Shael runes before looking for base
-if (me.getItem(sdk.runes.Um) && me.getItem(sdk.runes.Shael)) {
+if (me.getItem(sdk.items.runes.Um) && me.getItem(sdk.items.runes.Shael)) {
 	NTIP.addLine("([name] == archonplate || [name] == demonhidearmor || [name] == duskshroud || [name] == ghostarmor || [name] == boneweave || [name] == serpentskinarmor || [name] == trellisedarmor || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1");
 }
 

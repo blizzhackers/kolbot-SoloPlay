@@ -5,7 +5,7 @@ var Bone = [
 NTIP.arrayLooping(Bone);
 
 // Cube to Um Rune
-if (Item.getQuantityOwned(me.getItem(sdk.runes.Um) < 2)) {
+if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Um) < 2)) {
 	Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Fal Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
@@ -13,7 +13,7 @@ if (Item.getQuantityOwned(me.getItem(sdk.runes.Um) < 2)) {
 }
 
 // Have Um rune before looking for base
-if (me.getItem(sdk.runes.Um)) {
+if (me.getItem(sdk.items.runes.Um)) {
 	NTIP.addLine("([name] == demonhidearmor || [name] == duskshroud || [name] == ghostarmor || [name] == lightplate || [name] == mageplate || [name] == serpentskinarmor || [name] == trellisedarmor || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1");
 }
 

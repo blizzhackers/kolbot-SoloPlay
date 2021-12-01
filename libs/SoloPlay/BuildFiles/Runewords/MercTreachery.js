@@ -4,7 +4,7 @@ var MercTreachery = [
 ];
 
 // Have Shael and Lem before looking for base
-if (me.getItem(sdk.runes.Shael) && me.getItem(sdk.runes.Lem)) {
+if (me.getItem(sdk.items.runes.Shael) && me.getItem(sdk.items.runes.Lem)) {
 	NTIP.arrayLooping(MercTreachery);
 }
 
