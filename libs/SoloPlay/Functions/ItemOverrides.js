@@ -2262,3 +2262,29 @@ Item.getCharmType = function (charm) {
 
 	return charmType;
 };
+
+var AutoEquip = {
+	hasTier: function (item) {
+		if (me.classic) {
+			return Item.hasTier(item);
+		} else {
+			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(item.itemType) > -1) {
+				return Item.hasCharmTier(item);
+			} else {
+				return Item.hasMercTier(item) || Item.hasTier(item) || Item.hasSecondaryTier(item);
+			}
+		}
+	},
+
+	wanted: function (item) {
+		if (me.classic) {
+			return Item.autoEquipKeepCheck(item);
+		} else {
+			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(item.itemType) > -1) {
+				return Item.autoEquipCharmCheck(item);
+			} else {
+				return Item.autoEquipKeepCheckMerc(item) || Item.autoEquipKeepCheck(item) || Item.autoEquipCheckSecondary(item);
+			}
+		}
+	},
+};

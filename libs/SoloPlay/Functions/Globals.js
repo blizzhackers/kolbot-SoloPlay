@@ -1150,20 +1150,9 @@ var Check = {
 	},
 };
 
-var indexOfMax = function (arr) {
-	if (arr.length === 0) {
-		return -1;
-	}
+var SoloPlay = {
+	needList: [],
+	validGids: [],
 
-	var max = arr[0];
-	var maxIndex = 0;
-
-	for (let index = 1; index < arr.length; index++) {
-		if (arr[index] > max) {
-			maxIndex = index;
-			max = arr[index];
-		}
-	}
-
-	return maxIndex;
+	
 };

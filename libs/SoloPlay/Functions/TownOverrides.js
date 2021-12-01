@@ -9,23 +9,19 @@ if (!isIncluded("common/Town.js")) {
 }
 
 // Removed Missle Potions for easy gold
-Town.ignoredItemTypes = [ // Items that won't be stashed
-	5, // Arrows
-	6, // Bolts
-	18, // Book (Tome)
-	22, // Scroll
-	41, // Key
-	76, // Healing Potion
-	77, // Mana Potion
-	78, // Rejuvenation Potion
-	79, // Stamina Potion
-	80, // Antidote Potion
-	81 // Thawing Potion
+// Items that won't be stashed
+Town.ignoredItemTypes = [
+	sdk.itemtype.BowQuiver, sdk.itemtype.CrossbowQuiver, sdk.itemtype.Book,
+	sdk.itemtype.Scroll, sdk.itemtype.Key, sdk.itemtype.HealingPotion,
+	sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion, sdk.itemtype.StaminaPotion,
+	sdk.itemtype.AntidotePotion, sdk.itemtype.ThawingPotion
 ];
 
-Town.questItemClassids = [87, 88, 89, 90, 91, 92, 173, 174, 521, 524, 525, 545, 546, 547, 548, 549, 552, 553, 554, 555, 644];
-Town.unsellablesClassids = [647, 648, 649, 650, 651, 652, 653, 654, 655, 656, 657, 658];
-Town.baseItemTypes = [2, 3, 24, 25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 36, 37, 67, 68, 69, 70, 71, 72, 75, 85, 86, 88];
+Town.cancelFlags = [
+	sdk.uiflags.Inventory, sdk.uiflags.StatsWindow, sdk.uiflags.SkillWindow, sdk.uiflags.NPCMenu,
+	sdk.uiflags.Waypoint, sdk.uiflags.Party, sdk.uiflags.Shop, sdk.uiflags.Quest, sdk.uiflags.Stash,
+	sdk.uiflags.Cube, sdk.uiflags.KeytotheCairnStonesScreen, sdk.uiflags.SubmitItem
+];
 
 Town.townTasks = function () {
 	if (!me.inTown) {
@@ -37,7 +33,7 @@ Town.townTasks = function () {
 		Skill.cast(sdk.skills.BurstofSpeed, 0);
 	}
 
-	let preAct = me.act, i, cancelFlags = [0x01, 0x02, 0x04, 0x08, 0x14, 0x16, 0x0c, 0x0f, 0x19, 0x1a];
+	let preAct = me.act;
 
 	Attack.weaponSwitch(Attack.getPrimarySlot());
 	this.unfinishedQuests();
@@ -46,7 +42,7 @@ Town.townTasks = function () {
 	this.clearInventory();
 	this.buyBook();
 	this.buyPotions();
-	this.fillTome(518);
+	this.fillTome(sdk.items.TomeofTownPortal);
 	this.shopItems();
 	this.buyKeys();
 	this.repair(true);
@@ -67,7 +63,7 @@ Town.townTasks = function () {
 	this.sortStash();
 	Quest.characterRespec();
 
-	if (me.area === 40 || me.area === 75) {
+	if (me.area === sdk.areas.LutGholein || me.area === sdk.areas.KurastDocktown) {
 		Town.buyPots(8, "Stamina");
 		Town.drinkPots();
 	}
@@ -76,8 +72,8 @@ Town.townTasks = function () {
 		this.goToTown(preAct);
 	}
 
-	for (i = 0; i < cancelFlags.length; i += 1) {
-		if (getUIFlag(cancelFlags[i])) {
+	for (let i = 0; i < Town.cancelFlags.length; i += 1) {
+		if (getUIFlag(Town.cancelFlags[i])) {
 			delay(500);
 			me.cancel();
 
@@ -87,12 +83,13 @@ Town.townTasks = function () {
 
 	me.cancel();
 
-	if (!me.barbarian && !Precast.checkCTA()) {	//If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
+	// If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
+	if (!me.barbarian && !Precast.checkCTA()) {
 		Precast.doPrecast(false);
 	}
 
 	Config.NoTele = me.normal && me.gold < 10000 ? true : !me.normal && me.gold < 50000 ? true : false;
-	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54)) ? !Config.NoTele : Config.Dodge;
+	Config.Dodge = (me.getSkill(sdk.skills.Teleport, 0) || me.getStat(sdk.stats.OSkill, sdk.skills.Teleport)) ? !Config.NoTele : Config.Dodge;
 
 	if (me.barbarian && SetUp.currentBuild !== "Singer") {
 		Config.Dodge = false;
@@ -118,14 +115,14 @@ Town.doChores = function (repair = false) {
 		Skill.cast(sdk.skills.BurstofSpeed, 0);
 	}
 
-	let preAct = me.act, i, cancelFlags = [0x01, 0x02, 0x04, 0x08, 0x14, 0x16, 0x0c, 0x0f, 0x19, 0x1a];
+	let preAct = me.act;
 	Attack.weaponSwitch(Attack.getPrimarySlot());
 	this.heal();
 	this.identify();
 	this.clearInventory();
 	this.buyBook();
 	this.buyPotions();
-	this.fillTome(518);
+	this.fillTome(sdk.items.TomeofTownPortal);
 	this.shopItems();
 	this.buyKeys();
 	this.repair(repair);
@@ -143,7 +140,7 @@ Town.doChores = function (repair = false) {
 	this.stash();
 	this.clearJunk();
 
-	if (me.getItem(518)) {
+	if (me.getItem(sdk.items.TomeofTownPortal)) {
 		this.clearScrolls();
 	}
 
@@ -154,8 +151,8 @@ Town.doChores = function (repair = false) {
 		this.goToTown(preAct);
 	}
 
-	for (i = 0; i < cancelFlags.length; i += 1) {
-		if (getUIFlag(cancelFlags[i])) {
+	for (let i = 0; i < Town.cancelFlags.length; i += 1) {
+		if (getUIFlag(Town.cancelFlags[i])) {
 			delay(500);
 			me.cancel();
 
@@ -171,7 +168,7 @@ Town.doChores = function (repair = false) {
 	}
 
 	Config.NoTele = me.normal && me.gold < 10000 ? true : !me.normal && me.gold < 50000 ? true : false;
-	Config.Dodge = (me.getSkill(54, 0) || me.getStat(97, 54)) ? !Config.NoTele : Config.Dodge;
+	Config.Dodge = (me.getSkill(sdk.skills.Teleport, 0) || me.getStat(sdk.stats.OSkill, sdk.skills.Teleport)) ? !Config.NoTele : Config.Dodge;
 
 	if (me.barbarian && SetUp.currentBuild !== "Singer") {
 		Config.Dodge = false;
@@ -271,7 +268,7 @@ Town.identify = function () {
 	// Avoid unnecessary NPC visits
 	for (i = 0; i < list.length; i += 1) {
 		// Only unid items or sellable junk (low level) should trigger a NPC visit
-		if ((!list[i].getFlag(0x10) || Config.LowGold > 0) && ([-1, 4].indexOf(Pickit.checkItem(list[i]).result) > -1 || (!list[i].getFlag(0x10) && (Item.hasTier(list[i]) || Item.hasSecondaryTier(list[i]) || Item.hasMercTier(list[i]) || Item.hasCharmTier(list[i]))))) {
+		if ((!list[i].identified || Config.LowGold > 0) && ([-1, 4].indexOf(Pickit.checkItem(list[i]).result) > -1 || (!list[i].identified && AutoEquip.hasTier(list[i])))) {
 			break;
 		}
 	}
@@ -296,11 +293,11 @@ Town.identify = function () {
 	while (list.length > 0) {
 		item = list.shift();
 
-		if (!item.getFlag(0x10) && item.location === 3 && this.ignoredItemTypes.indexOf(item.itemType) === -1) {
+		if (!item.identified && item.location === sdk.storage.Inventory && this.ignoredItemTypes.indexOf(item.itemType) === -1) {
 			result = Pickit.checkItem(item);
 
 			// Force ID for unid items matching autoEquip criteria
-			if ([1, 2].indexOf(result.result) > -1 && !item.getFlag(0x10) && (Item.hasTier(item) || Item.hasSecondaryTier(item) || Item.hasMercTier(item) || Item.hasCharmTier(item))) {
+			if ([1, 2].indexOf(result.result) > -1 && !item.identified && AutoEquip.hasTier(item)) {
 				result.result = -1;
 			}
 
@@ -615,7 +612,6 @@ Town.shopItems = function () {
 	var i, item, result,
 		items = [],
 		npc = getInteractedNPC(),
-		myGold,
 		goldLimit = [10000, 20000, 30000][me.diff];
 
 	if (!npc || !npc.itemcount) {
@@ -642,13 +638,14 @@ Town.shopItems = function () {
 
 	for (i = 0; i < items.length; i += 1) {
 		result = Pickit.checkItem(items[i]);
-		myGold = me.getStat(14) + me.getStat(15);
+		let myGold = me.gold;
+		let itemCost = items[i].getItemCost(0);
 
 		// no tier'ed items
 		if (result.result === 1 && NTIP.CheckItem(items[i], NTIP_CheckListNoTier, true).result !== 0) {
 			try {
-				if (Storage.Inventory.CanFit(items[i]) && myGold >= items[i].getItemCost(0) && (myGold - items[i].getItemCost(0) > goldLimit)) {
-					if ([2, 3].indexOf(items[i].quality) > -1 && Town.baseItemTypes.indexOf(items[i].itemType) > -1) {
+				if (Storage.Inventory.CanFit(items[i]) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
+					if (items[i].isBaseType) {
 						if (!this.worseBaseThanStashed(items[i]) && this.betterBaseThanWearing(items[i], Developer.Debugging.junkCheckVerbose)) {
 							Misc.itemLogger("Shopped", items[i]);
 
@@ -675,13 +672,10 @@ Town.shopItems = function () {
 		}
 
 		// tier'ed items
-		if (result.result === 1 && (Item.autoEquipCheck(items[i]) || Item.autoEquipCheckMerc(items[i]) || Item.autoEquipCheckSecondary(items[i]))) {
+		if (result.result === 1 && AutoEquip.wanted(items[i])) {
 			try {
-				if (Storage.Inventory.CanFit(items[i]) && myGold >= items[i].getItemCost(0) && (myGold - items[i].getItemCost(0) > goldLimit)) {
-					if (Item.hasTier(items[i]) &&
-					Item.getBodyLoc(items[i])[0] !== undefined &&
-					Item.canEquip(items[i]) &&
-					NTIP.GetTier(items[i]) > Item.getEquippedItem(Item.getBodyLoc(items[i])[0]).tier) {
+				if (Storage.Inventory.CanFit(items[i]) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
+					if (Item.hasTier(items[i]) && Item.autoEquipCheck(items[i])) {
 						Misc.itemLogger("AutoEquip Shopped", items[i]);
 						try {
 							print("ÿc9ShopItemsÿc0 :: AutoEquip Shopped: " + items[i].fname + " Tier: " + NTIP.GetTier(items[i]));
@@ -698,10 +692,7 @@ Town.shopItems = function () {
 						continue;
 					}
 
-					if (Item.hasMercTier(items[i]) &&
-					Item.getBodyLocMerc(items[i])[0] !== undefined &&
-					Item.canEquipMerc(items[i], Item.getBodyLocMerc(items[i])[0]) &&
-					NTIP.GetMercTier(items[i]) > Item.getEquippedItemMerc(Item.getBodyLocMerc(items[i])[0]).tier) {
+					if (Item.hasMercTier(items[i]) && Item.autoEquipCheckMerc(items[i])) {
 						Misc.itemLogger("AutoEquipMerc Shopped", items[i]);
 
 						if (Developer.Debugging.autoEquip) {
@@ -713,10 +704,7 @@ Town.shopItems = function () {
 						continue;
 					}
 
-					if (Item.hasSecondaryTier(items[i]) &&
-					Item.getBodyLocSecondary(items[i])[0] !== undefined &&
-					Item.canEquip(items[i], Item.getBodyLocSecondary(items[i])[0]) &&
-					NTIP.GetSecondaryTier(items[i]) > Item.getEquippedItem(Item.getBodyLocSecondary(items[i])[0]).secondarytier) {
+					if (Item.hasSecondaryTier(items[i]) && Item.autoEquipCheckSecondary(items[i])) {
 						Misc.itemLogger("AutoEquip Switch Shopped", items[i]);
 						try {
 							print("ÿc9ShopItemsÿc0 :: AutoEquip Switch Shopped: " + items[i].fname + " SecondaryTier: " + NTIP.GetSecondaryTier(items[i]));
@@ -1452,13 +1440,10 @@ Town.clearInventory = function () {
 
 	for (i = 0; !!items && i < items.length; i += 1) {
 		if ([18, 41, 76, 77, 78].indexOf(items[i].itemType) === -1 && // Don't drop tomes, keys or potions
-			(Town.questItemClassids.indexOf(items[i].classid) === -1) &&	// Don't drop quest items
-			(Town.unsellablesClassids.indexOf(items[i].classid) === -1) &&	// Don't try to sell keys/essences/tokens/organs
-			(items[i].classid !== 603 && items[i].quality !== 7) && // Anni
-			(items[i].classid !== 604 && items[i].quality !== 7) && // Torch
-			(items[i].classid !== 605 && items[i].quality !== 7) && // Gheeds
+			items[i].isSellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
 			(items[i].code !== 529 || !!me.findItem(518, 0, 3)) && // Don't throw scrolls if no tome is found (obsolete code?)
 			(items[i].code !== 530 || !!me.findItem(519, 0, 3)) && // Don't throw scrolls if no tome is found (obsolete code?)
+			!AutoEquip.wanted(items[i]) && // Don't throw auto equip wanted items
 			!Cubing.keepItem(items[i]) && // Don't throw cubing ingredients
 			!Runewords.keepItem(items[i]) && // Don't throw runeword ingredients
 			!CraftingSystem.keepItem(items[i]) // Don't throw crafting system ingredients
@@ -1466,7 +1451,7 @@ Town.clearInventory = function () {
 			result = Pickit.checkItem(items[i]).result;
 
 			if ([0, 4].indexOf(result) === -1) {
-				if (([2, 3].indexOf(items[i].quality) > -1 && !items[i].getFlag(NTIPAliasFlag["runeword"]) && Town.baseItemTypes.indexOf(items[i].itemType) > -1 && items[i].getStat(194) > 0) || 
+				if ((items[i].isBaseType && items[i].getStat(194) > 0) || 
 					([25, 69, 70, 71, 72].indexOf(items[i].itemType) > -1 && items[i].quality === 2 && items[i].getStat(194) === 0)) {
 					if (this.worseBaseThanStashed(items[i]) && !this.betterBaseThanWearing(items[i], Developer.Debugging.junkCheckVerbose)) {
 						result = 4;
@@ -1474,20 +1459,20 @@ Town.clearInventory = function () {
 				}
 			}
 
-			if (!items[i].getFlag(0x10)) {
+			if (!items[i].identified) {
 				result = -1;
 			}
 
 			switch (result) {
 			case 0: // Drop item
-				if ((getUIFlag(0x0C) || getUIFlag(0x08)) && (items[i].getItemCost(1) <= 1 || items[i].itemType === 39)) { // Quest items and such
-					me.cancel();
-					delay(200);
+				if ((getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) && (items[i].getItemCost(1) <= 1 || !items[i].isSellable)) {
+					continue;
 				}
 
 				this.initNPC("Shop", "clearInventory");
 
-				if (getUIFlag(0xC) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) { // Might as well sell the item if already in shop
+				// Might as well sell the item if already in shop
+				if (getUIFlag(sdk.uiflags.Shop) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
 					print("clearInventory sell " + items[i].name);
 					Misc.itemLogger("Sold", items[i]);
 					items[i].sell();
@@ -2455,7 +2440,6 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 Town.clearJunk = function () {
 	let junk = me.findItems(-1, 0);
 	let junkToSell = [];
-	let cancelFlags = [0x01, 0x02, 0x04, 0x08, 0x14, 0x16, 0x0c, 0x0f, 0x19, 0x1a];
 
 	if (!junk) {
 		return false;
@@ -2464,14 +2448,12 @@ Town.clearJunk = function () {
 	while (junk.length > 0) {
 		if (([3, 7].indexOf(junk[0].location) > -1) && // stash or inventory
 			([1, 2, 3, 5].indexOf(Pickit.checkItem(junk[0]).result) === -1) &&
+			!AutoEquip.wanted(junk[0]) && // Don't toss wanted auto equip items
 			!Cubing.keepItem(junk[0]) && // Don't throw cubing ingredients
 			!Runewords.keepItem(junk[0]) && // Don't throw runeword ingredients
 			!CraftingSystem.keepItem(junk[0]) && // Don't throw crafting system ingredients
 			[18, 41, 76, 77, 78].indexOf(junk[0].itemType) === -1 && // Don't drop tomes, keys or potions
-			(Town.questItemClassids.indexOf(junk[0].classid) === -1) &&	// Don't drop quest items
-			(Town.unsellablesClassids.indexOf(junk[0].classid) === -1) &&	// Don't try to sell keys/essences/tokens/organs
-			([603, 604, 605].indexOf(junk[0].classid) === -1) && // charm equip takes care of this
-			(!Item.autoEquipKeepCheckMerc(junk[0]) && !Item.autoEquipKeepCheck(junk[0]) && !Item.autoEquipCheckSecondary(junk[0])) && 
+			junk[0].isSellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
 			([0, 4].indexOf(Pickit.checkItem(junk[0]).result) > -1) // only drop unwanted
 		) {
 			if ([0, 4].indexOf(Pickit.checkItem(junk[0]).result) === -1) {
@@ -2510,8 +2492,8 @@ Town.clearJunk = function () {
 
 		}
 
-		if ([3, 6, 7].indexOf(junk[0].location) > -1 && Town.questItemClassids.indexOf(junk[0].classid) === -1 && Town.unsellablesClassids.indexOf(junk[0].classid) === -1) {
-			if (junk[0].getFlag(NTIPAliasFlag["runeword"]) && !Item.autoEquipKeepCheck(junk[0]) && !Item.autoEquipCheckSecondary(junk[0]) && !Item.autoEquipKeepCheckMerc(junk[0])) {
+		if ([3, 6, 7].indexOf(junk[0].location) > -1 && junk[0].isSellable) {
+			if (junk[0].isRuneword && !AutoEquip.wanted(junk[0])) {
 				if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
 					Town.openStash();
 				}
@@ -2547,7 +2529,7 @@ Town.clearJunk = function () {
 				}
 			}
 
-			if ([2, 3].indexOf(junk[0].quality) > -1 && !junk[0].getFlag(NTIPAliasFlag["runeword"]) && Town.baseItemTypes.indexOf(junk[0].itemType) > -1) {
+			if (junk[0].isBaseType) {
 				if (this.worseBaseThanStashed(junk[0], true)) {
 					if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
 						Town.openStash();
@@ -2643,8 +2625,8 @@ Town.clearJunk = function () {
 			}
 		}
 
-		for (let i = 0; i < cancelFlags.length; i += 1) {
-			if (getUIFlag(cancelFlags[i])) {
+		for (let i = 0; i < Town.cancelFlags.length; i += 1) {
+			if (getUIFlag(Town.cancelFlags[i])) {
 				delay(500 + me.ping);
 				me.cancel();
 
@@ -2808,7 +2790,8 @@ Town.reviveMerc = function () {
 	Attack.checkInfinity();
 
 	if (!!Merc.getMercFix()) {
-		if (Config.MercWatch && ((me.barbarian && (me.getSkill(138,1) || me.getSkill(149, 1))) || Precast.checkCTA())) { // Cast BO on merc so he doesn't just die again. Only Do this is you are a barb or actually have a cta. Otherwise its just a waste of time.
+		// Cast BO on merc so he doesn't just die again. Only do this is you are a barb or actually have a cta. Otherwise its just a waste of time.
+		if (Config.MercWatch && ((me.barbarian && (me.getSkill(138,1) || me.getSkill(149, 1))) || Precast.checkCTA())) {
 			print("MercWatch precast");
 			Pather.useWaypoint("random");
 			Precast.doPrecast(true);

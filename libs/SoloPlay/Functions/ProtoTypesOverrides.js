@@ -92,27 +92,40 @@ Object.defineProperties(Unit.prototype, {
             return this.location === sdk.storage.Equipment;
         }
     },
+    isEquippedCharm: {
+        get: function () {
+        	if (this.type !== sdk.unittype.Item)
+                return false;
+            return (this.location === sdk.storage.Inventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(this.itemType) > -1);
+        }
+    },
     isInInventory: {
         get: function () {
+        	if (this.type !== sdk.unittype.Item)
+                return false;
             return this.location === sdk.storage.Inventory && this.mode === sdk.itemmode.inStorage;
         }
     },
     isInBelt: {
         get: function () {
+        	if (this.type !== sdk.unittype.Item)
+                return false;
             return this.location === sdk.storage.Belt && this.mode === sdk.itemmode.inBelt;
         }
     },
     isInStash: {
         get: function () {
+        	if (this.type !== sdk.unittype.Item)
+                return false;
             return this.location === sdk.storage.Stash && this.mode === sdk.itemmode.inStorage;
         }
     },
-    isRuneword: {
-        get: function () {
-            if (this.type !== sdk.unittype.Item)
+    isInStorage: {
+    	get: function () {
+    		if (this.type !== sdk.unittype.Item)
                 return false;
-            return !!this.getFlag(0x4000000);
-        }
+            return this.mode === sdk.itemmode.inStorage && [sdk.storage.Inventory, sdk.storage.Cube, sdk.storage.Stash].includes(this.location);
+    	}
     },
 	identified: {
 		get: function () {
@@ -135,20 +148,46 @@ Object.defineProperties(Unit.prototype, {
 	},
 	twoHanded: {
 		get: function () {
+			if (this.type !== sdk.unittype.Item)
+                return false;
 			return getBaseStat("items", this.classid, "2handed") === 1;
 		}
 	},
-    isQuestItem: {
+    isRuneword: {
         get: function () {
-            return this.itemType === 39 ||
-                [173, 174, 92, 91, 521].includes(this.classid);
+            if (this.type !== sdk.unittype.Item)
+                return false;
+            return !!this.getFlag(0x4000000);
         }
     },
-    isEquippedCharm: {
+    isQuestItem: {
         get: function () {
-            return (this.location === sdk.storage.Inventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(this.itemType) > -1);
+        	if (this.type !== sdk.unittype.Item)
+                return false;
+            return this.itemType === sdk.itemtype.Quest ||
+                [sdk.items.quest.HoradricMalus, sdk.items.quest.WirtsLeg, sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff,
+                sdk.items.quest.ViperAmulet, sdk.items.quest.DecoyGidbinn, sdk.items.quest.TheGidbinn, sdk.items.quest.KhalimsFlail,
+                sdk.items.quest.KhalimsWill, sdk.items.quest.HellForgeHammer, sdk.items.quest.StandardofHeroes].includes(this.classid);
         }
-    }
+    },
+    isBaseType: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item)
+                return false;
+			return [sdk.itemquality.Normal, sdk.itemquality.Superior].indexOf(this.quality) > -1 && !this.isQuestItem && !this.isRuneword
+				&& getBaseStat("items", this.classid, "gemsockets") > 0 && [sdk.itemtype.Ring, sdk.itemtype.Amulet].indexOf(this.itemType) === -1;
+		}
+	},
+	isSellable: {
+        get: function () {
+            if (this.type !== sdk.unittype.Item)
+                return false;
+            return !this.isQuestItem && [sdk.items.quest.KeyofTerror, sdk.items.quest.KeyofHate, sdk.items.quest.KeyofDestruction, sdk.items.quest.DiablosHorn,
+            	sdk.items.quest.BaalsEye, sdk.items.quest.MephistosBrain, sdk.items.quest.TokenofAbsolution, sdk.items.quest.TwistedEssenceofSuffering,
+            	sdk.items.quest.ChargedEssenceofHatred, sdk.items.quest.BurningEssenceofTerror, sdk.items.quest.FesteringEssenceofDestruction].indexOf(this.classid) === -1 && 
+            	!(this.quality === sdk.itemquality.Unique && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(this.itemType));
+        }
+    },
 });
 
 // Credit @Jaenster

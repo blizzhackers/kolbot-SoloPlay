@@ -407,7 +407,7 @@
             Eruption: 234, // Internal
             CycloneArmor: 235,
             HeartofWolverine: 236,
-            DireWolf: 237, // External
+            SummonDireWolf: 237, // External
             SummonFenris: 237, // Internal
             Rabies: 238,
             FireClaws: 239,
@@ -544,7 +544,7 @@
         },
 
         uiflags: {
-            Iventory: 0x01,
+            Inventory: 0x01,
             StatsWindow: 0x02,
             QuickSkill: 0x03,
             SkillWindow: 0x04,
@@ -2547,6 +2547,7 @@
             "Ring": 522,
             "Arrows": 526,
             "Bolts": 528,
+            "Jewel": 643,
 
             // Misc?
             "Elixir": 508,
@@ -2602,7 +2603,7 @@
             quest: {
                 // Act 1
                 WirtsLeg: 88,
-                HoardricMalus: 89,
+                HoradricMalus: 89,
                 ScrollofInifuss: 524,
                 KeytotheCairnStones: 525,
                 // Act 2
@@ -2633,15 +2634,24 @@
                 "MephistosSoulstone": 551,
                 // Act 5
                 MalahsPotion: 644,
+                "ScrollofKnowledge": 645,
                 ScrollofResistance: 646,
-                // Misc
-                "TheBlackTowerKey": 544,
+                // Pandemonium Event
                 KeyofTerror: 647,
                 KeyofHate: 648,
                 KeyofDestruction: 649,
                 DiablosHorn: 650,
                 BaalsEye: 651,
                 MephistosBrain: 652,
+                StandardofHeroes: 658,
+                // Essences/Token
+                TokenofAbsolution: 653,
+                TwistedEssenceofSuffering: 654,
+                ChargedEssenceofHatred: 655,
+                BurningEssenceofTerror: 656,
+                FesteringEssenceofDestruction: 657,
+                // Misc
+                "TheBlackTowerKey": 544,
             },
             runes: {
                 El: 610,
@@ -3452,7 +3462,7 @@
         druid: {
             summoning: {
                 id: 40,
-                skills: [sdk.skills.Raven, sdk.skills.PoisonCreeper, sdk.skills.OakSage, sdk.skills.SummonSpiritWolf, sdk.skills.CarrionVine, sdk.skills.HeartofWolverine, sdk.skills.DireWolf, sdk.skills.SolarCreeper, sdk.skills.SpiritofBarbs, sdk.skills.SummonGrizzly,],
+                skills: [sdk.skills.Raven, sdk.skills.PoisonCreeper, sdk.skills.OakSage, sdk.skills.SummonSpiritWolf, sdk.skills.CarrionVine, sdk.skills.HeartofWolverine, sdk.skills.SummonDireWolf, sdk.skills.SolarCreeper, sdk.skills.SpiritofBarbs, sdk.skills.SummonGrizzly,],
             },
             shapeshifting: {
                 id: 41,
