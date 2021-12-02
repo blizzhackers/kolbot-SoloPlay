@@ -134,7 +134,7 @@ Precast.getBetterSlot = function (skillId) {
 Precast.precastSkill = function (skillId) {
 	var swap = me.weaponswitch;
 
-	if (!Misc.wereFormCheck(skillId)) {
+	if (!Skill.wereFormCheck(skillId)) {
 		return false;
 	}
 
