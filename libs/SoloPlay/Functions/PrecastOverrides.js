@@ -11,13 +11,7 @@ if (!isIncluded("common/Precast.js")) {
 Precast.enabled = true;
 
 Precast.precastCTA = function (force) {
-	/*print("Current State for BO: " + me.getState(sdk.states.BattleOrders));
-	print("Current State for BC: " + me.getState(sdk.states.BattleCommand));
-	print("Bo Tick: " + this.BOTick);
-	print("BODuration: " + this.BODuration);
-	print("Tick counter: " + (getTickCount() - this.BOTick < this.BODuration - 30000));*/
-
-	if (me.classic || me.barbarian || me.inTown) {
+	if (me.classic || me.barbarian || me.inTown || me.shapeshifted) {
 		return false;
 	}
 
@@ -139,6 +133,10 @@ Precast.getBetterSlot = function (skillId) {
 
 Precast.precastSkill = function (skillId) {
 	var swap = me.weaponswitch;
+	
+	if (!this.wereFormCheck(skillId)) {
+		return false;
+	}
 
 	me.switchWeapons(this.getBetterSlot(skillId));
 	Skill.cast(skillId, 0);

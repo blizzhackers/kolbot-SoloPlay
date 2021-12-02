@@ -228,7 +228,7 @@ var Events = {
 			Pather.moveToPreset(me.area, 1, 774, 0, 0, false, true);
 		}
 
-		Attack.killTarget(333);
+		Attack.killTarget(sdk.monsters.DiabloClone);
 		Pickit.pickItems();
 
 		let newAnni = getUnit(4, 603, 3);

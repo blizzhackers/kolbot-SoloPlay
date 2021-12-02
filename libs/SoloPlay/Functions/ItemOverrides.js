@@ -284,8 +284,8 @@ Item.autoEquip = function () {
 
 		if (tier > 0 && bodyLoc) {
 			for (j = 0; j < bodyLoc.length; j += 1) {
-				if ([3, 6, 7].indexOf(items[0].location) > -1 && tier > this.getEquippedItem(bodyLoc[j]).tier && this.getEquippedItem(bodyLoc[j]).classid !== 174) { // khalim's will adjustment
-					if (!items[0].getFlag(0x10)) { // unid
+				if (items[0].isInStorage && tier > this.getEquippedItem(bodyLoc[j]).tier && this.getEquippedItem(bodyLoc[j]).classid !== 174) { // khalim's will adjustment
+					if (!items[0].identified) {
 						tome = me.findItem(519, 0, 3);
 
 						if (tome && tome.getStat(70) > 0) {
@@ -310,6 +310,11 @@ Item.autoEquip = function () {
 
 						if (Developer.logEquipped) {
 							MuleLogger.logEquippedItems();
+						}
+					} else if (items[0].lvlreq > me.charlvl && !items[0].isInStash) {
+						if (Storage.Stash.CanFit(items[0])) {
+							print("ÿc9AutoEquipÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + items[0].fname + " Tier: " + tier);
+							Storage.Stash.MoveTo(items[0]);
 						}
 					}
 

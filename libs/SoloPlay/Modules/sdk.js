@@ -783,6 +783,8 @@
             BladeShield: 158,
             Fade: 159,
             RestInPeace: 172,
+            Glowing: 175,
+            Delerium: 177,
         },
 
         enchant: {
@@ -1383,7 +1385,7 @@
             DevourerQueen: 286,
             DevourerYoung: 182,
             Diablo1: 243,
-            Diablo2: 333,
+            DiabloClone: 333,
             Disfigured: 13,
             Disfigured2: 583,
             Dominus1: 474,

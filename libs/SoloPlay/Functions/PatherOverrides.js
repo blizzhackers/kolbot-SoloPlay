@@ -18,14 +18,6 @@ NodeAction.killMonsters = function (arg) {
 		return;
 	}
 
-	if (Config.Countess.KillGhosts && [21, 22, 23, 24, 25].indexOf(me.area) > -1) {
-		monList = Attack.getMob(38, 0, 30);
-
-		if (monList) {
-			Attack.clearList(monList);
-		}
-	}
-
 	if ([8, 3, 4, 38, 5, 6, 27, 28, 33, 37, 56, 57, 60, 45, 58, 66, 67, 68, 69, 70, 71, 72].indexOf(me.area) > -1) {
 		monList = Attack.getMob([58, 59, 60, 61, 101, 102, 103, 104], 0, 30);
 
@@ -35,8 +27,8 @@ NodeAction.killMonsters = function (arg) {
 		}
 	}
 
-	if ([39].indexOf(me.area) > -1) {
-		let king = getUnit(1, "The Cow King");
+	if (me.area === sdk.areas.MooMooFarm) {
+		let king = getUnit(1, getLocaleString(sdk.locale.monsters.TheCowKing));
 		let kingPreset = getPresetUnit(me.area, 1, 773);
 
 		if (king) {
@@ -51,8 +43,8 @@ NodeAction.killMonsters = function (arg) {
 		}
 	}
 
-	if (me.area === 8 && me.hell && me.druid) {
-		let corpsefire = getUnit(1, getLocaleString(3319));
+	if (me.area === sdk.areas.DenofEvil && me.hell && me.druid) {
+		let corpsefire = getUnit(1, getLocaleString(sdk.locale.monsters.Corpsefire));
 
 		if (corpsefire) {
 			do {
@@ -394,17 +386,19 @@ Pather.walkTo = function (x, y, minDist) {
 		minDist = me.inTown ? 2 : 4;
 	}
 
-	var i, angle, angles, nTimer, whereToClick, tick, _a, stam,
+	var i, angle, angles, nTimer, whereToClick, tick, _a,
 		nFail = 0,
 		attemptCount = 0;
 
 	// credit @Jaenster
 	// Stamina handler and Charge
 	if (!me.inTown && !me.dead) {
-		if (me.stamina / me.staminamax * 100 <= 75 || me.runwalk === 0) {
+		let stam = me.getItem(sdk.items.StaminaPotion);
+
+		if (!stam && (me.stamina / me.staminamax * 100 <= 85 || me.runwalk === 0)) {
         	// Look on the ground around me to see if there is a stamina potion
         	stam = getUnit(4, sdk.items.StaminaPotion, 3);
-			if (!!stam && getDistance(me, stam) <= 15 && !checkCollision(me, stam, 0x1) && !me.getItem(sdk.items.StaminaPotion)) {
+			if (!!stam && getDistance(me, stam) <= 15 && !checkCollision(me, stam, 0x1) && !me.getItem(sdk.items.StaminaPotion) && Attack.getMobCountAtPosition(stam.x, stam.y, 8) === 0) {
 				Pickit.pickItem(stam);
 				stam = false;
 			}
@@ -424,9 +418,9 @@ Pather.walkTo = function (x, y, minDist) {
         if (me.runwalk === 0 && me.stamina / me.staminamax * 100 >= recover) {
             me.runwalk = 1;
         }
-        if (Config.Charge && me.classid === 3 && me.mp >= 9 && getDistance(me.x, me.y, x, y) > 8 && Skill.setSkill(107, 1)) {
+        if (Config.Charge && me.paladin && me.mp >= 9 && getDistance(me.x, me.y, x, y) > 8 && Skill.setSkill(sdk.skills.Charge, 1)) {
             if (Config.Vigor) {
-                Skill.setSkill(115, 0);
+                Skill.setSkill(sdk.skills.Vigor, 0);
             }
             Misc.click(0, 1, x, y);
             while (me.mode !== 1 && me.mode !== 5 && !me.dead) {
@@ -440,8 +434,8 @@ Pather.walkTo = function (x, y, minDist) {
 	}
 
 	while (getDistance(me.x, me.y, x, y) > minDist && !me.dead) {
-		if (me.classid === 3 && Config.Vigor) {
-			Skill.setSkill(115, 0);
+		if (me.paladin && Config.Vigor) {
+			Skill.setSkill(sdk.skills.Vigor, 0);
 		}
 
 		if (this.openDoors(x, y) && getDistance(me.x, me.y, x, y) <= minDist) {

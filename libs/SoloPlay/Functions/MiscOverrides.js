@@ -2331,7 +2331,7 @@ Misc.buyItem = function (unit, shiftBuy, gamble) {
 	}
 
 	// Can we afford the item?
-	if (me.getStat(14) + me.getStat(15) < unit.getItemCost(0)) {
+	if (me.gold < unit.getItemCost(0)) {
 		return false;
 	}
 
@@ -2341,7 +2341,7 @@ Misc.buyItem = function (unit, shiftBuy, gamble) {
 		tick = getTickCount();
 
 		while (getTickCount() - tick < Math.max(2000, me.ping * 2 + 500)) {
-			if (shiftBuy && me.getStat(14) + me.getStat(15) < oldGold) {
+			if (shiftBuy && me.gold < oldGold) {
 				return true;
 			}
 
