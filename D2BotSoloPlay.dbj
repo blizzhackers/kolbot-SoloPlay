@@ -80,9 +80,12 @@ include("SoloPlay/Tools/NameGen.js");
 include("SoloPlay/Tools/OOGOverrides.js");
 include("SoloPlay/Functions/Events.js");
 
+let firstRun = false;
+
 if (!FileTools.exists("data/" + me.profile + ".json")) {
 	DataFile.create();
 	DataFile.updateStats("currentBuild", "Start");
+	firstRun = true;
 
 	delay(Math.floor(rand(1, 20)));
 }
@@ -1280,6 +1283,12 @@ function main () {
 		DataFile.updateStats("gameName", gamename);
 
 		delay(50);
+	} else if (firstRun) {
+		// should be first run on this profile since we created a new data file so initialize difficulty to normal
+		// check first before setting to avoid unneeded setProfile calls
+		if (setUp.difficulty !== "Normal") {
+			D2Bot.setProfile(null, null, null, "Normal");
+		}
 	}
 
 	while (true) {
