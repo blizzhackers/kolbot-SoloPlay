@@ -38,8 +38,16 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let useStatic = me.getSkill(sdk.skills.StaticField, 1);
 	let staticManaCost = Skill.getManaCost(sdk.skills.StaticField);
 
-	// Handle Switch casting
+	// Handle Charge skill casting
 	if (!me.classic && index === 1 && !unit.dead) {
+		// If we have slow missles we might as well use it, currently only on Lighting Enchanted mobs as they are dangerous
+		// Might be worth it to use on souls too TODO: test this idea
+		if (Attack.currentChargedSkills.indexOf(sdk.skills.SlowMissiles) > -1 && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && Attack.isCursable(unit) &&
+			(gold > 500000 && Attack.BossAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+			// Cast slow missiles
+			Attack.castCharges(sdk.skills.SlowMissiles, unit);
+		}
+		// Handle Switch casting
 		if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.LowerResist) > -1 && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
 			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast lower resist
@@ -67,7 +75,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		for (let castStatic = 0; castStatic < 2; castStatic++) {
 			closeMobCheck = Attack.getNearestMonster();
 			if (!!closeMobCheck && Attack.checkResist(unit, "lightning") && staticManaCost < me.mp && !closeMobCheck.dead && Math.round(closeMobCheck.hp * 100 / closeMobCheck.hpmax) > Config.CastStatic) {
-				Skill.cast(42, 0);
+				Skill.cast(sdk.skills.StaticField, 0);
 			}
 		}
 	}
