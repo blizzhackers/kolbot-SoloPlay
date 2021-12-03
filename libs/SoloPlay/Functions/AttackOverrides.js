@@ -1093,6 +1093,20 @@ Attack.getItemCharges = function (skillId) {
 	return true;
 };
 
+Attack.castCharges = function (skillId, unit) {
+	if (skillId === undefined || unit === undefined || !Skill.wereFormCheck(skillId) || (me.inTown && !Skill.townSkill(skillId))) {
+		return false;
+	}
+
+	me.castChargedSkill(skillId, unit);
+
+	if (me.weaponswitch === 1) {
+		me.switchWeapons(0);
+	}
+
+	return true;
+};
+
 Attack.switchCastCharges = function (skillId, unit) {
 	if (skillId === undefined || unit === undefined || !Skill.wereFormCheck(skillId) || (me.inTown && !Skill.townSkill(skillId))) {
 		return false;

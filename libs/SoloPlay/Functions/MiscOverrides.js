@@ -1252,7 +1252,7 @@ Misc.checkItemForImbueing = function () {
 		}
 		
 		break;
-	case sdk.charclass.Bararian:
+	case sdk.charclass.Barbarian:
 		// Less than final helm
 		if (Item.getEquippedItem(1).tier < 100000) {
 			if (me.normal) {

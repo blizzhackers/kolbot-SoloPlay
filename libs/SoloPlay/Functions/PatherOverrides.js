@@ -395,14 +395,14 @@ Pather.walkTo = function (x, y, minDist) {
 	if (!me.inTown && !me.dead) {
 		let stam = me.getItem(sdk.items.StaminaPotion);
 
-		if (!stam && (me.stamina / me.staminamax * 100 <= 85 || me.runwalk === 0)) {
+		/*if (!stam && (me.stamina / me.staminamax * 100 <= 85 || me.runwalk === 0)) {
         	// Look on the ground around me to see if there is a stamina potion
         	stam = getUnit(4, sdk.items.StaminaPotion, 3);
 			if (!!stam && getDistance(me, stam) <= 15 && !checkCollision(me, stam, 0x1) && !me.getItem(sdk.items.StaminaPotion) && Attack.getMobCountAtPosition(stam.x, stam.y, 8) === 0) {
 				Pickit.pickItem(stam);
 				stam = false;
 			}
-		}
+		}*/
         if (me.stamina / me.staminamax * 100 <= 20) {
         	// Check if I have a stamina potion and use it if I do
             (_a = me.getItemsEx()
