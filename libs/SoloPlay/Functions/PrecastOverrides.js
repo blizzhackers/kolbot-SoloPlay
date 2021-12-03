@@ -160,7 +160,7 @@ Precast.doPrecast = function (force) {
 	switch (me.classid) {
 	case sdk.charclass.Amazon:
 		if (Config.SummonValkyrie) {
-			buffSummons = this.summon(32); // Valkyrie
+			buffSummons = this.summon(sdk.skills.Valkyrie, sdk.minions.Valkyrie);
 		}
 
 		if (buffSummons) {
@@ -226,15 +226,15 @@ Precast.doPrecast = function (force) {
 			break;
 		case 1:
 		case "Clay":
-			this.summon(75);
+			this.summon(sdk.skills.ClayGolem, sdk.minions.Golem);
 			break;
 		case 2:
 		case "Blood":
-			this.summon(85);
+			this.summon(sdk.skills.BloodGolem, sdk.minions.Golem);
 			break;
 		case 3:
 		case "Fire":
-			this.summon(94);
+			this.summon(sdk.skills.FireGolem, sdk.minions.Golem);
 			break;
 		}
 
@@ -293,23 +293,23 @@ Precast.doPrecast = function (force) {
 		}
 
 		if (Config.SummonRaven) {
-			this.summon(221); // Raven
+			this.summon(sdk.skills.Raven, sdk.minions.Raven);
 		}
 
 		switch (Config.SummonAnimal) {
 		case 1:
 		case "Spirit Wolf":
-			buffSummons = this.summon(227) || buffSummons; // Summon Spirit Wolf
+			buffSummons = this.summon(sdk.skills.SummonSpiritWolf, sdk.minions.SpiritWolf) || buffSummons;
 
 			break;
 		case 2:
 		case "Dire Wolf":
-			buffSummons = this.summon(237) || buffSummons; // Summon Dire Wolf
+			buffSummons = this.summon(sdk.skills.SummonDireWolf, sdk.minions.DireWolf) || buffSummons;
 
 			break;
 		case 3:
 		case "Grizzly":
-			buffSummons = this.summon(247) || buffSummons; // Summon Grizzly
+			buffSummons = this.summon(sdk.skills.SummonGrizzly, sdk.minions.Grizzly) || buffSummons;
 
 			break;
 		}
@@ -317,17 +317,17 @@ Precast.doPrecast = function (force) {
 		switch (Config.SummonVine) {
 		case 1:
 		case "Poison Creeper":
-			buffSummons = this.summon(222) || buffSummons; // Poison Creeper
+			buffSummons = this.summon(sdk.skills.PoisonCreeper, sdk.minions.Vine) || buffSummons;
 
 			break;
 		case 2:
 		case "Carrion Vine":
-			buffSummons = this.summon(231) || buffSummons; // Carrion Vine
+			buffSummons = this.summon(sdk.skills.CarrionVine, sdk.minions.Vine) || buffSummons;
 
 			break;
 		case 3:
 		case "Solar Creeper":
-			buffSummons = this.summon(241) || buffSummons; // Solar Creeper
+			buffSummons = this.summon(sdk.skills.SolarCreeper, sdk.minions.Vine) || buffSummons;
 
 			break;
 		}
@@ -335,17 +335,29 @@ Precast.doPrecast = function (force) {
 		switch (Config.SummonSpirit) {
 		case 1:
 		case "Oak Sage":
-			buffSummons = this.summon(226) || buffSummons; // Oak Sage
+			buffSummons = this.summon(sdk.skills.OakSage, sdk.minions.Spirit) || buffSummons;
+			
+			if (me.getSkill(sdk.skills.OakSage, 1) && (!me.getState(sdk.states.OakSage) || force)) {
+				Skill.cast(sdk.skills.OakSage, 0);
+			}
 
 			break;
 		case 2:
 		case "Heart of Wolverine":
-			buffSummons = this.summon(236) || buffSummons; // Heart of Wolverine
+			buffSummons = this.summon(sdk.skills.HeartofWolverine, sdk.minions.Spirit) || buffSummons;
+
+			if (me.getSkill(sdk.skills.HeartofWolverine, 1) && (!me.getState(sdk.states.HeartofWolverine) || force)) {
+				Skill.cast(sdk.skills.HeartofWolverine, 0);
+			}
 
 			break;
 		case 3:
 		case "Spirit of Barbs":
-			buffSummons = this.summon(246) || buffSummons; // Spirit of Barbs
+			buffSummons = this.summon(sdk.skills.SpiritofBarbs, sdk.minions.Spirit) || buffSummons;
+
+			if (me.getSkill(sdk.skills.SpiritofBarbs, 1) && (!me.getState(sdk.states.Barbs) || force)) {
+				Skill.cast(sdk.skills.SpiritofBarbs, 0);
+			}
 
 			break;
 		}
@@ -373,18 +385,6 @@ Precast.doPrecast = function (force) {
 			if (!!useArmageddon && (!me.getState(sdk.states.Armageddon) || force)) {
 				Skill.cast(sdk.skills.Armageddon, 0);
 			}
-		}
-
-		if (Config.SummonSpirit === 1 && me.getSkill(sdk.skills.OakSage, 1) && (!me.getState(sdk.states.OakSage) || force)) {
-			Skill.cast(sdk.skills.OakSage, 0);
-		}
-
-		if (Config.SummonSpirit === 2 && me.getSkill(sdk.skills.HeartofWolverine, 1) && (!me.getState(sdk.states.HeartofWolverine) || force)) {
-			Skill.cast(sdk.skills.HeartofWolverine, 0);
-		}
-
-		if (Config.SummonSpirit === 3 && me.getSkill(sdk.skills.SpiritofBarbs, 1) && (!me.getState(sdk.states.Barbs) || force)) {
-			Skill.cast(sdk.skills.SpiritofBarbs, 0);
 		}
 
 		if (buffSummons) {
@@ -416,11 +416,11 @@ Precast.doPrecast = function (force) {
 		switch (Config.SummonShadow) {
 		case 1:
 		case "Warrior":
-			this.summon(268); // Shadow Warrior
+			this.summon(sdk.skills.ShadowWarrior, sdk.minions.Shadow);
 			break;
 		case 2:
 		case "Master":
-			this.summon(279); // Shadow Master
+			this.summon(sdk.skills.ShadowMaster, sdk.minions.Shadow);
 			break;
 		}
 
@@ -430,78 +430,43 @@ Precast.doPrecast = function (force) {
 	me.switchWeapons(Attack.getPrimarySlot());
 };
 
-Precast.summon = function (skillId) {
+Precast.summon = function (skillId, minionType) {
 	if (!me.getSkill(skillId, 1)) {
 		return false;
 	}
 
-	var minion, rv, retry = 0,
-		count = 1;
+	var rv, retry = 0, count = 1;
 
 	switch (skillId) {
-	case 32: // Valkyrie
-		minion = 2;
+	case sdk.skills.Raven:
+		count = Math.min(me.getSkill(skillId, 1), 5);
 
 		break;
-	case 75: // Clay Golem
-	case 85: // Blood Golem
-	case 94: // Fire Golem
-		minion = 3;
+	case sdk.skills.SummonSpiritWolf:
+		count = Math.min(me.getSkill(skillId, 1), 5);
 
 		break;
-	case 221: // Raven
-		minion = 10;
-		count = Math.min(me.getSkill(221, 1), 5);
-
-		break;
-	case 226: // Oak Sage
-	case 236: // Heart of Wolverine
-	case 246: // Spirit of Barbs
-		minion = 13;
-
-		break;
-	case 222: // Poison Creeper
-	case 231: // Carrion Vine
-	case 241: // Solar Creeper
-		minion = 14;
-
-		break;
-	case 227: // Spirit Wolf
-		minion = 11;
-		count = Math.min(me.getSkill(227, 1), 5);
-
-		break;
-	case 237: // Dire Wolf
-		minion = 12;
-		count = Math.min(me.getSkill(237, 1), 3);
-
-		break;
-	case 247: // Grizzly
-		minion = 15;
-
-		break;
-	case 268: // Shadow Warrior
-	case 279: // Shadow Master
-		minion = 16;
+	case sdk.skills.SummonDireWolf:
+		count = Math.min(me.getSkill(skillId, 1), 3);
 
 		break;
 	}
 
-	while (me.getMinionCount(minion) < count) {
+	while (me.getMinionCount(minionType) < count) {
 		rv = true;
 		let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	// Get a random coordinate to summon using
 		let unit = Attack.getNearestMonster(true);
 
-		if (unit && [3, 15, 16].indexOf(minion) > -1 && getDistance(me, unit) < 20) {
+		if (unit && [sdk.minions.Golem, sdk.minions.Grizzly, sdk.minions.Shadow].indexOf(minionType) > -1 && getDistance(me, unit) < 20 && !checkCollision(me, unit, 0x4)) {
 			try {
 				if (Skill.cast(skillId, 0, unit)) {
-					if (me.getMinionCount(minion) === count) {
+					if (me.getMinionCount(minionType) === count) {
 						continue;
 					} else {
 						retry++;
 					}
 				} else if (Skill.cast(skillId, 0, me.x, me.y)) {
-					if (me.getMinionCount(minion) === count) {
+					if (me.getMinionCount(minionType) === count) {
 						continue;
 					} else {
 						retry++;
@@ -515,7 +480,7 @@ Precast.summon = function (skillId) {
 		if (coord && Attack.castableSpot(coord.x, coord.y)) {
 			Skill.cast(skillId, 0, coord.x, coord.y);
 
-			if (me.getMinionCount(minion) === count) {
+			if (me.getMinionCount(minionType) === count) {
 				continue;
 			} else {
 				retry++;
@@ -523,14 +488,14 @@ Precast.summon = function (skillId) {
 		} else if (Attack.castableSpot(me.x, me.y)) {
 			Skill.cast(skillId, 0, me.x, me.y);
 
-			if (me.getMinionCount(minion) === count) {
+			if (me.getMinionCount(minionType) === count) {
 				continue;
 			} else {
 				retry++;
 			}
 		}
 
-		if (Skill.getManaCost(skillId) > me.mp) {		// May remove this
+		if (Skill.getManaCost(skillId) > me.mp) {
 			delay(1000);
 			retry++;
 		}
@@ -545,8 +510,9 @@ Precast.summon = function (skillId) {
 				Town.move("portalspot");
 				Skill.cast(skillId, 0, me.x, me.y);
 			} else {
-				coord = CollMap.getRandCoordinate(me.x, -6, 6, me.y, -6, 6);	//Keeps bots from getting stuck trying to summon
+				coord = CollMap.getRandCoordinate(me.x, -6, 6, me.y, -6, 6);	
 
+				// Keep bots from getting stuck trying to summon
 				if (coord && Attack.validSpot(coord.x, coord.y)) {
 					Pather.moveTo(coord.x, coord.y);
 					Skill.cast(skillId, 0, me.x, me.y);
