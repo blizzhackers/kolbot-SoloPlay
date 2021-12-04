@@ -153,7 +153,7 @@ function LoadConfig () {
 	Config.AutoEquip = true;
 
 	// AutoEquip setup
-	var levelingTiers = [
+	let levelingTiers = [
 		// Weapon
 		"([type] == javelin || [type] == amazonjavelin) && [quality] >= normal && [flag] != ethereal && [wsm] <= 10 && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Helmet
@@ -185,7 +185,7 @@ function LoadConfig () {
 		"me.charlvl > 14 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
-	var imbueables = [
+	let imbueables = [
 		"me.diff == 0 && [name] == maidenjavelin && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
 		"me.diff == 1 && [name] == ceremonialjavelin && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
 		"me.diff == 2 && [name] == matriarchaljavelin && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
@@ -304,7 +304,7 @@ function LoadConfig () {
 			}
 
 			if (WWS) {
-				var arrows = [
+				let arrows = [
 					"[name] == arrows # # [tier] == 100000", //max tier to avoid shield swap
 					"[type] == bowquiver # # [maxquantity] == 2",
 				];

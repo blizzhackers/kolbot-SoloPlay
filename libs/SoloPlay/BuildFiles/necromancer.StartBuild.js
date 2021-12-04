@@ -26,7 +26,7 @@ var build = {
 		[sdk.skills.Teeth, 7], 			// charlvl 11
 		[sdk.skills.GolemMastery, 1], 	// charlvl 12
 		[sdk.skills.IronMaiden, 1], 	// charlvl 13
-		[sdk.skills.CorpseExplosion, 1],// charlvl 14
+		[sdk.skills.CorpseExplosion, 1], // charlvl 14
 		[sdk.skills.BoneWall, 3], 		// charlvl 17
 		[sdk.skills.BoneSpear, 6], 		// charlvl 23
 		[sdk.skills.Decrepify, 1], 		// charlvl 24

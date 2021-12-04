@@ -8,11 +8,11 @@ if (!isIncluded("common/Pather.js")) {
 	include("common/Pather.js");
 }
 
-var Coords_1 = require("../Modules/Coords");
+require("../Modules/Coords");
 
 NodeAction.killMonsters = function (arg) {
 	// sanityCheck from isid0re - added paladin specific areas - theBGuy
-	var monList, sanityCheck = ([62, 63, 64, 74].indexOf(me.area) > -1 || (me.paladin && [8, 9, 10, 11, 12, 13, 14, 15, 16, 94, 95, 96, 97, 98, 99].indexOf(me.area) > -1)) ? true : false;
+	let monList, sanityCheck = ([62, 63, 64, 74].indexOf(me.area) > -1 || (me.paladin && [8, 9, 10, 11, 12, 13, 14, 15, 16, 94, 95, 96, 97, 98, 99].indexOf(me.area) > -1)) ? true : false;
 
 	if (Attack.stopClear) {
 		return;
@@ -124,13 +124,12 @@ Pather.canUseTeleCharges = function () {
 };
 
 Pather.teleportTo = function (x, y, maxRange) {
-	var i, tick;
+	let i, tick;
 
 	if (maxRange === undefined) {
 		maxRange = 5;
 	}
 
-MainLoop:
 	for (i = 0; i < 3; i += 1) {
 		/*let mobsAtPos = Attack.getMobCount(x, y, 6);
 
@@ -161,7 +160,7 @@ MainLoop:
 };
 
 Pather.teleportToUsingCharges = function (x, y, maxRange) {
-	var i, tick, orgSlot = me.weaponswitch;
+	let i, tick, orgSlot = me.weaponswitch;
 
 	if (maxRange === undefined) {
 		maxRange = 5;
@@ -169,7 +168,6 @@ Pather.teleportToUsingCharges = function (x, y, maxRange) {
 
 	print("Got here, haveTeleCharges = " + this.haveTeleCharges);
 
-MainLoop:
 	for (i = 0; i < 3; i += 1) {
 		me.castChargedSkill(sdk.skills.Teleport, x, y);
 
@@ -234,13 +232,14 @@ Pather.checkWP = function (area) {
 	return getWaypoint(Pather.wpAreas.indexOf(area));
 };
 
-Pather.openDoors = function (x, y) { //fixed monsterdoors/walls in act 5
+// fixed monsterdoors/walls in act 5
+Pather.openDoors = function (x, y) {
 	if (me.inTown) {
 		return false;
 	}
 
 	// Regular doors
-	var i, tick,
+	let i, tick,
 		door = getUnit(2, "door", 0);
 
 	if (door) {
@@ -269,7 +268,7 @@ Pather.openDoors = function (x, y) { //fixed monsterdoors/walls in act 5
 	}
 
 	// Monsta doors (Barricaded)
-	var p,
+	let p,
 		monstadoor = getUnit(1, "Barricaded Door"), //barricaded door
 		monstawall = getUnit(1, "Barricade"); //barricaded wall
 
@@ -386,14 +385,14 @@ Pather.walkTo = function (x, y, minDist) {
 		minDist = me.inTown ? 2 : 4;
 	}
 
-	var i, angle, angles, nTimer, whereToClick, tick, _a,
+	let i, angle, angles, nTimer, whereToClick, tick, _a,
 		nFail = 0,
 		attemptCount = 0;
 
 	// credit @Jaenster
 	// Stamina handler and Charge
 	if (!me.inTown && !me.dead) {
-		let stam = me.getItem(sdk.items.StaminaPotion);
+		//let stam = me.getItem(sdk.items.StaminaPotion);
 
 		/*if (!stam && (me.stamina / me.staminamax * 100 <= 85 || me.runwalk === 0)) {
         	// Look on the ground around me to see if there is a stamina potion
@@ -403,31 +402,30 @@ Pather.walkTo = function (x, y, minDist) {
 				stam = false;
 			}
 		}*/
-        if (me.stamina / me.staminamax * 100 <= 20) {
-        	// Check if I have a stamina potion and use it if I do
-            (_a = me.getItemsEx()
-                .filter(function (i) { return i.classid === sdk.items.StaminaPotion &&
-                i.isInInventory; })
-                .first()) === null || _a === void 0 ? void 0 : _a.interact();
-        }
-        if (me.runwalk === 1 && me.stamina / me.staminamax * 100 <= 15) {
-            me.runwalk = 0;
-        }
-        // the less stamina you have, the more you wait to recover
-        var recover = me.staminaMaxDuration < 30 ? 80 : 50;
-        if (me.runwalk === 0 && me.stamina / me.staminamax * 100 >= recover) {
-            me.runwalk = 1;
-        }
-        if (Config.Charge && me.paladin && me.mp >= 9 && getDistance(me.x, me.y, x, y) > 8 && Skill.setSkill(sdk.skills.Charge, 1)) {
-            if (Config.Vigor) {
-                Skill.setSkill(sdk.skills.Vigor, 0);
-            }
-            Misc.click(0, 1, x, y);
-            while (me.mode !== 1 && me.mode !== 5 && !me.dead) {
-                delay(40);
-            }
-        }
-    }
+		// Check if I have a stamina potion and use it if I do
+		if (me.stamina / me.staminamax * 100 <= 20) {
+			(_a = me.getItemsEx()
+				.filter(function (i) { return i.classid === sdk.items.StaminaPotion && i.isInInventory; })
+				.first()) === null || _a === void 0 ? void 0 : _a.interact();
+		}
+		if (me.runwalk === 1 && me.stamina / me.staminamax * 100 <= 15) {
+			me.runwalk = 0;
+		}
+		// the less stamina you have, the more you wait to recover
+		let recover = me.staminaMaxDuration < 30 ? 80 : 50;
+		if (me.runwalk === 0 && me.stamina / me.staminamax * 100 >= recover) {
+			me.runwalk = 1;
+		}
+		if (Config.Charge && me.paladin && me.mp >= 9 && getDistance(me.x, me.y, x, y) > 8 && Skill.setSkill(sdk.skills.Charge, 1)) {
+			if (Config.Vigor) {
+				Skill.setSkill(sdk.skills.Vigor, 0);
+			}
+			Misc.click(0, 1, x, y);
+			while (me.mode !== 1 && me.mode !== 5 && !me.dead) {
+				delay(40);
+			}
+		}
+	}
 
 	if (me.inTown && me.runwalk === 0) {
 		me.runwalk = 1;
@@ -447,7 +445,7 @@ Pather.walkTo = function (x, y, minDist) {
 		attemptCount += 1;
 		nTimer = getTickCount();
 
-ModeLoop:
+		ModeLoop:
 		while (me.mode !== 2 && me.mode !== 3 && me.mode !== 6) {
 			if (me.dead) {
 				return false;
@@ -507,7 +505,7 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 		return false;
 	}
 
-	var i, path, adjustedNode, cleared, useTeleport, useChargedTele,
+	let i, path, adjustedNode, cleared, useTeleport, useChargedTele,
 		node = {x: x, y: y},
 		fail = 0;
 
@@ -667,7 +665,7 @@ Pather.makePortal = function (use) {
 		return true;
 	}
 
-	var i, portal, oldPortal, oldGid, tick, tpTome, tpScroll;
+	let i, portal, oldPortal, oldGid, tick, tpTome, tpScroll;
 
 	for (i = 0; i < 5; i += 1) {
 		if (me.dead) {
@@ -736,7 +734,7 @@ Pather.makePortal = function (use) {
 };
 
 Pather.moveToUnit = function (unit, offX, offY, clearPath, pop) {
-	var useTeleport = this.useTeleport();
+	let useTeleport = this.useTeleport();
 
 	if (offX === undefined) {
 		offX = 0;
@@ -770,7 +768,7 @@ Pather.moveToUnit = function (unit, offX, offY, clearPath, pop) {
 };
 
 Pather.useUnit = function (type, id, targetArea) {
-	var i, coord, tick, unit, preArea = me.area;
+	let i, coord, tick, unit, preArea = me.area;
 
 	for (i = 0; i < 5; i += 1) {
 		unit = getUnit(type, id);
@@ -853,7 +851,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 		break;
 	}
 
-	var i, tick, wp, coord, retry, npc;
+	let i, tick, wp, coord, retry, npc;
 
 	for (i = 0; i < 12; i += 1) {
 		if (me.area === targetArea || me.dead) {
@@ -953,7 +951,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 
 				if (!getUIFlag(0x14)) {
 					print("waypoint retry " + (i + 1));
-					retry = Math.min(i + 1, 5)
+					retry = Math.min(i + 1, 5);
 					coord = CollMap.getRandCoordinate(me.x, -5 * retry, 5 * retry, me.y, -5 * retry, 5 * retry);
 					this.moveTo(coord.x, coord.y);
 					delay(200 + me.ping);
@@ -1016,7 +1014,7 @@ Pather.usePortal = function (targetArea, owner, unit) {
 
 	me.cancel();
 
-	var i, tick, portal, useTK,
+	let i, tick, portal, useTK,
 		preArea = me.area;
 
 	for (i = 0; i < 10; i += 1) {
@@ -1111,7 +1109,7 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype) {
 	delay(250 + me.ping);
 	print("Clearing to: " + Pather.getAreaName(targetarea));
 
-	while (me.area == currentarea) {
+	while (me.area === currentarea) {
 		try {
 			Pather.moveToExit(targetarea, true, cleartype);
 		} catch (e) {
@@ -1149,7 +1147,7 @@ Pather.moveToPreset = function (area, unitType, unitId, offX, offY, clearPath, p
 		pop = false;
 	}
 
-	var presetUnit = getPresetUnit(area, unitType, unitId);
+	let presetUnit = getPresetUnit(area, unitType, unitId);
 
 	if (!presetUnit) {
 		throw new Error("moveToPreset: Couldn't find preset unit - id: " + unitId + " unitType: " + unitType + " in area: " + area);

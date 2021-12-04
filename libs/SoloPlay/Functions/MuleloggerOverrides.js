@@ -17,7 +17,7 @@ if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) {
 }
 
 MuleLogger.getItemDesc = function (unit, logIlvl) {
-	var i, desc, index,
+	let i, desc, index,
 		stringColor = "";
 
 	if (logIlvl === undefined) {
@@ -88,7 +88,7 @@ MuleLogger.logItem = function (unit, logIlvl, type) {
 		type = "Player";
 	}
 
-	var i, code, desc, sock,
+	let i, code, desc, sock,
 		header = "",
 		color = -1,
 		name = unit.itemType + "_" + unit.fname.split("\n").reverse().join(" ").replace(/(y|ÿ)c[0-9!"+<:;.*]|\/|\\/g, "").trim();
@@ -283,7 +283,7 @@ MuleLogger.logEquippedItems = function () {
 		delay(100);
 	}
 
-	var i, folder, string, parsedItem,
+	let i, folder, string, parsedItem,
 		items = me.getItems(),
 		realm = me.realm || "Single Player",
 		merc, charClass,

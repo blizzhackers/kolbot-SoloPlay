@@ -157,7 +157,7 @@ function LoadConfig () {
 	Config.AutoEquip = true;
 
 	// AutoEquip setup
-	var levelingTiers = [
+	let levelingTiers = [
 		// Weapon
 		"([type] == wand || [type] == sword || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"[type] == wand && [quality] >= normal && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 && [sockets] != 2 # [tier] == tierscore(item)",
@@ -191,13 +191,13 @@ function LoadConfig () {
 		"me.charlvl > 14 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
-	var imbueableClassItems = [
+	let imbueableClassItems = [
 		"me.diff == 0 && [name] == demonhead && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
 		"me.diff == 1 && [name] == hierophanttrophy && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
 		"me.diff == 2 && [name] == bloodlordskull && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
 	];
 
-	var imbueableBelts = [
+	let imbueableBelts = [
 		"me.diff == 0 && [name] == platedbelt && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
 		"me.diff == 1 && [name] == warbelt && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
 		"me.diff == 2 && [name] == mithrilcoil && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
@@ -263,7 +263,7 @@ function LoadConfig () {
 	Config.DodgeRange = Check.haveItem("armor", "runeword", "Enigma") ? 10 : 5;
 	Config.DodgeHP = 90; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
 
-	/* Curses. */ 
+	/* Curses. */
 	Config.Curse[0] = -1; // Boss curse.
 	Config.Curse[1] = -1; // Other monsters curse.
 

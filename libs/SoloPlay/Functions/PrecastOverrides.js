@@ -20,7 +20,7 @@ Precast.precastCTA = function (force) {
 	}
 
 	if (this.checkCTA()) {
-		var slot = me.weaponswitch;
+		let slot = me.weaponswitch;
 
 		me.switchWeapons(this.haveCTA);
 		Skill.cast(155, 0); // Battle Command
@@ -43,7 +43,7 @@ Precast.getBetterSlot = function (skillId) {
 		return this.bestSlot[skillId];
 	}
 
-	var item, classid, skillTab,
+	let item, classid, skillTab,
 		sumCurr = 0,
 		sumSwap = 0;
 
@@ -132,7 +132,7 @@ Precast.getBetterSlot = function (skillId) {
 };
 
 Precast.precastSkill = function (skillId) {
-	var swap = me.weaponswitch;
+	let swap = me.weaponswitch;
 
 	if (!Skill.wereFormCheck(skillId)) {
 		return false;
@@ -146,7 +146,7 @@ Precast.precastSkill = function (skillId) {
 };
 
 Precast.doPrecast = function (force) {
-	var buffSummons = false;
+	let buffSummons = false;
 
 	if (!Precast.enabled) {
 		return;
@@ -178,12 +178,12 @@ Precast.doPrecast = function (force) {
 		}
 
 		// use which ever skill is the highest
-		var bestArmorSkill = function () {
+		let bestArmorSkill = function () {
 			let coldArmor = [
-					{skillId: sdk.skills.ShiverArmor, level: me.getSkill(sdk.skills.ShiverArmor, 1)},
-					{skillId: sdk.skills.ChillingArmor, level: me.getSkill(sdk.skills.ChillingArmor, 1)},
-					{skillId: sdk.skills.FrozenArmor, level: me.getSkill(sdk.skills.FrozenArmor, 1)},
-				].filter(skill => skill.level > 0).sort((a, b) => b.level - a.level).first();
+				{skillId: sdk.skills.ShiverArmor, level: me.getSkill(sdk.skills.ShiverArmor, 1)},
+				{skillId: sdk.skills.ChillingArmor, level: me.getSkill(sdk.skills.ChillingArmor, 1)},
+				{skillId: sdk.skills.FrozenArmor, level: me.getSkill(sdk.skills.FrozenArmor, 1)},
+			].filter(skill => skill.level > 0).sort((a, b) => b.level - a.level).first();
 			return coldArmor !== undefined ? coldArmor.skillId : false;
 		};
 
@@ -249,7 +249,7 @@ Precast.doPrecast = function (force) {
 		if ((!me.getState(sdk.states.Shout) && me.getSkill(sdk.skills.Shout, 0)) ||
 			(!me.getState(sdk.states.BattleOrders) && me.getSkill(sdk.skills.BattleOrders, 0)) ||
 			(!me.getState(sdk.states.BattleCommand) && me.getSkill(sdk.skills.BattleCommand, 0)) || force) {
-			var swap = 0;
+			let swap = 0;
 
 			if (me.charlvl >= 24 && me.getSkill(sdk.skills.BattleOrders, 0)) {
 				swap = me.weaponswitch;
@@ -263,7 +263,7 @@ Precast.doPrecast = function (force) {
 					if (Skill.getManaCost(sdk.skills.BattleCommand) < me.mp) {
 						delay(me.ping + 30);
 						Skill.cast(sdk.skills.BattleCommand, 0); // Cast twice. It works on itself
-					}	
+					}
 				}
 			}
 
@@ -435,7 +435,7 @@ Precast.summon = function (skillId, minionType) {
 		return false;
 	}
 
-	var rv, retry = 0, count = 1;
+	let rv, retry = 0, count = 1;
 
 	switch (skillId) {
 	case sdk.skills.Raven:
@@ -510,7 +510,7 @@ Precast.summon = function (skillId, minionType) {
 				Town.move("portalspot");
 				Skill.cast(skillId, 0, me.x, me.y);
 			} else {
-				coord = CollMap.getRandCoordinate(me.x, -6, 6, me.y, -6, 6);	
+				coord = CollMap.getRandCoordinate(me.x, -6, 6, me.y, -6, 6);
 
 				// Keep bots from getting stuck trying to summon
 				if (coord && Attack.validSpot(coord.x, coord.y)) {

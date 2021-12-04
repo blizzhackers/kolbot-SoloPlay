@@ -115,6 +115,7 @@ function LoadConfig () {
 	Config.FieldID = false;
 	//	Config.PickitFiles.push("kolton.nip");
 	//	Config.PickitFiles.push("LLD.nip");
+	//Config.PickitFiles.push("test.nip");
 
 
 	/* Gambling configuration. */
@@ -156,7 +157,7 @@ function LoadConfig () {
 	Config.AutoEquip = true;
 
 	// AutoEquip setup
-	var levelingTiers = [
+	let levelingTiers = [
 		// Weapon
 		"me.charlvl > 1 && ([type] == orb || [type] == wand || [type] == sword || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Helmet
@@ -192,13 +193,13 @@ function LoadConfig () {
 		"me.charlvl > 14 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
-	var imbueableClassItems = [
+	let imbueableClassItems = [
 		"me.diff == 0 && [name] == jared'sstone && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1",
 		"me.diff == 1 && [name] == swirlingcrystal && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1",
 		"me.diff == 2 && [name] == dimensionalshard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1",
 	];
 
-	var imbueableBelts = [
+	let imbueableBelts = [
 		"me.diff == 0 && [name] == platedbelt && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
 		"me.diff == 1 && [name] == warbelt && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
 		"me.diff == 2 && [name] == mithrilcoil && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
@@ -276,6 +277,7 @@ function LoadConfig () {
 		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
+		Config.StaticList.push(sdk.monsters.DiabloClone);
 
 		/* Crafting */
 		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {

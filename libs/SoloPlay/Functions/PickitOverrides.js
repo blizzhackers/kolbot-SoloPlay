@@ -24,9 +24,9 @@ if (!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js")) {
 Pickit.enabled = true;
 
 Pickit.checkItem = function (unit) {
-	var rval = NTIP.CheckItem(unit, false, true);
+	let rval = NTIP.CheckItem(unit, false, true);
 
-	var durability = unit.getStat(72);
+	let durability = unit.getStat(72);
 
 	if (unit.getStat(73) > 0 && typeof durability === "number" && durability * 100 / unit.getStat(73) <= 0) {
 		return {
@@ -78,7 +78,7 @@ Pickit.checkItem = function (unit) {
 			};
 		}
 
-		return NTIP.CheckItem(unit, NTIP_CheckListNoTier, true);	
+		return NTIP.CheckItem(unit, NTIP_CheckListNoTier, true);
 	}
 
 	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) && unit.getFlag(0x10)) {
@@ -148,7 +148,7 @@ Pickit.checkItem = function (unit) {
 };
 
 Pickit.pickItems = function () {
-	var status, item, canFit,
+	let status, item, canFit,
 		needMule = false,
 		pickList = [];
 
@@ -254,7 +254,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		this.picked = false;
 	}
 
-	var i, item, tick, gid, stats, retry = false,
+	let i, item, tick, gid, stats, retry = false,
 		cancelFlags = [0x01, 0x08, 0x14, 0x0c, 0x19, 0x1a],
 		itemCount = me.itemcount;
 
@@ -282,7 +282,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 
 	stats = new ItemStats(item);
 
-MainLoop:
+	MainLoop:
 	for (i = 0; i < 3; i += 1) {
 		if (!getUnit(4, -1, -1, gid)) {
 			break MainLoop;

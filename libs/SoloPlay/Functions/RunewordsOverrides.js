@@ -92,11 +92,11 @@ var Runeword = {
 	Rain: [618, 632, 615], // Ort + Mal + Ith
 	Treachery: [622, 619, 629], // Shael + Thul + Lem
 
-	Test: [624, 624, 624]
+	Test: [624, 624, 624],
 };
 
 Runewords.getBase = function (runeword, base, ethFlag, reroll) {
-	var item;
+	let item;
 
 	if (typeof base === "object") {
 		item = base;
@@ -111,7 +111,7 @@ Runewords.getBase = function (runeword, base, ethFlag, reroll) {
 					better check than getFlag(0x4000000) because randomly socketed items return false for it
 				*/
 
-				if ((!reroll && !item.getItem() && Town.betterBaseThanWearing(item, Developer.Debugging.junkCheckVerbose)) || 
+				if ((!reroll && !item.getItem() && Town.betterBaseThanWearing(item, Developer.Debugging.junkCheckVerbose)) ||
 					(reroll && item.getItem() && !NTIP.CheckItem(item, this.pickitEntries) && !Item.autoEquipKeepCheckMerc(item) && !Item.autoEquipKeepCheck(item))) {
 					if (!ethFlag || (ethFlag === 1 && item.getFlag(0x400000)) || (ethFlag === 2 && !item.getFlag(0x400000))) {
 						return copyUnit(item);

@@ -92,11 +92,9 @@ var Recipe = {
 };
 
 Cubing.buildRecipes = function () {
-	var i;
-
 	this.recipes = [];
 
-	for (i = 0; i < Config.Recipes.length; i += 1) {
+	for (let i = 0; i < Config.Recipes.length; i += 1) {
 		if (typeof Config.Recipes[i] !== "object" || (Config.Recipes[i].length > 2 && typeof Config.Recipes[i][2] !== "number") || Config.Recipes[i].length < 1) {
 			throw new Error("Cubing.buildRecipes: Invalid recipe format.");
 		}
@@ -482,7 +480,7 @@ Cubing.buildRecipes = function () {
 };
 
 Cubing.buildLists = function () {
-	var i, j, k, items;
+	let i, j, k, items;
 
 	CraftingSystem.checkSubrecipes();
 
@@ -491,12 +489,11 @@ Cubing.buildLists = function () {
 	items = me.findItems(-1, 0);
 	items.sort((a, b) => b.ilvl - a.ilvl);
 
-MainLoop:
 	for (i = 0; i < this.recipes.length; i += 1) {
 		// Set default Enabled property - true if recipe is always enabled, false otherwise
 		this.recipes[i].Enabled = this.recipes[i].hasOwnProperty("AlwaysEnabled");
 
-IngredientLoop:
+		IngredientLoop:
 		for (j = 0; j < this.recipes[i].Ingredients.length; j += 1) {
 			for (k = 0; k < items.length; k += 1) {
 				if (((this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(items[k].classid) > -1) ||
@@ -578,7 +575,7 @@ IngredientLoop:
 
 // Added try again to emptying cube if it fails it will clear inventory then organize it
 Cubing.emptyCube = function () {
-	var cube = me.getItem(sdk.items.quest.Cube),
+	let cube = me.getItem(sdk.items.quest.Cube),
 		items = me.findItems(-1, -1, 6);
 
 	if (!cube) {
@@ -749,20 +746,20 @@ Cubing.validItem = function (unit, recipe) {
 		if (unit.quality === 4 && NTIP.CheckItem(unit) === 0) {
 			switch (unit.itemType) {
 			case sdk.itemtype.SmallCharm:
-				if (unit.ilvl >= recipe.Level["cm1"].ilvl) {
+				if (unit.ilvl >= recipe.Level.cm1.ilvl) {
 					return true;
 				}
 				break;
 			case sdk.itemtype.MediumCharm:
-				if (unit.ilvl >= recipe.Level["cm2"].ilvl) {
+				if (unit.ilvl >= recipe.Level.cm2.ilvl) {
 					return true;
 				}
 				break;
 			case sdk.itemtype.LargeCharm:
-				if (unit.ilvl >= recipe.Level["cm2"].ilvl) {
+				if (unit.ilvl >= recipe.Level.cm2.ilvl) {
 					return true;
 				}
-				break;	
+				break;
 			}
 		}
 
@@ -815,7 +812,7 @@ Cubing.doCubing = function () {
 		return false;
 	}
 
-	var i, j, items, string, result, tempArray;
+	let i, j, items, string, result, tempArray;
 
 	this.update();
 	// Randomize the recipe array to prevent recipe blocking (multiple caster items etc.)

@@ -185,7 +185,7 @@ Town.doChores = function (repair = false) {
 };
 
 Town.repair = function (force = false) {
-	var i, quiver, myQuiver, npc, repairAction, bowCheck;
+	let i, quiver, myQuiver, npc, repairAction, bowCheck;
 
 	this.cubeRepair();
 
@@ -254,7 +254,7 @@ Town.repair = function (force = false) {
 };
 
 Town.identify = function () {
-	var i, item, tome, scroll, npc, list, timer, tpTome, result,
+	let i, item, tome, scroll, npc, list, timer, tpTome, result,
 		tpTomePos = {};
 
 	this.cainID();
@@ -414,7 +414,7 @@ Town.buyBook = function () {
 		return true;
 	}
 
-	var tpBook, tpScroll, idBook, npc;
+	let tpBook, tpScroll, npc;
 
 	switch (me.area) {
 	case 1:
@@ -487,7 +487,7 @@ Town.buyPotions = function () {
 		return false;
 	}
 
-	var i, j, npc, useShift, col, beltSize, pot,
+	let i, j, npc, useShift, col, beltSize, pot,
 		needPots = false,
 		needBuffer = true,
 		buffer = {
@@ -609,7 +609,7 @@ Town.shopItems = function () {
 		return true;
 	}
 
-	var i, item, result,
+	let i, item, result,
 		items = [],
 		npc = getInteractedNPC(),
 		goldLimit = [10000, 20000, 30000][me.diff];
@@ -739,7 +739,7 @@ Town.gamble = function () {
 		return true;
 	}
 
-	var i, item, items, npc, newItem, result,
+	let i, item, items, npc, newItem, result,
 		list = [];
 
 	if (this.gambleIds.length === 0) {
@@ -997,7 +997,7 @@ Town.unfinishedQuests = function () {
 	if (me.getItem(646)) {
 		let sor = me.getItem(646);
 
-		if (sor.location === 7) { 
+		if (sor.location === 7) {
 			this.openStash();
 			delay(300 + me.ping);
 		}
@@ -1199,7 +1199,7 @@ Town.giveMercPots = function () {
 				try {
 					if (chugs.toCursor()) {
 						//clickItem(4, 0);
-						(new PacketBuilder).byte(0x61).word(0).send()
+						(new PacketBuilder).byte(0x61).word(0).send();
 					}
 					//sendPacket(1, 0x26, 4, chugs.gid);
 				} catch (e) {
@@ -1235,9 +1235,9 @@ Town.giveMercPots = function () {
 };
 
 Town.canStash = function (item) {
-	var ignoredClassids = [91, 174]; // Some quest items that have to be in inventory or equipped
+	let ignoredClassids = [91, 174]; // Some quest items that have to be in inventory or equipped
 
-	if (this.ignoredItemTypes.indexOf(item.itemType) > -1 || ignoredClassids.indexOf(item.classid) > -1 || 
+	if (this.ignoredItemTypes.indexOf(item.itemType) > -1 || ignoredClassids.indexOf(item.classid) > -1 ||
 		([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(item.itemType) > -1 && Item.autoEquipCharmCheck(item))) {
 		return false;
 	}
@@ -1254,7 +1254,7 @@ Town.canStash = function (item) {
 };
 
 Town.openStash = function () {
-	var i, tick, stash, telekinesis;
+	let i, tick, stash, telekinesis;
 
 	if (getUIFlag(0x1a) && !Cubing.closeCube()) {
 		return false;
@@ -1311,7 +1311,7 @@ Town.stash = function (stashGold) {
 
 	me.cancel();
 
-	var i, result, items = Storage.Inventory.Compare(Config.Inventory);
+	let i, result, items = Storage.Inventory.Compare(Config.Inventory);
 
 	if (items) {
 		for (i = 0; i < items.length; i += 1) {
@@ -1360,7 +1360,7 @@ Town.sortStash = function (force) {
 };
 
 Town.clearInventory = function () {
-	var i, col, result, item, beltSize,
+	let i, col, result, item, beltSize,
 		items = [];
 
 	// Return potions to belt
@@ -1451,7 +1451,7 @@ Town.clearInventory = function () {
 			result = Pickit.checkItem(items[i]).result;
 
 			if ([0, 4].indexOf(result) === -1) {
-				if ((items[i].isBaseType && items[i].getStat(194) > 0) || 
+				if ((items[i].isBaseType && items[i].getStat(194) > 0) ||
 					([25, 69, 70, 71, 72].indexOf(items[i].itemType) > -1 && items[i].quality === 2 && items[i].getStat(194) === 0)) {
 					if (this.worseBaseThanStashed(items[i]) && !this.betterBaseThanWearing(items[i], Developer.Debugging.junkCheckVerbose)) {
 						result = 4;
@@ -1504,7 +1504,6 @@ Town.clearInventory = function () {
 Town.betterBaseThanWearing = function (base, verbose) {
 	let equippedItem = {}, bodyLoc = [], check;
 	let itemsResists, baseResists, itemsMinDmg, itemsMaxDmg, itemsTotalDmg, baseDmg, ED, itemsDefense, baseDefense;
-	let allSkills, classSkills, tabSkills, specificSkills = [], wantedSkills = [];
 	let baseSkillsTier, equippedSkillsTier;
 	let result = true, preSocketCheck = false;
 
@@ -1532,7 +1531,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 		}
 
 		return skillsRating;
-	};
+	}
 
 	if (base === undefined || !base) {
 		return false;
@@ -1572,7 +1571,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 						minDmg: item.getStatEx(21),
 						maxDmg: item.getStatEx(22),
 						eDmg: item.getStatEx(18),
-						runeword: item.getFlag(NTIPAliasFlag["runeword"]),
+						runeword: item.isRuneword,
 					};
 					check = item;
 					break;
@@ -1585,16 +1584,16 @@ Town.betterBaseThanWearing = function (base, verbose) {
 		}
 
 		switch (equippedItem.prefixnum) {
-			case 20507: 	//Ancient's Pledge
-			case 20543: 	//Exile
-			case 20581: 	//Lore
-			case 20635: 	//Spirit
-			case 20667: 	//White
-			case 20625: 	//Rhyme
-				preSocketCheck = true;
-				break;
-			default:
-				break;
+		case 20507: 	//Ancient's Pledge
+		case 20543: 	//Exile
+		case 20581: 	//Lore
+		case 20635: 	//Spirit
+		case 20667: 	//White
+		case 20625: 	//Rhyme
+			preSocketCheck = true;
+			break;
+		default:
+			break;
 		}
 
 		if (base.getStat(194) <= 0 && !preSocketCheck) {
@@ -1633,7 +1632,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 
 							break;
 						}
-					}				
+					}
 				}
 				
 				break;
@@ -2028,7 +2027,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 			default:
 				return true;	// Runeword base isn't in the list, keep the base
 			}
-		}	
+		}
 	}
 		
 	return result;
@@ -2039,7 +2038,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 		return false;
 	}
 
-	if (base.quality > 4 || base.getFlag(NTIPAliasFlag["runeword"])) {
+	if (base.quality > 4 || base.isRuneword) {
 		return false;
 	}
 
@@ -2075,12 +2074,12 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 		}
 
 		return generalScore;
-	};
+	}
 
 	let itemsToCheck, result = false;
 
 	switch (base.itemType) {
-	case 2:  // Shield
+	case 2: // Shield
 	case 69: // Voodoo heads
 	case 70: // Auric Shields
 		if (me.paladin) {
@@ -2144,7 +2143,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 			itemsToCheck = me.getItems()
 				.filter(item =>
 					item.itemType === 2// same item type as current
-					&& !item.getFlag(NTIPAliasFlag["ethereal"]) // only noneth runeword bases
+					&& !item.ethereal // only noneth runeword bases
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
@@ -2161,8 +2160,8 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 
 			if (base.getStat(194) > 0) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					!base.getFlag(NTIPAliasFlag["ethereal"]) &&
-					(base.getStatEx(31) < itemsToCheck.getStatEx(31) || 
+					!base.ethereal &&
+					(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
 						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
 					if (Developer.Debugging.junkCheckVerbose) {
 						print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(31) + " itemToCheckDefense: " + itemsToCheck.getStatEx(31));
@@ -2178,7 +2177,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 		itemsToCheck = me.getItems()
 			.filter(item =>
 				item.itemType === 3// same item type as current
-				&& !item.getFlag(NTIPAliasFlag["ethereal"]) // only noneth runeword bases
+				&& !item.ethereal // only noneth runeword bases
 				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
 				&& [3, 7].indexOf(item.location) > -1 // locations
 			)
@@ -2195,8 +2194,8 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 
 		if (base.getStat(194) > 0) {
 			if (([3, 6, 7].indexOf(base.location) > -1) &&
-				!base.getFlag(NTIPAliasFlag["ethereal"]) &&
-				(base.getStatEx(31) < itemsToCheck.getStatEx(31) || 
+				!base.ethereal &&
+				(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
 						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
 				if (Developer.Debugging.junkCheckVerbose) {
 					print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(31) + " itemToCheckDefense: " + itemsToCheck.getStatEx(31));
@@ -2244,7 +2243,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 			itemsToCheck = me.getItems()
 				.filter(item =>
 					[37, 75].indexOf(item.itemType) > -1// same item type as current
-					&& !item.getFlag(NTIPAliasFlag["ethereal"]) // only noneth runeword bases
+					&& !item.ethereal // only noneth runeword bases
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
@@ -2261,8 +2260,8 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 
 			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					!base.getFlag(NTIPAliasFlag["ethereal"]) &&
-					(base.getStatEx(31) < itemsToCheck.getStatEx(31) || 
+					!base.ethereal &&
+					(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
 						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
 					if (Developer.Debugging.junkCheckVerbose) {
 						print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStat(31) + " itemToCheckDefense: " + itemsToCheck.getStat(31));
@@ -2295,7 +2294,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 
 			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck) || 
+					(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
 					if (Developer.Debugging.junkCheckVerbose) {
 						print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
@@ -2352,7 +2351,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 
 		if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
 			if (([3, 4, 7].indexOf(base.location) > -1) &&
-				(generalScore(base) < generalScore(itemsToCheck) || 
+				(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && (Item.getQuantityOwned(base) > 2 || base.getStatEx(18) < itemsToCheck.getStatEx(18))))) {
 				if (Developer.Debugging.junkCheckVerbose) {
 					print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
@@ -2752,7 +2751,7 @@ Town.reviveMerc = function () {
 		this.goToTown(2);
 	}
 
-	var i, tick, dialog, lines,
+	let i, tick, dialog, lines,
 		preArea = me.area,
 		npc = this.initNPC("Merc", "reviveMerc");
 
@@ -2791,7 +2790,7 @@ Town.reviveMerc = function () {
 
 	if (!!Merc.getMercFix()) {
 		// Cast BO on merc so he doesn't just die again. Only do this is you are a barb or actually have a cta. Otherwise its just a waste of time.
-		if (Config.MercWatch && ((me.barbarian && (me.getSkill(138,1) || me.getSkill(149, 1))) || Precast.checkCTA())) {
+		if (Config.MercWatch && ((me.barbarian && (me.getSkill(138, 1) || me.getSkill(149, 1))) || Precast.checkCTA())) {
 			print("MercWatch precast");
 			Pather.useWaypoint("random");
 			Precast.doPrecast(true);
@@ -2817,7 +2816,7 @@ Town.visitTown = function (repair = false) {
 		return false;
 	}
 
-	var preArea = me.area,
+	let preArea = me.area,
 		preAct = me.act;
 
 	try { // not an essential function -> handle thrown errors
@@ -2846,7 +2845,7 @@ Town.visitTown = function (repair = false) {
 };
 
 Town.needRepair = function () {
-	var quiver, bowCheck, quantity, inventoryQuiver,
+	let quiver, bowCheck, quantity, inventoryQuiver,
 		repairAction = [],
 		canAfford = me.gold >= me.getRepairCost();
 

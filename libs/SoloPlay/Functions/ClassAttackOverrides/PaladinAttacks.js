@@ -9,7 +9,7 @@ if (!isIncluded("common/Attacks/Paladin.js")) {
 }
 
 ClassAttack.doAttack = function (unit, preattack) {
-	var index, result,
+	let index, result,
 		mercRevive = 0,
 		attackSkill = -1,
 		aura = -1,
@@ -101,7 +101,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 };
 
 ClassAttack.getHammerPosition = function (unit) {
-	var i, x, y, positions, check,
+	let i, x, y, positions, check,
 		baseId = getBaseStat("monstats", unit.classid, "baseid"),
 		size = getBaseStat("monstats2", baseId, "sizex");
 

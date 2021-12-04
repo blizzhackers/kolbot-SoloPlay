@@ -4,7 +4,7 @@
 *	@desc		Handle events for Kolbot-SoloPlay
 */
 
-var Events = {
+let Events = {
 	check: false,
 	inGame: false,
 	cloneWalked: false,
@@ -54,7 +54,7 @@ var Events = {
 
 			for (let i = 0; i < possibleChars.length; i++) {
 				if (Misc.findPlayer(possibleChars[i].toLowerCase())) {
-					if (me.area !== 1) {
+					if (me.area !== sdk.areas.RogueEncampment) {
 						Town.goToTown(1);
 					}
 
@@ -73,7 +73,7 @@ var Events = {
 					}
 
 					if (torch || anni) {
-						for (let i = 0; i < 12 || me.findItem((anni ? 603 : 604), 0, -1, 7); i++) {
+						for (let j = 0; j < 12 || me.findItem((anni ? 603 : 604), 0, -1, 7); j++) {
 							Town.move("stash");
 							me.overhead("Looking for " + (anni ? "Annihilus" : "Torch"));
 							Pickit.pickItems();
@@ -142,13 +142,13 @@ var Events = {
 		return charList;
 	},
 
-	sendToProfile: function (profile, message, mode=65) {
+	sendToProfile: function (profile, message, mode = 65) {
 		if (profile.toLowerCase() !== me.profile.toLowerCase()) {
 			sendCopyData(null, profile, mode, JSON.stringify(message));
 		}
 	},
 
-	sendToList: function (message, mode=55) {
+	sendToList: function (message, mode = 55) {
 		let profiles = this.getProfiles();
 
 		if (!profiles || profiles === undefined) {
@@ -324,10 +324,10 @@ var Events = {
 				.filter(function (missile) { return missile && diablo && diablo.gid === missile.owner; })
 				// if any
 				.some(function (missile) {
-				var xoff = Math.abs(coord.x - missile.targetx), yoff = Math.abs(coord.y - missile.targety), xdist = Math.abs(coord.x - missile.x), ydist = Math.abs(coord.y - missile.y);
-				// If missile wants to hit is and is close to us
-				return xoff < 10 && yoff < 10 && xdist < 15 && ydist < 15;
-			});
+					let xoff = Math.abs(coord.x - missile.targetx), yoff = Math.abs(coord.y - missile.targety), xdist = Math.abs(coord.x - missile.x), ydist = Math.abs(coord.y - missile.y);
+					// If missile wants to hit is and is close to us
+					return xoff < 10 && yoff < 10 && xdist < 15 && ydist < 15;
+				});
 		};
 		
 		if (diablo && shouldDodge(me)) {
@@ -419,14 +419,14 @@ var Events = {
 				}
 			}
 
-			break;	
+			break;
 		case 0xa4: //baalwave
 			if ((me.hell && me.paladin && !Attack.IsAuradin) || me.barbarian || me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")) {
 				waveMonster = ((bytes[1]) | (bytes[2] << 8));
 				wave = [62, 105, 557, 558, 571].indexOf(waveMonster);
 
 				switch (wave) {
-				case 0: 
+				case 0:
 					break;
 				case 1: 	// Achmel
 					if ((me.paladin && !Attack.IsAuradin && me.hell) || (me.barbarian && ((me.charlvl < SetUp.levelCap && !me.baal) || me.playertype))) {

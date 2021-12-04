@@ -19,14 +19,14 @@ ClassAttack.mindBlast = function (unit) {
 	}
 
 	// Duriel's Lair, Arreat Summit, Worldstone Chamber
-	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].indexOf(me.area) > -1) {		
+	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].indexOf(me.area) > -1) {
 		return;
 	}
 
 	let list = Attack.buildMonsterList();
 	let mindBlastMpCost = Skill.getManaCost(sdk.skills.MindBlast);
-	let list = list.filter(mob => !mob.isStunned && !mob.isUnderLowerRes && Attack.MainBosses.indexOf(mob.classid) === -1 && !checkCollision(me, mob, 0x4) &&
-	 	(Math.round(getDistance(me, mob)) <= 6 || (Math.round(getDistance(me, mob)) >= 20 && Math.round(getDistance(me, mob)) <= 30)));
+	list = list.filter(mob => !mob.isStunned && !mob.isUnderLowerRes && Attack.MainBosses.indexOf(mob.classid) === -1 && !checkCollision(me, mob, 0x4) &&
+		(Math.round(getDistance(me, mob)) <= 6 || (Math.round(getDistance(me, mob)) >= 20 && Math.round(getDistance(me, mob)) <= 30)));
 
 	// Cast on close mobs first
 	list.sort(function (a, b) {
@@ -44,7 +44,7 @@ ClassAttack.mindBlast = function (unit) {
 };
 
 ClassAttack.placeTraps = function (unit, amount) {
-	var i, j,
+	let i, j,
 		traps = 0;
 
 	this.lastTrapPos = {x: unit.x, y: unit.y};
@@ -59,7 +59,7 @@ ClassAttack.placeTraps = function (unit, amount) {
 				}
 
 				// Duriel, Mephisto, Diablo, Baal, other players
-				if ((unit.hasOwnProperty("classid") && [211, 242, 243, 544].indexOf(unit.classid) > -1) || (unit.hasOwnProperty("type") && unit.type === 0)) { 
+				if ((unit.hasOwnProperty("classid") && [211, 242, 243, 544].indexOf(unit.classid) > -1) || (unit.hasOwnProperty("type") && unit.type === 0)) {
 					if (traps >= Config.BossTraps.length) {
 						return true;
 					}
@@ -123,13 +123,13 @@ ClassAttack.doAttack = function (unit, preattack) {
 		Town.visitTown();
 	}
 
-	var checkTraps, checkSkill, result,
+	let checkTraps, checkSkill, result,
 		mercRevive = 0,
 		timedSkill = -1,
 		untimedSkill = -1,
 		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3,
 		gold = me.getStat(14) + me.getStat(15),
-		shouldUseCloak = (me.getSkill(sdk.skills.CloakofShadows, 1) && !unit.isUnderLowerRes && 
+		shouldUseCloak = (me.getSkill(sdk.skills.CloakofShadows, 1) && !unit.isUnderLowerRes &&
 						(Attack.MainBosses.indexOf(unit.classid) === -1 || (Attack.MainBosses.indexOf(unit.classid) > -1 && Attack.getMobCountAtPosition(unit.x, unit.y, 20) > 1)));
 
 	this.mindBlast(unit);
@@ -243,7 +243,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 };
 
 ClassAttack.farCast = function (unit) {
-	var timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
+	let timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
 
 	// No valid skills can be found
 	if (timedSkill < 0 && untimedSkill < 0) {

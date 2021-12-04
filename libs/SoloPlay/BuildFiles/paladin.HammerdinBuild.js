@@ -86,7 +86,7 @@ var finalBuild = {
 		[sdk.skills.Concentration, 20],
 		[sdk.skills.Vigor, 20],
 		[sdk.skills.BlessedAim, 20],
-		[sdk.skills.HolyShield, 20] 
+		[sdk.skills.HolyShield, 20]
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon

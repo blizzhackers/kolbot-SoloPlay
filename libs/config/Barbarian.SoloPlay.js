@@ -153,7 +153,7 @@ function LoadConfig () {
 	Config.AutoEquip = true;
 
 	// AutoEquip setup
-	var levelingTiers = [
+	let levelingTiers = [
 		// Weapon
 		"me.charlvl < 12 && [type] == sword && ([quality] >= normal || [flag] == runeword) && [flag] != ethereal && [wsm] <= 20 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"[type] == sword && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [wsm] <= 10 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
@@ -184,7 +184,7 @@ function LoadConfig () {
 		"me.charlvl > 14 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
-	var imbueables = [
+	let imbueables = [
 		"me.diff == 0 && [name] == avengerguard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
 		"me.diff == 1 && [name] == slayerguard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
 		"me.diff == 2 && [name] == carnagehelm && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
@@ -429,7 +429,7 @@ function LoadConfig () {
 			if (!me.getItem(sdk.items.runes.Ko)) {
 				Config.Recipes.push([Recipe.Rune, "Hel Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Io Rune"]);
-				Config.Recipes.push([Recipe.Rune, "Lum Rune"]);		
+				Config.Recipes.push([Recipe.Rune, "Lum Rune"]);
 			}
 
 			// Cube to Lem Rune

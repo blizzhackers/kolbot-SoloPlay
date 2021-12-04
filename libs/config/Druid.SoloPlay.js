@@ -154,7 +154,7 @@ function LoadConfig () {
 	Config.AutoEquip = true;
 
 	// AutoEquip setup
-	var levelingTiers = [
+	let levelingTiers = [
 		// Weapon
 		"([type] == wand || [type] == sword || [type] == mace || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Helmet
@@ -190,13 +190,13 @@ function LoadConfig () {
 		"me.charlvl > 14 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
-	var imbueableClassItems = [
+	let imbueableClassItems = [
 		"me.diff == 0 && [name] == spiritmask && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
 		"me.diff == 1 && [name] == totemicmask && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
 		"me.diff == 2 && [name] == dreamspirit && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
 	];
 
-	var imbueableBelts = [
+	let imbueableBelts = [
 		"me.diff == 0 && [name] == platedbelt && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
 		"me.diff == 1 && [name] == warbelt && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
 		"me.diff == 2 && [name] == mithrilcoil && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",

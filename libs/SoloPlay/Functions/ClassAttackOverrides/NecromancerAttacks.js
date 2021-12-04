@@ -34,7 +34,7 @@ ClassAttack.setArmySize = function () {
 		this.maxRevives = skillNum;
 	} else {
 		this.maxRevives = Config.Revives;
-	}		
+	}
 };
 
 // Returns: true - doesn't use summons or has all he can summon, false - not full of summons yet
@@ -201,7 +201,7 @@ ClassAttack.smartCurse = function (unit, index) {
 			curseToCast = 71;
 
 			break;
-		} 
+		}
 
 		if (useAmp && !this.getCurseState(unit, 66)) {
 			curseToCast = 66;
@@ -240,7 +240,7 @@ ClassAttack.smartCurse = function (unit, index) {
 ClassAttack.bpTick = 0;
 
 ClassAttack.doAttack = function (unit, preattack) {
-	var index, checkSkill, result,
+	let index, checkSkill, result,
 		mercRevive = 0,
 		timedSkill = -1,
 		untimedSkill = -1;
@@ -362,7 +362,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 // Returns: 0 - fail, 1 - success, 2 - no valid attack skills
 ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-	var i, walk, timedSkillRange, untimedSkillRange;
+	let i, walk, timedSkillRange, untimedSkillRange;
 
 	// No valid skills can be found
 	if (timedSkill < 0 && untimedSkill < 0) {
@@ -477,7 +477,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 };
 
 ClassAttack.farCast = function (unit) {
-	var i, walk, timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
+	let i, timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
 
 	// No valid skills can be found
 	if (timedSkill < 0 && untimedSkill < 0) {
@@ -543,7 +543,7 @@ ClassAttack.farCast = function (unit) {
 };
 
 ClassAttack.raiseArmy = function (range) {
-	var i, tick, count, corpse, corpseList, skill;
+	let i, tick, count, corpse, corpseList;
 
 	if (!range) {
 		range = 25;
@@ -564,7 +564,6 @@ ClassAttack.raiseArmy = function (range) {
 			} while (corpse.getNext());
 		}
 
-MainLoop:
 		while (corpseList.length > 0) {
 			corpse = corpseList.shift();
 
@@ -631,7 +630,7 @@ ClassAttack.explodeCorpses = function (unit) {
 		return false;
 	}
 
-	var i,
+	let i,
 		corpseList = [],
 		useAmp = me.getSkill(sdk.skills.AmplifyDamage, 1),
 		ampManaCost = Skill.getManaCost(sdk.skills.AmplifyDamage),
@@ -707,7 +706,7 @@ ClassAttack.checkCorpse = function (unit, revive) {
 		revive = false;
 	}
 
-	var baseId = getBaseStat("monstats", unit.classid, "baseid"),
+	let baseId = getBaseStat("monstats", unit.classid, "baseid"),
 		badList = [312, 571];
 
 	if (revive && ((unit.spectype & 0x7) || badList.indexOf(baseId) > -1 || (Config.ReviveUnstackable && getBaseStat("monstats2", baseId, "sizex") === 3))) {

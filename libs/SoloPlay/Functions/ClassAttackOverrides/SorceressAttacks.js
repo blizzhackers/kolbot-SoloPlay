@@ -8,8 +8,8 @@ if (!isIncluded("common/Attacks/Sorceress.js")) {
 	include("common/Attacks/Sorceress.js");
 }
 
-ClassAttack.doAttack = function (unit, preattack) {
-	var checkSkill, mark,
+ClassAttack.doAttack = function (unit, preAttack = false) {
+	let checkSkill, mark,
 		merc = Merc.getMercFix(),
 		timedSkill = -1,
 		untimedSkill = -1,
@@ -176,7 +176,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 			break;
 		default:
-			break;	
+			break;
 		}
 	}
 
@@ -250,7 +250,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 };
 
 ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-	var i, walk, tick, timedSkillRange, untimedSkillRange,
+	let i, walk, tick, timedSkillRange, untimedSkillRange,
 		manaCostTimedSkill, manaCostUntimedSkill;
 
 	// No valid skills can be found
@@ -259,7 +259,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 	}
 
 	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
-		manaCostTimedSkill = Skill.getManaCost(timedSkill)
+		manaCostTimedSkill = Skill.getManaCost(timedSkill);
 		timedSkillRange = Skill.getRange(timedSkill);
 
 		if (timedSkill === sdk.skills.ChargedBolt) {

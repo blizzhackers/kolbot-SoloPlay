@@ -32,7 +32,7 @@ case "Plaguewolf":
 				Misc.shapeShift(Config.Wereform);
 			}
 
-			break;	
+			break;
 		}
 
 		// Rebuff Armageddon
@@ -121,10 +121,10 @@ case "Plaguewolf":
 		}
 
 		return 1;
-	}
+	};
 
 	ClassAttack.afterAttack = function () {
-		if (Pather.useTeleport()){
+		if (Pather.useTeleport()) {
 			Misc.unShift();
 		}
 
@@ -138,7 +138,7 @@ default:
 	}
 
 	ClassAttack.doAttack = function (unit, preattack) {
-		var index, checkSkill, result,
+		let index, checkSkill, result,
 			mercRevive = 0,
 			timedSkill = -1,
 			untimedSkill = -1,
@@ -156,7 +156,7 @@ default:
 		}
 
 		// Rebuff Cyclone Armor
-		if (me.getSkill(sdk.skills.CycloneArmor, 1) && !me.getState(sdk.states.CycloneArmor)) { 
+		if (me.getSkill(sdk.skills.CycloneArmor, 1) && !me.getState(sdk.states.CycloneArmor)) {
 			Skill.cast(sdk.skills.CycloneArmor, 0);
 		}
 
@@ -234,7 +234,7 @@ default:
 
 				break;
 			default:
-				break;	
+				break;
 			}
 		}
 
@@ -264,7 +264,7 @@ default:
 	};
 
 	ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-		var i, walk;
+		let i, walk;
 
 		// No valid skills can be found
 		if (timedSkill < 0 && untimedSkill < 0) {
@@ -272,7 +272,7 @@ default:
 		}
 
 		// Rebuff Hurricane
-		if (me.getSkill(sdk.skills.Hurricane, 1) && !me.getState(sdk.states.Hurricane)) { 
+		if (me.getSkill(sdk.skills.Hurricane, 1) && !me.getState(sdk.states.Hurricane)) {
 			Skill.cast(sdk.skills.Hurricane, 0);
 		}
 
@@ -345,5 +345,5 @@ default:
 		return 1;
 	};
 
-	break;	
+	break;
 }

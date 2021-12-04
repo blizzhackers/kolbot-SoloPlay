@@ -11,10 +11,10 @@ if (!isIncluded("OOG.js")) {
 const sdk = require('../modules/sdk');
 
 // general settings
-var Difficulty = ['Normal', 'Nightmare', 'Hell'];
-var classes = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"];
+let Difficulty = ['Normal', 'Nightmare', 'Hell'];
+let classes = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"];
 
-var SetUp = {
+const SetUp = {
 	scripts: [
 		"corpsefire", "den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "andariel", "a1chests", "cows", // Act 1
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel", // Act 2
@@ -25,9 +25,9 @@ var SetUp = {
 
 	// mine - theBGuy
 	include: function () {
-		var folders = ["Functions"];
+		let folders = ["Functions"];
 		folders.forEach( (folder) => {
-			var files = dopen("libs/SoloPlay/" + folder + "/").getFiles();
+			let files = dopen("libs/SoloPlay/" + folder + "/").getFiles();
 			files.forEach( (file) => {
 				if (file.slice(file.length - 3) === ".js") {
 					if (!isIncluded("SoloPlay/" + folder + "/" + file)) {
@@ -185,7 +185,7 @@ var SetUp = {
 			return template.toLowerCase();
 		}
 
-		var template = getBuildTemplate();
+		let template = getBuildTemplate();
 
 		if (!include(template)) {
 			throw new Error("Failed to include template: " + template);
@@ -234,11 +234,11 @@ var SetUp = {
 		FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
 		delay(100 + me.ping);
 		D2Bot.restart();
-    },
+	},
 };
 
-// SoloLeveling Pickit Items
-var nipItems = {
+// SoloPlay Pickit Items
+const nipItems = {
 	Selling: [
 		'([type] == ring || [type] == amulet) && [quality] >= magic # [fcr] >= 600',
 		'([type] == armor || [type] == boots || [type] == gloves || [type] == belt) && [quality] >= magic # [fcr] >= 600',
@@ -303,7 +303,7 @@ var nipItems = {
 };
 
 // General Game functions
-var Check = {
+const Check = {
 	Task: function (sequenceName) {
 		let needRunes = this.Runes();
 
@@ -321,8 +321,8 @@ var Check = {
 
 			break;
 		case "bloodraven":
-			if ((!me.bloodraven && me.normal || (!me.summoner && Check.brokeAf())) || 
-				(me.normal && !me.tristram && me.barbarian) || 
+			if ((!me.bloodraven && me.normal || (!me.summoner && Check.brokeAf())) ||
+				(me.normal && !me.tristram && me.barbarian) ||
 				(me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || ((me.amazon || me.assassin) && Attack.checkInfinity()) || (me.barbarian || me.paladin || me.necromancer || me.druid)))) {
 				return true;
 			}
@@ -341,29 +341,29 @@ var Check = {
 
 			break;
 		case "tristram":
-			if ((me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf())) || 
-				(!me.normal && 
+			if ((me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf())) ||
+				(!me.normal &&
 					((!me.tristram && (me.classic && me.diablo || me.baal)) ||
-					 (me.barbarian && !Pather.accessToAct(3) && !Check.haveItem("sword", "runeword", "Lawbringer")) ||
-					 (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
+					(me.barbarian && !Pather.accessToAct(3) && !Check.haveItem("sword", "runeword", "Lawbringer")) ||
+					(me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
 				return true;
 			}
 
 			break;
 		case "countess":
 			// classic quest not completed normal || don't have runes for difficulty || barb in hell and have lawbringer
-			if ((me.classic && !me.countess) || 
+			if ((me.classic && !me.countess) ||
 				(!me.classic && (needRunes || Check.brokeAf() || (me.barbarian && me.hell && Check.haveItem("sword", "runeword", "Lawbringer"))))) {
 				return true;
 			}
 
 			break;
 		case "pits":
-			if (me.hell && 
+			if (me.hell &&
 				((me.necromancer || me.barbarian || me.assassin) ||
 					(me.paladin && ["Zealer", "Auradin"].indexOf(SetUp.currentBuild) > -1) ||
-					(me.amazon && (SetUp.currentBuild === SetUp.finalBuild || me.charlvl >= 85)) || 
-					(me.sorceress && me.charlvl >= 80) || 
+					(me.amazon && (SetUp.currentBuild === SetUp.finalBuild || me.charlvl >= 85)) ||
+					(me.sorceress && me.charlvl >= 80) ||
 					(me.druid && ["Plaguewolf", "Wolf"].indexOf(SetUp.currentBuild) > -1))) {
 				return true;
 			}
@@ -376,18 +376,18 @@ var Check = {
 
 			break;
 		case "andariel":
-			if (!me.andariel || 
-				(me.classic && me.hell) || 
-				(!me.classic && 
-					(!me.normal && (Pather.canTeleport() || me.charlvl <= 60)) || 
+			if (!me.andariel ||
+				(me.classic && me.hell) ||
+				(!me.classic &&
+					(!me.normal && (Pather.canTeleport() || me.charlvl <= 60)) ||
 					(me.hell && me.charlvl !== 100 && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))))) {
 				return true;
 			}
 
 			break;
 		case "a1chests":
-			if (!me.classic && 
-				(me.charlvl >= 70 && Pather.canTeleport() || 
+			if (!me.classic &&
+				(me.charlvl >= 70 && Pather.canTeleport() ||
 					(me.barbarian && me.hell && !Pather.accessToAct(3) && (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("sword", "runeword", "Lawbringer"))))) {
 				return true;
 			}
@@ -479,21 +479,21 @@ var Check = {
 
 			break;
 		case "travincal":
-			if (Pather.accessToAct(3) && 
+			if (Pather.accessToAct(3) &&
 					(!me.travincal ||
-						(me.charlvl < 25 || 
+						(me.charlvl < 25 ||
 						(me.charlvl >= 25 && me.normal && !me.baal && !Check.Gold()) ||
-						(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) || 
+						(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) ||
 						(me.hell && me.paladin && me.charlvl > 85 && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
 				return true;
 			}
 
 			break;
 		case "mephisto":
-			if (Pather.accessToAct(3) && 
+			if (Pather.accessToAct(3) &&
 				(!me.mephisto ||
 					(me.normal && (!me.baal || !Check.Gold())) ||
-					(!me.normal && (Pather.canTeleport() || me.charlvl <= 65)) || 
+					(!me.normal && (Pather.canTeleport() || me.charlvl <= 65)) ||
 					(me.hell && me.charlvl !== 100))) {
 				return true;
 			}
@@ -561,9 +561,9 @@ var Check = {
 
 			break;
 		case "cows":
-			if (!me.normal && !me.cows && 
-				(!me.barbarian || ["Whirlwind", "Immortalwhirl", "Singer"].indexOf(SetUp.currentBuild) > -1) && 
-				(me.classic && me.diablo || me.baal) && 
+			if (!me.normal && !me.cows &&
+				(!me.barbarian || ["Whirlwind", "Immortalwhirl", "Singer"].indexOf(SetUp.currentBuild) > -1) &&
+				(me.classic && me.diablo || me.baal) &&
 				((me.nightmare && (!me.druid || me.charlvl <= 65) || me.hell))) {
 				return true;
 			}
@@ -629,7 +629,7 @@ var Check = {
 		let gold = me.getStat(14) + me.getStat(15);
 
 		// Almost broken but not quite
-		if (((Item.getEquippedItem(4).durability <= 30 && Item.getEquippedItem(4).durability > 0) || Item.getEquippedItem(5).durability <= 30 && Item.getEquippedItem(5).durability > 0) && 
+		if (((Item.getEquippedItem(4).durability <= 30 && Item.getEquippedItem(4).durability > 0) || Item.getEquippedItem(5).durability <= 30 && Item.getEquippedItem(5).durability > 0) &&
 			!me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000) {
 			return 1;
 		}
@@ -689,7 +689,7 @@ var Check = {
 			CR: crRes,
 			LR: lrRes,
 			PR: prRes,
-		};	
+		};
 	},
 
 	nextDifficulty: function (announce = true) {
@@ -734,7 +734,7 @@ var Check = {
 
 			break;
 		case sdk.difficulty.Nightmare:
-			if ((me.getItem(sdk.items.runes.Tal) && me.getItem(sdk.items.runes.Thul) && me.getItem(sdk.items.runes.Ort) && me.getItem(sdk.items.runes.Amn) && Check.currentBuild().caster) || 
+			if ((me.getItem(sdk.items.runes.Tal) && me.getItem(sdk.items.runes.Thul) && me.getItem(sdk.items.runes.Ort) && me.getItem(sdk.items.runes.Amn) && Check.currentBuild().caster) ||
 				(!me.paladin && this.haveItem("sword", "runeword", "Spirit")) || (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit")) ||
 				(me.necromancer && this.haveItem("wand", "runeword", "White") && (this.haveItem("voodooheads", "runeword", "Rhyme") || Item.getEquippedItem(5).tier > 800)) ||
 				(me.barbarian && (Check.haveItem("sword", "runeword", "Lawbringer") || me.baal))) {
@@ -927,7 +927,7 @@ var Check = {
 
 		let baseCheck = false;
 		let items = me.getItems()
-			.filter(item => 
+			.filter(item =>
 				[2, 3].indexOf(item.quality) > -1 &&
 				[3, 7].indexOf(item.location) > -1);
 
@@ -992,7 +992,7 @@ var Check = {
 			return template.toLowerCase();
 		}
 
-		var template = getBuildTemplate();
+		let template = getBuildTemplate();
 
 		if (!include(template)) {
 			throw new Error("currentBuild(): Failed to include template: " + template);
@@ -1052,7 +1052,7 @@ var Check = {
 
 			if (["Bumper", "Socketmule"].indexOf(SetUp.finalBuild) > -1) {
 				build = ["Javazon", "Lightning", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid] + "Build";
-			} else  {
+			} else {
 				build = buildType + "Build";
 			}
 
@@ -1062,7 +1062,7 @@ var Check = {
 			return template.toLowerCase();
 		}
 
-		var template = getBuildTemplate();
+		let template = getBuildTemplate();
 
 		if (!include(template)) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed to include finalBuild template. Please check that you have actually entered it in correctly. Here is what you currently have: " + SetUp.finalBuild);
@@ -1150,7 +1150,7 @@ var Check = {
 	},
 };
 
-var SoloPlay = {
+let SoloPlay = {
 	needList: [],
 	validGids: [],
 

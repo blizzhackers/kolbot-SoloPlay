@@ -10,7 +10,7 @@ if (!isIncluded("common/Misc.js")) {
 }
 
 Item.getQuantityOwned = function (item) {
-	let owned = 0, list = [];
+	let list = [];
 
 	if (item === undefined) {
 		return 0;
@@ -18,16 +18,16 @@ Item.getQuantityOwned = function (item) {
 
 	let myItems = me.getItems()
 		.filter(check =>
-				check.itemType === item.itemType// same item type as current
+			check.itemType === item.itemType// same item type as current
 				&& check.classid === item.classid// same item classid as current
 				&& check.quality === item.quality// same item quality as current
 				&& check.getStat(194) === item.getStat(194) // sockets match junk in review
 				&& [3, 7].indexOf(check.location) > -1 // locations
-			);
+		);
 
 	for (let i = 0; i < myItems.length; i++) {
 		if (list.indexOf(myItems[i]) === -1) {
-			list.push(myItems[i]);	
+			list.push(myItems[i]);
 		}
 	}
 
@@ -35,7 +35,7 @@ Item.getQuantityOwned = function (item) {
 };
 
 Item.getBodyLoc = function (item) {
-	var bodyLoc;
+	let bodyLoc;
 
 	switch (item.itemType) {
 	case 2: // Shield
@@ -115,7 +115,7 @@ Item.getBodyLoc = function (item) {
 			bodyLoc = [4, 5];
 
 			break;
-		} 
+		}
 
 		bodyLoc = 4;
 
@@ -133,7 +133,7 @@ Item.getBodyLoc = function (item) {
 
 
 Item.getEquippedItem = function (bodyLoc) {
-	var item = me.getItem();
+	let item = me.getItem();
 
 	if (item) {
 		do {
@@ -177,7 +177,7 @@ Item.getEquippedItem = function (bodyLoc) {
 	};
 };
 
-Item.canEquip = function (item, bodyLoc) {
+Item.canEquip = function (item) {
 	if (item.type !== 4) { // Not an item
 		return false;
 	}
@@ -194,12 +194,11 @@ Item.autoEquipCheck = function (item) {
 		return true;
 	}
 
-	var i,
-		tier = NTIP.GetTier(item),
+	let tier = NTIP.GetTier(item),
 		bodyLoc = this.getBodyLoc(item);
 
 	if (tier > 0 && bodyLoc) {
-		for (i = 0; i < bodyLoc.length; i += 1) {
+		for (let i = 0; i < bodyLoc.length; i += 1) {
 			if (tier > this.getEquippedItem(bodyLoc[i]).tier && (this.canEquip(item) || !item.getFlag(0x10))) {
 				return true;
 			}
@@ -214,12 +213,11 @@ Item.autoEquipKeepCheck = function (item) {
 		return true;
 	}
 
-	var i,
-		tier = NTIP.GetTier(item),
+	let tier = NTIP.GetTier(item),
 		bodyLoc = this.getBodyLoc(item);
 
 	if (tier > 0 && bodyLoc) {
-		for (i = 0; i < bodyLoc.length; i += 1) {
+		for (let i = 0; i < bodyLoc.length; i += 1) {
 			if (tier > this.getEquippedItem(bodyLoc[i]).tier) {
 				return true;
 			}
@@ -246,7 +244,7 @@ Item.autoEquip = function () {
 		me.trueDex = me.rawDexterity;
 	}
 
-	var i, j, tier, bodyLoc, tome, gid,
+	let i, j, tier, bodyLoc, tome, gid,
 		items = me.findItems(-1, 0);
 
 	if (!items) {
@@ -340,7 +338,7 @@ Item.equip = function (item, bodyLoc) {
 		return true;
 	}
 
-	var i, cursorItem;
+	let i, cursorItem;
 
 	if (item.location === 7) {
 		if (!Town.openStash()) {
@@ -363,7 +361,7 @@ Item.equip = function (item, bodyLoc) {
 					cursorItem = getUnit(100);
 
 					if (cursorItem) {
-						if (Pickit.checkItem(cursorItem).result === 1 || 
+						if (Pickit.checkItem(cursorItem).result === 1 ||
 						(cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2) || // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
 						(cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {	// or keep if item is worth selling
 							if (Storage.Inventory.CanFit(cursorItem)) {
@@ -431,7 +429,7 @@ Item.hasSecondaryTier = function (item) {
 };
 
 Item.getBodyLocSecondary = function (item) {
-	var bodyLoc;
+	let bodyLoc;
 
 	switch (item.itemType) {
 	case 2: // Shield
@@ -505,7 +503,7 @@ Item.secondaryEquip = function (item, bodyLoc) {
 		return true;
 	}
 
-	var i, cursorItem;
+	let i, cursorItem;
 
 	if (item.location === 7) {
 		if (!Town.openStash()) {
@@ -554,11 +552,10 @@ Item.autoEquipCheckSecondary = function (item) {
 		return false;
 	}
 
-	var i,
-		tier = NTIP.GetSecondaryTier(item),
-    	bodyLoc = Item.getBodyLocSecondary(item);
+	let tier = NTIP.GetSecondaryTier(item),
+		bodyLoc = Item.getBodyLocSecondary(item);
 
-	for (i = 0; tier > 0 && i < bodyLoc.length; i += 1) {
+	for (let i = 0; tier > 0 && i < bodyLoc.length; i += 1) {
 		if (tier > Item.getEquippedItem(bodyLoc[i]).secondarytier && (Item.canEquip(item) || !item.getFlag(0x10))) {
 			return true;
 		}
@@ -575,7 +572,7 @@ Item.autoEquipSecondary = function () {
 	print("ÿc8Kolbot-SoloPlayÿc0: Entering secondary auto equip");
 	let tick = getTickCount();
 
-	var i, j, tier, bodyLoc, tome, gid,
+	let i, j, tier, bodyLoc, tome, gid,
 		items = me.findItems(-1, 0);
 
 	if (!items) {
@@ -684,7 +681,7 @@ Item.canEquipMerc = function (item, bodyLoc) {
 };
 
 Item.equipMerc = function (item, bodyLoc) {
-	var i, cursorItem, mercenary = Merc.getMercFix();
+	let i, cursorItem, mercenary = Merc.getMercFix();
 
 	if (!mercenary) { // dont have merc or he is dead
 		return false;
@@ -719,7 +716,7 @@ Item.equipMerc = function (item, bodyLoc) {
 					cursorItem = getUnit(100);
 
 					if (cursorItem) {
-						if (Pickit.checkItem(cursorItem).result === 1 || 
+						if (Pickit.checkItem(cursorItem).result === 1 ||
 						(cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2) || // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
 						(cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {	// or keep if item is worth selling
 							if (Storage.Inventory.CanFit(cursorItem)) {
@@ -841,7 +838,7 @@ Item.autoEquipCheckMerc = function (item) {
 
 	if (tier > 0 && bodyLoc) {
 		for (i = 0; i < bodyLoc.length; i += 1) {
-			var oldTier = Item.getEquippedItemMerc(bodyLoc[i]).tier; // Low tier items shouldn't be kept if they can't be equipped
+			let oldTier = Item.getEquippedItemMerc(bodyLoc[i]).tier; // Low tier items shouldn't be kept if they can't be equipped
 
 			if (tier > oldTier && (Item.canEquipMerc(item) || !item.getFlag(0x10))) {
 				return true;
@@ -865,7 +862,7 @@ Item.autoEquipKeepCheckMerc = function (item) {
 
 	if (tier > 0 && bodyLoc) {
 		for (i = 0; i < bodyLoc.length; i += 1) {
-			var oldTier = Item.getEquippedItemMerc(bodyLoc[i]).tier; // Low tier items shouldn't be kept if they can't be equipped
+			let oldTier = Item.getEquippedItemMerc(bodyLoc[i]).tier; // Low tier items shouldn't be kept if they can't be equipped
 
 			if (tier > oldTier) {
 				return true;
@@ -972,7 +969,7 @@ Item.removeItemsMerc = function () {
 	let items = mercenary.getItems();
 
 	if (items) {
-		for (var i = 0; i < items.length; i++) {
+		for (let i = 0; i < items.length; i++) {
 			clickItem(4, items[i].bodylocation);
 			delay(500 + me.ping * 2);
 
@@ -1059,7 +1056,7 @@ Item.autoEquipSC = function () {
 	//print("Small Charm checklist length: " + charms.checkList.length);
 
 	for (let i = 0; i < charms.checkList.length; i++) {
-		if([0, 4].indexOf(Pickit.checkItem(charms.checkList[i]).result) > -1) {
+		if ([0, 4].indexOf(Pickit.checkItem(charms.checkList[i]).result) > -1) {
 			continue;
 		} else {
 			if (charms.checkList[i].location !== 7 && !NTIP.checkFinalCharm(charms.checkList[i])) {
@@ -1071,12 +1068,12 @@ Item.autoEquipSC = function () {
 						Misc.logItem("Stashed Cubing Ingredient", charms.checkList[i]);
 					} else {
 						Misc.logItem("Stashed", charms.checkList[i]);
-					}	
+					}
 				}
 			}
 
 			charms.checkList.splice(i, 1);
-			i -= 1;	
+			i -= 1;
 		}
 	}
 
@@ -1143,11 +1140,11 @@ Item.autoEquipLC = function () {
 	//print("Large charm checklist length: " + charms.checkList.length);
 
 	for (let i = 0; i < charms.checkList.length; i++) {
-		if([0, 4].indexOf(Pickit.checkItem(charms.checkList[i]).result) > -1) {
+		if ([0, 4].indexOf(Pickit.checkItem(charms.checkList[i]).result) > -1) {
 			continue;
 		} else {
 			if (charms.checkList[i].location !== 7) {
-				if (!Storage.Stash.MoveTo(charms.checkList[i])){
+				if (!Storage.Stash.MoveTo(charms.checkList[i])) {
 					Misc.itemLogger("Dropped", charms.checkList[i]);
 					checkList[i].drop();
 				} else {
@@ -1161,7 +1158,7 @@ Item.autoEquipLC = function () {
 			}
 
 			charms.checkList.splice(i, 1);
-			i -= 1;	
+			i -= 1;
 		}
 	}
 
@@ -1219,11 +1216,11 @@ Item.autoEquipGC = function () {
 	}
 
 	for (let i = 0; i < charms.checkList.length; i++) {
-		if([0, 4].indexOf(Pickit.checkItem(charms.checkList[i]).result) > -1) {
+		if ([0, 4].indexOf(Pickit.checkItem(charms.checkList[i]).result) > -1) {
 			continue;
 		} else {
 			if (charms.checkList[i].location !== 7) {
-				if (!Storage.Stash.MoveTo(charms.checkList[i])){
+				if (!Storage.Stash.MoveTo(charms.checkList[i])) {
 					Misc.itemLogger("Dropped", charms.checkList[i]);
 					checkList[i].drop();
 				} else {
@@ -1237,7 +1234,7 @@ Item.autoEquipGC = function () {
 			}
 
 			charms.checkList.splice(i, 1);
-			i -= 1;	
+			i -= 1;
 		}
 	}
 
@@ -1248,8 +1245,8 @@ Item.autoEquipGC = function () {
 };
 
 Item.autoEquipCharmSort = function (items, verbose) {
-	var tome, scroll, resCharms = [], dmgCharms = [], eleDmgCharms = [], healthCharms = [], mfCharms = [], backupCheck = [],
-		typeA = [], typeB = [], typeC = [], checkList = [], keep = [];
+	let tome, scroll, resCharms = [], dmgCharms = [], eleDmgCharms = [], healthCharms = [], mfCharms = [], backupCheck = [],
+		typeA = [], typeB = [], typeC = [], checkList = [];
 
 	if (!items) {
 		print("No Items found");
@@ -1273,9 +1270,9 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 	function addToCheckList (item) {
 		if (checkList.indexOf(item) === -1) {
-			checkList.push(item);	
+			checkList.push(item);
 		}
-	};
+	}
 
 	if (verbose) {
 		print("Amount of items: " + items.length);
@@ -1407,7 +1404,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 		items.shift();
 	}
 
-	if (!typeA.length && !typeB.length && !typeC.length && 
+	if (!typeA.length && !typeB.length && !typeC.length &&
 		!dmgCharms.length && !resCharms.length && !eleDmgCharms.length && !healthCharms.length && !backupCheck.length) {
 		
 		if (verbose) {
@@ -1457,10 +1454,10 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 					typeA.splice(i, 1);
 					i -= 1;
-				}	
+				}
 			}
 			
-		} 
+		}
 
 	}
 
@@ -1477,7 +1474,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 			if (verbose) {
 				for (let i = 0; i < typeB.length; i++) {
 					print("typeB[" + i + "] = " + NTIP.GetCharmTier(typeB[i]));
-				}	
+				}
 			}
 
 			for (let i = 0; i < typeB.length; i++) {
@@ -1493,7 +1490,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 					typeB.splice(i, 1);
 					i -= 1;
-				}	
+				}
 			}
 			
 		}
@@ -1505,7 +1502,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 		if (verbose) {
 			print("Amount of typeC Charms: " + typeC.length);
-			print("invoquantity: " + invoquantity);	
+			print("invoquantity: " + invoquantity);
 		}
 		
 		if (typeC.length > invoquantity) {
@@ -1513,7 +1510,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 			if (verbose) {
 				for (let i = 0; i < typeC.length; i++) {
 					print("typeC[" + i + "] = " + NTIP.GetCharmTier(typeC[i]));
-				}	
+				}
 			}
 
 			for (let i = 0; i < typeC.length; i++) {
@@ -1529,7 +1526,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 					typeC.splice(i, 1);
 					i -= 1;
-				}	
+				}
 			}
 			
 		}
@@ -1541,7 +1538,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 		
 		if (verbose) {
 			print("Amount of resCharms: " + resCharms.length);
-			print("invoquantity: " + invoquantity);	
+			print("invoquantity: " + invoquantity);
 		}
 		
 		if (resCharms.length > invoquantity) {
@@ -1549,7 +1546,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 			if (verbose) {
 				for (let i = 0; i < resCharms.length; i++) {
 					print("resCharms[" + i + "] = " + NTIP.GetCharmTier(resCharms[i]));
-				}	
+				}
 			}
 
 			for (let i = 0; i < resCharms.length; i++) {
@@ -1567,9 +1564,9 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 					resCharms.splice(i, 1);
 					i -= 1;
-				}	
-			}	
-		} 
+				}
+			}
+		}
 
 	}
 
@@ -1578,7 +1575,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 		
 		if (verbose) {
 			print("Amount of healthCharms: " + healthCharms.length);
-			print("invoquantity: " + invoquantity);	
+			print("invoquantity: " + invoquantity);
 		}
 		
 		if (healthCharms.length > invoquantity) {
@@ -1586,7 +1583,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 			if (verbose) {
 				for (let i = 0; i < healthCharms.length; i++) {
 					print("healthCharms[" + i + "] = " + NTIP.GetCharmTier(healthCharms[i]));
-				}	
+				}
 			}
 
 			for (let i = 0; i < healthCharms.length; i++) {
@@ -1604,10 +1601,10 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 					healthCharms.splice(i, 1);
 					i -= 1;
-				}	
+				}
 			}
 			
-		} 
+		}
 
 	}
 
@@ -1616,7 +1613,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 		
 		if (verbose) {
 			print("Amount of mfCharms: " + mfCharms.length);
-			print("invoquantity: " + invoquantity);	
+			print("invoquantity: " + invoquantity);
 		}
 		
 		if (mfCharms.length > invoquantity) {
@@ -1624,7 +1621,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 			if (verbose) {
 				for (let i = 0; i < mfCharms.length; i++) {
 					print("mfCharms[" + i + "] = " + NTIP.GetCharmTier(mfCharms[i]));
-				}	
+				}
 			}
 
 			for (let i = 0; i < mfCharms.length; i++) {
@@ -1642,10 +1639,10 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 					mfCharms.splice(i, 1);
 					i -= 1;
-				}	
+				}
 			}
 			
-		} 
+		}
 
 	}
 
@@ -1654,7 +1651,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 		if (verbose) {
 			print("Amount of dmgCharms: " + dmgCharms.length);
-			print("invoquantity: " + invoquantity);	
+			print("invoquantity: " + invoquantity);
 		}
 		
 		if (dmgCharms.length > invoquantity) {
@@ -1662,7 +1659,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 			if (verbose) {
 				for (let i = 0; i < dmgCharms.length; i++) {
 					print("dmgCharms[" + i + "] = " + NTIP.GetCharmTier(dmgCharms[i]));
-				}	
+				}
 			}
 
 			for (let i = 0; i < dmgCharms.length; i++) {
@@ -1680,10 +1677,10 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 					dmgCharms.splice(i, 1);
 					i -= 1;
-				}	
+				}
 			}
 			
-		} 
+		}
 
 	}
 
@@ -1692,7 +1689,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 		if (verbose) {
 			print("Amount of eleDmgCharms: " + eleDmgCharms.length);
-			print("invoquantity: " + invoquantity);	
+			print("invoquantity: " + invoquantity);
 		}
 		
 		if (eleDmgCharms.length > invoquantity) {
@@ -1700,7 +1697,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 			if (verbose) {
 				for (let i = 0; i < eleDmgCharms.length; i++) {
 					print("dmgCharms[" + i + "] = " + NTIP.GetCharmTier(eleDmgCharms[i]));
-				}	
+				}
 			}
 
 			for (let i = 0; i < eleDmgCharms.length; i++) {
@@ -1718,10 +1715,10 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 					eleDmgCharms.splice(i, 1);
 					i -= 1;
-				}	
+				}
 			}
 			
-		} 
+		}
 
 	}
 
@@ -1735,7 +1732,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 		if (verbose) {
 			print("Amount of Misc charms: " + backupCheck.length);
-			print("invoquantity: " + invoquantity);	
+			print("invoquantity: " + invoquantity);
 		}
 
 		if (backupCheck.length > invoquantity) {
@@ -1743,7 +1740,7 @@ Item.autoEquipCharmSort = function (items, verbose) {
 			if (verbose) {
 				for (let i = 0; i < backupCheck.length; i++) {
 					print("MiscCharms[" + i + "] = " + NTIP.GetCharmTier(backupCheck[i]));
-				}	
+				}
 			}
 
 			for (let i = 0; i < backupCheck.length; i++) {
@@ -1761,17 +1758,17 @@ Item.autoEquipCharmSort = function (items, verbose) {
 
 					backupCheck.splice(i, 1);
 					i -= 1;
-				}	
-			} 
+				}
+			}
 			
-		} 	
+		}
 			
 	}
 
 	if (verbose) {
 		for (let i = 0; i < checkList.length; i++) {
 			print("checkList[" + i + "] = " + NTIP.GetCharmTier(checkList[i]) + " " + checkList[i].fname);
-		}	
+		}
 	}
 
 	return {
@@ -2046,8 +2043,8 @@ Item.autoEquipCharms = function (verbose) {
 		print("Small Charms Sell: " + SCs.sell.length);
 	}
 	
-	let totalKeep = totalKeep.concat(SCs.keep, LCs.keep, GCs.keep);
-	let totalSell = totalSell.concat(SCs.sell, LCs.sell, GCs.sell);
+	totalKeep = totalKeep.concat(SCs.keep, LCs.keep, GCs.keep);
+	totalSell = totalSell.concat(SCs.sell, LCs.sell, GCs.sell);
 
 	if (totalKeep.length > 0) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Total Charms Kept: " + totalKeep.length);
@@ -2092,8 +2089,8 @@ Item.autoEquipCharms = function (verbose) {
 					Misc.logItem("CharmEquip Equipped", totalKeep[i]);
 				}
 			}
-		}	
-	} 
+		}
+	}
 
 	for (let i = 0; i < cancelFlags.length; i += 1) {
 		if (getUIFlag(cancelFlags[i])) {
@@ -2120,9 +2117,9 @@ Item.getCharmType = function (charm) {
 	}
 
 	let charmType = "";
-	let skillerStats = [[0, 1, 2], [8, 9, 10], [16, 17, 18,], [24, 25, 26], [32, 33, 34], [40, 41, 42], [48, 49, 50]][me.classid];
+	let skillerStats = [[0, 1, 2], [8, 9, 10], [16, 17, 18], [24, 25, 26], [32, 33, 34], [40, 41, 42], [48, 49, 50]][me.classid];
 
-	if (charm.getStat(188, skillerStats[0])) {	
+	if (charm.getStat(188, skillerStats[0])) {
 		charmType = "skillerTypeA";
 	} else if (charm.getStat(188, skillerStats[1])) {
 		charmType = "skillerTypeB";
@@ -2268,7 +2265,7 @@ Item.getCharmType = function (charm) {
 	return charmType;
 };
 
-var AutoEquip = {
+let AutoEquip = {
 	hasTier: function (item) {
 		if (me.classic) {
 			return Item.hasTier(item);

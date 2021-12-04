@@ -42,7 +42,7 @@ Object.defineProperties(Unit.prototype, {
 			return this.getState(1);
 		},
 	},
-    isStunned: {
+	isStunned: {
 		get: function () {
 			return this.getState(21);
 		},
@@ -63,10 +63,10 @@ Object.defineProperties(Unit.prototype, {
 Object.defineProperties(Unit.prototype, {
 	rawStrength: {
 		get: function () {
-			var lvl = this.getStat(sdk.stats.Level);
-			var rawBonus = function (i) { return i.getStat(sdk.stats.Strength); };
-			var perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelStrength) / 8; };
-			var bonus = ~~(this.getItemsEx()
+			let lvl = this.getStat(sdk.stats.Level);
+			let rawBonus = function (i) { return i.getStat(sdk.stats.Strength); };
+			let perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelStrength) / 8; };
+			let bonus = ~~(this.getItemsEx()
 				.filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
 				.map(function (i) { return rawBonus(i) + perLvlBonus(i); })
 				.reduce(function (acc, v) { return acc + v; }, 0));
@@ -75,63 +75,57 @@ Object.defineProperties(Unit.prototype, {
 	},
 	rawDexterity: {
 		get: function () {
-			var lvl = this.getStat(sdk.stats.Level);
-			var rawBonus = function (i) { return i.getStat(sdk.stats.Dexterity); };
-			var perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelDexterity) / 8; };
-			var bonus = ~~(this.getItemsEx()
+			let lvl = this.getStat(sdk.stats.Level);
+			let rawBonus = function (i) { return i.getStat(sdk.stats.Dexterity); };
+			let perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelDexterity) / 8; };
+			let bonus = ~~(this.getItemsEx()
 				.filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
 				.map(function (i) { return rawBonus(i) + perLvlBonus(i); })
 				.reduce(function (acc, v) { return acc + v; }, 0));
 			return this.getStat(sdk.stats.Dexterity) - bonus;
 		},
 	},
-    isEquipped: {
-        get: function () {
-            if (this.type !== sdk.unittype.Item)
-                return false;
-            return this.location === sdk.storage.Equipment;
-        }
-    },
-    isEquippedCharm: {
-        get: function () {
-        	if (this.type !== sdk.unittype.Item)
-                return false;
-            return (this.location === sdk.storage.Inventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(this.itemType) > -1);
-        }
-    },
-    isInInventory: {
-        get: function () {
-        	if (this.type !== sdk.unittype.Item)
-                return false;
-            return this.location === sdk.storage.Inventory && this.mode === sdk.itemmode.inStorage;
-        }
-    },
-    isInBelt: {
-        get: function () {
-        	if (this.type !== sdk.unittype.Item)
-                return false;
-            return this.location === sdk.storage.Belt && this.mode === sdk.itemmode.inBelt;
-        }
-    },
-    isInStash: {
-        get: function () {
-        	if (this.type !== sdk.unittype.Item)
-                return false;
-            return this.location === sdk.storage.Stash && this.mode === sdk.itemmode.inStorage;
-        }
-    },
-    isInStorage: {
-    	get: function () {
-    		if (this.type !== sdk.unittype.Item)
-                return false;
-            return this.mode === sdk.itemmode.inStorage && [sdk.storage.Inventory, sdk.storage.Cube, sdk.storage.Stash].includes(this.location);
-    	}
-    },
+	isEquipped: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			return this.location === sdk.storage.Equipment;
+		}
+	},
+	isEquippedCharm: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			return (this.location === sdk.storage.Inventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(this.itemType) > -1);
+		}
+	},
+	isInInventory: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			return this.location === sdk.storage.Inventory && this.mode === sdk.itemmode.inStorage;
+		}
+	},
+	isInBelt: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			return this.location === sdk.storage.Belt && this.mode === sdk.itemmode.inBelt;
+		}
+	},
+	isInStash: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			return this.location === sdk.storage.Stash && this.mode === sdk.itemmode.inStorage;
+		}
+	},
+	isInStorage: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			return this.mode === sdk.itemmode.inStorage && [sdk.storage.Inventory, sdk.storage.Cube, sdk.storage.Stash].includes(this.location);
+		}
+	},
 	identified: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) {
 				// Can't tell, as it isn't an item
-				return undefined; 
+				return undefined;
 			}
 			// Is also true for white items
 			return this.getFlag(0x10);
@@ -148,103 +142,99 @@ Object.defineProperties(Unit.prototype, {
 	},
 	twoHanded: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item)
-                return false;
+			if (this.type !== sdk.unittype.Item) { return false; }
 			return getBaseStat("items", this.classid, "2handed") === 1;
 		}
 	},
-    isRuneword: {
-        get: function () {
-            if (this.type !== sdk.unittype.Item)
-                return false;
-            return !!this.getFlag(0x4000000);
-        }
-    },
-    isQuestItem: {
-        get: function () {
-        	if (this.type !== sdk.unittype.Item)
-                return false;
-            return this.itemType === sdk.itemtype.Quest ||
-                [sdk.items.quest.HoradricMalus, sdk.items.quest.WirtsLeg, sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff,
-                sdk.items.quest.ViperAmulet, sdk.items.quest.DecoyGidbinn, sdk.items.quest.TheGidbinn, sdk.items.quest.KhalimsFlail,
-                sdk.items.quest.KhalimsWill, sdk.items.quest.HellForgeHammer, sdk.items.quest.StandardofHeroes].includes(this.classid);
-        }
-    },
-    isBaseType: {
+	isRuneword: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item)
-                return false;
+			if (this.type !== sdk.unittype.Item) { return false; }
+			return !!this.getFlag(0x4000000);
+		}
+	},
+	isQuestItem: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			return this.itemType === sdk.itemtype.Quest ||
+                [sdk.items.quest.HoradricMalus, sdk.items.quest.WirtsLeg, sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff,
+                	sdk.items.quest.ViperAmulet, sdk.items.quest.DecoyGidbinn, sdk.items.quest.TheGidbinn, sdk.items.quest.KhalimsFlail,
+                	sdk.items.quest.KhalimsWill, sdk.items.quest.HellForgeHammer, sdk.items.quest.StandardofHeroes].includes(this.classid);
+		}
+	},
+	isBaseType: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
 			return [sdk.itemquality.Normal, sdk.itemquality.Superior].indexOf(this.quality) > -1 && !this.isQuestItem && !this.isRuneword
 				&& getBaseStat("items", this.classid, "gemsockets") > 0 && [sdk.itemtype.Ring, sdk.itemtype.Amulet].indexOf(this.itemType) === -1;
 		}
 	},
 	isSellable: {
-        get: function () {
-            if (this.type !== sdk.unittype.Item)
-                return false;
-            return !this.isQuestItem && [sdk.items.quest.KeyofTerror, sdk.items.quest.KeyofHate, sdk.items.quest.KeyofDestruction, sdk.items.quest.DiablosHorn,
-            	sdk.items.quest.BaalsEye, sdk.items.quest.MephistosBrain, sdk.items.quest.TokenofAbsolution, sdk.items.quest.TwistedEssenceofSuffering,
-            	sdk.items.quest.ChargedEssenceofHatred, sdk.items.quest.BurningEssenceofTerror, sdk.items.quest.FesteringEssenceofDestruction].indexOf(this.classid) === -1 && 
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			return !this.isQuestItem && 
+				[sdk.items.quest.KeyofTerror, sdk.items.quest.KeyofHate, sdk.items.quest.KeyofDestruction, sdk.items.quest.DiablosHorn,
+					sdk.items.quest.BaalsEye, sdk.items.quest.MephistosBrain, sdk.items.quest.TokenofAbsolution, sdk.items.quest.TwistedEssenceofSuffering,
+					sdk.items.quest.ChargedEssenceofHatred, sdk.items.quest.BurningEssenceofTerror, sdk.items.quest.FesteringEssenceofDestruction].indexOf(this.classid) === -1 &&
             	!(this.quality === sdk.itemquality.Unique && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(this.itemType));
-        }
-    },
+		}
+	},
 });
 
-var str = 0, levelCheckS = 0, dex = 0, levelCheckD = 0;
+let str = 0, levelCheckS = 0, dex = 0, levelCheckD = 0;
 Object.defineProperties(me, {
-    highestAct: {
-        get: function () {
-            var acts = [true,
-                me.getQuest(sdk.quests.AbleToGotoActII, 0),
-                me.getQuest(sdk.quests.AbleToGotoActIII, 0),
-                me.getQuest(sdk.quests.AbleToGotoActIV, 0),
-                me.getQuest(sdk.quests.AbleToGotoActV, 0)];
-            var index = acts.findIndex(function (i) { return !i; }); // find first false, returns between 1 and 5
-            return index == -1 ? 5 : index;
-        }
-    },
-    staminaDrainPerSec: {
-        get: function () {
-            var bonusReduction = me.getStat(sdk.stats.StaminaRecoveryBonus);
-            var armorMalusReduction = 0; // TODO
-            return 25 * Math.max(40 * (1 + armorMalusReduction / 10) * (100 - bonusReduction) / 100, 1) / 256;
-        }
-    },
-    staminaTimeLeft: {
-        get: function () {
-            return me.stamina / me.staminaDrainPerSec;
-        }
-    },
-    staminaMaxDuration: {
-        get: function () {
-            return me.staminamax / me.staminaDrainPerSec;
-        }
-    },
-    trueStr: {
+	highestAct: {
+		get: function () {
+			let acts = [true,
+				me.getQuest(sdk.quests.AbleToGotoActII, 0),
+				me.getQuest(sdk.quests.AbleToGotoActIII, 0),
+				me.getQuest(sdk.quests.AbleToGotoActIV, 0),
+				me.getQuest(sdk.quests.AbleToGotoActV, 0)];
+			let index = acts.findIndex(function (i) { return !i; }); // find first false, returns between 1 and 5
+			return index === -1 ? 5 : index;
+		}
+	},
+	staminaDrainPerSec: {
+		get: function () {
+			let bonusReduction = me.getStat(sdk.stats.StaminaRecoveryBonus);
+			let armorMalusReduction = 0; // TODO
+			return 25 * Math.max(40 * (1 + armorMalusReduction / 10) * (100 - bonusReduction) / 100, 1) / 256;
+		}
+	},
+	staminaTimeLeft: {
+		get: function () {
+			return me.stamina / me.staminaDrainPerSec;
+		}
+	},
+	staminaMaxDuration: {
+		get: function () {
+			return me.staminamax / me.staminaDrainPerSec;
+		}
+	},
+	trueStr: {
 		get: function () {
 			if (str === 0 || levelCheckS < me.charlvl) {
 				str = me.rawStrength;
 				levelCheckS = me.charlvl;
-			} 
-			return str; 
+			}
+			return str;
 		},
-		set: function(newValue) { str = newValue }
-    },
-    trueDex: {
+		set: function(newValue) { str = newValue; }
+	},
+	trueDex: {
 		get: function () {
 			if (dex === 0 || levelCheckD < me.charlvl) {
 				dex = me.rawDexterity;
 				levelCheckD = me.charlvl;
-			} 
-			return dex; 
+			}
+			return dex;
 		},
-		set: function(newValue) { dex = newValue }
-    },
-    shapeshifted: {
-    	get: function () {
-    		return me.getState(sdk.states.Wolf) || me.getState(sdk.states.Bear) || me.getState(sdk.states.Delerium);
-    	}
-    }
+		set: function(newValue) { dex = newValue; }
+	},
+	shapeshifted: {
+		get: function () {
+			return me.getState(sdk.states.Wolf) || me.getState(sdk.states.Bear) || me.getState(sdk.states.Delerium);
+		}
+	}
 });
 
 // Credit @Jaenster
@@ -253,7 +243,7 @@ Unit.prototype.switchWeapons = function (slot) {
 		return true;
 	}
 
-	while (typeof me !== 'object') delay(10);
+	while (typeof me !== 'object') {delay(10);}
 
 	let originalSlot = this.weaponswitch;
 
@@ -298,13 +288,13 @@ Unit.prototype.castingFrames = function (skillId, fcr, charClass) {
 	if (fcr === void 0) { fcr = this.getStat(sdk.stats.FCR); }
 	if (charClass === void 0) { charClass = this.classid; }
 	// https://diablo.fandom.com/wiki/Faster_Cast_Rate
-	var effectiveFCR = Math.min(75, (fcr * 120 / (fcr + 120)) | 0);
-	var isLightning = skillId === sdk.skills.Lightning || skillId === sdk.skills.ChainLightning;
-	var baseCastRate = [20, isLightning ? 19 : 14, 16, 16, 14, 15, 17][charClass];
+	let effectiveFCR = Math.min(75, (fcr * 120 / (fcr + 120)) | 0);
+	let isLightning = skillId === sdk.skills.Lightning || skillId === sdk.skills.ChainLightning;
+	let baseCastRate = [20, isLightning ? 19 : 14, 16, 16, 14, 15, 17][charClass];
 	if (isLightning) {
 		return Math.round(256 * baseCastRate / (256 * (100 + effectiveFCR) / 100));
 	}
-	var animationSpeed = {
+	let animationSpeed = {
 		normal: 256,
 		human: 208,
 		wolf: 229,
@@ -450,7 +440,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 };
 
 Unit.prototype.castSwitchChargedSkill = function (...args) {
-	let skillId, x, y, unit, chargedItem, charge,
+	let skillId, x, y, unit, chargedItem,
 		chargedItems = [],
 		validCharge = function (itemCharge) {
 			return itemCharge.skill === skillId && itemCharge.charges;
@@ -493,7 +483,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 	}
 
 	// Called the function the unit, me.
-	if (this === me) { 
+	if (this === me) {
 		if (!skillId) {
 			throw Error('Must supply skillId on me.castChargedSkill');
 		}
@@ -542,7 +532,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 };
 
 Unit.prototype.getStatEx = function (id, subid) {
-	var i, temp, rval, regex;
+	let i, temp, rval, regex;
 
 	switch (id) {
 	case 555: //calculates all res, doesnt exists trough

@@ -8,7 +8,7 @@ if (!isIncluded("common/Attack.js")) {
 	include("common/Attack.js");
 }
 
-var Coords_1 = require("../Modules/Coords");
+let Coords_1 = require("../Modules/Coords");
 
 Attack.IsAuradin = false;
 Attack.stopClear = false;
@@ -20,9 +20,9 @@ Attack.chargedSkillsOnSwitch = [];
 Attack.init = function () {
 	if (Config.Wereform) {
 		include("common/Attacks/wereform.js");
-	} else if (Config.CustomClassAttack && FileTools.exists('libs/common/Attacks/'+Config.CustomClassAttack+'.js')) {
+	} else if (Config.CustomClassAttack && FileTools.exists('libs/common/Attacks/' + Config.CustomClassAttack + '.js')) {
 		print('Loading custom attack file');
-		include('common/Attacks/'+Config.CustomClassAttack+'.js')
+		include('common/Attacks/' + Config.CustomClassAttack + '.js');
 	} else {
 		include("common/Attacks/" + this.classes[me.classid] + ".js");
 	}
@@ -41,7 +41,7 @@ Attack.init = function () {
 };
 
 Attack.checkIsAuradin = function () {
-	let i, item;
+	let item;
 
 	// Check player Dragon or Dream
 	item = me.getItem(-1, 1);
@@ -54,9 +54,9 @@ Attack.checkIsAuradin = function () {
 				return true;
 			}
 		} while (item.getNext());
-    }
+	}
     
-    return false;
+	return false;
 };
   
 Attack.getSkillElement = function (skillId) {
@@ -74,7 +74,7 @@ Attack.getSkillElement = function (skillId) {
 		return "holybolt"; // no need to use this.elements array because it returns before going over the array
 	}
 
-	var eType = getBaseStat("skills", skillId, "etype");
+	let eType = getBaseStat("skills", skillId, "etype");
 
 	if (typeof (eType) === "number") {
 		return this.elements[eType];
@@ -94,7 +94,7 @@ Attack.checkResist = function (unit, val, maxres) {
 		return true;
 	}
 
-	var damageType = typeof val === "number" ? this.getSkillElement(val) : val;
+	let damageType = typeof val === "number" ? this.getSkillElement(val) : val;
 
 	if (maxres === undefined) {
 		maxres = 100;
@@ -166,7 +166,7 @@ Attack.isCursable = function (unit) {
 };
 
 Attack.killTarget = function (name) {
-	var target,	attackCount = 0;
+	let target,	attackCount = 0;
 
 	for (let i = 0; !target && i < 5; i += 1) {
 		target = getUnit(1, name);
@@ -255,7 +255,7 @@ Attack.clearLocations = function (list) {
 };
 
 Attack.clearPosition = function (x, y, range, skipBlocked) {
-	var monster, monList, tick;
+	let monster, monList;
 
 	if (skipBlocked === true) {
 		skipBlocked = 0x4;
@@ -279,16 +279,14 @@ Attack.clearPosition = function (x, y, range, skipBlocked) {
 			} while (monster.getNext());
 		}
 
-		if (!monList.length) {		
-			return true;
+		if (!monList.length) {
+			return;
 		} else {
 			this.clearList(monList);
 		}
 
 		delay(100);
 	}
-
-	return true;
 };
 
 Attack.clearPos = function (x, y, range, pickit) { // probably going to change to passing an object
@@ -308,7 +306,7 @@ Attack.clearPos = function (x, y, range, pickit) { // probably going to change t
 		throw new Error("Attack.clear: range must be a number.");
 	}
 
-	var i, boss, orgx, orgy, target, result, monsterList, start, coord, skillCheck, secAttack,
+	let i, target, result, monsterList, start, coord, skillCheck, secAttack,
 		retry = 0,
 		gidAttack = [],
 		attackCount = 0;
@@ -453,7 +451,7 @@ Attack.clearPos = function (x, y, range, pickit) { // probably going to change t
 };
 
 Attack.buildMonsterList = function (skipBlocked) {
-	var monster,
+	let monster,
 		monList = [];
 
 	if (skipBlocked === true) {
@@ -471,14 +469,14 @@ Attack.buildMonsterList = function (skipBlocked) {
 	}
 
 	if (skipBlocked === 0x4) {
-		return monList.filter(monster => !checkCollision(me, monster, skipBlocked))
+		return monList.filter(mob => !checkCollision(me, mob, skipBlocked));
 	}
 
 	return monList;
 };
 
 Attack.getMobCount = function (x, y, range, list, filter) {
-	var i,
+	let i,
 		count = 0,
 		ignored = [243];
 
@@ -514,7 +512,7 @@ Attack.getMobCount = function (x, y, range, list, filter) {
 };
 
 Attack.getMobCountAtPosition = function (x, y, range, filter = false, debug = true) {
-	var i,
+	let i,
 		list = [],
 		count = 0,
 		ignored = [243];
@@ -542,7 +540,7 @@ Attack.getMobCountAtPosition = function (x, y, range, filter = false, debug = tr
 
 // Clear an entire area based on monster spectype
 Attack.clearLevel = function (spectype) {
-	var room, result, rooms, myRoom, currentArea, previousArea;
+	let room, result, rooms, myRoom, currentArea, previousArea;
 
 	function RoomSort(a, b) {
 		return getDistance(myRoom[0], myRoom[1], a[0], a[1]) - getDistance(myRoom[0], myRoom[1], b[0], b[1]);
@@ -601,9 +599,8 @@ Attack.clearLevel = function (spectype) {
 			if (!this.clear(40, spectype)) {
 				break;
 			}
-		}
-		// Make sure bot does not get stuck in different area.
-		else if (currentArea !== getArea().id) {
+		} else if (currentArea !== getArea().id) {
+			// Make sure bot does not get stuck in different area.
 			Pather.moveTo(previousArea[0], previousArea[1], 3, spectype);
 		}
 	}
@@ -613,7 +610,7 @@ Attack.clearLevel = function (spectype) {
 
 // Clear an entire area until area is done or level is reached
 Attack.clearLevelUntilLevel = function (charlvl, spectype) {
-	var room, result, rooms, myRoom, currentArea, previousArea;
+	let room, result, rooms, myRoom, currentArea, previousArea;
 
 	function RoomSort(a, b) {
 		return getDistance(myRoom[0], myRoom[1], a[0], a[1]) - getDistance(myRoom[0], myRoom[1], b[0], b[1]);
@@ -677,9 +674,8 @@ Attack.clearLevelUntilLevel = function (charlvl, spectype) {
 			if (!this.clear(40, spectype)) {
 				break;
 			}
-		}
-		// Make sure bot does not get stuck in different area.
-		else if (currentArea !== getArea().id) {
+		} else if (currentArea !== getArea().id) {
+			// Make sure bot does not get stuck in different area.
 			Pather.moveTo(previousArea[0], previousArea[1], 3, spectype);
 		}
 	}
@@ -717,7 +713,7 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit) { // probabl
 		throw new Error("Attack.clear: range must be a number.");
 	}
 
-	var i, boss, orgx, orgy, target, result, monsterList, start, coord, skillCheck, secAttack,
+	let i, boss, orgx, orgy, target, result, monsterList, start, coord, skillCheck, secAttack,
 		retry = 0,
 		gidAttack = [],
 		attackCount = 0;
@@ -930,7 +926,7 @@ Attack.sortMonsters = function (unitA, unitB) {
 	}
 
 	// Added Oblivion Knights
-	var ids = [312, 58, 59, 60, 61, 62, 101, 102, 103, 104, 105, 278, 279, 280, 281, 282, 298, 299, 300, 645, 646, 647, 662, 663, 664, 667, 668, 669, 670, 675, 676];
+	let ids = [312, 58, 59, 60, 61, 62, 101, 102, 103, 104, 105, 278, 279, 280, 281, 282, 298, 299, 300, 645, 646, 647, 662, 663, 664, 667, 668, 669, 670, 675, 676];
 
 	if (me.area !== 61 && ids.indexOf(unitA.classid) > -1 && ids.indexOf(unitB.classid) > -1) {
 		// Kill "scary" uniques first (like Bishibosh)
@@ -976,21 +972,21 @@ Attack.sortMonsters = function (unitA, unitB) {
 
 //From legacy sonic
 Attack.clearClassids = function (...ids) {
-    let monster = getUnit(1);
+	let monster = getUnit(1);
 
-    if (monster) {
-        let list = [];
+	if (monster) {
+		let list = [];
 
-        do {
-            if (ids.includes(monster.classid) && Attack.checkMonster(monster)) {
-                list.push(copyUnit(monster));
-            }
-        } while (monster.getNext());
+		do {
+			if (ids.includes(monster.classid) && Attack.checkMonster(monster)) {
+				list.push(copyUnit(monster));
+			}
+		} while (monster.getNext());
 
-        Attack.clearList(list);
-    }
+		Attack.clearList(list);
+	}
 
-    return true;
+	return true;
 };
 
 // Take a array of coords - path and clear
@@ -1029,7 +1025,7 @@ Attack.getCurrentChargedSkillIds = function () {
 							}
 
 							// add to switch only list for use with swtich casting
-							if (stats[204][i].charges > 0 && Attack.chargedSkillsOnSwitch.indexOf(stats[204][i].skill) === -1 && 
+							if (stats[204][i].charges > 0 && Attack.chargedSkillsOnSwitch.indexOf(stats[204][i].skill) === -1 &&
 								((me.weaponswitch === 0 && [11, 12].indexOf(item.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(item.bodylocation) > -1))) {
 								Attack.chargedSkillsOnSwitch.push(stats[204][i].skill);
 							}
@@ -1042,7 +1038,7 @@ Attack.getCurrentChargedSkillIds = function () {
 					}
 
 					// add to switch only list for use with swtich casting
-					if (stats[204].charges > 0 && Attack.chargedSkillsOnSwitch.indexOf(stats[204].skill) === -1 && 
+					if (stats[204].charges > 0 && Attack.chargedSkillsOnSwitch.indexOf(stats[204].skill) === -1 &&
 						((me.weaponswitch === 0 && [11, 12].indexOf(item.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(item.bodylocation) > -1))) {
 						Attack.chargedSkillsOnSwitch.push(stats[204][i].skill);
 					}
@@ -1065,26 +1061,26 @@ Attack.getItemCharges = function (skillId) {
 	// Item must equipped, or a charm in inventory
 	me.getItems(-1)
 		.filter(item => item && (item.location === 1 || (item.location === 3 && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(item.itemType) > -1)))
-			.forEach(function (item) {
-				let stats = item.getStat(-2);
+		.forEach(function (item) {
+			let stats = item.getStat(-2);
 
-				if (stats.hasOwnProperty(204)) {
-					if (stats[204] instanceof Array) {
-						stats = stats[204].filter(validCharge);
-						stats.length && chargedItems.push({
-							charge: stats.first(),
+			if (stats.hasOwnProperty(204)) {
+				if (stats[204] instanceof Array) {
+					stats = stats[204].filter(validCharge);
+					stats.length && chargedItems.push({
+						charge: stats.first(),
+						item: item
+					});
+				} else {
+					if (stats[204].skill === skillId && stats[204].charges > 1) {
+						chargedItems.push({
+							charge: stats[204].charges,
 							item: item
 						});
-					} else {
-						if (stats[204].skill === skillId && stats[204].charges > 1) {
-							chargedItems.push({
-								charge: stats[204].charges,
-								item: item
-							});
-						}
 					}
 				}
-			});
+			}
+		});
 
 	if (chargedItems.length === 0) {
 		return false;
@@ -1152,7 +1148,7 @@ Attack.throwPotion = function (unit) {
 };
 
 Attack.dollAvoid = function (unit) {
-	var i, cx, cy,
+	let i, cx, cy,
 		distance = 14;
 
 	for (i = 0; i < 2 * Math.PI; i += Math.PI / 6) {
@@ -1168,8 +1164,12 @@ Attack.dollAvoid = function (unit) {
 };
 
 Attack.spotOnDistance = function (spot, distance, area) {
-	if (area === void 0) { area = me.area; }
-	var nodes = getPath(area, me.x, me.y, spot.x, spot.y, 2, 5);
+	if (area === void 0) {
+		area = me.area;
+	}
+
+	let nodes = getPath(area, me.x, me.y, spot.x, spot.y, 2, 5);
+
 	if (!nodes) {
 		return { x: me.x, y: me.y };
 	}
@@ -1193,19 +1193,19 @@ Attack.pwnDia = function () {
 		return false;
 	}
 
-	var calculateSpots = function (center, skillRange) {
-		var coords = [];
-		for (var i = 0; i < 360; i++) {
+	let calculateSpots = function (center, skillRange) {
+		let coords = [];
+		for (let i = 0; i < 360; i++) {
 			coords.push({
-			x: Math.floor(center.x + skillRange * Math.cos(i) + .5),
-			y: Math.floor(center.y + skillRange * Math.sin(i) + .5),
+				x: Math.floor(center.x + skillRange * Math.cos(i) + 0.5),
+				y: Math.floor(center.y + skillRange * Math.sin(i) + 0.5),
 			});
 		}
-	return coords.filter(function (e, i, s) { return s.indexOf(e) === i; }) // only unique spots
-		.filter(function (el) { return Attack.validSpot(el.x, el.y); });
+		return coords.filter(function (e, i, s) { return s.indexOf(e) === i; }) // only unique spots
+			.filter(function (el) { return Attack.validSpot(el.x, el.y); });
 	};
 
-	var getDiablo = function () { return getUnit(1, 243); };
+	let getDiablo = function () { return getUnit(1, 243); };
 	{
 		let nearSpot = Attack.spotOnDistance({ x: 7792, y: 5292 }, 35);
 		Pather.moveToUnit(nearSpot);
@@ -1241,18 +1241,18 @@ Attack.pwnDia = function () {
 			}
 
 			if (getDistance(me, dia) < (me.assassin ? 17 : 40) || getDistance(me, dia) > (me.assassin ? 30 : 45) || getTickCount() - tick > 25e3) {
-				var spot = calculateSpots(dia, me.assassin ? 29 : 42.5)
-					.filter(function (spot) { return getDistance(me, spot) > 15 && getDistance(me, spot) < maxRange; } /*todo, in neighbour room*/)
-					.filter(function (spot) {
-					var collision = getCollision(me.area, spot.x, spot.y);
-					// noinspection JSBitwiseOperatorUsage
-					var isLava = !!(collision & Coords_1.BlockBits.IsOnFloor);
-					if (isLava) {
-						return false; // this spot is on lava, fuck this
-					}
-					// noinspection JSBitwiseOperatorUsage
-					return !(collision & (Coords_1.BlockBits.BlockWall));
-				})
+				let spot = calculateSpots(dia, me.assassin ? 29 : 42.5)
+					.filter(function (loc) { return getDistance(me, loc) > 15 && getDistance(me, loc) < maxRange; } /*todo, in neighbour room*/)
+					.filter(function (loc) {
+						let collision = getCollision(me.area, loc.x, loc.y);
+						// noinspection JSBitwiseOperatorUsage
+						let isLava = !!(collision & Coords_1.BlockBits.IsOnFloor);
+						if (isLava) {
+							return false; // this spot is on lava, fuck this
+						}
+						// noinspection JSBitwiseOperatorUsage
+						return !(collision & (Coords_1.BlockBits.BlockWall));
+					})
 					.sort(function (a, b) { return getDistance(me, a) - getDistance(me, b); })
 					.first();
 				tick = getTickCount();
@@ -1283,7 +1283,7 @@ Attack.pwnDia = function () {
 		}
 
 		if (!dia) {
-			var path = getPath(me.area, me.x, me.y, lastPosition.x, lastPosition.y, 1, 5);
+			let path = getPath(me.area, me.x, me.y, lastPosition.x, lastPosition.y, 1, 5);
 
 			if (!path) {
 				break; // failed to make a path from me to the old spot
@@ -1293,8 +1293,9 @@ Attack.pwnDia = function () {
 			if (!path.some(function (node) {
 				Pather.walkTo(node.x, node.y);
 				return getDiablo();
-			}))
-			break;
+			})) {
+				break;
+			}
 		}
 	} while (true);
 
@@ -1314,7 +1315,7 @@ Attack.pwnDia = function () {
 };
 
 Attack.getNearestMonster = function (skipBlocked = false) {
-	var gid, distance,
+	let gid, distance,
 		monster = getUnit(1),
 		range = 30;
 
@@ -1349,14 +1350,13 @@ Attack.deploy = function (unit, distance, spread, range) {
 		throw new Error("deploy: Not enough arguments supplied");
 	}
 
-	var i, grid, index, currCount,
-		tick = getTickCount(),
+	let i, grid, index, currCount,
 		monList = [],
-		count = 999,
-		idealPos = {
+		count = 999;
+		/* idealPos = {
 			x: Math.round(Math.cos(Math.atan2(me.y - unit.y, me.x - unit.x)) * Config.DodgeRange + unit.x),
 			y: Math.round(Math.sin(Math.atan2(me.y - unit.y, me.x - unit.x)) * Config.DodgeRange + unit.y)
-		};
+		}; */
 
 	monList = this.buildMonsterList();
 
@@ -1425,7 +1425,7 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 		return !CollMap.checkColl(me, unit, coll);
 	}
 
-	var n, i, cx, cy, t,
+	let n, i, cx, cy,
 		coords = [],
 		fullDistance = distance,
 		name = unit.hasOwnProperty("name") ? unit.name : "",
@@ -1435,7 +1435,7 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 	let caster = Skill.getRange(Config.AttackSkill[index]) > 4;
 
-	t = getTickCount();
+	//let t = getTickCount();
 
 	function sortLoc (a, b) {
 		return Attack.getMobCountAtPosition(a.x, a.y, 5, false, false) - Attack.getMobCountAtPosition(b.x, b.y, 5, false, false);
@@ -1510,7 +1510,7 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 };
 
 Attack.castableSpot = function (x, y) {
-	var result;
+	let result;
 
 	if (!me.area || !x || !y) { // Just in case
 		return false;
@@ -1532,25 +1532,15 @@ Attack.castableSpot = function (x, y) {
 };
 
 Attack.test = function () {
-	let errorInfo = "", attackCount = 0, 
-		result = 0, retry = 0, target = Attack.getNearestMonster();
-
-	if (!target || target === undefined) {
-		print("No monster near me");
-		return false;
-	}
-
-	Attack.throwPotion(target);
-
 	return true;
 };
 
-Attack.test2 = function (unit, distance, spread, range) {
+/* Attack.test2 = function (unit, distance, spread, range) {
 	if (arguments.length < 4) {
 		throw new Error("deploy: Not enough arguments supplied");
 	}
 
-	var i, grid, index, currCount,
+	let i, grid, index, currCount,
 		tick = getTickCount(),
 		monList = [],
 		count = 999,
@@ -1607,4 +1597,4 @@ Attack.test2 = function (unit, distance, spread, range) {
 	}
 
 	return false;
-};
+}; */

@@ -9,7 +9,7 @@ if (!isIncluded("Automule.js")) {
 }
 
 AutoMule.getMuleItems = function () {
-	var item, items,
+	let item, items,
 		info = this.getInfo();
 
 	if (!info || !info.hasOwnProperty("muleInfo")) {
