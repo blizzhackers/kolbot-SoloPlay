@@ -129,32 +129,13 @@ function LoadConfig () {
 	Config.AutoMule.Force = [];
 	Config.AutoMule.Exclude = [
 		"[name] >= Elrune && [name] <= Lemrune",
-		"[name] == mephisto'ssoulstone",
-		"[name] == hellforgehammer",
-		"[name] == scrollofinifuss",
-		"[name] == keytothecairnstones",
-		"[name] == bookofskill",
-		"[name] == horadriccube",
-		"[name] == shaftofthehoradricstaff",
-		"[name] == topofthehoradricstaff",
-		"[name] == horadricstaff",
-		"[name] == ajadefigurine",
-		"[name] == thegoldenbird",
-		"[name] == potionoflife",
-		"[name] == lamesen'stome",
-		"[name] == khalim'seye",
-		"[name] == khalim'sheart",
-		"[name] == khalim'sbrain",
-		"[name] == khalim'sflail",
-		"[name] == khalim'swill",
-		"[name] == scrollofresistance",
 	];
 
 	/* AutoEquip configuration. */
 	Config.AutoEquip = true;
 
 	// AutoEquip setup
-	var levelingTiers = [
+	let levelingTiers = [
 		// Weapon
 		"([type] == scepter || [type] == mace || [type] == sword || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Helmet
@@ -190,13 +171,13 @@ function LoadConfig () {
 		"me.charlvl > 14 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
-	var imbueableClassItems = [
+	let imbueableClassItems = [
 		"me.diff == 0 && [name] == warscepter && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
 		"me.diff == 1 && [name] == divinescepter && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
 		"me.diff == 2 && [name] == mightyscepter && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
 	];
 
-	var imbueableBelts = [
+	let imbueableBelts = [
 		"me.diff == 0 && [name] == platedbelt && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
 		"me.diff == 1 && [name] == warbelt && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
 		"me.diff == 2 && [name] == mithrilcoil && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
@@ -267,6 +248,13 @@ function LoadConfig () {
 		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
+
+		/* Crafting */
+		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
+			if (Check.currentBuild().caster) {
+				Config.Recipes.push([Recipe.Caster.Amulet]);
+			}
+		}
 
 		if (Check.haveItem("sword", "runeword", "Call To Arms")) {
 			// Spirit on swap
@@ -399,13 +387,100 @@ function LoadConfig () {
 				}
 			}
 
-			if (Check.haveItem("sword", "runeword", "Hand of Justice") && Check.haveItem("armor", "runeword", "Dragon") && Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream") && 
+			if (Check.haveItem("sword", "runeword", "Hand of Justice") && Check.haveItem("armor", "runeword", "Dragon") && Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream") &&
 				Item.getEquippedItemMerc(3).prefixnum !== sdk.locale.items.Fortitude && (me.ladder || Developer.addLadderRW)) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js")) {
 					include("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 				}
 			}
 
+			break;
+		case 'Torchadin':
+			// Dragon Armor
+			if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("armor", "runeword", "Dragon")) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/DragonArmor.js")) {
+					include("SoloPlay/BuildFiles/Runewords/DragonArmor.js");
+				}
+			}
+
+			if (!Check.haveItem("sword", "runeword", "Hand of Justice")) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/HandOfJustice.js")) {
+					include("SoloPlay/BuildFiles/Runewords/HandOfJustice.js");
+				}
+
+				// Azurewrath
+				NTIP.addLine("[name] == phaseblade && [flag] != ethereal && [quality] == unique # [enhanceddamage] >= 230 && [sanctuaryaura] >= 10 # [tier] == 115000");
+			}
+
+			// Exile
+			if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("auricshields", "runeword", "Exile")) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Exile.js")) {
+					include("SoloPlay/BuildFiles/Runewords/Exile.js");
+				}
+			}
+
+			if (!Check.haveItem("auricshields", "runeword", "Exile") || !Check.haveItem("armor", "runeword", "Dragon") || !Check.haveItem("sword", "runeword", "Hand of Justice") && (me.ladder || Developer.addLadderRW)) {
+				// Cube to Cham rune
+				if (!me.getItem(sdk.items.runes.Cham) || !me.getItem(sdk.items.runes.Sur) || !me.getItem(sdk.items.runes.Lo)) {
+					if (Check.haveItem("sword", "runeword", "Call To Arms")) {
+						Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
+						Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
+						Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
+
+						if (Check.haveItem("auricshields", "runeword", "Exile")) {
+							Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
+							Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
+						} else if (!Check.haveItem("auricshields", "runeword", "Exile") && !me.getItem(sdk.items.runes.Ohm)) {
+							Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
+						}
+					}
+
+					if (Check.haveItem("armor", "runeword", "Dragon")) {
+						Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
+						Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
+					} else if ((!Check.haveItem("armor", "runeword", "Dragon") || !Check.haveItem("sword", "runeword", "Hand of Justice")) && !me.getItem(sdk.items.runes.Sur)) {
+						Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
+					}
+
+					Config.Recipes.push([Recipe.Rune, "Ber Rune"]);
+					Config.Recipes.push([Recipe.Rune, "Jah Rune"]);
+				}
+			}
+
+			if (!Check.haveItem("sword", "runeword", "Call To Arms")) {
+				// Cube to Mal rune
+				if (!me.getItem(sdk.items.runes.Mal) && Item.getEquippedItem(4).tier >= 110000) {
+					Config.Recipes.push([Recipe.Rune, "Um Rune"]);
+				}
+				
+				// Cube to Ohm rune
+				if (!me.getItem(sdk.items.runes.Ohm)) {
+					Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
+					Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
+				}
+			}
+
+			if (!Check.haveItem("sword", "runeword", "Crescent Moon") && !Check.haveItem("sword", "runeword", "Hand of Justice")) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/CrescentMoon.js")) {
+					include("SoloPlay/BuildFiles/Runewords/CrescentMoon.js");
+				}
+
+				// Lightsabre
+				NTIP.addLine("[name] == phaseblade && [flag] != ethereal && [quality] == unique # [enhanceddamage] >= 150 && [itemabsorblightpercent] == 25 # [tier] == 105000");
+			}
+
+			if (!Check.haveItem("sword", "runeword", "Voice of Reason") && !Check.haveItem("sword", "runeword", "Crescent Moon") && !Check.haveItem("sword", "runeword", "Hand of Justice")) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js")) {
+					include("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js");
+				}
+			}
+
+			if (Check.haveItem("sword", "runeword", "Hand of Justice") && Check.haveItem("armor", "runeword", "Dragon") && Check.haveItem("auricshields", "runeword", "Exile") &&
+				Item.getEquippedItemMerc(3).prefixnum !== sdk.locale.items.Fortitude && (me.ladder || Developer.addLadderRW)) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js")) {
+					include("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
+				}
+			}
 			break;
 		default:
 			break;
