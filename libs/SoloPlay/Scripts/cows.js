@@ -1,12 +1,12 @@
 /**
 *	@filename	cows.js
-*	@author		kolton, modified by isid0re for SoloLeveling, leave if near cow king by theBGuy
+*	@author		kolton, modified by isid0re for SoloPlay, leave if near cow king by theBGuy
 *	@desc		clear the Moo Moo Farm without killing the Cow King
 */
 
 function cows () {
 	this.buildCowRooms = function () {
-		var i, j, room, kingPreset, badRooms, badRooms2,
+		let i, j, room, kingPreset, badRooms, badRooms2,
 			finalRooms = [],
 			indexes = [];
 
@@ -35,7 +35,7 @@ function cows () {
 	};
 
 	this.clearCowLevel = function () {
-		var room, result, myRoom,
+		let room, result, myRoom,
 			rooms = this.buildCowRooms();
 
 		function RoomSort (a, b) {

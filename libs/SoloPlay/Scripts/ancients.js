@@ -125,7 +125,7 @@ function ancients () {
 	
 	me.cancel();
 	Config = tempConfig;
-    Misc.updateConfig();
+	Misc.updateConfig();
 	me.overhead('restored settings');
 	Precast.doPrecast(true);
 

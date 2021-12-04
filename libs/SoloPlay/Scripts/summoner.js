@@ -5,7 +5,7 @@
 */
 
 function summoner () {
-	var teleportPads = function () {
+	let teleportPads = function () {
 		if (me.area !== sdk.areas.ArcaneSanctuary || (me.getSkill(54, 0) || me.getStat(97, 54))) {
 			return true;
 		}

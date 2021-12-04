@@ -10,7 +10,10 @@ function bloodraven () {
 
 	if (!Pather.checkWP(sdk.areas.StonyField)) {
 		Pather.getWP(sdk.areas.StonyField);
-		Attack.clear(50);
+		
+		if (me.normal) {
+			Attack.clearLevelUntilLevel(6);
+		}
 	} else {
 		Pather.useWaypoint(sdk.areas.ColdPlains);
 	}

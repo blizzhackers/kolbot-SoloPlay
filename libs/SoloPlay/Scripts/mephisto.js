@@ -40,7 +40,7 @@ function mephisto () {
 
 	Config.MercWatch = true;
 	// Reset to normal value
-	Config.PickRange = oldPickRange;	
+	Config.PickRange = oldPickRange;
 	
 	Pickit.pickItems();
 	Pather.moveTo(17581, 8070);
