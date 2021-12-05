@@ -1,6 +1,6 @@
 /*
 *	@filename	smith.js
-*	@author		isid0re
+*	@author		theBGuy, isid0re
 *	@desc		Tools of the Trade quest for imbue reward.
 */
 
@@ -29,7 +29,7 @@ function smith () {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Smith');
 	}
 
-	Quest.collectItem(sdk.items.quest.HoardricMalus, 108);
+	Quest.collectItem(sdk.items.quest.HoradricMalus, 108);
 	Pickit.pickItems();
 	Town.goToTown();
 	Town.npcInteract("charsi");
