@@ -504,7 +504,7 @@ Town.buyPotions = function () {
 
 		if (pot) {
 			do {
-				if (pot.location === 3) {
+				if (pot.location === sdk.storage.Inventory) {
 					switch (pot.itemType) {
 					case 76:
 						buffer.hp += 1;
@@ -869,7 +869,7 @@ Town.unfinishedQuests = function () {
 	if (leg) {
 		Town.goToTown(1);
 
-		if (leg.location === 7) {
+		if (leg.isInStash) {
 			Town.move('stash');
 			Town.openStash();
 			Storage.Inventory.MoveTo(leg);
@@ -883,7 +883,7 @@ Town.unfinishedQuests = function () {
 	// Act 2
 	// Radament skill book
 	if (book) {
-		if (book.location === 7) {
+		if (book.isInStash) {
 			this.openStash();
 			delay(300 + me.ping);
 		}
@@ -911,7 +911,7 @@ Town.unfinishedQuests = function () {
 	if (me.getItem(545)) {
 		let pol = me.getItem(545);
 
-		if (pol.location === 7) {
+		if (pol.isInStash) {
 			this.openStash();
 			delay(300 + me.ping);
 		}
@@ -922,7 +922,7 @@ Town.unfinishedQuests = function () {
 
 	// LamEssen's Tome
 	if (tome) {
-		if (tome.location === 7) {
+		if (tome.isInStash) {
 			Town.move('stash');
 			Town.openStash();
 			Storage.Inventory.MoveTo(tome);
@@ -960,7 +960,7 @@ Town.unfinishedQuests = function () {
 	if (hammer) {
 		Town.goToTown(1);
 
-		if (hammer.location === 7) {
+		if (hammer.isInStash) {
 			Town.move('stash');
 			Town.openStash();
 			Storage.Inventory.MoveTo(hammer);
@@ -974,7 +974,7 @@ Town.unfinishedQuests = function () {
 	if (soulstone) {
 		Town.goToTown(1);
 
-		if (soulstone.location === 7) {
+		if (soulstone.isInStash) {
 			Town.move('stash');
 			Town.openStash();
 			Storage.Inventory.MoveTo(soulstone);
@@ -997,7 +997,7 @@ Town.unfinishedQuests = function () {
 	if (me.getItem(646)) {
 		let sor = me.getItem(646);
 
-		if (sor.location === 7) {
+		if (sor.isInStash) {
 			this.openStash();
 			delay(300 + me.ping);
 		}
@@ -1368,7 +1368,7 @@ Town.clearInventory = function () {
 
 	if (item) {
 		do {
-			if (item.location === 3 && [76, 77, 78].indexOf(item.itemType) > -1) {
+			if (item.location === sdk.storage.Inventory && [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion].indexOf(item.itemType) > -1) {
 				items.push(copyUnit(item));
 			}
 		} while (item.getNext());
@@ -1413,11 +1413,11 @@ Town.clearInventory = function () {
 		];
 
 		do {
-			if (item.itemType === 76) {
+			if (item.itemType === sdk.itemtype.HealingPotion) {
 				items[0].push(copyUnit(item));
 			}
 
-			if (item.itemType === 77) {
+			if (item.itemType === sdk.itemtype.ManaPotion) {
 				items[1].push(copyUnit(item));
 			}
 		} while (item.getNext());
@@ -2459,7 +2459,7 @@ Town.clearJunk = function () {
 				continue;
 			}
 
-			if (!getUIFlag(0x19) && junk[0].location === 7) {
+			if (!getUIFlag(0x19) && junk[0].isInStash) {
 				Town.openStash();
 			}
 

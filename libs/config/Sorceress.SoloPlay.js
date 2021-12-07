@@ -284,6 +284,13 @@ function LoadConfig () {
 			Config.Recipes.push([Recipe.Caster.Amulet]);
 		}
 
+		if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
+			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
+			if (["Blova", "Lightning"].indexOf(SetUp.finalBuild)) {
+				Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth]);
+			}
+		}
+
 		// FinalBuild specific setup
 		switch (SetUp.finalBuild) {
 		case 'Blova':

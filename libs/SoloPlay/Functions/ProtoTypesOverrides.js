@@ -85,10 +85,84 @@ Object.defineProperties(Unit.prototype, {
 			return this.getStat(sdk.stats.Dexterity) - bonus;
 		},
 	},
+	upgradedStrReq: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			let code, id, baseReq, finalReq, ethereal = this.getFlag(0x400000),
+				reqModifier = this.getStat(91);
+
+			switch (this.itemclass) {
+			case sdk.itemclass.Normal:
+				code = getBaseStat("items", this.classid, "ubercode").trim();
+
+				break;
+			case sdk.itemclass.Exceptional:
+				code = getBaseStat("items", this.classid, "ultracode").trim();
+
+				break;
+			case sdk.itemclass.Elite:
+				return this.strreq;
+			}
+
+			id = NTIPAliasClassID[code];
+			baseReq = getBaseStat("items", id, "reqstr");
+			finalReq = baseReq + Math.floor(baseReq * reqModifier / 100);
+			if (ethereal) { finalReq -= 10; }
+			return Math.max(finalReq, 0);
+		}
+	},
+	upgradedDexReq: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			let code, id, baseReq, finalReq, ethereal = this.getFlag(0x400000),
+				reqModifier = this.getStat(91);
+
+			switch (this.itemclass) {
+			case sdk.itemclass.Normal:
+				code = getBaseStat("items", this.classid, "ubercode").trim();
+
+				break;
+			case sdk.itemclass.Exceptional:
+				code = getBaseStat("items", this.classid, "ultracode").trim();
+
+				break;
+			case sdk.itemclass.Elite:
+				return this.strreq;
+			}
+
+			id = NTIPAliasClassID[code];
+			baseReq = getBaseStat("items", id, "reqdex");
+			finalReq = baseReq + Math.floor(baseReq * reqModifier / 100);
+			if (ethereal) { finalReq -= 10; }
+			return Math.max(finalReq, 0);
+		}
+	},
+	upgradedLvlReq: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			let code, id;
+
+			switch (this.itemclass) {
+			case sdk.itemclass.Normal:
+				code = getBaseStat("items", this.classid, "ubercode").trim();
+
+				break;
+			case sdk.itemclass.Exceptional:
+				code = getBaseStat("items", this.classid, "ultracode").trim();
+
+				break;
+			case sdk.itemclass.Elite:
+				return this.lvlreq;
+			}
+
+			id = NTIPAliasClassID[code];
+			return Math.max(getBaseStat("items", id, "levelreq"), 0);
+		}
+	},
 	isEquipped: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) { return false; }
-			return this.location === sdk.storage.Equipment;
+			return this.location === sdk.storage.Equipped;
 		}
 	},
 	isEquippedCharm: {
@@ -119,6 +193,12 @@ Object.defineProperties(Unit.prototype, {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) { return false; }
 			return this.mode === sdk.itemmode.inStorage && [sdk.storage.Inventory, sdk.storage.Cube, sdk.storage.Stash].includes(this.location);
+		}
+	},
+	isOnSwap: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			return this.location === sdk.storage.Equipped && [11, 12].indexOf(this.location) > -1;
 		}
 	},
 	identified: {
@@ -362,7 +442,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 
 		// Item must be equipped, or a charm in inventory
 		this.getItems(-1)
-			.filter(item => item && (item.location === 1 || (item.location === 3 && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(item.itemType) > -1)))
+			.filter(item => item && (item.isEquipped || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(item.itemType) > -1)))
 			.forEach(function (item) {
 				let stats = item.getStat(-2);
 
@@ -392,7 +472,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 		chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
 
 		// Check if item with charges is equipped on the switch spot
-		if (me.weaponswitch === 0 && [11, 12].indexOf(chargedItem.bodylocation) > -1) {
+		if (me.weaponswitch === 0 && chargedItem.isOnSwap) {
 			me.switchWeapons(1);
 		}
 

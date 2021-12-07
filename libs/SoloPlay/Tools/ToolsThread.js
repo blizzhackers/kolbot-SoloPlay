@@ -144,7 +144,7 @@ function main () {
 		});
 
 		for (k = 0; k < items.length; k += 1) {
-			if (type < 3 && items[k].mode === 0 && items[k].location === 3 && items[k].itemType === pottype) {
+			if (type < 3 && items[k].isInInventory && items[k].itemType === pottype) {
 				print("ÿc2Drinking potion from inventory.");
 
 				return copyUnit(items[k]);

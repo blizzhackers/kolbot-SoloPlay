@@ -205,7 +205,7 @@ let Quest = {
 		delay(750 + me.ping);
 
 		// Clear cursor of staff - credit @Jaenster
-		let item = (me.getItems() || []).filter(function (el) { return el.location === 3; }).first();
+		let item = (me.getItems() || []).filter(function (el) { return el.isInInventory; }).first();
 		let _b = [item.x, item.y, item.location], x = _b[0], y = _b[1], loc = _b[2];
 		clickItemAndWait(0, item);
 		clickItemAndWait(0, x, y, loc);
@@ -303,7 +303,7 @@ let Quest = {
 		if (Storage.Inventory.CanFit(questItem)) {
 			Pickit.pickItem(questItem);
 		} else {
-			Town.doChores();
+			Town.visitTown();
 			Pickit.pickItem(questItem);
 			Pickit.pickItems();
 		}
@@ -316,7 +316,7 @@ let Quest = {
 		me.cancel();
 
 		if (newitem) {
-			if (newitem.location === 7) {
+			if (newitem.isInStash) {
 				Town.move("stash");
 				delay(250 + me.ping);
 				Town.openStash();
@@ -484,7 +484,7 @@ let Quest = {
 			}
 		}
 			
-		if (item.location === 7) {
+		if (item.isInStash) {
 			Town.openStash();
 
 			if (!Storage.Inventory.MoveTo(item)) {
@@ -626,7 +626,7 @@ let Quest = {
 			}
 		}
 			
-		if (item.location === 7) {
+		if (item.isInStash) {
 			Town.openStash();
 
 			if (!Storage.Inventory.MoveTo(item)) {

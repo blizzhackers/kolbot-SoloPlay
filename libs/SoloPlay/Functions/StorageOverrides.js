@@ -118,19 +118,22 @@ var Container = function (name, width, height, location) {
 			return false;
 		}
 
-		if (cube && cube.location === 7 && cube.x === 0 && cube.y === 0) {
-			return true;	// Cube is in correct location
+		// Cube is in correct location
+		if (cube && cube.isInStash && cube.x === 0 && cube.y === 0) {
+			return true;
 		}
 
 		let makeCubeSpot = this.MakeSpot(cube, {x: 0, y: 0}, true); // NOTE: passing these in buffer order [h/x][w/y]
 
 		if (makeCubeSpot) {
+			// this item cannot be moved
 			if (makeCubeSpot === -1) {
-				return false; // this item cannot be moved
+				return false;
 			}
 
+			// we couldnt move the item
 			if (!this.MoveToSpot(cube, makeCubeSpot.y, makeCubeSpot.x)) {
-				return false; // we couldnt move the item
+				return false;
 			}
 		}
 
@@ -159,7 +162,7 @@ var Container = function (name, width, height, location) {
 
 				item = this.itemList[this.buffer[x][y] - 1];
 
-				if ( item.classid === sdk.items.quest.Cube && item.location === 7 && item.x === 0 && item.y === 0) {
+				if ( item.classid === sdk.items.quest.Cube && item.isInStash && item.x === 0 && item.y === 0) {
 					continue; // dont touch the cube
 				}
 
@@ -188,7 +191,8 @@ var Container = function (name, width, height, location) {
 					continue; // dont try to touch ground items | TODO: prevent ground items from getting this far
 				}
 
-				if (this.location === 7) { // always sort stash left-to-right
+				// always sort stash left-to-right
+				if (this.location === 7) {
 					nPos = this.FindSpot(item);
 				} else if (this.location === 3 && ((!itemIdsLeft && !itemIdsRight) || !itemIdsLeft || itemIdsRight.indexOf(item.classid) > -1 || itemIdsLeft.indexOf(item.classid) === -1)) { // sort from right by default or if specified
 					nPos = this.FindSpot(item, true, false, SetUp.sortSettings.ItemsSortedFromRightPriority);
@@ -196,8 +200,9 @@ var Container = function (name, width, height, location) {
 					nPos = this.FindSpot(item, false, false, SetUp.sortSettings.ItemsSortedFromLeftPriority);
 				}
 
+				// skip if no better spot found
 				if ( !nPos || (nPos.x === ix && nPos.y === iy)) {
-					continue; // skip if no better spot found
+					continue;
 				}
 
 				if (!this.MoveToSpot(item, nPos.y, nPos.x)) {
@@ -272,8 +277,9 @@ var Container = function (name, width, height, location) {
 							makeSpot = this.MakeSpot(item, {x: x, y: y}); // NOTE: passing these in buffer order [h/x][w/y]
 
 							if (makeSpot) {
+								// this item cannot be moved
 								if (makeSpot === -1) {
-									return false; // this item cannot be moved
+									return false;
 								}
 
 								return makeSpot;
@@ -285,7 +291,8 @@ var Container = function (name, width, height, location) {
 						return false;
 					}
 
-					if (item.gid !== this.itemList[this.buffer[x][y] - 1].gid ) { // ignore same gid
+					// ignore same gid
+					if (item.gid !== this.itemList[this.buffer[x][y] - 1].gid ) {
 						continue;
 					}
 				}
@@ -294,7 +301,8 @@ var Container = function (name, width, height, location) {
 				for (nx = 0; nx < item.sizey; nx += 1) {
 					for (ny = 0; ny < item.sizex; ny += 1) {
 						if (this.buffer[x + nx][y + ny]) {
-							if (item.gid !== this.itemList[this.buffer[x + nx][y + ny] - 1].gid ) { // ignore same gid
+							// ignore same gid
+							if (item.gid !== this.itemList[this.buffer[x + nx][y + ny] - 1].gid ) {
 								continue Loop;
 							}
 						}

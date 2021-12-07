@@ -1,6 +1,6 @@
 /**
  *    @filename		paladin.HammerdinBuild.js
- *	  @author	  	isid0re
+ *	  @author	  	isid0re, theBGuy
  *    @desc			paladin build for hammerdin.
  * 					skills based on https://www.diabloii.net/forums/threads/max-damage-hammerdin-guide-by-captain_bogus-repost.127596/
  */
@@ -27,62 +27,10 @@ var finalBuild = {
 		["vitality", "all"]
 	],
 	skills: [
-		[sdk.skills.Might, 1],
-		[sdk.skills.Smite, 1],
-		[sdk.skills.Prayer, 1],
-		[sdk.skills.HolyBolt, 1],
-		[sdk.skills.Defiance, 1],
-		[sdk.skills.Charge, 1],
-		[sdk.skills.BlessedAim, 1],
-		[sdk.skills.Cleansing, 1],
-		[sdk.skills.BlessedAim, 6],
-		[sdk.skills.BlessedHammer, 1],
-		[sdk.skills.Concentration, 1],
-		[sdk.skills.Vigor, 1],
-		[sdk.skills.BlessedAim, 7],
-		[sdk.skills.BlessedHammer, 2],
-		[sdk.skills.Concentration, 2],
-		[sdk.skills.Vigor, 2],
-		[sdk.skills.BlessedHammer, 7],
 		[sdk.skills.HolyShield, 1],
 		[sdk.skills.Meditation, 1],
-		[sdk.skills.BlessedHammer, 12],
 		[sdk.skills.Redemption, 1],
 		[sdk.skills.BlessedHammer, 20],
-		[sdk.skills.Concentration, 3],
-		[sdk.skills.Vigor, 3],
-		[sdk.skills.Concentration, 4],
-		[sdk.skills.Vigor, 4],
-		[sdk.skills.Concentration, 5],
-		[sdk.skills.Vigor, 5],
-		[sdk.skills.Concentration, 6],
-		[sdk.skills.Vigor, 6],
-		[sdk.skills.Concentration, 7],
-		[sdk.skills.Vigor, 7],
-		[sdk.skills.Concentration, 8],
-		[sdk.skills.Vigor, 8],
-		[sdk.skills.Concentration, 9],
-		[sdk.skills.Vigor, 9],
-		[sdk.skills.Concentration, 10],
-		[sdk.skills.Vigor, 10],
-		[sdk.skills.Concentration, 11],
-		[sdk.skills.Vigor, 11],
-		[sdk.skills.Concentration, 12],
-		[sdk.skills.Vigor, 12],
-		[sdk.skills.Concentration, 13],
-		[sdk.skills.Vigor, 13],
-		[sdk.skills.Concentration, 14],
-		[sdk.skills.Vigor, 14],
-		[sdk.skills.Concentration, 15],
-		[sdk.skills.Vigor, 15],
-		[sdk.skills.Concentration, 16],
-		[sdk.skills.Vigor, 16],
-		[sdk.skills.Concentration, 17],
-		[sdk.skills.Vigor, 17],
-		[sdk.skills.Concentration, 18],
-		[sdk.skills.Vigor, 18],
-		[sdk.skills.Concentration, 19],
-		[sdk.skills.Vigor, 19],
 		[sdk.skills.Concentration, 20],
 		[sdk.skills.Vigor, 20],
 		[sdk.skills.BlessedAim, 20],
@@ -104,7 +52,9 @@ var finalBuild = {
 		"[name] == gildedshield && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 150 # [tier] == 50000 + tierscore(item)", //hoz
 		"[type] == auricshields && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [tier] == 100000 + tierscore(item)", // spirit
 		// Gloves
-		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 # [tier] == 100000 + tierscore(item)",	//Magefist
+		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 && (126, 1) == 1 # [tier] == 100000 + tierscore(item)",		// magefist
+		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 && (126, 1) == 1 # [tier] == 100000 + tierscore(item)",	// upped magefist
+		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [fcr] == 30 && (126, 1) == 1 # [tier] == 110000",	// perfect upped magefist
 		// Amulet
 		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 100000 + tierscore(item)", //maras
 		// Rings

@@ -1953,7 +1953,7 @@ Misc.addSocketableToItem = function (item, rune) {
 			print("ÿc8AddSocketableToItemÿc0 :: No space to get item back");
 			return false;
 		} else {
-			if (item.location === 7) {
+			if (item.isInStash) {
 				Town.openStash();
 			}
 
@@ -2206,7 +2206,7 @@ Misc.logItem = function (action, unit, keptLine) {
 
 			break;
 		case 7: // Unique
-			for (i = 0; i < 401; i += 1) {
+			for (let i = 0; i < 401; i += 1) {
 				if (unit.code === getBaseStat(17, i, 4).trim() && unit.fname.split("\n").reverse()[0].indexOf(getLocaleString(getBaseStat(17, i, 2))) > -1) {
 					code = getBaseStat(17, i, "invfile");
 

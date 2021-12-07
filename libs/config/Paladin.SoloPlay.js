@@ -256,6 +256,10 @@ function LoadConfig () {
 			}
 		}
 
+		if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
+			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
+		}
+
 		if (Check.haveItem("sword", "runeword", "Call To Arms")) {
 			// Spirit on swap
 			NTIP.addLine("[type] == auricshields && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000");

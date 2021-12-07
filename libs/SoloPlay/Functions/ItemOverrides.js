@@ -287,7 +287,7 @@ Item.autoEquip = function () {
 						tome = me.findItem(519, 0, 3);
 
 						if (tome && tome.getStat(70) > 0) {
-							if (items[0].location === 7) {
+							if (items[0].isInStash) {
 								Town.openStash();
 							}
 
@@ -340,7 +340,7 @@ Item.equip = function (item, bodyLoc) {
 
 	let i, cursorItem;
 
-	if (item.location === 7) {
+	if (item.isInStash) {
 		if (!Town.openStash()) {
 			return false;
 		}
@@ -381,12 +381,11 @@ Item.equip = function (item, bodyLoc) {
 	return false;
 };
 
-// From SoloLeveling Commit eb818af
 Item.removeItem = function (bodyLoc) {
 	let cursorItem,
 		removable = me.getItems()
 			.filter(item =>
-				item.location === 1 // Needs to be equipped
+				item.mode === sdk.itemmode.equipped
 				&& item.bodylocation === bodyLoc
 			)
 			.first();
@@ -395,7 +394,7 @@ Item.removeItem = function (bodyLoc) {
 		Town.goToTown();
 	}
 
-	if (!getUIFlag(0x19)) {
+	if (!getUIFlag(sdk.uiflags.Stash)) {
 		Town.openStash();
 	}
 
@@ -404,7 +403,8 @@ Item.removeItem = function (bodyLoc) {
 		cursorItem = getUnit(100);
 
 		if (cursorItem) {
-			if (Pickit.checkItem(cursorItem).result === 1) { // only keep wanted items
+			// only keep wanted items
+			if (Pickit.checkItem(cursorItem).result === 1) {
 				if (Storage.Inventory.CanFit(cursorItem)) {
 					Storage.Inventory.MoveTo(cursorItem);
 				} else if (Storage.Stash.CanFit(cursorItem)) {
@@ -499,19 +499,19 @@ Item.secondaryEquip = function (item, bodyLoc) {
 	}
 
 	// Already equipped in the right slot
-	if (item.mode === 1 && item.bodylocation === bodyLoc) {
+	if (item.mode === sdk.itemmode.equipped && item.bodylocation === bodyLoc) {
 		return true;
 	}
 
 	let i, cursorItem;
 
-	if (item.location === 7) {
+	if (item.isInStash) {
 		if (!Town.openStash()) {
 			return false;
 		}
 	}
 
-	Attack.weaponSwitch(1);		// Switch weapons
+	me.switchWeapons(1);		// Switch weapons
 
 	for (i = 0; i < 3; i += 1) {
 		if (item.toCursor()) {
@@ -523,7 +523,9 @@ Item.secondaryEquip = function (item, bodyLoc) {
 					cursorItem = getUnit(100);
 
 					if (cursorItem) {
-						if (Pickit.checkItem(cursorItem).result === 1) { // only keep wanted items
+						if (Pickit.checkItem(cursorItem).result === 1 ||
+						(cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2) || // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
+						(cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {	// or keep if item is worth selling
 							if (Storage.Inventory.CanFit(cursorItem)) {
 								Storage.Inventory.MoveTo(cursorItem);
 							}
@@ -533,13 +535,17 @@ Item.secondaryEquip = function (item, bodyLoc) {
 					}
 				}
 
-				Attack.weaponSwitch(0);		// Switch back to primary
+				me.switchWeapons(0);		// Switch back to primary
 				return true;
 			}
 		}
 	}
 
-	Attack.weaponSwitch(0);		// Switch back to primary
+	if (me.weaponswitch !== 0) {
+		// Switch back to primary
+		Attack.weaponSwitch(0);
+	}
+
 	return false;
 };
 
@@ -615,7 +621,7 @@ Item.autoEquipSecondary = function () {
 						tome = me.findItem(519, 0, 3);
 
 						if (tome && tome.getStat(70) > 0) {
-							if (items[0].location === 7) {
+							if (items[0].isInStash) {
 								Town.openStash();
 							}
 
@@ -695,7 +701,7 @@ Item.equipMerc = function (item, bodyLoc) {
 		return true;
 	}
 
-	if (item.location === 7) {
+	if (item.isInStash) {
 		if (!Town.openStash()) {
 			return false;
 		}
@@ -924,7 +930,7 @@ Item.autoEquipMerc = function () {
 						scroll = me.findItem(530, 0, 3);
 
 						if ((tome && tome.getStat(70) > 0) || scroll) {
-							if (items[0].location === 7) {
+							if (items[0].isInStash) {
 								Town.openStash();
 							}
 
@@ -1292,12 +1298,12 @@ Item.autoEquipCharmSort = function (items, verbose) {
 			scroll = me.findItem(530, 0, 3);
 
 			if ((tome && tome.getStat(70) > 0) || scroll) {
-				if (items[0].location === 7) {
+				if (items[0].isInStash) {
 					Town.openStash();
 				}
 
 				Town.identifyItem(items[0], scroll ? scroll : tome);
-			} else if (items[0].location === 7 && Town.openStash()) {
+			} else if (items[0].isInStash && Town.openStash()) {
 				Storage.Inventory.MoveTo(items[0]);
 				Town.identify();
 			}
@@ -2054,11 +2060,11 @@ Item.autoEquipCharms = function (verbose) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Total Charms Sell: " + totalSell.length);
 
 		for (let i = 0; i < totalSell.length; i++) {
-			if (totalSell[i].location === 7 && !getUIFlag(0x19)) {
+			if (totalSell[i].isInStash && !getUIFlag(0x19)) {
 				Town.openStash();
 			}
 
-			if (totalSell[i].location === 7 && !Storage.Inventory.MoveTo(totalSell[i])) {
+			if (totalSell[i].isInStash && !Storage.Inventory.MoveTo(totalSell[i])) {
 				totalSell[i].drop();
 
 				totalSell.splice(i, 1);
@@ -2081,7 +2087,7 @@ Item.autoEquipCharms = function (verbose) {
 
 	if (totalKeep.length > 0) {
 		for (let i = 0; i < totalKeep.length; i++) {
-			if (totalKeep[i].location === 7 && Pickit.checkItem(totalKeep[i]).result !== 2) {
+			if (totalKeep[i].isInStash && Pickit.checkItem(totalKeep[i]).result !== 2) {
 				Town.openStash();
 				delay(300 + me.ping);
 				if (Storage.Inventory.CanFit(totalKeep[i])) {

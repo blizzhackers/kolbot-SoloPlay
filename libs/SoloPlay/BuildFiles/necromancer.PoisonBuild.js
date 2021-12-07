@@ -14,7 +14,8 @@ var finalBuild = {
 	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
-		["strength", 48], ["vitality", 165], ["strength", 61], ["vitality", 252], ["strength", 156], ["vitality", "all"]
+		["strength", 48], ["vitality", 165], ["strength", 61],
+		["vitality", 252], ["strength", 156], ["vitality", "all"]
 	],
 	skills: [
 		[sdk.skills.LowerResist, 1], 	// Main curse
@@ -46,7 +47,10 @@ var finalBuild = {
 		// Shield
 		"([type] == shield && ([quality] >= magic || [flag] == runeword) || [type] == voodooheads) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Gloves
-		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 # [tier] == 100000 + tierscore(item)",
+		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 && (126, 1) == 1 # [tier] == 100000 + tierscore(item)",		// magefist
+		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 && (126, 1) == 1 # [tier] == 100000 + tierscore(item)",	// upped magefist
+		"[name] == crusadergauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 && (126, 1) == 1 # [tier] == 100000 + tierscore(item)",	// double upped magefist
+		"[name] == crusadergauntlets && [quality] == unique && [flag] != ethereal # [fcr] == 30 && (126, 1) == 1 # [tier] == 110000",	// perfect double upped magefist
 		// Amulet
 		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 100000 + tierscore(item)", //maras
 		// Rings

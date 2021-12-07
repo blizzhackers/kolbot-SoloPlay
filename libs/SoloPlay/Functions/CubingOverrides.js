@@ -486,7 +486,7 @@ Cubing.buildLists = function () {
 
 	this.validIngredients = [];
 	this.neededIngredients = [];
-	items = me.findItems(-1, 0);
+	items = me.getItems().filter(item => [sdk.itemmode.inStorage, sdk.itemmode.equipped].indexOf(item.mode) > -1);
 	items.sort((a, b) => b.ilvl - a.ilvl);
 
 	for (i = 0; i < this.recipes.length; i += 1) {
@@ -639,7 +639,7 @@ Cubing.checkItem = function (unit) {
 
 Cubing.validItem = function (unit, recipe) {
 	// Don't use items in locked inventory space
-	if (unit.mode === 0 && unit.location === 3 && Storage.Inventory.IsLocked(unit, Config.Inventory)) {
+	if (unit.isInInventory && Storage.Inventory.IsLocked(unit, Config.Inventory)) {
 		return false;
 	}
 
@@ -684,6 +684,12 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index >= Recipe.Unique.Weapon.ToExceptional && recipe.Index <= Recipe.Unique.Armor.ToElite) {
+		// If item is equipped, ensure we can use the upgraded version
+		if (unit.isEquipped) {
+			if (me.charlvl < unit.upgradedLvlReq || me.trueStr < unit.upgradedStrReq || me.trueDex < unit.upgradedDexReq) {
+				return false;
+			}
+		}
 		// Unique item matching pickit entry
 		if (unit.quality === 7 && NTIP.CheckItem(unit) === 1) {
 			switch (recipe.Ethereal) {
@@ -812,7 +818,7 @@ Cubing.doCubing = function () {
 		return false;
 	}
 
-	let i, j, items, string, result, tempArray;
+	let i, j, items, string, result, tempArray, wasEquipped = false;
 
 	this.update();
 	// Randomize the recipe array to prevent recipe blocking (multiple caster items etc.)
@@ -834,6 +840,7 @@ Cubing.doCubing = function () {
 
 			while (items.length) {
 				string += (items[0].name.trim() + (items.length > 1 ? " + " : ""));
+				if (items[0].isEquipped) { wasEquipped = true; }
 				Storage.Cube.MoveTo(items[0]);
 				items.shift();
 			}
@@ -901,6 +908,10 @@ Cubing.doCubing = function () {
 			me.cancel();
 			delay(300);
 		}
+	}
+
+	if (wasEquipped) {
+		Item.autoEquip();
 	}
 
 	return true;

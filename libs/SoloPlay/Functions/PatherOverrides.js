@@ -109,14 +109,12 @@ Pather.checkForTeleCharges = function () {
 };
 
 Pather.canUseTeleCharges = function () {
-	if (me.inTown || me.getState(sdk.states.Wearwolf) || me.getState(sdk.states.Wearbear)) {
+	if (me.classic || me.inTown || me.shapeshifted) {
 		return false;
 	}
 
-	let gold = me.getStat(sdk.stats.Gold) + me.getStat(sdk.stats.GoldBank);
-
 	// Charges are costly so make sure we have enough gold to handle repairs unless we are in maggot lair since thats a pita and worth the gold spent
-	if (gold < 500000 && [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].indexOf(me.area) === -1) {
+	if (me.gold < 500000 && [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].indexOf(me.area) === -1) {
 		return false;
 	}
 

@@ -129,25 +129,6 @@ function LoadConfig () {
 	Config.AutoMule.Force = [];
 	Config.AutoMule.Exclude = [
 		"[name] >= Elrune && [name] <= Lemrune",
-		"[name] == mephisto'ssoulstone",
-		"[name] == hellforgehammer",
-		"[name] == scrollofinifuss",
-		"[name] == keytothecairnstones",
-		"[name] == bookofskill",
-		"[name] == horadriccube",
-		"[name] == shaftofthehoradricstaff",
-		"[name] == topofthehoradricstaff",
-		"[name] == horadricstaff",
-		"[name] == ajadefigurine",
-		"[name] == thegoldenbird",
-		"[name] == potionoflife",
-		"[name] == lamesen'stome",
-		"[name] == khalim'seye",
-		"[name] == khalim'sheart",
-		"[name] == khalim'sbrain",
-		"[name] == khalim'sflail",
-		"[name] == khalim'swill",
-		"[name] == scrollofresistance",
 	];
 
 	/* AutoEquip configuration. */
@@ -277,6 +258,11 @@ function LoadConfig () {
 			NTIP.addLine("[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000");
 		}
 
+		/* Crafting */
+		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
+			Config.Recipes.push([Recipe.Caster.Amulet]);
+		}
+
 		// FinalBuild specific setup
 		switch (SetUp.finalBuild) {
 		case 'Wind':
@@ -300,6 +286,12 @@ function LoadConfig () {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js")) {
 					include("SoloPlay/BuildFiles/Runewords/Enigma.js");
 				}
+			}
+
+			// upgrade magefist
+			if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
+				Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
+				Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth]);
 			}
 
 			break;
