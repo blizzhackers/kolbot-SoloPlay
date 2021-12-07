@@ -198,7 +198,7 @@ Object.defineProperties(Unit.prototype, {
 	isOnSwap: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) { return false; }
-			return this.location === sdk.storage.Equipped && [11, 12].indexOf(this.location) > -1;
+			return this.location === sdk.storage.Equipped && (me.weaponswitch === 0 && [11, 12].indexOf(this.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(this.bodylocation) > -1);
 		}
 	},
 	identified: {

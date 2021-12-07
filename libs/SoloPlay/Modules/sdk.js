@@ -1933,12 +1933,12 @@
 
 		itemmode: {
 			inStorage: 0, //Item inven stash cube store = Item inven stash cube store
-			equipped: 1, // Item equipped self or merc
+			Equipped: 1, // Item equipped self or merc
 			inBelt: 2, // Item in belt
 			onGround: 3, // Item on ground
 			onCursor: 4, // Item on cursor
-			dropping: 5, // Item being dropped
-			socketed: 6 // Item socketed in item
+			Dropping: 5, // Item being dropped
+			Socketed: 6 // Item socketed in item
 		},
 
 		// Same apply's for merc with less things available

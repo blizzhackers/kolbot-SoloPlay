@@ -486,7 +486,7 @@ Cubing.buildLists = function () {
 
 	this.validIngredients = [];
 	this.neededIngredients = [];
-	items = me.getItems().filter(item => [sdk.itemmode.inStorage, sdk.itemmode.equipped].indexOf(item.mode) > -1);
+	items = me.getItems().filter(item => [sdk.itemmode.inStorage, sdk.itemmode.Equipped].indexOf(item.mode) > -1);
 	items.sort((a, b) => b.ilvl - a.ilvl);
 
 	for (i = 0; i < this.recipes.length; i += 1) {
@@ -614,7 +614,7 @@ Cubing.checkItem = function (unit) {
 
 	for (let i = 0; i < this.validIngredients.length; i++) {
 		// not the same item but the same type of item
-		if (unit.mode !== sdk.itemmode.equipped && unit.gid !== this.validIngredients[i].gid && unit.classid === this.validIngredients[i].classid && unit.quality === this.validIngredients[i].quality) {
+		if (unit.mode !== sdk.itemmode.Equipped && unit.gid !== this.validIngredients[i].gid && unit.classid === this.validIngredients[i].classid && unit.quality === this.validIngredients[i].quality) {
 			// item is better than the one we currently have, so add it to validIngredient array and remove old item
 			if (unit.ilvl > this.validIngredients[i].ilvl && this.validItem(unit, this.validIngredients[i].recipe)) {
 				this.validIngredients.push({classid: unit.classid, quality: unit.quality, ilvl: unit.ilvl, gid: unit.gid, recipe: this.validIngredients[i].recipe});

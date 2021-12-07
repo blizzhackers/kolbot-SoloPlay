@@ -385,7 +385,7 @@ Item.removeItem = function (bodyLoc) {
 	let cursorItem,
 		removable = me.getItems()
 			.filter(item =>
-				item.mode === sdk.itemmode.equipped
+				item.mode === sdk.itemmode.Equipped
 				&& item.bodylocation === bodyLoc
 			)
 			.first();
@@ -499,7 +499,7 @@ Item.secondaryEquip = function (item, bodyLoc) {
 	}
 
 	// Already equipped in the right slot
-	if (item.mode === sdk.itemmode.equipped && item.bodylocation === bodyLoc) {
+	if (item.mode === sdk.itemmode.Equipped && item.bodylocation === bodyLoc) {
 		return true;
 	}
 

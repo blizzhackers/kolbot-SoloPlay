@@ -338,7 +338,7 @@ MuleLogger.logEquippedItems = function () {
 
 			break;
 		case sdk.itemmode.Equipped:
-			if (!items[i].isOnSwap) {
+			if (items[i].isOnSwap) {
 				parsedItem.title += " (secondary equipped)";
 			} else {
 				parsedItem.title += " (equipped)";
