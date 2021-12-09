@@ -8,7 +8,7 @@ if (!isIncluded("OOG.js")) {
 	include("OOG.js");
 }
 
-const sdk = require('../modules/sdk');
+let sdk = require('../modules/sdk');
 
 // general settings
 let Difficulty = ['Normal', 'Nightmare', 'Hell'];
@@ -136,6 +136,9 @@ const SetUp = {
 				break;
 			case "Auradin":
 				respec = Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream") ? me.charlvl : 100;
+				break;
+			case "Torchadin":
+				respec = Check.haveItem("sword", "runeword", "Hand of Justice") && Check.haveItem("armor", "runeword", "Dragon") ? me.charlvl : 100;
 				break;
 			case "Immortalwhirl":
 				// Whole IK Set
