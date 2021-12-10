@@ -16,14 +16,16 @@ If you are enjoying this project consider supporting me at https://www.buymeacof
 
 ## Features
 - Operates in Hell difficulty within 24 hours (the exception is the barbarian class that takes 48)
+  - **NOTE:** Classic mode will take a little longer
 - Includes character build options for final respec (see **Frequently Asked Questions** for more info)
-- Plays and finishes the game through Act 5 Hell
+- Plays through and finishes the game
 - Hires class/build specific mercenary
-- Fully configured Autoequip for bot and mercenary
+- Fully configured Autoequip (Primary, Secondary, and Charms) for bot and mercenary
 - Makes and equips CTA and spirit shield on swap
-- Uses and dynamically equips charms
-- Add socketables to gear (for example Perfect Diamonds to Moser's Blessed Shield or Um rune to Shako)
-- Kill diablo clone and share Annhilus charm with other profiles, if current profile already has one
+  - **NOTE:** Some classes don't use CTA and spirit, I.E Barbarian class uses duel Bo sticks.
+- Add socketables to gear (I.E P-Diamonds or Um runes to Moser's Blessed Shield, Um rune to Shako)
+- Kill diablo clone in expansion
+  - Will try to share Annhilus charm if online and already has one
 
 ## Available Characters and Builds
 | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
@@ -32,7 +34,7 @@ If you are enjoying this project consider supporting me at https://www.buymeacof
 | Witchyzon | Blizzballer |   Bone | Smiter| Immortalwhirl | Elemental |
 | | Meteorb | Summon | Auradin | Frenzy | Plaguewolf |
 | | Blova | | Zealer | Uberconc | Wolf |
-| | Lightning | | | Singer |
+| | Lightning | | Torchadin | Singer |
 
 ## New modes
 - Two new modes are available: **Bumper** and **Socketmule**. Enter either of these into your D2Bot# profile info tag to make. The bot will then stop after shenk quest for Socketmule and after it hits level 40 for a Bumper.
@@ -54,7 +56,8 @@ If you are enjoying this project consider supporting me at https://www.buymeacof
 
 **Q: The bot has beaten diablo (classic) / baal, so why isn't moving on to the next difficulty?**
 
-**A:** The bot will only progress once it has reached a minimum minimum character level (33 for normal and 65 for nightmare) and will not start the next difficulty with negative resistances. If the bot is more than 5 levels higher than the minimum character level and has not reached the required resistances, it will automatically move to the next difficulty.
+**A:** The bot will only progress once it has reached a minimum character level (`navigate to libs\SoloPlay
+Functions\Globals.js` and see `SetUp.levelCap` for level requirments) and will not start the next difficulty with negative resistances. If the bot is more than 5 levels higher than the minimum character level and has not reached the required resistances, it will automatically move to the next difficulty.
 
 **Q: How can I run more than one of the same class?**
 
@@ -140,12 +143,15 @@ https://youtu.be/qYHUw6nNn74
 ## Extras
 - Navigate to libs\SoloPlay\Tools\Developer.js for extra options
 - Developer.js includes options such as:
-  - logging equipped items
-  - Turning on/off the overlay
-  - Options to fillAccount for Socketmule/Bumper
-  - showing or hiding casting animations
-  - developerMode
-  - Debugging
+  - plugyMode toggle
+  - logging equipped items to D2Bot# Char Viewer tab
+  - Overlay toggle
+  - logPerformance toggle
+  - fillAccount toggle for Socketmule/Bumper mode
+  - Packet casting (casting animations) toggle
+  - developerMode (load up profile in SoloPlay mode without starting scripts)
+  - Debugging (auto-equip, crafting, junkCheck information printed to console)
+  - stopAtLevel option (enter a profile and level to stop it once it meets the requirment)
 
 ## Single Player Additons
 - Enable ladder runewords
