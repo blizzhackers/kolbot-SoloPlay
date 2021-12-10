@@ -38,7 +38,6 @@ Attack.init = function () {
 
 	if (me.expansion) {
 		this.checkInfinity();
-		this.getCharges();
 		this.getPrimarySlot();
 		this.checkIsAuradin();
 	}
@@ -947,7 +946,7 @@ Attack.sortMonsters = function (unitA, unitB) {
 	}
 
 	// Barb optimization
-	if (me.classid === 4) {
+	if (me.barbarian) {
 		if (!Attack.checkResist(unitA, Attack.getSkillElement(Config.AttackSkill[(unitA.spectype & 0x7) ? 1 : 3]))) {
 			return 1;
 		}
@@ -958,29 +957,29 @@ Attack.sortMonsters = function (unitA, unitB) {
 	}
 
 	// Baal optimization
-	if (me.area === 132) {
-		if (unitA.classid === 544) {
+	if (me.area === sdk.areas.WorldstoneChamber) {
+		if (unitA.classid === sdk.monsters.Baal) {
 			return -1;
 		}
 
-		if (unitB.classid === 544) {
+		if (unitB.classid === sdk.monsters.Baal) {
 			return 1;
 		}
 	}
 
 	// Put monsters under Attract curse at the end of the list - They are helping us
-	if (unitA.getState(57)) {
+	if (unitA.getState(sdk.states.Attract)) {
 		return 1;
 	}
 
-	if (unitB.getState(57)) {
+	if (unitB.getState(sdk.states.Attract)) {
 		return -1;
 	}
 
 	// Added Oblivion Knights
 	let ids = [312, 58, 59, 60, 61, 62, 101, 102, 103, 104, 105, 278, 279, 280, 281, 282, 298, 299, 300, 645, 646, 647, 662, 663, 664, 667, 668, 669, 670, 675, 676];
 
-	if (me.area !== 61 && ids.indexOf(unitA.classid) > -1 && ids.indexOf(unitB.classid) > -1) {
+	if (me.area !== sdk.areas.ClawViperTempleLvl2 && ids.indexOf(unitA.classid) > -1 && ids.indexOf(unitB.classid) > -1) {
 		// Kill "scary" uniques first (like Bishibosh)
 		if ((unitA.spectype & 0x04) && (unitB.spectype & 0x04)) {
 			return getDistance(me, unitA) - getDistance(me, unitB);

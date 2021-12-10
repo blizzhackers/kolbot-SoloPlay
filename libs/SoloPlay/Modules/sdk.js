@@ -1501,7 +1501,6 @@
 			GrotesqueWyrm2: 677,
 			Guardian1: 102,
 			Guardian2: 667,
-			H2: 561,
 			Hawk: 419,
 			Heirophant1: 240,
 			Heirophant2: 241,
@@ -1866,7 +1865,6 @@
 			Fara: 178,
 			Gheed: 147,
 			Greiz: 198,
-			Guard: 338,
 			Halbu: 257,
 			Hratli: 253,
 			Jamella: 405,
@@ -1888,6 +1886,14 @@
 			TempleGuard3: 666,
 			Townguard1: 535,
 			Townguard2: 536,
+
+            // Merc's
+            mercs: {
+                Rogue: 271,
+    			Guard: 338,
+                IronWolf: 359,
+                A5Barb: 561,
+            },
 
 			// Objects
 			Turret1: 348,

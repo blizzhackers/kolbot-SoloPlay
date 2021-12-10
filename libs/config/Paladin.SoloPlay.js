@@ -64,9 +64,9 @@ function LoadConfig () {
 	Config.ShowCubingInfo = true;
 
 	/* DClone. */
-	Config.StopOnDClone = true; // Go to town and idle as soon as Diablo walks the Earth
+	Config.StopOnDClone = !!me.expansion; // Go to town and idle as soon as Diablo walks the Earth
 	Config.SoJWaitTime = 5; 	// Time in minutes to wait for another SoJ sale before leaving game. 0 = disabled
-	Config.KillDclone = true;
+	Config.KillDclone = !!me.expansion;
 	Config.DCloneQuit = false; 	// 1 = quit when Diablo walks, 2 = quit on soj sales, false = disabled
 
 	/* Town configuration. */
@@ -243,10 +243,13 @@ function LoadConfig () {
 	Config.Charge = true;
 	Config.Redemption = [45, 25];
 
+	let finalGear = Check.finalBuild().finalGear;
+	if (!!finalGear) {
+		NTIP.arrayLooping(finalGear);
+	}
+
 	/* LOD gear */
 	if (!me.classic) {
-		let finalGear = Check.finalBuild().finalGear;
-		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
 
 		/* Crafting */

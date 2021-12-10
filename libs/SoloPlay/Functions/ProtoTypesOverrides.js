@@ -1,9 +1,12 @@
 /*
 *	@filename	ProtoTypesOverrides.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy, isid0re
 *	@credits 	Jaenster
 *	@desc		additions for improved Kolbot-SoloPlay functionality and code readability
 */
+
+
+let sdk = require('../modules/sdk');
 
 // Credit @Jaenster
 Unit.prototype.getItems = function (...args) {
@@ -59,8 +62,32 @@ Object.defineProperties(Unit.prototype, {
 	},
 });
 
-// Credit @Jaenster
+let resPenalty;
 Object.defineProperties(Unit.prototype, {
+	fireRes: {
+		get: function () {
+			if (resPenalty === undefined) { resPenalty = me.classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]; }
+			return Math.min(75, this.getStat(sdk.stats.FireResist) - resPenalty);
+		}
+	},
+	coldRes: {
+		get: function () {
+			if (resPenalty === undefined) { resPenalty = me.classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]; }
+			return Math.min(75, this.getStat(sdk.stats.ColdResist) - resPenalty);
+		}
+	},
+	lightRes: {
+		get: function () {
+			if (resPenalty === undefined) { resPenalty = me.classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]; }
+			return Math.min(75, this.getStat(sdk.stats.LightResist) - resPenalty);
+		}
+	},
+	poisonRes: {
+		get: function () {
+			if (resPenalty === undefined) { resPenalty = me.classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]; }
+			return Math.min(75, this.getStat(sdk.stats.PoisonResist) - resPenalty);
+		}
+	},
 	rawStrength: {
 		get: function () {
 			let lvl = this.getStat(sdk.stats.Level);
@@ -261,7 +288,6 @@ Object.defineProperties(Unit.prototype, {
 });
 
 let str = 0, levelCheckS = 0, dex = 0, levelCheckD = 0;
-let resPenalty = me.classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff];
 Object.defineProperties(me, {
 	highestAct: {
 		get: function () {
@@ -314,26 +340,6 @@ Object.defineProperties(me, {
 	shapeshifted: {
 		get: function () {
 			return me.getState(sdk.states.Wolf) || me.getState(sdk.states.Bear) || me.getState(sdk.states.Delerium);
-		}
-	},
-	fireRes: {
-		get: function () {
-			return Math.min(75, me.getStat(sdk.stats.FireResist) - resPenalty);
-		}
-	},
-	coldRes: {
-		get: function () {
-			return Math.min(75, me.getStat(sdk.stats.ColdResist) - resPenalty);
-		}
-	},
-	lightRes: {
-		get: function () {
-			return Math.min(75, me.getStat(sdk.stats.LightResist) - resPenalty);
-		}
-	},
-	poisonRes: {
-		get: function () {
-			return Math.min(75, me.getStat(sdk.stats.PoisonResist) - resPenalty);
 		}
 	},
 });

@@ -397,6 +397,9 @@ Pather.walkTo = function (x, y, minDist) {
 		if (Config.Charge && me.paladin && me.mp >= 9 && getDistance(me.x, me.y, x, y) > 8 && Skill.setSkill(sdk.skills.Charge, 1)) {
 			if (Config.Vigor) {
 				Skill.setSkill(sdk.skills.Vigor, 0);
+			} else if (!Config.Vigor && me.classic && Config.AttackSkill[6] === sdk.skills.HolyFreeze && me.getSkill(sdk.skills.HolyFreeze, 1)) {
+				// Useful in classic to keep mobs cold while you rush them
+				Skill.setSkill(sdk.skills.HolyFreeze, 0);
 			}
 			Misc.click(0, 1, x, y);
 			while (me.mode !== 1 && me.mode !== 5 && !me.dead) {

@@ -602,7 +602,7 @@ const Check = {
 	},
 
 	Gold: function () {
-		let gold = me.getStat(14) + me.getStat(15);
+		let gold = me.gold;
 		let goldLimit = [25000, 50000, 100000][me.diff];
 
 		if ((me.normal && !Pather.accessToAct(2)) || gold >= goldLimit) {
@@ -615,7 +615,7 @@ const Check = {
 	},
 
 	brokeAf: function () {
-		let gold = me.getStat(14) + me.getStat(15);
+		let gold = me.gold;
 		let goldLimit = [10000, 25000, 50000][me.diff];
 
 		if (gold >= goldLimit || me.charlvl < 15 || (me.charlvl >= 15 && gold > 1000 && Item.getEquippedItem(4).durability !== 0)) {
@@ -629,7 +629,7 @@ const Check = {
 	},
 
 	broken: function () {
-		let gold = me.getStat(14) + me.getStat(15);
+		let gold = me.gold;
 
 		// Almost broken but not quite
 		if (((Item.getEquippedItem(4).durability <= 30 && Item.getEquippedItem(4).durability > 0) || Item.getEquippedItem(5).durability <= 30 && Item.getEquippedItem(5).durability > 0) &&
@@ -647,11 +647,7 @@ const Check = {
 
 	Resistance: function () {
 		let resStatus,
-			resPenalty = me.classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff],
-			frRes = me.getStat(39) - resPenalty,
-			lrRes = me.getStat(41) - resPenalty,
-			crRes = me.getStat(43) - resPenalty,
-			prRes = me.getStat(45) - resPenalty;
+			frRes = me.fireRes, lrRes = me.lightRes, crRes = me.coldRes, prRes = me.poisonRes;
 
 		if ((frRes >= 0) && (lrRes >= 0) && (crRes >= 0)) {
 			resStatus = true;
