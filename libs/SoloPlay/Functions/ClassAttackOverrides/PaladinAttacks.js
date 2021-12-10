@@ -56,16 +56,32 @@ ClassAttack.doAttack = function (unit, preattack) {
 		aura = Config.AttackSkill[index + 1];
 	}
 
-	// Monster immune to primary skill
-	if (!Attack.checkResist(unit, attackSkill)) {
-		// Reset skills
-		attackSkill = -1;
-		aura = -1;
+	// Classic auradin check
+	if ([sdk.skills.HolyFire, sdk.skills.HolyFreeze, sdk.skills.HolyShock].indexOf(aura) > -1) {
+		// Monster immune to primary aura
+		if (!Attack.checkResist(unit, aura)) {
+			// Reset skills
+			attackSkill = -1;
+			aura = -1;
 
-		// Set to secondary if not immune
-		if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5])) {
-			attackSkill = Config.AttackSkill[5];
-			aura = Config.AttackSkill[6];
+			// Set to secondary if not immune, check if using secondary attack aura if not check main skill for immunity
+			if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, ([sdk.skills.HolyFire, sdk.skills.HolyFreeze, sdk.skills.HolyShock].indexOf(Config.AttackSkill[6]) > -1 ? Config.AttackSkill[6] : Config.AttackSkill[5]))) {
+				attackSkill = Config.AttackSkill[5];
+				aura = Config.AttackSkill[6];
+			}
+		}
+	} else {
+		// Monster immune to primary skill
+		if (!Attack.checkResist(unit, attackSkill)) {
+			// Reset skills
+			attackSkill = -1;
+			aura = -1;
+
+			// Set to secondary if not immune
+			if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5])) {
+				attackSkill = Config.AttackSkill[5];
+				aura = Config.AttackSkill[6];
+			}
 		}
 	}
 

@@ -1,6 +1,6 @@
 /**
 *	@filename	cows.js
-*	@author		kolton, modified by isid0re for SoloPlay, leave if near cow king by theBGuy
+*	@author		kolton, modified by isid0re and theBGuy for SoloPlay, leave if near cow king by theBGuy
 *	@desc		clear the Moo Moo Farm without killing the Cow King
 */
 
@@ -10,7 +10,7 @@ function cows () {
 			finalRooms = [],
 			indexes = [];
 
-		kingPreset = getPresetUnit(39, 1, 773);
+		kingPreset = getPresetUnit(sdk.areas.MooMooFarm, sdk.unittype.Monster, sdk.monsters.preset.TheCowKing);
 		badRooms = getRoom(kingPreset.roomx * 5 + kingPreset.x, kingPreset.roomy * 5 + kingPreset.y).getNearby();
 
 		for (i = 0; i < badRooms.length; i += 1) {
@@ -73,8 +73,8 @@ function cows () {
 	};
 
 	this.getLeg = function () {
-		if (me.getItem(88)) {
-			return me.getItem(88);
+		if (me.getItem(sdk.items.quest.WirtsLeg)) {
+			return me.getItem(sdk.items.quest.WirtsLeg);
 		}
 
 		// Cain is incomplete, complete it then continue
@@ -90,22 +90,31 @@ function cows () {
 					break;
 				}
 			}
+
+			if (!me.inTown) {
+				Town.goToTown();
+			}
 		}
 
-		Pather.useWaypoint(4); // get leg
+		Pather.useWaypoint(sdk.areas.StonyField);
 		Precast.doPrecast(true);
-		Pather.moveToPreset(4, 1, 737, 8, 8);
-		Pather.usePortal(38);
-		Pather.moveTo(25048, 5177);
-		Quest.collectItem(88, 268);
-		Pickit.pickItems();
-		Town.goToTown();
+		Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Monster, sdk.monsters.preset.Rakanishu, 8, 8);
+		Pather.usePortal(sdk.areas.Tristram);
 
-		return me.getItem(88);
+		if (me.area === sdk.areas.Tristram) {
+			Pather.moveTo(25048, 5177);
+			Quest.collectItem(sdk.items.quest.WirtsLeg, 268);
+			Pickit.pickItems();
+			Town.goToTown();
+		} else {
+			return false;
+		}
+
+		return me.getItem(sdk.items.quest.WirtsLeg);
 	};
 
 	this.openPortal = function (portalID, ...classIDS) {
-		if (me.area !== 1) {
+		if (me.area !== sdk.areas.RogueEncampment) {
 			Town.goToTown(1);
 		}
 
@@ -115,6 +124,10 @@ function cows () {
 
 		if (!Cubing.emptyCube()) {
 			print('ÿc8Kolbot-SoloPlayÿc0: Failed to empty cube. (openPortal)');
+		}
+
+		if (!me.getItem(sdk.items.quest.WirtsLeg)) {
+			return false;
 		}
 
 		let cubingItem;
@@ -152,25 +165,35 @@ function cows () {
 		return true;
 	};
 
-	NTIP.addLine("[Name] == wirt'sleg");
+	if ((me.classic && !me.diablo) || (me.expansion && !me.baal)) {
+		print('ÿc8Kolbot-SoloPlayÿc0: Final quest incomplete, cannot make cows yet');
+		return true;
+	}
+
 	Town.townTasks();
 	print('ÿc8Kolbot-SoloPlayÿc0: starting cows');
 	me.overhead("cows");
-	this.getLeg();
+
+	if (!Pather.getPortal(sdk.areas.MooMooFarm) && !this.getLeg()) {
+		return true;
+	}
+	
 	Town.doChores();
-	this.openPortal(39, 88, 518);
+	this.openPortal(sdk.areas.MooMooFarm, sdk.items.quest.WirtsLeg, sdk.items.TomeofTownPortal);
 	Town.buyBook();
 
 	if (Pather.canTeleport()) {
-		Misc.getExpShrine([4, 5, 6]);
+		Misc.getExpShrine([sdk.areas.StonyField, sdk.areas.DarkWood, sdk.areas.BlackMarsh]);
 	} else {
-		Misc.getExpShrine([2]);
+		Misc.getExpShrine([sdk.areas.BloodMoor]);
 	}
 	
 	Town.move("stash");
-	Pather.usePortal(39);
-	Precast.doPrecast(true);
-	this.clearCowLevel();
+
+	if (Pather.usePortal(sdk.areas.MooMooFarm)) {
+		Precast.doPrecast(true);
+		this.clearCowLevel();
+	}
 
 	return true;
 }

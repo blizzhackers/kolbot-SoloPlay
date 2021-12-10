@@ -261,6 +261,7 @@ Object.defineProperties(Unit.prototype, {
 });
 
 let str = 0, levelCheckS = 0, dex = 0, levelCheckD = 0;
+let resPenalty = me.classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff];
 Object.defineProperties(me, {
 	highestAct: {
 		get: function () {
@@ -314,7 +315,27 @@ Object.defineProperties(me, {
 		get: function () {
 			return me.getState(sdk.states.Wolf) || me.getState(sdk.states.Bear) || me.getState(sdk.states.Delerium);
 		}
-	}
+	},
+	fireRes: {
+		get: function () {
+			return Math.min(75, me.getStat(sdk.stats.FireResist) - resPenalty);
+		}
+	},
+	coldRes: {
+		get: function () {
+			return Math.min(75, me.getStat(sdk.stats.ColdResist) - resPenalty);
+		}
+	},
+	lightRes: {
+		get: function () {
+			return Math.min(75, me.getStat(sdk.stats.LightResist) - resPenalty);
+		}
+	},
+	poisonRes: {
+		get: function () {
+			return Math.min(75, me.getStat(sdk.stats.PoisonResist) - resPenalty);
+		}
+	},
 });
 
 // Credit @Jaenster
@@ -913,6 +934,16 @@ Object.defineProperty(Unit.prototype, 'classic', {
 		}
 
 		return this.gametype === 0;
+	}
+});
+
+Object.defineProperty(Unit.prototype, 'expansion', {
+	get: function () {
+		if (this.type > 0) {
+			throw new Error("Unit.expansion: Must be used with player units.");
+		}
+
+		return this.gametype === 1;
 	}
 });
 

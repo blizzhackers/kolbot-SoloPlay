@@ -12,8 +12,12 @@ let Coords_1 = require("../Modules/Coords");
 
 Attack.IsAuradin = false;
 Attack.stopClear = false;
-Attack.MainBosses = [156, 211, 242, 243, 544];
-Attack.BossAndMiniBosses = [156, 211, 242, 243, 544, 229, 250, 256, 267, 365, 409, 540, 541, 542];
+Attack.MainBosses = [sdk.monsters.Andariel, sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal];
+Attack.BossAndMiniBosses = [
+	sdk.monsters.Andariel, sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal,
+	sdk.monsters.Radament, sdk.monsters.Summoner, sdk.monsters.Izual, sdk.monsters.BloodRaven, sdk.monsters.Griswold,
+	sdk.monsters.Hephasto, sdk.monsters.KorlictheProtector, sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian
+];
 Attack.currentChargedSkills = [];
 Attack.chargedSkillsOnSwitch = [];
 
@@ -32,7 +36,7 @@ Attack.init = function () {
 		print("ÿc1Bad attack config. Don't expect your bot to attack.");
 	}
 
-	if (me.gametype === 1) {
+	if (me.expansion) {
 		this.checkInfinity();
 		this.getCharges();
 		this.getPrimarySlot();
@@ -43,12 +47,12 @@ Attack.init = function () {
 Attack.checkIsAuradin = function () {
 	let item;
 
-	// Check player Dragon or Dream
-	item = me.getItem(-1, 1);
+	// Check player Dragon, Dream, or HoJ
+	item = me.getItem(-1, sdk.itemmode.Equipped);
 
 	if (item) {
 		do {
-			if (item.getPrefix(20533) || item.getPrefix(20535)) {
+			if (item.getPrefix(sdk.locale.items.Dragon) || item.getPrefix(sdk.locale.items.Dream) || item.getPrefix(sdk.locale.items.HandofJustice)) {
 				this.IsAuradin = true;
 
 				return true;
@@ -63,14 +67,20 @@ Attack.getSkillElement = function (skillId) {
 	this.elements = ["physical", "fire", "lightning", "magic", "cold", "poison", "none"];
 
 	switch (skillId) {
-	case 74: // Corpse Explosion
-	case 139: // Stun
-	case 144: // Concentrate
-	case 147: // Frenzy
-	case 273: // Mind Blast
+	case sdk.skills.HolyFire:
+		return "fire";
+	case sdk.skills.HolyFreeze:
+		return "cold";
+	case sdk.skills.HolyShock:
+		return "lightning";
+	case sdk.skills.CorpseExplosion:
+	case sdk.skills.Stun:
+	case sdk.skills.Concentrate:
+	case sdk.skills.Frenzy:
+	case sdk.skills.MindBlast:
 	case 500: // Summoner
 		return "physical";
-	case 101: // Holy Bolt
+	case sdk.skills.HolyBolt:
 		return "holybolt"; // no need to use this.elements array because it returns before going over the array
 	}
 
@@ -90,7 +100,7 @@ Attack.checkResist = function (unit, val, maxres) {
 	}
 
 	// Ignore player resistances
-	if (unit.type === 0) {
+	if (unit.type === sdk.unittype.Player) {
 		return true;
 	}
 
@@ -101,23 +111,67 @@ Attack.checkResist = function (unit, val, maxres) {
 	}
 
 	// Static handler
-	if (val === 42 && this.getResist(unit, damageType) < 100) {
+	if (val === sdk.skills.StaticField && this.getResist(unit, damageType) < 100) {
 		return (unit.hp * 100 / 128) > Config.CastStatic;
 	}
 
-	if (this.infinity && ["fire", "lightning", "cold"].indexOf(damageType) > -1 && unit.getState) { // baal in throne room doesn't have getState
-		if (!unit.getState(28)) {
+	// baal in throne room doesn't have getState
+	if (this.infinity && ["fire", "lightning", "cold"].indexOf(damageType) > -1 && unit.getState) {
+		if (!unit.getState(sdk.states.Conviction)) {
 			return this.getResist(unit, damageType) < 117;
 		}
 
 		return this.getResist(unit, damageType) < maxres;
 	}
 
-	if (this.IsAuradin && ["physical"].indexOf(damageType) > -1 && unit.getState) { // baal in throne room doesn't have getState
-		return true;
+	if (this.IsAuradin && ["physical"].indexOf(damageType) > -1 && me.getState(sdk.states.Conviction) && unit.getState) {
+		let valid = false;
+
+		if (!unit.getState(sdk.states.Conviction)) {
+			let max = 6 + me.getSkill(sdk.skills.Conviction, 1);
+			// conviction caps at 150% at level 25
+			return this.getResist(unit, damageType) < 100 + (max < 30 ? max : 30);
+		}
+
+		// check unit's fire resistance
+		if (me.getState(sdk.states.HolyFire)) {
+			valid = this.getResist(unit, "fire") < maxres;
+		}
+
+		// check unit's light resistance but only if the above check failed
+		if (me.getState(sdk.states.HolyShock) && !valid) {
+			valid = this.getResist(unit, "lightning") < maxres;
+		}
+
+		// TODO: maybe if still invalid at this point check physical resistance? Although if we are an auradin our physcial dps is low
+
+		return valid;
 	}
 
+	// TODO: calculate lower res effectivness
+
 	return this.getResist(unit, damageType) < maxres;
+};
+
+Attack.canAttack = function (unit) {
+	if (unit.type === sdk.unittype.Monster) {
+		// Unique/Champion
+		if (unit.spectype & 0x7) {
+			if (Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[1])) || Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[2]))) {
+				return true;
+			}
+		} else {
+			if (Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[3])) || Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[4]))) {
+				return true;
+			}
+		}
+
+		if (Config.AttackSkill.length === 7) {
+			return Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[5])) || Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[6]));
+		}
+	}
+
+	return false;
 };
 
 Attack.isCursable = function (unit) {
@@ -125,7 +179,8 @@ Attack.isCursable = function (unit) {
 		return false;
 	}
 
-	if (unit.getState(57)) { // attract can't be overridden
+	// attract can't be overridden
+	if (unit.getState(sdk.states.Attract)) {
 		return false;
 	}
 
@@ -168,8 +223,10 @@ Attack.isCursable = function (unit) {
 Attack.killTarget = function (name) {
 	let target,	attackCount = 0;
 
+	if (typeof name === "string") { name = name.toLowerCase(); }
+
 	for (let i = 0; !target && i < 5; i += 1) {
-		target = getUnit(1, name);
+		target = getUnit(sdk.unittype.Monster, name);
 
 		if (target) {
 			break;
@@ -186,7 +243,8 @@ Attack.killTarget = function (name) {
 		return true;
 	}
 
-	if (target && !Attack.canAttack(target)) { // exit if target is immune
+	// exit if target is immune
+	if (target && !Attack.canAttack(target)) {
 		print("ÿc8KillTargetÿc0 :: Attack failed. " + target.name + " is immune.");
 
 		return true;
@@ -195,7 +253,7 @@ Attack.killTarget = function (name) {
 	while (attackCount < Config.MaxAttackCount) {
 		if (Misc.townCheck()) {
 			for (let i = 0; !target && i < 5; i += 1) {
-				target = getUnit(1, name);
+				target = getUnit(sdk.unittype.Monster, name);
 
 				if (target) {
 					break;
@@ -205,8 +263,9 @@ Attack.killTarget = function (name) {
 			}
 		}
 
-		if (!target || !copyUnit(target).x) { // Check if unit got invalidated, happens if necro raises a skeleton from the boss's corpse.
-			target = getUnit(1, name);
+		// Check if unit got invalidated, happens if necro raises a skeleton from the boss's corpse.
+		if (!target || !copyUnit(target).x) {
+			target = getUnit(sdk.unittype.Monster, name);
 
 			if (!target) {
 				break;
@@ -475,25 +534,18 @@ Attack.buildMonsterList = function (skipBlocked) {
 	return monList;
 };
 
-Attack.getMobCount = function (x, y, range, list, filter) {
-	let i,
-		count = 0,
-		ignored = [243];
-
-	if (filter === undefined) {
-		filter = false;
-	}
+Attack.getMobCount = function (x, y, range, list, filter = false) {
+	let i, count = 0, ignored = [243];
 
 	if (list === undefined || list === null || !list.length) {
 		list = this.buildMonsterList(true);
 		list.sort(Sort.units);
-		let newList;
 
 		if (filter) {
-			newList = list.filter(mob => mob.spectype === 0);
+			list = list.filter(mob => mob.spectype === 0);
 
-			for (i = 0; i < newList.length; i++) {
-				if (ignored.indexOf(newList[i].classid) === -1 && this.checkMonster(newList[i]) && getDistance(x, y, newList[i].x, newList[i].y) <= range) {
+			for (i = 0; i < list.length; i++) {
+				if (ignored.indexOf(list[i].classid) === -1 && this.checkMonster(list[i]) && getDistance(x, y, list[i].x, list[i].y) <= range) {
 					count += 1;
 				}
 			}
@@ -732,7 +784,7 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit) { // probabl
 
 	if (bossId) {
 		for (i = 0; !boss && i < 5; i += 1) {
-			boss = bossId > 999 ? getUnit(1, -1, -1, bossId) : getUnit(1, bossId);
+			boss = bossId > 999 ? getUnit(sdk.unittype.Monster, -1, -1, bossId) : getUnit(sdk.unittype.Monster, bossId);
 
 			delay(200);
 		}
@@ -1205,16 +1257,20 @@ Attack.pwnDia = function () {
 			.filter(function (el) { return Attack.validSpot(el.x, el.y); });
 	};
 
-	let getDiablo = function () { return getUnit(1, 243); };
+	let getDiablo = function () { return getUnit(sdk.unittype.Monster, sdk.monsters.Diablo); };
 	{
 		let nearSpot = Attack.spotOnDistance({ x: 7792, y: 5292 }, 35);
 		Pather.moveToUnit(nearSpot);
+		if (Attack.getMobCount(me.x, me.y, 20) > 2) {
+			Attack.clear(20);
+		}
 	}
 
 	let dia = Misc.poll(getDiablo, 15e3, 30);
 
 	if (!dia) {
-		Pather.moveTo(7788, 5292, 3, 30);	// Move to Star
+		// Move to Star
+		Pather.moveTo(7788, 5292, 3, 30);
 		dia = Misc.poll(getDiablo, 15e3, 30);
 	}
 
@@ -1333,7 +1389,7 @@ Attack.getNearestMonster = function (skipBlocked = false) {
 	}
 
 	if (gid) {
-		monster = getUnit(1, -1, -1, gid);
+		monster = getUnit(sdk.unittype.Monster, -1, -1, gid);
 	} else {
 		monster = false;
 	}

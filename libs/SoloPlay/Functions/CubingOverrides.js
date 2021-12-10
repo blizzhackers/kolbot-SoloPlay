@@ -75,7 +75,8 @@ var Recipe = {
 		Shield: 45,
 		Weapon: 46,
 		Armor: 47,
-		Helm: 48
+		Helm: 48,
+		Rare: 57,
 	},
 	Reroll: {
 		Magic: 49,
@@ -473,6 +474,10 @@ Cubing.buildRecipes = function () {
 			break;
 		case Recipe.Token:
 			this.recipes.push({Ingredients: [654, 655, 656, 657], Index: Recipe.Token, AlwaysEnabled: true});
+
+			break;
+		case Recipe.Socket.Rare.Item:
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], sdk.items.Ring, sdk.items.gems.Perfect.SKull, sdk.items.gems.Perfect.SKull, sdk.items.gems.Perfect.SKull], Index: Recipe.Socket.Rare.Item});
 
 			break;
 		}

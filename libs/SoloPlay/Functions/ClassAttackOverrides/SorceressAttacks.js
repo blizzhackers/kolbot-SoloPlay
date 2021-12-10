@@ -15,7 +15,7 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 		untimedSkill = -1,
 		index = (unit.spectype !== 0 || unit.type === 0) ? 1 : 3,
 		staticRange = Math.floor((me.getSkill(sdk.skills.StaticField, 1) + 3) * 2 / 3),
-		gold = me.getStat(14) + me.getStat(15);
+		gold = me.gold;
 
 	if (Config.MercWatch && Town.needMerc()) {
 		print("mercwatch");

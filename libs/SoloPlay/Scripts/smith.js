@@ -18,7 +18,7 @@ function smith () {
 	Precast.doPrecast(true);
 	Pather.moveToExit(sdk.areas.Barracks);
 
-	if (!Pather.moveToPreset(sdk.areas.Barracks, sdk.unittype.Objects, 108)) {
+	if (!Pather.moveToPreset(sdk.areas.Barracks, sdk.unittype.Object, 108)) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to the Smith");
 		return false;
 	}

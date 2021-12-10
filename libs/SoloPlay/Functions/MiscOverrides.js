@@ -620,27 +620,8 @@ Misc.openChests = function (range) {
 	}
 
 	while (unitList.length > 0) {
-		//let retry = false;
 		unitList.sort(Sort.units);
 		unit = unitList.shift();
-
-		/*if (unit) {
-			if ((Pather.useTeleport() || (!checkCollision(me, unit, 0x4) && Attack.getMobCount(me.x, me.y, 10) === 0 && Attack.getMobCount(unit.x, unit.y, 10) === 0))) {
-				if (this.openChest(unit)) {
-					Pickit.pickItems();
-				}
-			} else {
-				retry = true;
-				me.overhead("Clearing chest area");
-				Attack.clearPosition(unit.x, unit.y, 10, true);
-			}
-
-			if (retry) {
-				if (this.openChest(unit)) {
-					Pickit.pickItems();
-				}
-			}
-		}*/
 
 		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, 0x4)) && this.openChest(unit)) {
 			Pickit.pickItems();
@@ -651,7 +632,7 @@ Misc.openChests = function (range) {
 };
 
 Misc.useWell = function (range) {
-	let unit = getUnit(2, "Well", 0),
+	let unit = getUnit(2, "well", 0),
 		unitList = [];
 
 	if (!range) {
