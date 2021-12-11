@@ -1,16 +1,9 @@
 ![extract into](https://i.imgur.com/TcRmoRm.png)
 
 ## What is this?
-SoloPlay is a Kolbot based autoplay system to level any legacy diablo 2 character class from 1-99. The goal of this project is to be the fastest and easiest leveling system there is.
+SoloPlay is a Kolbot based autoplay system to level any single legacy diablo 2 character class from 1-99. The goal of this project is to be the fastest and easiest leveling system there is.
 
 If you are enjoying this project consider supporting me at https://www.buymeacoffee.com/theBGuy
-
-## Statistics (will become filled out as data becomes available)
-| Level | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
-|:------:|:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
-| 1-70 | 22h | 17h | 24h | 23h | 38h | 19h | 22h |
-| 1-80 |  | 26h | 35h | 32h | 82h | 34h | 37h |
-| 1-90 |  |  |  |  |  |  |  |
 
 **NOTE:** This script is designed to be only run from [https://github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot). Most errors occur from using the wrong Kolbot repo installation. 
 
@@ -31,11 +24,12 @@ If you are enjoying this project consider supporting me at https://www.buymeacof
 | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
 |:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
 | Javazon | Cold | Poison | Hammerdin| Whirlwind | Wind |Trapsin|
-| Witchyzon | Blizzballer |   Bone | Smiter| Immortalwhirl | Elemental |
-| | Meteorb | Summon | Auradin | Frenzy | Plaguewolf |
+| `Witchyzon` | Blizzballer |   Bone | Smiter| `Immortalwhirl` | Elemental |
+| | Meteorb | Summon | `Auradin` | Frenzy | Plaguewolf |
 | | Blova | | Zealer | Uberconc | Wolf |
-| | Lightning | | Torchadin | Singer |
+| | Lightning | | `Torchadin` | Singer |
 | |  | | Classicauradin |  |
+- **NOTE:** Expansion only builds marked
 
 ## New modes
 - Two new modes are available: **Bumper** and **Socketmule**. Enter either of these into your D2Bot# profile info tag to make. The bot will then stop after shenk quest for Socketmule and after it hits level 40 for a Bumper.
@@ -179,8 +173,16 @@ https://discord.gg/5pjTC2zH6N
 ![image](https://user-images.githubusercontent.com/60308670/131765716-16be931a-3499-4508-9c4f-f280d2e5d68f.png)
 ![Kolbot-SoloPlay Sorceress](https://imgur.com/SKIkmzL.png)
 
+## Statistics (will become filled out as data becomes available)
+| Level | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
+|:------:|:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
+| 1-70 | 22h | 17h | 24h | 23h | 38h | 19h | 22h |
+| 1-80 |  | 26h | 35h | 32h | 82h | 34h | 37h |
+| 1-90 |  |  |  |  |  |  |  |
+- **Note:** The times shown are for softcore expansion characters, TODO: add table for each variation of modes
+
 ## Brief History
-Kolbot-SoloPlay was built off the base structure of SoloLeveling by isid0re. Autoplay scripts/systems aren't a new concept, some to note are sonic, autoplay, and AutoSorc. None of the exisitng ones were able to do other character classes though so SoloLeveling was created by modding Questing.js. Almost from the beginning, Isid0re and I were bouncing ideas off each other. At that time, I was working on a separate project. We discussed ideas that helped both of our projects. I officially joined in around 4 months or so after the Github repo went public and was actively involved in the project until 6/30/2021. I contributed updates including but not limited to: item based respec, the overlay, logging equipped items, showing tier values on items, many bug fixes, sorting, D2BotSoloCleaner, performance tracking, ect. Due to some personal conflicts between isid0re and myself, I decided to create GuysSoloLeveling to have all of my ideas in one place. On 6/30/2021 I created this repo and on 7/13/2021 I made it public. On 9/1/2021, I changed the name to Kolbot-SoloPlay after some major changes in structure and continue to update to make SoloPlay the best leveling system for legacy diablo 2
+Kolbot-SoloPlay was built off the base structure of SoloLeveling by isid0re. Autoplay scripts/systems aren't a new concept, some to note are sonic, autoplay, and AutoSorc. None of the exisitng ones were able to do other character classes though so SoloLeveling was created by modding Questing.js. Almost from the beginning, Isid0re and I were bouncing ideas off each other. At that time, I was working on a separate project. We discussed ideas that helped both of our projects. I officially joined in around 4 months or so after the Github repo went public and was actively involved in the project until 6/30/2021. I contributed updates including but not limited to: item based respec, the overlay, logging equipped items, showing tier values on items, many bug fixes, sorting, D2BotSoloCleaner, performance tracking, ect. Due to some personal conflicts between isid0re and myself, I decided to create GuysSoloLeveling to have all of my ideas in one place. On 6/30/2021 I created this repo and on 7/13/2021 I made it public. On 9/1/2021, I changed the name to Kolbot-SoloPlay after some major changes in structure and continue to update to make SoloPlay the best leveling system for legacy diablo 2.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
