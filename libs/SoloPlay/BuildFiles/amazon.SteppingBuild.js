@@ -13,10 +13,10 @@ var build = {
 	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
-		["strength", 34], ["vitality", 30], ["dexterity", 47], 
+		["strength", 34], ["vitality", 30], ["dexterity", 47],
 		["vitality", 45], ["strength", 47], ["dexterity", 65],
-		["vitality", 65], ["strength", 53], ["dexterity", 118], 
-		["vitality", 100], ["strength", 118], ["dexterity", 151], 
+		["vitality", 65], ["strength", 53], ["dexterity", 118],
+		["vitality", 100], ["strength", 118], ["dexterity", 151],
 		["strength", 156], ["vitality", "all"],
 	],
 	skills: [
@@ -27,7 +27,7 @@ var build = {
 		[sdk.skills.ChargedStrike, 13], 		// points left 6
 		[sdk.skills.PowerStrike, 5], 			// points left 2
 		[sdk.skills.LightningFury, 1], 			// points left 0
-		[sdk.skills.LightningStrike, 20, false],// charlvl ?
+		[sdk.skills.LightningStrike, 20, false], // charlvl ?
 		[sdk.skills.ChargedStrike, 20, false], 	// charlvl 52
 		[sdk.skills.LightningFury, 20, false], 	// respec at 64
 	]

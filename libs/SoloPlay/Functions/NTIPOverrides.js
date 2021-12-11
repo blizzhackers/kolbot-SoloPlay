@@ -29,7 +29,7 @@ NTIP.generateTierFunc = function (tierType) {
 				continue;
 			}
 
-			let [type,stat,wanted] = NTIP_CheckList[i];
+			let [type, stat, wanted] = NTIP_CheckList[i];
 
 			// If the line doesnt have a tier of this type, we dont need to call it
 			if (typeof wanted === 'object' && wanted && typeof wanted[tierType] === 'function') {
@@ -51,7 +51,7 @@ NTIP.generateTierFunc = function (tierType) {
 					}
 				} catch (e) {
 					const info = stringArray[i];
-					Misc.errorReport("ÿc1Pickit Tier ("+tierType+") error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message + " Trigger item: " + item.fname.split("\n").reverse().join(" "));
+					Misc.errorReport("ÿc1Pickit Tier (" + tierType + ") error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message + " Trigger item: " + item.fname.split("\n").reverse().join(" "));
 				}
 			}
 		}
@@ -119,9 +119,9 @@ NTIP.hasStats = function (item, entryList, verbose) {
 							line = stringArray[i].file + " #" + stringArray[i].line + " " + stringArray[i].string;
 
 							break;
-						} 
+						}
 					} else {
-						hasStat = false; 
+						hasStat = false;
 
 						break;
 					}
@@ -143,7 +143,7 @@ NTIP.hasStats = function (item, entryList, verbose) {
 };
 
 NTIP.getInvoQuantity = function (item, entryList) {
-	var i, list, identified,
+	let i, list, identified,
 		invoquantity = -1;
 
 	if (!entryList) {
@@ -155,7 +155,7 @@ NTIP.getInvoQuantity = function (item, entryList) {
 	identified = item.getFlag(0x10);
 
 	if (!NTIP.checkFinalCharm(item)) {
-		for (i  = 0; i < list.length; i++) {
+		for (i = 0; i < list.length; i++) {
 			try {
 				let [type, stat, wanted] = list[i];
 
@@ -168,13 +168,13 @@ NTIP.getInvoQuantity = function (item, entryList) {
 
 									break;
 								}
-							} 
+							}
 						} else {
 							if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
 								invoquantity = wanted.InvoQuantity;
 
 								break;
-							} 
+							}
 						}
 					}
 				} else if (typeof stat === 'function') {
@@ -184,7 +184,7 @@ NTIP.getInvoQuantity = function (item, entryList) {
 
 							break;
 						}
-					} 
+					}
 				}
 			} catch (e) {
 				return -1;
@@ -204,13 +204,13 @@ NTIP.getInvoQuantity = function (item, entryList) {
 
 									break;
 								}
-							} 
+							}
 						} else {
 							if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
 								invoquantity = wanted.InvoQuantity;
 
 								break;
-							} 
+							}
 						}
 					}
 				} else if (typeof stat === 'function') {
@@ -220,7 +220,7 @@ NTIP.getInvoQuantity = function (item, entryList) {
 
 							break;
 						}
-					} 
+					}
 				}
 			} catch (e) {
 				return -1;
@@ -232,17 +232,13 @@ NTIP.getInvoQuantity = function (item, entryList) {
 };
 
 NTIP.getMaxQuantity = function (item, entryList, verbose) {
-	var i, list, identified, num,
-		rval = {},
-		maxquantity = -1;
+	let i, list, maxquantity = -1;
 
 	if (!entryList) {
 		list = NTIP_CheckList;
 	} else {
 		list = entryList;
 	}
-
-	identified = item.getFlag(0x10);
 
 	for (i = 0; i < list.length; i++) {
 		try {
@@ -256,14 +252,14 @@ NTIP.getMaxQuantity = function (item, entryList, verbose) {
 								maxquantity = wanted.MaxQuantity;
 								
 								break;
-							} 
-						} 
+							}
+						}
 					} else {
 						if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
 							maxquantity = wanted.MaxQuantity;
 
 							break;
-						} 
+						}
 					}
 				}
 			} else if (typeof stat === 'function') {
@@ -272,8 +268,8 @@ NTIP.getMaxQuantity = function (item, entryList, verbose) {
 						maxquantity = wanted.MaxQuantity;
 
 						break;
-					} 
-				} 
+					}
+				}
 			}
 		} catch (e) {
 			return -1;
@@ -284,7 +280,7 @@ NTIP.getMaxQuantity = function (item, entryList, verbose) {
 };
 
 NTIP.checkFinalCharm = function (item, entryList) {
-	var i, list, identified,
+	let i, list, identified,
 		finalcharm = false;
 
 	if (!entryList) {
@@ -307,8 +303,8 @@ NTIP.checkFinalCharm = function (item, entryList) {
 								finalcharm = wanted.FinalCharm;
 								
 								break;
-							} 
-						} 
+							}
+						}
 					} else {
 						if (wanted && wanted.FinalCharm && !isNaN(wanted.FinalCharm)) {
 							finalcharm = wanted.FinalCharm;
@@ -323,8 +319,8 @@ NTIP.checkFinalCharm = function (item, entryList) {
 						finalcharm = wanted.FinalCharm;
 
 						break;
-					} 
-				} 
+					}
+				}
 			}
 		} catch (e) {
 			return false;
@@ -336,7 +332,7 @@ NTIP.checkFinalCharm = function (item, entryList) {
 
 NTIP.setUpFinalCharmQuantity = function (input, info) {
 	let i, property, p_start, p_end, p_section, p_keyword, p_result, value;
-	let charmType, check;
+	let charmType;
 
 	p_end = input.indexOf("//");
 
@@ -362,7 +358,7 @@ NTIP.setUpFinalCharmQuantity = function (input, info) {
 			property = p_section[i].substring(0, p_end - 1);
 
 			if (property === 'name') {
-				p_result[0] += "item.classid"; 
+				p_result[0] += "item.classid";
 			} else {
 				continue;
 			}
@@ -404,7 +400,7 @@ NTIP.setUpFinalCharmQuantity = function (input, info) {
 						return false;
 					}
 
-					break;	
+					break;
 				}
 			}
 		}
@@ -423,7 +419,7 @@ NTIP.setUpFinalCharmQuantity = function (input, info) {
 			let keyword = p_keyword.toLowerCase();
 
 			switch (keyword) {
-				case "invoquantity":
+			case "invoquantity":
 				value = Number(p_section[i].split("==")[1].match(/\d+/g));
 
 				if (!isNaN(value)) {
@@ -466,7 +462,7 @@ NTIP.setUpFinalCharmQuantity = function (input, info) {
 };
 
 NTIP.CheckItem = function (item, entryList, verbose) {
-	var i, list, identified, num,
+	let i, list, identified, num,
 		rval = {},
 		result = 0;
 
@@ -614,7 +610,7 @@ NTIP.OpenFile = function (filepath, notify) {
 		return false;
 	}
 
-	var i, nipfile, line, lines, info, tick = getTickCount(), entries = 0,
+	let i, nipfile, line, lines, info, tick = getTickCount(), entries = 0,
 		filename = filepath.substring(filepath.lastIndexOf("/") + 1, filepath.length);
 
 	try {
@@ -665,7 +661,7 @@ NTIP.OpenFile = function (filepath, notify) {
 };
 
 NTIP.ParseLineInt = function (input, info) {
-	var i, property, p_start, p_end, p_section, p_keyword, p_result, value;
+	let i, property, p_start, p_end, p_section, p_keyword, p_result, value;
 
 	p_end = input.indexOf("//");
 
@@ -762,7 +758,7 @@ NTIP.ParseLineInt = function (input, info) {
 			case 'uswest':
 			case 'useast':
 			case 'asia':
-				p_result[0] += '("'+me.realm.toLowerCase() + '"==="' + property.toLowerCase() + '")';
+				p_result[0] += '("' + me.realm.toLowerCase() + '"==="' + property.toLowerCase() + '")';
 
 				break;
 			case 'ladder':

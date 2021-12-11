@@ -6,7 +6,7 @@ var Enigma = [
 NTIP.arrayLooping(Enigma);
 
 // Cube to Jah rune
-if (!me.getItem(sdk.runes.Jah)) {
+if (!me.getItem(sdk.items.runes.Jah)) {
 	Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
@@ -18,7 +18,7 @@ if (!me.getItem(sdk.runes.Jah)) {
 }
 
 // Cube to Ber rune
-if (!me.getItem(sdk.runes.Ber)) {
+if (!me.getItem(sdk.items.runes.Ber)) {
 	Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
@@ -29,7 +29,7 @@ if (!me.getItem(sdk.runes.Ber)) {
 }
 
 // Have Ber and Jah runes before looking for normal base
-if (me.getItem(sdk.runes.Ber) && me.getItem(sdk.runes.Jah)) {
+if (me.getItem(sdk.items.runes.Ber) && me.getItem(sdk.items.runes.Jah)) {
 	Config.Runewords.push([Runeword.Enigma, "mageplate", Roll.NonEth]);
 	Config.Runewords.push([Runeword.Enigma, "duskshroud", Roll.NonEth]);
 	Config.Runewords.push([Runeword.Enigma, "wyrmhide", Roll.NonEth]);

@@ -32,7 +32,12 @@ case "Plaguewolf":
 				Misc.shapeShift(Config.Wereform);
 			}
 
-			break;	
+			break;
+		}
+
+		// Rebuff Armageddon
+		if (me.getSkill(sdk.skills.Armageddon, 1) && !me.getState(sdk.states.Armageddon)) {
+			Skill.cast(sdk.skills.Armageddon, 0);
 		}
 
 		if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
@@ -116,10 +121,10 @@ case "Plaguewolf":
 		}
 
 		return 1;
-	}
+	};
 
 	ClassAttack.afterAttack = function () {
-		if (Pather.useTeleport()){
+		if (Pather.useTeleport()) {
 			Misc.unShift();
 		}
 
@@ -133,7 +138,7 @@ default:
 	}
 
 	ClassAttack.doAttack = function (unit, preattack) {
-		var index, checkSkill, result,
+		let index, checkSkill, result,
 			mercRevive = 0,
 			timedSkill = -1,
 			untimedSkill = -1,
@@ -151,21 +156,21 @@ default:
 		}
 
 		// Rebuff Cyclone Armor
-		if (me.getSkill(sdk.skills.CycloneArmor, 1) && !me.getState(sdk.states.CycloneArmor)) { 
+		if (me.getSkill(sdk.skills.CycloneArmor, 1) && !me.getState(sdk.states.CycloneArmor)) {
 			Skill.cast(sdk.skills.CycloneArmor, 0);
 		}
 
 		if (index === 1 && !unit.dead) {
-			if (Attack.currentChargedSkills.indexOf(sdk.skills.Weaken) > -1 && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
-				(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-				// Switch cast weaken
-				Attack.switchCastCharges(sdk.skills.Weaken, unit);
-			}
-
-			if (Attack.currentChargedSkills.indexOf(sdk.skills.Decrepify) > -1 && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
+			if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.Decrepify) > -1 && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
 				(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				// Switch cast decrepify
 				Attack.switchCastCharges(sdk.skills.Decrepify, unit);
+			}
+			
+			if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.Weaken) > -1 && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
+				(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+				// Switch cast weaken
+				Attack.switchCastCharges(sdk.skills.Weaken, unit);
 			}
 		}
 
@@ -217,6 +222,22 @@ default:
 			untimedSkill = Config.LowManaSkill[1];
 		}
 
+		if (me.normal && me.charlvl > 12 && gold < 5000 && Skill.getManaCost(timedSkill) > me.mp) {
+			switch (SetUp.currentBuild) {
+			case "Start":
+				if (me.getSkill(sdk.skills.Firestorm, 1) && Skill.getManaCost(sdk.skills.Firestorm) < me.mp) {
+					timedSkill = sdk.skills.Firestorm;
+				} else if (Attack.getMobCount(me.x, me.y, 6) >= 1) {
+					// I have no mana and there are mobs around me, just attack
+					timedSkill = sdk.skills.Attack;
+				}
+
+				break;
+			default:
+				break;
+			}
+		}
+
 		result = this.doCast(unit, timedSkill, untimedSkill);
 
 		if (result === 2 && Config.TeleStomp && Attack.checkResist(unit, "physical") && !!me.getMerc()) {
@@ -243,7 +264,7 @@ default:
 	};
 
 	ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-		var i, walk;
+		let i, walk;
 
 		// No valid skills can be found
 		if (timedSkill < 0 && untimedSkill < 0) {
@@ -251,7 +272,7 @@ default:
 		}
 
 		// Rebuff Hurricane
-		if (me.getSkill(sdk.skills.Hurricane, 1) && !me.getState(sdk.states.Hurricane)) { 
+		if (me.getSkill(sdk.skills.Hurricane, 1) && !me.getState(sdk.states.Hurricane)) {
 			Skill.cast(sdk.skills.Hurricane, 0);
 		}
 
@@ -324,5 +345,5 @@ default:
 		return 1;
 	};
 
-	break;	
+	break;
 }

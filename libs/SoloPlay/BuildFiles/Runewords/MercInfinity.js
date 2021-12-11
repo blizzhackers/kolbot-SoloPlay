@@ -8,7 +8,7 @@ var Inf = [
 NTIP.arrayLooping(Inf);
 
 // Cube to Ber rune
-if (Item.getQuantityOwned(me.getItem(sdk.runes.Ber) < 2)) {
+if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Ber) < 2)) {
 	if (Check.haveItem("sword", "runeword", "Call To Arms")) {
 		Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Ist Rune"]);

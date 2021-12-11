@@ -15,7 +15,7 @@ if (!isIncluded("SoloPlay/Tools/Developer.js")) {
 }
 
 var Container = function (name, width, height, location) {
-	var h, w;
+	let h, w;
 
 	this.name = name;
 	this.width = width;
@@ -35,7 +35,7 @@ var Container = function (name, width, height, location) {
 	}
 
 	this.Mark = function (item) {
-		var x, y;
+		let x, y;
 
 		// Make sure it is in this container.
 		if (item.location !== this.location || (item.mode !== sdk.itemmode.inStorage && item.mode !== sdk.itemmode.inBelt)) {
@@ -57,7 +57,7 @@ var Container = function (name, width, height, location) {
 	};
 
 	this.IsLocked = function (item, baseRef) {
-		var h, w, reference;
+		let h, w, reference;
 
 		reference = baseRef.slice(0);
 
@@ -93,7 +93,7 @@ var Container = function (name, width, height, location) {
 	};
 
 	this.Reset = function () {
-		var h, w;
+		let h, w;
 
 		for (h = 0; h < this.height; h += 1) {
 			for (w = 0; w < this.width; w += 1) {
@@ -118,19 +118,22 @@ var Container = function (name, width, height, location) {
 			return false;
 		}
 
-		if (cube && cube.location === 7 && cube.x === 0 && cube.y === 0) {
-			return true;	// Cube is in correct location
+		// Cube is in correct location
+		if (cube && cube.isInStash && cube.x === 0 && cube.y === 0) {
+			return true;
 		}
 
 		let makeCubeSpot = this.MakeSpot(cube, {x: 0, y: 0}, true); // NOTE: passing these in buffer order [h/x][w/y]
 
 		if (makeCubeSpot) {
+			// this item cannot be moved
 			if (makeCubeSpot === -1) {
-				return false; // this item cannot be moved
+				return false;
 			}
 
+			// we couldnt move the item
 			if (!this.MoveToSpot(cube, makeCubeSpot.y, makeCubeSpot.x)) {
-				return false; // we couldnt move the item
+				return false;
 			}
 		}
 
@@ -146,7 +149,7 @@ var Container = function (name, width, height, location) {
 
 		this.cubeSpot(this.name);
 
-		var x, y, item, nPos;
+		let x, y, item, nPos;
 
 		for ( y = this.width - 1 ; y >= 0 ; y-- ) {
 			for ( x = this.height - 1 ; x >= 0 ; x-- ) {
@@ -159,11 +162,11 @@ var Container = function (name, width, height, location) {
 
 				item = this.itemList[this.buffer[x][y] - 1];
 
-				if ( item.classid === sdk.items.quest.Cube && item.location === 7 && item.x === 0 && item.y === 0) {
+				if ( item.classid === sdk.items.quest.Cube && item.isInStash && item.x === 0 && item.y === 0) {
 					continue; // dont touch the cube
 				}
 
-				var ix = item.y, iy = item.x; // x and y are backwards!
+				let ix = item.y, iy = item.x; // x and y are backwards!
 
 				if ( this.location !== item.location ) {
 					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a non-storage item in the list: " + item.name + " at " + ix + "," + iy, 6);
@@ -188,7 +191,8 @@ var Container = function (name, width, height, location) {
 					continue; // dont try to touch ground items | TODO: prevent ground items from getting this far
 				}
 
-				if (this.location === 7) { // always sort stash left-to-right
+				// always sort stash left-to-right
+				if (this.location === 7) {
 					nPos = this.FindSpot(item);
 				} else if (this.location === 3 && ((!itemIdsLeft && !itemIdsRight) || !itemIdsLeft || itemIdsRight.indexOf(item.classid) > -1 || itemIdsLeft.indexOf(item.classid) === -1)) { // sort from right by default or if specified
 					nPos = this.FindSpot(item, true, false, SetUp.sortSettings.ItemsSortedFromRightPriority);
@@ -196,8 +200,9 @@ var Container = function (name, width, height, location) {
 					nPos = this.FindSpot(item, false, false, SetUp.sortSettings.ItemsSortedFromLeftPriority);
 				}
 
+				// skip if no better spot found
 				if ( !nPos || (nPos.x === ix && nPos.y === iy)) {
-					continue; // skip if no better spot found
+					continue;
 				}
 
 				if (!this.MoveToSpot(item, nPos.y, nPos.x)) {
@@ -218,7 +223,7 @@ var Container = function (name, width, height, location) {
 	};
 
 	this.FindSpot = function (item, reverseX, reverseY, priorityClassIds) {
-		var x, y, nx, ny, makeSpot,
+		let x, y, nx, ny, makeSpot,
 			startX, startY, endX, endY, xDir = 1, yDir = 1;
 
 		//Make sure it's a valid item
@@ -254,9 +259,9 @@ var Container = function (name, width, height, location) {
 
 					// TODO: add makespot logic here. priorityClassIds should only be used when sorting -- in town, where it's safe!
 					// TODO: collapse this down to just a MakeSpot(item, location) call, and have MakeSpot do the priority checks right at the top
-					var bufferItemClass = this.itemList[this.buffer[x][y] - 1].classid;
-					var bufferItemGfx = this.itemList[this.buffer[x][y] - 1].gfx;
-					var bufferItemQuality = this.itemList[this.buffer[x][y] - 1].quality;
+					let bufferItemClass = this.itemList[this.buffer[x][y] - 1].classid;
+					let bufferItemGfx = this.itemList[this.buffer[x][y] - 1].gfx;
+					let bufferItemQuality = this.itemList[this.buffer[x][y] - 1].quality;
 
 					if (SetUp.sortSettings.PrioritySorting && priorityClassIds && priorityClassIds.indexOf(item.classid) > -1
 						&& !this.IsLocked(this.itemList[this.buffer[x][y] - 1], Config.Inventory) // don't try to make a spot by moving locked items! TODO: move this to the start of loop
@@ -272,8 +277,9 @@ var Container = function (name, width, height, location) {
 							makeSpot = this.MakeSpot(item, {x: x, y: y}); // NOTE: passing these in buffer order [h/x][w/y]
 
 							if (makeSpot) {
+								// this item cannot be moved
 								if (makeSpot === -1) {
-									return false; // this item cannot be moved
+									return false;
 								}
 
 								return makeSpot;
@@ -285,7 +291,8 @@ var Container = function (name, width, height, location) {
 						return false;
 					}
 
-					if (item.gid !== this.itemList[this.buffer[x][y] - 1].gid ) { // ignore same gid
+					// ignore same gid
+					if (item.gid !== this.itemList[this.buffer[x][y] - 1].gid ) {
 						continue;
 					}
 				}
@@ -294,7 +301,8 @@ var Container = function (name, width, height, location) {
 				for (nx = 0; nx < item.sizey; nx += 1) {
 					for (ny = 0; ny < item.sizex; ny += 1) {
 						if (this.buffer[x + nx][y + ny]) {
-							if (item.gid !== this.itemList[this.buffer[x + nx][y + ny] - 1].gid ) { // ignore same gid
+							// ignore same gid
+							if (item.gid !== this.itemList[this.buffer[x + nx][y + ny] - 1].gid ) {
 								continue Loop;
 							}
 						}
@@ -309,7 +317,7 @@ var Container = function (name, width, height, location) {
 	};
 
 	this.MakeSpot = function (item, location, force) {
-		var x, y, endx, endy, tmpLocation,
+		let x, y, endx, endy, tmpLocation,
 			itemsToMove = [],
 			itemsMoved = [];
 		// TODO: test the scenario where all possible items have been moved, but this item still can't be placed
@@ -357,10 +365,8 @@ var Container = function (name, width, height, location) {
 
 		// Move any item(s) out of the way
 		if (itemsToMove) {
-			var i;
-
-			for (i = 0; i < itemsToMove.length; i++) {
-				var reverseX = !(SetUp.sortSettings.ItemsSortedFromRight.indexOf(item.classid) > -1);
+			for (let i = 0; i < itemsToMove.length; i++) {
+				let reverseX = !(SetUp.sortSettings.ItemsSortedFromRight.indexOf(item.classid) > -1);
 				tmpLocation = this.FindSpot(itemsToMove[i], reverseX, false);
 				// D2Bot.printToConsole(itemsToMove[i].name + " moving from " + itemsToMove[i].x + "," + itemsToMove[i].y + " to "  + tmpLocation.y + "," + tmpLocation.x, 6);
 
@@ -382,7 +388,7 @@ var Container = function (name, width, height, location) {
 	};
 
 	this.MoveToSpot = function (item, x, y) {
-		var n, nDelay, cItem, cube;
+		let n, nDelay, cItem, cube;
 
 		// Cube -> Stash, must place item in inventory first
 		if (item.location === 6 && this.location === 7 && !Storage.Inventory.MoveTo(item)) {
@@ -451,7 +457,7 @@ var Container = function (name, width, height, location) {
 	};
 
 	this.MoveTo = function (item) {
-		var nPos;
+		let nPos;
 
 		try {
 			//Can we even fit it in here?
@@ -470,7 +476,7 @@ var Container = function (name, width, height, location) {
 	};
 
 	this.Dump = function () {
-		var x, y, string;
+		let x, y, string;
 
 
 		if (this.UsedSpacePercent() > 60) {
@@ -485,11 +491,11 @@ var Container = function (name, width, height, location) {
 			}
 		}
 
-		print("ÿc9SoloLevelingÿc0: " + this.name + " has used " + this.UsedSpacePercent().toFixed(2) + "% of its total space");
+		print("ÿc9SoloPlayÿc0: " + this.name + " has used " + this.UsedSpacePercent().toFixed(2) + "% of its total space");
 	};
 
 	this.UsedSpacePercent = function () {
-		var x, y,
+		let x, y,
 			usedSpace = 0,
 			totalSpace = this.height * this.width;
 
@@ -507,7 +513,7 @@ var Container = function (name, width, height, location) {
 	};
 
 	this.Compare = function (baseRef) {
-		var h, w, n, item, itemList, reference;
+		let h, w, n, item, itemList, reference;
 
 		Storage.Reload();
 
@@ -567,7 +573,7 @@ var Storage = new function () {
 	};
 
 	this.BeltSize = function () {
-		var item = me.getItem(-1, 1); // get equipped item
+		let item = me.getItem(-1, 1); // get equipped item
 
 		if (!item) { // nothing equipped
 			return 1;
@@ -598,7 +604,7 @@ var Storage = new function () {
 		this.Cube.Reset();
 		this.TradeScreen.Reset();
 
-		var item = me.getItem();
+		let item = me.getItem();
 
 		if (!item) {
 			return false;

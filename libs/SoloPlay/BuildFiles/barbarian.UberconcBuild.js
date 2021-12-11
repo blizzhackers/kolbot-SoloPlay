@@ -25,7 +25,7 @@ var finalBuild = {
 		[sdk.skills.SwordMastery, 10, false],
 		[sdk.skills.Concentrate, 20, false],
 		[sdk.skills.Shout, 20, false],
-		[sdk.skills.LeapAttack, 1, false], 
+		[sdk.skills.LeapAttack, 1, false],
 		[sdk.skills.Bash, 20, false],
 	],
 	autoEquipTiers: [ // autoequip final gear

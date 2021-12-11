@@ -7,7 +7,7 @@ var Grief = [
 ];
 NTIP.arrayLooping(Grief);
 
-if (me.getItem(sdk.runes.Lo)) {
+if (me.getItem(sdk.items.runes.Lo)) {
 	NTIP.addLine("[name] == phaseblade && [quality] >= normal && [quality] <= superior # [sockets] == 5 # [maxquantity] == 1");
 
 	if (!Check.haveBase("phaseblade", 5)) {
@@ -19,7 +19,7 @@ if (me.getItem(sdk.runes.Lo)) {
 }
 
 // Cube to Lo Rune
-if (!me.getItem(sdk.runes.Lo)) {
+if (!me.getItem(sdk.items.runes.Lo)) {
 	Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
@@ -30,7 +30,7 @@ if (!me.getItem(sdk.runes.Lo)) {
 }
 
 // Cube to Mal Rune
-if (!me.getItem(sdk.runes.Mal)) {
+if (!me.getItem(sdk.items.runes.Mal)) {
 	Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Um Rune"]);
 }

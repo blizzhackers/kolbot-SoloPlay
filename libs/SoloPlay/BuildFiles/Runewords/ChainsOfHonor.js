@@ -7,7 +7,7 @@ var CoH = [
 NTIP.arrayLooping(CoH);
 
 // Cube to Ber rune
-if (!me.getItem(sdk.runes.Ber)) {
+if (!me.getItem(sdk.items.runes.Ber)) {
 	if (Check.haveItem("sword", "runeword", "Call To Arms") || ["Plaguewolf", "Wolf", "Uberconc"].indexOf(SetUp.finalBuild) > -1) {
 		Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
@@ -24,13 +24,13 @@ if (!me.getItem(sdk.runes.Ber)) {
 }
 
 // Cube to Um rune
-if (!me.getItem(sdk.runes.Um)) {
+if (!me.getItem(sdk.items.runes.Um)) {
 	Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 }
 
 // Have Ber rune before looking for normal base
-if (me.getItem(sdk.runes.Ber)) {
+if (me.getItem(sdk.items.runes.Ber)) {
 	if (!Check.haveBase("armor", 4)) {
 		NTIP.addLine("([name] == archonplate || [name] == duskshroud || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 0 # [maxquantity] == 1");
 	}

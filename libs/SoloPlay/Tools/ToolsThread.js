@@ -144,7 +144,7 @@ function main () {
 		});
 
 		for (k = 0; k < items.length; k += 1) {
-			if (type < 3 && items[k].mode === 0 && items[k].location === 3 && items[k].itemType === pottype) {
+			if (type < 3 && items[k].isInInventory && items[k].itemType === pottype) {
 				print("ÿc2Drinking potion from inventory.");
 
 				return copyUnit(items[k]);
@@ -526,7 +526,7 @@ function main () {
 							 	"\nÿc4ItemType: ÿc0" + itemToCheck.itemType + "| ÿc4Classid: ÿc0" + itemToCheck.classid + "| ÿc4Quality: ÿc0" + itemToCheck.quality;
 				charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + NTIP.checkFinalCharm(itemToCheck) + "\n" + 
 						"ÿc4CharmType: ÿc0" + Item.getCharmType(itemToCheck) + " | ÿc4AutoEquipCharmCheck: ÿc0" + Item.autoEquipCharmCheck(itemToCheck) + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck);
-				generalString = "ÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(getUnit(101), NTIP_CheckListNoTier, true).result;
+				generalString = "ÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(itemToCheck, NTIP_CheckListNoTier, true).result;
 			}
 			
 			print("ÿc8Kolbot-SoloPlay: ÿc2Item Info Start");
@@ -599,7 +599,7 @@ function main () {
 			}
 
 			// Only do this in expansion
-			if (Config.SoJWaitTime && me.gametype === 1) { // only do this in expansion
+			if (Config.SoJWaitTime && !me.classic) {
 				if (!!me.gameserverip) {
 					D2Bot.printToConsole(param1 + " Stones of Jordan Sold to Merchants on IP " + me.gameserverip.split(".")[3], 7);
 				}
@@ -617,7 +617,7 @@ function main () {
 			}
 
 			// Only do this in expansion
-			if (Config.StopOnDClone && me.gametype === 1 && me.hell) {
+			if (Config.StopOnDClone && !me.classic && me.hell) {
 				D2Bot.printToConsole("Diablo Walks the Earth", 7);
 
 				Events.cloneWalked = true;
@@ -750,7 +750,7 @@ function main () {
 					break;
 				}
 
-				if (Config.IronGolemChicken > 0 && me.classid === 2) {
+				if (Config.IronGolemChicken > 0 && me.necromancer) {
 					if (!ironGolem || copyUnit(ironGolem).x === undefined) {
 						ironGolem = this.getIronGolem();
 					}

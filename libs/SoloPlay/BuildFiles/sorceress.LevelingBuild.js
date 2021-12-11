@@ -20,13 +20,13 @@ var build = {
 	skills: [
 		// Total skills at respec = 70
 		[sdk.skills.Warmth, 1], 	// points left 69
-		[sdk.skills.FrozenArmor, 1],// points left 68
-		[sdk.skills.StaticField, 1],// points left 67
+		[sdk.skills.FrozenArmor, 1], // points left 68
+		[sdk.skills.StaticField, 1], // points left 67
 		[sdk.skills.Teleport, 1], 	// points left 65
 		[sdk.skills.Blizzard, 1], 	// points left 60
 		[sdk.skills.Meteor, 1], 	// points left 54
-		[sdk.skills.FireMastery, 1],// points left 53
-		[sdk.skills.ColdMastery, 1],// points left 52
+		[sdk.skills.FireMastery, 1], // points left 53
+		[sdk.skills.ColdMastery, 1], // points left 52
 		[sdk.skills.FrozenOrb, 1], 	// points left 51
 		[sdk.skills.FireBall, 20], 	// points left 33
 		[sdk.skills.Blizzard, 20], 	// points left 13

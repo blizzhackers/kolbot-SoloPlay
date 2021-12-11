@@ -6,14 +6,14 @@ if (!Check.haveItem("helm", "runeword", "Lore")) {
 	NTIP.arrayLooping(loreRunes);
 
 	// Cube to Sol rune
-	if (!me.getItem(sdk.runes.Sol)) {
+	if (!me.getItem(sdk.items.runes.Sol)) {
 		Config.Recipes.push([Recipe.Rune, "Ort Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Amn Rune"]);
 	}
 } else {
 	// Cube to Sol rune
-	if (!me.getItem(sdk.runes.Sol)) {
+	if (!me.getItem(sdk.items.runes.Sol)) {
 		Config.Recipes.push([Recipe.Rune, "Amn Rune"]);
 	}
 }

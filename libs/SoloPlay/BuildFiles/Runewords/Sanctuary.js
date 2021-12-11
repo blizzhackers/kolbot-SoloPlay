@@ -6,12 +6,12 @@ var Sanctuary = [
 NTIP.arrayLooping(Sanctuary);
 
 // Cube to Mal rune
-if (!me.getItem(sdk.runes.Mal)) {
+if (!me.getItem(sdk.items.runes.Mal)) {
 	Config.Recipes.push([Recipe.Rune, "Um Rune"]);
 }
 
 // Cube to Ko rune
-if (!me.getItem(sdk.runes.Ko)) {
+if (!me.getItem(sdk.items.runes.Ko)) {
 	Config.Recipes.push([Recipe.Rune, "Hel Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Io Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Lum Rune"]);		

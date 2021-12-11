@@ -153,7 +153,7 @@ function LoadConfig () {
 	Config.AutoEquip = true;
 
 	// AutoEquip setup
-	var levelingTiers = [
+	let levelingTiers = [
 		// Weapon
 		"([type] == javelin || [type] == amazonjavelin) && [quality] >= normal && [flag] != ethereal && [wsm] <= 10 && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Helmet
@@ -185,7 +185,7 @@ function LoadConfig () {
 		"me.charlvl > 14 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
-	var imbueables = [
+	let imbueables = [
 		"me.diff == 0 && [name] == maidenjavelin && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
 		"me.diff == 1 && [name] == ceremonialjavelin && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
 		"me.diff == 2 && [name] == matriarchaljavelin && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
@@ -212,11 +212,11 @@ function LoadConfig () {
 	if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
 		NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");
 
-		if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Diamond) < 2)) {
+		if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond) < 2)) {
 			Config.Recipes.push([Recipe.Gem, "flawlessdiamond"]);
 		}
 
-		if (Item.getQuantityOwned(me.getItem(sdk.runes.Um) < 2)) {
+		if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Um) < 2)) {
 			Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 		}
 
@@ -224,7 +224,7 @@ function LoadConfig () {
 	}
 
 	if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
-		if (!me.getItem(sdk.runes.Um)) {
+		if (!me.getItem(sdk.items.runes.Um)) {
 			Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 		}
 
@@ -304,7 +304,7 @@ function LoadConfig () {
 			}
 
 			if (WWS) {
-				var arrows = [
+				let arrows = [
 					"[name] == arrows # # [tier] == 100000", //max tier to avoid shield swap
 					"[type] == bowquiver # # [maxquantity] == 2",
 				];
@@ -346,19 +346,19 @@ function LoadConfig () {
 		let shield = Item.getEquippedItem(5);
 
 		if (!helm.isRuneword && [4, 6].indexOf(helm.quality) > -1 && helm.sockets > 0 && !helm.socketed) {
-			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Ruby) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Ruby) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "flawlessruby"]);
 			}
 		}
 
 		if (!body.isRuneword && [4, 6].indexOf(body.quality) > -1 && body.sockets > 0 && !body.socketed) {
-			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Ruby) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Ruby) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "flawlessruby"]);
 			}
 		}
 
 		if (!shield.isRuneword && [4, 6].indexOf(shield.quality) > -1 && shield.sockets > 0 && !shield.socketed) {
-			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Diamond) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "flawlessdiamond"]);
 			}
 		}

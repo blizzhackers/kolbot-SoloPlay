@@ -19,14 +19,16 @@ ControlAction.makeCharacter = function (info) {
 	var control,
 		clickCoords = [];
 
-	while (getLocation() !== 1) { // cycle until in lobby
+	// cycle until in lobby
+	while (getLocation() !== 1) {
 		switch (getLocation()) {
 		case 12: // character select
 		case 23: // connecting
 		case 42: // empty character select
 			control = getControl(6, 33, 528, 168, 60);
 
-			if (control && control.disabled === 4) { // Create Character greyed out
+			// Create Character greyed out
+			if (control && control.disabled === 4) {
 				me.blockMouse = false;
 
 				return false;
@@ -85,7 +87,8 @@ ControlAction.makeCharacter = function (info) {
 
 			break;
 		case 15: // new character
-			if (getControl(6, 421, 337, 96, 32)) { // hardcore char warning
+			// hardcore char warning
+			if (getControl(6, 421, 337, 96, 32)) {
 				this.click(6, 421, 337, 96, 32);
 			} else {
 				this.setText(1, 318, 510, 157, 16, info.charName);
@@ -120,7 +123,7 @@ ControlAction.makeCharacter = function (info) {
 			D2Bot.updateStatus("Character Name exists. Making new Name");
 			D2Bot.printToConsole("Character Name exists. Making new Name");
 			info.charName = NameGen();
-			D2Bot.setProfile(null, null, info.charName);
+			D2Bot.setProfile(null, null, info.charName, "Normal");
 			delay(500);
 			ControlAction.click(6, 351, 337, 96, 32);
 			ControlAction.click(6, 33, 572, 128, 35);
@@ -183,7 +186,8 @@ ControlAction.findCharacter = function (info) {
 			} while (count < 24 && control.getNext());
 		}
 
-		if (count === 8 || count === 16) { // check for additional characters up to 24
+		// check for additional characters up to 24
+		if (count === 8 || count === 16) {
 			control = getControl(4, 237, 457, 72, 93);
 
 			if (control) {
@@ -216,7 +220,8 @@ ControlAction.makeAccount = function (info) {
 			"europe": 3
 		};
 
-	while (getLocation() !== 42) {// cycle until in empty char screen
+	// cycle until in empty char screen
+	while (getLocation() !== 42) {
 		switch (getLocation()) {
 		case 8: // main menu
 			ControlAction.clickRealm(realms[info.realm]);

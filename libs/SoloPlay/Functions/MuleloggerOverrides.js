@@ -17,7 +17,7 @@ if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) {
 }
 
 MuleLogger.getItemDesc = function (unit, logIlvl) {
-	var i, desc, index,
+	let i, desc, index,
 		stringColor = "";
 
 	if (logIlvl === undefined) {
@@ -73,7 +73,7 @@ MuleLogger.getItemDesc = function (unit, logIlvl) {
 	return desc;
 };
 
-//Added type parameter and logging tier value under picture on char viewer tab
+// Added type parameter and logging tier value under picture on char viewer tab
 MuleLogger.logItem = function (unit, logIlvl, type) {
 	if (!isIncluded("common/misc.js")) {
 		include("common/misc.js");
@@ -88,17 +88,17 @@ MuleLogger.logItem = function (unit, logIlvl, type) {
 		type = "Player";
 	}
 
-	var i, code, desc, sock,
+	let i, code, desc, sock,
 		header = "",
 		color = -1,
 		name = unit.itemType + "_" + unit.fname.split("\n").reverse().join(" ").replace(/(y|ÿ)c[0-9!"+<:;.*]|\/|\\/g, "").trim();
 
-	desc = this.getItemDesc(unit, logIlvl);/* + "$" + unit.gid + ":" + unit.classid + ":" + unit.location + ":" + unit.x + ":" + unit.y + (unit.getFlag(0x400000) ? ":eth" : "");*/
+	desc = this.getItemDesc(unit, logIlvl);
 	color = unit.getColor();
 
 	if (NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) {
-		if (unit.mode === 1 && type === "Player") {
-			if ([603, 604, 605].indexOf(unit.classid) > -1) {
+		if (unit.mode === sdk.itemmode.inStorage && type === "Player") {
+			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(unit.itemType) > -1) {
 				desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit));
 			} else {
 				desc += ("\n\\xffc0Autoequip tier: " + NTIP.GetTier(unit));
@@ -107,14 +107,14 @@ MuleLogger.logItem = function (unit, logIlvl, type) {
 					desc += ("\n\\xffc0Autoequip Secondary tier: " + NTIP.GetSecondaryTier(unit));
 				}
 			}
-		} else if (unit.mode === 1 && type === "Merc") {
+		} else if (unit.mode === sdk.itemmode.inStorage && type === "Merc") {
 			desc += ("\n\\xffc0Autoequip merctier: " + NTIP.GetMercTier(unit));
 
 		}
 	}
 
 	switch (unit.quality) {
-	case 5: // Set
+	case sdk.itemquality.Set:
 		switch (unit.classid) {
 		case 27: // Angelic sabre
 			code = "inv9sbu";
@@ -229,7 +229,7 @@ MuleLogger.logItem = function (unit, logIlvl, type) {
 		}
 
 		break;
-	case 7: // Unique
+	case sdk.itemquality.Unique:
 		for (i = 0; i < 401; i += 1) {
 			if (unit.code === getBaseStat(17, i, 4).trim() && unit.fname.split("\n").reverse()[0].indexOf(getLocaleString(getBaseStat(17, i, 2))) > -1) {
 				code = getBaseStat(17, i, "invfile");
@@ -283,11 +283,11 @@ MuleLogger.logEquippedItems = function () {
 		delay(100);
 	}
 
-	var i, folder, string, parsedItem,
-		items = me.getItems(),
+	let i, folder, string, parsedItem,
 		realm = me.realm || "Single Player",
 		merc, charClass,
-		finalString = "";
+		finalString = "",
+		items = me.getItems().filter(item => item.isEquipped || item.isEquippedCharm || (item.isInStorage && item.itemType === sdk.itemtype.Rune));
 
 	if (!FileTools.exists("mules/" + realm)) {
 		folder = dopen("mules");
@@ -318,37 +318,37 @@ MuleLogger.logEquippedItems = function () {
 	items.sort(itemSort);
 
 	for (i = 0; i < items.length; i += 1) {
-		if ((items[i].mode === 1 && (items[i].quality !== 2 || !Misc.skipItem(items[i].classid))) || (items[i].mode === 0 && items[i].itemType === 74) || (items[i].location === 3 && [603, 604, 605].indexOf(items[i].classid) > -1)) {
-			parsedItem = this.logItem(items[i], true, "Player");
+		parsedItem = this.logItem(items[i], true, "Player");
 
-			// Always put name on Char Viewer items
-			if (!parsedItem.header) {
-				parsedItem.header = (me.account || "Single Player") + " / " + me.name;
-			}
+		// Always put name on Char Viewer items
+		if (!parsedItem.header) {
+			parsedItem.header = (me.account || "Single Player") + " / " + me.name;
+		}
 
-			// Remove itemtype_ prefix from the name
-			parsedItem.title = parsedItem.title.substr(parsedItem.title.indexOf("_") + 1);
+		// Remove itemtype_ prefix from the name
+		parsedItem.title = parsedItem.title.substr(parsedItem.title.indexOf("_") + 1);
 
-			if (items[i].mode === 1 && (items[i].location !== 11 && items[i].location !== 12)) {
-				parsedItem.title += " (equipped)";
-			}
-
-			if (items[i].mode === 1 && (items[i].location === 11 || items[i].location === 12)) {
-				parsedItem.title += " (secondary equipped)";
-			}
-
-			if (items[i].mode === 0 && [603, 604, 605].indexOf(items[i].classid) === -1) {
+		switch (items[i].mode) {
+		case sdk.itemmode.inStorage:
+			if (items[i].isInInventory) {
+				parsedItem.title += " (equipped charm)";
+			} else {
 				parsedItem.title += " (in stash)";
 			}
 
-			if (items[i].mode === 0 && [603, 604, 605].indexOf(items[i].classid) > -1) {
-				parsedItem.title += " (equipped charm)";
+			break;
+		case sdk.itemmode.Equipped:
+			if (items[i].isOnSwap) {
+				parsedItem.title += " (secondary equipped)";
+			} else {
+				parsedItem.title += " (equipped)";
 			}
 
-			string = JSON.stringify(parsedItem);
-			finalString += (string + "\n");
+			break;	
 		}
 
+		string = JSON.stringify(parsedItem);
+		finalString += (string + "\n");
 	}
 
 	if (Config.UseMerc) {

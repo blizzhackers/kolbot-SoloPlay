@@ -13,7 +13,7 @@ var build = {
 	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
-		["strength", 34], ["vitality", 30], ["dexterity", 47], 
+		["strength", 34], ["vitality", 30], ["dexterity", 47],
 		["vitality", 45], ["strength", 47], ["dexterity", 65],
 		["vitality", "all"],
 	],

@@ -9,7 +9,7 @@ if (!isIncluded("common/Attacks/Paladin.js")) {
 }
 
 ClassAttack.doAttack = function (unit, preattack) {
-	var index, result,
+	let index, result,
 		mercRevive = 0,
 		attackSkill = -1,
 		aura = -1,
@@ -23,16 +23,16 @@ ClassAttack.doAttack = function (unit, preattack) {
 	}
 
 	if (!me.classic && index === 1 && !unit.dead) {
-		if (Attack.currentChargedSkills.indexOf(sdk.skills.Weaken) > -1 && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
-			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-			// Switch cast weaken
-			Attack.switchCastCharges(sdk.skills.Weaken, unit);
-		}
-
-		if (Attack.currentChargedSkills.indexOf(sdk.skills.Decrepify) > -1 && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
+		if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.Decrepify) > -1 && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
 			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast decrepify
 			Attack.switchCastCharges(sdk.skills.Decrepify, unit);
+		}
+		
+		if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.Weaken) > -1 && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
+			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			// Switch cast weaken
+			Attack.switchCastCharges(sdk.skills.Weaken, unit);
 		}
 	}
 
@@ -56,16 +56,32 @@ ClassAttack.doAttack = function (unit, preattack) {
 		aura = Config.AttackSkill[index + 1];
 	}
 
-	// Monster immune to primary skill
-	if (!Attack.checkResist(unit, attackSkill)) {
-		// Reset skills
-		attackSkill = -1;
-		aura = -1;
+	// Classic auradin check
+	if ([sdk.skills.HolyFire, sdk.skills.HolyFreeze, sdk.skills.HolyShock].indexOf(aura) > -1) {
+		// Monster immune to primary aura
+		if (!Attack.checkResist(unit, aura)) {
+			// Reset skills
+			attackSkill = -1;
+			aura = -1;
 
-		// Set to secondary if not immune
-		if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5])) {
-			attackSkill = Config.AttackSkill[5];
-			aura = Config.AttackSkill[6];
+			// Set to secondary if not immune, check if using secondary attack aura if not check main skill for immunity
+			if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, ([sdk.skills.HolyFire, sdk.skills.HolyFreeze, sdk.skills.HolyShock].indexOf(Config.AttackSkill[6]) > -1 ? Config.AttackSkill[6] : Config.AttackSkill[5]))) {
+				attackSkill = Config.AttackSkill[5];
+				aura = Config.AttackSkill[6];
+			}
+		}
+	} else {
+		// Monster immune to primary skill
+		if (!Attack.checkResist(unit, attackSkill)) {
+			// Reset skills
+			attackSkill = -1;
+			aura = -1;
+
+			// Set to secondary if not immune
+			if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5])) {
+				attackSkill = Config.AttackSkill[5];
+				aura = Config.AttackSkill[6];
+			}
 		}
 	}
 
@@ -101,7 +117,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 };
 
 ClassAttack.getHammerPosition = function (unit) {
-	var i, x, y, positions, check,
+	let i, x, y, positions, check,
 		baseId = getBaseStat("monstats", unit.classid, "baseid"),
 		size = getBaseStat("monstats2", baseId, "sizex");
 

@@ -5,9 +5,10 @@
 *	@credits	Dark-f, JeanMax for original functions
 */
 
-var Quest = {
+let Quest = {
 	preReqs: function () {
-		if (Pather.accessToAct(2) && !me.staff && !me.horadricstaff) { // horadric staff
+		// horadric staff
+		if (Pather.accessToAct(2) && !me.staff && !me.horadricstaff) {
 			if (!me.amulet) {
 				if (!isIncluded("SoloPlay/Scripts/amulet.js")) {
 					include("SoloPlay/Scripts/amulet.js");
@@ -204,7 +205,7 @@ var Quest = {
 		delay(750 + me.ping);
 
 		// Clear cursor of staff - credit @Jaenster
-		let item = (me.getItems() || []).filter(function (el) { return el.location === 3; }).first();
+		let item = (me.getItems() || []).filter(function (el) { return el.isInInventory; }).first();
 		let _b = [item.x, item.y, item.location], x = _b[0], y = _b[1], loc = _b[2];
 		clickItemAndWait(0, item);
 		clickItemAndWait(0, x, y, loc);
@@ -302,7 +303,7 @@ var Quest = {
 		if (Storage.Inventory.CanFit(questItem)) {
 			Pickit.pickItem(questItem);
 		} else {
-			Town.doChores();
+			Town.visitTown();
 			Pickit.pickItem(questItem);
 			Pickit.pickItems();
 		}
@@ -315,7 +316,7 @@ var Quest = {
 		me.cancel();
 
 		if (newitem) {
-			if (newitem.location === 7) {
+			if (newitem.isInStash) {
 				Town.move("stash");
 				delay(250 + me.ping);
 				Town.openStash();
@@ -429,7 +430,7 @@ var Quest = {
 
 	// Credit dzik or laz unsure who for this
 	useSocketQuest: function (item) {
-		var larzuk, slot, invo, i, items;
+		let larzuk, slot, invo, i, items;
 
 		if (SetUp.finalBuild === "Socketmule") {
 			//print("ÿc8Kolbot-SoloPlayÿc0: Socketmules cannot use their socket quest");
@@ -483,7 +484,7 @@ var Quest = {
 			}
 		}
 			
-		if (item.location === 7) {
+		if (item.isInStash) {
 			Town.openStash();
 
 			if (!Storage.Inventory.MoveTo(item)) {
@@ -517,7 +518,7 @@ var Quest = {
 		if (!larzuk) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Couldn't find larzuk");
 			return false;
-		}			
+		}
 
 		Town.npcInteract("larzuk");
 		delay(10 + me.ping * 2);
@@ -558,7 +559,7 @@ var Quest = {
 			return false;
 		}
 
-		let diffSting = ['Normal', 'Nightmare', 'Hell'][me.diff];	
+		let diffSting = ['Normal', 'Nightmare', 'Hell'][me.diff];
 		Misc.logItem("Used my " + diffSting + " socket quest on : ", item);
 		D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + diffSting + " socket quest on : " + item.name, 6);
 
@@ -584,7 +585,7 @@ var Quest = {
 
 	// Credit whoever did useSocketQuest, I modified that to come up with this
 	useImbueQuest: function (item) {
-		var charsi, slot, invo, i, items;
+		let charsi, slot, invo, i, items;
 		
 		// No item, or item is on the ground
 		if (!item || item === undefined || item.mode === 3) {
@@ -625,7 +626,7 @@ var Quest = {
 			}
 		}
 			
-		if (item.location === 7) {
+		if (item.isInStash) {
 			Town.openStash();
 
 			if (!Storage.Inventory.MoveTo(item)) {
@@ -694,7 +695,7 @@ var Quest = {
 			return false;
 		}
 
-		let diffSting = ['Normal', 'Nightmare', 'Hell'][me.diff];	
+		let diffSting = ['Normal', 'Nightmare', 'Hell'][me.diff];
 		Misc.logItem("Used my " + diffSting + " imbue quest on : ", item);
 		D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + diffSting + " imbue quest on : " + item.name, 6);
 

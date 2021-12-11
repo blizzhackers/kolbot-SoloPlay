@@ -69,7 +69,7 @@ function tristram () {
 			];
 
 			while (stones.some(function (stone) { return !stone.mode; })) {
-				for (var i = 0, stone = void 0; i < stones.length; i++) {
+				for (let i = 0, stone = void 0; i < stones.length; i++) {
 					stone = stones[i];
 					Misc.openChest(stone);
 					Attack.securePosition(me.x, me.y, 10, 0);
@@ -95,15 +95,15 @@ function tristram () {
 	if (me.area === sdk.areas.Tristram) {
 		if (!me.tristram) {
 			let clearCoords = [
-				{"x":25166,"y":5108,"radius":10},
-				{"x":25164,"y":5115,"radius":10},
-				{"x":25163,"y":5121,"radius":10},
-				{"x":25158,"y":5126,"radius":10},
-				{"x":25151,"y":5125,"radius":10},
-				{"x":25145,"y":5129,"radius":10},
-				{"x":25142,"y":5135,"radius":10}
+				{"x": 25166, "y": 5108, "radius": 10},
+				{"x": 25164, "y": 5115, "radius": 10},
+				{"x": 25163, "y": 5121, "radius": 10},
+				{"x": 25158, "y": 5126, "radius": 10},
+				{"x": 25151, "y": 5125, "radius": 10},
+				{"x": 25145, "y": 5129, "radius": 10},
+				{"x": 25142, "y": 5135, "radius": 10}
 			];
-        	Attack.clearCoordList(clearCoords);
+			Attack.clearCoordList(clearCoords);
 
 			let gibbet = getUnit(2, 26);
 

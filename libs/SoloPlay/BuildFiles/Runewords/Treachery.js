@@ -6,7 +6,7 @@ var treach = [
 NTIP.arrayLooping(treach);
 
 // Cube to Lem rune
-if (!me.getItem(sdk.runes.Lem)) {
+if (!me.getItem(sdk.items.runes.Lem)) {
 	Config.Recipes.push([Recipe.Rune, "Io Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Lum Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
@@ -14,7 +14,7 @@ if (!me.getItem(sdk.runes.Lem)) {
 }
 
 // Have Shael and Lem before looking for base
-if (me.getItem(sdk.runes.Lem)) {
+if (me.getItem(sdk.items.runes.Lem)) {
 	NTIP.addLine("([name] == demonhidearmor || [name] == duskshroud || [name] == ghostarmor || [name] == lightplate || [name] == mageplate || [name] == serpentskinarmor || [name] == trellisedarmor || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1");
 }
 

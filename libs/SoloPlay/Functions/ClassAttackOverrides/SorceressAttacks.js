@@ -8,14 +8,14 @@ if (!isIncluded("common/Attacks/Sorceress.js")) {
 	include("common/Attacks/Sorceress.js");
 }
 
-ClassAttack.doAttack = function (unit, preattack) {
-	var checkSkill, mark,
+ClassAttack.doAttack = function (unit, preAttack = false) {
+	let checkSkill, mark,
 		merc = Merc.getMercFix(),
 		timedSkill = -1,
 		untimedSkill = -1,
 		index = (unit.spectype !== 0 || unit.type === 0) ? 1 : 3,
 		staticRange = Math.floor((me.getSkill(sdk.skills.StaticField, 1) + 3) * 2 / 3),
-		gold = me.getStat(14) + me.getStat(15);
+		gold = me.gold;
 
 	if (Config.MercWatch && Town.needMerc()) {
 		print("mercwatch");
@@ -38,18 +38,26 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let useStatic = me.getSkill(sdk.skills.StaticField, 1);
 	let staticManaCost = Skill.getManaCost(sdk.skills.StaticField);
 
-	// Handle Switch casting
+	// Handle Charge skill casting
 	if (!me.classic && index === 1 && !unit.dead) {
-		if (Attack.currentChargedSkills.indexOf(sdk.skills.Weaken) > -1 && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
-			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-			// Switch cast weaken
-			Attack.switchCastCharges(sdk.skills.Weaken, unit);
+		// If we have slow missles we might as well use it, currently only on Lighting Enchanted mobs as they are dangerous
+		// Might be worth it to use on souls too TODO: test this idea
+		if (Attack.currentChargedSkills.indexOf(sdk.skills.SlowMissiles) > -1 && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && Attack.isCursable(unit) &&
+			(gold > 500000 && Attack.BossAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+			// Cast slow missiles
+			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
-
-		if (Attack.currentChargedSkills.indexOf(sdk.skills.LowerResist) > -1 && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
+		// Handle Switch casting
+		if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.LowerResist) > -1 && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
 			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast lower resist
 			Attack.switchCastCharges(sdk.skills.LowerResist, unit);
+		}
+
+		if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.Weaken) > -1 && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
+			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			// Switch cast weaken
+			Attack.switchCastCharges(sdk.skills.Weaken, unit);
 		}
 	}
 
@@ -67,7 +75,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		for (let castStatic = 0; castStatic < 2; castStatic++) {
 			closeMobCheck = Attack.getNearestMonster();
 			if (!!closeMobCheck && Attack.checkResist(unit, "lightning") && staticManaCost < me.mp && !closeMobCheck.dead && Math.round(closeMobCheck.hp * 100 / closeMobCheck.hpmax) > Config.CastStatic) {
-				Skill.cast(42, 0);
+				Skill.cast(sdk.skills.StaticField, 0);
 			}
 		}
 	}
@@ -168,7 +176,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 			break;
 		default:
-			break;	
+			break;
 		}
 	}
 
@@ -242,7 +250,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 };
 
 ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-	var i, walk, tick, timedSkillRange, untimedSkillRange,
+	let i, walk, tick, timedSkillRange, untimedSkillRange,
 		manaCostTimedSkill, manaCostUntimedSkill;
 
 	// No valid skills can be found
@@ -251,7 +259,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 	}
 
 	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
-		manaCostTimedSkill = Skill.getManaCost(timedSkill)
+		manaCostTimedSkill = Skill.getManaCost(timedSkill);
 		timedSkillRange = Skill.getRange(timedSkill);
 
 		if (timedSkill === sdk.skills.ChargedBolt) {

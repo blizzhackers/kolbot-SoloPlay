@@ -1,16 +1,101 @@
 /*
 *	@filename	CubingOverrides.js
-*	@author		isid0re
-*	@desc		Cubing.js patch for offline ladder cubing
+*	@author		theBGuy, isid0re
+*	@desc		Cubing.js improvements
 *	@credits	kolton
 */
 
-Cubing.buildRecipes = function () {
-	var i;
+var Recipe = {
+	Gem: 0,
+	HitPower: {
+		Helm: 1,
+		Boots: 2,
+		Gloves: 3,
+		Belt: 4,
+		Shield: 5,
+		Body: 6,
+		Amulet: 7,
+		Ring: 8,
+		Weapon: 9
+	},
+	Blood: {
+		Helm: 10,
+		Boots: 11,
+		Gloves: 12,
+		Belt: 13,
+		Shield: 14,
+		Body: 15,
+		Amulet: 16,
+		Ring: 17,
+		Weapon: 18
+	},
+	Caster: {
+		Helm: 19,
+		Boots: 20,
+		Gloves: 21,
+		Belt: 22,
+		Shield: 23,
+		Body: 24,
+		Amulet: 25,
+		Ring: 26,
+		Weapon: 27
+	},
+	Safety: {
+		Helm: 28,
+		Boots: 29,
+		Gloves: 30,
+		Belt: 31,
+		Shield: 32,
+		Body: 33,
+		Amulet: 34,
+		Ring: 35,
+		Weapon: 36
+	},
+	Unique: {
+		Weapon: {
+			ToExceptional: 37,
+			ToElite: 38
+		},
+		Armor: {
+			ToExceptional: 39,
+			ToElite: 40
+		}
+	},
+	Rare: {
+		Weapon: {
+			ToExceptional: 41,
+			ToElite: 42
+		},
+		Armor: {
+			ToExceptional: 43,
+			ToElite: 44
+		}
+	},
+	Socket: {
+		Shield: 45,
+		Weapon: 46,
+		Armor: 47,
+		Helm: 48,
+		Rare: 57,
+	},
+	Reroll: {
+		Magic: 49,
+		Charm: 56,
+		Rare: 50,
+		HighRare: 51
+	},
+	Rune: 52,
+	Token: 53,
+	LowToNorm: {
+		Armor: 54,
+		Weapon: 55
+	}
+};
 
+Cubing.buildRecipes = function () {
 	this.recipes = [];
 
-	for (i = 0; i < Config.Recipes.length; i += 1) {
+	for (let i = 0; i < Config.Recipes.length; i += 1) {
 		if (typeof Config.Recipes[i] !== "object" || (Config.Recipes[i].length > 2 && typeof Config.Recipes[i][2] !== "number") || Config.Recipes[i].length < 1) {
 			throw new Error("Cubing.buildRecipes: Invalid recipe format.");
 		}
@@ -20,6 +105,7 @@ Cubing.buildRecipes = function () {
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], Config.Recipes[i][1], Config.Recipes[i][1]], Index: Recipe.Gem, AlwaysEnabled: true});
 
 			break;
+		// Crafting Recipes----------------------------------------------------------------------------------------------------------------------------------//
 		case Recipe.HitPower.Helm:
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], 615, 643, 571], Level: 84, Index: Recipe.HitPower.Helm});
 
@@ -164,42 +250,44 @@ Cubing.buildRecipes = function () {
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], 621, 643, 576], Level: 85, Index: Recipe.Safety.Weapon});
 
 			break;
+		// Upgrading Recipes----------------------------------------------------------------------------------------------------------------------------------//
 		case Recipe.Unique.Weapon.ToExceptional:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], 617, 621, 576], Index: Recipe.Unique.Weapon.ToExceptional, Ethereal: Config.Recipes[i][2]});
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], 617, 621, 576], Index: Recipe.Unique.Weapon.ToExceptional, Ethereal: Config.Recipes[i][2], Name: Config.Recipes[i][3]});
 
 			break;
 		case Recipe.Unique.Weapon.ToElite: // Ladder only
 			if (me.ladder || Developer.addLadderRW) {
-				this.recipes.push({Ingredients: [Config.Recipes[i][1], 626, 630, 576], Index: Recipe.Unique.Weapon.ToElite, Ethereal: Config.Recipes[i][2]});
+				this.recipes.push({Ingredients: [Config.Recipes[i][1], 626, 630, 576], Index: Recipe.Unique.Weapon.ToElite, Ethereal: Config.Recipes[i][2], Name: Config.Recipes[i][3]});
 			}
 
 			break;
 		case Recipe.Unique.Armor.ToExceptional:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], 616, 622, 586], Index: Recipe.Unique.Armor.ToExceptional, Ethereal: Config.Recipes[i][2]});
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], 616, 622, 586], Index: Recipe.Unique.Armor.ToExceptional, Ethereal: Config.Recipes[i][2], Name: Config.Recipes[i][3]});
 
 			break;
 		case Recipe.Unique.Armor.ToElite: // Ladder only
 			if (me.ladder || Developer.addLadderRW) {
-				this.recipes.push({Ingredients: [Config.Recipes[i][1], 629, 627, 586], Index: Recipe.Unique.Armor.ToElite, Ethereal: Config.Recipes[i][2]});
+				this.recipes.push({Ingredients: [Config.Recipes[i][1], 629, 627, 586], Index: Recipe.Unique.Armor.ToElite, Ethereal: Config.Recipes[i][2], Name: Config.Recipes[i][3]});
 			}
 
 			break;
 		case Recipe.Rare.Weapon.ToExceptional:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], 618, 620, 571], Index: Recipe.Rare.Weapon.ToExceptional, Ethereal: Config.Recipes[i][2]});
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], 618, 620, 571], Index: Recipe.Rare.Weapon.ToExceptional, Ethereal: Config.Recipes[i][2], stats: Config.Recipes[i][3]});
 
 			break;
 		case Recipe.Rare.Weapon.ToElite:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], 628, 631, 571], Index: Recipe.Rare.Weapon.ToElite, Ethereal: Config.Recipes[i][2]});
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], 628, 631, 571], Index: Recipe.Rare.Weapon.ToElite, Ethereal: Config.Recipes[i][2], stats: Config.Recipes[i][3]});
 
 			break;
 		case Recipe.Rare.Armor.ToExceptional:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], 617, 619, 561], Index: Recipe.Rare.Armor.ToExceptional, Ethereal: Config.Recipes[i][2]});
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], 617, 619, 561], Index: Recipe.Rare.Armor.ToExceptional, Ethereal: Config.Recipes[i][2], stats: Config.Recipes[i][3]});
 
 			break;
 		case Recipe.Rare.Armor.ToElite:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], 627, 630, 561], Index: Recipe.Rare.Armor.ToElite, Ethereal: Config.Recipes[i][2]});
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], 627, 630, 561], Index: Recipe.Rare.Armor.ToElite, Ethereal: Config.Recipes[i][2], stats: Config.Recipes[i][3]});
 
 			break;
+		// Socketing Recipes----------------------------------------------------------------------------------------------------------------------------------//
 		case Recipe.Socket.Shield:
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], 616, 620, 581], Index: Recipe.Socket.Shield, Ethereal: Config.Recipes[i][2]});
 
@@ -216,8 +304,17 @@ Cubing.buildRecipes = function () {
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], 617, 619, 571], Index: Recipe.Socket.Helm, Ethereal: Config.Recipes[i][2]});
 
 			break;
+		case Recipe.Socket.Rare:
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], sdk.items.Ring, sdk.items.gems.Perfect.Skull, sdk.items.gems.Perfect.Skull, sdk.items.gems.Perfect.Skull], Index: Recipe.Socket.Rare});
+
+			break;
+		// Re-rolling Recipes----------------------------------------------------------------------------------------------------------------------------------//
 		case Recipe.Reroll.Magic: // Hacky solution ftw
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], "pgem", "pgem", "pgem"], Level: 91, Index: Recipe.Reroll.Magic});
+
+			break;
+		case Recipe.Reroll.Charm:
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], "pgem", "pgem", "pgem"], Level: {"cm1": 95, "cm2": 91, "cm3": 91}, Index: Recipe.Reroll.Charm});
 
 			break;
 		case Recipe.Reroll.Rare:
@@ -236,6 +333,7 @@ Cubing.buildRecipes = function () {
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], 610, "cgem"], Index: Recipe.LowToNorm.Armor});
 
 			break;
+		// Rune Recipes----------------------------------------------------------------------------------------------------------------------------------//
 		case Recipe.Rune:
 			switch (Config.Recipes[i][1]) {
 			case 610: // el
@@ -391,9 +489,103 @@ Cubing.buildRecipes = function () {
 	}
 };
 
+Cubing.buildLists = function () {
+	let i, j, k, items;
+
+	CraftingSystem.checkSubrecipes();
+
+	this.validIngredients = [];
+	this.neededIngredients = [];
+	items = me.getItems().filter(item => [sdk.itemmode.inStorage, sdk.itemmode.Equipped].indexOf(item.mode) > -1);
+	items.sort((a, b) => b.ilvl - a.ilvl);
+
+	for (i = 0; i < this.recipes.length; i += 1) {
+		// Set default Enabled property - true if recipe is always enabled, false otherwise
+		this.recipes[i].Enabled = this.recipes[i].hasOwnProperty("AlwaysEnabled");
+
+		IngredientLoop:
+		for (j = 0; j < this.recipes[i].Ingredients.length; j += 1) {
+			for (k = 0; k < items.length; k += 1) {
+				if (((this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(items[k].classid) > -1) ||
+					(this.recipes[i].Ingredients[j] === "cgem" && [557, 562, 567, 572, 577, 582, 597].indexOf(items[k].classid) > -1) ||
+					items[k].classid === this.recipes[i].Ingredients[j]) && this.validItem(items[k], this.recipes[i])) {
+
+					// push the item's info into the valid ingredients array. this will be used to find items when checking recipes
+					this.validIngredients.push({classid: items[k].classid, quality: items[k].quality, ilvl: items[k].ilvl, gid: items[k].gid, recipe: this.recipes[i]});
+
+					// Remove from item list to prevent counting the same item more than once
+					items.splice(k, 1);
+
+					k -= 1;
+
+					// Enable recipes for gem/jewel pickup
+					// Enable rune recipe after 2 bases are found
+					if (this.recipes[i].Index !== Recipe.Rune || (this.recipes[i].Index === Recipe.Rune && j >= 1)) {
+						this.recipes[i].Enabled = true;
+					}
+
+					continue IngredientLoop;
+				}
+			}
+
+			// add the item to needed list - enable pickup
+			this.neededIngredients.push({classid: this.recipes[i].Ingredients[j], recipe: this.recipes[i]});
+
+			// skip flawless gems adding if we don't have the main item (Recipe.Gem and Recipe.Rune for el-ort are always enabled)
+			if (!this.recipes[i].Enabled) {
+				break;
+			}
+
+			// if the recipe is enabled (we have the main item), add flawless gem recipes (if needed)
+
+			// Make perf amethyst
+			if (this.subRecipes.indexOf(561) === -1 && (this.recipes[i].Ingredients[j] === 561 || (this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(561) > -1))) {
+				this.recipes.push({Ingredients: [560, 560, 560], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(561);
+			}
+
+			// Make perf topaz
+			if (this.subRecipes.indexOf(566) === -1 && (this.recipes[i].Ingredients[j] === 566 || (this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(566) > -1))) {
+				this.recipes.push({Ingredients: [565, 565, 565], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(566);
+			}
+
+			// Make perf sapphire
+			if (this.subRecipes.indexOf(571) === -1 && (this.recipes[i].Ingredients[j] === 571 || (this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(571) > -1))) {
+				this.recipes.push({Ingredients: [570, 570, 570], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(571);
+			}
+
+			// Make perf emerald
+			if (this.subRecipes.indexOf(576) === -1 && (this.recipes[i].Ingredients[j] === 576 || (this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(576) > -1))) {
+				this.recipes.push({Ingredients: [575, 575, 575], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(576);
+			}
+
+			// Make perf ruby
+			if (this.subRecipes.indexOf(581) === -1 && (this.recipes[i].Ingredients[j] === 581 || (this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(581) > -1))) {
+				this.recipes.push({Ingredients: [580, 580, 580], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(581);
+			}
+
+			// Make perf diamond
+			if (this.subRecipes.indexOf(586) === -1 && (this.recipes[i].Ingredients[j] === 586 || (this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(586) > -1))) {
+				this.recipes.push({Ingredients: [585, 585, 585], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(586);
+			}
+
+			// Make perf skull
+			if (this.subRecipes.indexOf(601) === -1 && (this.recipes[i].Ingredients[j] === 601 || (this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(601) > -1))) {
+				this.recipes.push({Ingredients: [600, 600, 600], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(601);
+			}
+		}
+	}
+};
+
 // Added try again to emptying cube if it fails it will clear inventory then organize it
 Cubing.emptyCube = function () {
-	var cube = me.getItem(sdk.items.quest.Cube),
+	let cube = me.getItem(sdk.items.quest.Cube),
 		items = me.findItems(-1, -1, 6);
 
 	if (!cube) {
@@ -405,7 +597,7 @@ Cubing.emptyCube = function () {
 	}
 
 	while (items.length) {
-		if (!getUIFlag(0x1a)) {
+		if (!getUIFlag(sdk.uiflags.Cube)) {
 			Cubing.openCube();
 		}
 
@@ -419,6 +611,328 @@ Cubing.emptyCube = function () {
 		}
 
 		items.shift();
+	}
+
+	return true;
+};
+
+
+Cubing.checkItem = function (unit) {
+	if (!Config.Cubing) {
+		return false;
+	}
+
+	for (let i = 0; i < this.validIngredients.length; i++) {
+		// not the same item but the same type of item
+		if (unit.mode !== sdk.itemmode.Equipped && unit.gid !== this.validIngredients[i].gid && unit.classid === this.validIngredients[i].classid && unit.quality === this.validIngredients[i].quality) {
+			// item is better than the one we currently have, so add it to validIngredient array and remove old item
+			if (unit.ilvl > this.validIngredients[i].ilvl && this.validItem(unit, this.validIngredients[i].recipe)) {
+				this.validIngredients.push({classid: unit.classid, quality: unit.quality, ilvl: unit.ilvl, gid: unit.gid, recipe: this.validIngredients[i].recipe});
+				this.validIngredients.splice(i, 1);
+				return true;
+			}
+		}
+	}
+
+	if (this.keepItem(unit)) {
+		return true;
+	}
+
+	for (let i = 0; i < this.neededIngredients.length; i++) {
+		if (unit.classid === this.neededIngredients[i].classid && this.validItem(unit, this.neededIngredients[i].recipe)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+Cubing.validItem = function (unit, recipe) {
+	let valid = true;
+	// Don't use items in locked inventory space
+	if (unit.isInInventory && Storage.Inventory.IsLocked(unit, Config.Inventory)) {
+		return false;
+	}
+
+	// Excluded items
+	if (Runewords.validGids.indexOf(unit.gid) > -1 || CraftingSystem.validGids.indexOf(unit.gid) > -1) {
+		return false;
+	}
+
+	// Gems and runes
+	if ((unit.itemType >= 96 && unit.itemType <= 102) || unit.itemType === 74) {
+		if (!recipe.Enabled && recipe.Ingredients[0] !== unit.classid && recipe.Ingredients[1] !== unit.classid) {
+			return false;
+		}
+
+		return true;
+	}
+
+	if (recipe.Index >= Recipe.HitPower.Helm && recipe.Index <= Recipe.Safety.Weapon) {
+		if (recipe.Index === Recipe.Caster.Amulet && Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) < recipe.Level) {
+			if (me.charlvl < 50) {
+				// set it equal to ilvl 31 where 60% chance of 2 affixes and 20% chance each of 3 or 4 affixes 
+				recipe.Level = 31;
+			} else if (me.charlvl > 50 && me.charlvl < 70) {
+				// set it equal to ilvl 51 where 80% chance of 3 affixes and 20% chance of 4 affixes 
+				recipe.Level = 51;
+			} else if (me.charlvl > 70 && me.charlvl < 93) {
+				// set it equal to ilvl 71 where 100% chance of 4 affixes
+				recipe.Level = 71;
+			}
+		}
+		// Junk jewels (NOT matching a pickit entry)
+		if (unit.itemType === 58) {
+			if (recipe.Enabled && NTIP.CheckItem(unit) === 0) {
+				return true;
+			}
+		// Main item, NOT matching a pickit entry
+		} else if (unit.quality === 4 && Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) >= recipe.Level && NTIP.CheckItem(unit, NTIP_CheckListNoTier) === 0) {
+			return true;
+		}
+
+		return false;
+	}
+
+	if (recipe.Index >= Recipe.Unique.Weapon.ToExceptional && recipe.Index <= Recipe.Unique.Armor.ToElite) {
+		// If item is equipped, ensure we can use the upgraded version
+		if (unit.isEquipped) {
+			if (me.charlvl < unit.upgradedLvlReq || me.trueStr < unit.upgradedStrReq || me.trueDex < unit.upgradedDexReq) {
+				return false;
+			}
+		}
+		// Unique item matching pickit entry
+		if (unit.quality === 7 && NTIP.CheckItem(unit) === 1) {
+			// check items name (prevents upgrading lavagout when we want to be upgrading magefist for the second time)
+			if (recipe.Name !== undefined) {
+				valid = !!unit.fname.toLowerCase().includes(recipe.Name.toLowerCase());
+			}
+			switch (recipe.Ethereal) {
+			case 0:
+			case undefined:
+				return NTIP.CheckItem(unit) === 1 && valid;
+			case 1:
+				return unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1 && valid;
+			case 2:
+				return !unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1 && valid;
+			}
+		}
+
+		return false;
+	}
+
+	if (recipe.Index >= Recipe.Rare.Weapon.ToExceptional && recipe.Index <= Recipe.Rare.Armor.ToElite) {
+		// If item is equipped, ensure we can use the upgraded version
+		if (unit.isEquipped) {
+			if (me.charlvl < unit.upgradedLvlReq || me.trueStr < unit.upgradedStrReq || me.trueDex < unit.upgradedDexReq) {
+				return false;
+			}
+		}
+		// Rare item matching pickit entry
+		if (unit.quality === 6 && NTIP.CheckItem(unit) === 1) {
+			switch (recipe.Ethereal) {
+			case 0:
+			case undefined:
+				return NTIP.CheckItem(unit) === 1;
+			case 1:
+				return unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
+			case 2:
+				return !unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
+			}
+		}
+
+		return false;
+	}
+
+	if (recipe.Index >= Recipe.Socket.Shield && recipe.Index <= Recipe.Socket.Helm) {
+		// Normal item matching pickit entry, no sockets
+		if (unit.quality === 2 && unit.getStat(194) === 0) {
+			switch (recipe.Ethereal) {
+			case 0:
+			case undefined:
+				return NTIP.CheckItem(unit) === 1;
+			case 1:
+				return unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
+			case 2:
+				return !unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
+			}
+		}
+
+		return false;
+	}
+
+	if (recipe.Index === Recipe.Reroll.Magic) {
+		if (unit.quality === 4 && unit.ilvl >= recipe.Level && NTIP.CheckItem(unit) === 0) {
+			return true;
+		}
+
+		return false;
+	}
+
+	if (recipe.Index === Recipe.Reroll.Charm) {
+		if (unit.quality === 4 && NTIP.CheckItem(unit) === 0) {
+			switch (unit.itemType) {
+			case sdk.itemtype.SmallCharm:
+				if (unit.ilvl >= recipe.Level.cm1.ilvl) {
+					return true;
+				}
+				break;
+			case sdk.itemtype.MediumCharm:
+				if (unit.ilvl >= recipe.Level.cm2.ilvl) {
+					return true;
+				}
+				break;
+			case sdk.itemtype.LargeCharm:
+				if (unit.ilvl >= recipe.Level.cm2.ilvl) {
+					return true;
+				}
+				break;
+			}
+		}
+
+		return false;
+	}
+
+	if (recipe.Index === Recipe.Reroll.Rare) {
+		if (unit.quality === 6 && NTIP.CheckItem(unit) === 0) {
+			return true;
+		}
+
+		return false;
+	}
+
+	if (recipe.Index === Recipe.Reroll.HighRare) {
+		if (recipe.Ingredients[0] === unit.classid && unit.quality === 6 && NTIP.CheckItem(unit) === 0) {
+			recipe.Enabled = true;
+
+			return true;
+		}
+
+		if (recipe.Enabled && recipe.Ingredients[2] === unit.classid && unit.itemType === 10 && unit.getStat(77) && !Storage.Inventory.IsLocked(unit, Config.Inventory)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	if (recipe.Index === Recipe.LowToNorm.Armor || recipe.Index === Recipe.LowToNorm.Weapon) {
+		if (unit.quality === 1 && NTIP.CheckItem(unit) === 0) {
+			return true;
+		}
+
+		return false;
+	}
+
+	if (recipe.Index === Recipe.Token) {
+		return true;
+	}
+
+	return false;
+};
+
+Cubing.doCubing = function () {
+	if (!Config.Cubing) {
+		return false;
+	}
+
+	if (!me.getItem(sdk.items.quest.Cube)) {
+		return false;
+	}
+
+	let i, j, items, string, result, tempArray, wasEquipped = false;
+
+	this.update();
+	// Randomize the recipe array to prevent recipe blocking (multiple caster items etc.)
+	tempArray = this.recipes.slice().shuffle();
+
+	for (i = 0; i < tempArray.length; i += 1) {
+		string = "Transmuting: ";
+		items = this.checkRecipe(tempArray[i]);
+
+		if (items) {
+			// If cube isn't open, attempt to open stash (the function returns true if stash is already open)
+			if ((!getUIFlag(sdk.uiflags.Cube) && !Town.openStash()) || !this.emptyCube()) {
+				return false;
+			}
+
+			this.cursorCheck();
+
+			i = -1;
+
+			while (items.length) {
+				string += (items[0].name.trim() + (items.length > 1 ? " + " : ""));
+				if (items[0].isEquipped) { wasEquipped = true; }
+				Storage.Cube.MoveTo(items[0]);
+				items.shift();
+			}
+
+			if (!this.openCube()) {
+				return false;
+			}
+
+			transmute();
+			delay(700 + me.ping);
+			print("ÿc4Cubing: " + string);
+
+			if (Config.ShowCubingInfo) {
+				D2Bot.printToConsole(string, sdk.colors.D2Bot.Green);
+			}
+
+			this.update();
+
+			items = me.findItems(-1, -1, sdk.storage.Cube);
+
+			if (items) {
+				for (j = 0; j < items.length; j += 1) {
+					result = Pickit.checkItem(items[j]);
+
+					switch (result.result) {
+					case 0:
+						// keep if item is worth selling
+						if (items[j].getItemCost(1) / (items[j].sizex * items[j].sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000)) {
+							if (Storage.Inventory.CanFit(items[j])) {
+								Storage.Inventory.MoveTo(items[j]);
+							} else {
+								Misc.itemLogger("Dropped", items[j], "doCubing");
+								items[j].drop();
+							}
+						}
+
+						if (Developer.Debugging.crafting) {
+							Misc.logItem("Crafted but didn't want", items[j]);
+						}
+
+						break;
+					case 1:
+						Misc.itemLogger("Cubing Kept", items[j]);
+						Misc.logItem("Cubing Kept", items[j], result.line);
+
+						break;
+					case 5: // Crafting System
+						CraftingSystem.update(items[j]);
+
+						break;
+					}
+				}
+			}
+
+			if (!this.emptyCube()) {
+				break;
+			}
+		}
+	}
+
+	if (getUIFlag(sdk.uiflags.Cube) || getUIFlag(sdk.uiflags.Stash)) {
+		delay(1000);
+
+		while (getUIFlag(sdk.uiflags.Cube) || getUIFlag(sdk.uiflags.Stash)) {
+			me.cancel();
+			delay(300);
+		}
+	}
+
+	if (wasEquipped) {
+		Item.autoEquip();
 	}
 
 	return true;

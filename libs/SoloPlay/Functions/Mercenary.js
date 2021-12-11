@@ -4,7 +4,7 @@
 *	@desc		Mercenary functionality and Hiring
 */
 
-var Merc = {
+let Merc = {
 	Id: [],
 
 	equipMerc: function () {
@@ -22,7 +22,7 @@ var Merc = {
 
 		let merc = me.getMerc();
 
-		for (var i = 0; i < 3; i++) {
+		for (let i = 0; i < 3; i++) {
 			if (merc) {
 				if (merc.mode === 0 || merc.mode === 12) {
 					return null;

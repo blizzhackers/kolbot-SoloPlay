@@ -10,7 +10,7 @@ var BoTD = [
 NTIP.arrayLooping(BoTD);
 
 // Have Zod rune but do not have a base yet
-if (!Check.haveBase("colossusblade", 6) && me.getItem(sdk.runes.Zod)) {
+if (!Check.haveBase("colossusblade", 6) && me.getItem(sdk.items.runes.Zod)) {
 	NTIP.addLine("[name] == colossusblade && [flag] == ethereal && [quality] == normal # [sockets] == 0 # [maxquantity] == 1");
 }
 

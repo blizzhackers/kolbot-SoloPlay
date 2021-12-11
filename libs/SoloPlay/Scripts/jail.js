@@ -22,7 +22,7 @@ function jail () {
 
 		Precast.doPrecast(true);
 		Attack.clearLevel(0);
-		Pather.clearToExit(me.area, levels[i], true)
+		Pather.clearToExit(me.area, levels[i], true);
 	}
 
 	return true;

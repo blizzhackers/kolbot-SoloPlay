@@ -41,7 +41,7 @@ var finalBuild = {
 		[sdk.skills.BattleOrders, 3, false],	// charlvl 28
 		[sdk.skills.BattleCommand, 1, true],	// charlvl 30
 		[sdk.skills.WarCry, 1, true], 			// charlvl 30
-		[sdk.skills.NaturalResistance, 5, true],// charLvl 35 (enough res to get out or normal)
+		[sdk.skills.NaturalResistance, 5, true], // charLvl 35 (enough res to get out or normal)
 		[sdk.skills.Berserk, 5, true], 			// charLvl 40
 		[sdk.skills.Frenzy, 4, false], 			// charlvl 41
 		[sdk.skills.BattleOrders, 4, false], 	// charlvl 42

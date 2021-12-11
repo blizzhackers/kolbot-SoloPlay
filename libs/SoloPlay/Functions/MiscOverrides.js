@@ -14,113 +14,113 @@ if (!isIncluded("SoloPlay/Tools/Developer.js")) {
 
 Skill.getHand = function (skillId) {
 	switch (skillId) {
-		case 6: // Magic Arrow
-		case 7: // Fire Arrow
-		case 9: // Critical Strike
-		case 11: // Cold Arrow
-		case 12: // Multiple Shot
-		case 13: // Dodge
-		case 15: // Poison Javelin
-		case 16: // Exploding Arrow
-		case 18: // Avoid
-		case 19: // Impale
-		case 20: // Lightning Bolt
-		case 21: // Ice Arrow
-		case 22: // Guided Arrow
-		case 23: // Penetrate
-		case 25: // Plague Javelin
-		case 26: // Strafe
-		case 27: // Immolation Arrow
-		case 29: // Evade
-		case 30: // Fend
-		case 31: // Freezing Arrow
-		case 33: // Pierce
-		case 35: // Lightning Fury
-		case 36: // Fire Bolt
-		case 37: // Warmth
-		case 38: // Charged Bolt
-		case 39: // Ice Bolt
-		case 41: // Inferno
-		case 45: // Ice Blast
-		case 47: // Fire Ball
-		case 49: // Lightning
-		case 53: // Chain Lightning
-		case 55: // Glacial Spike
-		case 61: // Fire Mastery
-		case 63: // Lightning Mastery
-		case 64: // Frozen Orb
-		case 65: // Cold Mastery
-		case 67: // Teeth
-		case 73: // Poison Dagger
-		case 79: // Golem Mastery
-		case 84: // Bone Spear
-		case 89: // Summon Resist
-		case 93: // Bone Spirit
-		case 101: // Holy Bolt
-		case 107: // Charge
-		case 112: // Blessed Hammer
-		case 121: // Fist of the Heavens
-		case 132: // Leap
-		case 140: // Double Throw
-		case 143: // Leap Attack
-		case 151: // Whirlwind
-		case 225: // Firestorm
-		case 229: // Molten Boulder
-		case 230: // Arctic Blast
-		case 240: // Twister
-		case 243: // Shock Wave
-		case 245: // Tornado
-		case 251: // Fire Trauma
-		case 254: // Tiger Strike
-		case 256: // Shock Field
-		case 257: // Blade Sentinel
-		case 259: // Fists of Fire
-		case 263: // Weapon Block
-		case 265: // Cobra Strike
-		case 266: // Blade Fury
-		case 269: // Claws of Thunder
-		case 274: // Blades of Ice
-		case 275: // Dragon Flight
-			return 1;
-		case 0: // Normal Attack
-		case 10: // Jab
-		case 14: // Power Strike
-		case 24: // Charged Strike
-		case 34: // Lightning Strike
-		case 96: // Sacrifice
-		case 97: // Smite
-		case 106: // Zeal
-		case 111: // Vengeance
-		case 116: // Conversion
-		case 126: // Bash
-		case 133: // Double Swing
-		case 139: // Stun
-		case 144: // Concentrate
-		case 147: // Frenzy
-		case 152: // Berserk
-		case 232: // Feral Rage
-		case 233: // Maul
-		case 238: // Rabies
-		case 239: // Fire Claws
-		case 242: // Hunger
-		case 248: // Fury
-		case 255: // Dragon Talon
-		case 260: // Dragon Claw
-		case 270: // Dragon Tail
-			return 2; // Shift bypass
+	case 6: // Magic Arrow
+	case 7: // Fire Arrow
+	case 9: // Critical Strike
+	case 11: // Cold Arrow
+	case 12: // Multiple Shot
+	case 13: // Dodge
+	case 15: // Poison Javelin
+	case 16: // Exploding Arrow
+	case 18: // Avoid
+	case 19: // Impale
+	case 20: // Lightning Bolt
+	case 21: // Ice Arrow
+	case 22: // Guided Arrow
+	case 23: // Penetrate
+	case 25: // Plague Javelin
+	case 26: // Strafe
+	case 27: // Immolation Arrow
+	case 29: // Evade
+	case 30: // Fend
+	case 31: // Freezing Arrow
+	case 33: // Pierce
+	case 35: // Lightning Fury
+	case 36: // Fire Bolt
+	case 37: // Warmth
+	case 38: // Charged Bolt
+	case 39: // Ice Bolt
+	case 41: // Inferno
+	case 45: // Ice Blast
+	case 47: // Fire Ball
+	case 49: // Lightning
+	case 53: // Chain Lightning
+	case 55: // Glacial Spike
+	case 61: // Fire Mastery
+	case 63: // Lightning Mastery
+	case 64: // Frozen Orb
+	case 65: // Cold Mastery
+	case 67: // Teeth
+	case 73: // Poison Dagger
+	case 79: // Golem Mastery
+	case 84: // Bone Spear
+	case 89: // Summon Resist
+	case 93: // Bone Spirit
+	case 101: // Holy Bolt
+	case 107: // Charge
+	case 112: // Blessed Hammer
+	case 121: // Fist of the Heavens
+	case 132: // Leap
+	case 140: // Double Throw
+	case 143: // Leap Attack
+	case 151: // Whirlwind
+	case 225: // Firestorm
+	case 229: // Molten Boulder
+	case 230: // Arctic Blast
+	case 240: // Twister
+	case 243: // Shock Wave
+	case 245: // Tornado
+	case 251: // Fire Trauma
+	case 254: // Tiger Strike
+	case 256: // Shock Field
+	case 257: // Blade Sentinel
+	case 259: // Fists of Fire
+	case 263: // Weapon Block
+	case 265: // Cobra Strike
+	case 266: // Blade Fury
+	case 269: // Claws of Thunder
+	case 274: // Blades of Ice
+	case 275: // Dragon Flight
+		return 1;
+	case 0: // Normal Attack
+	case 10: // Jab
+	case 14: // Power Strike
+	case 24: // Charged Strike
+	case 34: // Lightning Strike
+	case 96: // Sacrifice
+	case 97: // Smite
+	case 106: // Zeal
+	case 111: // Vengeance
+	case 116: // Conversion
+	case 126: // Bash
+	case 133: // Double Swing
+	case 139: // Stun
+	case 144: // Concentrate
+	case 147: // Frenzy
+	case 152: // Berserk
+	case 232: // Feral Rage
+	case 233: // Maul
+	case 238: // Rabies
+	case 239: // Fire Claws
+	case 242: // Hunger
+	case 248: // Fury
+	case 255: // Dragon Talon
+	case 260: // Dragon Claw
+	case 270: // Dragon Tail
+		return 2; // Shift bypass
 	}
 	// Every other skill
 	return 0;
 };
 
-//Thank you @sakana
+// Thank you @sakana
 Skill.getManaCost = function (skillId) {
 	if (skillId < 6) {
 		return 0;
 	}
 
 	if (skillId === 28) {
-		if(me.getSkill(28, 1) >= 25) {
+		if (me.getSkill(28, 1) >= 25) {
 			return ret = 1;
 		} else {
 			ret = [19, 18.2, 17.5, 16.7, 16, 15.2, 14.5, 13.7, 13, 12.2, 11.5, 10.7, 10, 9.2, 8.5, 7.7, 7, 6.2, 5.5, 4.7, 4, 3.2, 2.5, 1.7, 1, 1][me.getSkill(28, 1)];
@@ -133,7 +133,7 @@ Skill.getManaCost = function (skillId) {
 		return this.manaCostList[skillId];
 	}
 
-	var skillLvl = me.getSkill(skillId, 1),
+	let skillLvl = me.getSkill(skillId, 1),
 		effectiveShift = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024],
 		lvlmana = getBaseStat(3, skillId, "lvlmana") === 65535 ? -1 : getBaseStat(3, skillId, "lvlmana"), // Correction for skills that need less mana with levels (kolton)
 		ret = Math.max((getBaseStat(3, skillId, "mana") + lvlmana * (skillLvl - 1)) * (effectiveShift[getBaseStat(3, skillId, "manashift")] / 256), getBaseStat(3, skillId, "minmana"));
@@ -153,7 +153,7 @@ Skill.townSkill = function (skillId) {
 // Cast a skill on self, Unit or coords. Always use packet casting for caster skills becasue it's more stable.
 if (Developer.forcePacketCasting.enabled && Developer.forcePacketCasting.excludeProfiles.indexOf(me.profile) === -1) {
 	Skill.cast = function (skillId, hand, x, y, item) {
-		var casterSkills = [36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 84, 87, 92, 93, 101, 112, 121, 130, 137, 138, 146, 154, 155, 225, 229, 230, 234, 240, 244, 249, 250, 251, 256, 261, 262, 271, 276];
+		let casterSkills = [36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 84, 87, 92, 93, 101, 112, 121, 130, 137, 138, 146, 154, 155, 225, 229, 230, 234, 240, 244, 249, 250, 251, 256, 261, 262, 271, 276];
 
 		if (me.realm) {
 			casterSkills.push(67, 245);
@@ -185,7 +185,7 @@ if (Developer.forcePacketCasting.enabled && Developer.forcePacketCasting.exclude
 			throw new Error("Skill.cast: Must supply a skill ID");
 		}
 
-		var i, n, clickType, shift;
+		let i, n, clickType, shift;
 
 		if (hand === undefined) {
 			hand = 0;
@@ -388,11 +388,11 @@ Skill.getRange = function (skillId) {
 	case 42: // Static Field
 		return Math.floor((me.getSkill(42, 1) + 4) * 2 / 3);
 	case 132: // Leap
-		var leap = [4, 7, 8, 10, 11, 12, 12, 13, 14, 14, 14, 14, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17];
+		let leap = [4, 7, 8, 10, 11, 12, 12, 13, 14, 14, 14, 14, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17];
 
 		return leap[Math.min(me.getSkill(132, 1) - 1, 24)];
 	case 230: // Arctic Blast
-		var arctic = [5, 6, 6, 6, 6, 7, 7, 8, 8, 8, 8, 9, 9, 10, 10, 10, 10, 11, 11, 12];
+		let arctic = [5, 6, 6, 6, 6, 7, 7, 8, 8, 8, 8, 9, 9, 10, 10, 10, 10, 11, 11, 12];
 		let range = arctic[Math.min(me.getSkill(230, 1) - 1, 19)];
 		// Druid using this on physical immunes needs the monsters to be within range of hurricane
 		if (range > 6 && Config.AttackSkill[5] === 230) {
@@ -444,7 +444,7 @@ Misc.updateConfig = function () {
 Misc.townEnabled = true;
 
 Misc.townCheck = function () {
-	var i, potion, check,
+	let i, potion, check,
 		needhp = true,
 		needmp = true;
 
@@ -534,7 +534,7 @@ Misc.openChest = function (unit) {
 		return false;
 	}
 
-	var i, tick,
+	let i, tick,
 		telek = me.sorceress && me.getSkill(43, 1);
 
 	for (i = 0; i < 7; i += 1) {
@@ -572,15 +572,15 @@ Misc.openChest = function (unit) {
 };
 
 Misc.openChests = function (range) {
-	var unit,
+	let unit,
 		unitList = [],
 		containers = [
 			"chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack",
 			"holeanim", "roguecorpse", "corpse", "tomb2", "tomb3", "chest3",
 			"skeleton", "guardcorpse", "sarcophagus", "object2", "cocoon", "hollow log", "hungskeleton",
 			"bonechest", "woodchestl", "woodchestr",
-			"burialchestr","burialchestl", "chestl", "chestr", "groundtomb", "tomb3l", "tomb1l",
-			"deadperson", "deadperson2", "groundtombl","casket"
+			"burialchestr", "burialchestl", "chestl", "chestr", "groundtomb", "tomb3l", "tomb1l",
+			"deadperson", "deadperson2", "groundtombl", "casket"
 		],
 		pita = ["barrel", "largeurn", "jar3", "jar2", "jar1", "urn", "jug"]; // pain in the ass
 							
@@ -620,27 +620,8 @@ Misc.openChests = function (range) {
 	}
 
 	while (unitList.length > 0) {
-		let retry = false;
 		unitList.sort(Sort.units);
 		unit = unitList.shift();
-
-		/*if (unit) {
-			if ((Pather.useTeleport() || (!checkCollision(me, unit, 0x4) && Attack.getMobCount(me.x, me.y, 10) === 0 && Attack.getMobCount(unit.x, unit.y, 10) === 0))) {
-				if (this.openChest(unit)) {
-					Pickit.pickItems();
-				}
-			} else {
-				retry = true;
-				me.overhead("Clearing chest area");
-				Attack.clearPosition(unit.x, unit.y, 10, true);
-			}
-
-			if (retry) {
-				if (this.openChest(unit)) {
-					Pickit.pickItems();
-				}
-			}
-		}*/
 
 		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, 0x4)) && this.openChest(unit)) {
 			Pickit.pickItems();
@@ -651,7 +632,7 @@ Misc.openChests = function (range) {
 };
 
 Misc.useWell = function (range) {
-	let unit = getUnit(2, "Well", 0),
+	let unit = getUnit(2, "well", 0),
 		unitList = [];
 
 	if (!range) {
@@ -779,7 +760,7 @@ Misc.getLightResShrine = function (shrineLocs) {
 };
 
 Misc.getGoodShrine = function (shrineLocs) {
-	function checkState (shrineType) {
+	/* function checkState (shrineType) {
 		let result = false;
 
 		switch (shrineType) {
@@ -822,7 +803,7 @@ Misc.getGoodShrine = function (shrineLocs) {
 		}
 
 		return result;
-	}
+	} */
 
 	let oldAttack = [];
 
@@ -885,7 +866,7 @@ Misc.getGoodShrine = function (shrineLocs) {
 };
 
 Misc.getGoodShrinesInArea = function (area, types, use) {
-	var i, coords, shrine,
+	let i, coords, shrine,
 		shrineLocs = [],
 		shrineIds = [2, 81, 83],
 		unit = getPresetUnits(area);
@@ -930,8 +911,8 @@ Misc.getShrine = function (unit) {
 		return false;
 	}
 
-	var i, tick,
-		telek = me.sorceress && me.getSkill(43, 1);
+	let i, tick,
+		telek = me.sorceress && me.getSkill(sdk.skills.Telekinesis, 1);
 
 	for (i = 0; i < 3; i += 1) {
 		if (telek && i < 2) {
@@ -939,7 +920,7 @@ Misc.getShrine = function (unit) {
 				Attack.getIntoPosition(unit, 13, 0x4);
 			}
 			
-			Skill.cast(43, 0, unit);
+			Skill.cast(sdk.skills.Telekinesis, 0, unit);
 		} else {
 			if (getDistance(me, unit) < 4 || Pather.moveToUnit(unit, 3, 0)) {
 				Misc.click(0, 0, unit);
@@ -961,24 +942,24 @@ Misc.getShrine = function (unit) {
 };
 
 Misc.checkItemForSocketing = function () {
-	if (me.classic || !me.getQuest(35, 1)) {
+	if (me.classic || !me.getQuest(sdk.quests.SiegeOnHarrogath, 1)) {
 		return false;
 	}
 
 	let item;
-	let items = me.getItems();
+	let items = me.getItems().filter(item => item.getStat(sdk.stats.NumSockets) === 0 && getBaseStat("items", item.classid, "gemsockets") > 0);
 
 	if (Check.currentBuild().caster) {
 		if (me.normal) {
 			for (let i = 0; i < items.length; i++) {
 				// Broad Sword
-				if (items[i].classid === 30 && items[i].ilvl >= 26 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+				if (items[i].classid === 30 && items[i].ilvl >= 26 && [2, 3].indexOf(items[i].quality) > -1) {
 					item = items[i];
 					break;
 				}
 
 				// Crystal Sword
-				if (items[i].classid === 29 && items[i].ilvl >= 26 && items[i].ilvl <= 40 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+				if (items[i].classid === 29 && items[i].ilvl >= 26 && items[i].ilvl <= 40 && [2, 3].indexOf(items[i].quality) > -1) {
 					item = items[i];
 					break;
 				}
@@ -986,13 +967,13 @@ Misc.checkItemForSocketing = function () {
 		} else if (me.nightmare) {
 			// Eth Bill, Eth Colossus Volgue, lidless or monarch
 			for (let i = 0; i < items.length; i++) {
-				if ([151, 254].indexOf(items[i].classid) > -1 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1 && items[i].getFlag(0x400000)) {
+				if ([151, 254].indexOf(items[i].classid) > -1 && [2, 3].indexOf(items[i].quality) > -1 && items.ethereal) {
 					item = items[i];
 					break;
 				}
 
 				// Lidless
-				if (items[i].classid === 396 && items[i].getStat(194) === 0 && items[i].quality === 7 &&
+				if (items[i].classid === 396 && items[i].quality === 7 &&
 					([sdk.storage.Inventory, sdk.storage.Stash].indexOf(items[i].location) > -1 || (me.weaponswitch === 0 && [4, 5].indexOf(items[i].bodylocation) > -1))) {
 					item = items[i];
 					break;
@@ -1000,7 +981,7 @@ Misc.checkItemForSocketing = function () {
 
 				if (!me.paladin && ["Cold", "Meteorb", "Blizzballer"].indexOf(SetUp.finalBuild) === -1) {
 					// Monarch
-					if (items[i].classid === 447 && items[i].ilvl >= 41 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1 && !items[i].getFlag(0x400000)) {
+					if (items[i].classid === 447 && items[i].ilvl >= 41 && [2, 3].indexOf(items[i].quality) > -1 && !items.ethereal) {
 						item = items[i];
 						break;
 					}
@@ -1008,7 +989,7 @@ Misc.checkItemForSocketing = function () {
 
 				if (me.assassin) {
 					// Non-Eth Andys's
-					if (items[i].classid === 428 && items[i].getStat(194) === 0 && items[i].quality === 5 && !items[i].getFlag(0x400000)) {
+					if (items[i].classid === 428 && items[i].quality === 5 && !items.ethereal) {
 						item = items[i];
 						break;
 					}
@@ -1017,7 +998,7 @@ Misc.checkItemForSocketing = function () {
 		} else if (me.sorceress && ["Blova", "Lightning"].indexOf(SetUp.finalBuild) === -1) {	// Non-light sorc uses tal helm
 			for (let i = 0; i < items.length; i++) {
 				// Tal Helm
-				if (items[i].classid === 358 && items[i].getStat(194) === 0 && items[i].quality === 5) {
+				if (items[i].classid === 358 && items[i].quality === 5) {
 					item = items[i];
 					break;
 				}
@@ -1025,7 +1006,7 @@ Misc.checkItemForSocketing = function () {
 		} else if (me.druid) {	// Druid uses Jalal's
 			for (let i = 0; i < items.length; i++) {
 				// Jalal's
-				if (items[i].classid === 472 && items[i].getStat(194) === 0 && items[i].quality === 7) {
+				if (items[i].classid === 472 && items[i].quality === 7) {
 					item = items[i];
 					break;
 				}
@@ -1033,7 +1014,7 @@ Misc.checkItemForSocketing = function () {
 		} else if (me.assassin) {	// Assassin uses Andys's
 			for (let i = 0; i < items.length; i++) {
 				// Non-Eth Andys's
-				if (items[i].classid === 428 && items[i].getStat(194) === 0 && items[i].quality === 7 && !items[i].getFlag(0x400000)) {
+				if (items[i].classid === 428 && items[i].quality === 7 && !items.ethereal) {
 					item = items[i];
 					break;
 				}
@@ -1041,18 +1022,18 @@ Misc.checkItemForSocketing = function () {
 		} else {						//Otherwise Shako
 			for (let i = 0; i < items.length; i++) {
 				// Shako
-				if (items[i].classid === 422 && items[i].getStat(194) === 0 && items[i].quality === 7) {
+				if (items[i].classid === 422 && items[i].quality === 7) {
 					item = items[i];
 					break;
 				}
 			}
 		}
-	} else {	
+	} else {
 		if (me.amazon) {
 			if (me.normal) {
 				for (let i = 0; i < items.length; i++) {
 					// Bill
-					if (items[i].classid === 151 && items[i].ilvl >= 25 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 151 && items[i].ilvl >= 25 && [2, 3].indexOf(items[i].quality) > -1) {
 						item = items[i];
 						break;
 					}
@@ -1060,7 +1041,7 @@ Misc.checkItemForSocketing = function () {
 			} else if (me.nightmare) {
 				for (let i = 0; i < items.length; i++) {
 					// Eth Bill or Colossus Volgue
-					if ([151, 254].indexOf(items[i].classid) > -1 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1 && items[i].getFlag(0x400000)) {
+					if ([151, 254].indexOf(items[i].classid) > -1 && [2, 3].indexOf(items[i].quality) > -1 && items.ethereal) {
 						item = items[i];
 						break;
 					}
@@ -1068,12 +1049,12 @@ Misc.checkItemForSocketing = function () {
 			} else {
 				for (let i = 0; i < items.length; i++) {
 					// Shako
-					if (items[i].classid === 422 && items[i].getStat(194) === 0 && items[i].quality === 7) {
+					if (items[i].classid === 422 && items[i].quality === 7) {
 						item = items[i];
 						break;
 					}
 				}
-			}	
+			}
 		}
 
 		if (me.barbarian) {
@@ -1081,7 +1062,7 @@ Misc.checkItemForSocketing = function () {
 				if (Item.getEquippedItem(5).prefixnum !== 20561) {	// Honor
 					for (let i = 0; i < items.length; i++) {
 						// Flamberge
-						if (items[i].classid === 37 && items[i].ilvl >= 41 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+						if (items[i].classid === 37 && items[i].ilvl >= 41 && [2, 3].indexOf(items[i].quality) > -1) {
 							item = items[i];
 							break;
 						}
@@ -1090,26 +1071,26 @@ Misc.checkItemForSocketing = function () {
 			} else {
 				for (let i = 0; i < items.length; i++) {
 					// Arreat's
-					if (items[i].classid === 477 && items[i].getStat(194) === 0 && items[i].quality === 7) {
+					if (items[i].classid === 477 && items[i].quality === 7) {
 						item = items[i];
 						break;
 					}
 
 					// IK Armor
-					if (items[i].classid === 442 && items[i].getStat(194) === 0 && items[i].quality === 5) {
+					if (items[i].classid === 442 && items[i].quality === 5) {
 						item = items[i];
 						break;
 					}
 
 					if (Item.getEquippedItem(5).prefixnum !== 20561) {	// Honor
 						// Zweihander
-						if (items[i].classid === 130 && items[i].ilvl >= 41 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+						if (items[i].classid === 130 && items[i].ilvl >= 41 && [2, 3].indexOf(items[i].quality) > -1) {
 							item = items[i];
 							break;
 						}
 					}
 				}
-			}		
+			}
 		}
 		
 	}
@@ -1118,61 +1099,62 @@ Misc.checkItemForSocketing = function () {
 };
 
 Misc.checkItemForImbueing = function () {
-	if (!me.getQuest(3, 1)) {
+	if (!me.getQuest(sdk.quests.ToolsoftheTrade, 1)) {
 		return false;
 	}
 
 	let item;
-	let items = me.getItems();
+	let items = me.getItems()
+		.filter(item => item.getStat(sdk.stats.NumSockets) === 0 && [sdk.itemquality.Normal, sdk.itemquality.Superior].indexOf(item.quality) > -1);
 
 	switch (me.classid) {
-	case 0: 	//Amazon
+	case sdk.charclass.Amazon:
 		// Only use imbue if not using final weapon
 		if (Item.getEquippedItem(4).tier < 100000) {
-			if (me.diff === 0) {
+			if (me.normal) {
 				for (let i = 0; i < items.length; i++) {
 					// Maiden Javelin
-					if (items[i].classid === 285 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 285) {
 						item = items[i];
 						break;
 					}
 				}
-			} else if (me.diff === 1) {
+			} else if (me.nightmare) {
 				for (let i = 0; i < items.length; i++) {
 					// Ceremonial Javelin
-					if (items[i].classid === 295 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 295) {
 						item = items[i];
 						break;
 					}
 				}
-			} else {	
+			} else {
 				for (let i = 0; i < items.length; i++) {
 					// Matriarchal Javelin
-					if (items[i].classid === 305 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 305) {
 						item = items[i];
 						break;
 					}
-				}	
+				}
 				
 			}
 		}
 		
 		break;
-	case 1: 	//Sorceress
+	case sdk.charclass.Sorceress:
 		// Less than a spirit sword
 		if (Item.getEquippedItem(4).tier < 777) {
-			if (me.diff === 0) {
+			if (me.normal) {
 				for (let i = 0; i < items.length; i++) {
 					// Jared's Stone
-					if (items[i].classid === 280 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 280) {
 						item = items[i];
 						break;
 					}
 				}
-			} else if (me.diff === 1) {
+			} else if (me.nightmare) {
 				for (let i = 0; i < items.length; i++) {
 					// Swirling Crystal
-					if (items[i].classid === 290 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 290) {
 						item = items[i];
 						break;
 					}
@@ -1180,30 +1162,30 @@ Misc.checkItemForImbueing = function () {
 			} else {
 				for (let i = 0; i < items.length; i++) {
 					// Dimensional Shard
-					if (items[i].classid === 300 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 300) {
 						item = items[i];
 						break;
 					}
 				}
-			}	
+			}
 		}
 		
 		break;
-	case 2: 	//Necromancer
+	case sdk.charclass.Necromancer:
 		// Less than spirit shield
 		if (Item.getEquippedItem(5).tier < 1000) {
-			if (me.diff === 0) {
+			if (me.normal) {
 				for (let i = 0; i < items.length; i++) {
 					// Demon Head
-					if (items[i].classid === 417 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 417) {
 						item = items[i];
 						break;
 					}
 				}
-			} else if (me.diff === 1) {
+			} else if (me.nightmare) {
 				for (let i = 0; i < items.length; i++) {
 					// Hierophant Trophy
-					if (items[i].classid === 487 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 487) {
 						item = items[i];
 						break;
 					}
@@ -1211,7 +1193,7 @@ Misc.checkItemForImbueing = function () {
 			} else {
 				for (let i = 0; i < items.length; i++) {
 					// Bloodlord Skull
-					if (items[i].classid === 507 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 507) {
 						item = items[i];
 						break;
 					}
@@ -1220,21 +1202,21 @@ Misc.checkItemForImbueing = function () {
 		}
 		
 		break;
-	case 3: 	//Paladin
+	case sdk.charclass.Paladin:
 		// Less than a spirit sword
 		if (Item.getEquippedItem(4).tier < 777) {
-			if (me.diff === 0) {
+			if (me.normal) {
 				for (let i = 0; i < items.length; i++) {
 					// War Scepter
-					if (items[i].classid === 17 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 17) {
 						item = items[i];
 						break;
 					}
 				}
-			} else if (me.diff === 1) {
+			} else if (me.nightmare) {
 				for (let i = 0; i < items.length; i++) {
 					// Divine Scepter
-					if (items[i].classid === 110 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 110) {
 						item = items[i];
 						break;
 					}
@@ -1242,38 +1224,7 @@ Misc.checkItemForImbueing = function () {
 			} else {
 				for (let i = 0; i < items.length; i++) {
 					// Caduceus
-					if (items[i].classid === 213 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
-						item = items[i];
-						break;
-					}
-				}
-			}	
-		}
-		
-		break;
-	case 4: 	//Barbarian
-		// Less than final helm
-		if (Item.getEquippedItem(1).tier < 100000) {
-			if (me.diff === 0) {
-				for (let i = 0; i < items.length; i++) {
-					// Avenger Guard
-					if (items[i].classid === 407 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
-						item = items[i];
-						break;
-					}
-				}
-			} else if (me.diff === 1) {
-				for (let i = 0; i < items.length; i++) {
-					// Slayer Guard
-					if (items[i].classid === 477 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
-						item = items[i];
-						break;
-					}
-				}
-			} else {
-				for (let i = 0; i < items.length; i++) {
-					// Carnage Helm
-					if (items[i].classid === 493 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 213) {
 						item = items[i];
 						break;
 					}
@@ -1282,21 +1233,52 @@ Misc.checkItemForImbueing = function () {
 		}
 		
 		break;
-	case 5: 	//Druid
+	case sdk.charclass.Barbarian:
 		// Less than final helm
 		if (Item.getEquippedItem(1).tier < 100000) {
-			if (me.diff === 0) {
+			if (me.normal) {
 				for (let i = 0; i < items.length; i++) {
-					// Spirit Mask
-					if (items[i].classid === 402 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					// Avenger Guard
+					if (items[i].classid === 407) {
 						item = items[i];
 						break;
 					}
 				}
-			} else if (me.diff === 1) {
+			} else if (me.nightmare) {
+				for (let i = 0; i < items.length; i++) {
+					// Slayer Guard
+					if (items[i].classid === 477) {
+						item = items[i];
+						break;
+					}
+				}
+			} else {
+				for (let i = 0; i < items.length; i++) {
+					// Carnage Helm
+					if (items[i].classid === 493) {
+						item = items[i];
+						break;
+					}
+				}
+			}
+		}
+		
+		break;
+	case sdk.charclass.Druid:
+		// Less than final helm
+		if (Item.getEquippedItem(1).tier < 100000) {
+			if (me.normal) {
+				for (let i = 0; i < items.length; i++) {
+					// Spirit Mask
+					if (items[i].classid === 402) {
+						item = items[i];
+						break;
+					}
+				}
+			} else if (me.nightmare) {
 				for (let i = 0; i < items.length; i++) {
 					// Totemic Mask
-					if (items[i].classid === 472 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 472) {
 						item = items[i];
 						break;
 					}
@@ -1304,7 +1286,7 @@ Misc.checkItemForImbueing = function () {
 			} else {
 				for (let i = 0; i < items.length; i++) {
 					// Dream Spirit
-					if (items[i].classid === 492 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 492) {
 						item = items[i];
 						break;
 					}
@@ -1313,13 +1295,13 @@ Misc.checkItemForImbueing = function () {
 		}
 
 		break;
-	case 6: 	//Assassin
+	case sdk.charclass.Assassin:
 		// Less than a spirit sword
 		if (Item.getEquippedItem(4).tier < 777) {
-			if (me.diff === 0) {
+			if (me.normal) {
 				for (let i = 0; i < items.length; i++) {
 					// Claws
-					if (items[i].classid === 179 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 179) {
 						item = items[i];
 						break;
 					}
@@ -1327,12 +1309,12 @@ Misc.checkItemForImbueing = function () {
 			} else if (me.diff > 0) {
 				for (let i = 0; i < items.length; i++) {
 					// Greater Talons
-					if (items[i].classid === 187 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+					if (items[i].classid === 187) {
 						item = items[i];
 						break;
 					}
 				}
-			} 	
+			}
 		}
 
 		break;
@@ -1341,18 +1323,18 @@ Misc.checkItemForImbueing = function () {
 	}
 
 	if (item === undefined || !item) {
-		if (me.diff === 0) {
+		if (me.normal) {
 			for (let i = 0; i < items.length; i++) {
 				// Plated Belt
-				if (items[i].classid === 348 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+				if (items[i].classid === 348) {
 					item = items[i];
 					break;
 				}
 			}
-		} else if (me.diff === 1) {
+		} else if (me.nightmare) {
 			for (let i = 0; i < items.length; i++) {
 				// War Belt
-				if (items[i].classid === 394 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+				if (items[i].classid === 394) {
 					item = items[i];
 					break;
 				}
@@ -1360,7 +1342,7 @@ Misc.checkItemForImbueing = function () {
 		} else {
 			for (let i = 0; i < items.length; i++) {
 				// Mithril Coil
-				if (items[i].classid === 462 && items[i].getStat(194) === 0 && [2, 3].indexOf(items[i].quality) > -1) {
+				if (items[i].classid === 462) {
 					item = items[i];
 					break;
 				}
@@ -1372,89 +1354,121 @@ Misc.checkItemForImbueing = function () {
 };
 
 Misc.addSocketables = function () {
-	let item;
-	let items = me.getItems();
+	let item, sockets;
+	let items = me.getItems().filter(item => item.getStat(sdk.stats.NumSockets) > 0);
 
 	for (let i = 0; i < items.length; i++) {
-		// Shako
-		if (items[i].classid === 422 && items[i].getStat(194) === 1 && items[i].quality === 7 && !items[i].getItem()) {
-			item = items[i];
+		sockets = items[i].getStat(sdk.stats.NumSockets);
+
+		// no need to check anything else if already socketed
+		if (!!items[i].getItem()) {
+			continue;
+		}
+
+		switch (items[i].quality) {
+		case sdk.itemquality.Magic:
+		case sdk.itemquality.Rare:
+		case sdk.itemquality.Crafted:
+			// Any magic, rare, or crafted item with open sockets
+			if (items[i].mode === sdk.itemmode.Equipped && [1, 3, 4, 5].indexOf(items[i].bodylocation) > -1 && sockets >= 1) {
+				item = items[i];
+				break;
+			}
+
+			break;
+		case sdk.itemquality.Set:
+			// Tal Helm
+			if (items[i].classid === 358 && sockets === 1) {
+				item = items[i];
+				break;
+			}
+
+			// Tal Armor
+			if (items[i].classid === 440 && sockets === 1) {
+				item = items[i];
+				break;
+			}
+
+			// IK Maul
+			if (me.barbarian && items[i].classid === 219 && sockets === 2) {
+				item = items[i];
+				break;
+			}
+
+			// IK Helm
+			if (me.barbarian && items[i].classid === 407 && sockets === 2) {
+				item = items[i];
+				break;
+			}
+
+			break;
+		case sdk.itemquality.Unique:
+			// Shako
+			if (items[i].classid === 422 && sockets === 1) {
+				item = items[i];
+				break;
+			}
+
+			// Arreats
+			if (items[i].classid === 477 && sockets === 1) {
+				item = items[i];
+				break;
+			}
+
+			// Jalal's
+			if (items[i].classid === 472 && sockets === 1) {
+				item = items[i];
+				break;
+			}
+
+			// Andys's
+			if (items[i].classid === 428 && sockets === 1) {
+				item = items[i];
+				break;
+			}
+
+			// Crown of Ages
+			if (items[i].classid === 427 && sockets >= 1) {
+				item = items[i];
+				break;
+			}
+
+			// Moser's
+			if (items[i].classid === 375 && sockets >= 1) {
+				item = items[i];
+				break;
+			}
+
+			// Lidless
+			if (items[i].classid === 396 && sockets >= 1) {
+				item = items[i];
+				break;
+			}
+
+			// Dijjin Slayer
+			if (items[i].classid === 222 && sockets >= 1) {
+				item = items[i];
+				break;
+			}
+
+			// Spirit Forge
+			if (items[i].classid === 363 && sockets >= 1) {
+				item = items[i];
+				break;
+			}
+
+			break;
+		default:
 			break;
 		}
 
-		// Arreats
-		if (items[i].classid === 477 && items[i].getStat(194) === 1 && items[i].quality === 7 && !items[i].getItem()) {
-			item = items[i];
-			break;
-		}
 
-		// Jalal's
-		if (items[i].classid === 472 && items[i].getStat(194) === 1 && items[i].quality === 7 && !items[i].getItem()) {
-			item = items[i];
-			break;
-		}
-
-		// Andys's
-		if (items[i].classid === 428 && items[i].getStat(194) === 1 && items[i].quality === 7 && !items[i].getItem()) {
-			item = items[i];
-			break;
-		}
-
-		// Tal Helm
-		if (items[i].classid === 358 && items[i].getStat(194) === 1 && items[i].quality === 5 && !items[i].getItem()) {
-			item = items[i];
-			break;
-		}
-
-		// Crown of Ages
-		if (items[i].classid === 427 && items[i].getStat(194) >= 1 && items[i].quality === 7 && !items[i].getItem()) {
-			item = items[i];
-			break;
-		}
-
-		// Moser's
-		if (items[i].classid === 375 && items[i].getStat(194) >= 1 && items[i].quality === 7 && !items[i].getItem()) {
-			item = items[i];
-			break;
-		}
-
-		// Lidless
-		if (items[i].classid === 396 && items[i].getStat(194) >= 1 && items[i].quality === 7 && !items[i].getItem()) {
-			item = items[i];
-			break;
-		}
-
-		// IK Maul
-		if (me.barbarian && items[i].classid === 219 && items[i].getStat(194) === 2 && items[i].quality === 5 && !items[i].getItem()) {
-			item = items[i];
-			break;
-		}
-
-		// IK Helm
-		if (me.barbarian && items[i].classid === 407 && items[i].getStat(194) === 2 && items[i].quality === 5 && !items[i].getItem()) {
-			item = items[i];
-			break;
-		}
-
-		// Dijjin Slayer
-		if (items[i].classid === 222 && items[i].getStat(194) >= 1 && items[i].quality === 7 && !items[i].getItem()) {
-			item = items[i];
-			break;
-		}
-
-		// Spirit Forge
-		if (items[i].classid === 363 && items[i].getStat(194) >= 1 && items[i].quality === 7 && !items[i].getItem()) {
-			item = items[i];
-			break;
-		}
-
-		// Any magic or rare with open sockets
-		if ([4, 6].indexOf(items[i].quality) > -1 && items[i].mode === 1 && [1, 3, 4, 5].indexOf(items[i].bodylocation) > -1 && items[i].getStat(194) >= 1 && !items[i].getItem()) {
-			item = items[i];
+		if (!!item) {
 			break;
 		}
 	}
 
+	// TODO: figure out better way to do this
 	function highestGemAvailable (gem, checkList) {
 		let highest = false;
 		let myItems = me.getItems().filter(item => item.classid >= 557 && item.classid <= 601 && [587, 588, 589, 590, 591, 592, 593, 594, 595, 596].indexOf(item.classid) === -1);
@@ -1479,7 +1493,7 @@ Misc.addSocketables = function () {
 					highest = true;
 					break;
 				} else if (myItems[i].classid === 562 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;;
+					highest = true;
 					break;
 				}
 
@@ -1564,39 +1578,45 @@ Misc.addSocketables = function () {
 		}
 
 		return highest;
-	};
+	}
 
 	if (item) {
-		let socketable;
+		let socketable, sockets = item.getStat(sdk.stats.NumSockets);
 		let multiple = [];
-		let ready = false; 
+		let ready = false;
 
 		for (let i = 0; i < items.length; i++) {
 			// Um Rune to Shako, Jalal's, or Tal Helm
-			if (items[i].classid === 631 && [422, 472, 358].indexOf(item.classid) > -1) {
+			if (items[i].classid === sdk.items.runes.Um && [422, 472, 358].indexOf(item.classid) > -1) {
+				socketable = items[i];
+				break;
+			}
+
+			// Ber Rune to Tal Armor
+			if (items[i].classid === sdk.items.runes.Ber && item.classid === 440) {
 				socketable = items[i];
 				break;
 			}
 
 			// Cham Rune to Arreat's
-			if (items[i].classid === 641 && item.classid === 477) {
+			if (items[i].classid === sdk.items.runes.Cham && item.classid === 477) {
 				socketable = items[i];
 				break;
 			}
 
 			// Ral Rune to Andys's
-			if (items[i].classid === 617 && item.classid === 428) {
+			if (items[i].classid === sdk.items.runes.Ral && item.classid === 428) {
 				socketable = items[i];
 				break;
 			}
 
 			// Um Rune to CoA //TODO: Add 1 Um and 1 Ber
-			if (items[i].classid === 631 && item.classid === 427 && multiple.indexOf(items[i]) === -1) {
-				if (item.getStat(194) === 2) {
-					if (multiple.length < item.getStat(194)) {
+			if (items[i].classid === sdk.items.runes.Um && item.classid === 427 && multiple.indexOf(items[i]) === -1) {
+				if (sockets === 2) {
+					if (multiple.length < sockets) {
 						multiple.push(items[i]);
 						
-						if (multiple.length === item.getStat(194)) {
+						if (multiple.length === sockets) {
 							ready = true;
 							break;
 						}
@@ -1605,20 +1625,20 @@ Misc.addSocketables = function () {
 					} else {
 						ready = true;
 						break;
-					}	
+					}
 				} else {
 					socketable = items[i];
 					break;
-				}	
+				}
 			}
 
 			// Um to Moser's
-			if (items[i].classid === 631 && item.classid === 375 && multiple.indexOf(items[i]) === -1) {
-				if (item.getStat(194) === 2) {
-					if (multiple.length < item.getStat(194)) {
+			if (items[i].classid === sdk.items.runes.Um && item.classid === 375 && multiple.indexOf(items[i]) === -1) {
+				if (sockets === 2) {
+					if (multiple.length < sockets) {
 						multiple.push(items[i]);
 						
-						if (multiple.length === item.getStat(194)) {
+						if (multiple.length === sockets) {
 							ready = true;
 							break;
 						}
@@ -1627,20 +1647,20 @@ Misc.addSocketables = function () {
 					} else {
 						ready = true;
 						break;
-					}	
+					}
 				} else {
 					socketable = items[i];
 					break;
-				}	
+				}
 			}
 
 			// P-diamond to Moser's
-			if (items[i].classid === 586 && item.classid === 375 && multiple.indexOf(items[i]) === -1) {
-				if (item.getStat(194) === 2) {
-					if (multiple.length < item.getStat(194)) {
+			if (items[i].classid === sdk.items.gems.Perfect.Diamond && item.classid === 375 && multiple.indexOf(items[i]) === -1) {
+				if (sockets === 2) {
+					if (multiple.length < sockets) {
 						multiple.push(items[i]);
 						
-						if (multiple.length === item.getStat(194)) {
+						if (multiple.length === sockets) {
 							ready = true;
 							break;
 						}
@@ -1649,32 +1669,32 @@ Misc.addSocketables = function () {
 					} else {
 						ready = true;
 						break;
-					}	
+					}
 				} else {
 					socketable = items[i];
 					break;
-				}	
+				}
 			}
 
 			// Um Rune to Lidless
-			if (items[i].classid === 631 && item.classid === 396) {
+			if (items[i].classid === sdk.items.runes.Um && item.classid === 396) {
 				socketable = items[i];
 				break;
 			}
 
 			// P-diamond to Lidless
-			if (items[i].classid === 586 && item.classid === 396) {
+			if (items[i].classid === sdk.items.gems.Perfect.Diamond && item.classid === 396) {
 				socketable = items[i];
 				break;
 			}
 
 			// Shael Rune and IK Mauls
-			if (items[i].classid === 622 && item.classid === 219 && multiple.indexOf(items[i]) === -1) {
-				if (item.getStat(194) === 2) {
-					if (multiple.length < item.getStat(194)) {
+			if (items[i].classid === sdk.items.runes.Shael && item.classid === 219 && multiple.indexOf(items[i]) === -1) {
+				if (sockets === 2) {
+					if (multiple.length < sockets) {
 						multiple.push(items[i]);
 						
-						if (multiple.length === item.getStat(194)) {
+						if (multiple.length === sockets) {
 							ready = true;
 							break;
 						}
@@ -1683,20 +1703,20 @@ Misc.addSocketables = function () {
 					} else {
 						ready = true;
 						break;
-					}	
+					}
 				} else {
 					socketable = items[i];
 					break;
-				}	
+				}
 			}
 
 			// Ber Rune and IK Helm
-			if (items[i].classid === 639 && item.classid === 407 && multiple.indexOf(items[i]) === -1) {
-				if (item.getStat(194) === 2) {
-					if (multiple.length < item.getStat(194)) {
+			if (items[i].classid === sdk.items.runes.Ber && item.classid === 407 && multiple.indexOf(items[i]) === -1) {
+				if (sockets === 2) {
+					if (multiple.length < sockets) {
 						multiple.push(items[i]);
 						
-						if (multiple.length === item.getStat(194)) {
+						if (multiple.length === sockets) {
 							ready = true;
 							break;
 						}
@@ -1705,20 +1725,20 @@ Misc.addSocketables = function () {
 					} else {
 						ready = true;
 						break;
-					}	
+					}
 				} else {
 					socketable = items[i];
 					break;
-				}	
+				}
 			}
 
 			// Amn Rune and Dijjin Slayer
-			if (items[i].classid === 620 && item.classid === 222 && multiple.indexOf(items[i]) === -1) {
-				if (item.getStat(194) === 2) {
-					if (multiple.length < item.getStat(194)) {
+			if (items[i].classid === sdk.items.runes.Amn && item.classid === 222 && multiple.indexOf(items[i]) === -1) {
+				if (sockets === 2) {
+					if (multiple.length < sockets) {
 						multiple.push(items[i]);
 
-						if (multiple.length === item.getStat(194)) {
+						if (multiple.length === sockets) {
 							ready = true;
 							break;
 						}
@@ -1727,20 +1747,20 @@ Misc.addSocketables = function () {
 					} else {
 						ready = true;
 						break;
-					}	
+					}
 				} else {
 					socketable = items[i];
 					break;
-				}	
+				}
 			}
 
 			// Shael Rune and Spirit Forge
-			if (items[i].classid === 622 && item.classid === 363 && multiple.indexOf(items[i]) === -1) {
-				if (item.getStat(194) === 2) {
-					if (multiple.length < item.getStat(194)) {
+			if (items[i].classid === sdk.items.runes.Shael && item.classid === 363 && multiple.indexOf(items[i]) === -1) {
+				if (sockets === 2) {
+					if (multiple.length < sockets) {
 						multiple.push(items[i]);
 						
-						if (multiple.length === item.getStat(194)) {
+						if (multiple.length === sockets) {
 							ready = true;
 							break;
 						}
@@ -1749,14 +1769,14 @@ Misc.addSocketables = function () {
 					} else {
 						ready = true;
 						break;
-					}	
+					}
 				} else {
 					socketable = items[i];
 					break;
-				}	
+				}
 			}
 
-			if ([4, 6].indexOf(item.quality) > -1 && multiple.indexOf(items[i]) === -1) {
+			if ([sdk.itemquality.Magic, sdk.itemquality.Rare, sdk.itemquality.Crafted].indexOf(item.quality) > -1 && multiple.indexOf(items[i]) === -1) {
 				switch (item.itemType) {
 				case 2: // Shield
 				case 69: // Voodoo Heads
@@ -1764,11 +1784,11 @@ Misc.addSocketables = function () {
 					// Diamonds
 					if ([582, 583, 584, 585, 586].indexOf(items[i].classid) > -1) {
 						if (highestGemAvailable(items[i], multiple)) {
-							if (item.getStat(194) > 1) {
-								if (multiple.length < item.getStat(194)) {
+							if (sockets > 1) {
+								if (multiple.length < sockets) {
 									multiple.push(items[i]);
 									
-									if (multiple.length === item.getStat(194)) {
+									if (multiple.length === sockets) {
 										ready = true;
 										break;
 									}
@@ -1777,13 +1797,11 @@ Misc.addSocketables = function () {
 								} else {
 									ready = true;
 									break;
-								}	
+								}
 							} else {
 								socketable = items[i];
 								break;
 							}
-
-							break;
 						}
 					}
 
@@ -1796,11 +1814,11 @@ Misc.addSocketables = function () {
 					// Rubys
 					if ([577, 578, 579, 580, 581].indexOf(items[i].classid) > -1) {
 						if (highestGemAvailable(items[i], multiple)) {
-							if (item.getStat(194) > 1) {
-								if (multiple.length < item.getStat(194)) {
+							if (sockets > 1) {
+								if (multiple.length < sockets) {
 									multiple.push(items[i]);
 									
-									if (multiple.length === item.getStat(194)) {
+									if (multiple.length === sockets) {
 										ready = true;
 										break;
 									}
@@ -1809,13 +1827,11 @@ Misc.addSocketables = function () {
 								} else {
 									ready = true;
 									break;
-								}	
+								}
 							} else {
 								socketable = items[i];
 								break;
 							}
-
-							break;
 						}
 					}
 
@@ -1825,11 +1841,11 @@ Misc.addSocketables = function () {
 						// Skulls
 						if ([597, 598, 599, 600, 601].indexOf(items[i].classid) > -1) {
 							if (highestGemAvailable(items[i], multiple)) {
-								if (item.getStat(194) > 1) {
-									if (multiple.length < item.getStat(194)) {
+								if (sockets > 1) {
+									if (multiple.length < sockets) {
 										multiple.push(items[i]);
 										
-										if (multiple.length === item.getStat(194)) {
+										if (multiple.length === sockets) {
 											ready = true;
 											break;
 										}
@@ -1838,23 +1854,23 @@ Misc.addSocketables = function () {
 									} else {
 										ready = true;
 										break;
-									}	
+									}
 								} else {
 									socketable = items[i];
 									break;
 								}
-
-								break;
 							}
 						}
 					} else {
 						// Tir rune in normal, Io rune otherwise and Shael's if assassin
-						if ((items[i].classid === 612 && me.normal) || (items[i].classid === 625 && !me.normal && !me.assassin) || (me.assassin && items[i].classid === 622)) {
-							if (item.getStat(194) > 1) {
-								if (multiple.length < item.getStat(194)) {
+						if ((items[i].classid === sdk.items.runes.Tir && me.normal) ||
+							(items[i].classid === sdk.items.runes.Io && !me.normal && !me.assassin) ||
+							(me.assassin && items[i].classid === sdk.items.runes.Shael)) {
+							if (sockets > 1) {
+								if (multiple.length < sockets) {
 									multiple.push(items[i]);
 									
-									if (multiple.length === item.getStat(194)) {
+									if (multiple.length === sockets) {
 										ready = true;
 										break;
 									}
@@ -1863,7 +1879,7 @@ Misc.addSocketables = function () {
 								} else {
 									ready = true;
 									break;
-								}	
+								}
 							} else {
 								socketable = items[i];
 								break;
@@ -1893,7 +1909,7 @@ Misc.addSocketables = function () {
 					return;
 				}
 			}
-			
+
 			for (let i = 0; i < multiple.length; i++) {
 				if (Misc.addSocketableToItem(item, multiple[i])) {
 					D2Bot.printToConsole("Added socketable: " + multiple[i].fname + " to " + item.fname, 6);
@@ -1907,11 +1923,11 @@ Misc.addSocketables = function () {
 };
 
 Misc.addSocketableToItem = function (item, rune) {
-	if (item.getStat(194) === 0) {
+	if (item.getStat(sdk.stats.NumSockets) === 0) {
 		return false;
 	}
 
-	if (item.mode === 1) {
+	if (item.mode === sdk.itemmode.Equipped) {
 		let i, tick, bodyLoc = item.bodylocation;
 
 		// No space to get the item back
@@ -1919,13 +1935,13 @@ Misc.addSocketableToItem = function (item, rune) {
 			print("ÿc8AddSocketableToItemÿc0 :: No space to get item back");
 			return false;
 		} else {
-			if (item.location === 7) {
+			if (item.isInStash) {
 				Town.openStash();
 			}
 
 			if (!Storage.Inventory.MoveTo(item)) {
 				return false;
-			}	
+			}
 		}
 
 		if (!rune.toCursor()) {
@@ -1952,9 +1968,9 @@ Misc.addSocketableToItem = function (item, rune) {
 
 				if (bodyLoc) {
 					Item.equip(item, bodyLoc);
-				} 
+				}
 
-				return true;	
+				return true;
 			}
 		}
 
@@ -1975,8 +1991,6 @@ Misc.logItem = function (action, unit, keptLine) {
 	if (!this.useItemLog || unit === undefined || !unit) {
 		return false;
 	}
-
-	var i;
 
 	// Don't check for config settings if there's no config loaded	
 	if (Config.loaded) {
@@ -2008,7 +2022,7 @@ Misc.logItem = function (action, unit, keptLine) {
 			return false;
 		}
 
-		for (i = 0; i < Config.SkipLogging.length; i++) {
+		for (let i = 0; i < Config.SkipLogging.length; i++) {
 			if (Config.SkipLogging[i] === unit.classid || Config.SkipLogging[i] === unit.code) {
 				return false;
 			}
@@ -2019,7 +2033,7 @@ Misc.logItem = function (action, unit, keptLine) {
 		return false;
 	}
 
-	var lastArea, code, desc, sock, itemObj,
+	let lastArea, code, desc, sock, itemObj,
 		color = -1,
 		name = unit.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<:;.*]|\/|\\/g, "").trim();
 
@@ -2174,7 +2188,7 @@ Misc.logItem = function (action, unit, keptLine) {
 
 			break;
 		case 7: // Unique
-			for (i = 0; i < 401; i += 1) {
+			for (let i = 0; i < 401; i += 1) {
 				if (unit.code === getBaseStat(17, i, 4).trim() && unit.fname.split("\n").reverse()[0].indexOf(getLocaleString(getBaseStat(17, i, 2))) > -1) {
 					code = getBaseStat(17, i, "invfile");
 
@@ -2233,7 +2247,7 @@ Misc.logItem = function (action, unit, keptLine) {
 };
 
 Misc.shapeShift = function (mode) {
-	var i, tick, skill, state;
+	let i, tick, skill, state;
 
 	switch (mode.toString().toLowerCase()) {
 	case "0":
@@ -2280,7 +2294,7 @@ Misc.shapeShift = function (mode) {
 };
 
 Misc.buyItem = function (unit, shiftBuy, gamble) {
-	var i, tick,
+	let i, tick,
 		oldGold = me.getStat(14) + me.getStat(15),
 		itemCount = me.itemcount,
 		npc = getInteractedNPC();
@@ -2291,7 +2305,7 @@ Misc.buyItem = function (unit, shiftBuy, gamble) {
 	}
 
 	// Can we afford the item?
-	if (me.getStat(14) + me.getStat(15) < unit.getItemCost(0)) {
+	if (me.gold < unit.getItemCost(0)) {
 		return false;
 	}
 
@@ -2301,7 +2315,7 @@ Misc.buyItem = function (unit, shiftBuy, gamble) {
 		tick = getTickCount();
 
 		while (getTickCount() - tick < Math.max(2000, me.ping * 2 + 500)) {
-			if (shiftBuy && me.getStat(14) + me.getStat(15) < oldGold) {
+			if (shiftBuy && me.gold < oldGold) {
 				return true;
 			}
 
@@ -2326,7 +2340,7 @@ Packet.openMenu = function (unit) {
 		return true;
 	}
 
-	var i, tick;
+	let i, tick;
 
 	for (i = 0; i < 5; i += 1) {
 		if (getDistance(me, unit) > 4) {

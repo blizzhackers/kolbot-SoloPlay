@@ -20,7 +20,7 @@ ClassAttack.tauntMonsters = function (unit, attackSkill) {
 	}
 
 	// Duriel's Lair, Arreat Summit, Worldstone Chamber
-	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].indexOf(me.area) > -1) {		
+	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].indexOf(me.area) > -1) {
 		return;
 	}
 
@@ -77,7 +77,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let switchCast = (Precast.getBetterSlot(sdk.skills.BattleCry) === 1 || Precast.getBetterSlot(sdk.skills.WarCry) === 1) ? true : false;
 	Config.FindItemSwitch = Precast.getBetterSlot(sdk.skills.FindItem);
 
-	var index, needRepair = [], attackSkill = -1;
+	let index, needRepair = [], attackSkill = -1;
 		
 	index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
@@ -141,8 +141,8 @@ ClassAttack.doAttack = function (unit, preattack) {
 		}
 	}
 
-	if (!unit.dead && useWarCry && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.isCursable(unit) && 
-		(!unit.getState(sdk.states.Stunned) || getTickCount() - this.warCryTick >= 1500) && 
+	if (!unit.dead && useWarCry && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.isCursable(unit) &&
+		(!unit.getState(sdk.states.Stunned) || getTickCount() - this.warCryTick >= 1500) &&
 		Skill.getManaCost(sdk.skills.WarCry) < me.mp && Attack.checkResist(unit, sdk.skills.WarCry) && !me.getState(sdk.states.SkillDelay) && Attack.getMobCount(me.x, me.y, 5, null, true) >= 1) {
 		if (!unit.getState(sdk.states.Stunned)) {
 			if (Math.round(getDistance(me, unit)) > Skill.getRange(sdk.skills.WarCry) || checkCollision(me, unit, 0x4)) {
@@ -215,7 +215,7 @@ ClassAttack.doCast = function (unit, attackSkill) {
 		me.switchWeapons(0);
 	}
 
-	var walk;
+	let walk;
 	let useConc = me.getSkill(sdk.skills.Concentrate, 0) && attackSkill === sdk.skills.Berserk;
 	let useFrenzy = me.getSkill(sdk.skills.Frenzy, 0) && attackSkill === sdk.skills.Berserk;
 	let useWhirl = me.getSkill(sdk.skills.Whirlwind, 0) && attackSkill !== sdk.skills.Whirlwind; // If main attack skill is already whirlwind no need to use it twice
@@ -277,7 +277,7 @@ ClassAttack.doCast = function (unit, attackSkill) {
 			}
 
 			if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 &&
-				Attack.isCursable(unit) && (!unit.getState(sdk.states.Stunned) || getTickCount() - this.warCryTick >= 1500) && 
+				Attack.isCursable(unit) && (!unit.getState(sdk.states.Stunned) || getTickCount() - this.warCryTick >= 1500) &&
 				Attack.getMobCount(me.x, me.y, 5, null, true) >= (me.area === sdk.areas.ThroneofDestruction || Item.getEquippedItem(4).durability === 0 ? 1 : 3)
 				&& Skill.getManaCost(sdk.skills.WarCry) < me.mp && Attack.checkResist(unit, sdk.skills.WarCry)) {
 				if (switchCast) {
@@ -312,7 +312,7 @@ ClassAttack.doCast = function (unit, attackSkill) {
 };
 
 ClassAttack.afterAttack = function (pickit) {
-	var needRepair;
+	let needRepair;
 
 	if (Pather.useTeleport()) {
 		Misc.unShift();
@@ -321,7 +321,7 @@ ClassAttack.afterAttack = function (pickit) {
 	Precast.doPrecast(false);
 
 	if (me.charlvl > 5) {
-		needRepair = Town.needRepair();	
+		needRepair = Town.needRepair();
 	}
 	
 	// Repair check, make sure i have a tome
@@ -341,13 +341,13 @@ ClassAttack.findItem = function (range) {
 		return false;
 	}
 
-	var i, j, tick, corpse, orgX, orgY, retry, pick = false,
+	let i, j, tick, corpse, orgX, orgY, retry, pick = false,
 		corpseList = [];
 
 	orgX = me.x;
 	orgY = me.y;
 
-MainLoop:
+	MainLoop:
 	for (i = 0; i < 3; i += 1) {
 		corpse = getUnit(1);
 
@@ -388,7 +388,7 @@ MainLoop:
 						me.switchWeapons(Attack.getPrimarySlot() ^ 1);
 					}
 
-CorpseLoop:
+					CorpseLoop:
 					for (j = 0; j < 3; j += 1) {
 						Skill.cast(sdk.skills.FindItem, 0, corpse);
 
@@ -429,13 +429,12 @@ ClassAttack.grimWard = function (range) {
 		return false;
 	}
 
-	var i, j, tick, corpse, orgX, orgY, retry,
+	let i, j, tick, corpse, orgX, orgY,
 		corpseList = [];
 
 	orgX = me.x;
 	orgY = me.y;
 
-MainLoop:
 	for (i = 0; i < 3; i += 1) {
 		corpse = getUnit(1);
 
@@ -460,7 +459,7 @@ MainLoop:
 						Pather.moveToUnit(corpse);
 					}
 
-CorpseLoop:
+					CorpseLoop:
 					for (j = 0; j < 3; j += 1) {
 						Skill.cast(sdk.skills.GrimWard, 0, corpse);
 
@@ -505,7 +504,7 @@ ClassAttack.checkCorpse = function (unit) {
             !unit.getState(sdk.states.Shatter) &&
             !unit.getState(sdk.states.RestInPeace) &&
             !unit.getState(sdk.states.CorpseNoSelect)
-			) {
+	) {
 		return true;
 	}
 

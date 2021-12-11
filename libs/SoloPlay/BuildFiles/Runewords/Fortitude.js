@@ -7,7 +7,7 @@ var Fortitude = [
 NTIP.arrayLooping(Fortitude);
 
 // Have Lo rune before looking for normal base
-if (me.getItem(sdk.runes.Lo)) {
+if (me.getItem(sdk.items.runes.Lo)) {
 	if (!Check.haveBase("armor", 4)) {
 		NTIP.addLine("([name] == archonplate || [name] == duskshroud || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 0 # [maxquantity] == 1");
 	}
@@ -18,7 +18,7 @@ if (me.getItem(sdk.runes.Lo)) {
 }
 
 // Cube to Lo rune
-if (!me.getItem(sdk.runes.Lo)) {
+if (!me.getItem(sdk.items.runes.Lo)) {
 	Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Vex Rune"]);

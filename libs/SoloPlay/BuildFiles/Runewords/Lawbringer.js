@@ -6,7 +6,7 @@ var Lawbringer = [
 NTIP.arrayLooping(Lawbringer);
 
 // Have Lem and Ko runes before looking for normal base
-if (me.getItem(sdk.runes.Lem) && me.getItem(sdk.runes.Ko)) {
+if (me.getItem(sdk.items.runes.Lem) && me.getItem(sdk.items.runes.Ko)) {
 	NTIP.addLine("[type] == sword && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [wsm] <= 10 && [strreq] <= 150 # [sockets] == 3");
 	NTIP.addLine("([name] == legendsword || [name] == highlandblade || [name] == balrogblade || [name] == championsword || [name] == colossussword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3");
 } else {

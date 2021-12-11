@@ -20,7 +20,7 @@ var build = {
 		["dexterity", 94], ["strength", 125], ["vitality", 130],
 		["strength", 140], ["vitality", 135], ["strength", 150],
 		["vitality", "all"],
-    ],
+	],
 	skills: [
 		// Total points at time of respec 33
 		[sdk.skills.SwordMastery, 9, true], 		// total left 24

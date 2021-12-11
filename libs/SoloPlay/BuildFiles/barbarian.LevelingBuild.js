@@ -21,7 +21,7 @@ var build = {
 		[sdk.skills.SwordMastery, 11, true], 	// total left 68
 		[sdk.skills.FindItem, 1, true], 		// total left 66
 		[sdk.skills.DoubleSwing, 9, true], 		// total left 56
-		[sdk.skills.NaturalResistance, 5, true],// total left 51
+		[sdk.skills.NaturalResistance, 5, true], // total left 51
 		[sdk.skills.Frenzy, 9, true], 			// total left 42
 		[sdk.skills.Berserk, 5, true], 			// total left 35
 		[sdk.skills.WarCry, 5, true], 			// total left 25

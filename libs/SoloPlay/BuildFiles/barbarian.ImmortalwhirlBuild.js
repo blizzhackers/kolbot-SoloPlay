@@ -14,7 +14,7 @@ var finalBuild = {
 	mercAuraWanted: sdk.skills.Might,
 	mercDiff: 1,
 	stats: [
-		["strength", 187], ["vitality", "all"] 
+		["strength", 187], ["vitality", "all"]
 	],
 	skills: [
 		[sdk.skills.MaceMastery, 20],

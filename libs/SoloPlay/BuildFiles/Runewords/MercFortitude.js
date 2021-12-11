@@ -14,7 +14,7 @@ if (["Zealer", "Smiter", "Frenzy", "Whirlwind", "Uberconc", "Wolf"].indexOf(SetU
 	}
 } else if (["Blova", "Lightning"].indexOf(SetUp.currentBuild) > -1) {
 	// Make Chains of Honor first for Blova/Lightning, or already have ber so Lo isn't needed for cubing
-	if (Check.haveItem("armor", "runeword", "Chains of Honor") || me.getItem(sdk.runes.Ber)) {
+	if (Check.haveItem("armor", "runeword", "Chains of Honor") || me.getItem(sdk.items.runes.Ber)) {
 		NTIP.arrayLooping(fort);
 	}
 } else {

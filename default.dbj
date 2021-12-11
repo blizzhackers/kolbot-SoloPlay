@@ -275,6 +275,11 @@ function main () {
 		AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
 	}
 
+	// offline
+	if (!me.realm) {
+		D2Bot.updateRuns();
+	}
+
 	// Go
 	Loader.init();
 

@@ -7,12 +7,12 @@ var HotO = [
 NTIP.arrayLooping(HotO);
 
 // Have Vex rune before looking for base
-if (me.getItem(sdk.runes.Vex)) {
+if (me.getItem(sdk.items.runes.Vex)) {
 	NTIP.addLine("([name] == flail || [name] == knout) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
 }
 
 // Cube to Vex rune
-if (!me.getItem(sdk.runes.Vex)) {
+if (!me.getItem(sdk.items.runes.Vex)) {
 	Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Um Rune"]);

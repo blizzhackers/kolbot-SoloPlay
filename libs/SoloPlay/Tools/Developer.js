@@ -38,6 +38,7 @@ const Developer = {
 		grandCharmVerbose: false,
 		junkCheckVerbose: false,
 		autoEquip: false,
+		crafting: false,
 		pathing: false,
 	},
 

@@ -1,7 +1,7 @@
 /**
  *    @filename		druid.ElementalBuild.js
  *	  @author		thatflykid, isid0re, theBGuy
- *    @desc			Druid elemental build for after respecOne
+ *    @desc			Druid fire build
  */
 
 var finalBuild = {
@@ -14,7 +14,8 @@ var finalBuild = {
 	mercAuraWanted: sdk.skills.BlessedAim,
 	mercDiff: 0,
 	stats: [
-		["dexterity", 35], ["strength", 48], ["vitality", 165], ["strength", 61], ["vitality", 252], ["strength", 156], ["vitality", "all"]
+		["dexterity", 35], ["strength", 48], ["vitality", 165],
+		["strength", 61], ["vitality", 252], ["strength", 156], ["vitality", "all"]
 	],
 	skills: [
 		[sdk.skills.FireStorm, 2, false],
@@ -24,7 +25,7 @@ var finalBuild = {
 		[sdk.skills.SpiritWolf, 1, false],
 		[sdk.skills.FireStorm, 6, false],
 		[sdk.skills.Fissure, 1, false],
-		[sdk.skills.DireWolf, 1, false],
+		[sdk.skills.SummonDireWolf, 1, false],
 		[sdk.skills.Fissure, 11, false],
 		[sdk.skills.Grizzly, 1, false],
 		[sdk.skills.Volcano, 1, false],
@@ -52,7 +53,10 @@ var finalBuild = {
 		// Shield
 		"[name] == monarch && [flag] != ethereal && [flag] == runeword # [fcr] >= 25 # [tier] == 100000 + tierscore(item)", //spirit shield
 		// Gloves
-		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 # [tier] == 100000 + tierscore(item)", //magefist
+		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 && (126, 1) == 1 # [tier] == 100000 + tierscore(item)",		// magefist
+		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 && (126, 1) == 1 # [tier] == 100000 + tierscore(item)",	// upped magefist
+		"[name] == crusadergauntlets && [quality] == unique && [flag] != ethereal # [fcr] >= 20 && (126, 1) == 1 # [tier] == 100000 + tierscore(item)",	// double upped magefist
+		"[name] == crusadergauntlets && [quality] == unique && [flag] != ethereal # [fcr] == 30 && (126, 1) == 1 # [tier] == 110000",	// perfect double upped magefist
 		// Amulet
 		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 100000 + tierscore(item)", //maras
 		// Rings

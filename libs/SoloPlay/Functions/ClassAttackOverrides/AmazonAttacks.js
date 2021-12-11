@@ -11,7 +11,7 @@ if (!isIncluded("common/Attacks/Amazon.js")) {
 ClassAttack.decoyTick = getTickCount();
 
 ClassAttack.doAttack = function (unit, preattack) {
-	var needRepair = [];
+	let needRepair = [];
 
 	if (me.charlvl >= 5) {
 		needRepair = Town.needRepair();
@@ -21,7 +21,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		Town.visitTown(!!needRepair.length);
 	}
 
-	var checkSkill, result, decoy,
+	let checkSkill, result, decoy,
 		mercRevive = 0,
 		timedSkill = -1,
 		untimedSkill = -1,
@@ -73,16 +73,16 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	// Handle Switch casting
 	if (!me.classic && index === 1 && !unit.dead) {
-		if (Attack.currentChargedSkills.indexOf(sdk.skills.Weaken) > -1 && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
-			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
-			// Switch cast weaken
-			Attack.switchCastCharges(sdk.skills.Weaken, unit);
-		}
-
-		if (Attack.currentChargedSkills.indexOf(sdk.skills.LowerResist) > -1 && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
+		if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.LowerResist) > -1 && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
 			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast lower resist
 			Attack.switchCastCharges(sdk.skills.LowerResist, unit);
+		}
+
+		if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.Weaken) > -1 && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
+			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			// Switch cast weaken
+			Attack.switchCastCharges(sdk.skills.Weaken, unit);
 		}
 	}
 
@@ -108,7 +108,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 					}
 				}
 				
-				if ((getTickCount() - this.decoyTick >= decoyDuration) && Math.round(getDistance(me, unit)) > 4) { 
+				if ((getTickCount() - this.decoyTick >= decoyDuration) && Math.round(getDistance(me, unit)) > 4) {
 					if (Math.round(getDistance(me, unit)) > 10 || checkCollision(me, unit, 0x4)) {
 						if (!Attack.getIntoPosition(unit, 10, 0x4)) {
 							return 0;
@@ -127,7 +127,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 					}
 				}
 			}
-		}	
+		}
 	}
 
 	// Only try attacking light immunes if I have my end game javelin - preAttack with Plague Javelin
@@ -148,7 +148,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 			}
 
 			if (Attack.checkResist(unit, "poison") && !me.getState(sdk.states.SkillDelay) && !unit.dead) {
-				Skill.cast(sdk.skills.PlagueJavelin, Skill.getHand(sdk.skills.PlagueJavelin), unit);	
+				Skill.cast(sdk.skills.PlagueJavelin, Skill.getHand(sdk.skills.PlagueJavelin), unit);
 			}
 
 			if (!useJab) {
@@ -163,7 +163,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 						// Make sure monster is not physical immune
 						if (Attack.checkResist(unit, "physical") && !unit.dead) {
-							Skill.cast(sdk.skills.Jab, Skill.getHand(sdk.skills.Jab), unit);	
+							Skill.cast(sdk.skills.Jab, Skill.getHand(sdk.skills.Jab), unit);
 						}
 						
 						return 1;
@@ -171,7 +171,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 				}
 				
 				return 1;
-			}	
+			}
 		}
 	}
 
@@ -184,7 +184,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		}
 
 		if (!unit.dead) {
-			Skill.cast(sdk.skills.Jab, Skill.getHand(sdk.skills.Jab), unit);	
+			Skill.cast(sdk.skills.Jab, Skill.getHand(sdk.skills.Jab), unit);
 		}
 		
 		return 1;
@@ -276,16 +276,16 @@ ClassAttack.doAttack = function (unit, preattack) {
 };
 
 ClassAttack.afterAttack = function () {
-	var needRepair;
+	let needRepair;
 
-	if (Pather.useTeleport()){
+	if (Pather.useTeleport()) {
 		Misc.unShift();
 	}
 
 	Precast.doPrecast(false);
 
 	if (me.charlvl > 5) {
-		needRepair = Town.needRepair();	
+		needRepair = Town.needRepair();
 	}
 	
 	// Repair check, make sure i have a tome
@@ -298,7 +298,7 @@ ClassAttack.afterAttack = function () {
 
 // Returns: 0 - fail, 1 - success, 2 - no valid attack skills
 ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-	var i, walk;
+	let i, walk;
 
 	// No valid skills can be found
 	if (timedSkill < 0 && untimedSkill < 0) {

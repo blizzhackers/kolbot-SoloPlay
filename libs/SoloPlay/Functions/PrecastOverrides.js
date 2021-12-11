@@ -11,13 +11,7 @@ if (!isIncluded("common/Precast.js")) {
 Precast.enabled = true;
 
 Precast.precastCTA = function (force) {
-	/*print("Current State for BO: " + me.getState(sdk.states.BattleOrders));
-	print("Current State for BC: " + me.getState(sdk.states.BattleCommand));
-	print("Bo Tick: " + this.BOTick);
-	print("BODuration: " + this.BODuration);
-	print("Tick counter: " + (getTickCount() - this.BOTick < this.BODuration - 30000));*/
-
-	if (me.classic || me.barbarian || me.inTown) {
+	if (me.classic || me.barbarian || me.inTown || me.shapeshifted) {
 		return false;
 	}
 
@@ -26,7 +20,7 @@ Precast.precastCTA = function (force) {
 	}
 
 	if (this.checkCTA()) {
-		var slot = me.weaponswitch;
+		let slot = me.weaponswitch;
 
 		me.switchWeapons(this.haveCTA);
 		Skill.cast(155, 0); // Battle Command
@@ -49,7 +43,7 @@ Precast.getBetterSlot = function (skillId) {
 		return this.bestSlot[skillId];
 	}
 
-	var item, classid, skillTab,
+	let item, classid, skillTab,
 		sumCurr = 0,
 		sumSwap = 0;
 
@@ -138,7 +132,11 @@ Precast.getBetterSlot = function (skillId) {
 };
 
 Precast.precastSkill = function (skillId) {
-	var swap = me.weaponswitch;
+	let swap = me.weaponswitch;
+
+	if (!Skill.wereFormCheck(skillId)) {
+		return false;
+	}
 
 	me.switchWeapons(this.getBetterSlot(skillId));
 	Skill.cast(skillId, 0);
@@ -148,7 +146,7 @@ Precast.precastSkill = function (skillId) {
 };
 
 Precast.doPrecast = function (force) {
-	var buffSummons = false;
+	let buffSummons = false;
 
 	if (!Precast.enabled) {
 		return;
@@ -160,9 +158,9 @@ Precast.doPrecast = function (force) {
 	}
 
 	switch (me.classid) {
-	case 0: // Amazon
+	case sdk.charclass.Amazon:
 		if (Config.SummonValkyrie) {
-			buffSummons = this.summon(32); // Valkyrie
+			buffSummons = this.summon(sdk.skills.Valkyrie, sdk.minions.Valkyrie);
 		}
 
 		if (buffSummons) {
@@ -170,37 +168,56 @@ Precast.doPrecast = function (force) {
 		}
 
 		break;
-	case 1: // Sorceress
-		if (me.getSkill(57, 1) && (!me.getState(sdk.states.ThunderStorm) || force)) {
-			this.precastSkill(57); // Thunder Storm
+	case sdk.charclass.Sorceress:
+		if (me.getSkill(sdk.skills.ThunderStorm, 1) && (!me.getState(sdk.states.ThunderStorm) || force)) {
+			this.precastSkill(sdk.skills.ThunderStorm);
 		}
 
-		if (me.getSkill(58, 0) && (!me.getState(sdk.states.EnergyShield) || force)) {
-			this.precastSkill(58); // Energy Shield
+		if (me.getSkill(sdk.skills.EnergyShield, 0) && (!me.getState(sdk.states.EnergyShield) || force)) {
+			this.precastSkill(sdk.skills.EnergyShield);
 		}
 
-		if (me.getSkill(50, 0)) {
-			if (!me.getState(sdk.states.ShiverArmor) || force) {
-				this.precastSkill(50); // Shiver Armor
-			}
-		} else if (me.getSkill(60, 0)) {
-			if (!me.getState(sdk.states.ChillingArmor) || force) {
-				this.precastSkill(60); // Chilling Armor
-			}
-		} else if (me.getSkill(40, 0)) {
+		// use which ever skill is the highest
+		let bestArmorSkill = function () {
+			let coldArmor = [
+				{skillId: sdk.skills.ShiverArmor, level: me.getSkill(sdk.skills.ShiverArmor, 1)},
+				{skillId: sdk.skills.ChillingArmor, level: me.getSkill(sdk.skills.ChillingArmor, 1)},
+				{skillId: sdk.skills.FrozenArmor, level: me.getSkill(sdk.skills.FrozenArmor, 1)},
+			].filter(skill => skill.level > 0).sort((a, b) => b.level - a.level).first();
+			return coldArmor !== undefined ? coldArmor.skillId : false;
+		};
+
+		switch (bestArmorSkill()) {
+		case sdk.skills.FrozenArmor:
 			if (!me.getState(sdk.states.FrozenArmor) || force) {
-				this.precastSkill(40); // Frozen Armor
+				Precast.precastSkill(sdk.skills.FrozenArmor);
 			}
+
+			break;
+		case sdk.skills.ChillingArmor:
+			if (!me.getState(sdk.states.ChillingArmor) || force) {
+				Precast.precastSkill(sdk.skills.ChillingArmor);
+			}
+
+			break;
+		case sdk.skills.ShiverArmor:
+			if (!me.getState(sdk.states.ShiverArmor) || force) {
+				Precast.precastSkill(sdk.skills.ShiverArmor);
+			}
+
+			break;
+		default:
+			break;
 		}
 
-		if (me.getSkill(52, 0) && (!me.getState(sdk.states.Enchant) || force)) {
+		if (me.getSkill(sdk.skills.Enchant, 1) && (!me.getState(sdk.states.Enchant) || force)) {
 			this.enchant();
 		}
 
 		break;
-	case 2: // Necromancer
-		if (me.getSkill(68, 0) && (!me.getState(sdk.states.BoneArmor) || force)) {
-			this.precastSkill(68); // Bone Armor
+	case sdk.charclass.Necromancer:
+		if (me.getSkill(sdk.skills.BoneArmor, 1) && (!me.getState(sdk.states.BoneArmor) || force)) {
+			this.precastSkill(sdk.skills.BoneArmor);
 		}
 
 		switch (Config.Golem) {
@@ -209,56 +226,58 @@ Precast.doPrecast = function (force) {
 			break;
 		case 1:
 		case "Clay":
-			this.summon(75);
+			this.summon(sdk.skills.ClayGolem, sdk.minions.Golem);
 			break;
 		case 2:
 		case "Blood":
-			this.summon(85);
+			this.summon(sdk.skills.BloodGolem, sdk.minions.Golem);
 			break;
 		case 3:
 		case "Fire":
-			this.summon(94);
+			this.summon(sdk.skills.FireGolem, sdk.minions.Golem);
 			break;
 		}
 
 		break;
-	case 3: // Paladin
-		if (me.getSkill(117, 0) && (!me.getState(sdk.states.HolyShield) || force)) {
-			this.precastSkill(117); // Holy Shield
+	case sdk.charclass.Paladin:
+		if (me.getSkill(sdk.skills.HolyShield, 0) && (!me.getState(sdk.states.HolyShield) || force)) {
+			this.precastSkill(sdk.skills.HolyShield);
 		}
 
 		break;
-	case 4: // Barbarian - TODO: BO duration
-		if ((!me.getState(sdk.states.Shout) && me.getSkill(138, 0)) || (!me.getState(sdk.states.BattleOrders) && me.getSkill(149, 0)) || (!me.getState(sdk.states.BattleCommand) && me.getSkill(155, 0)) || force) {
-			var swap = 0;
+	case sdk.charclass.Barbarian:
+		if ((!me.getState(sdk.states.Shout) && me.getSkill(sdk.skills.Shout, 0)) ||
+			(!me.getState(sdk.states.BattleOrders) && me.getSkill(sdk.skills.BattleOrders, 0)) ||
+			(!me.getState(sdk.states.BattleCommand) && me.getSkill(sdk.skills.BattleCommand, 0)) || force) {
+			let swap = 0;
 
-			if (me.charlvl >= 24 && me.getSkill(149, 0)) {
+			if (me.charlvl >= 24 && me.getSkill(sdk.skills.BattleOrders, 0)) {
 				swap = me.weaponswitch;
-				me.switchWeapons(this.getBetterSlot(149));
+				me.switchWeapons(this.getBetterSlot(sdk.skills.BattleOrders));
 			}
 
 			if (me.charlvl >= 30) {
-				if (me.getSkill(155, 0) && (!me.getState(sdk.states.BattleCommand) || force) && Skill.getManaCost(155) < me.mp) {
-					Skill.cast(155, 0); // Battle Command
+				if (me.getSkill(sdk.skills.BattleCommand, 0) && (!me.getState(sdk.states.BattleCommand) || force) && Skill.getManaCost(sdk.skills.BattleCommand) < me.mp) {
+					Skill.cast(sdk.skills.BattleCommand, 0);
 
-					if (Skill.getManaCost(155) < me.mp) {
+					if (Skill.getManaCost(sdk.skills.BattleCommand) < me.mp) {
 						delay(me.ping + 30);
-						Skill.cast(155, 0); // Cast twice. It works on itself
-					}	
+						Skill.cast(sdk.skills.BattleCommand, 0); // Cast twice. It works on itself
+					}
 				}
 			}
 
 			if (me.charlvl >= 24) {
-				if (me.getSkill(149, 0) && (!me.getState(sdk.states.BattleOrders) || force) && Skill.getManaCost(149) < me.mp) {
-					Skill.cast(149, 0); // Battle Orders
+				if (me.getSkill(sdk.skills.BattleOrders, 0) && (!me.getState(sdk.states.BattleOrders) || force) && Skill.getManaCost(sdk.skills.BattleOrders) < me.mp) {
+					Skill.cast(sdk.skills.BattleOrders, 0);
 
 					delay(me.ping + 30);
 				}
 			}
 
 			if (me.charlvl >= 6) {
-				if (me.getSkill(138, 0) && (!me.getState(sdk.states.Shout) || force) && Skill.getManaCost(138) < me.mp) {
-					Skill.cast(138, 0); // Shout
+				if (me.getSkill(sdk.skills.Shout, 0) && (!me.getState(sdk.states.Shout) || force) && Skill.getManaCost(sdk.skills.Shout) < me.mp) {
+					Skill.cast(sdk.skills.Shout, 0);
 
 					delay(me.ping + 30);
 				}
@@ -268,29 +287,29 @@ Precast.doPrecast = function (force) {
 		}
 
 		break;
-	case 5: // Druid
-		if (me.getSkill(235, 0) && (!me.getState(sdk.states.CycloneArmor) || force)) {
-			this.precastSkill(235); // Cyclone Armor
+	case sdk.charclass.Druid:
+		if (me.getSkill(sdk.skills.CycloneArmor, 1) && (!me.getState(sdk.states.CycloneArmor) || force)) {
+			this.precastSkill(sdk.skills.CycloneArmor);
 		}
 
 		if (Config.SummonRaven) {
-			this.summon(221); // Raven
+			this.summon(sdk.skills.Raven, sdk.minions.Raven);
 		}
 
 		switch (Config.SummonAnimal) {
 		case 1:
 		case "Spirit Wolf":
-			buffSummons = this.summon(227) || buffSummons; // Summon Spirit Wolf
+			buffSummons = this.summon(sdk.skills.SummonSpiritWolf, sdk.minions.SpiritWolf) || buffSummons;
 
 			break;
 		case 2:
 		case "Dire Wolf":
-			buffSummons = this.summon(237) || buffSummons; // Summon Dire Wolf
+			buffSummons = this.summon(sdk.skills.SummonDireWolf, sdk.minions.DireWolf) || buffSummons;
 
 			break;
 		case 3:
 		case "Grizzly":
-			buffSummons = this.summon(247) || buffSummons; // Summon Grizzly
+			buffSummons = this.summon(sdk.skills.SummonGrizzly, sdk.minions.Grizzly) || buffSummons;
 
 			break;
 		}
@@ -298,17 +317,17 @@ Precast.doPrecast = function (force) {
 		switch (Config.SummonVine) {
 		case 1:
 		case "Poison Creeper":
-			buffSummons = this.summon(222) || buffSummons; // Poison Creeper
+			buffSummons = this.summon(sdk.skills.PoisonCreeper, sdk.minions.Vine) || buffSummons;
 
 			break;
 		case 2:
 		case "Carrion Vine":
-			buffSummons = this.summon(231) || buffSummons; // Carrion Vine
+			buffSummons = this.summon(sdk.skills.CarrionVine, sdk.minions.Vine) || buffSummons;
 
 			break;
 		case 3:
 		case "Solar Creeper":
-			buffSummons = this.summon(241) || buffSummons; // Solar Creeper
+			buffSummons = this.summon(sdk.skills.SolarCreeper, sdk.minions.Vine) || buffSummons;
 
 			break;
 		}
@@ -316,39 +335,56 @@ Precast.doPrecast = function (force) {
 		switch (Config.SummonSpirit) {
 		case 1:
 		case "Oak Sage":
-			buffSummons = this.summon(226) || buffSummons; // Oak Sage
+			buffSummons = this.summon(sdk.skills.OakSage, sdk.minions.Spirit) || buffSummons;
+			
+			if (me.getSkill(sdk.skills.OakSage, 1) && (!me.getState(sdk.states.OakSage) || force)) {
+				Skill.cast(sdk.skills.OakSage, 0);
+			}
 
 			break;
 		case 2:
 		case "Heart of Wolverine":
-			buffSummons = this.summon(236) || buffSummons; // Heart of Wolverine
+			buffSummons = this.summon(sdk.skills.HeartofWolverine, sdk.minions.Spirit) || buffSummons;
+
+			if (me.getSkill(sdk.skills.HeartofWolverine, 1) && (!me.getState(sdk.states.HeartofWolverine) || force)) {
+				Skill.cast(sdk.skills.HeartofWolverine, 0);
+			}
 
 			break;
 		case 3:
 		case "Spirit of Barbs":
-			buffSummons = this.summon(246) || buffSummons; // Spirit of Barbs
+			buffSummons = this.summon(sdk.skills.SpiritofBarbs, sdk.minions.Spirit) || buffSummons;
+
+			if (me.getSkill(sdk.skills.SpiritofBarbs, 1) && (!me.getState(sdk.states.Barbs) || force)) {
+				Skill.cast(sdk.skills.SpiritofBarbs, 0);
+			}
 
 			break;
 		}
 
-		if (me.getSkill(sdk.skills.Hurricane, 0) && (!me.getState(sdk.states.Hurricane) || force)) {
-			Skill.cast(sdk.skills.Hurricane, 0);
-		}
+		let useHurricane = me.getSkill(sdk.skills.Hurricane, 1);
+		let useArmageddon = me.getSkill(sdk.skills.Armageddon, 1);
 
-		if (me.getSkill(sdk.skills.Armageddon, 0) && (!me.getState(sdk.states.Armageddon) || force)) {
-			Skill.cast(sdk.skills.Armageddon, 0);
-		}
+		// If both skills have points, check which has more
+		// Maybe also add synergy check? In the off chance we are windy but somehow have more into Armageddon
+		if (!!useHurricane && !!useArmageddon) {
+			if (useHurricane > useArmageddon && !me.shapeshifted) {
+				if (!me.getState(sdk.states.Hurricane) || force) {
+					Skill.cast(sdk.skills.Hurricane, 0);
+				}
+			} else {
+				if (!me.getState(sdk.states.Armageddon) || force) {
+					Skill.cast(sdk.skills.Armageddon, 0);
+				}
+			}
+		} else {
+			if (!!useHurricane && (!me.getState(sdk.states.Hurricane) || force)) {
+				Skill.cast(sdk.skills.Hurricane, 0);
+			}
 
-		if (Config.SummonSpirit === 1 && me.getSkill(226, 1) && (!me.getState(sdk.states.OakSage) || force)) {
-			Skill.cast(226, 0); // Oak Sage
-		}
-
-		if (Config.SummonSpirit === 2 && me.getSkill(236, 1) && (!me.getState(sdk.states.HeartofWolverine) || force)) {
-			Skill.cast(236, 0); // Heart of Wolverine
-		}
-
-		if (Config.SummonSpirit === 3 && me.getSkill(246, 1) && (!me.getState(sdk.states.Barbs) || force)) {
-			Skill.cast(246, 0); // Spirit of Barbs
+			if (!!useArmageddon && (!me.getState(sdk.states.Armageddon) || force)) {
+				Skill.cast(sdk.skills.Armageddon, 0);
+			}
 		}
 
 		if (buffSummons) {
@@ -360,31 +396,31 @@ Precast.doPrecast = function (force) {
 		}
 
 		break;
-	case 6: // Assassin
-		if (me.getSkill(267, 0) && Config.UseFade && (!me.getState(sdk.states.Fade) || force)) {
-			this.precastSkill(267); // Fade
+	case sdk.charclass.Assassin:
+		if (me.getSkill(sdk.skills.Fade, 0) && Config.UseFade && (!me.getState(sdk.states.Fade) || force)) {
+			this.precastSkill(sdk.skills.Fade);
 		}
 
-		if (me.getSkill(278, 0) && Config.UseVenom && (!me.getState(sdk.states.Venom) || force)) {
-			Skill.cast(278, 0); // Venom
+		if (me.getSkill(sdk.skills.Venom, 0) && Config.UseVenom && (!me.getState(sdk.states.Venom) || force)) {
+			Skill.cast(sdk.skills.Venom, 0);
 		}
 
-		if (me.getSkill(277, 0) && (!me.getState(sdk.states.BladeShield) || force)) {
-			this.precastSkill(277); // Blade Shield
+		if (me.getSkill(sdk.skills.BladeShield, 0) && (!me.getState(sdk.states.BladeShield) || force)) {
+			this.precastSkill(sdk.skills.BladeShield);
 		}
 
-		if (me.getSkill(258, 0) && !Config.UseFade && Config.UseBoS && (!me.getState(sdk.states.BurstofSpeed) || force)) {
-			this.precastSkill(258); // Burst of Speed
+		if (me.getSkill(sdk.skills.BurstofSpeed, 0) && !Config.UseFade && Config.UseBoS && (!me.getState(sdk.states.BurstofSpeed) || force)) {
+			this.precastSkill(sdk.skills.BurstofSpeed);
 		}
 
 		switch (Config.SummonShadow) {
 		case 1:
 		case "Warrior":
-			this.summon(268); // Shadow Warrior
+			this.summon(sdk.skills.ShadowWarrior, sdk.minions.Shadow);
 			break;
 		case 2:
 		case "Master":
-			this.summon(279); // Shadow Master
+			this.summon(sdk.skills.ShadowMaster, sdk.minions.Shadow);
 			break;
 		}
 
@@ -394,78 +430,43 @@ Precast.doPrecast = function (force) {
 	me.switchWeapons(Attack.getPrimarySlot());
 };
 
-Precast.summon = function (skillId) {
+Precast.summon = function (skillId, minionType) {
 	if (!me.getSkill(skillId, 1)) {
 		return false;
 	}
 
-	var minion, rv, retry = 0,
-		count = 1;
+	let rv, retry = 0, count = 1;
 
 	switch (skillId) {
-	case 32: // Valkyrie
-		minion = 2;
+	case sdk.skills.Raven:
+		count = Math.min(me.getSkill(skillId, 1), 5);
 
 		break;
-	case 75: // Clay Golem
-	case 85: // Blood Golem
-	case 94: // Fire Golem
-		minion = 3;
+	case sdk.skills.SummonSpiritWolf:
+		count = Math.min(me.getSkill(skillId, 1), 5);
 
 		break;
-	case 221: // Raven
-		minion = 10;
-		count = Math.min(me.getSkill(221, 1), 5);
-
-		break;
-	case 226: // Oak Sage
-	case 236: // Heart of Wolverine
-	case 246: // Spirit of Barbs
-		minion = 13;
-
-		break;
-	case 222: // Poison Creeper
-	case 231: // Carrion Vine
-	case 241: // Solar Creeper
-		minion = 14;
-
-		break;
-	case 227: // Spirit Wolf
-		minion = 11;
-		count = Math.min(me.getSkill(227, 1), 5);
-
-		break;
-	case 237: // Dire Wolf
-		minion = 12;
-		count = Math.min(me.getSkill(237, 1), 3);
-
-		break;
-	case 247: // Grizzly
-		minion = 15;
-
-		break;
-	case 268: // Shadow Warrior
-	case 279: // Shadow Master
-		minion = 16;
+	case sdk.skills.SummonDireWolf:
+		count = Math.min(me.getSkill(skillId, 1), 3);
 
 		break;
 	}
 
-	while (me.getMinionCount(minion) < count) {
+	while (me.getMinionCount(minionType) < count) {
 		rv = true;
 		let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	// Get a random coordinate to summon using
 		let unit = Attack.getNearestMonster(true);
 
-		if (unit && [3, 15, 16].indexOf(minion) > -1 && getDistance(me, unit) < 20) {
+		if (unit && [sdk.minions.Golem, sdk.minions.Grizzly, sdk.minions.Shadow].indexOf(minionType) > -1 && getDistance(me, unit) < 20 && !checkCollision(me, unit, 0x4)) {
 			try {
 				if (Skill.cast(skillId, 0, unit)) {
-					if (me.getMinionCount(minion) === count) {
+					if (me.getMinionCount(minionType) === count) {
 						continue;
 					} else {
 						retry++;
 					}
 				} else if (Skill.cast(skillId, 0, me.x, me.y)) {
-					if (me.getMinionCount(minion) === count) {
+					if (me.getMinionCount(minionType) === count) {
 						continue;
 					} else {
 						retry++;
@@ -479,7 +480,7 @@ Precast.summon = function (skillId) {
 		if (coord && Attack.castableSpot(coord.x, coord.y)) {
 			Skill.cast(skillId, 0, coord.x, coord.y);
 
-			if (me.getMinionCount(minion) === count) {
+			if (me.getMinionCount(minionType) === count) {
 				continue;
 			} else {
 				retry++;
@@ -487,14 +488,14 @@ Precast.summon = function (skillId) {
 		} else if (Attack.castableSpot(me.x, me.y)) {
 			Skill.cast(skillId, 0, me.x, me.y);
 
-			if (me.getMinionCount(minion) === count) {
+			if (me.getMinionCount(minionType) === count) {
 				continue;
 			} else {
 				retry++;
 			}
 		}
 
-		if (Skill.getManaCost(skillId) > me.mp) {		// May remove this
+		if (Skill.getManaCost(skillId) > me.mp) {
 			delay(1000);
 			retry++;
 		}
@@ -509,8 +510,9 @@ Precast.summon = function (skillId) {
 				Town.move("portalspot");
 				Skill.cast(skillId, 0, me.x, me.y);
 			} else {
-				coord = CollMap.getRandCoordinate(me.x, -6, 6, me.y, -6, 6);	//Keeps bots from getting stuck trying to summon
+				coord = CollMap.getRandCoordinate(me.x, -6, 6, me.y, -6, 6);
 
+				// Keep bots from getting stuck trying to summon
 				if (coord && Attack.validSpot(coord.x, coord.y)) {
 					Pather.moveTo(coord.x, coord.y);
 					Skill.cast(skillId, 0, me.x, me.y);

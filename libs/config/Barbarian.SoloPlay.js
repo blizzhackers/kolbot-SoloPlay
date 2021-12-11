@@ -153,7 +153,7 @@ function LoadConfig () {
 	Config.AutoEquip = true;
 
 	// AutoEquip setup
-	var levelingTiers = [
+	let levelingTiers = [
 		// Weapon
 		"me.charlvl < 12 && [type] == sword && ([quality] >= normal || [flag] == runeword) && [flag] != ethereal && [wsm] <= 20 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"[type] == sword && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [wsm] <= 10 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
@@ -184,7 +184,7 @@ function LoadConfig () {
 		"me.charlvl > 14 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
-	var imbueables = [
+	let imbueables = [
 		"me.diff == 0 && [name] == avengerguard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
 		"me.diff == 1 && [name] == slayerguard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
 		"me.diff == 2 && [name] == carnagehelm && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
@@ -365,7 +365,7 @@ function LoadConfig () {
 			NTIP.addLine("[name] == perfectemerald # # [maxquantity] == 1");
 
 			// Have Pul rune before looking for eth ginther's
-			if (me.getItem(sdk.runes.Pul)) {
+			if (me.getItem(sdk.items.runes.Pul)) {
 				// Eth Ginther's Rift
 				NTIP.addLine("[name] == dimensionalblade && [quality] == unique && [flag] == ethereal # [enhanceddamage] >= 100 && [ias] == 30 && [magicdamagereduction] >= 7 # [maxquantity] == 1");
 			}
@@ -380,13 +380,13 @@ function LoadConfig () {
 		let wep2 = Item.getEquippedItem(5);
 
 		if (!helm.isRuneword && [4, 6].indexOf(helm.quality) > -1 && helm.sockets > 0 && !helm.socketed) {
-			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Ruby) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Ruby) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "flawlessruby"]);
 			}
 		}
 
 		if (!body.isRuneword && [4, 6].indexOf(body.quality) > -1 && body.sockets > 0 && !body.socketed) {
-			if (Item.getQuantityOwned(me.getItem(sdk.gems.Perfect.Ruby) < 2)) {
+			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Ruby) < 2)) {
 				Config.Recipes.push([Recipe.Gem, "flawlessruby"]);
 			}
 		}
@@ -426,14 +426,14 @@ function LoadConfig () {
 
 		if (Item.getEquippedItem(5).tier < 1200) {
 			// Cube to Ko Rune
-			if (!me.getItem(sdk.runes.Ko)) {
+			if (!me.getItem(sdk.items.runes.Ko)) {
 				Config.Recipes.push([Recipe.Rune, "Hel Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Io Rune"]);
-				Config.Recipes.push([Recipe.Rune, "Lum Rune"]);		
+				Config.Recipes.push([Recipe.Rune, "Lum Rune"]);
 			}
 
 			// Cube to Lem Rune
-			if (!me.getItem(sdk.runes.Lem)) {
+			if (!me.getItem(sdk.items.runes.Lem)) {
 				Config.Recipes.push([Recipe.Rune, "Dol Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Io Rune"]);
 				Config.Recipes.push([Recipe.Rune, "Lum Rune"]);

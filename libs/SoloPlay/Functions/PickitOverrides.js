@@ -24,9 +24,9 @@ if (!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js")) {
 Pickit.enabled = true;
 
 Pickit.checkItem = function (unit) {
-	var rval = NTIP.CheckItem(unit, false, true);
+	let rval = NTIP.CheckItem(unit, false, true);
 
-	var durability = unit.getStat(72);
+	let durability = unit.getStat(72);
 
 	if (unit.getStat(73) > 0 && typeof durability === "number" && durability * 100 / unit.getStat(73) <= 0) {
 		return {
@@ -35,7 +35,7 @@ Pickit.checkItem = function (unit) {
 		};
 	}
 
-	if ((unit.classid === 617 || unit.classid === 618) && Town.repairIngredientCheck(unit)) {
+	if ((unit.classid === sdk.items.runes.Ral || unit.classid === sdk.items.runes.Ort) && Town.repairIngredientCheck(unit)) {
 		return {
 			result: 6,
 			line: null
@@ -63,14 +63,14 @@ Pickit.checkItem = function (unit) {
 		};
 	}
 
-	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) && !unit.getFlag(0x10)) {
+	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) && !unit.identified) {
 		return {
 			result: -1,
 			line: null
 		};
 	}
 
-	if ([603, 604, 605].indexOf(unit.classid) > -1 && NTIP.GetCharmTier(unit) > 0 && unit.getFlag(0x10)) {
+	if ([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].indexOf(unit.classid) > -1 && NTIP.GetCharmTier(unit) > 0 && unit.identified) {
 		if (Item.autoEquipCharmCheck(unit)) {
 			return {
 				result: 1,
@@ -78,10 +78,10 @@ Pickit.checkItem = function (unit) {
 			};
 		}
 
-		return NTIP.CheckItem(unit, NTIP_CheckListNoTier, true);	
+		return NTIP.CheckItem(unit, NTIP_CheckListNoTier, true);
 	}
 
-	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) && unit.getFlag(0x10)) {
+	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) && unit.identified) {
 		if (Item.autoEquipCheck(unit)) {
 			return {
 				result: 1,
@@ -108,9 +108,10 @@ Pickit.checkItem = function (unit) {
 
 	// If total gold is less than 10k pick up anything worth 10 gold per
 	// square to sell in town.
-	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && Town.ignoredItemTypes.indexOf(unit.itemType) === -1 && unit.itemType !== 39 && (unit.location === 3 || me.gold < Config.LowGold)) {
+	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && Town.ignoredItemTypes.indexOf(unit.itemType) === -1 && unit.itemType !== sdk.itemtype.Quest &&
+		(unit.location === sdk.storage.Inventory || me.gold < Config.LowGold)) {
 		// Gold doesn't take up room, just pick it up
-		if (unit.classid === 523) {
+		if (unit.classid === sdk.items.Gold) {
 			return {
 				result: 4,
 				line: null
@@ -127,9 +128,10 @@ Pickit.checkItem = function (unit) {
 
 	// If total gold is less than 500k pick up anything worth 2k gold per
 	// square to sell in town.
-	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && Town.ignoredItemTypes.indexOf(unit.itemType) === -1 && unit.itemType !== 39 && (unit.location === 3 || me.gold < 500000)) {
+	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && Town.ignoredItemTypes.indexOf(unit.itemType) === -1 && unit.itemType !== sdk.itemtype.Quest &&
+		(unit.location === sdk.storage.Inventory || me.gold < 500000)) {
 		// Gold doesn't take up room, just pick it up
-		if (unit.classid === 523) {
+		if (unit.classid === sdk.items.Gold) {
 			return {
 				result: 4,
 				line: null
@@ -148,7 +150,7 @@ Pickit.checkItem = function (unit) {
 };
 
 Pickit.pickItems = function () {
-	var status, item, canFit,
+	let status, item, canFit,
 		needMule = false,
 		pickList = [];
 
@@ -254,7 +256,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		this.picked = false;
 	}
 
-	var i, item, tick, gid, stats, retry = false,
+	let i, item, tick, gid, stats, retry = false,
 		cancelFlags = [0x01, 0x08, 0x14, 0x0c, 0x19, 0x1a],
 		itemCount = me.itemcount;
 
@@ -282,7 +284,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 
 	stats = new ItemStats(item);
 
-MainLoop:
+	MainLoop:
 	for (i = 0; i < 3; i += 1) {
 		if (!getUnit(4, -1, -1, gid)) {
 			break MainLoop;

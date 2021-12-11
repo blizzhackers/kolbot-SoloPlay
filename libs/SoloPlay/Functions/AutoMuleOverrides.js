@@ -9,7 +9,7 @@ if (!isIncluded("Automule.js")) {
 }
 
 AutoMule.getMuleItems = function () {
-	var item, items,
+	let item, items,
 		info = this.getInfo();
 
 	if (!info || !info.hasOwnProperty("muleInfo")) {
@@ -22,14 +22,11 @@ AutoMule.getMuleItems = function () {
 	if (item) {
 		do {
 			if (Town.ignoredItemTypes.indexOf(item.itemType) === -1 &&
-				(Town.questItemClassids.indexOf(item.classid) === -1) && // Don't mule quest items
-					(Pickit.checkItem(item).result > 0 || (item.location === 7 && info.muleInfo.hasOwnProperty("muleOrphans") && info.muleInfo.muleOrphans)) &&
-					(!Item.autoEquipKeepCheck(item) && !Item.autoEquipCheckSecondary(item) && !Item.autoEquipKeepCheckMerc(item) && !Item.autoEquipCharmCheck(item)) &&
-					item.classid !== 549 && // Don't drop Horadric Cube
-					(item.classid !== 603 || item.quality !== 7) && // Don't drop Annihilus
-					(item.classid !== 604 || item.quality !== 7) && // Don't drop Hellfire Torch
-					(item.location === 7 || (item.location === 3 && !Storage.Inventory.IsLocked(item, Config.Inventory))) && // Don't drop items in locked slots
-					((!TorchSystem.getFarmers() && !TorchSystem.isFarmer()) || [647, 648, 649].indexOf(item.classid) === -1)) { // Don't drop Keys if part of TorchSystem
+				(!item.isQuestItem) && // Don't mule quest items
+					(Pickit.checkItem(item).result > 0 || (item.isInStash && info.muleInfo.hasOwnProperty("muleOrphans") && info.muleInfo.muleOrphans)) &&
+					!AutoEquip.wanted(item) && // Don't mule wanted auto equip items
+					(item.isInStash || (item.isInInventory && !Storage.Inventory.IsLocked(item, Config.Inventory))) && // Don't drop items in locked slots
+					((!TorchSystem.getFarmers() && !TorchSystem.isFarmer()) || [sdk.items.KeyofTerror, sdk.items.KeyofHate, sdk.items.KeyofDestruction].indexOf(item.classid) === -1)) { // Don't drop Keys if part of TorchSystem
 				if (this.matchItem(item, Config.AutoMule.Force.concat(Config.AutoMule.Trigger)) || // Always drop items on Force or Trigger list
 					(!this.matchItem(item, Config.AutoMule.Exclude) && (!this.cubingIngredient(item) && !this.runewordIngredient(item) && !this.utilityIngredient(item)))) { // Don't drop Excluded items or Runeword/Cubing/CraftingSystem ingredients
 					items.push(copyUnit(item));
