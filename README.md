@@ -35,6 +35,7 @@ If you are enjoying this project consider supporting me at https://www.buymeacof
 | | Meteorb | Summon | Auradin | Frenzy | Plaguewolf |
 | | Blova | | Zealer | Uberconc | Wolf |
 | | Lightning | | Torchadin | Singer |
+| |  | | Classicauradin |  |
 
 ## New modes
 - Two new modes are available: **Bumper** and **Socketmule**. Enter either of these into your D2Bot# profile info tag to make. The bot will then stop after shenk quest for Socketmule and after it hits level 40 for a Bumper.
