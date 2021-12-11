@@ -1,6 +1,7 @@
 /*
 *	@filename	SoloPlay.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
+*	@credits	isid0re
 *	@desc		Base script file for Kolbot-SoloPlay system
 */
 
@@ -14,8 +15,8 @@ function SoloPlay () {
 	this.setup = function () {
 		print('ÿc8Kolbot-SoloPlayÿc0: start setup');
 		me.overhead('start setup');
+		SetUp.levelCap = SetUp.setLevelCap();
 		NTIP.arrayLooping(nipItems.Quest);
-		me.overhead('loading pickits');
 		NTIP.arrayLooping(nipItems.General);
 		NTIP.arrayLooping(nipItems.Selling);
 		print('ÿc8Kolbot-SoloPlayÿc0: start run');

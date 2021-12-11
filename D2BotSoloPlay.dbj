@@ -1,4 +1,4 @@
-var StarterConfig = {
+let StarterConfig = {
 	MinGameTime: 300, // Minimum game length in seconds. If a game is ended too soon, the rest of the time is waited in the lobby
 	PingQuitDelay: 30, // Time in seconds to wait in lobby after quitting due to high ping
 	CreateGameDelay: 10, // Seconds to wait before creating a new game
@@ -28,7 +28,7 @@ var StarterConfig = {
 	GlobalAccountPassword: "" // Set value for a global password for account generation
 };
 
-var ChannelConfig = {
+let ChannelConfig = {
 	/* Override default values for JoinChannel, FirstJoinMessage, AnnounceGames and AfterGameMessage per profile
 		It's possible to override any number of these options (you don't have to put all of them)
 
@@ -42,29 +42,13 @@ var ChannelConfig = {
 			AnnounceGames: true,
 			AfterGameMessage: "message after a finished run" -OR- ["msg 1", msg 2"]
 		}
-
-		Multiple entries are separated by a comma
-
-		Examples:
-
-		"Profile 1": {
-			JoinChannel: "my channel",
-			FirstJoinMessage: ".login",
-			AnnounceGames: true,
-			AfterGameMessage: "follow my runs or die"
-		},
-		"Profile 2": {
-			JoinChannel: ["channel 1", "channel 2"],
-			FirstJoinMessage: [".login", "^login"],
-			AfterGameMessage: ["follow my runs or die", "seriously, you'll die"]
-		}
 	*/
-
-	// Add your lines here
+	// Add your lines under here
 
 };
 
 // No touchy!
+include('polyfill.js');
 include("json2.js");
 include("OOG.js");
 include("automule.js");
@@ -80,6 +64,8 @@ include("SoloPlay/Tools/NameGen.js");
 include("SoloPlay/Tools/OOGOverrides.js");
 include("SoloPlay/Functions/Events.js");
 
+let sdk = require('libs/SoloPlay/Modules/sdk');
+
 let firstRun = false;
 
 if (!FileTools.exists("data/" + me.profile + ".json")) {
@@ -94,7 +80,7 @@ if (Developer.logPerformance) {
 	Tracker.initialize();
 }
 
-var gameInfo, joinInfo, gameStart, ingame, chatActionsDone, pingQuit, myExp, myGold, resPenalty, frRes, crRes, lrRes, prRes, areaName, diffName,
+let gameInfo, joinInfo, gameStart, ingame, chatActionsDone, pingQuit, myExp, myGold, resPenalty, frRes, crRes, lrRes, prRes, areaName, diffName,
 	handle, useChat, firstLogin, connectFail, setUp, deadCheck, connectFailRetry,
 	battlenet = Profile().type === 2 ? true : false,
 	gameCount = DataFile.getStats().runs + 1,
@@ -1263,7 +1249,9 @@ function main () {
 	if (gameInfo.error) {
 		delay(200);
 		ControlAction.timeoutDelay("Crash Delay", StarterConfig.CrashDelay * 1e3);
-		D2Bot.updateRuns();
+		if (battlenet) {
+			D2Bot.updateRuns();
+		}
 	}
 
 	DataFile.updateStats("debugInfo", JSON.stringify({currScript: "none", area: "out of game"}));

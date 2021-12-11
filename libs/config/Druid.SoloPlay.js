@@ -291,7 +291,7 @@ function LoadConfig () {
 			// upgrade magefist
 			if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
 				Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
-				Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth]);
+				Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
 			}
 
 			break;

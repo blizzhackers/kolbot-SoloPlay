@@ -953,6 +953,26 @@ Object.defineProperty(Unit.prototype, 'expansion', {
 	}
 });
 
+Object.defineProperty(Unit.prototype, 'softcore', {
+	get: function () {
+		if (this.type > 0) {
+			throw new Error("Unit.expansion: Must be used with player units.");
+		}
+
+		return this.playertype === false;
+	}
+});
+
+Object.defineProperty(Unit.prototype, 'hardcore', {
+	get: function () {
+		if (this.type > 0) {
+			throw new Error("Unit.expansion: Must be used with player units.");
+		}
+
+		return this.playertype === true;
+	}
+});
+
 Object.defineProperty(Unit.prototype, 'normal', {
 	get: function () {
 		if (this.type > 0) {

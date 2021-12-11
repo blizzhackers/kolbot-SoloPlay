@@ -70,23 +70,92 @@ const SetUp = {
 	walkToggle: false,
 
 	//			Amazon					Sorceress				Necromancer					Paladin				Barbarian				Druid					Assassin					
-	levelCap: [[33, 65, 100][me.diff], [33, 67, 100][me.diff], [33, 70, 100][me.diff], [33, 65, 100][me.diff], [33, 75, 100][me.diff], [33, 73, 100][me.diff], [33, 65, 100][me.diff]][me.classid],
+	//levelCap: [[33, 65, 100][me.diff], [33, 67, 100][me.diff], [33, 70, 100][me.diff], [33, 65, 100][me.diff], [33, 75, 100][me.diff], [33, 73, 100][me.diff], [33, 65, 100][me.diff]][me.classid],
+	levelCap: undefined,	// see setLevelCap for this is set to
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
 	respecOne: [ 30, 26, 26, 19, 30, 24, 32][me.classid],
 	respecOneB: [ 64, 65, 0, 0, 74, 0, 0][me.classid],
 
+	// set levelCap arr based on the different combinations for each class, softcore classic, softcore expansion, hardcore classic, hardcore expansion
+	// returns levelCap value for current difficulty
+	// TODO: adjust all these values accordingly
+	setLevelCap: function () {
+		let tmpCap;
+
+		switch (me.classid) {
+		case sdk.charclass.Amazon:
+			if (me.softcore) {
+				tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
+			} else {
+				tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
+			}
+
+			break;
+		case sdk.charclass.Sorceress:
+			if (me.softcore) {
+				tmpCap = me.expansion ? [33, 67, 100] : [33, 67, 100];
+			} else {
+				tmpCap = me.expansion ? [33, 67, 100] : [33, 67, 100];
+			}
+
+			break;
+		case sdk.charclass.Necromancer:
+			if (me.softcore) {
+				tmpCap = me.expansion ? [33, 70, 100] : [33, 70, 100];
+			} else {
+				tmpCap = me.expansion ? [33, 70, 100] : [33, 70, 100];
+			}
+
+			break;
+		case sdk.charclass.Paladin:
+			if (me.softcore) {
+				tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
+			} else {
+				tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
+			}
+
+			break;
+		case sdk.charclass.Barbarian:
+			if (me.softcore) {
+				tmpCap = me.expansion ? [33, 75, 100] : [33, 75, 100];
+			} else {
+				tmpCap = me.expansion ? [33, 75, 100] : [33, 75, 100];
+			}
+
+			break;
+		case sdk.charclass.Druid:
+			if (me.softcore) {
+				tmpCap = me.expansion ? [33, 73, 100] : [33, 73, 100];
+			} else {
+				tmpCap = me.expansion ? [33, 73, 100] : [33, 73, 100];
+			}
+
+			break;
+		case sdk.charclass.Assassin:
+			if (me.softcore) {
+				tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
+			} else {
+				tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
+			}
+
+			break;
+		}
+
+		return tmpCap[me.diff];
+	},
+
 	// mine - theBGuy
 	respecTwo: function () {
 		let respec;
 
 		switch (me.gametype) {
-		case 0:
+		case sdk.game.gametype.Classic:
 			respec = [75, 75, 75, 85, 80, 75, 75][me.classid];
 			break;
 
-		case 1:
+		case sdk.game.gametype.Expansion:
 			switch (this.finalBuild) {
 			case "Witchyzon":
 				respec = Check.haveItem("diamondbow", "unique", "Witchwild String") ? me.charlvl : 100;
@@ -356,7 +425,7 @@ const Check = {
 		case "countess":
 			// classic quest not completed normal || don't have runes for difficulty || barb in hell and have lawbringer
 			if ((me.classic && !me.countess) ||
-				(!me.classic && (needRunes || Check.brokeAf() || (me.barbarian && me.hell && Check.haveItem("sword", "runeword", "Lawbringer"))))) {
+				(me.expansion && (needRunes || Check.brokeAf() || (me.barbarian && me.hell && Check.haveItem("sword", "runeword", "Lawbringer"))))) {
 				return true;
 			}
 
@@ -381,7 +450,7 @@ const Check = {
 		case "andariel":
 			if (!me.andariel ||
 				(me.classic && me.hell) ||
-				(!me.classic &&
+				(me.expansion &&
 					(!me.normal && (Pather.canTeleport() || me.charlvl <= 60)) ||
 					(me.hell && me.charlvl !== 100 && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))))) {
 				return true;
@@ -389,7 +458,7 @@ const Check = {
 
 			break;
 		case "a1chests":
-			if (!me.classic &&
+			if (me.expansion &&
 				(me.charlvl >= 70 && Pather.canTeleport() ||
 					(me.barbarian && me.hell && !Pather.accessToAct(3) && (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("sword", "runeword", "Lawbringer"))))) {
 				return true;
@@ -533,32 +602,32 @@ const Check = {
 
 			break;
 		case "shenk":
-			if (!me.classic && Pather.accessToAct(5) && (!me.druid || me.charlvl <= 70)) {
+			if (me.expansion && Pather.accessToAct(5) && (!me.druid || me.charlvl <= 70)) {
 				return true;
 			}
 
 			break;
 		case "savebarby":
 			// I need tal, ral, or ort rune for runewords
-			if (!me.classic && Pather.accessToAct(5) && !me.savebarby && (Runewords.checkRune(616) || Runewords.checkRune(617) || Runewords.checkRune(618))) {
+			if (me.expansion && Pather.accessToAct(5) && !me.savebarby && (Runewords.checkRune(616) || Runewords.checkRune(617) || Runewords.checkRune(618))) {
 				return true;
 			}
 
 			break;
 		case "anya":
-			if (!me.classic && Pather.accessToAct(5)) {
+			if (me.expansion && Pather.accessToAct(5)) {
 				return true;
 			}
 
 			break;
 		case "ancients":
-			if (!me.classic && Pather.accessToAct(5) && !me.ancients) {
+			if (me.expansion && Pather.accessToAct(5) && !me.ancients) {
 				return true;
 			}
 
 			break;
 		case "baal":
-			if (!me.classic && Pather.accessToAct(5)) {
+			if (me.expansion && Pather.accessToAct(5)) {
 				return true;
 			}
 
@@ -665,29 +734,20 @@ const Check = {
 	},
 
 	mercResistance: function () {
-		let mercenary = Merc.getMercFix();
+		let merc = Merc.getMercFix();
 
 		// Dont have merc or he is dead
-		if (!mercenary) {
+		if (!merc) {
 			return {
-				FR: 0,
-				CR: 0,
-				LR: 0,
-				PR: 0,
+				FR: 0, CR: 0, LR: 0, PR: 0,
 			};
 		}
 
-		let resPenalty = me.classic ? [0, 20, 50, 50][me.diff + 1] : [ 0, 40, 100, 100][me.diff + 1],
-			frRes = mercenary.getStat(39) - resPenalty,
-			lrRes = mercenary.getStat(41) - resPenalty,
-			crRes = mercenary.getStat(43) - resPenalty,
-			prRes = mercenary.getStat(45) - resPenalty;
-
 		return {
-			FR: frRes,
-			CR: crRes,
-			LR: lrRes,
-			PR: prRes,
+			FR: merc.fireRes,
+			CR: merc.coldRes,
+			LR: merc.lightRes,
+			PR: merc.poisonRes,
 		};
 	},
 
@@ -695,19 +755,19 @@ const Check = {
 		let diffShift = me.diff;
 		let lowRes = !this.Resistance().Status;
 		let lvlReq = (me.charlvl >= SetUp.levelCap) && ["Bumper", "Socketmule"].indexOf(SetUp.finalBuild) === -1 && Item.getEquippedItem(4).durability !== 0 ? true : false;
-		let diffCompleted = !me.classic && me.baal ? true : me.classic && me.diablo ? true : false;
+		let diffCompleted = (me.expansion && me.baal) || (me.classic && me.diablo);
 
 		if (diffCompleted) {
 			if (lvlReq) {
 				if (!lowRes) {
 					diffShift = me.diff + 1;
-					if (announce) {D2Bot.printToConsole('Kolbot-SoloPlay: next difficulty requirements met. Starting: ' + Difficulty[diffShift], 8);}
+					if (announce) { D2Bot.printToConsole('Kolbot-SoloPlay: next difficulty requirements met. Starting: ' + Difficulty[diffShift], 8); }
 				} else {
 					if (me.charlvl >= SetUp.levelCap + 5) {
 						diffShift = me.diff + 1;
-						if (announce) {D2Bot.printToConsole('Kolbot-SoloPlay: Over leveled. Starting: ' + Difficulty[diffShift]);}
+						if (announce) { D2Bot.printToConsole('Kolbot-SoloPlay: Over leveled. Starting: ' + Difficulty[diffShift]); }
 					} else {
-						if (announce) {D2Bot.printToConsole('Kolbot-SoloPlay: ' + Difficulty[diffShift + 1] + ' requirements not met. Negative resistance. FR: ' + Check.Resistance().FR + ' | CR: ' + Check.Resistance().CR + ' | LR: ' + Check.Resistance().LR);}
+						if (announce) { D2Bot.printToConsole('Kolbot-SoloPlay: ' + Difficulty[diffShift + 1] + ' requirements not met. Negative resistance. FR: ' + me.fireRes + ' | CR: ' + me.coldRes + ' | LR: ' + me.lightRes); }
 						return false;
 					}
 				}
@@ -758,6 +818,7 @@ const Check = {
 
 		if (type && !NTIPAliasType[type] && !NTIPAliasClassID[type]) {
 			print("ÿc9SoloLevelingÿc0: No NTIPalias for '" + type + "'");
+			return false;
 		}
 
 		if (iName !== undefined) {
@@ -769,19 +830,18 @@ const Check = {
 		let itemCHECK = false;
 
 		for (let i = 0; i < items.length && !itemCHECK; i++) {
-
 			switch (flag) {
 			case 'set':
-				itemCHECK = !!(items[i].quality === 5) && items[i].fname.toLowerCase().includes(iName);
+				itemCHECK = !!(items[i].quality === sdk.itemquality.Set) && !!items[i].fname.toLowerCase().includes(iName);
 				break;
 			case 'unique':
-				itemCHECK = !!(items[i].quality === 7) && items[i].fname.toLowerCase().includes(iName);
+				itemCHECK = !!(items[i].quality === sdk.itemquality.Unique) && !!items[i].fname.toLowerCase().includes(iName);
 				break;
 			case 'crafted':
-				itemCHECK = !!(items[i].getFlag(NTIPAliasQuality["crafted"]));
+				itemCHECK = !!(items[i].quality === sdk.itemquality.Crafted);
 				break;
 			case 'runeword':
-				itemCHECK = !!(items[i].getFlag(NTIPAliasFlag["runeword"])) && items[i].fname.toLowerCase().includes(iName);
+				itemCHECK = !!(items[i].isRuneword) && !!items[i].fname.toLowerCase().includes(iName);
 				break;
 			}
 
@@ -850,19 +910,18 @@ const Check = {
 		let itemCHECK = false;
 
 		for (let i = 0; i < items.length && !itemCHECK; i++) {
-
 			switch (flag) {
 			case 'set':
-				itemCHECK = !!(items[i].quality === 5) && items[i].fname.toLowerCase().includes(iName);
+				itemCHECK = !!(items[i].quality === sdk.itemquality.Set) && !!items[i].fname.toLowerCase().includes(iName);
 				break;
 			case 'unique':
-				itemCHECK = !!(items[i].quality === 7) && items[i].fname.toLowerCase().includes(iName);
+				itemCHECK = !!(items[i].quality === sdk.itemquality.Unique) && !!items[i].fname.toLowerCase().includes(iName);
 				break;
 			case 'crafted':
-				itemCHECK = !!(items[i].getFlag(NTIPAliasQuality["crafted"]));
+				itemCHECK = !!(items[i].quality === sdk.itemquality.Crafted);
 				break;
 			case 'runeword':
-				itemCHECK = !!(items[i].getFlag(NTIPAliasFlag["runeword"])) && items[i].fname.toLowerCase().includes(iName);
+				itemCHECK = !!(items[i].isRuneword) && !!items[i].fname.toLowerCase().includes(iName);
 				break;
 			}
 
@@ -926,9 +985,7 @@ const Check = {
 
 		let baseCheck = false;
 		let items = me.getItems()
-			.filter(item =>
-				[2, 3].indexOf(item.quality) > -1 &&
-				[3, 7].indexOf(item.location) > -1);
+			.filter(item => item.isBaseType && item.isInStorage);
 
 		for (let i = 0; i < items.length; i++) {
 			if (items[i].getStat(194) === sockets) {

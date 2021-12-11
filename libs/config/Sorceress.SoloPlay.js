@@ -132,25 +132,6 @@ function LoadConfig () {
 	Config.AutoMule.Force = [];
 	Config.AutoMule.Exclude = [
 		"[name] >= Elrune && [name] <= Lemrune",
-		"[name] == mephisto'ssoulstone",
-		"[name] == hellforgehammer",
-		"[name] == scrollofinifuss",
-		"[name] == keytothecairnstones",
-		"[name] == bookofskill",
-		"[name] == horadriccube",
-		"[name] == shaftofthehoradricstaff",
-		"[name] == topofthehoradricstaff",
-		"[name] == horadricstaff",
-		"[name] == ajadefigurine",
-		"[name] == thegoldenbird",
-		"[name] == potionoflife",
-		"[name] == lamesen'stome",
-		"[name] == khalim'seye",
-		"[name] == khalim'sheart",
-		"[name] == khalim'sbrain",
-		"[name] == khalim'sflail",
-		"[name] == khalim'swill",
-		"[name] == scrollofresistance",
 	];
 
 	/* AutoEquip configuration. */
@@ -287,7 +268,7 @@ function LoadConfig () {
 		if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
 			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
 			if (["Blova", "Lightning"].indexOf(SetUp.finalBuild)) {
-				Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth]);
+				Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
 			}
 		}
 

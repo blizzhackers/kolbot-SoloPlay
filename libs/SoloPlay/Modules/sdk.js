@@ -3419,6 +3419,10 @@
 		},
 
         game: {
+            gametype: {
+                Classic: 0,
+                Expansion: 1,
+            },
     		// out of game locations
     		ooglocations: {
     			PreSplash: 0,

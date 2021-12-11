@@ -1355,13 +1355,13 @@ Misc.checkItemForImbueing = function () {
 
 Misc.addSocketables = function () {
 	let item, sockets;
-	let items = me.getItems();
+	let items = me.getItems().filter(item => item.getStat(sdk.stats.NumSockets) > 0);
 
 	for (let i = 0; i < items.length; i++) {
 		sockets = items[i].getStat(sdk.stats.NumSockets);
 
-		// no need to check anything else if no sockets or already socketed
-		if (sockets === 0 || !!items[i].getItem()) {
+		// no need to check anything else if already socketed
+		if (!!items[i].getItem()) {
 			continue;
 		}
 
@@ -1370,7 +1370,7 @@ Misc.addSocketables = function () {
 		case sdk.itemquality.Rare:
 		case sdk.itemquality.Crafted:
 			// Any magic, rare, or crafted item with open sockets
-			if (items[i].mode === 1 && [1, 3, 4, 5].indexOf(items[i].bodylocation) > -1 && sockets >= 1) {
+			if (items[i].mode === sdk.itemmode.Equipped && [1, 3, 4, 5].indexOf(items[i].bodylocation) > -1 && sockets >= 1) {
 				item = items[i];
 				break;
 			}
@@ -1468,6 +1468,7 @@ Misc.addSocketables = function () {
 		}
 	}
 
+	// TODO: figure out better way to do this
 	function highestGemAvailable (gem, checkList) {
 		let highest = false;
 		let myItems = me.getItems().filter(item => item.classid >= 557 && item.classid <= 601 && [587, 588, 589, 590, 591, 592, 593, 594, 595, 596].indexOf(item.classid) === -1);
@@ -1926,7 +1927,7 @@ Misc.addSocketableToItem = function (item, rune) {
 		return false;
 	}
 
-	if (item.mode === 1) {
+	if (item.mode === sdk.itemmode.Equipped) {
 		let i, tick, bodyLoc = item.bodylocation;
 
 		// No space to get the item back

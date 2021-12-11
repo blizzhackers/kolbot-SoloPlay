@@ -105,6 +105,7 @@ Cubing.buildRecipes = function () {
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], Config.Recipes[i][1], Config.Recipes[i][1]], Index: Recipe.Gem, AlwaysEnabled: true});
 
 			break;
+		// Crafting Recipes----------------------------------------------------------------------------------------------------------------------------------//
 		case Recipe.HitPower.Helm:
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], 615, 643, 571], Level: 84, Index: Recipe.HitPower.Helm});
 
@@ -249,42 +250,44 @@ Cubing.buildRecipes = function () {
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], 621, 643, 576], Level: 85, Index: Recipe.Safety.Weapon});
 
 			break;
+		// Upgrading Recipes----------------------------------------------------------------------------------------------------------------------------------//
 		case Recipe.Unique.Weapon.ToExceptional:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], 617, 621, 576], Index: Recipe.Unique.Weapon.ToExceptional, Ethereal: Config.Recipes[i][2]});
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], 617, 621, 576], Index: Recipe.Unique.Weapon.ToExceptional, Ethereal: Config.Recipes[i][2], Name: Config.Recipes[i][3]});
 
 			break;
 		case Recipe.Unique.Weapon.ToElite: // Ladder only
 			if (me.ladder || Developer.addLadderRW) {
-				this.recipes.push({Ingredients: [Config.Recipes[i][1], 626, 630, 576], Index: Recipe.Unique.Weapon.ToElite, Ethereal: Config.Recipes[i][2]});
+				this.recipes.push({Ingredients: [Config.Recipes[i][1], 626, 630, 576], Index: Recipe.Unique.Weapon.ToElite, Ethereal: Config.Recipes[i][2], Name: Config.Recipes[i][3]});
 			}
 
 			break;
 		case Recipe.Unique.Armor.ToExceptional:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], 616, 622, 586], Index: Recipe.Unique.Armor.ToExceptional, Ethereal: Config.Recipes[i][2]});
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], 616, 622, 586], Index: Recipe.Unique.Armor.ToExceptional, Ethereal: Config.Recipes[i][2], Name: Config.Recipes[i][3]});
 
 			break;
 		case Recipe.Unique.Armor.ToElite: // Ladder only
 			if (me.ladder || Developer.addLadderRW) {
-				this.recipes.push({Ingredients: [Config.Recipes[i][1], 629, 627, 586], Index: Recipe.Unique.Armor.ToElite, Ethereal: Config.Recipes[i][2]});
+				this.recipes.push({Ingredients: [Config.Recipes[i][1], 629, 627, 586], Index: Recipe.Unique.Armor.ToElite, Ethereal: Config.Recipes[i][2], Name: Config.Recipes[i][3]});
 			}
 
 			break;
 		case Recipe.Rare.Weapon.ToExceptional:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], 618, 620, 571], Index: Recipe.Rare.Weapon.ToExceptional, Ethereal: Config.Recipes[i][2]});
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], 618, 620, 571], Index: Recipe.Rare.Weapon.ToExceptional, Ethereal: Config.Recipes[i][2], stats: Config.Recipes[i][3]});
 
 			break;
 		case Recipe.Rare.Weapon.ToElite:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], 628, 631, 571], Index: Recipe.Rare.Weapon.ToElite, Ethereal: Config.Recipes[i][2]});
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], 628, 631, 571], Index: Recipe.Rare.Weapon.ToElite, Ethereal: Config.Recipes[i][2], stats: Config.Recipes[i][3]});
 
 			break;
 		case Recipe.Rare.Armor.ToExceptional:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], 617, 619, 561], Index: Recipe.Rare.Armor.ToExceptional, Ethereal: Config.Recipes[i][2]});
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], 617, 619, 561], Index: Recipe.Rare.Armor.ToExceptional, Ethereal: Config.Recipes[i][2], stats: Config.Recipes[i][3]});
 
 			break;
 		case Recipe.Rare.Armor.ToElite:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], 627, 630, 561], Index: Recipe.Rare.Armor.ToElite, Ethereal: Config.Recipes[i][2]});
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], 627, 630, 561], Index: Recipe.Rare.Armor.ToElite, Ethereal: Config.Recipes[i][2], stats: Config.Recipes[i][3]});
 
 			break;
+		// Socketing Recipes----------------------------------------------------------------------------------------------------------------------------------//
 		case Recipe.Socket.Shield:
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], 616, 620, 581], Index: Recipe.Socket.Shield, Ethereal: Config.Recipes[i][2]});
 
@@ -301,6 +304,11 @@ Cubing.buildRecipes = function () {
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], 617, 619, 571], Index: Recipe.Socket.Helm, Ethereal: Config.Recipes[i][2]});
 
 			break;
+		case Recipe.Socket.Rare:
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], sdk.items.Ring, sdk.items.gems.Perfect.Skull, sdk.items.gems.Perfect.Skull, sdk.items.gems.Perfect.Skull], Index: Recipe.Socket.Rare});
+
+			break;
+		// Re-rolling Recipes----------------------------------------------------------------------------------------------------------------------------------//
 		case Recipe.Reroll.Magic: // Hacky solution ftw
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], "pgem", "pgem", "pgem"], Level: 91, Index: Recipe.Reroll.Magic});
 
@@ -325,6 +333,7 @@ Cubing.buildRecipes = function () {
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], 610, "cgem"], Index: Recipe.LowToNorm.Armor});
 
 			break;
+		// Rune Recipes----------------------------------------------------------------------------------------------------------------------------------//
 		case Recipe.Rune:
 			switch (Config.Recipes[i][1]) {
 			case 610: // el
@@ -474,10 +483,6 @@ Cubing.buildRecipes = function () {
 			break;
 		case Recipe.Token:
 			this.recipes.push({Ingredients: [654, 655, 656, 657], Index: Recipe.Token, AlwaysEnabled: true});
-
-			break;
-		case Recipe.Socket.Rare.Item:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], sdk.items.Ring, sdk.items.gems.Perfect.SKull, sdk.items.gems.Perfect.SKull, sdk.items.gems.Perfect.SKull], Index: Recipe.Socket.Rare.Item});
 
 			break;
 		}
@@ -643,6 +648,7 @@ Cubing.checkItem = function (unit) {
 };
 
 Cubing.validItem = function (unit, recipe) {
+	let valid = true;
 	// Don't use items in locked inventory space
 	if (unit.isInInventory && Storage.Inventory.IsLocked(unit, Config.Inventory)) {
 		return false;
@@ -697,14 +703,18 @@ Cubing.validItem = function (unit, recipe) {
 		}
 		// Unique item matching pickit entry
 		if (unit.quality === 7 && NTIP.CheckItem(unit) === 1) {
+			// check items name (prevents upgrading lavagout when we want to be upgrading magefist for the second time)
+			if (recipe.Name !== undefined) {
+				valid = !!unit.fname.toLowerCase().includes(recipe.Name.toLowerCase());
+			}
 			switch (recipe.Ethereal) {
 			case 0:
 			case undefined:
-				return NTIP.CheckItem(unit) === 1;
+				return NTIP.CheckItem(unit) === 1 && valid;
 			case 1:
-				return unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
+				return unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1 && valid;
 			case 2:
-				return !unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
+				return !unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1 && valid;
 			}
 		}
 
@@ -712,6 +722,12 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index >= Recipe.Rare.Weapon.ToExceptional && recipe.Index <= Recipe.Rare.Armor.ToElite) {
+		// If item is equipped, ensure we can use the upgraded version
+		if (unit.isEquipped) {
+			if (me.charlvl < unit.upgradedLvlReq || me.trueStr < unit.upgradedStrReq || me.trueDex < unit.upgradedDexReq) {
+				return false;
+			}
+		}
 		// Rare item matching pickit entry
 		if (unit.quality === 6 && NTIP.CheckItem(unit) === 1) {
 			switch (recipe.Ethereal) {
