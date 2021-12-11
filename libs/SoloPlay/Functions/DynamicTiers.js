@@ -4,8 +4,8 @@
 *	@desc		Dynamic tiers calculators for Kolbot-SoloPlay
 */
 
-var mercscore = function (item) {
-	var mercWeights = {
+let mercscore = function (item) {
+	const mercWeights = {
 		IAS: 3.5,
 		MINDMG:	3, // min damage
 		MAXDMG: 3, // max damage
@@ -83,7 +83,7 @@ var mercscore = function (item) {
 		let sockets = Config.Runewords[x][0].length;
 		let baseCID = Config.Runewords[x][1];
 
-		if (item.classid === baseCID && item.quality < 4 && item.getStat(194) === sockets && !item.getFlag(NTIPAliasFlag["runeword"])) {
+		if (item.classid === baseCID && item.quality < 4 && item.getStat(194) === sockets && !item.isRuneword) {
 			rwBase = true;
 		}
 	}
@@ -95,8 +95,8 @@ var mercscore = function (item) {
 	return mercRating;
 };
 
-var tierscore = function (item) {
-	var resistWeights = {
+let tierscore = function (item) {
+	const resistWeights = {
 		FR: 3, // fire resist
 		LR: 3, // lightning resist
 		CR: 1.5, // cold resist
@@ -106,7 +106,7 @@ var tierscore = function (item) {
 		MR: 3, // Magic damage resist
 	};
 
-	var generalWeights = {
+	const generalWeights = {
 		CBF: 25, // cannot be frozen
 		FRW: 1, // faster run/walk
 		FHR: 3, // faster hit recovery
@@ -121,7 +121,7 @@ var tierscore = function (item) {
 		DEX: 1,
 	};
 
-	var casterWeights = {
+	const casterWeights = {
 		//breakpoint stats
 		FCR: (me.assassin ? 2 : 5),
 		IAS: (me.assassin ? 4 : 0),
@@ -130,7 +130,7 @@ var tierscore = function (item) {
 		MANAREGEN: 2.2,
 	};
 
-	var meleeWeights = {
+	const meleeWeights = {
 		//breakpoint stats
 		FCR: 0.5,
 		IAS: 4,
@@ -154,7 +154,7 @@ var tierscore = function (item) {
 		MANAREGEN: 2,
 	};
 
-	var ctcWeights = {
+	const ctcWeights = {
 		whenStruck: 2,
 		onAttack: 2,
 		onStrike: 1,
@@ -190,7 +190,7 @@ var tierscore = function (item) {
 		}
 	};
 
-	var skillsWeights = {
+	const skillsWeights = {
 		ALL: 200, // + all skills
 		CLASS: 175, // + class tab
 		TAB: 125, // + skill tab
@@ -314,7 +314,7 @@ var tierscore = function (item) {
 			resistRating += effectivePR * resistWeights.PR; // add poisonresist
 		}
 
-		if (item.itemType === 10) {		// Ringss
+		if (item.itemType === 10) {		// Rings
 			resistRating += item.getStatEx(39) * resistWeights.FR; // add fireresist
 			resistRating += item.getStatEx(43) * resistWeights.CR; // add coldresist
 			resistRating += item.getStatEx(41) * resistWeights.LR; // add literesist
@@ -331,7 +331,7 @@ var tierscore = function (item) {
 	};
 
 	this.buildScore = function (item) {
-		var buildWeights = Check.currentBuild().caster ? casterWeights : meleeWeights;
+		let buildWeights = Check.currentBuild().caster ? casterWeights : meleeWeights;
 		let buildRating = 0;
 
 		if (me.amazon) {
@@ -401,7 +401,8 @@ var tierscore = function (item) {
 			}
 		}
 
-		if (item.prefixnum === 20635 && !Check.currentBuild().caster) {		// Spirit Fix
+		// Spirit Fix for barb
+		if (item.prefixnum === sdk.locale.items.Spirit && !Check.currentBuild().caster) {
 			skillsRating -= 400;
 		}
 
@@ -890,7 +891,7 @@ var tierscore = function (item) {
 	return tier;
 };*/
 
-var secondaryscore = function (item) {
+let secondaryscore = function (item) {
 	let tier = 0;
 
 	tier += item.getStatEx(127) * 200; // + all skills
@@ -908,7 +909,7 @@ var secondaryscore = function (item) {
 	return tier;
 };
 
-var chargeditemscore = function (item, skillId) {
+let chargeditemscore = function (item, skillId) {
 	let tier = 0;
 
 	let validCharge = function (itemCharge) {
@@ -953,8 +954,8 @@ var chargeditemscore = function (item, skillId) {
 	return tier;
 };
 
-var charmscore = function (item) {
-	let generalWeights = {
+let charmscore = function (item) {
+	const generalWeights = {
 		ALL:	180, // + all skills
 		CLASS:	175, // + class tab
 		TAB: 300, // + skill tab
