@@ -24,12 +24,12 @@ If you are enjoying this project consider supporting me at https://www.buymeacof
 | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
 |:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
 | Javazon | Cold | Poison | Hammerdin| Whirlwind | Wind |Trapsin|
-| `Witchyzon` | Blizzballer |   Bone | Smiter| `Immortalwhirl` | Elemental |
-| | Meteorb | Summon | `Auradin` | Frenzy | Plaguewolf |
+| *`Witchyzon`* | Blizzballer |   Bone | Smiter| *`Immortalwhirl`* | Elemental |
+| | Meteorb | Summon | *`Auradin`* | Frenzy | Plaguewolf |
 | | Blova | | Zealer | Uberconc | Wolf |
-| | Lightning | | `Torchadin` | Singer |
+| | Lightning | | *`Torchadin`* | Singer |
 | |  | | Classicauradin |  |
-- **NOTE:** Expansion only builds marked
+- **NOTE:** Expansion only builds marked.
 
 ## New modes
 - Two new modes are available: **Bumper** and **Socketmule**. Enter either of these into your D2Bot# profile info tag to make. The bot will then stop after shenk quest for Socketmule and after it hits level 40 for a Bumper.
