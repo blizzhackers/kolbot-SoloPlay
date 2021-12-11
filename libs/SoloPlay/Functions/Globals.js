@@ -491,7 +491,7 @@ const Check = {
 			break;
 		case "ancienttunnels":
 			// No pally in hell due to magic immunes unless is auradin, No zon in hell unless at final build becasue light/poison immunes
-			if (Pather.accessToAct(2) && me.hell && (!me.paladin || Attack.IsAuradin) && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))) {
+			if (Pather.accessToAct(2) && me.hell && (!me.paladin || (me.paladin && !Check.currentBuild().caster)) && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))) {
 				return true;
 			}
 

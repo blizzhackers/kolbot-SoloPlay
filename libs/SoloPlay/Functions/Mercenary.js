@@ -1,6 +1,6 @@
 /*
 *	@filename	Mercenary.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		Mercenary functionality and Hiring
 */
 
@@ -15,7 +15,8 @@ let Merc = {
 		return true;
 	},
 
-	getMercFix: function () { // merc is null fix
+	// merc is null fix
+	getMercFix: function () {
 		if (!Config.UseMerc) {
 			return null;
 		}
@@ -38,7 +39,8 @@ let Merc = {
 		return merc;
 	},
 
-	listPacket: function (bytes) {// mercenary hire list info packets
+	// mercenary hire list info packets
+	listPacket: function (bytes) {
 		let id;
 
 		switch (bytes[0]) {
@@ -60,7 +62,7 @@ let Merc = {
 		let mercAuraName = Check.finalBuild().mercAuraName;
 		let mercAuraWanted = Check.finalBuild().mercAuraWanted;
 		let mercDiff = Check.finalBuild().mercDiff;
-		let tempMercAura = mercAuraWanted === 114 ? 99 : 104; //use defiance if mercAuraWanted is not gonna be holy freeze. Use prayer otherwise as holy freeze and defiance return as the same aura for some reason
+		let tempMercAura = mercAuraWanted === 114 ? 99 : 104; // use defiance if mercAuraWanted is not gonna be holy freeze. Use prayer otherwise as holy freeze and defiance return as the same aura for some reason
 		let mercAura = [[104, 99, 108], [103, 98, 114]];
 		let mercenary;
 
@@ -86,7 +88,8 @@ let Merc = {
 			return true;
 		}
 
-		if (me.classic || !Pather.accessToAct(2) || me.diff > mercDiff) { // don't hire if classic, no access to act 2, or passed merc hire difficulty
+		// don't hire if classic, no access to act 2, or passed merc hire difficulty
+		if (me.classic || !Pather.accessToAct(2) || me.diff > mercDiff) {
 			return true;
 		}
 
@@ -111,12 +114,16 @@ let Merc = {
 		addEventListener("gamepacket", Merc.listPacket);
 		Pather.getWP(me.area);
 		me.overhead('getting merc');
+		print("ÿc9Mercenaryÿc0 :: getting merc");
+		Town.cancelFlags.forEach(function(flag) { getUIFlag(flag) && delay(500) && me.cancel() && Misc.getUIFlags() > 1 && delay(500) && me.cancel() });	// cancel out any uiflags currently up
 		Town.goToTown(2);
 		Pather.moveTo(5041, 5055);
 		Town.move(NPC.Greiz);
 
-		if ((mercSelected !== mercAuraWanted && me.diff === mercDiff) || (mercSelected !== tempMercAura && me.normal)) { // replace merc
+		// replace merc
+		if ((mercSelected !== mercAuraWanted && me.diff === mercDiff) || (mercSelected !== tempMercAura && me.normal)) {
 			me.overhead('replacing merc');
+			print("ÿc9Mercenaryÿc0 :: replacing merc");
 			Town.sortInventory();
 			Item.removeItemsMerc(); // strip temp merc gear
 			delay(500 + me.ping);
