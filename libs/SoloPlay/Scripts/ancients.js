@@ -1,11 +1,12 @@
 /*
 *	@filename	ancients.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		ancients quest
 */
 
 function ancients () {
-	let canAncients = function () { // ancients resists
+	// ancients resists
+	let canAncients = function () {
 		let ancient = getUnit(1);
 
 		if (ancient) {
@@ -19,7 +20,8 @@ function ancients () {
 		return true;
 	};
 
-	let touchAltar = function () { // touch altar
+	// touch altar
+	let touchAltar = function () {
 		let tick = getTickCount();
 
 		while (getTickCount() - tick < 5000) {
@@ -46,8 +48,9 @@ function ancients () {
 		return false;
 	};
 
-	let ancientsPrep = function () { // ancients prep
-		Town.goToTown(); // prep to revised settings
+	// ancients prep
+	let ancientsPrep = function () { 
+		Town.goToTown();
 		Town.fillTome(518);
 		Town.buyPots(10, "Thawing");
 		Town.drinkPots();
@@ -68,7 +71,12 @@ function ancients () {
 	}
 
 	Precast.doPrecast(true);
-	Pather.moveToExit(sdk.areas.ArreatSummit, true); // enter at ancients plateau
+	Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter at ancients plateau
+
+	// failed to move to Arreat Summit
+	if (me.area !== sdk.areas.ArreatSummit) {
+		return false;
+	}
 
 	Town.townTasks();
 	Town.buyPots(10, "Thawing"); // prep to revised settings

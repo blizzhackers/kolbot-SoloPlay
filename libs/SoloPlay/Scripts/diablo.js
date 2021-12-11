@@ -5,8 +5,9 @@
 */
 
 function diablo () {
-	this.getLayout = function (seal, value) {// Start Diablo Quest
-		let sealPreset = getPresetUnit(108, 2, seal);
+	// Start Diablo Quest
+	this.getLayout = function (seal, value) {
+		let sealPreset = getPresetUnit(sdk.areas.ChaosSanctuary, sdk.unittype.Object, seal);
 
 		if (!seal) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Seal preset not found");
@@ -26,10 +27,10 @@ function diablo () {
 	};
 
 	this.getBoss = function (name) {
-		let glow = getUnit(2, 131);
+		let glow = getUnit(sdk.unittype.Object, 131);
 
 		for (let bossbeating = 0; bossbeating < 24; bossbeating += 1) {
-			let boss = getUnit(1, name);
+			let boss = getUnit(sdk.unittype.Monster, name);
 
 			if (boss) {
 				this.chaosPreattack(name, 8);
@@ -73,7 +74,8 @@ function diablo () {
 			position = [[6, 11], [0, 8], [8, -1], [-9, 2], [0, -11], [8, -8]];
 
 			for (let attackspot = 0; attackspot < position.length; attackspot += 1) {
-				if (Attack.validSpot(target.x + position[attackspot][0], target.y + position[attackspot][1])) { // check if we can move there
+				// check if we can move there
+				if (Attack.validSpot(target.x + position[attackspot][0], target.y + position[attackspot][1])) {
 					Pather.moveTo(target.x + position[attackspot][0], target.y + position[attackspot][1]);
 					Skill.setSkill(Config.AttackSkill[2], 0);
 
@@ -96,22 +98,22 @@ function diablo () {
 	};
 
 	this.diabloPrep = function () {
-		let tick = getTickCount(), decoyDuration = (10 + me.getSkill(28, 1) * 5) * 1000;
+		let tick = getTickCount(), decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, 1) * 5) * 1000;
 
 		while (getTickCount() - tick < 17500) {
 			if (getTickCount() - tick >= 8000) {
 				switch (me.classid) {
-				case 0: //Amazon
-					if (me.getSkill(28, 1)) {
-						let decoy = getUnit(1, 356);
+				case sdk.charclass.Amazon:
+					if (me.getSkill(sdk.skills.Decoy, 1)) {
+						let decoy = getUnit(sdk.unittype.Monster, 356);
 
 						if (!decoy || (getTickCount() - tick >= decoyDuration)) {
-							Skill.cast(28, 0, 7793, 5293);
+							Skill.cast(sdk.skills.Decoy, 0, 7793, 5293);
 						}
 					}
 
 					break;
-				case 1: // Sorceress
+				case sdk.charclass.Sorceress:
 					if ([56, 59, 64].indexOf(Config.AttackSkill[1]) > -1) {
 						if (me.getState(121)) {
 							delay(500 + me.ping);
@@ -125,13 +127,13 @@ function diablo () {
 					delay(500 + me.ping);
 
 					break;
-				case 3: // Paladin
+				case sdk.charclass.Paladin:
 					Skill.setSkill(Config.AttackSkill[2]);
 					Skill.cast(Config.AttackSkill[1], 1);
 
 					break;
-				case 5: // Druid
-					if (Config.AttackSkill[1] === 245) {
+				case sdk.charclass.Druid:
+					if (Config.AttackSkill[1] === sdk.skills.Tornado) {
 						Skill.cast(Config.AttackSkill[1], 0, 7793, 5293);
 
 						break;
@@ -140,7 +142,7 @@ function diablo () {
 					delay(500 + me.ping);
 
 					break;
-				case 6: // Assassin
+				case sdk.charclass.Assassin:
 					if (Config.UseTraps) {
 						let check = ClassAttack.checkTraps({x: 7793, y: 5293});
 
@@ -161,7 +163,7 @@ function diablo () {
 				delay(500 + me.ping);
 			}
 
-			if (getUnit(1, 243)) {
+			if (getUnit(sdk.unittype.Monster, sdk.monsters.Diablo)) {
 				return true;
 			}
 		}
@@ -196,21 +198,14 @@ function diablo () {
 
 	this.openSeal = function (classid) {
 		for (let sealspot = 0; sealspot < 5; sealspot += 1) {
-			Pather.moveToPreset(108, 2, classid, classid === 394 ? 5 : 2, classid === 394 ? 5 : 0);
+			Pather.moveToPreset(sdk.areas.ChaosSanctuary, sdk.unittype.Object, classid, classid === 394 ? 5 : 2, classid === 394 ? 5 : 0);
+			let seal = Misc.poll(function () { return getUnit(sdk.unittype.Object, classid); });
 
-			if ([392, 393].indexOf(classid) > -1) {	// Clear around Infector seal, Any leftover abyss knights casting decrep is bad news with Infector
+			// Clear around Infector seal, Any leftover abyss knights casting decrep is bad news with Infector
+			if ([392, 393].indexOf(classid) > -1) {
 				Attack.clear(25);
-			}
-
-			let seal = getUnit(2, classid);
-
-			for (let z = 0; z < 3; z += 1) {
-				if (seal) {
-					break;
-				}
-
-				Packet.flash(me.gid);
-				delay(100 + me.ping);
+				// Move back to seal
+				Pather.moveToPreset(sdk.areas.ChaosSanctuary, sdk.unittype.Object, classid, classid === 394 ? 5 : 2, classid === 394 ? 5 : 0);
 			}
 
 			if (!seal) {
@@ -220,24 +215,17 @@ function diablo () {
 				Pather.usePortal(null, me.name);
 
 				for (let a = 0; a < 3; a += 1) {
-					seal = getUnit(2, classid);
-
-					if (seal) {
-						break;
-					}
-
+					seal = getUnit(sdk.unittype.Object, classid);
+					if (seal) { break; }
 					Packet.flash(me.gid);
 					delay(100 + me.ping);
 				}
 
-				if (!seal) {
+				if (seal === undefined || !seal) {
 					print("ÿc8Kolbot-SoloPlayÿc0: Seal not found (id " + classid + ")");
 					D2Bot.printToConsole("Kolbot-SoloPlay: Seal not found (id " + classid + ")", 8);
+					return false;
 				}
-			}
-
-			if (seal === undefined) {
-				return false;
 			}
 
 			if (seal.mode) {
@@ -267,7 +255,8 @@ function diablo () {
 			delay(classid === 394 ? 1000 + me.ping : 500 + me.ping);
 
 			if (!seal.mode) {
-				if (classid === 394 && Attack.validSpot(seal.x + 15, seal.y)) { // de seis optimization
+				// de seis optimization
+				if (classid === 394 && Attack.validSpot(seal.x + 15, seal.y)) {
 					Pather.moveTo(seal.x + 15, seal.y);
 				} else {
 					Pather.moveTo(seal.x - 5, seal.y - 5);
@@ -276,31 +265,6 @@ function diablo () {
 				delay(500 + me.ping);
 			} else {
 				return true;
-			}
-		}
-
-		if (!!seal && !seal.mode) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to open seal (id " + classid + ")" + ". Attempting portal trick");
-			Town.goToTown();
-			delay(25 + me.ping);
-			Pather.usePortal(null, me.name);
-			seal = Misc.poll(function () { return getUnit(2, classid); });
-
-			if (!seal) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Failed to open seal (id " + classid + ")");
-				return false;
-			}
-
-			for (let a = 0; a < 3; a += 1) {
-				if (seal.mode) {
-					return true;
-				}
-
-				if (classid === 394) {
-					Misc.click(0, 0, seal);
-				} else {
-					seal.interact();
-				}
 			}
 		}
 
@@ -330,9 +294,11 @@ function diablo () {
 		this.openSeal(394);
 
 		if (this.seisLayout === 1) {
-			Pather.moveTo(7798, 5194, 3, 30); // safe location
+			// safe location
+			Pather.moveTo(7798, 5194, 3, 30);
 		} else {
-			Pather.moveTo(7796, 5155, 3, 30); // safe location
+			// safe location
+			Pather.moveTo(7796, 5155, 3, 30);
 		}
 
 		if (!this.getBoss(getLocaleString(2852))) {
@@ -364,20 +330,20 @@ function diablo () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting diablo');
 	me.overhead("diablo");
 
-	if (!Pather.checkWP(107)) {
-		Pather.getWP(107);
+	if (!Pather.checkWP(sdk.areas.RiverofFlame)) {
+		Pather.getWP(sdk.areas.RiverofFlame);
 	} else {
-		Pather.useWaypoint(107);
+		Pather.useWaypoint(sdk.areas.RiverofFlame);
 	}
 
 	Precast.doPrecast(true);
-	Pather.clearToExit(107, 108, true);
+	Pather.clearToExit(sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, true);
 
-	if (Check.Resistance().CR < 75 || Check.Resistance().PR < 75) {
+	if (me.coldRes < 75 || me.poisonRes < 75) {
 		Town.doChores();
-		Town.buyPots(10, "Thawing"); // thawing
+		Town.buyPots(10, "Thawing");
 		Town.drinkPots();
-		Town.buyPots(10, "Antidote"); // antidote
+		Town.buyPots(10, "Antidote");
 		Town.drinkPots();
 		Town.move("portalspot");
 		Pather.usePortal(108, me.name);
@@ -397,9 +363,9 @@ function diablo () {
 	if (!me.diablo && (me.paladin || me.barbarian || me.druid || me.amazon)) {
 		Town.goToTown();
 		Misc.getGoodShrine([2, 3]);
-		Pather.useWaypoint(107);
+		Pather.useWaypoint(sdk.areas.RiverofFlame);
 		Precast.doPrecast(true);
-		Pather.clearToExit(107, 108, true);
+		Pather.clearToExit(sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, true);
 	}
 
 	Config.MercWatch = false;
@@ -413,7 +379,7 @@ function diablo () {
 	}
 
 	this.diabloPrep();
-	let theD = getUnit(1, 243);
+	let theD = getUnit(sdk.unittype.Monster, sdk.monsters.Diablo);
 
 	if (!theD) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Diablo not found. Checking seal bosses.");
@@ -432,7 +398,7 @@ function diablo () {
 	}
 
 	if (!Attack.pwnDia()) {
-		Attack.killTarget(243); //diablo
+		Attack.killTarget(sdk.monsters.Diablo);
 	}
 
 	Pickit.pickItems();
@@ -447,7 +413,7 @@ function diablo () {
 		Town.npcInteract("tyrael");
 		me.cancel();
 		delay(500 + me.ping);
-		Pather.useUnit(2, 566, 109);
+		Pather.useUnit(sdk.unittype.Object, 566, 109);
 	}
 
 	Config.MercWatch = true;

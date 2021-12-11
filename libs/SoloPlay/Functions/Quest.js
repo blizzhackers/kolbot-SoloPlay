@@ -454,14 +454,6 @@ let Quest = {
 			print("ÿc8Kolbot-SoloPlayÿc0: Item cannot be socketed");
 			return false;
 		}
-			
-		if (!isIncluded("common/Storage.js")) {
-			include("common/Storage.js");
-		}
-			
-		if (!isIncluded("common/Town.js")) {
-			include("common/Town.js");
-		}
 
 		if (!isIncluded("SoloPlay/Tools/Developer.js")) {
 			include("SoloPlay/Tools/Developer.js");
@@ -473,7 +465,7 @@ let Quest = {
 		
 		// No space to get the item back
 		if (!Storage.Inventory.CanFit(item)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: No space to get item back");
+			print("ÿc8Kolbot-SoloPlayÿc0: (useSocketQuest) No space to get item back");
 			return false;
 		}
 			
@@ -604,18 +596,10 @@ let Quest = {
 			print("ÿc8Kolbot-SoloPlayÿc0:Item cannot be imbued");
 			return false;
 		}
-			
-		if (!isIncluded("common/Storage.js")) {
-			include("common/Storage.js");
-		}
-			
-		if (!isIncluded("common/Town.js")) {
-			include("common/Town.js");
-		}
 		
 		// No space to get the item back	
 		if (!Storage.Inventory.CanFit(item)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: No space to get item back");
+			print("ÿc8Kolbot-SoloPlayÿc0: (useImbueQuest) No space to get item back");
 			return false;
 		}
 			
