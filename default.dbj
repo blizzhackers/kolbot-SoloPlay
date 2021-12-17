@@ -40,6 +40,15 @@ function main () {
 		load("tools/heartbeat.js");
 	}
 
+	// Include SoloPlay's librarys
+	if (getScript("D2BotSoloPlay.dbj")) {
+		include("SoloPlay/Tools/Developer.js");
+		include("SoloPlay/Tools/Tracker.js");
+		include("SoloPlay/Functions/ConfigOverrides.js");
+		include("SoloPlay/Functions/Globals.js");
+		SetUp.include();
+	}
+
 	if (getScript("d2botmap.dbj")) {
 		load("tools/mapthread.js");
 
@@ -152,28 +161,8 @@ function main () {
 	addEventListener("scriptmsg", this.scriptEvent);
 	addEventListener("copydata", this.copyDataEvent);
 
-	// GameAction handler
-	if (GameAction.inGameCheck()) {
-		return true;
-	}
-
-	// AutoMule handler
-	if (AutoMule.inGameCheck()) {
-		return true;
-	}
-
-	// TorchSystem handler
-	if (TorchSystem.inGameCheck()) {
-		return true;
-	}
-
-	// Gambling System handler
-	if (Gambling.inGameCheck()) {
-		return true;
-	}
-
-	// Crafting System handler
-	if (CraftingSystem.inGameCheck()) {
+	// GameAction/AutoMule/TorchSystem/Gambling/Crafting handler
+	if (GameAction.inGameCheck() || AutoMule.inGameCheck() || TorchSystem.inGameCheck() || Gambling.inGameCheck() || CraftingSystem.inGameCheck()) {
 		return true;
 	}
 
@@ -192,19 +181,6 @@ function main () {
 
 	// Load threads
 	if (getScript("D2BotSoloPlay.dbj")) {
-		if (!isIncluded("SoloPlay/Tools/Developer.js")) {
-			include("SoloPlay/Tools/Developer.js");
-		}
-
-		if (!isIncluded("SoloPlay/Tools/Tracker.js")) {
-			include("SoloPlay/Tools/Tracker.js");
-		}
-
-		if (!isIncluded("libs/SoloPlay/Functions/Globals.js")) {
-			include("libs/SoloPlay/Functions/Globals.js");
-			SetUp.include();
-		}
-
 		if (Events.inGameCheck()) {
 			return true;
 		}

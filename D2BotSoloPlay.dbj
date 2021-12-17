@@ -63,8 +63,7 @@ include("SoloPlay/Tools/Tracker.js");
 include("SoloPlay/Tools/NameGen.js");
 include("SoloPlay/Tools/OOGOverrides.js");
 include("SoloPlay/Functions/Events.js");
-
-let sdk = require('libs/SoloPlay/Modules/sdk');
+include("SoloPlay/Functions/ConfigOverrides.js");
 
 let firstRun = false;
 
@@ -1300,7 +1299,7 @@ function main () {
 					crRes = Math.min(75, me.getStat(43) - resPenalty);
 					lrRes = Math.min(75, me.getStat(41) - resPenalty);
 					prRes = Math.min(75, me.getStat(45) - resPenalty);
-					areaName = getArea().name;
+					areaName = me.ingame ? getArea().name : false;
 					diffName = ['Normal', 'Nightmare', 'Hell'][me.diff];
 					D2Bot.updateStatus("Lvl: " + me.charlvl + " (" + myExp + "%) | Diff: " + diffName + " | Area: " + areaName + " | Gold: " + myGold + " | FR: " + frRes + " | CR: " + crRes + " | LR: " + lrRes + " | PR: " + prRes + " " + timer(gameStart));
 				}
