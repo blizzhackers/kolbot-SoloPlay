@@ -29,30 +29,22 @@ include("common/Runewords.js");
 include("common/Storage.js");
 include("common/Town.js");
 
-if (!isIncluded("SoloPlay/Tools/Developer.js")) {
-	include("SoloPlay/Tools/Developer.js");
-}
-
-if (!isIncluded("SoloPlay/Tools/Tracker.js")) {
-	include("SoloPlay/Tools/Tracker.js");
-}
-
-if (!isIncluded("SoloPlay/Functions/globals.js")) {
-	include("SoloPlay/Functions/globals.js");
-}
+if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
+if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
+if (!isIncluded("SoloPlay/Functions/globals.js")) { include("SoloPlay/Functions/globals.js"); }
 
 function main () {
-	var i, mercHP, ironGolem, tick, merc,
+	let i, mercHP, ironGolem, tick, merc,
 		debugInfo = {area: 0, currScript: "no entry"},
 		pingTimer = [],
 		quitFlag = false,
 		quitListDelayTime,
-		cloneWalked = false,
 		canQuit = true,
 		timerLastDrink = [];
 
 	print("ÿc8Kolbot-SoloPlayÿc0: Start Custom ToolsThread script");
 	D2Bot.init();
+	SetUp.include();
 	Config.init(false);
 	Pickit.init(false);
 	Attack.init();
@@ -80,7 +72,7 @@ function main () {
 			return false;
 		}
 
-		var m;
+		let m;
 
 		for (m = 0; m < Config.PingQuit.length; m += 1) {
 			if (Config.PingQuit[m].Ping > 0) {
@@ -110,7 +102,7 @@ function main () {
 	};
 
 	this.initQuitList = function () {
-		var j, string, obj,
+		let j, string, obj,
 			temp = [];
 
 		for (j = 0; j < Config.QuitList.length; j += 1) {
@@ -131,7 +123,7 @@ function main () {
 	};
 
 	this.getPotion = function (pottype, type) {
-		var k,
+		let k,
 			items = me.getItems();
 
 		if (!items || items.length === 0) {
@@ -159,8 +151,7 @@ function main () {
 	};
 
 	this.togglePause = function () {
-		var l,	script,
-			scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "tools/antihostile.js", "tools/party.js", "tools/rushthread.js"];
+		let script, scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "tools/antihostile.js", "tools/party.js", "tools/rushthread.js"];
 
 		for (l = 0; l < scripts.length; l += 1) {
 			script = getScript(scripts[l]);
@@ -189,10 +180,16 @@ function main () {
 	};
 
 	this.stopDefault = function () {
-		var script = getScript("default.dbj");
+		let script, scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/EventThread.js", "libs/SoloPlay/Tools/AutoBuildThread.js"];
 
-		if (script && script.running) {
-			script.stop();
+		for (let l = 0; l < scripts.length; l += 1) {
+			script = getScript(scripts[l]);
+
+			if (script) {
+				if (script.running) {
+					script.stop();
+				}
+			}
 		}
 
 		return true;
@@ -204,7 +201,7 @@ function main () {
 	};
 
 	this.drinkPotion = function (type) {
-		var pottype, potion,
+		let pottype, potion,
 			tNow = getTickCount();
 
 		switch (type) {
@@ -281,7 +278,7 @@ function main () {
 	};
 
 	this.getNearestMonster = function () {
-		var gid, distance,
+		let gid, distance,
 			monster = getUnit(1),
 			range = 30;
 
@@ -312,7 +309,7 @@ function main () {
 	};
 
 	this.checkVipers = function () {
-		var owner,
+		let owner,
 			monster = getUnit(1, 597);
 
 		if (monster) {
@@ -331,7 +328,7 @@ function main () {
 	};
 
 	this.getIronGolem = function () {
-		var owner,
+		let owner,
 			golem = getUnit(1, 291);
 
 		if (golem) {
@@ -348,7 +345,7 @@ function main () {
 	};
 
 	this.getNearestPreset = function () {
-		var n, unit, dist, id;
+		let n, unit, dist, id;
 
 		unit = getPresetUnits(me.area);
 		dist = 99;
@@ -364,10 +361,10 @@ function main () {
 	};
 
 	this.getStatsString = function (unit) {
-		var realFCR = unit.getStat(sdk.stats.FCR);
-		var realIAS = unit.getStat(sdk.stats.IAS);
-		var realFBR = unit.getStat(sdk.stats.FBR);
-		var realFHR = unit.getStat(sdk.stats.FHR);
+		let realFCR = unit.getStat(sdk.stats.FCR);
+		let realIAS = unit.getStat(sdk.stats.IAS);
+		let realFBR = unit.getStat(sdk.stats.FBR);
+		let realFHR = unit.getStat(sdk.stats.FHR);
 		// me.getStat(105) will return real FCR from gear + Config.FCR from char cfg
 
 		if (unit === me) {
@@ -377,35 +374,35 @@ function main () {
 			realFHR -= Config.FHR;
 		}
 
-		var maxHellFireRes = 75 + unit.getStat(sdk.stats.MaxFireResist);
-		var hellFireRes = unit.getStat(sdk.stats.FireResist) - 100;
+		let maxHellFireRes = 75 + unit.getStat(sdk.stats.MaxFireResist);
+		let hellFireRes = unit.getStat(sdk.stats.FireResist) - 100;
 
 		if (hellFireRes > maxHellFireRes) {
 			hellFireRes = maxHellFireRes;
 		}
 
-		var maxHellColdRes = 75 + unit.getStat(sdk.stats.MaxColdResist);
-		var hellColdRes = unit.getStat(sdk.stats.ColdResist) - 100;
+		let maxHellColdRes = 75 + unit.getStat(sdk.stats.MaxColdResist);
+		let hellColdRes = unit.getStat(sdk.stats.ColdResist) - 100;
 
 		if (hellColdRes > maxHellColdRes) {
 			hellColdRes = maxHellColdRes;
 		}
 
-		var maxHellLightRes = 75 + unit.getStat(sdk.stats.MaxLightResist);
-		var hellLightRes = unit.getStat(sdk.stats.LightResist) - 100;
+		let maxHellLightRes = 75 + unit.getStat(sdk.stats.MaxLightResist);
+		let hellLightRes = unit.getStat(sdk.stats.LightResist) - 100;
 
 		if (hellLightRes > maxHellLightRes) {
 			hellLightRes = maxHellLightRes;
 		}
 
-		var maxHellPoisonRes = 75 + unit.getStat(sdk.stats.MaxPoisonResist);
-		var hellPoisonRes = unit.getStat(sdk.stats.PoisonResist) - 100;
+		let maxHellPoisonRes = 75 + unit.getStat(sdk.stats.MaxPoisonResist);
+		let hellPoisonRes = unit.getStat(sdk.stats.PoisonResist) - 100;
 
 		if (hellPoisonRes > maxHellPoisonRes) {
 			hellPoisonRes = maxHellPoisonRes;
 		}
 
-		var str = "ÿc4MF: ÿc0" + unit.getStat(sdk.stats.Magicbonus) + "ÿc4 GF: ÿc0" + unit.getStat(sdk.stats.Goldbonus) +
+		let str = "ÿc4MF: ÿc0" + unit.getStat(sdk.stats.Magicbonus) + "ÿc4 GF: ÿc0" + unit.getStat(sdk.stats.Goldbonus) +
 		"ÿc1 FR: ÿc0" + unit.getStat(sdk.stats.FireResist) + "ÿc1 Max FR: ÿc0" + unit.getStat(sdk.stats.MaxFireResist) +
 		"ÿc3 CR: ÿc0" + unit.getStat(sdk.stats.ColdResist) + "ÿc3 Max CR: ÿc0" + unit.getStat(sdk.stats.MaxColdResist) +
 		"ÿc9 LR: ÿc0" + unit.getStat(sdk.stats.LightResist) + "ÿc9 Max LR: ÿc0" + unit.getStat(sdk.stats.MaxLightResist) +
@@ -518,13 +515,13 @@ function main () {
 			let generalString = "";
 			let itemToCheck = getUnit(101);
 			if (!!itemToCheck) {
-				itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) + 
-								" | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n" + 
-							 	"ÿc4AutoEquipKeepCheck: ÿc0" + Item.autoEquipKeepCheck(itemToCheck) + " | ÿc4AutoEquipCheckSecondary: ÿc0" + Item.autoEquipCheckSecondary(itemToCheck) + 
-							 	" | ÿc4AutoEquipKeepCheckMerc: ÿc0" + Item.autoEquipKeepCheckMerc(itemToCheck) + "\nÿc4Cubing Item: ÿc0" + Cubing.keepItem(itemToCheck) + 
-							 	" | ÿc4Runeword Item: ÿc0" + Runewords.keepItem(itemToCheck) + " | ÿc4Crafting Item: ÿc0" + CraftingSystem.keepItem(itemToCheck) + 
-							 	"\nÿc4ItemType: ÿc0" + itemToCheck.itemType + "| ÿc4Classid: ÿc0" + itemToCheck.classid + "| ÿc4Quality: ÿc0" + itemToCheck.quality;
-				charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + NTIP.checkFinalCharm(itemToCheck) + "\n" + 
+				itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) +
+								" | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n" +
+								"ÿc4AutoEquipKeepCheck: ÿc0" + Item.autoEquipKeepCheck(itemToCheck) + " | ÿc4AutoEquipCheckSecondary: ÿc0" + Item.autoEquipCheckSecondary(itemToCheck) +
+								" | ÿc4AutoEquipKeepCheckMerc: ÿc0" + Item.autoEquipKeepCheckMerc(itemToCheck) + "\nÿc4Cubing Item: ÿc0" + Cubing.keepItem(itemToCheck) +
+								" | ÿc4Runeword Item: ÿc0" + Runewords.keepItem(itemToCheck) + " | ÿc4Crafting Item: ÿc0" + CraftingSystem.keepItem(itemToCheck) +
+								"\nÿc4ItemType: ÿc0" + itemToCheck.itemType + "| ÿc4Classid: ÿc0" + itemToCheck.classid + "| ÿc4Quality: ÿc0" + itemToCheck.quality;
+				charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + NTIP.checkFinalCharm(itemToCheck) + "\n" +
 						"ÿc4CharmType: ÿc0" + Item.getCharmType(itemToCheck) + " | ÿc4AutoEquipCharmCheck: ÿc0" + Item.autoEquipCharmCheck(itemToCheck) + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck);
 				generalString = "ÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(itemToCheck, NTIP_CheckListNoTier, true).result;
 			}
@@ -639,7 +636,7 @@ function main () {
 	};
 
 	this.scriptEvent = function (msg) {
-		var obj;
+		let obj;
 
 		// Added from Autosorc/Sorc.js
 		if (msg && typeof msg === "string" && msg !== "" && msg.substring(0, 8) === "config--") {
@@ -698,7 +695,7 @@ function main () {
 		this.initQuitList();
 	}
 
-	var myAct = me.act;
+	let myAct = me.act;
 
 	// Start
 	while (true) {
@@ -841,13 +838,9 @@ function main () {
 		if (quitFlag && canQuit && (typeof quitListDelayTime === "undefined" || getTickCount() >= quitListDelayTime)) {
 			print("ÿc8Run duration ÿc2" + ((getTickCount() - me.gamestarttime) / 1000));
 
-			if (Config.LogExperience) {
-				Experience.log();
-			}
+			if (Config.LogExperience) { Experience.log(); }
 
-			if (Developer.logPerformance) {
-				Tracker.Update();
-			}
+			if (Developer.logPerformance) { Tracker.Update(); }
 
 			this.checkPing(false); // In case of quitlist triggering first
 			this.exit();

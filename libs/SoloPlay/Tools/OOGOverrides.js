@@ -16,7 +16,7 @@ ControlAction.makeCharacter = function (info) {
 		info.charClass = "barbarian";
 	}
 
-	var control,
+	let control,
 		clickCoords = [];
 
 	// cycle until in lobby
@@ -100,6 +100,7 @@ ControlAction.makeCharacter = function (info) {
 						D2Bot.printToConsole("Error in profile name. Expansion characters cannot be made in classic", 9);
 						D2Bot.stop();
 
+						break;
 					default:
 						break;
 					}
@@ -149,7 +150,7 @@ ControlAction.makeCharacter = function (info) {
 };
 
 ControlAction.findCharacter = function (info) {
-	var control, text, tick,
+	let control, text, tick,
 		count = 0;
 
 	tick = getTickCount();
@@ -212,7 +213,7 @@ ControlAction.findCharacter = function (info) {
 ControlAction.makeAccount = function (info) {
 	me.blockMouse = true;
 
-	var tick,
+	let tick,
 		realms = {
 			"uswest": 0,
 			"useast": 1,
@@ -300,7 +301,7 @@ ControlAction.makeAccount = function (info) {
 ControlAction.loginCharacter = function (info, startFromTop = true) {
 	me.blockMouse = true;
 
-	var control, text,
+	let control, text,
 		count = 0;
 
 	// start from beginning of the char list
@@ -308,7 +309,7 @@ ControlAction.loginCharacter = function (info, startFromTop = true) {
 		sendKey(0x24);
 	}
 
-MainLoop:
+	MainLoop:
 	// cycle until in lobby or in game
 	while (getLocation() !== 1) {
 		switch (getLocation()) {

@@ -66,124 +66,26 @@ let resPenalty;
 Object.defineProperties(Unit.prototype, {
 	fireRes: {
 		get: function () {
-			if (resPenalty === undefined) { resPenalty = me.classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]; }
+			if (resPenalty === undefined) { resPenalty = me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]; }
 			return Math.min(75, this.getStat(sdk.stats.FireResist) - resPenalty);
 		}
 	},
 	coldRes: {
 		get: function () {
-			if (resPenalty === undefined) { resPenalty = me.classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]; }
+			if (resPenalty === undefined) { resPenalty = (me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]); }
 			return Math.min(75, this.getStat(sdk.stats.ColdResist) - resPenalty);
 		}
 	},
 	lightRes: {
 		get: function () {
-			if (resPenalty === undefined) { resPenalty = me.classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]; }
+			if (resPenalty === undefined) { resPenalty = (me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]); }
 			return Math.min(75, this.getStat(sdk.stats.LightResist) - resPenalty);
 		}
 	},
 	poisonRes: {
 		get: function () {
-			if (resPenalty === undefined) { resPenalty = me.classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]; }
+			if (resPenalty === undefined) { resPenalty = (me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]); }
 			return Math.min(75, this.getStat(sdk.stats.PoisonResist) - resPenalty);
-		}
-	},
-	rawStrength: {
-		get: function () {
-			let lvl = this.getStat(sdk.stats.Level);
-			let rawBonus = function (i) { return i.getStat(sdk.stats.Strength); };
-			let perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelStrength) / 8; };
-			let bonus = ~~(this.getItemsEx()
-				.filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
-				.map(function (i) { return rawBonus(i) + perLvlBonus(i); })
-				.reduce(function (acc, v) { return acc + v; }, 0));
-			return this.getStat(sdk.stats.Strength) - bonus;
-		},
-	},
-	rawDexterity: {
-		get: function () {
-			let lvl = this.getStat(sdk.stats.Level);
-			let rawBonus = function (i) { return i.getStat(sdk.stats.Dexterity); };
-			let perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelDexterity) / 8; };
-			let bonus = ~~(this.getItemsEx()
-				.filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
-				.map(function (i) { return rawBonus(i) + perLvlBonus(i); })
-				.reduce(function (acc, v) { return acc + v; }, 0));
-			return this.getStat(sdk.stats.Dexterity) - bonus;
-		},
-	},
-	upgradedStrReq: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
-			let code, id, baseReq, finalReq, ethereal = this.getFlag(0x400000),
-				reqModifier = this.getStat(91);
-
-			switch (this.itemclass) {
-			case sdk.itemclass.Normal:
-				code = getBaseStat("items", this.classid, "ubercode").trim();
-
-				break;
-			case sdk.itemclass.Exceptional:
-				code = getBaseStat("items", this.classid, "ultracode").trim();
-
-				break;
-			case sdk.itemclass.Elite:
-				return this.strreq;
-			}
-
-			id = NTIPAliasClassID[code];
-			baseReq = getBaseStat("items", id, "reqstr");
-			finalReq = baseReq + Math.floor(baseReq * reqModifier / 100);
-			if (ethereal) { finalReq -= 10; }
-			return Math.max(finalReq, 0);
-		}
-	},
-	upgradedDexReq: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
-			let code, id, baseReq, finalReq, ethereal = this.getFlag(0x400000),
-				reqModifier = this.getStat(91);
-
-			switch (this.itemclass) {
-			case sdk.itemclass.Normal:
-				code = getBaseStat("items", this.classid, "ubercode").trim();
-
-				break;
-			case sdk.itemclass.Exceptional:
-				code = getBaseStat("items", this.classid, "ultracode").trim();
-
-				break;
-			case sdk.itemclass.Elite:
-				return this.strreq;
-			}
-
-			id = NTIPAliasClassID[code];
-			baseReq = getBaseStat("items", id, "reqdex");
-			finalReq = baseReq + Math.floor(baseReq * reqModifier / 100);
-			if (ethereal) { finalReq -= 10; }
-			return Math.max(finalReq, 0);
-		}
-	},
-	upgradedLvlReq: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
-			let code, id;
-
-			switch (this.itemclass) {
-			case sdk.itemclass.Normal:
-				code = getBaseStat("items", this.classid, "ubercode").trim();
-
-				break;
-			case sdk.itemclass.Exceptional:
-				code = getBaseStat("items", this.classid, "ultracode").trim();
-
-				break;
-			case sdk.itemclass.Elite:
-				return this.lvlreq;
-			}
-
-			id = NTIPAliasClassID[code];
-			return Math.max(getBaseStat("items", id, "levelreq"), 0);
 		}
 	},
 	isEquipped: {
@@ -283,6 +185,104 @@ Object.defineProperties(Unit.prototype, {
 					sdk.items.quest.BaalsEye, sdk.items.quest.MephistosBrain, sdk.items.quest.TokenofAbsolution, sdk.items.quest.TwistedEssenceofSuffering,
 					sdk.items.quest.ChargedEssenceofHatred, sdk.items.quest.BurningEssenceofTerror, sdk.items.quest.FesteringEssenceofDestruction].indexOf(this.classid) === -1 &&
             	!(this.quality === sdk.itemquality.Unique && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(this.itemType));
+		}
+	},
+	rawStrength: {
+		get: function () {
+			let lvl = this.getStat(sdk.stats.Level);
+			let rawBonus = function (i) { return i.getStat(sdk.stats.Strength); };
+			let perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelStrength) / 8; };
+			let bonus = ~~(this.getItemsEx()
+				.filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
+				.map(function (i) { return rawBonus(i) + perLvlBonus(i); })
+				.reduce(function (acc, v) { return acc + v; }, 0));
+			return this.getStat(sdk.stats.Strength) - bonus;
+		},
+	},
+	rawDexterity: {
+		get: function () {
+			let lvl = this.getStat(sdk.stats.Level);
+			let rawBonus = function (i) { return i.getStat(sdk.stats.Dexterity); };
+			let perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelDexterity) / 8; };
+			let bonus = ~~(this.getItemsEx()
+				.filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
+				.map(function (i) { return rawBonus(i) + perLvlBonus(i); })
+				.reduce(function (acc, v) { return acc + v; }, 0));
+			return this.getStat(sdk.stats.Dexterity) - bonus;
+		},
+	},
+	upgradedStrReq: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			let code, id, baseReq, finalReq, ethereal = this.getFlag(0x400000),
+				reqModifier = this.getStat(91);
+
+			switch (this.itemclass) {
+			case sdk.itemclass.Normal:
+				code = getBaseStat("items", this.classid, "ubercode").trim();
+
+				break;
+			case sdk.itemclass.Exceptional:
+				code = getBaseStat("items", this.classid, "ultracode").trim();
+
+				break;
+			case sdk.itemclass.Elite:
+				return this.strreq;
+			}
+
+			id = NTIPAliasClassID[code];
+			baseReq = getBaseStat("items", id, "reqstr");
+			finalReq = baseReq + Math.floor(baseReq * reqModifier / 100);
+			if (ethereal) { finalReq -= 10; }
+			return Math.max(finalReq, 0);
+		}
+	},
+	upgradedDexReq: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			let code, id, baseReq, finalReq, ethereal = this.getFlag(0x400000),
+				reqModifier = this.getStat(91);
+
+			switch (this.itemclass) {
+			case sdk.itemclass.Normal:
+				code = getBaseStat("items", this.classid, "ubercode").trim();
+
+				break;
+			case sdk.itemclass.Exceptional:
+				code = getBaseStat("items", this.classid, "ultracode").trim();
+
+				break;
+			case sdk.itemclass.Elite:
+				return this.dexreq;
+			}
+
+			id = NTIPAliasClassID[code];
+			baseReq = getBaseStat("items", id, "reqdex");
+			finalReq = baseReq + Math.floor(baseReq * reqModifier / 100);
+			if (ethereal) { finalReq -= 10; }
+			return Math.max(finalReq, 0);
+		}
+	},
+	upgradedLvlReq: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			let code, id;
+
+			switch (this.itemclass) {
+			case sdk.itemclass.Normal:
+				code = getBaseStat("items", this.classid, "ubercode").trim();
+
+				break;
+			case sdk.itemclass.Exceptional:
+				code = getBaseStat("items", this.classid, "ultracode").trim();
+
+				break;
+			case sdk.itemclass.Elite:
+				return this.lvlreq;
+			}
+
+			id = NTIPAliasClassID[code];
+			return Math.max(getBaseStat("items", id, "levelreq"), 0);
 		}
 	},
 });
@@ -386,6 +386,7 @@ Unit.prototype.switchWeapons = function (slot) {
 	return false;
 };
 
+// Returns the number of frames needed to cast a given skill at a given FCR for a given char.
 Unit.prototype.castingFrames = function (skillId, fcr, charClass) {
 	if (this !== me) {
 		print("invalid arguments, expected 'me' object");
@@ -408,6 +409,11 @@ Unit.prototype.castingFrames = function (skillId, fcr, charClass) {
 		bear: 228
 	}[charClass === sdk.charclass.Druid ? (this.getState(sdk.states.Wolf) || this.getState(sdk.states.Bear)) : "normal"];
 	return Math.ceil(256 * baseCastRate / Math.floor(animationSpeed * (100 + effectiveFCR) / 100)) - 1;
+};
+
+// Returns the duration in seconds needed to cast a given skill at a given FCR for a given char.
+Unit.prototype.castingDuration = function (skillId, fcr = this.getStat(sdk.stats.FCR), charClass = this.classid) {
+	return this.castingFrames(skillId, fcr, charClass) / 25;
 };
 
 Unit.prototype.castChargedSkill = function (...args) {
@@ -1412,4 +1418,31 @@ Object.defineProperty(Unit.prototype, 'respec', {
 
 		return this.getQuest(41, 0);
 	}
+});
+
+Unit.prototype.__defineGetter__('attackable', function () {
+    if (this.type === 0 && this.mode !== 17 && this.mode !== 0) { //ToDo: build in here a check if player is hostiled
+        return true;
+    }
+    if (this.hp === 0 || this.mode === 0 || this.mode === 12) { // Dead monster
+        return false;
+    }
+    if (this.getStat(172) === 2) { // Friendly monster/NPC
+        return false;
+    }
+    if (this.charlvl < 1) { // catapults were returning a level of 0 and hanging up clear scripts
+        return false;
+    }
+    if (getBaseStat("monstats", this.classid, "neverCount")) { // neverCount base stat - hydras, traps etc.
+        return false;
+    }
+    // Monsters that are in flight
+    if ([110, 111, 112, 113, 144, 608].indexOf(this.classid) > -1 && this.mode === 8) {
+        return false;
+    }
+    // Monsters that are Burrowed/Submerged
+    if ([68, 69, 70, 71, 72, 258, 258, 259, 260, 261, 262, 263].indexOf(this.classid) > -1 && this.mode === 14) {
+        return false;
+    }
+    return [sdk.monsters.ThroneBaal, 179].indexOf(this.classid) <= -1;
 });

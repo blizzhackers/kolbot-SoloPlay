@@ -26,29 +26,45 @@ include("common/Runewords.js");
 include("common/Storage.js");
 include("common/Town.js");
 
+if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
+if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
+if (!isIncluded("SoloPlay/Functions/globals.js")) { include("SoloPlay/Functions/globals.js"); }
+
 function main() {
-	var townCheck = false;
+	let townCheck = false;
+	print("ÿc8Kolbot-SoloPlayÿc0: Start TownChicken thread");
+
+	// Init config and attacks
+	D2Bot.init();
+	SetUp.include();
+	Config.init();
+	Pickit.init();
+	Attack.init();
+	Storage.Init();
+	CraftingSystem.buildLists();
+	Runewords.init();
+	Cubing.init();
+
+	let useHowl = me.barbarian && me.getSkill(sdk.skills.Howl, 0);
+	let useTerror = me.necromancer && me.getSkill(sdk.skills.Terror, 0);
 
 	this.togglePause = function () {
-		var i,	script,
-			scripts = ["default.dbj", "tools/antihostile.js", "tools/rushthread.js", "tools/CloneKilla.js"];
+		let scripts = ["default.dbj", "tools/antihostile.js"];
 
-		for (i = 0; i < scripts.length; i += 1) {
-			script = getScript(scripts[i]);
+		for (let i = 0; i < scripts.length; i += 1) {
+			let script = getScript(scripts[i]);
 
 			if (script) {
 				if (script.running) {
-					// default.dbj
-					if (i === 0) {
+					if (i === "default.dbj") {
 						print("ÿc1Pausing.");
 					}
 
 					script.pause();
 				} else {
-					// default.dbj
-					if (i === 0) {
+					if (i === "default.dbj") {
 						// don't resume if dclone walked
-						if (!Events.cloneWalked) { 
+						if (!Events.cloneWalked) {
 							print("ÿc2Resuming.");
 							script.resume();
 						}
@@ -63,7 +79,7 @@ function main() {
 	};
 
 	this.getNearestMonster = function () {
-		var gid, distance,
+		let gid, distance,
 			monster = getUnit(1),
 			range = 30;
 
@@ -88,7 +104,6 @@ function main() {
 
 		if (monster) {
 			print("ÿc9TownChickenÿc0 :: Closest monster to me: " + monster.name + " | Monster classid: " + monster.classid);
-
 			return monster.classid;
 		}
 
@@ -99,11 +114,11 @@ function main() {
 		function (msg) {
 			if (msg === "townCheck") {
 				switch (me.area) {
-				case 120:
+				case sdk.areas.ArreatSummit:
 					print("Don't tp from Arreat Summit.");
 
 					break;
-				case 136:
+				case sdk.areas.UberTristram:
 					print("Can't tp from uber trist.");
 
 					break;
@@ -120,19 +135,6 @@ function main() {
 				Config = JSON.parse(msg.split("config--")[1]);
 			}
 		});
-
-	// Init config and attacks
-	D2Bot.init();
-	Config.init();
-	Pickit.init();
-	Attack.init();
-	Storage.Init();
-	CraftingSystem.buildLists();
-	Runewords.init();
-	Cubing.init();
-
-	let useHowl = me.barbarian && me.getSkill(130, 0);
-	let useTerror = me.necromancer && me.getSkill(77, 0);
 
 	while (true) {
 		if (!me.inTown && [120, 136].indexOf(me.area) === -1 && Town.canTpToTown() && (townCheck ||

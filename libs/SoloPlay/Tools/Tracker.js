@@ -16,17 +16,17 @@ if (!isIncluded("common/Misc.js")) {
 	include("common/Misc.js");
 }
 
-var Tracker = {
+const Tracker = {
 	GTPath: "libs/SoloPlay/Data/" + me.profile + ".GameTime.json",
 	LPPath: "libs/SoloPlay/Data/" + me.profile + ".LevelingPerformance.csv",
 	SPPath: "libs/SoloPlay/Data/" + me.profile + ".ScriptPerformance.csv",
 
 	initialize: function () {
 		//File Structure
-		var LPHeader = "Total Time,InGame Time,Split Time,Area,Character Level,Gained EXP,Gained EXP/Minute,Difficulty,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n"; //Leveling Performance
-		var SPHeader = "Total Time,InGame Time,Sequence Time,Sequence,Character Level,Gained EXP,Gained EXP/Minute,Difficulty,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n"; //Script Performance
+		let LPHeader = "Total Time,InGame Time,Split Time,Area,Character Level,Gained EXP,Gained EXP/Minute,Difficulty,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n"; //Leveling Performance
+		let SPHeader = "Total Time,InGame Time,Sequence Time,Sequence,Character Level,Gained EXP,Gained EXP/Minute,Difficulty,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n"; //Script Performance
 		let FirstSave = getTickCount();
-		var GameTracker = {
+		let GameTracker = {
 			"Total": 0,
 			"InGame": 0,
 			"OOG": 0,
@@ -57,7 +57,7 @@ var Tracker = {
 	},
 
 	Script: function (starttime, subscript, startexp) {
-		var GameTracker = Developer.readObj(Tracker.GTPath),
+		let GameTracker = Developer.readObj(Tracker.GTPath),
 			newTick = me.gamestarttime >= GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave,
 			totalTick = GameTracker.LastSave,
 			newIG = GameTracker.InGame + Developer.Timer(newTick),
@@ -90,7 +90,7 @@ var Tracker = {
 	},
 
 	Leveling: function () {
-		var GameTracker = Developer.readObj(Tracker.GTPath),
+		let GameTracker = Developer.readObj(Tracker.GTPath),
 			newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave,
 			totalTick = GameTracker.LastSave,
 			newIG = GameTracker.InGame + Developer.Timer(newTick),
@@ -127,7 +127,7 @@ var Tracker = {
 	},
 
 	Update: function () {
-		var GameTracker = Developer.readObj(Tracker.GTPath),
+		let GameTracker = Developer.readObj(Tracker.GTPath),
 			newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave,
 			totalTick = GameTracker.LastSave,
 			newIG = GameTracker.InGame + Developer.Timer(newTick),

@@ -2,18 +2,14 @@
 *	@filename	Overlay.js
 *	@author		theBGuy
 *	@desc		overlay thread for Kolbot-SoloPlay
-*	@credits 	Adpist for first gen Overlay, isid0re for styleing, timer, and tracker, laz for his manual play, dzik for his hookHandler, securitycat, kolton libs
+*	@credits 	Adpist for first gen Overlay, isid0re for styleing, clock, and tracker, kolton
 */
 
-if (!isIncluded("SoloPlay/Tools/Developer.js")) {
-	include("SoloPlay/Tools/Developer.js");
-}
+if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
+if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
+if (!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js")) { include("SoloPlay/Functions/ProtoTypesOverrides.js"); }
 
-if (!isIncluded("SoloPlay/Tools/Tracker.js")) {
-	include("SoloPlay/Tools/Tracker.js");
-}
-
-var Overlay = {
+const Overlay = {
 	resfixX: me.screensize ? 0 : -100,
 	resfixY: me.screensize ? 0 : -120,
 	questX: 12,
@@ -28,7 +24,7 @@ var Overlay = {
 		enabled: true,
 
 		clock: function (name) {
-			var PrettyTotal = Developer.formatTime(this.GameTracker.Total + Developer.Timer(this.GameTracker.LastSave)),
+			let PrettyTotal = Developer.formatTime(this.GameTracker.Total + Developer.Timer(this.GameTracker.LastSave)),
 				PrettyIG = Developer.formatTime(this.GameTracker.InGame + Developer.Timer(this.GameTracker.LastSave));
 
 			switch (name) {
@@ -83,20 +79,18 @@ var Overlay = {
 				this.getHook("times").hook.text = "Total: ÿc0" + this.clock("Total") + "ÿc4 InGame: ÿc0" + this.clock("InGame") + "ÿc4 OOG: ÿc0" + this.clock("OOG");
 			}
 
-			if (Developer.showInGameTimer) {
-				if (!this.getHook("timerboard")) {
-					this.add("timerboard");
-				}
+			if (!this.getHook("timerboard")) {
+				this.add("timerboard");
+			}
 
-				if (!this.getHook("timerframe")) {
-					this.add("timerframe");
-				}
+			if (!this.getHook("timerframe")) {
+				this.add("timerframe");
+			}
 
-				if (!this.getHook("InGameTimer")) {
-					this.add("InGameTimer");
-				} else {
-					this.getHook("InGameTimer").hook.text = "In Game Timer: ÿc0" + this.timer();
-				}
+			if (!this.getHook("InGameTimer")) {
+				this.add("InGameTimer");
+			} else {
+				this.getHook("InGameTimer").hook.text = "In Game Timer: ÿc0" + this.timer();
 			}
 
 			if (!this.getHook("level")) {
@@ -170,9 +164,7 @@ var Overlay = {
 		},
 
 		getHook: function (name) {
-			var i;
-
-			for (i = 0; i < this.hooks.length; i += 1) {
+			for (let i = 0; i < this.hooks.length; i += 1) {
 				if (this.hooks[i].name === name) {
 					return this.hooks[i];
 				}
@@ -193,14 +185,12 @@ var Overlay = {
 		enabled: true,
 
 		getRes: function () {
-			var penalty = [[0, 20, 50], [0, 40, 100]][me.gametype][me.diff];
-
 			// Double check in case still got here before being ready
 			if (!me.gameReady || !me.ingame || !me.area) {
 				return "";
 			}
 
-			let textLine = "FR: ÿc1" + (me.getStat(39) - penalty) + "ÿc4   CR: ÿc3" + (me.getStat(43) - penalty) + "ÿc4   LR: ÿc9" + (me.getStat(41) - penalty) + "ÿc4   PR: ÿc2" + (me.getStat(45) - penalty);
+			let textLine = "FR: ÿc1" + me.fireRes + "ÿc4   CR: ÿc3" + me.coldRes + "ÿc4   LR: ÿc9" + me.lightRes + "ÿc4   PR: ÿc2" + me.poisonRes;
 
 			return textLine;
 		},
@@ -240,7 +230,7 @@ var Overlay = {
 				this.add("stats");
 			} else {
 				this.getHook("stats").hook.text = this.getStats();
-			}		
+			}
 
 			switch (me.act) {
 			case 1:
@@ -688,13 +678,11 @@ var Overlay = {
 		},
 
 		getHook: function (name) {
-			var i;
-
 			while (!me.gameReady || !me.ingame || !me.area) {
 				delay(500 + me.ping);
 			}
 
-			for (i = 0; i < this.hooks.length; i += 1) {
+			for (let i = 0; i < this.hooks.length; i += 1) {
 				if (this.hooks[i].name === name) {
 					return this.hooks[i];
 				}
@@ -714,7 +702,6 @@ var Overlay = {
 		function status () {
 			let hide = [0x01, 0x02, 0x03, 0x04, 0x05, 0x09, 0x0C, 0x0F, 0x18, 0x19, 0x1A, 0x21, 0x24];
 
-			// from commit eb818af SoloLeveling
 			if (!me.gameReady || !me.ingame || !me.area || me.dead) {
 				Overlay.Disable(true);
 			} else {
@@ -769,6 +756,13 @@ var Overlay = {
 		delay(100);
 
 		return true;
+	},
+
+	killOverlay: function () {
+		Overlay.text.flush();
+		Overlay.quests.flush();
+		Overlay.text.enabled = false;
+		Overlay.quests.enabled = false;
 	},
 
 	flush: function () {

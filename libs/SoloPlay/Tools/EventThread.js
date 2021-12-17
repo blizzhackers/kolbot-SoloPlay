@@ -29,13 +29,9 @@ include("common/Runewords.js");
 include("common/Storage.js");
 include("common/Town.js");
 
-if (!isIncluded("SoloPlay/Tools/Developer.js")) {
-	include("SoloPlay/Tools/Developer.js");
-}
-
-if (!isIncluded("SoloPlay/Functions/globals.js")) {
-	include("SoloPlay/Functions/globals.js");
-}
+if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
+if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
+if (!isIncluded("SoloPlay/Functions/globals.js")) { include("SoloPlay/Functions/globals.js"); }
 
 function main () {
 	let action = [];
@@ -44,6 +40,7 @@ function main () {
 
 	print("ÿc8Kolbot-SoloPlayÿc0: Start EventThread");
 	D2Bot.init();
+	SetUp.include();
 	Config.init(false);
 	Pickit.init(false);
 	Attack.init();
@@ -53,11 +50,10 @@ function main () {
 	Cubing.init();
 
 	this.pauseForEvent = function () {
-		var l, script,
-			scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "tools/antihostile.js", "tools/party.js", "tools/rushthread.js"];
+		let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
 
-		for (l = 0; l < scripts.length; l += 1) {
-			script = getScript(scripts[l]);
+		for (let l = 0; l < scripts.length; l += 1) {
+			let script = getScript(scripts[l]);
 
 			if (Events.townChicken) {
 				print("ÿc1Trying to townChicken, don't interfere.");
@@ -66,8 +62,7 @@ function main () {
 
 			if (script) {
 				if (script.running) {
-					// default.dbj
-					if (l === 0) {
+					if (scripts[l] === "default.dbj") {
 						print("ÿc1Pausing " + scripts[l]);
 					}
 
@@ -83,21 +78,20 @@ function main () {
 	};
 
 	this.resumeThreadsAfterEvent = function () {
-		var l, script,
-			scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "tools/antihostile.js", "tools/party.js", "tools/rushthread.js"];
+		let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
 
-		for (l = 0; l < scripts.length; l += 1) {
-			script = getScript(scripts[l]);
+		for (let l = 0; l < scripts.length; l += 1) {
+			let script = getScript(scripts[l]);
 
 			if (script) {
 				if (!script.running) {
 					// default.dbj
-					if (l === 0) {
+					if (scripts[l] === "default.dbj") {
 						print("ÿc2Resuming " + scripts[l]);
 					}
 
 					// TownChicken
-					if (l === 1) {
+					if (scripts[l] === "libs/SoloPlay/Tools/TownChicken.js") {
 						print("ÿc2Resuming " + scripts[l]);
 					}
 
@@ -221,6 +215,4 @@ function main () {
 
 		delay(20);
 	}
-
-	return true;
 }
