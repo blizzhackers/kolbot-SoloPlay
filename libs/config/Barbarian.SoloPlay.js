@@ -17,21 +17,8 @@
 */
 
 function LoadConfig () {
-	if (!isIncluded("common/Storage.js")) {
-		include("common/Storage.js");
-	}
-
-	if (!isIncluded("common/Misc.js")) {
-		include("common/Misc.js");
-	}
-
-	if (!isIncluded("NTItemParser.dbl")) {
-		include("NTItemParser.dbl");
-	}
-
-	if (!isIncluded("SoloPlay/Functions/Globals.js")) {
-		include("SoloPlay/Functions/Globals.js");
-	}
+	if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
+	if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
 
 	SetUp.include();
 
@@ -53,8 +40,8 @@ function LoadConfig () {
 	Config.PrimarySlot = 0;
 	Config.PacketCasting = 1;
 	Config.WaypointMenu = true;
-	Config.Cubing = !me.classic ? me.getItem(sdk.items.quest.Cube) : false;
-	Config.MakeRunewords = !me.classic ? true : false;
+	Config.Cubing = !!me.getItem(sdk.items.quest.Cube);
+	Config.MakeRunewords = true;
 
 	/* General logging. */
 	Config.ItemInfo = false;
@@ -65,31 +52,31 @@ function LoadConfig () {
 	Config.ShowCubingInfo = true;
 
 	/* DClone. */
-	Config.StopOnDClone = true; // Go to town and idle as soon as Diablo walks the Earth
-	Config.SoJWaitTime = 5; 	// Time in minutes to wait for another SoJ sale before leaving game. 0 = disabled
-	Config.KillDclone = true;
-	Config.DCloneQuit = false; 	// 1 = quit when Diablo walks, 2 = quit on soj sales, false = disabled
+	Config.StopOnDClone = !!me.expansion;
+	Config.SoJWaitTime = 5; // Time in minutes to wait for another SoJ sale before leaving game. 0 = disabled
+	Config.KillDclone = !!me.expansion;
+	Config.DCloneQuit = false;
 
 	/* Town configuration. */
 	Config.HealHP = 99;
 	Config.HealMP = 99;
 	Config.HealStatus = true;
-	Config.UseMerc = true;
+	Config.UseMerc = me.expansion;
 	Config.MercWatch = true;
 	Config.StashGold = me.charlvl * 100;
 	Config.ClearInvOnStart = false;
 
 	/* Chicken configuration. */
-	Config.LifeChicken = me.playertype ? 45 : 10;
+	Config.LifeChicken = me.hardcore ? 45 : 10;
 	Config.ManaChicken = 0;
 	Config.MercChicken = 0;
-	Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
+	Config.TownHP = me.hardcore ? 0 : Config.TownCheck ? 35 : 0;
 	Config.TownMP = 0;
 
 	/* Potions configuration. */
-	Config.UseHP = me.playertype ? 90 : 75;
-	Config.UseRejuvHP = me.playertype ? 65 : 40;
-	Config.UseMP = me.playertype ? 75 : 45;
+	Config.UseHP = me.hardcore ? 90 : 75;
+	Config.UseRejuvHP = me.hardcore ? 65 : 40;
+	Config.UseMP = me.hardcore ? 75 : 45;
 	Config.UseMercHP = 75;
 
 	/* Belt configuration. */
@@ -128,25 +115,6 @@ function LoadConfig () {
 	Config.AutoMule.Force = [];
 	Config.AutoMule.Exclude = [
 		"[name] >= Elrune && [name] <= Lemrune",
-		"[name] == mephisto'ssoulstone",
-		"[name] == hellforgehammer",
-		"[name] == scrollofinifuss",
-		"[name] == keytothecairnstones",
-		"[name] == bookofskill",
-		"[name] == horadriccube",
-		"[name] == shaftofthehoradricstaff",
-		"[name] == topofthehoradricstaff",
-		"[name] == horadricstaff",
-		"[name] == ajadefigurine",
-		"[name] == thegoldenbird",
-		"[name] == potionoflife",
-		"[name] == lamesen'stome",
-		"[name] == khalim'seye",
-		"[name] == khalim'sheart",
-		"[name] == khalim'sbrain",
-		"[name] == khalim'sflail",
-		"[name] == khalim'swill",
-		"[name] == scrollofresistance",
 	];
 
 	/* AutoEquip configuration. */
@@ -205,7 +173,7 @@ function LoadConfig () {
 	Config.FCR = 0;
 	Config.FHR = 0;
 	Config.FBR = 0;
-	Config.ias = 0;
+	Config.IAS = 0;
 
 	/* Attack configuration. */
 	Config.AttackSkill = [-1, 0, 0, 0, 0];
@@ -252,15 +220,18 @@ function LoadConfig () {
 	Config.FindItem = false; 		// Use Find Item skill on corpses after clearing.
 	Config.FindItemSwitch = false; 	// Switch to non-primary slot when using Find Item skills
 
-	/* LOD gear */
-	if (!me.classic) {
+	/* Gear */
+	switch (me.gametype) {
+	case sdk.game.gametype.Classic:
+		break;
+	case sdk.game.gametype.Expansion:
 		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
 
 		if (["Immortalwhirl", "Singer"].indexOf(SetUp.finalBuild) === -1) {
 			// Grief
-			if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("sword", "runeword", "Grief")) {
+			if ((me.ladder || Developer.addLadderRW) && (!Check.haveItem("sword", "runeword", "Grief") || (SetUp.finalBuild === "Whirlwind" && Item.getEquippedItem(5).prefixnum !== sdk.locale.items.Grief))) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Grief.js")) {
 					include("SoloPlay/BuildFiles/Runewords/Grief.js");
 				}
@@ -286,7 +257,7 @@ function LoadConfig () {
 		case 'Uberconc':
 			if (Check.haveItem("sword", "runeword", "Grief") && SetUp.finalBuild === "Uberconc") {
 				// Add Stormshield
-				NTIP.addLine("[name] == monarch && [quality] == unique && [flag] != ethereal  # [damageresist] >= 35 # [tier] == 100000");
+				NTIP.addLine("[name] == monarch && [quality] == unique && [flag] != ethereal # [damageresist] >= 35 # [tier] == 100000");
 			}
 
 			// Chains of Honor
@@ -548,5 +519,7 @@ function LoadConfig () {
 		if (Check.haveItemAndNotSocketed("sword", "unique", "Djinn Slayer")) {
 			NTIP.addLine("[name] == AmnRune # # [maxquantity] == 2");
 		}
+
+		break;
 	}
 }

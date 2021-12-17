@@ -4,7 +4,7 @@
  *    @desc       	Uber concentration build
  */
 
-var finalBuild = {
+let finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.BarbCombat,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Concentrate],
@@ -14,13 +14,12 @@ var finalBuild = {
 	mercAuraWanted: sdk.skills.Might,
 	mercDiff: 1,
 	stats: [
-		["strength", 196],
-		["dexterity", "block"],
-		["vitality", "all"],
+		["strength", 196], ["dexterity", "block"], ["vitality", "all"],
 	],
 	skills: [
-		[sdk.skills.BattleCommand, 1, false],
-		[sdk.skills.NaturalResistance, 1, false],
+		[sdk.skills.BattleCommand, 1],
+		[sdk.skills.NaturalResistance, 1],
+		[sdk.skills.Berserk, 1],
 		[sdk.skills.BattleOrders, 20, false],
 		[sdk.skills.SwordMastery, 10, false],
 		[sdk.skills.Concentrate, 20, false],

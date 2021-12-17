@@ -17,21 +17,8 @@
 */
 
 function LoadConfig () {
-	if (!isIncluded("common/Storage.js")) {
-		include("common/Storage.js");
-	}
-
-	if (!isIncluded("common/Misc.js")) {
-		include("common/Misc.js");
-	}
-
-	if (!isIncluded("NTItemParser.dbl")) {
-		include("NTItemParser.dbl");
-	}
-
-	if (!isIncluded("SoloPlay/Functions/Globals.js")) {
-		include("SoloPlay/Functions/Globals.js");
-	}
+	if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
+	if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
 
 	SetUp.include();
 
@@ -53,8 +40,8 @@ function LoadConfig () {
 	Config.PrimarySlot = 0;
 	Config.PacketCasting = 1;
 	Config.WaypointMenu = true;
-	Config.Cubing = !me.classic ? me.getItem(sdk.items.quest.Cube) : false;
-	Config.MakeRunewords = !me.classic ? true : false;
+	Config.Cubing = !!me.getItem(sdk.items.quest.Cube);
+	Config.MakeRunewords = true;
 
 	/* General logging. */
 	Config.ItemInfo = false;
@@ -65,31 +52,31 @@ function LoadConfig () {
 	Config.ShowCubingInfo = true;
 
 	/* DClone. */
-	Config.StopOnDClone = true; // Go to town and idle as soon as Diablo walks the Earth
-	Config.SoJWaitTime = 5; 	// Time in minutes to wait for another SoJ sale before leaving game. 0 = disabled
-	Config.KillDclone = true;
-	Config.DCloneQuit = false; 	// 1 = quit when Diablo walks, 2 = quit on soj sales, false = disabled
+	Config.StopOnDClone = !!me.expansion;
+	Config.SoJWaitTime = 5; // Time in minutes to wait for another SoJ sale before leaving game. 0 = disabled
+	Config.KillDclone = !!me.expansion;
+	Config.DCloneQuit = false;
 
 	/* Town configuration. */
 	Config.HealHP = 99;
 	Config.HealMP = 99;
 	Config.HealStatus = true;
-	Config.UseMerc = true;
+	Config.UseMerc = me.expansion;
 	Config.MercWatch = true;
 	Config.StashGold = me.charlvl * 100;
 	Config.ClearInvOnStart = false;
 
 	/* Chicken configuration. */
-	Config.LifeChicken = me.playertype ? 45 : 10;
+	Config.LifeChicken = me.hardcore ? 45 : 10;
 	Config.ManaChicken = 0;
 	Config.MercChicken = 0;
-	Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
+	Config.TownHP = me.hardcore ? 0 : Config.TownCheck ? 35 : 0;
 	Config.TownMP = 0;
 
 	/* Potions configuration. */
-	Config.UseHP = me.playertype ? 90 : 75;
-	Config.UseRejuvHP = me.playertype ? 65 : 50;
-	Config.UseMP = me.playertype ? 75 : 65;
+	Config.UseHP = me.hardcore ? 90 : 75;
+	Config.UseRejuvHP = me.hardcore ? 65 : 50;
+	Config.UseMP = me.hardcore ? 75 : 65;
 	Config.UseMercHP = 75;
 
 	/* Belt configuration. */
@@ -141,6 +128,7 @@ function LoadConfig () {
 	let levelingTiers = [
 		// Weapon
 		"me.charlvl > 1 && ([type] == orb || [type] == wand || [type] == sword || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"me.classic && [type] == staff && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Helmet
 		"([type] == helm || [type] == circlet) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Belt
@@ -151,6 +139,7 @@ function LoadConfig () {
 		"[type] == armor && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Shield
 		"[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Gloves
 		"[type] == gloves && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Amulet
@@ -219,7 +208,7 @@ function LoadConfig () {
 	Config.SkipException = [];
 	Config.SkipAura = [];
 
-	if (Check.Resistance().LR < 75) {
+	if (me.lightRes < 75) {
 		Config.SkipEnchant = ["lightning enchanted"];
 	}
 
@@ -250,13 +239,27 @@ function LoadConfig () {
 	Config.DodgeRange = 15; // Distance to keep from monsters.
 	Config.DodgeHP = 90; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
 	Config.TeleStomp = false; // Use merc to attack bosses if they're immune to attacks, but not to physical damage
-	Config.CastStatic = me.normal ? 25 : me.nightmare ? 33 : 50;
+	Config.CastStatic = me.classic ? 15 : [25, 33, 50][me.diff];
 	Config.StaticList = me.normal ? ["Andariel", "Duriel", "Mephisto", "Izual", "Diablo", "Talic", "Madawc", "Korlic", "Baal"] : ["Duriel", "Mephisto", "Izual", "Diablo", "Baal"];
 
-	/* LOD gear */
-	if (!me.classic) {
-		let finalGear = Check.finalBuild().finalGear;
+
+	/* Gear */
+	let finalGear = Check.finalBuild().finalGear;
+	if (!!finalGear) {
 		NTIP.arrayLooping(finalGear);
+	}
+
+	switch (me.gametype) {
+	case sdk.game.gametype.Classic:
+		// Res shield
+		if (Item.getEquippedItem(5).tier < 487) {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js")) {
+				include("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
+			}
+		}
+
+		break;
+	case sdk.game.gametype.Expansion:
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
 		Config.StaticList.push(sdk.monsters.DiabloClone);
 
@@ -490,5 +493,7 @@ function LoadConfig () {
 				include("SoloPlay/BuildFiles/Runewords/Stealth.js");
 			}
 		}
+
+		break;	
 	}
 }

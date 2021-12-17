@@ -10,7 +10,7 @@
 // 	Vitality: 25,
 // 	Energy: 15,
 
-var build = {
+let build = {
 	caster: false,
 	skillstab: sdk.skills.tabs.PalaCombat,
 	wantedskills: [sdk.skills.Zeal, sdk.skills.HolyFire],

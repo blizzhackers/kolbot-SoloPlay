@@ -4,7 +4,7 @@
  *    @desc       	sorceress Blova build for before respecOne - respecs at level 26
  */
 
-var build = {
+let build = {
 	caster: true,
 	skillstab: 9, //lightning
 	wantedskills: [sdk.skills.ChargedBolt, sdk.skills.StaticField],
@@ -19,7 +19,8 @@ var build = {
 		["strength", 35], ["vitality", "all"]
 	],
 	skills: [
-		[sdk.skills.ChargedBolt, 4, false], // charlvl 3 (3 lvls + den)
+		[sdk.skills.ChargedBolt, 3, false], // charlvl 2 (2 lvls + den)
+		[sdk.skills.IceBolt, 1], 			// charlvl 4
 		[sdk.skills.FrozenArmor, 1], 		// charlvl 4
 		[sdk.skills.Telekinesis, 1], 		// charlvl 5
 		[sdk.skills.FrostNova, 1], 			// charlvl 6
@@ -27,7 +28,6 @@ var build = {
 		[sdk.skills.Nova, 7], 				// charlvl 17
 		[sdk.skills.Teleport, 1], 			// charlvl 18
 		[sdk.skills.StaticField, 6], 		// charlvl 20
-		[sdk.skills.IceBolt, 1], 			// charlvl 21
 		[sdk.skills.IceBlast, 1], 			// charlvl 22
 		[sdk.skills.GlacialSpike, 1], 		// charlvl 
 		[sdk.skills.IceBlast, 3], 			// charlvl 23

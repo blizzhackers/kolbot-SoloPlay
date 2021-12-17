@@ -5,6 +5,8 @@
 *	@credits	kolton
 */
 
+if (!isIncluded("common/Cubing.js")) { include("common/Cubing.js"); }
+
 var Recipe = {
 	Gem: 0,
 	HitPower: {

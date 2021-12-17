@@ -1,10 +1,10 @@
 /*
  *    @filename   amazon.JavazonBuild.js
  *	  @author	  theBGuy
- *    @desc       Javazon build
+ *    @desc       Javazon final build (pure lightning for expansion) (light/poision for classic)
  */
 
-var finalBuild = {
+let finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.JavelinSpear,
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
@@ -13,39 +13,58 @@ var finalBuild = {
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
-	stats: [
+	classicStats: [
+		 ["dexterity", 65], ["strength", 75], ["vitality", "all"]
+	],
+	expansionStats: [
 		["strength", 34], ["vitality", 30], ["dexterity", 47],
 		["vitality", 45], ["strength", 47], ["dexterity", 65],
 		["vitality", 65], ["strength", 53], ["dexterity", 118],
-		["vitality", 100],
+		["vitality", 100], ["strength", 118], ["dexterity", 151],
 		["strength", 156], ["vitality", "all"],
 	],
-	skills: [
-		[sdk.skills.Jab, 1, false], 			// charlvl 2
-		[sdk.skills.InnerSight, 1, false], 		// charlvl 3
-		[sdk.skills.CriticalStrike, 2, false], 	// charlvl 5
-		[sdk.skills.PowerStrike, 1, false], 	// charlvl 6
-		[sdk.skills.Dodge, 1, false], 			// charlvl 7
-		[sdk.skills.PowerStrike, 4, false], 	// charlvl 11
-		[sdk.skills.SlowMissiles, 1, false], 	// charlvl 12
-		[sdk.skills.Avoid, 1, false], 			// charlvl 13
-		[sdk.skills.PowerStrike, 8, false], 	// charlvl 17
-		[sdk.skills.ChargedStrike, 1, false], 	// charlvl 18
-		[sdk.skills.Penetrate, 1, false], 		// charlvl 18
-		[sdk.skills.ChargedStrike, 5, false], 	// charlvl 23
-		[sdk.skills.Evade, 1, false], 			// charLvl 24
-		[sdk.skills.Decoy, 1, false], 			// charlvl 25
-		[sdk.skills.ChargedStrike, 9, false], 	// charlvl 29
-		[sdk.skills.Valkyrie, 1, false], 		// charlvl 30
-		[sdk.skills.LightningStrike, 1, false], // charlvl 31
-		[sdk.skills.ChargedStrike, 20, true], 	// charlvl 42
-		[sdk.skills.LightningStrike, 20, true], // charlvl 63
-		[sdk.skills.LightningFury, 20, true], 	// charlvl ?
-		[sdk.skills.Decoy, 5, false], 			// charlvl 47
-		[sdk.skills.Valkyrie, 17, true], 		// charlvl ? 
-		[sdk.skills.PowerStrike, 20, false], 	// charlvl ?
+	classicSkills: [
+		// Points at respec 71 (goes right to this build from stepping)
+		[sdk.skills.Valkyrie, 1], 			// points left 64
+		[sdk.skills.LightningFury, 1], 		// points left 57
+		[sdk.skills.LightningStrike, 1], 	// points left 56
+		[sdk.skills.Pierce, 1], 			// points left 53
+		[sdk.skills.PlagueJavelin, 20], 	// points left 34
+		[sdk.skills.ChargedStrike, 10], 	// points left 25
+		[sdk.skills.LightningStrike, 10], 	// points left 16
+		[sdk.skills.Decoy, 5], 				// points left 12
+		[sdk.skills.LightningStrike, 17], 	// points left 5
+		[sdk.skills.ChargedStrike, 15], 	// points left 0
+		[sdk.skills.LightningStrike, 20, false],
+		[sdk.skills.ChargedStrike, 20, false],
+		[sdk.skills.PoisonJavelin, 20, false], 	// synergy for PlagueJavelin
+		[sdk.skills.Valkyrie, 12, false],
+		[sdk.skills.LightningFury, 20, false],
 	],
-	autoEquipTiers: [ // autoequip final gear
+	expansionSkills: [
+		[sdk.skills.Valkyrie, 1],
+		[sdk.skills.Pierce, 1],
+		[sdk.skills.LightningStrike, 20],
+		[sdk.skills.ChargedStrike, 20],
+		[sdk.skills.LightningFury, 20],
+		[sdk.skills.Decoy, 5, false],
+		[sdk.skills.Valkyrie, 17, false],
+		[sdk.skills.PowerStrike, 20, false],
+		[sdk.skills.Pierce, 5, false],
+	],
+	classicTiers: [
+		// Helm
+		"[name] == skullcap && [quality] == unique # [itemallskills] == 1 && [itemmagicbonus] >= 25 # [tier] == 100000 + tierscore(item)", // Tarnhelm
+		// Armor
+		"[name] == studdedleather && [quality] == unique # [ias] == 20 && [fhr] == 20 # [tier] == 100000", // Twitchthroe
+		// Belt
+		"[name] == sash && [quality] == set # [itemcannotbefrozen] == 1 # [tier] == 100000", // Death's Guard Sash
+		// Gloves
+		"[name] == leathergloves && [quality] == set # [poisonresist] >= 50 # [tier] == 100000", // Death's Hand Leather Gloves
+		// Rings
+		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", //soj
+	],
+	expansionTiers: [
 		// Weapon
 		"[name] == ceremonialjavelin && [quality] == unique # [itemchargedskill] >= 0 # [tier] == 100000 + tierscore(item)", //Titan's Revenge
 		// Helmet
@@ -76,5 +95,13 @@ var finalBuild = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+	stats: undefined,
+	skills: undefined,
+	autoEquipTiers: undefined,
 };
+
+// Has to be set after its loaded
+finalBuild.stats = me.classic ? finalBuild.classicStats : finalBuild.expansionStats;
+finalBuild.skills = me.classic ? finalBuild.classicSkills : finalBuild.expansionSkills;
+finalBuild.autoEquipTiers = me.classic ? finalBuild.classicTiers : finalBuild.expansionTiers;

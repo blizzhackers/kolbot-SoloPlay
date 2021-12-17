@@ -15,21 +15,8 @@
 */
 
 function LoadConfig () {
-	if (!isIncluded("common/Storage.js")) {
-		include("common/Storage.js");
-	}
-
-	if (!isIncluded("common/Misc.js")) {
-		include("common/Misc.js");
-	}
-
-	if (!isIncluded("NTItemParser.dbl")) {
-		include("NTItemParser.dbl");
-	}
-
-	if (!isIncluded("SoloPlay/Functions/Globals.js")) {
-		include("SoloPlay/Functions/Globals.js");
-	}
+	if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
+	if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
 
 	SetUp.include();
 
@@ -51,8 +38,8 @@ function LoadConfig () {
 	Config.PrimarySlot = 0;
 	Config.PacketCasting = 1;
 	Config.WaypointMenu = true;
-	Config.Cubing = !me.classic ? me.getItem(sdk.items.quest.Cube) : false;
-	Config.MakeRunewords = !me.classic ? true : false;
+	Config.Cubing = !!me.getItem(sdk.items.quest.Cube);
+	Config.MakeRunewords = true;
 
 	/* General logging. */
 	Config.ItemInfo = false;
@@ -63,31 +50,31 @@ function LoadConfig () {
 	Config.ShowCubingInfo = true;
 
 	/* DClone. */
-	Config.StopOnDClone = true; // Go to town and idle as soon as Diablo walks the Earth
-	Config.SoJWaitTime = 5; 	// Time in minutes to wait for another SoJ sale before leaving game. 0 = disabled
-	Config.KillDclone = true;
-	Config.DCloneQuit = false; 	// 1 = quit when Diablo walks, 2 = quit on soj sales, false = disabled
+	Config.StopOnDClone = !!me.expansion;
+	Config.SoJWaitTime = 5; // Time in minutes to wait for another SoJ sale before leaving game. 0 = disabled
+	Config.KillDclone = !!me.expansion;
+	Config.DCloneQuit = false;
 
 	/* Town configuration. */
 	Config.HealHP = 99;
 	Config.HealMP = 99;
 	Config.HealStatus = true;
-	Config.UseMerc = true;
+	Config.UseMerc = me.expansion;
 	Config.MercWatch = true;
 	Config.StashGold = me.charlvl * 100;
 	Config.ClearInvOnStart = false;
 
 	/* Chicken configuration. */
-	Config.LifeChicken = me.playertype ? 45 : 10;
+	Config.LifeChicken = me.hardcore ? 45 : 10;
 	Config.ManaChicken = 0;
 	Config.MercChicken = 0;
-	Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
+	Config.TownHP = me.hardcore ? 0 : Config.TownCheck ? 35 : 0;
 	Config.TownMP = 0;
 
 	/* Potions configuration. */
-	Config.UseHP = me.playertype ? 90 : 75;
-	Config.UseRejuvHP = me.playertype ? 65 : 40;
-	Config.UseMP = me.playertype ? 75 : 55;
+	Config.UseHP = me.hardcore ? 90 : 75;
+	Config.UseRejuvHP = me.hardcore ? 65 : 40;
+	Config.UseMP = me.hardcore ? 75 : 55;
 	Config.UseMercHP = 75;
 
 	/* Belt configuration. */
@@ -128,25 +115,6 @@ function LoadConfig () {
 	Config.AutoMule.Force = [];
 	Config.AutoMule.Exclude = [
 		"[name] >= Elrune && [name] <= Lemrune",
-		"[name] == mephisto'ssoulstone",
-		"[name] == hellforgehammer",
-		"[name] == scrollofinifuss",
-		"[name] == keytothecairnstones",
-		"[name] == bookofskill",
-		"[name] == horadriccube",
-		"[name] == shaftofthehoradricstaff",
-		"[name] == topofthehoradricstaff",
-		"[name] == horadricstaff",
-		"[name] == ajadefigurine",
-		"[name] == thegoldenbird",
-		"[name] == potionoflife",
-		"[name] == lamesen'stome",
-		"[name] == khalim'seye",
-		"[name] == khalim'sheart",
-		"[name] == khalim'sbrain",
-		"[name] == khalim'sflail",
-		"[name] == khalim'swill",
-		"[name] == scrollofresistance",
 	];
 
 	/* AutoEquip configuration. */
@@ -200,6 +168,7 @@ function LoadConfig () {
 
 	if (SetUp.currentBuild !== "Witchyzon") {
 		NTIP.addLine("[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
+		NTIP.addLine("me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
 	}
 
 	if (Item.getEquippedItem(4).tier < 100000) {
@@ -207,28 +176,6 @@ function LoadConfig () {
 		Config.GambleItems.push("Pilum");
 		Config.GambleItems.push("Short Spear");
 		Config.GambleItems.push("Throwing Spear");
-	}
-
-	if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
-		NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");
-
-		if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond) < 2)) {
-			Config.Recipes.push([Recipe.Gem, "flawlessdiamond"]);
-		}
-
-		if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Um) < 2)) {
-			Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
-		}
-
-		NTIP.addLine("[name] == UmRune # # [maxquantity] == 2");
-	}
-
-	if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
-		if (!me.getItem(sdk.items.runes.Um)) {
-			Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
-		}
-
-		NTIP.addLine("[name] == UmRune # # [maxquantity] == 1");
 	}
 
 	/* FastMod configuration. */
@@ -279,11 +226,43 @@ function LoadConfig () {
 	Config.SummonValkyrie = true; 	// Summon Valkyrie
 
 	/* LOD gear */
-	if (!me.classic) {
+	switch (me.gametype) {
+	case sdk.game.gametype.Classic:
+		// Res shield
+		if (Item.getEquippedItem(5).tier < 487) {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js")) {
+				include("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
+			}
+		}
+		
+		break;
+	case sdk.game.gametype.Expansion:
 		let WWS;
 		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= Vexrune && [name] <= Zodrune");
+
+		if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
+			NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");
+
+			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond) < 2)) {
+				Config.Recipes.push([Recipe.Gem, "flawlessdiamond"]);
+			}
+
+			if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Um) < 2)) {
+				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+			}
+
+			NTIP.addLine("[name] == UmRune # # [maxquantity] == 2");
+		}
+
+		if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
+			if (!me.getItem(sdk.items.runes.Um)) {
+				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+			}
+
+			NTIP.addLine("[name] == UmRune # # [maxquantity] == 1");
+		}
 
 		// FinalBuild specific setup
 		switch (SetUp.finalBuild) {
@@ -318,7 +297,7 @@ function LoadConfig () {
 			if (me.getSkill(sdk.skills.ChargedStrike, 0)) {
 				Config.CustomAttack = {
 					// "Monster name": [-1, -1],
-					"Fire Tower": [24, -1],
+					"Fire Tower": [sdk.skills.ChargedStrike, -1],
 				};
 			}
 
@@ -432,5 +411,7 @@ function LoadConfig () {
 				include("SoloPlay/BuildFiles/Runewords/Stealth.js");
 			}
 		}
+
+		break;	
 	}
 }

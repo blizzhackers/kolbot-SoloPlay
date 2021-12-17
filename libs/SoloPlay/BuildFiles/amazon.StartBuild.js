@@ -4,7 +4,7 @@
  *    @desc       amazon build for before respecOne
  */
 
-var build = {
+let build = {
 	caster: false,
 	skillstab: sdk.skills.tabs.JavelinSpear,
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],

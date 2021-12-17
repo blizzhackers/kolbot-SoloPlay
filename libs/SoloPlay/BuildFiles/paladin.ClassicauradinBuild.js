@@ -20,7 +20,6 @@ let finalBuild = {
 		["strength", 103], ["dexterity", 136], ["vitality", 300],
 		["dexterity", "block"], ["vitality", "all"]
 	],
-	stats: undefined,
 	skills: [
 		[sdk.skills.Zeal, 4],
 		[sdk.skills.Redemption, 1],
@@ -32,12 +31,19 @@ let finalBuild = {
 		[sdk.skills.Zeal, 20, false],
 	],
 	classicTiers: [
+		// Weapon
 		"[name] == warscepter && [quality] >= magic # [paladinskills] == 2 && [ias] == 40 && [skillholyshock] >= 1 # [tier] == 100000 + tierscore(item)",
+		// Helm
 		"[name] == skullcap && [quality] == unique # [itemallskills] == 1 && [itemmagicbonus] >= 25 # [tier] == 100000 + tierscore(item)", // Tarnhelm
+		// Shield
 		"[type] == shield && [quality] >= magic # [paladinskills] == 2 && [allres] >= 16 # [tier] == 100000 + tierscore(item)",
+		// Rings
 		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", //soj
+		// Amulet
 		"[type] == amulet && [quality] >= magic # [paladinskills] == 2 && [allres] >= 16 # [tier] == 100000 + tierscore(item)",
+		// Boots
 		"[name] == chainboots && [quality] == set # [frw] == 20 # [tier] == 100000", // Hsaru's Iron Heel
+		// Belt
 		"[name] == belt && [quality] == set # [coldresist] == 20 && [maxhp] == 20 # [tier] == 100000", // Hsaru's Iron Stay
 	],
 	expansionTiers: [
@@ -73,6 +79,7 @@ let finalBuild = {
 		"[type] == armor && [flag] == runeword # [ias] == 45 && [coldresist] == 30 # [merctier] == 50000 + mercscore(item)", //Treachery
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)", //Eth Andy's
 	],
+	stats: undefined,
 	autoEquipTiers: undefined,
 };
 

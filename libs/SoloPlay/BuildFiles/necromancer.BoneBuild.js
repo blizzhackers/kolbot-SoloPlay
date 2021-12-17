@@ -1,10 +1,10 @@
 /**
  *    @filename   necromancer.BoneBuild.js
- *	  @author	  isid0re
- *    @desc       bone necro build for after respecOne
+ *	  @author	  theBGuy, isid0re
+ *    @desc       bone necro final build
  */
 
-var finalBuild = {
+let finalBuild = {
 	caster: true,
 	skillstab: sdk.skills.tabs.PoisonBone,
 	wantedskills: [sdk.skills.BoneSpirit, sdk.skills.BoneSpear, sdk.skills.Teeth],
@@ -13,28 +13,44 @@ var finalBuild = {
 	mercAuraName: "Might",
 	mercAuraWanted: sdk.skills.Might,
 	mercDiff: 1,
-	stats: [
+	classicStats: [
+		["dexterity", 51], ["strength", 80], ["energy", 100], ["vitality", "all"]
+	],
+	expansionStats: [
 		["strength", 48], ["dexterity", 35], ["vitality", 165],
 		["strength", 61], ["vitality", 252], ["strength", 156], ["vitality", "all"]
 	],
 	skills: [
-		[sdk.skills.AmplifyDamage, 1],
-		[sdk.skills.Teeth, 1],
-		[sdk.skills.ClayGolem, 1],
-		[sdk.skills.GolemMastery, 1],
+		[sdk.skills.BoneSpirit, 1],
+		[sdk.skills.BonePrison, 1],
 		[sdk.skills.SummonResist, 1],
-		[sdk.skills.CorpseExplosion, 1],
-		[sdk.skills.BoneArmor, 1],
-		[sdk.skills.Weaken, 1],
-		[sdk.skills.Terror, 1],
 		[sdk.skills.Decrepify, 1],
+		[sdk.skills.Attract, 1],
 		[sdk.skills.BoneSpear, 20, false],
-		[sdk.skills.BoneWall, 20, false],
 		[sdk.skills.BonePrison, 20, false],
+		[sdk.skills.BoneWall, 20, false],
 		[sdk.skills.BoneSpirit, 20, false],
 		[sdk.skills.Teeth, 20, false],
 	],
-	autoEquipTiers: [ // autoequip final gear
+	classicTiers: [
+		// Weapon
+		"[name] == blade && [quality] == unique # [fcr] == 20 && [allres] == 10 # [tier] == 100000", // Spectral Shard
+		// Helm
+		"[name] == skullcap && [quality] == unique # [itemallskills] == 1 && [itemmagicbonus] >= 25 # [tier] == 100000 + tierscore(item)", // Tarnhelm
+		// Shield
+		"[type] == shield && [quality] >= magic # [necromancerskills] == 2 && [allres] >= 16 # [tier] == 100000 + tierscore(item)",
+		// Rings
+		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", //soj
+		// Amulet
+		"[type] == amulet && [quality] >= magic # [necromancerskills] == 2 && [fcr] == 10 # [tier] == 100000 + tierscore(item)",
+		// Boots
+		"[type] == boots && [quality] >= magic # [frw] >= 20 && [fhr] == 10 && [coldresist]+[lightresist] >= 10 # [tier] == 100000 + tierscore(item)",
+		// Belt
+		"[type] == belt && [quality] >= magic # [fhr] >= 20 && [maxhp] >= 40 && [fireresist]+[lightresist] >= 20 # [tier] == 100000 + tierscore(item)",
+		// Gloves
+		"[name] == lightgauntlets && [quality] == unique # [fcr] >= 20 && (126, 1) == 1 # [tier] == 100000 + tierscore(item)", // Magefist
+	],
+	expansionTiers: [
 		// Weapon
 		"([type] == wand || [type] == sword && ([quality] >= magic || [flag] == runeword) || [type] == knife && [quality] >= magic) && [flag] != ethereal # [secondarymindamage] == 0 && [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Helmet
@@ -69,5 +85,11 @@ var finalBuild = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+	stats: undefined,
+	autoEquipTiers: undefined,
 };
+
+// Has to be set after its loaded
+finalBuild.stats = me.classic ? finalBuild.classicStats : finalBuild.expansionStats;
+finalBuild.autoEquipTiers = me.classic ? finalBuild.classicTiers : finalBuild.expansionTiers;

@@ -4,7 +4,7 @@
  *    @desc       amazon build for after respecOne and before respecOneB
  */
 
-var build = {
+let build = {
 	caster: false,
 	skillstab: sdk.skills.tabs.JavelinSpear,
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
@@ -12,7 +12,11 @@ var build = {
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
-	stats: [
+	stats: undefined,
+	classicStats: [
+		 ["dexterity", 65], ["strength", 75], ["vitality", "all"]
+	],
+	expansionStats: [
 		["strength", 34], ["vitality", 30], ["dexterity", 47],
 		["vitality", 45], ["strength", 47], ["dexterity", 65],
 		["vitality", 65], ["strength", 53], ["dexterity", 118],
@@ -32,3 +36,6 @@ var build = {
 		[sdk.skills.LightningFury, 20, false], 	// respec at 64
 	]
 };
+
+// Has to be set after its loaded
+build.stats = me.classic ? build.classicStats : build.expansionStats;

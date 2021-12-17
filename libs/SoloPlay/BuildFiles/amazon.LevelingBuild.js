@@ -1,10 +1,10 @@
 /*
  *    @filename   amazon.LevelingBuild.js
  *	  @author	  theBGuy
- *    @desc       amazon build for after respecOne
+ *    @desc       amazon build for after respecOne (lightning/poison javelin build)
  */
 
-var build = {
+let build = {
 	caster: false,
 	skillstab: sdk.skills.tabs.JavelinSpear,
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
@@ -12,14 +12,35 @@ var build = {
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
-	stats: [
+	classicStats: [
+		 ["dexterity", 65], ["strength", 75], ["vitality", "all"]
+	],
+	expansionStats: [
 		["strength", 34], ["vitality", 30], ["dexterity", 47],
 		["vitality", 45], ["strength", 47], ["dexterity", 65],
 		["vitality", 65], ["strength", 53], ["dexterity", 118],
 		["vitality", 100], ["strength", 118], ["dexterity", 151],
 		["strength", 156], ["vitality", "all"],
 	],
-	skills: [
+	classicSkills: [
+		// Points at respec 71
+		[sdk.skills.Valkyrie, 1], 			// points left 64
+		[sdk.skills.LightningFury, 1], 		// points left 57
+		[sdk.skills.LightningStrike, 1], 	// points left 56
+		[sdk.skills.Pierce, 1], 			// points left 53
+		[sdk.skills.PlagueJavelin, 20], 	// points left 34
+		[sdk.skills.ChargedStrike, 10], 	// points left 25
+		[sdk.skills.LightningStrike, 10], 	// points left 16
+		[sdk.skills.Decoy, 5], 				// points left 12
+		[sdk.skills.LightningStrike, 17], 	// points left 5
+		[sdk.skills.ChargedStrike, 15], 	// points left 0
+		[sdk.skills.LightningStrike, 20, false],
+		[sdk.skills.ChargedStrike, 20, false],
+		[sdk.skills.PoisonJavelin, 20, false], 	// synergy for PlagueJavelin
+		[sdk.skills.Valkyrie, 12, false],
+		[sdk.skills.LightningFury, 20, false],
+	],
+	expansionSkills: [
 		// Points at respec 71
 		[sdk.skills.Valkyrie, 1], 			// points left 64
 		[sdk.skills.LightningFury, 1], 		// points left 57
@@ -37,5 +58,11 @@ var build = {
 		[sdk.skills.LightningFury, 20, false],
 		[sdk.skills.Valkyrie, 17, false],
 		[sdk.skills.PowerStrike, 20, false],
-	]
+	],
+	stats: undefined,
+	skills: undefined,
 };
+
+// Has to be set after its loaded
+build.stats = me.classic ? build.classicStats : build.expansionStats;
+build.skills = me.classic ? build.classicSkills : build.classicSkills;

@@ -1,10 +1,12 @@
 /**
  *    @filename   necromancer.LevelingBuild.js
- *	  @author	  isid0re, theBGuy
+ *	  @author	  theBGuy, isid0re
  *    @desc       explosionmancer necro build for after respecOne
  */
 
-var build = {
+ // TODO: test summonnovamancer for classic (wouldn't be able to farcast diablo though :( )
+
+let build = {
 	caster: true,
 	skillstab: sdk.skills.tabs.PoisonBone,
 	wantedskills: [sdk.skills.CorpseExplosion, sdk.skills.BoneSpear],
@@ -12,31 +14,30 @@ var build = {
 	mercAuraName: "Might",
 	mercAuraWanted: sdk.skills.Might,
 	mercDiff: 1,
-	stats: [
+	classicStats: [
+		["dexterity", 51], ["strength", 80], ["energy", 100], ["vitality", "all"]
+	],
+	expansionStats: [
 		["strength", 48], ["vitality", 165], ["strength", 61],
 		["vitality", 252], ["strength", 156], ["vitality", "all"]
 	],
 	skills: [
-		[sdk.skills.AmplifyDamage, 1],
-		[sdk.skills.Teeth, 1],
-		[sdk.skills.BoneArmor, 1],
-		[sdk.skills.Weaken, 1],
-		[sdk.skills.CorpseExplosion, 1],
-		[sdk.skills.ClayGolem, 1],
-		[sdk.skills.Terror, 1],
-		[sdk.skills.GolemMastery, 1],
-		[sdk.skills.BoneWall, 1],
-		[sdk.skills.BoneSpear, 1],
-		[sdk.skills.Decrepify, 1],
-		[sdk.skills.SummonResist, 1],
-		[sdk.skills.BonePrison, 1],
-		[sdk.skills.DimVision, 1],
+		// Total skills at respec = 29
+		[sdk.skills.Decrepify, 1],		// points left 25
+		[sdk.skills.SummonResist, 1],	// points left 22
+		[sdk.skills.BonePrison, 1],		// points left 16
+		[sdk.skills.Attract, 1],		// points left 13
+		[sdk.skills.BoneSpear, 9],		// points left 5
+		[sdk.skills.BonePrison, 3], 	// points left 3
 		[sdk.skills.BoneSpear, 20, false],
 		[sdk.skills.BoneSpirit, 1, false],
-		[sdk.skills.Attract, 1],
 		[sdk.skills.BonePrison, 20, false],
 		[sdk.skills.CorpseExplosion, 20, false],
 		[sdk.skills.BoneWall, 20, false],
 		[sdk.skills.Teeth, 20, false],
-	]
+	],
+	stats: undefined,
 };
+
+// Has to be set after its loaded
+build.stats = me.classic ? build.classicStats : build.expansionStats;

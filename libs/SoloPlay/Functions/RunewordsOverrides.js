@@ -1,9 +1,11 @@
 /*
 *	@filename	RunewordsOverrides.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
 *	@desc		Runewords.js patch for offline ladder runewords, and Runeword.js improvements for leveling
 *	@credits	kolton, theBGuy (this was my idea)
 */
+
+if (!isIncluded("common/Runewords.js")) { include("common/Runewords.js"); }
 
 var Runeword = {
 	// 1.09
@@ -91,6 +93,9 @@ var Runeword = {
 	Principle: [617, 634, 611], // Ral + Gul + Eld
 	Rain: [618, 632, 615], // Ort + Mal + Ith
 	Treachery: [622, 619, 629], // Shael + Thul + Lem
+
+	// Classic
+	PDiamondShield: [sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Diamond],
 
 	Test: [624, 624, 624],
 };

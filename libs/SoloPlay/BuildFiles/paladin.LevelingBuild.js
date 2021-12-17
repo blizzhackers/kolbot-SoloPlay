@@ -1,11 +1,11 @@
 /**
  *    @filename		paladin.levelingBuild.js
- *	  @author	  	isid0re
- *    @desc			paladin build for hammerdin.
+ *	  @author	  	isid0re, theBGuy
+ *    @desc			hammerdin build for paladin.
  * 					skills based on https://www.diabloii.net/forums/threads/max-damage-hammerdin-guide-by-captain_bogus-repost.127596/
  */
 
-var build = {
+let build = {
 	caster: true,
 	skillstab: sdk.skills.tabs.PalaCombat,
 	wantedskills: [sdk.skills.BlessedHammer, sdk.skills.Concentration],
@@ -13,7 +13,10 @@ var build = {
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
-	stats: [
+	classicStats: [
+		["dexterity", 51], ["strength", 80], ["vitality", "all"]
+	],
+	expansionStats: [
 		["vitality", 60], ["dexterity", 30], ["strength", 27],
 		["vitality", 91], ["dexterity", 44], ["strength", 30],
 		["vitality", 96], ["dexterity", 59], ["strength", 60],
@@ -86,5 +89,9 @@ var build = {
 		[sdk.skills.Vigor, 20],
 		[sdk.skills.BlessedAim, 20],
 		[sdk.skills.HolyShield, 20]
-	]
+	],
+	stats: undefined,
 };
+
+// Has to be set after its loaded
+build.stats = me.classic ? build.classicStats : build.expansionStats;

@@ -5,7 +5,7 @@
  * 					skills based on https://www.diabloii.net/forums/threads/max-damage-hammerdin-guide-by-captain_bogus-repost.127596/
  */
 
-var finalBuild = {
+let finalBuild = {
 	caster: true,
 	skillstab: sdk.skills.tabs.PalaCombat,
 	wantedskills: [sdk.skills.BlessedHammer, sdk.skills.Concentration],
@@ -14,7 +14,10 @@ var finalBuild = {
 	mercAuraName: "Holy Freeze",
 	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
-	stats: [
+	classicStats: [
+		["dexterity", 51], ["strength", 80], ["vitality", "all"]
+	],
+	expansionStats: [
 		["vitality", 60], ["dexterity", 30], ["strength", 27],
 		["vitality", 91], ["dexterity", 44], ["strength", 30],
 		["vitality", 96], ["dexterity", 59], ["strength", 60],
@@ -36,7 +39,15 @@ var finalBuild = {
 		[sdk.skills.BlessedAim, 20],
 		[sdk.skills.HolyShield, 20]
 	],
-	autoEquipTiers: [ // autoequip final gear
+	classicTiers: [
+		// Weapon
+		"[name] == blade && [quality] == unique # [fcr] == 20 && [allres] == 10 # [tier] == 100000", // Spectral Shard
+		// Rings
+		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", //soj
+		// Gloves
+		"[name] == lightgauntlets && [quality] == unique # [fcr] >= 20 && (126, 1) == 1 # [tier] == 100000 + tierscore(item)", // Magefist
+	],
+	expansionTiers: [
 		// Weapon
 		"[type] == mace && [flag] == runeword # [fcr] == 40 # [tier] == 100000", // HotO
 		// Helm
@@ -71,5 +82,11 @@ var finalBuild = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+	stats: undefined,
+	autoEquipTiers: undefined,
 };
+
+// Has to be set after its loaded
+finalBuild.stats = me.classic ? finalBuild.classicStats : finalBuild.expansionStats;
+finalBuild.autoEquipTiers = me.classic ? finalBuild.classicTiers : finalBuild.expansionTiers;

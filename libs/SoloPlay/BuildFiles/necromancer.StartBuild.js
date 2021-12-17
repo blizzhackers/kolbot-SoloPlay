@@ -1,10 +1,10 @@
 /**
  *    @filename   necromancer.StartBuild.js
  *	  @author	  theBGuy, isid0re
- *    @desc       necro build for before respecOne
+ *    @desc       necro build for before respecOne (Bonemancer)
  */
 
-var build = {
+let build = {
 	caster: true,
 	skillstab: sdk.skills.tabs.PoisonBone,
 	wantedskills: [sdk.skills.Teeth, sdk.skills.BoneSpear],

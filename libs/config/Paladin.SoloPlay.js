@@ -16,21 +16,8 @@
 */
 
 function LoadConfig () {
-	if (!isIncluded("common/Storage.js")) {
-		include("common/Storage.js");
-	}
-
-	if (!isIncluded("common/Misc.js")) {
-		include("common/Misc.js");
-	}
-
-	if (!isIncluded("NTItemParser.dbl")) {
-		include("NTItemParser.dbl");
-	}
-
-	if (!isIncluded("SoloPlay/Functions/Globals.js")) {
-		include("SoloPlay/Functions/Globals.js");
-	}
+	if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
+	if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
 
 	SetUp.include();
 
@@ -52,7 +39,7 @@ function LoadConfig () {
 	Config.PrimarySlot = 0;
 	Config.PacketCasting = 1;
 	Config.WaypointMenu = true;
-	Config.Cubing = !me.classic ? me.getItem(sdk.items.quest.Cube) : false;
+	Config.Cubing = !!me.getItem(sdk.items.quest.Cube);
 	Config.MakeRunewords = !me.classic ? true : false;
 
 	/* General logging. */
@@ -64,31 +51,31 @@ function LoadConfig () {
 	Config.ShowCubingInfo = true;
 
 	/* DClone. */
-	Config.StopOnDClone = !!me.expansion; // Go to town and idle as soon as Diablo walks the Earth
-	Config.SoJWaitTime = 5; 	// Time in minutes to wait for another SoJ sale before leaving game. 0 = disabled
+	Config.StopOnDClone = !!me.expansion;
+	Config.SoJWaitTime = 5; // Time in minutes to wait for another SoJ sale before leaving game. 0 = disabled
 	Config.KillDclone = !!me.expansion;
-	Config.DCloneQuit = false; 	// 1 = quit when Diablo walks, 2 = quit on soj sales, false = disabled
+	Config.DCloneQuit = false;
 
 	/* Town configuration. */
 	Config.HealHP = 99;
 	Config.HealMP = 99;
 	Config.HealStatus = true;
-	Config.UseMerc = true;
+	Config.UseMerc = me.expansion;
 	Config.MercWatch = true;
 	Config.StashGold = me.charlvl * 100;
 	Config.ClearInvOnStart = false;
 
 	/* Chicken configuration. */
-	Config.LifeChicken = me.playertype ? 45 : 10;
+	Config.LifeChicken = me.hardcore ? 45 : 10;
 	Config.ManaChicken = 0;
 	Config.MercChicken = 0;
-	Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
+	Config.TownHP = me.hardcore ? 0 : Config.TownCheck ? 35 : 0;
 	Config.TownMP = 0;
 
 	/* Potions configuration. */
-	Config.UseHP = me.playertype ? 90 : 75;
-	Config.UseRejuvHP = me.playertype ? 65 : 40;
-	Config.UseMP = me.playertype ? 75 : 55;
+	Config.UseHP = me.hardcore ? 90 : 75;
+	Config.UseRejuvHP = me.hardcore ? 65 : 40;
+	Config.UseMP = me.hardcore ? 75 : 55;
 	Config.UseMercHP = 75;
 
 	/* Belt configuration. */
@@ -120,7 +107,7 @@ function LoadConfig () {
 	Config.GambleGoldStart = 2000000;
 	Config.GambleGoldStop = 750000;
 	Config.GambleItems.push("Amulet");
-	//Config.GambleItems.push("Ring");
+	Config.GambleItems.push("Ring");
 	Config.GambleItems.push("Circlet");
 	Config.GambleItems.push("Coronet");
 
@@ -146,8 +133,9 @@ function LoadConfig () {
 		"[type] == boots && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Armor
 		"[type] == armor && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Ahield
+		// Shield
 		"([type] == shield || [type] == auricshields) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Gloves
 		"[type] == gloves && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Amulet
@@ -248,8 +236,18 @@ function LoadConfig () {
 		NTIP.arrayLooping(finalGear);
 	}
 
-	/* LOD gear */
-	if (!me.classic) {
+	/* Gear */
+	switch (me.gametype) {
+	case sdk.game.gametype.Classic:
+		// Res shield
+		if (Item.getEquippedItem(5).tier < 487) {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js")) {
+				include("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
+			}
+		}
+
+		break;
+	case sdk.game.gametype.Expansion:
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
 
 		/* Crafting */
@@ -645,5 +643,7 @@ function LoadConfig () {
 				include("SoloPlay/BuildFiles/Runewords/Stealth.js");
 			}
 		}
+
+		break;	
 	}
 }
