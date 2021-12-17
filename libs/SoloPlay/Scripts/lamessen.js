@@ -19,6 +19,7 @@ function lamessen () {
 
 	if (!Pather.moveToExit(sdk.areas.RuinedTemple, true) || !Pather.moveToPreset(me.area, 2, 193)) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to move to LamEssen Tome');
+		return true;
 	}
 
 	Quest.collectItem(sdk.items.quest.LamEsensTome, 193);
