@@ -153,7 +153,7 @@ function main () {
 	this.togglePause = function () {
 		let script, scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "tools/antihostile.js", "tools/party.js", "tools/rushthread.js"];
 
-		for (l = 0; l < scripts.length; l += 1) {
+		for (let l = 0; l < scripts.length; l += 1) {
 			script = getScript(scripts[l]);
 
 			if (script) {

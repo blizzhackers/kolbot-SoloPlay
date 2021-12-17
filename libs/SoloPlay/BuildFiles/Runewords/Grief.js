@@ -24,7 +24,7 @@ if (!me.getItem(sdk.items.runes.Lo)) {
 	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
 
-	if (Check.haveItem("sword", "runeword", "Call To Arms") || ["Smiter", "Zealer"].indexOf(SetUp.finalBuild) === -1) {
+	if (Check.haveItem("dontcare", "runeword", "Call to Arms") || ["Smiter", "Zealer"].indexOf(SetUp.finalBuild) === -1) {
 		Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
 	}
 }

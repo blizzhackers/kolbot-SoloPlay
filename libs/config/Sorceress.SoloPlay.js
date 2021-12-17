@@ -425,7 +425,7 @@ function LoadConfig () {
 		}
 
 		// Call to Arms
-		if (!Check.haveItem("sword", "runeword", "Call To Arms")) {
+		if (!Check.haveItem("dontcare", "runeword", "Call to Arms")) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js")) {
 				include("SoloPlay/BuildFiles/Runewords/CallToArms.js");
 			}

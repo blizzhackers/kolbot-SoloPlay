@@ -691,6 +691,10 @@ NTIP.ParseLineInt = function (input, info) {
 				p_result[0] += 'getBaseStat("items", item.classid, "speed")';
 
 				break;
+			case 'minimumsockets':
+				p_result[0] += 'getBaseStat("items", item.classid, "gemsockets")';
+
+				break;
 			case 'strreq':
 				p_result[0] += 'item.strreq';
 

@@ -14,21 +14,8 @@
 */
 
 function LoadConfig () {
-	if (!isIncluded("common/Storage.js")) {
-		include("common/Storage.js");
-	}
-
-	if (!isIncluded("common/Misc.js")) {
-		include("common/Misc.js");
-	}
-
-	if (!isIncluded("NTItemParser.dbl")) {
-		include("NTItemParser.dbl");
-	}
-
-	if (!isIncluded("SoloPlay/Functions/globals.js")) {
-		include("SoloPlay/Functions/globals.js");
-	}
+	if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
+	if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
 
 	SetUp.include();
 
@@ -130,25 +117,6 @@ function LoadConfig () {
 	Config.AutoMule.Force = [];
 	Config.AutoMule.Exclude = [
 		"[name] >= Elrune && [name] <= Lemrune",
-		"[name] == mephisto'ssoulstone",
-		"[name] == hellforgehammer",
-		"[name] == scrollofinifuss",
-		"[name] == keytothecairnstones",
-		"[name] == bookofskill",
-		"[name] == horadriccube",
-		"[name] == shaftofthehoradricstaff",
-		"[name] == topofthehoradricstaff",
-		"[name] == horadricstaff",
-		"[name] == ajadefigurine",
-		"[name] == thegoldenbird",
-		"[name] == potionoflife",
-		"[name] == lamesen'stome",
-		"[name] == khalim'seye",
-		"[name] == khalim'sheart",
-		"[name] == khalim'sbrain",
-		"[name] == khalim'sflail",
-		"[name] == khalim'swill",
-		"[name] == scrollofresistance",
 	];
 
 	/* AutoEquip configuration. */
@@ -272,7 +240,7 @@ function LoadConfig () {
 	Config.DodgeRange = 10;
 
 	/* LOD gear */
-	if (!me.classic) {
+	if (me.expansion) {
 		let finalGear = Check.finalBuild().finalGear;
 		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
@@ -361,7 +329,7 @@ function LoadConfig () {
 		}
 
 		// Call to Arms
-		if (!Check.haveItem("sword", "runeword", "Call To Arms")) {
+		if (!Check.haveItem("dontcare", "runeword", "Call to Arms")) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js")) {
 				include("SoloPlay/BuildFiles/Runewords/CallToArms.js");
 			}

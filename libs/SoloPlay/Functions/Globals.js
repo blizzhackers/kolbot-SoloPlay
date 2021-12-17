@@ -63,13 +63,12 @@ const SetUp = {
 	// Global value to set bot to walk while doing a task, since while physically attacking running decreases block chance
 	walkToggle: false,
 
-	//			Amazon					Sorceress				Necromancer					Paladin				Barbarian				Druid					Assassin					
-	//levelCap: [[33, 65, 100][me.diff], [33, 67, 100][me.diff], [33, 70, 100][me.diff], [33, 65, 100][me.diff], [33, 75, 100][me.diff], [33, 73, 100][me.diff], [33, 65, 100][me.diff]][me.classid],
 	levelCap: undefined,	// see setLevelCap for this is set to
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
 	// TODO: maybe move repsec values to the base config?
+	//	Amazon/Sorceress/Necromancer/Paladin/Barbarian/Druid/Assassin					
 	respecOne: [ 30, 26, 26, 19, 30, 24, 32][me.classid],
 	respecOneB: [ 64, 65, 0, 0, 74, 0, 0][me.classid],
 
@@ -809,40 +808,40 @@ const Check = {
 		return needRunes;
 	},
 
-	haveItem: function (type, flag, iName) {
-		type = type.toLowerCase();
-		flag = flag.toLowerCase();
+	haveItem: function (type, flag, iName = undefined) {
+		type !== undefined && (type = type.toLowerCase());
+		flag !== undefined && (flag = flag.toLowerCase());
+		iName !== undefined && (iName = iName.toLowerCase());
 
-		if (type && !NTIPAliasType[type] && !NTIPAliasClassID[type]) {
-			print("ÿc9SoloLevelingÿc0: No NTIPalias for '" + type + "'");
+		if (type && type !== "dontcare" && !NTIPAliasType[type] && !NTIPAliasClassID[type]) {
+			print("ÿc9Kolbot-SoloPlayÿc0: No NTIPalias for '" + type + "'");
 			return false;
 		}
 
-		if (iName !== undefined) {
-			iName = iName.toLowerCase();
-		}
-
 		let typeCHECK = false;
-		let items = me.getItems();
+		let items = me.getItems().filter(item => !Town.ignoredItemTypes.contains(item.classid));
 		let itemCHECK = false;
 
 		for (let i = 0; i < items.length && !itemCHECK; i++) {
 			switch (flag) {
 			case 'set':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Set) && !!items[i].fname.toLowerCase().includes(iName);
+				itemCHECK = !!(items[i].quality === sdk.itemquality.Set) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 				break;
 			case 'unique':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Unique) && !!items[i].fname.toLowerCase().includes(iName);
+				itemCHECK = !!(items[i].quality === sdk.itemquality.Unique) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 				break;
 			case 'crafted':
 				itemCHECK = !!(items[i].quality === sdk.itemquality.Crafted);
 				break;
 			case 'runeword':
-				itemCHECK = !!(items[i].isRuneword) && !!items[i].fname.toLowerCase().includes(iName);
+				itemCHECK = !!(items[i].isRuneword) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 				break;
 			}
 
 			switch (type) {
+			case "dontcare":
+				typeCHECK = itemCHECK;
+				break;
 			case "helm":
 			case "primalhelm":
 			case "pelt":
@@ -871,7 +870,6 @@ const Check = {
 			case "sword":
 			case "wand":
 			case "assassinclaw":
-			case "weapon":
 			case "smallcharm":
 			case "mediumcharm":
 			case "largecharm":

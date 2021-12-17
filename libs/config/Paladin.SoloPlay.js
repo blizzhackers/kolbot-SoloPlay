@@ -261,7 +261,7 @@ function LoadConfig () {
 			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
 		}
 
-		if (Check.haveItem("sword", "runeword", "Call To Arms")) {
+		if (Check.haveItem("dontcare", "runeword", "Call to Arms")) {
 			// Spirit on swap
 			NTIP.addLine("[type] == auricshields && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000");
 		}
@@ -333,7 +333,7 @@ function LoadConfig () {
 			if (!Check.haveItem("auricshields", "runeword", "Dream") || !Check.haveItem("helm", "runeword", "Dream") && (me.ladder || Developer.addLadderRW)) {
 				// Cube to Jah rune
 				if (!me.getItem(sdk.items.runes.Jah)) {
-					if (Check.haveItem("sword", "runeword", "Call To Arms")) {
+					if (Check.haveItem("dontcare", "runeword", "Call to Arms")) {
 						Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 						Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 						Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
@@ -348,7 +348,7 @@ function LoadConfig () {
 
 			}
 
-			if (!Check.haveItem("sword", "runeword", "Call To Arms")) {
+			if (!Check.haveItem("dontcare", "runeword", "Call to Arms")) {
 				// Cube to Mal rune
 				if (!me.getItem(sdk.items.runes.Mal) && Item.getEquippedItem(4).tier >= 110000) {
 					Config.Recipes.push([Recipe.Rune, "Um Rune"]);
@@ -427,7 +427,7 @@ function LoadConfig () {
 			if (!Check.haveItem("auricshields", "runeword", "Exile") || !Check.haveItem("armor", "runeword", "Dragon") || !Check.haveItem("sword", "runeword", "Hand of Justice") && (me.ladder || Developer.addLadderRW)) {
 				// Cube to Cham rune
 				if (!me.getItem(sdk.items.runes.Cham) || !me.getItem(sdk.items.runes.Sur) || !me.getItem(sdk.items.runes.Lo)) {
-					if (Check.haveItem("sword", "runeword", "Call To Arms")) {
+					if (Check.haveItem("dontcare", "runeword", "Call to Arms")) {
 						Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 						Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 						Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
@@ -452,7 +452,7 @@ function LoadConfig () {
 				}
 			}
 
-			if (!Check.haveItem("sword", "runeword", "Call To Arms")) {
+			if (!Check.haveItem("dontcare", "runeword", "Call to Arms")) {
 				// Cube to Mal rune
 				if (!me.getItem(sdk.items.runes.Mal) && Item.getEquippedItem(4).tier >= 110000) {
 					Config.Recipes.push([Recipe.Rune, "Um Rune"]);
@@ -568,7 +568,7 @@ function LoadConfig () {
 		}
 
 		// Call to Arms
-		if (!Check.haveItem("sword", "runeword", "Call To Arms")) {
+		if (!Check.haveItem("dontcare", "runeword", "Call to Arms")) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js")) {
 				include("SoloPlay/BuildFiles/Runewords/CallToArms.js");
 			}
