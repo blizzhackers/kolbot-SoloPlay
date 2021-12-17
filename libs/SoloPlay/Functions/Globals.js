@@ -287,14 +287,16 @@ const SetUp = {
 	},
 
 	makeNext: function () {
-		if (!isIncluded("SoloPlay/Tools/NameGen.js")) {
-			include("SoloPlay/Tools/NameGen.js");
-		}
+		if (!isIncluded("SoloPlay/Tools/NameGen.js")) { include("SoloPlay/Tools/NameGen.js"); }
+		if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
+		let gameObj, printTotalTime = Developer.logPerformance;
+		if (printTotalTime) { gameObj = Developer.readObj(Tracker.GTPath); }
 
+		// log info
 		print("ÿc8Kolbot-SoloPlayÿc0: " + this.finalBuild + " goal reached. On to the next.");
 		me.overhead("ÿc8Kolbot-SoloPlay: " + this.finalBuild + " goal reached. On to the next.");
+		D2Bot.printToConsole((printTotalTime ? "[" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + "] (TotalTime) " : "") + "Kolbot-SoloPlay: " + this.finalBuild + " goal reached. Making next...", 6);
 
-		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached. Making next...", 6);
 		D2Bot.setProfile(null, null, NameGen());
 		FileTools.remove("data/" + me.profile + ".json");
 		FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
@@ -419,8 +421,8 @@ const Check = {
 
 			break;
 		case "countess":
-			// classic quest not completed normal || don't have runes for difficulty || barb in hell and have lawbringer
-			if ((me.classic && !me.countess) ||
+			// classic quest not completed normal/nightmare || don't have runes for difficulty || barb in hell and have lawbringer
+			if ((me.classic && !me.hell && !me.countess) ||
 				(me.expansion && (needRunes || Check.brokeAf() || (me.barbarian && me.hell && Check.haveItem("sword", "runeword", "Lawbringer"))))) {
 				return true;
 			}
@@ -778,6 +780,7 @@ const Check = {
 	},
 
 	Runes: function () {
+		if (me.classic) { return false; }
 		let needRunes = true;
 
 		switch (me.diff) {
@@ -819,8 +822,8 @@ const Check = {
 		}
 
 		let typeCHECK = false;
-		let items = me.getItems().filter(item => !Town.ignoredItemTypes.contains(item.classid));
 		let itemCHECK = false;
+		let items = me.getItems().filter(item => !Town.ignoredItemTypes.contains(item.classid) && !item.isQuestItem);
 
 		for (let i = 0; i < items.length && !itemCHECK; i++) {
 			switch (flag) {
@@ -838,46 +841,49 @@ const Check = {
 				break;
 			}
 
-			switch (type) {
-			case "dontcare":
-				typeCHECK = itemCHECK;
-				break;
-			case "helm":
-			case "primalhelm":
-			case "pelt":
-			case "armor":
-			case "shield":
-			case "auricshields":
-			case "voodooheads":
-			case "gloves":
-			case "belt":
-			case "boots":
-			case "ring":
-			case "amulet":
-			case "axe":
-			case "bow":
-			case "amazonbow":
-			case "crossbow":
-			case "dagger":
-			case "javelin":
-			case "amazonjavelin":
-			case "mace":
-			case "polearm":
-			case "scepter":
-			case "spear":
-			case "amazonspear":
-			case "staff":
-			case "sword":
-			case "wand":
-			case "assassinclaw":
-			case "smallcharm":
-			case "mediumcharm":
-			case "largecharm":
-				typeCHECK = items[i].itemType === NTIPAliasType[type];
-				break;
-			default:
-				typeCHECK = items[i].classid === NTIPAliasClassID[type];
-				break;
+			// don't waste time if first condition wasn't met
+			if (itemCHECK) {
+				switch (type) {
+				case "dontcare":
+					typeCHECK = itemCHECK;
+					break;
+				case "helm":
+				case "primalhelm":
+				case "pelt":
+				case "armor":
+				case "shield":
+				case "auricshields":
+				case "voodooheads":
+				case "gloves":
+				case "belt":
+				case "boots":
+				case "ring":
+				case "amulet":
+				case "axe":
+				case "bow":
+				case "amazonbow":
+				case "crossbow":
+				case "dagger":
+				case "javelin":
+				case "amazonjavelin":
+				case "mace":
+				case "polearm":
+				case "scepter":
+				case "spear":
+				case "amazonspear":
+				case "staff":
+				case "sword":
+				case "wand":
+				case "assassinclaw":
+				case "smallcharm":
+				case "mediumcharm":
+				case "largecharm":
+					typeCHECK = items[i].itemType === NTIPAliasType[type];
+					break;
+				default:
+					typeCHECK = items[i].classid === NTIPAliasClassID[type];
+					break;
+				}
 			}
 
 			if (type) {
@@ -889,72 +895,74 @@ const Check = {
 	},
 
 	haveItemAndNotSocketed: function (type, flag, iName) {
-		type = type.toLowerCase();
-		flag = flag.toLowerCase();
+		type !== undefined && (type = type.toLowerCase());
+		flag !== undefined && (flag = flag.toLowerCase());
+		iName !== undefined && (iName = iName.toLowerCase());
 
 		if (type && !NTIPAliasType[type] && !NTIPAliasClassID[type]) {
 			print("ÿc8Kolbot-SoloPlayÿc0: No NTIPalias for '" + type + "'");
-		}
-
-		if (iName !== undefined) {
-			iName = iName.toLowerCase();
+			return false;
 		}
 
 		let typeCHECK = false;
-		let items = me.getItems();
 		let itemCHECK = false;
+		let items = me.getItems()
+			.filter(item => !Town.ignoredItemTypes.contains(item.classid) && getBaseStat("items", item.classid, "gemsockets") > 0 && !item.isQuestItem && !item.getItem());
 
 		for (let i = 0; i < items.length && !itemCHECK; i++) {
 			switch (flag) {
 			case 'set':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Set) && !!items[i].fname.toLowerCase().includes(iName);
+				itemCHECK = !!(items[i].quality === sdk.itemquality.Set) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 				break;
 			case 'unique':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Unique) && !!items[i].fname.toLowerCase().includes(iName);
+				itemCHECK = !!(items[i].quality === sdk.itemquality.Unique) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 				break;
 			case 'crafted':
 				itemCHECK = !!(items[i].quality === sdk.itemquality.Crafted);
 				break;
 			case 'runeword':
-				itemCHECK = !!(items[i].isRuneword) && !!items[i].fname.toLowerCase().includes(iName);
+				itemCHECK = !!(items[i].isRuneword) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 				break;
 			}
 
-			switch (type) {
-			case "helm":
-			case "primalhelm":
-			case "pelt":
-			case "armor":
-			case "shield":
-			case "auricshields":
-			case "voodooheads":
-			case "gloves":
-			case "belt":
-			case "boots":
-			case "ring":
-			case "amulet":
-			case "axe":
-			case "bow":
-			case "amazonbow":
-			case "crossbow":
-			case "dagger":
-			case "javelin":
-			case "amazonjavelin":
-			case "mace":
-			case "polearm":
-			case "scepter":
-			case "spear":
-			case "amazonspear":
-			case "staff":
-			case "sword":
-			case "wand":
-			case "assassinclaw":
-			case "weapon":
-				typeCHECK = items[i].itemType === NTIPAliasType[type];
-				break;
-			default:
-				typeCHECK = items[i].classid === NTIPAliasClassID[type];
-				break;
+			// don't waste time if first condition wasn't met
+			if (itemCHECK) {
+				switch (type) {
+				case "helm":
+				case "primalhelm":
+				case "pelt":
+				case "armor":
+				case "shield":
+				case "auricshields":
+				case "voodooheads":
+				case "gloves":
+				case "belt":
+				case "boots":
+				case "ring":
+				case "amulet":
+				case "axe":
+				case "bow":
+				case "amazonbow":
+				case "crossbow":
+				case "dagger":
+				case "javelin":
+				case "amazonjavelin":
+				case "mace":
+				case "polearm":
+				case "scepter":
+				case "spear":
+				case "amazonspear":
+				case "staff":
+				case "sword":
+				case "wand":
+				case "assassinclaw":
+				case "weapon":
+					typeCHECK = items[i].itemType === NTIPAliasType[type];
+					break;
+				default:
+					typeCHECK = items[i].classid === NTIPAliasClassID[type];
+					break;
+				}
 			}
 
 			if (type) {
@@ -983,7 +991,7 @@ const Check = {
 			.filter(item => item.isBaseType && item.isInStorage);
 
 		for (let i = 0; i < items.length; i++) {
-			if (items[i].getStat(194) === sockets) {
+			if (items[i].getStat(sdk.stats.NumSockets) === sockets) {
 				switch (type) {
 				case "helm":
 				case "primalhelm":

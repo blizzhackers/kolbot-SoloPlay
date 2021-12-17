@@ -4,17 +4,9 @@
 *	@desc		Track bot game performance and sends to CSV file
 */
 
-if (!isIncluded("SoloPlay/Tools/Developer.js")) {
-	include("SoloPlay/Tools/Developer.js");
-}
-
-if (!isIncluded("SoloPlay/Functions/Quest.js")) {
-	include("SoloPlay/Functions/Quest.js");
-}
-
-if (!isIncluded("common/Misc.js")) {
-	include("common/Misc.js");
-}
+if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
+if (!isIncluded("SoloPlay/Functions/Quest.js")) { include("SoloPlay/Functions/Quest.js"); }
+if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
 
 const Tracker = {
 	GTPath: "libs/SoloPlay/Data/" + me.profile + ".GameTime.json",
