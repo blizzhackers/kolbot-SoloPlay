@@ -1,4 +1,4 @@
-var CTA = [
+let CTA = [
 	"[name] == AmnRune # # [maxquantity] == 1",
 	"[name] == RalRune # # [maxquantity] == 1",
 	"[name] == MalRune",
@@ -10,6 +10,12 @@ NTIP.arrayLooping(CTA);
 // Have Ohm before collecting base
 if (me.getItem(sdk.items.runes.Ohm)) {
 	NTIP.addLine("[name] == crystalsword && [quality] >= normal && [quality] <= superior # [sockets] == 5 # [maxquantity] == 1");
+
+	// Have Ohm+Mal+Ist rune but do not have a base yet
+	if (me.getItem(sdk.items.runes.Ist) && me.getItem(sdk.items.runes.Mal) && !Check.haveBase("crystalsword", 5)) {
+		NTIP.addLine("[name] == crystalsword && [quality] == normal # [sockets] == 0 # [maxquantity] == 1");
+		Config.Recipes.push([Recipe.Socket.Weapon, "crystalsword"]);
+	}
 }
 
 // Cube to Mal rune

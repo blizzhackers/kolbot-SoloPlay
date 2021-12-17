@@ -4,9 +4,7 @@
 *	@desc		Sorceress fixes to improve class attack functionality
 */
 
-if (!isIncluded("common/Attacks/Sorceress.js")) {
-	include("common/Attacks/Sorceress.js");
-}
+if (!isIncluded("common/Attacks/Sorceress.js")) { include("common/Attacks/Sorceress.js"); }
 
 ClassAttack.doAttack = function (unit, preAttack = false) {
 	let checkSkill, mark,
@@ -33,13 +31,12 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 	}
 
 	// Skills
-	let closeMobCheck;
 	let useFNova = me.getSkill(sdk.skills.FrostNova, 0);
 	let useStatic = me.getSkill(sdk.skills.StaticField, 1);
 	let staticManaCost = Skill.getManaCost(sdk.skills.StaticField);
 
 	// Handle Charge skill casting
-	if (!me.classic && index === 1 && !unit.dead) {
+	if (me.expansion && index === 1 && !unit.dead) {
 		// If we have slow missles we might as well use it, currently only on Lighting Enchanted mobs as they are dangerous
 		// Might be worth it to use on souls too TODO: test this idea
 		if (Attack.currentChargedSkills.indexOf(sdk.skills.SlowMissiles) > -1 && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && Attack.isCursable(unit) &&
@@ -61,23 +58,29 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 		}
 	}
 
-	// If we have enough mana for FNova and there are 2 or mobs around us
-	if (useFNova && Skill.getManaCost(sdk.skills.FrostNova) * 2 < me.mp && Attack.getMobCount(me.x, me.y, 6) >= 2) {
-		closeMobCheck = Attack.getNearestMonster();
+	if (useFNova && me.mp > Skill.getManaCost(sdk.skills.FrostNova)) {
+        let checkMobs = getUnits(1).some(function(el) {
+        	if (el === undefined) { return false; }
+        	return el.attackable && el.distance < 7 && !el.isChilled && Attack.checkResist(el, 'cold');
+        })
+        if (checkMobs) {
+            Skill.cast(sdk.skills.FrostNova, 0);
+        }
+    }
 
-		if (!!closeMobCheck && Attack.checkResist(closeMobCheck, "cold") && !closeMobCheck.isChilled && !closeMobCheck.dead) {
-			Skill.cast(sdk.skills.FrostNova, 0, closeMobCheck);
+	// If we have enough mana for Static and there are 2 or more mobs around us, get the closest one and cast static on them
+	if (useStatic && (staticManaCost * 3) < me.mp) {
+		let closeMobCheck = getUnits(1)
+			.filter(unit => !!unit && unit.attackable && unit.distance < staticRange)
+			.find(unit => Attack.checkResist(unit, "lightning") && Math.round(unit.hp * 100 / unit.hpmax) > Config.CastStatic)
+		if (!!closeMobCheck) {
+			Skill.cast(sdk.skills.StaticField, 0, closeMobCheck);
 		}
 	}
 
-	// If we have enough mana for Static and there are 2 or more mobs around us, get the closest one and cast static on them
-	if (useStatic && Attack.getMobCount(me.x, me.y, staticRange) >= (me.area === sdk.areas.ThroneofDestruction ? 1 : 2) && (staticManaCost * 3) < me.mp) {
-		for (let castStatic = 0; castStatic < 2; castStatic++) {
-			closeMobCheck = Attack.getNearestMonster();
-			if (!!closeMobCheck && Attack.checkResist(unit, "lightning") && staticManaCost < me.mp && !closeMobCheck.dead && Math.round(closeMobCheck.hp * 100 / closeMobCheck.hpmax) > Config.CastStatic) {
-				Skill.cast(sdk.skills.StaticField, 0);
-			}
-		}
+	if (unit === undefined || unit.dead) {
+		// above skills killed the unit we were currently targetting
+		return true;
 	}
 
 	// Static
@@ -112,7 +115,6 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 			if (getDistance(me, unit) > staticRange || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, staticRange, 0x4)) {
 					return false;
-
 				}
 			}
 
@@ -180,35 +182,6 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 		}
 	}
 
-	// TODO: Figure out a way to dynamically use lower level/mana skills, no point in useing a 24+ mana skill if it would take a 4 mana skill to kill mob
-	/*if (me.normal && (gold < 5000 || Skill.getManaCost(timedSkill) * 1.5 > me.mp)) {
-		if (SetUp.currentBuild === "Start" && (me.getSkill(38, 1) && me.getSkill(45, 1) && (me.getSkill(39, 1)))) {
-			if (me.getSkill(55, 1) && Skill.getManaCost(55) < me.mp) {
-				timedSkill = 55;	// Glacial Spike
-			} else if (Attack.getMobCountAtPosition(me.x, me.y, 6) >= 2 && Skill.getManaCost(38) < me.mp) {
-				timedSkill = 38;	// Charged Bolt
-			} else if (Skill.getManaCost(45) < me.mp) {
-				timedSkill = 45;	// Ice Blast
-			} else {
-				timedSkill = 39;	// Ice Bolt
-			}
-		} else if (SetUp.currentBuild === "Leveling" && (me.getSkill(36, 1) && me.getSkill(39, 1))) {
-			if (me.getSkill(36, 1) && Attack.checkResist(unit, "fire") && !Attack.checkResist(unit, "cold") && Skill.getManaCost(36) < me.mp) {
-				timedSkill = 36;	// Fire Bolt
-			} else if (Skill.getManaCost(45) < me.mp) {
-				timedSkill = 45;	// Glacial Spike
-			} else if (Skill.getManaCost(45) < me.mp) {
-				timedSkill = 45;	// Ice Blast
-			} else {
-				timedSkill = 39;	// Ice Bolt
-			}
-		}
-
-		if (Skill.getManaCost(timedSkill) > me.mp && Attack.getMobCountAtPosition(me.x, me.y, 6) >= 1) {
-			timedSkill = 0;	// I have no mana and there are mobs around me, just attack
-		}
-	}*/
-
 	switch (ClassAttack.doCast(unit, timedSkill, untimedSkill)) {
 	case 0: // Fail
 		break;
@@ -236,7 +209,7 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 				if (mark) {
 					ClassAttack.doCast(mark, Config.AttackSkill[1], Config.AttackSkill[2]);
 				} else if (me.getSkill(sdk.skills.Telekinesis, 0)) {
-					Skill.cast(sdk.skills.Telekinesis, 0, unit.x, unit.y);
+					Skill.cast(sdk.skills.Telekinesis, 0, unit);
 				}
 			}
 
@@ -250,7 +223,7 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 };
 
 ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-	let i, walk, tick, timedSkillRange, untimedSkillRange,
+	let walk, tick, timedSkillRange, untimedSkillRange,
 		manaCostTimedSkill, manaCostUntimedSkill;
 
 	// No valid skills can be found
@@ -258,7 +231,28 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		return 2;
 	}
 
+	//TODO: clean up this mess
+
 	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
+		// handle static field as a main attack (classic orb/static build)
+		if (timedSkill === sdk.skills.StaticField) {
+			switch (me.gametype) {
+			case sdk.game.gametype.Classic:
+				// no penatly for static but won't actually kill a mob
+				if (Math.round(unit.hp * 100 / unit.hpmax) <= 5) {
+					timedSkill = me.getSkill(sdk.skills.Telekinesis, 1) ? sdk.skills.Telekinesis : me.getSkill(sdk.skills.ChargedBolt, 1) ? sdk.skills.ChargedBolt : 0;
+				}
+
+				break;
+			case sdk.game.gametype.Expansion:
+				if (Math.round(unit.hp * 100 / unit.hpmax) <= Config.CastStatic) {
+					timedSkill = untimedSkill > -1 ? untimedSkill : me.getSkill(sdk.skills.Telekinesis, 1) ? sdk.skills.Telekinesis : me.getSkill(sdk.skills.ChargedBolt, 1) ? sdk.skills.ChargedBolt : 0;
+				}
+
+				break;	
+			}
+		}
+
 		manaCostTimedSkill = Skill.getManaCost(timedSkill);
 		timedSkillRange = Skill.getRange(timedSkill);
 
@@ -274,7 +268,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 
 		if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, 0x4)) {
 			// Allow short-distance walking for melee skills
-			walk = (timedSkillRange < 4 || (timedSkill === 38 && timedSkillRange === 5)) && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
+			walk = (timedSkillRange < 4 || (timedSkill === sdk.skills.ChargedBolt && timedSkillRange === 5)) && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
 
 			if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4, walk)) {
 				return 0;
@@ -308,7 +302,15 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 				}
 			}
 
-			Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
+			if (timedSkill === sdk.skills.ChargedBolt) {
+				// Randomized x coord changes bolt path and prevents constant missing
+				if (!unit.dead) {
+					Skill.cast(timedSkill, Skill.getHand(timedSkill), unit.x + rand(-1, 1), unit.y);
+				}
+			} else {
+				Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
+			}
+
 		}
 
 		return 1;
@@ -356,7 +358,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		return 1;
 	}
 
-	for (i = 0; i < 25; i += 1) {
+	for (let i = 0; i < 25; i += 1) {
 		if (!me.getState(sdk.states.SkillDelay)) {
 			break;
 		}

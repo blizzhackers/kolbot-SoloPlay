@@ -1,4 +1,4 @@
-var HotO = [
+let HotO = [
 	"[name] == ThulRune # # [maxquantity] == 1",
 	"[name] == PulRune",
 	"[name] == KoRune # # [maxquantity] == 1",
@@ -9,6 +9,13 @@ NTIP.arrayLooping(HotO);
 // Have Vex rune before looking for base
 if (me.getItem(sdk.items.runes.Vex)) {
 	NTIP.addLine("([name] == flail || [name] == knout) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
+
+	// Have Vex rune but do not have a base yet
+	if (!Check.haveBase("mace", 4)) {
+		NTIP.addLine("([name] == flail || [name] == knout) && [flag] != ethereal && [quality] == normal # [sockets] == 0 # [maxquantity] == 1");
+		Config.Recipes.push([Recipe.Socket.Weapon, "flail"]);
+		Config.Recipes.push([Recipe.Socket.Weapon, "knout"]);
+	}
 }
 
 // Cube to Vex rune
