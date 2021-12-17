@@ -659,7 +659,7 @@
 		// unit states
 		states: {
 			None: 0,
-			Freeze: 1,
+			Frozen: 1,
 			Poison: 2,
 			ResistFire: 3,
 			ResistCold: 4,

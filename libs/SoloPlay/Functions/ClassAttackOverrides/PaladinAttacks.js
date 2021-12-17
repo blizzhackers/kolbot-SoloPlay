@@ -145,6 +145,9 @@ ClassAttack.getHammerPosition = function (unit) {
 		break;
 	}
 
+	// If one of the valid positions is a position im at already
+	if (positions.some(pos => pos.distance < 1)) return true;
+
 	for (i = 0; i < positions.length; i += 1) {
 		if (getDistance(me, positions[i][0], positions[i][1]) < 1) {
 			return true;
@@ -157,7 +160,7 @@ ClassAttack.getHammerPosition = function (unit) {
 			y: positions[i][1]
 		};
 
-		if (Attack.validSpot(check.x, check.y) && !CollMap.checkColl(unit, check, 0x4, 0) && (Pather.useTeleport() || !checkCollision(me, unit, 0x1))) {
+		if ([check.x, check.y].validSpot && !CollMap.checkColl(unit, check, 0x4, 0)) {
 			if (this.reposition(positions[i][0], positions[i][1])) {
 				return true;
 			}
@@ -174,6 +177,7 @@ ClassAttack.afterAttack = function () {
 	if (me.getState(sdk.states.Poison) && Attack.getMobCount(me.x, me.y, 10) === 0 && Skill.setSkill(sdk.skills.Cleansing, 0)) {
 		let tick = getTickCount();
 		while (getTickCount() - tick < 1500) {
+			me.overhead("Delaying for a second to get rid of Poison");
 			if (!me.getState(sdk.states.Poison)) {
 				break;
 			}
