@@ -4,9 +4,7 @@
 *	@desc		Pather.js fixes to improve functionality
 */
 
-if (!isIncluded("common/Pather.js")) {
-	include("common/Pather.js");
-}
+if (!isIncluded("common/Pather.js")) { include("common/Pather.js"); }
 
 NodeAction.killMonsters = function (arg) {
 	// sanityCheck from isid0re - added paladin specific areas - theBGuy
@@ -92,6 +90,63 @@ NodeAction.popChests = function () {
 };
 
 Pather.haveTeleCharges = false;
+
+{
+	let coords = function () {
+		if (Array.isArray(this) && this.length > 1) {
+			return [this[0], this[1]];
+		}
+
+		if (typeof this.x !== 'undefined' && typeof this.y !== 'undefined') {
+			return this instanceof PresetUnit && [this.roomx * 5 + this.x, this.roomy * 5 + this.y] || [this.x, this.y]
+		}
+
+		return [undefined, undefined];
+	};
+
+	Object.defineProperties(Object.prototype, {
+		distance: {
+			get: function () {
+				return !me.gameReady ? NaN : Math.ceil(getDistance.apply(null, [me, ...coords.apply(this)]));
+			},
+			enumerable: false,
+		},
+		moveTo: {
+			get: function () {
+				return typeof this.____moveTo__cb === 'function' && this.____moveTo__cb || (() => Pather.moveTo.apply(Pather, coords.apply(this)));
+			},
+			set: function (cb) {
+				this.____moveTo__cb = cb;
+			},
+			enumerable: false,
+		},
+		path: {
+			get: function () {
+				let useTeleport = Pather.useTeleport();
+				return getPath.apply(this, [typeof this.area !== 'undefined' ? this.area : me.area, me.x, me.y, ...coords.apply(this), useTeleport ? 1 : 0, useTeleport ? ([62, 63, 64].indexOf(me.area) > -1 ? 30 : Pather.teleDistance) : Pather.walkDistance])
+			},
+			enumerable: false,
+		},
+		validSpot: {
+			get: function () {
+				let [x, y] = coords.apply(this), result;
+				if (!me.area || !x || !y) { // Just in case
+					return false;
+				}
+
+				try { // Treat thrown errors as invalid spot
+					result = getCollision(me.area, x, y);
+				} catch (e) {
+					// Dont care
+				}
+
+				// Avoid non-walkable spots, objects
+				return !(result === undefined || (result & 0x1) || (result & 0x400));
+			},
+			enumerable: false,
+		},
+	});
+}
 
 Pather.canTeleport = function () {
 	return this.teleport && !Config.NoTele && !me.shapeshifted && ((me.sorceress && me.getSkill(sdk.skills.Teleport, 1)) || me.getStat(sdk.stats.OSkill, sdk.skills.Teleport));
@@ -486,11 +541,11 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 		return false;
 	}
 
-	let i, path, adjustedNode, cleared, useTeleport, useChargedTele,
+	let path, adjustedNode, cleared, useTeleport, useChargedTele,
 		node = {x: x, y: y},
 		fail = 0;
 
-	for (i = 0; i < this.cancelFlags.length; i += 1) {
+	for (let i = 0; i < this.cancelFlags.length; i += 1) {
 		if (getUIFlag(this.cancelFlags[i])) {
 			me.cancel();
 		}
@@ -528,12 +583,6 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 		throw new Error("moveTo: Failed to generate path.");
 	}
 
-	if (!useTeleport) {
-		let inMyWayShit = getUnits().filter(chest => chest.type === 2 && getDistance(me, chest) < 3);
-		if (inMyWayShit.length > 0) {me.overhead("Shit in my way " + inMyWayShit.length);}
-		inMyWayShit.length && inMyWayShit.forEach(function (chest) { return Misc.openChest(chest); });
-	}
-
 	path.reverse();
 
 	if (pop) {
@@ -546,18 +595,22 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 		me.switchWeapons(Attack.getPrimarySlot() ^ 1);
 	}
 
-	let tpMana = Skill.getManaCost(sdk.skills.Teleport);	// Credit @Jaenster
+	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
 
 	while (path.length > 0) {
 		if (me.dead) { // Abort if dead
 			return false;
 		}
 
-		for (i = 0; i < this.cancelFlags.length; i += 1) {
+		for (let i = 0; i < this.cancelFlags.length; i += 1) {
 			if (getUIFlag(this.cancelFlags[i])) {
 				me.cancel();
 			}
 		}
+
+		/*if (!useTeleport && !me.inTown) {
+			let shitInMyWay = getUnits(2).filter(unit => !unit.mode && unit.distance < 3).forEach(function (obj) { return Misc.openChest(obj); });
+		}*/
 
 		node = path.shift();
 
@@ -646,63 +699,40 @@ Pather.makePortal = function (use) {
 		return true;
 	}
 
-	let i, portal, oldPortal, oldGid, tick, tpTome, tpScroll;
+	let portal, oldPortal, oldGid, tick;
 
-	for (i = 0; i < 5; i += 1) {
-		if (me.dead) {
-			break;
-		}
+	for (let i = 0; i < 5; i += 1) {
+		if (me.dead) { break; }
 
-		tpScroll = me.findItem("tsc", 0, 3);
-		tpTome = me.findItem("tbk", 0, 3);
+		let tpTool = Town.getTpTool();
 
-		if (!tpTome && !tpScroll) {
-			return false;
-		}
+		if (!tpTool) { return false; }
 
-		if ((tpTome && !tpTome.getStat(70)) && !tpScroll) {
-			return false;
-		}
-
-		oldPortal = getUnit(sdk.unittype.Object, "portal");
+		oldPortal = oldPortal = getUnits(sdk.unittype.Object, "portal")
+            .filter(function (p) { return p.getParent() === me.name; })
+            .first();
 
 		if (oldPortal) {
-			do {
-				if (oldPortal.getParent() === me.name) {
-					oldGid = oldPortal.gid;
-
-					break;
-				}
-			} while (oldPortal.getNext());
-		}
-
-		if (!tpTome) {
-			tpScroll.interact();
-		} else {
-			tpTome.interact();
-		}
-
+            oldGid = oldPortal.gid;
+        }
+        tpTool.interact();
 		tick = getTickCount();
-
 		MainLoop:
 		while (getTickCount() - tick < Math.max(500 + i * 100, me.ping * 2 + 100)) {
-			portal = getUnit(sdk.unittype.Object, "portal");
-
+			portal = getUnits(sdk.unittype.Object, "portal")
+                .filter(function (p) { return p.getParent() === me.name && p.gid !== oldGid; })
+                .first();
 			if (portal) {
-				do {
-					if (portal.getParent() === me.name && portal.gid !== oldGid) {
-						if (use) {
-							if (Pather.usePortal(null, null, copyUnit(portal))) {
-								return true;
-							}
-
-							break MainLoop; // don't spam usePortal
-						} else {
-							return copyUnit(portal);
-						}
-					}
-				} while (portal.getNext());
-			}
+                if (use) {
+                    if (this.usePortal(null, null, copyUnit(portal))) {
+                        return true;
+                    }
+                    break MainLoop; // don't spam usePortal
+                }
+                else {
+                    return copyUnit(portal);
+                }
+            }
 
 			delay(10);
 		}

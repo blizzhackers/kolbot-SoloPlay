@@ -4,21 +4,22 @@
 *	@desc		Global variables Settings, general functions for Kolbot-SoloPlay functionality
 */
 
-if (!isIncluded("OOG.js")) {
-	include("OOG.js");
-}
+if (!isIncluded("OOG.js")) { include("OOG.js"); }
+if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
 
 let sdk = require('../modules/sdk');
 
 // general settings
 let Difficulty = ['Normal', 'Nightmare', 'Hell'];
 let classes = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"];
+// these builds are not possible to do on classic
+let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl"];
 
 const SetUp = {
 	scripts: [
 		"corpsefire", "den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "andariel", "a1chests", "cows", // Act 1
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel", // Act 2
-		"templeruns", "lowerkurast", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
+		"lamessen", "templeruns", "lowerkurast", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
 		"izual", "hellforge", "river", "hephasto", "diablo", // Act 4
 		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests", // Act 5
 	],
@@ -38,13 +39,6 @@ const SetUp = {
 				}
 			});
 		});
-		// Include custom attacks
-		let filePath = "SoloPlay/Functions/ClassAttackOverrides/" + classes[me.classid] + "Attacks.js";
-		if (!isIncluded(filePath)) {
-			if (!include(filePath)) {
-				throw new Error("Failed to include: " + filePath);
-			}
-		}
 	},
 
 	// mine - theBGuy
@@ -75,6 +69,7 @@ const SetUp = {
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
+	// TODO: maybe move repsec values to the base config?
 	respecOne: [ 30, 26, 26, 19, 30, 24, 32][me.classid],
 	respecOneB: [ 64, 65, 0, 0, 74, 0, 0][me.classid],
 
@@ -146,7 +141,7 @@ const SetUp = {
 		return tmpCap[me.diff];
 	},
 
-	// mine - theBGuy
+	// mine - theBGuy TODO: change this so the check requiriment is pulled from the final build file
 	respecTwo: function () {
 		let respec;
 
@@ -308,6 +303,8 @@ const SetUp = {
 		D2Bot.restart();
 	},
 };
+// initialize
+SetUp.levelCap = SetUp.setLevelCap();
 
 // SoloPlay Pickit Items
 const nipItems = {
@@ -652,13 +649,13 @@ const Check = {
 
 			break;
 		case "getkeys":
-			if (Pather.accessToAct(5) && me.hell && ["Zealer", "Smiter", "Uberconc"].indexOf(SetUp.currentBuild) > -1) {
+			if (me.expansion && Pather.accessToAct(5) && me.hell && ["Zealer", "Smiter", "Uberconc"].indexOf(SetUp.currentBuild) > -1) {
 				return true;
 			}
 
 			break;
 		case "orgtorch":
-			if (Pather.accessToAct(5) && me.hell && ["Zealer", "Smiter", "Uberconc"].indexOf(SetUp.currentBuild) > -1) {
+			if (me.expansion && Pather.accessToAct(5) && me.hell && ["Zealer", "Smiter", "Uberconc"].indexOf(SetUp.currentBuild) > -1) {
 				return true;
 			}
 

@@ -7,22 +7,19 @@
 
 //---------------- Do Not Touch Below ----------------\\
 
-if (!isIncluded("SoloPlay/Tools/Tracker.js")) {
-	include("SoloPlay/Tools/Tracker.js");
-}
+if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
 
 function SoloPlay () {
 	this.setup = function () {
 		print('ÿc8Kolbot-SoloPlayÿc0: start setup');
 		me.overhead('start setup');
-		SetUp.levelCap = SetUp.setLevelCap();
 		NTIP.arrayLooping(nipItems.Quest);
 		NTIP.arrayLooping(nipItems.General);
 		NTIP.arrayLooping(nipItems.Selling);
 		print('ÿc8Kolbot-SoloPlayÿc0: start run');
 		me.overhead('starting run');
 
-		if (["Bumper", "Socketmule"].indexOf(SetUp.finalBuild) > -1 && me.classic) {
+		if (impossibleClassicBuilds.contains(SetUp.finalBuild) && me.classic) {
 			D2Bot.printToConsole("Kolbot-SoloPlay: " + SetUp.finalBuild + " cannot be used in classic. Change the info tag or remake as an expansion character...Shutting down", 9);
 			FileTools.remove("data/" + me.profile + ".json");
 			FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
