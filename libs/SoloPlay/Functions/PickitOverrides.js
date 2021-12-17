@@ -5,21 +5,10 @@
 *	@credits	based on existing pickit.js from PBP autoplays (Sonic, AutoSorc, etc), isid0re for formatting
 */
 
-if (!isIncluded("common/Pickit.js")) {
-	include("common/Pickit.js");
-}
-
-if (!isIncluded("SoloPlay/Functions/NTIPOverrides.js")) {
-	include("SoloPlay/Functions/NTIPOverrides.js");
-}
-
-if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) {
-	include("SoloPlay/Functions/MiscOverrides.js");
-}
-
-if (!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js")) {
-	include("SoloPlay/Functions/ProtoTypesOverrides.js");
-}
+if (!isIncluded("common/Pickit.js")) { include("common/Pickit.js"); }
+if (!isIncluded("SoloPlay/Functions/NTIPOverrides.js")) { include("SoloPlay/Functions/NTIPOverrides.js"); }
+if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
+if (!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js")) {	include("SoloPlay/Functions/ProtoTypesOverrides.js"); }
 
 Pickit.enabled = true;
 

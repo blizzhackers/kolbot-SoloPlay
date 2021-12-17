@@ -6,13 +6,8 @@
 *	@credits	esd1 (sort items author), McGod (original storage.js author), kolton (small kolbot related edits), AimtoKill (compatibility testing)
 */
 
-if (!isIncluded("common/Storage.js")) {
-	include("common/Storage.js");
-}
-
-if (!isIncluded("SoloPlay/Tools/Developer.js")) {
-	include("SoloPlay/Tools/Developer.js");
-}
+if (!isIncluded("common/Storage.js")) { include("common/Storage.js"); }
+if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
 
 var Container = function (name, width, height, location) {
 	let h, w;

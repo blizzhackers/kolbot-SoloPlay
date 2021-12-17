@@ -515,24 +515,17 @@ let tierscore = function (item) {
 	tier += this.ctcScore(item);
 
 	let rwBase; // don't score runeword base armors
-	let questItem, itemsList = [521, 92, 173, 174, 90]; // don't score viper amulet, staff of kings, khalim's flail, hellforge hammer
-
-	for (let y = 0; y < itemsList.length; y += 1) {
-		if (item.classid === itemsList[y]) {
-			questItem = true;
-		}
-	}
 
 	for (let x = 0; x < Config.Runewords.length; x += 1) {
 		let sockets = Config.Runewords[x][0].length;
 		let baseCID = Config.Runewords[x][1];
 
-		if (item.classid === baseCID && item.quality < 4 && item.getStat(194) === sockets && !item.getFlag(NTIPAliasFlag["runeword"])) {
+		if (item.classid === baseCID && item.quality < 4 && item.getStat(194) === sockets && !item.getFlag(NTIPAliasFlag["runeword"]) && !item.getItem()) {
 			rwBase = true;
 		}
 	}
 
-	if (rwBase || questItem) {
+	if (rwBase || item.isQuestItem) {
 		tier = -1;
 	}
 

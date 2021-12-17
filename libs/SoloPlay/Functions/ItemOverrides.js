@@ -5,9 +5,7 @@
 *	@desc		Misc.js Item function fixes to improve functionality and Autoequip
 */
 
-if (!isIncluded("common/Misc.js")) {
-	include("common/Misc.js");
-}
+if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
 
 Item.getQuantityOwned = function (item) {
 	let list = [];
@@ -151,6 +149,7 @@ Item.getEquippedItem = function (bodyLoc) {
 					sockets: item.getStat(sdk.stats.NumSockets),
 					socketed: !item.getItems(),
 					isRuneword: item.getFlag(0x4000000),
+					twoHanded: item.twoHanded,
 				};
 			}
 		} while (item.getNext());
@@ -172,6 +171,7 @@ Item.getEquippedItem = function (bodyLoc) {
 		sockets: 0,
 		socketed: false,
 		isRuneword: false,
+		twoHanded: false,
 	};
 };
 
@@ -199,6 +199,17 @@ Item.autoEquipCheck = function (item) {
 	if (tier > 0 && bodyLoc) {
 		for (let i = 0; i < bodyLoc.length; i += 1) {
 			if (tier > this.getEquippedItem(bodyLoc[i]).tier && (this.canEquip(item) || !item.identified)) {
+				if (item.twoHanded && !me.barbarian) {
+					if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
+						return false;
+					}
+				}
+
+				if (!me.barbarian && bodyLoc[i] === 5 && this.getEquippedItem(bodyLoc[i]).tier === -1) {
+					if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tier) {
+						return false;
+					}
+				}
 				return true;
 			}
 		}
@@ -218,6 +229,17 @@ Item.autoEquipKeepCheck = function (item) {
 	if (tier > 0 && bodyLoc) {
 		for (let i = 0; i < bodyLoc.length; i += 1) {
 			if (tier > this.getEquippedItem(bodyLoc[i]).tier) {
+				if (item.twoHanded && !me.barbarian) {
+					if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
+						return false;
+					}
+				}
+
+				if (!me.barbarian && bodyLoc[i] === 5 && this.getEquippedItem(bodyLoc[i]).tier === -1) {
+					if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tier) {
+						return false;
+					}
+				}
 				return true;
 			}
 		}
@@ -292,6 +314,20 @@ Item.autoEquip = function () {
 
 							Town.identifyItem(items[0], tome);
 						}
+					}
+
+					if (items[0].twoHanded && !me.barbarian) {
+						if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
+							continue;
+						}
+						print("ÿc9AutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
+					}
+
+					if (!me.barbarian && bodyLoc[j] === 5 && this.getEquippedItem(bodyLoc[j]).tier === -1) {
+						if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tier) {
+							continue;
+						}
+						print("ÿc9AutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
 					}
 
 					gid = items[0].gid;

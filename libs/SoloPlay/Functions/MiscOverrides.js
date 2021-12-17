@@ -4,13 +4,9 @@
 *	@desc		Misc.js fixes to improve functionality
 */
 
-if (!isIncluded("common/Misc.js")) {
-	include("common/Misc.js");
-}
+if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
 
-if (!isIncluded("SoloPlay/Tools/Developer.js")) {
-	include("SoloPlay/Tools/Developer.js");
-}
+if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
 
 Skill.getHand = function (skillId) {
 	switch (skillId) {
@@ -151,142 +147,129 @@ Skill.townSkill = function (skillId) {
 };
 
 // Cast a skill on self, Unit or coords. Always use packet casting for caster skills becasue it's more stable.
-if (Developer.forcePacketCasting.enabled && Developer.forcePacketCasting.excludeProfiles.indexOf(me.profile) === -1) {
-	Skill.cast = function (skillId, hand, x, y, item) {
-		let casterSkills = [36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 84, 87, 92, 93, 101, 112, 121, 130, 137, 138, 146, 154, 155, 225, 229, 230, 234, 240, 244, 249, 250, 251, 256, 261, 262, 271, 276];
+Skill.cast = function (skillId, hand, x, y, item) {
+	let casterSkills = [36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 84, 87, 92, 93, 101, 112, 121, 130, 137, 138, 146, 154, 155, 225, 229, 230, 234, 240, 244, 249, 250, 251, 256, 261, 262, 271, 276];
 
-		if (me.realm) {
-			casterSkills.push(67, 245);
+	if (me.realm) {
+		casterSkills.push(67, 245);
+	}
+
+	let forcePacket = Developer.forcePacketCasting.enabled && Developer.forcePacketCasting.excludeProfiles.indexOf(me.profile) === -1;
+
+	switch (true) {
+	case me.inTown && !this.townSkill(skillId): // cant cast this in town
+	case !item && this.getManaCost(skillId) > me.mp: // dont have enough mana for this
+	case !item && !me.getSkill(skillId, 1): // Dont have this skill
+	case !this.wereFormCheck(skillId): // can't cast in wereform
+		return false;
+	case skillId === undefined:
+		throw new Error("Unit.cast: Must supply a skill ID");
+	}
+
+	// Check mana cost, charged skills don't use mana
+	if (!item && this.getManaCost(skillId) > me.mp) {
+		// Maybe delay on ALL skills that we don't have enough mana for?
+		if (Config.AttackSkill.concat([42, 54]).concat(Config.LowManaSkill).indexOf(skillId) > -1) {
+			delay(300);
 		}
 
-		if (me.inTown && !this.townSkill(skillId)) {
-			return false;
+		return false;
+	}
+
+	let i, n, clickType, shift;
+
+	hand === undefined && (hand = this.getHand(skillId));
+	x === undefined && (x = me.x);
+	y === undefined && (y = me.y);
+
+	if (!this.setSkill(skillId, hand, item)) {
+		return false;
+	}
+
+	if ((forcePacket && casterSkills.indexOf(skillId) > -1) || Config.PacketCasting > 1 || skillId === sdk.skills.Teleport) {
+		switch (typeof x) {
+		case "number":
+			Packet.castSkill(hand, x, y);
+			delay(250);
+
+			break;
+		case "object":
+			Packet.unitCast(hand, x);
+			delay(250);
+
+			break;
+		}
+	} else {
+		switch (hand) {
+		case 0: // Right hand + No Shift
+			clickType = 3;
+			shift = 0;
+
+			break;
+		case 1: // Left hand + Shift
+			clickType = 0;
+			shift = 1;
+
+			break;
+		case 2: // Left hand + No Shift
+			clickType = 0;
+			shift = 0;
+
+			break;
+		case 3: // Right hand + Shift
+			clickType = 3;
+			shift = 1;
+
+			break;
 		}
 
-		if (!item && !me.getSkill(skillId, 1)) {
-			return false;
-		}
-
-		if (!this.wereFormCheck(skillId)) {
-			return false;
-		}
-
-		// Check mana cost, charged skills don't use mana
-		if (!item && this.getManaCost(skillId) > me.mp) {
-			// Maybe delay on ALL skills that we don't have enough mana for?
-			if (Config.AttackSkill.concat([42, 54]).concat(Config.LowManaSkill).indexOf(skillId) > -1) {
-				delay(300);
+		MainLoop:
+		for (n = 0; n < 3; n += 1) {
+			if (typeof x === "object") {
+				clickMap(clickType, shift, x);
+			} else {
+				clickMap(clickType, shift, x, y);
 			}
 
-			return false;
-		}
+			delay(20);
 
-		if (skillId === undefined) {
-			throw new Error("Skill.cast: Must supply a skill ID");
-		}
-
-		let i, n, clickType, shift;
-
-		if (hand === undefined) {
-			hand = 0;
-		}
-
-		if (x === undefined) {
-			x = me.x;
-		}
-
-		if (y === undefined) {
-			y = me.y;
-		}
-
-		if (!this.setSkill(skillId, hand, item)) {
-			return false;
-		}
-
-		if ((casterSkills.indexOf(skillId) > -1) || Config.PacketCasting > 1) {
-			switch (typeof x) {
-			case "number":
-				Packet.castSkill(hand, x, y);
-				delay(250);
-
-				break;
-			case "object":
-				Packet.unitCast(hand, x);
-				delay(250);
-
-				break;
-			}
-		} else {
-			switch (hand) {
-			case 0: // Right hand + No Shift
-				clickType = 3;
-				shift = 0;
-
-				break;
-			case 1: // Left hand + Shift
-				clickType = 0;
-				shift = 1;
-
-				break;
-			case 2: // Left hand + No Shift
-				clickType = 0;
-				shift = 0;
-
-				break;
-			case 3: // Right hand + Shift
-				clickType = 3;
-				shift = 1;
-
-				break;
+			if (typeof x === "object") {
+				clickMap(clickType + 2, shift, x);
+			} else {
+				clickMap(clickType + 2, shift, x, y);
 			}
 
-			MainLoop:
-			for (n = 0; n < 3; n += 1) {
-				if (typeof x === "object") {
-					clickMap(clickType, shift, x);
-				} else {
-					clickMap(clickType, shift, x, y);
+			for (i = 0; i < 8; i += 1) {
+				if (me.attacking) {
+					break MainLoop;
 				}
 
 				delay(20);
-
-				if (typeof x === "object") {
-					clickMap(clickType + 2, shift, x);
-				} else {
-					clickMap(clickType + 2, shift, x, y);
-				}
-
-				for (i = 0; i < 8; i += 1) {
-					if (me.attacking) {
-						break MainLoop;
-					}
-
-					delay(20);
-				}
-			}
-
-			while (me.attacking) {
-				delay(10);
 			}
 		}
 
-		if (this.isTimed(skillId)) { // account for lag, state 121 doesn't kick in immediately
-			for (i = 0; i < 10; i += 1) {
-				if ([4, 9].indexOf(me.mode) > -1) {
-					break;
-				}
-
-				if (me.getState(121)) {
-					break;
-				}
-
-				delay(10);
-			}
+		while (me.attacking) {
+			delay(10);
 		}
+	}
 
-		return true;
-	};
-}
+	// account for lag, state 121 doesn't kick in immediately
+	if (this.isTimed(skillId)) {
+		for (i = 0; i < 10; i += 1) {
+			if ([4, 9].indexOf(me.mode) > -1) {
+				break;
+			}
+
+			if (me.getState(121)) {
+				break;
+			}
+
+			delay(10);
+		}
+	}
+
+	return true;
+};
 
 Skill.getRange = function (skillId) {
 	switch (skillId) {
@@ -508,7 +491,8 @@ Misc.townCheck = function () {
 	}
 
 	if (check) {
-		scriptBroadcast("townCheck");
+		//scriptBroadcast("townCheck");
+		Messaging.sendToScript("libs/SoloPlay/Tools/TownChicken.js", "townCheck");
 		print("BroadCasted townCheck");
 		delay(500);
 
@@ -534,19 +518,18 @@ Misc.openChest = function (unit) {
 		return false;
 	}
 
-	let i, tick,
-		telek = me.sorceress && me.getSkill(43, 1);
+	let tick,
+		telek = me.sorceress && me.getSkill(sdk.skills.Telekinesis, 1);
 
-	for (i = 0; i < 7; i += 1) {
+	for (let i = 0; i < 7; i += 1) {
 		if (telek && i < 3) {
 			if (getDistance(me, unit) > 13) {
 				Attack.getIntoPosition(unit, 13, 0x4);
 			}
 			
-			Skill.cast(43, 0, unit);
+			Skill.cast(sdk.skills.Telekinesis, 0, unit);
 		} else {
 			if (Pather.moveTo(unit.x + 1, unit.y + 2, 3) && getDistance(me, unit.x + 1, unit.y + 2) < 5) {
-				//Misc.click(0, 0, unit);
 				sendPacket(1, 0x13, 4, unit.type, 4, unit.gid);
 			}
 		}
@@ -911,10 +894,10 @@ Misc.getShrine = function (unit) {
 		return false;
 	}
 
-	let i, tick,
+	let tick,
 		telek = me.sorceress && me.getSkill(sdk.skills.Telekinesis, 1);
 
-	for (i = 0; i < 3; i += 1) {
+	for (let i = 0; i < 3; i += 1) {
 		if (telek && i < 2) {
 			if (getDistance(me, unit) > 13) {
 				Attack.getIntoPosition(unit, 13, 0x4);

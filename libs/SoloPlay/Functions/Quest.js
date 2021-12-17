@@ -556,7 +556,7 @@ let Quest = {
 		D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + diffSting + " socket quest on : " + item.name, 6);
 
 		if (me.nightmare) {
-			Developer.writeObj({Nightmare: true}, "libs/SoloPlay/Data/" + me.profile + ".SocketData.json");("libs/SoloPlay/Data/" + me.profile + ".SocketData.json");
+			Developer.writeObj({Nightmare: true}, "libs/SoloPlay/Data/" + me.profile + ".SocketData.json");
 		}
 
 		if (!slot && item.location !== 7) {

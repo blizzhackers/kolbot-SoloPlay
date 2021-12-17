@@ -1,14 +1,13 @@
 /*
 *	@filename	NTIPOverrides.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy, isid0re
 *	@desc		NTIPItemParser fixes to improve functionality and custom looping for performance
 */
 
-if (!isIncluded("NTItemParser.dbl")) {
-	include("NTItemParser.dbl");
-}
+if (!isIncluded("NTItemParser.dbl")) { include("NTItemParser.dbl"); }
+if (!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js")) { include("SoloPlay/Functions/ProtoTypesOverrides.js"); }
 
-var NTIP_CheckListNoTier = [];
+let NTIP_CheckListNoTier = [];
 
 NTIP.generateTierFunc = function (tierType) {
 	return function (item) {
@@ -693,7 +692,11 @@ NTIP.ParseLineInt = function (input, info) {
 
 				break;
 			case 'strreq':
-				p_result[0] += 'getBaseStat("items", item.classid, "reqstr")';
+				p_result[0] += 'item.strreq';
+
+				break;
+			case 'dexreq':
+				p_result[0] += 'item.dexreq';
 
 				break;
 			case '2handed':

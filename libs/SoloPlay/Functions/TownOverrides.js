@@ -4,9 +4,7 @@
 *	@desc		Town.js fixes and custom tasks to improve functionality
 */
 
-if (!isIncluded("common/Town.js")) {
-	include("common/Town.js");
-}
+if (!isIncluded("common/Town.js")) { include("common/Town.js"); }
 
 // Removed Missle Potions for easy gold
 // Items that won't be stashed
@@ -184,6 +182,18 @@ Town.doChores = function (repair = false) {
 	return true;
 };
 
+Town.getTpTool = function () {
+    let scroll = me.getItemsEx().filter(function (i) { return i.isInInventory && i.classid === sdk.items.ScrollofTownPortal; }).first();
+    let tome = me.getItemsEx().filter(function (i) { return i.isInInventory && i.classid === sdk.items.TomeofTownPortal; }).first();
+    if (scroll) {
+        return scroll;
+    }
+    if (tome && tome.getStat(sdk.stats.Quantity) > 0) {
+        return tome;
+    }
+    return null;
+};
+
 Town.repair = function (force = false) {
 	let i, quiver, myQuiver, npc, repairAction, bowCheck;
 
@@ -253,17 +263,181 @@ Town.repair = function (force = false) {
 	return true;
 };
 
+Town.cainID = function (force = false, dontSell = false) {
+	if (!Config.CainID.Enable && !force) {
+		return false;
+	}
+
+	// Cain hasn't been rescued
+	if (!Misc.checkQuest(sdk.quests.TheSearchForCain, 0)) { return false; }
+
+	// Check if we're already in a shop. It would be pointless to go to Cain if so.
+	let cain, unids, result,
+		npc = getInteractedNPC();
+
+	if (npc && npc.name.toLowerCase() === this.tasks[me.act - 1].Shop) {
+		return false;
+	}
+
+	// Check if we may use Cain - minimum gold
+	if (me.gold < Config.CainID.MinGold && !force) {
+		return false;
+	}
+
+	me.cancel();
+	this.stash(false);
+
+	unids = this.getUnids();
+
+	if (unids) {
+		// Check if we may use Cain - number of unid items
+		if (unids.length < Config.CainID.MinUnids && !force) {
+			return false;
+		}
+
+		cain = this.initNPC("CainID", "cainID");
+
+		if (!cain) { return false; }
+
+		if (force) {
+			npc = this.initNPC("Shop", "clearInventory");
+			if (!npc) { return false; }
+		}
+
+		for (let i = 0; i < unids.length; i += 1) {
+			let item = unids[i];
+			result = Pickit.checkItem(item);
+
+			// Force ID for unid items matching autoEquip criteria
+			if ([1, 2].indexOf(result.result) > -1 && !item.identified && AutoEquip.hasTier(item)) {
+				result.result = -1;
+			}
+
+			switch (result.result) {
+			case 4:
+				try {
+					print("sell " + item.name);
+					this.initNPC("Shop", "clearInventory");
+					Misc.itemLogger("Sold", item);
+					item.sell();
+				} catch (e) {
+					print(e);
+				}
+
+				break;
+			case 1:
+				Misc.itemLogger("Kept", item);
+				Misc.logItem("Kept", item, result.line);
+
+				break;
+			case 2: // cubing
+				Misc.itemLogger("Kept", item, "Cubing-Town");
+				Cubing.update();
+
+				break;
+			case 3: // runeword (doesn't trigger normally)
+				break;
+			case 5: // Crafting System
+				Misc.itemLogger("Kept", item, "CraftSys-Town");
+				CraftingSystem.update(item);
+
+				break;
+			default:
+				if (Developer.Debugging.smallCharmVerbose && item.classid === 603) {
+					Misc.logItem("Sold", item);
+				}
+
+				if (Developer.Debugging.largeCharmVerbose && item.classid === 604) {
+					Misc.logItem("Sold", item);
+				}
+
+				if (Developer.Debugging.grandCharmVerbose && item.classid === 605) {
+					Misc.logItem("Sold", item);
+				}
+
+				Misc.itemLogger("Sold", item);
+				if ((getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) && (item.getItemCost(1) <= 1 || !item.isSellable)) {
+					continue;
+				}
+
+				this.initNPC("Shop", "clearInventory");
+
+				// Might as well sell the item if already in shop
+				if (getUIFlag(sdk.uiflags.Shop) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
+					print("clearInventory sell " + item.name);
+					Misc.itemLogger("Sold", item);
+					item.sell();
+				} else {
+					print("clearInventory dropped " + item.name);
+					Misc.itemLogger("Dropped", item, "clearInventory");
+					item.drop();
+				}
+
+				let timer = getTickCount() - this.sellTimer; // shop speedup test
+
+				if (timer > 0 && timer < 500) {
+					delay(timer);
+				}
+
+				break;
+			case -1:
+				if (tome) {
+					this.identifyItem(item, tome);
+				} else {
+					scroll = npc.getItem(530);
+
+					if (scroll) {
+						if (!Storage.Inventory.CanFit(scroll)) {
+							tpTome = me.findItem(518, 0, 3);
+
+							if (tpTome) {
+								tpTomePos = {x: tpTome.x, y: tpTome.y};
+
+								tpTome.sell();
+								delay(500);
+							}
+						}
+
+						delay(500);
+
+						if (Storage.Inventory.CanFit(scroll)) {
+							scroll.buy();
+						}
+					}
+
+					scroll = me.findItem(530, 0, 3);
+
+					if (!scroll) {
+						continue;
+					}
+
+					this.identifyItem(item, scroll);
+				}
+
+				// roll back to now check against other criteria
+				if (item.indentified) {
+					i--;
+				}
+
+				break;
+			}
+		}
+	}
+
+	return true;
+};
+
 Town.identify = function () {
 	let i, item, tome, scroll, npc, list, timer, tpTome, result,
 		tpTomePos = {};
 
-	this.cainID();
+	if (me.gold < 5000) {
+		this.cainID(true);
+	}
 
 	list = Storage.Inventory.Compare(Config.Inventory);
 
-	if (!list) {
-		return false;
-	}
+	if (!list) { return false; }
 
 	// Avoid unnecessary NPC visits
 	for (i = 0; i < list.length; i += 1) {
@@ -279,9 +453,7 @@ Town.identify = function () {
 
 	npc = this.initNPC("Shop", "identify");
 
-	if (!npc) {
-		return false;
-	}
+	if (!npc) { return false; }
 
 	tome = me.findItem(519, 0, 3);
 
