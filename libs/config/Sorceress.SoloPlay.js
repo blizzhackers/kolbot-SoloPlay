@@ -17,7 +17,7 @@
 */
 
 function LoadConfig () {
-	if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
+	if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
 	if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
 
 	SetUp.include();
@@ -252,7 +252,7 @@ function LoadConfig () {
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:
 		// Res shield
-		if (Item.getEquippedItem(5).tier < 487) {
+		if ((Item.getEquippedItem(5).tier < 487 && !Item.getEquippedItem(4).twoHanded) || (Item.getEquippedItem(4).tier < 487 && Item.getEquippedItem(4).twoHanded)) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js")) {
 				include("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
 			}

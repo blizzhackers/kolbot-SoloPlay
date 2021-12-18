@@ -17,7 +17,7 @@
 */
 
 function LoadConfig () {
-	if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
+	if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
 	if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
 
 	SetUp.include();

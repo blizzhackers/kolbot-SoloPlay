@@ -5,7 +5,6 @@
 */
 
 if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
-
 if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
 
 Skill.getHand = function (skillId) {
@@ -431,8 +430,7 @@ Misc.townCheck = function () {
 		needhp = true,
 		needmp = true;
 
-	// Can't tp from uber trist or when dead. Don't tp from Arreat Summit. Can't tp at all if No TP tome or scrolls
-	if ([120, 136].indexOf(me.area) > -1 || me.dead || !Misc.townEnabled || !Town.canTpToTown()) {
+	if (!Misc.townEnabled || !Town.canTpToTown()) {
 		return false;
 	}
 

@@ -56,13 +56,13 @@ function main() {
 
 			if (script) {
 				if (script.running) {
-					if (i === "default.dbj") {
+					if (scripts[i] === "default.dbj") {
 						print("ÿc1Pausing.");
 					}
 
 					script.pause();
 				} else {
-					if (i === "default.dbj") {
+					if (scripts[i] === "default.dbj") {
 						// don't resume if dclone walked
 						if (!Events.cloneWalked) {
 							print("ÿc2Resuming.");
@@ -137,28 +137,23 @@ function main() {
 		});
 
 	while (true) {
-		if (!me.inTown && [120, 136].indexOf(me.area) === -1 && Town.canTpToTown() && (townCheck ||
+		if (Town.canTpToTown() && (townCheck ||
 			(Config.TownHP > 0 && me.hp < Math.floor(me.hpmax * Config.TownHP / 100)) ||
 			(Config.TownMP > 0 && me.mp < Math.floor(me.mpmax * Config.TownMP / 100)))) {
 			this.togglePause();
 
 			while (!me.gameReady) {
-				if (me.dead) {
-					return false;
-				}
-			
+				if (me.dead) { return false; }
 				delay(100);
 			}
 
-			if (me.dead) {
-				return false;
-			}
+			if (me.dead) { return false; }
 
-			Attack.stopClear = true;
 
 			try {
 				me.overhead("Going to town");
 				print("Going to town");
+				Attack.stopClear = true;
 				Events.townChicken = true;
 				
 				if (useHowl || useTerror) {

@@ -17,9 +17,7 @@ let Merc = {
 
 	// merc is null fix
 	getMercFix: function () {
-		if (!Config.UseMerc) {
-			return null;
-		}
+		if (!Config.UseMerc || me.classic) { return null; }
 
 		let merc = me.getMerc();
 

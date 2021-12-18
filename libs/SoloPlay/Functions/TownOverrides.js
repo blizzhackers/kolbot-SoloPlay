@@ -573,8 +573,8 @@ Town.identify = function () {
 };
 
 Town.canTpToTown = function () {
-	// No TP tome or tome with no scrolls or No scrolls and no TP tome
-	if ((!me.getItem(518) || me.getItem(518).getStat(70) === 0) || (!me.getItem(529) && !me.getItem(518))) {
+	// I'm dead or in town, no TP tome or scrolls, shouldn't tp from arreatsummit and can't tp from UberTristram
+	if (me.dead || me.inTown || !this.getTpTool() || [sdk.areas.ArreatSummit, sdk.areas.UberTristram].contains(me.area)) {
 		return false;
 	}
 
@@ -1415,9 +1415,10 @@ Town.canStash = function (item) {
 	}
 
 	if (!Storage.Stash.CanFit(item)) {
-		this.sortStash(true);	//Force sort
+		this.sortStash(true);	// Force sort
 
-		if (!Storage.Stash.CanFit(item)) {	//Re-check after sorting
+		// Re-check after sorting
+		if (!Storage.Stash.CanFit(item)) {	
 			return false;
 		}
 	}
@@ -1426,19 +1427,19 @@ Town.canStash = function (item) {
 };
 
 Town.openStash = function () {
-	let i, tick, stash, telekinesis;
+	let stash, telekinesis;
 
-	if (getUIFlag(0x1a) && !Cubing.closeCube()) {
+	if (getUIFlag(sdk.uiflags.Cube) && !Cubing.closeCube()) {
 		return false;
 	}
 
-	if (getUIFlag(0x19)) {
+	if (getUIFlag(sdk.uiflags.Stash)) {
 		return true;
 	}
 	
-	telekinesis = me.sorceress && me.getSkill(43, 1);
+	telekinesis = me.sorceress && me.getSkill(sdk.skills.Telekinesis, 1);
 
-	for (i = 0; i < 5; i += 1) {
+	for (let i = 0; i < 5; i += 1) {
 		me.cancel();
 
 		if (this.move("stash")) {
@@ -1446,16 +1447,16 @@ Town.openStash = function () {
 
 			if (stash) {
 				if (telekinesis) {
-					Pather.walkTo(stash.x, stash.y, 23); //Fix for out of range telek
-					Skill.cast(43, 0, stash);
+					Pather.walkTo(stash.x, stash.y, 23); // Fix for out of range telek
+					Skill.cast(sdk.skills.Telekinesis, 0, stash);
 				} else {
 					Misc.click(0, 0, stash);
 				}
 
-				tick = getTickCount();
+				let tick = getTickCount();
 
 				while (getTickCount() - tick < 5000) {
-					if (getUIFlag(0x19)) {
+					if (getUIFlag(sdk.uiflags.Stash)) {
 						delay(100 + me.ping * 2); // allow UI to initialize
 
 						return true;
@@ -2612,18 +2613,16 @@ Town.clearJunk = function () {
 	let junk = me.findItems(-1, 0);
 	let junkToSell = [];
 
-	if (!junk) {
-		return false;
-	}
+	if (!junk) { return false; }
 
 	while (junk.length > 0) {
-		if (([3, 7].indexOf(junk[0].location) > -1) && // stash or inventory
+		if ((junk[0].isInStorage) && // stash/invo/cube
 			([1, 2, 3, 5].indexOf(Pickit.checkItem(junk[0]).result) === -1) &&
 			!AutoEquip.wanted(junk[0]) && // Don't toss wanted auto equip items
 			!Cubing.keepItem(junk[0]) && // Don't throw cubing ingredients
 			!Runewords.keepItem(junk[0]) && // Don't throw runeword ingredients
 			!CraftingSystem.keepItem(junk[0]) && // Don't throw crafting system ingredients
-			[18, 41, 76, 77, 78].indexOf(junk[0].itemType) === -1 && // Don't drop tomes, keys or potions
+			!Town.ignoredItemTypes.contains(junk[0].itemType) && // Don't drop tomes, keys or potions
 			junk[0].isSellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
 			([0, 4].indexOf(Pickit.checkItem(junk[0]).result) > -1) // only drop unwanted
 		) {
@@ -2631,8 +2630,13 @@ Town.clearJunk = function () {
 				continue;
 			}
 
-			if (!getUIFlag(0x19) && junk[0].isInStash) {
+			if (!getUIFlag(sdk.uiflags.Stash) && [sdk.storage.Stash, sdk.storage.Cube].contains(junk[0].location)) {
 				Town.openStash();
+			}
+
+			// Something got stuck in the cube
+			if (junk[0].location === sdk.storage.cube) {	
+				Cubing.emptyCube();
 			}
 
 			print("ÿc9JunkCheckÿc0 :: Junk: " + junk[0].name + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
@@ -2663,13 +2667,14 @@ Town.clearJunk = function () {
 
 		}
 
-		if ([3, 6, 7].indexOf(junk[0].location) > -1 && junk[0].isSellable) {
+		if (junk[0].isInStorage && junk[0].isSellable) {
 			if (junk[0].isRuneword && !AutoEquip.wanted(junk[0])) {
-				if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
+				if (!getUIFlag(sdk.uiflags.Stash) && [sdk.storage.Stash, sdk.storage.Cube].contains(junk[0].location)) {
 					Town.openStash();
 				}
 
-				if (junk[0].location === 6) {	// Something got stuck in the cube
+				// Something got stuck in the cube
+				if (junk[0].location === sdk.storage.cube) {	
 					Cubing.emptyCube();
 				}
 
@@ -2702,11 +2707,12 @@ Town.clearJunk = function () {
 
 			if (junk[0].isBaseType) {
 				if (this.worseBaseThanStashed(junk[0], true)) {
-					if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
+					if (!getUIFlag(sdk.uiflags.Stash) && [sdk.storage.Stash, sdk.storage.Cube].contains(junk[0].location)) {
 						Town.openStash();
 					}
 
-					if (junk[0].location === 6) {	// Something got stuck in the cube
+					// Something got stuck in the cube
+					if (junk[0].location === sdk.storage.cube) {	
 						Cubing.emptyCube();
 					}
 
@@ -2740,11 +2746,12 @@ Town.clearJunk = function () {
 				if (!this.betterBaseThanWearing(junk[0], Developer.Debugging.junkCheckVerbose)) {
 					print("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
 
-					if (!getUIFlag(0x19) && [6, 7].indexOf(junk[0].location) > -1) {
+					if (!getUIFlag(sdk.uiflags.Stash) && [sdk.storage.Stash, sdk.storage.Cube].contains(junk[0].location)) {
 						Town.openStash();
 					}
 
-					if (junk[0].location === 6) {	// Something got stuck in the cube
+					// Something got stuck in the cube
+					if (junk[0].location === sdk.storage.cube) {	
 						Cubing.emptyCube();
 					}
 
@@ -2783,7 +2790,7 @@ Town.clearJunk = function () {
 
 		Town.initNPC("Shop", "clearInventory");
 
-		if (getUIFlag(0xC) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
+		if (getUIFlag(sdk.uiflags.Shop) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
 			for (let i = 0; i < junkToSell.length; i++) {
 				print("ÿc9JunkCheckÿc0 :: Sell " + junkToSell[i].name);
 				Misc.itemLogger("Sold", junkToSell[i]);
@@ -2983,8 +2990,7 @@ Town.visitTown = function (repair = false) {
 		return true;
 	}
 
-	// Currently in Arreat Summit or Uber Tristram or I died while trying to townchicken or town isn't enabled at the moment or I don't have a tp tome or scrolls
-	if ([120, 136].indexOf(me.area) > -1 || me.dead || !Misc.townEnabled || !Town.canTpToTown()) {
+	if (!Misc.townEnabled || !Town.canTpToTown()) {
 		return false;
 	}
 

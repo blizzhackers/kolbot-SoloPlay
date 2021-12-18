@@ -6,14 +6,12 @@
 */
 
 if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
+if (!isIncluded("SoloPlay/Functions/PrototypesOverrides.js")) { include("SoloPlay/Functions/PrototypesOverrides.js"); }
 
 Item.getQuantityOwned = function (item) {
+	if (item === undefined) { return 0; }
+	
 	let list = [];
-
-	if (item === undefined) {
-		return 0;
-	}
-
 	let myItems = me.getItems()
 		.filter(check =>
 			check.itemType === item.itemType// same item type as current
@@ -177,21 +175,15 @@ Item.getEquippedItem = function (bodyLoc) {
 
 Item.canEquip = function (item) {
 	// Not an item
-	if (item.type !== sdk.unittype.Item) {
-		return false;
-	}
-
-	if (!item.identified) {
-		return false;
-	}
+	if (item.type !== sdk.unittype.Item) { return false; }
+	// unidentified
+	if (!item.identified) { return false; }
 	
 	return me.charlvl >= item.getStat(sdk.stats.LevelReq) && me.trueStr >= item.strreq && me.trueDex >= item.dexreq;
 };
 
 Item.autoEquipCheck = function (item) {
-	if (!Config.AutoEquip) {
-		return true;
-	}
+	if (!Config.AutoEquip) { return true; }
 
 	let tier = NTIP.GetTier(item),
 		bodyLoc = this.getBodyLoc(item);
@@ -219,9 +211,7 @@ Item.autoEquipCheck = function (item) {
 };
 
 Item.autoEquipKeepCheck = function (item) {
-	if (!Config.AutoEquip) {
-		return true;
-	}
+	if (!Config.AutoEquip) { return true; }
 
 	let tier = NTIP.GetTier(item),
 		bodyLoc = this.getBodyLoc(item);
@@ -249,28 +239,20 @@ Item.autoEquipKeepCheck = function (item) {
 };
 
 Item.autoEquip = function () {
-	if (!Config.AutoEquip) {
-		return true;
-	}
+	if (!Config.AutoEquip) { return true; }
 
 	print("ÿc8Kolbot-SoloPlayÿc0: Entering auto equip");
 	let tick = getTickCount();
 
 	// Set trueStr and trueDex values rather than having to find them everytime.
-	if (me.trueStr < me.rawStrength) {
-		me.trueStr = me.rawStrength;
-	}
-
-	if (me.trueDex < me.rawDexterity) {
-		me.trueDex = me.rawDexterity;
-	}
+	(me.trueStr < me.rawStrength) && (me.trueStr = me.rawStrength);
+	(me.trueDex < me.rawDexterity) && (me.trueDex = me.rawDexterity);
 
 	let tier, bodyLoc, tome, gid,
 		items = me.findItems(-1, 0);
 
-	if (!items) {
-		return false;
-	}
+	// couldn't find my items
+	if (!items) { return false; }
 
 	function sortEq (a, b) {
 		if (Item.canEquip(a)) {
@@ -336,14 +318,9 @@ Item.autoEquip = function () {
 
 					if (this.equip(items[0], bodyLoc[j])) {
 						print("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
+						if (Developer.Debugging.autoEquip) { Misc.logItem("Equipped", me.getItem(-1, -1, gid)); }
+						if (Developer.logEquipped) { MuleLogger.logEquippedItems(); }
 
-						if (Developer.Debugging.autoEquip) {
-							Misc.logItem("Equipped", me.getItem(-1, -1, gid));
-						}
-
-						if (Developer.logEquipped) {
-							MuleLogger.logEquippedItems();
-						}
 					} else if (items[0].lvlreq > me.charlvl && !items[0].isInStash) {
 						if (Storage.Stash.CanFit(items[0])) {
 							print("ÿc9AutoEquipÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + items[0].fname + " Tier: " + tier);
@@ -364,36 +341,28 @@ Item.autoEquip = function () {
 };
 
 Item.equip = function (item, bodyLoc) {
-	if (!this.canEquip(item)) {
-		return false;
-	}
+	// can't equip
+	if (!this.canEquip(item)) { return false; }
 
 	// Already equipped in the right slot
-	if (item.mode === sdk.itemmode.Equipped && item.bodylocation === bodyLoc) {
-		return true;
-	}
-
-	let i, cursorItem;
+	if (item.mode === sdk.itemmode.Equipped && item.bodylocation === bodyLoc) { return true; }
 
 	if (item.isInStash) {
-		if (!Town.openStash()) {
-			return false;
-		}
+		if (!Town.openStash()) { return false; }
 	}
 
 	if (item.location === sdk.storage.Cube) {
-		if (!Town.openStash() && !Cubing.openCube()) {
-			return false;
-		}
+		// failed to open cube
+		if (!Town.openStash() && !Cubing.openCube()) { return false; }
 	}
 
-	for (i = 0; i < 3; i += 1) {
+	for (let i = 0; i < 3; i += 1) {
 		if (item.toCursor()) {
 			clickItemAndWait(0, bodyLoc);
 
 			if (item.bodylocation === bodyLoc) {
 				if (getCursorType() === 3) {
-					cursorItem = getUnit(100);
+					let cursorItem = getUnit(100);
 
 					if (cursorItem) {
 						if (Pickit.checkItem(cursorItem).result === 1 ||
@@ -425,13 +394,8 @@ Item.removeItem = function (bodyLoc) {
 			)
 			.first();
 
-	if (!me.inTown) {
-		Town.goToTown();
-	}
-
-	if (!getUIFlag(sdk.uiflags.Stash)) {
-		Town.openStash();
-	}
+	if (!me.inTown) { Town.goToTown(); }
+	if (!getUIFlag(sdk.uiflags.Stash)) { Town.openStash(); }
 
 	if (removable) {
 		removable.toCursor();
@@ -526,33 +490,24 @@ Item.getBodyLocSecondary = function (item) {
 };
 
 Item.secondaryEquip = function (item, bodyLoc) {
-	if (!this.canEquip(item) && !me.classic) {
-		return false;
-	}
-
+	if (!this.canEquip(item) && !me.classic) { return false; }
 	// Already equipped in the right slot
-	if (item.mode === sdk.itemmode.Equipped && item.bodylocation === bodyLoc) {
-		return true;
-	}
-
-	let i, cursorItem;
+	if (item.mode === sdk.itemmode.Equipped && item.bodylocation === bodyLoc) { return true; }
 
 	if (item.isInStash) {
-		if (!Town.openStash()) {
-			return false;
-		}
+		if (!Town.openStash()) { return false; }
 	}
 
 	me.switchWeapons(1); // Switch weapons
 
-	for (i = 0; i < 3; i += 1) {
+	for (let i = 0; i < 3; i += 1) {
 		if (item.toCursor()) {
 			clickItemAndWait(0, bodyLoc - 7);
 
 
 			if (item.bodylocation === bodyLoc - 7) {
 				if (getCursorType() === 3) {
-					cursorItem = getUnit(100);
+					let cursorItem = getUnit(100);
 
 					if (cursorItem) {
 						if (Pickit.checkItem(cursorItem).result === 1 ||
@@ -573,22 +528,15 @@ Item.secondaryEquip = function (item, bodyLoc) {
 		}
 	}
 
-	if (me.weaponswitch !== 0) {
-		// Switch back to primary
-		Attack.weaponSwitch(0);
-	}
+	// Switch back to primary
+	if (me.weaponswitch !== 0) { me.switchWeapons(0); }
 
 	return false;
 };
 
 Item.autoEquipCheckSecondary = function (item) {
-	if (!Config.AutoEquip) {
-		return true;
-	}
-	
-	if (me.classic) {
-		return false;
-	}
+	if (!Config.AutoEquip) { return true; }
+	if (me.classic) { return false; }
 
 	let tier = NTIP.GetSecondaryTier(item),
 		bodyLoc = Item.getBodyLocSecondary(item);
@@ -603,9 +551,7 @@ Item.autoEquipCheckSecondary = function (item) {
 };
 
 Item.autoEquipSecondary = function () {
-	if (!Config.AutoEquip || me.classic) {
-		return true;
-	}
+	if (!Config.AutoEquip || me.classic) { return true; }
 
 	print("ÿc8Kolbot-SoloPlayÿc0: Entering secondary auto equip");
 	let tick = getTickCount();
@@ -613,9 +559,7 @@ Item.autoEquipSecondary = function () {
 	let tier, bodyLoc, tome, gid,
 		items = me.findItems(-1, 0);
 
-	if (!items) {
-		return false;
-	}
+	if (!items) { return false; }
 
 	function sortEq (a, b) {
 		if (Item.canEquip(a)) {
@@ -662,19 +606,14 @@ Item.autoEquipSecondary = function () {
 					}
 
 					gid = items[0].gid;
-
 					print(items[0].name);
 
 					if (this.secondaryEquip(items[0], bodyLoc[j])) {
 						print("ÿc9SecondaryEquipÿc0 :: Equipped: " + items[0].fname + " SecondaryTier: " + tier);
 
-						if (Developer.Debugging.autoEquip) {
-							Misc.logItem("Equipped switch", me.getItem(-1, -1, gid));
-						}
+						if (Developer.Debugging.autoEquip) { Misc.logItem("Equipped switch", me.getItem(-1, -1, gid)); }
+						if (Developer.logEquipped) { MuleLogger.logEquippedItems(); }
 
-						if (Developer.logEquipped) {
-							MuleLogger.logEquippedItems();
-						}
 					}
 
 					break;
@@ -695,20 +634,12 @@ Item.hasMercTier = function (item) {
 };
 
 Item.canEquipMerc = function (item, bodyLoc) {
-	if (item.type !== sdk.unittype.Item || me.classic) {
-		return false;
-	}
+	if (item.type !== sdk.unittype.Item || me.classic) { return false; }
 
 	let mercenary = Merc.getMercFix();
 
-	// dont have merc or he is dead
-	if (!mercenary) {
-		return false;
-	}
-
-	if (!item.identified) {
-		return false;
-	}
+	// dont have merc or he is dead or unidentifed item
+	if (!mercenary || !item.identified) { return false; }
 
 	let curr = Item.getEquippedItemMerc(bodyLoc);
 
@@ -724,23 +655,14 @@ Item.equipMerc = function (item, bodyLoc) {
 	let cursorItem, mercenary = Merc.getMercFix();
 
 	// dont have merc or he is dead
-	if (!mercenary) {
-		return false;
-	}
-
-	if (!Item.canEquipMerc(item, bodyLoc)) {
-		return false;
-	}
-
+	if (!mercenary) { return false; }
+	// higher requirements
+	if (!Item.canEquipMerc(item, bodyLoc)) { return false; }
 	// Already equipped in the right slot
-	if (item.mode === sdk.itemmode.Equipped && item.bodylocation === bodyLoc) {
-		return true;
-	}
+	if (item.mode === sdk.itemmode.Equipped && item.bodylocation === bodyLoc) { return true; }
 
 	if (item.isInStash) {
-		if (!Town.openStash()) {
-			return false;
-		}
+		if (!Town.openStash()) { return false; }
 	}
 
 	for (let i = 0; i < 3; i += 1) {
@@ -748,9 +670,7 @@ Item.equipMerc = function (item, bodyLoc) {
 			if (clickItem(4, bodyLoc)) {
 				delay(500 + me.ping * 2);
 
-				if (Developer.Debugging.autoEquip) {
-					Misc.logItem("Merc Equipped", mercenary.getItem(item.classid));
-				}
+				if (Developer.Debugging.autoEquip) { Misc.logItem("Merc Equipped", mercenary.getItem(item.classid)); }
 			}
 
 			if (item.bodylocation === bodyLoc) {
@@ -770,9 +690,7 @@ Item.equipMerc = function (item, bodyLoc) {
 					}
 				}
 
-				if (Developer.logEquipped) {
-					MuleLogger.logEquippedItems();
-				}
+				if (Developer.logEquipped) { MuleLogger.logEquippedItems(); }
 
 				return true;
 			}
@@ -818,9 +736,7 @@ Item.getBodyLocMerc = function (item) {
 	let bodyLoc = false, mercenary = Merc.getMercFix();
 
 	// dont have merc or he is dead
-	if (!mercenary) {
-		return false;
-	}
+	if (!mercenary) { return false; }
 
 	switch (item.itemType) {
 	case sdk.itemtype.Shield:
@@ -874,13 +790,8 @@ Item.getBodyLocMerc = function (item) {
 };
 
 Item.autoEquipCheckMerc = function (item) {
-	if (!Config.AutoEquip) {
-		return true;
-	}
-
-	if (Config.AutoEquip && !Merc.getMercFix()) {
-		return false;
-	}
+	if (!Config.AutoEquip) { return true; }
+	if (Config.AutoEquip && !Merc.getMercFix()) { return false; }
 
 	let tier = NTIP.GetMercTier(item), bodyLoc = Item.getBodyLocMerc(item);
 
@@ -898,13 +809,8 @@ Item.autoEquipCheckMerc = function (item) {
 };
 
 Item.autoEquipKeepCheckMerc = function (item) {
-	if (!Config.AutoEquip) {
-		return true;
-	}
-
-	if (Config.AutoEquip && !Merc.getMercFix()) {
-		return false;
-	}
+	if (!Config.AutoEquip) { return true; }
+	if (Config.AutoEquip && !Merc.getMercFix()) { return false; }
 
 	let tier = NTIP.GetMercTier(item), bodyLoc = Item.getBodyLocMerc(item);
 
@@ -922,15 +828,11 @@ Item.autoEquipKeepCheckMerc = function (item) {
 };
 
 Item.autoEquipMerc = function () {
-	if (!Config.AutoEquip || !Merc.getMercFix()) {
-		return true;
-	}
+	if (!Config.AutoEquip || !Merc.getMercFix()) { return true; }
 
 	let tier, bodyLoc, tome, scroll, items = me.findItems(-1, 0);
 
-	if (!items) {
-		return false;
-	}
+	if (!items) { return false; }
 
 	function sortEq (a, b) {
 		if (Item.canEquipMerc(a) && Item.canEquipMerc(b)) {
@@ -982,18 +884,14 @@ Item.autoEquipMerc = function () {
 
 					print("Merc " + items[0].name);
 
-					if (this.equipMerc(items[0], bodyLoc[j])) {
-						print("ÿc9MercEquipÿc0 :: Equipped: " + items[0].fname + " MercTier: " + tier);
-					}
+					if (this.equipMerc(items[0], bodyLoc[j])) { print("ÿc9MercEquipÿc0 :: Equipped: " + items[0].fname + " MercTier: " + tier); }
 					
 					let cursorItem = getUnit(100);
 
 					if (cursorItem) {
 						cursorItem.drop();
 
-						if (Developer.Debugging.autoEquip) {
-							Misc.logItem("Merc Dropped", cursorItem);
-						}
+						if (Developer.Debugging.autoEquip) { Misc.logItem("Merc Dropped", cursorItem); }
 					}
 
 					break;
@@ -1010,9 +908,7 @@ Item.autoEquipMerc = function () {
 Item.removeItemsMerc = function () {
 	let cursorItem, mercenary = Merc.getMercFix();
 
-	if (!mercenary) {
-		return true;
-	}
+	if (!mercenary) { return true; }
 
 	let items = mercenary.getItems();
 
@@ -1036,7 +932,7 @@ Item.removeItemsMerc = function () {
 	return !!mercenary.getItem();
 };
 
-// Charm Autoequip
+// Charm Autoequip - TODO: clean this section up
 Item.hasCharmTier = function (item) {
 	return Config.AutoEquip && NTIP.GetCharmTier(item) > 0 && !me.classic;
 };
@@ -1227,7 +1123,7 @@ Item.autoEquipGC = function () {
 		};
 	}
 
-	//Remove non grand charms and gheeds
+	// Remove non grand charms and gheeds
 	for (let i = 0; i < items.length; i++) {
 		if (items[i].classid !== 605 || (items[i].classid === 605 && items[i].quality !== 4)) {
 			items.splice(i, 1);
@@ -1834,73 +1730,43 @@ Item.autoEquipCharmSort = function (items, verbose) {
 };
 
 Item.autoEquipCharmCheck = function (item) {
-	if (!item) {
+	if (!item || NTIP.GetCharmTier(item) <= 0) {
 		return false;
 	}
 
 	// Annhilus, Hellfire Torch, Gheeds - Handled by a different function so return true to keep
-	if ([603, 604, 605].indexOf(item.classid) > -1 && item.quality === 7) {
+	if ([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].contains(item.classid) && item.quality === sdk.itemquality.Unique) {
 		return true;
 	}
 
 	// Not a charm
-	if ([603, 604, 605].indexOf(item.classid) === -1) {
+	if (![sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].contains(item.classid)) {
 		return false;
 	}
 
-	let charms, items = me.findItems(-1, 0), lowestCharm;
+	let charms, lowestCharm,
+		items = me.getItems()
+			.filter(charm => [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].contains(charm.classid)
+				&& charm.isInStorage && charm.quality === sdk.itemquality.Magic && NTIP.GetCharmTier(charm) > 0);
 
-	if (!items) {
-		return false;
-	}
-
-	if (NTIP.GetCharmTier(item) <= 0) {
-		return false;
-	}
-
-	// Remove items without tier
-	for (let i = 0; i < items.length; i += 1) {
-		if (NTIP.GetCharmTier(items[i]) === 0) {
-			items.splice(i, 1);
-
-			i -= 1;
-		}
-	}
+	if (!items) { return false; }
 
 	switch (item.classid) {
-	case 603:
-		//Remove non small charms and annhilus
-		for (let i = 0; i < items.length; i++) {
-			if (items[i].classid !== 603 || items[i].quality !== 4) {
-				items.splice(i, 1);
-
-				i -= 1;
-			}
-		}
+	case sdk.items.SmallCharm:
+		// Remove non small charms
+		items = items.filter(charm => charm.classid === sdk.items.SmallCharm);
 		charms = Item.autoEquipCharmSort(items);
 
 		break;
-	case 604:
-		//Remove non large charms and torch
-		for (let i = 0; i < items.length; i++) {
-			if (items[i].classid !== 604 || items[i].quality !== 4) {
-				items.splice(i, 1);
-
-				i -= 1;
-			}
-		}
+	case sdk.items.LargeCharm:
+		// Remove non large charms
+		items = items.filter(charm => charm.classid === sdk.items.LargeCharm);
 		charms = Item.autoEquipCharmSort(items);
 
 		break;
-	case 605:
-		//Remove non grand charms and gheeds
-		for (let i = 0; i < items.length; i++) {
-			if (items[i].classid !== 605 || items[i].quality !== 4) {
-				items.splice(i, 1);
-
-				i -= 1;
-			}
-		}
+	case sdk.items.GrandCharm:
+		//Remove non grand charms
+		items = items.filter(charm => charm.classid === sdk.items.GrandCharm);
 		charms = Item.autoEquipCharmSort(items);
 
 		break;
@@ -1912,38 +1778,29 @@ Item.autoEquipCharmCheck = function (item) {
 	let keep = [];
 	keep = keep.concat(charms.typeA, charms.typeB, charms.typeC, charms.resCharms, charms.healthCharms, charms.mfCharms, charms.dmgCharms, charms.eleDmgCharms, charms.backupCheck);
 
-	if (keep.length > (item.classid === 603 ? Item.maxFinalSCs : item.classid === 604 ? Item.maxFinalLCs : Item.maxFinalGCs)) {
+	if (keep.length > (item.classid === sdk.items.SmallCharm ? Item.maxFinalSCs : item.classid === sdk.items.LargeCharm ? Item.maxFinalLCs : Item.maxFinalGCs)) {
 		switch (item.classid) {
-		case 603:
+		case sdk.items.SmallCharm:
 			lowestCharm = Item.finalEquippedSCs.last();
-
-			if (lowestCharm === undefined) {
-				break;
-			}
+			if (lowestCharm === undefined) { break; }
 
 			if (NTIP.GetCharmTier(item) > NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid) {
 				return true;
 			} else {
 				return false;
 			}
-		case 604:
+		case sdk.items.LargeCharm:
 			lowestCharm = Item.finalEquippedLCs.last();
-
-			if (lowestCharm === undefined) {
-				break;
-			}
+			if (lowestCharm === undefined) { break; }
 
 			if (NTIP.GetCharmTier(item) > NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid) {
 				return true;
 			} else {
 				return false;
 			}
-		case 605:
+		case sdk.items.GrandCharm:
 			lowestCharm = Item.finalEquippedGCs.last();
-
-			if (lowestCharm === undefined) {
-				break;
-			}
+			if (lowestCharm === undefined) { break; }
 
 			if (NTIP.GetCharmTier(item) > NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid) {
 				return true;
@@ -1955,10 +1812,7 @@ Item.autoEquipCharmCheck = function (item) {
 
 	switch (Item.getCharmType(item)) {
 	case "skillerTypeA":
-		if (!charms.typeA.length) {
-			break;
-		}
-
+		if (!charms.typeA.length) { break; }
 		lowestCharm = charms.typeA.last();
 
 		if (NTIP.GetCharmTier(item) > NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid) {
@@ -1967,10 +1821,7 @@ Item.autoEquipCharmCheck = function (item) {
 			return false;
 		}
 	case "skillerTypeB":
-		if (!charms.typeB.length) {
-			break;
-		}
-
+		if (!charms.typeB.length) { break; }
 		lowestCharm = charms.typeB.last();
 
 		if (NTIP.GetCharmTier(item) > NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid) {
@@ -1979,10 +1830,7 @@ Item.autoEquipCharmCheck = function (item) {
 			return false;
 		}
 	case "skillerTypeC":
-		if (!charms.typeC.length) {
-			break;
-		}
-
+		if (!charms.typeC.length) { break; }
 		lowestCharm = charms.typeC.last();
 
 		if (NTIP.GetCharmTier(item) > NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid) {
@@ -1991,10 +1839,7 @@ Item.autoEquipCharmCheck = function (item) {
 			return false;
 		}
 	case "Resist":
-		if (!charms.resCharms.length) {
-			break;
-		}
-
+		if (!charms.resCharms.length) { break; }
 		lowestCharm = charms.resCharms.last();
 
 		if (NTIP.GetCharmTier(item) > NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid) {
@@ -2003,10 +1848,7 @@ Item.autoEquipCharmCheck = function (item) {
 			return false;
 		}
 	case "Life":
-		if (!charms.healthCharms.length) {
-			break;
-		}
-
+		if (!charms.healthCharms.length) { break; }
 		lowestCharm = charms.healthCharms.last();
 
 		if (NTIP.GetCharmTier(item) > NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid) {
@@ -2015,10 +1857,7 @@ Item.autoEquipCharmCheck = function (item) {
 			return false;
 		}
 	case "Magicfind":
-		if (!charms.mfCharms.length) {
-			break;
-		}
-
+		if (!charms.mfCharms.length) { break; }
 		lowestCharm = charms.mfCharms.last();
 
 		if (NTIP.GetCharmTier(item) > NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid) {
@@ -2027,10 +1866,7 @@ Item.autoEquipCharmCheck = function (item) {
 			return false;
 		}
 	case "Damage":
-		if (!charms.dmgCharms.length) {
-			break;
-		}
-
+		if (!charms.dmgCharms.length) { break; }
 		lowestCharm = charms.dmgCharms.last();
 
 		if (NTIP.GetCharmTier(item) > NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid) {
@@ -2039,10 +1875,7 @@ Item.autoEquipCharmCheck = function (item) {
 			return false;
 		}
 	case "Elemental":
-		if (!charms.eleDmgCharms.length) {
-			break;
-		}
-
+		if (!charms.eleDmgCharms.length) { break; }
 		lowestCharm = charms.eleDmgCharms.last();
 
 		if (NTIP.GetCharmTier(item) > NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid) {
@@ -2051,10 +1884,7 @@ Item.autoEquipCharmCheck = function (item) {
 			return false;
 		}
 	default:
-		if (!charms.backupCheck.length) {
-			break;
-		}
-
+		if (!charms.backupCheck.length) { break; }
 		lowestCharm = charms.backupCheck.last();
 
 		if (NTIP.GetCharmTier(item) > NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid) {
@@ -2069,9 +1899,7 @@ Item.autoEquipCharmCheck = function (item) {
 
 Item.autoEquipCharms = function (verbose) {
 	// No charms in classic
-	if (me.classic) {
-		return;
-	}
+	if (me.classic) { return; }
 
 	print("ÿc8Kolbot-SoloPlayÿc0: Entering charm auto equip");
 	let tick = getTickCount();
@@ -2156,13 +1984,9 @@ Item.autoEquipCharms = function (verbose) {
 
 // Write charm equip version that checks by item prefix/suffix using a switch case with the various prefixes and suffixes to sort them
 Item.getCharmType = function (charm) {
-	if (charm === undefined || !charm) {
-		return false;
-	}
-
-	if ([603, 604, 605].indexOf(charm.classid) === -1) {
-		return false;
-	}
+	if (charm === undefined || !charm) { return false; }
+	if (![sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].contains(charm.classid)) { return false; }
+	if (charm.quality === sdk.itemquality.Unique) { return "Unique"; }
 
 	let charmType = "";
 	let skillerStats = [[0, 1, 2], [8, 9, 10], [16, 17, 18], [24, 25, 26], [32, 33, 34], [40, 41, 42], [48, 49, 50]][me.classid];
@@ -2313,12 +2137,12 @@ Item.getCharmType = function (charm) {
 	return charmType;
 };
 
-let AutoEquip = {
+const AutoEquip = {
 	hasTier: function (item) {
 		if (me.classic) {
 			return Item.hasTier(item);
 		} else {
-			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(item.itemType) > -1) {
+			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].contains(item.itemType)) {
 				return Item.hasCharmTier(item);
 			} else {
 				return Item.hasMercTier(item) || Item.hasTier(item) || Item.hasSecondaryTier(item);
@@ -2330,7 +2154,7 @@ let AutoEquip = {
 		if (me.classic) {
 			return Item.autoEquipKeepCheck(item);
 		} else {
-			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(item.itemType) > -1) {
+			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].contains(item.itemType)) {
 				return Item.autoEquipCharmCheck(item);
 			} else {
 				return Item.autoEquipKeepCheckMerc(item) || Item.autoEquipKeepCheck(item) || Item.autoEquipCheckSecondary(item);

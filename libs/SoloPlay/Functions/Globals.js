@@ -8,13 +8,14 @@ if (!isIncluded("OOG.js")) { include("OOG.js"); }
 if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
 
 let sdk = require('../modules/sdk');
-
-// general settings
 let Difficulty = ['Normal', 'Nightmare', 'Hell'];
-let classes = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"];
+
 // these builds are not possible to do on classic
 let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl"];
+// these builds are not possible to do without ladder runewords
+let impossibleNonLadderBuilds = ["Auradin"];
 
+// general settings
 const SetUp = {
 	scripts: [
 		"corpsefire", "den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "andariel", "a1chests", "cows", // Act 1
@@ -308,6 +309,7 @@ const SetUp = {
 SetUp.levelCap = SetUp.setLevelCap();
 
 // SoloPlay Pickit Items
+// TODO: check if is this even needed?
 const nipItems = {
 	Selling: [
 		'([type] == ring || [type] == amulet) && [quality] >= magic # [fcr] >= 600',
@@ -374,6 +376,7 @@ const nipItems = {
 
 // General Game functions
 const Check = {
+	// TODO: clean this up somehow, I dislike how it looks right now as its not completely clear
 	Task: function (sequenceName) {
 		let needRunes = this.Runes();
 
@@ -1106,6 +1109,14 @@ const Check = {
 				}
 			}
 
+			if (SetUp.finalBuild.includes("-")) {
+				SetUp.finalBuild = SetUp.finalBuild.substring(SetUp.finalBuild.indexOf("-") + 1);
+				SetUp.finalBuild = SetUp.finalBuild[0].toUpperCase() + SetUp.finalBuild.substring(1).toLowerCase();
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '-' which is unecessary and means you likely entered something along the lines of Classname-finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
+				DataFile.updateStats("finalBuild", SetUp.finalBuild);
+			}
+
 			let buildType = SetUp.finalBuild;
 			let build;
 
@@ -1188,6 +1199,7 @@ const Check = {
 		}
 	},
 
+	// TODO: enable this for other items, i.e maybe don't socket tal helm in hell but instead go back and use nightmare so then we can use hell socket on tal armor?
 	usePreviousSocketQuest: function () {
 		if (!Check.Resistance().Status) {
 			if (me.weaponswitch === 0 && Item.getEquippedItem(5).fname.includes("Lidless Wall") && !Item.getEquippedItem(5).socketed) {
@@ -1209,6 +1221,7 @@ const Check = {
 	},
 };
 
+// TODO: set this up similar to cubing where certain items get added to the validGids list to be kept and we look for items from the needList
 let SoloPlay = {
 	needList: [],
 	validGids: [],
