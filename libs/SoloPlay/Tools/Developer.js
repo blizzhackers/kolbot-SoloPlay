@@ -11,7 +11,7 @@ const Developer = {
 	Overlay: true,			// show in game overlay (see bottom of README.md for example)
 	logEquipped: false,		// log currently equipped items to D2Bot# charviewer tab
 	hideChickens: true, 	// disable printing chicken info in D2Bot console
-	addLadderRW: true, 		// enable ladder runewords in single player mode ONLY WORKS IF RUNEWORDS.TXT IS INSTALLED AND D2BS PROFILE IS CONFIGURED or patch.json has been updated (see Single Player Additions in README.md)
+	addLadderRW: !me.profile.toLowerCase().contains("nl"), // enable ladder runewords in single player mode ONLY WORKS IF RUNEWORDS.TXT IS INSTALLED AND D2BS PROFILE IS CONFIGURED or patch.json has been updated (see Single Player Additions in README.md)
 	forcePacketCasting: { 	// hide casting animations for better stability (reduce d2bs crashes)
 		enabled: true,
 		excludeProfiles: [""],	// allow specific profiles to show casting animations without disabling it for every profile running (helpful when debugging)
