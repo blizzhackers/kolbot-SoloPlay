@@ -64,7 +64,7 @@ var finalBuild = {
 		"[name] == grandcharm && [quality] == magic # [bowandcrossbowskilltab] == 1 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # [passiveandmagicskilltab] == 1 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		// Switch
-		"[minimumsockets] == 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
+		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
 		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000", //spirit
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
