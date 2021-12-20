@@ -1299,7 +1299,7 @@ function main () {
 					crRes = Math.min(75, me.getStat(43) - resPenalty);
 					lrRes = Math.min(75, me.getStat(41) - resPenalty);
 					prRes = Math.min(75, me.getStat(45) - resPenalty);
-					areaName = me.ingame ? getArea().name : false;
+					areaName = me.ingame && !!me.area ? getArea().name : false;
 					diffName = ['Normal', 'Nightmare', 'Hell'][me.diff];
 					D2Bot.updateStatus("Lvl: " + me.charlvl + " (" + myExp + "%) | Diff: " + diffName + " | Area: " + areaName + " | Gold: " + myGold + " | FR: " + frRes + " | CR: " + crRes + " | LR: " + lrRes + " | PR: " + prRes + " " + timer(gameStart));
 				}
