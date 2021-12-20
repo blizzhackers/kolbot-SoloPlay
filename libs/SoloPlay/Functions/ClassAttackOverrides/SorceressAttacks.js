@@ -45,13 +45,13 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
 		// Handle Switch casting
-		if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.LowerResist) > -1 && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
+		if (Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist) && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
 			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast lower resist
 			Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 		}
 
-		if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.Weaken) > -1 && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
+		if (Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Weaken) && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
 			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast weaken
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);

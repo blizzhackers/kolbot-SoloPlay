@@ -124,10 +124,7 @@ case "Plaguewolf":
 	};
 
 	ClassAttack.afterAttack = function () {
-		if (Pather.useTeleport()) {
-			Misc.unShift();
-		}
-
+		if (Pather.useTeleport()) { Misc.unShift(); }
 		Precast.doPrecast(false);
 	};
 
@@ -161,13 +158,13 @@ default:
 		}
 
 		if (index === 1 && !unit.dead) {
-			if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.Decrepify) > -1 && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
+			if (Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Decrepify) && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
 				(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				// Switch cast decrepify
 				Attack.switchCastCharges(sdk.skills.Decrepify, unit);
 			}
 			
-			if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.Weaken) > -1 && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
+			if (Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Weaken) && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
 				(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 				// Switch cast weaken
 				Attack.switchCastCharges(sdk.skills.Weaken, unit);
@@ -264,12 +261,10 @@ default:
 	};
 
 	ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-		let i, walk;
+		let walk;
 
 		// No valid skills can be found
-		if (timedSkill < 0 && untimedSkill < 0) {
-			return 2;
-		}
+		if (timedSkill < 0 && untimedSkill < 0) { return 2; }
 
 		// Rebuff Hurricane
 		if (me.getSkill(sdk.skills.Hurricane, 1) && !me.getState(sdk.states.Hurricane)) {
@@ -334,7 +329,7 @@ default:
 			return 1;
 		}
 
-		for (i = 0; i < 25; i += 1) {
+		for (let i = 0; i < 25; i += 1) {
 			if (!me.getState(sdk.states.SkillDelay)) {
 				break;
 			}

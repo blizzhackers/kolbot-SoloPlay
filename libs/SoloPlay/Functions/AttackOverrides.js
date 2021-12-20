@@ -1,6 +1,7 @@
 /*
 *	@filename	AttackOverrides.js
-*	@author		theBGuy. isid0re
+*	@author		theBGuy
+*	@credits	jaenster, isid0re (for killTarget func)
 *	@desc		Attack.js fixes to improve functionality
 */
 
@@ -10,14 +11,14 @@ let Coords_1 = require("../Modules/Coords");
 
 Attack.IsAuradin = false;
 Attack.stopClear = false;
+Attack.currentChargedSkills = [];
+Attack.chargedSkillsOnSwitch = [];
 Attack.MainBosses = [sdk.monsters.Andariel, sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal];
 Attack.BossAndMiniBosses = [
 	sdk.monsters.Andariel, sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal,
 	sdk.monsters.Radament, sdk.monsters.Summoner, sdk.monsters.Izual, sdk.monsters.BloodRaven, sdk.monsters.Griswold,
 	sdk.monsters.Hephasto, sdk.monsters.KorlictheProtector, sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian
 ];
-Attack.currentChargedSkills = [];
-Attack.chargedSkillsOnSwitch = [];
 
 Attack.init = function () {
 	if (Config.Wereform) {
@@ -40,9 +41,32 @@ Attack.init = function () {
 
 	if (me.expansion) {
 		this.checkInfinity();
-		this.getPrimarySlot();
 		this.checkIsAuradin();
+		this.getPrimarySlot();
+		this.getCurrentChargedSkillIds();
 	}
+};
+
+Attack.getLowerResistPercent = function () {
+	let calc = function (level) { return Math.floor(Math.min(25 + (45 * ((110 * level) / (level + 6)) / 100), 70))};
+	if (me.expansion && Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) {
+		return calc(Attack.chargedSkillsOnSwitch.find(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist).level);
+	}
+	if (me.getSkill(sdk.skills.LowerResist, 1)) {
+		return calc(me.getSkill(sdk.skills.LowerResist, 1));
+	}
+	return 0;
+};
+
+Attack.getConvictionPercent = function () {
+	let calc = function (level) { return Math.floor(Math.min(25 + (5 * level), 150))};
+	if (me.expansion && this.checkInfinity()) {
+		return calc(12);
+	}
+	if (me.getSkill(sdk.skills.Conviction, 1)) {
+		return calc(me.getSkill(sdk.skills.Conviction, 1));
+	}
+	return 0;
 };
 
 Attack.checkIsAuradin = function () {
@@ -101,10 +125,9 @@ Attack.checkResist = function (unit, val, maxres) {
 	}
 
 	let damageType = typeof val === "number" ? this.getSkillElement(val) : val;
+	let addLowerRes = this.isCursable(unit) && !!(me.getSkill(sdk.skills.LowerResist, 1) || Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist));
 
-	if (maxres === undefined) {
-		maxres = 100;
-	}
+	maxres === undefined && (maxres = 100);
 
 	// Static handler
 	if (val === sdk.skills.StaticField && this.getResist(unit, damageType) < 100) {
@@ -112,21 +135,26 @@ Attack.checkResist = function (unit, val, maxres) {
 	}
 
 	// baal in throne room doesn't have getState
-	if (this.infinity && ["fire", "lightning", "cold"].indexOf(damageType) > -1 && unit.getState) {
+	if (this.infinity && ["fire", "lightning", "cold"].includes(damageType) && unit.getState) {
 		if (!unit.getState(sdk.states.Conviction)) {
+			if (addLowerRes && !unit.getState(sdk.states.LowerResist) && (unit.spectype & 0x7 || me.necromancer)) {
+				let lowerResPercent = this.getLowerResistPercent();
+				return (this.getResist(unit, damageType) - (Math.floor((lowerResPercent + 85) / 5))) < 100;
+			}
 			return this.getResist(unit, damageType) < 117;
 		}
 
 		return this.getResist(unit, damageType) < maxres;
 	}
 
-	if (this.IsAuradin && ["physical"].indexOf(damageType) > -1 && me.getState(sdk.states.Conviction) && unit.getState) {
+	if (this.IsAuradin && ["physical", "fire", "cold", "lightning"].includes(damageType) && me.getState(sdk.states.Conviction) && unit.getState) {
 		let valid = false;
 
+		// our main dps is not physical despite using zeal
+		if (damageType === "physical") { return true; }
+
 		if (!unit.getState(sdk.states.Conviction)) {
-			let max = 6 + me.getSkill(sdk.skills.Conviction, 1);
-			// conviction caps at 150% at level 25
-			return this.getResist(unit, damageType) < 100 + (max < 30 ? max : 30);
+			return (this.getResist(unit, damageType) - (this.getConvictionPercent() / 5) < 100);
 		}
 
 		// check unit's fire resistance
@@ -144,7 +172,12 @@ Attack.checkResist = function (unit, val, maxres) {
 		return valid;
 	}
 
-	// TODO: calculate lower res effectivness
+	if (addLowerRes && ["fire", "lightning", "cold", "poison"].includes(damageType) && unit.getState) {
+		let lowerResPercent = this.getLowerResistPercent();
+		if (!unit.getState(sdk.states.LowerResist) && (unit.spectype & 0x7 || me.necromancer)) {
+			return (this.getResist(unit, damageType) - (Math.floor(lowerResPercent / 5)) < 100);
+		}
+	}
 
 	return this.getResist(unit, damageType) < maxres;
 };
@@ -772,42 +805,20 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit) { // probabl
 		delay(40);
 	}
 
-	if (range === undefined) {
-		range = 25;
-	}
+	range === undefined && (range = 25);
+	spectype === undefined && (spectype = 0);
+	bossId === undefined && (bossId = false);
+	sortfunc === undefined && (sortfunc = false);
+	pickit === undefined && (pickit = true);
 
-	if (spectype === undefined) {
-		spectype = 0;
-	}
-
-	if (bossId === undefined) {
-		bossId = false;
-	}
-
-	if (sortfunc === undefined) {
-		sortfunc = false;
-	}
-
-	if (pickit === undefined) {
-		pickit = true;
-	}
-
-	if (typeof (range) !== "number") {
-		throw new Error("Attack.clear: range must be a number.");
-	}
+	if (typeof (range) !== "number") { throw new Error("Attack.clear: range must be a number."); }
+	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0) { return false; }
+	if (Attack.stopClear) { return false; }
 
 	let i, boss, orgx, orgy, target, result, monsterList, start, coord, skillCheck, secAttack,
 		retry = 0,
 		gidAttack = [],
 		attackCount = 0;
-
-	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0) {
-		return false;
-	}
-
-	if (Attack.stopClear) {
-		return false;
-	}
 
 	if (!sortfunc) {
 		sortfunc = this.sortMonsters;
@@ -1094,7 +1105,7 @@ Attack.getCurrentChargedSkillIds = function () {
 
 	// Item must be equipped, or a charm in inventory
 	me.getItems(-1)
-		.filter(item => item && (item.isEquipped || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(item.itemType) > -1)))
+		.filter(item => item && (item.isEquipped || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 
@@ -1103,27 +1114,25 @@ Attack.getCurrentChargedSkillIds = function () {
 					for (let i = 0; i < stats[204].length; i += 1) {
 						if (stats[204][i] !== undefined) {
 							// add to total list
-							if (stats[204][i].charges > 0 && Attack.currentChargedSkills.indexOf(stats[204][i].skill) === -1) {
+							if (stats[204][i].charges > 0 && !Attack.currentChargedSkills.includes(stats[204][i].skill)) {
 								Attack.currentChargedSkills.push(stats[204][i].skill);
 							}
 
 							// add to switch only list for use with swtich casting
-							if (stats[204][i].charges > 0 && Attack.chargedSkillsOnSwitch.indexOf(stats[204][i].skill) === -1 &&
-								((me.weaponswitch === 0 && [11, 12].indexOf(item.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(item.bodylocation) > -1))) {
-								Attack.chargedSkillsOnSwitch.push(stats[204][i].skill);
+							if (stats[204][i].charges > 0 && !Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204][i].skill) && item.isOnSwap) {
+								Attack.chargedSkillsOnSwitch.push({skill: stats[204][i].skill, level: stats[204][i].level});
 							}
 						}
 					}
 				} else {
 					// add to total list
-					if (stats[204].charges > 0 && Attack.currentChargedSkills.indexOf(stats[204].skill) === -1) {
+					if (stats[204].charges > 0 && !Attack.currentChargedSkills.includes(stats[204].skill)) {
 						Attack.currentChargedSkills.push(stats[204].skill);
 					}
 
 					// add to switch only list for use with swtich casting
-					if (stats[204].charges > 0 && Attack.chargedSkillsOnSwitch.indexOf(stats[204].skill) === -1 &&
-						((me.weaponswitch === 0 && [11, 12].indexOf(item.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(item.bodylocation) > -1))) {
-						Attack.chargedSkillsOnSwitch.push(stats[204][i].skill);
+					if (stats[204].charges > 0 && !Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204].skill) && item.isOnSwap) {
+						Attack.chargedSkillsOnSwitch.push({skill: stats[204].skill, level: stats[204].skill});
 					}
 				}
 			}
@@ -1261,19 +1270,18 @@ Attack.inverseSpotDistance = function (spot, distance, otherSpot) {
     return nodes && nodes.find(function (node) { return node.distance > distance; }) || { x: x, y: y };
 };
 
+Attack.pwnMeph = function () {
+	// TODO: fill this out
+	// lure meph (easy enough with sorc)
+	// maybe use golem or shadow for sin and necro
+	// far cast until hes dead and try to keep him at the edge
+	// sorc jump in and static every couple attacks
+};
+
 // Credit @Jaenster - modified by me(theBGuy) for other classes
 Attack.pwnDia = function () {
-	if (!me.sorceress && !me.necromancer && !me.assassin) {
-		return false;
-	}
-
 	// Can't farcast if our skill main attack isn't meant for it
-	if ((["Poison", "Summon"].indexOf(SetUp.currentBuild) > -1)) {
-		return false;
-	}
-
-	// Can't farcast if our skill main attack isn't meant for it
-	if (Skill.getRange(Config.AttackSkill[1]) < 10) {
+	if ((!me.sorceress && !me.necromancer && !me.assassin) || (["Poison", "Summon"].includes(SetUp.currentBuild)) || (Skill.getRange(Config.AttackSkill[1]) < 10)) {
 		return false;
 	}
 
@@ -1289,7 +1297,14 @@ Attack.pwnDia = function () {
 			.filter(function (el) { return Attack.validSpot(el.x, el.y); });
 	};
 
-	let getDiablo = function () { if (Attack.getMobCount(me.x, me.y, 20) > 2) { Attack.clear(20); } return getUnit(sdk.unittype.Monster, sdk.monsters.Diablo); };
+	let checkMobs = function () {
+		getUnits(1).some(function(el) {
+	    	if (el === undefined) { return false; }
+	    	return el.attackable && el.classid !== sdk.monsters.Diablo && el.distance < 20;
+	    });
+	} 
+
+	let getDiablo = function () { checkMobs() && (Attack.clear(20)); return getUnit(sdk.unittype.Monster, sdk.monsters.Diablo); };
 	{
 		let nearSpot = Attack.spotOnDistance({ x: 7792, y: 5292 }, 35);
 		Pather.moveToUnit(nearSpot);
@@ -1311,8 +1326,15 @@ Attack.pwnDia = function () {
 	let tick = getTickCount();
 	let lastPosition = { x: 7791, y: 5293 };
 	let maxRange = (me.necromancer || me.assassin) ? 30 : 58;
-	let manaTP = Skill.getManaCost(sdk.skills.Teleport), manaSK = Skill.getManaCost(Config.AttackSkill[1]),
-		manaStatic = Skill.getManaCost(sdk.skills.StaticField), rangeStatic = Skill.getRange(sdk.skills.StaticField);
+	let manaTP, manaSK, manaStatic, rangeStatic;
+
+	// set values
+	if (me.sorceress) {
+		manaTP = Skill.getManaCost(sdk.skills.Teleport);
+		manaSK = Skill.getManaCost(Config.AttackSkill[1]);
+		manaStatic = Skill.getManaCost(sdk.skills.StaticField);
+		rangeStatic = Skill.getRange(sdk.skills.StaticField);
+	}
 	
 	Attack.stopClear = true;
 

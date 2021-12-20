@@ -30,15 +30,16 @@ const SetUp = {
 		let folders = ["Functions"];
 		folders.forEach( (folder) => {
 			let files = dopen("libs/SoloPlay/" + folder + "/").getFiles();
-			files.forEach( (file) => {
-				if (file.slice(file.length - 3) === ".js") {
-					if (!isIncluded("SoloPlay/" + folder + "/" + file)) {
-						if (!include("SoloPlay/" + folder + "/" + file)) {
-							throw new Error("Failed to include " + "SoloPlay/" + folder + "/" + file);
+			Array.isArray(files) && files
+				.filter(file => file.endsWith('.js'))
+				.sort(a => a.startsWith("PrototypesOverrides.js") ? 0 : 1) // Dirty fix to load new prototypes first
+				.forEach(function (x) {
+					if (!isIncluded("SoloPlay/" + folder + "/" + x)) {
+						if (!include("SoloPlay/" + folder + "/" + x)) {
+							throw new Error("Failed to include " + "SoloPlay/" + folder + "/" + x);
 						}
 					}
-				}
-			});
+				});
 		});
 	},
 

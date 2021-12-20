@@ -4,16 +4,14 @@
 *	@desc		Paladin fixes to improve class attack functionality
 */
 
-if (!isIncluded("common/Attacks/Paladin.js")) {
-	include("common/Attacks/Paladin.js");
-}
+if (!isIncluded("common/Attacks/Paladin.js")) { include("common/Attacks/Paladin.js"); }
 
 ClassAttack.doAttack = function (unit, preattack) {
 	let index, result,
 		mercRevive = 0,
 		attackSkill = -1,
 		aura = -1,
-		gold = me.getStat(14) + me.getStat(15);
+		gold = me.gold;
 
 	index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
@@ -22,14 +20,14 @@ ClassAttack.doAttack = function (unit, preattack) {
 		Town.visitTown();
 	}
 
-	if (!me.classic && index === 1 && !unit.dead) {
-		if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.Decrepify) > -1 && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
+	if (me.expansion && index === 1 && !unit.dead) {
+		if (Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Decrepify) && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
 			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast decrepify
 			Attack.switchCastCharges(sdk.skills.Decrepify, unit);
 		}
 		
-		if (Attack.chargedSkillsOnSwitch.indexOf(sdk.skills.Weaken) > -1 && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
+		if (Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Weaken) && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && Attack.isCursable(unit) &&
 			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast weaken
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);
@@ -122,9 +120,7 @@ ClassAttack.getHammerPosition = function (unit) {
 		size = getBaseStat("monstats2", baseId, "sizex");
 
 	// in case base stat returns something outrageous
-	if (typeof size !== "number" || size < 1 || size > 3) {
-		size = 3;
-	}
+	(typeof size !== "number" || size < 1 || size > 3) && (size = 3);
 
 	switch (unit.type) {
 	case 0: // Player
@@ -137,16 +133,13 @@ ClassAttack.getHammerPosition = function (unit) {
 		x = (unit.mode === 2 || unit.mode === 15) && getDistance(me, unit) < 10 && getDistance(me, unit.targetx, unit.targety) > 5 ? unit.targetx : unit.x;
 		y = (unit.mode === 2 || unit.mode === 15) && getDistance(me, unit) < 10 && getDistance(me, unit.targetx, unit.targety) > 5 ? unit.targety : unit.y;
 		positions = [[x + 2, y + 1], [x, y + 3], [x + 2, y - 1], [x - 2, y + 2], [x - 5, y]];
-
-		if (size === 3) {
-			positions.unshift([x + 2, y + 2]);
-		}
+		size === 3 && positions.unshift([x + 2, y + 2]);
 
 		break;
 	}
 
 	// If one of the valid positions is a position im at already
-	if (positions.some(pos => pos.distance < 1)) return true;
+	if (positions.some(pos => pos.distance < 1)) { return true; }
 
 	for (i = 0; i < positions.length; i += 1) {
 		if (getDistance(me, positions[i][0], positions[i][1]) < 1) {
