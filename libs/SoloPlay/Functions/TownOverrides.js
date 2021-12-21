@@ -1474,20 +1474,15 @@ Town.openStash = function () {
 };
 
 Town.stash = function (stashGold) {
-	if (stashGold === undefined) {
-		stashGold = true;
-	}
-
-	if (!this.needStash()) {
-		return true;
-	}
+	stashGold === undefined && (stashGold = true);
+	if (!this.needStash()) { return true; }
 
 	me.cancel();
 
-	let i, result, items = Storage.Inventory.Compare(Config.Inventory);
+	let result, items = Storage.Inventory.Compare(Config.Inventory);
 
 	if (items) {
-		for (i = 0; i < items.length; i += 1) {
+		for (let i = 0; i < items.length; i += 1) {
 			if (this.canStash(items[i])) {
 				result = (Pickit.checkItem(items[i]).result > 0 && Pickit.checkItem(items[i]).result < 4 && !Item.autoEquipCharmCheck(items[i])) || Cubing.keepItem(items[i]) || Runewords.keepItem(items[i]) || CraftingSystem.keepItem(items[i]);
 
@@ -1519,9 +1514,7 @@ Town.sortInventory = function () {
 
 // Thank you Yame for testing
 Town.sortStash = function (force) {
-	if (force === undefined) {
-		force = false;
-	}
+	force === undefined && (force = false);
 
 	if (Storage.Stash.UsedSpacePercent() < 50 && !force) {
 		return true;
@@ -1674,6 +1667,7 @@ Town.clearInventory = function () {
 	return true;
 };
 
+// TODO: clean this up (sigh)
 Town.betterBaseThanWearing = function (base, verbose) {
 	let equippedItem = {}, bodyLoc = [], check;
 	let itemsResists, baseResists, itemsMinDmg, itemsMaxDmg, itemsTotalDmg, baseDmg, ED, itemsDefense, baseDefense;
@@ -2206,6 +2200,7 @@ Town.betterBaseThanWearing = function (base, verbose) {
 	return result;
 };
 
+// TODO: clean this up (which is gonna suck)
 Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 	if (base === undefined || !base) {
 		return false;
@@ -2818,6 +2813,7 @@ Town.clearJunk = function () {
 	return true;
 };
 
+// Clean this up, can probably be refactored into just a couple lines
 Town.npcInteract = function (name) {
 	let npc;
 
@@ -2930,7 +2926,7 @@ Town.reviveMerc = function () {
 		this.goToTown(2);
 	}
 
-	let i, tick, dialog, lines,
+	let tick, dialog, lines,
 		preArea = me.area,
 		npc = this.initNPC("Merc", "reviveMerc");
 
@@ -2939,7 +2935,7 @@ Town.reviveMerc = function () {
 	}
 
 	MainLoop:
-	for (i = 0; i < 3; i += 1) {
+	for (let i = 0; i < 3; i += 1) {
 		dialog = getDialogLines();
 
 		for (lines = 0; lines < dialog.length; lines += 1) {
@@ -2982,6 +2978,42 @@ Town.reviveMerc = function () {
 	return false;
 };
 
+// TODO: Determine if the call for this function is critical, like during TownChicken vs trying to pick an item or just moving on to next script
+// if its not critcal then if it fails maybe write a seperate journeyTo like function (perhaps hikeTo? lol) that plots a course from our current position to
+// wherever we want to go. The general reason this fails is either being mobbed (TownChicken so critical should exit game) or getUnit failure bug which isn't critical just annoying
+Town.goToTown = function (act, wpmenu) {
+	let towns = [1, 40, 75, 103, 109];
+
+	if (!me.inTown) {
+		if (!Pather.makePortal(true)) {
+			throw new Error("Town.goToTown: Failed to make TP");
+		}
+
+		// re-check inTown in case we sucessfully made and used our portal already in the previous function
+		if (!me.inTown && !Pather.usePortal(null, me.name)) {
+			throw new Error("Town.goToTown: Failed to take TP");
+		}
+	}
+
+	if (act === undefined) {
+		return true;
+	}
+
+	if (act < 1 || act > 5) {
+		throw new Error("Town.goToTown: Invalid act");
+	}
+
+	if (act !== me.act) {
+		try {
+			Pather.useWaypoint(towns[act - 1], wpmenu);
+		} catch (WPError) {
+			throw new Error("Town.goToTown: Failed use WP");
+		}
+	}
+
+	return true;
+};
+
 Town.visitTown = function (repair = false) {
 	if (me.inTown) {
 		this.doChores();
@@ -2994,10 +3026,10 @@ Town.visitTown = function (repair = false) {
 		return false;
 	}
 
-	let preArea = me.area,
-		preAct = me.act;
+	let preArea = me.area, preAct = me.act;
 
-	try { // not an essential function -> handle thrown errors
+	// not an essential function -> handle thrown errors
+	try {
 		this.goToTown();
 	} catch (e) {
 		return false;
@@ -3011,7 +3043,9 @@ Town.visitTown = function (repair = false) {
 
 	this.move("portalspot");
 
-	if (!Pather.usePortal(null, me.name)) { // this part is essential
+	// this part is essential (would this be better to first try use usePortal(preArea, me.name) then if that fails (usePortal(preArea, null)))
+	// that way it tries to use our portal first then if that fails maybe theres another portal to the area we want to go?
+	if (!Pather.usePortal(null, me.name)) {
 		try {
 			Pather.usePortal(preArea, me.name);
 		} catch (e) {
