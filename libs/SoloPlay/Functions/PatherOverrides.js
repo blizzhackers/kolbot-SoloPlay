@@ -285,6 +285,161 @@ Pather.checkWP = function (area) {
 	return getWaypoint(Pather.wpAreas.indexOf(area));
 };
 
+// Fixed Canyon to Duriels Lair
+Pather.journeyTo = function (area) {
+	let special, unit, tick, target;
+
+	if (area !== sdk.areas.DurielsLair) {
+		target = this.plotCourse(area, me.area);
+	} else {
+		target = {course: [sdk.areas.CanyonofMagic, sdk.areas.DurielsLair], useWP: false};
+		this.wpAreas.indexOf(me.area) === -1 && (target.useWP = true);
+	}
+
+	print(target.course);
+
+	if (target.useWP) {
+		Town.goToTown();
+	}
+
+	// handle variable flayer jungle entrances
+	if (target.course.indexOf(sdk.areas.FlayerJungle) > -1) {
+		Town.goToTown(3); // without initiated act, getArea().exits will crash
+
+		special = getArea(sdk.areas.FlayerJungle);
+
+		if (special) {
+			special = special.exits;
+
+			for (let i = 0; i < special.length; i += 1) {
+				if (special[i].target === sdk.areas.GreatMarsh) {
+					// add great marsh if needed
+					target.course.splice(target.course.indexOf(sdk.areas.FlayerJungle), 0, sdk.areas.GreatMarsh);
+
+					break;
+				}
+			}
+		}
+	}
+
+	while (target.course.length) {
+		if (!me.inTown) {
+			Precast.doPrecast(false);
+		}
+
+		if (this.wpAreas.indexOf(me.area) > -1 && !getWaypoint(this.wpAreas.indexOf(me.area))) {
+			this.getWP(me.area);
+		}
+
+		switch (true) {
+		case me.inTown && this.wpAreas.indexOf(target.course[0]) > -1 && getWaypoint(this.wpAreas.indexOf(target.course[0])):
+			this.useWaypoint(target.course[0], !this.plotCourse_openedWpMenu);
+			Precast.doPrecast(false);
+
+			break;
+		case me.area === sdk.areas.StonyField && target.course[0] === sdk.areas.Tristram:
+			this.moveToPreset(me.area, 1, 737, 0, 0, false, true);
+
+			for (let i = 0; i < 5; i += 1) {
+				if (this.usePortal(sdk.areas.Tristram)) {
+					break;
+				}
+
+				delay(1000);
+			}
+
+			break;
+		case me.area === sdk.areas.LutGholein && target.course[0] === sdk.areas.A2SewersLvl1:
+			this.moveToPreset(me.area, 5, 19);
+			this.useUnit(2, 74, sdk.areas.A2SewersLvl1);
+
+			break;
+		case me.area === sdk.areas.PalaceCellarLvl3 && target.course[0] === sdk.areas.ArcaneSanctuary:
+			this.moveTo(10073, 8670);
+			this.usePortal(null);
+
+			break;
+		case me.area === sdk.areas.ArcaneSanctuary && target.course[0] === sdk.areas.CanyonofMagic:
+			this.moveToPreset(me.area, 2, 357);
+
+			for (let i = 0; i < 5; i += 1) {
+				unit = getUnit(2, 357);
+
+				Misc.click(0, 0, unit);
+				delay(1000);
+				me.cancel();
+
+				if (this.usePortal(46)) {
+					break;
+				}
+			}
+
+			break;
+		case me.area === sdk.areas.CanyonofMagic && target.course[0] === sdk.areas.DurielsLair:
+			this.moveToExit(getRoom().correcttomb, true);
+			this.moveToPreset(me.area, 2, 152);
+			unit = Misc.poll(function () { return getUnit(2, 100); });
+			unit && (Pather.useUnit(2, 100, sdk.areas.DurielsLair));
+
+			break;
+		case me.area === sdk.areas.Harrogath && target.course[0] === sdk.areas.BloodyFoothills:
+			this.moveTo(5026, 5095);
+
+			unit = getUnit(2, 449); // Gate
+
+			if (unit) {
+				for (let i = 0; i < 3; i += 1) {
+					if (unit.mode) { break; }
+
+					Misc.click(0, 0, unit);
+					tick = getTickCount();
+
+					while (getTickCount() - tick < 3000) {
+						if (unit.mode) {
+							delay(1000);
+
+							break;
+						}
+
+						delay(10);
+					}
+				}
+			}
+			this.moveToExit(target.course[0], true);
+
+			break;
+		case me.area === sdk.areas.Harrogath && target.course[0] === sdk.areas.NihlathaksTemple:
+			Town.move(NPC.Anya);
+			this.usePortal(121);
+
+			break;
+		case me.area === sdk.areas.FrigidHighlands && target.course[0] === sdk.areas.Abaddon:
+			this.moveToPreset(sdk.areas.FrigidHighlands, 2, 60);
+			this.usePortal(sdk.areas.Abaddon);
+
+			break;
+		case me.area === sdk.areas.ArreatPlateau && target.course[0] === sdk.areas.PitofArcheon:
+			this.moveToPreset(112, 2, 60);
+			this.usePortal(126);
+
+			break;
+		case me.area === sdk.areas.FrozenTundra && target.course[0] === sdk.areas.InfernalPit:
+			this.moveToPreset(117, 2, 60);
+			this.usePortal(127);
+
+			break;
+		default:
+			this.moveToExit(target.course[0], true);
+
+			break;
+		}
+
+		target.course.shift();
+	}
+
+	return me.area === area;
+};
+
 // fixed monsterdoors/walls in act 5
 Pather.openDoors = function (x, y) {
 	if (me.inTown) { return false; }
@@ -987,13 +1142,11 @@ Pather.usePortal = function (targetArea, owner, unit) {
 
 	me.cancel();
 
-	let i, tick, portal, useTK,
+	let tick, portal, useTK,
 		preArea = me.area;
 
-	for (i = 0; i < 10; i += 1) {
-		if (me.dead) {
-			break;
-		}
+	for (let i = 0; i < 10; i += 1) {
+		if (me.dead) { break; }
 
 		if (i > 0 && owner && me.inTown) {
 			Town.move("portalspot");
