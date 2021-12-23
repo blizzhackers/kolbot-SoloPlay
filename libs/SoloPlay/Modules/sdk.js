@@ -21,6 +21,12 @@
 			Normal: 0,
 			Nightmare: 1,
 			Hell: 2,
+
+            nameOf: function (difficulty) {
+                if (difficulty === undefined || typeof difficulty !== "number") {return false;}
+                if (difficulty < 0 || difficulty > 2) {return false;}
+                return ["Normal", "Nightmare", "Hell"][difficulty];
+            }
 		},
 
 		charclass: {
@@ -30,7 +36,13 @@
 			Paladin: 3,
 			Barbarian: 4,
 			Druid: 5,
-			Assassin: 6
+			Assassin: 6,
+
+            nameOf: function (classid) {
+                if (classid === undefined || typeof classid !== "number") {return false;}
+                if (classid < 0 || classid > 6) {return false;}
+                return ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][classid];
+            }
 		},
 
 		clicktypes: {

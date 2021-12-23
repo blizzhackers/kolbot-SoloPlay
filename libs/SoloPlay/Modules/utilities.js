@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.randomString = exports.recursiveSearch = exports.mixinFunctions = exports.mixin = void 0;
-    var sdk_1 = __importDefault(require("..//modules/sdk"));
+    var sdk_1 = __importDefault(require("../modules/sdk"));
     function mixin(target) {
         var sources = [];
         for (var _i = 1; _i < arguments.length; _i++) {
