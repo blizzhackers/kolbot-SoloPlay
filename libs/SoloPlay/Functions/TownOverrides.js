@@ -22,9 +22,7 @@ Town.cancelFlags = [
 ];
 
 Town.townTasks = function () {
-	if (!me.inTown) {
-		Town.goToTown();
-	}
+	if (!me.inTown) { Town.goToTown(); }
 
 	// Burst of speed while in town
 	if (me.inTown && me.assassin && me.getSkill(sdk.skills.BurstofSpeed, 1) && !me.getState(sdk.states.BurstofSpeed)) {
@@ -33,7 +31,7 @@ Town.townTasks = function () {
 
 	let preAct = me.act;
 
-	Attack.weaponSwitch(Attack.getPrimarySlot());
+	me.switchWeapons(Attack.getPrimarySlot());
 	this.unfinishedQuests();
 	this.heal();
 	this.identify();
@@ -104,9 +102,7 @@ Town.townTasks = function () {
 };
 
 Town.doChores = function (repair = false) {
-	if (!me.inTown) {
-		this.goToTown();
-	}
+	if (!me.inTown) { this.goToTown(); }
 
 	// Burst of speed while in town
 	if (me.inTown && me.assassin && me.getSkill(sdk.skills.BurstofSpeed, 1) && !me.getState(sdk.states.BurstofSpeed)) {
@@ -114,7 +110,7 @@ Town.doChores = function (repair = false) {
 	}
 
 	let preAct = me.act;
-	Attack.weaponSwitch(Attack.getPrimarySlot());
+	me.switchWeapons(Attack.getPrimarySlot());
 	this.heal();
 	this.identify();
 	this.clearInventory();

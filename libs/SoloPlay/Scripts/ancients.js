@@ -51,7 +51,7 @@ function ancients () {
 	// ancients prep
 	let ancientsPrep = function () { 
 		Town.goToTown();
-		Town.fillTome(518);
+		Town.fillTome(sdk.items.TomeofTownPortal);
 		Town.buyPots(10, "Thawing");
 		Town.drinkPots();
 		Town.buyPots(10, "Antidote");
@@ -71,15 +71,16 @@ function ancients () {
 	}
 
 	Precast.doPrecast(true);
-	Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter at ancients plateau
+	Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter Arreat Summit
 
 	// failed to move to Arreat Summit
 	if (me.area !== sdk.areas.ArreatSummit) {
 		return false;
 	}
 
+	// ancients prep
 	Town.townTasks();
-	Town.buyPots(10, "Thawing"); // prep to revised settings
+	Town.buyPots(10, "Thawing");
 	Town.drinkPots();
 	Town.buyPots(10, "Antidote");
 	Town.drinkPots();
@@ -97,32 +98,39 @@ function ancients () {
 	me.overhead('updated settings');
 
 	Town.buyPotions();
-	Pather.usePortal(sdk.areas.ArreatSummit, me.name);
+	if (!Pather.usePortal(sdk.areas.ArreatSummit, me.name)) {
+		print("ÿc8Kolbot-SoloPlayÿc0: Failed to take portal back to Arreat Summit");
+		Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter Arreat Summit
+	}
+	
 	Precast.doPrecast(true);
 
-	if (!Pather.moveToPreset(sdk.areas.ArreatSummit, 2, 546)) { // move to altar
+	// move to altar
+	if (!Pather.moveToPreset(sdk.areas.ArreatSummit, sdk.unittype.Object, 546)) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to ancients' altar");
 	}
 
 	touchAltar(); //activate altar
 
-	while (!getUnit(1, 541)) { //wait for ancients to spawn
+	// wait for ancients to spawn
+	while (!getUnit(sdk.unittype.Monster, sdk.monsters.TalictheDefender)) {
 		delay(250 + me.ping);
 	}
 
-	while (!canAncients()) {// reroll ancients if unable to attack
+	// reroll ancients if unable to attack
+	while (!canAncients()) {
 		Pather.makePortal(true);
 		ancientsPrep();
 		Pather.usePortal(sdk.areas.ArreatSummit, me.name);
 		touchAltar();
 
-		while (!getUnit(1, 542)) {
+		while (!getUnit(sdk.unittype.Monster, sdk.monsters.TalictheDefender)) {
 			delay(10 + me.ping);
 		}
 	}
 
 	for (let i = 0; i < 3 && !me.ancients; i++) {
-		Attack.clear(50);
+		Attack.clearClassids(sdk.monsters.KorlictheProtector, sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian);
 		Pather.moveTo(10048, 12628);
 
 		if (!Misc.checkQuest(39, 0)) {

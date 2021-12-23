@@ -149,7 +149,6 @@ function main() {
 
 			if (me.dead) { return false; }
 
-
 			try {
 				me.overhead("Going to town");
 				print("Going to town");

@@ -287,9 +287,9 @@ Attack.isCursable = function (unit) {
 Attack.killTarget = function (name) {
 	let target,	attackCount = 0;
 
-	if (typeof name === "string") { name = name.toLowerCase(); }
+	typeof name === "string" && (name = name.toLowerCase());
 
-	for (let i = 0; !target && i < 5; i += 1) {
+	for (let i = 0; !target && i < 5; i++) {
 		target = getUnit(sdk.unittype.Monster, name);
 
 		if (target) {
@@ -800,7 +800,8 @@ Attack.clearLevelUntilLevel = function (charlvl, spectype) {
 };
 
 // Clear monsters in a section based on range and spectype or clear monsters around a boss monster
-Attack.clear = function (range, spectype, bossId, sortfunc, pickit) { // probably going to change to passing an object
+// probably going to change to passing an object
+Attack.clear = function (range, spectype, bossId, sortfunc, pickit) {
 	while (!me.gameReady) {
 		delay(40);
 	}
@@ -1391,7 +1392,7 @@ Attack.pwnDia = function () {
                 print('Diablo missiles: ' + diabloMissiles.length);
                 print('Diablo mode:' + dia.mode);
                 me.overhead('Dia life ' + (~~(dia.hp / 128 * 100)).toString() + '%');
-                if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3 && ![4, 5, 7, 8, 9, 10, 11].includes(dia.mode)) {
+                if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3 && ![4, 5, 7, 8, 9, 10, 11].includes(dia.mode) && Math.round(dia.hp * 100 / dia.hpmax) > Config.CastStatic) {
                     let x = me.x, y = me.y;
                     // Find a spot close to Diablo
                     let spot = Attack.spotOnDistance(dia, rangeStatic * (2 / 3));
@@ -1490,7 +1491,7 @@ Attack.deploy = function (unit, distance, spread, range) {
 		throw new Error("deploy: Not enough arguments supplied");
 	}
 
-	let i, grid, index, currCount,
+	let grid, index, currCount,
 		monList = [],
 		count = 999;
 		/* idealPos = {
@@ -1510,9 +1511,7 @@ Attack.deploy = function (unit, distance, spread, range) {
 
 	grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
 
-	if (!grid.length) {
-		return false;
-	}
+	if (!grid.length) { return false; }
 
 	function sortGrid(a, b) {
 		return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
@@ -1520,7 +1519,7 @@ Attack.deploy = function (unit, distance, spread, range) {
 
 	grid.sort(sortGrid);
 
-	for (i = 0; i < grid.length; i += 1) {
+	for (let i = 0; i < grid.length; i += 1) {
 		if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & 0x1) && !CollMap.checkColl(unit, {x: grid[i].x, y: grid[i].y}, 0x4)) {
 			currCount = this.getMonsterCount(grid[i].x, grid[i].y, range, monList);
 
@@ -1543,14 +1542,10 @@ Attack.deploy = function (unit, distance, spread, range) {
 };
 
 Attack.getIntoPosition = function (unit, distance, coll, walk) {
-	if (!unit || !unit.x || !unit.y) {
-		return false;
-	}
+	if (!unit || !unit.x || !unit.y) { return false; }
 
-	if (walk === true) {
-		walk = 1;
-	}
-
+	walk === true && (walk = 1);
+	
 	if (distance < 4 && (!unit.hasOwnProperty("mode") || (unit.mode !== 0 && unit.mode !== 12))) {
 		//me.overhead("Short range");
 
@@ -1565,7 +1560,7 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 		return !CollMap.checkColl(me, unit, coll);
 	}
 
-	let n, i, cx, cy,
+	let cx, cy,
 		coords = [],
 		fullDistance = distance,
 		name = unit.hasOwnProperty("name") ? unit.name : "",
@@ -1581,12 +1576,12 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 		return Attack.getMobCountAtPosition(a.x, a.y, 5, false, false) - Attack.getMobCountAtPosition(b.x, b.y, 5, false, false);
 	}
 
-	for (n = 0; n < 3; n += 1) {
+	for (let n = 0; n < 3; n += 1) {
 		if (n > 0) {
 			distance -= Math.floor(fullDistance / 3 - 1);
 		}
 
-		for (i = 0; i < angles.length; i += 1) {
+		for (let i = 0; i < angles.length; i += 1) {
 			cx = Math.round((Math.cos((angle + angles[i]) * Math.PI / 180)) * distance + unit.x);
 			cy = Math.round((Math.sin((angle + angles[i]) * Math.PI / 180)) * distance + unit.y);
 
@@ -1600,17 +1595,19 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 		if (coords.length > 0) {
 			coords.sort(Sort.units);
 
-			if (caster) {	// Not a melee skill 
+			// Not a melee skill
+			if (caster) {
 				coords.sort(sortLoc);
 			}
 
-			for (i = 0; i < coords.length; i += 1) {
+			for (let i = 0; i < coords.length; i += 1) {
 				// Valid position found
 				if (!CollMap.checkColl({x: coords[i].x, y: coords[i].y}, unit, coll, 1)) {
 					//print("ÿc9optimal pos build time: ÿc2" + (getTickCount() - t) + " ÿc9distance from target: ÿc2" + getDistance(cx, cy, unit.x, unit.y));
 
+					// I am already in my optimal position
 					if (Math.round(getDistance(me, coords[i])) < 3) {
-						return true;	// I am already in my optimal position
+						return true;
 					}
 
 					switch (walk) {
@@ -1652,7 +1649,8 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 Attack.castableSpot = function (x, y) {
 	let result;
 
-	if (!me.area || !x || !y) { // Just in case
+	// Just in case
+	if (!me.area || !x || !y) {
 		return false;
 	}
 
@@ -1662,13 +1660,8 @@ Attack.castableSpot = function (x, y) {
 		return false;
 	}
 
-	// Avoid non-walkable spots, objects
-	if (result === undefined || !!(result & Coords_1.BlockBits.Casting) || (result & 0x400) || (result & 0x1)) {
-		me.overhead("Cant cast here");
-		return false;
-	}
-
-	return true;
+	
+	return !(result === undefined || !!(result & Coords_1.BlockBits.Casting) || !!(result & Coords_1.Collision.BLOCK_MISSILE) || (result & 0x400) || (result & 0x1));
 };
 
 Attack.test = function () {

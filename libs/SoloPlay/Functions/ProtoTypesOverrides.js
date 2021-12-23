@@ -50,30 +50,14 @@ Unit.prototype.getItemsEx = function (...args) {
 
 		// deal with fucking bug
 		if (first === 1 && typeof second === 'string' && ret && ((me.act === 1 && ret.classid === 149) || me.act === 2 && ret.classid === 268)) {
-			//D2Bot.printToConsole('Annoying d2 bug - getUnit not working');
-			//D2Bot.printToConsole(ret.toSource());
-
-			// Config.Debug = true;
-			// Misc.debugLog('test: ' , getUnit(first, -1, -1, ret.gid));
-			// Misc.debugLog(ret.toSource());
-			// print(ret.toSource());
-
 			return null;
-
-			// in tcp/ip we quit the current game
-			if (me.gameserverip && !me.realm) {
-				quit();
-			} else {
-				// in single player we exit the entire game
-				D2Bot.restart();
-			}
 		}
 
 		return original.apply(this, args);
 	}
 })([].filter.constructor('return this')(), getUnit);
 
-// Credit @Jaenster
+let resPenalty = 0;
 Object.defineProperties(Unit.prototype, {
 	isChilled: {
 		get: function () {
@@ -100,10 +84,6 @@ Object.defineProperties(Unit.prototype, {
 			return this.getState(61);
 		},
 	},
-});
-
-let resPenalty;
-Object.defineProperties(Unit.prototype, {
 	fireRes: {
 		get: function () {
 			if (resPenalty === undefined) { resPenalty = me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]; }

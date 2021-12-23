@@ -34,10 +34,11 @@ if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.
 if (!isIncluded("SoloPlay/Functions/globals.js")) { include("SoloPlay/Functions/globals.js"); }
 
 function main () {
-	let i, mercHP, ironGolem, tick, merc,
+	let mercHP, ironGolem, tick, merc,
 		debugInfo = {area: 0, currScript: "no entry"},
 		pingTimer = [],
 		quitFlag = false,
+		restart = false,
 		quitListDelayTime,
 		canQuit = true,
 		timerLastDrink = [];
@@ -57,7 +58,7 @@ function main () {
 		include("SoloPlay/Tools/Overlay.js");
 	}
 
-	for (i = 0; i < 5; i += 1) {
+	for (let i = 0; i < 5; i += 1) {
 		timerLastDrink[i] = 0;
 	}
 
@@ -72,9 +73,7 @@ function main () {
 			return false;
 		}
 
-		let m;
-
-		for (m = 0; m < Config.PingQuit.length; m += 1) {
+		for (let m = 0; m < Config.PingQuit.length; m += 1) {
 			if (Config.PingQuit[m].Ping > 0) {
 				if (me.ping >= Config.PingQuit[m].Ping) {
 					me.overhead("High Ping");
@@ -102,10 +101,9 @@ function main () {
 	};
 
 	this.initQuitList = function () {
-		let j, string, obj,
-			temp = [];
+		let string, obj, temp = [];
 
-		for (j = 0; j < Config.QuitList.length; j += 1) {
+		for (let j = 0; j < Config.QuitList.length; j += 1) {
 			if (FileTools.exists("data/" + Config.QuitList[j] + ".json")) {
 				string = Misc.fileAction("data/" + Config.QuitList[j] + ".json", 0);
 
@@ -123,8 +121,9 @@ function main () {
 	};
 
 	this.getPotion = function (pottype, type) {
-		let k,
-			items = me.getItems();
+		let items = me.getItems()
+			.filter(item => [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion, sdk.itemtype.StaminaPotion,
+				sdk.itemtype.AntidotePotion, sdk.itemtype.ThawingPotion].includes(item.itemType));
 
 		if (!items || items.length === 0) {
 			return false;
@@ -135,7 +134,7 @@ function main () {
 			return b.classid - a.classid;
 		});
 
-		for (k = 0; k < items.length; k += 1) {
+		for (let k = 0; k < items.length; k += 1) {
 			if (type < 3 && items[k].isInInventory && items[k].itemType === pottype) {
 				print("ÿc2Drinking potion from inventory.");
 
@@ -180,7 +179,7 @@ function main () {
 	};
 
 	this.stopDefault = function () {
-		let script, scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/EventThread.js", "libs/SoloPlay/Tools/AutoBuildThread.js"];
+		let script, scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/EventThread.js", "libs/SoloPlay/Tools/AutoBuildThread.js", "libs/SoloPlay/Modules/Guard.js"];
 
 		for (let l = 0; l < scripts.length; l += 1) {
 			script = getScript(scripts[l]);
@@ -198,6 +197,13 @@ function main () {
 	this.exit = function () {
 		this.stopDefault();
 		quit();
+	};
+
+	this.restart = function () {
+		if (Config.LogExperience) { Experience.log(); }
+		if (Developer.logPerformance) { Tracker.Update(); }
+		this.stopDefault();
+		D2Bot.restart();
 	};
 
 	this.drinkPotion = function (type) {
@@ -345,12 +351,12 @@ function main () {
 	};
 
 	this.getNearestPreset = function () {
-		let n, unit, dist, id;
+		let unit, dist, id;
 
 		unit = getPresetUnits(me.area);
 		dist = 99;
 
-		for (n = 0; n < unit.length; n += 1) {
+		for (let n = 0; n < unit.length; n += 1) {
 			if (getDistance(me, unit[n].roomx * 5 + unit[n].x, unit[n].roomy * 5 + unit[n].y) < dist) {
 				dist = getDistance(me, unit[n].roomx * 5 + unit[n].x, unit[n].roomy * 5 + unit[n].y);
 				id = unit[n].type + " " + unit[n].id;
@@ -652,6 +658,10 @@ function main () {
 			quitFlag = true;
 
 			break;
+		case "restart":
+			restart = true;
+
+			break;
 		default:
 			try {
 				obj = JSON.parse(msg);
@@ -846,6 +856,10 @@ function main () {
 			this.exit();
 
 			break;
+		}
+
+		if (restart) {
+			this.restart();
 		}
 
 		if (debugInfo.area !== Pather.getAreaName(me.area)) {

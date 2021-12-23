@@ -35,15 +35,16 @@ function mephisto () {
 	Precast.doPrecast(true);
 
 	let oldPickRange = Config.PickRange;
+	let oldUseMerc = Config.MercWatch;
 
 	Pather.moveTo(17692, 8048);
 	Pather.moveTo(17563, 8072);
 
-	Config.MercWatch = false;
+	Config.MercWatch = oldUseMerc ? false : oldUseMerc;
 
 	Attack.killTarget("Mephisto");
 
-	Config.MercWatch = true;
+	Config.MercWatch = oldUseMerc;
 	// Reset to normal value
 	Config.PickRange = oldPickRange;
 	
