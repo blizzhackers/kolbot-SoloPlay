@@ -4,7 +4,7 @@
  *    @desc       assassin build for after respecOne (11 fpa trap laying, 9 fps tele)
  */
 
-var finalBuild = {
+const finalBuild = {
 	caster: true,
 	skillstab: sdk.skills.tabs.Traps,
 	wantedskills: [sdk.skills.FireBlast, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.ShadowMaster],
@@ -81,5 +81,9 @@ var finalBuild = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+
+	respec: function () {
+		return Attack.checkInfinity() && Check.haveItem("armor", "runeword", "Enigma");
+	},
 };

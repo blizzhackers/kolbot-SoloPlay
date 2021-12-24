@@ -1,9 +1,15 @@
-//	/d2bs/kolbot/libs/config/Builds/Barbarian.Uberconc.js
+/*
+ *    @filename   	Barbarian.Uberconc.js
+ *	  @author	  	theBGuy
+ *    @desc      	Barbarian concentration build meant for doing ubers
+ */
+
 
 js_strict(true);
 
 if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
 SetUp.include();
+
 // preattack, primary skill for bosses, backup immune skill for bosses, primary skill for others, backup others
 // Config.AttackSkill = [0, 0, 0, 0, 0];
 

@@ -4,7 +4,7 @@
  *    @desc      	Sorceress blizzard nova build
  */
 
-var finalBuild = {
+const finalBuild = {
 	caster: true,
 	skillstab: sdk.skills.tabs.Cold,
 	wantedskills: [sdk.skills.Blizzard, sdk.skills.Nova],
@@ -73,5 +73,13 @@ var finalBuild = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			return Attack.checkInfinity();
+		}
+	},
 };

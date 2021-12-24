@@ -5,7 +5,7 @@
  *    @credits		isid0re, ebner20
  */
 
-var finalBuild = {
+const finalBuild = {
 	caster: true,
 	skillstab: sdk.skills.tabs.CombatBarb,
 	wantedskills: [sdk.skills.WarCry, sdk.skills.Shout],
@@ -55,5 +55,13 @@ var finalBuild = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			return Check.haveItem("armor", "runeword", "Enigma") && Check.haveItem("mace", "runeword", "Heart of the Oak");
+		}
+	},
 };

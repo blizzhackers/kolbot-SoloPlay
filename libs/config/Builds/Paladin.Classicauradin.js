@@ -1,4 +1,9 @@
-//	/d2bs/kolbot/libs/config/Builds/Paladin.Classicauradin.js
+/*
+ *    @filename   	Paladin.Classicauradin.js
+ *	  @author	  	theBGuy
+ *    @desc      	Paladin Classic Auradin build (Holy Shock/Freeze)
+ */
+
 
 js_strict(true);
 
@@ -6,7 +11,6 @@ if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/
 SetUp.include();
 
 let AutoBuildTemplate = {
-
 	1:	{
 		Update: function () {
 			Config.Vigor = false;

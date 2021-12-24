@@ -4,7 +4,7 @@
  *    @desc       Throw Barb final build
  */
 
-var build = {
+const build = {
 	caster: false,
 	skillstab: sdk.skills.tabs.BarbCombat,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.DoubleThrow, sdk.skills.DoubleSwing],
@@ -14,11 +14,6 @@ var build = {
 	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
-		["strength", 25], ["dexterity", 25], ["vitality", 30],
-		["strength", 48], ["dexterity", 39], ["vitality", 50],
-		["strength", 55], ["dexterity", 45], ["vitality", 60],
-		["strength", 58], ["dexterity", 58], ["vitality", 70],
-		["strength", 85], ["dexterity", 60], ["vitality", 80],
 		["strength", 103], ["dexterity", 79], ["vitality", 90],
 		["dexterity", 136], ["strength", 150], ["vitality", "all"],
 	],
@@ -64,5 +59,13 @@ var build = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+
+	respec: function () {
+		if (me.classic) {
+			return false;
+		} else {
+			return Check.haveItem("throwingknife", "unique", "Warshrike") && Check.haveItem("throwingaxe", "unique", "Lacerator");
+		}
+	},
 };

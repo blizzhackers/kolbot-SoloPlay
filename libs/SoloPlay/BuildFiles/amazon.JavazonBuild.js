@@ -4,7 +4,7 @@
  *    @desc       Javazon final build (pure lightning for expansion) (light/poision for classic)
  */
 
-let finalBuild = {
+const finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.JavelinSpear,
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
@@ -99,6 +99,14 @@ let finalBuild = {
 	stats: undefined,
 	skills: undefined,
 	autoEquipTiers: undefined,
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			return Attack.checkInfinity();
+		}
+	},
 };
 
 // Has to be set after its loaded

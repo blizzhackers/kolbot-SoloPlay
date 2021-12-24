@@ -4,7 +4,7 @@
  *    @desc      	Sorceress meteorb build
  */
 
-let finalBuild = {
+const finalBuild = {
 	caster: true,
 	skillstab: 8, //fire
 	wantedskills: [sdk.skills.FrozenOrb, sdk.skills.Meteor, sdk.skills.ColdMastery],
@@ -95,6 +95,15 @@ let finalBuild = {
 	],
 	stats: undefined,
 	autoEquipTiers: undefined,
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			return Check.haveItem("amulet", "set", "Tal Rasha's Adjudication") && Check.haveItem("belt", "set", "Tal Rasha's Fine-Spun Cloth") &&
+				Check.haveItem("armor", "set", "Tal Rasha's Guardianship") && Check.haveItem("swirlingcrystal", "set", "Tal Rasha's Lidless Eye");
+		}
+	},
 };
 
 // Has to be set after its loaded

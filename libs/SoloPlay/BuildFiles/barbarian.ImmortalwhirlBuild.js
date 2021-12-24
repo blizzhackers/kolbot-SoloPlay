@@ -4,7 +4,7 @@
  *    @desc       	Immortal King Whirlwind build
  */
 
-var finalBuild = {
+const finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.CombatBarb,
 	wantedskills: [sdk.skills.Bash, sdk.skills.Whirlwind],
@@ -54,5 +54,15 @@ var finalBuild = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+
+	respec: function () {
+		if (me.classic) {
+			return false;
+		} else {
+			return Check.haveItem("mace", "set", "Immortal King's Stone Crusher") && Check.haveItem("boots", "set", "Immortal King's Pillar") &&
+				Check.haveItem("belt", "set", "Immortal King's Detail") && Check.haveItem("armor", "set", "Immortal King's Soul Cage") &&
+				Check.haveItem("primalhelm", "set", "Immortal King's Will") && Check.haveItem("gloves", "set", "Immortal King's Forge");
+		}
+	},
 };

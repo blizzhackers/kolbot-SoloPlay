@@ -4,7 +4,7 @@
  *    @desc			Druid fire build
  */
 
-var finalBuild = {
+const finalBuild = {
 	caster: true,
 	skillstab: sdk.skills.tabs.Elemental,
 	wantedskills: [sdk.skills.FireStorm, sdk.skills.Fissure],
@@ -71,5 +71,9 @@ var finalBuild = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+
+	respec: function () {
+		return Check.haveItem("armor", "runeword", "Enigma");
+	},
 };

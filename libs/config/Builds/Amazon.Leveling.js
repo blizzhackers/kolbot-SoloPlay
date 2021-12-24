@@ -1,42 +1,19 @@
-//	/d2bs/kolbot/libs/config/Builds/Amazon.Leveling.js
+/*
+ *    @filename   	Amazon.Leveling.js
+ *	  @author	  	theBGuy
+ *    @desc      	Amazon lightning leveling build
+ */
 
-/**
-*
-* Instructions:	See /d2bs/kolbot/libs/config/Builds/README.txt
-*
-* Skill IDs:	See /d2bs/kolbot/sdk/skills.txt for a list of skill IDs.
-*
-* Stat IDs:
-*
-* 	Strength	= 0
-* 	Energy		= 1
-* 	Dexterity	= 2
-* 	Vitality	= 3
-*
-*/
+
 js_strict(true);
 
-if (!isIncluded("common/Cubing.js")) {
-	include("common/Cubing.js");
-}
+if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+SetUp.include();
 
-if (!isIncluded("common/Prototypes.js")) {
-	include("common/Prototypes.js");
-}
-
-if (!isIncluded("common/Runewords.js")) {
-	include("common/Runewords.js");
-}
-
-if (!isIncluded("common/Town.js")) {
-	include("common/Town.js");
-}
-
-var AutoBuildTemplate = {
-
+let AutoBuildTemplate = {
 	1:	{
-		//SkillPoints: [-1],			// This doesn't matter. We don't have skill points to spend at lvl 1
-		//StatPoints: [-1,-1,-1,-1,-1],	// This doesn't matter. We don't have stat points to spend at lvl 1
+		SkillPoints: [-1],
+		StatPoints: [-1,-1,-1,-1,-1],
 		Update: function () {
 			Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
 			Config.LowManaSkill = [0, 0];

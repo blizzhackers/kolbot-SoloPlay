@@ -4,7 +4,7 @@
  *    @desc       FishyMancer final build (explosion/summon) for expansion, (nova/summon) for classic since there is no merc to make initial bodies needed
  */
 
-let finalBuild = {
+const finalBuild = {
 	caster: true,
 	skillstab: sdk.skills.tabs.NecroSummoning,
 	wantedskills: [sdk.skills.RaiseSkeleton, sdk.skills.CorpseExplosion],
@@ -99,6 +99,14 @@ let finalBuild = {
 	stats: undefined,
 	skills: undefined,
 	autoEquipTiers: undefined,
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			return Check.haveItem("armor", "runeword", "Enigma");
+		}
+	},
 };
 
 // Has to be set after its loaded

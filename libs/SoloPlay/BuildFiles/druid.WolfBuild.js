@@ -4,7 +4,7 @@
  *    @desc			Wolf final build
  */
 
-var finalBuild = {
+const finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.ShapeShifting,
 	wantedskills: [sdk.skills.Werewolf, sdk.skills.Lycanthropy, sdk.skills.Fury],
@@ -50,5 +50,9 @@ var finalBuild = {
 		"[type] == armor && [flag] == runeword # [ias] == 45 && [coldresist] == 30 # [merctier] == 50000 + mercscore(item)", //Treachery
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)", //Eth Andy's
 		"[name] == thresher && [quality] == unique # [enhanceddamage] >= 190 && [lifeleech] >= 11 # [merctier] == 100000 + mercscore(item)",	// Reaper's Toll
-	]
+	],
+
+	respec: function () {
+		return Check.haveItem("stalagmite", "unique", "Ribcracker") && Check.haveItem("armor", "runeword", "Chains of Honor");
+	},
 };

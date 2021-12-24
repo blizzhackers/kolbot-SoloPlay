@@ -4,7 +4,7 @@
  *    @desc     	Sorceress cold build (blizzard sorc)
  */
 
-var finalBuild = {
+const finalBuild = {
 	caster: true,
 	skillstab: sdk.skills.tabs.Cold,
 	wantedskills: [sdk.skills.Blizzard, sdk.skills.ColdMastery],
@@ -70,5 +70,14 @@ var finalBuild = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			return Check.haveItem("amulet", "set", "Tal Rasha's Adjudication") && Check.haveItem("belt", "set", "Tal Rasha's Fine-Spun Cloth") &&
+				Check.haveItem("armor", "set", "Tal Rasha's Guardianship") && Check.haveItem("swirlingcrystal", "set", "Tal Rasha's Lidless Eye");
+		}
+	},
 };

@@ -4,7 +4,7 @@
  *    @desc       	Whirlwind build
  */
 
-var finalBuild = {
+const finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.BarbCombat,
 	wantedskills: [sdk.skills.Bash, sdk.skills.Whirlwind],
@@ -56,5 +56,14 @@ var finalBuild = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			// TODO: figure out how to make sure we have two, or determine if that even matters
+			return Check.haveItem("sword", "runeword", "Grief");
+		}
+	},
 };

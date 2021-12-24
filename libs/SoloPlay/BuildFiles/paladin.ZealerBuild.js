@@ -4,7 +4,7 @@
  *    @desc       End-game Zealer build
  */
 
-var finalBuild = {
+const finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.PalaCombat,
 	wantedskills: [sdk.skills.Zeal, sdk.skills.Fanaticism],
@@ -14,7 +14,8 @@ var finalBuild = {
 	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	stats: [
-		["strength", 103], ["dexterity", 136], ["vitality", 300], ["dexterity", "block"], ["vitality", "all"]
+		["strength", 103], ["dexterity", 136], ["vitality", 300],
+		["dexterity", "block"], ["vitality", "all"]
 	],
 	skills: [
 		[sdk.skills.Fanaticism, 20],
@@ -60,5 +61,13 @@ var finalBuild = {
 		"[type] == armor && [flag] == runeword # [ias] == 45 && [coldresist] == 30 # [merctier] == 50000 + mercscore(item)", //Treachery
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000", //Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)", //Eth Andy's
-	]
+	],
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			return Check.haveItem("sword", "runeword", "Grief");
+		}
+	},
 };

@@ -4,7 +4,7 @@
  *    @desc       	Uber concentration build
  */
 
-let finalBuild = {
+const finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.BarbCombat,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Concentrate],
@@ -54,5 +54,13 @@ let finalBuild = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			return Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("monarch", "unique", "Stormshield");
+		}
+	},
 };

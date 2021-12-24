@@ -4,7 +4,7 @@
  *    @desc       poison necro final build
  */
 
-let finalBuild = {
+const finalBuild = {
 	caster: true,
 	skillstab: sdk.skills.tabs.PoisonBone,
 	wantedskills: [sdk.skills.PoisonNova, sdk.skills.CorpseExplosion],
@@ -88,6 +88,14 @@ let finalBuild = {
 	],
 	stats: undefined,
 	autoEquipTiers: undefined,
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			return Check.haveItem("armor", "runeword", "Enigma");
+		}
+	},
 };
 
 // Has to be set after its loaded

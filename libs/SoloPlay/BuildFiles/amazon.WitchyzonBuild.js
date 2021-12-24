@@ -4,7 +4,7 @@
  *    @desc       based off of https://diabloii.net/forums/threads/chipmcs-witchwild-string-strafeazon-guide-v-0-05-beta-if.240912/
  */
 
-var finalBuild = {
+const finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.BowCrossbow,
 	wantedskills: [sdk.skills.Strafe],
@@ -69,5 +69,13 @@ var finalBuild = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+
+	respec: function () {
+		if (me.classic) {
+			return false;
+		} else {
+			return Check.haveItem("diamondbow", "unique", "Witchwild String");
+		}
+	},
 };

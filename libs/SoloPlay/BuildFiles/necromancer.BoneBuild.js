@@ -4,7 +4,7 @@
  *    @desc       bone necro final build
  */
 
-let finalBuild = {
+const finalBuild = {
 	caster: true,
 	skillstab: sdk.skills.tabs.PoisonBone,
 	wantedskills: [sdk.skills.BoneSpirit, sdk.skills.BoneSpear, sdk.skills.Teeth],
@@ -88,6 +88,14 @@ let finalBuild = {
 	],
 	stats: undefined,
 	autoEquipTiers: undefined,
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			return Check.haveItem("armor", "runeword", "Enigma");
+		}
+	},
 };
 
 // Has to be set after its loaded

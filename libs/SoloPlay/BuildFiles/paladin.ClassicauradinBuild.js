@@ -4,7 +4,7 @@
  *    @desc       End-game Classic Auradin build (HolyShock/Freeze based)
  */
 
-let finalBuild = {
+const finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.PalaCombat,
 	wantedskills: [sdk.skills.Zeal, sdk.skills.HolyShock],
@@ -81,6 +81,14 @@ let finalBuild = {
 	],
 	stats: undefined,
 	autoEquipTiers: undefined,
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			return Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream");
+		}
+	},
 };
 
 // Has to be set after its loaded

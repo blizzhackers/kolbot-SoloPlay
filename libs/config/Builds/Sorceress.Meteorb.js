@@ -1,7 +1,7 @@
 /*
  *    @filename   	Sorceress.Meteorb.js
  *	  @author	  	theBGuy
- *    @desc      	Sorceress meteorb build
+ *    @desc      	Sorceress Meteor + Frozen Orb build
  */
 
 js_strict(true);
@@ -14,8 +14,8 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1,-1,-1,-1,-1],
 		Update: function () {
-			Config.AttackSkill = [-1, 56, 47, 56, 47, 64, 55];
-			Config.LowManaSkill = [0, 0];
+			Config.AttackSkill = [-1, sdk.skills.Meteor, sdk.skills.FireBall, sdk.skills.Meteor, sdk.skills.FireBall, sdk.skills.FrozenOrb, sdk.skills.GlacialSpike];
+			Config.LowManaSkill = [-1, -1];
 			Config.SkipImmune = ["fire and cold"];
 		}
 	},

@@ -4,7 +4,7 @@
  *    @desc       Frenzy final build
  */
 
-var finalBuild = {
+const finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.CombatBarb,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing],
@@ -14,11 +14,6 @@ var finalBuild = {
 	mercAuraWanted: sdk.skills.Might,
 	mercDiff: 1,
 	stats: [
-		["strength", 25], ["dexterity", 25], ["vitality", 30],
-		["strength", 48], ["dexterity", 39], ["vitality", 50],
-		["strength", 55], ["dexterity", 45], ["vitality", 60],
-		["strength", 58], ["dexterity", 58], ["vitality", 70],
-		["strength", 85], ["dexterity", 60], ["vitality", 80],
 		["strength", 103], ["dexterity", 79], ["vitality", 90],
 		["dexterity", 136], ["strength", 150], ["vitality", "all"],
 	],
@@ -96,5 +91,13 @@ var finalBuild = {
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
-	]
+	],
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			return Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("sword", "runeword", "Breath of the Dying");
+		}
+	},
 };

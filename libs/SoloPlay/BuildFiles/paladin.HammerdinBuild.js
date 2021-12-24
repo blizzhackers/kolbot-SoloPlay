@@ -5,7 +5,7 @@
  * 					skills based on https://www.diabloii.net/forums/threads/max-damage-hammerdin-guide-by-captain_bogus-repost.127596/
  */
 
-let finalBuild = {
+const finalBuild = {
 	caster: true,
 	skillstab: sdk.skills.tabs.PalaCombat,
 	wantedskills: [sdk.skills.BlessedHammer, sdk.skills.Concentration],
@@ -85,6 +85,14 @@ let finalBuild = {
 	],
 	stats: undefined,
 	autoEquipTiers: undefined,
+
+	respec: function () {
+		if (me.classic) {
+			return me.charlvl >= 75 && me.diablo;
+		} else {
+			return Check.haveItem("armor", "runeword", "Enigma");
+		}
+	},
 };
 
 // Has to be set after its loaded

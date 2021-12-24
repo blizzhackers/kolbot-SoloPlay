@@ -142,80 +142,9 @@ const SetUp = {
 		return tmpCap[me.diff];
 	},
 
-	// mine - theBGuy TODO: change this so the check requiriment is pulled from the final build file
+	// pulls respec requirments from final build file
 	respecTwo: function () {
-		let respec;
-
-		switch (me.gametype) {
-		case sdk.game.gametype.Classic:
-			respec = [75, 75, 75, 85, 80, 75, 75][me.classid];
-			break;
-
-		case sdk.game.gametype.Expansion:
-			switch (this.finalBuild) {
-			case "Witchyzon":
-				respec = Check.haveItem("diamondbow", "unique", "Witchwild String") ? me.charlvl : 100;
-				break;
-			case "Javazon":
-			case "Lightning":
-			case "Blova":
-				respec = Attack.checkInfinity() ? me.charlvl : 100;
-				break;
-			case "Trapsin":
-				respec = Attack.checkInfinity() && Check.haveItem("armor", "runeword", "Enigma") ? me.charlvl : 100;
-				break;
-			case "Cold":
-			case "Meteorb":
-			case "Blizzballer":
-				// Tal amulet, belt, armor, and orb
-				respec = Check.haveItem("amulet", "set", "Tal Rasha's Adjudication") && Check.haveItem("belt", "set", "Tal Rasha's Fine-Spun Cloth") &&
-					Check.haveItem("armor", "set", "Tal Rasha's Guardianship") && Check.haveItem("swirlingcrystal", "set", "Tal Rasha's Lidless Eye") ? me.charlvl : 100;
-				break;
-			case "Bone":
-			case "Poison":
-			case "Summon":
-			case "Hammerdin":
-			case "Elemental":
-			case "Wind":
-				respec = Check.haveItem("armor", "runeword", "Enigma") ? me.charlvl : 100;
-				break;
-			case "Singer":
-				respec = Check.haveItem("armor", "runeword", "Enigma") && Check.haveItem("mace", "runeword", "Heart of the Oak") ? me.charlvl : 100;
-				break;
-			case "Whirlwind":
-			case "Smiter":
-			case "Zealer":
-				respec = Check.haveItem("sword", "runeword", "Grief") ? me.charlvl : 100;
-				break;
-			case "Uberconc":
-				respec = Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("monarch", "unique", "Stormshield") ? me.charlvl : 100;
-				break;
-			case "Frenzy":
-				respec = Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("sword", "runeword", "Breath of the Dying") ? me.charlvl : 100;
-				break;
-			case "Wolf":
-				respec = Check.haveItem("stalagmite", "unique", "Ribcracker") && Check.haveItem("armor", "runeword", "Chains of Honor") ? me.charlvl : 100;
-				break;
-			case "Plaguewolf":
-				respec = Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("armor", "runeword", "Chains of Honor") ? me.charlvl : 100;
-				break;
-			case "Auradin":
-				respec = Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream") ? me.charlvl : 100;
-				break;
-			case "Torchadin":
-				respec = Check.haveItem("sword", "runeword", "Hand of Justice") && Check.haveItem("armor", "runeword", "Dragon") ? me.charlvl : 100;
-				break;
-			case "Immortalwhirl":
-				// Whole IK Set
-				respec = Check.haveItem("mace", "set", "Immortal King's Stone Crusher") && Check.haveItem("boots", "set", "Immortal King's Pillar") &&
-					Check.haveItem("belt", "set", "Immortal King's Detail") && Check.haveItem("armor", "set", "Immortal King's Soul Cage") &&
-					Check.haveItem("primalhelm", "set", "Immortal King's Will") && Check.haveItem("gloves", "set", "Immortal King's Forge") ? me.charlvl : 100;
-				break;
-			default:
-				respec = 100;
-				break;
-			}
-		}
+		let respec = Check.finalBuild().respec() ? me.charlvl : 100;
 
 		if (respec === me.charlvl && me.charlvl < 60) {
 			showConsole();
@@ -1150,6 +1079,7 @@ const Check = {
 			mercAuraWanted: finalBuild.mercAuraWanted,
 			mercDiff: finalBuild.mercDiff,
 			finalGear: finalBuild.autoEquipTiers,
+			respec: finalBuild.respec,
 		};
 	},
 
@@ -1158,18 +1088,16 @@ const Check = {
 
 		switch (SetUp.finalBuild) {
 		case "Bumper":
-			if (SetUp.finalBuild === "Bumper" && me.charlvl >= 40) {
-				goalReached = true;
-			}
+			SetUp.finalBuild === "Bumper" && me.charlvl >= 40 && (goalReached = true);
 
 			break;
 		case "Socketmule":
-			if (SetUp.finalBuild === "Socketmule" && Misc.checkQuest(35, 1)) {
-				goalReached = true;
-			}
+			SetUp.finalBuild === "Socketmule" && Misc.checkQuest(35, 1) && (goalReached = true);
 
 			break;
 		default:
+			// Refactor this so it doesn't do this check everytime.
+			// It really only needs to confirm that our profile is listed and save the level we want to stop at
 			if (Developer.stopAtLevel.enabled) {
 				for (let i = 0; i < Developer.stopAtLevel.profiles.length; i++) {
 					if (Developer.stopAtLevel.profiles[i][0].toLowerCase() === me.profile.toLowerCase()) {
@@ -1192,9 +1120,7 @@ const Check = {
 				SetUp.makeNext();
 			} else {
 				D2Bot.printToConsole("Kolbot-SoloPlay " + SetUp.finalBuild + " goal reached.", 6);
-				if (Developer.logPerformance) {
-					Tracker.Update();
-				}
+				Developer.logPerformance && (Tracker.Update());
 				D2Bot.stop();
 			}
 		}
@@ -1223,6 +1149,7 @@ const Check = {
 };
 
 // TODO: set this up similar to cubing where certain items get added to the validGids list to be kept and we look for items from the needList
+// Idea: would be nice that if we were currently pathing and had low stam that this updates to include picking up a stam pot then once we have it remove it so we don't pick up more
 let SoloPlay = {
 	needList: [],
 	validGids: [],

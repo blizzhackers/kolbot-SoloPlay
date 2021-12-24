@@ -4,7 +4,7 @@
  *    @desc       End-game Auradin build
  */
 
-var finalBuild = {
+const finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.PalaCombat,
 	wantedskills: [sdk.skills.Zeal, sdk.skills.Conviction],
@@ -58,5 +58,13 @@ var finalBuild = {
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000", //Fortitude
 		"[type] == armor && [flag] == runeword # [ias] == 45 && [coldresist] == 30 # [merctier] == 50000 + mercscore(item)", //Treachery
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)", //Eth Andy's
-	]
+	],
+
+	respec: function () {
+		if (me.classic) {
+			return false;
+		} else {
+			return Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream");
+		}
+	},
 };
