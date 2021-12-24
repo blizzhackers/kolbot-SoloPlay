@@ -797,7 +797,7 @@
 		    let calculateRawStaticDamage = function (distanceUnit) {
 		        if (distanceUnit === void 0) { distanceUnit = me; }
 		        if (!me.getSkill(sdk.skills.StaticField, 1)) { return 0; }
-		        let range = Skill.getRange(sdk.skills.StaticField), cap = (me.gametype === sdk.game.gametype.Classic ? 0 : [1, 25, 50][me.diff]);
+		        let range = Skill.getRange(sdk.skills.StaticField), cap = (me.gametype === sdk.game.gametype.Classic ? 1 : [1, 25, 50][me.diff]);
 		        return getUnits(1)
 		            .filter(function (mon) { return mon.attackable
 		            && getDistance(mon, distanceUnit) < range; }
@@ -1761,20 +1761,19 @@
     function calculateKillableSummonsByNova() {
         let summons = [
         		sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2,
-        		sdk.monsters.BurningDead, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2
+        		sdk.monsters.BurningDead, sdk.monsters.Returned1, sdk.monsters.Returned2, sdk.monsters.BoneWarrior1, sdk.monsters.BoneWarrior2, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2
         	];
         if (!me.getSkill(sdk.skills.Nova, 1)) { return 0; }
         return getUnits(1)
-        	.filter(unit => !!unit && fallens.includes(unit.classid) && unit.distance < 7)
+        	.filter(unit => !!unit && summons.includes(unit.classid) && unit.distance < 7)
             .filter(function (unit) {
 	            return unit.attackable
 	                && typeof unit.x === 'number' // happens if monster despawns
 	                && !checkCollision(me, unit, Coords_1.Collision.BLOCK_MISSILE)
-	                && unit.getStat(sdk.stats.ColdResist) < 100
-	                && !unit.getState(sdk.states.Frozen);
+	                && Attack.checkResist(unit, "lightning");
 	        	})
             .reduce(function (acc, cur) {
-	            let classId = cur.classid, areaId = cur.area, minDmg = GameData.skillDamage(sdk.skills.FrostNova, cur).min,
+	            let classId = cur.classid, areaId = cur.area, minDmg = GameData.skillDamage(sdk.skills.Nova, cur).min,
 	            	currentHealth = GameData.monsterMaxHP(classId, areaId, cur.charlvl - GameData.monsterLevel(classId, areaId)) / 100 * (cur.hp * 100 / cur.hpmax);
 	            if (currentHealth < minDmg) {
 	                acc++;
@@ -1785,6 +1784,7 @@
 
 // Export data
 	GameData.calculateKillableFallensByFrostNova = calculateKillableFallensByFrostNova;
+	GameData.calculateKillableSummonsByNova = calculateKillableSummonsByNova;
 	GameData.isEnemy = isEnemy;
 	GameData.isAlive = isAlive;
 	GameData.onGround = onGround;

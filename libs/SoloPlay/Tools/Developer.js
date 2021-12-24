@@ -8,7 +8,7 @@
 const Developer = {
 	plugyMode: false,		// set to true if using the PlugY mod
 	logPerformance: true,	// log game/bot statistics to .csv files located at SoloPlay/Data/
-	Overlay: true,			// show in game overlay (see bottom of README.md for example)
+	vverlay: true,			// show in game overlay (see bottom of README.md for example)
 	logEquipped: false,		// log currently equipped items to D2Bot# charviewer tab
 	hideChickens: true, 	// disable printing chicken info in D2Bot console
 	addLadderRW: !me.profile.toLowerCase().contains("nl"), // enable ladder runewords in single player mode ONLY WORKS IF RUNEWORDS.TXT IS INSTALLED AND D2BS PROFILE IS CONFIGURED or patch.json has been updated (see Single Player Additions in README.md)
@@ -17,8 +17,8 @@ const Developer = {
 		excludeProfiles: [""],	// allow specific profiles to show casting animations without disabling it for every profile running (helpful when debugging)
 	},
 	fillAccount: {			// set to true in use with info-tag Bumper or Socketmule to make next character after reaching goal until account is full
-		Bumpers: false,
-		Socketmules: false,
+		bumpers: false,
+		socketMules: false,
 	},
 	stopAtLevel: { 			// stop a profile once it reaches a certain level
 		enabled: false,
@@ -31,14 +31,18 @@ const Developer = {
 		enabled: false,
 		profiles: [""],		// Enter in the profiles that you wish to start in developermode, i.e "scl-sorc"
 	},
-	Debugging: { 			// print more info to the in game console
-		smallCharmVerbose: false,
-		largeCharmVerbose: false,
-		grandCharmVerbose: false,
-		junkCheckVerbose: false,
+	debugging: { 			// print more info to the in game console
+		smallCharm: false,
+		largeCharm: false,
+		grandCharm: false,
+		junkCheck: false,
 		autoEquip: false,
 		crafting: false,
 		pathing: false,
+		showStack: {
+			enabled: false,
+			profiles: [],		// Enter in the profiles that you wish to see the stack walk for, this loads up guard.js and displays on the overlay
+		},
 	},
 
 	/*  Developer tools */

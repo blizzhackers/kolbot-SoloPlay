@@ -339,17 +339,9 @@ Town.cainID = function (force = false, dontSell = false) {
 
 				break;
 			default:
-				if (Developer.Debugging.smallCharmVerbose && item.classid === 603) {
-					Misc.logItem("Sold", item);
-				}
-
-				if (Developer.Debugging.largeCharmVerbose && item.classid === 604) {
-					Misc.logItem("Sold", item);
-				}
-
-				if (Developer.Debugging.grandCharmVerbose && item.classid === 605) {
-					Misc.logItem("Sold", item);
-				}
+				Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm && (Misc.logItem("Sold", item));
+				Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm && (Misc.logItem("Sold", item));
+				Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm && (Misc.logItem("Sold", item));
 
 				Misc.itemLogger("Sold", item);
 				if ((getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) && (item.getItemCost(1) <= 1 || !item.isSellable)) {
@@ -534,17 +526,9 @@ Town.identify = function () {
 
 					break;
 				default:
-					if (Developer.Debugging.smallCharmVerbose && item.classid === 603) {
-						Misc.logItem("Sold", item);
-					}
-
-					if (Developer.Debugging.largeCharmVerbose && item.classid === 604) {
-						Misc.logItem("Sold", item);
-					}
-
-					if (Developer.Debugging.grandCharmVerbose && item.classid === 605) {
-						Misc.logItem("Sold", item);
-					}
+					Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm && (Misc.logItem("Sold", item));
+					Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm && (Misc.logItem("Sold", item));
+					Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm && (Misc.logItem("Sold", item));
 
 					Misc.itemLogger("Sold", item);
 					item.sell();
@@ -814,13 +798,9 @@ Town.shopItems = function () {
 			try {
 				if (Storage.Inventory.CanFit(items[i]) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
 					if (items[i].isBaseType) {
-						if (!this.worseBaseThanStashed(items[i]) && this.betterBaseThanWearing(items[i], Developer.Debugging.junkCheckVerbose)) {
+						if (!this.worseBaseThanStashed(items[i]) && this.betterBaseThanWearing(items[i], Developer.debugging.junkCheck)) {
 							Misc.itemLogger("Shopped", items[i]);
-
-							if (Developer.Debugging.autoEquip) {
-								Misc.logItem("Shopped", items[i], result.line);
-							}
-
+							Developer.debugging.autoEquip && (Misc.logItem("Shopped", items[i], result.line));
 							print("ÿc8Kolbot-SoloPlayÿc0: Bought better base");
 							items[i].buy();
 
@@ -844,47 +824,37 @@ Town.shopItems = function () {
 			try {
 				if (Storage.Inventory.CanFit(items[i]) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
 					if (Item.hasTier(items[i]) && Item.autoEquipCheck(items[i])) {
-						Misc.itemLogger("AutoEquip Shopped", items[i]);
 						try {
+							Misc.itemLogger("AutoEquip Shopped", items[i]);
 							print("ÿc9ShopItemsÿc0 :: AutoEquip Shopped: " + items[i].fname + " Tier: " + NTIP.GetTier(items[i]));
+							Developer.debugging.autoEquip && (Misc.logItem("AutoEquip Shopped", items[i], result.line));
+							items[i].buy();
+
 						} catch (e) {
 							print(e);
 						}
-
-						if (Developer.Debugging.autoEquip) {
-							Misc.logItem("AutoEquip Shopped", items[i], result.line);
-						}
-
-						items[i].buy();
 
 						continue;
 					}
 
 					if (Item.hasMercTier(items[i]) && Item.autoEquipCheckMerc(items[i])) {
 						Misc.itemLogger("AutoEquipMerc Shopped", items[i]);
-
-						if (Developer.Debugging.autoEquip) {
-							Misc.logItem("AutoEquipMerc Shopped", items[i], result.line);
-						}
-
+						Developer.debugging.autoEquip && (Misc.logItem("AutoEquipMerc Shopped", items[i], result.line));
 						items[i].buy();
 
 						continue;
 					}
 
 					if (Item.hasSecondaryTier(items[i]) && Item.autoEquipCheckSecondary(items[i])) {
-						Misc.itemLogger("AutoEquip Switch Shopped", items[i]);
 						try {
+							Misc.itemLogger("AutoEquip Switch Shopped", items[i]);
 							print("ÿc9ShopItemsÿc0 :: AutoEquip Switch Shopped: " + items[i].fname + " SecondaryTier: " + NTIP.GetSecondaryTier(items[i]));
+							Developer.debugging.autoEquip && (Misc.logItem("AutoEquip Switch Shopped", items[i], result.line));
+							items[i].buy();
+
 						} catch (e) {
 							print(e);
 						}
-
-						if (Developer.Debugging.autoEquip) {
-							Misc.logItem("AutoEquip Switch Shopped", items[i], result.line);
-						}
-
-						items[i].buy();
 
 						continue;
 					}
@@ -1615,7 +1585,7 @@ Town.clearInventory = function () {
 			if ([0, 4].indexOf(result) === -1) {
 				if ((items[i].isBaseType && items[i].getStat(194) > 0) ||
 					([25, 69, 70, 71, 72].indexOf(items[i].itemType) > -1 && items[i].quality === 2 && items[i].getStat(194) === 0)) {
-					if (this.worseBaseThanStashed(items[i]) && !this.betterBaseThanWearing(items[i], Developer.Debugging.junkCheckVerbose)) {
+					if (this.worseBaseThanStashed(items[i]) && !this.betterBaseThanWearing(items[i], Developer.debugging.junkCheck)) {
 						result = 4;
 					}
 				}
@@ -2268,7 +2238,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
-					if (Developer.Debugging.junkCheckVerbose) {
+					if (Developer.debugging.junkCheck) {
 						print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 					}
 
@@ -2296,7 +2266,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck))) {
-					if (Developer.Debugging.junkCheckVerbose) {
+					if (Developer.debugging.junkCheck) {
 						print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 					}
 
@@ -2327,7 +2297,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 					!base.ethereal &&
 					(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
 						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
-					if (Developer.Debugging.junkCheckVerbose) {
+					if (Developer.debugging.junkCheck) {
 						print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(31) + " itemToCheckDefense: " + itemsToCheck.getStatEx(31));
 					}
 
@@ -2361,7 +2331,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 				!base.ethereal &&
 				(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
 						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
-				if (Developer.Debugging.junkCheckVerbose) {
+				if (Developer.debugging.junkCheck) {
 					print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(31) + " itemToCheckDefense: " + itemsToCheck.getStatEx(31));
 				}
 
@@ -2396,7 +2366,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.getStatEx(31) < itemsToCheck.getStatEx(31)))) {
-					if (Developer.Debugging.junkCheckVerbose) {
+					if (Developer.debugging.junkCheck) {
 						print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 					}
 
@@ -2427,7 +2397,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 					!base.ethereal &&
 					(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
 						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
-					if (Developer.Debugging.junkCheckVerbose) {
+					if (Developer.debugging.junkCheck) {
 						print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStat(31) + " itemToCheckDefense: " + itemsToCheck.getStat(31));
 					}
 
@@ -2460,7 +2430,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
-					if (Developer.Debugging.junkCheckVerbose) {
+					if (Developer.debugging.junkCheck) {
 						print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 					}
 
@@ -2498,7 +2468,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 			.last(); // select last
 
 		if (itemsToCheck === undefined) {
-			if (Developer.Debugging.junkCheckVerbose) {
+			if (Developer.debugging.junkCheck) {
 				print("ÿc9WorseBaseThanStashedÿc0 :: itemsToCheck is undefined");
 			}
 
@@ -2506,7 +2476,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 		}
 
 		if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
-			if (Developer.Debugging.junkCheckVerbose) {
+			if (Developer.debugging.junkCheck) {
 				print("ÿc9WorseBaseThanStashedÿc0 :: same item");
 			}
 
@@ -2517,7 +2487,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 			if (([3, 4, 7].indexOf(base.location) > -1) &&
 				(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && (Item.getQuantityOwned(base) > 2 || base.getStatEx(18) < itemsToCheck.getStatEx(18))))) {
-				if (Developer.Debugging.junkCheckVerbose) {
+				if (Developer.debugging.junkCheck) {
 					print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 				}
 
@@ -2549,7 +2519,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 			if (base.getStat(194) > 0) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck))) {
-					if (Developer.Debugging.junkCheckVerbose) {
+					if (Developer.debugging.junkCheck) {
 						print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 					}
 
@@ -2580,7 +2550,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 		if (base.getStat(194) > 0) {
 			if (([3, 4, 7].indexOf(base.location) > -1) &&
 				(base.getStatEx(23) + base.getStatEx(24)) < (itemsToCheck.getStatEx(23) + itemsToCheck.getStatEx(24))) {
-				if (Developer.Debugging.junkCheckVerbose) {
+				if (Developer.debugging.junkCheck) {
 					print("ÿc9WorseBaseThanStashedÿc0 :: BaseDamage: " + (base.getStatEx(23) + base.getStatEx(24)) + " itemToCheckDamage: " + (itemsToCheck.getStatEx(23) + itemsToCheck.getStatEx(24)));
 				}
 
@@ -2590,7 +2560,7 @@ Town.worseBaseThanStashed = function (base, clearJunkCheck) {
 
 		break;
 	default:
-		if (Developer.Debugging.junkCheckVerbose) {
+		if (Developer.debugging.junkCheck) {
 			print("ÿc9WorseBaseThanStashedÿc0 :: No itemType to check for " + base.name);
 		}
 
@@ -2734,7 +2704,7 @@ Town.clearJunk = function () {
 					}
 				}
 
-				if (!this.betterBaseThanWearing(junk[0], Developer.Debugging.junkCheckVerbose)) {
+				if (!this.betterBaseThanWearing(junk[0], Developer.debugging.junkCheck)) {
 					print("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
 
 					if (!getUIFlag(sdk.uiflags.Stash) && [sdk.storage.Stash, sdk.storage.Cube].contains(junk[0].location)) {
@@ -2785,10 +2755,7 @@ Town.clearJunk = function () {
 			for (let i = 0; i < junkToSell.length; i++) {
 				print("ÿc9JunkCheckÿc0 :: Sell " + junkToSell[i].name);
 				Misc.itemLogger("Sold", junkToSell[i]);
-
-				if (Developer.Debugging.junkCheckVerbose) {
-					Misc.logItem("JunkCheck Sold", junkToSell[i]);
-				}
+				Developer.debugging.junkCheck && (Misc.logItem("JunkCheck Sold", junkToSell[i]));
 
 				junkToSell[i].sell();
 			}

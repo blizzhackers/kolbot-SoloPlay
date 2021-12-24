@@ -54,7 +54,7 @@ function main () {
 	Runewords.init();
 	Cubing.init();
 
-	if (Developer.Overlay) {
+	if (Developer.overlay) {
 		include("SoloPlay/Tools/Overlay.js");
 	}
 
@@ -830,7 +830,7 @@ function main () {
 			quitFlag = true;
 		}
 
-		if (Developer.Overlay) {
+		if (Developer.overlay) {
 			if (Developer.logPerformance) {
 				if (me.ingame && me.gameReady && me.area) {
 					Overlay.update(quitFlag);

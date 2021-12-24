@@ -318,8 +318,8 @@ Item.autoEquip = function () {
 
 					if (this.equip(items[0], bodyLoc[j])) {
 						print("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
-						if (Developer.Debugging.autoEquip) { Misc.logItem("Equipped", me.getItem(-1, -1, gid)); }
-						if (Developer.logEquipped) { MuleLogger.logEquippedItems(); }
+						Developer.debugging.autoEquip && (Misc.logItem("Equipped", me.getItem(-1, -1, gid)));
+						Developer.logEquipped && (MuleLogger.logEquippedItems());
 
 					} else if (items[0].lvlreq > me.charlvl && !items[0].isInStash) {
 						if (Storage.Stash.CanFit(items[0])) {
@@ -610,10 +610,8 @@ Item.autoEquipSecondary = function () {
 
 					if (this.secondaryEquip(items[0], bodyLoc[j])) {
 						print("ÿc9SecondaryEquipÿc0 :: Equipped: " + items[0].fname + " SecondaryTier: " + tier);
-
-						if (Developer.Debugging.autoEquip) { Misc.logItem("Equipped switch", me.getItem(-1, -1, gid)); }
-						if (Developer.logEquipped) { MuleLogger.logEquippedItems(); }
-
+						Developer.debugging.autoEquip && (Misc.logItem("Equipped switch", me.getItem(-1, -1, gid)));
+						Developer.logEquipped && (MuleLogger.logEquippedItems());
 					}
 
 					break;
@@ -669,8 +667,7 @@ Item.equipMerc = function (item, bodyLoc) {
 		if (item.toCursor()) {
 			if (clickItem(4, bodyLoc)) {
 				delay(500 + me.ping * 2);
-
-				if (Developer.Debugging.autoEquip) { Misc.logItem("Merc Equipped", mercenary.getItem(item.classid)); }
+				Developer.debugging.autoEquip && (Misc.logItem("Merc Equipped", mercenary.getItem(item.classid)));
 			}
 
 			if (item.bodylocation === bodyLoc) {
@@ -890,8 +887,7 @@ Item.autoEquipMerc = function () {
 
 					if (cursorItem) {
 						cursorItem.drop();
-
-						if (Developer.Debugging.autoEquip) { Misc.logItem("Merc Dropped", cursorItem); }
+						Developer.debugging.autoEquip && (Misc.logItem("Merc Dropped", cursorItem));
 					}
 
 					break;
@@ -964,7 +960,7 @@ Item.autoEquipSC = function () {
 		}
 	}
 
-	let charms = Item.autoEquipCharmSort(items, Developer.Debugging.smallCharmVerbose);
+	let charms = Item.autoEquipCharmSort(items, Developer.debugging.smallCharm);
 
 	keep = keep.concat(charms.resCharms, charms.healthCharms, charms.mfCharms, charms.dmgCharms, charms.eleDmgCharms, charms.backupCheck);
 
@@ -977,20 +973,14 @@ Item.autoEquipSC = function () {
 			if (NTIP.checkFinalCharm(keep[i])) {
 				if (Item.finalEquippedSCs.indexOf(keep[i]) === -1) {
 					Item.finalEquippedSCs.push(keep[i]);
-
-					if (Developer.Debugging.smallCharmVerbose) {
-						print("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Equipped Final SC " + keep[i].fname);
-					}
+					Developer.debugging.smallCharm && (print("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Equipped Final SC " + keep[i].fname));
 				}
 			}
 		}
 
 		for (let i = Item.maxFinalSCs; i < keep.length; i++) {
 			charms.checkList.push(keep[i]);
-
-			if (Developer.Debugging.smallCharmVerbose) {
-				print("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Add " + keep[i].fname + " to checkList");
-			}
+			Developer.debugging.smallCharm && (print("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Add " + keep[i].fname + " to checkList"));
 
 			keep.splice(i, 1);
 			i -= 1;
@@ -1048,7 +1038,7 @@ Item.autoEquipLC = function () {
 		}
 	}
 
-	let charms = Item.autoEquipCharmSort(items, Developer.Debugging.largeCharmVerbose);
+	let charms = Item.autoEquipCharmSort(items, Developer.debugging.largeCharm);
 
 	keep = keep.concat(charms.resCharms, charms.healthCharms, charms.mfCharms, charms.dmgCharms, charms.eleDmgCharms, charms.backupCheck);
 
@@ -1061,20 +1051,14 @@ Item.autoEquipLC = function () {
 			if (NTIP.checkFinalCharm(keep[i])) {
 				if (Item.finalEquippedLCs.indexOf(item) === -1) {
 					Item.finalEquippedLCs.push(keep[i]);
-
-					if (Developer.Debugging.largeCharmVerbose) {
-						print("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Equipped Final LC " + keep[i].fname);
-					}
+					Developer.debugging.largeCharm && (print("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Equipped Final LC " + keep[i].fname));
 				}
 			}
 		}
 
 		for (let i = Item.maxFinalLCs; i < keep.length; i++) {
 			charms.checkList.push(keep[i]);
-
-			if (Developer.Debugging.largeCharmVerbose) {
-				print("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Add " + keep[i].fname + " to checkList");
-			}
+			Developer.debugging.largeCharm && (print("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Add " + keep[i].fname + " to checkList"));
 
 			keep.splice(i, 1);
 			i -= 1;
@@ -1132,7 +1116,7 @@ Item.autoEquipGC = function () {
 		}
 	}
 
-	let charms = Item.autoEquipCharmSort(items, Developer.Debugging.grandCharmVerbose);
+	let charms = Item.autoEquipCharmSort(items, Developer.debugging.grandCharm);
 
 	keep = keep.concat(charms.typeA, charms.typeB, charms.typeC, charms.resCharms, charms.healthCharms, charms.mfCharms, charms.dmgCharms, charms.eleDmgCharms, charms.backupCheck);
 

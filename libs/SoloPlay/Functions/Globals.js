@@ -1188,7 +1188,7 @@ const Check = {
 		}
 
 		if (goalReached) {
-			if (Developer.fillAccount.Bumpers || Developer.fillAccount.Socketmules) {
+			if (Developer.fillAccount.bumpers || Developer.fillAccount.socketMules) {
 				SetUp.makeNext();
 			} else {
 				D2Bot.printToConsole("Kolbot-SoloPlay " + SetUp.finalBuild + " goal reached.", 6);

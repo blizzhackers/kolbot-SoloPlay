@@ -249,40 +249,40 @@ Attack.isCursable = function (unit) {
 	return true;
 };
 
-// Attack.openChests = function (range, x, y) {
-// 	if (!Config.OpenChests) {
-// 		return false;
-// 	}
+Attack.openChests = function (range, x, y) {
+	if (!Config.OpenChests) { return false; }
+	range === undefined && (range = 10);
+	x === undefined && (x = me.x);
+	y === undefined && (y = me.y);
 
-// 	if (x === undefined || y === undefined) {
-// 		x = me.x;
-// 		y = me.y;
-// 	}
+	let mobs = getUnits(sdk.unittype.Monster)
+		.filter(mob => !!mob && mob.attackable && mob.distance < 7);
+	if (mobs.length > 1) { return false; }
 
-// 	let unit, list = [],
-// 		ids = ["chest", "chest3", "weaponrack", "armorstand"];
+	let unit,
+		list = [],
+		ids = ["chest", "chest3", "weaponrack", "armorstand"];
 
-// 	unit = getUnit(2);
+	unit = getUnit(2);
 
-// 	if (unit) {
-// 		do {
-// 			if (unit.name && getDistance(unit, x, y) <= range && ids.indexOf(unit.name.toLowerCase()) > -1) {
-// 				list.push(copyUnit(unit));
-// 			}
-// 		} while (unit.getNext());
-// 	}
+	if (unit) {
+		do {
+			if (unit.name && getDistance(unit, x, y) <= range && ids.indexOf(unit.name.toLowerCase()) > -1) {
+				list.push(copyUnit(unit));
+			}
+		} while (unit.getNext());
+	}
 
-// 	while (list.length) {
-// 		list.sort(Sort.units);
-// 		let check = list.shift();
+	while (list.length) {
+		list.sort(Sort.units);
 
-// 		if ((Pather.useTeleport() || !checkCollision(me, unit, 0x4)) && Misc.openChest(unit)) {
-// 			Pickit.pickItems();
-// 		}
-// 	}
+		if (Misc.openChest(list.shift())) {
+			Pickit.pickItems();
+		}
+	}
 
-// 	return true;
-// };
+	return true;
+};
 
 Attack.killTarget = function (name) {
 	let target,	attackCount = 0;
@@ -635,7 +635,7 @@ Attack.getMobCountAtPosition = function (x, y, range, filter = false, debug = tr
 
 	list = this.buildMonsterList(true);
 	list.sort(Sort.units);
-	debug = Developer.Debugging.pathing;
+	debug = Developer.debugging.pathing;
 
 	if (filter) {
 		list = list.filter(mob => mob.spectype === 0);
@@ -1629,9 +1629,7 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 						break;
 					}
 
-					if (Developer.Debugging.pathing) {
-						print("Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + Attack.getMobCountAtPosition(coords[i].x, coords[i].y, 5));
-					}
+					Developer.debugging.pathing && (print("Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + Attack.getMobCountAtPosition(coords[i].x, coords[i].y, 5)));
 
 					return true;
 				}

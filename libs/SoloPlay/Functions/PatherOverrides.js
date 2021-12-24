@@ -287,7 +287,8 @@ Pather.checkWP = function (area) {
 
 // Fixed Canyon to Duriels Lair
 Pather.journeyTo = function (area) {
-	let special, unit, tick, target;
+	if (area === undefined) { print("undefined area"); return false; }
+	let special, unit, tick, target, retry = 0;
 
 	if (area !== sdk.areas.DurielsLair) {
 		target = this.plotCourse(area, me.area);
@@ -434,7 +435,16 @@ Pather.journeyTo = function (area) {
 			break;
 		}
 
-		target.course.shift();
+		if (me.area === target.course[0]) {
+			target.course.shift();
+			retry = 0;
+		} else {
+			if (retry > 3) {
+				print(sdk.colors.Red + "Failed to journeyTo " + Pather.getAreaName(area) + " currentarea: " + Pather.getAreaName(me.area));
+				return false;
+			}
+			retry++;
+		}
 	}
 
 	return me.area === area;

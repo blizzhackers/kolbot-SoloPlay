@@ -900,9 +900,7 @@ Cubing.doCubing = function () {
 							}
 						}
 
-						if (Developer.Debugging.crafting) {
-							Misc.logItem("Crafted but didn't want", items[j]);
-						}
+						Developer.debugging.crafting && (Misc.logItem("Crafted but didn't want", items[j]));
 
 						break;
 					case 1:
