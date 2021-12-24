@@ -39,6 +39,7 @@ const Developer = {
 		autoEquip: false,
 		crafting: false,
 		pathing: false,
+		skills: false,
 		showStack: {
 			enabled: false,
 			profiles: [],		// Enter in the profiles that you wish to see the stack walk for, this loads up guard.js and displays on the overlay

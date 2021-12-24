@@ -13,7 +13,9 @@ let build = {
 	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	classicStats: [
-		 ["dexterity", 51], ["strength", 80], ["energy", 100], ["vitality", "all"]
+		["energy", 60], ["vitality", 40], ["strength", 55],
+		["energy", 80], ["vitality", 80], ["strength", 80],
+		["energy", 100], ["vitality", "all"]
 	],
 	expansionStats: [
 		["energy", 69], ["strength", 48], ["vitality", 165],
@@ -21,13 +23,13 @@ let build = {
 		["vitality", 252], ["dexterity", "block"], ["vitality", "all"]
 	],
 	classicSkills: [
-		// Total skills at respec = 25 
-		[sdk.skills.Warmth, 1], 		// points left 24
-		[sdk.skills.FrozenArmor, 1], 	// points left 23
-		[sdk.skills.StaticField, 8], 	// points left 17
-		[sdk.skills.Teleport, 4], 		// points left 12
-		[sdk.skills.Blizzard, 2], 		// points left 6
-		[sdk.skills.IceBlast, 7], 		// points left 0
+		// Total skills at respec = 27
+		[sdk.skills.Warmth, 1], 		// points left 26
+		[sdk.skills.FrozenArmor, 1], 	// points left 25
+		[sdk.skills.StaticField, 6], 	// points left 19
+		[sdk.skills.Teleport, 4], 		// points left 14
+		[sdk.skills.Blizzard, 3], 		// points left 7
+		[sdk.skills.IceBlast, 8], 		// points left 0
 		[sdk.skills.ColdMastery, 1, false],
 		[sdk.skills.FrozenOrb, 1, false],
 		[sdk.skills.Blizzard, 20, false],

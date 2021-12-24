@@ -1,4 +1,8 @@
-//	/d2bs/kolbot/libs/config/Builds/Sorceress.Start.js
+/*
+ *    @filename   	sorceress.start.js
+ *	  @author	  	theBGuy
+ *    @desc       	sorceress Blova build for before respecOne - respecs at level 26
+ */
 
 js_strict(true);
 
@@ -7,6 +11,8 @@ SetUp.include();
 
 let AutoBuildTemplate = {
 	1:	{
+		SkillPoints: [-1],
+		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.AttackSkill = [-1, sdk.skills.FireBolt, -1, sdk.skills.FireBolt, -1, 0, 0];
 			Config.LowManaSkill = [0, 0];
@@ -27,7 +33,7 @@ let AutoBuildTemplate = {
 			if (!!me.getSkill(sdk.skills.IceBolt, 1)) {
 				Config.AttackSkill = [-1, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.IceBolt, 0];
 			} else {
-				Config.AttackSkill = [-1, sdk.skills.ChargedBolt, -1, sdk.skills.ChargedBolt, -1, 0, 0];
+				Config.AttackSkill = [-1, sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, 1) ? sdk.skills.FireBolt : -1), sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, 1) ? sdk.skills.FireBolt : -1), 0, 0];
 			}
 			Config.LowManaSkill = [0, 0];
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
@@ -45,6 +51,7 @@ let AutoBuildTemplate = {
 		Update: function () {
 			Config.AttackSkill = [-1, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.FrostNova, sdk.skills.IceBolt];
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
+			Config.DodgeHP = 50;
 		}
 	},
 
@@ -53,7 +60,7 @@ let AutoBuildTemplate = {
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			if (!!me.getSkill(sdk.skills.Blizzard, 0)) {
-				Config.AttackSkill = [-1, 59, 48, 59, 48, 48, 0];
+				Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Nova, sdk.skills.ChargedBolt];
 			}
 		}
 	},
