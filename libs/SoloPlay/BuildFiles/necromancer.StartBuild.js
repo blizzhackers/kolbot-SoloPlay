@@ -6,7 +6,7 @@
 
 let build = {
 	caster: true,
-	skillstab: sdk.skills.tabs.PoisonBone,
+	skillstab: sdk.skills.tabs.PoisonandBone,
 	wantedskills: [sdk.skills.Teeth, sdk.skills.BoneSpear],
 	usefulskills: [sdk.skills.AmplifyDamage, sdk.skills.BoneArmor, sdk.skills.Decrepify, sdk.skills.BoneWall],
 	mercAuraName: "Might",

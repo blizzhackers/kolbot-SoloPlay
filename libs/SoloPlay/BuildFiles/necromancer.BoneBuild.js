@@ -6,7 +6,7 @@
 
 const finalBuild = {
 	caster: true,
-	skillstab: sdk.skills.tabs.PoisonBone,
+	skillstab: sdk.skills.tabs.PoisonandBone,
 	wantedskills: [sdk.skills.BoneSpirit, sdk.skills.BoneSpear, sdk.skills.Teeth],
 	usefulskills: [sdk.skills.AmplifyDamage, sdk.skills.BoneArmor, sdk.skills.Decrepify, sdk.skills.BoneWall, sdk.skills.BonePrison],
 	precastSkills: [sdk.skills.BoneArmor],
