@@ -1272,11 +1272,6 @@ Attack.inverseSpotDistance = function (spot, distance, otherSpot) {
 };
 
 Attack.pwnMeph = function () {
-	// TODO: fill this out
-	// lure meph (easy enough with sorc)
-	// maybe use golem or shadow for sin and necro
-	// far cast until hes dead and try to keep him at the edge
-	// sorc jump in and static every couple attacks
 };
 
 // Credit @Jaenster - modified by me(theBGuy) for other classes
@@ -1541,10 +1536,11 @@ Attack.deploy = function (unit, distance, spread, range) {
 	return false;
 };
 
-Attack.getIntoPosition = function (unit, distance, coll, walk) {
+Attack.getIntoPosition = function (unit, distance, coll, walk, force) {
 	if (!unit || !unit.x || !unit.y) { return false; }
 
 	walk === true && (walk = 1);
+	force == undefined && (force = false);
 	
 	if (distance < 4 && (!unit.hasOwnProperty("mode") || (unit.mode !== 0 && unit.mode !== 12))) {
 		//me.overhead("Short range");
@@ -1568,7 +1564,7 @@ Attack.getIntoPosition = function (unit, distance, coll, walk) {
 		angles = [0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 135, -135, 180];
 
 	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
-	let caster = Skill.getRange(Config.AttackSkill[index]) > 4;
+	let caster = Skill.getRange(Config.AttackSkill[index]) > 4 || force;
 
 	//let t = getTickCount();
 

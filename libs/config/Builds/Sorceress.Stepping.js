@@ -18,8 +18,8 @@ let AutoBuildTemplate = {
 			Config.MinColumn[1] = Config.BeltColumn[1] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
 			Config.MinColumn[2] = Config.BeltColumn[2] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
 			Config.MinColumn[3] = Config.BeltColumn[3] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
-			Config.HPBuffer = 2;
-			Config.MPBuffer = me.charlvl < 80 ? 6 : 2;
+			Config.HPBuffer = me.expansion ? 2 : 5;
+			Config.MPBuffer = me.expansion && me.charlvl < 80 ? 6 : me.classic ? 5 : 2;
 			Config.SkipImmune = ["cold"];
 		}
 	},

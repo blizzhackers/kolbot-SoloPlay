@@ -3,6 +3,7 @@
  *	  @author	  	theBGuy
  *    @desc      	Sorceress Meteor + Frozen Orb build
  */
+ 
 
 js_strict(true);
 
@@ -17,6 +18,8 @@ let AutoBuildTemplate = {
 			Config.AttackSkill = [-1, sdk.skills.Meteor, sdk.skills.FireBall, sdk.skills.Meteor, sdk.skills.FireBall, sdk.skills.FrozenOrb, sdk.skills.GlacialSpike];
 			Config.LowManaSkill = [-1, -1];
 			Config.SkipImmune = ["fire and cold"];
+			Config.HPBuffer = me.expansion ? 1 : 5;
+			Config.MPBuffer = me.expansion ? 1 : 5;
 		}
 	},
 };

@@ -153,7 +153,7 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 		let closeMobCheck = getUnits(1)
 			.filter(unit => !!unit && unit.attackable && unit.distance < data.static.range)
 			.find(unit => Attack.checkResist(unit, "lightning") && Math.round(unit.hp * 100 / unit.hpmax) > Config.CastStatic)
-		if (!!closeMobCheck && data.static.dmg > Math.max(data.mainTimed.dmg, data.mainUntimed.dmg, data.secondaryTimed.dmg, data.secondaryUntimed.dmg)) {
+		if (!!closeMobCheck && data.static.dmg > Math.max(data.mainTimed.dmg, data.mainUntimed.dmg, data.secondaryTimed.dmg, data.secondaryUntimed.dmg) && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
 			Developer.debugging.skills && (print("STATIC"));
 			Skill.cast(sdk.skills.StaticField, 0, closeMobCheck);
 		}
@@ -162,9 +162,19 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 	// We lost track of the mob or killed it (recheck after using static)
     if (unit === undefined || !unit || unit.dead) { return true; }
 
+    let monCountNearUnit = function (unit, range = 15) {
+    	if (unit === undefined) {
+    		return 0;
+    	}
+
+    	return getUnits(1).filter(function (el) { return getDistance(el, unit) < range
+            && el.attackable // those that we can attack
+            && !checkCollision(el, unit, Coords_1.Collision.BLOCK_MISSILE)}).length;
+    };
+
 	// Get timed
 	switch (true) {
-	case data.static.have && data.static.dmg > Math.max(data.mainTimed.dmg, data.secondaryTimed.dmg):
+	case data.static.have && data.static.dmg > Math.max(data.mainTimed.dmg, data.secondaryTimed.dmg) && monCountNearUnit(unit) < 5:
 		timedSkill = data.static;
 		break;
 	case data.mainTimed.have && data.mainTimed.dmg > data.secondaryTimed.dmg && Attack.castableSpot(unit.x, unit.y):
@@ -176,7 +186,7 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 	}
 	// Get untimed
 	switch (true) {
-	case data.static.have && data.static.dmg > Math.max(data.mainUntimed.dmg, data.secondaryUntimed.dmg):
+	case data.static.have && data.static.dmg > Math.max(data.mainUntimed.dmg, data.secondaryUntimed.dmg) && monCountNearUnit(unit) < 5:
 		untimedSkill = data.static;
 		break;
 	case data.mainUntimed.have && data.mainUntimed.dmg > Math.max(data.secondaryUntimed.dmg, data.glacialSpike.dmg) && Attack.castableSpot(unit.x, unit.y):
@@ -309,6 +319,20 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 	// No valid skills can be found
 	if (unit === undefined || !!timedSkill.skill < 0 && !!untimedSkill.skill < 0) {
 		return 2;
+	}
+
+	if (![sdk.skills.FrostNova, sdk.skills.Nova].includes(timedSkill.skill, untimedSkill.skill) && me.getSkill(sdk.skills.Teleport, 1)) {
+		let maxNearMonsters = Math.floor((4 * (1 / me.hpmax * me.hp)) + 1);
+		let nearUnits = getUnits(sdk.unittype.Monster).filter(function (mon) {return mon.attackable && mon.distance < 10; }).length;
+		if (nearUnits > maxNearMonsters && me.mp > Skill.getManaCost(sdk.skills.Teleport) + (!!timedSkill.mana ? timedSkill.mana : untimedSkill.mana)) {
+			//print("FINDING NEW SPOT");
+			Attack.getIntoPosition(unit, (!me.getState(sdk.states.SkillDelay) && !!timedSkill.range ? timedSkill.range : untimedSkill.range), 0
+                | Coords_1.BlockBits.LineOfSight
+                | Coords_1.BlockBits.Ranged
+                | Coords_1.BlockBits.Casting
+                | Coords_1.BlockBits.ClosedDoor
+                | Coords_1.BlockBits.Objects, false, true);
+		}
 	}
 
 	if (timedSkill.skill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill.skill))) {

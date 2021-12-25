@@ -18,6 +18,8 @@ let AutoBuildTemplate = {
 			Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.FireBall, sdk.skills.Blizzard, sdk.skills.FireBall, sdk.skills.Meteor, sdk.skills.GlacialSpike];
 			Config.LowManaSkill = [-1, -1];
 			Config.SkipImmune = ["fire and cold"];
+			Config.HPBuffer = me.expansion ? 1 : 5;
+			Config.MPBuffer = me.expansion ? 1 : 5;
 		}
 	},
 };
