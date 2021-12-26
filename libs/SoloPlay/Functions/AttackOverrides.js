@@ -204,6 +204,7 @@ Attack.canAttack = function (unit) {
 };
 
 Attack.isCursable = function (unit) {
+	if (unit === undefined || !unit) { return false; }
 	if (copyUnit(unit).name === undefined || unit.name.indexOf(getLocaleString(11086)) > -1) { // "Possessed"
 		return false;
 	}
@@ -574,12 +575,9 @@ Attack.clearPos = function (x, y, range, pickit) { // probably going to change t
 };
 
 Attack.buildMonsterList = function (skipBlocked) {
-	let monster,
-		monList = [];
+	let monster, monList = [];
 
-	if (skipBlocked === true) {
-		skipBlocked = 0x4;
-	}
+	skipBlocked === true && (skipBlocked = 0x4);
 
 	monster = getUnit(1);
 
@@ -596,35 +594,6 @@ Attack.buildMonsterList = function (skipBlocked) {
 	}
 
 	return monList;
-};
-
-Attack.getMobCount = function (x, y, range, list, filter = false) {
-	let i, count = 0, ignored = [243];
-
-	if (list === undefined || list === null || !list.length) {
-		list = this.buildMonsterList(true);
-		list.sort(Sort.units);
-
-		if (filter) {
-			list = list.filter(mob => mob.spectype === 0);
-
-			for (i = 0; i < list.length; i++) {
-				if (ignored.indexOf(list[i].classid) === -1 && this.checkMonster(list[i]) && getDistance(x, y, list[i].x, list[i].y) <= range) {
-					count += 1;
-				}
-			}
-
-			return count;
-		}
-	}
-
-	for (i = 0; i < list.length; i += 1) {
-		if (ignored.indexOf(list[i].classid) === -1 && this.checkMonster(list[i]) && getDistance(x, y, list[i].x, list[i].y) <= range) {
-			count += 1;
-		}
-	}
-
-	return count;
 };
 
 Attack.getMobCountAtPosition = function (x, y, range, filter = false, debug = true) {
@@ -657,6 +626,7 @@ Attack.getMobCountAtPosition = function (x, y, range, filter = false, debug = tr
 // Clear an entire area based on monster spectype
 Attack.clearLevel = function (spectype) {
 	let room, result, rooms, myRoom, currentArea, previousArea;
+	spectype === undefined && (spectype = 0);
 
 	function RoomSort(a, b) {
 		return getDistance(myRoom[0], myRoom[1], a[0], a[1]) - getDistance(myRoom[0], myRoom[1], b[0], b[1]);
@@ -664,13 +634,7 @@ Attack.clearLevel = function (spectype) {
 
 	room = getRoom();
 
-	if (!room) {
-		return false;
-	}
-
-	if (spectype === undefined) {
-		spectype = 0;
-	}
+	if (!room) { return false; }
 
 	rooms = [];
 

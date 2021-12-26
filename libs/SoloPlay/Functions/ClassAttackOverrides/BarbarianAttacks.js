@@ -49,17 +49,16 @@ ClassAttack.tauntMonsters = function (unit, attackSkill) {
 				continue;
 			}
 
-			if (useHowl && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(sdk.skills.Howl) < me.mp) {
+			if (useHowl && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | BlockBits.BlockWall, 0, true) >= 3 && Skill.getManaCost(sdk.skills.Howl) < me.mp) {
 				Skill.cast(sdk.skills.Howl, 0);
 				this.doCast(unit, attackSkill);
-			} else if (useWarCry && Attack.getMobCount(me.x, me.y, 6, null, true) >= 1 && Skill.getManaCost(sdk.skills.WarCry) < me.mp) {
+			} else if (useWarCry && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | BlockBits.BlockWall, 0, true) >= 1 && Skill.getManaCost(sdk.skills.WarCry) < me.mp) {
 				Skill.cast(sdk.skills.WarCry, 0);
 			}
 
 			if (!newList[i].getState(sdk.states.Taunt) && !newList[i].getState(sdk.states.Terror) && !unit.getState(sdk.states.BattleCry) &&
-				!newList[i].dead && Skill.getManaCost(sdk.skills.Taunt) < me.mp && !checkCollision(me, newList[i], 0x4)) {
+				!newList[i].dead && Skill.getManaCost(sdk.skills.Taunt) < me.mp && !Coords_1.isBlockedBetween(me, newList[i])) {
 				me.overhead("Taunting: " + newList[i].name + " | classid: " + newList[i].classid);
-				//print("Casting on: " + newList[i].name + " | spectype: " + newList[i].spectype + " | classid: " + newList[i].classid);
 				Skill.cast(sdk.skills.Taunt, Skill.getHand(sdk.skills.Taunt), newList[i]);
 			}
 
@@ -108,7 +107,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		attackSkill = Config.LowManaSkill[0];
 	}
 
-	if (useHowl && attackSkill !== 151 && [345, 571].indexOf(unit.classid) === -1 && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(sdk.skills.Howl) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+	if (useHowl && attackSkill !== 151 && [345, 571].indexOf(unit.classid) === -1 && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | BlockBits.BlockWall, 0, true) >= 3 && Skill.getManaCost(sdk.skills.Howl) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
 		if (useGrimWard) {
 			this.grimWard(6);
 		} else {
@@ -143,7 +142,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	if (!unit.dead && useWarCry && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 && Attack.isCursable(unit) &&
 		(!unit.getState(sdk.states.Stunned) || getTickCount() - this.warCryTick >= 1500) &&
-		Skill.getManaCost(sdk.skills.WarCry) < me.mp && Attack.checkResist(unit, sdk.skills.WarCry) && !me.getState(sdk.states.SkillDelay) && Attack.getMobCount(me.x, me.y, 5, null, true) >= 1) {
+		Skill.getManaCost(sdk.skills.WarCry) < me.mp && Attack.checkResist(unit, sdk.skills.WarCry) && !me.getState(sdk.states.SkillDelay) && me.getMobCount(5, Coords_1.Collision.BLOCK_MISSILE | BlockBits.BlockWall, 0, true) >= 1) {
 		if (!unit.getState(sdk.states.Stunned)) {
 			if (Math.round(getDistance(me, unit)) > Skill.getRange(sdk.skills.WarCry) || checkCollision(me, unit, 0x4)) {
 				if (!Attack.getIntoPosition(unit, Skill.getRange(sdk.skills.WarCry), 0x4)) {
@@ -154,8 +153,6 @@ ClassAttack.doAttack = function (unit, preattack) {
 			if (switchCast) {
 				me.switchWeapons(1);
 			}
-
-			//print("ÿc9doAttack ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMobCount(me.x, me.y, 5, null, true));
 
 			if (me.getSkill(sdk.skills.WarCry, 1) >= 15) {
 				for (let i = 0; i < 2; i++) {
@@ -196,7 +193,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	if (index === 1) {
 		if (useHowl && attackSkill !== sdk.skills.Whirlwind && [211, 243, 544, 562, 570, 571, 540, 541, 542].indexOf(unit.classid) === -1 &&
-			Attack.getMobCount(me.x, me.y, 5, null, true) >= 3 && Skill.getManaCost(sdk.skills.Howl) < me.mp) {
+			me.getMobCount(5, Coords_1.Collision.BLOCK_MISSILE | BlockBits.BlockWall, 0, true) >= 3 && Skill.getManaCost(sdk.skills.Howl) < me.mp) {
 			if (useGrimWard) {
 				this.grimWard(6);
 			} else if (!useWarCry) {
@@ -263,7 +260,7 @@ ClassAttack.doCast = function (unit, attackSkill) {
 			Skill.cast(attackSkill, Skill.getHand(attackSkill), unit);
 
 			// Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
-			if (useBattleCry && Attack.getMobCount(me.x, me.y, 4) >= 1 &&
+			if (useBattleCry && me.getMobCount(4, Coords_1.Collision.BLOCK_MISSILE | BlockBits.BlockWall) >= 1 &&
 				!unit.getState(sdk.states.BattleCry) && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.Terror) && !unit.getState(sdk.states.Taunt) && Skill.getManaCost(sdk.skills.BattleCry) < me.mp) {
 				if (switchCast) {
 					me.switchWeapons(1);
@@ -278,13 +275,11 @@ ClassAttack.doCast = function (unit, attackSkill) {
 
 			if (useWarCry && !unit.dead && [156, 211, 242, 243, 544, 562, 570, 540, 541, 542].indexOf(unit.classid) === -1 &&
 				Attack.isCursable(unit) && (!unit.getState(sdk.states.Stunned) || getTickCount() - this.warCryTick >= 1500) &&
-				Attack.getMobCount(me.x, me.y, 5, null, true) >= (me.area === sdk.areas.ThroneofDestruction || Item.getEquippedItem(4).durability === 0 ? 1 : 3)
+				me.getMobCount(5, Coords_1.Collision.BLOCK_MISSILE | BlockBits.BlockWall, 0, true) >= (me.area === sdk.areas.ThroneofDestruction || Item.getEquippedItem(4).durability === 0 ? 1 : 3)
 				&& Skill.getManaCost(sdk.skills.WarCry) < me.mp && Attack.checkResist(unit, sdk.skills.WarCry)) {
 				if (switchCast) {
 					me.switchWeapons(1);
 				}
-
-				//print("ÿc9doCast ÿc0:: Non-Unique Monster Count in 5 yard radius: " + Attack.getMobCount(me.x, me.y, 5, null, true));
 
 				Skill.cast(sdk.skills.WarCry, Skill.getHand(sdk.skills.WarCry));
 				this.warCryTick = getTickCount();
@@ -302,7 +297,7 @@ ClassAttack.doCast = function (unit, attackSkill) {
 				Skill.cast(sdk.skills.Concentrate, Skill.getHand(sdk.skills.Concentrate), unit);
 			}
 
-			if (useWhirl && !unit.dead && (Attack.getMobCount(me.x, me.y, 6) >= 3 || ([156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1) && !me.hell)) {
+			if (useWhirl && !unit.dead && (me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | BlockBits.BlockWall) >= 3 || ([156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1) && !me.hell)) {
 				this.whirlwind(unit);
 			}
 		}
@@ -497,7 +492,7 @@ ClassAttack.checkCorpse = function (unit) {
 	}
 
 	if (getDistance(me, unit) <= 25 && !checkCollision(me, unit, 0x4) &&
-			!unit.getState(sdk.states.Freeze) &&
+			!unit.getState(sdk.states.Frozen) &&
             !unit.getState(sdk.states.Revive) &&
             !unit.getState(sdk.states.Redeemed) &&
             !unit.getState(sdk.states.CorpseNoDraw) &&

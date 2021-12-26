@@ -167,7 +167,7 @@ ClassAttack.afterAttack = function () {
 	Misc.unShift();
 	Precast.doPrecast(false);
 
-	if (me.getState(sdk.states.Poison) && Attack.getMobCount(me.x, me.y, 10) === 0 && Skill.setSkill(sdk.skills.Cleansing, 0)) {
+	if (me.getState(sdk.states.Poison) && me.getMobCount(6, BlockBits.BlockWall) === 0 && Skill.setSkill(sdk.skills.Cleansing, 0)) {
 		let tick = getTickCount();
 		while (getTickCount() - tick < 1500) {
 			me.overhead("Delaying for a second to get rid of Poison");

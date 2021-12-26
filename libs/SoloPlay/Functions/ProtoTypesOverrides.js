@@ -33,6 +33,15 @@ Unit.prototype.getItemsEx = function (...args) {
 	return [];
 };
 
+Unit.prototype.getMobCount = function (range = 10, coll = 0, type = 0, noSpecialMobs = false) {
+	if (this === undefined) { return 0; }
+	const _this = this;
+	return getUnits(sdk.unittype.Monster)
+		.filter(function (mon) {
+			return mon.attackable && getDistance(_this, mon) < range && (!type || ((type & mon.spectype) && !noSpecialMobs)) && (!coll || !checkCollision(_this, mon, coll));
+		}).length;
+};
+
 (function (global, original) {
 	let firstRun = true;
 	global['getUnit'] = function (...args) {

@@ -1704,8 +1704,8 @@
 		// 	let effectiveIAS = 120 * ias / (120 + ias);
 		// 	let skillsIAS = 0; //TODO: fanaticism or other sills bonus + slowdown skills malus
 		// 	let weaponSpeedModifier = (typeof weaponData.speed == "string") ? isNaN(parseInt(weaponData.speed)) ? 0 : parseInt(weaponData.speed) : weaponData.speed;// this.weaponSpeedModifier(weaponCode, charClass, weapon2Code);
-		// 	// me.getState(sdk.states.Freeze) or me.getState(sdk.states.Cold) ?
-		// 	let coldEffect = GameData.myReference.getState(sdk.states.Freeze) ? -50 : 0; // If we are affected by cold, as a player we receive a penalty of 50.
+		// 	// me.getState(sdk.states.Frozen) or me.getState(sdk.states.Cold) ?
+		// 	let coldEffect = GameData.myReference.getState(sdk.states.Frozen) ? -50 : 0; // If we are affected by cold, as a player we receive a penalty of 50.
 		// 	let acceleration = baseRate + effectiveIAS + skillsIAS - weaponSpeedModifier + coldEffect;
 		// 	acceleration = Math.min(175, Math.max(15, acceleration));
 		// 	let startingFrame = this.attackStartingFrame(weaponClass, charClass);

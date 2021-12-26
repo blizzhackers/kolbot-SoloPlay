@@ -358,7 +358,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		}
 
 		// Only delay if there are no mobs in our immediate area
-		if (tsMana > me.mp && Attack.getMobCount(me.x, me.y, 8) === 0) {
+		if (tsMana > me.mp && me.getMobCount() === 0) {
 			tick = getTickCount();
 
 			while (getTickCount() - tick < 750) {
@@ -399,7 +399,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		}
 
 		// Only delay if there are no mobs in our immediate area
-		if (utsMana > me.mp && Attack.getMobCount(me.x, me.y, 8) === 0) {
+		if (utsMana > me.mp && me.getMobCount() === 0) {
 			tick = getTickCount();
 
 			while (getTickCount() - tick < 750) {

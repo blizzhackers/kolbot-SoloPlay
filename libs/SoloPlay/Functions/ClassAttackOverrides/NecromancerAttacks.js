@@ -281,7 +281,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	}
 
 
-	if (useTerror && Attack.getMobCount(me.x, me.y, 6, null, true) >= 3 && Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+	if (useTerror && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | BlockBits.BlockWall | BlockBits.Casting, 0, true) >= 3 && Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
 		Skill.cast(sdk.skills.Terror, 0);
 	}
 
@@ -410,7 +410,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 			}
 
 			if (timedSkill === sdk.skills.Teeth) {
-				timedSkillRange = Attack.getMobCount(unit.x, unit.y, 6) <= 3 ? 6 : timedSkillRange;
+				timedSkillRange = me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | BlockBits.BlockWall | BlockBits.Casting) <= 3 ? 6 : timedSkillRange;
 			}
 
 			if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, 0x4)) {
@@ -718,7 +718,7 @@ ClassAttack.checkCorpse = function (unit, revive) {
 	}
 
 	if (getDistance(me, unit) <= 25 && !checkCollision(me, unit, 0x4) &&
-                !unit.getState(sdk.states.Freeze) &&
+                !unit.getState(sdk.states.Frozen) &&
                 !unit.getState(sdk.states.Revive) &&
                 !unit.getState(sdk.states.Redeemed) &&
                 !unit.getState(sdk.states.CorpseNoDraw) &&
