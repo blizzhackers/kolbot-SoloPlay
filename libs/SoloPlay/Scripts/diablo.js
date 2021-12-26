@@ -101,7 +101,7 @@ function diablo () {
 		let tick = getTickCount(), decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, 1) * 5) * 1000;
 
 		while (getTickCount() - tick < 17500) {
-			if (Attack.getMobCount(me.x, me.y, 20) > 1) { Attack.clear(20); }
+			if (me.getMobCount(20) > 1) { Attack.clear(20); }
 			if (getTickCount() - tick >= 8000) {
 				switch (me.classid) {
 				case sdk.charclass.Amazon:
