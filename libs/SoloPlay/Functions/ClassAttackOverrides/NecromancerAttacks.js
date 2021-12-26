@@ -281,7 +281,8 @@ ClassAttack.doAttack = function (unit, preattack) {
 	}
 
 
-	if (useTerror && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | BlockBits.BlockWall | BlockBits.Casting, 0, true) >= 3 && Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+	if (useTerror && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting, 0, true) >= 3 &&
+		Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
 		Skill.cast(sdk.skills.Terror, 0);
 	}
 
@@ -410,7 +411,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 			}
 
 			if (timedSkill === sdk.skills.Teeth) {
-				timedSkillRange = me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | BlockBits.BlockWall | BlockBits.Casting) <= 3 ? 6 : timedSkillRange;
+				timedSkillRange = me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting) <= 3 ? 6 : timedSkillRange;
 			}
 
 			if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, 0x4)) {

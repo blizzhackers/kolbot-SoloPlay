@@ -224,7 +224,7 @@ default:
 			case "Start":
 				if (me.getSkill(sdk.skills.Firestorm, 1) && Skill.getManaCost(sdk.skills.Firestorm) < me.mp) {
 					timedSkill = sdk.skills.Firestorm;
-				} else if (me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | BlockBits.BlockWall) >= 1) {
+				} else if (me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall) >= 1) {
 					// I have no mana and there are mobs around me, just attack
 					timedSkill = sdk.skills.Attack;
 				}

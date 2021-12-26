@@ -342,7 +342,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		default:
 			// If main attack skill is lightning strike and charged strike's skill level is at least level 15, check current monster count. If monster count is less than 3, use CS as its more effective with small mobs
 			if (timedSkill === sdk.skills.LightningStrike && me.getSkill(sdk.skills.ChargedStrike, 1) >= 15) {
-				if (me.getMobCount(15, BlockBits.LineOfSight | BlockBits.Ranged | BlockBits.ClosedDoor | BlockBits.BlockWall) <= 3) {
+				if (me.getMobCount(15, Coords_1.BlockBits.LineOfSight | Coords_1.BlockBits.Ranged | Coords_1.BlockBits.ClosedDoor | Coords_1.BlockBits.BlockWall) <= 3) {
 					timedSkill = sdk.skills.ChargedStrike;
 				}
 			}
