@@ -102,20 +102,15 @@ Misc.openChest = function (unit) {
 	}
 
 	// already open
-	if (unit.mode) {
-		return true;
-	}
+	if (unit.mode) { return true; }
 
 	// locked chest, no keys
 	if (!me.assassin && unit.islocked && !me.findItem(543, 0, 3)) {
 		return false;
 	}
 
-	let tick,
-		telek = me.sorceress && me.getSkill(sdk.skills.Telekinesis, 1);
-
 	for (let i = 0; i < 7; i += 1) {
-		if (telek && i < 3) {
+		if (Skill.useTK(unit) && i < 3) {
 			if (getDistance(me, unit) > 13) {
 				Attack.getIntoPosition(unit, 13, 0x4);
 			}
@@ -127,7 +122,7 @@ Misc.openChest = function (unit) {
 			}
 		}
 
-		tick = getTickCount();
+		let tick = getTickCount();
 
 		while (getTickCount() - tick < 1000) {
 			if (unit.mode) {
@@ -160,9 +155,7 @@ Misc.openChests = function (range) {
 		],
 		pita = ["barrel", "largeurn", "jar3", "jar2", "jar1", "urn", "jug"]; // pain in the ass
 							
-	if (!range) {
-		range = 15;
-	}
+	!range && (range = 15);
 
 	if (Config.OpenChests === 2) {
 		containers = [
@@ -175,25 +168,10 @@ Misc.openChests = function (range) {
 		];
 	}
 
-	unit = getUnit(2);
-
-	if (unit) {
-		do {
-			if (unit.name && unit.mode === 0 && getDistance(me.x, me.y, unit.x, unit.y) <= range && containers.indexOf(unit.name.toLowerCase()) > -1) {
-				unitList.push(copyUnit(unit));
-			}
-
-			if (unit.name && getDistance(me.x, me.y, unit.x, unit.y) <= 2 && pita.indexOf(unit.name.toLowerCase()) > -1 && !Pather.useTeleport()) {
-				unitList.push(copyUnit(unit));
-			}
-
-			// Open evil urns for their champion packs but only after baal has been completed. Better chance to be able to handle the pack without dying
-			if (unit.name && getDistance(me.x, me.y, unit.x, unit.y) <= range && unit.name.toLowerCase() === "evilurn" && me.baal) {
-				unitList.push(copyUnit(unit));
-			}
-
-		} while (unit.getNext());
-	}
+	unitList = getUnits(2).filter(function (chest) {
+		return chest.name && chest.mode === 0 && chest.distance <= range &&
+		(containers.includes(chest.name.toLowerCase()) || (chest.distance <= 2 && pita.includes(chest.name.toLowerCase()) && !Pather.useTeleport()) || (chest.name.toLowerCase() === "evilurn" && me.baal));
+	});
 
 	while (unitList.length > 0) {
 		unitList.sort(Sort.units);
@@ -207,13 +185,16 @@ Misc.openChests = function (range) {
 	return true;
 };
 
-// TODO: Fix for when we don't need it to prevent stuck loop
 Misc.useWell = function (range) {
 	let unit = getUnit(2, "well", 0),
 		unitList = [];
 
-	if (!range) {
-		range = 15;
+	!range && (range = 15);
+
+	// I'm in perfect health, don't need this shit
+	if (me.hp === me.hpmax && me.mp === me.mpmax && me.stamina === me.staminamax && 
+		[sdk.states.Frozen, sdk.states.Poison, sdk.states.AmplifyDamage, sdk.states.Decrepify].some(function (states) { return me.getState(states); })) {
+		return true;
 	}
 
 	if (unit) {
@@ -237,9 +218,7 @@ Misc.useWell = function (range) {
 };
 
 Misc.getWell = function (unit) {
-	if (unit.mode !== 0) {
-		return true;
-	}
+	if (unit.mode !== 0) { return true; }
 
 	for (let i = 0; i < 3; i += 1) {
 		if (getDistance(me, unit) < 4 || Pather.moveToUnit(unit, 3, 0)) {
@@ -482,17 +461,12 @@ Misc.getGoodShrinesInArea = function (area, types, use) {
 
 // Add use of tk for shrine - from autoplay
 Misc.getShrine = function (unit) {
-	if (unit.mode) {
-		return false;
-	}
+	if (unit.mode) { return false; }
 
-	let tick,
-		telek = me.sorceress && me.getSkill(sdk.skills.Telekinesis, 1);
-
-	for (let i = 0; i < 3; i += 1) {
-		if (telek && i < 2) {
+	for (let i = 0; i < 3; i++) {
+		if (Skill.useTK(unit) && i < 2) {
 			if (getDistance(me, unit) > 13) {
-				Attack.getIntoPosition(unit, 13, 0x4);
+				Attack.getIntoPosition(unit, 13, 0x4 );
 			}
 			
 			Skill.cast(sdk.skills.Telekinesis, 0, unit);
@@ -502,12 +476,10 @@ Misc.getShrine = function (unit) {
 			}
 		}
 
-		tick = getTickCount();
+		let tick = getTickCount();
 
 		while (getTickCount() - tick < 1000) {
-			if (unit.mode) {
-				return true;
-			}
+			if (unit.mode) { return true; }
 
 			delay(10);
 		}
@@ -1504,7 +1476,7 @@ Misc.addSocketableToItem = function (item, rune) {
 	}
 
 	if (item.mode === sdk.itemmode.Equipped) {
-		let i, tick, bodyLoc = item.bodylocation;
+		let bodyLoc = item.bodylocation;
 
 		// No space to get the item back
 		if (!Storage.Inventory.CanFit(item)) {
@@ -1524,10 +1496,10 @@ Misc.addSocketableToItem = function (item, rune) {
 			return false;
 		}
 
-		for (i = 0; i < 3; i += 1) {
+		for (let i = 0; i < 3; i += 1) {
 			sendPacket(1, 0x28, 4, rune.gid, 4, item.gid);
 
-			tick = getTickCount();
+			let tick = getTickCount();
 
 			while (getTickCount() - tick < 2000) {
 				if (!me.itemoncursor) {
@@ -1541,10 +1513,7 @@ Misc.addSocketableToItem = function (item, rune) {
 
 			if (item.getItem()) {
 				Misc.logItem("Added " + rune.name + " to: ", item);
-
-				if (bodyLoc) {
-					Item.equip(item, bodyLoc);
-				}
+				bodyLoc && (Item.equip(item, bodyLoc));
 
 				return true;
 			}
@@ -1555,8 +1524,7 @@ Misc.addSocketableToItem = function (item, rune) {
 		if (Runewords.socketItem(item, rune)) {
 			Misc.logItem("Added " + rune.name + " to: ", item);
 			return true;
-		}
-			
+		}	
 	}
 
 	return false;
@@ -1823,7 +1791,7 @@ Misc.logItem = function (action, unit, keptLine) {
 };
 
 Misc.shapeShift = function (mode) {
-	let i, tick, skill, state;
+	let skill, state;
 
 	switch (mode.toString().toLowerCase()) {
 	case "0":
@@ -1848,12 +1816,12 @@ Misc.shapeShift = function (mode) {
 		return true;
 	}
 
-	Attack.weaponSwitch(Precast.getBetterSlot(skill));
+	me.switchWeapons(Precast.getBetterSlot(skill));
 
-	for (i = 0; i < 3; i += 1) {
+	for (let i = 0; i < 3; i += 1) {
 		Skill.cast(skill, 0);
 
-		tick = getTickCount();
+		let tick = getTickCount();
 
 		while (getTickCount() - tick < 2000) {
 			if (me.getState(state)) {
@@ -1870,8 +1838,7 @@ Misc.shapeShift = function (mode) {
 };
 
 Misc.buyItem = function (unit, shiftBuy, gamble) {
-	let i, tick,
-		oldGold = me.getStat(14) + me.getStat(15),
+	let oldGold = me.gold,
 		itemCount = me.itemcount,
 		npc = getInteractedNPC();
 
@@ -1885,10 +1852,10 @@ Misc.buyItem = function (unit, shiftBuy, gamble) {
 		return false;
 	}
 
-	for (i = 0; i < 3; i += 1) {
+	for (let i = 0; i < 3; i += 1) {
 		sendPacket(1, 0x32, 4, npc.gid, 4, unit.gid, 4, shiftBuy ? 0x80000000 : gamble ? 0x2 : 0x0, 4, 0);
 
-		tick = getTickCount();
+		let tick = getTickCount();
 
 		while (getTickCount() - tick < Math.max(2000, me.ping * 2 + 500)) {
 			if (shiftBuy && me.gold < oldGold) {
@@ -1916,15 +1883,13 @@ Packet.openMenu = function (unit) {
 		return true;
 	}
 
-	let i, tick;
-
-	for (i = 0; i < 5; i += 1) {
+	for (let i = 0; i < 5; i += 1) {
 		if (getDistance(me, unit) > 4) {
 			Pather.moveToUnit(unit);
 		}
 
 		sendPacket(1, 0x13, 4, 1, 4, unit.gid);
-		tick = getTickCount();
+		let tick = getTickCount();
 
 		while (getTickCount() - tick < 5000) {
 			if (getUIFlag(0x08)) {

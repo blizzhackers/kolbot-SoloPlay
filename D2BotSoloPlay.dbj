@@ -1279,8 +1279,10 @@ function main () {
 	}
 
 	while (true) {
-		while (me.ingame) { // returns true before actually in game so we can't only use this check
-			if (me.gameReady) { // returns false when switching acts so we can't use while
+		// returns true before actually in game so we can't only use this check
+		while (me.ingame) {
+			// returns false when switching acts so we can't use while
+			if (me.gameReady) {
 				isUp = "yes";
 
 				if (!ingame) {
@@ -1291,17 +1293,25 @@ function main () {
 					DataFile.updateStats("ingameTick");
 				}
 
-				if (me.ingame) {
-					myExp = me.getStat(13) > 0 ? Experience.progress() : 0;
-					myGold = me.getStat(14) + me.getStat(15);
-					resPenalty = me.gametype === 0 ? [ 0, 20, 50][me.diff] : [ 0, 40, 100][me.diff];
-					frRes = Math.min(75, me.getStat(39) - resPenalty);
-					crRes = Math.min(75, me.getStat(43) - resPenalty);
-					lrRes = Math.min(75, me.getStat(41) - resPenalty);
-					prRes = Math.min(75, me.getStat(45) - resPenalty);
-					areaName = me.ingame && !!me.area ? getArea().name : false;
-					diffName = ['Normal', 'Nightmare', 'Hell'][me.diff];
-					D2Bot.updateStatus("Lvl: " + me.charlvl + " (" + myExp + "%) | Diff: " + diffName + " | Area: " + areaName + " | Gold: " + myGold + " | FR: " + frRes + " | CR: " + crRes + " | LR: " + lrRes + " | PR: " + prRes + " " + timer(gameStart));
+				if (me.ingame && me.gameReady) {
+					let statusString = "";
+
+					try {
+						myExp = me.getStat(13) > 0 ? Experience.progress() : 0;
+						myGold = me.getStat(14) + me.getStat(15);
+						resPenalty = me.gametype === 0 ? [ 0, 20, 50][me.diff] : [ 0, 40, 100][me.diff];
+						frRes = Math.min(75, me.getStat(39) - resPenalty);
+						crRes = Math.min(75, me.getStat(43) - resPenalty);
+						lrRes = Math.min(75, me.getStat(41) - resPenalty);
+						prRes = Math.min(75, me.getStat(45) - resPenalty);
+						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
+						diffName = ['Normal', 'Nightmare', 'Hell'][me.diff];
+						statusString = "Lvl: " + me.charlvl + " (" + myExp + "%) | Diff: " + diffName + " | Area: " + areaName + " | Gold: " + myGold + " | FR: " + frRes + " | CR: " + crRes + " | LR: " + lrRes + " | PR: " + prRes + " ";
+					} catch (e) {
+						print(e);
+					}
+
+					D2Bot.updateStatus(statusString + timer(gameStart));
 				}
 			}
 

@@ -26,7 +26,6 @@ include("common/Pather.js");
 include("common/Precast.js");
 include("common/Prototypes.js");
 include("common/Runewords.js");
-include("common/Storage.js");
 include("common/Town.js");
 
 if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }

@@ -323,7 +323,7 @@ Skill.cast = function (skillId, hand, x, y, item) {
 		return false;
 	}
 
-	if ((forcePacket && casterSkills.indexOf(skillId) > -1) || Config.PacketCasting > 1 || skillId === sdk.skills.Teleport) {
+	if ((forcePacket && casterSkills.includes(skillId)) || Config.PacketCasting > 1 || skillId === sdk.skills.Teleport) {
 		switch (typeof x) {
 		case "number":
 			Packet.castSkill(hand, x, y);
@@ -406,4 +406,13 @@ Skill.cast = function (skillId, hand, x, y, item) {
 	}
 
 	return true;
+};
+
+Skill.useTK = function (unit) {
+	if (!me.getSkill(sdk.skills.Telekinesis, 1) || typeof unit !== 'object' || unit.type !== sdk.unittype.Object || (unit.name === 'portal' && !me.inTown) || 
+		[sdk.units.RedPortalToChamber, sdk.units.RedPortal, sdk.units.RedPortalToAct5].includes(unit.classid)) {
+		return false;
+	}
+
+	return me.inTown || ((me.mp * 100 / me.mpmax) > 50);
 };

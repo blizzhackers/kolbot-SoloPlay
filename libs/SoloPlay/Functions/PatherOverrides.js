@@ -108,10 +108,19 @@ Pather.haveTeleCharges = false;
 		return [undefined, undefined];
 	};
 
+	Object.prototype.mobCount = function (range) {
+		let [x, y] = coords.apply(this);
+			return getUnits(sdk.unittype.Monster)
+				.filter(function (mon) {
+					return mon.attackable && getDistance(x, y, mon.x, mon.y) < range &&
+					!CollMap.checkColl({x: x, y: y}, mon, Coords_1.BlockBits.ClosedDoor | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.LineOfSight, 1);
+				}).length;
+	};
+
 	Object.defineProperties(Object.prototype, {
 		distance: {
 			get: function () {
-				return !me.gameReady ? NaN : Math.ceil(getDistance.apply(null, [me, ...coords.apply(this)]));
+				return !me.gameReady ? NaN : Math.round(getDistance.apply(null, [me, ...coords.apply(this)]));
 			},
 			enumerable: false,
 		},
@@ -733,16 +742,10 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 	useChargedTele = this.canUseTeleCharges();
 	path = getPath(me.area, x, y, me.x, me.y, useTeleport || useChargedTele ? 1 : 0, useTeleport || useChargedTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].indexOf(me.area) > -1 ? 30 : this.teleDistance) : this.walkDistance);
 
-	if (!path) {
-		throw new Error("moveTo: Failed to generate path.");
-	}
+	if (!path) { throw new Error("moveTo: Failed to generate path."); }
 
 	path.reverse();
-
-	if (pop) {
-		path.pop();
-	}
-
+	pop && (path.pop());
 	PathDebug.drawPath(path);
 
 	if (useTeleport && Config.TeleSwitch && path.length > 5) {

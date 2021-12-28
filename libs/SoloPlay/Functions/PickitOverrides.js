@@ -233,16 +233,18 @@ Pickit.pickItems = function () {
 
 Pickit.pickItem = function (unit, status, keptLine) {
 	function ItemStats (unit) {
-		this.ilvl = unit.ilvl;
-		this.sockets = unit.getStat(194);
-		this.type = unit.itemType;
-		this.classid = unit.classid;
-		this.name = unit.name;
-		this.color = Pickit.itemColor(unit);
-		this.gold = unit.getStat(14);
-		this.useTk = Config.UseTelekinesis && me.sorceress && me.getSkill(43, 1) && (this.type === 4 || this.type === 22 || (this.type > 75 && this.type < 82)) &&
+		let self = this;
+		self.ilvl = unit.ilvl;
+		self.sockets = unit.getStat(194);
+		self.type = unit.itemType;
+		self.classid = unit.classid;
+		self.name = unit.name;
+		self.color = Pickit.itemColor(unit);
+		self.gold = unit.getStat(14);
+		let canTk = me.sorceress && me.getSkill(sdk.skills.Telekinesis, 1) && (this.type === 4 || this.type === 22 || (this.type > 75 && this.type < 82)) &&
 					getDistance(me, unit) > 5 && getDistance(me, unit) < 20 && !checkCollision(me, unit, 0x4);
-		this.picked = false;
+		self.useTk = canTk && ((me.mp * 100 / me.mpmax) > 50);
+		self.picked = false;
 	}
 
 	let i, item, tick, gid, stats, retry = false,
@@ -295,7 +297,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			Skill.cast(43, 0, item);
 		} else {
 			if (getDistance(me, item) > (i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
-				if (Attack.getMobCountAtPosition(item.x, item.y, 8) !== 0) {
+				if (item.getMobCount(8, 0x1 | 0x400 | 0x800) !== 0) {
 					print("ÿc8PickItemÿc0 :: Clearing area around item I want to pick");
 					Pickit.enabled = false;		// Don't pick while trying to clear
 					Attack.clearPos(item.x, item.y, 10, false);

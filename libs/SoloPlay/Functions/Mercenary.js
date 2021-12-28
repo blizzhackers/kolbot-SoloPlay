@@ -113,7 +113,7 @@ let Merc = {
 		Pather.getWP(me.area);
 		me.overhead('getting merc');
 		print("ÿc9Mercenaryÿc0 :: getting merc");
-		Town.cancelFlags.forEach(function(flag) { getUIFlag(flag) && delay(500) && me.cancel() && Misc.getUIFlags() > 1 && delay(500) && me.cancel() });	// cancel out any uiflags currently up
+		me.cancelUIFlags();
 		Town.goToTown(2);
 		Pather.moveTo(5041, 5055);
 		Town.move(NPC.Greiz);
@@ -131,7 +131,7 @@ let Merc = {
 
 		if (greiz && greiz.openMenu()) {
 			while (Merc.Id.length > 0) {
-				Misc.useMenu(0x0D45);
+				Misc.useMenu(sdk.menu.Hire);
 				sendPacket(1, 0x36, 4, greiz.gid, 4, Merc.Id[0]);
 				delay(500 + me.ping);
 				mercenary = Merc.getMercFix();
