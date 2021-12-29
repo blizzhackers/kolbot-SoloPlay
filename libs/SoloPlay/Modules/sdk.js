@@ -55,6 +55,7 @@
 		},
 
 		areas: {
+            Towns: [1, 40, 75, 103, 109],
 			None: 0,
 
 			// Act 1
@@ -1231,7 +1232,31 @@
 
 			},
 			monsters: {
-
+                monstermode: {
+                    Death: 0,
+                    Standing: 1,
+                    Walking: 2,
+                    GettingHit: 3,
+                    Attacking1: 4,
+                    Attacking2: 5,
+                    Blocking: 6,
+                    CastingSkill: 7,
+                    UsingSkill1: 8,
+                    UsingSkill2: 9,
+                    UsingSkill3: 10,
+                    UsingSkill4: 11,
+                    Dead: 12,
+                    KnockedBack: 13,
+                    Spawning: 14,
+                    Running: 15
+                },
+                spectype: {
+                    All: 0,
+                    Super: 1,
+                    Champion: 2,
+                    Unique: 4,
+                    Minion: 8,
+                },
 			},
 			objects: {
 

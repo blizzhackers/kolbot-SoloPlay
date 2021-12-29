@@ -923,7 +923,7 @@ Pather.useUnit = function (type, id, targetArea) {
 };
 
 // Add check in case "random" to return false if bot doesn't have cold plains wp yet
-Pather.useWaypoint = function useWaypoint(targetArea, check) {
+Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 	switch (targetArea) {
 	case undefined:
 		throw new Error("useWaypoint: Invalid targetArea parameter: " + targetArea);
@@ -937,16 +937,16 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 			throw new Error("useWaypoint: Invalid targetArea parameter");
 		}
 
-		if (this.wpAreas.indexOf(targetArea) < 0) {
+		if (!this.wpAreas.includes(targetArea)) {
 			throw new Error("useWaypoint: Invalid area");
 		}
 
 		break;
 	}
 
-	let i, tick, wp, coord, retry, npc;
+	let tick, wp, coord, retry, npc;
 
-	for (i = 0; i < 12; i += 1) {
+	for (let i = 0; i < 12; i += 1) {
 		if (me.area === targetArea || me.dead) {
 			break;
 		}
@@ -966,22 +966,28 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 				}
 			}
 
-			Town.move("waypoint");
+			!Skill.useTK(wp) && !check && (Town.move("waypoint"));
 		}
 
 		wp = getUnit(sdk.unittype.Object, "waypoint");
 
 		if (wp && wp.area === me.area) {
-			if (!me.inTown && getDistance(me, wp) > 7) {
+			if (Skill.useTK(wp) && !check) {
+				if (wp.distance > 21) {
+					Attack.getIntoPosition(wp, 20, 0x4);
+				}
+
+				Skill.cast(sdk.skills.Telekinesis, 0, wp);
+			} else if (!me.inTown && wp.distance > 7) {
 				this.moveToUnit(wp);
 			}
 
 			if (check || Config.WaypointMenu) {
-				if (getDistance(me, wp) > 5) {
+				if (wp.distance > 5 && !getUIFlag(sdk.uiflags.Waypoint)) {
 					this.moveToUnit(wp);
 				}
 
-				Misc.click(0, 0, wp);
+				!getUIFlag(sdk.uiflags.Waypoint) && (Misc.click(0, 0, wp));
 
 				tick = getTickCount();
 
@@ -997,8 +1003,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 								targetArea = this.wpAreas[rand(0, this.wpAreas.length - 1)];
 
 								// get a valid wp, avoid towns
-								if ([sdk.areas.RogueEncampment, sdk.areas.LutGholein, sdk.areas.KurastDocktown, sdk.areas.PandemoniumFortress, sdk.areas.Harrogath].indexOf(targetArea) === -1 &&
-									getWaypoint(this.wpAreas.indexOf(targetArea))) {
+								if (!sdk.areas.Towns.indexOf(targetArea) && getWaypoint(this.wpAreas.indexOf(targetArea))) {
 									break;
 								}
 
@@ -1076,18 +1081,27 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 					delay(500 + me.ping);
 				}
 
+				// In case lag causes the wp menu to stay open
 				if (getUIFlag(sdk.uiflags.Waypoint)) {
-					me.cancel(); // In case lag causes the wp menu to stay open
+					me.cancel();
 				}
 			}
 
 			Packet.flash(me.gid);
 
-			if (i > 1) { // Activate check if we fail direct interact twice
+			// Activate check if we fail direct interact twice
+			if (i > 1) {
 				check = true;
 			}
 		} else {
 			Packet.flash(me.gid);
+		}
+
+		// We can't seem to get the wp maybe attempt portal to town instead and try to use that wp
+		if (i >= 10) {
+			if (!me.inTown) {
+				Town.goToTown();
+			}
 		}
 
 		delay(200 + me.ping);
@@ -1102,9 +1116,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check) {
 };
 
 Pather.makePortal = function (use) {
-	if (me.inTown) {
-		return true;
-	}
+	if (me.inTown) { return true; }
 
 	let portal, oldPortal, oldGid;
 

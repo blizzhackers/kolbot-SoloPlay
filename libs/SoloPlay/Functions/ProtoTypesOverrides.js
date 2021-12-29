@@ -85,29 +85,69 @@ Unit.prototype.cancelUIFlags = function () {
 
 let resPenalty = 0;
 Object.defineProperties(Unit.prototype, {
-	isChilled: {
-		get: function () {
-			return this.getState(11);
-		},
-	},
+	isChampion: {
+        get: function () {
+            return (this.spectype & sdk.units.monsters.spectype.Champion) > 0;
+        },
+    },
+    isUnique: {
+        get: function () {
+            return (this.spectype & sdk.units.monsters.spectype.Unique) > 0;
+        },
+    },
+    isMinion: {
+        get: function () {
+            return (this.spectype & sdk.units.monsters.spectype.Minion) > 0;
+        },
+    },
+    isSuperUnique: {
+        get: function () {
+            return (this.spectype & (sdk.units.monsters.spectype.Super | sdk.units.monsters.spectype.Unique)) > 0;
+        },
+    },
+    isSpecial: {
+        get: function () {
+            return this.isChampion || this.isUnique || this.isSuperUnique;
+        },
+    },
+    isWalking: {
+        get: function () {
+            return this.mode === sdk.units.monsters.monstermode.Walking && (this.targetx !== this.x || this.targety !== this.y);
+        }
+    },
+    isRunning: {
+        get: function () {
+            return this.mode === sdk.units.monsters.monstermode.Running && (this.targetx !== this.x || this.targety !== this.y);
+        }
+    },
+    isMoving: {
+        get: function () {
+            return this.isWalking || this.isRunning;
+        },
+    },
 	isFrozen: {
 		get: function () {
-			return this.getState(1);
+			return this.getState(sdk.states.Frozen);
+		},
+	},
+	isChilled: {
+		get: function () {
+			return this.getState(sdk.states.Cold);
 		},
 	},
 	isStunned: {
 		get: function () {
-			return this.getState(21);
+			return this.getState(sdk.states.Stunned);
 		},
 	},
 	isUnderCoS: {
 		get: function () {
-			return this.getState(156);
+			return this.getState(sdk.states.Cloaked);
 		},
 	},
 	isUnderLowerRes: {
 		get: function () {
-			return this.getState(61);
+			return this.getState(sdk.states.LowerResist);
 		},
 	},
 	fireRes: {
@@ -132,6 +172,11 @@ Object.defineProperties(Unit.prototype, {
 		get: function () {
 			if (resPenalty === undefined) { resPenalty = (me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]); }
 			return Math.min(75, this.getStat(sdk.stats.PoisonResist) - resPenalty);
+		}
+	},
+	hpPercent: {
+		get: function () {
+			return Math.round(this.hp * 100 / this.hpmax);
 		}
 	},
 	isEquipped: {
@@ -386,6 +431,11 @@ Object.defineProperties(me, {
 	shapeshifted: {
 		get: function () {
 			return me.getState(sdk.states.Wolf) || me.getState(sdk.states.Bear) || me.getState(sdk.states.Delerium);
+		}
+	},
+	mpPercent: {
+		get: function () {
+			return Math.round(me.mp * 100 / me.mpmax);
 		}
 	},
 });
