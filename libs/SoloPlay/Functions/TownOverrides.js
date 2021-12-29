@@ -487,7 +487,7 @@ Town.identify = function () {
 	while (list.length > 0) {
 		item = list.shift();
 
-		if (!item.identified && item.location === sdk.storage.Inventory && this.ignoredItemTypes.indexOf(item.itemType) === -1) {
+		if (!item.identified && item.location === sdk.storage.Inventory && !this.ignoredItemTypes.includes(item.itemType)) {
 			result = Pickit.checkItem(item);
 
 			// Force ID for unid items matching autoEquip criteria
@@ -546,6 +546,12 @@ Town.identify = function () {
 
 					break;
 				case -1: // unidentified
+					// At low level its not worth keeping these items until we can Id them it just takes up too much room
+					if (me.charlvl < 10 && item.quality === sdk.itemquality.Magic && item.classid !== sdk.items.SmallCharm) {
+						Misc.itemLogger("Sold", item);
+						item.sell()
+					}
+
 					break;
 				case 2: // cubing
 					Misc.itemLogger("Kept", item, "Cubing-Town");
@@ -767,7 +773,7 @@ Town.shopItems = function () {
 		return true;
 	}
 
-	let i, item, result,
+	let item, result,
 		items = [],
 		npc = getInteractedNPC(),
 		goldLimit = [10000, 20000, 30000][me.diff];
@@ -787,14 +793,14 @@ Town.shopItems = function () {
 	print("ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
 
 	do {
-		if (this.ignoredItemTypes.indexOf(item.itemType) === -1) {
+		if (!this.ignoredItemTypes.includes(item.itemType)) {
 			items.push(copyUnit(item));
 		}
 	} while (item.getNext());
 
 	print("ÿc8Kolbot-SoloPlayÿc0: Evaluating " + npc.itemcount + " items.");
 
-	for (i = 0; i < items.length; i += 1) {
+	for (let i = 0; i < items.length; i += 1) {
 		result = Pickit.checkItem(items[i]);
 		let myGold = me.gold;
 		let itemCost = items[i].getItemCost(0);
@@ -1436,7 +1442,7 @@ Town.stash = function (stashGold) {
 	if (items) {
 		for (let i = 0; i < items.length; i += 1) {
 			if (this.canStash(items[i])) {
-				result = (![0, 4].includes(Pickit.checkItem(items[i]).result) && !Item.autoEquipCharmCheck(items[i])) ||
+				result = (![-1, 0, 4].includes(Pickit.checkItem(items[i]).result) && !Item.autoEquipCharmCheck(items[i])) ||
 					!items[i].isSellable || Cubing.keepItem(items[i]) || Runewords.keepItem(items[i]) || CraftingSystem.keepItem(items[i]);
 
 				if (result) {

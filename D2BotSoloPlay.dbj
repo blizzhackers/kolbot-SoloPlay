@@ -673,14 +673,16 @@ function locationAction (location) {
 		control = getControl(1, 657, 342, 27, 20);
 
 		// Set character difference
-		if (typeof StarterConfig.CharacterDifference === "number") {
-			if (control.disabled === 4) {
+		if (battlenet) {
+			if (typeof StarterConfig.CharacterDifference === "number") {
+				if (control.disabled === 4) {
+					ControlAction.click(6, 431, 341, 15, 16);
+				}
+
+				ControlAction.setText(1, 657, 342, 27, 20, StarterConfig.CharacterDifference.toString());
+			} else if (StarterConfig.CharacterDifference === false && control.disabled === 5) {
 				ControlAction.click(6, 431, 341, 15, 16);
 			}
-
-			ControlAction.setText(1, 657, 342, 27, 20, StarterConfig.CharacterDifference.toString());
-		} else if (StarterConfig.CharacterDifference === false && control.disabled === 5) {
-			ControlAction.click(6, 431, 341, 15, 16);
 		}
 
 		// Get game name if there is none
