@@ -1,6 +1,6 @@
 /*
  *    @filename 	Sorceress.LevelingBuild.js
- *	  @author	  	isid0re, theBGuy
+ *	  @author	  	theBGuy
  *    @desc    		Sorceress blizzballer build for after respecOneB
  */
 
@@ -31,13 +31,12 @@ let build = {
 		[sdk.skills.FireMastery, 1], // points left 38
 		[sdk.skills.ColdMastery, 1], // points left 37
 		[sdk.skills.FrozenOrb, 1], 	// points left 36
-		[sdk.skills.FireBall, 7], 	// points left 30
+		[sdk.skills.FireBall, 10], 	// points left 30
 		[sdk.skills.Blizzard, 20], 	// points left 11
 		[sdk.skills.IceBlast, 12], 	// points left 0
-		[sdk.skills.Meteor, 15],
+		[sdk.skills.Meteor, 10],
 		[sdk.skills.IceBlast, 20],
-		[sdk.skills.Meteor, 20],
-		[sdk.skills.ColdMastery, 5],
+		[sdk.skills.ColdMastery, 17],
 		[sdk.skills.FireBolt, 20],
 	],
 	expansionSkills: [

@@ -74,7 +74,7 @@ function LoadConfig () {
 	Config.TownMP = 0;
 
 	/* Potions configuration. */
-	Config.UseHP = me.hardcore ? 90 : 75;
+	Config.UseHP = me.hardcore ? 90 : 80;
 	Config.UseRejuvHP = me.hardcore ? 65 : 50;
 	Config.UseMP = me.hardcore ? 75 : 65;
 	Config.UseMercHP = 75;
@@ -197,7 +197,7 @@ function LoadConfig () {
 	Config.AttackSkill = [0, 0, 0, 0, 0, 0, 0];
 	Config.LowManaSkill = [-1, -1];
 	Config.MaxAttackCount = 1000;
-	Config.BossPriority = me.normal ? true : false;
+	Config.BossPriority = true;
 	Config.ClearType = 0;
 	Config.ClearPath = {
 		Range: 30,
@@ -237,7 +237,7 @@ function LoadConfig () {
 	Config.UseTelekinesis = !!me.getSkill(sdk.skills.Telekinesis, 0); // use telekinesis if have skill
 	Config.Dodge = me.charlvl >= SetUp.respecOne ? true : false; // Move away from monsters that get too close. Don't use with short-ranged attacks like Poison Dagger.
 	Config.DodgeRange = 15; // Distance to keep from monsters.
-	Config.DodgeHP = 90; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
+	Config.DodgeHP = me.hardcore ? 90 : 75; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
 	Config.TeleStomp = false; // Use merc to attack bosses if they're immune to attacks, but not to physical damage
 	Config.CastStatic = me.classic ? 15 : [25, 33, 50][me.diff];
 	Config.StaticList = me.normal ? ["Andariel", "Duriel", "Mephisto", "Izual", "Diablo", "Talic", "Madawc", "Korlic", "Baal"] : ["Duriel", "Mephisto", "Izual", "Diablo", "Baal"];

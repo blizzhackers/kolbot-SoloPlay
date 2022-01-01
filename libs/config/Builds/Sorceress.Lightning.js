@@ -15,7 +15,7 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1,-1,-1,-1,-1],
 		Update: function () {
-			Config.AttackSkill = [-1, sdk.skills.Lightning, -1, sdk.skills.ChainLightning, -1, -1, -1];
+			Config.AttackSkill = [-1, sdk.skills.Lightning, sdk.skills.ChainLightning, sdk.skills.ChainLightning, sdk.skills.Lightning, -1, -1];
 			Config.LowManaSkill = [-1, -1];
 			Config.SkipImmune = ["lightning"];
 		}

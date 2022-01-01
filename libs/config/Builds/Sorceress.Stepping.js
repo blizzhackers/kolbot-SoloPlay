@@ -4,6 +4,9 @@
  *    @desc       	sorceress Blizzard build for before respecOneB - respecs at level 65
  */
 
+
+js_strict(true);
+
 if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
 SetUp.include();
 

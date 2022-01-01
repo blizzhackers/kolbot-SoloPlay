@@ -1,8 +1,9 @@
 /*
- *    @filename   	sorceress.start.js
+ *    @filename   	Sorceress.Start.js
  *	  @author	  	theBGuy
  *    @desc       	sorceress Blova build for before respecOne - respecs at level 26
  */
+
 
 js_strict(true);
 
@@ -41,7 +42,7 @@ let AutoBuildTemplate = {
 			Config.MinColumn[1] = Config.BeltColumn[1] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
 			Config.MinColumn[2] = Config.BeltColumn[2] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
 			Config.MinColumn[3] = Config.BeltColumn[3] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
-			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
+			Config.TownHP = me.hardcore ? 0 : Config.TownCheck ? 35 : 0;
 		}
 	},
 
@@ -50,8 +51,9 @@ let AutoBuildTemplate = {
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.AttackSkill = [-1, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.FrostNova, sdk.skills.IceBolt];
-			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
+			Config.TownHP = me.hardcore ? 0 : Config.TownCheck ? 35 : 0;
 			Config.DodgeHP = 50;
+			Config.DodgeRange = me.getSkill(sdk.skills.Blizzard) ? 15 : 7;
 		}
 	},
 
