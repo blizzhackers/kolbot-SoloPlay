@@ -319,7 +319,7 @@ let Events = {
 		let tick = getTickCount();
 		// Credit @Jaenster
 		let shouldDodge = function (coord) {
-			return diablo && getUnits(3)
+			return !!diablo && getUnits(3)
 				// For every missle that isnt from our merc
 				.filter(function (missile) { return missile && diablo && diablo.gid === missile.owner; })
 				// if any
@@ -413,7 +413,7 @@ let Events = {
 		case 0x4c: // diablo lightning dodge
 			if (me.area === sdk.areas.ChaosSanctuary) {
 				if (bytes[6] === 193) {
-					if (!Pather.useTeleport() && (["Poison", "Summon"].indexOf(SetUp.currentBuild) > -1 || me.paladin || me.barbarian || me.druid || me.amazon || me.assassin)) {
+					if (!Pather.canTeleport() && (me.necromancer && ["Poison", "Summon"].includes(SetUp.currentBuild) || !me.sorceress)) {
 						Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'dodge');
 					}
 				}
@@ -429,7 +429,7 @@ let Events = {
 				case 0:
 					break;
 				case 1: 	// Achmel
-					if ((me.paladin && !Attack.IsAuradin && me.hell) || (me.barbarian && ((me.charlvl < SetUp.levelCap && !me.baal) || me.playertype))) {
+					if ((me.paladin && !Attack.IsAuradin && me.hell) || (me.barbarian && ((me.charlvl < SetUp.levelCap && !me.baal) || me.hardcore))) {
 						Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'skip');
 					}
 
@@ -438,7 +438,7 @@ let Events = {
 				case 3:
 					break;
 				case 4: 	// Lister
-					if ((me.barbarian && (me.charlvl < SetUp.levelCap || !me.baal || me.playertype)) || (me.charlvl < SetUp.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
+					if ((me.barbarian && (me.charlvl < SetUp.levelCap || !me.baal || me.hardcore)) || (me.charlvl < SetUp.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
 						Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'skip');
 					}
 

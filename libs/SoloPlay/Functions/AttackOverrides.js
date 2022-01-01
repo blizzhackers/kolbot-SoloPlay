@@ -292,11 +292,7 @@ Attack.killTarget = function (name) {
 
 	for (let i = 0; !target && i < 5; i++) {
 		target = getUnit(sdk.unittype.Monster, name);
-
-		if (target) {
-			break;
-		}
-
+		if (target) { break; }
 		delay(200);
 	}
 
@@ -315,22 +311,18 @@ Attack.killTarget = function (name) {
 		return true;
 	}
 
+	let gid = target.gid;
+
 	while (attackCount < Config.MaxAttackCount) {
 		if (Misc.townCheck()) {
-			for (let i = 0; !target && i < 5; i += 1) {
-				target = getUnit(sdk.unittype.Monster, name);
-
-				if (target) {
-					break;
-				}
-
-				delay(200);
+			if (!target || !copyUnit(target).x) {
+				target = Misc.poll(function () { return getUnit(sdk.unittype.Monster, name); }, 15e3, 30);
 			}
 		}
 
 		// Check if unit got invalidated, happens if necro raises a skeleton from the boss's corpse.
 		if (!target || !copyUnit(target).x) {
-			target = getUnit(sdk.unittype.Monster, name);
+			target = getUnit(1, -1, -1, gid);
 
 			if (!target) {
 				break;
@@ -339,7 +331,7 @@ Attack.killTarget = function (name) {
 
 		me.overhead("KillTarget: " + target.name + " health " + ((target.hp / target.hpmax) * 100) + " % left");
 
-		if (Config.Dodge && me.hp * 100 / me.hpmax <= Config.DodgeHP) {
+		if (Config.Dodge && me.hpPercent <= Config.DodgeHP) {
 			this.deploy(target, Config.DodgeRange, 5, 9);
 		}
 
@@ -352,7 +344,6 @@ Attack.killTarget = function (name) {
 		}
 
 		attackCount += 1;
-		ClassAttack.afterAttack();
 
 		// spectype check from isid0re SoloLeveling commit 44d25cb
 		if (!target || !copyUnit(target).x || target.dead || target.spectype === 0) {
@@ -360,6 +351,7 @@ Attack.killTarget = function (name) {
 		}
 	}
 
+	ClassAttack.afterAttack();
 	if (!target || !copyUnit(target).x || target.dead || target.spectype === 0) {
 		Pickit.pickItems();
 	}
@@ -378,53 +370,13 @@ Attack.clearLocations = function (list) {
 	return true;
 };
 
-Attack.clearPosition = function (x, y, range, skipBlocked) {
-	let monster, monList;
-
-	if (skipBlocked === true) {
-		skipBlocked = 0x4;
-	}
-
-	while (true) {
-		if (getDistance(me, x, y) > 5) {
-			Pather.moveTo(x, y);
-		}
-
-		monster = getUnit(1);
-		monList = [];
-
-		if (monster) {
-			do {
-				if (getDistance(monster, x, y) <= range && this.checkMonster(monster) && this.canAttack(monster) &&
-						(!skipBlocked || !checkCollision(me, monster, skipBlocked)) &&
-						((me.classid === 1 && me.getSkill(54, 1)) || me.getStat(97, 54) || !checkCollision(me, monster, 0x1))) {
-					monList.push(copyUnit(monster));
-				}
-			} while (monster.getNext());
-		}
-
-		if (!monList.length) {
-			return;
-		} else {
-			this.clearList(monList);
-		}
-
-		delay(100);
-	}
-};
-
 Attack.clearPos = function (x, y, range, pickit) { // probably going to change to passing an object
 	while (!me.gameReady) {
 		delay(40);
 	}
 
-	if (range === undefined) {
-		range = 15;
-	}
-
-	if (pickit === undefined) {
-		pickit = true;
-	}
+	range === undefined && (range = 15);
+	pickit === undefined && (pickit = true);
 
 	if (typeof (range) !== "number") {
 		throw new Error("Attack.clear: range must be a number.");
@@ -451,7 +403,7 @@ Attack.clearPos = function (x, y, range, pickit) { // probably going to change t
 			if (this.checkMonster(target) && this.skipCheck(target) && this.canAttack(target)) {
 				// Speed optimization - don't go through monster list until there's at least one within clear range
 				if (!start && getDistance(target, x, y) <= range &&
-						(me.sorceress && me.getSkill(54, 1)) || me.getStat(97, 54) || !checkCollision(me, target, 0x1)) {
+						(Pather.useTeleport() || !checkCollision(me, target, 0x1))) {
 					start = true;
 				}
 
@@ -476,7 +428,7 @@ Attack.clearPos = function (x, y, range, pickit) { // probably going to change t
 		}
 
 		if (target.x !== undefined && (getDistance(target, x, y) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && this.checkMonster(target)) {
-			if (Config.Dodge && me.hp * 100 / me.hpmax <= Config.DodgeHP) {
+			if (Config.Dodge && me.hpPercent <= Config.DodgeHP) {
 				this.deploy(target, Config.DodgeRange, 5, 9);
 			}
 
@@ -507,14 +459,14 @@ Attack.clearPos = function (x, y, range, pickit) { // probably going to change t
 				gidAttack[i].attacks += 1;
 				attackCount += 1;
 
-				if (me.classid === 4) {
+				if (me.barbarian) {
 					secAttack = (target.spectype & 0x7) ? 2 : 4;
 				} else {
 					secAttack = 5;
 				}
 
 				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3]) ||
-						(me.classid === 3 && Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3] === 112 && !ClassAttack.getHammerPosition(target)))) {
+						(me.paladin && Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3] === 112 && !ClassAttack.getHammerPosition(target)))) {
 					skillCheck = Config.AttackSkill[secAttack];
 				} else {
 					skillCheck = Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3];
@@ -522,7 +474,7 @@ Attack.clearPos = function (x, y, range, pickit) { // probably going to change t
 
 				// Desync/bad position handler
 				switch (skillCheck) {
-				case 112:
+				case sdk.skills.BlessedHammer:
 					//print(gidAttack[i].name + " " + gidAttack[i].attacks);
 
 					// Tele in random direction with Blessed Hammer
@@ -617,7 +569,7 @@ Attack.getMobCountAtPosition = function (x, y, range, filter = false, debug = tr
 	}
 
 	if (debug) {
-		print(count + " monsters at x: " + x + " y: " + y);
+		print(sdk.colors.Yellow + "getMobCountAtPosition :: " + sdk.colors.White + count + " monsters at x: " + x + " y: " + y);
 	}
 
 	return count;
@@ -691,6 +643,8 @@ Attack.clearLevel = function (spectype) {
 // Clear an entire area until area is done or level is reached
 Attack.clearLevelUntilLevel = function (charlvl, spectype) {
 	let room, result, rooms, myRoom, currentArea, previousArea;
+	charlvl === undefined && (charlvl = me.charlvl + 1);
+	spectype === undefined && (spectype = 0);
 
 	function RoomSort(a, b) {
 		return getDistance(myRoom[0], myRoom[1], a[0], a[1]) - getDistance(myRoom[0], myRoom[1], b[0], b[1]);
@@ -698,13 +652,7 @@ Attack.clearLevelUntilLevel = function (charlvl, spectype) {
 
 	room = getRoom();
 
-	if (!room) {
-		return false;
-	}
-
-	if (spectype === undefined) {
-		spectype = 0;
-	}
+	if (!room) { return false; }
 
 	rooms = [];
 
@@ -1235,7 +1183,24 @@ Attack.inverseSpotDistance = function (spot, distance, otherSpot) {
     return nodes && nodes.find(function (node) { return node.distance > distance; }) || { x: x, y: y };
 };
 
+Attack.shouldDodge = function (coord, monster) {
+	return monster && getUnits(3)
+		// for every missle that isnt from our merc
+		.filter(missile => missile && monster && monster.gid === missile.owner)
+		// if any
+		.some(missile => {
+			let xoff = Math.abs(coord.x - missile.targetx),
+				yoff = Math.abs(coord.y - missile.targety),
+				xdist = Math.abs(coord.x - missile.x),
+				ydist = Math.abs(coord.y - missile.y);
+
+			// If missile wants to hit is and is close to us
+			return xoff < 7 && yoff < 7 && xdist < 13 && ydist < 13;
+		});
+};
+
 Attack.pwnMeph = function () {
+	// TODO: fill out
 };
 
 // Credit @Jaenster - modified by me(theBGuy) for other classes
@@ -1285,15 +1250,57 @@ Attack.pwnDia = function () {
 
 	let tick = getTickCount();
 	let lastPosition = { x: 7791, y: 5293 };
-	let maxRange = (me.necromancer || me.assassin) ? 30 : 58;
+	let minRange, minDist, maxRange, maxDist;
 	let manaTP, manaSK, manaStatic, rangeStatic;
 
 	// set values
-	if (me.sorceress) {
+	switch (me.classid) {
+	case sdk.charclass.Sorceress:
 		manaTP = Skill.getManaCost(sdk.skills.Teleport);
 		manaSK = Skill.getManaCost(Config.AttackSkill[1]);
 		manaStatic = Skill.getManaCost(sdk.skills.StaticField);
 		rangeStatic = Skill.getRange(sdk.skills.StaticField);
+
+		switch (Config.AttackSkill[1]) {
+		case sdk.skills.FrozenOrb:
+			minDist = 15;
+			maxDist = 20;
+			minRange = 10;
+			maxRange = 20;
+
+			break;
+		case sdk.skills.Lightning:
+			minDist = 20;
+			maxDist = 25;
+			minRange = 18;
+			maxRange = 25;
+
+			break;
+		case sdk.skills.Blizzard:
+		case sdk.skills.Meteor:
+			minDist = 40;
+			maxDist = 45;
+			minRange = 15;
+			maxRange = 58;
+
+			break;
+		}
+
+		break;
+	case sdk.charclass.Necromancer:
+		minDist = 35;
+		maxDist = 40;
+		minRange = 15;
+		maxRange = 50;
+
+		break;
+	case sdk.charclass.Assassin:
+		minDist = 25;
+		maxDist = 30;
+		minRange = 15;
+		maxRange = 30;
+
+		break;	
 	}
 	
 	Attack.stopClear = true;
@@ -1310,9 +1317,9 @@ Attack.pwnDia = function () {
 				break;
 			}
 
-			if (getDistance(me, dia) < (me.assassin ? 17 : 40) || getDistance(me, dia) > (me.assassin ? 30 : 45) || getTickCount() - tick > 25e3) {
-				let spot = calculateSpots(dia, me.assassin ? 29 : 42.5)
-					.filter(function (loc) { return getDistance(me, loc) > 15 && getDistance(me, loc) < maxRange; } /*todo, in neighbour room*/)
+			if (getDistance(me, dia) < minDist || getDistance(me, dia) > maxDist || getTickCount() - tick > 25e3) {
+				let spot = calculateSpots(dia, ((minRange + maxRange) / 2))
+					.filter(function (loc) { return getDistance(me, loc) > minRange && getDistance(me, loc) < maxRange; } /*todo, in neighbour room*/)
 					.filter(function (loc) {
 						let collision = getCollision(me.area, loc.x, loc.y);
 						// noinspection JSBitwiseOperatorUsage
@@ -1341,9 +1348,8 @@ Attack.pwnDia = function () {
                 continue;
             }
 
-			me.overhead("FarCasting: Diablo's health " + ((dia.hp / dia.hpmax) * 100) + " % left");
-
 			if (me.necromancer || me.assassin) {
+				me.overhead("FarCasting: Diablo's health " + dia.hpPercent + " % left");
 				ClassAttack.farCast(dia);
 			} else {
 				// If we got enough mana to teleport close to diablo, static the bitch, and jump back
@@ -1351,7 +1357,7 @@ Attack.pwnDia = function () {
                 print('Diablo missiles: ' + diabloMissiles.length);
                 print('Diablo mode:' + dia.mode);
                 me.overhead('Dia life ' + (~~(dia.hp / 128 * 100)).toString() + '%');
-                if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3 && ![4, 5, 7, 8, 9, 10, 11].includes(dia.mode) && Math.round(dia.hp * 100 / dia.hpmax) > Config.CastStatic) {
+                if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3 && ![4, 5, 7, 8, 9, 10, 11].includes(dia.mode) && dia.hpPercent > Config.CastStatic) {
                     let x = me.x, y = me.y;
                     // Find a spot close to Diablo
                     let spot = Attack.spotOnDistance(dia, rangeStatic * (2 / 3));
@@ -1507,8 +1513,6 @@ Attack.getIntoPosition = function (unit, distance, coll, walk, force) {
 	force == undefined && (force = false);
 	
 	if (distance < 4 && (!unit.hasOwnProperty("mode") || (unit.mode !== 0 && unit.mode !== 12))) {
-		//me.overhead("Short range");
-
 		if (walk) {
 			if (getDistance(me, unit) > 8 || checkCollision(me, unit, coll)) {
 				Pather.walkTo(unit.x, unit.y, 3);
@@ -1520,7 +1524,7 @@ Attack.getIntoPosition = function (unit, distance, coll, walk, force) {
 		return !CollMap.checkColl(me, unit, coll);
 	}
 
-	let cx, cy,
+	let cx, cy, currCount, count = 999, potentialSpot = {x: undefined, y: undefined},
 		coords = [],
 		fullDistance = distance,
 		name = unit.hasOwnProperty("name") ? unit.name : "",
@@ -1528,13 +1532,9 @@ Attack.getIntoPosition = function (unit, distance, coll, walk, force) {
 		angles = [0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 135, -135, 180];
 
 	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
-	let caster = Skill.getRange(Config.AttackSkill[index]) > 4 || force;
+	let caster = force && !me.inTown;
 
 	//let t = getTickCount();
-
-	function sortLoc (a, b) {
-		return Attack.getMobCountAtPosition(a.x, a.y, 5, false, false) - Attack.getMobCountAtPosition(b.x, b.y, 5, false, false);
-	}
 
 	for (let n = 0; n < 3; n += 1) {
 		if (n > 0) {
@@ -1555,15 +1555,26 @@ Attack.getIntoPosition = function (unit, distance, coll, walk, force) {
 		if (coords.length > 0) {
 			coords.sort(Sort.units);
 
-			// Not a melee skill
-			if (caster) {
-				coords.sort(sortLoc);
-			}
-
 			for (let i = 0; i < coords.length; i += 1) {
 				// Valid position found
 				if (!CollMap.checkColl({x: coords[i].x, y: coords[i].y}, unit, coll, 1)) {
 					//print("ÿc9optimal pos build time: ÿc2" + (getTickCount() - t) + " ÿc9distance from target: ÿc2" + getDistance(cx, cy, unit.x, unit.y));
+					currCount = coords[i].mobCount(7);
+
+					if (caster) {
+						potentialSpot.x !== undefined && (potentialSpot = {x: coords[i].x, y: coords[i].y});
+
+						if (currCount < count) {
+							count = currCount;
+							potentialSpot = {x: coords[i].x, y: coords[i].y};
+							Developer.debugging.pathing	&& (print(sdk.colors.Blue + "CheckedSpot" + sdk.colors.Yellow + ": x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + count));
+						}
+
+						if (currCount !== 0) {
+							Developer.debugging.pathing	&& (print(sdk.colors.Red + "Not Zero, check next: currCount: " + sdk.colors.NeonGreen + " " + currCount));
+							continue;
+						}
+					}
 
 					// I am already in my optimal position
 					if (Math.round(getDistance(me, coords[i])) < 3) {
@@ -1589,12 +1600,42 @@ Attack.getIntoPosition = function (unit, distance, coll, walk, force) {
 						break;
 					}
 
-					Developer.debugging.pathing && (print("Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + Attack.getMobCountAtPosition(coords[i].x, coords[i].y, 5)));
+					Developer.debugging.pathing && (print(sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow + "Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + currCount));
 
 					return true;
 				}
 			}
 		}
+	}
+
+	if (caster && potentialSpot.x !== undefined) {
+		if (potentialSpot.distance < 3) { return true; }
+		if (Pather.useTeleport()) {
+			Pather.teleportTo(potentialSpot.x, potentialSpot.y);
+		} else {
+			switch (walk) {
+			case 1:
+				Pather.walkTo(potentialSpot.x, potentialSpot.y, 2);
+
+				break;
+			case 2:
+				if (potentialSpot.distance < 6 && !CollMap.checkColl(me, potentialSpot, 0x5)) {
+					Pather.walkTo(potentialSpot.x, potentialSpot.y, 2);
+				} else {
+					Pather.moveTo(potentialSpot.x, potentialSpot.y, 1);
+				}
+
+				break;
+			default:
+				Pather.moveTo(potentialSpot.x, potentialSpot.y, 1);
+
+				break;
+			}
+		}
+
+		Developer.debugging.pathing && (print(sdk.colors.Orange + "DefaultCheck :: " + sdk.colors.Yellow + "Moving to: x: " + potentialSpot.x + " y: " + potentialSpot.y + " mob amount: " + sdk.colors.NeonGreen + count));
+
+		return true;
 	}
 
 	if (name) {
@@ -1626,66 +1667,6 @@ Attack.test = function () {
 	return true;
 };
 
-/* Attack.test2 = function (unit, distance, spread, range) {
-	if (arguments.length < 4) {
-		throw new Error("deploy: Not enough arguments supplied");
-	}
-
-	let i, grid, index, currCount,
-		tick = getTickCount(),
-		monList = [],
-		count = 999,
-		idealPos = {
-			x: Math.round(Math.cos(Math.atan2(me.y - unit.y, me.x - unit.x)) * Config.DodgeRange + unit.x),
-			y: Math.round(Math.sin(Math.atan2(me.y - unit.y, me.x - unit.x)) * Config.DodgeRange + unit.y)
-		};
-
-	let hooks = [];
-
-	monList = this.buildMonsterList();
-
-	monList.sort(Sort.units);
-
-	if (this.getMonsterCount(me.x, me.y, 15, monList) === 0) {
-		return true;
-	}
-
-	CollMap.getNearbyRooms(unit.x, unit.y);
-
-	grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
-	grid.concat(this.buildGrid(me.x - distance, me.x + distance, me.y - distance, me.y + distance, spread));
-
-	if (!grid.length) {
-		return false;
-	}
-
-	function sortGrid(a, b) {
-		return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
-	}
-
-	grid.sort(sortGrid);
-
-	for (i = 0; i < grid.length; i += 1) {
-		if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & 0x1) && !CollMap.checkColl(unit, {x: grid[i].x, y: grid[i].y}, 0x4)) {
-			//currCount = this.getMonsterCount(grid[i].x, grid[i].y, range, monList);
-			currCount = this.getMobCountAtPosition(grid[i].x, grid[i].y, range);
-
-			hooks.push(new Text(currCount.toString(), grid[i].x, grid[i].y, 0x84, 0, 0, true));
-
-			if (currCount < count) {
-				index = i;
-				count = currCount;
-			}
-
-			if (currCount === 0) {
-				break;
-			}
-		}
-	}
-
-	if (typeof index === "number") {
-		return Pather.moveTo(grid[index].x, grid[index].y, 0, false);
-	}
-
-	return false;
-}; */
+Attack.test2 = function (unit, distance, coll, walk, force) {
+	
+};

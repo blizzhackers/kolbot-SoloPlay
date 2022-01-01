@@ -22,12 +22,12 @@ function staff () {
 	Pather.clearToExit(sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3, true);
 
 	if (!Pather.moveToPreset(me.area, 2, 356)) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to get staff');
-		return false;
+		print('ÿc8Kolbot-SoloPlayÿc0: Failed to move to staff');
+		return me.getItem(sdk.items.quest.ShaftoftheHoradricStaff);
 	}
 
-	Quest.collectItem(92, 356);
-	Quest.stashItem(92);
+	Quest.collectItem(sdk.items.quest.ShaftoftheHoradricStaff, 356);
+	Quest.stashItem(sdk.items.quest.ShaftoftheHoradricStaff);
 
 	return true;
 }

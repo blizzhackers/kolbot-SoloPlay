@@ -8,57 +8,6 @@
 
 let sdk = require('../modules/sdk');
 
-// Credit @Jaenster
-Unit.prototype.getItems = function (...args) {
-	let items = this.getItems.apply(this, args);
-
-	if (!items.length) {
-		return [];
-	}
-
-	return items;
-};
-
-// Credit @Jaenster
-Unit.prototype.getItemsEx = function (...args) {
-	let item = this.getItem.apply(this, args), items = [];
-
-	if (item) {
-		do {
-			items.push(copyUnit(item));
-		} while (item.getNext());
-		return items;
-	}
-
-	return [];
-};
-
-Unit.prototype.getMobCount = function (range = 10, coll = 0, type = 0, noSpecialMobs = false) {
-	if (this === undefined) { return 0; }
-	const _this = this;
-	return getUnits(sdk.unittype.Monster)
-		.filter(function (mon) {
-			return mon.attackable && getDistance(_this, mon) < range && (!type || ((type & mon.spectype) && !noSpecialMobs)) && (!coll || !checkCollision(_this, mon, coll));
-		}).length;
-};
-
-Unit.prototype.cancelUIFlags = function () {
-	if (this !== me) { return; }
-	let flags = [
-		sdk.uiflags.Inventory, sdk.uiflags.StatsWindow, sdk.uiflags.SkillWindow, sdk.uiflags.NPCMenu,
-		sdk.uiflags.Waypoint, sdk.uiflags.Party, sdk.uiflags.Shop, sdk.uiflags.Quest, sdk.uiflags.Stash,
-		sdk.uiflags.Cube, sdk.uiflags.KeytotheCairnStonesScreen, sdk.uiflags.SubmitItem
-	];
-
-	for (let i = 0; i < flags.length; i++) {
-		if (getUIFlag(flags[i])) {
-			me.cancel();
-			delay(500);
-			i = 0; // Reset
-		}
-	}
-};
-
 (function (global, original) {
 	let firstRun = true;
 	global['getUnit'] = function (...args) {
@@ -197,16 +146,16 @@ Object.defineProperties(Unit.prototype, {
 			return this.location === sdk.storage.Inventory && this.mode === sdk.itemmode.inStorage;
 		}
 	},
-	isInBelt: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
-			return this.location === sdk.storage.Belt && this.mode === sdk.itemmode.inBelt;
-		}
-	},
 	isInStash: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) { return false; }
 			return this.location === sdk.storage.Stash && this.mode === sdk.itemmode.inStorage;
+		}
+	},
+	isInCube: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			return this.location === sdk.storage.Cube && this.mode === sdk.itemmode.inStorage;
 		}
 	},
 	isInStorage: {
@@ -215,10 +164,16 @@ Object.defineProperties(Unit.prototype, {
 			return this.mode === sdk.itemmode.inStorage && [sdk.storage.Inventory, sdk.storage.Cube, sdk.storage.Stash].includes(this.location);
 		}
 	},
+	isInBelt: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) { return false; }
+			return this.location === sdk.storage.Belt && this.mode === sdk.itemmode.inBelt;
+		}
+	},
 	isOnSwap: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) { return false; }
-			return this.location === sdk.storage.Equipped && (me.weaponswitch === 0 && [11, 12].indexOf(this.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(this.bodylocation) > -1);
+			return this.location === sdk.storage.Equipped && (me.weaponswitch === 0 && [11, 12].includes(this.bodylocation)) || (me.weaponswitch === 1 && [4, 5].includes(this.bodylocation));
 		}
 	},
 	identified: {
@@ -438,7 +393,308 @@ Object.defineProperties(me, {
 			return Math.round(me.mp * 100 / me.mpmax);
 		}
 	},
+	skillDelay: {
+		get: function () {
+			return me.getState(sdk.states.SkillDelay);
+		}
+	},
+	classic: {
+		get: function () {
+			return me.gametype === 0;
+		}
+	},
+	expansion: {
+		get: function () {
+			return me.gametype === 1;
+		}
+	},
+	softcore: {
+		get: function () {
+			return me.playertype === false;
+		}
+	},
+	hardcore: {
+		get: function () {
+			return me.playertype === true;
+		}
+	},
+	normal: {
+		get: function () {
+			return me.diff === 0;
+		}
+	},
+	nightmare: {
+		get: function () {
+			return me.diff === 1;
+		}
+	},
+	hell: {
+		get: function () {
+			return me.diff === 2;
+		}
+	},
+	amazon: {
+		get: function () {
+			return me.classid === 0;
+		}
+	},
+	sorceress: {
+		get: function () {
+			return me.classid === 1;
+		}
+	},
+	necromancer: {
+		get: function () {
+			return me.classid === 2;
+		}
+	},
+	paladin: {
+		get: function () {
+			return me.classid === 3;
+		}
+	},
+	barbarian: {
+		get: function () {
+			return me.classid === 4;
+		}
+	},
+	druid: {
+		get: function () {
+			return me.classid === 5;
+		}
+	},
+	assassin: {
+		get: function () {
+			return me.classid === 6;
+		}
+	},
+	den: {
+		get: function () {
+			return me.getQuest(1, 0);
+		}
+	},
+	bloodraven: {
+		get: function () {
+			return me.getQuest(2, 0);
+		}
+	},
+	smith: {
+		get: function () {
+			return me.getQuest(3, 0);
+		}
+	},
+	tristram: {
+		get: function () {
+			return me.getQuest(4, 0);
+		}
+	},
+	countess: {
+		get: function () {
+			return me.getQuest(5, 0);
+		}
+	},
+	andariel: {
+		get: function () {
+			return me.getQuest(7, 0);
+		}
+	},
+	cube: {
+		get: function () {
+			return !!me.getItem(549);
+		}
+	},
+	radament: {
+		get: function () {
+			return me.getQuest(9, 0);
+		}
+	},
+	shaft: {
+		get: function () {
+			return !!me.getItem(92);
+		}
+	},
+	amulet: {
+		get: function () {
+			return !!me.getItem(521);
+		}
+	},
+	staff: {
+		get: function () {
+			return !!me.getItem(91);
+		}
+	},
+	horadricstaff: {
+		get: function () {
+			return me.getQuest(10, 0);
+		}
+	},
+	summoner: {
+		get: function () {
+			return me.getQuest(13, 0);
+		}
+	},
+	duriel: {
+		get: function () {
+			return me.getQuest(15, 0);
+		}
+	},
+	goldenbird: {
+		get: function () {
+			return me.getQuest(20, 0);
+		}
+	},
+	eye: {
+		get: function () {
+			return !!me.getItem(553);
+		}
+	},
+	brain: {
+		get: function () {
+			return !!me.getItem(555);
+		}
+	},
+	heart: {
+		get: function () {
+			return !!me.getItem(554);
+		}
+	},
+	khalimswill: {
+		get: function () {
+			return !!me.getItem(174);
+		}
+	},
+	lamessen: {
+		get: function () {
+			return me.getQuest(17, 0);
+		}
+	},
+	gidbinn: {
+		get: function () {
+			return me.getQuest(19, 0);
+		}
+	},
+	travincal: {
+		get: function () {
+			return me.getQuest(18, 0);
+		}
+	},
+	mephisto: {
+		get: function () {
+			return me.getQuest(23, 0);
+		}
+	},
+	izual: {
+		get: function () {
+			return me.getQuest(25, 0);
+		}
+	},
+	hellforge: {
+		get: function () {
+			return me.getQuest(27, 0);
+		}
+	},
+	diablo: {
+		get: function () {
+			return me.getQuest(26, 0);
+		}
+	},
+	shenk: {
+		get: function () {
+			return me.getQuest(35, 0);
+		}
+	},
+	larzuk: {
+		get: function () {
+			return me.getQuest(35, 1);
+		}
+	},
+	savebarby: {
+		get: function () {
+			return me.getQuest(36, 0);
+		}
+	},
+	anya: {
+		get: function () {
+			return me.getQuest(37, 0);
+		}
+	},
+	ancients: {
+		get: function () {
+			return me.getQuest(39, 0);
+		}
+	},
+	baal: {
+		get: function () {
+			return me.getQuest(40, 0);
+		}
+	},
+	cows: {
+		get: function () {
+			return me.getQuest(4, 10);
+		}
+	},
+	respec: {
+		get: function () {
+			return me.getQuest(41, 0);
+		}
+	},
+	diffCompleted: {
+		get: function () {
+			return !!((me.classic && me.diablo) || me.baal);
+		}
+	}
 });
+
+// Credit @Jaenster
+Unit.prototype.getItems = function (...args) {
+	let items = this.getItems.apply(this, args);
+
+	if (!items.length) {
+		return [];
+	}
+
+	return items;
+};
+
+// Credit @Jaenster
+Unit.prototype.getItemsEx = function (...args) {
+	let item = this.getItem.apply(this, args), items = [];
+
+	if (item) {
+		do {
+			items.push(copyUnit(item));
+		} while (item.getNext());
+		return items;
+	}
+
+	return [];
+};
+
+Unit.prototype.getMobCount = function (range = 10, coll = 0, type = 0, noSpecialMobs = false) {
+	if (this === undefined) { return 0; }
+	const _this = this;
+	return getUnits(sdk.unittype.Monster)
+		.filter(function (mon) {
+			return mon.attackable && getDistance(_this, mon) < range && (!type || ((type & mon.spectype) && !noSpecialMobs)) && (!coll || !checkCollision(_this, mon, coll));
+		}).length;
+};
+
+Unit.prototype.cancelUIFlags = function () {
+	if (this !== me) { return; }
+	let flags = [
+		sdk.uiflags.Inventory, sdk.uiflags.StatsWindow, sdk.uiflags.SkillWindow, sdk.uiflags.NPCMenu,
+		sdk.uiflags.Waypoint, sdk.uiflags.Party, sdk.uiflags.Shop, sdk.uiflags.Quest, sdk.uiflags.Stash,
+		sdk.uiflags.Cube, sdk.uiflags.KeytotheCairnStonesScreen, sdk.uiflags.SubmitItem
+	];
+
+	for (let i = 0; i < flags.length; i++) {
+		if (getUIFlag(flags[i])) {
+			me.cancel();
+			delay(500);
+			i = 0; // Reset
+		}
+	}
+};
 
 // Credit @Jaenster
 Unit.prototype.switchWeapons = function (slot) {
@@ -1030,487 +1286,6 @@ Unit.prototype.getStatEx = function (id, subid) {
 
 	return this.getStat(id, subid);
 };
-
-Object.defineProperty(Unit.prototype, 'classic', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.classic: Must be used with player units.");
-		}
-
-		return this.gametype === 0;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'expansion', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.expansion: Must be used with player units.");
-		}
-
-		return this.gametype === 1;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'softcore', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.expansion: Must be used with player units.");
-		}
-
-		return this.playertype === false;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'hardcore', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.expansion: Must be used with player units.");
-		}
-
-		return this.playertype === true;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'normal', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.normal: Must be used with player units.");
-		}
-
-		return this.diff === 0;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'nightmare', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.nightmare: Must be used with player units.");
-		}
-
-		return this.diff === 1;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'hell', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.hell: Must be used with player units.");
-		}
-
-		return this.diff === 2;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'amazon', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.amazon: Must be used with player units.");
-		}
-
-		return this.classid === 0;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'sorceress', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.sorceress: Must be used with player units.");
-		}
-
-		return this.classid === 1;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'necromancer', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.necromancer: Must be used with player units.");
-		}
-
-		return this.classid === 2;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'paladin', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.paladin: Must be used with player units.");
-		}
-
-		return this.classid === 3;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'barbarian', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.barbarian: Must be used with player units.");
-		}
-
-		return this.classid === 4;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'druid', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.druid: Must be used with player units.");
-		}
-
-		return this.classid === 5;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'assassin', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.assassin: Must be used with player units.");
-		}
-
-		return this.classid === 6;
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'den', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.den: Must be used with player units.");
-		}
-
-		return this.getQuest(1, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'bloodraven', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.bloodraven: Must be used with player units.");
-		}
-
-		return this.getQuest(2, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'smith', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.smith: Must be used with player units.");
-		}
-
-		return this.getQuest(3, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'tristram', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.tristram: Must be used with player units.");
-		}
-
-		return this.getQuest(4, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'countess', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.countess: Must be used with player units.");
-		}
-
-		return this.getQuest(5, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'andariel', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.andariel: Must be used with player units.");
-		}
-
-		return this.getQuest(7, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'cube', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.cube: Must be used with player units.");
-		}
-
-		return !!this.getItem(549);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'radament', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.radament: Must be used with player units.");
-		}
-
-		return this.getQuest(9, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'shaft', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.shaft: Must be used with player units.");
-		}
-
-		return this.getItem(92);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'amulet', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.amulet: Must be used with player units.");
-		}
-
-		return this.getItem(521);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'staff', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.staff: Must be used with player units.");
-		}
-
-		return this.getItem(91);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'horadricstaff', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.horadricstaff: Must be used with player units.");
-		}
-
-		return this.getQuest(10, 0);
-	}
-});
-
-
-Object.defineProperty(Unit.prototype, 'summoner', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.summoner: Must be used with player units.");
-		}
-
-		return this.getQuest(13, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'duriel', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.duriel: Must be used with player units.");
-		}
-
-		return this.getQuest(15, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'goldenbird', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.goldenbird: Must be used with player units.");
-		}
-
-		return this.getQuest(20, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'eye', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.eye: Must be used with player units.");
-		}
-
-		return this.getItem(553);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'brain', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.brain: Must be used with player units.");
-		}
-
-		return this.getItem(555);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'heart', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.heart: Must be used with player units.");
-		}
-
-		return this.getItem(554);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'khalimswill', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.khalimswill: Must be used with player units.");
-		}
-
-		return this.getItem(174);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'lamessen', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.lamessen: Must be used with player units.");
-		}
-
-		return this.getQuest(17, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'gidbinn', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.gidbinn: Must be used with player units.");
-		}
-
-		return this.getQuest(19, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'travincal', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.travincal: Must be used with player units.");
-		}
-
-		return this.getQuest(18, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'mephisto', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.mephisto: Must be used with player units.");
-		}
-
-		return this.getQuest(23, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'izual', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.izual: Must be used with player units.");
-		}
-
-		return this.getQuest(25, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'diablo', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.diablo: Must be used with player units.");
-		}
-
-		return this.getQuest(26, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'hellforge', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.hellforge: Must be used with player units.");
-		}
-
-		return this.getQuest(27, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'shenk', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.shenk: Must be used with player units.");
-		}
-
-		return this.getQuest(35, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'larzuk', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.larzuk: Must be used with player units.");
-		}
-
-		return this.getQuest(35, 1);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'savebarby', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.savebarby: Must be used with player units.");
-		}
-
-		return this.getQuest(36, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'anya', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.anya: Must be used with player units.");
-		}
-
-		return this.getQuest(37, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'ancients', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.ancients: Must be used with player units.");
-		}
-
-		return this.getQuest(39, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'baal', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.baal: Must be used with player units.");
-		}
-
-		return this.getQuest(40, 0);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'cows', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.cows: Must be used with player units.");
-		}
-
-		return this.getQuest(4, 10);
-	}
-});
-
-Object.defineProperty(Unit.prototype, 'respec', {
-	get: function () {
-		if (this.type > 0) {
-			throw new Error("Unit.respec: Must be used with player units.");
-		}
-
-		return this.getQuest(41, 0);
-	}
-});
 
 Unit.prototype.__defineGetter__('attackable', function () {
     if (this.type === 0 && this.mode !== 17 && this.mode !== 0) { //ToDo: build in here a check if player is hostiled

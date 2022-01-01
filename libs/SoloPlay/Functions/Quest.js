@@ -5,7 +5,7 @@
 *	@credits	Dark-f, JeanMax for original functions
 */
 
-let Quest = {
+const Quest = {
 	preReqs: function () {
 		// horadric staff
 		if (Pather.accessToAct(2) && !me.staff && !me.horadricstaff) {
@@ -38,7 +38,7 @@ let Quest = {
 			}
 		}
 
-		if (Pather.accessToAct(3) && !me.travincal && !me.khalimswill) { // khalim's will
+		if (Pather.accessToAct(3) && !me.travincal && !me.khalimswill) {
 			if (!me.eye) {
 				if (!isIncluded("SoloPlay/Scripts/eye.js")) {
 					include("SoloPlay/Scripts/eye.js");
@@ -311,25 +311,18 @@ let Quest = {
 		return me.getItem(classid);
 	},
 
-	equipItem: function (item, loc) {
-		let newitem = me.getItem(item);
-		me.cancel();
+	equipItem: function (classid, loc) {
+		let questItem = me.getItem(classid);
+		!getUIFlag(sdk.uiflags.Stash) && (me.cancel());
 
-		if (newitem) {
-			if (newitem.isInStash) {
-				Town.move("stash");
-				delay(250 + me.ping);
-				Town.openStash();
-				Storage.Inventory.MoveTo(newitem);
-				me.cancel();
-			}
-
-			if (!Item.equip(newitem, loc)) {
+		if (questItem) {
+			if (!Item.equip(questItem, loc)) {
 				Pickit.pickItems();
-				print("ÿc9SoloLevelingÿc0: failed to equip item.(Quest.equipItem)");
+				print("ÿc8Kolbot-SoloPlayÿc0: failed to equip " + classid + " .(Quest.equipItem)");
 			}
 		} else {
-			print("ÿc9SoloLevelingÿc0: Lost item before trying to equip it. (Quest.equipItem)");
+			print("ÿc8Kolbot-SoloPlayÿc0: Lost " + classid + " before trying to equip it. (Quest.equipItem)");
+			return false;
 		}
 
 		if (me.itemoncursor) {
@@ -337,21 +330,21 @@ let Quest = {
 
 			if (olditem) {
 				if (Storage.Inventory.CanFit(olditem)) {
-					print("ÿc9SoloLevelingÿc0: Keeping weapon");
+					print("ÿc8Kolbot-SoloPlayÿc0: Keeping weapon");
 
 					Storage.Inventory.MoveTo(olditem);
 				} else {
 					me.cancel();
-					print("ÿc9SoloLevelingÿc0: No room to keep weapon");
+					print("ÿc8Kolbot-SoloPlayÿc0: No room to keep weapon");
 
 					olditem.drop();
 				}
 			}
 		}
 
-		delay(750 + me.ping);
+		me.cancelUIFlags();
 
-		return true;
+		return questItem.bodylocation === loc;
 	},
 
 	smashSomething: function (smashable) {

@@ -248,7 +248,7 @@ Item.autoEquip = function () {
 	(me.trueStr < me.rawStrength) && (me.trueStr = me.rawStrength);
 	(me.trueDex < me.rawDexterity) && (me.trueDex = me.rawDexterity);
 
-	let tier, bodyLoc, tome, gid,
+	let tier, bodyLoc, idTool, gid,
 		items = me.findItems(-1, 0);
 
 	// couldn't find my items
@@ -287,14 +287,14 @@ Item.autoEquip = function () {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
 				if (items[0].isInStorage && tier > this.getEquippedItem(bodyLoc[j]).tier && this.getEquippedItem(bodyLoc[j]).classid !== sdk.items.quest.KhalimsWill) {
 					if (!items[0].identified) {
-						tome = me.findItem(519, 0, 3);
+						idTool = Town.getIdTool();
 
-						if (tome && tome.getStat(sdk.stats.Quantity) > 0) {
+						if (idTool) {
 							if (items[0].isInStash) {
 								Town.openStash();
 							}
 
-							Town.identifyItem(items[0], tome);
+							Town.identifyItem(items[0], idTool);
 						}
 					}
 
@@ -351,7 +351,7 @@ Item.equip = function (item, bodyLoc) {
 		if (!Town.openStash()) { return false; }
 	}
 
-	if (item.location === sdk.storage.Cube) {
+	if (item.isInCube) {
 		// failed to open cube
 		if (!Town.openStash() && !Cubing.openCube()) { return false; }
 	}
@@ -556,7 +556,7 @@ Item.autoEquipSecondary = function () {
 	print("ÿc8Kolbot-SoloPlayÿc0: Entering secondary auto equip");
 	let tick = getTickCount();
 
-	let tier, bodyLoc, tome, gid,
+	let tier, bodyLoc, idTool, gid,
 		items = me.findItems(-1, 0);
 
 	if (!items) { return false; }
@@ -594,14 +594,14 @@ Item.autoEquipSecondary = function () {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
 				if ([sdk.storage.Inventory, sdk.storage.Stash].indexOf(items[0].location) > -1 && tier > this.getEquippedItem(bodyLoc[j]).secondarytier && this.getEquippedItem(bodyLoc[j]).classid !== sdk.items.quest.KhalimsWill) {
 					if (!items[0].identified) {
-						tome = me.findItem(519, 0, 3);
+						idTool = Town.getIdTool();
 
-						if (tome && tome.getStat(sdk.stats.Quantity) > 0) {
+						if (idTool) {
 							if (items[0].isInStash) {
 								Town.openStash();
 							}
 
-							Town.identifyItem(items[0], tome);
+							Town.identifyItem(items[0], idTool);
 						}
 					}
 

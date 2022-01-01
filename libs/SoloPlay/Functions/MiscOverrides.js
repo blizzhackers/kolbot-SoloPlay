@@ -186,8 +186,7 @@ Misc.openChests = function (range) {
 };
 
 Misc.useWell = function (range) {
-	let unit = getUnit(2, "well", 0),
-		unitList = [];
+	let unit, unitList = [];
 
 	!range && (range = 15);
 
@@ -197,13 +196,9 @@ Misc.useWell = function (range) {
 		return true;
 	}
 
-	if (unit) {
-		do {
-			if (unit.mode === 0 && getDistance(me, unit) <= range) {
-				unitList.push(copyUnit(unit));
-			}
-		} while (unit.getNext());
-	}
+	unitList = getUnits(sdk.unittype.Object, "well").filter(function (well) {
+		return well.distance < range && well.mode !== 2
+	});
 
 	while (unitList.length > 0) {
 		unitList.sort(Sort.units);
@@ -215,28 +210,6 @@ Misc.useWell = function (range) {
 	}
 
 	return true;
-};
-
-Misc.getWell = function (unit) {
-	if (unit.mode !== 0) { return true; }
-
-	for (let i = 0; i < 3; i += 1) {
-		if (getDistance(me, unit) < 4 || Pather.moveToUnit(unit, 3, 0)) {
-			Misc.click(0, 0, unit);
-		}
-
-		let tick = getTickCount();
-
-		while (getTickCount() - tick < 1000) {
-			if (unit.mode !== 0) {
-				return true;
-			}
-
-			delay(10);
-		}
-	}
-
-	return false;
 };
 
 Misc.getExpShrine = function (shrineLocs) {
@@ -480,6 +453,34 @@ Misc.getShrine = function (unit) {
 
 		while (getTickCount() - tick < 1000) {
 			if (unit.mode) { return true; }
+
+			delay(10);
+		}
+	}
+
+	return false;
+};
+
+Misc.getWell = function (unit) {
+	if (unit.mode === 2) { return false; }
+
+	for (let i = 0; i < 3; i += 1) {
+		if (Skill.useTK(unit) && i < 2) {
+			if (getDistance(me, unit) > 13) {
+				Attack.getIntoPosition(unit, 13, 0x4 );
+			}
+			
+			Skill.cast(sdk.skills.Telekinesis, 0, unit);
+		} else {
+			if (getDistance(me, unit) < 4 || Pather.moveToUnit(unit, 3, 0)) {
+				Misc.click(0, 0, unit);
+			}
+		}
+
+		let tick = getTickCount();
+
+		while (getTickCount() - tick < 1000) {
+			if (unit.mode !== 0) { return true; }
 
 			delay(10);
 		}

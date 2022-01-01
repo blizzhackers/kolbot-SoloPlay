@@ -540,7 +540,7 @@ const Check = {
 			break;
 		case "savebarby":
 			// I need tal, ral, or ort rune for runewords
-			if (me.expansion && Pather.accessToAct(5) && !me.savebarby && (Runewords.checkRune(616) || Runewords.checkRune(617) || Runewords.checkRune(618))) {
+			if (me.expansion && Pather.accessToAct(5) && !me.savebarby && Runewords.checkRune(sdk.items.runes.Tal, sdk.items.runes.Ral, sdk.items.runes.Ort)) {
 				return true;
 			}
 
@@ -564,15 +564,22 @@ const Check = {
 
 			break;
 		case "cows":
-			if (!me.normal && !me.cows &&
-				(!me.barbarian || ["Whirlwind", "Immortalwhirl", "Singer"].indexOf(SetUp.currentBuild) > -1) &&
-				(me.classic && me.diablo || me.baal) &&
-				((me.nightmare && (!me.druid || me.charlvl <= 65) || me.hell))) {
-				return true;
-			}
-
-			if (me.normal && !me.cows && (me.classic && me.diablo || me.baal) && Check.brokeAf()) {
-				return true;
+			if (!me.cows && me.diffCompleted) {
+				if (me.barbarian && !["Whirlwind", "Immortalwhirl", "Singer"].includes(SetUp.currentBuild) && (!me.normal || !Check.brokeAf())) { return false; }
+				switch (me.diff) {
+				case sdk.difficulty.Normal:
+					if (Check.brokeAf()) {
+						return true;
+					}
+					break;
+				case sdk.difficulty.Nightmare:
+					if ((me.druid && me.charlvl <= 65) || (me.sorceress && (me.expansion || me.charlvl < 62)) || (!me.druid)) {
+						return true;
+					}
+					break;
+				case sdk.difficulty.Hell:
+					return true;
+				}
 			}
 
 			break;
@@ -583,13 +590,13 @@ const Check = {
 
 			break;
 		case "getkeys":
-			if (me.expansion && Pather.accessToAct(5) && me.hell && ["Zealer", "Smiter", "Uberconc"].indexOf(SetUp.currentBuild) > -1) {
+			if (me.expansion && Pather.accessToAct(5) && me.hell && ["Zealer", "Smiter", "Uberconc"].includes(SetUp.currentBuild)) {
 				return true;
 			}
 
 			break;
 		case "orgtorch":
-			if (me.expansion && Pather.accessToAct(5) && me.hell && ["Zealer", "Smiter", "Uberconc"].indexOf(SetUp.currentBuild) > -1) {
+			if (me.expansion && Pather.accessToAct(5) && me.hell && ["Zealer", "Smiter", "Uberconc"].includes(SetUp.currentBuild)) {
 				return true;
 			}
 

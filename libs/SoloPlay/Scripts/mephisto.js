@@ -37,6 +37,11 @@ function mephisto () {
 	let oldPickRange = Config.PickRange;
 	let oldUseMerc = Config.MercWatch;
 
+	if (me.mephisto) {
+		Pather.moveTo(17587, 8069);
+		delay(400);
+	}
+
 	Pather.moveTo(17692, 8048);
 	Pather.moveTo(17563, 8072);
 

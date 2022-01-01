@@ -68,16 +68,8 @@ Town.townTasks = function () {
 
 	me.cancelUIFlags();
 
-	// If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
 	if (!me.barbarian && !Precast.checkCTA()) {
 		Precast.doPrecast(false);
-	}
-
-	Config.NoTele = me.normal && me.gold < 10000 ? true : !me.normal && me.gold < 50000 ? true : false;
-	Config.Dodge = (me.getSkill(sdk.skills.Teleport, 0) || me.getStat(sdk.stats.OSkill, sdk.skills.Teleport)) ? !Config.NoTele : Config.Dodge;
-
-	if (me.barbarian && SetUp.currentBuild !== "Singer") {
-		Config.Dodge = false;
 	}
 
 	if (me.expansion) {
@@ -136,16 +128,8 @@ Town.doChores = function (repair = false) {
 
 	me.cancelUIFlags();
 
-	// If not a barb and no CTA, do precast. This is good since townchicken calls doChores. If the char has a cta this is ignored since revive merc does precast
 	if (!me.barbarian && !Precast.checkCTA()) {
 		Precast.doPrecast(false);
-	}
-
-	Config.NoTele = me.normal && me.gold < 10000 ? true : !me.normal && me.gold < 50000 ? true : false;
-	Config.Dodge = (me.getSkill(sdk.skills.Teleport, 0) || me.getStat(sdk.stats.OSkill, sdk.skills.Teleport)) ? !Config.NoTele : Config.Dodge;
-
-	if (me.barbarian && SetUp.currentBuild !== "Singer") {
-		Config.Dodge = false;
 	}
 
 	if (me.expansion) {
@@ -161,6 +145,18 @@ Town.doChores = function (repair = false) {
 Town.getTpTool = function () {
     let scroll = me.getItemsEx().filter(function (i) { return i.isInInventory && i.classid === sdk.items.ScrollofTownPortal; }).first();
     let tome = me.getItemsEx().filter(function (i) { return i.isInInventory && i.classid === sdk.items.TomeofTownPortal; }).first();
+    if (scroll) {
+        return scroll;
+    }
+    if (tome && tome.getStat(sdk.stats.Quantity) > 0) {
+        return tome;
+    }
+    return null;
+};
+
+Town.getIdTool = function () {
+    let scroll = me.getItemsEx().find(function (i) { return i.isInInventory && i.classid === sdk.items.ScrollofIdentify; });
+    let tome = me.getItemsEx().find(function (i) { return i.isInInventory && i.classid === sdk.items.TomeofIdentify; });
     if (scroll) {
         return scroll;
     }
@@ -645,9 +641,8 @@ Town.buyBook = function () {
 };
 
 Town.buyPotions = function () {
-	let TPtomes = me.getItem(518);
-
-	if (!TPtomes) { // no town portal book
+	// no town portal book
+	if (!me.getItem(sdk.items.TomeofTownPortal)) { 
 		return false;
 	}
 

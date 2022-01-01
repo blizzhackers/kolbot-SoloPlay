@@ -414,5 +414,5 @@ Skill.useTK = function (unit) {
 		return false;
 	}
 
-	return me.inTown || ((me.mp * 100 / me.mpmax) > 50);
+	return me.inTown || (me.mpPercent > 50);
 };

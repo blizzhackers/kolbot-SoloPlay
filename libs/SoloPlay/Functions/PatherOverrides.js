@@ -873,7 +873,7 @@ Pather.useUnit = function (type, id, targetArea) {
 	}
 
 	if (!unit) {
-		throw new Error("useUnit: Unit not found. TYPE: " + type + " ID: " + id + " AREA: " + me.area);
+		throw new Error("useUnit: Unit not found. TYPE: " + type + " ID: " + id + " MyArea: " + this.getAreaName(me.area) + (!!targetArea ? " TargetArea: " + Pather.getAreaName(targetarea) : ""));
 	}
 
 	for (let i = 0; i < 3; i += 1) {
@@ -1267,7 +1267,6 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 			Pather.moveToExit(targetarea, true, cleartype);
 		} catch (e) {
 			print("Caught Error.");
-
 			print(e);
 		}
 
@@ -1293,7 +1292,7 @@ Pather.moveToPreset = function (area, unitType, unitId, offX, offY, clearPath, p
 	let presetUnit = getPresetUnit(area, unitType, unitId);
 
 	if (!presetUnit) {
-		throw new Error("moveToPreset: Couldn't find preset unit - id: " + unitId + " unitType: " + unitType + " in area: " + area);
+		throw new Error("moveToPreset: Couldn't find preset unit - id: " + unitId + " unitType: " + unitType + " in area: " + this.getAreaName(area));
 	}
 
 	return this.moveTo(presetUnit.roomx * 5 + presetUnit.x + offX, presetUnit.roomy * 5 + presetUnit.y + offY, 3, clearPath, pop);

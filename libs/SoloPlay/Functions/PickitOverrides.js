@@ -95,30 +95,9 @@ Pickit.checkItem = function (unit) {
 		return NTIP.CheckItem(unit, NTIP_CheckListNoTier, true);
 	}
 
-	// If total gold is less than 10k pick up anything worth 10 gold per
-	// square to sell in town.
-	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && Town.ignoredItemTypes.indexOf(unit.itemType) === -1 && unit.itemType !== sdk.itemtype.Quest &&
-		(unit.location === sdk.storage.Inventory || me.gold < Config.LowGold)) {
-		// Gold doesn't take up room, just pick it up
-		if (unit.classid === sdk.items.Gold) {
-			return {
-				result: 4,
-				line: null
-			};
-		}
-
-		if (unit.getItemCost(1) / (unit.sizex * unit.sizey) >= 10) {
-			return {
-				result: 4,
-				line: null
-			};
-		}
-	}
-
-	// If total gold is less than 500k pick up anything worth 2k gold per
-	// square to sell in town.
-	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && Town.ignoredItemTypes.indexOf(unit.itemType) === -1 && unit.itemType !== sdk.itemtype.Quest &&
-		(unit.location === sdk.storage.Inventory || me.gold < 500000)) {
+	// LowGold
+	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && !Town.ignoredItemTypes.includes(unit.itemType) && !unit.isQuestItem &&
+		(unit.isInInventory || (me.gold < Config.LowGold || me.gold < 500000))) {
 		// Gold doesn't take up room, just pick it up
 		if (unit.classid === sdk.items.Gold) {
 			return {
@@ -128,9 +107,16 @@ Pickit.checkItem = function (unit) {
 		}
 
 		if (unit.getItemCost(1) / (unit.sizex * unit.sizey) >= 2000) {
+			// If total gold is less than 500k pick up anything worth 2k gold per square to sell in town.
 			return {
 				result: 4,
 				line: "Valuable Item: " + unit.getItemCost(1)
+			};
+		} else if (unit.getItemCost(1) / (unit.sizex * unit.sizey) >= 10) {
+			// If total gold is less than LowGold setting pick up anything worth 10 gold per square to sell in town.
+			return {
+				result: 4,
+				line: "LowGold Item: " + unit.getItemCost(1)
 			};
 		}
 	}

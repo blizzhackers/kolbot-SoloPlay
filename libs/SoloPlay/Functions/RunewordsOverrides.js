@@ -129,13 +129,15 @@ Runewords.getBase = function (runeword, base, ethFlag, reroll) {
 	return false;
 };
 
-Runewords.checkRune = function (classid) {
-	if (!Config.MakeRunewords || classid === undefined) {
+Runewords.checkRune = function (...runes) {
+	if (!Config.MakeRunewords || runes === undefined) {
 		return false;
 	}
 
-	if (this.needList.indexOf(classid) > -1) { // rune
-		return true;
+	for (let classid of runes) {
+		if (this.needList.includes(classid)) {
+			return true;
+		}
 	}
 
 	return false;
