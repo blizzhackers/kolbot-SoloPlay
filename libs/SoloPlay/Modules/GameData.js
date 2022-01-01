@@ -6,6 +6,7 @@
 (function (module, require) {
 	const MonsterData = require('./MonsterData');
 	const AreaData = require('./AreaData');
+	const MissileData = require('../Modules/MissileData');
 	const Coords_1 = require("./Coords");
 	const sdk = require("./sdk");
 
@@ -757,8 +758,7 @@
 			return dmg;
 		},
 		avgSkillDamage: function (skillID, unit) {
-			if (skillID === undefined || unit === undefined || !skillID || !unit) { return 0; }
-			if (!me.getSkill(skillID, 1)) { return 0; }
+			if (skillID === undefined || unit === undefined || !skillID || !unit || !me.getSkill(skillID, 1)) { return 0; }
 			let skillToCheck, avgDmg;
 			let getTotalDmg = function (skillData, unit) {
 	            let avgPDmg = (skillData.pmin + skillData.pmax) / 2, totalDmg = 0, avgDmg = (skillData.min + skillData.max) / 2;
@@ -793,6 +793,37 @@
 			            let _a = GameData.skillDamage(skill, cur);
 			            return acc + getTotalDmg(_a, cur);
 			        }, 0);
+		    };
+		    let calculateChainDamage = function (skill, target) {
+		    	skill === undefined && (skill = -1);
+		    	let rawDmg = 0, totalDmg = 0, range = 0, hits = 0;
+		    	switch (skill) {
+		    	case sdk.skills.ChainLightning:
+			    	hits = Math.round((25 + me.getSkill(sdk.skills.ChainLightning, 1)) / 5);
+		    		range = 13;
+		    		break;
+		    	}
+		    	let units = getUnits(1)
+		            .filter(function (mon) { return mon.attackable && getDistance(mon, target) < range; })
+		            .sort((a, b) => getDistance(target, a) - getDistance(target, b));
+		        if (units.length === 1) {
+		        	rawDmg = GameData.skillDamage(skill, target);
+		        	return getTotalDmg(rawDmg, target);
+		        } else {
+		        	print("Units to check: " + units.length);
+		        	for (let i = 0; i < units.length; i++) {
+		        		if (units[i] !== undefined) {
+			        		rawDmg = GameData.skillDamage(skill, units[i]);
+			        		totalDmg += getTotalDmg(rawDmg, units[i]);
+
+			        		if (i > hits) { break; }
+		        		} else {
+		        			units.splice(i, 1);
+							i -= 1;
+		        		}
+		        	}
+		        	return totalDmg;
+		        }
 		    };
 		    let calculateRawStaticDamage = function (distanceUnit) {
 		        if (distanceUnit === void 0) { distanceUnit = me; }
@@ -837,8 +868,16 @@
 
 				avgDmg = calculateSplashDamage(skillID, 4, unit);
 				break;
+			case sdk.skills.FrostNova:
+			case sdk.skills.Nova:
+				avgDmg = calculateSplashDamage(skillID, 6, unit);
+				break;
 			case sdk.skills.StaticField:
 				avgDmg = calculateRawStaticDamage(unit);
+				break;
+			case sdk.skills.ChainLightning:
+				avgDmg = calculateChainDamage(skillID, unit);
+
 				break;
 			default:
 				skillToCheck = this.skillDamage(skillID, unit);
@@ -1761,7 +1800,7 @@
     function calculateKillableSummonsByNova() {
         let summons = [
         		sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2,
-        		sdk.monsters.BurningDead, sdk.monsters.Returned1, sdk.monsters.Returned2, sdk.monsters.BoneWarrior1, sdk.monsters.BoneWarrior2, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2
+        		sdk.monsters.BurningDead, sdk.monsters.Returned1, sdk.monsters.Returned2, sdk.monsters.BoneWarrior1, sdk.monsters.BoneWarrior2
         	];
         if (!me.getSkill(sdk.skills.Nova, 1)) { return 0; }
         return getUnits(1)
@@ -1782,11 +1821,124 @@
         	}, 0);
     }
 
+    Object.defineProperty(Unit.prototype, 'currentVelocity', {
+    	get: function () {
+            if (!this.isMoving ||this.isFrozen) {
+                return 0;
+            }
+            let velocity = this.isRunning ? MonsterData[this.classid].Run : MonsterData[this.classid].Velocity;
+            if (this.isChilled) {
+                let malus = MonsterData[this.classid].ColdEffect;
+                if (malus > 0) {
+                    malus = malus - 256;
+                }
+                return Math.max(1, ~~(velocity * (1 + malus)));
+            }
+            return velocity;
+        }
+    });
+
+    function targetPointForSkill (skillId, monster) {
+    	if (monster === undefined || skillId === undefined) { return null; }
+	    let missileName = getBaseStat("skills", skillId, "cltmissile");
+	    let missile = MissileData[missileName];
+	    if (!missile) {
+	    	missileName = getBaseStat("skills", skillId, "srvmissile");
+	    	missile = MissileData[missileName];
+	    }
+	    if (missile && missile.velocity > 0) {
+	        if (monster.isMoving && (monster.targetx !== me.x || monster.targety !== me.y)) {
+	            let startX = monster.x, startY = monster.y;
+	            // tiles per second velocities
+	            // ToDo: is monster slowed by freeze or something ?
+	            let monsterVelocityTPS = monster.currentVelocity;
+	            let missileVelocityTPS = missile.velocity;
+	            // tiles per frame velocities
+	            let monsterVelocityTPF = monsterVelocityTPS / 25;
+	            let missileVelocityTPF = missileVelocityTPS / 25;
+	            //console.log("monster is moving to "+monster.targetx+", "+monster.targety + " at speed "+monsterVelocity);
+	            let path = getPath(monster.area, startX, startY, monster.targetx, monster.targety, 2, 1);
+	            if (path && path.length) {
+	                // path is reversed from target to monster, we will check from last path position (target) to monster position
+	                path.reverse();
+	                let diffS = void 0;
+	                let diffF = void 0;
+	                let found = void 0;
+	                let time = {
+	                    missile: {},
+	                    monster: {}
+	                };
+	                for (let i = 0; i < path.length; i++) {
+	                    let pos = path[i];
+	                    // ToDo : does missing spawn at me position ?
+	                    let distanceForMissile = getDistance(me, pos);
+	                    if (distanceForMissile > missile.range) {
+	                        // too far for missile to reach this position
+	                        continue;
+	                    }
+	                    let distanceForMonster = getDistance({ x: startX, y: startY }, pos);
+	                    let timeForMonsterF = distanceForMonster / monsterVelocityTPF;
+	                    // time in seconds
+	                    // let castTimeS = GameData.castingDuration(skillId);
+	                    // let timeForMissileS = distanceForMissile / missileVelocityTPS + castTimeS;
+	                    // time in frames
+	                    let castTimeF = me.castingFrames(skillId);
+	                    let timeForMissileF = distanceForMissile / missileVelocityTPF + castTimeF;
+	                    // let timeForMonsterS = distanceForMonster / monsterVelocityTPS;
+	                    // Todo: missile and monster size
+	                    // diff seconds
+	                    // diffS = timeForMissileS-timeForMonsterS;
+	                    // diff frames
+	                    diffF = timeForMissileF - timeForMonsterF;
+	                    // diff > 0 : missile will reach pos after monster
+	                    // diff < 0 : missile will reach pos before monster
+	                    // console.log("time for monster to reach "+pos+" = "+timeForMonster);
+	                    // console.log("time for missile to reach "+pos+" = "+timeForMissile);
+	                    // console.log("diff = "+diff)
+	                    if (i === 0 && diffF >= 0) {
+	                        // last path position and missile is late, we can't predict next monster target, shoot at last path position
+	                        // it may fail because monster may be moving at other target while missile is arriving
+	                        // console.log("missile will be too late");
+	                        found = pos;
+	                        // time.missile.seconds = timeForMissileS;
+	                        time.missile.frames = timeForMissileF;
+	                        // time.monster.seconds = timeForMonsterS;
+	                        time.monster.frames = timeForMonsterF;
+	                        break;
+	                    }
+	                    // the number of frames needed for unit to move 1 tile
+	                    var timeToMoveOneTileMonsterF = 1 / monsterVelocityTPF;
+	                    // let timeToMoveOneTileMissileF = 1 / missileVelocityTPF;
+	                    // while missile is travelling, monster will continue to move
+	                    // if the difference is greater than the time a monster will move 1 tile, the missile will miss
+	                    // todo: monster size, missile size
+	                    if (diffF >= -1 * timeToMoveOneTileMonsterF && diffF <= 1 * timeToMoveOneTileMonsterF) {
+	                        found = pos;
+	                        // time.missile.seconds = timeForMissileS;
+	                        time.missile.frames = timeForMissileF;
+	                        // time.monster.seconds = timeForMonsterS;
+	                        time.monster.frames = timeForMonsterF;
+	                        break;
+	                    }
+	                }
+	                if (found) {
+	                    /*console.log("missile will hit monster in "+time.missile.seconds+" ("+time.missile.frames+") at "+found.x+", "+found.y);
+	                    console.log("time for monster = "+time.monster.seconds+ " ("+time.monster.frames+")")
+	                    console.log("diff missile-monster = "+diffS+ " ("+diffF+")");*/
+	                    return found;
+	                }
+	            }
+	        }
+	    }
+	    return null;
+	};
+
 // Export data
-	GameData.calculateKillableFallensByFrostNova = calculateKillableFallensByFrostNova;
-	GameData.calculateKillableSummonsByNova = calculateKillableSummonsByNova;
 	GameData.isEnemy = isEnemy;
 	GameData.isAlive = isAlive;
 	GameData.onGround = onGround;
+	GameData.calculateKillableFallensByFrostNova = calculateKillableFallensByFrostNova;
+	GameData.calculateKillableSummonsByNova = calculateKillableSummonsByNova;
+	GameData.targetPointForSkill = targetPointForSkill;
 	module.exports = GameData;
 })(module, require);
