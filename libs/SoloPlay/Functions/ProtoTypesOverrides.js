@@ -32,7 +32,6 @@ let sdk = require('../modules/sdk');
 	}
 })([].filter.constructor('return this')(), getUnit);
 
-let resPenalty = 0;
 Object.defineProperties(Unit.prototype, {
 	isChampion: {
         get: function () {
@@ -99,28 +98,28 @@ Object.defineProperties(Unit.prototype, {
 			return this.getState(sdk.states.LowerResist);
 		},
 	},
+	resPenalty : {
+		value: me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff],
+		writable: true
+	},
 	fireRes: {
 		get: function () {
-			if (resPenalty === undefined) { resPenalty = me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]; }
-			return Math.min(75, this.getStat(sdk.stats.FireResist) - resPenalty);
+			return Math.min(75, this.getStat(sdk.stats.FireResist) - me.resPenalty);
 		}
 	},
 	coldRes: {
 		get: function () {
-			if (resPenalty === undefined) { resPenalty = (me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]); }
-			return Math.min(75, this.getStat(sdk.stats.ColdResist) - resPenalty);
+			return Math.min(75, this.getStat(sdk.stats.ColdResist) - me.resPenalty);
 		}
 	},
 	lightRes: {
 		get: function () {
-			if (resPenalty === undefined) { resPenalty = (me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]); }
-			return Math.min(75, this.getStat(sdk.stats.LightResist) - resPenalty);
+			return Math.min(75, this.getStat(sdk.stats.LightResist) - me.resPenalty);
 		}
 	},
 	poisonRes: {
 		get: function () {
-			if (resPenalty === undefined) { resPenalty = (me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff]); }
-			return Math.min(75, this.getStat(sdk.stats.PoisonResist) - resPenalty);
+			return Math.min(75, this.getStat(sdk.stats.PoisonResist) - me.resPenalty);
 		}
 	},
 	hpPercent: {
