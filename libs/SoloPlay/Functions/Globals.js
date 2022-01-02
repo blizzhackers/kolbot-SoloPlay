@@ -573,9 +573,14 @@ const Check = {
 					}
 					break;
 				case sdk.difficulty.Nightmare:
-					if ((me.druid && me.charlvl <= 65) || (me.sorceress && (me.expansion || me.charlvl < 62)) || (!me.druid)) {
+					if (me.druid && me.charlvl <= 65) { 
+						return true; 
+					} else if (me.sorceress && (me.expansion || me.charlvl < 62)) { 
+						return true; 
+					} else if (!me.druid && !me.sorceress) {
 						return true;
 					}
+					
 					break;
 				case sdk.difficulty.Hell:
 					return true;

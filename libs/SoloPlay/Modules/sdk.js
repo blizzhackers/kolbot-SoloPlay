@@ -1282,7 +1282,7 @@
 			TrapDoorA2: 74, // ancienttunnel/sewers act 2
 			DoorbyDockAct2: 75, // incorrect ? TODO: figure out what 75 really corresponds to since the door is obj type 5 with classid 20
 			PortaltoDurielsLair: 100,
-			HoradricstaffHolder: 152,
+			HoradricStaffHolder: 152,
 			ArcaneSanctuaryPortal: 298,
 			HoradricCubeChest: 354,
 			HoradricScrollChest: 355,

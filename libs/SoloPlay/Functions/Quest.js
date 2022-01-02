@@ -146,41 +146,28 @@ const Quest = {
 
 	placeStaff: function () {
 		let tick = getTickCount();
-		let orifice = getUnit(2, 152);
-		let hstaff = me.staff;
+		let orifice = Misc.poll(function () { return getUnit(sdk.unittype.Object, sdk.units.HoradricStaffHolder); });
+		let hstaff = me.getItem(sdk.items.quest.HoradricStaff);
 
-		if (me.horadricstaff) {
-			return true;
-		}
-
-		if (!orifice) {
-			return false;
-		}
+		if (me.horadricstaff) { return true; }
+		if (!orifice) { return false; }
 
 		if (!hstaff) {
-			Quest.cubeItems(91, 92, 521);
+			hstaff = Quest.cubeItems(sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff, sdk.items.quest.ViperAmulet);
 		}
 
 		if (hstaff) {
-			if (hstaff.location !== 3) {
-				if (!me.inTown) {
-					Town.goToTown();
-				}
+			if (hstaff.location !== sdk.storage.Inventory) {
+				!me.inTown && Town.goToTown();
 
 				if (Storage.Inventory.CanFit(hstaff)) {
-					if (hstaff.location === 6) {
-						Cubing.openCube();
-					}
-
+					hstaff.isInCube && Cubing.openCube();
 					Storage.Inventory.MoveTo(hstaff);
+
 				} else {
 					Town.clearJunk();
 					Town.sortInventory();
-
-					if (hstaff.location === 6) {
-						Cubing.openCube();
-					}
-
+					hstaff.isInCube && Cubing.openCube();
 					Storage.Inventory.MoveTo(hstaff);
 				}
 
@@ -200,7 +187,7 @@ const Quest = {
 			return false;
 		}
 
-		hstaff.toCursor();
+		clickItemAndWait(0, hstaff);
 		submitItem();
 		delay(750 + me.ping);
 
@@ -223,9 +210,7 @@ const Quest = {
 
 		let tyrael = getUnit(1, NPC.Tyrael);
 
-		if (!tyrael) {
-			return false;
-		}
+		if (!tyrael) { return false; }
 
 		for (let talk = 0; talk < 3; talk += 1) {
 			if (getDistance(me, tyrael) > 3) {
@@ -242,9 +227,7 @@ const Quest = {
 			}
 		}
 
-		if (!me.inTown) {
-			Town.goToTown();
-		}
+		!me.inTown && Town.goToTown();
 
 		return true;
 	},
