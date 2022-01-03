@@ -25,14 +25,15 @@ function radament () {
 
 	if (Misc.checkQuest(9, 1)) {
 		Town.npcInteract("atma");
-		// NPC menu
-		if (getUIFlag(0x08)) {
-			delay(500);
-			me.cancel();
+		me.cancelUIFlags();
+
+		let book = me.getItem(sdk.items.quest.BookofSkill);
+		if (book) {
+			book.isInStash && Town.openStash() && delay(300 + me.ping);
+			book.interact();
+			delay(500 + me.ping) && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
 		}
 	}
-
-	Town.unfinishedQuests();
 
 	return true;
 }

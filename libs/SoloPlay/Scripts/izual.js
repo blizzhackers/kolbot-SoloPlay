@@ -1,7 +1,7 @@
 /*
 *	@filename	izual.js
 *	@author		isid0re, theBGuy
-*	@desc		izual quest for skillpoints
+*	@desc		izual for quest and xp
 */
 
 function izual () {
@@ -9,20 +9,21 @@ function izual () {
 	me.overhead("izual");
 
 	Town.townTasks();
-	Town.buyPots(8, "Antidote");
+	Town.buyPots(10, "Antidote");
 	Town.drinkPots();
-	Town.buyPots(8, "Thawing");
+	Town.buyPots(10, "Thawing");
 	Town.drinkPots();
 
 	Pather.checkWP(sdk.areas.CityoftheDamned, true) ? Pather.useWaypoint(sdk.areas.CityoftheDamned) : Pather.getWP(sdk.areas.CityoftheDamned);
 	Precast.doPrecast(true);
+	Pather.moveToPreset(sdk.areas.PlainsofDespair, 1, 256);
+	Attack.killTarget("Izual");
 
-	if (!Misc.checkQuest(25, 1)) {
-		Pather.moveToPreset(sdk.areas.PlainsofDespair, 1, 256);
-		Attack.killTarget("Izual");
+	if (!Misc.checkQuest(25, 0)) {
+		Town.goToTown();
+		Town.npcInteract("tyrael");
+		me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
 	}
-
-	Town.npcInteract("tyrael");
 
 	return true;
 }

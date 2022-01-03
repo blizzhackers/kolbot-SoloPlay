@@ -15,7 +15,6 @@ include("common/Attack.js");
 include("common/Cubing.js");
 include("common/Config.js");
 include("common/CollMap.js");
-include("common/Loader.js");
 include("common/misc.js");
 include("common/util.js");
 include("common/Pickit.js");
@@ -56,7 +55,7 @@ function main() {
 			if (script) {
 				if (script.running) {
 					if (scripts[i] === "default.dbj") {
-						print("ÿc1Pausing.");
+						print("ÿc8TownChicken :: ÿc1Pausing.");
 					}
 
 					script.pause();
@@ -64,7 +63,7 @@ function main() {
 					if (scripts[i] === "default.dbj") {
 						// don't resume if dclone walked
 						if (!Events.cloneWalked) {
-							print("ÿc2Resuming.");
+							print("ÿc8TownChicken :: ÿc2Resuming.");
 							script.resume();
 						}
 					} else {
@@ -150,7 +149,7 @@ function main() {
 
 			try {
 				me.overhead("Going to town");
-				print("Going to town");
+				print("ÿc8TownChicken :: ÿc0Going to town");
 				Attack.stopClear = true;
 				Events.townChicken = true;
 				

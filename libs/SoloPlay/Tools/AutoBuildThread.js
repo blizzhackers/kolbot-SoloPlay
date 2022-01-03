@@ -242,17 +242,9 @@ function main () {
 				scriptBroadcast({event: "level up"});
 				AutoBuild.applyConfigUpdates(); // scriptBroadcast() won't trigger listener on this thread.
 
-				if (debug) {
-					AutoBuild.print("Incrementing cached character level to", prevLevel + 1);
-				}
-
-				if (Config.AutoSkill.Enabled) {
-					AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
-				}
-
-				if (Config.AutoStat.Enabled) {
-					AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
-				}
+				debug && AutoBuild.print("Incrementing cached character level to", prevLevel + 1);
+				Config.AutoSkill.Enabled && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
+				Config.AutoStat.Enabled && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
 
 				// prevLevel doesn't get set to me.charlvl because
 				// we may have gained multiple levels at once

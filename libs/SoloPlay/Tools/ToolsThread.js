@@ -18,7 +18,6 @@ include("common/Attack.js");
 include("common/Cubing.js");
 include("common/CollMap.js");
 include("common/Config.js");
-include("common/Loader.js");
 include("common/misc.js");
 include("common/util.js");
 include("common/Pickit.js");
@@ -157,7 +156,7 @@ function main () {
 			if (script) {
 				if (script.running) {
 					if (l === 0) { // default.dbj
-						print("ÿc1Pausing.");
+						print("ÿc8ToolsThread :: ÿc1Pausing.");
 					}
 
 					// don't pause townchicken during clone walk
@@ -166,7 +165,7 @@ function main () {
 					}
 				} else {
 					if (l === 0) { // default.dbj
-						print("ÿc2Resuming.");
+						print("ÿc8ToolsThread :: ÿc2Resuming.");
 					}
 
 					script.resume();
@@ -194,13 +193,15 @@ function main () {
 	};
 
 	this.exit = function () {
+		Config.LogExperience && Experience.log();
+		Developer.logPerformance && Tracker.Update();
 		this.stopDefault();
 		quit();
 	};
 
 	this.restart = function () {
-		if (Config.LogExperience) { Experience.log(); }
-		if (Developer.logPerformance) { Tracker.Update(); }
+		Config.LogExperience && Experience.log();
+		Developer.logPerformance && Tracker.Update();
 		this.stopDefault();
 		D2Bot.restart();
 	};
@@ -437,23 +438,13 @@ function main () {
 
 			break;
 		case 96: // numpad 0
-			if (Developer.logPerformance) {
-				Tracker.Update();
-			}
-
+			Developer.logPerformance && Tracker.Update();
 			D2Bot.stop(me.profile, true);
 
 			break;
 		case 35: // End key
-			if (Developer.logEquipped) {
-				MuleLogger.logEquippedItems();
-			} else {
-				MuleLogger.logChar();
-			}
-
-			if (Developer.logPerformance) {
-				Tracker.Update();
-			}
+			Developer.logEquipped ? MuleLogger.logEquippedItems() : MuleLogger.logChar();
+			Developer.logPerformance && Tracker.Update();
 
 			delay(rand(Config.QuitListDelay[0] * 1e3, Config.QuitListDelay[1] * 1e3));
 			D2Bot.printToConsole(me.profile + " - end run " + me.gamename);
@@ -481,12 +472,8 @@ function main () {
 				if (AutoMule.getMuleItems().length > 0) {
 					print("ÿc2Mule triggered");
 					scriptBroadcast("mule");
-
-					if (Developer.logPerformance) {
-						Tracker.Update();
-					}
-
 					this.exit();
+
 				} else {
 					me.overhead("No items to mule.");
 				}
@@ -496,48 +483,53 @@ function main () {
 
 			break;
 		case 102: // Numpad 6
-			if (Developer.logEquipped) {
-				MuleLogger.logEquippedItems();
-			} else {
-				MuleLogger.logChar();
-			}
-
+			Developer.logEquipped ? MuleLogger.logEquippedItems() : MuleLogger.logChar();
 			me.overhead("Logged char: " + me.name);
 
 			break;
 		case 109: // Numpad -
-			D2Bot.printToConsole('getTier: ' + NTIP.GetTier(getUnit(101)));
-			D2Bot.printToConsole('tierscore: ' + tierscore(getUnit(101)));
-			D2Bot.printToConsole('getSecondaryTier: ' + NTIP.GetSecondaryTier(getUnit(101)));
-			D2Bot.printToConsole('charmTier: ' + NTIP.GetCharmTier(getUnit(101)));
-			D2Bot.printToConsole('getMercTier: ' + NTIP.GetMercTier(getUnit(101)));
-			D2Bot.printToConsole('mercscore: ' + mercscore(getUnit(101)));
+			{
+				let itemToCheck = getUnit(101);
+				if (!!itemToCheck) {
+					D2Bot.printToConsole('getTier: ' + NTIP.GetTier(itemToCheck));
+					D2Bot.printToConsole('tierscore: ' + tierscore(itemToCheck));
+					D2Bot.printToConsole('getSecondaryTier: ' + NTIP.GetSecondaryTier(itemToCheck));
+					D2Bot.printToConsole('secondarytierscore: ' + secondaryscore(itemToCheck));
+					D2Bot.printToConsole('charmTier: ' + NTIP.GetCharmTier(itemToCheck));
+					D2Bot.printToConsole('charmscore: ' + charmscore(itemToCheck));
+					D2Bot.printToConsole('getMercTier: ' + NTIP.GetMercTier(itemToCheck));
+					D2Bot.printToConsole('mercscore: ' + mercscore(itemToCheck));
+					print(itemToCheck.fname + " info printed to console");
+				}
+			}
 
 			break;
-		case 110: // decimal point
-			let itemString = "";
-			let charmString = "";
-			let generalString = "";
-			let itemToCheck = getUnit(101);
-			if (!!itemToCheck) {
-				itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) +
-								" | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n" +
-								"ÿc4AutoEquipKeepCheck: ÿc0" + Item.autoEquipKeepCheck(itemToCheck) + " | ÿc4AutoEquipCheckSecondary: ÿc0" + Item.autoEquipCheckSecondary(itemToCheck) +
-								" | ÿc4AutoEquipKeepCheckMerc: ÿc0" + Item.autoEquipKeepCheckMerc(itemToCheck) + "\nÿc4Cubing Item: ÿc0" + Cubing.keepItem(itemToCheck) +
-								" | ÿc4Runeword Item: ÿc0" + Runewords.keepItem(itemToCheck) + " | ÿc4Crafting Item: ÿc0" + CraftingSystem.keepItem(itemToCheck) +
-								"\nÿc4ItemType: ÿc0" + itemToCheck.itemType + "| ÿc4Classid: ÿc0" + itemToCheck.classid + "| ÿc4Quality: ÿc0" + itemToCheck.quality;
-				charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + NTIP.checkFinalCharm(itemToCheck) + "\n" +
-						"ÿc4CharmType: ÿc0" + Item.getCharmType(itemToCheck) + " | ÿc4AutoEquipCharmCheck: ÿc0" + Item.autoEquipCharmCheck(itemToCheck) + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck);
-				generalString = "ÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(itemToCheck, NTIP_CheckListNoTier, true).result;
+		case 110: // numpad decimal point
+			{
+				let itemString = "";
+				let charmString = "";
+				let generalString = "";
+				let itemToCheck = getUnit(101);
+				if (!!itemToCheck) {
+					itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) +
+									" | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n" +
+									"ÿc4AutoEquipKeepCheck: ÿc0" + Item.autoEquipKeepCheck(itemToCheck) + " | ÿc4AutoEquipCheckSecondary: ÿc0" + Item.autoEquipCheckSecondary(itemToCheck) +
+									" | ÿc4AutoEquipKeepCheckMerc: ÿc0" + Item.autoEquipKeepCheckMerc(itemToCheck) + "\nÿc4Cubing Item: ÿc0" + Cubing.keepItem(itemToCheck) +
+									" | ÿc4Runeword Item: ÿc0" + Runewords.keepItem(itemToCheck) + " | ÿc4Crafting Item: ÿc0" + CraftingSystem.keepItem(itemToCheck) +
+									"\nÿc4ItemType: ÿc0" + itemToCheck.itemType + "| ÿc4Classid: ÿc0" + itemToCheck.classid + "| ÿc4Quality: ÿc0" + itemToCheck.quality;
+					charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + NTIP.checkFinalCharm(itemToCheck) + "\n" +
+							"ÿc4CharmType: ÿc0" + Item.getCharmType(itemToCheck) + " | ÿc4AutoEquipCharmCheck: ÿc0" + Item.autoEquipCharmCheck(itemToCheck) + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck);
+					generalString = "ÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(itemToCheck, NTIP_CheckListNoTier, true).result;
+				}
+				
+				print("ÿc8Kolbot-SoloPlay: ÿc2Item Info Start");
+				print(itemString);
+				print("ÿc8Kolbot-SoloPlay: ÿc2Charm Info Start");
+				print(charmString);
+				print("ÿc8Kolbot-SoloPlay: ÿc2General Info Start");
+				print(generalString);
+				print("ÿc8Kolbot-SoloPlay: ÿc1****************Info End****************");
 			}
-			
-			print("ÿc8Kolbot-SoloPlay: ÿc2Item Info Start");
-			print(itemString);
-			print("ÿc8Kolbot-SoloPlay: ÿc2Charm Info Start");
-			print(charmString);
-			print("ÿc8Kolbot-SoloPlay: ÿc2General Info Start");
-			print(generalString);
-			print("ÿc8Kolbot-SoloPlay: ÿc1****************Info End****************");
 
 			break;
 		case 105: // numpad 9 - get nearest preset unit id
@@ -546,6 +538,12 @@ function main () {
 			break;
 		case 106: // numpad * - precast
 			Precast.doPrecast(true);
+
+			break;
+		case 111: // numpad / - re-load default
+			this.stopDefault() && delay(5e3);
+            print('Starting default.dbj');
+            load('default.dbj')
 
 			break;
 		}
@@ -612,7 +610,6 @@ function main () {
 		case 0x12: // "Diablo Walks the Earth"
 			if (Config.DCloneQuit > 0) {
 				D2Bot.printToConsole("Diablo walked in game. Leaving.");
-
 				quitFlag = true;
 
 				break;
@@ -621,14 +618,11 @@ function main () {
 			// Only do this in expansion
 			if (Config.StopOnDClone && !me.classic && me.hell) {
 				D2Bot.printToConsole("Diablo Walks the Earth", 7);
-
 				Events.cloneWalked = true;
-
 				this.togglePause();
 				Town.goToTown();
 				showConsole();
 				print("ÿc4Diablo Walks the Earth");
-
 				me.maxgametime += (30 * 1000 * 60);		// Add 30 minutes to current maxgametime
 
 				if (Config.KillDclone) {
@@ -723,10 +717,6 @@ function main () {
 						D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + this.getNearestMonster() + " in " + Pather.getAreaName(me.area) + ". Ping: " + me.ping, 9);
 					}
 
-					if (Developer.logPerformance) {
-						Tracker.Update();
-					}
-
 					D2Bot.updateChickens();
 					this.exit();
 
@@ -746,10 +736,6 @@ function main () {
 						D2Bot.printToConsole("Mana Chicken: (" + me.mp + "/" + me.mpmax + ") in " + Pather.getAreaName(me.area), 9);
 					}
 
-					if (Developer.logPerformance) {
-						Tracker.Update();
-					}
-
 					D2Bot.updateChickens();
 					this.exit();
 
@@ -765,10 +751,6 @@ function main () {
 						if (ironGolem.hp <= Math.floor(128 * Config.IronGolemChicken / 100)) { // ironGolem.hpmax is bugged with BO
 							if (!Developer.hideChickens) {
 								D2Bot.printToConsole("Irom Golem Chicken in " + Pather.getAreaName(me.area), 9);
-							}
-
-							if (Developer.logPerformance) {
-								Tracker.Update();
 							}
 
 							D2Bot.updateChickens();
@@ -787,10 +769,6 @@ function main () {
 						if (mercHP < Config.MercChicken) {
 							if (!Developer.hideChickens) {
 								D2Bot.printToConsole("Merc Chicken in " + Pather.getAreaName(me.area), 9);
-							}
-
-							if (Developer.logPerformance) {
-								Tracker.Update();
 							}
 
 							D2Bot.updateChickens();
@@ -812,7 +790,6 @@ function main () {
 				if (Config.ViperCheck && getTickCount() - tick >= 250) {
 					if (this.checkVipers()) {
 						D2Bot.printToConsole("Revived Tomb Vipers found. Leaving game.", 9);
-
 						quitFlag = true;
 					}
 
@@ -845,12 +822,7 @@ function main () {
 		}
 
 		if (quitFlag && canQuit && (typeof quitListDelayTime === "undefined" || getTickCount() >= quitListDelayTime)) {
-			print("ÿc8Run duration ÿc2" + ((getTickCount() - me.gamestarttime) / 1000));
-
-			if (Config.LogExperience) { Experience.log(); }
-
-			if (Developer.logPerformance) { Tracker.Update(); }
-
+			print("ÿc8Run duration ÿc2" + Developer.formatTime(getTickCount() - me.gamestarttime));
 			this.checkPing(false); // In case of quitlist triggering first
 			this.exit();
 

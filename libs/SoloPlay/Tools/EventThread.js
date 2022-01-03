@@ -18,7 +18,6 @@ include("common/Attack.js");
 include("common/Cubing.js");
 include("common/CollMap.js");
 include("common/Config.js");
-include("common/Loader.js");
 include("common/misc.js");
 include("common/util.js");
 include("common/Pickit.js");
@@ -55,14 +54,14 @@ function main () {
 			let script = getScript(scripts[l]);
 
 			if (Events.townChicken) {
-				print("ÿc1Trying to townChicken, don't interfere.");
+				print("ÿc8EventThread :: ÿc1Trying to townChicken, don't interfere.");
 				return false;
 			}
 
 			if (script) {
 				if (script.running) {
 					if (scripts[l] === "default.dbj") {
-						print("ÿc1Pausing " + scripts[l]);
+						print("ÿc8EventThread :: ÿc1Pausing " + scripts[l]);
 					}
 
 					// don't pause townchicken during clone walk
@@ -86,12 +85,12 @@ function main () {
 				if (!script.running) {
 					// default.dbj
 					if (scripts[l] === "default.dbj") {
-						print("ÿc2Resuming " + scripts[l]);
+						print("ÿc8EventThread :: ÿc2Resuming " + scripts[l]);
 					}
 
 					// TownChicken
 					if (scripts[l] === "libs/SoloPlay/Tools/TownChicken.js") {
-						print("ÿc2Resuming " + scripts[l]);
+						print("ÿc8EventThread :: ÿc2Resuming " + scripts[l]);
 					}
 
 					script.resume();
