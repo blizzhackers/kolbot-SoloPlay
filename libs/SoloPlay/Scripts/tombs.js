@@ -12,12 +12,7 @@ function tombs () {
 	Town.townTasks();
 
 	for (let number = 0; number < tombID.length; number += 1) {
-		if (!Pather.checkWP(sdk.areas.CanyonofMagic)) {
-			Pather.getWP(sdk.areas.CanyonofMagic);
-		} else {
-			Pather.useWaypoint(sdk.areas.CanyonofMagic);
-		}
-
+		Pather.checkWP(sdk.areas.CanyonofMagic, true) ? Pather.useWaypoint(sdk.areas.CanyonofMagic) : Pather.getWP(sdk.areas.CanyonofMagic);
 		Precast.doPrecast(true);
 
 		if (Pather.moveToExit(tombID[number], true, true)) {

@@ -6,15 +6,17 @@
 
 if (!isIncluded("common/Pather.js")) { include("common/Pather.js"); }
 
+// TODO: clean up this mess
 NodeAction.killMonsters = function (arg) {
 	// sanityCheck from isid0re - added paladin specific areas - theBGuy
-	let monList, sanityCheck = ([62, 63, 64, 74].indexOf(me.area) > -1 || (me.paladin && [8, 9, 10, 11, 12, 13, 14, 15, 16, 94, 95, 96, 97, 98, 99].indexOf(me.area) > -1)) ? true : false;
+	let monList, 
+		sanityCheck = !!([62, 63, 64, 74].includes(me.area) || (me.paladin && [8, 9, 10, 11, 12, 13, 14, 15, 16, 94, 95, 96, 97, 98, 99].includes(me.area)));
 
 	if (Attack.stopClear) {
 		return;
 	}
 
-	if ([8, 3, 4, 38, 5, 6, 27, 28, 33, 37, 56, 57, 60, 45, 58, 66, 67, 68, 69, 70, 71, 72].indexOf(me.area) > -1) {
+	if ([8, 3, 4, 38, 5, 6, 27, 28, 33, 37, 56, 57, 60, 45, 58, 66, 67, 68, 69, 70, 71, 72].includes(me.area)) {
 		monList = Attack.getMob([58, 59, 60, 61, 101, 102, 103, 104], 0, 30);
 
 		if (monList) {
@@ -71,7 +73,8 @@ NodeAction.killMonsters = function (arg) {
 	}
 
 	if (arg.clearPath !== false) {
-		if (!Pather.useTeleport()) {	// If teleporting its not necessary to clear all mobs, just hit champions/uniques for xp/drops
+		// If teleporting its not necessary to clear all mobs, just hit champions/uniques for xp/drops
+		if (!Pather.useTeleport()) {
 			Attack.clear(7, 0);
 		}
 
@@ -81,6 +84,9 @@ NodeAction.killMonsters = function (arg) {
 
 NodeAction.popChests = function () {
 	let range = Pather.useTeleport() ? 25 : 15;
+	let mobCheck = getUnits(sdk.unittype.Monster)
+		.filter(mob => !!mob && mob.attackable && mob.distance < 7);
+	mobCheck.length > 3 && (range = 10);
 
 	if (Config.OpenChests) {
 		Misc.openChests(range);
@@ -108,12 +114,12 @@ Pather.haveTeleCharges = false;
 		return [undefined, undefined];
 	};
 
-	Object.prototype.mobCount = function (range) {
+	Object.prototype.mobCount = function (range = 5) {
 		let [x, y] = coords.apply(this);
 			return getUnits(sdk.unittype.Monster)
 				.filter(function (mon) {
 					return mon.attackable && getDistance(x, y, mon.x, mon.y) < range &&
-					!CollMap.checkColl({x: x, y: y}, mon, Coords_1.BlockBits.ClosedDoor | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.LineOfSight, 1);
+					!CollMap.checkColl({x: x, y: y}, mon, Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.ClosedDoor | Coords_1.BlockBits.LineOfSight, 1);
 				}).length;
 	};
 
@@ -178,12 +184,13 @@ Pather.haveTeleCharges = false;
 })(typeof global !== 'undefined' ? global : this);
 
 Pather.canTeleport = function () {
-	return this.teleport && !Config.NoTele && !me.shapeshifted && ((me.sorceress && me.getSkill(sdk.skills.Teleport, 1)) || me.getStat(sdk.stats.OSkill, sdk.skills.Teleport));
+	return this.teleport && !Config.NoTele && !me.shapeshifted && (me.getSkill(sdk.skills.Teleport, 1) || me.getStat(sdk.stats.OSkill, sdk.skills.Teleport));
 };
 
-// XCon provided. to turn off teleport if below 20% mana
 Pather.useTeleport = function () {
-	return this.teleport && !Config.NoTele && !me.shapeshifted && !me.inTown && ((me.sorceress && me.getSkill(sdk.skills.Teleport, 1) && ((me.mp / me.mpmax) * 100) >= 20) || me.getStat(sdk.stats.OSkill, sdk.skills.Teleport));
+	let manaTP = Skill.getManaCost(sdk.skills.Teleport);
+    let numberOfTeleport = ~~(me.mpmax / manaTP);
+	return !me.inTown && this.canTeleport() && numberOfTeleport > 2;
 };
 
 Pather.checkForTeleCharges = function () {
@@ -205,11 +212,11 @@ Pather.canUseTeleCharges = function () {
 
 Pather.teleportTo = function (x, y, maxRange) {
 	maxRange === undefined && (maxRange = 5);
+	Developer.debugging.pathing && print("Mob Count at next node: " + [x, y].mobCount());
 	
 	for (let i = 0; i < 3; i += 1) {
 		if (Config.PacketCasting) {
-			Skill.setSkill(sdk.skills.Teleport, 0);
-			Packet.castSkill(0, x, y);
+			Skill.setSkill(sdk.skills.Teleport, 0) && Packet.castSkill(0, x, y);
 		} else {
 			Skill.cast(sdk.skills.Teleport, 0, x, y);
 		}
@@ -228,7 +235,7 @@ Pather.teleportTo = function (x, y, maxRange) {
 	return false;
 };
 
-Pather.teleportToUsingCharges = function (x, y, maxRange) {
+Pather.teleUsingCharges = function (x, y, maxRange) {
 	let orgSlot = me.weaponswitch;
 	maxRange === undefined && (maxRange = 5);
 
@@ -239,9 +246,7 @@ Pather.teleportToUsingCharges = function (x, y, maxRange) {
 
 		while (getTickCount() - tick < Math.max(500, me.ping * 2 + 200)) {
 			if (getDistance(me.x, me.y, x, y) < maxRange) {
-				if (me.weaponswitch !== orgSlot) {
-					me.switchWeapons(orgSlot);
-				}
+				me.weaponswitch !== orgSlot && (me.switchWeapons(orgSlot));
 				return true;
 			}
 
@@ -249,28 +254,30 @@ Pather.teleportToUsingCharges = function (x, y, maxRange) {
 		}
 	}
 
-	if (me.weaponswitch !== orgSlot) {
-		me.switchWeapons(orgSlot);
-	}
+	me.weaponswitch !== orgSlot && (me.switchWeapons(orgSlot));
 
 	return false;
 };
 
-Pather.checkWP = function (area) {
+Pather.checkWP = function (area, keepMenuOpen = false) {
 	if (!getWaypoint(Pather.wpAreas.indexOf(area))) {
-		if (me.inTown) { Town.move("waypoint"); }
-
 		let wp;
 
-		for (let i = 0; i < 15; i += 1) {
+		for (let i = 0; i < 15; i++) {
 			wp = getUnit(sdk.unittype.Object, "waypoint");
 
 			if (wp && wp.area === me.area) {
-				if (!me.inTown && getDistance(me, wp) > 7) {
-					Pather.moveToUnit(wp);
+				if (Skill.useTK(wp) && i < 2) {
+					if (wp.distance > 21) {
+						Attack.getIntoPosition(wp, 20, 0x4);
+					}
+
+					Skill.cast(sdk.skills.Telekinesis, 0, wp);
+				} else if (!me.inTown && wp.distance > 7) {
+					this.moveToUnit(wp);
 				}
 
-				Misc.click(0, 0, wp);
+				!getUIFlag(sdk.uiflags.Waypoint) && (Misc.click(0, 0, wp));
 
 				let tick = getTickCount();
 
@@ -282,13 +289,17 @@ Pather.checkWP = function (area) {
 
 					delay(50 + me.ping);
 				}
+			} else {
+				me.inTown && (Town.move("waypoint"));
 			}
 
 			if (getUIFlag(sdk.uiflags.Waypoint)) {
-				me.cancel();
+				!keepMenuOpen && me.cancel();
 				break;
 			}
 		}
+		// go ahead and close out of wp menu if we don't have the wp
+		!getWaypoint(Pather.wpAreas.indexOf(area)) && getUIFlag(sdk.uiflags.Waypoint) && me.cancel();
 	}
 
 	return getWaypoint(Pather.wpAreas.indexOf(area));
@@ -613,23 +624,19 @@ Pather.walkTo = function (x, y, minDist) {
 	// Stamina handler and Charge
 	if (!me.inTown && !me.dead) {
 		// Check if I have a stamina potion and use it if I do
-		if (me.stamina / me.staminamax * 100 <= 20) {
+		if (me.staminaPercent <= 20) {
 			(_a = me.getItemsEx()
 				.filter(function (i) { return i.classid === sdk.items.StaminaPotion && i.isInInventory; })
 				.first()) === null || _a === void 0 ? void 0 : _a.interact();
 		}
-		if (me.runwalk === 1 && me.stamina / me.staminamax * 100 <= 15) {
-			me.runwalk = 0;
-		}
+		(me.runwalk === 1 && me.staminaPercent <= 15) && (me.runwalk = 0);
 		// the less stamina you have, the more you wait to recover
 		let recover = me.staminaMaxDuration < 30 ? 80 : 50;
-		if (me.runwalk === 0 && me.stamina / me.staminamax * 100 >= recover) {
-			me.runwalk = 1;
-		}
+		(me.runwalk === 0 && me.staminaPercent >= recover) && (me.runwalk = 1);
 		if (Config.Charge && me.paladin && me.mp >= 9 && getDistance(me.x, me.y, x, y) > 8 && Skill.setSkill(sdk.skills.Charge, 1)) {
 			if (Config.Vigor) {
 				Skill.setSkill(sdk.skills.Vigor, 0);
-			} else if (!Config.Vigor && me.classic && Config.AttackSkill[6] === sdk.skills.HolyFreeze && me.getSkill(sdk.skills.HolyFreeze, 1)) {
+			} else if (!Config.Vigor && !Attack.isAuradin && me.getSkill(sdk.skills.HolyFreeze, 1)) {
 				// Useful in classic to keep mobs cold while you rush them
 				Skill.setSkill(sdk.skills.HolyFreeze, 0);
 			}
@@ -640,14 +647,10 @@ Pather.walkTo = function (x, y, minDist) {
 		}
 	}
 
-	if (me.inTown && me.runwalk === 0) {
-		me.runwalk = 1;
-	}
+	(me.inTown && me.runwalk === 0) && (me.runwalk = 1);
 
 	while (getDistance(me.x, me.y, x, y) > minDist && !me.dead) {
-		if (me.paladin && Config.Vigor) {
-			Skill.setSkill(sdk.skills.Vigor, 0);
-		}
+		me.paladin && Config.Vigor && Skill.setSkill(sdk.skills.Vigor, 0);
 
 		if (this.openDoors(x, y) && getDistance(me.x, me.y, x, y) <= minDist) {
 			return true;
@@ -660,9 +663,7 @@ Pather.walkTo = function (x, y, minDist) {
 
 		ModeLoop:
 		while (me.mode !== 2 && me.mode !== 3 && me.mode !== 6) {
-			if (me.dead) {
-				return false;
-			}
+			if (me.dead) { return false; }
 
 			if ((getTickCount() - nTimer) > 500) {
 				nFail += 1;
@@ -717,7 +718,7 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 	// Abort if dead
 	if (me.dead) { return false; }
 
-	let path, adjustedNode, cleared, useTeleport, useChargedTele,
+	let path, adjustedNode, cleared, leaped = false,
 		node = {x: x, y: y},
 		fail = 0;
 
@@ -734,25 +735,21 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 	if (x === undefined || y === undefined) { throw new Error("moveTo: Function must be called with at least 2 arguments."); }
 	if (typeof x !== "number" || typeof y !== "number") { throw new Error("moveTo: Coords must be numbers"); }
 
-	if (retry === undefined || retry === 3) { retry = 15; }
+	(retry === undefined || retry === 3) && (retry = 15);
 	clearPath === undefined && (clearPath = true);
 	pop === undefined && (pop = false);
 
-	useTeleport = this.useTeleport();
-	useChargedTele = this.canUseTeleCharges();
-	path = getPath(me.area, x, y, me.x, me.y, useTeleport || useChargedTele ? 1 : 0, useTeleport || useChargedTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].indexOf(me.area) > -1 ? 30 : this.teleDistance) : this.walkDistance);
+	let useTele = this.useTeleport();
+	let useChargedTele = this.canUseTeleCharges();
+	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
+	path = getPath(me.area, x, y, me.x, me.y, useTele || useChargedTele ? 1 : 0, useTele || useChargedTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : this.teleDistance) : this.walkDistance);
 
 	if (!path) { throw new Error("moveTo: Failed to generate path."); }
 
 	path.reverse();
-	pop && (path.pop());
+	pop && path.pop();
 	PathDebug.drawPath(path);
-
-	if (useTeleport && Config.TeleSwitch && path.length > 5) {
-		me.switchWeapons(Attack.getPrimarySlot() ^ 1);
-	}
-
-	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
+	useTele && Config.TeleSwitch && path.length > 5 && (me.switchWeapons(Attack.getPrimarySlot() ^ 1));
 
 	while (path.length > 0) {
 		// Abort if dead
@@ -767,7 +764,7 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 		node = path.shift();
 
 		if (getDistance(me, node) > 2) {
-			if ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].indexOf(me.area) > -1) {
+			if ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area)) {
 				adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
 
 				if (adjustedNode) {
@@ -776,7 +773,7 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 				}
 			}
 
-			if (useTeleport && tpMana <= me.mp ? this.teleportTo(node.x, node.y) : useChargedTele && getDistance(me, node) >= 15 ? this.teleportToUsingCharges(node.x, node.y) : this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
+			if (useTele && tpMana <= me.mp ? this.teleportTo(node.x, node.y) : useChargedTele && getDistance(me, node) >= 15 ? this.teleUsingCharges(node.x, node.y) : this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
 				if (!me.inTown) {
 					if (this.recursion) {
 						this.recursion = false;
@@ -793,35 +790,33 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 					Misc.townCheck();
 				}
 			} else {
-				if (fail > 0 && !useTeleport && !me.inTown) {
+				if (fail > 0 && !useTele && !me.inTown) {
 					if (!cleared) {
-						Attack.clear(5);
-						Misc.openChests(2);
-
+						Attack.clear(5) && Misc.openChests(2);
 						cleared = true;
 					}
 
-					if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, 1)) {
+					// Only do this once
+					if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, 1) && !leaped) {
 						Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y);
+						leaped = true;
 					}
 				}
 
-				path = getPath(me.area, x, y, me.x, me.y, useTeleport ? 1 : 0, useTeleport ? rand(25, 35) : rand(10, 15));
+				path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? rand(25, 35) : rand(10, 15));
 				fail += 1;
 
 				if (!path) { throw new Error("moveTo: Failed to generate path."); }
 
 				path.reverse();
 				PathDebug.drawPath(path);
-
-				if (pop) { path.pop(); }
+				pop && path.pop();
 
 				print("move retry " + fail);
 
 				if (fail > 0) {
 					Packet.flash(me.gid);
-					Attack.clear(5);
-					Misc.openChests(2);
+					Attack.clear(5) && Misc.openChests(2);
 
 					if (fail >= retry) { break; }
 				}
@@ -831,7 +826,7 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 		delay(5);
 	}
 
-	if (useTeleport && Config.TeleSwitch) { me.switchWeapons(Attack.getPrimarySlot()); }
+	useTele && Config.TeleSwitch && (me.switchWeapons(Attack.getPrimarySlot() ^ 1));
 
 	PathDebug.removeHooks();
 
@@ -966,13 +961,13 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 				}
 			}
 
-			!Skill.useTK(wp) && !check && (Town.move("waypoint"));
+			!getUIFlag(sdk.uiflags.Waypoint) && (!Skill.useTK(wp) || i > 1) && (Town.move("waypoint"));
 		}
 
 		wp = getUnit(sdk.unittype.Object, "waypoint");
 
 		if (wp && wp.area === me.area) {
-			if (Skill.useTK(wp) && !check) {
+			if (Skill.useTK(wp) && !check && !getUIFlag(sdk.uiflags.Waypoint)) {
 				if (wp.distance > 21) {
 					Attack.getIntoPosition(wp, 20, 0x4);
 				}

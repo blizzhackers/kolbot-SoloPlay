@@ -9,12 +9,7 @@ function mephisto () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting mephisto');
 	me.overhead("mephisto");
 
-	if (!Pather.checkWP(sdk.areas.DuranceofHateLvl2)) {
-		Pather.getWP(sdk.areas.DuranceofHateLvl2);
-	} else {
-		Pather.useWaypoint(sdk.areas.DuranceofHateLvl2);
-	}
-
+	Pather.checkWP(sdk.areas.DuranceofHateLvl2, true) ? Pather.useWaypoint(sdk.areas.DuranceofHateLvl2) : Pather.getWP(sdk.areas.DuranceofHateLvl2);
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.DuranceofHateLvl2, sdk.areas.DuranceofHateLvl3, true);
 	

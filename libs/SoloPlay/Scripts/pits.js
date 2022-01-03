@@ -1,6 +1,6 @@
 /*
 *	@filename	pits.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		pits A1 for MF and gold
 */
 
@@ -9,12 +9,7 @@ function pits () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting pits');
 	me.overhead("pits");
 
-	if (!Pather.checkWP(sdk.areas.BlackMarsh)) {
-		Pather.getWP(sdk.areas.BlackMarsh);
-	} else {
-		Pather.useWaypoint(sdk.areas.BlackMarsh);
-	}
-
+	Pather.checkWP(sdk.areas.BlackMarsh, true) ? Pather.useWaypoint(sdk.areas.BlackMarsh) : Pather.getWP(sdk.areas.BlackMarsh);
 	Precast.doPrecast(true);
 
 	if (!Pather.moveToExit([sdk.areas.TamoeHighland, sdk.areas.PitLvl1], true)) {

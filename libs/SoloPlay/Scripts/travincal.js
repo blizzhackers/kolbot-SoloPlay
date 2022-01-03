@@ -10,12 +10,7 @@ function travincal () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting travincal');
 	me.overhead("travincal");
 
-	if (!Pather.checkWP(sdk.areas.Travincal)) {
-		Pather.getWP(sdk.areas.Travincal);
-	} else {
-		Pather.useWaypoint(sdk.areas.Travincal);
-	}
-
+	Pather.checkWP(sdk.areas.Travincal, true) ? Pather.useWaypoint(sdk.areas.Travincal) : Pather.getWP(sdk.areas.Travincal);
 	Precast.doPrecast(true);
 
 	let council = {

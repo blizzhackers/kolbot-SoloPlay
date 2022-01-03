@@ -14,14 +14,8 @@ function corpsefire() {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting corpsefire');
 	me.overhead("starting corpsefire");
 
-	if (!Pather.checkWP(sdk.areas.ColdPlains)) {
-		Pather.getWP(sdk.areas.ColdPlains);
-	} else {
-		Pather.useWaypoint(sdk.areas.ColdPlains);
-	}
-
+	Pather.checkWP(sdk.areas.ColdPlains, true) ? Pather.useWaypoint(sdk.areas.ColdPlains) : Pather.getWP(sdk.areas.ColdPlains);
 	Precast.doPrecast(true);
-
 	Pather.clearToExit(sdk.areas.ColdPlains, sdk.areas.BloodMoor, true);
 	Pather.clearToExit(sdk.areas.BloodMoor, sdk.areas.DenofEvil, true);
 	Attack.clearLevel();

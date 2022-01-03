@@ -9,14 +9,8 @@ function staff () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting staff');
 	me.overhead("staff");
 
-	if (!Pather.checkWP(sdk.areas.FarOasis)) {
-		Pather.getWP(sdk.areas.FarOasis);
-	} else {
-		Pather.useWaypoint(sdk.areas.FarOasis);
-	}
-
+	Pather.checkWP(sdk.areas.FarOasis, true) ? Pather.useWaypoint(sdk.areas.FarOasis) : Pather.getWP(sdk.areas.FarOasis);
 	Precast.doPrecast(true);
-
 	Pather.clearToExit(sdk.areas.FarOasis, sdk.areas.MaggotLairLvl1, true);
 	Pather.clearToExit(sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, true);
 	Pather.clearToExit(sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3, true);
@@ -29,6 +23,6 @@ function staff () {
 	Quest.collectItem(sdk.items.quest.ShaftoftheHoradricStaff, 356);
 	Quest.stashItem(sdk.items.quest.ShaftoftheHoradricStaff);
 
-	return true;
+	return me.getItem(sdk.items.quest.ShaftoftheHoradricStaff);
 }
 

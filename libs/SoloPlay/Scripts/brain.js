@@ -9,12 +9,7 @@ function brain () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting brain');
 	me.overhead("brain");
 
-	if (!Pather.checkWP(sdk.areas.FlayerJungle)) {
-		Pather.getWP(sdk.areas.FlayerJungle);
-	} else {
-		Pather.useWaypoint(sdk.areas.FlayerJungle);
-	}
-
+	Pather.checkWP(sdk.areas.FlayerJungle, true) ? Pather.useWaypoint(sdk.areas.FlayerJungle) : Pather.getWP(sdk.areas.FlayerJungle);
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.FlayerJungle, sdk.areas.FlayerDungeonLvl1, Pather.useTeleport());
 	Pather.clearToExit(sdk.areas.FlayerDungeonLvl1, sdk.areas.FlayerDungeonLvl2, Pather.useTeleport());

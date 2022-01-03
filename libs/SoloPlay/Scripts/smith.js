@@ -9,12 +9,7 @@ function smith () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting smith');
 	me.overhead("smith");
 
-	if (!Pather.checkWP(sdk.areas.OuterCloister)) {
-		Pather.getWP(sdk.areas.OuterCloister);
-	} else {
-		Pather.useWaypoint(sdk.areas.OuterCloister);
-	}
-
+	Pather.checkWP(sdk.areas.OuterCloister, true) ? Pather.useWaypoint(sdk.areas.OuterCloister) : Pather.getWP(sdk.areas.OuterCloister);
 	Precast.doPrecast(true);
 	Pather.moveToExit(sdk.areas.Barracks);
 

@@ -64,12 +64,7 @@ function ancients () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting ancients');
 	me.overhead("ancients");
 
-	if (!Pather.checkWP(sdk.areas.AncientsWay)) {
-		Pather.getWP(sdk.areas.AncientsWay);
-	} else {
-		Pather.useWaypoint(sdk.areas.AncientsWay);
-	}
-
+	Pather.checkWP(sdk.areas.AncientsWay) ? Pather.useWaypoint(sdk.areas.AncientsWay) : Pather.getWP(sdk.areas.AncientsWay);
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter Arreat Summit
 

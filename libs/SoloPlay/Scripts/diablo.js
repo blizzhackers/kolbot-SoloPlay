@@ -327,16 +327,12 @@ function diablo () {
 		}
 	};
 
+	// START
 	Town.townTasks();
 	print('ÿc8Kolbot-SoloPlayÿc0: starting diablo');
 	me.overhead("diablo");
 
-	if (!Pather.checkWP(sdk.areas.RiverofFlame)) {
-		Pather.getWP(sdk.areas.RiverofFlame);
-	} else {
-		Pather.useWaypoint(sdk.areas.RiverofFlame);
-	}
-
+	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, true);
 

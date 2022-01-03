@@ -9,7 +9,6 @@ function worldstone() {
 	me.overhead("worldstone");
 
 	Town.doChores();
-
 	Town.buyPots(8, "Antidote");
 	Town.drinkPots();
 	Town.buyPots(8, "Thawing");

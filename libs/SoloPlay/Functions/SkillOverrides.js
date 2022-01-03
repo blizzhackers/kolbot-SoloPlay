@@ -409,7 +409,7 @@ Skill.cast = function (skillId, hand, x, y, item) {
 };
 
 Skill.useTK = function (unit) {
-	if (!me.getSkill(sdk.skills.Telekinesis, 1) || typeof unit !== 'object' || unit.type !== sdk.unittype.Object || (unit.name === 'portal' && !me.inTown) || 
+	if (unit === undefined || !unit || !me.getSkill(sdk.skills.Telekinesis, 1) || typeof unit !== 'object' || unit.type !== sdk.unittype.Object || (unit.name === 'portal' && !me.inTown) || 
 		[sdk.units.RedPortalToChamber, sdk.units.RedPortal, sdk.units.RedPortalToAct5].includes(unit.classid)) {
 		return false;
 	}

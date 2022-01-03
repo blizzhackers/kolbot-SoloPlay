@@ -1,6 +1,6 @@
 /*
 *	@filename	amulet.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		get the amulet from viper temple
 */
 
@@ -9,17 +9,12 @@ function amulet () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting amulet');
 	me.overhead("amulet");
 
-	if (!Pather.checkWP(sdk.areas.LostCity)) {
-		Pather.getWP(sdk.areas.LostCity);
-	} else {
-		Pather.useWaypoint(sdk.areas.LostCity);
-	}
-
+	Pather.checkWP(sdk.areas.LostCity, true) ? Pather.useWaypoint(sdk.areas.LostCity) : Pather.getWP(sdk.areas.LostCity);
 	Precast.doPrecast(true);
 	Pather.moveToExit([sdk.areas.ValleyofSnakes, sdk.areas.ClawViperTempleLvl1, sdk.areas.ClawViperTempleLvl2], true);
 	Precast.doPrecast(true);
 
-	if (!me.sorceress || (me.sorceress && me.charlvl <= SetUp.respecOne)) {
+	if (!me.sorceress || (me.sorceress && !Pather.useTeleport())) {
 		Pather.moveTo(15065, 14047);
 		Pather.moveTo(15063, 14066);
 		Pather.moveTo(15051, 14066);

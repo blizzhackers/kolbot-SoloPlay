@@ -421,7 +421,7 @@ let Events = {
 
 			break;
 		case 0xa4: //baalwave
-			if ((me.hell && me.paladin && !Attack.IsAuradin) || me.barbarian || me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")) {
+			if ((me.hell && me.paladin && !Attack.isAuradin) || me.barbarian || me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")) {
 				waveMonster = ((bytes[1]) | (bytes[2] << 8));
 				wave = [62, 105, 557, 558, 571].indexOf(waveMonster);
 
@@ -429,7 +429,7 @@ let Events = {
 				case 0:
 					break;
 				case 1: 	// Achmel
-					if ((me.paladin && !Attack.IsAuradin && me.hell) || (me.barbarian && ((me.charlvl < SetUp.levelCap && !me.baal) || me.hardcore))) {
+					if ((me.paladin && !Attack.isAuradin && me.hell) || (me.barbarian && ((me.charlvl < SetUp.levelCap && !me.baal) || me.hardcore))) {
 						Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'skip');
 					}
 

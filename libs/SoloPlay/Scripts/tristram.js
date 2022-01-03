@@ -20,7 +20,7 @@ function tristram () {
 	if (!Misc.checkQuest(4, 4)) {
 		// missing scroll and key
 		if (!me.getItem(sdk.items.quest.ScrollofInifuss) && !me.getItem(sdk.items.quest.KeytotheCairnStones)) {
-			if (!Pather.checkWP(sdk.areas.BlackMarsh)) {
+			if (!Pather.checkWP(sdk.areas.BlackMarsh, true)) {
 				Pather.getWP(sdk.areas.BlackMarsh);
 				Pather.useWaypoint(sdk.areas.DarkWood);
 			} else {
@@ -47,12 +47,7 @@ function tristram () {
 		}
 	}
 
-	if (!Pather.checkWP(sdk.areas.StonyField)) {
-		Pather.getWP(sdk.areas.StonyField);
-	} else {
-		Pather.useWaypoint(sdk.areas.StonyField);
-	}
-
+	Pather.checkWP(sdk.areas.StonyField, true) ? Pather.useWaypoint(sdk.areas.StonyField) : Pather.getWP(sdk.areas.StonyField);
 	Precast.doPrecast(true);
 	Pather.moveToPreset(sdk.areas.StonyField, 1, 737, 10, 10, false, true);
 	Attack.killTarget(getLocaleString(2872)); // Rakanishu

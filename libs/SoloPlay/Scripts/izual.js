@@ -5,22 +5,16 @@
 */
 
 function izual () {
+	print('ÿc8Kolbot-SoloPlayÿc0: starting izual');
+	me.overhead("izual");
+
 	Town.townTasks();
-	
 	Town.buyPots(8, "Antidote");
 	Town.drinkPots();
 	Town.buyPots(8, "Thawing");
 	Town.drinkPots();
 
-	print('ÿc8Kolbot-SoloPlayÿc0: starting izual');
-	me.overhead("izual");
-
-	if (!Pather.checkWP(sdk.areas.CityoftheDamned)) {
-		Pather.getWP(sdk.areas.CityoftheDamned);
-	} else {
-		Pather.useWaypoint(sdk.areas.CityoftheDamned);
-	}
-
+	Pather.checkWP(sdk.areas.CityoftheDamned, true) ? Pather.useWaypoint(sdk.areas.CityoftheDamned) : Pather.getWP(sdk.areas.CityoftheDamned);
 	Precast.doPrecast(true);
 
 	if (!Misc.checkQuest(25, 1)) {

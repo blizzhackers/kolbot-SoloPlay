@@ -16,12 +16,7 @@ function templeruns () {
 	Town.townTasks();
 
 	for (let run = 0; run < temples.length; run++) {
-		if (!Pather.checkWP(temples[run][0])) {
-			Pather.getWP(temples[run][0]);
-		} else {
-			Pather.useWaypoint(temples[run][0]);
-		}
-
+		Pather.checkWP(temples[run][0], true) ? Pather.useWaypoint(temples[run][0]) : Pather.getWP(temples[run][0]);
 		Precast.doPrecast(true);
 
 		if (Pather.moveToExit(temples[run], true, true)) {

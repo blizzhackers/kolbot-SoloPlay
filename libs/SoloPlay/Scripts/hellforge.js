@@ -1,28 +1,19 @@
 /*
 *	@filename	hellforge.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		get the forge quest for rune drops for gear.
 */
 
 function hellforge () {
-	NTIP.addLine("[name] == hellforgehammer");
-	NTIP.addLine("[name] == mephisto'ssoulstone");
-
+	print('ÿc8Kolbot-SoloPlayÿc0: starting hellforge');
+	me.overhead("hellforge");
 	Town.townTasks();
 	Town.buyPots(8, "Antidote");
 	Town.drinkPots();
 	Town.buyPots(8, "Thawing");
 	Town.drinkPots();
 	
-	print('ÿc8Kolbot-SoloPlayÿc0: starting hellforge');
-	me.overhead("hellforge");
-
-	if (!Pather.checkWP(sdk.areas.RiverofFlame)) {
-		Pather.getWP(sdk.areas.RiverofFlame);
-	} else {
-		Pather.useWaypoint(sdk.areas.RiverofFlame);
-	}
-
+	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
 
 	if (!Pather.moveToPreset(me.area, 2, 376)) {

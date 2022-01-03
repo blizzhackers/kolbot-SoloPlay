@@ -6,7 +6,7 @@
 
 function summoner () {
 	let teleportPads = function () {
-		if (me.area !== sdk.areas.ArcaneSanctuary || (me.getSkill(54, 0) || me.getStat(97, 54))) {
+		if (me.area !== sdk.areas.ArcaneSanctuary || Pather.useTeleport()) {
 			return true;
 		}
 
@@ -68,16 +68,12 @@ function summoner () {
 		return true;
 	};
 
+	// START
 	Town.townTasks();
 	print('ÿc8Kolbot-SoloPlayÿc0: starting summoner');
 	me.overhead("summoner");
 
-	if (!Pather.checkWP(sdk.areas.ArcaneSanctuary)) {
-		Pather.getWP(sdk.areas.ArcaneSanctuary);
-	} else {
-		Pather.useWaypoint(sdk.areas.ArcaneSanctuary);
-	}
-
+	Pather.checkWP(sdk.areas.ArcaneSanctuary, true) ? Pather.useWaypoint(sdk.areas.ArcaneSanctuary) : Pather.getWP(sdk.areas.ArcaneSanctuary);
 	Precast.doPrecast(true);
 	teleportPads();
 

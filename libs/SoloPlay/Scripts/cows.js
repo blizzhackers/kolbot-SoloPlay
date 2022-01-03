@@ -165,11 +165,12 @@ function cows () {
 		return true;
 	};
 
-	if ((me.classic && !me.diablo) || (me.expansion && !me.baal)) {
+	if (!me.diffCompleted) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Final quest incomplete, cannot make cows yet');
 		return true;
 	}
 
+	// START
 	Town.townTasks();
 	print('ÿc8Kolbot-SoloPlayÿc0: starting cows');
 	me.overhead("cows");

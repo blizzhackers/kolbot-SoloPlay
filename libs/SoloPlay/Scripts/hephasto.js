@@ -5,21 +5,15 @@
 */
 
 function hephasto() {
+	print('ÿc8Kolbot-SoloPlayÿc0: starting hephasto');
+	me.overhead("starting hephasto");
 	Town.doChores();
 	Town.buyPots(10, "Thawing");
 	Town.drinkPots();
 	Town.buyPots(10, "Antidote");
 	Town.drinkPots();
 
-	print('ÿc8Kolbot-SoloPlayÿc0: starting hephasto');
-	me.overhead("starting hephasto");
-
-	if (!Pather.checkWP(sdk.areas.RiverofFlame)) {
-		Pather.getWP(sdk.areas.RiverofFlame);
-	} else {
-		Pather.useWaypoint(sdk.areas.RiverofFlame);
-	}
-
+	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
 
 	if (!Pather.moveToPreset(me.area, 2, 376)) {

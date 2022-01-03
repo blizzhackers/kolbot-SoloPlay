@@ -9,18 +9,12 @@ function river() {
 	me.overhead("river");
 
 	Town.doChores();
-
 	Town.buyPots(8, "Antidote");
 	Town.drinkPots();
 	Town.buyPots(8, "Thawing");
 	Town.drinkPots();
 
-	if (!Pather.checkWP(sdk.areas.CityoftheDamned)) {
-		Pather.getWP(sdk.areas.CityoftheDamned);
-	} else {
-		Pather.useWaypoint(sdk.areas.CityoftheDamned);
-	}
-
+	Pather.checkWP(sdk.areas.CityoftheDamned, true) ? Pather.useWaypoint(sdk.areas.CityoftheDamned) : Pather.getWP(sdk.areas.CityoftheDamned);
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.CityoftheDamned, sdk.areas.RiverofFlame, true);
 

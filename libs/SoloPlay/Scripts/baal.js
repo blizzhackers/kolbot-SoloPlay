@@ -241,16 +241,12 @@ function baal () {
 		return count > totalAmount;
 	};
 
+	// START
 	Town.townTasks();
 	print('ÿc8Kolbot-SoloPlayÿc0: starting baal');
 	me.overhead("baal");
 
-	if (!Pather.checkWP(sdk.areas.WorldstoneLvl2)) {
-		Pather.getWP(sdk.areas.WorldstoneLvl2, true);
-	} else {
-		Pather.useWaypoint(sdk.areas.WorldstoneLvl2);
-	}
-
+	Pather.checkWP(sdk.areas.WorldstoneLvl2, true) ? Pather.useWaypoint(sdk.areas.WorldstoneLvl2) : Pather.getWP(sdk.areas.WorldstoneLvl2, true);
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, true);
 	Pather.clearToExit(sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction, true);
@@ -259,14 +255,14 @@ function baal () {
 	Pather.moveTo(15113, 5040, 5);
 
 	// souls hurt
-	if (unSafeCheck(8, 20) && Check.Resistance().LR < 70 && me.nightmare) {
+	if (unSafeCheck(8, 20) && me.lightRes < 70 && me.nightmare) {
 		return true;
 	}
 
 	Attack.clear(15);
 	clearThrone();
 
-	if (Check.Resistance().CR < 75 || Check.Resistance().PR < 75) {
+	if (me.coldRes < 75 || me.poisonRes < 75) {
 		Town.doChores();
 		Town.buyPots(10, "Thawing");
 		Town.drinkPots();

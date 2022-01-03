@@ -10,12 +10,7 @@ function anya () {
 	me.overhead("anya");
 
 	if (!me.anya) {
-		if (!Pather.checkWP(sdk.areas.CrystalizedPassage)) {
-			Pather.getWP(sdk.areas.CrystalizedPassage);
-		} else {
-			Pather.useWaypoint(sdk.areas.CrystalizedPassage);
-		}
-
+		Pather.checkWP(sdk.areas.CrystalizedPassage, true) ? Pather.useWaypoint(sdk.areas.CrystalizedPassage) : Pather.getWP(sdk.areas.CrystalizedPassage);
 		Precast.doPrecast(true);
 		Pather.clearToExit(sdk.areas.CrystalizedPassage, sdk.areas.FrozenRiver, Pather.useTeleport());
 

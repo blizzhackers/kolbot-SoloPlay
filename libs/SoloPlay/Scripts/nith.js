@@ -10,12 +10,7 @@ function nith() {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting nith');
 	me.overhead("nith");
 
-	if (!Pather.checkWP(sdk.areas.HallsofPain)) {
-		Pather.getWP(sdk.areas.HallsofPain);
-	} else {
-		Pather.useWaypoint(sdk.areas.HallsofPain);
-	}
-
+	Pather.checkWP(sdk.areas.HallsofPain, true) ? Pather.useWaypoint(sdk.areas.HallsofPain) : Pather.getWP(sdk.areas.HallsofPain);
 	Precast.doPrecast(false);
 
 	if (!Pather.moveToExit(sdk.areas.HallsofVaught, true)) {
@@ -27,7 +22,7 @@ function nith() {
 	Pather.moveToPreset(me.area, 2, 462);
 
 	// Stop script in hardcore mode if vipers are found
-	if (me.playertype && getUnit(1, 597)) {
+	if (me.hardcore && getUnit(1, 597)) {
 		print("Tomb Vipers found.");
 
 		return true;

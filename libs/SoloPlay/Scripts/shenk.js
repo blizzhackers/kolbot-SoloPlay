@@ -9,12 +9,7 @@ function shenk () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting shenk');
 	me.overhead("shenk");
 
-	if (!Pather.checkWP(sdk.areas.FrigidHighlands)) {
-		Pather.getWP(sdk.areas.FrigidHighlands);
-	} else {
-		Pather.useWaypoint(sdk.areas.FrigidHighlands);
-	}
-
+	Pather.checkWP(sdk.areas.FrigidHighlands, true) ? Pather.useWaypoint(sdk.areas.FrigidHighlands) : Pather.getWP(sdk.areas.FrigidHighlands);
 	Precast.doPrecast(true);
 	let Eldritch = getUnit(1, getLocaleString(22500));
 

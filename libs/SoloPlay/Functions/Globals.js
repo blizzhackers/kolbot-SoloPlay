@@ -18,7 +18,7 @@ let impossibleNonLadderBuilds = ["Auradin"];
 // general settings
 const SetUp = {
 	scripts: [
-		"corpsefire", "den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "andariel", "a1chests", "cows", // Act 1
+		"corpsefire", "den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "boneash", "andariel", "a1chests", "cows", // Act 1
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel", // Act 2
 		"lamessen", "templeruns", "lowerkurast", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
 		"izual", "hellforge", "river", "hephasto", "diablo", // Act 4
@@ -332,7 +332,7 @@ const Check = {
 
 			break;
 		case "treehead":
-			if (me.hell && (me.paladin && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma") || !Pather.accessToAct(3)))) {
+			if (me.hell && (me.paladin && (!Attack.isAuradin || !Check.haveItem("armor", "runeword", "Enigma") || !Pather.accessToAct(3)))) {
 				return true;
 			}
 
@@ -346,9 +346,9 @@ const Check = {
 		case "tristram":
 			if ((me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf())) ||
 				(!me.normal &&
-					((!me.tristram && (me.classic && me.diablo || me.baal)) ||
+					((!me.tristram && me.diffCompleted) ||
 					(me.barbarian && !Pather.accessToAct(3) && !Check.haveItem("sword", "runeword", "Lawbringer")) ||
-					(me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
+					(me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.isAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
 				return true;
 			}
 
@@ -378,6 +378,12 @@ const Check = {
 			}
 
 			break;
+		case "boneash":
+			if (me.hell && me.classic && !me.diablo) {
+				return true;
+			}
+
+			break;
 		case "andariel":
 			if (!me.andariel ||
 				(me.classic && me.hell) ||
@@ -403,7 +409,7 @@ const Check = {
 
 			break;
 		case "radament":
-			if (Pather.accessToAct(2) && (!me.radament || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild && me.hell))) {
+			if (Pather.accessToAct(2) && (!me.radament || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild && me.hell) || (me.hell && me.sorceress && me.classic && !me.diablo))) {
 				return true;
 			}
 
@@ -421,7 +427,7 @@ const Check = {
 
 			break;
 		case "ancienttunnels":
-			// No pally in hell due to magic immunes unless is auradin, No zon in hell unless at final build becasue light/poison immunes
+			// No pally in hell due to magic immunes unless is melee build, No zon in hell unless at final build because light/poison immunes
 			if (Pather.accessToAct(2) && me.hell && (!me.paladin || (me.paladin && !Check.currentBuild().caster)) && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))) {
 				return true;
 			}
@@ -452,13 +458,13 @@ const Check = {
 
 			break;
 		case "templeruns":
-			if (Pather.accessToAct(3) && ((!me.lamessen || me.nightmare && me.charlvl < 50 || me.hell) && (!me.paladin || Attack.IsAuradin))) {
+			if (Pather.accessToAct(3) && ((!me.lamessen || me.nightmare && me.charlvl < 50 || me.hell && !me.classic) && (!me.paladin || (me.paladin && !Check.currentBuild().caster)))) {
 				return true;
 			}
 
 			break;
 		case "lamessen":
-			if (Pather.accessToAct(3) && !me.lamessen && me.paladin) {
+			if (Pather.accessToAct(3) && !me.lamessen && ((me.paladin && !Check.currentBuild().caster) || me.classic)) {
 				return true;
 			}
 
@@ -487,7 +493,7 @@ const Check = {
 						(me.charlvl < 25 ||
 						(me.charlvl >= 25 && me.normal && !me.baal && !Check.Gold()) ||
 						(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) ||
-						(me.hell && me.paladin && me.charlvl > 85 && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
+						(me.hell && me.paladin && me.charlvl > 85 && (!Attack.isAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
 				return true;
 			}
 
@@ -509,7 +515,7 @@ const Check = {
 
 			break;
 		case "river":
-			if (Pather.accessToAct(4) && !me.diablo && !me.normal && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) {
+			if (Pather.accessToAct(4) && !me.diablo && !me.normal && (me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) || (me.sorceress && me.classic)) {
 				return true;
 			}
 

@@ -1,6 +1,6 @@
 /*
 *	@filename	savebarby.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		rescue barbies for runes for ancient pledge
 */
 
@@ -12,18 +12,11 @@ function savebarby () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting barbies');
 	me.overhead("barbies");
 
-	if (!Pather.checkWP(sdk.areas.FrigidHighlands)) {
-		Pather.getWP(sdk.areas.FrigidHighlands);
-	} else {
-		Pather.useWaypoint(sdk.areas.FrigidHighlands);
-	}
-
+	Pather.checkWP(sdk.areas.FrigidHighlands, true) ? Pather.useWaypoint(sdk.areas.FrigidHighlands) : Pather.getWP(sdk.areas.FrigidHighlands);
 	Precast.doPrecast(true);
-	barbies = getPresetUnits (me.area, 2, 473);
+	barbies = getPresetUnits(me.area, 2, 473);
 
-	if (!barbies) {
-		return false;
-	}
+	if (!barbies) { return false; }
 
 	for ( let cage = 0 ; cage < barbies.length ; cage += 1) {
 		coords.push({

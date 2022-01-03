@@ -1,6 +1,6 @@
 /*
 *	@filename	lamessen.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		get the lam essen's tome
 */
 
@@ -9,12 +9,7 @@ function lamessen () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting lamessen');
 	me.overhead("lamessen");
 
-	if (!Pather.checkWP(sdk.areas.KurastBazaar)) {
-		Pather.getWP(sdk.areas.KurastBazaar);
-	} else {
-		Pather.useWaypoint(sdk.areas.KurastBazaar);
-	}
-
+	Pather.checkWP(sdk.areas.KurastBazaar, true) ? Pather.useWaypoint(sdk.areas.KurastBazaar) : Pather.getWP(sdk.areas.KurastBazaar);
 	Precast.doPrecast(true);
 
 	if (!Pather.moveToExit(sdk.areas.RuinedTemple, true) || !Pather.moveToPreset(me.area, 2, 193)) {

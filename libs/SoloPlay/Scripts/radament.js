@@ -9,7 +9,7 @@ function radament () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting radament');
 	me.overhead("radament");
 
-	if (!Pather.checkWP(sdk.areas.A2SewersLvl2)) {
+	if (!Pather.checkWP(sdk.areas.A2SewersLvl2, true)) {
 		Town.goToTown(2);
 		Pather.moveToExit(sdk.areas.A2SewersLvl1, true);
 		Pather.getWP(sdk.areas.A2SewersLvl2);

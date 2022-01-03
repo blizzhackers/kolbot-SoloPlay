@@ -1,6 +1,6 @@
 /*
 *	@filename	eye.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		get the eye for khalims will
 */
 
@@ -9,12 +9,7 @@ function eye () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting eye');
 	me.overhead("eye");
 
-	if (!Pather.checkWP(sdk.areas.SpiderForest)) {
-		Pather.getWP(sdk.areas.SpiderForest);
-	} else {
-		Pather.useWaypoint(sdk.areas.SpiderForest);
-	}
-
+	Pather.checkWP(sdk.areas.SpiderForest, true) ? Pather.useWaypoint(sdk.areas.SpiderForest) : Pather.getWP(sdk.areas.SpiderForest);
 	Precast.doPrecast(true);
 
 	if (!Pather.moveToExit([sdk.areas.SpiderForest, sdk.areas.SpiderCavern], true)) {
@@ -30,5 +25,5 @@ function eye () {
 	Quest.collectItem(sdk.items.quest.KhalimsEye, 407);
 	Quest.stashItem(sdk.items.quest.KhalimsEye);
 
-	return true;
+	return me.getItem(sdk.items.quest.KhalimsEye);
 }

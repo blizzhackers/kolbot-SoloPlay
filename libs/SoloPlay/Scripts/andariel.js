@@ -11,24 +11,18 @@ function andariel () {
 
 	if (me.normal && Misc.checkQuest(6, 1)) {
 		Pather.changeAct();
-
 		return true;
 	}
 
 	let questBug = (!me.normal && !me.andariel);
 
-	if (!Pather.checkWP(sdk.areas.CatacombsLvl2)) {
-		Pather.getWP(sdk.areas.CatacombsLvl2);
-	} else {
-		Pather.useWaypoint(sdk.areas.CatacombsLvl2);
-	}
-
+	Pather.checkWP(sdk.areas.CatacombsLvl2, true) ? Pather.useWaypoint(sdk.areas.CatacombsLvl2) : Pather.getWP(sdk.areas.CatacombsLvl2);
 	Precast.doPrecast(true);
 	Pather.moveToExit([sdk.areas.CatacombsLvl3, sdk.areas.CatacombsLvl4], true);
 
-	if (Check.Resistance().PR < 75 + me.getStat(46)) {
+	if (me.poisonRes < 70) {
 		Town.doChores();
-		Town.buyPots(10, "Antidote"); // antidote
+		Town.buyPots(10, "Antidote");
 		Town.drinkPots();
 		Pather.usePortal(sdk.areas.CatacombsLvl4, me.name);
 	}
@@ -39,10 +33,7 @@ function andariel () {
 	
 	if (questBug) {
 		Config.PickRange = -1;
-
-		if (me.barbarian) {
-			Config.FindItem = false;
-		}
+		me.barbarian && (Config.FindItem = false);
 	} else {
 		Config.PickRange = 5;	// Only pick what is directly around me
 	}

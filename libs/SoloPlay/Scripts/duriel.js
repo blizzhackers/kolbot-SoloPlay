@@ -1,6 +1,6 @@
 /*
 *	@filename	duriel.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		duriel quest
 */
 
@@ -11,12 +11,7 @@ function duriel () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting duriel');
 	me.overhead("duriel");
 
-	if (!Pather.checkWP(46)) {
-		Pather.getWP(46);
-	} else {
-		Pather.useWaypoint(46);
-	}
-
+	Pather.checkWP(sdk.areas.CanyonofMagic, true) ? Pather.useWaypoint(sdk.areas.CanyonofMagic) : Pather.getWP(sdk.areas.CanyonofMagic);
 	Precast.doPrecast(true);
 	Pather.moveToExit(getRoom().correcttomb, true);
 	Pather.moveToPreset(me.area, 2, 152);

@@ -10,7 +10,7 @@ const GameData = require('../../Modules/GameData');
 let frostNovaCheck = function () {
 	return getUnits(1).some(function(el) {
     	if (el === undefined) { return false; }
-    	return el.attackable && el.distance < 7 && !el.isChilled && Attack.checkResist(el, 'cold');
+    	return el.attackable && el.distance < 7 && !el.isChilled && Attack.checkResist(el, 'cold') && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
     });
 };
 
@@ -168,16 +168,16 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 	case data.static.have && data.static.dmg > Math.max(data.mainTimed.dmg, data.secondaryTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg) && unit.getMobCount(15, Coords_1.Collision.BLOCK_MISSILE) < 5:
 		timedSkill = data.static;
 		break;
-	case data.mainTimed.have && me.mp > data.mainTimed.mana && (!data.mainTimed.timed || !me.skillDelay) && data.mainTimed.dmg > Math.max(data.secondaryTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg) && Attack.castableSpot(unit.x, unit.y):
+	case data.mainTimed.have && me.mp > data.mainTimed.mana && (!data.mainTimed.timed || !me.skillDelay) && data.mainTimed.dmg > Math.max(data.secondaryTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg):
 		timedSkill = data.mainTimed;
 		break;
-	case data.secondaryTimed.have && me.mp > data.secondaryTimed.mana && (!data.secondaryTimed.timed || !me.skillDelay) && data.secondaryTimed.dmg > Math.max(data.mainTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg) && Attack.castableSpot(unit.x, unit.y):
+	case data.secondaryTimed.have && me.mp > data.secondaryTimed.mana && (!data.secondaryTimed.timed || !me.skillDelay) && data.secondaryTimed.dmg > Math.max(data.mainTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg):
 		timedSkill = data.secondaryTimed;
 		break;
-	case data.mainUntimed.have && me.mp > data.mainUntimed.mana && data.mainUntimed.dmg > Math.max(data.secondaryUntimed.dmg, data.glacialSpike.dmg) && Attack.castableSpot(unit.x, unit.y):
+	case data.mainUntimed.have && me.mp > data.mainUntimed.mana && data.mainUntimed.dmg > Math.max(data.secondaryUntimed.dmg, data.glacialSpike.dmg):
 		timedSkill = data.mainUntimed;
 		break;
-	case data.secondaryUntimed.have && me.mp > data.secondaryUntimed.mana && data.secondaryUntimed.dmg > Math.max(data.mainUntimed.dmg, data.glacialSpike.dmg) && Attack.castableSpot(unit.x, unit.y):
+	case data.secondaryUntimed.have && me.mp > data.secondaryUntimed.mana && data.secondaryUntimed.dmg > Math.max(data.mainUntimed.dmg, data.glacialSpike.dmg):
 		timedSkill = data.secondaryUntimed;
 		break;
 	}
@@ -321,11 +321,11 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			return 0;
 		}
 
-		if (unit.distance > tsRange || checkCollision(me, unit, 0x4)) {
+		if (unit.distance > tsRange || checkCollision(me, unit, Coords_1.BlockBits.Ranged | Coords_1.Collision.BLOCK_MISSILE)) {
 			// Allow short-distance walking for melee skills
-			walk = (tsRange < 4 || (ts === sdk.skills.ChargedBolt && tsRange === 5)) && unit.distance < 10 && !checkCollision(me, unit, 0x1);
+			walk = (tsRange < 4 || (ts === sdk.skills.ChargedBolt && tsRange === 5)) && unit.distance < 10 && !checkCollision(me, unit, Coords_1.BlockBits.BlockWall);
 
-			if (!Attack.getIntoPosition(unit, tsRange, 0x4, walk)) {
+			if (!Attack.getIntoPosition(unit, tsRange, Coords_1.BlockBits.Ranged, walk)) {
 				return 0;
 			}
 		}
@@ -341,7 +341,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			}
 		}
 
-		if (!unit.dead && !checkCollision(me, unit, 0x4)) {
+		if (!unit.dead && !checkCollision(me, unit, Coords_1.BlockBits.Ranged)) {
 			if (ts === sdk.skills.ChargedBolt) {
 				// Randomized x coord changes bolt path and prevents constant missing
 				if (!unit.dead) {

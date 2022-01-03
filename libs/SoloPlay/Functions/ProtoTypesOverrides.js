@@ -136,7 +136,7 @@ Object.defineProperties(Unit.prototype, {
 	isEquippedCharm: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) { return false; }
-			return (this.location === sdk.storage.Inventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(this.itemType) > -1);
+			return (this.location === sdk.storage.Inventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(this.itemType));
 		}
 	},
 	isInInventory: {
@@ -343,6 +343,11 @@ Object.defineProperties(me, {
 				me.getQuest(sdk.quests.AbleToGotoActV, 0)];
 			let index = acts.findIndex(function (i) { return !i; }); // find first false, returns between 1 and 5
 			return index === -1 ? 5 : index;
+		}
+	},
+	staminaPercent: {
+		get: function () {
+			return Math.round((me.stamina / me.staminamax) * 100);
 		}
 	},
 	staminaDrainPerSec: {

@@ -8,7 +8,7 @@ function bloodraven () {
 	Town.townTasks();
 	print('ÿc8Kolbot-SoloPlayÿc0: starting blood raven');
 
-	if (!Pather.checkWP(sdk.areas.StonyField)) {
+	if (!Pather.checkWP(sdk.areas.StonyField, true)) {
 		Pather.getWP(sdk.areas.StonyField);
 		
 		if (me.normal) {
@@ -32,7 +32,7 @@ function bloodraven () {
 		}
 
 		return true;
-	} else if (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma") || !Pather.accessToAct(3)) {
+	} else if (!Attack.isAuradin || !Check.haveItem("armor", "runeword", "Enigma") || !Pather.accessToAct(3)) {
 		me.overhead("blood raven");
 		Pather.moveToExit([sdk.areas.ColdPlains, sdk.areas.BurialGrounds], true);
 		if (me.sorceress) {
@@ -44,7 +44,7 @@ function bloodraven () {
 		Attack.killTarget("Blood Raven");
 		Pickit.pickItems();
 
-		if (me.paladin && (!Attack.IsAuradin || !Check.haveItem("armor", "runeword", "Enigma"))) {
+		if (me.paladin && (!Attack.isAuradin || !Check.haveItem("armor", "runeword", "Enigma"))) {
 			return true;
 		}
 	}
