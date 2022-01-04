@@ -1028,11 +1028,7 @@ Town.unfinishedQuests = function () {
 	// Act 2
 	// Radament skill book
 	if (book) {
-		if (book.isInStash) {
-			this.openStash();
-			delay(300 + me.ping);
-		}
-
+		book.isInStash && this.openStash() && delay(300 + me.ping);
 		book.interact();
 		print('ÿc8Kolbot-SoloPlayÿc0: used Radament skill book');
 	}
@@ -2753,10 +2749,11 @@ Town.clearJunk = function () {
 
 Town.npcInteract = function (name) {
 	let npc;
+	
 	!name.includes("_") && (name = name[0].toUpperCase() + name.substring(1).toLowerCase());
 	name.includes("_") && (name = "Qual_Kehk");
 
-	!me.inTown && (Town.goToTown());
+	!me.inTown && Town.goToTown();
 	Town.move(NPC[name])
 	npc = getUnit(1, NPC[name]);
 

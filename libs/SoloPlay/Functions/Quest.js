@@ -367,7 +367,7 @@ const Quest = {
 			return true;
 		}
 
-		if (me.charlvl === SetUp.respecOne || (SetUp.respecOneB > 0 && me.charlvl === SetUp.respecOneB) || me.charlvl === SetUp.respecTwo()) {
+		if (me.charlvl === Config.respecOne || (Config.respecOneB > 0 && me.charlvl === Config.respecOneB) || me.charlvl === SetUp.respecTwo()) {
 			if (!me.den) {
 				print("ÿc8Kolbot-SoloPlayÿc0: time to respec, but den is incomplete");
 				me.overhead('time to respec, but den is incomplete');

@@ -1,6 +1,7 @@
 /*
 *	@filename	Sorceress.SoloPlay.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
+*	@credit		isid0re
 *	@desc		Config Settings for SoloPlay Sorceress
 *
 *	FinalBuild choices
@@ -25,6 +26,19 @@ function LoadConfig () {
 	/* Script */
 	Scripts.UserAddon = false;
 	Scripts.SoloPlay = true;
+
+	/* Level Specifc Settings */
+	Config.respecOne = me.expansion ? 26 : 30;
+	Config.respecOneB = me.expansion ? 65 : 60;
+	Config.levelCap = (function() {
+		let tmpCap;
+		if (me.softcore) {
+			tmpCap = me.expansion ? [33, 67, 100] : [33, 65, 100];
+		} else {
+			tmpCap = me.expansion ? [33, 67, 100] : [33, 67, 100];
+		}
+		return tmpCap[me.diff];
+	})();
 
 	/* General configuration. */
 	Config.MinGameTime = 400;
@@ -235,12 +249,12 @@ function LoadConfig () {
 
 	/* Class specific configuration. */
 	Config.UseTelekinesis = !!me.getSkill(sdk.skills.Telekinesis, 0); // use telekinesis if have skill
-	Config.Dodge = me.charlvl >= SetUp.respecOne ? true : false; // Move away from monsters that get too close. Don't use with short-ranged attacks like Poison Dagger.
+	Config.Dodge = !!(me.charlvl >= Config.respecOne); // Move away from monsters that get too close. Don't use with short-ranged attacks like Poison Dagger.
 	Config.DodgeRange = 15; // Distance to keep from monsters.
 	Config.DodgeHP = me.hardcore ? 90 : 75; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
 	Config.TeleStomp = false; // Use merc to attack bosses if they're immune to attacks, but not to physical damage
 	Config.CastStatic = me.classic ? 15 : [25, 33, 50][me.diff];
-	Config.StaticList = me.normal ? ["Andariel", "Duriel", "Mephisto", "Izual", "Diablo", "Talic", "Madawc", "Korlic", "Baal"] : ["Duriel", "Mephisto", "Izual", "Diablo", "Baal"];
+	Config.StaticList = [];
 
 
 	/* Gear */

@@ -1,7 +1,7 @@
 /*
 *	@filename	bloodraven.js
-*	@author		isid0re
-*	@desc		kill bloodraven for free merc normal a1 and maus MF hunting for endgame
+*	@author		theBGuy
+*	@desc		kill bloodraven for free merc normal and maus/crypt MF hunting for endgame
 */
 
 function bloodraven () {
@@ -10,58 +10,58 @@ function bloodraven () {
 
 	if (!Pather.checkWP(sdk.areas.StonyField, true)) {
 		Pather.getWP(sdk.areas.StonyField);
-		
-		if (me.normal) {
-			Attack.clearLevelUntilLevel(6);
-		}
+		me.charlvl < 6 && Attack.clearLevelUntilLevel(6);
+
 	} else {
 		Pather.useWaypoint(sdk.areas.ColdPlains);
 	}
 
 	Precast.doPrecast(true);
 
-	if (me.normal) {
-		me.overhead("blood raven");
-		Pather.moveToExit([sdk.areas.ColdPlains, sdk.areas.BurialGrounds], true);
-		Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805);
-		Attack.killTarget("Blood Raven");
-		Pickit.pickItems();
-		
-		if (!me.bloodraven) {
-			Town.npcInteract("kashya");
-		}
+	me.overhead("blood raven");
+	Pather.moveToExit([sdk.areas.ColdPlains, sdk.areas.BurialGrounds], true);
+	me.sorceress && !me.normal ? Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805, 10) : Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805);
+	Attack.killTarget("Blood Raven");
+	Pickit.pickItems();
 
+	if (me.normal && !me.bloodraven && Town.canTpToTown()) {
+		Town.npcInteract("kashya");
 		return true;
-	} else if (!Attack.isAuradin || !Check.haveItem("armor", "runeword", "Enigma") || !Pather.accessToAct(3)) {
-		me.overhead("blood raven");
-		Pather.moveToExit([sdk.areas.ColdPlains, sdk.areas.BurialGrounds], true);
-		if (me.sorceress) {
-			Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805, 10);
-		} else {
-			Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805);
-		}
-
-		Attack.killTarget("Blood Raven");
-		Pickit.pickItems();
-
-		if (me.paladin && (!Attack.isAuradin || !Check.haveItem("armor", "runeword", "Enigma"))) {
-			return true;
-		}
+	} else if (me.paladin && Check.currentBuild().caster && !Pather.canTeleport()) {
+		return true;
 	}
 
+	print('ÿc8Kolbot-SoloPlayÿc0: blood raven :: starting mausoleum');
 	me.overhead("mausoleum");
 
 	if (!Pather.moveToExit([sdk.areas.BurialGrounds, sdk.areas.Mausoleum], true)) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Mausoleum");
 	}
 
-	Attack.clearLevel();
+	me.area === sdk.areas.Mausoleum && Attack.clearLevel();
 
-	if (me.hell && me.charlvl >= 80 && me.charlvl <= 85 && ((me.sorceress || me.druid || me.assassin) && Item.getEquippedItem(4).tier < 100000)) {
-		me.overhead("crypt");
-		Pather.journeyTo(sdk.areas.Crypt);
-		Attack.clearLevel();
+	if (me.hell) {
+		switch (me.gametype) {
+		case sdk.game.gametype.Classic:
+			if (Pather.accessToAct(3)) {
+				return true;
+			}
+
+			break;
+		case sdk.game.gametype.Expansion:
+			if ((me.charlvl < 80 || me.charlvl > 85) && !((me.sorceress || me.druid || me.assassin) && Item.getEquippedItem(4).tier < 100000)) {
+				return true;
+			}
+
+			break;
+		}
+	} else {
+		return true;
 	}
 
+	me.overhead("crypt");
+	print('ÿc8Kolbot-SoloPlayÿc0: blood raven :: starting crypt');
+	Pather.journeyTo(sdk.areas.Crypt) && Attack.clearLevel();
+	
 	return true;
 }

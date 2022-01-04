@@ -104,22 +104,22 @@ Object.defineProperties(Unit.prototype, {
 	},
 	fireRes: {
 		get: function () {
-			return Math.min(75, this.getStat(sdk.stats.FireResist) - me.resPenalty);
+			return Math.min(75 + this.getStat(sdk.stats.MaxFireResist), this.getStat(sdk.stats.FireResist) - me.resPenalty);
 		}
 	},
 	coldRes: {
 		get: function () {
-			return Math.min(75, this.getStat(sdk.stats.ColdResist) - me.resPenalty);
+			return Math.min(75 + this.getStat(sdk.stats.MaxColdResist), this.getStat(sdk.stats.ColdResist) - me.resPenalty);
 		}
 	},
 	lightRes: {
 		get: function () {
-			return Math.min(75, this.getStat(sdk.stats.LightResist) - me.resPenalty);
+			return Math.min(75 + this.getStat(sdk.stats.MaxLightResist), this.getStat(sdk.stats.LightResist) - me.resPenalty);
 		}
 	},
 	poisonRes: {
 		get: function () {
-			return Math.min(75, this.getStat(sdk.stats.PoisonResist) - me.resPenalty);
+			return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), this.getStat(sdk.stats.PoisonResist) - me.resPenalty);
 		}
 	},
 	hpPercent: {

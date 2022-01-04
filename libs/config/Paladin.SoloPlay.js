@@ -1,6 +1,7 @@
 /*
 *	@filename	Paladin.SoloPlay.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
+*	@credit		isid0re
 *	@desc		Config Settings for SoloPlay Paladin
 *
 *	FinalBuild choices
@@ -24,6 +25,19 @@ function LoadConfig () {
 	/* Script */
 	Scripts.UserAddon = false;
 	Scripts.SoloPlay = true;
+
+	/* Level Specifc Settings */
+	Config.respecOne = 19;
+	Config.respecOneB = 0;
+	Config.levelCap = (function() {
+		let tmpCap;
+		if (me.softcore) {
+			tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
+		} else {
+			tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
+		}
+		return tmpCap[me.diff];
+	})();
 
 	/* General configuration. */
 	Config.MinGameTime = 400;

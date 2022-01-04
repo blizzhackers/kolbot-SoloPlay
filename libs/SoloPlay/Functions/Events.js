@@ -429,7 +429,7 @@ let Events = {
 				case 0:
 					break;
 				case 1: 	// Achmel
-					if ((me.paladin && !Attack.isAuradin && me.hell) || (me.barbarian && ((me.charlvl < SetUp.levelCap && !me.baal) || me.hardcore))) {
+					if ((me.paladin && !Attack.isAuradin && me.hell) || (me.barbarian && ((me.charlvl < Config.levelCap && !me.baal) || me.hardcore))) {
 						Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'skip');
 					}
 
@@ -438,7 +438,7 @@ let Events = {
 				case 3:
 					break;
 				case 4: 	// Lister
-					if ((me.barbarian && (me.charlvl < SetUp.levelCap || !me.baal || me.hardcore)) || (me.charlvl < SetUp.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
+					if ((me.barbarian && (me.charlvl < Config.levelCap || !me.baal || me.hardcore)) || (me.charlvl < Config.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
 						Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'skip');
 					}
 

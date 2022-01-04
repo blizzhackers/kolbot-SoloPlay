@@ -5,6 +5,17 @@
 */
 
 function mephisto () {
+	this.killCouncil = function () {
+		let coords = [17600, 8125, 17600, 8015, 17643, 8068];
+
+		for (let i = 0; i < coords.length; i += 2) {
+			Pather.moveTo(coords[i], coords[i + 1]);
+			Attack.clearList(Attack.getMob([345, 346, 347], 0, 40));
+		}
+
+		return true;
+	};
+
 	Town.townTasks();
 	print('ÿc8Kolbot-SoloPlayÿc0: starting mephisto');
 	me.overhead("mephisto");
@@ -28,6 +39,10 @@ function mephisto () {
 	// Re-enter portal
 	Pather.usePortal(sdk.areas.DuranceofHateLvl3, me.name);
 	Precast.doPrecast(true);
+
+	if (me.mephisto && !me.hell) {
+		this.killCouncil();
+	}
 
 	let oldPickRange = Config.PickRange;
 	let oldUseMerc = Config.MercWatch;

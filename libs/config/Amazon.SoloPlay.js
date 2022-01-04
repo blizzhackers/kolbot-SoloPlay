@@ -24,6 +24,19 @@ function LoadConfig () {
 	Scripts.UserAddon = false;
 	Scripts.SoloPlay = true;
 
+	/* Level Specifc Settings */
+	Config.respecOne = 30;
+	Config.respecOneB = 64;
+	Config.levelCap = (function() {
+		let tmpCap;
+		if (me.softcore) {
+			tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
+		} else {
+			tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
+		}
+		return tmpCap[me.diff];
+	})();
+
 	/* General configuration. */
 	Config.MinGameTime = 400;
 	Config.MaxGameTime = 7200;

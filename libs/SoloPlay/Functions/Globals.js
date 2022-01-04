@@ -1,11 +1,13 @@
 /*
 *	@filename	Globals.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
+*	@credits	isid0re
 *	@desc		Global variables Settings, general functions for Kolbot-SoloPlay functionality
 */
 
 if (!isIncluded("OOG.js")) { include("OOG.js"); }
 if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
+if (!isIncluded("SoloPlay/Functions/PrototypesOverrides.js")) { include("SoloPlay/Functions/PrototypesOverrides.js"); }
 
 let sdk = require('../modules/sdk');
 let Difficulty = ['Normal', 'Nightmare', 'Hell'];
@@ -65,82 +67,9 @@ const SetUp = {
 	// Global value to set bot to walk while doing a task, since while physically attacking running decreases block chance
 	walkToggle: false,
 
-	levelCap: undefined,	// see setLevelCap for this is set to
 	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
-	// TODO: maybe move repsec values to the base config?
-	//	Amazon/Sorceress/Necromancer/Paladin/Barbarian/Druid/Assassin					
-	respecOne: [ 30, 26, 26, 19, 30, 24, 32][me.classid],
-	respecOneB: [ 64, 65, 0, 0, 74, 0, 0][me.classid],
-
-	// set levelCap arr based on the different combinations for each class, softcore classic, softcore expansion, hardcore classic, hardcore expansion
-	// returns levelCap value for current difficulty
-	// TODO: adjust all these values accordingly
-	setLevelCap: function () {
-		let tmpCap;
-
-		switch (me.classid) {
-		case sdk.charclass.Amazon:
-			if (me.softcore) {
-				tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
-			} else {
-				tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
-			}
-
-			break;
-		case sdk.charclass.Sorceress:
-			if (me.softcore) {
-				tmpCap = me.expansion ? [33, 67, 100] : [33, 67, 100];
-			} else {
-				tmpCap = me.expansion ? [33, 67, 100] : [33, 67, 100];
-			}
-
-			break;
-		case sdk.charclass.Necromancer:
-			if (me.softcore) {
-				tmpCap = me.expansion ? [33, 70, 100] : [33, 70, 100];
-			} else {
-				tmpCap = me.expansion ? [33, 70, 100] : [33, 70, 100];
-			}
-
-			break;
-		case sdk.charclass.Paladin:
-			if (me.softcore) {
-				tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
-			} else {
-				tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
-			}
-
-			break;
-		case sdk.charclass.Barbarian:
-			if (me.softcore) {
-				tmpCap = me.expansion ? [33, 75, 100] : [33, 75, 100];
-			} else {
-				tmpCap = me.expansion ? [33, 75, 100] : [33, 75, 100];
-			}
-
-			break;
-		case sdk.charclass.Druid:
-			if (me.softcore) {
-				tmpCap = me.expansion ? [33, 73, 100] : [33, 73, 100];
-			} else {
-				tmpCap = me.expansion ? [33, 73, 100] : [33, 73, 100];
-			}
-
-			break;
-		case sdk.charclass.Assassin:
-			if (me.softcore) {
-				tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
-			} else {
-				tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
-			}
-
-			break;
-		}
-
-		return tmpCap[me.diff];
-	},
 
 	// pulls respec requirments from final build file
 	respecTwo: function () {
@@ -159,11 +88,11 @@ const SetUp = {
 	getBuild: function () {
 		let buildType;
 
-		if (me.charlvl < SetUp.respecOne) {
+		if (me.charlvl < Config.respecOne) {
 			buildType = "Start";
 		} else if (me.charlvl >= SetUp.respecTwo()) {
 			buildType = SetUp.finalBuild;
-		} else if (SetUp.respecOneB > 0 && me.charlvl >= SetUp.respecOne && me.charlvl < SetUp.respecOneB) {
+		} else if (Config.respecOneB > 0 && me.charlvl >= Config.respecOne && me.charlvl < Config.respecOneB) {
 			buildType = "Stepping";
 		} else {
 			buildType = "Leveling";
@@ -235,8 +164,6 @@ const SetUp = {
 		D2Bot.restart();
 	},
 };
-// initialize
-SetUp.levelCap = SetUp.setLevelCap();
 
 // SoloPlay Pickit Items
 // TODO: check if is this even needed?
@@ -364,10 +291,9 @@ const Check = {
 		case "pits":
 			if (me.hell &&
 				((me.necromancer || me.barbarian || me.assassin) ||
-					(me.paladin && ["Zealer", "Auradin"].indexOf(SetUp.currentBuild) > -1) ||
+					(me.paladin || me.druid && !Check.currentBuild().caster) ||
 					(me.amazon && (SetUp.currentBuild === SetUp.finalBuild || me.charlvl >= 85)) ||
-					(me.sorceress && me.charlvl >= 80) ||
-					(me.druid && ["Plaguewolf", "Wolf"].indexOf(SetUp.currentBuild) > -1))) {
+					(me.sorceress && me.charlvl >= 80))) {
 				return true;
 			}
 
@@ -458,7 +384,7 @@ const Check = {
 
 			break;
 		case "templeruns":
-			if (Pather.accessToAct(3) && ((!me.lamessen || me.nightmare && me.charlvl < 50 || me.hell && !me.classic) && (!me.paladin || (me.paladin && !Check.currentBuild().caster)))) {
+			if (Pather.accessToAct(3) && ((!me.lamessen || (me.nightmare && me.charlvl < 50) || (me.hell && !me.classic)) && (!me.paladin || (me.paladin && !Check.currentBuild().caster)))) {
 				return true;
 			}
 
@@ -499,12 +425,16 @@ const Check = {
 
 			break;
 		case "mephisto":
-			if (Pather.accessToAct(3) &&
-				(!me.mephisto ||
-					(me.normal && (!me.baal || !Check.Gold())) ||
-					(!me.normal && (Pather.canTeleport() || me.charlvl <= 65)) ||
-					(me.hell && me.charlvl !== 100))) {
-				return true;
+			if (Pather.accessToAct(3)) {
+				if (!me.mephisto) return true;
+				switch (me.diff) {
+				case sdk.difficulty.Normal:
+					return !Check.Gold() || !me.diffCompleted;
+				case sdk.difficulty.Nightmare:
+					return Pather.canTeleport() || me.charlvl <= 65
+				case sdk.difficulty.Hell:
+					return true;
+				}
 			}
 
 			break;
@@ -703,20 +633,19 @@ const Check = {
 	nextDifficulty: function (announce = true) {
 		let diffShift = me.diff;
 		let lowRes = !this.Resistance().Status;
-		let lvlReq = (me.charlvl >= SetUp.levelCap) && ["Bumper", "Socketmule"].indexOf(SetUp.finalBuild) === -1 && Item.getEquippedItem(4).durability !== 0 ? true : false;
-		let diffCompleted = (me.expansion && me.baal) || (me.classic && me.diablo);
+		let lvlReq = !!((me.charlvl >= Config.levelCap) && !["Bumper", "Socketmule"].includes(SetUp.finalBuild) && !!this.broken());
 
-		if (diffCompleted) {
+		if (me.diffCompleted) {
 			if (lvlReq) {
 				if (!lowRes) {
 					diffShift = me.diff + 1;
-					if (announce) { D2Bot.printToConsole('Kolbot-SoloPlay: next difficulty requirements met. Starting: ' + Difficulty[diffShift], 8); }
+					announce && D2Bot.printToConsole('Kolbot-SoloPlay: next difficulty requirements met. Starting: ' + Difficulty[diffShift], 8);
 				} else {
-					if (me.charlvl >= SetUp.levelCap + 5) {
+					if (me.charlvl >= Config.levelCap + 5) {
 						diffShift = me.diff + 1;
-						if (announce) { D2Bot.printToConsole('Kolbot-SoloPlay: Over leveled. Starting: ' + Difficulty[diffShift]); }
+						announce && D2Bot.printToConsole('Kolbot-SoloPlay: Over leveled. Starting: ' + Difficulty[diffShift]);
 					} else {
-						if (announce) { D2Bot.printToConsole('Kolbot-SoloPlay: ' + Difficulty[diffShift + 1] + ' requirements not met. Negative resistance. FR: ' + me.fireRes + ' | CR: ' + me.coldRes + ' | LR: ' + me.lightRes); }
+						announce && D2Bot.printToConsole('Kolbot-SoloPlay: ' + Difficulty[diffShift + 1] + ' requirements not met. Negative resistance. FR: ' + me.fireRes + ' | CR: ' + me.coldRes + ' | LR: ' + me.lightRes);
 						return false;
 					}
 				}
@@ -725,9 +654,7 @@ const Check = {
 			return false;
 		}
 
-		let nextDiff = Difficulty[diffShift];
-
-		return nextDiff;
+		return Difficulty[diffShift];
 	},
 
 	Runes: function () {
@@ -774,7 +701,7 @@ const Check = {
 
 		let typeCHECK = false;
 		let itemCHECK = false;
-		let items = me.getItems().filter(item => !Town.ignoredItemTypes.contains(item.classid) && !item.isQuestItem);
+		let items = me.getItems().filter(item => !Town.ignoredItemTypes.includes(item.itemType) && !item.isQuestItem);
 
 		for (let i = 0; i < items.length && !itemCHECK; i++) {
 			switch (flag) {
@@ -858,7 +785,7 @@ const Check = {
 		let typeCHECK = false;
 		let itemCHECK = false;
 		let items = me.getItems()
-			.filter(item => !Town.ignoredItemTypes.contains(item.classid) && getBaseStat("items", item.classid, "gemsockets") > 0 && !item.isQuestItem && !item.getItem());
+			.filter(item => !Town.ignoredItemTypes.includes(item.itemType) && getBaseStat("items", item.classid, "gemsockets") > 0 && !item.isQuestItem && !item.getItem());
 
 		for (let i = 0; i < items.length && !itemCHECK; i++) {
 			switch (flag) {

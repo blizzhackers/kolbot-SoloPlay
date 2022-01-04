@@ -86,12 +86,9 @@ NodeAction.popChests = function () {
 	let range = Pather.useTeleport() ? 25 : 15;
 	let mobCheck = getUnits(sdk.unittype.Monster)
 		.filter(mob => !!mob && mob.attackable && mob.distance < 7);
-	mobCheck.length > 3 && (range = 10);
+	mobCheck.length > 3 && (range = 8);
 
-	if (Config.OpenChests) {
-		Misc.openChests(range);
-	}
-
+	Config.OpenChests && Misc.openChests(range);
 	Misc.useWell(range);
 };
 
@@ -857,13 +854,13 @@ Pather.moveToUnit = function (unit, offX, offY, clearPath, pop) {
 };
 
 Pather.useUnit = function (type, id, targetArea) {
-	let tick, unit, preArea = me.area;
+	let unit, preArea = me.area;
 
-	for (let i = 0; i < 10; i += 1) {
+	for (let i = 0; i < 10; i++) {
 		unit = getUnit(type, id);
-
-		if (unit) { break; }
-
+		if (unit) { 
+			break; 
+		}
 		delay(200);
 	}
 
@@ -871,8 +868,8 @@ Pather.useUnit = function (type, id, targetArea) {
 		throw new Error("useUnit: Unit not found. TYPE: " + type + " ID: " + id + " MyArea: " + this.getAreaName(me.area) + (!!targetArea ? " TargetArea: " + Pather.getAreaName(targetarea) : ""));
 	}
 
-	for (let i = 0; i < 3; i += 1) {
-		if (getDistance(me, unit) > 5) {
+	for (let i = 0; i < 3; i++) {
+		if (unit.distance > 5) {
 			Pather.moveToUnit(unit);
 		}
 
@@ -882,22 +879,13 @@ Pather.useUnit = function (type, id, targetArea) {
 				throw new Error("useUnit: Incomplete quest.");
 			}
 
-			if (me.area === sdk.areas.A3SewersLvl1) {
-				this.openUnit(2, 367);
-			} else {
-				this.openUnit(2, id);
-			}
+			me.area === sdk.areas.A3SewersLvl1 ? this.openUnit(2, 367) : this.openUnit(2, id);
 		}
 
 		delay(300);
 
-		if (type === 5) {
-			Misc.click(0, 0, unit);
-		} else {
-			sendPacket(1, 0x13, 4, unit.type, 4, unit.gid);
-		}
-
-		tick = getTickCount();
+		type === 5 ? Misc.click(0, 0, unit) : sendPacket(1, 0x13, 4, unit.type, 4, unit.gid);
+		let tick = getTickCount();
 
 		while (getTickCount() - tick < 3000) {
 			if ((!targetArea && me.area !== preArea) || me.area === targetArea) {
@@ -911,7 +899,7 @@ Pather.useUnit = function (type, id, targetArea) {
 
 		Packet.flash(me.gid);
 		let coord = CollMap.getRandCoordinate(me.x, -1, 1, me.y, -1, 1, 3);
-		Pather.moveTo(coord.x, coord.y);
+		coord && Pather.moveTo(coord.x, coord.y);
 	}
 
 	return targetArea ? me.area === targetArea : me.area !== preArea;

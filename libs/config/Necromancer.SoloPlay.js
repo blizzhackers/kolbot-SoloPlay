@@ -1,6 +1,7 @@
 /*
 *	@filename	Necromancer.SoloPlay.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
+*	@credit		isid0re
 *	@desc		Config Settings for SoloPlay Necromancer
 *
 *	FinalBuild choices
@@ -23,6 +24,19 @@ function LoadConfig () {
 	/* Script */
 	Scripts.UserAddon = false;
 	Scripts.SoloPlay = true;
+
+	/* Level Specifc Settings */
+	Config.respecOne = 26;
+	Config.respecOneB = 0;
+	Config.levelCap = (function() {
+		let tmpCap;
+		if (me.softcore) {
+			tmpCap = me.expansion ? [33, 70, 100] : [33, 70, 100];
+		} else {
+			tmpCap = me.expansion ? [33, 70, 100] : [33, 70, 100];
+		}
+		return tmpCap[me.diff];
+	})();
 
 	/* General configuration. */
 	Config.MinGameTime = 400;

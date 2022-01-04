@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 		BlockBits[BlockBits["Ranged"] = 4] = "Ranged";
 		// This naming comes from d2bs, but not sure if its accurate
 		BlockBits[BlockBits["PlayerToWalk"] = 8] = "PlayerToWalk";
-		// This is some light setting, not usefull. Its mostly around doors and waypoints
+		// This is some light setting, not usefull. Its mostly around doors and waypoints. NOTE: Also set in dungeon areas when monster is in another room
 		BlockBits[BlockBits["DarkArea"] = 16] = "DarkArea";
 		// Is it a cast blocker? Like a stone or whatever. Not 100% accurate
 		BlockBits[BlockBits["Casting"] = 32] = "Casting";
@@ -137,10 +137,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             | BlockBits.Ranged
             | BlockBits.Casting
             | BlockBits.ClosedDoor
-            // | BlockBits.BlockMonsters
+            | BlockBits.DarkArea
             | BlockBits.Objects));
 	}
 	exports.isBlockedBetween = isBlockedBetween;
+	function checkCollisionBetween(unit1, unit2, coll) {
+		var args = [];
+		args.push(unit1, unit2);
+		var collision = getCollisionBetweenCoords.apply(null, args);
+		return !!(collision & (0 | coll));
+	}
+	exports.checkCollisionBetween = checkCollisionBetween;
 	Room.prototype.isInRoom = function () {
 		var args = [];
 		for (var _i = 0; _i < arguments.length; _i++) {

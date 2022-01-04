@@ -97,7 +97,7 @@ let Merc = {
 			return true;
 		}
 
-		if (me.charlvl > SetUp.levelCap + 10) {
+		if (me.charlvl > Config.levelCap + 10) {
 			print("ÿc9Mercenaryÿc0 :: I went back a difficulty, don't hire another merc");
 
 			return true;
