@@ -173,6 +173,14 @@ function main () {
 		load("libs/SoloPlay/Tools/ToolsThread.js");
 		load("libs/SoloPlay/Tools/EventThread.js");
 		load("libs/SoloPlay/Tools/TownChicken.js");
+		// check in case we reloaded and guard was still running
+		let guard = getScript("libs/SoloPlay/Modules/Guard.js");
+		!!guard && guard.running && guard.stop();
+		
+		// Load guard if we want to see the stack as it runs
+		if (Developer.debugging.showStack.enabled) {
+			Developer.debugging.showStack.profiles.some(profile => profile.toLowerCase() === "all" || profile.toLowerCase() === me.profile.toLowerCase()) && (require('../SoloPlay/Modules/Guard'));
+		}
 
 	} else {
 		load("tools/ToolsThread.js");

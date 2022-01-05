@@ -10,11 +10,11 @@ const GameData = require('../../Modules/GameData');
 let frostNovaCheck = function () {
 	return getUnits(1).some(function(el) {
     	if (el === undefined) { return false; }
-    	return el.attackable && el.distance < 7 && !el.isChilled && Attack.checkResist(el, 'cold') && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
+    	return el.attackable && el.distance < 7 && ![sdk.monsters.Andariel].includes(el.classid) && !el.isChilled && Attack.checkResist(el, 'cold') && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
     });
 };
 
-ClassAttack.doAttack = function (unit, preAttack = false) {
+ClassAttack.doAttack = function (unit, skipStatic = false) {
 	Developer.debugging.skills && (print(sdk.colors.Green + "Test Start-----------------------------------------//"));
 	let tick = getTickCount();
 	let checkSkill, mark,
@@ -122,7 +122,7 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
                 && Attack.checkResist(el, 'cold')
                 && !el.isFrozen // those that are not frozen yet
                 && !el.getStat(sdk.stats.CannotbeFrozen) // those that can be frozen
-                && el.classid !== 510; }).length > 1;
+                && ![sdk.monsters.Andariel, 510].includes(el.classid); }).length > 1;
     	if (shouldSpike && !Coords_1.isBlockedBetween(me, unit)) {
     		Developer.debugging.skills && (print("SPIKE"));
     		Skill.cast(sdk.skills.GlacialSpike, 0, unit);
@@ -165,7 +165,7 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 
 	// Choose Skill
 	switch (true) {
-	case data.static.have && data.static.dmg > Math.max(data.mainTimed.dmg, data.secondaryTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg) && unit.getMobCount(15, Coords_1.Collision.BLOCK_MISSILE) < 5:
+	case !skipStatic && data.static.have && data.static.dmg > Math.max(data.mainTimed.dmg, data.secondaryTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg) && unit.getMobCount(15, Coords_1.Collision.BLOCK_MISSILE) < 5:
 		timedSkill = data.static;
 		break;
 	case data.mainTimed.have && me.mp > data.mainTimed.mana && (!data.mainTimed.timed || !me.skillDelay) && data.mainTimed.dmg > Math.max(data.secondaryTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg):
@@ -233,7 +233,7 @@ ClassAttack.doAttack = function (unit, preAttack = false) {
 
 			break;
 		default:
-			!unit.getEnchant(sdk.enchant.ManaBurn) && (timedSkill = lowManaData.attack);
+			!unit.getEnchant(sdk.enchant.ManaBurn) && me.normal && (timedSkill = lowManaData.attack);
 
 			break;
 		}
@@ -292,7 +292,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 	let inDanger = function () {
 		let maxNearMonsters = Math.floor((4 * (1 / me.hpmax * me.hp)) + 1);
 		let nearUnits = getUnits(sdk.unittype.Monster).filter(function (mon) { return mon.attackable && mon.distance < 10; });
-		let dangerClose = nearUnits.find(mon => mon.getEnchant(sdk.enchant.ManaBurn));
+		let dangerClose = nearUnits.find(mon => mon.getEnchant(sdk.enchant.ManaBurn) || mon.getEnchant(sdk.enchant.LightningEnchanted));
 		return nearUnits.length > maxNearMonsters || dangerClose;
 	};
 
@@ -309,10 +309,10 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 	}
 
 	if (timedSkill.skill > -1 && (!me.skillDelay || !timedSkill.timed)) {
-		let ts = timedSkill.skill, tsRange = timedSkill.range, tsMana = timedSkill.mana;
+		let ts = timedSkill.skill, tsRange = timedSkill.range, tsMana = timedSkill.mana, ranged = tsRange > 4;
 
 		if (ts === sdk.skills.ChargedBolt) {
-			if (unit.getMobCount(6, Coords_1.BlockBits.Casting | Coords_1.Collision.BLOCK_MISSILE) < 3) {
+			if (unit.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE) < 3) {
 				tsRange = 5;
 			}
 		}
@@ -321,11 +321,15 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			return 0;
 		}
 
-		if (unit.distance > tsRange || checkCollision(me, unit, Coords_1.BlockBits.Ranged | Coords_1.Collision.BLOCK_MISSILE)) {
+		if (unit.distance > tsRange || Coords_1.isBlockedBetween(me, unit)) {
 			// Allow short-distance walking for melee skills
 			walk = (tsRange < 4 || (ts === sdk.skills.ChargedBolt && tsRange === 5)) && unit.distance < 10 && !checkCollision(me, unit, Coords_1.BlockBits.BlockWall);
 
-			if (!Attack.getIntoPosition(unit, tsRange, Coords_1.BlockBits.Ranged, walk)) {
+			if (ranged) {
+				if (!Attack.getIntoPosition(unit, timedSkill.range, Coords_1.Collision.BLOCK_MISSILE, walk)) {
+					return 0;
+				}
+			} else if (!Attack.getIntoPosition(unit, tsRange, Coords_1.BlockBits.Ranged, walk)) {
 				return 0;
 			}
 		}

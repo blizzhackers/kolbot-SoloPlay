@@ -164,11 +164,11 @@ Pickit.pickItems = function () {
 
 			if (status.result && Pickit.canPick(pickList[0])) {
 				// Override canFit for scrolls, potions and gold
-				canFit = Storage.Inventory.CanFit(pickList[0]) || [4, 22, 76, 77, 78].indexOf(pickList[0].itemType) > -1;
+				canFit = Storage.Inventory.CanFit(pickList[0]) || [4, 22, 76, 77, 78].includes(pickList[0].itemType);
 
 				// Try to make room with FieldID
 				if (!canFit && Config.FieldID && Town.fieldID()) {
-					canFit = Storage.Inventory.CanFit(pickList[0]) || [4, 22, 76, 77, 78].indexOf(pickList[0].itemType) > -1;
+					canFit = Storage.Inventory.CanFit(pickList[0]) || [4, 22, 76, 77, 78].includes(pickList[0].itemType);
 				}
 
 				// Try to make room by selling items in town

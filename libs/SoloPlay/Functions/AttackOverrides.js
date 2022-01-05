@@ -205,7 +205,7 @@ Attack.canAttack = function (unit) {
 
 Attack.isCursable = function (unit) {
 	if (unit === undefined || !unit) { return false; }
-	if (copyUnit(unit).name === undefined || unit.name.indexOf(getLocaleString(11086)) > -1) { // "Possessed"
+	if (copyUnit(unit).name === undefined || unit.name.includes(getLocaleString(11086))) { // "Possessed"
 		return false;
 	}
 
@@ -879,6 +879,22 @@ Attack.sortMonsters = function (unitA, unitB) {
 		return getDistance(me, unitA) - getDistance(me, unitB);
 	}
 
+	// Prime Evil bosses optimization -------- //
+	// Andy
+	if (me.area === sdk.areas.CatacombsLvl4) {
+		if (unitA.distance < 5 && unitA.classid === sdk.monsters.Andariel && !checkCollision(me, unitA, 0x4)) return -1;
+	}
+
+	// Meph
+	if (me.area === sdk.areas.DuranceofHateLvl3) {
+		if (unitA.distance < 5 && unitA.classid === sdk.monsters.Mephisto && !checkCollision(me, unitA, 0x4)) return -1;
+	}
+
+	// Baal
+	if (me.area === sdk.areas.WorldstoneChamber) {
+		if (unitA.classid === sdk.monsters.Baal) return -1;
+	}
+
 	// Barb optimization
 	if (me.barbarian) {
 		if (!Attack.checkResist(unitA, Attack.getSkillElement(Config.AttackSkill[(unitA.spectype & 0x7) ? 1 : 3]))) {
@@ -887,17 +903,6 @@ Attack.sortMonsters = function (unitA, unitB) {
 
 		if (!Attack.checkResist(unitB, Attack.getSkillElement(Config.AttackSkill[(unitB.spectype & 0x7) ? 1 : 3]))) {
 			return -1;
-		}
-	}
-
-	// Baal optimization
-	if (me.area === sdk.areas.WorldstoneChamber) {
-		if (unitA.classid === sdk.monsters.Baal) {
-			return -1;
-		}
-
-		if (unitB.classid === sdk.monsters.Baal) {
-			return 1;
 		}
 	}
 
@@ -913,7 +918,7 @@ Attack.sortMonsters = function (unitA, unitB) {
 	// Added Oblivion Knights
 	let ids = [312, 58, 59, 60, 61, 62, 101, 102, 103, 104, 105, 278, 279, 280, 281, 282, 298, 299, 300, 645, 646, 647, 662, 663, 664, 667, 668, 669, 670, 675, 676];
 
-	if (me.area !== sdk.areas.ClawViperTempleLvl2 && ids.indexOf(unitA.classid) > -1 && ids.indexOf(unitB.classid) > -1) {
+	if (me.area !== sdk.areas.ClawViperTempleLvl2 && ids.includes(unitA.classid) && ids.includes(unitB.classid)) {
 		// Kill "scary" uniques first (like Bishibosh)
 		if ((unitA.spectype & 0x04) && (unitB.spectype & 0x04)) {
 			return getDistance(me, unitA) - getDistance(me, unitB);
@@ -930,11 +935,11 @@ Attack.sortMonsters = function (unitA, unitB) {
 		return getDistance(me, unitA) - getDistance(me, unitB);
 	}
 
-	if (ids.indexOf(unitA.classid) > -1) {
+	if (ids.includes(unitA.classid)) {
 		return -1;
 	}
 
-	if (ids.indexOf(unitB.classid) > -1) {
+	if (ids.includes(unitB.classid)) {
 		return 1;
 	}
 
@@ -1175,6 +1180,28 @@ Attack.shouldDodge = function (coord, monster) {
 			// If missile wants to hit is and is close to us
 			return xoff < 7 && yoff < 7 && xdist < 13 && ydist < 13;
 		});
+};
+
+Attack.pwnDury = function () {
+	var duriel = Misc.poll(function () { return getUnit(1, sdk.monsters.Duriel); });
+	if (duriel === undefined || !duriel) { return false; }
+	Attack.stopClear = true;
+    var saveSpots = [
+        { x: 22648, y: 15688 },
+        { x: 22624, y: 15725 },
+    ];
+    var manaTP = Skill.getManaCost(sdk.skills.Teleport);
+    while (!duriel.dead) {
+        //ToDo; figure out static
+        if (duriel.getState(sdk.states.Frozen) && duriel.distance < 7 || duriel.distance < 12) {
+            var safeSpot = saveSpots.sort(function (a, b) { return getDistance(duriel, b) - getDistance(duriel, a); })[0];
+            Pather.teleportTo(safeSpot.x, safeSpot.y);
+        }
+        ClassAttack.doAttack(duriel, true);
+    }
+
+    Attack.stopClear = false;
+    return true;
 };
 
 Attack.pwnMeph = function () {

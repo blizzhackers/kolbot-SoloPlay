@@ -221,10 +221,7 @@ function UnitInfo() {
 }
 
 function developermode() {
-	let done = false;
-	let action = false;
-	let command = false;
-	let userAddon = false;
+	let done = false, action = false, command = false, userAddon = false, test = false;
 	let unitInfo, unit = new UnitInfo();
 	let runCommand = function (msg) {
 		if (msg.length <= 1) {
@@ -259,7 +256,7 @@ function developermode() {
 
 			break;
 		case "testing":
-			scriptBroadcast('testing');
+			test = true;
 
 			break;
 		case "command":
@@ -268,7 +265,7 @@ function developermode() {
 				break;
 			}
 			
-			command = msgList[1];
+			command = msgList.splice(1).join(" ");
 
 			break;
 		}
@@ -278,7 +275,8 @@ function developermode() {
 	let PacketSent = function (pBytes) {
 		let ID = pBytes[0].toString(16);
 
-		if (ID === "15") { //Block all commands or irc chat from being sent to server
+		// Block all commands or irc chat from being sent to server
+		if (ID === "15") {
 			if (pBytes[3] === 46) {
 				let str = "";
 
@@ -345,6 +343,42 @@ function developermode() {
 		if (userAddon) {
 			unitInfo = getUnit(101);
 			unit.createInfo(unitInfo);
+		}
+
+		if (test) {
+			if (!me.inTown || !Town.openStash()) {
+					me.overhead("Failed to open stash");
+			} else {
+				while (me.gold) {
+					print(me.gold);
+					if (me.getStat (15) > 0 && me.getStat (14) < me.getStat (12) * 10000) {
+						let stashg = me.getStat (15) == 0 ? 0 : me.getStat (15);
+						let invg = me.getStat (14) == 0 ? 0 : me.getStat (14);
+						let missing = me.getStat (12) * 10000 - me.getStat(14);
+
+						let difference = Math.min(stashg, missing);
+
+						gold (difference, 4);
+
+						while (invg === me.getStat(14)) {
+							delay (100)
+						}
+					}
+
+					var invg = me.getStat (14);
+
+					gold (invg);
+
+					while (invg === me.getStat(14)) {
+						delay (100)
+					}
+				}
+
+			me.cancel();
+			}
+
+			me.overhead("done");
+			test = false;
 		}
 
 		delay(100);

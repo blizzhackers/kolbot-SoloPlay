@@ -122,17 +122,6 @@ function SoloPlay () {
 	// Start Running Script
 	this.setup();
 
-	// Stop guard if its running for some reason
-	let guard = getScript("libs/SoloPlay/Modules/Guard.js");
-	if (guard) {
-		if (guard.running) { guard.stop(); }	
-	}
-
-	// Load guard if we want to see the stack as it runs
-	if (Developer.debugging.showStack.enabled) {
-		Developer.debugging.showStack.profiles.some(profile => profile.toLowerCase() === me.profile.toLowerCase()) && (require('../SoloPlay/Modules/Guard'));
-	}
-
 	// Start Developer mode - this stops the script from progressing past this point and allows running specific scripts/functions through chat commands
 	if (Developer.developerMode.enabled) {
 		if (Developer.developerMode.profiles.some(profile => profile.toLowerCase() === me.profile.toLowerCase())) {
@@ -141,7 +130,6 @@ function SoloPlay () {
 			}
 
 			if (isIncluded("SoloPlay/Scripts/developermode.js")) {
-				!Developer.debugging.showStack.enabled && (require('../SoloPlay/Modules/Guard'));	// always load guard in developer mode
 				this.developermode();
 			} else {
 				print("ÿc8Kolbot-SoloPlayÿc0: Failed to include developermode");

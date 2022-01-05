@@ -493,7 +493,7 @@ ClassAttack.checkCorpse = function (unit) {
 	}
 
 	if (getDistance(me, unit) <= 25 && !checkCollision(me, unit, 0x4) &&
-			!unit.getState(sdk.states.Frozen) &&
+			!unit.getState(sdk.states.FrozenSolid) &&
             !unit.getState(sdk.states.Revive) &&
             !unit.getState(sdk.states.Redeemed) &&
             !unit.getState(sdk.states.CorpseNoDraw) &&

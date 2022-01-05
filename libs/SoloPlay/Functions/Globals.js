@@ -67,7 +67,6 @@ const SetUp = {
 	// Global value to set bot to walk while doing a task, since while physically attacking running decreases block chance
 	walkToggle: false,
 
-	className: ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid],
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
 
@@ -105,8 +104,7 @@ const SetUp = {
 		function getBuildTemplate () {
 			let buildType = SetUp.getBuild();
 			let build = buildType + "Build" ;
-			let classname = SetUp.className;
-			let template = "SoloPlay/BuildFiles/" + classname + "." + build + ".js";
+			let template = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js";
 
 			return template.toLowerCase();
 		}
@@ -150,7 +148,7 @@ const SetUp = {
 		if (!isIncluded("SoloPlay/Tools/NameGen.js")) { include("SoloPlay/Tools/NameGen.js"); }
 		if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
 		let gameObj, printTotalTime = Developer.logPerformance;
-		if (printTotalTime) { gameObj = Developer.readObj(Tracker.GTPath); }
+		printTotalTime && (gameObj = Developer.readObj(Tracker.GTPath));
 
 		// log info
 		print("ÿc8Kolbot-SoloPlayÿc0: " + this.finalBuild + " goal reached. On to the next.");
@@ -229,6 +227,19 @@ const nipItems = {
 		"[name] == khalim'swill",
 		"[name] == scrollofresistance",
 	],
+};
+
+const goBackDifficulty = function (diff, reason = "") {
+	diff === undefined && (diff = me.diff - 1);
+	if (diff === me.diff || diff < 0) return;
+	let diffString = sdk.difficulty.nameOf(diff);
+
+	D2Bot.setProfile(null, null, null, diffString);
+	DataFile.updateStats("setDifficulty", diffString);
+	D2Bot.printToConsole("Kolbot-SoloPlay: Going back to " + diffString + reason);
+	print("ÿc8Kolbot-SoloPlayÿc0: Going back to " + diffString + reason);
+	me.overhead("Going back to " + diffString + reason);
+	D2Bot.restart();
 };
 
 // General Game functions
@@ -457,7 +468,7 @@ const Check = {
 
 			break;
 		case "diablo":
-			if (Pather.accessToAct(4) && ((me.normal && me.charlvl < 35) || (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)) || (me.hell && me.charlvl !== 100) || !me.diablo)) {
+			if (Pather.accessToAct(4) && ((me.normal && me.charlvl < 35) || (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)) || me.hell || !me.diablo)) {
 				return true;
 			}
 
@@ -590,7 +601,7 @@ const Check = {
 			return 2;
 		}
 
-		return -1;
+		return 0;
 	},
 
 	Resistance: function () {
@@ -633,13 +644,13 @@ const Check = {
 	nextDifficulty: function (announce = true) {
 		let diffShift = me.diff;
 		let lowRes = !this.Resistance().Status;
-		let lvlReq = !!((me.charlvl >= Config.levelCap) && !["Bumper", "Socketmule"].includes(SetUp.finalBuild) && !!this.broken());
+		let lvlReq = !!((me.charlvl >= Config.levelCap) && !["Bumper", "Socketmule"].includes(SetUp.finalBuild) && !this.broken());
 
 		if (me.diffCompleted) {
 			if (lvlReq) {
 				if (!lowRes) {
 					diffShift = me.diff + 1;
-					announce && D2Bot.printToConsole('Kolbot-SoloPlay: next difficulty requirements met. Starting: ' + Difficulty[diffShift], 8);
+					announce && D2Bot.printToConsole('Kolbot-SoloPlay: next difficulty requirements met. Starting: ' + Difficulty[diffShift], sdk.colors.D2Bot.Blue);
 				} else {
 					if (me.charlvl >= Config.levelCap + 5) {
 						diffShift = me.diff + 1;
@@ -679,7 +690,7 @@ const Check = {
 
 			break;
 		case sdk.difficulty.Hell:
-			if (!me.baal || (me.sorceress && ["Blova", "Lightning"].indexOf(SetUp.currentBuild) === -1)) {
+			if (!me.baal || (me.sorceress && !["Blova", "Lightning"].includes(SetUp.currentBuild))) {
 				needRunes = false;
 			}
 
@@ -923,8 +934,7 @@ const Check = {
 		function getBuildTemplate () {
 			let buildType = SetUp.currentBuild;
 			let build = buildType + "Build" ;
-			let classname = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid];
-			let template = "SoloPlay/BuildFiles/" + classname + "." + build + ".js";
+			let template = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js";
 
 			return template.toLowerCase();
 		}
@@ -995,14 +1005,13 @@ const Check = {
 			let buildType = SetUp.finalBuild;
 			let build;
 
-			if (["Bumper", "Socketmule"].indexOf(SetUp.finalBuild) > -1) {
+			if (["Bumper", "Socketmule"].includes(SetUp.finalBuild)) {
 				build = ["Javazon", "Lightning", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid] + "Build";
 			} else {
 				build = buildType + "Build";
 			}
 
-			let classname = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid];
-			let template = "SoloPlay/BuildFiles/" + classname + "." + build + ".js";
+			let template = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js";
 
 			return template.toLowerCase();
 		}
@@ -1048,9 +1057,7 @@ const Check = {
 					if (Developer.stopAtLevel.profiles[i][0].toLowerCase() === me.profile.toLowerCase()) {
 						if (me.charlvl >= Developer.stopAtLevel.profiles[i][1]) {
 							D2Bot.printToConsole("Kolbot-SoloPlay level goal reached. Current level: " + me.charlvl, 6);
-							if (Developer.logPerformance) {
-								Tracker.Update();
-							}
+							Developer.logPerformance && Tracker.Update();
 							D2Bot.stop();
 						}
 					}
@@ -1065,7 +1072,7 @@ const Check = {
 				SetUp.makeNext();
 			} else {
 				D2Bot.printToConsole("Kolbot-SoloPlay " + SetUp.finalBuild + " goal reached.", 6);
-				Developer.logPerformance && (Tracker.Update());
+				Developer.logPerformance && Tracker.Update();
 				D2Bot.stop();
 			}
 		}
@@ -1079,12 +1086,7 @@ const Check = {
 					if (FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".SocketData.json")) {
 						let data = Developer.readObj("libs/SoloPlay/Data/" + me.profile + ".SocketData.json");
 						if (data.Nightmare === false) {
-							D2Bot.setProfile(null, null, null, 'Nightmare');
-							DataFile.updateStats("setDifficulty", 'Nightmare');
-							D2Bot.printToConsole('Kolbot-SoloPlay: Going back to Nightmare to use socket quest');
-							print("ÿc8Kolbot-SoloPlayÿc0: Going back to Nightmare to use socket quest");
-							me.overhead("Going back to Nightmare to use socket quest");
-							D2Bot.restart();
+							goBackDifficulty(sdk.difficulty.Nightmare, " to use socket quest");
 						}
 					}
 				}

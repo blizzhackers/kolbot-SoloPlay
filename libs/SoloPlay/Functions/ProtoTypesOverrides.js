@@ -75,12 +75,12 @@ Object.defineProperties(Unit.prototype, {
     },
 	isFrozen: {
 		get: function () {
-			return this.getState(sdk.states.Frozen);
+			return this.getState(sdk.states.FrozenSolid);
 		},
 	},
 	isChilled: {
 		get: function () {
-			return this.getState(sdk.states.Cold);
+			return this.getState(sdk.states.Frozen);
 		},
 	},
 	isStunned: {

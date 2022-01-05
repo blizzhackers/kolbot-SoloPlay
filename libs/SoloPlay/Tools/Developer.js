@@ -97,3 +97,9 @@ const Developer = {
 		return timeString;
 	},
 };
+
+// Set after Developer has been initialized - always load guard in developer mode
+if (Developer.developerMode.enabled && Developer.developerMode.profiles.some(profile => profile.toLowerCase() === me.profile.toLowerCase())) {
+	Developer.debugging.showStack.enabled = true;
+	Developer.debugging.showStack.profiles.push(me.profile.toLowerCase());
+}

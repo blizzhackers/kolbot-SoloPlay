@@ -8,9 +8,9 @@ function hellforge () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting hellforge');
 	me.overhead("hellforge");
 	Town.townTasks();
-	Town.buyPots(8, "Antidote");
+	Town.buyPots(10, "Antidote");
 	Town.drinkPots();
-	Town.buyPots(8, "Thawing");
+	Town.buyPots(10, "Thawing");
 	Town.drinkPots();
 	
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
@@ -27,9 +27,15 @@ function hellforge () {
 	}
 
 	Pickit.pickItems();
+	let forge = getUnit(2, 376);
+	!!forge && Attack.clearPos(forge.x, forge.y, 20);
 
 	Town.doChores();
 	Town.npcInteract("cain");
+
+	let oldItem = me.getItemsEx().filter(function (item) {
+		return item.isEquipped && item.bodylocation === 4 && !item.isOnSwap
+	}).first();
 
 	// From SoloLeveling Commit eb818af
 	if (me.getItem(sdk.items.quest.HellForgeHammer)) {
@@ -53,11 +59,10 @@ function hellforge () {
 	}
 
 	Attack.clear(15);
-	let forge = getUnit(2, 376);
-	Misc.openChest(forge);
-	delay(250 + me.ping * 2);
-	Quest.smashSomething(376);
-	delay(4500 + me.ping);
+	forge === undefined || !forge && (forge = getUnit(2, 376));
+	Misc.openChest(forge) && delay(250 + me.ping * 2);
+	Quest.smashSomething(376) && delay(4500 + me.ping);
+	!!oldItem && oldItem.isInInventory && oldItem.equip(4);
 	Pickit.pickItems();
 	Item.autoEquip();
 	Town.npcInteract("cain");

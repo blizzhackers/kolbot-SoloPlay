@@ -672,7 +672,7 @@
 		// unit states
 		states: {
 			None: 0,
-			Frozen: 1,
+			FrozenSolid: 1,
 			Poison: 2,
 			ResistFire: 3,
 			ResistCold: 4,
@@ -682,7 +682,7 @@
 			ResistAll: 8,
 			AmplifyDamage: 9,
 			FrozenArmor: 10,
-			Cold: 11,
+			Frozen: 11,
 			Inferno: 12,
 			Blaze: 13,
 			BoneArmor: 14,

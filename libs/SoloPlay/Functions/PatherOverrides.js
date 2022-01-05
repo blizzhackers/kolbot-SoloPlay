@@ -58,14 +58,12 @@ NodeAction.killMonsters = function (arg) {
 	if ((typeof Config.ClearPath === "number" || typeof Config.ClearPath === "object") && arg.clearPath === false) {
 		switch (typeof Config.ClearPath) {
 		case "number":
-			Attack.clear(7, 0);
-			Attack.clear(sanityCheck ? 7 : 30, Config.ClearPath);
+			Attack.clear(sanityCheck ? 7 : Pather.useTeleport() ? 15 : 30, Config.ClearPath);
 
 			break;
 		case "object":
-			if (!Config.ClearPath.hasOwnProperty("Areas") || Config.ClearPath.Areas.length === 0 || Config.ClearPath.Areas.indexOf(me.area) > -1) {
-				Attack.clear(7, 0);
-				Attack.clear(sanityCheck ? 7 : Config.ClearPath.Range, Config.ClearPath.Spectype);
+			if (!Config.ClearPath.hasOwnProperty("Areas") || Config.ClearPath.Areas.length === 0 || Config.ClearPath.Areas.includes(me.area)) {
+				Attack.clear(sanityCheck ? 7 : Pather.useTeleport() ? 15 : Config.ClearPath.Range, Pather.useTeleport() ? Config.ClearPath.Spectype : 0);
 			}
 
 			break;
@@ -73,21 +71,13 @@ NodeAction.killMonsters = function (arg) {
 	}
 
 	if (arg.clearPath !== false) {
-		// If teleporting its not necessary to clear all mobs, just hit champions/uniques for xp/drops
-		if (!Pather.useTeleport()) {
-			Attack.clear(7, 0);
-		}
-
 		Attack.clear(sanityCheck ? 7 : 15, typeof arg.clearPath === "number" ? arg.clearPath : 0);
 	}
 };
 
 NodeAction.popChests = function () {
 	let range = Pather.useTeleport() ? 25 : 15;
-	let mobCheck = getUnits(sdk.unittype.Monster)
-		.filter(mob => !!mob && mob.attackable && mob.distance < 7);
-	mobCheck.length > 3 && (range = 8);
-
+	me.getMobCount(10) > 3 && (range = 8);
 	Config.OpenChests && Misc.openChests(range);
 	Misc.useWell(range);
 };

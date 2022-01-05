@@ -28,12 +28,12 @@ function LoadConfig () {
 	Scripts.SoloPlay = true;
 
 	/* Level Specifc Settings */
-	Config.respecOne = me.expansion ? 26 : 30;
+	Config.respecOne = me.expansion ? 26 : 26;
 	Config.respecOneB = me.expansion ? 65 : 60;
 	Config.levelCap = (function() {
 		let tmpCap;
 		if (me.softcore) {
-			tmpCap = me.expansion ? [33, 67, 100] : [33, 65, 100];
+			tmpCap = me.expansion ? [33, 67, 100] : [33, 60, 100];
 		} else {
 			tmpCap = me.expansion ? [33, 67, 100] : [33, 67, 100];
 		}
@@ -211,12 +211,9 @@ function LoadConfig () {
 	Config.AttackSkill = [0, 0, 0, 0, 0, 0, 0];
 	Config.LowManaSkill = [-1, -1];
 	Config.MaxAttackCount = 1000;
-	Config.BossPriority = true;
+	Config.BossPriority = false;
 	Config.ClearType = 0;
-	Config.ClearPath = {
-		Range: 30,
-		Spectype: 0xF,
-	};
+	Config.ClearPath = { Range: 30, Spectype: 0xF};
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];
@@ -284,7 +281,7 @@ function LoadConfig () {
 
 		if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
 			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
-			if (["Blova", "Lightning"].indexOf(SetUp.finalBuild)) {
+			if (["Blova", "Lightning"].includes(SetUp.finalBuild)) {
 				Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
 			}
 		}
