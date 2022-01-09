@@ -698,37 +698,20 @@ ClassAttack.explodeCorpses = function (unit) {
 	return true;
 };
 
-ClassAttack.checkCorpse = function (unit, revive) {
-	if (unit.mode !== 12) {
-		return false;
-	}
+ClassAttack.checkCorpse = function (unit, revive = false) {
+	if (unit.mode !== 12) return false;
 
-	if (revive === undefined) {
-		revive = false;
-	}
-
-	let baseId = getBaseStat("monstats", unit.classid, "baseid"),
-		badList = [312, 571];
+	let baseId = getBaseStat("monstats", unit.classid, "baseid"), badList = [312, 571];
+	let	states = [
+		sdk.states.FrozenSolid, sdk.states.Revive, sdk.states.Redeemed,
+        sdk.states.CorpseNoDraw, sdk.states.Shatter, sdk.states.RestInPeace, sdk.states.CorpseNoSelect
+    ];
 
 	if (revive && ((unit.spectype & 0x7) || badList.indexOf(baseId) > -1 || (Config.ReviveUnstackable && getBaseStat("monstats2", baseId, "sizex") === 3))) {
 		return false;
 	}
 
-	if (!getBaseStat("monstats2", baseId, revive ? "revive" : "corpseSel")) {
-		return false;
-	}
+	if (!getBaseStat("monstats2", baseId, revive ? "revive" : "corpseSel")) return false;
 
-	if (getDistance(me, unit) <= 25 && !checkCollision(me, unit, 0x4) &&
-                !unit.getState(sdk.states.FrozenSolid) &&
-                !unit.getState(sdk.states.Revive) &&
-                !unit.getState(sdk.states.Redeemed) &&
-                !unit.getState(sdk.states.CorpseNoDraw) &&
-                !unit.getState(sdk.states.Shatter) &&
-                !unit.getState(sdk.states.RestInPeace) &&
-                !unit.getState(sdk.states.CorpseNoSelect)
-	) {
-		return true;
-	}
-
-	return false;
+	return !!(unit.distance <= 25 && !checkCollision(me, unit, 0x4) && states.every(state => !unit.getState(state)));
 };

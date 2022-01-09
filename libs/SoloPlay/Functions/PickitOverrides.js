@@ -59,7 +59,7 @@ Pickit.checkItem = function (unit) {
 		};
 	}
 
-	if ([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].indexOf(unit.classid) > -1 && NTIP.GetCharmTier(unit) > 0 && unit.identified) {
+	if ([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(unit.classid) && NTIP.GetCharmTier(unit) > 0 && unit.identified) {
 		if (Item.autoEquipCharmCheck(unit)) {
 			return {
 				result: 1,
@@ -125,21 +125,19 @@ Pickit.checkItem = function (unit) {
 };
 
 Pickit.pickItems = function () {
-	let status, item, canFit,
+	let status, canFit,
 		needMule = false,
 		pickList = [];
 
 	Town.clearBelt();
 
-	if (me.dead || Config.PickRange < 0 || !Pickit.enabled) {
-		return false;
-	}
+	if (me.dead || Config.PickRange < 0 || !Pickit.enabled) return false;
 
 	while (!me.idle) {
 		delay(40);
 	}
 
-	item = getUnit(4);
+	let item = getUnit(4);
 
 	if (item) {
 		do {
@@ -150,9 +148,7 @@ Pickit.pickItems = function () {
 	}
 
 	while (pickList.length > 0) {
-		if (me.dead || !Pickit.enabled) {
-			return false;
-		}
+		if (me.dead || !Pickit.enabled) return false;
 
 		pickList.sort(this.sortItems);
 
@@ -229,28 +225,24 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		self.gold = unit.getStat(14);
 		let canTk = me.sorceress && me.getSkill(sdk.skills.Telekinesis, 1) && (this.type === 4 || this.type === 22 || (this.type > 75 && this.type < 82)) &&
 					getDistance(me, unit) > 5 && getDistance(me, unit) < 20 && !checkCollision(me, unit, 0x4);
-		self.useTk = canTk && ((me.mp * 100 / me.mpmax) > 50);
+		self.useTk = canTk && (me.mpPercent > 50);
 		self.picked = false;
 	}
 
-	let i, item, tick, gid, stats, retry = false,
+	let item, tick, gid, stats, retry = false,
 		cancelFlags = [0x01, 0x08, 0x14, 0x0c, 0x19, 0x1a],
 		itemCount = me.itemcount;
 
-	if (!unit || unit === undefined) {
-		return false;
-	}
+	if (!unit || unit === undefined) return false;
 
 	if (unit.gid) {
 		gid = unit.gid;
 		item = getUnit(4, -1, -1, gid);
 	}
 
-	if (!item) {
-		return false;
-	}
+	if (!item) return false;
 
-	for (i = 0; i < cancelFlags.length; i += 1) {
+	for (let i = 0; i < cancelFlags.length; i += 1) {
 		if (getUIFlag(cancelFlags[i])) {
 			delay(500);
 			me.cancel(0);
@@ -262,14 +254,12 @@ Pickit.pickItem = function (unit, status, keptLine) {
 	stats = new ItemStats(item);
 
 	MainLoop:
-	for (i = 0; i < 3; i += 1) {
+	for (let i = 0; i < 3; i += 1) {
 		if (!getUnit(4, -1, -1, gid)) {
 			break MainLoop;
 		}
 
-		if (me.dead) {
-			return false;
-		}
+		if (me.dead) return false;
 
 		while (!me.idle) {
 			delay(40);
@@ -280,7 +270,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		}
 
 		if (stats.useTk) {
-			Skill.cast(43, 0, item);
+			Skill.cast(sdk.skills.Telekinesis, 0, item);
 		} else {
 			if (getDistance(me, item) > (i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
 				if (item.getMobCount(8, 0x1 | 0x400 | 0x800) !== 0) {

@@ -138,15 +138,15 @@
                 if ((getTickCount() - timer) < 1000 || (timer = getTickCount()) && false) return true;
 
 
-                // Drop broken eth items that arent a belt
-                me.getItems()
-                    .filter(el => //ToDo; minor point but this can fuck up zod bugged items
-                        el.location === sdk.storage.Equipped
-                        && el.getStat(sdk.stats.Durability) === 0
-                        && el.bodylocation !== sdk.body.Belt
-                        && el.getFlag(0x400000/*eth*/)
-                    )
-                    .forEach(item => item.drop());
+                // // Drop broken eth items that arent a belt
+                // me.getItems()
+                //     .filter(el => //ToDo; minor point but this can fuck up zod bugged items
+                //         el.location === sdk.storage.Equipped
+                //         && el.getStat(sdk.stats.Durability) === 0
+                //         && el.bodylocation !== sdk.body.Belt
+                //         && el.getFlag(0x400000/*eth*/)
+                //     )
+                //     .forEach(item => item.drop());
 
                 // Every second or so, we send a heartbeat tick
                 Messaging.send({Guard: {heartbeat: getTickCount()}});

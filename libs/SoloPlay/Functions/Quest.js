@@ -296,7 +296,7 @@ const Quest = {
 
 	equipItem: function (classid, loc) {
 		let questItem = me.getItem(classid);
-		!getUIFlag(sdk.uiflags.Stash) && (me.cancel());
+		!getUIFlag(sdk.uiflags.Stash) && me.cancel();
 
 		if (questItem) {
 			if (!Item.equip(questItem, loc)) {

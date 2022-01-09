@@ -101,13 +101,7 @@ var Runeword = {
 };
 
 Runewords.getBase = function (runeword, base, ethFlag, reroll) {
-	let item;
-
-	if (typeof base === "object") {
-		item = base;
-	} else {
-		item = me.getItem(base, 0);
-	}
+	let item = typeof base === "object" ? base : me.getItem(base, 0);
 
 	if (item) {
 		do {
@@ -130,9 +124,7 @@ Runewords.getBase = function (runeword, base, ethFlag, reroll) {
 };
 
 Runewords.checkRune = function (...runes) {
-	if (!Config.MakeRunewords || runes === undefined) {
-		return false;
-	}
+	if (!Config.MakeRunewords || runes.length < 1) return false;
 
 	for (let classid of runes) {
 		if (this.needList.includes(classid)) {

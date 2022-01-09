@@ -5,6 +5,7 @@
 */
 
 if (!isIncluded("common/Pather.js")) { include("common/Pather.js"); }
+Developer.debugging.pathing && (PathDebug.enableHooks = true);
 
 // TODO: clean up this mess
 NodeAction.killMonsters = function (arg) {
@@ -12,9 +13,7 @@ NodeAction.killMonsters = function (arg) {
 	let monList, 
 		sanityCheck = !!([62, 63, 64, 74].includes(me.area) || (me.paladin && [8, 9, 10, 11, 12, 13, 14, 15, 16, 94, 95, 96, 97, 98, 99].includes(me.area)));
 
-	if (Attack.stopClear) {
-		return;
-	}
+	if (Attack.stopClear) return;
 
 	if ([8, 3, 4, 38, 5, 6, 27, 28, 33, 37, 56, 57, 60, 45, 58, 66, 67, 68, 69, 70, 71, 72].includes(me.area)) {
 		monList = Attack.getMob([58, 59, 60, 61, 101, 102, 103, 104], 0, 30);
@@ -185,9 +184,7 @@ Pather.checkForTeleCharges = function () {
 };
 
 Pather.canUseTeleCharges = function () {
-	if (me.classic || me.inTown || me.shapeshifted) {
-		return false;
-	}
+	if (me.classic || me.inTown || me.shapeshifted) return false;
 
 	// Charges are costly so make sure we have enough gold to handle repairs unless we are in maggot lair since thats a pita and worth the gold spent
 	if (me.gold < 500000 && [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].indexOf(me.area) === -1) {
@@ -197,17 +194,11 @@ Pather.canUseTeleCharges = function () {
 	return this.haveTeleCharges;
 };
 
-Pather.teleportTo = function (x, y, maxRange) {
-	maxRange === undefined && (maxRange = 5);
+Pather.teleportTo = function (x, y, maxRange = 5) {
 	Developer.debugging.pathing && print("Mob Count at next node: " + [x, y].mobCount());
 	
 	for (let i = 0; i < 3; i += 1) {
-		if (Config.PacketCasting) {
-			Skill.setSkill(sdk.skills.Teleport, 0) && Packet.castSkill(0, x, y);
-		} else {
-			Skill.cast(sdk.skills.Teleport, 0, x, y);
-		}
-
+		Config.PacketCasting ? Skill.setSkill(sdk.skills.Teleport, 0) && Packet.castSkill(0, x, y) : Skill.cast(sdk.skills.Teleport, 0, x, y);
 		let tick = getTickCount();
 
 		while (getTickCount() - tick < Math.max(500, me.ping * 2 + 200)) {
@@ -222,18 +213,16 @@ Pather.teleportTo = function (x, y, maxRange) {
 	return false;
 };
 
-Pather.teleUsingCharges = function (x, y, maxRange) {
+Pather.teleUsingCharges = function (x, y, maxRange = 5) {
 	let orgSlot = me.weaponswitch;
-	maxRange === undefined && (maxRange = 5);
 
 	for (let i = 0; i < 3; i += 1) {
 		me.castChargedSkill(sdk.skills.Teleport, x, y);
-
 		let tick = getTickCount();
 
 		while (getTickCount() - tick < Math.max(500, me.ping * 2 + 200)) {
 			if (getDistance(me.x, me.y, x, y) < maxRange) {
-				me.weaponswitch !== orgSlot && (me.switchWeapons(orgSlot));
+				me.weaponswitch !== orgSlot && me.switchWeapons(orgSlot);
 				return true;
 			}
 
@@ -241,12 +230,12 @@ Pather.teleUsingCharges = function (x, y, maxRange) {
 		}
 	}
 
-	me.weaponswitch !== orgSlot && (me.switchWeapons(orgSlot));
+	me.weaponswitch !== orgSlot && me.switchWeapons(orgSlot);
 
 	return false;
 };
 
-Pather.checkWP = function (area, keepMenuOpen = false) {
+Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 	if (!getWaypoint(Pather.wpAreas.indexOf(area))) {
 		let wp;
 
@@ -260,11 +249,11 @@ Pather.checkWP = function (area, keepMenuOpen = false) {
 					}
 
 					Skill.cast(sdk.skills.Telekinesis, 0, wp);
-				} else if (!me.inTown && wp.distance > 7) {
+				} else if (wp.distance > 7) {
 					this.moveToUnit(wp);
 				}
 
-				!getUIFlag(sdk.uiflags.Waypoint) && (Misc.click(0, 0, wp));
+				!getUIFlag(sdk.uiflags.Waypoint) && Misc.click(0, 0, wp);
 
 				let tick = getTickCount();
 
@@ -277,7 +266,7 @@ Pather.checkWP = function (area, keepMenuOpen = false) {
 					delay(50 + me.ping);
 				}
 			} else {
-				me.inTown && (Town.move("waypoint"));
+				me.inTown && Town.move("waypoint");
 			}
 
 			if (getUIFlag(sdk.uiflags.Waypoint)) {
@@ -293,8 +282,12 @@ Pather.checkWP = function (area, keepMenuOpen = false) {
 };
 
 // Fixed Canyon to Duriels Lair
-Pather.journeyTo = function (area) {
-	if (area === undefined) { print("undefined area"); return false; }
+Pather.journeyTo = function (area = undefined) {
+	if (area === undefined) {
+		print("undefined area");
+		return false;
+	}
+
 	let special, unit, tick, target, retry = 0;
 
 	if (area !== sdk.areas.DurielsLair) {
@@ -305,15 +298,11 @@ Pather.journeyTo = function (area) {
 	}
 
 	print(target.course);
-
-	if (target.useWP) {
-		Town.goToTown();
-	}
+	if (target.useWP && !me.inTown) Town.goToTown();
 
 	// handle variable flayer jungle entrances
 	if (target.course.indexOf(sdk.areas.FlayerJungle) > -1) {
 		Town.goToTown(3); // without initiated act, getArea().exits will crash
-
 		special = getArea(sdk.areas.FlayerJungle);
 
 		if (special) {
@@ -331,11 +320,9 @@ Pather.journeyTo = function (area) {
 	}
 
 	while (target.course.length) {
-		if (!me.inTown) {
-			Precast.doPrecast(false);
-		}
+		if (!me.inTown) Precast.doPrecast(false);
 
-		if (this.wpAreas.indexOf(me.area) > -1 && !getWaypoint(this.wpAreas.indexOf(me.area))) {
+		if (this.wpAreas.includes(me.area) && !getWaypoint(this.wpAreas.indexOf(me.area))) {
 			this.getWP(me.area);
 		}
 
@@ -387,7 +374,7 @@ Pather.journeyTo = function (area) {
 			this.moveToExit(getRoom().correcttomb, true);
 			this.moveToPreset(me.area, 2, 152);
 			unit = Misc.poll(function () { return getUnit(2, 100); });
-			unit && (Pather.useUnit(2, 100, sdk.areas.DurielsLair));
+			unit && Pather.useUnit(2, 100, sdk.areas.DurielsLair);
 
 			break;
 		case me.area === sdk.areas.Harrogath && target.course[0] === sdk.areas.BloodyFoothills:
@@ -397,7 +384,9 @@ Pather.journeyTo = function (area) {
 
 			if (unit) {
 				for (let i = 0; i < 3; i += 1) {
-					if (unit.mode) { break; }
+					if (unit.mode) {
+						break;
+					}
 
 					Misc.click(0, 0, unit);
 					tick = getTickCount();
@@ -459,17 +448,17 @@ Pather.journeyTo = function (area) {
 
 // fixed monsterdoors/walls in act 5
 Pather.openDoors = function (x, y) {
-	if (me.inTown) { return false; }
+	if (me.inTown) return false;
 
 	// Regular doors
-	let tick, door = getUnit(sdk.unittype.Object, "door", 0);
+	let door = getUnit(sdk.unittype.Object, "door", 0);
 
 	if (door) {
 		do {
-			if ((getDistance(door, x, y) < 4 && getDistance(me, door) < 9) || getDistance(me, door) < 4) {
+			if ((getDistance(door, x, y) < 4 && door.distance < 9) || door.distance < 4) {
 				for (let i = 0; i < 3; i += 1) {
 					Misc.click(0, 0, door);
-					tick = getTickCount();
+					let tick = getTickCount();
 
 					while (getTickCount() - tick < 1000) {
 						if (door.mode === 2) {
@@ -489,14 +478,12 @@ Pather.openDoors = function (x, y) {
 	}
 
 	// Monsta doors (Barricaded)
-	let monstadoor = getUnit(sdk.unittype.Monster, "barricaded door"),
-		monstawall = getUnit(sdk.unittype.Monster, "barricade");
+	let monstadoor = getUnit(sdk.unittype.Monster, "barricaded door"), monstawall = getUnit(sdk.unittype.Monster, "barricade");
 
 	if (monstadoor) {
 		do {
-			if ((getDistance(monstadoor, x, y) < 4 && getDistance(me, monstadoor) < 9) || getDistance(me, monstadoor) < 4) {
-
-				for (let p = 0; p < 20 && monstadoor.hp; p += 1) {
+			if ((getDistance(monstadoor, x, y) < 4 && monstadoor.distance < 9) || monstadoor.distance < 4) {
+				for (let p = 0; p < 20 && monstadoor.hp; p++) {
 					Skill.cast(Config.AttackSkill[1], Skill.getHand(Config.AttackSkill[1]), monstadoor);
 				}
 
@@ -507,9 +494,8 @@ Pather.openDoors = function (x, y) {
 
 	if (monstawall) {
 		do {
-			if ((getDistance(monstawall, x, y) < 4 && getDistance(me, monstawall) < 9) || getDistance(me, monstawall) < 4) {
-
-				for (let p = 0; p < 20 && monstawall.hp; p += 1) {
+			if ((getDistance(monstawall, x, y) < 4 && monstawall.distance < 9) || monstawall.distance < 4) {
+				for (let p = 0; p < 20 && monstawall.hp; p++) {
 					Skill.cast(Config.AttackSkill[1], Skill.getHand(Config.AttackSkill[1]), monstawall);
 				}
 
@@ -596,14 +582,15 @@ Pather.changeAct = function () {
 	return me.act === act;
 };
 
-Pather.walkTo = function (x, y, minDist) {
+Pather.walkTo = function (x = undefined, y = undefined, minDist = undefined) {
 	while (!me.gameReady) {
 		delay(100);
 	}
 
+	if (!x || !y) return false;
 	minDist === undefined && (minDist = me.inTown ? 2 : 4);
 
-	let i, angle, angles, nTimer, whereToClick, tick, _a,
+	let angle, angles, nTimer, whereToClick, _a,
 		nFail = 0,
 		attemptCount = 0;
 
@@ -650,19 +637,16 @@ Pather.walkTo = function (x, y, minDist) {
 
 		ModeLoop:
 		while (me.mode !== 2 && me.mode !== 3 && me.mode !== 6) {
-			if (me.dead) { return false; }
+			if (me.dead) return false;
 
 			if ((getTickCount() - nTimer) > 500) {
+				if (nFail >= 3) return false;
+
 				nFail += 1;
-
-				if (nFail >= 3) {
-					return false;
-				}
-
 				angle = Math.atan2(me.y - y, me.x - x);
 				angles = [Math.PI / 2, -Math.PI / 2];
 
-				for (i = 0; i < angles.length; i += 1) {
+				for (let i = 0; i < angles.length; i += 1) {
 					// TODO: might need rework into getnearestwalkable
 					whereToClick = {
 						x: Math.round(Math.cos(angle + angles[i]) * 5 + me.x),
@@ -672,7 +656,7 @@ Pather.walkTo = function (x, y, minDist) {
 					if (Attack.validSpot(whereToClick.x, whereToClick.y)) {
 						Misc.click(0, 0, whereToClick.x, whereToClick.y);
 
-						tick = getTickCount();
+						let tick = getTickCount();
 
 						while (getDistance(me, whereToClick) > 2 && getTickCount() - tick < 1000) {
 							delay(40);
@@ -693,38 +677,29 @@ Pather.walkTo = function (x, y, minDist) {
 			delay(10);
 		}
 
-		if (attemptCount >= 3) {
-			return false;
-		}
+		if (attemptCount >= 3) return false;
 	}
 
 	return !me.dead && getDistance(me.x, me.y, x, y) <= minDist;
 };
 
-Pather.moveTo = function (x, y, retry, clearPath, pop) {
+Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clearPath = true, pop = false) {
 	// Abort if dead
-	if (me.dead) { return false; }
+	if (me.dead) return false;
 
 	let path, adjustedNode, cleared, leaped = false,
 		node = {x: x, y: y},
 		fail = 0;
 
 	for (let i = 0; i < this.cancelFlags.length; i += 1) {
-		if (getUIFlag(this.cancelFlags[i])) {
-			me.cancel();
-		}
+		if (getUIFlag(this.cancelFlags[i])) me.cancel();
 	}
 
-	if (getDistance(me, x, y) < 2) {
-		return true;
-	}
-
-	if (x === undefined || y === undefined) { throw new Error("moveTo: Function must be called with at least 2 arguments."); }
+	if (getDistance(me, x, y) < 2) return true;
+	if (!x || !y) { throw new Error("moveTo: Function must be called with at least 2 arguments."); }
 	if (typeof x !== "number" || typeof y !== "number") { throw new Error("moveTo: Coords must be numbers"); }
 
 	(retry === undefined || retry === 3) && (retry = 15);
-	clearPath === undefined && (clearPath = true);
-	pop === undefined && (pop = false);
 
 	let useTele = this.useTeleport();
 	let useChargedTele = this.canUseTeleCharges();
@@ -736,16 +711,14 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 	path.reverse();
 	pop && path.pop();
 	PathDebug.drawPath(path);
-	useTele && Config.TeleSwitch && path.length > 5 && (me.switchWeapons(Attack.getPrimarySlot() ^ 1));
+	useTele && Config.TeleSwitch && path.length > 5 && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
 
 	while (path.length > 0) {
 		// Abort if dead
-		if (me.dead) { return false; }
+		if (me.dead) return false;
 
 		for (let i = 0; i < this.cancelFlags.length; i += 1) {
-			if (getUIFlag(this.cancelFlags[i])) {
-				me.cancel();
-			}
+			if (getUIFlag(this.cancelFlags[i])) me.cancel();
 		}
 
 		node = path.shift();
@@ -791,21 +764,21 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 				}
 
 				path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? rand(25, 35) : rand(10, 15));
-				fail += 1;
-
 				if (!path) { throw new Error("moveTo: Failed to generate path."); }
 
+				fail += 1;
 				path.reverse();
 				PathDebug.drawPath(path);
 				pop && path.pop();
-
 				print("move retry " + fail);
 
 				if (fail > 0) {
 					Packet.flash(me.gid);
 					Attack.clear(5) && Misc.openChests(2);
 
-					if (fail >= retry) { break; }
+					if (fail >= retry) {
+						break;
+					}
 				}
 			}
 		}
@@ -813,20 +786,14 @@ Pather.moveTo = function (x, y, retry, clearPath, pop) {
 		delay(5);
 	}
 
-	useTele && Config.TeleSwitch && (me.switchWeapons(Attack.getPrimarySlot() ^ 1));
-
+	useTele && Config.TeleSwitch && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
 	PathDebug.removeHooks();
 
 	return getDistance(me, node.x, node.y) < 5;
 };
 
-Pather.moveToUnit = function (unit, offX, offY, clearPath, pop) {
+Pather.moveToUnit = function (unit = false, offX = 0, offY = 0, clearPath = true, pop = false) {
 	let useTeleport = this.useTeleport();
-
-	offX === undefined && (offX = 0);
-	offY === undefined && (offY = 0);
-	clearPath === undefined && (clearPath = true);
-	pop === undefined && (pop = false);
 
 	if (!unit || !unit.hasOwnProperty("x") || !unit.hasOwnProperty("y")) {
 		throw new Error("moveToUnit: Invalid unit.");
@@ -859,9 +826,7 @@ Pather.useUnit = function (type, id, targetArea) {
 	}
 
 	for (let i = 0; i < 3; i++) {
-		if (unit.distance > 5) {
-			Pather.moveToUnit(unit);
-		}
+		if (unit.distance > 5) Pather.moveToUnit(unit);
 
 		if (type === 2 && unit.mode === 0) {
 			if ((me.area === sdk.areas.Travincal && targetArea === sdk.areas.DuranceofHateLvl1 && me.getQuest(21, 0) !== 1) ||
@@ -939,7 +904,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 				}
 			}
 
-			!getUIFlag(sdk.uiflags.Waypoint) && (!Skill.useTK(wp) || i > 1) && (Town.move("waypoint"));
+			if (!getUIFlag(sdk.uiflags.Waypoint) && (!Skill.useTK(wp) || i > 1)) Town.move("waypoint");
 		}
 
 		wp = getUnit(sdk.unittype.Object, "waypoint");
@@ -960,7 +925,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 					this.moveToUnit(wp);
 				}
 
-				!getUIFlag(sdk.uiflags.Waypoint) && (Misc.click(0, 0, wp));
+				!getUIFlag(sdk.uiflags.Waypoint) && Misc.click(0, 0, wp);
 
 				tick = getTickCount();
 
@@ -976,7 +941,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 								targetArea = this.wpAreas[rand(0, this.wpAreas.length - 1)];
 
 								// get a valid wp, avoid towns
-								if (!sdk.areas.Towns.indexOf(targetArea) && getWaypoint(this.wpAreas.indexOf(targetArea))) {
+								if (!sdk.areas.Towns.includes(targetArea) && getWaypoint(this.wpAreas.indexOf(targetArea))) {
 									break;
 								}
 
@@ -1027,9 +992,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 					coord = CollMap.getRandCoordinate(me.x, -5 * retry, 5 * retry, me.y, -5 * retry, 5 * retry);
 					this.moveTo(coord.x, coord.y);
 					delay(200 + me.ping);
-
 					Packet.flash(me.gid);
-
 					continue;
 				}
 			}
@@ -1037,13 +1000,11 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 			if (!check || getUIFlag(sdk.uiflags.Waypoint)) {
 				delay(200 + me.ping);
 				wp.interact(targetArea);
-
 				tick = getTickCount();
 
 				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), me.ping * 4)) {
 					if (me.area === targetArea) {
 						delay(1000 + me.ping);
-
 						return true;
 					}
 
@@ -1055,9 +1016,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 				}
 
 				// In case lag causes the wp menu to stay open
-				if (getUIFlag(sdk.uiflags.Waypoint)) {
-					me.cancel();
-				}
+				getUIFlag(sdk.uiflags.Waypoint) && me.cancel();
 			}
 
 			Packet.flash(me.gid);
@@ -1072,9 +1031,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 		// We can't seem to get the wp maybe attempt portal to town instead and try to use that wp
 		if (i >= 10) {
-			if (!me.inTown) {
-				Town.goToTown();
-			}
+			if (!me.inTown) Town.goToTown();
 		}
 
 		delay(200 + me.ping);
@@ -1088,22 +1045,24 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 	throw new Error("useWaypoint: Failed to use waypoint to " + targetArea);
 };
 
-Pather.makePortal = function (use) {
-	if (me.inTown) { return true; }
+Pather.makePortal = function (use = false) {
+	if (me.inTown) return true;
 
 	let portal, oldPortal, oldGid;
 
 	for (let i = 0; i < 5; i += 1) {
-		if (me.dead) { break; }
+		if (me.dead) {
+			break;
+		}
 
 		let tpTool = Town.getTpTool();
-		if (!tpTool) { return false; }
+		if (!tpTool) return false;
 
 		oldPortal = getUnits(sdk.unittype.Object, "portal")
             .filter(function (p) { return p.getParent() === me.name; })
             .first();
 
-		if (oldPortal) { oldGid = oldPortal.gid; }
+		!!oldPortal && (oldGid = oldPortal.gid);
         tpTool.interact();
 		let tick = getTickCount();
 
@@ -1115,7 +1074,7 @@ Pather.makePortal = function (use) {
 
 			if (portal) {
                 if (use) {
-                    if (this.usePortal(null, null, copyUnit(portal))) { return true; }
+                    if (this.usePortal(null, null, copyUnit(portal))) return true;
 
                     break MainLoop; // don't spam usePortal
                 } else {
@@ -1134,9 +1093,7 @@ Pather.makePortal = function (use) {
 };
 
 Pather.usePortal = function (targetArea, owner, unit) {
-	if (targetArea && me.area === targetArea) {
-		return true;
-	}
+	if (targetArea && me.area === targetArea) return true;
 
 	me.cancel();
 
@@ -1144,7 +1101,9 @@ Pather.usePortal = function (targetArea, owner, unit) {
 		preArea = me.area;
 
 	for (let i = 0; i < 10; i += 1) {
-		if (me.dead) { break; }
+		if (me.dead) { 
+			break; 
+		}
 
 		if (i > 0 && owner && me.inTown) {
 			Town.move("portalspot");
@@ -1170,11 +1129,7 @@ Pather.usePortal = function (targetArea, owner, unit) {
 					}
 
 					if (getTickCount() - this.lastPortalTick > 2500) {
-						if (i < 2) {
-							sendPacket(1, 0x13, 4, 0x2, 4, portal.gid);
-						} else {
-							Misc.click(0, 0, portal);
-						}
+						i < 2 ? sendPacket(1, 0x13, 4, 0x2, 4, portal.gid) : Misc.click(0, 0, portal);
 					} else {
 						delay(300 + me.ping);
 						continue;
@@ -1184,7 +1139,6 @@ Pather.usePortal = function (targetArea, owner, unit) {
 
 			if (portal.classid === 298 && portal.mode !== 2) { // Portal to/from Arcane
 				Misc.click(0, 0, portal);
-
 				tick = getTickCount();
 
 				while (getTickCount() - tick < 2000) {
@@ -1231,7 +1185,7 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 	print("Currently in: " + Pather.getAreaName(me.area));
 	print("Currentarea arg: " + Pather.getAreaName(currentarea));
 
-	if (me.area !== currentarea) { Pather.journeyTo(currentarea); }
+	if (me.area !== currentarea) Pather.journeyTo(currentarea);
 
 	print("Clearing to: " + Pather.getAreaName(targetarea));
 
@@ -1239,29 +1193,22 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 		try {
 			Pather.moveToExit(targetarea, true, cleartype);
 		} catch (e) {
-			print("Caught Error.");
-			print(e);
+			print("Caught Error: " + e);
 		}
 
 		Packet.flash(me.gid);
-
 		delay(me.ping * 2 + 500);
 	}
 
 	print("ÿc8Kolbot-SoloPlayÿc0: End clearToExit. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
 };
 
-Pather.moveToPreset = function (area, unitType, unitId, offX, offY, clearPath, pop) {
-	if (area === undefined || unitType === undefined || unitId === undefined) {
+Pather.moveToPreset = function (area = undefined, unitType = undefined, unitId = undefined, offX = 0, offY = 0, clearPath = true, pop = false) {
+	if (!area || !unitType || !unitId) {
 		throw new Error("moveToPreset: Invalid parameters.");
 	}
 
-	offX === undefined && (offX = 0);
-	offY === undefined && (offY = 0);
-	clearPath === undefined && (clearPath = true);
-	pop === undefined && (pop = false);
-
-	if (me.area !== area) { Pather.journeyTo(area); }
+	if (me.area !== area) Pather.journeyTo(area);
 	let presetUnit = getPresetUnit(area, unitType, unitId);
 
 	if (!presetUnit) {

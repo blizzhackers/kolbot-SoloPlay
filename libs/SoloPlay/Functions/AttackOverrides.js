@@ -1476,11 +1476,11 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 						if (currCount < count) {
 							count = currCount;
 							potentialSpot = {x: coords[i].x, y: coords[i].y};
-							Developer.debugging.pathing	&& (print(sdk.colors.Blue + "CheckedSpot" + sdk.colors.Yellow + ": x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + count));
+							Developer.debugging.pathing	&& print(sdk.colors.Blue + "CheckedSpot" + sdk.colors.Yellow + ": x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + count);
 						}
 
 						if (currCount !== 0) {
-							Developer.debugging.pathing	&& (print(sdk.colors.Red + "Not Zero, check next: currCount: " + sdk.colors.NeonGreen + " " + currCount));
+							Developer.debugging.pathing	&& print(sdk.colors.Red + "Not Zero, check next: currCount: " + sdk.colors.NeonGreen + " " + currCount);
 							continue;
 						}
 					}
@@ -1507,7 +1507,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 						break;
 					}
 
-					Developer.debugging.pathing && (print(sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow + "Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + currCount));
+					Developer.debugging.pathing && print(sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow + "Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + currCount);
 
 					return true;
 				}
@@ -1540,7 +1540,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 			}
 		}
 
-		Developer.debugging.pathing && (print(sdk.colors.Orange + "DefaultCheck :: " + sdk.colors.Yellow + "Moving to: x: " + potentialSpot.x + " y: " + potentialSpot.y + " mob amount: " + sdk.colors.NeonGreen + count));
+		Developer.debugging.pathing && print(sdk.colors.Orange + "DefaultCheck :: " + sdk.colors.Yellow + "Moving to: x: " + potentialSpot.x + " y: " + potentialSpot.y + " mob amount: " + sdk.colors.NeonGreen + count);
 
 		return true;
 	}
