@@ -161,7 +161,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	// We lost track of the mob or killed it (recheck after using static)
-    if (unit === undefined || !unit || unit.dead) { return true; }
+    if (unit === undefined || !unit || unit.dead) return true;
 
 	// Choose Skill
 	switch (true) {
@@ -290,10 +290,9 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
     }
 
 	let inDanger = function () {
-		let maxNearMonsters = Math.floor((4 * (1 / me.hpmax * me.hp)) + 1);
 		let nearUnits = getUnits(sdk.unittype.Monster).filter(function (mon) { return mon.attackable && mon.distance < 10; });
 		let dangerClose = nearUnits.find(mon => mon.getEnchant(sdk.enchant.ManaBurn) || mon.getEnchant(sdk.enchant.LightningEnchanted));
-		return nearUnits.length > maxNearMonsters || dangerClose;
+		return nearUnits.length > me.maxNearMonsters || dangerClose;
 	};
 
 	if (![sdk.skills.FrostNova, sdk.skills.Nova, sdk.skills.StaticField].includes(timedSkill.skill) && me.getSkill(sdk.skills.Teleport, 1)) {

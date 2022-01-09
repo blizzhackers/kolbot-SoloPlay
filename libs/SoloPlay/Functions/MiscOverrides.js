@@ -109,7 +109,7 @@ Misc.openChest = function (unit) {
 		return false;
 	}
 
-	for (let i = 0; i < 7; i += 1) {
+	for (let i = 0; i < 7; i++) {
 		if (Skill.useTK(unit) && i < 3) {
 			if (getDistance(me, unit) > 13) {
 				Attack.getIntoPosition(unit, 13, 0x4);
@@ -244,9 +244,7 @@ Misc.getExpShrine = function (shrineLocs) {
 };
 
 Misc.getLightResShrine = function (shrineLocs) {
-	if (me.getState(5) || Check.Resistance().LR >= 75) {
-		return true;
-	}
+	if (me.getState(5) || me.lightRes >= 75) return true;
 
 	let oldAttack = [];
 
@@ -337,19 +335,10 @@ Misc.getGoodShrine = function (shrineLocs) {
 	// Build shrine array
 	let shrines = [];
 
-	if (Check.Resistance().LR < 75) {
-		shrines.push(10);	// Light Resist
-	}
-
+	me.lightRes < 75 && shrines.push(10);	// Light Resist
 	shrines.push(12);	// Skill
-
-	if (me.barbarian || me.amazon) {
-		shrines.push(7);	// Combat
-	}
-
-	if (!me.paladin) {
-		shrines.push(6);	// Armor (paladin has holy shield, this would be unnecessary)
-	}
+	(me.barbarian || me.amazon) && shrines.push(7);	// Combat
+	!me.paladin && shrines.push(6);	// Armor (paladin has holy shield, this would be unnecessary)
 
 	if (me.barbarian && me.normal && me.getSkill(133, 1) >= 6) {
 		oldAttack = Config.AttackSkill.slice();
@@ -1872,6 +1861,61 @@ Misc.buyItem = function (unit, shiftBuy, gamble) {
 	}
 
 	return false;
+};
+
+Misc.errorReport = function (error, script) {
+	var i, date, dateString, msg, oogmsg, filemsg, source, stack,
+		stackLog = "";
+
+	date = new Date();
+	dateString = "[" + new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0,-5).replace(/-/g, '/').replace('T', ' ') + "]";
+
+	if (typeof error === "string") {
+		msg = error;
+		oogmsg = error.replace(/ÿc[0-9!"+<:;.*]/gi, "");
+		filemsg = dateString + " <" + me.profile + "> " + error.replace(/ÿc[0-9!"+<:;.*]/gi, "") + "\n";
+	} else {
+		source = error.fileName.substring(error.fileName.lastIndexOf("\\") + 1, error.fileName.length);
+		msg = "ÿc1Error in ÿc0" + script + " ÿc1(" + source + " line ÿc1" + error.lineNumber + "): ÿc1" + error.message;
+		oogmsg = " Error in " + script + " (" + source + " #" + error.lineNumber + ") " + error.message + " (Area: " + Pather.getAreaName(me.area) + ", Ping:" + me.ping + ", Game: " + me.gamename + ")";
+		filemsg = dateString + " <" + me.profile + "> " + msg.replace(/ÿc[0-9!"+<:;.*]/gi, "") + "\n";
+
+		if (error.hasOwnProperty("stack")) {
+			stack = error.stack;
+
+			if (stack) {
+				stack = stack.split("\n");
+
+				if (stack && typeof stack === "object") {
+					stack.reverse();
+				}
+
+				for (i = 0; i < stack.length; i += 1) {
+					if (stack[i]) {
+						stackLog += stack[i].substr(0, stack[i].indexOf("@") + 1) + stack[i].substr(stack[i].lastIndexOf("\\") + 1, stack[i].length - 1);
+
+						if (i < stack.length - 1) {
+							stackLog += ", ";
+						}
+					}
+				}
+			}
+		}
+
+		if (stackLog) {
+			filemsg += "Stack: " + stackLog + "\n";
+		}
+	}
+
+	if (this.errorConsolePrint) {
+		D2Bot.printToConsole(oogmsg, 10);
+	}
+
+	showConsole();
+	print(msg);
+	this.fileAction("logs/ScriptErrorLog.txt", 2, filemsg);
+	takeScreenshot();
+	delay(500);
 };
 
 // singleplayer delay(0) fix

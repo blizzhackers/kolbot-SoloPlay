@@ -606,13 +606,13 @@ const Check = {
 
 	Resistance: function () {
 		let resStatus,
-			frRes = me.fireRes, lrRes = me.lightRes, crRes = me.coldRes, prRes = me.poisonRes;
+			resPenalty = me.getResPenalty(me.diff + 1),
+			frRes = me.fireRes - resPenalty,
+			lrRes = me.lightRes - resPenalty,
+			crRes = me.coldRes - resPenalty,
+			prRes = me.poisonRes - resPenalty;
 
-		if ((frRes >= 0) && (lrRes >= 0) && (crRes >= 0)) {
-			resStatus = true;
-		} else {
-			resStatus = false;
-		}
+		resStatus = !!((frRes >= 0) && (lrRes >= 0) && (crRes >= 0)); 
 
 		return {
 			Status: resStatus,
@@ -669,7 +669,7 @@ const Check = {
 	},
 
 	Runes: function () {
-		if (me.classic) { return false; }
+		if (me.classic) return false;
 		let needRunes = true;
 
 		switch (me.diff) {
@@ -862,10 +862,8 @@ const Check = {
 		return itemCHECK;
 	},
 
-	haveBase: function (type, sockets) {
-		if (type === undefined || sockets === undefined) {
-			return false;
-		}
+	haveBase: function (type = undefined, sockets = undefined) {
+		if (!type|| !sockets) return false;
 
 		switch (typeof type) {
 		case "number":

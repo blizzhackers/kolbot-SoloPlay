@@ -37,13 +37,9 @@ function hellforge () {
 		return item.isEquipped && item.bodylocation === 4 && !item.isOnSwap
 	}).first();
 
-	// From SoloLeveling Commit eb818af
 	if (me.getItem(sdk.items.quest.HellForgeHammer)) {
 		// Dual weild fix for assassin/barbarian
-		if ([2, 69, 70].indexOf(Item.getEquippedItem(5).itemType) === -1) {
-			Item.removeItem(5);
-		}
-
+		me.duelWielding && Item.removeItem(5);
 		Quest.equipItem(sdk.items.quest.HellForgeHammer, 4);
 	}
 
@@ -59,7 +55,7 @@ function hellforge () {
 	}
 
 	Attack.clear(15);
-	forge === undefined || !forge && (forge = getUnit(2, 376));
+	!forge && (forge = getUnit(2, 376));
 	Misc.openChest(forge) && delay(250 + me.ping * 2);
 	Quest.smashSomething(376) && delay(4500 + me.ping);
 	!!oldItem && oldItem.isInInventory && oldItem.equip(4);

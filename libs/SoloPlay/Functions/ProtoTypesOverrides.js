@@ -32,6 +32,11 @@ let sdk = require('../modules/sdk');
 	}
 })([].filter.constructor('return this')(), getUnit);
 
+Unit.prototype.getResPenalty = function (difficulty) {
+	difficulty > 2 && (difficulty = 2);
+	return me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][difficulty] : [0, 40, 100][difficulty];
+};
+
 Object.defineProperties(Unit.prototype, {
 	isChampion: {
         get: function () {
@@ -645,6 +650,20 @@ Object.defineProperties(me, {
 	diffCompleted: {
 		get: function () {
 			return !!((me.classic && me.diablo) || me.baal);
+		}
+	},
+	maxNearMonsters: {
+		get: function () {
+			return Math.floor((4 * (1 / me.hpmax * me.hp)) + 1);
+		}
+	},
+	duelWielding: {
+		get: function () {
+			// only classes that can duel wield
+			if (!me.assassin && !me.barbarian) { return false; }
+			let items = me.getItemsEx()
+				.filter(function (item) { return item.isEquipped && [4, 5].includes(item.bodylocation); })
+			return !!items.length && items.length >= 2 && items.every(function (item) { return ![2, 69, 70].includes(item.itemType) && !getBaseStat("items", item.classid, "block") });
 		}
 	}
 });
