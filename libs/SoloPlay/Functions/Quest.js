@@ -343,11 +343,9 @@ const Quest = {
 
 	// Akara reset for build change
 	characterRespec: function () {
-		if (me.respec || SetUp.currentBuild === SetUp.finalBuild) {
-			return true;
-		}
+		if (me.respec || SetUp.currentBuild === SetUp.finalBuild) return true;
 
-		if (me.charlvl === Config.respecOne || (Config.respecOneB > 0 && me.charlvl === Config.respecOneB) || me.charlvl === SetUp.respecTwo()) {
+		if ((me.charlvl >= Config.respecOne && SetUp.currentBuild === "Start") || (Config.respecOneB > 0 && me.charlvl === Config.respecOneB) || me.charlvl === SetUp.respecTwo()) {
 			if (!me.den) {
 				print("ÿc8Kolbot-SoloPlayÿc0: time to respec, but den is incomplete");
 				me.overhead('time to respec, but den is incomplete');
@@ -363,7 +361,7 @@ const Quest = {
 			Town.npcInteract("akara");
 			delay(10 + me.ping * 2);
 
-			if (!Misc.useMenu(0x2ba0)) return false;
+			if (!Misc.useMenu(0x2ba0) || !Misc.useMenu(3401)) return false;
 
 			sendPacket(1, 0x40);
 			delay(10 + me.ping * 2);
