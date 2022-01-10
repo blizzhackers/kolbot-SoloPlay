@@ -253,7 +253,7 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 					this.moveToUnit(wp);
 				}
 
-				!getUIFlag(sdk.uiflags.Waypoint) && Misc.click(0, 0, wp);
+				!getUIFlag(sdk.uiflags.Waypoint) && Coords_1.isBlockedBetween(me, wp) ? Town.move("waypoint") : Misc.click(0, 0, wp);
 
 				let tick = getTickCount();
 
