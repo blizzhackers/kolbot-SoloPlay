@@ -118,16 +118,17 @@ function LoadConfig () {
 	//	Config.PickitFiles.push("LLD.nip");
 	//Config.PickitFiles.push("test.nip");
 
-
 	/* Gambling configuration. */
 	Config.Gamble = true;
 	Config.GambleGoldStart = 1250000;
 	Config.GambleGoldStop = 750000;
-	Config.GambleItems.push("Amulet");
-	Config.GambleItems.push("Ring");
-	Config.GambleItems.push("Circlet");
-	Config.GambleItems.push("Coronet");
-
+	// TODO: should gambling be re-written to try and gamble for our current lowest tier'd item
+	// for example if our gloves are the lowest tier then only gamble gloves or maybe just make the others conditional like why include
+	// gambling for rings/ammys if we have our end game one
+	/*Item.getEquippedItem(sdk.body.Neck).tier < 100000 && */Config.GambleItems.push("Amulet");
+	/*Item.getEquippedItem(sdk.body.RingLeft).tier < 100000 && */Config.GambleItems.push("Ring");
+	/*Item.getEquippedItem(sdk.body.Head).tier < 100000 && */Config.GambleItems.push("Circlet") && Config.GambleItems.push("Coronet");
+	
 	/* AutoMule configuration. */
 	Config.AutoMule.Trigger = [];
 	Config.AutoMule.Force = [];
@@ -177,28 +178,8 @@ function LoadConfig () {
 		"me.charlvl > 14 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
-	let imbueableClassItems = [
-		"me.diff == 0 && [name] == jared'sstone && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1",
-		"me.diff == 1 && [name] == swirlingcrystal && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1",
-		"me.diff == 2 && [name] == dimensionalshard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1",
-	];
-
-	let imbueableBelts = [
-		"me.diff == 0 && [name] == platedbelt && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
-		"me.diff == 1 && [name] == warbelt && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
-		"me.diff == 2 && [name] == mithrilcoil && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
-	];
-
 	NTIP.arrayLooping(levelingTiers);
 	NTIP.arrayLooping(nipItems.Gems);
-
-	if (!me.smith) {
-		if (Item.getEquippedItem(4).tier < 777) {
-			NTIP.arrayLooping(imbueableClassItems);
-		} else {
-			NTIP.arrayLooping(imbueableBelts);
-		}
-	}
 
 	/* FastMod configuration. */
 	Config.FCR = 255;
@@ -218,10 +199,7 @@ function LoadConfig () {
 	/* Monster skip configuration. */
 	Config.SkipException = [];
 	Config.SkipAura = [];
-
-	if (me.lightRes < 75) {
-		Config.SkipEnchant = ["lightning enchanted"];
-	}
+	me.lightRes < 75 && Config.SkipEnchant.push("lightning enchanted");
 
 	/* Shrine scan configuration. */
 	Config.ScanShrines = [15, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14];
@@ -253,12 +231,34 @@ function LoadConfig () {
 	Config.CastStatic = me.classic ? 15 : [25, 33, 50][me.diff];
 	Config.StaticList = [];
 
-
 	/* Gear */
 	let finalGear = Check.finalBuild().finalGear;
-	if (!!finalGear) {
-		NTIP.arrayLooping(finalGear);
-	}
+	!!finalGear && NTIP.arrayLooping(finalGear);
+
+	Config.imbueables = [
+		{name: sdk.items.JaredsStone, condition: (me.normal && me.expansion)},
+		{name: sdk.items.SwirlingCrystal, condition: (!me.normal && me.charlvl < 66 && me.expansion)},
+		{name: sdk.items.DimensionalShard, condition: (Item.getEquippedItem(4).tier < 777 && me.expansion)},
+		{name: sdk.items.Belt, condition: (me.normal && (Item.getEquippedItem(4).tier > 777 || me.classic))},
+		{name: sdk.items.MeshBelt, condition: (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
+		{name: sdk.items.SpiderwebSash, condition: (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
+	].filter(function (item) { return !!item.condition; });
+
+	let imbueArr = (function () {
+		let temp = [];
+		for (let imbueItem of Config.imbueables) {
+			try {
+				if (imbueItem.condition) {
+					temp.push("[name] == " + imbueItem.name + " && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1");
+				}
+			} catch (e) {
+				print(e);
+			}
+		}
+		return temp;
+	})();
+
+	!me.smith && NTIP.arrayLooping(imbueArr);
 
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:
@@ -281,9 +281,7 @@ function LoadConfig () {
 
 		if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
 			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
-			if (["Blova", "Lightning"].includes(SetUp.finalBuild)) {
-				Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
-			}
+			["Blova", "Lightning"].includes(SetUp.finalBuild) && Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
 		}
 
 		// FinalBuild specific setup
@@ -394,32 +392,7 @@ function LoadConfig () {
 		// Tir Rune - Mana after kill
 		// Io Rune - 10 to vitality
 		if (!wep.isRuneword && [4, 6].indexOf(wep.quality) > -1 && wep.sockets > 0 && !wep.socketed) {
-			switch (wep.sockets) {
-			case 1:
-				if (me.normal) {
-					NTIP.addLine("[name] == TirRune # # [maxquantity] == 1");
-				} else {
-					NTIP.addLine("[name] == IoRune # # [maxquantity] == 1");
-				}
-
-				break;
-			case 2:
-				if (me.normal) {
-					NTIP.addLine("[name] == TirRune # # [maxquantity] == 2");
-				} else {
-					NTIP.addLine("[name] == IoRune # # [maxquantity] == 2");
-				}
-
-				break;
-			case 3:
-				if (me.normal) {
-					NTIP.addLine("[name] == TirRune # # [maxquantity] == 3");
-				} else {
-					NTIP.addLine("[name] == IoRune # # [maxquantity] == 3");
-				}
-
-				break;
-			}
+			me.normal ? NTIP.addLine("[name] == TirRune # # [maxquantity] == " + wep.sockets) : NTIP.addLine("[name] == IoRune # # [maxquantity] == " + wep.sockets);
 		}
 
 		if (!shield.isRuneword && [4, 6].indexOf(shield.quality) > -1 && shield.sockets > 0 && !shield.socketed) {

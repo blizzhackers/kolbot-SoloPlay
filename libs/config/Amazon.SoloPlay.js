@@ -133,7 +133,7 @@ function LoadConfig () {
 	/* AutoEquip configuration. */
 	Config.AutoEquip = true;
 
-	// AutoEquip setup
+	// AutoEquip setup - // Note: should probably break this up into basicTiers and expansionTiers
 	let levelingTiers = [
 		// Weapon
 		"([type] == javelin || [type] == amazonjavelin) && [quality] >= normal && [flag] != ethereal && [wsm] <= 10 && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
@@ -166,29 +166,12 @@ function LoadConfig () {
 		"me.charlvl > 14 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
-	let imbueables = [
-		"me.diff == 0 && [name] == maidenjavelin && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
-		"me.diff == 1 && [name] == ceremonialjavelin && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
-		"me.diff == 2 && [name] == matriarchaljavelin && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
-	];
-
 	NTIP.arrayLooping(levelingTiers);
 	NTIP.arrayLooping(nipItems.Gems);
-
-	if (!me.smith) {
-		NTIP.arrayLooping(imbueables);
-	}
 
 	if (SetUp.currentBuild !== "Witchyzon") {
 		NTIP.addLine("[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
 		NTIP.addLine("me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
-	}
-
-	if (Item.getEquippedItem(4).tier < 100000) {
-		Config.GambleItems.push("Javelin");
-		Config.GambleItems.push("Pilum");
-		Config.GambleItems.push("Short Spear");
-		Config.GambleItems.push("Throwing Spear");
 	}
 
 	/* FastMod configuration. */
@@ -203,10 +186,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = false;
 	Config.ClearType = 0;
-	Config.ClearPath = {
-		Range: 30,
-		Spectype: 0xF,
-	};
+	Config.ClearPath = { Range: 30, Spectype: 0xF };
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];
@@ -238,7 +218,42 @@ function LoadConfig () {
 	Config.LightningFuryDelay = 10; // Lightning fury interval in seconds. LF is treated as timed skill.
 	Config.SummonValkyrie = true; 	// Summon Valkyrie
 
-	/* LOD gear */
+	/* Gear */
+	let finalGear = Check.finalBuild().finalGear;
+	!!finalGear && NTIP.arrayLooping(finalGear);
+
+	Config.imbueables = [
+		{name: sdk.items.MaidenJavelin, condition: (me.normal && me.expansion)},
+		{name: sdk.items.CeremonialJavelin, condition: (!me.normal && (me.charlvl < 48 || me.trueStr < 107 || me.trueDex < 151) && me.expansion)},
+		{name: sdk.items.MatriarchalJavelin, condition: (Item.getEquippedItem(4).tier < 100000 && me.trueStr >= 107 && me.trueDex >= 151 && me.expansion)},
+		{name: sdk.items.Belt, condition: (me.normal && (Item.getEquippedItem(4).tier > 100000 || me.classic))},
+		{name: sdk.items.MeshBelt, condition: (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(4).tier > 100000 || me.classic))},
+		{name: sdk.items.SpiderwebSash, condition: (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(4).tier > 100000 || me.classic))},
+	].filter(function (item) { return !!item.condition; });
+
+	let imbueArr = (function () {
+		let temp = [];
+		for (let imbueItem of Config.imbueables) {
+			try {
+				if (imbueItem.condition) {
+					temp.push("[name] == " + imbueItem.name + " && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1");
+				}
+			} catch (e) {
+				print(e);
+			}
+		}
+		return temp;
+	})();
+
+	!me.smith && NTIP.arrayLooping(imbueArr);
+
+	if (Item.getEquippedItem(4).tier < 100000) {
+		Config.GambleItems.push("Javelin");
+		Config.GambleItems.push("Pilum");
+		Config.GambleItems.push("Short Spear");
+		Config.GambleItems.push("Throwing Spear");
+	}
+
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:
 		// Res shield
@@ -250,9 +265,6 @@ function LoadConfig () {
 		
 		break;
 	case sdk.game.gametype.Expansion:
-		let WWS;
-		let finalGear = Check.finalBuild().finalGear;
-		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= Vexrune && [name] <= Zodrune");
 
 		if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
@@ -281,26 +293,28 @@ function LoadConfig () {
 		switch (SetUp.finalBuild) {
 		case 'Witchyzon':
 			// TODO: Clean this up
-			WWS = me.getItems()
-				.filter(item =>
-					item.classid === 268 // diamond bow (witchwhild string up'd)
-                    && item.quality === 7 // unique only
-                    && [1, 3, 7].indexOf(item.location) > -1 // Needs to be at any of these locations
-				)
-				.sort((a, b) => a.location - b.location) // Sort on location, low to high. So if you have one already equiped, it comes first
-				.first();
+			{
+				let WWS = me.getItems()
+					.filter(item =>
+						item.classid === 268 // diamond bow (witchwhild string up'd)
+	                    && item.quality === 7 // unique only
+	                    && [1, 3, 7].indexOf(item.location) > -1 // Needs to be at any of these locations
+					)
+					.sort((a, b) => a.location - b.location) // Sort on location, low to high. So if you have one already equiped, it comes first
+					.first();
 
-			if (!WWS) {
-				NTIP.addLine("[name] == shortsiegebow && [quality] == unique # [fireresist] == 40 # [maxquantity] == 1");
-				Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]);
-			}
+				if (!WWS) {
+					NTIP.addLine("[name] == shortsiegebow && [quality] == unique # [fireresist] == 40 # [maxquantity] == 1");
+					Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]);
+				}
 
-			if (WWS) {
-				let arrows = [
-					"[name] == arrows # # [tier] == 100000", //max tier to avoid shield swap
-					"[type] == bowquiver # # [maxquantity] == 2",
-				];
-				NTIP.arrayLooping(arrows);
+				if (WWS) {
+					let arrows = [
+						"[name] == arrows # # [tier] == 100000", //max tier to avoid shield swap
+						"[type] == bowquiver # # [maxquantity] == 2",
+					];
+					NTIP.arrayLooping(arrows);
+				}
 			}
 
 			break;
@@ -308,8 +322,8 @@ function LoadConfig () {
 			Config.SkipImmune = ["lightning and physical"];
 
 			if (me.getSkill(sdk.skills.ChargedStrike, 0)) {
+				// "Monster name": [-1, -1],
 				Config.CustomAttack = {
-					// "Monster name": [-1, -1],
 					"Fire Tower": [sdk.skills.ChargedStrike, -1],
 				};
 			}

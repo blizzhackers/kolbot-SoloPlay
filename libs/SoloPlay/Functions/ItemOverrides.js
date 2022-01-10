@@ -1610,31 +1610,10 @@ Item.autoEquipCharmCheck = function (item = undefined) {
 
 	let charms, lowestCharm,
 		items = me.getItems()
-			.filter(charm => [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(charm.classid)
-				&& charm.isInStorage && charm.quality === sdk.itemquality.Magic && NTIP.GetCharmTier(charm) > 0);
+			.filter(charm => charm.classid === item.classid && charm.isInStorage
+				&& charm.quality === sdk.itemquality.Magic && NTIP.GetCharmTier(charm) > 0);
 
 	if (!items) return false;
-
-	switch (item.classid) {
-	case sdk.items.SmallCharm:
-		// Remove non small charms
-		items = items.filter(charm => charm.classid === sdk.items.SmallCharm);
-
-		break;
-	case sdk.items.LargeCharm:
-		// Remove non large charms
-		items = items.filter(charm => charm.classid === sdk.items.LargeCharm);
-
-		break;
-	case sdk.items.GrandCharm:
-		//Remove non grand charms
-		items = items.filter(charm => charm.classid === sdk.items.GrandCharm);
-
-		break;
-	default:
-		print((!item.fname ? item.fname : "") + " is not a charm");
-		return false;
-	}
 
 	let keep = [];
 	charms = Item.autoEquipCharmSort(items);

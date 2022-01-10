@@ -174,28 +174,8 @@ function LoadConfig () {
 		"me.charlvl > 14 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
-	let imbueableClassItems = [
-		"me.diff == 0 && [name] == demonhead && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
-		"me.diff == 1 && [name] == hierophanttrophy && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
-		"me.diff == 2 && [name] == bloodlordskull && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
-	];
-
-	let imbueableBelts = [
-		"me.diff == 0 && [name] == platedbelt && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
-		"me.diff == 1 && [name] == warbelt && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
-		"me.diff == 2 && [name] == mithrilcoil && [quality] >= normal && [quality] <= superior && [flag] != ethereal # # [maxquantity] == 1",
-	];
-
 	NTIP.arrayLooping(levelingTiers);
 	NTIP.arrayLooping(nipItems.Gems);
-
-	if (!me.smith) {
-		if (Item.getEquippedItem(5).tier < 1000) {
-			NTIP.arrayLooping(imbueableClassItems);
-		} else {
-			NTIP.arrayLooping(imbueableBelts);
-		}
-	}
 
 	/* FastMod configuration. */
 	Config.FCR = 255;
@@ -210,10 +190,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal ? true : false;
 	Config.ClearType = 0;
-	Config.ClearPath = {
-		Range: 30,
-		Spectype: 0xF,
-	};
+	Config.ClearPath = { Range: 30, Spectype: 0xF};
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];
@@ -263,6 +240,34 @@ function LoadConfig () {
 	Config.ExplodeCorpses = me.getSkill(sdk.skills.CorpseExplosion, 0) ? sdk.skills.CorpseExplosion : me.getSkill(sdk.skills.PoisonExplosion, 0) ? sdk.skills.PoisonExplosion : 0;
 
 	/* Gear */
+	let finalGear = Check.finalBuild().finalGear;
+	!!finalGear && NTIP.arrayLooping(finalGear);
+
+	Config.imbueables = [
+		{name: sdk.items.DemonHead, condition: (me.normal && me.expansion)},
+		{name: sdk.items.HierophantTrophy, condition: (!me.normal && (me.charlvl < 66 || me.trueStr < 106) && me.expansion)},
+		{name: sdk.items.BloodlordSkull, condition: (Item.getEquippedItem(5).tier < 1000 && me.expansion)},
+		{name: sdk.items.Belt, condition: (me.normal && (Item.getEquippedItem(5).tier > 1000 || me.classic))},
+		{name: sdk.items.MeshBelt, condition: (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(5).tier > 1000 || me.classic))},
+		{name: sdk.items.SpiderwebSash, condition: (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(5).tier > 1000 || me.classic))},
+	].filter(function (item) { return !!item.condition; });
+
+	let imbueArr = (function () {
+		let temp = [];
+		for (let imbueItem of Config.imbueables) {
+			try {
+				if (imbueItem.condition) {
+					temp.push("[name] == " + imbueItem.name + " && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1");
+				}
+			} catch (e) {
+				print(e);
+			}
+		}
+		return temp;
+	})();
+
+	!me.smith && NTIP.arrayLooping(imbueArr);
+
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:
 		// Res shield
@@ -274,8 +279,6 @@ function LoadConfig () {
 
 		break;
 	case sdk.game.gametype.Expansion:
-		let finalGear = Check.finalBuild().finalGear;
-		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
 
 		/* Crafting */
@@ -331,32 +334,7 @@ function LoadConfig () {
 		// Tir Rune - Mana after kill
 		// Io Rune - 10 to vitality
 		if (!wep.isRuneword && [4, 6].indexOf(wep.quality) > -1 && wep.sockets > 0 && !wep.socketed) {
-			switch (wep.sockets) {
-			case 1:
-				if (me.normal) {
-					NTIP.addLine("[name] == TirRune # # [maxquantity] == 1");
-				} else {
-					NTIP.addLine("[name] == IoRune # # [maxquantity] == 1");
-				}
-
-				break;
-			case 2:
-				if (me.normal) {
-					NTIP.addLine("[name] == TirRune # # [maxquantity] == 2");
-				} else {
-					NTIP.addLine("[name] == IoRune # # [maxquantity] == 2");
-				}
-
-				break;
-			case 3:
-				if (me.normal) {
-					NTIP.addLine("[name] == TirRune # # [maxquantity] == 3");
-				} else {
-					NTIP.addLine("[name] == IoRune # # [maxquantity] == 3");
-				}
-
-				break;
-			}
+			me.normal ? NTIP.addLine("[name] == TirRune # # [maxquantity] == " + wep.sockets) : NTIP.addLine("[name] == IoRune # # [maxquantity] == " + wep.sockets);
 		}
 
 		if (!shield.isRuneword && [4, 6].indexOf(shield.quality) > -1 && shield.sockets > 0 && !shield.socketed) {

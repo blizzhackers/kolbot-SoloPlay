@@ -12,7 +12,7 @@ if (!isIncluded("common/Prototypes.js")) { include("common/Prototypes.js"); }
 if (!isIncluded("common/Runewords.js")) { include("common/Runewords.js"); }
 
 const AutoBuild = new function AutoBuild () {
-	if (Config.AutoBuild.DebugMode) { Config.AutoBuild.Verbose = true; }
+	Config.AutoBuild.DebugMode && (Config.AutoBuild.Verbose = true);
 
 	let debug = !!Config.AutoBuild.DebugMode, 
 		verbose = !!Config.AutoBuild.Verbose, configUpdateLevel = 0, lastSuccessfulUpdateLevel = 0;
@@ -100,8 +100,8 @@ const AutoBuild = new function AutoBuild () {
 		let args = Array.prototype.slice.call(arguments);
 		args.unshift("AutoBuild:");
 		let result = args.join(" ");
-		if (verbose) { print.call(this, result); }
-		if (debug) { log.call(this, result); }
+		verbose && print.call(this, result);
+		debug && log.call(this, result);
 	}
 
 	this.print = myPrint;

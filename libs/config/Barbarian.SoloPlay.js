@@ -165,18 +165,8 @@ function LoadConfig () {
 		"me.charlvl > 14 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
-	let imbueables = [
-		"me.diff == 0 && [name] == avengerguard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
-		"me.diff == 1 && [name] == slayerguard && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
-		"me.diff == 2 && [name] == carnagehelm && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1",
-	];
-
 	NTIP.arrayLooping(levelingTiers);
 	NTIP.arrayLooping(nipItems.Gems);
-
-	if (!me.getQuest(3, 0)) {
-		NTIP.arrayLooping(imbueables);
-	}
 
 	if (SetUp.currentBuild !== SetUp.finalBuild) {
 		NTIP.addLine("[name] == perfectskull # # [maxquantity] == 2");
@@ -194,10 +184,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal ? true : false;
 	Config.ClearType = 0;
-	Config.ClearPath = {
-		Range: 30,
-		Spectype: 0xF,
-	};
+	Config.ClearPath = { Range: 30, Spectype: 0xF };
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];
@@ -234,12 +221,38 @@ function LoadConfig () {
 	Config.FindItemSwitch = false; 	// Switch to non-primary slot when using Find Item skills
 
 	/* Gear */
+	let finalGear = Check.finalBuild().finalGear;
+	!!finalGear && NTIP.arrayLooping(finalGear);
+
+	Config.imbueables = [
+		{name: sdk.items.AvengerGuard, condition: (me.normal && me.expansion)},
+		{name: sdk.items.SlayerGuard, condition: (!me.normal && me.trueStr >= 118 && me.expansion)},
+		{name: sdk.items.CarnageHelm, condition: (Item.getEquippedItem(1).tier < 100000 && me.trueStr >= 106 && me.expansion)},
+		{name: sdk.items.Belt, condition: (me.normal && (Item.getEquippedItem(1).tier > 100000 || me.classic))},
+		{name: sdk.items.MeshBelt, condition: (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(4).tier > 100000 || me.classic))},
+		{name: sdk.items.SpiderwebSash, condition: (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(4).tier > 100000 || me.classic))},
+	].filter(function (item) { return !!item.condition; });
+
+	let imbueArr = (function () {
+		let temp = [];
+		for (let imbueItem of Config.imbueables) {
+			try {
+				if (imbueItem.condition) {
+					temp.push("[name] == " + imbueItem.name + " && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1");
+				}
+			} catch (e) {
+				print(e);
+			}
+		}
+		return temp;
+	})();
+
+	!me.smith && NTIP.arrayLooping(imbueArr);
+
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:
 		break;
 	case sdk.game.gametype.Expansion:
-		let finalGear = Check.finalBuild().finalGear;
-		NTIP.arrayLooping(finalGear);
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
 
 		if (["Immortalwhirl", "Singer"].indexOf(SetUp.finalBuild) === -1) {

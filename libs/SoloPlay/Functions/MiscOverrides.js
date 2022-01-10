@@ -10,7 +10,6 @@ if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Develo
 Misc.checkQuest = function (id, state) {
 	sendPacket(1, 0x40);
 	delay(500 + me.ping);
-
 	return me.getQuest(id, state);
 };
 
@@ -22,18 +21,16 @@ Misc.updateConfig = function () {
 Misc.townEnabled = true;
 
 Misc.townCheck = function () {
-	let i, potion, check,
+	if (!Misc.townEnabled || !Town.canTpToTown()) return false;
+	
+	let potion, check,
 		needhp = true,
 		needmp = true;
-
-	if (!Misc.townEnabled || !Town.canTpToTown()) {
-		return false;
-	}
 
 	if (Config.TownCheck && !me.inTown) {
 		try {
 			if (me.charlvl > 2 && me.gold > 500) {
-				for (i = 0; i < 4; i += 1) {
+				for (let i = 0; i < 4; i += 1) {
 					if (Config.BeltColumn[i] === "hp" && Config.MinColumn[i] > 0) {
 						potion = me.getItem(-1, 2); // belt item
 
@@ -96,18 +93,11 @@ Misc.townCheck = function () {
 };
 
 Misc.openChest = function (unit) {
-	// Skip invalid and Countess chests
-	if (!unit || unit.x === 12526 || unit.x === 12565) {
-		return false;
-	}
-
-	// already open
-	if (unit.mode) { return true; }
+	// Skip invalid/open and Countess chests
+	if (!unit || unit.x === 12526 || unit.x === 12565 || unit.mode) return false;
 
 	// locked chest, no keys
-	if (!me.assassin && unit.islocked && !me.findItem(543, 0, 3)) {
-		return false;
-	}
+	if (!me.assassin && unit.islocked && !me.findItem(543, 0, 3)) return false;
 
 	for (let i = 0; i < 7; i++) {
 		if (Skill.useTK(unit) && i < 3) {
@@ -125,9 +115,7 @@ Misc.openChest = function (unit) {
 		let tick = getTickCount();
 
 		while (getTickCount() - tick < 1000) {
-			if (unit.mode) {
-				return true;
-			}
+			if (unit.mode) return true;
 
 			delay(10);
 		}
@@ -142,7 +130,7 @@ Misc.openChest = function (unit) {
 	return false;
 };
 
-Misc.openChests = function (range) {
+Misc.openChests = function (range = 15) {
 	let unit,
 		unitList = [],
 		containers = [
@@ -154,8 +142,6 @@ Misc.openChests = function (range) {
 			"deadperson", "deadperson2", "groundtombl", "casket"
 		],
 		pita = ["barrel", "largeurn", "jar3", "jar2", "jar1", "urn", "jug"]; // pain in the ass
-							
-	!range && (range = 15);
 
 	if (Config.OpenChests === 2) {
 		containers = [
@@ -185,14 +171,12 @@ Misc.openChests = function (range) {
 	return true;
 };
 
-Misc.useWell = function (range) {
+Misc.useWell = function (range = 15) {
 	let unit, unitList = [];
-
-	!range && (range = 15);
 
 	// I'm in perfect health, don't need this shit
 	if (me.hp === me.hpmax && me.mp === me.mpmax && me.stamina === me.staminamax && 
-		[sdk.states.Frozen, sdk.states.Poison, sdk.states.AmplifyDamage, sdk.states.Decrepify].some(function (states) { return me.getState(states); })) {
+		[sdk.states.Frozen, sdk.states.Poison, sdk.states.AmplifyDamage, sdk.states.Decrepify].every(function (states) { return !me.getState(states); })) {
 		return true;
 	}
 
@@ -213,9 +197,7 @@ Misc.useWell = function (range) {
 };
 
 Misc.getExpShrine = function (shrineLocs) {
-	if (me.getState(137)) {
-		return true;
-	}
+	if (me.getState(137)) return true;
 
 	for (let get = 0; get < shrineLocs.length; get++) {
 		if (shrineLocs[get] === 2) {
@@ -235,9 +217,7 @@ Misc.getExpShrine = function (shrineLocs) {
 			break;
 		}
 
-		if (!me.inTown) {
-			Town.goToTown();
-		}
+		!me.inTown && Town.goToTown();
 	}
 
 	return true;
@@ -382,13 +362,13 @@ Misc.getGoodShrine = function (shrineLocs) {
 };
 
 Misc.getGoodShrinesInArea = function (area, types, use) {
-	let i, coords, shrine,
+	let coords, shrine,
 		shrineLocs = [],
 		shrineIds = [2, 81, 83],
 		unit = getPresetUnits(area);
 
 	if (unit) {
-		for (i = 0; i < unit.length; i += 1) {
+		for (let i = 0; i < unit.length; i += 1) {
 			if (shrineIds.indexOf(unit[i].id) > -1) {
 				shrineLocs.push([unit[i].roomx * 5 + unit[i].x, unit[i].roomy * 5 + unit[i].y]);
 			}
@@ -397,11 +377,8 @@ Misc.getGoodShrinesInArea = function (area, types, use) {
 
 	while (shrineLocs.length > 0) {
 		shrineLocs.sort(Sort.points);
-
 		coords = shrineLocs.shift();
-
 		Pather.moveTo(coords[0], coords[1], 2);
-
 		shrine = getUnit(2, "shrine");
 
 		if (shrine) {
@@ -422,8 +399,8 @@ Misc.getGoodShrinesInArea = function (area, types, use) {
 };
 
 // Add use of tk for shrine - from autoplay
-Misc.getShrine = function (unit) {
-	if (unit.mode) { return false; }
+Misc.getShrine = function (unit = undefined) {
+	if (!unit || unit.mode) return false;
 
 	for (let i = 0; i < 3; i++) {
 		if (Skill.useTK(unit) && i < 2) {
@@ -441,7 +418,7 @@ Misc.getShrine = function (unit) {
 		let tick = getTickCount();
 
 		while (getTickCount() - tick < 1000) {
-			if (unit.mode) { return true; }
+			if (unit.mode) return true;
 
 			delay(10);
 		}
@@ -451,7 +428,7 @@ Misc.getShrine = function (unit) {
 };
 
 Misc.getWell = function (unit) {
-	if (unit.mode === 2) { return false; }
+	if (unit.mode === 2) return false;
 
 	for (let i = 0; i < 3; i += 1) {
 		if (Skill.useTK(unit) && i < 2) {
@@ -469,7 +446,7 @@ Misc.getWell = function (unit) {
 		let tick = getTickCount();
 
 		while (getTickCount() - tick < 1000) {
-			if (unit.mode !== 0) { return true; }
+			if (unit.mode !== 0) return true;
 
 			delay(10);
 		}
@@ -478,10 +455,9 @@ Misc.getWell = function (unit) {
 	return false;
 };
 
-Misc.checkItemForSocketing = function () {
-	if (me.classic || !me.getQuest(sdk.quests.SiegeOnHarrogath, 1)) {
-		return false;
-	}
+// Re-write this in similar way I did imbueing
+Misc.checkItemsForSocketing = function () {
+	if (me.classic || !me.getQuest(sdk.quests.SiegeOnHarrogath, 1)) return false;
 
 	let item;
 	let items = me.getItems().filter(item => item.getStat(sdk.stats.NumSockets) === 0 && getBaseStat("items", item.classid, "gemsockets") > 0);
@@ -635,256 +611,17 @@ Misc.checkItemForSocketing = function () {
 	return item;
 };
 
-// TODO: clean this up, I want to be able to pass in the array from the Config file and process out the valid items and use that instead of this hard-coded version
-Misc.checkItemForImbueing = function () {
-	if (!me.getQuest(sdk.quests.ToolsoftheTrade, 1)) {
-		return false;
-	}
+Misc.checkItemsForImbueing = function () {
+	if (!me.getQuest(sdk.quests.ToolsoftheTrade, 1)) return false;
 
-	let item;
+	let item = false;
 	let items = me.getItems()
-		.filter(item => item.getStat(sdk.stats.NumSockets) === 0 && [sdk.itemquality.Normal, sdk.itemquality.Superior].indexOf(item.quality) > -1);
+		.filter(item => item.getStat(sdk.stats.NumSockets) === 0 && [sdk.itemquality.Normal, sdk.itemquality.Superior].includes(item.quality));
 
-	switch (me.classid) {
-	case sdk.charclass.Amazon:
-		// Only use imbue if not using final weapon
-		if (Item.getEquippedItem(4).tier < 100000) {
-			if (me.normal) {
-				for (let i = 0; i < items.length; i++) {
-					// Maiden Javelin
-					if (items[i].classid === 285) {
-						item = items[i];
-						break;
-					}
-				}
-			} else if (me.nightmare) {
-				for (let i = 0; i < items.length; i++) {
-					// Ceremonial Javelin
-					if (items[i].classid === 295) {
-						item = items[i];
-						break;
-					}
-				}
-			} else {
-				for (let i = 0; i < items.length; i++) {
-					// Matriarchal Javelin
-					if (items[i].classid === 305) {
-						item = items[i];
-						break;
-					}
-				}
-				
-			}
-		}
-		
-		break;
-	case sdk.charclass.Sorceress:
-		// Less than a spirit sword
-		if (Item.getEquippedItem(4).tier < 777) {
-			if (me.normal) {
-				for (let i = 0; i < items.length; i++) {
-					// Jared's Stone
-					if (items[i].classid === 280) {
-						item = items[i];
-						break;
-					}
-				}
-			} else if (me.nightmare) {
-				for (let i = 0; i < items.length; i++) {
-					// Swirling Crystal
-					if (items[i].classid === 290) {
-						item = items[i];
-						break;
-					}
-				}
-			} else {
-				for (let i = 0; i < items.length; i++) {
-					// Dimensional Shard
-					if (items[i].classid === 300) {
-						item = items[i];
-						break;
-					}
-				}
-			}
-		}
-		
-		break;
-	case sdk.charclass.Necromancer:
-		// Less than spirit shield
-		if (Item.getEquippedItem(5).tier < 1000) {
-			if (me.normal) {
-				for (let i = 0; i < items.length; i++) {
-					// Demon Head
-					if (items[i].classid === 417) {
-						item = items[i];
-						break;
-					}
-				}
-			} else if (me.nightmare) {
-				for (let i = 0; i < items.length; i++) {
-					// Hierophant Trophy
-					if (items[i].classid === 487) {
-						item = items[i];
-						break;
-					}
-				}
-			} else {
-				for (let i = 0; i < items.length; i++) {
-					// Bloodlord Skull
-					if (items[i].classid === 507) {
-						item = items[i];
-						break;
-					}
-				}
-			}
-		}
-		
-		break;
-	case sdk.charclass.Paladin:
-		// Less than a spirit sword
-		if (Item.getEquippedItem(4).tier < 777) {
-			if (me.normal) {
-				for (let i = 0; i < items.length; i++) {
-					// War Scepter
-					if (items[i].classid === 17) {
-						item = items[i];
-						break;
-					}
-				}
-			} else if (me.nightmare) {
-				for (let i = 0; i < items.length; i++) {
-					// Divine Scepter
-					if (items[i].classid === 110) {
-						item = items[i];
-						break;
-					}
-				}
-			} else {
-				for (let i = 0; i < items.length; i++) {
-					// Caduceus
-					if (items[i].classid === 213) {
-						item = items[i];
-						break;
-					}
-				}
-			}
-		}
-		
-		break;
-	case sdk.charclass.Barbarian:
-		// Less than final helm
-		if (Item.getEquippedItem(1).tier < 100000) {
-			if (me.normal) {
-				for (let i = 0; i < items.length; i++) {
-					// Avenger Guard
-					if (items[i].classid === 407) {
-						item = items[i];
-						break;
-					}
-				}
-			} else if (me.nightmare) {
-				for (let i = 0; i < items.length; i++) {
-					// Slayer Guard
-					if (items[i].classid === 477) {
-						item = items[i];
-						break;
-					}
-				}
-			} else {
-				for (let i = 0; i < items.length; i++) {
-					// Carnage Helm
-					if (items[i].classid === 493) {
-						item = items[i];
-						break;
-					}
-				}
-			}
-		}
-		
-		break;
-	case sdk.charclass.Druid:
-		// Less than final helm
-		if (Item.getEquippedItem(1).tier < 100000) {
-			if (me.normal) {
-				for (let i = 0; i < items.length; i++) {
-					// Spirit Mask
-					if (items[i].classid === 402) {
-						item = items[i];
-						break;
-					}
-				}
-			} else if (me.nightmare) {
-				for (let i = 0; i < items.length; i++) {
-					// Totemic Mask
-					if (items[i].classid === 472) {
-						item = items[i];
-						break;
-					}
-				}
-			} else {
-				for (let i = 0; i < items.length; i++) {
-					// Dream Spirit
-					if (items[i].classid === 492) {
-						item = items[i];
-						break;
-					}
-				}
-			}
-		}
-
-		break;
-	case sdk.charclass.Assassin:
-		// Less than a spirit sword
-		if (Item.getEquippedItem(4).tier < 777) {
-			if (me.normal) {
-				for (let i = 0; i < items.length; i++) {
-					// Claws
-					if (items[i].classid === 179) {
-						item = items[i];
-						break;
-					}
-				}
-			} else if (me.diff > 0) {
-				for (let i = 0; i < items.length; i++) {
-					// Greater Talons
-					if (items[i].classid === 187) {
-						item = items[i];
-						break;
-					}
-				}
-			}
-		}
-
-		break;
-	default:
-		break;
-	}
-
-	if (item === undefined || !item) {
-		if (me.normal) {
-			for (let i = 0; i < items.length; i++) {
-				// Plated Belt
-				if (items[i].classid === 348) {
-					item = items[i];
-					break;
-				}
-			}
-		} else if (me.nightmare) {
-			for (let i = 0; i < items.length; i++) {
-				// War Belt
-				if (items[i].classid === 394) {
-					item = items[i];
-					break;
-				}
-			}
-		} else {
-			for (let i = 0; i < items.length; i++) {
-				// Mithril Coil
-				if (items[i].classid === 462) {
-					item = items[i];
-					break;
-				}
-			}
+	for (let i = 0; i < items.length; i++) {
+		if (Config.imbueables.some(function (item) { return item.name === items[i].classid && Item.canEquip(items[i]); })) {
+			item = items[i];
+			break;
 		}
 	}
 
@@ -893,7 +630,8 @@ Misc.checkItemForImbueing = function () {
 
 Misc.addSocketables = function () {
 	let item, sockets;
-	let items = me.getItems().filter(item => item.getStat(sdk.stats.NumSockets) > 0);
+	let items = me.getItems()
+		.filter(item => item.getStat(sdk.stats.NumSockets) > 0 || [sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(item.itemType) || (item.itemType >= sdk.itemtype.Amethyst && item.itemType <= sdk.itemtype.Skull));
 
 	for (let i = 0; i < items.length; i++) {
 		sockets = items[i].getStat(sdk.stats.NumSockets);
@@ -1461,9 +1199,7 @@ Misc.addSocketables = function () {
 };
 
 Misc.addSocketableToItem = function (item, rune) {
-	if (item.getStat(sdk.stats.NumSockets) === 0) {
-		return false;
-	}
+	if (item.getStat(sdk.stats.NumSockets) === 0) return false;
 
 	if (item.mode === sdk.itemmode.Equipped) {
 		let bodyLoc = item.bodylocation;
@@ -1473,22 +1209,14 @@ Misc.addSocketableToItem = function (item, rune) {
 			print("ÿc8AddSocketableToItemÿc0 :: No space to get item back");
 			return false;
 		} else {
-			if (item.isInStash) {
-				Town.openStash();
-			}
-
-			if (!Storage.Inventory.MoveTo(item)) {
-				return false;
-			}
+			item.isInStash && Town.openStash();
+			if (!Storage.Inventory.MoveTo(item)) return false;
 		}
 
-		if (!rune.toCursor()) {
-			return false;
-		}
+		if (!rune.toCursor()) return false;
 
 		for (let i = 0; i < 3; i += 1) {
 			sendPacket(1, 0x28, 4, rune.gid, 4, item.gid);
-
 			let tick = getTickCount();
 
 			while (getTickCount() - tick < 2000) {
@@ -1503,7 +1231,7 @@ Misc.addSocketableToItem = function (item, rune) {
 
 			if (item.getItem()) {
 				Misc.logItem("Added " + rune.name + " to: ", item);
-				bodyLoc && (Item.equip(item, bodyLoc));
+				bodyLoc && Item.equip(item, bodyLoc);
 
 				return true;
 			}
@@ -1522,9 +1250,7 @@ Misc.addSocketableToItem = function (item, rune) {
 
 // Log kept item stats in the manager.
 Misc.logItem = function (action, unit, keptLine) {
-	if (!this.useItemLog || unit === undefined || !unit) {
-		return false;
-	}
+	if (!this.useItemLog || unit === undefined || !unit) return false;
 
 	// Don't check for config settings if there's no config loaded	
 	if (Config.loaded) {
@@ -1563,9 +1289,7 @@ Misc.logItem = function (action, unit, keptLine) {
 		}
 	}
 
-	if (!unit.fname) {
-		return false;
-	}
+	if (!unit.fname) return false;
 
 	let lastArea, code, desc, sock, itemObj,
 		color = -1,
@@ -1810,7 +1534,6 @@ Misc.shapeShift = function (mode) {
 
 	for (let i = 0; i < 3; i += 1) {
 		Skill.cast(skill, 0);
-
 		let tick = getTickCount();
 
 		while (getTickCount() - tick < 2000) {
@@ -1838,23 +1561,15 @@ Misc.buyItem = function (unit, shiftBuy, gamble) {
 	}
 
 	// Can we afford the item?
-	if (me.gold < unit.getItemCost(0)) {
-		return false;
-	}
+	if (me.gold < unit.getItemCost(0)) return false;
 
 	for (let i = 0; i < 3; i += 1) {
 		sendPacket(1, 0x32, 4, npc.gid, 4, unit.gid, 4, shiftBuy ? 0x80000000 : gamble ? 0x2 : 0x0, 4, 0);
-
 		let tick = getTickCount();
 
 		while (getTickCount() - tick < Math.max(2000, me.ping * 2 + 500)) {
-			if (shiftBuy && me.gold < oldGold) {
-				return true;
-			}
-
-			if (itemCount !== me.itemcount) {
-				return true;
-			}
+			if (shiftBuy && me.gold < oldGold) return true;
+			if (itemCount !== me.itemcount) return true;
 
 			delay(10);
 		}
@@ -1920,24 +1635,16 @@ Misc.errorReport = function (error, script) {
 
 // singleplayer delay(0) fix
 Packet.openMenu = function (unit) {
-	if (unit.type !== 1) {
-		throw new Error("openMenu: Must be used on NPCs.");
-	}
-
-	if (getUIFlag(0x08)) {
-		return true;
-	}
+	if (unit.type !== 1) { throw new Error("openMenu: Must be used on NPCs."); }
+	if (getUIFlag(sdk.uiflags.NPCMenu)) return true;
 
 	for (let i = 0; i < 5; i += 1) {
-		if (getDistance(me, unit) > 4) {
-			Pather.moveToUnit(unit);
-		}
-
+		unit.distance > 4 && Pather.moveToUnit(unit);
 		sendPacket(1, 0x13, 4, 1, 4, unit.gid);
 		let tick = getTickCount();
 
 		while (getTickCount() - tick < 5000) {
-			if (getUIFlag(0x08)) {
+			if (getUIFlag(sdk.uiflags.NPCMenu)) {
 				delay(Math.max(500, me.ping * 2));
 
 				return true;

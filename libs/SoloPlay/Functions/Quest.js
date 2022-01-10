@@ -88,22 +88,12 @@ const Quest = {
 			return true;
 		}
 
-		if (!me.inTown) {
-			Town.goToTown();
-		}
-
-		if (outcome === 91) {
-			me.overhead('cubing staff');
-		} else if (outcome === 174) {
-			me.overhead('cubing flail');
-		}
+		!me.inTown && Town.goToTown();
+		outcome === 91 ? me.overhead('cubing staff') : outcome === 174 ? me.overhead('cubing flail') : me.overhead('cubing ' + outcome);
 
 		Town.doChores();
 		Town.openStash();
-
-		if (me.findItems(-1, -1, 6)) {
-			Cubing.emptyCube();
-		}
+		me.findItems(-1, -1, sdk.storage.Cube) && Cubing.emptyCube();
 
 		let cubingItem;
 
@@ -149,8 +139,8 @@ const Quest = {
 		let orifice = Misc.poll(function () { return getUnit(sdk.unittype.Object, sdk.units.HoradricStaffHolder); });
 		let hstaff = me.getItem(sdk.items.quest.HoradricStaff);
 
-		if (me.horadricstaff) { return true; }
-		if (!orifice) { return false; }
+		if (me.horadricstaff) return true;
+		if (!orifice) return false;
 
 		if (!hstaff) {
 			hstaff = Quest.cubeItems(sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff, sdk.items.quest.ViperAmulet);
@@ -210,7 +200,7 @@ const Quest = {
 
 		let tyrael = getUnit(1, NPC.Tyrael);
 
-		if (!tyrael) { return false; }
+		if (!tyrael) return false;
 
 		for (let talk = 0; talk < 3; talk += 1) {
 			if (getDistance(me, tyrael) > 3) {
@@ -233,15 +223,10 @@ const Quest = {
 	},
 
 	stashItem: function (classid) {
-		if (!me.getItem(classid)) {
-			return false;
-		}
-
-		if (!me.inTown) {
-			Town.goToTown();
-		}
-
+		if (!me.getItem(classid)) return false;
 		let questItem = me.getItem(classid);
+
+		!me.inTown && Town.goToTown();
 		Town.move("stash");
 		Town.openStash();
 
@@ -256,18 +241,13 @@ const Quest = {
 	},
 
 	collectItem: function (classid, chestID) {
-		if (me.getItem(classid)) {
-			return true;
-		}
+		if (me.getItem(classid)) return true;
 
 		if (chestID !== undefined) {
 			let chest = getUnit(2, chestID);
-
-			if (!chest) {
-				return false;
-			}
-
+			if (!chest) return false;
 			Misc.openChest(chest);
+
 		}
 
 		let questItem;
@@ -383,9 +363,7 @@ const Quest = {
 			Town.npcInteract("akara");
 			delay(10 + me.ping * 2);
 
-			if (!Misc.useMenu(0x2ba0) || !Misc.useMenu(3401)) {
-				return false;
-			}
+			if (!Misc.useMenu(0x2ba0)) return false;
 
 			sendPacket(1, 0x40);
 			delay(10 + me.ping * 2);
@@ -405,16 +383,14 @@ const Quest = {
 	},
 
 	// Credit dzik or laz unsure who for this
-	useSocketQuest: function (item) {
+	useSocketQuest: function (item = undefined) {
 		let larzuk, slot, invo, i, items;
 
-		if (SetUp.finalBuild === "Socketmule") {
-			//print("ÿc8Kolbot-SoloPlayÿc0: Socketmules cannot use their socket quest");
-			return false;
-		}
+		//print("ÿc8Kolbot-SoloPlayÿc0: Socketmules cannot use their socket quest");
+		if (SetUp.finalBuild === "Socketmule") return false;
 		
 		// No item, or item is on the ground
-		if (!item || item === undefined || item.mode === 3) {
+		if (!item || item.mode === 3) {
 			print("ÿc8Kolbot-SoloPlayÿc0: No item");
 			return false;
 		}
@@ -491,9 +467,7 @@ const Quest = {
 		Town.npcInteract("larzuk");
 		delay(10 + me.ping * 2);
 
-		if (!Misc.useMenu(0x58DC)) {
-			return false;
-		}
+		if (!Misc.useMenu(0x58DC)) return false;
 
 		if (!getUIFlag(sdk.uiflags.SubmitItem)) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed to open SubmitItem screen");
@@ -519,11 +493,9 @@ const Quest = {
 		}
 			
 		if (!item || item.getStat(194) === 0) {
-			if (me.itemoncursor) {
-				Storage.Stash.MoveTo(item);
-			}
-
+			me.itemoncursor && Storage.Stash.MoveTo(item);
 			print("Failed to socket item");
+
 			return false;
 		}
 
@@ -544,19 +516,17 @@ const Quest = {
 			}
 		}
 
-		if (slot) {
-			Item.equip(item, slot);
-		}
+		slot && Item.equip(item, slot);
 		
 		return true;
 	},
 
 	// Credit whoever did useSocketQuest, I modified that to come up with this
-	useImbueQuest: function (item) {
+	useImbueQuest: function (item = undefined) {
 		let charsi, slot, invo, i, items;
 		
 		// No item, or item is on the ground
-		if (!item || item === undefined || item.mode === 3) {
+		if (!item || item.mode === 3) {
 			print("ÿc8Kolbot-SoloPlayÿc0: No item");
 			return false;
 		}
@@ -623,9 +593,7 @@ const Quest = {
 		Town.npcInteract("charsi");
 		delay(10 + me.ping * 2);
 
-		if (!Misc.useMenu(0x0FB1)) {
-			return false;
-		}
+		if (!Misc.useMenu(0x0FB1)) return false;
 
 		if (!getUIFlag(sdk.uiflags.SubmitItem)) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed to open SubmitItem screen");
@@ -668,9 +636,7 @@ const Quest = {
 			}
 		}
 
-		if (slot) {
-			Item.equip(item, slot);
-		}
+		slot && Item.equip(item, slot);
 		
 		return true;
 	},

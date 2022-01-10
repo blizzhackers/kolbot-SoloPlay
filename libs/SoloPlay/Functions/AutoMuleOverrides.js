@@ -4,9 +4,7 @@
 *	@desc		Automule fix to not mule wanted autoequip items
 */
 
-if (!isIncluded("Automule.js")) {
-	include("Automule.js");
-}
+if (!isIncluded("Automule.js")) { include("Automule.js"); }
 
 AutoMule.getMuleItems = function () {
 	let item, items,

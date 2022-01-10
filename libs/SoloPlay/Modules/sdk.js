@@ -1634,6 +1634,7 @@
 			MoonClan2: 585,
 			Mummy: 105,
 			Navi: 266,
+            Flavie: 266,
 			NightClan1: 54,
 			NightClan2: 586,
 			NightLord: 132,
@@ -1936,15 +1937,20 @@
 			Turret1: 348,
 			Turret2: 349,
 			Turret3: 350,
-			CatapultE: 498,
 			CatapultS: 497,
+			CatapultE: 498,
 			CatapultSiege: 499,
 			CatapultW: 500,
 			Compellingorb: 366,
 			GargoyleTrap: 273,
 			MummyGenerator: 228,
 			Stairs: 559,
-			Tower: 435,
+            BarricadeDoor1: 432,
+            BarricadeDoor2: 433,
+            PrisonDoor: 434,
+			BarricadeTower: 435,
+            BarricadeWall1: 524,
+            BarricadeWall2: 525,
 
 			// Misc?
 			Youngdiablo: 368,
@@ -1957,6 +1963,7 @@
 			Right: 524,
 			Sage: 424,
 			Town: 514,
+            Cow: 179,
 
 			preset: {
 				// Confirmed

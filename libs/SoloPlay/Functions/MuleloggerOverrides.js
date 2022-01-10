@@ -4,25 +4,15 @@
 *	@desc		Add override to log equipped items while running Kolbot-SoloPlay
 */
 
-if (!isIncluded("MuleLogger.js")) {
-	include("MuleLogger.js");
-}
-
-if (!isIncluded("SoloPlay/Functions/NTIPOverrides.js")) {
-	include("SoloPlay/Functions/NTIPOverrides.js");
-}
-
-if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) {
-	include("SoloPlay/Functions/MiscOverrides.js");
-}
+if (!isIncluded("MuleLogger.js")) { include("MuleLogger.js"); }
+if (!isIncluded("SoloPlay/Functions/NTIPOverrides.js")) { include("SoloPlay/Functions/NTIPOverrides.js"); }
+if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
 
 MuleLogger.getItemDesc = function (unit, logIlvl) {
 	let i, desc, index,
 		stringColor = "";
 
-	if (logIlvl === undefined) {
-		logIlvl = this.LogItemLevel;
-	}
+	logIlvl === undefined && (logIlvl = this.LogItemLevel);
 
 	try {
 		//Try a few times, sometimes it fails
@@ -74,19 +64,13 @@ MuleLogger.getItemDesc = function (unit, logIlvl) {
 };
 
 // Added type parameter and logging tier value under picture on char viewer tab
-MuleLogger.logItem = function (unit, logIlvl, type) {
+MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 	if (!isIncluded("common/misc.js")) {
 		include("common/misc.js");
 		include("common/util.js");
 	}
 
-	if (logIlvl === undefined) {
-		logIlvl = this.LogItemLevel;
-	}
-
-	if (type === undefined) {
-		type = "Player";
-	}
+	logIlvl === undefined && (logIlvl = this.LogItemLevel);
 
 	let i, code, desc, sock,
 		header = "",
