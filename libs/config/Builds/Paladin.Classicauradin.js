@@ -14,7 +14,7 @@ let AutoBuildTemplate = {
 	1:	{
 		Update: function () {
 			Config.Vigor = false;
-			Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.HolyShock, sdk.skills.Zeal, sdk.skills.Shock, sdk.skills.Zeal, sdk.skills.HolyFreeze];
+			Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.HolyShock, sdk.skills.Zeal, sdk.skills.HolyShock, sdk.skills.Zeal, sdk.skills.HolyFreeze];
 			Config.LowManaSkill = [-1, -1];
 			Config.SkipImmune = ["lightning and cold and physical"];	// Don't think this ever happens but should skip if it does
 

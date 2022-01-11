@@ -6,18 +6,21 @@
 
 if (!isIncluded("common/Attacks/Paladin.js")) { include("common/Attacks/Paladin.js"); }
 
-ClassAttack.doAttack = function (unit, preattack) {
-	let index, result,
+ClassAttack.doAttack = function (unit = undefined, preattack = false) {
+	if (!unit || unit.dead) return true;
+
+	let gid = unit.gid,
 		mercRevive = 0,
 		attackSkill = -1,
 		aura = -1,
 		gold = me.gold;
 
-	index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
 	if (Config.MercWatch && Town.needMerc()) {
 		print("mercwatch");
 		Town.visitTown();
+		if (!getUnit(1, -1, -1, gid)) return true; // lost reference to the mob we were attacking
 	}
 
 	if (me.expansion && index === 1 && !unit.dead) {
@@ -55,7 +58,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	}
 
 	// Classic auradin check
-	if ([sdk.skills.HolyFire, sdk.skills.HolyFreeze, sdk.skills.HolyShock].indexOf(aura) > -1) {
+	if ([sdk.skills.HolyFire, sdk.skills.HolyFreeze, sdk.skills.HolyShock].includes(aura)) {
 		// Monster immune to primary aura
 		if (!Attack.checkResist(unit, aura)) {
 			// Reset skills
@@ -63,7 +66,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 			aura = -1;
 
 			// Set to secondary if not immune, check if using secondary attack aura if not check main skill for immunity
-			if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, ([sdk.skills.HolyFire, sdk.skills.HolyFreeze, sdk.skills.HolyShock].indexOf(Config.AttackSkill[6]) > -1 ? Config.AttackSkill[6] : Config.AttackSkill[5]))) {
+			if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, ([sdk.skills.HolyFire, sdk.skills.HolyFreeze, sdk.skills.HolyShock].includes(Config.AttackSkill[6]) ? Config.AttackSkill[6] : Config.AttackSkill[5]))) {
 				attackSkill = Config.AttackSkill[5];
 				aura = Config.AttackSkill[6];
 			}
@@ -89,7 +92,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		aura = Config.LowManaSkill[1];
 	}
 
-	result = this.doCast(unit, attackSkill, aura);
+	let result = this.doCast(unit, attackSkill, aura);
 
 	if (result === 2 && Config.TeleStomp && Attack.checkResist(unit, "physical") && !!me.getMerc()) {
 		while (Attack.checkMonster(unit)) {
@@ -139,7 +142,7 @@ ClassAttack.getHammerPosition = function (unit) {
 	}
 
 	// If one of the valid positions is a position im at already
-	if (positions.some(pos => pos.distance < 1)) { return true; }
+	if (positions.some(pos => pos.distance < 1)) return true;
 
 	for (i = 0; i < positions.length; i += 1) {
 		if (getDistance(me, positions[i][0], positions[i][1]) < 1) {
@@ -179,7 +182,7 @@ ClassAttack.afterAttack = function () {
 		}
 	}
 
-	if (Config.Redemption instanceof Array && (me.hp * 100 / me.hpmax < Config.Redemption[0] || me.mp * 100 / me.mpmax < Config.Redemption[1]) && Skill.setSkill(sdk.skills.Redemption, 0)) {
+	if (Config.Redemption instanceof Array && (me.hpPercent < Config.Redemption[0] || me.mpPercent < Config.Redemption[1]) && Skill.setSkill(sdk.skills.Redemption, 0)) {
 		delay(1500);
 	}
 };
