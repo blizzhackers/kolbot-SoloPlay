@@ -6,7 +6,7 @@
 
 function den () {
 	let customGoToTown = function () {
-		if (me.inTown) { return; }
+		if (me.inTown) return;
 		if (!Town.canTpToTown()) {
 			Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.ColdPlains], true);
 			Pather.getWP(sdk.areas.ColdPlains);
@@ -21,13 +21,17 @@ function den () {
 
 	if (!Pather.checkWP(sdk.areas.ColdPlains)) {
 		Pather.moveToExit(sdk.areas.BloodMoor, true);
+
+		// make sure we are ready for cold plains
+		me.charlvl < 2 && Attack.clearLevelUntilLevel(2);
+
+		// now make portal at den entrace
 		Pather.moveToExit(sdk.areas.DenofEvil, false, true);
 		Pather.makePortal();
 		Pather.getWP(sdk.areas.ColdPlains);
 
-		if (me.normal && me.charlvl < 3) {
-			Attack.clearLevelUntilLevel(3);
-		}
+		// make sure we are ready for den
+		me.charlvl < 3 && Attack.clearLevelUntilLevel(3);
 
 		Pather.getWP(sdk.areas.ColdPlains);
 		Pather.useWaypoint(sdk.areas.RogueEncampment);
@@ -40,34 +44,36 @@ function den () {
 	!!getUnit(sdk.unittype.Object, sdk.units.BluePortal) ? Pather.usePortal(sdk.areas.BloodMoor, me.name) : Pather.moveToExit(sdk.areas.BloodMoor, true);
 
 	// START
-	let retry = 0;
+	let attempt = 1;
 	Precast.doPrecast(true);
 	Attack.clear(50);
 	Pather.moveToExit(sdk.areas.DenofEvil, true);
 
-	while (me.area === sdk.areas.DenofEvil) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Clearing den attempt: " + (retry + 1));
-		Attack.clearLevel();
+	if (me.area === sdk.areas.DenofEvil) {
+		while (!Misc.checkQuest(1, 0)) {
+			print("ÿc8Kolbot-SoloPlayÿc0: Clearing den attempt: " + attempt);
+			Attack.clearLevel();
 
-		if (me.area !== sdk.areas.DenofEvil) { 
-			break; 
+			if (me.area !== sdk.areas.DenofEvil) { 
+				break; 
+			}
+
+			if (Misc.checkQuest(1, 13)) {
+				customGoToTown();
+				Town.npcInteract("akara");
+				
+				break;
+			}
+
+			if (attempt >= 5) {
+				print("ÿc8Kolbot-SoloPlayÿc0: Failed to complete den");
+				customGoToTown();
+
+				break;
+			}
+
+			attempt++;
 		}
-
-		if (Misc.checkQuest(1, 13)) {
-			customGoToTown();
-			Town.npcInteract("akara");
-			
-			break;
-		}
-
-		if (retry >= 5) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to complete den");
-			customGoToTown();
-
-			break;
-		}
-
-		retry++;
 	}
 
 	me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);

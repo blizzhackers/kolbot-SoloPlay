@@ -76,7 +76,7 @@ Attack.checkIsAuradin = function () {
 	if (item) {
 		do {
 			if (item.getPrefix(sdk.locale.items.Dragon) || item.getPrefix(sdk.locale.items.Dream) || item.getPrefix(sdk.locale.items.HandofJustice)) {
-				this.IsAuradin = true;
+				this.isAuradin = true;
 				return true;
 			}
 		} while (item.getNext());
@@ -115,7 +115,7 @@ Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
 	if (!unit || !unit.type || unit.type === sdk.unittype.Player) return true;
 
 	let damageType = typeof val === "number" ? this.getSkillElement(val) : val;
-	let addLowerRes = this.isCursable(unit) && !!(me.getSkill(sdk.skills.LowerResist, 1) || Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist));
+	let addLowerRes = !!(me.getSkill(sdk.skills.LowerResist, 1) || Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) && unit.curseable;
 
 	// Static handler
 	if (val === sdk.skills.StaticField && this.getResist(unit, damageType) < 100) {
@@ -171,6 +171,7 @@ Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
 	return this.getResist(unit, damageType) < maxres;
 };
 
+// Maybe make this a prototype and use game data to also check if should attack not just can based on effort?
 Attack.canAttack = function (unit = undefined) {
 	if (!unit) return false;
 	if (unit.type === sdk.unittype.Monster) {
@@ -191,51 +192,6 @@ Attack.canAttack = function (unit = undefined) {
 	}
 
 	return false;
-};
-
-// TODO: make this unit prototype instead
-Attack.isCursable = function (unit = undefined) {
-	if (!unit || copyUnit(unit).name === undefined || unit.name.includes(getLocaleString(11086))) { // "Possessed"
-		return false;
-	}
-
-	// attract can't be overridden
-	if (unit.getState(sdk.states.Attract)) return false;
-
-	switch (unit.classid) {
-	case 190: // maggotegg1
-	case 191: // maggotegg1
-	case 192: // maggotegg1
-	case 193: // maggotegg1
-	case 194: // maggotegg1
-	case 206: // Foul Crow Nest
-	case 207: // BloodHawkNest
-	case 208: // BlackVultureNest
-	case 228: // sarcophagus
-	case 258: // Water Watcher
-	case 261: // Water Watcher
-	case 266: // Flavie
-	case 273: // gargoyle trap
-	case 348: // Turret
-	case 349: // Turret
-	case 350: // Turret
-	case 371: // lightning spire
-	case 372: // firetower
-	case 432: // Barricade Door
-	case 433: // Barricade Door
-	case 434: // Prison Door
-	case 435: // Barricade Tower
-	case 499: // Catapult
-	case 524: // Barricade Wall Right
-	case 525: // Barricade Wall Left
-	case 562: // Festering Appendages
-	case 563: // Festering Appendages
-	case 528: // Evil Demon Hut
-	case 681: // maggotegg1 (WSK)
-		return false;
-	}
-
-	return true;
 };
 
 Attack.openChests = function (range = 10, x = undefined, y = undefined) {
@@ -494,11 +450,7 @@ Attack.buildMonsterList = function (skipBlocked = false) {
 		} while (monster.getNext());
 	}
 
-	if (skipBlocked === 0x4) {
-		return monList.filter(mob => !checkCollision(me, mob, skipBlocked));
-	}
-
-	return monList;
+	return skipBlocked === 0x4 ? monList.filter(mob => !checkCollision(me, mob, skipBlocked)) : monList;
 };
 
 Attack.getMobCountAtPosition = function (x, y, range, filter = false, debug = true) {
@@ -819,6 +771,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 };
 
 // Sort monsters based on distance, spectype and classId (summoners are attacked first)
+// Think this needs a collison check included for non tele chars, might prevent choosing closer mob that is actually behind a well vs the one we pass trying to get behind the wall
 Attack.sortMonsters = function (unitA, unitB) {
 	// No special sorting for were-form
 	if (Config.Wereform) {
@@ -933,10 +886,7 @@ Attack.clearCoordList = function (list, pick) {
 		Attack.clear(node.radius);
 		Pather.moveTo(node.x, node.y);
 		Attack.clear(node.radius);
-
-		if (pick) {
-			Pickit.pickItems(pick);
-		}
+		pick && Pickit.pickItems(pick);
 	}
 };
 
@@ -1014,11 +964,7 @@ Attack.getItemCharges = function (skillId = undefined) {
 			}
 		});
 
-	if (chargedItems.length === 0) {
-		return false;
-	}
-
-	return true;
+	return !!(chargedItems.length > 0);
 };
 
 Attack.castCharges = function (skillId = undefined, unit = undefined) {

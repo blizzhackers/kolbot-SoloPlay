@@ -8,6 +8,105 @@
 
 let sdk = require('../modules/sdk');
 
+(function (global, print) {
+	global['console'] = global['console'] || (function () {
+		const console = {};
+
+		const argMap = el => typeof el === 'object' && el /*not null */ && JSON.stringify(el) || el;
+
+		console.log = function (...args) {
+			// use call to avoid type errors
+			print.call(null, args.map(argMap).join(','));
+		};
+
+		console.printDebug = true;
+		console.debug = function (...args) {
+
+			if (console.printDebug) {
+				const stack = new Error().stack.match(/[^\r\n]+/g),
+					filenameAndLine = stack && stack.length && stack[1].substr(stack[1].lastIndexOf('\\') + 1) || 'unknown:0';
+
+				this.log('ÿc:[ÿc:' + filenameAndLine + 'ÿc:]ÿc0 ' + args.map(argMap).join(','));
+			}
+		};
+
+		console.warn = console.debug;
+
+		return console;
+
+	})()
+
+})([].filter.constructor('return this')(), print);
+
+/**
+ * @description Polyfill for setTimeout, as the version of d2bs isnt thread safe
+ * @author Jaenster
+ */
+
+(function (global, _original) {
+
+	const Worker = require('../../modules/Worker');
+
+	global['_setTimeout'] = _original;
+
+	/**
+	 * @param {function} cb
+	 * @param {number} time
+	 * @param args
+	 * @constructor
+	 */
+	function Timer(cb, time, args) {
+		const _this = this;
+		if (time === void 0) { time = 0; }
+		if (args === void 0) { args = []; }
+		Timer.instances.push(this);
+		Worker.runInBackground['__setTimeout__' + (Timer.counter++)] = (startTick => () => {
+			let finished = getTickCount() - startTick >= time;
+
+			if (finished) {
+				let index = Timer.instances.indexOf(_this);
+
+				// only if not removed from the time list
+				if (index > -1) {
+					Timer.instances.splice(index, 1);
+					cb.apply(undefined, args);
+				}
+			}
+
+			return !finished;
+		})(getTickCount());
+	}
+
+	Timer.instances = [];
+	Timer.counter = 0;
+
+	global['setTimeout'] = function (cb, time = 0, ...args) {
+		if (typeof cb === 'string') {
+			console.debug('Warning: Do not use raw code @ setTimeout and does not support lexical scoping');
+			cb = [].filter.constructor(cb);
+		}
+
+		if (typeof cb !== 'function') throw new TypeError('setTimeout callback needs to be a function');
+
+		return new Timer(cb, time, args);
+	};
+
+	/**
+	 *
+	 * @param {Timer} timer
+	 */
+	global['clearTimeout'] = function (timer) {
+		const index = Timer.instances.indexOf(timer);
+		if (index > -1) {
+			Timer.instances.splice(index, 1)
+		}
+	};
+
+	// getScript(true).name.toString() !== 'default.dbj' && setTimeout(function () {/* test code*/}, 1000)
+
+
+})([].filter.constructor('return this')(), setTimeout);
+
 (function (global, original) {
 	let firstRun = true;
 	global['getUnit'] = function (...args) {
@@ -134,86 +233,82 @@ Object.defineProperties(Unit.prototype, {
 	},
 	isEquipped: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			return this.location === sdk.storage.Equipped;
 		}
 	},
 	isEquippedCharm: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			return (this.location === sdk.storage.Inventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(this.itemType));
 		}
 	},
 	isInInventory: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			return this.location === sdk.storage.Inventory && this.mode === sdk.itemmode.inStorage;
 		}
 	},
 	isInStash: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			return this.location === sdk.storage.Stash && this.mode === sdk.itemmode.inStorage;
 		}
 	},
 	isInCube: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			return this.location === sdk.storage.Cube && this.mode === sdk.itemmode.inStorage;
 		}
 	},
 	isInStorage: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			return this.mode === sdk.itemmode.inStorage && [sdk.storage.Inventory, sdk.storage.Cube, sdk.storage.Stash].includes(this.location);
 		}
 	},
 	isInBelt: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			return this.location === sdk.storage.Belt && this.mode === sdk.itemmode.inBelt;
 		}
 	},
 	isOnSwap: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			return this.location === sdk.storage.Equipped && (me.weaponswitch === 0 && [11, 12].includes(this.bodylocation)) || (me.weaponswitch === 1 && [4, 5].includes(this.bodylocation));
 		}
 	},
 	identified: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) {
-				// Can't tell, as it isn't an item
-				return undefined;
-			}
+			// Can't tell, as it isn't an item
+			if (this.type !== sdk.unittype.Item) return undefined;
 			// Is also true for white items
 			return this.getFlag(0x10);
 		}
 	},
 	ethereal: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) {
-				// Can't tell, as it isn't an item
-				return undefined;
-			}
+			// Can't tell, as it isn't an item
+			if (this.type !== sdk.unittype.Item) return undefined;
 			return this.getFlag(0x400000);
 		}
 	},
 	twoHanded: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			return getBaseStat("items", this.classid, "2handed") === 1;
 		}
 	},
 	isRuneword: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			return !!this.getFlag(0x4000000);
 		}
 	},
 	isQuestItem: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			return this.itemType === sdk.itemtype.Quest ||
                 [sdk.items.quest.HoradricMalus, sdk.items.quest.WirtsLeg, sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff,
                 	sdk.items.quest.ViperAmulet, sdk.items.quest.DecoyGidbinn, sdk.items.quest.TheGidbinn, sdk.items.quest.KhalimsFlail,
@@ -222,14 +317,14 @@ Object.defineProperties(Unit.prototype, {
 	},
 	isBaseType: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			return [sdk.itemquality.Normal, sdk.itemquality.Superior].indexOf(this.quality) > -1 && !this.isQuestItem && !this.isRuneword
 				&& getBaseStat("items", this.classid, "gemsockets") > 0 && [sdk.itemtype.Ring, sdk.itemtype.Amulet].indexOf(this.itemType) === -1;
 		}
 	},
 	isSellable: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			return !this.isQuestItem && 
 				[sdk.items.quest.KeyofTerror, sdk.items.quest.KeyofHate, sdk.items.quest.KeyofDestruction, sdk.items.quest.DiablosHorn,
 					sdk.items.quest.BaalsEye, sdk.items.quest.MephistosBrain, sdk.items.quest.TokenofAbsolution, sdk.items.quest.TwistedEssenceofSuffering,
@@ -263,7 +358,7 @@ Object.defineProperties(Unit.prototype, {
 	},
 	upgradedStrReq: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			let code, id, baseReq, finalReq, ethereal = this.getFlag(0x400000),
 				reqModifier = this.getStat(91);
 
@@ -289,7 +384,7 @@ Object.defineProperties(Unit.prototype, {
 	},
 	upgradedDexReq: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			let code, id, baseReq, finalReq, ethereal = this.getFlag(0x400000),
 				reqModifier = this.getStat(91);
 
@@ -315,7 +410,7 @@ Object.defineProperties(Unit.prototype, {
 	},
 	upgradedLvlReq: {
 		get: function () {
-			if (this.type !== sdk.unittype.Item) { return false; }
+			if (this.type !== sdk.unittype.Item) return false;
 			let code, id;
 
 			switch (this.itemclass) {
@@ -836,7 +931,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 	unit && ([x, y] = [unit.x, unit.y]);
 
 	if (this !== me && this.type !== 4) {
-		print("ÿc9CastChargedSkillÿc0 :: Wierd Error, invalid arguments, expected 'me' object or 'item' unit" + " unit type : " + this.type);
+		Developer.debugging.skills && print("ÿc9CastChargedSkillÿc0 :: Wierd Error, invalid arguments, expected 'me' object or 'item' unit" + " unit type : " + this.type);
 		return false;
 	}
 
@@ -1311,28 +1406,70 @@ Unit.prototype.getStatEx = function (id, subid) {
 };
 
 Unit.prototype.__defineGetter__('attackable', function () {
-    if (this.type === 0 && this.mode !== 17 && this.mode !== 0) { //ToDo: build in here a check if player is hostiled
+    if (this.type === sdk.unittype.Player && getPlayerFlag(me.gid, this.gid, 8) && this.mode !== 17 && this.mode !== 0) {
         return true;
     }
-    if (this.hp === 0 || this.mode === 0 || this.mode === 12) { // Dead monster
+    // Dead monster
+    if (this.hp === 0 || this.mode === sdk.units.monsters.monstermode.Death || this.mode === sdk.units.monsters.monstermode.Dead) {
         return false;
     }
-    if (this.getStat(172) === 2) { // Friendly monster/NPC
-        return false;
-    }
-    if (this.charlvl < 1) { // catapults were returning a level of 0 and hanging up clear scripts
-        return false;
-    }
-    if (getBaseStat("monstats", this.classid, "neverCount")) { // neverCount base stat - hydras, traps etc.
-        return false;
-    }
+    // Friendly monster/NPC
+    if (this.getStat(172) === 2) return false;
+
+    // catapults were returning a level of 0 and hanging up clear scripts
+    if (this.charlvl < 1) return false;
+
+    // neverCount base stat - hydras, traps etc.
+    if (getBaseStat("monstats", this.classid, "neverCount")) return false;
+
     // Monsters that are in flight
-    if ([110, 111, 112, 113, 144, 608].indexOf(this.classid) > -1 && this.mode === 8) {
-        return false;
-    }
+    if ([110, 111, 112, 113, 144, 608].includes(this.classid) && this.mode === 8) return false;
+
     // Monsters that are Burrowed/Submerged
-    if ([68, 69, 70, 71, 72, 258, 258, 259, 260, 261, 262, 263].indexOf(this.classid) > -1 && this.mode === 14) {
+    if ([68, 69, 70, 71, 72, 258, 258, 259, 260, 261, 262, 263].includes(this.classid) && this.mode === 14) return false;
+
+    return [sdk.monsters.ThroneBaal, 179].indexOf(this.classid) <= -1;
+});
+
+Unit.prototype.__defineGetter__('curseable', function () {
+    // must be player or monster
+    if (this.type > 1) return false;
+
+    // attract can't be overridden
+	if (this.getState(sdk.states.Attract)) return false;
+
+	// "Possessed"
+	if (!!this.name && !!this.name.includes(getLocaleString(11086))) return false;
+
+    if (this.type === sdk.unittype.Player && getPlayerFlag(me.gid, this.gid, 8) && this.mode !== 17 && this.mode !== 0) {
+        return true;
+    }
+    // Dead monster
+    if (this.hp === 0 || this.mode === sdk.units.monsters.monstermode.Death || this.mode === sdk.units.monsters.monstermode.Dead) {
         return false;
     }
-    return [sdk.monsters.ThroneBaal, 179].indexOf(this.classid) <= -1;
+    // Friendly monster/NPC
+    if (this.getStat(172) === 2) return false;
+    
+    // catapults were returning a level of 0 and hanging up clear scripts
+    if (this.charlvl < 1) return false;
+
+    // Monsters that are in flight
+    if ([110, 111, 112, 113, 144, 608].includes(this.classid) && this.mode === 8) return false;
+
+    // Monsters that are Burrowed/Submerged
+    if ([68, 69, 70, 71, 72, 258, 258, 259, 260, 261, 262, 263].includes(this.classid) && this.mode === 14) return false;
+
+    return [
+    		sdk.monsters.Turret1, sdk.monsters.Turret2, sdk.monsters.Turret3, sdk.monsters.SandMaggotEgg, sdk.monsters.RockWormEgg, sdk.monsters.DevourerEgg, sdk.monsters.GiantLampreyEgg,
+    		sdk.monsters.WorldKillerEgg1, sdk.monsters.WorldKillerEgg2, sdk.monsters.FoulCrowNest, sdk.monsters.BlackVultureNest, sdk.monsters.BloodHawkNest, sdk.monsters.BloodHookNest,
+    		sdk.monsters.BloodWingNest, sdk.monsters.CloudStalkerNest, sdk.monsters.FeederNest, sdk.monsters.SuckerNest, sdk.monsters.MummyGenerator, sdk.monsters.WaterWatcherLimb, sdk.monsters.WaterWatcherHead,
+    		sdk.monsters.Flavie, sdk.monsters.GargoyleTrap, sdk.monsters.LightningSpire, sdk.monsters.FireTower, sdk.monsters.BarricadeDoor1, sdk.monsters.BarricadeDoor2, sdk.monsters.PrisonDoor, sdk.monsters.BarricadeTower,
+    		sdk.monsters.CatapultS, sdk.monsters.CatapultE, sdk.monsters.CatapultSiege, sdk.monsters.CatapultW, sdk.monsters.BarricadeWall1, sdk.monsters.BarricadeWall2, sdk.monsters.Tentacle1, sdk.monsters.Tentacle2,
+    		sdk.monsters.Tentacle3, sdk.monsters.Tentacle4, sdk.monsters.Tentacle5, sdk.monsters.Hut, sdk.monsters.ThroneBaal, sdk.monsters.Cow
+    	].indexOf(this.classid) === -1;
+});
+
+Unit.prototype.__defineGetter__('scareable', function () {
+    return this.curseable && !(this.spectype & 0x7);
 });

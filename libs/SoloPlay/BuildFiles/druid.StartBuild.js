@@ -1,10 +1,10 @@
 /**
  *    @filename   druid.StartBuild.js
  *	  @author	  isid0re, theBGuy
- *    @desc       druid build for before respecOne
+ *    @desc       druid fire build for before respecOne
  */
 
-var build = {
+let build = {
 	caster: true,
 	skillstab: 42, // elemental
 	wantedskills: [225, 234], // firestorm, fissure
@@ -19,15 +19,15 @@ var build = {
 		["vitality", "all"]
 	],
 	skills: [
-		[222, 2], // poison creeper
-		[225, 4], // firestorm
+		[222, 2, false], // poison creeper
+		[225, 4, false], // firestorm
 		[229, 1], // molten boulder
-		[225, 7], // firestorm
+		[225, 7, false], // firestorm
 		[234, 1], // fissure
 		[231, 1], // carrion vine
-		[234, 8], // fissure
-		[225, 11], // firestorm
-		[234, 20], // fissure
-		[225, 18], // firestorm
+		[234, 8, false], // fissure
+		[225, 11, false], // firestorm
+		[234, 20, false], // fissure
+		[225, 18, false], // firestorm
 	]
 };

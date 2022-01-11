@@ -17,6 +17,17 @@ let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "
 // these builds are not possible to do without ladder runewords
 let impossibleNonLadderBuilds = ["Auradin"];
 
+function myPrint (str = "", toConsole = false, color = 0) {
+	console.log("ÿc8Kolbot-SoloPlayÿc0: " + str);
+	me.overhead(str);
+
+	if (toConsole && typeof color === "string") {
+		color = color[0].toUpperCase() + color.substring(1).toLowerCase();
+		color = !!sdk.colors.D2Bot[color] ? sdk.colors.D2Bot[color] : 0;
+	}
+	toConsole && D2Bot.printToConsole("Kolbot-SoloPlayÿ :: " + str, color);
+}
+
 // general settings
 const SetUp = {
 	scripts: [
@@ -236,9 +247,7 @@ const goBackDifficulty = function (diff, reason = "") {
 
 	D2Bot.setProfile(null, null, null, diffString);
 	DataFile.updateStats("setDifficulty", diffString);
-	D2Bot.printToConsole("Kolbot-SoloPlay: Going back to " + diffString + reason);
-	print("ÿc8Kolbot-SoloPlayÿc0: Going back to " + diffString + reason);
-	me.overhead("Going back to " + diffString + reason);
+	myPrint("Going back to " + diffString + reason, true);
 	D2Bot.restart();
 };
 
@@ -468,7 +477,7 @@ const Check = {
 
 			break;
 		case "diablo":
-			if (Pather.accessToAct(4) && ((me.normal && me.charlvl < 35) || (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)) || me.hell || !me.diablo)) {
+			if (Pather.accessToAct(4) && ((me.normal && (me.charlvl < 35 || me.classic)) || (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)) || me.hell || !me.diablo)) {
 				return true;
 			}
 
@@ -643,20 +652,21 @@ const Check = {
 
 	nextDifficulty: function (announce = true) {
 		let diffShift = me.diff;
-		let lowRes = !this.Resistance().Status;
+		let res = this.Resistance();
 		let lvlReq = !!((me.charlvl >= Config.levelCap) && !["Bumper", "Socketmule"].includes(SetUp.finalBuild) && !this.broken());
 
 		if (me.diffCompleted) {
 			if (lvlReq) {
-				if (!lowRes) {
+				if (res.Status) {
 					diffShift = me.diff + 1;
-					announce && D2Bot.printToConsole('Kolbot-SoloPlay: next difficulty requirements met. Starting: ' + Difficulty[diffShift], sdk.colors.D2Bot.Blue);
+					announce && D2Bot.printToConsole('Kolbot-SoloPlay: next difficulty requirements met. Starting: ' + sdk.difficulty.nameOf(diffShift), sdk.colors.D2Bot.Blue);
 				} else {
-					if (me.charlvl >= Config.levelCap + 5) {
+					if (me.charlvl >= Config.levelCap + (!me.normal ? 5 : 2)) {
 						diffShift = me.diff + 1;
-						announce && D2Bot.printToConsole('Kolbot-SoloPlay: Over leveled. Starting: ' + Difficulty[diffShift]);
+						announce && D2Bot.printToConsole('Kolbot-SoloPlay: Over leveled. Starting: ' + sdk.difficulty.nameOf(diffShift));
 					} else {
-						announce && D2Bot.printToConsole('Kolbot-SoloPlay: ' + Difficulty[diffShift + 1] + ' requirements not met. Negative resistance. FR: ' + me.fireRes + ' | CR: ' + me.coldRes + ' | LR: ' + me.lightRes);
+						//announce && D2Bot.printToConsole('Kolbot-SoloPlay: ' + Difficulty[diffShift + 1] + ' requirements not met. Negative resistance. FR: ' + res.FR + ' | CR: ' + res.CR + ' | LR: ' + res.LR, sdk.colors.D2Bot.Gray);
+						announce && myPrint(sdk.difficulty.nameOf(diffShift + 1) + ' requirements not met. Negative resistance. FR: ' + res.FR + ' | CR: ' + res.CR + ' | LR: ' + res.LR);
 						return false;
 					}
 				}
@@ -665,7 +675,7 @@ const Check = {
 			return false;
 		}
 
-		return Difficulty[diffShift];
+		return sdk.difficulty.nameOf(diffShift);
 	},
 
 	Runes: function () {
@@ -1004,7 +1014,7 @@ const Check = {
 			let build;
 
 			if (["Bumper", "Socketmule"].includes(SetUp.finalBuild)) {
-				build = ["Javazon", "Lightning", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid] + "Build";
+				build = ["Javazon", "Cold", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid] + "Build";
 			} else {
 				build = buildType + "Build";
 			}

@@ -445,6 +445,34 @@
 
 			return 0;
 		},
+		physicalAttackDamage: function (skillID) {
+			let dmg = 0;
+			switch (skillID) {
+			case sdk.skills.Bash:
+				dmg = 45 + (5 + GameData.myReference.getSkill(skillID, 1)) + (5 * GameData.myReference.getSkill(sdk.skills.Stun, 0));
+
+				break;
+			case sdk.skills.Stun:
+				dmg = (8 * GameData.myReference.getSkill(sdk.skills.Bash, 0));
+
+				break;
+			case sdk.skills.Concentrate:
+				dmg = (65 + (5 * GameData.myReference.getSkill(skillID, 1)) + (5 * GameData.myReference.getSkill(sdk.skills.Bash, 0)) + (10 * GameData.myReference.getSkill(sdk.skills.BattleOrders, 0)));
+
+				break;
+			case sdk.skills.LeapAttack:
+				dmg = (70 + (30 * GameData.myReference.getSkill(skillID, 1)) + (10 * GameData.myReference.getSkill(sdk.skills.Leap, 0)));
+
+				break;
+			case sdk.skills.Whirlwind:
+				dmg = (8 * GameData.myReference.getSkill(skillID, 1)) - 58;
+
+				break;
+			}
+
+			// return (((GameData.myReference.getStat(sdk.stats.MaxDamage) + GameData.myReference.getStat(sdk.stats.MinDamage)) / 2) + (GameData.myReference.getStat(sdk.stats.Strength) * dmg)) / 100;
+			return dmg;
+		},
 		dmgModifier: function (skillID, target) {
 			let aps = (typeof target === 'number' ? this.averagePackSize(target) : 1),
 				eliteBonus = (target.spectype && target.spectype & 0x7) ? 1 : 0, hitcap = 1;
@@ -530,9 +558,8 @@
 			return aps;
 		},
 		skillDamage: function (skillID, unit) {
-			if (skillID === 0) {
-				return {type: "Physical", pmin: 2, pmax: 8, min: 0, max: 0}; // short sword, no reqs
-			}
+			// TODO: caluclate basic attack damage
+			if (skillID === 0) return {type: "Physical", pmin: 2, pmax: 8, min: 0, max: 0}; // short sword, no reqs
 
 			if (this.skillLevel(skillID) < 1) {
 				return {

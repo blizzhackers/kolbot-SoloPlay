@@ -15,7 +15,7 @@ let frostNovaCheck = function () {
 };
 
 ClassAttack.doAttack = function (unit, skipStatic = false) {
-	Developer.debugging.skills && (print(sdk.colors.Green + "Test Start-----------------------------------------//"));
+	Developer.debugging.skills && print(sdk.colors.Green + "Test Start-----------------------------------------//");
 	let tick = getTickCount();
 	let checkSkill, mark,
 		merc = Merc.getMercFix(),
@@ -42,19 +42,19 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	if (me.expansion && index === 1 && !unit.dead) {
 		// If we have slow missles we might as well use it, currently only on Lighting Enchanted mobs as they are dangerous
 		// Might be worth it to use on souls too TODO: test this idea
-		if (Attack.currentChargedSkills.indexOf(sdk.skills.SlowMissiles) > -1 && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && Attack.isCursable(unit) &&
+		if (Attack.currentChargedSkills.indexOf(sdk.skills.SlowMissiles) > -1 && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && unit.curseable &&
 			(gold > 500000 && Attack.BossAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
 		// Handle Switch casting
-		if (Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist) && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
+		if (Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist) && !unit.getState(sdk.states.LowerResist) && unit.curseable &&
 			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast lower resist
 			Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 		}
 
-		if (Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Weaken) && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist) && Attack.isCursable(unit) &&
+		if (Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Weaken) && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist) && unit.curseable &&
 			(gold > 500000 || Attack.BossAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast weaken
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);
@@ -110,7 +110,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
         let ticktwo = getTickCount();
         // if the nova cause the death of any monsters around us, its worth it
         if (GameData.calculateKillableFallensByFrostNova() > 0) {
-        	Developer.debugging.skills && (print("took " + ((getTickCount() - ticktwo) / 1000) + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens"));
+        	Developer.debugging.skills && print("took " + ((getTickCount() - ticktwo) / 1000) + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens");
             Skill.cast(sdk.skills.FrostNova, 0);
         }
     }
@@ -124,13 +124,13 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
                 && !el.getStat(sdk.stats.CannotbeFrozen) // those that can be frozen
                 && ![sdk.monsters.Andariel, 510].includes(el.classid); }).length > 1;
     	if (shouldSpike && !Coords_1.isBlockedBetween(me, unit)) {
-    		Developer.debugging.skills && (print("SPIKE"));
+    		Developer.debugging.skills && print("SPIKE");
     		Skill.cast(sdk.skills.GlacialSpike, 0, unit);
     	}
     }
 
     // We lost track of the mob or killed it
-    if (unit === undefined || !unit || unit.dead) { return true; }
+    if (unit === undefined || !unit || unit.dead) return true;
 
     // Set damage values
     data.static.have && (data.static.dmg = GameData.avgSkillDamage(data.static.skill, unit));
@@ -142,11 +142,11 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
     
     // print damage values
     if (Developer.debugging.skills) {
-	    data.static.have && (print(getSkillById(data.static.skill) + " : " + data.static.dmg));
-	    data.mainTimed.have && (print(getSkillById(data.mainTimed.skill) + " Main: " + data.mainTimed.dmg));
-	    data.mainUntimed.have && (print(getSkillById(data.mainUntimed.skill) + " MainUnTimed: " + data.mainUntimed.dmg));
-	    data.secondaryTimed.have && (print(getSkillById(data.secondaryTimed.skill) + " Second: " + data.secondaryTimed.dmg));
-	    data.secondaryUntimed.have && (print(getSkillById(data.secondaryUntimed.skill) + " SecondUnTimed: " + data.secondaryUntimed.dmg));
+	    data.static.have && print(getSkillById(data.static.skill) + " : " + data.static.dmg);
+	    data.mainTimed.have && print(getSkillById(data.mainTimed.skill) + " Main: " + data.mainTimed.dmg);
+	    data.mainUntimed.have && print(getSkillById(data.mainUntimed.skill) + " MainUnTimed: " + data.mainUntimed.dmg);
+	    data.secondaryTimed.have && print(getSkillById(data.secondaryTimed.skill) + " Second: " + data.secondaryTimed.dmg);
+	    data.secondaryUntimed.have && print(getSkillById(data.secondaryUntimed.skill) + " SecondUnTimed: " + data.secondaryUntimed.dmg);
     }
 
 	// If we have enough mana for Static and it will do more damage than our other skills then duh use it
@@ -183,7 +183,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	if (!timedSkill.have || timedSkill.mana > me.mp) {
-		Developer.debugging.skills && (print("Choosing lower mana skill, Was I not able to use one of my better skills? (" + (!timedSkill.have) + "). Did I not have enough mana? " + (timedSkill.mana > me.mp)));
+		Developer.debugging.skills && print("Choosing lower mana skill, Was I not able to use one of my better skills? (" + (!timedSkill.have) + "). Did I not have enough mana? " + (timedSkill.mana > me.mp));
 		let lowManaData = {
 			fBolt: {
 				have: me.getSkill(sdk.skills.FireBolt, 1), skill: sdk.skills.FireBolt, range: Skill.getRange(sdk.skills.FireBolt), mana: Skill.getManaCost(sdk.skills.FireBolt),
@@ -229,7 +229,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 
 			break;
 		case lowManaData.tk.have && me.mp > lowManaData.tk.mana && lowManaData.tk.dmg > Math.max(lowManaData.cBolt.dmg, lowManaData.iBlast.dmg, lowManaData.iBolt.dmg, lowManaData.fBolt.dmg):
-			timedSkill = lowManaData.tk;
+			me.normal && (timedSkill = lowManaData.tk);
 
 			break;
 		default:
@@ -241,30 +241,25 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 
 	switch (ClassAttack.doCast(unit, timedSkill, data)) {
 	case 0: // Fail
-		Developer.debugging.skills && (print(sdk.colors.Red + "Fail Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//"));
+		Developer.debugging.skills && print(sdk.colors.Red + "Fail Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
 		break;
 	case 1: // Success
-		Developer.debugging.skills && (print(sdk.colors.Red + "Sucess Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//"));
+		Developer.debugging.skills && print(sdk.colors.Red + "Sucess Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
 		return true;
 	case 2: // Try to telestomp
 		if (Config.TeleStomp && Attack.checkResist(unit, "physical") && Config.UseMerc) {
 			while (Attack.checkMonster(unit)) {
 				Misc.townCheck();
 
-				merc === undefined || !merc && (Town.visitTown()); 
-				unit.distance > 3 && (Pather.moveToUnit(unit));
+				merc === undefined || !merc && Town.visitTown(); 
+				unit.distance > 3 && Pather.moveToUnit(unit);
 
 				if (Attack.checkResist(unit, "lightning") && data.static.have && unit.hpPercent > Config.CastStatic) {
 					Skill.cast(sdk.skills.StaticField, 0);
 				}
 
 				mark = Attack.getNearestMonster();
-
-				if (mark) {
-					ClassAttack.doCast(mark, timedSkill, data);
-				} else if (me.getSkill(sdk.skills.Telekinesis, 0)) {
-					Skill.cast(sdk.skills.Telekinesis, 0, unit);
-				}
+				!!mark ? ClassAttack.doCast(mark, timedSkill, data) : me.getSkill(sdk.skills.Telekinesis, 1) ? Skill.cast(sdk.skills.Telekinesis, 0, unit) : null;
 			}
 
 			return true;
@@ -280,14 +275,10 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 	let walk, tick, targetPoint;
 
 	// No valid skills can be found
-	if (unit === undefined || !!(timedSkill.skill < 0)) {
-		return 2;
-	}
+	if (unit === undefined || !!(timedSkill.skill < 0)) return 2;
 
 	// print damage values
-    if (Developer.debugging.skills) {
-	    timedSkill.have && (print(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(timedSkill.skill) + ") DMG: " + timedSkill.dmg));
-    }
+	Developer.debugging.skills && timedSkill.have && print(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(timedSkill.skill) + ") DMG: " + timedSkill.dmg);
 
 	let inDanger = function () {
 		let nearUnits = getUnits(sdk.unittype.Monster).filter(function (mon) { return mon.attackable && mon.distance < 10; });
@@ -338,7 +329,9 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			tick = getTickCount();
 
 			while (getTickCount() - tick < 750) {
-				if (tsMana < me.mp) { break; }
+				if (tsMana < me.mp) {
+					break;
+				}
 
 				delay(25);
 			}
@@ -383,9 +376,13 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 	}
 
 	for (let i = 0; i < 25; i++) {
-		if (!me.skillDelay) { break; }
+		if (!me.skillDelay) {
+			break;
+		}
 		if (i % 5 === 0) {
-			if (inDanger()) { break; }
+			if (inDanger()) {
+				break;
+			}
 		}
 
 		delay(40);

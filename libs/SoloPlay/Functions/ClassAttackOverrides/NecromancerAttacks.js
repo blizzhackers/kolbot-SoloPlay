@@ -123,9 +123,7 @@ ClassAttack.getCurseState = function (unit, curseID) {
 };
 
 ClassAttack.smartCurse = function (unit, index) {
-	if (unit === undefined || unit.dead || !Attack.isCursable(unit)) {
-		return false;
-	}
+	if (unit === undefined || unit.dead || !unit.curseable) return false;
 
 	let type = index === 1 ? "Boss" : "Normal";
 	let curseToCast = -1;

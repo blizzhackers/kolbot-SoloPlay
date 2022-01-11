@@ -4,11 +4,13 @@
 *	@desc		Precast.js fixes to improve functionality
 */
 
-if (!isIncluded("common/Precast.js")) {
-	include("common/Precast.js");
-}
+if (!isIncluded("common/Precast.js")) { include("common/Precast.js"); }
 
 Precast.enabled = true;
+
+// TODO: check if some of the summons from charged items could be useful?
+// Can't be on a weapon due to consistent switching but
+// Clay Goldem from Stone RW, Iron Golem from Metalgrid, Posion Creeper from Carrior Wind ring, Oak, HoW, or SoB from wisp
 
 Precast.precastCTA = function (force) {
 	if (me.classic || me.barbarian || me.inTown || me.shapeshifted) {
@@ -23,11 +25,11 @@ Precast.precastCTA = function (force) {
 		let slot = me.weaponswitch;
 
 		me.switchWeapons(this.haveCTA);
-		Skill.cast(155, 0); // Battle Command
-		Skill.cast(155, 0); // Battle Command
-		Skill.cast(149, 0); // Battle Orders
+		Skill.cast(sdk.skills.BattleCommand, 0); // Battle Command
+		Skill.cast(sdk.skills.BattleCommand, 0); // Battle Command
+		Skill.cast(sdk.skills.BattleOrders, 0); // Battle Orders
 
-		this.BODuration = (20 + me.getSkill(149, 1) * 10 + (me.getSkill(138, 0) + me.getSkill(155, 0)) * 5) * 1000;
+		this.BODuration = (20 + me.getSkill(sdk.skills.BattleOrders, 1) * 10 + (me.getSkill(sdk.skills.Shout, 0) + me.getSkill(sdk.skills.BattleCommand, 0)) * 5) * 1000;
 		this.BOTick = getTickCount();
 
 		me.switchWeapons(slot);
@@ -148,9 +150,7 @@ Precast.precastSkill = function (skillId) {
 Precast.doPrecast = function (force) {
 	let buffSummons = false;
 
-	if (!Precast.enabled) {
-		return;
-	}
+	if (!Precast.enabled) { return; }
 
 	// Force BO 30 seconds before it expires
 	if (this.haveCTA) {
@@ -246,6 +246,9 @@ Precast.doPrecast = function (force) {
 
 		break;
 	case sdk.charclass.Barbarian:
+		// TODO: check if some of the summons from charged items could be useful?
+		// Can't be on a weapon due to consistent switching but
+		// Clay Goldem from Stone RW, Iron Golem from Metalgrid, Posion Creeper from Carrior Wind ring, Oak, HoW, or SoB from wisp
 		if ((!me.getState(sdk.states.Shout) && me.getSkill(sdk.skills.Shout, 0)) ||
 			(!me.getState(sdk.states.BattleOrders) && me.getSkill(sdk.skills.BattleOrders, 0)) ||
 			(!me.getState(sdk.states.BattleCommand) && me.getSkill(sdk.skills.BattleCommand, 0)) || force) {

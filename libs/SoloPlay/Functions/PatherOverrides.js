@@ -237,10 +237,10 @@ Pather.teleUsingCharges = function (x, y, maxRange = 5) {
 
 Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 	if (!getWaypoint(Pather.wpAreas.indexOf(area))) {
-		let wp;
+		!me.getSkill(sdk.skills.Telekinesis, 1) && me.inTown && Town.move("waypoint");
 
 		for (let i = 0; i < 15; i++) {
-			wp = getUnit(sdk.unittype.Object, "waypoint");
+			let wp = getUnit(sdk.unittype.Object, "waypoint");
 
 			if (wp && wp.area === me.area) {
 				if (Skill.useTK(wp) && i < 2) {
@@ -253,7 +253,7 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 					this.moveToUnit(wp);
 				}
 
-				!getUIFlag(sdk.uiflags.Waypoint) && Coords_1.isBlockedBetween(me, wp) ? Town.move("waypoint") : Misc.click(0, 0, wp);
+				!getUIFlag(sdk.uiflags.Waypoint) && Misc.click(0, 0, wp);
 
 				let tick = getTickCount();
 
@@ -694,10 +694,11 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	for (let i = 0; i < this.cancelFlags.length; i += 1) {
 		if (getUIFlag(this.cancelFlags[i])) me.cancel();
 	}
-
-	if (getDistance(me, x, y) < 2) return true;
-	if (!x || !y) { throw new Error("moveTo: Function must be called with at least 2 arguments."); }
+	
+	//if (!x || !y) { throw new Error("moveTo: Function must be called with at least 2 arguments."); }
+	if (!x || !y) return false; // I don't think this is a fatal error so just return false
 	if (typeof x !== "number" || typeof y !== "number") { throw new Error("moveTo: Coords must be numbers"); }
+	if (getDistance(me, x, y) < 2) return true;
 
 	(retry === undefined || retry === 3) && (retry = 15);
 

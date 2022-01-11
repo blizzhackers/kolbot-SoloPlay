@@ -1,14 +1,14 @@
 /**
- *    @filename   druid.WindBuild.js
- *	  @author	  isid0re
+ *    @filename   druid.LevelingBuild.js
+ *	  @author	  isid0re, theBGuy
  *    @desc       Druid wind build for after respecOne
  */
 
-var build = {
+let build = {
 	caster: true,
 	skillstab: 42, // elemental
-	wantedskills: [sdk.skills.Tornado, sdk.skills.Hurricane, sdk.skills.Twister], // tornado, hurricane, twister
-	usefulskills: [sdk.skills.CycloneArmor], // cyclone armor
+	wantedskills: [sdk.skills.Tornado, sdk.skills.Hurricane, sdk.skills.Twister],
+	usefulskills: [sdk.skills.CycloneArmor],
 	mercAuraName: "Blessed Aim",
 	mercAuraWanted: sdk.skills.BlessedAim,
 	mercDiff: sdk.difficulty.Normal,

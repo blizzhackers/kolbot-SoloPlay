@@ -208,12 +208,16 @@ Skill.getRange = function (skillId) {
 	case 42: // Static Field
 		return Math.floor((me.getSkill(sdk.skills.StaticField, 1) + 3) * 2 / 3);
 	case 132: // Leap
-		return [4, 7, 8, 10, 11, 12, 12, 13, 14, 14, 14, 14, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17][Math.min(me.getSkill(132, 1) - 1, 24)];
+		{
+			let skLvl = me.getSkill(sdk.skills.Leap, 1);
+			return Math.floor(Math.min(4 + (26 * ((110 * skLvl / (skLvl + 6)) / 100)), 30) * (2 / 3));
+		}
 	case 230: // Arctic Blast
 		{
-			let range = [5, 6, 6, 6, 6, 7, 7, 8, 8, 8, 8, 9, 9, 10, 10, 10, 10, 11, 11, 12][Math.min(me.getSkill(230, 1) - 1, 19)];
+			let skLvl = me.getSkill(sdk.skills.ArcticBlast, 1);
+			let range = Math.floor(((33 + (2 * skLvl)) / 4) * (2 / 3));
 			// Druid using this on physical immunes needs the monsters to be within range of hurricane
-			range > 6 && Config.AttackSkill[5] === 230 && (range = 6);
+			range > 6 && Config.AttackSkill[5] === sdk.skills.ArcticBlast && (range = 6);
 	
 			return range;
 		}

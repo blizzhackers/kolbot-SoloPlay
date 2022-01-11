@@ -14,7 +14,7 @@ const finalBuild = {
 	mercAuraWanted: sdk.skills.HolyFreeze,
 	mercDiff: 1,
 	classicStats: [
-		["strength", 55], ["vitality", "all"]
+		["strength", 80], ["vitality", "all"]
 	],
 	expansionStats: [
 		["strength", 103], ["dexterity", 136], ["vitality", 300],

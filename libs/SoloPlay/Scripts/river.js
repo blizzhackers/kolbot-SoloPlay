@@ -9,9 +9,9 @@ function river() {
 	me.overhead("river");
 
 	Town.doChores();
-	Town.buyPots(8, "Antidote");
+	Town.buyPots(10, "Antidote");
 	Town.drinkPots();
-	Town.buyPots(8, "Thawing");
+	Town.buyPots(10, "Thawing");
 	Town.drinkPots();
 
 	Pather.checkWP(sdk.areas.CityoftheDamned, true) ? Pather.useWaypoint(sdk.areas.CityoftheDamned) : Pather.getWP(sdk.areas.CityoftheDamned);

@@ -31,6 +31,13 @@ Pickit.checkItem = function (unit) {
 		};
 	}
 
+	if (unit.classid === sdk.items.StaminaPotion && (me.staminaPercent <= 85 || me.runwalk === 0) && Item.getQuantityOwned(unit) < 2) {
+		return {
+			result: 1,
+			line: "StaminaPotion"
+		};
+	}
+
 	if (CraftingSystem.checkItem(unit)) {
 		return {
 			result: 5,

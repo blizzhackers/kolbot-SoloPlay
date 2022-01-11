@@ -5,7 +5,7 @@
  *    @desc       barb build for before respecOne
  */
 
-var build = {
+let build = {
 	caster: false,
 	skillstab: sdk.skills.tabs.CombatBarb,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing, sdk.skills.SwordMastery],
@@ -32,6 +32,7 @@ var build = {
 		[sdk.skills.SwordMastery, 9],
 		[sdk.skills.DoubleThrow, 1],
 		[sdk.skills.Shout, 1],
+		[sdk.skills.Taunt, 3, false],
 		[sdk.skills.Frenzy, 1],
 		[sdk.skills.BattleOrders, 4, false],
 		[sdk.skills.Taunt, 20],
