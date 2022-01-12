@@ -67,6 +67,11 @@ function mephisto () {
 	Pather.moveTo(17581, 8070);
 	delay(250 + me.ping * 2);
 	Pather.usePortal(null);
+	Misc.poll(function () { return me.area === sdk.areas.PandemoniumFortress; }, 1000, 30);
 
-	return true;
+	while (!me.gameReady) {
+		delay(100 + me.ping);
+	}
+
+	return me.area === sdk.areas.PandemoniumFortress;
 }
