@@ -56,7 +56,6 @@ const SetUp = {
 		});
 	},
 
-	// mine - theBGuy
 	// Storage Settings
 	sortSettings: {
 		ItemsSortedFromLeft: [], // default: everything not in Config.ItemsSortedFromRight
@@ -80,6 +79,13 @@ const SetUp = {
 
 	currentBuild: DataFile.getStats().currentBuild,
 	finalBuild: DataFile.getStats().finalBuild,
+
+	// setter for Developer option to stop a profile once it reaches a certain level
+	stopAtLevel: (function () {
+		if (!Developer.stopAtLevel.enabled) return false;
+		let level = Developer.stopAtLevel.profiles.find(profile => profile[0].toLowerCase() === me.profile.toLowerCase()) || false;
+		return level ? level[1] : false;
+	})(),
 
 	// pulls respec requirments from final build file
 	respecTwo: function () {
@@ -162,9 +168,8 @@ const SetUp = {
 		printTotalTime && (gameObj = Developer.readObj(Tracker.GTPath));
 
 		// log info
-		print("ÿc8Kolbot-SoloPlayÿc0: " + this.finalBuild + " goal reached. On to the next.");
-		me.overhead("ÿc8Kolbot-SoloPlay: " + this.finalBuild + " goal reached. On to the next.");
-		D2Bot.printToConsole((printTotalTime ? "[" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + "] (TotalTime) " : "") + "Kolbot-SoloPlay: " + this.finalBuild + " goal reached. Making next...", 6);
+		myPrint(this.finalBuild + " goal reached. On to the next.");
+		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", 6);
 
 		D2Bot.setProfile(null, null, NameGen());
 		FileTools.remove("data/" + me.profile + ".json");
@@ -1046,40 +1051,36 @@ const Check = {
 	},
 
 	checkSpecialCase: function () {
-		let goalReached = false;
+		let goalReached = false, goal = "";
 
-		switch (SetUp.finalBuild) {
-		case "Bumper":
-			SetUp.finalBuild === "Bumper" && me.charlvl >= 40 && (goalReached = true);
+		switch (true) {
+		case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
+			goal = SetUp.finalBuild;
+			goalReached = true;
 
 			break;
-		case "Socketmule":
-			SetUp.finalBuild === "Socketmule" && Misc.checkQuest(35, 1) && (goalReached = true);
+		case SetUp.finalBuild === "Socketmule" && Misc.checkQuest(35, 1):
+			goal = SetUp.finalBuild;
+			goalReached = true;
+
+			break;
+		case SetUp.stopAtLevel && me.charlvl >= SetUp.stopAtLevel:
+			goal = "Level: " + SetUp.stopAtLevel;
+			goalReached = true;
 
 			break;
 		default:
-			// Refactor this so it doesn't do this check everytime.
-			// It really only needs to confirm that our profile is listed and save the level we want to stop at
-			if (Developer.stopAtLevel.enabled) {
-				for (let i = 0; i < Developer.stopAtLevel.profiles.length; i++) {
-					if (Developer.stopAtLevel.profiles[i][0].toLowerCase() === me.profile.toLowerCase()) {
-						if (me.charlvl >= Developer.stopAtLevel.profiles[i][1]) {
-							D2Bot.printToConsole("Kolbot-SoloPlay level goal reached. Current level: " + me.charlvl, 6);
-							Developer.logPerformance && Tracker.Update();
-							D2Bot.stop();
-						}
-					}
-				}
-			}
-
 			break;
 		}
 
 		if (goalReached) {
+			let gameObj, printTotalTime = Developer.logPerformance;
+			printTotalTime && (gameObj = Developer.readObj(Tracker.GTPath));
+
 			if (Developer.fillAccount.bumpers || Developer.fillAccount.socketMules) {
 				SetUp.makeNext();
 			} else {
-				D2Bot.printToConsole("Kolbot-SoloPlay " + SetUp.finalBuild + " goal reached.", 6);
+				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + ")" : ""), 6);
 				Developer.logPerformance && Tracker.Update();
 				D2Bot.stop();
 			}

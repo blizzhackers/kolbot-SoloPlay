@@ -34,7 +34,7 @@ Pickit.checkItem = function (unit) {
 	if (unit.classid === sdk.items.StaminaPotion && (me.staminaPercent <= 85 || me.runwalk === 0) && Item.getQuantityOwned(unit) < 2) {
 		return {
 			result: 1,
-			line: "StaminaPotion"
+			line: "LowStamina"
 		};
 	}
 
@@ -70,7 +70,7 @@ Pickit.checkItem = function (unit) {
 		if (Item.autoEquipCharmCheck(unit)) {
 			return {
 				result: 1,
-				line: "Autoequip charm tier: " + NTIP.GetCharmTier(unit)
+				line: "Autoequip charm Tier: " + NTIP.GetCharmTier(unit)
 			};
 		}
 
