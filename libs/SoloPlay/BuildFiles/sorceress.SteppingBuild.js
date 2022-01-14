@@ -9,9 +9,9 @@ let build = {
 	skillstab: sdk.skills.tabs.Cold,
 	wantedskills: [sdk.skills.Blizzard, sdk.skills.GlacialSpike, sdk.skills.ColdMastery],
 	usefulskills: [sdk.skills.IceBlast, sdk.skills.Warmth, sdk.skills.StaticField],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	classicStats: [
 		["energy", 60], ["vitality", 40], ["strength", 55],
 		["energy", 80], ["vitality", 80], ["strength", 80],
@@ -54,6 +54,10 @@ let build = {
 	],
 	stats: undefined,
 	skills: undefined,
+
+	active: function () {
+		return me.charlvl > Config.respecOne && me.charlvl < Config.respecOneB && me.getSkill(sdk.skills.Blizzard, 0) && !me.getSkill(sdk.skills.Nova, 0) && !me.getSkill(sdk.skills.FireMastery, 0);
+	},
 };
 
 // Has to be set after its loaded

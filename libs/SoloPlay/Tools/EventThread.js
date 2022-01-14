@@ -29,7 +29,7 @@ include("common/Town.js");
 
 if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
 if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
-if (!isIncluded("SoloPlay/Functions/globals.js")) { include("SoloPlay/Functions/globals.js"); }
+if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
 
 function main () {
 	let action = [];
@@ -106,6 +106,10 @@ function main () {
 		if (msg && typeof msg === "string" && msg !== "" && msg.substring(0, 8) === "config--") {
 			Config = JSON.parse(msg.split("config--")[1]);
 		}
+
+		if (msg && typeof msg === "string" && msg !== "" && msg.substring(0, 6) === "data--") {
+			myData = JSON.parse(msg.split("data--")[1]);
+		}
 		
 		switch (msg) {
 		case "testing":
@@ -114,6 +118,10 @@ function main () {
 		case "skip":
 		case "killdclone":
 			action.push(msg);
+
+			break;
+		case "test":
+			console.log(myData);
 
 			break;
 		default:

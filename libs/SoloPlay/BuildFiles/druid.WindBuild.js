@@ -10,9 +10,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.Tornado, sdk.skills.Hurricane, sdk.skills.Twister],
 	usefulskills: [sdk.skills.CycloneArmor],
 	precastSkills: [sdk.skills.CycloneArmor],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	stats: [
 		["dexterity", 35], ["strength", 156], ["vitality", "all"]
 	],
@@ -62,5 +62,9 @@ const finalBuild = {
 
 	respec: function () {
 		return Check.haveItem("armor", "runeword", "Enigma");
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.Tornado, 0) === 20;
 	},
 };

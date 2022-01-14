@@ -7,10 +7,11 @@
 
 if (!isIncluded("OOG.js")) { include("OOG.js"); }
 if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
+if (!isIncluded("SoloPlay/Tools/SoloData.js")) { include("SoloPlay/Tools/SoloData.js"); }
 if (!isIncluded("SoloPlay/Functions/PrototypesOverrides.js")) { include("SoloPlay/Functions/PrototypesOverrides.js"); }
 
 let sdk = require('../modules/sdk');
-let Difficulty = ['Normal', 'Nightmare', 'Hell'];
+let myData = SoloData.getStats();
 
 // these builds are not possible to do on classic
 let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl"];
@@ -28,6 +29,60 @@ function myPrint (str = "", toConsole = false, color = 0) {
 	toConsole && D2Bot.printToConsole("Kolbot-SoloPlayÿ :: " + str, color);
 }
 
+function updateMyData () {
+	scriptBroadcast("data--" + JSON.stringify(Misc.copy(myData)));
+}
+
+function ensureData () {
+	let update = false;
+
+	if (myData.me.currentBuild !== SetUp.getBuild()) {
+		switch (true) {
+		case Check.currentBuild().active():
+		case Check.finalBuild().active():
+			myData.me.currentBuild = SetUp.getBuild();
+			console.debug(myData);
+			update = true;
+
+			break;		
+		}
+	}
+
+	if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff))) {
+		myData.me.highestDifficulty = sdk.difficulty.nameOf(me.diff);
+		console.debug(myData);
+		update = true;
+	}
+
+	if (myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed !== !me.canImbue) {
+		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
+		console.debug(myData);
+		update = true;
+	}
+
+	if (myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed === false && !!me.respec) {
+		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
+		console.debug(myData);
+		update = true;
+	}
+
+	// Merc check
+	if (me.expansion) {
+		if (!!me.getMerc()) {
+			// TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
+			// can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
+		}
+
+		if (Pather.accessToAct(5) && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed !== !me.larzuk) {
+			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
+			console.debug(myData);
+			update = true;
+		}
+	}
+
+	update && SoloData.updateData("me", myData) && updateMyData();
+}
+
 // general settings
 const SetUp = {
 	scripts: [
@@ -38,7 +93,10 @@ const SetUp = {
 		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests", // Act 5
 	],
 
-	// mine - theBGuy
+	// Should this be moved elsewhere? Currently have to include Globals then call this to include rest of overrides
+	// which in doing so would include globals anyway but does this always need to be included first?
+	// really need a centralized way to make sure all files use/have the custom functions and all threads stay updated without having to
+	// scriptBroadcast all the time
 	include: function () {
 		let folders = ["Functions"];
 		folders.forEach( (folder) => {
@@ -74,11 +132,8 @@ const SetUp = {
 		],
 	},
 
-	// Global value to set bot to walk while doing a task, since while physically attacking running decreases block chance
-	walkToggle: false,
-
-	currentBuild: DataFile.getStats().currentBuild,
-	finalBuild: DataFile.getStats().finalBuild,
+	currentBuild: this.currentBuild,
+	finalBuild: this.finalBuild,
 
 	// setter for Developer option to stop a profile once it reaches a certain level
 	stopAtLevel: (function () {
@@ -172,12 +227,24 @@ const SetUp = {
 		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", 6);
 
 		D2Bot.setProfile(null, null, NameGen());
-		FileTools.remove("data/" + me.profile + ".json");
-		FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
+		SoloData.delete(true);
 		delay(100 + me.ping);
 		D2Bot.restart();
 	},
 };
+
+Object.defineProperties(SetUp, {
+	currentBuild: {
+        get: function () {
+            return myData.me.currentBuild;
+        },
+    },
+    finalBuild: {
+        get: function () {
+            return myData.me.finalBuild;
+        },
+    },
+});
 
 // SoloPlay Pickit Items
 // TODO: check if is this even needed?
@@ -245,14 +312,26 @@ const nipItems = {
 	],
 };
 
-const goBackDifficulty = function (diff, reason = "") {
-	diff === undefined && (diff = me.diff - 1);
-	if (diff === me.diff || diff < 0) return;
-	let diffString = sdk.difficulty.nameOf(diff);
+const goToDifficulty = function (diff = undefined, reason = "") {
+	if (!diff) return;
+	let diffString;
+	switch (typeof diff) {
+	case "string":
+		diff = diff[0].toUpperCase() + diff.substring(1).toLowerCase();
+		if (!sdk.difficulty.Difficulties.includes(diff) || sdk.difficulty.Difficulties.indexOf(diff) === me.diff) return;
+		diffString = diff;
+
+		break;
+	case "number":
+		if (diff === me.diff || diff < 0) return;
+		diffString = sdk.difficulty.nameOf(diff);
+
+		break;
+	}
 
 	D2Bot.setProfile(null, null, null, diffString);
 	DataFile.updateStats("setDifficulty", diffString);
-	myPrint("Going back to " + diffString + reason, true);
+	myPrint("Going to " + diffString + reason, true);
 	D2Bot.restart();
 };
 
@@ -290,7 +369,7 @@ const Check = {
 
 			break;
 		case "smith":
-			if (!me.smith && !Misc.checkQuest(3, 1)) {
+			if (!me.canImbue && !me.smith) {
 				return true;
 			}
 
@@ -526,7 +605,7 @@ const Check = {
 			break;
 		case "cows":
 			if (!me.cows && me.diffCompleted) {
-				if (me.barbarian && !["Whirlwind", "Immortalwhirl", "Singer"].includes(SetUp.currentBuild) && (!me.normal || !Check.brokeAf())) { return false; }
+				if (me.barbarian && !["Whirlwind", "Immortalwhirl", "Singer"].includes(SetUp.currentBuild) && (!me.normal || !Check.brokeAf())) return false;
 				switch (me.diff) {
 				case sdk.difficulty.Normal:
 					if (Check.brokeAf()) {
@@ -621,10 +700,10 @@ const Check = {
 	Resistance: function () {
 		let resStatus,
 			resPenalty = me.getResPenalty(me.diff + 1),
-			frRes = me.fireRes - resPenalty,
-			lrRes = me.lightRes - resPenalty,
-			crRes = me.coldRes - resPenalty,
-			prRes = me.poisonRes - resPenalty;
+			frRes = me.getStat(sdk.stats.FireResist) - resPenalty,
+			lrRes = me.getStat(sdk.stats.LightResist) - resPenalty,
+			crRes = me.getStat(sdk.stats.ColdResist) - resPenalty,
+			prRes = me.getStat(sdk.stats.PoisonResist) - resPenalty;
 
 		resStatus = !!((frRes >= 0) && (lrRes >= 0) && (crRes >= 0)); 
 
@@ -879,14 +958,7 @@ const Check = {
 
 	haveBase: function (type = undefined, sockets = undefined) {
 		if (!type|| !sockets) return false;
-
-		switch (typeof type) {
-		case "number":
-			break;
-		case "string":
-			type = type.toLowerCase();
-			break;
-		}
+		typeof type === "string" && (type = type.toLowerCase());
 
 		let baseCheck = false;
 		let items = me.getItems()
@@ -965,10 +1037,12 @@ const Check = {
 				wantedSkills: finalBuild.wantedskills,
 				usefulSkills: finalBuild.usefulskills,
 				precastSkills: finalBuild.precastSkills,
-				mercAuraName: finalBuild.mercAuraName,
-				mercAuraWanted: finalBuild.mercAuraWanted,
 				mercDiff: finalBuild.mercDiff,
+				mercAct: finalBuild.mercAct,
+				mercAuraWanted: finalBuild.mercAuraWanted,
 				finalGear: finalBuild.autoEquipTiers,
+				respec: finalBuild.respec,
+				active: finalBuild.active,
 			};
 		}
 
@@ -977,33 +1051,33 @@ const Check = {
 			tabSkills: build.skillstab,
 			wantedSkills: build.wantedskills,
 			usefulSkills: build.usefulskills,
+			active: build.active,
 		};
 	},
 
 	finalBuild: function () {
 		function getBuildTemplate () {
+			let foundError = false;
 			if (SetUp.finalBuild.includes("Build") || SetUp.finalBuild.includes("build")) {
 				SetUp.finalBuild = SetUp.finalBuild.substring(0, SetUp.finalBuild.length - 5);
 				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
-				DataFile.updateStats("finalBuild", SetUp.finalBuild);
+				foundError = true;
 			}
 
 			if (SetUp.finalBuild.includes(".")) {
 				SetUp.finalBuild = SetUp.finalBuild.substring(SetUp.finalBuild.indexOf(".") + 1);
 				SetUp.finalBuild = SetUp.finalBuild[0].toUpperCase() + SetUp.finalBuild.substring(1).toLowerCase();
 				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
-				DataFile.updateStats("finalBuild", SetUp.finalBuild);
+				foundError = true;
 			}
 
 			if (SetUp.finalBuild.includes(" ")) {
-				if (SetUp.finalBuild.indexOf(" ") === (SetUp.finalBuild.length - 1)) {	// Trailing space
+				// Trailing space
+				if (SetUp.finalBuild.indexOf(" ") === (SetUp.finalBuild.length - 1)) {
 					SetUp.finalBuild = SetUp.finalBuild.split(" ")[0];
 					SetUp.finalBuild = SetUp.finalBuild[0].toUpperCase() + SetUp.finalBuild.substring(1).toLowerCase();
 					D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-					D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
-					DataFile.updateStats("finalBuild", SetUp.finalBuild);
+					foundError = true;
 				}
 			}
 
@@ -1011,8 +1085,13 @@ const Check = {
 				SetUp.finalBuild = SetUp.finalBuild.substring(SetUp.finalBuild.indexOf("-") + 1);
 				SetUp.finalBuild = SetUp.finalBuild[0].toUpperCase() + SetUp.finalBuild.substring(1).toLowerCase();
 				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '-' which is unecessary and means you likely entered something along the lines of Classname-finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				foundError = true;
+			}
+
+			if (foundError) {
 				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
-				DataFile.updateStats("finalBuild", SetUp.finalBuild);
+				SoloData.updateData("me", "finalBuild", SetUp.finalBuild);
+				myData.me.finalBuild = SetUp.finalBuild;
 			}
 
 			let buildType = SetUp.finalBuild;
@@ -1042,11 +1121,12 @@ const Check = {
 			wantedSkills: finalBuild.wantedskills,
 			usefulSkills: finalBuild.usefulskills,
 			precastSkills: finalBuild.precastSkills,
-			mercAuraName: finalBuild.mercAuraName,
-			mercAuraWanted: finalBuild.mercAuraWanted,
 			mercDiff: finalBuild.mercDiff,
+			mercAct: finalBuild.mercAct,
+			mercAuraWanted: finalBuild.mercAuraWanted,
 			finalGear: finalBuild.autoEquipTiers,
 			respec: finalBuild.respec,
+			active: finalBuild.active,
 		};
 	},
 
@@ -1089,15 +1169,12 @@ const Check = {
 
 	// TODO: enable this for other items, i.e maybe don't socket tal helm in hell but instead go back and use nightmare so then we can use hell socket on tal armor?
 	usePreviousSocketQuest: function () {
+		if (me.classic) return;
 		if (!Check.Resistance().Status) {
 			if (me.weaponswitch === 0 && Item.getEquippedItem(5).fname.includes("Lidless Wall") && !Item.getEquippedItem(5).socketed) {
-				if (me.hell) {
-					if (FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".SocketData.json")) {
-						let data = Developer.readObj("libs/SoloPlay/Data/" + me.profile + ".SocketData.json");
-						if (data.Nightmare === false) {
-							goBackDifficulty(sdk.difficulty.Nightmare, " to use socket quest");
-						}
-					}
+				if (!me.normal) {
+					if (!myData.normal.socketUsed) goToDifficulty(sdk.difficulty.Normal, " to use socket quest");
+					if (me.hell && !myData.nightmare.socketUsed) goToDifficulty(sdk.difficulty.Nightmare, " to use socket quest");
 				}
 			}
 		}

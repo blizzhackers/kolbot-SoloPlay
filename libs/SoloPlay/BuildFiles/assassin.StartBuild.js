@@ -1,17 +1,17 @@
 /**
  *    @filename   assassin.StartBuild.js
  *	  @author	  theBGuy
- *    @desc       assassin build for before respecOne
+ *    @desc       assassin fire trap build for before respecOne
  */
 
-var build = {
+let build = {
 	caster: true,
 	skillstab: sdk.skills.tabs.Traps,
 	wantedskills: [sdk.skills.FireBlast, sdk.skills.WakeofFire],
 	usefulskills: [sdk.skills.CloakofShadows, sdk.skills.ShadowWarrior],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	stats: [
 		["vitality", 35], ["energy", 35], ["strength", 33], ["dexterity", 33],
 		["vitality", 50], ["strength", 46], ["dexterity", 46],
@@ -29,5 +29,9 @@ var build = {
 		[sdk.skills.FireBlast, 6, false], 		// level 26
 		[sdk.skills.WakeofFire, 20, false], 	// level 36
 		[sdk.skills.FireBlast, 10], 			// level 42
-	]
+	],
+
+	active: function () {
+		return me.charlvl < Config.respecOne && !me.getSkill(sdk.skills.LightningSentry, 0);
+	},
 };

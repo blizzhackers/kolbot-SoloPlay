@@ -1,6 +1,6 @@
 /*
 *	@filename	Tracker.js
-*	@author		isid0re
+*	@author		isid0re, theBGuy
 *	@desc		Track bot game performance and sends to CSV file
 */
 
@@ -9,12 +9,12 @@ if (!isIncluded("SoloPlay/Functions/Quest.js")) { include("SoloPlay/Functions/Qu
 if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
 
 const Tracker = {
-	GTPath: "libs/SoloPlay/Data/" + me.profile + ".GameTime.json",
-	LPPath: "libs/SoloPlay/Data/" + me.profile + ".LevelingPerformance.csv",
-	SPPath: "libs/SoloPlay/Data/" + me.profile + ".ScriptPerformance.csv",
+	GTPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-GameTime.json",
+	LPPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-LevelingPerformance.csv",
+	SPPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-ScriptPerformance.csv",
 
 	initialize: function () {
-		//File Structure
+		// File Structure
 		let LPHeader = "Total Time,InGame Time,Split Time,Area,Character Level,Gained EXP,Gained EXP/Minute,Difficulty,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n"; //Leveling Performance
 		let SPHeader = "Total Time,InGame Time,Sequence Time,Sequence,Character Level,Gained EXP,Gained EXP/Minute,Difficulty,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n"; //Script Performance
 		let FirstSave = getTickCount();
@@ -27,16 +27,21 @@ const Tracker = {
 		};
 
 		// Create Files
-		if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".GameTime.json")) {
-			Developer.writeObj(GameTracker, Tracker.GTPath);
+		if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile)) {
+			folder = dopen("libs/SoloPlay/Data");
+			folder.create(me.profile);
 		}
 
-		if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".LevelingPerformance.csv")) {
-			Misc.fileAction(Tracker.LPPath, 1, LPHeader);
+		if (!FileTools.exists(this.GTPath)) {
+			Developer.writeObj(GameTracker, this.GTPath);
 		}
 
-		if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".ScriptPerformance.csv")) {
-			Misc.fileAction(Tracker.SPPath, 1, SPHeader);
+		if (!FileTools.exists(this.LPPath)) {
+			Misc.fileAction(this.LPPath, 1, LPHeader);
+		}
+
+		if (!FileTools.exists(this.SPPath)) {
+			Misc.fileAction(this.SPPath, 1, SPHeader);
 		}
 
 		return true;
@@ -55,7 +60,7 @@ const Tracker = {
 			newIG = GameTracker.InGame + Developer.Timer(newTick),
 			newTotal = GameTracker.Total + Developer.Timer(totalTick),
 			scriptTime = Developer.Timer(starttime),
-			diffString = Difficulty[me.diff],
+			diffString = sdk.difficulty.nameOf(me.diff),
 			gainAMT = me.getStat(13) - startexp,
 			gainTime = gainAMT / (scriptTime / 60000),
 			currentBuild = SetUp.getBuild(),
@@ -89,7 +94,7 @@ const Tracker = {
 			newTotal = GameTracker.Total + Developer.Timer(totalTick),
 			newOOG = newTotal - newIG,
 			splitTime = Developer.Timer(GameTracker.LastLevel),
-			diffString = Difficulty[me.diff],
+			diffString = sdk.difficulty.nameOf(me.diff),
 			areaName = Pather.getAreaName(me.area),
 			currentBuild = SetUp.getBuild(),
 			newSave = getTickCount(),

@@ -10,9 +10,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Concentrate],
 	usefulskills: [sdk.skills.SwordMastery, sdk.skills.Bash],
 	precastSkills: [sdk.skills.BattleOrders, sdk.skills.BattleCommand],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	stats: [
 		["strength", 196], ["dexterity", "block"], ["vitality", "all"],
 	],
@@ -62,5 +62,9 @@ const finalBuild = {
 		} else {
 			return Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("monarch", "unique", "Stormshield");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.Concentrate, 0) >= 5;
 	},
 };

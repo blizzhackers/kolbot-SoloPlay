@@ -199,55 +199,22 @@ let tierscore = function (item) {
 	};
 
 	this.generalScore = function (item) {
-		// cannot be frozen
-		let cbfItem = NTIPAliasStat["itemcannotbefrozen"],
-			cbfRating = 0,
-			needsCBF = !me.getSkill(54, 0),
-			body = me.getItems()
-				.filter(item => [1].indexOf(item.location) > -1 ) // limit search to equipped body parts
-				.sort((a, b) => a.bodylocation - b.bodylocation); // Sort on body, low to high.
+		let generalRating = 0, 
+			canTele = !Pather.canTeleport();
 
-		if (needsCBF && item.getStatEx(cbfItem)) {
-			let haveCBF = false;
-
-			for (let part = 0; part < body.length; part++) { // total 10 body slots
-				if (body[part].getStatEx(cbfItem)) {
-					if (item.gid === body[part].gid) {
-						break;
-					}
-
-					haveCBF = true;
-
-					break;
-				}
-			}
-
-			if (!haveCBF) {
-				cbfRating = Check.currentBuild().caster ? generalWeights.CBF : generalWeights.CBF * 4;	// Cannot be frozen is very important for Melee chars
-			}
+		if (!canTele && item.getStatEx(sdk.stats.CannotbeFrozen)) {
+			let haveCBF = me.getStat(sdk.stats.CannotbeFrozen) > 0;
+			// Cannot be frozen is very important for Melee chars
+			!haveCBF && (generalRating += Check.currentBuild().caster ? generalWeights.CBF : generalWeights.CBF * 4);
 		}
 
 		// faster run/walk
-		let frwRating = 0,
-			needsFrw = !me.getSkill(54, 0); // value FRW if no teleport
-
-		if (needsFrw) {
-			frwRating = item.getStatEx(96) * generalWeights.FRW;
-		}
+		!canTele && (generalRating += item.getStatEx(sdk.stats.FRW) * generalWeights.FRW);
 
 		// belt slots
-		let beltRating = 0,
-			isBelt = item.itemType === 19; // check if belt
-
-		if (isBelt) {
-			beltRating = Storage.BeltSize() * 4 * generalWeights.BELTSLOTS; // rows * columns * weight
-		}
+		item.itemType === sdk.itemtype.Belt && (generalRating += Storage.BeltSize() * 4 * generalWeights.BELTSLOTS); // rows * columns * weight
 
 		// start generalRating
-		let generalRating = 0;
-		generalRating += cbfRating; // add cannot be frozen
-		generalRating += frwRating; // add faster run walk
-		generalRating += beltRating; // add belt slots
 		generalRating += item.getStatEx(80) * generalWeights.MF; // add magic find
 		generalRating += item.getStatEx(99) * generalWeights.FHR; // add faster hit recovery
 		generalRating += item.getStatEx(31) * generalWeights.DEF; //	add Defense
@@ -270,56 +237,42 @@ let tierscore = function (item) {
 		// get item body location
 		let itembodyloc = Item.getBodyLoc(item);
 
-		if (!itembodyloc) {
-			return resistRating;
-		}
+		if (!itembodyloc) return resistRating;
 
-		if (item.itemType !== 10) {		// Temp fix for ring-loop is to just not do this for rings
-			let bodyloc = itembodyloc[0]; // extract bodyloc from array
-			// get item resists stats from olditem equipped on body location
-			let equippedItems = me.getItems()
-				.filter(item =>
-					item.bodylocation === bodyloc // filter equipped items to body location
-					&& [1].indexOf(item.location) > -1); // limit search to equipped body parts
-			let oldItem = equippedItems[0]; // extract oldItem from array
-			let olditemFR = oldItem !== undefined ? oldItem.getStatEx(39) : 0; // equipped fire resist
-			let olditemCR = oldItem !== undefined ? oldItem.getStatEx(43) : 0; // equipped cold resist
-			let olditemLR = oldItem !== undefined ? oldItem.getStatEx(41) : 0; // equipped lite resist
-			let olditemPR = oldItem !== undefined ? oldItem.getStatEx(45) : 0; // equipped poison resist
-			// subtract olditem resists from current total resists
-			let baseFR = currFR - olditemFR;
-			let baseCR = currCR - olditemCR;
-			let baseLR = currLR - olditemLR;
-			let basePR = currPR - olditemPR;
-			// if baseRes < max resists give score value upto max resists reached
-			let maxRes = !me.classic ? 175 : 125;
-			let FRlimit = Math.max(maxRes - baseFR, 0);
-			let CRlimit = Math.max(maxRes - baseCR, 0);
-			let LRlimit = Math.max(maxRes - baseLR, 0);
-			let PRlimit = Math.max(maxRes - basePR, 0);
-			// get new item stats
-			let newitemFR = Math.max(item.getStatEx(39), 0); // fire resist
-			let newitemCR = Math.max(item.getStatEx(43), 0); // cold resist
-			let newitemLR = Math.max(item.getStatEx(41), 0); // lite resist
-			let newitemPR = Math.max(item.getStatEx(45), 0); // poison resist
-			// newitemRes upto reslimit
-			let effectiveFR = Math.min(newitemFR, FRlimit);
-			let effectiveCR = Math.min(newitemCR, CRlimit);
-			let effectiveLR = Math.min(newitemLR, LRlimit);
-			let effectivePR = Math.min(newitemPR, PRlimit);
-			// sum resistRatings
-			resistRating += effectiveFR * resistWeights.FR; // add fireresist
-			resistRating += effectiveCR * resistWeights.CR; // add coldresist
-			resistRating += effectiveLR * resistWeights.LR; // add literesist
-			resistRating += effectivePR * resistWeights.PR; // add poisonresist
-		}
+		let bodyloc = itembodyloc.last(); // extract bodyloc from array
+		// get item resists stats from olditem equipped on body location
+		let equippedItem = me.getItemsEx().filter(function (equipped) { return equipped.isEquipped && equipped.bodylocation === bodyloc; }).first();
 
-		if (item.itemType === 10) {		// Rings
-			resistRating += item.getStatEx(39) * resistWeights.FR; // add fireresist
-			resistRating += item.getStatEx(43) * resistWeights.CR; // add coldresist
-			resistRating += item.getStatEx(41) * resistWeights.LR; // add literesist
-			resistRating += item.getStatEx(35) * resistWeights.PR; // add poisonresist
-		}
+		let olditemFR = !!equippedItem ? equippedItem.getStatEx(39) : 0; // equipped fire resist
+		let olditemCR = !!equippedItem ? equippedItem.getStatEx(43) : 0; // equipped cold resist
+		let olditemLR = !!equippedItem ? equippedItem.getStatEx(41) : 0; // equipped lite resist
+		let olditemPR = !!equippedItem ? equippedItem.getStatEx(45) : 0; // equipped poison resist
+		// subtract olditem resists from current total resists
+		let baseFR = currFR - olditemFR;
+		let baseCR = currCR - olditemCR;
+		let baseLR = currLR - olditemLR;
+		let basePR = currPR - olditemPR;
+		// if baseRes < max resists give score value upto max resists reached
+		let maxRes = !me.classic ? 175 : 125;
+		let FRlimit = Math.max(maxRes - baseFR, 0);
+		let CRlimit = Math.max(maxRes - baseCR, 0);
+		let LRlimit = Math.max(maxRes - baseLR, 0);
+		let PRlimit = Math.max(maxRes - basePR, 0);
+		// get new item stats
+		let newitemFR = Math.max(item.getStatEx(39), 0); // fire resist
+		let newitemCR = Math.max(item.getStatEx(43), 0); // cold resist
+		let newitemLR = Math.max(item.getStatEx(41), 0); // lite resist
+		let newitemPR = Math.max(item.getStatEx(45), 0); // poison resist
+		// newitemRes upto reslimit
+		let effectiveFR = Math.min(newitemFR, FRlimit);
+		let effectiveCR = Math.min(newitemCR, CRlimit);
+		let effectiveLR = Math.min(newitemLR, LRlimit);
+		let effectivePR = Math.min(newitemPR, PRlimit);
+		// sum resistRatings
+		resistRating += effectiveFR * resistWeights.FR; // add fireresist
+		resistRating += effectiveCR * resistWeights.CR; // add coldresist
+		resistRating += effectiveLR * resistWeights.LR; // add literesist
+		resistRating += effectivePR * resistWeights.PR; // add poisonresist
 
 		resistRating += (item.getStatEx(142) + item.getStatEx(144) + item.getStatEx(146) + item.getStatEx(148)) * resistWeights.ABS; // add absorb damage
 		resistRating += item.getStatEx(34) * resistWeights.DR; // add integer damage resist
@@ -334,18 +287,8 @@ let tierscore = function (item) {
 		let buildWeights = Check.currentBuild().caster ? casterWeights : meleeWeights;
 		let buildRating = 0;
 
-		if (me.amazon) {
-			if (item.getStatEx(253)) {
-				buildRating += 50;
-			}
-		}
-
-		if ((me.sorceress && !me.getSkill(54, 1)) || !me.getStat(97, 54)) {
-			// Teleport charges
-			if (item.getStatEx(204, 3461)) {
-				buildRating += 50;
-			}
-		}
+		me.amazon && item.getStatEx(sdk.stats.ReplenishQuantity) && (buildRating += 50);
+		!Pather.canTeleport() && item.getStatEx(sdk.stats.ChargedSkill, 3461) && (buildRating += 50);
 
 		buildRating += item.getStatEx(105) * buildWeights.FCR; // add FCR
 		buildRating += item.getStatEx(93) * buildWeights.IAS; // add IAS
@@ -354,16 +297,10 @@ let tierscore = function (item) {
 
 		// Melee Specific
 		if (!Check.currentBuild().caster) {
-			if (item.getStatEx(252)) {	// replenish durabilty, really only matters for non-casters
-				buildRating += 15;
-			}
+			let eleDmgModifer = [sdk.itemtype.Ring, sdk.itemtype.Amulet].includes(item.itemType) ? 2 : 1;
 
-			if (item.getStatEx(115)) {	// ignore target defense, really only matters for non-casters
-				buildRating += 50;
-			}
-
-			let eleDmgModifer = [10, 12].indexOf(item.itemType) > -1 ? 2 : 1;	// Rings and Amulets
-
+			item.getStatEx(sdk.stats.ReplenishDurability) && (buildRating += 15);
+			item.getStatEx(sdk.stats.IgnoreTargetDefense) && (buildRating += 50);
 			buildRating += item.getStatEx(21) * buildWeights.MINDMG; // add MIN damage
 			buildRating += item.getStatEx(22) * buildWeights.MAXDMG; // add MAX damage
 			//buildRating += item.getStatEx(23) * buildWeights.SECMINDMG; // add MIN damage
@@ -513,6 +450,8 @@ let tierscore = function (item) {
 	tier += this.buildScore(item);
 	tier += this.skillsScore(item);
 	tier += this.ctcScore(item);
+
+	// TODO: Maybe write chargesScore if I end up untilizing item charges for precast like summons or enchant
 
 	let rwBase; // don't score runeword base armors
 

@@ -10,7 +10,7 @@ const StarterConfig = {
 	//***********************************************************************************************************************//
 	//	DataCleaner and SaveFiles can both be used for cleaning/saving files without having to delete associated characters  //
 	//***********************************************************************************************************************//
-	DataCleaner:		true,	// Highly recommened to run this, if using either peformance tracking or the overlay system
+	DataCleaner:		true,	// Always run this when re-using a profile with Kolbot-SoloPlay
 	SaveFiles:			true,	// Highly recommened to run this if using the peformance tracking system
 	
 	// Old Stuff
@@ -46,7 +46,7 @@ const AccountsToClean = {
 	*/
 
 	//Enter your lines under here
-
+	
 };
 	
 //NEW STUFF - Please enter your profile name exactly as is
@@ -65,14 +65,21 @@ function dataCleaner() {
 		return;
 	}
 
-	let charClass, charType;
-	let path, folder, j;
+	let charClass;
+	let folder, j;
 
 	for (let i = 0; i < profiles.length; i++) {
 		let buildCheck = profiles[i].toUpperCase().split("-");
-		let profileExists = false;
-		charType = buildCheck[0].includes("CC") ? "Classic" : "Expansion";
 		buildCheck[1] = buildCheck[1].toString().substring(0, 3).toUpperCase();
+		let charType = buildCheck[0].includes("CC") ? "Classic" : "Expansion";
+		let profileExists = false;
+
+		// Filepaths
+		let dataFP = "data/" + profiles[i] + ".json";
+		let gameTimeFP = "libs/SoloPlay/Data/" + profiles[i] + "/" + profiles[i] + "-GameTime" + ".json";
+		let charDataFP = "libs/SoloPlay/Data/" + profiles[i] + "/" + profiles[i] + "-CharData" + ".json";
+		let lvlPerfFP = "libs/SoloPlay/Data/" + profiles[i] + "/" + profiles[i] + "-LevelingPerformance" + ".csv";
+		let scrPerfFP = "libs/SoloPlay/Data/" + profiles[i] + "/" + profiles[i] + "-ScriptPerformance" + ".csv";
 
 		switch (buildCheck[1]) {
 		case "ZON":
@@ -102,8 +109,8 @@ function dataCleaner() {
 		}
 
 		if (StarterConfig.SaveFiles) {
-			if (FileTools.exists("data/" + profiles[i] + ".json") || FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".GameTime" + ".json") || 
-				FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".LevelingPerformance" + ".csv") || FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".ScriptPerformance" + ".csv")) {
+			if (FileTools.exists(dataFP) || FileTools.exists(gameTimeFP) || FileTools.exists(charDataFP) || FileTools.exists(lvlPerfFP) || FileTools.exists(scrPerfFP)) {
+				// Create folder to copy files to
 				if (!FileTools.exists("libs/SoloPlay/Data/" + charType)) {
 					folder = dopen("libs/SoloPlay/Data");
 					folder.create(charType);
@@ -117,7 +124,7 @@ function dataCleaner() {
 				let files = dopen("libs/SoloPlay/Data/" + charType + "/" + charClass + "/").getFolders();
 				j = 1;
 
-				files.forEach( (file) => {
+				files.forEach((file) => {
 					if (FileTools.exists("libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString())){
 						j++;
 					}	
@@ -132,41 +139,45 @@ function dataCleaner() {
 			}
 		}
 				
-		if (FileTools.exists("data/" + profiles[i] + ".json")) {
+		if (FileTools.exists(dataFP)) {
 			if (StarterConfig.SaveFiles){
-				FileTools.copy("data/" + profiles[i] + ".json", "libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString() + "/dataFile.json");
+				FileTools.copy(dataFP, "libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString() + "/" + profiles[i] + "Old.json");
 			}
 			
 			profileExists = true;
-			FileTools.remove("data/" + profiles[i] + ".json");
+			FileTools.remove(dataFP);
 		}
 		
-		if (FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".GameTime" + ".json")) {
+		if (FileTools.exists(gameTimeFP)) {
 			if (StarterConfig.SaveFiles) {
-				FileTools.copy("libs/SoloPlay/Data/" + profiles[i] + ".GameTime" + ".json", "libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString() + "/GameTime.json");
+				FileTools.copy(gameTimeFP, "libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString() + "/" + profiles[i] + "-GameTimeOld.json");
 			}
 			
-			FileTools.remove("libs/SoloPlay/Data/" + profiles[i] + ".GameTime" + ".json");
+			FileTools.remove(gameTimeFP);
+		}
+
+		if (FileTools.exists(charDataFP)) {
+			if (StarterConfig.SaveFiles) {
+				FileTools.copy(charDataFP, "libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString() + "/" + profiles[i] + "-CharDataOld.json");
+			}
+			
+			FileTools.remove(charDataFP);
 		}
 		
-		if (FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".LevelingPerformance" + ".csv")) {
+		if (FileTools.exists(lvlPerfFP)) {
 			if (StarterConfig.SaveFiles) {
-				FileTools.copy("libs/SoloPlay/Data/" + profiles[i] + ".LevelingPerformance" + ".csv", "libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString() + "/LevelingPerformance.csv");
+				FileTools.copy(lvlPerfFP, "libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString() + "/" + profiles[i] + "-LevelingPerformanceOld.csv");
 			}
 			
-			FileTools.remove("libs/SoloPlay/Data/" + profiles[i] + ".LevelingPerformance" + ".csv");
+			FileTools.remove(lvlPerfFP);
 		}
 
-		if (FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".ScriptPerformance" + ".csv")) {
+		if (FileTools.exists(scrPerfFP)) {
 			if (StarterConfig.SaveFiles) {
-				FileTools.copy("libs/SoloPlay/Data/" + profiles[i] + ".ScriptPerformance" + ".csv", "libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString() + "/ScriptPerformance.csv");
+				FileTools.copy(scrPerfFP, "libs/SoloPlay/Data/" + charType + "/" + charClass + "/" + j.toString() + "/" + profiles[i] + "-ScriptPerformanceOld.csv");
 			}
 			
-			FileTools.remove("libs/SoloPlay/Data/" + profiles[i] + ".ScriptPerformance" + ".csv");
-		}
-
-		if (FileTools.exists("libs/SoloPlay/Data/" + profiles[i] + ".SocketData" + ".json")) {
-			FileTools.remove("libs/SoloPlay/Data/" + profiles[i] + ".SocketData" + ".json");
+			FileTools.remove(scrPerfFP);
 		}
 		
 		if (StarterConfig.SaveFiles && profileExists) {

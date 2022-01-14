@@ -10,9 +10,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.Smite, sdk.skills.Fanaticism],
 	usefulskills: [sdk.skills.HolyShield, sdk.skills.Salvation],
 	precastSkills: [sdk.skills.HolyShield],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	stats: [
 		["strength", 115], ["dexterity", 136], ["vitality", 300],
 		["dexterity", "block"], ["vitality", "all"]
@@ -69,5 +69,9 @@ const finalBuild = {
 		} else {
 			return Check.haveItem("sword", "runeword", "Grief");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.Smite, 0) === 20;
 	},
 };

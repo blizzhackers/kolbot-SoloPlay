@@ -266,7 +266,7 @@ function LoadConfig () {
 		return temp;
 	})();
 
-	!me.smith && NTIP.arrayLooping(imbueArr);
+	me.canImbue && NTIP.arrayLooping(imbueArr);
 
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:

@@ -10,9 +10,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.Zeal, sdk.skills.HolyShock],
 	usefulskills: [sdk.skills.HolyShield, sdk.skills.HolyFreeze, sdk.skills.ResistCold, sdk.skills.ResistLightning],
 	precastSkills: [sdk.skills.HolyShield],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	classicStats: [
 		["strength", 80], ["vitality", "all"]
 	],
@@ -88,6 +88,10 @@ const finalBuild = {
 		} else {
 			return Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.HolyShock, 0) === 20;
 	},
 };
 

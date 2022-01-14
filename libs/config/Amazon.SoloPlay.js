@@ -245,7 +245,7 @@ function LoadConfig () {
 		return temp;
 	})();
 
-	!me.smith && NTIP.arrayLooping(imbueArr);
+	me.canImbue && NTIP.arrayLooping(imbueArr);
 
 	if (Item.getEquippedItem(4).tier < 100000) {
 		Config.GambleItems.push("Javelin");

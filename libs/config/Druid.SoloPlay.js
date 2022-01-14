@@ -253,7 +253,7 @@ function LoadConfig () {
 		return temp;
 	})();
 
-	!me.smith && NTIP.arrayLooping(imbueArr);
+	me.canImbue && NTIP.arrayLooping(imbueArr);
 
 	if (Check.haveItem("dontcare", "runeword", "Call to Arms")) {
 		// Spirit on swap

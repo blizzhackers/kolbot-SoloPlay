@@ -11,9 +11,9 @@ let build = {
 	skillstab: sdk.skills.tabs.PoisonandBone,
 	wantedskills: [sdk.skills.CorpseExplosion, sdk.skills.BoneSpear],
 	usefulskills: [sdk.skills.AmplifyDamage, sdk.skills.BoneArmor, sdk.skills.Decrepify, sdk.skills.BoneWall, sdk.skills.BonePrison, sdk.skills.BoneSpirit, sdk.skills.Teeth],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	classicStats: [
 		["dexterity", 51], ["strength", 80], ["energy", 100], ["vitality", "all"]
 	],
@@ -37,6 +37,10 @@ let build = {
 		[sdk.skills.Teeth, 20, false],
 	],
 	stats: undefined,
+
+	active: function () {
+		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.BonePrison, 0) >= 1 && !Check.finalBuild().active());
+	},
 };
 
 // Has to be set after its loaded

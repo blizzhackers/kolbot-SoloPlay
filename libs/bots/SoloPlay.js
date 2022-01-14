@@ -8,6 +8,7 @@
 //---------------- Do Not Touch Below ----------------\\
 
 if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
+if (!isIncluded("SoloPlay/Tools/SoloData.js")) { include("SoloPlay/Tools/SoloData.js"); }
 
 function SoloPlay () {
 	this.setup = function () {
@@ -19,14 +20,14 @@ function SoloPlay () {
 		print('ÿc8Kolbot-SoloPlayÿc0: start run');
 		me.overhead('starting run');
 
-		if (impossibleClassicBuilds.contains(SetUp.finalBuild) && me.classic) {
+		if (impossibleClassicBuilds.includes(SetUp.finalBuild) && me.classic) {
 			D2Bot.printToConsole("Kolbot-SoloPlay: " + SetUp.finalBuild + " cannot be used in classic. Change the info tag or remake as an expansion character...Shutting down", 9);
 			FileTools.remove("data/" + me.profile + ".json");
 			FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
 			D2Bot.stop();
 		}
 
-		if (impossibleNonLadderBuilds.contains(SetUp.finalBuild) && !Developer.addLadderRW) {
+		if (impossibleNonLadderBuilds.includes(SetUp.finalBuild) && !Developer.addLadderRW) {
 			D2Bot.printToConsole("Kolbot-SoloPlay: " + SetUp.finalBuild + " cannot be used in non-ladder as they require ladder runewords. Change the info tag or remake as an ladder character...Shutting down", 9);
 			FileTools.remove("data/" + me.profile + ".json");
 			FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
@@ -34,13 +35,9 @@ function SoloPlay () {
 		}
 
 		if (me.charlvl === 1) {
+			myData.me.startTime === 0 && SoloData.updateData("me", "startTime", me.gamestarttime);
 			let buckler = me.getItem(328);
-
-			if (buckler) {
-				if (buckler.location === 1) {
-					buckler.drop();
-				}
-			}
+			!!buckler && buckler.isEquipped && buckler.drop();
 		}
 
 		if (me.hp / me.hpmax < 1) {
@@ -49,6 +46,7 @@ function SoloPlay () {
 		}
 
 		Check.checkSpecialCase();
+		ensureData();
 
 		return true;
 	};
@@ -59,19 +57,15 @@ function SoloPlay () {
 		switch (Check.broken()) {
 		case 1:
 			D2Bot.setProfile(null, null, null, 'Nightmare');
-			DataFile.updateStats("setDifficulty", 'Nightmare');
-			D2Bot.printToConsole('Kolbot-SoloPlay: Oof I am nearly broken, going back to nightmare to get back on my feet');
-			print("ÿc8Kolbot-SoloPlayÿc0: Oof I am nearly broken, going back to nightmare to get back on my feet");
-			me.overhead("Oof I am nearly broken, going back to nightmare to get back on my feet");
+			SoloData.updateData("me", "setDifficulty", 'Nightmare');
+			myPrint('Oof I am nearly broken, going back to nightmare to get back on my feet', true);
 			D2Bot.restart();
 
 			break;
 		case 2:
 			D2Bot.setProfile(null, null, null, 'Normal');
-			DataFile.updateStats("setDifficulty", 'Normal');
-			D2Bot.printToConsole('Kolbot-SoloPlay: Oof I am broken, going back to normal to get easy gold');
-			print("ÿc8Kolbot-SoloPlayÿc0: Oof I am broken, going back to normal to get easy gold");
-			me.overhead("Oof I am broken, going back to normal to get easy gold");
+			SoloData.updateData("me", "setDifficulty", 'Normal');
+			myPrint('Oof I am broken, going back to normal to get easy gold', true);
 			D2Bot.restart();
 
 			break;
@@ -82,10 +76,7 @@ function SoloPlay () {
 		Check.usePreviousSocketQuest(); // Currently only supports going back to nightmare to socket a lidless if one is equipped. 
 
 		for (k = 0; k < SetUp.scripts.length; k += 1) {
-			if (!me.inTown) {
-				Town.goToTown();
-			}
-
+			!me.inTown && Town.goToTown();
 			Check.checkSpecialCase();
 
 			if (Check.Task(SetUp.scripts[k])) {
@@ -111,7 +102,7 @@ function SoloPlay () {
 				print("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Developer.formatTime(me.maxgametime));
 
 				if (j === 5) {
-					me.overhead("script " + SetUp.scripts[k] + " failed.");
+					myPrint("script " + SetUp.scripts[k] + " failed.");
 				}
 			}
 		}
@@ -130,6 +121,7 @@ function SoloPlay () {
 			}
 
 			if (isIncluded("SoloPlay/Scripts/developermode.js")) {
+				Developer.debugging.pathing && (me.automap = true);
 				this.developermode();
 			} else {
 				print("ÿc8Kolbot-SoloPlayÿc0: Failed to include developermode");
@@ -140,7 +132,7 @@ function SoloPlay () {
 	let updatedDifficulty = Check.nextDifficulty();
 
 	if (updatedDifficulty) {
-		DataFile.updateStats("setDifficulty", updatedDifficulty);
+		SoloData.updateData("me", "setDifficulty", updatedDifficulty);
 		D2Bot.setProfile(null, null, null, updatedDifficulty);
 	}
 
@@ -151,7 +143,7 @@ function SoloPlay () {
 		updatedDifficulty = Check.nextDifficulty(false);
 
 		if (updatedDifficulty) {
-			DataFile.updateStats("setDifficulty", updatedDifficulty);
+			SoloData.updateData("me", "setDifficulty", updatedDifficulty);
 			D2Bot.setProfile(null, null, null, updatedDifficulty);
 		}
 	}

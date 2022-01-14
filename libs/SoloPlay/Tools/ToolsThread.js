@@ -416,6 +416,8 @@ function main () {
 			break;
 		case 96: // numpad 0
 			Developer.logPerformance && Tracker.Update();
+			print("ÿc8Kolbot-SoloPlay: ÿc1Stopping profile");
+			delay(rand(2e3, 5e3));
 			D2Bot.stop(me.profile, true);
 
 			break;
@@ -611,6 +613,10 @@ function main () {
 			Config = JSON.parse(msg.split("config--")[1]);
 		}
 
+		if (msg && typeof msg === "string" && msg !== "" && msg.substring(0, 6) === "data--") {
+			myData = JSON.parse(msg.split("data--")[1]);
+		}
+
 		switch (msg) {
 		case "toggleQuitlist":
 			canQuit = !canQuit;
@@ -622,6 +628,10 @@ function main () {
 			break;
 		case "restart":
 			restart = true;
+
+			break;
+		case "test":
+			console.log(myData);
 
 			break;
 		default:

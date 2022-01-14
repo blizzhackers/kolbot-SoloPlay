@@ -10,9 +10,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
 	usefulskills: [sdk.skills.CriticalStrike, sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
 	precastSkills: [sdk.skills.Valkyrie],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	classicStats: [
 		 ["dexterity", 65], ["strength", 75], ["vitality", "all"]
 	],
@@ -106,6 +106,10 @@ const finalBuild = {
 		} else {
 			return Attack.checkInfinity();
 		}
+	},
+
+	active: function () {
+		return this.respec && (me.expansion ? me.getSkill(sdk.skills.PlagueJavelin, 0) > 1 && me.getSkill(sdk.skills.PlagueJavelin, 0) < 5 : me.getSkill(sdk.skills.PlagueJavelin, 0) === 20);
 	},
 };
 

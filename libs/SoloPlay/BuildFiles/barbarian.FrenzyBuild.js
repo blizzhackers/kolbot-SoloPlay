@@ -10,9 +10,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing],
 	usefulskills: [sdk.skills.NaturalResistance, sdk.skills.IronSkin, sdk.skills.IncreasedSpeed],
 	precastSkills: [sdk.skills.BattleOrders, sdk.skills.WarCry],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	stats: [
 		["strength", 103], ["dexterity", 79], ["vitality", 90],
 		["dexterity", 136], ["strength", 150], ["vitality", "all"],
@@ -99,5 +99,9 @@ const finalBuild = {
 		} else {
 			return Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("sword", "runeword", "Breath of the Dying");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.Frenzy, 0) === 20;
 	},
 };

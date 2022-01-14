@@ -82,6 +82,8 @@ NodeAction.popChests = function () {
 };
 
 Pather.haveTeleCharges = false;
+Pather.forceWalk = false;
+Pather.forceRun = false;
 
 /**
  * @author Jaenster
@@ -694,7 +696,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	for (let i = 0; i < this.cancelFlags.length; i += 1) {
 		if (getUIFlag(this.cancelFlags[i])) me.cancel();
 	}
-	
+
 	//if (!x || !y) { throw new Error("moveTo: Function must be called with at least 2 arguments."); }
 	if (!x || !y) return false; // I don't think this is a fatal error so just return false
 	if (typeof x !== "number" || typeof y !== "number") { throw new Error("moveTo: Coords must be numbers"); }

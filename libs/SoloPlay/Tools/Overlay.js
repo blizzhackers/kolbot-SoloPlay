@@ -96,7 +96,7 @@ const Overlay = {
 			if (!this.getHook("level")) {
 				this.add("level");
 			} else {
-				this.getHook("level").hook.text = "Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + Difficulty[me.diff] + "ÿc4  Level: ÿc0" + me.charlvl;
+				this.getHook("level").hook.text = "Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + me.charlvl;
 			}
 
 		},
@@ -128,7 +128,7 @@ const Overlay = {
 			case "level":
 				this.hooks.push({
 					name: "level",
-					hook: new Text("Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + Difficulty[me.diff] + "ÿc4  Level: ÿc0" + me.charlvl, Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 30, 4, 13, 2)
+					hook: new Text("Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + me.charlvl, Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 30, 4, 13, 2)
 				});
 
 				break;

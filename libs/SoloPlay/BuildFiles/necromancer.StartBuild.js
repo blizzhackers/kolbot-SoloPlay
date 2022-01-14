@@ -9,9 +9,9 @@ let build = {
 	skillstab: sdk.skills.tabs.PoisonandBone,
 	wantedskills: [sdk.skills.Teeth, sdk.skills.BoneSpear],
 	usefulskills: [sdk.skills.AmplifyDamage, sdk.skills.BoneArmor, sdk.skills.Decrepify, sdk.skills.BoneWall],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	stats: [
 		["strength", 20], ["vitality", 70], ["strength", 35],
 		["energy", 85], ["vitality", "all"]
@@ -31,5 +31,9 @@ let build = {
 		[sdk.skills.BoneSpear, 6], 		// charlvl 23
 		[sdk.skills.Decrepify, 1], 		// charlvl 24
 		[sdk.skills.BoneSpear, 20], 	// charlvl -> Until respec at 26
-	]
+	],
+
+	active: function () {
+		return me.charlvl < Config.respecOne && !me.getSkill(sdk.skills.BonePrison, 0);
+	},
 };

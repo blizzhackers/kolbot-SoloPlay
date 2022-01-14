@@ -10,9 +10,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.Bash, sdk.skills.Whirlwind],
 	usefulskills: [sdk.skills.Howl, sdk.skills.Shout],
 	precastSkills: [sdk.skills.BattleOrders, sdk.skills.BattleCommand],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	stats: [
 		["strength", 118], ["dexterity", 136], ["vitality", "all"]
 	],
@@ -65,5 +65,9 @@ const finalBuild = {
 			// TODO: figure out how to make sure we have two, or determine if that even matters
 			return Check.haveItem("sword", "runeword", "Grief");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.Whirlwind, 0) === 20;
 	},
 };

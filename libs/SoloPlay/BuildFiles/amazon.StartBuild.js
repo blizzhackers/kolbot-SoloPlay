@@ -9,9 +9,9 @@ let build = {
 	skillstab: sdk.skills.tabs.JavelinSpear,
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
 	usefulskills: [sdk.skills.CriticalStrike, sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	stats: [
 		["strength", 34], ["vitality", 30], ["dexterity", 47],
 		["vitality", 45], ["strength", 47], ["dexterity", 65],
@@ -33,5 +33,9 @@ let build = {
 		[sdk.skills.Evade, 1, false], 			// charLvl 24
 		[sdk.skills.Decoy, 1, false], 			// charlvl 24
 		[sdk.skills.ChargedStrike, 20, false], 	// respec at 30
-	]
+	],
+
+	active: function () {
+		return me.charlvl < Config.respecOne && !me.getSkill(sdk.skills.LightningStrike, 0);
+	},
 };

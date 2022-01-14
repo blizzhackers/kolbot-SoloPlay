@@ -71,7 +71,7 @@ function spendStatPoint (id) {
 
 // TODO: What do we do if it fails? report/ignore/continue?
 function spendStatPoints () {
-	if (AutoBuildTemplate[me.charlvl] === undefined) { return true; }
+	if (AutoBuildTemplate[me.charlvl] === undefined) return true;
 	let stats = AutoBuildTemplate[me.charlvl].StatPoints;
 	let errorMessage = "\nInvalid stat point set in build template " + getTemplateFilename() + " at level " + me.charlvl;
 	let spentEveryPoint = true;
@@ -165,7 +165,7 @@ function spendSkillPoint (id) {
 }
 
 function spendSkillPoints () {
-	if (AutoBuildTemplate[me.charlvl] === undefined) { return true; }
+	if (AutoBuildTemplate[me.charlvl] === undefined) return true;
 	let skills = AutoBuildTemplate[me.charlvl].SkillPoints;
 	let errInvalidSkill = "\nInvalid skill point set in build template " + getTemplateFilename() + " for level " + me.charlvl;
 	let spentEveryPoint = true;

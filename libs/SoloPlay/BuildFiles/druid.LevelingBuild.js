@@ -34,5 +34,9 @@ let build = {
 		[sdk.skills.CycloneArmor, 20, false],
 		[sdk.skills.OakSage, 20, false],
 		[sdk.skills.Twister, 20],
-	]
+	],
+
+	active: function () {
+		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.Tornado, 0) >= 1 && !Check.finalBuild().active());
+	},
 };

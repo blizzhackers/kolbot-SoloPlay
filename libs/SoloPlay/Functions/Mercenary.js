@@ -1,23 +1,14 @@
 /*
 *	@filename	Mercenary.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
+*	@credits	jaenster
 *	@desc		Mercenary functionality and Hiring
 */
 
-let Merc = {
-	Id: [],
-
-	equipMerc: function () {
-		if (!me.classic) {
-			Item.autoEquipMerc();
-		}
-
-		return true;
-	},
-
+const Merc = {
 	// merc is null fix
 	getMercFix: function () {
-		if (!Config.UseMerc || me.classic) { return null; }
+		if (!Config.UseMerc || me.classic) return null;
 
 		let merc = me.getMerc();
 
@@ -37,143 +28,85 @@ let Merc = {
 		return merc;
 	},
 
-	// mercenary hire list info packets
-	listPacket: function (bytes) {
-		let id;
-
-		switch (bytes[0]) {
-		case 0x4e: // merc list packet
-			id = (bytes[2] << 8) + bytes[1];
-
-			if (Merc.Id.indexOf(id) !== -1) {
-				Merc.Id.length = 0;
-			}
-
-			Merc.Id.push(id);
-			break;
-		default:
-			break;
-		}
-	},
-
+	// only supports act 2 mercs for now
 	hireMerc: function () {
-		let mercAuraName = Check.finalBuild().mercAuraName;
-		let mercAuraWanted = Check.finalBuild().mercAuraWanted;
-		let mercDiff = Check.finalBuild().mercDiff;
-		let tempMercAura = mercAuraWanted === 114 ? 99 : 104; // use defiance if mercAuraWanted is not gonna be holy freeze. Use prayer otherwise as holy freeze and defiance return as the same aura for some reason
-		let mercAura = [[104, 99, 108], [103, 98, 114]];
-		let mercenary;
+		if (me.classic) return true;
+		let {mercAct, mercAuraWanted, mercDiff} = Check.finalBuild();
+        let typeOfMerc = (!Pather.accessToAct(2) && me.normal ? 1 : mercAct);
+		let _a;
+		let tmpAuraName = "Defiance";
 
-		function getmercAura () {
-			let merc = Merc.getMercFix();
-
-			if (!merc) {
-				return null;
-			}
-
-			for (let range = 0; range < mercAura.length; range++) {
-				if (Array.isArray(mercAura[range])) {
-					for (let selection = 0; selection < mercAura[range].length; selection++) {
-						if (merc.getSkill(mercAura[range][selection], 1)) {
-							return mercAura[range][selection];
-						}
-					}
-				} else if (merc.getSkill(mercAura[range], 1)) {
-					return mercAura[range];
-				}
-			}
-
+		// don't hire if using correct a1 merc, or passed merc hire difficulty
+		if ((typeOfMerc === 1 && (myData.merc.type === "Cold Arrow" || !Misc.checkQuest(2, 0))) || me.diff > mercDiff || (me.diff == mercDiff && !Pather.accessToAct(mercAct))) {
 			return true;
 		}
 
-		// don't hire if classic, no access to act 2, or passed merc hire difficulty
-		if (me.classic || !Pather.accessToAct(2) || me.diff > mercDiff) {
-			return true;
-		}
-
-		let mercSelected = getmercAura();
-
-		if (mercSelected === mercAuraWanted || (me.diff !== mercDiff && mercSelected === tempMercAura)) {
+		if (myData.merc.type === mercAuraWanted || (me.diff !== mercDiff && myData.merc.type === "Defiance")) {
 			return true;
 		}
 
 		if (me.charlvl > Config.levelCap + 10) {
 			print("ÿc9Mercenaryÿc0 :: I went back a difficulty, don't hire another merc");
-
 			return true;
 		}
 
 		if (me.normal && me.gold < 10000 || !me.normal && me.gold < 100000) {
 			print("ÿc9Mercenaryÿc0 :: I don't have enough gold to hire merc. My current gold amount: " + me.gold);
-
 			return true;
 		}
 
-		addEventListener("gamepacket", Merc.listPacket);
-		Pather.getWP(me.area);
-		me.overhead('getting merc');
-		print("ÿc9Mercenaryÿc0 :: getting merc");
-		me.cancelUIFlags();
-		Town.goToTown(2);
-		Pather.moveTo(5041, 5055);
-		Town.move(NPC.Greiz);
-
-		// replace merc
-		if ((mercSelected !== mercAuraWanted && me.diff === mercDiff) || (mercSelected !== tempMercAura && me.normal)) {
-			me.overhead('replacing merc');
-			print("ÿc9Mercenaryÿc0 :: replacing merc");
+		let MercLib_1 = require("../Modules/MercLib");
+		let wantedSkill = (typeOfMerc === 1 ? 'Cold Arrow' : me.normal ? tmpAuraName : mercAuraWanted);
+		try {
+			Town.goToTown(typeOfMerc);
+			myPrint("ÿc9Mercenaryÿc0 :: getting merc");
+			Town.move(Town.tasks[me.act - 1]["Merc"]);
 			Town.sortInventory();
 			Item.removeItemsMerc(); // strip temp merc gear
 			delay(500 + me.ping);
+			addEventListener('gamepacket', MercLib_1.mercPacket);
+			Town.initNPC("Merc", "getMerc");
+			let wantedMerc = MercLib_1.default
+                .filter(function (merc) { return merc.skills.some(function (skill) { return (skill === null || skill === void 0 ? void 0 : skill.name) === wantedSkill; }); })
+                .sort(function (_a, _b) {
+                var a = _a.level;
+                var b = _b.level;
+                return b - a;
+            }).first();
+            if (wantedMerc) {
+                let oldGid_1 = (_a = me.getMerc()) === null || _a === void 0 ? void 0 : _a.gid;
+                console.log('ÿc9ÿc9Mercenaryÿc0 :: Found a merc to hire ' + JSON.stringify(wantedMerc));
+                wantedMerc === null || wantedMerc === void 0 ? void 0 : wantedMerc.hire();
+                var newMerc = Misc.poll(function () {
+                    let merc = me.getMerc();
+                    if (!merc) return false;
+                    if (oldGid_1 && oldGid_1 === merc.gid) return false;
+                    return merc;
+                });
+                console.log('Hired a merc?');
+                if (newMerc) {
+                    console.log('Yep');
+                    myData.merc.act = me.act;
+                    myData.merc.difficulty = me.diff;
+                    myData.merc.type = wantedMerc.skills.find(sk => sk.name === wantedSkill).name;
+                    SoloData.updateData("merc", myData);
+                    updateMyData();
+                    print('ÿc9ÿc9Mercenaryÿc0 :: ' + myData.merc.type + ' merc hired.');
+                }
+                me.cancel() && me.cancel() && me.cancel();
+                while (getInteractedNPC()) {
+                    delay(me.ping || 5);
+                    me.cancel();
+                }
+            }
 		}
+		finally {
+            removeEventListener('gamepacket', MercLib_1.mercPacket);
+        }
 
-		let greiz = getUnit(1, NPC.Greiz);
-
-		if (greiz && greiz.openMenu()) {
-			while (Merc.Id.length > 0) {
-				Misc.useMenu(sdk.menu.Hire);
-				sendPacket(1, 0x36, 4, greiz.gid, 4, Merc.Id[0]);
-				delay(500 + me.ping);
-				mercenary = Merc.getMercFix();
-
-				if (me.diff === mercDiff) {
-					if (mercenary.getSkill(mercAuraWanted, 1)) {
-						print('ÿc9ÿc9Mercenaryÿc0 :: ' + mercAuraName + ' merc hired.');
-
-						break;
-					}
-				}
-
-				if (me.diff !== mercDiff && me.normal) {
-					if (mercenary.getSkill(tempMercAura, 1)) {
-						if (tempMercAura === 99) {
-							print('ÿc9ÿc9Mercenaryÿc0 :: prayer merc hired.');
-						} else {
-							print('ÿc9ÿc9Mercenaryÿc0 :: defiance merc hired.');
-						}
-
-						break;
-					}
-				}
-				
-				delay(500 + me.ping);
-			}
-		}
-
-		mercenary = Merc.getMercFix();
-
-		if (me.diff !== mercDiff && me.normal && mercenary && !mercenary.getSkill(tempMercAura, 1)) {
-			print('ÿc9ÿc9Mercenaryÿc0 :: temp merc not available, will try again later');
-		}
-
-		if (me.diff === mercDiff && mercenary && !mercenary.getSkill(mercAuraWanted, 1)) {
-			print('ÿc9ÿc9Mercenaryÿc0 :: ' + mercAuraName + ' merc not available, try again later.');
-		}
-
-		this.equipMerc();
+        Item.autoEquipMerc();
 		Pickit.pickItems(); // safetycheck for merc items on ground
-		this.equipMerc();
-		removeEventListener("gamepacket", Merc.listPacket);
+		Item.autoEquipMerc();
 
 		return true;
 	},

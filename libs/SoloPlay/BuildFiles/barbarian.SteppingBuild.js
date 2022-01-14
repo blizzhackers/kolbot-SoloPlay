@@ -1,18 +1,18 @@
 /**
-*   @filename   barbarian.StartBuild.js
+*   @filename   barbarian.SteppingBuild.js
 *   @author     theBGuy
 *   @credits    aim2kill (big shout out for all the testing an ideas for this build)
-*   @desc       barb build for before respecOne
+*   @desc       barb build for after respecOne and before respecOneB
 */
 
-var build = {
+let build = {
 	caster: false,
 	skillstab: sdk.skills.tabs.CombatBarb,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing, sdk.skills.SwordMastery],
 	usefulskills: [sdk.skills.NaturalResistance, sdk.skills.IronSkin, sdk.skills.IncreasedSpeed, sdk.skills.Shout, sdk.skills.FindItem],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	stats: [
 		["strength", 71], ["dexterity", 50], ["vitality", 100],
 		["strength", 85], ["dexterity", 60], ["vitality", 110],
@@ -47,5 +47,9 @@ var build = {
 		[sdk.skills.WarCry, 6, false], 				// charlvl 59
 		[sdk.skills.SwordMastery, 20, false], 		// charlvl 67
 		[sdk.skills.Taunt, 20, false], 				// charlvl 76
-	]
+	],
+
+	active: function () {
+		return me.charlvl > Config.respecOne && me.charlvl < Config.respecOneB && me.getSkill(sdk.skills.NaturalResistance, 0) && !me.getSkill(sdk.skills.Berserk, 0);
+	},
 };

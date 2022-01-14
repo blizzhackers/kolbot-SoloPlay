@@ -10,9 +10,9 @@ let build = {
 	skillstab: sdk.skills.tabs.CombatBarb,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing, sdk.skills.SwordMastery],
 	usefulskills: [sdk.skills.NaturalResistance, sdk.skills.IronSkin, sdk.skills.IncreasedSpeed, sdk.skills.Shout],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	stats: [
 		["strength", 35], ["dexterity", 27], ["vitality", 45],
 		["strength", 48], ["dexterity", 30], ["vitality", 55],
@@ -36,5 +36,9 @@ let build = {
 		[sdk.skills.Frenzy, 1],
 		[sdk.skills.BattleOrders, 4, false],
 		[sdk.skills.Taunt, 20],
-	]
+	],
+
+	active: function () {
+		return me.charlvl < Config.respecOne && !me.getSkill(sdk.skills.WarCry, 0);
+	},
 };

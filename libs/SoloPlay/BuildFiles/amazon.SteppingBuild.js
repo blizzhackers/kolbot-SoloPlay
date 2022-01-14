@@ -9,10 +9,9 @@ let build = {
 	skillstab: sdk.skills.tabs.JavelinSpear,
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
 	usefulskills: [sdk.skills.CriticalStrike, sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
-	stats: undefined,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	classicStats: [
 		 ["dexterity", 65], ["strength", 75], ["vitality", "all"]
 	],
@@ -34,7 +33,12 @@ let build = {
 		[sdk.skills.LightningStrike, 20, false], // charlvl ?
 		[sdk.skills.ChargedStrike, 20, false], 	// charlvl 52
 		[sdk.skills.LightningFury, 20, false], 	// respec at 64
-	]
+	],
+	stats: undefined,
+
+	active: function () {
+		return me.charlvl > Config.respecOne && me.charlvl < Config.respecOneB && me.getSkill(sdk.skills.LightningStrike, 0) && me.getSkill(sdk.skills.PlagueJavelin, 0) <= 5;
+	},
 };
 
 // Has to be set after its loaded

@@ -587,6 +587,11 @@ Object.defineProperties(me, {
 			return me.getQuest(3, 0);
 		}
 	},
+	canImbue: {
+		get: function () {
+			return !!me.getQuest(3, 1);
+		}
+	},
 	tristram: {
 		get: function () {
 			return me.getQuest(4, 0);
@@ -755,7 +760,7 @@ Object.defineProperties(me, {
 	duelWielding: {
 		get: function () {
 			// only classes that can duel wield
-			if (!me.assassin && !me.barbarian) { return false; }
+			if (!me.assassin && !me.barbarian) return false;
 			let items = me.getItemsEx()
 				.filter(function (item) { return item.isEquipped && [4, 5].includes(item.bodylocation); })
 			return !!items.length && items.length >= 2 && items.every(function (item) { return ![2, 69, 70].includes(item.itemType) && !getBaseStat("items", item.classid, "block") });

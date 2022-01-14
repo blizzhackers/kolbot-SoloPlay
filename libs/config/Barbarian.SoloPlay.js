@@ -217,7 +217,7 @@ function LoadConfig () {
 	Config.AutoBuild.Template = SetUp.getBuild();
 
 	// Class specific config
-	Config.FindItem = false; 		// Use Find Item skill on corpses after clearing.
+	Config.FindItem = true; 		// Use Find Item skill on corpses after clearing.
 	Config.FindItemSwitch = false; 	// Switch to non-primary slot when using Find Item skills
 
 	/* Gear */
@@ -247,7 +247,7 @@ function LoadConfig () {
 		return temp;
 	})();
 
-	!me.smith && NTIP.arrayLooping(imbueArr);
+	me.canImbue && NTIP.arrayLooping(imbueArr);
 
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:
