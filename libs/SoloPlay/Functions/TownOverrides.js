@@ -50,7 +50,7 @@ Town.townTasks = function () {
 	Item.autoEquipSecondary();
 	Item.autoEquipCharms();
 	Merc.hireMerc();
-	Merc.equipMerc();
+	Item.autoEquipMerc();
 	this.stash();
 	this.clearJunk();
 	this.sortInventory();
@@ -106,7 +106,7 @@ Town.doChores = function (repair = false) {
 	Item.autoEquipSecondary();
 	Item.autoEquipCharms();
 	Merc.hireMerc();
-	Merc.equipMerc();
+	Item.autoEquipMerc();
 	this.stash();
 	this.clearJunk();
 	!!me.getItem(sdk.items.TomeofTownPortal) && this.clearScrolls();
@@ -221,7 +221,7 @@ Town.repair = function (force = false) {
 	for (let i = 0; i < repairAction.length; i += 1) {
 		switch (repairAction[i]) {
 		case "repair":
-			if (me.act === 3) this.goToTown(2);
+			me.act === 3 && this.goToTown(Pather.accessToAct(4) ? 4 : 2);
 			npc = this.initNPC("Repair", "repair");
 			if (!npc) return false;
 			me.repair();
@@ -384,7 +384,7 @@ Town.cainID = function (force = false, dontSell = false) {
 				}
 
 				// roll back to now check against other criteria
-				if (item.indentified) {
+				if (item.identified) {
 					i--;
 				}
 
@@ -837,7 +837,7 @@ Town.gamble = function () {
 	if (this.gambleIds.length === 0) return true;
 
 	// avoid Alkor
-	if (me.act === 3) this.goToTown(2);
+	me.act === 3 && this.goToTown(Pather.accessToAct(4) ? 4 : 2);
 
 	npc = this.initNPC("Gamble", "gamble");
 
@@ -1274,7 +1274,7 @@ Town.canStash = function (item) {
 	let ignoredClassids = [91, 174]; // Some quest items that have to be in inventory or equipped
 
 	if (this.ignoredItemTypes.includes(item.itemType) || ignoredClassids.includes(item.classid) ||
-		([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType) && Item.autoEquipCharmCheck(item))) {
+		([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid) && Item.autoEquipCharmCheck(item))) {
 		return false;
 	}
 
@@ -1282,7 +1282,6 @@ Town.canStash = function (item) {
 		this.sortStash(true);	// Force sort
 		// Re-check after sorting
 		if (!Storage.Stash.CanFit(item)) return false;
-
 	}
 
 	return true;
@@ -1293,13 +1292,27 @@ Town.stash = function (stashGold = true) {
 
 	me.cancel();
 
-	let result, items = Storage.Inventory.Compare(Config.Inventory);
+	let result = false,
+		items = Storage.Inventory.Compare(Config.Inventory);
 
 	if (items) {
 		for (let i = 0; i < items.length; i += 1) {
 			if (this.canStash(items[i])) {
-				result = (![-1, 0, 4].includes(Pickit.checkItem(items[i]).result) && !Item.autoEquipCharmCheck(items[i])) ||
-					!items[i].isSellable || Cubing.keepItem(items[i]) || Runewords.keepItem(items[i]) || CraftingSystem.keepItem(items[i]);
+				let pickResult = Pickit.checkItem(items[i]).result;
+				switch (true) {
+				case pickResult > 0 && pickResult < 4:
+				case Cubing.keepItem(items[i]):
+				case Runewords.keepItem(items[i]):
+				case CraftingSystem.keepItem(items[i]):
+				case !items[i].isSellable: // quest/essences/keys/ect
+					result = true;
+
+					break;
+				default:
+					result = false;
+
+					break;
+				}
 
 				if (result) {
 					Misc.itemLogger("Stashed", items[i]);
@@ -2281,170 +2294,109 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 };
 
 Town.clearJunk = function () {
-	let junk = me.findItems(-1, 0);
+	let junkItems = me.findItems(-1, 0);
 	let junkToSell = [];
 
-	if (!junk) return false;
+	if (!junkItems) return false;
 
-	while (junk.length > 0) {
-		if ((junk[0].isInStorage) && // stash/invo/cube
-			([1, 2, 3, 5].indexOf(Pickit.checkItem(junk[0]).result) === -1) &&
-			!AutoEquip.wanted(junk[0]) && // Don't toss wanted auto equip items
-			!Cubing.keepItem(junk[0]) && // Don't throw cubing ingredients
-			!Runewords.keepItem(junk[0]) && // Don't throw runeword ingredients
-			!CraftingSystem.keepItem(junk[0]) && // Don't throw crafting system ingredients
-			!Town.ignoredItemTypes.includes(junk[0].itemType) && // Don't drop tomes, keys or potions
-			junk[0].isSellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
-			([0, 4].includes(Pickit.checkItem(junk[0]).result)) // only drop unwanted or sellable
+	while (junkItems.length > 0) {
+		let junk = junkItems.shift();
+
+		if ((junk.isInStorage) && // stash/invo/cube
+			([1, 2, 3, 5].indexOf(Pickit.checkItem(junk).result) === -1) &&
+			!AutoEquip.wanted(junk) && // Don't toss wanted auto equip items
+			!Cubing.keepItem(junk) && // Don't throw cubing ingredients
+			!Runewords.keepItem(junk) && // Don't throw runeword ingredients
+			!CraftingSystem.keepItem(junk) && // Don't throw crafting system ingredients
+			!Town.ignoredItemTypes.includes(junk.itemType) && // Don't drop tomes, keys or potions
+			junk.isSellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
+			([0, 4].includes(Pickit.checkItem(junk).result)) // only drop unwanted or sellable
 		) {
-			if ([0, 4].indexOf(Pickit.checkItem(junk[0]).result) === -1) {
+			print("ÿc9JunkCheckÿc0 :: Junk: " + junk.name + " Pickit Result: " + Pickit.checkItem(junk).result);
+
+			!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
+			junk.isInCube && Cubing.emptyCube();
+
+			if (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)) {
+				junkToSell.push(junk);
+
 				continue;
-			}
-
-			if (!getUIFlag(sdk.uiflags.Stash) && [sdk.storage.Stash, sdk.storage.Cube].includes(junk[0].location)) {
-				Town.openStash();
-			}
-
-			// Something got stuck in the cube
-			if (junk[0].location === sdk.storage.cube) {	
-				Cubing.emptyCube();
-			}
-
-			print("ÿc9JunkCheckÿc0 :: Junk: " + junk[0].name + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
-
-			if (Storage.Inventory.CanFit(junk[0])) {
-				if (Storage.Inventory.MoveTo(junk[0])) {
-					junkToSell.push(junk[0]);
-
-					junk.shift();
-					continue;
-				} else {
-					if (junk[0].drop()) {
-						me.overhead('cleared junk');
-						print("ÿc8Kolbot-SoloPlayÿc0: Failed to move item to inventory. Dropping instead");
-						print("ÿc8Kolbot-SoloPlayÿc0: Cleared junk - " + junk[0].name);
-						delay(50 + me.ping);
-
-						continue;
-					}
-				}
-			} else if (junk[0].drop()) {
-				me.overhead('cleared junk');
-				print("ÿc8Kolbot-SoloPlayÿc0: Cleared junk - " + junk[0].name);
+			} else if (junk.drop()) {
+				myPrint("Cleared junk - " + junk.name);
 				delay(50 + me.ping);
 
 				continue;
 			}
-
 		}
 
-		if (junk[0].isInStorage && junk[0].isSellable) {
-			if (junk[0].isRuneword && !AutoEquip.wanted(junk[0])) {
-				if (!getUIFlag(sdk.uiflags.Stash) && [sdk.storage.Stash, sdk.storage.Cube].includes(junk[0].location)) {
-					Town.openStash();
-				}
+		if (junk.isInStorage && junk.isSellable) {
+			if (!junk.identified && !Cubing.keepItem(junk) && !CraftingSystem.keepItem(junk)) {
+				print("ÿc9UnidJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + Pickit.checkItem(junk).result);
 
-				// Something got stuck in the cube
-				if (junk[0].location === sdk.storage.cube) {	
-					Cubing.emptyCube();
-				}
+				!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
+				junk.isInCube && Cubing.emptyCube();
 
-				print("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+				if (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)) {
+					junkToSell.push(junk);
 
-				if (Storage.Inventory.CanFit(junk[0])) {
-					if (Storage.Inventory.MoveTo(junk[0])) {
-						junkToSell.push(junk[0]);
-
-						junk.shift();
-						continue;
-					} else {
-						if (junk[0].drop()) {
-							me.overhead('cleared runeword junk');
-							print("ÿc8Kolbot-SoloPlayÿc0: Failed to move item to inventory. Dropping instead");
-							print("ÿc8Kolbot-SoloPlayÿc0: Cleared old runeword junk - " + junk[0].name);
-							delay(50 + me.ping);
-
-							continue;
-						}
-					}
-				} else if (junk[0].drop()) {
-					me.overhead('cleared old runeword junk');
-					print("ÿc8Kolbot-SoloPlayÿc0: Cleared old runeword junk - " + junk[0].name);
+					continue;
+				} else if (junk.drop()) {
+					myPrint("Cleared unid junk - " + junk.name);
 					delay(50 + me.ping);
 
 					continue;
 				}
 			}
 
-			if (junk[0].isBaseType) {
-				if (this.worseBaseThanStashed(junk[0], true)) {
-					if (!getUIFlag(sdk.uiflags.Stash) && [sdk.storage.Stash, sdk.storage.Cube].includes(junk[0].location)) {
-						Town.openStash();
-					}
+			if (junk.isRuneword && !AutoEquip.wanted(junk)) {
+				!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
+				junk.isInCube && Cubing.emptyCube();
 
-					// Something got stuck in the cube
-					if (junk[0].location === sdk.storage.cube) {	
-						Cubing.emptyCube();
-					}
+				print("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + Pickit.checkItem(junk).result);
 
-					print("ÿc9WorseBaseThanStashedCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+				if (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)) {
+					junkToSell.push(junk);
 
-					if (Storage.Inventory.CanFit(junk[0])) {
-						if (Storage.Inventory.MoveTo(junk[0])) {
-							junkToSell.push(junk[0]);
+					continue;
+				} else if (junk.drop()) {
+					myPrint("Cleared old runeword junk - " + junk.name);
+					delay(50 + me.ping);
 
-							junk.shift();
-							continue;
-						} else {
-							if (junk[0].drop()) {
-								me.overhead('cleared runeword base junk');
-								print("ÿc8Kolbot-SoloPlayÿc0: Failed to move item to inventory. Dropping instead");
-								print("ÿc8Kolbot-SoloPlayÿc0: Cleared runeword base junk - " + junk[0].name);
-								delay(50 + me.ping);
+					continue;
+				}
+			}
 
-								continue;
-							}
-						}
-					} else if (junk[0].drop()) {
-						me.overhead('cleared runeword base junk');
-						print("ÿc8Kolbot-SoloPlayÿc0: Cleared runeword base junk - " + junk[0].name);
+			if (junk.isBaseType) {
+				if (this.worseBaseThanStashed(junk, true)) {
+					print("ÿc9WorseBaseThanStashedCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + Pickit.checkItem(junk).result);
+					
+					!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
+					junk.isInCube && Cubing.emptyCube();
+
+					if (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)) {
+						junkToSell.push(junk);
+
+						continue;
+					} else if (junk.drop()) {
+						myPrint("Cleared runeword base junk - " + junk.name);
 						delay(50 + me.ping);
 
 						continue;
 					}
 				}
 
-				if (!this.betterBaseThanWearing(junk[0], Developer.debugging.junkCheck)) {
-					print("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk[0].name + " Junk type: " + junk[0].itemType + " Pickit Result: " + Pickit.checkItem(junk[0]).result);
+				if (!this.betterBaseThanWearing(junk, Developer.debugging.junkCheck)) {
+					print("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + Pickit.checkItem(junk).result);
 
-					if (!getUIFlag(sdk.uiflags.Stash) && [sdk.storage.Stash, sdk.storage.Cube].contains(junk[0].location)) {
-						Town.openStash();
-					}
+					!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
+					junk.isInCube && Cubing.emptyCube();
 
-					// Something got stuck in the cube
-					if (junk[0].location === sdk.storage.cube) {	
-						Cubing.emptyCube();
-					}
+					if (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)) {
+						junkToSell.push(junk);
 
-					if (Storage.Inventory.CanFit(junk[0])) {
-						if (Storage.Inventory.MoveTo(junk[0])) {
-							junkToSell.push(junk[0]);
-
-							junk.shift();
-							continue;
-						} else {
-							if (junk[0].drop()) {
-								me.overhead('cleared bad runeword base junk');
-								print("ÿc8Kolbot-SoloPlayÿc0: Failed to move item to inventory. Dropping instead");
-								print("ÿc8Kolbot-SoloPlayÿc0: Cleared bad runeword base junk - " + junk[0].name);
-								delay(50 + me.ping);
-
-								continue;
-							}
-						}
-					} else if (junk[0].drop()) {
-						me.overhead('cleared bad runeword base junk');
-						print("ÿc8Kolbot-SoloPlayÿc0: Cleared bad runeword base junk - " + junk[0].name);
+						continue;
+					} else if (junk.drop()) {
+						myPrint("Cleared bad runeword base junk - " + junk.name);
 						delay(50 + me.ping);
 
 						continue;
@@ -2452,12 +2404,10 @@ Town.clearJunk = function () {
 				}
 			}
 		}
-
-		junk.shift();
 	}
 
 	if (junkToSell.length > 0) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Junk items to sell: " + junkToSell.length);
+		myPrint("Junk items to sell: " + junkToSell.length);
 		Town.initNPC("Shop", "clearInventory");
 
 		if (getUIFlag(sdk.uiflags.Shop) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
@@ -2512,7 +2462,8 @@ Town.reviveMerc = function () {
 	let preArea = me.area;
 	
 	// avoid Aheara
-	me.act === 3 && this.goToTown(2);
+	me.act === 3 && this.goToTown(Pather.accessToAct(4) ? 4 : 2);
+
 
 	let npc = this.initNPC("Merc", "reviveMerc");
 	if (!npc) return false;
