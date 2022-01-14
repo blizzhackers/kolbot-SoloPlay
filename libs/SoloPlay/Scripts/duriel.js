@@ -20,33 +20,33 @@ function duriel () {
 	Town.doChores();
 	Town.buyPots(10, "Thawing"); // thawing
 	Town.drinkPots();
+
+	let oldMercWatch = Config.MercWatch;
 	Config.MercWatch = false;
+
 	Pather.usePortal(null, me.name);
 	delay(1000 + me.ping);
 
-	if (me.sorceress && me.getSkill(43, 1)) {
-		let unit = Misc.poll(function () { return getUnit(2, 100); });
+	let unit = Misc.poll(function () { return getUnit(2, 100); });
 
-		if (unit) {
-			for (let i = 0; i < 3; i++) {
-				if (me.area !== 73) {
-					Skill.cast(43, 0, unit);
-				}
-
-				if (me.area === 73) {
-					break;
-				}
+	if (me.sorceress && unit && Skill.useTK(unit)) {
+		for (let i = 0; i < 3; i++) {
+			if (me.area !== sdk.areas.DurielsLair) Skill.cast(43, 0, unit);
+			if (me.area === sdk.areas.DurielsLair) {
+				break;
 			}
 		}
 
-		if (me.area !== 73) {
-			Pather.useUnit(2, 100, 73);
+		if (me.area !== sdk.areas.DurielsLair && !Pather.useUnit(2, 100, sdk.areas.DurielsLair)) {
+			Attack.clear(10);
+			Pather.useUnit(2, 100, sdk.areas.DurielsLair);
 		}
 	} else {
-		Pather.useUnit(2, 100, 73);
+		Pather.useUnit(2, 100, sdk.areas.DurielsLair);
 	}
 
-	Attack.killTarget("Duriel");
+	me.sorceress && !me.normal ? Attack.pwnDury() : Attack.killTarget("Duriel");
+
 	Pickit.pickItems();
 
 	if (!me.duriel && !Misc.checkQuest(14, 3)) {
@@ -70,7 +70,7 @@ function duriel () {
 	}
 
 	Pather.changeAct();
-	Config.MercWatch = true;
+	Config.MercWatch = oldMercWatch;
 
 	return true;
 }
