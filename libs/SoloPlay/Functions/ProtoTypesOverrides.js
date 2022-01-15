@@ -587,11 +587,6 @@ Object.defineProperties(me, {
 			return me.getQuest(3, 0);
 		}
 	},
-	canImbue: {
-		get: function () {
-			return !!me.getQuest(3, 1);
-		}
-	},
 	tristram: {
 		get: function () {
 			return me.getQuest(4, 0);

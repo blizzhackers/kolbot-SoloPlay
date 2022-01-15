@@ -258,7 +258,7 @@ function LoadConfig () {
 		return temp;
 	})();
 
-	me.canImbue && NTIP.arrayLooping(imbueArr);
+	!me.smith && NTIP.arrayLooping(imbueArr);
 
 	if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
 		NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");

@@ -627,6 +627,7 @@ Pather.walkTo = function (x = undefined, y = undefined, minDist = undefined) {
 
 	while (getDistance(me.x, me.y, x, y) > minDist && !me.dead) {
 		me.paladin && Config.Vigor && Skill.setSkill(sdk.skills.Vigor, 0);
+		me.paladin && !Config.Vigor && Skill.setSkill(Config.AttackSkill[2], 0);
 
 		if (this.openDoors(x, y) && getDistance(me.x, me.y, x, y) <= minDist) {
 			return true;

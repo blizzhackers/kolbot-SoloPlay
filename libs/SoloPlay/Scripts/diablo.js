@@ -65,6 +65,10 @@ function diablo () {
 		case 2:
 			break;
 		case 3:
+			if (Config.AttackSkill[1] !== sdk.skills.BlessedHammer) {
+				break;
+			}
+
 			target = getUnit(1, name);
 
 			if (!target) {
@@ -74,6 +78,9 @@ function diablo () {
 			position = [[6, 11], [0, 8], [8, -1], [-9, 2], [0, -11], [8, -8]];
 
 			for (let attackspot = 0; attackspot < position.length; attackspot += 1) {
+				if (me.getMobCount(15) === 0) {
+					break;
+				}
 				// check if we can move there
 				if (Attack.validSpot(target.x + position[attackspot][0], target.y + position[attackspot][1])) {
 					Pather.moveTo(target.x + position[attackspot][0], target.y + position[attackspot][1]);
@@ -173,7 +180,7 @@ function diablo () {
 	};
 
 	this.tkSeal = function (unit) {
-		if (!me.getSkill(43, 1) || !unit || unit === undefined) {
+		if (!Skill.useTK(unit)) {
 			return false;
 		}
 
@@ -246,11 +253,7 @@ function diablo () {
 					}
 				}
 
-				if (classid === 394) {
-					Misc.click(0, 0, seal);
-				} else {
-					seal.interact();
-				}
+				classid === 394 ? Misc.click(0, 0, seal) : seal.interact();
 			}
 
 			delay(classid === 394 ? 1000 + me.ping : 500 + me.ping);

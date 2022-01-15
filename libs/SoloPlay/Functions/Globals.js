@@ -54,13 +54,13 @@ function ensureData () {
 		update = true;
 	}
 
-	if (myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed !== !me.canImbue) {
+	if (!!me.smith && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed === false) {
 		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
 		console.debug(myData);
 		update = true;
 	}
 
-	if (myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed === false && !!me.respec) {
+	if (!!me.respec && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed === false) {
 		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
 		console.debug(myData);
 		update = true;
@@ -73,7 +73,7 @@ function ensureData () {
 			// can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
 		}
 
-		if (Pather.accessToAct(5) && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed !== !me.larzuk) {
+		if (!!me.shenk && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed === false) {
 			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
 			console.debug(myData);
 			update = true;
@@ -369,7 +369,7 @@ const Check = {
 
 			break;
 		case "smith":
-			if (!me.canImbue && !me.smith) {
+			if (!Misc.checkQuest(3, 1) && !me.smith) {
 				return true;
 			}
 
