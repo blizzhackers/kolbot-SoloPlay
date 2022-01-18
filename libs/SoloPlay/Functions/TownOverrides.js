@@ -945,6 +945,7 @@ Town.unfinishedQuests = function () {
 		book.isInStash && this.openStash() && delay(300 + me.ping);
 		book.interact();
 		print('ÿc8Kolbot-SoloPlayÿc0: used Radament skill book');
+		delay(500 + me.ping) && me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
 	}
 
 	// Act 3
@@ -975,7 +976,7 @@ Town.unfinishedQuests = function () {
 	if (tome) {
 		!me.inTown && Town.goToTown(3);
 		tome.isInStash && Town.openStash() && Storage.Inventory.MoveTo(tome) && delay(300 + me.ping);
-		Town.npcInteract("alkor");
+		Town.npcInteract("alkor") && delay(300 + me.ping);
 		me.getStat(sdk.stats.StatPts) > 0 && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
 		print('ÿc8Kolbot-SoloPlayÿc0: LamEssen Tome completed');
 	}
@@ -2317,7 +2318,7 @@ Town.clearJunk = function () {
 			!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
 			junk.isInCube && Cubing.emptyCube();
 
-			if (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)) {
+			if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
 				junkToSell.push(junk);
 
 				continue;
@@ -2336,7 +2337,7 @@ Town.clearJunk = function () {
 				!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
 				junk.isInCube && Cubing.emptyCube();
 
-				if (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)) {
+				if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
 					junkToSell.push(junk);
 
 					continue;
@@ -2354,7 +2355,7 @@ Town.clearJunk = function () {
 
 				print("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + Pickit.checkItem(junk).result);
 
-				if (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)) {
+				if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
 					junkToSell.push(junk);
 
 					continue;
@@ -2373,7 +2374,7 @@ Town.clearJunk = function () {
 					!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
 					junk.isInCube && Cubing.emptyCube();
 
-					if (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)) {
+					if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
 						junkToSell.push(junk);
 
 						continue;
@@ -2391,7 +2392,7 @@ Town.clearJunk = function () {
 					!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
 					junk.isInCube && Cubing.emptyCube();
 
-					if (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)) {
+					if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
 						junkToSell.push(junk);
 
 						continue;
