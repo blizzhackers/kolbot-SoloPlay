@@ -164,10 +164,11 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	}
 
     if ([sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy].includes(attackSkill) && !me.duelWielding) {
-    	(attackSkill = [data.bash, data.stun, data.concentrate, data.leapAttack, data.whirlwind]
+    	let oneHandSk = [data.bash, data.stun, data.concentrate, data.leapAttack, data.whirlwind]
     		.filter(function (skill) { return skill.have && me.mp > skill.mana; })
     		.sort((a, b) => GameData.physicalAttackDamage(b.skill) - GameData.physicalAttackDamage(a.skill))
-    		.first()) === null || attackSkill === void 0 ? 0 : attackSkill.skill;
+    		.first();
+    	attackSkill = oneHandSk ? oneHandSk.skill : 0;
     }
 
 	if (data.howl.have && attackSkill !== 151 && data.howl.mana < me.mp && howlCheck() && me.hpPercent <= 85) {
