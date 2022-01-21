@@ -282,6 +282,11 @@ function main () {
 		return false;
 	};
 
+	this.drinkSpecialPotion = function (type) {
+		let pot = me.getItemsEx().filter(function (p) { return p.isInInventory && p.classid === type; }).first();
+		return !!pot && pot.interact();
+	};
+
 	this.getNearestMonster = function () {
 		let gid, distance,
 			monster = getUnit(1),
@@ -705,6 +710,9 @@ function main () {
 				if (Config.UseRejuvMP > 0 && me.mp < Math.floor(me.mpmax * Config.UseRejuvMP / 100)) {
 					this.drinkPotion(2);
 				}
+
+				me.getState(sdk.states.Poison) && this.drinkSpecialPotion(sdk.items.AntidotePotion);
+				[sdk.states.Frozen, sdk.states.FrozenSolid].some(state => me.getState(state)) && this.drinkSpecialPotion(sdk.items.ThawingPotion);
 
 				if (Config.ManaChicken > 0 && me.mp <= Math.floor(me.mpmax * Config.ManaChicken / 100)) {
 					!Developer.hideChickens && D2Bot.printToConsole("Mana Chicken: (" + me.mp + "/" + me.mpmax + ") in " + Pather.getAreaName(me.area), 9);

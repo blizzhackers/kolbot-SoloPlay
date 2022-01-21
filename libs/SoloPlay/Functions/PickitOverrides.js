@@ -38,6 +38,20 @@ Pickit.checkItem = function (unit) {
 		};
 	}
 
+	if (unit.classid === sdk.items.AntidotePotion && me.getState(sdk.states.Poison) && Item.getQuantityOwned(unit) < 2) {
+		return {
+			result: 1,
+			line: "Poisoned"
+		};
+	}
+
+	if (unit.classid === sdk.items.ThawingPotion && [sdk.states.Frozen, sdk.states.FrozenSolid].some(state => me.getState(state)) && Item.getQuantityOwned(unit) < 2) {
+		return {
+			result: 1,
+			line: "Frozen"
+		};
+	}
+
 	if (CraftingSystem.checkItem(unit)) {
 		return {
 			result: 5,
