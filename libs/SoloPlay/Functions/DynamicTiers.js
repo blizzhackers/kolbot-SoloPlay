@@ -95,7 +95,7 @@ let mercscore = function (item) {
 	return mercRating;
 };
 
-let tierscore = function (item) {
+let tierscore = function (item, bodyloc) {
 	const resistWeights = {
 		FR: 3, // fire resist
 		LR: 3, // lightning resist
@@ -239,7 +239,7 @@ let tierscore = function (item) {
 
 		if (!itembodyloc) return resistRating;
 
-		let bodyloc = itembodyloc.last(); // extract bodyloc from array
+		bodyloc === undefined && (bodyloc = itembodyloc.last()); // extract bodyloc from array
 		// get item resists stats from olditem equipped on body location
 		let equippedItem = me.getItemsEx().filter(function (equipped) { return equipped.isEquipped && equipped.bodylocation === bodyloc; }).first();
 

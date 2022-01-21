@@ -140,6 +140,7 @@ Item.getEquippedItem = function (bodyLoc) {
 					itemType: item.itemType,
 					quality: item.quality,
 					tier: NTIP.GetTier(item),
+					tierScore : tierscore(item, bodyLoc),
 					secondarytier: NTIP.GetSecondaryTier(item),
 					str: item.getStatEx(sdk.stats.Strength),
 					dex: item.getStatEx(sdk.stats.Dexterity),
@@ -162,6 +163,7 @@ Item.getEquippedItem = function (bodyLoc) {
 		itemType: -1,
 		quality: -1,
 		tier: -1,
+		tierScore: -1,
 		secondarytier: -1,
 		str: 0,
 		dex: 0,
@@ -265,7 +267,7 @@ Item.autoEquip = function () {
 
 	// Remove items without tier
 	for (let i = 0; i < items.length; i += 1) {
-		if (NTIP.GetTier(items[i]) === 0) {
+		if (NTIP.GetTier(items[i]) <= 0 && items[i].identified) {
 			items.splice(i, 1);
 
 			i -= 1;
@@ -279,7 +281,8 @@ Item.autoEquip = function () {
 
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
-				if (items[0].isInStorage && tier > this.getEquippedItem(bodyLoc[j]).tier && this.getEquippedItem(bodyLoc[j]).classid !== sdk.items.quest.KhalimsWill) {
+				let equippedItem = this.getEquippedItem(bodyLoc[j]);
+				if (items[0].isInStorage && tier > equippedItem.tierScore && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
 					if (!items[0].identified) {
 						idTool = Town.getIdTool();
 
@@ -290,14 +293,14 @@ Item.autoEquip = function () {
 					}
 
 					if (items[0].twoHanded && !me.barbarian) {
-						if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
+						if (tier < this.getEquippedItem(4).tierScore + this.getEquippedItem(5).tierScore) {
 							continue;
 						}
 						print("ÿc9AutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
 					}
 
-					if (!me.barbarian && bodyLoc[j] === 5 && this.getEquippedItem(bodyLoc[j]).tier === -1) {
-						if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tier) {
+					if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tierScore === -1) {
+						if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tierScore) {
 							continue;
 						}
 						print("ÿc9AutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
@@ -316,6 +319,8 @@ Item.autoEquip = function () {
 							print("ÿc9AutoEquipÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + items[0].fname + " Tier: " + tier);
 							Storage.Stash.MoveTo(items[0]);
 						}
+					} else if (me.getItem(-1, -1, gid)) {	// Make sure we didn't lose it during roll back
+						continue;
 					}
 
 					break;
@@ -346,6 +351,8 @@ Item.equip = function (item, bodyLoc) {
 		if (!Town.openStash() && !Cubing.openCube()) return false;
 	}
 
+	let rolledBack = false;
+
 	for (let i = 0; i < 3; i += 1) {
 		if (item.toCursor()) {
 			clickItemAndWait(0, bodyLoc);
@@ -355,6 +362,14 @@ Item.equip = function (item, bodyLoc) {
 					let cursorItem = getUnit(100);
 
 					if (cursorItem) {
+						// rollback check
+						if (NTIP.GetTier(cursorItem) > this.getEquippedItem(bodyLoc).tier) {
+							console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
+							clickItemAndWait(0, bodyLoc);
+							cursorItem = getUnit(100);
+							rolledBack = true;
+						}
+
 						if (Pickit.checkItem(cursorItem).result === 1 ||
 						(cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2) || // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
 						(cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {	// or keep if item is worth selling
@@ -367,7 +382,7 @@ Item.equip = function (item, bodyLoc) {
 					}
 				}
 
-				return true;
+				return rolledBack ? false : true;
 			}
 		}
 	}
