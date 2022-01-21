@@ -1,10 +1,10 @@
 /*
-*	@filename	Events.js
+*	@filename	SoloEvents.js
 *	@author		theBGuy
 *	@desc		Handle events for Kolbot-SoloPlay
 */
 
-let Events = {
+const SoloEvents = {
 	filePath: "libs/SoloPlay/Tools/EventThread.js",
 	check: false,
 	inGame: false,
@@ -22,7 +22,7 @@ let Events = {
 		}
 
 		if (this.gameInfo.gameName.length > 0) {
-			D2Bot.printToConsole("Kolbot-SoloPlay :: Events.outOfGameCheck(): Attempting to join other bots game", 6);
+			D2Bot.printToConsole("Kolbot-SoloPlay :: SoloEvents.outOfGameCheck(): Attempting to join other bots game", 6);
 			this.inGame = true;
 			me.blockmouse = true;
 
@@ -37,7 +37,7 @@ let Events = {
 				delay(1000);
 			}
 
-			print("ÿc8Kolbot-SoloPlayÿc0: End of Events.outOfGameCheck()");
+			print("ÿc8Kolbot-SoloPlayÿc0: End of SoloEvents.outOfGameCheck()");
 			this.inGame = false;
 			this.check = false;
 			this.gameInfo.gameName = "";
@@ -294,8 +294,9 @@ let Events = {
 
 		let useTele = settings.allowTeleport && settings.allowTeleport.useTeleport();
 		let tpMana = Skill.getManaCost(sdk.skills.Teleport);
+		let mLair = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
 
-		path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : Pather.teleDistance) : Pather.walkDistance);
+		path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? (mLair ? 30 : Pather.teleDistance) : Pather.walkDistance);
 
 		if (!path) return false;
 
@@ -313,7 +314,7 @@ let Events = {
 			node = path.shift();
 
 			if (getDistance(me, node) > 2) {
-				if ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area)) {
+				if (mLair) {
 					adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
 
 					if (adjustedNode) {
@@ -408,6 +409,11 @@ let Events = {
 		Precast.enabled = true;
 		Misc.townEnabled = true;
 		Pickit.enabled = true;
+
+		let skipWorked = getUnits(sdk.unittype.Monster)
+			.some(function (el) { return !el.dead && el.attackable && el.classid !== sdk.monsters.ThroneBaal && el.x >= 15070 && el.x <= 15120 &&
+                    el.y >= 5000 && el.y <= 5075;});
+		myPrint("skip " + (skipWorked ? "worked" : "failed"));
 	},
 
 	dodge: function () {

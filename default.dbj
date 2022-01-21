@@ -170,7 +170,7 @@ function main () {
 
 	// Load threads
 	if (getScript("D2BotSoloPlay.dbj")) {
-		if (Events.inGameCheck()) return true;
+		if (SoloEvents.inGameCheck()) return true;
 		load("libs/SoloPlay/Tools/ToolsThread.js");
 		load("libs/SoloPlay/Tools/EventThread.js");
 		load("libs/SoloPlay/Tools/TownChicken.js");

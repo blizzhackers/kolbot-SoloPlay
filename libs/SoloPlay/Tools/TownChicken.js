@@ -62,7 +62,7 @@ function main() {
 				} else {
 					if (scripts[i] === "default.dbj") {
 						// don't resume if dclone walked
-						if (!Events.cloneWalked) {
+						if (!SoloEvents.cloneWalked) {
 							print("ÿc8TownChicken :: ÿc2Resuming.");
 							script.resume();
 						}
@@ -169,7 +169,7 @@ function main() {
 				me.overhead("Going to town");
 				print("ÿc8TownChicken :: ÿc0Going to town");
 				Attack.stopClear = true;
-				Events.townChicken = true;
+				SoloEvents.townChicken = true;
 				
 				if (useHowl || useTerror) {
 					if ([156, 211, 242, 243, 544, 571, 345].indexOf(this.getNearestMonster()) === -1) {
@@ -193,7 +193,7 @@ function main() {
 				this.togglePause();
 
 				Attack.stopClear = false;
-				Events.townChicken = false;
+				SoloEvents.townChicken = false;
 				townCheck = false;
 			}
 		}

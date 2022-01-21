@@ -63,7 +63,7 @@ include("SoloPlay/Tools/SoloData.js");
 include("SoloPlay/Tools/Tracker.js");
 include("SoloPlay/Tools/NameGen.js");
 include("SoloPlay/Tools/OOGOverrides.js");
-include("SoloPlay/Functions/Events.js");
+include("SoloPlay/Functions/SoloEvents.js");
 include("SoloPlay/Functions/ConfigOverrides.js");
 
 let firstRun = false;
@@ -119,8 +119,8 @@ function ReceiveCopyData (mode, msg) {
 	case 1: // Join Info
 		print("Got Join Info");
 		joinInfo = JSON.parse(msg);
-		Events.gameInfo.gameName = joinInfo.gameName.toLowerCase();
-		Events.gameInfo.gamePass = joinInfo.gamePass.toLowerCase();
+		SoloEvents.gameInfo.gameName = joinInfo.gameName.toLowerCase();
+		SoloEvents.gameInfo.gamePass = joinInfo.gamePass.toLowerCase();
 
 		break;
 	case 2: // Game info
@@ -404,7 +404,7 @@ function ScriptMsgEvent (msg) {
 
 		break;
 	case "event":
-		Events.check = true;
+		SoloEvents.check = true;
 
 		break;
 	}
@@ -473,7 +473,7 @@ function locationAction (location) {
 		}
 
 		if (ingame) {
-			if (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || Events.outOfGameCheck()) {
+			if (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || SoloEvents.outOfGameCheck()) {
 				break;
 			}
 
@@ -545,7 +545,7 @@ function locationAction (location) {
 		if (ingame) {
 			//D2Bot.store(JSON.stringify({currScript: "none", area: "out of game"}));
 
-			if (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || Events.outOfGameCheck()) {
+			if (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || SoloEvents.outOfGameCheck()) {
 				break;
 			}
 

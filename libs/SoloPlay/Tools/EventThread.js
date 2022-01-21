@@ -53,7 +53,7 @@ function main () {
 		for (let l = 0; l < scripts.length; l += 1) {
 			let script = getScript(scripts[l]);
 
-			if (Events.townChicken) {
+			if (SoloEvents.townChicken) {
 				print("ÿc8EventThread :: ÿc1Trying to townChicken, don't interfere.");
 				return false;
 			}
@@ -65,7 +65,7 @@ function main () {
 					}
 
 					// don't pause townchicken during clone walk
-					if (scripts[l] !== "libs/SoloPlay/Tools/TownChicken.js" || !Events.cloneWalked) {
+					if (scripts[l] !== "libs/SoloPlay/Tools/TownChicken.js" || !SoloEvents.cloneWalked) {
 						script.pause();
 					}
 				}
@@ -138,7 +138,7 @@ function main () {
 			if (profile !== me.profile && (me.hell || (me.nightmare && me.baal)) && me.ladder === ladder) {
 				if (torchType === me.classid && !me.findItem(604, 0, null, 7)) {
 					print("Sent Response");
-					Events.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 604});
+					SoloEvents.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 604});
 				}
 			}
 
@@ -153,7 +153,7 @@ function main () {
 			if (profile !== me.profile && (me.hell || (me.nightmare && me.baal)) && me.ladder === ladder) {
 				if (!me.findItem(603, 0, null, 7)) {
 					print("Sent Response");
-					Events.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 603});
+					SoloEvents.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 603});
 				}
 			}
 
@@ -164,7 +164,7 @@ function main () {
 			let { profile, level, event } = JSON.parse(info);
 
 			print("Sucess: profile that contacted me: " + profile + " level of char: " + level);
-			Events.profileResponded = true;
+			SoloEvents.profileResponded = true;
 			profiles.push({profile: profile, level: level, event: event});
 			tickDelay += 1000;
 		}
@@ -177,7 +177,7 @@ function main () {
 	};
 
 	addEventListener("scriptmsg", this.scriptEvent);
-	addEventListener("gamepacket", Events.gamePacket);
+	addEventListener("gamepacket", SoloEvents.gamePacket);
 	addEventListener('copydata', this.receiveCopyData);
 
 	// Start
@@ -186,7 +186,7 @@ function main () {
 			while (action.length) {
 				if (this.pauseForEvent()) {
 					try {
-						Events[action.shift()]();
+						SoloEvents[action.shift()]();
 					} catch (e) {
 						print(e);
 					}
@@ -210,7 +210,7 @@ function main () {
 
 				let lowestLevelProf = profiles.first();
 
-				Events.sendToProfile(lowestLevelProf.profile, lowestLevelProf.event, 70);
+				SoloEvents.sendToProfile(lowestLevelProf.profile, lowestLevelProf.event, 70);
 				D2Bot.joinMe(lowestLevelProf.profile, me.gamename.toLowerCase(), "", me.gamepassword.toLowerCase(), true);
 				profiles = [];
 			}

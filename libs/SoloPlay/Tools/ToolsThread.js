@@ -158,7 +158,7 @@ function main () {
 					}
 
 					// don't pause townchicken during clone walk
-					if (scripts[l] !== "libs/SoloPlay/Tools/TownChicken.js" || !Events.cloneWalked) {
+					if (scripts[l] !== "libs/SoloPlay/Tools/TownChicken.js" || !SoloEvents.cloneWalked) {
 						script.pause();
 					}
 				} else {
@@ -597,7 +597,7 @@ function main () {
 			// Only do this in expansion
 			if (Config.StopOnDClone && !me.classic && me.hell) {
 				D2Bot.printToConsole("Diablo Walks the Earth", 7);
-				Events.cloneWalked = true;
+				SoloEvents.cloneWalked = true;
 				this.togglePause();
 				Town.goToTown();
 				showConsole();
