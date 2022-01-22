@@ -363,7 +363,7 @@ Item.equip = function (item, bodyLoc) {
 
 					if (cursorItem) {
 						// rollback check
-						if (NTIP.GetTier(cursorItem) > this.getEquippedItem(bodyLoc).tier) {
+						if (NTIP.GetTier(cursorItem) > this.getEquippedItem(bodyLoc).tier && !item.isQuestItem) {
 							console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
 							clickItemAndWait(0, bodyLoc);
 							cursorItem = getUnit(100);
