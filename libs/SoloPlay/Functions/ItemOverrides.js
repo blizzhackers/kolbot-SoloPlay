@@ -267,7 +267,7 @@ Item.autoEquip = function () {
 
 	// Remove items without tier
 	for (let i = 0; i < items.length; i += 1) {
-		if (NTIP.GetTier(items[i]) <= 0 && items[i].identified) {
+		if (NTIP.GetTier(items[i]) === 0) {
 			items.splice(i, 1);
 
 			i -= 1;
@@ -282,7 +282,7 @@ Item.autoEquip = function () {
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
 				let equippedItem = this.getEquippedItem(bodyLoc[j]);
-				if (items[0].isInStorage && tier > equippedItem.tierScore && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
+				if (items[0].isInStorage && tier > equippedItem.tier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
 					if (!items[0].identified) {
 						idTool = Town.getIdTool();
 
@@ -293,14 +293,14 @@ Item.autoEquip = function () {
 					}
 
 					if (items[0].twoHanded && !me.barbarian) {
-						if (tier < this.getEquippedItem(4).tierScore + this.getEquippedItem(5).tierScore) {
+						if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
 							continue;
 						}
 						print("ÿc9AutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
 					}
 
-					if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tierScore === -1) {
-						if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tierScore) {
+					if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1) {
+						if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tier) {
 							continue;
 						}
 						print("ÿc9AutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
