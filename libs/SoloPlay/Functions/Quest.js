@@ -279,6 +279,8 @@ const Quest = {
 		!getUIFlag(sdk.uiflags.Stash) && me.cancel();
 
 		if (questItem) {
+			me.duelWielding && Item.removeItem(5);
+			
 			if (!Item.equip(questItem, loc)) {
 				Pickit.pickItems();
 				print("ÿc8Kolbot-SoloPlayÿc0: failed to equip " + classid + " .(Quest.equipItem)");

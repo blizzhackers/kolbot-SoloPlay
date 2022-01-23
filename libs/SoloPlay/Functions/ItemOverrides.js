@@ -392,12 +392,7 @@ Item.equip = function (item, bodyLoc) {
 
 Item.removeItem = function (bodyLoc) {
 	let cursorItem,
-		removable = me.getItems()
-			.filter(item =>
-				item.mode === sdk.itemmode.Equipped
-				&& item.bodylocation === bodyLoc
-			)
-			.first();
+		removable = me.getItemsEx().filter(function (item) { return item.isEquipped && item.bodylocation === bodyLoc; }).first();
 
 	!me.inTown && Town.goToTown();
 	!getUIFlag(sdk.uiflags.Stash) && Town.openStash();

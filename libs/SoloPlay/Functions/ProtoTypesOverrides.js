@@ -8,129 +8,6 @@
 
 let sdk = require('../modules/sdk');
 
-(function (global, print) {
-	global['console'] = global['console'] || (function () {
-		const console = {};
-
-		const argMap = el => typeof el === 'object' && el /*not null */ && JSON.stringify(el) || el;
-
-		console.log = function (...args) {
-			// use call to avoid type errors
-			print.call(null, args.map(argMap).join(','));
-		};
-
-		console.printDebug = true;
-		console.debug = function (...args) {
-
-			if (console.printDebug) {
-				const stack = new Error().stack.match(/[^\r\n]+/g),
-					filenameAndLine = stack && stack.length && stack[1].substr(stack[1].lastIndexOf('\\') + 1) || 'unknown:0';
-
-				this.log('ÿc:[ÿc:' + filenameAndLine + 'ÿc:]ÿc0 ' + args.map(argMap).join(','));
-			}
-		};
-
-		console.warn = console.debug;
-
-		return console;
-
-	})()
-
-})([].filter.constructor('return this')(), print);
-
-/**
- * @description Polyfill for setTimeout, as the version of d2bs isnt thread safe
- * @author Jaenster
- */
-
-(function (global, _original) {
-
-	const Worker = require('../../modules/Worker');
-
-	global['_setTimeout'] = _original;
-
-	/**
-	 * @param {function} cb
-	 * @param {number} time
-	 * @param args
-	 * @constructor
-	 */
-	function Timer(cb, time, args) {
-		const _this = this;
-		if (time === void 0) { time = 0; }
-		if (args === void 0) { args = []; }
-		Timer.instances.push(this);
-		Worker.runInBackground['__setTimeout__' + (Timer.counter++)] = (startTick => () => {
-			let finished = getTickCount() - startTick >= time;
-
-			if (finished) {
-				let index = Timer.instances.indexOf(_this);
-
-				// only if not removed from the time list
-				if (index > -1) {
-					Timer.instances.splice(index, 1);
-					cb.apply(undefined, args);
-				}
-			}
-
-			return !finished;
-		})(getTickCount());
-	}
-
-	Timer.instances = [];
-	Timer.counter = 0;
-
-	global['setTimeout'] = function (cb, time = 0, ...args) {
-		if (typeof cb === 'string') {
-			console.debug('Warning: Do not use raw code @ setTimeout and does not support lexical scoping');
-			cb = [].filter.constructor(cb);
-		}
-
-		if (typeof cb !== 'function') throw new TypeError('setTimeout callback needs to be a function');
-
-		return new Timer(cb, time, args);
-	};
-
-	/**
-	 *
-	 * @param {Timer} timer
-	 */
-	global['clearTimeout'] = function (timer) {
-		const index = Timer.instances.indexOf(timer);
-		if (index > -1) {
-			Timer.instances.splice(index, 1)
-		}
-	};
-
-	// getScript(true).name.toString() !== 'default.dbj' && setTimeout(function () {/* test code*/}, 1000)
-
-
-})([].filter.constructor('return this')(), setTimeout);
-
-(function (global, original) {
-	let firstRun = true;
-	global['getUnit'] = function (...args) {
-		const test = original(1);
-		// Stupid reference thing
-
-		if (firstRun) {
-			delay(1000);
-			firstRun = false;
-		}
-
-		let [first] = args, second = args.length >= 2 ? args[1] : undefined;
-
-		const ret = original.apply(this, args);
-
-		// deal with fucking bug
-		if (first === 1 && typeof second === 'string' && ret && ((me.act === 1 && ret.classid === 149) || me.act === 2 && ret.classid === 268)) {
-			return null;
-		}
-
-		return original.apply(this, args);
-	}
-})([].filter.constructor('return this')(), getUnit);
-
 Unit.prototype.getResPenalty = function (difficulty) {
 	difficulty > 2 && (difficulty = 2);
 	return me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][difficulty] : [0, 40, 100][difficulty];
@@ -1473,3 +1350,187 @@ Unit.prototype.__defineGetter__('curseable', function () {
 Unit.prototype.__defineGetter__('scareable', function () {
     return this.curseable && !(this.spectype & 0x7);
 });
+
+// D2BS Improvements @Jaenster
+(function (global, print) {
+	global['console'] = global['console'] || (function () {
+		const console = {};
+
+		const argMap = el => typeof el === 'object' && el /*not null */ && JSON.stringify(el) || el;
+
+		console.log = function (...args) {
+			// use call to avoid type errors
+			print.call(null, args.map(argMap).join(','));
+		};
+
+		console.printDebug = true;
+		console.debug = function (...args) {
+			if (console.printDebug) {
+				const stack = new Error().stack.match(/[^\r\n]+/g),
+					filenameAndLine = stack && stack.length && stack[1].substr(stack[1].lastIndexOf('\\') + 1) || 'unknown:0';
+				this.log('ÿc:[ÿc:' + filenameAndLine + 'ÿc:]ÿc0 ' + args.map(argMap).join(','));
+			}
+		};
+
+		console.warn = console.debug;
+
+		return console;
+
+	})()
+
+})([].filter.constructor('return this')(), print);
+
+/**
+ * @description Polyfill for setTimeout, as the version of d2bs isnt thread safe
+ * @author Jaenster
+ */
+
+(function (global, _original) {
+
+	const Worker = require('../../modules/Worker');
+
+	global['_setTimeout'] = _original;
+
+	/**
+	 * @param {function} cb
+	 * @param {number} time
+	 * @param args
+	 * @constructor
+	 */
+	function Timer(cb, time, args) {
+		const _this = this;
+		if (time === void 0) { time = 0; }
+		if (args === void 0) { args = []; }
+		Timer.instances.push(this);
+		Worker.runInBackground['__setTimeout__' + (Timer.counter++)] = (startTick => () => {
+			let finished = getTickCount() - startTick >= time;
+
+			if (finished) {
+				let index = Timer.instances.indexOf(_this);
+
+				// only if not removed from the time list
+				if (index > -1) {
+					Timer.instances.splice(index, 1);
+					cb.apply(undefined, args);
+				}
+			}
+
+			return !finished;
+		})(getTickCount());
+	}
+
+	Timer.instances = [];
+	Timer.counter = 0;
+
+	global['setTimeout'] = function (cb, time = 0, ...args) {
+		if (typeof cb === 'string') {
+			console.debug('Warning: Do not use raw code @ setTimeout and does not support lexical scoping');
+			cb = [].filter.constructor(cb);
+		}
+
+		if (typeof cb !== 'function') throw new TypeError('setTimeout callback needs to be a function');
+
+		return new Timer(cb, time, args);
+	};
+
+	/**
+	 *
+	 * @param {Timer} timer
+	 */
+	global['clearTimeout'] = function (timer) {
+		const index = Timer.instances.indexOf(timer);
+		if (index > -1) {
+			Timer.instances.splice(index, 1)
+		}
+	};
+
+	// getScript(true).name.toString() !== 'default.dbj' && setTimeout(function () {/* test code*/}, 1000)
+
+
+})([].filter.constructor('return this')(), setTimeout);
+
+(function (global, original) {
+	let firstRun = true;
+	global['getUnit'] = function (...args) {
+		const test = original(1);
+		// Stupid reference thing
+
+		if (firstRun) {
+			delay(1000);
+			firstRun = false;
+		}
+
+		let [first] = args, second = args.length >= 2 ? args[1] : undefined;
+
+		const ret = original.apply(this, args);
+
+		// deal with fucking bug
+		if (first === 1 && typeof second === 'string' && ret && ((me.act === 1 && ret.classid === 149) || me.act === 2 && ret.classid === 268)) {
+			return null;
+		}
+
+		return original.apply(this, args);
+	}
+})([].filter.constructor('return this')(), getUnit);
+
+if (!Object.setPrototypeOf) {
+    // Only works in Chrome and FireFox, does not work in IE:
+    Object.defineProperty(Object.prototype, 'setPrototypeOf', {
+        value: function (obj, proto) {
+            // @ts-ignore
+            if (obj.__proto__) {
+                // @ts-ignore
+                obj.__proto__ = proto;
+                return obj;
+            }
+            else {
+                // If you want to return prototype of Object.create(null):
+                var Fn = function () {
+                    for (var key in obj) {
+                        Object.defineProperty(this, key, {
+                            value: obj[key],
+                        });
+                    }
+                };
+                Fn.prototype = proto;
+                return new Fn();
+            }
+        },
+        enumerable: false,
+    });
+}
+
+if (!Object.values) {
+    Object.values = function (source) {
+        return Object.keys(source).map(function (k) { return source[k]; });
+    };
+}
+
+if (!Object.entries) {
+    Object.entries = function (source) {
+        return Object.keys(source).map(function (k) { return [k, source[k]]; });
+    };
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is#polyfill
+// @ts-ignore
+if (!Object.is) {
+    Object.defineProperty(Object, "is", {
+        value: function (x, y) {
+            // SameValue algorithm
+            if (x === y) {
+                // return true if x and y are not 0, OR
+                // if x and y are both 0 of the same sign.
+                // This checks for cases 1 and 2 above.
+                return x !== 0 || 1 / x === 1 / y;
+            }
+            else {
+                // return true if both x AND y evaluate to NaN.
+                // The only possibility for a variable to not be strictly equal to itself
+                // is when that variable evaluates to NaN (example: Number.NaN, 0/0, NaN).
+                // This checks for case 3.
+                return x !== x && y !== y;
+            }
+        }
+    });
+}

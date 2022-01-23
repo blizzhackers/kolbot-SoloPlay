@@ -145,14 +145,14 @@ Pickit.checkItem = function (unit) {
 	return rval;
 };
 
-Pickit.pickItems = function () {
+Pickit.pickItems = function (range = Config.PickRange, once = false) {
 	let status, canFit,
 		needMule = false,
 		pickList = [];
 
 	Town.clearBelt();
 
-	if (me.dead || Config.PickRange < 0 || !Pickit.enabled) return false;
+	if (me.dead || range < 0 || !Pickit.enabled) return false;
 
 	while (!me.idle) {
 		delay(40);
@@ -162,7 +162,7 @@ Pickit.pickItems = function () {
 
 	if (item) {
 		do {
-			if ((item.mode === 3 || item.mode === 5) && getDistance(me, item) <= Config.PickRange) {
+			if ((item.mode === 3 || item.mode === 5) && getDistance(me, item) <= range) {
 				pickList.push(copyUnit(item));
 			}
 		} while (item.getNext());
@@ -199,7 +199,7 @@ Pickit.pickItems = function () {
 							// Recursive check after going to town. We need to remake item list because gids can change.
 							// Called only if room can be made so it shouldn't error out or block anything.
 
-							return this.pickItems();
+							return this.pickItems(range, once);
 						}
 
 						// Town visit failed - abort
@@ -217,7 +217,9 @@ Pickit.pickItems = function () {
 
 				// Item can fit - pick it up
 				if (canFit) {
-					this.pickItem(pickList[0], status.result, status.line);
+					let picked = this.pickItem(pickList[0], status.result, status.line);
+
+					if (picked && once) return true;
 				}
 			}
 		}

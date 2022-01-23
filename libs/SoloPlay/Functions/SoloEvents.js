@@ -512,7 +512,7 @@ const SoloEvents = {
 		switch (bytes[0]) {
 		case 0x89: // d2gs unique event
 			if (me.area === sdk.areas.DenofEvil) {
-				Messaging.sendToScript(this.filePath, 'finishDen');
+				Messaging.sendToScript(SoloEvents.filePath, 'finishDen');
 			}
 
 			break;
@@ -520,7 +520,7 @@ const SoloEvents = {
 			if (me.area === sdk.areas.ChaosSanctuary) {
 				if (bytes[6] === 193) {
 					if (!Pather.canTeleport() && (me.necromancer && ["Poison", "Summon"].includes(SetUp.currentBuild) || !me.sorceress)) {
-						Messaging.sendToScript(this.filePath, 'dodge');
+						Messaging.sendToScript(SoloEvents.filePath, 'dodge');
 					}
 				}
 			}
@@ -536,7 +536,7 @@ const SoloEvents = {
 					break;
 				case 1: 	// Achmel
 					if ((me.paladin && !Attack.isAuradin && me.hell) || (me.barbarian && ((me.charlvl < Config.levelCap && !me.baal) || me.hardcore))) {
-						Messaging.sendToScript(this.filePath, 'skip');
+						Messaging.sendToScript(SoloEvents.filePath, 'skip');
 					}
 
 					break;
@@ -545,7 +545,7 @@ const SoloEvents = {
 					break;
 				case 4: 	// Lister
 					if ((me.barbarian && (me.charlvl < Config.levelCap || !me.baal || me.hardcore)) || (me.charlvl < Config.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
-						Messaging.sendToScript(this.filePath, 'skip');
+						Messaging.sendToScript(SoloEvents.filePath, 'skip');
 					}
 
 					break;

@@ -44,7 +44,13 @@ function ensureData () {
 			console.debug(myData);
 			update = true;
 
-			break;		
+			break;
+		case !["Start", "Stepping", "Leveling"].includes(SetUp.getBuild()) && myData.me.currentBuild !== myData.me.finalBuild:
+			myData.me.currentBuild = "Leveling";
+			console.debug(myData);
+			update = true;
+
+			break;
 		}
 	}
 
