@@ -289,6 +289,16 @@ function LoadConfig () {
 			NTIP.addLine("[name] == UmRune # # [maxquantity] == 1");
 		}
 
+		/* Crafting */
+		// Going with Blood but TODO is test HitPower vs Blood
+		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
+			Config.Recipes.push([Recipe.Blood.Amulet]);
+		}
+
+		if (Item.getEquippedItem(sdk.body.RingLeft).tier < 100000) {
+			Config.Recipes.push([Recipe.Blood.Ring]);
+		}
+
 		// FinalBuild specific setup
 		switch (SetUp.finalBuild) {
 		case 'Witchyzon':

@@ -267,11 +267,13 @@ function LoadConfig () {
 
 		/* Crafting */
 		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
-			if (Check.currentBuild().caster) {
-				Config.Recipes.push([Recipe.Caster.Amulet]);
-			}
+			Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Amulet]) : Config.Recipes.push([Recipe.Blood.Amulet]);
 		}
 
+		if (Item.getEquippedItem(sdk.body.RingLeft).tier < 100000) {
+			Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Ring]) : Config.Recipes.push([Recipe.Blood.Ring]);
+		}
+		
 		if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
 			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
 		}

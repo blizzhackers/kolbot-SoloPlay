@@ -282,6 +282,15 @@ function LoadConfig () {
 		NTIP.addLine("[name] == UmRune # # [maxquantity] == 1");
 	}
 
+	/* Crafting */
+	if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
+		Config.Recipes.push([Recipe.Caster.Amulet]);
+	}
+
+	if (Item.getEquippedItem(sdk.body.RingLeft).tier < 100000) {
+		Config.Recipes.push([Recipe.Caster.Ring]);
+	}
+
 	let helm = Item.getEquippedItem(1);
 	let body = Item.getEquippedItem(3);
 	let wep = Item.getEquippedItem(4);

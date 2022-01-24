@@ -338,6 +338,15 @@ function LoadConfig () {
 			break;
 		}
 
+		/* Crafting */
+		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
+			Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Amulet]) : Config.Recipes.push([Recipe.Blood.Amulet]);
+		}
+
+		if (Item.getEquippedItem(sdk.body.RingLeft).tier < 100000) {
+			Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Ring]) : Config.Recipes.push([Recipe.Blood.Ring]);
+		}
+
 		if (me.rawStrength >= 150 && me.rawDexterity >= 88) {
 			// Upgrade Bloodletter to Elite
 			Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Gladius", Roll.NonEth]);
