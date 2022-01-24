@@ -262,7 +262,11 @@ function LoadConfig () {
 
 	/* Crafting */
 	if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
-		Config.Recipes.push([Recipe.Caster.Amulet]);
+		Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Amulet]) : Config.Recipes.push([Recipe.Blood.Amulet]);
+	}
+
+	if (Item.getEquippedItem(sdk.body.RingLeft).tier < 100000) {
+		Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Ring]) : Config.Recipes.push([Recipe.Blood.Ring]);
 	}
 
 	// FinalBuild specific setup

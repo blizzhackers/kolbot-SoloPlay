@@ -217,7 +217,7 @@ function LoadConfig () {
 	Config.AutoBuild.Template = SetUp.getBuild();
 
 	// Class specific config
-	Config.FindItem = false; 		// Use Find Item skill on corpses after clearing.
+	Config.FindItem = true; 		// Use Find Item skill on corpses after clearing.
 	Config.FindItemSwitch = false; 	// Switch to non-primary slot when using Find Item skills
 
 	/* Gear */
@@ -336,6 +336,15 @@ function LoadConfig () {
 			break;
 		default:
 			break;
+		}
+
+		/* Crafting */
+		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
+			Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Amulet]) : Config.Recipes.push([Recipe.Blood.Amulet]);
+		}
+
+		if (Item.getEquippedItem(sdk.body.RingLeft).tier < 100000) {
+			Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Ring]) : Config.Recipes.push([Recipe.Blood.Ring]);
 		}
 
 		if (me.rawStrength >= 150 && me.rawDexterity >= 88) {
