@@ -228,10 +228,17 @@ function ReceiveCopyData (mode, msg) {
 
 		if (setUp.tag !== "") {
 			setUp.tag = setUp.tag[0].toUpperCase() + setUp.tag.substring(1).toLowerCase();
+			let soloStats = SoloData.getStats();
 
-			if (!SoloData.getStats().me.finalBuild || SoloData.getStats().me.finalBuild !== setUp.tag) {
+			if (!soloStats.me.finalBuild || soloStats.me.finalBuild !== setUp.tag) {
 				D2Bot.setProfile(null, null, null, null, null, setUp.tag);
-				SoloData.updateData("me", "finalBuild", setUp.tag);	
+				SoloData.updateData("me", "finalBuild", setUp.tag);
+				soloStats.me.finalBuild = setUp.tag;
+			}
+
+			if (!["Start", "Stepping", "Leveling"].includes(soloStats.me.currentBuild) && soloStats.me.currentBuild !== soloStats.me.finalBuild) {
+				SoloData.updateData("me", "currentBuild", "Leveling");
+				soloStats.me.currentBuild = "Leveling";
 			}
 		} else {
 			D2Bot.updateStatus('Please update profile InfoTag. Missing the finalBuild.');
