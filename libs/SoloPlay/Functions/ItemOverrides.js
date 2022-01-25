@@ -884,7 +884,8 @@ Item.autoEquipMerc = function () {
 Item.removeItemsMerc = function () {
 	let mercenary = Merc.getMercFix();
 	if (!mercenary) return true;
-	let items = mercenary.getItems();
+	// Sort items so we try to keep the highest tier'd items in case space in our invo is limited
+	let items = mercenary.getItems().sort((a, b) => NTIP.GetMercTier(b) - NTIP.GetMercTier(a));
 
 	if (items) {
 		for (let i = 0; i < items.length; i++) {

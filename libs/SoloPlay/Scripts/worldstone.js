@@ -5,14 +5,11 @@
 */
 
 function worldstone() {
-	print('ÿc8Kolbot-SoloPlayÿc0: starting worldstone');
-	me.overhead("worldstone");
+	myPrint('starting worldstone');
 
 	Town.doChores();
-	Town.buyPots(8, "Antidote");
-	Town.drinkPots();
-	Town.buyPots(8, "Thawing");
-	Town.drinkPots();
+	Town.buyPots(10, "Antidote", true);
+	Town.buyPots(10, "Thawing", true);
 
 	Pather.useWaypoint(sdk.areas.WorldstoneLvl2);
 	Precast.doPrecast(true);

@@ -13,12 +13,16 @@ function eye () {
 	Precast.doPrecast(true);
 
 	if (!Pather.moveToExit([sdk.areas.SpiderForest, sdk.areas.SpiderCavern], true)) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to get the eye');
+		if (me.area !== sdk.areas.SpiderCavern) {
+			if (!Pather.journeyTo(sdk.areas.SpiderCavern)) {
+				print('ÿc8Kolbot-SoloPlayÿc0: Failed to get the eye');
+				return false;
+			}
+		}
 	}
 
 	Town.doChores();
-	Town.buyPots(10, "Antidote");
-	Town.drinkPots();
+	Town.buyPots(10, "Antidote", true);
 	Pather.usePortal(sdk.areas.SpiderCavern, me.name);
 	Pather.moveToPreset(me.area, 2, 407);
 	Attack.clear(0x7);

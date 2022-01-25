@@ -175,7 +175,7 @@ Misc.useWell = function (range = 15) {
 	let unit, unitList = [];
 
 	// I'm in perfect health, don't need this shit
-	if (me.hp === me.hpmax && me.mp === me.mpmax && me.stamina === me.staminamax && 
+	if (me.hpPercent >= 95 && me.mpPercent >= 95 && me.staminaPercent >= 95 && 
 		[sdk.states.Frozen, sdk.states.Poison, sdk.states.AmplifyDamage, sdk.states.Decrepify].every(function (states) { return !me.getState(states); })) {
 		return true;
 	}

@@ -18,8 +18,7 @@ function duriel () {
 	Attack.securePosition(me.x, me.y, 30, 3000, true, me.hell);
 	Quest.placeStaff();
 	Town.doChores();
-	Town.buyPots(10, "Thawing"); // thawing
-	Town.drinkPots();
+	Town.buyPots(10, "Thawing", true);
 
 	let oldMercWatch = Config.MercWatch;
 	Config.MercWatch = false;

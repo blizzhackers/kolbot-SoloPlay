@@ -5,14 +5,11 @@
 */
 
 function izual () {
-	print('ÿc8Kolbot-SoloPlayÿc0: starting izual');
-	me.overhead("izual");
+	myPrint('starting izual');
 
 	Town.townTasks();
-	Town.buyPots(10, "Antidote");
-	Town.drinkPots();
-	Town.buyPots(10, "Thawing");
-	Town.drinkPots();
+	Town.buyPots(10, "Antidote", true);
+	Town.buyPots(10, "Thawing", true);
 
 	Pather.checkWP(sdk.areas.CityoftheDamned, true) ? Pather.useWaypoint(sdk.areas.CityoftheDamned) : Pather.getWP(sdk.areas.CityoftheDamned);
 	Precast.doPrecast(true);

@@ -15,14 +15,16 @@ const AutoBuild = new function AutoBuild () {
 	Config.AutoBuild.DebugMode && (Config.AutoBuild.Verbose = true);
 
 	let debug = !!Config.AutoBuild.DebugMode, 
-		verbose = !!Config.AutoBuild.Verbose, configUpdateLevel = 0, lastSuccessfulUpdateLevel = 0;
+		verbose = !!Config.AutoBuild.Verbose,
+		configUpdateLevel = 0, lastSuccessfulUpdateLevel = 0;
 
 	// Apply all Update functions from the build template in order from level 1 to me.charlvl.
 	// By reapplying all of the changes to the Config object, we preserve
 	// the state of the Config file without altering the saved char config.
 	function applyConfigUpdates () {
-		if (debug) { this.print("Updating Config from level " + configUpdateLevel + " to " + me.charlvl); }
+		debug && this.print("Updating Config from level " + configUpdateLevel + " to " + me.charlvl);
 		let reapply = true;
+
 		while (configUpdateLevel < me.charlvl) {
 			configUpdateLevel += 1;
 			if (AutoBuildTemplate[configUpdateLevel] !== undefined) {
@@ -107,5 +109,4 @@ const AutoBuild = new function AutoBuild () {
 	this.print = myPrint;
 	this.initialize = initialize;
 	this.applyConfigUpdates = applyConfigUpdates;
-
 };

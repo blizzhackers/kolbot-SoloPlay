@@ -29,7 +29,7 @@ function orgtorch() {
 
 		for (let i = 0; i < 7; i++) {
 			if (torch.getStat(sdk.stats.AddClassSkills, i)) {
-				Events.sendToList({profile: me.profile, ladder: me.ladder, torchType: i});
+				SoloEvents.sendToList({profile: me.profile, ladder: me.ladder, torchType: i});
 
 				return true;
 			}
@@ -321,24 +321,18 @@ function orgtorch() {
 			if (portal) {
 				switch (portal.objtype) {
 				case sdk.areas.MatronsDen:
-					Town.buyPots(10, "Thawing");
-					Town.drinkPots();
-					Town.buyPots(10, "Antidote");
-					Town.drinkPots();
-					Town.buyPots(10, "Antidote"); // Double stack to ensure it lasts
-					Town.drinkPots();
+					Town.buyPots(10, "Thawing", true, true);
+					Town.buyPots(10, "Antidote", true, true);
+					Town.buyPots(10, "Antidote", true, true); // Double stack to ensure it lasts
 
 					break;
 				case sdk.areas.ForgottenSands:
-					Town.buyPots(10, "Thawing");
-					Town.drinkPots();
+					Town.buyPots(10, "Thawing", true, true);
 
 					break;
 				case sdk.areas.FurnaceofPain:
-					Town.buyPots(10, "Thawing");
-					Town.drinkPots();
-					Town.buyPots(10, "Antidote");
-					Town.drinkPots();
+					Town.buyPots(10, "Thawing", true, true);
+					Town.buyPots(10, "Antidote", true, true);
 
 					break;
 				}

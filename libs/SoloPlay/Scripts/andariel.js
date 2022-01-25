@@ -20,10 +20,9 @@ function andariel () {
 	Precast.doPrecast(true);
 	Pather.moveToExit([sdk.areas.CatacombsLvl3, sdk.areas.CatacombsLvl4], true);
 
-	if (me.poisonRes < 70) {
+	if (me.poisonRes < 75) {
 		Town.doChores();
-		Town.buyPots(10, "Antidote");
-		Town.drinkPots();
+		Town.buyPots(10, "Antidote", true);
 		Pather.usePortal(sdk.areas.CatacombsLvl4, me.name);
 	}
 

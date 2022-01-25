@@ -17,7 +17,7 @@ function mephisto () {
 	};
 
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting mephisto');
+	myPrint('starting mephisto');
 	me.overhead("mephisto");
 
 	Pather.checkWP(sdk.areas.DuranceofHateLvl2, true) ? Pather.useWaypoint(sdk.areas.DuranceofHateLvl2) : Pather.getWP(sdk.areas.DuranceofHateLvl2);
@@ -30,15 +30,15 @@ function mephisto () {
 	}
 
 	// Town stuff
-	Town.doChores();
-	Town.buyPots(10, "Thawing");
-	Town.drinkPots();
-	Town.buyPots(10, "Antidote");
-	Town.drinkPots();
+	if (me.coldRes < 75 || me.poisonRes < 75) {
+		Town.doChores();
+		Town.buyPots(10, "Thawing", true);
+		Town.buyPots(10, "Antidote", true);
 
-	// Re-enter portal
-	Pather.usePortal(sdk.areas.DuranceofHateLvl3, me.name);
-	Precast.doPrecast(true);
+		// Re-enter portal
+		Pather.usePortal(sdk.areas.DuranceofHateLvl3, me.name);
+		Precast.doPrecast(true);
+	}
 
 	if (me.mephisto && !me.hell) {
 		this.killCouncil();

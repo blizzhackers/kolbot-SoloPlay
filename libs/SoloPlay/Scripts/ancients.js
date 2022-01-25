@@ -52,10 +52,9 @@ function ancients () {
 	let ancientsPrep = function () { 
 		Town.goToTown();
 		Town.fillTome(sdk.items.TomeofTownPortal);
-		Town.buyPots(10, "Thawing");
-		Town.drinkPots();
-		Town.buyPots(10, "Antidote");
-		Town.drinkPots();
+		Town.buyPots(10, "Thawing", true);
+		Town.buyPots(10, "Antidote", true);
+		Town.buyPots(10, "Stamina", true);
 		Town.buyPotions();
 		Pather.usePortal(sdk.areas.ArreatSummit, me.name);
 	};
@@ -75,10 +74,9 @@ function ancients () {
 
 	// ancients prep
 	Town.townTasks();
-	Town.buyPots(10, "Thawing");
-	Town.drinkPots();
-	Town.buyPots(10, "Antidote");
-	Town.drinkPots();
+	Town.buyPots(10, "Thawing", true);
+	Town.buyPots(10, "Antidote", true);
+	Town.buyPots(10, "Stamina", true);
 
 	let tempConfig = Misc.copy(Config); // save and update config settings
 

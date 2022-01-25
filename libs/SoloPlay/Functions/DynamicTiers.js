@@ -348,9 +348,7 @@ let tierscore = function (item, bodyloc) {
 
 	this.ctcScore = function (item) {
 		// chance to cast doesn't exist in classic
-		if (me.classic) {
-			return 0;
-		}
+		if (me.classic) return 0;
 
 		let ctcRating = 0, ctcItems = [];
 		let stats = item.getStat(-2);

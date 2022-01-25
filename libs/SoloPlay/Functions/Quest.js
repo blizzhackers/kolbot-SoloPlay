@@ -227,8 +227,13 @@ const Quest = {
 		let questItem = me.getItem(classid);
 
 		!me.inTown && Town.goToTown();
-		Town.move("stash");
 		Town.openStash();
+
+		if (!Storage.Stash.CanFit(questItem)) {
+			Town.sortStash(true);
+
+			if (!Storage.Stash.CanFit(questItem)) return false;
+		}
 
 		while (questItem.location !== 7) {
 			Storage.Stash.MoveTo(questItem);
@@ -313,24 +318,23 @@ const Quest = {
 	},
 
 	smashSomething: function (smashable) {
-		let something, tool;
+		let tool;
 
 		switch (smashable) {
 		case 404:
-			something = getUnit(2, 404);
-			tool = 174;
+			tool = sdk.items.quest.KhalimsWill;
 
 			break;
 		case 376:
-			something = getUnit(2, 376);
-			tool = 90;
+			tool = sdk.items.quest.HellForgeHammer;
 
 			break;
 		}
 
-		if (Item.getEquippedItem(4).classid !== tool) {
-			return false;
-		}
+		let something = getUnit(2, smashable);
+
+		if (Item.getEquippedItem(4).classid !== tool || !me.getItem(tool)) return false;
+		if (!something) return false;
 
 		while (me.getItem(tool)) {
 			Pather.moveToUnit(something, 0, 0, Config.ClearType, false);

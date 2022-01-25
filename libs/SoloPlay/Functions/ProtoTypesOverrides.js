@@ -103,6 +103,26 @@ Object.defineProperties(Unit.prototype, {
 			return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), this.getStat(sdk.stats.PoisonResist) - me.resPenalty);
 		}
 	},
+	realFR: {
+		get: function () {
+			return this.getStat(sdk.stats.FireResist) - me.resPenalty;
+		}
+	},
+	realCR: {
+		get: function () {
+			return this.getStat(sdk.stats.ColdResist) - me.resPenalty;
+		}
+	},
+	realLR: {
+		get: function () {
+			return this.getStat(sdk.stats.LightResist) - me.resPenalty;
+		}
+	},
+	realPR: {
+		get: function () {
+			return this.getStat(sdk.stats.PoisonResist) - me.resPenalty;
+		}
+	},
 	hpPercent: {
 		get: function () {
 			return Math.round(this.hp * 100 / this.hpmax);

@@ -194,29 +194,19 @@ const SetUp = {
 		}
 
 		let specCheck = [];
+		let final = SetUp.getBuild() === SetUp.finalBuild;
 
-		if (SetUp.getBuild() === SetUp.finalBuild) {
-			switch (specType) {
-			case "skills":
-				// Push skills value from template file
-				specCheck = JSON.parse(JSON.stringify(finalBuild.skills));
-				break;
-			case "stats":
-				// Push stats value from template file
-				specCheck = JSON.parse(JSON.stringify(finalBuild.stats));
-				break;
-			}
-		} else {
-			switch (specType) {
-			case "skills":
-				// Push skills value from template file
-				specCheck = JSON.parse(JSON.stringify(build.skills));
-				break;
-			case "stats":
-				// Push stats value from template file
-				specCheck = JSON.parse(JSON.stringify(build.stats));
-				break;
-			}
+		switch (specType) {
+		case "skills":
+			// Push skills value from template file
+			specCheck = JSON.parse(JSON.stringify((final ? finalBuild.skills : build.skills)));
+
+			break;
+		case "stats":
+			// Push stats value from template file
+			specCheck = JSON.parse(JSON.stringify((final ? finalBuild.stats : build.stats)));
+
+			break;
 		}
 
 		return specCheck;
@@ -755,7 +745,6 @@ const Check = {
 						diffShift = me.diff + 1;
 						announce && D2Bot.printToConsole('Kolbot-SoloPlay: Over leveled. Starting: ' + sdk.difficulty.nameOf(diffShift));
 					} else {
-						//announce && D2Bot.printToConsole('Kolbot-SoloPlay: ' + Difficulty[diffShift + 1] + ' requirements not met. Negative resistance. FR: ' + res.FR + ' | CR: ' + res.CR + ' | LR: ' + res.LR, sdk.colors.D2Bot.Gray);
 						announce && myPrint(sdk.difficulty.nameOf(diffShift + 1) + ' requirements not met. Negative resistance. FR: ' + res.FR + ' | CR: ' + res.CR + ' | LR: ' + res.LR);
 						return false;
 					}

@@ -5,13 +5,10 @@
 */
 
 function hephasto() {
-	print('ÿc8Kolbot-SoloPlayÿc0: starting hephasto');
-	me.overhead("starting hephasto");
+	myPrint('starting hephasto');
 	Town.doChores();
-	Town.buyPots(10, "Thawing");
-	Town.drinkPots();
-	Town.buyPots(10, "Antidote");
-	Town.drinkPots();
+	Town.buyPots(10, "Thawing", true);
+	Town.buyPots(10, "Antidote", true);
 
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
