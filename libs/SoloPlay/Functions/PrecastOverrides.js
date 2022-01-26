@@ -134,11 +134,9 @@ Precast.getBetterSlot = function (skillId) {
 };
 
 Precast.precastSkill = function (skillId) {
-	let swap = me.weaponswitch;
+	if (!skillId || !Skill.wereFormCheck(skillId)) return false;
 
-	if (!Skill.wereFormCheck(skillId)) {
-		return false;
-	}
+	let swap = me.weaponswitch;
 
 	me.switchWeapons(this.getBetterSlot(skillId));
 	Skill.cast(skillId, 0);
@@ -148,9 +146,9 @@ Precast.precastSkill = function (skillId) {
 };
 
 Precast.doPrecast = function (force) {
-	let buffSummons = false;
+	if (!Precast.enabled) return;
 
-	if (!Precast.enabled) { return; }
+	let buffSummons = false;
 
 	// Force BO 30 seconds before it expires
 	if (this.haveCTA) {
@@ -159,13 +157,8 @@ Precast.doPrecast = function (force) {
 
 	switch (me.classid) {
 	case sdk.charclass.Amazon:
-		if (Config.SummonValkyrie) {
-			buffSummons = this.summon(sdk.skills.Valkyrie, sdk.minions.Valkyrie);
-		}
-
-		if (buffSummons) {
-			this.precastCTA(force);
-		}
+		Config.SummonValkyrie && (buffSummons = this.summon(sdk.skills.Valkyrie, sdk.minions.Valkyrie));
+		buffSummons && this.precastCTA(force);
 
 		break;
 	case sdk.charclass.Sorceress:
@@ -227,14 +220,17 @@ Precast.doPrecast = function (force) {
 		case 1:
 		case "Clay":
 			this.summon(sdk.skills.ClayGolem, sdk.minions.Golem);
+
 			break;
 		case 2:
 		case "Blood":
 			this.summon(sdk.skills.BloodGolem, sdk.minions.Golem);
+
 			break;
 		case 3:
 		case "Fire":
 			this.summon(sdk.skills.FireGolem, sdk.minions.Golem);
+
 			break;
 		}
 
@@ -295,9 +291,7 @@ Precast.doPrecast = function (force) {
 			this.precastSkill(sdk.skills.CycloneArmor);
 		}
 
-		if (Config.SummonRaven) {
-			this.summon(sdk.skills.Raven, sdk.minions.Raven);
-		}
+		Config.SummonRaven && this.summon(sdk.skills.Raven, sdk.minions.Raven);
 
 		switch (Config.SummonAnimal) {
 		case 1:
@@ -339,28 +333,16 @@ Precast.doPrecast = function (force) {
 		case 1:
 		case "Oak Sage":
 			buffSummons = this.summon(sdk.skills.OakSage, sdk.minions.Spirit) || buffSummons;
-			
-			if (me.getSkill(sdk.skills.OakSage, 1) && (!me.getState(sdk.states.OakSage) || force)) {
-				Skill.cast(sdk.skills.OakSage, 0);
-			}
 
 			break;
 		case 2:
 		case "Heart of Wolverine":
 			buffSummons = this.summon(sdk.skills.HeartofWolverine, sdk.minions.Spirit) || buffSummons;
 
-			if (me.getSkill(sdk.skills.HeartofWolverine, 1) && (!me.getState(sdk.states.HeartofWolverine) || force)) {
-				Skill.cast(sdk.skills.HeartofWolverine, 0);
-			}
-
 			break;
 		case 3:
 		case "Spirit of Barbs":
 			buffSummons = this.summon(sdk.skills.SpiritofBarbs, sdk.minions.Spirit) || buffSummons;
-
-			if (me.getSkill(sdk.skills.SpiritofBarbs, 1) && (!me.getState(sdk.states.Barbs) || force)) {
-				Skill.cast(sdk.skills.SpiritofBarbs, 0);
-			}
 
 			break;
 		}
@@ -373,30 +355,25 @@ Precast.doPrecast = function (force) {
 		if (!!useHurricane && !!useArmageddon) {
 			if (useHurricane > useArmageddon && !me.shapeshifted) {
 				if (!me.getState(sdk.states.Hurricane) || force) {
-					Skill.cast(sdk.skills.Hurricane, 0);
+					this.precastSkill(sdk.skills.Hurricane);
 				}
 			} else {
 				if (!me.getState(sdk.states.Armageddon) || force) {
-					Skill.cast(sdk.skills.Armageddon, 0);
+					this.precastSkill(sdk.skills.Armageddon);
 				}
 			}
 		} else {
 			if (!!useHurricane && (!me.getState(sdk.states.Hurricane) || force)) {
-				Skill.cast(sdk.skills.Hurricane, 0);
+				this.precastSkill(sdk.skills.Hurricane);
 			}
 
 			if (!!useArmageddon && (!me.getState(sdk.states.Armageddon) || force)) {
-				Skill.cast(sdk.skills.Armageddon, 0);
+				this.precastSkill(sdk.skills.Armageddon);
 			}
 		}
 
-		if (buffSummons) {
-			this.precastCTA(force);
-		}
-
-		if (!!Config.Wereform) {
-			Misc.shapeShift(Config.Wereform);
-		}
+		buffSummons && this.precastCTA(force);
+		!!Config.Wereform && Misc.shapeShift(Config.Wereform);
 
 		break;
 	case sdk.charclass.Assassin:
@@ -405,7 +382,7 @@ Precast.doPrecast = function (force) {
 		}
 
 		if (me.getSkill(sdk.skills.Venom, 0) && Config.UseVenom && (!me.getState(sdk.states.Venom) || force)) {
-			Skill.cast(sdk.skills.Venom, 0);
+			this.precastSkill(sdk.skills.Venom);
 		}
 
 		if (me.getSkill(sdk.skills.BladeShield, 0) && (!me.getState(sdk.states.BladeShield) || force)) {
@@ -420,10 +397,12 @@ Precast.doPrecast = function (force) {
 		case 1:
 		case "Warrior":
 			this.summon(sdk.skills.ShadowWarrior, sdk.minions.Shadow);
+
 			break;
 		case 2:
 		case "Master":
 			this.summon(sdk.skills.ShadowMaster, sdk.minions.Shadow);
+
 			break;
 		}
 
@@ -434,9 +413,7 @@ Precast.doPrecast = function (force) {
 };
 
 Precast.summon = function (skillId, minionType) {
-	if (!me.getSkill(skillId, 1)) {
-		return false;
-	}
+	if (!me.getSkill(skillId, 1)) return false;
 
 	let rv, retry = 0, count = 1;
 
@@ -460,7 +437,7 @@ Precast.summon = function (skillId, minionType) {
 		let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	// Get a random coordinate to summon using
 		let unit = Attack.getNearestMonster(true);
 
-		if (unit && [sdk.minions.Golem, sdk.minions.Grizzly, sdk.minions.Shadow].indexOf(minionType) > -1 && getDistance(me, unit) < 20 && !checkCollision(me, unit, 0x4)) {
+		if (unit && [sdk.minions.Golem, sdk.minions.Grizzly, sdk.minions.Shadow].includes(minionType) && unit.distance < 20 && !checkCollision(me, unit, 0x4)) {
 			try {
 				if (Skill.cast(skillId, 0, unit)) {
 					if (me.getMinionCount(minionType) === count) {
@@ -498,7 +475,7 @@ Precast.summon = function (skillId, minionType) {
 			}
 		}
 
-		if (Skill.getManaCost(skillId) > me.mp) {
+		if (Skill.getManaCost(skillId) > me.mp && me.getMobCount(15) === 0) {
 			delay(1000);
 			retry++;
 		}
