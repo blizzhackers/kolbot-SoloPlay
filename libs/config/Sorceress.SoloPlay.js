@@ -66,9 +66,9 @@ function LoadConfig () {
 	Config.ShowCubingInfo = true;
 
 	/* DClone. */
-	Config.StopOnDClone = !!me.expansion;
+	Config.StopOnDClone = me.expansion;
 	Config.SoJWaitTime = 5; // Time in minutes to wait for another SoJ sale before leaving game. 0 = disabled
-	Config.KillDclone = !!me.expansion;
+	Config.KillDclone = me.expansion;
 	Config.DCloneQuit = false;
 
 	/* Town configuration. */
@@ -272,7 +272,6 @@ function LoadConfig () {
 		break;
 	case sdk.game.gametype.Expansion:
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
-		Config.StaticList.push(sdk.monsters.DiabloClone);
 
 		/* Crafting */
 		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
@@ -283,6 +282,10 @@ function LoadConfig () {
 			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
 			["Blova", "Lightning"].includes(SetUp.finalBuild) && Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
 		}
+
+		Config.socketables = [];
+		// basicSocketables located in Globals
+		Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
 
 		// FinalBuild specific setup
 		switch (SetUp.finalBuild) {
@@ -324,6 +327,22 @@ function LoadConfig () {
 				NTIP.addLine("[name] == UmRune # # [maxquantity] == 1");
 			}
 
+			Config.socketables
+				.push(
+					{
+						classid: sdk.items.Monarch,
+						socketWith: [],
+						useSocketQuest: true,
+						condition: function (item) { return !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+					},
+					{
+						classid: sdk.items.Shako,
+						socketWith: [sdk.items.runes.Um],
+						useSocketQuest: true,
+						condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+					}
+				);
+
 			break;
 		case "Meteorb":
 		case "Cold":
@@ -343,6 +362,28 @@ function LoadConfig () {
 
 				NTIP.addLine("[name] == UmRune # # [maxquantity] == 2");
 			}
+
+			Config.socketables
+				.push(
+					{
+						classid: sdk.items.DeathMask,
+						socketWith: [sdk.items.runes.Um],
+						useSocketQuest: true,
+						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
+					},
+					{
+						classid: sdk.items.LacqueredPlate,
+						socketWith: [sdk.items.runes.Ber],
+						useSocketQuest: true,
+						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
+					},
+					{
+						classid: sdk.items.SwirlingCrystal,
+						socketWith: [sdk.items.runes.Ist],
+						useSocketQuest: false,
+						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
+					}
+				);
 
 			break;
 		default:

@@ -13,6 +13,61 @@ Unit.prototype.getResPenalty = function (difficulty) {
 	return me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][difficulty] : [0, 40, 100][difficulty];
 };
 
+Unit.prototype.getItemType = function () {
+	switch (this.itemType) {
+	case sdk.itemtype.Shield:
+	case sdk.itemtype.AuricShields:
+	case sdk.itemtype.VoodooHeads:
+		return "Shield";
+	case sdk.itemtype.BowQuiver:
+	case sdk.itemtype.CrossbowQuiver:
+		return "Quiver";
+	case sdk.itemtype.Armor:
+		return "Armor";
+	case sdk.itemtype.Ring:
+		return "Ring";
+	case sdk.itemtype.Amulet:
+		return "Amulet";
+	case sdk.itemtype.Boots:
+		return "Boots";
+	case sdk.itemtype.Gloves:
+		return "Gloves";
+	case sdk.itemtype.Belt:
+		return "Belt";
+	case sdk.itemtype.Helm:
+	case sdk.itemtype.PrimalHelm:
+	case sdk.itemtype.Circlet:
+	case sdk.itemtype.Pelt:
+		return "Helmet";
+	case sdk.itemtype.Scepter:
+	case sdk.itemtype.Wand:
+	case sdk.itemtype.Staff:
+	case sdk.itemtype.Bow:
+	case sdk.itemtype.Axe:
+	case sdk.itemtype.Club:
+	case sdk.itemtype.Sword:
+	case sdk.itemtype.Hammer:
+	case sdk.itemtype.Knife:
+	case sdk.itemtype.Spear:
+	case sdk.itemtype.Polearm:
+	case sdk.itemtype.Crossbow:
+	case sdk.itemtype.Mace:
+	case sdk.itemtype.ThrowingKnife:
+	case sdk.itemtype.ThrowingAxe:
+	case sdk.itemtype.Javelin:
+	case sdk.itemtype.Orb:
+	case sdk.itemtype.AmazonBow:
+	case sdk.itemtype.AmazonSpear:
+	case sdk.itemtype.AmazonJavelin:
+	case sdk.itemtype.MissilePotion:
+	case sdk.itemtype.HandtoHand:
+	case sdk.itemtype.AssassinClaw:
+		return "Weapon";
+	default:
+		return "";
+	}
+};
+
 Object.defineProperties(Unit.prototype, {
 	isChampion: {
         get: function () {
@@ -215,7 +270,7 @@ Object.defineProperties(Unit.prototype, {
 	isBaseType: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
-			return [sdk.itemquality.Normal, sdk.itemquality.Superior].indexOf(this.quality) > -1 && !this.isQuestItem && !this.isRuneword
+			return [sdk.itemquality.Normal, sdk.itemquality.Superior].includes(this.quality) && !this.isQuestItem && !this.isRuneword
 				&& getBaseStat("items", this.classid, "gemsockets") > 0 && [sdk.itemtype.Ring, sdk.itemtype.Amulet].indexOf(this.itemType) === -1;
 		}
 	},

@@ -265,6 +265,19 @@ function LoadConfig () {
 	case sdk.game.gametype.Expansion:
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
 
+		Config.socketables = [];
+		// basicSocketables located in Globals
+		Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
+		Config.socketables
+				.push(
+					{
+						classid: sdk.items.Shako,
+						socketWith: [sdk.items.runes.Um],
+						useSocketQuest: true,
+						condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+					}
+				);
+
 		/* Crafting */
 		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
 			Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Amulet]) : Config.Recipes.push([Recipe.Blood.Amulet]);
@@ -273,7 +286,7 @@ function LoadConfig () {
 		if (Item.getEquippedItem(sdk.body.RingLeft).tier < 100000) {
 			Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Ring]) : Config.Recipes.push([Recipe.Blood.Ring]);
 		}
-		
+
 		if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
 			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
 		}

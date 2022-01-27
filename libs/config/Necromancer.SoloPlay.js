@@ -281,6 +281,25 @@ function LoadConfig () {
 	case sdk.game.gametype.Expansion:
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
 
+		Config.socketables = [];
+		// basicSocketables located in Globals
+		Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
+		Config.socketables
+				.push(
+					{
+						classid: sdk.items.Monarch,
+						socketWith: [],
+						useSocketQuest: true,
+						condition: function (item) { return !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+					},
+					{
+						classid: sdk.items.Shako,
+						socketWith: [sdk.items.runes.Um],
+						useSocketQuest: true,
+						condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+					}
+				);
+
 		/* Crafting */
 		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
 			Config.Recipes.push([Recipe.Caster.Amulet]);

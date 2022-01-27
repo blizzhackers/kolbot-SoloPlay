@@ -433,7 +433,7 @@ Misc.getWell = function (unit) {
 	for (let i = 0; i < 3; i += 1) {
 		if (Skill.useTK(unit) && i < 2) {
 			if (getDistance(me, unit) > 13) {
-				Attack.getIntoPosition(unit, 13, 0x4 );
+				Attack.getIntoPosition(unit, 13, 0x4);
 			}
 			
 			Skill.cast(sdk.skills.Telekinesis, 0, unit);
@@ -455,160 +455,21 @@ Misc.getWell = function (unit) {
 	return false;
 };
 
-// Re-write this in similar way I did imbueing
 Misc.checkItemsForSocketing = function () {
 	if (me.classic || !me.getQuest(sdk.quests.SiegeOnHarrogath, 1)) return false;
 
-	let item;
-	let items = me.getItems().filter(item => item.getStat(sdk.stats.NumSockets) === 0 && getBaseStat("items", item.classid, "gemsockets") > 0);
+	let items = me.getItemsEx()
+		.filter(item => item.getStat(sdk.stats.NumSockets) === 0 && getBaseStat("items", item.classid, "gemsockets") > 0)
+		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
 
-	if (Check.currentBuild().caster) {
-		if (me.normal) {
-			for (let i = 0; i < items.length; i++) {
-				// Broad Sword
-				if (items[i].classid === 30 && items[i].ilvl >= 26 && [2, 3].indexOf(items[i].quality) > -1) {
-					item = items[i];
-					break;
-				}
-
-				// Crystal Sword
-				if (items[i].classid === 29 && items[i].ilvl >= 26 && items[i].ilvl <= 40 && [2, 3].indexOf(items[i].quality) > -1) {
-					item = items[i];
-					break;
-				}
-			}
-		} else if (me.nightmare) {
-			// Eth Bill, Eth Colossus Volgue, lidless or monarch
-			for (let i = 0; i < items.length; i++) {
-				if ([151, 254].indexOf(items[i].classid) > -1 && [2, 3].indexOf(items[i].quality) > -1 && items.ethereal) {
-					item = items[i];
-					break;
-				}
-
-				// Lidless
-				if (items[i].classid === 396 && items[i].quality === 7 &&
-					([sdk.storage.Inventory, sdk.storage.Stash].indexOf(items[i].location) > -1 || (me.weaponswitch === 0 && [4, 5].indexOf(items[i].bodylocation) > -1))) {
-					item = items[i];
-					break;
-				}
-
-				if (!me.paladin && ["Cold", "Meteorb", "Blizzballer"].indexOf(SetUp.finalBuild) === -1) {
-					// Monarch
-					if (items[i].classid === 447 && items[i].ilvl >= 41 && [2, 3].indexOf(items[i].quality) > -1 && !items.ethereal) {
-						item = items[i];
-						break;
-					}
-				}
-
-				if (me.assassin) {
-					// Non-Eth Andys's
-					if (items[i].classid === 428 && items[i].quality === 5 && !items.ethereal) {
-						item = items[i];
-						break;
-					}
-				}
-			}
-		} else if (me.sorceress && ["Blova", "Lightning"].indexOf(SetUp.finalBuild) === -1) {	// Non-light sorc uses tal helm
-			for (let i = 0; i < items.length; i++) {
-				// Tal Helm
-				if (items[i].classid === 358 && items[i].quality === 5) {
-					item = items[i];
-					break;
-				}
-			}
-		} else if (me.druid) {	// Druid uses Jalal's
-			for (let i = 0; i < items.length; i++) {
-				// Jalal's
-				if (items[i].classid === 472 && items[i].quality === 7) {
-					item = items[i];
-					break;
-				}
-			}
-		} else if (me.assassin) {	// Assassin uses Andys's
-			for (let i = 0; i < items.length; i++) {
-				// Non-Eth Andys's
-				if (items[i].classid === 428 && items[i].quality === 7 && !items.ethereal) {
-					item = items[i];
-					break;
-				}
-			}
-		} else {						//Otherwise Shako
-			for (let i = 0; i < items.length; i++) {
-				// Shako
-				if (items[i].classid === 422 && items[i].quality === 7) {
-					item = items[i];
-					break;
-				}
-			}
+	for (let i = 0; i < items.length; i++) {
+		let curr = Config.socketables.find(({ classid }) => items[i].classid === classid);
+		if (curr && curr.condition(items[i]) && curr.useSocketQuest) {
+			return items[i];
 		}
-	} else {
-		if (me.amazon) {
-			if (me.normal) {
-				for (let i = 0; i < items.length; i++) {
-					// Bill
-					if (items[i].classid === 151 && items[i].ilvl >= 25 && [2, 3].indexOf(items[i].quality) > -1) {
-						item = items[i];
-						break;
-					}
-				}
-			} else if (me.nightmare) {
-				for (let i = 0; i < items.length; i++) {
-					// Eth Bill or Colossus Volgue
-					if ([151, 254].indexOf(items[i].classid) > -1 && [2, 3].indexOf(items[i].quality) > -1 && items.ethereal) {
-						item = items[i];
-						break;
-					}
-				}
-			} else {
-				for (let i = 0; i < items.length; i++) {
-					// Shako
-					if (items[i].classid === 422 && items[i].quality === 7) {
-						item = items[i];
-						break;
-					}
-				}
-			}
-		}
-
-		if (me.barbarian) {
-			if (me.normal) {
-				if (Item.getEquippedItem(5).prefixnum !== 20561) {	// Honor
-					for (let i = 0; i < items.length; i++) {
-						// Flamberge
-						if (items[i].classid === 37 && items[i].ilvl >= 41 && [2, 3].indexOf(items[i].quality) > -1) {
-							item = items[i];
-							break;
-						}
-					}
-				}
-			} else {
-				for (let i = 0; i < items.length; i++) {
-					// Arreat's
-					if (items[i].classid === 477 && items[i].quality === 7) {
-						item = items[i];
-						break;
-					}
-
-					// IK Armor
-					if (items[i].classid === 442 && items[i].quality === 5) {
-						item = items[i];
-						break;
-					}
-
-					if (Item.getEquippedItem(5).prefixnum !== 20561) {	// Honor
-						// Zweihander
-						if (items[i].classid === 130 && items[i].ilvl >= 41 && [2, 3].indexOf(items[i].quality) > -1) {
-							item = items[i];
-							break;
-						}
-					}
-				}
-			}
-		}
-		
 	}
 
-	return item;
+	return false;
 };
 
 Misc.checkItemsForImbueing = function () {
@@ -620,23 +481,120 @@ Misc.checkItemsForImbueing = function () {
 
 	for (let i = 0; i < items.length; i++) {
 		if (Config.imbueables.some(function (item) { return item.name === items[i].classid && Item.canEquip(items[i]); })) {
-			item = items[i];
-			break;
+			return items[i];
 		}
 	}
 
-	return item;
+	return false;
 };
 
-Misc.addSocketables = function () {
-	let item, sockets;
-	let items = me.getItems()
-		.filter(item => item.getStat(sdk.stats.NumSockets) > 0 || [sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(item.itemType) || (item.itemType >= sdk.itemtype.Amethyst && item.itemType <= sdk.itemtype.Skull));
+Misc.addSocketables = function (item, itemInfo) {
+	if (!item) return false;
+	let multiple = [];
+	let ready = false;
+	let sockets = item.getStat(sdk.stats.NumSockets);
+	let socketables = me.getItemsEx()
+		.filter(item => [sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(item.itemType) || (item.itemType >= sdk.itemtype.Amethyst && item.itemType <= sdk.itemtype.Skull));
+
+	if (!socketables) return false;
+
+	function highestGemAvailable (gem, checkList = []) {
+		if (!gem) return false;
+
+		// filter out all items that aren't the gem type we are looking for
+		// then sort the highest classid (better gems first)
+		let myItems = me.getItemsEx()
+			.filter(item => item.itemType === gem.itemType)
+			.sort((a, b) => b.classid - a.classid);
+
+		for (let i = 0; i < myItems.length; i++) {
+			if (!checkList.includes(myItems[i])) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	for (let i = 0; i < socketables.length; i++) {
+		if (!!itemInfo && !!itemInfo.socketWith) {
+			if (itemInfo.socketWith.includes(socketables[i].classid) && !multiple.includes(socketables[i])) {
+				if (multiple.length < sockets) {
+					multiple.push(socketables[i]);
+				}
+			}
+		} else {
+			let itemtype = item.getItemType();
+			if (!itemtype) continue;
+			let gemType = ["Helmet", "Armor"].includes(itemtype) ? "Ruby" : itemtype === "Shield" ? "Diamond" : itemtype === "Weapon" && !Check.currentBuild().caster ? "Skull" : "";
+			let runeType;
+
+			// Tir rune in normal, Io rune otherwise and Shael's if assassin
+			!gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
+
+			// If itemtype was matched with a gemType
+			if (gemType) {
+				// current item matches wanted gemType
+				if (socketables[i].itemType === sdk.itemtype[gemType]) {
+					// is the highest gem of that type
+					if (highestGemAvailable(socketables[i], multiple)) {
+						if (multiple.length < sockets) {
+							multiple.push(socketables[i]);
+						}
+					}
+				}
+			} else if (runeType) {
+				if (socketables[i].classid === sdk.items.runes[runeType] && !multiple.includes(socketables[i])) {
+					if (multiple.length < sockets) {
+						multiple.push(socketables[i]);
+					}
+				}
+			}
+		}
+
+		if (multiple.length === sockets) {
+			ready = true;
+			break;
+		}
+	}
+	
+	if (multiple.length > 0 && ready) {
+		// check to ensure I am a high enough level to use wanted socketables
+		for (let i = 0; i < multiple.length; i++) {
+			if (me.charlvl < multiple[i].lvlreq) {
+				print("ÿc8Kolbot-SoloPlayÿc0: Not high enough level for " + multiple[i].fname);
+				return false;
+			}
+		}
+
+		for (let i = 0; i < multiple.length; i++) {
+			if (Misc.addSocketableToItem(item, multiple[i])) {
+				D2Bot.printToConsole("Added socketable: " + multiple[i].fname + " to " + item.fname, 6);
+				delay(250 + me.ping);
+			} else {
+				print("ÿc8Kolbot-SoloPlayÿc0: Failed to add socketable to " + item.fname);
+			}
+		}
+
+		return item.getItemsEx().length === sockets;
+	}
+
+	return false;
+};
+
+Misc.checkSocketables = function () {
+	let items = me.getItemsEx()
+		.filter(item => item.getStat(sdk.stats.NumSockets) > 0 && NTIP.GetTier(item) > 0 && !item.isRuneword)
+		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
+
+	if (!items) return;
 
 	for (let i = 0; i < items.length; i++) {
-		sockets = items[i].getStat(sdk.stats.NumSockets);
+		let sockets = items[i].getStat(sdk.stats.NumSockets);
 
 		// no need to check anything else if already socketed
+		// TODO: check if item is socketed with what we want instead
+		// I.E we have a double p-gemmed mosers but want to double um it
 		if (!!items[i].getItem()) {
 			continue;
 		}
@@ -646,554 +604,26 @@ Misc.addSocketables = function () {
 		case sdk.itemquality.Rare:
 		case sdk.itemquality.Crafted:
 			// Any magic, rare, or crafted item with open sockets
-			if (items[i].mode === sdk.itemmode.Equipped && [1, 3, 4, 5].indexOf(items[i].bodylocation) > -1 && sockets >= 1) {
-				item = items[i];
-				break;
+			if (items[i].isEquipped && [1, 3, 4, 5].includes(items[i].bodylocation) && sockets >= 1) {
+				Misc.addSocketables(items[i]);
 			}
 
 			break;
 		case sdk.itemquality.Set:
-			// Tal Helm
-			if (items[i].classid === 358 && sockets === 1) {
-				item = items[i];
-				break;
-			}
-
-			// Tal Armor
-			if (items[i].classid === 440 && sockets === 1) {
-				item = items[i];
-				break;
-			}
-
-			// IK Maul
-			if (me.barbarian && items[i].classid === 219 && sockets === 2) {
-				item = items[i];
-				break;
-			}
-
-			// IK Helm
-			if (me.barbarian && items[i].classid === 407 && sockets === 2) {
-				item = items[i];
-				break;
-			}
-
-			break;
 		case sdk.itemquality.Unique:
-			// Shako
-			if (items[i].classid === 422 && sockets === 1) {
-				item = items[i];
-				break;
-			}
+			{
+				let curr = Config.socketables.find(({ classid }) => items[i].classid === classid);
 
-			// Arreats
-			if (items[i].classid === 477 && sockets === 1) {
-				item = items[i];
-				break;
-			}
-
-			// Jalal's
-			if (items[i].classid === 472 && sockets === 1) {
-				item = items[i];
-				break;
-			}
-
-			// Andys's
-			if (items[i].classid === 428 && sockets === 1) {
-				item = items[i];
-				break;
-			}
-
-			// Crown of Ages
-			if (items[i].classid === 427 && sockets >= 1) {
-				item = items[i];
-				break;
-			}
-
-			// Moser's
-			if (items[i].classid === 375 && sockets >= 1) {
-				item = items[i];
-				break;
-			}
-
-			// Lidless
-			if (items[i].classid === 396 && sockets >= 1) {
-				item = items[i];
-				break;
-			}
-
-			// Dijjin Slayer
-			if (items[i].classid === 222 && sockets >= 1) {
-				item = items[i];
-				break;
-			}
-
-			// Spirit Forge
-			if (items[i].classid === 363 && sockets >= 1) {
-				item = items[i];
-				break;
+				if (curr && curr.condition(items[i])) {
+					Misc.addSocketables(items[i], curr);
+				} else if (items[i].isEquipped) {
+					Misc.addSocketables(items[i]);
+				}
 			}
 
 			break;
 		default:
 			break;
-		}
-
-
-		if (!!item) {
-			break;
-		}
-	}
-
-	// TODO: figure out better way to do this
-	function highestGemAvailable (gem, checkList) {
-		let highest = false;
-		let myItems = me.getItems().filter(item => item.classid >= 557 && item.classid <= 601 && [587, 588, 589, 590, 591, 592, 593, 594, 595, 596].indexOf(item.classid) === -1);
-
-		for (let i = 0; i < myItems.length; i++) {
-			switch (gem.classid) {
-			case 562: 	// chipped Topaz
-			case 563: 	// flawed Topaz
-			case 564: 	// regular Topaz
-			case 565: 	// flawless Topaz
-			case 566: 	// perfect Topaz
-				if (myItems[i].classid === 566 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 565 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 564 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 563 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 562 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				}
-
-				break;
-			case 577: 	// chipped Ruby
-			case 578: 	// flawed Ruby
-			case 579: 	// regular Ruby
-			case 580: 	// flawless Ruby
-			case 581: 	// perfect Ruby
-				if (myItems[i].classid === 581 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 580 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 579 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 578 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 577 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				}
-
-				break;
-			case 582: 	// chipped Diamond
-			case 583: 	// flawed Diamond
-			case 584: 	// regular Diamond
-			case 585: 	// flawless Diamond
-			case 586: 	// perfect Diamond
-				if (myItems[i].classid === 586 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 585 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 584 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 583 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 582 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				}
-
-				break;
-			case 597: 	// chipped Skull
-			case 598: 	// flawed Skull
-			case 599: 	// regular Skull
-			case 600: 	// flawless Skull
-			case 601: 	// perfect Skull
-				if (myItems[i].classid === 601 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 600 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 599 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 598 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				} else if (myItems[i].classid === 597 && checkList.indexOf(myItems[i]) === -1) {
-					highest = true;
-					break;
-				}
-
-				break;
-			default:
-				break;
-			}
-			
-
-			if (highest) {
-				break;
-			}
-		}
-
-		return highest;
-	}
-
-	if (item) {
-		let socketable, sockets = item.getStat(sdk.stats.NumSockets);
-		let multiple = [];
-		let ready = false;
-
-		for (let i = 0; i < items.length; i++) {
-			// Um Rune to Shako, Jalal's, or Tal Helm
-			if (items[i].classid === sdk.items.runes.Um && [422, 472, 358].indexOf(item.classid) > -1) {
-				socketable = items[i];
-				break;
-			}
-
-			// Ber Rune to Tal Armor
-			if (items[i].classid === sdk.items.runes.Ber && item.classid === 440) {
-				socketable = items[i];
-				break;
-			}
-
-			// Cham Rune to Arreat's
-			if (items[i].classid === sdk.items.runes.Cham && item.classid === 477) {
-				socketable = items[i];
-				break;
-			}
-
-			// Ral Rune to Andys's
-			if (items[i].classid === sdk.items.runes.Ral && item.classid === 428) {
-				socketable = items[i];
-				break;
-			}
-
-			// Um Rune to CoA //TODO: Add 1 Um and 1 Ber
-			if (items[i].classid === sdk.items.runes.Um && item.classid === 427 && multiple.indexOf(items[i]) === -1) {
-				if (sockets === 2) {
-					if (multiple.length < sockets) {
-						multiple.push(items[i]);
-						
-						if (multiple.length === sockets) {
-							ready = true;
-							break;
-						}
-						
-						continue;
-					} else {
-						ready = true;
-						break;
-					}
-				} else {
-					socketable = items[i];
-					break;
-				}
-			}
-
-			// Um to Moser's
-			if (items[i].classid === sdk.items.runes.Um && item.classid === 375 && multiple.indexOf(items[i]) === -1) {
-				if (sockets === 2) {
-					if (multiple.length < sockets) {
-						multiple.push(items[i]);
-						
-						if (multiple.length === sockets) {
-							ready = true;
-							break;
-						}
-						
-						continue;
-					} else {
-						ready = true;
-						break;
-					}
-				} else {
-					socketable = items[i];
-					break;
-				}
-			}
-
-			// P-diamond to Moser's
-			if (items[i].classid === sdk.items.gems.Perfect.Diamond && item.classid === 375 && multiple.indexOf(items[i]) === -1) {
-				if (sockets === 2) {
-					if (multiple.length < sockets) {
-						multiple.push(items[i]);
-						
-						if (multiple.length === sockets) {
-							ready = true;
-							break;
-						}
-						
-						continue;
-					} else {
-						ready = true;
-						break;
-					}
-				} else {
-					socketable = items[i];
-					break;
-				}
-			}
-
-			// Um Rune to Lidless
-			if (items[i].classid === sdk.items.runes.Um && item.classid === 396) {
-				socketable = items[i];
-				break;
-			}
-
-			// P-diamond to Lidless
-			if (items[i].classid === sdk.items.gems.Perfect.Diamond && item.classid === 396) {
-				socketable = items[i];
-				break;
-			}
-
-			// Shael Rune and IK Mauls
-			if (items[i].classid === sdk.items.runes.Shael && item.classid === 219 && multiple.indexOf(items[i]) === -1) {
-				if (sockets === 2) {
-					if (multiple.length < sockets) {
-						multiple.push(items[i]);
-						
-						if (multiple.length === sockets) {
-							ready = true;
-							break;
-						}
-						
-						continue;
-					} else {
-						ready = true;
-						break;
-					}
-				} else {
-					socketable = items[i];
-					break;
-				}
-			}
-
-			// Ber Rune and IK Helm
-			if (items[i].classid === sdk.items.runes.Ber && item.classid === 407 && multiple.indexOf(items[i]) === -1) {
-				if (sockets === 2) {
-					if (multiple.length < sockets) {
-						multiple.push(items[i]);
-						
-						if (multiple.length === sockets) {
-							ready = true;
-							break;
-						}
-						
-						continue;
-					} else {
-						ready = true;
-						break;
-					}
-				} else {
-					socketable = items[i];
-					break;
-				}
-			}
-
-			// Amn Rune and Dijjin Slayer
-			if (items[i].classid === sdk.items.runes.Amn && item.classid === 222 && multiple.indexOf(items[i]) === -1) {
-				if (sockets === 2) {
-					if (multiple.length < sockets) {
-						multiple.push(items[i]);
-
-						if (multiple.length === sockets) {
-							ready = true;
-							break;
-						}
-
-						continue;
-					} else {
-						ready = true;
-						break;
-					}
-				} else {
-					socketable = items[i];
-					break;
-				}
-			}
-
-			// Shael Rune and Spirit Forge
-			if (items[i].classid === sdk.items.runes.Shael && item.classid === 363 && multiple.indexOf(items[i]) === -1) {
-				if (sockets === 2) {
-					if (multiple.length < sockets) {
-						multiple.push(items[i]);
-						
-						if (multiple.length === sockets) {
-							ready = true;
-							break;
-						}
-						
-						continue;
-					} else {
-						ready = true;
-						break;
-					}
-				} else {
-					socketable = items[i];
-					break;
-				}
-			}
-
-			if ([sdk.itemquality.Magic, sdk.itemquality.Rare, sdk.itemquality.Crafted].indexOf(item.quality) > -1 && multiple.indexOf(items[i]) === -1) {
-				switch (item.itemType) {
-				case 2: // Shield
-				case 69: // Voodoo Heads
-				case 70: // Auric Shields
-					// Diamonds
-					if ([582, 583, 584, 585, 586].indexOf(items[i].classid) > -1) {
-						if (highestGemAvailable(items[i], multiple)) {
-							if (sockets > 1) {
-								if (multiple.length < sockets) {
-									multiple.push(items[i]);
-									
-									if (multiple.length === sockets) {
-										ready = true;
-										break;
-									}
-									
-									continue;
-								} else {
-									ready = true;
-									break;
-								}
-							} else {
-								socketable = items[i];
-								break;
-							}
-						}
-					}
-
-					break;
-				case 3: // Armor
-				case 37: // Helm
-				case 71: // Barb Helm
-				case 75: // Circlet
-				case 72: // Druid Pelts
-					// Rubys
-					if ([577, 578, 579, 580, 581].indexOf(items[i].classid) > -1) {
-						if (highestGemAvailable(items[i], multiple)) {
-							if (sockets > 1) {
-								if (multiple.length < sockets) {
-									multiple.push(items[i]);
-									
-									if (multiple.length === sockets) {
-										ready = true;
-										break;
-									}
-									
-									continue;
-								} else {
-									ready = true;
-									break;
-								}
-							} else {
-								socketable = items[i];
-								break;
-							}
-						}
-					}
-
-					break;
-				default:
-					if (!Check.currentBuild().caster) {
-						// Skulls
-						if ([597, 598, 599, 600, 601].indexOf(items[i].classid) > -1) {
-							if (highestGemAvailable(items[i], multiple)) {
-								if (sockets > 1) {
-									if (multiple.length < sockets) {
-										multiple.push(items[i]);
-										
-										if (multiple.length === sockets) {
-											ready = true;
-											break;
-										}
-										
-										continue;
-									} else {
-										ready = true;
-										break;
-									}
-								} else {
-									socketable = items[i];
-									break;
-								}
-							}
-						}
-					} else {
-						// Tir rune in normal, Io rune otherwise and Shael's if assassin
-						if ((items[i].classid === sdk.items.runes.Tir && me.normal) ||
-							(items[i].classid === sdk.items.runes.Io && !me.normal && !me.assassin) ||
-							(me.assassin && items[i].classid === sdk.items.runes.Shael)) {
-							if (sockets > 1) {
-								if (multiple.length < sockets) {
-									multiple.push(items[i]);
-									
-									if (multiple.length === sockets) {
-										ready = true;
-										break;
-									}
-									
-									continue;
-								} else {
-									ready = true;
-									break;
-								}
-							} else {
-								socketable = items[i];
-								break;
-							}
-						}
-					}
-
-					break;
-				}
-			}
-		}
-
-		if (socketable && me.charlvl >= socketable.lvlreq) {
-			if (Misc.addSocketableToItem(item, socketable)) {
-				D2Bot.printToConsole("Added socketable: " + socketable.fname + " to " + item.fname, 6);
-			} else {
-				print("ÿc8Kolbot-SoloPlayÿc0: Failed to add socketable to " + item.fname);
-			}
-			
-		}
-
-		if (multiple.length > 0 && ready && me.charlvl >= socketable.lvlreq) {
-			// check to ensure I am a high enough level to use wanted socketables
-			for (let i = 0; i < multiple.length; i++) {
-				if (me.charlvl < multiple[i].lvlreq) {
-					print("ÿc8Kolbot-SoloPlayÿc0: Not high enough level for " + multiple[i].fname);
-					return;
-				}
-			}
-
-			for (let i = 0; i < multiple.length; i++) {
-				if (Misc.addSocketableToItem(item, multiple[i])) {
-					D2Bot.printToConsole("Added socketable: " + multiple[i].fname + " to " + item.fname, 6);
-					delay(250 + me.ping);
-				} else {
-					print("ÿc8Kolbot-SoloPlayÿc0: Failed to add socketable to " + item.fname);
-				}
-			}
 		}
 	}
 };
@@ -1300,32 +730,18 @@ Misc.logItem = function (action, unit, keptLine) {
 
 	if (action.match("kept", "i")) {
 		lastArea = DataFile.getStats().lastArea;
-
-		if (lastArea) {
-			desc += ("\n\\xffc0Area: " + lastArea);
-		}
+		lastArea && (desc += ("\n\\xffc0Area: " + lastArea));
 	}
 
-	let mercCheck = false;
+	let mercCheck = action.match("Merc");
 
-	if (action.match("Merc")) {
-		mercCheck = true;
-	}
-
-	if (!action.match("kept", "i") && !action.match("Shopped") && (NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0)) {
+	if (!action.match("kept", "i") && !action.match("Shopped") && AutoEquip.hasTier(unit)) {
 		if (!mercCheck) {
-			if (NTIP.GetCharmTier(unit) > 0) {
-				desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit));
-			}
-
-			if (NTIP.GetTier(unit) > 0) {
-				desc += ("\n\\xffc0Autoequip char tier: " + NTIP.GetTier(unit));
-			}
+			NTIP.GetCharmTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit)));
+			NTIP.GetTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip char tier: " + NTIP.GetTier(unit)));
 		} else {
 			desc += ("\n\\xffc0Autoequip merc tier: " + NTIP.GetMercTier(unit));
-
 		}
-		
 	}
 
 	if (unit.getFlag(0x10)) {
@@ -1459,12 +875,8 @@ Misc.logItem = function (action, unit, keptLine) {
 	}
 
 	if (!code) {
-		if (["ci2", "ci3"].indexOf(unit.code) > -1) { // Tiara/Diadem
-			code = unit.code;
-		} else {
-			code = getBaseStat(0, unit.classid, 'normcode') || unit.code;
-		}
-
+		// Tiara/Diadem
+		code = ["ci2", "ci3"].indexOf(unit.code) > -1 ? unit.code : getBaseStat(0, unit.classid, 'normcode') || unit.code;
 		code = code.replace(" ", "");
 
 		if ([10, 12, 58, 82, 83, 84].indexOf(unit.itemType) > -1) {
@@ -1483,10 +895,7 @@ Misc.logItem = function (action, unit, keptLine) {
 		} while (sock.getNext());
 	}
 
-	if (keptLine) {
-		desc += ("\n\\xffc0Line: " + keptLine);
-	}
-
+	keptLine && (desc += ("\n\\xffc0Line: " + keptLine));
 	desc += "$" + (unit.getFlag(0x400000) ? ":eth" : "");
 
 	itemObj = {
@@ -1526,10 +935,9 @@ Misc.shapeShift = function (mode) {
 		throw new Error("shapeShift: Invalid parameter");
 	}
 
-	if (me.getState(state)) {
-		return true;
-	}
+	if (me.getState(state)) return true;
 
+	let slot = me.weaponswitch;
 	me.switchWeapons(Precast.getBetterSlot(skill));
 
 	for (let i = 0; i < 3; i += 1) {
@@ -1539,6 +947,7 @@ Misc.shapeShift = function (mode) {
 		while (getTickCount() - tick < 2000) {
 			if (me.getState(state)) {
 				delay(250);
+				me.weaponswitch !== slot && me.switchWeapons(0);
 
 				return true;
 			}
@@ -1546,6 +955,8 @@ Misc.shapeShift = function (mode) {
 			delay(10);
 		}
 	}
+
+	me.weaponswitch !== slot && me.switchWeapons(0);
 
 	return false;
 };

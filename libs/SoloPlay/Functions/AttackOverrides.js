@@ -897,7 +897,7 @@ Attack.getCurrentChargedSkillIds = function () {
 
 	// Item must be equipped, or a charm in inventory
 	me.getItems(-1)
-		.filter(item => item && (item.isEquipped || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
+		.filter(item => item && (item.isEquipped && item.quality !== sdk.itemquality.Rare || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 
@@ -942,7 +942,7 @@ Attack.getItemCharges = function (skillId = undefined) {
 
 	// Item must equipped, or a charm in inventory
 	me.getItems(-1)
-		.filter(item => item && (item.isEquipped || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
+		.filter(item => item && (item.isEquipped && item.quality !== sdk.itemquality.Rare || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 

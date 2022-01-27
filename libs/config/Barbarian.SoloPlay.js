@@ -255,6 +255,37 @@ function LoadConfig () {
 	case sdk.game.gametype.Expansion:
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
 
+		Config.socketables = [];
+		// basicSocketables located in Globals
+		Config.socketables = Config.socketables.concat(basicSocketables.all);
+		Config.socketables
+				.push(
+					{
+						classid: sdk.items.Flamberge,
+						socketWith: [],
+						useSocketQuest: true,
+						condition: function (item) { return me.normal && Item.getEquippedItem(5).tier < 600 && !Check.haveBase("sword", 5) && !Check.haveItem("sword", "runeword", "Honor") && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+					},
+					{
+						classid: sdk.items.Zweihander,
+						socketWith: [],
+						useSocketQuest: true,
+						condition: function (item) { return Item.getEquippedItem(5).tier < 1000 && !Check.haveBase("sword", 5) && !Check.haveItem("sword", "runeword", "Honor") && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+					}
+				);
+
+		if (SetUp.finalBuild !== "Immortalwhirl") {
+			Config.socketables
+				.push(
+					{
+						classid: sdk.items.SlayerGuard,
+						socketWith: [sdk.items.runes.Cham],
+						useSocketQuest: true,
+						condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+					}
+				);
+		} 
+
 		if (["Immortalwhirl", "Singer"].indexOf(SetUp.finalBuild) === -1) {
 			// Grief
 			if ((me.ladder || Developer.addLadderRW) && (!Check.haveItem("sword", "runeword", "Grief") || (SetUp.finalBuild === "Whirlwind" && Item.getEquippedItem(5).prefixnum !== sdk.locale.items.Grief))) {
@@ -330,6 +361,28 @@ function LoadConfig () {
 			if (Check.haveItemAndNotSocketed("mace", "set", "Immortal King's Stone Crusher")) {
 				NTIP.addLine("[name] == ShaelRune # # [maxquantity] == 2");
 			}
+
+			Config.socketables
+				.push(
+					{
+						classid: sdk.items.AvengerGuard,
+						socketWith: [sdk.items.runes.Ber],
+						useSocketQuest: false,
+						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
+					},
+					{
+						classid: sdk.items.OgreMaul,
+						socketWith: [sdk.items.runes.Shael],
+						useSocketQuest: false,
+						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
+					},
+					{
+						classid: sdk.items.SacredArmor,
+						socketWith: [sdk.items.runes.Ber],
+						useSocketQuest: true,
+						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
+					}
+				);
 
 			break;
 		case 'Whirlwind':

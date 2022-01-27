@@ -1126,7 +1126,7 @@ Town.unfinishedQuests = function () {
 		print('ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance');
 	}
 
-	Misc.addSocketables();
+	Misc.checkSocketables();
 	
 	Town.heal();
 	me.cancelUIFlags();

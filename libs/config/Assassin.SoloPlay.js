@@ -260,6 +260,31 @@ function LoadConfig () {
 
 	!me.smith && NTIP.arrayLooping(imbueArr);
 
+	Config.socketables = [];
+	// basicSocketables located in Globals
+	Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
+	Config.socketables
+			.push(
+				{
+					classid: sdk.items.Monarch,
+					socketWith: [],
+					useSocketQuest: true,
+					condition: function (item) { return !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+				},
+				{
+					classid: sdk.items.Demonhead,
+					socketWith: [sdk.items.runes.Um],
+					useSocketQuest: true,
+					condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+				},
+				{
+					classid: sdk.items.Shako,
+					socketWith: [sdk.items.runes.Um],
+					useSocketQuest: false,
+					condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+				}
+			);
+
 	if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
 		NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");
 

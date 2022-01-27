@@ -204,6 +204,7 @@ Item.autoEquipCheck = function (item) {
 						return false;
 					}
 				}
+
 				return true;
 			}
 		}
@@ -232,6 +233,7 @@ Item.autoEquipKeepCheck = function (item) {
 						return false;
 					}
 				}
+				
 				return true;
 			}
 		}

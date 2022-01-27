@@ -308,6 +308,77 @@ const nipItems = {
 	],
 };
 
+const basicSocketables = {
+	caster: [
+		{
+			classid: sdk.items.BroadSword,
+			socketWith: [],
+			useSocketQuest: true,
+			condition: function (item) { return me.normal && !Check.haveBase("sword", 4) && !Check.haveItem("sword", "runeword", "Spirit") && item.ilvl >= 26 && item.isBaseType && !item.ethereal; }
+		},
+		{
+			classid: sdk.items.CrystalSword,
+			socketWith: [],
+			useSocketQuest: true,
+			condition: function (item) { return me.normal && !Check.haveBase("sword", 4) && !Check.haveItem("sword", "runeword", "Spirit") && item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal; }
+		},
+		{
+			// Lidless
+			classid: sdk.items.GrimShield,
+			socketWith: [sdk.items.runes.Um],
+			temp: [sdk.items.gems.Perfect.Diamond],
+			useSocketQuest: !me.hell,
+			condition: function (item) { return item.quality === sdk.itemquality.Unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal; }
+		},
+	],
+	all: [
+		{
+			classid: sdk.items.Bill,
+			socketWith: [],
+			useSocketQuest: true,
+			condition: function (item) { return me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal; }
+		},
+		{
+			classid: sdk.items.ColossusVoulge,
+			socketWith: [],
+			useSocketQuest: true,
+			condition: function (item) { return me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal; }
+		},
+		{
+			// Crown of Ages
+			classid: sdk.items.Corona,
+			socketWith: [sdk.items.runes.Ber, sdk.items.runes.Um],
+			temp: [sdk.items.gems.Perfect.Ruby],
+			useSocketQuest: false,
+			condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+		},
+		{
+			// Moser's
+			classid: sdk.items.RoundShield,
+			socketWith: [sdk.items.runes.Um],
+			temp: [sdk.items.gems.Perfect.Diamond],
+			useSocketQuest: false,
+			condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+		},
+		{
+			// Spirit Forge
+			classid: sdk.items.LinkedMail,
+			socketWith: [sdk.items.runes.Shael],
+			temp: [sdk.items.gems.Perfect.Ruby],
+			useSocketQuest: false,
+			condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+		},
+		{
+			// Dijjin Slayer
+			classid: sdk.items.Ataghan,
+			socketWith: [sdk.items.runes.Amn],
+			temp: [sdk.items.gems.Perfect.Skull],
+			useSocketQuest: false,
+			condition: function (item) { return !Check.currentBuild().caster && item.quality === sdk.itemquality.Unique && !item.ethereal; }
+		},
+	]
+};
+
 const goToDifficulty = function (diff = undefined, reason = "") {
 	if (!diff) return;
 	let diffString;
@@ -1144,6 +1215,11 @@ const Check = {
 			goalReached = true;
 
 			break;
+		case sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff)) < sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty):
+			// TODO: fill this out, if we go back to normal from hell I want to be able to do whatever it was imbue/socket/respec then return to our orignal difficulty
+			// as it is right now if we go back it would take 2 games to get back to hell
+			// but this needs a check to ensure that one of the above reasons are why we went back in case we had gone back because low gold in which case we need to stay in the game
+			break;
 		default:
 			break;
 		}
@@ -1178,7 +1254,7 @@ const Check = {
 
 // TODO: set this up similar to cubing where certain items get added to the validGids list to be kept and we look for items from the needList
 // Idea: would be nice that if we were currently pathing and had low stam that this updates to include picking up a stam pot then once we have it remove it so we don't pick up more
-let SoloPlay = {
+const SoloWants = {
 	needList: [],
 	validGids: [],
 

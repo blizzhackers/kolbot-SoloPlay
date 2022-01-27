@@ -267,6 +267,25 @@ function LoadConfig () {
 	case sdk.game.gametype.Expansion:
 		NTIP.addLine("[name] >= Vexrune && [name] <= Zodrune");
 
+		Config.socketables = [];
+		// basicSocketables located in Globals
+		Config.socketables = Config.socketables.concat(basicSocketables.all);
+		Config.socketables
+				.push(
+					{
+						classid: sdk.items.Bill,
+						socketWith: [],
+						useSocketQuest: true,
+						condition: function (item) { return me.normal && item.ilvl >= 26 && item.isBaseType; }
+					},
+					{
+						classid: sdk.items.Shako,
+						socketWith: [sdk.items.runes.Um],
+						useSocketQuest: true,
+						condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+					}
+				);
+
 		if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
 			NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");
 

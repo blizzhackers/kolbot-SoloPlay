@@ -12,7 +12,7 @@ ClassAttack.warCryTick = 0;
 let howlCheck = function () {
 	let levelCheck = me.getSkill(sdk.skills.Howl, 1) + me.charlvl + 1;
 	return getUnits(1).filter(function(el) {
-    	return !!el && el.attackable && el.distance < 6 && el.scareable && el.charlvl < levelCheck
+    	return !!el && el.attackable && el.distance < 6 && el.scareable && el.charlvl < levelCheck && !el.isStunned
     		&& [sdk.states.BattleCry, sdk.states.AmplifyDamage, sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt].every(state => !el.getState(state)) && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
     }).length > me.maxNearMonsters;
 };
