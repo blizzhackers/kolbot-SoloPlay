@@ -490,6 +490,9 @@ Misc.checkItemsForImbueing = function () {
 
 Misc.addSocketables = function (item, itemInfo) {
 	if (!item) return false;
+	let itemtype;
+	let gemType;
+	let runeType;
 	let multiple = [];
 	let ready = false;
 	let sockets = item.getStat(sdk.stats.NumSockets);
@@ -516,22 +519,23 @@ Misc.addSocketables = function (item, itemInfo) {
 		return false;
 	}
 
+	if (!itemInfo || (!!itemInfo && itemInfo.socketWith.length === 0)) {
+		itemtype = item.getItemType();
+		if (!itemtype) return false;
+		gemType = ["Helmet", "Armor"].includes(itemtype) ? "Ruby" : itemtype === "Shield" ? "Diamond" : itemtype === "Weapon" && !Check.currentBuild().caster ? "Skull" : "";
+
+		// Tir rune in normal, Io rune otherwise and Shael's if assassin
+		!gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
+	}
+
 	for (let i = 0; i < socketables.length; i++) {
-		if (!!itemInfo && !!itemInfo.socketWith) {
+		if (!!itemInfo && itemInfo.socketWith.length > 0) {
 			if (itemInfo.socketWith.includes(socketables[i].classid) && !multiple.includes(socketables[i])) {
 				if (multiple.length < sockets) {
 					multiple.push(socketables[i]);
 				}
 			}
 		} else {
-			let itemtype = item.getItemType();
-			if (!itemtype) continue;
-			let gemType = ["Helmet", "Armor"].includes(itemtype) ? "Ruby" : itemtype === "Shield" ? "Diamond" : itemtype === "Weapon" && !Check.currentBuild().caster ? "Skull" : "";
-			let runeType;
-
-			// Tir rune in normal, Io rune otherwise and Shael's if assassin
-			!gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
-
 			// If itemtype was matched with a gemType
 			if (gemType) {
 				// current item matches wanted gemType
@@ -604,7 +608,7 @@ Misc.checkSocketables = function () {
 		case sdk.itemquality.Rare:
 		case sdk.itemquality.Crafted:
 			// Any magic, rare, or crafted item with open sockets
-			if (items[i].isEquipped && [1, 3, 4, 5].includes(items[i].bodylocation) && sockets >= 1) {
+			if (items[i].isEquipped && [1, 3, 4, 5].includes(items[i].bodylocation)) {
 				Misc.addSocketables(items[i]);
 			}
 
