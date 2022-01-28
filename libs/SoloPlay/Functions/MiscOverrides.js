@@ -455,6 +455,33 @@ Misc.getWell = function (unit) {
 	return false;
 };
 
+Misc.unsocketItem = function (item) {
+	if (me.classic || !me.getItem(sdk.items.quest.Cube) || !item) return false;
+
+	let hel = me.getItem(sdk.items.runes.Hel, 0);
+	if (!hel) return false;
+
+	let scroll = Runewords.getScroll();
+
+	// failed to get scroll or open stash most likely means we're stuck somewhere in town, so it's better to return false
+	if (!scroll || !Town.openStash() || !Cubing.emptyCube()) return false;
+
+	// failed to move any of the items to the cube
+	if (!Storage.Cube.MoveTo(item) || !Storage.Cube.MoveTo(hel) || !Storage.Cube.MoveTo(scroll)) return false;
+
+	// probably only happens on server crash
+	if (!Cubing.openCube()) return false;
+
+	myPrint("ÿc4Removing sockets from: ÿc0" + item.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<;.*]/, ""));
+	transmute();
+	delay(500);
+
+	// can't pull the item out = no space = fail
+	if (!Cubing.emptyCube()) return false;
+
+	return item.getItemsEx().length === 0;
+};
+
 Misc.checkItemsForSocketing = function () {
 	if (me.classic || !me.getQuest(sdk.quests.SiegeOnHarrogath, 1)) return false;
 
@@ -488,14 +515,68 @@ Misc.checkItemsForImbueing = function () {
 	return false;
 };
 
-Misc.addSocketables = function (item, itemInfo) {
+Misc.addSocketablesToItem = function (item, runes = []) {
+	if (!item || item.getStat(sdk.stats.NumSockets) === 0) return false;
+	let preSockets = item.getItemsEx().length;
+	let original = preSockets;
+	let bodyLoc;
+
+	if (item.isEquipped) {
+		bodyLoc = item.bodylocation;
+
+		if (!Storage.Inventory.CanFit(item)) {
+			Town.sortInventory();
+
+			if (!Storage.Inventory.CanFit(item) && !Storage.Inventory.MoveTo(item)) {
+				print("ÿc8AddSocketableToItemÿc0 :: No space to get item back");
+				return false;
+			}
+		} else {
+			if (!Storage.Inventory.MoveTo(item)) return false;
+		}
+	}
+
+	if (!Town.openStash()) return false;
+
+	for (let i = 0; i < runes.length; i++) {
+		let rune = runes[i];
+		if (!rune.toCursor()) return false;
+
+		for (let i = 0; i < 3; i += 1) {
+			sendPacket(1, 0x28, 4, rune.gid, 4, item.gid);
+			let tick = getTickCount();
+
+			while (getTickCount() - tick < 2000) {
+				if (!me.itemoncursor) {
+					delay(300);
+
+					break;
+				}
+
+				delay(10);
+			}
+
+			if (item.getItemsEx().length > preSockets) {
+				D2Bot.printToConsole("Added socketable: " + rune.fname + " to " + item.fname, 6);
+				Misc.logItem("Added " + rune.name + " to: ", item);
+				preSockets++;
+			}
+		}
+	}
+
+	bodyLoc && Item.equip(item, bodyLoc);
+
+	return item.getItemsEx().length > original;
+};
+
+Misc.getSocketables = function (item, itemInfo) {
 	if (!item) return false;
 	let itemtype;
 	let gemType;
 	let runeType;
 	let multiple = [];
-	let ready = false;
-	let sockets = item.getStat(sdk.stats.NumSockets);
+	let preSockets = item.getItemsEx().length;
+	let sockets = item.getStat(sdk.stats.NumSockets) - preSockets;
 	let socketables = me.getItemsEx()
 		.filter(item => [sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(item.itemType) || (item.itemType >= sdk.itemtype.Amethyst && item.itemType <= sdk.itemtype.Skull));
 
@@ -557,12 +638,11 @@ Misc.addSocketables = function (item, itemInfo) {
 		}
 
 		if (multiple.length === sockets) {
-			ready = true;
 			break;
 		}
 	}
 	
-	if (multiple.length > 0 && ready) {
+	if (multiple.length > 0) {
 		// check to ensure I am a high enough level to use wanted socketables
 		for (let i = 0; i < multiple.length; i++) {
 			if (me.charlvl < multiple[i].lvlreq) {
@@ -571,16 +651,13 @@ Misc.addSocketables = function (item, itemInfo) {
 			}
 		}
 
-		for (let i = 0; i < multiple.length; i++) {
-			if (Misc.addSocketableToItem(item, multiple[i])) {
-				D2Bot.printToConsole("Added socketable: " + multiple[i].fname + " to " + item.fname, 6);
-				delay(250 + me.ping);
-			} else {
-				print("ÿc8Kolbot-SoloPlayÿc0: Failed to add socketable to " + item.fname);
-			}
+		if (Misc.addSocketablesToItem(item, multiple)) {
+			delay(250 + me.ping);
+		} else {
+			print("ÿc8Kolbot-SoloPlayÿc0: Failed to add socketable to " + item.fname);
 		}
 
-		return item.getItemsEx().length === sockets;
+		return item.getItemsEx().length === sockets || item.getItemsEx().length > preSockets;
 	}
 
 	return false;
@@ -599,7 +676,7 @@ Misc.checkSocketables = function () {
 		// no need to check anything else if already socketed
 		// TODO: check if item is socketed with what we want instead
 		// I.E we have a double p-gemmed mosers but want to double um it
-		if (!!items[i].getItem()) {
+		if (items[i].getItemsEx().length === sockets) {
 			continue;
 		}
 
@@ -609,7 +686,7 @@ Misc.checkSocketables = function () {
 		case sdk.itemquality.Crafted:
 			// Any magic, rare, or crafted item with open sockets
 			if (items[i].isEquipped && [1, 3, 4, 5].includes(items[i].bodylocation)) {
-				Misc.addSocketables(items[i]);
+				Misc.getSocketables(items[i]);
 			}
 
 			break;
@@ -619,9 +696,9 @@ Misc.checkSocketables = function () {
 				let curr = Config.socketables.find(({ classid }) => items[i].classid === classid);
 
 				if (curr && curr.condition(items[i])) {
-					Misc.addSocketables(items[i], curr);
+					Misc.getSocketables(items[i], curr);
 				} else if (items[i].isEquipped) {
-					Misc.addSocketables(items[i]);
+					Misc.getSocketables(items[i]);
 				}
 			}
 
@@ -630,56 +707,6 @@ Misc.checkSocketables = function () {
 			break;
 		}
 	}
-};
-
-Misc.addSocketableToItem = function (item, rune) {
-	if (item.getStat(sdk.stats.NumSockets) === 0) return false;
-
-	if (item.mode === sdk.itemmode.Equipped) {
-		let bodyLoc = item.bodylocation;
-
-		// No space to get the item back
-		if (!Storage.Inventory.CanFit(item)) {
-			print("ÿc8AddSocketableToItemÿc0 :: No space to get item back");
-			return false;
-		} else {
-			item.isInStash && Town.openStash();
-			if (!Storage.Inventory.MoveTo(item)) return false;
-		}
-
-		if (!rune.toCursor()) return false;
-
-		for (let i = 0; i < 3; i += 1) {
-			sendPacket(1, 0x28, 4, rune.gid, 4, item.gid);
-			let tick = getTickCount();
-
-			while (getTickCount() - tick < 2000) {
-				if (!me.itemoncursor) {
-					delay(300);
-
-					break;
-				}
-
-				delay(10);
-			}
-
-			if (item.getItem()) {
-				Misc.logItem("Added " + rune.name + " to: ", item);
-				bodyLoc && Item.equip(item, bodyLoc);
-
-				return true;
-			}
-		}
-
-		return false;
-	} else {
-		if (Runewords.socketItem(item, rune)) {
-			Misc.logItem("Added " + rune.name + " to: ", item);
-			return true;
-		}	
-	}
-
-	return false;
 };
 
 // Log kept item stats in the manager.
