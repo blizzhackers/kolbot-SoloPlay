@@ -511,60 +511,46 @@ Pather.openDoors = function (x, y) {
 
 Pather.changeAct = function () {
 	let npc, loc, act = me.act + 1;
+	let quest;
 
 	switch (act) {
 	case 2:
-		npc = "warriv";
+		npc = "Warriv";
 		loc = sdk.areas.LutGholein;
-		Town.npcInteract("warriv");
-
-		if (!Misc.checkQuest(6, 0)) {
-			me.overhead("Incomplete Quest");
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to act " + act);
-			return false;
-		}
-
-		Town.move(NPC.Warriv);
+		quest = 6;
 
 		break;
 	case 3:
-		npc = "meshif";
+		npc = "Meshif";
 		loc = sdk.areas.KurastDocktown;
-		Town.npcInteract("meshif");
-
-		if (!Misc.checkQuest(14, 0)) {
-			me.overhead("Incomplete Quest");
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to act " + act);
-			return false;
-		}
-
-		Town.move(NPC.Meshif);
+		quest = 14;
 
 		break;
 	case 5:
-		npc = "tyrael";
+		npc = "Tyrael";
 		loc = sdk.areas.Harrogath;
-		Town.npcInteract("tyrael");
-
-		if (!Misc.checkQuest(26, 0)) {
-			me.overhead("Incomplete Quest");
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to act " + act);
-			return false;
-		}
-
-		Town.move(NPC.Tyrael);
+		quest = 26;
 
 		break;
+	default:
+		return false;
 	}
 
-	let npcUnit = getUnit(sdk.unittype.NPC, npc);
+	if (!Misc.checkQuest(quest, 0)) {
+		myPrint("Failed to move to act " + act);
+		return false;
+	}
+
+	let npcUnit = Town.npcInteract(npc, false);
 	let timeout = getTickCount() + 3000;
 
-	while (!npcUnit && timeout < getTickCount()) {
-		Town.move(npc);
-		Packet.flash(me.gid);
-		delay(me.ping * 2 + 100);
-		npcUnit = getUnit(sdk.unittype.NPC, npc);
+	if (!npcUnit) {
+		while (!npcUnit && timeout < getTickCount()) {
+			Town.move(NPC[npc]);
+			Packet.flash(me.gid);
+			delay(me.ping * 2 + 100);
+			npcUnit = getUnit(sdk.unittype.NPC, npc);
+		}
 	}
 
 	if (npcUnit) {
@@ -577,8 +563,7 @@ Pather.changeAct = function () {
 			}
 		}
 	} else {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to " + npc);
-		me.overhead("Failed to move to " + npc);
+		myPrint("Failed to move to " + npc);
 	}
 
 	return me.act === act;

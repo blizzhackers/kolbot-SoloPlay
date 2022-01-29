@@ -457,27 +457,47 @@ Misc.getWell = function (unit) {
 
 Misc.unsocketItem = function (item) {
 	if (me.classic || !me.getItem(sdk.items.quest.Cube) || !item) return false;
+	// Item doesn't have anything socketed
+	if (item.getItemsEx().length === 0) return true;
 
 	let hel = me.getItem(sdk.items.runes.Hel, 0);
 	if (!hel) return false;
 
 	let scroll = Runewords.getScroll();
+	let bodyLoc;
+	let {classid, quality} = item;
+	item.isEquipped && (bodyLoc = item.bodylocation);
 
 	// failed to get scroll or open stash most likely means we're stuck somewhere in town, so it's better to return false
 	if (!scroll || !Town.openStash() || !Cubing.emptyCube()) return false;
 
-	// failed to move any of the items to the cube
-	if (!Storage.Cube.MoveTo(item) || !Storage.Cube.MoveTo(hel) || !Storage.Cube.MoveTo(scroll)) return false;
+	try {
+		// failed to move any of the items to the cube
+		if (!Storage.Cube.MoveTo(item) || !Storage.Cube.MoveTo(hel) || !Storage.Cube.MoveTo(scroll)) throw 'Failed to move items to cube';
 
-	// probably only happens on server crash
-	if (!Cubing.openCube()) return false;
+		// probably only happens on server crash
+		if (!Cubing.openCube()) throw 'Failed to open cube';
 
-	myPrint("ÿc4Removing sockets from: ÿc0" + item.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<;.*]/, ""));
-	transmute();
-	delay(500);
+		myPrint("ÿc4Removing sockets from: ÿc0" + item.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<;.*]/, ""));
+		transmute();
+		delay(500);
+		// unsocketing an item causes loss of reference, so re-find our item
+		item = me.findItem(classid, -1, sdk.storage.Cube);
+		!!item && bodyLoc && item.equip(bodyLoc);
 
-	// can't pull the item out = no space = fail
-	if (!Cubing.emptyCube()) return false;
+		// can't pull the item out = no space = fail
+		if (!Cubing.emptyCube()) throw 'Failed to empty cube';
+	} catch (e) {
+		console.debug(e);
+	} finally {
+		// lost the item, so relocate it
+		!item && (item = me.findItem(classid, -1, -1, quality));
+		// In case error was thrown before hitting above re-equip statement
+		bodyLoc && !item.isEquipped && item.equip(bodyLoc);
+		// No bodyloc so move back to stash
+		!bodyLoc && !item.isInStash && Storage.Stash.MoveTo(item);
+		getUIFlag(sdk.uiflags.Cube) && me.cancel();
+	}
 
 	return item.getItemsEx().length === 0;
 };
@@ -575,12 +595,16 @@ Misc.getSocketables = function (item, itemInfo) {
 	let gemType;
 	let runeType;
 	let multiple = [];
+	let temp = [];
 	let preSockets = item.getItemsEx().length;
-	let sockets = item.getStat(sdk.stats.NumSockets) - preSockets;
+	let allowTemp = (!!itemInfo && !!itemInfo.temp && itemInfo.temp.length > 0 && (preSockets === 0 || preSockets > 0 && item.getItemsEx().some(function (el) { return !itemInfo.socketWith.includes(el.classid); })));
+	let sockets = item.getStat(sdk.stats.NumSockets);
+	let openSockets = sockets - preSockets;
+	let {classid, quality} = item;
 	let socketables = me.getItemsEx()
 		.filter(item => [sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(item.itemType) || (item.itemType >= sdk.itemtype.Amethyst && item.itemType <= sdk.itemtype.Skull));
 
-	if (!socketables) return false;
+	if (!socketables || (!allowTemp && openSockets === 0)) return false;
 
 	function highestGemAvailable (gem, checkList = []) {
 		if (!gem) return false;
@@ -616,6 +640,12 @@ Misc.getSocketables = function (item, itemInfo) {
 					multiple.push(socketables[i]);
 				}
 			}
+
+			if (allowTemp && itemInfo.temp.includes(socketables[i].classid) && !temp.includes(socketables[i])) {
+				if (temp.length < sockets) {
+					temp.push(socketables[i]);
+				}
+			}
 		} else {
 			// If itemtype was matched with a gemType
 			if (gemType) {
@@ -641,8 +671,27 @@ Misc.getSocketables = function (item, itemInfo) {
 			break;
 		}
 	}
+
+	if (allowTemp) {
+		// we have all our wanted socketables
+		if (multiple.length === sockets) {
+			// Failed to remove temp socketables
+			if (!Misc.unsocketItem(item)) return false;
+			// relocate our item as unsocketing it causes loss of reference
+			item = me.findItem(classid, -1, -1, quality);
+			openSockets = sockets;
+		} else {
+			if (temp.length > 0) {
+				multiple.length = 0;
+				multiple = multiple.concat(temp);
+			} else if (item.getItemsEx().some(function (el) { return itemInfo.temp.includes(el.classid); })) {
+				return false;
+			}
+		}
+	}
 	
 	if (multiple.length > 0) {
+		multiple.length > openSockets && (multiple.length = openSockets);
 		// check to ensure I am a high enough level to use wanted socketables
 		for (let i = 0; i < multiple.length; i++) {
 			if (me.charlvl < multiple[i].lvlreq) {
@@ -665,7 +714,7 @@ Misc.getSocketables = function (item, itemInfo) {
 
 Misc.checkSocketables = function () {
 	let items = me.getItemsEx()
-		.filter(item => item.getStat(sdk.stats.NumSockets) > 0 && NTIP.GetTier(item) > 0 && !item.isRuneword)
+		.filter(item => item.getStat(sdk.stats.NumSockets) > 0 && NTIP.GetTier(item) > 0 && ![sdk.itemquality.Normal, sdk.itemquality.Superior].includes(item.quality))
 		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
 
 	if (!items) return;
@@ -673,17 +722,14 @@ Misc.checkSocketables = function () {
 	for (let i = 0; i < items.length; i++) {
 		let sockets = items[i].getStat(sdk.stats.NumSockets);
 
-		// no need to check anything else if already socketed
-		// TODO: check if item is socketed with what we want instead
-		// I.E we have a double p-gemmed mosers but want to double um it
-		if (items[i].getItemsEx().length === sockets) {
-			continue;
-		}
-
 		switch (items[i].quality) {
 		case sdk.itemquality.Magic:
 		case sdk.itemquality.Rare:
 		case sdk.itemquality.Crafted:
+			// no need to check anything else if already socketed
+			if (items[i].getItemsEx().length === sockets) {
+				continue;
+			}
 			// Any magic, rare, or crafted item with open sockets
 			if (items[i].isEquipped && [1, 3, 4, 5].includes(items[i].bodylocation)) {
 				Misc.getSocketables(items[i]);
@@ -694,6 +740,11 @@ Misc.checkSocketables = function () {
 		case sdk.itemquality.Unique:
 			{
 				let curr = Config.socketables.find(({ classid }) => items[i].classid === classid);
+
+				// item is already socketed and we don't use temp socketables on this item
+				if ((!curr || (curr && !curr.temp)) && items[i].getItemsEx().length === sockets) {
+					continue;
+				}
 
 				if (curr && curr.condition(items[i])) {
 					Misc.getSocketables(items[i], curr);

@@ -2529,14 +2529,28 @@ Town.clearJunk = function () {
 	return true;
 };
 
-Town.npcInteract = function (name) {
+Town.npcInteract = function (name, cancel = true) {
 	let npc;
 
 	!name.includes("_") && (name = name[0].toUpperCase() + name.substring(1).toLowerCase());
 	name.includes("_") && (name = "Qual_Kehk");
 
 	!me.inTown && Town.goToTown();
-	Town.move(NPC[name])
+
+	switch (NPC[name]) {
+        case NPC.Jerhyn:
+            Town.move('palace');
+            break;
+        case NPC.Hratli:
+            if (!me.getQuest(sdk_1.default.quests.SpokeToHratli, 0)) {
+                Town.move(NPC.Meshif);
+                break;
+            }
+        // No break
+        default:
+            Town.move(NPC[name]);
+    }
+
 	npc = getUnit(1, NPC[name]);
 
 	// In case Jerhyn is by Warriv
@@ -2549,13 +2563,12 @@ Town.npcInteract = function (name) {
 	Packet.flash(me.gid);
 	delay(1 + me.ping * 2);
 
-	if (!npc || !npc.openMenu()) {
-		me.cancel();
-	}
-
-	Packet.flash(me.gid);
-
-	return true;
+	if (npc && npc.openMenu()) {
+        cancel && me.cancel();
+        return npc;
+    }
+    
+    return false;
 };
 
 Town.reviveMerc = function () {

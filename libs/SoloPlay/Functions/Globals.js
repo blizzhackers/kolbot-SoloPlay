@@ -665,7 +665,7 @@ const Check = {
 
 			break;
 		case "baal":
-			if (me.expansion && Pather.accessToAct(5)) {
+			if (me.expansion && Pather.accessToAct(5) && me.ancients) {
 				return true;
 			}
 

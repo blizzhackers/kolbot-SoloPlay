@@ -280,6 +280,7 @@ function LoadConfig () {
 					{
 						classid: sdk.items.SlayerGuard,
 						socketWith: [sdk.items.runes.Cham],
+						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: true,
 						condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
 					}
@@ -367,6 +368,7 @@ function LoadConfig () {
 					{
 						classid: sdk.items.AvengerGuard,
 						socketWith: [sdk.items.runes.Ber],
+						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: false,
 						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
 					},
@@ -379,6 +381,7 @@ function LoadConfig () {
 					{
 						classid: sdk.items.SacredArmor,
 						socketWith: [sdk.items.runes.Ber],
+						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: true,
 						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
 					}

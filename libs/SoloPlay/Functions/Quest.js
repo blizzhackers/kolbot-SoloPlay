@@ -1,8 +1,8 @@
 /*
 *	@filename	Quest.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
 *	@desc		Miscellaneous quest tasks for leveling adapted from blizzhackers autosmurf
-*	@credits	Dark-f, JeanMax for original functions
+*	@credits	Dark-f, JeanMax, https://github.com/SetupSonic/clean-sonic/blob/master/libs/sonic/common/Quest.js
 */
 
 const Quest = {
@@ -353,8 +353,7 @@ const Quest = {
 
 		if ((me.charlvl >= Config.respecOne && SetUp.currentBuild === "Start") || (Config.respecOneB > 0 && me.charlvl === Config.respecOneB) || me.charlvl === SetUp.respecTwo()) {
 			if (!me.den) {
-				print("ÿc8Kolbot-SoloPlayÿc0: time to respec, but den is incomplete");
-				me.overhead('time to respec, but den is incomplete');
+				myPrint("time to respec, but den is incomplete");
 				return false;
 			}
 
