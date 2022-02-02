@@ -9,6 +9,7 @@ let build = {
 	skillstab: sdk.skills.tabs.JavelinSpear,
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
 	usefulskills: [sdk.skills.CriticalStrike, sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
+	usefulStats: [sdk.stats.PierceLtng, sdk.stats.PassiveLightningMastery, sdk.stats.PassiveLightningPierce],
 	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
 	mercAuraWanted: "Holy Freeze",

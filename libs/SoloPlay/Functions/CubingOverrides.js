@@ -495,6 +495,7 @@ Cubing.buildLists = function () {
 	let i, j, k, items;
 
 	CraftingSystem.checkSubrecipes();
+	SoloWants.checkSubrecipes();
 
 	this.validIngredients = [];
 	this.neededIngredients = [];
@@ -590,13 +591,7 @@ Cubing.emptyCube = function () {
 	let cube = me.getItem(sdk.items.quest.Cube),
 		items = me.findItems(-1, -1, 6);
 
-	if (!cube) {
-		return false;
-	}
-
-	if (!items) {
-		return true;
-	}
+	if (!cube || !items) return false;
 
 	while (items.length) {
 		if (!getUIFlag(sdk.uiflags.Cube)) {
@@ -620,9 +615,7 @@ Cubing.emptyCube = function () {
 
 
 Cubing.checkItem = function (unit) {
-	if (!Config.Cubing) {
-		return false;
-	}
+	if (!Config.Cubing || !unit) return false;
 
 	for (let i = 0; i < this.validIngredients.length; i++) {
 		// not the same item but the same type of item
@@ -833,13 +826,7 @@ Cubing.validItem = function (unit, recipe) {
 };
 
 Cubing.doCubing = function () {
-	if (!Config.Cubing) {
-		return false;
-	}
-
-	if (!me.getItem(sdk.items.quest.Cube)) {
-		return false;
-	}
+	if (!Config.Cubing || !me.getItem(sdk.items.quest.Cube)) return false;
 
 	let i, j, items, string, result, tempArray, wasEquipped = false;
 
@@ -875,10 +862,7 @@ Cubing.doCubing = function () {
 			transmute();
 			delay(700 + me.ping);
 			print("ÿc4Cubing: " + string);
-
-			if (Config.ShowCubingInfo) {
-				D2Bot.printToConsole(string, sdk.colors.D2Bot.Green);
-			}
+			Config.ShowCubingInfo && D2Bot.printToConsole(string, sdk.colors.D2Bot.Green);
 
 			this.update();
 
@@ -910,6 +894,10 @@ Cubing.doCubing = function () {
 						break;
 					case 5: // Crafting System
 						CraftingSystem.update(items[j]);
+
+						break;
+					case 8: // SoloWants System
+						SoloWants.update(items[j]);
 
 						break;
 					}

@@ -1,10 +1,10 @@
 /*
-*	@filename	SoloData.js
+*	@filename	CharData.js
 *	@author		theBGuy
-*	@desc		Character Data and Tools Kolbot-SoloPlay
+*	@desc		Character Data and Tools for Kolbot-SoloPlay
 */
 
-const SoloData = {
+const CharData = {
 	filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-CharData.json",
 	default: {
 		normal: {
@@ -36,6 +36,66 @@ const SoloData = {
 		}
 	},
 
+	buffData: {
+		stamina: {
+			tick: 0,
+			duration: 0,
+			active: function () {
+				return getTickCount() - this.tick < this.duration;
+			}
+		},
+
+		thawing: {
+			tick: 0,
+			duration: 0,
+			active: function () {
+				return getTickCount() - this.tick < this.duration;
+			}
+		},
+
+		antidote: {
+			tick: 0,
+			duration: 0,
+			active: function () {
+				return getTickCount() - this.tick < this.duration;
+			}
+		},
+
+		update: function () {
+			let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/ToolsThread.js"];
+			let curr = getScript(true).name;
+			let obj = JSON.stringify(Misc.copy(this));
+			scripts.forEach(function (script) {
+				if (script !== curr) {
+					Messaging.sendToScript(script, "buff--" + obj);
+				}
+			});
+		},
+	},
+
+	skillData: {
+		skills: [],
+		currentChargedSkills: [],
+		chargedSkillsOnSwitch: [],
+
+		init: function (all, switchSkills) {
+			this.currentChargedSkills = all.slice(0);
+			this.chargedSkillsOnSwitch = switchSkills.slice(0);
+			this.skills = me.getSkill(4).map(function (skill) { return skill[0]; });
+		},
+
+		update: function () {
+			let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/ToolsThread.js", "libs/SoloPlay/Tools/EventThread.js"];
+			let curr = getScript(true).name;
+			let obj = JSON.stringify(Misc.copy(this));
+			scripts.forEach(function (script) {
+				if (script !== curr) {
+					Messaging.sendToScript(script, "skill--" + obj);
+				}
+			});
+		},
+	},
+
 	create: function () {
 		let obj = Object.assign({}, this.default);
 		let string = JSON.stringify(obj);
@@ -54,7 +114,7 @@ const SoloData = {
 		let obj;
 
 		if (!FileTools.exists(this.filePath)) {
-			return SoloData.create();
+			return CharData.create();
 		}
 
 		let string = Misc.fileAction(this.filePath, 0);

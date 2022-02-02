@@ -283,8 +283,35 @@ function main () {
 	};
 
 	this.drinkSpecialPotion = function (type) {
-		let pot = me.getItemsEx().filter(function (p) { return p.isInInventory && p.classid === type; }).first();
-		return !!pot && pot.interact();
+		let objID;
+		let name = (type === sdk.items.ThawingPotion ? "thawing" : "antidote");
+
+		// mode 18 - can't drink while leaping/whirling etc.
+		// give at least a second delay between pots
+		if (me.mode === 0 || me.mode === 17 || me.mode === 18 || (getTickCount() - CharData.buffData[name].tick < 1000)) {
+			return false;
+		}
+
+		let pot = me.getItemsEx()
+			.filter(function (p) { return p.isInInventory && p.classid === type; }).first();
+		!!pot && (objID = pot.name.split(' ')[0].toLowerCase());
+
+		if (objID) {
+			pot.interact();
+			if (!CharData.buffData[objID].active()) {
+				CharData.buffData[objID].tick = getTickCount();
+				CharData.buffData[objID].duration = 3e4;
+			} else {
+				CharData.buffData[objID].duration += 3e4 - (getTickCount() - CharData.buffData[objID].tick);
+			}
+
+			console.debug(CharData.buffData);
+			CharData.buffData.update();
+
+			return true;
+		}
+
+		return false;
 	};
 
 	this.getNearestMonster = function () {
@@ -446,6 +473,8 @@ function main () {
 			print("ÿc8My stats :: " + this.getStatsString(me));
 			merc = me.getMerc();
 			!!merc && print("ÿc8Merc stats :: " + this.getStatsString(merc));
+			console.log("//------ÿc8SoloWants.needListÿc0-----//");
+			console.log(SoloWants.needList);
 
 			break;
 		case 101: // numpad 5
@@ -496,11 +525,12 @@ function main () {
 									" | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n" +
 									"ÿc4AutoEquipKeepCheck: ÿc0" + Item.autoEquipKeepCheck(itemToCheck) + " | ÿc4AutoEquipCheckSecondary: ÿc0" + Item.autoEquipCheckSecondary(itemToCheck) +
 									" | ÿc4AutoEquipKeepCheckMerc: ÿc0" + Item.autoEquipKeepCheckMerc(itemToCheck) + "\nÿc4Cubing Item: ÿc0" + Cubing.keepItem(itemToCheck) +
-									" | ÿc4Runeword Item: ÿc0" + Runewords.keepItem(itemToCheck) + " | ÿc4Crafting Item: ÿc0" + CraftingSystem.keepItem(itemToCheck) +
+									" | ÿc4Runeword Item: ÿc0" + Runewords.keepItem(itemToCheck) + " | ÿc4Crafting Item: ÿc0" + CraftingSystem.keepItem(itemToCheck) + " | ÿc4SoloWants Item: ÿc0" + SoloWants.keepItem(itemToCheck) +
 									"\nÿc4ItemType: ÿc0" + itemToCheck.itemType + "| ÿc4Classid: ÿc0" + itemToCheck.classid + "| ÿc4Quality: ÿc0" + itemToCheck.quality;
 					charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + NTIP.checkFinalCharm(itemToCheck) + "\n" +
 							"ÿc4CharmType: ÿc0" + Item.getCharmType(itemToCheck) + " | ÿc4AutoEquipCharmCheck: ÿc0" + Item.autoEquipCharmCheck(itemToCheck) + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck);
-					generalString = "ÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(itemToCheck, NTIP_CheckListNoTier, true).result;
+					generalString = "ÿc4ItemName: ÿc0" + itemToCheck.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<;.*]/, "")
+						+ "\nÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(itemToCheck, NTIP_CheckListNoTier, true).result;
 				}
 				
 				print("ÿc8Kolbot-SoloPlay: ÿc2Item Info Start");
@@ -601,9 +631,9 @@ function main () {
 				this.togglePause();
 				Town.goToTown();
 				showConsole();
-				print("ÿc4Diablo Walks the Earth");
+				myPrint("ÿc4Diablo Walks the Earth");
 				me.maxgametime += (30 * 1000 * 60);		// Add 30 minutes to current maxgametime
-				Config.KillDclone && Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", "killdclone");
+				Config.KillDclone && Messaging.sendToScript(SoloEvents.filePath, "killdclone");
 			}
 
 			break;
@@ -613,13 +643,38 @@ function main () {
 	this.scriptEvent = function (msg) {
 		let obj;
 
-		// Added from Autosorc/Sorc.js
-		if (msg && typeof msg === "string" && msg !== "" && msg.substring(0, 8) === "config--") {
-			Config = JSON.parse(msg.split("config--")[1]);
-		}
+		if (msg && typeof msg === "string" && msg !== "") {
+			let updated = false;
+			switch (true) {
+			case msg.substring(0, 8) === "config--":
+				console.debug("update config");
+				Config = JSON.parse(msg.split("config--")[1]);
+				updated = true;
 
-		if (msg && typeof msg === "string" && msg !== "" && msg.substring(0, 6) === "data--") {
-			myData = JSON.parse(msg.split("data--")[1]);
+				break;
+			case msg.substring(0, 6) === "buff--":
+				console.debug("update buffData");
+				obj = JSON.parse(msg.split("buff--")[1]);
+				Misc.updateRecursively(CharData.buffData, obj);
+				updated = true;
+
+				break;
+			case msg.substring(0, 7) === "skill--":
+				console.debug("update skillData");
+				obj = JSON.parse(msg.split("skill--")[1]);
+				Misc.updateRecursively(CharData.skillData, obj);
+				updated = true;
+
+				break;
+			case msg.toLowerCase() === "test":
+				console.debug(CharData.buffData);
+				console.debug(CharData.skillData);
+				updated = true;
+
+				break;
+			}
+
+			if (updated) return;
 		}
 
 		switch (msg) {
@@ -633,10 +688,6 @@ function main () {
 			break;
 		case "restart":
 			restart = true;
-
-			break;
-		case "test":
-			console.log(myData);
 
 			break;
 		default:

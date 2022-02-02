@@ -10,6 +10,7 @@ const finalBuild = {
 	wantedskills: [sdk.skills.ChainLightning, sdk.skills.Lightning],
 	usefulskills: [sdk.skills.LightningMastery, sdk.skills.ChargedBolt, sdk.skills.Nova],
 	precastSkills: [sdk.skills.FrozenArmor],
+	usefulStats: [sdk.stats.PassiveLightningMastery, sdk.stats.PassiveLightningPierce],
 	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
 	mercAuraWanted: "Holy Freeze",

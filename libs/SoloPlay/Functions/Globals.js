@@ -7,11 +7,11 @@
 
 if (!isIncluded("OOG.js")) { include("OOG.js"); }
 if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
-if (!isIncluded("SoloPlay/Tools/SoloData.js")) { include("SoloPlay/Tools/SoloData.js"); }
+if (!isIncluded("SoloPlay/Tools/CharData.js")) { include("SoloPlay/Tools/CharData.js"); }
 if (!isIncluded("SoloPlay/Functions/PrototypesOverrides.js")) { include("SoloPlay/Functions/PrototypesOverrides.js"); }
 
 let sdk = require('../modules/sdk');
-let myData = SoloData.getStats();
+let myData = CharData.getStats();
 
 // these builds are not possible to do on classic
 let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl"];
@@ -30,7 +30,7 @@ function myPrint (str = "", toConsole = false, color = 0) {
 }
 
 function updateMyData () {
-	scriptBroadcast("data--" + JSON.stringify(Misc.copy(myData)));
+	!!myData && scriptBroadcast("data--" + JSON.stringify(Misc.copy(myData)));
 }
 
 function ensureData () {
@@ -86,7 +86,7 @@ function ensureData () {
 		}
 	}
 
-	update && SoloData.updateData("me", myData) && updateMyData();
+	update && CharData.updateData("me", myData) && updateMyData();
 }
 
 // general settings
@@ -223,7 +223,7 @@ const SetUp = {
 		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", 6);
 
 		D2Bot.setProfile(null, null, NameGen());
-		SoloData.delete(true);
+		CharData.delete(true);
 		delay(100 + me.ping);
 		D2Bot.restart();
 	},
@@ -245,19 +245,6 @@ Object.defineProperties(SetUp, {
 // SoloPlay Pickit Items
 // TODO: check if is this even needed?
 const nipItems = {
-	Selling: [
-		'([type] == ring || [type] == amulet) && [quality] >= magic # [fcr] >= 600',
-		'([type] == armor || [type] == boots || [type] == gloves || [type] == belt) && [quality] >= magic # [fcr] >= 600',
-		'([type] == helm || [type] == circlet || [type] == primalhelm || [type] == pelt) && [quality] >= magic # [fcr] >= 600',
-		'([type] == shield || [type] == voodooheads) && [quality] >= magic # [fcr] >= 600',
-		'([type] == javelin || [type] == amazonspear || [type] == amazonjavelin) && [quality] >= rare # [fcr] >= 600',
-		'([type] == orb || [type] == wand || [type] == staff) && [quality] >= normal # [fcr] >= 600',
-		'([type] == throwingaxe || [type] == axe || [type] == mace || [type] == club || [type] == scepter || [type] == hammer) && [quality] >= magic # [fcr] >= 600',
-		'([type] == sword || [type] == knife || [type] == throwingknife) && [quality] >= magic # [fcr] >= 600',
-		'([type] == bow || [type] == crossbow) && [quality] >= rare # [fcr] >= 600',
-		'([type] == handtohand || [type] == assassinclaw) && [quality] >= magic  # [fcr] >= 600',
-	],
-
 	General: [
 		"[name] == tomeoftownportal",
 		"[name] == tomeofidentify",
@@ -277,12 +264,6 @@ const nipItems = {
 		"[name] == scrolloftownportal # # [maxquantity] == 20",
 		"[name] == scrollofidentify # # [maxquantity] == 20",
 		"[name] == key # # [maxquantity] == 12",
-	],
-
-	Gems: [
-		"[name] == perfecttopaz # # [maxquantity] == 2",
-		"[name] == perfectdiamond # # [maxquantity] == 2",
-		"[name] == perfectruby # # [maxquantity] == 2",
 	],
 
 	Quest: [
@@ -861,224 +842,197 @@ const Check = {
 	},
 
 	haveItem: function (type, flag, iName = undefined) {
-		type !== undefined && (type = type.toLowerCase());
-		flag !== undefined && (flag = flag.toLowerCase());
-		iName !== undefined && (iName = iName.toLowerCase());
+		let isClassID = false;
+		let itemCHECK = false;
+		let typeCHECK = false;
 
-		if (type && type !== "dontcare" && !NTIPAliasType[type] && !NTIPAliasClassID[type]) {
-			print("ÿc9Kolbot-SoloPlayÿc0: No NTIPalias for '" + type + "'");
-			return false;
+		flag && typeof flag === "string" && (flag = flag[0].toUpperCase() + flag.substring(1).toLowerCase());
+		typeof iName === "string" && (iName = iName.toLowerCase());
+
+		let items = me.getItemsEx()
+			.filter(function (item) { 
+				return !item.isQuestItem && (flag === "Runeword" ? item.isRuneword : item.quality === sdk.itemquality[flag]); 
+			});
+
+		switch (typeof type) {
+		case "string":
+			typeof type === "string" && (type = type.toLowerCase());
+			if (type !== "dontcare" && !NTIPAliasType[type] && !NTIPAliasClassID[type]) return false;
+			if (type === "dontcare") {
+				typeCHECK = true; // we don't care about type
+				break;
+			}
+
+			// check if item is a classid but with hacky fix for items like belt which is a type and classid...sigh
+			isClassID = !!NTIPAliasClassID[type] && !NTIPAliasType[type];
+			type = isClassID ? NTIPAliasClassID[type] : NTIPAliasType[type];
+			
+			break;
+		case "number":
+			if (!Object.values(sdk.itemtype).includes(type) && !Object.values(sdk.items).includes(type)) return false;
+			// check if item is a classid but with hacky fix for items like belt which is a type and classid...sigh
+			isClassID = Object.values(sdk.items).includes(type) && !Object.values(sdk.itemtype).includes(type);
+
+			break;
 		}
 
-		let typeCHECK = false;
-		let itemCHECK = false;
-		let items = me.getItems().filter(item => !Town.ignoredItemTypes.includes(item.itemType) && !item.isQuestItem);
+		// filter out non-matching item types/classids
+		if (typeof type === "number") {
+			items = items.filter(function (item) { 
+				return (isClassID ? item.classid === type : item.itemType === type); 
+			});
+		}
 
-		for (let i = 0; i < items.length && !itemCHECK; i++) {
+		for (let i = 0; i < items.length; i++) {
 			switch (flag) {
-			case 'set':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Set) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
+			case 'Set':
+			case 'Unique':
+			case 'Crafted':
+				itemCHECK = !!(items[i].quality === sdk.itemquality[flag]) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 				break;
-			case 'unique':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Unique) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
-				break;
-			case 'crafted':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Crafted);
-				break;
-			case 'runeword':
+			case 'Runeword':
 				itemCHECK = !!(items[i].isRuneword) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 				break;
 			}
 
 			// don't waste time if first condition wasn't met
-			if (itemCHECK) {
-				switch (type) {
-				case "dontcare":
-					typeCHECK = itemCHECK;
-					break;
-				case "helm":
-				case "primalhelm":
-				case "pelt":
-				case "armor":
-				case "shield":
-				case "auricshields":
-				case "voodooheads":
-				case "gloves":
-				case "belt":
-				case "boots":
-				case "ring":
-				case "amulet":
-				case "axe":
-				case "bow":
-				case "amazonbow":
-				case "crossbow":
-				case "dagger":
-				case "javelin":
-				case "amazonjavelin":
-				case "mace":
-				case "polearm":
-				case "scepter":
-				case "spear":
-				case "amazonspear":
-				case "staff":
-				case "sword":
-				case "wand":
-				case "assassinclaw":
-				case "smallcharm":
-				case "mediumcharm":
-				case "largecharm":
-					typeCHECK = items[i].itemType === NTIPAliasType[type];
-					break;
-				default:
-					typeCHECK = items[i].classid === NTIPAliasClassID[type];
-					break;
-				}
+			if (itemCHECK && typeof type === "number") {
+				typeCHECK = isClassID ? items[i].classid === type : items[i].itemType === type;
 			}
 
-			if (type) {
-				itemCHECK = itemCHECK && typeCHECK;
+			if (itemCHECK && typeCHECK) {
+				return true;
 			}
 		}
 
-		return itemCHECK;
+		return false;
 	},
 
-	haveItemAndNotSocketed: function (type, flag, iName) {
-		type !== undefined && (type = type.toLowerCase());
-		flag !== undefined && (flag = flag.toLowerCase());
-		iName !== undefined && (iName = iName.toLowerCase());
+	itemSockables: function (type, quality, iName) {
+		quality && typeof quality === "string" && (quality = sdk.itemquality[quality[0].toUpperCase() + quality.substring(1).toLowerCase()]);
+		typeof iName === "string" && (iName = iName.toLowerCase());
+		let isClassID = false;
 
-		if (type && !NTIPAliasType[type] && !NTIPAliasClassID[type]) {
-			print("ÿc8Kolbot-SoloPlayÿc0: No NTIPalias for '" + type + "'");
-			return false;
+		switch (typeof type) {
+		case "string":
+			typeof type === "string" && (type = type.toLowerCase());
+			if (!NTIPAliasType[type] && !NTIPAliasClassID[type]) return false;
+			isClassID = !!NTIPAliasClassID[type];
+			type = isClassID ? NTIPAliasClassID[type] : NTIPAliasType[type];
+			
+			break;
+		case "number":
+			if (!Object.values(sdk.itemtype).includes(type) && !Object.values(sdk.items).includes(type)) return false;
+			isClassID = Object.values(sdk.items).includes(type);
+
+			break;
 		}
 
+		let socketableCHECK = isClassID ? Config.socketables.find(({ classid }) => type === classid) : false;
 		let typeCHECK = false;
 		let itemCHECK = false;
-		let items = me.getItems()
-			.filter(item => !Town.ignoredItemTypes.includes(item.itemType) && getBaseStat("items", item.classid, "gemsockets") > 0 && !item.isQuestItem && !item.getItem());
+		let items = me.getItemsEx()
+			.filter(function (item) { 
+				return item.quality === quality && !item.isQuestItem && !item.isRuneword && (isClassID ? item.classid === type : item.itemType === type) && getBaseStat("items", item.classid, "gemsockets") > 0; 
+			});
 
-		for (let i = 0; i < items.length && !itemCHECK; i++) {
-			switch (flag) {
-			case 'set':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Set) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
-				break;
-			case 'unique':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Unique) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
-				break;
-			case 'crafted':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Crafted);
-				break;
-			case 'runeword':
-				itemCHECK = !!(items[i].isRuneword) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
-				break;
-			}
+		for (let i = 0; i < items.length; i++) {
+			itemCHECK = !!(items[i].quality === quality) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 
 			// don't waste time if first condition wasn't met
-			if (itemCHECK) {
-				switch (type) {
-				case "helm":
-				case "primalhelm":
-				case "pelt":
-				case "armor":
-				case "shield":
-				case "auricshields":
-				case "voodooheads":
-				case "gloves":
-				case "belt":
-				case "boots":
-				case "ring":
-				case "amulet":
-				case "axe":
-				case "bow":
-				case "amazonbow":
-				case "crossbow":
-				case "dagger":
-				case "javelin":
-				case "amazonjavelin":
-				case "mace":
-				case "polearm":
-				case "scepter":
-				case "spear":
-				case "amazonspear":
-				case "staff":
-				case "sword":
-				case "wand":
-				case "assassinclaw":
-				case "weapon":
-					typeCHECK = items[i].itemType === NTIPAliasType[type];
-					break;
-				default:
-					typeCHECK = items[i].classid === NTIPAliasClassID[type];
-					break;
-				}
-			}
+			itemCHECK && (typeCHECK = isClassID ? items[i].classid === type : items[i].itemType === type);
 
-			if (type) {
-				itemCHECK = itemCHECK && typeCHECK && !items[i].getItem();
+			if (itemCHECK && typeCHECK) {
+				if (!socketableCHECK && items[i].getItemsEx().length === 0) {
+					return true;
+				} else if (socketableCHECK) {
+					let numSockets = items[i].getStat(sdk.stats.NumSockets);
+					let socketedWith = items[i].getItemsEx();
+					let hasWantedItems;
+
+					if (socketableCHECK.socketWith.length > 0) {
+						hasWantedItems = socketedWith.some(function (el) { return socketableCHECK.socketWith.includes(el.classid); });
+						if (hasWantedItems && socketedWith.length === numSockets) {
+							break; // this item is full
+						}
+					} else {
+						return true;
+					}
+					// needList doesn't already include this items wants
+					let addToList = !SoloWants.needList.some(function (check) { return items[i].classid === check.classid; });
+					// SoloWant check or need to check what is in the item
+					if (addToList) {
+						let list = [];
+
+						// currently only supports adding first item from socketWith/temp array
+						// TODO: is figure out how to cleanly handle adding two or more different socketables to an item
+						// add the wanted items to the list
+						for (let i = 0; i < numSockets - socketedWith.length; i++) {
+							list.push(socketableCHECK.socketWith[0]);
+						}
+
+						// currently no sockets but we might use our socket quest on it
+						numSockets === 0 && socketableCHECK.useSocketQuest && list.push(socketableCHECK.socketWith[0]);
+
+						// if temp socketables are used for this item and its not already socketed with wanted items add the temp items too
+						if (!hasWantedItems && !!socketableCHECK.temp && !!socketableCHECK.temp.length > 0) {
+							for (let i = 0; i < numSockets - socketedWith.length; i++) {
+								list.push(socketableCHECK.temp[0]);
+							}
+
+							// Make sure we keep a hel rune so we can unsocket temp socketables if needed
+							if (!SoloWants.needList.some(function (check) { return sdk.items.runes.Hel === check.classid; })) {
+								let hel = me.getItemsEx(sdk.items.runes.Hel, 0);
+								// we don't have any hel runes and its not already in our needList
+								if ((!hel || hel.length === 0)) {
+									SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});
+								} else if (!hel.some(function (check) { SoloWants.validGids.includes(check.gid); })) {
+									SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});
+								}
+							}
+						}
+						// add to our needList so we pick the items
+						SoloWants.needList.push({classid: items[i].classid, needed: list});
+					}
+
+					return true;
+				}
 			}
 		}
 
-		return itemCHECK;
+		return false;
 	},
 
 	haveBase: function (type = undefined, sockets = undefined) {
 		if (!type|| !sockets) return false;
-		typeof type === "string" && (type = type.toLowerCase());
+		let isClassID = false;
 
-		let baseCheck = false;
-		let items = me.getItems()
-			.filter(item => item.isBaseType && item.isInStorage);
+		switch (typeof type) {
+		case "string":
+			typeof type === "string" && (type = type.toLowerCase());
+			if (!NTIPAliasType[type] && !NTIPAliasClassID[type]) return false;
+			isClassID = !!NTIPAliasClassID[type];
+			type = isClassID ? NTIPAliasClassID[type] : NTIPAliasType[type];
+			
+			break;
+		case "number":
+			if (!Object.values(sdk.itemtype).includes(type) && !Object.values(sdk.items).includes(type)) return false;
+			isClassID = Object.values(sdk.items).includes(type);
+
+			break;
+		}
+		
+
+		let items = me.getItemsEx()
+			.filter(item => item.isBaseType && item.isInStorage && (isClassID ? item.classid === type : item.itemType === type));
 
 		for (let i = 0; i < items.length; i++) {
-			if (items[i].getStat(sdk.stats.NumSockets) === sockets) {
-				switch (type) {
-				case "helm":
-				case "primalhelm":
-				case "pelt":
-				case "armor":
-				case "shield":
-				case "auricshields":
-				case "voodooheads":
-				case "gloves":
-				case "belt":
-				case "boots":
-				case "ring":
-				case "amulet":
-				case "axe":
-				case "bow":
-				case "amazonbow":
-				case "crossbow":
-				case "dagger":
-				case "javelin":
-				case "amazonjavelin":
-				case "mace":
-				case "polearm":
-				case "scepter":
-				case "spear":
-				case "amazonspear":
-				case "staff":
-				case "sword":
-				case "wand":
-				case "assassinclaw":
-				case "weapon":
-					baseCheck = items[i].itemType === NTIPAliasType[type];
-
-					break;
-				default:
-					baseCheck = items[i].classid === NTIPAliasClassID[type];
-
-					break;
-				}
-
-				if (baseCheck) {
-					break;
-				}
-
+			if (items[i].getStat(sdk.stats.NumSockets) === sockets && (isClassID ? items[i].classid === type : items[i].itemType === type)) {
+				return true;
 			}
 		}
 
-		return baseCheck;
+		return false;
 	},
 
 	currentBuild: function () {
@@ -1103,6 +1057,7 @@ const Check = {
 				wantedSkills: finalBuild.wantedskills,
 				usefulSkills: finalBuild.usefulskills,
 				precastSkills: finalBuild.precastSkills,
+				usefulStats: (!!finalBuild.usefulStats ? finalBuild.usefulStats : []),
 				mercDiff: finalBuild.mercDiff,
 				mercAct: finalBuild.mercAct,
 				mercAuraWanted: finalBuild.mercAuraWanted,
@@ -1117,6 +1072,7 @@ const Check = {
 			tabSkills: build.skillstab,
 			wantedSkills: build.wantedskills,
 			usefulSkills: build.usefulskills,
+			usefulStats: (!!build.usefulStats ? build.usefulStats : []),
 			active: build.active,
 		};
 	},
@@ -1156,7 +1112,7 @@ const Check = {
 
 			if (foundError) {
 				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
-				SoloData.updateData("me", "finalBuild", SetUp.finalBuild);
+				CharData.updateData("me", "finalBuild", SetUp.finalBuild);
 				myData.me.finalBuild = SetUp.finalBuild;
 			}
 
@@ -1187,6 +1143,7 @@ const Check = {
 			wantedSkills: finalBuild.wantedskills,
 			usefulSkills: finalBuild.usefulskills,
 			precastSkills: finalBuild.precastSkills,
+			usefulStats: (!!finalBuild.usefulStats ? finalBuild.usefulStats : []),
 			mercDiff: finalBuild.mercDiff,
 			mercAct: finalBuild.mercAct,
 			mercAuraWanted: finalBuild.mercAuraWanted,
@@ -1201,10 +1158,6 @@ const Check = {
 
 		switch (true) {
 		case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
-			goal = SetUp.finalBuild;
-			goalReached = true;
-
-			break;
 		case SetUp.finalBuild === "Socketmule" && Misc.checkQuest(35, 1):
 			goal = SetUp.finalBuild;
 			goalReached = true;
@@ -1253,10 +1206,206 @@ const Check = {
 };
 
 // TODO: set this up similar to cubing where certain items get added to the validGids list to be kept and we look for items from the needList
-// Idea: would be nice that if we were currently pathing and had low stam that this updates to include picking up a stam pot then once we have it remove it so we don't pick up more
 const SoloWants = {
 	needList: [],
 	validGids: [],
 
-	
+	checkItem: function (item) {
+		if (!item) return false;
+		if (this.validGids.includes(item.gid)) return true;
+		let i = 0;
+		for (let el of this.needList) {
+			if ([sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(item.itemType) || (item.itemType >= sdk.itemtype.Amethyst && item.itemType <= sdk.itemtype.Skull)) {
+				if (el.needed.includes(item.classid)) {
+					this.validGids.push(item.gid);
+					this.needList[i].needed.splice(this.needList[i].needed.indexOf(item.classid), 1);
+					if (this.needList[i].needed.length === 0) {
+						this.needList.splice(i, 1); // no more needed items so remove from list
+					}
+					return true;
+				}
+			}
+			i++; // keep track of index
+		}
+
+		return false;
+	},
+
+	keepItem: function (item) {
+		if (!item) return false;
+		return this.validGids.includes(item.gid);
+	},
+
+	buildList: function () {
+		let myItems = me.getItemsEx();
+		let equippedItems = myItems
+			.filter(function (item) { return item.isEquipped && !item.isRuneword && !item.isQuestItem && item.quality >= sdk.itemquality.Magic && getBaseStat("items", item.classid, "gemsockets") > 0; })
+			.forEach(function (item) { return SoloWants.addToList(item); });
+		
+		return myItems.forEach(function (item) { return SoloWants.checkItem(item); });
+	},
+
+	addToList: function (item) {
+		if (!item || item.isRuneword) return false;
+		if (SoloWants.needList.some(function (check) { return item.classid === check.classid; })) return false;
+		let hasWantedItems;
+		let list = [];
+		let socketedWith = item.getItemsEx();
+		let numSockets = item.getStat(sdk.stats.NumSockets);
+		let curr = Config.socketables.find(({ classid }) => item.classid === classid);
+
+		if (curr && curr.socketWith.length > 0) {
+			hasWantedItems = socketedWith.some(function (el) { return curr.socketWith.includes(el.classid); });
+			if (hasWantedItems && socketedWith.length === numSockets) {
+				return true; // this item is full
+			}
+
+			// currently only supports adding first item from socketWith/temp array
+			// TODO: is figure out how to cleanly handle adding two or more different socketables to an item
+			// add the wanted items to the list
+			for (let i = 0; i < numSockets - socketedWith.length; i++) {
+				list.push(curr.socketWith[0]);
+			}
+
+			// currently no sockets but we might use our socket quest on it
+			numSockets === 0 && curr.useSocketQuest && list.push(curr.socketWith[0]);
+
+			// if temp socketables are used for this item and its not already socketed with wanted items add the temp items too
+			if (!hasWantedItems && !!curr.temp && !!curr.temp.length > 0) {
+				for (let i = 0; i < numSockets - socketedWith.length; i++) {
+					list.push(curr.temp[0]);
+				}
+				// Make sure we keep a hel rune so we can unsocket temp socketables if needed
+				if (!SoloWants.needList.some(function (check) { return sdk.items.runes.Hel === check.classid; })) {
+					let hel = me.getItemsEx(sdk.items.runes.Hel, 0);
+					// we don't have any hel runes and its not already in our needList
+					if ((!hel || hel.length === 0)) {
+						SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});
+					} else if (!hel.some(function (check) { SoloWants.validGids.includes(check.gid); })) {
+						SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});
+					}
+				}
+			}
+		} else {
+			let itemtype = item.getItemType();
+			if (!itemtype) return false;
+			let gemType = ["Helmet", "Armor"].includes(itemtype) ? "Ruby" : itemtype === "Shield" ? "Diamond" : itemtype === "Weapon" && !Check.currentBuild().caster ? "Skull" : "";
+			let runeType;
+
+			// Tir rune in normal, Io rune otherwise and Shael's if assassin
+			!gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
+
+			hasWantedItems = socketedWith.some(function (el) { return gemType ? el.itemType === sdk.itemtype[gemType] : el.classid === sdk.items.runes[runeType]; });
+			if (hasWantedItems && socketedWith.length === numSockets) {
+				return true; // this item is full
+			}
+
+			for (let i = 0; i < numSockets - socketedWith.length; i++) {
+				list.push(gemType ? sdk.items.gems.Perfect[gemType] : sdk.items.runes[runeType]);
+			}
+		}
+
+		// add to our needList so we pick the items
+		return list.length > 0 ? this.needList.push({classid: item.classid, needed: list}) : false;
+	},
+
+	update: function (item) {
+		if (!item) return false;
+		if (this.validGids.includes(item.gid)) return true; // already in the list
+		let i = 0;
+		for (let el of this.needList) {
+			if (!me.getItem(el.classid)) {
+				this.needList.splice(i, 1); // We no longer have the item we wanted socketables for
+				continue;
+			}
+			if ([sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(item.itemType) || (item.itemType >= sdk.itemtype.Amethyst && item.itemType <= sdk.itemtype.Skull)) {
+				if (el.needed.includes(item.classid)) {
+					this.validGids.push(item.gid);
+					this.needList[i].needed.splice(this.needList[i].needed.indexOf(item.classid), 1);
+					if (this.needList[i].needed.length === 0) {
+						this.needList.splice(i, 1); // no more needed items so remove from list
+					}
+					return true;
+				}
+			}
+			i++; // keep track of index
+		}
+
+		return false;
+	},
+
+	ensureList: function () {
+		let i = 0;
+		for (let el of this.needList) {
+			if (!me.getItem(el.classid)) {
+				this.needList.splice(i, 1); // We no longer have the item we wanted socketables for
+				continue;
+			}
+			i++; // keep track of index
+		}
+	},
+
+	// Cube ingredients
+	checkSubrecipes: function () {
+		for (let el of this.needList) {
+			for (let i = 0; i < el.needed.length; i++) {
+				switch (true) {
+				case [
+					sdk.items.gems.Perfect.Ruby, sdk.items.gems.Perfect.Sapphire, sdk.items.gems.Perfect.Topaz, sdk.items.gems.Perfect.Emerald,
+					sdk.items.gems.Perfect.Amethyst, sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Skull].includes(el.needed[i]):
+					if (Cubing.subRecipes.indexOf(el.needed[i]) === -1) {
+						Cubing.subRecipes.push(el.needed[i]);
+						Cubing.recipes.push({
+							Ingredients: [el.needed[i] - 1, el.needed[i] - 1, el.needed[i] - 1],
+							Index: 0,
+							AlwaysEnabled: true,
+							MainRecipe: "Crafting"
+						});
+					}
+
+					break;
+				case el.needed[i] >= sdk.items.runes.El && el.needed[i] <= sdk.items.runes.Ort:
+					if (Cubing.subRecipes.indexOf(el.needed[i]) === -1) {
+						Cubing.subRecipes.push(el.needed[i]);
+						Cubing.recipes.push({
+							Ingredients: [el.needed[i] - 1, el.needed[i] - 1, el.needed[i] - 1],
+							Index: Recipe.Rune,
+							AlwaysEnabled: true,
+							MainRecipe: "Crafting"
+						});
+					}
+
+					break;
+				// case el.needed[i] >= sdk.items.runes.Thul && el.needed[i] <= sdk.items.runes.Lem:
+				// // gems repeat so should be able to math this out chipped (TASRED) -> repeat flawed (TASRED)
+				// 	if (Cubing.subRecipes.indexOf(el.needed[i]) === -1) {
+				// 		Cubing.subRecipes.push(el.needed[i]);
+				// 		Cubing.recipes.push({
+				// 			Ingredients: [el.needed[i] - 1, el.needed[i] - 1, el.needed[i] - 1],
+				// 			Index: Recipe.Rune,
+				// 			AlwaysEnabled: true,
+				// 			MainRecipe: "Crafting"
+				// 		});
+				// 	}
+
+				// 	break;
+				// case el.needed[i] >= sdk.items.runes.Mal && el.needed[i] <= sdk.items.runes.Zod:
+				// // gems repeat so should be able to math this out Base (TASRED) -> repeat Flawless (TASRE) (stops at Emerald)
+				// 	if (Cubing.subRecipes.indexOf(el.needed[i]) === -1) {
+				// 		Cubing.subRecipes.push(el.needed[i]);
+				// 		Cubing.recipes.push({
+				// 			Ingredients: [el.needed[i] - 1, el.needed[i] - 1],
+				// 			Index: Recipe.Rune,
+				// 			AlwaysEnabled: true,
+				// 			MainRecipe: "Crafting"
+				// 		});
+				// 	}
+
+				// 	break;
+				}
+			}
+		}
+
+		return true;
+	},
 };

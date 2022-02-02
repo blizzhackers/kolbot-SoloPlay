@@ -203,9 +203,7 @@ const Quest = {
 		if (!tyrael) return false;
 
 		for (let talk = 0; talk < 3; talk += 1) {
-			if (getDistance(me, tyrael) > 3) {
-				Pather.moveToUnit(tyrael);
-			}
+			tyrael.distance > 3 && Pather.moveToUnit(tyrael);
 
 			tyrael.interact();
 			delay(1000 + me.ping);
@@ -349,40 +347,46 @@ const Quest = {
 
 	// Akara reset for build change
 	characterRespec: function () {
-		if (me.respec || SetUp.currentBuild === SetUp.finalBuild) return true;
+		if (me.respec || SetUp.currentBuild === SetUp.finalBuild) return;
 
-		if ((me.charlvl >= Config.respecOne && SetUp.currentBuild === "Start") || (Config.respecOneB > 0 && me.charlvl === Config.respecOneB) || me.charlvl === SetUp.respecTwo()) {
+		switch (true) {
+		case me.charlvl >= Config.respecOne && SetUp.currentBuild === "Start":
+		case Config.respecOneB > 0 && me.charlvl >= Config.respecOneB && SetUp.currentBuild === "Stepping":
+		case me.charlvl === SetUp.respecTwo() && SetUp.currentBuild === "Leveling":
 			if (!me.den) {
 				myPrint("time to respec, but den is incomplete");
-				return false;
+				return;
 			}
 
 			let preSkillAmount = me.getStat(sdk.stats.NewSkills);
 			let preStatAmount = me.getStat(sdk.stats.StatPts);
-			Precast.doPrecast(true);
+			let npc;
+
 			Town.goToTown(1);
 			myPrint("time to respec");
-			Town.npcInteract("akara");
+			npc = Town.npcInteract("akara", false);
 			delay(10 + me.ping * 2);
 
-			if (!Misc.useMenu(0x2ba0) || !Misc.useMenu(3401)) return false;
+			if (npc) {
+				sendPacket(1, 0x38, 4, 0, 4, npc.gid, 4, 0);
+			}
 
-			sendPacket(1, 0x40);
+			Misc.checkQuest(41, 0);
 			delay(10 + me.ping * 2);
 
 			if (me.respec || (me.getStat(sdk.stats.NewSkills) > preSkillAmount && me.getStat(sdk.stats.StatPts) > preStatAmount)) {
 				myData.me.currentBuild = SetUp.getBuild();
 				myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
-				SoloData.updateData("me", myData);
+				CharData.updateData("me", myData);
 				delay(750 + me.ping * 2);
 				Town.clearBelt();
 				myPrint("respec done, restarting");
 				delay(1000 + me.ping);
 				scriptBroadcast("quit");
 			}
-		}
 
-		return true;
+			break;
+		}
 	},
 
 	// Credit dzik or laz unsure who for this
@@ -459,7 +463,7 @@ const Quest = {
 			return false;
 		}
 
-		Town.npcInteract("larzuk");
+		Town.npcInteract("larzuk", false);
 		delay(10 + me.ping * 2);
 
 		if (!Misc.useMenu(0x58DC)) return false;
@@ -496,7 +500,7 @@ const Quest = {
 
 		Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : ", item);
 		D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, 6);
-		SoloData.updateData(sdk.difficulty.nameOf(me.diff), "socketUsed", true);
+		CharData.updateData(sdk.difficulty.nameOf(me.diff), "socketUsed", true);
 		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()]["socketUsed"] = true;
 		updateMyData();
 
@@ -583,7 +587,7 @@ const Quest = {
 			return false;
 		}
 
-		Town.npcInteract("charsi");
+		Town.npcInteract("charsi", false);
 		delay(10 + me.ping * 2);
 
 		if (!Misc.useMenu(0x0FB1)) return false;
@@ -618,7 +622,7 @@ const Quest = {
 
 		Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : ", item);
 		D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, 6);
-		SoloData.updateData(sdk.difficulty.nameOf(me.diff), "imbueUsed", true);
+		CharData.updateData(sdk.difficulty.nameOf(me.diff), "imbueUsed", true);
 		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()]["imbueUsed"] = true;
 		updateMyData();
 

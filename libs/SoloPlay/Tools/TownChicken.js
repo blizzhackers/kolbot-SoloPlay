@@ -107,13 +107,38 @@ function main() {
 	this.scriptEvent = function (msg) {
 		let obj;
 
-		// Added from Autosorc/Sorc.js
-		if (msg && typeof msg === "string" && msg !== "" && msg.substring(0, 8) === "config--") {
-			Config = JSON.parse(msg.split("config--")[1]);
-		}
+		if (msg && typeof msg === "string" && msg !== "") {
+			let updated = false;
+			switch (true) {
+			case msg.substring(0, 8) === "config--":
+				console.debug("update config");
+				Config = JSON.parse(msg.split("config--")[1]);
+				updated = true;
 
-		if (msg && typeof msg === "string" && msg !== "" && msg.substring(0, 6) === "data--") {
-			myData = JSON.parse(msg.split("data--")[1]);
+				break;
+			case msg.substring(0, 6) === "buff--":
+				console.debug("update buffData");
+				obj = JSON.parse(msg.split("buff--")[1]);
+				Misc.updateRecursively(CharData.buffData, obj);
+				updated = true;
+
+				break;
+			case msg.substring(0, 7) === "skill--":
+				console.debug("update skillData");
+				obj = JSON.parse(msg.split("skill--")[1]);
+				Misc.updateRecursively(CharData.skillData, obj);
+				updated = true;
+
+				break;
+			case msg.toLowerCase() === "test":
+				console.debug(CharData.buffData);
+				console.debug(CharData.skillData);
+				updated = true;
+
+				break;
+			}
+
+			if (updated) return;
 		}
 
 		switch (msg) {
@@ -140,10 +165,6 @@ function main() {
 			// Maybe stop townChicken thread? Would that keep us from the crash that happens when we try to leave game while townChickening
 
 			break;
-		case "test":
-			console.log(myData);
-
-			break;
 		default:
 			break;
 		}
@@ -166,8 +187,7 @@ function main() {
 			if (me.dead) return false;
 
 			try {
-				me.overhead("Going to town");
-				print("ÿc8TownChicken :: ÿc0Going to town");
+				myPrint("ÿc8TownChicken :: ÿc0Going to town");
 				Attack.stopClear = true;
 				SoloEvents.townChicken = true;
 				

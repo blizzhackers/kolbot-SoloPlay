@@ -517,31 +517,25 @@ Pather.changeAct = function () {
 	case 2:
 		npc = "Warriv";
 		loc = sdk.areas.LutGholein;
-		quest = 6;
 
 		break;
 	case 3:
 		npc = "Meshif";
 		loc = sdk.areas.KurastDocktown;
-		quest = 14;
 
 		break;
 	case 5:
 		npc = "Tyrael";
 		loc = sdk.areas.Harrogath;
-		quest = 26;
 
 		break;
 	default:
 		return false;
 	}
 
-	if (!Misc.checkQuest(quest, 0)) {
-		myPrint("Failed to move to act " + act);
-		return false;
-	}
+	!me.inTown && Town.goToTown();
 
-	let npcUnit = Town.npcInteract(npc, false);
+	let npcUnit = Town.npcInteract(npc);
 	let timeout = getTickCount() + 3000;
 
 	if (!npcUnit) {
@@ -554,7 +548,7 @@ Pather.changeAct = function () {
 	}
 
 	if (npcUnit) {
-		for (let i = 0; i < 5; i += 1) {
+		for (let i = 0; i < 5; i++) {
 			sendPacket(1, 56, 4, 0, 4, npcUnit.gid, 4, loc);
 			delay(500 + me.ping);
 
@@ -564,6 +558,10 @@ Pather.changeAct = function () {
 		}
 	} else {
 		myPrint("Failed to move to " + npc);
+	}
+
+	while (!me.gameReady) {
+		delay(100);
 	}
 
 	return me.act === act;
@@ -982,6 +980,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 	}
 
 	let tick, wp, coord, retry, npc;
+	let once = false;
 
 	for (let i = 0; i < 12; i += 1) {
 		if (me.area === targetArea || me.dead) {
@@ -1092,6 +1091,17 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 					this.moveTo(coord.x, coord.y);
 					delay(200 + me.ping);
 					Packet.flash(me.gid);
+					wp && wp.distance > 5 && !getUIFlag(sdk.uiflags.Waypoint) && this.moveToUnit(wp);
+
+					if (i === 10 && !once) {
+						// wierd but when we can't click on anything npcs/portals/waypoint it seems that un-equipping an item then re-equipping it seems to fix it
+						let _a = me.getItemsEx().filter(function (item) { return item.isEquipped; }).sort((a, b) => NTIP.GetTier(a) - NTIP.GetTier(b)).first();
+						let bodLoc = _a ? _a.bodylocation : false;
+						_a && bodLoc && _a.toCursor() && delay(200 + me.ping);
+						me.itemoncursor && bodLoc && clickItemAndWait(0, bodLoc) && (once = true);
+						once && console.debug("did this work?");
+					}
+
 					continue;
 				}
 			}

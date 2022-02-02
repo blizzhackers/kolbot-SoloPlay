@@ -10,6 +10,7 @@ const finalBuild = {
 	wantedskills: [sdk.skills.FireStorm, sdk.skills.Fissure],
 	usefulskills: [sdk.skills.CycloneArmor],
 	precastSkills: [sdk.skills.CycloneArmor],
+	usefulStats: [sdk.stats.PassiveFireMastery, sdk.stats.PassiveFirePierce],
 	mercDiff: sdk.difficulty.Normal,
 	mercAct: 2,
 	mercAuraWanted: "Blessed Aim",

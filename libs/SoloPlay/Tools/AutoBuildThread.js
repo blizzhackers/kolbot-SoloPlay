@@ -53,7 +53,7 @@ function canSpendPoints () {
 	let haveUnusedStatpoints = unusedStatPoints >= 5;	// We spend 5 stat points per level up
 	let unusedSkillPoints = me.getStat(5);
 	let haveUnusedSkillpoints = unusedSkillPoints >= 1;	// We spend 1 skill point per level up
-	if (debug) { AutoBuild.print("Stat points:", unusedStatPoints, "     Skill points:", unusedSkillPoints); }
+	if (debug) AutoBuild.print("Stat points:", unusedStatPoints, "     Skill points:", unusedSkillPoints);
 	return haveUnusedStatpoints && haveUnusedSkillpoints;
 }
 

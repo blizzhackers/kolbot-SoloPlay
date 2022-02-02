@@ -10,6 +10,7 @@ const finalBuild = {
 	wantedskills: [sdk.skills.Zeal, sdk.skills.Conviction],
 	usefulskills: [sdk.skills.HolyShield, sdk.skills.ResistFire, sdk.skills.Salvation],
 	precastSkills: [sdk.skills.HolyShield],
+	usefulStats: [sdk.stats.PassiveFireMastery, sdk.stats.PassiveFirePierce, sdk.stats.PierceFire],
 	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
 	mercAuraWanted: "Holy Freeze",

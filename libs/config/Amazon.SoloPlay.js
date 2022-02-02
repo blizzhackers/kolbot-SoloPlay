@@ -167,7 +167,6 @@ function LoadConfig () {
 	];
 
 	NTIP.arrayLooping(levelingTiers);
-	NTIP.arrayLooping(nipItems.Gems);
 
 	if (SetUp.currentBuild !== "Witchyzon") {
 		NTIP.addLine("[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
@@ -281,32 +280,14 @@ function LoadConfig () {
 					{
 						classid: sdk.items.Shako,
 						socketWith: [sdk.items.runes.Um],
+						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: true,
 						condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
 					}
 				);
 
-		if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
-			NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");
-
-			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond) < 2)) {
-				Config.Recipes.push([Recipe.Gem, "flawlessdiamond"]);
-			}
-
-			if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Um) < 2)) {
-				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
-			}
-
-			NTIP.addLine("[name] == UmRune # # [maxquantity] == 2");
-		}
-
-		if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
-			if (!me.getItem(sdk.items.runes.Um)) {
-				Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
-			}
-
-			NTIP.addLine("[name] == UmRune # # [maxquantity] == 1");
-		}
+		Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
+		Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
 
 		/* Crafting */
 		// Going with Blood but TODO is test HitPower vs Blood
@@ -374,28 +355,6 @@ function LoadConfig () {
 			break;
 		default:
 			break;
-		}
-
-		let helm = Item.getEquippedItem(1);
-		let body = Item.getEquippedItem(3);
-		let shield = Item.getEquippedItem(5);
-
-		if (!helm.isRuneword && [4, 6].indexOf(helm.quality) > -1 && helm.sockets > 0 && !helm.socketed) {
-			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Ruby) < 2)) {
-				Config.Recipes.push([Recipe.Gem, "flawlessruby"]);
-			}
-		}
-
-		if (!body.isRuneword && [4, 6].indexOf(body.quality) > -1 && body.sockets > 0 && !body.socketed) {
-			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Ruby) < 2)) {
-				Config.Recipes.push([Recipe.Gem, "flawlessruby"]);
-			}
-		}
-
-		if (!shield.isRuneword && [4, 6].indexOf(shield.quality) > -1 && shield.sockets > 0 && !shield.socketed) {
-			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond) < 2)) {
-				Config.Recipes.push([Recipe.Gem, "flawlessdiamond"]);
-			}
 		}
 
 		// Call to Arms
@@ -467,6 +426,8 @@ function LoadConfig () {
 				include("SoloPlay/BuildFiles/Runewords/Stealth.js");
 			}
 		}
+
+		SoloWants.buildList();
 
 		break;	
 	}

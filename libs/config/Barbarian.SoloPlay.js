@@ -166,11 +166,6 @@ function LoadConfig () {
 	];
 
 	NTIP.arrayLooping(levelingTiers);
-	NTIP.arrayLooping(nipItems.Gems);
-
-	if (SetUp.currentBuild !== SetUp.finalBuild) {
-		NTIP.addLine("[name] == perfectskull # # [maxquantity] == 2");
-	}
 
 	/* FastMod configuration. */
 	Config.FCR = 0;
@@ -359,10 +354,6 @@ function LoadConfig () {
 				}
 			}
 
-			if (Check.haveItemAndNotSocketed("mace", "set", "Immortal King's Stone Crusher")) {
-				NTIP.addLine("[name] == ShaelRune # # [maxquantity] == 2");
-			}
-
 			Config.socketables
 				.push(
 					{
@@ -386,6 +377,8 @@ function LoadConfig () {
 						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
 					}
 				);
+
+			Check.itemSockables(sdk.items.OgreMaul, "set", "Immortal King's Stone Crusher");
 
 			break;
 		case 'Whirlwind':
@@ -434,35 +427,6 @@ function LoadConfig () {
 
 			// upped Ginther's Rift
 			NTIP.addLine("[name] == phaseblade && [quality] == unique && [flag] == ethereal # [enhanceddamage] >= 100 && [ias] == 30 && [magicdamagereduction] >= 7 # [maxquantity] == 1");
-		}
-
-		let helm = Item.getEquippedItem(1);
-		let body = Item.getEquippedItem(3);
-		let wep1 = Item.getEquippedItem(4);
-		let wep2 = Item.getEquippedItem(5);
-
-		if (!helm.isRuneword && [4, 6].indexOf(helm.quality) > -1 && helm.sockets > 0 && !helm.socketed) {
-			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Ruby) < 2)) {
-				Config.Recipes.push([Recipe.Gem, "flawlessruby"]);
-			}
-		}
-
-		if (!body.isRuneword && [4, 6].indexOf(body.quality) > -1 && body.sockets > 0 && !body.socketed) {
-			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Ruby) < 2)) {
-				Config.Recipes.push([Recipe.Gem, "flawlessruby"]);
-			}
-		}
-
-		if (!wep1.isRuneword && [4, 6].indexOf(wep1.quality) > -1 && wep1.sockets > 0 && !wep1.socketed) {
-			if (Item.getQuantityOwned(me.getItem(601) < 2)) {
-				Config.Recipes.push([Recipe.Gem, "flawlessskull"]);
-			}
-		}
-
-		if (!wep2.isRuneword && [4, 6].indexOf(wep2.quality) > -1 && wep2.sockets > 0 && !wep2.socketed) {
-			if (Item.getQuantityOwned(me.getItem(601) < 2)) {
-				Config.Recipes.push([Recipe.Gem, "flawlessskull"]);
-			}
 		}
 
 		// Lawbringer - Amn/Lem/Ko
@@ -607,9 +571,8 @@ function LoadConfig () {
 			Config.Recipes.push([Recipe.Blood.Gloves, "Heavy Gloves"]); // Craft Blood Gloves
 		}*/
 
-		if (Check.haveItemAndNotSocketed("sword", "unique", "Djinn Slayer")) {
-			NTIP.addLine("[name] == AmnRune # # [maxquantity] == 2");
-		}
+		Check.itemSockables(sdk.items.Ataghan, "unique", "Djinn Slayer");
+		SoloWants.buildList();
 
 		break;
 	}

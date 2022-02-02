@@ -9,6 +9,7 @@ let build = {
 	skillstab: sdk.skills.tabs.Cold,
 	wantedskills: [sdk.skills.Blizzard, sdk.skills.GlacialSpike, sdk.skills.ColdMastery],
 	usefulskills: [sdk.skills.IceBlast, sdk.skills.Warmth, sdk.skills.StaticField],
+	usefulStats: [sdk.stats.PassiveColdPierce, sdk.stats.PassiveColdMastery],
 	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
 	mercAuraWanted: "Holy Freeze",

@@ -10,6 +10,7 @@ const finalBuild = {
 	wantedskills: [sdk.skills.PoisonNova, sdk.skills.CorpseExplosion],
 	usefulskills: [sdk.skills.AmplifyDamage, sdk.skills.BoneArmor, sdk.skills.LowerResist],
 	precastSkills: [sdk.skills.BoneArmor],
+	usefulStats: [sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce],
 	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
 	mercAuraWanted: "Holy Freeze",

@@ -1,7 +1,7 @@
 /*
 *	@filename	ProtoTypesOverrides.js
-*	@author		theBGuy, isid0re
-*	@credits 	Jaenster
+*	@author		theBGuy
+*	@credits 	Jaenster, sonic, isid0re
 *	@desc		additions for improved Kolbot-SoloPlay functionality and code readability
 */
 
@@ -19,21 +19,8 @@ Unit.prototype.getItemType = function () {
 	case sdk.itemtype.AuricShields:
 	case sdk.itemtype.VoodooHeads:
 		return "Shield";
-	case sdk.itemtype.BowQuiver:
-	case sdk.itemtype.CrossbowQuiver:
-		return "Quiver";
 	case sdk.itemtype.Armor:
 		return "Armor";
-	case sdk.itemtype.Ring:
-		return "Ring";
-	case sdk.itemtype.Amulet:
-		return "Amulet";
-	case sdk.itemtype.Boots:
-		return "Boots";
-	case sdk.itemtype.Gloves:
-		return "Gloves";
-	case sdk.itemtype.Belt:
-		return "Belt";
 	case sdk.itemtype.Helm:
 	case sdk.itemtype.PrimalHelm:
 	case sdk.itemtype.Circlet:
@@ -63,6 +50,20 @@ Unit.prototype.getItemType = function () {
 	case sdk.itemtype.HandtoHand:
 	case sdk.itemtype.AssassinClaw:
 		return "Weapon";
+	// currently only use this function for socket related things so might as well make non-socketable things return false
+	case sdk.itemtype.BowQuiver:
+	case sdk.itemtype.CrossbowQuiver:
+		//return "Quiver";
+	case sdk.itemtype.Ring:
+		//return "Ring";
+	case sdk.itemtype.Amulet:
+		//return "Amulet";
+	case sdk.itemtype.Boots:
+		//return "Boots";
+	case sdk.itemtype.Gloves:
+		//return "Gloves";
+	case sdk.itemtype.Belt:
+		//return "Belt";
 	default:
 		return "";
 	}
@@ -140,42 +141,40 @@ Object.defineProperties(Unit.prototype, {
 	},
 	fireRes: {
 		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxFireResist), this.getStat(sdk.stats.FireResist) - me.resPenalty);
+			let modifier = 0;
+			if (this === me) {
+				me.getState(sdk.states.ShrineResFire) && (modifier += 75);
+			}
+			return this.getStat(sdk.stats.FireResist) - me.resPenalty - modifier;
 		}
 	},
 	coldRes: {
 		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxColdResist), this.getStat(sdk.stats.ColdResist) - me.resPenalty);
+			let modifier = 0;
+			if (this === me) {
+				me.getState(sdk.states.ShrineResCold) && (modifier += 75);
+				CharData.buffData.thawing.active() && (modifier += 50);
+			}
+			return this.getStat(sdk.stats.ColdResist) - me.resPenalty - modifier;
 		}
 	},
 	lightRes: {
 		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxLightResist), this.getStat(sdk.stats.LightResist) - me.resPenalty);
+			let modifier = 0;
+			if (this === me) {
+				me.getState(sdk.states.ShrineResLighting) && (modifier += 75);
+			}
+			return this.getStat(sdk.stats.LightResist) - me.resPenalty - modifier;
 		}
 	},
 	poisonRes: {
 		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), this.getStat(sdk.stats.PoisonResist) - me.resPenalty);
-		}
-	},
-	realFR: {
-		get: function () {
-			return this.getStat(sdk.stats.FireResist) - me.resPenalty;
-		}
-	},
-	realCR: {
-		get: function () {
-			return this.getStat(sdk.stats.ColdResist) - me.resPenalty;
-		}
-	},
-	realLR: {
-		get: function () {
-			return this.getStat(sdk.stats.LightResist) - me.resPenalty;
-		}
-	},
-	realPR: {
-		get: function () {
-			return this.getStat(sdk.stats.PoisonResist) - me.resPenalty;
+			let modifier = 0;
+			if (this === me) {
+				me.getState(sdk.states.ShrineResPoison) && (modifier += 75);
+				CharData.buffData.antidote.active() && (modifier += 50);
+			}
+			return this.getStat(sdk.stats.PoisonResist) - me.resPenalty - modifier;
 		}
 	},
 	hpPercent: {
@@ -438,6 +437,26 @@ Object.defineProperties(me, {
 			return dex;
 		},
 		set: function(newValue) { dex = newValue; }
+	},
+	FCR: {
+		get: function () {
+			return me.getStat(sdk.stats.FCR) - (!!Config ? Config.FCR : 0);
+		}
+	},
+	FHR: {
+		get: function () {
+			return me.getStat(sdk.stats.FHR) - (!!Config ? Config.FHR : 0);
+		}
+	},
+	FBR: {
+		get: function () {
+			return me.getStat(sdk.stats.FBR) - (!!Config ? Config.FBR : 0);
+		}
+	},
+	IAS: {
+		get: function () {
+			return me.getStat(sdk.stats.IAS) - (!!Config ? Config.IAS : 0);
+		}
 	},
 	shapeshifted: {
 		get: function () {
@@ -1385,7 +1404,7 @@ Unit.prototype.__defineGetter__('attackable', function () {
 
 Unit.prototype.__defineGetter__('curseable', function () {
     // must be player or monster
-    if (this.type > 1) return false;
+    if (this === undefined || this.type > 1) return false;
 
     // attract can't be overridden
 	if (this.getState(sdk.states.Attract)) return false;
@@ -1608,4 +1627,59 @@ if (!Object.is) {
             }
         }
     });
+}
+
+// if (!Object.fromEntries) {
+//   Object.defineProperty(Object, 'fromEntries', {
+//     value: function (entries) {
+//       if (!entries /*|| !entries[Symbol.iterator]*/) { throw new Error('Object.fromEntries() requires a single iterable argument'); }
+
+//       const o = {};
+
+//       Object.keys(entries).forEach((key) => {
+//         const [k, v] = entries[key];
+
+//         o[k] = v;
+//       });
+
+//       return o;
+//     },
+//   });
+// }
+
+// // filter an object
+// Object.filter = function (obj, predicate) {
+// 	return Object.fromEntries(Object.entries(obj).filter(predicate));
+// };
+
+// https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
+if (!Array.prototype.equals) {
+	// Warn if overriding existing method
+    !!Array.prototype.equals && console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
+	// attach the .equals method to Array's prototype to call it on any array
+	Array.prototype.equals = function (array) {
+	    // if the other array is a falsy value, return
+	    if (!array) return false;
+
+	    // compare lengths - can save a lot of time 
+	    if (this.length != array.length) return false;
+	    
+	    // call basic sort method, (my addition as I don't care if its the same order just if it contains the same values)
+	    this.sort();
+	    array.sort();
+
+	    for (let i = 0, l = this.length; i < l; i++) {
+	        // Check if we have nested arrays
+	        if (this[i] instanceof Array && array[i] instanceof Array) {
+	            // recurse into the nested arrays
+	            if (!this[i].equals(array[i])) return false;
+	        } else if (this[i] != array[i]) {
+	            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+	            return false;   
+	        }
+	    }
+	    return true;
+	};
+	// Hide method from for-in loops
+	Object.defineProperty(Array.prototype, "equals", {enumerable: false});
 }

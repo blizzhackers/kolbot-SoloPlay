@@ -631,6 +631,8 @@ Misc.getSocketables = function (item, itemInfo) {
 
 		// Tir rune in normal, Io rune otherwise and Shael's if assassin
 		!gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
+
+		// TODO: Use Jewels
 	}
 
 	for (let i = 0; i < socketables.length; i++) {
@@ -1126,12 +1128,56 @@ Misc.errorReport = function (error, script) {
 	delay(500);
 };
 
+Misc.updateRecursively = function (oldObj, newObj, path) {
+    if (path === void 0) { path = []; }
+    Object.keys(newObj).forEach(function (key) {
+        if (typeof newObj[key] === 'function') return; // skip
+        if (typeof newObj[key] !== 'object') {
+            if (!oldObj.hasOwnProperty(key) || oldObj[key] !== newObj[key]) {
+                oldObj[key] = newObj[key];
+            }
+        } else if (Array.isArray(newObj[key]) && !newObj[key].some(k => typeof k === "object")) {
+            // copy array (shallow copy)
+            if (!oldObj[key].equals(newObj[key])) {
+            	oldObj[key] = newObj[key].slice(0);
+            }
+        } else {
+            if (typeof oldObj[key] !== 'object') {
+                oldObj[key] = {};
+            }
+            path.push(key);
+            Misc.updateRecursively(oldObj[key], newObj[key], path);
+        }
+    });
+};
+
+Misc.recursiveSearch = function (o, n, changed) {
+    if (changed === void 0) { changed = {}; }
+    Object.keys(n).forEach(function (key) {
+        if (typeof n[key] === 'function') return; // skip
+        if (typeof n[key] !== 'object') {
+            if (!o.hasOwnProperty(key) || o[key] !== n[key]) {
+                changed[key] = n[key];
+            }
+        }
+        else {
+            if (typeof changed[key] !== 'object' || !changed[key]) {
+                changed[key] = {};
+            }
+            Misc.recursiveSearch((o === null || o === void 0 ? void 0 : o[key]) || {}, (n === null || n === void 0 ? void 0 : n[key]) || {}, changed[key]);
+            if (!Object.keys(changed[key]).length)
+                delete changed[key];
+        }
+    });
+    return changed;
+};
+
 // singleplayer delay(0) fix
 Packet.openMenu = function (unit) {
 	if (unit.type !== 1) { throw new Error("openMenu: Must be used on NPCs."); }
 	if (getUIFlag(sdk.uiflags.NPCMenu)) return true;
 
-	for (let i = 0; i < 5; i += 1) {
+	for (let i = 0; i < 5; i++) {
 		unit.distance > 4 && Pather.moveToUnit(unit);
 		sendPacket(1, 0x13, 4, 1, 4, unit.gid);
 		let tick = getTickCount();

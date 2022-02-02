@@ -10,6 +10,7 @@ const finalBuild = {
 	wantedskills: [sdk.skills.Tornado, sdk.skills.Hurricane, sdk.skills.Twister],
 	usefulskills: [sdk.skills.CycloneArmor],
 	precastSkills: [sdk.skills.CycloneArmor],
+	usefulStats: [sdk.stats.PassiveColdPierce, sdk.stats.PassiveColdMastery],
 	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
 	mercAuraWanted: "Might",

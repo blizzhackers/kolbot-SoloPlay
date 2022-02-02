@@ -1,6 +1,6 @@
 /*
 *	@filename	TownOverrides.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
 *	@desc		Town.js fixes and custom tasks to improve functionality
 */
 
@@ -14,30 +14,6 @@ Town.ignoredItemTypes = [
 	sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion, sdk.itemtype.StaminaPotion,
 	sdk.itemtype.AntidotePotion, sdk.itemtype.ThawingPotion
 ];
-
-Town.stamina = {
-	tick: 0,
-	duration: 0,
-	active: function () {
-		return getTickCount() - this.tick < this.duration;
-	}
-};
-
-Town.thawing = {
-	tick: 0,
-	duration: 0,
-	active: function () {
-		return getTickCount() - this.tick < this.duration;
-	}
-};
-
-Town.antidote = {
-	tick: 0,
-	duration: 0,
-	active: function () {
-		return getTickCount() - this.tick < this.duration;
-	}
-};
 
 Town.initNPC = function (task, reason) {
 	print("initNPC: " + reason);
@@ -420,6 +396,11 @@ Town.cainID = function (force = false, dontSell = false) {
 				CraftingSystem.update(item);
 
 				break;
+			case 8: // SoloWants System
+				Misc.itemLogger("Kept", item, "SoloWants-Town");
+				SoloWants.update(item);
+
+				break;
 			default:
 				Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm && Misc.logItem("Sold", item);
 				Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm && Misc.logItem("Sold", item);
@@ -609,6 +590,11 @@ Town.identify = function () {
 					CraftingSystem.update(item);
 
 					break;
+				case 8: // SoloWants System
+					Misc.itemLogger("Kept", item, "SoloWants-Town");
+					SoloWants.update(item);
+
+					break;
 				default:
 					Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm && Misc.logItem("Sold", item);
 					Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm && Misc.logItem("Sold", item);
@@ -645,6 +631,7 @@ Town.canTpToTown = function () {
 	return true;
 };
 
+// credit isid0re
 Town.buyBook = function () {
 	if (me.findItem(sdk.items.TomeofTownPortal, 0, 3)) return true;
 
@@ -824,7 +811,7 @@ Town.shopItems = function () {
 
 	print("ÿc8Kolbot-SoloPlayÿc0: Evaluating " + npc.itemcount + " items.");
 
-	for (let i = 0; i < items.length; i += 1) {
+	for (let i = 0; i < items.length; i++) {
 		result = Pickit.checkItem(items[i]);
 		let myGold = me.gold;
 		let itemCost = items[i].getItemCost(0);
@@ -1141,14 +1128,14 @@ Town.buyPots = function (quantity = 0, type = "", drink = false, force = false) 
 	let npc, jugs, potDealer = ["Akara", "Lysander", "Alkor", "Jamella", "Malah"][me.act - 1];
 
 	// Don't buy if already at max res
-	if (type === "Thawing" && (me.coldRes >= 75 && (!Town.thawing.active() || me.realCR - 50 >= 75)) && !force) {
+	if (type === "Thawing" && me.coldRes >= 75 && !force) {
 		return true;
 	} else if (type === "Thawing") {
 		print("ÿc9BuyPotsÿc0 :: Current cold resistance: " + me.coldRes);
 	}
 
 	// Don't buy if already at max res
-	if (type === "Antidote" && (me.poisonRes >= 75 && (!Town.antidote.active() || me.realPR - 50 >= 75)) && !force) {
+	if (type === "Antidote" && me.poisonRes >= 75 && !force) {
 		return true;
 	} else if (type === "Antidote") {
 		print("ÿc9BuyPotsÿc0 :: Current poison resistance: " + me.poisonRes);
@@ -1222,14 +1209,15 @@ Town.drinkPots = function () {
 			!!name && (objID = name.split(' ')[0].toLowerCase());
 
 			if (objID) {
-				if (!Town[objID].active()) {
-					Town[objID].tick = getTickCount();
-					Town[objID].duration = quantity * 30 * 1000;
+				if (!CharData.buffData[objID].active()) {
+					CharData.buffData[objID].tick = getTickCount();
+					CharData.buffData[objID].duration = quantity * 30 * 1000;
 				} else {
-					Town[objID].duration += (quantity * 30 * 1000) - (getTickCount() - Town[objID].tick);
+					CharData.buffData[objID].duration += (quantity * 30 * 1000) - (getTickCount() - CharData.buffData[objID].tick);
 				}
 
-				print('ÿc9DrinkPotsÿc0 :: drank ' + quantity + " " + name + "s. Timer [" + Developer.formatTime(Town[objID].duration) + "]");
+				print('ÿc9DrinkPotsÿc0 :: drank ' + quantity + " " + name + "s. Timer [" + Developer.formatTime(CharData.buffData[objID].duration) + "]");
+				["thawing", "antidote"].includes(objID) && CharData.buffData.update();
 			}
 		}
 	}
@@ -1406,6 +1394,7 @@ Town.stash = function (stashGold = true) {
 				case Cubing.keepItem(items[i]):
 				case Runewords.keepItem(items[i]):
 				case CraftingSystem.keepItem(items[i]):
+				case SoloWants.keepItem(items[i]):
 				case !items[i].isSellable: // quest/essences/keys/ect
 					result = true;
 
@@ -1530,14 +1519,15 @@ Town.clearInventory = function () {
 	items = Storage.Inventory.Compare(Config.Inventory);
 
 	for (let i = 0; !!items && i < items.length; i += 1) {
-		if ([18, 41, 76, 77, 78].indexOf(items[i].itemType) === -1 && // Don't drop tomes, keys or potions
-			items[i].isSellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
-			(items[i].code !== 529 || !!me.findItem(518, 0, 3)) && // Don't throw scrolls if no tome is found (obsolete code?)
-			(items[i].code !== 530 || !!me.findItem(519, 0, 3)) && // Don't throw scrolls if no tome is found (obsolete code?)
-			!AutoEquip.wanted(items[i]) && // Don't throw auto equip wanted items
-			!Cubing.keepItem(items[i]) && // Don't throw cubing ingredients
-			!Runewords.keepItem(items[i]) && // Don't throw runeword ingredients
-			!CraftingSystem.keepItem(items[i]) // Don't throw crafting system ingredients
+		if ([18, 41, 76, 77, 78].indexOf(items[i].itemType) === -1 // Don't drop tomes, keys or potions
+			&& items[i].isSellable // Don't try to sell/drop quest-items/keys/essences/tokens/organs
+			&& (items[i].code !== 529 || !!me.findItem(518, 0, 3)) // Don't throw scrolls if no tome is found (obsolete code?)
+			&& (items[i].code !== 530 || !!me.findItem(519, 0, 3)) // Don't throw scrolls if no tome is found (obsolete code?)
+			&& !AutoEquip.wanted(items[i]) // Don't throw auto equip wanted items
+			&& !Cubing.keepItem(items[i]) // Don't throw cubing ingredients
+			&& !Runewords.keepItem(items[i]) // Don't throw runeword ingredients
+			&& !CraftingSystem.keepItem(items[i]) // Don't throw crafting system ingredients
+			&& !SoloWants.keepItem(items[i]) // Don't throw SoloWants system ingredients
 		) {
 			result = Pickit.checkItem(items[i]).result;
 
@@ -2410,6 +2400,7 @@ Town.clearJunk = function () {
 			!Cubing.keepItem(junk) && // Don't throw cubing ingredients
 			!Runewords.keepItem(junk) && // Don't throw runeword ingredients
 			!CraftingSystem.keepItem(junk) && // Don't throw crafting system ingredients
+			!SoloWants.keepItem(junk) && // Don't throw SoloWants system ingredients
 			!Town.ignoredItemTypes.includes(junk.itemType) && // Don't drop tomes, keys or potions
 			junk.isSellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
 			([0, 4].includes(Pickit.checkItem(junk).result)) // only drop unwanted or sellable
@@ -2567,7 +2558,7 @@ Town.npcInteract = function (name, cancel = true) {
         cancel && me.cancel();
         return npc;
     }
-    
+
     return false;
 };
 

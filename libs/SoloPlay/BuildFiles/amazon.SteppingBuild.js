@@ -9,6 +9,7 @@ let build = {
 	skillstab: sdk.skills.tabs.JavelinSpear,
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
 	usefulskills: [sdk.skills.CriticalStrike, sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
+	usefulStats: [sdk.stats.PierceLtng, sdk.stats.PassiveLightningMastery, sdk.stats.PassiveLightningPierce],
 	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
 	mercAuraWanted: "Holy Freeze",
@@ -43,3 +44,4 @@ let build = {
 
 // Has to be set after its loaded
 build.stats = me.classic ? build.classicStats : build.expansionStats;
+me.classic ? build.usefulStats.push(sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois);

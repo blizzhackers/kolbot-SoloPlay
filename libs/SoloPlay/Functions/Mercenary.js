@@ -89,7 +89,7 @@ const Merc = {
                     myData.merc.act = me.act;
                     myData.merc.difficulty = me.diff;
                     myData.merc.type = wantedMerc.skills.find(sk => sk.name === wantedSkill).name;
-                    SoloData.updateData("merc", myData);
+                    CharData.updateData("merc", myData);
                     updateMyData();
                     print('ÿc9ÿc9Mercenaryÿc0 :: ' + myData.merc.type + ' merc hired.');
                 }

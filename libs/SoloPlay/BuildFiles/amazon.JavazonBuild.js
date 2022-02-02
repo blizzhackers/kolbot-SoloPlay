@@ -10,6 +10,7 @@ const finalBuild = {
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
 	usefulskills: [sdk.skills.CriticalStrike, sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
 	precastSkills: [sdk.skills.Valkyrie],
+	usefulStats: [sdk.stats.PierceLtng, sdk.stats.PassiveLightningMastery, sdk.stats.PassiveLightningPierce],
 	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
 	mercAuraWanted: "Holy Freeze",
@@ -117,3 +118,4 @@ const finalBuild = {
 finalBuild.stats = me.classic ? finalBuild.classicStats : finalBuild.expansionStats;
 finalBuild.skills = me.classic ? finalBuild.classicSkills : finalBuild.expansionSkills;
 finalBuild.autoEquipTiers = me.classic ? finalBuild.classicTiers : finalBuild.expansionTiers;
+me.classic ? finalBuild.usefulStats.push(sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois);

@@ -233,7 +233,7 @@ Item.autoEquipKeepCheck = function (item) {
 						return false;
 					}
 				}
-				
+
 				return true;
 			}
 		}
@@ -301,8 +301,8 @@ Item.autoEquip = function () {
 						print("ÿc9AutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
 					}
 
-					if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1) {
-						if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tier) {
+					if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1 && this.getEquippedItem(4).twoHanded) {
+						if (tier < this.getEquippedItem(4).tier) {
 							continue;
 						}
 						print("ÿc9AutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
@@ -313,6 +313,11 @@ Item.autoEquip = function () {
 
 					if (this.equip(items[0], bodyLoc[j])) {
 						print("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
+						// item that can have sockets
+						if (items[0].getItemType()) {
+							SoloWants.addToList(items[0]);
+							SoloWants.ensureList();
+						}
 						Developer.debugging.autoEquip && Misc.logItem("Equipped", me.getItem(-1, -1, gid));
 						Developer.logEquipped && MuleLogger.logEquippedItems();
 
@@ -365,8 +370,10 @@ Item.equip = function (item, bodyLoc) {
 
 					if (cursorItem) {
 						// rollback check
-						if (NTIP.GetTier(cursorItem) > this.getEquippedItem(bodyLoc).tier && !item.isQuestItem) {
+						let justEquipped = this.getEquippedItem(bodyLoc);
+						if (NTIP.GetTier(cursorItem) > justEquipped.tier && !item.isQuestItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attemt rollback*/) {
 							console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
+							console.debug("OldItem: " + NTIP.GetTier(cursorItem) + " Just Equipped Item: " + this.getEquippedItem(bodyLoc).tier);
 							clickItemAndWait(0, bodyLoc);
 							cursorItem = getUnit(100);
 							rolledBack = true;
