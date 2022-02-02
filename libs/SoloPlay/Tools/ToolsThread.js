@@ -298,7 +298,7 @@ function main () {
 
 		if (objID) {
 			pot.interact();
-			if (!CharData.buffData[objID].active()) {
+			if (!CharData.buffData[objID].active() || CharData.buffData[objID].timeLeft() <= 0) {
 				CharData.buffData[objID].tick = getTickCount();
 				CharData.buffData[objID].duration = 3e4;
 			} else {
@@ -306,7 +306,7 @@ function main () {
 			}
 
 			console.debug(CharData.buffData);
-			CharData.buffData.update();
+			//CharData.buffData.update();
 
 			return true;
 		}
@@ -652,13 +652,6 @@ function main () {
 				updated = true;
 
 				break;
-			case msg.substring(0, 6) === "buff--":
-				console.debug("update buffData");
-				obj = JSON.parse(msg.split("buff--")[1]);
-				Misc.updateRecursively(CharData.buffData, obj);
-				updated = true;
-
-				break;
 			case msg.substring(0, 7) === "skill--":
 				console.debug("update skillData");
 				obj = JSON.parse(msg.split("skill--")[1]);
@@ -666,9 +659,16 @@ function main () {
 				updated = true;
 
 				break;
+			case msg.substring(0, 6) === "data--":
+				console.debug("update myData");
+				obj = JSON.parse(msg.split("data--")[1]);
+				Misc.updateRecursively(myData, obj);
+				updated = true;
+
+				break;
 			case msg.toLowerCase() === "test":
-				console.debug(CharData.buffData);
-				console.debug(CharData.skillData);
+				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//\nÿc8MainData ::\n",
+					myData, "\nÿc8BuffData ::\n", CharData.buffData, "\nÿc8SkillData ::\n", CharData.skillData, "\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
 				updated = true;
 
 				break;

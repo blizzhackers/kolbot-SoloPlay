@@ -1,13 +1,12 @@
 /*
 *	@filename	andariel.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
 *	@desc		andariel quest.
 */
 
 function andariel () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting andy');
-	me.overhead("andy");
+	myPrint('starting andy');
 
 	if (me.normal && Misc.checkQuest(6, 1)) {
 		Pather.changeAct();
@@ -70,7 +69,7 @@ function andariel () {
 		Config.TownMP = 0;
 		Config.PickRange = -1;
 		Misc.townEnabled = false;
-		Misc.updateConfig();
+		CharData.updateConfig();
 
 		if (Pather.changeAct()) {
 			delay(2000 + me.ping);
@@ -79,8 +78,7 @@ function andariel () {
 			if (me.act === 2) {
 				// Act change sucessful, Andy has been bugged
 				let result = (Misc.checkQuest(6, 15) ? 'Sucessful' : 'Unsucessful');
-				print("ÿc8Kolbot-SoloPlayÿc0: Andy bugged was " + result);
-				me.overhead("Andy bug was " + result);
+				myPrint("Andy bugged was " + result);
 				scriptBroadcast('quit');
 			}
 		}

@@ -783,6 +783,17 @@ Town.buyPotions = function () {
 		}
 	}
 
+	// keep cold/pois res high with potions
+	if (me.gold > 10000 && npc.getItem(sdk.items.ThawingPotion)) {
+		if (me.coldRes < 75 && (!CharData.buffData.thawing.active() || CharData.buffData.thawing.timeLeft() < 5 * 60 * 100)) {
+			this.buyPots(10, "thawing", true);
+		}
+
+		if (me.poisonRes < 75 && (!CharData.buffData.antidote.active() || CharData.buffData.antidote.timeLeft() < 5 * 60 * 100)) {
+			this.buyPots(10, "antidote", true);
+		}
+	}
+
 	return true;
 };
 
@@ -1184,17 +1195,19 @@ Town.buyPots = function (quantity = 0, type = "", drink = false, force = false) 
 	}
 
 	me.cancelUIFlags();
-	drink && Town.drinkPots();
+	drink && Town.drinkPots(type);
 
 	return true;
 };
 
-Town.drinkPots = function () {
+Town.drinkPots = function (type) {
 	let classIds = [sdk.items.StaminaPotion, sdk.items.AntidotePotion, sdk.items.ThawingPotion];
+	!!type && (classIds = classIds.filter(function (el) { return el === sdk.items[type + "Potion"]; }));
 
-	for (let totalpots = 0; totalpots < classIds.length; totalpots++) {
-		let quantity = 0, name, objID;
-		let chugs = me.getItemsEx(classIds[totalpots]).filter(pot => pot.isInInventory);
+	for (let i = 0; i < classIds.length; i++) {
+		let name, objID;
+		let quantity = 0;
+		let chugs = me.getItemsEx(classIds[i]).filter(pot => pot.isInInventory);
 
 		if (chugs.length > 0) {
 			chugs.forEach(function (pot) {
@@ -1209,7 +1222,7 @@ Town.drinkPots = function () {
 			!!name && (objID = name.split(' ')[0].toLowerCase());
 
 			if (objID) {
-				if (!CharData.buffData[objID].active()) {
+				if (!CharData.buffData[objID].active() || CharData.buffData[objID].timeLeft() <= 0) {
 					CharData.buffData[objID].tick = getTickCount();
 					CharData.buffData[objID].duration = quantity * 30 * 1000;
 				} else {
@@ -1217,7 +1230,7 @@ Town.drinkPots = function () {
 				}
 
 				print('ÿc9DrinkPotsÿc0 :: drank ' + quantity + " " + name + "s. Timer [" + Developer.formatTime(CharData.buffData[objID].duration) + "]");
-				["thawing", "antidote"].includes(objID) && CharData.buffData.update();
+				//["thawing", "antidote"].includes(objID) && CharData.buffData.update();
 			}
 		}
 	}

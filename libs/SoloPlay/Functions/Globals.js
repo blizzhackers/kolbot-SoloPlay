@@ -30,7 +30,14 @@ function myPrint (str = "", toConsole = false, color = 0) {
 }
 
 function updateMyData () {
-	!!myData && scriptBroadcast("data--" + JSON.stringify(Misc.copy(myData)));
+	let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/ToolsThread.js", "libs/SoloPlay/Tools/EventThread.js"];
+	let curr = getScript(true).name;
+	let obj = JSON.stringify(Misc.copy(myData));
+	scripts.forEach(function (script) {
+		if (script !== curr) {
+			Messaging.sendToScript(script, "data--" + obj);
+		}
+	});
 }
 
 function ensureData () {
@@ -77,6 +84,12 @@ function ensureData () {
 		if (!!me.getMerc()) {
 			// TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
 			// can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
+			let merc = me.getMerc();
+			if (merc.classid !== myData.merc.classid) {
+				myData.merc.classid = merc.classid;
+				console.debug(myData.merc);
+	            CharData.updateData("merc", myData) && updateMyData();
+			}
 		}
 
 		if (!!me.shenk && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed === false) {

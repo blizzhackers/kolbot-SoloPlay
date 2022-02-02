@@ -2,7 +2,7 @@
 *	@filename	PickitOverrides.js
 *	@author		theBGuy
 *	@desc		Pickit.js fixes to improve functionality
-*	@credits	based on existing pickit.js from PBP autoplays (Sonic, AutoSorc, etc), isid0re for formatting
+*	@credits	sonic, jaenster
 */
 
 if (!isIncluded("common/Pickit.js")) { include("common/Pickit.js"); }

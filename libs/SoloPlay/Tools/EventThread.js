@@ -120,9 +120,16 @@ function main () {
 				updated = true;
 
 				break;
+			case msg.substring(0, 6) === "data--":
+				console.debug("update myData");
+				obj = JSON.parse(msg.split("data--")[1]);
+				Misc.updateRecursively(myData, obj);
+				updated = true;
+
+				break;
 			case msg.toLowerCase() === "test":
-				console.debug(CharData.buffData);
-				console.debug(CharData.skillData);
+				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//\nÿc8MainData ::\n",
+					myData, "\nÿc8BuffData ::\n", CharData.buffData, "\nÿc8SkillData ::\n", CharData.skillData, "\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
 				updated = true;
 
 				break;

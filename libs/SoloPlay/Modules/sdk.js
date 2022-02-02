@@ -838,6 +838,9 @@
 			RestInPeace: 172,
 			Glowing: 175,
 			Delerium: 177,
+            Antidote: 178,
+            Thawing: 179,
+            StaminaPot: 180,
 		},
 
 		enchant: {

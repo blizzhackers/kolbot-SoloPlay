@@ -153,7 +153,7 @@ Object.defineProperties(Unit.prototype, {
 			let modifier = 0;
 			if (this === me) {
 				me.getState(sdk.states.ShrineResCold) && (modifier += 75);
-				CharData.buffData.thawing.active() && (modifier += 50);
+				me.getState(sdk.states.Thawing) && (modifier += 50);
 			}
 			return this.getStat(sdk.stats.ColdResist) - me.resPenalty - modifier;
 		}
@@ -172,7 +172,7 @@ Object.defineProperties(Unit.prototype, {
 			let modifier = 0;
 			if (this === me) {
 				me.getState(sdk.states.ShrineResPoison) && (modifier += 75);
-				CharData.buffData.antidote.active() && (modifier += 50);
+				me.getState(sdk.states.Antidote) && (modifier += 50);
 			}
 			return this.getStat(sdk.stats.PoisonResist) - me.resPenalty - modifier;
 		}

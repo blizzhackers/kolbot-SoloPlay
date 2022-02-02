@@ -31,6 +31,7 @@ const CharData = {
 		},
 		merc: {
 			act: 0,
+			classid: 0,
 			difficulty: 0,
 			type: "",
 		}
@@ -41,24 +42,33 @@ const CharData = {
 			tick: 0,
 			duration: 0,
 			active: function () {
-				return getTickCount() - this.tick < this.duration;
-			}
+				return me.getState(sdk.states.StaminaPot);
+			},
+			timeLeft: function () {
+				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
+			},
 		},
 
 		thawing: {
 			tick: 0,
 			duration: 0,
 			active: function () {
-				return getTickCount() - this.tick < this.duration;
-			}
+				return me.getState(sdk.states.Thawing);
+			},
+			timeLeft: function () {
+				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
+			},
 		},
 
 		antidote: {
 			tick: 0,
 			duration: 0,
 			active: function () {
-				return getTickCount() - this.tick < this.duration;
-			}
+				return me.getState(sdk.states.Antidote);
+			},
+			timeLeft: function () {
+				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
+			},
 		},
 
 		update: function () {
@@ -94,6 +104,18 @@ const CharData = {
 				}
 			});
 		},
+	},
+
+	// updates config obj across all threads - excluding our current
+	updateConfig: function () {
+		let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/ToolsThread.js", "libs/SoloPlay/Tools/EventThread.js"/*, "libs/SoloPlay/Tools/AutoBuildThread.js"*/];
+		let curr = getScript(true).name;
+		let obj = JSON.stringify(Misc.copy(Config));
+		scripts.forEach(function (script) {
+			if (script !== curr) {
+				Messaging.sendToScript(script, "config--" + obj);
+			}
+		});
 	},
 
 	create: function () {

@@ -1,6 +1,7 @@
 /*
 *	@filename	ancients.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
+*	@credits	sonic
 *	@desc		ancients quest
 */
 
@@ -87,7 +88,7 @@ function ancients () {
 	Config.HPBuffer = 15;
 	Config.MPBuffer = 15;
 	Config.LifeChicken = 10;
-	Misc.updateConfig();
+	CharData.updateConfig();
 	me.overhead('updated settings');
 
 	Town.buyPotions();
@@ -134,7 +135,7 @@ function ancients () {
 	
 	me.cancel();
 	Config = tempConfig;
-	Misc.updateConfig();
+	CharData.updateConfig();
 	me.overhead('restored settings');
 	Precast.doPrecast(true);
 

@@ -13,11 +13,6 @@ Misc.checkQuest = function (id, state) {
 	return me.getQuest(id, state);
 };
 
-// updates config obj across all threads - from legacy sonic
-Misc.updateConfig = function () {
-	scriptBroadcast("config--" + JSON.stringify(Misc.copy(Config)));
-};
-
 Misc.townEnabled = true;
 
 Misc.townCheck = function () {
@@ -633,6 +628,8 @@ Misc.getSocketables = function (item, itemInfo) {
 		!gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
 
 		// TODO: Use Jewels
+		// would need to score them and way to compare to runes/gems by what itemtype we are looking at
+		// then keep upgrading until we actually are ready to insert in the item
 	}
 
 	for (let i = 0; i < socketables.length; i++) {

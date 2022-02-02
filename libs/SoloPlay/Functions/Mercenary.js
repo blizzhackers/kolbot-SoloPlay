@@ -87,10 +87,10 @@ const Merc = {
                 if (newMerc) {
                     console.log('Yep');
                     myData.merc.act = me.act;
+                    myData.merc.classid = newMerc.classid;
                     myData.merc.difficulty = me.diff;
                     myData.merc.type = wantedMerc.skills.find(sk => sk.name === wantedSkill).name;
-                    CharData.updateData("merc", myData);
-                    updateMyData();
+                    CharData.updateData("merc", myData) && updateMyData();
                     print('ÿc9ÿc9Mercenaryÿc0 :: ' + myData.merc.type + ' merc hired.');
                 }
                 me.cancel() && me.cancel() && me.cancel();
