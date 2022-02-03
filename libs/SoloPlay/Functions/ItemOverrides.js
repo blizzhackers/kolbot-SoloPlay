@@ -12,7 +12,7 @@ Item.getQuantityOwned = function (item = undefined) {
 	if (!item) return 0;
 	
 	let list = [];
-	let myItems = me.getItems()
+	let myItems = me.getItemsEx()
 		.filter(check =>
 			check.itemType === item.itemType// same item type as current
 				&& check.classid === item.classid// same item classid as current
@@ -146,7 +146,7 @@ Item.getEquippedItem = function (bodyLoc) {
 					dex: item.getStatEx(sdk.stats.Dexterity),
 					durability: (item.getStat(72) * 100 / item.getStat(73)),
 					sockets: item.getStat(sdk.stats.NumSockets),
-					socketed: !item.getItems(),
+					socketed: item.getItemsEx().length > 0,
 					isRuneword: item.getFlag(0x4000000),
 					twoHanded: item.twoHanded,
 				};
@@ -1629,7 +1629,7 @@ Item.autoEquipCharmCheck = function (item = undefined) {
 	if (![sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid)) return false;
 
 	let charms, lowestCharm,
-		items = me.getItems()
+		items = me.getItemsEx()
 			.filter(charm => charm.classid === item.classid && charm.isInStorage
 				&& charm.quality === sdk.itemquality.Magic && NTIP.GetCharmTier(charm) > 0);
 

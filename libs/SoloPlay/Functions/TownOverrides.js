@@ -229,7 +229,7 @@ Town.getIdTool = function () {
 };
 
 Town.clearScrolls = function () {
-	let scrolls = me.getItems().filter(function (scroll) { return scroll.isInInventory && scroll.itemType === sdk.itemtype.Scroll; });
+	let scrolls = me.getItemsEx().filter(function (scroll) { return scroll.isInInventory && scroll.itemType === sdk.itemtype.Scroll; });
 	let tpTome = scrolls.some(function (scroll) { 
 		return scroll.classid === sdk.items.ScrollofTownPortal; }) ? me.findItem(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory) : false;
 	let idTome = scrolls.some(function (scroll) { 
@@ -2114,7 +2114,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 	case 69: // Voodoo heads
 	case 70: // Auric Shields
 		if (me.paladin) {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[2, 70].indexOf(item.itemType) > -1// same item type as current
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
@@ -2136,7 +2136,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 				}
 			}
 		} else if (me.necromancer) {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[2, 69].indexOf(item.itemType) > -1// same item type as current
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
@@ -2157,7 +2157,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 				}
 			}
 		} else {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					item.itemType === 2// same item type as current
 					&& !item.ethereal // only noneth runeword bases
@@ -2184,7 +2184,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 
 		break;
 	case 3: // Armor
-		itemsToCheck = me.getItems()
+		itemsToCheck = me.getItemsEx()
 			.filter(item =>
 				item.itemType === 3// same item type as current
 				&& !item.ethereal // only noneth runeword bases
@@ -2214,7 +2214,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 	case 72: //	Druid Pelt
 	case 75: // Circlet
 		if (me.barbarian || me.druid) {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[37, 75, 71, 72].indexOf(item.itemType) > -1// same item type as current
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
@@ -2236,7 +2236,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 				}
 			}
 		} else {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[37, 75].indexOf(item.itemType) > -1// same item type as current
 					&& !item.ethereal // only noneth runeword bases
@@ -2264,7 +2264,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		break;
 	case 25: //	Wand
 		if (me.necromancer) {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[25].indexOf(item.itemType) > -1// same item type as current
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
@@ -2305,7 +2305,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			return true; // Can't use so it's worse then what we already have
 		}
 
-		itemsToCheck = me.getItems()
+		itemsToCheck = me.getItemsEx()
 			.filter(item =>
 				item.itemType === base.itemType// same item type as current
 				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
@@ -2343,7 +2343,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 	case 67: // Handtohand (Assasin Claw)
 	case 88: //	Assassin Claw
 		if (me.assassin) {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[67, 88].indexOf(item.itemType) > -1// same item type as current
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
@@ -2367,7 +2367,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 
 		break;
 	case 34: //	Polearm
-		itemsToCheck = me.getItems()
+		itemsToCheck = me.getItemsEx()
 			.filter(item =>
 				[34].indexOf(item.itemType) > -1// same item type as current
 				&& item.getStat(194) === base.getStat(194) // sockets match junk in review

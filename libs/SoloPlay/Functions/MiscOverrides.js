@@ -518,7 +518,7 @@ Misc.checkItemsForImbueing = function () {
 	if (!me.getQuest(sdk.quests.ToolsoftheTrade, 1)) return false;
 
 	let item = false;
-	let items = me.getItems()
+	let items = me.getItemsEx()
 		.filter(item => item.getStat(sdk.stats.NumSockets) === 0 && [sdk.itemquality.Normal, sdk.itemquality.Superior].includes(item.quality));
 
 	for (let i = 0; i < items.length; i++) {

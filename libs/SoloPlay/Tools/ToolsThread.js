@@ -117,7 +117,7 @@ function main () {
 	};
 
 	this.getPotion = function (pottype, type) {
-		let items = me.getItems()
+		let items = me.getItemsEx()
 			.filter(item => [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion, sdk.itemtype.StaminaPotion,
 				sdk.itemtype.AntidotePotion, sdk.itemtype.ThawingPotion].includes(item.itemType));
 

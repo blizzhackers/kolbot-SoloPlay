@@ -255,8 +255,7 @@ Object.defineProperties(SetUp, {
     },
 });
 
-// SoloPlay Pickit Items
-// TODO: check if is this even needed?
+// SoloPlay general gameplay items
 const nipItems = {
 	General: [
 		"[name] == tomeoftownportal",
@@ -959,54 +958,7 @@ const Check = {
 				if (!socketableCHECK && items[i].getItemsEx().length === 0) {
 					return true;
 				} else if (socketableCHECK) {
-					let numSockets = items[i].getStat(sdk.stats.NumSockets);
-					let socketedWith = items[i].getItemsEx();
-					let hasWantedItems;
-
-					if (socketableCHECK.socketWith.length > 0) {
-						hasWantedItems = socketedWith.some(function (el) { return socketableCHECK.socketWith.includes(el.classid); });
-						if (hasWantedItems && socketedWith.length === numSockets) {
-							break; // this item is full
-						}
-					} else {
-						return true;
-					}
-					// needList doesn't already include this items wants
-					let addToList = !SoloWants.needList.some(function (check) { return items[i].classid === check.classid; });
-					// SoloWant check or need to check what is in the item
-					if (addToList) {
-						let list = [];
-
-						// currently only supports adding first item from socketWith/temp array
-						// TODO: is figure out how to cleanly handle adding two or more different socketables to an item
-						// add the wanted items to the list
-						for (let i = 0; i < numSockets - socketedWith.length; i++) {
-							list.push(socketableCHECK.socketWith[0]);
-						}
-
-						// currently no sockets but we might use our socket quest on it
-						numSockets === 0 && socketableCHECK.useSocketQuest && list.push(socketableCHECK.socketWith[0]);
-
-						// if temp socketables are used for this item and its not already socketed with wanted items add the temp items too
-						if (!hasWantedItems && !!socketableCHECK.temp && !!socketableCHECK.temp.length > 0) {
-							for (let i = 0; i < numSockets - socketedWith.length; i++) {
-								list.push(socketableCHECK.temp[0]);
-							}
-
-							// Make sure we keep a hel rune so we can unsocket temp socketables if needed
-							if (!SoloWants.needList.some(function (check) { return sdk.items.runes.Hel === check.classid; })) {
-								let hel = me.getItemsEx(sdk.items.runes.Hel, 0);
-								// we don't have any hel runes and its not already in our needList
-								if ((!hel || hel.length === 0)) {
-									SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});
-								} else if (!hel.some(function (check) { SoloWants.validGids.includes(check.gid); })) {
-									SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});
-								}
-							}
-						}
-						// add to our needList so we pick the items
-						SoloWants.needList.push({classid: items[i].classid, needed: list});
-					}
+					SoloWants.addToList(items[i]);
 
 					return true;
 				}
@@ -1218,7 +1170,6 @@ const Check = {
 	},
 };
 
-// TODO: set this up similar to cubing where certain items get added to the validGids list to be kept and we look for items from the needList
 const SoloWants = {
 	needList: [],
 	validGids: [],
@@ -1233,7 +1184,8 @@ const SoloWants = {
 					this.validGids.push(item.gid);
 					this.needList[i].needed.splice(this.needList[i].needed.indexOf(item.classid), 1);
 					if (this.needList[i].needed.length === 0) {
-						this.needList.splice(i, 1); // no more needed items so remove from list
+						// no more needed items so remove from list
+						this.needList.splice(i, 1);
 					}
 					return true;
 				}
@@ -1273,11 +1225,19 @@ const SoloWants = {
 				return true; // this item is full
 			}
 
-			// currently only supports adding first item from socketWith/temp array
-			// TODO: is figure out how to cleanly handle adding two or more different socketables to an item
+			if (curr.socketWith.length > 1 && hasWantedItems) {
+				// handle different wanted socketables, if we already have a wanted socketable inserted then remove it from the check list
+				socketedWith.forEach(function (socketed) { 
+					if (curr.socketWith.length > 1 && curr.socketWith.includes(socketed.classid)) {
+						curr.socketWith.splice(curr.socketWith.indexOf(socketed.classid), 1);
+					}
+				});
+			}
+
 			// add the wanted items to the list
-			for (let i = 0; i < numSockets - socketedWith.length; i++) {
-				list.push(curr.socketWith[0]);
+			for (let i = 0; i < numSockets - (hasWantedItems ? socketedWith.length : 0); i++) {
+				// handle different wanted socketables
+				curr.socketWith.length === numSockets ? list.push(curr.socketWith[i]) : list.push(curr.socketWith[0]);
 			}
 
 			// currently no sockets but we might use our socket quest on it
@@ -1305,7 +1265,7 @@ const SoloWants = {
 			let gemType = ["Helmet", "Armor"].includes(itemtype) ? "Ruby" : itemtype === "Shield" ? "Diamond" : itemtype === "Weapon" && !Check.currentBuild().caster ? "Skull" : "";
 			let runeType;
 
-			// Tir rune in normal, Io rune otherwise and Shael's if assassin
+			// Tir rune in normal, Io rune otherwise and Shael's if assassin TODO: use jewels too
 			!gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
 
 			hasWantedItems = socketedWith.some(function (el) { return gemType ? el.itemType === sdk.itemtype[gemType] : el.classid === sdk.items.runes[runeType]; });
@@ -1328,7 +1288,8 @@ const SoloWants = {
 		let i = 0;
 		for (let el of this.needList) {
 			if (!me.getItem(el.classid)) {
-				this.needList.splice(i, 1); // We no longer have the item we wanted socketables for
+				// We no longer have the item we wanted socketables for
+				this.needList.splice(i, 1);
 				continue;
 			}
 			if ([sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(item.itemType) || (item.itemType >= sdk.itemtype.Amethyst && item.itemType <= sdk.itemtype.Skull)) {
@@ -1336,7 +1297,8 @@ const SoloWants = {
 					this.validGids.push(item.gid);
 					this.needList[i].needed.splice(this.needList[i].needed.indexOf(item.classid), 1);
 					if (this.needList[i].needed.length === 0) {
-						this.needList.splice(i, 1); // no more needed items so remove from list
+						// no more needed items so remove from list
+						this.needList.splice(i, 1);
 					}
 					return true;
 				}
@@ -1351,7 +1313,8 @@ const SoloWants = {
 		let i = 0;
 		for (let el of this.needList) {
 			if (!me.getItem(el.classid)) {
-				this.needList.splice(i, 1); // We no longer have the item we wanted socketables for
+				// We no longer have the item we wanted socketables for
+				this.needList.splice(i, 1);
 				continue;
 			}
 			i++; // keep track of index

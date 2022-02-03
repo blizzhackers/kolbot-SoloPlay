@@ -1,6 +1,6 @@
 /*
 *	@filename	CubingOverrides.js
-*	@author		theBGuy, isid0re
+*	@author		theBGuy
 *	@desc		Cubing.js improvements
 *	@credits	kolton
 */
@@ -78,7 +78,9 @@ var Recipe = {
 		Weapon: 46,
 		Armor: 47,
 		Helm: 48,
-		Rare: 57,
+		LowMagic: 57,
+		HighMagic: 58,
+		Rare: 59,
 	},
 	Reroll: {
 		Magic: 49,
@@ -306,6 +308,14 @@ Cubing.buildRecipes = function () {
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], 617, 619, 571], Index: Recipe.Socket.Helm, Ethereal: Config.Recipes[i][2]});
 
 			break;
+		case Recipe.Socket.LowMagic:
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], "cgem", "cgem", "cgem"], Level: 25, Index: Recipe.Socket.LowMagic});
+
+			break;
+		case Recipe.Socket.HighMagic:
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], "fgem", "fgem", "fgem"], Level: 30, Index: Recipe.Socket.HighMagic});
+
+			break;
 		case Recipe.Socket.Rare:
 			this.recipes.push({Ingredients: [Config.Recipes[i][1], sdk.items.Ring, sdk.items.gems.Perfect.Skull, sdk.items.gems.Perfect.Skull, sdk.items.gems.Perfect.Skull], Index: Recipe.Socket.Rare});
 
@@ -499,7 +509,7 @@ Cubing.buildLists = function () {
 
 	this.validIngredients = [];
 	this.neededIngredients = [];
-	items = me.getItems().filter(item => [sdk.itemmode.inStorage, sdk.itemmode.Equipped].indexOf(item.mode) > -1);
+	items = me.getItemsEx().filter(item => [sdk.itemmode.inStorage, sdk.itemmode.Equipped].indexOf(item.mode) > -1);
 	items.sort((a, b) => b.ilvl - a.ilvl);
 
 	for (i = 0; i < this.recipes.length; i += 1) {
@@ -509,9 +519,10 @@ Cubing.buildLists = function () {
 		IngredientLoop:
 		for (j = 0; j < this.recipes[i].Ingredients.length; j += 1) {
 			for (k = 0; k < items.length; k += 1) {
-				if (((this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(items[k].classid) > -1) ||
-					(this.recipes[i].Ingredients[j] === "cgem" && [557, 562, 567, 572, 577, 582, 597].indexOf(items[k].classid) > -1) ||
-					items[k].classid === this.recipes[i].Ingredients[j]) && this.validItem(items[k], this.recipes[i])) {
+				if (((this.recipes[i].Ingredients[j] === "pgem" && this.gemList.includes(items[k].classid))
+					|| (this.recipes[i].Ingredients[j] === "fgem" && [560, 565, 568, 575, 580, 585, 600].includes(items[k].classid))
+					|| (this.recipes[i].Ingredients[j] === "cgem" && [557, 562, 567, 572, 577, 582, 597].includes(items[k].classid))
+					|| items[k].classid === this.recipes[i].Ingredients[j]) && this.validItem(items[k], this.recipes[i])) {
 
 					// push the item's info into the valid ingredients array. this will be used to find items when checking recipes
 					this.validIngredients.push({classid: items[k].classid, quality: items[k].quality, ilvl: items[k].ilvl, gid: items[k].gid, recipe: this.recipes[i]});
@@ -547,10 +558,22 @@ Cubing.buildLists = function () {
 				this.subRecipes.push(561);
 			}
 
+			// Make flawless amethyst
+			if (this.subRecipes.indexOf(560) === -1 && (this.recipes[i].Ingredients[j] === 560 || (this.recipes[i].Ingredients[j] === "fgem" && this.gemList.indexOf(560) > -1))) {
+				this.recipes.push({Ingredients: [559, 559, 559], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(560);
+			}
+
 			// Make perf topaz
 			if (this.subRecipes.indexOf(566) === -1 && (this.recipes[i].Ingredients[j] === 566 || (this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(566) > -1))) {
 				this.recipes.push({Ingredients: [565, 565, 565], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
 				this.subRecipes.push(566);
+			}
+
+			// Make flawless topaz
+			if (this.subRecipes.indexOf(565) === -1 && (this.recipes[i].Ingredients[j] === 565 || (this.recipes[i].Ingredients[j] === "fgem" && this.gemList.indexOf(565) > -1))) {
+				this.recipes.push({Ingredients: [564, 564, 564], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(565);
 			}
 
 			// Make perf sapphire
@@ -559,10 +582,22 @@ Cubing.buildLists = function () {
 				this.subRecipes.push(571);
 			}
 
+			// Make flawless sapphire
+			if (this.subRecipes.indexOf(570) === -1 && (this.recipes[i].Ingredients[j] === 570 || (this.recipes[i].Ingredients[j] === "fgem" && this.gemList.indexOf(570) > -1))) {
+				this.recipes.push({Ingredients: [569, 569, 569], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(570);
+			}
+
 			// Make perf emerald
 			if (this.subRecipes.indexOf(576) === -1 && (this.recipes[i].Ingredients[j] === 576 || (this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(576) > -1))) {
 				this.recipes.push({Ingredients: [575, 575, 575], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
 				this.subRecipes.push(576);
+			}
+
+			// Make flawless emerald
+			if (this.subRecipes.indexOf(575) === -1 && (this.recipes[i].Ingredients[j] === 575 || (this.recipes[i].Ingredients[j] === "fgem" && this.gemList.indexOf(575) > -1))) {
+				this.recipes.push({Ingredients: [574, 574, 574], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(575);
 			}
 
 			// Make perf ruby
@@ -571,16 +606,34 @@ Cubing.buildLists = function () {
 				this.subRecipes.push(581);
 			}
 
+			// Make flawless ruby
+			if (this.subRecipes.indexOf(580) === -1 && (this.recipes[i].Ingredients[j] === 580 || (this.recipes[i].Ingredients[j] === "fgem" && this.gemList.indexOf(580) > -1))) {
+				this.recipes.push({Ingredients: [579, 579, 579], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(580);
+			}
+
 			// Make perf diamond
 			if (this.subRecipes.indexOf(586) === -1 && (this.recipes[i].Ingredients[j] === 586 || (this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(586) > -1))) {
 				this.recipes.push({Ingredients: [585, 585, 585], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
 				this.subRecipes.push(586);
 			}
 
+			// Make flawless diamond
+			if (this.subRecipes.indexOf(585) === -1 && (this.recipes[i].Ingredients[j] === 585 || (this.recipes[i].Ingredients[j] === "fgem" && this.gemList.indexOf(585) > -1))) {
+				this.recipes.push({Ingredients: [584, 584, 584], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(585);
+			}
+
 			// Make perf skull
 			if (this.subRecipes.indexOf(601) === -1 && (this.recipes[i].Ingredients[j] === 601 || (this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(601) > -1))) {
 				this.recipes.push({Ingredients: [600, 600, 600], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
 				this.subRecipes.push(601);
+			}
+
+			// Make flawless skull
+			if (this.subRecipes.indexOf(600) === -1 && (this.recipes[i].Ingredients[j] === 600 || (this.recipes[i].Ingredients[j] === "fgem" && this.gemList.indexOf(600) > -1))) {
+				this.recipes.push({Ingredients: [599, 599, 599], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index});
+				this.subRecipes.push(600);
 			}
 		}
 	}

@@ -271,7 +271,7 @@ MuleLogger.logEquippedItems = function () {
 		realm = me.realm || "Single Player",
 		merc, charClass,
 		finalString = "",
-		items = me.getItems().filter(item => item.isEquipped || item.isEquippedCharm || (item.isInStorage && item.itemType === sdk.itemtype.Rune));
+		items = me.getItemsEx().filter(item => item.isEquipped || item.isEquippedCharm || (item.isInStorage && item.itemType === sdk.itemtype.Rune));
 
 	if (!FileTools.exists("mules/" + realm)) {
 		folder = dopen("mules");
@@ -339,7 +339,7 @@ MuleLogger.logEquippedItems = function () {
 		merc = Merc.getMercFix();
 
 		if (merc) {
-			items = merc.getItems();
+			items = merc.getItemsEx();
 
 			for (i = 0; i < items.length; i += 1) {
 				parsedItem = this.logItem(items[i], true, "Merc");

@@ -304,7 +304,7 @@ function LoadConfig () {
 		case 'Witchyzon':
 			// TODO: Clean this up
 			{
-				let WWS = me.getItems()
+				let WWS = me.getItemsEx()
 					.filter(item =>
 						item.classid === 268 // diamond bow (witchwhild string up'd)
 	                    && item.quality === 7 // unique only
