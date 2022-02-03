@@ -400,7 +400,7 @@ Misc.getShrine = function (unit = undefined) {
 	for (let i = 0; i < 3; i++) {
 		if (Skill.useTK(unit) && i < 2) {
 			if (getDistance(me, unit) > 13) {
-				Attack.getIntoPosition(unit, 13, 0x4 );
+				Attack.getIntoPosition(unit, 13, 0x4);
 			}
 			
 			Skill.cast(sdk.skills.Telekinesis, 0, unit);

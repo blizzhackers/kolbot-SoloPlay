@@ -1345,7 +1345,7 @@ Town.openStash = function () {
 			stash = getUnit(2, 267);
 
 			if (stash) {
-				if (Skill.useTK()) {
+				if (Skill.useTK(stash)) {
 					// Fix for out of range telek
 					Pather.walkTo(stash.x, stash.y, 23);
 					Skill.cast(sdk.skills.Telekinesis, 0, stash);

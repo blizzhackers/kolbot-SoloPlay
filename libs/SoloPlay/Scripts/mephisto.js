@@ -9,6 +9,8 @@ function mephisto () {
 		let coords = [17600, 8125, 17600, 8015, 17643, 8068];
 
 		for (let i = 0; i < coords.length; i += 2) {
+			[coords[i], coords[i + 1]].distance > 60 && Pather.moveNear(coords[i], coords[i + 1], 60);
+			if ([coords[i], coords[i + 1]].mobCount(30) === 0) continue;
 			Pather.moveTo(coords[i], coords[i + 1]);
 			Attack.clearList(Attack.getMob([345, 346, 347], 0, 40));
 		}
@@ -18,7 +20,6 @@ function mephisto () {
 
 	Town.townTasks();
 	myPrint('starting mephisto');
-	me.overhead("mephisto");
 
 	Pather.checkWP(sdk.areas.DuranceofHateLvl2, true) ? Pather.useWaypoint(sdk.areas.DuranceofHateLvl2) : Pather.getWP(sdk.areas.DuranceofHateLvl2);
 	Precast.doPrecast(true);
@@ -40,10 +41,6 @@ function mephisto () {
 		Precast.doPrecast(true);
 	}
 
-	if (me.mephisto && !me.hell) {
-		this.killCouncil();
-	}
-
 	let oldPickRange = Config.PickRange;
 	let oldUseMerc = Config.MercWatch;
 
@@ -52,7 +49,6 @@ function mephisto () {
 		delay(400);
 	}
 
-	Pather.moveTo(17692, 8048);
 	Pather.moveTo(17563, 8072);
 
 	Config.MercWatch = oldUseMerc ? false : oldUseMerc;
@@ -64,6 +60,11 @@ function mephisto () {
 	Config.PickRange = oldPickRange;
 	
 	Pickit.pickItems();
+
+	if (me.mephisto && !me.hell) {
+		this.killCouncil();
+	}
+
 	Pather.moveTo(17581, 8070);
 	delay(250 + me.ping * 2);
 	Pather.usePortal(null);

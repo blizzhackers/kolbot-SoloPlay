@@ -1377,6 +1377,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 };
 
 Unit.prototype.__defineGetter__('attackable', function () {
+	if (this === undefined) return false;
     if (this.type === sdk.unittype.Player && getPlayerFlag(me.gid, this.gid, 8) && this.mode !== 17 && this.mode !== 0) {
         return true;
     }

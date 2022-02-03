@@ -669,6 +669,117 @@ Pather.walkTo = function (x = undefined, y = undefined, minDist = undefined) {
 	return !me.dead && getDistance(me.x, me.y, x, y) <= minDist;
 };
 
+Pather.moveNear = function (x = undefined, y = undefined, minDist = undefined, clearPath = true, pop = false) {
+	// Abort if dead
+	if (me.dead) return false;
+
+	let path, adjustedNode, cleared, leaped = false,
+		node = {x: x, y: y},
+		fail = 0;
+
+	for (let i = 0; i < this.cancelFlags.length; i += 1) {
+		if (getUIFlag(this.cancelFlags[i])) me.cancel();
+	}
+
+	//if (!x || !y) { throw new Error("moveTo: Function must be called with at least 2 arguments."); }
+	if (!x || !y) return false; // I don't think this is a fatal error so just return false
+	if (typeof x !== "number" || typeof y !== "number") { throw new Error("moveNear: Coords must be numbers"); }
+	if (getDistance(me, x, y) < 2) return true;
+	minDist === undefined && (minDist = me.inTown ? 2 : 5);
+
+	let useTele = this.useTeleport();
+	let useChargedTele = this.canUseTeleCharges();
+	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
+	path = getPath(me.area, x, y, me.x, me.y, useTele || useChargedTele ? 1 : 0, useTele || useChargedTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : this.teleDistance) : this.walkDistance);
+
+	if (!path) { throw new Error("moveNear: Failed to generate path."); }
+
+	path.reverse();
+	pop && path.pop();
+	PathDebug.drawPath(path);
+	useTele && Config.TeleSwitch && path.length > 5 && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
+
+	while (path.length > 0) {
+		// Abort if dead
+		if (me.dead) return false;
+		// reached goal
+		if (getDistance(me.x, me.y, x, y) <= minDist) return true;
+
+		for (let i = 0; i < this.cancelFlags.length; i += 1) {
+			if (getUIFlag(this.cancelFlags[i])) me.cancel();
+		}
+
+		node = path.shift();
+
+		if (getDistance(me, node) > 2) {
+			if ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area)) {
+				adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
+
+				if (adjustedNode) {
+					node.x = adjustedNode[0];
+					node.y = adjustedNode[1];
+				}
+			}
+
+			if (useTele && tpMana <= me.mp ? this.teleportTo(node.x, node.y) : useChargedTele && getDistance(me, node) >= 15 ? this.teleUsingCharges(node.x, node.y) : this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
+				if (!me.inTown) {
+					if (this.recursion) {
+						this.recursion = false;
+
+						NodeAction.go({clearPath: clearPath});
+
+						if (getDistance(me, node.x, node.y) > 5) {
+							this.moveNear(node.x, node.y);
+						}
+
+						this.recursion = true;
+					}
+
+					Misc.townCheck();
+				}
+			} else {
+				if (fail > 0 && !useTele && !me.inTown) {
+					if (!cleared) {
+						Attack.clear(5) && Misc.openChests(2);
+						cleared = true;
+					}
+
+					// Only do this once
+					if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, 1) && !leaped) {
+						Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y);
+						leaped = true;
+					}
+				}
+
+				path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? rand(25, 35) : rand(10, 15));
+				if (!path) { throw new Error("moveNear: Failed to generate path."); }
+
+				fail += 1;
+				path.reverse();
+				PathDebug.drawPath(path);
+				pop && path.pop();
+				print("move retry " + fail);
+
+				if (fail > 0) {
+					Packet.flash(me.gid);
+					Attack.clear(5) && Misc.openChests(2);
+
+					if (fail >= 15) {
+						break;
+					}
+				}
+			}
+		}
+
+		delay(5);
+	}
+
+	useTele && Config.TeleSwitch && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
+	PathDebug.removeHooks();
+
+	return getDistance(me, node.x, node.y) < 5;
+};
+
 Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clearPath = true, pop = false) {
 	// Abort if dead
 	if (me.dead) return false;
