@@ -59,7 +59,7 @@ include("common/misc.js");
 include("common/util.js");
 include("common/pather.js");
 include("SoloPlay/Tools/Developer.js");
-include("SoloPlay/Tools/SoloData.js");
+include("SoloPlay/Tools/CharData.js");
 include("SoloPlay/Tools/Tracker.js");
 include("SoloPlay/Tools/NameGen.js");
 include("SoloPlay/Tools/OOGOverrides.js");
@@ -75,13 +75,9 @@ if (!FileTools.exists("data/" + me.profile + ".json")) {
 	delay(Math.floor(rand(1, 20)));
 }
 
-if (!FileTools.exists(SoloData.filePath)) {
-	SoloData.create();
+if (!FileTools.exists(CharData.filePath)) {
+	CharData.create();
 	delay(Math.floor(rand(1, 20)));
-}
-
-if (Developer.logPerformance) {
-	Tracker.initialize();
 }
 
 let gameInfo, joinInfo, gameStart, ingame, chatActionsDone, pingQuit, myExp, myGold, resPenalty, frRes, crRes, lrRes, prRes, areaName, diffName,
@@ -228,16 +224,16 @@ function ReceiveCopyData (mode, msg) {
 
 		if (setUp.tag !== "") {
 			setUp.tag = setUp.tag[0].toUpperCase() + setUp.tag.substring(1).toLowerCase();
-			let soloStats = SoloData.getStats();
+			let soloStats = CharData.getStats();
 
 			if (!soloStats.me.finalBuild || soloStats.me.finalBuild !== setUp.tag) {
 				D2Bot.setProfile(null, null, null, null, null, setUp.tag);
-				SoloData.updateData("me", "finalBuild", setUp.tag);
+				CharData.updateData("me", "finalBuild", setUp.tag);
 				soloStats.me.finalBuild = setUp.tag;
 			}
 
 			if (!["Start", "Stepping", "Leveling"].includes(soloStats.me.currentBuild) && soloStats.me.currentBuild !== soloStats.me.finalBuild) {
-				SoloData.updateData("me", "currentBuild", "Leveling");
+				CharData.updateData("me", "currentBuild", "Leveling");
 				soloStats.me.currentBuild = "Leveling";
 			}
 		} else {
@@ -301,10 +297,10 @@ function deleteAndRemakeChar (info) {
 	me.blockMouse = false;
 
 	// Delete old files - leaving csv file's for now as I don't think they interfere with the overlay
-	SoloData.delete(true);
+	CharData.delete(true);
 
 	DataFile.create();
-	SoloData.updateData("me", "finalBuild", setUp.tag);
+	CharData.updateData("me", "finalBuild", setUp.tag);
 	Developer.logPerformance && Tracker.initialize();
 
 	D2Bot.printToConsole("Deleted: " + info.charName + ". Now remaking...", 6);
@@ -685,8 +681,8 @@ function locationAction (location) {
 			delay(500);
 		}
 
-		if (SoloData.getStats().me.setDifficulty) {
-			gameInfo.difficulty = DataFile.SoloData().me.setDifficulty;
+		if (CharData.getStats().me.setDifficulty) {
+			gameInfo.difficulty = DataFile.CharData().me.setDifficulty;
 
 			// only set the profile if the values aren't already the same
 			if (gameInfo.difficulty !== setUp.difficulty) {
@@ -1241,12 +1237,14 @@ function main () {
 		delay(500);
 	}
 
+	if (Developer.logPerformance) {
+		Tracker.initialize();
+	}
+
 	if (gameInfo.error) {
 		delay(200);
 		ControlAction.timeoutDelay("Crash Delay", StarterConfig.CrashDelay * 1e3);
-		if (battlenet) {
-			D2Bot.updateRuns();
-		}
+		battlenet && D2Bot.updateRuns();
 	}
 
 	DataFile.updateStats("debugInfo", JSON.stringify({currScript: "none", area: "out of game"}));

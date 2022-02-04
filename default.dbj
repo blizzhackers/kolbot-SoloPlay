@@ -44,7 +44,7 @@ function main () {
 	if (getScript("D2BotSoloPlay.dbj")) {
 		include("SoloPlay/Tools/Developer.js");
 		include("SoloPlay/Tools/Tracker.js");
-		include("SoloPlay/Tools/SoloData.js");
+		include("SoloPlay/Tools/CharData.js");
 		include("SoloPlay/Functions/ConfigOverrides.js");
 		include("SoloPlay/Functions/Globals.js");
 		SetUp.include();
