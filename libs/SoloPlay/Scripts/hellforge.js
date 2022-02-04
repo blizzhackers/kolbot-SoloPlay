@@ -5,13 +5,10 @@
 */
 
 function hellforge () {
-	print('ÿc8Kolbot-SoloPlayÿc0: starting hellforge');
-	me.overhead("hellforge");
+	myPrint('starting hellforge');
 	Town.townTasks();
-	Town.buyPots(10, "Antidote");
-	Town.drinkPots();
-	Town.buyPots(10, "Thawing");
-	Town.drinkPots();
+	Town.buyPots(10, "Antidote", true);
+	Town.buyPots(10, "Thawing", true);
 	
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
@@ -37,24 +34,20 @@ function hellforge () {
 		return item.isEquipped && item.bodylocation === 4 && !item.isOnSwap
 	}).first();
 
-	if (me.getItem(sdk.items.quest.HellForgeHammer)) {
-		// Dual weild fix for assassin/barbarian
-		me.duelWielding && Item.removeItem(5);
-		Quest.equipItem(sdk.items.quest.HellForgeHammer, 4);
-	}
-
+	!!me.getItem(sdk.items.quest.HellForgeHammer) && Quest.equipItem(sdk.items.quest.HellForgeHammer, 4);
+	
 	Pather.usePortal(sdk.areas.RiverofFlame, me.name);
 
 	if (!me.getItem(sdk.items.quest.HellForgeHammer)) {
 		Pickit.pickItems();
-		Quest.equipItem(sdk.items.quest.HellForgeHammer, 4);
+		!!me.getItem(sdk.items.quest.HellForgeHammer) && Quest.equipItem(sdk.items.quest.HellForgeHammer, 4);
 	}
 
 	if (!Pather.moveToPreset(me.area, 2, 376)) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to move to forge');
 	}
 
-	Attack.clear(15);
+	!!forge ? Attack.clearPos(forge.x, forge.y, 15) : Attack.clear(15);
 	!forge && (forge = getUnit(2, 376));
 	Misc.openChest(forge) && delay(250 + me.ping * 2);
 	Quest.smashSomething(376) && delay(4500 + me.ping);

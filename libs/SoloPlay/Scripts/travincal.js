@@ -27,13 +27,14 @@ function travincal () {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to move to compelling orb');
 	}
 
-	Attack.clear(10); // clear area around orb
+	let orb = getUnit(2, 404);
+	!!orb && Attack.clearPos(orb.x, orb.y, 15);
 
 	// khalim's will quest not complete
 	if (!me.travincal) {
 		// cleared council didn't pick flail and hasn't already made flail
-		if (!me.getItem(173) && !me.getItem(174)) {
-			let flail = getUnit(4, 173);
+		if (!me.getItem(sdk.items.quest.KhalimsFlail) && !me.getItem(sdk.items.quest.KhalimsWill)) {
+			let flail = getUnit(4, sdk.items.quest.KhalimsFlail);
 
 			Pather.moveToUnit(flail);
 			Pickit.pickItems();
@@ -41,23 +42,17 @@ function travincal () {
 		}
 
 		// cube flail to will
-		if (!me.getItem(174) && me.getItem(173)) {
-			Quest.cubeItems(174, 553, 554, 555, 173);
+		if (!me.getItem(sdk.items.quest.KhalimsWill) && me.getItem(sdk.items.quest.KhalimsFlail)) {
+			Quest.cubeItems(sdk.items.quest.KhalimsWill, 553, 554, 555, 173);
 			delay(250 + me.ping);
 		}
 
 		// From SoloLeveling Commit eb818af
-		if (!me.inTown && me.getItem(174)) {
+		if (!me.inTown && me.getItem(sdk.items.quest.KhalimsWill)) {
 			Town.goToTown();
 		}
 
-		// From SoloLeveling Commit eb818af
-		// dual weild fix for assassin/barbarian
-		if ([2, 69, 70].indexOf(Item.getEquippedItem(5).itemType) === -1) {
-			Item.removeItem(5);
-		}
-
-		Quest.equipItem(174, 4);
+		Quest.equipItem(sdk.items.quest.KhalimsWill, 4);
 		delay(250 + me.ping);
 
 		// return to Trav
@@ -92,8 +87,7 @@ function travincal () {
         }, 10000, 40);
         if (me.area !== sdk.areas.DuranceofHateLvl1) {
             Pather.moveToExit([sdk.areas.DuranceofHateLvl1, sdk.areas.DuranceofHateLvl2]);
-        }
-        else {
+        } else {
             Pather.journeyTo(sdk.areas.DuranceofHateLvl2);
         }
         Pather.getWP(sdk.areas.DuranceofHateLvl2);

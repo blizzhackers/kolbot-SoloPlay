@@ -12,7 +12,7 @@ ClassAttack.warCryTick = 0;
 let howlCheck = function () {
 	let levelCheck = me.getSkill(sdk.skills.Howl, 1) + me.charlvl + 1;
 	return getUnits(1).filter(function(el) {
-    	return !!el && el.attackable && el.distance < 6 && el.scareable && el.charlvl < levelCheck
+    	return !!el && el.attackable && el.distance < 6 && el.scareable && GameData.monsterLevel(el.classid, me.area) < levelCheck && !el.isStunned
     		&& [sdk.states.BattleCry, sdk.states.AmplifyDamage, sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt].every(state => !el.getState(state)) && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
     }).length > me.maxNearMonsters;
 };
@@ -40,7 +40,7 @@ ClassAttack.tauntMonsters = function (unit, attackSkill, data) {
 	// Can't taunt Main bosses or MinionsofDestruction
 	if (!me.getSkill(sdk.skills.Taunt, 0) || !data) return;
 	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].includes(me.area)) return;
-	if (Attack.MainBosses.includes(unit.classid) || unit.classid === 571) return;
+	if (Attack.mainBosses.includes(unit.classid) || unit.classid === 571) return;
 
 	let range = me.area !== sdk.areas.ThroneofDestruction ? 15 : 30;
 	let rangedMobsClassIDs = [

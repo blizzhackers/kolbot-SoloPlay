@@ -10,9 +10,10 @@ const finalBuild = {
 	wantedskills: [sdk.skills.FrozenOrb, sdk.skills.Meteor, sdk.skills.ColdMastery],
 	usefulskills: [sdk.skills.FireBall, sdk.skills.FireMastery, sdk.skills.StaticField],
 	precastSkills: [sdk.skills.FrozenArmor],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	usefulStats: [sdk.stats.PassiveColdPierce, sdk.stats.PassiveColdMastery, sdk.stats.PassiveFireMastery, sdk.stats.PassiveFirePierce],
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	classicStats: [
 		["dexterity", 51], ["strength", 80], ["energy", 100], ["vitality", "all"]
 	],
@@ -103,6 +104,10 @@ const finalBuild = {
 			return Check.haveItem("amulet", "set", "Tal Rasha's Adjudication") && Check.haveItem("belt", "set", "Tal Rasha's Fine-Spun Cloth") &&
 				Check.haveItem("armor", "set", "Tal Rasha's Guardianship") && Check.haveItem("swirlingcrystal", "set", "Tal Rasha's Lidless Eye");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.Meteor, 0) === 20 && me.getSkill(sdk.skills.FrozenOrb, 0) === 20;
 	},
 };
 

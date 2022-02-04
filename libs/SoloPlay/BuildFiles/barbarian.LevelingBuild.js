@@ -1,17 +1,17 @@
 /**
  *		@filename   barbarian.LevelingBuild.js
  *		@author	  	theBGuy
- *		@desc       barb build for before respecTwo
+ *		@desc       barb frenzy/warcry build for before respecTwo
  */
 
-var build = {
+let build = {
 	caster: false,
 	skillstab: sdk.skills.tabs.CombatBarb,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing, sdk.skills.SwordMastery],
 	usefulskills: [sdk.skills.NaturalResistance, sdk.skills.IronSkin, sdk.skills.IncreasedSpeed, sdk.skills.Shout, sdk.skills.FindItem],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	stats: [
 		["dexterity", 136], ["strength", 150], ["vitality", 125],
 		["strength", 185], ["vitality", "all"],
@@ -34,5 +34,9 @@ var build = {
 		[sdk.skills.SwordMastery, 20, false], 	// charlvl 84 -> total left 18
 		[sdk.skills.Frenzy, 20, false], 		// total left 7
 		[sdk.skills.BattleOrders, 15, false], 	// total left 0
-	]
+	],
+
+	active: function () {
+		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.WarCry, 0) >= 5 && !Check.finalBuild().active());
+	},
 };

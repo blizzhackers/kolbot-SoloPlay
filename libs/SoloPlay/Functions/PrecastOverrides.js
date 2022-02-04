@@ -285,6 +285,11 @@ Precast.doPrecast = function (force) {
 			me.switchWeapons(swap);
 		}
 
+		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.Enchant) && !me.getState(sdk.states.Enchant) && me.gold > 500000) {
+			// Cast enchant
+			Attack.castCharges(sdk.skills.Enchant, me);
+		}
+
 		break;
 	case sdk.charclass.Druid:
 		if (me.getSkill(sdk.skills.CycloneArmor, 1) && (!me.getState(sdk.states.CycloneArmor) || force)) {

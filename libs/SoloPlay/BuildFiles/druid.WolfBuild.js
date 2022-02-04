@@ -10,9 +10,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.Werewolf, sdk.skills.Lycanthropy, sdk.skills.Fury],
 	usefulskills: [sdk.skills.HeartofWolverine, sdk.skills.Grizzly],
 	precastSkills: [sdk.skills.Werewolf, sdk.skills.HeartofWolverine, sdk.skills.Grizzly],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	stats: [
 		["strength", 103], ["dexterity", 35], ["vitality", "all"]
 	],
@@ -54,5 +54,9 @@ const finalBuild = {
 
 	respec: function () {
 		return Check.haveItem("stalagmite", "unique", "Ribcracker") && Check.haveItem("armor", "runeword", "Chains of Honor");
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.Werewolf, 0) === 20;
 	},
 };

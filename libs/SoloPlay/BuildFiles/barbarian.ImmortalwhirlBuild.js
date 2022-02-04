@@ -10,9 +10,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.Bash, sdk.skills.Whirlwind],
 	usefulskills: [sdk.skills.Howl, sdk.skills.Shout],
 	precastSkills: [sdk.skills.BattleOrders, sdk.skills.WarCry], // Battle orders, War Cry
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	stats: [
 		["strength", 187], ["vitality", "all"]
 	],
@@ -64,5 +64,9 @@ const finalBuild = {
 				Check.haveItem("belt", "set", "Immortal King's Detail") && Check.haveItem("armor", "set", "Immortal King's Soul Cage") &&
 				Check.haveItem("primalhelm", "set", "Immortal King's Will") && Check.haveItem("gloves", "set", "Immortal King's Forge");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.MaceMastery, 0) === 20;
 	},
 };

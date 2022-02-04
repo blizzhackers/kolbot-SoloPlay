@@ -1,23 +1,17 @@
 /**
  *    @filename  	paladin.startBuild.js
  *	  @author	  	isid0re, theBGuy
- *    @desc     	paladin build for before respecOne, respecs at 19
+ *    @desc     	paladin Holy fire build for before respecOne, respecs at 19
  */
-
-// Paladin Base Info:
-// 	Strength: 25,
-// 	Dexterity: 20,
-// 	Vitality: 25,
-// 	Energy: 15,
 
 let build = {
 	caster: false,
 	skillstab: sdk.skills.tabs.PalaCombat,
 	wantedskills: [sdk.skills.Zeal, sdk.skills.HolyFire],
 	usefulskills: [(me.getSkill(sdk.skills.HolyFire, 1) ? sdk.skills.Sacrifice : sdk.skills.Might), sdk.skills.ResistFire],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	stats: [
 		["vitality", 80],
 		["dexterity", 27],
@@ -36,5 +30,9 @@ let build = {
 		[sdk.skills.Zeal, 4],			// charlevel -> 15
 		[sdk.skills.HolyFire, 6],		// charlevel -> 17
 		[sdk.skills.ResistFire, 16]		// respec at 19
-	]
+	],
+
+	active: function () {
+		return me.charlvl < Config.respecOne && !me.getSkill(sdk.skills.BlessedAim, 0);
+	},
 };

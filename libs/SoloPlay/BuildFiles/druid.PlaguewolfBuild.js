@@ -10,9 +10,10 @@ const finalBuild = {
 	wantedskills: [sdk.skills.Werewolf, sdk.skills.Lycanthropy, sdk.skills.Fury],
 	usefulskills: [sdk.skills.HeartofWolverine, sdk.skills.Grizzly],
 	precastSkills: [sdk.skills.Werewolf, sdk.skills.HeartofWolverine, sdk.skills.Grizzly],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	usefulStats: [sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois],
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	stats: [
 		["strength", 156], ["dexterity", 136], ["vitality", "all"]
 	],
@@ -21,9 +22,9 @@ const finalBuild = {
 		[sdk.skills.Lycanthropy, 20, false],
 		[sdk.skills.PoisonCreeper, 1, false],
 		[sdk.skills.Grizzly, 1, false],
+		[sdk.skills.Rabies, 20, false],
 		[sdk.skills.Fury, 20, false],
 		[sdk.skills.HeartofWolverine, 10, false],
-		[sdk.skills.Rabies, 20, false],
 		[sdk.skills.HeartofWolverine, 20, false],
 		[sdk.skills.PoisonCreeper, 20, false],
 	],
@@ -58,5 +59,9 @@ const finalBuild = {
 
 	respec: function () {
 		return Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("armor", "runeword", "Chains of Honor");
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.Rabies, 0) === 20;
 	},
 };

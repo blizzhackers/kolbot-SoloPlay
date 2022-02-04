@@ -10,9 +10,9 @@ const build = {
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.DoubleThrow, sdk.skills.DoubleSwing],
 	usefulskills: [sdk.skills.NaturalResistance, sdk.skills.IronSkin, sdk.skills.IncreasedSpeed],
 	precastSkills: [sdk.skills.BattleOrders, sdk.skills.BattleCommand],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	stats: [
 		["strength", 103], ["dexterity", 79], ["vitality", 90],
 		["dexterity", 136], ["strength", 150], ["vitality", "all"],
@@ -67,5 +67,9 @@ const build = {
 		} else {
 			return Check.haveItem("throwingknife", "unique", "Warshrike") && Check.haveItem("throwingaxe", "unique", "Lacerator");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.DoubleThrow, 0) === 20;
 	},
 };

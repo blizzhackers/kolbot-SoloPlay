@@ -10,9 +10,10 @@ const finalBuild = {
 	wantedskills: [sdk.skills.PoisonNova, sdk.skills.CorpseExplosion],
 	usefulskills: [sdk.skills.AmplifyDamage, sdk.skills.BoneArmor, sdk.skills.LowerResist],
 	precastSkills: [sdk.skills.BoneArmor],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	usefulStats: [sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce],
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	classicStats: [
 		["dexterity", 51], ["strength", 80], ["energy", 100], ["vitality", "all"]
 	],
@@ -95,6 +96,10 @@ const finalBuild = {
 		} else {
 			return Check.haveItem("armor", "runeword", "Enigma");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.PoisonNova, 0) === 20;
 	},
 };
 

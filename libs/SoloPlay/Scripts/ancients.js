@@ -1,6 +1,7 @@
 /*
 *	@filename	ancients.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
+*	@credits	sonic
 *	@desc		ancients quest
 */
 
@@ -52,10 +53,9 @@ function ancients () {
 	let ancientsPrep = function () { 
 		Town.goToTown();
 		Town.fillTome(sdk.items.TomeofTownPortal);
-		Town.buyPots(10, "Thawing");
-		Town.drinkPots();
-		Town.buyPots(10, "Antidote");
-		Town.drinkPots();
+		Town.buyPots(10, "Thawing", true);
+		Town.buyPots(10, "Antidote", true);
+		Town.buyPots(10, "Stamina", true);
 		Town.buyPotions();
 		Pather.usePortal(sdk.areas.ArreatSummit, me.name);
 	};
@@ -75,10 +75,9 @@ function ancients () {
 
 	// ancients prep
 	Town.townTasks();
-	Town.buyPots(10, "Thawing");
-	Town.drinkPots();
-	Town.buyPots(10, "Antidote");
-	Town.drinkPots();
+	Town.buyPots(10, "Thawing", true);
+	Town.buyPots(10, "Antidote", true);
+	Town.buyPots(10, "Stamina", true);
 
 	let tempConfig = Misc.copy(Config); // save and update config settings
 
@@ -89,7 +88,7 @@ function ancients () {
 	Config.HPBuffer = 15;
 	Config.MPBuffer = 15;
 	Config.LifeChicken = 10;
-	Misc.updateConfig();
+	CharData.updateConfig();
 	me.overhead('updated settings');
 
 	Town.buyPotions();
@@ -136,7 +135,7 @@ function ancients () {
 	
 	me.cancel();
 	Config = tempConfig;
-	Misc.updateConfig();
+	CharData.updateConfig();
 	me.overhead('restored settings');
 	Precast.doPrecast(true);
 

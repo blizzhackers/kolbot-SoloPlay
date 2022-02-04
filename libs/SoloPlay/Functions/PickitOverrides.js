@@ -2,7 +2,7 @@
 *	@filename	PickitOverrides.js
 *	@author		theBGuy
 *	@desc		Pickit.js fixes to improve functionality
-*	@credits	based on existing pickit.js from PBP autoplays (Sonic, AutoSorc, etc), isid0re for formatting
+*	@credits	sonic, jaenster
 */
 
 if (!isIncluded("common/Pickit.js")) { include("common/Pickit.js"); }
@@ -49,6 +49,13 @@ Pickit.checkItem = function (unit) {
 		return {
 			result: 1,
 			line: "Frozen"
+		};
+	}
+
+	if (SoloWants.checkItem(unit)) {
+		return {
+			result: 8,
+			line: null
 		};
 	}
 
@@ -145,90 +152,222 @@ Pickit.checkItem = function (unit) {
 	return rval;
 };
 
-Pickit.pickItems = function () {
-	let status, canFit,
-		needMule = false,
-		pickList = [];
+// @jaenster
+Pickit.amountOfPotsNeeded = function () {
+    let _a, _b, _c, _d;
+    let potTypes = [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion];
+    let hpMax = (Array.isArray(Config.HPBuffer) ? Config.HPBuffer[1] : Config.HPBuffer);
+    let mpMax = (Array.isArray(Config.MPBuffer) ? Config.MPBuffer[1] : Config.MPBuffer);
+    let rvMax = (Array.isArray(Config.RejuvBuffer) ? Config.RejuvBuffer[1] : Config.RejuvBuffer);
+    let needed = (_a = {},
+        _a[sdk.itemtype.HealingPotion] = (_b = {},
+            _b[sdk.storage.Belt] = 0,
+            _b[sdk.storage.Inventory] = hpMax,
+            _b),
+        _a[sdk.itemtype.ManaPotion] = (_c = {},
+            _c[sdk.storage.Belt] = 0,
+            _c[sdk.storage.Inventory] = mpMax,
+            _c),
+        _a[sdk.itemtype.RejuvPotion] = (_d = {},
+            _d[sdk.storage.Belt] = 0,
+            _d[sdk.storage.Inventory] = rvMax,
+            _d),
+        _a);
+    if (hpMax > 0 || mpMax > 0 || rvMax > 0) {
+        me.getItemsEx()
+            .filter(function (pot) { return potTypes.includes(pot.itemType) && (pot.isInBelt || pot.isInInventory); })
+            .forEach(function (pot) {
+            needed[pot.itemType][pot.location] -= 1;
+        });
+    }
+    let belt = Storage.BeltSize();
+    let missing = Town.checkColumns(belt);
+    Config.BeltColumn.forEach(function (column, index) {
+        if (column === 'hp')
+            needed[sdk.itemtype.HealingPotion][sdk.storage.Belt] = missing[index];
+        if (column === 'mp')
+            needed[sdk.itemtype.ManaPotion][sdk.storage.Belt] = missing[index];
+        if (column === 'rv')
+            needed[sdk.itemtype.RejuvPotion][sdk.storage.Belt] = missing[index];
+    });
+    return needed;
+};
 
-	Town.clearBelt();
+Pickit.canFit = function (item) {
+    switch (item.itemType) {
+        case sdk.itemtype.Gold:
+            return true;
+        case sdk.itemtype.Scroll:
+        	{
+	            let tome = me.findItem(item.classid - 11, 0, sdk.storage.Inventory);
+	            return (tome && tome.getStat(sdk.stats.Quantity) < 20) || Storage.Inventory.CanFit(item);
+        	}
+        case sdk.itemtype.HealingPotion:
+        case sdk.itemtype.ManaPotion:
+        case sdk.itemtype.RejuvPotion:
+        	{
+	            let pots = this.amountOfPotsNeeded();
+	            if (pots[item.itemType][sdk.storage.Belt] > 0) {
+	                // this potion can go in belt
+	                return true;
+	            }
+        	}
+            return Storage.Inventory.CanFit(item);
+        default:
+            return Storage.Inventory.CanFit(item);
+    }
+};
 
-	if (me.dead || Config.PickRange < 0 || !Pickit.enabled) return false;
+Pickit.canPick = function (unit) {
+	if (!unit) return false;
+	if (unit.isQuestItem && me.getItem(unit.classid)) return false;
+	// TODO: clean this up
 
-	while (!me.idle) {
-		delay(40);
-	}
+	let tome, charm, i, potion, needPots, buffers, pottype, myKey, key;
 
-	let item = getUnit(4);
+	switch (unit.itemType) {
+	case sdk.itemtype.Gold:
+		// Check current gold vs max capacity (cLvl*10000)
+		if (me.getStat(sdk.stats.Gold) === me.getStat(sdk.stats.Level) * 10000) {
+			return false; // Skip gold if full
+		}
 
-	if (item) {
-		do {
-			if ((item.mode === 3 || item.mode === 5) && getDistance(me, item) <= Config.PickRange) {
-				pickList.push(copyUnit(item));
-			}
-		} while (item.getNext());
-	}
+		break;
+	case sdk.itemtype.Scroll:
+		// 518 - Tome of Town Portal or 519 - Tome of Identify, mode 0 - inventory/stash
+		tome = me.getItem(unit.classid - 11, 0);
 
-	while (pickList.length > 0) {
-		if (me.dead || !Pickit.enabled) return false;
-
-		pickList.sort(this.sortItems);
-
-		// Check if the item unit is still valid and if it's on ground or being dropped
-		// Don't pick items behind walls/obstacles when walking
-		if (copyUnit(pickList[0]).x !== undefined && (pickList[0].mode === 3 || pickList[0].mode === 5) && (Pather.useTeleport() || me.inTown || !checkCollision(me, pickList[0], 0x1))) {
-			// Check if the item should be picked
-			status = this.checkItem(pickList[0]);
-
-			if (status.result && Pickit.canPick(pickList[0])) {
-				// Override canFit for scrolls, potions and gold
-				canFit = Storage.Inventory.CanFit(pickList[0]) || [4, 22, 76, 77, 78].includes(pickList[0].itemType);
-
-				// Try to make room with FieldID
-				if (!canFit && Config.FieldID && Town.fieldID()) {
-					canFit = Storage.Inventory.CanFit(pickList[0]) || [4, 22, 76, 77, 78].includes(pickList[0].itemType);
+		if (tome) {
+			do {
+				if (tome.isInInventory && tome.getStat(sdk.stats.Quantity) === 20) {
+					return false; // Skip a scroll if its tome is full
 				}
+			} while (tome.getNext());
+		} else {
+			// If we don't have a tome, go ahead and keep 2 scrolls
+			return unit.classid === sdk.items.ScrollofIdentify && me.charlvl > 5 ? false : me.getItemsEx(unit.classid).filter(el => el.isInInventory).length < 2;
+		}
 
-				// Try to make room by selling items in town
-				if (!canFit) {
-					// Check if any of the current inventory items can be stashed or need to be identified and eventually sold to make room
-					if (this.canMakeRoom()) {
-						print("ÿc7Trying to make room for " + this.itemColor(pickList[0]) + pickList[0].name);
+		break;
+	case sdk.itemtype.Key:
+		// Assassins don't ever need keys
+		if (me.assassin) return false;
 
-						// Go to town and do town chores
-						if (Town.visitTown()) {
-							// Recursive check after going to town. We need to remake item list because gids can change.
-							// Called only if room can be made so it shouldn't error out or block anything.
+		myKey = me.getItem(543, 0);
+		key = getUnit(4, -1, -1, unit.gid); // Passed argument isn't an actual unit, we need to get it
 
-							return this.pickItems();
-						}
+		if (myKey && key) {
+			do {
+				if (myKey.location === 3 && myKey.getStat(70) + key.getStat(70) > 12) {
+					return false;
+				}
+			} while (myKey.getNext());
+		}
 
-						// Town visit failed - abort
-						print("ÿc7Not enough room for " + this.itemColor(pickList[0]) + pickList[0].name);
+		break;
+	case 82: // Small Charm
+	case 83: // Large Charm
+	case 84: // Grand Charm
+		if (unit.quality === sdk.itemquality.Unique) {
+			charm = me.getItem(unit.classid, 0);
 
-						return false;
+			if (charm) {
+				do {
+					if (charm.quality === 7) {
+						return false; // Skip Gheed's Fortune, Hellfire Torch or Annihilus if we already have one
+					}
+				} while (charm.getNext());
+			}
+		}
+
+		break;
+	case 76: // Healing Potion
+	case 77: // Mana Potion
+	case 78: // Rejuvenation Potion
+		needPots = 0;
+
+		for (i = 0; i < 4; i += 1) {
+			if (typeof unit.code === "string" && unit.code.indexOf(Config.BeltColumn[i]) > -1) {
+				needPots += this.beltSize;
+			}
+		}
+
+		potion = me.getItem(-1, 2);
+
+		if (potion) {
+			do {
+				if (potion.itemType === unit.itemType) {
+					needPots -= 1;
+				}
+			} while (potion.getNext());
+		}
+
+		if (needPots < 1 && this.checkBelt()) {
+			buffers = ["HPBuffer", "MPBuffer", "RejuvBuffer"];
+
+			for (i = 0; i < buffers.length; i += 1) {
+				if (Config[buffers[i]]) {
+					switch (buffers[i]) {
+					case "HPBuffer":
+						pottype = 76;
+
+						break;
+					case "MPBuffer":
+						pottype = 77;
+
+						break;
+					case "RejuvBuffer":
+						pottype = 78;
+
+						break;
 					}
 
-					// Can't make room - trigger automule
-					Misc.itemLogger("No room for", pickList[0]);
-					print("ÿc7Not enough room for " + this.itemColor(pickList[0]) + pickList[0].name);
+					if (unit.itemType === pottype) {
+						if (!Storage.Inventory.CanFit(unit)) {
+							return false;
+						}
 
-					needMule = true;
-				}
+						needPots = Config[buffers[i]];
+						potion = me.getItem(-1, 0);
 
-				// Item can fit - pick it up
-				if (canFit) {
-					this.pickItem(pickList[0], status.result, status.line);
+						if (potion) {
+							do {
+								if (potion.itemType === pottype && potion.location === 3) {
+									needPots -= 1;
+								}
+							} while (potion.getNext());
+						}
+					}
 				}
 			}
 		}
 
-		pickList.shift();
-	}
+		if (needPots < 1) {
+			potion = me.getItem();
 
-	// Quit current game and transfer the items to mule
-	if (needMule && AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("muleInfo") && AutoMule.getMuleItems().length > 0) {
-		scriptBroadcast("mule");
-		scriptBroadcast("quit");
+			if (potion) {
+				do {
+					if (potion.itemType === unit.itemType && ((potion.mode === 0 && potion.location === 3) || potion.mode === 2)) {
+						if (potion.classid < unit.classid) {
+							potion.interact();
+							needPots += 1;
+
+							break;
+						}
+					}
+				} while (potion.getNext());
+			}
+		}
+
+		if (needPots < 1) {
+			return false;
+		}
+
+		break;
+	case undefined: // Yes, it does happen
+		print("undefined item (!?)");
+
+		return false;
 	}
 
 	return true;
@@ -385,11 +524,109 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			CraftingSystem.update(item);
 
 			break;
+		case 8: // SoloWants system
+			print("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (SoloWants System)");
+			SoloWants.update(item);
+
+			break;
 		default:
 			print("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (keptLine ? ") (" + keptLine + ")" : ")"));
 
 			break;
 		}
+	}
+
+	return true;
+};
+
+Pickit.pickItems = function (range = Config.PickRange, once = false) {
+	let status, canFit,
+		needMule = false,
+		pickList = [];
+
+	Town.clearBelt();
+
+	if (me.dead || range < 0 || !Pickit.enabled) return false;
+
+	while (!me.idle) {
+		delay(40);
+	}
+
+	let item = getUnit(4);
+
+	if (item) {
+		do {
+			if ((item.mode === 3 || item.mode === 5) && getDistance(me, item) <= range) {
+				pickList.push(copyUnit(item));
+			}
+		} while (item.getNext());
+	}
+
+	while (pickList.length > 0) {
+		if (me.dead || !Pickit.enabled) return false;
+
+		pickList.sort(this.sortItems);
+
+		// Check if the item unit is still valid and if it's on ground or being dropped
+		// Don't pick items behind walls/obstacles when walking
+		if (copyUnit(pickList[0]).x !== undefined && (pickList[0].mode === 3 || pickList[0].mode === 5) && (Pather.useTeleport() || me.inTown || !checkCollision(me, pickList[0], 0x1))) {
+			// Check if the item should be picked
+			status = this.checkItem(pickList[0]);
+
+			if (status.result && Pickit.canPick(pickList[0])) {
+				// Override canFit for scrolls, potions and gold
+				//canFit = Storage.Inventory.CanFit(pickList[0]) || [4, 22, 76, 77, 78].includes(pickList[0].itemType);
+				canFit = this.canFit(pickList[0]);
+
+				// Try to make room with FieldID
+				if (!canFit && Config.FieldID && Town.fieldID()) {
+					//canFit = Storage.Inventory.CanFit(pickList[0]) || [4, 22, 76, 77, 78].includes(pickList[0].itemType);
+					canFit = this.canFit(pickList[0]);
+				}
+
+				// Try to make room by selling items in town
+				if (!canFit) {
+					// Check if any of the current inventory items can be stashed or need to be identified and eventually sold to make room
+					if (this.canMakeRoom()) {
+						print("ÿc7Trying to make room for " + this.itemColor(pickList[0]) + pickList[0].name);
+
+						// Go to town and do town chores
+						if (Town.visitTown()) {
+							// Recursive check after going to town. We need to remake item list because gids can change.
+							// Called only if room can be made so it shouldn't error out or block anything.
+
+							return this.pickItems(range, once);
+						}
+
+						// Town visit failed - abort
+						print("ÿc7Not enough room for " + this.itemColor(pickList[0]) + pickList[0].name);
+
+						return false;
+					}
+
+					// Can't make room - trigger automule
+					Misc.itemLogger("No room for", pickList[0]);
+					print("ÿc7Not enough room for " + this.itemColor(pickList[0]) + pickList[0].name);
+
+					needMule = true;
+				}
+
+				// Item can fit - pick it up
+				if (canFit) {
+					let picked = this.pickItem(pickList[0], status.result, status.line);
+
+					if (picked && once) return true;
+				}
+			}
+		}
+
+		pickList.shift();
+	}
+
+	// Quit current game and transfer the items to mule
+	if (needMule && AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("muleInfo") && AutoMule.getMuleItems().length > 0) {
+		scriptBroadcast("mule");
+		scriptBroadcast("quit");
 	}
 
 	return true;

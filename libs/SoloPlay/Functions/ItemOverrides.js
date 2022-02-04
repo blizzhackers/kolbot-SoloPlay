@@ -12,7 +12,7 @@ Item.getQuantityOwned = function (item = undefined) {
 	if (!item) return 0;
 	
 	let list = [];
-	let myItems = me.getItems()
+	let myItems = me.getItemsEx()
 		.filter(check =>
 			check.itemType === item.itemType// same item type as current
 				&& check.classid === item.classid// same item classid as current
@@ -140,12 +140,13 @@ Item.getEquippedItem = function (bodyLoc) {
 					itemType: item.itemType,
 					quality: item.quality,
 					tier: NTIP.GetTier(item),
+					tierScore : tierscore(item, bodyLoc),
 					secondarytier: NTIP.GetSecondaryTier(item),
 					str: item.getStatEx(sdk.stats.Strength),
 					dex: item.getStatEx(sdk.stats.Dexterity),
 					durability: (item.getStat(72) * 100 / item.getStat(73)),
 					sockets: item.getStat(sdk.stats.NumSockets),
-					socketed: !item.getItems(),
+					socketed: item.getItemsEx().length > 0,
 					isRuneword: item.getFlag(0x4000000),
 					twoHanded: item.twoHanded,
 				};
@@ -162,6 +163,7 @@ Item.getEquippedItem = function (bodyLoc) {
 		itemType: -1,
 		quality: -1,
 		tier: -1,
+		tierScore: -1,
 		secondarytier: -1,
 		str: 0,
 		dex: 0,
@@ -202,6 +204,7 @@ Item.autoEquipCheck = function (item) {
 						return false;
 					}
 				}
+
 				return true;
 			}
 		}
@@ -230,6 +233,7 @@ Item.autoEquipKeepCheck = function (item) {
 						return false;
 					}
 				}
+
 				return true;
 			}
 		}
@@ -279,7 +283,8 @@ Item.autoEquip = function () {
 
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
-				if (items[0].isInStorage && tier > this.getEquippedItem(bodyLoc[j]).tier && this.getEquippedItem(bodyLoc[j]).classid !== sdk.items.quest.KhalimsWill) {
+				let equippedItem = this.getEquippedItem(bodyLoc[j]);
+				if (items[0].isInStorage && tier > equippedItem.tier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
 					if (!items[0].identified) {
 						idTool = Town.getIdTool();
 
@@ -296,8 +301,8 @@ Item.autoEquip = function () {
 						print("ÿc9AutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
 					}
 
-					if (!me.barbarian && bodyLoc[j] === 5 && this.getEquippedItem(bodyLoc[j]).tier === -1) {
-						if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tier) {
+					if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1 && this.getEquippedItem(4).twoHanded) {
+						if (tier < this.getEquippedItem(4).tier) {
 							continue;
 						}
 						print("ÿc9AutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
@@ -308,6 +313,11 @@ Item.autoEquip = function () {
 
 					if (this.equip(items[0], bodyLoc[j])) {
 						print("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
+						// item that can have sockets
+						if (items[0].getItemType()) {
+							SoloWants.addToList(items[0]);
+							SoloWants.ensureList();
+						}
 						Developer.debugging.autoEquip && Misc.logItem("Equipped", me.getItem(-1, -1, gid));
 						Developer.logEquipped && MuleLogger.logEquippedItems();
 
@@ -316,6 +326,8 @@ Item.autoEquip = function () {
 							print("ÿc9AutoEquipÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + items[0].fname + " Tier: " + tier);
 							Storage.Stash.MoveTo(items[0]);
 						}
+					} else if (me.getItem(-1, -1, gid)) {	// Make sure we didn't lose it during roll back
+						continue;
 					}
 
 					break;
@@ -346,6 +358,8 @@ Item.equip = function (item, bodyLoc) {
 		if (!Town.openStash() && !Cubing.openCube()) return false;
 	}
 
+	let rolledBack = false;
+
 	for (let i = 0; i < 3; i += 1) {
 		if (item.toCursor()) {
 			clickItemAndWait(0, bodyLoc);
@@ -355,6 +369,16 @@ Item.equip = function (item, bodyLoc) {
 					let cursorItem = getUnit(100);
 
 					if (cursorItem) {
+						// rollback check
+						let justEquipped = this.getEquippedItem(bodyLoc);
+						if (NTIP.GetTier(cursorItem) > justEquipped.tier && !item.isQuestItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attemt rollback*/) {
+							console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
+							console.debug("OldItem: " + NTIP.GetTier(cursorItem) + " Just Equipped Item: " + this.getEquippedItem(bodyLoc).tier);
+							clickItemAndWait(0, bodyLoc);
+							cursorItem = getUnit(100);
+							rolledBack = true;
+						}
+
 						if (Pickit.checkItem(cursorItem).result === 1 ||
 						(cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2) || // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
 						(cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {	// or keep if item is worth selling
@@ -367,7 +391,7 @@ Item.equip = function (item, bodyLoc) {
 					}
 				}
 
-				return true;
+				return rolledBack ? false : true;
 			}
 		}
 	}
@@ -377,12 +401,7 @@ Item.equip = function (item, bodyLoc) {
 
 Item.removeItem = function (bodyLoc) {
 	let cursorItem,
-		removable = me.getItems()
-			.filter(item =>
-				item.mode === sdk.itemmode.Equipped
-				&& item.bodylocation === bodyLoc
-			)
-			.first();
+		removable = me.getItemsEx().filter(function (item) { return item.isEquipped && item.bodylocation === bodyLoc; }).first();
 
 	!me.inTown && Town.goToTown();
 	!getUIFlag(sdk.uiflags.Stash) && Town.openStash();
@@ -874,7 +893,8 @@ Item.autoEquipMerc = function () {
 Item.removeItemsMerc = function () {
 	let mercenary = Merc.getMercFix();
 	if (!mercenary) return true;
-	let items = mercenary.getItems();
+	// Sort items so we try to keep the highest tier'd items in case space in our invo is limited
+	let items = mercenary.getItemsEx().sort((a, b) => NTIP.GetMercTier(b) - NTIP.GetMercTier(a));
 
 	if (items) {
 		for (let i = 0; i < items.length; i++) {
@@ -1609,7 +1629,7 @@ Item.autoEquipCharmCheck = function (item = undefined) {
 	if (![sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid)) return false;
 
 	let charms, lowestCharm,
-		items = me.getItems()
+		items = me.getItemsEx()
 			.filter(charm => charm.classid === item.classid && charm.isInStorage
 				&& charm.quality === sdk.itemquality.Magic && NTIP.GetCharmTier(charm) > 0);
 

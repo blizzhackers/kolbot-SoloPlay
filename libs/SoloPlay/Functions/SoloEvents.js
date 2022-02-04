@@ -1,10 +1,11 @@
 /*
-*	@filename	Events.js
+*	@filename	SoloEvents.js
 *	@author		theBGuy
 *	@desc		Handle events for Kolbot-SoloPlay
 */
 
-let Events = {
+const SoloEvents = {
+	filePath: "libs/SoloPlay/Tools/EventThread.js",
 	check: false,
 	inGame: false,
 	cloneWalked: false,
@@ -21,7 +22,7 @@ let Events = {
 		}
 
 		if (this.gameInfo.gameName.length > 0) {
-			D2Bot.printToConsole("Kolbot-SoloPlay :: Events.outOfGameCheck(): Attempting to join other bots game", 6);
+			D2Bot.printToConsole("Kolbot-SoloPlay :: SoloEvents.outOfGameCheck(): Attempting to join other bots game", 6);
 			this.inGame = true;
 			me.blockmouse = true;
 
@@ -36,7 +37,7 @@ let Events = {
 				delay(1000);
 			}
 
-			print("ÿc8Kolbot-SoloPlayÿc0: End of Events.outOfGameCheck()");
+			print("ÿc8Kolbot-SoloPlayÿc0: End of SoloEvents.outOfGameCheck()");
 			this.inGame = false;
 			this.check = false;
 			this.gameInfo.gameName = "";
@@ -270,53 +271,153 @@ let Events = {
 		this.cloneWalked = false;
 	},
 
+	customMoveTo: function (x, y, givenSettings) {
+		// Abort if dead
+		if (me.dead) return false;
+
+		let settings = Object.assign({}, {
+            allowTeleport: false,
+            allowClearing: false,
+            allowTown: false,
+            retry: 10,
+        }, givenSettings);
+
+		let path, adjustedNode, leaped = false,
+			node = {x: x, y: y},
+			fail = 0;
+
+		me.cancelUIFlags();
+
+		if (!x || !y) return false; // I don't think this is a fatal error so just return false
+		if (typeof x !== "number" || typeof y !== "number") return false;
+		if (getDistance(me, x, y) < 2) return true;
+
+		let useTele = settings.allowTeleport && settings.allowTeleport.useTeleport();
+		let tpMana = Skill.getManaCost(sdk.skills.Teleport);
+		let mLair = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
+
+		path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? (mLair ? 30 : Pather.teleDistance) : Pather.walkDistance);
+
+		if (!path) return false;
+
+		path.reverse();
+		PathDebug.drawPath(path);
+
+		useTele && Config.TeleSwitch && path.length > 5 && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
+
+		while (path.length > 0) {
+			// Abort if dead
+			if (me.dead) return false;
+
+			me.cancelUIFlags();
+
+			node = path.shift();
+
+			if (getDistance(me, node) > 2) {
+				if (mLair) {
+					adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
+
+					if (adjustedNode) {
+						node.x = adjustedNode[0];
+						node.y = adjustedNode[1];
+					}
+				}
+
+				if (useTele && tpMana < me.mp ? Pather.teleportTo(node.x, node.y) : Pather.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
+					if (!me.inTown) {
+						if (Pather.recursion) {
+							Pather.recursion = false;
+
+							if (getDistance(me, node.x, node.y) > 5) {
+								this.customMoveTo(node.x, node.y);
+							}
+
+							Pather.recursion = true;
+						}
+
+						settings.allowTown && Misc.townCheck();
+					}
+				} else {
+					if (fail > 0 && !useTele && !me.inTown) {
+						// Only do this once
+						if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, 1) && !leaped) {
+							Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y);
+							leaped = true;
+						}
+					}
+
+					path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? rand(25, 35) : rand(10, 15));
+					if (!path) return false;
+
+					fail += 1;
+					path.reverse();
+					PathDebug.drawPath(path);
+					print("move retry " + fail);
+
+					if (fail > 0) {
+						Packet.flash(me.gid);
+
+						if (fail >= retry) {
+							break;
+						}
+					}
+				}
+			}
+
+			delay(5);
+		}
+
+		useTele && Config.TeleSwitch && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
+		PathDebug.removeHooks();
+
+		return getDistance(me, node.x, node.y) < 5;
+	},
+
 	skip: function () {
-		let oldPickRange = Config.PickRange;
+		let tick = getTickCount();
+		myPrint("Attempting baal wave skip");
 
 		// Disable anything that will cause us to stop
 		Precast.enabled = false;
 		Misc.townEnabled = false;
-		Config.PickRange = 0;
-		if (me.barbarian) {
-			Config.FindItem = false;
-		}
-
-		let tick = getTickCount();
-		me.overhead("Attempting baal wave skip");
+		Pickit.enabled = false;
+		me.barbarian && (Config.FindItem = false);
 
 		// Prep, move to throne entrance
 		while (getTickCount() - tick < 6500) {
-			Pather.moveTo(15091, 5073);
+			this.customMoveTo(15091, 5073);
 		}
 
-		Config.NoTele = true;
 		tick = getTickCount();
 
 		// 5 second delay (5000ms), then leave throne
 		while (getTickCount() - tick < 5000) {
-			Pather.moveTo(15098, 5082);
+			this.customMoveTo(15098, 5082);
 		}
 
 		tick = getTickCount();
-		Pather.moveTo(15099, 5078);		// Re-enter throne
+		this.customMoveTo(15099, 5078);		// Re-enter throne
 
 		// 2 second delay (2000ms)
 		while (getTickCount() - tick < 2000) {
-			Pather.moveTo(15098, 5082);
+			this.customMoveTo(15098, 5082);
 		}
 
-		Pather.moveTo(15099, 5078);
+		this.customMoveTo(15099, 5078);
 
 		// Re-enable
-		Config.NoTele = false;
-		Config.PickRange = oldPickRange;
 		Precast.enabled = true;
 		Misc.townEnabled = true;
+		Pickit.enabled = true;
+
+		let skipWorked = getUnits(sdk.unittype.Monster)
+			.some(function (el) { return !el.dead && el.attackable && el.classid !== sdk.monsters.ThroneBaal && el.x >= 15070 && el.x <= 15120 &&
+                    el.y >= 5000 && el.y <= 5075;});
+		myPrint("skip " + (skipWorked ? "worked" : "failed"));
 	},
 
 	dodge: function () {
 		let diablo = getUnit(1, 243);
-		let tick = getTickCount();
 		// Credit @Jaenster
 		let shouldDodge = function (coord) {
 			return !!diablo && getUnits(3)
@@ -331,10 +432,14 @@ let Events = {
 		};
 		
 		if (diablo && shouldDodge(me)) {
+			let tick = getTickCount();
+			let overrides = {allowTeleport: false, allowClearing: false, allowTown: false};
+			// Disable anything that will cause us to stop
+			Precast.enabled = false;
+			Misc.townEnabled = false;
+			Pickit.enabled = false;
 			print("DODGE");
 			// Disable things that will cause us to stop
-			Attack.stopClear = true;
-			Misc.townEnabled = false;
 			let dist = me.assassin ? 15 : 3;
 
 			while (getTickCount() - tick < 2000) {
@@ -342,12 +447,12 @@ let Events = {
 				if (me.y <= diablo.y) {
 					// Move east
 					if (me.x <= diablo.x) {
-						Pather.moveTo(diablo.x + dist, diablo.y, null, false);
+						this.customMoveTo(diablo.x + dist, diablo.y, overrides);
 					}
 
 					// Move south
 					if (me.x > diablo.x) {
-						Pather.moveTo(diablo.x, diablo.y + dist, null, false);
+						this.customMoveTo(diablo.x, diablo.y + dist, overrides);
 					}
 				}
 
@@ -355,19 +460,20 @@ let Events = {
 				if (me.y > diablo.y) {
 					// Move west
 					if (me.x >= diablo.x) {
-						Pather.moveTo(diablo.x - dist, diablo.y, null, false);
+						this.customMoveTo(diablo.x - dist, diablo.y, overrides);
 					}
 
 					// Move north
 					if (me.x < diablo.x) {
-						Pather.moveTo(diablo.x, diablo.y - dist, null, false);
+						this.customMoveTo(diablo.x, diablo.y - dist, overrides);
 					}
 				}
 			}
 
 			// Re-enable
-			Attack.stopClear = false;
+			Precast.enabled = true;
 			Misc.townEnabled = true;
+			Pickit.enabled = true;
 		}
 	},
 
@@ -406,7 +512,7 @@ let Events = {
 		switch (bytes[0]) {
 		case 0x89: // d2gs unique event
 			if (me.area === sdk.areas.DenofEvil) {
-				Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'finishDen');
+				Messaging.sendToScript(SoloEvents.filePath, 'finishDen');
 			}
 
 			break;
@@ -414,7 +520,7 @@ let Events = {
 			if (me.area === sdk.areas.ChaosSanctuary) {
 				if (bytes[6] === 193) {
 					if (!Pather.canTeleport() && (me.necromancer && ["Poison", "Summon"].includes(SetUp.currentBuild) || !me.sorceress)) {
-						Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'dodge');
+						Messaging.sendToScript(SoloEvents.filePath, 'dodge');
 					}
 				}
 			}
@@ -430,7 +536,7 @@ let Events = {
 					break;
 				case 1: 	// Achmel
 					if ((me.paladin && !Attack.isAuradin && me.hell) || (me.barbarian && ((me.charlvl < Config.levelCap && !me.baal) || me.hardcore))) {
-						Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'skip');
+						Messaging.sendToScript(SoloEvents.filePath, 'skip');
 					}
 
 					break;
@@ -439,7 +545,7 @@ let Events = {
 					break;
 				case 4: 	// Lister
 					if ((me.barbarian && (me.charlvl < Config.levelCap || !me.baal || me.hardcore)) || (me.charlvl < Config.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
-						Messaging.sendToScript("libs/SoloPlay/Tools/EventThread.js", 'skip');
+						Messaging.sendToScript(SoloEvents.filePath, 'skip');
 					}
 
 					break;

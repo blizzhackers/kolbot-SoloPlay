@@ -10,9 +10,9 @@ let build = {
 	skillstab: sdk.skills.tabs.PalaCombat,
 	wantedskills: [sdk.skills.BlessedHammer, sdk.skills.Concentration],
 	usefulskills: [sdk.skills.HolyShield, sdk.skills.BlessedAim],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	classicStats: [
 		["dexterity", 51], ["strength", 80], ["vitality", "all"]
 	],
@@ -91,6 +91,10 @@ let build = {
 		[sdk.skills.HolyShield, 20]
 	],
 	stats: undefined,
+
+	active: function () {
+		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.Concentration, 0) >= 1 && !Check.finalBuild().active());
+	},
 };
 
 // Has to be set after its loaded

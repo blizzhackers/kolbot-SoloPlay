@@ -1,139 +1,72 @@
 /*
 *	@filename	ProtoTypesOverrides.js
-*	@author		theBGuy, isid0re
-*	@credits 	Jaenster
+*	@author		theBGuy
+*	@credits 	Jaenster, sonic, isid0re
 *	@desc		additions for improved Kolbot-SoloPlay functionality and code readability
 */
 
 
 let sdk = require('../modules/sdk');
 
-(function (global, print) {
-	global['console'] = global['console'] || (function () {
-		const console = {};
-
-		const argMap = el => typeof el === 'object' && el /*not null */ && JSON.stringify(el) || el;
-
-		console.log = function (...args) {
-			// use call to avoid type errors
-			print.call(null, args.map(argMap).join(','));
-		};
-
-		console.printDebug = true;
-		console.debug = function (...args) {
-
-			if (console.printDebug) {
-				const stack = new Error().stack.match(/[^\r\n]+/g),
-					filenameAndLine = stack && stack.length && stack[1].substr(stack[1].lastIndexOf('\\') + 1) || 'unknown:0';
-
-				this.log('ÿc:[ÿc:' + filenameAndLine + 'ÿc:]ÿc0 ' + args.map(argMap).join(','));
-			}
-		};
-
-		console.warn = console.debug;
-
-		return console;
-
-	})()
-
-})([].filter.constructor('return this')(), print);
-
-/**
- * @description Polyfill for setTimeout, as the version of d2bs isnt thread safe
- * @author Jaenster
- */
-
-(function (global, _original) {
-
-	const Worker = require('../../modules/Worker');
-
-	global['_setTimeout'] = _original;
-
-	/**
-	 * @param {function} cb
-	 * @param {number} time
-	 * @param args
-	 * @constructor
-	 */
-	function Timer(cb, time, args) {
-		const _this = this;
-		if (time === void 0) { time = 0; }
-		if (args === void 0) { args = []; }
-		Timer.instances.push(this);
-		Worker.runInBackground['__setTimeout__' + (Timer.counter++)] = (startTick => () => {
-			let finished = getTickCount() - startTick >= time;
-
-			if (finished) {
-				let index = Timer.instances.indexOf(_this);
-
-				// only if not removed from the time list
-				if (index > -1) {
-					Timer.instances.splice(index, 1);
-					cb.apply(undefined, args);
-				}
-			}
-
-			return !finished;
-		})(getTickCount());
-	}
-
-	Timer.instances = [];
-	Timer.counter = 0;
-
-	global['setTimeout'] = function (cb, time = 0, ...args) {
-		if (typeof cb === 'string') {
-			console.debug('Warning: Do not use raw code @ setTimeout and does not support lexical scoping');
-			cb = [].filter.constructor(cb);
-		}
-
-		if (typeof cb !== 'function') throw new TypeError('setTimeout callback needs to be a function');
-
-		return new Timer(cb, time, args);
-	};
-
-	/**
-	 *
-	 * @param {Timer} timer
-	 */
-	global['clearTimeout'] = function (timer) {
-		const index = Timer.instances.indexOf(timer);
-		if (index > -1) {
-			Timer.instances.splice(index, 1)
-		}
-	};
-
-	// getScript(true).name.toString() !== 'default.dbj' && setTimeout(function () {/* test code*/}, 1000)
-
-
-})([].filter.constructor('return this')(), setTimeout);
-
-(function (global, original) {
-	let firstRun = true;
-	global['getUnit'] = function (...args) {
-		const test = original(1);
-		// Stupid reference thing
-
-		if (firstRun) {
-			delay(1000);
-			firstRun = false;
-		}
-
-		let [first] = args, second = args.length >= 2 ? args[1] : undefined;
-
-		const ret = original.apply(this, args);
-
-		// deal with fucking bug
-		if (first === 1 && typeof second === 'string' && ret && ((me.act === 1 && ret.classid === 149) || me.act === 2 && ret.classid === 268)) {
-			return null;
-		}
-
-		return original.apply(this, args);
-	}
-})([].filter.constructor('return this')(), getUnit);
-
 Unit.prototype.getResPenalty = function (difficulty) {
 	difficulty > 2 && (difficulty = 2);
 	return me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][difficulty] : [0, 40, 100][difficulty];
+};
+
+Unit.prototype.getItemType = function () {
+	switch (this.itemType) {
+	case sdk.itemtype.Shield:
+	case sdk.itemtype.AuricShields:
+	case sdk.itemtype.VoodooHeads:
+		return "Shield";
+	case sdk.itemtype.Armor:
+		return "Armor";
+	case sdk.itemtype.Helm:
+	case sdk.itemtype.PrimalHelm:
+	case sdk.itemtype.Circlet:
+	case sdk.itemtype.Pelt:
+		return "Helmet";
+	case sdk.itemtype.Scepter:
+	case sdk.itemtype.Wand:
+	case sdk.itemtype.Staff:
+	case sdk.itemtype.Bow:
+	case sdk.itemtype.Axe:
+	case sdk.itemtype.Club:
+	case sdk.itemtype.Sword:
+	case sdk.itemtype.Hammer:
+	case sdk.itemtype.Knife:
+	case sdk.itemtype.Spear:
+	case sdk.itemtype.Polearm:
+	case sdk.itemtype.Crossbow:
+	case sdk.itemtype.Mace:
+	case sdk.itemtype.ThrowingKnife:
+	case sdk.itemtype.ThrowingAxe:
+	case sdk.itemtype.Javelin:
+	case sdk.itemtype.Orb:
+	case sdk.itemtype.AmazonBow:
+	case sdk.itemtype.AmazonSpear:
+	case sdk.itemtype.AmazonJavelin:
+	case sdk.itemtype.MissilePotion:
+	case sdk.itemtype.HandtoHand:
+	case sdk.itemtype.AssassinClaw:
+		return "Weapon";
+	// currently only use this function for socket related things so might as well make non-socketable things return false
+	case sdk.itemtype.BowQuiver:
+	case sdk.itemtype.CrossbowQuiver:
+		//return "Quiver";
+	case sdk.itemtype.Ring:
+		//return "Ring";
+	case sdk.itemtype.Amulet:
+		//return "Amulet";
+	case sdk.itemtype.Boots:
+		//return "Boots";
+	case sdk.itemtype.Gloves:
+		//return "Gloves";
+	case sdk.itemtype.Belt:
+		//return "Belt";
+	default:
+		return "";
+	}
 };
 
 Object.defineProperties(Unit.prototype, {
@@ -208,22 +141,40 @@ Object.defineProperties(Unit.prototype, {
 	},
 	fireRes: {
 		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxFireResist), this.getStat(sdk.stats.FireResist) - me.resPenalty);
+			let modifier = 0;
+			if (this === me) {
+				me.getState(sdk.states.ShrineResFire) && (modifier += 75);
+			}
+			return this.getStat(sdk.stats.FireResist) - me.resPenalty - modifier;
 		}
 	},
 	coldRes: {
 		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxColdResist), this.getStat(sdk.stats.ColdResist) - me.resPenalty);
+			let modifier = 0;
+			if (this === me) {
+				me.getState(sdk.states.ShrineResCold) && (modifier += 75);
+				me.getState(sdk.states.Thawing) && (modifier += 50);
+			}
+			return this.getStat(sdk.stats.ColdResist) - me.resPenalty - modifier;
 		}
 	},
 	lightRes: {
 		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxLightResist), this.getStat(sdk.stats.LightResist) - me.resPenalty);
+			let modifier = 0;
+			if (this === me) {
+				me.getState(sdk.states.ShrineResLighting) && (modifier += 75);
+			}
+			return this.getStat(sdk.stats.LightResist) - me.resPenalty - modifier;
 		}
 	},
 	poisonRes: {
 		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), this.getStat(sdk.stats.PoisonResist) - me.resPenalty);
+			let modifier = 0;
+			if (this === me) {
+				me.getState(sdk.states.ShrineResPoison) && (modifier += 75);
+				me.getState(sdk.states.Antidote) && (modifier += 50);
+			}
+			return this.getStat(sdk.stats.PoisonResist) - me.resPenalty - modifier;
 		}
 	},
 	hpPercent: {
@@ -318,7 +269,7 @@ Object.defineProperties(Unit.prototype, {
 	isBaseType: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
-			return [sdk.itemquality.Normal, sdk.itemquality.Superior].indexOf(this.quality) > -1 && !this.isQuestItem && !this.isRuneword
+			return [sdk.itemquality.Normal, sdk.itemquality.Superior].includes(this.quality) && !this.isQuestItem && !this.isRuneword
 				&& getBaseStat("items", this.classid, "gemsockets") > 0 && [sdk.itemtype.Ring, sdk.itemtype.Amulet].indexOf(this.itemType) === -1;
 		}
 	},
@@ -486,6 +437,26 @@ Object.defineProperties(me, {
 			return dex;
 		},
 		set: function(newValue) { dex = newValue; }
+	},
+	FCR: {
+		get: function () {
+			return me.getStat(sdk.stats.FCR) - (!!Config ? Config.FCR : 0);
+		}
+	},
+	FHR: {
+		get: function () {
+			return me.getStat(sdk.stats.FHR) - (!!Config ? Config.FHR : 0);
+		}
+	},
+	FBR: {
+		get: function () {
+			return me.getStat(sdk.stats.FBR) - (!!Config ? Config.FBR : 0);
+		}
+	},
+	IAS: {
+		get: function () {
+			return me.getStat(sdk.stats.IAS) - (!!Config ? Config.IAS : 0);
+		}
 	},
 	shapeshifted: {
 		get: function () {
@@ -755,7 +726,7 @@ Object.defineProperties(me, {
 	duelWielding: {
 		get: function () {
 			// only classes that can duel wield
-			if (!me.assassin && !me.barbarian) { return false; }
+			if (!me.assassin && !me.barbarian) return false;
 			let items = me.getItemsEx()
 				.filter(function (item) { return item.isEquipped && [4, 5].includes(item.bodylocation); })
 			return !!items.length && items.length >= 2 && items.every(function (item) { return ![2, 69, 70].includes(item.itemType) && !getBaseStat("items", item.classid, "block") });
@@ -1406,6 +1377,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 };
 
 Unit.prototype.__defineGetter__('attackable', function () {
+	if (this === undefined) return false;
     if (this.type === sdk.unittype.Player && getPlayerFlag(me.gid, this.gid, 8) && this.mode !== 17 && this.mode !== 0) {
         return true;
     }
@@ -1433,7 +1405,7 @@ Unit.prototype.__defineGetter__('attackable', function () {
 
 Unit.prototype.__defineGetter__('curseable', function () {
     // must be player or monster
-    if (this.type > 1) return false;
+    if (this === undefined || this.type > 1) return false;
 
     // attract can't be overridden
 	if (this.getState(sdk.states.Attract)) return false;
@@ -1473,3 +1445,242 @@ Unit.prototype.__defineGetter__('curseable', function () {
 Unit.prototype.__defineGetter__('scareable', function () {
     return this.curseable && !(this.spectype & 0x7);
 });
+
+// D2BS Improvements @Jaenster
+(function (global, print) {
+	global['console'] = global['console'] || (function () {
+		const console = {};
+
+		const argMap = el => typeof el === 'object' && el /*not null */ && JSON.stringify(el) || el;
+
+		console.log = function (...args) {
+			// use call to avoid type errors
+			print.call(null, args.map(argMap).join(','));
+		};
+
+		console.printDebug = true;
+		console.debug = function (...args) {
+			if (console.printDebug) {
+				const stack = new Error().stack.match(/[^\r\n]+/g),
+					filenameAndLine = stack && stack.length && stack[1].substr(stack[1].lastIndexOf('\\') + 1) || 'unknown:0';
+				this.log('ÿc:[ÿc:' + filenameAndLine + 'ÿc:]ÿc0 ' + args.map(argMap).join(','));
+			}
+		};
+
+		console.warn = console.debug;
+
+		return console;
+
+	})()
+
+})([].filter.constructor('return this')(), print);
+
+/**
+ * @description Polyfill for setTimeout, as the version of d2bs isnt thread safe
+ * @author Jaenster
+ */
+
+(function (global, _original) {
+
+	const Worker = require('../../modules/Worker');
+
+	global['_setTimeout'] = _original;
+
+	/**
+	 * @param {function} cb
+	 * @param {number} time
+	 * @param args
+	 * @constructor
+	 */
+	function Timer(cb, time, args) {
+		const _this = this;
+		if (time === void 0) { time = 0; }
+		if (args === void 0) { args = []; }
+		Timer.instances.push(this);
+		Worker.runInBackground['__setTimeout__' + (Timer.counter++)] = (startTick => () => {
+			let finished = getTickCount() - startTick >= time;
+
+			if (finished) {
+				let index = Timer.instances.indexOf(_this);
+
+				// only if not removed from the time list
+				if (index > -1) {
+					Timer.instances.splice(index, 1);
+					cb.apply(undefined, args);
+				}
+			}
+
+			return !finished;
+		})(getTickCount());
+	}
+
+	Timer.instances = [];
+	Timer.counter = 0;
+
+	global['setTimeout'] = function (cb, time = 0, ...args) {
+		if (typeof cb === 'string') {
+			console.debug('Warning: Do not use raw code @ setTimeout and does not support lexical scoping');
+			cb = [].filter.constructor(cb);
+		}
+
+		if (typeof cb !== 'function') throw new TypeError('setTimeout callback needs to be a function');
+
+		return new Timer(cb, time, args);
+	};
+
+	/**
+	 *
+	 * @param {Timer} timer
+	 */
+	global['clearTimeout'] = function (timer) {
+		const index = Timer.instances.indexOf(timer);
+		if (index > -1) {
+			Timer.instances.splice(index, 1)
+		}
+	};
+
+	// getScript(true).name.toString() !== 'default.dbj' && setTimeout(function () {/* test code*/}, 1000)
+
+
+})([].filter.constructor('return this')(), setTimeout);
+
+(function (global, original) {
+	let firstRun = true;
+	global['getUnit'] = function (...args) {
+		const test = original(1);
+		// Stupid reference thing
+
+		if (firstRun) {
+			delay(1000);
+			firstRun = false;
+		}
+
+		let [first] = args, second = args.length >= 2 ? args[1] : undefined;
+
+		const ret = original.apply(this, args);
+
+		// deal with fucking bug
+		if (first === 1 && typeof second === 'string' && ret && ((me.act === 1 && ret.classid === 149) || me.act === 2 && ret.classid === 268)) {
+			return null;
+		}
+
+		return original.apply(this, args);
+	}
+})([].filter.constructor('return this')(), getUnit);
+
+if (!Object.setPrototypeOf) {
+    // Only works in Chrome and FireFox, does not work in IE:
+    Object.defineProperty(Object.prototype, 'setPrototypeOf', {
+        value: function (obj, proto) {
+            // @ts-ignore
+            if (obj.__proto__) {
+                // @ts-ignore
+                obj.__proto__ = proto;
+                return obj;
+            }
+            else {
+                // If you want to return prototype of Object.create(null):
+                var Fn = function () {
+                    for (var key in obj) {
+                        Object.defineProperty(this, key, {
+                            value: obj[key],
+                        });
+                    }
+                };
+                Fn.prototype = proto;
+                return new Fn();
+            }
+        },
+        enumerable: false,
+    });
+}
+
+if (!Object.values) {
+    Object.values = function (source) {
+        return Object.keys(source).map(function (k) { return source[k]; });
+    };
+}
+
+if (!Object.entries) {
+    Object.entries = function (source) {
+        return Object.keys(source).map(function (k) { return [k, source[k]]; });
+    };
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is#polyfill
+// @ts-ignore
+if (!Object.is) {
+    Object.defineProperty(Object, "is", {
+        value: function (x, y) {
+            // SameValue algorithm
+            if (x === y) {
+                // return true if x and y are not 0, OR
+                // if x and y are both 0 of the same sign.
+                // This checks for cases 1 and 2 above.
+                return x !== 0 || 1 / x === 1 / y;
+            }
+            else {
+                // return true if both x AND y evaluate to NaN.
+                // The only possibility for a variable to not be strictly equal to itself
+                // is when that variable evaluates to NaN (example: Number.NaN, 0/0, NaN).
+                // This checks for case 3.
+                return x !== x && y !== y;
+            }
+        }
+    });
+}
+
+// if (!Object.fromEntries) {
+//   Object.defineProperty(Object, 'fromEntries', {
+//     value: function (entries) {
+//       if (!entries /*|| !entries[Symbol.iterator]*/) { throw new Error('Object.fromEntries() requires a single iterable argument'); }
+
+//       const o = {};
+
+//       Object.keys(entries).forEach((key) => {
+//         const [k, v] = entries[key];
+
+//         o[k] = v;
+//       });
+
+//       return o;
+//     },
+//   });
+// }
+
+// // filter an object
+// Object.filter = function (obj, predicate) {
+// 	return Object.fromEntries(Object.entries(obj).filter(predicate));
+// };
+
+// https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
+if (!Array.prototype.equals) {
+	// Warn if overriding existing method
+    !!Array.prototype.equals && console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
+	// attach the .equals method to Array's prototype to call it on any array
+	Array.prototype.equals = function (array) {
+	    // if the other array is a falsy value, return
+	    if (!array) return false;
+
+	    // compare lengths - can save a lot of time 
+	    if (this.length != array.length) return false;
+	    
+	    // call basic sort method, (my addition as I don't care if its the same order just if it contains the same values)
+	    this.sort();
+	    array.sort();
+
+	    for (let i = 0, l = this.length; i < l; i++) {
+	        // Check if we have nested arrays
+	        if (this[i] instanceof Array && array[i] instanceof Array) {
+	            // recurse into the nested arrays
+	            if (!this[i].equals(array[i])) return false;
+	        } else if (this[i] != array[i]) {
+	            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+	            return false;   
+	        }
+	    }
+	    return true;
+	};
+	// Hide method from for-in loops
+	Object.defineProperty(Array.prototype, "equals", {enumerable: false});
+}

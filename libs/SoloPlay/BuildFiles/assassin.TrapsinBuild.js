@@ -10,9 +10,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.FireBlast, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.ShadowMaster],
 	usefulskills: [sdk.skills.ChargedBoltSentry, sdk.skills.BladeShield, sdk.skills.Fade],
 	precastSkills: [sdk.skills.Fade, sdk.skills.ShadowMaster],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	stats: [
 		["strength", 156], ["dexterity", 79], ["vitality", "all"]
 	],
@@ -85,5 +85,9 @@ const finalBuild = {
 
 	respec: function () {
 		return Attack.checkInfinity() && Check.haveItem("armor", "runeword", "Enigma");
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.LightningSentry, 0) === 20;
 	},
 };

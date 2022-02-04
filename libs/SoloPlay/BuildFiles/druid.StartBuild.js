@@ -29,5 +29,9 @@ let build = {
 		[225, 11, false], // firestorm
 		[234, 20, false], // fissure
 		[225, 18, false], // firestorm
-	]
+	],
+
+	active: function () {
+		return me.charlvl < Config.respecOne && !me.getSkill(sdk.skills.Tornado, 0);
+	},
 };

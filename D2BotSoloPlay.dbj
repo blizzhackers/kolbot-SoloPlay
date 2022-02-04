@@ -59,19 +59,24 @@ include("common/misc.js");
 include("common/util.js");
 include("common/pather.js");
 include("SoloPlay/Tools/Developer.js");
+include("SoloPlay/Tools/SoloData.js");
 include("SoloPlay/Tools/Tracker.js");
 include("SoloPlay/Tools/NameGen.js");
 include("SoloPlay/Tools/OOGOverrides.js");
-include("SoloPlay/Functions/Events.js");
+include("SoloPlay/Functions/SoloEvents.js");
 include("SoloPlay/Functions/ConfigOverrides.js");
 
 let firstRun = false;
 
 if (!FileTools.exists("data/" + me.profile + ".json")) {
 	DataFile.create();
-	DataFile.updateStats("currentBuild", "Start");
 	firstRun = true;
 
+	delay(Math.floor(rand(1, 20)));
+}
+
+if (!FileTools.exists(SoloData.filePath)) {
+	SoloData.create();
 	delay(Math.floor(rand(1, 20)));
 }
 
@@ -114,8 +119,8 @@ function ReceiveCopyData (mode, msg) {
 	case 1: // Join Info
 		print("Got Join Info");
 		joinInfo = JSON.parse(msg);
-		Events.gameInfo.gameName = joinInfo.gameName.toLowerCase();
-		Events.gameInfo.gamePass = joinInfo.gamePass.toLowerCase();
+		SoloEvents.gameInfo.gameName = joinInfo.gameName.toLowerCase();
+		SoloEvents.gameInfo.gamePass = joinInfo.gamePass.toLowerCase();
 
 		break;
 	case 2: // Game info
@@ -223,14 +228,17 @@ function ReceiveCopyData (mode, msg) {
 
 		if (setUp.tag !== "") {
 			setUp.tag = setUp.tag[0].toUpperCase() + setUp.tag.substring(1).toLowerCase();
+			let soloStats = SoloData.getStats();
 
-			if (!DataFile.getStats().finalBuild || DataFile.getStats().finalBuild !== setUp.tag) {
+			if (!soloStats.me.finalBuild || soloStats.me.finalBuild !== setUp.tag) {
 				D2Bot.setProfile(null, null, null, null, null, setUp.tag);
-				DataFile.updateStats("finalBuild", setUp.tag);
+				SoloData.updateData("me", "finalBuild", setUp.tag);
+				soloStats.me.finalBuild = setUp.tag;
 			}
 
-			if (!DataFile.getStats().currentBuild) {
-				DataFile.updateStats("currentBuild", "Start");
+			if (!["Start", "Stepping", "Leveling"].includes(soloStats.me.currentBuild) && soloStats.me.currentBuild !== soloStats.me.finalBuild) {
+				SoloData.updateData("me", "currentBuild", "Leveling");
+				soloStats.me.currentBuild = "Leveling";
 			}
 		} else {
 			D2Bot.updateStatus('Please update profile InfoTag. Missing the finalBuild.');
@@ -292,26 +300,12 @@ function deleteAndRemakeChar (info) {
 
 	me.blockMouse = false;
 
-	//Delete old files - leaving csv file's for now as I don't think they interfere with the overlay
-	if (FileTools.exists("data/" + me.profile + ".json")) {
-		FileTools.remove("data/" + me.profile + ".json");
-	}
-		
-	if (FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json")) {
-		FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
-	}
-
-	if (FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".SocketData" + ".json")) {
-		FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".SocketData" + ".json");
-	}
+	// Delete old files - leaving csv file's for now as I don't think they interfere with the overlay
+	SoloData.delete(true);
 
 	DataFile.create();
-	DataFile.updateStats("finalBuild", setUp.tag);
-	DataFile.updateStats("currentBuild", "Start");
-
-	if (Developer.logPerformance) {
-		Tracker.initialize();
-	}
+	SoloData.updateData("me", "finalBuild", setUp.tag);
+	Developer.logPerformance && Tracker.initialize();
 
 	D2Bot.printToConsole("Deleted: " + info.charName + ". Now remaking...", 6);
 	ControlAction.makeCharacter(setUp);
@@ -417,7 +411,7 @@ function ScriptMsgEvent (msg) {
 
 		break;
 	case "event":
-		Events.check = true;
+		SoloEvents.check = true;
 
 		break;
 	}
@@ -486,7 +480,7 @@ function locationAction (location) {
 		}
 
 		if (ingame) {
-			if (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || Events.outOfGameCheck()) {
+			if (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || SoloEvents.outOfGameCheck()) {
 				break;
 			}
 
@@ -558,7 +552,7 @@ function locationAction (location) {
 		if (ingame) {
 			//D2Bot.store(JSON.stringify({currScript: "none", area: "out of game"}));
 
-			if (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || Events.outOfGameCheck()) {
+			if (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || SoloEvents.outOfGameCheck()) {
 				break;
 			}
 
@@ -691,8 +685,8 @@ function locationAction (location) {
 			delay(500);
 		}
 
-		if (DataFile.getStats().setDifficulty) {
-			gameInfo.difficulty = DataFile.getStats().setDifficulty;
+		if (SoloData.getStats().me.setDifficulty) {
+			gameInfo.difficulty = DataFile.SoloData().me.setDifficulty;
 
 			// only set the profile if the values aren't already the same
 			if (gameInfo.difficulty !== setUp.difficulty) {

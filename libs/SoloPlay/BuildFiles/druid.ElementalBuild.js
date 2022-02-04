@@ -10,9 +10,10 @@ const finalBuild = {
 	wantedskills: [sdk.skills.FireStorm, sdk.skills.Fissure],
 	usefulskills: [sdk.skills.CycloneArmor],
 	precastSkills: [sdk.skills.CycloneArmor],
-	mercAuraName: "Blessed Aim",
-	mercAuraWanted: sdk.skills.BlessedAim,
-	mercDiff: 0,
+	usefulStats: [sdk.stats.PassiveFireMastery, sdk.stats.PassiveFirePierce],
+	mercDiff: sdk.difficulty.Normal,
+	mercAct: 2,
+	mercAuraWanted: "Blessed Aim",
 	stats: [
 		["dexterity", 35], ["strength", 48], ["vitality", 165],
 		["strength", 61], ["vitality", 252], ["strength", 156], ["vitality", "all"]
@@ -75,5 +76,9 @@ const finalBuild = {
 
 	respec: function () {
 		return Check.haveItem("armor", "runeword", "Enigma");
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.Volcano, 0);
 	},
 };

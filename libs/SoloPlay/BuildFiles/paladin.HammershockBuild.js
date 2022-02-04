@@ -1,15 +1,16 @@
 /**
- *    @filename   paladin.ClassicauradinBuild.js
+ *    @filename   paladin.HammershockBuild.js
  *	  @author	  theGuy
- *    @desc       End-game Classic Auradin build (HolyShock/Freeze based)
+ *    @desc       End-game Hybrid hammerdin build (BlessedHammer/HolyShock)
  */
 
 const finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.PalaCombat,
-	wantedskills: [sdk.skills.Zeal, sdk.skills.HolyShock],
-	usefulskills: [sdk.skills.HolyShield, sdk.skills.HolyFreeze, sdk.skills.ResistCold, sdk.skills.ResistLightning],
+	wantedskills: [sdk.skills.BlessedHammer, sdk.skills.HolyShock],
+	usefulskills: [sdk.skills.HolyShield, sdk.skills.ResistLightning, sdk.skills.Zeal, sdk.skills.Concentration, sdk.skills.Vigor, sdk.skills.BlessedAim],
 	precastSkills: [sdk.skills.HolyShield],
+	usefulStats: [sdk.stats.PierceLtng, sdk.stats.PassiveLightningMastery, sdk.stats.PassiveLightningPierce],
 	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
 	mercAuraWanted: "Holy Freeze",
@@ -22,11 +23,14 @@ const finalBuild = {
 	],
 	skills: [
 		[sdk.skills.Zeal, 4],
+		[sdk.skills.Vengeance, 1],
 		[sdk.skills.Redemption, 1],
+		[sdk.skills.Salvation, 1],
 		[sdk.skills.HolyShield, 1],
+		[sdk.skills.Concentration, 1],
+		[sdk.skills.BlessedHammer, 20],
 		[sdk.skills.HolyShock, 20],
-		[sdk.skills.HolyFreeze, 20],
-		[sdk.skills.Salvation, 20, false],
+		[sdk.skills.BlessedAim, 20, false],
 		[sdk.skills.ResistLightning, 20, false],
 		[sdk.skills.Zeal, 20, false],
 	],
@@ -48,19 +52,18 @@ const finalBuild = {
 	],
 	expansionTiers: [
 		// Weapon
-		"[type] == sword && [flag] == runeword # [passivecoldpierce] >= 24 # [tier] == 102500", // Voice of Reason
-		"[type] == sword && [flag] == runeword # [ias] >= 20 && [passiveltngpierce] >= 35 # [tier] == 110000", // Crescent Moon
-		"[type] == sword && [flag] == runeword # [holyfireaura] >= 16 # [tier] == 120000", // HoJ
+		"[type] == scepter && [quality] == unique && [flag] != ethereal # [paladinskills] >= 2 && [enhanceddamage] >= 250 # [tier] == 100000 + tierscore(item)", // Heaven's Light
 		// Helm
-		"[type] == helm && [flag] == runeword # [holyshockaura] >= 15 # [tier] == 110000", //Dream Helm
+		"[name] == shako && [quality] == unique && [flag] != ethereal # [damageresist] == 10 # [tier] == 100000 + tierscore(item)", // harlequin's crest
 		// Belt
 		"[name] == warbelt && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)", //TGods
 		// Boots
 		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)", //Gore Rider
 		// Armor
-		"[type] == armor && [flag] != ethereal && [flag] == runeword # [holyfireaura] >= 14 # [tier] == 110000", //Dragon
+		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000", //Enigma
 		// Shield
-		"[type] == auricshields && [flag] != ethereal && [flag] == runeword # [holyshockaura] >= 15 # [tier] == 110000", //Dream
+		"[name] == gildedshield && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 150 # [tier] == 50000 + tierscore(item)", //hoz
+		"[type] == auricshields && [flag] == runeword # [defianceaura] >= 13 # [tier] == 110000", //Exile
 		// Gloves
 		"[name] == bramblemitts && [quality] == set && [flag] != ethereal # [ias] >= 20 # [tier] == 110000", // Laying of Hand's
 		// Amulet
@@ -86,12 +89,12 @@ const finalBuild = {
 		if (me.classic) {
 			return me.charlvl >= 75 && me.diablo;
 		} else {
-			return Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream");
+			return Check.haveItem("scepter", "unique", "Heaven's Light") && Check.haveItem("armor", "runeword", "Enigma");
 		}
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.HolyShock, 0) === 20;
+		return this.respec && (me.getSkill(sdk.skills.HolyShock, 0) === 20 && me.getSkill(sdk.skills.BlessedHammer, 0) === 20);
 	},
 };
 

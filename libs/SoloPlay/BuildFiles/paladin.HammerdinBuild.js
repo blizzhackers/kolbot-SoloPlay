@@ -11,9 +11,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.BlessedHammer, sdk.skills.Concentration],
 	usefulskills: [sdk.skills.HolyShield, sdk.skills.BlessedAim],
 	precastSkills: [sdk.skills.HolyShield],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	classicStats: [
 		["dexterity", 51], ["strength", 80], ["vitality", "all"]
 	],
@@ -92,6 +92,10 @@ const finalBuild = {
 		} else {
 			return Check.haveItem("armor", "runeword", "Enigma");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.BlessedHammer, 0) === 20;
 	},
 };
 

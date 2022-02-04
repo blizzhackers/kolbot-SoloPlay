@@ -6,10 +6,8 @@
 
 function corpsefire() {
 	Town.doChores();
-	Town.buyPots(10, "Thawing");
-	Town.drinkPots();
-	Town.buyPots(10, "Antidote");
-	Town.drinkPots();
+	Town.buyPots(10, "Thawing", true);
+	Town.buyPots(10, "Antidote", true);
 
 	print('ÿc8Kolbot-SoloPlayÿc0: starting corpsefire');
 	me.overhead("starting corpsefire");

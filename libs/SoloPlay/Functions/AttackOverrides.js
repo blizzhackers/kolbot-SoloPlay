@@ -11,10 +11,8 @@ let Coords_1 = require("../Modules/Coords");
 
 Attack.isAuradin = false;
 Attack.stopClear = false;
-Attack.currentChargedSkills = [];
-Attack.chargedSkillsOnSwitch = [];
-Attack.MainBosses = [sdk.monsters.Andariel, sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal];
-Attack.BossAndMiniBosses = [
+Attack.mainBosses = [sdk.monsters.Andariel, sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal];
+Attack.bossesAndMiniBosses = [
 	sdk.monsters.Andariel, sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal,
 	sdk.monsters.Radament, sdk.monsters.Summoner, sdk.monsters.Izual, sdk.monsters.BloodRaven, sdk.monsters.Griswold,
 	sdk.monsters.Hephasto, sdk.monsters.KorlictheProtector, sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian
@@ -43,14 +41,14 @@ Attack.init = function () {
 		this.checkInfinity();
 		this.checkIsAuradin();
 		this.getPrimarySlot();
-		this.getCurrentChargedSkillIds();
+		this.getCurrentChargedSkillIds(true);
 	}
 };
 
 Attack.getLowerResistPercent = function () {
 	let calc = function (level) { return Math.floor(Math.min(25 + (45 * ((110 * level) / (level + 6)) / 100), 70))};
-	if (me.expansion && Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) {
-		return calc(Attack.chargedSkillsOnSwitch.find(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist).level);
+	if (me.expansion && CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) {
+		return calc(CharData.skillData.chargedSkillsOnSwitch.find(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist).level);
 	}
 	if (me.getSkill(sdk.skills.LowerResist, 1)) {
 		return calc(me.getSkill(sdk.skills.LowerResist, 1));
@@ -115,7 +113,7 @@ Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
 	if (!unit || !unit.type || unit.type === sdk.unittype.Player) return true;
 
 	let damageType = typeof val === "number" ? this.getSkillElement(val) : val;
-	let addLowerRes = !!(me.getSkill(sdk.skills.LowerResist, 1) || Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) && unit.curseable;
+	let addLowerRes = !!(me.getSkill(sdk.skills.LowerResist, 1) || CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) && unit.curseable;
 
 	// Static handler
 	if (val === sdk.skills.StaticField && this.getResist(unit, damageType) < 100) {
@@ -890,14 +888,13 @@ Attack.clearCoordList = function (list, pick) {
 	}
 };
 
-Attack.getCurrentChargedSkillIds = function () {
-	// Reset values
-	Attack.currentChargedSkills = [];
-	Attack.chargedSkillsOnSwitch = [];
+Attack.getCurrentChargedSkillIds = function (init = false) {
+	let currentChargedSkills = [];
+	let chargedSkillsOnSwitch = [];
 
 	// Item must be equipped, or a charm in inventory
-	me.getItems(-1)
-		.filter(item => item && (item.isEquipped || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
+	me.getItemsEx(-1)
+		.filter(item => item && (item.isEquipped && item.quality !== sdk.itemquality.Rare || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 
@@ -906,29 +903,40 @@ Attack.getCurrentChargedSkillIds = function () {
 					for (let i = 0; i < stats[204].length; i += 1) {
 						if (stats[204][i] !== undefined) {
 							// add to total list
-							if (stats[204][i].charges > 0 && !Attack.currentChargedSkills.includes(stats[204][i].skill)) {
-								Attack.currentChargedSkills.push(stats[204][i].skill);
+							if (stats[204][i].charges > 0 && !currentChargedSkills.includes(stats[204][i].skill)) {
+								currentChargedSkills.push(stats[204][i].skill);
 							}
 
 							// add to switch only list for use with swtich casting
-							if (stats[204][i].charges > 0 && !Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204][i].skill) && item.isOnSwap) {
-								Attack.chargedSkillsOnSwitch.push({skill: stats[204][i].skill, level: stats[204][i].level});
+							if (stats[204][i].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204][i].skill) && item.isOnSwap) {
+								chargedSkillsOnSwitch.push({skill: stats[204][i].skill, level: stats[204][i].level});
 							}
 						}
 					}
 				} else {
 					// add to total list
-					if (stats[204].charges > 0 && !Attack.currentChargedSkills.includes(stats[204].skill)) {
-						Attack.currentChargedSkills.push(stats[204].skill);
+					if (stats[204].charges > 0 && !currentChargedSkills.includes(stats[204].skill)) {
+						currentChargedSkills.push(stats[204].skill);
 					}
 
 					// add to switch only list for use with swtich casting
-					if (stats[204].charges > 0 && !Attack.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204].skill) && item.isOnSwap) {
-						Attack.chargedSkillsOnSwitch.push({skill: stats[204].skill, level: stats[204].skill});
+					if (stats[204].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204].skill) && item.isOnSwap) {
+						chargedSkillsOnSwitch.push({skill: stats[204].skill, level: stats[204].skill});
 					}
 				}
 			}
 		});
+
+	// only update other threads if this isn't being called from Attack.init
+	if (CharData.skillData.currentChargedSkills.length > 0 || init) {
+		switch (true) {
+		case !currentChargedSkills.equals(CharData.skillData.currentChargedSkills):
+		case Object.keys(Misc.recursiveSearch(chargedSkillsOnSwitch, CharData.skillData.chargedSkillsOnSwitch)).length > 0:
+			CharData.skillData.init(currentChargedSkills, chargedSkillsOnSwitch);
+			!init && CharData.skillData.update();
+			break;
+		}
+	}
 
 	return true;
 };
@@ -941,8 +949,8 @@ Attack.getItemCharges = function (skillId = undefined) {
 	};
 
 	// Item must equipped, or a charm in inventory
-	me.getItems(-1)
-		.filter(item => item && (item.isEquipped || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
+	me.getItemsEx(-1)
+		.filter(item => item && (item.isEquipped && item.quality !== sdk.itemquality.Rare || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 

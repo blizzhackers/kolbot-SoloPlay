@@ -29,7 +29,7 @@ include("common/Town.js");
 
 if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
 if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
-if (!isIncluded("SoloPlay/Functions/globals.js")) { include("SoloPlay/Functions/globals.js"); }
+if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
 
 function main () {
 	let action = [];
@@ -53,7 +53,7 @@ function main () {
 		for (let l = 0; l < scripts.length; l += 1) {
 			let script = getScript(scripts[l]);
 
-			if (Events.townChicken) {
+			if (SoloEvents.townChicken) {
 				print("ÿc8EventThread :: ÿc1Trying to townChicken, don't interfere.");
 				return false;
 			}
@@ -65,7 +65,7 @@ function main () {
 					}
 
 					// don't pause townchicken during clone walk
-					if (scripts[l] !== "libs/SoloPlay/Tools/TownChicken.js" || !Events.cloneWalked) {
+					if (scripts[l] !== "libs/SoloPlay/Tools/TownChicken.js" || !SoloEvents.cloneWalked) {
 						script.pause();
 					}
 				}
@@ -102,9 +102,40 @@ function main () {
 	};
 
 	this.scriptEvent = function (msg) {
-		// Added from Autosorc/Sorc.js
-		if (msg && typeof msg === "string" && msg !== "" && msg.substring(0, 8) === "config--") {
-			Config = JSON.parse(msg.split("config--")[1]);
+		let obj;
+		
+		if (msg && typeof msg === "string" && msg !== "") {
+			let updated = false;
+			switch (true) {
+			case msg.substring(0, 8) === "config--":
+				console.debug("update config");
+				Config = JSON.parse(msg.split("config--")[1]);
+				updated = true;
+
+				break;
+			case msg.substring(0, 7) === "skill--":
+				console.debug("update skillData");
+				obj = JSON.parse(msg.split("skill--")[1]);
+				Misc.updateRecursively(CharData.skillData, obj);
+				updated = true;
+
+				break;
+			case msg.substring(0, 6) === "data--":
+				console.debug("update myData");
+				obj = JSON.parse(msg.split("data--")[1]);
+				Misc.updateRecursively(myData, obj);
+				updated = true;
+
+				break;
+			case msg.toLowerCase() === "test":
+				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//\nÿc8MainData ::\n",
+					myData, "\nÿc8BuffData ::\n", CharData.buffData, "\nÿc8SkillData ::\n", CharData.skillData, "\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
+				updated = true;
+
+				break;
+			}
+
+			if (updated) return;
 		}
 		
 		switch (msg) {
@@ -130,7 +161,7 @@ function main () {
 			if (profile !== me.profile && (me.hell || (me.nightmare && me.baal)) && me.ladder === ladder) {
 				if (torchType === me.classid && !me.findItem(604, 0, null, 7)) {
 					print("Sent Response");
-					Events.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 604});
+					SoloEvents.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 604});
 				}
 			}
 
@@ -145,7 +176,7 @@ function main () {
 			if (profile !== me.profile && (me.hell || (me.nightmare && me.baal)) && me.ladder === ladder) {
 				if (!me.findItem(603, 0, null, 7)) {
 					print("Sent Response");
-					Events.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 603});
+					SoloEvents.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 603});
 				}
 			}
 
@@ -156,7 +187,7 @@ function main () {
 			let { profile, level, event } = JSON.parse(info);
 
 			print("Sucess: profile that contacted me: " + profile + " level of char: " + level);
-			Events.profileResponded = true;
+			SoloEvents.profileResponded = true;
 			profiles.push({profile: profile, level: level, event: event});
 			tickDelay += 1000;
 		}
@@ -169,7 +200,7 @@ function main () {
 	};
 
 	addEventListener("scriptmsg", this.scriptEvent);
-	addEventListener("gamepacket", Events.gamePacket);
+	addEventListener("gamepacket", SoloEvents.gamePacket);
 	addEventListener('copydata', this.receiveCopyData);
 
 	// Start
@@ -178,7 +209,7 @@ function main () {
 			while (action.length) {
 				if (this.pauseForEvent()) {
 					try {
-						Events[action.shift()]();
+						SoloEvents[action.shift()]();
 					} catch (e) {
 						print(e);
 					}
@@ -202,7 +233,7 @@ function main () {
 
 				let lowestLevelProf = profiles.first();
 
-				Events.sendToProfile(lowestLevelProf.profile, lowestLevelProf.event, 70);
+				SoloEvents.sendToProfile(lowestLevelProf.profile, lowestLevelProf.event, 70);
 				D2Bot.joinMe(lowestLevelProf.profile, me.gamename.toLowerCase(), "", me.gamepassword.toLowerCase(), true);
 				profiles = [];
 			}

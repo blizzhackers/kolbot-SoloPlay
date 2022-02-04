@@ -10,9 +10,10 @@ const finalBuild = {
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
 	usefulskills: [sdk.skills.CriticalStrike, sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
 	precastSkills: [sdk.skills.Valkyrie],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	usefulStats: [sdk.stats.PierceLtng, sdk.stats.PassiveLightningMastery, sdk.stats.PassiveLightningPierce],
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	classicStats: [
 		 ["dexterity", 65], ["strength", 75], ["vitality", "all"]
 	],
@@ -107,9 +108,14 @@ const finalBuild = {
 			return Attack.checkInfinity();
 		}
 	},
+
+	active: function () {
+		return this.respec && (me.expansion ? me.getSkill(sdk.skills.PlagueJavelin, 0) > 1 && me.getSkill(sdk.skills.PlagueJavelin, 0) < 5 : me.getSkill(sdk.skills.PlagueJavelin, 0) === 20);
+	},
 };
 
 // Has to be set after its loaded
 finalBuild.stats = me.classic ? finalBuild.classicStats : finalBuild.expansionStats;
 finalBuild.skills = me.classic ? finalBuild.classicSkills : finalBuild.expansionSkills;
 finalBuild.autoEquipTiers = me.classic ? finalBuild.classicTiers : finalBuild.expansionTiers;
+me.classic ? finalBuild.usefulStats.push(sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois);

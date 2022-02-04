@@ -173,7 +173,6 @@ function LoadConfig () {
 	];
 
 	NTIP.arrayLooping(levelingTiers);
-	NTIP.arrayLooping(nipItems.Gems);
 
 	/* FastMod configuration. */
 	Config.FCR = 255;
@@ -260,27 +259,35 @@ function LoadConfig () {
 
 	!me.smith && NTIP.arrayLooping(imbueArr);
 
-	if (Check.haveItemAndNotSocketed("shield", "unique", "Moser's Blessed Circle")) {
-		NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");
+	Config.socketables = [];
+	// basicSocketables located in Globals
+	Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
+	Config.socketables
+			.push(
+				{
+					classid: sdk.items.Monarch,
+					socketWith: [],
+					useSocketQuest: true,
+					condition: function (item) { return !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+				},
+				{
+					classid: sdk.items.Demonhead,
+					socketWith: [sdk.items.runes.Um], // Ral vs Um ?
+					temp: [sdk.items.gems.Perfect.Ruby],
+					useSocketQuest: true,
+					condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+				},
+				{
+					classid: sdk.items.Shako,
+					socketWith: [sdk.items.runes.Um],
+					temp: [sdk.items.gems.Perfect.Ruby],
+					useSocketQuest: false,
+					condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+				}
+			);
 
-		if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond) < 2)) {
-			Config.Recipes.push([Recipe.Gem, "flawlessdiamond"]);
-		}
-
-		if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Um) < 2)) {
-			Config.Recipes.push([Recipe.Rune, "PulRune"]);
-		}
-
-		NTIP.addLine("[name] == UmRune # # [maxquantity] == 2");
-	}
-
-	if (Check.haveItemAndNotSocketed("helm", "unique", "Harlequin Crest")) {
-		if (!me.getItem(sdk.items.runes.Um)) {
-			Config.Recipes.push([Recipe.Rune, "PulRune"]);
-		}
-
-		NTIP.addLine("[name] == UmRune # # [maxquantity] == 1");
-	}
+	Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
+	Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
 
 	/* Crafting */
 	if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
@@ -289,35 +296,6 @@ function LoadConfig () {
 
 	if (Item.getEquippedItem(sdk.body.RingLeft).tier < 100000) {
 		Config.Recipes.push([Recipe.Caster.Ring]);
-	}
-
-	let helm = Item.getEquippedItem(1);
-	let body = Item.getEquippedItem(3);
-	let wep = Item.getEquippedItem(4);
-	let shield = Item.getEquippedItem(5);
-
-	if (!helm.isRuneword && [4, 6].indexOf(helm.quality) > -1 && helm.sockets > 0 && !helm.socketed) {
-		if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Ruby) < 2)) {
-			Config.Recipes.push([Recipe.Gem, "flawlessruby"]);
-		}
-	}
-
-	if (!body.isRuneword && [4, 6].indexOf(body.quality) > -1 && body.sockets > 0 && !body.socketed) {
-		if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Ruby) < 2)) {
-			Config.Recipes.push([Recipe.Gem, "flawlessruby"]);
-		}
-	}
-
-	// Tir Rune - Mana after kill
-	// Shael Rune - 20 IAS
-	if (!wep.isRuneword && [4, 6].indexOf(wep.quality) > -1 && wep.sockets > 0 && !wep.socketed) {
-		me.normal ? NTIP.addLine("[name] == TirRune # # [maxquantity] == " + wep.sockets) : NTIP.addLine("[name] == ShaelRune # # [maxquantity] == " + wep.sockets);
-	}
-
-	if (!shield.isRuneword && [4, 6].indexOf(shield.quality) > -1 && shield.sockets > 0 && !shield.socketed) {
-		if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond) < 2)) {
-			Config.Recipes.push([Recipe.Gem, "flawlessdiamond"]);
-		}
 	}
 
 	// Infinity
@@ -410,4 +388,6 @@ function LoadConfig () {
 			include("SoloPlay/BuildFiles/Runewords/Stealth.js");
 		}
 	}
+
+	SoloWants.buildList();
 }

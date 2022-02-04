@@ -7,10 +7,11 @@
 
 if (!isIncluded("OOG.js")) { include("OOG.js"); }
 if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
+if (!isIncluded("SoloPlay/Tools/CharData.js")) { include("SoloPlay/Tools/CharData.js"); }
 if (!isIncluded("SoloPlay/Functions/PrototypesOverrides.js")) { include("SoloPlay/Functions/PrototypesOverrides.js"); }
 
 let sdk = require('../modules/sdk');
-let Difficulty = ['Normal', 'Nightmare', 'Hell'];
+let myData = CharData.getStats();
 
 // these builds are not possible to do on classic
 let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl"];
@@ -28,6 +29,79 @@ function myPrint (str = "", toConsole = false, color = 0) {
 	toConsole && D2Bot.printToConsole("Kolbot-SoloPlayÿ :: " + str, color);
 }
 
+function updateMyData () {
+	let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/ToolsThread.js", "libs/SoloPlay/Tools/EventThread.js"];
+	let curr = getScript(true).name;
+	let obj = JSON.stringify(Misc.copy(myData));
+	scripts.forEach(function (script) {
+		if (script !== curr) {
+			Messaging.sendToScript(script, "data--" + obj);
+		}
+	});
+}
+
+function ensureData () {
+	let update = false;
+
+	if (myData.me.currentBuild !== SetUp.getBuild()) {
+		switch (true) {
+		case Check.currentBuild().active():
+		case Check.finalBuild().active():
+			myData.me.currentBuild = SetUp.getBuild();
+			console.debug(myData);
+			update = true;
+
+			break;
+		case !["Start", "Stepping", "Leveling"].includes(SetUp.getBuild()) && myData.me.currentBuild !== myData.me.finalBuild:
+			myData.me.currentBuild = "Leveling";
+			console.debug(myData);
+			update = true;
+
+			break;
+		}
+	}
+
+	if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff))) {
+		myData.me.highestDifficulty = sdk.difficulty.nameOf(me.diff);
+		console.debug(myData);
+		update = true;
+	}
+
+	if (!!me.smith && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed === false) {
+		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
+		console.debug(myData);
+		update = true;
+	}
+
+	if (!!me.respec && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed === false) {
+		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
+		console.debug(myData);
+		update = true;
+	}
+
+	// Merc check
+	if (me.expansion) {
+		if (!!me.getMerc()) {
+			// TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
+			// can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
+			let merc = me.getMerc();
+			if (merc.classid !== myData.merc.classid) {
+				myData.merc.classid = merc.classid;
+				console.debug(myData.merc);
+	            CharData.updateData("merc", myData) && updateMyData();
+			}
+		}
+
+		if (!!me.shenk && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed === false) {
+			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
+			console.debug(myData);
+			update = true;
+		}
+	}
+
+	update && CharData.updateData("me", myData) && updateMyData();
+}
+
 // general settings
 const SetUp = {
 	scripts: [
@@ -38,7 +112,10 @@ const SetUp = {
 		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests", // Act 5
 	],
 
-	// mine - theBGuy
+	// Should this be moved elsewhere? Currently have to include Globals then call this to include rest of overrides
+	// which in doing so would include globals anyway but does this always need to be included first?
+	// really need a centralized way to make sure all files use/have the custom functions and all threads stay updated without having to
+	// scriptBroadcast all the time
 	include: function () {
 		let folders = ["Functions"];
 		folders.forEach( (folder) => {
@@ -74,11 +151,8 @@ const SetUp = {
 		],
 	},
 
-	// Global value to set bot to walk while doing a task, since while physically attacking running decreases block chance
-	walkToggle: false,
-
-	currentBuild: DataFile.getStats().currentBuild,
-	finalBuild: DataFile.getStats().finalBuild,
+	currentBuild: this.currentBuild,
+	finalBuild: this.finalBuild,
 
 	// setter for Developer option to stop a profile once it reaches a certain level
 	stopAtLevel: (function () {
@@ -133,29 +207,19 @@ const SetUp = {
 		}
 
 		let specCheck = [];
+		let final = SetUp.getBuild() === SetUp.finalBuild;
 
-		if (SetUp.getBuild() === SetUp.finalBuild) {
-			switch (specType) {
-			case "skills":
-				// Push skills value from template file
-				specCheck = JSON.parse(JSON.stringify(finalBuild.skills));
-				break;
-			case "stats":
-				// Push stats value from template file
-				specCheck = JSON.parse(JSON.stringify(finalBuild.stats));
-				break;
-			}
-		} else {
-			switch (specType) {
-			case "skills":
-				// Push skills value from template file
-				specCheck = JSON.parse(JSON.stringify(build.skills));
-				break;
-			case "stats":
-				// Push stats value from template file
-				specCheck = JSON.parse(JSON.stringify(build.stats));
-				break;
-			}
+		switch (specType) {
+		case "skills":
+			// Push skills value from template file
+			specCheck = JSON.parse(JSON.stringify((final ? finalBuild.skills : build.skills)));
+
+			break;
+		case "stats":
+			// Push stats value from template file
+			specCheck = JSON.parse(JSON.stringify((final ? finalBuild.stats : build.stats)));
+
+			break;
 		}
 
 		return specCheck;
@@ -172,29 +236,27 @@ const SetUp = {
 		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", 6);
 
 		D2Bot.setProfile(null, null, NameGen());
-		FileTools.remove("data/" + me.profile + ".json");
-		FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
+		CharData.delete(true);
 		delay(100 + me.ping);
 		D2Bot.restart();
 	},
 };
 
-// SoloPlay Pickit Items
-// TODO: check if is this even needed?
-const nipItems = {
-	Selling: [
-		'([type] == ring || [type] == amulet) && [quality] >= magic # [fcr] >= 600',
-		'([type] == armor || [type] == boots || [type] == gloves || [type] == belt) && [quality] >= magic # [fcr] >= 600',
-		'([type] == helm || [type] == circlet || [type] == primalhelm || [type] == pelt) && [quality] >= magic # [fcr] >= 600',
-		'([type] == shield || [type] == voodooheads) && [quality] >= magic # [fcr] >= 600',
-		'([type] == javelin || [type] == amazonspear || [type] == amazonjavelin) && [quality] >= rare # [fcr] >= 600',
-		'([type] == orb || [type] == wand || [type] == staff) && [quality] >= normal # [fcr] >= 600',
-		'([type] == throwingaxe || [type] == axe || [type] == mace || [type] == club || [type] == scepter || [type] == hammer) && [quality] >= magic # [fcr] >= 600',
-		'([type] == sword || [type] == knife || [type] == throwingknife) && [quality] >= magic # [fcr] >= 600',
-		'([type] == bow || [type] == crossbow) && [quality] >= rare # [fcr] >= 600',
-		'([type] == handtohand || [type] == assassinclaw) && [quality] >= magic  # [fcr] >= 600',
-	],
+Object.defineProperties(SetUp, {
+	currentBuild: {
+        get: function () {
+            return myData.me.currentBuild;
+        },
+    },
+    finalBuild: {
+        get: function () {
+            return myData.me.finalBuild;
+        },
+    },
+});
 
+// SoloPlay general gameplay items
+const nipItems = {
 	General: [
 		"[name] == tomeoftownportal",
 		"[name] == tomeofidentify",
@@ -214,12 +276,6 @@ const nipItems = {
 		"[name] == scrolloftownportal # # [maxquantity] == 20",
 		"[name] == scrollofidentify # # [maxquantity] == 20",
 		"[name] == key # # [maxquantity] == 12",
-	],
-
-	Gems: [
-		"[name] == perfecttopaz # # [maxquantity] == 2",
-		"[name] == perfectdiamond # # [maxquantity] == 2",
-		"[name] == perfectruby # # [maxquantity] == 2",
 	],
 
 	Quest: [
@@ -245,14 +301,97 @@ const nipItems = {
 	],
 };
 
-const goBackDifficulty = function (diff, reason = "") {
-	diff === undefined && (diff = me.diff - 1);
-	if (diff === me.diff || diff < 0) return;
-	let diffString = sdk.difficulty.nameOf(diff);
+const basicSocketables = {
+	caster: [
+		{
+			classid: sdk.items.BroadSword,
+			socketWith: [],
+			useSocketQuest: true,
+			condition: function (item) { return me.normal && !Check.haveBase("sword", 4) && !Check.haveItem("sword", "runeword", "Spirit") && item.ilvl >= 26 && item.isBaseType && !item.ethereal; }
+		},
+		{
+			classid: sdk.items.CrystalSword,
+			socketWith: [],
+			useSocketQuest: true,
+			condition: function (item) { return me.normal && !Check.haveBase("sword", 4) && !Check.haveItem("sword", "runeword", "Spirit") && item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal; }
+		},
+		{
+			// Lidless
+			classid: sdk.items.GrimShield,
+			socketWith: [sdk.items.runes.Um],
+			temp: [sdk.items.gems.Perfect.Diamond],
+			useSocketQuest: !me.hell,
+			condition: function (item) { return item.quality === sdk.itemquality.Unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal; }
+		},
+	],
+	all: [
+		{
+			classid: sdk.items.Bill,
+			socketWith: [],
+			useSocketQuest: true,
+			condition: function (item) { return me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal; }
+		},
+		{
+			classid: sdk.items.ColossusVoulge,
+			socketWith: [],
+			useSocketQuest: true,
+			condition: function (item) { return me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal; }
+		},
+		{
+			// Crown of Ages
+			classid: sdk.items.Corona,
+			socketWith: [sdk.items.runes.Ber, sdk.items.runes.Um],
+			temp: [sdk.items.gems.Perfect.Ruby],
+			useSocketQuest: false,
+			condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+		},
+		{
+			// Moser's
+			classid: sdk.items.RoundShield,
+			socketWith: [sdk.items.runes.Um],
+			temp: [sdk.items.gems.Perfect.Diamond],
+			useSocketQuest: false,
+			condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+		},
+		{
+			// Spirit Forge
+			classid: sdk.items.LinkedMail,
+			socketWith: [sdk.items.runes.Shael],
+			temp: [sdk.items.gems.Perfect.Ruby],
+			useSocketQuest: false,
+			condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+		},
+		{
+			// Dijjin Slayer
+			classid: sdk.items.Ataghan,
+			socketWith: [sdk.items.runes.Amn],
+			temp: [sdk.items.gems.Perfect.Skull],
+			useSocketQuest: false,
+			condition: function (item) { return !Check.currentBuild().caster && item.quality === sdk.itemquality.Unique && !item.ethereal; }
+		},
+	]
+};
+
+const goToDifficulty = function (diff = undefined, reason = "") {
+	if (!diff) return;
+	let diffString;
+	switch (typeof diff) {
+	case "string":
+		diff = diff[0].toUpperCase() + diff.substring(1).toLowerCase();
+		if (!sdk.difficulty.Difficulties.includes(diff) || sdk.difficulty.Difficulties.indexOf(diff) === me.diff) return;
+		diffString = diff;
+
+		break;
+	case "number":
+		if (diff === me.diff || diff < 0) return;
+		diffString = sdk.difficulty.nameOf(diff);
+
+		break;
+	}
 
 	D2Bot.setProfile(null, null, null, diffString);
 	DataFile.updateStats("setDifficulty", diffString);
-	myPrint("Going back to " + diffString + reason, true);
+	myPrint("Going to " + diffString + reason, true);
 	D2Bot.restart();
 };
 
@@ -290,7 +429,7 @@ const Check = {
 
 			break;
 		case "smith":
-			if (!me.smith && !Misc.checkQuest(3, 1)) {
+			if (!Misc.checkQuest(3, 1) && !me.smith) {
 				return true;
 			}
 
@@ -519,14 +658,14 @@ const Check = {
 
 			break;
 		case "baal":
-			if (me.expansion && Pather.accessToAct(5)) {
+			if (me.expansion && Pather.accessToAct(5) && me.ancients) {
 				return true;
 			}
 
 			break;
 		case "cows":
 			if (!me.cows && me.diffCompleted) {
-				if (me.barbarian && !["Whirlwind", "Immortalwhirl", "Singer"].includes(SetUp.currentBuild) && (!me.normal || !Check.brokeAf())) { return false; }
+				if (me.barbarian && !["Whirlwind", "Immortalwhirl", "Singer"].includes(SetUp.currentBuild) && (!me.normal || !Check.brokeAf())) return false;
 				switch (me.diff) {
 				case sdk.difficulty.Normal:
 					if (Check.brokeAf()) {
@@ -621,10 +760,10 @@ const Check = {
 	Resistance: function () {
 		let resStatus,
 			resPenalty = me.getResPenalty(me.diff + 1),
-			frRes = me.fireRes - resPenalty,
-			lrRes = me.lightRes - resPenalty,
-			crRes = me.coldRes - resPenalty,
-			prRes = me.poisonRes - resPenalty;
+			frRes = me.getStat(sdk.stats.FireResist) - resPenalty,
+			lrRes = me.getStat(sdk.stats.LightResist) - resPenalty,
+			crRes = me.getStat(sdk.stats.ColdResist) - resPenalty,
+			prRes = me.getStat(sdk.stats.PoisonResist) - resPenalty;
 
 		resStatus = !!((frRes >= 0) && (lrRes >= 0) && (crRes >= 0)); 
 
@@ -670,7 +809,6 @@ const Check = {
 						diffShift = me.diff + 1;
 						announce && D2Bot.printToConsole('Kolbot-SoloPlay: Over leveled. Starting: ' + sdk.difficulty.nameOf(diffShift));
 					} else {
-						//announce && D2Bot.printToConsole('Kolbot-SoloPlay: ' + Difficulty[diffShift + 1] + ' requirements not met. Negative resistance. FR: ' + res.FR + ' | CR: ' + res.CR + ' | LR: ' + res.LR, sdk.colors.D2Bot.Gray);
 						announce && myPrint(sdk.difficulty.nameOf(diffShift + 1) + ' requirements not met. Negative resistance. FR: ' + res.FR + ' | CR: ' + res.CR + ' | LR: ' + res.LR);
 						return false;
 					}
@@ -716,231 +854,150 @@ const Check = {
 	},
 
 	haveItem: function (type, flag, iName = undefined) {
-		type !== undefined && (type = type.toLowerCase());
-		flag !== undefined && (flag = flag.toLowerCase());
-		iName !== undefined && (iName = iName.toLowerCase());
+		let isClassID = false;
+		let itemCHECK = false;
+		let typeCHECK = false;
 
-		if (type && type !== "dontcare" && !NTIPAliasType[type] && !NTIPAliasClassID[type]) {
-			print("ÿc9Kolbot-SoloPlayÿc0: No NTIPalias for '" + type + "'");
-			return false;
+		flag && typeof flag === "string" && (flag = flag[0].toUpperCase() + flag.substring(1).toLowerCase());
+		typeof iName === "string" && (iName = iName.toLowerCase());
+
+		let items = me.getItemsEx()
+			.filter(function (item) { 
+				return !item.isQuestItem && (flag === "Runeword" ? item.isRuneword : item.quality === sdk.itemquality[flag]); 
+			});
+
+		switch (typeof type) {
+		case "string":
+			typeof type === "string" && (type = type.toLowerCase());
+			if (type !== "dontcare" && !NTIPAliasType[type] && !NTIPAliasClassID[type]) return false;
+			if (type === "dontcare") {
+				typeCHECK = true; // we don't care about type
+				break;
+			}
+
+			// check if item is a classid but with hacky fix for items like belt which is a type and classid...sigh
+			isClassID = !!NTIPAliasClassID[type] && !NTIPAliasType[type];
+			type = isClassID ? NTIPAliasClassID[type] : NTIPAliasType[type];
+			
+			break;
+		case "number":
+			if (!Object.values(sdk.itemtype).includes(type) && !Object.values(sdk.items).includes(type)) return false;
+			// check if item is a classid but with hacky fix for items like belt which is a type and classid...sigh
+			isClassID = Object.values(sdk.items).includes(type) && !Object.values(sdk.itemtype).includes(type);
+
+			break;
 		}
 
-		let typeCHECK = false;
-		let itemCHECK = false;
-		let items = me.getItems().filter(item => !Town.ignoredItemTypes.includes(item.itemType) && !item.isQuestItem);
+		// filter out non-matching item types/classids
+		if (typeof type === "number") {
+			items = items.filter(function (item) { 
+				return (isClassID ? item.classid === type : item.itemType === type); 
+			});
+		}
 
-		for (let i = 0; i < items.length && !itemCHECK; i++) {
+		for (let i = 0; i < items.length; i++) {
 			switch (flag) {
-			case 'set':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Set) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
+			case 'Set':
+			case 'Unique':
+			case 'Crafted':
+				itemCHECK = !!(items[i].quality === sdk.itemquality[flag]) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 				break;
-			case 'unique':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Unique) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
-				break;
-			case 'crafted':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Crafted);
-				break;
-			case 'runeword':
+			case 'Runeword':
 				itemCHECK = !!(items[i].isRuneword) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 				break;
 			}
 
 			// don't waste time if first condition wasn't met
-			if (itemCHECK) {
-				switch (type) {
-				case "dontcare":
-					typeCHECK = itemCHECK;
-					break;
-				case "helm":
-				case "primalhelm":
-				case "pelt":
-				case "armor":
-				case "shield":
-				case "auricshields":
-				case "voodooheads":
-				case "gloves":
-				case "belt":
-				case "boots":
-				case "ring":
-				case "amulet":
-				case "axe":
-				case "bow":
-				case "amazonbow":
-				case "crossbow":
-				case "dagger":
-				case "javelin":
-				case "amazonjavelin":
-				case "mace":
-				case "polearm":
-				case "scepter":
-				case "spear":
-				case "amazonspear":
-				case "staff":
-				case "sword":
-				case "wand":
-				case "assassinclaw":
-				case "smallcharm":
-				case "mediumcharm":
-				case "largecharm":
-					typeCHECK = items[i].itemType === NTIPAliasType[type];
-					break;
-				default:
-					typeCHECK = items[i].classid === NTIPAliasClassID[type];
-					break;
-				}
+			if (itemCHECK && typeof type === "number") {
+				typeCHECK = isClassID ? items[i].classid === type : items[i].itemType === type;
 			}
 
-			if (type) {
-				itemCHECK = itemCHECK && typeCHECK;
+			if (itemCHECK && typeCHECK) {
+				return true;
 			}
 		}
 
-		return itemCHECK;
+		return false;
 	},
 
-	haveItemAndNotSocketed: function (type, flag, iName) {
-		type !== undefined && (type = type.toLowerCase());
-		flag !== undefined && (flag = flag.toLowerCase());
-		iName !== undefined && (iName = iName.toLowerCase());
+	itemSockables: function (type, quality, iName) {
+		quality && typeof quality === "string" && (quality = sdk.itemquality[quality[0].toUpperCase() + quality.substring(1).toLowerCase()]);
+		typeof iName === "string" && (iName = iName.toLowerCase());
+		let isClassID = false;
 
-		if (type && !NTIPAliasType[type] && !NTIPAliasClassID[type]) {
-			print("ÿc8Kolbot-SoloPlayÿc0: No NTIPalias for '" + type + "'");
-			return false;
+		switch (typeof type) {
+		case "string":
+			typeof type === "string" && (type = type.toLowerCase());
+			if (!NTIPAliasType[type] && !NTIPAliasClassID[type]) return false;
+			isClassID = !!NTIPAliasClassID[type];
+			type = isClassID ? NTIPAliasClassID[type] : NTIPAliasType[type];
+			
+			break;
+		case "number":
+			if (!Object.values(sdk.itemtype).includes(type) && !Object.values(sdk.items).includes(type)) return false;
+			isClassID = Object.values(sdk.items).includes(type);
+
+			break;
 		}
 
+		let socketableCHECK = isClassID ? Config.socketables.find(({ classid }) => type === classid) : false;
 		let typeCHECK = false;
 		let itemCHECK = false;
-		let items = me.getItems()
-			.filter(item => !Town.ignoredItemTypes.includes(item.itemType) && getBaseStat("items", item.classid, "gemsockets") > 0 && !item.isQuestItem && !item.getItem());
+		let items = me.getItemsEx()
+			.filter(function (item) { 
+				return item.quality === quality && !item.isQuestItem && !item.isRuneword && (isClassID ? item.classid === type : item.itemType === type) && getBaseStat("items", item.classid, "gemsockets") > 0; 
+			});
 
-		for (let i = 0; i < items.length && !itemCHECK; i++) {
-			switch (flag) {
-			case 'set':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Set) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
-				break;
-			case 'unique':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Unique) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
-				break;
-			case 'crafted':
-				itemCHECK = !!(items[i].quality === sdk.itemquality.Crafted);
-				break;
-			case 'runeword':
-				itemCHECK = !!(items[i].isRuneword) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
-				break;
-			}
+		for (let i = 0; i < items.length; i++) {
+			itemCHECK = !!(items[i].quality === quality) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 
 			// don't waste time if first condition wasn't met
-			if (itemCHECK) {
-				switch (type) {
-				case "helm":
-				case "primalhelm":
-				case "pelt":
-				case "armor":
-				case "shield":
-				case "auricshields":
-				case "voodooheads":
-				case "gloves":
-				case "belt":
-				case "boots":
-				case "ring":
-				case "amulet":
-				case "axe":
-				case "bow":
-				case "amazonbow":
-				case "crossbow":
-				case "dagger":
-				case "javelin":
-				case "amazonjavelin":
-				case "mace":
-				case "polearm":
-				case "scepter":
-				case "spear":
-				case "amazonspear":
-				case "staff":
-				case "sword":
-				case "wand":
-				case "assassinclaw":
-				case "weapon":
-					typeCHECK = items[i].itemType === NTIPAliasType[type];
-					break;
-				default:
-					typeCHECK = items[i].classid === NTIPAliasClassID[type];
-					break;
-				}
-			}
+			itemCHECK && (typeCHECK = isClassID ? items[i].classid === type : items[i].itemType === type);
 
-			if (type) {
-				itemCHECK = itemCHECK && typeCHECK && !items[i].getItem();
+			if (itemCHECK && typeCHECK) {
+				if (!socketableCHECK && items[i].getItemsEx().length === 0) {
+					return true;
+				} else if (socketableCHECK) {
+					SoloWants.addToList(items[i]);
+
+					return true;
+				}
 			}
 		}
 
-		return itemCHECK;
+		return false;
 	},
 
 	haveBase: function (type = undefined, sockets = undefined) {
 		if (!type|| !sockets) return false;
+		let isClassID = false;
 
 		switch (typeof type) {
-		case "number":
-			break;
 		case "string":
-			type = type.toLowerCase();
+			typeof type === "string" && (type = type.toLowerCase());
+			if (!NTIPAliasType[type] && !NTIPAliasClassID[type]) return false;
+			isClassID = !!NTIPAliasClassID[type];
+			type = isClassID ? NTIPAliasClassID[type] : NTIPAliasType[type];
+			
+			break;
+		case "number":
+			if (!Object.values(sdk.itemtype).includes(type) && !Object.values(sdk.items).includes(type)) return false;
+			isClassID = Object.values(sdk.items).includes(type);
+
 			break;
 		}
+		
 
-		let baseCheck = false;
-		let items = me.getItems()
-			.filter(item => item.isBaseType && item.isInStorage);
+		let items = me.getItemsEx()
+			.filter(item => item.isBaseType && item.isInStorage && (isClassID ? item.classid === type : item.itemType === type));
 
 		for (let i = 0; i < items.length; i++) {
-			if (items[i].getStat(sdk.stats.NumSockets) === sockets) {
-				switch (type) {
-				case "helm":
-				case "primalhelm":
-				case "pelt":
-				case "armor":
-				case "shield":
-				case "auricshields":
-				case "voodooheads":
-				case "gloves":
-				case "belt":
-				case "boots":
-				case "ring":
-				case "amulet":
-				case "axe":
-				case "bow":
-				case "amazonbow":
-				case "crossbow":
-				case "dagger":
-				case "javelin":
-				case "amazonjavelin":
-				case "mace":
-				case "polearm":
-				case "scepter":
-				case "spear":
-				case "amazonspear":
-				case "staff":
-				case "sword":
-				case "wand":
-				case "assassinclaw":
-				case "weapon":
-					baseCheck = items[i].itemType === NTIPAliasType[type];
-
-					break;
-				default:
-					baseCheck = items[i].classid === NTIPAliasClassID[type];
-
-					break;
-				}
-
-				if (baseCheck) {
-					break;
-				}
-
+			if (items[i].getStat(sdk.stats.NumSockets) === sockets && (isClassID ? items[i].classid === type : items[i].itemType === type)) {
+				return true;
 			}
 		}
 
-		return baseCheck;
+		return false;
 	},
 
 	currentBuild: function () {
@@ -965,10 +1022,13 @@ const Check = {
 				wantedSkills: finalBuild.wantedskills,
 				usefulSkills: finalBuild.usefulskills,
 				precastSkills: finalBuild.precastSkills,
-				mercAuraName: finalBuild.mercAuraName,
-				mercAuraWanted: finalBuild.mercAuraWanted,
+				usefulStats: (!!finalBuild.usefulStats ? finalBuild.usefulStats : []),
 				mercDiff: finalBuild.mercDiff,
+				mercAct: finalBuild.mercAct,
+				mercAuraWanted: finalBuild.mercAuraWanted,
 				finalGear: finalBuild.autoEquipTiers,
+				respec: finalBuild.respec,
+				active: finalBuild.active,
 			};
 		}
 
@@ -977,33 +1037,34 @@ const Check = {
 			tabSkills: build.skillstab,
 			wantedSkills: build.wantedskills,
 			usefulSkills: build.usefulskills,
+			usefulStats: (!!build.usefulStats ? build.usefulStats : []),
+			active: build.active,
 		};
 	},
 
 	finalBuild: function () {
 		function getBuildTemplate () {
+			let foundError = false;
 			if (SetUp.finalBuild.includes("Build") || SetUp.finalBuild.includes("build")) {
 				SetUp.finalBuild = SetUp.finalBuild.substring(0, SetUp.finalBuild.length - 5);
 				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
-				DataFile.updateStats("finalBuild", SetUp.finalBuild);
+				foundError = true;
 			}
 
 			if (SetUp.finalBuild.includes(".")) {
 				SetUp.finalBuild = SetUp.finalBuild.substring(SetUp.finalBuild.indexOf(".") + 1);
 				SetUp.finalBuild = SetUp.finalBuild[0].toUpperCase() + SetUp.finalBuild.substring(1).toLowerCase();
 				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
-				DataFile.updateStats("finalBuild", SetUp.finalBuild);
+				foundError = true;
 			}
 
 			if (SetUp.finalBuild.includes(" ")) {
-				if (SetUp.finalBuild.indexOf(" ") === (SetUp.finalBuild.length - 1)) {	// Trailing space
+				// Trailing space
+				if (SetUp.finalBuild.indexOf(" ") === (SetUp.finalBuild.length - 1)) {
 					SetUp.finalBuild = SetUp.finalBuild.split(" ")[0];
 					SetUp.finalBuild = SetUp.finalBuild[0].toUpperCase() + SetUp.finalBuild.substring(1).toLowerCase();
 					D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-					D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
-					DataFile.updateStats("finalBuild", SetUp.finalBuild);
+					foundError = true;
 				}
 			}
 
@@ -1011,8 +1072,13 @@ const Check = {
 				SetUp.finalBuild = SetUp.finalBuild.substring(SetUp.finalBuild.indexOf("-") + 1);
 				SetUp.finalBuild = SetUp.finalBuild[0].toUpperCase() + SetUp.finalBuild.substring(1).toLowerCase();
 				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '-' which is unecessary and means you likely entered something along the lines of Classname-finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				foundError = true;
+			}
+
+			if (foundError) {
 				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
-				DataFile.updateStats("finalBuild", SetUp.finalBuild);
+				CharData.updateData("me", "finalBuild", SetUp.finalBuild);
+				myData.me.finalBuild = SetUp.finalBuild;
 			}
 
 			let buildType = SetUp.finalBuild;
@@ -1042,11 +1108,13 @@ const Check = {
 			wantedSkills: finalBuild.wantedskills,
 			usefulSkills: finalBuild.usefulskills,
 			precastSkills: finalBuild.precastSkills,
-			mercAuraName: finalBuild.mercAuraName,
-			mercAuraWanted: finalBuild.mercAuraWanted,
+			usefulStats: (!!finalBuild.usefulStats ? finalBuild.usefulStats : []),
 			mercDiff: finalBuild.mercDiff,
+			mercAct: finalBuild.mercAct,
+			mercAuraWanted: finalBuild.mercAuraWanted,
 			finalGear: finalBuild.autoEquipTiers,
 			respec: finalBuild.respec,
+			active: finalBuild.active,
 		};
 	},
 
@@ -1055,10 +1123,6 @@ const Check = {
 
 		switch (true) {
 		case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
-			goal = SetUp.finalBuild;
-			goalReached = true;
-
-			break;
 		case SetUp.finalBuild === "Socketmule" && Misc.checkQuest(35, 1):
 			goal = SetUp.finalBuild;
 			goalReached = true;
@@ -1068,6 +1132,11 @@ const Check = {
 			goal = "Level: " + SetUp.stopAtLevel;
 			goalReached = true;
 
+			break;
+		case sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff)) < sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty):
+			// TODO: fill this out, if we go back to normal from hell I want to be able to do whatever it was imbue/socket/respec then return to our orignal difficulty
+			// as it is right now if we go back it would take 2 games to get back to hell
+			// but this needs a check to ensure that one of the above reasons are why we went back in case we had gone back because low gold in which case we need to stay in the game
 			break;
 		default:
 			break;
@@ -1089,26 +1158,230 @@ const Check = {
 
 	// TODO: enable this for other items, i.e maybe don't socket tal helm in hell but instead go back and use nightmare so then we can use hell socket on tal armor?
 	usePreviousSocketQuest: function () {
+		if (me.classic) return;
 		if (!Check.Resistance().Status) {
 			if (me.weaponswitch === 0 && Item.getEquippedItem(5).fname.includes("Lidless Wall") && !Item.getEquippedItem(5).socketed) {
-				if (me.hell) {
-					if (FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".SocketData.json")) {
-						let data = Developer.readObj("libs/SoloPlay/Data/" + me.profile + ".SocketData.json");
-						if (data.Nightmare === false) {
-							goBackDifficulty(sdk.difficulty.Nightmare, " to use socket quest");
-						}
-					}
+				if (!me.normal) {
+					if (!myData.normal.socketUsed) goToDifficulty(sdk.difficulty.Normal, " to use socket quest");
+					if (me.hell && !myData.nightmare.socketUsed) goToDifficulty(sdk.difficulty.Nightmare, " to use socket quest");
 				}
 			}
 		}
 	},
 };
 
-// TODO: set this up similar to cubing where certain items get added to the validGids list to be kept and we look for items from the needList
-// Idea: would be nice that if we were currently pathing and had low stam that this updates to include picking up a stam pot then once we have it remove it so we don't pick up more
-let SoloPlay = {
+const SoloWants = {
 	needList: [],
 	validGids: [],
 
-	
+	checkItem: function (item) {
+		if (!item) return false;
+		if (this.validGids.includes(item.gid)) return true;
+		let i = 0;
+		for (let el of this.needList) {
+			if ([sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(item.itemType) || (item.itemType >= sdk.itemtype.Amethyst && item.itemType <= sdk.itemtype.Skull)) {
+				if (el.needed.includes(item.classid)) {
+					this.validGids.push(item.gid);
+					this.needList[i].needed.splice(this.needList[i].needed.indexOf(item.classid), 1);
+					if (this.needList[i].needed.length === 0) {
+						// no more needed items so remove from list
+						this.needList.splice(i, 1);
+					}
+					return true;
+				}
+			}
+			i++; // keep track of index
+		}
+
+		return false;
+	},
+
+	keepItem: function (item) {
+		if (!item) return false;
+		return this.validGids.includes(item.gid);
+	},
+
+	buildList: function () {
+		let myItems = me.getItemsEx();
+		let equippedItems = myItems
+			.filter(function (item) { return item.isEquipped && !item.isRuneword && !item.isQuestItem && item.quality >= sdk.itemquality.Magic && getBaseStat("items", item.classid, "gemsockets") > 0; })
+			.forEach(function (item) { return SoloWants.addToList(item); });
+		
+		return myItems.forEach(function (item) { return SoloWants.checkItem(item); });
+	},
+
+	addToList: function (item) {
+		if (!item || item.isRuneword) return false;
+		if (SoloWants.needList.some(function (check) { return item.classid === check.classid; })) return false;
+		let hasWantedItems;
+		let list = [];
+		let socketedWith = item.getItemsEx();
+		let numSockets = item.getStat(sdk.stats.NumSockets);
+		let curr = Config.socketables.find(({ classid }) => item.classid === classid);
+
+		if (curr && curr.socketWith.length > 0) {
+			hasWantedItems = socketedWith.some(function (el) { return curr.socketWith.includes(el.classid); });
+			if (hasWantedItems && socketedWith.length === numSockets) {
+				return true; // this item is full
+			}
+
+			if (curr.socketWith.length > 1 && hasWantedItems) {
+				// handle different wanted socketables, if we already have a wanted socketable inserted then remove it from the check list
+				socketedWith.forEach(function (socketed) { 
+					if (curr.socketWith.length > 1 && curr.socketWith.includes(socketed.classid)) {
+						curr.socketWith.splice(curr.socketWith.indexOf(socketed.classid), 1);
+					}
+				});
+			}
+
+			// add the wanted items to the list
+			for (let i = 0; i < numSockets - (hasWantedItems ? socketedWith.length : 0); i++) {
+				// handle different wanted socketables
+				curr.socketWith.length === numSockets ? list.push(curr.socketWith[i]) : list.push(curr.socketWith[0]);
+			}
+
+			// currently no sockets but we might use our socket quest on it
+			numSockets === 0 && curr.useSocketQuest && list.push(curr.socketWith[0]);
+
+			// if temp socketables are used for this item and its not already socketed with wanted items add the temp items too
+			if (!hasWantedItems && !!curr.temp && !!curr.temp.length > 0) {
+				for (let i = 0; i < numSockets - socketedWith.length; i++) {
+					list.push(curr.temp[0]);
+				}
+				// Make sure we keep a hel rune so we can unsocket temp socketables if needed
+				if (!SoloWants.needList.some(function (check) { return sdk.items.runes.Hel === check.classid; })) {
+					let hel = me.getItemsEx(sdk.items.runes.Hel, 0);
+					// we don't have any hel runes and its not already in our needList
+					if ((!hel || hel.length === 0)) {
+						SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});
+					} else if (!hel.some(function (check) { SoloWants.validGids.includes(check.gid); })) {
+						SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});
+					}
+				}
+			}
+		} else {
+			let itemtype = item.getItemType();
+			if (!itemtype) return false;
+			let gemType = ["Helmet", "Armor"].includes(itemtype) ? "Ruby" : itemtype === "Shield" ? "Diamond" : itemtype === "Weapon" && !Check.currentBuild().caster ? "Skull" : "";
+			let runeType;
+
+			// Tir rune in normal, Io rune otherwise and Shael's if assassin TODO: use jewels too
+			!gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
+
+			hasWantedItems = socketedWith.some(function (el) { return gemType ? el.itemType === sdk.itemtype[gemType] : el.classid === sdk.items.runes[runeType]; });
+			if (hasWantedItems && socketedWith.length === numSockets) {
+				return true; // this item is full
+			}
+
+			for (let i = 0; i < numSockets - socketedWith.length; i++) {
+				list.push(gemType ? sdk.items.gems.Perfect[gemType] : sdk.items.runes[runeType]);
+			}
+		}
+
+		// add to our needList so we pick the items
+		return list.length > 0 ? this.needList.push({classid: item.classid, needed: list}) : false;
+	},
+
+	update: function (item) {
+		if (!item) return false;
+		if (this.validGids.includes(item.gid)) return true; // already in the list
+		let i = 0;
+		for (let el of this.needList) {
+			if (!me.getItem(el.classid)) {
+				// We no longer have the item we wanted socketables for
+				this.needList.splice(i, 1);
+				continue;
+			}
+			if ([sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(item.itemType) || (item.itemType >= sdk.itemtype.Amethyst && item.itemType <= sdk.itemtype.Skull)) {
+				if (el.needed.includes(item.classid)) {
+					this.validGids.push(item.gid);
+					this.needList[i].needed.splice(this.needList[i].needed.indexOf(item.classid), 1);
+					if (this.needList[i].needed.length === 0) {
+						// no more needed items so remove from list
+						this.needList.splice(i, 1);
+					}
+					return true;
+				}
+			}
+			i++; // keep track of index
+		}
+
+		return false;
+	},
+
+	ensureList: function () {
+		let i = 0;
+		for (let el of this.needList) {
+			if (!me.getItem(el.classid)) {
+				// We no longer have the item we wanted socketables for
+				this.needList.splice(i, 1);
+				continue;
+			}
+			i++; // keep track of index
+		}
+	},
+
+	// Cube ingredients
+	checkSubrecipes: function () {
+		for (let el of this.needList) {
+			for (let i = 0; i < el.needed.length; i++) {
+				switch (true) {
+				case [
+					sdk.items.gems.Perfect.Ruby, sdk.items.gems.Perfect.Sapphire, sdk.items.gems.Perfect.Topaz, sdk.items.gems.Perfect.Emerald,
+					sdk.items.gems.Perfect.Amethyst, sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Skull].includes(el.needed[i]):
+					if (Cubing.subRecipes.indexOf(el.needed[i]) === -1) {
+						Cubing.subRecipes.push(el.needed[i]);
+						Cubing.recipes.push({
+							Ingredients: [el.needed[i] - 1, el.needed[i] - 1, el.needed[i] - 1],
+							Index: 0,
+							AlwaysEnabled: true,
+							MainRecipe: "Crafting"
+						});
+					}
+
+					break;
+				case el.needed[i] >= sdk.items.runes.El && el.needed[i] <= sdk.items.runes.Ort:
+					if (Cubing.subRecipes.indexOf(el.needed[i]) === -1) {
+						Cubing.subRecipes.push(el.needed[i]);
+						Cubing.recipes.push({
+							Ingredients: [el.needed[i] - 1, el.needed[i] - 1, el.needed[i] - 1],
+							Index: Recipe.Rune,
+							AlwaysEnabled: true,
+							MainRecipe: "Crafting"
+						});
+					}
+
+					break;
+				// case el.needed[i] >= sdk.items.runes.Thul && el.needed[i] <= sdk.items.runes.Lem:
+				// // gems repeat so should be able to math this out chipped (TASRED) -> repeat flawed (TASRED)
+				// 	if (Cubing.subRecipes.indexOf(el.needed[i]) === -1) {
+				// 		Cubing.subRecipes.push(el.needed[i]);
+				// 		Cubing.recipes.push({
+				// 			Ingredients: [el.needed[i] - 1, el.needed[i] - 1, el.needed[i] - 1],
+				// 			Index: Recipe.Rune,
+				// 			AlwaysEnabled: true,
+				// 			MainRecipe: "Crafting"
+				// 		});
+				// 	}
+
+				// 	break;
+				// case el.needed[i] >= sdk.items.runes.Mal && el.needed[i] <= sdk.items.runes.Zod:
+				// // gems repeat so should be able to math this out Base (TASRED) -> repeat Flawless (TASRE) (stops at Emerald)
+				// 	if (Cubing.subRecipes.indexOf(el.needed[i]) === -1) {
+				// 		Cubing.subRecipes.push(el.needed[i]);
+				// 		Cubing.recipes.push({
+				// 			Ingredients: [el.needed[i] - 1, el.needed[i] - 1],
+				// 			Index: Recipe.Rune,
+				// 			AlwaysEnabled: true,
+				// 			MainRecipe: "Crafting"
+				// 		});
+				// 	}
+
+				// 	break;
+				}
+			}
+		}
+
+		return true;
+	},
 };

@@ -9,9 +9,9 @@ let build = {
 	skillstab: 9, //lightning
 	wantedskills: [sdk.skills.ChargedBolt, sdk.skills.StaticField],
 	usefulskills: [sdk.skills.FrozenArmor, sdk.skills.Lightning],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	stats: [
 		["energy", 40], ["vitality", 15], ["energy", 45],
 		["vitality", 20], ["energy", 50], ["strength", 15],
@@ -33,5 +33,9 @@ let build = {
 		[sdk.skills.IceBlast, 3], 			// charlvl 23
 		[sdk.skills.Blizzard, 6, false], 	// charlvl 29 (never gets here)
 		[sdk.skills.ColdMastery, 1, false], // charlvl 30 (never gets here)
-	]
+	],
+
+	active: function () {
+		return me.charlvl < Config.respecOne && !me.getSkill(sdk.skills.ColdMastery, 0);
+	},
 };

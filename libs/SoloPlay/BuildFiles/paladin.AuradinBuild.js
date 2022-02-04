@@ -1,7 +1,7 @@
 /**
  *    @filename   paladin.AuradinBuild.js
  *	  @author	  theGuy
- *    @desc       End-game Auradin build
+ *    @desc       End-game Auradin build. Duel Dream Runewords + Dragon and HoJ Runewords to give level 30 Holy Shock and level 30 Holy Fire
  */
 
 const finalBuild = {
@@ -10,9 +10,10 @@ const finalBuild = {
 	wantedskills: [sdk.skills.Zeal, sdk.skills.Conviction],
 	usefulskills: [sdk.skills.HolyShield, sdk.skills.ResistFire, sdk.skills.ResistLightning],
 	precastSkills: [sdk.skills.HolyShield],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	usefulStats: [sdk.stats.PassiveLightningMastery, sdk.stats.PassiveLightningPierce, sdk.stats.PierceLtng, sdk.stats.PassiveFireMastery, sdk.stats.PassiveFirePierce, sdk.stats.PierceFire],
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	stats: [
 		["strength", 103], ["dexterity", 136], ["vitality", 300], ["dexterity", "block"], ["vitality", "all"]
 	],
@@ -66,5 +67,9 @@ const finalBuild = {
 		} else {
 			return Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.Conviction, 0) === 20;
 	},
 };

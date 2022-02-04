@@ -9,9 +9,9 @@ const finalBuild = {
 	skillstab: sdk.skills.tabs.NecroSummoning,
 	wantedskills: [sdk.skills.RaiseSkeleton, sdk.skills.CorpseExplosion],
 	usefulskills: [sdk.skills.AmplifyDamage, sdk.skills.SkeletonMastery, sdk.skills.BoneArmor, sdk.skills.Decrepify],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	classicStats: [
 		["dexterity", 51], ["strength", 80], ["energy", 100], ["vitality", "all"]
 	],
@@ -106,6 +106,10 @@ const finalBuild = {
 		} else {
 			return Check.haveItem("armor", "runeword", "Enigma");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.RaiseSkeleton, 0) === 20;
 	},
 };
 

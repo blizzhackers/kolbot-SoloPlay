@@ -1,7 +1,7 @@
 /**
  *    @filename   paladin.TorchadinBuild.js
  *	  @author	  theGuy
- *    @desc       End-game Auradin build
+ *    @desc       End-game Auradin build. Holy Fire based, HoJ + Dragon for level 30 Holy Fire
  */
 
 const finalBuild = {
@@ -10,9 +10,10 @@ const finalBuild = {
 	wantedskills: [sdk.skills.Zeal, sdk.skills.Conviction],
 	usefulskills: [sdk.skills.HolyShield, sdk.skills.ResistFire, sdk.skills.Salvation],
 	precastSkills: [sdk.skills.HolyShield],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
+	usefulStats: [sdk.stats.PassiveFireMastery, sdk.stats.PassiveFirePierce, sdk.stats.PierceFire],
 	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	stats: [
 		["strength", 103], ["dexterity", 136],
 		["vitality", 300], ["dexterity", "block"], ["vitality", "all"]
@@ -68,5 +69,9 @@ const finalBuild = {
 		} else {
 			return Check.haveItem("sword", "runeword", "Hand of Justice") && Check.haveItem("armor", "runeword", "Dragon");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.Conviction, 0) === 20;
 	},
 };

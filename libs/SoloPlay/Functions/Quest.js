@@ -1,8 +1,8 @@
 /*
 *	@filename	Quest.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
 *	@desc		Miscellaneous quest tasks for leveling adapted from blizzhackers autosmurf
-*	@credits	Dark-f, JeanMax for original functions
+*	@credits	Dark-f, JeanMax, https://github.com/SetupSonic/clean-sonic/blob/master/libs/sonic/common/Quest.js
 */
 
 const Quest = {
@@ -203,9 +203,7 @@ const Quest = {
 		if (!tyrael) return false;
 
 		for (let talk = 0; talk < 3; talk += 1) {
-			if (getDistance(me, tyrael) > 3) {
-				Pather.moveToUnit(tyrael);
-			}
+			tyrael.distance > 3 && Pather.moveToUnit(tyrael);
 
 			tyrael.interact();
 			delay(1000 + me.ping);
@@ -227,8 +225,13 @@ const Quest = {
 		let questItem = me.getItem(classid);
 
 		!me.inTown && Town.goToTown();
-		Town.move("stash");
 		Town.openStash();
+
+		if (!Storage.Stash.CanFit(questItem)) {
+			Town.sortStash(true);
+
+			if (!Storage.Stash.CanFit(questItem)) return false;
+		}
 
 		while (questItem.location !== 7) {
 			Storage.Stash.MoveTo(questItem);
@@ -279,6 +282,8 @@ const Quest = {
 		!getUIFlag(sdk.uiflags.Stash) && me.cancel();
 
 		if (questItem) {
+			me.duelWielding && Item.removeItem(5);
+			
 			if (!Item.equip(questItem, loc)) {
 				Pickit.pickItems();
 				print("ÿc8Kolbot-SoloPlayÿc0: failed to equip " + classid + " .(Quest.equipItem)");
@@ -311,24 +316,23 @@ const Quest = {
 	},
 
 	smashSomething: function (smashable) {
-		let something, tool;
+		let tool;
 
 		switch (smashable) {
 		case 404:
-			something = getUnit(2, 404);
-			tool = 174;
+			tool = sdk.items.quest.KhalimsWill;
 
 			break;
 		case 376:
-			something = getUnit(2, 376);
-			tool = 90;
+			tool = sdk.items.quest.HellForgeHammer;
 
 			break;
 		}
 
-		if (Item.getEquippedItem(4).classid !== tool) {
-			return false;
-		}
+		let something = getUnit(2, smashable);
+
+		if (Item.getEquippedItem(4).classid !== tool || !me.getItem(tool)) return false;
+		if (!something) return false;
 
 		while (me.getItem(tool)) {
 			Pather.moveToUnit(something, 0, 0, Config.ClearType, false);
@@ -343,41 +347,46 @@ const Quest = {
 
 	// Akara reset for build change
 	characterRespec: function () {
-		if (me.respec || SetUp.currentBuild === SetUp.finalBuild) return true;
+		if (me.respec || SetUp.currentBuild === SetUp.finalBuild) return;
 
-		if ((me.charlvl >= Config.respecOne && SetUp.currentBuild === "Start") || (Config.respecOneB > 0 && me.charlvl === Config.respecOneB) || me.charlvl === SetUp.respecTwo()) {
+		switch (true) {
+		case me.charlvl >= Config.respecOne && SetUp.currentBuild === "Start":
+		case Config.respecOneB > 0 && me.charlvl >= Config.respecOneB && SetUp.currentBuild === "Stepping":
+		case me.charlvl === SetUp.respecTwo() && SetUp.currentBuild === "Leveling":
 			if (!me.den) {
-				print("ÿc8Kolbot-SoloPlayÿc0: time to respec, but den is incomplete");
-				me.overhead('time to respec, but den is incomplete');
-				return false;
+				myPrint("time to respec, but den is incomplete");
+				return;
 			}
 
 			let preSkillAmount = me.getStat(sdk.stats.NewSkills);
 			let preStatAmount = me.getStat(sdk.stats.StatPts);
-			Precast.doPrecast(true);
+			let npc;
+
 			Town.goToTown(1);
-			print("ÿc8Kolbot-SoloPlayÿc0: time to respec");
-			me.overhead('time to respec');
-			Town.npcInteract("akara");
+			myPrint("time to respec");
+			npc = Town.npcInteract("akara", false);
 			delay(10 + me.ping * 2);
 
-			if (!Misc.useMenu(0x2ba0) || !Misc.useMenu(3401)) return false;
+			if (npc) {
+				sendPacket(1, 0x38, 4, 0, 4, npc.gid, 4, 0);
+			}
 
-			sendPacket(1, 0x40);
+			Misc.checkQuest(41, 0);
 			delay(10 + me.ping * 2);
 
 			if (me.respec || (me.getStat(sdk.stats.NewSkills) > preSkillAmount && me.getStat(sdk.stats.StatPts) > preStatAmount)) {
-				DataFile.updateStats("currentBuild", SetUp.getBuild());
+				myData.me.currentBuild = SetUp.getBuild();
+				myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
+				CharData.updateData("me", myData);
 				delay(750 + me.ping * 2);
 				Town.clearBelt();
-				print("ÿc8Kolbot-SoloPlayÿc0: respec done, restarting");
-				me.overhead('respec done, restarting');
+				myPrint("respec done, restarting");
 				delay(1000 + me.ping);
 				scriptBroadcast("quit");
 			}
-		}
 
-		return true;
+			break;
+		}
 	},
 
 	// Credit dzik or laz unsure who for this
@@ -403,14 +412,6 @@ const Quest = {
 		if (item.getStat(194) > 0 || getBaseStat("items", item.classid, "gemsockets") === 0) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Item cannot be socketed");
 			return false;
-		}
-
-		if (!isIncluded("SoloPlay/Tools/Developer.js")) {
-			include("SoloPlay/Tools/Developer.js");
-		}
-
-		if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".SocketData.json")) {
-			Developer.writeObj({Nightmare: false}, "libs/SoloPlay/Data/" + me.profile + ".SocketData.json");
 		}
 		
 		// No space to get the item back
@@ -462,7 +463,7 @@ const Quest = {
 			return false;
 		}
 
-		Town.npcInteract("larzuk");
+		Town.npcInteract("larzuk", false);
 		delay(10 + me.ping * 2);
 
 		if (!Misc.useMenu(0x58DC)) return false;
@@ -497,13 +498,11 @@ const Quest = {
 			return false;
 		}
 
-		let diffSting = ['Normal', 'Nightmare', 'Hell'][me.diff];
-		Misc.logItem("Used my " + diffSting + " socket quest on : ", item);
-		D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + diffSting + " socket quest on : " + item.name, 6);
-
-		if (me.nightmare) {
-			Developer.writeObj({Nightmare: true}, "libs/SoloPlay/Data/" + me.profile + ".SocketData.json");
-		}
+		Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : ", item);
+		D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, 6);
+		CharData.updateData(sdk.difficulty.nameOf(me.diff), "socketUsed", true);
+		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()]["socketUsed"] = true;
+		updateMyData();
 
 		if (!slot && item.location !== 7) {
 			// Move item back to stash
@@ -588,7 +587,7 @@ const Quest = {
 			return false;
 		}
 
-		Town.npcInteract("charsi");
+		Town.npcInteract("charsi", false);
 		delay(10 + me.ping * 2);
 
 		if (!Misc.useMenu(0x0FB1)) return false;
@@ -621,9 +620,11 @@ const Quest = {
 			return false;
 		}
 
-		let diffSting = ['Normal', 'Nightmare', 'Hell'][me.diff];
-		Misc.logItem("Used my " + diffSting + " imbue quest on : ", item);
-		D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + diffSting + " imbue quest on : " + item.name, 6);
+		Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : ", item);
+		D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, 6);
+		CharData.updateData(sdk.difficulty.nameOf(me.diff), "imbueUsed", true);
+		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()]["imbueUsed"] = true;
+		updateMyData();
 
 		if (!slot && item.location !== 7) {
 			// Move item back to stash

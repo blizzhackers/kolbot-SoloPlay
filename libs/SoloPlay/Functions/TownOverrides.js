@@ -1,6 +1,6 @@
 /*
 *	@filename	TownOverrides.js
-*	@author		isid0re, theBGuy
+*	@author		theBGuy
 *	@desc		Town.js fixes and custom tasks to improve functionality
 */
 
@@ -15,9 +15,87 @@ Town.ignoredItemTypes = [
 	sdk.itemtype.AntidotePotion, sdk.itemtype.ThawingPotion
 ];
 
-Town.staminaPot = {tick: 0, duration: 0};
-Town.thawingPot = {tick: 0, duration: 0};
-Town.antidotePot = {tick: 0, duration: 0};
+Town.initNPC = function (task, reason) {
+	print("initNPC: " + reason);
+
+	let npc = getInteractedNPC();
+
+	if (npc && npc.name.toLowerCase() !== this.tasks[me.act - 1][task]) {
+		me.cancel();
+
+		npc = null;
+	}
+
+	// Jamella gamble fix
+	if (task === "Gamble" && npc && npc.name.toLowerCase() === NPC.Jamella) {
+		me.cancel();
+
+		npc = null;
+	}
+
+	if (!npc) {
+		npc = getUnit(1, this.tasks[me.act - 1][task]);
+
+		if (!npc) {
+			this.move(this.tasks[me.act - 1][task]);
+
+			npc = getUnit(1, this.tasks[me.act - 1][task]);
+		}
+	}
+
+	if (!npc || npc.area !== me.area || (!getUIFlag(sdk.uiflags.NPCMenu) && !npc.openMenu())) {
+		return false;
+	}
+
+	switch (task) {
+	case "Shop":
+	case "Repair":
+	case "Gamble":
+		if (!getUIFlag(0x0C) && !npc.startTrade(task)) {
+			return false;
+		}
+
+		break;
+	case "Key":
+		if (!getUIFlag(0x0C) && !npc.startTrade(me.act === 3 ? "Repair" : "Shop")) {
+			return false;
+		}
+
+		break;
+	case "CainID":
+		Misc.useMenu(0x0FB4);
+		me.cancel();
+
+		break;
+	case "Heal":
+		if (me.getState(sdk.states.Frozen)) {
+			Town.buyPots(2, "Thawing", true, true);
+		}
+
+		break;
+	}
+
+	return npc;
+};
+
+Town.heal = function () {
+	if (!this.needHealing()) return true;
+	if (!this.initNPC("Heal", "heal")) return false;
+
+	return true;
+};
+
+Town.needHealing = function () {
+	if (me.hpPercent <= Config.HealHP || me.mpPercent <= Config.HealMP) return true;
+
+	// Status effects
+	if (Config.HealStatus
+		&& [sdk.states.Poison, sdk.states.AmplifyDamage, sdk.states.Frozen, sdk.states.Weaken, sdk.states.Decrepify, sdk.states.LowerResist].some(function (state) { return me.getState(state); })) {
+		return true;
+	}
+
+	return false;
+};
 
 Town.townTasks = function () {
 	!me.inTown && Town.goToTown();
@@ -58,8 +136,7 @@ Town.townTasks = function () {
 	Quest.characterRespec();
 
 	if ([sdk.areas.LutGholein, sdk.areas.KurastDocktown].includes(me.area)) {
-		Town.buyPots(8, "Stamina");
-		Town.drinkPots();
+		Town.buyPots(10, "Stamina", true);
 	}
 
 	me.act !== preAct && this.goToTown(preAct);
@@ -152,7 +229,7 @@ Town.getIdTool = function () {
 };
 
 Town.clearScrolls = function () {
-	let scrolls = me.getItems().filter(function (scroll) { return scroll.isInInventory && scroll.itemType === sdk.itemtype.Scroll; });
+	let scrolls = me.getItemsEx().filter(function (scroll) { return scroll.isInInventory && scroll.itemType === sdk.itemtype.Scroll; });
 	let tpTome = scrolls.some(function (scroll) { 
 		return scroll.classid === sdk.items.ScrollofTownPortal; }) ? me.findItem(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory) : false;
 	let idTome = scrolls.some(function (scroll) { 
@@ -317,6 +394,11 @@ Town.cainID = function (force = false, dontSell = false) {
 			case 5: // Crafting System
 				Misc.itemLogger("Kept", item, "CraftSys-Town");
 				CraftingSystem.update(item);
+
+				break;
+			case 8: // SoloWants System
+				Misc.itemLogger("Kept", item, "SoloWants-Town");
+				SoloWants.update(item);
 
 				break;
 			default:
@@ -508,6 +590,11 @@ Town.identify = function () {
 					CraftingSystem.update(item);
 
 					break;
+				case 8: // SoloWants System
+					Misc.itemLogger("Kept", item, "SoloWants-Town");
+					SoloWants.update(item);
+
+					break;
 				default:
 					Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm && Misc.logItem("Sold", item);
 					Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm && Misc.logItem("Sold", item);
@@ -544,6 +631,7 @@ Town.canTpToTown = function () {
 	return true;
 };
 
+// credit isid0re
 Town.buyBook = function () {
 	if (me.findItem(sdk.items.TomeofTownPortal, 0, 3)) return true;
 
@@ -585,6 +673,8 @@ Town.buyBook = function () {
 	return true;
 };
 
+// TODO: re-write to handle shift buying better, so that we can still get buffer potions even
+// if our last potion slot is empty because we don't have rejuv's
 Town.buyPotions = function () {
 	// no town portal book
 	if (!me.getItem(sdk.items.TomeofTownPortal)) return false;
@@ -646,16 +736,8 @@ Town.buyPotions = function () {
 		return true;
 	}
 
-	if (me.normal && Pather.accessToAct(2) && !Pather.accessToAct(3) && me.act < 2) {
-		this.goToTown(2);
-	}
-
-	if (me.normal && Pather.accessToAct(3) && !Pather.accessToAct(4) && me.act < 3) {
-		this.goToTown(3);
-	}
-
-	if (me.normal && Pather.accessToAct(4) && me.act < 4) {
-		this.goToTown(4);
+	if (me.normal && me.act < 4) {
+		this.goToTown(me.highestAct);
 	}
 
 	npc = this.initNPC("Shop", "buyPotions");
@@ -701,6 +783,17 @@ Town.buyPotions = function () {
 		}
 	}
 
+	// keep cold/pois res high with potions
+	if (me.gold > 10000 && npc.getItem(sdk.items.ThawingPotion)) {
+		if (me.coldRes < 75 && (!CharData.buffData.thawing.active() || CharData.buffData.thawing.timeLeft() < 5 * 60 * 100)) {
+			this.buyPots(10, "thawing", true);
+		}
+
+		if (me.poisonRes < 75 && (!CharData.buffData.antidote.active() || CharData.buffData.antidote.timeLeft() < 5 * 60 * 100)) {
+			this.buyPots(10, "antidote", true);
+		}
+	}
+
 	return true;
 };
 
@@ -729,7 +822,7 @@ Town.shopItems = function () {
 
 	print("ÿc8Kolbot-SoloPlayÿc0: Evaluating " + npc.itemcount + " items.");
 
-	for (let i = 0; i < items.length; i += 1) {
+	for (let i = 0; i < items.length; i++) {
 		result = Pickit.checkItem(items[i]);
 		let myGold = me.gold;
 		let itemCost = items[i].getItemCost(0);
@@ -741,7 +834,7 @@ Town.shopItems = function () {
 					if (items[i].isBaseType) {
 						if (!this.worseBaseThanStashed(items[i]) && this.betterBaseThanWearing(items[i], Developer.debugging.junkCheck)) {
 							Misc.itemLogger("Shopped", items[i]);
-							Developer.debugging.autoEquip && (Misc.logItem("Shopped", items[i], result.line));
+							Developer.debugging.autoEquip && Misc.logItem("Shopped", items[i], result.line);
 							print("ÿc8Kolbot-SoloPlayÿc0: Bought better base");
 							items[i].buy();
 
@@ -768,7 +861,7 @@ Town.shopItems = function () {
 						try {
 							Misc.itemLogger("AutoEquip Shopped", items[i]);
 							print("ÿc9ShopItemsÿc0 :: AutoEquip Shopped: " + items[i].fname + " Tier: " + NTIP.GetTier(items[i]));
-							Developer.debugging.autoEquip && (Misc.logItem("AutoEquip Shopped", items[i], result.line));
+							Developer.debugging.autoEquip && Misc.logItem("AutoEquip Shopped", items[i], result.line);
 							items[i].buy();
 
 						} catch (e) {
@@ -790,7 +883,7 @@ Town.shopItems = function () {
 						try {
 							Misc.itemLogger("AutoEquip Switch Shopped", items[i]);
 							print("ÿc9ShopItemsÿc0 :: AutoEquip Switch Shopped: " + items[i].fname + " SecondaryTier: " + NTIP.GetSecondaryTier(items[i]));
-							Developer.debugging.autoEquip && (Misc.logItem("AutoEquip Switch Shopped", items[i], result.line));
+							Developer.debugging.autoEquip && Misc.logItem("AutoEquip Switch Shopped", items[i], result.line);
 							items[i].buy();
 
 						} catch (e) {
@@ -951,8 +1044,7 @@ Town.unfinishedQuests = function () {
 	// Act 3
 	// Figurine -> Golden Bird
 	if (me.getItem(sdk.items.quest.AJadeFigurine)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: starting jade figurine");
-		me.overhead('jade figurine');
+		myPrint("starting jade figurine");
 		Town.goToTown(3);
 		Town.npcInteract("meshif");
 	}
@@ -1032,7 +1124,7 @@ Town.unfinishedQuests = function () {
 		print('ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance');
 	}
 
-	Misc.addSocketables();
+	Misc.checkSocketables();
 	
 	Town.heal();
 	me.cancelUIFlags();
@@ -1040,34 +1132,44 @@ Town.unfinishedQuests = function () {
 	return true;
 };
 
-Town.buyPots = function (quantity = 0, type = "") {
+// TODO: handle resistances being artifically high (from pots or shrine)
+Town.buyPots = function (quantity = 0, type = "", drink = false, force = false) {
 	if (!quantity || !type) return false;
 	type = type[0].toUpperCase() + type.substring(1).toLowerCase();
 	let npc, jugs, potDealer = ["Akara", "Lysander", "Alkor", "Jamella", "Malah"][me.act - 1];
 
 	// Don't buy if already at max res
-	if (type === "Thawing" && me.coldRes >= 75) {
+	if (type === "Thawing" && me.coldRes >= 75 && !force) {
 		return true;
 	} else if (type === "Thawing") {
 		print("ÿc9BuyPotsÿc0 :: Current cold resistance: " + me.coldRes);
 	}
 
 	// Don't buy if already at max res
-	if (type === "Antidote" && me.poisonRes >= 75) {
+	if (type === "Antidote" && me.poisonRes >= 75 && !force) {
 		return true;
 	} else if (type === "Antidote") {
 		print("ÿc9BuyPotsÿc0 :: Current poison resistance: " + me.poisonRes);
 	}
 
 	// Don't buy if teleport or vigor
-	if (type === "Stamina" && (me.getSkill(sdk.skills.Vigor, 0) || Pather.canTeleport())) return true;
+	if (type === "Stamina" && (Config.Vigor && me.getSkill(sdk.skills.Vigor, 0) || Pather.canTeleport()) && !force) return true;
 
-	Town.move(NPC[potDealer]);
-	npc = getUnit(sdk.unittype.NPC, NPC[potDealer]);
+	npc = getInteractedNPC();
 
-	if (!npc || !npc.openMenu()) return false;
+	if (npc && npc.name.toLowerCase() === NPC[potDealer] && getUIFlag(sdk.uiflags.NPCMenu)) {
+		!getUIFlag(sdk.uiflags.Shop) && Misc.useMenu(sdk.menu.Trade);
+	} else {
+		me.cancel();
+		npc = null;
 
-	Misc.useMenu(sdk.menu.Trade);
+		Town.move(NPC[potDealer]);
+		npc = getUnit(sdk.unittype.NPC, NPC[potDealer]);
+
+		if (!npc || !npc.openMenu()) return false;
+
+		Misc.useMenu(sdk.menu.Trade);
+	}
 
 	switch (type) {
 	case "Thawing":
@@ -1086,23 +1188,26 @@ Town.buyPots = function (quantity = 0, type = "") {
 
 	print('ÿc9BuyPotsÿc0 :: buying ' + quantity + ' ' + type + ' Potions');
 
-	for (let totalspecialpotions = 0; totalspecialpotions < quantity; totalspecialpotions++) {
+	for (let pots = 0; pots < quantity; pots++) {
 		if (jugs && Storage.Inventory.CanFit(jugs)) {
 			jugs.buy(false);
 		}
 	}
 
 	me.cancelUIFlags();
+	drink && Town.drinkPots(type);
 
 	return true;
 };
 
-Town.drinkPots = function () {
+Town.drinkPots = function (type) {
 	let classIds = [sdk.items.StaminaPotion, sdk.items.AntidotePotion, sdk.items.ThawingPotion];
+	!!type && (classIds = classIds.filter(function (el) { return el === sdk.items[type + "Potion"]; }));
 
-	for (let totalpots = 0; totalpots < classIds.length; totalpots++) {
-		let quantity = 0, name;
-		let chugs = me.getItemsEx(classIds[totalpots]).filter(pot => pot.isInInventory);
+	for (let i = 0; i < classIds.length; i++) {
+		let name, objID;
+		let quantity = 0;
+		let chugs = me.getItemsEx(classIds[i]).filter(pot => pot.isInInventory);
 
 		if (chugs.length > 0) {
 			chugs.forEach(function (pot) {
@@ -1114,22 +1219,19 @@ Town.drinkPots = function () {
 				}
 			});
 
-			switch (classIds[totalpots]) {
-			case sdk.items.StaminaPotion:
-				Town.staminaPot.tick = getTickCount();
-				Town.staminaPot.duration = quantity * 30 * 1000;
-				break;
-			case sdk.items.AntidotePotion:
-				Town.antidotePot.tick = getTickCount();
-				Town.antidotePot.duration = quantity * 30 * 1000;
-				break;
-			case sdk.items.ThawingPotion:
-				Town.thawingPot.tick = getTickCount();
-				Town.thawingPot.duration = quantity * 30 * 1000;
-				break;
-			}
+			!!name && (objID = name.split(' ')[0].toLowerCase());
 
-			print('ÿc9DrinkPotsÿc0 :: drank ' + quantity + " " + name + "s. Timer [" + Developer.formatTime(quantity * 30 * 1000) + "]");
+			if (objID) {
+				if (!CharData.buffData[objID].active() || CharData.buffData[objID].timeLeft() <= 0) {
+					CharData.buffData[objID].tick = getTickCount();
+					CharData.buffData[objID].duration = quantity * 30 * 1000;
+				} else {
+					CharData.buffData[objID].duration += (quantity * 30 * 1000) - (getTickCount() - CharData.buffData[objID].tick);
+				}
+
+				print('ÿc9DrinkPotsÿc0 :: drank ' + quantity + " " + name + "s. Timer [" + Developer.formatTime(CharData.buffData[objID].duration) + "]");
+				//["thawing", "antidote"].includes(objID) && CharData.buffData.update();
+			}
 		}
 	}
 
@@ -1243,7 +1345,7 @@ Town.openStash = function () {
 			stash = getUnit(2, 267);
 
 			if (stash) {
-				if (Skill.useTK()) {
+				if (Skill.useTK(stash)) {
 					// Fix for out of range telek
 					Pather.walkTo(stash.x, stash.y, 23);
 					Skill.cast(sdk.skills.Telekinesis, 0, stash);
@@ -1305,6 +1407,7 @@ Town.stash = function (stashGold = true) {
 				case Cubing.keepItem(items[i]):
 				case Runewords.keepItem(items[i]):
 				case CraftingSystem.keepItem(items[i]):
+				case SoloWants.keepItem(items[i]):
 				case !items[i].isSellable: // quest/essences/keys/ect
 					result = true;
 
@@ -1429,14 +1532,15 @@ Town.clearInventory = function () {
 	items = Storage.Inventory.Compare(Config.Inventory);
 
 	for (let i = 0; !!items && i < items.length; i += 1) {
-		if ([18, 41, 76, 77, 78].indexOf(items[i].itemType) === -1 && // Don't drop tomes, keys or potions
-			items[i].isSellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
-			(items[i].code !== 529 || !!me.findItem(518, 0, 3)) && // Don't throw scrolls if no tome is found (obsolete code?)
-			(items[i].code !== 530 || !!me.findItem(519, 0, 3)) && // Don't throw scrolls if no tome is found (obsolete code?)
-			!AutoEquip.wanted(items[i]) && // Don't throw auto equip wanted items
-			!Cubing.keepItem(items[i]) && // Don't throw cubing ingredients
-			!Runewords.keepItem(items[i]) && // Don't throw runeword ingredients
-			!CraftingSystem.keepItem(items[i]) // Don't throw crafting system ingredients
+		if ([18, 41, 76, 77, 78].indexOf(items[i].itemType) === -1 // Don't drop tomes, keys or potions
+			&& items[i].isSellable // Don't try to sell/drop quest-items/keys/essences/tokens/organs
+			&& (items[i].code !== 529 || !!me.findItem(518, 0, 3)) // Don't throw scrolls if no tome is found (obsolete code?)
+			&& (items[i].code !== 530 || !!me.findItem(519, 0, 3)) // Don't throw scrolls if no tome is found (obsolete code?)
+			&& !AutoEquip.wanted(items[i]) // Don't throw auto equip wanted items
+			&& !Cubing.keepItem(items[i]) // Don't throw cubing ingredients
+			&& !Runewords.keepItem(items[i]) // Don't throw runeword ingredients
+			&& !CraftingSystem.keepItem(items[i]) // Don't throw crafting system ingredients
+			&& !SoloWants.keepItem(items[i]) // Don't throw SoloWants system ingredients
 		) {
 			result = Pickit.checkItem(items[i]).result;
 
@@ -2010,7 +2114,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 	case 69: // Voodoo heads
 	case 70: // Auric Shields
 		if (me.paladin) {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[2, 70].indexOf(item.itemType) > -1// same item type as current
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
@@ -2032,7 +2136,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 				}
 			}
 		} else if (me.necromancer) {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[2, 69].indexOf(item.itemType) > -1// same item type as current
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
@@ -2053,7 +2157,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 				}
 			}
 		} else {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					item.itemType === 2// same item type as current
 					&& !item.ethereal // only noneth runeword bases
@@ -2080,7 +2184,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 
 		break;
 	case 3: // Armor
-		itemsToCheck = me.getItems()
+		itemsToCheck = me.getItemsEx()
 			.filter(item =>
 				item.itemType === 3// same item type as current
 				&& !item.ethereal // only noneth runeword bases
@@ -2110,7 +2214,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 	case 72: //	Druid Pelt
 	case 75: // Circlet
 		if (me.barbarian || me.druid) {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[37, 75, 71, 72].indexOf(item.itemType) > -1// same item type as current
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
@@ -2132,7 +2236,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 				}
 			}
 		} else {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[37, 75].indexOf(item.itemType) > -1// same item type as current
 					&& !item.ethereal // only noneth runeword bases
@@ -2160,7 +2264,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		break;
 	case 25: //	Wand
 		if (me.necromancer) {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[25].indexOf(item.itemType) > -1// same item type as current
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
@@ -2201,7 +2305,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			return true; // Can't use so it's worse then what we already have
 		}
 
-		itemsToCheck = me.getItems()
+		itemsToCheck = me.getItemsEx()
 			.filter(item =>
 				item.itemType === base.itemType// same item type as current
 				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
@@ -2239,7 +2343,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 	case 67: // Handtohand (Assasin Claw)
 	case 88: //	Assassin Claw
 		if (me.assassin) {
-			itemsToCheck = me.getItems()
+			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[67, 88].indexOf(item.itemType) > -1// same item type as current
 					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
@@ -2263,7 +2367,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 
 		break;
 	case 34: //	Polearm
-		itemsToCheck = me.getItems()
+		itemsToCheck = me.getItemsEx()
 			.filter(item =>
 				[34].indexOf(item.itemType) > -1// same item type as current
 				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
@@ -2309,6 +2413,7 @@ Town.clearJunk = function () {
 			!Cubing.keepItem(junk) && // Don't throw cubing ingredients
 			!Runewords.keepItem(junk) && // Don't throw runeword ingredients
 			!CraftingSystem.keepItem(junk) && // Don't throw crafting system ingredients
+			!SoloWants.keepItem(junk) && // Don't throw SoloWants system ingredients
 			!Town.ignoredItemTypes.includes(junk.itemType) && // Don't drop tomes, keys or potions
 			junk.isSellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
 			([0, 4].includes(Pickit.checkItem(junk).result)) // only drop unwanted or sellable
@@ -2428,14 +2533,28 @@ Town.clearJunk = function () {
 	return true;
 };
 
-Town.npcInteract = function (name) {
+Town.npcInteract = function (name, cancel = true) {
 	let npc;
 
 	!name.includes("_") && (name = name[0].toUpperCase() + name.substring(1).toLowerCase());
 	name.includes("_") && (name = "Qual_Kehk");
 
 	!me.inTown && Town.goToTown();
-	Town.move(NPC[name])
+
+	switch (NPC[name]) {
+        case NPC.Jerhyn:
+            Town.move('palace');
+            break;
+        case NPC.Hratli:
+            if (!me.getQuest(sdk_1.default.quests.SpokeToHratli, 0)) {
+                Town.move(NPC.Meshif);
+                break;
+            }
+        // No break
+        default:
+            Town.move(NPC[name]);
+    }
+
 	npc = getUnit(1, NPC[name]);
 
 	// In case Jerhyn is by Warriv
@@ -2448,13 +2567,12 @@ Town.npcInteract = function (name) {
 	Packet.flash(me.gid);
 	delay(1 + me.ping * 2);
 
-	if (!npc || !npc.openMenu()) {
-		me.cancel();
-	}
+	if (npc && npc.openMenu()) {
+        cancel && me.cancel();
+        return npc;
+    }
 
-	Packet.flash(me.gid);
-
-	return true;
+    return false;
 };
 
 Town.reviveMerc = function () {

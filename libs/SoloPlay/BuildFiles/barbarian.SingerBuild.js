@@ -11,9 +11,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.WarCry, sdk.skills.Shout],
 	usefulskills: [sdk.skills.IncreasedSpeed, sdk.skills.NaturalResistance],
 	precastSkills: [sdk.skills.BattleOrders, sdk.skills.BattleCommand],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	stats: [
 		["dexterity", 35], ["strength", 103], ["vitality", "all"]
 	],
@@ -63,5 +63,9 @@ const finalBuild = {
 		} else {
 			return Check.haveItem("armor", "runeword", "Enigma") && Check.haveItem("mace", "runeword", "Heart of the Oak");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.WarCry, 0) === 20;
 	},
 };

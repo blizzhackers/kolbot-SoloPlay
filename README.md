@@ -15,8 +15,8 @@ If you are enjoying this project consider supporting me at https://www.buymeacof
 - Hires class/build specific mercenary
 - Fully configured Autoequip (Primary, Secondary, and Charms) for bot and mercenary
 - Makes and equips CTA and spirit shield on swap
-  - **NOTE:** Some classes don't use CTA and spirit, I.E Barbarian class uses duel Bo sticks.
-- Add socketables to gear (I.E P-Diamonds or Um runes to Moser's Blessed Shield, Um rune to Shako)
+  - **NOTE:** Some classes don't use CTA and spirit, I.E Barbarian class uses duel Bo sticks. Cold based sorceress builds use CTA and Lidless for the lower strength requirment
+- Add socketables to gear (I.E P-Diamonds or Um runes to Moser's Blessed Shield, Um rune to Shako) (see **Config.socketables** inside the base config file for more info)
 - Kill diablo clone in expansion
   - Will try to share Annhilus charm if online and already has one
 
@@ -43,16 +43,15 @@ If you are enjoying this project consider supporting me at https://www.buymeacof
 ## Frequently Asked Questions
 **Q: Why isn't the bot making the build I selected?**
 
-**A:** The bot follows a set build progression. As it progresses, it will respecialize 2 times transitioning from a start build to a leveling build, ending at the selected finalbuild.
+**A:** The bot follows a set build progression. See next question.
 
 **Q: When will the bot change to the final build I selected?**
 
-**A:** In classic, the bot will switch to the final build based on a level requirement. In expansion, it transitions to the final build when final gear requirements are met (Navigate to libs\SoloPlay\Functions\Globals.js and look for respecTwo to see what items are needed for each build).
+**A:** In classic, the bot will switch to the final build after it defeats diablo and meets a level requirement. In expansion, it transitions to the final build when final gear requirements are met (Navigate to libs\SoloPlay\BuildFiles\ and look for the file with the name of the final build you choose to see what items are needed for each build and what level is required for classic).
 
 **Q: The bot has beaten diablo (classic) / baal, so why isn't moving on to the next difficulty?**
 
-**A:** The bot will only progress once it has reached a minimum character level (`navigate to libs\SoloPlay
-Functions\Globals.js` and see `SetUp.levelCap` for level requirments) and will not start the next difficulty with negative resistances. If the bot is more than 5 levels higher than the minimum character level and has not reached the required resistances, it will automatically move to the next difficulty.
+**A:** The bot will only progress once it has reached a minimum character level (`navigate to libs\config\classname.SoloPlay.js` and see `Config.levelCap` for level requirments) and will not start the next difficulty with negative resistances. If the bot is more than 5 levels higher than the minimum character level and has not reached the required resistances, it will automatically move to the next difficulty.
 
 **Q: How can I run more than one of the same class?**
 

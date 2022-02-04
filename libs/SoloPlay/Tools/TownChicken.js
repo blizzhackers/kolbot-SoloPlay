@@ -26,7 +26,7 @@ include("common/Town.js");
 
 if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
 if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
-if (!isIncluded("SoloPlay/Functions/globals.js")) { include("SoloPlay/Functions/globals.js"); }
+if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
 
 function main() {
 	let townCheck = false;
@@ -62,7 +62,7 @@ function main() {
 				} else {
 					if (scripts[i] === "default.dbj") {
 						// don't resume if dclone walked
-						if (!Events.cloneWalked) {
+						if (!SoloEvents.cloneWalked) {
 							print("ÿc8TownChicken :: ÿc2Resuming.");
 							script.resume();
 						}
@@ -94,11 +94,7 @@ function main() {
 			} while (monster.getNext());
 		}
 
-		if (gid) {
-			monster = getUnit(1, -1, -1, gid);
-		} else {
-			monster = false;
-		}
+		monster = gid ? getUnit(1, -1, -1, gid) : false;
 
 		if (monster) {
 			print("ÿc9TownChickenÿc0 :: Closest monster to me: " + monster.name + " | Monster classid: " + monster.classid);
@@ -108,50 +104,92 @@ function main() {
 		return -1;
 	};
 
-	addEventListener("scriptmsg",
-		function (msg) {
-			if (msg === "townCheck") {
-				switch (me.area) {
-				case sdk.areas.ArreatSummit:
-					print("Don't tp from Arreat Summit.");
+	this.scriptEvent = function (msg) {
+		let obj;
 
-					break;
-				case sdk.areas.UberTristram:
-					print("Can't tp from uber trist.");
-
-					break;
-				default:
-					print("townCheck message recieved. First check passed.");
-					townCheck = true;
-
-					break;
-				}
-			}
-
-			// Added from Autosorc/Sorc.js
-			if (msg && typeof msg === "string" && msg !== "" && msg.substring(0, 8) === "config--") {
+		if (msg && typeof msg === "string" && msg !== "") {
+			let updated = false;
+			switch (true) {
+			case msg.substring(0, 8) === "config--":
+				console.debug("update config");
 				Config = JSON.parse(msg.split("config--")[1]);
+				updated = true;
+
+				break;
+			case msg.substring(0, 7) === "skill--":
+				console.debug("update skillData");
+				obj = JSON.parse(msg.split("skill--")[1]);
+				Misc.updateRecursively(CharData.skillData, obj);
+				updated = true;
+
+				break;
+			case msg.substring(0, 6) === "data--":
+				console.debug("update myData");
+				obj = JSON.parse(msg.split("data--")[1]);
+				Misc.updateRecursively(myData, obj);
+				updated = true;
+
+				break;
+			case msg.toLowerCase() === "test":
+				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//\nÿc8MainData ::\n",
+					myData, "\nÿc8BuffData ::\n", CharData.buffData, "\nÿc8SkillData ::\n", CharData.skillData, "\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
+				updated = true;
+
+				break;
 			}
-		});
+
+			if (updated) return;
+		}
+
+		switch (msg) {
+		case "townCheck":
+			switch (me.area) {
+			case sdk.areas.ArreatSummit:
+				print("Don't tp from Arreat Summit.");
+
+				break;
+			case sdk.areas.UberTristram:
+				print("Can't tp from uber trist.");
+
+				break;
+			default:
+				print("townCheck message recieved. First check passed.");
+				townCheck = true;
+
+				break;
+			}
+
+			break;
+		case "quit":
+			//quitFlag = true;
+			// Maybe stop townChicken thread? Would that keep us from the crash that happens when we try to leave game while townChickening
+
+			break;
+		default:
+			break;
+		}
+	};
+
+	addEventListener("scriptmsg", this.scriptEvent);
 
 	while (true) {
 		if (Town.canTpToTown() && (townCheck ||
-			(Config.TownHP > 0 && me.hp < Math.floor(me.hpmax * Config.TownHP / 100)) ||
-			(Config.TownMP > 0 && me.mp < Math.floor(me.mpmax * Config.TownMP / 100)))) {
+			(Config.TownHP > 0 && me.hpPercent < Config.TownHP) ||
+			(Config.TownMP > 0 && me.mpPercent < Config.TownMP))) {
 			this.togglePause();
 
 			while (!me.gameReady) {
-				if (me.dead) { return false; }
+				if (me.dead) return false;
+
 				delay(100);
 			}
 
-			if (me.dead) { return false; }
+			if (me.dead) return false;
 
 			try {
-				me.overhead("Going to town");
-				print("ÿc8TownChicken :: ÿc0Going to town");
+				myPrint("ÿc8TownChicken :: ÿc0Going to town");
 				Attack.stopClear = true;
-				Events.townChicken = true;
+				SoloEvents.townChicken = true;
 				
 				if (useHowl || useTerror) {
 					if ([156, 211, 242, 243, 544, 571, 345].indexOf(this.getNearestMonster()) === -1) {
@@ -175,7 +213,7 @@ function main() {
 				this.togglePause();
 
 				Attack.stopClear = false;
-				Events.townChicken = false;
+				SoloEvents.townChicken = false;
 				townCheck = false;
 			}
 		}

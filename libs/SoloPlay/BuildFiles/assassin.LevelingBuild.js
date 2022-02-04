@@ -1,17 +1,17 @@
 /*
- *    @filename   assassin.TrapsinBuild.js
+ *    @filename   assassin.LevelingBuild.js
  *	  @author	  theBGuy
- *    @desc       assassin build for after respecOne
+ *    @desc       assassin lightning trap build for after respecOne
  */
 
-var build = {
+let build = {
 	caster: true,
 	skillstab: sdk.skills.tabs.Traps, // traps
 	wantedskills: [sdk.skills.FireBlast, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.ShadowMaster],
 	usefulskills: [sdk.skills.ChargedBoltSentry, sdk.skills.BladeShield, sdk.skills.Fade],
-	mercAuraName: "Holy Freeze",
-	mercAuraWanted: sdk.skills.HolyFreeze,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Holy Freeze",
 	stats: [
 		["strength", 47], ["dexterity", 46], ["vitality", 166],
 		["strength", 61], ["vitality", 241], ["strength", 79],
@@ -61,5 +61,9 @@ var build = {
 		[sdk.skills.ShockWeb, 20],
 		[sdk.skills.FireBlast, 20],
 		[sdk.skills.ChargedBoltSentry, 20],
-	]
+	],
+
+	active: function () {
+		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.LightningSentry, 0) === 20 && !Check.finalBuild().active());
+	},
 };

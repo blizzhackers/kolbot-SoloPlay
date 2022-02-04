@@ -10,9 +10,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.Strafe],
 	usefulskills: [sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
 	precastSkills: [sdk.skills.Valkyrie],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	stats: [
 		["strength", 89], ["vitality", 100], ["dexterity", "all"]
 	],
@@ -77,5 +77,9 @@ const finalBuild = {
 		} else {
 			return Check.haveItem("diamondbow", "unique", "Witchwild String");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.Strafe, 0);
 	},
 };

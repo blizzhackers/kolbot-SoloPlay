@@ -5,14 +5,11 @@
 */
 
 function river() {
-	print('ÿc8Kolbot-SoloPlayÿc0: starting river');
-	me.overhead("river");
+	myPrint('starting river');
 
 	Town.doChores();
-	Town.buyPots(10, "Antidote");
-	Town.drinkPots();
-	Town.buyPots(10, "Thawing");
-	Town.drinkPots();
+	Town.buyPots(10, "Antidote", true);
+	Town.buyPots(10, "Thawing", true);
 
 	Pather.checkWP(sdk.areas.CityoftheDamned, true) ? Pather.useWaypoint(sdk.areas.CityoftheDamned) : Pather.getWP(sdk.areas.CityoftheDamned);
 	Precast.doPrecast(true);

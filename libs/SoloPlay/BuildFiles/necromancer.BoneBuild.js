@@ -10,9 +10,9 @@ const finalBuild = {
 	wantedskills: [sdk.skills.BoneSpirit, sdk.skills.BoneSpear, sdk.skills.Teeth],
 	usefulskills: [sdk.skills.AmplifyDamage, sdk.skills.BoneArmor, sdk.skills.Decrepify, sdk.skills.BoneWall, sdk.skills.BonePrison],
 	precastSkills: [sdk.skills.BoneArmor],
-	mercAuraName: "Might",
-	mercAuraWanted: sdk.skills.Might,
-	mercDiff: 1,
+	mercDiff: sdk.difficulty.Nightmare,
+	mercAct: 2,
+	mercAuraWanted: "Might",
 	classicStats: [
 		["dexterity", 51], ["strength", 80], ["energy", 100], ["vitality", "all"]
 	],
@@ -95,6 +95,10 @@ const finalBuild = {
 		} else {
 			return Check.haveItem("armor", "runeword", "Enigma");
 		}
+	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.BoneSpear, 0) === 20;
 	},
 };
 

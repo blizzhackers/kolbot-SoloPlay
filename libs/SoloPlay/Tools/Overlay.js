@@ -9,6 +9,29 @@ if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Develo
 if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
 if (!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js")) { include("SoloPlay/Functions/ProtoTypesOverrides.js"); }
 
+Object.defineProperties(me, {
+	FR: {
+		get: function () {
+			return Math.min(75 + this.getStat(sdk.stats.MaxFireResist), this.getStat(sdk.stats.FireResist) - me.resPenalty);
+		}
+	},
+	CR: {
+		get: function () {
+			return Math.min(75 + this.getStat(sdk.stats.MaxColdResist), this.getStat(sdk.stats.ColdResist) - me.resPenalty);
+		}
+	},
+	LR: {
+		get: function () {
+			return Math.min(75 + this.getStat(sdk.stats.MaxLightResist), this.getStat(sdk.stats.LightResist) - me.resPenalty);
+		}
+	},
+	PR: {
+		get: function () {
+			return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), this.getStat(sdk.stats.PoisonResist) - me.resPenalty);
+		}
+	},
+});
+
 const Overlay = {
 	resfixX: me.screensize ? 0 : -100,
 	resfixY: me.screensize ? 0 : -120,
@@ -96,7 +119,7 @@ const Overlay = {
 			if (!this.getHook("level")) {
 				this.add("level");
 			} else {
-				this.getHook("level").hook.text = "Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + Difficulty[me.diff] + "ÿc4  Level: ÿc0" + me.charlvl;
+				this.getHook("level").hook.text = "Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + me.charlvl;
 			}
 
 		},
@@ -128,7 +151,7 @@ const Overlay = {
 			case "level":
 				this.hooks.push({
 					name: "level",
-					hook: new Text("Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + Difficulty[me.diff] + "ÿc4  Level: ÿc0" + me.charlvl, Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 30, 4, 13, 2)
+					hook: new Text("Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + me.charlvl, Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 30, 4, 13, 2)
 				});
 
 				break;
@@ -190,7 +213,7 @@ const Overlay = {
 				return "";
 			}
 
-			let textLine = "FR: ÿc1" + me.fireRes + "ÿc4   CR: ÿc3" + me.coldRes + "ÿc4   LR: ÿc9" + me.lightRes + "ÿc4   PR: ÿc2" + me.poisonRes;
+			let textLine = "FR: ÿc1" + me.FR + "ÿc4   CR: ÿc3" + me.CR + "ÿc4   LR: ÿc9" + me.LR + "ÿc4   PR: ÿc2" + me.PR;
 
 			return textLine;
 		},
@@ -201,8 +224,8 @@ const Overlay = {
 				return "";
 			}
 
-			let textLine = "MF: ÿc8" + me.getStat(80) + "ÿc4   FHR: ÿc8" + (me.getStat(99) - Config.FHR) + "ÿc4   FBR: ÿc8" + (me.getStat(102) - Config.FBR) + "ÿc4   FCR: ÿc8" + (me.getStat(105) - Config.FCR)
-				+ "ÿc4   IAS: ÿc8" + (me.getStat(93) - Config.IAS);
+			let textLine = "MF: ÿc8" + me.getStat(80) + "ÿc4   FHR: ÿc8" + (me.FHR) + "ÿc4   FBR: ÿc8" + (me.FBR) + "ÿc4   FCR: ÿc8" + (me.FCR)
+				+ "ÿc4   IAS: ÿc8" + (me.IAS);
 
 			return textLine;
 		},
@@ -283,7 +306,6 @@ const Overlay = {
 				} else {
 					this.getHook("Andariel").hook.text = "Andariel: " + (me.getQuest(6, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
 				}
-
 
 				break;
 			case 2:
@@ -472,23 +494,21 @@ const Overlay = {
 			case "resistances":
 				this.hooks.push({
 					name: "resistances",
-					hook: new Text(
-						this.getRes(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 45, 4, 13, 2)
+					hook: new Text(this.getRes(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 45, 4, 13, 2)
 				});
 
 				break;
 			case "stats":
 				this.hooks.push({
 					name: "stats",
-					hook: new Text(
-						this.getStats(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 60, 4, 13, 2)
+					hook: new Text(this.getStats(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 60, 4, 13, 2)
 				});
 
 				break;
 			case "questbox":
 				this.hooks.push({
 					name: "questbox",
-					hook: new Box (Overlay.questX - 8, Overlay.questY + Overlay.resfixY - 17, 190, 10 + [0, 105, 90, 90, 60, 90][me.act], 0x0, 1, 0)
+					hook: new Box(Overlay.questX - 8, Overlay.questY + Overlay.resfixY - 17, 190, 10 + [0, 105, 90, 90, 60, 90][me.act], 0x0, 1, 0)
 				});
 
 				break;
