@@ -80,6 +80,10 @@ if (!FileTools.exists(CharData.filePath)) {
 	delay(Math.floor(rand(1, 20)));
 }
 
+if (Developer.logPerformance) {
+	Tracker.initialize();
+}
+
 let gameInfo, joinInfo, gameStart, ingame, chatActionsDone, pingQuit, myExp, myGold, resPenalty, frRes, crRes, lrRes, prRes, areaName, diffName,
 	handle, useChat, firstLogin, connectFail, setUp, deadCheck, connectFailRetry,
 	battlenet = Profile().type === 2 ? true : false,
@@ -663,7 +667,7 @@ function locationAction (location) {
 		control = getControl(1, 657, 342, 27, 20);
 
 		// Set character difference
-		if (battlenet) {
+		if (battlenet && !!control) {
 			if (typeof StarterConfig.CharacterDifference === "number") {
 				if (control.disabled === 4) {
 					ControlAction.click(6, 431, 341, 15, 16);
@@ -682,7 +686,7 @@ function locationAction (location) {
 		}
 
 		if (CharData.getStats().me.setDifficulty) {
-			gameInfo.difficulty = DataFile.CharData().me.setDifficulty;
+			gameInfo.difficulty = CharData.getStats().me.setDifficulty;
 
 			// only set the profile if the values aren't already the same
 			if (gameInfo.difficulty !== setUp.difficulty) {
@@ -1235,10 +1239,6 @@ function main () {
 	while (!gameInfo) {
 		D2Bot.requestGameInfo();
 		delay(500);
-	}
-
-	if (Developer.logPerformance) {
-		Tracker.initialize();
 	}
 
 	if (gameInfo.error) {
