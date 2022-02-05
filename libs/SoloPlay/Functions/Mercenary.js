@@ -37,21 +37,23 @@ const Merc = {
 		let tmpAuraName = "Defiance";
 
 		// don't hire if using correct a1 merc, or passed merc hire difficulty
-		if ((typeOfMerc === 1 && (myData.merc.type === "Cold Arrow" || !Misc.checkQuest(2, 0))) || me.diff > mercDiff || (me.diff == mercDiff && !Pather.accessToAct(mercAct))) {
-			return true;
-		}
-
-		if (myData.merc.type === mercAuraWanted || (me.diff !== mercDiff && myData.merc.type === "Defiance")) {
-			return true;
-		}
-
-		if (me.charlvl > Config.levelCap + 10) {
-			print("ÿc9Mercenaryÿc0 :: I went back a difficulty, don't hire another merc");
-			return true;
-		}
-
-		if (me.normal && me.gold < 10000 || !me.normal && me.gold < 100000) {
-			print("ÿc9Mercenaryÿc0 :: I don't have enough gold to hire merc. My current gold amount: " + me.gold);
+		switch (true) {
+		// we've already gotten the correct a1 merc or haven't yet completed Bloodraven
+		case typeOfMerc === 1 && (myData.merc.type === "Cold Arrow" || !Misc.checkQuest(2, 0)):
+		// we are not in the correct difficulty to hire our wanted merc
+		case me.diff > mercDiff:
+		// we don't have access to the act of our wanted merc
+		case me.diff == mercDiff && !Pather.accessToAct(mercAct):
+		// we've already hired our wanted merc
+		case myData.merc.type === mercAuraWanted:
+		// we aren't in our wanted mercs difficulty but we have already hired the correct temp a2 merc
+		case me.diff !== mercDiff && myData.merc.type === "Defiance":
+		// we've gone back a difficulty - (with using the data file it shouldn't get here but still handle it just in case)
+		case me.charlvl > Config.levelCap + 10:
+		// we don't have enough spare gold to buy a1 merc
+		case me.normal && typeOfMerc === 1 && me.gold < (me.charlvl * 250):
+		// we don't have enough gold to hire our wanted merc
+		case !me.normal && me.gold < (me.charlvl * 500):
 			return true;
 		}
 

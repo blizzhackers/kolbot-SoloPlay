@@ -24,6 +24,8 @@ const CharData = {
 		},
 		me: {
 			startTime: 0,
+			charName: "",
+			level: 1,
 			currentBuild: "Start",
 			finalBuild: "",
 			highestDifficulty: "Normal",
@@ -73,10 +75,11 @@ const CharData = {
 
 		update: function () {
 			let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/ToolsThread.js"];
-			let curr = getScript(true).name;
 			let obj = JSON.stringify(Misc.copy(this));
+			let myThread = getScript(true).name;
 			scripts.forEach(function (script) {
-				if (script !== curr) {
+				let curr = getScript(script);
+				if (curr && myThread !== curr.name) {
 					Messaging.sendToScript(script, "buff--" + obj);
 				}
 			});
@@ -96,10 +99,11 @@ const CharData = {
 
 		update: function () {
 			let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/ToolsThread.js", "libs/SoloPlay/Tools/EventThread.js"];
-			let curr = getScript(true).name;
 			let obj = JSON.stringify(Misc.copy(this));
+			let myThread = getScript(true).name;
 			scripts.forEach(function (script) {
-				if (script !== curr) {
+				let curr = getScript(script);
+				if (curr && myThread !== curr.name) {
 					Messaging.sendToScript(script, "skill--" + obj);
 				}
 			});
@@ -109,10 +113,11 @@ const CharData = {
 	// updates config obj across all threads - excluding our current
 	updateConfig: function () {
 		let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/ToolsThread.js", "libs/SoloPlay/Tools/EventThread.js"/*, "libs/SoloPlay/Tools/AutoBuildThread.js"*/];
-		let curr = getScript(true).name;
 		let obj = JSON.stringify(Misc.copy(Config));
-		scripts.forEach(function (script) {
-			if (script !== curr) {
+		let myThread = getScript(true).name;
+			scripts.forEach(function (script) {
+				let curr = getScript(script);
+				if (curr && myThread !== curr.name) {
 				Messaging.sendToScript(script, "config--" + obj);
 			}
 		});

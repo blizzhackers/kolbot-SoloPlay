@@ -9,8 +9,7 @@ const GameData = require('../../Modules/GameData');
 
 let frostNovaCheck = function () {
 	return getUnits(1).some(function(el) {
-    	if (el === undefined) return false;
-    	return el.attackable && el.distance < 7 && ![sdk.monsters.Andariel].includes(el.classid) && !el.isChilled && Attack.checkResist(el, 'cold') && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
+    	return !!el && el.attackable && el.distance < 7 && ![sdk.monsters.Andariel].includes(el.classid) && !el.isChilled && Attack.checkResist(el, 'cold') && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
     });
 };
 
@@ -23,8 +22,8 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 		index = (unit.spectype !== 0 || unit.type === 0) ? 1 : 3,
 		gold = me.gold;
 
-	if (Config.MercWatch && Town.needMerc()) {
-		print("mercwatch");
+	if (Config.MercWatch && Town.needMerc() && gold > me.mercrevivecost * 3) {
+		console.debug("mercwatch");
 		Town.visitTown();
 	}
 
@@ -247,7 +246,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 		Developer.debugging.skills && print(sdk.colors.Red + "Sucess Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
 		return true;
 	case 2: // Try to telestomp
-		if (Config.TeleStomp && Attack.checkResist(unit, "physical") && Config.UseMerc) {
+		if (me.getSkill(sdk.skills.Teleport, 1) && (Config.TeleStomp || (unit.getMobCount(10) < me.maxNearMonsters && index === 1)) && Attack.checkResist(unit, "physical") && Config.UseMerc) {
 			while (Attack.checkMonster(unit)) {
 				Misc.townCheck();
 
@@ -259,7 +258,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 				}
 
 				mark = Attack.getNearestMonster();
-				!!mark ? ClassAttack.doCast(mark, timedSkill, data) : me.getSkill(sdk.skills.Telekinesis, 1) ? Skill.cast(sdk.skills.Telekinesis, 0, unit) : null;
+				!!mark ? Attack.checkResist(mark, timedSkill) && ClassAttack.doCast(mark, timedSkill, data) : me.getSkill(sdk.skills.Telekinesis, 1) ? Skill.cast(sdk.skills.Telekinesis, 0, unit) : null;
 			}
 
 			return true;

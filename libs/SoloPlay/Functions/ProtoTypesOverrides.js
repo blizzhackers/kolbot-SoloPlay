@@ -738,7 +738,7 @@ Object.defineProperties(me, {
 Unit.prototype.getItems = function (...args) {
 	let items = this.getItems.apply(this, args);
 
-	if (!items.length) {
+	if (typeof items === 'function' || !items.length) {
 		return [];
 	}
 
@@ -1481,67 +1481,78 @@ Unit.prototype.__defineGetter__('scareable', function () {
  */
 
 (function (global, _original) {
-
-	const Worker = require('../../modules/Worker');
-
+	var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+	    if (k2 === undefined) k2 = k;
+	    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+	}) : (function(o, m, k, k2) {
+	    if (k2 === undefined) k2 = k;
+	    o[k2] = m[k];
+	}));
+	var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+	    Object.defineProperty(o, "default", { enumerable: true, value: v });
+	}) : function(o, v) {
+	    o["default"] = v;
+	});
+	var __importStar = (this && this.__importStar) || function (mod) {
+	    if (mod && mod.__esModule) return mod;
+	    var result = {};
+	    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+	    __setModuleDefault(result, mod);
+	    return result;
+	};
+	var Worker = __importStar(require("../../modules/Worker"));
 	global['_setTimeout'] = _original;
-
 	/**
-	 * @param {function} cb
-	 * @param {number} time
-	 * @param args
-	 * @constructor
-	 */
-	function Timer(cb, time, args) {
-		const _this = this;
-		if (time === void 0) { time = 0; }
-		if (args === void 0) { args = []; }
-		Timer.instances.push(this);
-		Worker.runInBackground['__setTimeout__' + (Timer.counter++)] = (startTick => () => {
-			let finished = getTickCount() - startTick >= time;
-
-			if (finished) {
-				let index = Timer.instances.indexOf(_this);
-
-				// only if not removed from the time list
-				if (index > -1) {
-					Timer.instances.splice(index, 1);
-					cb.apply(undefined, args);
-				}
-			}
-
-			return !finished;
-		})(getTickCount());
-	}
-
-	Timer.instances = [];
-	Timer.counter = 0;
-
-	global['setTimeout'] = function (cb, time = 0, ...args) {
-		if (typeof cb === 'string') {
-			console.debug('Warning: Do not use raw code @ setTimeout and does not support lexical scoping');
-			cb = [].filter.constructor(cb);
-		}
-
-		if (typeof cb !== 'function') throw new TypeError('setTimeout callback needs to be a function');
-
-		return new Timer(cb, time, args);
-	};
-
-	/**
-	 *
-	 * @param {Timer} timer
-	 */
-	global['clearTimeout'] = function (timer) {
-		const index = Timer.instances.indexOf(timer);
-		if (index > -1) {
-			Timer.instances.splice(index, 1)
-		}
-	};
-
+         * @param {function} cb
+         * @param {number} time
+         * @param args
+         * @constructor
+         */
+        function Timer(cb, time, args) {
+            var _this = this;
+            if (time === void 0) { time = 0; }
+            if (args === void 0) { args = []; }
+            Timer.instances.push(this);
+            Worker.runInBackground['__setTimeout__' + (Timer.counter++)] = (function (startTick) { return function () {
+                var finished = getTickCount() - startTick >= time;
+                if (finished) {
+                    var index = Timer.instances.indexOf(_this);
+                    // only if not removed from the time list
+                    if (index > -1) {
+                        Timer.instances.splice(index, 1);
+                        cb.apply(undefined, args);
+                    }
+                }
+                return !finished;
+            }; })(getTickCount());
+        }
+        Timer.instances = [];
+        Timer.counter = 0;
+        global['setTimeout'] = function (cb, time) {
+            if (time === void 0) { time = 0; }
+            var args = [];
+            for (var _i = 2; _i < arguments.length; _i++) {
+                args[_i - 2] = arguments[_i];
+            }
+            if (typeof cb === 'string') {
+                console.debug('Warning: Do not use raw code @ setTimeout and does not support lexical scoping');
+                cb = [].filter.constructor(cb);
+            }
+            if (typeof cb !== 'function')
+                throw new TypeError('setTimeout callback needs to be a function');
+            return new Timer(cb, time, args);
+        };
+        /**
+         *
+         * @param {Timer} timer
+         */
+        global['clearTimeout'] = function (timer) {
+            var index = Timer.instances.indexOf(timer);
+            if (index > -1) {
+                Timer.instances.splice(index, 1);
+            }
+        };
 	// getScript(true).name.toString() !== 'default.dbj' && setTimeout(function () {/* test code*/}, 1000)
-
-
 })([].filter.constructor('return this')(), setTimeout);
 
 (function (global, original) {

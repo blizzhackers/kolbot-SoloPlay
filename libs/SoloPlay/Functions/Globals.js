@@ -30,11 +30,12 @@ function myPrint (str = "", toConsole = false, color = 0) {
 }
 
 function updateMyData () {
-	let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/ToolsThread.js", "libs/SoloPlay/Tools/EventThread.js"];
-	let curr = getScript(true).name;
+	let scripts = ["default.dbj", "libs/soloplay/tools/townchicken.js", "libs/soloplay/tools/toolsthread.js", "libs/soloplay/tools/eventthread.js"];
 	let obj = JSON.stringify(Misc.copy(myData));
+	let myThread = getScript(true).name;
 	scripts.forEach(function (script) {
-		if (script !== curr) {
+		let curr = getScript(script);
+		if (curr && myThread !== curr.name) {
 			Messaging.sendToScript(script, "data--" + obj);
 		}
 	});
