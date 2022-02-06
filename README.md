@@ -1,22 +1,22 @@
 ![extract into](https://i.imgur.com/TcRmoRm.png)
 
-## What is this?
-SoloPlay is a Kolbot based autoplay system to level any single legacy diablo 2 character class from 1-99. The goal of this project is to be the fastest and easiest leveling system there is.
+## The big question, What is Kolbot-SoloPlay?
+- SoloPlay is a D2BS based auto-play system to level any single legacy diablo 2 character class from 1-99. That sounds like a bunch of verbage so let me break it down a bit. D2BS stands for ``Diablo 2 Botting System`` if you are familiar with Kolbot that is what you are using. SoloPlay only works for Diablo 2, so before you ask it is not for Diablo 2 Resurrected. Alright next, what is an auto-play system? In simple terms, SoloPlay works by set it and forget philosophy. It is profile driven so the only thing you need to worry about is filling out the profile with the correct format and then press start (how to set up the profile is defined below). After that it takes care of the rest, no setting up config files or settings files (like sonic or horde), ect. The goal is to be the fastest leveling system there is across all modes (classic/expansion, hardcore/softcore, ladder/non-ladder)
 
-If you are enjoying this project consider supporting me at https://www.buymeacoffee.com/theBGuy
-
-**NOTE:** This script is designed to be only run from [https://github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot). Most errors occur from using the wrong Kolbot repo installation. 
+**Important Notes:** 
+- This script is designed to be only run from [https://github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot). Most errors occur from using the wrong Kolbot repo installation. 
+- This script requires the English version of Diablo 2 to be installed.
 
 ## Features
 - Operates in Hell difficulty within 24 hours (the exception is the barbarian class that takes 48)
   - **NOTE:** Classic mode will take a little longer
-- Includes character build options for final respec (see **Frequently Asked Questions** for more info)
+- Final build options, or what the bot will build to (I.E Light sorceress, Hammerdin, ect) (see **Frequently Asked Questions** for more info)
 - Plays through and finishes the game
-- Hires class/build specific mercenary
-- Fully configured Autoequip (Primary, Secondary, and Charms) for bot and mercenary
+- Hire class/build specific mercenary
+- Fully configured Auto Equip (Primary, Secondary, and Charms) for bot and mercenary
 - Makes and equips CTA and spirit shield on swap
-  - **NOTE:** Some classes don't use CTA and spirit, I.E Barbarian class uses duel Bo sticks. Cold based sorceress builds use CTA and Lidless for the lower strength requirment
-- Add socketables to gear (I.E P-Diamonds or Um runes to Moser's Blessed Shield, Um rune to Shako) (see **Config.socketables** inside the base config file for more info)
+    - Some classes don't use CTA and spirit, Barbarian class uses duel Bo sticks. Cold based sorceress builds use CTA and Lidless for the lower strength requirment. Wereform druid builds use Mang-Songs Staff for the +5 all skills bonus. 
+- Fully configured use of socketable items for both leveling gear and end-game gear (Adding Perfect diamonds to a shield like Moser's and later replacing it with Um runes if it's our wanted end-game gear) (see **Config.socketables** inside the base config file for more info)
 - Kill diablo clone in expansion
   - Will try to share Annhilus charm if online and already has one
 
@@ -137,11 +137,12 @@ https://youtu.be/qYHUw6nNn74
 ## Extras
 - Navigate to libs\SoloPlay\Tools\Developer.js for extra options
 - Developer.js includes options such as:
-  - plugyMode toggle
+  - plugyMode toggle (allow use of larger stash when using the Mod PlugY)
   - logging equipped items to D2Bot# Char Viewer tab
   - Overlay toggle
   - logPerformance toggle
   - fillAccount toggle for Socketmule/Bumper mode
+    - if set to true and running Socketmule/Bumper mode once goal is reached bot restarts with a new character until account is full
   - Packet casting (casting animations) toggle
   - developerMode (load up profile in SoloPlay mode without starting scripts)
   - Debugging (auto-equip, crafting, junkCheck information printed to console)
@@ -157,7 +158,7 @@ https://youtu.be/qYHUw6nNn74
 - **Note:** After re-launching D2Bot# a message will appear at the top saying *UPDATE AVAILABLE*, ignore this message there is no update. The application sees that patch.json is different than the standard download.
 
 ## D2BotSoloCleaner
-- The purpose of this entryscript is to delete old characters and/or related data files.
+- The purpose of this entry script is to delete old characters and/or related data files.
 - Extra Features
    - DataCleaner to delete old files associated with running SoloPlay 
    - SaveFiles to save important files to SoloPlay/Data/ for performance review
@@ -181,7 +182,7 @@ https://discord.gg/5pjTC2zH6N
 - **Note:** The times shown are for softcore expansion characters, TODO: add table for each variation of modes
 
 ## Brief History
-Kolbot-SoloPlay was built off the base structure of SoloLeveling by isid0re. Autoplay scripts/systems aren't a new concept, some to note are sonic, autoplay, and AutoSorc. None of the exisitng ones were able to do other character classes though so SoloLeveling was created by modding Questing.js. Almost from the beginning, Isid0re and I were bouncing ideas off each other. At that time, I was working on a separate project. We discussed ideas that helped both of our projects. I officially joined in around 4 months or so after the Github repo went public and was actively involved in the project until 6/30/2021. I contributed updates including but not limited to: item based respec, the overlay, logging equipped items, showing tier values on items, many bug fixes, sorting, D2BotSoloCleaner, performance tracking, ect. Due to some personal conflicts between isid0re and myself, I decided to create GuysSoloLeveling to have all of my ideas in one place. On 6/30/2021 I created this repo and on 7/13/2021 I made it public. On 9/1/2021, I changed the name to Kolbot-SoloPlay after some major changes in structure and continue to update to make SoloPlay the best leveling system for legacy diablo 2.
+Kolbot-SoloPlay was built off the base structure of SoloLeveling by isid0re. Autoplay scripts/systems aren't a new concept, some to note are sonic, autoplay, and AutoSorc. None of the existing ones were able to do other character classes though so SoloLeveling was created by modding Questing.js. Almost from the beginning, Isid0re and I were bouncing ideas off each other. At that time, I was working on a separate project. We discussed ideas that helped both of our projects. I officially joined in around 4 months or so after the Github repo went public and was actively involved in the project until 6/30/2021. I contributed updates including but not limited to: item based respec, the overlay, logging equipped items, showing tier values on items, many bug fixes, sorting, D2BotSoloCleaner, performance tracking, ect. Due to some personal conflicts between isid0re and myself, I decided to create GuysSoloLeveling to have all of my ideas in one place. On 6/30/2021 I created this repo and on 7/13/2021 I made it public. On 9/1/2021, I changed the name to Kolbot-SoloPlay after some major changes in structure and continue to update to make SoloPlay the best leveling system for legacy diablo 2.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
