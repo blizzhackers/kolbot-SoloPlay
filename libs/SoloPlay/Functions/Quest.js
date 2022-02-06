@@ -345,6 +345,26 @@ const Quest = {
 		return !me.getItem(tool);
 	},
 
+	npcAction: function (npcName, action) {
+		if (!npcName || !action) return false;
+		if (!Array.isArray(action)) action = [action];
+
+		!me.inTown && Town.goToTown();
+		npcName = npcName[0].toUpperCase() + npcName.substring(1).toLowerCase();
+	    Town.move(NPC[npcName]);
+		let npc = Misc.poll(function () { return getUnit(1, NPC[npcName]); });
+
+		Packet.flash(me.gid);
+		delay(1 + me.ping * 2);
+
+		if (npc && npc.openMenu()) {
+			action.forEach(menuOption => Misc.useMenu(menuOption) && delay(100 + me.ping));
+	        return true;
+	    }
+
+	    return false;
+	},
+
 	// Akara reset for build change
 	characterRespec: function () {
 		if (me.respec || SetUp.currentBuild === SetUp.finalBuild) return;
@@ -364,25 +384,31 @@ const Quest = {
 
 			Town.goToTown(1);
 			myPrint("time to respec");
-			npc = Town.npcInteract("akara", false);
-			delay(10 + me.ping * 2);
 
-			if (npc) {
-				sendPacket(1, 0x38, 4, 0, 4, npc.gid, 4, 0);
-			}
+			for (let i = 0; i < 2; i++) {
+				// attempt packet respec on first try
+				if (i === 0) {
+					npc = Town.npcInteract("akara");
+					me.cancelUIFlags();
+					delay(100 + me.ping);
+					npc && sendPacket(1, 0x38, 4, 0, 4, npc.gid, 4, 0);
+				} else {
+					this.npcAction("akara", [sdk.menu.Respec, sdk.menu.Ok]);
+				}
 
-			Misc.checkQuest(41, 0);
-			delay(10 + me.ping * 2);
+				Misc.checkQuest(41, 0);
+				delay(10 + me.ping * 2);
 
-			if (me.respec || (me.getStat(sdk.stats.NewSkills) > preSkillAmount && me.getStat(sdk.stats.StatPts) > preStatAmount)) {
-				myData.me.currentBuild = SetUp.getBuild();
-				myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
-				CharData.updateData("me", myData);
-				delay(750 + me.ping * 2);
-				Town.clearBelt();
-				myPrint("respec done, restarting");
-				delay(1000 + me.ping);
-				scriptBroadcast("quit");
+				if (me.respec || (me.getStat(sdk.stats.NewSkills) > preSkillAmount && me.getStat(sdk.stats.StatPts) > preStatAmount)) {
+					myData.me.currentBuild = SetUp.getBuild();
+					myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
+					CharData.updateData("me", myData);
+					delay(750 + me.ping * 2);
+					Town.clearBelt();
+					myPrint("respec done, restarting");
+					delay(1000 + me.ping);
+					scriptBroadcast("quit");
+				}
 			}
 
 			break;
@@ -447,26 +473,8 @@ const Quest = {
 				invo[i] = invo[i].x + "/" + invo[i].y;
 			}
 		}
-			
-		for (i = 0; i < 3; i++) {
-			larzuk = getUnit(1, "Larzuk");
-				
-			if (larzuk) {
-				break;
-			} else {
-				Town.move("stash");
-			}
-		}
-			
-		if (!larzuk) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Couldn't find larzuk");
-			return false;
-		}
 
-		Town.npcInteract("larzuk", false);
-		delay(10 + me.ping * 2);
-
-		if (!Misc.useMenu(0x58DC)) return false;
+		if (!this.npcAction("larzuk", 0x58DC)) return false;
 
 		if (!getUIFlag(sdk.uiflags.SubmitItem)) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed to open SubmitItem screen");
@@ -571,26 +579,8 @@ const Quest = {
 				invo[i] = invo[i].x + "/" + invo[i].y;
 			}
 		}
-			
-		for (i = 0; i < 3; i++) {
-			charsi = getUnit(1, NPC.Charsi);
-				
-			if (charsi) {
-				break;
-			} else {
-				Town.move("stash");
-			}
-		}
-			
-		if (!charsi) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Couldn't find charsi");
-			return false;
-		}
-
-		Town.npcInteract("charsi", false);
-		delay(10 + me.ping * 2);
-
-		if (!Misc.useMenu(0x0FB1)) return false;
+		
+		if (!this.npcAction("charsi", sdk.menu.Imbue)) return false;
 
 		if (!getUIFlag(sdk.uiflags.SubmitItem)) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed to open SubmitItem screen");
