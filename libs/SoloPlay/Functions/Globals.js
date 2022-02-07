@@ -1151,7 +1151,7 @@ const Check = {
 				SetUp.makeNext();
 			} else {
 				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + ")" : ""), 6);
-				Developer.logPerformance && Tracker.Update();
+				Developer.logPerformance && Tracker.update();
 				D2Bot.stop();
 			}
 		}

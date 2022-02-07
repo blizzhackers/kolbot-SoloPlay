@@ -45,21 +45,17 @@ const Overlay = {
 		hooks: [],
 		GameTracker: Developer.readObj(Tracker.GTPath),
 		enabled: true,
+		charlvl: 0,
+		tick: 0,
 
-		clock: function (name) {
-			let PrettyTotal = Developer.formatTime(this.GameTracker.Total + Developer.Timer(this.GameTracker.LastSave)),
-				PrettyIG = Developer.formatTime(this.GameTracker.InGame + Developer.Timer(this.GameTracker.LastSave));
+		clock: function () {
+			this.GameTracker === undefined && (this.GameTracker = Developer.readObj(Tracker.GTPath));
+			this.tick = getTickCount();
+			let currInGame = getTickCount() - me.gamestarttime;
+			let totalTime = Developer.formatTime(this.GameTracker.Total + currInGame);
+			let totalInGame = Developer.formatTime(this.GameTracker.InGame + currInGame);
 
-			switch (name) {
-			case "Total":
-				return PrettyTotal;
-			case "InGame":
-				return PrettyIG;
-			case "OOG":
-				return Developer.formatTime(this.GameTracker.OOG);
-			}
-
-			return true;
+			return "Total: ÿc0" + totalTime + "ÿc4 InGame: ÿc0" + totalInGame + "ÿc4 OOG: ÿc0" + Developer.formatTime(this.GameTracker.OOG);
 		},
 
 		timer: function () {
@@ -92,14 +88,14 @@ const Overlay = {
 
 			if (!this.getHook("credits")) {
 				this.add("credits");
-			} else {
-				this.getHook("credits").hook.text = "Kolbot-SoloPlay by ÿc0 theBGuy" + "ÿc4  Realm: ÿc0" + (me.realm ? me.realm : "SP");
 			}
 
 			if (!this.getHook("times")) {
 				this.add("times");
 			} else {
-				this.getHook("times").hook.text = "Total: ÿc0" + this.clock("Total") + "ÿc4 InGame: ÿc0" + this.clock("InGame") + "ÿc4 OOG: ÿc0" + this.clock("OOG");
+				if (getTickCount() - this.tick >= 1000) {
+					this.getHook("times").hook.text = this.clock();
+				}
 			}
 
 			if (!this.getHook("timerboard")) {
@@ -118,7 +114,7 @@ const Overlay = {
 
 			if (!this.getHook("level")) {
 				this.add("level");
-			} else {
+			} else if (this.charlvl !== me.charlvl) {
 				this.getHook("level").hook.text = "Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + me.charlvl;
 			}
 
@@ -149,6 +145,7 @@ const Overlay = {
 				break;
 
 			case "level":
+				this.charlvl = me.charlvl;
 				this.hooks.push({
 					name: "level",
 					hook: new Text("Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + me.charlvl, Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 30, 4, 13, 2)
@@ -158,7 +155,7 @@ const Overlay = {
 			case "times":
 				this.hooks.push({
 					name: "times",
-					hook: new Text("Total: ÿc0" + this.clock("Total") + "ÿc4 InGame: ÿc0" + this.clock("InGame") + "ÿc4 OOG: ÿc0" + this.clock("OOG"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 75, 4, 13, 2)
+					hook: new Text(this.clock(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 75, 4, 13, 2)
 				});
 
 				break;
@@ -187,7 +184,7 @@ const Overlay = {
 		},
 
 		getHook: function (name) {
-			for (let i = 0; i < this.hooks.length; i += 1) {
+			for (let i = 0; i < this.hooks.length; i++) {
 				if (this.hooks[i].name === name) {
 					return this.hooks[i];
 				}
@@ -213,9 +210,7 @@ const Overlay = {
 				return "";
 			}
 
-			let textLine = "FR: ÿc1" + me.FR + "ÿc4   CR: ÿc3" + me.CR + "ÿc4   LR: ÿc9" + me.LR + "ÿc4   PR: ÿc2" + me.PR;
-
-			return textLine;
+			return "FR: ÿc1" + me.FR + "ÿc4   CR: ÿc3" + me.CR + "ÿc4   LR: ÿc9" + me.LR + "ÿc4   PR: ÿc2" + me.PR;
 		},
 
 		getStats: function () {
