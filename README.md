@@ -24,12 +24,14 @@
 | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
 |:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
 | Javazon | Cold | Poison | Hammerdin| Whirlwind | Wind |Trapsin|
-| *`Witchyzon`* | Blizzballer |   Bone | Smiter| *`Immortalwhirl`* | Elemental |
+| *`Witchyzon`* | Blizzballer | Bone | Smiter| *`Immortalwhirl`* | Elemental |
 | | Meteorb | Summon | *`Auradin`* | Frenzy | Plaguewolf |
 | | Blova | | Zealer | Uberconc | Wolf |
 | | Lightning | | *`Torchadin`* | Singer |
 | |  | | Classicauradin |  |
+| |  | | Hammershock |  |
 - **NOTE:** Expansion only builds marked.
+- Navigate to ``kolbot\libs\SoloPlay\BuildFiles\`` and open the file with the build name for a more in-depth description of each build
 
 ## New modes
 - Two new modes are available: **Bumper** and **Socketmule**. Enter either of these into your D2Bot# profile info tag to make. The bot will then stop after shenk quest for Socketmule and after it hits level 40 for a Bumper.
