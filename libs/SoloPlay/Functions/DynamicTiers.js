@@ -4,7 +4,7 @@
 *	@desc		Dynamic tiers calculators for Kolbot-SoloPlay
 */
 
-let mercscore = function (item) {
+const mercscore = function (item) {
 	const mercWeights = {
 		IAS: 3.5,
 		MINDMG:	3, // min damage
@@ -318,7 +318,7 @@ const tierscore = function (item, bodyloc) {
 			buildRating += item.getStatEx(141) * buildWeights.DS; // add deadly strike
 			buildRating += item.getStatEx(60) * buildWeights.LL; // add LL
 			buildRating += item.getStatEx(62) * buildWeights.ML; // add ML
-			buildRating += item.getStatEx(151, 119) * 10; // sanctuary aura
+			buildRating += item.getStatEx(151, 119) * 25; // sanctuary aura
 			buildRating += item.getStatEx(121) * buildWeights.DMGTODEMONS; // add damage % to demons
 			buildRating += item.getStatEx(122) * buildWeights.DMGTOUNDEAD; // add damage % to undead
 		}
@@ -328,7 +328,7 @@ const tierscore = function (item, bodyloc) {
 
 	this.skillsScore = function (item) {
 		let skillsRating = 0;
-		let weaponModifer = !buildInfo.caster && [24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36].indexOf(item.itemType) ? 4 : 1;
+		let weaponModifer = !buildInfo.caster && item.getItemType() === "Weapon" ? 4 : 1;
 
 		skillsRating += item.getStatEx(127) * (skillsWeights.ALL / weaponModifer); // + all skills
 		skillsRating += item.getStatEx(83, me.classid) * (skillsWeights.CLASS / weaponModifer); // + class skills

@@ -488,3 +488,43 @@ Skill.useTK = function (unit = undefined) {
 
 	return me.inTown || (me.mpPercent > 50);
 };
+
+Skill.wereformAllowed = function (skillId = -1) {
+	if (!Config.Wereform) return true;
+	if (skillId < 0) return false;
+
+	let wolf = false;
+	let bear = false;
+
+	switch (Config.Wereform.toString().toLowerCase()) {
+	case "1":
+	case "werewolf":
+		wolf = true;
+
+		break;
+	case "2":
+	case "werebear":
+		bear = true;
+
+		break;
+	default:
+		return false;
+	}
+
+	// Can be cast by both
+	if ([0, 1, 221, 222, 226, 227, 231, 236, 237, 239, 241, 242, 246, 247, 249].includes(skillId)) {
+		return true;
+	}
+
+	// Can be cast by werewolf only
+	if (wolf && [223, 232, 238, 248].includes(skillId)) {
+		return true;
+	}
+
+	// Can be cast by werebear only
+	if (bear && [228, 233, 243].includes(skillId)) {
+		return true;
+	}
+
+	return false;
+};

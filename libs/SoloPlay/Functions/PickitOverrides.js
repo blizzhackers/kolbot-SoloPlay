@@ -574,13 +574,10 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 			status = this.checkItem(pickList[0]);
 
 			if (status.result && Pickit.canPick(pickList[0])) {
-				// Override canFit for scrolls, potions and gold
-				//canFit = Storage.Inventory.CanFit(pickList[0]) || [4, 22, 76, 77, 78].includes(pickList[0].itemType);
 				canFit = this.canFit(pickList[0]);
 
 				// Try to make room with FieldID
 				if (!canFit && Config.FieldID && Town.fieldID()) {
-					//canFit = Storage.Inventory.CanFit(pickList[0]) || [4, 22, 76, 77, 78].includes(pickList[0].itemType);
 					canFit = this.canFit(pickList[0]);
 				}
 

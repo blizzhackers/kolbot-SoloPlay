@@ -713,7 +713,7 @@ Misc.getSocketables = function (item, itemInfo) {
 
 Misc.checkSocketables = function () {
 	let items = me.getItemsEx()
-		.filter(item => item.getStat(sdk.stats.NumSockets) > 0 && NTIP.GetTier(item) > 0 && ![sdk.itemquality.Normal, sdk.itemquality.Superior].includes(item.quality))
+		.filter(item => item.getStat(sdk.stats.NumSockets) > 0 && AutoEquip.hasTier(item) && ![sdk.itemquality.Normal, sdk.itemquality.Superior].includes(item.quality))
 		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
 
 	if (!items) return;

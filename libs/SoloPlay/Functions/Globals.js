@@ -370,30 +370,43 @@ const basicSocketables = {
 			useSocketQuest: false,
 			condition: function (item) { return !Check.currentBuild().caster && item.quality === sdk.itemquality.Unique && !item.ethereal; }
 		},
+		{
+			// Bone Hew - for merc
+			classid: sdk.items.OgreAxe,
+			socketWith: [sdk.items.runes.Hel, sdk.items.runes.Amn],
+			temp: [sdk.items.gems.Perfect.Skull],
+			useSocketQuest: false,
+			condition: function (item) { return item.quality === sdk.itemquality.Unique; }
+		},
 	]
 };
 
 const goToDifficulty = function (diff = undefined, reason = "") {
-	if (!diff) return;
-	let diffString;
-	switch (typeof diff) {
-	case "string":
-		diff = diff[0].toUpperCase() + diff.substring(1).toLowerCase();
-		if (!sdk.difficulty.Difficulties.includes(diff) || sdk.difficulty.Difficulties.indexOf(diff) === me.diff) return;
-		diffString = diff;
+	try {
+		if (!diff) throw "diff is undefined";
+		let diffString;
+		switch (typeof diff) {
+		case "string":
+			diff = diff[0].toUpperCase() + diff.substring(1).toLowerCase();
+			if (!sdk.difficulty.Difficulties.includes(diff) || sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw "difficulty doesn't exist" + diff;
+			if (!sdk.difficulty.Difficulties.includes(diff) || sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw "already in this difficulty" + diff;
+			diffString = diff;
 
-		break;
-	case "number":
-		if (diff === me.diff || diff < 0) return;
-		diffString = sdk.difficulty.nameOf(diff);
+			break;
+		case "number":
+			if (diff === me.diff || diff < 0) throw "invalid diff" + diff;
+			diffString = sdk.difficulty.nameOf(diff);
 
-		break;
+			break;
+		}
+
+		D2Bot.setProfile(null, null, null, diffString);
+		CharData.updateStats("me", "setDifficulty", diffString);
+		myPrint("Going to " + diffString + reason, true);
+		D2Bot.restart();
+	} catch (e) {
+		console.debug(e);
 	}
-
-	D2Bot.setProfile(null, null, null, diffString);
-	DataFile.updateStats("setDifficulty", diffString);
-	myPrint("Going to " + diffString + reason, true);
-	D2Bot.restart();
 };
 
 // General Game functions
@@ -1203,9 +1216,17 @@ const SoloWants = {
 	},
 
 	buildList: function () {
-		let myItems = me.getItemsEx();
+		let myItems = me.getItemsEx()
+			.filter(function (item) { 
+				return !item.isRuneword && !item.isQuestItem && item.quality >= sdk.itemquality.Magic && (item.getStat(sdk.stats.NumSockets) > 0 || getBaseStat("items", item.classid, "gemsockets") > 0); 
+			});
 		let equippedItems = myItems
-			.filter(function (item) { return item.isEquipped && !item.isRuneword && !item.isQuestItem && item.quality >= sdk.itemquality.Magic && getBaseStat("items", item.classid, "gemsockets") > 0; })
+			.filter(function (item) { return item.isEquipped; })
+			.forEach(function (item) { return SoloWants.addToList(item); });
+		let stashItems = myItems
+			.filter(function (item) { 
+				return item.isInStorage && item.getItemType() && AutoEquip.wanted(item); 
+			})
 			.forEach(function (item) { return SoloWants.addToList(item); });
 		
 		return myItems.forEach(function (item) { return SoloWants.checkItem(item); });
@@ -1224,6 +1245,16 @@ const SoloWants = {
 			hasWantedItems = socketedWith.some(function (el) { return curr.socketWith.includes(el.classid); });
 			if (hasWantedItems && socketedWith.length === numSockets) {
 				return true; // this item is full
+			}
+
+			if (curr.socketWith.includes(sdk.items.runes.Hel)) {
+				let merc = me.getMerc();
+				switch (true) {
+				case Item.autoEquipKeepCheck(item) && me.trueStr >= item.strreq && me.trueDex >= item.dexreq:
+				case Item.autoEquipKeepCheckMerc(item) && !!merc && merc.rawStrength >= item.strreq && merc.rawDexterity >= item.dexreq:
+					curr.socketWith.splice(curr.socketWith.indexOf(sdk.items.runes.Hel), 1);
+					break;
+				}
 			}
 
 			if (curr.socketWith.length > 1 && hasWantedItems) {

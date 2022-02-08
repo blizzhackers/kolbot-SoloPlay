@@ -385,7 +385,7 @@ const SoloEvents = {
 
 		// Prep, move to throne entrance
 		while (getTickCount() - tick < 6500) {
-			this.customMoveTo(15091, 5073);
+			this.customMoveTo(15091, 5073, {allowTeleport: true});
 		}
 
 		tick = getTickCount();

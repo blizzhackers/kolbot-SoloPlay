@@ -604,11 +604,13 @@
 		},
 
 		menu: {
-			Talk: 0x0D35,
+            Respec: 0x2BA0,
+			Ok: 0x0D49,
+            Talk: 0x0D35,
 			Trade: 0x0D44,
 			TradeRepair: 0x0D06,
 			Imbue: 0x0FB1,
-			Gabmle: 0x0D46,
+			Gamble: 0x0D46,
 			Hire: 0x0D45,
 			GoEast: 0x0D36,
 			GoWest: 0x0D37,
@@ -2848,7 +2850,7 @@
 				Perfect: {
 					Amethyst: 561,
 					Topaz: 566,
-					Sapphire: 569,
+					Sapphire: 571,
 					Emerald: 576,
 					Ruby: 581,
 					Diamond: 586,
@@ -2857,7 +2859,7 @@
 				Flawless: {
 					Amethyst: 560,
 					Topaz: 565,
-					Sapphire: 568,
+					Sapphire: 570,
 					Emerald: 575,
 					Ruby: 580,
 					Diamond: 585,
@@ -2866,7 +2868,7 @@
 				Normal: {
 					Amethyst: 559,
 					Topaz: 564,
-					Sapphire: 567,
+					Sapphire: 569,
 					Emerald: 574,
 					Ruby: 579,
 					Diamond: 584,
@@ -2875,7 +2877,7 @@
 				Flawed: {
 					Amethyst: 558,
 					Topaz: 563,
-					Sapphire: 566,
+					Sapphire: 568,
 					Emerald: 573,
 					Ruby: 578,
 					Diamond: 583,
@@ -2884,7 +2886,7 @@
 				Chipped: {
 					Amethyst: 557,
 					Topaz: 562,
-					Sapphire: 565,
+					Sapphire: 567,
 					Emerald: 572,
 					Ruby: 577,
 					Diamond: 582,
