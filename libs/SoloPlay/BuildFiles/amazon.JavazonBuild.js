@@ -118,4 +118,4 @@ const finalBuild = {
 finalBuild.stats = me.classic ? finalBuild.classicStats : finalBuild.expansionStats;
 finalBuild.skills = me.classic ? finalBuild.classicSkills : finalBuild.expansionSkills;
 finalBuild.autoEquipTiers = me.classic ? finalBuild.classicTiers : finalBuild.expansionTiers;
-me.classic ? finalBuild.usefulStats.push(sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois);
+me.classic && finalBuild.usefulStats.push(sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois);
