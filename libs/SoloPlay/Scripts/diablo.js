@@ -180,9 +180,7 @@ function diablo () {
 	};
 
 	this.tkSeal = function (unit) {
-		if (!Skill.useTK(unit)) {
-			return false;
-		}
+		if (!Skill.useTK(unit)) return false;
 
 		for (let i = 0; i < 3; i++) {
 			if (getDistance(me, unit) > 13) {

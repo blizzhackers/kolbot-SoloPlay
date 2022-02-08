@@ -6,8 +6,7 @@
 
 function ancienttunnels () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting ancient tunnels');
-	me.overhead("ancient tunnels");
+	myPrint('starting ancient tunnels');
 
 	Pather.checkWP(sdk.areas.LostCity, true) ? Pather.useWaypoint(sdk.areas.LostCity) : Pather.getWP(sdk.areas.LostCity);
 	Precast.doPrecast(true);

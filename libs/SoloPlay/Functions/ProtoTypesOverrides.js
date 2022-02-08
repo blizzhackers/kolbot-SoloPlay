@@ -760,7 +760,7 @@ Unit.prototype.getItemsEx = function (...args) {
 };
 
 Unit.prototype.getMobCount = function (range = 10, coll = 0, type = 0, noSpecialMobs = false) {
-	if (this === undefined) { return 0; }
+	if (this === undefined) return 0;
 	const _this = this;
 	return getUnits(sdk.unittype.Monster)
 		.filter(function (mon) {
@@ -769,7 +769,7 @@ Unit.prototype.getMobCount = function (range = 10, coll = 0, type = 0, noSpecial
 };
 
 Unit.prototype.cancelUIFlags = function () {
-	if (this !== me) { return; }
+	if (this !== me) return;
 	let flags = [
 		sdk.uiflags.Inventory, sdk.uiflags.StatsWindow, sdk.uiflags.SkillWindow, sdk.uiflags.NPCMenu,
 		sdk.uiflags.Waypoint, sdk.uiflags.Party, sdk.uiflags.Shop, sdk.uiflags.Quest, sdk.uiflags.Stash,
