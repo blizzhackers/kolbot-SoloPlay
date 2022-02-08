@@ -117,13 +117,11 @@ function main () {
 	};
 
 	this.getPotion = function (pottype, type) {
-		let items = me.getItemsEx()
-			.filter(item => [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion, sdk.itemtype.StaminaPotion,
-				sdk.itemtype.AntidotePotion, sdk.itemtype.ThawingPotion].includes(item.itemType));
+		if (!pottype) return false;
 
-		if (!items || items.length === 0) {
-			return false;
-		}
+		let items = me.getItemsEx()
+			.filter(item => item.itemType === pottype);
+		if (!items || items.length === 0) return false;
 
 		// Get highest id = highest potion first
 		items.sort(function (a, b) {
@@ -153,19 +151,15 @@ function main () {
 
 			if (script) {
 				if (script.running) {
-					if (l === 0) { // default.dbj
-						print("ÿc8ToolsThread :: ÿc1Pausing.");
-					}
+					scripts[l] === "default.dbj" && console.log("ÿc8ToolsThread :: ÿc1Pausing " + scripts[l]);
+					scripts[l] === "libs/SoloPlay/Tools/TownChicken.js" && !SoloEvents.cloneWalked && console.log("ÿc8ToolsThread :: ÿc1Pausing " + scripts[l]);
 
 					// don't pause townchicken during clone walk
 					if (scripts[l] !== "libs/SoloPlay/Tools/TownChicken.js" || !SoloEvents.cloneWalked) {
 						script.pause();
 					}
 				} else {
-					if (l === 0) { // default.dbj
-						print("ÿc8ToolsThread :: ÿc2Resuming.");
-					}
-
+					scripts[l] === "default.dbj" && print("ÿc8ToolsThread :: ÿc2Resuming threads");
 					script.resume();
 				}
 			}
@@ -193,14 +187,14 @@ function main () {
 	this.exit = function (chickenExit = false) {
 		chickenExit && D2Bot.updateChickens();
 		Config.LogExperience && Experience.log();
-		Developer.logPerformance && Tracker.Update();
+		Developer.logPerformance && Tracker.update();
 		this.stopDefault();
 		quit();
 	};
 
 	this.restart = function () {
 		Config.LogExperience && Experience.log();
-		Developer.logPerformance && Tracker.Update();
+		Developer.logPerformance && Tracker.update();
 		this.stopDefault();
 		D2Bot.restart();
 	};
@@ -306,7 +300,6 @@ function main () {
 			}
 
 			console.debug(CharData.buffData);
-			//CharData.buffData.update();
 
 			return true;
 		}
@@ -447,7 +440,7 @@ function main () {
 
 			break;
 		case 96: // numpad 0
-			Developer.logPerformance && Tracker.Update();
+			Developer.logPerformance && Tracker.update();
 			print("ÿc8Kolbot-SoloPlay: ÿc1Stopping profile");
 			delay(rand(2e3, 5e3));
 			D2Bot.stop(me.profile, true);
@@ -455,7 +448,7 @@ function main () {
 			break;
 		case 35: // End key
 			Developer.logEquipped ? MuleLogger.logEquippedItems() : MuleLogger.logChar();
-			Developer.logPerformance && Tracker.Update();
+			Developer.logPerformance && Tracker.update();
 
 			delay(rand(Config.QuitListDelay[0] * 1e3, Config.QuitListDelay[1] * 1e3));
 			D2Bot.printToConsole(me.profile + " - end run " + me.gamename);
@@ -828,6 +821,12 @@ function main () {
 			quitFlag = true;
 		}
 
+		if (me.maxgametime - (getTickCount() - me.gamestarttime) < 10e3) {
+			print("Max game time reached");
+			quitFlag = true;
+		}
+
+		// should overlay be moved to be a background worker?
 		if (Developer.overlay) {
 			if (Developer.logPerformance) {
 				if (me.ingame && me.gameReady && me.area) {

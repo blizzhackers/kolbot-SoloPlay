@@ -60,9 +60,8 @@ function main () {
 
 			if (script) {
 				if (script.running) {
-					if (scripts[l] === "default.dbj") {
-						print("ÿc8EventThread :: ÿc1Pausing " + scripts[l]);
-					}
+					scripts[l] === "default.dbj" && console.log("ÿc8EventThread :: ÿc1Pausing " + scripts[l]);
+					scripts[l] === "libs/SoloPlay/Tools/TownChicken.js" && !SoloEvents.cloneWalked && console.log("ÿc8EventThread :: ÿc1Pausing " + scripts[l]);
 
 					// don't pause townchicken during clone walk
 					if (scripts[l] !== "libs/SoloPlay/Tools/TownChicken.js" || !SoloEvents.cloneWalked) {

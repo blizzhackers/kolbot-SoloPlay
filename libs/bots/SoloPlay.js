@@ -80,7 +80,7 @@ function SoloPlay () {
 					}
 				}
 
-				Developer.logPerformance && Tracker.Script(tick, SetUp.scripts[k], currentExp);
+				Developer.logPerformance && Tracker.script(tick, SetUp.scripts[k], currentExp);
 				print("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));
 				me.maxgametime += (getTickCount() - tick);
 				print("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Developer.formatTime(me.maxgametime));

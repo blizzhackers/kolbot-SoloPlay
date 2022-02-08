@@ -49,21 +49,19 @@ function main() {
 	this.togglePause = function () {
 		let scripts = ["default.dbj", "tools/antihostile.js"];
 
-		for (let i = 0; i < scripts.length; i += 1) {
+		for (let i = 0; i < scripts.length; i++) {
 			let script = getScript(scripts[i]);
 
 			if (script) {
 				if (script.running) {
-					if (scripts[i] === "default.dbj") {
-						print("ÿc8TownChicken :: ÿc1Pausing.");
-					}
+					scripts[i] === "default.dbj" && console.log("ÿc8TownChicken:: ÿc1Pausing " + scripts[i]);
 
 					script.pause();
 				} else {
 					if (scripts[i] === "default.dbj") {
 						// don't resume if dclone walked
 						if (!SoloEvents.cloneWalked) {
-							print("ÿc8TownChicken :: ÿc2Resuming.");
+							print("ÿc8TownChicken :: ÿc2Resuming threads");
 							script.resume();
 						}
 					} else {

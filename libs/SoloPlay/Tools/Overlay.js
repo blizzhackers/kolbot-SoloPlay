@@ -2,7 +2,7 @@
 *	@filename	Overlay.js
 *	@author		theBGuy
 *	@desc		overlay thread for Kolbot-SoloPlay
-*	@credits 	Adpist for first gen Overlay, isid0re for styleing, clock, and tracker, kolton
+*	@credits 	Adpist for first gen Overlay, isid0re for styleing and tracker, kolton
 */
 
 if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
@@ -45,21 +45,17 @@ const Overlay = {
 		hooks: [],
 		GameTracker: Developer.readObj(Tracker.GTPath),
 		enabled: true,
+		charlvl: 0,
+		tick: 0,
 
-		clock: function (name) {
-			let PrettyTotal = Developer.formatTime(this.GameTracker.Total + Developer.Timer(this.GameTracker.LastSave)),
-				PrettyIG = Developer.formatTime(this.GameTracker.InGame + Developer.Timer(this.GameTracker.LastSave));
+		clock: function () {
+			this.GameTracker === undefined && (this.GameTracker = Developer.readObj(Tracker.GTPath));
+			this.tick = getTickCount();
+			let currInGame = getTickCount() - me.gamestarttime;
+			let totalTime = Developer.formatTime(this.GameTracker.Total + currInGame);
+			let totalInGame = Developer.formatTime(this.GameTracker.InGame + currInGame);
 
-			switch (name) {
-			case "Total":
-				return PrettyTotal;
-			case "InGame":
-				return PrettyIG;
-			case "OOG":
-				return Developer.formatTime(this.GameTracker.OOG);
-			}
-
-			return true;
+			return "Total: ÿc0" + totalTime + "ÿc4 InGame: ÿc0" + totalInGame + "ÿc4 OOG: ÿc0" + Developer.formatTime(this.GameTracker.OOG);
 		},
 
 		timer: function () {
@@ -74,54 +70,38 @@ const Overlay = {
 			}
 
 			// Double check in case still got here before being ready
-			if (!me.gameReady && !me.ingame && !me.area) {
-				return;
-			}
+			if (!me.gameReady && !me.ingame && !me.area) return;
 
-			if (this.GameTracker === undefined) {
-				this.GameTracker = Developer.readObj(Tracker.GTPath);
-			}
-
-			if (!this.getHook("dashboard")) {
-				this.add("dashboard");
-			}
-
-			if (!this.getHook("dashboardframe")) {
-				this.add("dashboardframe");
-			}
-
-			if (!this.getHook("credits")) {
-				this.add("credits");
+			this.GameTracker === undefined && (this.GameTracker = Developer.readObj(Tracker.GTPath));
+			
+			!this.getHook("dashboard") && this.add("dashboard");
+			!this.getHook("dashboardframe") && this.add("dashboardframe");
+			!this.getHook("credits") && this.add("credits");
+			!this.getHook("timerboard") && this.add("timerboard");
+			!this.getHook("timerframe") && this.add("timerframe");
+			
+			if (!this.getHook("InGameTimer")) {
+				this.add("InGameTimer");
 			} else {
-				this.getHook("credits").hook.text = "Kolbot-SoloPlay by ÿc0 theBGuy" + "ÿc4  Realm: ÿc0" + (me.realm ? me.realm : "SP");
+				if (getTickCount() - this.tick >= 1000) {
+					this.getHook("InGameTimer").hook.text = "In Game Timer: ÿc0" + this.timer();
+				}
 			}
 
 			if (!this.getHook("times")) {
 				this.add("times");
 			} else {
-				this.getHook("times").hook.text = "Total: ÿc0" + this.clock("Total") + "ÿc4 InGame: ÿc0" + this.clock("InGame") + "ÿc4 OOG: ÿc0" + this.clock("OOG");
-			}
-
-			if (!this.getHook("timerboard")) {
-				this.add("timerboard");
-			}
-
-			if (!this.getHook("timerframe")) {
-				this.add("timerframe");
-			}
-
-			if (!this.getHook("InGameTimer")) {
-				this.add("InGameTimer");
-			} else {
-				this.getHook("InGameTimer").hook.text = "In Game Timer: ÿc0" + this.timer();
+				if (getTickCount() - this.tick >= 1000) {
+					this.getHook("times").hook.text = this.clock();
+				}
 			}
 
 			if (!this.getHook("level")) {
 				this.add("level");
-			} else {
+			} else if (this.charlvl !== me.charlvl) {
 				this.getHook("level").hook.text = "Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + me.charlvl;
+				this.charlvl = me.charlvl;
 			}
-
 		},
 
 		add: function (name) {
@@ -147,18 +127,18 @@ const Overlay = {
 				});
 
 				break;
-
 			case "level":
+				this.charlvl = me.charlvl;
 				this.hooks.push({
 					name: "level",
-					hook: new Text("Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + me.charlvl, Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 30, 4, 13, 2)
+					hook: new Text("Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + this.charlvl, Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 30, 4, 13, 2)
 				});
 
 				break;
 			case "times":
 				this.hooks.push({
 					name: "times",
-					hook: new Text("Total: ÿc0" + this.clock("Total") + "ÿc4 InGame: ÿc0" + this.clock("InGame") + "ÿc4 OOG: ÿc0" + this.clock("OOG"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 75, 4, 13, 2)
+					hook: new Text(this.clock(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 75, 4, 13, 2)
 				});
 
 				break;
@@ -187,7 +167,7 @@ const Overlay = {
 		},
 
 		getHook: function (name) {
-			for (let i = 0; i < this.hooks.length; i += 1) {
+			for (let i = 0; i < this.hooks.length; i++) {
 				if (this.hooks[i].name === name) {
 					return this.hooks[i];
 				}
@@ -209,20 +189,14 @@ const Overlay = {
 
 		getRes: function () {
 			// Double check in case still got here before being ready
-			if (!me.gameReady || !me.ingame || !me.area) {
-				return "";
-			}
+			if (!me.gameReady || !me.ingame || !me.area) return "";
 
-			let textLine = "FR: ÿc1" + me.FR + "ÿc4   CR: ÿc3" + me.CR + "ÿc4   LR: ÿc9" + me.LR + "ÿc4   PR: ÿc2" + me.PR;
-
-			return textLine;
+			return "FR: ÿc1" + me.FR + "ÿc4   CR: ÿc3" + me.CR + "ÿc4   LR: ÿc9" + me.LR + "ÿc4   PR: ÿc2" + me.PR;
 		},
 
 		getStats: function () {
 			// Double check in case still got here before being ready
-			if (!me.gameReady || !me.ingame || !me.area) {
-				return "";
-			}
+			if (!me.gameReady || !me.ingame || !me.area) return "";
 
 			let textLine = "MF: ÿc8" + me.getStat(80) + "ÿc4   FHR: ÿc8" + (me.FHR) + "ÿc4   FBR: ÿc8" + (me.FBR) + "ÿc4   FCR: ÿc8" + (me.FCR)
 				+ "ÿc4   IAS: ÿc8" + (me.IAS);
@@ -255,22 +229,12 @@ const Overlay = {
 				this.getHook("stats").hook.text = this.getStats();
 			}
 
+			!this.getHook("questbox") && this.add("questbox");
+			!this.getHook("questframe") && this.add("questframe");
+			!this.getHook("questheader") && this.add("questheader");
+
 			switch (me.act) {
 			case 1:
-				if (!this.getHook("questbox")) {
-					this.add("questbox");
-				}
-
-				if (!this.getHook("questframe")) {
-					this.add("questframe");
-				}
-
-				if (!this.getHook("questheader")) {
-					this.add("questheader");
-				} else {
-					this.getHook("questheader").hook.text = "Quests in Act: ÿc0" + me.act;
-				}
-
 				if (!this.getHook("Den")) {
 					this.add("Den");
 				} else {
@@ -309,20 +273,6 @@ const Overlay = {
 
 				break;
 			case 2:
-				if (!this.getHook("questbox")) {
-					this.add("questbox");
-				}
-
-				if (!this.getHook("questframe")) {
-					this.add("questframe");
-				}
-
-				if (!this.getHook("questheader")) {
-					this.add("questheader");
-				} else {
-					this.getHook("questheader").hook.text = "Quests in Act: ÿc0" + me.act;
-				}
-
 				if (!this.getHook("Cube")) {
 					this.add("Cube");
 				} else {
@@ -361,20 +311,6 @@ const Overlay = {
 
 				break;
 			case 3:
-				if (!this.getHook("questbox")) {
-					this.add("questbox");
-				}
-
-				if (!this.getHook("questframe")) {
-					this.add("questframe");
-				}
-
-				if (!this.getHook("questheader")) {
-					this.add("questheader");
-				} else {
-					this.getHook("questheader").hook.text = "Quests in Act: ÿc0" + me.act;
-				}
-
 				if (!this.getHook("GoldenBird")) {
 					this.add("GoldenBird");
 				} else {
@@ -407,20 +343,6 @@ const Overlay = {
 
 				break;
 			case 4:
-				if (!this.getHook("questbox")) {
-					this.add("questbox");
-				}
-
-				if (!this.getHook("questframe")) {
-					this.add("questframe");
-				}
-
-				if (!this.getHook("questheader")) {
-					this.add("questheader");
-				} else {
-					this.getHook("questheader").hook.text = "Quests in Act: ÿc0" + me.act;
-				}
-
 				if (!this.getHook("Izual")) {
 					this.add("Izual");
 				} else {
@@ -441,20 +363,6 @@ const Overlay = {
 
 				break;
 			case 5:
-				if (!this.getHook("questbox")) {
-					this.add("questbox");
-				}
-
-				if (!this.getHook("questframe")) {
-					this.add("questframe");
-				}
-
-				if (!this.getHook("questheader")) {
-					this.add("questheader");
-				} else {
-					this.getHook("questheader").hook.text = "Quests in Act: ÿc0" + me.act;
-				}
-
 				if (!this.getHook("Shenk")) {
 					this.add("Shenk");
 				} else {
@@ -720,10 +628,15 @@ const Overlay = {
 
 	update: function (msg = false) {
 		function status () {
-			let hide = [0x01, 0x02, 0x03, 0x04, 0x05, 0x09, 0x0C, 0x0F, 0x18, 0x19, 0x1A, 0x21, 0x24];
+			let hide = [
+				sdk.uiflags.Inventory, sdk.uiflags.StatsWindow, sdk.uiflags.QuickSkill, sdk.uiflags.SkillWindow,
+				sdk.uiflags.ChatBox, sdk.uiflags.EscMenu, sdk.uiflags.KeytotheCairnStonesScreen, sdk.uiflags.Shop,
+				sdk.uiflags.SubmitItem, sdk.uiflags.Quest, sdk.uiflags.Party, sdk.uiflags.Msgs, sdk.uiflags.Stash,
+				sdk.uiflags.Cube, sdk.uiflags.Help, sdk.uiflags.MercScreen
+			];
 
 			if (!me.gameReady || !me.ingame || !me.area || me.dead) {
-				Overlay.Disable(true);
+				Overlay.disable(true);
 			} else {
 				while (!me.gameReady) {
 					delay(100);
@@ -731,37 +644,32 @@ const Overlay = {
 			
 				for (let flag = 0; flag < hide.length; flag++) {
 					if (getUIFlag(hide[flag])) {
+						Overlay.text.flush();
+						Overlay.quests.flush();
+
 						while (getUIFlag(hide[flag])) {
-							Overlay.text.flush();
-							Overlay.quests.flush();
-							delay(100);
+							delay(100 + me.ping);
 						}
 
-						break;
+						Misc.poll((function () { return me.gameReady; }));
+						flag = 0;
 					} else {
 						Overlay.text.enabled = true;
 					}
 				}
-
 			}
 
 			Overlay.text.check();
-
-			if (Overlay.quests.enabled) {
-				Overlay.quests.check();
-			} else {
-				Overlay.quests.flush();
-			}
-
+			Overlay.quests.enabled ? Overlay.quests.check() : Overlay.quests.flush();
 		}
 
 		return msg ? true : (me.gameReady && me.ingame && !me.dead) ? status() : false;
 	},
 
-	Disable: function (all) {
+	disable: function (all = false) {
 		me.overhead("Disable");
 
-		if (!!all) {
+		if (all) {
 			me.overhead("Disable All");
 			Overlay.text.flush();
 			Overlay.quests.flush();
@@ -776,13 +684,6 @@ const Overlay = {
 		delay(100);
 
 		return true;
-	},
-
-	killOverlay: function () {
-		Overlay.text.flush();
-		Overlay.quests.flush();
-		Overlay.text.enabled = false;
-		Overlay.quests.enabled = false;
 	},
 
 	flush: function () {

@@ -115,9 +115,9 @@ const CharData = {
 		let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/ToolsThread.js", "libs/SoloPlay/Tools/EventThread.js"/*, "libs/SoloPlay/Tools/AutoBuildThread.js"*/];
 		let obj = JSON.stringify(Misc.copy(Config));
 		let myThread = getScript(true).name;
-			scripts.forEach(function (script) {
-				let curr = getScript(script);
-				if (curr && myThread !== curr.name) {
+		scripts.forEach(function (script) {
+			let curr = getScript(script);
+			if (curr && myThread !== curr.name) {
 				Messaging.sendToScript(script, "config--" + obj);
 			}
 		});
