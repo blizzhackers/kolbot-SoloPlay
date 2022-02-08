@@ -12,12 +12,13 @@ const Tracker = {
 	GTPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-GameTime.json",
 	LPPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-LevelingPerformance.csv",
 	SPPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-ScriptPerformance.csv",
+	tick: 0,
 	default: {
 		"Total": 0,
 		"InGame": 0,
 		"OOG": 0,
 		"LastLevel": 0,
-		"LastSave": 0
+		"LastSave": getTickCount()
 	},
 
 	initialize: function () {
@@ -25,8 +26,6 @@ const Tracker = {
 		let LPHeader = "Total Time,InGame Time,Split Time,Area,Character Level,Gained EXP,Gained EXP/Minute,Difficulty,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n"; //Leveling Performance
 		let SPHeader = "Total Time,InGame Time,Sequence Time,Sequence,Character Level,Gained EXP,Gained EXP/Minute,Difficulty,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n"; //Script Performance
 		let GameTracker = Object.assign({}, this.default);
-		GameTracker.LastLevel = me.gamestarttime;
-		GameTracker.LastSave = getTickCount();
 
 		// Create Files
 		if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile)) {
@@ -65,12 +64,13 @@ const Tracker = {
 		
 		// this seems to happen when my pc restarts so set last save equal to current tick count and then continue
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
-
+		// GameTracker
 		let totalTick = GameTracker.LastSave > 0 ? GameTracker.LastSave : 0;
 		let newTick = me.gamestarttime >= GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
 		let newIG = GameTracker.InGame + Developer.Timer(newTick);
 		let newTotal = GameTracker.Total + Developer.Timer(totalTick);
 		let scriptTime = Developer.Timer(starttime);
+		// csv file
 		let diffString = sdk.difficulty.nameOf(me.diff);
 		let gainAMT = me.getStat(13) - startexp;
 		let gainTime = gainAMT / (scriptTime / 60000);
@@ -86,6 +86,7 @@ const Tracker = {
 		GameTracker.LastSave = getTickCount();
 		Developer.writeObj(GameTracker, Tracker.GTPath);
 		Misc.fileAction(Tracker.SPPath, 2, string);
+		this.tick = GameTracker.LastSave;
 		
 		return true;
 	},
@@ -95,17 +96,18 @@ const Tracker = {
 
 		// this seems to happen when my pc restarts so set last save equal to current tick count and then continue
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
-
+		// GameTracker
+		let newSave = getTickCount();
 		let totalTick = GameTracker.LastSave > 0 ? GameTracker.LastSave : 0;
 		let newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
 		let newIG = GameTracker.InGame + Developer.Timer(newTick);
 		let newTotal = GameTracker.Total + Developer.Timer(totalTick);
 		let newOOG = newTotal - newIG;
 		let splitTime = Developer.Timer(GameTracker.LastLevel);
+		// csv file
 		let diffString = sdk.difficulty.nameOf(me.diff);
 		let areaName = Pather.getAreaName(me.area);
 		let currentBuild = SetUp.currentBuild;
-		let newSave = getTickCount();
 		let gainAMT = me.getStat(13) - Experience.totalExp[me.charlvl - 1];
 		let gainTime = gainAMT / (splitTime / 60000);
 		let FR = me.getStat(39);
@@ -121,6 +123,7 @@ const Tracker = {
 		GameTracker.LastSave = newSave;
 		Developer.writeObj(GameTracker, Tracker.GTPath);
 		Misc.fileAction(Tracker.LPPath, 2, string);
+		this.tick = GameTracker.LastSave;
 		
 		return true;
 	},
@@ -141,6 +144,7 @@ const Tracker = {
 		// this seems to happen when my pc restarts so set last save equal to current tick count and then continue
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
 
+		// make sure we aren't attempting to use a corrupted file (only way we get negative values)
 		let totalTick = GameTracker.LastSave > 0 ? GameTracker.LastSave : 0;
 		let newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
 		let newIG = GameTracker.InGame + Developer.Timer(newTick);
@@ -152,7 +156,8 @@ const Tracker = {
 		GameTracker.OOG = newOOG;
 		GameTracker.LastSave = getTickCount();
 		Developer.writeObj(GameTracker, Tracker.GTPath);
-		
+		this.tick = GameTracker.LastSave;
+
 		return true;
 	}
 };
@@ -160,10 +165,9 @@ const Tracker = {
 if (getScript(true).name.toString() === 'default.dbj') {
     const Worker = require('../../modules/Worker');
 
-    var timer = getTickCount();
     Worker.runInBackground.intervalUpdate = function () {
-        if (getTickCount() - timer < 3 * 60000) return true;
-        timer = getTickCount();
+        if (getTickCount() - Tracker.tick < 3 * 60000) return true;
+        Tracker.tick = getTickCount();
         try {
             Tracker.update();
         } catch (e) {

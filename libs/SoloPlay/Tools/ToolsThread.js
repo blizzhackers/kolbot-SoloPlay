@@ -117,13 +117,11 @@ function main () {
 	};
 
 	this.getPotion = function (pottype, type) {
-		let items = me.getItemsEx()
-			.filter(item => [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion, sdk.itemtype.StaminaPotion,
-				sdk.itemtype.AntidotePotion, sdk.itemtype.ThawingPotion].includes(item.itemType));
+		if (!pottype) return false;
 
-		if (!items || items.length === 0) {
-			return false;
-		}
+		let items = me.getItemsEx()
+			.filter(item => item.itemType === pottype);
+		if (!items || items.length === 0) return false;
 
 		// Get highest id = highest potion first
 		items.sort(function (a, b) {
@@ -302,7 +300,6 @@ function main () {
 			}
 
 			console.debug(CharData.buffData);
-			//CharData.buffData.update();
 
 			return true;
 		}
@@ -829,6 +826,7 @@ function main () {
 			quitFlag = true;
 		}
 
+		// should overlay be moved to be a background worker?
 		if (Developer.overlay) {
 			if (Developer.logPerformance) {
 				if (me.ingame && me.gameReady && me.area) {

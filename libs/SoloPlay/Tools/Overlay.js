@@ -100,6 +100,7 @@ const Overlay = {
 				this.add("level");
 			} else if (this.charlvl !== me.charlvl) {
 				this.getHook("level").hook.text = "Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + me.charlvl;
+				this.charlvl = me.charlvl;
 			}
 		},
 
@@ -683,13 +684,6 @@ const Overlay = {
 		delay(100);
 
 		return true;
-	},
-
-	killOverlay: function () {
-		Overlay.text.flush();
-		Overlay.quests.flush();
-		Overlay.text.enabled = false;
-		Overlay.quests.enabled = false;
 	},
 
 	flush: function () {
