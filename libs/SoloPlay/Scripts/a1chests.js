@@ -5,8 +5,7 @@
 */
 
 function a1chests() {
-	print('ÿc8Kolbot-SoloPlayÿc0: starting a1 chests');
-	me.overhead("a1 chests");
+	myPrint('starting a1 chests');
 
 	let areas = [sdk.areas.CaveLvl2, sdk.areas.UndergroundPassageLvl2, sdk.areas.HoleLvl2, sdk.areas.PitLvl2];
 
@@ -19,15 +18,13 @@ function a1chests() {
 				continue;
 			}
 
-			print("ÿc8Kolbot-SoloPlayÿc0: Moving to " + Pather.getAreaName(areas[i]));
-			me.overhead("Moving to " + Pather.getAreaName(areas[i]));
+			myPrint("Moving to " + Pather.getAreaName(areas[i]));
 			Pather.journeyTo(areas[i]);
 			Precast.doPrecast();
 			Misc.openChestsInArea(areas[i]);
 			Town.doChores();
 		} catch (e) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to " + Pather.getAreaName(areas[i]));
-			print("ÿc8Kolbot-SoloPlayÿc0: " + e);
+			console.debug("ÿc8Kolbot-SoloPlayÿc0: Failed to move to " + Pather.getAreaName(areas[i]), e);
 			continue;
 		}
 	}

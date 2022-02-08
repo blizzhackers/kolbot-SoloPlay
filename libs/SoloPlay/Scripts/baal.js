@@ -41,7 +41,7 @@ function baal () {
 
 			break;
 		case sdk.charclass.Sorceress:
-			if ([sdk.skills.Meteor, sdk.skills.Blizzard, sdk.skills.FrozenOrb].indexOf(Config.AttackSkill[1]) > -1) {
+			if ([sdk.skills.Meteor, sdk.skills.Blizzard, sdk.skills.FrozenOrb].includes(Config.AttackSkill[1])) {
 				if (me.getState(sdk.states.SkillDelay)) {
 					delay(50);
 				} else {
@@ -67,7 +67,7 @@ function baal () {
 
 			return true;
 		case sdk.charclass.Druid:
-			if (Config.AttackSkill[3] === sdk.skills.Tornado) {
+			if ([sdk.skills.Tornado, sdk.skills.Fissure, sdk.skills.Volcano].includes(Config.AttackSkill[3])) {
 				Skill.cast(Config.AttackSkill[3], 0, 15093, 5029);
 
 				return true;
@@ -96,7 +96,7 @@ function baal () {
 
 		if (monster) {
 			do {
-				if (Attack.checkMonster(monster) && monster.y < 5080) {
+				if (Attack.checkMonster(monster) && Attack.canAttack(monster) && monster.y < 5080) {
 					switch (monster.classid) {
 					case 23:
 					case 62:
@@ -129,13 +129,9 @@ function baal () {
 
 		MainLoop:
 		while (true) {
-			//SetUp.walkToggle = true;
-
 			if (!getUnit(1, 543)) {
 				break;
 			}
-
-			//me.runwalk = 0;
 
 			Misc.townCheck();
 
@@ -184,7 +180,7 @@ function baal () {
 				break MainLoop;
 			default:
 				if (getTickCount() - tick < 7e3) {
-					if (me.getState(sdk.states.Poison)) {
+					if (me.paladin && me.getState(sdk.states.Poison)) {
 						Skill.setSkill(sdk.skills.Cleansing, 0);
 					}
 				}
@@ -204,6 +200,11 @@ function baal () {
 			// Thanks aim2kill
 			if (me.barbarian ? getDistance(me, 15112, 5062) : getDistance(me, 15116, 5026) > 3) {
 				me.barbarian ? Pather.moveTo(15112, 5062) : Pather.moveTo(15116, 5026);
+			}
+
+			// If we've been in the throne for 30 minutes that's way too long
+			if (getTickCount() - totalTick > 30 * 60000) {
+				return false;
 			}
 
 			delay(10);
@@ -243,16 +244,18 @@ function baal () {
 
 	// START
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting baal');
-	me.overhead("baal");
+	myPrint('starting baal');
 
 	Pather.checkWP(sdk.areas.WorldstoneLvl2, true) ? Pather.useWaypoint(sdk.areas.WorldstoneLvl2) : Pather.getWP(sdk.areas.WorldstoneLvl2, true);
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, true);
 	Pather.clearToExit(sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction, true);
 
+	// Enter throne room
 	Pather.moveTo(15095, 5029, 5);
 	Pather.moveTo(15113, 5040, 5);
+
+	let totalTick = getTickCount();
 
 	// souls hurt
 	if (unSafeCheck(8, 20) && me.lightRes < 70 && me.nightmare) {
@@ -275,16 +278,13 @@ function baal () {
 	}
 
 	clearThrone(); // double check
-
 	Pather.moveTo(15094, me.paladin ? 5029 : 5038);
 	Pickit.pickItems();
-
 	Pather.moveTo(15094, me.paladin ? 5029 : 5038);
 	Pickit.pickItems();
 	Pather.moveTo(15090, 5008);
 	delay(2500 + me.ping);
 	Precast.doPrecast(true);
-	SetUp.walkToggle = false;
 
 	while (getUnit(1, 543)) {
 		delay(500 + me.ping);
@@ -295,24 +295,23 @@ function baal () {
 	}
 
 	let portal = getUnit(2, 563);
+	portal && Pather.usePortal(null, null, portal);
 
-	if (portal) {
-		Pather.usePortal(null, null, portal);
+	if (me.area === sdk.areas.WorldstoneChamber) {
+		Config.BossPriority = true;
+		Pather.moveTo(15134, 5923);
+		Attack.killTarget(544); // Baal	
+		Pickit.pickItems();
+
+		// Grab static gold
+		NTIP.addLine("[name] == gold # [gold] >= 25");
+		Pather.moveTo(15072, 5894);
+		Pickit.pickItems();
+		Pather.moveTo(15095, 5881);
+		Pickit.pickItems();
 	} else {
 		print("ÿc8Kolbot-SoloPlayÿc0: Couldn't access portal.");
 	}
-
-	Config.BossPriority = true;
-	Pather.moveTo(15134, 5923);
-	Attack.killTarget(544); // Baal	
-	Pickit.pickItems();
-
-	// Grab static gold
-	NTIP.addLine("[name] == gold # [gold] >= 25");
-	Pather.moveTo(15072, 5894);
-	Pickit.pickItems();
-	Pather.moveTo(15095, 5881);
-	Pickit.pickItems();
 
 	return true;
 }

@@ -5,8 +5,7 @@
 */
 
 function a5chests() {
-	print('ÿc8Kolbot-SoloPlayÿc0: starting a5 chests');
-	me.overhead("a5 chests");
+	myPrint('starting a5 chests');
 
 	let areas = [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit, sdk.areas.GlacialTrail, sdk.areas.DrifterCavern, sdk.areas.IcyCellar];
 
@@ -20,15 +19,13 @@ function a5chests() {
 				continue;
 			}
 
-			print("ÿc8Kolbot-SoloPlayÿc0: Moving to " + Pather.getAreaName(areas[i]));
-			me.overhead("Moving to " + Pather.getAreaName(areas[i]));
+			myPrint("Moving to " + Pather.getAreaName(areas[i]));
 			Pather.journeyTo(areas[i]);
 			Precast.doPrecast();
 			Misc.openChestsInArea(areas[i]);
 			Town.doChores();
 		} catch (e) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to " + Pather.getAreaName(areas[i]));
-			print("ÿc8Kolbot-SoloPlayÿc0: " + e);
+			console.debug("ÿc8Kolbot-SoloPlayÿc0: Failed to move to " + Pather.getAreaName(areas[i]), e);
 			continue;
 		}
 	}

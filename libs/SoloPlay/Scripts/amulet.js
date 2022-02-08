@@ -6,8 +6,7 @@
 
 function amulet () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting amulet');
-	me.overhead("amulet");
+	myPrint('starting amulet');
 
 	Pather.checkWP(sdk.areas.LostCity, true) ? Pather.useWaypoint(sdk.areas.LostCity) : Pather.getWP(sdk.areas.LostCity);
 	Precast.doPrecast(true);

@@ -6,7 +6,7 @@
 
 function boneash () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting boneash');
+	myPrint('starting boneash');
 
 	Pather.checkWP(sdk.areas.InnerCloister, true) ? Pather.useWaypoint(sdk.areas.InnerCloister) : Pather.getWP(sdk.areas.InnerCloister);
 	Precast.doPrecast(true);
