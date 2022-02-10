@@ -479,19 +479,26 @@ Attack.getMobCountAtPosition = function (x, y, range, filter = false, debug = tr
 };
 
 // Clear an entire area based on monster spectype
-Attack.clearLevel = function (spectype = 0) {
-	let room, result, rooms, myRoom, currentArea, previousArea;
+Attack.clearLevel = function (obj) {
+	let result, myRoom, previousArea, spectype, rooms = [];
+	let room = getRoom();
+	let currentArea = getArea().id;
+	let quitWhen = () => {};
+
+	if (!room) return false;
 
 	function RoomSort(a, b) {
 		return getDistance(myRoom[0], myRoom[1], a[0], a[1]) - getDistance(myRoom[0], myRoom[1], b[0], b[1]);
 	}
 
-	room = getRoom();
-
-	if (!room) return false;
-
-	rooms = [];
-	currentArea = getArea().id;
+	// credit @jaenstr
+	if (typeof obj === 'object' && obj /*not null*/) {
+		spectype = obj.hasOwnProperty('spectype') && obj.spectype || 0;
+		quitWhen = obj.hasOwnProperty('quitWhen') && typeof obj.quitWhen === 'function' && obj.quitWhen || quitWhen;
+	}
+	if (typeof obj !== 'object') {
+		spectype = typeof obj === "number" ? obj : Config.ClearType;
+	}
 
 	do {
 		rooms.push([room.x * 5 + room.xsize / 2, room.y * 5 + room.ysize / 2]);
@@ -521,13 +528,13 @@ Attack.clearLevel = function (spectype = 0) {
 
 			if ([29, 30, 31].indexOf(me.area) > -1 && me.amazon && me.hell) {
 				if (Attack.stopClear) {
-					me.overhead("Tainted monster type found. Moving to next sequence");
-					print("ÿc8Kolbot-SoloPlayÿc0: Tainted monster type found. Moving to next sequence");
+					myPrint("Tainted monster type found. Moving to next sequence");
 					Attack.stopClear = false;	// Reset value
 					return true;
 				}
 			}
 
+			if (typeof quitWhen === 'function' && quitWhen()) return true;
 			if (!this.clear(40, spectype)) {
 				break;
 			}
@@ -560,8 +567,7 @@ Attack.clearLevelUntilLevel = function (charlvl = undefined, spectype = 0) {
 		rooms.push([room.x * 5 + room.xsize / 2, room.y * 5 + room.ysize / 2]);
 	} while (room.getNext());
 
-	print("ÿc8Kolbot-SoloPlayÿc0: Starting Clear until level My level: " + me.charlvl + " wanted level: " + charlvl);
-	me.overhead("Starting Clear until level My level: " + me.charlvl + " wanted level: " + charlvl);
+	myPrint("Starting Clear until level My level: " + me.charlvl + " wanted level: " + charlvl);
 
 	while (rooms.length > 0) {
 		// get the first room + initialize myRoom var
@@ -591,8 +597,7 @@ Attack.clearLevelUntilLevel = function (charlvl = undefined, spectype = 0) {
 			}
 
 			if (me.charlvl >= charlvl) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Clear until level requirment met. My level: " + me.charlvl + " wanted level: " + charlvl);
-				me.overhead("Clear until level requirment met. My level: " + me.charlvl + " wanted level: " + charlvl);
+				myPrint("Clear until level requirment met. My level: " + me.charlvl + " wanted level: " + charlvl);
 				return true;
 			}
 

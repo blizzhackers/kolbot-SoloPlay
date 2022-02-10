@@ -18,6 +18,10 @@ let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "
 // these builds are not possible to do without ladder runewords
 let impossibleNonLadderBuilds = ["Auradin"];
 
+Unit.prototype.__defineGetter__('mercid', function () {
+    return !!myData ? myData.merc.classid : me.getMerc().classid;
+});
+
 function myPrint (str = "", toConsole = false, color = 0) {
 	console.log("ÿc8Kolbot-SoloPlayÿc0: " + str);
 	me.overhead(str);

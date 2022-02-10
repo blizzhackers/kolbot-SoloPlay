@@ -172,13 +172,13 @@ Pather.forceRun = false;
 })(typeof global !== 'undefined' ? global : this);
 
 Pather.canTeleport = function () {
-	return this.teleport && !Config.NoTele && !me.shapeshifted && (me.getSkill(sdk.skills.Teleport, 1) || me.getStat(sdk.stats.OSkill, sdk.skills.Teleport));
+	return this.teleport && (me.getSkill(sdk.skills.Teleport, 1) || me.getStat(sdk.stats.OSkill, sdk.skills.Teleport));
 };
 
 Pather.useTeleport = function () {
 	let manaTP = Skill.getManaCost(sdk.skills.Teleport);
     let numberOfTeleport = ~~(me.mpmax / manaTP);
-	return !me.inTown && this.canTeleport() && numberOfTeleport > 2;
+	return !me.inTown && !Config.NoTele && !me.shapeshifted && this.canTeleport() && numberOfTeleport > 2;
 };
 
 Pather.checkForTeleCharges = function () {

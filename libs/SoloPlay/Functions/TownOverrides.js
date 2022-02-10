@@ -1132,7 +1132,6 @@ Town.unfinishedQuests = function () {
 	return true;
 };
 
-// TODO: handle resistances being artifically high (from pots or shrine)
 Town.buyPots = function (quantity = 0, type = "", drink = false, force = false) {
 	if (!quantity || !type) return false;
 	type = type[0].toUpperCase() + type.substring(1).toLowerCase();
@@ -1230,7 +1229,6 @@ Town.drinkPots = function (type) {
 				}
 
 				print('ÿc9DrinkPotsÿc0 :: drank ' + quantity + " " + name + "s. Timer [" + Developer.formatTime(CharData.buffData[objID].duration) + "]");
-				//["thawing", "antidote"].includes(objID) && CharData.buffData.update();
 			}
 		}
 	}
@@ -2649,11 +2647,9 @@ Town.goToTown = function (act, wpmenu) {
 		}
 	}
 
-	if (act === undefined) return true;
-
-	if (act < 1 || act > 5) {
-		throw new Error("Town.goToTown: Invalid act");
-	}
+	if (!act) return true;
+	if (act < 1 || act > 5) { throw new Error("Town.goToTown: Invalid act"); }
+	if (act > me.highestAct) return false;
 
 	if (act !== me.act) {
 		try {

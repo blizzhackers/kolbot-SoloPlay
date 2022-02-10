@@ -218,47 +218,6 @@ Misc.getExpShrine = function (shrineLocs) {
 	return true;
 };
 
-Misc.getLightResShrine = function (shrineLocs) {
-	if (me.getState(5) || me.lightRes >= 75) return true;
-
-	let oldAttack = [];
-
-	if (me.barbarian && me.normal && me.getSkill(133, 1) >= 6) {
-		oldAttack = Config.AttackSkill.slice();
-		Config.AttackSkill = [-1, 133, -1, 133, -1];
-	}
-
-	for (let get = 0; get < shrineLocs.length; get++) {
-		if (shrineLocs[get] === 2) {
-			Pather.journeyTo(shrineLocs[get]);
-		} else {
-			if (!Pather.checkWP(shrineLocs[get])) {
-				Pather.getWP(shrineLocs[get]);
-			} else {
-				Pather.useWaypoint(shrineLocs[get]);
-			}
-		}
-
-		Precast.doPrecast(true);
-		Misc.getShrinesInArea(shrineLocs[get], 10, true);
-
-		if (me.getState(5)) {
-			Town.goToTown();
-			break;
-		}
-
-		if (!me.inTown) {
-			Town.goToTown();
-		}
-	}
-
-	if (oldAttack.length > 0) {
-		Config.AttackSkill = oldAttack.slice();
-	}
-
-	return true;
-};
-
 Misc.getGoodShrine = function (shrineLocs) {
 	/* function checkState (shrineType) {
 		let result = false;

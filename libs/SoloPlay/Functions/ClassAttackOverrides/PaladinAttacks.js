@@ -24,6 +24,18 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	}
 
 	if (me.expansion && index === 1 && !unit.dead) {
+		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && unit.curseable &&
+			(gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+			// Cast slow missiles
+			Attack.castCharges(sdk.skills.SlowMissiles, unit);
+		}
+
+		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight) && unit.curseable &&
+			gold > 500000 && !checkCollision(me, unit, 0x4)) {
+			// Cast slow missiles
+			Attack.castCharges(sdk.skills.InnerSight, unit);
+		}
+
 		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Decrepify) && !unit.getState(sdk.states.Decrepify) && unit.curseable &&
 			(gold > 500000 || Attack.bossesAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast decrepify

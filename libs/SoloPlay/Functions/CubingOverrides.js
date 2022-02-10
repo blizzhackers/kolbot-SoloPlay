@@ -717,7 +717,7 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index >= Recipe.HitPower.Helm && recipe.Index <= Recipe.Safety.Weapon) {
-		if (recipe.Index === Recipe.Caster.Amulet && Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) < recipe.Level) {
+		if ([Recipe.Caster.Amulet, Recipe.Caster.Blood].includes(recipe.Index) && Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) < recipe.Level) {
 			if (me.charlvl < 50) {
 				// set it equal to ilvl 31 where 60% chance of 2 affixes and 20% chance each of 3 or 4 affixes 
 				recipe.Level = 31;
@@ -754,6 +754,19 @@ Cubing.validItem = function (unit, recipe) {
 			// check items name (prevents upgrading lavagout when we want to be upgrading magefist for the second time)
 			if (recipe.Name !== undefined) {
 				valid = !!unit.fname.toLowerCase().includes(recipe.Name.toLowerCase());
+				if (valid) {
+					// check to see if we are using this already and if so compare base stats to see if this one would be better
+					// ignore things that get re-rolled like defense or min/max dmg just focus on base stats like enhanced defense/damage
+					let equipped = me.getItemsEx(-1, sdk.storage.Equipped).find(item => item.fname.toLowerCase().includes(recipe.Name.toLowerCase()));
+					if (equipped) {
+						switch (recipe.Name.toLowerCase()) {
+						case "magefist":
+						// compare enhanced defense - keep "equal to" because base defense gets re-rolled so it might turn out better
+							valid = (unit.getStat(sdk.stats.ArmorPercent) >= equipped.getStat(sdk.stats.ArmorPercent));
+							break;
+						}
+					}
+				}
 			}
 			switch (recipe.Ethereal) {
 			case 0:

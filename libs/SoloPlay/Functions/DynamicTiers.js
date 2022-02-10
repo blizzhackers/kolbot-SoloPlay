@@ -37,19 +37,11 @@ const mercscore = function (item) {
 	};
 
 	let mercRating = 1;
-
-	if (item.prefixnum === 20653) { //treachery
-		mercRating += item.getStatEx(201, 2) * 1000; // fade
-	}
-
-	mercRating += item.getStatEx(151, 120) * 100; // meditation aura
+	// start
+	item.prefixnum === sdk.locale.items.Treachery && (mercRating += item.getStatEx(201, 2) * 1000); // fade
 	mercRating += item.getStatEx(151, 123) * 1000; // conviction aura
+	mercRating += item.getStatEx(151, 120) * 100; // meditation aura
 	mercRating += item.getStatEx(93) * mercWeights.IAS; // add IAS
-	mercRating += item.getStatEx(21) * mercWeights.MINDMG; // add MIN damage
-	mercRating += item.getStatEx(22) * mercWeights.MAXDMG; // add MAX damage
-	mercRating += item.getStatEx(23) * mercWeights.SECMINDMG; // add MIN damage	//Note: two-handed weapons i.e spears, polearms, ect use secondary min + max damage. Keeping regular min + max for a1 merc
-	mercRating += item.getStatEx(24) * mercWeights.SECMAXDMG; // add MAX damage	//Note: two-handed weapons i.e spears, polearms, ect use secondary min + max damage. Keeping regular min + max for a1 merc
-	mercRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 512)) * mercWeights.ELEDMG; // add elemental damage
 	mercRating += item.getStatEx(19) * mercWeights.AR; // add AR
 	mercRating += item.getStatEx(136) * mercWeights.CB; // add crushing blow
 	mercRating += item.getStatEx(135) * mercWeights.OW; // add open wounds
@@ -57,7 +49,6 @@ const mercscore = function (item) {
 	mercRating += item.getStatEx(74) * mercWeights.HPREGEN; // add hp regeneration
 	mercRating += item.getStatEx(99) * mercWeights.FHR; // add faster hit recovery
 	mercRating += item.getStatEx(31) * mercWeights.DEF; //	add Defense
-	mercRating += (item.getStatEx(3) + item.getStatEx(7) + (item.getStatEx(216) / 2048 * me.charlvl)) * mercWeights.HP; // add HP
 	mercRating += item.getStatEx(0) * mercWeights.STR; // add STR
 	mercRating += item.getStatEx(2) * mercWeights.DEX; // add DEX
 	mercRating += item.getStatEx(127) * mercWeights.ALL; // add all skills
@@ -65,6 +56,34 @@ const mercscore = function (item) {
 	mercRating += item.getStatEx(43) * mercWeights.CR; // add CR
 	mercRating += item.getStatEx(41) * mercWeights.LR; // add LR
 	mercRating += item.getStatEx(45) * mercWeights.PR; // add PR
+	mercRating += (item.getStatEx(3) + item.getStatEx(7) + (item.getStatEx(216) / 2048 * me.charlvl)) * mercWeights.HP; // add HP
+	mercRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 512)) * mercWeights.ELEDMG; // add elemental damage
+
+	if (!myData) {
+		let myData = CharData.getStats();
+	}
+
+	switch (myData.merc.classid) {
+	case sdk.monsters.mercs.Rogue:
+	case sdk.monsters.mercs.IronWolf:
+		mercRating += item.getStatEx(21) * mercWeights.MINDMG; // add MIN damage
+		mercRating += item.getStatEx(22) * mercWeights.MAXDMG; // add MAX damage
+
+		break;
+	case sdk.monsters.mercs.A5Barb:
+		if ([item.getStatEx(23), item.getStatEx(24)].includes(0)) {
+			mercRating += item.getStatEx(21) * mercWeights.MINDMG; // add MIN damage
+			mercRating += item.getStatEx(22) * mercWeights.MAXDMG; // add MAX damage
+
+			break;
+		}
+	case sdk.monsters.mercs.Guard:
+	default:
+		mercRating += item.getStatEx(23) * mercWeights.SECMINDMG;
+		mercRating += item.getStatEx(24) * mercWeights.SECMAXDMG;
+
+		break;
+	}
 
 	if (!me.sorceress && !me.necromancer && !me.assassin) {
 		mercRating += item.getStatEx(195, 4238) * mercWeights.CTCOAAMP; // add CTC amplify damage on attack
@@ -93,6 +112,65 @@ const mercscore = function (item) {
 	}
 
 	return mercRating;
+};
+
+const chargeditemscore = function (item, skillId, buildInfo) {
+	if (!item) return 0;
+
+	let tier = 0;
+	!buildInfo && (buildInfo = Check.currentBuild());
+
+	const chargedWeights = {
+		Teleport: Pather.canTeleport() ? 0 : 5,
+		Enchant: buildInfo.caster ? 0 : 10,
+		InnerSight: me.amazon || buildInfo.caster ? 0 : 10,
+		SlowMissiles: me.amazon ? 0 : 10,
+	};
+
+	let stats = item.getStat(-2);
+	let chargedItems = [];
+
+	if (stats.hasOwnProperty(204)) {
+		if (stats[204] instanceof Array) {
+			for (let i = 0; i < stats[204].length; i++) {
+				if (stats[204][i] !== undefined) {
+					chargedItems.push({
+						skill: stats[204][i].skill,
+						level: stats[204][i].level,
+						charges: stats[204][i].charges,
+						maxcharges: stats[204][i].maxcharges
+					});
+				}
+			}
+		} else {
+			chargedItems.push({
+				skill: stats[204].skill,
+				level: stats[204].level,
+				charges: stats[204].charges,
+				maxcharges: stats[204].maxcharges
+			});
+		}
+	}
+
+	chargedItems = chargedItems.filter((v,i,a) => a.findIndex(el => ['skill', 'level'].every(k => el[k] === v[k])) === i);
+
+	if (skillId > 0) {
+		chargedItems = chargedItems.filter(check => check.skill === skillId);
+		chargedItems.forEach(el => tier += el.level * 5);
+	} else {
+		chargedItems.forEach(function (el) {
+			try {
+				let skillName = getSkillById(el.skill).split(" ").join("");
+				if (!!chargedWeights[skillName]) {
+					tier += el.skill * chargedWeights[skillName];
+				}
+			} catch (e) {
+				return;
+			}
+		});
+	}
+
+	return tier;
 };
 
 const tierscore = function (item, bodyloc) {
@@ -360,8 +438,6 @@ const tierscore = function (item, bodyloc) {
 		let stats = item.getStat(-2);
 		let meleeCheck = !buildInfo.caster;
 
-		// TODO: Figure out why all ctc stats are duplicates or a way to check to see if that stat has already been added to the ctcItems array
-
 		if (stats.hasOwnProperty(sdk.stats.SkillWhenStruck)) {
 			if (stats[sdk.stats.SkillWhenStruck] instanceof Array) {
 				for (let i = 0; i < stats[sdk.stats.SkillWhenStruck].length; i++) {
@@ -422,6 +498,8 @@ const tierscore = function (item, bodyloc) {
 			}
 		}
 
+		ctcItems = ctcItems.filter((v,i,a) => a.findIndex(el => ['ctcType', 'skill'].every(k => el[k] === v[k])) === i);
+
 		for (let i = 0; i < ctcItems.length; i++) {
 			try {
 				let skillName = getSkillById(ctcItems[i].skill).split(" ").join("");
@@ -445,7 +523,7 @@ const tierscore = function (item, bodyloc) {
 			}
 		}
 
-		return Math.floor(ctcRating / 2);
+		return ctcRating;
 	};
 
 	let tier = 1; // set to 1 for native autoequip to use items.
@@ -454,8 +532,7 @@ const tierscore = function (item, bodyloc) {
 	tier += this.buildScore(item);
 	tier += this.skillsScore(item);
 	tier += this.ctcScore(item);
-
-	// TODO: Maybe write chargesScore if I end up untilizing item charges for precast like summons or enchant
+	tier += chargeditemscore(item, -1, buildInfo);
 
 	let rwBase; // don't score runeword base armors
 
@@ -489,51 +566,6 @@ const secondaryscore = function (item) {
 
 	tier += item.getStatEx(105) * 5; // add FCR
 	tier += item.getStatEx(99) * 3; // add faster hit recovery
-
-	return tier;
-};
-
-const chargeditemscore = function (item, skillId) {
-	let tier = 0;
-
-	let validCharge = function (itemCharge) {
-		return itemCharge.skill === skillId && itemCharge.charges > 1;
-	};
-
-	let stats = item.getStat(-2);
-	let chargedItems = [];
-
-	if (stats.hasOwnProperty(204)) {
-		if (stats[204] instanceof Array) {
-			for (let i = 0; i < stats[204].length; i += 1) {
-				if (stats[204][i] !== undefined) {
-					chargedItems.push({
-						unit: copyUnit(item),
-						gid: item.gid,
-						skill: stats[204][i].skill,
-						level: stats[204][i].level,
-						charges: stats[204][i].charges,
-						maxcharges: stats[204][i].maxcharges
-					});
-				}
-			}
-		} else {
-			chargedItems.push({
-				unit: copyUnit(item),
-				gid: item.gid,
-				skill: stats[204].skill,
-				level: stats[204].level,
-				charges: stats[204].charges,
-				maxcharges: stats[204].maxcharges
-			});
-		}
-	}
-
-	chargedItems = chargedItems.filter(check => check.skill === skillId);
-
-	for (let i = 0; i < chargedItems.length; i++) {
-		tier += chargedItems[i].level * 5;
-	}
 
 	return tier;
 };

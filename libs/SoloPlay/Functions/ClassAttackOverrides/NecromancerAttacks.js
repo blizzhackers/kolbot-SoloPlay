@@ -122,6 +122,7 @@ ClassAttack.getCurseState = function (unit, curseID) {
 	return unit.getState(state);
 };
 
+// TODO: clean this up
 ClassAttack.smartCurse = function (unit, index) {
 	if (unit === undefined || unit.dead || !unit.curseable) return false;
 
@@ -237,18 +238,18 @@ ClassAttack.smartCurse = function (unit, index) {
 
 ClassAttack.bpTick = 0;
 
+// TODO: clean this up
 ClassAttack.doAttack = function (unit, preattack) {
 	let index, checkSkill, result,
 		mercRevive = 0,
 		timedSkill = -1,
-		untimedSkill = -1;
+		untimedSkill = -1,
+		gold = me.gold;
 
 	let useTerror = me.getSkill(sdk.skills.Terror, 0);
 	let useBP = me.getSkill(sdk.skills.BonePrison, 1);
 
-	if (!this.cursesSet) {
-		this.initCurses();
-	}
+	!this.cursesSet && this.initCurses();
 
 	if (Config.MercWatch && Town.needMerc()) {
 		Town.visitTown();
@@ -285,6 +286,14 @@ ClassAttack.doAttack = function (unit, preattack) {
 	}
 
 	this.smartCurse(unit, index);
+
+	if (me.expansion && index === 1 && !unit.dead) {
+		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && unit.curseable &&
+			(gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+			// Cast slow missiles
+			Attack.castCharges(sdk.skills.SlowMissiles, unit);
+		}
+	}
 
 	// Get timed skill
 	if (Attack.getCustomAttack(unit)) {

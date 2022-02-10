@@ -9,19 +9,11 @@ if (!isIncluded("common/Attacks/Assassin.js")) {
 }
 
 ClassAttack.mindBlast = function (unit) {
-	if (!me.getSkill(sdk.skills.MindBlast, 1)) {
-		return;
-	}
-
+	if (!unit || !me.getSkill(sdk.skills.MindBlast, 1)) return;
 	// Main bosses
-	if (Attack.mainBosses.indexOf(unit.classid) > -1) {
-		return;
-	}
-
+	if (Attack.mainBosses.includes(unit.classid)) return;
 	// Duriel's Lair, Arreat Summit, Worldstone Chamber
-	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].indexOf(me.area) > -1) {
-		return;
-	}
+	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].includes(me.area)) return;
 
 	let list = Attack.buildMonsterList();
 	let mindBlastMpCost = Skill.getManaCost(sdk.skills.MindBlast);
@@ -174,6 +166,12 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	// Handle Switch casting
 	if (index === 1 && !unit.dead) {
+		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && unit.curseable &&
+			(gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+			// Cast slow missiles
+			Attack.castCharges(sdk.skills.SlowMissiles, unit);
+		}
+		
 		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist) && !unit.getState(sdk.states.LowerResist) && unit.curseable &&
 			(gold > 500000 || Attack.bossesAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast lower resist

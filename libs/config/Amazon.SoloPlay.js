@@ -133,7 +133,7 @@ function LoadConfig () {
 	/* AutoEquip configuration. */
 	Config.AutoEquip = true;
 
-	// AutoEquip setup - // Note: should probably break this up into basicTiers and expansionTiers
+	// AutoEquip setup
 	let levelingTiers = [
 		// Weapon
 		"([type] == javelin || [type] == amazonjavelin) && [quality] >= normal && [flag] != ethereal && [wsm] <= 10 && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
@@ -151,6 +151,9 @@ function LoadConfig () {
 		"[type] == amulet && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Rings
 		"[type] == ring && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+	];
+
+	let expansionTiers = [
 		// Switch
 		"[type] == wand && [quality] >= normal # [itemchargedskill] == 72 # [secondarytier] == 25000",								// Weaken charged wand
 		"[type] == wand && [quality] >= normal # [itemchargedskill] == 91 # [secondarytier] == 50000 + chargeditemscore(item, 91)",	// Lower Resist charged wand
@@ -163,10 +166,14 @@ function LoadConfig () {
 		// Merc
 		"([type] == circlet || [type] == helm) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 		"[type] == armor && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		"me.charlvl > 14 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+		// Rogue
+		"me.mercid === 271 && [type] == bow && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+		// A2 Guard
+		"me.mercid === 338 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
 	NTIP.arrayLooping(levelingTiers);
+	me.expansion && NTIP.arrayLooping(expansionTiers);
 
 	if (SetUp.currentBuild !== "Witchyzon") {
 		NTIP.addLine("[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");

@@ -91,7 +91,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	if (unit === undefined || !unit || unit.dead) return true;
 
 	let gid = unit.gid;
-	let needRepair = [], attackSkill = -1;
+	let needRepair = [], attackSkill = -1, gold = me.gold;
 	me.charlvl >= 5 && (needRepair = Town.needRepair());
 
 	if (Town.canTpToTown() && ((Config.MercWatch && Town.needMerc()) || needRepair.length > 0)) {
@@ -107,6 +107,20 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 		if (Config.AttackSkill[index + 1] > -1 && me.getSkill(Config.AttackSkill[index + 1], 0) && Attack.checkResist(unit, Config.AttackSkill[index + 1])) {
 			attackSkill = Config.AttackSkill[index + 1];
+		}
+	}
+
+	if (me.expansion && index === 1 && !unit.dead) {
+		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && unit.curseable &&
+			(gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+			// Cast slow missiles
+			Attack.castCharges(sdk.skills.SlowMissiles, unit);
+		}
+
+		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight) && unit.curseable &&
+			gold > 500000 && !checkCollision(me, unit, 0x4)) {
+			// Cast slow missiles
+			Attack.castCharges(sdk.skills.InnerSight, unit);
 		}
 	}
 
