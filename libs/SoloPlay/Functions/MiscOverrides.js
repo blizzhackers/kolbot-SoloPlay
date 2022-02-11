@@ -640,8 +640,8 @@ Misc.getSocketables = function (item, itemInfo) {
 			openSockets = sockets;
 		} else {
 			if (temp.length > 0) {
-				multiple.length = 0;
-				multiple = multiple.concat(temp);
+				// use temp socketables
+				multiple = temp.slice(0);
 			} else if (item.getItemsEx().some(function (el) { return itemInfo.temp.includes(el.classid); })) {
 				return false;
 			}
@@ -650,6 +650,7 @@ Misc.getSocketables = function (item, itemInfo) {
 	
 	if (multiple.length > 0) {
 		multiple.length > openSockets && (multiple.length = openSockets);
+		if (openSockets === 0) return false;
 		// check to ensure I am a high enough level to use wanted socketables
 		for (let i = 0; i < multiple.length; i++) {
 			if (me.charlvl < multiple[i].lvlreq) {

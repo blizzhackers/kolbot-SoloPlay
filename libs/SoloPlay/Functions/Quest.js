@@ -131,6 +131,8 @@ const Quest = {
 
 		me.cancel();
 
+		outcome === sdk.items.quest.HoradricStaff && Town.npcInteract("cain");
+
 		return me.getItem(outcome);
 	},
 

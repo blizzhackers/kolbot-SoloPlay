@@ -1399,13 +1399,12 @@ Pather.usePortal = function (targetArea, owner, unit) {
 
 // credit - Legacy Autosmurf
 Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
-	print("ÿc8Kolbot-SoloPlayÿc0: Start clearToExit");
 	let tick = getTickCount();
-
+	print("ÿc8Kolbot-SoloPlayÿc0: Start clearToExit");
 	print("Currently in: " + Pather.getAreaName(me.area));
 	print("Currentarea arg: " + Pather.getAreaName(currentarea));
 
-	if (me.area !== currentarea) Pather.journeyTo(currentarea);
+	me.area !== currentarea && Pather.journeyTo(currentarea);
 
 	print("Clearing to: " + Pather.getAreaName(targetarea));
 

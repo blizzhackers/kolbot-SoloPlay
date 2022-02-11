@@ -5,32 +5,41 @@
 */
 
 function duriel () {
+	// pre-tasks
 	Quest.preReqs();
 	Quest.cubeItems(91, 92, 521);
-	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting duriel');
-	me.overhead("duriel");
 
+	// Start
+	Town.townTasks();
+	myPrint('starting duriel');
 	Pather.checkWP(sdk.areas.CanyonofMagic, true) ? Pather.useWaypoint(sdk.areas.CanyonofMagic) : Pather.getWP(sdk.areas.CanyonofMagic);
 	Precast.doPrecast(true);
 	Pather.moveToExit(getRoom().correcttomb, true);
 	Pather.moveToPreset(me.area, 2, 152);
 	Attack.securePosition(me.x, me.y, 30, 3000, true, me.hell);
 	Quest.placeStaff();
+
+	// quest-prep
+	let preArea = me.area;
 	Town.doChores();
 	Town.buyPots(10, "Thawing", true);
 
 	let oldMercWatch = Config.MercWatch;
 	Config.MercWatch = false;
 
-	Pather.usePortal(null, me.name);
-	delay(1000 + me.ping);
+	if (!Pather.usePortal(preArea, me.name)) {
+		if (!Pather.journeyTo(preArea)) {
+			myPrint("Failed to move back to duriels tomb");
+			return false;
+		}
+	}
 
+	// move to and kill dury
 	let unit = Misc.poll(function () { return getUnit(2, 100); });
 
 	if (me.sorceress && unit && Skill.useTK(unit)) {
 		for (let i = 0; i < 3; i++) {
-			if (me.area !== sdk.areas.DurielsLair) Skill.cast(43, 0, unit);
+			me.area !== sdk.areas.DurielsLair && Skill.cast(43, 0, unit);
 			if (me.area === sdk.areas.DurielsLair) {
 				break;
 			}
@@ -45,7 +54,6 @@ function duriel () {
 	}
 
 	me.sorceress && !me.normal ? Attack.pwnDury() : Attack.killTarget("Duriel");
-
 	Pickit.pickItems();
 
 	if (!me.duriel && !Misc.checkQuest(14, 3)) {

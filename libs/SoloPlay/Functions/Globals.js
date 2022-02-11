@@ -416,8 +416,8 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 // General Game functions
 const Check = {
 	// TODO: clean this up somehow, I dislike how it looks right now as its not completely clear
-	Task: function (sequenceName) {
-		let needRunes = this.Runes();
+	task: function (sequenceName) {
+		let needRunes = this.runes();
 
 		switch (sequenceName.toLowerCase()) {
 		case "den":
@@ -497,7 +497,7 @@ const Check = {
 				(me.classic && me.hell) ||
 				(me.expansion &&
 					(!me.normal && (Pather.canTeleport() || me.charlvl <= 60)) ||
-					(me.hell && me.charlvl !== 100 && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))))) {
+					(me.hell && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))))) {
 				return true;
 			}
 
@@ -599,7 +599,7 @@ const Check = {
 			if (Pather.accessToAct(3) &&
 					(!me.travincal ||
 						(me.charlvl < 25 ||
-						(me.charlvl >= 25 && me.normal && !me.baal && !Check.Gold()) ||
+						(me.charlvl >= 25 && me.normal && !me.baal && !Check.gold()) ||
 						(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) ||
 						(me.hell && me.paladin && me.charlvl > 85 && (!Attack.isAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
 				return true;
@@ -611,7 +611,7 @@ const Check = {
 				if (!me.mephisto) return true;
 				switch (me.diff) {
 				case sdk.difficulty.Normal:
-					return !Check.Gold() || !me.diffCompleted;
+					return !Check.gold() || !me.diffCompleted;
 				case sdk.difficulty.Nightmare:
 					return Pather.canTeleport() || me.charlvl <= 65
 				case sdk.difficulty.Hell:
@@ -731,7 +731,7 @@ const Check = {
 		return false;
 	},
 
-	Gold: function () {
+	gold: function () {
 		let gold = me.gold;
 		let goldLimit = [25000, 50000, 100000][me.diff];
 
@@ -775,7 +775,7 @@ const Check = {
 		return 0;
 	},
 
-	Resistance: function () {
+	resistance: function () {
 		let resStatus,
 			resPenalty = me.getResPenalty(me.diff + 1),
 			frRes = me.getStat(sdk.stats.FireResist) - resPenalty,
@@ -783,7 +783,7 @@ const Check = {
 			crRes = me.getStat(sdk.stats.ColdResist) - resPenalty,
 			prRes = me.getStat(sdk.stats.PoisonResist) - resPenalty;
 
-		resStatus = !!((frRes >= 0) && (lrRes >= 0) && (crRes >= 0)); 
+		resStatus = ((frRes >= 0) && (lrRes >= 0) && (crRes >= 0)); 
 
 		return {
 			Status: resStatus,
@@ -814,7 +814,7 @@ const Check = {
 
 	nextDifficulty: function (announce = true) {
 		let diffShift = me.diff;
-		let res = this.Resistance();
+		let res = this.resistance();
 		let lvlReq = !!((me.charlvl >= Config.levelCap) && !["Bumper", "Socketmule"].includes(SetUp.finalBuild) && !this.broken());
 
 		if (me.diffCompleted) {
@@ -839,7 +839,7 @@ const Check = {
 		return sdk.difficulty.nameOf(diffShift);
 	},
 
-	Runes: function () {
+	runes: function () {
 		if (me.classic) return false;
 		let needRunes = true;
 
@@ -1177,7 +1177,7 @@ const Check = {
 	// TODO: enable this for other items, i.e maybe don't socket tal helm in hell but instead go back and use nightmare so then we can use hell socket on tal armor?
 	usePreviousSocketQuest: function () {
 		if (me.classic) return;
-		if (!Check.Resistance().Status) {
+		if (!Check.resistance().Status) {
 			if (me.weaponswitch === 0 && Item.getEquippedItem(5).fname.includes("Lidless Wall") && !Item.getEquippedItem(5).socketed) {
 				if (!me.normal) {
 					if (!myData.normal.socketUsed) goToDifficulty(sdk.difficulty.Normal, " to use socket quest");

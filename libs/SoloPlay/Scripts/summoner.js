@@ -70,8 +70,7 @@ function summoner () {
 
 	// START
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting summoner');
-	me.overhead("summoner");
+	myPrint('starting summoner');
 
 	Pather.checkWP(sdk.areas.ArcaneSanctuary, true) ? Pather.useWaypoint(sdk.areas.ArcaneSanctuary) : Pather.getWP(sdk.areas.ArcaneSanctuary);
 	Precast.doPrecast(true);

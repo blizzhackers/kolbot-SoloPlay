@@ -60,13 +60,20 @@ function SoloPlay () {
 			break;
 		}
 
-		Check.usePreviousSocketQuest(); // Currently only supports going back to nightmare to socket a lidless if one is equipped. 
+		Check.usePreviousSocketQuest(); // Currently only supports going back to nightmare to socket a lidless if one is equipped.
+
+		let updatedDifficulty = Check.nextDifficulty();
+
+		if (updatedDifficulty) {
+			CharData.updateData("me", "setDifficulty", updatedDifficulty);
+			D2Bot.setProfile(null, null, null, updatedDifficulty);
+		}
 
 		for (k = 0; k < SetUp.scripts.length; k++) {
 			!me.inTown && Town.goToTown();
 			Check.checkSpecialCase();
 
-			if (Check.Task(SetUp.scripts[k])) {
+			if (Check.task(SetUp.scripts[k])) {
 				if (!isIncluded("SoloPlay/Scripts/" + SetUp.scripts[k] + ".js")) {
 					include("SoloPlay/Scripts/" + SetUp.scripts[k] + ".js");
 				}
@@ -91,35 +98,43 @@ function SoloPlay () {
 			}
 		}
 
+		// Re-check to see if after this run we now meet difficulty requirments
+		if (!updatedDifficulty) {
+			updatedDifficulty = Check.nextDifficulty(false);
+
+			if (updatedDifficulty) {
+				CharData.updateData("me", "setDifficulty", updatedDifficulty);
+				D2Bot.setProfile(null, null, null, updatedDifficulty);
+			}
+		}
+
 		return true;
 	};
 
 	this.scriptEvent = function (msg) {
-		let temp;
+		let obj;
 
 		if (msg && typeof msg === "string" && msg !== "") {
 			switch (true) {
 			case msg.substring(0, 8) === "config--":
 				console.debug("update config");
 				Config = JSON.parse(msg.split("config--")[1]);
-				updated = true;
 
 				break;
 			case msg.substring(0, 7) === "skill--":
 				console.debug("update skillData");
-				temp = JSON.parse(msg.split("skill--")[1]);
-				Misc.updateRecursively(CharData.skillData, temp);
+				obj = JSON.parse(msg.split("skill--")[1]);
+				Misc.updateRecursively(CharData.skillData, obj);
 
 				break;
 			case msg.substring(0, 6) === "data--":
 				console.debug("update myData");
 				obj = JSON.parse(msg.split("data--")[1]);
 				Misc.updateRecursively(myData, obj);
-				updated = true;
 
 				break;
 			case msg.toLowerCase() === "test":
-				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//\nÿc8MainData ::\n",
+				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//\nÿc8MainData ::\n", getScript(true).name,
 					myData, "\nÿc8BuffData ::\n", CharData.buffData, "\nÿc8SkillData ::\n", CharData.skillData, "\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
 
 				break;
@@ -148,24 +163,7 @@ function SoloPlay () {
 		}
 	}
 
-	let updatedDifficulty = Check.nextDifficulty();
-
-	if (updatedDifficulty) {
-		CharData.updateData("me", "setDifficulty", updatedDifficulty);
-		D2Bot.setProfile(null, null, null, updatedDifficulty);
-	}
-
 	this.runScripts();
-
-	// Re-check to see if after this run we now meet difficulty requirments
-	if (!updatedDifficulty) {
-		updatedDifficulty = Check.nextDifficulty(false);
-
-		if (updatedDifficulty) {
-			CharData.updateData("me", "setDifficulty", updatedDifficulty);
-			D2Bot.setProfile(null, null, null, updatedDifficulty);
-		}
-	}
 
 	scriptBroadcast('quit');
 
