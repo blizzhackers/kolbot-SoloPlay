@@ -723,6 +723,11 @@ function locationAction (location) {
 	case 7: // Channel List
 		break;
 	case 8: // Main Menu
+		if (Profile().type === 1) {
+			ControlAction.click(6, 264, 324, 272, 35);
+
+			break;
+		}
 	case 9: // Login
 	case 18: // D2 Splash
 		// Single Player screen fix
@@ -1071,9 +1076,13 @@ function locationAction (location) {
 		}
 
 		break;
+	case 29: // fix for unhandled location crashes at char creation
+		if (!battlenet) {
+			// click out of the screen
+			ControlAction.click(6, 33, 572, 128, 35);
+		}
 	case 12: // Character Select
 	case 23: // Character Select - Connecting
-	case 29: // fix for unhandled location crashes at char creation
 	case 42: // Empty character screen
 		string = "";
 		text = ControlAction.getText(4, 45, 318, 531, 140);
