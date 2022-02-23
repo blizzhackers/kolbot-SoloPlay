@@ -723,7 +723,7 @@ function locationAction (location) {
 	case 7: // Channel List
 		break;
 	case 8: // Main Menu
-		if (Profile().type === 1) {
+		if (Profile().type === 1 && firstRun) {
 			ControlAction.click(6, 264, 324, 272, 35);
 
 			break;
@@ -1077,11 +1077,12 @@ function locationAction (location) {
 
 		break;
 	case 29: // fix for unhandled location crashes at char creation
-		if (!battlenet) {
+		if (!battlenet && firstRun) {
 			// click out of the screen
 			ControlAction.click(6, 33, 572, 128, 35);
 		}
 	case 12: // Character Select
+		hideConsole(); // seems to fix odd crash with single-player characters if the console is open to type in
 	case 23: // Character Select - Connecting
 	case 42: // Empty character screen
 		string = "";
@@ -1096,7 +1097,8 @@ function locationAction (location) {
 				}
 			}
 
-			if (string === getLocaleString(11161)) { // CDKey disabled from realm play
+			// CDKey disabled from realm play
+			if (string === getLocaleString(11161)) {
 				D2Bot.updateStatus("Realm Disabled CDKey");
 				D2Bot.printToConsole("Realm Disabled CDKey: " + gameInfo.mpq, 6);
 				D2Bot.CDKeyDisabled();
@@ -1130,7 +1132,7 @@ function locationAction (location) {
 					}
 				}
 			} else {
-				ControlAction.loginCharacter(setUp);
+				ControlAction.loginCharacter(setUp, false);
 			}
 		}
 
@@ -1248,6 +1250,10 @@ function main () {
 	while (!gameInfo) {
 		D2Bot.requestGameInfo();
 		delay(500);
+	}
+
+	if (Developer.logPerformance) {
+		Tracker.checkValidity();
 	}
 
 	if (gameInfo.error) {
