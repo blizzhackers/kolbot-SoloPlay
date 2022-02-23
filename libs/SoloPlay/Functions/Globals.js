@@ -110,11 +110,16 @@ function ensureData () {
 // general settings
 const SetUp = {
 	scripts: [
-		"corpsefire", "den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "boneash", "andariel", "a1chests", "cows", // Act 1
-		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel", // Act 2
-		"lamessen", "templeruns", "lowerkurast", "eye", "heart", "brain", "travincal", "mephisto", // Act 3
-		"izual", "hellforge", "river", "hephasto", "diablo", // Act 4
-		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests", // Act 5
+		// Act 1
+		"corpsefire", "den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "boneash", "andariel", "a1chests", "cows",
+		// Act 2
+		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel",
+		// Act 3
+		"lamessen", "templeruns", "lowerkurast", "eye", "heart", "brain", "travincal", "mephisto",
+		// Act 4
+		"izual", "hellforge", "river", "hephasto", "diablo",
+		// Act 5
+		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests",
 	],
 
 	// Should this be moved elsewhere? Currently have to include Globals then call this to include rest of overrides
@@ -244,6 +249,15 @@ const SetUp = {
 		CharData.delete(true);
 		delay(100 + me.ping);
 		D2Bot.restart();
+	},
+
+	belt: function () {
+		let i = 0;
+		let beltSlots = Math.max(1, Storage.BeltSize() - 1);
+		Config.BeltColumn.forEach(function (col) {
+			Config.MinColumn[i] = col.toLowerCase() !== "rv" ? beltSlots : 0;
+			i++;
+		});
 	},
 };
 

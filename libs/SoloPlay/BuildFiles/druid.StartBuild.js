@@ -7,8 +7,8 @@
 let build = {
 	caster: true,
 	skillstab: 42, // elemental
-	wantedskills: [225, 234], // firestorm, fissure
-	usefulskills: [229], // molten boulder
+	wantedskills: [sdk.skills.Firestorm, sdk.skills.Fissure],
+	usefulskills: [sdk.skills.MoltenBoulder],
 	mercAuraName: "Blessed Aim",
 	mercAuraWanted: 108,
 	mercDiff: 0,
@@ -19,16 +19,16 @@ let build = {
 		["vitality", "all"]
 	],
 	skills: [
-		[222, 2, false], // poison creeper
-		[225, 4, false], // firestorm
-		[229, 1], // molten boulder
-		[225, 7, false], // firestorm
-		[234, 1], // fissure
-		[231, 1], // carrion vine
-		[234, 8, false], // fissure
-		[225, 11, false], // firestorm
-		[234, 20, false], // fissure
-		[225, 18, false], // firestorm
+		[sdk.skills.PoisonCreeper, 2, false],
+		[sdk.skills.Firestorm, 4, false],
+		[sdk.skills.MoltenBoulder, 1],
+		[sdk.skills.Firestorm, 7, false],
+		[sdk.skills.Fissure, 1],
+		[sdk.skills.CarrionVine, 1],
+		[sdk.skills.Fissure, 8, false],
+		[sdk.skills.Firestorm, 11, false],
+		[sdk.skills.Fissure, 20, false],
+		[sdk.skills.Firestorm, 18, false],
 	],
 
 	active: function () {

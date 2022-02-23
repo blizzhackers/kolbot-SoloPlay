@@ -83,7 +83,7 @@ function LoadConfig () {
 	Config.LifeChicken = me.hardcore ? 45 : 10;
 	Config.ManaChicken = 0;
 	Config.MercChicken = 0;
-	Config.TownHP = me.hardcore ? 0 : Config.TownCheck ? 35 : 0;
+	Config.TownHP = me.hardcore ? 0 : 35;
 	Config.TownMP = 0;
 
 	/* Potions configuration. */
@@ -94,10 +94,7 @@ function LoadConfig () {
 
 	/* Belt configuration. */
 	Config.BeltColumn = ["hp", "mp", "mp", "rv"];
-	Config.MinColumn[0] = Config.BeltColumn[0] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
-	Config.MinColumn[1] = Config.BeltColumn[1] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
-	Config.MinColumn[2] = Config.BeltColumn[2] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
-	Config.MinColumn[3] = Config.BeltColumn[3] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
+	SetUp.belt();
 
 	/* Inventory buffers and lock configuration. */
 	Config.HPBuffer = 0;
@@ -403,37 +400,39 @@ function LoadConfig () {
 			Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Ring]) : Config.Recipes.push([Recipe.Blood.Ring]);
 		}
 
-		if (me.rawStrength >= 150 && me.rawDexterity >= 88) {
-			// Upgrade Bloodletter to Elite
-			Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Gladius", Roll.NonEth]);
-		}
-
-		if (me.rawStrength >= 25 && me.rawDexterity >= 136) {
-			// Upgrade Ginther's Rift to Elite
-			Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "dimensionalblade", Roll.Eth]);
-		}
-
-		if (!Check.haveItem("falcata", "unique", "Bloodletter")) {
-			NTIP.addLine("[name] == PulRune # # [maxquantity] == 1");
-			NTIP.addLine("[name] == perfectemerald # # [maxquantity] == 1");
-			// Bloodletter
-			NTIP.addLine("[name] == gladius && [quality] == unique && [flag] != ethereal # [enhanceddamage] >= 140 && [ias] >= 20 # [maxquantity] == 1");
-			// upped Bloodletter
-			NTIP.addLine("[name] == falcata && [quality] == unique && [flag] != ethereal # [enhanceddamage] >= 140 && [ias] >= 20 # [maxquantity] == 1");
-		}
-
-		if (!Check.haveItem("dimensionalblade", "unique", "Ginther's Rift")) {
-			NTIP.addLine("[name] == PulRune # # [maxquantity] == 1");
-			NTIP.addLine("[name] == perfectemerald # # [maxquantity] == 1");
-
-			// Have Pul rune before looking for eth ginther's
-			if (me.getItem(sdk.items.runes.Pul)) {
-				// Eth Ginther's Rift
-				NTIP.addLine("[name] == dimensionalblade && [quality] == unique && [flag] == ethereal # [enhanceddamage] >= 100 && [ias] == 30 && [magicdamagereduction] >= 7 # [maxquantity] == 1");
+		if (Item.getEquippedItem(5).tier < 1370) {
+			if (me.rawStrength >= 150 && me.rawDexterity >= 88) {
+				// Upgrade Bloodletter to Elite
+				Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Gladius", Roll.NonEth]);
 			}
 
-			// upped Ginther's Rift
-			NTIP.addLine("[name] == phaseblade && [quality] == unique && [flag] == ethereal # [enhanceddamage] >= 100 && [ias] == 30 && [magicdamagereduction] >= 7 # [maxquantity] == 1");
+			if (me.rawStrength >= 25 && me.rawDexterity >= 136) {
+				// Upgrade Ginther's Rift to Elite
+				Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "dimensionalblade", Roll.Eth]);
+			}
+
+			if (!Check.haveItem("falcata", "unique", "Bloodletter")) {
+				NTIP.addLine("[name] == PulRune # # [maxquantity] == 1");
+				NTIP.addLine("[name] == perfectemerald # # [maxquantity] == 1");
+				// Bloodletter
+				NTIP.addLine("[name] == gladius && [quality] == unique && [flag] != ethereal # [enhanceddamage] >= 140 && [ias] >= 20 # [maxquantity] == 1");
+				// upped Bloodletter
+				NTIP.addLine("[name] == falcata && [quality] == unique && [flag] != ethereal # [enhanceddamage] >= 140 && [ias] >= 20 # [maxquantity] == 1");
+			}
+
+			if (!Check.haveItem("dimensionalblade", "unique", "Ginther's Rift")) {
+				NTIP.addLine("[name] == PulRune # # [maxquantity] == 1");
+				NTIP.addLine("[name] == perfectemerald # # [maxquantity] == 1");
+
+				// Have Pul rune before looking for eth ginther's
+				if (me.getItem(sdk.items.runes.Pul)) {
+					// Eth Ginther's Rift
+					NTIP.addLine("[name] == dimensionalblade && [quality] == unique && [flag] == ethereal # [enhanceddamage] >= 100 && [ias] == 30 && [magicdamagereduction] >= 7 # [maxquantity] == 1");
+				}
+
+				// upped Ginther's Rift
+				NTIP.addLine("[name] == phaseblade && [quality] == unique && [flag] == ethereal # [enhanceddamage] >= 100 && [ias] == 30 && [magicdamagereduction] >= 7 # [maxquantity] == 1");
+			}
 		}
 
 		// Lawbringer - Amn/Lem/Ko

@@ -83,7 +83,7 @@ function LoadConfig () {
 	Config.LifeChicken = me.hardcore ? 45 : 10;
 	Config.ManaChicken = 0;
 	Config.MercChicken = 0;
-	Config.TownHP = me.hardcore ? 0 : Config.TownCheck ? 35 : 0;
+	Config.TownHP = me.hardcore ? 0 : 35;
 	Config.TownMP = 0;
 
 	/* Potions configuration. */
@@ -94,10 +94,7 @@ function LoadConfig () {
 
 	/* Belt configuration. */
 	Config.BeltColumn = ["hp", "mp", "mp", "rv"];
-	Config.MinColumn[0] = Config.BeltColumn[0] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
-	Config.MinColumn[1] = Config.BeltColumn[1] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
-	Config.MinColumn[2] = Config.BeltColumn[2] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
-	Config.MinColumn[3] = Config.BeltColumn[3] !== "rv" ? Math.max(1, Storage.BeltSize() - 1) : 0;
+	SetUp.belt();
 
 	/* Inventory buffers and lock configuration. */
 	Config.HPBuffer = 0;

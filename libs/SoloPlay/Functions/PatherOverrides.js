@@ -218,7 +218,7 @@ Pather.teleportTo = function (x, y, maxRange = 5) {
 Pather.teleUsingCharges = function (x, y, maxRange = 5) {
 	let orgSlot = me.weaponswitch;
 
-	for (let i = 0; i < 3; i += 1) {
+	for (let i = 0; i < 3; i++) {
 		me.castChargedSkill(sdk.skills.Teleport, x, y);
 		let tick = getTickCount();
 
@@ -230,6 +230,13 @@ Pather.teleUsingCharges = function (x, y, maxRange = 5) {
 
 			delay(10);
 		}
+	}
+
+	if (me.gold > me.getRepairCost() * 3 && Town.canTpToTown()) {
+		console.debug("Tele-Charge repair");
+		Town.visitTown(true);
+	} else {
+		this.haveTeleCharges = false;
 	}
 
 	me.weaponswitch !== orgSlot && me.switchWeapons(orgSlot);
