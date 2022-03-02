@@ -509,7 +509,7 @@ Cubing.buildLists = function () {
 
 	this.validIngredients = [];
 	this.neededIngredients = [];
-	items = me.getItemsEx().filter(item => [sdk.itemmode.inStorage, sdk.itemmode.Equipped].indexOf(item.mode) > -1);
+	items = me.getItemsEx().filter(item => [sdk.itemmode.inStorage, sdk.itemmode.Equipped].includes(item.mode));
 	items.sort((a, b) => b.ilvl - a.ilvl);
 
 	for (i = 0; i < this.recipes.length; i += 1) {
@@ -647,9 +647,7 @@ Cubing.emptyCube = function () {
 	if (!cube || !items) return false;
 
 	while (items.length) {
-		if (!getUIFlag(sdk.uiflags.Cube)) {
-			Cubing.openCube();
-		}
+		!getUIFlag(sdk.uiflags.Cube) && Cubing.openCube();
 
 		if (!Storage.Stash.MoveTo(items[0]) && !Storage.Inventory.MoveTo(items[0])) {
 			Town.clearInventory();
@@ -900,7 +898,7 @@ Cubing.doCubing = function () {
 	// Randomize the recipe array to prevent recipe blocking (multiple caster items etc.)
 	tempArray = this.recipes.slice().shuffle();
 
-	for (i = 0; i < tempArray.length; i += 1) {
+	for (i = 0; i < tempArray.length; i++) {
 		string = "Transmuting: ";
 		items = this.checkRecipe(tempArray[i]);
 
@@ -916,7 +914,7 @@ Cubing.doCubing = function () {
 
 			while (items.length) {
 				string += (items[0].name.trim() + (items.length > 1 ? " + " : ""));
-				if (items[0].isEquipped) { wasEquipped = true; }
+				items[0].isEquipped && (wasEquipped = true);
 				Storage.Cube.MoveTo(items[0]);
 				items.shift();
 			}
@@ -935,7 +933,7 @@ Cubing.doCubing = function () {
 			items = me.findItems(-1, -1, sdk.storage.Cube);
 
 			if (items) {
-				for (j = 0; j < items.length; j += 1) {
+				for (j = 0; j < items.length; j++) {
 					result = Pickit.checkItem(items[j]);
 
 					switch (result.result) {
@@ -950,7 +948,7 @@ Cubing.doCubing = function () {
 							}
 						}
 
-						Developer.debugging.crafting && (Misc.logItem("Crafted but didn't want", items[j]));
+						Developer.debugging.crafting && Misc.logItem("Crafted but didn't want", items[j]);
 
 						break;
 					case 1:
@@ -985,9 +983,7 @@ Cubing.doCubing = function () {
 		}
 	}
 
-	if (wasEquipped) {
-		Item.autoEquip();
-	}
+	wasEquipped && Item.autoEquip();
 
 	return true;
 };

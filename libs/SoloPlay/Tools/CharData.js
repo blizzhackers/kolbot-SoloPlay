@@ -26,14 +26,16 @@ const CharData = {
 			startTime: 0,
 			charName: "",
 			level: 1,
+			strength: 0,
+			dexterity: 0,
 			currentBuild: "Start",
 			finalBuild: "",
 			highestDifficulty: "Normal",
 			setDifficulty: "Normal"
 		},
 		merc: {
-			act: 0,
-			classid: 0,
+			act: 1,
+			classid: 271,
 			difficulty: 0,
 			type: "",
 		}

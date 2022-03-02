@@ -500,8 +500,7 @@ const SoloEvents = {
 		// Now check my area
 		if (me.act === 2) {
 			// Act change sucessful, Andy has been bugged
-			print("ÿc8Kolbot-SoloPlayÿc0: Andy bug " + (!me.getQuest(6, 15) ? "sucessful" : "failed"));
-			me.overhead("Andy bug " + (!me.getQuest(6, 15) ? "sucessful" : "failed"));
+			myPrint("Andy bug " + (!me.getQuest(6, 15) ? "sucessful" : "failed"));
 			scriptBroadcast('quit');
 		}
 	},

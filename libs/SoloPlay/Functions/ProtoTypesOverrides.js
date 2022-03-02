@@ -418,26 +418,6 @@ Object.defineProperties(me, {
 			return me.staminamax / me.staminaDrainPerSec;
 		}
 	},
-	trueStr: {
-		get: function () {
-			if (str === 0 || levelCheckS < me.charlvl) {
-				str = me.rawStrength;
-				levelCheckS = me.charlvl;
-			}
-			return str;
-		},
-		set: function(newValue) { str = newValue; }
-	},
-	trueDex: {
-		get: function () {
-			if (dex === 0 || levelCheckD < me.charlvl) {
-				dex = me.rawDexterity;
-				levelCheckD = me.charlvl;
-			}
-			return dex;
-		},
-		set: function(newValue) { dex = newValue; }
-	},
 	FCR: {
 		get: function () {
 			return me.getStat(sdk.stats.FCR) - (!!Config ? Config.FCR : 0);

@@ -80,7 +80,7 @@ Pickit.checkItem = function (unit) {
 		};
 	}
 
-	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) && !unit.identified) {
+	if (AutoEquip.hasTier(unit) && !unit.identified) {
 		return {
 			result: -1,
 			line: null

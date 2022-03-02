@@ -1,7 +1,7 @@
 /*
 *	@filename	Globals.js
 *	@author		theBGuy
-*	@credits	isid0re
+*	@credits	alogwe, isid0re
 *	@desc		Global variables Settings, general functions for Kolbot-SoloPlay functionality
 */
 
@@ -20,6 +20,14 @@ let impossibleNonLadderBuilds = ["Auradin"];
 
 Unit.prototype.__defineGetter__('mercid', function () {
     return !!myData ? myData.merc.classid : me.getMerc().classid;
+});
+
+Unit.prototype.__defineGetter__('trueStr', function () {
+    return !!myData ? myData.me.strength : me.rawStrength;
+});
+
+Unit.prototype.__defineGetter__('trueDex', function () {
+    return !!myData ? myData.me.dexterity : me.rawDexterity;
 });
 
 function myPrint (str = "", toConsole = false, color = 0) {
@@ -80,6 +88,24 @@ function ensureData () {
 
 	if (!!me.respec && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed === false) {
 		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
+		console.debug(myData);
+		update = true;
+	}
+
+	if (myData.me.level !== me.charlvl) {
+		myData.me.level = me.charlvl;
+		console.debug(myData);
+		update = true;
+	}
+
+	if (myData.me.strength !== me.rawStrength) {
+		myData.me.strength = me.rawStrength;
+		console.debug(myData);
+		update = true;
+	}
+
+	if (myData.me.dexterity !== me.rawDexterity) {
+		myData.me.dexterity = me.rawDexterity;
 		console.debug(myData);
 		update = true;
 	}

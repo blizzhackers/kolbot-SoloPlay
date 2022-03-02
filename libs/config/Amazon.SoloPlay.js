@@ -306,29 +306,11 @@ function LoadConfig () {
 		// FinalBuild specific setup
 		switch (SetUp.finalBuild) {
 		case 'Witchyzon':
-			// TODO: Clean this up
-			{
-				let WWS = me.getItemsEx()
-					.filter(item =>
-						item.classid === 268 // diamond bow (witchwhild string up'd)
-	                    && item.quality === 7 // unique only
-	                    && [1, 3, 7].indexOf(item.location) > -1 // Needs to be at any of these locations
-					)
-					.sort((a, b) => a.location - b.location) // Sort on location, low to high. So if you have one already equiped, it comes first
-					.first();
+			SetUp.currentBuild === "Witchyzon" && NTIP.addLine("[type] == bowquiver # # [maxquantity] == 2");
 
-				if (!WWS) {
-					NTIP.addLine("[name] == shortsiegebow && [quality] == unique # [fireresist] == 40 # [maxquantity] == 1");
-					Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]);
-				}
-
-				if (WWS) {
-					let arrows = [
-						"[name] == arrows # # [tier] == 100000", //max tier to avoid shield swap
-						"[type] == bowquiver # # [maxquantity] == 2",
-					];
-					NTIP.arrayLooping(arrows);
-				}
+			if (!Check.haveItem(sdk.items.DiamondBow, "unique", "Witchwild String")) {
+				NTIP.addLine("[name] == shortsiegebow && [quality] == unique # [fireresist] == 40 # [maxquantity] == 1");
+				Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]);
 			}
 
 			break;

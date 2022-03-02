@@ -246,12 +246,8 @@ Item.autoEquip = function () {
 	if (!Config.AutoEquip) return true;
 
 	print("ÿc8Kolbot-SoloPlayÿc0: Entering auto equip");
+	
 	let tick = getTickCount();
-
-	// Set trueStr and trueDex values rather than having to find them everytime.
-	(me.trueStr < me.rawStrength) && (me.trueStr = me.rawStrength);
-	(me.trueDex < me.rawDexterity) && (me.trueDex = me.rawDexterity);
-
 	let tier, bodyLoc, idTool, gid,
 		items = me.findItems(-1, 0);
 
@@ -1926,7 +1922,7 @@ const AutoEquip = {
 		if (me.classic) {
 			return Item.hasTier(item);
 		} else {
-			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].contains(item.itemType)) {
+			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType)) {
 				return Item.hasCharmTier(item);
 			} else {
 				return Item.hasMercTier(item) || Item.hasTier(item) || Item.hasSecondaryTier(item);
@@ -1938,7 +1934,7 @@ const AutoEquip = {
 		if (me.classic) {
 			return Item.autoEquipKeepCheck(item);
 		} else {
-			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].contains(item.itemType)) {
+			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType)) {
 				return Item.autoEquipCharmCheck(item);
 			} else {
 				return Item.autoEquipKeepCheckMerc(item) || Item.autoEquipKeepCheck(item) || Item.autoEquipCheckSecondary(item);
