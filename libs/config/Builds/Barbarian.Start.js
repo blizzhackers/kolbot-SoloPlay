@@ -32,7 +32,7 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, sdk.skills.Bash 0, 0, 0];
+			Config.AttackSkill = [-1, sdk.skills.Bash, 0, 0, 0];
 		}
 	},
 

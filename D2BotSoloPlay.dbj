@@ -85,11 +85,13 @@ if (Developer.logPerformance) {
 }
 
 let gameInfo, joinInfo, gameStart, ingame, chatActionsDone, pingQuit, myExp, myGold, resPenalty, frRes, crRes, lrRes, prRes, areaName, diffName,
-	handle, useChat, firstLogin, connectFail, setUp, deadCheck, connectFailRetry,
+	handle, useChat, firstLogin, connectFail, setUp, deadCheck, connectFailRetry, gameTracker,
 	battlenet = Profile().type === 2 ? true : false,
 	gameCount = DataFile.getStats().runs + 1,
 	lastGameStatus = "ready",
 	isUp = "no",
+	realmMap = {"east": "useast", "west": "uswest"},
+	charClassMap = {"ZON": "amazon", "SOR": "sorceress", "NEC": "necromancer", "PAL": "paladin", "BAR": "barbarian", "DRU": "druid", "SIN": "assassin"},
 	chanInfo = {
 		joinChannel: "",
 		firstMsg: "",
@@ -125,7 +127,6 @@ function ReceiveCopyData (mode, msg) {
 		break;
 	case 2: // Game info
 		print("Received Game Info");
-
 		gameInfo = JSON.parse(msg);
 
 		break;
@@ -159,93 +160,61 @@ function ReceiveCopyData (mode, msg) {
 
 		break;
 	case 1638:
-		obj = JSON.parse(msg);
-		setUp = {};
-		setUp.profile = me.profile.toUpperCase();
-		setUp.account = obj.Account;
-		setUp.password = "";
-		setUp.charName = obj.Character;
-		setUp.tag = obj.Tag;
-		setUp.difficulty = obj.Difficulty;
+		try {
+			obj = JSON.parse(msg);
+			setUp = {};
+			setUp.profile = me.profile.toUpperCase();
+			setUp.account = obj.Account;
+			setUp.password = "";
+			setUp.charName = obj.Character;
+			setUp.tag = obj.Tag;
+			setUp.difficulty = obj.Difficulty;
+			setUp.realm = realmMap[obj.Realm.toLowerCase()];
 
-		switch (obj.Realm.toLowerCase()) {
-		case "east":
-			setUp.realm = "useast";
-			break;
-		case "west":
-			setUp.realm = "uswest";
-			break;
-		case "asia":
-			setUp.realm = "asia";
-			break;
-		case "europe":
-			setUp.realm = "europe";
-			break;
-		}
+			buildCheck = setUp.profile.split("-"); // SCL-ZON123
+			setUp.hardcore = buildCheck[0].indexOf("HC") !== -1; // SC softcore = false
+			setUp.expansion = buildCheck[0].indexOf("CC") === -1; // not CC so not classic - true
+			setUp.ladder = buildCheck[0].indexOf("NL") === -1; // not NL so its ladder - true
 
-		buildCheck = setUp.profile.split("-"); // SCL-ZON123
-		setUp.hardcore = buildCheck[0].indexOf("HC") !== -1; // SC softcore = false
-		setUp.expansion = buildCheck[0].indexOf("CC") === -1; // not CC so not classic - true
-		setUp.ladder = buildCheck[0].indexOf("NL") === -1; // not NL so its ladder - true
-
-		if (buildCheck[1] === undefined || !buildCheck[1]) {
-			D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', 6);
-			D2Bot.printToConsole("If you are still confused please read the included readMe. https://github.com/theBGuy/Kolbot-SoloPlay/blob/main/README.md", 6);
-			D2Bot.stop();
-		}
-
-		buildCheck[1] = buildCheck[1].toString().substring(0, 3); // removes numbers ZON for switch
-
-		switch (buildCheck[1]) {
-		case "ZON":
-			setUp.charClass = "amazon";
-			break;
-		case "SOR":
-			setUp.charClass = "sorceress";
-			break;
-		case "NEC":
-			setUp.charClass = "necromancer";
-			break;
-		case "PAL":
-			setUp.charClass = "paladin";
-			break;
-		case "BAR":
-			setUp.charClass = "barbarian";
-			break;
-		case "DRU":
-			setUp.charClass = "druid";
-			break;
-		case "SIN":
-			setUp.charClass = "assassin";
-			break;
-		default:
-			D2Bot.updateStatus('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin');
-			D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', 6);
-			D2Bot.stop();
-
-			break;
-		}
-
-		if (setUp.tag !== "") {
-			setUp.tag = setUp.tag[0].toUpperCase() + setUp.tag.substring(1).toLowerCase();
-			let soloStats = CharData.getStats();
-
-			if (!soloStats.me.finalBuild || soloStats.me.finalBuild !== setUp.tag) {
-				D2Bot.setProfile(null, null, null, null, null, setUp.tag);
-				CharData.updateData("me", "finalBuild", setUp.tag);
-				soloStats.me.finalBuild = setUp.tag;
+			if (buildCheck.length <= 1) {
+				D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', 6);
+				D2Bot.printToConsole("If you are still confused please read the included readMe. https://github.com/blizzhackers/kolbot-SoloPlay/blob/main/README.md", 6);
+				D2Bot.stop();
 			}
 
-			if (!["Start", "Stepping", "Leveling"].includes(soloStats.me.currentBuild) && soloStats.me.currentBuild !== soloStats.me.finalBuild) {
-				CharData.updateData("me", "currentBuild", "Leveling");
-				soloStats.me.currentBuild = "Leveling";
-			}
-		} else {
-			D2Bot.updateStatus('Please update profile InfoTag. Missing the finalBuild.');
-			D2Bot.printToConsole('Please update profile InfoTag. Missing the finalBuild.', 6);
-			D2Bot.stop();
+			buildCheck[1] = buildCheck[1].toString().substring(0, 3);
 
-			break;
+			if (charClassMap[buildCheck[1]]) {
+				setUp.charClass = charClassMap[buildCheck[1]];
+			} else {
+				throw new Error("Invalid profile name, couldn't set character class"); 
+			} 
+
+			if (setUp.tag !== "") {
+				setUp.tag = setUp.tag[0].toUpperCase() + setUp.tag.substring(1).toLowerCase();
+				{
+					let soloStats = CharData.getStats();
+
+					if (!soloStats.me.finalBuild || soloStats.me.finalBuild !== setUp.tag) {
+						D2Bot.setProfile(null, null, null, null, null, setUp.tag);
+						CharData.updateData("me", "finalBuild", setUp.tag);
+						soloStats.me.finalBuild = setUp.tag;
+					}
+
+					if (!["Start", "Stepping", "Leveling"].includes(soloStats.me.currentBuild) && soloStats.me.currentBuild !== soloStats.me.finalBuild) {
+						CharData.updateData("me", "currentBuild", "Leveling");
+						soloStats.me.currentBuild = "Leveling";
+					}
+				}
+			} else {
+				D2Bot.printToConsole('Please update profile InfoTag. Missing the finalBuild.', 6);
+				D2Bot.stop();
+
+				break;
+			}
+		} catch (e) {
+			Misc.errorReport(e);
+			D2Bot.stop();
 		}
 
 		break;
@@ -255,7 +224,7 @@ function ReceiveCopyData (mode, msg) {
 function deleteAndRemakeChar (info) {
 	me.blockMouse = true;
 
-	var control, text;
+	let control, text;
 		
 	ControlAction.findCharacter(info); //Scroll down until the specific control is visible
 
@@ -338,7 +307,7 @@ function saveInfo (info) {
 }
 
 function setNextGame () {
-	var nextGame = gameInfo.gameName;
+	let nextGame = gameInfo.gameName;
 
 	if (StarterConfig.ResetCount && gameCount + 1 >= StarterConfig.ResetCount) {
 		nextGame += 1;
@@ -350,7 +319,7 @@ function setNextGame () {
 }
 
 function locationTimeout (time, location) {
-	var endtime = getTickCount() + time;
+	let endtime = getTickCount() + time;
 
 	while (getLocation() === location && endtime > getTickCount()) {
 		delay(500);
@@ -418,16 +387,29 @@ function ScriptMsgEvent (msg) {
 }
 
 function timer (tick) {
-	return " (" + new Date(getTickCount() - tick).toISOString().slice(11, -5) + ")";
+	let timeStr = " (" + new Date(getTickCount() - tick).toISOString().slice(11, -5) + ")";
+	
+	if (Developer.displayClockInConsole) {
+		try {
+			gameTracker === undefined && (gameTracker = Developer.readObj(Tracker.GTPath));
+			let currInGame = getTickCount() - tick;
+			let totalTime = Developer.formatTime(gameTracker.Total + currInGame);
+			let totalInGame = Developer.formatTime(gameTracker.InGame + currInGame);
+			timeStr += ("(Tot: " + totalTime + ")(IG: " + totalInGame + ")(OOG: " + Developer.formatTime(gameTracker.OOG) + ")");
+		} catch (e) {
+			print(e);
+		}
+	}
+	return timeStr;
 }
 
 function randomString (len, useNumbers = false) {
-	var i, rval = "",
+	let i, rval = "",
 		letters = useNumbers ? "abcdefghijklmnopqrstuvwxyz0123456789" : "abcdefghijklmnopqrstuvwxyz";
 
 	len = len ? len : rand(5, 14);
 
-	for (i = 0; i < len; i += 1) {
+	for (i = 0; i < len; i++) {
 		rval += letters[rand(0, letters.length - 1)];
 	}
 
@@ -435,7 +417,7 @@ function randomString (len, useNumbers = false) {
 }
 
 function locationAction (location) {
-	var i, control, string, text;
+	let i, control, string, text;
 
 	MainSwitch:
 	switch (location) {
@@ -449,13 +431,8 @@ function locationAction (location) {
 
 		me.blockKeys = false;
 
-		if (!firstLogin) {
-			firstLogin = true;
-		}
-
-		if (lastGameStatus === "pending") {
-			gameCount += 1;
-		}
+		!firstLogin && (firstLogin = true);
+		lastGameStatus === "pending" && (gameCount += 1);
 
 		if (StarterConfig.PingQuitDelay && pingQuit) {
 			ControlAction.timeoutDelay("Ping Delay", StarterConfig.PingQuitDelay * 1e3);
@@ -470,9 +447,7 @@ function locationAction (location) {
 		}
 
 		if (ingame || gameInfo.error) {
-			if (!gameStart) {
-				gameStart = DataFile.getStats().ingameTick;
-			}
+			!gameStart && (gameStart = DataFile.getStats().ingameTick);
 
 			if (getTickCount() - gameStart < StarterConfig.MinGameTime * 1e3 && !joinInfo) {
 				ControlAction.timeoutDelay("Min game time wait", StarterConfig.MinGameTime * 1e3 + gameStart - getTickCount());
@@ -502,11 +477,11 @@ function locationAction (location) {
 			break;
 		}
 
-		deadCheck = setUp.hardcore === true && (getControl(6, 533, 469, 120, 20) && getControl(6, 533, 469, 120, 20).disabled === 4);
+		deadCheck = (setUp.hardcore && getControl(6, 533, 469, 120, 20) && getControl(6, 533, 469, 120, 20).disabled === 4);
 
 		if (deadCheck) {
 			D2Bot.updateStatus("Character died");
-			D2Bot.PrintToConsole("Character died.", 6);
+			D2Bot.printToConsole("Character died.", 6);
 			delay(5000);
 			ControlAction.click(6, 693, 490, 80, 20);
 			break;
@@ -534,15 +509,10 @@ function locationAction (location) {
 		break;
 	case 3: // Lobby Chat
 		D2Bot.updateStatus("Lobby Chat");
-
-		if (lastGameStatus === "pending") {
-			gameCount += 1;
-		}
+		lastGameStatus === "pending" && (gameCount += 1);
 
 		if (ingame || gameInfo.error) {
-			if (!gameStart) {
-				gameStart = DataFile.getStats().ingameTick;
-			}
+			!gameStart && (gameStart = DataFile.getStats().ingameTick);
 
 			if (getTickCount() - gameStart < StarterConfig.MinGameTime * 1e3) {
 				ControlAction.timeoutDelay("Min game time wait", StarterConfig.MinGameTime * 1e3 + gameStart - getTickCount());
@@ -550,8 +520,6 @@ function locationAction (location) {
 		}
 
 		if (ingame) {
-			//D2Bot.store(JSON.stringify({currScript: "none", area: "out of game"}));
-
 			if (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || SoloEvents.outOfGameCheck()) {
 				break;
 			}
@@ -576,11 +544,9 @@ function locationAction (location) {
 			}
 
 			if (chanInfo.afterMsg) {
-				if (typeof chanInfo.afterMsg === "string") {
-					chanInfo.afterMsg = [chanInfo.afterMsg];
-				}
+				!Array.isArray(chanInfo.afterMsg) && (chanInfo.afterMsg = [chanInfo.afterMsg]);
 
-				for (i = 0; i < chanInfo.afterMsg.length; i += 1) {
+				for (i = 0; i < chanInfo.afterMsg.length; i++) {
 					sayMsg(chanInfo.afterMsg[i]);
 					delay(500);
 				}
@@ -603,15 +569,10 @@ function locationAction (location) {
 			}
 
 			if (chanInfo.joinChannel) {
-				if (typeof chanInfo.joinChannel === "string") {
-					chanInfo.joinChannel = [chanInfo.joinChannel];
-				}
+				!Array.isArray(chanInfo.joinChannel) && (chanInfo.joinChannel = [chanInfo.joinChannel]);
+				!Array.isArray(chanInfo.firstMsg) && (chanInfo.firstMsg = [chanInfo.firstMsg]);
 
-				if (typeof chanInfo.firstMsg === "string") {
-					chanInfo.firstMsg = [chanInfo.firstMsg];
-				}
-
-				for (i = 0; i < chanInfo.joinChannel.length; i += 1) {
+				for (i = 0; i < chanInfo.joinChannel.length; i++) {
 					ControlAction.timeoutDelay("Chat delay", StarterConfig.ChatActionsDelay * 1e3);
 
 					if (ControlAction.joinChannel(chanInfo.joinChannel[i])) {
@@ -674,7 +635,7 @@ function locationAction (location) {
 				}
 
 				ControlAction.setText(1, 657, 342, 27, 20, StarterConfig.CharacterDifference.toString());
-			} else if (StarterConfig.CharacterDifference === false && control.disabled === 5) {
+			} else if (!StarterConfig.CharacterDifference && control.disabled === 5) {
 				ControlAction.click(6, 431, 341, 15, 16);
 			}
 		}
@@ -831,7 +792,7 @@ function locationAction (location) {
 		text = ControlAction.getText(4, 199, 377, 402, 140);
 
 		if (text) {
-			for (i = 0; i < text.length; i += 1) {
+			for (i = 0; i < text.length; i++) {
 				string += text[i];
 
 				if (i !== text.length - 1) {
@@ -947,9 +908,7 @@ function locationAction (location) {
 			break;
 		}
 
-		if (connectFailRetry >= 2) {
-			connectFail = true;
-		}
+		connectFailRetry >= 2 && (connectFail = true);
 
 		if (connectFail) {
 			ControlAction.timeoutDelay("Unable to Connect", StarterConfig.UnableToConnectDelay * 6e4);
@@ -1039,7 +998,7 @@ function locationAction (location) {
 		string = "";
 
 		if (text) {
-			for (i = 0; i < text.length; i += 1) {
+			for (i = 0; i < text.length; i++) {
 				string += text[i];
 
 				if (i !== text.length - 1) {
@@ -1089,7 +1048,7 @@ function locationAction (location) {
 		text = ControlAction.getText(4, 45, 318, 531, 140);
 
 		if (text) {
-			for (i = 0; i < text.length; i += 1) {
+			for (i = 0; i < text.length; i++) {
 				string += text[i];
 
 				if (i !== text.length - 1) {
@@ -1138,10 +1097,7 @@ function locationAction (location) {
 
 		if (!locationTimeout(StarterConfig.ConnectingTimeout * 1e3, location)) {
 			ControlAction.click(6, 33, 572, 128, 35);
-
-			if (gameInfo.rdBlocker) {
-				D2Bot.restart();
-			}
+			gameInfo.rdBlocker && D2Bot.restart();
 		}
 
 		break;
@@ -1252,12 +1208,9 @@ function main () {
 		delay(500);
 	}
 
-	if (Developer.logPerformance) {
-		Tracker.checkValidity();
-	}
+	Developer.logPerformance && Tracker.checkValidity();
 
 	if (gameInfo.error) {
-		delay(200);
 		ControlAction.timeoutDelay("Crash Delay", StarterConfig.CrashDelay * 1e3);
 		battlenet && D2Bot.updateRuns();
 	}
@@ -1271,9 +1224,9 @@ function main () {
 	}
 
 	if (setUp.charName === "") {
+		print("Generating Character Name");
 		setUp.charName = NameGen();
 		D2Bot.setProfile(null, null, setUp.charName, "Normal");
-		print("Generating Character Name");
 
 		let gamename = setUp.charName.substring(0, 7) + "-" + randomString(3, false) + "-";
 		DataFile.updateStats("gameName", gamename);
@@ -1282,9 +1235,7 @@ function main () {
 	} else if (firstRun) {
 		// should be first run on this profile since we created a new data file so initialize difficulty to normal
 		// check first before setting to avoid unneeded setProfile calls
-		if (setUp.difficulty !== "Normal") {
-			D2Bot.setProfile(null, null, null, "Normal");
-		}
+		setUp.difficulty !== "Normal" && D2Bot.setProfile(null, null, null, "Normal");
 	}
 
 	while (true) {
@@ -1298,6 +1249,8 @@ function main () {
 					gameStart = getTickCount();
 					lastGameStatus = "ingame";
 					ingame = true;
+					resPenalty = me.gametype === 0 ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff];
+					diffName = ['Norm', 'Night', 'Hell'][me.diff];
 					DataFile.updateStats("runs", gameCount);
 					DataFile.updateStats("ingameTick");
 				}
@@ -1308,14 +1261,12 @@ function main () {
 					try {
 						myExp = me.getStat(13) > 0 ? Experience.progress() : 0;
 						myGold = me.getStat(14) + me.getStat(15);
-						resPenalty = me.gametype === 0 ? [ 0, 20, 50][me.diff] : [ 0, 40, 100][me.diff];
 						frRes = Math.min(75, me.getStat(39) - resPenalty);
 						crRes = Math.min(75, me.getStat(43) - resPenalty);
 						lrRes = Math.min(75, me.getStat(41) - resPenalty);
 						prRes = Math.min(75, me.getStat(45) - resPenalty);
 						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
-						diffName = ['Normal', 'Nightmare', 'Hell'][me.diff];
-						statusString = "Lvl: " + me.charlvl + " (" + myExp + "%) | Diff: " + diffName + " | Area: " + areaName + " | Gold: " + myGold + " | FR: " + frRes + " | CR: " + crRes + " | LR: " + lrRes + " | PR: " + prRes + " ";
+						statusString = "Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
 					} catch (e) {
 						print(e);
 					}
