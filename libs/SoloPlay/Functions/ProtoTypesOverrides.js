@@ -383,7 +383,6 @@ Object.defineProperties(Unit.prototype, {
 	},
 });
 
-let str = 0, levelCheckS = 0, dex = 0, levelCheckD = 0;
 Object.defineProperties(me, {
 	highestAct: {
 		get: function () {

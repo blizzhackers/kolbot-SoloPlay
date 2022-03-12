@@ -207,10 +207,7 @@ function ReceiveCopyData (mode, msg) {
 					}
 				}
 			} else {
-				D2Bot.printToConsole('Please update profile InfoTag. Missing the finalBuild.', 6);
-				D2Bot.stop();
-
-				break;
+				throw new Error("Please update profile InfoTag. Missing the finalBuild.");
 			}
 		} catch (e) {
 			Misc.errorReport(e);
@@ -684,6 +681,7 @@ function locationAction (location) {
 	case 7: // Channel List
 		break;
 	case 8: // Main Menu
+		ingame && (ingame = false);
 		if (Profile().type === 1 && firstRun) {
 			ControlAction.click(6, 264, 324, 272, 35);
 
@@ -1194,6 +1192,8 @@ function main () {
 	addEventListener('copydata', ReceiveCopyData);
 	addEventListener('scriptmsg', ScriptMsgEvent);
 
+	let oogTick = getTickCount();
+
 	while (!handle) {
 		delay(100);
 	}
@@ -1253,6 +1253,8 @@ function main () {
 					diffName = ['Norm', 'Night', 'Hell'][me.diff];
 					DataFile.updateStats("runs", gameCount);
 					DataFile.updateStats("ingameTick");
+					Developer.logPerformance && Tracker.update((getTickCount() - oogTick));
+					oogTick = 0;
 				}
 
 				if (me.ingame && me.gameReady) {
@@ -1277,6 +1279,9 @@ function main () {
 
 			delay(1000);
 		}
+
+		// was in game so start recording oog time
+		ingame && oogTick === 0 && (oogTick = getTickCount());
 
 		isUp = "no";
 		locationAction(getLocation());

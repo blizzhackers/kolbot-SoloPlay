@@ -62,15 +62,18 @@ const Tracker = {
 	script: function (starttime, subscript, startexp) {
 		let GameTracker = Developer.readObj(Tracker.GTPath);
 		
+		// GameTracker
 		// this seems to happen when my pc restarts so set last save equal to current tick count and then continue
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
-		// GameTracker
-		let totalTick = GameTracker.LastSave > 0 ? GameTracker.LastSave : 0;
+		
 		let newTick = me.gamestarttime >= GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
-		let newIG = GameTracker.InGame + Developer.Timer(newTick);
-		let newTotal = GameTracker.Total + Developer.Timer(totalTick);
-		let scriptTime = Developer.Timer(starttime);
+		GameTracker.InGame += Developer.Timer(newTick);
+		GameTracker.Total += Developer.Timer(newTick);
+		GameTracker.LastSave = getTickCount();
+		Developer.writeObj(GameTracker, Tracker.GTPath);
+		
 		// csv file
+		let scriptTime = Developer.Timer(starttime);
 		let diffString = sdk.difficulty.nameOf(me.diff);
 		let gainAMT = me.getStat(13) - startexp;
 		let gainTime = gainAMT / (scriptTime / 60000);
@@ -79,12 +82,8 @@ const Tracker = {
 		let CR = me.getStat(43);
 		let LR = me.getStat(41);
 		let PR = me.getStat(45);
-		let string = Developer.formatTime(newTotal) + "," + Developer.formatTime(newIG) + "," + Developer.formatTime(scriptTime) + "," + subscript + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n";
+		let string = Developer.formatTime(GameTracker.Total) + "," + Developer.formatTime(GameTracker.InGame) + "," + Developer.formatTime(scriptTime) + "," + subscript + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n";
 
-		GameTracker.Total = newTotal;
-		GameTracker.InGame = newIG;
-		GameTracker.LastSave = getTickCount();
-		Developer.writeObj(GameTracker, Tracker.GTPath);
 		Misc.fileAction(Tracker.SPPath, 2, string);
 		this.tick = GameTracker.LastSave;
 		
@@ -94,16 +93,19 @@ const Tracker = {
 	leveling: function () {
 		let GameTracker = Developer.readObj(this.GTPath);
 
+		// GameTracker
 		// this seems to happen when my pc restarts so set last save equal to current tick count and then continue
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
-		// GameTracker
+		
 		let newSave = getTickCount();
-		let totalTick = GameTracker.LastSave > 0 ? GameTracker.LastSave : 0;
 		let newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
-		let newIG = GameTracker.InGame + Developer.Timer(newTick);
-		let newTotal = GameTracker.Total + Developer.Timer(totalTick);
-		let newOOG = newTotal - newIG;
 		let splitTime = Developer.Timer(GameTracker.LastLevel);
+		GameTracker.InGame += Developer.Timer(newTick);
+		GameTracker.Total += Developer.Timer(newTick);
+		GameTracker.LastLevel = newSave;
+		GameTracker.LastSave = newSave;
+		Developer.writeObj(GameTracker, Tracker.GTPath);
+
 		// csv file
 		let diffString = sdk.difficulty.nameOf(me.diff);
 		let areaName = Pather.getAreaName(me.area);
@@ -114,21 +116,15 @@ const Tracker = {
 		let CR = me.getStat(43);
 		let LR = me.getStat(41);
 		let PR = me.getStat(45);
-		let string = Developer.formatTime(newTotal) + "," + Developer.formatTime(newIG) + "," + Developer.formatTime(splitTime) + "," + areaName + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n";
+		let string = Developer.formatTime(GameTracker.Total) + "," + Developer.formatTime(GameTracker.InGame) + "," + Developer.formatTime(splitTime) + "," + areaName + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n";
 
-		GameTracker.Total = newTotal;
-		GameTracker.InGame = newIG;
-		GameTracker.OOG = newOOG;
-		GameTracker.LastLevel = newSave;
-		GameTracker.LastSave = newSave;
-		Developer.writeObj(GameTracker, Tracker.GTPath);
 		Misc.fileAction(Tracker.LPPath, 2, string);
 		this.tick = GameTracker.LastSave;
 		
 		return true;
 	},
 
-	update: function () {
+	update: function (oogTick = 0) {
 		let heartBeat = getScript("tools/heartbeat.js");
 		if (!heartBeat) {
 			console.debug("Couldn't find heartbeat");
@@ -145,15 +141,11 @@ const Tracker = {
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
 
 		// make sure we aren't attempting to use a corrupted file (only way we get negative values)
-		let totalTick = GameTracker.LastSave > 0 ? GameTracker.LastSave : 0;
 		let newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
-		let newIG = GameTracker.InGame + Developer.Timer(newTick);
-		let newTotal = GameTracker.Total + Developer.Timer(totalTick);
-		let newOOG = newTotal - newIG;
 
-		GameTracker.Total = newTotal;
-		GameTracker.InGame = newIG;
-		GameTracker.OOG = newOOG;
+		GameTracker.OOG += oogTick;
+		GameTracker.InGame += Developer.Timer(newTick);
+		GameTracker.Total += (Developer.Timer(newTick) + oogTick);
 		GameTracker.LastSave = getTickCount();
 		Developer.writeObj(GameTracker, Tracker.GTPath);
 		this.tick = GameTracker.LastSave;

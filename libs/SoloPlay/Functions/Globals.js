@@ -54,7 +54,7 @@ function updateMyData () {
 }
 
 function ensureData () {
-	let update = false;
+	let temp = Misc.copy(myData);
 
 	if (myData.me.currentBuild !== SetUp.getBuild()) {
 		switch (true) {
@@ -62,13 +62,11 @@ function ensureData () {
 		case Check.finalBuild().active():
 			myData.me.currentBuild = SetUp.getBuild();
 			console.debug(myData);
-			update = true;
 
 			break;
 		case !["Start", "Stepping", "Leveling"].includes(SetUp.getBuild()) && myData.me.currentBuild !== myData.me.finalBuild:
 			myData.me.currentBuild = "Leveling";
 			console.debug(myData);
-			update = true;
 
 			break;
 		}
@@ -77,37 +75,31 @@ function ensureData () {
 	if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff))) {
 		myData.me.highestDifficulty = sdk.difficulty.nameOf(me.diff);
 		console.debug(myData);
-		update = true;
 	}
 
 	if (!!me.smith && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed === false) {
 		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
 		console.debug(myData);
-		update = true;
 	}
 
 	if (!!me.respec && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed === false) {
 		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
 		console.debug(myData);
-		update = true;
 	}
 
 	if (myData.me.level !== me.charlvl) {
 		myData.me.level = me.charlvl;
 		console.debug(myData);
-		update = true;
 	}
 
 	if (myData.me.strength !== me.rawStrength) {
 		myData.me.strength = me.rawStrength;
 		console.debug(myData);
-		update = true;
 	}
 
 	if (myData.me.dexterity !== me.rawDexterity) {
 		myData.me.dexterity = me.rawDexterity;
 		console.debug(myData);
-		update = true;
 	}
 
 	// Merc check
@@ -119,18 +111,16 @@ function ensureData () {
 			if (merc.classid !== myData.merc.classid) {
 				myData.merc.classid = merc.classid;
 				console.debug(myData.merc);
-	            CharData.updateData("merc", myData) && updateMyData();
 			}
 		}
 
 		if (!!me.shenk && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed === false) {
 			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
 			console.debug(myData);
-			update = true;
 		}
 	}
 
-	update && CharData.updateData("me", myData) && updateMyData();
+	Object.keys(Misc.recursiveSearch(myData, temp)).length > 0 && CharData.updateData("me", myData) && updateMyData();
 }
 
 // general settings

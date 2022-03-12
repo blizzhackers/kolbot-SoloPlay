@@ -11,21 +11,14 @@ if (!isIncluded("SoloPlay/Functions/PrototypesOverrides.js")) { include("SoloPla
 Item.getQuantityOwned = function (item = undefined) {
 	if (!item) return 0;
 	
-	let list = [];
 	let myItems = me.getItemsEx()
 		.filter(check =>
 			check.itemType === item.itemType// same item type as current
 				&& check.classid === item.classid// same item classid as current
 				&& check.quality === item.quality// same item quality as current
-				&& check.getStat(sdk.stats.NumSockets) === item.getStat(sdk.stats.NumSockets) // sockets match junk in review
+				&& check.getStat(sdk.stats.NumSockets) === item.getStat(sdk.stats.NumSockets) // same socket count
 				&& check.isInStorage
 		);
-
-	for (let i = 0; i < myItems.length; i++) {
-		if (list.indexOf(myItems[i]) === -1) {
-			list.push(myItems[i]);
-		}
-	}
 
 	return myItems.length;
 };
@@ -94,33 +87,19 @@ Item.getBodyLoc = function (item) {
 	case sdk.itemtype.AmazonSpear:
 	case sdk.itemtype.AmazonJavelin:
 	case sdk.itemtype.MissilePotion:
-		if (me.barbarian) {
-			bodyLoc = [4, 5];
-
-			break;
-		}
-
-		bodyLoc = 4;
+		bodyLoc = me.barbarian ? [4, 5] : 4;
 
 		break;
 	case sdk.itemtype.HandtoHand:
 	case sdk.itemtype.AssassinClaw:
-		if (!Check.currentBuild().caster && me.assassin) {
-			bodyLoc = [4, 5];
-
-			break;
-		}
-
-		bodyLoc = 4;
+		bodyLoc = !Check.currentBuild().caster && me.assassin ? [4, 5] : 4;
 
 		break;
 	default:
 		return false;
 	}
 
-	if (typeof bodyLoc === "number") {
-		bodyLoc = [bodyLoc];
-	}
+	!Array.isArray(bodyLoc) && (bodyLoc = [bodyLoc]);
 
 	return bodyLoc;
 };
@@ -246,7 +225,7 @@ Item.autoEquip = function () {
 	if (!Config.AutoEquip) return true;
 
 	print("ÿc8Kolbot-SoloPlayÿc0: Entering auto equip");
-	
+
 	let tick = getTickCount();
 	let tier, bodyLoc, idTool, gid,
 		items = me.findItems(-1, 0);
@@ -465,31 +444,19 @@ Item.getBodyLocSecondary = function (item) {
 	case sdk.itemtype.AmazonSpear:
 	case sdk.itemtype.AmazonJavelin:
 	case sdk.itemtype.MissilePotion:
-		if (me.barbarian) {
-			bodyLoc = [11, 12];
-		} else {
-			bodyLoc = 11;
-		}
+		bodyLoc = me.barbarian ? [11, 12] : 11;
 
 		break;
 	case sdk.itemtype.HandtoHand:
 	case sdk.itemtype.AssassinClaw:
-		if (!Check.currentBuild().caster && me.assassin) {
-			bodyLoc = [11, 12];
-
-			break;
-		}
-
-		bodyLoc = 11;
+		bodyLoc = !Check.currentBuild().caster && me.assassin ? [11, 12] : 11;
 
 		break;
 	default:
 		return false;
 	}
 
-	if (typeof bodyLoc === "number") {
-		bodyLoc = [bodyLoc];
-	}
+	!Array.isArray(bodyLoc) && (bodyLoc = [bodyLoc]);
 
 	return bodyLoc;
 };

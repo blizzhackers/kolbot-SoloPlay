@@ -37,6 +37,7 @@ AutoStat.init = function (statBuildOrder, save = 0, block = 0, bulkStat = true) 
 	}
 
 	if (usedStatPoints) {
+		myData = CharData.getStats();
 		myData.me.level = me.charlvl;
 		myData.me.strength = me.rawStrength;
 		myData.me.dexterity = me.rawDexterity;

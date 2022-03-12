@@ -121,7 +121,7 @@ const SoloEvents = {
 
 	getCharacterNames: function () {
 		let characterInfo, realm = me.realm.toLowerCase(), charList = [];
-		realm = "useast";	// testing purposes
+		//realm = "useast";	// testing purposes
 
 		if (!FileTools.exists("logs/Kolbot-SoloPlay/" + realm)) {
 			return profileList;
