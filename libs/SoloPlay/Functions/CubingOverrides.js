@@ -7,94 +7,10 @@
 
 if (!isIncluded("common/Cubing.js")) { include("common/Cubing.js"); }
 
-var Recipe = {
-	Gem: 0,
-	HitPower: {
-		Helm: 1,
-		Boots: 2,
-		Gloves: 3,
-		Belt: 4,
-		Shield: 5,
-		Body: 6,
-		Amulet: 7,
-		Ring: 8,
-		Weapon: 9
-	},
-	Blood: {
-		Helm: 10,
-		Boots: 11,
-		Gloves: 12,
-		Belt: 13,
-		Shield: 14,
-		Body: 15,
-		Amulet: 16,
-		Ring: 17,
-		Weapon: 18
-	},
-	Caster: {
-		Helm: 19,
-		Boots: 20,
-		Gloves: 21,
-		Belt: 22,
-		Shield: 23,
-		Body: 24,
-		Amulet: 25,
-		Ring: 26,
-		Weapon: 27
-	},
-	Safety: {
-		Helm: 28,
-		Boots: 29,
-		Gloves: 30,
-		Belt: 31,
-		Shield: 32,
-		Body: 33,
-		Amulet: 34,
-		Ring: 35,
-		Weapon: 36
-	},
-	Unique: {
-		Weapon: {
-			ToExceptional: 37,
-			ToElite: 38
-		},
-		Armor: {
-			ToExceptional: 39,
-			ToElite: 40
-		}
-	},
-	Rare: {
-		Weapon: {
-			ToExceptional: 41,
-			ToElite: 42
-		},
-		Armor: {
-			ToExceptional: 43,
-			ToElite: 44
-		}
-	},
-	Socket: {
-		Shield: 45,
-		Weapon: 46,
-		Armor: 47,
-		Helm: 48,
-		LowMagic: 57,
-		HighMagic: 58,
-		Rare: 59,
-	},
-	Reroll: {
-		Magic: 49,
-		Charm: 56,
-		Rare: 50,
-		HighRare: 51
-	},
-	Rune: 52,
-	Token: 53,
-	LowToNorm: {
-		Armor: 54,
-		Weapon: 55
-	}
-};
+Recipe.Reroll.Charm = 56;
+Recipe.Socket.LowMagic = 57;
+Recipe.Socket.HighMagic = 58;
+Recipe.Socket.Rare = 59;
 
 Cubing.buildRecipes = function () {
 	this.recipes = [];
