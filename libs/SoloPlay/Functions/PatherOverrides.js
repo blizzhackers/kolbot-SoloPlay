@@ -112,12 +112,6 @@ Pather.forceRun = false;
 	};
 
 	Object.defineProperties(Object.prototype, {
-		distance: {
-			get: function () {
-				return !me.gameReady ? NaN : Math.round(getDistance.apply(null, [me, ...coords.apply(this)]));
-			},
-			enumerable: false,
-		},
 		moveTo: {
 			get: function () {
 				return typeof this.____moveTo__cb === 'function' && this.____moveTo__cb || (() => Pather.moveTo.apply(Pather, coords.apply(this)));
@@ -897,34 +891,45 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	return getDistance(me, node.x, node.y) < 5;
 };
 
-Pather.moveToOverride = function (x = undefined, y = undefined, retry = undefined, clearPath = false, pop = false) {
+Pather.moveToLoc = function (target, givenSettings) {
 	// Abort if dead
-	if (me.dead) return false;
+	if (me.dead || !target) return false;
+	let settings = Object.assign({}, {
+		allowTeleport: true,
+		allowClearing: true,
+		allowTown: true,
+		retry: 15,
+		pop: false,
+		clearType: 0
+	}, givenSettings);
+
+	// convert presetunit to x,y target
+    if (target instanceof PresetUnit) {
+        target = { x: target.roomx * 5 + target.x, y: target.roomy * 5 + target.y };
+    }
 
 	let path, adjustedNode, cleared, leaped = false,
-		node = {x: x, y: y},
+		node = {x: target.x, y: target.y},
 		fail = 0;
 
 	for (let i = 0; i < this.cancelFlags.length; i += 1) {
 		if (getUIFlag(this.cancelFlags[i])) me.cancel();
 	}
 
-	//if (!x || !y) { throw new Error("moveTo: Function must be called with at least 2 arguments."); }
-	if (!x || !y) return false; // I don't think this is a fatal error so just return false
-	if (typeof x !== "number" || typeof y !== "number") { throw new Error("moveTo: Coords must be numbers"); }
-	if (getDistance(me, x, y) < 2 && !CollMap.checkColl(me, {x: x, y: y}, Coords_1.Collision.BLOCK_MISSILE, 5)) return true;
+	if (!target.x || !target.y) return false; // I don't think this is a fatal error so just return false
+	if (typeof target.x !== "number" || typeof target.y !== "number") { return false; }
+	if (getDistance(me, target) < 2 && !CollMap.checkColl(me, target, Coords_1.Collision.BLOCK_MISSILE, 5)) return true;
 
-	(retry === undefined || retry === 3) && (retry = 15);
-
-	let useTele = (getDistance(me, x, y) > 15 || me.diff || me.act > 3) && this.useTeleport();
-	let useChargedTele = this.canUseTeleCharges();
+	let useTele = settings.allowTeleport && (getDistance(me, target) > 15 || me.diff || me.act > 3) && this.useTeleport();
+	let useChargedTele = settings.allowTeleport && this.canUseTeleCharges();
+	let usingTele = (useTele || useChargedTele);
 	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
-	path = getPath(me.area, x, y, me.x, me.y, useTele || useChargedTele ? 1 : 0, useTele || useChargedTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : this.teleDistance) : this.walkDistance);
+	path = getPath(me.area, target.x, target.y, me.x, me.y, usingTele ? 1 : 0, usingTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : this.teleDistance) : this.walkDistance);
 
 	if (!path) { throw new Error("moveTo: Failed to generate path."); }
 
 	path.reverse();
-	pop && path.pop();
+	settings.pop && path.pop();
 	PathDebug.drawPath(path);
 	useTele && Config.TeleSwitch && path.length > 5 && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
 
@@ -948,25 +953,26 @@ Pather.moveToOverride = function (x = undefined, y = undefined, retry = undefine
 				}
 			}
 
-			if (useTele && tpMana <= me.mp ? this.teleportTo(node.x, node.y) : useChargedTele && getDistance(me, node) >= 15 ? this.teleUsingCharges(node.x, node.y) : this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
+			if (useTele && tpMana <= me.mp ? this.teleportTo(node.x, node.y) : useChargedTele && (getDistance(me, node) >= 15 || me.area === sdk.areas.ThroneofDestruction) ? this.teleUsingCharges(node.x, node.y) : this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
 				if (!me.inTown) {
 					if (this.recursion) {
 						this.recursion = false;
 
-						clearPath && NodeAction.go({clearPath: clearPath});
+						// need to write a better clear function or change nodeaction
+						settings.allowClearing && NodeAction.go({clearPath: clearPath});
 
 						if (getDistance(me, node.x, node.y) > 5) {
-							this.moveToOverride(node.x, node.y);
+							this.moveToLoc(target, settings);
 						}
 
 						this.recursion = true;
 					}
 
-					Misc.townCheck();
+					settings.allowTown && Misc.townCheck();
 				}
 			} else {
 				if (fail > 0 && !useTele && !me.inTown) {
-					if (!cleared) {
+					if (!cleared && settings.allowClearing) {
 						Attack.clear(5) && Misc.openChests(2);
 						cleared = true;
 					}
@@ -978,7 +984,7 @@ Pather.moveToOverride = function (x = undefined, y = undefined, retry = undefine
 					}
 				}
 
-				path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? rand(25, 35) : rand(10, 15));
+				path = getPath(me.area, target.x, target.y, me.x, me.y, useTele ? 1 : 0, useTele ? rand(25, 35) : rand(10, 15));
 				if (!path) { throw new Error("moveTo: Failed to generate path."); }
 
 				fail += 1;
@@ -988,8 +994,7 @@ Pather.moveToOverride = function (x = undefined, y = undefined, retry = undefine
 				print("move retry " + fail);
 
 				if (fail > 0) {
-					//Packet.flash(me.gid);
-					Attack.clear(5) && Misc.openChests(2);
+					settings.allowClearing && Attack.clear(5) && Misc.openChests(2);
 
 					if (fail >= retry) {
 						break;
