@@ -10,7 +10,6 @@ if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Develo
 if (!isIncluded("SoloPlay/Tools/CharData.js")) { include("SoloPlay/Tools/CharData.js"); }
 if (!isIncluded("SoloPlay/Functions/PrototypesOverrides.js")) { include("SoloPlay/Functions/PrototypesOverrides.js"); }
 
-let sdk = require('../modules/sdk');
 let myData = CharData.getStats();
 
 // these builds are not possible to do on classic

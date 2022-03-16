@@ -27,7 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 		if (v !== undefined) module.exports = v;
 	}
 	else if (typeof define === "function" && define.amd) {
-		define(["require", "exports", "../../libs/SoloPlay/Modules/utilities", "../../libs/modules/sdk"], factory);
+		define(["require", "exports", "./utilities", "../../modules/sdk"], factory);
 	}
 })(function (require, exports) {
 	"use strict";
@@ -38,8 +38,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
      * @author Jaenster
      *
      */
-	var utilities_1 = require("../../libs/SoloPlay/Modules/utilities");
-	var sdk_1 = __importDefault(require("../../libs/modules/sdk"));
+	var utilities_1 = require("./utilities");
+	var sdk_1 = __importDefault(require("../../modules/sdk"));
 	var Mockable = /** @class */ (function () {
 		function Mockable(settings) {
 			if (settings === void 0) { settings = {}; }

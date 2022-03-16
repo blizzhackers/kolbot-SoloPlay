@@ -60,7 +60,7 @@ const AutoBuild = new function AutoBuild () {
 	function getTemplateFilename () {
 		let classname = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid];
 		let build = getBuildType();
-		let template = "config/Builds/" + classname + "." + build + ".js";
+		let template = "SoloPlay/Config/Builds/" + classname + "." + build + ".js";
 		return template.toLowerCase();
 	}
 

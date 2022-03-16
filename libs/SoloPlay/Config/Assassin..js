@@ -1,18 +1,15 @@
 /*
-*	@filename	Druid.SoloPlay.js
+*	@filename	Assassin.js
 *	@author		theBGuy
 *	@credit		isid0re
-*	@desc		Config Settings for SoloPlay Druid
+*	@desc		Config Settings for SoloPlay Assassin
 *
 *	FinalBuild choices
 *		To select your finalbuild.
 *		1. Go into the D2BS console manager.
 *		2. Select the Bots profile
 *		3. In the info tag box enter one of the following choices:
-*			Wind
-*			Elemental
-*			Wolf
-*			Plaguewolf
+*			Trapsin
 *		4. Save the profile and start
 */
 
@@ -27,14 +24,14 @@ function LoadConfig () {
 	Scripts.SoloPlay = true;
 
 	/* Level Specifc Settings */
-	Config.respecOne = 24;
+	Config.respecOne = 32;
 	Config.respecOneB = 0;
 	Config.levelCap = (function() {
 		let tmpCap;
 		if (me.softcore) {
-			tmpCap = [33, 73, 100];
+			tmpCap = [33, 65, 100];
 		} else {
-			tmpCap = [33, 73, 100];
+			tmpCap = [33, 65, 100];
 		}
 		return tmpCap[me.diff];
 	})();
@@ -91,6 +88,9 @@ function LoadConfig () {
 	Config.UseRejuvHP = me.hardcore ? 65 : 40;
 	Config.UseMP = me.hardcore ? 75 : 55;
 	Config.UseMercHP = 75;
+	Config.HPBuffer = 0;
+	Config.MPBuffer = 0;
+	Config.RejuvBuffer = 0;
 
 	/* Belt configuration. */
 	Config.BeltColumn = ["hp", "mp", "mp", "rv"];
@@ -109,7 +109,9 @@ function LoadConfig () {
 	Config.PickRange = 40;
 	Config.FastPick = false;
 	Config.CainID.Enable = false;
-	Config.FieldID = false;
+	Config.FieldID.Enabled = false; // Identify items while in the field
+	Config.FieldID.PacketID = true; // use packets to speed up id process (recommended to use this)
+	Config.FieldID.UsedSpace = 80; // how much space has been used before trying to field id, set to 0 to id after every item picked
 	//	Config.PickitFiles.push("kolton.nip");
 	//	Config.PickitFiles.push("LLD.nip");
 	NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
@@ -118,10 +120,10 @@ function LoadConfig () {
 	Config.Gamble = true;
 	Config.GambleGoldStart = 2000000;
 	Config.GambleGoldStop = 750000;
-	Config.GambleItems.push("amulet");
-	Config.GambleItems.push("ring");
-	Config.GambleItems.push("circlet");
-	Config.GambleItems.push("coronet");
+	Config.GambleItems.push("Amulet");
+	Config.GambleItems.push("Ring");
+	//Config.GambleItems.push("Circlet");
+	//Config.GambleItems.push("Coronet");
 
 	/* AutoMule configuration. */
 	Config.AutoMule.Trigger = [];
@@ -136,14 +138,14 @@ function LoadConfig () {
 	// AutoEquip setup
 	let levelingTiers = [
 		// Weapon
-		"([type] == wand || [type] == sword || [type] == mace || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"([type] == knife || [type] == sword && [flag] == runeword || ([type] == handtohand || [type] == assassinclaw) && [quality] >= magic) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Helmet
-		"([type] == helm || [type] == circlet || [type] == pelt) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"([type] == helm || [type] == circlet) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Belt
 		"[type] == belt && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Boots
 		"[type] == boots && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Armor
+		// Srmor
 		"[type] == armor && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Shield
 		"[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
@@ -154,8 +156,7 @@ function LoadConfig () {
 		// Rings
 		"[type] == ring && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Switch
-		"[type] == wand && [quality] >= normal # [itemchargedskill] == 72 # [secondarytier] == 25000",			// Weaken charged wand
-		"[name] == beardedaxe && [quality] == unique # [itemchargedskill] == 87 # [secondarytier] == 50000",	// Spellsteel Decrepify charged axe
+		"[type] == wand && [quality] >= normal # [itemchargedskill] == 91 # [secondarytier] == 50000 + chargeditemscore(item, 91)",	// Lower Resist charged wand
 		// Charms
 		"[name] == smallcharm && [quality] == magic # [maxhp] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
@@ -216,26 +217,32 @@ function LoadConfig () {
 	Config.AutoBuild.Template = SetUp.getBuild();
 
 	/* Class specific configuration. */
-	/* Wereform */
-	Config.Wereform = false; 	// 0 / false - don't shapeshift, 1 / "Werewolf" - change to werewolf, 2 / "Werebear" - change to werebear
+	Config.UseTraps = true;
+	Config.Traps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry];
+	Config.BossTraps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry];
 
-	/* Summons */
-	Config.SummonRaven = false;
-	Config.SummonVine = 0; 		// 0 = disabled, 1 / "Poison Creeper", 2 / "Carrion Vine", 3 / "Solar Creeper"
-	Config.SummonSpirit = 0; 	// 0 = disabled, 1 / "Oak Sage", 2 / "Heart of Wolverine", 3 / "Spirit of Barbs"
-	Config.SummonAnimal = 0; 	// 0 = disabled, 1 or "Spirit Wolf" = summon spirit wolf, 2 or "Dire Wolf" = summon dire wolf, 3 or "Grizzly" = summon grizzly
+	Config.SummonShadow = me.getSkill(sdk.skills.ShadowMaster, 0) ? "Master" : 0;
+	Config.UseFade = !!me.getSkill(sdk.skills.Fade, 0);
+	Config.UseBoS = !!me.getSkill(sdk.skills.BurstofSpeed, 0);
+	Config.UseVenom = false;
+	Config.UseCloakofShadows = !!me.getSkill(sdk.skills.CloakofShadows, 0);
+	Config.AggressiveCloak = false;
+
+	/* Dodge configuration. */
+	Config.Dodge = !!me.getSkill(sdk.skills.LightningSentry, 0);
+	Config.DodgeRange = 10;
 
 	/* Gear */
 	let finalGear = Check.finalBuild().finalGear;
 	!!finalGear && NTIP.arrayLooping(finalGear);
 
 	Config.imbueables = [
-		{name: sdk.items.SpiritMask, condition: (me.normal)},
-		{name: sdk.items.TotemicMask, condition: (!me.normal && Item.getEquippedItem(1).tier < 100000 && (me.charlvl < 66 || me.trueStr < 118))},
-		{name: sdk.items.DreamSpirit, condition: (Item.getEquippedItem(1).tier < 100000 && me.trueStr >= 118)},
-		{name: sdk.items.Belt, condition: (me.normal && (Item.getEquippedItem(1).tier > 100000))},
-		{name: sdk.items.MeshBelt, condition: (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(1).tier > 100000))},
-		{name: sdk.items.SpiderwebSash, condition: (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(1).tier > 100000))},
+		{name: sdk.items.Claws, condition: (me.normal)},
+		{name: sdk.items.HandScythe, condition: (!me.normal && Item.getEquippedItem(4).tier < 777 && (me.trueStr < 79 || me.trueDex < 79))},
+		{name: sdk.items.GreaterTalons, condition: (Item.getEquippedItem(4).tier < 777 && me.trueStr >= 79 && me.trueDex >= 79)},
+		{name: sdk.items.Belt, condition: (me.normal && (Item.getEquippedItem(4).tier > 777))},
+		{name: sdk.items.MeshBelt, condition: (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(4).tier > 777))},
+		{name: sdk.items.SpiderwebSash, condition: (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(4).tier > 777))},
 	].filter(function (item) { return !!item.condition; });
 
 	let imbueArr = (function () {
@@ -266,8 +273,8 @@ function LoadConfig () {
 					condition: function (item) { return !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
 				},
 				{
-					classid: sdk.items.TotemicMask,
-					socketWith: [sdk.items.runes.Um],
+					classid: sdk.items.Demonhead,
+					socketWith: [sdk.items.runes.Um], // Ral vs Um ?
 					temp: [sdk.items.gems.Perfect.Ruby],
 					useSocketQuest: true,
 					condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
@@ -281,103 +288,45 @@ function LoadConfig () {
 				}
 			);
 
-	if (Check.haveItem("dontcare", "runeword", "Call to Arms")) {
-		// Spirit on swap
-		NTIP.addLine("[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000");
-	}
+	Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
+	Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
 
 	/* Crafting */
 	if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
-		Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Amulet]) : Config.Recipes.push([Recipe.Blood.Amulet]);
+		Config.Recipes.push([Recipe.Caster.Amulet]);
 	}
 
 	if (Item.getEquippedItem(sdk.body.RingLeft).tier < 100000) {
-		Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Ring]) : Config.Recipes.push([Recipe.Blood.Ring]);
+		Config.Recipes.push([Recipe.Caster.Ring]);
 	}
 
-	// FinalBuild specific setup
-	switch (SetUp.finalBuild) {
-	case 'Wind':
-	case 'Elemental':
-		// Call to Arms
-		if (!Check.haveItem("dontcare", "runeword", "Call to Arms")) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js")) {
-				include("SoloPlay/BuildFiles/Runewords/CallToArms.js");
-			}
+	// Infinity
+	if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Infinity) {
+		if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js")) {
+			include("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
 		}
-
-		// Heart of the Oak
-		if (!Check.haveItem("mace", "runeword", "Heart of the Oak")) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js")) {
-				include("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
-			}
-		}
-
-		// Enigma
-		if (!Check.haveItem("armor", "runeword", "Enigma")) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js")) {
-				include("SoloPlay/BuildFiles/Runewords/Enigma.js");
-			}
-		}
-
-		// upgrade magefist
-		if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
-			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
-			Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
-		}
-
-		break;
-	case 'Wolf':
-	case 'Plaguewolf':
-		if (SetUp.currentBuild === SetUp.finalBuild) {
-			// Weaken charged wand
-			NTIP.addLine("[type] == wand && [quality] >= normal # [itemchargedskill] == 72 # [secondarytier] == -1");
-			// Spellsteel Decrepify charged axe
-			NTIP.addLine("[name] == beardedaxe && [quality] == unique # [itemchargedskill] == 87 # [secondarytier] == -1");
-			// Ondal's
-			NTIP.addLine("[name] == elderstaff && [quality] == unique # [itemallskills] >= 2 # [secondarytier] == tierscore(item)");
-			// Mang Song's
-			NTIP.addLine("[name] == archonstaff && [quality] == unique # [itemallskills] == 5 # [secondarytier] == tierscore(item)");
-		}
-
-		// Chains of Honor
-		if (!Check.haveItem("armor", "runeword", "Chains of Honor")) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js")) {
-				include("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
-			}
-		}
-
-		if (SetUp.finalBuild === 'Plaguewolf') {
-			// Grief
-			if (!Check.haveItem("sword", "runeword", "Grief")) {
-				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Grief.js")) {
-					include("SoloPlay/BuildFiles/Runewords/Grief.js");
-				}
-			}
-		} else {
-			// Make sure to have CoH first
-			if (Check.haveItem("armor", "runeword", "Chains of Honor")) {
-				// Upgrade Ribcracker to Elite
-				Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "quarterstaff", Roll.NonEth]);
-			}
-
-			// Don't have upgraded Ribcracker
-			if (!Check.haveItem("stalagmite", "unique", "Ribcracker")) {
-				// Perfect ribcracker
-				NTIP.addLine("[name] == quarterstaff && [quality] == unique # [enhanceddamage] == 300 && [ias] >= 50 # [maxquantity] == 1");
-				// Perfect upped ribcracker
-				NTIP.addLine("[name] == stalagmite && [quality] == unique # [enhanceddamage] == 300 && [ias] >= 50 # [maxquantity] == 1");
-			}
-		}
-
-		break;
-	default:
-		break;
 	}
 
-	Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
-	Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
-	Check.itemSockables(sdk.items.TotemicMask, "unique", "Jalal's Mane")
+	// Call to Arms
+	if (!Check.haveItem("dontcare", "runeword", "Call to Arms")) {
+		if (!isIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js")) {
+			include("SoloPlay/BuildFiles/Runewords/CallToArms.js");
+		}
+	}
+
+	// Heart of the Oak
+	if (!Check.haveItem("mace", "runeword", "Heart of the Oak")) {
+		if (!isIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js")) {
+			include("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
+		}
+	}
+
+	// Enigma
+	if (!Check.haveItem("armor", "runeword", "Enigma")) {
+		if (!isIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js")) {
+			include("SoloPlay/BuildFiles/Runewords/Enigma.js");
+		}
+	}
 
 	// Spirit Sword
 	if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(4).tier < 777) {
@@ -386,7 +335,7 @@ function LoadConfig () {
 		}
 	}
 
-	// Spirit Shield
+	// Spirit shield
 	if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 1000 || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit)) {
 		if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js")) {
 			include("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
@@ -401,7 +350,7 @@ function LoadConfig () {
 	}
 
 	// Lore
-	if (Item.getEquippedItem(1).tier < 100000) {
+	if (Item.getEquippedItem(1).tier < 315) {
 		if (!isIncluded("SoloPlay/BuildFiles/Runewords/Lore.js")) {
 			include("SoloPlay/BuildFiles/Runewords/Lore.js");
 		}
@@ -429,7 +378,7 @@ function LoadConfig () {
 	}
 
 	// Smoke
-	if (Item.getEquippedItem(3).tier < 634) {
+	if (Item.getEquippedItem(3).tier < 450) {
 		if (!isIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js")) {
 			include("SoloPlay/BuildFiles/Runewords/Smoke.js");
 		}

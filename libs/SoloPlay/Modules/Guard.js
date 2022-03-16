@@ -2,42 +2,42 @@
 
     const Messaging = require('../../modules/Messaging');
     const Worker = require('../../modules/Worker');
-    const sdk = require('./sdk');
+    const sdk = require('../../modules/sdk');
 
     switch (thread) {
         case 'thread': {
-            const lastXY = {
-                area: me.area,
-                x: me.x,
-                y: me.y,
-                stillValid: getTickCount(),
-            };
+            // const lastXY = {
+            //     area: me.area,
+            //     x: me.x,
+            //     y: me.y,
+            //     stillValid: getTickCount(),
+            // };
 
-            Worker.runInBackground.stuckFixer = function () {
+            // Worker.runInBackground.stuckFixer = function () {
 
-                // Dont reset guard if we are actually on pause
-                const script = getScript('default.dbj');
-                if (!script || !script.running) {
-                    lastXY.stillValid = getTickCount();
-                }
+            //     // Dont reset guard if we are actually on pause
+            //     const script = getScript('default.dbj');
+            //     if (!script || !script.running) {
+            //         lastXY.stillValid = getTickCount();
+            //     }
 
-                if (lastXY.area !== me.area || getDistance(lastXY, me) > 10) {
-                    // print('Resetting -- ' + (getTickCount() - lastXY.stillValid));
-                    lastXY.area = me.area;
-                    lastXY.x = me.x;
-                    lastXY.y = me.y;
-                    lastXY.stillValid = getTickCount();
-                }
+            //     if (lastXY.area !== me.area || getDistance(lastXY, me) > 10) {
+            //         // print('Resetting -- ' + (getTickCount() - lastXY.stillValid));
+            //         lastXY.area = me.area;
+            //         lastXY.x = me.x;
+            //         lastXY.y = me.y;
+            //         lastXY.stillValid = getTickCount();
+            //     }
 
-                // In dura lvl 3 give us 2 minutes
-                // const time = (me.area === sdk.areas.DuranceOfHateLvl3 || me.area === sdk.areas.ThroneOfDestruction || me.area === sdk.areas.ChaosSanctuary) ? 240e3 : 180e3;
-                // if (getTickCount() - lastXY.stillValid > time) {
-                //     print('Stuck at the same spot for over ' + ~~(time / 1000) + ' seconds, restarting');
-                //     scriptBroadcast('quit')
-                // }
+            //     // In dura lvl 3 give us 2 minutes
+            //     // const time = (me.area === sdk.areas.DuranceOfHateLvl3 || me.area === sdk.areas.ThroneOfDestruction || me.area === sdk.areas.ChaosSanctuary) ? 240e3 : 180e3;
+            //     // if (getTickCount() - lastXY.stillValid > time) {
+            //     //     print('Stuck at the same spot for over ' + ~~(time / 1000) + ' seconds, restarting');
+            //     //     scriptBroadcast('quit')
+            //     // }
 
-                return true;
-            }
+            //     return true;
+            // }
             Worker.runInBackground.stackTrace = (new function () {
                 let self = this;
                 let stack;

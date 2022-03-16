@@ -1,5 +1,5 @@
 /*
-*	@filename	Paladin.SoloPlay.js
+*	@filename	Paladin.js
 *	@author		theBGuy
 *	@credit		isid0re
 *	@desc		Config Settings for SoloPlay Paladin
@@ -23,7 +23,6 @@ function LoadConfig () {
 	SetUp.include();
 
 	/* Script */
-	Scripts.UserAddon = false;
 	Scripts.SoloPlay = true;
 
 	/* Level Specifc Settings */
@@ -54,7 +53,7 @@ function LoadConfig () {
 	Config.PacketCasting = 1;
 	Config.WaypointMenu = true;
 	Config.Cubing = !!me.getItem(sdk.items.quest.Cube);
-	Config.MakeRunewords = !me.classic ? true : false;
+	Config.MakeRunewords = true
 
 	/* General logging. */
 	Config.ItemInfo = false;
@@ -109,7 +108,9 @@ function LoadConfig () {
 	Config.PickRange = 40;
 	Config.FastPick = false;
 	Config.CainID.Enable = false;
-	Config.FieldID = false;
+	Config.FieldID.Enabled = false; // Identify items while in the field
+	Config.FieldID.PacketID = true; // use packets to speed up id process (recommended to use this)
+	Config.FieldID.UsedSpace = 80; // how much space has been used before trying to field id, set to 0 to id after every item picked
 	//	Config.PickitFiles.push("kolton.nip");
 	//	Config.PickitFiles.push("LLD.nip");
 

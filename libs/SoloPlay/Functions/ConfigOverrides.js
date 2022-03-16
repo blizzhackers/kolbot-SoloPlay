@@ -7,18 +7,17 @@
 if (!isIncluded("common/Config.js")) { include("common/Config.js"); }
 
 Config.init = function (notify) {
-	let n,
-		configFilename = "",
+	let configFilename = "",
 		classes = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"];
 
-	for (let i = 0; i < 5; i += 1) {
+	for (let i = 0; i <= 5; i++) {
 		switch (i) {
 		case 0: // Custom config
 			if (!isIncluded("config/_customconfig.js")) {
 				include("config/_customconfig.js");
 			}
 
-			for (n in CustomConfig) {
+			for (let n in CustomConfig) {
 				if (CustomConfig.hasOwnProperty(n)) {
 					if (CustomConfig[n].indexOf(me.profile) > -1) {
 						if (notify) {
@@ -49,40 +48,28 @@ Config.init = function (notify) {
 			configFilename = me.profile + ".js";
 
 			break;
+		case 5: // Class.js
+			configFilename = classes[me.classid] + ".js";
+
+			break;
 		}
 
-		if (configFilename && FileTools.exists("libs/config/" + configFilename)) {
+		if (configFilename && FileTools.exists("libs/SoloPlay/Config/" + configFilename)) {
 			break;
 		}
 	}
 
-	if (FileTools.exists("libs/config/" + configFilename)) {
-		try {
-			if (!include("config/" + configFilename)) {
-				throw new Error();
-			}
-		} catch (e1) {
-			throw new Error("Failed to load character config.");
+	try {
+		if (!include("SoloPlay/Config/" + configFilename)) {
+			throw new Error();
+		} else {
+			notify && print("ÿc2Loaded: ÿc9SoloPlay/Config/" + configFilename + ".js")
 		}
-	} else {
-		if (notify) {
-			print("ÿc1" + classes[me.classid] + "." + me.charname + ".js not found!"); // Use the primary format
-			print("ÿc1Loading default config.");
-		}
+	} catch (e1) {
+		print("ÿc1" + e1 + "\nÿc0If you are seeing this message you likely did not copy over all the files or are using the wrong kolbot version.");
+		D2Bot.printToConsole("Please return to the kolbot-SoloPlay main github page and read the readMe. https://github.com/blizzhackers/kolbot-SoloPlay#readme", 8);
 
-		// Try to find default config
-		if (!FileTools.exists("libs/config/" + classes[me.classid] + ".js")) {
-			D2Bot.printToConsole("Not going well? Read the guides: https://github.com/blizzhackers/documentation");
-			throw new Error("ÿc1Default config not found. \nÿc9     Try reading the kolbot guides.");
-		}
-
-		try {
-			if (!include("config/" + classes[me.classid] + ".js")) {
-				throw new Error();
-			}
-		} catch (e) {
-			throw new Error("ÿc1Failed to load default config.");
-		}
+		throw new Error("Failed to load character config.");
 	}
 
 	try {

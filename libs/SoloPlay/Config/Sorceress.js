@@ -1,5 +1,5 @@
 /*
-*	@filename	Sorceress.SoloPlay.js
+*	@filename	Sorceress.js
 *	@author		theBGuy
 *	@credit		isid0re
 *	@desc		Config Settings for SoloPlay Sorceress
@@ -24,7 +24,6 @@ function LoadConfig () {
 	SetUp.include();
 
 	/* Script */
-	Scripts.UserAddon = false;
 	Scripts.SoloPlay = true;
 
 	/* Level Specifc Settings */
@@ -110,7 +109,9 @@ function LoadConfig () {
 	Config.PickRange = 40;
 	Config.FastPick = false;
 	Config.CainID.Enable = false;
-	Config.FieldID = false;
+	Config.FieldID.Enabled = false; // Identify items while in the field
+	Config.FieldID.PacketID = true; // use packets to speed up id process (recommended to use this)
+	Config.FieldID.UsedSpace = 80; // how much space has been used before trying to field id, set to 0 to id after every item picked
 	//	Config.PickitFiles.push("kolton.nip");
 	//	Config.PickitFiles.push("LLD.nip");
 	//Config.PickitFiles.push("test.nip");
@@ -122,9 +123,9 @@ function LoadConfig () {
 	// TODO: should gambling be re-written to try and gamble for our current lowest tier'd item
 	// for example if our gloves are the lowest tier then only gamble gloves or maybe just make the others conditional like why include
 	// gambling for rings/ammys if we have our end game one
-	/*Item.getEquippedItem(sdk.body.Neck).tier < 100000 && */Config.GambleItems.push("Amulet");
-	/*Item.getEquippedItem(sdk.body.RingLeft).tier < 100000 && */Config.GambleItems.push("Ring");
-	/*Item.getEquippedItem(sdk.body.Head).tier < 100000 && */Config.GambleItems.push("Circlet") && Config.GambleItems.push("Coronet");
+	Config.GambleItems.push("Amulet");
+	Config.GambleItems.push("Ring");
+	Config.GambleItems.push("Circlet") && Config.GambleItems.push("Coronet");
 	
 	/* AutoMule configuration. */
 	Config.AutoMule.Trigger = [];

@@ -6,6 +6,16 @@
 
 if (!isIncluded("common/Loader.js")) { include("common/Loader.js"); }
 
+Loader.getScripts = function () {
+	let fileList = dopen("libs/SoloPlay/Bots/").getFiles();
+
+	for (let i = 0; i < fileList.length; i += 1) {
+		if (fileList[i].indexOf(".js") > -1) {
+			this.fileList.push(fileList[i].substring(0, fileList[i].indexOf(".js")));
+		}
+	}
+};
+
 Loader.loadScripts = function () {
 	let reconfiguration, script,
 		unmodifiedConfig = {};
@@ -28,7 +38,7 @@ Loader.loadScripts = function () {
 		script = this.scriptList[this.scriptIndex];
 
 		if (this.fileList.indexOf(script) < 0) {
-			if (FileTools.exists("bots/" + script + ".js")) {
+			if (FileTools.exists("libs/SoloPlay/Bots/" + script + ".js")) {
 				print("ÿc1Something went wrong in loader, file exists in folder but didn't get included during init process. Lets ignore the error and continue to include the script by name instead");
 			} else {
 				Misc.errorReport("ÿc1Script " + script + " doesn't exist.");
@@ -36,12 +46,12 @@ Loader.loadScripts = function () {
 			}
 		}
 
-		if (!include("bots/" + script + ".js")) {
+		if (!include("SoloPlay/Bots/" + script + ".js")) {
 			Misc.errorReport("Failed to include script: " + script);
 			continue;
 		}
 
-		if (isIncluded("bots/" + script + ".js")) {
+		if (isIncluded("SoloPlay/Bots/" + script + ".js")) {
 			try {
 				if (typeof (global[script]) !== "function") {
 					throw new Error("Invalid script function name");

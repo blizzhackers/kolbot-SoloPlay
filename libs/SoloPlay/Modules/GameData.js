@@ -8,7 +8,7 @@
 	const AreaData = require('./AreaData');
 	const MissileData = require('../Modules/MissileData');
 	const Coords_1 = require("./Coords");
-	const sdk = require("./sdk");
+	const sdk = require("../../modules/sdk");
 
 	function isAlive(unit) {
 		return Boolean(unit && unit.hp);
