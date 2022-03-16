@@ -53,7 +53,7 @@
 
 **Q: The bot has beaten diablo (classic) / baal, so why isn't moving on to the next difficulty?**
 
-**A:** The bot will only progress once it has reached a minimum character level (`navigate to libs\config\classname.SoloPlay.js` and see `Config.levelCap` for level requirments) and will not start the next difficulty with negative resistances. If the bot is more than 5 levels higher than the minimum character level and has not reached the required resistances, it will automatically move to the next difficulty.
+**A:** The bot will only progress once it has reached a minimum character level (`navigate to libs\SoloPlay\Config\classname.js` and see `Config.levelCap` for level requirments) and will not start the next difficulty with negative resistances. If the bot is more than 5 levels higher than the minimum character level and has not reached the required resistances, it will automatically move to the next difficulty.
 
 **Q: How can I run more than one of the same class?**
 
@@ -61,7 +61,7 @@
 
 **Q: HELP!!! There is an error when starting the bot?**
 
-**A:** There was a bad installation OR the profile settings are wrong. First verify that you using the kolbot version linked the install guide below. Next, confirm you have installed all the files into their proper locations (including overwriting the existing `_customconfig.js` and `default.dbj`). Finally, verify the profile name and infotag follow the format of the install guide's instructions.
+**A:** There was a bad installation OR the profile settings are wrong. First verify that you using the kolbot version linked the install guide below. Next, confirm you have installed all the files into their proper locations (including overwriting the existing `default.dbj`). Finally, verify the profile name and infotag follow the format of the install guide's instructions.
 
 **Q: HELP!!! The bot auto created my account and I can't find the password!**
 
