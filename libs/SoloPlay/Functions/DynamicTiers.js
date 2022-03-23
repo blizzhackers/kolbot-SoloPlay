@@ -61,11 +61,11 @@ const mercscore = function (item) {
 	mercRating += item.getStatEx(45) * mercWeights.PR; // add PR
 	mercRating += (item.getStatEx(3) + item.getStatEx(7) + (item.getStatEx(216) / 2048 * me.charlvl)) * mercWeights.HP; // add HP
 	mercRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 512)) * mercWeights.ELEDMG; // add elemental damage
-	mercRating += (item.getStatEx(142) + item.getStatEx(144) + item.getStatEx(146) + item.getStatEx(148)) * resistWeights.ABS; // add absorb damage
-	mercRating += item.getStatEx(34) * resistWeights.DR; // add integer damage resist
-	mercRating += item.getStatEx(36) * resistWeights.DR * 2; // add damage resist %
-	mercRating += item.getStatEx(35) * resistWeights.MR; // add integer magic damage resist
-	mercRating += item.getStatEx(37) * resistWeights.MR * 2; // add magic damage resist %
+	mercRating += (item.getStatEx(142) + item.getStatEx(144) + item.getStatEx(146) + item.getStatEx(148)) * mercWeights.ABS; // add absorb damage
+	mercRating += item.getStatEx(34) * mercWeights.DR; // add integer damage resist
+	mercRating += item.getStatEx(36) * mercWeights.DR * 2; // add damage resist %
+	mercRating += item.getStatEx(35) * mercWeights.MR; // add integer magic damage resist
+	mercRating += item.getStatEx(37) * mercWeights.MR * 2; // add magic damage resist %
 
 	if (!myData) {
 		let myData = CharData.getStats();
