@@ -2,3 +2,5 @@
 libs/SoloPlay/Scripts/developermode.js
 libs/SoloPlay/Data/**
 !libs/SoloPlay/Data/deleteMe.txt
+libs/SoloPlay/Functions/BlizzardError
+libs/SoloPlay/Functions/*.png
