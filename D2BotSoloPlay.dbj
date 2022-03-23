@@ -90,7 +90,7 @@ let gameInfo, joinInfo, gameStart, ingame, chatActionsDone, pingQuit, myExp, myG
 	gameCount = DataFile.getStats().runs + 1,
 	lastGameStatus = "ready",
 	isUp = "no",
-	realmMap = {"east": "useast", "west": "uswest"},
+	realmMap = {"east": "useast", "west": "uswest", "europe": "europe", "asia": "asia"},
 	charClassMap = {"ZON": "amazon", "SOR": "sorceress", "NEC": "necromancer", "PAL": "paladin", "BAR": "barbarian", "DRU": "druid", "SIN": "assassin"},
 	chanInfo = {
 		joinChannel: "",
@@ -121,6 +121,7 @@ function ReceiveCopyData (mode, msg) {
 	case 1: // Join Info
 		print("Got Join Info");
 		joinInfo = JSON.parse(msg);
+
 		SoloEvents.gameInfo.gameName = joinInfo.gameName.toLowerCase();
 		SoloEvents.gameInfo.gamePass = joinInfo.gamePass.toLowerCase();
 
@@ -139,10 +140,16 @@ function ReceiveCopyData (mode, msg) {
 		if (gameInfo) {
 			obj = JSON.parse(msg);
 
-			if (me.gameReady) {
-				D2Bot.joinMe(obj.profile, me.gamename.toLowerCase(), "", me.gamepassword.toLowerCase(), isUp);
+			if ([4, 5].includes(Profile().type)) {
+				if (me.gameReady) {
+					D2Bot.joinMe(obj.profile, me.gameserverip.toString(), "", "", true);
+				}
 			} else {
-				D2Bot.joinMe(obj.profile, gameInfo.gameName.toLowerCase(), gameCount, gameInfo.gamePass.toLowerCase(), isUp);
+				if (me.gameReady) {
+					D2Bot.joinMe(obj.profile, me.gamename.toLowerCase(), "", me.gamepassword.toLowerCase(), isUp);
+				} else {
+					D2Bot.joinMe(obj.profile, gameInfo.gameName.toLowerCase(), gameCount, gameInfo.gamePass.toLowerCase(), isUp);
+				}
 			}
 		}
 
@@ -167,9 +174,10 @@ function ReceiveCopyData (mode, msg) {
 			setUp.account = obj.Account;
 			setUp.password = "";
 			setUp.charName = obj.Character;
-			setUp.tag = obj.Tag;
+			setUp.tag = (obj.Tag.trim().capitalize(true) || "");
 			setUp.difficulty = obj.Difficulty;
-			setUp.realm = realmMap[obj.Realm.toLowerCase()];
+			obj.Realm = obj.Realm.toLowerCase();
+			setUp.realm = ["east", "west"].includes(obj.Realm) ? "us" + obj.Realm : obj.Realm;
 
 			buildCheck = setUp.profile.split("-"); // SCL-ZON123
 			setUp.hardcore = buildCheck[0].indexOf("HC") !== -1; // SC softcore = false
@@ -191,7 +199,6 @@ function ReceiveCopyData (mode, msg) {
 			} 
 
 			if (setUp.tag !== "") {
-				setUp.tag = setUp.tag[0].toUpperCase() + setUp.tag.substring(1).toLowerCase();
 				{
 					let soloStats = CharData.getStats();
 
@@ -756,7 +763,9 @@ function locationAction (location) {
 						}
 					}
 				}
-			} else { // SP/TCP  characters
+
+			} else {
+				// SP/TCP  characters
 				try {
 					login(me.profile);
 				} catch (err) {

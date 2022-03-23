@@ -63,7 +63,7 @@ Config.init = function (notify) {
 		if (!include("SoloPlay/Config/" + configFilename)) {
 			throw new Error();
 		} else {
-			notify && print("ÿc2Loaded: ÿc9SoloPlay/Config/" + configFilename + ".js")
+			notify && print("ÿc2Loaded: ÿc9SoloPlay/Config/" + configFilename);
 		}
 	} catch (e1) {
 		print("ÿc1" + e1 + "\nÿc0If you are seeing this message you likely did not copy over all the files or are using the wrong kolbot version.");

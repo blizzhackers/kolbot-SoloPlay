@@ -480,15 +480,6 @@ Skill.switchCast = function (skillId, hand, x, y, switchBack = true) {
 	return true;
 };
 
-Skill.useTK = function (unit = undefined) {
-	if (!unit || !me.getSkill(sdk.skills.Telekinesis, 1) || typeof unit !== 'object' || unit.type !== sdk.unittype.Object || (unit.name === 'portal' && !me.inTown) || 
-		[sdk.units.RedPortalToChamber, sdk.units.RedPortal, sdk.units.RedPortalToAct5].includes(unit.classid)) {
-		return false;
-	}
-
-	return me.inTown || (me.mpPercent > 50);
-};
-
 Skill.wereformAllowed = function (skillId = -1) {
 	if (!Config.Wereform) return true;
 	if (skillId < 0) return false;

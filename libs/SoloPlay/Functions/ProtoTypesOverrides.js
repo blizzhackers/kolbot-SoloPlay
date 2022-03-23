@@ -267,23 +267,6 @@ Unit.prototype.getMobCount = function (range = 10, coll = 0, type = 0, noSpecial
 		}).length;
 };
 
-Unit.prototype.cancelUIFlags = function () {
-	if (this !== me) return;
-	let flags = [
-		sdk.uiflags.Inventory, sdk.uiflags.StatsWindow, sdk.uiflags.SkillWindow, sdk.uiflags.NPCMenu,
-		sdk.uiflags.Waypoint, sdk.uiflags.Party, sdk.uiflags.Shop, sdk.uiflags.Quest, sdk.uiflags.Stash,
-		sdk.uiflags.Cube, sdk.uiflags.KeytotheCairnStonesScreen, sdk.uiflags.SubmitItem
-	];
-
-	for (let i = 0; i < flags.length; i++) {
-		if (getUIFlag(flags[i])) {
-			me.cancel();
-			delay(500);
-			i = 0; // Reset
-		}
-	}
-};
-
 // Credit @Jaenster
 Unit.prototype.switchWeapons = function (slot) {
 	if (this.gametype === 0 || this.weaponswitch === slot && slot !== undefined) {

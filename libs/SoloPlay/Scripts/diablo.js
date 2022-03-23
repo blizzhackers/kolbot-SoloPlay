@@ -55,52 +55,28 @@ function diablo () {
 	};
 
 	this.chaosPreattack = function (name, amount) {
-		let target, position;
-
-		switch (me.classid) {
-		case 0:
-			break;
-		case 1:
-			break;
-		case 2:
-			break;
-		case 3:
-			if (Config.AttackSkill[1] !== sdk.skills.BlessedHammer) {
-				break;
-			}
-
-			target = getUnit(1, name);
+		if (me.paladin && Config.AttackSkill[1] === sdk.skills.BlessedHammer) {
+			let target = getUnit(1, name);
 
 			if (!target) {
 				return;
 			}
 
-			position = [[6, 11], [0, 8], [8, -1], [-9, 2], [0, -11], [8, -8]];
+			let positions = [[6, 11], [0, 8], [8, -1], [-9, 2], [0, -11], [8, -8]];
 
-			for (let attackspot = 0; attackspot < position.length; attackspot += 1) {
-				if (me.getMobCount(15) === 0) {
-					break;
-				}
+			for (let i = 0; i < positions.length; i += 1) {
 				// check if we can move there
-				if (Attack.validSpot(target.x + position[attackspot][0], target.y + position[attackspot][1])) {
-					Pather.moveTo(target.x + position[attackspot][0], target.y + position[attackspot][1]);
+				if (Attack.validSpot(target.x + positions[i][0], target.y + positions[i][1])) {
+					Pather.moveTo(target.x + positions[i][0], target.y + positions[i][1]);
 					Skill.setSkill(Config.AttackSkill[2], 0);
 
 					for (let n = 0; n < amount; n += 1) {
 						Skill.cast(Config.AttackSkill[1], 1);
 					}
 
-					break;
+					return;
 				}
 			}
-
-			break;
-		case 4:
-			break;
-		case 5:
-			break;
-		case 6:
-			break;
 		}
 	};
 

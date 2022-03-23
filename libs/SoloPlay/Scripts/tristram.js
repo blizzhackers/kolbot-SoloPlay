@@ -13,8 +13,7 @@ function tristram () {
 	];
 
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting tristram');
-	me.overhead("tristram");
+	myPrint('starting tristram');
 
 	// Tristram portal hasn't been opened
 	if (!Misc.checkQuest(4, 4)) {

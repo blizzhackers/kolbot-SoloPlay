@@ -34,7 +34,7 @@ function myPrint (str = "", toConsole = false, color = 0) {
 	me.overhead(str);
 
 	if (toConsole && typeof color === "string") {
-		color = color[0].toUpperCase() + color.substring(1).toLowerCase();
+		color = color.capitalize(true);
 		color = !!sdk.colors.D2Bot[color] ? sdk.colors.D2Bot[color] : 0;
 	}
 	toConsole && D2Bot.printToConsole("Kolbot-SoloPlayÿ :: " + str, color);
@@ -905,7 +905,7 @@ const Check = {
 		let itemCHECK = false;
 		let typeCHECK = false;
 
-		flag && typeof flag === "string" && (flag = flag[0].toUpperCase() + flag.substring(1).toLowerCase());
+		flag && typeof flag === "string" && (flag = flag.capitalize(true));
 		typeof iName === "string" && (iName = iName.toLowerCase());
 
 		let items = me.getItemsEx()
@@ -968,7 +968,7 @@ const Check = {
 	},
 
 	itemSockables: function (type, quality, iName) {
-		quality && typeof quality === "string" && (quality = sdk.itemquality[quality[0].toUpperCase() + quality.substring(1).toLowerCase()]);
+		quality && typeof quality === "string" && (quality = sdk.itemquality[quality.capitalize(true)]);
 		typeof iName === "string" && (iName = iName.toLowerCase());
 		let isClassID = false;
 
@@ -1093,31 +1093,25 @@ const Check = {
 		function getBuildTemplate () {
 			let foundError = false;
 			if (SetUp.finalBuild.includes("Build") || SetUp.finalBuild.includes("build")) {
-				SetUp.finalBuild = SetUp.finalBuild.substring(0, SetUp.finalBuild.length - 5);
+				myData.me.finalBuild = SetUp.finalBuild.substring(0, SetUp.finalBuild.length - 5);
 				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
 				foundError = true;
 			}
 
 			if (SetUp.finalBuild.includes(".")) {
-				SetUp.finalBuild = SetUp.finalBuild.substring(SetUp.finalBuild.indexOf(".") + 1);
-				SetUp.finalBuild = SetUp.finalBuild[0].toUpperCase() + SetUp.finalBuild.substring(1).toLowerCase();
+				myData.me.finalBuild = SetUp.finalBuild.substring(SetUp.finalBuild.indexOf(".") + 1).capitalize(true);
 				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
 				foundError = true;
 			}
 
 			if (SetUp.finalBuild.includes(" ")) {
-				// Trailing space
-				if (SetUp.finalBuild.indexOf(" ") === (SetUp.finalBuild.length - 1)) {
-					SetUp.finalBuild = SetUp.finalBuild.split(" ")[0];
-					SetUp.finalBuild = SetUp.finalBuild[0].toUpperCase() + SetUp.finalBuild.substring(1).toLowerCase();
-					D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-					foundError = true;
-				}
+				myData.me.finalBuild  = SetUp.finalBuild.trim().capitalize(true);
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				foundError = true;
 			}
 
 			if (SetUp.finalBuild.includes("-")) {
-				SetUp.finalBuild = SetUp.finalBuild.substring(SetUp.finalBuild.indexOf("-") + 1);
-				SetUp.finalBuild = SetUp.finalBuild[0].toUpperCase() + SetUp.finalBuild.substring(1).toLowerCase();
+				myData.me.finalBuild = SetUp.finalBuild.substring(SetUp.finalBuild.indexOf("-") + 1).capitalize(true);
 				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '-' which is unecessary and means you likely entered something along the lines of Classname-finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
 				foundError = true;
 			}

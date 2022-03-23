@@ -151,7 +151,7 @@ Precast.doPrecast = function (force) {
 	let buffSummons = false;
 
 	// Force BO 30 seconds before it expires
-	if (this.haveCTA) {
+	if (this.haveCTA > -1) {
 		this.precastCTA(!me.getState(sdk.states.BattleCommand) || force || (getTickCount() - this.BOTick >= this.BODuration - 30000));
 	}
 

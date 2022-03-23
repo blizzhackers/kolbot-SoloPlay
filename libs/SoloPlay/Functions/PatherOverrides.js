@@ -790,7 +790,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 		fail = 0;
 
 	for (let i = 0; i < this.cancelFlags.length; i += 1) {
-		if (getUIFlag(this.cancelFlags[i])) me.cancel();
+		getUIFlag(this.cancelFlags[i]) && me.cancel();
 	}
 
 	//if (!x || !y) { throw new Error("moveTo: Function must be called with at least 2 arguments."); }
@@ -1262,9 +1262,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 		}
 
 		// We can't seem to get the wp maybe attempt portal to town instead and try to use that wp
-		if (i >= 10) {
-			if (!me.inTown) Town.goToTown();
-		}
+		i >= 10 && !me.inTown && Town.goToTown();
 
 		delay(200 + me.ping);
 	}
@@ -1344,12 +1342,8 @@ Pather.usePortal = function (targetArea, owner, unit) {
 		portal = unit ? copyUnit(unit) : this.getPortal(targetArea, owner);
 
 		if (portal) {
-			if (i === 0) {
-				useTK = me.sorceress && me.getSkill(sdk.skills.Telekinesis, 1) && me.inTown && portal.getParent();
-			}
-
 			if (portal.area === me.area) {
-				if (useTK) {
+				if (Skill.useTK(portal) && i < 3) {
 					if (getDistance(me, portal) > 13) {
 						Attack.getIntoPosition(portal, 13, 0x4);
 					}
