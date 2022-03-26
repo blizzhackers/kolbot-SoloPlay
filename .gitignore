@@ -4,3 +4,4 @@ libs/SoloPlay/Data/**
 !libs/SoloPlay/Data/deleteMe.txt
 libs/SoloPlay/Functions/BlizzardError
 libs/SoloPlay/Functions/*.png
+libs/SoloPlay/Functions/*.jpg
