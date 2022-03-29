@@ -665,7 +665,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 				case sdk.skills.BlessedHammer:
 					// Tele in random direction with Blessed Hammer
 					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % ((target.spectype & 0x7) ? 4 : 2) === 0) {
-						coord = CollMap.getRandCoordinate(me.x, -1, 1, me.y, -1, 1, 5);
+						let coord = CollMap.getRandCoordinate(me.x, -1, 1, me.y, -1, 1, 5);
 						Pather.moveTo(coord.x, coord.y);
 					}
 
