@@ -82,7 +82,7 @@ Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
 		return this.getResist(unit, damageType) < maxres;
 	}
 
-	if (this.IsAuradin && ["physical", "fire", "cold", "lightning"].includes(damageType) && me.getState(sdk.states.Conviction) && unit.getState) {
+	if (this.auradin && ["physical", "fire", "cold", "lightning"].includes(damageType) && me.getState(sdk.states.Conviction) && unit.getState) {
 		let valid = false;
 
 		// our main dps is not physical despite using zeal
