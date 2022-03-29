@@ -233,31 +233,6 @@ Object.defineProperties(me, {
 	}
 });
 
-// Credit @Jaenster
-Unit.prototype.getItems = function (...args) {
-	let items = this.getItems.apply(this, args);
-
-	if (typeof items === 'function' || !items.length) {
-		return [];
-	}
-
-	return items;
-};
-
-// Credit @Jaenster
-Unit.prototype.getItemsEx = function (...args) {
-	let item = this.getItem.apply(this, args), items = [];
-
-	if (item) {
-		do {
-			items.push(copyUnit(item));
-		} while (item.getNext());
-		return items;
-	}
-
-	return [];
-};
-
 Unit.prototype.getMobCount = function (range = 10, coll = 0, type = 0, noSpecialMobs = false) {
 	if (this === undefined) return 0;
 	const _this = this;
@@ -939,30 +914,6 @@ Unit.prototype.getStatEx = function (id, subid) {
         };
 	// getScript(true).name.toString() !== 'default.dbj' && setTimeout(function () {/* test code*/}, 1000)
 })([].filter.constructor('return this')(), setTimeout);
-
-(function (global, original) {
-	let firstRun = true;
-	global['getUnit'] = function (...args) {
-		const test = original(1);
-		// Stupid reference thing
-
-		if (firstRun) {
-			delay(1000);
-			firstRun = false;
-		}
-
-		let [first] = args, second = args.length >= 2 ? args[1] : undefined;
-
-		const ret = original.apply(this, args);
-
-		// deal with fucking bug
-		if (first === 1 && typeof second === 'string' && ret && ((me.act === 1 && ret.classid === 149) || me.act === 2 && ret.classid === 268)) {
-			return null;
-		}
-
-		return original.apply(this, args);
-	}
-})([].filter.constructor('return this')(), getUnit);
 
 if (!Object.setPrototypeOf) {
     // Only works in Chrome and FireFox, does not work in IE:

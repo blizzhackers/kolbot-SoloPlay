@@ -470,7 +470,7 @@ const Check = {
 
 			break;
 		case "treehead":
-			if (me.hell && (me.paladin && (!Attack.isAuradin || !Check.haveItem("armor", "runeword", "Enigma") || !Pather.accessToAct(3)))) {
+			if (me.hell && (me.paladin && (!Attack.auradin || !Check.haveItem("armor", "runeword", "Enigma") || !Pather.accessToAct(3)))) {
 				return true;
 			}
 
@@ -486,7 +486,7 @@ const Check = {
 				(!me.normal &&
 					((!me.tristram && me.diffCompleted) ||
 					(me.barbarian && !Pather.accessToAct(3) && !Check.haveItem("sword", "runeword", "Lawbringer")) ||
-					(me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.isAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
+					(me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.auradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
 				return true;
 			}
 
@@ -630,7 +630,7 @@ const Check = {
 						(me.charlvl < 25 ||
 						(me.charlvl >= 25 && me.normal && !me.baal && !Check.gold()) ||
 						(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) ||
-						(me.hell && me.paladin && me.charlvl > 85 && (!Attack.isAuradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
+						(me.hell && me.paladin && me.charlvl > 85 && (!Attack.auradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
 				return true;
 			}
 

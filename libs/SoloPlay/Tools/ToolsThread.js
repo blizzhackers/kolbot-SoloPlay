@@ -548,7 +548,7 @@ function main () {
 			print("ÿc8ToolsThread :: " + sdk.colors.Red + "Stopping threads and waiting 5 seconds to restart");
 			this.stopDefault() && delay(5e3);
 			print('Starting default.dbj');
-			load('default.dbj')
+			load('default.dbj');
 
 			break;
 		}

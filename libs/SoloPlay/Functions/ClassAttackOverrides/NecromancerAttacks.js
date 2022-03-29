@@ -8,120 +8,6 @@ if (!isIncluded("common/Attacks/Necromancer.js")) {
 	include("common/Attacks/Necromancer.js");
 }
 
-ClassAttack.maxSkeletons = 0;
-ClassAttack.maxMages = 0;
-ClassAttack.maxRevives = 0;
-
-ClassAttack.setArmySize = function () {
-	let skillNum;
-
-	if (Config.Skeletons === "max") {
-		skillNum = me.getSkill(sdk.skills.RaiseSkeleton, 1);
-		this.maxSkeletons = skillNum < 4 ? skillNum : (Math.floor(skillNum / 3) + 2);
-	} else {
-		this.maxSkeletons = Config.Skeletons;
-	}
-
-	if (Config.SkeletonMages === "max") {
-		skillNum = me.getSkill(sdk.skills.RaiseSkeletalMage, 1);
-		this.maxMages = skillNum < 4 ? skillNum : (Math.floor(skillNum / 3) + 2);
-	} else {
-		this.maxMages = Config.SkeletonMages;
-	}
-
-	if (Config.Revives === "max") {
-		skillNum = me.getSkill(sdk.skills.Revive, 1);
-		this.maxRevives = skillNum;
-	} else {
-		this.maxRevives = Config.Revives;
-	}
-};
-
-// Returns: true - doesn't use summons or has all he can summon, false - not full of summons yet
-ClassAttack.isArmyFull = function () {
-	// This necro doesn't summon anything so assume he's full
-	if (Config.Skeletons + Config.SkeletonMages + Config.Revives === 0) {
-		return true;
-	}
-
-	// Make sure we have a current count of summons needed
-	this.setArmySize();
-
-	// See if we're at full army count
-	if (me.getMinionCount(4) < this.maxSkeletons) {
-		return false;
-	}
-	if (me.getMinionCount(5) < this.maxMages) {
-		return false;
-	}
-	if (me.getMinionCount(6) < this.maxRevives) {
-		return false;
-	}
-
-	// If we got this far this necro has all the summons he needs
-	return true;
-};
-
-ClassAttack.getCurseState = function (unit, curseID) {
-	let state = 0;
-
-	if (unit === undefined || unit.dead) {
-		return false;
-	}
-
-	switch (curseID) {
-	case 0: //nothing
-		state = 0;
-
-		break;
-	case 66: //amplify damage
-		state = 9;
-
-		break;
-	case 71: //dim vision
-		state = 23;
-
-		break;
-	case 72: //weaken
-		state = 19;
-
-		break;
-	case 76: //iron maiden
-		state = 55;
-
-		break;
-	case 77: //terror
-		state = 56;
-
-		break;
-	case 81: //confuse
-		state = 59;
-
-		break;
-	case 82: //life tap
-		state = 58;
-
-		break;
-	case 86: //attract
-		state = 57;
-
-		break;
-	case 87: //decrepify
-		state = 60;
-
-		break;
-	case 91: //lower resist
-		state = 61;
-
-		break;
-	default:
-
-		break;
-	}
-
-	return unit.getState(state);
-};
-
 // TODO: clean this up
 ClassAttack.smartCurse = function (unit, index) {
 	if (unit === undefined || unit.dead || !unit.curseable) return false;
@@ -139,31 +25,31 @@ ClassAttack.smartCurse = function (unit, index) {
 
 	switch (type) {
 	case "Boss":
-		if (useMaiden && !this.getCurseState(unit, 71)) {
+		if (useMaiden && this.canCurse(unit, 71)) {
 			curseToCast = 76;
 
 			break;
 		}
 
-		if (useLowerRes && !this.getCurseState(unit, 61)) {
+		if (useLowerRes && this.canCurse(unit, 61)) {
 			curseToCast = 76;
 
 			break;
 		}
 
-		if (useAmp && !this.getCurseState(unit, 66)) {
+		if (useAmp && this.canCurse(unit, 66)) {
 			curseToCast = 66;
 
 			break;
 		}
 
-		if (useWeaken && !useDecrep && !useAmp && !useMaiden && Math.round(getDistance(me, unit)) < 15 && !this.getCurseState(unit, 72)) {
+		if (useWeaken && !useDecrep && !useAmp && !useMaiden && Math.round(getDistance(me, unit)) < 15 && this.canCurse(unit, 72)) {
 			curseToCast = 72;
 
 			break;
 		}
 
-		if (useDecrep && !useMaiden && !this.getCurseState(unit, 87)) {
+		if (useDecrep && !useMaiden && this.canCurse(unit, 87)) {
 			curseToCast = 87;
 
 			break;
@@ -171,7 +57,7 @@ ClassAttack.smartCurse = function (unit, index) {
 
 		break;
 	case "Normal":
-		if (useAttract && unit.classid !== 571 && Math.round(getDistance(me, unit)) > 8 && !checkCollision(me, unit, 0x4) && !this.getCurseState(unit, 86)) {
+		if (useAttract && unit.classid !== 571 && Math.round(getDistance(me, unit)) > 8 && !checkCollision(me, unit, 0x4) && this.canCurse(unit, 86)) {
 			// Save resources by only doing this check if all the other ones are met
 			if (Attack.getMobCountAtPosition(unit.x, unit.y, 6, false, false) >= 2) {
 				curseToCast = 86;
@@ -180,7 +66,7 @@ ClassAttack.smartCurse = function (unit, index) {
 			break;
 		}
 
-		if (useConfuse && unit.classid !== 571 && Math.round(getDistance(me, unit)) > 8 && !checkCollision(me, unit, 0x4) && !this.getCurseState(unit, 81)) {
+		if (useConfuse && unit.classid !== 571 && Math.round(getDistance(me, unit)) > 8 && !checkCollision(me, unit, 0x4) && this.canCurse(unit, 81)) {
 			// Save resources by only doing this check if all the other ones are met
 			if (Attack.getMobCountAtPosition(unit.x, unit.y, 6, false, false) >= 2) {
 				curseToCast = 81;
@@ -189,32 +75,32 @@ ClassAttack.smartCurse = function (unit, index) {
 			break;
 		}
 
-		if (useLowerRes && !this.getCurseState(unit, 61)) {
+		if (useLowerRes && this.canCurse(unit, 61)) {
 			curseToCast = 76;
 
 			break;
 		}
 
 		// Dim doesn't work on oblivion knights
-		if (useDim && Math.round(getDistance(me, unit)) > 15 && !checkCollision(me, unit, 0x4) && [312, 701, 702].indexOf(unit.classid) === -1 && !this.getCurseState(unit, 71)) {
+		if (useDim && Math.round(getDistance(me, unit)) > 15 && !checkCollision(me, unit, 0x4) && [312, 701, 702].indexOf(unit.classid) === -1 && this.canCurse(unit, 71)) {
 			curseToCast = 71;
 
 			break;
 		}
 
-		if (useAmp && !this.getCurseState(unit, 66)) {
+		if (useAmp && this.canCurse(unit, 66)) {
 			curseToCast = 66;
 
 			break;
 		}
 
-		if (useWeaken && !useDecrep && Math.round(getDistance(me, unit)) < 15 && !this.getCurseState(unit, 72)) {
+		if (useWeaken && !useDecrep && Math.round(getDistance(me, unit)) < 15 && this.canCurse(unit, 72)) {
 			curseToCast = 72;
 
 			break;
 		}
 
-		if (useDecrep && !this.getCurseState(unit, 87) && (!this.getCurseState(unit, 71) || Math.round(getDistance(me, unit)) < 15)) {
+		if (useDecrep && this.canCurse(unit, 87) && (this.canCurse(unit, 71) || Math.round(getDistance(me, unit)) < 15)) {
 			curseToCast = 87;
 
 			break;
@@ -240,22 +126,28 @@ ClassAttack.bpTick = 0;
 
 // TODO: clean this up
 ClassAttack.doAttack = function (unit, preattack) {
-	let index, checkSkill, result,
+	if (!unit || unit.dead) return 1;
+
+	let checkSkill,
 		mercRevive = 0,
 		timedSkill = -1,
 		untimedSkill = -1,
-		gold = me.gold;
-
-	let useTerror = me.getSkill(sdk.skills.Terror, 0);
-	let useBP = me.getSkill(sdk.skills.BonePrison, 1);
-
-	!this.cursesSet && this.initCurses();
+		customCurse = -1,
+		gid = unit.gid,
+		gold = me.gold,
+		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3,
+		useTerror = me.getSkill(sdk.skills.Terror, 0),
+		useBP = me.getSkill(sdk.skills.BonePrison, 1);
 
 	if (Config.MercWatch && Town.needMerc()) {
-		Town.visitTown();
-	}
+		print("mercwatch");
 
-	index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+		if (Town.visitTown()) {
+			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+				return 1; // lost reference to the mob we were attacking
+			}
+		}
+	}
 
 	let bpAllowedAreas = [37, 38, 39, 41, 42, 43, 44, 46, 73, 76, 77, 78, 79, 80, 81, 83, 102, 104, 105, 106, 108, 110, 111, 120, 121, 128, 129, 130, 131];
 
@@ -296,28 +188,20 @@ ClassAttack.doAttack = function (unit, preattack) {
 	}
 
 	// Get timed skill
-	if (Attack.getCustomAttack(unit)) {
-		checkSkill = Attack.getCustomAttack(unit)[0];
-	} else {
-		checkSkill = Config.AttackSkill[index];
-	}
+	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
 
-	if (Attack.checkResist(unit, checkSkill)) {
+	if (Attack.checkResist(unit, checkSkill) && ([56, 59].indexOf(checkSkill) === -1 || Attack.validSpot(unit.x, unit.y))) {
 		timedSkill = checkSkill;
-	} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+	} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([56, 59].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 		timedSkill = Config.AttackSkill[5];
 	}
 
 	// Get untimed skill
-	if (Attack.getCustomAttack(unit)) {
-		checkSkill = Attack.getCustomAttack(unit)[1];
-	} else {
-		checkSkill = Config.AttackSkill[index + 1];
-	}
+	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[1] : Config.AttackSkill[index + 1];
 
-	if (Attack.checkResist(unit, checkSkill)) {
+	if (Attack.checkResist(unit, checkSkill) && ([56, 59].indexOf(checkSkill) === -1 || Attack.validSpot(unit.x, unit.y))) {
 		untimedSkill = checkSkill;
-	} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+	} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([56, 59].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 		untimedSkill = Config.AttackSkill[6];
 	}
 
@@ -331,35 +215,44 @@ ClassAttack.doAttack = function (unit, preattack) {
 		untimedSkill = Config.LowManaSkill[1];
 	}
 
-	result = this.doCast(unit, timedSkill, untimedSkill);
+	let result = this.doCast(unit, timedSkill, untimedSkill);
 
 	if (result === 1) {
-		if (Config.ActiveSummon) {
-			this.raiseArmy();
-		}
-
+		Config.ActiveSummon && this.raiseArmy();
 		this.explodeCorpses(unit);
-	} else if (result === 2 && Config.TeleStomp && Attack.checkResist(unit, "physical") && !!me.getMerc()) {
-		while (Attack.checkMonster(unit)) {
+	} else if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+		let merc = me.getMerc();
+
+		while (unit.attackable) {
+			if (Misc.townCheck()) {
+				if (!unit || !copyUnit(unit).x) {
+					unit = Misc.poll(function () { return getUnit(1, -1, -1, gid); }, 1000, 80);
+				}
+			}
+
+			if (!unit) return 1;
+
 			if (Town.needMerc()) {
 				if (Config.MercWatch && mercRevive++ < 1) {
 					Town.visitTown();
 				} else {
 					return 2;
 				}
+
+				(merc === undefined || !merc) && (merc = me.getMerc());
 			}
 
-			if (getDistance(me, unit) > 3) {
+			if (!!merc && getDistance(merc, unit) > 5) {
 				Pather.moveToUnit(unit);
+
+				let spot = Attack.findSafeSpot(unit, 10, 5, 9);
+				!!spot && Pather.walkTo(spot.x, spot.y);
 			}
 
-			this.doCast(unit, Config.AttackSkill[1], Config.AttackSkill[2]);
-
-			if (Config.ActiveSummon) {
-				this.raiseArmy();
-			}
-
+			Config.ActiveSummon && this.raiseArmy();
 			this.explodeCorpses(unit);
+			let closeMob = Attack.getNearestMonster(true, true);
+			!!closeMob && closeMob.gid !== gid && this.doCast(closeMob, timedSkill, untimedSkill);
 		}
 
 		return 1;
@@ -550,89 +443,6 @@ ClassAttack.farCast = function (unit) {
 	return 1;
 };
 
-ClassAttack.raiseArmy = function (range) {
-	let i, tick, count, corpse, corpseList;
-
-	if (!range) {
-		range = 25;
-	}
-
-	this.setArmySize();
-
-	for (i = 0; i < 3; i += 1) {
-		corpse = getUnit(1, -1, 12);
-		corpseList = [];
-
-		if (corpse) {
-			do {
-				// within casting distance
-				if (getDistance(me, corpse) <= range && this.checkCorpse(corpse)) {
-					corpseList.push(copyUnit(corpse));
-				}
-			} while (corpse.getNext());
-		}
-
-		while (corpseList.length > 0) {
-			corpse = corpseList.shift();
-
-			if (me.getMinionCount(4) < this.maxSkeletons) {
-				if (!Skill.cast(sdk.skills.RaiseSkeleton, 0, corpse)) {
-					return false;
-				}
-
-				count = me.getMinionCount(4);
-				tick = getTickCount();
-
-				while (getTickCount() - tick < 200) {
-					if (me.getMinionCount(4) > count) {
-						break;
-					}
-
-					delay(10);
-				}
-			} else if (me.getMinionCount(5) < this.maxMages) {
-				if (!Skill.cast(sdk.skills.RaiseSkeletalMage, 0, corpse)) {
-					return false;
-				}
-
-				count = me.getMinionCount(5);
-				tick = getTickCount();
-
-				while (getTickCount() - tick < 200) {
-					if (me.getMinionCount(5) > count) {
-						break;
-					}
-
-					delay(10);
-				}
-			} else if (me.getMinionCount(6) < this.maxRevives) {
-				if (this.checkCorpse(corpse, true)) {
-					print("Reviving " + corpse.name);
-
-					if (!Skill.cast(sdk.skills.Revive, 0, corpse)) {
-						return false;
-					}
-
-					count = me.getMinionCount(6);
-					tick = getTickCount();
-
-					while (getTickCount() - tick < 200) {
-						if (me.getMinionCount(6) > count) {
-							break;
-						}
-
-						delay(10);
-					}
-				}
-			} else {
-				return true;
-			}
-		}
-	}
-
-	return true;
-};
-
 ClassAttack.explodeCorpses = function (unit) {
 	if (Config.ExplodeCorpses === 0 || unit.mode === 0 || unit.mode === 12) {
 		return false;
@@ -703,22 +513,4 @@ ClassAttack.explodeCorpses = function (unit) {
 	}
 
 	return true;
-};
-
-ClassAttack.checkCorpse = function (unit, revive = false) {
-	if (unit.mode !== 12) return false;
-
-	let baseId = getBaseStat("monstats", unit.classid, "baseid"), badList = [312, 571];
-	let	states = [
-		sdk.states.FrozenSolid, sdk.states.Revive, sdk.states.Redeemed,
-        sdk.states.CorpseNoDraw, sdk.states.Shatter, sdk.states.RestInPeace, sdk.states.CorpseNoSelect
-    ];
-
-	if (revive && ((unit.spectype & 0x7) || badList.indexOf(baseId) > -1 || (Config.ReviveUnstackable && getBaseStat("monstats2", baseId, "sizex") === 3))) {
-		return false;
-	}
-
-	if (!getBaseStat("monstats2", baseId, revive ? "revive" : "corpseSel")) return false;
-
-	return !!(unit.distance <= 25 && !checkCollision(me, unit, 0x4) && states.every(state => !unit.getState(state)));
 };

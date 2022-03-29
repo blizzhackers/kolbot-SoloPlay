@@ -7,12 +7,6 @@
 if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
 if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
 
-Misc.checkQuest = function (id, state) {
-	sendPacket(1, 0x40);
-	delay(500 + me.ping);
-	return me.getQuest(id, state);
-};
-
 Misc.townEnabled = true;
 
 Misc.townCheck = function () {
@@ -82,44 +76,6 @@ Misc.townCheck = function () {
 		delay(500);
 
 		return true;
-	}
-
-	return false;
-};
-
-Misc.openChest = function (unit) {
-	// Skip invalid/open and Countess chests
-	if (!unit || unit.x === 12526 || unit.x === 12565 || unit.mode) return false;
-
-	// locked chest, no keys
-	if (!me.assassin && unit.islocked && !me.findItem(543, 0, 3)) return false;
-
-	for (let i = 0; i < 7; i++) {
-		if (Skill.useTK(unit) && i < 3) {
-			if (getDistance(me, unit) > 13) {
-				Attack.getIntoPosition(unit, 13, 0x4);
-			}
-			
-			Skill.cast(sdk.skills.Telekinesis, 0, unit);
-		} else {
-			if (Pather.moveTo(unit.x + 1, unit.y + 2, 3) && getDistance(me, unit.x + 1, unit.y + 2) < 5) {
-				sendPacket(1, 0x13, 4, unit.type, 4, unit.gid);
-			}
-		}
-
-		let tick = getTickCount();
-
-		while (getTickCount() - tick < 1000) {
-			if (unit.mode) return true;
-
-			delay(10);
-		}
-
-		Packet.flash(me.gid);
-	}
-
-	if (!me.idle) {
-		Misc.click(0, 0, me.x, me.y); // Click to stop walking in case we got stuck
 	}
 
 	return false;
@@ -219,51 +175,6 @@ Misc.getExpShrine = function (shrineLocs) {
 };
 
 Misc.getGoodShrine = function (shrineLocs) {
-	/* function checkState (shrineType) {
-		let result = false;
-
-		switch (shrineType) {
-		case 6: // Armor
-			if (me.getState(128) && !me.paladin) {
-				result = true;
-			}
-
-			break;
-		case 7: // Combat
-			if (me.getState(129)) {
-				result = true;
-			}
-
-			break;
-		case 8: // Resist Fire
-			if (me.getState(131) || Check.Resistance().FR >= 75) {
-				result = true;
-			}
-
-			break;
-		case 10: // Resist Light
-			if (me.getState(131) || Check.Resistance().LR >= 75) {
-				result = true;
-			}
-
-			break;
-		case 12: // Skill
-			if (me.getState(134)) {
-				result = true;
-			}
-
-			break;
-		case 15: // Exp
-			if (me.getState(137)) {
-				result = true;
-			}
-
-			break;
-		}
-
-		return result;
-	} */
-
 	let oldAttack = [];
 
 	// Build shrine array
@@ -346,35 +257,6 @@ Misc.getGoodShrinesInArea = function (area, types, use) {
 					}
 				}
 			} while (shrine.getNext());
-		}
-	}
-
-	return false;
-};
-
-// Add use of tk for shrine - from autoplay
-Misc.getShrine = function (unit = undefined) {
-	if (!unit || unit.mode) return false;
-
-	for (let i = 0; i < 3; i++) {
-		if (Skill.useTK(unit) && i < 2) {
-			if (getDistance(me, unit) > 13) {
-				Attack.getIntoPosition(unit, 13, 0x4);
-			}
-			
-			Skill.cast(sdk.skills.Telekinesis, 0, unit);
-		} else {
-			if (getDistance(me, unit) < 4 || Pather.moveToUnit(unit, 3, 0)) {
-				Misc.click(0, 0, unit);
-			}
-		}
-
-		let tick = getTickCount();
-
-		while (getTickCount() - tick < 1000) {
-			if (unit.mode) return true;
-
-			delay(10);
 		}
 	}
 
@@ -1127,38 +1009,4 @@ Misc.recursiveSearch = function (o, n, changed) {
         }
     });
     return changed;
-};
-
-// singleplayer delay(0) fix
-Packet.openMenu = function (unit) {
-	if (unit.type !== 1) { throw new Error("openMenu: Must be used on NPCs."); }
-	if (getUIFlag(sdk.uiflags.NPCMenu)) return true;
-
-	for (let i = 0; i < 5; i++) {
-		unit.distance > 4 && Pather.moveToUnit(unit);
-		sendPacket(1, 0x13, 4, 1, 4, unit.gid);
-		let tick = getTickCount();
-
-		while (getTickCount() - tick < 5000) {
-			if (getUIFlag(sdk.uiflags.NPCMenu)) {
-				delay(Math.max(500, me.ping * 2));
-
-				return true;
-			}
-
-			if (getInteractedNPC() && getTickCount() - tick > 1000) {
-				me.cancel();
-			}
-
-			delay(100);
-		}
-
-		sendPacket(1, 0x2f, 4, 1, 4, unit.gid);
-		delay(me.ping * 2 + 1);
-		sendPacket(1, 0x30, 4, 1, 4, unit.gid);
-		delay(me.ping * 2 + 1);
-		this.flash(me.gid);
-	}
-
-	return false;
 };

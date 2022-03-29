@@ -91,16 +91,21 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	if (unit === undefined || !unit || unit.dead) return true;
 
 	let gid = unit.gid;
-	let needRepair = [], attackSkill = -1, gold = me.gold;
+	let needRepair = [], gold = me.gold;
 	me.charlvl >= 5 && (needRepair = Town.needRepair());
 
-	if (Town.canTpToTown() && ((Config.MercWatch && Town.needMerc()) || needRepair.length > 0)) {
-		Town.visitTown(!!needRepair.length);
-		if (!getUnit(1, -1, -1, gid)) return true; // lost reference to the mob we were attacking
+	if ((Config.MercWatch && Town.needMerc()) || needRepair.length > 0) {
+		print("towncheck");
+
+		if (Town.visitTown(!!needRepair.length)) {
+			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+				return 1; // lost reference to the mob we were attacking
+			}
+		}
 	}
 	
 	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
-	attackSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
+	let attackSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
 
 	if (!Attack.checkResist(unit, attackSkill)) {
 		attackSkill = -1;
@@ -431,21 +436,4 @@ ClassAttack.grimWard = function (range = 10) {
 	}
 
 	return true;
-};
-
-ClassAttack.checkCorpse = function (unit) {
-	if (!unit || unit.mode !== sdk.units.monsters.monstermode.Death && unit.mode !== sdk.units.monsters.monstermode.Dead) return false;
-	if ([sdk.monsters.Council1, sdk.monsters.Council2, sdk.monsters.Council3].indexOf(unit.classid) === -1 && unit.spectype === 0) return false;
-
-	// monstats2 doesn't contain guest monsters info. sigh..
-	if (unit.classid <= 575 && !getBaseStat("monstats2", unit.classid, "corpseSel")) {
-		return false;
-	}
-
-	let states = [
-		sdk.states.FrozenSolid, sdk.states.Revive, sdk.states.Redeemed,
-        sdk.states.CorpseNoDraw, sdk.states.Shatter, sdk.states.RestInPeace, sdk.states.CorpseNoSelect
-    ];
-
-	return !!(getDistance(me, unit) <= 25 && !checkCollision(me, unit, 0x4) && states.every(state => !unit.getState(state)));
 };

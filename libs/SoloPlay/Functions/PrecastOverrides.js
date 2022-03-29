@@ -115,10 +115,11 @@ Precast.getBetterSlot = function (skillId) {
 		return me.weaponswitch;
 	}
 
-	item = me.getItem();
-
-	if (item) {
-		do {
+	me.weaponswitch !== 0 && me.switchWeapons(0);
+	
+	let items = me.getItemsEx()
+		.filter(item => [4, 5, 11, 12].includes(item.bodylocation))
+		.forEach(function (item) {
 			if (item.bodylocation === 4 || item.bodylocation === 5) {
 				sumCurr += (item.getStat(127) + item.getStat(83, classid) + item.getStat(188, skillTab) + item.getStat(107, skillId) + item.getStat(97, skillId));
 			}
@@ -126,8 +127,7 @@ Precast.getBetterSlot = function (skillId) {
 			if (item.bodylocation === 11 || item.bodylocation === 12) {
 				sumSwap += (item.getStat(127) + item.getStat(83, classid) + item.getStat(188, skillTab) + item.getStat(107, skillId) + item.getStat(97, skillId));
 			}
-		} while (item.getNext());
-	}
+		});
 
 	this.bestSlot[skillId] = (sumSwap > sumCurr) ? me.weaponswitch ^ 1 : me.weaponswitch;
 	return this.bestSlot[skillId];

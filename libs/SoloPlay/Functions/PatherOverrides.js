@@ -165,16 +165,6 @@ Pather.forceRun = false;
 	});
 })(typeof global !== 'undefined' ? global : this);
 
-Pather.canTeleport = function () {
-	return this.teleport && (me.getSkill(sdk.skills.Teleport, 1) || me.getStat(sdk.stats.OSkill, sdk.skills.Teleport));
-};
-
-Pather.useTeleport = function () {
-	let manaTP = Skill.getManaCost(sdk.skills.Teleport);
-	let numberOfTeleport = ~~(me.mpmax / manaTP);
-	return !me.inTown && !Config.NoTele && !me.shapeshifted && this.canTeleport() && numberOfTeleport > 2;
-};
-
 Pather.checkForTeleCharges = function () {
 	this.haveTeleCharges = Attack.getItemCharges(sdk.skills.Teleport);
 };
@@ -239,6 +229,10 @@ Pather.teleUsingCharges = function (x, y, maxRange = 5) {
 };
 
 Pather.checkWP = function (area = 0, keepMenuOpen = false) {
+	while (!me.gameReady) {
+		delay(250 + me.ping);
+	}
+
 	if (!getWaypoint(Pather.wpAreas.indexOf(area))) {
 		!me.getSkill(sdk.skills.Telekinesis, 1) && me.inTown && Town.move("waypoint");
 
@@ -282,67 +276,6 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 	}
 
 	return getWaypoint(Pather.wpAreas.indexOf(area));
-};
-
-// fixed monsterdoors/walls in act 5
-Pather.openDoors = function (x, y) {
-	if (me.inTown) return false;
-
-	// Regular doors
-	let door = getUnit(sdk.unittype.Object, "door", 0);
-
-	if (door) {
-		do {
-			if ((getDistance(door, x, y) < 4 && door.distance < 9) || door.distance < 4) {
-				for (let i = 0; i < 3; i += 1) {
-					Misc.click(0, 0, door);
-					let tick = getTickCount();
-
-					while (getTickCount() - tick < 1000) {
-						if (door.mode === 2) {
-							me.overhead("Opened a door!");
-							return true;
-						}
-
-						delay(10 + me.ping);
-					}
-
-					if (i === 2) {
-						Packet.flash(me.gid);
-					}
-				}
-			}
-		} while (door.getNext());
-	}
-
-	// Monsta doors (Barricaded)
-	let monstadoor = getUnit(sdk.unittype.Monster, "barricaded door"), monstawall = getUnit(sdk.unittype.Monster, "barricade");
-
-	if (monstadoor) {
-		do {
-			if ((getDistance(monstadoor, x, y) < 4 && monstadoor.distance < 9) || monstadoor.distance < 4) {
-				for (let p = 0; p < 20 && monstadoor.hp; p++) {
-					Skill.cast(Config.AttackSkill[1], Skill.getHand(Config.AttackSkill[1]), monstadoor);
-				}
-
-				me.overhead("Broke a barricaded door!");
-			}
-		} while (monstadoor.getNext());
-	}
-
-	if (monstawall) {
-		do {
-			if ((getDistance(monstawall, x, y) < 4 && monstawall.distance < 9) || monstawall.distance < 4) {
-				for (let p = 0; p < 20 && monstawall.hp; p++) {
-					Skill.cast(Config.AttackSkill[1], Skill.getHand(Config.AttackSkill[1]), monstawall);
-				}
-
-				me.overhead("Broke a barricaded wall!");
-			}
-		} while (monstawall.getNext());
-	}
-
-	return false;
 };
 
 Pather.changeAct = function () {
@@ -401,108 +334,6 @@ Pather.changeAct = function () {
 	}
 
 	return me.act === act;
-};
-
-Pather.walkTo = function (x = undefined, y = undefined, minDist = undefined) {
-	while (!me.gameReady) {
-		delay(100);
-	}
-
-	if (!x || !y) return false;
-	minDist === undefined && (minDist = me.inTown ? 2 : 4);
-
-	let angle, angles, nTimer, whereToClick, _a,
-		nFail = 0,
-		attemptCount = 0;
-
-	// credit @Jaenster
-	// Stamina handler and Charge
-	if (!me.inTown && !me.dead) {
-		// Check if I have a stamina potion and use it if I do
-		if (me.staminaPercent <= 20) {
-			(_a = me.getItemsEx()
-				.filter(function (i) { return i.classid === sdk.items.StaminaPotion && i.isInInventory; })
-				.first()) === null || _a === void 0 ? void 0 : _a.interact();
-		}
-		(me.runwalk === 1 && me.staminaPercent <= 15) && (me.runwalk = 0);
-		// the less stamina you have, the more you wait to recover
-		let recover = me.staminaMaxDuration < 30 ? 80 : 50;
-		(me.runwalk === 0 && me.staminaPercent >= recover) && (me.runwalk = 1);
-		if (Config.Charge && me.paladin && me.mp >= 9 && getDistance(me.x, me.y, x, y) > 8 && Skill.setSkill(sdk.skills.Charge, 1)) {
-			if (Config.Vigor) {
-				Skill.setSkill(sdk.skills.Vigor, 0);
-			} else if (!Config.Vigor && !Attack.isAuradin && me.getSkill(sdk.skills.HolyFreeze, 1)) {
-				// Useful in classic to keep mobs cold while you rush them
-				Skill.setSkill(sdk.skills.HolyFreeze, 0);
-			}
-			Misc.click(0, 1, x, y);
-			while (me.mode !== 1 && me.mode !== 5 && !me.dead) {
-				delay(40);
-			}
-		}
-	}
-
-	(me.inTown && me.runwalk === 0) && (me.runwalk = 1);
-
-	while (getDistance(me.x, me.y, x, y) > minDist && !me.dead) {
-		me.paladin && Config.Vigor && Skill.setSkill(sdk.skills.Vigor, 0);
-		me.paladin && !Config.Vigor && Skill.setSkill(Config.AttackSkill[2], 0);
-
-		if (this.openDoors(x, y) && getDistance(me.x, me.y, x, y) <= minDist) {
-			return true;
-		}
-
-		Misc.click(0, 0, x, y);
-
-		attemptCount += 1;
-		nTimer = getTickCount();
-
-		ModeLoop:
-		while (me.mode !== 2 && me.mode !== 3 && me.mode !== 6) {
-			if (me.dead) return false;
-
-			if ((getTickCount() - nTimer) > 500) {
-				if (nFail >= 3) return false;
-
-				nFail += 1;
-				angle = Math.atan2(me.y - y, me.x - x);
-				angles = [Math.PI / 2, -Math.PI / 2];
-
-				for (let i = 0; i < angles.length; i += 1) {
-					// TODO: might need rework into getnearestwalkable
-					whereToClick = {
-						x: Math.round(Math.cos(angle + angles[i]) * 5 + me.x),
-						y: Math.round(Math.sin(angle + angles[i]) * 5 + me.y)
-					};
-
-					if (Attack.validSpot(whereToClick.x, whereToClick.y)) {
-						Misc.click(0, 0, whereToClick.x, whereToClick.y);
-
-						let tick = getTickCount();
-
-						while (getDistance(me, whereToClick) > 2 && getTickCount() - tick < 1000) {
-							delay(40);
-						}
-
-						break;
-					}
-				}
-
-				break ModeLoop;
-			}
-
-			delay(10);
-		}
-
-		// Wait until we're done walking - idle or dead
-		while (getDistance(me.x, me.y, x, y) > minDist && me.mode !== 1 && me.mode !== 5 && !me.dead) {
-			delay(10);
-		}
-
-		if (attemptCount >= 3) return false;
-	}
-
-	return !me.dead && getDistance(me.x, me.y, x, y) <= minDist;
 };
 
 Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
@@ -566,7 +397,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 					if (this.recursion) {
 						this.recursion = false;
 
-						NodeAction.go({clearPath: clearPath});
+						NodeAction.go({clearPath: settings.clearPath});
 
 						if (getDistance(me, node.x, node.y) > 5) {
 							this.moveNear(node.x, node.y);
@@ -798,7 +629,7 @@ Pather.moveToLoc = function (target, givenSettings) {
 						this.recursion = false;
 
 						// need to write a better clear function or change nodeaction
-						settings.allowClearing && NodeAction.go({clearPath: clearPath});
+						settings.allowClearing && NodeAction.go({clearPath: true});
 
 						if (getDistance(me, node.x, node.y) > 5) {
 							this.moveToLoc(target, settings);
@@ -849,24 +680,6 @@ Pather.moveToLoc = function (target, givenSettings) {
 	PathDebug.removeHooks();
 
 	return getDistance(me, node.x, node.y) < 5;
-};
-
-Pather.moveToUnit = function (unit = false, offX = 0, offY = 0, clearPath = true, pop = false) {
-	let useTeleport = this.useTeleport();
-
-	if (!unit || !unit.hasOwnProperty("x") || !unit.hasOwnProperty("y")) {
-		throw new Error("moveToUnit: Invalid unit.");
-	}
-
-	if (unit instanceof PresetUnit) {
-		return this.moveTo(unit.roomx * 5 + unit.x + offX, unit.roomy * 5 + unit.y + offY, 3, clearPath);
-	}
-
-	if (!useTeleport) {
-		this.moveTo(unit.x + offX, unit.y + offY, 15, clearPath, true);	// The unit will most likely be moving so call the first walk with 'pop' parameter
-	}
-
-	return this.moveTo(unit.x + offX, unit.y + offY, useTeleport && unit.type && unit.type === 1 ? 3 : 0, clearPath, pop);
 };
 
 // Add check in case "random" to return false if bot doesn't have cold plains wp yet
@@ -1086,21 +899,6 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 	}
 
 	print("ÿc8Kolbot-SoloPlayÿc0: End clearToExit. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
-};
-
-Pather.moveToPreset = function (area = undefined, unitType = undefined, unitId = undefined, offX = 0, offY = 0, clearPath = true, pop = false) {
-	if (!area || !unitType || !unitId) {
-		throw new Error("moveToPreset: Invalid parameters.");
-	}
-
-	if (me.area !== area) Pather.journeyTo(area);
-	let presetUnit = getPresetUnit(area, unitType, unitId);
-
-	if (!presetUnit) {
-		throw new Error("moveToPreset: Couldn't find preset unit - id: " + unitId + " unitType: " + unitType + " in area: " + this.getAreaName(area));
-	}
-
-	return this.moveTo(presetUnit.roomx * 5 + presetUnit.x + offX, presetUnit.roomy * 5 + presetUnit.y + offY, 3, clearPath, pop);
 };
 
 Pather.getWalkDistance = function (x, y, area, xx, yy, reductionType, radius) {

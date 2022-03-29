@@ -19,8 +19,12 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 	if (Config.MercWatch && Town.needMerc()) {
 		print("mercwatch");
-		Town.visitTown();
-		if (!getUnit(1, -1, -1, gid)) return true; // lost reference to the mob we were attacking
+
+		if (Town.visitTown()) {
+			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+				return 1; // lost reference to the mob we were attacking
+			}
+		}
 	}
 
 	if (me.expansion && index === 1 && !unit.dead) {
@@ -106,21 +110,37 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 	let result = this.doCast(unit, attackSkill, aura);
 
-	if (result === 2 && Config.TeleStomp && Attack.checkResist(unit, "physical") && !!me.getMerc()) {
-		while (Attack.checkMonster(unit)) {
+	if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+		let merc = me.getMerc();
+
+		while (unit.attackable) {
+			if (Misc.townCheck()) {
+				if (!unit || !copyUnit(unit).x) {
+					unit = Misc.poll(function () { return getUnit(1, -1, -1, gid); }, 1000, 80);
+				}
+			}
+
+			if (!unit) return 1;
+
 			if (Town.needMerc()) {
 				if (Config.MercWatch && mercRevive++ < 1) {
 					Town.visitTown();
 				} else {
 					return 2;
 				}
+
+				(merc === undefined || !merc) && (merc = me.getMerc());
 			}
 
-			if (getDistance(me, unit) > 3) {
+			if (!!merc && getDistance(merc, unit) > 5) {
 				Pather.moveToUnit(unit);
+
+				let spot = Attack.findSafeSpot(unit, 10, 5, 9);
+				!!spot && Pather.walkTo(spot.x, spot.y);
 			}
 
-			this.doCast(unit, Config.AttackSkill[1], Config.AttackSkill[2]);
+			let closeMob = Attack.getNearestMonster(true, true);
+			!!closeMob && closeMob.gid !== gid && this.doCast(closeMob, timedSkill, untimedSkill);
 		}
 
 		return 1;
