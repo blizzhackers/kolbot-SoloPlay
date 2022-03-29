@@ -434,7 +434,7 @@ ClassAttack.grimWard = function (range = 10) {
 };
 
 ClassAttack.checkCorpse = function (unit) {
-	if (unit.mode !== sdk.units.monsters.monstermode.Death && unit.mode !== sdk.units.monsters.monstermode.Dead) return false;
+	if (!unit || unit.mode !== sdk.units.monsters.monstermode.Death && unit.mode !== sdk.units.monsters.monstermode.Dead) return false;
 	if ([sdk.monsters.Council1, sdk.monsters.Council2, sdk.monsters.Council3].indexOf(unit.classid) === -1 && unit.spectype === 0) return false;
 
 	// monstats2 doesn't contain guest monsters info. sigh..

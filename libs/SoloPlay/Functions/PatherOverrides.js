@@ -171,7 +171,7 @@ Pather.canTeleport = function () {
 
 Pather.useTeleport = function () {
 	let manaTP = Skill.getManaCost(sdk.skills.Teleport);
-    let numberOfTeleport = ~~(me.mpmax / manaTP);
+	let numberOfTeleport = ~~(me.mpmax / manaTP);
 	return !me.inTown && !Config.NoTele && !me.shapeshifted && this.canTeleport() && numberOfTeleport > 2;
 };
 

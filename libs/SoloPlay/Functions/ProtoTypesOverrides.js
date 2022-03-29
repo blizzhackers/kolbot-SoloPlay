@@ -397,7 +397,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 		chargedItems = [];
 
 		// Item must be equipped, or a charm in inventory
-		this.getItems(-1)
+		this.getItemsEx(-1)
 			.filter(item => item && (item.isEquipped || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(item.itemType) > -1)))
 			.forEach(function (item) {
 				let stats = item.getStat(-2);
@@ -527,7 +527,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 		chargedItems = [];
 
 		// Item must be equipped in the switch position
-		this.getItems(-1)
+		this.getItemsEx(-1)
 			.filter(item => item && ((me.weaponswitch === 0 && [11, 12].indexOf(item.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(item.bodylocation) > -1)))
 			.forEach(function (item) {
 				let stats = item.getStat(-2);
@@ -858,104 +858,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 	return this.getStat(id, subid);
 };
 
-Unit.prototype.__defineGetter__('attackable', function () {
-	if (this === undefined) return false;
-    if (this.type === sdk.unittype.Player && getPlayerFlag(me.gid, this.gid, 8) && this.mode !== 17 && this.mode !== 0) {
-        return true;
-    }
-    // Dead monster
-    if (this.hp === 0 || this.mode === sdk.units.monsters.monstermode.Death || this.mode === sdk.units.monsters.monstermode.Dead) {
-        return false;
-    }
-    // Friendly monster/NPC
-    if (this.getStat(172) === 2) return false;
-
-    // catapults were returning a level of 0 and hanging up clear scripts
-    if (this.charlvl < 1) return false;
-
-    // neverCount base stat - hydras, traps etc.
-    if (getBaseStat("monstats", this.classid, "neverCount")) return false;
-
-    // Monsters that are in flight
-    if ([110, 111, 112, 113, 144, 608].includes(this.classid) && this.mode === 8) return false;
-
-    // Monsters that are Burrowed/Submerged
-    if ([68, 69, 70, 71, 72, 258, 258, 259, 260, 261, 262, 263].includes(this.classid) && this.mode === 14) return false;
-
-    return [sdk.monsters.ThroneBaal, 179].indexOf(this.classid) <= -1;
-});
-
-Unit.prototype.__defineGetter__('curseable', function () {
-    // must be player or monster
-    if (this === undefined || this.type > 1) return false;
-
-    // attract can't be overridden
-	if (this.getState(sdk.states.Attract)) return false;
-
-	// "Possessed"
-	if (!!this.name && !!this.name.includes(getLocaleString(11086))) return false;
-
-    if (this.type === sdk.unittype.Player && getPlayerFlag(me.gid, this.gid, 8) && this.mode !== 17 && this.mode !== 0) {
-        return true;
-    }
-    // Dead monster
-    if (this.hp === 0 || this.mode === sdk.units.monsters.monstermode.Death || this.mode === sdk.units.monsters.monstermode.Dead) {
-        return false;
-    }
-    // Friendly monster/NPC
-    if (this.getStat(172) === 2) return false;
-    
-    // catapults were returning a level of 0 and hanging up clear scripts
-    if (this.charlvl < 1) return false;
-
-    // Monsters that are in flight
-    if ([110, 111, 112, 113, 144, 608].includes(this.classid) && this.mode === 8) return false;
-
-    // Monsters that are Burrowed/Submerged
-    if ([68, 69, 70, 71, 72, 258, 258, 259, 260, 261, 262, 263].includes(this.classid) && this.mode === 14) return false;
-
-    return [
-    		sdk.monsters.Turret1, sdk.monsters.Turret2, sdk.monsters.Turret3, sdk.monsters.SandMaggotEgg, sdk.monsters.RockWormEgg, sdk.monsters.DevourerEgg, sdk.monsters.GiantLampreyEgg,
-    		sdk.monsters.WorldKillerEgg1, sdk.monsters.WorldKillerEgg2, sdk.monsters.FoulCrowNest, sdk.monsters.BlackVultureNest, sdk.monsters.BloodHawkNest, sdk.monsters.BloodHookNest,
-    		sdk.monsters.BloodWingNest, sdk.monsters.CloudStalkerNest, sdk.monsters.FeederNest, sdk.monsters.SuckerNest, sdk.monsters.MummyGenerator, sdk.monsters.WaterWatcherLimb, sdk.monsters.WaterWatcherHead,
-    		sdk.monsters.Flavie, sdk.monsters.GargoyleTrap, sdk.monsters.LightningSpire, sdk.monsters.FireTower, sdk.monsters.BarricadeDoor1, sdk.monsters.BarricadeDoor2, sdk.monsters.PrisonDoor, sdk.monsters.BarricadeTower,
-    		sdk.monsters.CatapultS, sdk.monsters.CatapultE, sdk.monsters.CatapultSiege, sdk.monsters.CatapultW, sdk.monsters.BarricadeWall1, sdk.monsters.BarricadeWall2, sdk.monsters.Tentacle1, sdk.monsters.Tentacle2,
-    		sdk.monsters.Tentacle3, sdk.monsters.Tentacle4, sdk.monsters.Tentacle5, sdk.monsters.Hut, sdk.monsters.ThroneBaal, sdk.monsters.Cow
-    	].indexOf(this.classid) === -1;
-});
-
-Unit.prototype.__defineGetter__('scareable', function () {
-    return this.curseable && !(this.spectype & 0x7);
-});
-
 // D2BS Improvements @Jaenster
-(function (global, print) {
-	global['console'] = global['console'] || (function () {
-		const console = {};
-
-		const argMap = el => typeof el === 'object' && el /*not null */ && JSON.stringify(el) || el;
-
-		console.log = function (...args) {
-			// use call to avoid type errors
-			print.call(null, args.map(argMap).join(','));
-		};
-
-		console.printDebug = true;
-		console.debug = function (...args) {
-			if (console.printDebug) {
-				const stack = new Error().stack.match(/[^\r\n]+/g),
-					filenameAndLine = stack && stack.length && stack[1].substr(stack[1].lastIndexOf('\\') + 1) || 'unknown:0';
-				this.log('ÿc:[ÿc:' + filenameAndLine + 'ÿc:]ÿc0 ' + args.map(argMap).join(','));
-			}
-		};
-
-		console.warn = console.debug;
-
-		return console;
-
-	})()
-
-})([].filter.constructor('return this')(), print);
 
 /**
  * @description Polyfill for setTimeout, as the version of d2bs isnt thread safe
