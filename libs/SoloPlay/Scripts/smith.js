@@ -19,7 +19,7 @@ function smith () {
 	}
 
 	try {
-		Attack.clear(20, 0, sdk.monsters.TheSmith);
+		Attack.killTarget(sdk.monsters.TheSmith);
 	} catch (err) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Smith');
 	}

@@ -18,7 +18,7 @@ function hephasto() {
 	}
 
 	try {
-		Attack.clear(20, 0, getLocaleString(1067)); // Hephasto The Armorer
+		Attack.killTarget(getLocaleString(1067)); // Hephasto The Armorer
 	} catch (err) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Hephasto');
 	}

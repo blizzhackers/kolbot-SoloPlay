@@ -214,9 +214,7 @@ function diablo () {
 				return true;
 			}
 
-			if (me.sorceress) {
-				this.tkSeal(seal);
-			} else {
+			if (!this.tkSeal(seal)) {
 				if (classid === 392 && me.assassin && this.infLayout === 1) {
 					if (Config.UseTraps) {
 						let check = ClassAttack.checkTraps({x: 7899, y: 5293});
@@ -271,13 +269,8 @@ function diablo () {
 	this.seis = function () {
 		this.openSeal(394);
 
-		if (this.seisLayout === 1) {
-			// safe location
-			Pather.moveTo(7798, 5194, 3, 30);
-		} else {
-			// safe location
-			Pather.moveTo(7796, 5155, 3, 30);
-		}
+		// safe location
+		this.seisLayout === 1 ? Pather.moveTo(7798, 5194) : Pather.moveTo(7796, 5155);
 
 		if (!this.getBoss(getLocaleString(2852))) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed Seis");
@@ -306,8 +299,7 @@ function diablo () {
 
 	// START
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting diablo');
-	me.overhead("diablo");
+	myPrint('starting diablo');
 
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
@@ -332,13 +324,13 @@ function diablo () {
 	this.seis();
 	this.infector();
 
-	if (!me.diablo && (me.paladin || me.barbarian || me.druid || me.amazon)) {
-		Town.goToTown();
-		Misc.getGoodShrine([2, 3]);
-		Pather.useWaypoint(sdk.areas.RiverofFlame);
-		Precast.doPrecast(true);
-		Pather.clearToExit(sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, true);
-	}
+	// if (!me.diablo && (me.paladin || me.barbarian || me.druid || me.amazon)) {
+	// 	Town.goToTown();
+	// 	Misc.getGoodShrine([2, 3]);
+	// 	Pather.useWaypoint(sdk.areas.RiverofFlame);
+	// 	Precast.doPrecast(true);
+	// 	Pather.clearToExit(sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, true);
+	// }
 
 	Config.MercWatch = false;
 	let nearSpot;
@@ -346,8 +338,7 @@ function diablo () {
 	if (!me.sorceress && !me.necromancer && !me.assassin) {
 		Pather.moveTo(7788, 5292, 3, 30);
 	} else {
-		nearSpot = Attack.spotOnDistance({ x: 7792, y: 5292 }, 35);
-		Pather.moveToUnit(nearSpot);
+		Pather.moveNear(7792, 5292, 35);
 	}
 
 	this.diabloPrep();
@@ -362,8 +353,7 @@ function diablo () {
 		if (!me.sorceress && !me.necromancer && !me.assassin) {
 			Pather.moveTo(7788, 5292, 3, 30);
 		} else {
-			nearSpot = Attack.spotOnDistance({ x: 7792, y: 5292 }, 35);
-			Pather.moveToUnit(nearSpot);
+			Pather.moveNear(7792, 5292, 35);
 		}
 
 		this.diabloPrep();

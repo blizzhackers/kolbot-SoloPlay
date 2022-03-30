@@ -89,7 +89,7 @@ function summoner () {
 	}
 
 	try {
-		Attack.clear(15, 0, 250); // The Summoner
+		Attack.killTarget(250); // The Summoner
 	} catch (e) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill summoner');
 

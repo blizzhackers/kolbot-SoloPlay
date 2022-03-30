@@ -24,7 +24,7 @@ function countess () {
 		}
 
 		Pather.moveToPreset(me.area, 2, 580);
-		Attack.clear(20, 0, getLocaleString(2875));
+		Attack.killTarget(getLocaleString(2875));
 	} catch (err) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Countess');
 	}

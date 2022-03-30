@@ -15,7 +15,7 @@ function shenk () {
 
 	if (Eldritch && Attack.canAttack(Eldritch)) {// Eldritch the Rectifier
 		Pather.moveTo(3745, 5084);
-		Attack.killTarget(getLocaleString(22500));
+		Attack.killTarget(Eldritch);
 		Pickit.pickItems();
 	}
 
