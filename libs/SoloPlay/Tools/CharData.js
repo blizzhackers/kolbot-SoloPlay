@@ -76,7 +76,7 @@ const CharData = {
 		},
 
 		update: function () {
-			let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/ToolsThread.js"];
+			let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js"];
 			let obj = JSON.stringify(Misc.copy(this));
 			let myThread = getScript(true).name;
 			scripts.forEach(function (script) {
@@ -100,7 +100,7 @@ const CharData = {
 		},
 
 		update: function () {
-			let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/ToolsThread.js", "libs/SoloPlay/Tools/EventThread.js"];
+			let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"];
 			let obj = JSON.stringify(Misc.copy(this));
 			let myThread = getScript(true).name;
 			scripts.forEach(function (script) {
@@ -114,7 +114,7 @@ const CharData = {
 
 	// updates config obj across all threads - excluding our current
 	updateConfig: function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/ToolsThread.js", "libs/SoloPlay/Tools/EventThread.js"/*, "libs/SoloPlay/Tools/AutoBuildThread.js"*/];
+		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"/*, "libs/SoloPlay/Threads/AutoBuildThread.js"*/];
 		let obj = JSON.stringify(Misc.copy(Config));
 		let myThread = getScript(true).name;
 		scripts.forEach(function (script) {

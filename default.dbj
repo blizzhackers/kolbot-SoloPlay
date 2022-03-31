@@ -11,6 +11,7 @@ include("TorchSystem.js");
 include("MuleLogger.js");
 include("GameAction.js");
 include("common/Attack.js");
+include("common/Common.js");
 include("common/Cubing.js");
 include("common/CollMap.js");
 include("common/Config.js");
@@ -48,7 +49,6 @@ function main () {
 		include("SoloPlay/Functions/ConfigOverrides.js");
 		include("SoloPlay/Functions/Globals.js");
 		SetUp.include();
-		Developer.logPerformance && Tracker.update();
 	}
 
 	if (getScript("d2botmap.dbj")) {
@@ -76,7 +76,7 @@ function main () {
 	
 	// don't load default for dropper/mules
 	if (getScript("D2BotDropper.dbj") || getScript("D2BotMule.dbj") || getScript("D2BotDrop.dbj")) {
-		while(true) {
+		while (true) {
 			try {
 				if (me.gameReady && me.ingame && !me.inTown) {
 					D2Bot.printToConsole("Saved from suicide walk!");
@@ -106,6 +106,7 @@ function main () {
 	};
 
 	this.scriptEvent = function (msg) {
+		if (msg && typeof msg !== "string") return;
 		switch (msg) {
 		case "soj":
 			sojPause = true;
@@ -176,9 +177,9 @@ function main () {
 	// Load threads
 	if (getScript("D2BotSoloPlay.dbj")) {
 		if (SoloEvents.inGameCheck()) return true;
-		load("libs/SoloPlay/Tools/ToolsThread.js");
-		load("libs/SoloPlay/Tools/EventThread.js");
-		load("libs/SoloPlay/Tools/TownChicken.js");
+		load("libs/SoloPlay/Threads/ToolsThread.js");
+		load("libs/SoloPlay/Threads/EventThread.js");
+		load("libs/SoloPlay/Threads/TownChicken.js");
 		delay(500 + me.ping);
 		
 		// Load guard if we want to see the stack as it runs
@@ -192,13 +193,13 @@ function main () {
 		delay(1000);
 	} else {
 		load("tools/ToolsThread.js");
-		Config.TownCheck || Config.TownHP || Config.TownMP && load("tools/TownChicken.js");
+		(Config.TownCheck || Config.TownHP || Config.TownMP) && load("tools/TownChicken.js");
 	}
 
 	if (Config.PublicMode) {
 		Config.PublicMode === true ? require('libs/modules/SimpleParty') : load("tools/Party.js");
 	}
-
+	
 	Config.AntiHostile && load("tools/AntiHostile.js");
 
 	if (Config.FastPick) {

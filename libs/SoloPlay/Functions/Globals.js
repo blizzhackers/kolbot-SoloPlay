@@ -41,7 +41,7 @@ function myPrint (str = "", toConsole = false, color = 0) {
 }
 
 function updateMyData () {
-	let scripts = ["default.dbj", "libs/soloplay/tools/townchicken.js", "libs/soloplay/tools/toolsthread.js", "libs/soloplay/tools/eventthread.js"];
+	let scripts = ["default.dbj", "libs/soloplay/threads/townchicken.js", "libs/soloplay/threads/toolsthread.js", "libs/soloplay/threads/eventthread.js"];
 	let obj = JSON.stringify(Misc.copy(myData));
 	let myThread = getScript(true).name;
 	scripts.forEach(function (script) {

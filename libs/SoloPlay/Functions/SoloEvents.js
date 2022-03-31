@@ -5,7 +5,7 @@
 */
 
 const SoloEvents = {
-	filePath: "libs/SoloPlay/Tools/EventThread.js",
+	filePath: "libs/SoloPlay/Threads/EventThread.js",
 	check: false,
 	inGame: false,
 	cloneWalked: false,

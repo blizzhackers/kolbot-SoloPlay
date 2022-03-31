@@ -144,7 +144,7 @@ function main () {
 	};
 
 	this.togglePause = function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "tools/antihostile.js", "tools/party.js", "tools/rushthread.js"];
+		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js", "tools/rushthread.js"];
 
 		for (let l = 0; l < scripts.length; l += 1) {
 			let script = getScript(scripts[l]);
@@ -152,10 +152,10 @@ function main () {
 			if (script) {
 				if (script.running) {
 					scripts[l] === "default.dbj" && console.log("ÿc8ToolsThread :: ÿc1Pausing " + scripts[l]);
-					scripts[l] === "libs/SoloPlay/Tools/TownChicken.js" && !SoloEvents.cloneWalked && console.log("ÿc8ToolsThread :: ÿc1Pausing " + scripts[l]);
+					scripts[l] === "libs/SoloPlay/Threads/TownChicken.js" && !SoloEvents.cloneWalked && console.log("ÿc8ToolsThread :: ÿc1Pausing " + scripts[l]);
 
 					// don't pause townchicken during clone walk
-					if (scripts[l] !== "libs/SoloPlay/Tools/TownChicken.js" || !SoloEvents.cloneWalked) {
+					if (scripts[l] !== "libs/SoloPlay/Threads/TownChicken.js" || !SoloEvents.cloneWalked) {
 						script.pause();
 					}
 				} else {
@@ -169,7 +169,7 @@ function main () {
 	};
 
 	this.stopDefault = function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Tools/TownChicken.js", "libs/SoloPlay/Tools/EventThread.js", "libs/SoloPlay/Tools/AutoBuildThread.js", "libs/SoloPlay/Modules/Guard.js"];
+		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/EventThread.js", "libs/SoloPlay/Threads/AutoBuildThread.js", "libs/SoloPlay/Modules/Guard.js"];
 
 		for (let l = 0; l < scripts.length; l += 1) {
 			let script = getScript(scripts[l]);

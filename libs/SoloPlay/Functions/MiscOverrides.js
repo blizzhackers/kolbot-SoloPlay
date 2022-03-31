@@ -71,7 +71,7 @@ Misc.townCheck = function () {
 	}
 
 	if (check) {
-		Messaging.sendToScript("libs/SoloPlay/Tools/TownChicken.js", "townCheck");
+		Messaging.sendToScript("libs/SoloPlay/Threads/TownChicken.js", "townCheck");
 		print("BroadCasted townCheck");
 		delay(500);
 

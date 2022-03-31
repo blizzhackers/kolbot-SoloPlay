@@ -59,7 +59,7 @@ Loader.loadScripts = function () {
 
 				if (this.skipTown.indexOf(script) > -1 || Town.goToTown()) {
 					print("ÿc2Starting script: ÿc9" + script);
-					Messaging.sendToScript("libs/SoloPlay/Tools/ToolsThread.js", JSON.stringify({currScript: script}));
+					Messaging.sendToScript("libs/SoloPlay/Threads/ToolsThread.js", JSON.stringify({currScript: script}));
 
 					reconfiguration = typeof Scripts[script] === 'object';
 

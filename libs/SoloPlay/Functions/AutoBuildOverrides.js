@@ -73,13 +73,13 @@ const AutoBuild = new function AutoBuild () {
 		}
 
 		// Only load() helper thread from default.dbj if it isn't loaded
-		if (currentScript === "default.dbj" && !getScript("libs\\SoloPlay\\Tools\\AutoBuildThread.js")) {
-			load("libs/SoloPlay/Tools/AutoBuildThread.js");
+		if (currentScript === "default.dbj" && !getScript("libs\\SoloPlay\\Threads\\AutoBuildThread.js")) {
+			load("libs/SoloPlay/Threads/AutoBuildThread.js");
 		}
 
 		// All threads except autobuildthread.js use this event listener
 		// to update their thread-local Config object
-		if (currentScript !== "libs\\SoloPlay\\Tools\\AutoBuildThread.js") {
+		if (currentScript !== "libs\\SoloPlay\\Threads\\AutoBuildThread.js") {
 			addEventListener("scriptmsg", levelUpHandler);
 		}
 
