@@ -11,10 +11,7 @@ if (!isIncluded("OOG.js")) {
 
 ControlAction.makeCharacter = function (info) {
 	me.blockMouse = true;
-
-	if (!info.charClass) {
-		info.charClass = "barbarian";
-	}
+	!info.charClass && (info.charClass = "barbarian");
 
 	let control,
 		clickCoords = [];
@@ -150,10 +147,8 @@ ControlAction.makeCharacter = function (info) {
 };
 
 ControlAction.findCharacter = function (info) {
-	let control, text, tick,
-		count = 0;
-
-	tick = getTickCount();
+	let count = 0;
+	let tick = getTickCount();
 
 	while (getLocation() !== 12) {
 		if (getTickCount() - tick >= 5000) {
@@ -163,19 +158,17 @@ ControlAction.findCharacter = function (info) {
 		delay(25);
 	}
 
-	if (getLocation() === 23) {
-		D2Bot.restart();
-	}
+	getLocation() === 23 && D2Bot.restart();
 
 	// start from beginning of the char list
 	sendKey(0x24);
 
 	while (getLocation() === 12 && count < 24) {
-		control = getControl(4, 37, 178, 200, 92);
+		let control = getControl(4, 37, 178, 200, 92);
 
 		if (control) {
 			do {
-				text = control.getText();
+				let text = control.getText();
 
 				if (text instanceof Array && typeof text[1] === "string") {
 					count++;
@@ -202,7 +195,8 @@ ControlAction.findCharacter = function (info) {
 
 				me.blockMouse = false;
 			}
-		} else { // no further check necessary
+		} else {
+			// no further check necessary
 			break;
 		}
 	}
@@ -296,94 +290,4 @@ ControlAction.makeAccount = function (info) {
 	me.blockMouse = false;
 
 	return true;
-};
-
-ControlAction.loginCharacter = function (info, startFromTop = true) {
-	me.blockMouse = true;
-
-	let control, text,
-		count = 0;
-
-	// start from beginning of the char list
-	if (startFromTop) {
-		sendKey(0x24);
-	}
-
-	MainLoop:
-	// cycle until in lobby or in game
-	while (getLocation() !== 1) {
-		switch (getLocation()) {
-		case 12: // character select
-			control = getControl(4, 37, 178, 200, 92);
-
-			if (control) {
-				do {
-					text = control.getText();
-
-					if (text instanceof Array && typeof text[1] === "string") {
-						count++;
-
-						if (text[1].toLowerCase() === info.charName.toLowerCase()) {
-							control.click();
-							this.click(6, 627, 572, 128, 35);
-							me.blockMouse = false;
-
-							// select difficulty
-							if (getLocation() !== 20) {
-								return true;
-							} else {
-								try {
-									login(info.profile);
-
-									if (me.ingame) {
-										return true;
-									}
-								} catch (err) {
-									break MainLoop;
-								}
-							}
-						}
-					}
-				} while (control.getNext());
-			}
-
-			// check for additional characters up to 24
-			if (count === 8 || count === 16) {
-				control = getControl(4, 237, 457, 72, 93);
-
-				if (control) {
-					control.click();
-					sendKey(0x28);
-					sendKey(0x28);
-					sendKey(0x28);
-					sendKey(0x28);
-				}
-			} else {
-				// no further check necessary
-				break MainLoop;
-			}
-
-			break;
-		case 42: // empty character select
-			this.click(6, 33, 572, 128, 35);
-
-			break;
-		case 14: // disconnected?
-		case 30: // player not found?
-			break MainLoop;
-		default:
-			break;
-		}
-
-		// Singleplayer loop break fix.
-		if (me.ingame) {
-			return true;
-		}
-
-		delay(100);
-	}
-
-	me.blockMouse = false;
-
-	return false;
 };
