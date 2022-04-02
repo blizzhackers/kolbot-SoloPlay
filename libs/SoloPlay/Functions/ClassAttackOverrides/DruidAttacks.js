@@ -4,6 +4,8 @@
 *	@desc		Druid fixes to improve class attack functionality
 */
 
+// TODO: wereform needs to be redone
+
 switch (SetUp.currentBuild) {
 case "Wolf":
 case "Plaguewolf":
@@ -124,7 +126,6 @@ case "Plaguewolf":
 	};
 
 	ClassAttack.afterAttack = function () {
-		if (Pather.useTeleport()) { Misc.unShift(); }
 		Precast.doPrecast(false);
 	};
 
@@ -135,17 +136,25 @@ default:
 	}
 
 	ClassAttack.doAttack = function (unit, preattack) {
-		let index, checkSkill, result,
+		if (!unit) return 1;
+		let gid = unit.gid;
+
+		if (Config.MercWatch && Town.needMerc()) {
+			print("mercwatch");
+
+			if (Town.visitTown()) {
+				if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+					return 1; // lost reference to the mob we were attacking
+				}
+			}
+		}
+
+		let checkSkill,
 			mercRevive = 0,
 			timedSkill = -1,
 			untimedSkill = -1,
 			gold = me.gold;
-
-		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
-
-		if (Config.MercWatch && Town.needMerc()) {
-			Town.visitTown();
-		}
+		let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
 		// Rebuff Hurricane
 		if (me.getSkill(sdk.skills.Hurricane, 1) && !me.getState(sdk.states.Hurricane)) {
@@ -196,26 +205,18 @@ default:
 		}
 
 		// Get timed skill
-		if (Attack.getCustomAttack(unit)) {
-			checkSkill = Attack.getCustomAttack(unit)[0];
-		} else {
-			checkSkill = Config.AttackSkill[index];
-		}
+		checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
 
-		if (Attack.checkResist(unit, checkSkill)) {
+		if (Attack.checkResist(unit, checkSkill) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(checkSkill) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			timedSkill = checkSkill;
 		} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			timedSkill = Config.AttackSkill[5];
 		}
 
 		// Get untimed skill
-		if (Attack.getCustomAttack(unit)) {
-			checkSkill = Attack.getCustomAttack(unit)[1];
-		} else {
-			checkSkill = Config.AttackSkill[index + 1];
-		}
+		checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[1] : Config.AttackSkill[index + 1];
 
-		if (Attack.checkResist(unit, checkSkill)) {
+		if (Attack.checkResist(unit, checkSkill) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(checkSkill) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			untimedSkill = checkSkill;
 		} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 			untimedSkill = Config.AttackSkill[6];
@@ -247,23 +248,39 @@ default:
 			}
 		}
 
-		result = this.doCast(unit, timedSkill, untimedSkill);
+		let result = this.doCast(unit, timedSkill, untimedSkill);
 
-		if (result === 2 && Config.TeleStomp && Attack.checkResist(unit, "physical") && !!me.getMerc()) {
-			while (Attack.checkMonster(unit)) {
+		if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+			let merc = me.getMerc();
+
+			while (unit.attackable) {
+				if (Misc.townCheck()) {
+					if (!unit || !copyUnit(unit).x) {
+						unit = Misc.poll(function () { return getUnit(1, -1, -1, gid); }, 1000, 80);
+					}
+				}
+
+				if (!unit) return 1;
+
 				if (Town.needMerc()) {
 					if (Config.MercWatch && mercRevive++ < 1) {
 						Town.visitTown();
 					} else {
 						return 2;
 					}
+
+					(merc === undefined || !merc) && (merc = me.getMerc());
 				}
 
-				if (getDistance(me, unit) > 3) {
+				if (!!merc && getDistance(merc, unit) > 5) {
 					Pather.moveToUnit(unit);
+
+					let spot = Attack.findSafeSpot(unit, 10, 5, 9);
+					!!spot && Pather.walkTo(spot.x, spot.y);
 				}
 
-				this.doCast(unit, Config.AttackSkill[1], Config.AttackSkill[2]);
+				let closeMob = Attack.getNearestMonster(true, true);
+				!!closeMob && closeMob.gid !== gid && this.doCast(closeMob, timedSkill, untimedSkill);
 			}
 
 			return 1;
@@ -276,7 +293,7 @@ default:
 		let walk;
 
 		// No valid skills can be found
-		if (timedSkill < 0 && untimedSkill < 0) { return 2; }
+		if (timedSkill < 0 && untimedSkill < 0) return 2;
 
 		// Rebuff Hurricane
 		if (me.getSkill(sdk.skills.Hurricane, 1) && !me.getState(sdk.states.Hurricane)) {

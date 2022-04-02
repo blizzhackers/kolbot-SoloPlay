@@ -126,18 +126,8 @@ ClassAttack.bpTick = 0;
 
 // TODO: clean this up
 ClassAttack.doAttack = function (unit, preattack) {
-	if (!unit || unit.dead) return 1;
-
-	let checkSkill,
-		mercRevive = 0,
-		timedSkill = -1,
-		untimedSkill = -1,
-		customCurse = -1,
-		gid = unit.gid,
-		gold = me.gold,
-		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3,
-		useTerror = me.getSkill(sdk.skills.Terror, 0),
-		useBP = me.getSkill(sdk.skills.BonePrison, 1);
+	if (!unit) return 1;
+	let gid = unit.gid;
 
 	if (Config.MercWatch && Town.needMerc()) {
 		print("mercwatch");
@@ -149,6 +139,15 @@ ClassAttack.doAttack = function (unit, preattack) {
 		}
 	}
 
+	let checkSkill,
+		mercRevive = 0,
+		timedSkill = -1,
+		untimedSkill = -1,
+		customCurse = -1,
+		gold = me.gold,
+		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3,
+		useTerror = me.getSkill(sdk.skills.Terror, 0),
+		useBP = me.getSkill(sdk.skills.BonePrison, 1);
 	let bpAllowedAreas = [37, 38, 39, 41, 42, 43, 44, 46, 73, 76, 77, 78, 79, 80, 81, 83, 102, 104, 105, 106, 108, 110, 111, 120, 121, 128, 129, 130, 131];
 
 	// Bone prison

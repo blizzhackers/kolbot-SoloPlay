@@ -9,23 +9,27 @@ if (!isIncluded("common/Attacks/Amazon.js")) { include("common/Attacks/Amazon.js
 ClassAttack.decoyTick = getTickCount();
 
 ClassAttack.doAttack = function (unit, preattack) {
-	let needRepair = [];
-
-	if (me.charlvl >= 5) {
-		needRepair = Town.needRepair();
-	}
+	if (!unit) return 1;
+	let gid = unit.gid;
+	let needRepair = me.charlvl < 5 ? [] : Town.needRepair();
 
 	if ((Config.MercWatch && Town.needMerc()) || needRepair.length > 0) {
-		Town.visitTown(!!needRepair.length);
+		print("towncheck");
+
+		if (Town.visitTown(!!needRepair.length)) {
+			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+				return 1; // lost reference to the mob we were attacking
+			}
+		}
 	}
 
-	let checkSkill, result, decoy,
+	let checkSkill,
 		mercRevive = 0,
 		timedSkill = -1,
 		untimedSkill = -1,
 		preattackRange = Skill.getRange(Config.AttackSkill[0]),
 		decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, 1) * 5) * 1000,
-		gold = me.getStat(14) + me.getStat(15),
+		gold = me.gold,
 		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
 	let useInnerSight = me.getSkill(sdk.skills.InnerSight, 1);
@@ -70,15 +74,15 @@ ClassAttack.doAttack = function (unit, preattack) {
 	}
 
 	// Handle Switch casting
-	if (!me.classic && index === 1 && !unit.dead) {
+	if (me.expansion && index === 1 && !unit.dead) {
 		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist) && !unit.getState(sdk.states.LowerResist) && unit.curseable &&
-			(gold > 500000 || Attack.bossesAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			(gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area)) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast lower resist
 			Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 		}
 
 		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Weaken) && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist) && unit.curseable &&
-			(gold > 500000 || Attack.bossesAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			(gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area)) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast weaken
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);
 		}
@@ -86,7 +90,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	if (useDecoy) {
 		// Act Bosses or Immune to my main boss skill
-		if ((Attack.mainBosses.indexOf(unit.classid) > -1) || !Attack.checkResist(unit, Config.AttackSkill[1])) {
+		if ((Attack.mainBosses.includes(unit.classid)) || !Attack.checkResist(unit, Config.AttackSkill[1])) {
 			for (let i = 0; i < 25; i += 1) {
 				if (!me.getState(sdk.states.SkillDelay)) {
 					break;
@@ -98,6 +102,8 @@ ClassAttack.doAttack = function (unit, preattack) {
 			// Don't use decoy if within melee distance
 			if (Math.round(getDistance(me, unit)) > 4) {
 				// Check to see if decoy has already been cast
+				let decoy;
+
 				for (let i = 0; i < 5; i++) {
 					decoy = getUnit(-1, 356);
 
@@ -106,7 +112,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 					}
 				}
 				
-				if ((getTickCount() - this.decoyTick >= decoyDuration) && Math.round(getDistance(me, unit)) > 4) {
+				if (!decoy && (getTickCount() - this.decoyTick >= decoyDuration) && Math.round(getDistance(me, unit)) > 4) {
 					if (Math.round(getDistance(me, unit)) > 10 || checkCollision(me, unit, 0x4)) {
 						if (!Attack.getIntoPosition(unit, 10, 0x4)) {
 							return 0;
@@ -114,15 +120,10 @@ ClassAttack.doAttack = function (unit, preattack) {
 					}
 
 					let coord = CollMap.getRandCoordinate(unit.x, -2, 2, unit.y, -2, 2);
-
-					if (!!coord) {
-						Skill.cast(sdk.skills.Decoy, 0, coord.x, coord.y);
-					}
+					!!coord && Skill.cast(sdk.skills.Decoy, 0, coord.x, coord.y);
 
 					// Check if it was a sucess
-					if (!!me.getMinionCount(8)) {
-						this.decoyTick = getTickCount();
-					}
+					!!me.getMinionCount(8) && (this.decoyTick = getTickCount());
 				}
 			}
 		}
@@ -213,28 +214,20 @@ ClassAttack.doAttack = function (unit, preattack) {
 	}
 
 	// Get timed skill
-	if (Attack.getCustomAttack(unit)) {
-		checkSkill = Attack.getCustomAttack(unit)[0];
-	} else {
-		checkSkill = Config.AttackSkill[index];
-	}
+	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
 
-	if (Attack.checkResist(unit, checkSkill)) {
+	if (Attack.checkResist(unit, checkSkill) && ([56, 59].indexOf(checkSkill) === -1 || Attack.validSpot(unit.x, unit.y))) {
 		timedSkill = checkSkill;
-	} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+	} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([56, 59].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 		timedSkill = Config.AttackSkill[5];
 	}
 
 	// Get untimed skill
-	if (Attack.getCustomAttack(unit)) {
-		checkSkill = Attack.getCustomAttack(unit)[1];
-	} else {
-		checkSkill = Config.AttackSkill[index + 1];
-	}
+	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[1] : Config.AttackSkill[index + 1];
 
-	if (Attack.checkResist(unit, checkSkill)) {
+	if (Attack.checkResist(unit, checkSkill) && ([56, 59].indexOf(checkSkill) === -1 || Attack.validSpot(unit.x, unit.y))) {
 		untimedSkill = checkSkill;
-	} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+	} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([56, 59].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 		untimedSkill = Config.AttackSkill[6];
 	}
 
@@ -248,23 +241,39 @@ ClassAttack.doAttack = function (unit, preattack) {
 		untimedSkill = Config.LowManaSkill[1];
 	}
 
-	result = this.doCast(unit, timedSkill, untimedSkill);
+	let result = this.doCast(unit, timedSkill, untimedSkill);
 
-	if (result === 2 && Config.TeleStomp && Attack.checkResist(unit, "physical") && !!me.getMerc()) {
-		while (Attack.checkMonster(unit)) {
+	if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+		let merc = me.getMerc();
+
+		while (unit.attackable) {
+			if (Misc.townCheck()) {
+				if (!unit || !copyUnit(unit).x) {
+					unit = Misc.poll(function () { return getUnit(1, -1, -1, gid); }, 1000, 80);
+				}
+			}
+
+			if (!unit) return 1;
+
 			if (Town.needMerc()) {
 				if (Config.MercWatch && mercRevive++ < 1) {
 					Town.visitTown();
 				} else {
 					return 2;
 				}
+
+				(merc === undefined || !merc) && (merc = me.getMerc());
 			}
 
-			if (getDistance(me, unit) > 3) {
+			if (!!merc && getDistance(merc, unit) > 5) {
 				Pather.moveToUnit(unit);
+
+				let spot = Attack.findSafeSpot(unit, 10, 5, 9);
+				!!spot && Pather.walkTo(spot.x, spot.y);
 			}
 
-			this.doCast(unit, Config.AttackSkill[1], Config.AttackSkill[2]);
+			let closeMob = Attack.getNearestMonster(true, true);
+			!!closeMob && closeMob.gid !== gid && this.doCast(closeMob, timedSkill, untimedSkill);
 		}
 
 		return 1;
@@ -274,20 +283,12 @@ ClassAttack.doAttack = function (unit, preattack) {
 };
 
 ClassAttack.afterAttack = function () {
-	let needRepair;
-
-	if (Pather.useTeleport()) {
-		Misc.unShift();
-	}
-
 	Precast.doPrecast(false);
 
-	if (me.charlvl > 5) {
-		needRepair = Town.needRepair();
-	}
+	let needRepair = me.charlvl < 5 ? [] : Town.needRepair();
 	
 	// Repair check, make sure i have a tome
-	if (needRepair && needRepair.length > 0 && me.getItem(518)) {
+	if (needRepair.length > 0 && me.getItem(sdk.items.TomeofTownPortal)) {
 		Town.visitTown(true);
 	}
 

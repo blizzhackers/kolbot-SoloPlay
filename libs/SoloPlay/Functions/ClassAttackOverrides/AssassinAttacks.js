@@ -36,13 +36,12 @@ ClassAttack.mindBlast = function (unit) {
 };
 
 ClassAttack.placeTraps = function (unit, amount) {
-	let i, j,
-		traps = 0;
+	let traps = 0;
 
 	this.lastTrapPos = {x: unit.x, y: unit.y};
 
-	for (i = -1; i <= 1; i += 1) {
-		for (j = -1; j <= 1; j += 1) {
+	for (let i = -1; i <= 1; i += 1) {
+		for (let j = -1; j <= 1; j += 1) {
 			// Used for X formation
 			if (Math.abs(i) === Math.abs(j)) {
 				// Unit can be an object with x, y props too, that's why having "mode" prop is checked
@@ -51,7 +50,7 @@ ClassAttack.placeTraps = function (unit, amount) {
 				}
 
 				// Duriel, Mephisto, Diablo, Baal, other players
-				if ((unit.hasOwnProperty("classid") && [211, 242, 243, 544].indexOf(unit.classid) > -1) || (unit.hasOwnProperty("type") && unit.type === 0)) {
+				if ((unit.hasOwnProperty("classid") && [211, 242, 243, 544].includes(unit.classid)) || (unit.hasOwnProperty("type") && unit.type === 0)) {
 					if (traps >= Config.BossTraps.length) {
 						return true;
 					}
@@ -111,22 +110,31 @@ ClassAttack.placeTraps = function (unit, amount) {
 };
 
 ClassAttack.doAttack = function (unit, preattack) {
+	if (!unit) return 1;
+	let gid = unit.gid;
+
 	if (Config.MercWatch && Town.needMerc()) {
-		Town.visitTown();
+		print("mercwatch");
+
+		if (Town.visitTown()) {
+			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+				return 1; // lost reference to the mob we were attacking
+			}
+		}
 	}
 
-	let checkTraps, checkSkill, result,
+	let checkSkill,
 		mercRevive = 0,
 		timedSkill = -1,
 		untimedSkill = -1,
 		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3,
-		gold = me.getStat(14) + me.getStat(15),
+		gold = me.gold,
 		shouldUseCloak = (me.getSkill(sdk.skills.CloakofShadows, 1) && !unit.isUnderLowerRes &&
-						(Attack.mainBosses.indexOf(unit.classid) === -1 || (Attack.mainBosses.indexOf(unit.classid) > -1 && Attack.getMobCountAtPosition(unit.x, unit.y, 20) > 1)));
+						(Attack.mainBosses.indexOf(unit.classid) === -1 || (Attack.mainBosses.includes(unit.classid) && Attack.getMobCountAtPosition(unit.x, unit.y, 20) > 1)));
 
 	this.mindBlast(unit);
 
-	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
+	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.skillDelay || !Skill.isTimed(Config.AttackSkill[0]))) {
 		if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
 			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 				return 0;
@@ -139,7 +147,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	}
 
 	// Cloak of Shadows (Aggressive) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
-	if (Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && !me.getState(sdk.states.SkillDelay) && !me.getState(sdk.states.CloakofShadows)) {
+	if (Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && !me.skillDelay && !me.getState(sdk.states.CloakofShadows)) {
 		if (getDistance(me, unit) < 20) {
 			Skill.cast(sdk.skills.CloakofShadows, 0);
 		} else if (!Attack.getIntoPosition(unit, 20, 0x4)) {
@@ -147,11 +155,11 @@ ClassAttack.doAttack = function (unit, preattack) {
 		}
 	}
 
-	checkTraps = this.checkTraps(unit);
+	let checkTraps = this.checkTraps(unit);
 
 	if (checkTraps) {
 		if (Math.round(getDistance(me, unit)) > this.trapRange || checkCollision(me, unit, 0x4)) {
-			if (!Attack.getIntoPosition(unit, this.trapRange, 0x4) || (checkCollision(me, unit, 0x1) && (getCollision(unit.area, unit.x, unit.y) & 0x1))) {
+			if (!Attack.getIntoPosition(unit, this.trapRange, 0x4) || (checkCollision(me, unit, 0x1) && (getCollision(me.area, unit.x, unit.y) & 0x1))) {
 				return 0;
 			}
 		}
@@ -160,7 +168,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	}
 
 	// Cloak of Shadows (Defensive; default) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
-	if (!Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && getDistance(me, unit) < 20 && !me.getState(sdk.states.SkillDelay) && !me.getState(sdk.states.CloakofShadows)) {
+	if (!Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && getDistance(me, unit) < 20 && !me.skillDelay && !me.getState(sdk.states.CloakofShadows)) {
 		Skill.cast(sdk.skills.CloakofShadows, 0);
 	}
 
@@ -173,33 +181,25 @@ ClassAttack.doAttack = function (unit, preattack) {
 		}
 		
 		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist) && !unit.getState(sdk.states.LowerResist) && unit.curseable &&
-			(gold > 500000 || Attack.bossesAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			(gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area)) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast lower resist
 			Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 		}
 	}
 
 	// Get timed skill
-	if (Attack.getCustomAttack(unit)) {
-		checkSkill = Attack.getCustomAttack(unit)[0];
-	} else {
-		checkSkill = Config.AttackSkill[index];
-	}
+	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
 
-	if (Attack.checkResist(unit, checkSkill)) {
+	if (Attack.checkResist(unit, checkSkill) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(checkSkill) === -1 || Attack.validSpot(unit.x, unit.y))) {
 		timedSkill = checkSkill;
 	} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 		timedSkill = Config.AttackSkill[5];
 	}
 
 	// Get untimed skill
-	if (Attack.getCustomAttack(unit)) {
-		checkSkill = Attack.getCustomAttack(unit)[1];
-	} else {
-		checkSkill = Config.AttackSkill[index + 1];
-	}
+	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[1] : Config.AttackSkill[index + 1];
 
-	if (Attack.checkResist(unit, checkSkill)) {
+	if (Attack.checkResist(unit, checkSkill) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(checkSkill) === -1 || Attack.validSpot(unit.x, unit.y))) {
 		untimedSkill = checkSkill;
 	} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([sdk.skills.Meteor, sdk.skills.Blizzard].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
 		untimedSkill = Config.AttackSkill[6];
@@ -215,23 +215,39 @@ ClassAttack.doAttack = function (unit, preattack) {
 		untimedSkill = Config.LowManaSkill[1];
 	}
 
-	result = this.doCast(unit, timedSkill, untimedSkill);
+	let result = this.doCast(unit, timedSkill, untimedSkill);
 
-	if (result === 2 && Config.TeleStomp && Attack.checkResist(unit, "physical") && !!me.getMerc()) {
-		while (Attack.checkMonster(unit)) {
+	if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+		let merc = me.getMerc();
+
+		while (unit.attackable) {
+			if (Misc.townCheck()) {
+				if (!unit || !copyUnit(unit).x) {
+					unit = Misc.poll(function () { return getUnit(1, -1, -1, gid); }, 1000, 80);
+				}
+			}
+
+			if (!unit) return 1;
+
 			if (Town.needMerc()) {
 				if (Config.MercWatch && mercRevive++ < 1) {
 					Town.visitTown();
 				} else {
 					return 2;
 				}
+
+				(merc === undefined || !merc) && (merc = me.getMerc());
 			}
 
-			if (getDistance(me, unit) > 3) {
+			if (!!merc && getDistance(merc, unit) > 5) {
 				Pather.moveToUnit(unit);
+
+				let spot = Attack.findSafeSpot(unit, 10, 5, 9);
+				!!spot && Pather.walkTo(spot.x, spot.y);
 			}
 
-			this.doCast(unit, Config.AttackSkill[1], Config.AttackSkill[2]);
+			let closeMob = Attack.getNearestMonster(true, true);
+			!!closeMob && closeMob.gid !== gid && this.doCast(closeMob, timedSkill, untimedSkill);
 		}
 
 		return 1;
@@ -252,7 +268,7 @@ ClassAttack.farCast = function (unit) {
 
 	if (checkTraps) {
 		if (Math.round(getDistance(me, unit)) > 30 || checkCollision(me, unit, 0x4)) {
-			if (!Attack.getIntoPosition(unit, 30, 0x4) || (checkCollision(me, unit, 0x1) && (getCollision(unit.area, unit.x, unit.y) & 0x1))) {
+			if (!Attack.getIntoPosition(unit, 30, 0x4) || (checkCollision(me, unit, 0x1) && (getCollision(me.area, unit.x, unit.y) & 0x1))) {
 				return false;
 			}
 		}
@@ -260,7 +276,7 @@ ClassAttack.farCast = function (unit) {
 		this.placeTraps(unit, checkTraps);
 	}
 
-	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
+	if (timedSkill > -1 && (!me.skillDelay || !Skill.isTimed(timedSkill))) {
 		if (!unit.dead) {
 			Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
 		}

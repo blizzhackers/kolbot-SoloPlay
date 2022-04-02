@@ -17,7 +17,7 @@ function tombs () {
 		if (Pather.moveToExit(tombID[number], true, true)) {
 			me.overhead("Tomb #" + (number + 1));
 
-			let obj = getRoom().correcttomb === me.area ? getPresetUnit(me.area, 2, 152) : gbox = getPresetUnit(me.area, 2, 397);
+			let obj = getRoom().correcttomb === me.area ? getPresetUnit(me.area, 2, 152) : getPresetUnit(me.area, 2, 397);
 			!!obj && Pather.moveToUnit(obj);
 
 			Attack.clear(50);

@@ -306,14 +306,12 @@ ClassAttack.doCast = function (unit, attackSkill, data) {
 };
 
 ClassAttack.afterAttack = function (pickit = false) {
-	let needRepair;
-
-	Pather.canTeleport() && me.shapeshifted && Misc.unShift();
 	Precast.doPrecast(false);
-	me.charlvl >= 5 && (needRepair = Town.needRepair());
+
+	let needRepair = me.charlvl < 5 ? [] : Town.needRepair();
 	
 	// Repair check, make sure i have a tome
-	if (needRepair && needRepair.length > 0 && me.getItem(sdk.items.TomeofTownPortal)) {
+	if (needRepair.length > 0 && me.getItem(sdk.items.TomeofTownPortal)) {
 		Town.visitTown(true);
 	}
 
