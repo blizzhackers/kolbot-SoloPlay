@@ -37,7 +37,7 @@ const Overlay = {
 	resfixY: me.screensize ? 0 : -120,
 	questX: 12,
 	questY: 302,
-	dashboardX: 410,
+	dashboardX: 398,
 	dashboardY: 470,
 	timerX: 700,
 	timerY: 75,
@@ -109,21 +109,21 @@ const Overlay = {
 			case "dashboard":
 				this.hooks.push({
 					name: "dashboard",
-					hook: new Box(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 370, 80, 0x0, 1, 2)
+					hook: new Box(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 490, 82, 0x0, 1, 2)
 				});
 
 				break;
 			case "dashboardframe":
 				this.hooks.push({
 					name: "dashboardframe",
-					hook: new Frame(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 370, 80, 2)
+					hook: new Frame(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 490, 82, 2)
 				});
 
 				break;
 			case "credits":
 				this.hooks.push({
 					name: "credits",
-					hook: new Text("Kolbot-SoloPlay by ÿc0 theBGuy" + "ÿc4  Realm: ÿc0" + (me.realm ? me.realm : "SP"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 15, 4, 13, 2)
+					hook: new Text("Kolbot-SoloPlay by:ÿc0 theBGuy" + "ÿc4  Realm: ÿc0" + (me.realm ? me.realm : "SP"), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 17, 4, 13, 2)
 				});
 
 				break;
@@ -131,14 +131,14 @@ const Overlay = {
 				this.charlvl = me.charlvl;
 				this.hooks.push({
 					name: "level",
-					hook: new Text("Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + this.charlvl, Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 30, 4, 13, 2)
+					hook: new Text("Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + this.charlvl, Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 32, 4, 13, 2)
 				});
 
 				break;
 			case "times":
 				this.hooks.push({
 					name: "times",
-					hook: new Text(this.clock(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 75, 4, 13, 2)
+					hook: new Text(this.clock(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 77, 4, 13, 2)
 				});
 
 				break;
@@ -402,14 +402,14 @@ const Overlay = {
 			case "resistances":
 				this.hooks.push({
 					name: "resistances",
-					hook: new Text(this.getRes(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 45, 4, 13, 2)
+					hook: new Text(this.getRes(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 47, 4, 13, 2)
 				});
 
 				break;
 			case "stats":
 				this.hooks.push({
 					name: "stats",
-					hook: new Text(this.getStats(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 60, 4, 13, 2)
+					hook: new Text(this.getStats(), Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY + 62, 4, 13, 2)
 				});
 
 				break;

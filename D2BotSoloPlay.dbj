@@ -25,7 +25,7 @@ let StarterConfig = {
 	GameDoesNotExistTimeout: 600, // Seconds to wait before cancelling the 'Game does not exist.' screen
 	DelayBeforeLogin: rand(5, 25), // Seconds to wait before logging in
 	VersionErrorDelay: rand(5, 30), // Seconds to wait after 'unable to identify version' message
-	
+
 	// Global Account Settings.
 	GlobalAccount: "", // Set value for a global account. (MAX characters allowed 15 include account suffix)
 	AccountSuffixLength: 1, // Set Global Account value for random numbers at the end of the name.
@@ -340,7 +340,7 @@ function ScriptMsgEvent (msg) {
 }
 
 function timer (tick) {
-	let timeStr = " (" + new Date(getTickCount() - tick).toISOString().slice(11, -5) + ")";
+	let timeStr = " (Time:" + new Date(getTickCount() - tick).toISOString().slice(11, -5) + ") ";
 	
 	if (Developer.displayClockInConsole) {
 		try {
@@ -348,7 +348,7 @@ function timer (tick) {
 			let currInGame = getTickCount() - tick;
 			let totalTime = Developer.formatTime(gameTracker.Total + currInGame);
 			let totalInGame = Developer.formatTime(gameTracker.InGame + currInGame);
-			timeStr += ("(Tot: " + totalTime + ")(IG: " + totalInGame + ")(OOG: " + Developer.formatTime(gameTracker.OOG) + ")");
+			timeStr += ("(Total: " + totalTime + ") (IG: " + totalInGame + ") (OOG: " + Developer.formatTime(gameTracker.OOG) + ")");
 		} catch (e) {
 			print(e);
 		}
@@ -696,7 +696,7 @@ function locationAction (location) {
 								D2Bot.setProfile("", "", null, "Normal");
 								D2Bot.stop();
 							}
- 
+
 							if (setUp.password.length > 15) {
 								D2Bot.printToConsole("Kolbot-SoloPlay: Password name exceeds maximum length. Please enter a shorter name under StarterConfig", 6);
 								D2Bot.setProfile("", "", null, "Normal");
@@ -713,7 +713,7 @@ function locationAction (location) {
 							print("Generating Random Account Information");
 							ControlAction.timeoutDelay("Generating Random Account Information", StarterConfig.DelayBeforeLogin * 1e3);
 						}
- 
+
 						if (ControlAction.makeAccount(setUp)) {
 							D2Bot.setProfile(setUp.account, setUp.password, null, "Normal");
 							DataFile.updateStats("AcctName", setUp.account);
@@ -1245,7 +1245,7 @@ function main () {
 						lrRes = Math.min(75, me.getStat(41) - resPenalty);
 						prRes = Math.min(75, me.getStat(45) - resPenalty);
 						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
-						statusString = "Acc: " + me.account + " Name: " + me.name + " Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
+						statusString = "Acc: " + me.account + " | C-Name: " + me.name + " | Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
 					} catch (e) {
 						print(e);
 					}

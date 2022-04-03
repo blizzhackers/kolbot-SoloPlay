@@ -92,8 +92,9 @@ const Developer = {
 		let seconds = milliseconds / 1000,
 			sec = (seconds % 60).toFixed(0),
 			minutes = (Math.floor(seconds / 60) % 60).toFixed(0),
-			hours = Math.floor(seconds / 3600).toFixed(0),
-			timeString = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0');
+			hours = (Math.floor(seconds / 3600) % 24).toFixed(0),
+			days = Math.floor(seconds / 86400).toFixed(0),
+			timeString = days.toString().padStart(1, '0') + ' Days ' + hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0');
 
 		return timeString;
 	},
