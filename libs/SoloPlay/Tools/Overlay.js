@@ -37,7 +37,7 @@ const Overlay = {
 	resfixY: me.screensize ? 0 : -120,
 	questX: 12,
 	questY: 302,
-	dashboardX: 398,
+	dashboardX: 399,
 	dashboardY: 470,
 	timerX: 700,
 	timerY: 75,
@@ -55,7 +55,7 @@ const Overlay = {
 			let totalTime = Developer.formatTime(this.GameTracker.Total + currInGame);
 			let totalInGame = Developer.formatTime(this.GameTracker.InGame + currInGame);
 
-			return "Total: ÿc0" + totalTime + "ÿc4 InGame: ÿc0" + totalInGame + "ÿc4 OOG: ÿc0" + Developer.formatTime(this.GameTracker.OOG);
+			return "Total: ÿc0" + totalTime + " ÿc4 InGame: ÿc0" + totalInGame + " ÿc4 OOG: ÿc0" + Developer.formatTime(this.GameTracker.OOG);
 		},
 
 		timer: function () {
@@ -73,13 +73,13 @@ const Overlay = {
 			if (!me.gameReady && !me.ingame && !me.area) return;
 
 			this.GameTracker === undefined && (this.GameTracker = Developer.readObj(Tracker.GTPath));
-			
+
 			!this.getHook("dashboard") && this.add("dashboard");
 			!this.getHook("dashboardframe") && this.add("dashboardframe");
 			!this.getHook("credits") && this.add("credits");
 			!this.getHook("timerboard") && this.add("timerboard");
 			!this.getHook("timerframe") && this.add("timerframe");
-			
+
 			if (!this.getHook("InGameTimer")) {
 				this.add("InGameTimer");
 			} else {
@@ -109,14 +109,14 @@ const Overlay = {
 			case "dashboard":
 				this.hooks.push({
 					name: "dashboard",
-					hook: new Box(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 490, 82, 0x0, 1, 2)
+					hook: new Box(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 370, 82, 0x0, 1, 2)
 				});
 
 				break;
 			case "dashboardframe":
 				this.hooks.push({
 					name: "dashboardframe",
-					hook: new Frame(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 490, 82, 2)
+					hook: new Frame(Overlay.dashboardX + Overlay.resfixX, Overlay.dashboardY + Overlay.resfixY, 370, 82, 2)
 				});
 
 				break;

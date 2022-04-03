@@ -27,8 +27,8 @@ let StarterConfig = {
 	VersionErrorDelay: rand(5, 30), // Seconds to wait after 'unable to identify version' message
 
 	// Global Account Settings.
-	GlobalAccount: "", // Set value for a global account. (MAX characters allowed 15 include account suffix)
-	AccountSuffixLength: 1, // Set Global Account value for random numbers at the end of the name.
+	GlobalAccount: "", // Set value for a global account. (MAX 7) 
+	AccountSuffixLength: 3, // Set Global Account value for random numbers at the end of the name. (Max 7)
 	GlobalAccountPassword: "" // Set value for a global password for account generation.
 };
 
@@ -718,7 +718,7 @@ function locationAction (location) {
 							D2Bot.setProfile(setUp.account, setUp.password, null, "Normal");
 							DataFile.updateStats("AcctName", setUp.account);
 							DataFile.updateStats("AcctPswd", setUp.password);
- 
+
 							break;
 						} else {
 							setUp.account = "";
@@ -1245,7 +1245,7 @@ function main () {
 						lrRes = Math.min(75, me.getStat(41) - resPenalty);
 						prRes = Math.min(75, me.getStat(45) - resPenalty);
 						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
-						statusString = "Acc: " + me.account + " | C-Name: " + me.name + " | Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
+						statusString = "C-Name: " + me.name + " | Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
 					} catch (e) {
 						print(e);
 					}
