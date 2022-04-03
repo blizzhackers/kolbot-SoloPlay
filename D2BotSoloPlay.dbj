@@ -27,8 +27,8 @@ let StarterConfig = {
 	VersionErrorDelay: rand(5, 30), // Seconds to wait after 'unable to identify version' message
 
 	// Global Account Settings.
-	GlobalAccount: "", // Set value for a global account. (MAX 7) 
-	AccountSuffixLength: 3, // Set Global Account value for random numbers at the end of the name. (Max 7)
+	GlobalAccount: "", // Set value for a global account. (MAX Characters 12 plus AccountSuffixLength) 
+	AccountSuffixLength: 3, // Set Global Account value for random numbers at the end of the name. (Minimum suffix 3)
 	GlobalAccountPassword: "" // Set value for a global password for account generation.
 };
 
@@ -687,18 +687,17 @@ function locationAction (location) {
 					// new account
 					if (setUp.account === "") {
 						if (StarterConfig.GlobalAccount || StarterConfig.GlobalAccountPassword) {
-							// Set Account & Password
 							setUp.account = StarterConfig.GlobalAccount.length > 0 ? StarterConfig.GlobalAccount + randomNumberGen(StarterConfig.AccountSuffixLength) : Starter.randomString(12, true);
 							setUp.password = StarterConfig.GlobalAccountPassword.length > 0 ? StarterConfig.GlobalAccountPassword : Starter.randomString(12, true);
 
 							if (setUp.account.length > 15) {
-								D2Bot.printToConsole("Kolbot-SoloPlay: Account name exceeds maximum length. Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig", 6);
+								D2Bot.printToConsole("Kolbot-SoloPlay: Account name exceeds MAXIMUM length (15). Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig", 6);
 								D2Bot.setProfile("", "", null, "Normal");
 								D2Bot.stop();
 							}
 
 							if (setUp.password.length > 15) {
-								D2Bot.printToConsole("Kolbot-SoloPlay: Password name exceeds maximum length. Please enter a shorter name under StarterConfig", 6);
+								D2Bot.printToConsole("Kolbot-SoloPlay: Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig", 6);
 								D2Bot.setProfile("", "", null, "Normal");
 								D2Bot.stop();
 							}
@@ -707,7 +706,6 @@ function locationAction (location) {
 							print("Kolbot-SoloPlay :: Generated password information. " + (StarterConfig.GlobalAccountPassword.length > 0 ? "Pre-defined " : "Random ") + "password used");
 							ControlAction.timeoutDelay("Generating Account Information", StarterConfig.DelayBeforeLogin * 1e3);
 						} else {
-							//  Random Account & Random Password
 							setUp.account = Starter.randomString(12, true);
 							setUp.password = Starter.randomString(12, true);
 							print("Generating Random Account Information");
