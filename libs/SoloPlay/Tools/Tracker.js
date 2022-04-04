@@ -36,7 +36,7 @@ const Tracker = {
 		!FileTools.exists(this.GTPath) && Developer.writeObj(GameTracker, this.GTPath);
 		!FileTools.exists(this.LPPath) && Misc.fileAction(this.LPPath, 1, LPHeader);
 		!FileTools.exists(this.SPPath) && Misc.fileAction(this.SPPath, 1, SPHeader);
-		
+
 		return true;
 	},
 
@@ -61,17 +61,17 @@ const Tracker = {
 
 	script: function (starttime, subscript, startexp) {
 		let GameTracker = Developer.readObj(Tracker.GTPath);
-		
+
 		// GameTracker
 		// this seems to happen when my pc restarts so set last save equal to current tick count and then continue
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
-		
+
 		let newTick = me.gamestarttime >= GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
 		GameTracker.InGame += Developer.Timer(newTick);
 		GameTracker.Total += Developer.Timer(newTick);
 		GameTracker.LastSave = getTickCount();
 		Developer.writeObj(GameTracker, Tracker.GTPath);
-		
+
 		// csv file
 		let scriptTime = Developer.Timer(starttime);
 		let diffString = sdk.difficulty.nameOf(me.diff);
@@ -86,7 +86,7 @@ const Tracker = {
 
 		Misc.fileAction(Tracker.SPPath, 2, string);
 		this.tick = GameTracker.LastSave;
-		
+
 		return true;
 	},
 
@@ -96,7 +96,7 @@ const Tracker = {
 		// GameTracker
 		// this seems to happen when my pc restarts so set last save equal to current tick count and then continue
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
-		
+
 		let newSave = getTickCount();
 		let newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
 		let splitTime = Developer.Timer(GameTracker.LastLevel);
@@ -120,7 +120,7 @@ const Tracker = {
 
 		Misc.fileAction(Tracker.LPPath, 2, string);
 		this.tick = GameTracker.LastSave;
-		
+
 		return true;
 	},
 
@@ -136,7 +136,7 @@ const Tracker = {
 		}
 
 		let GameTracker = Developer.readObj(this.GTPath);
-		
+	
 		// this seems to happen when my pc restarts so set last save equal to current tick count and then continue
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
 

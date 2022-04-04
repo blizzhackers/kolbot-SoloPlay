@@ -23,9 +23,13 @@ let StarterConfig = {
 	PleaseWaitTimeout: 100, // Seconds to wait before cancelling the 'Please Wait...' screen
 	WaitInLineTimeout: 12000, // Seconds to wait before cancelling the 'Waiting in Line...' screen
 	GameDoesNotExistTimeout: 600, // Seconds to wait before cancelling the 'Game does not exist.' screen
-	DelayBeforeLogin: rand(5, 25),	// Seconds to wait before logging in
-	VersionErrorDelay: rand(5, 30),	// Seconds to wait after 'unable to identify version' message
-	GlobalAccountPassword: "" // Set value for a global password for account generation
+	DelayBeforeLogin: rand(5, 25), // Seconds to wait before logging in
+	VersionErrorDelay: rand(5, 30), // Seconds to wait after 'unable to identify version' message
+
+	// Global Account Settings.
+	GlobalAccount: "", // Set value for a global account. (MAX Characters 12 plus AccountSuffixLength) 
+	AccountSuffixLength: 3, // Set Global Account value for random numbers at the end of the name. (Minimum suffix 3)
+	GlobalAccountPassword: "" // Set value for a global password for account generation.
 };
 
 let ChannelConfig = {
@@ -336,7 +340,7 @@ function ScriptMsgEvent (msg) {
 }
 
 function timer (tick) {
-	let timeStr = " (" + new Date(getTickCount() - tick).toISOString().slice(11, -5) + ")";
+	let timeStr = " (Time:" + new Date(getTickCount() - tick).toISOString().slice(11, -5) + ") ";
 	
 	if (Developer.displayClockInConsole) {
 		try {
@@ -344,12 +348,25 @@ function timer (tick) {
 			let currInGame = getTickCount() - tick;
 			let totalTime = Developer.formatTime(gameTracker.Total + currInGame);
 			let totalInGame = Developer.formatTime(gameTracker.InGame + currInGame);
-			timeStr += ("(Tot: " + totalTime + ")(IG: " + totalInGame + ")(OOG: " + Developer.formatTime(gameTracker.OOG) + ")");
+			timeStr += ("(Total: " + totalTime + ") (IG: " + totalInGame + ") (OOG: " + Developer.formatTime(gameTracker.OOG) + ")");
 		} catch (e) {
 			print(e);
 		}
 	}
 	return timeStr;
+}
+
+function randomNumberGen (len) {
+    let rval = "",
+        nums = "0123456789";
+
+    len = len ? len : rand(5, 14);
+
+    for (let i = 0; i < len; i++) {
+        rval += nums[rand(0, nums.length - 1)];
+    }
+
+    return rval;
 }
 
 function locationAction (location) {
@@ -669,10 +686,24 @@ function locationAction (location) {
 				} else {
 					// new account
 					if (setUp.account === "") {
-						if (StarterConfig.GlobalAccountPassword) {
-							setUp.account = Starter.randomString(12, true);
-							setUp.password = StarterConfig.GlobalAccountPassword;
-							print("Generating Account Information");
+						if (StarterConfig.GlobalAccount || StarterConfig.GlobalAccountPassword) {
+							setUp.account = StarterConfig.GlobalAccount.length > 0 ? StarterConfig.GlobalAccount + randomNumberGen(StarterConfig.AccountSuffixLength) : Starter.randomString(12, true);
+							setUp.password = StarterConfig.GlobalAccountPassword.length > 0 ? StarterConfig.GlobalAccountPassword : Starter.randomString(12, true);
+
+							if (setUp.account.length > 15) {
+								D2Bot.printToConsole("Kolbot-SoloPlay: Account name exceeds MAXIMUM length (15). Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig", 6);
+								D2Bot.setProfile("", "", null, "Normal");
+								D2Bot.stop();
+							}
+
+							if (setUp.password.length > 15) {
+								D2Bot.printToConsole("Kolbot-SoloPlay: Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig", 6);
+								D2Bot.setProfile("", "", null, "Normal");
+								D2Bot.stop();
+							}
+
+							print("Kolbot-SoloPlay :: Generated account information. " + (StarterConfig.GlobalAccount.length > 0 ? "Pre-defined " : "Random ") + "account used");
+							print("Kolbot-SoloPlay :: Generated password information. " + (StarterConfig.GlobalAccountPassword.length > 0 ? "Pre-defined " : "Random ") + "password used");
 							ControlAction.timeoutDelay("Generating Account Information", StarterConfig.DelayBeforeLogin * 1e3);
 						} else {
 							setUp.account = Starter.randomString(12, true);
