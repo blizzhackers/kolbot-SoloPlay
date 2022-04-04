@@ -2,14 +2,14 @@
 *	@filename	Developer.js
 *	@author		theBGuy
 *	@desc		Developer tools for Kolbot-SoloPlay
-*	@credits	kolton, D3STROY3R, Adaptist, isid0re
+*	@credits	kolton, D3STROY3R, Adaptist, isid0re, Butterz
 */
 
 const Developer = {
 	plugyMode: false,		// set to true if using the PlugY mod
 	logPerformance: true,	// log game/bot statistics to .csv files located at SoloPlay/Data/
 	overlay: true,			// show in game overlay (see bottom of README.md for example)
-	displayClockInConsole: false, // show Total, InGame, and OOG (out of game) time in the D2bot# status window
+	displayClockInConsole: true, // show Total, InGame, and OOG (out of game) time in the D2bot# status window
 	logEquipped: false,		// log currently equipped items to D2Bot# charviewer tab
 	hideChickens: true, 	// disable printing chicken info in D2Bot console
 	addLadderRW: !me.profile.toLowerCase().contains("nl"), // enable ladder runewords in single player mode ONLY WORKS IF RUNEWORDS.TXT IS INSTALLED AND D2BS PROFILE IS CONFIGURED or patch.json has been updated (see Single Player Additions in README.md)
@@ -94,6 +94,17 @@ const Developer = {
 			minutes = (Math.floor(seconds / 60) % 60).toFixed(0),
 			hours = Math.floor(seconds / 3600).toFixed(0),
 			timeString = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0');
+
+		return timeString;
+	},
+
+	totalDays: function (milliseconds) {
+		let seconds = milliseconds / 1000,
+			sec = (seconds % 60),
+			minutes = (Math.floor(seconds / 60) % 60),
+			hours = (Math.floor(seconds / 3600) % 24),
+			days = Math.floor(seconds / 86400).toFixed(0),
+			timeString = days.toString().padStart(1, '0');
 
 		return timeString;
 	},
