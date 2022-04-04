@@ -2,7 +2,7 @@
 *	@filename	Developer.js
 *	@author		theBGuy
 *	@desc		Developer tools for Kolbot-SoloPlay
-*	@credits	kolton, D3STROY3R, Adaptist, isid0re
+*	@credits	kolton, D3STROY3R, Adaptist, isid0re, Butterz
 */
 
 const Developer = {
@@ -94,6 +94,17 @@ const Developer = {
 			minutes = (Math.floor(seconds / 60) % 60).toFixed(0),
 			hours = Math.floor(seconds / 3600).toFixed(0),
 			timeString = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0');
+
+		return timeString;
+	},
+
+	totalDays: function (milliseconds) {
+		let seconds = milliseconds / 1000,
+			sec = (seconds % 60),
+			minutes = (Math.floor(seconds / 60) % 60),
+			hours = (Math.floor(seconds / 3600) % 24),
+			days = Math.floor(seconds / 86400).toFixed(0),
+			timeString = days.toString().padStart(1, '0');
 
 		return timeString;
 	},

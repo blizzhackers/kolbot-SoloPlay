@@ -348,7 +348,8 @@ function timer (tick) {
 			let currInGame = getTickCount() - tick;
 			let totalTime = Developer.formatTime(gameTracker.Total + currInGame);
 			let totalInGame = Developer.formatTime(gameTracker.InGame + currInGame);
-			timeStr += ("(Total: " + totalTime + ") (IG: " + totalInGame + ") (OOG: " + Developer.formatTime(gameTracker.OOG) + ")");
+			let totalDays = Developer.totalDays(gameTracker.Total + currInGame);
+			timeStr += ("(Days: " + totalDays + ") (Total: " + totalTime + ") (IG: " + totalInGame + ") (OOG: " + Developer.formatTime(gameTracker.OOG) + ")");
 		} catch (e) {
 			print(e);
 		}
@@ -1243,7 +1244,7 @@ function main () {
 						lrRes = Math.min(75, me.getStat(41) - resPenalty);
 						prRes = Math.min(75, me.getStat(45) - resPenalty);
 						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
-						statusString = "Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
+						statusString = "Acc: " + (me.account ? me.account : "SinglePlayer") + " | CharName: " + me.name + "Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
 					} catch (e) {
 						print(e);
 					}

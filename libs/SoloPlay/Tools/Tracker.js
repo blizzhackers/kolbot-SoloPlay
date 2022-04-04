@@ -14,6 +14,7 @@ const Tracker = {
 	SPPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-ScriptPerformance.csv",
 	tick: 0,
 	default: {
+		"Days": 0,
 		"Total": 0,
 		"InGame": 0,
 		"OOG": 0,
@@ -69,6 +70,7 @@ const Tracker = {
 		let newTick = me.gamestarttime >= GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
 		GameTracker.InGame += Developer.Timer(newTick);
 		GameTracker.Total += Developer.Timer(newTick);
+		GameTracker.Days += Developer.Timer(newTick);
 		GameTracker.LastSave = getTickCount();
 		Developer.writeObj(GameTracker, Tracker.GTPath);
 
@@ -102,6 +104,7 @@ const Tracker = {
 		let splitTime = Developer.Timer(GameTracker.LastLevel);
 		GameTracker.InGame += Developer.Timer(newTick);
 		GameTracker.Total += Developer.Timer(newTick);
+		GameTracker.Days += Developer.Timer(newTick);
 		GameTracker.LastLevel = newSave;
 		GameTracker.LastSave = newSave;
 		Developer.writeObj(GameTracker, Tracker.GTPath);
@@ -136,7 +139,7 @@ const Tracker = {
 		}
 
 		let GameTracker = Developer.readObj(this.GTPath);
-	
+
 		// this seems to happen when my pc restarts so set last save equal to current tick count and then continue
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
 
@@ -146,6 +149,7 @@ const Tracker = {
 		GameTracker.OOG += oogTick;
 		GameTracker.InGame += Developer.Timer(newTick);
 		GameTracker.Total += (Developer.Timer(newTick) + oogTick);
+		GameTracker.Days += (Developer.Timer(newTick) + oogTick);
 		GameTracker.LastSave = getTickCount();
 		Developer.writeObj(GameTracker, Tracker.GTPath);
 		this.tick = GameTracker.LastSave;
