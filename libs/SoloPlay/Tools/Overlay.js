@@ -54,7 +54,7 @@ const Overlay = {
 			let totalInGame = Developer.formatTime(this.GameTracker.InGame + currInGame);
 			let totalDays = Developer.totalDays(this.GameTracker.Total);
 
-			return "Total: ÿc0" + totalTime + "ÿc4 InGame: ÿc0" + totalInGame + "ÿc4 OOG: ÿc0" + Developer.formatTime(this.GameTracker.OOG);
+			return "Total: ÿc0" + totalTime + " ÿc4 InGame: ÿc0" + totalInGame + " ÿc4 OOG: ÿc0" + Developer.formatTime(this.GameTracker.OOG);
 		},
 
 		timer: function () {
