@@ -54,7 +54,7 @@ const Tracker = {
 	},
 
 	logLeveling: function (obj) {
-		if (typeof obj === "object" && obj.hasOwnProperty("event") && obj["event"] === "level up") {
+		if (typeof obj === "object" && obj.hasOwnProperty("event") && obj.event === "level up") {
 			Tracker.leveling();
 		}
 	},
@@ -155,17 +155,17 @@ const Tracker = {
 };
 
 if (getScript(true).name.toString() === 'default.dbj') {
-    const Worker = require('../../modules/Worker');
+	const Worker = require('../../modules/Worker');
 
-    Worker.runInBackground.intervalUpdate = function () {
-        if (getTickCount() - Tracker.tick < 3 * 60000) return true;
-        Tracker.tick = getTickCount();
-        try {
-            Tracker.update();
-        } catch (e) {
-            console.error(e.message);
-        }
+	Worker.runInBackground.intervalUpdate = function () {
+		if (getTickCount() - Tracker.tick < 3 * 60000) return true;
+		Tracker.tick = getTickCount();
+		try {
+			Tracker.update();
+		} catch (e) {
+			console.warn(e.message);
+		}
 
-        return true;
-    };
+		return true;
+	};
 }

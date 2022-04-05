@@ -10,7 +10,7 @@ Developer.debugging.pathing && (PathDebug.enableHooks = true);
 // TODO: clean up this mess
 NodeAction.killMonsters = function (arg) {
 	// sanityCheck from isid0re - added paladin specific areas - theBGuy
-	let monList, 
+	let monList,
 		sanityCheck = !!([62, 63, 64, 74].includes(me.area) || (me.paladin && [8, 9, 10, 11, 12, 13, 14, 15, 16, 94, 95, 96, 97, 98, 99].includes(me.area)));
 
 	if (Attack.stopClear) return;
@@ -96,7 +96,7 @@ Pather.forceRun = false;
 		}
 
 		if (typeof this.x !== 'undefined' && typeof this.y !== 'undefined') {
-			return this instanceof PresetUnit && [this.roomx * 5 + this.x, this.roomy * 5 + this.y] || [this.x, this.y]
+			return this instanceof PresetUnit && [this.roomx * 5 + this.x, this.roomy * 5 + this.y] || [this.x, this.y];
 		}
 
 		return [undefined, undefined];
@@ -104,11 +104,11 @@ Pather.forceRun = false;
 
 	Object.prototype.mobCount = function (range = 5) {
 		let [x, y] = coords.apply(this);
-			return getUnits(sdk.unittype.Monster)
-				.filter(function (mon) {
-					return mon.attackable && getDistance(x, y, mon.x, mon.y) < range &&
+		return getUnits(sdk.unittype.Monster)
+			.filter(function (mon) {
+				return mon.attackable && getDistance(x, y, mon.x, mon.y) < range &&
 					!CollMap.checkColl({x: x, y: y}, mon, Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.ClosedDoor | Coords_1.BlockBits.LineOfSight, 1);
-				}).length;
+			}).length;
 	};
 
 	Object.defineProperties(Object.prototype, {
@@ -124,7 +124,7 @@ Pather.forceRun = false;
 		path: {
 			get: function () {
 				let useTeleport = Pather.useTeleport();
-				return getPath.apply(this, [typeof this.area !== 'undefined' ? this.area : me.area, me.x, me.y, ...coords.apply(this), useTeleport ? 1 : 0, useTeleport ? ([62, 63, 64].indexOf(me.area) > -1 ? 30 : Pather.teleDistance) : Pather.walkDistance])
+				return getPath.apply(this, [typeof this.area !== 'undefined' ? this.area : me.area, me.x, me.y, ...coords.apply(this), useTeleport ? 1 : 0, useTeleport ? ([62, 63, 64].indexOf(me.area) > -1 ? 30 : Pather.teleDistance) : Pather.walkDistance]);
 			},
 			enumerable: false,
 		},
@@ -151,15 +151,15 @@ Pather.forceRun = false;
 				return function (button = 0, shift = false) {
 					if (this instanceof Unit) {
 						switch (this.type) {
-							case 4: //ToDo; fix that items that we own, we click on
-							default:
-								print('Click button');
-								clickMap(button, 0, this);
-								delay(20);
-								clickMap(button + 2, 0, this);
+						case 4: //ToDo; fix that items that we own, we click on
+						default:
+							print('Click button');
+							clickMap(button, 0, this);
+							delay(20);
+							clickMap(button + 2, 0, this);
 						}
 					}
-				}
+				};
 			}
 		}
 	});
@@ -280,7 +280,6 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 
 Pather.changeAct = function () {
 	let npc, loc, act = me.act + 1;
-	let quest;
 
 	switch (act) {
 	case 2:
@@ -502,7 +501,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 				}
 			}
 
-			if (useTele && tpMana <= me.mp ? this.teleportTo(node.x, node.y) : useChargedTele && getDistance(me, node) >= 15 ? this.teleUsingCharges(node.x, node.y) : this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
+			if (useTele && tpMana <= me.mp ? this.teleportTo(node.x, node.y) : useChargedTele && node.distance >= 15 ? this.teleUsingCharges(node.x, node.y) : this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
 				if (!me.inTown) {
 					if (this.recursion) {
 						this.recursion = false;
@@ -519,7 +518,9 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 					Misc.townCheck();
 				}
 			} else {
-				if (fail > 0 && !useTele && !me.inTown) {
+				if (fail > 0 && (!useTele || tpMana > me.mp) && !me.inTown) {
+					this.kickBarrels(node.x, node.y);
+					this.openDoors(node.x, node.y);
 					if (!cleared) {
 						Attack.clear(5) && Misc.openChests(2);
 						cleared = true;
@@ -543,7 +544,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 
 				if (fail > 0) {
 					Packet.flash(me.gid);
-					Attack.clear(5) && Misc.openChests(2);
+					!me.inTown && Attack.clear(5) && Misc.openChests(2);
 
 					if (fail >= retry) {
 						break;
@@ -574,9 +575,9 @@ Pather.moveToLoc = function (target, givenSettings) {
 	}, givenSettings);
 
 	// convert presetunit to x,y target
-    if (target instanceof PresetUnit) {
-        target = { x: target.roomx * 5 + target.x, y: target.roomy * 5 + target.y };
-    }
+	if (target instanceof PresetUnit) {
+		target = { x: target.roomx * 5 + target.x, y: target.roomy * 5 + target.y };
+	}
 
 	let path, adjustedNode, cleared, leaped = false,
 		node = {x: target.x, y: target.y},
@@ -903,12 +904,12 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 
 Pather.getWalkDistance = function (x, y, area, xx, yy, reductionType, radius) {
 	if (area === void 0) { area = me.area; }
-    if (xx === void 0) { xx = me.x; }
-    if (yy === void 0) { yy = me.y; }
-    if (reductionType === void 0) { reductionType = 2; }
-    if (radius === void 0) { radius = 5; }
-    return (getPath(area, x, y, xx, yy, reductionType, radius) || [])
-        // distance between node x and x-1
-        .map(function (e, i, s) { return i && getDistance(s[i - 1], e) || 0; })
-        .reduce(function (acc, cur) { return acc + cur; }, 0) || Infinity;
+	if (xx === void 0) { xx = me.x; }
+	if (yy === void 0) { yy = me.y; }
+	if (reductionType === void 0) { reductionType = 2; }
+	if (radius === void 0) { radius = 5; }
+	return (getPath(area, x, y, xx, yy, reductionType, radius) || [])
+	// distance between node x and x-1
+		.map(function (e, i, s) { return i && getDistance(s[i - 1], e) || 0; })
+		.reduce(function (acc, cur) { return acc + cur; }, 0) || Infinity;
 };

@@ -328,7 +328,7 @@ MuleLogger.logEquippedItems = function () {
 				parsedItem.title += " (equipped)";
 			}
 
-			break;	
+			break;
 		}
 
 		string = JSON.stringify(parsedItem);

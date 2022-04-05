@@ -14,7 +14,7 @@ if (!isIncluded("common/Runewords.js")) { include("common/Runewords.js"); }
 const AutoBuild = new function AutoBuild () {
 	Config.AutoBuild.DebugMode && (Config.AutoBuild.Verbose = true);
 
-	let debug = !!Config.AutoBuild.DebugMode, 
+	let debug = !!Config.AutoBuild.DebugMode,
 		verbose = !!Config.AutoBuild.Verbose,
 		configUpdateLevel = 0, lastSuccessfulUpdateLevel = 0;
 
@@ -89,7 +89,7 @@ const AutoBuild = new function AutoBuild () {
 	}
 
 	function levelUpHandler (obj) {
-		if (typeof obj === "object" && obj.hasOwnProperty("event") && obj["event"] === "level up") {
+		if (typeof obj === "object" && obj.hasOwnProperty("event") && obj.event === "level up") {
 			applyConfigUpdates();
 		}
 	}

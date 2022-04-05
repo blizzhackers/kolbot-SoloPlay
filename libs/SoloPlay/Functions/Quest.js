@@ -353,7 +353,7 @@ const Quest = {
 
 		!me.inTown && Town.goToTown();
 		npcName = npcName[0].toUpperCase() + npcName.substring(1).toLowerCase();
-	    Town.move(NPC[npcName]);
+		Town.move(NPC[npcName]);
 		let npc = Misc.poll(function () { return getUnit(1, NPC[npcName]); });
 
 		Packet.flash(me.gid);
@@ -361,10 +361,10 @@ const Quest = {
 
 		if (npc && npc.openMenu()) {
 			action.forEach(menuOption => Misc.useMenu(menuOption) && delay(100 + me.ping));
-	        return true;
-	    }
+			return true;
+		}
 
-	    return false;
+		return false;
 	},
 
 	// Akara reset for build change
@@ -419,7 +419,7 @@ const Quest = {
 
 	// Credit dzik or laz unsure who for this
 	useSocketQuest: function (item = undefined) {
-		let larzuk, slot, invo, i, items;
+		let slot, invo, i, items;
 
 		//print("ÿc8Kolbot-SoloPlayÿc0: Socketmules cannot use their socket quest");
 		if (SetUp.finalBuild === "Socketmule") return false;
@@ -511,7 +511,7 @@ const Quest = {
 		Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : ", item);
 		D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, 6);
 		CharData.updateData(sdk.difficulty.nameOf(me.diff), "socketUsed", true);
-		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()]["socketUsed"] = true;
+		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
 		updateMyData();
 
 		if (!slot && item.location !== 7) {
@@ -530,7 +530,7 @@ const Quest = {
 
 	// Credit whoever did useSocketQuest, I modified that to come up with this
 	useImbueQuest: function (item = undefined) {
-		let charsi, slot, invo, i, items;
+		let slot, invo, i, items;
 		
 		// No item, or item is on the ground
 		if (!item || item.mode === 3) {
@@ -615,7 +615,7 @@ const Quest = {
 		Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : ", item);
 		D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, 6);
 		CharData.updateData(sdk.difficulty.nameOf(me.diff), "imbueUsed", true);
-		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()]["imbueUsed"] = true;
+		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
 		updateMyData();
 
 		if (!slot && item.location !== 7) {

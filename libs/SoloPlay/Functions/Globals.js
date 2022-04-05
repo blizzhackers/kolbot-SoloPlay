@@ -18,15 +18,15 @@ let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "
 let impossibleNonLadderBuilds = ["Auradin"];
 
 Unit.prototype.__defineGetter__('mercid', function () {
-    return !!myData ? myData.merc.classid : me.getMerc().classid;
+	return !!myData ? myData.merc.classid : me.getMerc().classid;
 });
 
 Unit.prototype.__defineGetter__('trueStr', function () {
-    return !!myData ? myData.me.strength : me.rawStrength;
+	return !!myData ? myData.me.strength : me.rawStrength;
 });
 
 Unit.prototype.__defineGetter__('trueDex', function () {
-    return !!myData ? myData.me.dexterity : me.rawDexterity;
+	return !!myData ? myData.me.dexterity : me.rawDexterity;
 });
 
 function myPrint (str = "", toConsole = false, color = 0) {
@@ -278,15 +278,15 @@ const SetUp = {
 
 Object.defineProperties(SetUp, {
 	currentBuild: {
-        get: function () {
-            return myData.me.currentBuild;
-        },
-    },
-    finalBuild: {
-        get: function () {
-            return myData.me.finalBuild;
-        },
-    },
+		get: function () {
+			return myData.me.currentBuild;
+		},
+	},
+	finalBuild: {
+		get: function () {
+			return myData.me.finalBuild;
+		},
+	},
 });
 
 // SoloPlay general gameplay items
@@ -642,7 +642,7 @@ const Check = {
 				case sdk.difficulty.Normal:
 					return !Check.gold() || !me.diffCompleted;
 				case sdk.difficulty.Nightmare:
-					return Pather.canTeleport() || me.charlvl <= 65
+					return Pather.canTeleport() || me.charlvl <= 65;
 				case sdk.difficulty.Hell:
 					return true;
 				}
@@ -720,10 +720,10 @@ const Check = {
 					}
 					break;
 				case sdk.difficulty.Nightmare:
-					if (me.druid && me.charlvl <= 65) { 
-						return true; 
-					} else if (me.sorceress && (me.expansion || me.charlvl < 62)) { 
-						return true; 
+					if (me.druid && me.charlvl <= 65) {
+						return true;
+					} else if (me.sorceress && (me.expansion || me.charlvl < 62)) {
+						return true;
 					} else if (!me.druid && !me.sorceress) {
 						return true;
 					}
@@ -812,7 +812,7 @@ const Check = {
 			crRes = me.getStat(sdk.stats.ColdResist) - resPenalty,
 			prRes = me.getStat(sdk.stats.PoisonResist) - resPenalty;
 
-		resStatus = ((frRes >= 0) && (lrRes >= 0) && (crRes >= 0)); 
+		resStatus = ((frRes >= 0) && (lrRes >= 0) && (crRes >= 0));
 
 		return {
 			Status: resStatus,
@@ -909,8 +909,8 @@ const Check = {
 		typeof iName === "string" && (iName = iName.toLowerCase());
 
 		let items = me.getItemsEx()
-			.filter(function (item) { 
-				return !item.isQuestItem && (flag === "Runeword" ? item.isRuneword : item.quality === sdk.itemquality[flag]); 
+			.filter(function (item) {
+				return !item.isQuestItem && (flag === "Runeword" ? item.isRuneword : item.quality === sdk.itemquality[flag]);
 			});
 
 		switch (typeof type) {
@@ -937,8 +937,8 @@ const Check = {
 
 		// filter out non-matching item types/classids
 		if (typeof type === "number") {
-			items = items.filter(function (item) { 
-				return (isClassID ? item.classid === type : item.itemType === type); 
+			items = items.filter(function (item) {
+				return (isClassID ? item.classid === type : item.itemType === type);
 			});
 		}
 
@@ -991,8 +991,8 @@ const Check = {
 		let typeCHECK = false;
 		let itemCHECK = false;
 		let items = me.getItemsEx()
-			.filter(function (item) { 
-				return item.quality === quality && !item.isQuestItem && !item.isRuneword && (isClassID ? item.classid === type : item.itemType === type) && getBaseStat("items", item.classid, "gemsockets") > 0; 
+			.filter(function (item) {
+				return item.quality === quality && !item.isQuestItem && !item.isRuneword && (isClassID ? item.classid === type : item.itemType === type) && getBaseStat("items", item.classid, "gemsockets") > 0;
 			});
 
 		for (let i = 0; i < items.length; i++) {
@@ -1016,7 +1016,7 @@ const Check = {
 	},
 
 	haveBase: function (type = undefined, sockets = undefined) {
-		if (!type|| !sockets) return false;
+		if (!type || !sockets) return false;
 		let isClassID = false;
 
 		switch (typeof type) {
@@ -1105,7 +1105,7 @@ const Check = {
 			}
 
 			if (SetUp.finalBuild.includes(" ")) {
-				myData.me.finalBuild  = SetUp.finalBuild.trim().capitalize(true);
+				myData.me.finalBuild = SetUp.finalBuild.trim().capitalize(true);
 				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
 				foundError = true;
 			}
@@ -1244,15 +1244,15 @@ const SoloWants = {
 
 	buildList: function () {
 		let myItems = me.getItemsEx()
-			.filter(function (item) { 
-				return !item.isRuneword && !item.isQuestItem && item.quality >= sdk.itemquality.Magic && (item.getStat(sdk.stats.NumSockets) > 0 || getBaseStat("items", item.classid, "gemsockets") > 0); 
+			.filter(function (item) {
+				return !item.isRuneword && !item.isQuestItem && item.quality >= sdk.itemquality.Magic && (item.getStat(sdk.stats.NumSockets) > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
 			});
 		let equippedItems = myItems
 			.filter(function (item) { return item.isEquipped; })
 			.forEach(function (item) { return SoloWants.addToList(item); });
 		let stashItems = myItems
-			.filter(function (item) { 
-				return item.isInStorage && item.getItemType() && AutoEquip.wanted(item); 
+			.filter(function (item) {
+				return item.isInStorage && item.getItemType() && AutoEquip.wanted(item);
 			})
 			.forEach(function (item) { return SoloWants.addToList(item); });
 		
@@ -1286,7 +1286,7 @@ const SoloWants = {
 
 			if (curr.socketWith.length > 1 && hasWantedItems) {
 				// handle different wanted socketables, if we already have a wanted socketable inserted then remove it from the check list
-				socketedWith.forEach(function (socketed) { 
+				socketedWith.forEach(function (socketed) {
 					if (curr.socketWith.length > 1 && curr.socketWith.includes(socketed.classid)) {
 						curr.socketWith.splice(curr.socketWith.indexOf(socketed.classid), 1);
 					}

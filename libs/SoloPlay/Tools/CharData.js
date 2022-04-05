@@ -201,4 +201,4 @@ const CharData = {
 
 		return !(FileTools.exists(this.filePath) && FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json"));
 	},
-}
+};

@@ -276,11 +276,11 @@ const SoloEvents = {
 		if (me.dead) return false;
 
 		let settings = Object.assign({}, {
-            allowTeleport: false,
-            allowClearing: false,
-            allowTown: false,
-            retry: 10,
-        }, givenSettings);
+			allowTeleport: false,
+			allowClearing: false,
+			allowTown: false,
+			retry: 10,
+		}, givenSettings);
 
 		let path, adjustedNode, leaped = false,
 			node = {x: x, y: y},
@@ -411,8 +411,10 @@ const SoloEvents = {
 		Pickit.enabled = true;
 
 		let skipWorked = getUnits(sdk.unittype.Monster)
-			.some(function (el) { return !el.dead && el.attackable && el.classid !== sdk.monsters.ThroneBaal && el.x >= 15070 && el.x <= 15120 &&
-                    el.y >= 5000 && el.y <= 5075;});
+			.some(function (el) {
+				return !el.dead && el.attackable && el.classid !== sdk.monsters.ThroneBaal && el.x >= 15070 && el.x <= 15120 &&
+                    el.y >= 5000 && el.y <= 5075;
+			});
 		myPrint("skip " + (skipWorked ? "worked" : "failed"));
 	},
 

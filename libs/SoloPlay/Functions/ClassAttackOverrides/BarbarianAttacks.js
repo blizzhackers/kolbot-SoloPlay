@@ -12,26 +12,26 @@ ClassAttack.warCryTick = 0;
 let howlCheck = function () {
 	let levelCheck = me.getSkill(sdk.skills.Howl, 1) + me.charlvl + 1;
 	return getUnits(1).filter(function(el) {
-    	return !!el && el.attackable && el.distance < 6 && el.scareable && GameData.monsterLevel(el.classid, me.area) < levelCheck && !el.isStunned
-    		&& [sdk.states.BattleCry, sdk.states.AmplifyDamage, sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt].every(state => !el.getState(state)) && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
-    }).length > me.maxNearMonsters;
+		return !!el && el.attackable && el.distance < 6 && el.scareable && GameData.monsterLevel(el.classid, me.area) < levelCheck && !el.isStunned
+    && [sdk.states.BattleCry, sdk.states.AmplifyDamage, sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt].every(state => !el.getState(state)) && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
+	}).length > me.maxNearMonsters;
 };
 
 let battleCryCheck = function () {
 	return getUnits(1).some(function(el) {
-    	if (el === undefined) return false;
-    	return el.attackable && el.distance < 5 && el.curseable
-    		&& [sdk.states.BattleCry, sdk.states.AmplifyDamage, sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt].every(state => !el.getState(state)) && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
-    });
+		if (el === undefined) return false;
+		return el.attackable && el.distance < 5 && el.curseable
+    && [sdk.states.BattleCry, sdk.states.AmplifyDamage, sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt].every(state => !el.getState(state)) && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
+	});
 };
 
 let warCryCheck = function () {
 	return getUnits(1).some(function(el) {
-    	if (el === undefined) return false;
-    	return el.attackable && el.distance < 5 && !(el.spectype & 0x7) && el.curseable
-    		&& ![sdk.monsters.Andariel, 211, 242, 243, 544, 562, 570, 540, 541, 542].includes(el.classid)
-    		&& (!el.isStunned || getTickCount() - ClassAttack.warCryTick >= 1500) && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
-    });
+		if (el === undefined) return false;
+		return el.attackable && el.distance < 5 && !(el.spectype & 0x7) && el.curseable
+    && ![sdk.monsters.Andariel, 211, 242, 243, 544, 562, 570, 540, 541, 542].includes(el.classid)
+    && (!el.isStunned || getTickCount() - ClassAttack.warCryTick >= 1500) && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
+	});
 };
 
 ClassAttack.tauntMonsters = function (unit, attackSkill, data) {
@@ -49,7 +49,7 @@ ClassAttack.tauntMonsters = function (unit, attackSkill, data) {
 		502, 503, 504, 505, 506, 507, 508, 509, 510, 580, 581, 582, 583, 584, 645, 646, 647, 697
 	];
 	let dangerousAndSummoners = [
-		636, 637, 638, 639, 640, 641, 58, 59, 60, 61, 101, 102, 
+		636, 637, 638, 639, 640, 641, 58, 59, 60, 61, 101, 102,
 		103, 104, 105, 557, 558, 669, 670, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478
 	];
 
@@ -132,64 +132,64 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	// TODO: calculate damage values for physcial attacks
 	let data = {
 		switchCast: me.expansion && !!(Precast.getBetterSlot(sdk.skills.BattleCry) === 1 || Precast.getBetterSlot(sdk.skills.WarCry) === 1),
-        howl: {
-            have: me.getSkill(sdk.skills.Howl, 1), skill: sdk.skills.Howl, range: Skill.getRange(sdk.skills.Howl), mana: Skill.getManaCost(sdk.skills.Howl)
-        },
-        taunt: {
-            have: me.getSkill(sdk.skills.Taunt, 1), skill: sdk.skills.Taunt, mana: Skill.getManaCost(sdk.skills.Taunt)
-        },
-        grimWard: {
-            have: me.getSkill(sdk.skills.GrimWard, 1), skill: sdk.skills.GrimWard, range: 15, mana: Skill.getManaCost(sdk.skills.GrimWard)
-        },
-        battleCry: {
-            have: me.getSkill(sdk.skills.BattleCry, 1), skill: sdk.skills.BattleCry, range: Skill.getRange(sdk.skills.BattleCry), mana: Skill.getManaCost(sdk.skills.BattleCry)
-        },
-        warCry: {
-            have: me.getSkill(sdk.skills.WarCry, 1), skill: sdk.skills.WarCry, range: Skill.getRange(sdk.skills.WarCry), mana: Skill.getManaCost(sdk.skills.WarCry)
-        },
-        bash: {
-            have: me.getSkill(sdk.skills.Bash, 1), skill: sdk.skills.Bash, range: Skill.getRange(sdk.skills.Bash), mana: Skill.getManaCost(sdk.skills.Bash)
-        },
-        stun: {
-            have: me.getSkill(sdk.skills.Stun, 1), skill: sdk.skills.Stun, range: Skill.getRange(sdk.skills.Stun), mana: Skill.getManaCost(sdk.skills.Stun)
-        },
-        concentrate: {
-            have: me.getSkill(sdk.skills.Concentrate, 1), skill: sdk.skills.Concentrate, range: Skill.getRange(sdk.skills.Concentrate), mana: Skill.getManaCost(sdk.skills.Concentrate)
-        },
-        leap: {
-            have: me.getSkill(sdk.skills.Leap, 1), skill: sdk.skills.Leap, range: Skill.getRange(sdk.skills.Leap), mana: Skill.getManaCost(sdk.skills.Leap)
-        },
-        leapAttack: {
-            have: me.getSkill(sdk.skills.LeapAttack, 1), skill: sdk.skills.LeapAttack, range: Skill.getRange(sdk.skills.LeapAttack), mana: Skill.getManaCost(sdk.skills.LeapAttack)
-        },
-        doubleSwing: {
-            have: me.getSkill(sdk.skills.DoubleSwing, 1), skill: sdk.skills.DoubleSwing, range: Skill.getRange(sdk.skills.DoubleSwing), mana: Skill.getManaCost(sdk.skills.DoubleSwing)
-        },
-        whirlwind: {
-            have: me.getSkill(sdk.skills.Whirlwind, 1), skill: sdk.skills.Whirlwind, range: Skill.getRange(sdk.skills.Whirlwind), mana: Skill.getManaCost(sdk.skills.Whirlwind)
-        },
-        main: {
-            have: me.getSkill(Config.AttackSkill[index], 1), skill: Config.AttackSkill[index], range: Skill.getRange(Config.AttackSkill[index]), mana: Skill.getManaCost(Config.AttackSkill[index]),
-            timed: Skill.isTimed(Config.AttackSkill[index])
-        },
-        secondary: {
-            have: me.getSkill(Config.AttackSkill[index + 1], 1), skill: Config.AttackSkill[index + 1], range: Skill.getRange(Config.AttackSkill[index + 1]), mana: Skill.getManaCost(Config.AttackSkill[index + 1]),
-            timed: Skill.isTimed(Config.AttackSkill[index + 1])
-        },
-    };
+		howl: {
+			have: me.getSkill(sdk.skills.Howl, 1), skill: sdk.skills.Howl, range: Skill.getRange(sdk.skills.Howl), mana: Skill.getManaCost(sdk.skills.Howl)
+		},
+		taunt: {
+			have: me.getSkill(sdk.skills.Taunt, 1), skill: sdk.skills.Taunt, mana: Skill.getManaCost(sdk.skills.Taunt)
+		},
+		grimWard: {
+			have: me.getSkill(sdk.skills.GrimWard, 1), skill: sdk.skills.GrimWard, range: 15, mana: Skill.getManaCost(sdk.skills.GrimWard)
+		},
+		battleCry: {
+			have: me.getSkill(sdk.skills.BattleCry, 1), skill: sdk.skills.BattleCry, range: Skill.getRange(sdk.skills.BattleCry), mana: Skill.getManaCost(sdk.skills.BattleCry)
+		},
+		warCry: {
+			have: me.getSkill(sdk.skills.WarCry, 1), skill: sdk.skills.WarCry, range: Skill.getRange(sdk.skills.WarCry), mana: Skill.getManaCost(sdk.skills.WarCry)
+		},
+		bash: {
+			have: me.getSkill(sdk.skills.Bash, 1), skill: sdk.skills.Bash, range: Skill.getRange(sdk.skills.Bash), mana: Skill.getManaCost(sdk.skills.Bash)
+		},
+		stun: {
+			have: me.getSkill(sdk.skills.Stun, 1), skill: sdk.skills.Stun, range: Skill.getRange(sdk.skills.Stun), mana: Skill.getManaCost(sdk.skills.Stun)
+		},
+		concentrate: {
+			have: me.getSkill(sdk.skills.Concentrate, 1), skill: sdk.skills.Concentrate, range: Skill.getRange(sdk.skills.Concentrate), mana: Skill.getManaCost(sdk.skills.Concentrate)
+		},
+		leap: {
+			have: me.getSkill(sdk.skills.Leap, 1), skill: sdk.skills.Leap, range: Skill.getRange(sdk.skills.Leap), mana: Skill.getManaCost(sdk.skills.Leap)
+		},
+		leapAttack: {
+			have: me.getSkill(sdk.skills.LeapAttack, 1), skill: sdk.skills.LeapAttack, range: Skill.getRange(sdk.skills.LeapAttack), mana: Skill.getManaCost(sdk.skills.LeapAttack)
+		},
+		doubleSwing: {
+			have: me.getSkill(sdk.skills.DoubleSwing, 1), skill: sdk.skills.DoubleSwing, range: Skill.getRange(sdk.skills.DoubleSwing), mana: Skill.getManaCost(sdk.skills.DoubleSwing)
+		},
+		whirlwind: {
+			have: me.getSkill(sdk.skills.Whirlwind, 1), skill: sdk.skills.Whirlwind, range: Skill.getRange(sdk.skills.Whirlwind), mana: Skill.getManaCost(sdk.skills.Whirlwind)
+		},
+		main: {
+			have: me.getSkill(Config.AttackSkill[index], 1), skill: Config.AttackSkill[index], range: Skill.getRange(Config.AttackSkill[index]), mana: Skill.getManaCost(Config.AttackSkill[index]),
+			timed: Skill.isTimed(Config.AttackSkill[index])
+		},
+		secondary: {
+			have: me.getSkill(Config.AttackSkill[index + 1], 1), skill: Config.AttackSkill[index + 1], range: Skill.getRange(Config.AttackSkill[index + 1]), mana: Skill.getManaCost(Config.AttackSkill[index + 1]),
+			timed: Skill.isTimed(Config.AttackSkill[index + 1])
+		},
+	};
 
 	// Low mana skill
 	if (Skill.getManaCost(attackSkill) > me.mp && Config.LowManaSkill[0] > -1 && Attack.checkResist(unit, Config.LowManaSkill[0])) {
 		attackSkill = Config.LowManaSkill[0];
 	}
 
-    if ([sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy].includes(attackSkill) && !me.duelWielding) {
-    	let oneHandSk = [data.bash, data.stun, data.concentrate, data.leapAttack, data.whirlwind]
-    		.filter(function (skill) { return skill.have && me.mp > skill.mana; })
-    		.sort((a, b) => GameData.physicalAttackDamage(b.skill) - GameData.physicalAttackDamage(a.skill))
-    		.first();
-    	attackSkill = oneHandSk ? oneHandSk.skill : 0;
-    }
+	if ([sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy].includes(attackSkill) && !me.duelWielding) {
+		let oneHandSk = [data.bash, data.stun, data.concentrate, data.leapAttack, data.whirlwind]
+			.filter(function (skill) { return skill.have && me.mp > skill.mana; })
+			.sort((a, b) => GameData.physicalAttackDamage(b.skill) - GameData.physicalAttackDamage(a.skill))
+			.first();
+		attackSkill = oneHandSk ? oneHandSk.skill : 0;
+	}
 
 	if (data.howl.have && attackSkill !== 151 && data.howl.mana < me.mp && howlCheck() && me.hpPercent <= 85) {
 		data.grimWard.have ? this.grimWard(6) : Skill.cast(sdk.skills.Howl, 0);

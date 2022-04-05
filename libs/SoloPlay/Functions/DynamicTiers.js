@@ -85,6 +85,7 @@ const mercscore = function (item) {
 
 			break;
 		}
+	// eslint-disable-next-line no-fallthrough
 	case sdk.monsters.mercs.Guard:
 	default:
 		mercRating += item.getStatEx(23) * mercWeights.SECMINDMG;
@@ -160,7 +161,7 @@ const chargeditemscore = function (item, skillId, buildInfo) {
 		}
 	}
 
-	chargedItems = chargedItems.filter((v,i,a) => a.findIndex(el => ['skill', 'level'].every(k => el[k] === v[k])) === i);
+	chargedItems = chargedItems.filter((v, i, a) => a.findIndex(el => ['skill', 'level'].every(k => el[k] === v[k])) === i);
 
 	if (skillId > 0) {
 		chargedItems = chargedItems.filter(check => check.skill === skillId);
@@ -287,7 +288,7 @@ const tierscore = function (item, bodyloc) {
 	const buildInfo = Check.currentBuild();
 
 	this.generalScore = function (item) {
-		let generalRating = 0, 
+		let generalRating = 0,
 			canTele = !Pather.canTeleport();
 
 		if (!canTele && item.getStatEx(sdk.stats.CannotbeFrozen)) {
@@ -506,7 +507,7 @@ const tierscore = function (item, bodyloc) {
 			}
 		}
 
-		ctcItems = ctcItems.filter((v,i,a) => a.findIndex(el => ['ctcType', 'skill'].every(k => el[k] === v[k])) === i);
+		ctcItems = ctcItems.filter((v, i, a) => a.findIndex(el => ['ctcType', 'skill'].every(k => el[k] === v[k])) === i);
 
 		for (let i = 0; i < ctcItems.length; i++) {
 			try {

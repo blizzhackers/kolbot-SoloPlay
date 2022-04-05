@@ -154,68 +154,65 @@ Pickit.checkItem = function (unit) {
 
 // @jaenster
 Pickit.amountOfPotsNeeded = function () {
-    let _a, _b, _c, _d;
-    let potTypes = [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion];
-    let hpMax = (Array.isArray(Config.HPBuffer) ? Config.HPBuffer[1] : Config.HPBuffer);
-    let mpMax = (Array.isArray(Config.MPBuffer) ? Config.MPBuffer[1] : Config.MPBuffer);
-    let rvMax = (Array.isArray(Config.RejuvBuffer) ? Config.RejuvBuffer[1] : Config.RejuvBuffer);
-    let needed = (_a = {},
-        _a[sdk.itemtype.HealingPotion] = (_b = {},
-            _b[sdk.storage.Belt] = 0,
-            _b[sdk.storage.Inventory] = hpMax,
-            _b),
-        _a[sdk.itemtype.ManaPotion] = (_c = {},
-            _c[sdk.storage.Belt] = 0,
-            _c[sdk.storage.Inventory] = mpMax,
-            _c),
-        _a[sdk.itemtype.RejuvPotion] = (_d = {},
-            _d[sdk.storage.Belt] = 0,
-            _d[sdk.storage.Inventory] = rvMax,
-            _d),
-        _a);
-    if (hpMax > 0 || mpMax > 0 || rvMax > 0) {
-        me.getItemsEx()
-            .filter(function (pot) { return potTypes.includes(pot.itemType) && (pot.isInBelt || pot.isInInventory); })
-            .forEach(function (pot) {
-            needed[pot.itemType][pot.location] -= 1;
-        });
-    }
-    let belt = Storage.BeltSize();
-    let missing = Town.checkColumns(belt);
-    Config.BeltColumn.forEach(function (column, index) {
-        if (column === 'hp')
-            needed[sdk.itemtype.HealingPotion][sdk.storage.Belt] = missing[index];
-        if (column === 'mp')
-            needed[sdk.itemtype.ManaPotion][sdk.storage.Belt] = missing[index];
-        if (column === 'rv')
-            needed[sdk.itemtype.RejuvPotion][sdk.storage.Belt] = missing[index];
-    });
-    return needed;
+	let _a, _b, _c, _d;
+	let potTypes = [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion];
+	let hpMax = (Array.isArray(Config.HPBuffer) ? Config.HPBuffer[1] : Config.HPBuffer);
+	let mpMax = (Array.isArray(Config.MPBuffer) ? Config.MPBuffer[1] : Config.MPBuffer);
+	let rvMax = (Array.isArray(Config.RejuvBuffer) ? Config.RejuvBuffer[1] : Config.RejuvBuffer);
+	let needed = (_a = {},
+	_a[sdk.itemtype.HealingPotion] = (_b = {},
+	_b[sdk.storage.Belt] = 0,
+	_b[sdk.storage.Inventory] = hpMax,
+	_b),
+	_a[sdk.itemtype.ManaPotion] = (_c = {},
+	_c[sdk.storage.Belt] = 0,
+	_c[sdk.storage.Inventory] = mpMax,
+	_c),
+	_a[sdk.itemtype.RejuvPotion] = (_d = {},
+	_d[sdk.storage.Belt] = 0,
+	_d[sdk.storage.Inventory] = rvMax,
+	_d),
+	_a);
+	if (hpMax > 0 || mpMax > 0 || rvMax > 0) {
+		me.getItemsEx()
+			.filter(function (pot) { return potTypes.includes(pot.itemType) && (pot.isInBelt || pot.isInInventory); })
+			.forEach(function (pot) {
+				needed[pot.itemType][pot.location] -= 1;
+			});
+	}
+	let belt = Storage.BeltSize();
+	let missing = Town.checkColumns(belt);
+	Config.BeltColumn.forEach(function (column, index) {
+		if (column === 'hp') {needed[sdk.itemtype.HealingPotion][sdk.storage.Belt] = missing[index];}
+		if (column === 'mp') {needed[sdk.itemtype.ManaPotion][sdk.storage.Belt] = missing[index];}
+		if (column === 'rv') {needed[sdk.itemtype.RejuvPotion][sdk.storage.Belt] = missing[index];}
+	});
+	return needed;
 };
 
 Pickit.canFit = function (item) {
-    switch (item.itemType) {
-        case sdk.itemtype.Gold:
-            return true;
-        case sdk.itemtype.Scroll:
-        	{
-	            let tome = me.findItem(item.classid - 11, 0, sdk.storage.Inventory);
-	            return (tome && tome.getStat(sdk.stats.Quantity) < 20) || Storage.Inventory.CanFit(item);
-        	}
-        case sdk.itemtype.HealingPotion:
-        case sdk.itemtype.ManaPotion:
-        case sdk.itemtype.RejuvPotion:
-        	{
-	            let pots = this.amountOfPotsNeeded();
-	            if (pots[item.itemType][sdk.storage.Belt] > 0) {
-	                // this potion can go in belt
-	                return true;
-	            }
-        	}
-            return Storage.Inventory.CanFit(item);
-        default:
-            return Storage.Inventory.CanFit(item);
-    }
+	switch (item.itemType) {
+	case sdk.itemtype.Gold:
+		return true;
+	case sdk.itemtype.Scroll:
+	{
+		let tome = me.findItem(item.classid - 11, 0, sdk.storage.Inventory);
+		return (tome && tome.getStat(sdk.stats.Quantity) < 20) || Storage.Inventory.CanFit(item);
+	}
+	case sdk.itemtype.HealingPotion:
+	case sdk.itemtype.ManaPotion:
+	case sdk.itemtype.RejuvPotion:
+		{
+			let pots = this.amountOfPotsNeeded();
+			if (pots[item.itemType][sdk.storage.Belt] > 0) {
+				// this potion can go in belt
+				return true;
+			}
+		}
+		return Storage.Inventory.CanFit(item);
+	default:
+		return Storage.Inventory.CanFit(item);
+	}
 };
 
 Pickit.canPick = function (unit) {
@@ -577,7 +574,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 				canFit = this.canFit(pickList[0]);
 
 				// Try to make room with FieldID
-				if (!canFit && Config.FieldID && Town.fieldID()) {
+				if (!canFit && Config.FieldID.Enabled && Town.fieldID()) {
 					canFit = this.canFit(pickList[0]);
 				}
 

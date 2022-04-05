@@ -208,19 +208,19 @@ Skill.getRange = function (skillId) {
 	case 42: // Static Field
 		return Math.floor((me.getSkill(sdk.skills.StaticField, 1) + 3) * 2 / 3);
 	case 132: // Leap
-		{
-			let skLvl = me.getSkill(sdk.skills.Leap, 1);
-			return Math.floor(Math.min(4 + (26 * ((110 * skLvl / (skLvl + 6)) / 100)), 30) * (2 / 3));
-		}
+	{
+		let skLvl = me.getSkill(sdk.skills.Leap, 1);
+		return Math.floor(Math.min(4 + (26 * ((110 * skLvl / (skLvl + 6)) / 100)), 30) * (2 / 3));
+	}
 	case 230: // Arctic Blast
-		{
-			let skLvl = me.getSkill(sdk.skills.ArcticBlast, 1);
-			let range = Math.floor(((33 + (2 * skLvl)) / 4) * (2 / 3));
-			// Druid using this on physical immunes needs the monsters to be within range of hurricane
-			range > 6 && Config.AttackSkill[5] === sdk.skills.ArcticBlast && (range = 6);
+	{
+		let skLvl = me.getSkill(sdk.skills.ArcticBlast, 1);
+		let range = Math.floor(((33 + (2 * skLvl)) / 4) * (2 / 3));
+		// Druid using this on physical immunes needs the monsters to be within range of hurricane
+		range > 6 && Config.AttackSkill[5] === sdk.skills.ArcticBlast && (range = 6);
 	
-			return range;
-		}
+		return range;
+	}
 	case 49: // Lightning
 	case 84: // Bone Spear
 	case 93: // Bone Spirit
@@ -255,11 +255,6 @@ Skill.getManaCost = function (skillId = -1) {
 	}
 
 	return ret;
-};
-
-// Skills that cn be cast in town
-Skill.townSkill = function (skillId = -1) {
-	return [32, 40, 43, 50, 52, 58, 60, 68, 75, 85, 94, 117, 221, 222, 226, 227, 231, 235, 236, 237, 241, 246, 247, 258, 267, 268, 277, 278, 279].includes(skillId);
 };
 
 // Cast a skill on self, Unit or coords. Always use packet casting for caster skills becasue it's more stable.

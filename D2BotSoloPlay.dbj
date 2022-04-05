@@ -62,6 +62,7 @@ include("torchsystem.js");
 include("common/misc.js");
 include("common/util.js");
 include("common/pather.js");
+include("common/prototypes.js");
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/CharData.js");
 include("SoloPlay/Tools/Tracker.js");
@@ -70,7 +71,13 @@ include("SoloPlay/Tools/OOGOverrides.js");
 include("SoloPlay/Functions/SoloEvents.js");
 include("SoloPlay/Functions/ConfigOverrides.js");
 
-let firstRun = false;
+let gameInfo, joinInfo, chatActionsDone,
+	handle, firstLogin, connectFail, setUp, deadCheck, connectFailRetry, gameTracker,
+	battlenet = Profile().type === 2,
+	isUp = "no",
+	firstRun = false,
+	realmMap = {"east": "useast", "west": "uswest", "europe": "europe", "asia": "asia"},
+	charClassMap = {"ZON": "amazon", "SOR": "sorceress", "NEC": "necromancer", "PAL": "paladin", "BAR": "barbarian", "DRU": "druid", "SIN": "assassin"};
 
 if (!FileTools.exists("data/" + me.profile + ".json") && DataFile.create()) {
 	firstRun = true;
@@ -85,15 +92,8 @@ if (Developer.logPerformance) {
 	Tracker.initialize();
 }
 
-let gameInfo, joinInfo, chatActionsDone,
-	handle, firstLogin, connectFail, setUp, deadCheck, connectFailRetry, gameTracker,
-	battlenet = Profile().type === 2,
-	isUp = "no",
-	realmMap = {"east": "useast", "west": "uswest", "europe": "europe", "asia": "asia"},
-	charClassMap = {"ZON": "amazon", "SOR": "sorceress", "NEC": "necromancer", "PAL": "paladin", "BAR": "barbarian", "DRU": "druid", "SIN": "assassin"};
-
 function ReceiveCopyData (mode, msg) {
-	var buildCheck, obj;
+	let buildCheck, obj;
 
 	switch (msg) {
 	case "Handle":
@@ -1229,6 +1229,7 @@ function main () {
 					DataFile.updateStats("runs", Starter.gameCount);
 					DataFile.updateStats("ingameTick");
 					Developer.logPerformance && Tracker.update((getTickCount() - oogTick));
+					Developer.displayClockInConsole && (gameTracker = Developer.readObj(Tracker.GTPath));
 					oogTick = 0;
 				}
 
@@ -1238,12 +1239,12 @@ function main () {
 					try {
 						myExp = me.getStat(13) > 0 ? Experience.progress() : 0;
 						myGold = me.getStat(14) + me.getStat(15);
-						frRes = Math.min(75, me.getStat(39) - resPenalty);
-						crRes = Math.min(75, me.getStat(43) - resPenalty);
-						lrRes = Math.min(75, me.getStat(41) - resPenalty);
-						prRes = Math.min(75, me.getStat(45) - resPenalty);
+						frRes = Math.min(75 + me.getStat(sdk.stats.MaxFireResist), me.getStat(39) - resPenalty);
+						crRes = Math.min(75 + me.getStat(sdk.stats.MaxColdResist), me.getStat(43) - resPenalty);
+						lrRes = Math.min(75 + me.getStat(sdk.stats.MaxLightResist), me.getStat(41) - resPenalty);
+						prRes = Math.min(75 + me.getStat(sdk.stats.MaxPoisonResist), me.getStat(45) - resPenalty);
 						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
-						statusString = "Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
+						statusString = me.name + " | Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
 					} catch (e) {
 						print(e);
 					}

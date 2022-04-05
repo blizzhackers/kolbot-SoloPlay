@@ -119,7 +119,7 @@ Item.getEquippedItem = function (bodyLoc) {
 					itemType: item.itemType,
 					quality: item.quality,
 					tier: NTIP.GetTier(item),
-					tierScore : tierscore(item, bodyLoc),
+					tierScore: tierscore(item, bodyLoc),
 					secondarytier: NTIP.GetSecondaryTier(item),
 					str: item.getStatEx(sdk.stats.Strength),
 					dex: item.getStatEx(sdk.stats.Dexterity),
@@ -717,7 +717,8 @@ Item.getBodyLocMerc = function (item) {
 		if (mercenary.classid === sdk.monsters.mercs.A5Barb) {
 			bodyLoc = 1;
 		}
-
+		
+		break;
 	case sdk.itemtype.Bow:
 		if (mercenary.classid === sdk.monsters.mercs.Rogue) {
 			bodyLoc = 4;

@@ -50,22 +50,24 @@ Unit.prototype.getItemType = function () {
 	case sdk.itemtype.AssassinClaw:
 		return "Weapon";
 	// currently only use this function for socket related things so might as well make non-socketable things return false
-	case sdk.itemtype.BowQuiver:
-	case sdk.itemtype.CrossbowQuiver:
-		//return "Quiver";
-	case sdk.itemtype.Ring:
-		//return "Ring";
-	case sdk.itemtype.Amulet:
-		//return "Amulet";
-	case sdk.itemtype.Boots:
-		//return "Boots";
-	case sdk.itemtype.Gloves:
-		//return "Gloves";
-	case sdk.itemtype.Belt:
-		//return "Belt";
-	default:
-		return "";
+	// case sdk.itemtype.BowQuiver:
+	// case sdk.itemtype.CrossbowQuiver:
+	// 	//return "Quiver";
+	// case sdk.itemtype.Ring:
+	// 	//return "Ring";
+	// case sdk.itemtype.Amulet:
+	// 	//return "Amulet";
+	// case sdk.itemtype.Boots:
+	// 	//return "Boots";
+	// case sdk.itemtype.Gloves:
+	// 	//return "Gloves";
+	// case sdk.itemtype.Belt:
+	// 	//return "Belt";
+	// default:
+	// 	return "";
 	}
+
+	return "";
 };
 
 Object.defineProperties(Unit.prototype, {
@@ -109,7 +111,7 @@ Object.defineProperties(Unit.prototype, {
 	isSellable: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
-			return !this.isQuestItem && 
+			return !this.isQuestItem &&
 				[sdk.items.quest.KeyofTerror, sdk.items.quest.KeyofHate, sdk.items.quest.KeyofDestruction, sdk.items.quest.DiablosHorn,
 					sdk.items.quest.BaalsEye, sdk.items.quest.MephistosBrain, sdk.items.quest.TokenofAbsolution, sdk.items.quest.TwistedEssenceofSuffering,
 					sdk.items.quest.ChargedEssenceofHatred, sdk.items.quest.BurningEssenceofTerror, sdk.items.quest.FesteringEssenceofDestruction].indexOf(this.classid) === -1 &&
@@ -227,10 +229,31 @@ Object.defineProperties(me, {
 			// only classes that can duel wield
 			if (!me.assassin && !me.barbarian) return false;
 			let items = me.getItemsEx()
-				.filter(function (item) { return item.isEquipped && [4, 5].includes(item.bodylocation); })
-			return !!items.length && items.length >= 2 && items.every(function (item) { return ![2, 69, 70].includes(item.itemType) && !getBaseStat("items", item.classid, "block") });
+				.filter(function (item) { return item.isEquipped && [4, 5].includes(item.bodylocation); });
+			return !!items.length && items.length >= 2 && items.every(function (item) { return ![2, 69, 70].includes(item.itemType) && !getBaseStat("items", item.classid, "block"); });
 		}
-	}
+	},
+	// for visual purposes really, return res with cap
+	FR: {
+		get: function () {
+			return Math.min(75 + this.getStat(sdk.stats.MaxFireResist), this.getStat(sdk.stats.FireResist) - me.resPenalty);
+		}
+	},
+	CR: {
+		get: function () {
+			return Math.min(75 + this.getStat(sdk.stats.MaxColdResist), this.getStat(sdk.stats.ColdResist) - me.resPenalty);
+		}
+	},
+	LR: {
+		get: function () {
+			return Math.min(75 + this.getStat(sdk.stats.MaxLightResist), this.getStat(sdk.stats.LightResist) - me.resPenalty);
+		}
+	},
+	PR: {
+		get: function () {
+			return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), this.getStat(sdk.stats.PoisonResist) - me.resPenalty);
+		}
+	},
 });
 
 Unit.prototype.getMobCount = function (range = 10, coll = 0, type = 0, noSpecialMobs = false) {
@@ -841,140 +864,139 @@ Unit.prototype.getStatEx = function (id, subid) {
  */
 
 (function (global, _original) {
-	var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+	let __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
 	    if (k2 === undefined) k2 = k;
 	    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
 	}) : (function(o, m, k, k2) {
 	    if (k2 === undefined) k2 = k;
 	    o[k2] = m[k];
 	}));
-	var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+	let __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
 	    Object.defineProperty(o, "default", { enumerable: true, value: v });
 	}) : function(o, v) {
-	    o["default"] = v;
+	    o.default = v;
 	});
-	var __importStar = (this && this.__importStar) || function (mod) {
+	let __importStar = (this && this.__importStar) || function (mod) {
 	    if (mod && mod.__esModule) return mod;
-	    var result = {};
-	    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+	    let result = {};
+	    if (mod != null) for (let k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
 	    __setModuleDefault(result, mod);
 	    return result;
 	};
-	var Worker = __importStar(require("../../modules/Worker"));
-	global['_setTimeout'] = _original;
+	let Worker = __importStar(require("../../modules/Worker"));
+	global._setTimeout = _original;
 	/**
          * @param {function} cb
          * @param {number} time
          * @param args
          * @constructor
          */
-        function Timer(cb, time, args) {
-            var _this = this;
-            if (time === void 0) { time = 0; }
-            if (args === void 0) { args = []; }
-            Timer.instances.push(this);
-            Worker.runInBackground['__setTimeout__' + (Timer.counter++)] = (function (startTick) { return function () {
-                var finished = getTickCount() - startTick >= time;
-                if (finished) {
-                    var index = Timer.instances.indexOf(_this);
-                    // only if not removed from the time list
-                    if (index > -1) {
-                        Timer.instances.splice(index, 1);
-                        cb.apply(undefined, args);
-                    }
-                }
-                return !finished;
-            }; })(getTickCount());
-        }
-        Timer.instances = [];
-        Timer.counter = 0;
-        global['setTimeout'] = function (cb, time) {
-            if (time === void 0) { time = 0; }
-            var args = [];
-            for (var _i = 2; _i < arguments.length; _i++) {
-                args[_i - 2] = arguments[_i];
-            }
-            if (typeof cb === 'string') {
-                console.debug('Warning: Do not use raw code @ setTimeout and does not support lexical scoping');
-                cb = [].filter.constructor(cb);
-            }
-            if (typeof cb !== 'function')
-                throw new TypeError('setTimeout callback needs to be a function');
-            return new Timer(cb, time, args);
-        };
-        /**
+	function Timer(cb, time, args) {
+		let _this = this;
+		if (time === void 0) { time = 0; }
+		if (args === void 0) { args = []; }
+		Timer.instances.push(this);
+		Worker.runInBackground['__setTimeout__' + (Timer.counter++)] = (function (startTick) { return function () {
+			let finished = getTickCount() - startTick >= time;
+			if (finished) {
+				let index = Timer.instances.indexOf(_this);
+				// only if not removed from the time list
+				if (index > -1) {
+					Timer.instances.splice(index, 1);
+					cb.apply(undefined, args);
+				}
+			}
+			return !finished;
+		}; })(getTickCount());
+	}
+	Timer.instances = [];
+	Timer.counter = 0;
+	global.setTimeout = function (cb, time) {
+		if (time === void 0) { time = 0; }
+		let args = [];
+		for (let _i = 2; _i < arguments.length; _i++) {
+			args[_i - 2] = arguments[_i];
+		}
+		if (typeof cb === 'string') {
+			console.debug('Warning: Do not use raw code @ setTimeout and does not support lexical scoping');
+			cb = [].filter.constructor(cb);
+		}
+		if (typeof cb !== 'function')
+			throw new TypeError('setTimeout callback needs to be a function');
+		return new Timer(cb, time, args);
+	};
+	/**
          *
          * @param {Timer} timer
          */
-        global['clearTimeout'] = function (timer) {
-            var index = Timer.instances.indexOf(timer);
-            if (index > -1) {
-                Timer.instances.splice(index, 1);
-            }
-        };
+	global.clearTimeout = function (timer) {
+		let index = Timer.instances.indexOf(timer);
+		if (index > -1) {
+			Timer.instances.splice(index, 1);
+		}
+	};
 	// getScript(true).name.toString() !== 'default.dbj' && setTimeout(function () {/* test code*/}, 1000)
 })([].filter.constructor('return this')(), setTimeout);
 
 if (!Object.setPrototypeOf) {
-    // Only works in Chrome and FireFox, does not work in IE:
-    Object.defineProperty(Object.prototype, 'setPrototypeOf', {
-        value: function (obj, proto) {
-            // @ts-ignore
-            if (obj.__proto__) {
-                // @ts-ignore
-                obj.__proto__ = proto;
-                return obj;
-            }
-            else {
-                // If you want to return prototype of Object.create(null):
-                var Fn = function () {
-                    for (var key in obj) {
-                        Object.defineProperty(this, key, {
-                            value: obj[key],
-                        });
-                    }
-                };
-                Fn.prototype = proto;
-                return new Fn();
-            }
-        },
-        enumerable: false,
-    });
+	// Only works in Chrome and FireFox, does not work in IE:
+	Object.defineProperty(Object.prototype, 'setPrototypeOf', {
+		value: function (obj, proto) {
+			// @ts-ignore
+			if (obj.__proto__) {
+				// @ts-ignore
+				obj.__proto__ = proto;
+				return obj;
+			} else {
+				// If you want to return prototype of Object.create(null):
+				let Fn = function () {
+					for (let key in obj) {
+						Object.defineProperty(this, key, {
+							value: obj[key],
+						});
+					}
+				};
+				Fn.prototype = proto;
+				return new Fn();
+			}
+		},
+		enumerable: false,
+	});
 }
 
 if (!Object.values) {
-    Object.values = function (source) {
-        return Object.keys(source).map(function (k) { return source[k]; });
-    };
+	Object.values = function (source) {
+		return Object.keys(source).map(function (k) { return source[k]; });
+	};
 }
 
 if (!Object.entries) {
-    Object.entries = function (source) {
-        return Object.keys(source).map(function (k) { return [k, source[k]]; });
-    };
+	Object.entries = function (source) {
+		return Object.keys(source).map(function (k) { return [k, source[k]]; });
+	};
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is#polyfill
 // @ts-ignore
 if (!Object.is) {
-    Object.defineProperty(Object, "is", {
-        value: function (x, y) {
-            // SameValue algorithm
-            if (x === y) {
-                // return true if x and y are not 0, OR
-                // if x and y are both 0 of the same sign.
-                // This checks for cases 1 and 2 above.
-                return x !== 0 || 1 / x === 1 / y;
-            }
-            else {
-                // return true if both x AND y evaluate to NaN.
-                // The only possibility for a variable to not be strictly equal to itself
-                // is when that variable evaluates to NaN (example: Number.NaN, 0/0, NaN).
-                // This checks for case 3.
-                return x !== x && y !== y;
-            }
-        }
-    });
+	Object.defineProperty(Object, "is", {
+		value: function (x, y) {
+			// SameValue algorithm
+			if (x === y) {
+				// return true if x and y are not 0, OR
+				// if x and y are both 0 of the same sign.
+				// This checks for cases 1 and 2 above.
+				return x !== 0 || 1 / x === 1 / y;
+			}
+			else {
+				// return true if both x AND y evaluate to NaN.
+				// The only possibility for a variable to not be strictly equal to itself
+				// is when that variable evaluates to NaN (example: Number.NaN, 0/0, NaN).
+				// This checks for case 3.
+				return x !== x && y !== y;
+			}
+		}
+	});
 }
 
 // if (!Object.fromEntries) {
@@ -1003,7 +1025,7 @@ if (!Object.is) {
 // https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
 if (!Array.prototype.equals) {
 	// Warn if overriding existing method
-    !!Array.prototype.equals && console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
+	!!Array.prototype.equals && console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
 	// attach the .equals method to Array's prototype to call it on any array
 	Array.prototype.equals = function (array) {
 	    // if the other array is a falsy value, return
@@ -1023,7 +1045,7 @@ if (!Array.prototype.equals) {
 	            if (!this[i].equals(array[i])) return false;
 	        } else if (this[i] != array[i]) {
 	            // Warning - two different object instances will never be equal: {x:20} != {x:20}
-	            return false;   
+	            return false;
 	        }
 	    }
 	    return true;

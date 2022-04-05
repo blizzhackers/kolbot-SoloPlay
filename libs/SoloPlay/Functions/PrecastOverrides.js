@@ -45,7 +45,7 @@ Precast.getBetterSlot = function (skillId) {
 		return this.bestSlot[skillId];
 	}
 
-	let item, classid, skillTab,
+	let classid, skillTab,
 		sumCurr = 0,
 		sumSwap = 0;
 
@@ -117,7 +117,7 @@ Precast.getBetterSlot = function (skillId) {
 
 	me.weaponswitch !== 0 && me.switchWeapons(0);
 	
-	let items = me.getItemsEx()
+	me.getItemsEx()
 		.filter(item => [4, 5, 11, 12].includes(item.bodylocation))
 		.forEach(function (item) {
 			if (item.bodylocation === 4 || item.bodylocation === 5) {

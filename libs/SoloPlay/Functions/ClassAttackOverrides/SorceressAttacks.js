@@ -9,14 +9,14 @@ const GameData = require('../../Modules/GameData');
 
 let frostNovaCheck = function () {
 	return getUnits(1).some(function(el) {
-    	return !!el && el.attackable && el.distance < 7 && ![sdk.monsters.Andariel].includes(el.classid) && !el.isChilled && Attack.checkResist(el, 'cold') && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
-    });
+		return !!el && el.attackable && el.distance < 7 && ![sdk.monsters.Andariel].includes(el.classid) && !el.isChilled && Attack.checkResist(el, 'cold') && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
+	});
 };
 
 ClassAttack.doAttack = function (unit, skipStatic = false) {
 	Developer.debugging.skills && print(sdk.colors.Green + "Test Start-----------------------------------------//");
 	let tick = getTickCount();
-	let checkSkill, mark,
+	let mark,
 		merc = Merc.getMercFix(),
 		timedSkill = {have: false, skill: -1, range: undefined, mana: undefined, dmg: 0},
 		index = (unit.spectype !== 0 || unit.type === 0) ? 1 : 3,
@@ -61,98 +61,100 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	let data = {
-        static: {
-            have: me.getSkill(sdk.skills.StaticField, 1), skill: sdk.skills.StaticField, range: Skill.getRange(sdk.skills.StaticField), mana: Skill.getManaCost(sdk.skills.StaticField),
-            dmg: 0,
-        },
-        frostNova: {
-            have: me.getSkill(sdk.skills.FrostNova, 1), skill: sdk.skills.FrostNova, range: 7, mana: Skill.getManaCost(sdk.skills.FrostNova), timed: false,
-        },
-        glacialSpike: {
-            have: me.getSkill(sdk.skills.GlacialSpike, 1), skill: sdk.skills.GlacialSpike, range: 15, mana: Skill.getManaCost(sdk.skills.GlacialSpike), timed: false, dmg: 0,
-        },
-        customTimed: {
-        	have: false, skill: -1, range: undefined, mana: undefined, timed: undefined, dmg: 0,
-        },
-        customUntimed: {
-        	have: false, skill: -1, range: undefined, mana: undefined, timed: undefined, dmg: 0,
-        },
-        mainTimed: {
-            have: me.getSkill(Config.AttackSkill[index], 1), skill: Config.AttackSkill[index], range: Skill.getRange(Config.AttackSkill[index]), mana: Skill.getManaCost(Config.AttackSkill[index]),
-            timed: Skill.isTimed(Config.AttackSkill[index]), dmg: 0,
-        },
-        mainUntimed: {
-            have: me.getSkill(Config.AttackSkill[index + 1], 1), skill: Config.AttackSkill[index + 1], range: Skill.getRange(Config.AttackSkill[index + 1]), mana: Skill.getManaCost(Config.AttackSkill[index + 1]),
-            timed: Skill.isTimed(Config.AttackSkill[index + 1]), dmg: 0,
-        },
-        secondaryTimed: {
-            have: me.getSkill(Config.AttackSkill[5], 1), skill: Config.AttackSkill[5], range: Skill.getRange(Config.AttackSkill[5]), mana: Skill.getManaCost(Config.AttackSkill[5]),
-            timed: Skill.isTimed(Config.AttackSkill[5]), dmg: 0,
-        },
-        secondaryUntimed: {
-            have: me.getSkill(Config.AttackSkill[6], 1), skill: Config.AttackSkill[6], range: Skill.getRange(Config.AttackSkill[6]), mana: Skill.getManaCost(Config.AttackSkill[6]),
-            timed: Skill.isTimed(Config.AttackSkill[6]), dmg: 0,
-        },
-    };
+		static: {
+			have: me.getSkill(sdk.skills.StaticField, 1), skill: sdk.skills.StaticField, range: Skill.getRange(sdk.skills.StaticField), mana: Skill.getManaCost(sdk.skills.StaticField),
+			dmg: 0,
+		},
+		frostNova: {
+			have: me.getSkill(sdk.skills.FrostNova, 1), skill: sdk.skills.FrostNova, range: 7, mana: Skill.getManaCost(sdk.skills.FrostNova), timed: false,
+		},
+		glacialSpike: {
+			have: me.getSkill(sdk.skills.GlacialSpike, 1), skill: sdk.skills.GlacialSpike, range: 15, mana: Skill.getManaCost(sdk.skills.GlacialSpike), timed: false, dmg: 0,
+		},
+		customTimed: {
+			have: false, skill: -1, range: undefined, mana: undefined, timed: undefined, dmg: 0,
+		},
+		customUntimed: {
+			have: false, skill: -1, range: undefined, mana: undefined, timed: undefined, dmg: 0,
+		},
+		mainTimed: {
+			have: me.getSkill(Config.AttackSkill[index], 1), skill: Config.AttackSkill[index], range: Skill.getRange(Config.AttackSkill[index]), mana: Skill.getManaCost(Config.AttackSkill[index]),
+			timed: Skill.isTimed(Config.AttackSkill[index]), dmg: 0,
+		},
+		mainUntimed: {
+			have: me.getSkill(Config.AttackSkill[index + 1], 1), skill: Config.AttackSkill[index + 1], range: Skill.getRange(Config.AttackSkill[index + 1]), mana: Skill.getManaCost(Config.AttackSkill[index + 1]),
+			timed: Skill.isTimed(Config.AttackSkill[index + 1]), dmg: 0,
+		},
+		secondaryTimed: {
+			have: me.getSkill(Config.AttackSkill[5], 1), skill: Config.AttackSkill[5], range: Skill.getRange(Config.AttackSkill[5]), mana: Skill.getManaCost(Config.AttackSkill[5]),
+			timed: Skill.isTimed(Config.AttackSkill[5]), dmg: 0,
+		},
+		secondaryUntimed: {
+			have: me.getSkill(Config.AttackSkill[6], 1), skill: Config.AttackSkill[6], range: Skill.getRange(Config.AttackSkill[6]), mana: Skill.getManaCost(Config.AttackSkill[6]),
+			timed: Skill.isTimed(Config.AttackSkill[6]), dmg: 0,
+		},
+	};
 
-    if (Attack.getCustomAttack(unit)) {
-    	let ts = Attack.getCustomAttack(unit)[0];
-    	let uts = Attack.getCustomAttack(unit)[1];
+	if (Attack.getCustomAttack(unit)) {
+		let ts = Attack.getCustomAttack(unit)[0];
+		let uts = Attack.getCustomAttack(unit)[1];
 		ts > 0 && (data.customTimed = {have: true, range: Skill.getRange(ts), mana: Skill.getManaCost(ts), timed: Skill.isTimed(ts), dmg: GameData.avgSkillDamage(ts, unit)});
 		uts > 0 && (data.customUntimed = {have: true, range: Skill.getRange(uts), mana: Skill.getManaCost(uts), timed: Skill.isTimed(uts), dmg: GameData.avgSkillDamage(uts, unit)});
 	}
 
-    if (data.frostNova.have && me.mp > data.frostNova.mana) {
-        if (frostNovaCheck()) {
-            Skill.cast(sdk.skills.FrostNova, 0);
-        }
-        let ticktwo = getTickCount();
-        // if the nova cause the death of any monsters around us, its worth it
-        if (GameData.calculateKillableFallensByFrostNova() > 0) {
-        	Developer.debugging.skills && print("took " + ((getTickCount() - ticktwo) / 1000) + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens");
-            Skill.cast(sdk.skills.FrostNova, 0);
-        }
-    }
+	if (data.frostNova.have && me.mp > data.frostNova.mana) {
+		if (frostNovaCheck()) {
+			Skill.cast(sdk.skills.FrostNova, 0);
+		}
+		let ticktwo = getTickCount();
+		// if the nova cause the death of any monsters around us, its worth it
+		if (GameData.calculateKillableFallensByFrostNova() > 0) {
+			Developer.debugging.skills && print("took " + ((getTickCount() - ticktwo) / 1000) + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens");
+			Skill.cast(sdk.skills.FrostNova, 0);
+		}
+	}
 
-    if (data.glacialSpike.have && me.mp > data.glacialSpike.mana * 2) {
-    	let shouldSpike = unit && unit.distance < 10 &&
-    		getUnits(1).filter(function (el) { return getDistance(el, unit) < 4
+	if (data.glacialSpike.have && me.mp > data.glacialSpike.mana * 2) {
+		let shouldSpike = unit && unit.distance < 10 &&
+		getUnits(1).filter(function (el) {
+			return getDistance(el, unit) < 4
                 && el.attackable // those that we can attack
                 && Attack.checkResist(el, 'cold')
                 && !el.isFrozen // those that are not frozen yet
                 && !el.getStat(sdk.stats.CannotbeFrozen) // those that can be frozen
-                && ![sdk.monsters.Andariel, 510].includes(el.classid); }).length > 1;
-    	if (shouldSpike && !Coords_1.isBlockedBetween(me, unit)) {
-    		Developer.debugging.skills && print("SPIKE");
-    		Skill.cast(sdk.skills.GlacialSpike, 0, unit);
-    	}
-    }
+                && ![sdk.monsters.Andariel, 510].includes(el.classid);
+		}).length > 1;
+		if (shouldSpike && !Coords_1.isBlockedBetween(me, unit)) {
+			Developer.debugging.skills && print("SPIKE");
+			Skill.cast(sdk.skills.GlacialSpike, 0, unit);
+		}
+	}
 
-    // We lost track of the mob or killed it
-    if (unit === undefined || !unit || unit.dead) return true;
+	// We lost track of the mob or killed it
+	if (unit === undefined || !unit || unit.dead) return true;
 
-    // Set damage values
-    data.static.have && (data.static.dmg = GameData.avgSkillDamage(data.static.skill, unit));
-    data.glacialSpike.have && ![data.mainUntimed.skill, data.secondaryUntimed.skill].includes(data.glacialSpike.skill) && (data.glacialSpike.dmg = GameData.avgSkillDamage(data.glacialSpike.skill, unit));
-    data.mainTimed.have && (data.mainTimed.dmg = GameData.avgSkillDamage(data.mainTimed.skill, unit));
-    data.mainUntimed.have && (data.mainUntimed.dmg = GameData.avgSkillDamage(data.mainUntimed.skill, unit));
-    data.secondaryTimed.have && (data.secondaryTimed.dmg = GameData.avgSkillDamage(data.secondaryTimed.skill, unit));
-    data.secondaryUntimed.have && (data.secondaryUntimed.dmg = GameData.avgSkillDamage(data.secondaryUntimed.skill, unit));
+	// Set damage values
+	data.static.have && (data.static.dmg = GameData.avgSkillDamage(data.static.skill, unit));
+	data.glacialSpike.have && ![data.mainUntimed.skill, data.secondaryUntimed.skill].includes(data.glacialSpike.skill) && (data.glacialSpike.dmg = GameData.avgSkillDamage(data.glacialSpike.skill, unit));
+	data.mainTimed.have && (data.mainTimed.dmg = GameData.avgSkillDamage(data.mainTimed.skill, unit));
+	data.mainUntimed.have && (data.mainUntimed.dmg = GameData.avgSkillDamage(data.mainUntimed.skill, unit));
+	data.secondaryTimed.have && (data.secondaryTimed.dmg = GameData.avgSkillDamage(data.secondaryTimed.skill, unit));
+	data.secondaryUntimed.have && (data.secondaryUntimed.dmg = GameData.avgSkillDamage(data.secondaryUntimed.skill, unit));
     
-    // print damage values
-    if (Developer.debugging.skills) {
-	    data.static.have && print(getSkillById(data.static.skill) + " : " + data.static.dmg);
-	    data.mainTimed.have && print(getSkillById(data.mainTimed.skill) + " Main: " + data.mainTimed.dmg);
-	    data.mainUntimed.have && print(getSkillById(data.mainUntimed.skill) + " MainUnTimed: " + data.mainUntimed.dmg);
-	    data.secondaryTimed.have && print(getSkillById(data.secondaryTimed.skill) + " Second: " + data.secondaryTimed.dmg);
-	    data.secondaryUntimed.have && print(getSkillById(data.secondaryUntimed.skill) + " SecondUnTimed: " + data.secondaryUntimed.dmg);
-    }
+	// print damage values
+	if (Developer.debugging.skills) {
+		data.static.have && print(getSkillById(data.static.skill) + " : " + data.static.dmg);
+		data.mainTimed.have && print(getSkillById(data.mainTimed.skill) + " Main: " + data.mainTimed.dmg);
+		data.mainUntimed.have && print(getSkillById(data.mainUntimed.skill) + " MainUnTimed: " + data.mainUntimed.dmg);
+		data.secondaryTimed.have && print(getSkillById(data.secondaryTimed.skill) + " Second: " + data.secondaryTimed.dmg);
+		data.secondaryUntimed.have && print(getSkillById(data.secondaryUntimed.skill) + " SecondUnTimed: " + data.secondaryUntimed.dmg);
+	}
 
 	// If we have enough mana for Static and it will do more damage than our other skills then duh use it
 	if (data.static.have && (data.static.mana * 3) < me.mp) {
 		let closeMobCheck = getUnits(1)
 			.filter(unit => !!unit && unit.attackable && unit.distance < data.static.range)
-			.find(unit => Attack.checkResist(unit, "lightning") && unit.hpPercent > Config.CastStatic)
+			.find(unit => Attack.checkResist(unit, "lightning") && unit.hpPercent > Config.CastStatic);
 		if (!!closeMobCheck && data.static.dmg > Math.max(data.mainTimed.dmg, data.mainUntimed.dmg, data.secondaryTimed.dmg, data.secondaryUntimed.dmg) && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
 			Developer.debugging.skills && (print("STATIC"));
 			Skill.cast(sdk.skills.StaticField, 0, closeMobCheck);
@@ -160,7 +162,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	// We lost track of the mob or killed it (recheck after using static)
-    if (unit === undefined || !unit || unit.dead) return true;
+	if (unit === undefined || !unit || unit.dead) return true;
 
 	// Choose Skill
 	switch (true) {
@@ -186,27 +188,27 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 		let lowManaData = {
 			fBolt: {
 				have: me.getSkill(sdk.skills.FireBolt, 1), skill: sdk.skills.FireBolt, range: Skill.getRange(sdk.skills.FireBolt), mana: Skill.getManaCost(sdk.skills.FireBolt),
-	            timed: false, dmg: GameData.avgSkillDamage(sdk.skills.FireBolt, unit),
+				timed: false, dmg: GameData.avgSkillDamage(sdk.skills.FireBolt, unit),
 			},
 			cBolt: {
 				have: me.getSkill(sdk.skills.ChargedBolt, 1), skill: sdk.skills.ChargedBolt, range: Skill.getRange(sdk.skills.ChargedBolt), mana: Skill.getManaCost(sdk.skills.ChargedBolt),
-	            timed: false, dmg: GameData.avgSkillDamage(sdk.skills.ChargedBolt, unit),
+				timed: false, dmg: GameData.avgSkillDamage(sdk.skills.ChargedBolt, unit),
 			},
 			iBolt: {
 				have: me.getSkill(sdk.skills.IceBolt, 1), skill: sdk.skills.IceBolt, range: Skill.getRange(sdk.skills.IceBolt), mana: Skill.getManaCost(sdk.skills.IceBolt),
-	            timed: false, dmg: GameData.avgSkillDamage(sdk.skills.IceBolt, unit),
+				timed: false, dmg: GameData.avgSkillDamage(sdk.skills.IceBolt, unit),
 			},
 			iBlast: {
 				have: me.getSkill(sdk.skills.IceBlast, 1), skill: sdk.skills.IceBlast, range: Skill.getRange(sdk.skills.IceBlast), mana: Skill.getManaCost(sdk.skills.IceBlast),
-	            timed: false, dmg: GameData.avgSkillDamage(sdk.skills.IceBlast, unit),
+				timed: false, dmg: GameData.avgSkillDamage(sdk.skills.IceBlast, unit),
 			},
 			tk: {
 				have: me.getSkill(sdk.skills.Telekinesis, 1), skill: sdk.skills.Telekinesis, range: Skill.getRange(sdk.skills.Telekinesis), mana: Skill.getManaCost(sdk.skills.Telekinesis),
-	            timed: false, dmg: GameData.avgSkillDamage(sdk.skills.Telekinesis, unit),
+				timed: false, dmg: GameData.avgSkillDamage(sdk.skills.Telekinesis, unit),
 			},
 			attack: {
 				have: true, skill: 0, range: 3, mana: 0,
-	            timed: false, dmg: GameData.avgSkillDamage(sdk.skills.Attack, unit),
+				timed: false, dmg: GameData.avgSkillDamage(sdk.skills.Attack, unit),
 			},
 		};
 
@@ -250,7 +252,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			while (Attack.checkMonster(unit)) {
 				Misc.townCheck();
 
-				merc === undefined || !merc && Town.visitTown(); 
+				merc === undefined || !merc && Town.visitTown();
 				unit.distance > 3 && Pather.moveToUnit(unit);
 
 				if (Attack.checkResist(unit, "lightning") && data.static.have && unit.hpPercent > Config.CastStatic) {
@@ -348,10 +350,10 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 						Skill.cast(ts, Skill.getHand(ts), unit);
 
 						if (data.frostNova.have && me.mp > data.frostNova.mana) {
-					        if (frostNovaCheck()) {
-					            Skill.cast(sdk.skills.FrostNova, 0);
-					        }
-					    }
+							if (frostNovaCheck()) {
+								Skill.cast(sdk.skills.FrostNova, 0);
+							}
+						}
 
 						if (inDanger() || tsMana > me.mp || unit.hpPercent < Config.CastStatic) {
 							break;

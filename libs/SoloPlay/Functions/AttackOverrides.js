@@ -47,7 +47,7 @@ Attack.init = function () {
 };
 
 Attack.getLowerResistPercent = function () {
-	let calc = function (level) { return Math.floor(Math.min(25 + (45 * ((110 * level) / (level + 6)) / 100), 70))};
+	let calc = function (level) { return Math.floor(Math.min(25 + (45 * ((110 * level) / (level + 6)) / 100), 70));};
 	if (me.expansion && CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) {
 		return calc(CharData.skillData.chargedSkillsOnSwitch.find(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist).level);
 	}
@@ -572,7 +572,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0 || Attack.stopClear) return false;
 	!sortfunc && (sortfunc = this.sortMonsters);
 
-	let i, boss, orgx, orgy, result, start, skillCheck,
+	let i, boss, orgx, orgy, start, skillCheck,
 		retry = 0,
 		gidAttack = [],
 		attackCount = 0;
@@ -1013,12 +1013,12 @@ Attack.dollAvoid = function (unit = undefined) {
 	return false;
 };
 
- // Its the inverse of spotOnDistance, its a spot going in the direction of the spot
+// Its the inverse of spotOnDistance, its a spot going in the direction of the spot
 Attack.inverseSpotDistance = function (spot, distance, otherSpot) {
-    if (otherSpot === void 0) otherSpot = me;
-    let x = otherSpot.x, y = otherSpot.y, area = otherSpot.area;
-    let nodes = getPath(area, x, y, spot.x, spot.y, 2, 5);
-    return nodes && nodes.find(function (node) { return node.distance > distance; }) || { x: x, y: y };
+	if (otherSpot === void 0) otherSpot = me;
+	let x = otherSpot.x, y = otherSpot.y, area = otherSpot.area;
+	let nodes = getPath(area, x, y, spot.x, spot.y, 2, 5);
+	return nodes && nodes.find(function (node) { return node.distance > distance; }) || { x: x, y: y };
 };
 
 Attack.shouldDodge = function (coord, monster) {
@@ -1041,22 +1041,22 @@ Attack.pwnDury = function () {
 	let duriel = Misc.poll(function () { return getUnit(1, sdk.monsters.Duriel); });
 	if (!duriel) return false;
 	Attack.stopClear = true;
-    let saveSpots = [
-        { x: 22648, y: 15688 },
-        { x: 22624, y: 15725 },
-    ];
-    let manaTP = Skill.getManaCost(sdk.skills.Teleport);
-    while (!duriel.dead) {
-        //ToDo; figure out static
-        if (duriel.getState(sdk.states.Frozen) && duriel.distance < 7 || duriel.distance < 12) {
-            let safeSpot = saveSpots.sort(function (a, b) { return getDistance(duriel, b) - getDistance(duriel, a); })[0];
-            Pather.teleportTo(safeSpot.x, safeSpot.y);
-        }
-        ClassAttack.doAttack(duriel, true);
-    }
+	let saveSpots = [
+		{ x: 22648, y: 15688 },
+		{ x: 22624, y: 15725 },
+	];
+	//let manaTP = Skill.getManaCost(sdk.skills.Teleport);
+	while (!duriel.dead) {
+		//ToDo; figure out static
+		if (duriel.getState(sdk.states.Frozen) && duriel.distance < 7 || duriel.distance < 12) {
+			let safeSpot = saveSpots.sort(function (a, b) { return getDistance(duriel, b) - getDistance(duriel, a); })[0];
+			Pather.teleportTo(safeSpot.x, safeSpot.y);
+		}
+		ClassAttack.doAttack(duriel, true);
+	}
 
-    Attack.stopClear = false;
-    return true;
+	Attack.stopClear = false;
+	return true;
 };
 
 Attack.pwnMeph = function () {
@@ -1084,12 +1084,12 @@ Attack.pwnDia = function () {
 
 	let checkMobs = function () {
 		let mobs = getUnits(1).filter(function(el) {
-	    	return !!el && el.attackable && el.classid !== sdk.monsters.Diablo && el.distance < 20;
-	    });
-	    return mobs;
-	} 
+			return !!el && el.attackable && el.classid !== sdk.monsters.Diablo && el.distance < 20;
+		});
+		return mobs;
+	};
 
-	let getDiablo = function () { 
+	let getDiablo = function () {
 		let check = checkMobs();
 		!!check && Attack.clearList(check);
 		return getUnit(sdk.unittype.Monster, sdk.monsters.Diablo);
@@ -1164,7 +1164,7 @@ Attack.pwnDia = function () {
 		minRange = 15;
 		maxRange = 30;
 
-		break;	
+		break;
 	}
 	
 	Attack.stopClear = true;
@@ -1202,40 +1202,40 @@ Attack.pwnDia = function () {
 			}
 
 			if (me.sorceress && me.mp < manaSK + manaTP) {
-                me.overhead('Dont attack, save mana for teleport');
-                delay(10);
-                continue;
-            }
+				me.overhead('Dont attack, save mana for teleport');
+				delay(10);
+				continue;
+			}
 
 			if (me.necromancer || me.assassin) {
 				me.overhead("FarCasting: Diablo's health " + dia.hpPercent + " % left");
 				ClassAttack.farCast(dia);
 			} else {
 				// If we got enough mana to teleport close to diablo, static the bitch, and jump back
-                let diabloMissiles = getUnits(3).filter(function (unit) { var _a; return ((_a = unit.getParent()) === null || _a === void 0 ? void 0 : _a.gid) === dia.gid; });
-                print('Diablo missiles: ' + diabloMissiles.length);
-                print('Diablo mode:' + dia.mode);
-                me.overhead('Dia life ' + (~~(dia.hp / 128 * 100)).toString() + '%');
-                if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3 && ![4, 5, 7, 8, 9, 10, 11].includes(dia.mode) && dia.hpPercent > Config.CastStatic) {
-                    let x = me.x, y = me.y;
-                    // Find a spot close to Diablo
-                    let spot = Pather.spotOnDistance(dia, rangeStatic * (2 / 3), me.area, false);
-                    Pather.moveTo(spot.x, spot.y);
-                    Skill.cast(sdk.skills.StaticField);
-                    // Walk randomly away from diablo
-                    let randFn = function (v) { return function () { return v + rand(0, 20) - 10; }; };
-                    let rX = randFn(x), rY = randFn(y);
-                    [
-                        Attack.inverseSpotDistance({ x: x, y: y }, 3),
-                        Attack.inverseSpotDistance({ x: rX(), y: rY() }, 5),
-                        Attack.inverseSpotDistance({ x: rX(), y: rY() }, 7),
-                        Attack.inverseSpotDistance({ x: rX(), y: rY() }, 10),
-                    ].forEach(function (_a) {
-                        var x = _a.x, y = _a.y;
-                        return Misc.click(0, 0, x, y);
-                    });
-                    Pather.moveTo(x, y);
-                }
+				let diabloMissiles = getUnits(3).filter(function (unit) { let _a; return ((_a = unit.getParent()) === null || _a === void 0 ? void 0 : _a.gid) === dia.gid; });
+				print('Diablo missiles: ' + diabloMissiles.length);
+				print('Diablo mode:' + dia.mode);
+				me.overhead('Dia life ' + (~~(dia.hp / 128 * 100)).toString() + '%');
+				if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3 && ![4, 5, 7, 8, 9, 10, 11].includes(dia.mode) && dia.hpPercent > Config.CastStatic) {
+					let x = me.x, y = me.y;
+					// Find a spot close to Diablo
+					let spot = Pather.spotOnDistance(dia, rangeStatic * (2 / 3), me.area, false);
+					Pather.moveTo(spot.x, spot.y);
+					Skill.cast(sdk.skills.StaticField);
+					// Walk randomly away from diablo
+					let randFn = function (v) { return function () { return v + rand(0, 20) - 10; }; };
+					let rX = randFn(x), rY = randFn(y);
+					[
+						Attack.inverseSpotDistance({ x: x, y: y }, 3),
+						Attack.inverseSpotDistance({ x: rX(), y: rY() }, 5),
+						Attack.inverseSpotDistance({ x: rX(), y: rY() }, 7),
+						Attack.inverseSpotDistance({ x: rX(), y: rY() }, 10),
+					].forEach(function (_a) {
+						let x = _a.x, y = _a.y;
+						return Misc.click(0, 0, x, y);
+					});
+					Pather.moveTo(x, y);
+				}
 				Skill.cast(Config.AttackSkill[1], 0, dia);
 
 				if (!!dia && !checkCollision(me, dia, Coords_1.Collision.BLOCK_MISSILE) && Skill.getRange(Config.AttackSkill[2]) > 15) {
@@ -1338,7 +1338,6 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 		angle = Math.round(Math.atan2(me.y - unit.y, me.x - unit.x) * 180 / Math.PI),
 		angles = [0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 135, -135, 180];
 
-	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 	let caster = force && !me.inTown;
 
 	//let t = getTickCount();

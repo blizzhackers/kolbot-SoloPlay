@@ -123,23 +123,25 @@ Town.doChores = function (repair = false) {
 };
 
 Town.getIdTool = function () {
-    let scroll = me.getItemsEx().find(function (i) { return i.isInInventory && i.classid === sdk.items.ScrollofIdentify; });
-    let tome = me.getItemsEx().find(function (i) { return i.isInInventory && i.classid === sdk.items.TomeofIdentify; });
-    if (scroll) {
-        return scroll;
-    }
-    if (tome && tome.getStat(sdk.stats.Quantity) > 0) {
-        return tome;
-    }
-    return null;
+	let scroll = me.getItemsEx().find(function (i) { return i.isInInventory && i.classid === sdk.items.ScrollofIdentify; });
+	let tome = me.getItemsEx().find(function (i) { return i.isInInventory && i.classid === sdk.items.TomeofIdentify; });
+	if (scroll) {
+		return scroll;
+	}
+	if (tome && tome.getStat(sdk.stats.Quantity) > 0) {
+		return tome;
+	}
+	return null;
 };
 
 Town.clearScrolls = function () {
 	let scrolls = me.getItemsEx().filter(function (scroll) { return scroll.isInInventory && scroll.itemType === sdk.itemtype.Scroll; });
-	let tpTome = scrolls.some(function (scroll) { 
-		return scroll.classid === sdk.items.ScrollofTownPortal; }) ? me.findItem(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory) : false;
-	let idTome = scrolls.some(function (scroll) { 
-		return scroll.classid === sdk.items.ScrollofIdentify; }) ? me.findItem(sdk.items.TomeofIdentify, sdk.itemmode.inStorage, sdk.storage.Inventory) : false;
+	let tpTome = scrolls.some(function (scroll) {
+		return scroll.classid === sdk.items.ScrollofTownPortal;
+	}) ? me.findItem(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory) : false;
+	let idTome = scrolls.some(function (scroll) {
+		return scroll.classid === sdk.items.ScrollofIdentify;
+	}) ? me.findItem(sdk.items.TomeofIdentify, sdk.itemmode.inStorage, sdk.storage.Inventory) : false;
 	let currQuantity;
 
 	for (let i = 0; !!scrolls && i < scrolls.length; i++) {
@@ -481,7 +483,7 @@ Town.identify = function () {
 					// At low level its not worth keeping these items until we can Id them it just takes up too much room
 					if (me.charlvl < 10 && item.quality === sdk.itemquality.Magic && item.classid !== sdk.items.SmallCharm) {
 						Misc.itemLogger("Sold", item);
-						item.sell()
+						item.sell();
 					}
 
 					break;
@@ -536,7 +538,7 @@ Town.buyBook = function () {
 	let tpBook, tpScroll;
 	let npc = this.initNPC("Shop", "buyTpTome");
 
-    if (!npc) return false;
+	if (!npc) return false;
 
 	delay(500);
 
@@ -2330,18 +2332,18 @@ Town.npcInteract = function (name, cancel = true) {
 	!me.inTown && Town.goToTown();
 
 	switch (NPC[name]) {
-        case NPC.Jerhyn:
-            Town.move('palace');
-            break;
-        case NPC.Hratli:
-            if (!me.getQuest(sdk_1.default.quests.SpokeToHratli, 0)) {
-                Town.move(NPC.Meshif);
-                break;
-            }
-        // No break
-        default:
-            Town.move(NPC[name]);
-    }
+	case NPC.Jerhyn:
+		Town.move('palace');
+		break;
+	case NPC.Hratli:
+		if (!me.getQuest(sdk_1.default.quests.SpokeToHratli, 0)) {
+			Town.move(NPC.Meshif);
+			break;
+		}
+		// eslint-disable-next-line no-fallthrough
+	default:
+		Town.move(NPC[name]);
+	}
 
 	npc = getUnit(1, NPC[name]);
 
@@ -2356,11 +2358,11 @@ Town.npcInteract = function (name, cancel = true) {
 	delay(1 + me.ping * 2);
 
 	if (npc && npc.openMenu()) {
-        cancel && me.cancel();
-        return npc;
-    }
+		cancel && me.cancel();
+		return npc;
+	}
 
-    return false;
+	return false;
 };
 
 // TODO: Determine if the call for this function is critical, like during TownChicken vs trying to pick an item or just moving on to next script

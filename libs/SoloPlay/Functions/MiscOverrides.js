@@ -107,7 +107,7 @@ Misc.openChests = function (range = 15) {
 
 	unitList = getUnits(2).filter(function (chest) {
 		return chest.name && chest.mode === 0 && chest.distance <= range &&
-		(containers.includes(chest.name.toLowerCase()) || (chest.distance <= 2 && pita.includes(chest.name.toLowerCase()) && !Pather.useTeleport()) || (chest.name.toLowerCase() === "evilurn" && me.baal));
+		(containers.includes(chest.name.toLowerCase()) || (chest.name.toLowerCase() === "evilurn" && me.baal));
 	});
 
 	while (unitList.length > 0) {
@@ -126,13 +126,13 @@ Misc.useWell = function (range = 15) {
 	let unit, unitList = [];
 
 	// I'm in perfect health, don't need this shit
-	if (me.hpPercent >= 95 && me.mpPercent >= 95 && me.staminaPercent >= 95 && 
+	if (me.hpPercent >= 95 && me.mpPercent >= 95 && me.staminaPercent >= 95 &&
 		[sdk.states.Frozen, sdk.states.Poison, sdk.states.AmplifyDamage, sdk.states.Decrepify].every(function (states) { return !me.getState(states); })) {
 		return true;
 	}
 
 	unitList = getUnits(sdk.unittype.Object, "well").filter(function (well) {
-		return well.distance < range && well.mode !== 2
+		return well.distance < range && well.mode !== 2;
 	});
 
 	while (unitList.length > 0) {
@@ -358,7 +358,6 @@ Misc.checkItemsForSocketing = function () {
 Misc.checkItemsForImbueing = function () {
 	if (!me.getQuest(sdk.quests.ToolsoftheTrade, 1)) return false;
 
-	let item = false;
 	let items = me.getItemsEx()
 		.filter(item => item.getStat(sdk.stats.NumSockets) === 0 && [sdk.itemquality.Normal, sdk.itemquality.Superior].includes(item.quality));
 
@@ -913,11 +912,11 @@ Misc.buyItem = function (unit, shiftBuy, gamble) {
 };
 
 Misc.errorReport = function (error, script) {
-	var i, date, dateString, msg, oogmsg, filemsg, source, stack,
+	let i, date, dateString, msg, oogmsg, filemsg, source, stack,
 		stackLog = "";
 
 	date = new Date();
-	dateString = "[" + new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0,-5).replace(/-/g, '/').replace('T', ' ') + "]";
+	dateString = "[" + new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, -5).replace(/-/g, '/').replace('T', ' ') + "]";
 
 	if (typeof error === "string") {
 		msg = error;
@@ -968,45 +967,45 @@ Misc.errorReport = function (error, script) {
 };
 
 Misc.updateRecursively = function (oldObj, newObj, path) {
-    if (path === void 0) { path = []; }
-    Object.keys(newObj).forEach(function (key) {
-        if (typeof newObj[key] === 'function') return; // skip
-        if (typeof newObj[key] !== 'object') {
-            if (!oldObj.hasOwnProperty(key) || oldObj[key] !== newObj[key]) {
-                oldObj[key] = newObj[key];
-            }
-        } else if (Array.isArray(newObj[key]) && !newObj[key].some(k => typeof k === "object")) {
-            // copy array (shallow copy)
-            if (!oldObj[key].equals(newObj[key])) {
-            	oldObj[key] = newObj[key].slice(0);
-            }
-        } else {
-            if (typeof oldObj[key] !== 'object') {
-                oldObj[key] = {};
-            }
-            path.push(key);
-            Misc.updateRecursively(oldObj[key], newObj[key], path);
-        }
-    });
+	if (path === void 0) { path = []; }
+	Object.keys(newObj).forEach(function (key) {
+		if (typeof newObj[key] === 'function') return; // skip
+		if (typeof newObj[key] !== 'object') {
+			if (!oldObj.hasOwnProperty(key) || oldObj[key] !== newObj[key]) {
+				oldObj[key] = newObj[key];
+			}
+		} else if (Array.isArray(newObj[key]) && !newObj[key].some(k => typeof k === "object")) {
+			// copy array (shallow copy)
+			if (!oldObj[key].equals(newObj[key])) {
+				oldObj[key] = newObj[key].slice(0);
+			}
+		} else {
+			if (typeof oldObj[key] !== 'object') {
+				oldObj[key] = {};
+			}
+			path.push(key);
+			Misc.updateRecursively(oldObj[key], newObj[key], path);
+		}
+	});
 };
 
 Misc.recursiveSearch = function (o, n, changed) {
-    if (changed === void 0) { changed = {}; }
-    Object.keys(n).forEach(function (key) {
-        if (typeof n[key] === 'function') return; // skip
-        if (typeof n[key] !== 'object') {
-            if (!o.hasOwnProperty(key) || o[key] !== n[key]) {
-                changed[key] = n[key];
-            }
-        }
-        else {
-            if (typeof changed[key] !== 'object' || !changed[key]) {
-                changed[key] = {};
-            }
-            Misc.recursiveSearch((o === null || o === void 0 ? void 0 : o[key]) || {}, (n === null || n === void 0 ? void 0 : n[key]) || {}, changed[key]);
-            if (!Object.keys(changed[key]).length)
-                delete changed[key];
-        }
-    });
-    return changed;
+	if (changed === void 0) { changed = {}; }
+	Object.keys(n).forEach(function (key) {
+		if (typeof n[key] === 'function') return; // skip
+		if (typeof n[key] !== 'object') {
+			if (!o.hasOwnProperty(key) || o[key] !== n[key]) {
+				changed[key] = n[key];
+			}
+		} else {
+			if (typeof changed[key] !== 'object' || !changed[key]) {
+				changed[key] = {};
+			}
+			Misc.recursiveSearch((o === null || o === void 0 ? void 0 : o[key]) || {}, (n === null || n === void 0 ? void 0 : n[key]) || {}, changed[key]);
+			if (!Object.keys(changed[key]).length) {
+				delete changed[key];
+			}
+		}
+	});
+	return changed;
 };

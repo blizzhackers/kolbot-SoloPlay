@@ -1,3 +1,4 @@
+/* eslint-disable no-fallthrough */
 /*
 *	@filename	Mercenary.js
 *	@author		theBGuy
@@ -32,7 +33,7 @@ const Merc = {
 	hireMerc: function () {
 		if (me.classic) return true;
 		let {mercAct, mercAuraWanted, mercDiff} = Check.finalBuild();
-        let typeOfMerc = (!Pather.accessToAct(2) && me.normal ? 1 : mercAct);
+		let typeOfMerc = (!Pather.accessToAct(2) && me.normal ? 1 : mercAct);
 		let _a;
 		let tmpAuraName = "Defiance";
 
@@ -43,7 +44,7 @@ const Merc = {
 		// we are not in the correct difficulty to hire our wanted merc
 		case me.diff > mercDiff:
 		// we don't have access to the act of our wanted merc
-		case me.diff == mercDiff && !Pather.accessToAct(mercAct):
+		case me.diff === mercDiff && !Pather.accessToAct(mercAct):
 		// we've already hired our wanted merc
 		case myData.merc.type === mercAuraWanted:
 		// we aren't in our wanted mercs difficulty but we have already hired the correct temp a2 merc
@@ -69,44 +70,43 @@ const Merc = {
 			addEventListener('gamepacket', MercLib_1.mercPacket);
 			Town.initNPC("Merc", "getMerc");
 			let wantedMerc = MercLib_1.default
-                .filter(function (merc) { return merc.skills.some(function (skill) { return (skill === null || skill === void 0 ? void 0 : skill.name) === wantedSkill; }); })
-                .sort(function (_a, _b) {
-                var a = _a.level;
-                var b = _b.level;
-                return b - a;
-            }).first();
-            if (wantedMerc) {
-                let oldGid_1 = (_a = me.getMerc()) === null || _a === void 0 ? void 0 : _a.gid;
-                console.log('ÿc9ÿc9Mercenaryÿc0 :: Found a merc to hire ' + JSON.stringify(wantedMerc));
-                wantedMerc === null || wantedMerc === void 0 ? void 0 : wantedMerc.hire();
-                var newMerc = Misc.poll(function () {
-                    let merc = me.getMerc();
-                    if (!merc) return false;
-                    if (oldGid_1 && oldGid_1 === merc.gid) return false;
-                    return merc;
-                });
-                console.log('Hired a merc?');
-                if (newMerc) {
-                    console.log('Yep');
-                    myData.merc.act = me.act;
-                    myData.merc.classid = newMerc.classid;
-                    myData.merc.difficulty = me.diff;
-                    myData.merc.type = wantedMerc.skills.find(sk => sk.name === wantedSkill).name;
-                    CharData.updateData("merc", myData) && updateMyData();
-                    print('ÿc9ÿc9Mercenaryÿc0 :: ' + myData.merc.type + ' merc hired.');
-                }
-                me.cancel() && me.cancel() && me.cancel();
-                while (getInteractedNPC()) {
-                    delay(me.ping || 5);
-                    me.cancel();
-                }
-            }
+				.filter(function (merc) { return merc.skills.some(function (skill) { return (skill === null || skill === void 0 ? void 0 : skill.name) === wantedSkill; }); })
+				.sort(function (_a, _b) {
+					let a = _a.level;
+					let b = _b.level;
+					return b - a;
+				}).first();
+			if (wantedMerc) {
+				let oldGid_1 = (_a = me.getMerc()) === null || _a === void 0 ? void 0 : _a.gid;
+				console.log('ÿc9ÿc9Mercenaryÿc0 :: Found a merc to hire ' + JSON.stringify(wantedMerc));
+				wantedMerc === null || wantedMerc === void 0 ? void 0 : wantedMerc.hire();
+				let newMerc = Misc.poll(function () {
+					let merc = me.getMerc();
+					if (!merc) return false;
+					if (oldGid_1 && oldGid_1 === merc.gid) return false;
+					return merc;
+				});
+				console.log('Hired a merc?');
+				if (newMerc) {
+					console.log('Yep');
+					myData.merc.act = me.act;
+					myData.merc.classid = newMerc.classid;
+					myData.merc.difficulty = me.diff;
+					myData.merc.type = wantedMerc.skills.find(sk => sk.name === wantedSkill).name;
+					CharData.updateData("merc", myData) && updateMyData();
+					print('ÿc9ÿc9Mercenaryÿc0 :: ' + myData.merc.type + ' merc hired.');
+				}
+				me.cancel() && me.cancel() && me.cancel();
+				while (getInteractedNPC()) {
+					delay(me.ping || 5);
+					me.cancel();
+				}
+			}
+		} finally {
+			removeEventListener('gamepacket', MercLib_1.mercPacket);
 		}
-		finally {
-            removeEventListener('gamepacket', MercLib_1.mercPacket);
-        }
 
-        Item.autoEquipMerc();
+		Item.autoEquipMerc();
 		Pickit.pickItems(); // safetycheck for merc items on ground
 		Item.autoEquipMerc();
 
