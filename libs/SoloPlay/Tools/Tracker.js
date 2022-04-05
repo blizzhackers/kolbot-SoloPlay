@@ -14,6 +14,7 @@ const Tracker = {
 	SPPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-ScriptPerformance.csv",
 	tick: 0,
 	default: {
+		"Days": 0,
 		"Total": 0,
 		"InGame": 0,
 		"OOG": 0,
@@ -54,7 +55,7 @@ const Tracker = {
 	},
 
 	logLeveling: function (obj) {
-		if (typeof obj === "object" && obj.hasOwnProperty("event") && obj["event"] === "level up") {
+		if (typeof obj === "object" && obj.hasOwnProperty("event") && obj.event === "level up") {
 			Tracker.leveling();
 		}
 	},
@@ -69,6 +70,7 @@ const Tracker = {
 		let newTick = me.gamestarttime >= GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
 		GameTracker.InGame += Developer.Timer(newTick);
 		GameTracker.Total += Developer.Timer(newTick);
+		GameTracker.Days += Developer.Timer(newTick);
 		GameTracker.LastSave = getTickCount();
 		Developer.writeObj(GameTracker, Tracker.GTPath);
 
@@ -102,6 +104,7 @@ const Tracker = {
 		let splitTime = Developer.Timer(GameTracker.LastLevel);
 		GameTracker.InGame += Developer.Timer(newTick);
 		GameTracker.Total += Developer.Timer(newTick);
+		GameTracker.Days += Developer.Timer(newTick);
 		GameTracker.LastLevel = newSave;
 		GameTracker.LastSave = newSave;
 		Developer.writeObj(GameTracker, Tracker.GTPath);
@@ -136,7 +139,7 @@ const Tracker = {
 		}
 
 		let GameTracker = Developer.readObj(this.GTPath);
-	
+
 		// this seems to happen when my pc restarts so set last save equal to current tick count and then continue
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
 
@@ -146,6 +149,7 @@ const Tracker = {
 		GameTracker.OOG += oogTick;
 		GameTracker.InGame += Developer.Timer(newTick);
 		GameTracker.Total += (Developer.Timer(newTick) + oogTick);
+		GameTracker.Days += (Developer.Timer(newTick) + oogTick);
 		GameTracker.LastSave = getTickCount();
 		Developer.writeObj(GameTracker, Tracker.GTPath);
 		this.tick = GameTracker.LastSave;
@@ -155,17 +159,17 @@ const Tracker = {
 };
 
 if (getScript(true).name.toString() === 'default.dbj') {
-    const Worker = require('../../modules/Worker');
+	const Worker = require('../../modules/Worker');
 
-    Worker.runInBackground.intervalUpdate = function () {
-        if (getTickCount() - Tracker.tick < 3 * 60000) return true;
-        Tracker.tick = getTickCount();
-        try {
-            Tracker.update();
-        } catch (e) {
-            console.error(e.message);
-        }
+	Worker.runInBackground.intervalUpdate = function () {
+		if (getTickCount() - Tracker.tick < 3 * 60000) return true;
+		Tracker.tick = getTickCount();
+		try {
+			Tracker.update();
+		} catch (e) {
+			console.warn(e.message);
+		}
 
-        return true;
-    };
+		return true;
+	};
 }

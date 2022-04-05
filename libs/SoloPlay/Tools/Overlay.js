@@ -9,29 +9,6 @@ if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Develo
 if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
 if (!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js")) { include("SoloPlay/Functions/ProtoTypesOverrides.js"); }
 
-Object.defineProperties(me, {
-	FR: {
-		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxFireResist), this.getStat(sdk.stats.FireResist) - me.resPenalty);
-		}
-	},
-	CR: {
-		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxColdResist), this.getStat(sdk.stats.ColdResist) - me.resPenalty);
-		}
-	},
-	LR: {
-		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxLightResist), this.getStat(sdk.stats.LightResist) - me.resPenalty);
-		}
-	},
-	PR: {
-		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), this.getStat(sdk.stats.PoisonResist) - me.resPenalty);
-		}
-	},
-});
-
 const Overlay = {
 	resfix: {x: -10, y: me.screensize ? 0 : -120},
 	quest: {x: 8, y: 368},
@@ -52,6 +29,7 @@ const Overlay = {
 			let currInGame = getTickCount() - me.gamestarttime;
 			let totalTime = Developer.formatTime(this.GameTracker.Total + currInGame);
 			let totalInGame = Developer.formatTime(this.GameTracker.InGame + currInGame);
+			let totalDays = Developer.totalDays(this.GameTracker.Total);
 
 			return "Total: ÿc0" + totalTime + "ÿc4 InGame: ÿc0" + totalInGame + "ÿc4 OOG: ÿc0" + Developer.formatTime(this.GameTracker.OOG);
 		},
@@ -184,15 +162,15 @@ const Overlay = {
 			// Double check in case still got here before being ready
 			if (!me.gameReady || !me.ingame || !me.area) return "";
 
-			return "FR: ÿc1" + me.FR + "ÿc4   CR: ÿc3" + me.CR + "ÿc4   LR: ÿc9" + me.LR + "ÿc4   PR: ÿc2" + me.PR + "ÿc4   CurrentBuild: ÿc0" + Overlay.build;
+			return "FR: ÿc1" + me.FR + "ÿc4  CR: ÿc3" + me.CR + "ÿc4  LR: ÿc9" + me.LR + "ÿc4  PR: ÿc2" + me.PR + "ÿc4  CurrentBuild: ÿc0" + Overlay.build;
 		},
 
 		getStats: function () {
 			// Double check in case still got here before being ready
 			if (!me.gameReady || !me.ingame || !me.area) return "";
 
-			let textLine = "MF: ÿc8" + me.getStat(80) + "ÿc4   FHR: ÿc8" + (me.FHR) + "ÿc4   FBR: ÿc8" + (me.FBR) + "ÿc4   FCR: ÿc8" + (me.FCR)
-				+ "ÿc4   IAS: ÿc8" + (me.IAS);
+			let textLine = "MF: ÿc8" + me.getStat(80) + "ÿc4  FHR: ÿc8" + (me.FHR) + "ÿc4  FBR: ÿc8" + (me.FBR) + "ÿc4  FCR: ÿc8" + (me.FCR)
+				+ "ÿc4  IAS: ÿc8" + (me.IAS);
 
 			return textLine;
 		},
