@@ -1245,7 +1245,9 @@ function main () {
 						lrRes = Math.min(75 + me.getStat(sdk.stats.MaxLightResist), me.getStat(41) - resPenalty);
 						prRes = Math.min(75 + me.getStat(sdk.stats.MaxPoisonResist), me.getStat(45) - resPenalty);
 						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
+
 						statusString = me.name + " | Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
+
 					} catch (e) {
 						print(e);
 					}

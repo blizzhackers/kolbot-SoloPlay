@@ -2,7 +2,7 @@
 *	@filename	Developer.js
 *	@author		theBGuy
 *	@desc		Developer tools for Kolbot-SoloPlay
-*	@credits	kolton, D3STROY3R, Adaptist, isid0re
+*	@credits	kolton, D3STROY3R, Adaptist, isid0re, Butterz
 */
 
 const Developer = {
