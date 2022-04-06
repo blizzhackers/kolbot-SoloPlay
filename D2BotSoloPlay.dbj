@@ -348,7 +348,8 @@ function timer (tick) {
 			let currInGame = getTickCount() - tick;
 			let totalTime = Developer.formatTime(gameTracker.Total + currInGame);
 			let totalInGame = Developer.formatTime(gameTracker.InGame + currInGame);
-			timeStr += ("(Total: " + totalTime + ") (IG: " + totalInGame + ") (OOG: " + Developer.formatTime(gameTracker.OOG) + ")");
+			let totalDays = Developer.totalDays(gameTracker.Total + currInGame);
+			timeStr += ("(Days: " + totalDays + ") (Total: " + totalTime + ") (IG: " + totalInGame + ") (OOG: " + Developer.formatTime(gameTracker.OOG) + ")");
 		} catch (e) {
 			print(e);
 		}
