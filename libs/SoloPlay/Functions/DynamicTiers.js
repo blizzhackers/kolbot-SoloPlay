@@ -170,7 +170,9 @@ const chargeditemscore = function (item, skillId, buildInfo) {
 		chargedItems.forEach(function (el) {
 			try {
 				let skillName = getSkillById(el.skill).split(" ").join("");
-				if (!!chargedWeights[skillName]) {
+				if (skillName === "Teleport") {
+					chargedWeights[skillName] > 0 && (tier += el.maxcharges * 2);
+				} else if (!!chargedWeights[skillName]) {
 					tier += el.skill * chargedWeights[skillName];
 				}
 			} catch (e) {
@@ -377,7 +379,7 @@ const tierscore = function (item, bodyloc) {
 		let buildRating = 0;
 
 		me.amazon && item.getStatEx(sdk.stats.ReplenishQuantity) && (buildRating += 50);
-		!Pather.canTeleport() && item.getStatEx(sdk.stats.ChargedSkill, 3461) && (buildRating += 50);
+		//!Pather.canTeleport() && item.getStatEx(sdk.stats.ChargedSkill, 3461) && (buildRating += 50);
 
 		buildRating += item.getStatEx(105) * buildWeights.FCR; // add FCR
 		buildRating += item.getStatEx(93) * buildWeights.IAS; // add IAS

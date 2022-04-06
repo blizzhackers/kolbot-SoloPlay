@@ -31,6 +31,7 @@ Runeword.Rift = (me.ladder || Developer.addLadderRW) ? [624, 627, 629, 634] : fa
 Runeword.Spirit = (me.ladder || Developer.addLadderRW) ? [616, 619, 618, 620] : false; // Tal + Thul + Ort + Amn
 Runeword.VoiceofReason = (me.ladder || Developer.addLadderRW) ? [629, 627, 610, 611] : false; // Lem + Ko + El + Eld
 Runeword.Wrath = (me.ladder || Developer.addLadderRW) ? [630, 626, 639, 632] : false; // Pul + Lum + Ber + Mal
+Runeword.PDiamondShield = [sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Diamond];
 
 Runewords.getBase = function (runeword, base, ethFlag, reroll) {
 	let item = typeof base === "object" ? base : me.getItem(base, 0);
