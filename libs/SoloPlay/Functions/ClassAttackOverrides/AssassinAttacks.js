@@ -15,15 +15,10 @@ ClassAttack.mindBlast = function (unit) {
 	// Duriel's Lair, Arreat Summit, Worldstone Chamber
 	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].includes(me.area)) return;
 
-	let list = Attack.buildMonsterList();
 	let mindBlastMpCost = Skill.getManaCost(sdk.skills.MindBlast);
-	list = list.filter(mob => !mob.isStunned && !mob.isUnderLowerRes && Attack.mainBosses.indexOf(mob.classid) === -1 && !checkCollision(me, mob, 0x4) &&
-		(Math.round(getDistance(me, mob)) <= 6 || (Math.round(getDistance(me, mob)) >= 20 && Math.round(getDistance(me, mob)) <= 30)));
-
-	// Cast on close mobs first
-	list.sort(function (a, b) {
-		return Math.round(getDistance(me, a)) - Math.round(getDistance(me, b));
-	});
+	let list = getUnits(sdk.unittype.Monster)
+		.filter(mob => mob.attackable && !mob.isStunned && !mob.isUnderLowerRes && !mob.isUnique && (mob.distance <= 6 || (mob.distance >= 20 && mob.distance <= 30)))
+		.sort(Sort.units);
 
 	if (list.length >= 1) {
 		for (let i = 0; i < list.length; i++) {
@@ -68,7 +63,7 @@ ClassAttack.placeTraps = function (unit, amount) {
 						if (!Attack.checkResist(unit, "lightning") && Attack.checkResist(unit, "fire")) {
 							if (me.getSkill(sdk.skills.WakeofFire, 1)) {
 								Skill.cast(sdk.skills.WakeofFire, 0, unit.x + i, unit.y + j);
-							} else if (!me.getSkill(sdk.skills.WakeofFire, 1) && me.getSkill(sdk.skills.WakeofInferno, 1)) {
+							} else if (me.getSkill(sdk.skills.WakeofInferno, 1)) {
 								Skill.cast(sdk.skills.WakeofInferno, 0, unit.x + i, unit.y + j);
 							}
 
@@ -84,7 +79,7 @@ ClassAttack.placeTraps = function (unit, amount) {
 						if (Attack.checkResist(unit, "lightning") && !Attack.checkResist(unit, "fire")) {
 							if (me.getSkill(sdk.skills.LightningSentry, 1)) {
 								Skill.cast(sdk.skills.LightningSentry, 0, unit.x + i, unit.y + j);
-							} else if (!me.getSkill(sdk.skills.LightningSentry, 1) && me.getSkill(sdk.skills.ChargedBoltSentry, 1)) {
+							} else if (me.getSkill(sdk.skills.ChargedBoltSentry, 1)) {
 								Skill.cast(sdk.skills.ChargedBoltSentry, 0, unit.x + i, unit.y + j);
 							}
 
@@ -129,8 +124,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		untimedSkill = -1,
 		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3,
 		gold = me.gold,
-		shouldUseCloak = (me.getSkill(sdk.skills.CloakofShadows, 1) && !unit.isUnderLowerRes &&
-						(Attack.mainBosses.indexOf(unit.classid) === -1 || (Attack.mainBosses.includes(unit.classid) && Attack.getMobCountAtPosition(unit.x, unit.y, 20) > 1)));
+		shouldUseCloak = (me.getSkill(sdk.skills.CloakofShadows, 1) && !unit.isUnderLowerRes && unit.getMobCount(15, 0x1) > 1);
 
 	this.mindBlast(unit);
 

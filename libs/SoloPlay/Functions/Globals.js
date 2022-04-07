@@ -1260,7 +1260,7 @@ const SoloWants = {
 	},
 
 	addToList: function (item) {
-		if (!item || item.isRuneword) return false;
+		if (!item || me.classic || item.isRuneword) return false;
 		if (SoloWants.needList.some(function (check) { return item.classid === check.classid; })) return false;
 		let hasWantedItems;
 		let list = [];
