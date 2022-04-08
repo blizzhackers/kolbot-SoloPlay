@@ -217,7 +217,25 @@ Pickit.canFit = function (item) {
 
 Pickit.canPick = function (unit) {
 	if (!unit) return false;
-	if (unit.isQuestItem && me.getItem(unit.classid)) return false;
+	
+	switch (unit.classid) {
+		case 92: // Staff of Kings
+		case 173: // Khalim's Flail
+		case 521: // Viper Amulet
+		case 546: // Jade Figurine
+		case 549: // Cube
+		case 551: // Mephisto's Soulstone
+		case 552: // Book of Skill
+		case 553: // Khalim's Eye
+		case 554: // Khalim's Heart
+		case 555: // Khalim's Brain
+			if (me.getItem(unit.classid)) {
+				return false;
+			}
+
+			break;
+	}
+	
 	// TODO: clean this up
 
 	let tome, charm, i, potion, needPots, buffers, pottype, myKey, key;
