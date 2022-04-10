@@ -1164,7 +1164,7 @@ const Check = {
 
 		switch (true) {
 		case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
-		case SetUp.finalBuild === "Socketmule" && Misc.checkQuest(35, 1):
+		case !!(SetUp.finalBuild === "Socketmule" && Misc.checkQuest(35, 1)):
 			goal = SetUp.finalBuild;
 			goalReached = true;
 
@@ -1247,10 +1247,10 @@ const SoloWants = {
 			.filter(function (item) {
 				return !item.isRuneword && !item.isQuestItem && item.quality >= sdk.itemquality.Magic && (item.getStat(sdk.stats.NumSockets) > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
 			});
-		let equippedItems = myItems
+		myItems
 			.filter(function (item) { return item.isEquipped; })
 			.forEach(function (item) { return SoloWants.addToList(item); });
-		let stashItems = myItems
+		myItems
 			.filter(function (item) {
 				return item.isInStorage && item.getItemType() && AutoEquip.wanted(item);
 			})
