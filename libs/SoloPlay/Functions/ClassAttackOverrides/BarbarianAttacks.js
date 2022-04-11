@@ -53,25 +53,24 @@ ClassAttack.tauntMonsters = function (unit, attackSkill, data) {
 		103, 104, 105, 557, 558, 669, 670, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478
 	];
 
-	let list = Attack.buildMonsterList();
-
 	if ([sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary].includes(me.area)) rangedMobsClassIDs.push(305, 306);
+	
+	let list = getUnits(sdk.unittype.Monster)
+		.filter(function (mob) {
+			return ([0, 8].includes(mob.spectype) && [sdk.states.BattleCry, sdk.states.Decrepify, sdk.states.Taunt].every(state => !mob.getState(state))
+				&& ((rangedMobsClassIDs.includes(mob.classid) && mob.distance <= range) || (dangerousAndSummoners.includes(mob.classid) && mob.distance <= 30)));
+		})
+		.sort(Sort.units);
 
-	let newList = list.filter(mob => [0, 8].includes(mob.spectype) && [sdk.states.BattleCry, sdk.states.Decrepify, sdk.states.Taunt].every(state => !mob.getState(state)) &&
-		((rangedMobsClassIDs.includes(mob.classid) && mob.distance <= range) || (dangerousAndSummoners.includes(mob.classid) && mob.distance <= 30)));
-
-	newList.sort(Sort.units);
-
-	if (newList.length >= 1) {
-		for (let i = 0; i < newList.length; i++) {
-			let currMob = newList[i];
+	if (list.length >= 1) {
+		for (let i = 0; i < list.length; i++) {
+			let currMob = list[i];
 			if (battleCryCheck() && Skill.cast(sdk.skills.BattleCry, 0)) {
 				continue;
 			}
 
 			if (data.howl.have && !data.warCry.have && data.howl.mana < me.mp && howlCheck()) {
 				Skill.cast(sdk.skills.Howl, 0);
-				//this.doCast(unit, attackSkill);
 			} else if (data.warCry.have && data.warCry.mana < me.mp && warCryCheck()) {
 				Skill.cast(sdk.skills.WarCry, 0);
 			}

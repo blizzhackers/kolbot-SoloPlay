@@ -10,15 +10,14 @@ Developer.debugging.pathing && (PathDebug.enableHooks = true);
 // TODO: clean up this mess
 NodeAction.killMonsters = function (arg) {
 	// sanityCheck from isid0re - added paladin specific areas - theBGuy
-	let monList,
-		sanityCheck = !!([62, 63, 64, 74].includes(me.area) || (me.paladin && [8, 9, 10, 11, 12, 13, 14, 15, 16, 94, 95, 96, 97, 98, 99].includes(me.area)));
+	let sanityCheck = !!([62, 63, 64, 74].includes(me.area) || (me.paladin && [8, 9, 10, 11, 12, 13, 14, 15, 16, 94, 95, 96, 97, 98, 99].includes(me.area)));
 
 	if (Attack.stopClear) return;
 
 	if ([8, 3, 4, 38, 5, 6, 27, 28, 33, 37, 56, 57, 60, 45, 58, 66, 67, 68, 69, 70, 71, 72].includes(me.area)) {
-		monList = Attack.getMob([58, 59, 60, 61, 101, 102, 103, 104], 0, 30);
+		let monList = Attack.getMob([58, 59, 60, 61, 101, 102, 103, 104], 0, 30);
 
-		if (monList) {
+		if (monList.length) {
 			Attack.clear(7, 0);
 			Attack.clearList(monList);
 		}
@@ -32,8 +31,7 @@ NodeAction.killMonsters = function (arg) {
 			do {
 				if (getDistance(me.x, me.y, getRoom(kingPreset.roomx * 5 + kingPreset.x), getRoom(kingPreset.roomy * 5 + kingPreset.y)) <= 25) {
 					Town.goToTown();
-					print('ÿc8Kolbot-SoloPlayÿc0: exit cows. Near the king');
-					me.overhead('Exit cows. Near the king');
+					myPrint('ÿc8Kolbot-SoloPlayÿc0: exit cows. Near the king');
 				}
 			} while (king.getNext());
 		}
@@ -46,9 +44,7 @@ NodeAction.killMonsters = function (arg) {
 			do {
 				if (Attack.getResist(corpsefire, "cold") >= 100 && Attack.getResist(corpsefire, "physical") >= 100) {
 					Town.goToTown();
-					print('ÿc8Kolbot-SoloPlayÿc0: Exit den. Corpsefire is immune to cold and physical');
-					me.overhead('Exit den. Corpsefire is immune to cold and physical');
-					D2Bot.printToConsole('ÿc8Kolbot-SoloPlayÿc0: exit den. Corpsefire is immune to cold and physical', 8);
+					myPrint('Exit den. Corpsefire is immune to cold and physical');
 				}
 			} while (corpsefire.getNext());
 		}
@@ -77,7 +73,7 @@ NodeAction.killMonsters = function (arg) {
 NodeAction.popChests = function () {
 	let range = Pather.useTeleport() ? 25 : 15;
 	me.getMobCount(10) > 3 && (range = 8);
-	Config.OpenChests && Misc.openChests(range);
+	Config.OpenChests.Enabled && Misc.openChests(range);
 	Misc.useWell(range);
 };
 
@@ -462,7 +458,6 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 		getUIFlag(this.cancelFlags[i]) && me.cancel();
 	}
 
-	//if (!x || !y) { throw new Error("moveTo: Function must be called with at least 2 arguments."); }
 	if (!x || !y) return false; // I don't think this is a fatal error so just return false
 	if (typeof x !== "number" || typeof y !== "number") { throw new Error("moveTo: Coords must be numbers"); }
 	if (getDistance(me, x, y) < 2) return true;
@@ -822,9 +817,16 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 						// wierd but when we can't click on anything npcs/portals/waypoint it seems that un-equipping an item then re-equipping it seems to fix it
 						let _a = me.getItemsEx().filter(function (item) { return item.isEquipped; }).sort((a, b) => NTIP.GetTier(a) - NTIP.GetTier(b)).first();
 						let bodLoc = _a ? _a.bodylocation : false;
-						_a && bodLoc && _a.toCursor() && delay(200 + me.ping);
-						me.itemoncursor && bodLoc && clickItemAndWait(0, bodLoc) && (once = true);
-						once && console.debug("did this work?");
+						if (_a && bodLoc && _a.toCursor()) {
+							delay(200 + me.ping);
+							me.itemoncursor && bodLoc && clickItemAndWait(0, bodLoc);
+							!me.itemoncursor && (once = true);
+							if (once) {
+								D2Bot.printToConsole("Check logs for waypoint bug");
+								console.debug("did this work?");
+								takeScreenshot();
+							}							
+						}
 					}
 
 					continue;

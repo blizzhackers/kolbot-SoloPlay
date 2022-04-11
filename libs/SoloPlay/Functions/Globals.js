@@ -60,12 +60,10 @@ function ensureData () {
 		case Check.currentBuild().active():
 		case Check.finalBuild().active():
 			myData.me.currentBuild = SetUp.getBuild();
-			console.debug(myData);
 
 			break;
 		case !["Start", "Stepping", "Leveling"].includes(SetUp.getBuild()) && myData.me.currentBuild !== myData.me.finalBuild:
 			myData.me.currentBuild = "Leveling";
-			console.debug(myData);
 
 			break;
 		}
@@ -73,33 +71,19 @@ function ensureData () {
 
 	if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff))) {
 		myData.me.highestDifficulty = sdk.difficulty.nameOf(me.diff);
-		console.debug(myData);
 	}
 
 	if (!!me.smith && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed === false) {
 		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
-		console.debug(myData);
 	}
 
 	if (!!me.respec && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed === false) {
 		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
-		console.debug(myData);
 	}
 
-	if (myData.me.level !== me.charlvl) {
-		myData.me.level = me.charlvl;
-		console.debug(myData);
-	}
-
-	if (myData.me.strength !== me.rawStrength) {
-		myData.me.strength = me.rawStrength;
-		console.debug(myData);
-	}
-
-	if (myData.me.dexterity !== me.rawDexterity) {
-		myData.me.dexterity = me.rawDexterity;
-		console.debug(myData);
-	}
+	myData.me.level !== me.charlvl && (myData.me.level = me.charlvl);
+	myData.me.strength !== me.rawStrength && (myData.me.strength = me.rawStrength);
+	myData.me.dexterity !== me.rawDexterity && (myData.me.dexterity = me.rawDexterity);
 
 	// Merc check
 	if (me.expansion) {
@@ -115,11 +99,15 @@ function ensureData () {
 
 		if (!!me.shenk && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed === false) {
 			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
-			console.debug(myData);
 		}
 	}
 
-	Object.keys(Misc.recursiveSearch(myData, temp)).length > 0 && CharData.updateData("me", myData) && updateMyData();
+	let changed = Misc.recursiveSearch(myData, temp);
+	
+	if (Object.keys(changed).length > 0) {
+		console.debug(changed);
+		CharData.updateData("me", myData) && updateMyData();
+	}
 }
 
 // general settings

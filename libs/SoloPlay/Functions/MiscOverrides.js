@@ -1,11 +1,11 @@
 /*
 *	@filename	MiscOverrides.js
-*	@author		theBGuy, isid0re
+*	@author		theBGuy
+*	@credits	isid0re (get/use Well idea)
 *	@desc		Misc.js fixes to improve functionality
 */
 
 if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
-if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
 
 Misc.townEnabled = true;
 
@@ -62,7 +62,7 @@ Misc.townCheck = function () {
 				}
 			}
 
-			if (Config.OpenChests && Town.needKeys()) {
+			if (Config.OpenChests.Enabled && Town.needKeys()) {
 				check = true;
 			}
 		} catch (e) {
@@ -82,8 +82,7 @@ Misc.townCheck = function () {
 };
 
 Misc.openChests = function (range = 15) {
-	let unit,
-		unitList = [],
+	let unitList = [],
 		containers = [
 			"chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack",
 			"holeanim", "roguecorpse", "corpse", "tomb2", "tomb3", "chest3",
@@ -91,10 +90,9 @@ Misc.openChests = function (range = 15) {
 			"bonechest", "woodchestl", "woodchestr",
 			"burialchestr", "burialchestl", "chestl", "chestr", "groundtomb", "tomb3l", "tomb1l",
 			"deadperson", "deadperson2", "groundtombl", "casket"
-		],
-		pita = ["barrel", "largeurn", "jar3", "jar2", "jar1", "urn", "jug"]; // pain in the ass
+		];
 
-	if (Config.OpenChests === 2) {
+	if (Config.OpenChests.Types.some((el) => el.toLowerCase() === "all")) {
 		containers = [
 			"chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack",
 			"barrel", "holeanim", "tomb2", "tomb3", "roguecorpse", "ratnest", "corpse", "goo pile", "largeurn", "urn", "chest3",
@@ -112,9 +110,9 @@ Misc.openChests = function (range = 15) {
 
 	while (unitList.length > 0) {
 		unitList.sort(Sort.units);
-		unit = unitList.shift();
+		let unit = unitList.shift();
 
-		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, 0x4)) && this.openChest(unit)) {
+		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, 0x5)) && this.openChest(unit)) {
 			Pickit.pickItems();
 		}
 	}
@@ -122,8 +120,32 @@ Misc.openChests = function (range = 15) {
 	return true;
 };
 
+Misc.getWell = function (unit) {
+	if (!unit || unit.mode === 2) return false;
+
+	for (let i = 0; i < 3; i++) {
+		if (Skill.useTK(unit) && i < 2) {
+			unit.distance > 21 && Pather.moveNearUnit(unit, 20);
+			checkCollision(me, unit, 0x4) && Attack.getIntoPosition(unit, 20, 0x4);
+			Skill.cast(sdk.skills.Telekinesis, 0, unit);
+		} else {
+			if (unit.distance < 4 || Pather.moveToUnit(unit, 3, 0)) {
+				Misc.click(0, 0, unit);
+			}
+		}
+
+		if (Misc.poll(() => unit.mode, 1000, 50)) {
+			return true;
+		} else {
+			Packet.flash(me.gid);
+		}
+	}
+
+	return false;
+};
+
 Misc.useWell = function (range = 15) {
-	let unit, unitList = [];
+	let unitList = [];
 
 	// I'm in perfect health, don't need this shit
 	if (me.hpPercent >= 95 && me.mpPercent >= 95 && me.staminaPercent >= 95 &&
@@ -137,9 +159,9 @@ Misc.useWell = function (range = 15) {
 
 	while (unitList.length > 0) {
 		unitList.sort(Sort.units);
-		unit = unitList.shift();
+		let unit = unitList.shift();
 
-		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, 0x4))) {
+		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, 0x5))) {
 			this.getWell(unit);
 		}
 	}
@@ -147,18 +169,14 @@ Misc.useWell = function (range = 15) {
 	return true;
 };
 
-Misc.getExpShrine = function (shrineLocs) {
+Misc.getExpShrine = function (shrineLocs = []) {
 	if (me.getState(137)) return true;
 
 	for (let get = 0; get < shrineLocs.length; get++) {
 		if (shrineLocs[get] === 2) {
 			Pather.journeyTo(shrineLocs[get]);
 		} else {
-			if (!Pather.checkWP(shrineLocs[get])) {
-				Pather.getWP(shrineLocs[get]);
-			} else {
-				Pather.useWaypoint(shrineLocs[get]);
-			}
+			Pather.checkWP(shrineLocs[get], true) ? Pather.useWaypoint(shrineLocs[get]) : Pather.getWP(shrineLocs[get]);
 		}
 
 		Precast.doPrecast(true);
@@ -172,123 +190,6 @@ Misc.getExpShrine = function (shrineLocs) {
 	}
 
 	return true;
-};
-
-Misc.getGoodShrine = function (shrineLocs) {
-	let oldAttack = [];
-
-	// Build shrine array
-	let shrines = [];
-
-	me.lightRes < 75 && shrines.push(10);	// Light Resist
-	shrines.push(12);	// Skill
-	(me.barbarian || me.amazon) && shrines.push(7);	// Combat
-	!me.paladin && shrines.push(6);	// Armor (paladin has holy shield, this would be unnecessary)
-
-	if (me.barbarian && me.normal && me.getSkill(133, 1) >= 6) {
-		oldAttack = Config.AttackSkill.slice();
-		Config.AttackSkill = [-1, 133, -1, 133, -1];
-	}
-
-	for (let get = 0; get < shrineLocs.length; get++) {
-		if (shrineLocs[get] === 2) {
-			Pather.journeyTo(shrineLocs[get]);
-		} else {
-			if (!Pather.checkWP(shrineLocs[get])) {
-				Pather.getWP(shrineLocs[get]);
-			} else {
-				Pather.useWaypoint(shrineLocs[get]);
-			}
-		}
-
-		Precast.doPrecast(true);
-
-		if (Misc.getGoodShrinesInArea(shrineLocs[get], shrines, true)) {
-			Town.goToTown();
-
-			break;
-		}
-		
-		/*if (checkState(shrineToLookFor)) {
-			Town.goToTown();
-			break;
-		}*/
-
-		if (!me.inTown) {
-			Town.goToTown();
-		}
-	}
-
-	if (oldAttack.length > 0) {
-		Config.AttackSkill = oldAttack.slice();
-	}
-
-	return true;
-};
-
-Misc.getGoodShrinesInArea = function (area, types, use) {
-	let coords, shrine,
-		shrineLocs = [],
-		shrineIds = [2, 81, 83],
-		unit = getPresetUnits(area);
-
-	if (unit) {
-		for (let i = 0; i < unit.length; i += 1) {
-			if (shrineIds.indexOf(unit[i].id) > -1) {
-				shrineLocs.push([unit[i].roomx * 5 + unit[i].x, unit[i].roomy * 5 + unit[i].y]);
-			}
-		}
-	}
-
-	while (shrineLocs.length > 0) {
-		shrineLocs.sort(Sort.points);
-		coords = shrineLocs.shift();
-		Pather.moveTo(coords[0], coords[1], 2);
-		shrine = getUnit(2, "shrine");
-
-		if (shrine) {
-			do {
-				if (types.indexOf(shrine.objtype) > -1 && shrine.mode === 0) {
-					Pather.moveTo(shrine.x - 2, shrine.y - 2);
-
-					if (!use || this.getShrine(shrine)) {
-						me.overhead("Got shrine type: " + shrine.objtype);
-						return true;
-					}
-				}
-			} while (shrine.getNext());
-		}
-	}
-
-	return false;
-};
-
-Misc.getWell = function (unit) {
-	if (unit.mode === 2) return false;
-
-	for (let i = 0; i < 3; i += 1) {
-		if (Skill.useTK(unit) && i < 2) {
-			if (getDistance(me, unit) > 13) {
-				Attack.getIntoPosition(unit, 13, 0x4);
-			}
-			
-			Skill.cast(sdk.skills.Telekinesis, 0, unit);
-		} else {
-			if (getDistance(me, unit) < 4 || Pather.moveToUnit(unit, 3, 0)) {
-				Misc.click(0, 0, unit);
-			}
-		}
-
-		let tick = getTickCount();
-
-		while (getTickCount() - tick < 1000) {
-			if (unit.mode !== 0) return true;
-
-			delay(10);
-		}
-	}
-
-	return false;
 };
 
 Misc.unsocketItem = function (item) {

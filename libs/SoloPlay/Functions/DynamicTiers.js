@@ -68,7 +68,7 @@ const mercscore = function (item) {
 	mercRating += item.getStatEx(37) * mercWeights.MR * 2; // add magic damage resist %
 
 	if (!myData) {
-		let myData = CharData.getStats();
+		myData = CharData.getStats();
 	}
 
 	switch (myData.merc.classid) {
@@ -184,18 +184,23 @@ const chargeditemscore = function (item, skillId, buildInfo) {
 	return tier;
 };
 
-const tierscore = function (item, bodyloc) {
-	const resistWeights = {
-		FR: 3, // fire resist
-		LR: 3, // lightning resist
-		CR: 1.5, // cold resist
-		PR: 1, // poison resist
-		ABS: 2.7, // absorb damage (fire light magic cold)
-		DR: 2, // Damage resist
+const tierWeights = {
+	useHardcoreWeights: !!(me.hardcore),
+	resistWeights: {
+		FR: (this.useHardcoreWeights ? 5 : 3), // fire resist
+		LR: (this.useHardcoreWeights ? 5 : 3), // lightning resist
+		CR: (this.useHardcoreWeights ? 3 : 1.5), // cold resist
+		PR: (this.useHardcoreWeights ? 5 : 1), // poison resist
+		MAXFR: 5,
+		MAXLR: 5,
+		MAXCR: 3,
+		MAXPR: 3,
+		ABS: (this.useHardcoreWeights ? 5 : 3), // absorb damage (fire light magic cold)
+		DR: (this.useHardcoreWeights ? 4 : 2), // Damage resist
 		MR: 3, // Magic damage resist
-	};
+	},
 
-	const generalWeights = {
+	generalWeights: {
 		CBF: 25, // cannot be frozen
 		FRW: 1, // faster run/walk
 		FHR: 3, // faster hit recovery
@@ -208,42 +213,45 @@ const tierscore = function (item, bodyloc) {
 		MANA: 0.5,
 		STR: 1,
 		DEX: 1,
-	};
-
-	const casterWeights = {
+	},
+	
+	casterWeights: {
 		//breakpoint stats
 		FCR: (me.assassin ? 2 : 5),
 		IAS: (me.assassin ? 4 : 0),
 		// regen
 		HPREGEN: 2,
 		MANAREGEN: 2.2,
-	};
-
-	const meleeWeights = {
+	},
+	
+	meleeWeights: {
 		//breakpoint stats
 		FCR: 0.5,
 		IAS: 4,
 		// Attack
-		MINDMG:	3, // min damage
-		MAXDMG: 3, // max damage
-		SECMINDMG: 2, // secondary min damage
-		SECMAXDMG: 2, // secondary max damage
-		ELEDMG: 1, // elemental damage
-		AR:	0.2, // attack rating
-		CB: 4, // crushing blow
-		OW: 1, // open wounds
-		DS: 1.5, // deadly strike
-		DMGTOUNDEAD: 0.5,	// damage % to undead
-		DMGTODEMONS: 0.5,	// damage % to demons
+		MINDMG: 3,
+		MAXDMG: 3,
+		SECMINDMG: 2,
+		SECMAXDMG: 2,
+		AVGDMG: 3,
+		ELEDMG: 1,
+		AR: 0.2,
+		CB: 4,
+		OW: 1,
+		DS: 1.5,
+		DMGTOUNDEAD: 0.5,
+		DMGTODEMONS: 0.5,
+
 		// leaching
-		LL: 4, //lifeleach
-		ML:	2, //manaleach
+		LL: 4,
+		ML: 2,
+
 		// regen
 		HPREGEN: 2,
 		MANAREGEN: 2,
-	};
-
-	const ctcWeights = {
+	},
+	
+	ctcWeights: {
 		whenStruck: 2,
 		onAttack: 2,
 		onStrike: 1,
@@ -277,16 +285,37 @@ const tierscore = function (item, bodyloc) {
 			Fade: 10,
 			Venom: 8,
 		}
-	};
-
-	const skillsWeights = {
-		ALL: 200, // + all skills
-		CLASS: 175, // + class tab
-		TAB: 125, // + skill tab
-		WANTED: 45, // + wanted key skills
+	},
+	
+	skillsWeights: {
+		ALL: 200,
+		CLASS: 175,
+		TAB: 125,
+		WANTED: 45,
 		USEFUL: 30, // + wanted supportive skills
-	};
+	},
 
+	charmWeights: {
+		ALL:	180, // + all skills
+		CLASS:	175, // + class tab
+		TAB: 300, // + skill tab
+		FR: 2, // fire resist
+		LR: 5, // lightning resist
+		CR: 2, // cold resist
+		PR: 1, // poison resist
+		FRW: 1, // faster run/walk
+		FHR: (me.barbarian ? 4 : 2), // faster hit recovery
+		DEF: 0.05, // defense
+		MF: 2, //Magic Find
+		// base stats
+		HP:	1.75,
+		MANA: 0.8,
+		STR: 1.0,
+		DEX: 1.0,
+	}
+};
+
+const tierscore = function (item, bodyloc) {
 	const buildInfo = Check.currentBuild();
 
 	this.generalScore = function (item) {
@@ -296,24 +325,24 @@ const tierscore = function (item, bodyloc) {
 		if (!canTele && item.getStatEx(sdk.stats.CannotbeFrozen)) {
 			let haveCBF = me.getStat(sdk.stats.CannotbeFrozen) > 0;
 			// Cannot be frozen is very important for Melee chars
-			!haveCBF && (generalRating += buildInfo.caster ? generalWeights.CBF : generalWeights.CBF * 4);
+			!haveCBF && (generalRating += buildInfo.caster ? tierWeights.generalWeights.CBF : tierWeights.generalWeights.CBF * 4);
 		}
 
 		// faster run/walk
-		!canTele && (generalRating += item.getStatEx(sdk.stats.FRW) * generalWeights.FRW);
+		!canTele && (generalRating += item.getStatEx(sdk.stats.FRW) * tierWeights.generalWeights.FRW);
 
 		// belt slots
-		item.itemType === sdk.itemtype.Belt && (generalRating += Storage.BeltSize() * 4 * generalWeights.BELTSLOTS); // rows * columns * weight
+		item.itemType === sdk.itemtype.Belt && (generalRating += Storage.BeltSize() * 4 * tierWeights.generalWeights.BELTSLOTS); // rows * columns * weight
 
 		// start generalRating
-		generalRating += item.getStatEx(80) * generalWeights.MF; // add magic find
-		generalRating += item.getStatEx(99) * generalWeights.FHR; // add faster hit recovery
-		generalRating += item.getStatEx(31) * generalWeights.DEF; //	add Defense
-		generalRating += (item.getStatEx(20) + item.getStatEx(102)) * generalWeights.ICB; //add increased chance to block
-		generalRating += (item.getStatEx(3) + item.getStatEx(7) + (item.getStatEx(216) / 2048 * me.charlvl)) * generalWeights.HP; // add HP
-		generalRating += (item.getStatEx(1) + item.getStatEx(9) + (item.getStatEx(217) / 2048 * me.charlvl)) * generalWeights.MANA;// add mana
-		generalRating += item.getStatEx(0) * generalWeights.STR; // add STR
-		generalRating += item.getStatEx(2) * generalWeights.DEX; // add DEX
+		generalRating += item.getStatEx(80) * tierWeights.generalWeights.MF; // add magic find
+		generalRating += item.getStatEx(99) * tierWeights.generalWeights.FHR; // add faster hit recovery
+		generalRating += item.getStatEx(31) * tierWeights.generalWeights.DEF; //	add Defense
+		generalRating += (item.getStatEx(20) + item.getStatEx(102)) * tierWeights.generalWeights.ICB; //add increased chance to block
+		generalRating += (item.getStatEx(3) + item.getStatEx(7) + (item.getStatEx(216) / 2048 * me.charlvl)) * tierWeights.generalWeights.HP; // add HP
+		generalRating += (item.getStatEx(1) + item.getStatEx(9) + (item.getStatEx(217) / 2048 * me.charlvl)) * tierWeights.generalWeights.MANA;// add mana
+		generalRating += item.getStatEx(0) * tierWeights.generalWeights.STR; // add STR
+		generalRating += item.getStatEx(2) * tierWeights.generalWeights.DEX; // add DEX
 
 		return generalRating;
 	};
@@ -344,7 +373,7 @@ const tierscore = function (item, bodyloc) {
 		let baseLR = currLR - olditemLR;
 		let basePR = currPR - olditemPR;
 		// if baseRes < max resists give score value upto max resists reached
-		let maxRes = !me.classic ? 175 : 125;
+		let maxRes = me.expansion ? 175 : 125;
 		let FRlimit = Math.max(maxRes - baseFR, 0);
 		let CRlimit = Math.max(maxRes - baseCR, 0);
 		let LRlimit = Math.max(maxRes - baseLR, 0);
@@ -360,22 +389,27 @@ const tierscore = function (item, bodyloc) {
 		let effectiveLR = Math.min(newitemLR, LRlimit);
 		let effectivePR = Math.min(newitemPR, PRlimit);
 		// sum resistRatings
-		resistRating += effectiveFR * resistWeights.FR; // add fireresist
-		resistRating += effectiveCR * resistWeights.CR; // add coldresist
-		resistRating += effectiveLR * resistWeights.LR; // add literesist
-		resistRating += effectivePR * resistWeights.PR; // add poisonresist
+		resistRating += effectiveFR * tierWeights.resistWeights.FR; // add fireresist
+		resistRating += effectiveCR * tierWeights.resistWeights.CR; // add coldresist
+		resistRating += effectiveLR * tierWeights.resistWeights.LR; // add literesist
+		resistRating += effectivePR * tierWeights.resistWeights.PR; // add poisonresist
+		// sum max resists weights
+		resistRating += (item.getStatEx(sdk.stats.MaxFireResist) * tierWeights.resistWeights.MAXFR);
+		resistRating += (item.getStatEx(sdk.stats.MaxLightResist) * tierWeights.resistWeights.MAXLR);
+		resistRating += (item.getStatEx(sdk.stats.MaxColdResist) * tierWeights.resistWeights.MAXCR);
+		resistRating += (item.getStatEx(sdk.stats.MaxPoisonResist) * tierWeights.resistWeights.MAXPR);
 
-		resistRating += (item.getStatEx(142) + item.getStatEx(144) + item.getStatEx(146) + item.getStatEx(148)) * resistWeights.ABS; // add absorb damage
-		resistRating += item.getStatEx(34) * resistWeights.DR; // add integer damage resist
-		resistRating += item.getStatEx(36) * resistWeights.DR * 2; // add damage resist %
-		resistRating += item.getStatEx(35) * resistWeights.MR; // add integer magic damage resist
-		resistRating += item.getStatEx(37) * resistWeights.MR * 2; // add magic damage resist %
+		resistRating += (item.getStatEx(142) + item.getStatEx(144) + item.getStatEx(146) + item.getStatEx(148)) * tierWeights.resistWeights.ABS; // add absorb damage
+		resistRating += item.getStatEx(34) * tierWeights.resistWeights.DR; // add integer damage resist
+		resistRating += item.getStatEx(36) * tierWeights.resistWeights.DR * 2; // add damage resist %
+		resistRating += item.getStatEx(35) * tierWeights.resistWeights.MR; // add integer magic damage resist
+		resistRating += item.getStatEx(37) * tierWeights.resistWeights.MR * 2; // add magic damage resist %
 
 		return resistRating;
 	};
 
 	this.buildScore = function (item) {
-		let buildWeights = buildInfo.caster ? casterWeights : meleeWeights;
+		let buildWeights = buildInfo.caster ? tierWeights.casterWeights : tierWeights.meleeWeights;
 		let buildRating = 0;
 
 		me.amazon && item.getStatEx(sdk.stats.ReplenishQuantity) && (buildRating += 50);
@@ -396,10 +430,15 @@ const tierscore = function (item, bodyloc) {
 
 			item.getStatEx(sdk.stats.ReplenishDurability) && (buildRating += 15);
 			item.getStatEx(sdk.stats.IgnoreTargetDefense) && (buildRating += 50);
-			buildRating += item.getStatEx(21) * buildWeights.MINDMG; // add MIN damage
-			buildRating += item.getStatEx(22) * buildWeights.MAXDMG; // add MAX damage
+
+			// should these be added and calc avg dmg instead?
+			// Sometimes we replace good weps with 2-300 ED weps that may be high dmg but aren't as good as the item we replaced
+			//buildRating += item.getStatEx(21) * buildWeights.MINDMG; // add MIN damage
+			//buildRating += item.getStatEx(22) * buildWeights.MAXDMG; // add MAX damage
+			buildRating += ((item.getStatEx(sdk.stats.MaxDamage) + item.getStatEx(sdk.stats.MinDamage)) / 2) * buildWeights.AVGDMG;
 			//buildRating += item.getStatEx(23) * buildWeights.SECMINDMG; // add MIN damage
 			//buildRating += item.getStatEx(24) * buildWeights.SECMAXDMG; // add MAX damage
+			
 			buildRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 256)) * (buildWeights.ELEDMG / eleDmgModifer); // add elemental damage PSN damage adjusted for damage per frame (125/256)
 			buildRating += item.getStatEx(19) * buildWeights.AR; // add AR
 			buildRating += item.getStatEx(136) * buildWeights.CB; // add crushing blow
@@ -419,10 +458,10 @@ const tierscore = function (item, bodyloc) {
 		let skillsRating = 0;
 		let weaponModifer = !buildInfo.caster && item.getItemType() === "Weapon" ? 4 : 1;
 
-		skillsRating += item.getStatEx(127) * (skillsWeights.ALL / weaponModifer); // + all skills
-		skillsRating += item.getStatEx(83, me.classid) * (skillsWeights.CLASS / weaponModifer); // + class skills
-		skillsRating += item.getStatEx(188, buildInfo.tabSkills) * (skillsWeights.TAB / weaponModifer); // + TAB skills
-		let selectedWeights = [skillsWeights.WANTED, skillsWeights.USEFUL];
+		skillsRating += item.getStatEx(127) * (tierWeights.skillsWeights.ALL / weaponModifer); // + all skills
+		skillsRating += item.getStatEx(83, me.classid) * (tierWeights.skillsWeights.CLASS / weaponModifer); // + class skills
+		skillsRating += item.getStatEx(188, buildInfo.tabSkills) * (tierWeights.skillsWeights.TAB / weaponModifer); // + TAB skills
+		let selectedWeights = [tierWeights.skillsWeights.WANTED, tierWeights.skillsWeights.USEFUL];
 		let selectedSkills = [buildInfo.wantedSkills, buildInfo.usefulSkills];
 
 		for (let i = 0; i < selectedWeights.length; i++) {
@@ -514,16 +553,16 @@ const tierscore = function (item, bodyloc) {
 		for (let i = 0; i < ctcItems.length; i++) {
 			try {
 				let skillName = getSkillById(ctcItems[i].skill).split(" ").join("");
-				if (!!ctcWeights.skills[skillName]) {
+				if (!!tierWeights.ctcWeights.skills[skillName]) {
 					switch (ctcItems[i].ctcType) {
 					case sdk.stats.SkillOnAttack:
-						ctcRating += (meleeCheck ? ctcItems[i].level * ctcWeights.skills[skillName] * ctcWeights.onAttack : 0);
+						ctcRating += (meleeCheck ? ctcItems[i].level * tierWeights.ctcWeights.skills[skillName] * tierWeights.ctcWeights.onAttack : 0);
 						break;
 					case sdk.stats.SkillOnStrike:
-						ctcRating += (meleeCheck ? ctcItems[i].level * ctcWeights.skills[skillName] * ctcWeights.onStrike : 0);
+						ctcRating += (meleeCheck ? ctcItems[i].level * tierWeights.ctcWeights.skills[skillName] * tierWeights.ctcWeights.onStrike : 0);
 						break;
 					case sdk.stats.SkillWhenStruck:
-						ctcRating += ctcItems[i].level * ctcWeights.skills[skillName] * ctcWeights.whenStruck;
+						ctcRating += ctcItems[i].level * tierWeights.ctcWeights.skills[skillName] * tierWeights.ctcWeights.whenStruck;
 						break;
 					default:
 						break;
@@ -582,39 +621,20 @@ const secondaryscore = function (item) {
 };
 
 const charmscore = function (item) {
-	const generalWeights = {
-		ALL:	180, // + all skills
-		CLASS:	175, // + class tab
-		TAB: 300, // + skill tab
-		FR: 2, // fire resist
-		LR: 5, // lightning resist
-		CR: 2, // cold resist
-		PR: 1, // poison resist
-		FRW: 1, // faster run/walk
-		FHR: (me.barbarian ? 4 : 2), // faster hit recovery
-		DEF: 0.05, // defense
-		MF: 2, //Magic Find
-		// base stats
-		HP:	1.75,
-		MANA: 0.8,
-		STR: 1.0,
-		DEX: 1.0,
-	};
-
 	let charmRating = 1;
-	charmRating += item.getStatEx(188, Check.currentBuild().tabSkills) * generalWeights.TAB; // + TAB skills
-	charmRating += item.getStatEx(39) * generalWeights.FR; // add FR
-	charmRating += item.getStatEx(43) * generalWeights.CR; // add CR
-	charmRating += item.getStatEx(41) * generalWeights.LR; // add LR
-	charmRating += item.getStatEx(45) * generalWeights.PR; // add PR
-	charmRating += item.getStatEx(96) * generalWeights.FRW; // add faster run walk
-	charmRating += item.getStatEx(99) * generalWeights.FHR; // add faster hit recovery
-	charmRating += item.getStatEx(31) * generalWeights.DEF; //	add Defense
-	charmRating += item.getStatEx(80) * generalWeights.MF; // add magic find
-	charmRating += (item.getStatEx(3) + item.getStatEx(7) + (item.getStatEx(216) / 2048 * me.charlvl)) * generalWeights.HP; // add HP
-	charmRating += (item.getStatEx(1) + item.getStatEx(9) + (item.getStatEx(217) / 2048 * me.charlvl)) * generalWeights.MANA;// add mana
-	charmRating += item.getStatEx(0) * generalWeights.STR; // add STR
-	charmRating += item.getStatEx(2) * generalWeights.DEX; // add DEX
+	charmRating += item.getStatEx(188, Check.currentBuild().tabSkills) * tierWeights.charmWeights.TAB; // + TAB skills
+	charmRating += item.getStatEx(39) * tierWeights.charmWeights.FR; // add FR
+	charmRating += item.getStatEx(43) * tierWeights.charmWeights.CR; // add CR
+	charmRating += item.getStatEx(41) * tierWeights.charmWeights.LR; // add LR
+	charmRating += item.getStatEx(45) * tierWeights.charmWeights.PR; // add PR
+	charmRating += item.getStatEx(96) * tierWeights.charmWeights.FRW; // add faster run walk
+	charmRating += item.getStatEx(99) * tierWeights.charmWeights.FHR; // add faster hit recovery
+	charmRating += item.getStatEx(31) * tierWeights.charmWeights.DEF; //	add Defense
+	charmRating += item.getStatEx(80) * tierWeights.charmWeights.MF; // add magic find
+	charmRating += (item.getStatEx(3) + item.getStatEx(7) + (item.getStatEx(216) / 2048 * me.charlvl)) * tierWeights.charmWeights.HP; // add HP
+	charmRating += (item.getStatEx(1) + item.getStatEx(9) + (item.getStatEx(217) / 2048 * me.charlvl)) * tierWeights.charmWeights.MANA;// add mana
+	charmRating += item.getStatEx(0) * tierWeights.charmWeights.STR; // add STR
+	charmRating += item.getStatEx(2) * tierWeights.charmWeights.DEX; // add DEX
 
 	if (!Check.currentBuild().caster) {
 		charmRating += item.getStatEx(21) * 3; // add MIN damage
@@ -625,8 +645,8 @@ const charmscore = function (item) {
 
 	// Gheeds, Torch, annhi
 	if (item.quality === 7) {
-		charmRating += item.getStatEx(127) * generalWeights.ALL; // + all skills
-		charmRating += item.getStatEx(83, me.classid) * generalWeights.CLASS; // + class skills
+		charmRating += item.getStatEx(127) * tierWeights.charmWeights.ALL; // + all skills
+		charmRating += item.getStatEx(83, me.classid) * tierWeights.charmWeights.CLASS; // + class skills
 		charmRating += item.getStatEx(79); // add gold find
 		charmRating += item.getStatEx(87) * 1.5; // add reduced vendor prices
 		charmRating += item.getStatEx(0); // add STR

@@ -141,7 +141,7 @@ Attack.canAttack = function (unit = undefined) {
 };
 
 Attack.openChests = function (range = 10, x = undefined, y = undefined) {
-	if (!Config.OpenChests) return false;
+	if (!Config.OpenChests.Enabled) return false;
 	x === undefined && (x = me.x);
 	y === undefined && (y = me.y);
 
@@ -1320,10 +1320,8 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 	walk === true && (walk = 1);
 	
 	if (distance < 4 && (!unit.hasOwnProperty("mode") || (unit.mode !== 0 && unit.mode !== 12))) {
-		if (walk) {
-			if (getDistance(me, unit) > 8 || checkCollision(me, unit, coll)) {
-				Pather.walkTo(unit.x, unit.y, 3);
-			}
+		if (walk && unit.distance > 8 && !checkCollision(me, unit, coll)) {
+			Pather.walkTo(unit.x, unit.y, 3);
 		} else {
 			Pather.moveTo(unit.x, unit.y, 0);
 		}
@@ -1338,7 +1336,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 		angle = Math.round(Math.atan2(me.y - unit.y, me.x - unit.x) * 180 / Math.PI),
 		angles = [0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 135, -135, 180];
 
-	let caster = force && !me.inTown;
+	let caster = (force && !me.inTown);
 
 	//let t = getTickCount();
 
@@ -1383,25 +1381,13 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 					}
 
 					// I am already in my optimal position
-					if (Math.round(getDistance(me, coords[i])) < 3) return true;
+					if (coords[i].distance < 3) return true;
 
-					switch (walk) {
-					case 1:
+					if (walk && coords[i].distance < 6 && !CollMap.checkColl(me, coords[i], 0x5)) {
 						Pather.walkTo(coords[i].x, coords[i].y, 2);
-
-						break;
-					case 2:
-						if (getDistance(me, coords[i]) < 6 && !CollMap.checkColl(me, coords[i], 0x5)) {
-							Pather.walkTo(coords[i].x, coords[i].y, 2);
-						} else {
-							Pather.moveTo(coords[i].x, coords[i].y, 1);
-						}
-
-						break;
-					default:
+					} else {
+						// need to change moveTo to pass a settings obj so can control if what we do easier
 						Pather.moveTo(coords[i].x, coords[i].y, 1);
-
-						break;
 					}
 
 					Developer.debugging.pathing && print(sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow + "Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + currCount);

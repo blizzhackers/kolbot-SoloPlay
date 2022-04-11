@@ -45,7 +45,7 @@ function LoadConfig () {
 	Config.LogExperience = false;
 	Config.PingQuit = [{Ping: 600, Duration: 10}];
 	Config.Silence = true;
-	Config.OpenChests = me.hell ? 2 : true;
+	Config.OpenChests.Enabled = true;
 	Config.LowGold = me.normal ? 25000 : me.nightmare ? 50000 : 100000;
 	Config.PrimarySlot = 0;
 	Config.PacketCasting = 1;

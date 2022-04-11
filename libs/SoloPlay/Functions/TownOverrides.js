@@ -1054,6 +1054,11 @@ Town.drinkPots = function (type) {
 			!!name && (objID = name.split(' ')[0].toLowerCase());
 
 			if (objID) {
+				// non-english version
+				if (!CharData.buffData[objID]) {
+					objID = type.toLowerCase();
+				}
+
 				if (!CharData.buffData[objID].active() || CharData.buffData[objID].timeLeft() <= 0) {
 					CharData.buffData[objID].tick = getTickCount();
 					CharData.buffData[objID].duration = quantity * 30 * 1000;

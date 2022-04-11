@@ -47,7 +47,7 @@ function LoadConfig () {
 	Config.LogExperience = false;
 	Config.PingQuit = [{Ping: 600, Duration: 10}];
 	Config.Silence = true;
-	Config.OpenChests = me.hell ? 2 : true;
+	Config.OpenChests.Enabled = true;
 	Config.LowGold = me.normal ? 25000 : me.nightmare ? 50000 : 100000;
 	Config.PrimarySlot = 0;
 	Config.PacketCasting = 1;
@@ -155,8 +155,6 @@ function LoadConfig () {
 		// Rings
 		"[type] == ring && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Switch
-		"[type] == wand && [quality] >= normal # [itemchargedskill] == 72 # [secondarytier] == 25000",			// Weaken charged wand
-		"[name] == beardedaxe && [quality] == unique # [itemchargedskill] == 87 # [secondarytier] == 50000",	// Spellsteel Decrepify charged axe
 		// Charms
 		"[name] == smallcharm && [quality] == magic # [maxhp] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
@@ -175,6 +173,18 @@ function LoadConfig () {
 	];
 
 	NTIP.arrayLooping(levelingTiers);
+
+	let switchTiers = (["Wolf", "Plaguewolf"].includes(SetUp.currentBuild)
+		? [
+			"[name] == elderstaff && [quality] == unique # [itemallskills] >= 2 # [secondarytier] == tierscore(item)", // Ondal's
+			"[name] == archonstaff && [quality] == unique # [itemallskills] == 5 # [secondarytier] == tierscore(item)" // Mang Song's
+		]
+		: [
+			"[type] == wand && [quality] >= normal # [itemchargedskill] == 72 # [secondarytier] == 25000", // Weaken charged wand
+			"[name] == beardedaxe && [quality] == unique # [itemchargedskill] == 87 # [secondarytier] == 50000", // Spellsteel Decrepify charged axe
+		]);
+
+	NTIP.arrayLooping(switchTiers);
 
 	/* FastMod configuration. */
 	Config.FCR = 255;
@@ -330,17 +340,6 @@ function LoadConfig () {
 		break;
 	case 'Wolf':
 	case 'Plaguewolf':
-		if (SetUp.currentBuild === SetUp.finalBuild) {
-			// Weaken charged wand
-			NTIP.addLine("[type] == wand && [quality] >= normal # [itemchargedskill] == 72 # [secondarytier] == -1");
-			// Spellsteel Decrepify charged axe
-			NTIP.addLine("[name] == beardedaxe && [quality] == unique # [itemchargedskill] == 87 # [secondarytier] == -1");
-			// Ondal's
-			NTIP.addLine("[name] == elderstaff && [quality] == unique # [itemallskills] >= 2 # [secondarytier] == tierscore(item)");
-			// Mang Song's
-			NTIP.addLine("[name] == archonstaff && [quality] == unique # [itemallskills] == 5 # [secondarytier] == tierscore(item)");
-		}
-
 		// Chains of Honor
 		if (!Check.haveItem("armor", "runeword", "Chains of Honor")) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js")) {

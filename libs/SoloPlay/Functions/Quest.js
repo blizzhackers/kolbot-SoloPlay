@@ -137,34 +137,27 @@ const Quest = {
 	},
 
 	placeStaff: function () {
+		if (me.horadricstaff) return true;
+
 		let tick = getTickCount();
 		let orifice = Misc.poll(function () { return getUnit(sdk.unittype.Object, sdk.units.HoradricStaffHolder); });
-		let hstaff = me.getItem(sdk.items.quest.HoradricStaff);
-
-		if (me.horadricstaff) return true;
 		if (!orifice) return false;
-
-		if (!hstaff) {
-			hstaff = Quest.cubeItems(sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff, sdk.items.quest.ViperAmulet);
-		}
+		
+		let hstaff = (me.getItem(sdk.items.quest.HoradricStaff) || Quest.cubeItems(sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff, sdk.items.quest.ViperAmulet));
 
 		if (hstaff) {
 			if (hstaff.location !== sdk.storage.Inventory) {
 				!me.inTown && Town.goToTown();
 
-				if (Storage.Inventory.CanFit(hstaff)) {
-					hstaff.isInCube && Cubing.openCube();
-					Storage.Inventory.MoveTo(hstaff);
-
-				} else {
+				if (!Storage.Inventory.CanFit(hstaff)) {
 					Town.clearJunk();
 					Town.sortInventory();
-					hstaff.isInCube && Cubing.openCube();
-					Storage.Inventory.MoveTo(hstaff);
 				}
 
-				me.cancel();
-				Pather.usePortal(null, me.name);
+				hstaff.isInCube && Cubing.openCube();
+				Storage.Inventory.MoveTo(hstaff);
+				me.cancelUIFlags();
+				Town.move("portalspot") && Pather.usePortal(null, me.name);
 			}
 		}
 
@@ -250,23 +243,10 @@ const Quest = {
 
 		if (chestID !== undefined) {
 			let chest = getUnit(2, chestID);
-			if (!chest) return false;
-			Misc.openChest(chest);
-
+			if (!chest || !Misc.openChest(chest)) return false;
 		}
 
-		let questItem;
-		let tick = getTickCount();
-
-		while (getTickCount() - tick < 5000) {
-			questItem = getUnit(4, classid);
-
-			if (questItem) {
-				break;
-			}
-
-			delay(100 + me.ping);
-		}
+		let questItem = Misc.poll(() => getUnit(4, classid), 3000, 100 + me.ping);
 
 		if (Storage.Inventory.CanFit(questItem)) {
 			Pickit.pickItem(questItem);
