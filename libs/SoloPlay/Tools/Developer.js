@@ -99,11 +99,8 @@ const Developer = {
 	},
 
 	totalDays: function (milliseconds) {
-		let seconds = milliseconds / 1000,
-			sec = (seconds % 60),
-			minutes = (Math.floor(seconds / 60) % 60),
-			hours = (Math.floor(seconds / 3600) % 24),
-			days = Math.floor(seconds / 86400).toFixed(0),
+		let days = Math.floor(milliseconds / 86.4e6).toFixed(0);
+		return days.toString().padStart(1, '0');
 			timeString = days.toString().padStart(1, '0');
 
 		return timeString;
