@@ -97,6 +97,11 @@ const Developer = {
 
 		return timeString;
 	},
+
+	totalDays: function (milliseconds) {
+		let days = Math.floor(milliseconds / 86.4e6).toFixed(0);
+		return days.toString().padStart(1, '0');
+	},
 };
 
 // Set after Developer has been initialized - always load guard in developer mode
