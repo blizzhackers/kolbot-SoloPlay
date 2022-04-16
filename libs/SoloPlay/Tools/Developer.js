@@ -101,9 +101,6 @@ const Developer = {
 	totalDays: function (milliseconds) {
 		let days = Math.floor(milliseconds / 86.4e6).toFixed(0);
 		return days.toString().padStart(1, '0');
-			timeString = days.toString().padStart(1, '0');
-
-		return timeString;
 	},
 };
 
