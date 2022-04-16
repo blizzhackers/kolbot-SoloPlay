@@ -13,32 +13,31 @@ ControlAction.makeCharacter = function (info) {
 	me.blockMouse = true;
 	!info.charClass && (info.charClass = "barbarian");
 
-	let control,
-		clickCoords = [];
+	let clickCoords = [];
 
 	// cycle until in lobby
-	while (getLocation() !== 1) {
+	while (getLocation() !== sdk.game.locations.Lobby) {
 		switch (getLocation()) {
-		case 12: // character select
-		case 23: // connecting
-		case 42: // empty character select
-			control = getControl(6, 33, 528, 168, 60);
+		case sdk.game.locations.CharSelect:
+		case sdk.game.locations.CharSelectConnecting:
+		case sdk.game.locations.CharSelectNoChars:
+			let control = Controls.CharSelectCreate.control;
 
 			// Create Character greyed out
-			if (control && control.disabled === 4) {
+			if (control && control.disabled === sdk.game.controls.Disabled) {
 				me.blockMouse = false;
 
 				return false;
 			}
 
-			this.click(6, 33, 528, 168, 60);
+			Controls.CharSelectCreate.click();
 
 			break;
-		case 25:
+		case sdk.game.locations.LobbyPleaseWait:
 			D2Bot.restart(); // single player error on finding character
 
 			break;
-		case 29: // select character
+		case sdk.game.locations.CharacterCreate:
 			switch (info.charClass) {
 			case "barbarian":
 				clickCoords = [400, 280];
@@ -83,12 +82,12 @@ ControlAction.makeCharacter = function (info) {
 			delay(500);
 
 			break;
-		case 15: // new character
+		case sdk.game.locations.NewCharSelected:
 			// hardcore char warning
-			if (getControl(6, 421, 337, 96, 32)) {
-				this.click(6, 421, 337, 96, 32);
+			if (Controls.CharCreateHCWarningOk.control) {
+				Controls.CharCreateHCWarningOk.click();
 			} else {
-				this.setText(1, 318, 510, 157, 16, info.charName);
+				Controls.CharCreateCharName.setText(info.charName);
 
 				if (!info.expansion) {
 					switch (info.charClass) {
@@ -102,29 +101,24 @@ ControlAction.makeCharacter = function (info) {
 						break;
 					}
 
-					this.click(6, 319, 540, 15, 16);
+					Controls.CharCreateExpansion.click();
 				}
 
-				if (!info.ladder) {
-					this.click(6, 319, 580, 15, 16);
-				}
-
-				if (info.hardcore) {
-					this.click(6, 319, 560, 15, 16);
-				}
-
-				this.click(6, 627, 572, 128, 35);
+				!info.ladder && Controls.CharCreateLadder.click();
+				info.hardcore && Controls.CharCreateHardcore.click();
+				Controls.CreateNewAccountOk.click();
 			}
 
 			break;
-		case 30: // char name exists (text box 4, 268, 320, 264, 120)
+		case sdk.game.locations.OkCenteredErrorPopUp:
+			// char name exists (text box 4, 268, 320, 264, 120)
 			D2Bot.updateStatus("Character Name exists. Making new Name");
 			D2Bot.printToConsole("Character Name exists. Making new Name");
 			info.charName = NameGen();
 			D2Bot.setProfile(null, null, info.charName, "Normal");
 			delay(500);
-			ControlAction.click(6, 351, 337, 96, 32);
-			ControlAction.click(6, 33, 572, 128, 35);
+			Controls.OkCentered.click();
+			Controls.CharSelectExit.click();
 
 			me.blockMouse = false;
 
@@ -150,7 +144,7 @@ ControlAction.findCharacter = function (info) {
 	let count = 0;
 	let tick = getTickCount();
 
-	while (getLocation() !== 12) {
+	while (getLocation() !== sdk.game.locations.CharSelect) {
 		if (getTickCount() - tick >= 5000) {
 			break;
 		}
@@ -158,13 +152,13 @@ ControlAction.findCharacter = function (info) {
 		delay(25);
 	}
 
-	getLocation() === 23 && D2Bot.restart();
+	getLocation() === sdk.game.locations.CharSelectConnecting && D2Bot.restart();
 
 	// start from beginning of the char list
 	sendKey(0x24);
 
-	while (getLocation() === 12 && count < 24) {
-		let control = getControl(4, 37, 178, 200, 92);
+	while (getLocation() === sdk.game.locations.CharSelect && count < 24) {
+		let control = Controls.CharSelectCharInfo0.control;
 
 		if (control) {
 			do {
@@ -182,12 +176,9 @@ ControlAction.findCharacter = function (info) {
 
 		// check for additional characters up to 24
 		if (count === 8 || count === 16) {
-			control = getControl(4, 237, 457, 72, 93);
-
-			if (control) {
+			if (Controls.CharSelectChar6.click()) {
 				me.blockMouse = true;
 
-				control.click();
 				sendKey(0x28);
 				sendKey(0x28);
 				sendKey(0x28);
@@ -204,6 +195,7 @@ ControlAction.findCharacter = function (info) {
 	return false;
 };
 
+// need open bnet check
 ControlAction.makeAccount = function (info) {
 	me.blockMouse = true;
 
@@ -216,68 +208,64 @@ ControlAction.makeAccount = function (info) {
 		};
 
 	// cycle until in empty char screen
-	while (getLocation() !== 42) {
+	while (getLocation() !== sdk.game.locations.CharSelectNoChars) {
 		switch (getLocation()) {
-		case 8: // main menu
+		case sdk.game.locations.MainMenu:
 			ControlAction.clickRealm(realms[info.realm]);
-			this.click(6, 264, 366, 272, 35);
+			Controls.BattleNet.click();
 
 			break;
-		case 9: // login screen
-			this.click(6, 264, 572, 272, 35);
+		case sdk.game.locations.Login:
+			Controls.CreateNewAccount.click();
 
 			break;
-		case 10:
-		case 11:
+		case sdk.game.locations.LoginError:
+		case sdk.game.locations.LoginUnableToConnect:
 			return false;
-		case 18: // splash
-			this.click(2, 0, 599, 800, 600);
+		case sdk.game.locations.SplashScreen:
+			Controls.SplashScreen.click();
 
 			break;
-		case 21: // Main Menu - Connecting
+		case sdk.game.locations.MainMenuConnecting:
 			tick = getTickCount();
 
-			while (getLocation() === 21) {
+			while (getLocation() === sdk.game.locations.MainMenuConnecting) {
 				if (getTickCount() - tick > 10000) {
-					ControlAction.click(6, 330, 416, 128, 35);
+					Controls.LoginCancelWait.click();
 				}
 
 				delay(500);
 			}
 
 			break;
-		case 29: // Char create
-			this.click(6, 33, 572, 128, 35);
+		case sdk.game.locations.CharacterCreate:
+			Controls.CharSelectExit.click();
 
 			break;
-		case 30: // bnet disconnected
+		case sdk.game.locations.OkCenteredErrorPopUp:
 			info.account = "";
 			info.password = "";
 			D2Bot.setProfile(info.account, info.password);
 			D2Bot.restart(true);
 
 			break;
-		case 31: // ToU
-			this.click(6, 525, 513, 128, 35);
+		case sdk.game.locations.TermsOfUse:
+			Controls.TermsOfUseAgree.click();
 
 			break;
-		case 32: // new account
-			this.setText(1, 322, 342, 162, 19, info.account);
-			this.setText(1, 322, 396, 162, 19, info.password);
-			this.setText(1, 322, 450, 162, 19, info.password);
-			this.click(6, 627, 572, 128, 35);
+		case sdk.game.locations.CreateNewAccount:
+			Controls.CreateNewAccountName.setText(info.account);
+			Controls.CreateNewAccountPassword.setText(info.password);
+			Controls.CreateNewAccountConfirmPassword.setText(info.password);
+			Controls.CreateNewAccountOk.click();
 
 			break;
-		case 33: // please read
-			this.click(6, 525, 513, 128, 35);
+		case sdk.game.locations.PleaseRead:
+			Controls.PleaseReadOk.click();
 
 			break;
-		case 34: // e-mail
-			if (getControl(6, 415, 412, 128, 35)) {
-				this.click(6, 415, 412, 128, 35);
-			} else {
-				this.click(6, 265, 572, 272, 35);
-			}
+		case sdk.game.locations.RegisterEmail:
+			Controls.EmailDontRegisterContinue.control ? Controls.EmailDontRegisterContinue.click() : Controls.EmailDontRegister.click();
 
 			break;
 		default:
