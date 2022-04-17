@@ -275,9 +275,9 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 
 	if (target) {
 		do {
-			if (this.checkMonster(target) && this.skipCheck(target) && this.canAttack(target)) {
+			if (target.attackable && this.skipCheck(target) && this.canAttack(target)) {
 				// Speed optimization - don't go through monster list until there's at least one within clear range
-				if (!start && getDistance(target, x, y) <= range && (Pather.useTeleport() || !checkCollision(me, target, 0x1))) {
+				if (!start && getDistance(target, x, y) <= range && (Pather.useTeleport() || !checkCollision(me, target, 0x5))) {
 					start = true;
 				}
 
@@ -298,7 +298,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 			}
 		}
 
-		if (target.x !== undefined && (getDistance(target, x, y) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && this.checkMonster(target)) {
+		if (target.x !== undefined && (getDistance(target, x, y) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && target.attackable) {
 			if (Config.Dodge && me.hpPercent <= Config.DodgeHP) {
 				this.deploy(target, Config.DodgeRange, 5, 9);
 			}
@@ -390,7 +390,7 @@ Attack.buildMonsterList = function (skipBlocked = false) {
 
 	if (monster) {
 		do {
-			if (this.checkMonster(monster)) {
+			if (monster.attackable) {
 				monList.push(copyUnit(monster));
 			}
 		} while (monster.getNext());
@@ -400,28 +400,22 @@ Attack.buildMonsterList = function (skipBlocked = false) {
 };
 
 Attack.getMobCountAtPosition = function (x, y, range, filter = false, debug = true) {
-	let i,
-		list = [],
+	let list = [],
 		count = 0,
 		ignored = [243];
 
 	list = this.buildMonsterList(true);
+	filter && (list = list.filter(mob => mob.spectype === 0));
 	list.sort(Sort.units);
 	debug = Developer.debugging.pathing;
 
-	if (filter) {
-		list = list.filter(mob => mob.spectype === 0);
-	}
-
-	for (i = 0; i < list.length; i++) {
-		if (ignored.indexOf(list[i].classid) === -1 && this.checkMonster(list[i]) && getDistance(x, y, list[i].x, list[i].y) <= range) {
+	for (let i = 0; i < list.length; i++) {
+		if (ignored.indexOf(list[i].classid) === -1 && list[i].attackable && getDistance(x, y, list[i].x, list[i].y) <= range) {
 			count += 1;
 		}
 	}
 
-	if (debug) {
-		print(sdk.colors.Yellow + "getMobCountAtPosition :: " + sdk.colors.White + count + " monsters at x: " + x + " y: " + y);
-	}
+	debug && console.log(sdk.colors.Yellow + "getMobCountAtPosition :: " + sdk.colors.White + count + " monsters at x: " + x + " y: " + y);
 
 	return count;
 };
@@ -763,9 +757,9 @@ Attack.clearEx = function (givenSettings) {
 
 	if (target) {
 		do {
-			if ((!settings.spectype || (target.spectype & settings.spectype)) && this.checkMonster(target) && this.skipCheck(target)) {
+			if ((!settings.spectype || (target.spectype & settings.spectype)) && target.attackable && this.skipCheck(target)) {
 				// Speed optimization - don't go through monster list until there's at least one within clear range
-				if (!start && getDistance(target, orgx, orgy) <= range && (Pather.canTeleport() || !checkCollision(me, target, 0x1))) {
+				if (!start && getDistance(target, orgx, orgy) <= range && (Pather.canTeleport() || !checkCollision(me, target, 0x5))) {
 					start = true;
 				}
 
@@ -785,7 +779,7 @@ Attack.clearEx = function (givenSettings) {
 		monsterList.sort(sortfunc);
 		target = copyUnit(monsterList[0]);
 
-		if (target.x !== undefined && (getDistance(target, orgx, orgy) <= range || (this.getScarinessLevel(target) > 7 && target.distance <= settings.range)) && this.checkMonster(target)) {
+		if (target.x !== undefined && (getDistance(target, orgx, orgy) <= range || (this.getScarinessLevel(target) > 7 && target.distance <= settings.range)) && target.attackable) {
 			if (Config.Dodge && me.hpPercent <= Config.DodgeHP) {
 				this.deploy(target, Config.DodgeRange, 5, 9);
 			}
@@ -1381,9 +1375,9 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 					}
 
 					// I am already in my optimal position
-					if (coords[i].distance < 3) return true;
+					if (Math.round(getDistance(me, coords[i])) < 3) return true;
 
-					if (walk && coords[i].distance < 6 && !CollMap.checkColl(me, coords[i], 0x5)) {
+					if (walk && getDistance(me, coords[i]) < 6 && !CollMap.checkColl(me, coords[i], 0x5)) {
 						Pather.walkTo(coords[i].x, coords[i].y, 2);
 					} else {
 						// need to change moveTo to pass a settings obj so can control if what we do easier

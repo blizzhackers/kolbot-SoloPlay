@@ -32,8 +32,7 @@ if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.
 if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
 
 function main () {
-	let mercHP, ironGolem, tick, merc,
-		debugInfo = {area: 0, currScript: "no entry"},
+	let ironGolem, tick, debugInfo = {area: 0, currScript: "no entry"},
 		pingTimer = [],
 		quitFlag = false,
 		restart = false,
@@ -117,11 +116,10 @@ function main () {
 	};
 
 	this.getPotion = function (pottype, type) {
-		if (!pottype) return false;
+		if (!me.gameReady || !pottype) return false;
 
-		let items = me.getItemsEx()
-			.filter(item => item.itemType === pottype);
-		if (!items || items.length === 0) return false;
+		let items = me.getItemsEx().filter(item => item.itemType === pottype);
+		if (items.length === 0) return false;
 
 		// Get highest id = highest potion first
 		items.sort(function (a, b) {
@@ -130,12 +128,12 @@ function main () {
 
 		for (let k = 0; k < items.length; k += 1) {
 			if (type < 3 && items[k].isInInventory && items[k].itemType === pottype) {
-				print("ÿc2Drinking potion from inventory.");
-
+				console.log("ÿc2Drinking potion from inventory.");
 				return copyUnit(items[k]);
 			}
 
 			if (items[k].mode === 2 && items[k].itemType === pottype) {
+				console.log("ÿc2Drinking potion from belt.");
 				return copyUnit(items[k]);
 			}
 		}
@@ -200,8 +198,8 @@ function main () {
 	};
 
 	this.drinkPotion = function (type) {
-		let pottype, potion,
-			tNow = getTickCount();
+		if (!me.gameReady || !type) return false;
+		let pottype, tNow = getTickCount();
 
 		switch (type) {
 		case 0:
@@ -212,13 +210,15 @@ function main () {
 
 			break;
 		case 2:
-			if (timerLastDrink[type] && (tNow - timerLastDrink[type] < 300)) { // small delay for juvs just to prevent using more at once
+			// small delay for juvs just to prevent using more at once
+			if (timerLastDrink[type] && (tNow - timerLastDrink[type] < 300)) {
 				return false;
 			}
 
 			break;
 		case 4:
-			if (timerLastDrink[type] && (tNow - timerLastDrink[type] < 2000)) { // larger delay for juvs just to prevent using more at once, considering merc update rate
+			// larger delay for juvs just to prevent using more at once, considering merc update rate
+			if (timerLastDrink[type] && (tNow - timerLastDrink[type] < 2000)) {
 				return false;
 			}
 
@@ -231,9 +231,8 @@ function main () {
 			break;
 		}
 
-		if (me.mode === 0 || me.mode === 17 || me.mode === 18) { // mode 18 - can't drink while leaping/whirling etc.
-			return false;
-		}
+		// mode 18 - can't drink while leaping/whirling etc.
+		if (me.mode === 0 || me.mode === 17 || me.mode === 18) return false;
 
 		switch (type) {
 		case 0:
@@ -251,21 +250,20 @@ function main () {
 			break;
 		}
 
-		potion = this.getPotion(pottype, type);
+		let potion = this.getPotion(pottype, type);
 
-		if (potion) {
-			if (me.mode === 0 || me.mode === 17) {
-				return false;
-			}
+		if (!!potion) {
+			// mode 18 - can't drink while leaping/whirling etc.
+			if (me.mode === 0 || me.mode === 17 || me.mode === 18) return false;
 
-			if (type < 3) {
-				potion.interact();
-			} else {
-				try {
+			try {
+				if (type < 3) {
+					potion.interact();
+				} else {
 					clickItem(2, potion);
-				} catch (e) {
-					print("Couldn't give the potion to merc.");
 				}
+			} catch (e) {
+				console.warn(e);
 			}
 
 			timerLastDrink[type] = getTickCount();
@@ -277,6 +275,7 @@ function main () {
 	};
 
 	this.drinkSpecialPotion = function (type) {
+		if (!me.gameReady || !type) return false;
 		let objID;
 		let name = (type === sdk.items.ThawingPotion ? "thawing" : "antidote");
 
@@ -286,20 +285,23 @@ function main () {
 			return false;
 		}
 
-		let pot = me.getItemsEx()
-			.filter(function (p) { return p.isInInventory && p.classid === type; }).first();
+		let pot = me.getItemsEx().filter((p) => p.isInInventory && p.classid === type).first();
 		!!pot && (objID = pot.name.split(' ')[0].toLowerCase());
 
 		if (objID) {
-			pot.interact();
-			if (!CharData.buffData[objID].active() || CharData.buffData[objID].timeLeft() <= 0) {
-				CharData.buffData[objID].tick = getTickCount();
-				CharData.buffData[objID].duration = 3e4;
-			} else {
-				CharData.buffData[objID].duration += 3e4 - (getTickCount() - CharData.buffData[objID].tick);
-			}
+			try {
+				pot.interact();
+				if (!CharData.buffData[objID].active() || CharData.buffData[objID].timeLeft() <= 0) {
+					CharData.buffData[objID].tick = getTickCount();
+					CharData.buffData[objID].duration = 3e4;
+				} else {
+					CharData.buffData[objID].duration += 3e4 - (getTickCount() - CharData.buffData[objID].tick);
+				}
 
-			console.debug(CharData.buffData);
+				console.debug(CharData.buffData);
+			} catch (e) {
+				console.warn(e);
+			}
 
 			return true;
 		}
@@ -314,7 +316,7 @@ function main () {
 
 		if (monster) {
 			do {
-				if (monster.hp > 0 && Attack.checkMonster(monster) && !monster.getParent()) {
+				if (monster.hp > 0 && monster.attackable && !monster.getParent()) {
 					distance = getDistance(me, monster);
 
 					if (distance < range) {
@@ -331,13 +333,12 @@ function main () {
 	};
 
 	this.checkVipers = function () {
-		let owner,
-			monster = getUnit(1, 597);
+		let monster = getUnit(1, 597);
 
 		if (monster) {
 			do {
 				if (monster.getState(96)) {
-					owner = monster.getParent();
+					let owner = monster.getParent();
 
 					if (owner && owner.name !== me.name) {
 						return true;
@@ -350,12 +351,11 @@ function main () {
 	};
 
 	this.getIronGolem = function () {
-		let owner,
-			golem = getUnit(1, 291);
+		let golem = getUnit(1, 291);
 
 		if (golem) {
 			do {
-				owner = golem.getParent();
+				let owner = golem.getParent();
 
 				if (owner && owner.name === me.name) {
 					return copyUnit(golem);
@@ -367,10 +367,9 @@ function main () {
 	};
 
 	this.getNearestPreset = function () {
-		let unit, dist, id;
-
-		unit = getPresetUnits(me.area);
-		dist = 99;
+		let id;
+		let unit = getPresetUnits(me.area);
+		let dist = 99;
 
 		for (let n = 0; n < unit.length; n += 1) {
 			if (getDistance(me, unit[n].roomx * 5 + unit[n].x, unit[n].roomy * 5 + unit[n].y) < dist) {
@@ -464,7 +463,7 @@ function main () {
 			showConsole();
 
 			print("ÿc8My stats :: " + this.getStatsString(me));
-			merc = me.getMerc();
+			let merc = me.getMerc();
 			!!merc && print("ÿc8Merc stats :: " + this.getStatsString(merc));
 			console.log("//------ÿc8SoloWants.needListÿc0-----//");
 			console.log(SoloWants.needList);
@@ -732,13 +731,8 @@ function main () {
 	while (true) {
 		try {
 			if (me.gameReady && !me.inTown) {
-				if (Config.UseHP > 0 && me.hp < Math.floor(me.hpmax * Config.UseHP / 100)) {
-					this.drinkPotion(0);
-				}
-
-				if (Config.UseRejuvHP > 0 && me.hp < Math.floor(me.hpmax * Config.UseRejuvHP / 100)) {
-					this.drinkPotion(2);
-				}
+				Config.UseHP > 0 && me.hpPercent < Config.UseHP && this.drinkPotion(0);
+				Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && this.drinkPotion(2);
 
 				if (Config.LifeChicken > 0 && me.hp <= Math.floor(me.hpmax * Config.LifeChicken / 100)) {
 					!Developer.hideChickens && D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + this.getNearestMonster() + " in " + Pather.getAreaName(me.area) + ". Ping: " + me.ping, 9);
@@ -747,13 +741,8 @@ function main () {
 					break;
 				}
 
-				if (Config.UseMP > 0 && me.mp < Math.floor(me.mpmax * Config.UseMP / 100)) {
-					this.drinkPotion(1);
-				}
-
-				if (Config.UseRejuvMP > 0 && me.mp < Math.floor(me.mpmax * Config.UseRejuvMP / 100)) {
-					this.drinkPotion(2);
-				}
+				Config.UseMP > 0 && me.mpPercent < Config.UseMP && this.drinkPotion(1);
+				Config.UseRejuvMP > 0 && me.mpPercent < Config.UseRejuvMP && this.drinkPotion(2);
 
 				me.getState(sdk.states.Poison) && this.drinkSpecialPotion(sdk.items.AntidotePotion);
 				[sdk.states.Frozen, sdk.states.FrozenSolid].some(state => me.getState(state)) && this.drinkSpecialPotion(sdk.items.ThawingPotion);
@@ -781,23 +770,20 @@ function main () {
 				}
 
 				if (Config.UseMerc) {
-					mercHP = getMercHP();
-					merc = me.getMerc();
+					let merc = me.getMerc();
+					if (!!merc) {
+						let mercHP = getMercHP();
 
-					if (mercHP > 0 && merc && merc.mode !== 12) {
-						if (mercHP < Config.MercChicken) {
-							!Developer.hideChickens && D2Bot.printToConsole("Merc Chicken in " + Pather.getAreaName(me.area), 9);
-							this.exit(true);
+						if (mercHP > 0 && merc.mode !== 12) {
+							if (mercHP < Config.MercChicken) {
+								!Developer.hideChickens && D2Bot.printToConsole("Merc Chicken in " + Pather.getAreaName(me.area), 9);
+								this.exit(true);
 
-							break;
-						}
+								break;
+							}
 
-						if (mercHP < Config.UseMercHP) {
-							this.drinkPotion(3);
-						}
-
-						if (mercHP < Config.UseMercRejuv) {
-							this.drinkPotion(4);
+							mercHP < Config.UseMercHP && this.drinkPotion(3);
+							mercHP < Config.UseMercRejuv && this.drinkPotion(4);
 						}
 					}
 				}

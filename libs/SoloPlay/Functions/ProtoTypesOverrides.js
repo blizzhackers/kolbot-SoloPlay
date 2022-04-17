@@ -92,30 +92,11 @@ Object.defineProperties(Unit.prototype, {
 			return !!this.getFlag(0x4000000);
 		}
 	},
-	isQuestItem: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return false;
-			return this.itemType === sdk.itemtype.Quest ||
-                [sdk.items.quest.HoradricMalus, sdk.items.quest.WirtsLeg, sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff,
-                	sdk.items.quest.ViperAmulet, sdk.items.quest.DecoyGidbinn, sdk.items.quest.TheGidbinn, sdk.items.quest.KhalimsFlail,
-                	sdk.items.quest.KhalimsWill, sdk.items.quest.HellForgeHammer, sdk.items.quest.StandardofHeroes].includes(this.classid);
-		}
-	},
 	isBaseType: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
-			return [sdk.itemquality.Normal, sdk.itemquality.Superior].includes(this.quality) && !this.isQuestItem && !this.isRuneword
+			return [sdk.itemquality.Normal, sdk.itemquality.Superior].includes(this.quality) && !this.questItem && !this.isRuneword
 				&& getBaseStat("items", this.classid, "gemsockets") > 0 && [sdk.itemtype.Ring, sdk.itemtype.Amulet].indexOf(this.itemType) === -1;
-		}
-	},
-	isSellable: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return false;
-			return !this.isQuestItem &&
-				[sdk.items.quest.KeyofTerror, sdk.items.quest.KeyofHate, sdk.items.quest.KeyofDestruction, sdk.items.quest.DiablosHorn,
-					sdk.items.quest.BaalsEye, sdk.items.quest.MephistosBrain, sdk.items.quest.TokenofAbsolution, sdk.items.quest.TwistedEssenceofSuffering,
-					sdk.items.quest.ChargedEssenceofHatred, sdk.items.quest.BurningEssenceofTerror, sdk.items.quest.FesteringEssenceofDestruction].indexOf(this.classid) === -1 &&
-            	!(this.quality === sdk.itemquality.Unique && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(this.itemType));
 		}
 	},
 	rawStrength: {
@@ -255,57 +236,6 @@ Object.defineProperties(me, {
 		}
 	},
 });
-
-Unit.prototype.getMobCount = function (range = 10, coll = 0, type = 0, noSpecialMobs = false) {
-	if (this === undefined) return 0;
-	const _this = this;
-	return getUnits(sdk.unittype.Monster)
-		.filter(function (mon) {
-			return mon.attackable && getDistance(_this, mon) < range && (!type || ((type & mon.spectype) && !noSpecialMobs)) && (!coll || !checkCollision(_this, mon, coll));
-		}).length;
-};
-
-// Credit @Jaenster
-Unit.prototype.switchWeapons = function (slot) {
-	if (this.gametype === 0 || this.weaponswitch === slot && slot !== undefined) {
-		return true;
-	}
-
-	while (typeof me !== 'object') {delay(10);}
-
-	let originalSlot = this.weaponswitch;
-
-	let i, tick, switched = false,
-		packetHandler = (bytes) => bytes.length > 0 && bytes[0] === 0x97 && (switched = true) && false; // false to not block
-	addEventListener('gamepacket', packetHandler);
-	try {
-		for (i = 0; i < 10; i += 1) {
-			//print('Switch weapons -- attempt #' + (i + 1));
-
-			for (let j = 10; --j && me.idle;) {
-				delay(3);
-			}
-
-			i > 0 && delay(Math.min(1 + (me.ping * 1.5), 10));
-			!switched && sendPacket(1, 0x60); // Swap weapons
-
-			tick = getTickCount();
-			while (getTickCount() - tick < 250 + (me.ping * 5)) {
-				if (switched || originalSlot !== me.weaponswitch) {
-					return true;
-				}
-
-				delay(3);
-			}
-			// Retry
-		}
-	} finally {
-		removeEventListener('gamepacket', packetHandler);
-	}
-
-
-	return false;
-};
 
 // Returns the number of frames needed to cast a given skill at a given FCR for a given char.
 Unit.prototype.castingFrames = function (skillId, fcr, charClass) {
@@ -865,23 +795,23 @@ Unit.prototype.getStatEx = function (id, subid) {
 
 (function (global, _original) {
 	let __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-	    if (k2 === undefined) k2 = k;
-	    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+		if (k2 === undefined) k2 = k;
+		Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
 	}) : (function(o, m, k, k2) {
-	    if (k2 === undefined) k2 = k;
-	    o[k2] = m[k];
+		if (k2 === undefined) k2 = k;
+		o[k2] = m[k];
 	}));
 	let __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-	    Object.defineProperty(o, "default", { enumerable: true, value: v });
+		Object.defineProperty(o, "default", { enumerable: true, value: v });
 	}) : function(o, v) {
-	    o.default = v;
+		o.default = v;
 	});
 	let __importStar = (this && this.__importStar) || function (mod) {
-	    if (mod && mod.__esModule) return mod;
-	    let result = {};
-	    if (mod != null) for (let k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-	    __setModuleDefault(result, mod);
-	    return result;
+		if (mod && mod.__esModule) return mod;
+		let result = {};
+		if (mod != null) for (let k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+		__setModuleDefault(result, mod);
+		return result;
 	};
 	let Worker = __importStar(require("../../modules/Worker"));
 	global._setTimeout = _original;
@@ -896,18 +826,20 @@ Unit.prototype.getStatEx = function (id, subid) {
 		if (time === void 0) { time = 0; }
 		if (args === void 0) { args = []; }
 		Timer.instances.push(this);
-		Worker.runInBackground['__setTimeout__' + (Timer.counter++)] = (function (startTick) { return function () {
-			let finished = getTickCount() - startTick >= time;
-			if (finished) {
-				let index = Timer.instances.indexOf(_this);
-				// only if not removed from the time list
-				if (index > -1) {
-					Timer.instances.splice(index, 1);
-					cb.apply(undefined, args);
+		Worker.runInBackground['__setTimeout__' + (Timer.counter++)] = (function (startTick) {
+			return function () {
+				let finished = getTickCount() - startTick >= time;
+				if (finished) {
+					let index = Timer.instances.indexOf(_this);
+					// only if not removed from the time list
+					if (index > -1) {
+						Timer.instances.splice(index, 1);
+						cb.apply(undefined, args);
+					}
 				}
-			}
-			return !finished;
-		}; })(getTickCount());
+				return !finished;
+			};
+		})(getTickCount());
 	}
 	Timer.instances = [];
 	Timer.counter = 0;
@@ -921,8 +853,9 @@ Unit.prototype.getStatEx = function (id, subid) {
 			console.debug('Warning: Do not use raw code @ setTimeout and does not support lexical scoping');
 			cb = [].filter.constructor(cb);
 		}
-		if (typeof cb !== 'function')
+		if (typeof cb !== 'function') {
 			throw new TypeError('setTimeout callback needs to be a function');
+		}
 		return new Timer(cb, time, args);
 	};
 	/**
@@ -987,12 +920,12 @@ if (!Object.is) {
 				// if x and y are both 0 of the same sign.
 				// This checks for cases 1 and 2 above.
 				return x !== 0 || 1 / x === 1 / y;
-			}
-			else {
+			} else {
 				// return true if both x AND y evaluate to NaN.
 				// The only possibility for a variable to not be strictly equal to itself
 				// is when that variable evaluates to NaN (example: Number.NaN, 0/0, NaN).
 				// This checks for case 3.
+				// eslint-disable-next-line no-self-compare
 				return x !== x && y !== y;
 			}
 		}
@@ -1028,27 +961,27 @@ if (!Array.prototype.equals) {
 	!!Array.prototype.equals && console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
 	// attach the .equals method to Array's prototype to call it on any array
 	Array.prototype.equals = function (array) {
-	    // if the other array is a falsy value, return
-	    if (!array) return false;
+		// if the other array is a falsy value, return
+		if (!array) return false;
 
-	    // compare lengths - can save a lot of time 
-	    if (this.length != array.length) return false;
-	    
-	    // call basic sort method, (my addition as I don't care if its the same order just if it contains the same values)
-	    this.sort();
-	    array.sort();
+		// compare lengths - can save a lot of time 
+		if (this.length != array.length) return false;
+    
+		// call basic sort method, (my addition as I don't care if its the same order just if it contains the same values)
+		this.sort();
+		array.sort();
 
-	    for (let i = 0, l = this.length; i < l; i++) {
-	        // Check if we have nested arrays
-	        if (this[i] instanceof Array && array[i] instanceof Array) {
-	            // recurse into the nested arrays
-	            if (!this[i].equals(array[i])) return false;
-	        } else if (this[i] != array[i]) {
-	            // Warning - two different object instances will never be equal: {x:20} != {x:20}
-	            return false;
-	        }
-	    }
-	    return true;
+		for (let i = 0, l = this.length; i < l; i++) {
+			// Check if we have nested arrays
+			if (this[i] instanceof Array && array[i] instanceof Array) {
+				// recurse into the nested arrays
+				if (!this[i].equals(array[i])) return false;
+			} else if (this[i] != array[i]) {
+				// Warning - two different object instances will never be equal: {x:20} != {x:20}
+				return false;
+			}
+		}
+		return true;
 	};
 	// Hide method from for-in loops
 	Object.defineProperty(Array.prototype, "equals", {enumerable: false});

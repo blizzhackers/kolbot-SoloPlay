@@ -237,7 +237,7 @@ Town.repair = function (force = false) {
 	return true;
 };
 
-Town.cainID = function (force = false, dontSell = false) {
+Town.cainID = function (force = false) {
 	if ((!Config.CainID.Enable && !force) || !Misc.checkQuest(sdk.quests.TheSearchForCain, 0)) return false;
 
 	// Check if we're already in a shop. It would be pointless to go to Cain if so.
@@ -316,7 +316,7 @@ Town.cainID = function (force = false, dontSell = false) {
 				Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm && Misc.logItem("Sold", item);
 
 				Misc.itemLogger("Sold", item);
-				if ((getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) && (item.getItemCost(1) <= 1 || !item.isSellable)) {
+				if ((getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) && (item.getItemCost(1) <= 1 || !item.sellable)) {
 					continue;
 				}
 
@@ -351,8 +351,6 @@ Town.cainID = function (force = false, dontSell = false) {
 							tpTome = me.findItem(518, 0, 3);
 
 							if (tpTome) {
-								tpTomePos = {x: tpTome.x, y: tpTome.y};
-
 								tpTome.sell();
 								delay(500);
 							}
@@ -388,8 +386,7 @@ Town.cainID = function (force = false, dontSell = false) {
 };
 
 Town.identify = function () {
-	let i, item, tome, scroll, npc, list, timer, tpTome, result,
-		tpTomePos = {};
+	let i, item, tome, scroll, npc, list, timer, tpTome, result;
 
 	if (me.gold < 5000) this.cainID(true);
 
@@ -448,8 +445,6 @@ Town.identify = function () {
 							tpTome = me.findItem(518, 0, 3);
 
 							if (tpTome) {
-								tpTomePos = {x: tpTome.x, y: tpTome.y};
-
 								tpTome.sell();
 								delay(500);
 							}
@@ -1203,7 +1198,7 @@ Town.stash = function (stashGold = true) {
 				case Runewords.keepItem(items[i]):
 				case CraftingSystem.keepItem(items[i]):
 				case SoloWants.keepItem(items[i]):
-				case !items[i].isSellable: // quest/essences/keys/ect
+				case !items[i].sellable: // quest/essences/keys/ect
 					result = true;
 
 					break;
@@ -1274,17 +1269,19 @@ Town.clearInventory = function () {
 
 			for (let i = 0; i < 4; i += 1) {
 				if (item.code.indexOf(Config.BeltColumn[i]) > -1 && col[i] > 0) {
-					if (col[i] === beltSize) { // Pick up the potion and put it in belt if the column is empty
+					// Pick up the potion and put it in belt if the column is empty
+					if (col[i] === beltSize) {
 						if (item.toCursor()) {
 							clickItem(0, i, 0, 2);
 						}
 					} else {
-						clickItem(2, item.x, item.y, item.location); // Shift-click potion
+						// Shift-click potion
+						clickItem(2, item.x, item.y, item.location);
 					}
 
 					delay(me.ping + 200);
-
 					col = this.checkColumns(beltSize);
+					
 					break;
 				}
 			}
@@ -1328,7 +1325,7 @@ Town.clearInventory = function () {
 
 	for (let i = 0; !!items && i < items.length; i += 1) {
 		if ([18, 41, 76, 77, 78].indexOf(items[i].itemType) === -1 // Don't drop tomes, keys or potions
-			&& items[i].isSellable // Don't try to sell/drop quest-items/keys/essences/tokens/organs
+			&& items[i].sellable // Don't try to sell/drop quest-items/keys/essences/tokens/organs
 			&& (items[i].code !== 529 || !!me.findItem(518, 0, 3)) // Don't throw scrolls if no tome is found (obsolete code?)
 			&& (items[i].code !== 530 || !!me.findItem(519, 0, 3)) // Don't throw scrolls if no tome is found (obsolete code?)
 			&& !AutoEquip.wanted(items[i]) // Don't throw auto equip wanted items
@@ -1354,7 +1351,7 @@ Town.clearInventory = function () {
 
 			switch (result) {
 			case 0: // Drop item
-				if ((getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) && (items[i].getItemCost(1) <= 1 || !items[i].isSellable)) {
+				if ((getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) && (items[i].getItemCost(1) <= 1 || !items[i].sellable)) {
 					continue;
 				}
 
@@ -2210,7 +2207,7 @@ Town.clearJunk = function () {
 			!CraftingSystem.keepItem(junk) && // Don't throw crafting system ingredients
 			!SoloWants.keepItem(junk) && // Don't throw SoloWants system ingredients
 			!Town.ignoredItemTypes.includes(junk.itemType) && // Don't drop tomes, keys or potions
-			junk.isSellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
+			junk.sellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
 			([0, 4].includes(Pickit.checkItem(junk).result)) // only drop unwanted or sellable
 		) {
 			print("ÿc9JunkCheckÿc0 :: Junk: " + junk.name + " Pickit Result: " + Pickit.checkItem(junk).result);
@@ -2230,7 +2227,7 @@ Town.clearJunk = function () {
 			}
 		}
 
-		if (junk.isInStorage && junk.isSellable) {
+		if (junk.isInStorage && junk.sellable) {
 			if (!junk.identified && !Cubing.keepItem(junk) && !CraftingSystem.keepItem(junk)) {
 				print("ÿc9UnidJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + Pickit.checkItem(junk).result);
 

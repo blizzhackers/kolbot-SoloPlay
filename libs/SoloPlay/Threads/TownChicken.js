@@ -81,7 +81,7 @@ function main() {
 
 		if (monster) {
 			do {
-				if (monster.hp > 0 && Attack.checkMonster(monster) && !monster.getParent()) {
+				if (monster.hp > 0 && monster.attackable && !monster.getParent()) {
 					distance = getDistance(me, monster);
 
 					if (distance < range) {
@@ -196,7 +196,7 @@ function main() {
 						}
 
 						if (useTerror && Skill.getManaCost(77) < me.mp) {
-							Skill.cast(77, 0, Attack.getNearestMonster(true));
+							Skill.cast(77, 0, Attack.getNearestMonster({skipImmune: false}));
 						}
 					}
 				}

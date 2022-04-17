@@ -125,6 +125,52 @@ const SetUp = {
 		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests",
 	],
 
+	// TODO: write me.mainDps prototype to clean up exclusions
+	/*scripts: {
+		corpsefire: {
+			preReq: () => { return me.den && me.hell; },
+			skipIf: () => { return me.druid && me.paladin; },
+			runIf: () => { return this.preReq() && !this.skipIf() && (!me.andariel || Check.brokeAf()); }
+		},
+		den: {
+			runIf: () => { return !me.den; }
+		},
+		bloodraven: {
+			skipIf: () => { return ["Lightning", "Trapsin", "Javazon"].includes(SetUp.currentBuild); },
+			byDiff: () => {
+				switch (me.diff) {
+				case sdk.difficulty.Normal:
+					return !me.bloodraven || (!me.summoner && Check.brokeAf()) || (!me.tristram && me.barbarian);
+				case sdk.difficulty.Nightmare:
+					return !me.bloodraven;
+				case sdk.difficulty.Hell:
+					return !this.skipIf();
+				}
+			},
+			runIf: () => { return this.byDiff(); }
+		},
+		treehead: {
+			skipIf: () => { return !me.hell || !me.paladin || !Pather.accessToAct(3); },
+			runIf: () => { return !this.skipIf() && SetUp.currentBuild !== SetUp.finalBuild; }
+		},
+		smith: {
+			// does smith have leveling potential? for now just if we need the q
+			runIf: () => { return !Misc.checkQuest(3, 1) && !me.smith; }
+		},
+		tristram: {
+			skipIf: () => { return },
+			byDiff: () => {
+				switch (me.diff) {
+				case sdk.difficulty.Normal:
+					return (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf());
+				case sdk.difficulty.Nightmare:
+				case sdk.difficulty.Hell:
+					return !this.skipIf();
+				}
+			}
+		},
+	},*/
+
 	// Should this be moved elsewhere? Currently have to include Globals then call this to include rest of overrides
 	// which in doing so would include globals anyway but does this always need to be included first?
 	// really need a centralized way to make sure all files use/have the custom functions and all threads stay updated without having to
@@ -898,7 +944,7 @@ const Check = {
 
 		let items = me.getItemsEx()
 			.filter(function (item) {
-				return !item.isQuestItem && (flag === "Runeword" ? item.isRuneword : item.quality === sdk.itemquality[flag]);
+				return !item.questItem && (flag === "Runeword" ? item.isRuneword : item.quality === sdk.itemquality[flag]);
 			});
 
 		switch (typeof type) {
@@ -980,7 +1026,7 @@ const Check = {
 		let itemCHECK = false;
 		let items = me.getItemsEx()
 			.filter(function (item) {
-				return item.quality === quality && !item.isQuestItem && !item.isRuneword && (isClassID ? item.classid === type : item.itemType === type) && getBaseStat("items", item.classid, "gemsockets") > 0;
+				return item.quality === quality && !item.questItem && !item.isRuneword && (isClassID ? item.classid === type : item.itemType === type) && getBaseStat("items", item.classid, "gemsockets") > 0;
 			});
 
 		for (let i = 0; i < items.length; i++) {
@@ -1233,7 +1279,7 @@ const SoloWants = {
 	buildList: function () {
 		let myItems = me.getItemsEx()
 			.filter(function (item) {
-				return !item.isRuneword && !item.isQuestItem && item.quality >= sdk.itemquality.Magic && (item.getStat(sdk.stats.NumSockets) > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
+				return !item.isRuneword && !item.questItem && item.quality >= sdk.itemquality.Magic && (item.getStat(sdk.stats.NumSockets) > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
 			});
 		myItems
 			.filter(function (item) { return item.isEquipped; })

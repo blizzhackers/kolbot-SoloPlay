@@ -346,7 +346,7 @@ Item.equip = function (item, bodyLoc) {
 					if (cursorItem) {
 						// rollback check
 						let justEquipped = this.getEquippedItem(bodyLoc);
-						if (NTIP.GetTier(cursorItem) > justEquipped.tier && !item.isQuestItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attemt rollback*/) {
+						if (NTIP.GetTier(cursorItem) > justEquipped.tier && !item.questItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attemt rollback*/) {
 							console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
 							console.debug("OldItem: " + NTIP.GetTier(cursorItem) + " Just Equipped Item: " + this.getEquippedItem(bodyLoc).tier);
 							clickItemAndWait(0, bodyLoc);

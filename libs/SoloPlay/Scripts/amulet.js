@@ -13,7 +13,7 @@ function amulet () {
 	Pather.moveToExit([sdk.areas.ValleyofSnakes, sdk.areas.ClawViperTempleLvl1, sdk.areas.ClawViperTempleLvl2], true);
 	Precast.doPrecast(true);
 
-	if (!me.sorceress || (me.sorceress && !Pather.useTeleport())) {
+	if (!Pather.useTeleport()) {
 		Pather.moveTo(15065, 14047);
 		Pather.moveTo(15063, 14066);
 		Pather.moveTo(15051, 14066);
@@ -22,7 +22,11 @@ function amulet () {
 		Pather.moveTo(15045, 14051, null, false);
 	}
 
-	Quest.collectItem(sdk.items.quest.ViperAmulet, 149);
+	if (!Quest.collectItem(sdk.items.quest.ViperAmulet, 149)) {
+		myPrint("Failed to collect viper amulet");
+		return false;
+	}
+
 	Town.npcInteract("drognan");
 	Quest.stashItem(sdk.items.quest.ViperAmulet);
 

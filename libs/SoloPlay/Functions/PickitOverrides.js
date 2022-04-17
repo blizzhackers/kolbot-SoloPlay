@@ -124,7 +124,7 @@ Pickit.checkItem = function (unit) {
 	}
 
 	// LowGold
-	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && !Town.ignoredItemTypes.includes(unit.itemType) && !unit.isQuestItem &&
+	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && !Town.ignoredItemTypes.includes(unit.itemType) && !unit.questItem &&
 		(unit.isInInventory || (me.gold < Config.LowGold || me.gold < 500000))) {
 		// Gold doesn't take up room, just pick it up
 		if (unit.classid === sdk.items.Gold) {

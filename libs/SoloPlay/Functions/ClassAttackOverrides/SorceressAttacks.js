@@ -15,16 +15,23 @@ let frostNovaCheck = function () {
 
 ClassAttack.doAttack = function (unit, skipStatic = false) {
 	Developer.debugging.skills && print(sdk.colors.Green + "Test Start-----------------------------------------//");
+	if (!unit) return 1;
+	let gid = unit.gid;
+
 	let tick = getTickCount();
-	let mark,
-		merc = Merc.getMercFix(),
-		timedSkill = {have: false, skill: -1, range: undefined, mana: undefined, dmg: 0},
+	let timedSkill = {have: false, skill: -1, range: undefined, mana: undefined, dmg: 0},
 		index = (unit.spectype !== 0 || unit.type === 0) ? 1 : 3,
 		gold = me.gold;
 
 	if (Config.MercWatch && Town.needMerc() && gold > me.mercrevivecost * 3) {
 		console.debug("mercwatch");
-		Town.visitTown();
+
+		if (Town.visitTown()) {
+			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+				console.debug("Lost reference to unit");
+				return 1; // lost reference to the mob we were attacking
+			}
+		}
 	}
 
 	// Keep Energy Shield active
@@ -248,19 +255,43 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 		Developer.debugging.skills && print(sdk.colors.Red + "Sucess Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
 		return true;
 	case 2: // Try to telestomp
-		if (me.getSkill(sdk.skills.Teleport, 1) && (Config.TeleStomp || (unit.getMobCount(10) < me.maxNearMonsters && index === 1)) && Attack.checkResist(unit, "physical") && Config.UseMerc) {
-			while (Attack.checkMonster(unit)) {
-				Misc.townCheck();
+		if (Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y) && (Config.TeleStomp || (unit.getMobCount(10) < me.maxNearMonsters && index === 1))) {
+			let merc = me.getMerc();
+			let haveTK = !!(me.getSkill(sdk.skills.Telekinesis, 1));
+			let mercRevive = 0;
 
-				merc === undefined || !merc && Town.visitTown();
-				unit.distance > 3 && Pather.moveToUnit(unit);
+			while (unit.attackable) {
+				if (Misc.townCheck()) {
+					if (!unit || !copyUnit(unit).x) {
+						unit = Misc.poll(function () { return getUnit(1, -1, -1, gid); }, 1000, 80);
+					}
+				}
+
+				if (!unit) return 1;
+
+				if (Town.needMerc()) {
+					if (Config.MercWatch && mercRevive < 3) {
+						Town.visitTown() && (mercRevive++);
+					} else {
+						return 2;
+					}
+
+					(merc === undefined || !merc) && (merc = me.getMerc());
+				}
+
+				if (!!merc && getDistance(merc, unit) > 5) {
+					Pather.moveToUnit(unit);
+
+					let spot = Attack.findSafeSpot(unit, 10, 5, 9);
+					!!spot && Pather.walkTo(spot.x, spot.y);
+				}
 
 				if (Attack.checkResist(unit, "lightning") && data.static.have && unit.hpPercent > Config.CastStatic) {
 					Skill.cast(sdk.skills.StaticField, 0);
 				}
 
-				mark = Attack.getNearestMonster();
-				!!mark ? Attack.checkResist(mark, timedSkill) && ClassAttack.doCast(mark, timedSkill, data) : me.getSkill(sdk.skills.Telekinesis, 1) ? Skill.cast(sdk.skills.Telekinesis, 0, unit) : null;
+				let closeMob = Attack.getNearestMonster({skipGid: gid});
+				!!closeMob ? this.doCast(closeMob, timedSkill, data) : haveTK && Skill.cast(sdk.skills.Telekinesis, 0, unit);
 			}
 
 			return true;

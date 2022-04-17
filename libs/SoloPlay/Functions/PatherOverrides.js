@@ -85,6 +85,7 @@ Pather.forceRun = false;
  * @author Jaenster
  * @description Some prototypes on objects
  */
+// eslint-disable-next-line no-unused-vars
 (function (global) {
 	let coords = function () {
 		if (Array.isArray(this) && this.length > 1) {
@@ -144,6 +145,7 @@ Pather.forceRun = false;
 		},
 		click: {
 			get: function () {
+				// eslint-disable-next-line no-unused-vars
 				return function (button = 0, shift = false) {
 					if (this instanceof Unit) {
 						switch (this.type) {
@@ -825,7 +827,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 								D2Bot.printToConsole("Check logs for waypoint bug");
 								console.debug("did this work?");
 								takeScreenshot();
-							}							
+							}
 						}
 					}
 

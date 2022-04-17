@@ -143,7 +143,6 @@ ClassAttack.doAttack = function (unit, preattack) {
 		mercRevive = 0,
 		timedSkill = -1,
 		untimedSkill = -1,
-		customCurse = -1,
 		gold = me.gold,
 		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3,
 		useTerror = me.getSkill(sdk.skills.Terror, 0),
@@ -250,8 +249,8 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 			Config.ActiveSummon && this.raiseArmy();
 			this.explodeCorpses(unit);
-			let closeMob = Attack.getNearestMonster(true, true);
-			!!closeMob && closeMob.gid !== gid && this.doCast(closeMob, timedSkill, untimedSkill);
+			let closeMob = Attack.getNearestMonster({skipGid: gid});
+			!!closeMob && this.doCast(closeMob, timedSkill, untimedSkill);
 		}
 
 		return 1;
@@ -323,8 +322,6 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 			}
 
 			if (!unit.dead) {
-				let closeMobCheck = Attack.getNearestMonster();
-
 				if (Math.round(getDistance(me, unit)) < 4 && timedSkillRange > 6) {
 					// Try to find better spot
 					Attack.deploy(unit, 4, 5, 9);

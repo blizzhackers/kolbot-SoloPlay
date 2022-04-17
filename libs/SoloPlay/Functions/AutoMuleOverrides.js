@@ -20,7 +20,7 @@ AutoMule.getMuleItems = function () {
 	if (item) {
 		do {
 			if (Town.ignoredItemTypes.indexOf(item.itemType) === -1 &&
-				(!item.isQuestItem) && // Don't mule quest items
+				(!item.questItem) && // Don't mule quest items
 					(Pickit.checkItem(item).result > 0 || (item.isInStash && info.muleInfo.hasOwnProperty("muleOrphans") && info.muleInfo.muleOrphans)) &&
 					!AutoEquip.wanted(item) && // Don't mule wanted auto equip items
 					(item.isInStash || (item.isInInventory && !Storage.Inventory.IsLocked(item, Config.Inventory))) && // Don't drop items in locked slots
