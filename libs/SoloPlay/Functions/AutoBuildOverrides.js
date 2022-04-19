@@ -7,9 +7,10 @@
 */
 js_strict(true);
 
-if (!isIncluded("common/Cubing.js")) { include("common/Cubing.js"); }
-if (!isIncluded("common/Prototypes.js")) { include("common/Prototypes.js"); }
-if (!isIncluded("common/Runewords.js")) { include("common/Runewords.js"); }
+!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
+!isIncluded("SoloPlay/Functions/CubingOverrides.js") && include("SoloPlay/Functions/CubingOverrides.js");
+!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js") && include("SoloPlay/Functions/ProtoTypesOverrides.js");
+!isIncluded("SoloPlay/Functions/RunewordsOverrides.js") && include("SoloPlay/Functions/RunewordsOverrides.js");
 
 const AutoBuild = new function AutoBuild () {
 	Config.AutoBuild.DebugMode && (Config.AutoBuild.Verbose = true);
@@ -27,6 +28,7 @@ const AutoBuild = new function AutoBuild () {
 
 		while (configUpdateLevel < me.charlvl) {
 			configUpdateLevel += 1;
+			Skill.init();
 			if (AutoBuildTemplate[configUpdateLevel] !== undefined) {
 				AutoBuildTemplate[configUpdateLevel].Update.apply(Config);
 				lastSuccessfulUpdateLevel = configUpdateLevel;

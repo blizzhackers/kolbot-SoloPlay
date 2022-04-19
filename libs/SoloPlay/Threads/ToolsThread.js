@@ -15,6 +15,7 @@ include("CraftingSystem.js");
 include("TorchSystem.js");
 include("MuleLogger.js");
 include("common/Attack.js");
+include("common/Common.js");
 include("common/Cubing.js");
 include("common/CollMap.js");
 include("common/Config.js");
@@ -26,10 +27,9 @@ include("common/Precast.js");
 include("common/Prototypes.js");
 include("common/Runewords.js");
 include("common/Town.js");
-
-if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
-if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
-if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+include("SoloPlay/Tools/Developer.js");
+include("SoloPlay/Tools/Tracker.js");
+include("SoloPlay/Functions/Globals.js");
 
 function main () {
 	let ironGolem, tick, debugInfo = {area: 0, currScript: "no entry"},
@@ -198,7 +198,7 @@ function main () {
 	};
 
 	this.drinkPotion = function (type) {
-		if (!me.gameReady || !type) return false;
+		if (!me.gameReady || type === undefined) return false;
 		let pottype, tNow = getTickCount();
 
 		switch (type) {
@@ -232,7 +232,7 @@ function main () {
 		}
 
 		// mode 18 - can't drink while leaping/whirling etc.
-		if (me.mode === 0 || me.mode === 17 || me.mode === 18) return false;
+		if ([0, 17, 18].includes(me.mode)) return false;
 
 		switch (type) {
 		case 0:
@@ -254,7 +254,7 @@ function main () {
 
 		if (!!potion) {
 			// mode 18 - can't drink while leaping/whirling etc.
-			if (me.mode === 0 || me.mode === 17 || me.mode === 18) return false;
+			if ([0, 17, 18].includes(me.mode)) return false;
 
 			try {
 				if (type < 3) {
@@ -281,7 +281,7 @@ function main () {
 
 		// mode 18 - can't drink while leaping/whirling etc.
 		// give at least a second delay between pots
-		if (me.mode === 0 || me.mode === 17 || me.mode === 18 || (getTickCount() - CharData.buffData[name].tick < 1000)) {
+		if ([0, 17, 18].includes(me.mode) || (getTickCount() - CharData.buffData[name].tick < 1000)) {
 			return false;
 		}
 

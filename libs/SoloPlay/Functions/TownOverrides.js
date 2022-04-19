@@ -2385,7 +2385,7 @@ Town.goToTown = function (act, wpmenu) {
 	}
 
 	if (!act) return true;
-	if (act < 1 || act > 5) { throw new Error("Town.goToTown: Invalid act"); }
+	if (act < 1 || act > 5) throw new Error("Town.goToTown: Invalid act");
 	if (act > me.highestAct) return false;
 
 	if (act !== me.act) {

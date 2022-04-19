@@ -170,37 +170,32 @@ Precast.doPrecast = function (force) {
 			this.precastSkill(sdk.skills.EnergyShield);
 		}
 
-		// use which ever skill is the highest
-		let bestArmorSkill = function () {
-			let coldArmor = [
-				{skillId: sdk.skills.ShiverArmor, level: me.getSkill(sdk.skills.ShiverArmor, 1)},
-				{skillId: sdk.skills.ChillingArmor, level: me.getSkill(sdk.skills.ChillingArmor, 1)},
-				{skillId: sdk.skills.FrozenArmor, level: me.getSkill(sdk.skills.FrozenArmor, 1)},
-			].filter(skill => skill.level > 0).sort((a, b) => b.level - a.level).first();
-			return coldArmor !== undefined ? coldArmor.skillId : false;
-		};
+		if (Config.UseColdArmor) {
+			let choosenSkill = (typeof Config.UseColdArmor === "number" && me.getSkill(Config.UseColdArmor, 1)
+				? Config.UseColdArmor
+				: (Precast.precastables.coldArmor.best || -1));
+			switch (choosenSkill) {
+			case sdk.skills.FrozenArmor:
+				if (!me.getState(sdk.states.FrozenArmor) || force) {
+					Precast.precastSkill(sdk.skills.FrozenArmor);
+				}
 
-		switch (bestArmorSkill()) {
-		case sdk.skills.FrozenArmor:
-			if (!me.getState(sdk.states.FrozenArmor) || force) {
-				Precast.precastSkill(sdk.skills.FrozenArmor);
+				break;
+			case sdk.skills.ChillingArmor:
+				if (!me.getState(sdk.states.ChillingArmor) || force) {
+					Precast.precastSkill(sdk.skills.ChillingArmor);
+				}
+
+				break;
+			case sdk.skills.ShiverArmor:
+				if (!me.getState(sdk.states.ShiverArmor) || force) {
+					Precast.precastSkill(sdk.skills.ShiverArmor);
+				}
+
+				break;
+			default:
+				break;
 			}
-
-			break;
-		case sdk.skills.ChillingArmor:
-			if (!me.getState(sdk.states.ChillingArmor) || force) {
-				Precast.precastSkill(sdk.skills.ChillingArmor);
-			}
-
-			break;
-		case sdk.skills.ShiverArmor:
-			if (!me.getState(sdk.states.ShiverArmor) || force) {
-				Precast.precastSkill(sdk.skills.ShiverArmor);
-			}
-
-			break;
-		default:
-			break;
 		}
 
 		if (me.getSkill(sdk.skills.Enchant, 1) && (!me.getState(sdk.states.Enchant) || force)) {

@@ -15,6 +15,7 @@ include("CraftingSystem.js");
 include("TorchSystem.js");
 include("MuleLogger.js");
 include("common/Attack.js");
+include("common/Common.js");
 include("common/Cubing.js");
 include("common/CollMap.js");
 include("common/Config.js");
@@ -26,10 +27,9 @@ include("common/Precast.js");
 include("common/Prototypes.js");
 include("common/Runewords.js");
 include("common/Town.js");
-
-if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
-if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
-if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+include("SoloPlay/Tools/Developer.js");
+include("SoloPlay/Tools/Tracker.js");
+include("SoloPlay/Functions/Globals.js");
 
 function main () {
 	let action = [];

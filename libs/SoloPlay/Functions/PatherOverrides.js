@@ -232,23 +232,20 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 	}
 
 	if (!getWaypoint(Pather.wpAreas.indexOf(area))) {
-		!me.getSkill(sdk.skills.Telekinesis, 1) && me.inTown && Town.move("waypoint");
+		me.inTown && !getUIFlag(sdk.uiflags.Waypoint) && Town.move("waypoint");
 
 		for (let i = 0; i < 15; i++) {
 			let wp = getUnit(sdk.unittype.Object, "waypoint");
+			let useTK = (Skill.useTK(wp) && i < 5);
 
 			if (wp && wp.area === me.area) {
-				if (Skill.useTK(wp) && i < 2) {
-					if (wp.distance > 21) {
-						Attack.getIntoPosition(wp, 20, 0x4);
-					}
-
+				if (useTK) {
+					wp.distance > 21 && Pather.moveNearUnit(wp, 20);
 					Skill.cast(sdk.skills.Telekinesis, 0, wp);
-				} else if (wp.distance > 7) {
-					this.moveToUnit(wp);
+				} else {
+					wp.distance > 7 && this.moveToUnit(wp);
+					Misc.click(0, 0, wp);
 				}
-
-				!getUIFlag(sdk.uiflags.Waypoint) && Misc.click(0, 0, wp);
 
 				let tick = getTickCount();
 

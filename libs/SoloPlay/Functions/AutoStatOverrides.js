@@ -6,7 +6,7 @@
 *
 */
 
-if (!isIncluded("common/AutoStat.js")) { include("common/AutoStat.js"); }
+!isIncluded("common/AutoStat.js") && include("common/AutoStat.js");
 
 AutoStat.init = function (statBuildOrder, save = 0, block = 0, bulkStat = true) {
 	AutoStat.statBuildOrder = statBuildOrder;

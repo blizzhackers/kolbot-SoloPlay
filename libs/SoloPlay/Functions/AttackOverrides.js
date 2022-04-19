@@ -37,6 +37,7 @@ Attack.init = function () {
 	}
 
 	this.getPrimarySlot();
+	Skill.init();
 
 	if (me.expansion) {
 		Precast.checkCTA();
@@ -176,25 +177,17 @@ Attack.killTarget = function (name = undefined) {
 	if (!name) return false;
 	typeof name === "string" && (name = name.toLowerCase());
 
-	let target,	attackCount = 0;
-
-	for (let i = 0; !target && i < 5; i++) {
-		target = getUnit(sdk.unittype.Monster, name);
-		if (target) {
-			break;
-		}
-		delay(200);
-	}
+	let attackCount = 0;
+	let target = Misc.poll(() => getUnit(sdk.unittype.Monster, name), 1000 + me.ping, 200 + me.ping);
 
 	if (!target) {
-		print("ÿc8KillTargetÿc0 :: " + name + " not found. Performing Attack.Clear(25)");
-		Attack.clear(25) && Pickit.pickItems();
-		return true;
+		console.warn("ÿc8KillTargetÿc0 :: " + name + " not found. Performing Attack.Clear(25)");
+		return (Attack.clear(25) && Pickit.pickItems());
 	}
 
 	// exit if target is immune
 	if (target && !Attack.canAttack(target)) {
-		print("ÿc8KillTargetÿc0 :: Attack failed. " + target.name + " is immune.");
+		console.warn("ÿc8KillTargetÿc0 :: Attack failed. " + target.name + " is immune.");
 		return true;
 	}
 
@@ -203,7 +196,7 @@ Attack.killTarget = function (name = undefined) {
 	while (attackCount < Config.MaxAttackCount) {
 		if (Misc.townCheck()) {
 			if (!target || !copyUnit(target).x) {
-				target = Misc.poll(function () { return getUnit(sdk.unittype.Monster, name); }, 15e3, 30);
+				target = Misc.poll(() => getUnit(sdk.unittype.Monster, name), 1500 + me.ping, 60 + me.ping);
 			}
 		}
 
@@ -239,7 +232,8 @@ Attack.killTarget = function (name = undefined) {
 	}
 
 	ClassAttack.afterAttack();
-	if (!target || !copyUnit(target).x || target.dead || target.spectype === 0) {
+
+	if (!target || !target.attackable) {
 		Pickit.pickItems();
 	}
 
@@ -262,7 +256,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 		delay(40);
 	}
 
-	if (typeof (range) !== "number") { throw new Error("Attack.clear: range must be a number."); }
+	if (typeof (range) !== "number") throw new Error("Attack.clear: range must be a number.");
 	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0 || Attack.stopClear || !x || !y) return false;
 
 	let i, target, result, start, coord, skillCheck, secAttack,

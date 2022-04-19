@@ -10,14 +10,16 @@
 
 js_strict(true);
 
-if (!isIncluded("common/AutoSkill.js")) { include("common/AutoSkill.js"); }
-if (!isIncluded("common/AutoStat.js")) { include("common/AutoStat.js"); }
-if (!isIncluded("common/Cubing.js")) { include("common/Cubing.js"); }
-if (!isIncluded("common/Prototypes.js")) { include("common/Prototypes.js"); }
-if (!isIncluded("common/Runewords.js")) { include("common/Runewords.js"); }
-if (!isIncluded("common/Town.js")) { include("common/Town.js"); }
-if (!isIncluded("SoloPlay/Functions/ConfigOverrides.js")) { include("SoloPlay/Functions/ConfigOverrides.js"); }
+include("json2.js");
+include("NTItemParser.dbl");
+include("OOG.js");
+include("common/AutoSkill.js");
+include("common/AutoStat.js");
+include("common/Util.js");
+includeCommonLibs();
 
+include("SoloPlay/Functions/Globals.js");
+SetUp.include();
 Config.init(); // includes libs/common/AutoBuild.js
 
 let	debug = !!Config.AutoBuild.DebugMode, prevLevel	= me.charlvl;
@@ -53,7 +55,7 @@ function canSpendPoints () {
 	let haveUnusedStatpoints = unusedStatPoints >= 5;	// We spend 5 stat points per level up
 	let unusedSkillPoints = me.getStat(5);
 	let haveUnusedSkillpoints = unusedSkillPoints >= 1;	// We spend 1 skill point per level up
-	if (debug) AutoBuild.print("Stat points:", unusedStatPoints, "     Skill points:", unusedSkillPoints);
+	debug && AutoBuild.print("Stat points:", unusedStatPoints, "     Skill points:", unusedSkillPoints);
 	return haveUnusedStatpoints && haveUnusedSkillpoints;
 }
 
@@ -153,7 +155,7 @@ function getRequiredSkills (id) {
 
 function spendSkillPoint (id) {
 	let unusedSkillPoints = me.getStat(5);
-	let skillName = getSkillById(id) + " (" + id + ")";		// TODO: Use let ?
+	let skillName = getSkillById(id) + " (" + id + ")";
 	if (SPEND_POINTS) {
 		useSkillPoint(id);
 		AutoBuild.print("useSkillPoint(): " + skillName);
@@ -239,12 +241,12 @@ function main () {
 				AutoBuild.print("Level up detected (", prevLevel, "-->", me.charlvl, ")");
 				spendSkillPoints();
 				spendStatPoints();
+				Config.AutoSkill.Enabled && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
+				Config.AutoStat.Enabled && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
 				scriptBroadcast({event: "level up"});
 				AutoBuild.applyConfigUpdates(); // scriptBroadcast() won't trigger listener on this thread.
 
 				debug && AutoBuild.print("Incrementing cached character level to", prevLevel + 1);
-				Config.AutoSkill.Enabled && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
-				Config.AutoStat.Enabled && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
 
 				// prevLevel doesn't get set to me.charlvl because
 				// we may have gained multiple levels at once
@@ -259,8 +261,7 @@ function main () {
 		print("Something broke!");
 		print("Error:" + err.toSource());
 		print("Stack trace: \n" + err.stack);
-		return false;
-	}
 
-	return true;
+		return;
+	}
 }
