@@ -106,6 +106,18 @@ function main() {
 		let obj;
 
 		if (msg && typeof msg === "string" && msg !== "") {
+			switch (msg) {
+			// ignore common scriptBroadcast messages that aren't relevent to this thread
+			case "mule":
+			case "muleTorch":
+			case "muleAnni":
+			case "torch":
+			case "crafting":
+			case "getMuleMode":
+			case "pingquit":
+				return;
+			}
+
 			let updated = false;
 			switch (true) {
 			case msg.substring(0, 8) === "config--":
@@ -143,15 +155,11 @@ function main() {
 		case "townCheck":
 			switch (me.area) {
 			case sdk.areas.ArreatSummit:
-				print("Don't tp from Arreat Summit.");
-
-				break;
 			case sdk.areas.UberTristram:
-				print("Can't tp from uber trist.");
-
-				break;
+				console.warn("Don't tp from " + Pather.getAreaName(me.area));
+				return;
 			default:
-				print("townCheck message recieved. First check passed.");
+				console.log("townCheck message recieved. First check passed.");
 				townCheck = true;
 
 				break;
@@ -171,9 +179,16 @@ function main() {
 	addEventListener("scriptmsg", this.scriptEvent);
 
 	while (true) {
-		if (Town.canTpToTown() && (townCheck ||
-			(Config.TownHP > 0 && me.hpPercent < Config.TownHP) ||
-			(Config.TownMP > 0 && me.mpPercent < Config.TownMP))) {
+		if (!me.inTown && (townCheck
+			// should TownHP/MP check be in toolsthread?
+			// We would then be able to remove all game interaction checks until we get a townCheck msg
+			|| ((Config.TownHP > 0 && me.hpPercent < Config.TownHP) || (Config.TownMP > 0 && me.mpPercent < Config.TownMP)))) {
+			// canTpToTown should maybe be overrided here to quit if we can't tp to town but isn't just because we are in non-tp-able area
+			if (!Town.canTpToTown()) {
+				townCheck = false;
+
+				continue;
+			}
 			this.togglePause();
 
 			while (!me.gameReady) {
@@ -189,6 +204,7 @@ function main() {
 				Attack.stopClear = true;
 				SoloEvents.townChicken = true;
 				
+				// determine if this is really worth it
 				if (useHowl || useTerror) {
 					if ([156, 211, 242, 243, 544, 571, 345].indexOf(this.getNearestMonster()) === -1) {
 						if (useHowl && Skill.getManaCost(130) < me.mp) {

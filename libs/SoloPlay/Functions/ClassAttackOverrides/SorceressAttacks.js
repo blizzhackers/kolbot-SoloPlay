@@ -4,12 +4,16 @@
 *	@desc		Sorceress fixes to improve class attack functionality
 */
 
-if (!isIncluded("common/Attacks/Sorceress.js")) { include("common/Attacks/Sorceress.js"); }
+!isIncluded("common/Attacks/Sorceress.js") && include("common/Attacks/Sorceress.js");
+
 const GameData = require('../../Modules/GameData');
 
 let frostNovaCheck = function () {
 	return getUnits(1).some(function(el) {
-		return !!el && el.attackable && el.distance < 7 && ![sdk.monsters.Andariel].includes(el.classid) && !el.isChilled && Attack.checkResist(el, 'cold') && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
+		return !!el && el.attackable && el.distance < 7
+			&& ![sdk.monsters.Andariel].includes(el.classid)
+			&& !el.isChilled && Attack.checkResist(el, 'cold')
+			&& !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
 	});
 };
 
@@ -27,9 +31,10 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 		console.debug("mercwatch");
 
 		if (Town.visitTown()) {
+			// lost reference to the mob we were attacking
 			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
 				console.debug("Lost reference to unit");
-				return 1; // lost reference to the mob we were attacking
+				return 1;
 			}
 		}
 	}
@@ -263,7 +268,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			while (unit.attackable) {
 				if (Misc.townCheck()) {
 					if (!unit || !copyUnit(unit).x) {
-						unit = Misc.poll(function () { return getUnit(1, -1, -1, gid); }, 1000, 80);
+						unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
 					}
 				}
 
@@ -313,7 +318,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 	Developer.debugging.skills && timedSkill.have && print(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(timedSkill.skill) + ") DMG: " + timedSkill.dmg);
 
 	let inDanger = function () {
-		let nearUnits = getUnits(sdk.unittype.Monster).filter(function (mon) { return mon.attackable && mon.distance < 10; });
+		let nearUnits = getUnits(sdk.unittype.Monster).filter((mon) => mon.attackable && mon.distance < 10);
 		let dangerClose = nearUnits.find(mon => mon.getEnchant(sdk.enchant.ManaBurn) || mon.getEnchant(sdk.enchant.LightningEnchanted));
 		return nearUnits.length > me.maxNearMonsters || dangerClose;
 	};
@@ -334,23 +339,17 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 		let ts = timedSkill.skill, tsRange = timedSkill.range, tsMana = timedSkill.mana, ranged = tsRange > 4;
 
 		if (ts === sdk.skills.ChargedBolt) {
-			if (unit.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE) < 3) {
-				tsRange = 5;
-			}
+			unit.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE) < 3 && (tsRange = 5);
 		}
 
-		if (tsRange < 4 && !Attack.validSpot(unit.x, unit.y)) {
-			return 0;
-		}
+		if (tsRange < 4 && !Attack.validSpot(unit.x, unit.y)) return 0;
 
 		if (unit.distance > tsRange || Coords_1.isBlockedBetween(me, unit)) {
 			// Allow short-distance walking for melee skills
 			walk = (tsRange < 4 || (ts === sdk.skills.ChargedBolt && tsRange === 5)) && unit.distance < 10 && !checkCollision(me, unit, Coords_1.BlockBits.BlockWall);
 
 			if (ranged) {
-				if (!Attack.getIntoPosition(unit, timedSkill.range, Coords_1.Collision.BLOCK_MISSILE, walk)) {
-					return 0;
-				}
+				if (!Attack.getIntoPosition(unit, timedSkill.range, Coords_1.Collision.BLOCK_MISSILE, walk)) return 0;
 			} else if (!Attack.getIntoPosition(unit, tsRange, Coords_1.BlockBits.Ranged, walk)) {
 				return 0;
 			}
@@ -372,18 +371,14 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 		if (!unit.dead && !checkCollision(me, unit, Coords_1.BlockBits.Ranged)) {
 			if (ts === sdk.skills.ChargedBolt) {
 				// Randomized x coord changes bolt path and prevents constant missing
-				if (!unit.dead) {
-					Skill.cast(ts, Skill.getHand(ts), unit.x + rand(-1, 1), unit.y);
-				}
+				!unit.dead && Skill.cast(ts, Skill.getHand(ts), unit.x + rand(-1, 1), unit.y);
 			} else if (ts === sdk.skills.StaticField) {
 				for (let i = 0; i < 4; i++) {
 					if (!unit.dead) {
 						Skill.cast(ts, Skill.getHand(ts), unit);
 
 						if (data.frostNova.have && me.mp > data.frostNova.mana) {
-							if (frostNovaCheck()) {
-								Skill.cast(sdk.skills.FrostNova, 0);
-							}
+							frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, 0);
 						}
 
 						if (inDanger() || tsMana > me.mp || unit.hpPercent < Config.CastStatic) {

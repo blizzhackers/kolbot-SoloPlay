@@ -4,7 +4,9 @@
 *	@desc		Amazon fixes to improve class attack functionality
 */
 
-if (!isIncluded("common/Attacks/Amazon.js")) { include("common/Attacks/Amazon.js"); }
+// TODO: clean up this whole file
+
+!isIncluded("common/Attacks/Amazon.js") && include("common/Attacks/Amazon.js");
 
 ClassAttack.decoyTick = getTickCount();
 
@@ -17,8 +19,9 @@ ClassAttack.doAttack = function (unit, preattack) {
 		print("towncheck");
 
 		if (Town.visitTown(!!needRepair.length)) {
+			// lost reference to the mob we were attacking
 			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
-				return 1; // lost reference to the mob we were attacking
+				return 1;
 			}
 		}
 	}
@@ -249,7 +252,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		while (unit.attackable) {
 			if (Misc.townCheck()) {
 				if (!unit || !copyUnit(unit).x) {
-					unit = Misc.poll(function () { return getUnit(1, -1, -1, gid); }, 1000, 80);
+					unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
 				}
 			}
 
@@ -297,12 +300,10 @@ ClassAttack.afterAttack = function () {
 
 // Returns: 0 - fail, 1 - success, 2 - no valid attack skills
 ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-	let i, walk;
+	let walk;
 
 	// No valid skills can be found
-	if (timedSkill < 0 && untimedSkill < 0) {
-		return 2;
-	}
+	if (timedSkill < 0 && untimedSkill < 0) return 2;
 
 	// Arrow/bolt check
 	if (this.bowCheck) {
@@ -390,13 +391,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		return 1;
 	}
 
-	for (i = 0; i < 25; i += 1) {
-		if (!me.getState(sdk.states.SkillDelay)) {
-			break;
-		}
-
-		delay(40);
-	}
+	Misc.poll(() => !me.skillDelay, 1000, 40);
 
 	// Wait for Lightning Fury timeout
 	while (this.lightFuryTick && getTickCount() - this.lightFuryTick < Config.LightningFuryDelay * 1000) {

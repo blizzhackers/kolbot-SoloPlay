@@ -4,7 +4,7 @@
 *	@desc		Paladin fixes to improve class attack functionality
 */
 
-if (!isIncluded("common/Attacks/Paladin.js")) { include("common/Attacks/Paladin.js"); }
+!isIncluded("common/Attacks/Paladin.js") && include("common/Attacks/Paladin.js");
 
 ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	if (!unit || unit.dead) return true;
@@ -21,8 +21,9 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		print("mercwatch");
 
 		if (Town.visitTown()) {
+			// lost reference to the mob we were attacking
 			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
-				return 1; // lost reference to the mob we were attacking
+				return 1;
 			}
 		}
 	}

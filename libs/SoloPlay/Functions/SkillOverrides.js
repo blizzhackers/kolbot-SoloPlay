@@ -4,8 +4,8 @@
 *	@desc		Skill improvments for SoloPlay
 */
 
-if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
-if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
+!isIncluded("common/Misc.js") && include("common/Misc.js");
+!isIncluded("SoloPlay/Tools/Developer.js") && include("SoloPlay/Tools/Developer.js");
 
 Skill.getHand = function (skillId) {
 	switch (skillId) {

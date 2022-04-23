@@ -4,7 +4,7 @@
 *	@desc		Pather.js fixes to improve functionality
 */
 
-if (!isIncluded("common/Pather.js")) { include("common/Pather.js"); }
+!isIncluded("common/Pather.js") && include("common/Pather.js");
 Developer.debugging.pathing && (PathDebug.enableHooks = true);
 
 // TODO: clean up this mess
@@ -228,7 +228,7 @@ Pather.teleUsingCharges = function (x, y, maxRange = 5) {
 
 Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 	while (!me.gameReady) {
-		delay(250 + me.ping);
+		delay(40);
 	}
 
 	if (!getWaypoint(Pather.wpAreas.indexOf(area))) {
@@ -349,7 +349,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 	}
 
 	if (!x || !y) return false; // I don't think this is a fatal error so just return false
-	if (typeof x !== "number" || typeof y !== "number") { throw new Error("moveNear: Coords must be numbers"); }
+	if (typeof x !== "number" || typeof y !== "number") throw new Error("moveNear: Coords must be numbers");
 
 	let useTele = settings.allowTeleport && this.useTeleport();
 	let useChargedTele = settings.allowTeleport && this.canUseTeleCharges();
@@ -359,7 +359,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 	if (getDistance(me, x, y) < 2) return true;
 	path = getPath(me.area, x, y, me.x, me.y, useTele || useChargedTele ? 1 : 0, useTele || useChargedTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : this.teleDistance) : this.walkDistance);
 
-	if (!path) { throw new Error("moveNear: Failed to generate path."); }
+	if (!path) throw new Error("moveNear: Failed to generate path.");
 
 	path.reverse();
 	settings.pop && path.pop();
@@ -586,7 +586,7 @@ Pather.moveToLoc = function (target, givenSettings) {
 	}
 
 	if (!target.x || !target.y) return false; // I don't think this is a fatal error so just return false
-	if (typeof target.x !== "number" || typeof target.y !== "number") { return false; }
+	if (typeof target.x !== "number" || typeof target.y !== "number") return false;
 	if (getDistance(me, target) < 2 && !CollMap.checkColl(me, target, Coords_1.Collision.BLOCK_MISSILE, 5)) return true;
 
 	let useTele = settings.allowTeleport && (getDistance(me, target) > 15 || me.diff || me.act > 3) && this.useTeleport();
@@ -595,7 +595,7 @@ Pather.moveToLoc = function (target, givenSettings) {
 	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
 	path = getPath(me.area, target.x, target.y, me.x, me.y, usingTele ? 1 : 0, usingTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : this.teleDistance) : this.walkDistance);
 
-	if (!path) { throw new Error("moveTo: Failed to generate path."); }
+	if (!path) throw new Error("moveTo: Failed to generate path.");
 
 	path.reverse();
 	settings.pop && path.pop();
@@ -692,13 +692,8 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 		break;
 	default:
-		if (typeof targetArea !== "number") {
-			throw new Error("useWaypoint: Invalid targetArea parameter");
-		}
-
-		if (!this.wpAreas.includes(targetArea)) {
-			throw new Error("useWaypoint: Invalid area");
-		}
+		if (typeof targetArea !== "number") throw new Error("useWaypoint: Invalid targetArea parameter");
+		if (!this.wpAreas.includes(targetArea)) throw new Error("useWaypoint: Invalid area");
 
 		break;
 	}
@@ -885,26 +880,22 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 // credit - Legacy Autosmurf
 Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 	let tick = getTickCount();
-	print("ÿc8Kolbot-SoloPlayÿc0: Start clearToExit");
-	print("Currently in: " + Pather.getAreaName(me.area));
-	print("Currentarea arg: " + Pather.getAreaName(currentarea));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Start clearToExit. ÿc8Currently in: ÿc0" + Pather.getAreaName(me.area) + "ÿc8Clearing to: ÿc0" + Pather.getAreaName(targetarea));
 
 	me.area !== currentarea && Pather.journeyTo(currentarea);
-
-	print("Clearing to: " + Pather.getAreaName(targetarea));
 
 	while (me.area === currentarea) {
 		try {
 			Pather.moveToExit(targetarea, true, cleartype);
 		} catch (e) {
-			print("Caught Error: " + e);
+			console.debug("Caught Error: " + e);
 		}
 
 		Packet.flash(me.gid);
-		delay(me.ping * 2 + 500);
+		delay(500);
 	}
 
-	print("ÿc8Kolbot-SoloPlayÿc0: End clearToExit. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: End clearToExit. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
 };
 
 Pather.getWalkDistance = function (x, y, area, xx, yy, reductionType, radius) {

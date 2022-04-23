@@ -4,18 +4,18 @@
 *	@desc		Add override to log equipped items while running Kolbot-SoloPlay
 */
 
-if (!isIncluded("MuleLogger.js")) { include("MuleLogger.js"); }
-if (!isIncluded("SoloPlay/Functions/NTIPOverrides.js")) { include("SoloPlay/Functions/NTIPOverrides.js"); }
-if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
+!isIncluded("MuleLogger.js") && include("MuleLogger.js");
+!isIncluded("SoloPlay/Functions/NTIPOverrides.js") && include("SoloPlay/Functions/NTIPOverrides.js");
+!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
 
 MuleLogger.getItemDesc = function (unit, logIlvl) {
-	let i, desc, index,
+	let desc, index,
 		stringColor = "";
 
 	logIlvl === undefined && (logIlvl = this.LogItemLevel);
 
 	try {
-		//Try a few times, sometimes it fails
+		// Try a few times, sometimes it fails
 		for (let u = 0; u < 5; u++) {
 			desc = unit.description.split("\n");
 
@@ -26,13 +26,14 @@ MuleLogger.getItemDesc = function (unit, logIlvl) {
 			delay(250 + me.ping * 2);
 		}
 	} catch (e) {
-		print("Failed to get description of " + unit.fname);	//This isn't a fatal error just log and move on
+		// This isn't a fatal error just log and move on
+		console.debug("Failed to get description of " + unit.fname);
 
 		return false;
 	}
 
 	// Lines are normally in reverse. Add color tags if needed and reverse order.
-	for (i = 0; i < desc.length; i += 1) {
+	for (let i = 0; i < desc.length; i += 1) {
 		if (desc[i].indexOf(getLocaleString(3331)) > -1) { // Remove sell value
 			desc.splice(i, 1);
 

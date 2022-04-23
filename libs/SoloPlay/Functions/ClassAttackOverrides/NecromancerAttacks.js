@@ -4,9 +4,7 @@
 *	@desc		Necromancer fixes to improve class attack functionality
 */
 
-if (!isIncluded("common/Attacks/Necromancer.js")) {
-	include("common/Attacks/Necromancer.js");
-}
+!isIncluded("common/Attacks/Necromancer.js") && include("common/Attacks/Necromancer.js");
 
 // TODO: clean this up
 ClassAttack.smartCurse = function (unit, index) {
@@ -133,8 +131,9 @@ ClassAttack.doAttack = function (unit, preattack) {
 		print("mercwatch");
 
 		if (Town.visitTown()) {
+			// lost reference to the mob we were attacking
 			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
-				return 1; // lost reference to the mob we were attacking
+				return 1;
 			}
 		}
 	}
@@ -224,7 +223,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		while (unit.attackable) {
 			if (Misc.townCheck()) {
 				if (!unit || !copyUnit(unit).x) {
-					unit = Misc.poll(function () { return getUnit(1, -1, -1, gid); }, 1000, 80);
+					unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
 				}
 			}
 
@@ -261,18 +260,14 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 // Returns: 0 - fail, 1 - success, 2 - no valid attack skills
 ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-	let i, walk, timedSkillRange, untimedSkillRange;
+	let walk, timedSkillRange, untimedSkillRange;
 
 	// No valid skills can be found
-	if (timedSkill < 0 && untimedSkill < 0) {
-		return 2;
-	}
+	if (timedSkill < 0 && untimedSkill < 0) return 2;
 
 	// Check for bodies to exploit for CorpseExplosion before committing to an attack for non-summoner type necros
 	if (Config.Skeletons + Config.SkeletonMages + Config.Revives === 0) {
-		if (this.checkCorpseNearMonster(unit)) {
-			this.explodeCorpses(unit);
-		}
+		this.checkCorpseNearMonster(unit) && this.explodeCorpses(unit);
 	}
 
 	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
@@ -304,9 +299,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 
 			break;
 		default:
-			if (timedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) {
-				return 0;
-			}
+			if (timedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) return 0;
 
 			if (timedSkill === sdk.skills.Teeth) {
 				timedSkillRange = me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting) <= 3 ? 6 : timedSkillRange;
@@ -316,14 +309,12 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 				// Allow short-distance walking for melee skills
 				walk = timedSkillRange < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
 
-				if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4, walk)) {
-					return 0;
-				}
+				if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4, walk)) return 0;
 			}
 
 			if (!unit.dead) {
+				// Try to find better spot
 				if (Math.round(getDistance(me, unit)) < 4 && timedSkillRange > 6) {
-					// Try to find better spot
 					Attack.deploy(unit, 4, 5, 9);
 				}
 
@@ -337,9 +328,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 	if (untimedSkill > -1) {
 		untimedSkillRange = Skill.getRange(untimedSkill);
 
-		if (untimedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) {
-			return 0;
-		}
+		if (untimedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) return 0;
 
 		if (Math.round(getDistance(me, unit)) > untimedSkillRange || checkCollision(me, unit, 0x4)) {
 			// Allow short-distance walking for melee skills
@@ -357,13 +346,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		return 1;
 	}
 
-	for (i = 0; i < 25; i += 1) {
-		if (!me.getState(sdk.states.SkillDelay)) {
-			break;
-		}
-
-		delay(40);
-	}
+	Misc.poll(() => !me.skillDelay, 1000, 40);
 
 	// Delay for Poison Nova
 	while (this.novaTick && getTickCount() - this.novaTick < Config.PoisonNovaDelay * 1000) {

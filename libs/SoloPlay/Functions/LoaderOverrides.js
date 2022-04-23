@@ -4,7 +4,9 @@
 *	@desc		script loader, based on mBot's Sequencer.js, modifed by theBGuy for SoloPlay
 */
 
-if (!isIncluded("common/Loader.js")) { include("common/Loader.js"); }
+// TODO: make this a loader for the actual scripts run by SoloPlay rather than the just the SoloPlay base script
+
+!isIncluded("common/Loader.js") && include("common/Loader.js");
 
 Loader.getScripts = function () {
 	let fileList = dopen("libs/SoloPlay/").getFiles();
@@ -17,8 +19,7 @@ Loader.getScripts = function () {
 };
 
 Loader.loadScripts = function () {
-	let reconfiguration, script,
-		unmodifiedConfig = {};
+	let reconfiguration, unmodifiedConfig = {};
 
 	this.copy(Config, unmodifiedConfig);
 
@@ -35,13 +36,14 @@ Loader.loadScripts = function () {
 	}
 
 	for (this.scriptIndex = 0; this.scriptIndex < this.scriptList.length; this.scriptIndex++) {
-		script = this.scriptList[this.scriptIndex];
+		let script = this.scriptList[this.scriptIndex];
 
 		if (this.fileList.indexOf(script) < 0) {
 			if (FileTools.exists("libs/SoloPlay/" + script + ".js")) {
-				print("ÿc1Something went wrong in loader, file exists in folder but didn't get included during init process. Lets ignore the error and continue to include the script by name instead");
+				console.warn("ÿc1Something went wrong in loader, file exists in folder but didn't get included during init process. Lets ignore the error and continue to include the script by name instead");
 			} else {
 				Misc.errorReport("ÿc1Script " + script + " doesn't exist.");
+
 				continue;
 			}
 		}
@@ -53,14 +55,11 @@ Loader.loadScripts = function () {
 
 		if (isIncluded("SoloPlay/" + script + ".js")) {
 			try {
-				if (typeof (global[script]) !== "function") {
-					throw new Error("Invalid script function name");
-				}
+				if (typeof (global[script]) !== "function") throw new Error("Invalid script function name");
 
-				if (this.skipTown.indexOf(script) > -1 || Town.goToTown()) {
-					print("ÿc2Starting script: ÿc9" + script);
+				if (this.skipTown.includes(script) || Town.goToTown()) {
+					console.log("ÿc2Starting script: ÿc9" + script);
 					Messaging.sendToScript("libs/SoloPlay/Threads/ToolsThread.js", JSON.stringify({currScript: script}));
-
 					reconfiguration = typeof Scripts[script] === 'object';
 
 					if (reconfiguration) {
@@ -68,15 +67,25 @@ Loader.loadScripts = function () {
 						this.copy(Scripts[script], Config);
 					}
 
-					global[script]();
+					let tick = getTickCount();
 
-					if (reconfiguration) {
-						print("ÿc2Reverting back unmodified config properties.");
-						this.copy(unmodifiedConfig, Config);
+					if (global[script]()) {
+						console.log("ÿc7" + script + " :: ÿc0Complete ÿc0- ÿc7Duration: ÿc0" + (new Date(getTickCount() - tick).toISOString().slice(11, -5)));
 					}
 				}
 			} catch (error) {
 				Misc.errorReport(error, script);
+			} finally {
+				// Dont run for last script as that will clear everything anyway
+				if (this.scriptIndex < this.scriptList.length) {
+					// remove script function from global scope, so it can be cleared by GC
+					delete global[script];
+				}
+					
+				if (reconfiguration) {
+					print("ÿc2Reverting back unmodified config properties.");
+					this.copy(unmodifiedConfig, Config);
+				}
 			}
 		}
 	}

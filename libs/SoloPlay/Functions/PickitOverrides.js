@@ -5,10 +5,10 @@
 *	@credits	sonic, jaenster
 */
 
-if (!isIncluded("common/Pickit.js")) { include("common/Pickit.js"); }
-if (!isIncluded("SoloPlay/Functions/NTIPOverrides.js")) { include("SoloPlay/Functions/NTIPOverrides.js"); }
-if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
-if (!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js")) {	include("SoloPlay/Functions/ProtoTypesOverrides.js"); }
+!isIncluded("common/Pickit.js") && include("common/Pickit.js");
+!isIncluded("SoloPlay/Functions/NTIPOverrides.js") && include("SoloPlay/Functions/NTIPOverrides.js");
+!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
+!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js") &&	include("SoloPlay/Functions/ProtoTypesOverrides.js");
 
 Pickit.enabled = true;
 
@@ -455,10 +455,10 @@ Pickit.pickItem = function (unit, status, keptLine) {
 					Pickit.enabled = true;		// Reset value
 				}
 
-				if (Pather.useTeleport()) {
-					Pather.moveToUnit(item);
-				} else if (!Pather.moveTo(item.x, item.y, 0)) {
-					continue;
+				if (getDistance(me, item) > (Config.FastPick && i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
+					if ((Pather.useTeleport() && !Pather.moveToUnit(item)) || !Pather.moveTo(item.x, item.y, 0)) {
+						continue;
+					}
 				}
 			}
 

@@ -13,9 +13,9 @@ Item.getQuantityOwned = function (item = undefined) {
 	
 	let myItems = me.getItemsEx()
 		.filter(check =>
-			check.itemType === item.itemType// same item type as current
-				&& check.classid === item.classid// same item classid as current
-				&& check.quality === item.quality// same item quality as current
+			check.itemType === item.itemType // same item type as current
+				&& check.classid === item.classid // same item classid as current
+				&& check.quality === item.quality // same item quality as current
 				&& check.getStat(sdk.stats.NumSockets) === item.getStat(sdk.stats.NumSockets) // same socket count
 				&& check.isInStorage
 		);
@@ -105,32 +105,28 @@ Item.getBodyLoc = function (item) {
 };
 
 
-Item.getEquippedItem = function (bodyLoc) {
-	let item = me.getItem();
+Item.getEquippedItem = function (bodyLoc = -1) {
+	let item = me.getItemsEx().filter((item) => item.isEquipped && item.bodylocation === bodyLoc).first();
 
 	if (item) {
-		do {
-			if (item.location === sdk.storage.Equipped && item.bodylocation === bodyLoc) {
-				return {
-					classid: item.classid,
-					name: item.name,
-					fname: item.fname,
-					prefixnum: item.prefixnum,
-					itemType: item.itemType,
-					quality: item.quality,
-					tier: NTIP.GetTier(item),
-					tierScore: tierscore(item, bodyLoc),
-					secondarytier: NTIP.GetSecondaryTier(item),
-					str: item.getStatEx(sdk.stats.Strength),
-					dex: item.getStatEx(sdk.stats.Dexterity),
-					durability: (item.getStat(72) * 100 / item.getStat(73)),
-					sockets: item.getStat(sdk.stats.NumSockets),
-					socketed: item.getItemsEx().length > 0,
-					isRuneword: item.getFlag(0x4000000),
-					twoHanded: item.twoHanded,
-				};
-			}
-		} while (item.getNext());
+		return {
+			classid: item.classid,
+			name: item.name,
+			fname: item.fname,
+			prefixnum: item.prefixnum,
+			itemType: item.itemType,
+			quality: item.quality,
+			tier: NTIP.GetTier(item),
+			tierScore: tierscore(item, bodyLoc),
+			secondarytier: NTIP.GetSecondaryTier(item),
+			str: item.getStatEx(sdk.stats.Strength),
+			dex: item.getStatEx(sdk.stats.Dexterity),
+			durability: (item.getStat(72) * 100 / item.getStat(73)),
+			sockets: item.getStat(sdk.stats.NumSockets),
+			socketed: item.getItemsEx().length > 0,
+			isRuneword: item.getFlag(0x4000000),
+			twoHanded: item.twoHanded,
+		};
 	}
 
 	// Don't have anything equipped in there
@@ -155,11 +151,7 @@ Item.getEquippedItem = function (bodyLoc) {
 };
 
 Item.canEquip = function (item) {
-	// Not an item
-	if (item.type !== sdk.unittype.Item) return false;
-	// unidentified
-	if (!item.identified) return false;
-	
+	if (!item || item.type !== sdk.unittype.Item || !item.identified) return false;
 	return me.charlvl >= item.getStat(sdk.stats.LevelReq) && me.trueStr >= item.strreq && me.trueDex >= item.dexreq;
 };
 
@@ -173,15 +165,11 @@ Item.autoEquipCheck = function (item) {
 		for (let i = 0; i < bodyLoc.length; i += 1) {
 			if (tier > this.getEquippedItem(bodyLoc[i]).tier && (this.canEquip(item) || !item.identified)) {
 				if (item.twoHanded && !me.barbarian) {
-					if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
-						return false;
-					}
+					if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) return false;
 				}
 
 				if (!me.barbarian && bodyLoc[i] === 5 && this.getEquippedItem(bodyLoc[i]).tier === -1) {
-					if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tier) {
-						return false;
-					}
+					if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tier) return false;
 				}
 
 				return true;
@@ -202,15 +190,11 @@ Item.autoEquipKeepCheck = function (item) {
 		for (let i = 0; i < bodyLoc.length; i += 1) {
 			if (tier > this.getEquippedItem(bodyLoc[i]).tier) {
 				if (item.twoHanded && !me.barbarian) {
-					if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
-						return false;
-					}
+					if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) return false;
 				}
 
 				if (!me.barbarian && bodyLoc[i] === 5 && this.getEquippedItem(bodyLoc[i]).tier === -1) {
-					if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tier) {
-						return false;
-					}
+					if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tier) return false;
 				}
 
 				return true;
@@ -224,14 +208,18 @@ Item.autoEquipKeepCheck = function (item) {
 Item.autoEquip = function () {
 	if (!Config.AutoEquip) return true;
 
-	print("ÿc8Kolbot-SoloPlayÿc0: Entering auto equip");
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Entering auto equip");
 
 	let tick = getTickCount();
-	let tier, bodyLoc, idTool, gid,
-		items = me.findItems(-1, 0);
+	let items = me.getItemsEx()
+		.filter(function (item) {
+			if (!item.isInStorage) return false;
+			let tier = NTIP.GetTier(item);
+			return (item.identified ? tier > 0 : tier !== 0);
+		});
 
 	// couldn't find my items
-	if (!items) return false;
+	if (!items.length) return false;
 
 	function sortEq (a, b) {
 		if (Item.canEquip(a)) return -1;
@@ -242,26 +230,17 @@ Item.autoEquip = function () {
 
 	me.cancel();
 
-	// Remove items without tier
-	for (let i = 0; i < items.length; i += 1) {
-		if (NTIP.GetTier(items[i]) === 0) {
-			items.splice(i, 1);
-
-			i -= 1;
-		}
-	}
-
 	while (items.length > 0) {
 		items.sort(sortEq);
-		tier = NTIP.GetTier(items[0]);
-		bodyLoc = this.getBodyLoc(items[0]);
+		let tier = NTIP.GetTier(items[0]);
+		let bodyLoc = this.getBodyLoc(items[0]);
 
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
 				let equippedItem = this.getEquippedItem(bodyLoc[j]);
 				if (items[0].isInStorage && tier > equippedItem.tier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
 					if (!items[0].identified) {
-						idTool = Town.getIdTool();
+						let idTool = Town.getIdTool();
 
 						if (idTool) {
 							items[0].isInStash && Town.openStash();
@@ -273,21 +252,21 @@ Item.autoEquip = function () {
 						if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
 							continue;
 						}
-						print("ÿc9AutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
+						console.log("ÿc9AutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
 					}
 
 					if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1 && this.getEquippedItem(4).twoHanded) {
 						if (tier < this.getEquippedItem(4).tier) {
 							continue;
 						}
-						print("ÿc9AutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
+						console.log("ÿc9AutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
 					}
 
-					gid = items[0].gid;
-					print(items[0].name);
+					let gid = items[0].gid;
+					console.debug(items[0].name);
 
 					if (this.equip(items[0], bodyLoc[j])) {
-						print("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
+						console.log("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
 						// item that can have sockets
 						if (items[0].getItemType()) {
 							SoloWants.addToList(items[0]);
@@ -297,7 +276,7 @@ Item.autoEquip = function () {
 						Developer.logEquipped && MuleLogger.logEquippedItems();
 					} else if (items[0].lvlreq > me.charlvl && !items[0].isInStash) {
 						if (Storage.Stash.CanFit(items[0])) {
-							print("ÿc9AutoEquipÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + items[0].fname + " Tier: " + tier);
+							console.log("ÿc9AutoEquipÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + items[0].fname + " Tier: " + tier);
 							Storage.Stash.MoveTo(items[0]);
 						}
 					} else if (me.getItem(-1, -1, gid)) {
@@ -313,7 +292,7 @@ Item.autoEquip = function () {
 		items.shift();
 	}
 
-	print("ÿc8Kolbot-SoloPlayÿc0: Exiting auto equip. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting auto equip. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
 	return true;
 };
 
@@ -372,16 +351,15 @@ Item.equip = function (item, bodyLoc) {
 	return false;
 };
 
-Item.removeItem = function (bodyLoc) {
-	let cursorItem,
-		removable = me.getItemsEx().filter(function (item) { return item.isEquipped && item.bodylocation === bodyLoc; }).first();
+Item.removeItem = function (bodyLoc = -1) {
+	let removable = me.getItemsEx().filter((item) => item.isEquipped && item.bodylocation === bodyLoc).first();
 
 	!me.inTown && Town.goToTown();
 	!getUIFlag(sdk.uiflags.Stash) && Town.openStash();
 
 	if (removable) {
 		removable.toCursor();
-		cursorItem = getUnit(100);
+		let cursorItem = getUnit(100);
 
 		if (cursorItem) {
 			// only keep wanted items
@@ -463,10 +441,7 @@ Item.secondaryEquip = function (item, bodyLoc) {
 	if (!this.canEquip(item) && me.expansion) return false;
 	// Already equipped in the right slot
 	if (item.mode === sdk.itemmode.Equipped && item.bodylocation === bodyLoc) return true;
-
-	if (item.isInStash) {
-		if (!Town.openStash()) return false;
-	}
+	if (item.isInStash && !Town.openStash()) return false;
 
 	me.switchWeapons(1); // Switch weapons
 
@@ -479,12 +454,12 @@ Item.secondaryEquip = function (item, bodyLoc) {
 					let cursorItem = getUnit(100);
 
 					if (cursorItem) {
-						if (Pickit.checkItem(cursorItem).result === 1 ||
-						(cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2) || // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						(cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {	// or keep if item is worth selling
-							if (Storage.Inventory.CanFit(cursorItem)) {
-								Storage.Inventory.MoveTo(cursorItem);
-							}
+						if (Pickit.checkItem(cursorItem).result === 1
+						// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
+						|| (cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2)
+						// or keep if item is worth selling
+						|| (cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
+							Storage.Inventory.CanFit(cursorItem) && Storage.Inventory.MoveTo(cursorItem);
 						} else {
 							cursorItem.drop();
 						}
@@ -522,11 +497,15 @@ Item.autoEquipCheckSecondary = function (item) {
 Item.autoEquipSecondary = function () {
 	if (!Config.AutoEquip || me.classic) return true;
 
-	print("ÿc8Kolbot-SoloPlayÿc0: Entering secondary auto equip");
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Entering secondary auto equip");
 	let tick = getTickCount();
 
-	let tier, bodyLoc, idTool, gid,
-		items = me.findItems(-1, 0);
+	let items = me.getItemsEx()
+		.filter(function (item) {
+			if (!item.isInStorage) return false;
+			let tier = NTIP.GetSecondaryTier(item);
+			return (item.identified ? tier > 0 : tier !== 0);
+		});
 
 	if (!items) return false;
 
@@ -539,40 +518,28 @@ Item.autoEquipSecondary = function () {
 
 	me.cancel();
 
-	// Remove items without tier
-	for (let i = 0; i < items.length; i += 1) {
-		if (NTIP.GetSecondaryTier(items[i]) === 0) {
-			items.splice(i, 1);
-
-			i -= 1;
-		}
-	}
-
 	while (items.length > 0) {
 		items.sort(sortEq);
-		tier = NTIP.GetSecondaryTier(items[0]);
-		bodyLoc = this.getBodyLocSecondary(items[0]);
+		let tier = NTIP.GetSecondaryTier(items[0]);
+		let bodyLoc = this.getBodyLocSecondary(items[0]);
 
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
 				if ([sdk.storage.Inventory, sdk.storage.Stash].indexOf(items[0].location) > -1 && tier > this.getEquippedItem(bodyLoc[j]).secondarytier && this.getEquippedItem(bodyLoc[j]).classid !== sdk.items.quest.KhalimsWill) {
 					if (!items[0].identified) {
-						idTool = Town.getIdTool();
+						let idTool = Town.getIdTool();
 
 						if (idTool) {
-							if (items[0].isInStash) {
-								Town.openStash();
-							}
-
+							items[0].isInStash && Town.openStash();
 							Town.identifyItem(items[0], idTool);
 						}
 					}
 
-					gid = items[0].gid;
-					print(items[0].name);
+					let gid = items[0].gid;
+					console.debug(items[0].name);
 
 					if (this.secondaryEquip(items[0], bodyLoc[j])) {
-						print("ÿc9SecondaryEquipÿc0 :: Equipped: " + items[0].fname + " SecondaryTier: " + tier);
+						console.log("ÿc9SecondaryEquipÿc0 :: Equipped: " + items[0].fname + " SecondaryTier: " + tier);
 						Developer.debugging.autoEquip && Misc.logItem("Equipped switch", me.getItem(-1, -1, gid));
 						Developer.logEquipped && MuleLogger.logEquippedItems();
 					}
@@ -585,7 +552,7 @@ Item.autoEquipSecondary = function () {
 		items.shift();
 	}
 
-	print("ÿc8Kolbot-SoloPlayÿc0: Exiting secondary auto equip. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting secondary auto equip. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
 	return true;
 };
 
@@ -613,17 +580,13 @@ Item.canEquipMerc = function (item, bodyLoc) {
 };
 
 Item.equipMerc = function (item, bodyLoc) {
-	let cursorItem, mercenary = Merc.getMercFix();
+	let mercenary = Merc.getMercFix();
 
 	// dont have merc or he is dead or higher requirements
 	if (!mercenary || !Item.canEquipMerc(item, bodyLoc)) return false;
-
 	// Already equipped in the right slot
 	if (item.mode === sdk.itemmode.Equipped && item.bodylocation === bodyLoc) return true;
-
-	if (item.isInStash) {
-		if (!Town.openStash()) return false;
-	}
+	if (item.isInStash && !Town.openStash()) return false;
 
 	for (let i = 0; i < 3; i += 1) {
 		if (item.toCursor()) {
@@ -634,15 +597,15 @@ Item.equipMerc = function (item, bodyLoc) {
 
 			if (item.bodylocation === bodyLoc) {
 				if (getCursorType() === 3) {
-					cursorItem = getUnit(100);
+					let cursorItem = getUnit(100);
 
 					if (cursorItem) {
-						if (Pickit.checkItem(cursorItem).result === 1 ||
-						(cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2) || // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						(cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {	// or keep if item is worth selling
-							if (Storage.Inventory.CanFit(cursorItem)) {
-								Storage.Inventory.MoveTo(cursorItem);
-							}
+						if (Pickit.checkItem(cursorItem).result === 1
+						// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
+						|| (cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2)
+						// or keep if item is worth selling
+						|| (cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
+							Storage.Inventory.CanFit(cursorItem) && Storage.Inventory.MoveTo(cursorItem);
 						} else {
 							cursorItem.drop();
 						}
@@ -659,29 +622,26 @@ Item.equipMerc = function (item, bodyLoc) {
 	return false;
 };
 
-Item.getEquippedItemMerc = function (bodyLoc) {
+Item.getEquippedItemMerc = function (bodyLoc = -1) {
 	let mercenary = Merc.getMercFix();
 
 	if (mercenary) {
-		let item = mercenary.getItem();
+		let item = mercenary.getItemsEx().filter((item) => item.isEquipped && item.bodylocation === bodyLoc).first();
 
 		if (item) {
-			do {
-				if (item.bodylocation === bodyLoc && item.location === sdk.storage.Equipped) {
-					return {
-						classid: item.classid,
-						prefixnum: item.prefixnum,
-						tier: NTIP.GetMercTier(item),
-						name: item.fname,
-						str: item.getStatEx(sdk.stats.Strength),
-						dex: item.getStatEx(sdk.stats.Dexterity)
-					};
-				}
-			} while (item.getNext());
+			return {
+				classid: item.classid,
+				prefixnum: item.prefixnum,
+				tier: NTIP.GetMercTier(item),
+				name: item.fname,
+				str: item.getStatEx(sdk.stats.Strength),
+				dex: item.getStatEx(sdk.stats.Dexterity)
+			};
 		}
 	}
 
-	return { // Don't have anything equipped in there
+	// Don't have anything equipped in there
+	return {
 		classid: -1,
 		prefixnum: -1,
 		tier: -1,

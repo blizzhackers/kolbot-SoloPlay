@@ -5,7 +5,7 @@
 *	@desc		Attack.js fixes to improve functionality
 */
 
-if (!isIncluded("common/Attack.js")) { include("common/Attack.js"); }
+!isIncluded("common/Attack.js") && include("common/Attack.js");
 
 let Coords_1 = require("../Modules/Coords");
 
@@ -173,12 +173,13 @@ Attack.openChests = function (range = 10, x = undefined, y = undefined) {
 	return true;
 };
 
+// this might be depreciated now 
 Attack.killTarget = function (name = undefined) {
 	if (!name) return false;
 	typeof name === "string" && (name = name.toLowerCase());
 
 	let attackCount = 0;
-	let target = Misc.poll(() => getUnit(sdk.unittype.Monster, name), 1000 + me.ping, 200 + me.ping);
+	let target = Misc.poll(() => getUnit(sdk.unittype.Monster, name), 1000, 200);
 
 	if (!target) {
 		console.warn("ÿc8KillTargetÿc0 :: " + name + " not found. Performing Attack.Clear(25)");
@@ -196,7 +197,7 @@ Attack.killTarget = function (name = undefined) {
 	while (attackCount < Config.MaxAttackCount) {
 		if (Misc.townCheck()) {
 			if (!target || !copyUnit(target).x) {
-				target = Misc.poll(() => getUnit(sdk.unittype.Monster, name), 1500 + me.ping, 60 + me.ping);
+				target = Misc.poll(() => getUnit(sdk.unittype.Monster, name), 1500, 60);
 			}
 		}
 
@@ -209,24 +210,13 @@ Attack.killTarget = function (name = undefined) {
 			}
 		}
 
-		me.overhead("KillTarget: " + target.name + " health " + ((target.hp / target.hpmax) * 100) + " % left");
+		me.overhead("KillTarget: " + target.name + " health " + target.hpPercent + " % left");
 
-		if (Config.Dodge && me.hpPercent <= Config.DodgeHP) {
-			this.deploy(target, Config.DodgeRange, 5, 9);
-		}
+		Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
+		attackCount > 0 && attackCount % 15 === 0 && Skill.getRange(Config.AttackSkill[1]) < 4 && Packet.flash(me.gid);
+		ClassAttack.doAttack(target, attackCount % 15 === 0) ? (attackCount += 1) : Packet.flash(me.gid);
 
-		if (attackCount > 0 && attackCount % 15 === 0 && Skill.getRange(Config.AttackSkill[1]) < 4) {
-			Packet.flash(me.gid);
-		}
-
-		if (!ClassAttack.doAttack(target, attackCount % 15 === 0)) {
-			Packet.flash(me.gid);
-		}
-
-		attackCount += 1;
-
-		// spectype check from isid0re SoloLeveling commit 44d25cb
-		if (!target || !copyUnit(target).x || target.dead || target.spectype === 0) {
+		if (!target.attackable) {
 			break;
 		}
 	}
@@ -259,13 +249,13 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 	if (typeof (range) !== "number") throw new Error("Attack.clear: range must be a number.");
 	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0 || Attack.stopClear || !x || !y) return false;
 
-	let i, target, result, start, coord, skillCheck, secAttack,
+	let i, start, coord, skillCheck, secAttack,
 		retry = 0,
 		monsterList = [],
 		gidAttack = [],
 		attackCount = 0;
 
-	target = getUnit(1);
+	let target = getUnit(1);
 
 	if (target) {
 		do {
@@ -292,13 +282,12 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 			}
 		}
 
-		if (target.x !== undefined && (getDistance(target, x, y) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && target.attackable) {
-			if (Config.Dodge && me.hpPercent <= Config.DodgeHP) {
-				this.deploy(target, Config.DodgeRange, 5, 9);
-			}
+		if (target.x !== undefined
+			&& (getDistance(target, x, y) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && target.attackable) {
+			Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
 
 			Misc.townCheck(true);
-			result = ClassAttack.doAttack(target, attackCount % 15 === 0);
+			let result = ClassAttack.doAttack(target, attackCount % 15 === 0);
 
 			if (result) {
 				retry = 0;
@@ -556,7 +545,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 		delay(40);
 	}
 
-	if (typeof (range) !== "number") { throw new Error("Attack.clear: range must be a number."); }
+	if (typeof (range) !== "number") throw new Error("Attack.clear: range must be a number.");
 	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0 || Attack.stopClear) return false;
 	!sortfunc && (sortfunc = this.sortMonsters);
 
@@ -614,7 +603,8 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 			}
 		}
 
-		if (target.x !== undefined && (getDistance(target, orgx, orgy) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && target.attackable) {
+		if (target.x !== undefined
+			&& (getDistance(target, orgx, orgy) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && target.attackable) {
 			Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
 			Misc.townCheck(true);
 			let result = ClassAttack.doAttack(target, attackCount % 15 === 0);
@@ -987,11 +977,11 @@ Attack.switchCastCharges = function (skillId = undefined, unit = undefined) {
 
 Attack.dollAvoid = function (unit = undefined) {
 	if (!unit) return false;
-	let cx, cy, distance = 14;
+	let distance = 14;
 
 	for (let i = 0; i < 2 * Math.PI; i += Math.PI / 6) {
-		cx = Math.round(Math.cos(i) * distance);
-		cy = Math.round(Math.sin(i) * distance);
+		let cx = Math.round(Math.cos(i) * distance);
+		let cy = Math.round(Math.sin(i) * distance);
 
 		if (Attack.validSpot(unit.x + cx, unit.y + cy)) {
 			return Pather.moveTo(unit.x + cx, unit.y + cy);
@@ -1003,10 +993,10 @@ Attack.dollAvoid = function (unit = undefined) {
 
 // Its the inverse of spotOnDistance, its a spot going in the direction of the spot
 Attack.inverseSpotDistance = function (spot, distance, otherSpot) {
-	if (otherSpot === void 0) otherSpot = me;
+	otherSpot === undefined && (otherSpot = me);
 	let x = otherSpot.x, y = otherSpot.y, area = otherSpot.area;
 	let nodes = getPath(area, x, y, spot.x, spot.y, 2, 5);
-	return nodes && nodes.find(function (node) { return node.distance > distance; }) || { x: x, y: y };
+	return nodes && nodes.find((node) => node.distance > distance) || { x: x, y: y };
 };
 
 Attack.shouldDodge = function (coord, monster) {
@@ -1026,18 +1016,19 @@ Attack.shouldDodge = function (coord, monster) {
 };
 
 Attack.pwnDury = function () {
-	let duriel = Misc.poll(function () { return getUnit(1, sdk.monsters.Duriel); });
+	let duriel = Misc.poll(() => getUnit(1, sdk.monsters.Duriel));
+
 	if (!duriel) return false;
 	Attack.stopClear = true;
 	let saveSpots = [
 		{ x: 22648, y: 15688 },
 		{ x: 22624, y: 15725 },
 	];
-	//let manaTP = Skill.getManaCost(sdk.skills.Teleport);
+
 	while (!duriel.dead) {
 		//ToDo; figure out static
 		if (duriel.getState(sdk.states.Frozen) && duriel.distance < 7 || duriel.distance < 12) {
-			let safeSpot = saveSpots.sort(function (a, b) { return getDistance(duriel, b) - getDistance(duriel, a); })[0];
+			let safeSpot = saveSpots.sort((a, b) => getDistance(duriel, b) - getDistance(duriel, a))[0];
 			Pather.teleportTo(safeSpot.x, safeSpot.y);
 		}
 		ClassAttack.doAttack(duriel, true);
@@ -1054,7 +1045,9 @@ Attack.pwnMeph = function () {
 // Credit @Jaenster - modified by me(theBGuy) for other classes
 Attack.pwnDia = function () {
 	// Can't farcast if our skill main attack isn't meant for it
-	if ((!me.sorceress && !me.necromancer && !me.assassin) || (["Poison", "Summon"].includes(SetUp.currentBuild)) || (Skill.getRange(Config.AttackSkill[1]) < 10)) {
+	if ((!me.sorceress && !me.necromancer && !me.assassin)
+		|| (["Poison", "Summon"].includes(SetUp.currentBuild))
+		|| (Skill.getRange(Config.AttackSkill[1]) < 10)) {
 		return false;
 	}
 

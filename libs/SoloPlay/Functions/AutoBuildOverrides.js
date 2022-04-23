@@ -70,9 +70,7 @@ const AutoBuild = new function AutoBuild () {
 		let currentScript = getCurrentScript();
 		let template = getTemplateFilename();
 		this.print("Including build template " + template + " into " + currentScript);
-		if (!include(template)) {
-			throw new Error("Failed to include template: " + template);
-		}
+		if (!include(template)) throw new Error("Failed to include template: " + template);
 
 		// Only load() helper thread from default.dbj if it isn't loaded
 		if (currentScript === "default.dbj" && !getScript("libs\\SoloPlay\\Threads\\AutoBuildThread.js")) {

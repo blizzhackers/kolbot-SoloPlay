@@ -4,9 +4,7 @@
 *	@desc		Druid fixes to improve class attack functionality
 */
 
-if (!isIncluded("common/Attacks/Druid.js")) {
-	include("common/Attacks/Druid.js");
-}
+!isIncluded("common/Attacks/Druid.js") && include("common/Attacks/Druid.js");
 
 ClassAttack.doAttack = function (unit, preattack) {
 	if (!unit) return 1;
@@ -16,8 +14,9 @@ ClassAttack.doAttack = function (unit, preattack) {
 		print("mercwatch");
 
 		if (Town.visitTown()) {
+			// lost reference to the mob we were attacking
 			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
-				return 1; // lost reference to the mob we were attacking
+				return 1;
 			}
 		}
 	}
@@ -129,7 +128,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		while (unit.attackable) {
 			if (Misc.townCheck()) {
 				if (!unit || !copyUnit(unit).x) {
-					unit = Misc.poll(function () { return getUnit(1, -1, -1, gid); }, 1000, 80);
+					unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
 				}
 			}
 
@@ -231,13 +230,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		return 1;
 	}
 
-	for (let i = 0; i < 25; i += 1) {
-		if (!me.getState(sdk.states.SkillDelay)) {
-			break;
-		}
-
-		delay(40);
-	}
+	Misc.poll(() => !me.skillDelay, 1000, 40);
 
 	return 1;
 };

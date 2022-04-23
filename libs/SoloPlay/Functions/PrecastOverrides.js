@@ -4,7 +4,7 @@
 *	@desc		Precast.js fixes to improve functionality
 */
 
-if (!isIncluded("common/Precast.js")) { include("common/Precast.js"); }
+!isIncluded("common/Precast.js") && include("common/Precast.js");
 
 Precast.enabled = true;
 
@@ -13,13 +13,8 @@ Precast.enabled = true;
 // Clay Goldem from Stone RW, Iron Golem from Metalgrid, Posion Creeper from Carrior Wind ring, Oak, HoW, or SoB from wisp
 
 Precast.precastCTA = function (force) {
-	if (me.classic || me.barbarian || me.inTown || me.shapeshifted) {
-		return false;
-	}
-
-	if (!force && (me.getState(sdk.states.BattleOrders) || (getTickCount() - this.BOTick < this.BODuration - 30000))) {
-		return true;
-	}
+	if (me.classic || me.barbarian || me.inTown || me.shapeshifted) return false;
+	if (!force && (me.getState(sdk.states.BattleOrders) || (getTickCount() - this.BOTick < this.BODuration - 30000))) return true;
 
 	if (this.checkCTA()) {
 		let slot = me.weaponswitch;
@@ -41,9 +36,7 @@ Precast.precastCTA = function (force) {
 };
 
 Precast.getBetterSlot = function (skillId) {
-	if (this.bestSlot[skillId] !== undefined) {
-		return this.bestSlot[skillId];
-	}
+	if (this.bestSlot[skillId] !== undefined) return this.bestSlot[skillId];
 
 	let classid, skillTab,
 		sumCurr = 0,
