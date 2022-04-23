@@ -458,7 +458,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	}
 
 	if (!x || !y) return false; // I don't think this is a fatal error so just return false
-	if (typeof x !== "number" || typeof y !== "number") { throw new Error("moveTo: Coords must be numbers"); }
+	if (typeof x !== "number" || typeof y !== "number") throw new Error("moveTo: Coords must be numbers");
 	if (getDistance(me, x, y) < 2) return true;
 
 	(retry === undefined || retry === 3) && (retry = 15);
@@ -468,7 +468,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
 	path = getPath(me.area, x, y, me.x, me.y, useTele || useChargedTele ? 1 : 0, useTele || useChargedTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : this.teleDistance) : this.walkDistance);
 
-	if (!path) { throw new Error("moveTo: Failed to generate path."); }
+	if (!path) throw new Error("moveTo: Failed to generate path.");
 
 	path.reverse();
 	pop && path.pop();
@@ -512,23 +512,26 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 					Misc.townCheck();
 				}
 			} else {
-				if (fail > 0 && (!useTele || tpMana > me.mp) && !me.inTown) {
-					this.kickBarrels(node.x, node.y);
-					this.openDoors(node.x, node.y);
-					if (!cleared) {
-						Attack.clear(5) && Misc.openChests(2);
-						cleared = true;
+				if (!me.inTown) {
+					if (!useTele && ((me.getMobCount(10) > 0 && Attack.clear(8)) || this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
+						continue;
 					}
 
-					// Only do this once
-					if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, 1) && !leaped) {
-						Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y);
-						leaped = true;
+					if (fail > 0 && (!useTele || tpMana > me.mp)) {
+						// Don't go berserk on longer paths
+						if (!cleared && me.getMobCount(5) > 0 && Attack.clear(5)) {
+							cleared = true;
+						}
+
+						// Only do this once
+						if (fail > 1 && !leaped && me.getSkill(sdk.skills.LeapAttack, 1) && Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y)) {
+							leaped = true;
+						}
 					}
 				}
 
 				path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? rand(25, 35) : rand(10, 15));
-				if (!path) { throw new Error("moveTo: Failed to generate path."); }
+				if (!path) throw new Error("moveTo: Failed to generate path.");
 
 				fail += 1;
 				path.reverse();
@@ -541,6 +544,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 					!me.inTown && Attack.clear(5) && Misc.openChests(2);
 
 					if (fail >= retry) {
+						console.log("Failed moveTo");
 						break;
 					}
 				}
@@ -847,7 +851,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 				}
 
 				while (!me.gameReady) {
-					delay(500 + me.ping);
+					delay(1000);
 				}
 
 				// In case lag causes the wp menu to stay open

@@ -116,7 +116,7 @@ function main () {
 	};
 
 	this.getPotion = function (pottype, type) {
-		if (!me.gameReady || !pottype) return false;
+		if (pottype === undefined) return false;
 
 		let items = me.getItemsEx().filter(item => item.itemType === pottype);
 		if (items.length === 0) return false;
@@ -133,7 +133,7 @@ function main () {
 			}
 
 			if (items[k].mode === 2 && items[k].itemType === pottype) {
-				console.log("ÿc2Drinking potion from belt.");
+				console.log("ÿc2" + (type > 2 ? "Giving Merc" : "Drinking") + " potion from belt.");
 				return copyUnit(items[k]);
 			}
 		}
@@ -198,7 +198,7 @@ function main () {
 	};
 
 	this.drinkPotion = function (type) {
-		if (!me.gameReady || type === undefined) return false;
+		if (type === undefined) return false;
 		let pottype, tNow = getTickCount();
 
 		switch (type) {
@@ -260,7 +260,7 @@ function main () {
 				if (type < 3) {
 					potion.interact();
 				} else {
-					clickItem(2, potion);
+					sendPacket(1, 0x26, 4, potion.gid, 4, 1, 4, 0);
 				}
 			} catch (e) {
 				console.warn(e);
@@ -275,7 +275,7 @@ function main () {
 	};
 
 	this.drinkSpecialPotion = function (type) {
-		if (!me.gameReady || !type) return false;
+		if (type === undefined) return false;
 		let objID;
 		let name = (type === sdk.items.ThawingPotion ? "thawing" : "antidote");
 
@@ -681,6 +681,16 @@ function main () {
 		case "restart":
 			restart = true;
 
+			break;
+		// ignore common scriptBroadcast messages that aren't relevent to this thread
+		case "mule":
+		case "muleTorch":
+		case "muleAnni":
+		case "torch":
+		case "crafting":
+		case "getMuleMode":
+		case "pingquit":
+		case "townCheck":
 			break;
 		default:
 			try {

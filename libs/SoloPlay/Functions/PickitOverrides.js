@@ -219,21 +219,21 @@ Pickit.canPick = function (unit) {
 	if (!unit) return false;
 	
 	switch (unit.classid) {
-		case 92: // Staff of Kings
-		case 173: // Khalim's Flail
-		case 521: // Viper Amulet
-		case 546: // Jade Figurine
-		case 549: // Cube
-		case 551: // Mephisto's Soulstone
-		case 552: // Book of Skill
-		case 553: // Khalim's Eye
-		case 554: // Khalim's Heart
-		case 555: // Khalim's Brain
-			if (me.getItem(unit.classid)) {
-				return false;
-			}
+	case 92: // Staff of Kings
+	case 173: // Khalim's Flail
+	case 521: // Viper Amulet
+	case 546: // Jade Figurine
+	case 549: // Cube
+	case 551: // Mephisto's Soulstone
+	case 552: // Book of Skill
+	case 553: // Khalim's Eye
+	case 554: // Khalim's Heart
+	case 555: // Khalim's Brain
+		if (me.getItem(unit.classid)) {
+			return false;
+		}
 
-			break;
+		break;
 	}
 	
 	// TODO: clean this up
@@ -431,7 +431,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 	MainLoop:
 	for (let i = 0; i < 3; i += 1) {
 		if (!getUnit(4, -1, -1, gid)) {
-			break MainLoop;
+			break;
 		}
 
 		if (me.dead) return false;
@@ -441,7 +441,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		}
 
 		if (item.mode !== 3 && item.mode !== 5) {
-			break MainLoop;
+			break;
 		}
 
 		if (stats.useTk) {
@@ -458,7 +458,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 				if (Pather.useTeleport()) {
 					Pather.moveToUnit(item);
 				} else if (!Pather.moveTo(item.x, item.y, 0)) {
-					continue MainLoop;
+					continue;
 				}
 			}
 

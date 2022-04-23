@@ -5,10 +5,10 @@
 *	@desc		Global variables Settings, general functions for Kolbot-SoloPlay functionality
 */
 
-if (!isIncluded("OOG.js")) { include("OOG.js"); }
-if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
-if (!isIncluded("SoloPlay/Tools/CharData.js")) { include("SoloPlay/Tools/CharData.js"); }
-if (!isIncluded("SoloPlay/Functions/PrototypesOverrides.js")) { include("SoloPlay/Functions/PrototypesOverrides.js"); }
+!isIncluded("OOG.js") && include("OOG.js");
+!isIncluded("SoloPlay/Tools/Developer.js") && include("SoloPlay/Tools/Developer.js");
+!isIncluded("SoloPlay/Tools/CharData.js") && include("SoloPlay/Tools/CharData.js");
+!isIncluded("SoloPlay/Functions/PrototypesOverrides.js") && include("SoloPlay/Functions/PrototypesOverrides.js");
 
 let myData = CharData.getStats();
 
@@ -47,7 +47,7 @@ function updateMyData () {
 	scripts.forEach(function (script) {
 		let curr = getScript(script);
 		if (curr && myThread !== curr.name) {
-			Messaging.sendToScript(script, "data--" + obj);
+			script.send("data--" + obj);
 		}
 	});
 }

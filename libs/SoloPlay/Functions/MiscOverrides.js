@@ -5,7 +5,7 @@
 *	@desc		Misc.js fixes to improve functionality
 */
 
-if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
+!isIncluded("common/Misc.js") && include("common/Misc.js");
 
 Misc.townEnabled = true;
 

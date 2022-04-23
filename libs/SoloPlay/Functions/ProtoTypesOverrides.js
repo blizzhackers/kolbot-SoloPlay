@@ -318,9 +318,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 
 	// Called the function the unit, me.
 	if (this === me) {
-		if (!skillId) {
-			throw Error('Must supply skillId on me.castChargedSkill');
-		}
+		if (!skillId) throw Error('Must supply skillId on me.castChargedSkill');
 
 		chargedItems = [];
 
@@ -965,7 +963,7 @@ if (!Array.prototype.equals) {
 		if (!array) return false;
 
 		// compare lengths - can save a lot of time 
-		if (this.length != array.length) return false;
+		if (this.length !== array.length) return false;
     
 		// call basic sort method, (my addition as I don't care if its the same order just if it contains the same values)
 		this.sort();

@@ -4,7 +4,7 @@
 *	@desc		Town.js fixes and custom tasks to improve functionality
 */
 
-if (!isIncluded("common/Town.js")) { include("common/Town.js"); }
+!isIncluded("common/Town.js") && include("common/Town.js");
 
 // Removed Missle Potions for easy gold
 // Items that won't be stashed
@@ -16,6 +16,8 @@ Town.ignoredItemTypes = [
 ];
 
 Town.townTasks = function () {
+	console.debug("ÿc8Start ÿc0:: ÿc8TownTasks");
+	let tick = getTickCount();
 	!me.inTown && Town.goToTown();
 
 	// Burst of speed while in town
@@ -67,11 +69,14 @@ Town.townTasks = function () {
 	}
 
 	delay(200 + me.ping * 2);
+	console.debug("ÿc8End ÿc0:: ÿc8TownTasksÿc0 - ÿc7Duration: ÿc0" + (new Date(getTickCount() - tick).toISOString().slice(11, -5)));
 
 	return true;
 };
 
 Town.doChores = function (repair = false) {
+	console.debug("ÿc8Start ÿc0:: ÿc8TownChores");
+	let tick = getTickCount();
 	!me.inTown && Town.goToTown();
 
 	// Burst of speed while in town
@@ -118,6 +123,7 @@ Town.doChores = function (repair = false) {
 	}
 
 	delay(200 + me.ping * 2);
+	console.debug("ÿc8End ÿc0:: ÿc8TownChoresÿc0 - ÿc7Duration: ÿc0" + (new Date(getTickCount() - tick).toISOString().slice(11, -5)));
 
 	return true;
 };
@@ -192,11 +198,11 @@ Town.clearScrolls = function () {
 
 // maybe use override module - only then last line is different
 Town.repair = function (force = false) {
-	let quiver, myQuiver, npc, repairAction, bowCheck;
+	let quiver, myQuiver, npc, bowCheck;
 
 	this.cubeRepair();
 
-	repairAction = this.needRepair();
+	let repairAction = this.needRepair();
 
 	if (force && repairAction.indexOf("repair") === -1) {
 		repairAction.push("repair");

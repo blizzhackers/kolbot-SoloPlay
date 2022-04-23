@@ -5,8 +5,8 @@
 *	@desc		Misc.js Item function fixes to improve functionality and Autoequip
 */
 
-if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
-if (!isIncluded("SoloPlay/Functions/PrototypesOverrides.js")) { include("SoloPlay/Functions/PrototypesOverrides.js"); }
+!isIncluded("common/Misc.js") && include("common/Misc.js");
+!isIncluded("SoloPlay/Functions/PrototypesOverrides.js") && include("SoloPlay/Functions/PrototypesOverrides.js");
 
 Item.getQuantityOwned = function (item = undefined) {
 	if (!item) return 0;
@@ -295,13 +295,13 @@ Item.autoEquip = function () {
 						}
 						Developer.debugging.autoEquip && Misc.logItem("Equipped", me.getItem(-1, -1, gid));
 						Developer.logEquipped && MuleLogger.logEquippedItems();
-
 					} else if (items[0].lvlreq > me.charlvl && !items[0].isInStash) {
 						if (Storage.Stash.CanFit(items[0])) {
 							print("ÿc9AutoEquipÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + items[0].fname + " Tier: " + tier);
 							Storage.Stash.MoveTo(items[0]);
 						}
-					} else if (me.getItem(-1, -1, gid)) {	// Make sure we didn't lose it during roll back
+					} else if (me.getItem(-1, -1, gid)) {
+						// Make sure we didn't lose it during roll back
 						continue;
 					}
 
@@ -323,17 +323,13 @@ Item.equip = function (item, bodyLoc) {
 
 	// Already equipped in the right slot
 	if (item.mode === sdk.itemmode.Equipped && item.bodylocation === bodyLoc) return true;
-
-	if (item.isInStash) {
-		if (!Town.openStash()) return false;
-	}
-
-	if (item.isInCube) {
-		// failed to open cube
-		if (!Town.openStash() && !Cubing.openCube()) return false;
-	}
+	// failed to open stash
+	if (item.isInStash && !Town.openStash()) return false;
+	// failed to open cube
+	if (item.isInCube && !Cubing.openCube()) return false;
 
 	let rolledBack = false;
+	// todo: sometimes rings get bugged with the higher tier ring ending up on the wrong finger, if this happens swap them
 
 	for (let i = 0; i < 3; i += 1) {
 		if (item.toCursor()) {
@@ -346,7 +342,7 @@ Item.equip = function (item, bodyLoc) {
 					if (cursorItem) {
 						// rollback check
 						let justEquipped = this.getEquippedItem(bodyLoc);
-						if (NTIP.GetTier(cursorItem) > justEquipped.tier && !item.questItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attemt rollback*/) {
+						if (NTIP.GetTier(cursorItem) > justEquipped.tier && !item.questItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attempt rollback*/) {
 							console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
 							console.debug("OldItem: " + NTIP.GetTier(cursorItem) + " Just Equipped Item: " + this.getEquippedItem(bodyLoc).tier);
 							clickItemAndWait(0, bodyLoc);
@@ -354,9 +350,11 @@ Item.equip = function (item, bodyLoc) {
 							rolledBack = true;
 						}
 
-						if (Pickit.checkItem(cursorItem).result === 1 ||
-						(cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2) || // only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						(cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {	// or keep if item is worth selling
+						if (Pickit.checkItem(cursorItem).result === 1
+						// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
+						|| (cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2)
+						// or keep if item is worth selling
+						|| (cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
 							if (Storage.Inventory.CanFit(cursorItem)) {
 								Storage.Inventory.MoveTo(cursorItem);
 							}
@@ -605,7 +603,9 @@ Item.canEquipMerc = function (item, bodyLoc) {
 	let curr = Item.getEquippedItemMerc(bodyLoc);
 
 	// Higher requirements
-	if (item.getStat(sdk.stats.LevelReq) > mercenary.getStat(sdk.stats.Level) || item.dexreq > mercenary.getStat(sdk.stats.Dexterity) - curr.dex || item.strreq > mercenary.getStat(sdk.stats.Strength) - curr.str) {
+	if (item.getStat(sdk.stats.LevelReq) > mercenary.getStat(sdk.stats.Level)
+		|| item.dexreq > mercenary.getStat(sdk.stats.Dexterity) - curr.dex
+		|| item.strreq > mercenary.getStat(sdk.stats.Strength) - curr.str) {
 		return false;
 	}
 
@@ -790,9 +790,14 @@ Item.autoEquipKeepCheckMerc = function (item) {
 Item.autoEquipMerc = function () {
 	if (!Config.AutoEquip || !Merc.getMercFix()) return true;
 
-	let items = me.findItems(-1, 0);
+	let items = me.getItemsEx()
+		.filter(function (item) {
+			if (!item.isInStorage) return false;
+			let tier = NTIP.GetMercTier(item);
+			return (item.identified ? tier > 0 : tier !== 0);
+		});
 
-	if (!items) return false;
+	if (!items.length) return false;
 
 	function sortEq (a, b) {
 		if (Item.canEquipMerc(a) && Item.canEquipMerc(b)) {
@@ -807,14 +812,6 @@ Item.autoEquipMerc = function () {
 
 	me.cancel();
 
-	for (let i = 0; i < items.length; i += 1) {
-		if (NTIP.GetMercTier(items[i]) === 0) {
-			items.splice(i, 1);
-
-			i -= 1;
-		}
-	}
-
 	while (items.length > 0) {
 		items.sort(sortEq);
 		let tier = NTIP.GetMercTier(items[0]);
@@ -822,7 +819,7 @@ Item.autoEquipMerc = function () {
 
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
-				if ([sdk.storage.Inventory, sdk.storage.Stash].indexOf(items[0].location) > -1 && tier > Item.getEquippedItemMerc(bodyLoc[j]).tier) {
+				if ([sdk.storage.Inventory, sdk.storage.Stash].includes(items[0].location) && tier > Item.getEquippedItemMerc(bodyLoc[j]).tier) {
 					if (!items[0].identified) {
 						let idTool = Town.getIdTool();
 
@@ -894,9 +891,10 @@ Item.finalEquippedGCs = [];
 
 Item.autoEquipSC = function () {
 	let checkList = [], keep = [],
-		items = me.getItemsEx().filter(function (charm) { return charm.classid === sdk.items.SmallCharm && charm.quality === sdk.itemquality.Magic; });
+		items = me.getItemsEx()
+			.filter((charm) => charm.isInStorage && charm.classid === sdk.items.SmallCharm && charm.quality === sdk.itemquality.Magic);
 
-	if (!items) {
+	if (!items.length) {
 		Developer.debugging.smallCharm && print("No charms found");
 		return {
 			keep: keep,
@@ -962,9 +960,10 @@ Item.autoEquipSC = function () {
 
 Item.autoEquipLC = function () {
 	let checkList = [], keep = [],
-		items = me.getItemsEx().filter(function (charm) { return charm.classid === sdk.items.LargeCharm && charm.quality === sdk.itemquality.Magic; });
+		items = me.getItemsEx()
+			.filter((charm) => charm.isInStorage && charm.classid === sdk.items.LargeCharm && charm.quality === sdk.itemquality.Magic);
 
-	if (!items) {
+	if (!items.length) {
 		Developer.debugging.largeCharm && print("No charms found");
 		return {
 			keep: keep,
@@ -1025,9 +1024,10 @@ Item.autoEquipLC = function () {
 
 Item.autoEquipGC = function () {
 	let checkList = [], keep = [],
-		items = me.getItemsEx().filter(function (charm) { return charm.classid === sdk.items.GrandCharm && charm.quality === sdk.itemquality.Magic; });
+		items = me.getItemsEx()
+			.filter((charm) => charm.isInStorage && charm.classid === sdk.items.GrandCharm && charm.quality === sdk.itemquality.Magic);
 
-	if (!items) {
+	if (!items.length) {
 		Developer.debugging.grandCharm && print("No charms found");
 		return {
 			keep: keep,
@@ -1086,11 +1086,11 @@ Item.autoEquipGC = function () {
 	};
 };
 
-Item.autoEquipCharmSort = function (items, verbose = false) {
+Item.autoEquipCharmSort = function (items = [], verbose = false) {
 	let resCharms = [], dmgCharms = [], eleDmgCharms = [], healthCharms = [], mfCharms = [], backupCheck = [],
 		typeA = [], typeB = [], typeC = [], checkList = [];
 
-	if (!items) {
+	if (!items.length) {
 		verbose && print("No charms found");
 		return {
 			typeA: typeA,
@@ -1597,7 +1597,7 @@ Item.autoEquipCharmCheck = function (item = undefined) {
 			.filter(charm => charm.classid === item.classid && charm.isInStorage
 				&& charm.quality === sdk.itemquality.Magic && NTIP.GetCharmTier(charm) > 0);
 
-	if (!items) return false;
+	if (!items.length) return false;
 
 	let keep = [];
 	charms = Item.autoEquipCharmSort(items);
@@ -1673,7 +1673,8 @@ Item.autoEquipCharms = function () {
 	let GCs = Item.autoEquipGC();
 	let LCs = Item.autoEquipLC();
 	let SCs = Item.autoEquipSC();
-	let specialCharms = me.getItemsEx().filter(function (charm) { return [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(charm.classid) && charm.quality === sdk.itemquality.Unique; });
+	let specialCharms = me.getItemsEx()
+		.filter((charm) => [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(charm.classid) && charm.quality === sdk.itemquality.Unique);
 
 	let verbose = !!(Developer.debugging.smallCharm || Developer.debugging.largeCharm || Developer.debugging.grandCharm);
 
