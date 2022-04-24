@@ -81,88 +81,6 @@ Pather.haveTeleCharges = false;
 Pather.forceWalk = false;
 Pather.forceRun = false;
 
-/**
- * @author Jaenster
- * @description Some prototypes on objects
- */
-// eslint-disable-next-line no-unused-vars
-(function (global) {
-	let coords = function () {
-		if (Array.isArray(this) && this.length > 1) {
-			return [this[0], this[1]];
-		}
-
-		if (typeof this.x !== 'undefined' && typeof this.y !== 'undefined') {
-			return this instanceof PresetUnit && [this.roomx * 5 + this.x, this.roomy * 5 + this.y] || [this.x, this.y];
-		}
-
-		return [undefined, undefined];
-	};
-
-	Object.prototype.mobCount = function (range = 5) {
-		let [x, y] = coords.apply(this);
-		return getUnits(sdk.unittype.Monster)
-			.filter(function (mon) {
-				return mon.attackable && getDistance(x, y, mon.x, mon.y) < range &&
-					!CollMap.checkColl({x: x, y: y}, mon, Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.ClosedDoor | Coords_1.BlockBits.LineOfSight, 1);
-			}).length;
-	};
-
-	Object.defineProperties(Object.prototype, {
-		moveTo: {
-			get: function () {
-				return typeof this.____moveTo__cb === 'function' && this.____moveTo__cb || (() => Pather.moveTo.apply(Pather, coords.apply(this)));
-			},
-			set: function (cb) {
-				this.____moveTo__cb = cb;
-			},
-			enumerable: false,
-		},
-		path: {
-			get: function () {
-				let useTeleport = Pather.useTeleport();
-				return getPath.apply(this, [typeof this.area !== 'undefined' ? this.area : me.area, me.x, me.y, ...coords.apply(this), useTeleport ? 1 : 0, useTeleport ? ([62, 63, 64].indexOf(me.area) > -1 ? 30 : Pather.teleDistance) : Pather.walkDistance]);
-			},
-			enumerable: false,
-		},
-		validSpot: {
-			get: function () {
-				let [x, y] = coords.apply(this), result;
-				if (!me.area || !x || !y) { // Just in case
-					return false;
-				}
-
-				try { // Treat thrown errors as invalid spot
-					result = getCollision(me.area, x, y);
-				} catch (e) {
-					// Dont care
-				}
-
-				// Avoid non-walkable spots, objects
-				return !(result === undefined || (result & 0x1) || (result & 0x400));
-			},
-			enumerable: false,
-		},
-		click: {
-			get: function () {
-				// eslint-disable-next-line no-unused-vars
-				return function (button = 0, shift = false) {
-					if (this instanceof Unit) {
-						switch (this.type) {
-						case 4: //ToDo; fix that items that we own, we click on
-						default:
-							print('Click button');
-							clickMap(button, 0, this);
-							delay(20);
-							clickMap(button + 2, 0, this);
-						}
-					}
-				};
-			}
-		}
-	});
-})(typeof global !== 'undefined' ? global : this);
-
 Pather.checkForTeleCharges = function () {
 	this.haveTeleCharges = Attack.getItemCharges(sdk.skills.Teleport);
 };
@@ -544,7 +462,8 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 					!me.inTown && Attack.clear(5) && Misc.openChests(2);
 
 					if (fail >= retry) {
-						console.log("Failed moveTo");
+						console.log("Failed moveTo: Retry = " + retry);
+
 						break;
 					}
 				}
@@ -698,16 +617,13 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 		break;
 	}
 
-	let tick, wp, coord, retry, npc;
-	let once = false;
-
 	for (let i = 0; i < 12; i += 1) {
 		if (me.area === targetArea || me.dead) {
 			break;
 		}
 
 		if (me.inTown) {
-			npc = getUnit(sdk.unittype.NPC, NPC.Warriv);
+			let npc = getUnit(sdk.unittype.NPC, NPC.Warriv);
 
 			if (me.area === sdk.areas.LutGholein && npc && getDistance(me, npc) < 50) {
 				if (npc && npc.openMenu()) {
@@ -724,7 +640,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 			!getUIFlag(sdk.uiflags.Waypoint) && (!Skill.useTK(wp) || i > 1) && Town.move("waypoint");
 		}
 
-		wp = getUnit(sdk.unittype.Object, "waypoint");
+		let wp = getUnit(sdk.unittype.Object, "waypoint");
 
 		if (wp && wp.area === me.area) {
 			if (Skill.useTK(wp) && i < 3 && !getUIFlag(sdk.uiflags.Waypoint)) {
@@ -743,7 +659,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 				!getUIFlag(sdk.uiflags.Waypoint) && Misc.click(0, 0, wp);
 
-				tick = getTickCount();
+				let tick = getTickCount();
 
 				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), me.ping * 2)) {
 					if (getUIFlag(sdk.uiflags.Waypoint)) {
@@ -804,45 +720,29 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 				if (!getUIFlag(sdk.uiflags.Waypoint)) {
 					print("waypoint retry " + (i + 1));
-					retry = Math.min(i + 1, 5);
-					coord = CollMap.getRandCoordinate(me.x, -5 * retry, 5 * retry, me.y, -5 * retry, 5 * retry);
-					this.moveTo(coord.x, coord.y);
-					delay(200 + me.ping);
-					Packet.flash(me.gid);
+					let retry = Math.min(i + 1, 5);
+					let coord = CollMap.getRandCoordinate(me.x, -5 * retry, 5 * retry, me.y, -5 * retry, 5 * retry);
+					!!coord && this.moveTo(coord.x, coord.y);
+					Packet.flash(me.gid, 250);
 					wp && wp.distance > 5 && !getUIFlag(sdk.uiflags.Waypoint) && this.moveToUnit(wp);
-
-					if (i === 10 && !once) {
-						// wierd but when we can't click on anything npcs/portals/waypoint it seems that un-equipping an item then re-equipping it seems to fix it
-						let _a = me.getItemsEx().filter(function (item) { return item.isEquipped; }).sort((a, b) => NTIP.GetTier(a) - NTIP.GetTier(b)).first();
-						let bodLoc = _a ? _a.bodylocation : false;
-						if (_a && bodLoc && _a.toCursor()) {
-							delay(200 + me.ping);
-							me.itemoncursor && bodLoc && clickItemAndWait(0, bodLoc);
-							!me.itemoncursor && (once = true);
-							if (once) {
-								D2Bot.printToConsole("Check logs for waypoint bug");
-								console.debug("did this work?");
-								takeScreenshot();
-							}
-						}
-					}
 
 					continue;
 				}
 			}
 
 			if (!check || getUIFlag(sdk.uiflags.Waypoint)) {
-				delay(200 + me.ping);
+				delay(250);
 				wp.interact(targetArea);
-				tick = getTickCount();
+				let tick = getTickCount();
 
 				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), me.ping * 4)) {
 					if (me.area === targetArea) {
-						delay(1000 + me.ping);
+						delay(1500);
+
 						return true;
 					}
 
-					delay(10 + me.ping);
+					delay(30);
 				}
 
 				while (!me.gameReady) {
@@ -866,11 +766,12 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 		// We can't seem to get the wp maybe attempt portal to town instead and try to use that wp
 		i >= 10 && !me.inTown && Town.goToTown();
 
-		delay(200 + me.ping);
+		delay(250);
 	}
 
 	if (me.area === targetArea) {
-		delay(200 + me.ping);
+		delay(500);
+
 		return true;
 	}
 

@@ -224,7 +224,9 @@ Precast.doPrecast = function (force) {
 
 		break;
 	case sdk.charclass.Paladin:
-		if (me.getSkill(sdk.skills.HolyShield, 0) && (!me.getState(sdk.states.HolyShield) || force)) {
+		if (me.getSkill(sdk.skills.HolyShield, 0)
+			&& Math.round(Skill.getManaCost(sdk.skills.HolyShield) * 100 / me.mpmax) < 35
+			&& (!me.getState(sdk.states.HolyShield) || force)) {
 			this.precastSkill(sdk.skills.HolyShield);
 		}
 

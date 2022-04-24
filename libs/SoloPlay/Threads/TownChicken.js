@@ -116,6 +116,8 @@ function main() {
 			case "getMuleMode":
 			case "pingquit":
 				return;
+			default:
+				break;
 			}
 
 			let updated = false;
@@ -193,7 +195,6 @@ function main() {
 
 			while (!me.gameReady) {
 				if (me.dead) return false;
-
 				delay(100);
 			}
 

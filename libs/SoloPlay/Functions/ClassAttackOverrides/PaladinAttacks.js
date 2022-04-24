@@ -117,7 +117,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		while (unit.attackable) {
 			if (Misc.townCheck()) {
 				if (!unit || !copyUnit(unit).x) {
-					unit = Misc.poll(function () { return getUnit(1, -1, -1, gid); }, 1000, 80);
+					unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
 				}
 			}
 
@@ -148,55 +148,6 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	}
 
 	return result;
-};
-
-ClassAttack.getHammerPosition = function (unit) {
-	let i, x, y, positions, check,
-		baseId = getBaseStat("monstats", unit.classid, "baseid"),
-		size = getBaseStat("monstats2", baseId, "sizex");
-
-	// in case base stat returns something outrageous
-	(typeof size !== "number" || size < 1 || size > 3) && (size = 3);
-
-	switch (unit.type) {
-	case 0: // Player
-		x = unit.x;
-		y = unit.y;
-		positions = [[x + 2, y], [x + 2, y + 1]];
-
-		break;
-	case 1: // Monster
-		x = (unit.mode === 2 || unit.mode === 15) && getDistance(me, unit) < 10 && getDistance(me, unit.targetx, unit.targety) > 5 ? unit.targetx : unit.x;
-		y = (unit.mode === 2 || unit.mode === 15) && getDistance(me, unit) < 10 && getDistance(me, unit.targetx, unit.targety) > 5 ? unit.targety : unit.y;
-		positions = [[x + 2, y + 1], [x, y + 3], [x + 2, y - 1], [x - 2, y + 2], [x - 5, y]];
-		size === 3 && positions.unshift([x + 2, y + 2]);
-
-		break;
-	}
-
-	// If one of the valid positions is a position im at already
-	if (positions.some(pos => pos.distance < 1)) return true;
-
-	for (i = 0; i < positions.length; i += 1) {
-		if (getDistance(me, positions[i][0], positions[i][1]) < 1) {
-			return true;
-		}
-	}
-
-	for (i = 0; i < positions.length; i += 1) {
-		check = {
-			x: positions[i][0],
-			y: positions[i][1]
-		};
-
-		if ([check.x, check.y].validSpot && !CollMap.checkColl(unit, check, 0x4, 0)) {
-			if (this.reposition(positions[i][0], positions[i][1])) {
-				return true;
-			}
-		}
-	}
-
-	return false;
 };
 
 ClassAttack.afterAttack = function () {
