@@ -4,9 +4,7 @@
 *	@desc		Assassin fixes to improve class attack functionality
 */
 
-if (!isIncluded("common/Attacks/Assassin.js")) {
-	include("common/Attacks/Assassin.js");
-}
+!isIncluded("common/Attacks/Assassin.js") && include("common/Attacks/Assassin.js");
 
 ClassAttack.mindBlast = function (unit) {
 	if (!unit || !me.getSkill(sdk.skills.MindBlast, 1)) return;
@@ -112,8 +110,9 @@ ClassAttack.doAttack = function (unit, preattack) {
 		print("mercwatch");
 
 		if (Town.visitTown()) {
+			// lost reference to the mob we were attacking
 			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
-				return 1; // lost reference to the mob we were attacking
+				return 1;
 			}
 		}
 	}
@@ -217,7 +216,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		while (unit.attackable) {
 			if (Misc.townCheck()) {
 				if (!unit || !copyUnit(unit).x) {
-					unit = Misc.poll(function () { return getUnit(1, -1, -1, gid); }, 1000, 80);
+					unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
 				}
 			}
 
@@ -240,8 +239,8 @@ ClassAttack.doAttack = function (unit, preattack) {
 				!!spot && Pather.walkTo(spot.x, spot.y);
 			}
 
-			let closeMob = Attack.getNearestMonster(true, true);
-			!!closeMob && closeMob.gid !== gid && this.doCast(closeMob, timedSkill, untimedSkill);
+			let closeMob = Attack.getNearestMonster({skipGid: gid});
+			!!closeMob && this.doCast(closeMob, timedSkill, untimedSkill);
 		}
 
 		return 1;
@@ -254,9 +253,7 @@ ClassAttack.farCast = function (unit) {
 	let timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
 
 	// No valid skills can be found
-	if (timedSkill < 0 && untimedSkill < 0) {
-		return false;
-	}
+	if (timedSkill < 0 && untimedSkill < 0) return false;
 
 	let checkTraps = this.checkTraps(unit);
 

@@ -5,7 +5,7 @@
 *	@credits	kolton
 */
 
-if (!isIncluded("common/Cubing.js")) { include("common/Cubing.js"); }
+!isIncluded("common/Cubing.js") && include("common/Cubing.js");
 
 Recipe.Reroll.Charm = 56;
 Recipe.Socket.LowMagic = 57;
@@ -418,23 +418,22 @@ Cubing.buildRecipes = function () {
 };
 
 Cubing.buildLists = function () {
-	let i, j, k, items;
-
 	CraftingSystem.checkSubrecipes();
 	SoloWants.checkSubrecipes();
 
 	this.validIngredients = [];
 	this.neededIngredients = [];
-	items = me.getItemsEx().filter(item => [sdk.itemmode.inStorage, sdk.itemmode.Equipped].includes(item.mode));
-	items.sort((a, b) => b.ilvl - a.ilvl);
+	let items = me.getItemsEx()
+		.filter(item => [sdk.itemmode.inStorage, sdk.itemmode.Equipped].includes(item.mode))
+		.sort((a, b) => b.ilvl - a.ilvl);
 
-	for (i = 0; i < this.recipes.length; i += 1) {
+	for (let i = 0; i < this.recipes.length; i += 1) {
 		// Set default Enabled property - true if recipe is always enabled, false otherwise
 		this.recipes[i].Enabled = this.recipes[i].hasOwnProperty("AlwaysEnabled");
 
 		IngredientLoop:
-		for (j = 0; j < this.recipes[i].Ingredients.length; j += 1) {
-			for (k = 0; k < items.length; k += 1) {
+		for (let j = 0; j < this.recipes[i].Ingredients.length; j += 1) {
+			for (let k = 0; k < items.length; k += 1) {
 				if (((this.recipes[i].Ingredients[j] === "pgem" && this.gemList.includes(items[k].classid))
 					|| (this.recipes[i].Ingredients[j] === "fgem" && [560, 565, 568, 575, 580, 585, 600].includes(items[k].classid))
 					|| (this.recipes[i].Ingredients[j] === "cgem" && [557, 562, 567, 572, 577, 582, 597].includes(items[k].classid))
@@ -611,15 +610,11 @@ Cubing.checkItem = function (unit) {
 
 Cubing.validItem = function (unit, recipe) {
 	let valid = true;
-	// Don't use items in locked inventory space
-	if (unit.isInInventory && Storage.Inventory.IsLocked(unit, Config.Inventory)) {
-		return false;
-	}
-
 	// Excluded items
-	if (Runewords.validGids.indexOf(unit.gid) > -1 || CraftingSystem.validGids.indexOf(unit.gid) > -1) {
-		return false;
-	}
+	// Don't use items in locked inventory space
+	if (unit.isInInventory && Storage.Inventory.IsLocked(unit, Config.Inventory)) return false;
+	// Don't use items that are wanted by other systems
+	if (Runewords.validGids.includes(unit.gid) || CraftingSystem.validGids.includes(unit.gid)) return false;
 
 	// Gems and runes
 	if ((unit.itemType >= 96 && unit.itemType <= 102) || unit.itemType === 74) {
@@ -645,9 +640,7 @@ Cubing.validItem = function (unit, recipe) {
 		}
 		// Junk jewels (NOT matching a pickit entry)
 		if (unit.itemType === 58) {
-			if (recipe.Enabled && NTIP.CheckItem(unit) === 0) {
-				return true;
-			}
+			if (recipe.Enabled && NTIP.CheckItem(unit) === 0) return true;
 		// Main item, NOT matching a pickit entry
 		} else if (unit.quality === 4 && Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) >= recipe.Level && NTIP.CheckItem(unit, NTIP_CheckListNoTier) === 0) {
 			return true;
@@ -808,21 +801,19 @@ Cubing.validItem = function (unit, recipe) {
 Cubing.doCubing = function () {
 	if (!Config.Cubing || !me.getItem(sdk.items.quest.Cube)) return false;
 
-	let i, j, items, string, result, tempArray, wasEquipped = false;
+	let wasEquipped = false;
 
 	this.update();
 	// Randomize the recipe array to prevent recipe blocking (multiple caster items etc.)
-	tempArray = this.recipes.slice().shuffle();
+	let tempArray = this.recipes.slice().shuffle();
 
-	for (i = 0; i < tempArray.length; i++) {
-		string = "Transmuting: ";
-		items = this.checkRecipe(tempArray[i]);
+	for (let i = 0; i < tempArray.length; i++) {
+		let string = "Transmuting: ";
+		let items = this.checkRecipe(tempArray[i]);
 
 		if (items) {
 			// If cube isn't open, attempt to open stash (the function returns true if stash is already open)
-			if ((!getUIFlag(sdk.uiflags.Cube) && !Town.openStash()) || !this.emptyCube()) {
-				return false;
-			}
+			if ((!getUIFlag(sdk.uiflags.Cube) && !Town.openStash()) || !this.emptyCube()) return false;
 
 			this.cursorCheck();
 
@@ -835,9 +826,7 @@ Cubing.doCubing = function () {
 				items.shift();
 			}
 
-			if (!this.openCube()) {
-				return false;
-			}
+			if (!this.openCube()) return false;
 
 			transmute();
 			delay(700 + me.ping);
@@ -849,8 +838,8 @@ Cubing.doCubing = function () {
 			items = me.findItems(-1, -1, sdk.storage.Cube);
 
 			if (items) {
-				for (j = 0; j < items.length; j++) {
-					result = Pickit.checkItem(items[j]);
+				for (let j = 0; j < items.length; j++) {
+					let result = Pickit.checkItem(items[j]);
 
 					switch (result.result) {
 					case 0:

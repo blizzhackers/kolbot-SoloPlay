@@ -4,7 +4,7 @@
 *	@desc		Pather.js fixes to improve functionality
 */
 
-if (!isIncluded("common/Pather.js")) { include("common/Pather.js"); }
+!isIncluded("common/Pather.js") && include("common/Pather.js");
 Developer.debugging.pathing && (PathDebug.enableHooks = true);
 
 // TODO: clean up this mess
@@ -81,11 +81,7 @@ Pather.haveTeleCharges = false;
 Pather.forceWalk = false;
 Pather.forceRun = false;
 
-/**
- * @author Jaenster
- * @description Some prototypes on objects
- */
-(function (global) {
+{
 	let coords = function () {
 		if (Array.isArray(this) && this.length > 1) {
 			return [this[0], this[1]];
@@ -106,60 +102,7 @@ Pather.forceRun = false;
 					!CollMap.checkColl({x: x, y: y}, mon, Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.ClosedDoor | Coords_1.BlockBits.LineOfSight, 1);
 			}).length;
 	};
-
-	Object.defineProperties(Object.prototype, {
-		moveTo: {
-			get: function () {
-				return typeof this.____moveTo__cb === 'function' && this.____moveTo__cb || (() => Pather.moveTo.apply(Pather, coords.apply(this)));
-			},
-			set: function (cb) {
-				this.____moveTo__cb = cb;
-			},
-			enumerable: false,
-		},
-		path: {
-			get: function () {
-				let useTeleport = Pather.useTeleport();
-				return getPath.apply(this, [typeof this.area !== 'undefined' ? this.area : me.area, me.x, me.y, ...coords.apply(this), useTeleport ? 1 : 0, useTeleport ? ([62, 63, 64].indexOf(me.area) > -1 ? 30 : Pather.teleDistance) : Pather.walkDistance]);
-			},
-			enumerable: false,
-		},
-		validSpot: {
-			get: function () {
-				let [x, y] = coords.apply(this), result;
-				if (!me.area || !x || !y) { // Just in case
-					return false;
-				}
-
-				try { // Treat thrown errors as invalid spot
-					result = getCollision(me.area, x, y);
-				} catch (e) {
-					// Dont care
-				}
-
-				// Avoid non-walkable spots, objects
-				return !(result === undefined || (result & 0x1) || (result & 0x400));
-			},
-			enumerable: false,
-		},
-		click: {
-			get: function () {
-				return function (button = 0, shift = false) {
-					if (this instanceof Unit) {
-						switch (this.type) {
-						case 4: //ToDo; fix that items that we own, we click on
-						default:
-							print('Click button');
-							clickMap(button, 0, this);
-							delay(20);
-							clickMap(button + 2, 0, this);
-						}
-					}
-				};
-			}
-		}
-	});
-})(typeof global !== 'undefined' ? global : this);
+}
 
 Pather.checkForTeleCharges = function () {
 	this.haveTeleCharges = Attack.getItemCharges(sdk.skills.Teleport);
@@ -226,27 +169,24 @@ Pather.teleUsingCharges = function (x, y, maxRange = 5) {
 
 Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 	while (!me.gameReady) {
-		delay(250 + me.ping);
+		delay(40);
 	}
 
 	if (!getWaypoint(Pather.wpAreas.indexOf(area))) {
-		!me.getSkill(sdk.skills.Telekinesis, 1) && me.inTown && Town.move("waypoint");
+		me.inTown && !getUIFlag(sdk.uiflags.Waypoint) && Town.move("waypoint");
 
 		for (let i = 0; i < 15; i++) {
 			let wp = getUnit(sdk.unittype.Object, "waypoint");
+			let useTK = (Skill.useTK(wp) && i < 5);
 
 			if (wp && wp.area === me.area) {
-				if (Skill.useTK(wp) && i < 2) {
-					if (wp.distance > 21) {
-						Attack.getIntoPosition(wp, 20, 0x4);
-					}
-
+				if (useTK) {
+					wp.distance > 21 && Pather.moveNearUnit(wp, 20);
 					Skill.cast(sdk.skills.Telekinesis, 0, wp);
-				} else if (wp.distance > 7) {
-					this.moveToUnit(wp);
+				} else {
+					wp.distance > 7 && this.moveToUnit(wp);
+					Misc.click(0, 0, wp);
 				}
-
-				!getUIFlag(sdk.uiflags.Waypoint) && Misc.click(0, 0, wp);
 
 				let tick = getTickCount();
 
@@ -350,7 +290,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 	}
 
 	if (!x || !y) return false; // I don't think this is a fatal error so just return false
-	if (typeof x !== "number" || typeof y !== "number") { throw new Error("moveNear: Coords must be numbers"); }
+	if (typeof x !== "number" || typeof y !== "number") throw new Error("moveNear: Coords must be numbers");
 
 	let useTele = settings.allowTeleport && this.useTeleport();
 	let useChargedTele = settings.allowTeleport && this.canUseTeleCharges();
@@ -360,7 +300,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 	if (getDistance(me, x, y) < 2) return true;
 	path = getPath(me.area, x, y, me.x, me.y, useTele || useChargedTele ? 1 : 0, useTele || useChargedTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : this.teleDistance) : this.walkDistance);
 
-	if (!path) { throw new Error("moveNear: Failed to generate path."); }
+	if (!path) throw new Error("moveNear: Failed to generate path.");
 
 	path.reverse();
 	settings.pop && path.pop();
@@ -459,7 +399,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	}
 
 	if (!x || !y) return false; // I don't think this is a fatal error so just return false
-	if (typeof x !== "number" || typeof y !== "number") { throw new Error("moveTo: Coords must be numbers"); }
+	if (typeof x !== "number" || typeof y !== "number") throw new Error("moveTo: Coords must be numbers");
 	if (getDistance(me, x, y) < 2) return true;
 
 	(retry === undefined || retry === 3) && (retry = 15);
@@ -469,7 +409,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
 	path = getPath(me.area, x, y, me.x, me.y, useTele || useChargedTele ? 1 : 0, useTele || useChargedTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : this.teleDistance) : this.walkDistance);
 
-	if (!path) { throw new Error("moveTo: Failed to generate path."); }
+	if (!path) throw new Error("moveTo: Failed to generate path.");
 
 	path.reverse();
 	pop && path.pop();
@@ -513,23 +453,26 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 					Misc.townCheck();
 				}
 			} else {
-				if (fail > 0 && (!useTele || tpMana > me.mp) && !me.inTown) {
-					this.kickBarrels(node.x, node.y);
-					this.openDoors(node.x, node.y);
-					if (!cleared) {
-						Attack.clear(5) && Misc.openChests(2);
-						cleared = true;
+				if (!me.inTown) {
+					if (!useTele && ((me.getMobCount(10) > 0 && Attack.clear(8)) || this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
+						continue;
 					}
 
-					// Only do this once
-					if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, 1) && !leaped) {
-						Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y);
-						leaped = true;
+					if (fail > 0 && (!useTele || tpMana > me.mp)) {
+						// Don't go berserk on longer paths
+						if (!cleared && me.getMobCount(5) > 0 && Attack.clear(5)) {
+							cleared = true;
+						}
+
+						// Only do this once
+						if (fail > 1 && !leaped && me.getSkill(sdk.skills.LeapAttack, 1) && Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y)) {
+							leaped = true;
+						}
 					}
 				}
 
 				path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? rand(25, 35) : rand(10, 15));
-				if (!path) { throw new Error("moveTo: Failed to generate path."); }
+				if (!path) throw new Error("moveTo: Failed to generate path.");
 
 				fail += 1;
 				path.reverse();
@@ -542,6 +485,8 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 					!me.inTown && Attack.clear(5) && Misc.openChests(2);
 
 					if (fail >= retry) {
+						console.log("Failed moveTo: Retry = " + retry);
+						
 						break;
 					}
 				}
@@ -583,7 +528,7 @@ Pather.moveToLoc = function (target, givenSettings) {
 	}
 
 	if (!target.x || !target.y) return false; // I don't think this is a fatal error so just return false
-	if (typeof target.x !== "number" || typeof target.y !== "number") { return false; }
+	if (typeof target.x !== "number" || typeof target.y !== "number") return false;
 	if (getDistance(me, target) < 2 && !CollMap.checkColl(me, target, Coords_1.Collision.BLOCK_MISSILE, 5)) return true;
 
 	let useTele = settings.allowTeleport && (getDistance(me, target) > 15 || me.diff || me.act > 3) && this.useTeleport();
@@ -592,7 +537,7 @@ Pather.moveToLoc = function (target, givenSettings) {
 	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
 	path = getPath(me.area, target.x, target.y, me.x, me.y, usingTele ? 1 : 0, usingTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : this.teleDistance) : this.walkDistance);
 
-	if (!path) { throw new Error("moveTo: Failed to generate path."); }
+	if (!path) throw new Error("moveTo: Failed to generate path.");
 
 	path.reverse();
 	settings.pop && path.pop();
@@ -689,19 +634,11 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 		break;
 	default:
-		if (typeof targetArea !== "number") {
-			throw new Error("useWaypoint: Invalid targetArea parameter");
-		}
-
-		if (!this.wpAreas.includes(targetArea)) {
-			throw new Error("useWaypoint: Invalid area");
-		}
+		if (typeof targetArea !== "number") throw new Error("useWaypoint: Invalid targetArea parameter");
+		if (!this.wpAreas.includes(targetArea)) throw new Error("useWaypoint: Invalid area");
 
 		break;
 	}
-
-	let tick, wp, coord, retry, npc;
-	let once = false;
 
 	for (let i = 0; i < 12; i += 1) {
 		if (me.area === targetArea || me.dead) {
@@ -709,7 +646,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 		}
 
 		if (me.inTown) {
-			npc = getUnit(sdk.unittype.NPC, NPC.Warriv);
+			let npc = getUnit(sdk.unittype.NPC, NPC.Warriv);
 
 			if (me.area === sdk.areas.LutGholein && npc && getDistance(me, npc) < 50) {
 				if (npc && npc.openMenu()) {
@@ -726,7 +663,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 			!getUIFlag(sdk.uiflags.Waypoint) && (!Skill.useTK(wp) || i > 1) && Town.move("waypoint");
 		}
 
-		wp = getUnit(sdk.unittype.Object, "waypoint");
+		let wp = getUnit(sdk.unittype.Object, "waypoint");
 
 		if (wp && wp.area === me.area) {
 			if (Skill.useTK(wp) && i < 3 && !getUIFlag(sdk.uiflags.Waypoint)) {
@@ -745,7 +682,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 				!getUIFlag(sdk.uiflags.Waypoint) && Misc.click(0, 0, wp);
 
-				tick = getTickCount();
+				let tick = getTickCount();
 
 				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), me.ping * 2)) {
 					if (getUIFlag(sdk.uiflags.Waypoint)) {
@@ -806,49 +743,33 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 				if (!getUIFlag(sdk.uiflags.Waypoint)) {
 					print("waypoint retry " + (i + 1));
-					retry = Math.min(i + 1, 5);
-					coord = CollMap.getRandCoordinate(me.x, -5 * retry, 5 * retry, me.y, -5 * retry, 5 * retry);
-					this.moveTo(coord.x, coord.y);
-					delay(200 + me.ping);
-					Packet.flash(me.gid);
+					let retry = Math.min(i + 1, 5);
+					let coord = CollMap.getRandCoordinate(me.x, -5 * retry, 5 * retry, me.y, -5 * retry, 5 * retry);
+					!!coord && this.moveTo(coord.x, coord.y);
+					Packet.flash(me.gid, 250);
 					wp && wp.distance > 5 && !getUIFlag(sdk.uiflags.Waypoint) && this.moveToUnit(wp);
-
-					if (i === 10 && !once) {
-						// wierd but when we can't click on anything npcs/portals/waypoint it seems that un-equipping an item then re-equipping it seems to fix it
-						let _a = me.getItemsEx().filter(function (item) { return item.isEquipped; }).sort((a, b) => NTIP.GetTier(a) - NTIP.GetTier(b)).first();
-						let bodLoc = _a ? _a.bodylocation : false;
-						if (_a && bodLoc && _a.toCursor()) {
-							delay(200 + me.ping);
-							me.itemoncursor && bodLoc && clickItemAndWait(0, bodLoc);
-							!me.itemoncursor && (once = true);
-							if (once) {
-								D2Bot.printToConsole("Check logs for waypoint bug");
-								console.debug("did this work?");
-								takeScreenshot();
-							}							
-						}
-					}
 
 					continue;
 				}
 			}
 
 			if (!check || getUIFlag(sdk.uiflags.Waypoint)) {
-				delay(200 + me.ping);
+				delay(250);
 				wp.interact(targetArea);
-				tick = getTickCount();
+				let tick = getTickCount();
 
 				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), me.ping * 4)) {
 					if (me.area === targetArea) {
-						delay(1000 + me.ping);
+						delay(1500);
+
 						return true;
 					}
 
-					delay(10 + me.ping);
+					delay(30);
 				}
 
 				while (!me.gameReady) {
-					delay(500 + me.ping);
+					delay(1000);
 				}
 
 				// In case lag causes the wp menu to stay open
@@ -868,11 +789,12 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 		// We can't seem to get the wp maybe attempt portal to town instead and try to use that wp
 		i >= 10 && !me.inTown && Town.goToTown();
 
-		delay(200 + me.ping);
+		delay(250);
 	}
 
 	if (me.area === targetArea) {
-		delay(200 + me.ping);
+		delay(500);
+
 		return true;
 	}
 
@@ -882,26 +804,22 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 // credit - Legacy Autosmurf
 Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 	let tick = getTickCount();
-	print("ÿc8Kolbot-SoloPlayÿc0: Start clearToExit");
-	print("Currently in: " + Pather.getAreaName(me.area));
-	print("Currentarea arg: " + Pather.getAreaName(currentarea));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Start clearToExit. ÿc8Currently in: ÿc0" + Pather.getAreaName(me.area) + "ÿc8Clearing to: ÿc0" + Pather.getAreaName(targetarea));
 
 	me.area !== currentarea && Pather.journeyTo(currentarea);
-
-	print("Clearing to: " + Pather.getAreaName(targetarea));
 
 	while (me.area === currentarea) {
 		try {
 			Pather.moveToExit(targetarea, true, cleartype);
 		} catch (e) {
-			print("Caught Error: " + e);
+			console.debug("Caught Error: " + e);
 		}
 
 		Packet.flash(me.gid);
-		delay(me.ping * 2 + 500);
+		delay(500);
 	}
 
-	print("ÿc8Kolbot-SoloPlayÿc0: End clearToExit. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: End clearToExit. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
 };
 
 Pather.getWalkDistance = function (x, y, area, xx, yy, reductionType, radius) {

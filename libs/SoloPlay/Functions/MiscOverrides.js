@@ -5,12 +5,12 @@
 *	@desc		Misc.js fixes to improve functionality
 */
 
-if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
+!isIncluded("common/Misc.js") && include("common/Misc.js");
 
 Misc.townEnabled = true;
 
 Misc.townCheck = function () {
-	if (!Misc.townEnabled || !Town.canTpToTown()) return false;
+	if (!Town.canTpToTown()) return false;
 	
 	let potion, check,
 		needhp = true,
@@ -505,41 +505,16 @@ Misc.checkSocketables = function () {
 Misc.logItem = function (action, unit, keptLine) {
 	if (!this.useItemLog || unit === undefined || !unit) return false;
 
-	// Don't check for config settings if there's no config loaded	
-	if (Config.loaded) {
-		if (!Config.LogKeys && ["pk1", "pk2", "pk3"].indexOf(unit.code) > -1) {
-			return false;
-		}
+	if (!Config.LogKeys && ["pk1", "pk2", "pk3"].includes(unit.code)) return false;
+	if (!Config.LogOrgans && ["dhn", "bey", "mbr"].includes(unit.code)) return false;
+	if (!Config.LogLowRunes && ["r01", "r02", "r03", "r04", "r05", "r06", "r07", "r08", "r09", "r10", "r11", "r12", "r13", "r14"].includes(unit.code)) return false;
+	if (!Config.LogMiddleRunes && ["r15", "r16", "r17", "r18", "r19", "r20", "r21", "r22", "r23"].includes(unit.code)) return false;
+	if (!Config.LogHighRunes && ["r24", "r25", "r26", "r27", "r28", "r29", "r30", "r31", "r32", "r33"].includes(unit.code)) return false;
+	if (!Config.LogLowGems && ["gcv", "gcy", "gcb", "gcg", "gcr", "gcw", "skc", "gfv", "gfy", "gfb", "gfg", "gfr", "gfw", "skf", "gsv", "gsy", "gsb", "gsg", "gsr", "gsw", "sku"].includes(unit.code)) return false;
+	if (!Config.LogHighGems && ["gzv", "gly", "glb", "glg", "glr", "glw", "skl", "gpv", "gpy", "gpb", "gpg", "gpr", "gpw", "skz"].includes(unit.code)) return false;
 
-		if (!Config.LogOrgans && ["dhn", "bey", "mbr"].indexOf(unit.code) > -1) {
-			return false;
-		}
-
-		if (!Config.LogLowRunes && ["r01", "r02", "r03", "r04", "r05", "r06", "r07", "r08", "r09", "r10", "r11", "r12", "r13", "r14"].indexOf(unit.code) > -1) {
-			return false;
-		}
-
-		if (!Config.LogMiddleRunes && ["r15", "r16", "r17", "r18", "r19", "r20", "r21", "r22", "r23"].indexOf(unit.code) > -1) {
-			return false;
-		}
-
-		if (!Config.LogHighRunes && ["r24", "r25", "r26", "r27", "r28", "r29", "r30", "r31", "r32", "r33"].indexOf(unit.code) > -1) {
-			return false;
-		}
-
-		if (!Config.LogLowGems && ["gcv", "gcy", "gcb", "gcg", "gcr", "gcw", "skc", "gfv", "gfy", "gfb", "gfg", "gfr", "gfw", "skf", "gsv", "gsy", "gsb", "gsg", "gsr", "gsw", "sku"].indexOf(unit.code) > -1) {
-			return false;
-		}
-
-		if (!Config.LogHighGems && ["gzv", "gly", "glb", "glg", "glr", "glw", "skl", "gpv", "gpy", "gpb", "gpg", "gpr", "gpw", "skz"].indexOf(unit.code) > -1) {
-			return false;
-		}
-
-		for (let i = 0; i < Config.SkipLogging.length; i++) {
-			if (Config.SkipLogging[i] === unit.classid || Config.SkipLogging[i] === unit.code) {
-				return false;
-			}
-		}
+	for (let i = 0; i < Config.SkipLogging.length; i++) {
+		if (Config.SkipLogging[i] === unit.classid || Config.SkipLogging[i] === unit.code) return false;
 	}
 
 	if (!unit.fname) return false;
@@ -780,34 +755,6 @@ Misc.shapeShift = function (mode) {
 	}
 
 	me.weaponswitch !== slot && me.switchWeapons(0);
-
-	return false;
-};
-
-Misc.buyItem = function (unit, shiftBuy, gamble) {
-	let oldGold = me.gold,
-		itemCount = me.itemcount,
-		npc = getInteractedNPC();
-
-	if (!npc) {
-		print("buyItem: No NPC menu open.");
-		return false;
-	}
-
-	// Can we afford the item?
-	if (me.gold < unit.getItemCost(0)) return false;
-
-	for (let i = 0; i < 3; i += 1) {
-		sendPacket(1, 0x32, 4, npc.gid, 4, unit.gid, 4, shiftBuy ? 0x80000000 : gamble ? 0x2 : 0x0, 4, 0);
-		let tick = getTickCount();
-
-		while (getTickCount() - tick < Math.max(2000, me.ping * 2 + 500)) {
-			if (shiftBuy && me.gold < oldGold) return true;
-			if (itemCount !== me.itemcount) return true;
-
-			delay(10);
-		}
-	}
 
 	return false;
 };

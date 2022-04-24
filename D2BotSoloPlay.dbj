@@ -57,7 +57,7 @@ let Controls = require('./modules/Control');
 let Overrides = require('./modules/Override');
 
 let joinInfo, chatActionsDone,
-	firstLogin, gameTracker,
+	gameTracker,
 	setUp = {},
 	battlenet = ([sdk.game.profiletype.Battlenet, sdk.game.profiletype.OpenBattlenet].includes(Profile().type)),
 	charClassMap = {"ZON": "amazon", "SOR": "sorceress", "NEC": "necromancer", "PAL": "paladin", "BAR": "barbarian", "DRU": "druid", "SIN": "assassin"};
@@ -272,7 +272,7 @@ function locationAction (location) {
 
 		me.blockKeys = false;
 
-		!firstLogin && (firstLogin = true);
+		!Starter.firstLogin && (Starter.firstLogin = true);
 		Starter.lastGameStatus === "pending" && (Starter.gameCount += 1);
 
 		if (Starter.Config.PingQuitDelay && Starter.pingQuit) {

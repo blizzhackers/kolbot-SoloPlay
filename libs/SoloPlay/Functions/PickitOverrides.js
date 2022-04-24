@@ -5,10 +5,10 @@
 *	@credits	sonic, jaenster
 */
 
-if (!isIncluded("common/Pickit.js")) { include("common/Pickit.js"); }
-if (!isIncluded("SoloPlay/Functions/NTIPOverrides.js")) { include("SoloPlay/Functions/NTIPOverrides.js"); }
-if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
-if (!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js")) {	include("SoloPlay/Functions/ProtoTypesOverrides.js"); }
+!isIncluded("common/Pickit.js") && include("common/Pickit.js");
+!isIncluded("SoloPlay/Functions/NTIPOverrides.js") && include("SoloPlay/Functions/NTIPOverrides.js");
+!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
+!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js") &&	include("SoloPlay/Functions/ProtoTypesOverrides.js");
 
 Pickit.enabled = true;
 
@@ -124,7 +124,7 @@ Pickit.checkItem = function (unit) {
 	}
 
 	// LowGold
-	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && !Town.ignoredItemTypes.includes(unit.itemType) && !unit.isQuestItem &&
+	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && !Town.ignoredItemTypes.includes(unit.itemType) && !unit.questItem &&
 		(unit.isInInventory || (me.gold < Config.LowGold || me.gold < 500000))) {
 		// Gold doesn't take up room, just pick it up
 		if (unit.classid === sdk.items.Gold) {
@@ -219,21 +219,21 @@ Pickit.canPick = function (unit) {
 	if (!unit) return false;
 	
 	switch (unit.classid) {
-		case 92: // Staff of Kings
-		case 173: // Khalim's Flail
-		case 521: // Viper Amulet
-		case 546: // Jade Figurine
-		case 549: // Cube
-		case 551: // Mephisto's Soulstone
-		case 552: // Book of Skill
-		case 553: // Khalim's Eye
-		case 554: // Khalim's Heart
-		case 555: // Khalim's Brain
-			if (me.getItem(unit.classid)) {
-				return false;
-			}
+	case 92: // Staff of Kings
+	case 173: // Khalim's Flail
+	case 521: // Viper Amulet
+	case 546: // Jade Figurine
+	case 549: // Cube
+	case 551: // Mephisto's Soulstone
+	case 552: // Book of Skill
+	case 553: // Khalim's Eye
+	case 554: // Khalim's Heart
+	case 555: // Khalim's Brain
+		if (me.getItem(unit.classid)) {
+			return false;
+		}
 
-			break;
+		break;
 	}
 	
 	// TODO: clean this up
@@ -431,7 +431,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 	MainLoop:
 	for (let i = 0; i < 3; i += 1) {
 		if (!getUnit(4, -1, -1, gid)) {
-			break MainLoop;
+			break;
 		}
 
 		if (me.dead) return false;
@@ -441,7 +441,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		}
 
 		if (item.mode !== 3 && item.mode !== 5) {
-			break MainLoop;
+			break;
 		}
 
 		if (stats.useTk) {
@@ -455,10 +455,10 @@ Pickit.pickItem = function (unit, status, keptLine) {
 					Pickit.enabled = true;		// Reset value
 				}
 
-				if (Pather.useTeleport()) {
-					Pather.moveToUnit(item);
-				} else if (!Pather.moveTo(item.x, item.y, 0)) {
-					continue MainLoop;
+				if (getDistance(me, item) > (Config.FastPick && i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
+					if ((Pather.useTeleport() && !Pather.moveToUnit(item)) || !Pather.moveTo(item.x, item.y, 0)) {
+						continue;
+					}
 				}
 			}
 

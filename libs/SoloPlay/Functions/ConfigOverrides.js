@@ -4,7 +4,7 @@
 *	@desc		Config.js fixes to work with modifed autobuild
 */
 
-if (!isIncluded("common/Config.js")) { include("common/Config.js"); }
+!isIncluded("common/Config.js") && include("common/Config.js");
 
 Config.init = function (notify) {
 	let configFilename = "",

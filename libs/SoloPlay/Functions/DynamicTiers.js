@@ -595,7 +595,7 @@ const tierscore = function (item, bodyloc) {
 		}
 	}
 
-	if (rwBase || item.isQuestItem) {
+	if (rwBase || item.questItem) {
 		tier = -1;
 	}
 

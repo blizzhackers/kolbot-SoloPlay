@@ -4,7 +4,7 @@
 *	@desc		Precast.js fixes to improve functionality
 */
 
-if (!isIncluded("common/Precast.js")) { include("common/Precast.js"); }
+!isIncluded("common/Precast.js") && include("common/Precast.js");
 
 Precast.enabled = true;
 
@@ -13,13 +13,8 @@ Precast.enabled = true;
 // Clay Goldem from Stone RW, Iron Golem from Metalgrid, Posion Creeper from Carrior Wind ring, Oak, HoW, or SoB from wisp
 
 Precast.precastCTA = function (force) {
-	if (me.classic || me.barbarian || me.inTown || me.shapeshifted) {
-		return false;
-	}
-
-	if (!force && (me.getState(sdk.states.BattleOrders) || (getTickCount() - this.BOTick < this.BODuration - 30000))) {
-		return true;
-	}
+	if (me.classic || me.barbarian || me.inTown || me.shapeshifted) return false;
+	if (!force && (me.getState(sdk.states.BattleOrders) || (getTickCount() - this.BOTick < this.BODuration - 30000))) return true;
 
 	if (this.checkCTA()) {
 		let slot = me.weaponswitch;
@@ -41,9 +36,7 @@ Precast.precastCTA = function (force) {
 };
 
 Precast.getBetterSlot = function (skillId) {
-	if (this.bestSlot[skillId] !== undefined) {
-		return this.bestSlot[skillId];
-	}
+	if (this.bestSlot[skillId] !== undefined) return this.bestSlot[skillId];
 
 	let classid, skillTab,
 		sumCurr = 0,
@@ -170,37 +163,32 @@ Precast.doPrecast = function (force) {
 			this.precastSkill(sdk.skills.EnergyShield);
 		}
 
-		// use which ever skill is the highest
-		let bestArmorSkill = function () {
-			let coldArmor = [
-				{skillId: sdk.skills.ShiverArmor, level: me.getSkill(sdk.skills.ShiverArmor, 1)},
-				{skillId: sdk.skills.ChillingArmor, level: me.getSkill(sdk.skills.ChillingArmor, 1)},
-				{skillId: sdk.skills.FrozenArmor, level: me.getSkill(sdk.skills.FrozenArmor, 1)},
-			].filter(skill => skill.level > 0).sort((a, b) => b.level - a.level).first();
-			return coldArmor !== undefined ? coldArmor.skillId : false;
-		};
+		if (Config.UseColdArmor) {
+			let choosenSkill = (typeof Config.UseColdArmor === "number" && me.getSkill(Config.UseColdArmor, 1)
+				? Config.UseColdArmor
+				: (Precast.precastables.coldArmor.best || -1));
+			switch (choosenSkill) {
+			case sdk.skills.FrozenArmor:
+				if (!me.getState(sdk.states.FrozenArmor) || force) {
+					Precast.precastSkill(sdk.skills.FrozenArmor);
+				}
 
-		switch (bestArmorSkill()) {
-		case sdk.skills.FrozenArmor:
-			if (!me.getState(sdk.states.FrozenArmor) || force) {
-				Precast.precastSkill(sdk.skills.FrozenArmor);
+				break;
+			case sdk.skills.ChillingArmor:
+				if (!me.getState(sdk.states.ChillingArmor) || force) {
+					Precast.precastSkill(sdk.skills.ChillingArmor);
+				}
+
+				break;
+			case sdk.skills.ShiverArmor:
+				if (!me.getState(sdk.states.ShiverArmor) || force) {
+					Precast.precastSkill(sdk.skills.ShiverArmor);
+				}
+
+				break;
+			default:
+				break;
 			}
-
-			break;
-		case sdk.skills.ChillingArmor:
-			if (!me.getState(sdk.states.ChillingArmor) || force) {
-				Precast.precastSkill(sdk.skills.ChillingArmor);
-			}
-
-			break;
-		case sdk.skills.ShiverArmor:
-			if (!me.getState(sdk.states.ShiverArmor) || force) {
-				Precast.precastSkill(sdk.skills.ShiverArmor);
-			}
-
-			break;
-		default:
-			break;
 		}
 
 		if (me.getSkill(sdk.skills.Enchant, 1) && (!me.getState(sdk.states.Enchant) || force)) {
@@ -236,7 +224,9 @@ Precast.doPrecast = function (force) {
 
 		break;
 	case sdk.charclass.Paladin:
-		if (me.getSkill(sdk.skills.HolyShield, 0) && (!me.getState(sdk.states.HolyShield) || force)) {
+		if (me.getSkill(sdk.skills.HolyShield, 0)
+			&& Math.round(Skill.getManaCost(sdk.skills.HolyShield) * 100 / me.mpmax) < 35
+			&& (!me.getState(sdk.states.HolyShield) || force)) {
 			this.precastSkill(sdk.skills.HolyShield);
 		}
 
@@ -440,7 +430,7 @@ Precast.summon = function (skillId, minionType) {
 	while (me.getMinionCount(minionType) < count) {
 		rv = true;
 		let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	// Get a random coordinate to summon using
-		let unit = Attack.getNearestMonster(true);
+		let unit = Attack.getNearestMonster({skipImmune: false});
 
 		if (unit && [sdk.minions.Golem, sdk.minions.Grizzly, sdk.minions.Shadow].includes(minionType) && unit.distance < 20 && !checkCollision(me, unit, 0x4)) {
 			try {

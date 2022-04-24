@@ -4,109 +4,15 @@
 *	@desc		Skill improvments for SoloPlay
 */
 
-if (!isIncluded("common/Misc.js")) { include("common/Misc.js"); }
-if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
+!isIncluded("common/Misc.js") && include("common/Misc.js");
+!isIncluded("SoloPlay/Tools/Developer.js") && include("SoloPlay/Tools/Developer.js");
 
-Skill.getHand = function (skillId) {
-	switch (skillId) {
-	case 6: // Magic Arrow
-	case 7: // Fire Arrow
-	case 9: // Critical Strike
-	case 11: // Cold Arrow
-	case 12: // Multiple Shot
-	case 13: // Dodge
-	case 15: // Poison Javelin
-	case 16: // Exploding Arrow
-	case 18: // Avoid
-	case 19: // Impale
-	case 20: // Lightning Bolt
-	case 21: // Ice Arrow
-	case 22: // Guided Arrow
-	case 23: // Penetrate
-	case 25: // Plague Javelin
-	case 26: // Strafe
-	case 27: // Immolation Arrow
-	case 29: // Evade
-	case 30: // Fend
-	case 31: // Freezing Arrow
-	case 33: // Pierce
-	case 35: // Lightning Fury
-	case 36: // Fire Bolt
-	case 37: // Warmth
-	case 38: // Charged Bolt
-	case 39: // Ice Bolt
-	case 41: // Inferno
-	case 45: // Ice Blast
-	case 47: // Fire Ball
-	case 49: // Lightning
-	case 53: // Chain Lightning
-	case 55: // Glacial Spike
-	case 61: // Fire Mastery
-	case 63: // Lightning Mastery
-	case 64: // Frozen Orb
-	case 65: // Cold Mastery
-	case 67: // Teeth
-	case 73: // Poison Dagger
-	case 79: // Golem Mastery
-	case 84: // Bone Spear
-	case 89: // Summon Resist
-	case 93: // Bone Spirit
-	case 101: // Holy Bolt
-	case 107: // Charge
-	case 112: // Blessed Hammer
-	case 121: // Fist of the Heavens
-	case 132: // Leap
-	case 140: // Double Throw
-	case 143: // Leap Attack
-	case 151: // Whirlwind
-	case 225: // Firestorm
-	case 229: // Molten Boulder
-	case 230: // Arctic Blast
-	case 240: // Twister
-	case 243: // Shock Wave
-	case 245: // Tornado
-	case 251: // Fire Trauma
-	case 254: // Tiger Strike
-	case 256: // Shock Field
-	case 257: // Blade Sentinel
-	case 259: // Fists of Fire
-	case 263: // Weapon Block
-	case 265: // Cobra Strike
-	case 266: // Blade Fury
-	case 269: // Claws of Thunder
-	case 274: // Blades of Ice
-	case 275: // Dragon Flight
-		return 1;
-	case 0: // Normal Attack
-	case 10: // Jab
-	case 14: // Power Strike
-	case 24: // Charged Strike
-	case 34: // Lightning Strike
-	case 96: // Sacrifice
-	case 97: // Smite
-	case 106: // Zeal
-	case 111: // Vengeance
-	case 116: // Conversion
-	case 126: // Bash
-	case 133: // Double Swing
-	case 139: // Stun
-	case 144: // Concentrate
-	case 147: // Frenzy
-	case 152: // Berserk
-	case 232: // Feral Rage
-	case 233: // Maul
-	case 238: // Rabies
-	case 239: // Fire Claws
-	case 242: // Hunger
-	case 248: // Fury
-	case 255: // Dragon Talon
-	case 260: // Dragon Claw
-	case 270: // Dragon Tail
-		return 2; // Shift bypass
-	}
-	// Every other skill
-	return 0;
-};
+Skill.casterSkills = [
+	36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 84,
+	87, 92, 93, 101, 112, 121, 130, 137, 138, 146, 154, 155, 225,
+	229, 230, 234, 240, 244, 249, 250, 251, 256, 261, 262, 271, 276
+];
+Skill.forcePacket = (Developer.forcePacketCasting.enabled && !Developer.forcePacketCasting.excludeProfiles.includes(me.profile));
 
 Skill.getRange = function (skillId) {
 	switch (skillId) {
@@ -260,9 +166,6 @@ Skill.getManaCost = function (skillId = -1) {
 // Cast a skill on self, Unit or coords. Always use packet casting for caster skills becasue it's more stable.
 Skill.cast = function (skillId, hand, x, y, item) {
 	let clickType, shift;
-	let casterSkills = [36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 84, 87, 92, 93, 101, 112, 121, 130, 137, 138, 146, 154, 155, 225, 229, 230, 234, 240, 244, 249, 250, 251, 256, 261, 262, 271, 276];
-	let forcePacket = Developer.forcePacketCasting.enabled && !Developer.forcePacketCasting.excludeProfiles.includes(me.profile);
-	!!me.realm && casterSkills.push(67, 245);
 
 	switch (true) {
 	case me.inTown && !this.townSkill(skillId): // cant cast this in town
@@ -290,7 +193,9 @@ Skill.cast = function (skillId, hand, x, y, item) {
 
 	if (!this.setSkill(skillId, hand, item)) return false;
 
-	if ((forcePacket && casterSkills.includes(skillId)) || Config.PacketCasting > 1 || skillId === sdk.skills.Teleport) {
+	if ((this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [67, 245].indexOf(skillId) === -1))
+		|| Config.PacketCasting > 1
+		|| skillId === sdk.skills.Teleport) {
 		switch (typeof x) {
 		case "number":
 			Packet.castSkill(hand, x, y);
@@ -363,9 +268,6 @@ Skill.cast = function (skillId, hand, x, y, item) {
 
 Skill.switchCast = function (skillId, hand, x, y, switchBack = true) {
 	let clickType, shift;
-	let casterSkills = [36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 84, 87, 92, 93, 101, 112, 121, 130, 137, 138, 146, 154, 155, 225, 229, 230, 234, 240, 244, 249, 250, 251, 256, 261, 262, 271, 276];
-	let forcePacket = Developer.forcePacketCasting.enabled && !Developer.forcePacketCasting.excludeProfiles.includes(me.profile);
-	!!me.realm && casterSkills.push(67, 245);
 
 	switch (true) {
 	case me.classic: // No switch in classic
@@ -401,7 +303,9 @@ Skill.switchCast = function (skillId, hand, x, y, switchBack = true) {
 		return false;
 	}
 
-	if ((forcePacket && casterSkills.includes(skillId)) || Config.PacketCasting > 1 || skillId === sdk.skills.Teleport) {
+	if ((this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [67, 245].indexOf(skillId) === -1))
+		|| Config.PacketCasting > 1
+		|| skillId === sdk.skills.Teleport) {
 		switch (typeof x) {
 		case "number":
 			Packet.castSkill(hand, x, y);

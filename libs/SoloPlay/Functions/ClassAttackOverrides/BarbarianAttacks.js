@@ -4,7 +4,8 @@
 *	@desc		Barbarian fixes to improve class attack functionality
 */
 
-if (!isIncluded("common/Attacks/Barbarian.js")) { include("common/Attacks/Barbarian.js"); }
+!isIncluded("common/Attacks/Barbarian.js") && include("common/Attacks/Barbarian.js");
+
 const GameData = require('../../Modules/GameData');
 
 ClassAttack.warCryTick = 0;
@@ -97,8 +98,9 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		print("towncheck");
 
 		if (Town.visitTown(!!needRepair.length)) {
+			// lost reference to the mob we were attacking
 			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
-				return 1; // lost reference to the mob we were attacking
+				return 1;
 			}
 		}
 	}

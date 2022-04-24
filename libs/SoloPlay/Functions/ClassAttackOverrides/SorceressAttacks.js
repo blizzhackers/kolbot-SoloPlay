@@ -4,27 +4,39 @@
 *	@desc		Sorceress fixes to improve class attack functionality
 */
 
-if (!isIncluded("common/Attacks/Sorceress.js")) { include("common/Attacks/Sorceress.js"); }
+!isIncluded("common/Attacks/Sorceress.js") && include("common/Attacks/Sorceress.js");
+
 const GameData = require('../../Modules/GameData');
 
 let frostNovaCheck = function () {
 	return getUnits(1).some(function(el) {
-		return !!el && el.attackable && el.distance < 7 && ![sdk.monsters.Andariel].includes(el.classid) && !el.isChilled && Attack.checkResist(el, 'cold') && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
+		return !!el && el.attackable && el.distance < 7
+			&& ![sdk.monsters.Andariel].includes(el.classid)
+			&& !el.isChilled && Attack.checkResist(el, 'cold')
+			&& !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
 	});
 };
 
 ClassAttack.doAttack = function (unit, skipStatic = false) {
 	Developer.debugging.skills && print(sdk.colors.Green + "Test Start-----------------------------------------//");
+	if (!unit) return 1;
+	let gid = unit.gid;
+
 	let tick = getTickCount();
-	let mark,
-		merc = Merc.getMercFix(),
-		timedSkill = {have: false, skill: -1, range: undefined, mana: undefined, dmg: 0},
+	let timedSkill = {have: false, skill: -1, range: undefined, mana: undefined, dmg: 0},
 		index = (unit.spectype !== 0 || unit.type === 0) ? 1 : 3,
 		gold = me.gold;
 
 	if (Config.MercWatch && Town.needMerc() && gold > me.mercrevivecost * 3) {
 		console.debug("mercwatch");
-		Town.visitTown();
+
+		if (Town.visitTown()) {
+			// lost reference to the mob we were attacking
+			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+				console.debug("Lost reference to unit");
+				return 1;
+			}
+		}
 	}
 
 	// Keep Energy Shield active
@@ -248,19 +260,43 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 		Developer.debugging.skills && print(sdk.colors.Red + "Sucess Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
 		return true;
 	case 2: // Try to telestomp
-		if (me.getSkill(sdk.skills.Teleport, 1) && (Config.TeleStomp || (unit.getMobCount(10) < me.maxNearMonsters && index === 1)) && Attack.checkResist(unit, "physical") && Config.UseMerc) {
-			while (Attack.checkMonster(unit)) {
-				Misc.townCheck();
+		if (Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y) && (Config.TeleStomp || (unit.getMobCount(10) < me.maxNearMonsters && index === 1))) {
+			let merc = me.getMerc();
+			let haveTK = !!(me.getSkill(sdk.skills.Telekinesis, 1));
+			let mercRevive = 0;
 
-				merc === undefined || !merc && Town.visitTown();
-				unit.distance > 3 && Pather.moveToUnit(unit);
+			while (unit.attackable) {
+				if (Misc.townCheck()) {
+					if (!unit || !copyUnit(unit).x) {
+						unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
+					}
+				}
+
+				if (!unit) return 1;
+
+				if (Town.needMerc()) {
+					if (Config.MercWatch && mercRevive < 3) {
+						Town.visitTown() && (mercRevive++);
+					} else {
+						return 2;
+					}
+
+					(merc === undefined || !merc) && (merc = me.getMerc());
+				}
+
+				if (!!merc && getDistance(merc, unit) > 5) {
+					Pather.moveToUnit(unit);
+
+					let spot = Attack.findSafeSpot(unit, 10, 5, 9);
+					!!spot && Pather.walkTo(spot.x, spot.y);
+				}
 
 				if (Attack.checkResist(unit, "lightning") && data.static.have && unit.hpPercent > Config.CastStatic) {
 					Skill.cast(sdk.skills.StaticField, 0);
 				}
 
-				mark = Attack.getNearestMonster();
-				!!mark ? Attack.checkResist(mark, timedSkill) && ClassAttack.doCast(mark, timedSkill, data) : me.getSkill(sdk.skills.Telekinesis, 1) ? Skill.cast(sdk.skills.Telekinesis, 0, unit) : null;
+				let closeMob = Attack.getNearestMonster({skipGid: gid});
+				!!closeMob ? this.doCast(closeMob, timedSkill, data) : haveTK && Skill.cast(sdk.skills.Telekinesis, 0, unit);
 			}
 
 			return true;
@@ -282,7 +318,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 	Developer.debugging.skills && timedSkill.have && print(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(timedSkill.skill) + ") DMG: " + timedSkill.dmg);
 
 	let inDanger = function () {
-		let nearUnits = getUnits(sdk.unittype.Monster).filter(function (mon) { return mon.attackable && mon.distance < 10; });
+		let nearUnits = getUnits(sdk.unittype.Monster).filter((mon) => mon.attackable && mon.distance < 10);
 		let dangerClose = nearUnits.find(mon => mon.getEnchant(sdk.enchant.ManaBurn) || mon.getEnchant(sdk.enchant.LightningEnchanted));
 		return nearUnits.length > me.maxNearMonsters || dangerClose;
 	};
@@ -303,23 +339,17 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 		let ts = timedSkill.skill, tsRange = timedSkill.range, tsMana = timedSkill.mana, ranged = tsRange > 4;
 
 		if (ts === sdk.skills.ChargedBolt) {
-			if (unit.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE) < 3) {
-				tsRange = 5;
-			}
+			unit.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE) < 3 && (tsRange = 5);
 		}
 
-		if (tsRange < 4 && !Attack.validSpot(unit.x, unit.y)) {
-			return 0;
-		}
+		if (tsRange < 4 && !Attack.validSpot(unit.x, unit.y)) return 0;
 
 		if (unit.distance > tsRange || Coords_1.isBlockedBetween(me, unit)) {
 			// Allow short-distance walking for melee skills
 			walk = (tsRange < 4 || (ts === sdk.skills.ChargedBolt && tsRange === 5)) && unit.distance < 10 && !checkCollision(me, unit, Coords_1.BlockBits.BlockWall);
 
 			if (ranged) {
-				if (!Attack.getIntoPosition(unit, timedSkill.range, Coords_1.Collision.BLOCK_MISSILE, walk)) {
-					return 0;
-				}
+				if (!Attack.getIntoPosition(unit, timedSkill.range, Coords_1.Collision.BLOCK_MISSILE, walk)) return 0;
 			} else if (!Attack.getIntoPosition(unit, tsRange, Coords_1.BlockBits.Ranged, walk)) {
 				return 0;
 			}
@@ -341,18 +371,14 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 		if (!unit.dead && !checkCollision(me, unit, Coords_1.BlockBits.Ranged)) {
 			if (ts === sdk.skills.ChargedBolt) {
 				// Randomized x coord changes bolt path and prevents constant missing
-				if (!unit.dead) {
-					Skill.cast(ts, Skill.getHand(ts), unit.x + rand(-1, 1), unit.y);
-				}
+				!unit.dead && Skill.cast(ts, Skill.getHand(ts), unit.x + rand(-1, 1), unit.y);
 			} else if (ts === sdk.skills.StaticField) {
 				for (let i = 0; i < 4; i++) {
 					if (!unit.dead) {
 						Skill.cast(ts, Skill.getHand(ts), unit);
 
 						if (data.frostNova.have && me.mp > data.frostNova.mana) {
-							if (frostNovaCheck()) {
-								Skill.cast(sdk.skills.FrostNova, 0);
-							}
+							frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, 0);
 						}
 
 						if (inDanger() || tsMana > me.mp || unit.hpPercent < Config.CastStatic) {

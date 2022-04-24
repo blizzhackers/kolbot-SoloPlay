@@ -5,10 +5,10 @@
 *	@desc		Global variables Settings, general functions for Kolbot-SoloPlay functionality
 */
 
-if (!isIncluded("OOG.js")) { include("OOG.js"); }
-if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
-if (!isIncluded("SoloPlay/Tools/CharData.js")) { include("SoloPlay/Tools/CharData.js"); }
-if (!isIncluded("SoloPlay/Functions/PrototypesOverrides.js")) { include("SoloPlay/Functions/PrototypesOverrides.js"); }
+!isIncluded("OOG.js") && include("OOG.js");
+!isIncluded("SoloPlay/Tools/Developer.js") && include("SoloPlay/Tools/Developer.js");
+!isIncluded("SoloPlay/Tools/CharData.js") && include("SoloPlay/Tools/CharData.js");
+!isIncluded("SoloPlay/Functions/PrototypesOverrides.js") && include("SoloPlay/Functions/PrototypesOverrides.js");
 
 let myData = CharData.getStats();
 
@@ -47,7 +47,7 @@ function updateMyData () {
 	scripts.forEach(function (script) {
 		let curr = getScript(script);
 		if (curr && myThread !== curr.name) {
-			Messaging.sendToScript(script, "data--" + obj);
+			curr.send("data--" + obj);
 		}
 	});
 }
@@ -124,6 +124,52 @@ const SetUp = {
 		// Act 5
 		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests",
 	],
+
+	// TODO: write me.mainDps prototype to clean up exclusions
+	/*scripts: {
+		corpsefire: {
+			preReq: () => { return me.den && me.hell; },
+			skipIf: () => { return me.druid && me.paladin; },
+			runIf: () => { return this.preReq() && !this.skipIf() && (!me.andariel || Check.brokeAf()); }
+		},
+		den: {
+			runIf: () => { return !me.den; }
+		},
+		bloodraven: {
+			skipIf: () => { return ["Lightning", "Trapsin", "Javazon"].includes(SetUp.currentBuild); },
+			byDiff: () => {
+				switch (me.diff) {
+				case sdk.difficulty.Normal:
+					return !me.bloodraven || (!me.summoner && Check.brokeAf()) || (!me.tristram && me.barbarian);
+				case sdk.difficulty.Nightmare:
+					return !me.bloodraven;
+				case sdk.difficulty.Hell:
+					return !this.skipIf();
+				}
+			},
+			runIf: () => { return this.byDiff(); }
+		},
+		treehead: {
+			skipIf: () => { return !me.hell || !me.paladin || !Pather.accessToAct(3); },
+			runIf: () => { return !this.skipIf() && SetUp.currentBuild !== SetUp.finalBuild; }
+		},
+		smith: {
+			// does smith have leveling potential? for now just if we need the q
+			runIf: () => { return !Misc.checkQuest(3, 1) && !me.smith; }
+		},
+		tristram: {
+			skipIf: () => { return },
+			byDiff: () => {
+				switch (me.diff) {
+				case sdk.difficulty.Normal:
+					return (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf());
+				case sdk.difficulty.Nightmare:
+				case sdk.difficulty.Hell:
+					return !this.skipIf();
+				}
+			}
+		},
+	},*/
 
 	// Should this be moved elsewhere? Currently have to include Globals then call this to include rest of overrides
 	// which in doing so would include globals anyway but does this always need to be included first?
@@ -215,9 +261,7 @@ const SetUp = {
 
 		let template = getBuildTemplate();
 
-		if (!include(template)) {
-			throw new Error("Failed to include template: " + template);
-		}
+		if (!include(template)) throw new Error("Failed to include template: " + template);
 
 		let specCheck = [];
 		let final = SetUp.getBuild() === SetUp.finalBuild;
@@ -239,8 +283,8 @@ const SetUp = {
 	},
 
 	makeNext: function () {
-		if (!isIncluded("SoloPlay/Tools/NameGen.js")) { include("SoloPlay/Tools/NameGen.js"); }
-		if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
+		!isIncluded("SoloPlay/Tools/NameGen.js") && include("SoloPlay/Tools/NameGen.js");
+		!isIncluded("SoloPlay/Tools/Tracker.js") && include("SoloPlay/Tools/Tracker.js");
 		let gameObj, printTotalTime = Developer.logPerformance;
 		printTotalTime && (gameObj = Developer.readObj(Tracker.GTPath));
 
@@ -255,11 +299,9 @@ const SetUp = {
 	},
 
 	belt: function () {
-		let i = 0;
 		let beltSlots = Math.max(1, Storage.BeltSize() - 1);
-		Config.BeltColumn.forEach(function (col) {
-			Config.MinColumn[i] = col.toLowerCase() !== "rv" ? beltSlots : 0;
-			i++;
+		Config.BeltColumn.forEach(function (col, index) {
+			Config.MinColumn[index] = col.toLowerCase() !== "rv" ? beltSlots : 0;
 		});
 	},
 };
@@ -404,18 +446,18 @@ const basicSocketables = {
 
 const goToDifficulty = function (diff = undefined, reason = "") {
 	try {
-		if (!diff) throw "diff is undefined";
+		if (!diff) throw new Error("diff is undefined");
 		let diffString;
 		switch (typeof diff) {
 		case "string":
 			diff = diff[0].toUpperCase() + diff.substring(1).toLowerCase();
-			if (!sdk.difficulty.Difficulties.includes(diff) || sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw "difficulty doesn't exist" + diff;
-			if (!sdk.difficulty.Difficulties.includes(diff) || sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw "already in this difficulty" + diff;
+			if (!sdk.difficulty.Difficulties.includes(diff) || sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw new Error("difficulty doesn't exist" + diff);
+			if (!sdk.difficulty.Difficulties.includes(diff) || sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw new Error("already in this difficulty" + diff);
 			diffString = diff;
 
 			break;
 		case "number":
-			if (diff === me.diff || diff < 0) throw "invalid diff" + diff;
+			if (diff === me.diff || diff < 0) throw new Error("invalid diff" + diff);
 			diffString = sdk.difficulty.nameOf(diff);
 
 			break;
@@ -510,19 +552,19 @@ const Check = {
 
 			break;
 		case "andariel":
-			if (!me.andariel ||
-				(me.classic && me.hell) ||
-				(me.expansion &&
-					(!me.normal && (Pather.canTeleport() || me.charlvl <= 60)) ||
-					(me.hell && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))))) {
+			if (!me.andariel
+				|| (me.classic && me.hell)
+				|| (me.expansion
+					&& (!me.normal && (Pather.canTeleport() || me.charlvl <= 60))
+					|| (me.hell && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))))) {
 				return true;
 			}
 
 			break;
 		case "a1chests":
 			if (me.expansion &&
-				(me.charlvl >= 70 && Pather.canTeleport() ||
-					(me.barbarian && me.hell && !Pather.accessToAct(3) && (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("sword", "runeword", "Lawbringer"))))) {
+				(me.charlvl >= 70 && Pather.canTeleport()
+					|| (me.barbarian && me.hell && !Pather.accessToAct(3) && (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("sword", "runeword", "Lawbringer"))))) {
 				return true;
 			}
 
@@ -898,7 +940,7 @@ const Check = {
 
 		let items = me.getItemsEx()
 			.filter(function (item) {
-				return !item.isQuestItem && (flag === "Runeword" ? item.isRuneword : item.quality === sdk.itemquality[flag]);
+				return !item.questItem && (flag === "Runeword" ? item.isRuneword : item.quality === sdk.itemquality[flag]);
 			});
 
 		switch (typeof type) {
@@ -980,7 +1022,7 @@ const Check = {
 		let itemCHECK = false;
 		let items = me.getItemsEx()
 			.filter(function (item) {
-				return item.quality === quality && !item.isQuestItem && !item.isRuneword && (isClassID ? item.classid === type : item.itemType === type) && getBaseStat("items", item.classid, "gemsockets") > 0;
+				return item.quality === quality && !item.questItem && !item.isRuneword && (isClassID ? item.classid === type : item.itemType === type) && getBaseStat("items", item.classid, "gemsockets") > 0;
 			});
 
 		for (let i = 0; i < items.length; i++) {
@@ -1046,9 +1088,7 @@ const Check = {
 
 		let template = getBuildTemplate();
 
-		if (!include(template)) {
-			throw new Error("currentBuild(): Failed to include template: " + template);
-		}
+		if (!include(template)) throw new Error("currentBuild(): Failed to include template: " + template);
 
 		if (SetUp.currentBuild === SetUp.finalBuild) {
 			return {
@@ -1079,55 +1119,59 @@ const Check = {
 
 	finalBuild: function () {
 		function getBuildTemplate () {
-			let foundError = false;
-			if (SetUp.finalBuild.includes("Build") || SetUp.finalBuild.includes("build")) {
-				myData.me.finalBuild = SetUp.finalBuild.substring(0, SetUp.finalBuild.length - 5);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-				foundError = true;
-			}
-
-			if (SetUp.finalBuild.includes(".")) {
-				myData.me.finalBuild = SetUp.finalBuild.substring(SetUp.finalBuild.indexOf(".") + 1).capitalize(true);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-				foundError = true;
-			}
-
-			if (SetUp.finalBuild.includes(" ")) {
-				myData.me.finalBuild = SetUp.finalBuild.trim().capitalize(true);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-				foundError = true;
-			}
-
-			if (SetUp.finalBuild.includes("-")) {
-				myData.me.finalBuild = SetUp.finalBuild.substring(SetUp.finalBuild.indexOf("-") + 1).capitalize(true);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '-' which is unecessary and means you likely entered something along the lines of Classname-finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-				foundError = true;
-			}
-
-			if (foundError) {
-				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
-				CharData.updateData("me", "finalBuild", SetUp.finalBuild);
-				myData.me.finalBuild = SetUp.finalBuild;
-			}
-
 			let buildType = SetUp.finalBuild;
 			let build;
 
-			if (["Bumper", "Socketmule"].includes(SetUp.finalBuild)) {
+			if (["Bumper", "Socketmule"].includes(buildType)) {
 				build = ["Javazon", "Cold", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid] + "Build";
 			} else {
 				build = buildType + "Build";
 			}
 
-			let template = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js";
+			let template = ("SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js").toLowerCase();
 
-			return template.toLowerCase();
+			if (FileTools.exists("libs/" + template)) {
+				return template;
+			} else {
+				let foundError = false;
+				if (myData.me.finalBuild.match("Build", "gi")) {
+					myData.me.finalBuild = myData.me.finalBuild.substring(0, SetUp.finalBuild.length - 5);
+					D2Bot.printToConsole("Kolbot-SoloPlay: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+					foundError = true;
+				}
+
+				if (myData.me.finalBuild.includes(".")) {
+					myData.me.finalBuild = myData.me.finalBuild.substring(myData.me.finalBuild.indexOf(".") + 1).capitalize(true);
+					D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+					foundError = true;
+				}
+
+				if (myData.me.finalBuild.includes(" ")) {
+					myData.me.finalBuild = myData.me.finalBuild.trim().capitalize(true);
+					D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+					foundError = true;
+				}
+
+				if (myData.me.finalBuild.includes("-")) {
+					myData.me.finalBuild = myData.me.finalBuild.substring(myData.me.finalBuild.indexOf("-") + 1).capitalize(true);
+					D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '-' which is unecessary and means you likely entered something along the lines of Classname-finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+					foundError = true;
+				}
+
+				if (foundError) {
+					D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
+					CharData.updateData("me", "finalBuild", SetUp.finalBuild);
+					buildType = myData.me.finalBuild;
+				}
+			}
+
+			return ("SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + buildType + "Build.js").toLowerCase();
 		}
 
 		let template = getBuildTemplate();
 
 		if (!include(template)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to include finalBuild template. Please check that you have actually entered it in correctly. Here is what you currently have: " + SetUp.finalBuild);
+			console.debug("ÿc8Kolbot-SoloPlayÿc0: Failed to include finalBuild template. Please check that you have actually entered it in correctly. Here is what you currently have: " + SetUp.finalBuild);
 			throw new Error("finalBuild(): Failed to include template: " + template);
 		}
 
@@ -1233,7 +1277,7 @@ const SoloWants = {
 	buildList: function () {
 		let myItems = me.getItemsEx()
 			.filter(function (item) {
-				return !item.isRuneword && !item.isQuestItem && item.quality >= sdk.itemquality.Magic && (item.getStat(sdk.stats.NumSockets) > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
+				return !item.isRuneword && !item.questItem && item.quality >= sdk.itemquality.Magic && (item.getStat(sdk.stats.NumSockets) > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
 			});
 		myItems
 			.filter(function (item) { return item.isEquipped; })

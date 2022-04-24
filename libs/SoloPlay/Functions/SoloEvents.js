@@ -163,24 +163,8 @@ const SoloEvents = {
 		});
 	},
 
-	testing: function () {
-		if (!me.inTown) {
-			Town.goToTown(1);
-		}
-
-		Pather.useWaypoint(3);
-		Pather.clearToExit(3, 2, true);
-		Pather.clearToExit(2, 8, true);
-		Attack.clearLevel();
-		Town.goToTown();
-
-		return true;
-	},
-
 	dropCharm: function (charm) {
-		if (!charm || charm === undefined) {
-			return false;
-		}
+		if (!charm || charm === undefined) return false;
 
 		D2Bot.printToConsole("Kolbot-SoloPlay :: Dropping " + charm.name, 8);
 		let orginalLocation = {act: me.act, area: me.area, x: me.x, y: me.y};
@@ -208,9 +192,7 @@ const SoloEvents = {
 		D2Bot.printToConsole("Kolbot-SoloPlay :: Trying to kill DClone.", 8);
 		let orginalLocation = {area: me.area, x: me.x, y: me.y};
 
-		if (!me.inTown) {
-			Town.goToTown();
-		}
+		!me.inTown && Town.goToTown();
 
 		if (Pather.accessToAct(2) && Pather.checkWP(sdk.areas.ArcaneSanctuary)) {
 			Pather.useWaypoint(sdk.areas.ArcaneSanctuary);
@@ -424,10 +406,13 @@ const SoloEvents = {
 		let shouldDodge = function (coord) {
 			return !!diablo && getUnits(3)
 				// For every missle that isnt from our merc
-				.filter(function (missile) { return missile && diablo && diablo.gid === missile.owner; })
+				.filter((missile) => missile && diablo && diablo.gid === missile.owner)
 				// if any
 				.some(function (missile) {
-					let xoff = Math.abs(coord.x - missile.targetx), yoff = Math.abs(coord.y - missile.targety), xdist = Math.abs(coord.x - missile.x), ydist = Math.abs(coord.y - missile.y);
+					let xoff = Math.abs(coord.x - missile.targetx),
+						yoff = Math.abs(coord.y - missile.targety),
+						xdist = Math.abs(coord.x - missile.x),
+						ydist = Math.abs(coord.y - missile.y);
 					// If missile wants to hit is and is close to us
 					return xoff < 10 && yoff < 10 && xdist < 15 && ydist < 15;
 				});
@@ -448,27 +433,19 @@ const SoloEvents = {
 				// Above D
 				if (me.y <= diablo.y) {
 					// Move east
-					if (me.x <= diablo.x) {
-						this.customMoveTo(diablo.x + dist, diablo.y, overrides);
-					}
+					me.x <= diablo.x && this.customMoveTo(diablo.x + dist, diablo.y, overrides);
 
 					// Move south
-					if (me.x > diablo.x) {
-						this.customMoveTo(diablo.x, diablo.y + dist, overrides);
-					}
+					me.x > diablo.x && this.customMoveTo(diablo.x, diablo.y + dist, overrides);
 				}
 
 				// Below D
 				if (me.y > diablo.y) {
 					// Move west
-					if (me.x >= diablo.x) {
-						this.customMoveTo(diablo.x - dist, diablo.y, overrides);
-					}
+					me.x >= diablo.x && this.customMoveTo(diablo.x - dist, diablo.y, overrides);
 
 					// Move north
-					if (me.x < diablo.x) {
-						this.customMoveTo(diablo.x, diablo.y - dist, overrides);
-					}
+					me.x < diablo.x && this.customMoveTo(diablo.x, diablo.y - dist, overrides);
 				}
 			}
 
@@ -507,6 +484,8 @@ const SoloEvents = {
 		}
 	},
 
+	// TODO: change this so we only start listening for an event when we know its relevent, i.e we start diablo script so start listening for dodge packet
+	// or we start den and haven't yet completed the quest. Also remove the listener when we are done
 	gamePacket: function (bytes) {
 		let wave, waveMonster;
 

@@ -72,26 +72,26 @@ function travincal () {
 		}
 
 		// Wait until exit pops open
-        Misc.poll(function () { return getUnit(2, 386).mode === 2; }, 10000);
-        // Move close to the exit
-        let exit_1 = getUnit(2, 386);
-        // Since d2 sucks, move around the thingy
-        Pather.moveToUnit(exit_1, 7, 7);
-        // keep on clicking the exit until we are not @ travincal anymore
-        Misc.poll(function () {
-            if (me.area === sdk.areas.Travincal) {
-                Pather.moveToUnit(exit_1);
-                Misc.click(2, 0, exit_1);
-            }
-            return me.area === sdk.areas.DuranceofHateLvl1;
-        }, 10000, 40);
-        if (me.area !== sdk.areas.DuranceofHateLvl1) {
-            Pather.moveToExit([sdk.areas.DuranceofHateLvl1, sdk.areas.DuranceofHateLvl2]);
-        } else {
-            Pather.journeyTo(sdk.areas.DuranceofHateLvl2);
-        }
-        Pather.getWP(sdk.areas.DuranceofHateLvl2);
-        Pather.useWaypoint(sdk.areas.KurastDocktown);
+		Misc.poll(() => getUnit(2, 386).mode === 2, 10000);
+		// Move close to the exit
+		let exit_1 = getUnit(2, 386);
+		// Since d2 sucks, move around the thingy
+		Pather.moveToUnit(exit_1, 7, 7);
+		// keep on clicking the exit until we are not @ travincal anymore
+		Misc.poll(function () {
+			if (me.area === sdk.areas.Travincal) {
+				Pather.moveToUnit(exit_1);
+				Misc.click(2, 0, exit_1);
+			}
+			return me.area === sdk.areas.DuranceofHateLvl1;
+		}, 10000, 40);
+		if (me.area !== sdk.areas.DuranceofHateLvl1) {
+			Pather.moveToExit([sdk.areas.DuranceofHateLvl1, sdk.areas.DuranceofHateLvl2]);
+		} else {
+			Pather.journeyTo(sdk.areas.DuranceofHateLvl2);
+		}
+		Pather.getWP(sdk.areas.DuranceofHateLvl2);
+		Pather.useWaypoint(sdk.areas.KurastDocktown);
 
 		if (!Pather.moveToExit(sdk.areas.DuranceofHateLvl1, true)) {
 			delay(250 + me.ping * 2);
