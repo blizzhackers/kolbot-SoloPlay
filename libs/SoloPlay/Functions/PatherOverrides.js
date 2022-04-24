@@ -81,6 +81,34 @@ Pather.haveTeleCharges = false;
 Pather.forceWalk = false;
 Pather.forceRun = false;
 
+/**
+ * @author Jaenster
+ * @description Some prototypes on objects
+ */
+// eslint-disable-next-line no-unused-vars
+(function (global) {
+	let coords = function () {
+		if (Array.isArray(this) && this.length > 1) {
+			return [this[0], this[1]];
+		}
+
+		if (typeof this.x !== 'undefined' && typeof this.y !== 'undefined') {
+			return this instanceof PresetUnit && [this.roomx * 5 + this.x, this.roomy * 5 + this.y] || [this.x, this.y];
+		}
+
+		return [undefined, undefined];
+	};
+
+	Object.prototype.mobCount = function (range = 5) {
+		let [x, y] = coords.apply(this);
+		return getUnits(sdk.unittype.Monster)
+			.filter(function (mon) {
+				return mon.attackable && getDistance(x, y, mon.x, mon.y) < range &&
+					!CollMap.checkColl({x: x, y: y}, mon, Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.ClosedDoor | Coords_1.BlockBits.LineOfSight, 1);
+			}).length;
+	};
+})(typeof global !== 'undefined' ? global : this);
+
 Pather.checkForTeleCharges = function () {
 	this.haveTeleCharges = Attack.getItemCharges(sdk.skills.Teleport);
 };
@@ -463,7 +491,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 
 					if (fail >= retry) {
 						console.log("Failed moveTo: Retry = " + retry);
-
+						
 						break;
 					}
 				}
