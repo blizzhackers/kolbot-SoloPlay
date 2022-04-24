@@ -81,12 +81,7 @@ Pather.haveTeleCharges = false;
 Pather.forceWalk = false;
 Pather.forceRun = false;
 
-/**
- * @author Jaenster
- * @description Some prototypes on objects
- */
-// eslint-disable-next-line no-unused-vars
-(function (global) {
+{
 	let coords = function () {
 		if (Array.isArray(this) && this.length > 1) {
 			return [this[0], this[1]];
@@ -107,7 +102,7 @@ Pather.forceRun = false;
 					!CollMap.checkColl({x: x, y: y}, mon, Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.ClosedDoor | Coords_1.BlockBits.LineOfSight, 1);
 			}).length;
 	};
-})(typeof global !== 'undefined' ? global : this);
+}
 
 Pather.checkForTeleCharges = function () {
 	this.haveTeleCharges = Attack.getItemCharges(sdk.skills.Teleport);

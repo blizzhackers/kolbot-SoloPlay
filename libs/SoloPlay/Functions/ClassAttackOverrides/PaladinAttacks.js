@@ -6,6 +6,8 @@
 
 !isIncluded("common/Attacks/Paladin.js") && include("common/Attacks/Paladin.js");
 
+// todo: use battle cry from cta
+
 ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	if (!unit || unit.dead) return true;
 
@@ -42,13 +44,13 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		}
 
 		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Decrepify) && !unit.getState(sdk.states.Decrepify) && unit.curseable &&
-			(gold > 500000 || Attack.bossesAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			(gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area)) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast decrepify
 			Attack.switchCastCharges(sdk.skills.Decrepify, unit);
 		}
 		
 		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Weaken) && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && unit.curseable &&
-			(gold > 500000 || Attack.bossesAndMiniBosses.indexOf(unit.classid) > -1 || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].indexOf(me.area) > -1) && !checkCollision(me, unit, 0x4)) {
+			(gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area)) && !checkCollision(me, unit, 0x4)) {
 			// Switch cast weaken
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);
 		}
@@ -151,7 +153,6 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 };
 
 ClassAttack.afterAttack = function () {
-	Misc.unShift();
 	Precast.doPrecast(false);
 
 	if (me.getState(sdk.states.Poison) && me.getMobCount(6, Coords_1.BlockBits.BlockWall) === 0 && Skill.setSkill(sdk.skills.Cleansing, 0)) {

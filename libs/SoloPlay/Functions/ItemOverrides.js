@@ -1545,10 +1545,8 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 
 Item.autoEquipCharmCheck = function (item = undefined) {
 	if (!item || NTIP.GetCharmTier(item) <= 0) return false;
-
 	// Annhilus, Hellfire Torch, Gheeds - Handled by a different function so return true to keep
 	if ([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid) && item.quality === sdk.itemquality.Unique) return true;
-
 	// Not a charm
 	if (![sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid)) return false;
 
@@ -1556,7 +1554,6 @@ Item.autoEquipCharmCheck = function (item = undefined) {
 		items = me.getItemsEx()
 			.filter(charm => charm.classid === item.classid && charm.isInStorage
 				&& charm.quality === sdk.itemquality.Magic && NTIP.GetCharmTier(charm) > 0);
-
 	if (!items.length) return false;
 
 	let keep = [];
@@ -1635,7 +1632,6 @@ Item.autoEquipCharms = function () {
 	let SCs = Item.autoEquipSC();
 	let specialCharms = me.getItemsEx()
 		.filter((charm) => [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(charm.classid) && charm.quality === sdk.itemquality.Unique);
-
 	let verbose = !!(Developer.debugging.smallCharm || Developer.debugging.largeCharm || Developer.debugging.grandCharm);
 
 	if (verbose) {
