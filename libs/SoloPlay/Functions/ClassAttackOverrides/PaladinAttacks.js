@@ -6,8 +6,6 @@
 
 !isIncluded("common/Attacks/Paladin.js") && include("common/Attacks/Paladin.js");
 
-// todo: use battle cry from cta
-
 ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	if (!unit || unit.dead) return true;
 
@@ -30,30 +28,39 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		}
 	}
 
-	if (me.expansion && index === 1 && !unit.dead) {
-		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && unit.curseable &&
-			(gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+	if (me.expansion && index === 1 && unit.curseable) {
+		let commonCheck = (gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
+
+		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.SlowMissiles)
+			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
+			&& (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
 
-		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight) && unit.curseable &&
-			gold > 500000 && !checkCollision(me, unit, 0x4)) {
-			// Cast slow missiles
+		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight)
+			&& gold > 500000 && !checkCollision(me, unit, 0x4)) {
+			// Cast Inner sight
 			Attack.castCharges(sdk.skills.InnerSight, unit);
 		}
 
-		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Decrepify) && !unit.getState(sdk.states.Decrepify) && unit.curseable &&
-			(gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area)) && !checkCollision(me, unit, 0x4)) {
+		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Decrepify)
+			&& !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, 0x4)) {
 			// Switch cast decrepify
 			Attack.switchCastCharges(sdk.skills.Decrepify, unit);
 		}
 		
-		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Weaken) && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && unit.curseable &&
-			(gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area)) && !checkCollision(me, unit, 0x4)) {
+		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Weaken)
+			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, 0x4)) {
 			// Switch cast weaken
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);
 		}
+	}
+
+	// specials and dolls for now, should make dolls much less dangerous with the reduction of their damage
+	if (Precast.haveCTA > -1 && !unit.dead && (index === 1 || [212, 213, 214, 215, 216, 690, 691].includes(unit.classid))
+		&& unit.distance < 5 && !unit.getState(sdk.states.BattleCry) && unit.curseable) {
+		Skill.switchCast(sdk.skills.BattleCry, {oSkill: true});
 	}
 
 	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
@@ -155,19 +162,17 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 ClassAttack.afterAttack = function () {
 	Precast.doPrecast(false);
 
-	if (me.getState(sdk.states.Poison) && me.getMobCount(6, Coords_1.BlockBits.BlockWall) === 0 && Skill.setSkill(sdk.skills.Cleansing, 0)) {
-		let tick = getTickCount();
-		while (getTickCount() - tick < 1500) {
+	if (me.getState(sdk.states.Poison) && me.getMobCount(12, Coords_1.BlockBits.BlockWall) === 0 && Skill.setSkill(sdk.skills.Cleansing, 0)) {
+		Misc.poll(function () {
 			me.overhead("Delaying for a second to get rid of Poison");
-			if (!me.getState(sdk.states.Poison)) {
-				break;
-			}
 
-			delay(10);
-		}
+			return (!me.getState(sdk.states.Poison) || me.mode === 4/*Getting hit*/);
+		}, 1500, 30);
 	}
 
-	if (Config.Redemption instanceof Array && (me.hpPercent < Config.Redemption[0] || me.mpPercent < Config.Redemption[1]) && Skill.setSkill(sdk.skills.Redemption, 0)) {
+	if (Config.Redemption instanceof Array
+		&& (me.hpPercent < Config.Redemption[0] || me.mpPercent < Config.Redemption[1])
+		&& Attack.checkNearCorpses(me) > 2 && Skill.setSkill(sdk.skills.Redemption, 0)) {
 		delay(1500);
 	}
 };

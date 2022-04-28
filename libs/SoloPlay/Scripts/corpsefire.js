@@ -5,12 +5,9 @@
 */
 
 function corpsefire() {
-	Town.doChores();
-	Town.buyPots(10, "Thawing", true);
-	Town.buyPots(10, "Antidote", true);
+	myPrint('starting corpsefire');
 
-	print('ÿc8Kolbot-SoloPlayÿc0: starting corpsefire');
-	me.overhead("starting corpsefire");
+	Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
 
 	Pather.checkWP(sdk.areas.ColdPlains, true) ? Pather.useWaypoint(sdk.areas.ColdPlains) : Pather.getWP(sdk.areas.ColdPlains);
 	Precast.doPrecast(true);

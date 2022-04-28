@@ -297,10 +297,10 @@ const Quest = {
 		return questItem.bodylocation === loc;
 	},
 
-	smashSomething: function (smashable) {
+	smashSomething: function (classid) {
 		let tool;
 
-		switch (smashable) {
+		switch (classid) {
 		case 404:
 			tool = sdk.items.quest.KhalimsWill;
 
@@ -311,15 +311,27 @@ const Quest = {
 			break;
 		}
 
-		let something = getUnit(2, smashable);
+		let smashable = getUnit(2, classid);
 
 		if (Item.getEquippedItem(4).classid !== tool || !me.getItem(tool)) return false;
-		if (!something) return false;
+		if (!smashable) return false;
+		let tick = getTickCount();
+		let questTool = me.getItem(tool);
 
 		while (me.getItem(tool)) {
-			Pather.moveToUnit(something, 0, 0, Config.ClearType, false);
-			Skill.cast(0, 0, something);
-			something.interact();
+			smashable.distance > 4 && Pather.moveToEx(smashable.x, smashable.y, {clearSettings: {allowClearing: false}});
+			Skill.cast(0, 0, smashable);
+			smashable.interact();
+
+			if (getTickCount() - tick > 30 * 1000) {
+				console.warn("Timed out trying to smash quest object");
+				
+				return false;
+			}
+
+			if (!questTool.isEquipped) {
+				break;
+			}
 
 			delay(750 + me.ping);
 		}
@@ -334,7 +346,7 @@ const Quest = {
 		!me.inTown && Town.goToTown();
 		npcName = npcName[0].toUpperCase() + npcName.substring(1).toLowerCase();
 		Town.move(NPC[npcName]);
-		let npc = Misc.poll(function () { return getUnit(1, NPC[npcName]); });
+		let npc = Misc.poll(() => getUnit(1, NPC[npcName]));
 
 		Packet.flash(me.gid);
 		delay(1 + me.ping * 2);

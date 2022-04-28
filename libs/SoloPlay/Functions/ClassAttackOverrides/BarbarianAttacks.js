@@ -210,14 +210,14 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 			}
 
 			if (unit.distance < data.battleCry.range) {
-				data.switchCast ? Skill.switchCast(sdk.skills.BattleCry, 0, unit, !data.warCry.have) : Skill.cast(sdk.skills.BattleCry, 0, unit);
+				data.switchCast ? Skill.switchCast(sdk.skills.BattleCry, {hand: 0, switchBack: !data.warCry.have}) : Skill.cast(sdk.skills.BattleCry, 0, unit);
 			}
 		}
 	}
 
 	// TODO: write GameData.killableSummonsByWarCry
 	if (data.warCry.have && data.warCry.mana < me.mp && !me.skillDelay && warCryCheck()) {
-		data.switchCast ? Skill.switchCast(sdk.skills.WarCry, 0, unit) : Skill.cast(sdk.skills.WarCry, 0, unit);
+		data.switchCast ? Skill.switchCast(sdk.skills.WarCry, {hand: 0}) : Skill.cast(sdk.skills.WarCry, 0, unit);
 		this.warCryTick = getTickCount();
 	}
 
@@ -261,9 +261,7 @@ ClassAttack.doCast = function (unit, attackSkill, data) {
 			}
 		}
 
-		if (!unit.dead) {
-			this.whirlwind(unit);
-		}
+		!unit.dead && Attack.whirlwind(unit);
 
 		return 1;
 	default:

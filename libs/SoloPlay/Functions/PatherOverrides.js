@@ -296,7 +296,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 	let useChargedTele = settings.allowTeleport && this.canUseTeleCharges();
 	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
 	minDist === undefined && (minDist = me.inTown ? 2 : 5);
-	({x, y} = this.spotOnDistance(node, minDist, me.area, settings.returnSpotOnError));
+	({x, y} = this.spotOnDistance(node, minDist, {returnSpotOnError: settings.returnSpotOnError, reductionType: (me.inTown ? 0 : 2)}));
 	if (getDistance(me, x, y) < 2) return true;
 	path = getPath(me.area, x, y, me.x, me.y, useTele || useChargedTele ? 1 : 0, useTele || useChargedTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : this.teleDistance) : this.walkDistance);
 

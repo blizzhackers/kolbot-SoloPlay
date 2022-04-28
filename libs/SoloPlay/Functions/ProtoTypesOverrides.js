@@ -1,7 +1,7 @@
 /*
 *	@filename	ProtoTypesOverrides.js
 *	@author		theBGuy
-*	@credits 	Jaenster, sonic, isid0re
+*	@credits 	Jaenster
 *	@desc		additions for improved Kolbot-SoloPlay functionality and code readability
 */
 

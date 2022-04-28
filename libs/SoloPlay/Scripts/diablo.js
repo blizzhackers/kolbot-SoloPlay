@@ -4,6 +4,8 @@
 *	@desc		customized Diablo script
 */
 
+// todo: clean this up, listen for lights game packet while opening/checking seals
+
 function diablo () {
 	// Start Diablo Quest
 	this.getLayout = function (seal, value) {
@@ -306,9 +308,7 @@ function diablo () {
 	Pather.clearToExit(sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, true);
 
 	if (me.coldRes < 75 || me.poisonRes < 75) {
-		Town.doChores();
-		Town.buyPots(10, "Thawing", true);
-		Town.buyPots(10, "Antidote", true);
+		Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
 		Town.move("portalspot");
 		Pather.usePortal(108, me.name);
 	}
@@ -324,16 +324,7 @@ function diablo () {
 	this.seis();
 	this.infector();
 
-	// if (!me.diablo && (me.paladin || me.barbarian || me.druid || me.amazon)) {
-	// 	Town.goToTown();
-	// 	Misc.getGoodShrine([2, 3]);
-	// 	Pather.useWaypoint(sdk.areas.RiverofFlame);
-	// 	Precast.doPrecast(true);
-	// 	Pather.clearToExit(sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, true);
-	// }
-
 	Config.MercWatch = false;
-	let nearSpot;
 
 	if (!me.sorceress && !me.necromancer && !me.assassin) {
 		Pather.moveTo(7788, 5292, 3, 30);

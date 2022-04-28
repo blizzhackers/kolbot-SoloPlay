@@ -4,12 +4,14 @@
 *	@desc		andariel quest.
 */
 
+// todo: clean this up
 function andariel () {
 	Town.townTasks();
 	myPrint('starting andy');
 
 	if (me.normal && Misc.checkQuest(6, 1)) {
 		Pather.changeAct();
+
 		return true;
 	}
 
@@ -20,8 +22,7 @@ function andariel () {
 	Pather.moveToExit([sdk.areas.CatacombsLvl3, sdk.areas.CatacombsLvl4], true);
 
 	if (me.poisonRes < 75) {
-		Town.doChores();
-		Town.buyPots(10, "Antidote", true);
+		Town.doChores(true, {thawing: me.coldRes < 75, antidote: true});
 		Pather.usePortal(sdk.areas.CatacombsLvl4, me.name);
 	}
 
@@ -60,7 +61,6 @@ function andariel () {
 	Attack.killTarget("Andariel");
 
 	if (questBug) {
-		let tempConfig = Misc.copy(Config); // save and update config settings
 		Config.TownCheck = false;
 		Config.MercWatch = false;
 		Config.HealStatus = false;
@@ -89,9 +89,7 @@ function andariel () {
 	Pickit.pickItems();
 	Config.MercWatch = true;
 
-	if (!me.andariel) {
-		Pather.changeAct();
-	}
+	!me.andariel && Pather.changeAct();
 
 	return true;
 }

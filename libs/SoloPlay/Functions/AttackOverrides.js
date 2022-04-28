@@ -194,6 +194,12 @@ Attack.killTarget = function (name = undefined) {
 
 	let gid = target.gid;
 
+	// think doing this might be safer for non-teleporters, alot of the time they end up either stuck in recursive node action <-> clear loop
+	// or try to bull their way through mobs to the boss and instead should try to clear to them but without the loop
+	if (!Pather.canTeleport()) {
+		return Attack.clear(15, 0, target);
+	}
+
 	while (attackCount < Config.MaxAttackCount) {
 		if (Misc.townCheck()) {
 			if (!target || !copyUnit(target).x) {
@@ -210,11 +216,16 @@ Attack.killTarget = function (name = undefined) {
 			}
 		}
 
-		me.overhead("KillTarget: " + target.name + " health " + target.hpPercent + " % left");
-
 		Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
 		attackCount > 0 && attackCount % 15 === 0 && Skill.getRange(Config.AttackSkill[1]) < 4 && Packet.flash(me.gid);
-		ClassAttack.doAttack(target, attackCount % 15 === 0) ? (attackCount += 1) : Packet.flash(me.gid);
+
+		if (!ClassAttack.doAttack(target, attackCount % 15 === 0)) {
+			Packet.flash(me.gid);
+		}
+
+		me.overhead("KillTarget: " + target.name + " health " + target.hpPercent + " % left");
+
+		attackCount += 1;
 
 		if (!target.attackable) {
 			break;
@@ -540,6 +551,8 @@ Attack.clearLevelUntilLevel = function (charlvl = undefined, spectype = 0) {
 
 // Clear monsters in a section based on range and spectype or clear monsters around a boss monster
 // probably going to change to passing an object
+// accepts object for bossId or classid, gid sometimes works depends if the gid is > 999
+// should stop clearing after boss is killed if we are using bossid
 Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = undefined, pickit = true) {
 	while (!me.gameReady) {
 		delay(40);
@@ -556,7 +569,14 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 
 	if (bossId) {
 		boss = Misc.poll(function () {
-			return ((typeof bossId === "number" && bossId > 999) ? getUnit(1, -1, -1, bossId) : getUnit(1, bossId));
+			switch (true) {
+			case typeof bossId === "object":
+				return bossId;
+			case ((typeof bossId === "number" && bossId > 999)):
+				return getUnit(1, -1, -1, bossId);
+			default:
+				return getUnit(1, bossId);
+			}
 		}, 2000, 100);
 
 		if (!boss) {
@@ -588,20 +608,13 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 
 	while (start && monsterList.length > 0 && attackCount < 300) {
 		if (boss) {
-			orgx = boss.x;
-			orgy = boss.y;
+			({orgx, orgy} = {orgx: boss.x, orgy: boss.y});
 		}
 
 		if (me.dead || Attack.stopClear) return false;
 
 		monsterList.sort(sortfunc);
 		target = copyUnit(monsterList[0]);
-
-		if ([29, 30, 31].indexOf(me.area) > -1 && me.amazon && me.hell) {
-			if ([11, 12, 13, 14].indexOf(target.classid) > -1) {
-				Attack.stopClear = true;
-			}
-		}
 
 		if (target.x !== undefined
 			&& (getDistance(target, orgx, orgy) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && target.attackable) {
@@ -866,6 +879,7 @@ Attack.clearCoordList = function (list, pick) {
 	}
 };
 
+// maybe store the copyUnit of the item or at least gid so we don't need to iterate through all our items to find the one with the charged skill when we need it
 Attack.getCurrentChargedSkillIds = function (init = false) {
 	let currentChargedSkills = [];
 	let chargedSkillsOnSwitch = [];
@@ -1076,7 +1090,7 @@ Attack.pwnDia = function () {
 		return getUnit(sdk.unittype.Monster, sdk.monsters.Diablo);
 	};
 	{
-		let nearSpot = Pather.spotOnDistance({ x: 7792, y: 5292 }, 35, me.area, false);
+		let nearSpot = Pather.spotOnDistance({ x: 7792, y: 5292 }, 35, {returnSpotOnError: false});
 		Pather.moveToUnit(nearSpot);
 	}
 
@@ -1148,6 +1162,11 @@ Attack.pwnDia = function () {
 		break;
 	}
 	
+	let shouldWalk = function (spot) {
+		if (!Pather.canTeleport()) return true;
+		return (spot.distance < 10 || me.gold < 10000 || me.mpPercent < 50);
+	};
+
 	Attack.stopClear = true;
 
 	do {
@@ -1164,7 +1183,7 @@ Attack.pwnDia = function () {
 
 			if (getDistance(me, dia) < minDist || getDistance(me, dia) > maxDist || getTickCount() - tick > 25e3) {
 				let spot = calculateSpots(dia, ((minRange + maxRange) / 2))
-					.filter(function (loc) { return getDistance(me, loc) > minRange && getDistance(me, loc) < maxRange; } /*todo, in neighbour room*/)
+					.filter((loc) => getDistance(me, loc) > minRange && getDistance(me, loc) < maxRange /*todo, in neighbour room*/)
 					.filter(function (loc) {
 						let collision = getCollision(me.area, loc.x, loc.y);
 						// noinspection JSBitwiseOperatorUsage
@@ -1174,11 +1193,11 @@ Attack.pwnDia = function () {
 						// noinspection JSBitwiseOperatorUsage
 						return !(collision & (Coords_1.BlockBits.BlockWall));
 					})
-					.sort(function (a, b) { return getDistance(me, a) - getDistance(me, b); })
+					.sort((a, b) => getDistance(me, a) - getDistance(me, b))
 					.first();
 				tick = getTickCount();
 				if (spot !== undefined) {
-					me.gold < 10000 && me.sorceress ? Pather.walkTo(spot.x, spot.y) : Pather.moveTo(spot.x, spot.y, 15, false);
+					shouldWalk(spot) ? Pather.walkTo(spot.x, spot.y) : Pather.moveTo(spot.x, spot.y, 15, false);
 				}
 			}
 
@@ -1200,7 +1219,7 @@ Attack.pwnDia = function () {
 				if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3 && ![4, 5, 7, 8, 9, 10, 11].includes(dia.mode) && dia.hpPercent > Config.CastStatic) {
 					let x = me.x, y = me.y;
 					// Find a spot close to Diablo
-					let spot = Pather.spotOnDistance(dia, rangeStatic * (2 / 3), me.area, false);
+					let spot = Pather.spotOnDistance(dia, rangeStatic * (2 / 3), {returnSpotOnError: false});
 					Pather.moveTo(spot.x, spot.y);
 					Skill.cast(sdk.skills.StaticField);
 					// Walk randomly away from diablo
@@ -1301,10 +1320,12 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 	walk === true && (walk = 1);
 	
 	if (distance < 4 && (!unit.hasOwnProperty("mode") || (unit.mode !== 0 && unit.mode !== 12))) {
-		if (walk && unit.distance > 8 && !checkCollision(me, unit, coll)) {
+		// we are actually able to walk to where we want to go, hopefully prevent wall hugging
+		if (walk && (unit.distance < 8 || !CollMap.checkColl(me, unit, 0x5 | 0x400 | 0x1000))) {
 			Pather.walkTo(unit.x, unit.y, 3);
 		} else {
-			Pather.moveTo(unit.x, unit.y, 0);
+			// don't clear while trying to reposition
+			Pather.moveToEx(unit.x, unit.y, {clearSettings: {allowClearing: false}});
 		}
 
 		return !CollMap.checkColl(me, unit, coll);
@@ -1335,17 +1356,15 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 			}
 		}
 
-		//print("ÿc9potential spots: ÿc2" + coords.length);
-
 		if (coords.length > 0) {
 			coords.sort(Sort.units);
 
 			for (let i = 0; i < coords.length; i += 1) {
-				// Valid position found
+				// Valid position found - no collision between the spot and the unit
 				if (!CollMap.checkColl({x: coords[i].x, y: coords[i].y}, unit, coll, 1)) {
-					//print("ÿc9optimal pos build time: ÿc2" + (getTickCount() - t) + " ÿc9distance from target: ÿc2" + getDistance(cx, cy, unit.x, unit.y));
 					currCount = coords[i].mobCount(7);
 
+					// this might be a valid spot but also check the mob count at that node
 					if (caster) {
 						potentialSpot.x !== undefined && (potentialSpot = {x: coords[i].x, y: coords[i].y});
 
@@ -1362,13 +1381,14 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 					}
 
 					// I am already in my optimal position
-					if (Math.round(getDistance(me, coords[i])) < 3) return true;
+					if (coords[i].distance < 3) return true;
 
-					if (walk && getDistance(me, coords[i]) < 6 && !CollMap.checkColl(me, coords[i], 0x5)) {
+					// we are actually able to walk to where we want to go, hopefully prevent wall hugging
+					if (walk && (coords[i].distance < 6 || !CollMap.checkColl(me, unit, 0x5 | 0x400 | 0x1000))) {
 						Pather.walkTo(coords[i].x, coords[i].y, 2);
 					} else {
 						// need to change moveTo to pass a settings obj so can control if what we do easier
-						Pather.moveTo(coords[i].x, coords[i].y, 1);
+						Pather.moveToEx(coords[i].x, coords[i].y, {clearSettings: {allowClearing: false, retry: 3}});
 					}
 
 					Developer.debugging.pathing && print(sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow + "Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + currCount);

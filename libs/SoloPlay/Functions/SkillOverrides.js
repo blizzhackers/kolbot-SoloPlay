@@ -266,23 +266,29 @@ Skill.cast = function (skillId, hand, x, y, item) {
 	return true;
 };
 
-Skill.switchCast = function (skillId, hand, x, y, switchBack = true) {
-	let clickType, shift;
+Skill.switchCast = function (skillId, givenSettings = {}) {
+	let settings = Object.assign({}, {
+		hand: undefined,
+		x: undefined,
+		y: undefined,
+		switchBack: true,
+		oSkill: false
+	}, givenSettings);
 
 	switch (true) {
 	case me.classic: // No switch in classic
 	case me.inTown && !this.townSkill(skillId): // cant cast this in town
 	case this.getManaCost(skillId) > me.mp: // dont have enough mana for this
-	case !me.getSkill(skillId, 1): // Dont have this skill
+	case (!me.getSkill(skillId, 1) && !settings.oSkill): // Dont have this skill
 	case !this.wereFormCheck(skillId): // can't cast in wereform
 		return false;
 	case skillId === undefined:
 		throw new Error("Unit.cast: Must supply a skill ID");
 	}
 
-	hand === undefined && (hand = this.getHand(skillId));
-	x === undefined && (x = me.x);
-	y === undefined && (y = me.y);
+	settings.hand === undefined && (settings.hand = this.getHand(skillId));
+	settings.x === undefined && (settings.x = me.x);
+	settings.y === undefined && (settings.y = me.y);
 
 	// Check mana cost, charged skills don't use mana
 	if (this.getManaCost(skillId) > me.mp) {
@@ -298,7 +304,7 @@ Skill.switchCast = function (skillId, hand, x, y, switchBack = true) {
 	me.weaponswitch === 0 && me.switchWeapons(1);
 
 	// Failed to set the skill, switch back
-	if (!this.setSkill(skillId, hand)) {
+	if (!this.setSkill(skillId, settings.hand)) {
 		me.switchWeapons(0);
 		return false;
 	}
@@ -306,20 +312,22 @@ Skill.switchCast = function (skillId, hand, x, y, switchBack = true) {
 	if ((this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [67, 245].indexOf(skillId) === -1))
 		|| Config.PacketCasting > 1
 		|| skillId === sdk.skills.Teleport) {
-		switch (typeof x) {
+		switch (typeof settings.x) {
 		case "number":
-			Packet.castSkill(hand, x, y);
+			Packet.castSkill(settings.hand, settings.x, settings.y);
 			delay(250);
 
 			break;
 		case "object":
-			Packet.unitCast(hand, x);
+			Packet.unitCast(settings.hand, settings.x);
 			delay(250);
 
 			break;
 		}
 	} else {
-		switch (hand) {
+		let clickType, shift;
+
+		switch (settings.hand) {
 		case 0: // Right hand + No Shift
 			clickType = 3;
 			shift = 0;
@@ -344,9 +352,9 @@ Skill.switchCast = function (skillId, hand, x, y, switchBack = true) {
 
 		MainLoop:
 		for (let n = 0; n < 3; n += 1) {
-			typeof x === "object" ? clickMap(clickType, shift, x) : clickMap(clickType, shift, x, y);
+			typeof settings.x === "object" ? clickMap(clickType, shift, settings.x) : clickMap(clickType, shift, settings.x, settings.y);
 			delay(20);
-			typeof x === "object" ? clickMap(clickType + 2, shift, x) : clickMap(clickType + 2, shift, x, y);
+			typeof settings.x === "object" ? clickMap(clickType + 2, shift, settings.x) : clickMap(clickType + 2, shift, settings.x, settings.y);
 
 			for (let i = 0; i < 8; i++) {
 				if (me.attacking) {
@@ -374,7 +382,7 @@ Skill.switchCast = function (skillId, hand, x, y, switchBack = true) {
 	}
 
 	// switch back to main secondary
-	me.weaponswitch === 1 && switchBack && me.switchWeapons(0);
+	me.weaponswitch === 1 && settings.switchBack && me.switchWeapons(0);
 
 	return true;
 };

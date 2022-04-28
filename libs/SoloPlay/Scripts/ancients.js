@@ -50,7 +50,7 @@ function ancients () {
 	};
 
 	// ancients prep
-	let ancientsPrep = function () { 
+	let ancientsPrep = function () {
 		Town.goToTown();
 		Town.fillTome(sdk.items.TomeofTownPortal);
 		Town.buyPots(10, "Thawing", true);
@@ -61,8 +61,7 @@ function ancients () {
 	};
 
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting ancients');
-	me.overhead("ancients");
+	myPrint('starting ancients');
 
 	Pather.checkWP(sdk.areas.AncientsWay) ? Pather.useWaypoint(sdk.areas.AncientsWay) : Pather.getWP(sdk.areas.AncientsWay);
 	Precast.doPrecast(true);
@@ -74,10 +73,7 @@ function ancients () {
 	}
 
 	// ancients prep
-	Town.townTasks();
-	Town.buyPots(10, "Thawing", true);
-	Town.buyPots(10, "Antidote", true);
-	Town.buyPots(10, "Stamina", true);
+	Town.townTasks({thawing: true, antidote: true, stamina: true});
 
 	let tempConfig = Misc.copy(Config); // save and update config settings
 

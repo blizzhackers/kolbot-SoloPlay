@@ -6,8 +6,7 @@
 
 function eye () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting eye');
-	me.overhead("eye");
+	myPrint('starting eye');
 
 	Pather.checkWP(sdk.areas.SpiderForest, true) ? Pather.useWaypoint(sdk.areas.SpiderForest) : Pather.getWP(sdk.areas.SpiderForest);
 	Precast.doPrecast(true);
@@ -21,8 +20,7 @@ function eye () {
 		}
 	}
 
-	Town.doChores();
-	Town.buyPots(10, "Antidote", true);
+	Town.doChores(null, {antidote: me.poisonRes < 75});
 	Pather.usePortal(sdk.areas.SpiderCavern, me.name);
 	Pather.moveToPreset(me.area, 2, 407);
 	Attack.clear(0x7);
