@@ -5,10 +5,13 @@
 *	@desc		Base script file for Kolbot-SoloPlay system
 */
 
+// todo: maybe turn this into a thread and use it as a default.dbj replacement
+// call loader from here and change loader to use the soloplay script files
+
 //---------------- Do Not Touch Below ----------------\\
 
-if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
-if (!isIncluded("SoloPlay/Tools/CharData.js")) { include("SoloPlay/Tools/CharData.js"); }
+!isIncluded("SoloPlay/Tools/Tracker.js") && include("SoloPlay/Tools/Tracker.js");
+!isIncluded("SoloPlay/Tools/CharData.js") && include("SoloPlay/Tools/CharData.js");
 
 function SoloPlay () {
 	this.setup = function () {
@@ -17,15 +20,16 @@ function SoloPlay () {
 		NTIP.arrayLooping(nipItems.General);
 		myPrint('starting run');
 
-		if (impossibleClassicBuilds.includes(SetUp.finalBuild) && me.classic) {
-			D2Bot.printToConsole("Kolbot-SoloPlay: " + SetUp.finalBuild + " cannot be used in classic. Change the info tag or remake as an expansion character...Shutting down", 9);
-			FileTools.remove("data/" + me.profile + ".json");
-			FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
-			D2Bot.stop();
-		}
+		try {
+			if (impossibleClassicBuilds.includes(SetUp.finalBuild) && me.classic) {
+				throw new Error("Kolbot-SoloPlay: " + SetUp.finalBuild + " cannot be used in classic. Change the info tag or remake as an expansion character...Shutting down");
+			}
 
-		if (impossibleNonLadderBuilds.includes(SetUp.finalBuild) && !Developer.addLadderRW) {
-			D2Bot.printToConsole("Kolbot-SoloPlay: " + SetUp.finalBuild + " cannot be used in non-ladder as they require ladder runewords. Change the info tag or remake as an ladder character...Shutting down", 9);
+			if (impossibleNonLadderBuilds.includes(SetUp.finalBuild) && !Developer.addLadderRW) {
+				throw new Error("Kolbot-SoloPlay: " + SetUp.finalBuild + " cannot be used in non-ladder as they require ladder runewords. Change the info tag or remake as an ladder character...Shutting down");
+			}
+		} catch (e) {
+			D2Bot.printToConsole(e, 9);
 			FileTools.remove("data/" + me.profile + ".json");
 			FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
 			D2Bot.stop();
@@ -49,13 +53,9 @@ function SoloPlay () {
 
 		switch (Check.broken()) {
 		case 1:
-			goToDifficulty('Nightmare', 'Oof I am nearly broken, going back to nightmare to get back on my feet');
-
-			break;
+			return goToDifficulty('Nightmare', 'Oof I am nearly broken, going back to nightmare to get back on my feet');
 		case 2:
-			goToDifficulty('Normal', 'Oof I am broken, going back to normal to get easy gold');
-
-			break;
+			return goToDifficulty('Normal', 'Oof I am broken, going back to normal to get easy gold');
 		default:
 			break;
 		}
@@ -74,26 +74,35 @@ function SoloPlay () {
 			Check.checkSpecialCase();
 
 			if (Check.task(SetUp.scripts[k])) {
-				if (!isIncluded("SoloPlay/Scripts/" + SetUp.scripts[k] + ".js")) {
-					include("SoloPlay/Scripts/" + SetUp.scripts[k] + ".js");
-				}
-
-				let tick = getTickCount();
-				let currentExp = me.getStat(13);
-
-				for (j = 0; j < 5; j += 1) {
-					if (this[SetUp.scripts[k]]()) {
-						break;
+				try {
+					if (!isIncluded("SoloPlay/Scripts/" + SetUp.scripts[k] + ".js")) {
+						include("SoloPlay/Scripts/" + SetUp.scripts[k] + ".js");
 					}
-				}
 
-				Developer.logPerformance && Tracker.script(tick, SetUp.scripts[k], currentExp);
-				print("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));
-				me.maxgametime += (getTickCount() - tick);
-				print("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Developer.formatTime(me.maxgametime));
+					let tick = getTickCount();
+					let currentExp = me.getStat(13);
 
-				if (j === 5) {
-					myPrint("script " + SetUp.scripts[k] + " failed.");
+					for (j = 0; j < 5; j += 1) {
+						if (this[SetUp.scripts[k]]()) {
+							break;
+						}
+					}
+
+					Developer.logPerformance && Tracker.script(tick, SetUp.scripts[k], currentExp);
+					print("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));
+					me.maxgametime += (getTickCount() - tick);
+					print("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Developer.formatTime(me.maxgametime));
+
+					if (j === 5) {
+						myPrint("script " + SetUp.scripts[k] + " failed.");
+					}
+				} catch (e) {
+					console.warn(e);
+				} finally {
+					// remove script function from function scope, so it can be cleared by GC
+					if (k < SetUp.scripts.length) {
+						delete this[SetUp.scripts[k]];
+					}
 				}
 			}
 		}
@@ -150,11 +159,7 @@ function SoloPlay () {
 	// Start Developer mode - this stops the script from progressing past this point and allows running specific scripts/functions through chat commands
 	if (Developer.developerMode.enabled) {
 		if (Developer.developerMode.profiles.some(profile => profile.toLowerCase() === me.profile.toLowerCase())) {
-			if (!isIncluded("SoloPlay/Scripts/developermode.js")) {
-				include("SoloPlay/Scripts/developermode.js");
-			}
-
-			if (isIncluded("SoloPlay/Scripts/developermode.js")) {
+			if (include("SoloPlay/Scripts/developermode.js")) {
 				Developer.debugging.pathing && (me.automap = true);
 				this.developermode();
 			} else {

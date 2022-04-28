@@ -25,6 +25,7 @@ const CharData = {
 		me: {
 			startTime: 0,
 			charName: "",
+			classid: -1,
 			level: 1,
 			strength: 0,
 			dexterity: 0,
@@ -51,6 +52,9 @@ const CharData = {
 			timeLeft: function () {
 				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
 			},
+			need: function () {
+				return (!this.active() || this.timeLeft() < minutes(5));
+			},
 		},
 
 		thawing: {
@@ -62,6 +66,9 @@ const CharData = {
 			timeLeft: function () {
 				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
 			},
+			need: function () {
+				return (me.coldRes < 75 && (!this.active() || this.timeLeft() < minutes(5)));
+			},
 		},
 
 		antidote: {
@@ -72,6 +79,10 @@ const CharData = {
 			},
 			timeLeft: function () {
 				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
+			},
+			need: function () {
+				// don't really like the hardcoded time value of 5 minutes, its okay but feel like it should be more dynamic
+				return (me.poisonRes < 75 && (!this.active() || this.timeLeft() < minutes(5)));
 			},
 		},
 
@@ -96,7 +107,7 @@ const CharData = {
 		init: function (all, switchSkills) {
 			this.currentChargedSkills = all.slice(0);
 			this.chargedSkillsOnSwitch = switchSkills.slice(0);
-			this.skills = me.getSkill(4).map(function (skill) { return skill[0]; });
+			this.skills = me.getSkill(4).map((skill) => skill[0]);
 		},
 
 		update: function () {

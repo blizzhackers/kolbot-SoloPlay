@@ -470,6 +470,8 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 	} catch (e) {
 		console.debug(e);
 	}
+
+	return false;
 };
 
 // General Game functions

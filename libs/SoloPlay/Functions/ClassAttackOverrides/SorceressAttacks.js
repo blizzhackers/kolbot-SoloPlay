@@ -115,9 +115,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	if (data.frostNova.have && me.mp > data.frostNova.mana) {
-		if (frostNovaCheck()) {
-			Skill.cast(sdk.skills.FrostNova, 0);
-		}
+		frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, 0);
 		let ticktwo = getTickCount();
 		// if the nova cause the death of any monsters around us, its worth it
 		if (GameData.calculateKillableFallensByFrostNova() > 0) {
@@ -168,7 +166,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			.filter(unit => !!unit && unit.attackable && unit.distance < data.static.range)
 			.find(unit => Attack.checkResist(unit, "lightning") && unit.hpPercent > Config.CastStatic);
 		if (!!closeMobCheck && data.static.dmg > Math.max(data.mainTimed.dmg, data.mainUntimed.dmg, data.secondaryTimed.dmg, data.secondaryUntimed.dmg) && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
-			Developer.debugging.skills && (print("STATIC"));
+			Developer.debugging.skills && print("STATIC");
 			Skill.cast(sdk.skills.StaticField, 0, closeMobCheck);
 		}
 	}

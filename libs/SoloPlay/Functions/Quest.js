@@ -84,7 +84,9 @@ const Quest = {
 	},
 
 	cubeItems: function (outcome, ...classids) {
-		if (me.getItem(outcome) || outcome === 91 && me.horadricstaff || outcome === 174 && me.travincal) {
+		if (me.getItem(outcome)
+			|| outcome === 91 && me.horadricstaff
+			|| outcome === 174 && me.travincal) {
 			return true;
 		}
 
@@ -140,7 +142,7 @@ const Quest = {
 		if (me.horadricstaff) return true;
 
 		let tick = getTickCount();
-		let orifice = Misc.poll(function () { return getUnit(sdk.unittype.Object, sdk.units.HoradricStaffHolder); });
+		let orifice = Misc.poll(() => getUnit(sdk.unittype.Object, sdk.units.HoradricStaffHolder));
 		if (!orifice) return false;
 		
 		let hstaff = (me.getItem(sdk.items.quest.HoradricStaff) || Quest.cubeItems(sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff, sdk.items.quest.ViperAmulet));
@@ -177,7 +179,7 @@ const Quest = {
 		delay(750 + me.ping);
 
 		// Clear cursor of staff - credit @Jaenster
-		let item = (me.getItems() || []).filter(function (el) { return el.isInInventory; }).first();
+		let item = me.getItemsEx().filter((el) => el.isInInventory).first();
 		let _b = [item.x, item.y, item.location], x = _b[0], y = _b[1], loc = _b[2];
 		clickItemAndWait(0, item);
 		clickItemAndWait(0, x, y, loc);

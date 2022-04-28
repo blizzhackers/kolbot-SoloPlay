@@ -32,13 +32,8 @@ new Overrides.Override(Town, Town.buyPotions, function (orignal) {
 
 		// keep cold/pois res high with potions
 		if (me.gold > 10000 && npc.getItem(sdk.items.ThawingPotion)) {
-			if (me.coldRes < 75 && (!CharData.buffData.thawing.active() || CharData.buffData.thawing.timeLeft() < minutes(5))) {
-				this.buyPots(12, "thawing", true);
-			}
-
-			if (me.poisonRes < 75 && (!CharData.buffData.antidote.active() || CharData.buffData.antidote.timeLeft() < minutes(5))) {
-				this.buyPots(12, "antidote", true);
-			}
+			CharData.buffData.thawing.need() && this.buyPots(12, "thawing", true);
+			CharData.buffData.antidote.need() && this.buyPots(12, "antidote", true);
 		}
 
 		return true;
@@ -86,8 +81,8 @@ Town.townTasks = function (buyPots = {}) {
 	this.clearInventory();
 	this.buyBook();
 	this.buyPotions();
-	extraTasks.thawing && Town.buyPots(12, "Thawing", true);
-	extraTasks.antidote && Town.buyPots(12, "Antidote", true);
+	extraTasks.thawing && CharData.buffData.thawing.need() && Town.buyPots(12, "Thawing", true);
+	extraTasks.antidote && CharData.buffData.antidote.need() && Town.buyPots(12, "Antidote", true);
 	extraTasks.stamina && Town.buyPots(12, "Stamina", true);
 	this.fillTome(sdk.items.TomeofTownPortal);
 	this.shopItems();
@@ -152,8 +147,8 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	this.clearInventory();
 	this.buyBook();
 	this.buyPotions();
-	extraTasks.thawing && Town.buyPots(12, "Thawing", true);
-	extraTasks.antidote && Town.buyPots(12, "Antidote", true);
+	extraTasks.thawing && CharData.buffData.thawing.need() && Town.buyPots(12, "Thawing", true);
+	extraTasks.antidote && CharData.buffData.antidote.need() && Town.buyPots(12, "Antidote", true);
 	extraTasks.stamina && Town.buyPots(12, "Stamina", true);
 	this.fillTome(sdk.items.TomeofTownPortal);
 	this.shopItems();
@@ -535,7 +530,7 @@ Town.shopItems = function () {
 	if (!items.length) return false;
 
 	let tick = getTickCount();
-	let haveMerc = Misc.poll(() => me.getMerc(), 1000, 200);
+	let haveMerc = Misc.poll(() => !!me.getMerc(), 1000, 200);
 	console.log("ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Evaluating " + npc.itemcount + " items.");
 
@@ -719,6 +714,7 @@ Town.gamble = function () {
 	return true;
 };
 
+// todo: clean this up
 Town.unfinishedQuests = function () {
 	// Act 1
 	// Tools of the trade
