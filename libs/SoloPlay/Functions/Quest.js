@@ -343,7 +343,7 @@ const Quest = {
 
 	npcAction: function (npcName, action) {
 		if (!npcName || !action) return false;
-		if (!Array.isArray(action)) action = [action];
+		!Array.isArray(action) && (action = [action]);
 
 		!me.inTown && Town.goToTown();
 		npcName = npcName[0].toUpperCase() + npcName.substring(1).toLowerCase();
@@ -413,215 +413,150 @@ const Quest = {
 
 	// Credit dzik or laz unsure who for this
 	useSocketQuest: function (item = undefined) {
-		let slot, invo, i, items;
-
-		//print("ÿc8Kolbot-SoloPlayÿc0: Socketmules cannot use their socket quest");
 		if (SetUp.finalBuild === "Socketmule") return false;
-		
-		// No item, or item is on the ground
-		if (!item || item.mode === 3) {
-			print("ÿc8Kolbot-SoloPlayÿc0: No item");
-			return false;
-		}
-		
-		// Socket Quest unavailable
-		if (!me.getQuest(35, 1)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Quest unavailable");
-			return false;
-		}
-		
-		// Item can't be socketed
-		if (item.getStat(194) > 0 || getBaseStat("items", item.classid, "gemsockets") === 0) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Item cannot be socketed");
-			return false;
-		}
-		
-		// No space to get the item back
-		if (!Storage.Inventory.CanFit(item)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: (useSocketQuest) No space to get item back");
-			return false;
-		}
-			
-		if (me.act !== 5 || !me.inTown) {
-			if (!Town.goToTown(5)) {
-				print("ÿc8Kolbot-SoloPlayÿc0:Failed to go to act 5");
-				return false;
-			}
-		}
-			
-		if (item.isInStash) {
-			Town.openStash();
 
-			if (!Storage.Inventory.MoveTo(item)) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Failed to move item from stash to inventory");
-				return false;
+		try {
+			if (!item || item.mode === 3) throw new Error("Couldn't find item");
+			if (!me.getQuest(35, 1)) throw new Error("Quest unavailable");
+			if (item.getStat(194) > 0 || getBaseStat("items", item.classid, "gemsockets") === 0) throw new Error("Item cannot be socketed");
+			if (!Storage.Inventory.CanFit(item)) throw new Error("(useSocketQuest) No space to get item back");
+			if (me.act !== 5 || !me.inTown) {
+				if (!Town.goToTown(5)) throw new Error("Failed to go to act 5");
 			}
 
-			me.cancel();
-		}
-			
-		invo = me.findItems(-1, 0, 3);
-		slot = item.bodylocation;
-		
-		// Take note of all the items in the invo minus the item to socket
-		for (i = 0; i < invo.length; i++) {
-			if (item.gid !== invo[i].gid) {
-				invo[i] = invo[i].x + "/" + invo[i].y;
+			if (item.isInStash && (!Town.openStash() || !Storage.Inventory.MoveTo(item))) {
+				throw new Error("Failed to move item from stash to inventory");
 			}
-		}
 
-		if (!this.npcAction("larzuk", 0x58DC)) return false;
+			let invo = me.findItems(-1, 0, 3);
+			let slot = item.bodylocation;
+			
+			// Take note of all the items in the invo minus the item to socket
+			for (let i = 0; i < invo.length; i++) {
+				if (item.gid !== invo[i].gid) {
+					invo[i] = invo[i].x + "/" + invo[i].y;
+				}
+			}
 
-		if (!getUIFlag(sdk.uiflags.SubmitItem)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to open SubmitItem screen");
+			if (!this.npcAction("larzuk", 0x58DC)) throw new Error("Failed to interact with Lazruk");
+			if (!getUIFlag(sdk.uiflags.SubmitItem)) throw new Error("Failed to open SubmitItem screen");
+			if (!item.toCursor()) throw new Error("Couldn't get item");
+
+			submitItem();
+			delay(500 + me.ping);
+			sendPacket(1, 0x40);
+
+			item = false; // Delete item reference, it's not longer valid anyway
+			let items = me.findItems(-1, 0, 3);
+				
+			for (let i = 0; i < items.length; i++) {
+				if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {
+					item = items[i];
+				}
+			}
+
+			if (!item || item.getStat(194) === 0) {
+				me.itemoncursor && Storage.Stash.MoveTo(item);
+				throw new Error("Failed to socket item");
+			}
+
+			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : ", item);
+			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, 6);
+			CharData.updateData(sdk.difficulty.nameOf(me.diff), "socketUsed", true);
+			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
+			updateMyData();
+
+			if (!slot && !item.isInStash) {
+				// Move item back to stash
+				if (Storage.Stash.CanFit(item)) {
+					Town.move('stash');
+					Storage.Stash.MoveTo(item);
+					me.cancel();
+				}
+			}
+
+			slot && Item.equip(item, slot);
+		} catch (e) {
+			myPrint(e);
+			me.itemoncursor && Storage.Inventory.MoveTo(getUnit(100));
+			me.cancelUIFlags();
+
 			return false;
 		}
 
-		if (!item.toCursor()) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Couldn't get item");
-			return false;
-		}
-		
-		submitItem();
-		delay(500 + me.ping);
-		sendPacket(1, 0x40);
-			
-		item = false; // Delete item reference, it's not longer valid anyway
-		items = me.findItems(-1, 0, 3);
-			
-		for (i = 0; i < items.length; i++) {
-			if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {
-				item = items[i];
-			}
-		}
-			
-		if (!item || item.getStat(194) === 0) {
-			me.itemoncursor && Storage.Stash.MoveTo(item);
-			print("Failed to socket item");
-
-			return false;
-		}
-
-		Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : ", item);
-		D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, 6);
-		CharData.updateData(sdk.difficulty.nameOf(me.diff), "socketUsed", true);
-		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
-		updateMyData();
-
-		if (!slot && item.location !== 7) {
-			// Move item back to stash
-			if (Storage.Stash.CanFit(item)) {
-				Town.move('stash');
-				Storage.Stash.MoveTo(item);
-				me.cancel();
-			}
-		}
-
-		slot && Item.equip(item, slot);
-		
 		return true;
 	},
 
 	// Credit whoever did useSocketQuest, I modified that to come up with this
 	useImbueQuest: function (item = undefined) {
-		let slot, invo, i, items;
-		
-		// No item, or item is on the ground
-		if (!item || item.mode === 3) {
-			print("ÿc8Kolbot-SoloPlayÿc0: No item");
-			return false;
-		}
-		
-		// Imbue not available
-		if (!Misc.checkQuest(3, 1)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Quest not done yet");
-			return false;
-		}
-		
-		// Item can't be imbued
-		if (item.getStat(194) > 0 || item.quality > 3) {
-			print("ÿc8Kolbot-SoloPlayÿc0:Item cannot be imbued");
-			return false;
-		}
-		
-		// No space to get the item back	
-		if (!Storage.Inventory.CanFit(item)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: (useImbueQuest) No space to get item back");
-			return false;
-		}
-			
-		if (me.act !== 1 || !me.inTown) {
-			if (!Town.goToTown(1)) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Failed to go to act 1");
-				return false;
+		try {
+			if (!item || item.mode === 3) throw new Error("Couldn't find item");
+			if (!Misc.checkQuest(3, 1)) throw new Error("Quest unavailable");
+			if (item.getStat(194) > 0 || item.quality > 3) throw new Error("Item cannot be imbued");
+			if (!Storage.Inventory.CanFit(item)) throw new Error("(useImbueQuest) No space to get item back");
+			if (me.act !== 1 || !me.inTown) {
+				if (!Town.goToTown(1)) throw new Error("Failed to go to act 1");
 			}
-		}
-			
-		if (item.isInStash) {
-			Town.openStash();
 
-			if (!Storage.Inventory.MoveTo(item)) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Failed to move item from stash to inventory");
-				return false;
+			if (item.isInStash && (!Town.openStash() || !Storage.Inventory.MoveTo(item))) {
+				throw new Error("Failed to move item from stash to inventory");
 			}
-		}
-			
-		invo = me.findItems(-1, 0, 3);
-		slot = item.bodylocation;
-		
-		// Take note of all the items in the invo minus the item to imbue
-		for (i = 0; i < invo.length; i++) {
-			if (item.gid !== invo[i].gid) {
-				invo[i] = invo[i].x + "/" + invo[i].y;
-			}
-		}
-		
-		if (!this.npcAction("charsi", sdk.menu.Imbue)) return false;
 
-		if (!getUIFlag(sdk.uiflags.SubmitItem)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to open SubmitItem screen");
+			let invo = me.findItems(-1, 0, 3);
+			let slot = item.bodylocation;
+			
+			// Take note of all the items in the invo minus the item to socket
+			for (let i = 0; i < invo.length; i++) {
+				if (item.gid !== invo[i].gid) {
+					invo[i] = invo[i].x + "/" + invo[i].y;
+				}
+			}
+
+			if (!this.npcAction("charsi", sdk.menu.Imbue)) throw new Error("Failed to interact with Charsi");
+			if (!getUIFlag(sdk.uiflags.SubmitItem)) throw new Error("Failed to open SubmitItem screen");
+			if (!item.toCursor()) throw new Error("Couldn't get item");
+
+			submitItem();
+			delay(500 + me.ping);
+			sendPacket(1, 0x40);
+
+			item = false; // Delete item reference, it's not longer valid anyway
+			let items = me.findItems(-1, 0, 3);
+				
+			for (let i = 0; i < items.length; i++) {
+				if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {
+					item = items[i];
+				}
+			}
+
+			if (!item || item.quality !== 6) {
+				me.itemoncursor && Storage.Stash.MoveTo(item);
+				throw new Error("Failed to imbue item");
+			}
+
+			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : ", item);
+			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, 6);
+			CharData.updateData(sdk.difficulty.nameOf(me.diff), "imbueUsed", true);
+			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
+			updateMyData();
+
+			if (!slot && !item.isInStash) {
+				// Move item back to stash
+				if (Storage.Stash.CanFit(item)) {
+					Town.move('stash');
+					Storage.Stash.MoveTo(item);
+					me.cancel();
+				}
+			}
+
+			slot && Item.equip(item, slot);
+		} catch (e) {
+			myPrint(e);
+			me.itemoncursor && Storage.Inventory.MoveTo(getUnit(100));
+			me.cancelUIFlags();
+
 			return false;
 		}
-
-		if (!item.toCursor()) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Couldn't get item");
-			return false;
-		}
-		
-		submitItem();
-		delay(500 + me.ping);
-		sendPacket(1, 0x40);
-			
-		item = false; // Delete item reference, it's not longer valid anyway
-		items = me.findItems(-1, 0, 3);
-			
-		for (i = 0; i < items.length; i++) {
-			if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {
-				item = items[i];
-			}
-		}
-			
-		if (!item || item.quality !== 6) {
-			print("Failed to imbue item");
-			return false;
-		}
-
-		Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : ", item);
-		D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, 6);
-		CharData.updateData(sdk.difficulty.nameOf(me.diff), "imbueUsed", true);
-		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
-		updateMyData();
-
-		if (!slot && item.location !== 7) {
-			// Move item back to stash
-			if (Storage.Stash.CanFit(item)) {
-				Town.move('stash');
-				Storage.Stash.MoveTo(item);
-				me.cancel();
-			}
-		}
-
-		slot && Item.equip(item, slot);
 		
 		return true;
 	},

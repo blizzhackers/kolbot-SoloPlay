@@ -868,14 +868,17 @@ new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
 
 // re-write this so its actually useable
 Town.buyMercPots = function (quantity, type) {
+	let merc = Misc.poll(() => me.getMerc(), 1000, 30);
+	if (!merc) return false;
+	
 	let npc, jugs;
 	let potDealer = ["Akara", "Lysander", "Alkor", "Jamella", "Malah"][me.act - 1];
 
 	// Don't buy if already at max res
-	if (type === "Thawing" && Check.mercResistance().CR >= 75) return true;
+	if (type === "Thawing" && merc.coldRes >= 75) return true;
 
 	// Don't buy if already at max res
-	if (type === "Antidote" && Check.mercResistance().PR >= 75) return true;
+	if (type === "Antidote" && merc.poisonRes >= 75) return true;
 
 	Town.move(NPC[potDealer]);
 	npc = getUnit(sdk.unittype.NPC, NPC[potDealer]);

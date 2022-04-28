@@ -149,15 +149,16 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let bpAllowedAreas = [37, 38, 39, 41, 42, 43, 44, 46, 73, 76, 77, 78, 79, 80, 81, 83, 102, 104, 105, 106, 108, 110, 111, 120, 121, 128, 129, 130, 131];
 
 	// Bone prison
-	if (useBP && Math.round(getDistance(me, unit)) > ([73, 120].indexOf(me.area) > -1 ? 6 : 10) && bpAllowedAreas.indexOf(me.area) > -1 && (index === 1 || [571, 391].indexOf(unit.classid) > -1)
+	if (useBP && unit.distance > ([73, 120].includes(me.area) ? 6 : 10) && bpAllowedAreas.includes(me.area) && (index === 1 || [571, 391].includes(unit.classid))
 		&& !checkCollision(me, unit, 0x4) && Skill.getManaCost(sdk.skills.BonePrison) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
 		if (Skill.cast(sdk.skills.BonePrison, 0, unit)) {
 			this.bpTick = getTickCount();
 		}
 	}
 
-	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
-		if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
+	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0])
+		&& (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
+		if (unit.distance > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
 			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 				return 0;
 			}
@@ -169,16 +170,16 @@ ClassAttack.doAttack = function (unit, preattack) {
 	}
 
 
-	if (useTerror && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting, 0, true) >= 3 &&
-		Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hp < Math.floor(me.hpmax * 75 / 100)) {
+	if (useTerror && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting, 0, true) >= 3
+		&& Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hpPercent < 75) {
 		Skill.cast(sdk.skills.Terror, 0);
 	}
 
 	this.smartCurse(unit, index);
 
 	if (me.expansion && index === 1 && !unit.dead) {
-		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && unit.curseable &&
-			(gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
+			&& unit.curseable && (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
@@ -189,7 +190,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill)) {
 		timedSkill = checkSkill;
-	} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && ([56, 59].indexOf(Config.AttackSkill[5]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+	} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[5])) {
 		timedSkill = Config.AttackSkill[5];
 	}
 
@@ -198,7 +199,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill)) {
 		untimedSkill = checkSkill;
-	} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && ([56, 59].indexOf(Config.AttackSkill[6]) === -1 || Attack.validSpot(unit.x, unit.y))) {
+	} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[6])) {
 		untimedSkill = Config.AttackSkill[6];
 	}
 
@@ -357,20 +358,16 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 };
 
 ClassAttack.farCast = function (unit) {
-	let i, timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
+	let timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
 
 	// No valid skills can be found
-	if (timedSkill < 0 && untimedSkill < 0) {
-		return 2;
-	}
+	if (timedSkill < 0 && untimedSkill < 0) return 2;
 
 	// Far to low a range for far casting
-	if (Skill.getRange(timedSkill) < 4 && Skill.getRange(untimedSkill) < 4) {
-		return 2;
-	}
+	if (Skill.getRange(timedSkill) < 4 && Skill.getRange(untimedSkill) < 4) return 2;
 
 	// Bone prison
-	if (Math.round(getDistance(me, unit)) > 10 && !checkCollision(me, unit, 0x4) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
+	if (unit.distance > 10 && !checkCollision(me, unit, 0x4) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
 		if (Skill.cast(sdk.skills.BonePrison, 0, unit)) {
 			this.bpTick = getTickCount();
 		}
@@ -380,9 +377,7 @@ ClassAttack.farCast = function (unit) {
 
 	// Check for bodies to exploit for CorpseExplosion before committing to an attack for non-summoner type necros
 	if (Config.Skeletons + Config.SkeletonMages + Config.Revives === 0) {
-		if (this.checkCorpseNearMonster(unit)) {
-			this.explodeCorpses(unit);
-		}
+		this.checkCorpseNearMonster(unit) && this.explodeCorpses(unit);
 	}
 
 	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
@@ -411,24 +406,15 @@ ClassAttack.farCast = function (unit) {
 		return 1;
 	}
 
-	for (i = 0; i < 25; i += 1) {
-		if (!me.getState(sdk.states.SkillDelay)) {
-			break;
-		}
-
-		delay(40);
-	}
+	Misc.poll(() => !me.skillDelay, 1000, 40);
 
 	return 1;
 };
 
 ClassAttack.explodeCorpses = function (unit) {
-	if (Config.ExplodeCorpses === 0 || unit.mode === 0 || unit.mode === 12) {
-		return false;
-	}
+	if (Config.ExplodeCorpses === 0 || unit.mode === 0 || unit.mode === 12) return false;
 
-	let i,
-		corpseList = [],
+	let corpseList = [],
 		useAmp = me.getSkill(sdk.skills.AmplifyDamage, 1),
 		ampManaCost = Skill.getManaCost(sdk.skills.AmplifyDamage),
 		explodeCorpsesManaCost = Skill.getManaCost(Config.ExplodeCorpses),
@@ -442,10 +428,8 @@ ClassAttack.explodeCorpses = function (unit) {
 			}
 		} while (corpse.getNext());
 
-		//Shuffle the corpseList so if running multiple necrobots they explode separate corpses not the same ones
-		if (corpseList.length > 1) {
-			corpseList = corpseList.shuffle();
-		}
+		// Shuffle the corpseList so if running multiple necrobots they explode separate corpses not the same ones
+		corpseList.length > 1 && (corpseList = corpseList.shuffle());
 
 		if (this.isArmyFull()) {
 			// We don't need corpses as we are not a Summoner Necro, Spam CE till monster dies or we run out of bodies.
@@ -469,7 +453,7 @@ ClassAttack.explodeCorpses = function (unit) {
 			} while (corpseList.length > 0);
 		} else {
 			// We are a Summoner Necro, we should conserve corpses, only blow 2 at a time so we can check for needed re-summons.
-			for (i = 0; i <= 1; i += 1) {
+			for (let i = 0; i <= 1; i += 1) {
 				if (corpseList.length > 0) {
 					corpse = corpseList.shift();
 
