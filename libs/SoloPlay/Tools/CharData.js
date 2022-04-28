@@ -93,7 +93,7 @@ const CharData = {
 			scripts.forEach(function (script) {
 				let curr = getScript(script);
 				if (curr && myThread !== curr.name) {
-					Messaging.sendToScript(script, "buff--" + obj);
+					curr.send("buff--" + obj);
 				}
 			});
 		},
@@ -117,7 +117,7 @@ const CharData = {
 			scripts.forEach(function (script) {
 				let curr = getScript(script);
 				if (curr && myThread !== curr.name) {
-					Messaging.sendToScript(script, "skill--" + obj);
+					curr.send("skill--" + obj);
 				}
 			});
 		},
@@ -125,13 +125,13 @@ const CharData = {
 
 	// updates config obj across all threads - excluding our current
 	updateConfig: function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"/*, "libs/SoloPlay/Threads/AutoBuildThread.js"*/];
+		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"];
 		let obj = JSON.stringify(Misc.copy(Config));
 		let myThread = getScript(true).name;
 		scripts.forEach(function (script) {
 			let curr = getScript(script);
 			if (curr && myThread !== curr.name) {
-				Messaging.sendToScript(script, "config--" + obj);
+				curr.send("config--" + obj);
 			}
 		});
 	},
@@ -171,7 +171,6 @@ const CharData = {
 
 	getStats: function () {
 		let obj = this.getObj();
-
 		return Misc.clone(obj);
 	},
 

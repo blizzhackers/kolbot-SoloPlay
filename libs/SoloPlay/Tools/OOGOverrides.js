@@ -5,9 +5,7 @@
 * 	@credits	kolton, D3STROY3R, isid0re
 */
 
-if (!isIncluded("OOG.js")) {
-	include("OOG.js");
-}
+!isIncluded("OOG.js") && include("OOG.js");
 
 ControlAction.makeCharacter = function (info) {
 	me.blockMouse = true;
@@ -278,4 +276,83 @@ ControlAction.makeAccount = function (info) {
 	me.blockMouse = false;
 
 	return true;
+};
+
+ControlAction.deleteAndRemakeChar = function (info) {
+	me.blockMouse = true;
+
+	ControlAction.findCharacter(info);
+
+	MainLoop:
+	// Cycle until in lobby
+	while (getLocation() !== sdk.game.locations.Lobby) {
+		switch (getLocation()) {
+		case sdk.game.locations.CharSelect:
+			let control = Controls.CharSelectCharInfo0.control;
+
+			if (control) {
+				do {
+					let text = control.getText();
+
+					if (text instanceof Array && typeof text[1] === "string" && text[1].toLowerCase() === info.charName.toLowerCase()) {
+						control.click();
+						Controls.CharSelectDelete.click();
+						delay(500);
+						Controls.CharDeleteYes.click();
+
+						break MainLoop;
+					}
+				} while (control.getNext());
+			}
+
+			break;
+		case sdk.game.locations.CharSelectNoChars:
+			break MainLoop;
+
+		case sdk.game.locations.Disconnected:
+		case sdk.game.locations.OkCenteredErrorPopUp:
+			me.blockMouse = false;
+
+			return false;
+		default:
+			break;
+		}
+
+		delay(100);
+	}
+
+	me.blockMouse = false;
+
+	// Delete old files - leaving csv file's for now as I don't think they interfere with the overlay
+	CharData.delete(true);
+	DataFile.create();
+	CharData.updateData("me", "finalBuild", Starter.profileInfo.tag);
+	Developer.logPerformance && Tracker.initialize();
+	D2Bot.printToConsole("Deleted: " + info.charName + ". Now remaking...", 6);
+	ControlAction.makeCharacter(Starter.profileInfo);
+
+	return true;
+};
+
+ControlAction.saveInfo = function (info) {
+	// Data-file already exists
+	if (FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charClass + "-" + info.charName + ".json")) {
+		return;
+	}
+
+	let folder;
+
+	if (!FileTools.exists("logs/Kolbot-SoloPlay")) {
+		folder = dopen("logs");
+		folder.create("Kolbot-SoloPlay");
+	}
+
+	if (!FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm)) {
+		folder = dopen("logs/Kolbot-SoloPlay");
+		folder.create(info.realm);
+	}
+
+	if (!FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName + ".json")) {
+		FileTools.writeText("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName + ".json", JSON.stringify(info));
+	}
 };
