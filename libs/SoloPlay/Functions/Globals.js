@@ -470,6 +470,8 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 	} catch (e) {
 		console.debug(e);
 	}
+
+	return false;
 };
 
 // General Game functions
@@ -492,9 +494,11 @@ const Check = {
 
 			break;
 		case "bloodraven":
-			if ((!me.bloodraven && me.normal || (!me.summoner && Check.brokeAf())) ||
-				(me.normal && !me.tristram && me.barbarian) ||
-				(me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning") || ((me.amazon || me.assassin) && Attack.checkInfinity()) || (me.barbarian || me.paladin || me.necromancer || me.druid)))) {
+			if ((!me.bloodraven && me.normal || (!me.summoner && Check.brokeAf()))
+				|| (me.normal && !me.tristram && me.barbarian)
+				|| (me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning")
+					|| ((me.amazon || me.assassin) && Attack.checkInfinity())
+					|| (me.barbarian || me.paladin || me.necromancer || me.druid)))) {
 				return true;
 			}
 
@@ -512,19 +516,18 @@ const Check = {
 
 			break;
 		case "tristram":
-			if ((me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf())) ||
-				(!me.normal &&
-					((!me.tristram && me.diffCompleted) ||
-					(me.barbarian && !Pather.accessToAct(3) && !Check.haveItem("sword", "runeword", "Lawbringer")) ||
-					(me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.auradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
+			if ((me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf()))
+				|| (!me.normal && ((!me.tristram && me.diffCompleted)
+					|| (me.barbarian && !Pather.accessToAct(3) && !Check.haveItem("sword", "runeword", "Lawbringer"))
+					|| (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.auradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
 				return true;
 			}
 
 			break;
 		case "countess":
 			// classic quest not completed normal/nightmare || don't have runes for difficulty || barb in hell and have lawbringer
-			if ((me.classic && !me.hell && !me.countess) ||
-				(me.expansion && (needRunes || Check.brokeAf() || (me.barbarian && me.hell && Check.haveItem("sword", "runeword", "Lawbringer"))))) {
+			if ((me.classic && !me.hell && !me.countess)
+				|| (me.expansion && (needRunes || Check.brokeAf() || (me.barbarian && me.hell && Check.haveItem("sword", "runeword", "Lawbringer"))))) {
 				return true;
 			}
 
@@ -552,19 +555,18 @@ const Check = {
 
 			break;
 		case "andariel":
-			if (!me.andariel
-				|| (me.classic && me.hell)
-				|| (me.expansion
-					&& (!me.normal && (Pather.canTeleport() || me.charlvl <= 60))
+			if (!me.andariel || (me.classic && me.hell)
+				|| (me.expansion && (!me.normal && (Pather.canTeleport() || me.charlvl <= 60))
 					|| (me.hell && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))))) {
 				return true;
 			}
 
 			break;
 		case "a1chests":
-			if (me.expansion &&
-				(me.charlvl >= 70 && Pather.canTeleport()
-					|| (me.barbarian && me.hell && !Pather.accessToAct(3) && (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("sword", "runeword", "Lawbringer"))))) {
+			if (me.classic) return false;
+			if (me.charlvl >= 70 && Pather.canTeleport()
+				|| (me.barbarian && me.hell && !Pather.accessToAct(3)
+				&& (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("sword", "runeword", "Lawbringer")))) {
 				return true;
 			}
 
@@ -576,7 +578,9 @@ const Check = {
 
 			break;
 		case "radament":
-			if (Pather.accessToAct(2) && (!me.radament || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild && me.hell) || (me.hell && me.sorceress && me.classic && !me.diablo))) {
+			if (!Pather.accessToAct(2)) return false;
+			if (!me.radament || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild && me.hell)
+				|| (me.hell && me.sorceress && me.classic && !me.diablo)) {
 				return true;
 			}
 
@@ -594,8 +598,10 @@ const Check = {
 
 			break;
 		case "ancienttunnels":
+			if (!Pather.accessToAct(2)) return false;
 			// No pally in hell due to magic immunes unless is melee build, No zon in hell unless at final build because light/poison immunes
-			if (Pather.accessToAct(2) && me.hell && (!me.paladin || (me.paladin && !Check.currentBuild().caster)) && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))) {
+			if (me.hell && (!me.paladin || (me.paladin && !Check.currentBuild().caster))
+				&& (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))) {
 				return true;
 			}
 
@@ -625,7 +631,9 @@ const Check = {
 
 			break;
 		case "templeruns":
-			if (Pather.accessToAct(3) && ((!me.lamessen || (me.nightmare && me.charlvl < 50) || (me.hell && !me.classic)) && (!me.paladin || (me.paladin && !Check.currentBuild().caster)))) {
+			if (!Pather.accessToAct(3)) return false;
+			if ((!me.lamessen || (me.nightmare && me.charlvl < 50) || (me.hell && !me.classic))
+				&& (!me.paladin || (me.paladin && !Check.currentBuild().caster))) {
 				return true;
 			}
 
@@ -655,12 +663,10 @@ const Check = {
 
 			break;
 		case "travincal":
-			if (Pather.accessToAct(3) &&
-					(!me.travincal ||
-						(me.charlvl < 25 ||
-						(me.charlvl >= 25 && me.normal && !me.baal && !Check.gold()) ||
-						(me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) ||
-						(me.hell && me.paladin && me.charlvl > 85 && (!Attack.auradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
+			if (!Pather.accessToAct(3)) return false;
+			if (!me.travincal || me.charlvl < 25 || (me.charlvl >= 25 && me.normal && !me.baal && !Check.gold())
+				|| (me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer"))
+				|| (me.hell && me.paladin && me.charlvl > 85 && (!Attack.auradin || !Check.haveItem("armor", "runeword", "Enigma")))) {
 				return true;
 			}
 
@@ -686,19 +692,26 @@ const Check = {
 
 			break;
 		case "river":
-			if (Pather.accessToAct(4) && !me.diablo && !me.normal && (me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer")) || (me.sorceress && me.classic)) {
+			if (!Pather.accessToAct(4)) return false;
+			if (!me.diablo && !me.normal
+				&& (me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer"))
+				|| (me.sorceress && me.classic)) {
 				return true;
 			}
 
 			break;
 		case "hephasto":
-			if (Pather.accessToAct(4) && !me.normal && me.diablo && me.barbarian && me.charlvl <= 70 && !Check.haveItem("sword", "runeword", "Lawbringer")) {
+			if (!Pather.accessToAct(4)) return false;
+			if (!me.normal && me.diablo && me.barbarian && me.charlvl <= 70 && !Check.haveItem("sword", "runeword", "Lawbringer")) {
 				return true;
 			}
 
 			break;
 		case "diablo":
-			if (Pather.accessToAct(4) && ((me.normal && (me.charlvl < 35 || me.classic)) || (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)) || me.hell || !me.diablo)) {
+			if (!Pather.accessToAct(4)) return false;
+			if ((me.normal && (me.charlvl < 35 || me.classic))
+				|| (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65))
+				|| me.hell || !me.diablo) {
 				return true;
 			}
 
@@ -717,7 +730,8 @@ const Check = {
 			break;
 		case "savebarby":
 			// I need tal, ral, or ort rune for runewords
-			if (me.expansion && Pather.accessToAct(5) && !me.savebarby && Runewords.checkRune(sdk.items.runes.Tal, sdk.items.runes.Ral, sdk.items.runes.Ort)) {
+			if (me.expansion && Pather.accessToAct(5) && !me.savebarby
+				&& Runewords.checkRune(sdk.items.runes.Tal, sdk.items.runes.Ral, sdk.items.runes.Ort)) {
 				return true;
 			}
 
@@ -821,8 +835,9 @@ const Check = {
 		let gold = me.gold;
 
 		// Almost broken but not quite
-		if (((Item.getEquippedItem(4).durability <= 30 && Item.getEquippedItem(4).durability > 0) || Item.getEquippedItem(5).durability <= 30 && Item.getEquippedItem(5).durability > 0) &&
-			!me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000) {
+		if (((Item.getEquippedItem(4).durability <= 30 && Item.getEquippedItem(4).durability > 0)
+			|| (Item.getEquippedItem(5).durability <= 30 && Item.getEquippedItem(5).durability > 0)
+			&& !me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000)) {
 			return 1;
 		}
 
@@ -850,24 +865,6 @@ const Check = {
 			CR: crRes,
 			LR: lrRes,
 			PR: prRes,
-		};
-	},
-
-	mercResistance: function () {
-		let merc = Merc.getMercFix();
-
-		// Dont have merc or he is dead
-		if (!merc) {
-			return {
-				FR: 0, CR: 0, LR: 0, PR: 0,
-			};
-		}
-
-		return {
-			FR: merc.fireRes,
-			CR: merc.coldRes,
-			LR: merc.lightRes,
-			PR: merc.poisonRes,
 		};
 	},
 
@@ -905,16 +902,17 @@ const Check = {
 		switch (me.diff) {
 		case sdk.difficulty.Normal:
 			// Have runes or stealth and ancients pledge
-			if ((me.getItem(sdk.items.runes.Tal) && me.getItem(sdk.items.runes.Eth)) || this.haveItem("armor", "runeword", "Stealth")) {
+			if ([sdk.items.runes.Tal, sdk.items.runes.Eth].every((i) => !!me.getItem(i)) || this.haveItem("armor", "runeword", "Stealth")) {
 				needRunes = false;
 			}
 
 			break;
 		case sdk.difficulty.Nightmare:
-			if ((me.getItem(sdk.items.runes.Tal) && me.getItem(sdk.items.runes.Thul) && me.getItem(sdk.items.runes.Ort) && me.getItem(sdk.items.runes.Amn) && Check.currentBuild().caster) ||
-				(!me.paladin && this.haveItem("sword", "runeword", "Spirit")) || (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit")) ||
-				(me.necromancer && this.haveItem("wand", "runeword", "White") && (this.haveItem("voodooheads", "runeword", "Rhyme") || Item.getEquippedItem(5).tier > 800)) ||
-				(me.barbarian && (Check.haveItem("sword", "runeword", "Lawbringer") || me.baal))) {
+			if (([sdk.items.runes.Tal, sdk.items.runes.Thul, sdk.items.runes.Ort, sdk.items.runes.Amn].every((i) => !!me.getItem(i)) && Check.currentBuild().caster)
+				|| (!me.paladin && this.haveItem("sword", "runeword", "Spirit"))
+				|| (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit"))
+				|| (me.necromancer && this.haveItem("wand", "runeword", "White") && (this.haveItem("voodooheads", "runeword", "Rhyme") || Item.getEquippedItem(5).tier > 800))
+				|| (me.barbarian && (Check.haveItem("sword", "runeword", "Lawbringer") || me.baal))) {
 				needRunes = false;
 			}
 
@@ -930,6 +928,7 @@ const Check = {
 		return needRunes;
 	},
 
+	// todo: need to finish up adding locale string ids to sdk so I can remove this in favor of better me.checkItem prototype
 	haveItem: function (type, flag, iName = undefined) {
 		let isClassID = false;
 		let itemCHECK = false;

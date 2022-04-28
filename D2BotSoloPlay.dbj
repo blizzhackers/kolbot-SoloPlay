@@ -53,12 +53,12 @@ include("SoloPlay/Tools/NameGen.js");
 include("SoloPlay/Tools/OOGOverrides.js");
 include("SoloPlay/Functions/SoloEvents.js");
 include("SoloPlay/Functions/ConfigOverrides.js");
+
 let Controls = require('./modules/Control');
 let Overrides = require('./modules/Override');
 
 let joinInfo, chatActionsDone,
 	gameTracker,
-	setUp = {},
 	battlenet = ([sdk.game.profiletype.Battlenet, sdk.game.profiletype.OpenBattlenet].includes(Profile().type)),
 	charClassMap = {"ZON": "amazon", "SOR": "sorceress", "NEC": "necromancer", "PAL": "paladin", "BAR": "barbarian", "DRU": "druid", "SIN": "assassin"};
 
@@ -73,7 +73,7 @@ if (!FileTools.exists(CharData.filePath) && CharData.create()) {
 
 Developer.logPerformance && Tracker.initialize();
 
-new Overrides.Override(Starter, Starter.receiveCopyData, function(orignal, mode, msg) {
+new Overrides.Override(Starter, Starter.receiveCopyData, function (orignal, mode, msg) {
 	switch (mode) {
 	case 1: // Join Info
 		print("Got Join Info");
@@ -86,19 +86,19 @@ new Overrides.Override(Starter, Starter.receiveCopyData, function(orignal, mode,
 	case 1638:
 		try {
 			let obj = JSON.parse(msg);
-			setUp.profile = me.profile.toUpperCase();
-			setUp.account = obj.Account;
-			setUp.password = "";
-			setUp.charName = obj.Character;
-			setUp.tag = (obj.Tag.trim().capitalize(true) || "");
-			setUp.difficulty = obj.Difficulty;
+			Starter.profileInfo.profile = me.profile.toUpperCase();
+			Starter.profileInfo.account = obj.Account;
+			Starter.profileInfo.password = "";
+			Starter.profileInfo.charName = obj.Character;
+			Starter.profileInfo.tag = (obj.Tag.trim().capitalize(true) || "");
+			Starter.profileInfo.difficulty = obj.Difficulty;
 			obj.Realm = obj.Realm.toLowerCase();
-			setUp.realm = ["east", "west"].includes(obj.Realm) ? "us" + obj.Realm : obj.Realm;
+			Starter.profileInfo.realm = ["east", "west"].includes(obj.Realm) ? "us" + obj.Realm : obj.Realm;
 
-			let buildCheck = setUp.profile.split("-"); // SCL-ZON123
-			setUp.hardcore = buildCheck[0].indexOf("HC") !== -1; // SC softcore = false
-			setUp.expansion = buildCheck[0].indexOf("CC") === -1; // not CC so not classic - true
-			setUp.ladder = buildCheck[0].indexOf("NL") === -1; // not NL so its ladder - true
+			let buildCheck = Starter.profileInfo.profile.split("-"); // SCL-ZON123
+			Starter.profileInfo.hardcore = buildCheck[0].includes("HC"); // SC softcore = false
+			Starter.profileInfo.expansion = buildCheck[0].indexOf("CC") === -1; // not CC so not classic - true
+			Starter.profileInfo.ladder = buildCheck[0].indexOf("NL") === -1; // not NL so its ladder - true
 
 			if (buildCheck.length <= 1) {
 				D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', 6);
@@ -109,19 +109,19 @@ new Overrides.Override(Starter, Starter.receiveCopyData, function(orignal, mode,
 			buildCheck[1] = buildCheck[1].toString().substring(0, 3);
 
 			if (charClassMap[buildCheck[1]]) {
-				setUp.charClass = charClassMap[buildCheck[1]];
+				Starter.profileInfo.charClass = charClassMap[buildCheck[1]];
 			} else {
 				throw new Error("Invalid profile name, couldn't set character class");
 			}
 
-			if (setUp.tag !== "") {
+			if (Starter.profileInfo.tag !== "") {
 				{
 					let soloStats = CharData.getStats();
 
-					if (!soloStats.me.finalBuild || soloStats.me.finalBuild !== setUp.tag) {
-						D2Bot.setProfile(null, null, null, null, null, setUp.tag);
-						CharData.updateData("me", "finalBuild", setUp.tag);
-						soloStats.me.finalBuild = setUp.tag;
+					if (!soloStats.me.finalBuild || soloStats.me.finalBuild !== Starter.profileInfo.tag) {
+						D2Bot.setProfile(null, null, null, null, null, Starter.profileInfo.tag);
+						CharData.updateData("me", "finalBuild", Starter.profileInfo.tag);
+						soloStats.me.finalBuild = Starter.profileInfo.tag;
 					}
 
 					if (!["Start", "Stepping", "Leveling"].includes(soloStats.me.currentBuild) && soloStats.me.currentBuild !== soloStats.me.finalBuild) {
@@ -140,12 +140,10 @@ new Overrides.Override(Starter, Starter.receiveCopyData, function(orignal, mode,
 		break;
 	default:
 		orignal(mode, msg);
-
-		break;
 	}
 }).apply();
 
-new Overrides.Override(Starter, Starter.scriptMsgEvent, function(orignal, msg) {
+new Overrides.Override(Starter, Starter.scriptMsgEvent, function (orignal, msg) {
 	if (typeof msg !== "string") return;
 	switch (msg) {
 	case "event":
@@ -158,86 +156,6 @@ new Overrides.Override(Starter, Starter.scriptMsgEvent, function(orignal, msg) {
 		break;
 	}
 }).apply();
-
-function deleteAndRemakeChar (info) {
-	me.blockMouse = true;
-
-	ControlAction.findCharacter(info);
-
-	MainLoop:
-	// Cycle until in lobby
-	while (getLocation() !== sdk.game.locations.Lobby) {
-		switch (getLocation()) {
-		case sdk.game.locations.CharSelect:
-			let control = Controls.CharSelectCharInfo0.control;
-
-			if (control) {
-				do {
-					let text = control.getText();
-
-					if (text instanceof Array && typeof text[1] === "string" && text[1].toLowerCase() === info.charName.toLowerCase()) {
-						control.click();
-						Controls.CharSelectDelete.click();
-						delay(500);
-						Controls.CharDeleteYes.click();
-
-						break MainLoop;
-					}
-				} while (control.getNext());
-			}
-
-			break;
-		case sdk.game.locations.CharSelectNoChars:
-			break MainLoop;
-
-		case sdk.game.locations.Disconnected:
-		case sdk.game.locations.OkCenteredErrorPopUp:
-			me.blockMouse = false;
-
-			return false;
-		default:
-			break;
-		}
-
-		delay(100);
-	}
-
-	me.blockMouse = false;
-
-	// Delete old files - leaving csv file's for now as I don't think they interfere with the overlay
-	CharData.delete(true);
-	DataFile.create();
-	CharData.updateData("me", "finalBuild", setUp.tag);
-	Developer.logPerformance && Tracker.initialize();
-	D2Bot.printToConsole("Deleted: " + info.charName + ". Now remaking...", 6);
-	ControlAction.makeCharacter(setUp);
-
-	return true;
-}
-
-function saveInfo (info) {
-	// Data-file already exists
-	if (FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charClass + "-" + info.charName + ".json")) {
-		return;
-	}
-
-	let folder, string;
-
-	if (!FileTools.exists("logs/Kolbot-SoloPlay")) {
-		folder = dopen("logs");
-		folder.create("Kolbot-SoloPlay");
-	}
-
-	if (!FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm)) {
-		folder = dopen("logs/Kolbot-SoloPlay");
-		folder.create(info.realm);
-	}
-
-	if (!FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName + ".json")) {
-		string = JSON.stringify(info);
-		FileTools.writeText("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName + ".json", string);
-	}
-}
 
 function timer (tick) {
 	let timeStr = " (Time:" + new Date(getTickCount() - tick).toISOString().slice(11, -5) + ") ";
@@ -268,7 +186,7 @@ function locationAction (location) {
 		break;
 	case sdk.game.locations.Lobby:
 		D2Bot.updateStatus("Lobby");
-		saveInfo(setUp);
+		ControlAction.saveInfo(Starter.profileInfo);
 
 		me.blockKeys = false;
 
@@ -441,14 +359,14 @@ function locationAction (location) {
 			Starter.gameInfo.difficulty = CharData.getStats().me.setDifficulty;
 
 			// only set the profile if the values aren't already the same
-			if (Starter.gameInfo.difficulty !== setUp.difficulty) {
+			if (Starter.gameInfo.difficulty !== Starter.profileInfo.difficulty) {
 				D2Bot.setProfile(null, null, null, Starter.gameInfo.difficulty);
 			}
 			delay(200);
 		}
 
 		Starter.gameInfo.gameName = DataFile.getStats().gameName;
-		(Starter.gameInfo.gameName === "" || Starter.gameInfo.gameName === "Name") && (Starter.gameInfo.gameName = setUp.charName.substring(0, 7) + "-" + Starter.randomString(3, false) + "-");
+		(Starter.gameInfo.gameName === "" || Starter.gameInfo.gameName === "Name") && (Starter.gameInfo.gameName = Starter.profileInfo.charName.substring(0, 7) + "-" + Starter.randomString(3, false) + "-");
 
 		// FTJ handler
 		if (Starter.lastGameStatus === "pending") {
@@ -503,39 +421,39 @@ function locationAction (location) {
 			if (battlenet) {
 				ControlAction.timeoutDelay("Login Delay", Starter.Config.DelayBeforeLogin * 1e3);
 				// existing account
-				if (setUp.account !== "") {
+				if (Starter.profileInfo.account !== "") {
 					try {
 						login(me.profile);
 					} catch (error) {
 						if (DataFile.getStats().AcctPswd) {
-							setUp.account = DataFile.getStats().AcctName;
-							setUp.password = DataFile.getStats().AcctPswd;
+							Starter.profileInfo.account = DataFile.getStats().AcctName;
+							Starter.profileInfo.password = DataFile.getStats().AcctPswd;
 
 							for (let i = 0; i < 5; i++) {
-								if (ControlAction.loginAccount(setUp)) {
+								if (ControlAction.loginAccount(Starter.profileInfo)) {
 									break;
 								}
 
 								ControlAction.timeoutDelay("Unable to Connect", Starter.Config.UnableToConnectDelay * 6e4);
-								setUp.account = DataFile.getStats().AcctName;
-								setUp.password = DataFile.getStats().AcctPswd;
+								Starter.profileInfo.account = DataFile.getStats().AcctName;
+								Starter.profileInfo.password = DataFile.getStats().AcctPswd;
 							}
 						}
 					}
 				} else {
 					// new account
-					if (setUp.account === "") {
+					if (Starter.profileInfo.account === "") {
 						if (Starter.Config.GlobalAccount || Starter.Config.GlobalAccountPassword) {
-							setUp.account = Starter.Config.GlobalAccount.length > 0 ? Starter.Config.GlobalAccount + randomNumberGen(Starter.Config.AccountSuffixLength) : Starter.randomString(12, true);
-							setUp.password = Starter.Config.GlobalAccountPassword.length > 0 ? Starter.Config.GlobalAccountPassword : Starter.randomString(12, true);
+							Starter.profileInfo.account = Starter.Config.GlobalAccount.length > 0 ? Starter.Config.GlobalAccount + randomNumberGen(Starter.Config.AccountSuffixLength) : Starter.randomString(12, true);
+							Starter.profileInfo.password = Starter.Config.GlobalAccountPassword.length > 0 ? Starter.Config.GlobalAccountPassword : Starter.randomString(12, true);
 
-							if (setUp.account.length > 15) {
+							if (Starter.profileInfo.account.length > 15) {
 								D2Bot.printToConsole("Kolbot-SoloPlay: Account name exceeds MAXIMUM length (15). Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig", 6);
 								D2Bot.setProfile("", "", null, "Normal");
 								D2Bot.stop();
 							}
 
-							if (setUp.password.length > 15) {
+							if (Starter.profileInfo.password.length > 15) {
 								D2Bot.printToConsole("Kolbot-SoloPlay: Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig", 6);
 								D2Bot.setProfile("", "", null, "Normal");
 								D2Bot.stop();
@@ -545,22 +463,22 @@ function locationAction (location) {
 							print("Kolbot-SoloPlay :: Generated password information. " + (Starter.Config.GlobalAccountPassword.length > 0 ? "Pre-defined " : "Random ") + "password used");
 							ControlAction.timeoutDelay("Generating Account Information", Starter.Config.DelayBeforeLogin * 1e3);
 						} else {
-							setUp.account = Starter.randomString(12, true);
-							setUp.password = Starter.randomString(12, true);
+							Starter.profileInfo.account = Starter.randomString(12, true);
+							Starter.profileInfo.password = Starter.randomString(12, true);
 							print("Generating Random Account Information");
 							ControlAction.timeoutDelay("Generating Random Account Information", Starter.Config.DelayBeforeLogin * 1e3);
 						}
 
-						if (ControlAction.makeAccount(setUp)) {
-							D2Bot.setProfile(setUp.account, setUp.password, null, "Normal");
-							DataFile.updateStats("AcctName", setUp.account);
-							DataFile.updateStats("AcctPswd", setUp.password);
+						if (ControlAction.makeAccount(Starter.profileInfo)) {
+							D2Bot.setProfile(Starter.profileInfo.account, Starter.profileInfo.password, null, "Normal");
+							DataFile.updateStats("AcctName", Starter.profileInfo.account);
+							DataFile.updateStats("AcctPswd", Starter.profileInfo.password);
 
 							break;
 						} else {
-							setUp.account = "";
-							setUp.password = "";
-							D2Bot.setProfile(setUp.account, setUp.password, null, "Normal");
+							Starter.profileInfo.account = "";
+							Starter.profileInfo.password = "";
+							D2Bot.setProfile(Starter.profileInfo.account, Starter.profileInfo.password, null, "Normal");
 							D2Bot.restart(true);
 						}
 					}
@@ -571,15 +489,15 @@ function locationAction (location) {
 					login(me.profile);
 				} catch (err) {
 					// Try to find the character and if that fails, make character
-					if (!ControlAction.findCharacter(setUp)) {
+					if (!ControlAction.findCharacter(Starter.profileInfo)) {
 						// Pop-up that happens when choosing a dead HC char
 						if (getLocation() === sdk.game.locations.OkCenteredErrorPopUp) {
 							Controls.OkCentered.click();	// Exit from that pop-up
 							D2Bot.printToConsole("Character died", 9);
-							deleteAndRemakeChar(setUp);
+							ControlAction.deleteAndRemakeChar(Starter.profileInfo);
 						} else {
 							// If make character fails, check how many characters are on that account
-							if (!ControlAction.makeCharacter(setUp)) {
+							if (!ControlAction.makeCharacter(Starter.profileInfo)) {
 								// Account is full
 								if (ControlAction.getCharacters().length >= 18) {
 									D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", 8);
@@ -633,9 +551,9 @@ function locationAction (location) {
 			case getLocaleString(5249): // Unable to create account
 				D2Bot.updateStatus("Invalid Account Name");
 				D2Bot.printToConsole("Invalid Account Name");
-				setUp.account = "";
-				setUp.password = "";
-				D2Bot.setProfile(setUp.account, setUp.password);
+				Starter.profileInfo.account = "";
+				Starter.profileInfo.password = "";
+				D2Bot.setProfile(Starter.profileInfo.account, Starter.profileInfo.password);
 				D2Bot.restart(true);
 
 				break;
@@ -773,18 +691,18 @@ function locationAction (location) {
 			}
 		}
 
-		if (Starter.deadCheck && deleteAndRemakeChar(setUp)) {
+		if (Starter.deadCheck && ControlAction.deleteAndRemakeChar(Starter.profileInfo)) {
 			Starter.deadCheck = false;
 		}
 
-		if (setUp) {
-			if (!ControlAction.findCharacter(setUp)) {
-				if (setUp.charName === DataFile.getObj().name) {
+		if (Object.keys(Starter.profileInfo).length) {
+			if (!ControlAction.findCharacter(Starter.profileInfo)) {
+				if (Starter.profileInfo.charName === DataFile.getObj().name) {
 					ControlAction.timeoutDelay("[R/D] Character not found ", 18e4);
 					D2Bot.printToConsole("Avoid Creating New Character - Restart");
 					D2Bot.restart();
 				} else {
-					if (!ControlAction.makeCharacter(setUp)) {
+					if (!ControlAction.makeCharacter(Starter.profileInfo)) {
 						if (ControlAction.getCharacters().length >= 18) {
 							D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", 9);
 							D2Bot.stop();
@@ -792,7 +710,7 @@ function locationAction (location) {
 					}
 				}
 			} else {
-				ControlAction.loginCharacter(setUp, false);
+				ControlAction.loginCharacter(Starter.profileInfo, false);
 			}
 		}
 
@@ -889,26 +807,26 @@ function main () {
 
 	DataFile.updateStats("debugInfo", JSON.stringify({currScript: "none", area: "out of game"}));
 
-	while (!Object.keys(setUp).length) {
+	while (!Object.keys(Starter.profileInfo).length) {
 		D2Bot.getProfile();
 		print("Getting Profile");
 		delay(500);
-		console.log(setUp);
+		console.log(Starter.profileInfo);
 	}
 
-	if (setUp.charName === "") {
+	if (Starter.profileInfo.charName === "") {
 		print("Generating Character Name");
-		setUp.charName = NameGen();
-		D2Bot.setProfile(null, null, setUp.charName, "Normal");
+		Starter.profileInfo.charName = NameGen();
+		D2Bot.setProfile(null, null, Starter.profileInfo.charName, "Normal");
 
-		let gamename = setUp.charName.substring(0, 7) + "-" + Starter.randomString(3, false) + "-";
+		let gamename = Starter.profileInfo.charName.substring(0, 7) + "-" + Starter.randomString(3, false) + "-";
 		DataFile.updateStats("gameName", gamename);
 
 		delay(50);
 	} else if (Starter.firstRun) {
 		// should be first run on this profile since we created a new data file so initialize difficulty to normal
 		// check first before setting to avoid unneeded setProfile calls
-		setUp.difficulty !== "Normal" && D2Bot.setProfile(null, null, null, "Normal");
+		Starter.profileInfo.difficulty !== "Normal" && D2Bot.setProfile(null, null, null, "Normal");
 	}
 
 	let myExp, myGold, resPenalty, frRes, crRes, lrRes, prRes, areaName, diffName;

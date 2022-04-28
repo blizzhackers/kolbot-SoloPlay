@@ -21,8 +21,7 @@ function duriel () {
 
 	// quest-prep
 	let preArea = me.area;
-	Town.doChores();
-	Town.buyPots(10, "Thawing", true);
+	Town.doChores(null, {thawing: me.coldRes < 75});
 
 	let oldMercWatch = Config.MercWatch;
 	Config.MercWatch = false;

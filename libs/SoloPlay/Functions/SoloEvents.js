@@ -274,7 +274,7 @@ const SoloEvents = {
 		if (typeof x !== "number" || typeof y !== "number") return false;
 		if (getDistance(me, x, y) < 2) return true;
 
-		let useTele = settings.allowTeleport && settings.allowTeleport.useTeleport();
+		let useTele = settings.allowTeleport && Pather.useTeleport();
 		let tpMana = Skill.getManaCost(sdk.skills.Teleport);
 		let mLair = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
 

@@ -556,11 +556,12 @@ Item.autoEquipSecondary = function () {
 	return true;
 };
 
-//AUTO EQUIP MERC - modified from dzik's
+// AUTO EQUIP MERC - modified from dzik's
 Item.hasMercTier = function (item) {
 	return Config.AutoEquip && NTIP.GetMercTier(item) > 0 && me.expansion;
 };
 
+// need to re-work using char data so we can shop/keep items if merc is dead *but* we have enough to revive him and buy the item and enough space
 Item.canEquipMerc = function (item, bodyLoc) {
 	if (item.type !== sdk.unittype.Item || me.classic) return false;
 	let mercenary = Merc.getMercFix();

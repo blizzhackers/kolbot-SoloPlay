@@ -13,9 +13,9 @@ function a5chests() {
 
 	for (let i = 0; i < areas.length; i++) {
 		try {
-			if (!Pather.canTeleport() && me.nightmare && [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit].indexOf(areas[i]) > -1) {
+			if (!Pather.canTeleport() && me.nightmare && [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit].includes(areas[i])) {
 				continue;
-			} else if (!Pather.canTeleport() && me.nightmare && me.charlvl >= 70 && [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit, sdk.areas.GlacialTrail, sdk.areas.DrifterCavern].indexOf(areas[i]) > -1) {
+			} else if (!Pather.canTeleport() && me.nightmare && me.charlvl >= 70 && [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit, sdk.areas.GlacialTrail, sdk.areas.DrifterCavern].includes(areas[i])) {
 				continue;
 			}
 

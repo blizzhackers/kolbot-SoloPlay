@@ -266,9 +266,7 @@ function baal () {
 	clearThrone();
 
 	if (me.coldRes < 75 || me.poisonRes < 75) {
-		Town.doChores();
-		Town.buyPots(10, "Thawing", true);
-		Town.buyPots(10, "Antidote", true);
+		Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
 		Town.move("portalspot");
 		Pather.usePortal(sdk.areas.ThroneofDestruction, me.name);
 	}

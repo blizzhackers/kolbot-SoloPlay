@@ -19,7 +19,7 @@ function bloodraven () {
 	Precast.doPrecast(true);
 
 	me.overhead("blood raven");
-	Pather.moveToExit([sdk.areas.ColdPlains, sdk.areas.BurialGrounds], true);
+	Pather.moveToExit(sdk.areas.BurialGrounds, true);
 	me.sorceress && !me.normal ? Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805, 10) : Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805);
 	Attack.killTarget("Blood Raven");
 	Pickit.pickItems();

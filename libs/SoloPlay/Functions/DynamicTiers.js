@@ -4,6 +4,8 @@
 *	@desc		Dynamic tiers calculators for Kolbot-SoloPlay
 */
 
+// todo: change all values over to sdk for readability
+
 const mercscore = function (item) {
 	const mercWeights = {
 		IAS: 3.5,
@@ -320,10 +322,18 @@ const tierscore = function (item, bodyloc) {
 
 	this.generalScore = function (item) {
 		let generalRating = 0,
-			canTele = !Pather.canTeleport();
+			canTele = Pather.canTeleport();
+
+		// get item body location
+		let itembodyloc = Item.getBodyLoc(item);
+		bodyloc === undefined && (bodyloc = itembodyloc.last()); // extract bodyloc from array
+		
+		// get item cbf stat from olditem equipped on body location
+		let equippedItem = me.getItemsEx().filter((equipped) => equipped.isEquipped && equipped.bodylocation === bodyloc).first();
 
 		if (!canTele && item.getStatEx(sdk.stats.CannotbeFrozen)) {
-			let haveCBF = me.getStat(sdk.stats.CannotbeFrozen) > 0;
+			// check if we have cbf but make sure its not from the item we are trying to un-equip
+			let haveCBF = (me.getStat(sdk.stats.CannotbeFrozen) > 0 && !equippedItem.getStatEx(sdk.stats.CannotbeFrozen));
 			// Cannot be frozen is very important for Melee chars
 			!haveCBF && (generalRating += buildInfo.caster ? tierWeights.generalWeights.CBF : tierWeights.generalWeights.CBF * 4);
 		}
@@ -361,7 +371,7 @@ const tierscore = function (item, bodyloc) {
 
 		bodyloc === undefined && (bodyloc = itembodyloc.last()); // extract bodyloc from array
 		// get item resists stats from olditem equipped on body location
-		let equippedItem = me.getItemsEx().filter(function (equipped) { return equipped.isEquipped && equipped.bodylocation === bodyloc; }).first();
+		let equippedItem = me.getItemsEx().filter((equipped) => equipped.isEquipped && equipped.bodylocation === bodyloc).first();
 
 		let olditemFR = !!equippedItem ? equippedItem.getStatEx(39) : 0; // equipped fire resist
 		let olditemCR = !!equippedItem ? equippedItem.getStatEx(43) : 0; // equipped cold resist

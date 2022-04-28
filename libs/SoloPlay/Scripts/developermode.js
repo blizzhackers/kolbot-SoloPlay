@@ -241,14 +241,14 @@ function developermode() {
 			userAddon = !userAddon;
 			me.overhead("userAddon set to " + userAddon);
 
-			break;		
+			break;
 		case "run":
 			if (msgList.length < 2) {
 				print("ÿc1Missing arguments");
 				break;
 			}
 
-			action =  msgList[1].toLowerCase();
+			action = msgList[1].toLowerCase();
 
 			break;
 		case "done":
@@ -333,7 +333,8 @@ function developermode() {
 			try {
 				eval(command);
 			} catch (e) {
-				print(e);
+				console.debug(e);
+				console.debug(new Error().stack);
 			}
 
 			me.overhead("Done with action");
@@ -346,37 +347,7 @@ function developermode() {
 		}
 
 		if (test) {
-			if (!me.inTown || !Town.openStash()) {
-					me.overhead("Failed to open stash");
-			} else {
-				while (me.gold) {
-					print(me.gold);
-					if (me.getStat (15) > 0 && me.getStat (14) < me.getStat (12) * 10000) {
-						let stashg = me.getStat (15) == 0 ? 0 : me.getStat (15);
-						let invg = me.getStat (14) == 0 ? 0 : me.getStat (14);
-						let missing = me.getStat (12) * 10000 - me.getStat(14);
-
-						let difference = Math.min(stashg, missing);
-
-						gold (difference, 4);
-
-						while (invg === me.getStat(14)) {
-							delay (100)
-						}
-					}
-
-					var invg = me.getStat (14);
-
-					gold (invg);
-
-					while (invg === me.getStat(14)) {
-						delay (100)
-					}
-				}
-
-			me.cancel();
-			}
-
+	
 			me.overhead("done");
 			test = false;
 		}

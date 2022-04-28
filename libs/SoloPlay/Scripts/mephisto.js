@@ -32,10 +32,7 @@ function mephisto () {
 
 	// Town stuff
 	if (me.coldRes < 75 || me.poisonRes < 75) {
-		Town.doChores();
-		Town.buyPots(10, "Thawing", true);
-		Town.buyPots(10, "Antidote", true);
-
+		Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
 		// Re-enter portal
 		Pather.usePortal(sdk.areas.DuranceofHateLvl3, me.name);
 		Precast.doPrecast(true);
@@ -71,7 +68,7 @@ function mephisto () {
 	Misc.poll(function () { return me.area === sdk.areas.PandemoniumFortress; }, 1000, 30);
 
 	while (!me.gameReady) {
-		delay(100 + me.ping);
+		delay(40);
 	}
 
 	return me.area === sdk.areas.PandemoniumFortress;

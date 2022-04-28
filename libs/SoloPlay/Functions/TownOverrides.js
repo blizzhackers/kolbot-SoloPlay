@@ -8,11 +8,11 @@
 
 let Overrides = require('../../modules/Override');
 
-new Overrides.Override(Town, Town.canTpToTown, function(orignal) {
+new Overrides.Override(Town, Town.canTpToTown, function (orignal) {
 	return (Misc.townEnabled && orignal());
 }).apply();
 
-new Overrides.Override(Town, Town.repair, function(orignal, force = false) {
+new Overrides.Override(Town, Town.repair, function (orignal, force = false) {
 	if (orignal(force)) {
 		this.shopItems();
 
@@ -22,7 +22,7 @@ new Overrides.Override(Town, Town.repair, function(orignal, force = false) {
 	return false;
 }).apply();
 
-new Overrides.Override(Town, Town.buyPotions, function(orignal) {
+new Overrides.Override(Town, Town.buyPotions, function (orignal) {
 	// no town portal book
 	if (!me.getItem(sdk.items.TomeofTownPortal)) return false;
 
@@ -32,13 +32,8 @@ new Overrides.Override(Town, Town.buyPotions, function(orignal) {
 
 		// keep cold/pois res high with potions
 		if (me.gold > 10000 && npc.getItem(sdk.items.ThawingPotion)) {
-			if (me.coldRes < 75 && (!CharData.buffData.thawing.active() || CharData.buffData.thawing.timeLeft() < 5 * 60 * 100)) {
-				this.buyPots(10, "thawing", true);
-			}
-
-			if (me.poisonRes < 75 && (!CharData.buffData.antidote.active() || CharData.buffData.antidote.timeLeft() < 5 * 60 * 100)) {
-				this.buyPots(10, "antidote", true);
-			}
+			CharData.buffData.thawing.need() && this.buyPots(12, "thawing", true);
+			CharData.buffData.antidote.need() && this.buyPots(12, "antidote", true);
 		}
 
 		return true;
@@ -56,7 +51,16 @@ Town.ignoredItemTypes = [
 	sdk.itemtype.AntidotePotion, sdk.itemtype.ThawingPotion
 ];
 
-Town.townTasks = function () {
+// need to build task list then do them.
+// This way we can look ahead to see if there is a task thats going to be done at the current npc like buyPots and just go ahead and do it
+
+Town.townTasks = function (buyPots = {}) {
+	let extraTasks = Object.assign({}, {
+		thawing: false,
+		antidote: false,
+		stamina: false,
+	}, buyPots);
+
 	delay(250);
 
 	console.debug("ÿc8Start ÿc0:: ÿc8TownTasks");
@@ -77,6 +81,9 @@ Town.townTasks = function () {
 	this.clearInventory();
 	this.buyBook();
 	this.buyPotions();
+	extraTasks.thawing && CharData.buffData.thawing.need() && Town.buyPots(12, "Thawing", true);
+	extraTasks.antidote && CharData.buffData.antidote.need() && Town.buyPots(12, "Antidote", true);
+	extraTasks.stamina && Town.buyPots(12, "Stamina", true);
 	this.fillTome(sdk.items.TomeofTownPortal);
 	this.shopItems();
 	this.buyKeys();
@@ -98,10 +105,6 @@ Town.townTasks = function () {
 	this.sortStash();
 	Quest.characterRespec();
 
-	if ([sdk.areas.LutGholein, sdk.areas.KurastDocktown].includes(me.area)) {
-		Town.buyPots(10, "Stamina", true);
-	}
-
 	me.act !== preAct && this.goToTown(preAct);
 	me.cancelUIFlags();
 	!me.barbarian && !Precast.checkCTA() && Precast.doPrecast(false);
@@ -117,7 +120,13 @@ Town.townTasks = function () {
 	return true;
 };
 
-Town.doChores = function (repair = false) {
+Town.doChores = function (repair = false, buyPots = {}) {
+	let extraTasks = Object.assign({}, {
+		thawing: false,
+		antidote: false,
+		stamina: false,
+	}, buyPots);
+
 	delay(250);
 
 	console.debug("ÿc8Start ÿc0:: ÿc8TownChores");
@@ -138,6 +147,9 @@ Town.doChores = function (repair = false) {
 	this.clearInventory();
 	this.buyBook();
 	this.buyPotions();
+	extraTasks.thawing && CharData.buffData.thawing.need() && Town.buyPots(12, "Thawing", true);
+	extraTasks.antidote && CharData.buffData.antidote.need() && Town.buyPots(12, "Antidote", true);
+	extraTasks.stamina && Town.buyPots(12, "Stamina", true);
 	this.fillTome(sdk.items.TomeofTownPortal);
 	this.shopItems();
 	this.buyKeys();
@@ -518,6 +530,7 @@ Town.shopItems = function () {
 	if (!items.length) return false;
 
 	let tick = getTickCount();
+	let haveMerc = Misc.poll(() => !!me.getMerc(), 1000, 200);
 	console.log("ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Evaluating " + npc.itemcount + " items.");
 
@@ -571,7 +584,7 @@ Town.shopItems = function () {
 						continue;
 					}
 
-					if (Item.hasMercTier(item) && Item.autoEquipCheckMerc(item)) {
+					if (haveMerc && Item.hasMercTier(item) && Item.autoEquipCheckMerc(item)) {
 						Misc.itemLogger("AutoEquipMerc Shopped", item);
 						Developer.debugging.autoEquip && Misc.logItem("AutoEquipMerc Shopped", item, result.line);
 						item.buy();
@@ -701,6 +714,7 @@ Town.gamble = function () {
 	return true;
 };
 
+// todo: clean this up
 Town.unfinishedQuests = function () {
 	// Act 1
 	// Tools of the trade
@@ -826,57 +840,45 @@ Town.unfinishedQuests = function () {
 	return true;
 };
 
-Town.drinkPots = function (type) {
-	let classIds = [sdk.items.StaminaPotion, sdk.items.AntidotePotion, sdk.items.ThawingPotion];
-	!!type && (classIds = classIds.filter(function (el) { return el === sdk.items[type + "Potion"]; }));
+new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
+	let objDrank = orignal(type, false);
+	
+	if (objDrank.potName) {
+		let objID = objDrank.potName.split(' ')[0].toLowerCase();
 
-	for (let i = 0; i < classIds.length; i++) {
-		let name, objID;
-		let quantity = 0;
-		let chugs = me.getItemsEx(classIds[i]).filter(pot => pot.isInInventory);
-
-		if (chugs.length > 0) {
-			chugs.forEach(function (pot) {
-				if (!!pot) {
-					name === undefined && (name = pot.name);
-					pot.interact();
-					quantity++;
-					delay(10 + me.ping);
-				}
-			});
-
-			!!name && (objID = name.split(' ')[0].toLowerCase());
-
-			if (objID) {
-				// non-english version
-				if (!CharData.buffData[objID]) {
-					objID = type.toLowerCase();
-				}
-
-				if (!CharData.buffData[objID].active() || CharData.buffData[objID].timeLeft() <= 0) {
-					CharData.buffData[objID].tick = getTickCount();
-					CharData.buffData[objID].duration = quantity * 30 * 1000;
-				} else {
-					CharData.buffData[objID].duration += (quantity * 30 * 1000) - (getTickCount() - CharData.buffData[objID].tick);
-				}
-
-				print('ÿc9DrinkPotsÿc0 :: drank ' + quantity + " " + name + "s. Timer [" + Developer.formatTime(CharData.buffData[objID].duration) + "]");
+		if (objID) {
+			// non-english version
+			if (!CharData.buffData[objID]) {
+				objID = type.toLowerCase();
 			}
+
+			if (!CharData.buffData[objID].active() || CharData.buffData[objID].timeLeft() <= 0) {
+				CharData.buffData[objID].tick = getTickCount();
+				CharData.buffData[objID].duration = objDrank.quantity * 30 * 1000;
+			} else {
+				CharData.buffData[objID].duration += (objDrank.quantity * 30 * 1000) - (getTickCount() - CharData.buffData[objID].tick);
+			}
+
+			console.log('ÿc9DrinkPotsÿc0 :: drank ' + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Developer.formatTime(CharData.buffData[objID].duration) + "]");
 		}
 	}
 
 	return true;
-};
+}).apply();
 
+// re-write this so its actually useable
 Town.buyMercPots = function (quantity, type) {
+	let merc = Misc.poll(() => me.getMerc(), 1000, 30);
+	if (!merc) return false;
+	
 	let npc, jugs;
 	let potDealer = ["Akara", "Lysander", "Alkor", "Jamella", "Malah"][me.act - 1];
 
 	// Don't buy if already at max res
-	if (type === "Thawing" && Check.mercResistance().CR >= 75) return true;
+	if (type === "Thawing" && merc.coldRes >= 75) return true;
 
 	// Don't buy if already at max res
-	if (type === "Antidote" && Check.mercResistance().PR >= 75) return true;
+	if (type === "Antidote" && merc.poisonRes >= 75) return true;
 
 	Town.move(NPC[potDealer]);
 	npc = getUnit(sdk.unittype.NPC, NPC[potDealer]);

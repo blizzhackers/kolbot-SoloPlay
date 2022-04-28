@@ -25,6 +25,7 @@ const CharData = {
 		me: {
 			startTime: 0,
 			charName: "",
+			classid: -1,
 			level: 1,
 			strength: 0,
 			dexterity: 0,
@@ -51,6 +52,9 @@ const CharData = {
 			timeLeft: function () {
 				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
 			},
+			need: function () {
+				return (!this.active() || this.timeLeft() < minutes(5));
+			},
 		},
 
 		thawing: {
@@ -61,6 +65,9 @@ const CharData = {
 			},
 			timeLeft: function () {
 				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
+			},
+			need: function () {
+				return (me.coldRes < 75 && (!this.active() || this.timeLeft() < minutes(5)));
 			},
 		},
 
@@ -73,6 +80,10 @@ const CharData = {
 			timeLeft: function () {
 				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
 			},
+			need: function () {
+				// don't really like the hardcoded time value of 5 minutes, its okay but feel like it should be more dynamic
+				return (me.poisonRes < 75 && (!this.active() || this.timeLeft() < minutes(5)));
+			},
 		},
 
 		update: function () {
@@ -82,7 +93,7 @@ const CharData = {
 			scripts.forEach(function (script) {
 				let curr = getScript(script);
 				if (curr && myThread !== curr.name) {
-					Messaging.sendToScript(script, "buff--" + obj);
+					curr.send("buff--" + obj);
 				}
 			});
 		},
@@ -96,7 +107,7 @@ const CharData = {
 		init: function (all, switchSkills) {
 			this.currentChargedSkills = all.slice(0);
 			this.chargedSkillsOnSwitch = switchSkills.slice(0);
-			this.skills = me.getSkill(4).map(function (skill) { return skill[0]; });
+			this.skills = me.getSkill(4).map((skill) => skill[0]);
 		},
 
 		update: function () {
@@ -106,7 +117,7 @@ const CharData = {
 			scripts.forEach(function (script) {
 				let curr = getScript(script);
 				if (curr && myThread !== curr.name) {
-					Messaging.sendToScript(script, "skill--" + obj);
+					curr.send("skill--" + obj);
 				}
 			});
 		},
@@ -114,13 +125,13 @@ const CharData = {
 
 	// updates config obj across all threads - excluding our current
 	updateConfig: function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"/*, "libs/SoloPlay/Threads/AutoBuildThread.js"*/];
+		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"];
 		let obj = JSON.stringify(Misc.copy(Config));
 		let myThread = getScript(true).name;
 		scripts.forEach(function (script) {
 			let curr = getScript(script);
 			if (curr && myThread !== curr.name) {
-				Messaging.sendToScript(script, "config--" + obj);
+				curr.send("config--" + obj);
 			}
 		});
 	},
@@ -160,7 +171,6 @@ const CharData = {
 
 	getStats: function () {
 		let obj = this.getObj();
-
 		return Misc.clone(obj);
 	},
 
