@@ -89,8 +89,8 @@
 |:------:|:-------|-------:|
 | 1.| Download Kolbot here: [github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot). |![blizzhackers github](https://i.imgur.com/RksqKEA.jpg) |
 | 2.| Click the green button to Download SoloPlay. |![enter image description here](https://i.imgur.com/cNqZDbW.jpg) |
-| 3.a| Copy and paste the following: `default.dbj`, `D2BotSoloPlay.dbj`, `D2BotSoloCleaner.dbj`, and the entire `\libs` folder into `\d2bs\kolbot\`.| ![kolbot](https://i.imgur.com/WNxJOhq.png) |
-|3.b|A successful installation will show 2 new files in the folder and look similar to the following image|![image](https://user-images.githubusercontent.com/60308670/131760184-ba777302-908e-4247-b9b7-1c9331028b2c.png)| 4.| Select Add for new a Kolbot Profile. | ![Add-profile.jpg](https://imgur.com/tHs9ZoH.jpg)|
+| 3.a| Copy and paste the following: `default.dbj`, `D2BotSoloPlay.dbj`, and the entire `\libs` folder into `\d2bs\kolbot\`.| ![kolbot](https://i.imgur.com/WNxJOhq.png) |
+|3.b|A successful installation will show 1 new file in the folder: `D2BotSoloPlay.dbj` and look similar to the following image|![image](https://user-images.githubusercontent.com/60308670/131760184-ba777302-908e-4247-b9b7-1c9331028b2c.png)| 4.| Select Add for new a Kolbot Profile. | ![Add-profile.jpg](https://imgur.com/tHs9ZoH.jpg)|
 | 4.a| Select and Input a profile name. See the **Possible Profile Name Choices** below for a list of available options. | ![extract into](https://i.imgur.com/2YcGKVH.png) |
 | 4.b| ***Optional*** Input your account name. If no name than a random account is created. | |
 | 4.c|***Optional*** Input your account password. If no name than a random password is created. | |
@@ -159,21 +159,12 @@ https://youtu.be/qYHUw6nNn74
     - `{"Name": "regenmaps", "Version": "1.14d", "Module": 14, "Offset": 1483264, "Data": "6w=="}`
 - **Note:** After re-launching D2Bot# a message will appear at the top saying *UPDATE AVAILABLE*, ignore this message there is no update. The application sees that patch.json is different than the standard download.
 
-## D2BotSoloCleaner
-- The purpose of this entry script is to delete old characters and/or related data files.
-- Extra Features
-   - DataCleaner to delete old files associated with running SoloPlay 
-   - SaveFiles to save important files to SoloPlay/Data/ for performance review
-   - single player option
-   - **Note:** DataCleaner and SaveFiles can both be used for cleaning/saving files without having to delete associated characters
-
 ## Discord
 **Big shout-out to Xcon for setting up this discord channel**
 - If you have any questions please join me on my discord
 https://discord.gg/5pjTC2zH6N
 
-![image](https://user-images.githubusercontent.com/60308670/131765716-16be931a-3499-4508-9c4f-f280d2e5d68f.png)
-![Kolbot-SoloPlay Sorceress](https://imgur.com/SKIkmzL.png)
+![Kolbot-SoloPlay Paladin](https://user-images.githubusercontent.com/60308670/165398785-8ef1afd7-d232-4bc4-a23e-a1f1321ce0ed.png)
 
 ## Statistics (will become filled out as data becomes available)
 | Level | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
