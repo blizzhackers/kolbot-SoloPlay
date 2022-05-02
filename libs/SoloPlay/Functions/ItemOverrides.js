@@ -104,7 +104,7 @@ Item.getBodyLoc = function (item) {
 	return bodyLoc;
 };
 
-
+// todo: clean this up
 Item.getEquippedItem = function (bodyLoc = -1) {
 	let item = me.getItemsEx().filter((item) => item.isEquipped && item.bodylocation === bodyLoc).first();
 
@@ -117,14 +117,13 @@ Item.getEquippedItem = function (bodyLoc = -1) {
 			itemType: item.itemType,
 			quality: item.quality,
 			tier: NTIP.GetTier(item),
-			tierScore: tierscore(item, bodyLoc),
 			secondarytier: NTIP.GetSecondaryTier(item),
 			str: item.getStatEx(sdk.stats.Strength),
 			dex: item.getStatEx(sdk.stats.Dexterity),
-			durability: (item.getStat(72) * 100 / item.getStat(73)),
+			durability: (item.getStat(sdk.stats.Quantity) ? 100 : (item.getStat(72) * 100 / item.getStat(73))),
 			sockets: item.getStat(sdk.stats.NumSockets),
 			socketed: item.getItemsEx().length > 0,
-			isRuneword: item.getFlag(0x4000000),
+			isRuneword: item.runeword,
 			twoHanded: item.twoHanded,
 		};
 	}
@@ -138,7 +137,6 @@ Item.getEquippedItem = function (bodyLoc = -1) {
 		itemType: -1,
 		quality: -1,
 		tier: -1,
-		tierScore: -1,
 		secondarytier: -1,
 		str: 0,
 		dex: 0,
