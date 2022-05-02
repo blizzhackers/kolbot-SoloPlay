@@ -53,7 +53,8 @@ function tristram () {
 	Pather.moveToPreset(sdk.areas.StonyField, 2, 17, null, null, true);
 
 	if (!Misc.checkQuest(4, 4) && me.getItem(sdk.items.quest.KeytotheCairnStones)) {
-		try { // go to tristram @jaenster
+		try {
+			// go to tristram @jaenster
 			let stones = [
 				getUnit(2, 17),
 				getUnit(2, 18),
@@ -62,7 +63,7 @@ function tristram () {
 				getUnit(2, 21)
 			];
 
-			while (stones.some(function (stone) { return !stone.mode; })) {
+			while (stones.some((stone) => !stone.mode)) {
 				for (let i = 0, stone = void 0; i < stones.length; i++) {
 					stone = stones[i];
 					Misc.openChest(stone);

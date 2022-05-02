@@ -209,6 +209,8 @@ let Container = function (name, width, height, location) {
 
 		let startX = 0;
 		let startY = 0;
+		let x = 0;
+		let y = 0;
 		let endX = this.width - (item.sizex - 1);
 		let endY = this.height - (item.sizey - 1);
 
@@ -227,9 +229,9 @@ let Container = function (name, width, height, location) {
 		}
 
 		//Loop buffer looking for spot to place item.
-		for (let y = startX; y !== endX; y += xDir) {
+		for (y = startX; y !== endX; y += xDir) {
 			Loop:
-			for (let x = startY; x !== endY; x += yDir) {
+			for (x = startY; x !== endY; x += yDir) {
 				//Check if there is something in this spot.
 				if (this.buffer[x][y] > 0) {
 

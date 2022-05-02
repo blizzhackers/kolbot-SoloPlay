@@ -7,8 +7,7 @@
 function travincal () {
 	Quest.preReqs();
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting travincal');
-	me.overhead("travincal");
+	myPrint('starting travincal');
 
 	Pather.checkWP(sdk.areas.Travincal, true) ? Pather.useWaypoint(sdk.areas.Travincal) : Pather.getWP(sdk.areas.Travincal);
 	Precast.doPrecast(true);

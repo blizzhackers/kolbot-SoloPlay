@@ -75,9 +75,9 @@ function orgtorch() {
 
 	// Check if we have complete sets of organs
 	this.completeSetCheck = function () {
-		let horns = me.findItems(items.quest.DiablosHorn),
-			brains = me.findItems(items.quest.MephistosBrain),
-			eyes = me.findItems(items.quest.BaalsEye);
+		let horns = me.findItems(sdk.items.quest.DiablosHorn),
+			brains = me.findItems(sdk.items.quest.MephistosBrain),
+			eyes = me.findItems(sdk.items.quest.BaalsEye);
 
 		if (!horns || !brains || !eyes) {
 			return false;
@@ -89,22 +89,23 @@ function orgtorch() {
 
 	// Get fade in River of Flames
 	this.getFade = function () {
-		if (Check.haveItem("sword", "runeword", "Last Wish") || Check.haveItem("armor", "runeword", "Treachery")) {
+		if (!me.getState(sdk.states.Fade)
+			&& (me.checkItem({name: sdk.locale.items.Treachery, equipped: true}).have
+			|| me.checkItem({name: sdk.locale.items.LastWish, equipped: true}).have
+			|| me.checkItem({name: sdk.locale.items.SpiritWard, equipped: true}).have)) {
 			if (!me.getState(sdk.states.Fade)) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Getting Fade");
-				Pather.useWaypoint(107);
+				myPrint(sdk.colors.Orange + "OrgTorch :: " + sdk.colors.White + "Getting Fade");
+				Pather.useWaypoint(sdk.states.RiverofFlame);
 				Precast.doPrecast(true);
 				Pather.moveTo(7811, 5872);
 
-				if (me.paladin && me.getSkill(sdk.skills.Salvation, 1)) {
-					Skill.setSkill(sdk.skills.Salvation, 0);
-				}
+				me.paladin && me.getSkill(sdk.skills.Salvation, 1) && Skill.setSkill(sdk.skills.Salvation, 0);
 
 				while (!me.getState(sdk.states.Fade)) {
 					delay(100);
 				}
 
-				print("ÿc8Kolbot-SoloPlayÿc0: Fade Achieved.");
+				myPrint(sdk.colors.Orange + "OrgTorch :: " + sdk.colors.Green + "Fade Achieved");
 			}
 		}
 
@@ -114,19 +115,24 @@ function orgtorch() {
 	// Open a red portal. Mode 0 = mini ubers, mode 1 = Tristram
 	this.openPortal = function (mode) {
 		let portal,
-			item1 = mode === 0 ? me.findItem(items.quest.KeyofTerror, 0) : me.findItem(items.quest.DiablosHorn, 0),
-			item2 = mode === 0 ? me.findItem(items.quest.KeyofHate, 0) : me.findItem(items.quest.BaalsEye, 0),
-			item3 = mode === 0 ? me.findItem(items.quest.KeyofDestruction, 0) : me.findItem(items.quest.MephistosBrain, 0);
+			item1 = mode === 0
+				? me.findItem(sdk.items.quest.KeyofTerror, 0)
+				: me.findItem(sdk.items.quest.DiablosHorn, 0),
+			item2 = mode === 0
+				? me.findItem(sdk.items.quest.KeyofHate, 0)
+				: me.findItem(sdk.items.quest.BaalsEye, 0),
+			item3 = mode === 0
+				? me.findItem(sdk.items.quest.KeyofDestruction, 0)
+				: me.findItem(sdk.items.quest.MephistosBrain, 0);
 
 		Town.goToTown(5);
 		Town.doChores();
 
 		if (Town.openStash() && Cubing.emptyCube()) {
-			if (!Storage.Cube.MoveTo(item1) || !Storage.Cube.MoveTo(item2) || !Storage.Cube.MoveTo(item3)) {
-				return false;
-			}
-
-			if (!Cubing.openCube()) {
+			if (!Storage.Cube.MoveTo(item1)
+				|| !Storage.Cube.MoveTo(item2)
+				|| !Storage.Cube.MoveTo(item3)
+				|| !Cubing.openCube()) {
 				return false;
 			}
 
@@ -162,7 +168,7 @@ function orgtorch() {
 
 	// Do mini ubers or Tristram based on area we're already in
 	this.pandemoniumRun = function () {
-		let i, findLoc, skillBackup;
+		let i, findLoc;
 
 		switch (me.area) {
 		case sdk.areas.MatronsDen:
@@ -227,20 +233,7 @@ function orgtorch() {
 				Pather.moveTo(25122, 5170);
 			}
 
-			/*if (me.paladin && me.getSkill(125, 1)) {
-				skillBackup = Config.AttackSkill[2];
-				Config.AttackSkill[2] = 125;
-
-				Attack.init();
-			}*/
-
 			Attack.killTarget(704);
-
-			/*if (skillBackup && me.classid === 3 && me.getSkill(125, 1)) {
-				Config.AttackSkill[2] = skillBackup;
-
-				Attack.init();
-			}*/
 
 			Pather.moveTo(25162, 5141);
 			delay(3250);
@@ -280,19 +273,18 @@ function orgtorch() {
 	};
 
 	// Start
-	let i, portal, tkeys, hkeys, dkeys, brains, eyes, horns,
-		neededItems = {pk1: 0, pk2: 0, pk3: 0, rv: 0};
+	let i, portal, tkeys, hkeys, dkeys, brains, eyes, horns;
 
 	// Do town chores and quit if MakeTorch is true and we have a torch.
 	this.checkTorch();
 
 	// Count keys and organs
-	tkeys = me.findItems(items.quest.KeyofTerror, 0).length || 0;
-	hkeys = me.findItems(items.quest.KeyofHate, 0).length || 0;
-	dkeys = me.findItems(items.quest.KeyofDestruction, 0).length || 0;
-	brains = me.findItems(items.quest.MephistosBrain, 0).length || 0;
-	eyes = me.findItems(items.quest.BaalsEye, 0).length || 0;
-	horns = me.findItems(items.quest.DiablosHorn, 0).length || 0;
+	tkeys = me.findItems(sdk.items.quest.KeyofTerror, 0).length || 0;
+	hkeys = me.findItems(sdk.items.quest.KeyofHate, 0).length || 0;
+	dkeys = me.findItems(sdk.items.quest.KeyofDestruction, 0).length || 0;
+	brains = me.findItems(sdk.items.quest.MephistosBrain, 0).length || 0;
+	eyes = me.findItems(sdk.items.quest.BaalsEye, 0).length || 0;
+	horns = me.findItems(sdk.items.quest.DiablosHorn, 0).length || 0;
 
 	// End the script if we don't have enough keys nor organs
 	if ((tkeys < 3 || hkeys < 3 || dkeys < 3) && (brains < 1 || eyes < 1 || horns < 1)) {
@@ -351,9 +343,9 @@ function orgtorch() {
 	}
 
 	// Count organs
-	brains = me.findItems(items.quest.MephistosBrain, 0).length || 0;
-	eyes = me.findItems(items.quest.BaalsEye, 0).length || 0;
-	horns = me.findItems(items.quest.DiablosHorn, 0).length || 0;
+	brains = me.findItems(sdk.items.quest.MephistosBrain, 0).length || 0;
+	eyes = me.findItems(sdk.items.quest.BaalsEye, 0).length || 0;
+	horns = me.findItems(sdk.items.quest.DiablosHorn, 0).length || 0;
 
 	// We have enough organs, do Tristram
 	if (brains && eyes && horns) {

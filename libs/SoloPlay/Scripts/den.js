@@ -16,8 +16,7 @@ function den () {
 		}
 	};
 
-	print('ÿc8Kolbot-SoloPlayÿc0: starting den');
-	me.overhead("den");
+	myPrint('starting den');
 
 	if (!Pather.checkWP(sdk.areas.ColdPlains)) {
 		Pather.moveToExit(sdk.areas.BloodMoor, true);
@@ -29,6 +28,9 @@ function den () {
 		Pather.moveToExit(sdk.areas.DenofEvil, false, true);
 		Pather.makePortal();
 		Pather.getWP(sdk.areas.ColdPlains);
+
+		// check if we need to do chores - if so use waypoint to town (preserves portal if we made one at den) - return to cold plains using waypoint
+		Storage.Inventory.UsedSpacePercent() > 50 && Pather.useWaypoint(sdk.areas.RogueEncampment) && Town.doChores() && Pather.useWaypoint(sdk.areas.ColdPlains);
 
 		// make sure we are ready for den
 		me.charlvl < 3 && Attack.clearLevelUntilLevel(3);
@@ -54,8 +56,8 @@ function den () {
 			print("ÿc8Kolbot-SoloPlayÿc0: Clearing den attempt: " + attempt);
 			Attack.clearLevel();
 
-			if (me.area !== sdk.areas.DenofEvil) { 
-				break; 
+			if (me.area !== sdk.areas.DenofEvil) {
+				break;
 			}
 
 			if (Misc.checkQuest(1, 13)) {

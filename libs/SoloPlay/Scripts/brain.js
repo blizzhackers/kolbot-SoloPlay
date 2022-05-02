@@ -6,8 +6,7 @@
 
 function brain () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting brain');
-	me.overhead("brain");
+	myPrint('starting brain');
 
 	Pather.checkWP(sdk.areas.FlayerJungle, true) ? Pather.useWaypoint(sdk.areas.FlayerJungle) : Pather.getWP(sdk.areas.FlayerJungle);
 	Precast.doPrecast(true);
