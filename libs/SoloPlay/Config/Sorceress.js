@@ -18,8 +18,8 @@
 */
 
 function LoadConfig () {
-	if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
-	if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+	!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
+	!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 
 	SetUp.include();
 
@@ -241,27 +241,15 @@ function LoadConfig () {
 	!!finalGear && NTIP.arrayLooping(finalGear);
 
 	Config.imbueables = [
-		{name: sdk.items.JaredsStone, condition: (me.normal && me.expansion)},
-		{name: sdk.items.SwirlingCrystal, condition: (!me.normal && me.charlvl < 66 && me.expansion)},
-		{name: sdk.items.DimensionalShard, condition: (Item.getEquippedItem(4).tier < 777 && me.expansion)},
-		{name: sdk.items.Belt, condition: (me.normal && (Item.getEquippedItem(4).tier > 777 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
-	].filter(function (item) { return !!item.condition; });
+		{name: sdk.items.JaredsStone, condition: () => (me.normal && me.expansion)},
+		{name: sdk.items.SwirlingCrystal, condition: () => (!me.normal && me.charlvl < 66 && me.expansion)},
+		{name: sdk.items.DimensionalShard, condition: () => (Item.getEquippedItem(4).tier < 777 && me.expansion)},
+		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(4).tier > 777 || me.classic))},
+		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
+		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
+	].filter((item) => item.condition());
 
-	let imbueArr = (function () {
-		let temp = [];
-		for (let imbueItem of Config.imbueables) {
-			try {
-				if (imbueItem.condition) {
-					temp.push("[name] == " + imbueItem.name + " && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1");
-				}
-			} catch (e) {
-				print(e);
-			}
-		}
-		return temp;
-	})();
+	let imbueArr = SetUp.imbueItems();
 
 	!me.smith && NTIP.arrayLooping(imbueArr);
 

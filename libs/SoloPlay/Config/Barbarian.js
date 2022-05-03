@@ -17,8 +17,8 @@
 */
 
 function LoadConfig () {
-	if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
-	if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+	!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
+	!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 
 	SetUp.include();
 
@@ -184,7 +184,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal ? true : false;
 	Config.ClearType = 0;
-	Config.ClearPath = { Range: 30, Spectype: 0xF };
+	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0xF};
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];
@@ -225,27 +225,15 @@ function LoadConfig () {
 	!!finalGear && NTIP.arrayLooping(finalGear);
 
 	Config.imbueables = [
-		{name: sdk.items.AvengerGuard, condition: (me.normal && me.expansion)},
-		{name: sdk.items.SlayerGuard, condition: (!me.normal && me.trueStr >= 118 && me.expansion)},
-		{name: sdk.items.CarnageHelm, condition: (Item.getEquippedItem(1).tier < 100000 && me.trueStr >= 106 && me.expansion)},
-		{name: sdk.items.Belt, condition: (me.normal && (Item.getEquippedItem(1).tier > 100000 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(4).tier > 100000 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(4).tier > 100000 || me.classic))},
-	].filter(function (item) { return !!item.condition; });
+		{name: sdk.items.AvengerGuard, condition: () => (me.normal && me.expansion)},
+		{name: sdk.items.SlayerGuard, condition: () => (!me.normal && me.trueStr >= 118 && me.expansion)},
+		{name: sdk.items.CarnageHelm, condition: () => (Item.getEquippedItem(1).tier < 100000 && me.trueStr >= 106 && me.expansion)},
+		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(1).tier > 100000 || me.classic))},
+		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(4).tier > 100000 || me.classic))},
+		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(4).tier > 100000 || me.classic))},
+	].filter((item) => item.condition());
 
-	let imbueArr = (function () {
-		let temp = [];
-		for (let imbueItem of Config.imbueables) {
-			try {
-				if (imbueItem.condition) {
-					temp.push("[name] == " + imbueItem.name + " && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1");
-				}
-			} catch (e) {
-				print(e);
-			}
-		}
-		return temp;
-	})();
+	let imbueArr = SetUp.imbueItems();
 
 	!me.smith && NTIP.arrayLooping(imbueArr);
 
@@ -259,20 +247,20 @@ function LoadConfig () {
 		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.all);
 		Config.socketables
-				.push(
-					{
-						classid: sdk.items.Flamberge,
-						socketWith: [],
-						useSocketQuest: true,
-						condition: function (item) { return me.normal && Item.getEquippedItem(5).tier < 600 && !Check.haveBase("sword", 5) && !Check.haveItem("sword", "runeword", "Honor") && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
-					},
-					{
-						classid: sdk.items.Zweihander,
-						socketWith: [],
-						useSocketQuest: true,
-						condition: function (item) { return Item.getEquippedItem(5).tier < 1000 && !Check.haveBase("sword", 5) && !Check.haveItem("sword", "runeword", "Honor") && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
-					}
-				);
+			.push(
+				{
+					classid: sdk.items.Flamberge,
+					socketWith: [],
+					useSocketQuest: true,
+					condition: function (item) { return me.normal && Item.getEquippedItem(5).tier < 600 && !Check.haveBase("sword", 5) && !Check.haveItem("sword", "runeword", "Honor") && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+				},
+				{
+					classid: sdk.items.Zweihander,
+					socketWith: [],
+					useSocketQuest: true,
+					condition: function (item) { return Item.getEquippedItem(5).tier < 1000 && !Check.haveBase("sword", 5) && !Check.haveItem("sword", "runeword", "Honor") && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+				}
+			);
 
 		if (SetUp.finalBuild !== "Immortalwhirl") {
 			Config.socketables
@@ -285,7 +273,7 @@ function LoadConfig () {
 						condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
 					}
 				);
-		} 
+		}
 
 		if (["Immortalwhirl", "Singer"].indexOf(SetUp.finalBuild) === -1) {
 			// Grief

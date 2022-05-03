@@ -199,15 +199,15 @@ Skill.cast = function (skillId, hand, x, y, item) {
 		switch (typeof x) {
 		case "number":
 			Packet.castSkill(hand, x, y);
-			delay(250);
 
 			break;
 		case "object":
 			Packet.unitCast(hand, x);
-			delay(250);
 
 			break;
 		}
+		// make sure we give enough time back so we don't fail our next cast
+		delay(1 + seconds(me.castingDuration(skillId)));
 	} else {
 		switch (hand) {
 		case 0: // Right hand + No Shift
@@ -315,15 +315,15 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 		switch (typeof settings.x) {
 		case "number":
 			Packet.castSkill(settings.hand, settings.x, settings.y);
-			delay(250);
 
 			break;
 		case "object":
 			Packet.unitCast(settings.hand, settings.x);
-			delay(250);
 
 			break;
 		}
+		// make sure we give enough time back so we don't fail our next cast
+		delay(1 + seconds(me.castingDuration(skillId)));
 	} else {
 		let clickType, shift;
 

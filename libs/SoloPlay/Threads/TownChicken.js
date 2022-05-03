@@ -28,13 +28,14 @@ include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
 include("SoloPlay/Functions/Globals.js");
 
+SetUp.include();
+
 function main() {
 	let townCheck = false;
-	print("ÿc8Kolbot-SoloPlayÿc0: Start TownChicken thread");
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Start TownChicken thread");
 
 	// Init config and attacks
 	D2Bot.init();
-	SetUp.include();
 	Config.init();
 	Pickit.init();
 	Attack.init();
@@ -182,54 +183,50 @@ function main() {
 
 	while (true) {
 		if (!me.inTown && (townCheck
-			// should TownHP/MP check be in toolsthread?
-			// We would then be able to remove all game interaction checks until we get a townCheck msg
-			|| ((Config.TownHP > 0 && me.hpPercent < Config.TownHP) || (Config.TownMP > 0 && me.mpPercent < Config.TownMP)))) {
-			// canTpToTown should maybe be overrided here to quit if we can't tp to town but isn't just because we are in non-tp-able area
-			if (!Town.canTpToTown()) {
-				townCheck = false;
-
-				continue;
-			}
-			this.togglePause();
-
-			while (!me.gameReady) {
-				if (me.dead) return false;
-				delay(100);
-			}
-
-			if (me.dead) return false;
-
-			try {
-				myPrint("ÿc8TownChicken :: ÿc0Going to town");
-				Attack.stopClear = true;
-				SoloEvents.townChicken = true;
-				
-				// determine if this is really worth it
-				if (useHowl || useTerror) {
-					if ([156, 211, 242, 243, 544, 571, 345].indexOf(this.getNearestMonster()) === -1) {
-						if (useHowl && Skill.getManaCost(130) < me.mp) {
-							Skill.cast(130, 0);
-						}
-
-						if (useTerror && Skill.getManaCost(77) < me.mp) {
-							Skill.cast(77, 0, Attack.getNearestMonster({skipImmune: false}));
-						}
-					}
-				}
-				
-				Town.visitTown();
-			} catch (e) {
-				Misc.errorReport(e, "TownChicken.js");
-				scriptBroadcast("quit");
-
-				return false;
-			} finally {
+			|| ((Config.TownHP > 0 && me.hpPercent < Config.TownHP)
+			|| (Config.TownMP > 0 && me.mpPercent < Config.TownMP)))) {
+			// should we exit if we can't tp to town?
+			if (Town.canTpToTown()) {
 				this.togglePause();
 
-				Attack.stopClear = false;
-				SoloEvents.townChicken = false;
-				townCheck = false;
+				while (!me.gameReady) {
+					if (me.dead) return false;
+					delay(100);
+				}
+
+				if (me.dead) return false;
+
+				try {
+					myPrint("ÿc8TownChicken :: ÿc0Going to town");
+					Attack.stopClear = true;
+					SoloEvents.townChicken = true;
+					
+					// determine if this is really worth it
+					if (useHowl || useTerror) {
+						if ([156, 211, 242, 243, 544, 571, 345].indexOf(this.getNearestMonster()) === -1) {
+							if (useHowl && Skill.getManaCost(130) < me.mp) {
+								Skill.cast(130, 0);
+							}
+
+							if (useTerror && Skill.getManaCost(77) < me.mp) {
+								Skill.cast(77, 0, Attack.getNearestMonster({skipImmune: false}));
+							}
+						}
+					}
+					
+					Town.visitTown();
+				} catch (e) {
+					Misc.errorReport(e, "TownChicken.js");
+					scriptBroadcast("quit");
+
+					return false;
+				} finally {
+					this.togglePause();
+
+					Attack.stopClear = false;
+					SoloEvents.townChicken = false;
+					townCheck = false;
+				}
 			}
 		}
 

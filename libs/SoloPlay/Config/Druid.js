@@ -17,8 +17,8 @@
 */
 
 function LoadConfig () {
-	if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
-	if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+	!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
+	!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 
 	SetUp.include();
 
@@ -198,7 +198,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal ? true : false;
 	Config.ClearType = 0;
-	Config.ClearPath = { Range: 30, Spectype: 0xF };
+	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0xF};
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];
@@ -241,27 +241,15 @@ function LoadConfig () {
 	!!finalGear && NTIP.arrayLooping(finalGear);
 
 	Config.imbueables = [
-		{name: sdk.items.SpiritMask, condition: (me.normal)},
-		{name: sdk.items.TotemicMask, condition: (!me.normal && Item.getEquippedItem(1).tier < 100000 && (me.charlvl < 66 || me.trueStr < 118))},
-		{name: sdk.items.DreamSpirit, condition: (Item.getEquippedItem(1).tier < 100000 && me.trueStr >= 118)},
-		{name: sdk.items.Belt, condition: (me.normal && (Item.getEquippedItem(1).tier > 100000))},
-		{name: sdk.items.MeshBelt, condition: (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(1).tier > 100000))},
-		{name: sdk.items.SpiderwebSash, condition: (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(1).tier > 100000))},
-	].filter(function (item) { return !!item.condition; });
+		{name: sdk.items.SpiritMask, condition: () => (me.normal)},
+		{name: sdk.items.TotemicMask, condition: () => (!me.normal && Item.getEquippedItem(1).tier < 100000 && (me.charlvl < 66 || me.trueStr < 118))},
+		{name: sdk.items.DreamSpirit, condition: () => (Item.getEquippedItem(1).tier < 100000 && me.trueStr >= 118)},
+		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(1).tier > 100000))},
+		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(1).tier > 100000))},
+		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(1).tier > 100000))},
+	].filter((item) => item.condition());
 
-	let imbueArr = (function () {
-		let temp = [];
-		for (let imbueItem of Config.imbueables) {
-			try {
-				if (imbueItem.condition) {
-					temp.push("[name] == " + imbueItem.name + " && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1");
-				}
-			} catch (e) {
-				print(e);
-			}
-		}
-		return temp;
-	})();
+	let imbueArr = SetUp.imbueItems();
 
 	!me.smith && NTIP.arrayLooping(imbueArr);
 
@@ -269,28 +257,28 @@ function LoadConfig () {
 	// basicSocketables located in Globals
 	Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
 	Config.socketables
-			.push(
-				{
-					classid: sdk.items.Monarch,
-					socketWith: [],
-					useSocketQuest: true,
-					condition: function (item) { return !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
-				},
-				{
-					classid: sdk.items.TotemicMask,
-					socketWith: [sdk.items.runes.Um],
-					temp: [sdk.items.gems.Perfect.Ruby],
-					useSocketQuest: true,
-					condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
-				},
-				{
-					classid: sdk.items.Shako,
-					socketWith: [sdk.items.runes.Um],
-					temp: [sdk.items.gems.Perfect.Ruby],
-					useSocketQuest: false,
-					condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
-				}
-			);
+		.push(
+			{
+				classid: sdk.items.Monarch,
+				socketWith: [],
+				useSocketQuest: true,
+				condition: function (item) { return !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+			},
+			{
+				classid: sdk.items.TotemicMask,
+				socketWith: [sdk.items.runes.Um],
+				temp: [sdk.items.gems.Perfect.Ruby],
+				useSocketQuest: true,
+				condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+			},
+			{
+				classid: sdk.items.Shako,
+				socketWith: [sdk.items.runes.Um],
+				temp: [sdk.items.gems.Perfect.Ruby],
+				useSocketQuest: false,
+				condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+			}
+		);
 
 	if (Check.haveItem("dontcare", "runeword", "Call to Arms")) {
 		// Spirit on swap
@@ -377,7 +365,7 @@ function LoadConfig () {
 
 	Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
 	Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
-	Check.itemSockables(sdk.items.TotemicMask, "unique", "Jalal's Mane")
+	Check.itemSockables(sdk.items.TotemicMask, "unique", "Jalal's Mane");
 
 	// Spirit Sword
 	if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(4).tier < 777) {

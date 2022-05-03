@@ -916,20 +916,15 @@ Town.buyMercPots = function (quantity, type) {
 };
 
 Town.canStash = function (item) {
-	let ignoredClassids = [91, 174]; // Some quest items that have to be in inventory or equipped
-
-	if (this.ignoredItemTypes.includes(item.itemType) || ignoredClassids.includes(item.classid) ||
-		([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid) && Item.autoEquipCharmCheck(item))) {
+	if (this.ignoredItemTypes.includes(item.itemType)
+		|| [sdk.items.quest.HoradricStaff, sdk.items.quest.KhalimsWill].includes(item.classid)
+		|| ([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid) && Item.autoEquipCharmCheck(item))) {
 		return false;
 	}
 
-	if (!Storage.Stash.CanFit(item)) {
-		this.sortStash(true);	// Force sort
-		// Re-check after sorting
-		if (!Storage.Stash.CanFit(item)) return false;
-	}
+	!Storage.Stash.CanFit(item) && this.sortStash(true);
 
-	return true;
+	return Storage.Stash.CanFit(item);
 };
 
 Town.stash = function (stashGold = true) {
@@ -985,7 +980,6 @@ Town.sortInventory = function () {
 	return true;
 };
 
-// Thank you Yame for testing
 Town.sortStash = function (force = false) {
 	if (Storage.Stash.UsedSpacePercent() < 50 && !force) return true;
 	Storage.Stash.SortItems();
@@ -1045,27 +1039,30 @@ Town.clearInventory = function () {
 	console.debug("clearInventory: start clean-up remaining pots");
 	let sellOrDrop = [];
 	potsInInventory = me.getItemsEx()
-		.filter((p) => p.isInInventory && [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion].includes(p.itemType));
+		.filter((p) => p.isInInventory && [
+			sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion,
+			sdk.itemtype.ThawingPotion, sdk.itemtype.AntidotePotion, sdk.itemtype.StaminaPotion
+		].includes(p.itemType));
 
 	if (potsInInventory.length > 0) {
-		let hp = [], mp = [], rv = [];
+		let hp = [], mp = [], rv = [], specials = [];
 		potsInInventory.forEach(function (p) {
-			if (!p || p === undefined) return;
+			if (!p || p === undefined) return false;
 
 			switch (p.itemType) {
 			case sdk.itemtype.HealingPotion:
-				hp.push(copyUnit(p));
-
-				break;
+				return (hp.push(copyUnit(p)));
 			case sdk.itemtype.ManaPotion:
-				mp.push(copyUnit(p));
-
-				break;
+				return (mp.push(copyUnit(p)));
 			case sdk.itemtype.RejuvPotion:
-				rv.push(copyUnit(p));
-
-				break;
+				return (rv.push(copyUnit(p)));
+			case sdk.itemtype.ThawingPotion:
+			case sdk.itemtype.AntidotePotion:
+			case sdk.itemtype.StaminaPotion:
+				return (specials.push(copyUnit(p)));
 			}
+
+			return false;
 		});
 
 		// Cleanup healing potions
@@ -1081,6 +1078,12 @@ Town.clearInventory = function () {
 		// Cleanup rejuv potions
 		while (rv.length > Config.RejuvBuffer) {
 			sellOrDrop.push(rv.shift());
+		}
+
+		// Clean up special pots
+		while (specials.length) {
+			specials.shift().interact();
+			delay(200);
 		}
 	}
 

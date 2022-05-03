@@ -17,8 +17,8 @@
 */
 
 function LoadConfig () {
-	if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
-	if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+	!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
+	!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 
 	SetUp.include();
 
@@ -53,7 +53,7 @@ function LoadConfig () {
 	Config.PacketCasting = 1;
 	Config.WaypointMenu = true;
 	Config.Cubing = !!me.getItem(sdk.items.quest.Cube);
-	Config.MakeRunewords = true
+	Config.MakeRunewords = true;
 
 	/* General logging. */
 	Config.ItemInfo = false;
@@ -192,7 +192,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal ? true : false;
 	Config.ClearType = 0;
-	Config.ClearPath = { Range: 30, Spectype: 0xF};
+	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0xF};
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];
@@ -232,27 +232,15 @@ function LoadConfig () {
 
 	// Maybe add auric shield?
 	Config.imbueables = [
-		{name: sdk.items.WarScepter, condition: (me.normal)},
-		{name: sdk.items.DivineScepter, condition: (!me.normal && (me.trueStr < 125 || me.trueDex < 60))},
-		{name: sdk.items.MightyScepter, condition: (Item.getEquippedItem(4).tier < 777 && (me.trueStr >= 125 || me.trueDex >= 60))},
-		{name: sdk.items.Belt, condition: (me.normal && (Item.getEquippedItem(4).tier > 777 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
-	].filter(function (item) { return !!item.condition; });
+		{name: sdk.items.WarScepter, condition: () => me.normal},
+		{name: sdk.items.DivineScepter, condition: () => (!me.normal && (me.trueStr < 125 || me.trueDex < 60))},
+		{name: sdk.items.MightyScepter, condition: () => (Item.getEquippedItem(4).tier < 777 && (me.trueStr >= 125 || me.trueDex >= 60))},
+		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(4).tier > 777 || me.classic))},
+		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
+		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
+	].filter((item) => item.condition());
 
-	let imbueArr = (function () {
-		let temp = [];
-		for (let imbueItem of Config.imbueables) {
-			try {
-				if (imbueItem.condition) {
-					temp.push("[name] == " + imbueItem.name + " && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1");
-				}
-			} catch (e) {
-				print(e);
-			}
-		}
-		return temp;
-	})();
+	let imbueArr = SetUp.imbueItems();
 
 	!me.smith && NTIP.arrayLooping(imbueArr);
 
@@ -273,15 +261,15 @@ function LoadConfig () {
 		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
 		Config.socketables
-				.push(
-					{
-						classid: sdk.items.Shako,
-						socketWith: [sdk.items.runes.Um],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: true,
-						condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
-					}
-				);
+			.push(
+				{
+					classid: sdk.items.Shako,
+					socketWith: [sdk.items.runes.Um],
+					temp: [sdk.items.gems.Perfect.Ruby],
+					useSocketQuest: true,
+					condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+				}
+			);
 
 		/* Crafting */
 		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
@@ -622,6 +610,6 @@ function LoadConfig () {
 
 		SoloWants.buildList();
 
-		break;	
+		break;
 	}
 }

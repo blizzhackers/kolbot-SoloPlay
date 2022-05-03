@@ -304,6 +304,20 @@ const SetUp = {
 			Config.MinColumn[index] = col.toLowerCase() !== "rv" ? beltSlots : 0;
 		});
 	},
+
+	imbueItems: function () {
+		let temp = [];
+		for (let imbueItem of Config.imbueables) {
+			try {
+				if (imbueItem.condition()) {
+					temp.push("[name] == " + imbueItem.name + " && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1");
+				}
+			} catch (e) {
+				print(e);
+			}
+		}
+		return temp;
+	},
 };
 
 Object.defineProperties(SetUp, {
@@ -447,12 +461,14 @@ const basicSocketables = {
 const goToDifficulty = function (diff = undefined, reason = "") {
 	try {
 		if (!diff) throw new Error("diff is undefined");
+		
 		let diffString;
 		switch (typeof diff) {
 		case "string":
-			diff = diff[0].toUpperCase() + diff.substring(1).toLowerCase();
-			if (!sdk.difficulty.Difficulties.includes(diff) || sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw new Error("difficulty doesn't exist" + diff);
-			if (!sdk.difficulty.Difficulties.includes(diff) || sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw new Error("already in this difficulty" + diff);
+			diff = diff.capitalize(true);
+
+			if (!sdk.difficulty.Difficulties.includes(diff)) throw new Error("difficulty doesn't exist" + diff);
+			if (sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw new Error("already in this difficulty" + diff);
 			diffString = diff;
 
 			break;
@@ -461,10 +477,12 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 			diffString = sdk.difficulty.nameOf(diff);
 
 			break;
+		default:
+			throw new Error("?");
 		}
 
 		D2Bot.setProfile(null, null, null, diffString);
-		CharData.updateStats("me", "setDifficulty", diffString);
+		CharData.updateData("me", "setDifficulty", diffString);
 		myPrint("Going to " + diffString + reason, true);
 		D2Bot.restart();
 	} catch (e) {
@@ -664,7 +682,8 @@ const Check = {
 			break;
 		case "travincal":
 			if (!Pather.accessToAct(3)) return false;
-			if (!me.travincal || me.charlvl < 25 || (me.charlvl >= 25 && me.normal && !me.baal && !Check.gold())
+			if (!me.travincal
+				|| (me.charlvl < 25 || (me.charlvl >= 25 && me.normal && !me.baal && !Check.gold()))
 				|| (me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer"))
 				|| (me.hell && me.paladin && me.charlvl > 85 && (!Attack.auradin || !Check.haveItem("armor", "runeword", "Enigma")))) {
 				return true;

@@ -16,8 +16,8 @@
 */
 
 function LoadConfig () {
-	if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
-	if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+	!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
+	!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 
 	SetUp.include();
 
@@ -193,7 +193,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal ? true : false;
 	Config.ClearType = 0;
-	Config.ClearPath = { Range: 30, Spectype: 0xF};
+	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 20), Spectype: 0xF};
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];
@@ -247,27 +247,15 @@ function LoadConfig () {
 	!!finalGear && NTIP.arrayLooping(finalGear);
 
 	Config.imbueables = [
-		{name: sdk.items.DemonHead, condition: (me.normal && me.expansion)},
-		{name: sdk.items.HierophantTrophy, condition: (!me.normal && (me.charlvl < 66 || me.trueStr < 106) && me.expansion)},
-		{name: sdk.items.BloodlordSkull, condition: (Item.getEquippedItem(5).tier < 1000 && me.expansion)},
-		{name: sdk.items.Belt, condition: (me.normal && (Item.getEquippedItem(5).tier > 1000 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(5).tier > 1000 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(5).tier > 1000 || me.classic))},
-	].filter(function (item) { return !!item.condition; });
+		{name: sdk.items.DemonHead, condition: () => (me.normal && me.expansion)},
+		{name: sdk.items.HierophantTrophy, condition: () => (!me.normal && (me.charlvl < 66 || me.trueStr < 106) && me.expansion)},
+		{name: sdk.items.BloodlordSkull, condition: () => (Item.getEquippedItem(5).tier < 1000 && me.expansion)},
+		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(5).tier > 1000 || me.classic))},
+		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(5).tier > 1000 || me.classic))},
+		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(5).tier > 1000 || me.classic))},
+	].filter((item) => item.condition());
 
-	let imbueArr = (function () {
-		let temp = [];
-		for (let imbueItem of Config.imbueables) {
-			try {
-				if (imbueItem.condition) {
-					temp.push("[name] == " + imbueItem.name + " && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1");
-				}
-			} catch (e) {
-				print(e);
-			}
-		}
-		return temp;
-	})();
+	let imbueArr = SetUp.imbueItems();
 
 	!me.smith && NTIP.arrayLooping(imbueArr);
 
@@ -288,21 +276,21 @@ function LoadConfig () {
 		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
 		Config.socketables
-				.push(
-					{
-						classid: sdk.items.Monarch,
-						socketWith: [],
-						useSocketQuest: true,
-						condition: function (item) { return !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
-					},
-					{
-						classid: sdk.items.Shako,
-						socketWith: [sdk.items.runes.Um],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: true,
-						condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
-					}
-				);
+			.push(
+				{
+					classid: sdk.items.Monarch,
+					socketWith: [],
+					useSocketQuest: true,
+					condition: function (item) { return !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+				},
+				{
+					classid: sdk.items.Shako,
+					socketWith: [sdk.items.runes.Um],
+					temp: [sdk.items.gems.Perfect.Ruby],
+					useSocketQuest: true,
+					condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+				}
+			);
 
 		/* Crafting */
 		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
@@ -426,6 +414,6 @@ function LoadConfig () {
 
 		SoloWants.buildList();
 
-		break;	
+		break;
 	}
 }
