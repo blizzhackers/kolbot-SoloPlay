@@ -420,6 +420,7 @@ function locationAction (location) {
 			// make battlenet accounts/characters
 			if (battlenet) {
 				ControlAction.timeoutDelay("Login Delay", Starter.Config.DelayBeforeLogin * 1e3);
+				D2Bot.updateStatus("Logging in");
 				// existing account
 				if (Starter.profileInfo.account !== "") {
 					try {
@@ -527,23 +528,23 @@ function locationAction (location) {
 			}
 
 			switch (string) {
-			case getLocaleString(5232): // illegal characters
-			case getLocaleString(5233): // disallowed words
+			case getLocaleString(sdk.locale.text.UsenameIncludedIllegalChars):
+			case getLocaleString(sdk.locale.text.UsenameIncludedDisallowedwords):
+			case getLocaleString(sdk.locale.text.UsernameMustBeAtLeast):
+			case getLocaleString(sdk.locale.text.PasswordMustBeAtLeast):
+			case getLocaleString(sdk.locale.text.AccountMustBeAtLeast):
+			case getLocaleString(sdk.locale.text.PasswordCantBeMoreThan):
+			case getLocaleString(sdk.locale.text.AccountCantBeMoreThan):
+				D2Bot.printToConsole(string);
 				D2Bot.stop();
 
 				break;
-			case getLocaleString(5207):
+			case getLocaleString(sdk.locale.text.InvalidPassword):
 				D2Bot.updateStatus("Invalid Password");
 				D2Bot.printToConsole("Invalid Password");
 				ControlAction.timeoutDelay("Invalid password delay", Starter.Config.InvalidPasswordDelay * 6e4);
 				D2Bot.printToConsole("Invalid Password - Restart");
 				D2Bot.restart();
-
-				break;
-			case getLocaleString(5219): // password must be 2 characters
-				D2Bot.updateStatus("Password must be 2 characters");
-				D2Bot.printToConsole("Password must be 2 characters");
-				D2Bot.stop();
 
 				break;
 			case getLocaleString(5208): // Invalid account
@@ -697,7 +698,8 @@ function locationAction (location) {
 
 		if (Object.keys(Starter.profileInfo).length) {
 			if (!ControlAction.findCharacter(Starter.profileInfo)) {
-				if (Starter.profileInfo.charName === DataFile.getObj().name) {
+				if (Starter.profileInfo.charName === DataFile.getObj().name
+					&& getLocation() !== sdk.game.locations.CharSelectNoChars) {
 					ControlAction.timeoutDelay("[R/D] Character not found ", 18e4);
 					D2Bot.printToConsole("Avoid Creating New Character - Restart");
 					D2Bot.restart();

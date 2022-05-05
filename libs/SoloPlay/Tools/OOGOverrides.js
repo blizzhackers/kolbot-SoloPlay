@@ -110,17 +110,13 @@ ControlAction.makeCharacter = function (info) {
 			break;
 		case sdk.game.locations.OkCenteredErrorPopUp:
 			// char name exists (text box 4, 268, 320, 264, 120)
-			D2Bot.updateStatus("Character Name exists. Making new Name");
-			D2Bot.printToConsole("Character Name exists. Making new Name");
+			ControlAction.timeoutDelay("Character Name exists: " + info.charName + ". Making new Name.", 5e3);
 			info.charName = NameGen();
 			D2Bot.setProfile(null, null, info.charName, "Normal");
 			delay(500);
 			Controls.OkCentered.click();
-			Controls.CharSelectExit.click();
 
-			me.blockMouse = false;
-
-			return false;
+			break;
 		default:
 			break;
 		}

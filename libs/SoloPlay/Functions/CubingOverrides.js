@@ -626,7 +626,7 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index >= Recipe.HitPower.Helm && recipe.Index <= Recipe.Safety.Weapon) {
-		if ([Recipe.Caster.Amulet, Recipe.Caster.Blood].includes(recipe.Index) && Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) < recipe.Level) {
+		if (Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) < recipe.Level) {
 			if (me.charlvl < 50) {
 				// set it equal to ilvl 31 where 60% chance of 2 affixes and 20% chance each of 3 or 4 affixes 
 				recipe.Level = 31;
