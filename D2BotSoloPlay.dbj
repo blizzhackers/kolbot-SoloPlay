@@ -435,6 +435,12 @@ function locationAction (location) {
 									break;
 								}
 
+								if (getLocation() === sdk.game.locations.CharSelectConnecting) {
+									if (Starter.charSelectConnecting()) {
+										break;
+									}
+								}
+
 								ControlAction.timeoutDelay("Unable to Connect", Starter.Config.UnableToConnectDelay * 6e4);
 								Starter.profileInfo.account = DataFile.getStats().AcctName;
 								Starter.profileInfo.password = DataFile.getStats().AcctPswd;
@@ -445,7 +451,7 @@ function locationAction (location) {
 					// new account
 					if (Starter.profileInfo.account === "") {
 						if (Starter.Config.GlobalAccount || Starter.Config.GlobalAccountPassword) {
-							Starter.profileInfo.account = Starter.Config.GlobalAccount.length > 0 ? Starter.Config.GlobalAccount + randomNumberGen(Starter.Config.AccountSuffixLength) : Starter.randomString(12, true);
+							Starter.profileInfo.account = Starter.Config.GlobalAccount.length > 0 ? Starter.Config.GlobalAccount + Starter.randomNumberString(Starter.Config.AccountSuffixLength) : Starter.randomString(12, true);
 							Starter.profileInfo.password = Starter.Config.GlobalAccountPassword.length > 0 ? Starter.Config.GlobalAccountPassword : Starter.randomString(12, true);
 
 							if (Starter.profileInfo.account.length > 15) {

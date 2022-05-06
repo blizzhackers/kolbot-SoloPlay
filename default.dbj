@@ -157,7 +157,7 @@ function main () {
 		delay(1000);
 	} else {
 		load("tools/ToolsThread.js");
-		(Config.TownCheck || Config.TownHP || Config.TownMP) && load("tools/TownChicken.js");
+		(Config.TownCheck || Config.TownHP > 0 || Config.TownMP > 0) && load("tools/TownChicken.js");
 
 		if (Config.DebugMode) {
 			require('libs/modules/Guard');
@@ -185,6 +185,7 @@ function main () {
 		Config.ClearInvOnStart && Town.clearInventory();
 		[orgx, orgy].distance > 3 && Pather.moveTo(orgx, orgx);
 		Pickit.pickItems();
+		me.hpPercent <= 10 && Town.heal() && me.cancelUIFlags();
 		Pather.init(); // initialize wp data
 
 		if (Config.DebugMode) {

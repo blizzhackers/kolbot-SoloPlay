@@ -146,7 +146,12 @@ ControlAction.findCharacter = function (info) {
 		delay(25);
 	}
 
-	getLocation() === sdk.game.locations.CharSelectConnecting && D2Bot.restart();
+	if (getLocation() === sdk.game.locations.CharSelectConnecting) {
+		if (!Starter.charSelectConnecting()) {
+			D2Bot.printToConsole("Stuck at connecting screen");
+			D2Bot.restart();
+		}
+	}
 
 	// start from beginning of the char list
 	sendKey(0x24);
@@ -350,5 +355,34 @@ ControlAction.saveInfo = function (info) {
 
 	if (!FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName + ".json")) {
 		FileTools.writeText("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName + ".json", JSON.stringify(info));
+	}
+};
+
+Starter.randomNumberString = function (len) {
+	len === undefined && (len = rand(2, 5));
+
+	let rval = "",
+		vals = "0123456789";
+
+	for (let i = 0; i < len; i += 1) {
+		rval += vals[rand(0, vals.length - 1)];
+	}
+
+	return rval;
+};
+
+Starter.charSelectConnecting = function () {
+	if (getLocation() === sdk.game.locations.CharSelectConnecting) {
+		// bugged? lets see if we can unbug it
+		// Click create char button on infinite "connecting" screen
+		Controls.CharSelectCreate.click();
+		delay(1000);
+		
+		Controls.CharSelectExit.click();
+		delay(1000);
+
+		return (getLocation() !== sdk.game.locations.CharSelectConnecting);
+	} else {
+		return true;
 	}
 };
