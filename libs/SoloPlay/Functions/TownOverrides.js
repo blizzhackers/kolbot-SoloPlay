@@ -1019,17 +1019,13 @@ Town.clearInventory = function () {
 				console.log("Checking Config.BeltColumn[" + i + "], wanted [" + Config.BeltColumn[i] + "], currentPotToCheck :: " + p.code);
 				// Pick up the potion and put it in belt if the column is empty, and we don't have any other columns empty
 				// prevents shift-clicking potion into wrong column
-				// write this to use packets by default
 				if (freeSpace[i] === beltSize || freeSpace.some((spot) => spot === beltSize)) {
-					p.toCursor() && Misc.poll(() => me.itemoncursor, 1000, 100) && clickItem(sdk.clicktypes.click.Left, i, Math.max(0, (beltSize - freeSpace[i])), sdk.storage.Belt);
+					p.toCursor(true) && new PacketBuilder().byte(0x23).dword(p.gid).dword(Math.max(0, (beltSize - freeSpace[i]))).send();
 				} else {
 					clickItemAndWait(sdk.clicktypes.click.ShiftLeft, p.x, p.y, p.location);
 				}
-				Misc.poll(() => !me.itemoncursor, 250 + me.ping, 80);
+				Misc.poll(() => !me.itemoncursor, 300, 30);
 				moved = Town.checkColumns(beltSize)[i] === freeSpace[i] - 1;
-				console.log("Old freeSpace: ", freeSpace);
-				console.log("New freeSpace: ", Town.checkColumns(beltSize));
-				console.log(p.code + " moved ? " + moved);
 			}
 			Cubing.cursorCheck();
 		}
@@ -1137,7 +1133,7 @@ Town.clearInventory = function () {
 
 // TODO: clean this up (sigh)
 Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
-	let equippedItem = {}, bodyLoc = [], check;
+	let equippedItem = {}, check;
 	let itemsResists, baseResists, itemsMinDmg, itemsMaxDmg, itemsTotalDmg, baseDmg, ED, itemsDefense, baseDefense;
 	let baseSkillsTier, equippedSkillsTier;
 	let result = true, preSocketCheck = false;
@@ -1160,15 +1156,13 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 		return skillsRating;
 	};
 
-	if (!base) return false;
+	if (!base || !base.isBaseType) return false;
 
-	// Not a runeword base
-	if (base.quality > sdk.itemquality.Superior) return false;
+	let bodyLoc = Item.getBodyLoc(base);
 
-	bodyLoc = Item.getBodyLoc(base);
-
+	// Can't use so its worse then what we already have
 	if ((me.getStat(0) < base.strreq || me.getStat(2) < base.dexreq)) {
-		return false; // Can't use so its worse then what we already have
+		return false;
 	}
 
 	let item = me.getItem();
@@ -2076,7 +2070,7 @@ Town.clearJunk = function () {
 Town.npcInteract = function (name, cancel = true) {
 	let npc;
 
-	!name.includes("_") && (name = name[0].toUpperCase() + name.substring(1).toLowerCase());
+	!name.includes("_") && (name = name.capitalize(true));
 	name.includes("_") && (name = "Qual_Kehk");
 
 	!me.inTown && Town.goToTown();

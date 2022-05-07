@@ -238,7 +238,7 @@ function LoadConfig () {
 	!!finalGear && NTIP.arrayLooping(finalGear);
 
 	Config.imbueables = [
-		{name: sdk.items.Claws, condition: (me.normal)},
+		{name: sdk.items.Claws, condition: () => (me.normal)},
 		{name: sdk.items.HandScythe, condition: () => (!me.normal && Item.getEquippedItem(4).tier < 777 && (me.trueStr < 79 || me.trueDex < 79))},
 		{name: sdk.items.GreaterTalons, condition: () => (Item.getEquippedItem(4).tier < 777 && me.trueStr >= 79 && me.trueDex >= 79)},
 		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(4).tier > 777))},

@@ -358,6 +358,92 @@ ControlAction.saveInfo = function (info) {
 	}
 };
 
+ControlAction.loginAccount = function (info) {
+	me.blockMouse = true;
+
+	let locTick,
+		realms = {
+			"uswest": 0,
+			"useast": 1,
+			"asia": 2,
+			"europe": 3
+		};
+
+	let tick = getTickCount();
+
+	MainLoop:
+	while (true) {
+		switch (getLocation()) {
+		case sdk.game.locations.PreSplash:
+			break;
+		case sdk.game.locations.MainMenu:
+			info.realm && ControlAction.clickRealm(realms[info.realm]);
+			Controls.BattleNet.click();
+
+			break;
+		case sdk.game.locations.Login:
+			Controls.LoginUsername.setText(info.account);
+			Controls.LoginPassword.setText(info.password);
+			Controls.Login.click();
+
+			break;
+		case sdk.game.locations.LoginUnableToConnect:
+		case sdk.game.locations.RealmDown:
+			// Unable to connect, let the caller handle it.
+			me.blockMouse = false;
+
+			return false;
+		case sdk.game.locations.CharSelect:
+			break MainLoop;
+		case sdk.game.locations.SplashScreen:
+			Controls.SplashScreen.click();
+
+			break;
+		case sdk.game.locations.CharSelectPleaseWait:
+		case sdk.game.locations.MainMenuConnecting:
+		case sdk.game.locations.CharSelectConnecting:
+			break;
+		case sdk.game.locations.CharSelectNoChars:
+			// make sure we're not on connecting screen
+			locTick = getTickCount();
+
+			while (getTickCount() - locTick < 3000 && getLocation() === sdk.game.locations.CharSelectNoChars) {
+				delay(25);
+			}
+
+			if (getLocation() === sdk.game.locations.CharSelectConnecting) {
+				break;
+			}
+
+			break MainLoop; // break if we're sure we're on empty char screen
+		case sdk.game.locations.Lobby:
+		case sdk.game.locations.LobbyChat:
+			// somehow we are in the lobby?
+			Control.LobbyQuit.click();
+			
+			break;
+		default:
+			print(getLocation());
+
+			me.blockMouse = false;
+
+			return false;
+		}
+
+		if (getTickCount() - tick >= 20000) {
+			return false;
+		}
+
+		delay(100);
+	}
+
+	delay(1000);
+
+	me.blockMouse = false;
+
+	return getLocation() === sdk.game.locations.CharSelect || getLocation() === sdk.game.locations.CharSelectNoChars;
+};
+
 Starter.randomNumberString = function (len) {
 	len === undefined && (len = rand(2, 5));
 
