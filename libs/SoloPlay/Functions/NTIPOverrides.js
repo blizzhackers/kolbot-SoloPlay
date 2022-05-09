@@ -4,8 +4,10 @@
 *	@desc		NTIPItemParser fixes to improve functionality and custom looping for performance
 */
 
-if (!isIncluded("NTItemParser.dbl")) { include("NTItemParser.dbl"); }
-if (!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js")) { include("SoloPlay/Functions/ProtoTypesOverrides.js"); }
+!isIncluded("NTItemParser.dbl") && include("NTItemParser.dbl");
+!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js") && include("SoloPlay/Functions/ProtoTypesOverrides.js");
+
+NTIPAliasStat["addfireskills"] = [126, 1];
 
 let NTIP_CheckListNoTier = [];
 

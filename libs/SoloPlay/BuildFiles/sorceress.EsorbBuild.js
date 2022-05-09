@@ -1,52 +1,57 @@
 /*
- *    @filename   	Sorceress.BlizzballerBuild.js
- *	  @author	  	isid0re, theBGuy
- *    @desc      	Sorceress blizzballer build for after respecOne
+ *    @filename   	Sorceress.EsorbBuild.js
+ *	  @author	  	theBGuy
+ *    @desc      	Sorceress Energy Shield Frozen Orb build
  */
 
 const finalBuild = {
 	caster: true,
-	skillstab: sdk.skills.tabs.Cold,
-	wantedskills: [sdk.skills.Blizzard, sdk.skills.FireBall, sdk.skills.ColdMastery],
-	usefulskills: [sdk.skills.GlacialSpike, sdk.skills.Meteor, sdk.skills.FireMastery, sdk.skills.StaticField],
+	skillstab: sdk.skills.tabs.Lightning,
+	wantedskills: [sdk.skills.FrozenOrb, sdk.skills.ColdMastery],
+	usefulskills: [sdk.skills.Telekinesis, sdk.skills.EnergyShield, sdk.skills.StaticField],
 	precastSkills: [sdk.skills.FrozenArmor],
-	usefulStats: [sdk.stats.PassiveColdPierce, sdk.stats.PassiveColdMastery, sdk.stats.PassiveFireMastery, sdk.stats.PassiveFirePierce],
 	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
 	mercAuraWanted: "Holy Freeze",
-	stats: [
-		["energy", 50], ["strength", 48], ["vitality", 165],
-		["strength", 61], ["vitality", 252], ["strength", 127],
-		["dexterity", "block"], ["vitality", "all"]
+	classicStats: [
+		["dexterity", 51], ["strength", 80], ["energy", 100], ["vitality", 125],
+		["energy", 150], ["vitality", 150], ["energy", "all"]
+	],
+	expansionStats: [
+		["strength", 48], ["vitality", 165], ["strength", 61],
+		["vitality", 252], ["strength", 127], ["dexterity", "block"], ["vitality", "all"]
 	],
 	skills: [
-		[sdk.skills.FireBolt, 1],
 		[sdk.skills.Warmth, 1],
 		[sdk.skills.FrozenArmor, 1],
-		[sdk.skills.IceBolt, 1],
-		[sdk.skills.IceBlast, 1],
 		[sdk.skills.StaticField, 1],
-		[sdk.skills.Telekinesis, 1],
-		[sdk.skills.Inferno, 1],
-		[sdk.skills.Blaze, 1],
-		[sdk.skills.FrostNova, 1],
-		[sdk.skills.FireBall, 7],
-		[sdk.skills.Teleport, 1],
-		[sdk.skills.GlacialSpike, 1],
-		[sdk.skills.FireWall, 1],
-		[sdk.skills.FireBall, 15],
-		[sdk.skills.Blizzard, 1],
-		[sdk.skills.Meteor, 1],
-		[sdk.skills.FireMastery, 1, false],
-		[sdk.skills.ColdMastery, 1, false],
-		[sdk.skills.FireBall, 20],
-		[sdk.skills.Blizzard, 20],
-		[sdk.skills.GlacialSpike, 20],
-		[sdk.skills.Meteor, 20],
-		[sdk.skills.ColdMastery, 5],
-		[sdk.skills.FireBolt, 20],
+		[sdk.skills.Teleport, 10],
+		[sdk.skills.EnergyShield, 8],
+		[sdk.skills.Telekinesis, 20],
+		[sdk.skills.FrozenOrb, 20],
+		[sdk.skills.ColdMastery, 17],
+		[sdk.skills.EnergyShield, 10],
+		[sdk.skills.StaticField, 20],
 	],
-	autoEquipTiers: [ // autoequip final gear
+	classicTiers: [
+		// Weapon
+		"[name] == blade && [quality] == unique # [fcr] == 20 && [allres] == 10 # [tier] == 100000", // Spectral Shard
+		// Helm
+		"[name] == skullcap && [quality] == unique # [itemallskills] == 1 && [itemmagicbonus] >= 25 # [tier] == 100000 + tierscore(item)", // Tarnhelm
+		// Shield
+		"[type] == shield && [quality] >= magic # [sorceressskills] == 2 && [allres] >= 16 # [tier] == 100000 + tierscore(item)",
+		// Rings
+		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", //soj
+		// Amulet
+		"[type] == amulet && [quality] >= magic # [sorceressskills] == 2 && [fcr] == 10 # [tier] == 100000 + tierscore(item)",
+		// Boots
+		"[type] == boots && [quality] >= magic # [frw] >= 20 && [fhr] == 10 && [coldresist]+[lightresist] >= 10 # [tier] == 100000 + tierscore(item)",
+		// Belt
+		"[type] == belt && [quality] >= magic # [fhr] >= 20 && [maxhp] >= 40 && [fireresist]+[lightresist] >= 20 # [tier] == 100000 + tierscore(item)",
+		// Gloves
+		"[name] == lightgauntlets && [quality] == unique # [fcr] >= 20 && [addfireskills] == 1 # [tier] == 100000 + tierscore(item)", // Magefist
+	],
+	expansionTiers: [
 		// Weapon
 		"[name] == swirlingcrystal && [quality] == set && [flag] != ethereal # [skilllightningmastery]+[skillfiremastery]+[skillcoldmastery] >= 3 # [tier] == 100000 + tierscore(item)", //tals orb
 		// Helmet
@@ -83,6 +88,8 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	],
+	stats: undefined,
+	autoEquipTiers: undefined,
 
 	respec: function () {
 		if (me.classic) {
@@ -92,8 +99,8 @@ const finalBuild = {
 				Check.haveItem("armor", "set", "Tal Rasha's Guardianship") && Check.haveItem("swirlingcrystal", "set", "Tal Rasha's Lidless Eye");
 		}
 	},
-
-	active: function () {
-		return this.respec && me.getSkill(sdk.skills.FireBall, 0) === 20 && me.getSkill(sdk.skills.Blizzard, 0) === 20;
-	},
 };
+
+// Has to be set after its loaded
+finalBuild.stats = me.classic ? finalBuild.classicStats : finalBuild.expansionStats;
+finalBuild.autoEquipTiers = me.classic ? finalBuild.classicTiers : finalBuild.expansionTiers;

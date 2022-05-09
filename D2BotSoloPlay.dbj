@@ -349,12 +349,6 @@ function locationAction (location) {
 
 		typeof Starter.Config.MaxPlayerCount === "number" && Controls.MaxPlayerCount.setText(Starter.Config.MaxPlayerCount.toString());
 
-		// Get game name if there is none
-		while (!Starter.gameInfo.gameName) {
-			D2Bot.requestGameInfo();
-			delay(500);
-		}
-
 		if (CharData.getStats().me.setDifficulty) {
 			Starter.gameInfo.difficulty = CharData.getStats().me.setDifficulty;
 
@@ -366,7 +360,18 @@ function locationAction (location) {
 		}
 
 		Starter.gameInfo.gameName = DataFile.getStats().gameName;
-		(Starter.gameInfo.gameName === "" || Starter.gameInfo.gameName === "Name") && (Starter.gameInfo.gameName = Starter.profileInfo.charName.substring(0, 7) + "-" + Starter.randomString(3, false) + "-");
+
+		switch (true) {
+		case Starter.gameInfo.gameName === "":
+		case Starter.gameInfo.gameName === "Name":
+			Starter.gameInfo.gameName = Starter.profileInfo.charName.substring(0, 7) + "-" + Starter.randomString(3, false) + "-";
+
+			break;
+		case Starter.gameInfo.gamePass === "Password":
+			Starter.gameInfo.gamePass = Starter.randomString(null, true);
+
+			break;
+		}
 
 		// FTJ handler
 		if (Starter.lastGameStatus === "pending") {
@@ -377,7 +382,7 @@ function locationAction (location) {
 			D2Bot.updateRuns();
 		}
 
-		ControlAction.createGame((Starter.gameInfo.gameName + Starter.gameCount), (Starter.gameInfo.gamePass === "Password" ? Starter.randomString(null, true) : Starter.gameInfo.gamePass), Starter.gameInfo.difficulty, Starter.Config.CreateGameDelay * 1000);
+		ControlAction.createGame((Starter.gameInfo.gameName + Starter.gameCount), Starter.gameInfo.gamePass, Starter.gameInfo.difficulty, Starter.Config.CreateGameDelay * 1000);
 		Starter.lastGameStatus = "pending";
 		Starter.setNextGame(Starter.gameInfo);
 		Starter.locationTimeout(10000, location);
