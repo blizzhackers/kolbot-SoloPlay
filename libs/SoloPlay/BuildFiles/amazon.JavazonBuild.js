@@ -6,7 +6,7 @@
 
 const finalBuild = {
 	caster: false,
-	skillstab: sdk.skills.tabs.JavelinSpear,
+	skillstab: sdk.skills.tabs.JavelinandSpear,
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
 	usefulskills: [sdk.skills.CriticalStrike, sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
 	precastSkills: [sdk.skills.Valkyrie],
@@ -15,7 +15,7 @@ const finalBuild = {
 	mercAct: 2,
 	mercAuraWanted: "Holy Freeze",
 	classicStats: [
-		 ["dexterity", 65], ["strength", 75], ["vitality", "all"]
+		["dexterity", 65], ["strength", 75], ["vitality", "all"]
 	],
 	expansionStats: [
 		["strength", 34], ["vitality", 30], ["dexterity", 47],

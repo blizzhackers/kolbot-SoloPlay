@@ -6,7 +6,7 @@
 
 let build = {
 	caster: false,
-	skillstab: sdk.skills.tabs.JavelinSpear,
+	skillstab: sdk.skills.tabs.JavelinandSpear,
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
 	usefulskills: [sdk.skills.CriticalStrike, sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
 	usefulStats: [sdk.stats.PierceLtng, sdk.stats.PassiveLightningMastery, sdk.stats.PassiveLightningPierce],

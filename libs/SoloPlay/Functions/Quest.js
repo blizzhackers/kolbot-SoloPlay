@@ -489,6 +489,8 @@ const Quest = {
 
 	// Credit whoever did useSocketQuest, I modified that to come up with this
 	useImbueQuest: function (item = undefined) {
+		if (SetUp.finalBuild === "Imbuemule") return false;
+
 		try {
 			if (!item || item.mode === 3) throw new Error("Couldn't find item");
 			if (!Misc.checkQuest(3, 1)) throw new Error("Quest unavailable");

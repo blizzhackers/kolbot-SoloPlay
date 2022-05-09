@@ -20,7 +20,9 @@ const Developer = {
 	fillAccount: {			// set to true in use with info-tag Bumper or Socketmule to make next character after reaching goal until account is full
 		bumpers: false,
 		socketMules: false,
+		imbueMule: false,
 	},
+	imbueStopLevel: 30, // set level for imbueMule to stop at
 	stopAtLevel: { 			// stop a profile once it reaches a certain level
 		enabled: false,
 		profiles: [

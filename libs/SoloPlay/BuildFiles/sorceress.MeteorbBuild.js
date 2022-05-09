@@ -6,7 +6,7 @@
 
 const finalBuild = {
 	caster: true,
-	skillstab: 8, //fire
+	skillstab: sdk.skills.tabs.Fire,
 	wantedskills: [sdk.skills.FrozenOrb, sdk.skills.Meteor, sdk.skills.ColdMastery],
 	usefulskills: [sdk.skills.FireBall, sdk.skills.FireMastery, sdk.skills.StaticField],
 	precastSkills: [sdk.skills.FrozenArmor],

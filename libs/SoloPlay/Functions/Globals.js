@@ -306,6 +306,7 @@ const SetUp = {
 	},
 
 	imbueItems: function () {
+		if (SetUp.finalBuild === "Imbuemule") return [];
 		let temp = [];
 		for (let imbueItem of Config.imbueables) {
 			try {
@@ -1140,7 +1141,7 @@ const Check = {
 			let buildType = SetUp.finalBuild;
 			let build;
 
-			if (["Bumper", "Socketmule"].includes(buildType)) {
+			if (["Bumper", "Socketmule", "Imbuemule"].includes(buildType)) {
 				build = ["Javazon", "Cold", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid] + "Build";
 			} else {
 				build = buildType + "Build";
@@ -1215,6 +1216,7 @@ const Check = {
 		switch (true) {
 		case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
 		case !!(SetUp.finalBuild === "Socketmule" && Misc.checkQuest(35, 1)):
+		case !!(SetUp.finalBuild === "Imbuemule" && Misc.checkQuest(3, 1) && me.charlvl >= Developer.imbueStopLevel):
 			goal = SetUp.finalBuild;
 			goalReached = true;
 

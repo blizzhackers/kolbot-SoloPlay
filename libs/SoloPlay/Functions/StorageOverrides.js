@@ -136,8 +136,6 @@ var Container = function (name, width, height, location) {
 
 		this.cubeSpot(this.name);
 
-		console.log(this.buffer);
-
 		let x, y, item, nPos;
 
 		for (y = this.width - 1 ; y >= 0 ; y--) {
@@ -466,7 +464,6 @@ var Container = function (name, width, height, location) {
 
 	this.Dump = function () {
 		let x, y, string;
-
 
 		if (this.UsedSpacePercent() > 60) {
 			for (x = 0; x < this.height; x += 1) {

@@ -359,16 +359,16 @@ function locationAction (location) {
 			delay(200);
 		}
 
+		D2Bot.requestGameInfo();
+		delay(500);
+
 		Starter.gameInfo.gameName = DataFile.getStats().gameName;
+		Starter.gameInfo.gamePass = Starter.randomString(5, true);
 
 		switch (true) {
 		case Starter.gameInfo.gameName === "":
 		case Starter.gameInfo.gameName === "Name":
 			Starter.gameInfo.gameName = Starter.profileInfo.charName.substring(0, 7) + "-" + Starter.randomString(3, false) + "-";
-
-			break;
-		case Starter.gameInfo.gamePass === "Password":
-			Starter.gameInfo.gamePass = Starter.randomString(null, true);
 
 			break;
 		}
