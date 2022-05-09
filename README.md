@@ -34,13 +34,14 @@
 - Navigate to ``kolbot\libs\SoloPlay\BuildFiles\`` and open the file with the build name for a more in-depth description of each build
 
 ## New modes
-- Two new modes are available: **Bumper** and **Socketmule**. Enter either of these into your D2Bot# profile info tag to make. The bot will then stop after shenk quest for Socketmule and after it hits level 40 for a Bumper.
+- New modes are available: **Bumper**, **Socketmule**, and **Imbuemule**. Enter into your D2Bot# profiles info tag to make. The bot will then stop after shenk quest for Socketmule, after it hits level 40 for a Bumper, and by default at level 30 for Imbuemule (**this can be edited in Developer.js by changing ``imbueStopLevel: 30,`` to be the level you want**.
 - **Note: These options only work in expansion.**
 
 | Mode | Example |
 |:------:|:-------:|
 | Bumper | ![image](https://user-images.githubusercontent.com/60308670/131758626-46b8e886-726d-4751-bc33-aa750e2c5b0e.png) |
-| Socketmule | ![image](https://user-images.githubusercontent.com/60308670/131758691-5fce3c06-05a0-4058-8abb-8d81d6d538a9.png) |
+| Socketmule | ![Socketmule](https://user-images.githubusercontent.com/60308670/131758691-5fce3c06-05a0-4058-8abb-8d81d6d538a9.png) |
+| Imbuemule | ![Imbuemule](https://user-images.githubusercontent.com/60308670/167488151-59e01f77-7d8f-4ae8-a0ae-120a02a758a6.png) |
 
 ## Frequently Asked Questions
 **Q: Why isn't the bot making the build I selected?**
