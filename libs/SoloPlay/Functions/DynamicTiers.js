@@ -175,7 +175,7 @@ const chargeditemscore = function (item, skillId, buildInfo) {
 				if (skillName === "Teleport") {
 					chargedWeights[skillName] > 0 && (tier += el.maxcharges * 2);
 				} else if (!!chargedWeights[skillName]) {
-					tier += el.skill * chargedWeights[skillName];
+					tier += el.level * chargedWeights[skillName];
 				}
 			} catch (e) {
 				return;
