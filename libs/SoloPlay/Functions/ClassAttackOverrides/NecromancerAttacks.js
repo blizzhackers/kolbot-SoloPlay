@@ -6,114 +6,110 @@
 
 !isIncluded("common/Attacks/Necromancer.js") && include("common/Attacks/Necromancer.js");
 
-// TODO: clean this up
-ClassAttack.smartCurse = function (unit, index) {
+ClassAttack.curseIndex = [
+	{
+		skillId: sdk.skills.AmplifyDamage,
+		state: sdk.states.AmplifyDamage,
+		priority: 2,
+		useIf: function (unit) {
+			return me.getSkill(this.skillId, 1) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical");
+		}
+	},
+	{
+		skillId: sdk.skills.DimVision,
+		state: sdk.states.DimVision,
+		priority: 1,
+		skipIf: function (unit) {
+			return unit.isSpecial || [sdk.monsters.OblivionKnight1, sdk.monsters.OblivionKnight2, sdk.monsters.OblivionKnight3].includes(unit.classid);
+		},
+		useIf: function (unit) {
+			return !this.skipIf(unit) && me.getSkill(this.skillId, 1) && unit.distance > 15;
+		}
+	},
+	{
+		skillId: sdk.skills.Weaken,
+		state: sdk.states.Weaken,
+		priority: 3,
+		useIf: function (unit) {
+			return me.getSkill(this.skillId, 1) && unit;
+		}
+	},
+	{
+		skillId: sdk.skills.IronMaiden,
+		state: sdk.states.IronMaiden,
+		priority: 1,
+		useIf: function (unit) {
+			return me.getSkill(this.skillId, 1) && me.area === sdk.areas.DurielsLair && me.normal && unit;
+		}
+	},
+	{
+		skillId: sdk.skills.Terror,
+		state: sdk.states.Terror,
+		priority: 1,
+		useIf: function (unit) {
+			return unit.scareable && me.getSkill(this.skillId, 1) && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting, 0, true) >= 3
+				&& Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hpPercent < 75;
+		}
+	},
+	{
+		skillId: sdk.skills.Confuse,
+		state: sdk.states.Confuse,
+		priority: 2,
+		useIf: function (unit) {
+			return unit.scareable && unit.distance > 8 && me.getSkill(this.skillId, 1);
+		}
+	},
+	{
+		skillId: sdk.skills.LifeTap,
+		state: sdk.states.LifeTap,
+		priority: 10,
+		useIf: function () {
+			// false for now, maybe based on health check on merc or would this be summonmancer viable?
+			return false;
+		}
+	},
+	{
+		skillId: sdk.skills.Attract,
+		state: sdk.states.Attract,
+		priority: 1,
+		useIf: function (unit) {
+			return unit.scareable && me.area === sdk.areas.ThroneofDestruction && unit.distance > 8
+				&& me.getSkill(this.skillId, 1);
+		}
+	},
+	{
+		skillId: sdk.skills.Decrepify,
+		state: sdk.states.Decrepify,
+		priority: 1,
+		useIf: function () {
+			return me.getSkill(this.skillId, 1);
+		}
+	},
+	{
+		skillId: sdk.skills.LowerResist,
+		state: sdk.states.LowerResist,
+		priority: 1,
+		useIf: function (unit) {
+			return me.getSkill(this.skillId, 1) && SetUp.currentBuild === "Poison" && Attack.checkResist(unit, "poison");
+		}
+	},
+];
+
+ClassAttack.smartCurse = function (unit) {
 	if (unit === undefined || unit.dead || !unit.curseable) return false;
 
-	let type = index === 1 ? "Boss" : "Normal";
-	let curseToCast = -1;
-	let useWeaken = me.getSkill(sdk.skills.Weaken, 1);
-	let useDim = me.getSkill(sdk.skills.DimVision, 1);
-	let useAttract = me.getSkill(sdk.skills.Attract, 1) && me.area !== sdk.areas.ThroneofDestruction;
-	let useConfuse = me.getSkill(sdk.skills.Confuse, 1) && me.area === sdk.areas.ThroneofDestruction;
-	let useDecrep = me.getSkill(sdk.skills.Decrepify, 1);
-	let useMaiden = me.getSkill(sdk.skills.IronMaiden, 1) && me.area === sdk.areas.DurielsLair && me.normal;
-	let useAmp = (me.getSkill(sdk.skills.AmplifyDamage, 1) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical"));
-	let useLowerRes = (me.getSkill(sdk.skills.LowerResist, 1) && SetUp.currentBuild === "Poison" && Attack.checkResist(unit, "poison"));
+	let choosenCurse = (this.curseIndex
+		.filter((curse) => curse.useIf(unit))
+		.sort((a, b) => a.priority - b.priority)
+		.find((curse) => this.canCurse(unit, curse.skillId) && Skill.getManaCost(curse.skillId) < me.mp) || false);
 
-	switch (type) {
-	case "Boss":
-		if (useMaiden && this.canCurse(unit, 71)) {
-			curseToCast = 76;
-
-			break;
-		}
-
-		if (useLowerRes && this.canCurse(unit, 61)) {
-			curseToCast = 76;
-
-			break;
-		}
-
-		if (useAmp && this.canCurse(unit, 66)) {
-			curseToCast = 66;
-
-			break;
-		}
-
-		if (useWeaken && !useDecrep && !useAmp && !useMaiden && Math.round(getDistance(me, unit)) < 15 && this.canCurse(unit, 72)) {
-			curseToCast = 72;
-
-			break;
-		}
-
-		if (useDecrep && !useMaiden && this.canCurse(unit, 87)) {
-			curseToCast = 87;
-
-			break;
-		}
-
-		break;
-	case "Normal":
-		if (useAttract && unit.classid !== 571 && Math.round(getDistance(me, unit)) > 8 && !checkCollision(me, unit, 0x4) && this.canCurse(unit, 86)) {
-			// Save resources by only doing this check if all the other ones are met
-			if (Attack.getMobCountAtPosition(unit.x, unit.y, 6, false, false) >= 2) {
-				curseToCast = 86;
-			}
-
-			break;
-		}
-
-		if (useConfuse && unit.classid !== 571 && Math.round(getDistance(me, unit)) > 8 && !checkCollision(me, unit, 0x4) && this.canCurse(unit, 81)) {
-			// Save resources by only doing this check if all the other ones are met
-			if (Attack.getMobCountAtPosition(unit.x, unit.y, 6, false, false) >= 2) {
-				curseToCast = 81;
-			}
-
-			break;
-		}
-
-		if (useLowerRes && this.canCurse(unit, 61)) {
-			curseToCast = 76;
-
-			break;
-		}
-
-		// Dim doesn't work on oblivion knights
-		if (useDim && Math.round(getDistance(me, unit)) > 15 && !checkCollision(me, unit, 0x4) && [312, 701, 702].indexOf(unit.classid) === -1 && this.canCurse(unit, 71)) {
-			curseToCast = 71;
-
-			break;
-		}
-
-		if (useAmp && this.canCurse(unit, 66)) {
-			curseToCast = 66;
-
-			break;
-		}
-
-		if (useWeaken && !useDecrep && Math.round(getDistance(me, unit)) < 15 && this.canCurse(unit, 72)) {
-			curseToCast = 72;
-
-			break;
-		}
-
-		if (useDecrep && this.canCurse(unit, 87) && (this.canCurse(unit, 71) || Math.round(getDistance(me, unit)) < 15)) {
-			curseToCast = 87;
-
-			break;
-		}
-
-		break;
-	}
-
-	if (curseToCast > 0 && Skill.getManaCost(curseToCast) < me.mp) {
+	if (choosenCurse) {
 		if (!checkCollision(me, unit, 0x4)) {
-			me.overhead("Cursing " + unit.name + " with " + curseToCast + " monster is " + type);
-			return Skill.cast(curseToCast, 0, unit);
+			me.overhead("Cursing " + unit.name + " with " + getSkillById(choosenCurse.skillId));
+			return Skill.cast(choosenCurse.skillId, 0, unit);
 		} else {
 			me.overhead(unit.name + " is blocked, skipping attempt to curse");
-			this.doCast(unit, Config.AttackSkill[type === "Boss" ? 1 : 3], Config.AttackSkill[type === "Boss" ? 2 : 5]);
+			this.doCast(unit, Config.AttackSkill[unit.isSpecial ? 1 : 3], Config.AttackSkill[unit.isSpecial ? 2 : 5]);
 		}
 	}
 
@@ -123,7 +119,7 @@ ClassAttack.smartCurse = function (unit, index) {
 ClassAttack.bpTick = 0;
 
 // TODO: clean this up
-ClassAttack.doAttack = function (unit, preattack) {
+ClassAttack.doAttack = function (unit) {
 	if (!unit) return 1;
 	let gid = unit.gid;
 
@@ -156,29 +152,17 @@ ClassAttack.doAttack = function (unit, preattack) {
 		}
 	}
 
-	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0])
-		&& (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
-		if (unit.distance > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
-			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
-				return 0;
-			}
-		}
-
-		Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
-
-		return 1;
-	}
-
-
+	// write terrorCheck function, need to take into account if monsters are even scareable
 	if (useTerror && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting, 0, true) >= 3
 		&& Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hpPercent < 75) {
 		Skill.cast(sdk.skills.Terror, 0);
 	}
 
-	this.smartCurse(unit, index);
+	this.smartCurse(unit);
 
 	if (me.expansion && index === 1 && !unit.dead) {
-		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
+		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.SlowMissiles)
+			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
 			&& unit.curseable && (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
@@ -249,6 +233,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 			Config.ActiveSummon && this.raiseArmy();
 			this.explodeCorpses(unit);
+			this.smartCurse(unit);
 			let closeMob = Attack.getNearestMonster({skipGid: gid});
 			!!closeMob && this.doCast(closeMob, timedSkill, untimedSkill);
 		}
@@ -373,7 +358,7 @@ ClassAttack.farCast = function (unit) {
 		}
 	}
 
-	this.smartCurse(unit, 1);
+	this.smartCurse(unit);
 
 	// Check for bodies to exploit for CorpseExplosion before committing to an attack for non-summoner type necros
 	if (Config.Skeletons + Config.SkeletonMages + Config.Revives === 0) {

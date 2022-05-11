@@ -6,7 +6,7 @@
 
 const finalBuild = {
 	caster: false,
-	skillstab: sdk.skills.tabs.BowCrossbow,
+	skillstab: sdk.skills.tabs.BowandCrossbow,
 	wantedskills: [sdk.skills.Strafe],
 	usefulskills: [sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce],
 	precastSkills: [sdk.skills.Valkyrie],

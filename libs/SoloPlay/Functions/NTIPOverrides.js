@@ -8,6 +8,7 @@
 !isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js") && include("SoloPlay/Functions/ProtoTypesOverrides.js");
 
 NTIPAliasStat["addfireskills"] = [126, 1];
+NTIPAliasStat["plusskillwhirlwind"] = [97, 151];
 
 let NTIP_CheckListNoTier = [];
 
