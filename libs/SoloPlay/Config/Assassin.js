@@ -259,23 +259,94 @@ function LoadConfig () {
 				classid: sdk.items.Monarch,
 				socketWith: [],
 				useSocketQuest: true,
-				condition: function (item) { return !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
-			},
-			{
-				classid: sdk.items.Demonhead,
-				socketWith: [sdk.items.runes.Um], // Ral vs Um ?
-				temp: [sdk.items.gems.Perfect.Ruby],
-				useSocketQuest: true,
-				condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+				condition: (item) => !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
 			},
 			{
 				classid: sdk.items.Shako,
 				socketWith: [sdk.items.runes.Um],
 				temp: [sdk.items.gems.Perfect.Ruby],
 				useSocketQuest: false,
-				condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+				condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
 			}
 		);
+
+	switch (SetUp.finalBuild) {
+	case "Whirlsin":
+		Config.socketables
+			.push(
+				{
+					classid: sdk.items.WingedHelm,
+					socketWith: [sdk.items.runes.Um],
+					temp: [sdk.items.gems.Perfect.Ruby],
+					useSocketQuest: true,
+					condition: (item) => item.quality === sdk.itemquality.Set && !item.ethereal
+				}
+			);
+		
+		// Pride
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Pride) {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercPride.js")) {
+				include("SoloPlay/BuildFiles/Runewords/MercPride.js");
+			}
+		}
+
+		// Chaos
+		if (!Check.haveItem("assassinclaw", "runeword", "Chaos")) {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Chaos.js")) {
+				include("SoloPlay/BuildFiles/Runewords/Chaos.js");
+			}
+		}
+
+		// Fury
+		if (!Check.haveItem("assassinclaw", "runeword", "Fury")) {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Fury.js")) {
+				include("SoloPlay/BuildFiles/Runewords/Fury.js");
+			}
+		}
+
+		// Fortitude
+		if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("armor", "runeword", "Fortitude")) {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Fortitude.js")) {
+				include("SoloPlay/BuildFiles/Runewords/Fortitude.js");
+			}
+		}
+
+		break;
+	default:
+		Config.socketables
+			.push(
+				{
+					classid: sdk.items.Demonhead,
+					socketWith: [sdk.items.runes.Um], // Ral vs Um ?
+					temp: [sdk.items.gems.Perfect.Ruby],
+					useSocketQuest: true,
+					condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
+				}
+			);
+		
+		// Infinity
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Infinity) {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js")) {
+				include("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
+			}
+		}
+
+		// Heart of the Oak
+		if (!Check.haveItem("mace", "runeword", "Heart of the Oak")) {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js")) {
+				include("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
+			}
+		}
+
+		// Enigma
+		if (!Check.haveItem("armor", "runeword", "Enigma")) {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js")) {
+				include("SoloPlay/BuildFiles/Runewords/Enigma.js");
+			}
+		}
+
+		break;
+	}
 
 	Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
 	Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
@@ -289,31 +360,10 @@ function LoadConfig () {
 		Config.Recipes.push([Recipe.Caster.Ring]);
 	}
 
-	// Infinity
-	if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Infinity) {
-		if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js")) {
-			include("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
-		}
-	}
-
 	// Call to Arms
 	if (!Check.haveItem("dontcare", "runeword", "Call to Arms")) {
 		if (!isIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js")) {
 			include("SoloPlay/BuildFiles/Runewords/CallToArms.js");
-		}
-	}
-
-	// Heart of the Oak
-	if (!Check.haveItem("mace", "runeword", "Heart of the Oak")) {
-		if (!isIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js")) {
-			include("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
-		}
-	}
-
-	// Enigma
-	if (!Check.haveItem("armor", "runeword", "Enigma")) {
-		if (!isIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js")) {
-			include("SoloPlay/BuildFiles/Runewords/Enigma.js");
 		}
 	}
 

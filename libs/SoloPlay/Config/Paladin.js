@@ -437,6 +437,96 @@ function LoadConfig () {
 			}
 
 			break;
+		case 'Sancdreamer':
+			// Dream Shield
+			if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("auricshields", "runeword", "Dream")) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/DreamShield.js")) {
+					include("SoloPlay/BuildFiles/Runewords/DreamShield.js");
+				}
+			}
+
+			// Dream Helm
+			if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("helm", "runeword", "Dream")) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/DreamHelm.js")) {
+					include("SoloPlay/BuildFiles/Runewords/DreamHelm.js");
+				}
+			}
+
+			if (!Check.haveItem("auricshields", "runeword", "Dream") || !Check.haveItem("helm", "runeword", "Dream") && (me.ladder || Developer.addLadderRW)) {
+				// Cube to Jah rune
+				if (!me.getItem(sdk.items.runes.Jah)) {
+					if (Check.haveItem("dontcare", "runeword", "Call to Arms")) {
+						Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
+						Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
+						Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
+						Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
+						Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
+					}
+
+					Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
+					Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
+					Config.Recipes.push([Recipe.Rune, "Ber Rune"]);
+				}
+			}
+
+			if (!Check.haveItem("dontcare", "runeword", "Call to Arms")) {
+				// Cube to Mal rune
+				if (!me.getItem(sdk.items.runes.Mal) && Item.getEquippedItem(4).tier >= 110000) {
+					Config.Recipes.push([Recipe.Rune, "Um Rune"]);
+				}
+				
+				// Cube to Ohm rune
+				if (!me.getItem(sdk.items.runes.Ohm)) {
+					Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
+					Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
+				}
+			}
+
+			// Chains of Honor
+			if (!Check.haveItem("armor", "runeword", "Chains of Honor")) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js")) {
+					include("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
+				}
+			}
+
+			if (!Check.haveItem("sword", "runeword", "Last Wish") && Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream")) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/LastWish.js")) {
+					include("SoloPlay/BuildFiles/Runewords/LastWish.js");
+				}
+			}
+
+			if (!Check.haveItem("sword", "runeword", "Crescent Moon") && !Check.haveItem("sword", "runeword", "Last Wish") && Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream")) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/CrescentMoon.js")) {
+					include("SoloPlay/BuildFiles/Runewords/CrescentMoon.js");
+				}
+
+				// Lightsabre
+				NTIP.addLine("[name] == phaseblade && [flag] != ethereal && [quality] == unique # [enhanceddamage] >= 150 && [itemabsorblightpercent] == 25 # [tier] == 105000");
+			}
+
+			if (!Check.haveItem("sword", "runeword", "Voice of Reason") && !Check.haveItem("sword", "runeword", "Crescent Moon") && !Check.haveItem("sword", "runeword", "Last Wish") && Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream")) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js")) {
+					include("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js");
+				}
+			}
+
+			if (Check.haveItem("sword", "runeword", "Last Wish") && Check.haveItem("armor", "runeword", "Chains of Honor") && Check.haveItem("auricshields", "runeword", "Dream") && Check.haveItem("helm", "runeword", "Dream")
+				&& (me.ladder || Developer.addLadderRW)) {
+				// Infinity
+				if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Infinity) {
+					if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js")) {
+						include("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
+					}
+				}
+				// Merc Fortitude
+				if (Item.getEquippedItemMerc(3).prefixnum !== sdk.locale.items.Fortitude) {
+					if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js")) {
+						include("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
+					}
+				}
+			}
+
+			break;
 		case 'Torchadin':
 			// Dragon Armor
 			if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("armor", "runeword", "Dragon")) {

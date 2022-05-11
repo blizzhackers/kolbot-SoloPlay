@@ -42,6 +42,70 @@ new Overrides.Override(Town, Town.buyPotions, function (orignal) {
 	return false;
 }).apply();
 
+new Overrides.Override(Town, Town.initNPC, function (orignal, task, reason) {
+	print("initNPC: " + reason);
+
+	let npc = getInteractedNPC();
+
+	try {
+		if (!!npc && npc.name.toLowerCase() !== this.tasks[me.act - 1][task]) {
+			me.cancelUIFlags();
+			npc = null;
+		}
+
+		// Jamella gamble fix
+		if (task === "Gamble" && !!npc && npc.name.toLowerCase() === NPC.Jamella) {
+			me.cancelUIFlags();
+			npc = null;
+		}
+
+		if (!npc) {
+			npc = getUnit(1, this.tasks[me.act - 1][task]);
+
+			if (!npc) {
+				this.move(this.tasks[me.act - 1][task]);
+				npc = getUnit(1, this.tasks[me.act - 1][task]);
+			}
+		}
+
+		if (!npc || npc.area !== me.area || (!getUIFlag(sdk.uiflags.NPCMenu) && !npc.openMenu())) {
+			// handle getUnit bug - we still are able to openMenu using packets so attempt it
+			!!npc && npc.openMenu();
+			if (!getUIFlag(sdk.uiflags.NPCMenu)) throw new Error("Couldn't interact with npc");
+		}
+
+		switch (task) {
+		case "Shop":
+		case "Repair":
+		case "Gamble":
+			if (!getUIFlag(0x0C) && !npc.startTrade(task)) throw new Error("Failed to complete " + reason + " at " + npc.name);
+
+			break;
+		case "Key":
+			if (!getUIFlag(0x0C) && !npc.startTrade(me.act === 3 ? "Repair" : "Shop")) throw new Error("Failed to complete " + reason + " at " + npc.name);
+
+			break;
+		case "CainID":
+			Misc.useMenu(0x0FB4);
+			me.cancelUIFlags();
+
+			break;
+		case "Heal":
+			me.getState(sdk.states.Frozen) && this.buyPots(2, "Thawing", true, true);
+
+			break;
+		}
+
+		console.log("Did " + reason + " at " + npc.name);
+	} catch (e) {
+		console.warn(e);
+
+		return false;
+	}
+
+	return npc;
+}).apply();
+
 // Removed Missle Potions for easy gold
 // Items that won't be stashed
 Town.ignoredItemTypes = [

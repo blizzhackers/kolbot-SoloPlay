@@ -1,4 +1,4 @@
-var white = [
+const white = [
 	"[name] == DolRune # # [maxquantity] == 1",
 	"[name] == IoRune # # [maxquantity] == 1",
 	"[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand) && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1",

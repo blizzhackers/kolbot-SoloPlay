@@ -15,6 +15,8 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
+			Config.Dodge = false;
+			Config.UseVenom = true;
 			Config.UseTraps = true;
 			Config.AttackSkill = [-1, sdk.skills.Whirlwind, -1, sdk.skills.Whirlwind, -1, -1, -1];
 			Config.Traps = [sdk.skills.DeathSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry];
