@@ -52,8 +52,27 @@ function den () {
 	Pather.moveToExit(sdk.areas.DenofEvil, true);
 
 	if (me.area === sdk.areas.DenofEvil) {
+		const Worker = require('../../modules/Worker');
+		let corpseTick = getTickCount();
+		let corpsefire;
+
+		Worker.runInBackground.kingTracker = function () {
+			if (me.area === sdk.areas.DenofEvil) {
+				if (getTickCount() - corpseTick < 1000) return true;
+				corpseTick = getTickCount();
+				corpsefire = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.Corpsefire));
+
+				if (corpsefire && !Attack.canAttack(corpsefire)) {
+					myPrint("Exit den. Corpsefire is immune");
+					throw new Error('ÿc8Kolbot-SoloPlayÿc0: Exit den. Corpsefire is immune');
+				}
+			}
+
+			return true;
+		};
+
 		while (!Misc.checkQuest(1, 0)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Clearing den attempt: " + attempt);
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Clearing den attempt: " + attempt);
 			Attack.clearLevel();
 
 			if (me.area !== sdk.areas.DenofEvil) {
@@ -68,7 +87,7 @@ function den () {
 			}
 
 			if (attempt >= 5) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Failed to complete den");
+				console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to complete den");
 				customGoToTown();
 
 				break;

@@ -1,7 +1,7 @@
 /**
- *    @filename   necromancer.SummonBuild.js
- *	  @author	  theBGuy, isid0re
- *    @desc       FishyMancer final build (explosion/summon) for expansion, (nova/summon) for classic since there is no merc to make initial bodies needed
+ *		@filename	necromancer.SummonBuild.js
+ *		@author		theBGuy, isid0re
+ *		@desc		FishyMancer final build (explosion/summon) for expansion, (nova/summon) for classic since there is no merc to make initial bodies needed
  */
 
 const finalBuild = {

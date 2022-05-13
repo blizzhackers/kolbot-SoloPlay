@@ -226,6 +226,16 @@ Item.autoEquip = function () {
 		return 0;
 	}
 
+	// ring check - sometimes a higher tier ring ends up on the wrong finger causing a rollback loop
+	if (this.getEquippedItem(7).tier > this.getEquippedItem(6).tier) {
+		console.log("ÿc9AutoEquipÿc0 :: Swapping rings, higher tier ring is on the wrong finger");
+		clickItemAndWait(0, 7);
+		delay(200);
+		me.itemoncursor && clickItemAndWait(0, 6);
+		delay(200);
+		me.itemoncursor && clickItemAndWait(0, 7);
+	}
+
 	me.cancel();
 
 	while (items.length > 0) {

@@ -1,7 +1,7 @@
 /**
- *    @filename   necromancer.BoneBuild.js
- *	  @author	  theBGuy, isid0re
- *    @desc       bone necro final build
+ *		@filename	necromancer.BoneBuild.js
+ *		@author		theBGuy, isid0re
+ *		@desc		bone necro final build
  */
 
 const finalBuild = {

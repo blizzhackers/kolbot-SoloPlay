@@ -1,7 +1,7 @@
 /*
- *    @filename   	Sorceress.BlovaBuild.js
- *	  @author	  	isid0re, theBGuy
- *    @desc      	Sorceress blizzard nova build
+ *		@filename	Sorceress.BlovaBuild.js
+ *		@author		isid0re, theBGuy
+ *		@desc		Sorceress blizzard nova build
  */
 
 const finalBuild = {

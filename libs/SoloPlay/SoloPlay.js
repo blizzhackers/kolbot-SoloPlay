@@ -36,7 +36,17 @@ function SoloPlay () {
 		}
 
 		if (me.charlvl === 1) {
-			myData.me.startTime === 0 && CharData.updateData("me", "startTime", me.gamestarttime);
+			if (!myData.initialized) {
+				myData.me.startTime = me.gamestarttime;
+				myData.me.level = me.charlvl;
+				myData.me.classid = me.classid;
+				myData.me.charName = me.name;
+				myData.me.strength = me.rawStrength;
+				myData.me.dexterity = me.rawDexterity;
+				myData.initialized = true;
+				CharData.updateData("me", myData) && updateMyData();
+			}
+			
 			let buckler = me.getItem(328);
 			!!buckler && buckler.isEquipped && buckler.drop();
 		}
@@ -74,13 +84,16 @@ function SoloPlay () {
 			Check.checkSpecialCase();
 
 			if (Check.task(SetUp.scripts[k])) {
+				let tick;
+				let currentExp;
+
 				try {
 					if (!isIncluded("SoloPlay/Scripts/" + SetUp.scripts[k] + ".js")) {
 						include("SoloPlay/Scripts/" + SetUp.scripts[k] + ".js");
 					}
 
-					let tick = getTickCount();
-					let currentExp = me.getStat(13);
+					tick = getTickCount();
+					currentExp = me.getStat(13);
 
 					for (j = 0; j < 5; j += 1) {
 						if (this[SetUp.scripts[k]]()) {
@@ -88,17 +101,18 @@ function SoloPlay () {
 						}
 					}
 
-					Developer.logPerformance && Tracker.script(tick, SetUp.scripts[k], currentExp);
-					print("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));
-					me.maxgametime += (getTickCount() - tick);
-					print("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Developer.formatTime(me.maxgametime));
-
 					if (j === 5) {
 						myPrint("script " + SetUp.scripts[k] + " failed.");
 					}
 				} catch (e) {
 					console.warn(e);
 				} finally {
+					Developer.logPerformance && Tracker.script(tick, SetUp.scripts[k], currentExp);
+					console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));
+					me.maxgametime += (getTickCount() - tick);
+					console.log("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Developer.formatTime(me.maxgametime));
+					console.log("ÿc8Kolbot-SoloPlayÿc0 :: ÿc7" + SetUp.scripts[k] + " ÿc7Duration: ÿc0" + Developer.formatTime(tick));
+
 					// remove script function from function scope, so it can be cleared by GC
 					if (k < SetUp.scripts.length) {
 						delete this[SetUp.scripts[k]];

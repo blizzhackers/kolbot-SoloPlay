@@ -1,7 +1,7 @@
 /**
- *    @filename   assassin.WhirlsinBuild.js
- *	  @author	  theBGuy
- *    @desc       End game Whirlwind sin build, uses Chaos runeword
+ *		@filename	assassin.WhirlsinBuild.js
+ *		@author		theBGuy
+ *		@desc		End game Whirlwind sin build, uses Chaos runeword
  */
 
 const finalBuild = {

@@ -1,7 +1,7 @@
 /**
- *    @filename   druid.WindBuild.js
- *	  @author	  isid0re, theBGuy
- *    @desc       Druid wind final build
+ *		@filename	druid.WindBuild.js
+ *		@author		isid0re, theBGuy
+ *		@desc		Druid wind final build
  */
 
 const finalBuild = {

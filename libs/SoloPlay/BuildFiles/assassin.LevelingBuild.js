@@ -1,7 +1,7 @@
 /*
- *    @filename   assassin.LevelingBuild.js
- *	  @author	  theBGuy
- *    @desc       assassin lightning trap build for after respecOne
+ *		@filename	assassin.LevelingBuild.js
+ *		@author		theBGuy
+ *		@desc		assassin lightning trap build for after respecOne
  */
 
 let build = {

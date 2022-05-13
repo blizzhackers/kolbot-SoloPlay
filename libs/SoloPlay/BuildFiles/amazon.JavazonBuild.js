@@ -1,7 +1,7 @@
 /*
- *    @filename   amazon.JavazonBuild.js
- *	  @author	  theBGuy
- *    @desc       Javazon final build (pure lightning for expansion) (light/poision for classic)
+ *		@filename 	amazon.JavazonBuild.js
+ *		@author		theBGuy
+ *		@desc		Javazon final build (pure lightning for expansion) (light/poision for classic)
  */
 
 const finalBuild = {

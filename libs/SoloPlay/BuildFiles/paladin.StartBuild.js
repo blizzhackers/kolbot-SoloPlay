@@ -1,7 +1,7 @@
 /**
- *    @filename  	paladin.startBuild.js
- *	  @author	  	isid0re, theBGuy
- *    @desc     	paladin Holy fire build for before respecOne, respecs at 19
+ *		@filename	paladin.startBuild.js
+ *		@author		isid0re, theBGuy
+ *		@desc		paladin Holy fire build for before respecOne, respecs at 19
  */
 
 let build = {

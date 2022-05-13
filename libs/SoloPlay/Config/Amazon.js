@@ -29,7 +29,7 @@ function LoadConfig () {
 	Config.levelCap = (function() {
 		let tmpCap;
 		if (me.softcore) {
-			tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
+			tmpCap = me.expansion ? [33, 70, 100] : [33, 70, 100];
 		} else {
 			tmpCap = me.expansion ? [33, 65, 100] : [33, 65, 100];
 		}
@@ -190,7 +190,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = false;
 	Config.ClearType = 0;
-	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 20), Spectype: 0xF};
+	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 20), Spectype: 0};
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];
@@ -233,7 +233,7 @@ function LoadConfig () {
 		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(4).tier > 100000 || me.classic))},
 		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(4).tier > 100000 || me.classic))},
 		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(4).tier > 100000 || me.classic))},
-	].filter((item) => item.condition());
+	];
 
 	let imbueArr = SetUp.imbueItems();
 
@@ -268,14 +268,14 @@ function LoadConfig () {
 					classid: sdk.items.Bill,
 					socketWith: [],
 					useSocketQuest: true,
-					condition: function (item) { return me.normal && item.ilvl >= 26 && item.isBaseType; }
+					condition: (item) => me.normal && item.ilvl >= 26 && item.isBaseType
 				},
 				{
 					classid: sdk.items.Shako,
 					socketWith: [sdk.items.runes.Um],
 					temp: [sdk.items.gems.Perfect.Ruby],
 					useSocketQuest: true,
-					condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+					condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
 				}
 			);
 

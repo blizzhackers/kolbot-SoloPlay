@@ -1,7 +1,7 @@
 /**
- *    @filename   	Sorceress.ColdBuild.js
- *	  @author	  	isid0re, theBGuy
- *    @desc     	Sorceress cold build (blizzard sorc)
+ *		@filename	Sorceress.ColdBuild.js
+ *		@author		isid0re, theBGuy
+ *		@desc		Sorceress cold build (blizzard sorc)
  */
 
 const finalBuild = {

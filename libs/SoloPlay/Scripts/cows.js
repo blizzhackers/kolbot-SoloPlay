@@ -5,79 +5,12 @@
 */
 
 function cows () {
-	this.buildCowRooms = function () {
-		let i, j, room, kingPreset, badRooms, badRooms2,
-			finalRooms = [],
-			indexes = [];
-
-		kingPreset = getPresetUnit(sdk.areas.MooMooFarm, sdk.unittype.Monster, sdk.monsters.preset.TheCowKing);
-		badRooms = getRoom(kingPreset.roomx * 5 + kingPreset.x, kingPreset.roomy * 5 + kingPreset.y).getNearby();
-
-		for (i = 0; i < badRooms.length; i += 1) {
-			badRooms2 = badRooms[i].getNearby();
-
-			for (j = 0; j < badRooms2.length; j += 1) {
-				if (indexes.indexOf(badRooms2[j].x + "" + badRooms2[j].y) === -1) {
-					indexes.push(badRooms2[j].x + "" + badRooms2[j].y);
-				}
-			}
-		}
-
-		room = getRoom();
-
-		do {
-			if (indexes.indexOf(room.x + "" + room.y) === -1) {
-				finalRooms.push([room.x * 5 + room.xsize / 2, room.y * 5 + room.ysize / 2]);
-			}
-		} while (room.getNext());
-
-		return finalRooms;
-	};
-
-	this.clearCowLevel = function () {
-		let room, result, myRoom,
-			rooms = this.buildCowRooms();
-
-		function RoomSort (a, b) {
-			return getDistance(myRoom[0], myRoom[1], a[0], a[1]) - getDistance(myRoom[0], myRoom[1], b[0], b[1]);
-		}
-
-		while (rooms.length > 0) {
-			if (!myRoom) {
-				room = getRoom(me.x, me.y);
-			}
-
-			if (room) {
-				if (room instanceof Array) {
-					myRoom = [room[0], room[1]];
-				} else {
-					myRoom = [room.x * 5 + room.xsize / 2, room.y * 5 + room.ysize / 2];
-				}
-			}
-
-			rooms.sort(RoomSort);
-			room = rooms.shift();
-
-			result = Pather.getNearestWalkable(room[0], room[1], 10, 2);
-
-			if (result) {
-				Pather.moveTo(result[0], result[1], 3);
-
-				if (!Attack.clear(30)) {
-					return false;
-				}
-			}
-		}
-
-		return true;
-	};
-
 	this.getLeg = function () {
 		if (me.getItem(sdk.items.quest.WirtsLeg)) {
 			return me.getItem(sdk.items.quest.WirtsLeg);
 		}
 
-		// Cain is incomplete, complete it then continue
+		// Cain is incomplete, complete it then continue @isid0re
 		if (!me.tristram) {
 			if (!isIncluded("SoloPlay/Scripts/tristram.js")) {
 				include("SoloPlay/Scripts/tristram.js");
@@ -118,13 +51,8 @@ function cows () {
 			Town.goToTown(1);
 		}
 
-		if (!Town.openStash()) {
-			print('ÿc8Kolbot-SoloPlayÿc0: Failed to open stash. (openPortal)');
-		}
-
-		if (!Cubing.emptyCube()) {
-			print('ÿc8Kolbot-SoloPlayÿc0: Failed to empty cube. (openPortal)');
-		}
+		!Town.openStash() && console.log('ÿc8Kolbot-SoloPlayÿc0: Failed to open stash. (openPortal)');
+		!Cubing.emptyCube() && console.log('ÿc8Kolbot-SoloPlayÿc0: Failed to empty cube. (openPortal)');
 
 		if (!me.getItem(sdk.items.quest.WirtsLeg)) {
 			return false;
@@ -172,8 +100,7 @@ function cows () {
 
 	// START
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting cows');
-	me.overhead("cows");
+	myPrint('starting cows');
 
 	if (!Pather.getPortal(sdk.areas.MooMooFarm) && !this.getLeg()) {
 		return true;
@@ -192,8 +119,32 @@ function cows () {
 	Town.move("stash");
 
 	if (Pather.usePortal(sdk.areas.MooMooFarm)) {
+		const Worker = require('../../modules/Worker');
+		let kingTick = getTickCount();
+		let king;
+		let kingPreset;
+
+		Worker.runInBackground.kingTracker = function () {
+			if (me.area === sdk.areas.MooMooFarm) {
+				if (getTickCount() - kingTick < 1000) return true;
+				kingTick = getTickCount();
+				king = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.TheCowKing));
+				// only get the preset unit once
+				!kingPreset && (kingPreset = getPresetUnit(me.area, sdk.unittype.Monster, sdk.monsters.preset.TheCowKing));
+
+				if (king && kingPreset) {
+					if (getDistance(me.x, me.y, getRoom(kingPreset.roomx * 5 + kingPreset.x), getRoom(kingPreset.roomy * 5 + kingPreset.y)) <= 25) {
+						myPrint("exit cows. Near the king");
+						throw new Error('ÿc8Kolbot-SoloPlayÿc0: exit cows. Near the king');
+					}
+				}
+			}
+
+			return true;
+		};
+
 		Precast.doPrecast(true);
-		this.clearCowLevel();
+		Common.Cows.clearCowLevel();
 	}
 
 	return true;

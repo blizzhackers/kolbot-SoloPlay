@@ -176,10 +176,11 @@ Attack.openChests = function (range = 10, x = undefined, y = undefined) {
 // this might be depreciated now 
 Attack.killTarget = function (name = undefined) {
 	if (!name) return false;
+	
 	typeof name === "string" && (name = name.toLowerCase());
+	let target = (typeof name === "object" ? name : Misc.poll(() => getUnit(1, name), 2000, 100));
 
 	let attackCount = 0;
-	let target = Misc.poll(() => getUnit(sdk.unittype.Monster, name), 1000, 200);
 
 	if (!target) {
 		console.warn("ÿc8KillTargetÿc0 :: " + name + " not found. Performing Attack.Clear(25)");
@@ -414,26 +415,22 @@ Attack.getMobCountAtPosition = function (x, y, range, filter = false, debug = tr
 	return count;
 };
 
-// Clear an entire area based on monster spectype
-Attack.clearLevel = function (obj) {
-	let result, myRoom, previousArea, spectype, rooms = [];
+// Clear an entire area based on settings
+Attack.clearLevelEx = function (givenSettings = {}) {
+	// credit @jaenstr
+	let settings = Object.assign({}, {
+		spectype: Config.ClearType,
+		quitWhen: () => {}
+	}, givenSettings);
+
+	let result, myRoom, previousArea, rooms = [];
 	let room = getRoom();
 	let currentArea = getArea().id;
-	let quitWhen = () => {};
 
 	if (!room) return false;
 
 	function RoomSort(a, b) {
 		return getDistance(myRoom[0], myRoom[1], a[0], a[1]) - getDistance(myRoom[0], myRoom[1], b[0], b[1]);
-	}
-
-	// credit @jaenstr
-	if (typeof obj === 'object' && obj /*not null*/) {
-		spectype = obj.hasOwnProperty('spectype') && obj.spectype || 0;
-		quitWhen = obj.hasOwnProperty('quitWhen') && typeof obj.quitWhen === 'function' && obj.quitWhen || quitWhen;
-	}
-	if (typeof obj !== 'object') {
-		spectype = typeof obj === "number" ? obj : Config.ClearType;
 	}
 
 	do {
@@ -442,14 +439,14 @@ Attack.clearLevel = function (obj) {
 
 	while (rooms.length > 0) {
 		// get the first room + initialize myRoom var
-		if (!myRoom) {
-			room = getRoom(me.x, me.y);
-		}
+		!myRoom && (room = getRoom(me.x, me.y));
 
 		if (room) {
-			if (room instanceof Array) { // use previous room to calculate distance
+			// use previous room to calculate distance
+			if (room instanceof Array) {
 				myRoom = [room[0], room[1]];
-			} else { // create a new room to calculate distance (first room, done only once)
+			} else {
+				// create a new room to calculate distance (first room, done only once)
 				myRoom = [room.x * 5 + room.xsize / 2, room.y * 5 + room.ysize / 2];
 			}
 		}
@@ -459,24 +456,16 @@ Attack.clearLevel = function (obj) {
 		result = Pather.getNearestWalkable(room[0], room[1], 18, 3);
 
 		if (result) {
-			Pather.moveTo(result[0], result[1], 3, spectype);
+			Pather.moveTo(result[0], result[1], 3, settings.spectype);
 			previousArea = result;
 
-			if ([29, 30, 31].indexOf(me.area) > -1 && me.amazon && me.hell) {
-				if (Attack.stopClear) {
-					myPrint("Tainted monster type found. Moving to next sequence");
-					Attack.stopClear = false;	// Reset value
-					return true;
-				}
-			}
-
-			if (typeof quitWhen === 'function' && quitWhen()) return true;
-			if (!this.clear(40, spectype)) {
+			if (settings.quitWhen()) return true;
+			if (!this.clear(40, settings.spectype)) {
 				break;
 			}
 		} else if (currentArea !== getArea().id) {
 			// Make sure bot does not get stuck in different area.
-			Pather.moveTo(previousArea[0], previousArea[1], 3, spectype);
+			Pather.moveTo(previousArea[0], previousArea[1], 3, settings.spectype);
 		}
 	}
 

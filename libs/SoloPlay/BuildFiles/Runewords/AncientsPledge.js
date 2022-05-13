@@ -4,7 +4,7 @@ if (!Check.haveItem("shield", "runeword", "Ancients' Pledge") && !me.hell) {
 		Config.Recipes.push([Recipe.Rune, "Ral Rune"]);
 	}
 
-	var apRunes = [
+	const apRunes = [
 		"[name] == RalRune # # [maxquantity] == 1",
 		"[name] == OrtRune # # [maxquantity] == 1",
 		"[name] == TalRune # # [maxquantity] == 1",
@@ -12,7 +12,7 @@ if (!Check.haveItem("shield", "runeword", "Ancients' Pledge") && !me.hell) {
 	NTIP.arrayLooping(apRunes);
 }
 
-var apShields = [
+const apShields = [
 	"me.normal && [name] == largeshield && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1",
 	"!me.hell && [name] == kiteshield && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1",
 	"([name] == dragonshield || [name] == scutum) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1",

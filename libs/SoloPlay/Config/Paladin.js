@@ -13,8 +13,16 @@
 *			Smiter
 *			Auradin
 *			Zealer
+*			Classicauradin
+*			Hammershock
+*			Torchadin
+*			Sancdreamer
 *		4. Save the profile and start
 */
+
+// todo: clean-up how cubing to runes is handled
+// move shared config settings into its own function call
+// make and initialize me.equippedItems object so don't have to do repeated Item.getEquippedItem(whatever) call
 
 function LoadConfig () {
 	!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
@@ -192,7 +200,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal ? true : false;
 	Config.ClearType = 0;
-	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0xF};
+	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0};
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];
@@ -238,7 +246,7 @@ function LoadConfig () {
 		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(4).tier > 777 || me.classic))},
 		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
 		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
-	].filter((item) => item.condition());
+	];
 
 	let imbueArr = SetUp.imbueItems();
 
@@ -267,7 +275,7 @@ function LoadConfig () {
 					socketWith: [sdk.items.runes.Um],
 					temp: [sdk.items.gems.Perfect.Ruby],
 					useSocketQuest: true,
-					condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+					condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
 				}
 			);
 
@@ -308,14 +316,14 @@ function LoadConfig () {
 							socketWith: [sdk.items.runes.Ber],
 							temp: [sdk.items.gems.Perfect.Ruby],
 							useSocketQuest: true,
-							condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+							condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
 						},
 						{
 							classid: sdk.items.BoneVisage,
 							socketWith: [sdk.items.runes.Ber],
 							temp: [sdk.items.gems.Perfect.Ruby],
 							useSocketQuest: true,
-							condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal && item.fname.toLowerCase().includes("vampire gaze"); }
+							condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal && item.fname.toLowerCase().includes("vampire gaze")
 						}
 					);
 

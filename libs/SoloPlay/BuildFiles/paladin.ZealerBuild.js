@@ -1,7 +1,7 @@
 /**
- *    @filename   paladin.ZealerBuild.js
- *	  @author	  theGuy
- *    @desc       End-game Zealer build
+ *		@filename	paladin.ZealerBuild.js
+ *		@author		theGuy
+ *		@desc		End-game Zealer build
  */
 
 const finalBuild = {

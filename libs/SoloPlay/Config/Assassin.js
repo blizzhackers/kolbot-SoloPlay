@@ -10,6 +10,7 @@
 *		2. Select the Bots profile
 *		3. In the info tag box enter one of the following choices:
 *			Trapsin
+*			Whirlsin
 *		4. Save the profile and start
 */
 
@@ -188,7 +189,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal ? true : false;
 	Config.ClearType = 0;
-	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 20), Spectype: 0xF};
+	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 20), Spectype: 0};
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];

@@ -1,8 +1,8 @@
 /*
- *    @filename   	barbarian.Singer.js
- *	  @author	  	theBGuy
- *    @desc       	Warcry (Singer/Shout) build
- *    @credits		isid0re, ebner20
+ *		@filename	barbarian.Singer.js
+ *		@author		theBGuy
+ *		@desc		Warcry (Singer/Shout) build
+ *		@credits	isid0re, ebner20
  */
 
 const finalBuild = {

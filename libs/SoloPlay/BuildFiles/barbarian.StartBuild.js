@@ -1,8 +1,8 @@
 /**
- *    @filename   barbarian.StartBuild.js
- *	  @author	  theBGuy
- *	  @credits	  aim2kill (big shout out for all the testing an ideas for this build)
- *    @desc       barb build for before respecOne
+ *		@filename	barbarian.StartBuild.js
+ *		@author		theBGuy
+ *		@credits	aim2kill (big shout out for all the testing an ideas for this build)
+ *		@desc		barb build for before respecOne
  */
 
 let build = {

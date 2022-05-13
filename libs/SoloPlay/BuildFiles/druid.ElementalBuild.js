@@ -1,7 +1,7 @@
 /**
- *    @filename		druid.ElementalBuild.js
- *	  @author		thatflykid, isid0re, theBGuy
- *    @desc			Druid fire build
+ *		@filename	druid.ElementalBuild.js
+ *		@author		thatflykid, isid0re, theBGuy
+ *		@desc		Druid fire build
  */
 
 const finalBuild = {
@@ -11,9 +11,9 @@ const finalBuild = {
 	usefulskills: [sdk.skills.CycloneArmor],
 	precastSkills: [sdk.skills.CycloneArmor],
 	usefulStats: [sdk.stats.PassiveFireMastery, sdk.stats.PassiveFirePierce],
-	mercDiff: sdk.difficulty.Normal,
+	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
-	mercAuraWanted: "Blessed Aim",
+	mercAuraWanted: "Holy Freeze",
 	stats: [
 		["dexterity", 35], ["strength", 48], ["vitality", 165],
 		["strength", 61], ["vitality", 252], ["strength", 156], ["vitality", "all"]

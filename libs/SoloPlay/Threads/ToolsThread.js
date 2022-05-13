@@ -171,12 +171,7 @@ function main () {
 
 		for (let l = 0; l < scripts.length; l += 1) {
 			let script = getScript(scripts[l]);
-
-			if (script) {
-				if (script.running) {
-					script.stop();
-				}
-			}
+			!!script && script.running && script.stop();
 		}
 
 		return true;

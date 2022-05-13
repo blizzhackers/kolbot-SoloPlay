@@ -1,7 +1,7 @@
 /**
- *    @filename   	Sorceress.LightningBuild.js
- *	  @author	  	theBGuy
- *    @desc     	Sorceress lightning build for after respecTwo
+ *		@filename	Sorceress.LightningBuild.js
+ *		@author		theBGuy
+ *		@desc		Sorceress lightning build for after respecTwo
  */
 
 const finalBuild = {

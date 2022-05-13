@@ -1,7 +1,7 @@
 /*
- *    @filename   amazon.WitchyzonBuild.js
- *	  @author	  isid0re, theBGuy
- *    @desc       based off of https://diabloii.net/forums/threads/chipmcs-witchwild-string-strafeazon-guide-v-0-05-beta-if.240912/
+ *		@filename	amazon.WitchyzonBuild.js
+ *		@author		isid0re, theBGuy
+ *		@desc		based off of https://diabloii.net/forums/threads/chipmcs-witchwild-string-strafeazon-guide-v-0-05-beta-if.240912/
  */
 
 const finalBuild = {

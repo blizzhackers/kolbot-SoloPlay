@@ -1,7 +1,7 @@
 /**
- *    @filename   assassin.StartBuild.js
- *	  @author	  theBGuy
- *    @desc       assassin fire trap build for before respecOne
+ *		@filename	assassin.StartBuild.js
+ *		@author		theBGuy
+ *		@desc		assassin fire trap build for before respecOne
  */
 
 let build = {

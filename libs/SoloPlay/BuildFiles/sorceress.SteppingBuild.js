@@ -1,7 +1,7 @@
 /*
- *    @filename 	Sorceress.SteppingBuild.js
- *	  @author	  	theBGuy
- *    @desc    		Sorceress Blizzard build for after respecOne and before respecOneB - respecs at 65
+ *		@filename	Sorceress.SteppingBuild.js
+ *		@author		theBGuy
+ *		@desc		Sorceress Blizzard build for after respecOne and before respecOneB - respecs at 65
  */
 
 let build = {

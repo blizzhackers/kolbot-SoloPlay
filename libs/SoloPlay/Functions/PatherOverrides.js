@@ -14,39 +14,13 @@ NodeAction.killMonsters = function (arg) {
 
 	if (Attack.stopClear) return;
 
+	// todo: we don't need this if we have a lightning chain based skill, e.g light sorc, light zon
 	if ([8, 3, 4, 38, 5, 6, 27, 28, 33, 37, 56, 57, 60, 45, 58, 66, 67, 68, 69, 70, 71, 72].includes(me.area)) {
 		let monList = Attack.getMob([58, 59, 60, 61, 101, 102, 103, 104], 0, 30);
 
 		if (monList.length) {
 			Attack.clear(7, 0);
 			Attack.clearList(monList);
-		}
-	}
-
-	if (me.area === sdk.areas.MooMooFarm) {
-		let king = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.TheCowKing));
-		let kingPreset = getPresetUnit(me.area, sdk.unittype.Monster, sdk.monsters.preset.TheCowKing);
-
-		if (king) {
-			do {
-				if (getDistance(me.x, me.y, getRoom(kingPreset.roomx * 5 + kingPreset.x), getRoom(kingPreset.roomy * 5 + kingPreset.y)) <= 25) {
-					Town.goToTown();
-					myPrint('ÿc8Kolbot-SoloPlayÿc0: exit cows. Near the king');
-				}
-			} while (king.getNext());
-		}
-	}
-
-	if (me.area === sdk.areas.DenofEvil && me.hell && me.druid) {
-		let corpsefire = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.Corpsefire));
-
-		if (corpsefire) {
-			do {
-				if (Attack.getResist(corpsefire, "cold") >= 100 && Attack.getResist(corpsefire, "physical") >= 100) {
-					Town.goToTown();
-					myPrint('Exit den. Corpsefire is immune to cold and physical');
-				}
-			} while (corpsefire.getNext());
 		}
 	}
 

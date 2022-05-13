@@ -1,7 +1,7 @@
 /**
- *    @filename   barbarian.FrenzyBuild.js
- *	  @author	  theBGuy
- *    @desc       Frenzy final build
+ *		@filename	barbarian.FrenzyBuild.js
+ *		@author		theBGuy
+ *		@desc		Frenzy final build
  */
 
 const finalBuild = {

@@ -1,7 +1,7 @@
 /**
- *    @filename   druid.StartBuild.js
- *	  @author	  isid0re, theBGuy
- *    @desc       druid fire build for before respecOne
+ *		@filename	druid.StartBuild.js
+ *		@author		isid0re, theBGuy
+ *		@desc		druid fire build for before respecOne
  */
 
 let build = {

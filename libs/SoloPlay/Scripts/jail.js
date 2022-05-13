@@ -6,18 +6,30 @@
 
 function jail () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting jail');
-	me.overhead("jail");
+	myPrint('starting jail');
 	let levels = [sdk.areas.JailLvl1, sdk.areas.JailLvl2, sdk.areas.JailLvl3];
 
 	Pather.checkWP(sdk.areas.JailLvl1, true) ? Pather.useWaypoint(sdk.areas.JailLvl1) : Pather.getWP(sdk.areas.JailLvl1);
 
 	for (let i = 1; i < levels.length; i++) {
-		print('ÿc8Kolbot-SoloPlayÿc0: clearing jail level ' + i);
-		me.overhead("clearing jail level " + i);
+		myPrint('clearing jail level ' + i);
 
 		Precast.doPrecast(true);
-		Attack.clearLevel(0);
+		Attack.clearLevelEx({quitWhen: function () {
+			if (!me.hell) return false; // don't quit
+			let dangerMob = getUnit(1);
+
+			if (dangerMob) {
+				do {
+					if (dangerMob.attackable && [sdk.monsters.Tainted, sdk.monsters.Tainted2].includes(dangerMob.classid)) {
+						myPrint("Tainted mob found. Moving to next level");
+						return true;
+					}
+				} while (dangerMob.getNext());
+			}
+
+			return false;
+		}});
 		Pather.clearToExit(me.area, levels[i], true);
 	}
 

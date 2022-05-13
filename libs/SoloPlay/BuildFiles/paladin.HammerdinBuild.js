@@ -1,8 +1,8 @@
 /**
- *    @filename		paladin.HammerdinBuild.js
- *	  @author	  	isid0re, theBGuy
- *    @desc			paladin build for hammerdin.
- * 					skills based on https://www.diabloii.net/forums/threads/max-damage-hammerdin-guide-by-captain_bogus-repost.127596/
+ *		@filename	paladin.HammerdinBuild.js
+ *		@author		isid0re, theBGuy
+ *		@desc		paladin build for hammerdin.
+ *					skills based on https://www.diabloii.net/forums/threads/max-damage-hammerdin-guide-by-captain_bogus-repost.127596/
  */
 
 const finalBuild = {

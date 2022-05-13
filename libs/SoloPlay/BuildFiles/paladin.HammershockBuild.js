@@ -1,7 +1,7 @@
 /**
- *    @filename   paladin.HammershockBuild.js
- *	  @author	  theGuy
- *    @desc       End-game Hybrid hammerdin build (BlessedHammer/HolyShock)
+ *		@filename	paladin.HammershockBuild.js
+ *		@author		theGuy
+ *		@desc		End-game Hybrid hammerdin build (BlessedHammer/HolyShock)
  */
 
 const finalBuild = {

@@ -1,7 +1,7 @@
 /**
- *    @filename   paladin.TorchadinBuild.js
- *	  @author	  theGuy
- *    @desc       End-game Auradin build. Holy Fire based, HoJ + Dragon for level 30 Holy Fire
+ *		@filename	paladin.TorchadinBuild.js
+ *		@author		theGuy
+ *		@desc		End-game Auradin build. Holy Fire based, HoJ + Dragon for level 30 Holy Fire
  */
 
 const finalBuild = {

@@ -1,7 +1,7 @@
 /**
- *    @filename   paladin.AuradinBuild.js
- *	  @author	  theGuy
- *    @desc       End-game Auradin build. Duel Dream Runewords + Dragon and HoJ Runewords to give level 30 Holy Shock and level 30 Holy Fire
+ *		@filename	paladin.AuradinBuild.js
+ *		@author		theGuy
+ *		@desc		End-game Auradin build. Duel Dream Runewords + Dragon and HoJ Runewords to give level 30 Holy Shock and level 30 Holy Fire
  */
 
 const finalBuild = {

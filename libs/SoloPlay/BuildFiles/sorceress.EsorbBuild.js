@@ -1,7 +1,7 @@
 /*
- *    @filename   	Sorceress.EsorbBuild.js
- *	  @author	  	theBGuy
- *    @desc      	Sorceress Energy Shield Frozen Orb build
+ *		@filename	Sorceress.EsorbBuild.js
+ *		@author		theBGuy
+ *		@desc		Sorceress Energy Shield Frozen Orb build
  */
 
 const finalBuild = {

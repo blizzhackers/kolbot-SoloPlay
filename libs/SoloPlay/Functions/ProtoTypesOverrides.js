@@ -71,6 +71,12 @@ Unit.prototype.getItemType = function () {
 };
 
 Object.defineProperties(Unit.prototype, {
+	isRuneword: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			return !!this.getFlag(0x4000000);
+		},
+	},
 	isStunned: {
 		get: function () {
 			return this.getState(sdk.states.Stunned);
@@ -85,12 +91,6 @@ Object.defineProperties(Unit.prototype, {
 		get: function () {
 			return this.getState(sdk.states.LowerResist);
 		},
-	},
-	isRuneword: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return false;
-			return !!this.getFlag(0x4000000);
-		}
 	},
 	isBaseType: {
 		get: function () {
@@ -210,8 +210,8 @@ Object.defineProperties(me, {
 			// only classes that can duel wield
 			if (!me.assassin && !me.barbarian) return false;
 			let items = me.getItemsEx()
-				.filter(function (item) { return item.isEquipped && [4, 5].includes(item.bodylocation); });
-			return !!items.length && items.length >= 2 && items.every(function (item) { return ![2, 69, 70].includes(item.itemType) && !getBaseStat("items", item.classid, "block"); });
+				.filter((item) => item.isEquipped && [4, 5].includes(item.bodylocation));
+			return !!items.length && items.length >= 2 && items.every((item) => ![2, 69, 70].includes(item.itemType) && !getBaseStat("items", item.classid, "block"));
 		}
 	},
 	// for visual purposes really, return res with cap
@@ -236,36 +236,6 @@ Object.defineProperties(me, {
 		}
 	},
 });
-
-// Returns the number of frames needed to cast a given skill at a given FCR for a given char.
-Unit.prototype.castingFrames = function (skillId, fcr, charClass) {
-	if (this !== me) {
-		print("invalid arguments, expected 'me' object");
-		return false;
-	}
-
-	if (fcr === void 0) { fcr = this.getStat(sdk.stats.FCR); }
-	if (charClass === void 0) { charClass = this.classid; }
-	// https://diablo.fandom.com/wiki/Faster_Cast_Rate
-	let effectiveFCR = Math.min(75, (fcr * 120 / (fcr + 120)) | 0);
-	let isLightning = skillId === sdk.skills.Lightning || skillId === sdk.skills.ChainLightning;
-	let baseCastRate = [20, isLightning ? 19 : 14, 16, 16, 14, 15, 17][charClass];
-	if (isLightning) {
-		return Math.round(256 * baseCastRate / (256 * (100 + effectiveFCR) / 100));
-	}
-	let animationSpeed = {
-		normal: 256,
-		human: 208,
-		wolf: 229,
-		bear: 228
-	}[charClass === sdk.charclass.Druid ? (this.getState(sdk.states.Wolf) || this.getState(sdk.states.Bear)) : "normal"];
-	return Math.ceil(256 * baseCastRate / Math.floor(animationSpeed * (100 + effectiveFCR) / 100)) - 1;
-};
-
-// Returns the duration in seconds needed to cast a given skill at a given FCR for a given char.
-Unit.prototype.castingDuration = function (skillId, fcr = this.getStat(sdk.stats.FCR), charClass = this.classid) {
-	return this.castingFrames(skillId, fcr, charClass) / 25;
-};
 
 Unit.prototype.castChargedSkill = function (...args) {
 	let skillId, x, y, unit, chargedItem, charge,
@@ -437,24 +407,23 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 		throw new Error("invalid arguments, expected 'me' object");
 	}
 
+	if (this !== me) throw Error("invalid arguments, expected 'me' object");
+
 	// Charged skills can only be casted on x, y coordinates
 	unit && ([x, y] = [unit.x, unit.y]);
 
-	if (this !== me) {
-		throw Error("invalid arguments, expected 'me' object");
-	}
+	if (x === undefined || y === undefined) return false;
 
 	// Called the function the unit, me.
 	if (this === me) {
-		if (!skillId) {
-			throw Error('Must supply skillId on me.castChargedSkill');
-		}
+		if (!skillId) throw Error('Must supply skillId on me.castChargedSkill');
 
 		chargedItems = [];
 
 		// Item must be equipped in the switch position
+		// change this, store the item that has the charge we want in our skillData so we don't need to run through all these checks to find it
 		this.getItemsEx(-1)
-			.filter(item => item && ((me.weaponswitch === 0 && [11, 12].indexOf(item.bodylocation) > -1) || (me.weaponswitch === 1 && [4, 5].indexOf(item.bodylocation) > -1)))
+			.filter(item => item && item.isOnSwap)
 			.forEach(function (item) {
 				let stats = item.getStat(-2);
 
@@ -481,9 +450,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 			return false;
 		}
 
-		if (me.weaponswitch === 0) {
-			me.switchWeapons(1);
-		}
+		me.weaponswitch === 0 && me.switchWeapons(1);
 
 		chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
 
@@ -974,7 +941,7 @@ if (!Array.prototype.equals) {
 			if (this[i] instanceof Array && array[i] instanceof Array) {
 				// recurse into the nested arrays
 				if (!this[i].equals(array[i])) return false;
-			} else if (this[i] != array[i]) {
+			} else if (this[i] !== array[i]) {
 				// Warning - two different object instances will never be equal: {x:20} != {x:20}
 				return false;
 			}

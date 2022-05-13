@@ -7,6 +7,7 @@
 const CharData = {
 	filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-CharData.json",
 	default: {
+		initialized: false,
 		normal: {
 			respecUsed: false,
 			imbueUsed: false,

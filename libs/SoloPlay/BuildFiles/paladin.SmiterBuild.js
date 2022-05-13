@@ -1,7 +1,7 @@
 /**
- *    @filename   paladin.SmiterBuild.js
- *	  @author	  isid0re, theBGuy
- *    @desc       End-game smiter build
+ *		@filename	paladin.SmiterBuild.js
+ *		@author		isid0re, theBGuy
+ *		@desc		End-game smiter build
  */
 
 const finalBuild = {

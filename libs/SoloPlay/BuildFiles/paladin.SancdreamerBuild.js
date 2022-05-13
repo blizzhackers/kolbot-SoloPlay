@@ -1,11 +1,11 @@
 /**
- *      @filename   paladin.SancdreamerBuild.js
- *      @author     theGuy
- *      @desc       End-game Sancdreamer build.
- *                  Duel Dream Runewords/CoH/Last Wish/Verdungos/RavenFrost + Wisp/Gore Riders/Highlords/Laying of Hands
- *                  Auras: Level 30 Holy Shock, Level 17 Might
- *                  Ctc: Level 18 life tap, Level 11 Fade, Level 15 Confuse, Level 16 Lightning
- *                  Stats: 75 Fire Res/75 Cold Res/85 Light Res/75 Poison Res, Max Block, 34% Damage Reduction, 20% Cold Absorb, 10-20% Light Absorb, 85% Crushing Blow
+ *		@filename   paladin.SancdreamerBuild.js
+ *		@author     theGuy
+ *		@desc       End-game Sancdreamer build.
+ *					Duel Dream Runewords/CoH/Last Wish/Verdungos/RavenFrost + Wisp/Gore Riders/Highlords/Laying of Hands
+ *					Auras: Level 30 Holy Shock, Level 17 Might
+ *					Ctc: Level 18 life tap, Level 11 Fade, Level 15 Confuse, Level 16 Lightning
+ *					Stats: 75 Fire Res/75 Cold Res/85 Light Res/75 Poison Res, Max Block, 34% Damage Reduction, 20% Cold Absorb, 10-20% Light Absorb, 85% Crushing Blow
  */
 
 const finalBuild = {

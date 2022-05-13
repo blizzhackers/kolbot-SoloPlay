@@ -198,7 +198,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = false;
 	Config.ClearType = 0;
-	Config.ClearPath = { Range: 30, Spectype: 0xF};
+	Config.ClearPath = { Range: 30, Spectype: 0};
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];

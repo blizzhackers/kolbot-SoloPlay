@@ -1,7 +1,7 @@
 /**
- *    @filename   paladin.ClassicauradinBuild.js
- *	  @author	  theGuy
- *    @desc       End-game Classic Auradin build (HolyShock/Freeze based)
+ *		@filename	paladin.ClassicauradinBuild.js
+ *		@author		theGuy
+ *		@desc		End-game Classic Auradin build (HolyShock/Freeze based)
  */
 
 const finalBuild = {
@@ -46,6 +46,9 @@ const finalBuild = {
 		// Belt
 		"[name] == belt && [quality] == set # [coldresist] == 20 && [maxhp] == 20 # [tier] == 100000", // Hsaru's Iron Stay
 	],
+	// idea: since this is based on the classic build, could do tri-element instead of just normal auradin
+	// max Holy Shock/Freeze then use HoJ + Dragon Armor/Shield for level 44 Holy Fire
+	// could even then do infinity for the merc to still have some conviction
 	expansionTiers: [
 		// Weapon
 		"[type] == sword && [flag] == runeword # [passivecoldpierce] >= 24 # [tier] == 102500", // Voice of Reason

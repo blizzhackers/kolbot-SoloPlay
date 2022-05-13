@@ -1,7 +1,7 @@
 /**
- *    @filename   necromancer.StartBuild.js
- *	  @author	  theBGuy, isid0re
- *    @desc       necro build for before respecOne (Bonemancer)
+ *		@filename	necromancer.StartBuild.js
+ *		@author		theBGuy, isid0re
+ *		@desc		necro build for before respecOne (Bonemancer)
  */
 
 let build = {

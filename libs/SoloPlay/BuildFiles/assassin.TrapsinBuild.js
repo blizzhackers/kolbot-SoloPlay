@@ -1,7 +1,7 @@
 /**
- *    @filename   assassin.TrapsinBuild.js
- *	  @author	  theBGuy
- *    @desc       assassin build for after respecOne (11 fpa trap laying, 9 fps tele)
+ *		@filename	assassin.TrapsinBuild.js
+ *		@author		theBGuy
+ *		@desc		assassin build for after respecOne (11 fpa trap laying, 9 fps tele)
  */
 
 const finalBuild = {

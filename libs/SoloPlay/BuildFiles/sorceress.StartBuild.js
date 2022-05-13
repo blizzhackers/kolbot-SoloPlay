@@ -1,7 +1,7 @@
 /*
- *    @filename   	sorceress.startBuild.js
- *	  @author	  	isid0re, theBGuy
- *    @desc       	sorceress Blova build for before respecOne - respecs at level 26
+ *		@filename	sorceress.startBuild.js
+ *		@author		isid0re, theBGuy
+ *		@desc		sorceress Blova build for before respecOne - respecs at level 26
  */
 
 let build = {

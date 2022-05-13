@@ -1,7 +1,7 @@
 /**
- *    @filename   barbarian.ThrowBuild.js
- *	  @author	  theBGuy
- *    @desc       Throw Barb final build
+ *		@filename	barbarian.ThrowBuild.js
+ *		@author		theBGuy
+ *		@desc		Throw Barb final build
  */
 
 const build = {

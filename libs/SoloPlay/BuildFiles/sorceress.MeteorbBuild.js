@@ -1,7 +1,7 @@
 /*
- *    @filename   	Sorceress.MeteorbBuild.js
- *	  @author	  	theBGuy
- *    @desc      	Sorceress meteorb build
+ *		@filename	Sorceress.MeteorbBuild.js
+ *		@author		theBGuy
+ *		@desc		Sorceress meteorb build
  */
 
 const finalBuild = {

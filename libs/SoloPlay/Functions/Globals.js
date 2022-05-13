@@ -13,9 +13,9 @@
 let myData = CharData.getStats();
 
 // these builds are not possible to do on classic
-let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl"];
+let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl", "Sancdreamer"];
 // these builds are not possible to do without ladder runewords
-let impossibleNonLadderBuilds = ["Auradin"];
+let impossibleNonLadderBuilds = ["Auradin", "Sancdreamer"];
 
 Unit.prototype.__defineGetter__('mercid', function () {
 	return !!myData ? myData.merc.classid : me.getMerc().classid;
@@ -250,21 +250,24 @@ const SetUp = {
 		return buildType;
 	},
 
+	getTemplate: function () {
+		let buildType = SetUp.currentBuild;
+		let build = buildType + "Build" ;
+		let template = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js";
+
+		return {
+			buildType: buildType,
+			template: template.toLowerCase()
+		};
+	},
+
 	specPush: function (specType) {
-		function getBuildTemplate () {
-			let buildType = SetUp.getBuild();
-			let build = buildType + "Build" ;
-			let template = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js";
+		let buildInfo = SetUp.getTemplate();
 
-			return template.toLowerCase();
-		}
-
-		let template = getBuildTemplate();
-
-		if (!include(template)) throw new Error("Failed to include template: " + template);
+		if (!include(buildInfo.template)) throw new Error("Failed to include template: " + buildInfo.template);
 
 		let specCheck = [];
-		let final = SetUp.getBuild() === SetUp.finalBuild;
+		let final = buildInfo.buildType === SetUp.finalBuild;
 
 		switch (specType) {
 		case "skills":
@@ -1097,49 +1100,32 @@ const Check = {
 	},
 
 	currentBuild: function () {
-		function getBuildTemplate () {
-			let buildType = SetUp.currentBuild;
-			let build = buildType + "Build" ;
-			let template = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js";
+		let buildInfo = SetUp.getTemplate();
 
-			return template.toLowerCase();
-		}
+		if (!include(buildInfo.template)) throw new Error("currentBuild(): Failed to include template: " + buildInfo.template);
 
-		let template = getBuildTemplate();
-
-		if (!include(template)) throw new Error("currentBuild(): Failed to include template: " + template);
-
-		if (SetUp.currentBuild === SetUp.finalBuild) {
-			return {
-				caster: finalBuild.caster,
-				tabSkills: finalBuild.skillstab,
-				wantedSkills: finalBuild.wantedskills,
-				usefulSkills: finalBuild.usefulskills,
-				precastSkills: finalBuild.precastSkills,
-				usefulStats: (!!finalBuild.usefulStats ? finalBuild.usefulStats : []),
-				mercDiff: finalBuild.mercDiff,
-				mercAct: finalBuild.mercAct,
-				mercAuraWanted: finalBuild.mercAuraWanted,
-				finalGear: finalBuild.autoEquipTiers,
-				respec: finalBuild.respec,
-				active: finalBuild.active,
-			};
-		}
+		let final = buildInfo.buildType === SetUp.finalBuild;
 
 		return {
-			caster: build.caster,
-			tabSkills: build.skillstab,
-			wantedSkills: build.wantedskills,
-			usefulSkills: build.usefulskills,
-			usefulStats: (!!build.usefulStats ? build.usefulStats : []),
-			active: build.active,
+			caster: final ? finalBuild.caster : build.caster,
+			tabSkills: final ? finalBuild.skillstab : build.skillstab,
+			wantedSkills: final ? finalBuild.wantedskills : build.wantedskills,
+			usefulSkills: final ? finalBuild.usefulskills : build.usefulskills,
+			precastSkills: final ? finalBuild.precastSkills : [],
+			usefulStats: final ? (!!finalBuild.usefulStats ? finalBuild.usefulStats : []) : (!!build.usefulStats ? build.usefulStats : []),
+			mercDiff: final ? finalBuild.mercDiff : null,
+			mercAct: final ? finalBuild.mercAct : null,
+			mercAuraWanted: final ? finalBuild.mercAuraWanted : null,
+			finalGear: final ? finalBuild.autoEquipTiers : [],
+			respec: final ? finalBuild.respec : () => {},
+			active: final ? finalBuild.active : build.active,
 		};
 	},
 
 	finalBuild: function () {
 		function getBuildTemplate () {
-			let buildType = SetUp.finalBuild;
 			let build;
+			let buildType = SetUp.finalBuild;
 
 			if (["Bumper", "Socketmule", "Imbuemule"].includes(buildType)) {
 				build = ["Javazon", "Cold", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid] + "Build";
@@ -1149,6 +1135,7 @@ const Check = {
 
 			let template = ("SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js").toLowerCase();
 
+			// todo: fix this, need to ensure our build is correct but doing this here takes 2-3 seconds per thread making load up time take longer than it really should
 			if (FileTools.exists("libs/" + template)) {
 				return template;
 			} else {

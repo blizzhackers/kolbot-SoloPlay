@@ -1,7 +1,7 @@
 /*
- *    @filename   	barbarian.WhirlwindBuild.js
- *	  @author	  	theBGuy
- *    @desc       	Whirlwind build
+ *		@filename	barbarian.WhirlwindBuild.js
+ *		@author		theBGuy
+ *		@desc		Whirlwind build
  */
 
 const finalBuild = {

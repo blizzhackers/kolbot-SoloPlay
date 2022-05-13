@@ -1,7 +1,7 @@
 /*
- *    @filename   	barbarian.UberconcBuild.js
- *	  @author	  	theBGuy
- *    @desc       	Uber concentration build
+ *		@filename	barbarian.UberconcBuild.js
+ *		@author		theBGuy
+ *		@desc		Uber concentration build
  */
 
 const finalBuild = {

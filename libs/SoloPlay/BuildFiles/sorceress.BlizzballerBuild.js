@@ -1,7 +1,7 @@
 /*
- *    @filename   	Sorceress.BlizzballerBuild.js
- *	  @author	  	isid0re, theBGuy
- *    @desc      	Sorceress blizzballer build for after respecOne
+ *		@filename	Sorceress.BlizzballerBuild.js
+ *		@author		isid0re, theBGuy
+ *		@desc		Sorceress blizzballer build for after respecOne
  */
 
 const finalBuild = {

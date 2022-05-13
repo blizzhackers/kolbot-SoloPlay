@@ -1,7 +1,7 @@
 /**
- *    @filename   necromancer.PoisonBuild.js
- *	  @author	  isid0re, theBGuy
- *    @desc       poison necro final build
+ *		@filename	necromancer.PoisonBuild.js
+ *		@author		isid0re, theBGuy
+ *		@desc		poison necro final build
  */
 
 const finalBuild = {

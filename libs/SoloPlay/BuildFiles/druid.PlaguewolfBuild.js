@@ -1,7 +1,7 @@
 /**
- *    @filename		druid.PlaguewolfBuild.js
- *	  @author		theBGuy
- *    @desc			Plague wolf final build
+ *		@filename	druid.PlaguewolfBuild.js
+ *		@author		theBGuy
+ *		@desc		Plague wolf final build
  */
 
 const finalBuild = {

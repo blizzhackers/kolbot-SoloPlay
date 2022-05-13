@@ -1,7 +1,7 @@
 /*
- *    @filename 	Sorceress.LevelingBuild.js
- *	  @author	  	theBGuy
- *    @desc    		Sorceress blizzballer build for after respecOneB
+ *		@filename	Sorceress.LevelingBuild.js
+ *		@author		theBGuy
+ *		@desc		Sorceress blizzballer build for after respecOneB
  */
 
 let build = {

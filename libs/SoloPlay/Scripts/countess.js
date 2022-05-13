@@ -7,8 +7,7 @@
 function countess () {
 	let floors = [sdk.areas.ForgottenTower, sdk.areas.TowerCellarLvl1, sdk.areas.TowerCellarLvl2, sdk.areas.TowerCellarLvl3, sdk.areas.TowerCellarLvl4, sdk.areas.TowerCellarLvl5];
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting countess');
-	me.overhead("countess");
+	myPrint('starting countess');
 
 	Pather.checkWP(sdk.areas.BlackMarsh, true) ? Pather.useWaypoint(sdk.areas.BlackMarsh) : Pather.getWP(sdk.areas.BlackMarsh);
 	Precast.doPrecast(true);
@@ -26,7 +25,7 @@ function countess () {
 		Pather.moveToPreset(me.area, 2, 580);
 		Attack.killTarget(getLocaleString(2875));
 	} catch (err) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Countess');
+		console.log('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Countess: ' + err);
 	}
 
 	Pickit.pickItems();
