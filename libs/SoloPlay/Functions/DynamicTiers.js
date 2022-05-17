@@ -227,7 +227,7 @@ const tierWeights = {
 	},
 	
 	meleeWeights: {
-		//breakpoint stats
+		// breakpoint stats - todo actually take breakpoints into account
 		FCR: 0.5,
 		IAS: 4,
 		// Attack
@@ -236,7 +236,7 @@ const tierWeights = {
 		SECMINDMG: 2,
 		SECMAXDMG: 2,
 		AVGDMG: 3,
-		ELEDMG: 1,
+		ELEDMG: 0.5,
 		AR: 0.2,
 		CB: 4,
 		OW: 1,

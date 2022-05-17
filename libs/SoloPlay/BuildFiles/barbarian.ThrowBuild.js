@@ -1,10 +1,10 @@
 /**
- *		@filename	barbarian.ThrowBuild.js
- *		@author		theBGuy
- *		@desc		Throw Barb final build
+ * @filename    barbarian.ThrowBuild.js
+ * @author      theBGuy
+ * @desc        Throw Barb final build
  */
 
-const build = {
+const finalBuild = {
 	caster: false,
 	skillstab: sdk.skills.tabs.BarbCombat,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.DoubleThrow, sdk.skills.DoubleSwing],

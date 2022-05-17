@@ -145,7 +145,7 @@ Precast.doPrecast = function (force) {
 
 	// Force BO 30 seconds before it expires
 	if (this.haveCTA > -1) {
-		this.precastCTA(!me.getState(sdk.states.BattleCommand) || force || (getTickCount() - this.BOTick >= this.BODuration - 30000));
+		this.precastCTA(!me.getState(sdk.states.BattleOrders) || force || (getTickCount() - this.BOTick >= this.BODuration - 30000));
 	}
 
 	switch (me.classid) {

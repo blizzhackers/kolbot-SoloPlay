@@ -12,7 +12,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.AmplifyDamage,
 		priority: 2,
 		useIf: function (unit) {
-			return me.getSkill(this.skillId, 1) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical");
+			return me.getSkill(this.skillId, 1) && !unit.getState(sdk.states.Decrepify) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical");
 		}
 	},
 	{
@@ -31,7 +31,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.Weaken,
 		priority: 3,
 		useIf: function (unit) {
-			return me.getSkill(this.skillId, 1) && unit;
+			return me.getSkill(this.skillId, 1) && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.AmplifyDamage);
 		}
 	},
 	{

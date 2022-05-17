@@ -322,6 +322,81 @@ const SetUp = {
 		}
 		return temp;
 	},
+
+	config: function () {
+		/* General configuration. */
+		Config.MinGameTime = 400;
+		Config.MaxGameTime = 7200;
+		Config.MiniShopBot = true;
+		Config.PacketShopping = true;
+		Config.TownCheck = true;
+		Config.LogExperience = false;
+		Config.PingQuit = [{Ping: 600, Duration: 10}];
+		Config.Silence = true;
+		Config.OpenChests.Enabled = true;
+		Config.LowGold = me.normal ? 25000 : me.nightmare ? 50000 : 100000;
+		Config.PrimarySlot = 0;
+		Config.PacketCasting = 1;
+		Config.WaypointMenu = true;
+		Config.Cubing = !!me.getItem(sdk.items.quest.Cube);
+		Config.MakeRunewords = true;
+
+		/* General logging. */
+		Config.ItemInfo = false;
+		Config.LogKeys = false;
+		Config.LogOrgans = false;
+		Config.LogMiddleRunes = true;
+		Config.LogHighRunes = true;
+		Config.ShowCubingInfo = true;
+
+		/* DClone. */
+		Config.StopOnDClone = !!me.expansion;
+		Config.SoJWaitTime = 5; // Time in minutes to wait for another SoJ sale before leaving game. 0 = disabled
+		Config.KillDclone = !!me.expansion;
+		Config.DCloneQuit = false;
+
+		/* Town configuration. */
+		Config.HealHP = 99;
+		Config.HealMP = 99;
+		Config.HealStatus = true;
+		Config.UseMerc = me.expansion;
+		Config.MercWatch = true;
+		Config.StashGold = me.charlvl * 100;
+		Config.ClearInvOnStart = false;
+
+		/* Inventory buffers and lock configuration. */
+		Config.HPBuffer = 0;
+		Config.MPBuffer = 0;
+		Config.RejuvBuffer = 4;
+		Config.Inventory[0] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+		Config.Inventory[1] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+		Config.Inventory[2] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+		Config.Inventory[3] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+		/* FastMod configuration. */
+		Config.FCR = 255;
+		Config.FHR = me.realm ? 0 : 255;
+		Config.FBR = me.realm ? 0 : 255;
+		Config.IAS = me.realm ? 0 : 255;
+
+		/* AutoStat configuration. */
+		Config.AutoStat.Enabled = true;
+		Config.AutoStat.Save = 0;
+		Config.AutoStat.BlockChance = me.paladin ? 75 : 57;
+		Config.AutoStat.UseBulk = true;
+		Config.AutoStat.Build = SetUp.specPush("stats");
+
+		/* AutoSkill configuration. */
+		Config.AutoSkill.Enabled = true;
+		Config.AutoSkill.Save = 0;
+		Config.AutoSkill.Build = SetUp.specPush("skills");
+
+		/* AutoBuild configuration. */
+		Config.AutoBuild.Enabled = true;
+		Config.AutoBuild.Verbose = false;
+		Config.AutoBuild.DebugMode = false;
+		Config.AutoBuild.Template = SetUp.getBuild();
+	}
 };
 
 Object.defineProperties(SetUp, {
@@ -1133,52 +1208,52 @@ const Check = {
 				build = buildType + "Build";
 			}
 
-			let template = ("SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js").toLowerCase();
-
-			// todo: fix this, need to ensure our build is correct but doing this here takes 2-3 seconds per thread making load up time take longer than it really should
-			if (FileTools.exists("libs/" + template)) {
-				return template;
-			} else {
-				let foundError = false;
-				if (myData.me.finalBuild.match("Build", "gi")) {
-					myData.me.finalBuild = myData.me.finalBuild.substring(0, SetUp.finalBuild.length - 5);
-					D2Bot.printToConsole("Kolbot-SoloPlay: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-					foundError = true;
-				}
-
-				if (myData.me.finalBuild.includes(".")) {
-					myData.me.finalBuild = myData.me.finalBuild.substring(myData.me.finalBuild.indexOf(".") + 1).capitalize(true);
-					D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-					foundError = true;
-				}
-
-				if (myData.me.finalBuild.includes(" ")) {
-					myData.me.finalBuild = myData.me.finalBuild.trim().capitalize(true);
-					D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-					foundError = true;
-				}
-
-				if (myData.me.finalBuild.includes("-")) {
-					myData.me.finalBuild = myData.me.finalBuild.substring(myData.me.finalBuild.indexOf("-") + 1).capitalize(true);
-					D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '-' which is unecessary and means you likely entered something along the lines of Classname-finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
-					foundError = true;
-				}
-
-				if (foundError) {
-					D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
-					CharData.updateData("me", "finalBuild", SetUp.finalBuild);
-					buildType = myData.me.finalBuild;
-				}
-			}
-
-			return ("SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + buildType + "Build.js").toLowerCase();
+			return ("SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js").toLowerCase();
 		}
 
 		let template = getBuildTemplate();
 
 		if (!include(template)) {
-			console.debug("ÿc8Kolbot-SoloPlayÿc0: Failed to include finalBuild template. Please check that you have actually entered it in correctly. Here is what you currently have: " + SetUp.finalBuild);
-			throw new Error("finalBuild(): Failed to include template: " + template);
+			let foundError = false;
+			let buildType;
+			
+			// try to see if we can correct the finalBuild
+			if (myData.me.finalBuild.match("Build", "gi")) {
+				myData.me.finalBuild = myData.me.finalBuild.substring(0, SetUp.finalBuild.length - 5);
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				foundError = true;
+			}
+
+			if (myData.me.finalBuild.includes(".")) {
+				myData.me.finalBuild = myData.me.finalBuild.substring(myData.me.finalBuild.indexOf(".") + 1).capitalize(true);
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				foundError = true;
+			}
+
+			if (myData.me.finalBuild.includes(" ")) {
+				myData.me.finalBuild = myData.me.finalBuild.trim().capitalize(true);
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				foundError = true;
+			}
+
+			if (myData.me.finalBuild.includes("-")) {
+				myData.me.finalBuild = myData.me.finalBuild.substring(myData.me.finalBuild.indexOf("-") + 1).capitalize(true);
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '-' which is unecessary and means you likely entered something along the lines of Classname-finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				foundError = true;
+			}
+
+			if (foundError) {
+				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
+				CharData.updateData("me", "finalBuild", SetUp.finalBuild);
+				buildType = myData.me.finalBuild;
+				template = ("SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + buildType + "Build.js").toLowerCase();
+			}
+
+			// try-again - if it fails again throw error
+			if (!include(template)) {
+				console.debug("ÿc8Kolbot-SoloPlayÿc0: Failed to include finalBuild template. Please check that you have actually entered it in correctly. Here is what you currently have: " + SetUp.finalBuild);
+				throw new Error("finalBuild(): Failed to include template: " + template);
+			}
 		}
 
 		return {

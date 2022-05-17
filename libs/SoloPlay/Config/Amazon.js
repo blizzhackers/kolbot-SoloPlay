@@ -36,45 +36,7 @@ function LoadConfig () {
 		return tmpCap[me.diff];
 	})();
 
-	/* General configuration. */
-	Config.MinGameTime = 400;
-	Config.MaxGameTime = 7200;
-	Config.MiniShopBot = true;
-	Config.PacketShopping = true;
-	Config.TownCheck = true;
-	Config.LogExperience = false;
-	Config.PingQuit = [{Ping: 600, Duration: 10}];
-	Config.Silence = true;
-	Config.OpenChests.Enabled = true;
-	Config.LowGold = me.normal ? 25000 : me.nightmare ? 50000 : 100000;
-	Config.PrimarySlot = 0;
-	Config.PacketCasting = 1;
-	Config.WaypointMenu = true;
-	Config.Cubing = !!me.getItem(sdk.items.quest.Cube);
-	Config.MakeRunewords = true;
-
-	/* General logging. */
-	Config.ItemInfo = false;
-	Config.LogKeys = false;
-	Config.LogOrgans = false;
-	Config.LogMiddleRunes = true;
-	Config.LogHighRunes = true;
-	Config.ShowCubingInfo = true;
-
-	/* DClone. */
-	Config.StopOnDClone = !!me.expansion;
-	Config.SoJWaitTime = 5; // Time in minutes to wait for another SoJ sale before leaving game. 0 = disabled
-	Config.KillDclone = !!me.expansion;
-	Config.DCloneQuit = false;
-
-	/* Town configuration. */
-	Config.HealHP = 99;
-	Config.HealMP = 99;
-	Config.HealStatus = true;
-	Config.UseMerc = me.expansion;
-	Config.MercWatch = true;
-	Config.StashGold = me.charlvl * 100;
-	Config.ClearInvOnStart = false;
+	SetUp.config();
 
 	/* Chicken configuration. */
 	Config.LifeChicken = me.hardcore ? 45 : 10;
@@ -92,15 +54,6 @@ function LoadConfig () {
 	/* Belt configuration. */
 	Config.BeltColumn = ["hp", "mp", "mp", "rv"];
 	SetUp.belt();
-
-	/* Inventory buffers and lock configuration. */
-	Config.HPBuffer = 0;
-	Config.MPBuffer = 0;
-	Config.RejuvBuffer = 4;
-	Config.Inventory[0] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-	Config.Inventory[1] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-	Config.Inventory[2] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-	Config.Inventory[3] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
 	/* Pickit configuration. */
 	Config.PickRange = 40;
@@ -135,6 +88,7 @@ function LoadConfig () {
 	let levelingTiers = [
 		// Weapon
 		"([type] == javelin || [type] == amazonjavelin) && [quality] >= normal && [flag] != ethereal && [wsm] <= 10 && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"[name] == ceremonialjavelin && [quality] == unique && [flag] == ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Helmet
 		"([type] == circlet || [type] == helm) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Belt
@@ -178,12 +132,6 @@ function LoadConfig () {
 		NTIP.addLine("me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
 	}
 
-	/* FastMod configuration. */
-	Config.FCR = 255;
-	Config.FHR = 255;
-	Config.FBR = 255;
-	Config.IAS = me.realm ? 0 : 255;
-
 	/* Attack configuration. */
 	Config.AttackSkill = [0, 0, 0, 0, 0];
 	Config.LowManaSkill = [-1, -1];
@@ -199,24 +147,6 @@ function LoadConfig () {
 
 	/* Shrine scan configuration. */
 	Config.ScanShrines = [15, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14];
-
-	/* AutoStat configuration. */
-	Config.AutoStat.Enabled = true;
-	Config.AutoStat.Save = 0;
-	Config.AutoStat.BlockChance = 57;
-	Config.AutoStat.UseBulk = true;
-	Config.AutoStat.Build = SetUp.specPush("stats");
-
-	/* AutoSkill configuration. */
-	Config.AutoSkill.Enabled = true;
-	Config.AutoSkill.Save = 0;
-	Config.AutoSkill.Build = SetUp.specPush("skills");
-
-	/* AutoBuild configuration. */
-	Config.AutoBuild.Enabled = true;
-	Config.AutoBuild.Verbose = false;
-	Config.AutoBuild.DebugMode = false;
-	Config.AutoBuild.Template = SetUp.getBuild();
 
 	// Class specific config
 	Config.LightningFuryDelay = 10; // Lightning fury interval in seconds. LF is treated as timed skill.

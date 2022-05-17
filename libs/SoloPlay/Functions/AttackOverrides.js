@@ -148,15 +148,16 @@ Attack.openChests = function (range = 10, x = undefined, y = undefined) {
 
 	if (me.getMobCount(range) > 1) return false;
 
-	let unit,
-		list = [],
+	let list = [],
 		ids = ["chest", "chest3", "weaponrack", "armorstand"];
 
-	unit = getUnit(2);
+	let unit = getUnit(2);
 
 	if (unit) {
 		do {
-			if (unit.name && getDistance(unit, x, y) <= range && ids.indexOf(unit.name.toLowerCase()) > -1) {
+			if (unit.name && getDistance(unit, x, y) <= range
+				&& ids.includes(unit.name.toLowerCase())
+				&& unit.getMobCount(10) === 0) {
 				list.push(copyUnit(unit));
 			}
 		} while (unit.getNext());
@@ -176,7 +177,7 @@ Attack.openChests = function (range = 10, x = undefined, y = undefined) {
 // this might be depreciated now 
 Attack.killTarget = function (name = undefined) {
 	if (!name) return false;
-	
+
 	typeof name === "string" && (name = name.toLowerCase());
 	let target = (typeof name === "object" ? name : Misc.poll(() => getUnit(1, name), 2000, 100));
 
@@ -1436,4 +1437,44 @@ Attack.castableSpot = function (x = undefined, y = undefined) {
 	}
 
 	return !(result === undefined || !!(result & Coords_1.BlockBits.Casting) || !!(result & Coords_1.Collision.BLOCK_MISSILE) || (result & 0x400) || (result & 0x1));
+};
+
+// hotfix for now, bugged with flying mobs (specters, ghosts, ect) apparently underneath them doesn't register as ground? so it fails the needFloor test
+// despite there being floor there. so for now check if its an area that doesn't have floor in some spots
+// better fix would be passing unit directly in instead of x and y, but that is going to need more changes all over
+Attack.validSpot = function (x, y, skill = -1) {
+	// Just in case
+	if (!me.area || !x || !y) return false;
+	// for now this just returns true and we leave getting into position to the actual class attack files
+	if (Skill.missileSkills.includes(skill)) return true;
+
+	let result;
+	let nonFloorAreas = [sdk.areas.ArcaneSanctuary, sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit];
+
+	// Treat thrown errors as invalid spot
+	try {
+		result = getCollision(me.area, x, y);
+	} catch (e) {
+		return false;
+	}
+
+	if (result === undefined) return false;
+
+	switch (true) {
+	case Skill.needFloor.includes(skill) && nonFloorAreas.includes(me.area):
+		let isFloor = !!(result & (0 | 0x1000));
+		// this spot is not on the floor (lava (river/chaos, space (arcane), ect))
+		if (!isFloor) {
+			return false;
+		}
+
+		return !(result & 0x1); // outside lava area in abaddon returns coll 1
+	default:
+		// Avoid non-walkable spots, objects - this preserves the orignal function and also physical attack skills will get here
+		if ((result & 0x1) || (result & 0x400)) return false;
+
+		break;
+	}
+
+	return true;
 };
