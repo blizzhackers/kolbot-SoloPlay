@@ -232,6 +232,17 @@ function LoadConfig () {
 				Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]);
 			}
 
+			Config.socketables
+				.push(
+					{
+						classid: sdk.items.DiamondBow,
+						socketWith: [sdk.items.runes.Nef, sdk.items.runes.Shael],
+						temp: [sdk.items.gems.Perfect.Skull],
+						useSocketQuest: false,
+						condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
+					}
+				);
+
 			break;
 		case 'Javazon':
 			Config.SkipImmune = ["lightning and physical"];

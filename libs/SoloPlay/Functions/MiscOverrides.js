@@ -263,7 +263,7 @@ Misc.checkItemsForImbueing = function () {
 		.filter(item => item.getStat(sdk.stats.NumSockets) === 0 && [sdk.itemquality.Normal, sdk.itemquality.Superior].includes(item.quality));
 
 	for (let i = 0; i < items.length; i++) {
-		if (Config.imbueables.some(function (item) { return item.name === items[i].classid && Item.canEquip(items[i]); })) {
+		if (Config.imbueables.some(item => item.name === items[i].classid && Item.canEquip(items[i]))) {
 			return items[i];
 		}
 	}
@@ -332,8 +332,9 @@ Misc.getSocketables = function (item, itemInfo) {
 	let runeType;
 	let multiple = [];
 	let temp = [];
-	let preSockets = item.getItemsEx().length;
-	let allowTemp = (!!itemInfo && !!itemInfo.temp && itemInfo.temp.length > 0 && (preSockets === 0 || preSockets > 0 && item.getItemsEx().some(function (el) { return !itemInfo.socketWith.includes(el.classid); })));
+	let itemSocketInfo = item.getItemsEx();
+	let preSockets = itemSocketInfo.length;
+	let allowTemp = (!!itemInfo && !!itemInfo.temp && itemInfo.temp.length > 0 && (preSockets === 0 || preSockets > 0 && itemSocketInfo.some(el => !itemInfo.socketWith.includes(el.classid))));
 	let sockets = item.getStat(sdk.stats.NumSockets);
 	let openSockets = sockets - preSockets;
 	let {classid, quality} = item;
@@ -375,6 +376,13 @@ Misc.getSocketables = function (item, itemInfo) {
 
 	for (let i = 0; i < socketables.length; i++) {
 		if (!!itemInfo && itemInfo.socketWith.length > 0) {
+			// In case we are trying to use different runes, check if item already has current rune inserted
+			// or if its already in the muliple list. If it is, remove that socketables classid from the list of wanted classids
+			if (itemInfo.socketWith.length > 1
+				&& (itemSocketInfo.some(el => el.classid === socketables[i].classid) || multiple.some(el => el.classid === socketables[i].classid))) {
+				itemInfo.socketWith.remove(socketables[i].classid);
+			}
+
 			if (itemInfo.socketWith.includes(socketables[i].classid) && !multiple.includes(socketables[i])) {
 				if (multiple.length < sockets) {
 					multiple.push(socketables[i]);
@@ -424,7 +432,7 @@ Misc.getSocketables = function (item, itemInfo) {
 			if (temp.length > 0) {
 				// use temp socketables
 				multiple = temp.slice(0);
-			} else if (item.getItemsEx().some(function (el) { return itemInfo.temp.includes(el.classid); })) {
+			} else if (item.getItemsEx().some((el) => itemInfo.temp.includes(el.classid))) {
 				return false;
 			}
 		}

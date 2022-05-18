@@ -1362,20 +1362,18 @@ const SoloWants = {
 				return !item.isRuneword && !item.questItem && item.quality >= sdk.itemquality.Magic && (item.getStat(sdk.stats.NumSockets) > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
 			});
 		myItems
-			.filter(function (item) { return item.isEquipped; })
-			.forEach(function (item) { return SoloWants.addToList(item); });
+			.filter(item => item.isEquipped)
+			.forEach(item => SoloWants.addToList(item));
 		myItems
-			.filter(function (item) {
-				return item.isInStorage && item.getItemType() && AutoEquip.wanted(item);
-			})
-			.forEach(function (item) { return SoloWants.addToList(item); });
+			.filter(item => item.isInStorage && item.getItemType() && AutoEquip.wanted(item))
+			.forEach(item => SoloWants.addToList(item));
 		
-		return myItems.forEach(function (item) { return SoloWants.checkItem(item); });
+		return myItems.forEach(item => SoloWants.checkItem(item));
 	},
 
 	addToList: function (item) {
 		if (!item || me.classic || item.isRuneword) return false;
-		if (SoloWants.needList.some(function (check) { return item.classid === check.classid; })) return false;
+		if (SoloWants.needList.some(check => item.classid === check.classid)) return false;
 		let hasWantedItems;
 		let list = [];
 		let socketedWith = item.getItemsEx();
@@ -1383,7 +1381,7 @@ const SoloWants = {
 		let curr = Config.socketables.find(({ classid }) => item.classid === classid);
 
 		if (curr && curr.socketWith.length > 0) {
-			hasWantedItems = socketedWith.some(function (el) { return curr.socketWith.includes(el.classid); });
+			hasWantedItems = socketedWith.some(el => curr.socketWith.includes(el.classid));
 			if (hasWantedItems && socketedWith.length === numSockets) {
 				return true; // this item is full
 			}
@@ -1422,12 +1420,12 @@ const SoloWants = {
 					list.push(curr.temp[0]);
 				}
 				// Make sure we keep a hel rune so we can unsocket temp socketables if needed
-				if (!SoloWants.needList.some(function (check) { return sdk.items.runes.Hel === check.classid; })) {
+				if (!SoloWants.needList.some(check => sdk.items.runes.Hel === check.classid)) {
 					let hel = me.getItemsEx(sdk.items.runes.Hel, 0);
 					// we don't have any hel runes and its not already in our needList
 					if ((!hel || hel.length === 0)) {
 						SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});
-					} else if (!hel.some(function (check) { SoloWants.validGids.includes(check.gid); })) {
+					} else if (!hel.some(check => SoloWants.validGids.includes(check.gid))) {
 						SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});
 					}
 				}
@@ -1441,7 +1439,7 @@ const SoloWants = {
 			// Tir rune in normal, Io rune otherwise and Shael's if assassin TODO: use jewels too
 			!gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
 
-			hasWantedItems = socketedWith.some(function (el) { return gemType ? el.itemType === sdk.itemtype[gemType] : el.classid === sdk.items.runes[runeType]; });
+			hasWantedItems = socketedWith.some(el => gemType ? el.itemType === sdk.itemtype[gemType] : el.classid === sdk.items.runes[runeType]);
 			if (hasWantedItems && socketedWith.length === numSockets) {
 				return true; // this item is full
 			}
