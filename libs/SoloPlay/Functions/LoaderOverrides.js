@@ -1,7 +1,8 @@
 /**
-*	@filename	LoaderOverrides.js
-*	@author		kolton
-*	@desc		script loader, based on mBot's Sequencer.js, modifed by theBGuy for SoloPlay
+*  @filename    LoaderOverrides.js
+*  @author      kolton
+*  @desc        script loader, based on mBot's Sequencer.js, modifed by theBGuy for SoloPlay
+*
 */
 
 // TODO: make this a loader for the actual scripts run by SoloPlay rather than the just the SoloPlay base script

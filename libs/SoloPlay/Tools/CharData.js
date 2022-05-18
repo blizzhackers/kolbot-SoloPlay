@@ -1,7 +1,8 @@
-/*
-*	@filename	CharData.js
-*	@author		theBGuy
-*	@desc		Character Data and Tools for Kolbot-SoloPlay
+/**
+*  @filename    CharData.js
+*  @author      theBGuy
+*  @desc        Character Data and Tools for Kolbot-SoloPlay
+*
 */
 
 const CharData = {

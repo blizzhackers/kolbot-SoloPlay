@@ -1,8 +1,9 @@
-/*
-*	@filename	ItemOverrides.js
-*	@author		theBGuy
-*	@credits	isid0re, sorc/sonic
-*	@desc		Misc.js Item function fixes to improve functionality and Autoequip
+/**
+*  @filename    ItemOverrides.js
+*  @author      theBGuy
+*  @credit      dzik, sonic
+*  @desc        AutoEquip and Item related functions
+*
 */
 
 !isIncluded("common/Misc.js") && include("common/Misc.js");
@@ -359,8 +360,10 @@ Item.equip = function (item, bodyLoc) {
 	return false;
 };
 
-Item.removeItem = function (bodyLoc = -1) {
-	let removable = me.getItemsEx().filter((item) => item.isEquipped && item.bodylocation === bodyLoc).first();
+Item.removeItem = function (bodyLoc = -1, item = undefined) {
+	let removable = item && typeof item === "object"
+		? item
+		: me.getItemsEx().filter((item) => item.isEquipped && item.bodylocation === bodyLoc).first();
 
 	!me.inTown && Town.goToTown();
 	!getUIFlag(sdk.uiflags.Stash) && Town.openStash();

@@ -1,7 +1,8 @@
-/*
-*	@filename	ConfigOverrides.js
-*	@author		theBGuy
-*	@desc		Config.js fixes to work with modifed autobuild
+/**
+*  @filename    ConfigOverrides.js
+*  @author      theBGuy
+*  @desc        Modded Config.js to work with SoloPlay
+*
 */
 
 !isIncluded("common/Config.js") && include("common/Config.js");

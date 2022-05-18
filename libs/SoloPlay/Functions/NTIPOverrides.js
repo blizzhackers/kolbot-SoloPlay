@@ -1,7 +1,8 @@
-/*
-*	@filename	NTIPOverrides.js
-*	@author		theBGuy, isid0re
-*	@desc		NTIPItemParser fixes to improve functionality and custom looping for performance
+/**
+*  @filename    NTIPOverrides.js
+*  @author      theBGuy, isid0re
+*  @desc        NTIPItemParser changes for AutoEquip
+*
 */
 
 !isIncluded("NTItemParser.dbl") && include("NTItemParser.dbl");

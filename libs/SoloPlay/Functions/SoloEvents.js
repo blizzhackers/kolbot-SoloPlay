@@ -1,7 +1,8 @@
-/*
-*	@filename	SoloEvents.js
-*	@author		theBGuy
-*	@desc		Handle events for Kolbot-SoloPlay
+/**
+*  @filename    SoloEvents.js
+*  @author      theBGuy
+*  @desc        Handle events for Kolbot-SoloPlay
+*
 */
 
 const SoloEvents = {

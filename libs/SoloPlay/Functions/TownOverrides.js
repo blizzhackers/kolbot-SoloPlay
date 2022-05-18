@@ -1,7 +1,8 @@
-/*
-*	@filename	TownOverrides.js
-*	@author		theBGuy
-*	@desc		Town.js fixes and custom tasks to improve functionality
+/**
+*  @filename    TownOverrides.js
+*  @author      theBGuy
+*  @desc        Town related functions
+*
 */
 
 !isIncluded("common/Town.js") && include("common/Town.js");

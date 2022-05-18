@@ -229,7 +229,8 @@ function LoadConfig () {
 
 			if (!Check.haveItem(sdk.items.DiamondBow, "unique", "Witchwild String")) {
 				NTIP.addLine("[name] == shortsiegebow && [quality] == unique # [fireresist] == 40 # [maxquantity] == 1");
-				Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]);
+				// keep the bow but don't upgrade it until we have our wanted belt
+				Check.haveItem("vampirefangbelt", "unique", "Nosferatu's Coil") && Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]);
 			}
 
 			Config.socketables

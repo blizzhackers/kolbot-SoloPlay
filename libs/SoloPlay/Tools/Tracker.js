@@ -1,12 +1,13 @@
-/*
-*	@filename	Tracker.js
-*	@author		isid0re, theBGuy
-*	@desc		Track bot game performance and send to CSV file
+/**
+*  @filename    Tracker.js
+*  @author      theBGuy, isid0re
+*  @desc        Track bot game performance and send to CSV file
+*
 */
 
-if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
-if (!isIncluded("SoloPlay/Functions/PrototypesOverrides.js")) { include("SoloPlay/Functions/PrototypesOverrides.js"); }
-if (!isIncluded("SoloPlay/Functions/MiscOverrides.js")) { include("SoloPlay/Functions/MiscOverrides.js"); }
+!isIncluded("SoloPlay/Tools/Developer.js") && include("SoloPlay/Tools/Developer.js");
+!isIncluded("SoloPlay/Functions/PrototypesOverrides.js") && include("SoloPlay/Functions/PrototypesOverrides.js");
+!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
 
 const Tracker = {
 	GTPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-GameTime.json",
@@ -29,7 +30,7 @@ const Tracker = {
 
 		// Create Files
 		if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile)) {
-			folder = dopen("libs/SoloPlay/Data");
+			let folder = dopen("libs/SoloPlay/Data");
 			folder.create(me.profile);
 		}
 
@@ -136,7 +137,7 @@ const Tracker = {
 		}
 
 		let GameTracker = Developer.readObj(this.GTPath);
-	
+
 		// this seems to happen when my pc restarts so set last save equal to current tick count and then continue
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
 

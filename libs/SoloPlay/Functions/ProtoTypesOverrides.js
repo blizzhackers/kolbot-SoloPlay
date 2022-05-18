@@ -1,8 +1,9 @@
-/*
-*	@filename	ProtoTypesOverrides.js
-*	@author		theBGuy
-*	@credits 	Jaenster
-*	@desc		additions for improved Kolbot-SoloPlay functionality and code readability
+/**
+*  @filename    PrototypesOverrides.js
+*  @author      theBGuy
+*  @credit      Jaenster
+*  @desc        additions for improved Kolbot-SoloPlay functionality and code readability
+*
 */
 
 !isIncluded('libs/common/Prototypes.js') && include('libs/common/Prototypes.js');

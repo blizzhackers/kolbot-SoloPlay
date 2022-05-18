@@ -1,13 +1,10 @@
 /**
-*	@title	:	AutoBuildThread.js
+*  @filename    AutoBuildThread.js
+*  @author      alogwe
+*  @credit      theBGuy
+*  @desc        modified AutoBuildThread for use with Kolbot-SoloPlay
 *
-*	@author	:	alogwe
-*
-*	@desc	:	A script that will automatically allocate skill and stat points based on a configurable
-*				character build table. Point spending occurs on level up. Additional skill and stat points
-*				rewarded by quests are currently not used by this script.
 */
-
 js_strict(true);
 
 include("json2.js");
@@ -20,7 +17,7 @@ includeCommonLibs();
 
 include("SoloPlay/Functions/Globals.js");
 SetUp.include();
-Config.init(); // includes libs/common/AutoBuild.js
+Config.init(); // includes libs/SoloPlay/Functions/AutoBuildOverrides.js
 
 let	debug = !!Config.AutoBuild.DebugMode, prevLevel	= me.charlvl;
 const SPEND_POINTS 	= true;	// For testing, it actually allows skill and stat point spending.

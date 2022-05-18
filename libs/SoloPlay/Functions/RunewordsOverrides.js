@@ -1,8 +1,8 @@
-/*
-*	@filename	RunewordsOverrides.js
-*	@author		theBGuy
-*	@desc		Runewords.js patch for offline ladder runewords, and Runeword.js improvements for leveling
-*	@credits	kolton, theBGuy (this was my idea)
+/**
+*  @filename    RunewordsOverrides.js
+*  @author      theBGuy
+*  @desc        Runeword.js improvments and enable offline ladder runewords
+*
 */
 
 if (!isIncluded("common/Runewords.js")) { include("common/Runewords.js"); }

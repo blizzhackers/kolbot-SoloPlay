@@ -1,8 +1,9 @@
-/*
-*	@filename	Globals.js
-*	@author		theBGuy
-*	@credits	alogwe, isid0re
-*	@desc		Global variables Settings, general functions for Kolbot-SoloPlay functionality
+/**
+*  @filename    Globals.js
+*  @author      theBGuy
+*  @credit      alogwe, isid0re
+*  @desc        Global functions for Kolbot-SoloPlay functionality
+*
 */
 
 !isIncluded("OOG.js") && include("OOG.js");
@@ -374,7 +375,7 @@ const SetUp = {
 		Config.Inventory[3] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
 		/* FastMod configuration. */
-		Config.FCR = 255;
+		Config.FCR = Developer.developerMode.enabled ? 0 : 255;
 		Config.FHR = me.realm ? 0 : 255;
 		Config.FBR = me.realm ? 0 : 255;
 		Config.IAS = me.realm ? 0 : 255;

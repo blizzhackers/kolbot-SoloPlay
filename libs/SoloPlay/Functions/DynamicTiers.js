@@ -1,7 +1,9 @@
-/*
-*	@filename	DynamicTiers.js
-*	@author		theBGuy, isid0re
-*	@desc		Dynamic tiers calculators for Kolbot-SoloPlay
+/**
+*  @filename    DynamicTiers.js
+*  @author      theBGuy
+*  @credit      isid0re
+*  @desc        Dynamic tier calculators for Kolbot-SoloPlay
+*
 */
 
 // todo: change all values over to sdk for readability

@@ -1,8 +1,9 @@
-/*
-*	@filename	Overlay.js
-*	@author		theBGuy
-*	@desc		overlay thread for Kolbot-SoloPlay
-*	@credits 	Adpist for first gen Overlay, isid0re for styleing and tracker, kolton
+/**
+*  @filename    Overlay.js
+*  @author      theBGuy
+*  @credit      Adpist for first gen Overlay, isid0re for styleing and tracker
+*  @desc        overlay for Kolbot-SoloPlay
+*
 */
 
 if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }

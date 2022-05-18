@@ -1,8 +1,9 @@
-/*
-*	@filename	PickitOverrides.js
-*	@author		theBGuy
-*	@desc		Pickit.js fixes to improve functionality
-*	@credits	sonic, jaenster
+/**
+*  @filename    PickitOverrides.js
+*  @author      theBGuy
+*  @credit      sonic, jaenster
+*  @desc        Picking related functions
+*
 */
 
 !isIncluded("common/Pickit.js") && include("common/Pickit.js");

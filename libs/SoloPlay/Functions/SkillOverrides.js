@@ -1,7 +1,8 @@
-/*
-*	@filename	SkillOverrides.js
-*	@author		theBGuy
-*	@desc		Skill improvments for SoloPlay
+/**
+*  @filename    SkillOverrides.js
+*  @author      theBGuy
+*  @desc        Skill improvments for SoloPlay
+*
 */
 
 !isIncluded("common/Misc.js") && include("common/Misc.js");
@@ -199,15 +200,15 @@ Skill.cast = function (skillId, hand, x, y, item) {
 		switch (typeof x) {
 		case "number":
 			Packet.castSkill(hand, x, y);
+			delay(250);
 
 			break;
 		case "object":
 			Packet.unitCast(hand, x);
+			delay(250);
 
 			break;
 		}
-		// make sure we give enough time back so we don't fail our next cast
-		delay(1 + seconds(me.castingDuration(skillId)));
 	} else {
 		switch (hand) {
 		case 0: // Right hand + No Shift

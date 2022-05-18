@@ -1,8 +1,8 @@
 /**
-*	@filename	AutoStatOverrides.js
-*	@author		theBGuy
-*	@credit		IMBA - orignal author
-*	@desc 		modified AutoStat for SoloPlay
+*  @filename    AutoStatOverrides.js
+*  @author      theBGuy
+*  @credit      IMBA - orignal author
+*  @desc        modified AutoStat for SoloPlay
 *
 */
 

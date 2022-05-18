@@ -1,9 +1,9 @@
 /**
-*	@filename	EventThread.js
-*	@author		theBGuy
-*	@desc		thread to handle in game events for Kolbot-SoloPlay
+*  @filename    EventThread.js
+*  @author      theBGuy
+*  @desc        thread to handle in game events for Kolbot-SoloPlay
+*
 */
-
 js_strict(true);
 
 include("json2.js");

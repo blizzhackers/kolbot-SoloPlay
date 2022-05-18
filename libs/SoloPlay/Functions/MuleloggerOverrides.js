@@ -1,7 +1,8 @@
-/*
-*	@filename	MuleloggerOverrides.js
-*	@author		theBguy
-*	@desc		Add override to log equipped items while running Kolbot-SoloPlay
+/**
+*  @filename    MuleloggerOverrides.js
+*  @author      theBGuy
+*  @desc        modified Mulelogger to add tier values to item description and log equipped items
+*
 */
 
 !isIncluded("MuleLogger.js") && include("MuleLogger.js");

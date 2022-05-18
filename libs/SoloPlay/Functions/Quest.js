@@ -1,8 +1,9 @@
-/*
-*	@filename	Quest.js
-*	@author		theBGuy
-*	@desc		Miscellaneous quest tasks for leveling adapted from blizzhackers autosmurf
-*	@credits	Dark-f, JeanMax, https://github.com/SetupSonic/clean-sonic/blob/master/libs/sonic/common/Quest.js
+/**
+*  @filename    Quest.js
+*  @author      theBGuy
+*  @credit      Dark-f, JeanMax, https://github.com/SetupSonic/clean-sonic/blob/master/libs/sonic/common/Quest.js
+*  @desc        Miscellaneous quest tasks for leveling
+*
 */
 
 const Quest = {

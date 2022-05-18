@@ -1,9 +1,9 @@
 /**
-*	@filename	ToolsThread.js
-*	@author		kolton, theBGuy (modifed for SoloPlay)
-*	@desc		several tools to help the player - potion use, chicken, Diablo clone stop, map reveal, quit with player
+*  @filename    ToolsThread.js
+*  @author      kolton, theBGuy (modifed for SoloPlay)
+*  @desc        modified Toolsthread for use with Kolbot-SoloPlay
+*
 */
-
 js_strict(true);
 
 include("json2.js");

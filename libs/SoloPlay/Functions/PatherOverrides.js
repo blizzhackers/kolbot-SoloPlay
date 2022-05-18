@@ -1,7 +1,9 @@
-/*
-*	@filename	PatherOverrides.js
-*	@author		theBGuy, isid0re
-*	@desc		Pather.js fixes to improve functionality
+/**
+*  @filename    PatherOverrides.js
+*  @author      theBGuy
+*  @credit      isid0re (handling monster doors)
+*  @desc        Pathing related functions
+*
 */
 
 !isIncluded("common/Pather.js") && include("common/Pather.js");

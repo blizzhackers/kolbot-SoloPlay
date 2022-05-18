@@ -1,7 +1,8 @@
-/*
-*	@filename	NameGen.js
-*	@author		isid0re, theBGuy (added bigger list of nouns)
-*	@desc		Creates character names by combining a Descriptive Adjective + Noun
+/**
+*  @filename    NameGen.js
+*  @author      isid0re, theBGuy (added bigger list of nouns)
+*  @desc        Creates character names by combining a Descriptive Adjective + Noun
+*
 */
 
 const NameGen = function () {

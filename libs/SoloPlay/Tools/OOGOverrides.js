@@ -1,8 +1,9 @@
-/*
-*	@filename	OOGOverrides.js
-*	@author		theBGuy
-*	@desc		OOG.js fixes to improve functionality
-* 	@credits	kolton, D3STROY3R, isid0re
+/**
+*  @filename    OOGOverrides.js
+*  @author      theBGuy
+*  @credit      isid0re
+*  @desc        OOG.js fixes to improve functionality
+*
 */
 
 !isIncluded("OOG.js") && include("OOG.js");

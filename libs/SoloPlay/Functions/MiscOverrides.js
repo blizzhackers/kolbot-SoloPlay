@@ -1,8 +1,9 @@
-/*
-*	@filename	MiscOverrides.js
-*	@author		theBGuy
-*	@credits	isid0re (get/use Well idea)
-*	@desc		Misc.js fixes to improve functionality
+/**
+*  @filename    MiscOverrides.js
+*  @author      theBGuy
+*  @credit      isid0re (get/use Well idea)
+*  @desc        miscellaneous functions, socketing/imbuing
+*
 */
 
 !isIncluded("common/Misc.js") && include("common/Misc.js");

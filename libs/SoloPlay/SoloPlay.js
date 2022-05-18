@@ -1,8 +1,9 @@
-/*
-*	@filename	SoloPlay.js
-*	@author		theBGuy
-*	@credits	isid0re
-*	@desc		Base script file for Kolbot-SoloPlay system
+/**
+*  @filename    SoloPlay.js
+*  @author      theBGuy
+*  @credit      isid0re
+*  @desc        Base script file for Kolbot-SoloPlay system
+*
 */
 
 // todo: maybe turn this into a thread and use it as a default.dbj replacement
@@ -54,6 +55,16 @@ function SoloPlay () {
 		Town.heal() && me.cancelUIFlags();
 		Check.checkSpecialCase();
 		ensureData();
+
+		// check if any of our currently equipped items are no longer usable - can happen after respec
+		me.getItemsEx()
+			.filter(item => item.isEquipped)
+			.forEach(item => {
+				if (!Item.canEquip(item)) {
+					myPrint("No longer able to use " + item.fname);
+					Item.removeItem(null, item);
+				}
+			});
 
 		return true;
 	};

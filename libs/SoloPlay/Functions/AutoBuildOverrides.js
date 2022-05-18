@@ -1,8 +1,8 @@
 /**
-*	@filename	AutoBuildOverrides.js
-*	@author		theBGuy
-*	@credit		alogwe - orignal author
-*	@desc 		modified AutoBuild for easier use with Kolbot-SoloPlay
+*  @filename    AutoBuildOverrides.js
+*  @author      theBGuy
+*  @credit      alogwe - orignal author
+*  @desc        modified AutoBuild for easier use with Kolbot-SoloPlay
 *
 */
 js_strict(true);

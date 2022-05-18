@@ -1,9 +1,9 @@
-/* eslint-disable no-fallthrough */
-/*
-*	@filename	Mercenary.js
-*	@author		theBGuy
-*	@credits	jaenster
-*	@desc		Mercenary functionality and Hiring
+/**
+*  @filename    Mercenary.js
+*  @author      theBGuy
+*  @credit      jaenster
+*  @desc        Mercenary functionality and Hiring
+*
 */
 
 const Merc = {

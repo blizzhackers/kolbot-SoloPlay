@@ -1,8 +1,9 @@
-/*
-*	@filename	AttackOverrides.js
-*	@author		theBGuy
-*	@credits	jaenster, isid0re (for killTarget func)
-*	@desc		Attack.js fixes to improve functionality
+/**
+*  @filename    AttackOverrides.js
+*  @author      theBGuy
+*  @credit      jaenster, isid0re (for killTarget func)
+*  @desc        Attack.js fixes and related functions
+*
 */
 
 !isIncluded("common/Attack.js") && include("common/Attack.js");

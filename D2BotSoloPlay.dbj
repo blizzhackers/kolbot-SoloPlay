@@ -1,4 +1,10 @@
 /* eslint-disable no-fallthrough */
+/**
+*  @filename    D2BotSoloPlay.dbj
+*  @author      theBGuy
+*  @desc        Entry script for SoloPlay leveling system
+*
+*/
 include("StarterConfig.js");
 
 // D2BotSoloPlay settings

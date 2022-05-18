@@ -1,9 +1,9 @@
 /**
-*	@filename	TownChicken.js
-*	@author		kolton, theBGuy (modified for Kolbot-SoloPlay)
-*	@desc		handle town chicken
+*  @filename    TownChicken.js
+*  @author      kolton, theBGuy (modified for Kolbot-SoloPlay)
+*  @desc        modified TownChicken for use with Kolbot-SoloPlay
+*
 */
-
 js_strict(true);
 
 include("json2.js");

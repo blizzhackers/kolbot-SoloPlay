@@ -1,7 +1,8 @@
-/*
-*	@filename	AutoMuleOverrides.js
-*	@author		theBGuy
-*	@desc		Automule fix to not mule wanted autoequip items
+/**
+*  @filename    AutoMuleOverrides.js
+*  @author      theBGuy
+*  @desc        Automule fix to not mule wanted autoequip items
+*
 */
 
 !isIncluded("Automule.js") && include("Automule.js");

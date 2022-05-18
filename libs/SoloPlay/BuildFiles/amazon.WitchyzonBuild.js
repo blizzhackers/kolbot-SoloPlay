@@ -1,8 +1,10 @@
-/*
- *		@filename	amazon.WitchyzonBuild.js
- *		@author		isid0re, theBGuy
- *		@desc		based off of https://diabloii.net/forums/threads/chipmcs-witchwild-string-strafeazon-guide-v-0-05-beta-if.240912/
- */
+/**
+*  @filename    amazon.WitchyzonBuild.js
+*  @author      isid0re, theBGuy
+*  @desc        final build based off of https://diabloii.net/forums/threads/chipmcs-witchwild-string-strafeazon-guide-v-0-05-beta-if.240912/
+*               uses Upp'd WitchWild String bow
+*
+*/
 
 const finalBuild = {
 	caster: false,
@@ -14,22 +16,10 @@ const finalBuild = {
 	mercAct: 2,
 	mercAuraWanted: "Might",
 	stats: [
-		["strength", 89], ["dexterity", 132], ["vitality", 150], ["dexterity", "all"]
+		["strength", 90], ["dexterity", 132], ["vitality", 150], ["dexterity", "all"]
 	],
 	skills: [
-		[sdk.skills.MagicArrow, 1],
-		[sdk.skills.ColdArrow, 1],
-		[sdk.skills.MultipleShot, 1],
-		[sdk.skills.GuidedArrow, 1],
 		[sdk.skills.Strafe, 1],
-		[sdk.skills.InnerSight, 1],
-		[sdk.skills.CriticalStrike, 1],
-		[sdk.skills.Dodge, 1],
-		[sdk.skills.SlowMissiles, 1],
-		[sdk.skills.Avoid, 1],
-		[sdk.skills.Penetrate, 1],
-		[sdk.skills.Decoy, 1],
-		[sdk.skills.Evade, 1],
 		[sdk.skills.Valkyrie, 1],
 		[sdk.skills.Pierce, 1],
 		[sdk.skills.Strafe, 20],
@@ -65,7 +55,7 @@ const finalBuild = {
 		"[name] == grandcharm && [quality] == magic # [passiveandmagicskilltab] == 1 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		// Switch
 		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
-		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000", // Spirit
+		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 100000", // Spirit
 		// Merc
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	// Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	// Eth Andy's
@@ -75,7 +65,7 @@ const finalBuild = {
 		if (me.classic) {
 			return false;
 		} else {
-			return Check.haveItem("diamondbow", "unique", "Witchwild String");
+			return Check.haveItem("diamondbow", "unique", "Witchwild String") && Check.haveItem("vampirefangbelt", "unique", "Nosferatu's Coil");
 		}
 	},
 

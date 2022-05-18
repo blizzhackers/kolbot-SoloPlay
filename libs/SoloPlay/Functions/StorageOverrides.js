@@ -1,9 +1,10 @@
-/*
-*	@filename	StorageOverrides.js
-*	@author		theBGuy, isid0re (added sorting via packets)
-*	@desc		adaptation of sorting code pull request to blizzhackers for Kolbot-SoloPlay
-*				https://github.com/blizzhackers/kolbot/pull/211/commits/b3c6838f0b8873ac9f1e3ac5ef859a0c9d6ea098#diff-3d38e3e851d831e9c3793584659cb39bf05b86a0e177002276a9ed91fc19027e
-*	@credits	esd1 (sort items author), McGod (original storage.js author), kolton (small kolbot related edits), AimtoKill (compatibility testing)
+/**
+*  @filename    StorageOverrides.js
+*  @author      theBGuy, isid0re (added sorting via packets)
+*  @credit      esd1 (sort items author), McGod (original storage.js author), kolton (small kolbot related edits), AimtoKill (compatibility testing)
+*  @desc        adaptation of sorting code pull request to blizzhackers for Kolbot-SoloPlay
+*               https://github.com/blizzhackers/kolbot/pull/211/commits/b3c6838f0b8873ac9f1e3ac5ef859a0c9d6ea098#diff-3d38e3e851d831e9c3793584659cb39bf05b86a0e177002276a9ed91fc19027e
+*
 */
 
 !isIncluded("SoloPlay/Tools/Developer.js") && include("SoloPlay/Tools/Developer.js");

@@ -1,8 +1,8 @@
-/*
-*	@filename	CubingOverrides.js
-*	@author		theBGuy
-*	@desc		Cubing.js improvements
-*	@credits	kolton
+/**
+*  @filename    CubingOverrides.js
+*  @author      theBGuy
+*  @desc        Cubing improvments
+*
 */
 
 !isIncluded("common/Cubing.js") && include("common/Cubing.js");
