@@ -1,8 +1,9 @@
-/*
- *		@filename	barbarian.UberconcBuild.js
- *		@author		theBGuy
- *		@desc		Uber concentration build
- */
+/**
+*  @filename    barbarian.UberconcBuild.js
+*  @author      theBGuy
+*  @desc        Concentrate based final build meant for doing ubers
+*
+*/
 
 const finalBuild = {
 	caster: false,
@@ -55,6 +56,16 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.Concentrate, sdk.skills.Berserk, sdk.skills.Concentrate, sdk.skills.Berserk];
+				Config.LowManaSkill = [0, 0];
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

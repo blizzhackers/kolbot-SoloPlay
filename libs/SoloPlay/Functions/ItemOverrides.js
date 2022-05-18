@@ -369,6 +369,7 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 	!getUIFlag(sdk.uiflags.Stash) && Town.openStash();
 
 	if (removable) {
+		removable.isOnSwap && me.weaponswitch !== 1 && me.switchWeapons(1);
 		removable.toCursor();
 		let cursorItem = getUnit(100);
 
@@ -387,6 +388,8 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 				cursorItem.drop();
 			}
 		}
+
+		me.weaponswitch === 1 && me.switchWeapons(0);
 
 		return true;
 	}

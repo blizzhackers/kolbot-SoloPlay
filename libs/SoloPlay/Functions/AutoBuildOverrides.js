@@ -15,7 +15,8 @@ js_strict(true);
 const AutoBuild = new function AutoBuild () {
 	Config.AutoBuild.DebugMode && (Config.AutoBuild.Verbose = true);
 
-	let debug = !!Config.AutoBuild.DebugMode,
+	let usingFinalBuildFile = false,
+		debug = !!Config.AutoBuild.DebugMode,
 		verbose = !!Config.AutoBuild.Verbose,
 		configUpdateLevel = 0, lastSuccessfulUpdateLevel = 0;
 
@@ -29,13 +30,25 @@ const AutoBuild = new function AutoBuild () {
 		while (configUpdateLevel < me.charlvl) {
 			configUpdateLevel += 1;
 			Skill.init();
-			if (AutoBuildTemplate[configUpdateLevel] !== undefined) {
-				AutoBuildTemplate[configUpdateLevel].Update.apply(Config);
-				lastSuccessfulUpdateLevel = configUpdateLevel;
-			} else if (reapply) {
-				// re-apply from the last successful update - this is helpful if inside the build file there are conditional statements
-				AutoBuildTemplate[lastSuccessfulUpdateLevel].Update.apply(Config);
-				reapply = false;
+			if (usingFinalBuildFile) {
+				// kind of hacky/ugly solution but reduces unneeded files
+				if (finalBuild.AutoBuildTemplate[configUpdateLevel] !== undefined) {
+					finalBuild.AutoBuildTemplate[configUpdateLevel].Update.apply(Config);
+					lastSuccessfulUpdateLevel = configUpdateLevel;
+				} else if (reapply) {
+					// re-apply from the last successful update - this is helpful if inside the build file there are conditional statements
+					finalBuild.AutoBuildTemplate[lastSuccessfulUpdateLevel].Update.apply(Config);
+					reapply = false;
+				}
+			} else {
+				if (AutoBuildTemplate[configUpdateLevel] !== undefined) {
+					AutoBuildTemplate[configUpdateLevel].Update.apply(Config);
+					lastSuccessfulUpdateLevel = configUpdateLevel;
+				} else if (reapply) {
+					// re-apply from the last successful update - this is helpful if inside the build file there are conditional statements
+					AutoBuildTemplate[lastSuccessfulUpdateLevel].Update.apply(Config);
+					reapply = false;
+				}
 			}
 		}
 	}
@@ -60,9 +73,14 @@ const AutoBuild = new function AutoBuild () {
 	}
 
 	function getTemplateFilename () {
-		let classname = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid];
 		let build = getBuildType();
-		let template = "SoloPlay/Config/Builds/" + classname + "." + build + ".js";
+		let template;
+		if (["Start", "Stepping", "Leveling"].includes(build)) {
+			template = "SoloPlay/Config/Builds/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js";
+		} else {
+			usingFinalBuildFile = true;
+			template = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + "Build.js";
+		}
 		return template.toLowerCase();
 	}
 

@@ -1,8 +1,9 @@
 /**
- *		@filename	necromancer.SummonBuild.js
- *		@author		theBGuy, isid0re
- *		@desc		FishyMancer final build (explosion/summon) for expansion, (nova/summon) for classic since there is no merc to make initial bodies needed
- */
+*  @filename    necromancer.SummonBuild.js
+*  @author      theBGuy, isid0re
+*  @desc        FishyMancer final build (explosion/summon) for expansion, (nova/summon) for classic since there is no merc to make initial bodies needed
+*
+*/
 
 const finalBuild = {
 	caster: true,
@@ -99,6 +100,20 @@ const finalBuild = {
 	stats: undefined,
 	skills: undefined,
 	autoEquipTiers: undefined,
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.Teeth, 0, sdk.skills.Teeth, 0, -1, -1];
+				Config.LowManaSkill = [0, 0];
+				Config.ActiveSummon = true;
+				Config.Skeletons = "max";
+				Config.SkeletonMages = "max";
+				Config.Revives = "max";
+				Config.Golem = "Clay";
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

@@ -1,8 +1,9 @@
 /**
- *		@filename	paladin.AuradinBuild.js
- *		@author		theGuy
- *		@desc		End-game Auradin build. Duel Dream Runewords + Dragon and HoJ Runewords to give level 30 Holy Shock and level 30 Holy Fire
- */
+*  @filename    paladin.AuradinBuild.js
+*  @author      theBGuy
+*  @desc        Zeal + Holy Shock/Fire based final build - uses Duel Dream Runewords + Dragon and HoJ Runewords to give level 30 Holy Shock and level 30 Holy Fire
+*
+*/
 
 const finalBuild = {
 	caster: false,
@@ -60,6 +61,24 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [ias] == 45 && [coldresist] == 30 # [merctier] == 50000 + mercscore(item)", //Treachery
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)", //Eth Andy's
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.Vigor = false;
+				Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.Conviction, sdk.skills.Zeal, sdk.skills.Conviction, -1, -1];
+				Config.LowManaSkill = [-1, -1];
+
+				if (!Check.haveItem("sword", "runeword", "Hand of Justice") || !Check.haveItem("armor", "runeword", "Dragon")) {
+					Config.SkipImmune = ["lightning and physical"];
+				} else {
+					Config.SkipImmune = ["lightning and fire and physical"];	// Don't think this ever happens but should skip if it does
+				}
+
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

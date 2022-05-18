@@ -1,8 +1,9 @@
 /**
-*		@filename	barbarian.SteppingBuild.js
-*		@author		theBGuy
-*		@credits	aim2kill (big shout out for all the testing an ideas for this build)
-*		@desc		barb build for after respecOne and before respecOneB
+*  @filename    barbarian.SteppingBuild.js
+*  @author      theBGuy
+*  @credits     aim2kill (big shout out for all the testing an ideas for this build)
+*  @desc        Frenzy/War Cry build for after respecOne and before respecOneB
+*
 */
 
 let build = {

@@ -1,8 +1,9 @@
 /**
- *		@filename	paladin.SmiterBuild.js
- *		@author		isid0re, theBGuy
- *		@desc		End-game smiter build
- */
+*  @filename    paladin.SmiterBuild.js
+*  @author      isid0re, theBGuy
+*  @desc        Smite + Fanaticism based final build
+*
+*/
 
 const finalBuild = {
 	caster: false,
@@ -62,6 +63,15 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.Smite, sdk.skills.Fanaticism, sdk.skills.Smite, sdk.skills.Fanaticism, sdk.skills.BlessedHammer, sdk.skills.Concentration];
+				Config.LowManaSkill = [0, sdk.skills.Fanaticism];
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

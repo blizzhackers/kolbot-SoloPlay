@@ -1,8 +1,9 @@
-/*
- *		@filename	Sorceress.MeteorbBuild.js
- *		@author		theBGuy
- *		@desc		Sorceress meteorb build
- */
+/**
+*  @filename    Sorceress.MeteorbBuild.js
+*  @author      theBGuy
+*  @desc        Meteorb based final build
+*
+*/
 
 const finalBuild = {
 	caster: true,
@@ -96,6 +97,18 @@ const finalBuild = {
 	],
 	stats: undefined,
 	autoEquipTiers: undefined,
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.Meteor, sdk.skills.FireBall, sdk.skills.Meteor, sdk.skills.FireBall, sdk.skills.FrozenOrb, sdk.skills.GlacialSpike];
+				Config.LowManaSkill = [-1, -1];
+				Config.SkipImmune = ["fire and cold"];
+				Config.HPBuffer = me.expansion ? 1 : 5;
+				Config.MPBuffer = me.expansion ? 1 : 5;
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

@@ -1,8 +1,9 @@
-/*
- *		@filename	amazon.LevelingBuild.js
- *		@author		theBGuy
- *		@desc		amazon build for after respecOne (lightning/poison javelin build)
- */
+/**
+*  @filename    amazon.LevelingBuild.js
+*  @author      theBGuy
+*  @desc        Lightning/poison javelin build for after respecOneB
+*
+*/
 
 let build = {
 	caster: false,

@@ -1,8 +1,9 @@
-/*
- *		@filename	Sorceress.BlovaBuild.js
- *		@author		isid0re, theBGuy
- *		@desc		Sorceress blizzard nova build
- */
+/**
+*  @filename    Sorceress.BlovaBuild.js
+*  @author      isid0re, theBGuy
+*  @desc        Blizzard + Nova based final build
+*
+*/
 
 const finalBuild = {
 	caster: true,
@@ -75,6 +76,18 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Blizzard, sdk.skills.Nova, -1, sdk.skills.IceBlast];
+				Config.LowManaSkill = [-1, -1];
+				Config.SkipImmune = ["lightning and cold"];
+				Config.HPBuffer = me.expansion ? 1 : 5;
+				Config.MPBuffer = me.expansion ? 1 : 5;
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

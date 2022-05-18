@@ -1,8 +1,9 @@
 /**
- *		@filename	druid.PlaguewolfBuild.js
- *		@author		theBGuy
- *		@desc		Plague wolf final build
- */
+*  @filename    druid.PlaguewolfBuild.js
+*  @author      theBGuy
+*  @desc        Rabies/Fury wolf final build
+*
+*/
 
 const finalBuild = {
 	caster: false,
@@ -56,6 +57,19 @@ const finalBuild = {
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)", //Eth Andy's
 		"[name] == thresher && [quality] == unique # [enhanceddamage] >= 190 && [lifeleech] >= 11 # [merctier] == 100000 + mercscore(item)",	// Reaper's Toll
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+				Config.AttackSkill = [sdk.skills.FeralRage, sdk.skills.Fury, sdk.skills.Rabies, sdk.skills.Fury, sdk.skills.Rabies, sdk.skills.Rabies, -1];
+				Config.LowManaSkill = [0, 0];
+				Config.Wereform = "Werewolf";
+				Config.SummonAnimal = "Grizzly";
+				Config.SummonSpirit = "Heart of Wolverine";
+			}
+		},
+	},
 
 	respec: function () {
 		return Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("armor", "runeword", "Chains of Honor");

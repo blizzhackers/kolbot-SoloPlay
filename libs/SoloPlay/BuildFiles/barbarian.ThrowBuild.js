@@ -1,8 +1,9 @@
 /**
- * @filename    barbarian.ThrowBuild.js
- * @author      theBGuy
- * @desc        Throw Barb final build
- */
+*  @filename    barbarian.ThrowBuild.js
+*  @author      theBGuy
+*  @desc        Double throw based final build
+*
+*/
 
 const finalBuild = {
 	caster: false,
@@ -60,6 +61,16 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.DoubleThrow, sdk.skills.Frenzy, sdk.skills.DoubleThrow, sdk.skills.Berserk];
+				Config.LowManaSkill = [sdk.skills.DoubleSwing, sdk.skills.DoubleSwing];
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

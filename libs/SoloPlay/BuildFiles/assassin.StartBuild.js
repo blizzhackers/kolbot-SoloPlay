@@ -1,8 +1,9 @@
 /**
- *		@filename	assassin.StartBuild.js
- *		@author		theBGuy
- *		@desc		assassin fire trap build for before respecOne
- */
+*  @filename    assassin.StartBuild.js
+*  @author      theBGuy
+*  @desc        fire trap build for before respecOne
+*
+*/
 
 let build = {
 	caster: true,

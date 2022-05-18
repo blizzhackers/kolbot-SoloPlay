@@ -1,8 +1,9 @@
 /**
- *		@filename	paladin.ClassicauradinBuild.js
- *		@author		theGuy
- *		@desc		End-game Classic Auradin build (HolyShock/Freeze based)
- */
+*  @filename    paladin.ClassicauradinBuild.js
+*  @author      theBGuy
+*  @desc        Classic Auradin (HolyShock/Freeze based) based final build
+*
+*/
 
 const finalBuild = {
 	caster: false,
@@ -84,6 +85,19 @@ const finalBuild = {
 	],
 	stats: undefined,
 	autoEquipTiers: undefined,
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.Vigor = false;
+				Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.HolyShock, sdk.skills.Zeal, sdk.skills.HolyShock, sdk.skills.Zeal, sdk.skills.HolyFreeze];
+				Config.LowManaSkill = [-1, -1];
+				Config.SkipImmune = ["lightning and cold and physical"];	// Don't think this ever happens but should skip if it does
+
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

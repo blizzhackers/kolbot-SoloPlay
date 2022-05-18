@@ -1,8 +1,9 @@
-/*
- *		@filename	barbarian.ImmortalwhirlBuild.js
- *		@author		theBGuy
- *		@desc		Immortal King Whirlwind build
- */
+/**
+*  @filename    barbarian.ImmortalwhirlBuild.js
+*  @author      theBGuy
+*  @desc        Immortal King Whirlwind based final build
+*
+*/
 
 const finalBuild = {
 	caster: false,
@@ -55,6 +56,18 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [sdk.skills.BattleCry, sdk.skills.Whirlwind, -1, sdk.skills.Whirlwind, -1];
+				Config.LowManaSkill = [0, -1];
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+				Config.MPBuffer = 2;
+				Config.HPBuffer = 2;
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

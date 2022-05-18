@@ -1,8 +1,9 @@
 /**
- *		@filename	druid.LevelingBuild.js
- *		@author		isid0re, theBGuy
- *		@desc		Druid wind build for after respecOne
- */
+*  @filename    druid.LevelingBuild.js
+*  @author      isid0re, theBGuy
+*  @desc        Wind elemental build for after respecOne
+*
+*/
 
 let build = {
 	caster: true,

@@ -1,9 +1,10 @@
 /**
- *		@filename	barbarian.StartBuild.js
- *		@author		theBGuy
- *		@credits	aim2kill (big shout out for all the testing an ideas for this build)
- *		@desc		barb build for before respecOne
- */
+*  @filename    barbarian.StartBuild.js
+*  @author      theBGuy
+*  @credits     aim2kill (big shout out for all the testing an ideas for this build)
+*  @desc        Double swing build for before respecOne
+*
+*/
 
 let build = {
 	caster: false,
@@ -21,14 +22,14 @@ let build = {
 		["strength", 71], ["dexterity", 49], ["vitality", "all"],
 	],
 	skills: [
-		[sdk.skills.Bash, 1],                   // charlevel 2
-		[sdk.skills.Howl, 1],                   // charlevel 3
-		[sdk.skills.DoubleSwing, 6, false],     // charlevel 9
-		[sdk.skills.SwordMastery, 5],           // charlevel 13
-		[sdk.skills.Taunt, 1],                  // charlevel 14
-		[sdk.skills.SwordMastery, 6],           // charlevel 15
-		[sdk.skills.IronSkin, 1],               // charlevel 18
-		[sdk.skills.BattleCry, 1],              // charlevel 18
+		[sdk.skills.Bash, 1], 				// charlevel 2
+		[sdk.skills.Howl, 1], 				// charlevel 3
+		[sdk.skills.DoubleSwing, 6, false], // charlevel 9
+		[sdk.skills.SwordMastery, 5], 		// charlevel 13
+		[sdk.skills.Taunt, 1], 				// charlevel 14
+		[sdk.skills.SwordMastery, 6], 		// charlevel 15
+		[sdk.skills.IronSkin, 1], 			// charlevel 18
+		[sdk.skills.BattleCry, 1], 			// charlevel 18
 		[sdk.skills.SwordMastery, 9],
 		[sdk.skills.DoubleThrow, 1],
 		[sdk.skills.Shout, 1],

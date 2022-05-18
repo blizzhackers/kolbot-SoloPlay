@@ -1,8 +1,9 @@
 /**
- *		@filename	Sorceress.LightningBuild.js
- *		@author		theBGuy
- *		@desc		Sorceress lightning build for after respecTwo
- */
+*  @filename    Sorceress.LightningBuild.js
+*  @author      theBGuy
+*  @desc        Lightning based final build
+*
+*/
 
 const finalBuild = {
 	caster: true,
@@ -69,6 +70,16 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.Lightning, sdk.skills.ChainLightning, sdk.skills.ChainLightning, sdk.skills.Lightning, -1, -1];
+				Config.LowManaSkill = [-1, -1];
+				Config.SkipImmune = ["lightning"];
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

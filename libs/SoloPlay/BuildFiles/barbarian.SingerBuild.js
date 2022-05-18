@@ -1,9 +1,10 @@
-/*
- *		@filename	barbarian.Singer.js
- *		@author		theBGuy
- *		@desc		Warcry (Singer/Shout) build
- *		@credits	isid0re, ebner20
- */
+/**
+*  @filename    barbarian.Singer.js
+*  @author      theBGuy
+*  @credits     isid0re, ebner20
+*  @desc        Warcry (Singer/Shout) based final build
+*
+*/
 
 const finalBuild = {
 	caster: true,
@@ -56,6 +57,17 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [sdk.skills.BattleCry, sdk.skills.WarCry, -1, sdk.skills.WarCry, -1];
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+				Config.MPBuffer = 4;
+				Config.HPBuffer = 2;
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

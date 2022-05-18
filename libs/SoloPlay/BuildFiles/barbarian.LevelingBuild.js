@@ -1,8 +1,10 @@
 /**
- *		@filename	barbarian.LevelingBuild.js
- *		@author		theBGuy
- *		@desc		barb frenzy/warcry build for before respecTwo
- */
+*  @filename    barbarian.LevelingBuild.js
+*  @author      theBGuy
+*  @credits     aim2kill (big shout out for all the testing an ideas for this build)
+*  @desc        Frenzy/War Cry build for after respecOneB
+*
+*/
 
 let build = {
 	caster: false,

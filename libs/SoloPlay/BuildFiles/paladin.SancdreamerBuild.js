@@ -1,12 +1,12 @@
 /**
- *		@filename   paladin.SancdreamerBuild.js
- *		@author     theGuy
- *		@desc       End-game Sancdreamer build.
- *					Duel Dream Runewords/CoH/Last Wish/Verdungos/RavenFrost + Wisp/Gore Riders/Highlords/Laying of Hands
- *					Auras: Level 30 Holy Shock, Level 17 Might
- *					Ctc: Level 18 life tap, Level 11 Fade, Level 15 Confuse, Level 16 Lightning
- *					Stats: 75 Fire Res/75 Cold Res/85 Light Res/75 Poison Res, Max Block, 34% Damage Reduction, 20% Cold Absorb, 10-20% Light Absorb, 85% Crushing Blow
- */
+*  @filename    paladin.SancdreamerBuild.js
+*  @author      theBGuy
+*  @desc        Zeal + Sanctuary based final build - uses Duel Dream Runewords/CoH/Last Wish/Verdungos/RavenFrost + Wisp/Gore Riders/Highlords/Laying of Hands
+*               Auras: Level 30 Holy Shock, Level 17 Might
+*               Ctc: Level 18 life tap, Level 11 Fade, Level 15 Confuse, Level 16 Lightning
+*               Stats: 75 Fire Res/75 Cold Res/85 Light Res/75 Poison Res, Max Block, 34% Damage Reduction, 20% Cold Absorb, 10-20% Light Absorb, 85% Crushing Blow
+*
+*/
 
 const finalBuild = {
 	caster: false,
@@ -28,8 +28,7 @@ const finalBuild = {
 		[sdk.skills.Cleansing, 20],
 		[sdk.skills.Redemption, 1],
 		[sdk.skills.HolyShield, 15],
-		[sdk.skills.Sacrifice, 20],
-		[sdk.skills.Zeal, 10],
+		[sdk.skills.Sacrifice, 19],
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon
@@ -64,6 +63,20 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [ias] == 45 && [coldresist] == 30 # [merctier] == 50000 + mercscore(item)", // Treachery
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)", // Eth Andy's
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.Vigor = false;
+				Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.Sanctuary, sdk.skills.Zeal, sdk.skills.Sanctuary, -1, -1];
+				Config.LowManaSkill = [-1, -1];
+
+				Config.SkipImmune = ["lightning and magic and physical"];	// Don't think this ever happens but should skip if it does
+
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

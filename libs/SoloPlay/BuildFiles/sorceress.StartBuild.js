@@ -1,12 +1,13 @@
-/*
- *		@filename	sorceress.startBuild.js
- *		@author		isid0re, theBGuy
- *		@desc		sorceress Blova build for before respecOne - respecs at level 26
- */
+/**
+*  @filename    Sorceress.startBuild.js
+*  @author      isid0re, theBGuy
+*  @desc        Blova build for before respecOne - respecs at level 26
+*
+*/
 
 let build = {
 	caster: true,
-	skillstab: 9, //lightning
+	skillstab: sdk.skills.tabs.Lightning,
 	wantedskills: [sdk.skills.ChargedBolt, sdk.skills.StaticField],
 	usefulskills: [sdk.skills.FrozenArmor, sdk.skills.Lightning],
 	mercDiff: sdk.difficulty.Nightmare,

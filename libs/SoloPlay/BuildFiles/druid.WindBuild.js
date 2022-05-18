@@ -1,8 +1,9 @@
 /**
- *		@filename	druid.WindBuild.js
- *		@author		isid0re, theBGuy
- *		@desc		Druid wind final build
- */
+*  @filename    druid.WindBuild.js
+*  @author      isid0re, theBGuy
+*  @desc        Wind elemental based final build
+*
+*/
 
 const finalBuild = {
 	caster: true,
@@ -60,6 +61,17 @@ const finalBuild = {
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 		"[name] == thresher && [quality] == unique # [enhanceddamage] >= 190 && [lifeleech] >= 11 # [merctier] == 100000 + mercscore(item)",	// Reaper's Toll
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.Tornado, -1, sdk.skills.Tornado, -1, sdk.skills.ArticBlast, -1];
+				Config.LowManaSkill = [-1, -1];
+				Config.SummonAnimal = "Grizzly";
+				Config.SummonSpirit = "Oak Sage";
+			}
+		},
+	},
 
 	respec: function () {
 		return Check.haveItem("armor", "runeword", "Enigma");

@@ -1,8 +1,9 @@
 /**
- *		@filename	assassin.TrapsinBuild.js
- *		@author		theBGuy
- *		@desc		assassin build for after respecOne (11 fpa trap laying, 9 fps tele)
- */
+*  @filename    assassin.TrapsinBuild.js
+*  @author      theBGuy
+*  @desc        Lightning trap based final build (11 fpa trap laying, 9 fps tele)
+*
+*/
 
 const finalBuild = {
 	caster: true,
@@ -82,6 +83,17 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.UseTraps = true;
+				Config.AttackSkill = [-1, sdk.skills.ShockWeb, sdk.skills.FireBlast, sdk.skills.ShockWeb, sdk.skills.FireBlast, -1, -1];
+				Config.Traps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry];
+				Config.BossTraps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry];
+			}
+		},
+	},
 
 	respec: function () {
 		return Attack.checkInfinity() && Check.haveItem("armor", "runeword", "Enigma");

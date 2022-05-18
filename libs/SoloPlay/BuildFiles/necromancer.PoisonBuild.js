@@ -1,8 +1,9 @@
 /**
- *		@filename	necromancer.PoisonBuild.js
- *		@author		isid0re, theBGuy
- *		@desc		poison necro final build
- */
+*  @filename    necromancer.PoisonBuild.js
+*  @author      theBGuy, isid0re
+*  @desc        Poison Nova based final build
+*
+*/
 
 const finalBuild = {
 	caster: true,
@@ -89,6 +90,16 @@ const finalBuild = {
 	],
 	stats: undefined,
 	autoEquipTiers: undefined,
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.PoisonNova, -1, sdk.skills.PoisonNova, -1, sdk.skills.BoneSpear, -1];
+				Config.ExplodeCorpses = sdk.skills.CorpseExplosion;
+				Config.Golem = "Clay";
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

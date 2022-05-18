@@ -1,8 +1,9 @@
 /**
- *		@filename	assassin.WhirlsinBuild.js
- *		@author		theBGuy
- *		@desc		End game Whirlwind sin build, uses Chaos runeword
- */
+*  @filename    assassin.WhirlsinBuild.js
+*  @author      theBGuy
+*  @desc        Whirlwind based final build - uses Chaos runeword
+*
+*/
 
 const finalBuild = {
 	caster: false,
@@ -63,6 +64,19 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.Dodge = false;
+				Config.UseVenom = true;
+				Config.UseTraps = true;
+				Config.AttackSkill = [-1, sdk.skills.Whirlwind, -1, sdk.skills.Whirlwind, -1, -1, -1];
+				Config.Traps = [sdk.skills.DeathSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry];
+				Config.BossTraps = [-1, -1, -1, -1, -1];
+			}
+		},
+	},
 
 	respec: function () {
 		return Check.haveItem("assassinclaw", "runeword", "Chaos") && Check.haveItem("assassinclaw", "runeword", "Fury");

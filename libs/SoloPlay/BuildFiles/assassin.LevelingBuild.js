@@ -1,12 +1,13 @@
-/*
- *		@filename	assassin.LevelingBuild.js
- *		@author		theBGuy
- *		@desc		assassin lightning trap build for after respecOne
- */
+/**
+*  @filename    assassin.LevelingBuild.js
+*  @author      theBGuy
+*  @desc        lightning trap build for after respecOne
+*
+*/
 
 let build = {
 	caster: true,
-	skillstab: sdk.skills.tabs.Traps, // traps
+	skillstab: sdk.skills.tabs.Traps,
 	wantedskills: [sdk.skills.FireBlast, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.ShadowMaster],
 	usefulskills: [sdk.skills.ChargedBoltSentry, sdk.skills.BladeShield, sdk.skills.Fade],
 	mercDiff: sdk.difficulty.Nightmare,

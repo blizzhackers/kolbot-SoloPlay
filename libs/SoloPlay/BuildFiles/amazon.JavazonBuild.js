@@ -1,8 +1,9 @@
-/*
- *		@filename 	amazon.JavazonBuild.js
- *		@author		theBGuy
- *		@desc		Javazon final build (pure lightning for expansion) (light/poision for classic)
- */
+/**
+*  @filename    amazon.JavazonBuild.js
+*  @author      theBGuy
+*  @desc        Javelin Lightning based final build (pure lightning for expansion) (light/poision for classic)
+*
+*/
 
 const finalBuild = {
 	caster: false,
@@ -100,6 +101,17 @@ const finalBuild = {
 	stats: undefined,
 	skills: undefined,
 	autoEquipTiers: undefined,
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.ChargedStrike, -1, sdk.skills.LightningStrike, -1, -1, -1];
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+				Config.HPBuffer = 2;
+				Config.MPBuffer = 4;
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

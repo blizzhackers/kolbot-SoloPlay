@@ -1,8 +1,9 @@
-/*
- *		@filename	amazon.SteppingBuild.js
- *		@author		theBGuy
- *		@desc		amazon build for after respecOne and before respecOneB
- */
+/**
+*  @filename    amazon.SteppingBuild.js
+*  @author      theBGuy
+*  @desc        Lighting/Charged Strike build for after respecOne and before respecOneB
+*
+*/
 
 let build = {
 	caster: false,

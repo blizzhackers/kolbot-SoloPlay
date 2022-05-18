@@ -1,8 +1,9 @@
-/*
- *		@filename	Sorceress.EsorbBuild.js
- *		@author		theBGuy
- *		@desc		Sorceress Energy Shield Frozen Orb build
- */
+/**
+*  @filename    Sorceress.EsorbBuild.js
+*  @author      theBGuy
+*  @desc        Energy Shield + Frozen Orb based final build
+*
+*/
 
 const finalBuild = {
 	caster: true,
@@ -90,6 +91,18 @@ const finalBuild = {
 	],
 	stats: undefined,
 	autoEquipTiers: undefined,
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.FrozenOrb, sdk.skills.StaticField, sdk.skills.FrozenOrb, sdk.skills.StaticField, -1, -1];
+				Config.LowManaSkill = [-1, -1];
+				Config.SkipImmune = ["cold"];
+				Config.HPBuffer = me.expansion ? 1 : 5;
+				Config.MPBuffer = me.expansion ? 1 : 5;
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

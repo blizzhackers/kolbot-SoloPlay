@@ -1,9 +1,10 @@
 /**
- *		@filename	paladin.HammerdinBuild.js
- *		@author		isid0re, theBGuy
- *		@desc		paladin build for hammerdin.
- *					skills based on https://www.diabloii.net/forums/threads/max-damage-hammerdin-guide-by-captain_bogus-repost.127596/
- */
+*  @filename    paladin.HammerdinBuild.js
+*  @author      isid0re, theBGuy
+*  @desc        Blessed Hammer + Concentration final build
+*               based on https://www.diabloii.net/forums/threads/max-damage-hammerdin-guide-by-captain_bogus-repost.127596/
+*
+*/
 
 const finalBuild = {
 	caster: true,
@@ -85,6 +86,19 @@ const finalBuild = {
 	],
 	stats: undefined,
 	autoEquipTiers: undefined,
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.BlessedHammer, sdk.skills.Concentration, sdk.skills.BlessedHammer, sdk.skills.Concentration, sdk.skills.HolyBolt, sdk.skills.Concentration];
+				Config.LowManaSkill = [0, sdk.skills.Concentration];
+
+				if (me.hell && !Pather.accessToAct(5)) {
+					Config.SkipImmune = ["magic"];
+				}
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

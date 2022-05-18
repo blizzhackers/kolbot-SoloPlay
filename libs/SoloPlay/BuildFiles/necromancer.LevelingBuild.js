@@ -1,8 +1,9 @@
 /**
- *		@filename	necromancer.LevelingBuild.js
- *		@author		theBGuy, isid0re
- *		@desc		explosionmancer necro build for after respecOne
- */
+*  @filename    necromancer.LevelingBuild.js
+*  @author      theBGuy, isid0re
+*  @desc        explosionmancer build for after respecOne
+*
+*/
 
 // TODO: test summonnovamancer for classic (wouldn't be able to farcast diablo though :( )
 

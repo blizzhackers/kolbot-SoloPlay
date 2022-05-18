@@ -1,8 +1,9 @@
-/*
- *		@filename	amazon.StartBuild.js
- *		@author		theBGuy
- *		@desc		amazon build for before respecOne
- */
+/**
+*  @filename    amazon.StartBuild.js
+*  @author      theBGuy
+*  @desc        Charged Strike build for before respecOne
+*
+*/
 
 let build = {
 	caster: false,

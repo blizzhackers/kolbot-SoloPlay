@@ -60,7 +60,7 @@ function SoloPlay () {
 		me.getItemsEx()
 			.filter(item => item.isEquipped)
 			.forEach(item => {
-				if (!Item.canEquip(item)) {
+				if (me.getStat(sdk.stats.Strength) < item.strreq || me.getStat(sdk.stats.Dexterity) < item.dexreq) {
 					myPrint("No longer able to use " + item.fname);
 					Item.removeItem(null, item);
 				}

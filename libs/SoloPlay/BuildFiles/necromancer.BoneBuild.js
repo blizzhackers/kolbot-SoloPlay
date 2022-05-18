@@ -1,8 +1,9 @@
 /**
- *		@filename	necromancer.BoneBuild.js
- *		@author		theBGuy, isid0re
- *		@desc		bone necro final build
- */
+*  @filename    necromancer.BoneBuild.js
+*  @author      theBGuy, isid0re
+*  @desc        Bone Spear based final build
+*
+*/
 
 const finalBuild = {
 	caster: true,
@@ -88,6 +89,16 @@ const finalBuild = {
 	],
 	stats: undefined,
 	autoEquipTiers: undefined,
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.BoneSpear, -1, sdk.skills.BoneSpear, -1, -1, -1];
+				Config.ExplodeCorpses = sdk.skills.CorpseExplosion;
+				Config.Golem = "Clay";
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

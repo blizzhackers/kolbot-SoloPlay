@@ -1,8 +1,9 @@
 /**
- *		@filename	paladin.ZealerBuild.js
- *		@author		theGuy
- *		@desc		End-game Zealer build
- */
+*  @filename    paladin.ZealerBuild.js
+*  @author      theBGuy
+*  @desc        Zeal + Fanaticism based final build
+*
+*/
 
 const finalBuild = {
 	caster: false,
@@ -62,6 +63,17 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000", //Fortitude
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)", //Eth Andy's
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.Fanaticism, sdk.skills.Zeal, sdk.skills.Fanaticism, -1, -1];
+				Config.LowManaSkill = [-1, -1];
+
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {

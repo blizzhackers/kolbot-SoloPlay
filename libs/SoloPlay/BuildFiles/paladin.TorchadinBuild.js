@@ -1,8 +1,9 @@
 /**
- *		@filename	paladin.TorchadinBuild.js
- *		@author		theGuy
- *		@desc		End-game Auradin build. Holy Fire based, HoJ + Dragon for level 30 Holy Fire
- */
+*  @filename    paladin.TorchadinBuild.js
+*  @author      theBGuy
+*  @desc        Zeal + Holy Fire based final build - uses HoJ + Dragon for level 30 Holy Fire
+*
+*/
 
 const finalBuild = {
 	caster: false,
@@ -62,6 +63,18 @@ const finalBuild = {
 		"[type] == armor && [flag] == runeword # [ias] == 45 && [coldresist] == 30 # [merctier] == 50000 + mercscore(item)", // Treachery
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)", // Eth Andy's
 	],
+
+	AutoBuildTemplate: {
+		1:	{
+			Update: function () {
+				Config.Vigor = false;
+				Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.Conviction, sdk.skills.Zeal, sdk.skills.Conviction, -1, -1];
+				Config.LowManaSkill = [-1, -1];
+				Config.SkipImmune = ["fire and physical"];
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+			}
+		},
+	},
 
 	respec: function () {
 		if (me.classic) {
