@@ -1,14 +1,12 @@
-/*
- *    @filename   	Paladin.Start.js
- *	  @author	  	theBGuy
- *    @desc      	Paladin Holy fire start build
- */
-
-
+/**
+*  @filename    paladin.Start.js
+*  @author      isid0re, theBGuy
+*  @desc        Holy fire build for before respecOne, respecs at 19
+*
+*/
 js_strict(true);
 
 !isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
-
 SetUp.include();
 
 let AutoBuildTemplate = {

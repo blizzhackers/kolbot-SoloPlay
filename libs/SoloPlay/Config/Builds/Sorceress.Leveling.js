@@ -1,13 +1,12 @@
-/*
- *    @filename   	Sorceress.Leveling.js
- *	  @author	  	theBGuy
- *    @desc      	Sorceress Blizzard + Fireball leveling build
- */
-
-
+/**
+*  @filename    Sorceress.Leveling.js
+*  @author      theBGuy
+*  @desc        Blizzballer build for after respecOneB
+*
+*/
 js_strict(true);
 
-if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 let AutoBuildTemplate = {

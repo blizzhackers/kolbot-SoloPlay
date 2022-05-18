@@ -1,13 +1,12 @@
-/*
- *    @filename   	Amazon.Stepping.js
- *	  @author	  	theBGuy
- *    @desc      	Amazon lightning stepping build
- */
-
-
+/**
+*  @filename    amazon.Stepping.js
+*  @author      theBGuy
+*  @desc        Lighting/Charged Strike build for after respecOne and before respecOneB
+*
+*/
 js_strict(true);
 
-if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 let AutoBuildTemplate = {

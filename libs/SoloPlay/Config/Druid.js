@@ -1,19 +1,19 @@
-/*
-*	@filename	Druid.js
-*	@author		theBGuy
-*	@credit		isid0re
-*	@desc		Config Settings for SoloPlay Druid
+/**
+*  @filename    Druid.js
+*  @author      theBGuy
+*  @credit      isid0re
+*  @desc        Config Settings for SoloPlay Druid
 *
-*	FinalBuild choices
-*		To select your finalbuild.
-*		1. Go into the D2BS console manager.
-*		2. Select the Bots profile
-*		3. In the info tag box enter one of the following choices:
-*			Wind
-*			Elemental
-*			Wolf
-*			Plaguewolf
-*		4. Save the profile and start
+*  @FinalBuild
+*    To select your finalbuild:
+*      1. Go into the D2BS console manager.
+*      2. Select the Bots profile
+*      3. In the info tag box enter one of the following choices:
+*        Wind
+*        Elemental
+*        Wolf
+*        Plaguewolf
+*      4. Save the profile and start
 */
 
 function LoadConfig () {

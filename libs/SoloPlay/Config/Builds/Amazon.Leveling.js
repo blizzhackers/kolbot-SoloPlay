@@ -1,19 +1,18 @@
-/*
- *    @filename   	Amazon.Leveling.js
- *	  @author	  	theBGuy
- *    @desc      	Amazon lightning leveling build
- */
-
-
+/**
+*  @filename    amazon.Leveling.js
+*  @author      theBGuy
+*  @desc        Lightning/poison javelin build for after respecOneB
+*
+*/
 js_strict(true);
 
-if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 let AutoBuildTemplate = {
 	1:	{
 		SkillPoints: [-1],
-		StatPoints: [-1,-1,-1,-1,-1],
+		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
 			Config.LowManaSkill = [0, 0];

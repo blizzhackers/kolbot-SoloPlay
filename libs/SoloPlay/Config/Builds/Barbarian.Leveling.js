@@ -1,13 +1,13 @@
-/*
- *    @filename   	Barbarian.Leveling.js
- *	  @author	  	theBGuy
- *    @desc      	Barbarian leveling warcry/frenzy build
- */
-
-
+/**
+*  @filename    barbarian.Leveling.js
+*  @author      theBGuy
+*  @credits     aim2kill (big shout out for all the testing an ideas for this build)
+*  @desc        Frenzy/War Cry build for after respecOneB
+*
+*/
 js_strict(true);
 
-if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 // preattack, primary skill for bosses, backup immune skill for bosses, primary skill for others, backup others

@@ -1,20 +1,19 @@
-/*
- *    @filename   	Barbarian.Stepping.js
- *	  @author	  	theBGuy
- *    @desc      	Barbarian frenzy/warcry stepping build
- */
-
-
+/**
+*  @filename    barbarian.Stepping.js
+*  @author      theBGuy
+*  @credits     aim2kill (big shout out for all the testing an ideas for this build)
+*  @desc        Frenzy/War Cry build for after respecOne and before respecOneB
+*
+*/
 js_strict(true);
 
-if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 // preattack, primary skill for bosses, backup immune skill for bosses, primary skill for others, backup others
 // Config.AttackSkill = [0, 0, 0, 0, 0];
 
 let AutoBuildTemplate = {
-
 	1:	{
 		//SkillPoints: [-1],			// This doesn't matter. We don't have skill points to spend at lvl 1
 		//StatPoints: [-1,-1,-1,-1,-1],	// This doesn't matter. We don't have stat points to spend at lvl 1
@@ -26,7 +25,6 @@ let AutoBuildTemplate = {
 			SetUp.belt();
 			Config.MPBuffer = 4;
 			Config.HPBuffer = 6;
-
 		}
 	},
 
@@ -37,7 +35,6 @@ let AutoBuildTemplate = {
 			Config.AttackSkill = [-1, 126, 0, 0, 0];
 			Config.LowManaSkill = [0, 0];
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
-
 		}
 	},
 
@@ -47,7 +44,6 @@ let AutoBuildTemplate = {
 		Update: function () {
 			Config.AttackSkill = [-1, 126, 0, 0, 0];
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
-
 		}
 	},
 
@@ -57,7 +53,6 @@ let AutoBuildTemplate = {
 		Update: function () {
 			Config.AttackSkill = [-1, 126, 0, 0, 0];
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
-
 		}
 	},
 
@@ -67,7 +62,6 @@ let AutoBuildTemplate = {
 		Update: function () {
 			Config.AttackSkill = [-1, 126, 0, 0, 0];
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
-
 		}
 	},
 
@@ -90,7 +84,6 @@ let AutoBuildTemplate = {
 		Update: function () {
 			Config.AttackSkill = [-1, 133, -1, 133, -1];
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
-
 		}
 	},
 
@@ -100,7 +93,6 @@ let AutoBuildTemplate = {
 		Update: function () {
 			Config.AttackSkill = [-1, 133, -1, 133, -1];
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
-
 		}
 	},
 
@@ -110,7 +102,6 @@ let AutoBuildTemplate = {
 		Update: function () {
 			Config.AttackSkill = [-1, 133, -1, 133, -1];
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
-
 		}
 	},
 
@@ -120,7 +111,6 @@ let AutoBuildTemplate = {
 		Update: function () {
 			Config.AttackSkill = [-1, 133, -1, 133, -1];
 			Config.TownHP = me.playertype ? 0 : Config.TownCheck ? 35 : 0;
-
 		}
 	},
 
@@ -129,7 +119,6 @@ let AutoBuildTemplate = {
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.AttackSkill = [-1, 133, -1, 133, -1];
-
 		}
 	},
 

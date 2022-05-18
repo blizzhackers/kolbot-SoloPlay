@@ -1,13 +1,13 @@
-/*
- *    @filename   	Barbarian.Start.js
- *	  @author	  	theBGuy
- *    @desc      	Barbarian double swing start build
- */
-
-
+/**
+*  @filename    barbarian.Start.js
+*  @author      theBGuy
+*  @credits     aim2kill (big shout out for all the testing an ideas for this build)
+*  @desc        Double swing build for before respecOne
+*
+*/
 js_strict(true);
 
-if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 // preattack, primary skill for bosses, backup immune skill for bosses, primary skill for others, backup others

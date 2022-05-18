@@ -1,13 +1,12 @@
-/*
- *    @filename   	Necromancer.Start.js
- *	  @author	  	theBGuy
- *    @desc      	Necromancer Bone start build
- */
-
-
+/**
+*  @filename    necromancer.Start.js
+*  @author      theBGuy, isid0re
+*  @desc        Bonemancer build for before respecOne
+*
+*/
 js_strict(true);
 
-if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 let AutoBuildTemplate = {

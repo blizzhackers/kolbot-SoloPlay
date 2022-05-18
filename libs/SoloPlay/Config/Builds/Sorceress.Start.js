@@ -1,13 +1,12 @@
-/*
- *    @filename   	Sorceress.Start.js
- *	  @author	  	theBGuy
- *    @desc       	sorceress Blova build for before respecOne - respecs at level 26
- */
-
-
+/**
+*  @filename    Sorceress.Start.js
+*  @author      isid0re, theBGuy
+*  @desc        Blova build for before respecOne - respecs at level 26
+*
+*/
 js_strict(true);
 
-if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 let AutoBuildTemplate = {

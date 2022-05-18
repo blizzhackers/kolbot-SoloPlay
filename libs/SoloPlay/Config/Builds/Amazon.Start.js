@@ -1,13 +1,12 @@
-/*
- *    @filename   	Amazon.Start.js
- *	  @author	  	theBGuy
- *    @desc      	Amazon lightning start build
- */
-
-
+/**
+*  @filename    amazon.Start.js
+*  @author      theBGuy
+*  @desc        Charged Strike build for before respecOne
+*
+*/
 js_strict(true);
 
-if (!isIncluded("SoloPlay/Functions/Globals.js")) { include("SoloPlay/Functions/Globals.js"); }
+!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 let AutoBuildTemplate = {
@@ -68,8 +67,8 @@ let AutoBuildTemplate = {
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.AttackSkill = [
-					-1, sdk.skills.ChargedStrike, 0, (me.getSkill(sdk.skills.LightningStrike, 1) >= me.getSkill(sdk.skills.ChargedStrike, 1) ? sdk.skills.LightningStrike : sdk.skills.ChargedStrike), 0, -1, -1
-				];
+				-1, sdk.skills.ChargedStrike, 0, (me.getSkill(sdk.skills.LightningStrike, 1) >= me.getSkill(sdk.skills.ChargedStrike, 1) ? sdk.skills.LightningStrike : sdk.skills.ChargedStrike), 0, -1, -1
+			];
 		}
 	},
 };
