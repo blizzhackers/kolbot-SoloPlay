@@ -34,11 +34,15 @@ let AutoBuildTemplate = {
 		}
 	},
 
-	4:	{
+	3:	{
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, sdk.skills.Firestorm, -1, sdk.skills.Firestorm, -1, 0, 0];
+			if (me.getSkill(sdk.skills.Firestorm, 0)) {
+				Config.AttackSkill = [-1, sdk.skills.Firestorm, -1, sdk.skills.Firestorm, -1, 0, 0];
+			} else {
+				Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
+			}
 		}
 	},
 

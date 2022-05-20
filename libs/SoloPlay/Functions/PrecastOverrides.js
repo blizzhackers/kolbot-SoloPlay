@@ -21,9 +21,9 @@ Precast.precastCTA = function (force) {
 		let slot = me.weaponswitch;
 
 		me.switchWeapons(this.haveCTA);
-		Skill.cast(sdk.skills.BattleCommand, 0) && delay(50); // Battle Command
-		Skill.cast(sdk.skills.BattleCommand, 0) && delay(50); // Battle Command
-		Skill.cast(sdk.skills.BattleOrders, 0) && delay(50); // Battle Orders
+		Skill.cast(sdk.skills.BattleCommand, 0); // Battle Command
+		Skill.cast(sdk.skills.BattleCommand, 0); // Battle Command
+		Skill.cast(sdk.skills.BattleOrders, 0); // Battle Orders
 
 		!this.BODuration && (this.BODuration = Skill.getDuration(sdk.skills.BattleOrders));
 		this.BOTick = getTickCount();

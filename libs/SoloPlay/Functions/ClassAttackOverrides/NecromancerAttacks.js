@@ -1,7 +1,8 @@
-/*
-*	@filename	NecromancerAttacks.js
-*	@author		theBGuy
-*	@desc		Necromancer fixes to improve class attack functionality
+/**
+*  @filename    NecromancerAttacks.js
+*  @author      theBGuy
+*  @desc        Necromancer fixes to improve class attack functionality
+*
 */
 
 !isIncluded("common/Attacks/Necromancer.js") && include("common/Attacks/Necromancer.js");

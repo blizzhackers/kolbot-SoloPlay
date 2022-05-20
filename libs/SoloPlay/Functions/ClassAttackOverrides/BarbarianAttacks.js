@@ -1,7 +1,8 @@
-/*
-*	@filename	BarbarianAttacks.js
-*	@author		theBGuy
-*	@desc		Barbarian fixes to improve class attack functionality
+/**
+*  @filename    BarbarianAttacks.js
+*  @author      theBGuy
+*  @desc        Barbarian fixes to improve class attack functionality
+*
 */
 
 !isIncluded("common/Attacks/Barbarian.js") && include("common/Attacks/Barbarian.js");

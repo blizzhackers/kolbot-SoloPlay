@@ -1,7 +1,8 @@
-/*
-*	@filename	AssassinAttacks.js
-*	@author		theBGuy
-*	@desc		Assassin fixes to improve class attack functionality
+/**
+*  @filename    AssassinAttacks.js
+*  @author      theBGuy
+*  @desc        Assassin fixes to improve class attack functionality
+*
 */
 
 !isIncluded("common/Attacks/Assassin.js") && include("common/Attacks/Assassin.js");

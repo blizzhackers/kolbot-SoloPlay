@@ -1308,6 +1308,7 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
 
 Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = false, force = false) {
 	if (!unit || !unit.x || !unit.y) return false;
+	let useTele = Pather.useTeleport();
 	walk === true && (walk = 1);
 	
 	if (distance < 4 && (!unit.hasOwnProperty("mode") || (unit.mode !== 0 && unit.mode !== 12))) {
@@ -1316,7 +1317,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 			Pather.walkTo(unit.x, unit.y, 3);
 		} else {
 			// don't clear while trying to reposition
-			Pather.moveToEx(unit.x, unit.y, {clearSettings: {allowClearing: false}});
+			Pather.moveToEx(unit.x, unit.y, {clearSettings: {allowClearing: !useTele, range: useTele ? 10 : 5}});
 		}
 
 		return !CollMap.checkColl(me, unit, coll);
@@ -1378,8 +1379,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 					if (walk && (coords[i].distance < 6 || !CollMap.checkColl(me, unit, 0x5 | 0x400 | 0x1000))) {
 						Pather.walkTo(coords[i].x, coords[i].y, 2);
 					} else {
-						// need to change moveTo to pass a settings obj so can control if what we do easier
-						Pather.moveToEx(coords[i].x, coords[i].y, {clearSettings: {allowClearing: false, retry: 3}});
+						Pather.moveToEx(coords[i].x, coords[i].y, {clearSettings: {allowClearing: !useTele, range: useTele ? 10 : 5, retry: 3}});
 					}
 
 					Developer.debugging.pathing && print(sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow + "Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + currCount);

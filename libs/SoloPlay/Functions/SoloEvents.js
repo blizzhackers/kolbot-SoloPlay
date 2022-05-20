@@ -340,7 +340,7 @@ const SoloEvents = {
 					if (fail > 0) {
 						Packet.flash(me.gid);
 
-						if (fail >= retry) {
+						if (fail >= settings.retry) {
 							break;
 						}
 					}

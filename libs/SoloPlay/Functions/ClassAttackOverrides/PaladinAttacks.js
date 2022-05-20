@@ -1,7 +1,8 @@
-/*
-*	@filename	PaladinAttacks.js
-*	@author		theBGuy
-*	@desc		Paladin fixes to improve class attack functionality
+/**
+*  @filename    PaladinAttacks.js
+*  @author      theBGuy
+*  @desc        Paladin fixes to improve class attack functionality
+*
 */
 
 !isIncluded("common/Attacks/Paladin.js") && include("common/Attacks/Paladin.js");

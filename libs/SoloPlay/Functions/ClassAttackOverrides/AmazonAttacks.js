@@ -1,7 +1,8 @@
-/*
-*	@filename	AmazonAttacks.js
-*	@author		theBGuy
-*	@desc		Amazon fixes to improve class attack functionality
+/**
+*  @filename    AmazonAttacks.js
+*  @author      theBGuy
+*  @desc        Amazon fixes to improve class attack functionality
+*
 */
 
 // TODO: clean up this whole file

@@ -10,7 +10,7 @@
 
 Skill.casterSkills = [
 	36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 84,
-	87, 92, 93, 101, 112, 121, 130, 137, 138, 146, 154, 155, 225,
+	87, 92, 93, 101, 112, 121, 130, 137, 146, 154, 225,
 	229, 230, 234, 240, 244, 249, 250, 251, 256, 261, 262, 271, 276
 ];
 Skill.forcePacket = (Developer.forcePacketCasting.enabled && !Developer.forcePacketCasting.excludeProfiles.includes(me.profile));

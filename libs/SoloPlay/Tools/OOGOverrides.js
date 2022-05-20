@@ -137,6 +137,9 @@ ControlAction.makeCharacter = function (info) {
 
 ControlAction.findCharacter = function (info) {
 	let count = 0;
+	let singlePlayer = ![sdk.game.gametype.OpenBattlenet, sdk.game.gametype.BattleNet].includes(Profile().type);
+	// offline doesn't have a character limit cap
+	let cap = singlePlayer ? 999 : 24;
 	let tick = getTickCount();
 
 	while (getLocation() !== sdk.game.locations.CharSelect) {
@@ -157,7 +160,7 @@ ControlAction.findCharacter = function (info) {
 	// start from beginning of the char list
 	sendKey(0x24);
 
-	while (getLocation() === sdk.game.locations.CharSelect && count < 24) {
+	while (getLocation() === sdk.game.locations.CharSelect && count < cap) {
 		let control = Controls.CharSelectCharInfo0.control;
 
 		if (control) {
@@ -171,11 +174,11 @@ ControlAction.findCharacter = function (info) {
 						return true;
 					}
 				}
-			} while (count < 24 && control.getNext());
+			} while (count < cap && control.getNext());
 		}
 
-		// check for additional characters up to 24
-		if (count === 8 || count === 16) {
+		// check for additional characters up to 24 (online) or 999 offline (no character limit cap)
+		if (count > 0 && count % 8 === 0) {
 			if (Controls.CharSelectChar6.click()) {
 				me.blockMouse = true;
 

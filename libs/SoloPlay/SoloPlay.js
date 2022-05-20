@@ -122,7 +122,7 @@ function SoloPlay () {
 					console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));
 					me.maxgametime += (getTickCount() - tick);
 					console.log("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Developer.formatTime(me.maxgametime));
-					console.log("ÿc8Kolbot-SoloPlayÿc0 :: ÿc7" + SetUp.scripts[k] + " ÿc7Duration: ÿc0" + Developer.formatTime(tick));
+					console.log("ÿc8Kolbot-SoloPlayÿc0 :: ÿc8" + SetUp.scripts[k] + "ÿc0 - ÿc7Duration: ÿc0" + Developer.formatTime(getTickCount() - tick));
 
 					// remove script function from function scope, so it can be cleared by GC
 					if (k < SetUp.scripts.length) {

@@ -1,7 +1,8 @@
-/*
-*	@filename	DruidAttacks.js
-*	@author		theBGuy
-*	@desc		Druid fixes to improve class attack functionality
+/**
+*  @filename    DruidAttacks.js
+*  @author      theBGuy
+*  @desc        Druid fixes to improve class attack functionality
+*
 */
 
 !isIncluded("common/Attacks/Druid.js") && include("common/Attacks/Druid.js");

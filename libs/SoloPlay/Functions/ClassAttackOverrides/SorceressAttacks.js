@@ -1,7 +1,8 @@
-/*
-*	@filename	SorceressAttacks.js
-*	@author		theBGuy
-*	@desc		Sorceress fixes to improve class attack functionality
+/**
+*  @filename    SorceressAttacks.js
+*  @author      theBGuy
+*  @desc        Sorceress fixes to improve class attack functionality
+*
 */
 
 !isIncluded("common/Attacks/Sorceress.js") && include("common/Attacks/Sorceress.js");

@@ -70,8 +70,9 @@ new Overrides.Override(Town, Town.initNPC, function (orignal, task, reason) {
 		}
 
 		if (!npc || npc.area !== me.area || (!getUIFlag(sdk.uiflags.NPCMenu) && !npc.openMenu())) {
-			// handle getUnit bug - we still are able to openMenu using packets so attempt it
-			!!npc && npc.openMenu();
+			// this.move(this.tasks[me.act - 1][task]);
+			// // handle getUnit bug - we still are able to openMenu using packets so attempt it - note was failing in a3 so need a better solution
+			// !!npc && npc.openMenu();
 			if (!getUIFlag(sdk.uiflags.NPCMenu)) throw new Error("Couldn't interact with npc");
 		}
 
@@ -409,20 +410,18 @@ Town.cainID = function (force = false) {
 Town.identify = function () {
 	if (me.gold < 5000 && this.cainID(true)) return true;
 	
-	let i, scroll, timer;
+	let scroll, timer;
 	let list = (Storage.Inventory.Compare(Config.Inventory) || []);
 
 	if (!list.length) return false;
-
+	
 	// Avoid unnecessary NPC visits
-	for (i = 0; i < list.length; i += 1) {
-		// Only unid items or sellable junk (low level) should trigger a NPC visit
-		if ((!list[i].identified || Config.LowGold > 0) && ([-1, 4].indexOf(Pickit.checkItem(list[i]).result) > -1 || (!list[i].identified && AutoEquip.hasTier(list[i])))) {
-			break;
-		}
+	// Only unid items or sellable junk (low level) should trigger a NPC visit
+	if (!list.some(item =>
+		((!item.identified || Config.LowGold > 0) && ([-1, 4].includes(Pickit.checkItem(item).result) || (!item.identified && AutoEquip.hasTier(item))))
+	)) {
+		return false;
 	}
-
-	if (i === list.length) return false;
 
 	let npc = this.initNPC("Shop", "identify");
 	if (!npc) return false;
@@ -595,7 +594,7 @@ Town.shopItems = function () {
 	if (!items.length) return false;
 
 	let tick = getTickCount();
-	let haveMerc = Misc.poll(() => !!me.getMerc(), 1000, 200);
+	let haveMerc = !me.classic && Config.UseMerc || !!me.mercrevivecost && Misc.poll(() => !!me.getMerc(), 500, 100);
 	console.log("ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Evaluating " + npc.itemcount + " items.");
 
@@ -1067,34 +1066,40 @@ Town.clearInventory = function () {
 	this.clearBelt();
 
 	// Return potions from inventory to belt
+	let potsInInventory;
 	let beltSize = Storage.BeltSize();
-	let potsInInventory = me.getItemsEx()
-		.filter((p) => p.isInInventory && [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion].includes(p.itemType))
-		.sort((a, b) => a.itemType - b.itemType);
 
-	potsInInventory.length > 0 && console.debug("clearInventory: start pots clean-up");
-	// Start interating over all the pots we have in our inventory
-	potsInInventory.forEach(function (p) {
-		let moved = false;
-		// get free space in each slot of our belt
-		let freeSpace = Town.checkColumns(beltSize);
-		for (let i = 0; i < 4 && !moved; i += 1) {
-			// checking that current potion matches what we want in our belt
-			if (freeSpace[i] > 0 && p.code && p.code.startsWith(Config.BeltColumn[i])) {
-				console.log("Checking Config.BeltColumn[" + i + "], wanted [" + Config.BeltColumn[i] + "], currentPotToCheck :: " + p.code);
-				// Pick up the potion and put it in belt if the column is empty, and we don't have any other columns empty
-				// prevents shift-clicking potion into wrong column
-				if (freeSpace[i] === beltSize || freeSpace.some((spot) => spot === beltSize)) {
-					p.toCursor(true) && new PacketBuilder().byte(0x23).dword(p.gid).dword(Math.max(0, (beltSize - freeSpace[i]))).send();
-				} else {
-					clickItemAndWait(sdk.clicktypes.click.ShiftLeft, p.x, p.y, p.location);
+	// check if we have empty belt slots
+	let needCleanup = Town.checkColumns(beltSize).some(slot => slot > 0);
+
+	if (needCleanup) {
+		potsInInventory = me.getItemsEx()
+			.filter((p) => p.isInInventory && [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion].includes(p.itemType))
+			.sort((a, b) => a.itemType - b.itemType);
+
+		potsInInventory.length > 0 && console.debug("clearInventory: start pots clean-up");
+		// Start interating over all the pots we have in our inventory
+		beltSize > 1 && potsInInventory.forEach(function (p) {
+			let moved = false;
+			// get free space in each slot of our belt
+			let freeSpace = Town.checkColumns(beltSize);
+			for (let i = 0; i < 4 && !moved; i += 1) {
+				// checking that current potion matches what we want in our belt
+				if (freeSpace[i] > 0 && p.code && p.code.startsWith(Config.BeltColumn[i])) {
+					// Pick up the potion and put it in belt if the column is empty, and we don't have any other columns empty
+					// prevents shift-clicking potion into wrong column
+					if (freeSpace[i] === beltSize || freeSpace.some((spot) => spot === beltSize)) {
+						p.toCursor(true) && new PacketBuilder().byte(0x23).dword(p.gid).dword(Math.max(0, (beltSize - freeSpace[i]))).send();
+					} else {
+						clickItemAndWait(sdk.clicktypes.click.ShiftLeft, p.x, p.y, p.location);
+					}
+					Misc.poll(() => !me.itemoncursor, 300, 30);
+					moved = Town.checkColumns(beltSize)[i] === freeSpace[i] - 1;
 				}
-				Misc.poll(() => !me.itemoncursor, 300, 30);
-				moved = Town.checkColumns(beltSize)[i] === freeSpace[i] - 1;
+				Cubing.cursorCheck();
 			}
-			Cubing.cursorCheck();
-		}
-	});
+		});
+	}
 
 	// Cleanup remaining potions
 	console.debug("clearInventory: start clean-up remaining pots");
