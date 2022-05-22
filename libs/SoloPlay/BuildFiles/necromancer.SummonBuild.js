@@ -10,6 +10,7 @@ const finalBuild = {
 	skillstab: sdk.skills.tabs.NecroSummoning,
 	wantedskills: [sdk.skills.RaiseSkeleton, sdk.skills.CorpseExplosion],
 	usefulskills: [sdk.skills.AmplifyDamage, sdk.skills.SkeletonMastery, sdk.skills.BoneArmor, sdk.skills.Decrepify],
+	precastSkills: [sdk.skills.BoneArmor],
 	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
 	mercAuraWanted: "Might",
