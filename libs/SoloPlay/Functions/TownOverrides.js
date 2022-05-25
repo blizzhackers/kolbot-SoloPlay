@@ -1068,6 +1068,15 @@ Town.clearInventory = function () {
 	// Return potions from inventory to belt
 	let potsInInventory;
 	let beltSize = Storage.BeltSize();
+	// belt 4x4 locations
+	/**
+	* 12 13 14 15
+	* 8  9  10 11
+	* 4  5  6  7
+	* 0  1  2  3
+	*/
+	let beltMax = (beltSize * 4);
+	let beltCapRef = [(0 + beltMax), (1 + beltMax), (2 + beltMax), (3 + beltMax)];
 
 	// check if we have empty belt slots
 	let needCleanup = Town.checkColumns(beltSize).some(slot => slot > 0);
