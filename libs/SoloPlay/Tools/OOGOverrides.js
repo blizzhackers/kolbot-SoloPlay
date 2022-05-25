@@ -141,6 +141,7 @@ ControlAction.findCharacter = function (info) {
 	// offline doesn't have a character limit cap
 	let cap = singlePlayer ? 999 : 24;
 	let tick = getTickCount();
+	let firstCheck;
 
 	while (getLocation() !== sdk.game.locations.CharSelect) {
 		if (getTickCount() - tick >= 5000) {
@@ -164,6 +165,7 @@ ControlAction.findCharacter = function (info) {
 		let control = Controls.CharSelectCharInfo0.control;
 
 		if (control) {
+			firstCheck = control.getText();
 			do {
 				let text = control.getText();
 
@@ -180,6 +182,7 @@ ControlAction.findCharacter = function (info) {
 		// check for additional characters up to 24 (online) or 999 offline (no character limit cap)
 		if (count > 0 && count % 8 === 0) {
 			if (Controls.CharSelectChar6.click()) {
+				console.debug("scroll, count: " + count);
 				me.blockMouse = true;
 
 				sendKey(0x28);
@@ -188,6 +191,16 @@ ControlAction.findCharacter = function (info) {
 				sendKey(0x28);
 
 				me.blockMouse = false;
+
+				let check = Controls.CharSelectCharInfo0.control;
+
+				if (!!firstCheck && !!check) {
+					let nameCheck = check.getText();
+
+					if (firstCheck[1].toLowerCase() === nameCheck[1].toLowerCase()) {
+						return false;
+					}
+				}
 			}
 		} else {
 			// no further check necessary

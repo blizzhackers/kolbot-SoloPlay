@@ -112,6 +112,10 @@ const finalBuild = {
 				Check.haveItem("armor", "set", "Tal Rasha's Guardianship") && Check.haveItem("swirlingcrystal", "set", "Tal Rasha's Lidless Eye");
 		}
 	},
+
+	active: function () {
+		return this.respec && me.getSkill(sdk.skills.Telekinesis, 0) === 20;
+	},
 };
 
 // Has to be set after its loaded

@@ -1089,7 +1089,8 @@ Town.clearInventory = function () {
 					// Pick up the potion and put it in belt if the column is empty, and we don't have any other columns empty
 					// prevents shift-clicking potion into wrong column
 					if (freeSpace[i] === beltSize || freeSpace.some((spot) => spot === beltSize)) {
-						p.toCursor(true) && new PacketBuilder().byte(0x23).dword(p.gid).dword(Math.max(0, (beltSize - freeSpace[i]))).send();
+						let x = freeSpace[i] === beltSize ? i : (beltCapRef[i] - (freeSpace[i] * 4));
+						p.toCursor(true) && new PacketBuilder().byte(0x23).dword(p.gid).dword(x).send();
 					} else {
 						clickItemAndWait(sdk.clicktypes.click.ShiftLeft, p.x, p.y, p.location);
 					}
