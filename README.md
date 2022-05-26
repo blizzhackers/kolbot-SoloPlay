@@ -24,12 +24,13 @@
 | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
 |:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
 | Javazon | Cold | Poison | Hammerdin| Whirlwind | Wind |Trapsin|
-| *`Witchyzon`* | Blizzballer | Bone | Smiter| *`Immortalwhirl`* | Elemental |
+| *`Witchyzon`* | Blizzballer | Bone | Smiter| *`Immortalwhirl`* | Elemental | Whirlsin |
 | | Meteorb | Summon | *`Auradin`* | Frenzy | Plaguewolf |
 | | Blova | | Zealer | Uberconc | Wolf |
 | | Lightning | | *`Torchadin`* | Singer |
 | |  | | Classicauradin |  |
 | |  | | Hammershock |  |
+| |  | | *`Sancdreamer`* |  |
 - **NOTE:** Expansion only builds marked.
 - Navigate to ``kolbot\libs\SoloPlay\BuildFiles\`` and open the file with the build name for a more in-depth description of each build
 
