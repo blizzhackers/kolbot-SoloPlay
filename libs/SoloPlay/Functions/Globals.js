@@ -465,13 +465,13 @@ const basicSocketables = {
 			classid: sdk.items.BroadSword,
 			socketWith: [],
 			useSocketQuest: true,
-			condition: function (item) { return me.normal && !Check.haveBase("sword", 4) && !Check.haveItem("sword", "runeword", "Spirit") && item.ilvl >= 26 && item.isBaseType && !item.ethereal; }
+			condition: (item) => me.normal && !Check.haveBase("sword", 4) && !Check.haveItem("sword", "runeword", "Spirit") && item.ilvl >= 26 && item.isBaseType && !item.ethereal
 		},
 		{
 			classid: sdk.items.CrystalSword,
 			socketWith: [],
 			useSocketQuest: true,
-			condition: function (item) { return me.normal && !Check.haveBase("sword", 4) && !Check.haveItem("sword", "runeword", "Spirit") && item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal; }
+			condition: (item) => me.normal && !Check.haveBase("sword", 4) && !Check.haveItem("sword", "runeword", "Spirit") && item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal
 		},
 		{
 			// Lidless
@@ -479,7 +479,7 @@ const basicSocketables = {
 			socketWith: [sdk.items.runes.Um],
 			temp: [sdk.items.gems.Perfect.Diamond],
 			useSocketQuest: !me.hell,
-			condition: function (item) { return item.quality === sdk.itemquality.Unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal; }
+			condition: (item) => item.quality === sdk.itemquality.Unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal
 		},
 	],
 	all: [
@@ -487,13 +487,13 @@ const basicSocketables = {
 			classid: sdk.items.Bill,
 			socketWith: [],
 			useSocketQuest: true,
-			condition: function (item) { return me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal; }
+			condition: (item) => me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal
 		},
 		{
 			classid: sdk.items.ColossusVoulge,
 			socketWith: [],
 			useSocketQuest: true,
-			condition: function (item) { return me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal; }
+			condition: (item) => me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal
 		},
 		{
 			// Crown of Ages
@@ -501,7 +501,7 @@ const basicSocketables = {
 			socketWith: [sdk.items.runes.Ber, sdk.items.runes.Um],
 			temp: [sdk.items.gems.Perfect.Ruby],
 			useSocketQuest: false,
-			condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+			condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
 		},
 		{
 			// Moser's
@@ -509,7 +509,7 @@ const basicSocketables = {
 			socketWith: [sdk.items.runes.Um],
 			temp: [sdk.items.gems.Perfect.Diamond],
 			useSocketQuest: false,
-			condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+			condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
 		},
 		{
 			// Spirit Forge
@@ -517,7 +517,7 @@ const basicSocketables = {
 			socketWith: [sdk.items.runes.Shael],
 			temp: [sdk.items.gems.Perfect.Ruby],
 			useSocketQuest: false,
-			condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+			condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
 		},
 		{
 			// Dijjin Slayer
@@ -525,7 +525,7 @@ const basicSocketables = {
 			socketWith: [sdk.items.runes.Amn],
 			temp: [sdk.items.gems.Perfect.Skull],
 			useSocketQuest: false,
-			condition: function (item) { return !Check.currentBuild().caster && item.quality === sdk.itemquality.Unique && !item.ethereal; }
+			condition: (item) => !Check.currentBuild().caster && item.quality === sdk.itemquality.Unique && !item.ethereal
 		},
 		{
 			// Bone Hew - for merc
@@ -533,32 +533,32 @@ const basicSocketables = {
 			socketWith: [sdk.items.runes.Hel, sdk.items.runes.Amn],
 			temp: [sdk.items.gems.Perfect.Skull],
 			useSocketQuest: false,
-			condition: function (item) { return item.quality === sdk.itemquality.Unique; }
+			condition: (item) => item.quality === sdk.itemquality.Unique
 		},
 	]
 };
 
 const goToDifficulty = function (diff = undefined, reason = "") {
 	try {
-		if (!diff) throw new Error("diff is undefined");
+		if (!diff) throw ("diff is undefined");
 		
 		let diffString;
 		switch (typeof diff) {
 		case "string":
 			diff = diff.capitalize(true);
 
-			if (!sdk.difficulty.Difficulties.includes(diff)) throw new Error("difficulty doesn't exist" + diff);
-			if (sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw new Error("already in this difficulty" + diff);
+			if (!sdk.difficulty.Difficulties.includes(diff)) throw ("difficulty doesn't exist" + diff);
+			if (sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw ("already in this difficulty" + diff);
 			diffString = diff;
 
 			break;
 		case "number":
-			if (diff === me.diff || diff < 0) throw new Error("invalid diff" + diff);
+			if (diff === me.diff || diff < 0) throw ("invalid diff" + diff);
 			diffString = sdk.difficulty.nameOf(diff);
 
 			break;
 		default:
-			throw new Error("?");
+			throw ("?");
 		}
 
 		D2Bot.setProfile(null, null, null, diffString);
@@ -602,7 +602,7 @@ const Check = {
 
 			break;
 		case "treehead":
-			if (me.hell && (me.paladin && (!Attack.auradin || !Check.haveItem("armor", "runeword", "Enigma") || !Pather.accessToAct(3)))) {
+			if (me.hell && (me.paladin && (!Attack.auradin || !me.checkItem({name: sdk.locale.items.Enigma}).have || !Pather.accessToAct(3)))) {
 				return true;
 			}
 
@@ -616,8 +616,8 @@ const Check = {
 		case "tristram":
 			if ((me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf()))
 				|| (!me.normal && ((!me.tristram && me.diffCompleted)
-					|| (me.barbarian && !Pather.accessToAct(3) && !Check.haveItem("sword", "runeword", "Lawbringer"))
-					|| (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.auradin || !Check.haveItem("armor", "runeword", "Enigma")))))) {
+					|| (me.barbarian && !Pather.accessToAct(3) && !me.checkItem({name: sdk.locale.items.Lawbringer}).have)
+					|| (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.auradin || !me.checkItem({name: sdk.locale.items.Enigma}).have))))) {
 				return true;
 			}
 
@@ -625,7 +625,7 @@ const Check = {
 		case "countess":
 			// classic quest not completed normal/nightmare || don't have runes for difficulty || barb in hell and have lawbringer
 			if ((me.classic && !me.hell && !me.countess)
-				|| (me.expansion && (needRunes || Check.brokeAf() || (me.barbarian && me.hell && Check.haveItem("sword", "runeword", "Lawbringer"))))) {
+				|| (me.expansion && (needRunes || Check.brokeAf() || (me.barbarian && me.hell && me.checkItem({name: sdk.locale.items.Lawbringer}).have)))) {
 				return true;
 			}
 
@@ -664,7 +664,7 @@ const Check = {
 			if (me.classic) return false;
 			if (me.charlvl >= 70 && Pather.canTeleport()
 				|| (me.barbarian && me.hell && !Pather.accessToAct(3)
-				&& (Item.getEquippedItem(5).tier < 1270 && !Check.haveItem("sword", "runeword", "Lawbringer")))) {
+				&& (Item.getEquippedItem(5).tier < 1270 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
 				return true;
 			}
 
@@ -743,7 +743,7 @@ const Check = {
 
 			break;
 		case "lowerkurast":
-			if (Pather.accessToAct(3) && me.nightmare && me.charlvl >= 50 && me.barbarian && !Check.haveItem("sword", "runeword", "Voice of Reason")) {
+			if (Pather.accessToAct(3) && me.nightmare && me.charlvl >= 50 && me.barbarian && !me.checkItem({name: sdk.locale.items.VoiceofReason}).have) {
 				return true;
 			}
 
@@ -764,8 +764,8 @@ const Check = {
 			if (!Pather.accessToAct(3)) return false;
 			if (!me.travincal
 				|| (me.charlvl < 25 || (me.charlvl >= 25 && me.normal && !me.baal && !Check.gold()))
-				|| (me.nightmare && !me.diablo && me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer"))
-				|| (me.hell && me.paladin && me.charlvl > 85 && (!Attack.auradin || !Check.haveItem("armor", "runeword", "Enigma")))) {
+				|| (me.nightmare && !me.diablo && me.barbarian && !me.checkItem({name: sdk.locale.items.Lawbringer}).have)
+				|| (me.hell && me.paladin && me.charlvl > 85 && (!Attack.auradin || !me.checkItem({name: sdk.locale.items.Enigma}).have))) {
 				return true;
 			}
 
@@ -793,7 +793,7 @@ const Check = {
 		case "river":
 			if (!Pather.accessToAct(4)) return false;
 			if (!me.diablo && !me.normal
-				&& (me.barbarian && !Check.haveItem("sword", "runeword", "Lawbringer"))
+				&& (me.barbarian && !me.checkItem({name: sdk.locale.items.Lawbringer}).have)
 				|| (me.sorceress && me.classic)) {
 				return true;
 			}
@@ -801,7 +801,7 @@ const Check = {
 			break;
 		case "hephasto":
 			if (!Pather.accessToAct(4)) return false;
-			if (!me.normal && me.diablo && me.barbarian && me.charlvl <= 70 && !Check.haveItem("sword", "runeword", "Lawbringer")) {
+			if (!me.normal && me.diablo && me.barbarian && me.charlvl <= 70 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have) {
 				return true;
 			}
 
@@ -1011,7 +1011,7 @@ const Check = {
 				|| (!me.paladin && this.haveItem("sword", "runeword", "Spirit"))
 				|| (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit"))
 				|| (me.necromancer && this.haveItem("wand", "runeword", "White") && (this.haveItem("voodooheads", "runeword", "Rhyme") || Item.getEquippedItem(5).tier > 800))
-				|| (me.barbarian && (Check.haveItem("sword", "runeword", "Lawbringer") || me.baal))) {
+				|| (me.barbarian && (me.checkItem({name: sdk.locale.items.Lawbringer}).have || me.baal))) {
 				needRunes = false;
 			}
 

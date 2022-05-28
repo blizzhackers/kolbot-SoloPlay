@@ -8,7 +8,7 @@ NTIP.arrayLooping(CoH);
 
 // Cube to Ber rune
 if (!me.getItem(sdk.items.runes.Ber)) {
-	if (Check.haveItem("dontcare", "runeword", "Call to Arms") || ["Plaguewolf", "Wolf", "Uberconc"].indexOf(SetUp.finalBuild) > -1) {
+	if (me.checkItem({name: sdk.locale.items.CalltoArms}).have || ["Plaguewolf", "Wolf", "Uberconc"].indexOf(SetUp.finalBuild) > -1) {
 		Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Gul Rune"]);

@@ -1,5 +1,5 @@
 /**
-*  @filename    PrototypesOverrides.js
+*  @filename    PrototypeOverrides.js
 *  @author      theBGuy
 *  @credit      Jaenster
 *  @desc        additions for improved Kolbot-SoloPlay functionality and code readability
@@ -7,6 +7,8 @@
 */
 
 !isIncluded('libs/common/Prototypes.js') && include('libs/common/Prototypes.js');
+
+sdk.skills.tabs.BarbCombat = 32;
 
 Unit.prototype.getResPenalty = function (difficulty) {
 	difficulty > 2 && (difficulty = 2);
