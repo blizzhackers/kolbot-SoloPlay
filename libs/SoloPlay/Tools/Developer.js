@@ -60,7 +60,7 @@ const Developer = {
 			Misc.errorReport(e, "Developer");
 			FileTools.remove(path);
 			Tracker.initialize();
-			OBJstring = Misc.fileAction(Path, 0);
+			OBJstring = Misc.fileAction(path, 0);
 			obj = JSON.parse(OBJstring);
 		}
 
