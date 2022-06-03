@@ -26,20 +26,19 @@ const finalBuild = {
 		["strength", 156], ["vitality", "all"],
 	],
 	classicSkills: [
-		// Points at respec 71 (goes right to this build from stepping)
-		[sdk.skills.Valkyrie, 1], 			// points left 64
-		[sdk.skills.LightningFury, 1], 		// points left 57
-		[sdk.skills.LightningStrike, 1], 	// points left 56
-		[sdk.skills.Pierce, 1], 			// points left 53
-		[sdk.skills.PlagueJavelin, 20], 	// points left 34
-		[sdk.skills.ChargedStrike, 10], 	// points left 25
-		[sdk.skills.LightningStrike, 10], 	// points left 16
-		[sdk.skills.Decoy, 5], 				// points left 12
-		[sdk.skills.LightningStrike, 17], 	// points left 5
-		[sdk.skills.ChargedStrike, 15], 	// points left 0
+		[sdk.skills.Valkyrie, 1],
+		[sdk.skills.LightningFury, 1],
+		[sdk.skills.LightningStrike, 1],
+		[sdk.skills.Pierce, 1],
+		[sdk.skills.PlagueJavelin, 20],
+		[sdk.skills.ChargedStrike, 10],
+		[sdk.skills.LightningStrike, 10],
+		[sdk.skills.Decoy, 5],
+		[sdk.skills.LightningStrike, 17],
+		[sdk.skills.ChargedStrike, 15],
 		[sdk.skills.LightningStrike, 20, false],
 		[sdk.skills.ChargedStrike, 20, false],
-		[sdk.skills.PoisonJavelin, 20, false], 	// synergy for PlagueJavelin
+		[sdk.skills.PoisonJavelin, 20, false],
 		[sdk.skills.Valkyrie, 12, false],
 		[sdk.skills.LightningFury, 20, false],
 	],
@@ -64,28 +63,28 @@ const finalBuild = {
 		// Gloves
 		"[name] == leathergloves && [quality] == set # [poisonresist] >= 50 # [tier] == 100000", // Death's Hand Leather Gloves
 		// Rings
-		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", //soj
+		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", // SoJ
 	],
 	expansionTiers: [
 		// Weapon
-		"[name] == ceremonialjavelin && [quality] == unique # [itemchargedskill] >= 0 # [tier] == 100000 + tierscore(item)", //Titan's Revenge
+		"[name] == ceremonialjavelin && [quality] == unique # [itemchargedskill] >= 0 # [tier] == 100000 + tierscore(item)", // Titan's Revenge
 		// Helmet
-		"[name] == shako && [quality] == unique && [flag] != ethereal # [itemallskills] == 2 # [tier] == 100000 + tierscore(item)", //harlequin's crest
+		"[name] == shako && [quality] == unique && [flag] != ethereal # [itemallskills] == 2 # [tier] == 100000 + tierscore(item)", // Harlequin's Crest
 		// Boots
-		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)", //sandstorm treks
+		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)", // Sandstorm Treks
 		// Belt
-		"[name] == warbelt && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)", //thundergod's vigor
+		"[name] == warbelt && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)", // Thundergod's Vigor
 		// Armor
-		"[type] == armor && [flag] == runeword  && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 110000", //CoH
+		"[type] == armor && [flag] == runeword  && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 110000", // CoH
 		// Shield
-		"[type] == shield # [fcr] >= 25 && [maxmana] >= 89 # [tier] == 110000 + tierscore(item)", //spirit
+		"[type] == shield # [fcr] >= 25 && [maxmana] >= 89 # [tier] == 110000 + tierscore(item)", // Spirit
 		// Amulet
-		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 110000", // highlords
+		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 110000", // Highlords
 		// Rings
-		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == # [tier] == 100000", // raven frost
-		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000", // Perfect raven frost
-		"[name] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == 100000", //Wisp
-		"[name] == ring && [quality] == unique # [itemabsorblightpercent] == 20 # [tier] == 110000", //Perfect Wisp
+		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == # [tier] == 100000", // Raven Frost
+		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000", // Perfect Raven Frost
+		"[name] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == 100000", // Wisp
+		"[name] == ring && [quality] == unique # [itemabsorblightpercent] == 20 # [tier] == 110000", // Perfect Wisp
 		// Charms
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 5 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
@@ -93,10 +92,11 @@ const finalBuild = {
 		"[name] == grandcharm && [quality] == magic # [javelinandspearskilltab] == 1 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		// Switch
 		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
-		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000", //spirit
+		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000", // Spirit
 		// Merc
-		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	//Fortitude
-		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	//Eth Andy's
+		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	// Fortitude
+		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",	// Andy's
+		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	// Eth Andy's
 	],
 	stats: undefined,
 	skills: undefined,
