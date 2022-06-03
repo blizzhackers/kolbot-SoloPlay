@@ -46,7 +46,7 @@ let AutoBuildTemplate = {
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.AttackSkill = [-1, sdk.skills.Fissure, sdk.skills.Firestorm, sdk.skills.Fissure, sdk.skills.Firestorm, 0, 0];
-			Config.SummonVine = 2; // 2 / "Carrion Vine"
+			Config.SummonVine = 2; // "Carrion Vine"
 		}
 	},
 };
