@@ -27,7 +27,6 @@ const finalBuild = {
 		[sdk.skills.Taunt, 20, true],
 		[sdk.skills.Shout, 11, false],
 		[sdk.skills.Howl, 15, false],
-		// Total 110 skill points done at 99
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon

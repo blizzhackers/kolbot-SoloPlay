@@ -11,8 +11,8 @@ SetUp.include();
 
 let AutoBuildTemplate = {
 	1:	{
-		//SkillPoints: [-1],								// This doesn't matter. We don't have skill points to spend at lvl 1
-		//StatPoints: [-1,-1,-1,-1,-1],						// This doesn't matter. We don't have stat points to spend at lvl 1
+		SkillPoints: [-1],
+		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.TownHP = me.hardcore ? 0 : 35;
 			Config.BeltColumn = ["hp", "hp", "hp", "hp"];
@@ -37,27 +37,13 @@ let AutoBuildTemplate = {
 		}
 	},
 
-	3:	{
-		SkillPoints: [-1],
-		StatPoints: [-1, -1, -1, -1, -1],
-		Update: function () {
-			Config.AttackSkill = [-1, sdk.skills.Teeth, -1, sdk.skills.Teeth, -1, -1, -1];
-		}
-	},
-
 	18:	{
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.AttackSkill = [-1, sdk.skills.Teeth, -1, sdk.skills.Teeth, -1, -1, -1];
 			Config.ExplodeCorpses = sdk.skills.CorpseExplosion;
-		}
-	},
 
-	19:	{
-		SkillPoints: [-1],
-		StatPoints: [-1, -1, -1, -1, -1],
-		Update: function () {
 			if (me.getSkill(sdk.skills.BoneSpear, 0)) {
 				Config.AttackSkill = [-1, sdk.skills.BoneSpear, -1, sdk.skills.BoneSpear, -1, -1, -1];
 			}

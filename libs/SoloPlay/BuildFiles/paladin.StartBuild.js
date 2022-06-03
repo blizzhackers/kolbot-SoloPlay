@@ -21,16 +21,16 @@ let build = {
 	],
 	skills: [
 		// Total skills points by respec = 20
-		[sdk.skills.Might, 1],			// charlevel -> 2
-		[sdk.skills.ResistFire, 4],		// charlevel -> 5
-		[sdk.skills.HolyFire, 3],		// charlevel -> 8
-		[sdk.skills.Sacrifice, 1],		// charlevel -> 9
-		[sdk.skills.Smite, 1],			// charlevel -> 10
-		[sdk.skills.Zeal, 1],			// charlevel -> 12
-		[sdk.skills.Charge, 1],			// charlevel -> 12
-		[sdk.skills.Zeal, 4],			// charlevel -> 15
-		[sdk.skills.HolyFire, 6],		// charlevel -> 17
-		[sdk.skills.ResistFire, 16]		// respec at 19
+		[sdk.skills.Might, 1],      // charlevel -> 2
+		[sdk.skills.ResistFire, 4], // charlevel -> 5
+		[sdk.skills.HolyFire, 3],   // charlevel -> 8
+		[sdk.skills.Sacrifice, 1],  // charlevel -> 9
+		[sdk.skills.Smite, 1],      // charlevel -> 10
+		[sdk.skills.Zeal, 1],       // charlevel -> 12
+		[sdk.skills.Charge, 1],     // charlevel -> 12
+		[sdk.skills.Zeal, 4],       // charlevel -> 15
+		[sdk.skills.HolyFire, 6],   // charlevel -> 17
+		[sdk.skills.ResistFire, 16] // respec at 19
 	],
 
 	active: function () {
