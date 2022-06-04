@@ -259,14 +259,14 @@ function LoadConfig () {
 				.push(
 					{
 						classid: sdk.items.HydraBow,
-						socketWith: [sdk.items.runes.Shael],
+						socketWith: [sdk.items.runes.Shael], // Ohm ?
 						temp: [sdk.items.gems.Perfect.Amn],
 						useSocketQuest: true,
 						condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
 					},
 					{
 						classid: sdk.items.DiamondBow,
-						socketWith: [sdk.items.runes.Nef, sdk.items.runes.Shael], // or Ohm ??
+						socketWith: [sdk.items.runes.Nef, sdk.items.runes.Shael],
 						temp: [sdk.items.gems.Perfect.Skull],
 						useSocketQuest: false,
 						condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
