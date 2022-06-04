@@ -34,7 +34,7 @@ let build = {
 		[sdk.skills.Taunt, 20, false],           // charlvl 75 -> total left 27
 		[sdk.skills.BattleOrders, 10, false],    // charlvl 77 -> total left 25
 		[sdk.skills.SwordMastery, 20, false],    // charlvl 84 -> total left 18
-		[sdk.skills.Frenzy, 20, false], 		 // total left 7
+		[sdk.skills.Frenzy, 20, false],          // total left 7
 		[sdk.skills.BattleOrders, 15, false],    // total left 0
 	],
 
