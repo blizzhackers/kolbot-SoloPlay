@@ -127,7 +127,7 @@ function LoadConfig () {
 	NTIP.arrayLooping(levelingTiers);
 	me.expansion && NTIP.arrayLooping(expansionTiers);
 
-	if (SetUp.currentBuild !== "Witchyzon") {
+	if (SetUp.currentBuild !== "Witchyzon" || SetUp.currentBuild !== "Wforcezon") {
 		NTIP.addLine("[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
 		NTIP.addLine("me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
 	}
