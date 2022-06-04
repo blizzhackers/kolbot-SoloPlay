@@ -14,9 +14,9 @@ js_strict(true);
 
 const AutoBuild = new function AutoBuild () {
 	Config.AutoBuild.DebugMode && (Config.AutoBuild.Verbose = true);
+	this.usingFinalBuildFile = false;
 
-	let usingFinalBuildFile = false,
-		debug = !!Config.AutoBuild.DebugMode,
+	let debug = !!Config.AutoBuild.DebugMode,
 		verbose = !!Config.AutoBuild.Verbose,
 		configUpdateLevel = 0, lastSuccessfulUpdateLevel = 0;
 
@@ -30,7 +30,7 @@ const AutoBuild = new function AutoBuild () {
 		while (configUpdateLevel < me.charlvl) {
 			configUpdateLevel += 1;
 			Skill.init();
-			if (usingFinalBuildFile) {
+			if (this.usingFinalBuildFile) {
 				// kind of hacky/ugly solution but reduces unneeded files
 				if (finalBuild.AutoBuildTemplate[configUpdateLevel] !== undefined) {
 					finalBuild.AutoBuildTemplate[configUpdateLevel].Update.apply(Config);
@@ -78,7 +78,7 @@ const AutoBuild = new function AutoBuild () {
 		if (["Start", "Stepping", "Leveling"].includes(build)) {
 			template = "SoloPlay/Config/Builds/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js";
 		} else {
-			usingFinalBuildFile = true;
+			this.usingFinalBuildFile = true;
 			template = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + "Build.js";
 		}
 		return template.toLowerCase();

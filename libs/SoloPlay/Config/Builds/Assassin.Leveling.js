@@ -14,25 +14,18 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, 256, 251, 256, 251, -1, -1];
+			Config.AttackSkill = [-1, sdk.skills.ShockWeb, sdk.skills.FireBlast, sdk.skills.ShockWeb, sdk.skills.FireBlast, -1, -1];
 			Config.LowManaSkill = [-1, -1];
 			Config.UseTraps = true;
 			Config.UseFade = true;
-			Config.Traps = [271, 271, 271, 276, 276];
-			Config.BossTraps = [271, 271, 271, 271, 271];
+			Config.Traps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry];
+			Config.BossTraps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry];
+			Config.TownHP = me.hardcore ? 0 : 35;
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
 			Config.HPBuffer = 2;
 			Config.MPBuffer = 6;
 			Config.DodgeHP = 75;
-		}
-	},
-
-	2:	{
-		SkillPoints: [-1],
-		StatPoints: [-1, -1, -1, -1, -1],
-		Update: function () {
-			Config.AttackSkill = [-1, 256, 251, 256, 251, -1, -1];
 		}
 	},
 };

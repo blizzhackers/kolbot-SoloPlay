@@ -19,10 +19,10 @@ let build = {
 	],
 	skills: [
 		// Total skills at respec = 25 (assume hasn't killed izual yet)
-		[sdk.skills.Tornado, 1], 		// points left 21
-		[sdk.skills.OakSage, 6], 		// points left 15
+		[sdk.skills.Tornado, 1],        // points left 21
+		[sdk.skills.OakSage, 6],        // points left 15
 		[sdk.skills.SummonDireWolf, 1], // points left 12
-		[sdk.skills.CycloneArmor, 13], 	// points left 0
+		[sdk.skills.CycloneArmor, 13],  // points left 0
 		// Start
 		[sdk.skills.Tornado, 13, false],
 		[sdk.skills.Hurricane, 6, false],

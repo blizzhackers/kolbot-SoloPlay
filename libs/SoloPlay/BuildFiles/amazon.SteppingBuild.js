@@ -26,15 +26,15 @@ let build = {
 	],
 	skills: [
 		// points at respec 33
-		[sdk.skills.LightningStrike, 1], 		// points left 27
-		[sdk.skills.Valkyrie, 1], 				// points left 20
-		[sdk.skills.Penetrate, 1], 				// points left 18
-		[sdk.skills.ChargedStrike, 13], 		// points left 6
-		[sdk.skills.PowerStrike, 5], 			// points left 2
-		[sdk.skills.LightningFury, 1], 			// points left 0
+		[sdk.skills.LightningStrike, 1],         // points left 27
+		[sdk.skills.Valkyrie, 1],                // points left 20
+		[sdk.skills.Penetrate, 1],               // points left 18
+		[sdk.skills.ChargedStrike, 13],          // points left 6
+		[sdk.skills.PowerStrike, 5],             // points left 2
+		[sdk.skills.LightningFury, 1],           // points left 0
 		[sdk.skills.LightningStrike, 20, false], // charlvl ?
-		[sdk.skills.ChargedStrike, 20, false], 	// charlvl 52
-		[sdk.skills.LightningFury, 20, false], 	// respec at 64
+		[sdk.skills.ChargedStrike, 20, false],   // charlvl 52
+		[sdk.skills.LightningFury, 20, false],   // respec at 64
 	],
 	stats: undefined,
 

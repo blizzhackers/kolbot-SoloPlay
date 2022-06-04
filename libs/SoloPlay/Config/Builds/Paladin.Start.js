@@ -11,8 +11,8 @@ SetUp.include();
 
 let AutoBuildTemplate = {
 	1:	{
-		//SkillPoints: [-1],								// This doesn't matter. We don't have skill points to spend at lvl 1
-		//StatPoints: [-1,-1,-1,-1,-1],						// This doesn't matter. We don't have stat points to spend at lvl 1
+		SkillPoints: [-1],
+		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.BeltColumn = ["hp", "hp", "hp", "hp"];
 			SetUp.belt();

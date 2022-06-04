@@ -1,5 +1,5 @@
 const Chaos = [
-	"[name] == FalRune",
+	"[name] == FalRune # # [maxquantity] == 1",
 	"[name] == OhmRune",
 	"[name] == UmRune",
 	"[name] == suwayyah && [quality] >= normal && [quality] <= superior # ([assassinskills]+[shadowdisciplinesskilltab]+[skillvenom]+[skilldeathsentry]+[skillfade]+[skillshadowmaster]) >= 1 && [sockets] == 3 # [maxquantity] == 1",

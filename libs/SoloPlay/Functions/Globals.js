@@ -540,20 +540,20 @@ const basicSocketables = {
 
 const goToDifficulty = function (diff = undefined, reason = "") {
 	try {
-		if (!diff) throw ("diff is undefined");
+		if (!diff) throw new Error("diff is undefined");
 		
 		let diffString;
 		switch (typeof diff) {
 		case "string":
 			diff = diff.capitalize(true);
 
-			if (!sdk.difficulty.Difficulties.includes(diff)) throw ("difficulty doesn't exist" + diff);
-			if (sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw ("already in this difficulty" + diff);
+			if (!sdk.difficulty.Difficulties.includes(diff)) throw new Error("difficulty doesn't exist" + diff);
+			if (sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw new Error("already in this difficulty" + diff);
 			diffString = diff;
 
 			break;
 		case "number":
-			if (diff === me.diff || diff < 0) throw ("invalid diff" + diff);
+			if (diff === me.diff || diff < 0) throw new Error("invalid diff" + diff);
 			diffString = sdk.difficulty.nameOf(diff);
 
 			break;
@@ -566,7 +566,7 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 		myPrint("Going to " + diffString + reason, true);
 		D2Bot.restart();
 	} catch (e) {
-		console.debug(e);
+		console.debug(e.message ? e.message : e);
 	}
 
 	return false;
@@ -956,7 +956,7 @@ const Check = {
 			crRes = me.getStat(sdk.stats.ColdResist) - resPenalty,
 			prRes = me.getStat(sdk.stats.PoisonResist) - resPenalty;
 
-		resStatus = ((frRes >= 0) && (lrRes >= 0) && (crRes >= 0));
+		resStatus = ((frRes > 0) && (lrRes > 0) && (crRes > 0));
 
 		return {
 			Status: resStatus,
