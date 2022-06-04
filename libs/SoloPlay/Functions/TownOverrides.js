@@ -4,7 +4,6 @@
 *  @desc        Town related functions
 *
 */
-
 !isIncluded("common/Town.js") && include("common/Town.js");
 
 let Overrides = require('../../modules/Override');
@@ -100,7 +99,7 @@ new Overrides.Override(Town, Town.initNPC, function (orignal, task, reason) {
 
 		console.log("Did " + reason + " at " + npc.name);
 	} catch (e) {
-		console.warn(e);
+		console.errorReport(e);
 
 		return false;
 	}
@@ -263,7 +262,7 @@ Town.getIdTool = function () {
 };
 
 Town.cainID = function (force = false) {
-	if ((!Config.CainID.Enable && !force) || !Misc.checkQuest(sdk.quests.TheSearchForCain, 0)) return false;
+	if ((!Config.CainID.Enable && !force) || !Misc.checkQuest(sdk.quest.id.TheSearchForCain, 0)) return false;
 
 	let npc = getInteractedNPC();
 
@@ -594,7 +593,7 @@ Town.shopItems = function () {
 	if (!items.length) return false;
 
 	let tick = getTickCount();
-	let haveMerc = !me.classic && Config.UseMerc || !!me.mercrevivecost && Misc.poll(() => !!me.getMerc(), 500, 100);
+	let haveMerc = !me.classic && Config.UseMerc && !!me.mercrevivecost && Misc.poll(() => !!me.getMerc(), 500, 100);
 	console.log("ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Evaluating " + npc.itemcount + " items.");
 

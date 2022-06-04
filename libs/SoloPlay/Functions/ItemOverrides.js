@@ -844,9 +844,19 @@ Item.removeItemsMerc = function () {
 };
 
 // Charm Autoequip - TODO: clean this section up...sigh
-// need to re-write how charms are handled, currently final charms are a bit bugged.
-// Also can't add charms from main lists to backup check, because it causes issues with the invoquantity check, basically need to re-write not using ntip because it sucks
-// end goal, being able to define which types of charms to keep while leveling AND which charms we want for final builds. Handle if amounts are different
+// goals
+/*
+* need to be able to define what types of charms we want while leveling, and upgrade based on that
+* need to be able to define what types of charms we want for final build, upgrade to that
+* need to be able to handle different invoquantity values of final charms vs leveling charms
+* need to be abel to handle final charms and leveling charms being the same type, in situation where we have enough of a final charm so compare it as a noraml leveling charm
+* need to differentiate bewtween cubing charm or pickit wanted charm vs autoequip charm
+* example:
+*   Imagine we are an auradin and we have 9 small charms in our inventory, Seven 5allres/20life and Two random life charms. Our build tells us we should keep 6 of the 5/20s
+*   so we should keep those. That leaves us with One 5/20 and Two random life charms, we should then compare the tier values and keep the highest of the two then sell or drop the third.
+*   As it is now, what happens is we don't compare the 7th 5/20 and we add that to the sell list while keeping the 2 lower charms. If we directly add it to the backup then the invoquantity
+*   gets read from the finalBuild file so instead of only keeping two it says we should keep 6.
+*/
 Item.hasCharmTier = function (item) {
 	return me.expansion && Config.AutoEquip && NTIP.GetCharmTier(item) > 0;
 };
@@ -878,29 +888,19 @@ const spliceCharmCheckList = function (checkList = [], verbose = false) {
 		checkList.splice(i, 1);
 		i -= 1;
 	}
-
-	return checkList;
 };
 
-const spliceCharmKeepList = function (keep = []) {
+const spliceCharmKeepList = function (keep = [], verbose = false) {
+	if (!keep.length) return;
 	let id = keep[0].classid;
 	let cap = (id === sdk.items.SmallCharm ? Item.maxFinalSCs : id === sdk.items.LargeCharm ? Item.maxFinalLCs : Item.maxFinalGCs);
-	// charms.keep
-	// 	.filter(charm => NTIP.checkFinalCharm(charm))
-	// 	.sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a))
-	// 	.forEach(charm => {
-	// 		if (!Item.finalEquippedSCs.includes(charm.gid)) {
-	// 			Item.finalEquippedSCs.push(charm.gid);
-	// 			verbose && console.log("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Equipped Final SC " + charm.fname);
-	// 		}
-	// 	});
 
 	// sort through kept charms
 	if (keep.length > cap) {
 		keep.sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a));
-
+		
 		// check list up until our final charm cap and if its a wanted final charm that isn't in our array then add it
-		for (let i = 0; i < cap; i++) {
+		for (let i = 0; i < keep.length && i < cap; i++) {
 			if (NTIP.checkFinalCharm(keep[i])) {
 				switch (id) {
 				case sdk.items.SmallCharm:
@@ -930,7 +930,7 @@ const spliceCharmKeepList = function (keep = []) {
 
 		// everything after the cap (need a better method for this in the instances where the max cap is less then leveling wanted cap)
 		for (let i = cap; i < keep.length; i++) {
-			if (!Item.autoEquipCharmCheck(keep[i])) {
+			if (!!keep[i].classid && !Item.autoEquipCharmCheck(keep[i])) {
 				charms.checkList.push(keep[i]);
 				verbose && console.log("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Add " + keep[i].fname + " to checkList");
 				keep.splice(i, 1);
@@ -938,17 +938,16 @@ const spliceCharmKeepList = function (keep = []) {
 			}
 		}
 	}
-
-	return keep;
 };
 
 Item.autoEquipSC = function () {
 	let verbose = (Developer.debugging.smallCharm || Developer.debugging.autoEquip);
+	// build list of our charms
 	let items = me.getItemsEx()
 		.filter((charm) => charm.isInStorage && charm.classid === sdk.items.SmallCharm && charm.quality === sdk.itemquality.Magic);
 
 	if (!items.length) {
-		Developer.debugging.smallCharm && console.log("No charms found");
+		verbose && console.debug("No charms found");
 		return {
 			keep: [],
 			sell: []
@@ -956,10 +955,10 @@ Item.autoEquipSC = function () {
 	}
 
 	let charms = Item.autoEquipCharmSort(items, verbose);
-	charms.keep = spliceCharmKeepList(charms.keep);
+	spliceCharmKeepList(charms.keep, verbose);
 
 	verbose && console.log("Small Charm checklist length: " + charms.checkList.length);
-	charms.checkList = spliceCharmCheckList(charms.checkList, verbose);
+	spliceCharmCheckList(charms.checkList, verbose);
 
 	return {
 		keep: charms.keep,
@@ -973,18 +972,18 @@ Item.autoEquipLC = function () {
 		.filter((charm) => charm.isInStorage && charm.classid === sdk.items.LargeCharm && charm.quality === sdk.itemquality.Magic);
 
 	if (!items.length) {
-		Developer.debugging.largeCharm && console.log("No charms found");
+		verbose && console.debug("No charms found");
 		return {
 			keep: [],
 			sell: []
 		};
 	}
 
-	let charms = Item.autoEquipCharmSort(items, Developer.debugging.largeCharm);
-	charms.keep = spliceCharmKeepList(charms.keep);
+	let charms = Item.autoEquipCharmSort(items, verbose);
+	spliceCharmKeepList(charms.keep, verbose);
 
 	verbose && console.log("Large charm checklist length: " + charms.checkList.length);
-	charms.checkList = spliceCharmCheckList(charms.checkList, verbose);
+	spliceCharmCheckList(charms.checkList, verbose);
 
 	return {
 		keep: charms.keep,
@@ -998,7 +997,7 @@ Item.autoEquipGC = function () {
 		.filter((charm) => charm.isInStorage && charm.classid === sdk.items.GrandCharm && charm.quality === sdk.itemquality.Magic);
 
 	if (!items.length) {
-		verbose && console.log("No charms found");
+		verbose && console.debug("No charms found");
 		return {
 			keep: [],
 			sell: []
@@ -1006,10 +1005,10 @@ Item.autoEquipGC = function () {
 	}
 
 	let charms = Item.autoEquipCharmSort(items, verbose);
-	charms.keep = spliceCharmKeepList(charms.keep);
+	spliceCharmKeepList(charms.keep, verbose);
 
 	verbose && console.log("Grand charm checklist length: " + charms.checkList.length);
-	charms.checkList = spliceCharmCheckList(charms.checkList, verbose);
+	spliceCharmCheckList(charms.checkList, verbose);
 
 	return {
 		keep: charms.keep,
@@ -1167,13 +1166,13 @@ Item.autoEquipCharmCheck = function (item = undefined) {
 	// is one of our final charms
 	if (finalCharms.includes(item.gid)) return true;
 
-	let charms, lowestCharm,
+	let lowestCharm,
 		items = me.getItemsEx()
 			.filter(charm => charm.classid === item.classid && charm.isInStorage
 				&& charm.quality === sdk.itemquality.Magic && NTIP.GetCharmTier(charm) > 0);
 	if (!items.length) return false;
 
-	charms = Item.autoEquipCharmSort(items);
+	let charms = Item.autoEquipCharmSort(items);
 	
 	if (charms.keep.length > (item.classid === sdk.items.SmallCharm ? Item.maxFinalSCs : item.classid === sdk.items.LargeCharm ? Item.maxFinalLCs : Item.maxFinalGCs)) {
 		switch (item.classid) {
@@ -1291,6 +1290,7 @@ Item.autoEquipCharms = function () {
 
 // Write charm equip version that checks by item prefix/suffix using a switch case with the various prefixes and suffixes to sort them
 // improve this, not sure how but still needs work
+// maybe do this by prefix/suffix number instead?
 Item.getCharmType = function (charm = undefined) {
 	if (!charm) return false;
 	if (![sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(charm.classid)) return false;

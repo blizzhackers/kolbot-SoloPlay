@@ -1,7 +1,6 @@
 /**
 *  @filename    AutoBuildThread.js
-*  @author      alogwe
-*  @credit      theBGuy
+*  @author      alogwe, theBGuy
 *  @desc        modified AutoBuildThread for use with Kolbot-SoloPlay
 *
 */
@@ -33,16 +32,23 @@ Array.prototype.contains = function (val) { return this.indexOf(val) > -1; };
 
 function skillInValidRange (id) {
 	switch (me.classid) {
-	case 0:	return	6 <= id && id <= 35;	// Amazon
-	case 1: return 36 <= id && id <= 65;	// Sorceress
-	case 2:	return 66 <= id && id <= 95;	// Necromancer
-	case 3:	return 96 <= id && id <= 125;	// Paladin
-	case 4:	return 126 <= id && id <= 155;	// Barbarian
-	case 5:	return 221 <= id && id <= 250;	// Druid
-	case 6:	return 251 <= id && id <= 280;	// Assassin
+	case sdk.charclass.Amazon:
+		return sdk.skills.MagicArrow <= id && id <= sdk.skills.LightningFury;
+	case sdk.charclass.Sorceress:
+		return sdk.skills.FireBolt <= id && id <= sdk.skills.ColdMastery;
+	case sdk.charclass.Necromancer:
+		return sdk.skills.AmplifyDamage <= id && id <= sdk.skills.Revive;
+	case sdk.charclass.Paladin:
+		return sdk.skills.Sacrifice <= id && id <= sdk.skills.Salvation;
+	case sdk.charclass.Barbarian:
+		return sdk.skills.Bash <= id && id <= sdk.skills.BattleCommand;
+	case sdk.charclass.Druid:
+		return sdk.skills.Raven <= id && id <= sdk.skills.Hurricane;
+	case sdk.charclass.Assassin:
+		return sdk.skills.FireBlast <= id && id <= sdk.skills.PhoenixStrike;
 	default:
+		return false;
 	}
-	return false;
 }
 
 function gainedLevels () { return me.charlvl - prevLevel; }
@@ -70,8 +76,8 @@ function spendStatPoint (id) {
 
 // TODO: What do we do if it fails? report/ignore/continue?
 function spendStatPoints () {
-	if (AutoBuildTemplate[me.charlvl] === undefined) return true;
-	let stats = AutoBuildTemplate[me.charlvl].StatPoints;
+	if ((AutoBuild.usingFinalBuildFile && finalBuild.AutoBuildTemplate[me.charlvl] === undefined) || AutoBuildTemplate[me.charlvl] === undefined) return true;
+	let stats = AutoBuild.usingFinalBuildFile ? finalBuild.AutoBuildTemplate[me.charlvl].StatPoints : AutoBuildTemplate[me.charlvl].StatPoints;
 	let errorMessage = "\nInvalid stat point set in build template " + getTemplateFilename() + " at level " + me.charlvl;
 	let spentEveryPoint = true;
 	let unusedStatPoints = me.getStat(4);
@@ -115,9 +121,13 @@ function spendStatPoints () {
 }
 
 function getTemplateFilename () {
-	let classname = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"][me.classid];
 	let buildType = Config.AutoBuild.Template;
-	let templateFilename = "config/Builds/" + classname + "." + buildType + ".js";
+	if (["Start", "Stepping", "Leveling"].includes(build)) {
+		templateFilename = "SoloPlay/Config/Builds/" + sdk.charclass.nameOf(me.classid) + "." + buildType + ".js";
+	} else {
+		this.usingFinalBuildFile = true;
+		templateFilename = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + buildType + "Build.js";
+	}
 	return templateFilename;
 }
 
@@ -164,8 +174,8 @@ function spendSkillPoint (id) {
 }
 
 function spendSkillPoints () {
-	if (AutoBuildTemplate[me.charlvl] === undefined) return true;
-	let skills = AutoBuildTemplate[me.charlvl].SkillPoints;
+	if ((AutoBuild.usingFinalBuildFile && finalBuild.AutoBuildTemplate[me.charlvl] === undefined) || AutoBuildTemplate[me.charlvl] === undefined) return true;
+	let skills = AutoBuild.usingFinalBuildFile ? finalBuild.AutoBuildTemplate[me.charlvl].SkillPoints : AutoBuildTemplate[me.charlvl].SkillPoints;
 	let errInvalidSkill = "\nInvalid skill point set in build template " + getTemplateFilename() + " for level " + me.charlvl;
 	let spentEveryPoint = true;
 	let unusedSkillPoints = me.getStat(5);
