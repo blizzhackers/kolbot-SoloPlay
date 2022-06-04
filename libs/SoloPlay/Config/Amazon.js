@@ -127,7 +127,7 @@ function LoadConfig () {
 	NTIP.arrayLooping(levelingTiers);
 	me.expansion && NTIP.arrayLooping(expansionTiers);
 
-	if (SetUp.currentBuild !== "Witchyzon" || SetUp.currentBuild !== "Wforcezon") {
+	if (SetUp.currentBuild !== "Witchyzon" || SetUp.currentBuild !== "Wfzon") {
 		NTIP.addLine("[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
 		NTIP.addLine("me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
 	}
@@ -246,7 +246,7 @@ function LoadConfig () {
 
 			break;
 		case 'Wfzon':
-			SetUp.currentBuild === "Wforcezon" && NTIP.addLine("[type] == bowquiver # # [maxquantity] == 2");
+			SetUp.currentBuild === "Wfzon" && NTIP.addLine("[type] == bowquiver # # [maxquantity] == 2");
 
 			if (!Check.haveItem(sdk.items.HydraBow, "unique", "Windforce")) {
 				NTIP.addLine("[name] == shortsiegebow && [quality] == unique # [fireresist] == 40 # [maxquantity] == 1");
