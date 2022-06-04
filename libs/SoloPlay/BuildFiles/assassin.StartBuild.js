@@ -20,16 +20,16 @@ let build = {
 		["energy", 50], ["vitality", "all"]
 	],
 	skills: [
-		[sdk.skills.FireBlast, 4, false], 		// level 4
-		[sdk.skills.ClawMastery, 1], 			// level 5 (den)
-		[sdk.skills.PsychicHammer, 1], 			// level 6
-		[sdk.skills.BurstofSpeed, 5], 			// level 11
-		[sdk.skills.WakeofFire, 1, false], 		// level 12
-		[sdk.skills.CloakofShadows, 1, true], 	// level 13
-		[sdk.skills.WakeofFire, 10, false], 	// level 24
-		[sdk.skills.FireBlast, 6, false], 		// level 26
-		[sdk.skills.WakeofFire, 20, false], 	// level 36
-		[sdk.skills.FireBlast, 10], 			// level 42
+		[sdk.skills.FireBlast, 4, false],     // level 4
+		[sdk.skills.ClawMastery, 1],          // level 5 (den)
+		[sdk.skills.PsychicHammer, 1],        // level 6
+		[sdk.skills.BurstofSpeed, 5],         // level 11
+		[sdk.skills.WakeofFire, 1, false],    // level 12
+		[sdk.skills.CloakofShadows, 1, true], // level 13
+		[sdk.skills.WakeofFire, 10, false],   // level 24
+		[sdk.skills.FireBlast, 6, false],     // level 26
+		[sdk.skills.WakeofFire, 20, false],   // level 36
+		[sdk.skills.FireBlast, 10],           // level 42
 	],
 
 	active: function () {

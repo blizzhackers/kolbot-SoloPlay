@@ -24,12 +24,12 @@ let build = {
 	],
 	skills: [
 		// Total skills at respec = 29
-		[sdk.skills.Decrepify, 1],		// points left 25
-		[sdk.skills.SummonResist, 1],	// points left 22
-		[sdk.skills.BonePrison, 1],		// points left 16
-		[sdk.skills.Attract, 1],		// points left 13
-		[sdk.skills.BoneSpear, 9],		// points left 5
-		[sdk.skills.BonePrison, 3], 	// points left 3
+		[sdk.skills.Decrepify, 1],    // points left 25
+		[sdk.skills.SummonResist, 1], // points left 22
+		[sdk.skills.BonePrison, 1],   // points left 16
+		[sdk.skills.Attract, 1],      // points left 13
+		[sdk.skills.BoneSpear, 9],    // points left 5
+		[sdk.skills.BonePrison, 3],   // points left 3
 		[sdk.skills.BoneSpear, 20, false],
 		[sdk.skills.BoneSpirit, 1, false],
 		[sdk.skills.BonePrison, 20, false],
