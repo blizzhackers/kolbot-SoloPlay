@@ -580,7 +580,7 @@ function LoadConfig () {
 		}
 
 		// Spirit Shield
-		if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 1000 || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit)) {
+		if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 1300 || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit)) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js")) {
 				include("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 			}

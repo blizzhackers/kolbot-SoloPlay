@@ -245,6 +245,42 @@ function LoadConfig () {
 				);
 
 			break;
+		case 'Wfzon':
+			SetUp.currentBuild === "Wforcezon" && NTIP.addLine("[type] == bowquiver # # [maxquantity] == 2");
+
+			if (!Check.haveItem(sdk.items.HydraBow, "unique", "Windforce")) {
+				NTIP.addLine("[name] == shortsiegebow && [quality] == unique # [fireresist] == 40 # [maxquantity] == 1");
+				NTIP.addLine("[name] == hydrabow && [quality] == unique # [manaleech] >= 6 # [maxquantity] == 1");
+				// keep the bow but don't upgrade it until we get our wanted belt
+				Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]);
+			}
+
+			Config.socketables
+				.push(
+					{
+						classid: sdk.items.HydraBow,
+						socketWith: [sdk.items.runes.Shael],
+						temp: [sdk.items.gems.Perfect.Amn],
+						useSocketQuest: true,
+						condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
+					},
+					{
+						classid: sdk.items.DiamondBow,
+						socketWith: [sdk.items.runes.Nef, sdk.items.runes.Shael], // or Ohm ??
+						temp: [sdk.items.gems.Perfect.Skull],
+						useSocketQuest: false,
+						condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
+					},
+					{
+						classid: sdk.items.BoneVisage,
+						socketWith: [sdk.items.runes.Um],
+						temp: [sdk.items.gems.Perfect.Ruby],
+						useSocketQuest: true,
+						condition: (item) => item.quality === sdk.itemquality.Unique && item.getStat(sdk.stats.LifeLeech) === 8 && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal
+					}
+				);
+
+			break;
 		case 'Javazon':
 			Config.SkipImmune = ["lightning and physical"];
 
