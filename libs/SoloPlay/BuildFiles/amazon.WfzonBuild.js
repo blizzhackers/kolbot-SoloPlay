@@ -45,7 +45,8 @@ const finalBuild = {
 		// Gloves
 		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [ias] == 20 && [enhanceddefense] >= 150 # [tier] == 3000 + tierscore(item)", // Lava Gout
 		// Amulet
-		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 100000", // Highlords
+		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 50000", // Highlords
+		"[type] == amulet && [quality] == unique # [poisonresist] == 75 # [tier] == 100000", // Atma's Scarab
 		// Rings
 		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000", // Raven Frost
 		"[name] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] >= 5 # [tier] == 110000", // Bul-Kathos' Wedding Band
