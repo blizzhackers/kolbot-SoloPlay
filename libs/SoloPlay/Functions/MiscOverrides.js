@@ -473,9 +473,9 @@ Misc.checkSocketables = function () {
 		let sockets = items[i].getStat(sdk.stats.NumSockets);
 
 		switch (items[i].quality) {
-		case item.magic:
-		case item.rare:
-		case item.crafted:
+		case sdk.itemquality.Magic:
+		case sdk.itemquality.Rare:
+		case sdk.itemquality.Crafted:
 			// no need to check anything else if already socketed
 			if (items[i].getItemsEx().length === sockets) {
 				continue;
@@ -486,8 +486,8 @@ Misc.checkSocketables = function () {
 			}
 
 			break;
-		case item.set:
-		case item.unique:
+		case sdk.itemquality.Set:
+		case sdk.itemquality.Unique:
 			{
 				let curr = Config.socketables.find(({ classid }) => items[i].classid === classid);
 
