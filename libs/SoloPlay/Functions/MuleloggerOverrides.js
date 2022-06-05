@@ -100,7 +100,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 	}
 
 	switch (unit.quality) {
-	case sdk.itemquality.Set:
+	case item.set:
 		switch (unit.classid) {
 		case 27: // Angelic sabre
 			code = "inv9sbu";
@@ -215,7 +215,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 		}
 
 		break;
-	case sdk.itemquality.Unique:
+	case item.unique:
 		for (i = 0; i < 401; i += 1) {
 			if (unit.code === getBaseStat(17, i, 4).trim() && unit.fname.split("\n").reverse()[0].indexOf(getLocaleString(getBaseStat(17, i, 2))) > -1) {
 				code = getBaseStat(17, i, "invfile");

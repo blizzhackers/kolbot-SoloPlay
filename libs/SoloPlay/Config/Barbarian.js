@@ -181,13 +181,13 @@ function LoadConfig () {
 					classid: sdk.items.Flamberge,
 					socketWith: [],
 					useSocketQuest: true,
-					condition: function (item) { return me.normal && Item.getEquippedItem(5).tier < 600 && !Check.haveBase("sword", 5) && !Check.haveItem("sword", "runeword", "Honor") && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+					condition: (item) => me.normal && Item.getEquippedItem(5).tier < 600 && !Check.haveBase("sword", 5) && !Check.haveItem("sword", "runeword", "Honor") && item.ilvl >= 41 && item.isBaseType && !item.ethereal
 				},
 				{
 					classid: sdk.items.Zweihander,
 					socketWith: [],
 					useSocketQuest: true,
-					condition: function (item) { return Item.getEquippedItem(5).tier < 1000 && !Check.haveBase("sword", 5) && !Check.haveItem("sword", "runeword", "Honor") && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+					condition: (item) => Item.getEquippedItem(5).tier < 1000 && !Check.haveBase("sword", 5) && !Check.haveItem("sword", "runeword", "Honor") && item.ilvl >= 41 && item.isBaseType && !item.ethereal
 				}
 			);
 
@@ -199,7 +199,7 @@ function LoadConfig () {
 						socketWith: [sdk.items.runes.Cham],
 						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: true,
-						condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+						condition: (item) => item.unique && !item.ethereal
 					}
 				);
 		}
@@ -283,20 +283,20 @@ function LoadConfig () {
 						socketWith: [sdk.items.runes.Ber],
 						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: false,
-						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
+						condition: (item) => item.set && !item.ethereal
 					},
 					{
 						classid: sdk.items.OgreMaul,
 						socketWith: [sdk.items.runes.Shael],
 						useSocketQuest: false,
-						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
+						condition: (item) => item.set && !item.ethereal
 					},
 					{
 						classid: sdk.items.SacredArmor,
 						socketWith: [sdk.items.runes.Ber],
 						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: true,
-						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
+						condition: (item) => item.set && !item.ethereal
 					}
 				);
 

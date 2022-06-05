@@ -642,7 +642,7 @@ Cubing.validItem = function (unit, recipe) {
 		if (unit.itemType === 58) {
 			if (recipe.Enabled && NTIP.CheckItem(unit) === 0) return true;
 		// Main item, NOT matching a pickit entry
-		} else if (unit.quality === 4 && Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) >= recipe.Level && NTIP.CheckItem(unit, NTIP_CheckListNoTier) === 0) {
+		} else if (unit.magic && Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) >= recipe.Level && NTIP.CheckItem(unit, NTIP_CheckListNoTier) === 0) {
 			return true;
 		}
 
@@ -657,7 +657,7 @@ Cubing.validItem = function (unit, recipe) {
 			}
 		}
 		// Unique item matching pickit entry
-		if (unit.quality === 7 && NTIP.CheckItem(unit) === 1) {
+		if (unit.unique && NTIP.CheckItem(unit) === 1) {
 			// check items name (prevents upgrading lavagout when we want to be upgrading magefist for the second time)
 			if (recipe.Name !== undefined) {
 				valid = !!unit.fname.toLowerCase().includes(recipe.Name.toLowerCase());
@@ -697,7 +697,7 @@ Cubing.validItem = function (unit, recipe) {
 			}
 		}
 		// Rare item matching pickit entry
-		if (unit.quality === 6 && NTIP.CheckItem(unit) === 1) {
+		if (unit.rare && NTIP.CheckItem(unit) === 1) {
 			switch (recipe.Ethereal) {
 			case 0:
 			case undefined:
@@ -714,7 +714,7 @@ Cubing.validItem = function (unit, recipe) {
 
 	if (recipe.Index >= Recipe.Socket.Shield && recipe.Index <= Recipe.Socket.Helm) {
 		// Normal item matching pickit entry, no sockets
-		if (unit.quality === 2 && unit.getStat(194) === 0) {
+		if (unit.quality === 2 && unit.getStat(194) === 0) { // Normal Quality 
 			switch (recipe.Ethereal) {
 			case 0:
 			case undefined:
@@ -730,7 +730,7 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index === Recipe.Reroll.Magic) {
-		if (unit.quality === 4 && unit.ilvl >= recipe.Level && NTIP.CheckItem(unit) === 0) {
+		if (unit.magic && unit.ilvl >= recipe.Level && NTIP.CheckItem(unit) === 0) {
 			return true;
 		}
 
@@ -738,7 +738,7 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index === Recipe.Reroll.Charm) {
-		if (unit.quality === 4 && NTIP.CheckItem(unit) === 0) {
+		if (unit.magic && NTIP.CheckItem(unit) === 0) {
 			switch (unit.itemType) {
 			case sdk.itemtype.SmallCharm:
 				if (unit.ilvl >= recipe.Level.cm1.ilvl) {
@@ -762,7 +762,7 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index === Recipe.Reroll.Rare) {
-		if (unit.quality === 6 && NTIP.CheckItem(unit) === 0) {
+		if (unit.rare && NTIP.CheckItem(unit) === 0) {
 			return true;
 		}
 
@@ -770,7 +770,7 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index === Recipe.Reroll.HighRare) {
-		if (recipe.Ingredients[0] === unit.classid && unit.quality === 6 && NTIP.CheckItem(unit) === 0) {
+		if (recipe.Ingredients[0] === unit.classid && unit.rare && NTIP.CheckItem(unit) === 0) {
 			recipe.Enabled = true;
 
 			return true;
@@ -784,7 +784,7 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index === Recipe.LowToNorm.Armor || recipe.Index === Recipe.LowToNorm.Weapon) {
-		if (unit.quality === 1 && NTIP.CheckItem(unit) === 0) {
+		if (unit.quality === 1 && NTIP.CheckItem(unit) === 0) { // LowQuality
 			return true;
 		}
 
