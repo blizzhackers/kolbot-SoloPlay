@@ -254,7 +254,7 @@ function LoadConfig () {
 						socketWith: [sdk.items.runes.Um],
 						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: true,
-						condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
+						condition: (item) => item.unique && !item.ethereal
 					}
 				);
 
@@ -271,20 +271,20 @@ function LoadConfig () {
 						socketWith: [sdk.items.runes.Um],
 						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: true,
-						condition: (item) => item.quality === sdk.itemquality.Set && !item.ethereal
+						condition: (item) => item.set && !item.ethereal
 					},
 					{
 						classid: sdk.items.LacqueredPlate,
 						socketWith: [sdk.items.runes.Ber],
 						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: true,
-						condition: (item) => item.quality === sdk.itemquality.Set && !item.ethereal
+						condition: (item) => item.set && !item.ethereal
 					},
 					{
 						classid: sdk.items.SwirlingCrystal,
 						socketWith: [sdk.items.runes.Ist], // would a 5/5 facet be better?
 						useSocketQuest: false,
-						condition: (item) => item.quality === sdk.itemquality.Set && !item.ethereal
+						condition: (item) => item.set && !item.ethereal
 					}
 				);
 

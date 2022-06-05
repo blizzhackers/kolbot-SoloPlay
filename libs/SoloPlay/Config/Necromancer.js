@@ -214,7 +214,7 @@ function LoadConfig () {
 					socketWith: [sdk.items.runes.Um],
 					temp: [sdk.items.gems.Perfect.Ruby],
 					useSocketQuest: true,
-					condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
+					condition: (item) => item.unique && !item.ethereal
 				}
 			);
 

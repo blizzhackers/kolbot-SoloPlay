@@ -479,7 +479,7 @@ const basicSocketables = {
 			socketWith: [sdk.items.runes.Um],
 			temp: [sdk.items.gems.Perfect.Diamond],
 			useSocketQuest: !me.hell,
-			condition: (item) => item.quality === sdk.itemquality.Unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal
+			condition: (item) => item.unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal
 		},
 	],
 	all: [
@@ -501,7 +501,7 @@ const basicSocketables = {
 			socketWith: [sdk.items.runes.Ber, sdk.items.runes.Um],
 			temp: [sdk.items.gems.Perfect.Ruby],
 			useSocketQuest: false,
-			condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
+			condition: (item) => item.unique && !item.ethereal
 		},
 		{
 			// Moser's
@@ -509,7 +509,7 @@ const basicSocketables = {
 			socketWith: [sdk.items.runes.Um],
 			temp: [sdk.items.gems.Perfect.Diamond],
 			useSocketQuest: false,
-			condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
+			condition: (item) => item.unique && !item.ethereal
 		},
 		{
 			// Spirit Forge
@@ -517,7 +517,7 @@ const basicSocketables = {
 			socketWith: [sdk.items.runes.Shael],
 			temp: [sdk.items.gems.Perfect.Ruby],
 			useSocketQuest: false,
-			condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
+			condition: (item) => item.unique && !item.ethereal
 		},
 		{
 			// Dijjin Slayer
@@ -525,7 +525,7 @@ const basicSocketables = {
 			socketWith: [sdk.items.runes.Amn],
 			temp: [sdk.items.gems.Perfect.Skull],
 			useSocketQuest: false,
-			condition: (item) => !Check.currentBuild().caster && item.quality === sdk.itemquality.Unique && !item.ethereal
+			condition: (item) => !Check.currentBuild().caster && item.unique && !item.ethereal
 		},
 		{
 			// Bone Hew - for merc
@@ -533,7 +533,7 @@ const basicSocketables = {
 			socketWith: [sdk.items.runes.Hel, sdk.items.runes.Amn],
 			temp: [sdk.items.gems.Perfect.Skull],
 			useSocketQuest: false,
-			condition: (item) => item.quality === sdk.itemquality.Unique
+			condition: (item) => item.unique
 		},
 	]
 };
