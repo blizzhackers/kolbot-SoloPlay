@@ -290,7 +290,7 @@ function LoadConfig () {
 			}
 		}
 
-		if (!me.haveAll([{name: sdk.locale.items.Enigma}, {name: sdk.locale.items.Bone}]) && Item.getEquippedItem(3).tier < 650) {
+		if (!me.haveSome([{name: sdk.locale.items.Enigma}, {name: sdk.locale.items.Bone}]) && Item.getEquippedItem(3).tier < 650) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Bone.js")) {
 				include("SoloPlay/BuildFiles/Runewords/Bone.js");
 			}
