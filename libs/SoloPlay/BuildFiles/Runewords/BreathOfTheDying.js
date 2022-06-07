@@ -1,4 +1,4 @@
-var BoTD = [
+const BoTD = [
 	"[name] == VexRune",
 	"me.diff == 2 && [name] == HelRune # # [maxquantity] == 1",
 	"[name] == ElRune # # [maxquantity] == 1",

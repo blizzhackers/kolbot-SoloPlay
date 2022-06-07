@@ -1,4 +1,4 @@
-var MercTreachery = [
+const MercTreachery = [
 	"([name] == breastplate || [name] == mageplate || [name] == hellforgeplate || [name] == krakenshell || [name] == archonplate || [name] == balrogskin || [name] == boneweave || [name] == greathauberk || [name] == loricatedmail || [name] == diamondmail || [name] == wirefleece || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1",
 	"!me.normal && ([name] == hellforgeplate || [name] == krakenshell || [name] == archonplate || [name] == balrogskin || [name] == boneweave || [name] == greathauberk || [name] == loricatedmail || [name] == diamondmail || [name] == wirefleece || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [quality] == normal && [flag] == ethereal # [sockets] == 0 # [maxquantity] == 1",
 ];

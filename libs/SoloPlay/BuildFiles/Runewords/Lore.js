@@ -1,5 +1,5 @@
 if (!Check.haveItem("helm", "runeword", "Lore")) {
-	var loreRunes = [
+	const loreRunes = [
 		"[name] == OrtRune # # [maxquantity] == 1",
 		"[name] == SolRune # # [maxquantity] == 1",
 	];
@@ -18,8 +18,8 @@ if (!Check.haveItem("helm", "runeword", "Lore")) {
 	}
 }
 
-var classLoreHelm = [];
-var loreHelm = [
+const classLoreHelm = [];
+const loreHelm = [
 	"!me.hell && ([name] == crown || [name] == bonehelm || [name] == fullhelm) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1",
 	"([name] == casque || [name] == sallet || [name] == deathmask || [name] == grimhelm) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1",
 ];

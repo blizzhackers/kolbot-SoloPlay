@@ -1,4 +1,4 @@
-var Doom = [
+const Doom = [
 	"[name] == HelRune # # [maxquantity] == 1",
 	"[name] == OhmRune",
 	"[name] == LoRune",
@@ -26,7 +26,7 @@ if (!me.getItem(sdk.items.runes.Cham)) {
 	Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
 
-	if (Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("armor", "runeword", "Fortitude")) {
+	if (me.checkItem({name: sdk.locale.items.Grief}).have && me.checkItem({name: sdk.locale.items.Fortitude}).have) {
 		Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
 	}
 

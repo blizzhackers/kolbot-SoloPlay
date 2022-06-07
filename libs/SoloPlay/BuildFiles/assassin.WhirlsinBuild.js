@@ -32,38 +32,45 @@ const finalBuild = {
 		[sdk.skills.BladeShield, 20],
 	],
 	autoEquipTiers: [ // autoequip final gear
-		// Weapon
-		"[type] == assassinclaw && [flag] == runeword # [plusskillwhirlwind] == 1 # [tier] == 100000", // Chaos Claw
-		"[type] == assassinclaw && [flag] == runeword # [itemallskills] == 2 && [ias] == 40 && [itemdeadlystrike] == 33 # [tier] == 200000", // Fury
-		// Helmet
-		"[name] == wingedhelm && [quality] == set && [flag] != ethereal # [fhr] >= 30 # [tier] == 100000 + tierscore(item)", // GFace
-		// Belt
-		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [damageresist] == 15 # [tier] == 110000 + tierscore(item)", // Verdungos
-		// Boots
-		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)", // Gore Rider
-		// Armor
-		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [tier] == 100000",	// Fortitude
-		// Gloves
-		"[name] == heavybracers && [quality] == set && [flag] != ethereal # [fcr] == 20 # [tier] == 100000", // Trang-Ouls
-		// Amulet
-		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 100000", // Highlords
-		// Rings
-		"[type] == ring && [quality] == unique # [tohit] >= 180 && [dexterity] >= 15 # [tier] == 100000", // Raven Frost
-		"[type] == ring && [quality] == unique # [lifeleech] >= 5 && [maxstamina] == 50 # [tier] == 100000", // Bul-Kathos' Wedding Band
+		// Final Weapon - Chaos Claw & Fury
+		"[type] == assassinclaw && [flag] == runeword # [plusskillwhirlwind] == 1 # [tier] == 100000",
+		"[type] == assassinclaw && [flag] == runeword # [itemallskills] == 2 && [ias] == 40 && [itemdeadlystrike] == 33 # [tier] == 200000",
+		// Helmet - GFace
+		"[name] == wingedhelm && [quality] == set && [flag] != ethereal # [fhr] >= 30 # [tier] == 100000 + tierscore(item)",
+		// Belt - Verdungos
+		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [damageresist] == 15 # [tier] == 110000 + tierscore(item)",
+		// Boots - Gore Rider
+		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)",
+		// Armor - Fortitude
+		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [tier] == 100000",
+		// Gloves - Trang-Ouls
+		"[name] == heavybracers && [quality] == set && [flag] != ethereal # [fcr] == 20 # [tier] == 100000", // 
+		// Amulet - Highlords
+		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 100000",
+		// Final Rings - Perfect Raven Frost & Bul-Kathos' Wedding Band
+		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000",
+		"[type] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] == 5 # [tier] == 110000",
+		// Rings - Raven Frost && Bul-Kathos' Wedding Band
+		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == # [tier] == 100000",
+		"[type] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] >= 3 # [tier] == 100000",
 		// Charms
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 3 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [fhr] >= 5 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [maxhp] == 20 && [maxmana] == 17 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # [trapsskilltab] == 1 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		// Switch
+		// Switch Final Weapon - CTA
 		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
-		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == 50000 + tierscore(item)", // Any 1+ all skill shield
-		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000", // Spirit
-		// Merc
-		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	// Fortitude
-		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",	// Andy's
-		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	// Eth Andy's
+		// Switch Final Shield - Spirit
+		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000",
+		// Switch Temporary Shield - Any 1+ all skill
+		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == 50000 + tierscore(item)",
+		// Merc Armor - Fortitude
+		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
+		// Merc Final Helmet - Eth Andy's
+		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",
+		// Merc Helmet - Andy's
+		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",
 	],
 
 	AutoBuildTemplate: {

@@ -4,7 +4,7 @@ if (!Check.haveItem("armor", "runeword", "Smoke") && !me.hell) {
 		Config.Recipes.push([Recipe.Rune, "Io Rune"]);
 	}
 
-	var smokeRunes = [
+	const smokeRunes = [
 		"[name] == NefRune # # [maxquantity] == 1",
 		"[name] == LumRune # # [maxquantity] == 1",
 	];

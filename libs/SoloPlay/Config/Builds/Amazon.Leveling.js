@@ -19,7 +19,7 @@ let AutoBuildTemplate = {
 			Config.TownHP = me.hardcore ? 0 : 35;
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
-			Config.HPBuffer = 2;
+			Config.HPBuffer = me.expansion ? 2 : 4;
 			Config.MPBuffer = 6;
 		}
 	}

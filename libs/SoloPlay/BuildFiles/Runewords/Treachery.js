@@ -1,4 +1,4 @@
-var treach = [
+const treach = [
 	"[name] == ShaelRune # # [maxquantity] == 1",
 	"[name] == ThulRune # # [maxquantity] == 1",
 	"[name] == LemRune # # [maxquantity] == 1",

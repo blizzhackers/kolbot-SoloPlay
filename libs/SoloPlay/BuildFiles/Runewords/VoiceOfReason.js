@@ -1,4 +1,4 @@
-var VoiceofReason = [
+const VoiceofReason = [
 	"[name] == LemRune",
 	"[name] == KoRune",
 	"[name] == ElRune # # [maxquantity] == 1",

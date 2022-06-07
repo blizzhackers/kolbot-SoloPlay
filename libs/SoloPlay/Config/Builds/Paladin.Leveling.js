@@ -19,7 +19,7 @@ let AutoBuildTemplate = {
 			Config.LowManaSkill = [0, sdk.skills.Concentration];
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
-			Config.HPBuffer = 2;
+			Config.HPBuffer = me.expansion ? 2 : 4;
 			Config.MPBuffer = 6;
 
 			if (me.hell && !Pather.accessToAct(5)) {

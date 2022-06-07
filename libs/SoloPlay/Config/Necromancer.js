@@ -263,7 +263,7 @@ function LoadConfig () {
 		}
 			
 		// Enigma
-		if (!Check.haveItem("armor", "runeword", "Enigma")) {
+		if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js")) {
 				include("SoloPlay/BuildFiles/Runewords/Enigma.js");
 			}
@@ -290,7 +290,7 @@ function LoadConfig () {
 			}
 		}
 
-		if (!Check.haveItem("armor", "runeword", "Enigma") && !Check.haveItem("armor", "runeword", "Bone") && Item.getEquippedItem(3).tier < 650) {
+		if (!me.haveAll([{name: sdk.locale.items.Enigma}, {name: sdk.locale.items.Bone}]) && Item.getEquippedItem(3).tier < 650) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Bone.js")) {
 				include("SoloPlay/BuildFiles/Runewords/Bone.js");
 			}

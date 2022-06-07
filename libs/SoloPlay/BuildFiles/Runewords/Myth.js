@@ -1,4 +1,4 @@
-var Myth = [
+const Myth = [
 	"[name] == HelRune # # [maxquantity] == 1",
 	"[name] == AmnRune # # [maxquantity] == 1",
 	"[name] == NefRune # # [maxquantity] == 1",

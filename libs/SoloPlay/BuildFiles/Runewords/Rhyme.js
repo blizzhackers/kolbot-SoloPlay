@@ -1,4 +1,4 @@
-var rhyme = [
+const rhyme = [
 	"[name] == ShaelRune # # [maxquantity] == 1",
 	"[name] == EthRune # # [maxquantity] == 1",
 	"[type] == voodooheads && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1",

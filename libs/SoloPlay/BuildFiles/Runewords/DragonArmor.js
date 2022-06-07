@@ -1,4 +1,4 @@
-var DragonArmor = [
+const DragonArmor = [
 	"[name] == SurRune",
 	"[name] == LoRune",
 	"[name] == SolRune # # [maxquantity] == 1",

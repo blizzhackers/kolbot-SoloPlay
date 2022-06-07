@@ -1,4 +1,4 @@
-var Malice = [
+const Malice = [
 	"[name] == IthRune # # [maxquantity] == 1",
 	"[name] == ElRune # # [maxquantity] == 1",
 	"[name] == EthRune # # [maxquantity] == 1",

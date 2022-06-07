@@ -1,4 +1,4 @@
-var CoH = [
+const CoH = [
 	"[name] == DolRune # # [maxquantity] == 1",
 	"[name] == UmRune",
 	"[name] == BerRune",
@@ -16,7 +16,7 @@ if (!me.getItem(sdk.items.runes.Ber)) {
 		Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
 	}
 
-	if (Check.haveItem("sword", "runeword", "Grief") || ["Uberconc"].indexOf(SetUp.finalBuild) === -1) {
+	if (me.checkItem({name: sdk.locale.items.Grief}).have || ["Uberconc"].indexOf(SetUp.finalBuild) === -1) {
 		Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
 	}
 

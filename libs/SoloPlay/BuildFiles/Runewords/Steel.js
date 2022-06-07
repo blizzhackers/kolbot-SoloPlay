@@ -1,4 +1,4 @@
-var Steel = [
+const Steel = [
 	"[name] == TirRune # # [maxquantity] == 2",
 	"[name] == ElRune # # [maxquantity] == 2",
 ];
