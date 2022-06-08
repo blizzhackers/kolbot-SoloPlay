@@ -63,7 +63,7 @@ const finalBuild = {
 		// Switch Shield - Any 1+ all skill
 		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == 100000 + tierscore(item)",
 		// Merc Armor - Fortitude
-		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	// 
+		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
 		// Merc Final Helmet - Eth Andy's
 		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",
 		// Merc Helmet - Andy's

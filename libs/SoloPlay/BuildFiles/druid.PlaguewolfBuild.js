@@ -32,7 +32,7 @@ const finalBuild = {
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - Grief
 		"[type] == sword && [flag] == runeword # [ias] >= 30 # [tier] == 110000",
-		//Shield - Stormshield
+		// Shield - Stormshield
 		"[name] == monarch && [quality] == unique # [damageresist] >= 35 # [tier] == 110000",
 		// Helmet - Jalal's Mane
 		"[name] == totemicmask && [quality] == unique # [druidskills] == 2 && [shapeshiftingskilltab] == 2 # [tier] == 110000 + tierscore(item)",

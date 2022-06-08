@@ -448,7 +448,7 @@ function LoadConfig () {
 				NTIP.addLine("[name] == phaseblade && [flag] != ethereal && [quality] == unique # [enhanceddamage] >= 150 && [itemabsorblightpercent] == 25 # [tier] == 105000");
 			}
 
-			if (!me.haveAll([{name: sdk.locale.items.VoiceofReason}, {name: sdk.locale.items.CrescentMoon}, {name: sdk.locale.items.LastWish}]) && dreamerCheck) {
+			if (!me.checkItem({name: sdk.locale.items.VoiceofReason}).have && !me.haveSome([{name: sdk.locale.items.CrescentMoon}, {name: sdk.locale.items.LastWish}]) && dreamerCheck) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js")) {
 					include("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js");
 				}
@@ -546,7 +546,7 @@ function LoadConfig () {
 				NTIP.addLine("[name] == phaseblade && [flag] != ethereal && [quality] == unique # [enhanceddamage] >= 150 && [itemabsorblightpercent] == 25 # [tier] == 105000");
 			}
 
-			if (!me.haveAll([{name: sdk.locale.items.VoiceofReason}, {name: sdk.locale.items.CrescentMoon}, {name: sdk.locale.items.HandofJustice}])) {
+			if (!me.checkItem({name: sdk.locale.items.VoiceofReason}).have && !me.haveSome([{name: sdk.locale.items.CrescentMoon}, {name: sdk.locale.items.HandofJustice}])) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js")) {
 					include("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js");
 				}

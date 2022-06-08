@@ -24,7 +24,7 @@ let AutoBuildTemplate = {
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
 			Config.HPBuffer = 2;
-			Config.MPBuffer = 6;
+			Config.MPBuffer = me.charlvl < 80 ? 6 : 2;
 			Config.DodgeHP = 75;
 		}
 	},

@@ -22,7 +22,7 @@ let AutoBuildTemplate = {
 			Config.TownHP = me.hardcore ? 0 : 35;
 			SetUp.belt();
 			Config.MPBuffer = me.expansion ? 2 : 4;
-			Config.HPBuffer = 6;
+			Config.HPBuffer = me.expansion && me.charlvl < 80 ? 6 : me.classic ? 5 : 2;
 		}
 	}
 };

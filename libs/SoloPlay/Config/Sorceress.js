@@ -297,7 +297,7 @@ function LoadConfig () {
 		}
 
 		// Go ahead and keep two P-diamonds prior to finding a moser's unless already using a better shield
-		if (!Check.haveItem("shield", "unique", "Mosers Blessed Circle") && !me.haveSome([{name: sdk.locale.items.Sanctuary}, {name: sdk.locale.items.Spirit}])) {
+		if (!Check.haveItem("shield", "unique", "Moser's Blessed Circle") && !me.haveSome([{name: sdk.locale.items.Sanctuary}, {name: sdk.locale.items.Spirit}])) {
 			NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");
 
 			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond) < 2)) {

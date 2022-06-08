@@ -26,7 +26,7 @@ if (!me.getItem(sdk.items.runes.Cham)) {
 	Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
 
-	if (me.checkItem({name: sdk.locale.items.Grief}).have && me.checkItem({name: sdk.locale.items.Fortitude}).have) {
+	if (me.haveAll([{name: sdk.locale.items.Grief}, {name: sdk.locale.items.Fortitude}])) {
 		Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
 	}
 
