@@ -355,7 +355,7 @@ function LoadConfig () {
 				NTIP.addLine("[name] == phaseblade && [flag] != ethereal && [quality] == unique # [enhanceddamage] >= 230 && [sanctuaryaura] >= 10 # [tier] == 115000");
 			}
 
-			if (!me.allHave([{name: sdk.locale.items.CrescentMoon}, {name: sdk.locale.items.HandofJustice}]) && dreamerCheck) {
+			if (!me.haveAll([{name: sdk.locale.items.CrescentMoon}, {name: sdk.locale.items.HandofJustice}]) && dreamerCheck) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/CrescentMoon.js")) {
 					include("SoloPlay/BuildFiles/Runewords/CrescentMoon.js");
 				}
