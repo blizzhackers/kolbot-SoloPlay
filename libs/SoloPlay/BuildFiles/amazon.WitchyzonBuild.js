@@ -35,13 +35,13 @@ const finalBuild = {
 		// Weapon -  WitchWild String up'd
 		"[name] == diamondbow && [quality] == unique # [fireresist] == 40 # [tier] == 100000 + tierscore(item)",
 		// Helmet - Vampz Gaze
-		"[name] == grimhelm && [quality] == unique  && [flag] != ethereal # [manaleech] >= 6 && [lifeleech] >= 6 && [damageresist] >= 15 # [tier] == 100000 + tierscore(item)",
+		"[name] == grimhelm && [quality] == unique && [flag] != ethereal # [manaleech] >= 6 && [lifeleech] >= 6 && [damageresist] >= 15 # [tier] == 100000 + tierscore(item)",
 		// Boots - War Traveler
 		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 35 # [tier] == 100000 + tierscore(item)",
 		// Belt - Nosferatu's Coil
 		"[name] == vampirefangbelt && [quality] == unique && [flag] != ethereal # [lifeleech] >= 5 # [tier] == 100000 + tierscore(item)",
 		// Armor - CoH
-		"[type] == armor && [flag] == runeword  && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 100000",
+		"[type] == armor && [flag] == runeword && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 100000",
 		// Amulet - Cat's Eye
 		"[type] == amulet && [quality] == unique # [dexterity] == 25 # [tier] == 110000",
 		// Final Rings - Perfect Raven Frost & Bul-Kathos' Wedding Band
