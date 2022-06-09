@@ -25,7 +25,7 @@ if (!me.getItem(sdk.items.runes.Jah) && me.checkItem({name: sdk.locale.items.Cha
 }
 
 if (me.amazon) {
-	NTIP.addLine("[name] == matriarchalbow || [name] == grandmatronbow) && [quality] == superior # [bowandcrossbowskilltab] == 3 && [enhanceddamage] >= 10 && [sockets] == 4 # [maxquantity] == 1");
+	NTIP.addLine("([name] == matriarchalbow || [name] == grandmatronbow) && [quality] == superior # [bowandcrossbowskilltab] == 3 && [enhanceddamage] >= 10 && [sockets] == 4 # [maxquantity] == 1");
 
 	Config.Runewords.push([Runeword.Ice, "matriarchalbow"]);
 	Config.Runewords.push([Runeword.Ice, "grandmatronbow"]);
@@ -34,7 +34,7 @@ if (me.amazon) {
 	Config.Recipes.push([Recipe.Socket.Bow, "grandmatronbow"]);
 
 	if (!Check.haveBase("amazonbow", 4) && me.getItem(sdk.items.runes.Lo) && me.getItem(sdk.items.runes.Jah)) {
-		NTIP.addLine("[name] == matriarchalbow || [name] == grandmatronbow)  && [quality] == normal # [sockets] == 0 # [maxquantity] == 1");
+		NTIP.addLine("([name] == matriarchalbow || [name] == grandmatronbow) && [quality] == normal # [sockets] == 0 # [maxquantity] == 1");
 	}
 
 	Config.KeepRunewords.push("[type] == amazonbow # [enhanceddamage] >= 140 && [passivecoldpierce] >= 25");
@@ -43,6 +43,7 @@ if (me.amazon) {
 	NTIP.addLine("[type] == demoncrossbow && [quality] == superior # [enhanceddamage] >= 10 && [sockets] == 4 # [maxquantity] == 1");
 
 	Config.Runewords.push([Runeword.Ice, "demoncrossbow"]);
+
 	Config.Recipes.push([Recipe.Socket.Crossbow, "demoncrossbow"]);
 
 	if (!Check.haveBase("crossbow", 4) && me.getItem(sdk.items.runes.Lo) && me.getItem(sdk.items.runes.Jah)) {
