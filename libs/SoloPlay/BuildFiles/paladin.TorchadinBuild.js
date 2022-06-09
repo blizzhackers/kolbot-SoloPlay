@@ -90,7 +90,7 @@ const finalBuild = {
 		if (me.classic) {
 			return false;
 		} else {
-			return Check.haveItem("sword", "runeword", "Hand of Justice") && Check.haveItem("armor", "runeword", "Dragon");
+			return me.haveAll([{name: sdk.locale.items.HandofJustice}, {name: sdk.locale.items.Dragon, itemtype: sdk.itemtype.Armor}]);
 		}
 	},
 

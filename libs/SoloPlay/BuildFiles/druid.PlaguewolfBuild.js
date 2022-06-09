@@ -80,7 +80,7 @@ const finalBuild = {
 	},
 
 	respec: function () {
-		return Check.haveItem("sword", "runeword", "Grief") && Check.haveItem("armor", "runeword", "Chains of Honor");
+		return me.haveAll([{name: sdk.locale.items.Grief}, {name: sdk.locale.items.ChainsofHonor}]);
 	},
 
 	active: function () {

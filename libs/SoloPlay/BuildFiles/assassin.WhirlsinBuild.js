@@ -87,7 +87,7 @@ const finalBuild = {
 	},
 
 	respec: function () {
-		return Check.haveItem("assassinclaw", "runeword", "Chaos") && Check.haveItem("assassinclaw", "runeword", "Fury");
+		return me.haveAll([{name: sdk.locale.items.Chaos}, {name: sdk.locale.items.Fury}]);
 	},
 
 	active: function () {

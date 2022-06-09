@@ -75,7 +75,7 @@ const finalBuild = {
 		if (me.classic) {
 			return me.charlvl >= 75 && me.diablo;
 		} else {
-			return Check.haveItem("armor", "runeword", "Enigma") && Check.haveItem("mace", "runeword", "Heart of the Oak");
+			return me.haveAll([{name: sdk.locale.items.Enigma}, {name: sdk.locale.items.HeartoftheOak}]);
 		}
 	},
 
