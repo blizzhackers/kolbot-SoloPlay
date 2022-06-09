@@ -373,7 +373,7 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 
 		if (cursorItem) {
 			// only keep wanted items
-			if (Pickit.checkItem(cursorItem).result === 1) {
+			if (Pickit.checkItem(cursorItem).result === 1 || AutoEquip.wanted(cursorItem)) {
 				if (Storage.Inventory.CanFit(cursorItem)) {
 					Storage.Inventory.MoveTo(cursorItem);
 				} else if (Storage.Stash.CanFit(cursorItem)) {
