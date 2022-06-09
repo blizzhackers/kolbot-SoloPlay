@@ -56,7 +56,7 @@ function den () {
 		let corpseTick = getTickCount();
 		let corpsefire;
 
-		Worker.runInBackground.kingTracker = function () {
+		Worker.runInBackground.corpseTracker = function () {
 			if (me.area === sdk.areas.DenofEvil) {
 				if (getTickCount() - corpseTick < 1000) return true;
 				corpseTick = getTickCount();

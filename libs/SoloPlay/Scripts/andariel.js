@@ -38,19 +38,22 @@ function andariel () {
 	}
 
 	let coords = [
-		[22572, 9635], [22554, 9618],
-		[22542, 9600], [22572, 9582],
-		[22554, 9566]
+		{x: 22572, y: 9635}, {x: 22554, y: 9618},
+		{x: 22542, y: 9600}, {x: 22572, y: 9582},
+		{x: 22554, y: 9566}
 	];
 
 	if (Pather.useTeleport()) {
 		Pather.moveTo(22571, 9590);
 	} else {
 		while (coords.length) {
-			if (getUnit(1, 156) && Math.round(getDistance(me, getUnit(1, 156)) < 15)) {
+			let andy = monster(sdk.monsters.Andariel);
+
+			if (andy && andy.distance < 15) {
 				break;
 			}
-			Pather.moveTo(coords[0][0], coords[0][1]);
+
+			Pather.moveToUnit(coords[0]);
 			Attack.clearClassids(61);
 			coords.shift();
 		}

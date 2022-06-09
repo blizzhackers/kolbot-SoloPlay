@@ -318,7 +318,8 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 
 	let inDanger = function () {
 		let nearUnits = getUnits(sdk.unittype.Monster).filter((mon) => mon.attackable && mon.distance < 10);
-		let dangerClose = nearUnits.find(mon => mon.getEnchant(sdk.enchant.ManaBurn) || mon.getEnchant(sdk.enchant.LightningEnchanted));
+		let dangerClose = nearUnits.find(mon => [sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted].some(chant => mon.getEnchant(chant)));
+		dangerClose && console.log("DANGER");
 		return nearUnits.length > me.maxNearMonsters || dangerClose;
 	};
 

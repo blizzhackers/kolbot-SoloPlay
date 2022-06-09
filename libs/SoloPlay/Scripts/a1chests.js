@@ -1,7 +1,8 @@
 /**
-*	@filename	a1chests.js
-*	@author		theBGuy
-*	@desc		Open super-chests in configured act 1 areas
+*  @filename    a1chests.js
+*  @author      theBGuy
+*  @desc        Open super-chests in configured act 1 areas
+*
 */
 
 function a1chests() {

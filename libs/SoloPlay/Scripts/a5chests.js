@@ -1,7 +1,8 @@
 /**
-*	@filename	a5chests.js
-*	@author		theBGuy
-*	@desc		Open super-chests in configured act 5 areas
+*  @filename    a5chests.js
+*  @author      theBGuy
+*  @desc        Open super-chests in configured act 5 areas
+*
 */
 
 function a5chests() {

@@ -1,7 +1,8 @@
-/*
-*	@filename	savebarby.js
-*	@author		isid0re, theBGuy
-*	@desc		rescue barbies for runes for ancient pledge
+/**
+*  @filename    savebarby.js
+*  @author      theBGuy, isid0re
+*  @desc        rescue barbies for runes for ancient pledge
+*
 */
 
 function savebarby () {
@@ -9,23 +10,22 @@ function savebarby () {
 	let barbies = [];
 
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting barbies');
-	me.overhead("barbies");
+	myPrint('starting barbies');
 
 	Pather.checkWP(sdk.areas.FrigidHighlands, true) ? Pather.useWaypoint(sdk.areas.FrigidHighlands) : Pather.getWP(sdk.areas.FrigidHighlands);
 	Precast.doPrecast(true);
 	barbies = getPresetUnits(me.area, 2, 473);
 
-	if (!barbies) { return false; }
+	if (!barbies) return false;
 
-	for ( let cage = 0 ; cage < barbies.length ; cage += 1) {
+	for (let cage = 0 ; cage < barbies.length ; cage += 1) {
 		coords.push({
 			x: barbies[cage].roomx * 5 + barbies[cage].x - 3, //Dark-f: x-3
 			y: barbies[cage].roomy * 5 + barbies[cage].y
 		});
 	}
 
-	for ( let k = 0 ; k < coords.length ; k += 1) {
+	for (let k = 0; k < coords.length; k += 1) {
 		me.overhead("let my barby go! " + (k + 1) + "/" + barbies.length);
 		Pather.moveToUnit(coords[k], 2, 0);
 		let door = getUnit(1, 434);

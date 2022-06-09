@@ -5,3 +5,4 @@ libs/SoloPlay/Data/**
 libs/SoloPlay/Functions/BlizzardError
 libs/SoloPlay/Functions/*.png
 libs/SoloPlay/Functions/*.jpg
+libs/SoloPlay/Functions/ItemPrototypes.js

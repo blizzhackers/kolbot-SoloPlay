@@ -101,7 +101,7 @@ function diablo () {
 					break;
 				case sdk.charclass.Sorceress:
 					if ([56, 59, 64].indexOf(Config.AttackSkill[1]) > -1) {
-						if (me.getState(121)) {
+						if (me.skillDelay) {
 							delay(500 + me.ping);
 						} else {
 							Skill.cast(Config.AttackSkill[1], 0, 7793, 5293);

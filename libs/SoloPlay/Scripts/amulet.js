@@ -1,7 +1,8 @@
-/*
-*	@filename	amulet.js
-*	@author		isid0re, theBGuy
-*	@desc		get the amulet from viper temple
+/**
+*  @filename    amulet.js
+*  @author      isid0re, theBGuy
+*  @desc        get the amulet from viper temple
+*
 */
 
 function amulet () {

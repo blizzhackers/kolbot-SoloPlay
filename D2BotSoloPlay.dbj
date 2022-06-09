@@ -145,7 +145,7 @@ new Overrides.Override(Starter, Starter.scriptMsgEvent, function (orignal, msg) 
 }).apply();
 
 function timer (tick) {
-	let timeStr = " (Time:" + new Date(getTickCount() - tick).toISOString().slice(11, -5) + ") ";
+	let timeStr = " (Time:" + formatTime(getTickCount() - tick) + ") ";
 	
 	if (Developer.displayClockInConsole) {
 		try {
