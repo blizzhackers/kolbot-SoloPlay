@@ -1,4 +1,4 @@
-var HoJ = [
+const HoJ = [
 	"[name] == SurRune",
 	"[name] == ChamRune",
 	"[name] == AmnRune # # [maxquantity] == 1",

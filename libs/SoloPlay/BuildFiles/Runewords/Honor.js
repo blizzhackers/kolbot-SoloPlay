@@ -1,4 +1,4 @@
-var Honor = [
+const Honor = [
 	"[name] == AmnRune # # [maxquantity] == 1",
 	"[name] == ElRune # # [maxquantity] == 1",
 	"[name] == IthRune # # [maxquantity] == 1",

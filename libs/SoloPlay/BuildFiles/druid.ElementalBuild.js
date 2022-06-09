@@ -20,52 +20,58 @@ const finalBuild = {
 		["strength", 61], ["vitality", 252], ["strength", 156], ["vitality", "all"]
 	],
 	skills: [
-        [sdk.skills.OakSage, 6, false],
-        [sdk.skills.Fissure, 11, false],
-        [sdk.skills.Grizzly, 1, false],
-        [sdk.skills.Volcano, 1, false],
-        [sdk.skills.Fissure, 20, false],
-        [sdk.skills.CycloneArmor, 1, false],
-        [sdk.skills.Firestorm, 20, false],
-        [sdk.skills.Volcano, 20, false],
-        [sdk.skills.OakSage, 20, false],
-        [sdk.skills.CycloneArmor, 20, false],
-        [sdk.skills.Grizzly, 5, false],
+		[sdk.skills.OakSage, 6, false],
+		[sdk.skills.Fissure, 11, false],
+		[sdk.skills.Grizzly, 1, false],
+		[sdk.skills.Volcano, 1, false],
+		[sdk.skills.Fissure, 20, false],
+		[sdk.skills.CycloneArmor, 1, false],
+		[sdk.skills.Firestorm, 20, false],
+		[sdk.skills.Volcano, 20, false],
+		[sdk.skills.OakSage, 20, false],
+		[sdk.skills.CycloneArmor, 20, false],
+		[sdk.skills.Grizzly, 5, false],
     ],
 	autoEquipTiers: [ // autoequip final gear
-		// Weapon
-		"[type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000", // HotO
-		// Helmet
-		"[name] == skyspirit && [quality] == unique # [passivefirepierce] >= 10 # [tier] == 100000 + tierscore(item)", // Ravenlore
-		// Belt
-		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 100000 + tierscore(item)", // Arach's
-		// Boots
-		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 50 # [tier] == 5000 + tierscore(item)", // War Traveler
-		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)", // Sandstorm Treks
-		// Armor
-		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000", // Enigma
-		// Shield
-		"[name] == monarch && [flag] != ethereal && [flag] == runeword # [fcr] >= 25 # [tier] == 100000 + tierscore(item)", // Spirit
-		// Gloves
-		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 20 && [addfireskills] == 1 # [tier] == 100000 + tierscore(item)",		// Magefist
-		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 20 && [addfireskills] == 1 # [tier] == 100000 + tierscore(item)",	// Upp'ed Magefist
-		"[name] == crusadergauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 20 && [addfireskills] == 1 # [tier] == 100000 + tierscore(item)",	// double Upp'ed Magefist
+		// Weapon - HotO
+		"[type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000",
+		// Helmet - Ravenlore
+		"[name] == skyspirit && [quality] == unique # [passivefirepierce] >= 10 # [tier] == 100000 + tierscore(item)",
+		// Belt - Arach's
+		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 100000 + tierscore(item)",
+		// Final Boots - Sandstorm Treks
+		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)",
+		// Boots - War Traveler
+		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 50 # [tier] == 5000 + tierscore(item)",
+		// Armor - Enigma
+		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000",
+		// Shield - Phoenix
+		"[name] == monarch && [flag] != ethereal && [flag] == runeword # [passivefirepierce] >= 28 # [tier] == 100000 + tierscore(item)", 
+		// Final Gloves - Perfect 2x Upp'ed Magefist
 		"[name] == crusadergauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] == 30 && [addfireskills] == 1 # [tier] == 110000",
-		// Amulet
-		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 100000 + tierscore(item)", // Maras
-		// Rings
-		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", // SoJ
+		// Gloves - 2x Upp'ed Magefist
+		"[name] == crusadergauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 20 && [addfireskills] == 1 # [tier] == 100000 + tierscore(item)",
+		// Gloves - Upp'ed Magefist
+		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 20 && [addfireskills] == 1 # [tier] == 100000 + tierscore(item)",
+		// Gloves - Magefist
+		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 20 && [addfireskills] == 1 # [tier] == 100000 + tierscore(item)",
+		// Amulet - Maras
+		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 100000 + tierscore(item)",
+		// Rings - SoJ
+		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000",
 		// Charms
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 3 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [fhr] >= 5 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # [elementalskilltab] == 1 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		// Switch
+		// Switch - CTA
 		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
-		// Merc
-		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	// Fortitude
-		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",	// Andy's
-		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	// Eth Andy's
+		// Merc Armor - Fortitude
+		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
+		// Merc Final Helmet - Eth Andy's
+		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",
+		// Merc Helmet - Andy's
+		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",
 	],
 
 	AutoBuildTemplate: {

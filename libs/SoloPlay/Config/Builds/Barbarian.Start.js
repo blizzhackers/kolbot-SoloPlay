@@ -39,7 +39,7 @@ let AutoBuildTemplate = {
 		Update: function () {
 			Config.BeltColumn = me.charlvl < 13 ? ["hp", "hp", "hp", "mp"] : ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
-			Config.HPBuffer = 2;
+			Config.HPBuffer = me.expansion ? 2 : 4;
 			Config.MPBuffer = 6;
 			Config.AttackSkill = [-1, sdk.skills.DoubleSwing, -1, sdk.skills.DoubleSwing, -1];
 

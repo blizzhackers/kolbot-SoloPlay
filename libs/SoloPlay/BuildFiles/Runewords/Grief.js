@@ -1,4 +1,4 @@
-var Grief = [
+const Grief = [
 	"[name] == EthRune # # [maxquantity] == 1",
 	"[name] == TirRune # # [maxquantity] == 1",
 	"[name] == LoRune # # [maxquantity] == 1",

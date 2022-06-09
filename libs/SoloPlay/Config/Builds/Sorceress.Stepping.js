@@ -18,7 +18,7 @@ let AutoBuildTemplate = {
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
 			Config.HPBuffer = me.expansion ? 2 : 5;
-			Config.MPBuffer = me.expansion && me.charlvl < 80 ? 6 : me.classic ? 5 : 2;
+			Config.MPBuffer = me.expansion ? 2 : 5;
 			Config.SkipImmune = ["cold"];
 		}
 	},

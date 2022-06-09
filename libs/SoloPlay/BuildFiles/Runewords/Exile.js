@@ -1,4 +1,4 @@
-var Exile = [
+const Exile = [
 	"[name] == VexRune",
 	"[name] == OhmRune",
 	"[name] == IstRune",

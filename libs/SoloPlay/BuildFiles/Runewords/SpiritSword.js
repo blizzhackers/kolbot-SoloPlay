@@ -1,5 +1,5 @@
 if (!Check.haveItem("sword", "runeword", "Spirit") && !me.hell) {
-	var SpiritSword = [
+	const SpiritSword = [
 		"[name] == TalRune # # [maxquantity] == 1",
 		"[name] == ThulRune # # [maxquantity] == 1",
 		"[name] == OrtRune # # [maxquantity] == 1",

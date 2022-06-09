@@ -224,21 +224,21 @@ function LoadConfig () {
 		}
 
 		// Chaos
-		if (!Check.haveItem("assassinclaw", "runeword", "Chaos")) {
+		if (!me.checkItem({name: sdk.locale.items.Chaos}).have) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Chaos.js")) {
 				include("SoloPlay/BuildFiles/Runewords/Chaos.js");
 			}
 		}
 
 		// Fury
-		if (!Check.haveItem("assassinclaw", "runeword", "Fury")) {
+		if (!me.checkItem({name: sdk.locale.items.Fury}).have) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Fury.js")) {
 				include("SoloPlay/BuildFiles/Runewords/Fury.js");
 			}
 		}
 
 		// Fortitude
-		if ((me.ladder || Developer.addLadderRW) && !Check.haveItem("armor", "runeword", "Fortitude")) {
+		if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Fortitude, itemtype: sdk.itemtype.Armor}).have) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Fortitude.js")) {
 				include("SoloPlay/BuildFiles/Runewords/Fortitude.js");
 			}
@@ -265,14 +265,14 @@ function LoadConfig () {
 		}
 
 		// Heart of the Oak
-		if (!Check.haveItem("mace", "runeword", "Heart of the Oak")) {
+		if (!me.checkItem({name: sdk.locale.items.HeartoftheOak}).have) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js")) {
 				include("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
 			}
 		}
 
 		// Enigma
-		if (!Check.haveItem("armor", "runeword", "Enigma")) {
+		if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js")) {
 				include("SoloPlay/BuildFiles/Runewords/Enigma.js");
 			}

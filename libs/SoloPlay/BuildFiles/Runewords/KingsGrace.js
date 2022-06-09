@@ -1,4 +1,4 @@
-var KingsGrace = [
+const KingsGrace = [
 	"[name] == AmnRune # # [maxquantity] == 1",
 	"[name] == RalRune # # [maxquantity] == 1",
 	"[name] == ThulRune # # [maxquantity] == 1",

@@ -1,4 +1,4 @@
-var Insight = [
+const Insight = [
 	"([name] == thresher || [name] == crypticaxe || [name] == greatpoleaxe || [name] == giantthresher) && [flag] == ethereal && [quality] == normal # [sockets] == 0 # [maxquantity] == 1",
 	"!me.hell && ([name] == voulge || [name] == scythe || [name] == poleaxe || [name] == halberd || [name] == warscythe || [name] == bill || [name] == battlescythe || [name] == partizan || [name] == grimscythe) && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1",
 	"([name] == thresher || [name] == crypticaxe || [name] == greatpoleaxe || [name] == giantthresher) && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1",

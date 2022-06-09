@@ -21,8 +21,8 @@ let AutoBuildTemplate = {
 			Config.Golem = "Clay";
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
-			Config.HPBuffer = 2;
-			Config.MPBuffer = 6;
+			Config.HPBuffer = me.expansion ? 2 : 4;
+			Config.MPBuffer = me.expansion && me.charlvl < 80 ? 6 : me.classic ? 5 : 2;
 		}
 	},
 };

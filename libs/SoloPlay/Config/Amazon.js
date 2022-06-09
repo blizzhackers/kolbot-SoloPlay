@@ -241,6 +241,13 @@ function LoadConfig () {
 						temp: [sdk.items.gems.Perfect.Skull],
 						useSocketQuest: false,
 						condition: (item) => item.unique
+					},
+					{
+						classid: sdk.items.BoneVisage,
+						socketWith: [sdk.items.runes.Um],
+						temp: [sdk.items.gems.Perfect.Ruby],
+						useSocketQuest: true,
+						condition: (item) => item.unique && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal
 					}
 				);
 
@@ -282,7 +289,7 @@ function LoadConfig () {
 		}
 
 		// Chains of Honor
-		if (!Check.haveItem("armor", "runeword", "Chains of Honor")) {
+		if (!me.checkItem({name: sdk.locale.items.ChainsofHonor}).have) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js")) {
 				include("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
 			}

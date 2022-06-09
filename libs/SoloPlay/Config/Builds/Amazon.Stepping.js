@@ -18,10 +18,6 @@ let AutoBuildTemplate = {
 			Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
 			Config.LowManaSkill = [0, 0];
 			Config.TownHP = me.hardcore ? 0 : 35;
-			Config.BeltColumn = ["hp", "hp", "hp", "hp"];
-			SetUp.belt();
-			Config.HPBuffer = 3;
-			Config.MPBuffer = 4;
 		}
 	},
 
@@ -32,7 +28,7 @@ let AutoBuildTemplate = {
 			Config.AttackSkill = [sdk.skills.SlowMissiles, sdk.skills.ChargedStrike, 0, sdk.skills.ChargedStrike, 0, -1, -1];
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
-			Config.HPBuffer = 2;
+			Config.HPBuffer = me.expansion ? 2 : 4;
 			Config.MPBuffer = 6;
 		}
 	},

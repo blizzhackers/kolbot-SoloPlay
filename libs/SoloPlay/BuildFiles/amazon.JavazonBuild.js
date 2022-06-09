@@ -54,49 +54,53 @@ const finalBuild = {
 		[sdk.skills.Pierce, 5, false],
 	],
 	classicTiers: [
-		// Helm
-		"[name] == skullcap && [quality] == unique # [itemallskills] == 1 && [itemmagicbonus] >= 25 # [tier] == 100000 + tierscore(item)", // Tarnhelm
-		// Armor
-		"[name] == studdedleather && [quality] == unique # [ias] == 20 && [fhr] == 20 # [tier] == 100000", // Twitchthroe
-		// Belt
-		"[name] == sash && [quality] == set # [itemcannotbefrozen] == 1 # [tier] == 100000", // Death's Guard Sash
-		// Gloves
-		"[name] == leathergloves && [quality] == set # [poisonresist] >= 50 # [tier] == 100000", // Death's Hand Leather Gloves
-		// Rings
-		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000", // SoJ
+		// Helm - Tarnhelm
+		"[name] == skullcap && [quality] == unique # [itemallskills] == 1 && [itemmagicbonus] >= 25 # [tier] == 100000 + tierscore(item)",
+		// Armor - Twitchthroe
+		"[name] == studdedleather && [quality] == unique # [ias] == 20 && [fhr] == 20 # [tier] == 100000",
+		// Belt - Death's Guard Sash
+		"[name] == sash && [quality] == set # [itemcannotbefrozen] == 1 # [tier] == 100000",
+		// Gloves - Death's Hand Leather Gloves
+		"[name] == leathergloves && [quality] == set # [poisonresist] >= 50 # [tier] == 100000",
+		// Rings - SoJ
+		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000",
 	],
 	expansionTiers: [
-		// Weapon
-		"[name] == ceremonialjavelin && [quality] == unique # [itemchargedskill] >= 0 # [tier] == 100000 + tierscore(item)", // Titan's Revenge
-		// Helmet
-		"[name] == shako && [quality] == unique && [flag] != ethereal # [itemallskills] == 2 # [tier] == 100000 + tierscore(item)", // Harlequin's Crest
-		// Boots
-		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)", // Sandstorm Treks
-		// Belt
-		"[name] == warbelt && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)", // Thundergod's Vigor
-		// Armor
-		"[type] == armor && [flag] == runeword  && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 110000", // CoH
-		// Shield
-		"[type] == shield # [fcr] >= 25 && [maxmana] >= 89 # [tier] == 110000 + tierscore(item)", // Spirit
-		// Amulet
-		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 110000", // Highlords
-		// Rings
-		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == # [tier] == 100000", // Raven Frost
-		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000", // Perfect Raven Frost
-		"[name] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == 100000", // Wisp
-		"[name] == ring && [quality] == unique # [itemabsorblightpercent] == 20 # [tier] == 110000", // Perfect Wisp
+		// Weapon - Titan's Revenge
+		"[name] == ceremonialjavelin && [quality] == unique # [itemchargedskill] >= 0 # [tier] == 100000 + tierscore(item)",
+		// Helmet - Harlequin's Crest
+		"[name] == shako && [quality] == unique && [flag] != ethereal # [itemallskills] == 2 # [tier] == 100000 + tierscore(item)",
+		// Boots - Sandstorm Treks
+		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)",
+		// Belt - Thundergod's Vigor
+		"[name] == warbelt && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)",
+		// Armor - CoH
+		"[type] == armor && [flag] == runeword && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 110000",
+		// Shield - Spirit
+		"[type] == shield # [fcr] >= 25 && [maxmana] >= 89 # [tier] == 110000 + tierscore(item)",
+		// Amulet - Highlords
+		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 110000",
+		// Final Rings - Perfect Raven Frost & Wisp
+		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000",
+		"[type] == ring && [quality] == unique # [itemabsorblightpercent] == 20 # [tier] == 110000",
+		// Rings - Raven Frost & Wisp
+		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == # [tier] == 100000",
+		"[type] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == 100000",
 		// Charms
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 5 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [fhr] >= 5 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # [javelinandspearskilltab] == 1 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		// Switch
+		// Switch - CTA
 		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
-		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000", // Spirit
-		// Merc
-		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	// Fortitude
-		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",	// Andy's
-		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	// Eth Andy's
+		// Switch - Spirit
+		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000",
+		// Merc Armor - Fortitude
+		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
+		// Merc Final Helmet - Eth Andy's
+		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",
+		// Merc Helmet - Andy's
+		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",
 	],
 	stats: undefined,
 	skills: undefined,
@@ -107,8 +111,8 @@ const finalBuild = {
 			Update: function () {
 				Config.AttackSkill = [-1, sdk.skills.ChargedStrike, -1, sdk.skills.LightningStrike, -1, -1, -1];
 				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
-				Config.HPBuffer = 2;
-				Config.MPBuffer = 4;
+				Config.HPBuffer = me.expansion ? 2 : 4;
+				Config.MPBuffer = me.expansion ? 4 : 6;
 			}
 		},
 	},

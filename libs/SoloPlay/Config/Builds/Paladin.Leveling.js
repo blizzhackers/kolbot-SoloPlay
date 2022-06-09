@@ -19,8 +19,8 @@ let AutoBuildTemplate = {
 			Config.LowManaSkill = [0, sdk.skills.Concentration];
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
-			Config.HPBuffer = 2;
-			Config.MPBuffer = 6;
+			Config.HPBuffer = me.expansion ? 2 : 4;
+			Config.MPBuffer = me.expansion && me.charlvl < 80 ? 6 : me.classic ? 5 : 2;
 
 			if (me.hell && !Pather.accessToAct(5)) {
 				Config.SkipImmune = ["magic"];

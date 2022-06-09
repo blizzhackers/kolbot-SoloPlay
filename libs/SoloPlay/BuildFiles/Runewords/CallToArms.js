@@ -32,7 +32,7 @@ if (!me.getItem(sdk.items.runes.Ohm)) {
 	Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
 
-	if (Check.haveItem("mace", "runeword", "Heart of the Oak") || ["Zealer", "Smiter", "Auradin", "Meteorb", "Blizzballer", "Cold"].indexOf(SetUp.finalBuild) > -1) {
+	if (me.checkItem({name: sdk.locale.items.HeartoftheOak}).have || ["Zealer", "Smiter", "Auradin", "Meteorb", "Blizzballer", "Cold"].indexOf(SetUp.finalBuild) > -1) {
 		Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
 	}
 }

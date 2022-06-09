@@ -17,11 +17,7 @@ let AutoBuildTemplate = {
 		Update: function () {
 			Config.AttackSkill = [-1, 0, 0, 0, 0];
 			Config.LowManaSkill = [0, 0];
-			Config.BeltColumn = ["hp", "hp", "hp", "hp"];
 			Config.TownHP = me.hardcore ? 0 : 35;
-			SetUp.belt();
-			Config.MPBuffer = 4;
-			Config.HPBuffer = 6;
 		}
 	},
 
@@ -41,7 +37,7 @@ let AutoBuildTemplate = {
 			Config.AttackSkill = [-1, sdk.skills.DoubleSwing, -1, sdk.skills.DoubleSwing, -1];
 			Config.BeltColumn = me.charlvl < 13 ? ["hp", "hp", "hp", "mp"] : ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
-			Config.HPBuffer = 2;
+			Config.HPBuffer = me.expansion ? 2 : 4;
 			Config.MPBuffer = 6;
 		}
 	},

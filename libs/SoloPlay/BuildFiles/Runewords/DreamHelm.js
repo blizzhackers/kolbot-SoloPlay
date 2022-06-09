@@ -1,4 +1,4 @@
-var DreamHelm = [
+const DreamHelm = [
 	"[name] == IoRune # # [maxquantity] == 1",
 	"[name] == JahRune",
 	"[name] == PulRune",
