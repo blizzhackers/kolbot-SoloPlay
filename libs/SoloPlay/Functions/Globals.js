@@ -59,29 +59,29 @@ function ensureData () {
 		CharData.updateData("me", myData) && updateMyData();
 	}
 
+	let cUpdate = false;
+
 	if (!myData.me.charmGids) {
 		myData.me.charmGids = [];
 		CharData.updateData("me", myData) && updateMyData();
+	} else if (myData.me.charmGids.length > 0) {
+		// gids change from game to game so reset our list
+		myData.me.charmGids = [];
+		cUpdate = true;
 	}
 
 	const finalCharmKeys = Object.keys(myData.me.charms);
-	let gidCheck = [];
-
+	// gids change from game to game so reset our list
 	for (let i = 0; i < finalCharmKeys.length; i++) {
 		let cKey = finalCharmKeys[i];
 		if (myData.me.charms[cKey].have.length) {
-			gidCheck = gidCheck.concat(myData.me.charms[cKey].have);
-			console.debug(gidCheck);
-			console.debug(myData.me.charmGids);
+			myData.me.charms[cKey].have = [];
+			cUpdate = true;
 		}
 	}
 
+	cUpdate && updateMyData();
 	let temp = Misc.copy(myData);
-	
-	if (!myData.me.charmGids.equals(gidCheck)) {
-		myData.me.charmGids = myData.me.charmGids.concat(gidCheck);
-		CharData.updateData("me", myData) && updateMyData();
-	}
 
 	if (myData.me.currentBuild !== SetUp.getBuild()) {
 		switch (true) {

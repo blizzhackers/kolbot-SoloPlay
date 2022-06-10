@@ -861,6 +861,10 @@ Item.hasCharmTier = function (item) {
 	return me.expansion && Config.AutoEquip && NTIP.GetCharmTier(item) > 0;
 };
 
+Item.isFinalCharm = function (item) {
+	return myData.me.charmGids.includes(item.gid);
+};
+
 // Iterate over charm checklist, pickit result 0 and 4 get sold
 // Otherwise if its not in the stash already and not a final charm try and stash it. I don't remember why I checked if it wasn't a final charm
 const spliceCharmCheckList = function (checkList = [], verbose = false) {
@@ -1127,7 +1131,7 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 	}
 
 	if (found) {
-		CharData.updateData("me", myData) && updateMyData();
+		updateMyData();
 	}
 
 	if (!charms.skillerTypeA.length && !charms.skillerTypeB.length && !charms.skillerTypeC.length
@@ -1275,9 +1279,7 @@ Item.initCharms = function () {
 		}
 	}
 
-	if (changed) {
-		CharData.updateData("me", myData) && updateMyData();
-	}
+	changed && updateMyData();
 };
 
 Item.autoEquipCharms = function () {
