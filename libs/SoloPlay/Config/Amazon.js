@@ -351,7 +351,7 @@ function LoadConfig () {
 		}
 
 		// Merc Doom
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== 20532 && SetUp.finalBuild !== "javazon") {
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== 20532 && SetUp.finalBuild !== "Javazon") {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercDoom.js")) {
 				include("SoloPlay/BuildFiles/Runewords/MercDoom.js");
 			}
