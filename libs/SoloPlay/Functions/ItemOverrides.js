@@ -861,20 +861,13 @@ Item.hasCharmTier = function (item) {
 	return me.expansion && Config.AutoEquip && NTIP.GetCharmTier(item) > 0;
 };
 
-Item.maxFinalSCs = 0;
-Item.maxFinalLCs = 0;
-Item.maxFinalGCs = 0;
-Item.finalEquippedSCs = [];
-Item.finalEquippedLCs = [];
-Item.finalEquippedGCs = [];
-
 // Iterate over charm checklist, pickit result 0 and 4 get sold
 // Otherwise if its not in the stash already and not a final charm try and stash it. I don't remember why I checked if it wasn't a final charm
 const spliceCharmCheckList = function (checkList = [], verbose = false) {
 	for (let i = 0; i < checkList.length; i++) {
 		let currCharm = checkList[i];
 		if (!currCharm || [0, 4].includes(Pickit.checkItem(currCharm).result)) continue;
-		if (!currCharm.isInStash && !NTIP.checkFinalCharm(currCharm)) {
+		if (!currCharm.isInStash && !myData.me.charmGids.includes(currCharm.gid)) {
 			if (!Storage.Stash.MoveTo(currCharm)) {
 				verbose && Misc.itemLogger("Dropped", currCharm);
 				currCharm.drop();
@@ -890,48 +883,34 @@ const spliceCharmCheckList = function (checkList = [], verbose = false) {
 	}
 };
 
-const spliceCharmKeepList = function (keep = [], verbose = false) {
+const spliceCharmKeepList = function (keep = [], sell = [], verbose = false) {
 	if (!keep.length) return;
 	let id = keep[0].classid;
-	let cap = (id === sdk.items.SmallCharm ? Item.maxFinalSCs : id === sdk.items.LargeCharm ? Item.maxFinalLCs : Item.maxFinalGCs);
+	let cInfo;
+
+	switch (id) {
+	case sdk.items.SmallCharm:
+		cInfo = CharData.charmData.small.getCountInfo();
+
+		break;
+	case sdk.items.LargeCharm:
+		cInfo = CharData.charmData.small.getCountInfo();
+
+		break;
+	case sdk.items.GrandCharm:
+		cInfo = CharData.charmData.small.getCountInfo();
+
+		break;
+	}
 
 	// sort through kept charms
-	if (keep.length > cap) {
+	if (keep.length > cInfo.max) {
 		keep.sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a));
-		
-		// check list up until our final charm cap and if its a wanted final charm that isn't in our array then add it
-		for (let i = 0; i < keep.length && i < cap; i++) {
-			if (NTIP.checkFinalCharm(keep[i])) {
-				switch (id) {
-				case sdk.items.SmallCharm:
-					if (!Item.finalEquippedSCs.includes(keep[i].gid)) {
-						Item.finalEquippedSCs.push(keep[i].gid);
-						verbose && console.log("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Equipped Final SC " + keep[i].fname);
-					}
-					
-					break;
-				case sdk.items.LargeCharm:
-					if (!Item.finalEquippedLCs.includes(keep[i].gid)) {
-						Item.finalEquippedLCs.push(keep[i].gid);
-						verbose && console.log("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Equipped Final LC " + keep[i].fname);
-					}
-					
-					break;
-				case sdk.items.GrandCharm:
-					if (!Item.finalEquippedGCs.includes(keep[i].gid)) {
-						Item.finalEquippedGCs.push(keep[i].gid);
-						verbose && console.log("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Equipped Final GC " + keep[i].fname);
-					}
-
-					break;
-				}
-			}
-		}
 
 		// everything after the cap (need a better method for this in the instances where the max cap is less then leveling wanted cap)
-		for (let i = cap; i < keep.length; i++) {
+		for (let i = cInfo.max; i < keep.length; i++) {
 			if (!!keep[i].classid && !Item.autoEquipCharmCheck(keep[i])) {
-				charms.checkList.push(keep[i]);
+				sell.push(keep[i]);
 				verbose && console.log("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Add " + keep[i].fname + " to checkList");
 				keep.splice(i, 1);
 				i -= 1;
@@ -955,7 +934,7 @@ Item.autoEquipSC = function () {
 	}
 
 	let charms = Item.autoEquipCharmSort(items, verbose);
-	spliceCharmKeepList(charms.keep, verbose);
+	spliceCharmKeepList(charms.keep, charms.checkList, verbose);
 
 	verbose && console.log("Small Charm checklist length: " + charms.checkList.length);
 	spliceCharmCheckList(charms.checkList, verbose);
@@ -980,7 +959,7 @@ Item.autoEquipLC = function () {
 	}
 
 	let charms = Item.autoEquipCharmSort(items, verbose);
-	spliceCharmKeepList(charms.keep, verbose);
+	spliceCharmKeepList(charms.keep, charms.checkList, verbose);
 
 	verbose && console.log("Large charm checklist length: " + charms.checkList.length);
 	spliceCharmCheckList(charms.checkList, verbose);
@@ -1008,7 +987,7 @@ Item.autoEquipGC = function () {
 	spliceCharmKeepList(charms.keep, verbose);
 
 	verbose && console.log("Grand charm checklist length: " + charms.checkList.length);
-	spliceCharmCheckList(charms.checkList, verbose);
+	spliceCharmKeepList(charms.keep, charms.checkList, verbose);
 
 	return {
 		keep: charms.keep,
@@ -1037,9 +1016,9 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 	}
 
 	const addToCheckList = (item) => charms.checkList.indexOf(item) === -1 && charms.checkList.push(item);
-	//const addToBackUp = (item) => charms.backup.indexOf(item) === -1 && charms.backup.push(item);
+	const addToBackUp = (item) => charms.backup.indexOf(item) === -1 && charms.backup.push(item);
 
-	function sortCharms (arr = []) {
+	function sortCharms (arr = [], verbose = false, backUpCheck = true) {
 		let invoquantity = NTIP.getInvoQuantity(arr[0]);
 		(invoquantity === undefined || invoquantity === -1) && (invoquantity = 2);
 		let charmType = Item.getCharmType(arr[0]);
@@ -1048,43 +1027,36 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 
 		if (arr.length > invoquantity) {
 			verbose && arr.forEach((el, index) => console.log(charmType + "[" + index + "] = " + NTIP.GetCharmTier(el)));
-			arr.forEach(el => {
-				if (NTIP.checkFinalCharm(el) && NTIP.getInvoQuantity(el) !== invoquantity
-				&& ((el.classid === sdk.items.SmallCharm && invoquantity < Item.maxFinalSCs)
-				|| (el.classid === sdk.items.LargeCharm && invoquantity < Item.maxFinalLCs)
-				|| (el.classid === sdk.items.GrandCharm && invoquantity < Item.maxFinalGCs))) {
-					invoquantity += NTIP.getInvoQuantity(el);
-				}
-			});
 
-			if (invoquantity > 0) {
-				for (let i = invoquantity; i < arr.length; i++) {
-					addToCheckList(arr[i]);
+			for (let i = invoquantity; i < arr.length; i++) {
+				backUpCheck ? addToBackUp(arr[i]) : addToCheckList(arr[i]);
 
-					arr.splice(i, 1);
-					i -= 1;
-				}
+				arr.splice(i, 1);
+				i -= 1;
 			}
 		}
-
-		return arr;
 	}
 
 	verbose && console.log("Amount of items: " + items.length);
 	items.length > 1 && items.sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a));
+
+	const finalCharmKeys = Object.keys(myData.me.charms);
+	const finalCharmInfo = Check.finalBuild().finalCharms;
+	let found = false;
 	
 	while (items.length > 0) {
 		let gid = items[0].gid;
+		let item = items.shift();
 
-		if (!items[0].identified) {
+		if (!item.identified) {
 			let idTool = Town.getIdTool();
 
 			if (idTool) {
-				items[0].isInStash && Town.openStash();
-				Town.identifyItem(items[0], idTool);
+				item.isInStash && Town.openStash();
+				Town.identifyItem(item, idTool);
 
-			} else if (items[0].isInStash && (getUIFlag(sdk.uiflags.Stash) || Town.openStash())) {
-				Storage.Inventory.MoveTo(items[0]);
+			} else if (item.isInStash && (getUIFlag(sdk.uiflags.Stash) || Town.openStash())) {
+				Storage.Inventory.MoveTo(item);
 				Town.identify();
 			}
 
@@ -1096,16 +1068,42 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 			}
 		}
 
-		if (NTIP.GetCharmTier(items[0]) <= 0) {
-			verbose && console.log("No tier. Adding to checkList: " + items[0].fname);
-			addToCheckList(items[0]);
+		if (myData.me.charmGids.includes(item.gid)) {
+			charms.keep.push(item);
 
-		} else if (!NTIP.hasStats(items[0]) && NTIP.GetCharmTier(items[0]) > 0) {
-			verbose && console.log("Multiple Misc charm: " + items[0].fname);
-			charms.backup.push(items[0]);
+			continue;
+		}
 
+		let next = false;
+
+		for (let i = 0; i < finalCharmKeys.length; i++) {
+			let cKey = finalCharmKeys[i];
+			if (myData.me.charms[cKey].have.indexOf(item.gid) === -1 && myData.me.charms[cKey].have.length < myData.me.charms[cKey].max) {
+				if (finalCharmInfo[cKey].stats(item)) {
+					console.debug(item.fname);
+					myData.me.charmGids.push(item.gid);
+					myData.me.charms[cKey].have.push(item.gid);
+					charms.keep.push(item);
+					found = true;
+					next = true;
+					
+					break;
+				}
+			}
+		}
+
+		if (next) {
+			continue;
+		}
+
+		if (NTIP.GetCharmTier(item) <= 0) {
+			verbose && console.log("No tier. Adding to checkList: " + item.fname);
+			addToCheckList(item);
+		} else if (!NTIP.hasStats(item) && NTIP.GetCharmTier(item) > 0) {
+			verbose && console.log("Multiple Misc charm: " + item.fname);
+			charms.backup.push(item);
 		} else {
-			let charmType = Item.getCharmType(items[0]);
+			let charmType = Item.getCharmType(item);
 			switch (charmType) {
 			case "skillerTypeA":
 			case "skillerTypeB":
@@ -1115,19 +1113,21 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 			case "magicfind":
 			case "damage":
 			case "elemental":
-				charms[charmType].push(items[0]);
-				verbose && console.log(charmType + ": " + items[0].fname);
+				charms[charmType].push(item);
+				verbose && console.log(charmType + ": " + item.fname);
 
 				break;
 			default:
-				addToCheckList(items[0]);
-				verbose && console.log("Failed all checks. Adding to checkList: " + items[0].fname);
+				addToCheckList(item);
+				verbose && console.log("Failed all checks. Adding to checkList: " + item.fname);
 
 				break;
 			}
 		}
+	}
 
-		items.shift();
+	if (found) {
+		CharData.updateData("me", myData) && updateMyData();
 	}
 
 	if (!charms.skillerTypeA.length && !charms.skillerTypeB.length && !charms.skillerTypeC.length
@@ -1136,65 +1136,86 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 		return charms;
 	}
 
-	charms.skillerTypeA.length > 0 && (charms.skillerTypeA = sortCharms(charms.skillerTypeA));
-	charms.skillerTypeB.length > 0 && (charms.skillerTypeB = sortCharms(charms.skillerTypeB));
-	charms.skillerTypeC.length > 0 && (charms.skillerTypeC = sortCharms(charms.skillerTypeC));
-	charms.resist.length > 0 && (charms.resist = sortCharms(charms.resist));
-	charms.life.length > 0 && (charms.life = sortCharms(charms.life));
-	charms.magicfind.length > 0 && (charms.magicfind = sortCharms(charms.magicfind));
-	charms.damage.length > 0 && (charms.damage = sortCharms(charms.damage));
-	charms.elemental.length > 0 && (charms.elemental = sortCharms(charms.elemental));
+	charms.skillerTypeA.length > 0 && sortCharms(charms.skillerTypeA, verbose);
+	charms.skillerTypeB.length > 0 && sortCharms(charms.skillerTypeB, verbose);
+	charms.skillerTypeC.length > 0 && sortCharms(charms.skillerTypeC, verbose);
+	charms.resist.length > 0 && sortCharms(charms.resist, verbose);
+	charms.life.length > 0 && sortCharms(charms.life, verbose);
+	charms.magicfind.length > 0 && sortCharms(charms.magicfind, verbose);
+	charms.damage.length > 0 && sortCharms(charms.damage, verbose);
+	charms.elemental.length > 0 && sortCharms(charms.elemental, verbose);
 
 	// If stats are unspecifed, this will filter charms and keep highest based on invoquantity. If no invoquantity defined it will keep two of that type
-	charms.backup.length > 0 && (charms.backup = sortCharms(charms.backup));
+	charms.backup.length > 0 && sortCharms(charms.backup, verbose, false);
 	charms.keep = charms.keep.concat(charms.skillerTypeA, charms.skillerTypeB, charms.skillerTypeC, charms.resist, charms.life, charms.magicfind, charms.damage, charms.elemental, charms.backup);
-
 	verbose && charms.checkList.forEach((el, index) => console.log("checkList[" + index + "] = " + NTIP.GetCharmTier(el) + " " + el.fname));
 	
 	return charms;
 };
 
 Item.autoEquipCharmCheck = function (item = undefined) {
-	if (!item || NTIP.GetCharmTier(item) <= 0) return false;
+	if (!item || NTIP.GetCharmTier(item) <= 0 || !item.isCharm) return false;
 	// Annhilus, Hellfire Torch, Gheeds - Handled by a different function so return true to keep
-	if ([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid) && item.unique) return true;
-	// Not a charm
-	if (![sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid)) return false;
-
-	let finalCharms = [];
-	finalCharms = finalCharms.concat(Item.finalEquippedSCs, Item.finalEquippedLCs, Item.finalEquippedGCs);
+	if (item.isCharm && item.unique) return true;
 	// is one of our final charms
-	if (finalCharms.includes(item.gid)) return true;
+	if (myData.me.charmGids.includes(item.gid)) return true;
 
-	let lowestCharm,
-		items = me.getItemsEx()
-			.filter(charm => charm.classid === item.classid && charm.isInStorage
-				&& charm.magic && NTIP.GetCharmTier(charm) > 0);
+	let lowestCharm;
+	let items = me.getItemsEx()
+		.filter(charm => charm.classid === item.classid && charm.isInStorage && charm.magic && NTIP.GetCharmTier(charm) > 0);
 	if (!items.length) return false;
 
 	let charms = Item.autoEquipCharmSort(items);
-	
-	if (charms.keep.length > (item.classid === sdk.items.SmallCharm ? Item.maxFinalSCs : item.classid === sdk.items.LargeCharm ? Item.maxFinalLCs : Item.maxFinalGCs)) {
-		switch (item.classid) {
-		case sdk.items.SmallCharm:
-			lowestCharm = Item.finalEquippedSCs.last();
-			
-			break;
-		case sdk.items.LargeCharm:
-			lowestCharm = Item.finalEquippedLCs.last();
-			
-			break;
-		case sdk.items.GrandCharm:
-			lowestCharm = Item.finalEquippedGCs.last();
+	let charmType = Item.getCharmType(item);
+	let cInfo, newList = [];
 
-			break;
-		}
-		if (!!lowestCharm) {
+	switch (item.classid) {
+	case sdk.items.SmallCharm:
+		cInfo = CharData.charmData.small.getCountInfo();
+		
+		if (cInfo.curr && (cInfo.curr / cInfo.max) * 100 >= 75) {
+			// chop off past our cap
+			newList = charms.keep
+				.sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a))
+				.slice(0, cInfo.max);
+			// check if it made the cut
+			if (!newList.find(i => i.gid === item.gid)) return false;
+			lowestCharm = newList.last();
 			return !!(NTIP.GetCharmTier(item) >= NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid);
 		}
-	}
 
-	let charmType = Item.getCharmType(item);
+		break;
+	case sdk.items.LargeCharm:
+		cInfo = CharData.charmData.large.getCountInfo();
+		
+		if (cInfo.curr && (cInfo.curr / cInfo.max) * 100 >= 75) {
+			// chop off past our cap
+			newList = charms.keep
+				.sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a))
+				.slice(0, cInfo.max);
+			// check if it made the cut
+			if (!newList.find(i => i.gid === item.gid)) return false;
+			lowestCharm = newList.last();
+			return !!(NTIP.GetCharmTier(item) >= NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid);
+		}
+
+		break;
+	case sdk.items.GrandCharm:
+		cInfo = CharData.charmData.grand.getCountInfo();
+		
+		if (cInfo.curr && (cInfo.curr / cInfo.max) * 100 >= 50) {
+			// chop off past our cap
+			newList = charms.keep
+				.sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a))
+				.slice(0, cInfo.max);
+			// check if it made the cut
+			if (!newList.find(i => i.gid === item.gid)) return false;
+			lowestCharm = newList.last();
+			return !!(NTIP.GetCharmTier(item) >= NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid);
+		}
+
+		break;
+	}
 
 	switch (charmType) {
 	case "skillerTypeA":
@@ -1220,8 +1241,43 @@ Item.autoEquipCharmCheck = function (item = undefined) {
 Item.initCharms = function () {
 	// No charms in classic
 	if (me.classic) return;
-	// initialzes final charms if we have any
-	Item.autoEquipGC() && Item.autoEquipLC() && Item.autoEquipSC();
+	let myCharms = me.getItemsEx().filter(item => item.isInStorage && item.isCharm && item.magic);
+	let changed = false;
+
+	const finalCharmKeys = Object.keys(myData.me.charms);
+	const check = function (list = [], charms = []) {
+		for (let i = 0; i < list.length; i++) {
+			if (!charms.some(c => c.gid === list[i])) {
+				console.log("A charm was removed from our final list - updated it");
+				myData.me.charmGids.remove(list[i]);
+				list.splice(i, 1);
+				i--;
+				changed = true;
+			}
+		}
+	};
+
+	for (let i = 0; i < finalCharmKeys.length; i++) {
+		let cKey = finalCharmKeys[i];
+		switch (myData.me.charms[cKey].classid) {
+		case sdk.items.SmallCharm:
+			check(myData.me.charms[cKey].have, myCharms);
+
+			break;
+		case sdk.items.LargeCharm:
+			check(myData.me.charms[cKey].have, myCharms);
+
+			break;
+		case sdk.items.GrandCharm:
+			check(myData.me.charms[cKey].have, myCharms);
+
+			break;
+		}
+	}
+
+	if (changed) {
+		CharData.updateData("me", myData) && updateMyData();
+	}
 };
 
 Item.autoEquipCharms = function () {
@@ -1245,6 +1301,13 @@ Item.autoEquipCharms = function () {
 	}
 	
 	totalKeep = totalKeep.concat(SCs.keep, LCs.keep, GCs.keep, specialCharms);
+	for (let i = 0; i < totalKeep.length; i++) {
+		if (!Item.autoEquipCharmCheck(totalKeep[i])) {
+			totalSell.push(totalKeep[i]);
+			totalKeep.splice(i, 1);
+			i--;
+		}
+	}
 	totalSell = totalSell.concat(SCs.sell, LCs.sell, GCs.sell);
 	totalKeep.length > 0 && console.log("ÿc8Kolbot-SoloPlayÿc0: Total Charms Kept: " + totalKeep.length);
 
@@ -1292,8 +1355,7 @@ Item.autoEquipCharms = function () {
 // improve this, not sure how but still needs work
 // maybe do this by prefix/suffix number instead?
 Item.getCharmType = function (charm = undefined) {
-	if (!charm) return false;
-	if (![sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(charm.classid)) return false;
+	if (!charm || !charm.isCharm) return false;
 	if (charm.unique) return "unique";
 	if (!NTIP.hasStats(charm) && NTIP.GetCharmTier(charm) > 0) return "misc";
 

@@ -65,6 +65,9 @@ function SoloPlay () {
 					Item.removeItem(null, item);
 				}
 			});
+		
+		// initialize final charms if we have any
+		Item.initCharms();
 
 		return true;
 	};
