@@ -254,9 +254,9 @@ function LoadConfig () {
 				}
 			}
 				
-			if (!Check.haveItem(sdk.items.DiamondBow, "unique", "Witchwild String")) {
+			if (!Check.haveItem(sdk.items.DiamondBow, "unique", "Witchwild String") && (SetUp.finalBuild === "Witchyzon") || (!["Wfzon", "Faithbowzon"].includes(SetUp.currentBuild))) {
 				NTIP.addLine("[name] == shortsiegebow && [quality] == unique # [fireresist] == 40 # [maxquantity] == 1");
-				// keep the bow but don't upgrade it until we have our wanted belt
+				// Witchyzon only - keep the bow but don't upgrade it until we have our wanted belt
 				((SetUp.finalBuild === "Witchyzon") && Check.haveItem("vampirefangbelt", "unique", "Nosferatu's Coil") || (["Wfzon", "Faithbowzon"].includes(SetUp.finalBuild)) && Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]));
 			}
 
