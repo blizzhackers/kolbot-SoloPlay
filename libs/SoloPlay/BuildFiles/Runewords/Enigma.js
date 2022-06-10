@@ -1,4 +1,4 @@
-var Enigma = [
+const Enigma = [
 	"[name] == JahRune",
 	"[name] == IthRune # # [maxquantity] == 1",
 	"[name] == BerRune",

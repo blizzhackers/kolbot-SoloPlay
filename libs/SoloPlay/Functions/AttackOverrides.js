@@ -273,7 +273,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 
 	if (target) {
 		do {
-			if (target.attackable && this.skipCheck(target) && this.canAttack(target)) {
+			if (target.attackable && !this.skipCheck(target) && this.canAttack(target)) {
 				// Speed optimization - don't go through monster list until there's at least one within clear range
 				if (!start && getDistance(target, x, y) <= range && (Pather.useTeleport() || !checkCollision(me, target, 0x5))) {
 					start = true;
@@ -586,7 +586,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 
 	if (target) {
 		do {
-			if ((!spectype || (target.spectype & spectype)) && target.attackable && this.skipCheck(target)) {
+			if ((!spectype || (target.spectype & spectype)) && target.attackable && !this.skipCheck(target)) {
 				// Speed optimization - don't go through monster list until there's at least one within clear range
 				if (!start && getDistance(target, orgx, orgy) <= range && (Pather.canTeleport() || !checkCollision(me, target, 0x1))) {
 					start = true;
@@ -745,7 +745,7 @@ Attack.clearEx = function (givenSettings) {
 
 	if (target) {
 		do {
-			if ((!settings.spectype || (target.spectype & settings.spectype)) && target.attackable && this.skipCheck(target)) {
+			if ((!settings.spectype || (target.spectype & settings.spectype)) && target.attackable && !this.skipCheck(target)) {
 				// Speed optimization - don't go through monster list until there's at least one within clear range
 				if (!start && getDistance(target, orgx, orgy) <= range && (Pather.canTeleport() || !checkCollision(me, target, 0x5))) {
 					start = true;
@@ -877,7 +877,7 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 
 	// Item must be equipped, or a charm in inventory
 	me.getItemsEx(-1)
-		.filter(item => item && (item.isEquipped && item.quality !== sdk.itemquality.Rare || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
+		.filter(item => item && (item.isEquipped && !item.rare || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 
@@ -933,7 +933,7 @@ Attack.getItemCharges = function (skillId = undefined) {
 
 	// Item must equipped, or a charm in inventory
 	me.getItemsEx(-1)
-		.filter(item => item && (item.isEquipped && item.quality !== sdk.itemquality.Rare || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
+		.filter(item => item && (item.isEquipped && !item.rare || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 

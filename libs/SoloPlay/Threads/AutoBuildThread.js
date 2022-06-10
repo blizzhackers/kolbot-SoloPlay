@@ -19,6 +19,7 @@ SetUp.include();
 Config.init(); // includes libs/SoloPlay/Functions/AutoBuildOverrides.js
 
 let	debug = !!Config.AutoBuild.DebugMode, prevLevel	= me.charlvl;
+const usingFinalBuiild = !["Start", "Stepping", "Leveling"].includes(Config.AutoBuild.Template);
 const SPEND_POINTS 	= true;	// For testing, it actually allows skill and stat point spending.
 const STAT_ID_TO_NAME =	[
 	getLocaleString(4060),		// Strength
@@ -76,8 +77,8 @@ function spendStatPoint (id) {
 
 // TODO: What do we do if it fails? report/ignore/continue?
 function spendStatPoints () {
-	if ((AutoBuild.usingFinalBuildFile && finalBuild.AutoBuildTemplate[me.charlvl] === undefined) || AutoBuildTemplate[me.charlvl] === undefined) return true;
-	let stats = AutoBuild.usingFinalBuildFile ? finalBuild.AutoBuildTemplate[me.charlvl].StatPoints : AutoBuildTemplate[me.charlvl].StatPoints;
+	if ((usingFinalBuiild && finalBuild.AutoBuildTemplate[me.charlvl] === undefined) || AutoBuildTemplate[me.charlvl] === undefined) return true;
+	let stats = usingFinalBuiild ? finalBuild.AutoBuildTemplate[me.charlvl].StatPoints : AutoBuildTemplate[me.charlvl].StatPoints;
 	let errorMessage = "\nInvalid stat point set in build template " + getTemplateFilename() + " at level " + me.charlvl;
 	let spentEveryPoint = true;
 	let unusedStatPoints = me.getStat(4);
@@ -125,7 +126,6 @@ function getTemplateFilename () {
 	if (["Start", "Stepping", "Leveling"].includes(build)) {
 		templateFilename = "SoloPlay/Config/Builds/" + sdk.charclass.nameOf(me.classid) + "." + buildType + ".js";
 	} else {
-		this.usingFinalBuildFile = true;
 		templateFilename = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + buildType + "Build.js";
 	}
 	return templateFilename;
@@ -174,8 +174,8 @@ function spendSkillPoint (id) {
 }
 
 function spendSkillPoints () {
-	if ((AutoBuild.usingFinalBuildFile && finalBuild.AutoBuildTemplate[me.charlvl] === undefined) || AutoBuildTemplate[me.charlvl] === undefined) return true;
-	let skills = AutoBuild.usingFinalBuildFile ? finalBuild.AutoBuildTemplate[me.charlvl].SkillPoints : AutoBuildTemplate[me.charlvl].SkillPoints;
+	if ((usingFinalBuiild && finalBuild.AutoBuildTemplate[me.charlvl] === undefined) || AutoBuildTemplate[me.charlvl] === undefined) return true;
+	let skills = usingFinalBuiild ? finalBuild.AutoBuildTemplate[me.charlvl].SkillPoints : AutoBuildTemplate[me.charlvl].SkillPoints;
 	let errInvalidSkill = "\nInvalid skill point set in build template " + getTemplateFilename() + " for level " + me.charlvl;
 	let spentEveryPoint = true;
 	let unusedSkillPoints = me.getStat(5);

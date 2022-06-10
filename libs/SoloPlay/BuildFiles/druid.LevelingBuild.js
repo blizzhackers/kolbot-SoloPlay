@@ -28,6 +28,7 @@ let build = {
 		[sdk.skills.Hurricane, 6, false],
 		[sdk.skills.Tornado, 14, false],
 		[sdk.skills.Hurricane, 7, false],
+		[sdk.skills.Grizzly, 1, false],
 		[sdk.skills.Tornado, 15, false],
 		[sdk.skills.Hurricane, 8, false],
 		[sdk.skills.Tornado, 20, false],

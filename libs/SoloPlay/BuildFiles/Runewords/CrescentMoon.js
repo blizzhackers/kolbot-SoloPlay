@@ -1,4 +1,4 @@
-var Crescent = [
+const Crescent = [
 	"[name] == ShaelRune # # [maxquantity] == 2",
 	"[name] == UmRune",
 	"[name] == TirRune # # [maxquantity] == 1",

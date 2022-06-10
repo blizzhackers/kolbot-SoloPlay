@@ -1,12 +1,12 @@
 if (!Check.haveItem("armor", "runeword", "Stealth") && me.normal) {
-	var stealthRunes = [
+	const stealthRunes = [
 		"[name] == TalRune # # [maxquantity] == 1",
 		"[name] == EthRune # # [maxquantity] == 1",
 	];
 	NTIP.arrayLooping(stealthRunes);
 }
 
-var stealthArmor = [
+const stealthArmor = [
 	"!me.hell && ([name] == studdedleather || [name] == lightplate) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1",
 	"([name] == ghostarmor || [name] == serpentskinarmor || [name] == mageplate) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1",
 ];

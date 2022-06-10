@@ -14,7 +14,7 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.BeltColumn = ["hp", "hp", "hp", "hp"];
+			Config.BeltColumn = me.charlvl < 10 ? ["hp", "hp", "hp", "hp"] : ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
 			Config.HPBuffer = 8;
 			Config.AttackSkill = [0, 0, 0, 0, 0, 0, 0];
@@ -44,9 +44,7 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
-			SetUp.belt();
-			Config.HPBuffer = 2;
+			Config.HPBuffer = me.expansion ? 2 : 4;
 			Config.MPBuffer = 6;
 			Config.AttackSkill = [-1, (me.getSkill(sdk.skills.Sacrifice, 0) ? sdk.skills.Sacrifice : 0), sdk.skills.HolyFire, 0, sdk.skills.HolyFire, 0, sdk.skills.Might];
 		}

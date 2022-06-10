@@ -1,7 +1,8 @@
-/*
-*	@filename	tristram.js
-*	@author		isid0re, theBGuy
-*	@desc		rescue cain and leveling
+/**
+*  @filename    tristram.js
+*  @author      theBGuy, isid0re
+*  @desc        rescue cain and leveling
+*
 */
 
 function tristram () {

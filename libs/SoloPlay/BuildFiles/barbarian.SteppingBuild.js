@@ -26,13 +26,12 @@ let build = {
 		// Total points at time of respec 33
 		[sdk.skills.SwordMastery, 9, true],       // total left 24
 		[sdk.skills.FindItem, 1, true],           // total left 22
-		[sdk.skills.Taunt, 1, true],              // total left 21
 		[sdk.skills.BattleOrders, 4, true],       // total left 16
-		[sdk.skills.BattleCommand, 1, true],      // charlvl 15
+		[sdk.skills.BattleCommand, 1, true],      // total left 15
 		[sdk.skills.NaturalResistance, 1, true],  // total left 13
-		[sdk.skills.Frenzy, 2, true],             // total left 7
+		[sdk.skills.Frenzy, 2, true],             // total left 8
 		[sdk.skills.WarCry, 1, true],             // total left 5
-		[sdk.skills.DoubleSwing, 5, true],        // total left 0
+		[sdk.skills.DoubleSwing, 5, true],        // total left 1
 		// End of respec points, Start of Stepping build
 		[sdk.skills.NaturalResistance, 2, false], // charlvl 31
 		[sdk.skills.WarCry, 2, false],            // charlvl 32

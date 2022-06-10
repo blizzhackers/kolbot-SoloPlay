@@ -181,13 +181,13 @@ function LoadConfig () {
 					classid: sdk.items.Flamberge,
 					socketWith: [],
 					useSocketQuest: true,
-					condition: function (item) { return me.normal && Item.getEquippedItem(5).tier < 600 && !Check.haveBase("sword", 5) && !Check.haveItem("sword", "runeword", "Honor") && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+					condition: (item) => me.normal && Item.getEquippedItem(5).tier < 600 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
 				},
 				{
 					classid: sdk.items.Zweihander,
 					socketWith: [],
 					useSocketQuest: true,
-					condition: function (item) { return Item.getEquippedItem(5).tier < 1000 && !Check.haveBase("sword", 5) && !Check.haveItem("sword", "runeword", "Honor") && item.ilvl >= 41 && item.isBaseType && !item.ethereal; }
+					condition: (item) => Item.getEquippedItem(5).tier < 1000 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
 				}
 			);
 
@@ -199,21 +199,21 @@ function LoadConfig () {
 						socketWith: [sdk.items.runes.Cham],
 						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: true,
-						condition: function (item) { return item.quality === sdk.itemquality.Unique && !item.ethereal; }
+						condition: (item) => item.unique && !item.ethereal
 					}
 				);
 		}
 
 		if (["Immortalwhirl", "Singer"].indexOf(SetUp.finalBuild) === -1) {
 			// Grief
-			if ((me.ladder || Developer.addLadderRW) && (!Check.haveItem("sword", "runeword", "Grief") || (SetUp.finalBuild === "Whirlwind" && Item.getEquippedItem(5).prefixnum !== sdk.locale.items.Grief))) {
+			if ((me.ladder || Developer.addLadderRW) && (!me.checkItem({name: sdk.locale.items.Grief}).have || (SetUp.finalBuild === "Whirlwind" && Item.getEquippedItem(5).prefixnum !== sdk.locale.items.Grief))) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Grief.js")) {
 					include("SoloPlay/BuildFiles/Runewords/Grief.js");
 				}
 			}
 
 			// Fortitude
-			if ((me.ladder || Developer.addLadderRW) && SetUp.finalBuild !== "Uberconc" && Check.haveItem("sword", "runeword", "Grief") && !Check.haveItem("armor", "runeword", "Fortitude")) {
+			if ((me.ladder || Developer.addLadderRW) && SetUp.finalBuild !== "Uberconc" && me.checkItem({name: sdk.locale.items.Grief}).have && !me.checkItem({name: sdk.locale.items.Fortitude, itemtype: sdk.itemtype.Armor}).have) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Fortitude.js")) {
 					include("SoloPlay/BuildFiles/Runewords/Fortitude.js");
 				}
@@ -230,13 +230,13 @@ function LoadConfig () {
 		// FinalBuild specific setup
 		switch (SetUp.finalBuild) {
 		case 'Uberconc':
-			if (Check.haveItem("sword", "runeword", "Grief") && SetUp.finalBuild === "Uberconc") {
+			if (me.checkItem({name: sdk.locale.items.Grief}).have && SetUp.finalBuild === "Uberconc") {
 				// Add Stormshield
 				NTIP.addLine("[name] == monarch && [quality] == unique && [flag] != ethereal # [damageresist] >= 35 # [tier] == 100000");
 			}
 
 			// Chains of Honor
-			if (!Check.haveItem("armor", "runeword", "Chains of Honor")) {
+			if (!me.checkItem({name: sdk.locale.items.ChainsofHonor}).have) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js")) {
 					include("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
 				}
@@ -245,7 +245,7 @@ function LoadConfig () {
 			break;
 		case 'Frenzy':
 			// Breathe of the Dying
-			if (!Check.haveItem("sword", "runeword", "Breath of the Dying")) {
+			if (!me.checkItem({name: sdk.locale.items.BreathoftheDying}).have) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/BreathoftheDying.js")) {
 					include("SoloPlay/BuildFiles/Runewords/BreathoftheDying.js");
 				}
@@ -254,14 +254,14 @@ function LoadConfig () {
 			break;
 		case 'Singer':
 			// Heart of the Oak
-			if (Item.getEquippedItem(5).prefixnum !== sdk.locale.items.HeartoftheOak && Check.haveItem("armor", "runeword", "Enigma")) {
+			if (Item.getEquippedItem(5).prefixnum !== sdk.locale.items.HeartoftheOak && me.checkItem({name: sdk.locale.items.Enigma}).have) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js")) {
 					include("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
 				}
 			}
 
 			// Enigma
-			if (!Check.haveItem("armor", "runeword", "Enigma")) {
+			if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js")) {
 					include("SoloPlay/BuildFiles/Runewords/Enigma.js");
 				}
@@ -283,20 +283,20 @@ function LoadConfig () {
 						socketWith: [sdk.items.runes.Ber],
 						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: false,
-						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
+						condition: (item) => item.set && !item.ethereal
 					},
 					{
 						classid: sdk.items.OgreMaul,
 						socketWith: [sdk.items.runes.Shael],
 						useSocketQuest: false,
-						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
+						condition: (item) => item.set && !item.ethereal
 					},
 					{
 						classid: sdk.items.SacredArmor,
 						socketWith: [sdk.items.runes.Ber],
 						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: true,
-						condition: function (item) { return item.quality === sdk.itemquality.Set && !item.ethereal; }
+						condition: (item) => item.set && !item.ethereal
 					}
 				);
 
@@ -442,7 +442,7 @@ function LoadConfig () {
 		}
 
 		// Duress
-		if (Item.getEquippedItem(3).tier < 600 && (Check.haveItem("sword", "runeword", "Crescent Moon") || Item.getEquippedItem(5).tier > 900)) {
+		if (Item.getEquippedItem(3).tier < 600 && (me.checkItem({name: sdk.locale.items.CrescentMoon}).have || Item.getEquippedItem(5).tier > 900)) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Duress.js")) {
 				include("SoloPlay/BuildFiles/Runewords/Duress.js");
 			}

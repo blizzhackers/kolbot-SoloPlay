@@ -1,4 +1,4 @@
-var Fortitude = [
+const Fortitude = [
 	"[name] == ElRune # # [maxquantity] == 1",
 	"[name] == SolRune # # [maxquantity] == 1",
 	"[name] == DolRune # # [maxquantity] == 1",

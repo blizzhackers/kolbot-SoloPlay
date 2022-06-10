@@ -338,7 +338,7 @@ Item.equip = function (item, bodyLoc) {
 
 						if (Pickit.checkItem(cursorItem).result === 1
 						// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						|| (cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2)
+						|| (cursorItem.unique && Pickit.checkItem(cursorItem).result === 2)
 						// or keep if item is worth selling
 						|| (cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
 							if (Storage.Inventory.CanFit(cursorItem)) {
@@ -373,7 +373,7 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 
 		if (cursorItem) {
 			// only keep wanted items
-			if (Pickit.checkItem(cursorItem).result === 1) {
+			if (Pickit.checkItem(cursorItem).result === 1 || AutoEquip.wanted(cursorItem)) {
 				if (Storage.Inventory.CanFit(cursorItem)) {
 					Storage.Inventory.MoveTo(cursorItem);
 				} else if (Storage.Stash.CanFit(cursorItem)) {
@@ -466,7 +466,7 @@ Item.secondaryEquip = function (item, bodyLoc) {
 					if (cursorItem) {
 						if (Pickit.checkItem(cursorItem).result === 1
 						// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						|| (cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2)
+						|| (cursorItem.unique && Pickit.checkItem(cursorItem).result === 2)
 						// or keep if item is worth selling
 						|| (cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
 							Storage.Inventory.CanFit(cursorItem) && Storage.Inventory.MoveTo(cursorItem);
@@ -613,7 +613,7 @@ Item.equipMerc = function (item, bodyLoc) {
 					if (cursorItem) {
 						if (Pickit.checkItem(cursorItem).result === 1
 						// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						|| (cursorItem.quality === 7 && Pickit.checkItem(cursorItem).result === 2)
+						|| (cursorItem.unique && Pickit.checkItem(cursorItem).result === 2)
 						// or keep if item is worth selling
 						|| (cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
 							Storage.Inventory.CanFit(cursorItem) && Storage.Inventory.MoveTo(cursorItem);
@@ -944,7 +944,7 @@ Item.autoEquipSC = function () {
 	let verbose = (Developer.debugging.smallCharm || Developer.debugging.autoEquip);
 	// build list of our charms
 	let items = me.getItemsEx()
-		.filter((charm) => charm.isInStorage && charm.classid === sdk.items.SmallCharm && charm.quality === sdk.itemquality.Magic);
+		.filter((charm) => charm.isInStorage && charm.classid === sdk.items.SmallCharm && charm.magic);
 
 	if (!items.length) {
 		verbose && console.debug("No charms found");
@@ -969,7 +969,7 @@ Item.autoEquipSC = function () {
 Item.autoEquipLC = function () {
 	let verbose = (Developer.debugging.largeCharm || Developer.debugging.autoEquip);
 	let items = me.getItemsEx()
-		.filter((charm) => charm.isInStorage && charm.classid === sdk.items.LargeCharm && charm.quality === sdk.itemquality.Magic);
+		.filter((charm) => charm.isInStorage && charm.classid === sdk.items.LargeCharm && charm.magic);
 
 	if (!items.length) {
 		verbose && console.debug("No charms found");
@@ -994,7 +994,7 @@ Item.autoEquipLC = function () {
 Item.autoEquipGC = function () {
 	let verbose = (Developer.debugging.largeCharm || Developer.debugging.autoEquip);
 	let items = me.getItemsEx()
-		.filter((charm) => charm.isInStorage && charm.classid === sdk.items.GrandCharm && charm.quality === sdk.itemquality.Magic);
+		.filter((charm) => charm.isInStorage && charm.classid === sdk.items.GrandCharm && charm.magic);
 
 	if (!items.length) {
 		verbose && console.debug("No charms found");
@@ -1157,7 +1157,7 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 Item.autoEquipCharmCheck = function (item = undefined) {
 	if (!item || NTIP.GetCharmTier(item) <= 0) return false;
 	// Annhilus, Hellfire Torch, Gheeds - Handled by a different function so return true to keep
-	if ([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid) && item.quality === sdk.itemquality.Unique) return true;
+	if ([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid) && item.unique) return true;
 	// Not a charm
 	if (![sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid)) return false;
 
@@ -1169,7 +1169,7 @@ Item.autoEquipCharmCheck = function (item = undefined) {
 	let lowestCharm,
 		items = me.getItemsEx()
 			.filter(charm => charm.classid === item.classid && charm.isInStorage
-				&& charm.quality === sdk.itemquality.Magic && NTIP.GetCharmTier(charm) > 0);
+				&& charm.magic && NTIP.GetCharmTier(charm) > 0);
 	if (!items.length) return false;
 
 	let charms = Item.autoEquipCharmSort(items);
@@ -1235,7 +1235,7 @@ Item.autoEquipCharms = function () {
 	let LCs = Item.autoEquipLC();
 	let SCs = Item.autoEquipSC();
 	let specialCharms = me.getItemsEx()
-		.filter((charm) => [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(charm.classid) && charm.quality === sdk.itemquality.Unique);
+		.filter((charm) => [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(charm.classid) && charm.unique);
 	let verbose = !!(Developer.debugging.smallCharm || Developer.debugging.largeCharm || Developer.debugging.grandCharm);
 
 	if (verbose) {
@@ -1294,7 +1294,7 @@ Item.autoEquipCharms = function () {
 Item.getCharmType = function (charm = undefined) {
 	if (!charm) return false;
 	if (![sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(charm.classid)) return false;
-	if (charm.quality === sdk.itemquality.Unique) return "unique";
+	if (charm.unique) return "unique";
 	if (!NTIP.hasStats(charm) && NTIP.GetCharmTier(charm) > 0) return "misc";
 
 	let charmType = "";

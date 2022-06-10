@@ -1,4 +1,4 @@
-var Bone = [
+const Bone = [
 	"[name] == UmRune # # [maxquantity] == 2",
 	"[name] == SolRune # # [maxquantity] == 1",
 ];

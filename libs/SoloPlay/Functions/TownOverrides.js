@@ -426,7 +426,7 @@ Town.identify = function () {
 	if (!npc) return false;
 
 	let tome = me.findItem(519, 0, 3);
-	tome && tome.getStat(70) < list.length && this.fillTome(519);
+	tome && tome.getStat(sdk.stats.Quantity) < list.length && this.fillTome(519);
 
 	MainLoop:
 	while (list.length > 0) {
@@ -2218,7 +2218,7 @@ Town.needRepair = function () {
 				repairAction.push("buyQuiver"); // inventory
 			}
 		} else {
-			quantity = quiver.getStat(70);
+			quantity = quiver.getStat(sdk.stats.Quantity);
 
 			if (typeof quantity === "number" && quantity * 100 / getBaseStat("items", quiver.classid, "maxstack") <= Config.RepairPercent) {
 				if (inventoryQuiver) {

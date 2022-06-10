@@ -274,7 +274,7 @@ Pickit.canPick = function (unit) {
 
 		if (myKey && key) {
 			do {
-				if (myKey.location === 3 && myKey.getStat(70) + key.getStat(70) > 12) {
+				if (myKey.location === 3 && myKey.getStat(sdk.stats.Quantity) + key.getStat(sdk.stats.Quantity) > 12) {
 					return false;
 				}
 			} while (myKey.getNext());

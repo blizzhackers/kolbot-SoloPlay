@@ -27,15 +27,12 @@ let build = {
 	classicSkills: [
 		// Points at respec 71
 		[sdk.skills.Valkyrie, 1],              // points left 64
+		[sdk.skills.Pierce, 1],                // points left 61
 		[sdk.skills.LightningFury, 1],         // points left 57
-		[sdk.skills.LightningStrike, 1],       // points left 56
-		[sdk.skills.Pierce, 1],                // points left 53
-		[sdk.skills.PlagueJavelin, 20],        // points left 34
-		[sdk.skills.ChargedStrike, 10],        // points left 25
-		[sdk.skills.LightningStrike, 10],      // points left 16
-		[sdk.skills.Decoy, 5],                 // points left 12
-		[sdk.skills.LightningStrike, 17],      // points left 5
-		[sdk.skills.ChargedStrike, 15],        // points left 0
+		[sdk.skills.LightningStrike, 17],      // points left 37
+		[sdk.skills.PlagueJavelin, 20],        // points left 18
+		[sdk.skills.ChargedStrike, 15],        // points left 4
+		[sdk.skills.Decoy, 5],                 // points left 0
 		[sdk.skills.LightningStrike, 20, false],
 		[sdk.skills.ChargedStrike, 20, false],
 		[sdk.skills.PoisonJavelin, 20, false], // synergy for PlagueJavelin
@@ -44,17 +41,13 @@ let build = {
 	],
 	expansionSkills: [
 		// Points at respec 71
-		[sdk.skills.Valkyrie, 1],              // points left 64
-		[sdk.skills.LightningFury, 1],         // points left 57
-		[sdk.skills.LightningStrike, 1],       // points left 56
-		[sdk.skills.Pierce, 1],                // points left 53
-		[sdk.skills.ChargedStrike, 10],        // points left 44
-		[sdk.skills.LightningStrike, 10],      // points left 35
-		[sdk.skills.PlagueJavelin, 20],        // points left 16
-		[sdk.skills.Decoy, 5],                 // points left 11
-		[sdk.skills.ChargedStrike, 15],        // points left 7
-		[sdk.skills.LightningStrike, 15],      // points left 2
-		[sdk.skills.ChargedStrike, 17],        // points left 0
+		[sdk.skills.Valkyrie, 1],           // points left 64
+		[sdk.skills.Pierce, 1],             // points left 61
+		[sdk.skills.LightningFury, 1],      // points left 57
+		[sdk.skills.LightningStrike, 15],   // points left 39
+		[sdk.skills.ChargedStrike, 17],     // points left 23
+		[sdk.skills.PlagueJavelin, 20],     // points left 4
+		[sdk.skills.Decoy, 5],              // points left 0
 		[sdk.skills.LightningStrike, 20, false],
 		[sdk.skills.ChargedStrike, 20, false],
 		[sdk.skills.LightningFury, 20, false],

@@ -261,7 +261,7 @@ Misc.checkItemsForImbueing = function () {
 	if (!me.getQuest(sdk.quest.id.ToolsoftheTrade, 1)) return false;
 
 	let items = me.getItemsEx()
-		.filter(item => item.getStat(sdk.stats.NumSockets) === 0 && [sdk.itemquality.Normal, sdk.itemquality.Superior].includes(item.quality));
+		.filter(item => item.getStat(sdk.stats.NumSockets) === 0 && [sdk.itemquality.Normal, sdk.itemquality.Superior].includes(item.quality));	// Normal Quality & Superior Quality
 
 	for (let i = 0; i < items.length; i++) {
 		if (Config.imbueables.some(item => item.name === items[i].classid && Item.canEquip(items[i]))) {
@@ -464,7 +464,7 @@ Misc.getSocketables = function (item, itemInfo) {
 
 Misc.checkSocketables = function () {
 	let items = me.getItemsEx()
-		.filter(item => item.getStat(sdk.stats.NumSockets) > 0 && AutoEquip.hasTier(item) && ![sdk.itemquality.Normal, sdk.itemquality.Superior].includes(item.quality))
+		.filter(item => item.getStat(sdk.stats.NumSockets) > 0 && AutoEquip.hasTier(item) && ![sdk.itemquality.Normal, sdk.itemquality.Superior].includes(item.quality)) // Normal Quality & Superior Quality
 		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
 
 	if (!items) return;

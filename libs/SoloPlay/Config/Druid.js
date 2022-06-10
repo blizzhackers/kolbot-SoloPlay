@@ -198,14 +198,14 @@ function LoadConfig () {
 				socketWith: [sdk.items.runes.Um],
 				temp: [sdk.items.gems.Perfect.Ruby],
 				useSocketQuest: true,
-				condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
+				condition: (item) => item.unique && !item.ethereal
 			},
 			{
 				classid: sdk.items.Shako,
 				socketWith: [sdk.items.runes.Um],
 				temp: [sdk.items.gems.Perfect.Ruby],
 				useSocketQuest: false,
-				condition: (item) => item.quality === sdk.itemquality.Unique && !item.ethereal
+				condition: (item) => item.unique && !item.ethereal
 			}
 		);
 
@@ -234,31 +234,51 @@ function LoadConfig () {
 			}
 		}
 
-		// Heart of the Oak
-		if (!Check.haveItem("mace", "runeword", "Heart of the Oak")) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js")) {
-				include("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
-			}
-		}
+		if (SetUp.finalBuild === "Elemental") {
+			Config.socketables
+				.push(
+					{
+						classid: sdk.items.SkySpirit,
+						socketWith: [sdk.items.runes.Um],
+						temp: [sdk.items.gems.Perfect.Ruby],
+						useSocketQuest: true,
+						condition: (item) => item.unique && item.getStat(sdk.stats.PassiveFirePierce) === 20 && !item.ethereal
+					}
+				);
 
-		// Enigma
-		if (!Check.haveItem("armor", "runeword", "Enigma")) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js")) {
-				include("SoloPlay/BuildFiles/Runewords/Enigma.js");
+			// Heart of the Oak
+			if (!Check.haveItem("mace", "runeword", "Heart of the Oak")) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js")) {
+					include("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
+				}
 			}
-		}
 
-		// upgrade magefist
-		if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
-			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
-			Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
+			// Phoenix Shield
+			if ((me.ladder || Developer.addLadderRW) && SetUp.finalBuild === "Elemental" && me.checkItem({name: sdk.locale.items.Enigma}).have && !me.checkItem({name: sdk.locale.items.Phoenix, itemtype: sdk.itemtype.Shield}).have) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/PhoneixShield.js")) {
+					include("SoloPlay/BuildFiles/Runewords/PhoneixShield.js");
+				}
+			}
+
+			// Enigma
+			if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js")) {
+					include("SoloPlay/BuildFiles/Runewords/Enigma.js");
+				}
+			}
+
+			// upgrade magefist
+			if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
+				Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
+				Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
+			}
 		}
 
 		break;
 	case 'Wolf':
 	case 'Plaguewolf':
 		// Chains of Honor
-		if (!Check.haveItem("armor", "runeword", "Chains of Honor")) {
+		if (!me.checkItem({name: sdk.locale.items.ChainsofHonor}).have) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js")) {
 				include("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
 			}
@@ -266,14 +286,14 @@ function LoadConfig () {
 
 		if (SetUp.finalBuild === 'Plaguewolf') {
 			// Grief
-			if (!Check.haveItem("sword", "runeword", "Grief")) {
+			if (!me.checkItem({name: sdk.locale.items.Grief}).have) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Grief.js")) {
 					include("SoloPlay/BuildFiles/Runewords/Grief.js");
 				}
 			}
 		} else {
 			// Make sure to have CoH first
-			if (Check.haveItem("armor", "runeword", "Chains of Honor")) {
+			if (me.checkItem({name: sdk.locale.items.ChainsofHonor}).have) {
 				// Upgrade Ribcracker to Elite
 				Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "quarterstaff", Roll.NonEth]);
 			}

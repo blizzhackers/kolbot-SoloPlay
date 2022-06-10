@@ -1,4 +1,4 @@
-var Sanctuary = [
+const Sanctuary = [
 	"[name] == KoRune # # [maxquantity] == 2",
 	"[name] == MalRune",
 	"[name] == hyperion && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1",

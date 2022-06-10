@@ -1,4 +1,4 @@
-var SpiritRunes = [
+const SpiritRunes = [
 	"[name] == TalRune # # [maxquantity] == 1",
 	"[name] == ThulRune # # [maxquantity] == 1",
 	"[name] == OrtRune # # [maxquantity] == 1",

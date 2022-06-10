@@ -1,8 +1,9 @@
-/*
-*	@filename	ancients.js
-*	@author		theBGuy
-*	@credits	sonic
-*	@desc		ancients quest
+/**
+*  @filename    ancients.js
+*  @author      theBGuy
+*  @credit      sonic
+*  @desc        ancients quest
+*
 */
 
 function ancients () {

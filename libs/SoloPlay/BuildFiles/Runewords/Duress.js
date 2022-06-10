@@ -1,4 +1,4 @@
-var Duress = [
+const Duress = [
 	"[name] == ShaelRune # # [maxquantity] == 1",
 	"[name] == UmRune # # [maxquantity] == 1",
 	"[name] == ThulRune # # [maxquantity] == 1",
