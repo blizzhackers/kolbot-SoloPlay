@@ -43,6 +43,6 @@ Config.Runewords.push([Runeword.Faith, "diamonbow"]);
 Config.Recipes.push([Recipe.Socket.Bow, "grandmatronbow"]);
 Config.Recipes.push([Recipe.Socket.Bow, "wardbow"]);
 Config.Recipes.push([Recipe.Socket.Bow, "bladebow"]);
-Config.Recipes.push([Recipe.Socket.Bow, "diamonbow"]);
+Config.Recipes.push([Recipe.Socket.Bow, "diamondbow"]);
 
 Config.KeepRunewords.push("([type] == bow || [type] == amazonbow) && [flag] == runeword # [fanaticismaura] >= 12 && [itemallskills] >= 1");
