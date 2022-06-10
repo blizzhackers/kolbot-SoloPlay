@@ -38,14 +38,15 @@ if (!me.getItem(sdk.items.runes.Cham)) {
 }
 
 // Cube to Lo
-if ((me.barbarian) || (SetUp.currentBuild === "Faithbowzon" && me.checkItem({name: sdk.locale.items.CalltoArms}).have)
-	|| (["Witchyzon", "Wfzon"].includes(SetUp.finalBuild) && me.haveAll([{name: sdk.locale.items.ChainsofHonor}, {name: sdk.locale.items.CalltoArms}]))
-	&& !me.getItem(sdk.items.runes.Lo)) {
-	Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
-	Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
-	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
-	Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
-	Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
+if  (!me.getItem(sdk.items.runes.Lo)) {
+	if ((me.barbarian) || (SetUp.currentBuild === "Faithbowzon" && me.checkItem({name: sdk.locale.items.CalltoArms}).have)
+		|| (["Witchyzon", "Wfzon"].includes(SetUp.finalBuild) && me.haveAll([{name: sdk.locale.items.ChainsofHonor}, {name: sdk.locale.items.CalltoArms}]))) {
+		Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
+		Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
+		Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
+		Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
+		Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
+	}
 }
 
 // Cube to Ohm

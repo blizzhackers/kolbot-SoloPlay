@@ -260,6 +260,13 @@ function LoadConfig () {
 				((SetUp.finalBuild === "Witchyzon") && Check.haveItem("vampirefangbelt", "unique", "Nosferatu's Coil") || (["Wfzon", "Faithbowzon"].includes(SetUp.finalBuild)) && Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]));
 			}
 
+			// Spirit shield - while lvling and Wf final switch
+			if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 1000 && (["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) || (SetUp.finalBuild === "Wfzon" && Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit))) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js")) {
+					include("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
+				}
+			}
+
 			Config.socketables
 				.push(
 					{
@@ -297,7 +304,7 @@ function LoadConfig () {
 			}
 
 			// Spirit shield
-			if ((me.ladder || Developer.addLadderRW) && ((Item.getEquippedItem(5).tier < 1000 && (!["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit))) {
+			if ((me.ladder || Developer.addLadderRW) && ((Item.getEquippedItem(5).tier < 1000 || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit))) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js")) {
 					include("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 				}
