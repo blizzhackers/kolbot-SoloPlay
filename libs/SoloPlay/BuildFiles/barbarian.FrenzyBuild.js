@@ -7,7 +7,7 @@
 
 const finalBuild = {
 	caster: false,
-	skillstab: sdk.skills.tabs.CombatBarb,
+	skillstab: sdk.skills.tabs.BarbCombat,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing],
 	usefulskills: [sdk.skills.NaturalResistance, sdk.skills.IronSkin, sdk.skills.IncreasedSpeed],
 	precastSkills: [sdk.skills.BattleOrders, sdk.skills.WarCry],
