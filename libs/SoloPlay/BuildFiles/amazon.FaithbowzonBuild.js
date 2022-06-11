@@ -34,7 +34,7 @@ const finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Final Weapon - Faith
-		"([type] == amazonbow || [type] == bow) && [flag] == runeword # [fanaticismaura] >= 12 && [itemallskills] >= 1 # [tier] == 100000",
+		"([type] == amazonbow || [type] == bow) && [flag] == runeword # [fanaticismaura] >= 12 && [itemallskills] >= 1 # [tier] == 100000 + tierscore(item)",
 		// Weapon -  WitchWild String up'd
 		"[name] == diamondbow && [quality] == unique # [fireresist] == 40 # [tier] == 90000 + tierscore(item)",
 		// Helmet - Vampz Gaze

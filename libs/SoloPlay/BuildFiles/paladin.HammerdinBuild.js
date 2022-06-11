@@ -61,8 +61,10 @@ const finalBuild = {
 		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 50 # [tier] == 5000 + tierscore(item)",
 		// Armor - Enigma
 		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000",
-		// Final Shield- Spirit
-		"[type] == auricshields && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [tier] == 100000 + tierscore(item)",
+		// Final Shield - Spirit
+		"[type] == auricshields && [flag] == runeword # [fcr] == 35 && [maxmana] == 112 && [coldresist] == 80 # [tier] == 110000",
+		// Shield - Spirit
+		"[type] == auricshields && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 && [coldresist] == 80 # [tier] == 100000",
 		// Shield - HoZ
 		"[name] == gildedshield && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 150 # [tier] == 50000 + tierscore(item)",
 		// Final Gloves - Perfect Upp'ed Magefist

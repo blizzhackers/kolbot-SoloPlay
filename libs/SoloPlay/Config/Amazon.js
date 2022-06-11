@@ -248,7 +248,7 @@ function LoadConfig () {
 				);
 			}
 
-			if ((SetUp.finalBuild === "Faithbowzon") && !me.checkItem({name: sdk.locale.items.Faith}).have) {
+			if ((SetUp.finalBuild === "Faithbowzon") && !me.checkItem({name: sdk.locale.items.Faith, classid: sdk.items.GrandMatronBow}).have) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Faith.js")) {
 					include("SoloPlay/BuildFiles/Runewords/Faith.js");
 				}
