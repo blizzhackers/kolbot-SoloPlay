@@ -66,13 +66,6 @@ const finalBuild = {
 		"[name] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] == 5 # [tier] == 100000",
 		// Ring - Bul-Kathos' Wedding Band
 		"[name] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] >= 3 # [tier] == 90000",
-		// Charms
-		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 3 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [fhr] >= 5 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # [maxhp] == 20 && [maxmana] == 17 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == grandcharm && [quality] == magic # [coldskilltab] == 1 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == grandcharm && [quality] == magic # [lightningskilltab] == 1 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		// Switch - CTA
 		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
 		// Switch Final Shield - Spirit
@@ -86,6 +79,55 @@ const finalBuild = {
 		// Merc Helmet - Andy's
 		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",
 	],
+
+	charms: {
+		ResLife: {
+			max: 3,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+			}
+		},
+
+		ResMf: {
+			max: 2,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+			}
+		},
+
+		ResFHR: {
+			max: 3,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+			}
+		},
+
+		SkillerLight: {
+			max: 1,
+			have: [],
+			classid: sdk.items.GrandCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Lightning) === 1
+					&& check.getStat(sdk.stats.MaxHp) >= 40);
+			}
+		},
+
+		SkillerCold: {
+			max: 1,
+			have: [],
+			classid: sdk.items.GrandCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Cold) === 1
+					&& check.getStat(sdk.stats.MaxHp) >= 40);
+			}
+		},
+	},
 
 	AutoBuildTemplate: {
 		1:	{

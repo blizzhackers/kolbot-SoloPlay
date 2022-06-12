@@ -109,6 +109,7 @@ function LoadConfig () {
 	let expansionTiers = [
 		// Charms
 		"[name] == smallcharm && [quality] == magic # # [invoquantity] == 8 && [charmtier] == charmscore(item)",
+		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		// Special Charms
 		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
 		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
@@ -129,7 +130,7 @@ function LoadConfig () {
 	Config.AttackSkill = [-1, 0, 0, 0, 0];
 	Config.LowManaSkill = me.getSkill(sdk.skills.DoubleSwing, 1) >= 9 ? [sdk.skills.DoubleSwing, 0] : [0, -1];
 	Config.MaxAttackCount = 1000;
-	Config.BossPriority = me.normal ? true : false;
+	Config.BossPriority = me.normal;
 	Config.ClearType = 0;
 	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0};
 

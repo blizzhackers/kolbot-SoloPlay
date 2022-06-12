@@ -74,6 +74,12 @@ Unit.prototype.getItemType = function () {
 };
 
 Object.defineProperties(Unit.prototype, {
+	isCharm: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			return [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(this.classid);
+		},
+	},
 	isRuneword: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
@@ -200,6 +206,16 @@ Object.defineProperties(Unit.prototype, {
 			return Math.max(getBaseStat("items", id, "levelreq"), 0);
 		}
 	},
+	allRes: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return 0;
+			let fr = this.getStat(sdk.stats.FireResist);
+			let cr = this.getStat(sdk.stats.ColdResist);
+			let lr = this.getStat(sdk.stats.LightningResist);
+			let pr = this.getStat(sdk.stats.PoisonResist);
+			return (fr && cr && lr && pr) ? fr : 0;
+		}
+	}
 });
 
 Object.defineProperties(me, {

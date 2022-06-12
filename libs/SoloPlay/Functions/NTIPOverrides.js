@@ -1,3 +1,4 @@
+/* eslint-disable dot-notation */
 /**
 *  @filename    NTIPOverrides.js
 *  @author      theBGuy, isid0re
@@ -74,7 +75,6 @@ NTIP.addLine = function (itemString) {
 	};
 
 	let line = NTIP.ParseLineInt(itemString, info);
-	NTIP.setUpFinalCharmQuantity(itemString, info);
 
 	if (line) {
 		if (!itemString.toLowerCase().includes("tier")) {
@@ -98,19 +98,13 @@ NTIP.arrayLooping = function (arraytoloop) {
 	return true;
 };
 
-NTIP.hasStats = function (item, entryList, verbose) {
-	let list, identified, hasStat = false, line = "", stats;
-
-	if (!entryList) {
-		list = NTIP_CheckList;
-	} else {
-		list = entryList;
-	}
-
-	identified = item.getFlag(0x10);
+NTIP.hasStats = function (item, entryList = [], verbose = false) {
+	let hasStat = false, line = "", stats;
+	let list = entryList.length ? entryList : NTIP_CheckList;
 
 	for (let i = 0; i < list.length; i++) {
 		try {
+			// eslint-disable-next-line no-unused-vars
 			let [type, stat, wanted] = list[i];
 
 			if (typeof type === 'function') {
@@ -139,49 +133,32 @@ NTIP.hasStats = function (item, entryList, verbose) {
 	}
 
 	if (hasStat && verbose) {
-		print(stats);
+		console.debug(stats);
+		console.debug(line);
 	}
 
 	return hasStat;
 };
 
-NTIP.getInvoQuantity = function (item, entryList) {
-	let i, list, identified,
-		invoquantity = -1;
+NTIP.getInvoQuantity = function (item, entryList = []) {
+	let invoquantity = -1;
+	let list = entryList.length ? entryList : NTIP_CheckList;
 
-	if (!entryList) {
-		list = NTIP_CheckList;
-	} else {
-		list = entryList;
-	}
+	for (let i = 0; i < list.length; i++) {
+		try {
+			let [type, stat, wanted] = list[i];
 
-	identified = item.getFlag(0x10);
-
-	if (!NTIP.checkFinalCharm(item)) {
-		for (i = 0; i < list.length; i++) {
-			try {
-				let [type, stat, wanted] = list[i];
-
-				if (typeof type === 'function') {
-					if (type(item)) {
-						if (typeof stat === 'function') {
-							if (stat(item)) {
-								if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
-									invoquantity = wanted.InvoQuantity;
-
-									break;
-								}
-							}
-						} else {
+			if (typeof type === 'function') {
+				if (type(item)) {
+					if (typeof stat === 'function') {
+						if (stat(item)) {
 							if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
 								invoquantity = wanted.InvoQuantity;
 
 								break;
 							}
 						}
-					}
-				} else if (typeof stat === 'function') {
-					if (stat(item)) {
+					} else {
 						if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
 							invoquantity = wanted.InvoQuantity;
 
@@ -189,61 +166,28 @@ NTIP.getInvoQuantity = function (item, entryList) {
 						}
 					}
 				}
-			} catch (e) {
-				return -1;
-			}
-		}
-	} else {
-		for (i = list.length - 1; i >= 0; i--) {
-			try {
-				let [type, stat, wanted] = list[i];
+			} else if (typeof stat === 'function') {
+				if (stat(item)) {
+					if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+						invoquantity = wanted.InvoQuantity;
 
-				if (typeof type === 'function') {
-					if (type(item)) {
-						if (typeof stat === 'function') {
-							if (stat(item)) {
-								if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
-									invoquantity = wanted.InvoQuantity;
-
-									break;
-								}
-							}
-						} else {
-							if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
-								invoquantity = wanted.InvoQuantity;
-
-								break;
-							}
-						}
-					}
-				} else if (typeof stat === 'function') {
-					if (stat(item)) {
-						if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
-							invoquantity = wanted.InvoQuantity;
-
-							break;
-						}
+						break;
 					}
 				}
-			} catch (e) {
-				return -1;
 			}
+		} catch (e) {
+			return -1;
 		}
 	}
 
 	return invoquantity;
 };
 
-NTIP.getMaxQuantity = function (item, entryList, verbose) {
-	let i, list, maxquantity = -1;
+NTIP.getMaxQuantity = function (item, entryList = []) {
+	let maxquantity = -1;
+	let list = entryList.length ? entryList : NTIP_CheckList;
 
-	if (!entryList) {
-		list = NTIP_CheckList;
-	} else {
-		list = entryList;
-	}
-
-	for (i = 0; i < list.length; i++) {
+	for (let i = 0; i < list.length; i++) {
 		try {
 			let [type, stat, wanted] = list[i];
 
@@ -282,200 +226,12 @@ NTIP.getMaxQuantity = function (item, entryList, verbose) {
 	return maxquantity;
 };
 
-NTIP.checkFinalCharm = function (item, entryList) {
-	let i, list, identified,
-		finalcharm = false;
-
-	if (!entryList) {
-		list = NTIP_CheckList;
-	} else {
-		list = entryList;
-	}
-
-	identified = item.getFlag(0x10);
-
-	for (i = 0; i < list.length; i++) {
-		try {
-			let [type, stat, wanted] = list[i];
-
-			if (typeof type === 'function') {
-				if (type(item)) {
-					if (typeof stat === 'function') {
-						if (stat(item)) {
-							if (wanted && wanted.FinalCharm && !isNaN(wanted.FinalCharm)) {
-								finalcharm = wanted.FinalCharm;
-								
-								break;
-							}
-						}
-					} else {
-						if (wanted && wanted.FinalCharm && !isNaN(wanted.FinalCharm)) {
-							finalcharm = wanted.FinalCharm;
-
-							break;
-						}
-					}
-				}
-			} else if (typeof stat === 'function') {
-				if (stat(item)) {
-					if (wanted && wanted.FinalCharm && !isNaN(wanted.FinalCharm)) {
-						finalcharm = wanted.FinalCharm;
-
-						break;
-					}
-				}
-			}
-		} catch (e) {
-			return false;
-		}
-	}
-
-	return finalcharm;
-};
-
-NTIP.setUpFinalCharmQuantity = function (input, info) {
-	let i, property, p_start, p_end, p_section, p_keyword, p_result, value;
-	let charmType;
-
-	p_end = input.indexOf("//");
-
-	if (p_end !== -1) {
-		input = input.substring(0, p_end);
-	}
-
-	input = input.replace(/\s+/g, "").toLowerCase();
-
-	if (input.length < 5) {
-		return null;
-	}
-
-	p_result = input.split("#");
-
-	if (p_result[0] && p_result[0].length > 4) {
-		p_section = p_result[0].split("[");
-
-		p_result[0] = p_section[0];
-
-		for (i = 1; i < p_section.length; i += 1) {
-			p_end = p_section[i].indexOf("]") + 1;
-			property = p_section[i].substring(0, p_end - 1);
-
-			if (property === 'name') {
-				p_result[0] += "item.classid";
-			} else {
-				continue;
-			}
-
-			for (p_start = p_end; p_end < p_section[i].length; p_end += 1) {
-				if (!NTIP.IsSyntaxInt(p_section[i][p_end])) {
-					break;
-				}
-			}
-
-			p_result[0] += p_section[i].substring(p_start, p_end);
-
-			if (p_section[i].substring(p_start, p_end) === "=") {
-				Misc.errorReport("Unexpected = at line " + info.line + " in " + info.file);
-
-				return false;
-			}
-
-			for (p_start = p_end; p_end < p_section[i].length; p_end += 1) {
-				if (NTIP.IsSyntaxInt(p_section[i][p_end])) {
-					break;
-				}
-			}
-
-			p_keyword = p_section[i].substring(p_start, p_end);
-
-			if (isNaN(p_keyword)) {
-				switch (property) {
-				case 'name':
-					if (NTIPAliasClassID[p_keyword] === undefined) {
-						Misc.errorReport("Unknown type: " + p_keyword + " File: " + info.file + " Line: " + info.line);
-
-						return false;
-					}
-
-					charmType = NTIPAliasClassID[p_keyword];
-
-					if ([603, 604, 605].indexOf(charmType) === -1) {
-						return false;
-					}
-
-					break;
-				}
-			}
-		}
-	} else {
-		p_result[0] = "";
-	}
-
-	if (p_result[2] && p_result[2].length > 0) {
-		p_section = p_result[2].split("[");
-		p_result[2] = {};
-
-		for (i = 1; i < p_section.length; i += 1) {
-			p_end = p_section[i].indexOf("]");
-			p_keyword = p_section[i].substring(0, p_end);
-
-			let keyword = p_keyword.toLowerCase();
-
-			switch (keyword) {
-			case "invoquantity":
-				value = Number(p_section[i].split("==")[1].match(/\d+/g));
-
-				if (!isNaN(value)) {
-					p_result[2].InvoQuantity = value;
-				}
-
-				break;
-			case "finalcharm":
-				let check = Boolean(p_section[i].split("==")[1].match(/(\b(?!split\b)[^ $]+\b)/g));
-
-				if (!isNaN(check)) {
-					p_result[2].FinalCharm = check;
-				}
-
-				break;
-			}
-		}
-
-		if (!!p_result[2].InvoQuantity && !!p_result[2].FinalCharm) {
-			if (p_result[2].FinalCharm === true) {
-				switch (charmType) {
-				case 603:
-					Item.maxFinalSCs += p_result[2].InvoQuantity;
-
-					break;
-				case 604:
-					Item.maxFinalLCs += p_result[2].InvoQuantity;
-
-					break;
-				case 605:
-					Item.maxFinalGCs += p_result[2].InvoQuantity;
-
-					break;
-				}
-			}
-		}
-	}
-
-	return true;
-};
-
-NTIP.CheckItem = function (item, entryList, verbose) {
-	let i, list, identified, num,
-		rval = {},
-		result = 0;
-
-	if (!entryList) {
-		list = NTIP_CheckList;
-	} else {
-		list = entryList;
-	}
-
-	identified = item.getFlag(0x10);
+NTIP.CheckItem = function (item, entryList = [], verbose = false) {
+	let i, num;
+	let rval = {};
+	let result = 0;
+	let list = entryList.length ? entryList : NTIP_CheckList;
+	let identified = item.getFlag(0x10);
 
 	for (i = 0; i < list.length; i++) {
 		try {
@@ -494,7 +250,8 @@ NTIP.CheckItem = function (item, entryList, verbose) {
 
 									break;
 								} else {
-									if (item.getParent() && item.getParent().name === me.name && item.mode === 0 && num === wanted.MaxQuantity) { // attempt at inv fix for maxquantity
+									// attempt at inv fix for maxquantity
+									if (item.getParent() && item.getParent().name === me.name && item.mode === 0 && num === wanted.MaxQuantity) {
 										result = 1;
 
 										break;
@@ -521,7 +278,8 @@ NTIP.CheckItem = function (item, entryList, verbose) {
 
 								break;
 							} else {
-								if (item.getParent() && item.getParent().name === me.name && item.mode === 0 && num === wanted.MaxQuantity) { // attempt at inv fix for maxquantity
+								// attempt at inv fix for maxquantity
+								if (item.getParent() && item.getParent().name === me.name && item.mode === 0 && num === wanted.MaxQuantity) {
 									result = 1;
 
 									break;
@@ -544,7 +302,8 @@ NTIP.CheckItem = function (item, entryList, verbose) {
 
 							break;
 						} else {
-							if (item.getParent() && item.getParent().name === me.name && item.mode === 0 && num === wanted.MaxQuantity) { // attempt at inv fix for maxquantity
+							// attempt at inv fix for maxquantity
+							if (item.getParent() && item.getParent().name === me.name && item.mode === 0 && num === wanted.MaxQuantity) {
 								result = 1;
 
 								break;
@@ -613,37 +372,31 @@ NTIP.OpenFile = function (filepath, notify) {
 		return false;
 	}
 
-	let i, nipfile, line, lines, info, tick = getTickCount(), entries = 0,
-		filename = filepath.substring(filepath.lastIndexOf("/") + 1, filepath.length);
+	let nipfile, tick = getTickCount(), entries = 0;
+	let filename = filepath.substring(filepath.lastIndexOf("/") + 1, filepath.length);
 
 	try {
 		nipfile = File.open(filepath, 0);
 	} catch (fileError) {
-		if (notify) {
-			Misc.errorReport("ÿc1Failed to load NIP: ÿc0" + filename);
-		}
+		notify && Misc.errorReport("ÿc1Failed to load NIP: ÿc0" + filename);
 	}
 
-	if (!nipfile) {
-		return false;
-	}
+	if (!nipfile) return false;
 
-	lines = nipfile.readAllLines();
-
+	let lines = nipfile.readAllLines();
 	nipfile.close();
 
-	for (i = 0; i < lines.length; i += 1) {
-		info = {
+	for (let i = 0; i < lines.length; i += 1) {
+		let info = {
 			line: i + 1,
 			file: filename,
 			string: lines[i]
 		};
 
-		line = NTIP.ParseLineInt(lines[i], info);
+		let line = NTIP.ParseLineInt(lines[i], info);
 
 		if (line) {
 			entries += 1;
-
 			NTIP_CheckList.push(line);
 
 			if (!lines[i].toLowerCase().match("tier")) {

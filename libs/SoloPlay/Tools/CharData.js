@@ -34,13 +34,78 @@ const CharData = {
 			currentBuild: "Start",
 			finalBuild: "",
 			highestDifficulty: "Normal",
-			setDifficulty: "Normal"
+			setDifficulty: "Normal",
+			charms: {},
+			charmGids: [],
 		},
 		merc: {
 			act: 1,
 			classid: 271,
 			difficulty: 0,
 			type: "",
+		}
+	},
+
+	charmData: {
+		small: {
+			getCountInfo: function () {
+				const finalCharmKeys = Object.keys(myData.me.charms);
+				let curr = 0;
+				let max = 0;
+
+				for (let i = 0; i < finalCharmKeys.length; i++) {
+					let cKey = finalCharmKeys[i];
+					if (myData.me.charms[cKey].classid === sdk.items.SmallCharm) {
+						curr += myData.me.charms[cKey].have.length;
+						max += myData.me.charms[cKey].max;
+					}
+				}
+
+				return {
+					curr: curr,
+					max: max
+				};
+			},
+		},
+		large: {
+			getCountInfo: function () {
+				const finalCharmKeys = Object.keys(myData.me.charms);
+				let curr = 0;
+				let max = 0;
+
+				for (let i = 0; i < finalCharmKeys.length; i++) {
+					let cKey = finalCharmKeys[i];
+					if (myData.me.charms[cKey].classid === sdk.items.LargeCharm) {
+						curr += myData.me.charms[cKey].have.length;
+						max += myData.me.charms[cKey].max;
+					}
+				}
+
+				return {
+					curr: curr,
+					max: max
+				};
+			},
+		},
+		grand: {
+			getCountInfo: function () {
+				const finalCharmKeys = Object.keys(myData.me.charms);
+				let curr = 0;
+				let max = 0;
+
+				for (let i = 0; i < finalCharmKeys.length; i++) {
+					let cKey = finalCharmKeys[i];
+					if (myData.me.charms[cKey].classid === sdk.items.GrandCharm) {
+						curr += myData.me.charms[cKey].have.length;
+						max += myData.me.charms[cKey].max;
+					}
+				}
+
+				return {
+					curr: curr,
+					max: max
+				};
+			},
 		}
 	},
 

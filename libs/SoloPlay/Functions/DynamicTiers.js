@@ -633,8 +633,13 @@ const secondaryscore = function (item) {
 };
 
 const charmscore = function (item) {
+	if (myData.me.charmGids.includes(item.gid)) return 1000;
 	let charmRating = 1;
-	charmRating += item.getStatEx(188, Check.currentBuild().tabSkills) * tierWeights.charmWeights.TAB; // + TAB skills
+	let skillerStats = [[0, 1, 2], [8, 9, 10], [16, 17, 18], [24, 25, 26], [32, 33, 34], [40, 41, 42], [48, 49, 50]][me.classid];
+	if (!item.unique && item.classid === sdk.items.GrandCharm && !skillerStats.some(s => item.getStatEx(188, s))) return -1;
+	const buildInfo = Check.currentBuild();
+
+	charmRating += item.getStatEx(188, buildInfo.tabSkills) * tierWeights.charmWeights.TAB; // + TAB skills
 	charmRating += item.getStatEx(39) * tierWeights.charmWeights.FR; // add FR
 	charmRating += item.getStatEx(43) * tierWeights.charmWeights.CR; // add CR
 	charmRating += item.getStatEx(41) * tierWeights.charmWeights.LR; // add LR
@@ -648,7 +653,7 @@ const charmscore = function (item) {
 	charmRating += item.getStatEx(0) * tierWeights.charmWeights.STR; // add STR
 	charmRating += item.getStatEx(2) * tierWeights.charmWeights.DEX; // add DEX
 
-	if (!Check.currentBuild().caster) {
+	if (!buildInfo.caster) {
 		charmRating += item.getStatEx(21) * 3; // add MIN damage
 		charmRating += item.getStatEx(22) * 3; // add MAX damage
 		charmRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 256)); // add elemental damage PSN damage adjusted for damage per frame (125/256)
@@ -656,7 +661,7 @@ const charmscore = function (item) {
 	}
 
 	// Gheeds, Torch, annhi
-	if (item.quality === 7) {
+	if (item.unique) {
 		charmRating += item.getStatEx(127) * tierWeights.charmWeights.ALL; // + all skills
 		charmRating += item.getStatEx(83, me.classid) * tierWeights.charmWeights.CLASS; // + class skills
 		charmRating += item.getStatEx(79); // add gold find

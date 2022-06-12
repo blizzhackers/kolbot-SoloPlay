@@ -54,6 +54,33 @@ function updateMyData () {
 }
 
 function ensureData () {
+	if (!myData.me.charms || !Object.keys(myData.me.charms).length) {
+		myData.me.charms = Check.finalBuild().finalCharms;
+		CharData.updateData("me", myData) && updateMyData();
+	}
+
+	let cUpdate = false;
+
+	if (!myData.me.charmGids) {
+		myData.me.charmGids = [];
+		CharData.updateData("me", myData) && updateMyData();
+	} else if (myData.me.charmGids.length > 0) {
+		// gids change from game to game so reset our list
+		myData.me.charmGids = [];
+		cUpdate = true;
+	}
+
+	const finalCharmKeys = Object.keys(myData.me.charms);
+	// gids change from game to game so reset our list
+	for (let i = 0; i < finalCharmKeys.length; i++) {
+		let cKey = finalCharmKeys[i];
+		if (myData.me.charms[cKey].have.length) {
+			myData.me.charms[cKey].have = [];
+			cUpdate = true;
+		}
+	}
+
+	cUpdate && updateMyData();
 	let temp = Misc.copy(myData);
 
 	if (myData.me.currentBuild !== SetUp.getBuild()) {
@@ -65,6 +92,7 @@ function ensureData () {
 			break;
 		case !["Start", "Stepping", "Leveling"].includes(SetUp.getBuild()) && myData.me.currentBuild !== myData.me.finalBuild:
 			myData.me.currentBuild = "Leveling";
+			myData.me.charms = {};
 
 			break;
 		}
@@ -1193,6 +1221,7 @@ const Check = {
 			mercAct: final ? finalBuild.mercAct : null,
 			mercAuraWanted: final ? finalBuild.mercAuraWanted : null,
 			finalGear: final ? finalBuild.autoEquipTiers : [],
+			finalCharms: (finalBuild.charms || {}),
 			respec: final ? finalBuild.respec : () => {},
 			active: final ? finalBuild.active : build.active,
 		};
@@ -1268,6 +1297,7 @@ const Check = {
 			mercAct: finalBuild.mercAct,
 			mercAuraWanted: finalBuild.mercAuraWanted,
 			finalGear: finalBuild.autoEquipTiers,
+			finalCharms: (finalBuild.charms || {}),
 			respec: finalBuild.respec,
 			active: finalBuild.active,
 		};
