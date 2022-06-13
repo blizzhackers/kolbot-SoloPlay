@@ -7,7 +7,7 @@
 
 const finalBuild = {
 	caster: false,
-	skillstab: sdk.skills.tabs.CombatBarb,
+	skillstab: sdk.skills.tabs.BarbCombat,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing],
 	usefulskills: [sdk.skills.NaturalResistance, sdk.skills.IronSkin, sdk.skills.IncreasedSpeed],
 	precastSkills: [sdk.skills.BattleOrders, sdk.skills.WarCry],
@@ -65,13 +65,13 @@ const finalBuild = {
 	autoEquipTiers: [ // autoequip final gear
 		// Final Weapon - Grief & BoTD
 		"[name] == phaseblade && [flag] == runeword # [ias] >= 30 # [tier] == 100000",
-		"[name] == colossusblade && [flag] == runeword # [ias] >= 60 && [enhanceddamage] >= 350 # [tier] == 100000", 
+		"[name] == colossusblade && [flag] == runeword # [ias] >= 60 && [enhanceddamage] >= 350 # [tier] == 100000",
 		// Helmet - Arreat's Face
 		"[name] == slayerguard && [quality] == unique && [flag] != ethereal # [barbarianskills] == 2 # [tier] == 100000 + tierscore(item)",
 		// Belt - Dungo's
 		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [damageresist] >= 10 && [vitality] >= 30 # [tier] == 100000 + tierscore(item)",
 		// Boots - Gore Rider
-		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 100000 + tierscore(item)", 
+		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 100000 + tierscore(item)",
 		// Armor - Fortitude
 		"[type] == armor && [flag] != ethereal && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 30 # [tier] == 100000",
 		// Gloves - Laying of Hands
@@ -84,12 +84,6 @@ const finalBuild = {
 		// Rings - Raven Frost && Bul-Kathos' Wedding Band
 		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == # [tier] == 100000",
 		"[type] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] >= 3 # [tier] == 100000",
-		// Charms
-		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 4 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [fhr] >= 5 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == grandcharm && [quality] == magic # [masteriesskilltab] == 1 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == grandcharm && [quality] == magic # [barbcombatskilltab] == 1 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		// Switch -  BO Sticks
 		"([type] == club || [type] == sword || [type] == knife || [type] == throwingknife || [type] == mace) && ([quality] == magic || [flag] == runeword) && [2handed] == 0 # [itemallskills]+[warcriesskilltab]+[barbarianskills] >= 1 # [secondarytier] == 100000 + secondaryscore(item)",
 		// Merc Armor - Fortitude
@@ -99,6 +93,55 @@ const finalBuild = {
 		// Merc Helmet - Andy's
 		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",
 	],
+
+	charms: {
+		ResLife: {
+			max: 4,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+			}
+		},
+
+		ResMf: {
+			max: 2,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+			}
+		},
+
+		ResFHR: {
+			max: 2,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+			}
+		},
+
+		SkillerCombat: {
+			max: 1,
+			have: [],
+			classid: sdk.items.GrandCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.BarbCombat) === 1
+					&& check.getStat(sdk.stats.MaxHp) >= 40);
+			}
+		},
+
+		SkillerMasteries: {
+			max: 1,
+			have: [],
+			classid: sdk.items.GrandCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Masteries) === 1
+					&& check.getStat(sdk.stats.MaxHp) >= 40);
+			}
+		},
+	},
 
 	AutoBuildTemplate: {
 		1:	{

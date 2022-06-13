@@ -81,6 +81,54 @@ const finalBuild = {
 		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",
 	],
 
+	charms: {
+		ResLife: {
+			max: 3,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+			}
+		},
+
+		ResMf: {
+			max: 2,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+			}
+		},
+
+		ResFHR: {
+			max: 1,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+			}
+		},
+
+		LifeMana: {
+			max: 2,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.MaxHp) === 20 && check.getStat(sdk.stats.MaxMana) === 17);
+			}
+		},
+
+		Skiller: {
+			max: 2,
+			have: [],
+			classid: sdk.items.GrandCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Lightning) === 1
+					&& check.getStat(sdk.stats.MaxHp) >= 40);
+			}
+		},
+	},
+
 	AutoBuildTemplate: {
 		1:	{
 			Update: function () {

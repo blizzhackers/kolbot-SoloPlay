@@ -44,11 +44,6 @@ const finalBuild = {
 		// Rings - Wisp & Bul-Kathos' Wedding Band
 		"[type] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == 110000 + tierscore(item)",
 		"[type] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] >= 3 # [tier] == 110000 + tierscore(item)",
-		// Charms
-		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 3 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [fhr] >= 5 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == grandcharm && [quality] == magic # [shapeshiftingskilltab] == 1 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		// Merc Final Armor - Fortitude
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
 		// Merc Armor - Treachery
@@ -60,6 +55,45 @@ const finalBuild = {
 		// Merc Weapon - Reaper's Toll
 		"[name] == thresher && [quality] == unique # [enhanceddamage] >= 190 && [lifeleech] >= 11 # [merctier] == 100000 + mercscore(item)",
 	],
+
+	charms: {
+		ResLife: {
+			max: 3,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+			}
+		},
+
+		ResMf: {
+			max: 2,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+			}
+		},
+
+		ResFHR: {
+			max: 1,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+			}
+		},
+
+		Skiller: {
+			max: 2,
+			have: [],
+			classid: sdk.items.GrandCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.ShapeShifting) === 1
+					&& check.getStat(sdk.stats.MaxHp) >= 40);
+			}
+		},
+	},
 
 	AutoBuildTemplate: {
 		1:	{

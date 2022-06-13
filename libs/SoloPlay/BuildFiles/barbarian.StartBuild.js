@@ -8,7 +8,7 @@
 
 let build = {
 	caster: false,
-	skillstab: sdk.skills.tabs.CombatBarb,
+	skillstab: sdk.skills.tabs.BarbCombat,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing, sdk.skills.SwordMastery],
 	usefulskills: [sdk.skills.NaturalResistance, sdk.skills.IronSkin, sdk.skills.IncreasedSpeed, sdk.skills.Shout],
 	mercDiff: sdk.difficulty.Nightmare,

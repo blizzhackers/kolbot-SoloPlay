@@ -67,11 +67,6 @@ const finalBuild = {
 		"[type] == ring && [quality] == unique # [itemmagicbonus] == 30 # [tier] == 100000",
 		// Rings - Raven Frost
 		"[type] == ring && [quality] == unique # [dexterity] >= 15 # [tier] == 90000",
-		// Charms
-		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [maxhp] >= 20 # [invoquantity] == 3 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [itemmagicbonus] >= 7 # [invoquantity] == 3 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 20 && [fhr] >= 5 # [invoquantity] == 1 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
-		"[name] == grandcharm && [quality] == magic # [coldskilltab] == 1 # [invoquantity] == 2 && [finalcharm] == true && [charmtier] == 1000 + charmscore(item)",
 		// Switch - CTA
 		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
 		// Switch Shield - 1+ all skill
@@ -83,6 +78,45 @@ const finalBuild = {
 		// Merc Helmet - Andy's
 		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",
 	],
+
+	charms: {
+		ResLife: {
+			max: 3,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+			}
+		},
+
+		ResMf: {
+			max: 3,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+			}
+		},
+
+		ResFHR: {
+			max: 1,
+			have: [],
+			classid: sdk.items.SmallCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+			}
+		},
+
+		Skiller: {
+			max: 2,
+			have: [],
+			classid: sdk.items.GrandCharm,
+			stats: function (check) {
+				return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Cold) === 1
+					&& check.getStat(sdk.stats.MaxHp) >= 40);
+			}
+		},
+	},
 
 	AutoBuildTemplate: {
 		1:	{

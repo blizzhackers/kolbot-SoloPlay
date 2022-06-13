@@ -125,6 +125,7 @@ function LoadConfig () {
 		"[name] == smallcharm && [quality] == magic # [maxhp] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
+		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		// Special Charms
 		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
 		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
@@ -145,7 +146,7 @@ function LoadConfig () {
 	Config.AttackSkill = [0, 0, 0, 0, 0, 0, 0];
 	Config.LowManaSkill = [0, 0];
 	Config.MaxAttackCount = 1000;
-	Config.BossPriority = me.normal ? true : false;
+	Config.BossPriority = me.normal;
 	Config.ClearType = 0;
 	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0};
 
@@ -379,7 +380,7 @@ function LoadConfig () {
 
 			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(3).prefixnum !== sdk.locale.items.Fortitude
 				&& me.haveAll([{name: sdk.locale.items.HandofJustice}, {name: sdk.locale.items.Dragon, itemtype: sdk.itemtype.Armor},
-				{name: sdk.locale.items.Dream, itemtype: sdk.itemtype.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.itemtype.Helm}])) {
+					{name: sdk.locale.items.Dream, itemtype: sdk.itemtype.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.itemtype.Helm}])) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js")) {
 					include("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 				}

@@ -833,7 +833,7 @@ Misc.updateRecursively = function (oldObj, newObj, path) {
 			}
 		} else if (Array.isArray(newObj[key]) && !newObj[key].some(k => typeof k === "object")) {
 			// copy array (shallow copy)
-			if (!oldObj[key].equals(newObj[key])) {
+			if (oldObj[key] === undefined || !oldObj[key].equals(newObj[key])) {
 				oldObj[key] = newObj[key].slice(0);
 			}
 		} else {
