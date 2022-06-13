@@ -104,7 +104,7 @@ Object.defineProperties(Unit.prototype, {
 	isBaseType: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
-			return [item.normal, item.superior].includes(this.quality) && !this.questItem && !this.isRuneword
+			return [sdk.itemquality.Normal, sdk.itemquality.Superior].includes(this.quality) && !this.questItem && !this.isRuneword
 				&& getBaseStat("items", this.classid, "gemsockets") > 0 && [sdk.itemtype.Ring, sdk.itemtype.Amulet].indexOf(this.itemType) === -1;
 		}
 	},

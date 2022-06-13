@@ -261,7 +261,7 @@ Misc.checkItemsForImbueing = function () {
 	if (!me.getQuest(sdk.quest.id.ToolsoftheTrade, 1)) return false;
 
 	let items = me.getItemsEx()
-		.filter(item => item.getStat(sdk.stats.NumSockets) === 0 && [item.normal, item.superior].includes(item.quality));
+	.filter(item => item.getStat(sdk.stats.NumSockets) > 0 && AutoEquip.hasTier(item) && ![sdk.itemquality.Normal, sdk.itemquality.Superior].includes(item.quality))
 
 	for (let i = 0; i < items.length; i++) {
 		if (Config.imbueables.some(item => item.name === items[i].classid && Item.canEquip(items[i]))) {

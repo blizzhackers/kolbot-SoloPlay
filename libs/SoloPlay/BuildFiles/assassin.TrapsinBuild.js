@@ -18,13 +18,13 @@ const finalBuild = {
 		["strength", 156], ["dexterity", 79], ["vitality", "all"]
 	],
 	skills: [
-		[sdk.skills.CloakofShadows, 1], // Did meant to put mind blast?? otherwise chnage or delete
+		[sdk.skills.MindBlast, 1],
 		[sdk.skills.ShadowMaster, 1],
 		[sdk.skills.Fade, 1],
 		[sdk.skills.LightningSentry, 20],
 		[sdk.skills.ShockWeb, 15],
 		[sdk.skills.FireBlast, 14],
-		[sdk.skills.DeathSentry, 15], // lvl 74 w/o quet skills pts
+		[sdk.skills.DeathSentry, 15], // lvl 74 w/o quest skills pts
 		[sdk.skills.ShockWeb, 16],
 		[sdk.skills.FireBlast, 15],
 		[sdk.skills.DeathSentry, 16],

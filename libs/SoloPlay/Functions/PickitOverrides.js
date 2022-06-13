@@ -284,7 +284,7 @@ Pickit.canPick = function (unit) {
 	case 82: // Small Charm
 	case 83: // Large Charm
 	case 84: // Grand Charm
-		if (unit.quality === item.unique) {
+		if (unit.unique) {
 			charm = me.getItem(unit.classid, 0);
 
 			if (charm) {
