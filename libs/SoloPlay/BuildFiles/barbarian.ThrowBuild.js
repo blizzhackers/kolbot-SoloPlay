@@ -25,10 +25,9 @@ const finalBuild = {
 		[sdk.skills.BattleCommand, 1],
 		[sdk.skills.ThrowMastery, 20],
 		[sdk.skills.NaturalResistance, 1],
-		[sdk.skills.NaturalResistance, 1],
 		[sdk.skills.DoubleSwing, 20],
 		[sdk.skills.Frenzy, 1],
-		[sdk.skills.Berserk, 1],
+		[sdk.skills.Berserk, 1], // 13 points remaining(max howl or some skin/shout?)
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Final Weapon - Perfect Eth Lacerator & Warshrike

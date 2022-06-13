@@ -26,7 +26,7 @@ const finalBuild = {
 		[sdk.skills.IncreasedSpeed, 1, true],
 		[sdk.skills.WarCry, 5, true],
 		[sdk.skills.BattleOrders, 20, true],
-		[sdk.skills.Shout, 20, true],
+		[sdk.skills.Shout, 20, true], // 3 points remaining(more beserk?)
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - Grief x2 dual wield

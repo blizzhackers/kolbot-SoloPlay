@@ -28,13 +28,12 @@ let build = {
 		[sdk.skills.FrozenArmor, 1], // points left 68
 		[sdk.skills.StaticField, 6], // points left 62
 		[sdk.skills.Teleport, 4],    // points left 57
-		[sdk.skills.Blizzard, 1],    // points left 52
-		[sdk.skills.Meteor, 8],      // points left 39
-		[sdk.skills.FireMastery, 1], // points left 38
-		[sdk.skills.ColdMastery, 1], // points left 37
+		[sdk.skills.Meteor, 8],      // points left 44
+		[sdk.skills.FireMastery, 1], // points left 43
+		[sdk.skills.ColdMastery, 1], // points left 42
 		[sdk.skills.FrozenOrb, 1],   // points left 36
-		[sdk.skills.FireBall, 10],   // points left 30
-		[sdk.skills.Blizzard, 20],   // points left 11
+		[sdk.skills.FireBall, 10],   // points left 27
+		[sdk.skills.Blizzard, 20],   // points left 8
 		[sdk.skills.IceBlast, 12],   // points left 0
 		[sdk.skills.Meteor, 10],
 		[sdk.skills.IceBlast, 20],
@@ -47,12 +46,11 @@ let build = {
 		[sdk.skills.FrozenArmor, 1], // points left 68
 		[sdk.skills.StaticField, 1], // points left 67
 		[sdk.skills.Teleport, 1],    // points left 65
-		[sdk.skills.Blizzard, 1],    // points left 60
-		[sdk.skills.Meteor, 1],      // points left 54
-		[sdk.skills.FireMastery, 1], // points left 53
-		[sdk.skills.ColdMastery, 1], // points left 52
+		[sdk.skills.Meteor, 1],      // points left 59
+		[sdk.skills.FireMastery, 1], // points left 58
+		[sdk.skills.ColdMastery, 1], // points left 57
 		[sdk.skills.FrozenOrb, 1],   // points left 51
-		[sdk.skills.FireBall, 20],   // points left 33
+		[sdk.skills.FireBall, 20],   // points left 32
 		[sdk.skills.Blizzard, 20],   // points left 13
 		[sdk.skills.IceBlast, 15],   // points left 0
 		[sdk.skills.Meteor, 15],

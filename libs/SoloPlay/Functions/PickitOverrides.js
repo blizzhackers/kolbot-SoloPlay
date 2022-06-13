@@ -284,12 +284,12 @@ Pickit.canPick = function (unit) {
 	case 82: // Small Charm
 	case 83: // Large Charm
 	case 84: // Grand Charm
-		if (unit.quality === sdk.itemquality.Unique) {
+		if (unit.quality === item.unique) {
 			charm = me.getItem(unit.classid, 0);
 
 			if (charm) {
 				do {
-					if (charm.quality === 7) {
+					if (charm.unique) {
 						return false; // Skip Gheed's Fortune, Hellfire Torch or Annihilus if we already have one
 					}
 				} while (charm.getNext());

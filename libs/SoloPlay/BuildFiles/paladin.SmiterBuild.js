@@ -20,13 +20,7 @@ const finalBuild = {
 	],
 	skills: [
 		[sdk.skills.Smite, 20],
-		[sdk.skills.HolyBolt, 1],
-		[sdk.skills.Charge, 1],
-		[sdk.skills.BlessedHammer, 1],
 		[sdk.skills.HolyShield, 20],
-		[sdk.skills.Might, 1],
-		[sdk.skills.BlessedAim, 1],
-		[sdk.skills.Concentration, 1],
 		[sdk.skills.Fanaticism, 20],
 		[sdk.skills.Salvation, 5],
 		[sdk.skills.ResistLightning, 15],

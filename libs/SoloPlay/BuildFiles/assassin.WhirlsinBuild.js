@@ -18,8 +18,6 @@ const finalBuild = {
 		["strength", 130], ["dexterity", 99], ["vitality", "all"]
 	],
 	skills: [
-		[sdk.skills.CloakofShadows, 1],
-		[sdk.skills.ShadowMaster, 1],
 		[sdk.skills.Fade, 1],
 		[sdk.skills.Venom, 1],
 		[sdk.skills.MindBlast, 1],
@@ -27,7 +25,7 @@ const finalBuild = {
 		[sdk.skills.ClawMastery, 20],
 		[sdk.skills.DeathSentry, 1],
 		[sdk.skills.ShadowMaster, 20, false],
-		[sdk.skills.Venom, 20, false],
+		[sdk.skills.Venom, 20, false], // lvl 77 w/o quest skill pts
 		[sdk.skills.Fade, 20, false],
 		[sdk.skills.BladeShield, 20],
 	],

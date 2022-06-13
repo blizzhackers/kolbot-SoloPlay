@@ -25,7 +25,6 @@ const finalBuild = {
 		[sdk.skills.Grizzly, 1, false],
 		[sdk.skills.Rabies, 20, false],
 		[sdk.skills.Fury, 20, false],
-		[sdk.skills.HeartofWolverine, 10, false],
 		[sdk.skills.HeartofWolverine, 20, false],
 		[sdk.skills.PoisonCreeper, 20, false],
 	],

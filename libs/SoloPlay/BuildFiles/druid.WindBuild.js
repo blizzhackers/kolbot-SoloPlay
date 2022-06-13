@@ -24,7 +24,7 @@ const finalBuild = {
 		[sdk.skills.Hurricane, 20, false],
 		[sdk.skills.CycloneArmor, 20, false],
 		[sdk.skills.OakSage, 20, false],
-		[sdk.skills.Twister, 20],
+		[sdk.skills.Twister, 20], // 4 point remaining (dump into bear)
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - HotO

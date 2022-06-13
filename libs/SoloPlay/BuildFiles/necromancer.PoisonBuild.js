@@ -31,8 +31,8 @@ const finalBuild = {
 		[sdk.skills.PoisonDagger, 20],
 		[sdk.skills.BonePrison, 10],
 		[sdk.skills.BoneSpear, 10],
-		[sdk.skills.BonePrison, 20],
-		[sdk.skills.BoneSpear, 20],
+		[sdk.skills.BonePrison, 20], // keep this at 12
+		[sdk.skills.BoneSpear, 20],  // max this instead 400+ dmg(around 312 atm w/o skills for equipment)
 	],
 	classicTiers: [
 		// Weapon - Blackbog's Sharp

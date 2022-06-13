@@ -1181,7 +1181,7 @@ Town.clearInventory = function () {
 
 		if ([0, 4].indexOf(result) === -1) {
 			if ((item.isBaseType && item.getStat(194) > 0) ||
-				([25, 69, 70, 71, 72].includes(item.itemType) && item.quality === 2 && item.getStat(194) === 0)) {
+				([25, 69, 70, 71, 72].includes(item.itemType) && item.normal && item.getStat(194) === 0)) {
 				if (Town.worseBaseThanStashed(item) && !Town.betterBaseThanWearing(item, Developer.debugging.junkCheck)) {
 					result = 4;
 				}

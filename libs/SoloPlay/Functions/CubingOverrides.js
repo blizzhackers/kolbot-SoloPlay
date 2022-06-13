@@ -714,7 +714,7 @@ Cubing.validItem = function (unit, recipe) {
 
 	if (recipe.Index >= Recipe.Socket.Shield && recipe.Index <= Recipe.Socket.Helm) {
 		// Normal item matching pickit entry, no sockets
-		if (unit.quality === 2 && unit.getStat(194) === 0) { // Normal Quality 
+		if (unit.normal && unit.getStat(194) === 0) {
 			switch (recipe.Ethereal) {
 			case 0:
 			case undefined:
@@ -784,7 +784,7 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index === Recipe.LowToNorm.Armor || recipe.Index === Recipe.LowToNorm.Weapon) {
-		if (unit.quality === 1 && NTIP.CheckItem(unit) === 0) { // LowQuality
+		if (unit.lowquality && NTIP.CheckItem(unit) === 0) {
 			return true;
 		}
 

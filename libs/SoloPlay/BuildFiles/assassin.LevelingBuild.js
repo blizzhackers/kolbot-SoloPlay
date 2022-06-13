@@ -20,20 +20,12 @@ let build = {
 	],
 	skills: [
 		// Skills points at respec 33
-		[sdk.skills.FireBlast, 3],          // points left 30
-		[sdk.skills.ShockWeb, 8],           // points left 23
-		[sdk.skills.ChargedBoltSentry, 1],  // points left 21
-		[sdk.skills.ClawMastery, 1],        // points left 20
-		[sdk.skills.PsychicHammer, 1],      // points left 19
-		[sdk.skills.BurstofSpeed, 1],       // points left 18
-		[sdk.skills.Fade, 1],               // points left 17
-		[sdk.skills.WeaponBlock, 1],        // points left 16
-		[sdk.skills.CloakofShadows, 1],     // points left 15
-		[sdk.skills.ShadowMaster, 1],       // points left 13
-		[sdk.skills.DeathSentry, 1],        // points left 11
-		[sdk.skills.MindBlast, 1],          // points left 10
-		[sdk.skills.LightningSentry, 7],    // points left 4
-		[sdk.skills.FireBlast, 6],          // points left 3
+		[sdk.skills.Fade, 1],               // points left 30
+		[sdk.skills.ShadowMaster, 1],       // points left 25
+		[sdk.skills.MindBlast, 1],          // points left 20
+		[sdk.skills.DeathSentry, 1],        // points left 19
+		[sdk.skills.LightningSentry, 7],    // points left 13
+		[sdk.skills.FireBlast, 6],          // points left 8
 		[sdk.skills.ShockWeb, 8],           // points left 1
 		[sdk.skills.WakeofFire, 1],         // points left 0
 		[sdk.skills.LightningSentry, 20, false],

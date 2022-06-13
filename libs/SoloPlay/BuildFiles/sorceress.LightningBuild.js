@@ -21,14 +21,13 @@ const finalBuild = {
 	skills: [
 		[sdk.skills.Warmth, 1],
 		[sdk.skills.StaticField, 1],
-		[sdk.skills.Telekinesis, 1],
 		[sdk.skills.Teleport, 1],
 		[sdk.skills.FrozenArmor, 1],
 		[sdk.skills.ThunderStorm, 1],
 		[sdk.skills.LightningMastery, 1],
-		[sdk.skills.Lightning, 20, false],
-		[sdk.skills.ChainLightning, 20, false],
-		[sdk.skills.LightningMastery, 20],
+		[sdk.skills.Lightning, 20],
+		[sdk.skills.ChainLightning, 20],
+		[sdk.skills.LightningMastery, 20], // lvl 69  w/o quest skill pts
 		[sdk.skills.Nova, 20],
 		[sdk.skills.ChargedBolt, 20],
 	],

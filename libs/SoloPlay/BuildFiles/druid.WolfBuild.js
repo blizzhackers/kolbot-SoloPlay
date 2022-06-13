@@ -23,7 +23,7 @@ const finalBuild = {
 		[sdk.skills.Fury, 20, true],
 		[sdk.skills.Grizzly, 1, false],
 		[sdk.skills.HeartofWolverine, 20, true],
-		[sdk.skills.FeralRage, 10, false],
+		[sdk.skills.FeralRage, 10, false], // 14 points remaining
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - Upp'ed Ribcracker
