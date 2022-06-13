@@ -128,12 +128,6 @@ function LoadConfig () {
 
 	NTIP.arrayLooping(levelingTiers);
 
-	/* FastMod configuration. */
-	Config.FCR = 255;
-	Config.FHR = 255;
-	Config.FBR = 255;
-	Config.IAS = me.realm ? 0 : 255;
-
 	/* Attack configuration. */
 	Config.AttackSkill = [0, 0, 0, 0, 0, 0, 0];
 	Config.LowManaSkill = [0, 0];
