@@ -22,6 +22,7 @@ const finalBuild = {
 		[sdk.skills.Warmth, 1],
 		[sdk.skills.FrozenArmor, 1],
 		[sdk.skills.Teleport, 1],
+		[sdk.skills.Blizzard, 1],
 		[sdk.skills.Nova, 20],
 		[sdk.skills.LightningMastery, 20],
 		[sdk.skills.Blizzard, 20],
