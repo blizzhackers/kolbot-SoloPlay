@@ -1554,7 +1554,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 
 				break;
 			case 20635: 	//Spirit
-				if (me.paladin && bodyLoc === 5) {
+				if (me.paladin && bodyLoc[i] === 5) {
 					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 115;
 					baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
 				} else {
