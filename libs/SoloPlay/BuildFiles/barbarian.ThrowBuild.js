@@ -24,11 +24,11 @@ const finalBuild = {
 		[sdk.skills.BattleOrders, 20],
 		[sdk.skills.BattleCommand, 1],
 		[sdk.skills.ThrowMastery, 20],
-		[sdk.skills.NaturalResistance, 1],
-		[sdk.skills.NaturalResistance, 1],
+		[sdk.skills.NaturalResistance, 5],
 		[sdk.skills.DoubleSwing, 20],
 		[sdk.skills.Frenzy, 1],
 		[sdk.skills.Berserk, 1],
+		[sdk.skills.Howl, 20],
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Final Weapon - Perfect Eth Lacerator & Warshrike

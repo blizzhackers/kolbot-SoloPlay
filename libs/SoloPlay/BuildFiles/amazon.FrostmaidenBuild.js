@@ -41,16 +41,20 @@ const finalBuild = {
 		// Amulet - Highlords
 		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 110000",
 		// Rings - Ravenfrost & Carrion Wind
-		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000", // Raven Frost
-		"[name] == ring && [quality] == unique # [poisonresist] == 55 && [lifeleech] >= 6 # [tier] == 110000", // Bul-Kathos' Wedding Band
-		// Switch
+		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000",
+		"[name] == ring && [quality] == unique # [poisonresist] == 55 && [lifeleech] >= 6 # [tier] == 110000",
+		// Switch - CTA
 		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
-		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == 100000 + tierscore(item)", // Any 1+ all skill shield
-		"[type] == wand && [quality] >= normal # [itemchargedskill] == 82 # [secondarytier] == 75000 + chargeditemscore(item, 82)",	// Life Tap charged wand
-		// Merc
-		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",	// Fortitude
-		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",	// Andy's
-		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",	// Eth Andy's
+		// Switch Temporary Weapon - Life Tap charged wand
+		"[type] == wand && [quality] >= normal # [itemchargedskill] == 82 # [secondarytier] == 75000 + chargeditemscore(item, 82)",
+		// Switch Shield - Any 1+ all skill
+		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == 100000 + tierscore(item)",
+		// Merc Armor - Fortitude
+		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
+		// Merc Final Helmet - Eth Andy's
+		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",
+		// Merc Helmet - Andy's
+		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",
 	],
 
 	charms: {

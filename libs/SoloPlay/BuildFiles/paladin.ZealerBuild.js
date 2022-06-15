@@ -20,12 +20,11 @@ const finalBuild = {
 	],
 	skills: [
 		[sdk.skills.Fanaticism, 20],
-		[sdk.skills.Zeal, 4],
 		[sdk.skills.Sacrifice, 20],
 		[sdk.skills.Salvation, 1],
 		[sdk.skills.Redemption, 1],
 		[sdk.skills.Zeal, 10],
-		[sdk.skills.HolyShield, 15],
+		[sdk.skills.HolyShield, 15], // lvl 74 w/o quest skill pts
 		[sdk.skills.ResistLightning, 10, false],
 		[sdk.skills.ResistFire, 10, false],
 		[sdk.skills.ResistCold, 10, false],

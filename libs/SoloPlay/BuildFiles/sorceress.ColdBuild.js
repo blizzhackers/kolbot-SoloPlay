@@ -22,17 +22,11 @@ const finalBuild = {
 	skills: [
 		[sdk.skills.Warmth, 1],
 		[sdk.skills.StaticField, 1],
-		[sdk.skills.Telekinesis, 1],
 		[sdk.skills.Teleport, 1],
 		[sdk.skills.FrozenArmor, 1],
-		[sdk.skills.IceBolt, 1],
-		[sdk.skills.IceBlast, 1],
-		[sdk.skills.GlacialSpike, 1],
-		[sdk.skills.FrostNova, 1],
-		[sdk.skills.IceBlast, 15],
-		[sdk.skills.Blizzard, 20, false],
-		[sdk.skills.ColdMastery, 17, false],
-		[sdk.skills.IceBlast, 20],
+		[sdk.skills.Blizzard, 20],
+		[sdk.skills.ColdMastery, 17],
+		[sdk.skills.IceBlast, 20], // lvl 66 w/o quest skills pts
 		[sdk.skills.GlacialSpike, 20],
 		[sdk.skills.IceBolt, 20],
 		[sdk.skills.ColdMastery, 20]

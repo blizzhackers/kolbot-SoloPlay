@@ -24,6 +24,7 @@ const finalBuild = {
 		[sdk.skills.Grizzly, 1, false],
 		[sdk.skills.HeartofWolverine, 20, true],
 		[sdk.skills.FeralRage, 10, false],
+		[sdk.skills.Grizzly, 15],
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - Upp'ed Ribcracker

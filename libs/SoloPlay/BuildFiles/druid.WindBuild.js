@@ -25,6 +25,7 @@ const finalBuild = {
 		[sdk.skills.CycloneArmor, 20, false],
 		[sdk.skills.OakSage, 20, false],
 		[sdk.skills.Twister, 20],
+		[sdk.skills.Grizzly, 5],
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - HotO

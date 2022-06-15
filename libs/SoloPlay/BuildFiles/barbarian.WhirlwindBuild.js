@@ -27,6 +27,7 @@ const finalBuild = {
 		[sdk.skills.WarCry, 5, true],
 		[sdk.skills.BattleOrders, 20, true],
 		[sdk.skills.Shout, 20, true],
+		[sdk.skills.IronSkin, 3, true],
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - Grief x2 dual wield

@@ -20,6 +20,7 @@ const finalBuild = {
 	skills: [
 		[sdk.skills.BattleCommand, 1],
 		[sdk.skills.NaturalResistance, 1],
+		[sdk.skills.WarCry, 1],
 		[sdk.skills.Berserk, 1],
 		[sdk.skills.BattleOrders, 20, false],
 		[sdk.skills.SwordMastery, 10, false],
@@ -27,6 +28,7 @@ const finalBuild = {
 		[sdk.skills.Shout, 20, false],
 		[sdk.skills.LeapAttack, 1, false],
 		[sdk.skills.Bash, 20, false],
+		[sdk.skills.SwordMastery, 20],
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - Grief
