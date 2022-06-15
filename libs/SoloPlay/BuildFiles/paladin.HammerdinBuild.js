@@ -64,7 +64,7 @@ const finalBuild = {
 		// Final Shield - Spirit
 		"[type] == auricshields && [flag] == runeword # [fcr] == 35 && [maxmana] == 112 && [coldresist] == 80 # [tier] == 110000",
 		// Shield - Spirit
-		"[type] == auricshields && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 && [coldresist] == 80 # [tier] == 100000",
+		"[type] == auricshields && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 && [coldresist] == 80 # [tier] == 100000 + tierscore(item)",
 		// Shield - HoZ
 		"[name] == gildedshield && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 150 # [tier] == 50000 + tierscore(item)",
 		// Final Gloves - Perfect Upp'ed Magefist
