@@ -1221,7 +1221,7 @@ const Check = {
 			mercAct: final ? finalBuild.mercAct : null,
 			mercAuraWanted: final ? finalBuild.mercAuraWanted : null,
 			finalGear: final ? finalBuild.autoEquipTiers : [],
-			finalCharms: (finalBuild.charms || {}),
+			finalCharms: final ? (finalBuild.charms || {}) : {},
 			respec: final ? finalBuild.respec : () => {},
 			active: final ? finalBuild.active : build.active,
 		};
