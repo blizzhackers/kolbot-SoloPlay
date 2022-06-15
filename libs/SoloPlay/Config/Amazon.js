@@ -10,6 +10,8 @@
 *      2. Select the Bots profile
 *      3. In the info tag box enter one of the following choices:
 *        Witchyzon
+*        Wfzon
+*        Faithbowzon
 *        Javazon
 *      4. Save the profile and start
 */
@@ -128,7 +130,7 @@ function LoadConfig () {
 	NTIP.arrayLooping(levelingTiers);
 	me.expansion && NTIP.arrayLooping(expansionTiers);
 
-	if (SetUp.currentBuild !== "Witchyzon") {
+	if (["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) {
 		NTIP.addLine("[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
 		NTIP.addLine("me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
 	}
@@ -226,12 +228,44 @@ function LoadConfig () {
 		// FinalBuild specific setup
 		switch (SetUp.finalBuild) {
 		case 'Witchyzon':
-			SetUp.currentBuild === "Witchyzon" && NTIP.addLine("[type] == bowquiver # # [maxquantity] == 2");
+		case 'Faithbowzon':
+		case 'Wfzon':
+			(["Witchyzon", "Wfzon", "Faithbowzon"].includes(SetUp.currentBuild)) && NTIP.addLine("[type] == bowquiver # # [maxquantity] == 1");
 
-			if (!Check.haveItem(sdk.items.DiamondBow, "unique", "Witchwild String")) {
+			if (SetUp.finalBuild === "Wfzon") {
+				if (!Check.haveItem(sdk.items.HydraBow, "unique", "Windforce")) {
+					NTIP.addLine("[name] == hydrabow && [quality] == unique # [manaleech] >= 6 # [maxquantity] == 1");
+				}
+
+				Config.socketables
+				.push(
+					{
+						classid: sdk.items.HydraBow,
+						socketWith: [sdk.items.runes.Shael],
+						temp: [sdk.items.gems.Perfect.Amn],
+						useSocketQuest: true,
+						condition: (item) => item.quality === sdk.itemquality.Unique
+					}
+				);
+			}
+
+			if ((SetUp.finalBuild === "Faithbowzon") && !me.checkItem({name: sdk.locale.items.Faith, classid: sdk.items.GrandMatronBow}).have) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Faith.js")) {
+					include("SoloPlay/BuildFiles/Runewords/Faith.js");
+				}
+			}
+				
+			if (!Check.haveItem(sdk.items.DiamondBow, "unique", "Witchwild String") && (SetUp.finalBuild === "Witchyzon") || (!["Wfzon", "Faithbowzon"].includes(SetUp.currentBuild))) {
 				NTIP.addLine("[name] == shortsiegebow && [quality] == unique # [fireresist] == 40 # [maxquantity] == 1");
-				// keep the bow but don't upgrade it until we have our wanted belt
-				Check.haveItem("vampirefangbelt", "unique", "Nosferatu's Coil") && Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]);
+				// Witchyzon only - keep the bow but don't upgrade it until we have our wanted belt
+				((SetUp.finalBuild === "Witchyzon") && Check.haveItem("vampirefangbelt", "unique", "Nosferatu's Coil") || (["Wfzon", "Faithbowzon"].includes(SetUp.finalBuild)) && Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]));
+			}
+
+			// Spirit shield - while lvling and Wf final switch
+			if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 1000 && (["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) || (SetUp.finalBuild === "Wfzon" && Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit))) {
+				if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js")) {
+					include("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
+				}
 			}
 
 			Config.socketables
@@ -248,7 +282,7 @@ function LoadConfig () {
 						socketWith: [sdk.items.runes.Um],
 						temp: [sdk.items.gems.Perfect.Ruby],
 						useSocketQuest: true,
-						condition: (item) => item.unique && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal
+						condition: (item) => item.quality === sdk.itemquality.Unique && item.getStat(sdk.stats.LifeLeech) === 8 && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal
 					}
 				);
 
@@ -271,7 +305,7 @@ function LoadConfig () {
 			}
 
 			// Spirit shield
-			if ((me.ladder || Developer.addLadderRW) && ((Item.getEquippedItem(5).tier < 1000 && SetUp.currentBuild !== "Witchyzon") || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit)) {
+			if ((me.ladder || Developer.addLadderRW) && ((Item.getEquippedItem(5).tier < 1000 || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit))) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js")) {
 					include("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 				}
@@ -311,7 +345,7 @@ function LoadConfig () {
 		}
 
 		// Ancients' Pledge
-		if (Item.getEquippedItem(5).tier < 500 && SetUp.currentBuild !== "Witchyzon") {
+		if (Item.getEquippedItem(5).tier < 500 && (!["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1)) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js")) {
 				include("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
 			}
@@ -321,6 +355,13 @@ function LoadConfig () {
 		if (Item.getEquippedItem(3).tier < 634) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Treachery.js")) {
 				include("SoloPlay/BuildFiles/Runewords/Treachery.js");
+			}
+		}
+
+		// Merc Doom
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== 20532 && SetUp.finalBuild !== "Javazon") {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercDoom.js")) {
+				include("SoloPlay/BuildFiles/Runewords/MercDoom.js");
 			}
 		}
 

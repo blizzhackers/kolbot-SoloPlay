@@ -14,9 +14,9 @@
 let myData = CharData.getStats();
 
 // these builds are not possible to do on classic
-let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl", "Sancdreamer"];
+let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl", "Sancdreamer", "Faithbowzon", "Wfzon"];
 // these builds are not possible to do without ladder runewords
-let impossibleNonLadderBuilds = ["Auradin", "Sancdreamer"];
+let impossibleNonLadderBuilds = ["Auradin", "Sancdreamer", "Faithbowzon"];
 
 Unit.prototype.__defineGetter__('mercid', function () {
 	return !!myData ? myData.merc.classid : me.getMerc().classid;
