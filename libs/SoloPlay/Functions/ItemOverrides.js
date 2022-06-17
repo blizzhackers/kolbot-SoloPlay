@@ -155,8 +155,8 @@ Item.canEquip = function (item) {
 Item.autoEquipCheck = function (item) {
 	if (!Config.AutoEquip) return true;
 
-	let tier = NTIP.GetTier(item),
-		bodyLoc = this.getBodyLoc(item);
+	let tier = NTIP.GetTier(item);
+	let bodyLoc = this.getBodyLoc(item);
 
 	if (tier > 0 && bodyLoc) {
 		for (let i = 0; i < bodyLoc.length; i += 1) {
@@ -180,8 +180,8 @@ Item.autoEquipCheck = function (item) {
 Item.autoEquipKeepCheck = function (item) {
 	if (!Config.AutoEquip) return true;
 
-	let tier = NTIP.GetTier(item),
-		bodyLoc = this.getBodyLoc(item);
+	let tier = NTIP.GetTier(item);
+	let bodyLoc = this.getBodyLoc(item);
 
 	if (tier > 0 && bodyLoc) {
 		for (let i = 0; i < bodyLoc.length; i += 1) {
@@ -1044,8 +1044,9 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 	verbose && console.log("Amount of items: " + items.length);
 	items.length > 1 && items.sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a));
 
-	const finalCharmKeys = Object.keys(myData.me.charms);
 	const finalCharmInfo = Check.finalBuild().finalCharms;
+	const finalCharmKeys = Object.keys(finalCharmInfo);
+
 	let found = false;
 	
 	while (items.length > 0) {
