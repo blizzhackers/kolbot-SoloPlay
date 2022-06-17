@@ -123,6 +123,7 @@ function spendStatPoints () {
 
 function getTemplateFilename () {
 	let buildType = Config.AutoBuild.Template;
+	let templateFilename;
 	if (["Start", "Stepping", "Leveling"].includes(build)) {
 		templateFilename = "SoloPlay/Config/Builds/" + sdk.charclass.nameOf(me.classid) + "." + buildType + ".js";
 	} else {
