@@ -28,11 +28,11 @@ AutoMule.getMuleItems = function () {
 		})
 		.forEach(function (item) {
 			// Always drop items on Force or Trigger list
-			if (this.matchItem(item, Config.AutoMule.Force.concat(Config.AutoMule.Trigger)) ||
-				(!this.matchItem(item, Config.AutoMule.Exclude)
-				&& !this.cubingIngredient(item) // Don't mule cubing ingredients
-				&& !this.runewordIngredient(item) // Don't mule runeword ingredients
-				&& !this.utilityIngredient(item) // Don't mule crafting system ingredients
+			if (AutoMule.matchItem(item, Config.AutoMule.Force.concat(Config.AutoMule.Trigger)) ||
+				(!AutoMule.matchItem(item, Config.AutoMule.Exclude)
+				&& !AutoMule.cubingIngredient(item) // Don't mule cubing ingredients
+				&& !AutoMule.runewordIngredient(item) // Don't mule runeword ingredients
+				&& !AutoMule.utilityIngredient(item) // Don't mule crafting system ingredients
 				&& !SoloWants.keepItem(item))) { // Don't mule SoloWants system ingredients
 				items.push(copyUnit(item));
 			}
