@@ -50,6 +50,7 @@ NodeAction.popChests = function () {
 	let range = Pather.useTeleport() ? 25 : 15;
 	me.getMobCount(10) > 3 && (range = 8);
 	Config.OpenChests.Enabled && Misc.openChests(range);
+	Town.needHealing() && (range = 20);
 	Misc.useWell(range);
 };
 

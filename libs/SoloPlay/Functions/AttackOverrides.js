@@ -1310,7 +1310,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 	if (!unit || !unit.x || !unit.y) return false;
 	let useTele = Pather.useTeleport();
 	walk === true && (walk = 1);
-	
+
 	if (distance < 4 && (!unit.hasOwnProperty("mode") || (unit.mode !== 0 && unit.mode !== 12))) {
 		// we are actually able to walk to where we want to go, hopefully prevent wall hugging
 		if (walk && (unit.distance < 8 || !CollMap.checkColl(me, unit, 0x5 | 0x400 | 0x1000))) {
@@ -1323,12 +1323,12 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 		return !CollMap.checkColl(me, unit, coll);
 	}
 
-	let cx, cy, currCount, count = 999, potentialSpot = {x: undefined, y: undefined},
-		coords = [],
-		fullDistance = distance,
-		name = unit.hasOwnProperty("name") ? unit.name : "",
-		angle = Math.round(Math.atan2(me.y - unit.y, me.x - unit.x) * 180 / Math.PI),
-		angles = [0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 135, -135, 180];
+	let cx, cy, currCount, count = 999, potentialSpot = {x: undefined, y: undefined};
+	let coords = [];
+	let fullDistance = distance;
+	let name = unit.hasOwnProperty("name") ? unit.name : "";
+	let angle = Math.round(Math.atan2(me.y - unit.y, me.x - unit.x) * 180 / Math.PI);
+	let angles = [0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 135, -135, 180];
 
 	let caster = (force && !me.inTown);
 
@@ -1350,6 +1350,17 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 
 		if (coords.length > 0) {
 			coords.sort(Sort.units);
+			
+			// If one of the valid positions is a position I am at already - and we aren't trying to force a new spot
+			if (!force) {
+				for (let i = 0; i < coords.length; i += 1) {
+					if ((getDistance(me, coords[i].x, coords[i].y) < 1
+						&& !CollMap.checkColl(unit, {x: coords[i].x, y: coords[i].y}, 0x5 | 0x400 | 0x1000, 1))
+						|| (getDistance(me, coords[i].x, coords[i].y) <= 5 && me.getMobCount(6) > 2)) {
+						return true;
+					}
+				}
+			}
 
 			for (let i = 0; i < coords.length; i += 1) {
 				// Valid position found - no collision between the spot and the unit

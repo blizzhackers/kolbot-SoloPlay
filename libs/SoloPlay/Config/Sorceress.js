@@ -99,6 +99,7 @@ function LoadConfig () {
 		"([type] == helm || [type] == circlet) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Belt
 		"[type] == belt && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"me.normal && [type] == belt && [quality] >= lowquality && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Boots
 		"[type] == boots && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Armor
@@ -154,7 +155,23 @@ function LoadConfig () {
 	me.lightRes < 75 && Config.SkipEnchant.push("lightning enchanted");
 
 	/* Shrine scan configuration. */
-	Config.ScanShrines = [15, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14];
+	Config.ScanShrines = [
+		sdk.shrines.Refilling,
+		sdk.shrines.Health,
+		sdk.shrines.Mana,
+		sdk.shrines.Gem,
+		sdk.shrines.Experience,
+		sdk.shrines.HealthExchange,
+		sdk.shrines.ManaExchange,
+		sdk.shrines.Armor,
+		sdk.shrines.ResistFire,
+		sdk.shrines.ResistCold,
+		sdk.shrines.ResistLightning,
+		sdk.shrines.ResistPoison,
+		sdk.shrines.Skill,
+		sdk.shrines.ManaRecharge,
+		sdk.shrines.Stamina
+	];
 
 	/* Class specific configuration. */
 	Config.UseTelekinesis = !!me.getSkill(sdk.skills.Telekinesis, 0); // use telekinesis if have skill
