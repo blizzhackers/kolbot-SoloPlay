@@ -111,7 +111,7 @@ Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
 
 	if (addLowerRes && ["fire", "lightning", "cold", "poison"].includes(damageType) && unit.getState) {
 		let lowerResPercent = this.getLowerResistPercent();
-		if (!unit.getState(sdk.states.LowerResist) && ((unit.spectype & 0x7) || me.necromancer)) {
+		if (!unit.getState(sdk.states.LowerResist) && ((unit.isSpecial && me.gold > 500000) || me.necromancer)) {
 			return (this.getResist(unit, damageType) - (Math.floor(lowerResPercent / 5)) < 100);
 		}
 	}
@@ -1273,9 +1273,9 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
 		return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
 	}
 
-	let grid, index, currCount,
-		monList = [],
-		count = 999;
+	let grid, index, currCount;
+	let monList = [];
+	let count = 999;
 
 	monList = this.buildMonsterList();
 	monList.sort(Sort.units);
