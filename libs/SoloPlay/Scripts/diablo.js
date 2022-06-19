@@ -1,7 +1,8 @@
-/*
-*	@filename	Diablo.js
-*	@author		isid0re, theBGuy
-*	@desc		customized Diablo script
+/**
+*  @filename    diablo.js
+*  @author      theBGuy
+*  @desc        Diablo
+*
 */
 
 // todo: clean this up, listen for lights game packet while opening/checking seals
@@ -86,7 +87,7 @@ function diablo () {
 		let tick = getTickCount(), decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, 1) * 5) * 1000;
 
 		while (getTickCount() - tick < 17500) {
-			if (me.getMobCount(20) > 1) { Attack.clear(20); }
+			me.getMobCount(20) > 1 && Attack.clear(20);
 			if (getTickCount() - tick >= 8000) {
 				switch (me.classid) {
 				case sdk.charclass.Amazon:
@@ -305,7 +306,7 @@ function diablo () {
 
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
-	Pather.clearToExit(sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, true);
+	Pather.clearToExit(sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, true) && Pather.moveTo(7790, 5544);
 
 	if (me.coldRes < 75 || me.poisonRes < 75) {
 		Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});

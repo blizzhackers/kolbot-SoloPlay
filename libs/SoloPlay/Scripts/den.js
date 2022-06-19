@@ -1,7 +1,8 @@
-/*
-*	@filename	den.js
-*	@author		theBGuy
-*	@desc		den quest
+/**
+*  @filename    den.js
+*  @author      theBGuy
+*  @desc        den quest
+*
 */
 
 function den () {
@@ -47,6 +48,7 @@ function den () {
 
 	// START
 	let attempt = 1;
+	let killTracker = false;
 	Precast.doPrecast(true);
 	Attack.clear(50);
 	Pather.moveToExit(sdk.areas.DenofEvil, true);
@@ -56,20 +58,24 @@ function den () {
 		let corpseTick = getTickCount();
 		let corpsefire;
 
-		Worker.runInBackground.corpseTracker = function () {
-			if (me.area === sdk.areas.DenofEvil) {
-				if (getTickCount() - corpseTick < 1000) return true;
-				corpseTick = getTickCount();
-				corpsefire = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.Corpsefire));
+		if (!me.normal) {
+			Worker.runInBackground.corpseTracker = function () {
+				if (killTracker) return false;
+				if (me.area === sdk.areas.DenofEvil) {
+					if (getTickCount() - corpseTick < 1000) return true;
+					corpseTick = getTickCount();
+					corpsefire = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.Corpsefire));
 
-				if (corpsefire && !Attack.canAttack(corpsefire)) {
-					myPrint("Exit den. Corpsefire is immune");
-					throw new Error('ÿc8Kolbot-SoloPlayÿc0: Exit den. Corpsefire is immune');
+					if (corpsefire && !Attack.canAttack(corpsefire)) {
+						killTracker = true;
+						myPrint("Exit den. Corpsefire is immune");
+						throw new Error('ÿc8Kolbot-SoloPlayÿc0: Exit den. Corpsefire is immune');
+					}
 				}
-			}
 
-			return true;
-		};
+				return true;
+			};
+		}
 
 		while (!Misc.checkQuest(1, 0)) {
 			console.log("ÿc8Kolbot-SoloPlayÿc0: Clearing den attempt: " + attempt);
@@ -97,6 +103,7 @@ function den () {
 		}
 	}
 
+	killTracker = true;
 	me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
 
 	return true;
