@@ -75,15 +75,7 @@ function SoloPlay () {
 	this.runScripts = function () {
 		let j, k;
 
-		switch (Check.broken()) {
-		case 1:
-			return goToDifficulty('Nightmare', 'Oof I am nearly broken, going back to nightmare to get back on my feet');
-		case 2:
-			return goToDifficulty('Normal', 'Oof I am broken, going back to normal to get easy gold');
-		default:
-			break;
-		}
-
+		Check.brokeCheck();
 		Check.usePreviousSocketQuest(); // Currently only supports going back to nightmare to socket a lidless if one is equipped.
 
 		let updatedDifficulty = Check.nextDifficulty();
