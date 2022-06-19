@@ -6,8 +6,8 @@
 
 function anya () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting anya');
-	me.overhead("anya");
+	Town.goToTown(5);
+	myPrint('starting anya');
 
 	if (!me.anya) {
 		Pather.checkWP(sdk.areas.CrystalizedPassage, true) ? Pather.useWaypoint(sdk.areas.CrystalizedPassage) : Pather.getWP(sdk.areas.CrystalizedPassage);

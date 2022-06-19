@@ -303,6 +303,98 @@ Item.autoEquip = function () {
 	return true;
 };
 
+Item.outOfTownAutoEquip = function () {
+	if (!Config.AutoEquip) return true;
+
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Entering out of town auto equip");
+
+	let tick = getTickCount();
+	let items = me.getItemsEx()
+		.filter(function (item) {
+			if (!item.isInInventory) return false;
+			let tier = NTIP.GetTier(item);
+			return (item.identified ? tier > 0 : tier !== 0);
+		});
+
+	// couldn't find my items
+	if (!items.length) return false;
+
+	function sortEq (a, b) {
+		if (Item.canEquip(a)) return -1;
+		if (Item.canEquip(b)) return 1;
+
+		return 0;
+	}
+
+	// ring check - sometimes a higher tier ring ends up on the wrong finger causing a rollback loop
+	if (this.getEquippedItem(7).tier > this.getEquippedItem(6).tier) {
+		console.log("ÿc9OutOfTownAutoEquipÿc0 :: Swapping rings, higher tier ring is on the wrong finger");
+		clickItemAndWait(0, 7);
+		delay(200);
+		me.itemoncursor && clickItemAndWait(0, 6);
+		delay(200);
+		me.itemoncursor && clickItemAndWait(0, 7);
+	}
+
+	me.cancel();
+
+	while (items.length > 0) {
+		items.sort(sortEq);
+		let tier = NTIP.GetTier(items[0]);
+		let bodyLoc = this.getBodyLoc(items[0]);
+
+		if (tier > 0 && bodyLoc) {
+			for (let j = 0; j < bodyLoc.length; j += 1) {
+				let equippedItem = this.getEquippedItem(bodyLoc[j]);
+				if (items[0].isInInventory && tier > equippedItem.tier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
+					if (!items[0].identified) {
+						let idTool = Town.getIdTool();
+						idTool && Town.identifyItem(items[0], idTool);
+					}
+
+					if (items[0].twoHanded && !me.barbarian) {
+						if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
+							continue;
+						}
+						console.log("ÿc9OutOfTownAutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
+					}
+
+					if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1 && this.getEquippedItem(4).twoHanded) {
+						if (tier < this.getEquippedItem(4).tier) {
+							continue;
+						}
+						console.log("ÿc9OutOfTownAutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
+					}
+
+					let gid = items[0].gid;
+					console.debug(items[0].name);
+
+					if (this.equip(items[0], bodyLoc[j])) {
+						console.log("ÿc9OutOfTownAutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
+						// item that can have sockets
+						if (items[0].getItemType()) {
+							SoloWants.addToList(items[0]);
+							SoloWants.ensureList();
+						}
+						/* Developer.debugging.autoEquip &&  */Misc.logItem("Field Equipped", me.getItem(-1, -1, gid));
+						Developer.logEquipped && MuleLogger.logEquippedItems();
+					} else if (me.getItem(-1, -1, gid)) {
+						// Make sure we didn't lose it during roll back
+						continue;
+					}
+
+					break;
+				}
+			}
+		}
+
+		items.shift();
+	}
+
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting out of town auto equip. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
+	return true;
+};
+
 Item.equip = function (item, bodyLoc) {
 	// can't equip
 	if (!this.canEquip(item)) return false;

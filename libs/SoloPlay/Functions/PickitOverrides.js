@@ -219,22 +219,10 @@ Pickit.canFit = function (item) {
 Pickit.canPick = function (unit) {
 	if (!unit) return false;
 	
-	switch (unit.classid) {
-	case 92: // Staff of Kings
-	case 173: // Khalim's Flail
-	case 521: // Viper Amulet
-	case 546: // Jade Figurine
-	case 549: // Cube
-	case 551: // Mephisto's Soulstone
-	case 552: // Book of Skill
-	case 553: // Khalim's Eye
-	case 554: // Khalim's Heart
-	case 555: // Khalim's Brain
+	if (sdk.quest.items.includes(unit.classid)) {
 		if (me.getItem(unit.classid)) {
 			return false;
 		}
-
-		break;
 	}
 	
 	// TODO: clean this up
@@ -289,7 +277,7 @@ Pickit.canPick = function (unit) {
 
 			if (charm) {
 				do {
-					if (charm.unique) {
+					if (unit.unique) {
 						return false; // Skip Gheed's Fortune, Hellfire Torch or Annihilus if we already have one
 					}
 				} while (charm.getNext());
@@ -405,9 +393,9 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		self.picked = false;
 	}
 
-	let item, tick, gid, stats, retry = false,
-		cancelFlags = [0x01, 0x08, 0x14, 0x0c, 0x19, 0x1a],
-		itemCount = me.itemcount;
+	let item, tick, gid, stats, retry = false;
+	let cancelFlags = [0x01, 0x08, 0x14, 0x0c, 0x19, 0x1a];
+	let itemCount = me.itemcount;
 
 	if (!unit || unit === undefined) return false;
 
@@ -556,9 +544,9 @@ Pickit.pickItem = function (unit, status, keptLine) {
 };
 
 Pickit.pickItems = function (range = Config.PickRange, once = false) {
-	let status, canFit,
-		needMule = false,
-		pickList = [];
+	let status, canFit;
+	let needMule = false;
+	let pickList = [];
 
 	Town.clearBelt();
 
@@ -585,16 +573,17 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 
 		// Check if the item unit is still valid and if it's on ground or being dropped
 		// Don't pick items behind walls/obstacles when walking
-		if (copyUnit(pickList[0]).x !== undefined && (pickList[0].mode === 3 || pickList[0].mode === 5) && (Pather.useTeleport() || me.inTown || !checkCollision(me, pickList[0], 0x1))) {
+		if (copyUnit(pickList[0]).x !== undefined && (pickList[0].mode === 3 || pickList[0].mode === 5)
+			&& (Pather.useTeleport() || me.inTown || !checkCollision(me, pickList[0], 0x1))) {
 			// Check if the item should be picked
 			status = this.checkItem(pickList[0]);
 
 			if (status.result && Pickit.canPick(pickList[0])) {
 				canFit = this.canFit(pickList[0]);
 
-				// Try to make room with FieldID
-				if (!canFit && Config.FieldID.Enabled && Town.fieldID()) {
-					canFit = this.canFit(pickList[0]);
+				// Field id when our used space is above a certain percent or if we are full try to make room with FieldID
+				if (Config.FieldID.Enabled && (!canFit || Storage.Inventory.UsedSpacePercent() > Config.FieldID.UsedSpace)) {
+					Town.fieldID() && (canFit = (pickList[0].gid !== undefined && Storage.Inventory.CanFit(pickList[0])));
 				}
 
 				// Try to make room by selling items in town

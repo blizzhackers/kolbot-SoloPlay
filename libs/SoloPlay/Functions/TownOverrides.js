@@ -42,71 +42,6 @@ new Overrides.Override(Town, Town.buyPotions, function (orignal) {
 	return false;
 }).apply();
 
-new Overrides.Override(Town, Town.initNPC, function (orignal, task, reason) {
-	print("initNPC: " + reason);
-
-	let npc = getInteractedNPC();
-
-	try {
-		if (!!npc && npc.name.toLowerCase() !== this.tasks[me.act - 1][task]) {
-			me.cancelUIFlags();
-			npc = null;
-		}
-
-		// Jamella gamble fix
-		if (task === "Gamble" && !!npc && npc.name.toLowerCase() === NPC.Jamella) {
-			me.cancelUIFlags();
-			npc = null;
-		}
-
-		if (!npc) {
-			npc = getUnit(1, this.tasks[me.act - 1][task]);
-
-			if (!npc) {
-				this.move(this.tasks[me.act - 1][task]);
-				npc = getUnit(1, this.tasks[me.act - 1][task]);
-			}
-		}
-
-		if (!npc || npc.area !== me.area || (!getUIFlag(sdk.uiflags.NPCMenu) && !npc.openMenu())) {
-			// this.move(this.tasks[me.act - 1][task]);
-			// // handle getUnit bug - we still are able to openMenu using packets so attempt it - note was failing in a3 so need a better solution
-			// !!npc && npc.openMenu();
-			if (!getUIFlag(sdk.uiflags.NPCMenu)) throw new Error("Couldn't interact with npc");
-		}
-
-		switch (task) {
-		case "Shop":
-		case "Repair":
-		case "Gamble":
-			if (!getUIFlag(0x0C) && !npc.startTrade(task)) throw new Error("Failed to complete " + reason + " at " + npc.name);
-
-			break;
-		case "Key":
-			if (!getUIFlag(0x0C) && !npc.startTrade(me.act === 3 ? "Repair" : "Shop")) throw new Error("Failed to complete " + reason + " at " + npc.name);
-
-			break;
-		case "CainID":
-			Misc.useMenu(0x0FB4);
-			me.cancelUIFlags();
-
-			break;
-		case "Heal":
-			me.getState(sdk.states.Frozen) && this.buyPots(2, "Thawing", true, true);
-
-			break;
-		}
-
-		console.log("Did " + reason + " at " + npc.name);
-	} catch (e) {
-		console.errorReport(e);
-
-		return false;
-	}
-
-	return npc;
-}).apply();
-
 // Removed Missle Potions for easy gold
 // Items that won't be stashed
 Town.ignoredItemTypes = [
@@ -115,6 +50,58 @@ Town.ignoredItemTypes = [
 	sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion, sdk.itemtype.StaminaPotion,
 	sdk.itemtype.AntidotePotion, sdk.itemtype.ThawingPotion
 ];
+
+Town.needPotions = function () {
+	if (me.charlvl > 2 && me.gold > 1000) {
+		let potion;
+		let needhp = true;
+		let needmp = true;
+
+		for (let i = 0; i < 4; i += 1) {
+			if (Config.MinColumn[i] <= 0) {
+				continue;
+			}
+			
+			if (Config.BeltColumn[i] === "hp") {
+				potion = me.getItem(-1, 2); // belt item
+
+				if (potion) {
+					do {
+						if (potion.code.includes("hp")) {
+							needhp = false;
+
+							break;
+						}
+					} while (potion.getNext());
+				}
+
+				if (needhp) {
+					return true;
+				}
+			}
+
+			if (Config.BeltColumn[i] === "mp") {
+				potion = me.getItem(-1, 2); // belt item
+
+				if (potion) {
+					do {
+						if (potion.code.includes("mp")) {
+							needmp = false;
+
+							break;
+						}
+					} while (potion.getNext());
+				}
+
+				if (needmp) {
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+};
 
 // need to build task list then do them.
 // This way we can look ahead to see if there is a task thats going to be done at the current npc like buyPots and just go ahead and do it
@@ -150,6 +137,7 @@ Town.townTasks = function (buyPots = {}) {
 	extraTasks.antidote && CharData.buffData.antidote.need() && Town.buyPots(12, "Antidote", true);
 	extraTasks.stamina && Town.buyPots(12, "Stamina", true);
 	this.fillTome(sdk.items.TomeofTownPortal);
+	Config.FieldID.Enabled && this.fillTome(sdk.items.TomeofIdentify);
 	this.shopItems();
 	this.buyKeys();
 	this.repair(true);
@@ -180,7 +168,7 @@ Town.townTasks = function (buyPots = {}) {
 	}
 
 	delay(200 + me.ping * 2);
-	console.debug("ÿc8End ÿc0:: ÿc8TownTasksÿc0 - ÿc7Duration: ÿc0" + (new Date(getTickCount() - tick).toISOString().slice(11, -5)));
+	console.debug("ÿc8End ÿc0:: ÿc8TownTasksÿc0 - ÿc7Duration: ÿc0" + formatTime(getTickCount() - tick));
 
 	return true;
 };
@@ -207,6 +195,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	let preAct = me.act;
 
 	me.switchWeapons(Attack.getPrimarySlot());
+
 	this.heal();
 	this.identify();
 	this.clearInventory();
@@ -216,6 +205,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	extraTasks.antidote && CharData.buffData.antidote.need() && Town.buyPots(12, "Antidote", true);
 	extraTasks.stamina && Town.buyPots(12, "Stamina", true);
 	this.fillTome(sdk.items.TomeofTownPortal);
+	Config.FieldID.Enabled && this.fillTome(sdk.items.TomeofIdentify);
 	this.shopItems();
 	this.buyKeys();
 	this.repair(repair);
@@ -233,6 +223,9 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	this.stash();
 	this.clearJunk();
 	!!me.getItem(sdk.items.TomeofTownPortal) && this.clearScrolls();
+	// check pots again, we might have enough gold now if we didn't before
+	Town.needPotions() && this.buyPotions() && me.cancelUIFlags();
+
 	this.sortInventory();
 	Quest.characterRespec();
 
@@ -245,8 +238,8 @@ Town.doChores = function (repair = false, buyPots = {}) {
 		Pather.checkForTeleCharges();
 	}
 
-	delay(200 + me.ping * 2);
-	console.debug("ÿc8End ÿc0:: ÿc8TownChoresÿc0 - ÿc7Duration: ÿc0" + (new Date(getTickCount() - tick).toISOString().slice(11, -5)));
+	delay(250);
+	console.debug("ÿc8End ÿc0:: ÿc8TownChoresÿc0 - ÿc7Duration: ÿc0" + formatTime(getTickCount() - tick));
 
 	return true;
 };
@@ -293,7 +286,7 @@ Town.cainID = function (force = false) {
 			let result = Pickit.checkItem(item);
 
 			// Force ID for unid items matching autoEquip criteria
-			if ([1, 2].indexOf(result.result) > -1 && !item.identified && AutoEquip.hasTier(item)) {
+			if ([1, 2].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
 				result.result = -1;
 			}
 
@@ -406,6 +399,65 @@ Town.cainID = function (force = false) {
 	return true;
 };
 
+Town.fieldID = function () {
+	let list = this.getUnids();
+	if (!list) return false;
+
+	let tome = me.findItem(sdk.items.TomeofIdentify, 0, 3);
+	if (!tome || tome.getStat(sdk.stats.Quantity) < list.length) return false;
+
+	while (list.length > 0) {
+		let item = list.shift();
+		let result = Pickit.checkItem(item);
+
+		// Force ID for unid items matching autoEquip criteria
+		if ([1, 2].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
+			result.result = -1;
+		}
+
+		// unid item that should be identified
+		if (result.result === Pickit.result.UNID) {
+			this.identifyItem(item, tome, Config.FieldID.PacketID);
+			delay(50);
+			result = Pickit.checkItem(item);
+
+			switch (result.result) {
+			case Pickit.result.WANTED:
+				Misc.itemLogger("Field Kept", item);
+				Misc.logItem("Field Kept", item, result.line);
+
+				if (Item.autoEquipCheck(item)) {
+					Item.outOfTownAutoEquip();
+				}
+
+				break;
+			case Pickit.result.CUBING:
+				Misc.itemLogger("Field Kept", item, "Cubing-Town");
+				Cubing.update();
+
+				break;
+			case Pickit.result.CRAFTING:
+				Misc.itemLogger("Field Kept", item, "CraftSys-Town");
+				CraftingSystem.update(item);
+
+				break;
+			case 8: // SoloWants System
+				Misc.itemLogger("Field Kept", item, "SoloWants-Town");
+				SoloWants.update(item);
+
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	delay(200);
+	me.cancel();
+
+	return true;
+};
+
 Town.identify = function () {
 	if (me.gold < 5000 && this.cainID(true)) return true;
 	
@@ -425,8 +477,8 @@ Town.identify = function () {
 	let npc = this.initNPC("Shop", "identify");
 	if (!npc) return false;
 
-	let tome = me.findItem(519, 0, 3);
-	tome && tome.getStat(sdk.stats.Quantity) < list.length && this.fillTome(519);
+	let tome = me.findItem(sdk.items.TomeofIdentify, 0, 3);
+	tome && tome.getStat(sdk.stats.Quantity) < list.length && this.fillTome(sdk.items.TomeofIdentify);
 
 	MainLoop:
 	while (list.length > 0) {
@@ -436,7 +488,7 @@ Town.identify = function () {
 			let result = Pickit.checkItem(item);
 
 			// Force ID for unid items matching autoEquip criteria
-			if ([1, 2].indexOf(result.result) > -1 && !item.identified && AutoEquip.hasTier(item)) {
+			if ([1, 2].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
 				result.result = -1;
 			}
 
@@ -543,9 +595,9 @@ Town.identify = function () {
 // credit isid0re
 Town.buyBook = function () {
 	if (me.findItem(sdk.items.TomeofTownPortal, 0, 3)) return true;
+	if (me.gold < 500) return false;
 
 	let npc = this.initNPC("Shop", "buyTpTome");
-
 	if (!npc) return false;
 
 	delay(500);
@@ -584,8 +636,8 @@ Town.buyBook = function () {
 Town.shopItems = function () {
 	if (!Config.MiniShopBot) return true;
 
-	let npc = getInteractedNPC(),
-		goldLimit = [10000, 20000, 30000][me.diff];
+	let npc = getInteractedNPC();
+	let goldLimit = [10000, 20000, 30000][me.diff];
 
 	if (!npc || !npc.itemcount) return false;
 

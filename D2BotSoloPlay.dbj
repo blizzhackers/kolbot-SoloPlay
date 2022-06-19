@@ -107,13 +107,15 @@ new Overrides.Override(Starter, Starter.receiveCopyData, function (orignal, mode
 
 					if (!soloStats.me.finalBuild || soloStats.me.finalBuild !== Starter.profileInfo.tag) {
 						D2Bot.setProfile(null, null, null, null, null, Starter.profileInfo.tag);
-						CharData.updateData("me", "finalBuild", Starter.profileInfo.tag);
 						soloStats.me.finalBuild = Starter.profileInfo.tag;
+						soloStats.me.charms = {};
+						CharData.updateData("me", soloStats);
 					}
 
 					if (!["Start", "Stepping", "Leveling"].includes(soloStats.me.currentBuild) && soloStats.me.currentBuild !== soloStats.me.finalBuild) {
-						CharData.updateData("me", "currentBuild", "Leveling");
 						soloStats.me.currentBuild = "Leveling";
+						soloStats.me.charms = {};
+						CharData.updateData("me", soloStats);
 					}
 				}
 			} else {

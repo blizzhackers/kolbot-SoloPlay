@@ -14,6 +14,10 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
+			Config.ScanShrines.push(sdk.shrines.Combat);
+			Config.FieldID.Enabled = !Misc.checkQuest(4, 0);
+			Config.FieldID.UsedSpace = 0;
+
 			Config.BeltColumn = ["hp", "hp", "hp", "hp"];
 			SetUp.belt();
 			Config.HPBuffer = 2;
@@ -27,6 +31,10 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
+			Config.ScanShrines.push(sdk.shrines.Combat);
+			Config.FieldID.Enabled = !Misc.checkQuest(4, 0);
+			Config.FieldID.UsedSpace = 0;
+
 			Config.TownHP = me.hardcore ? 0 : 35;
 			Config.LowManaSkill = [0, 0];
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];

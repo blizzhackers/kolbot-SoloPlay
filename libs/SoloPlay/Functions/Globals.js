@@ -226,16 +226,20 @@ const SetUp = {
 		ItemsSortedFromLeft: [], // default: everything not in Config.ItemsSortedFromRight
 		ItemsSortedFromRight: [
 			// (NOTE: default pickit is fastest if the left side is open)
-			603, 604, 605, // sort charms from the right
-			519, 518, 543, // sort tomes and keys to the right
-			515, 516, 587, 588, 589, 590, 591, 592, 593, 594, 595, 596 // sort all inventory potions from the right
+			sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm, // sort charms from the right
+			sdk.items.TomeofIdentify, sdk.items.TomeofTownPortal, sdk.items.Key, // sort tomes and keys to the right
+			// sort all inventory potions from the right
+			sdk.items.RejuvenationPotion, sdk.items.FullRejuvenationPotion,
+			sdk.items.MinorHealingPotion, sdk.items.LightHealingPotion, sdk.items.HealingPotion, sdk.items.GreaterHealingPotion, sdk.items.SuperHealingPotion,
+			sdk.items.MinorManaPotion, sdk.items.LightManaPotion, sdk.items.ManaPotion, sdk.items.GreaterManaPotion, sdk.items.SuperHealingPotion
 		],
 		PrioritySorting: true,
 		ItemsSortedFromLeftPriority: [/*605, 604, 603, 519, 518*/], // (NOTE: the earlier in the index, the further to the Left)
 		ItemsSortedFromRightPriority: [
 			// (NOTE: the earlier in the index, the further to the Right)
-			605, 604, 603, // sort charms from the right, GC > LC > SC
-			519, 518, 543
+			// sort charms from the right, GC > LC > SC
+			sdk.items.GrandCharm, sdk.items.LargeCharm, sdk.items.SmallCharm,
+			sdk.items.TomeofIdentify, sdk.items.TomeofTownPortal, sdk.items.Key
 		],
 	},
 
@@ -976,13 +980,64 @@ const Check = {
 		return 0;
 	},
 
+	brokeCheck: function () {
+		Town.doChores();
+
+		let wep;
+		let myGold = me.gold;
+		let repairCost = me.getRepairCost();
+		let items = (Town.getItemsForRepair(100, false) || []);
+		let meleeChar = Check.currentBuild().caster;
+		let msg = "";
+		let diff = -1;
+
+		switch (me.diff) {
+		case sdk.difficulty.Normal:
+			return;
+		case sdk.difficulty.Nightmare:
+			if (myGold < repairCost) {
+				// check how broke we are - only for melee chars since casters don't care about weapons
+				wep = items.filter(i => i.isEquipped && i.bodylocation === 4).first();
+				if (!!wep && meleeChar && wep.durabilityPercent === 0) {
+					// we are really broke - go back to normal
+					msg = " We are broken - lets get some easy gold in normal";
+					diff = sdk.difficulty.Normal;
+				} else {
+					console.log(" We are pretty broke, lets runs some easy stuff for gold");
+				}
+			}
+
+			break;
+		case sdk.difficulty.Hell:
+			if (myGold < repairCost) {
+				// check how broke we are - only for melee chars since casters don't care about weapons
+				wep = items.filter(i => i.isEquipped && i.bodylocation === 4).first();
+				if (!!wep && meleeChar && wep.durabilityPercent === 0) {
+					// we are really broke - go back to normal
+					msg = " We are broken - lets get some easy gold in normal";
+					diff = sdk.difficulty.Normal;
+				} else {
+					msg = " We are pretty broke, lets run some easy stuff in nightmare for gold";
+					diff = sdk.difficulty.Nightmare;
+				}
+			}
+
+			break;
+		}
+
+		if (diff > -1) {
+			goToDifficulty(diff, msg);
+			scriptBroadcast("quit");
+		}
+	},
+
 	resistance: function () {
-		let resStatus,
-			resPenalty = me.getResPenalty(me.diff + 1),
-			frRes = me.getStat(sdk.stats.FireResist) - resPenalty,
-			lrRes = me.getStat(sdk.stats.LightResist) - resPenalty,
-			crRes = me.getStat(sdk.stats.ColdResist) - resPenalty,
-			prRes = me.getStat(sdk.stats.PoisonResist) - resPenalty;
+		let resStatus;
+		let resPenalty = me.getResPenalty(me.diff + 1);
+		let frRes = me.getStat(sdk.stats.FireResist) - resPenalty;
+		let lrRes = me.getStat(sdk.stats.LightResist) - resPenalty;
+		let crRes = me.getStat(sdk.stats.ColdResist) - resPenalty;
+		let prRes = me.getStat(sdk.stats.PoisonResist) - resPenalty;
 
 		resStatus = ((frRes > 0) && (lrRes > 0) && (crRes > 0));
 

@@ -13,20 +13,24 @@ Misc.townEnabled = true;
 Misc.townCheck = function () {
 	if (!Town.canTpToTown()) return false;
 	
-	let potion, check,
-		needhp = true,
-		needmp = true;
+	let potion, check;
+	let needhp = true;
+	let needmp = true;
 
 	if (Config.TownCheck && !me.inTown) {
 		try {
-			if (me.charlvl > 2 && me.gold > 500) {
+			if (me.charlvl > 2 && me.gold > 1000) {
 				for (let i = 0; i < 4; i += 1) {
-					if (Config.BeltColumn[i] === "hp" && Config.MinColumn[i] > 0) {
+					if (Config.MinColumn[i] <= 0) {
+						continue;
+					}
+					
+					if (Config.BeltColumn[i] === "hp") {
 						potion = me.getItem(-1, 2); // belt item
 
 						if (potion) {
 							do {
-								if (potion.code.indexOf("hp") > -1) {
+								if (potion.code.includes("hp")) {
 									needhp = false;
 
 									break;
@@ -41,12 +45,12 @@ Misc.townCheck = function () {
 						}
 					}
 
-					if (Config.BeltColumn[i] === "mp" && Config.MinColumn[i] > 0) {
+					if (Config.BeltColumn[i] === "mp") {
 						potion = me.getItem(-1, 2); // belt item
 
 						if (potion) {
 							do {
-								if (potion.code.indexOf("mp") > -1) {
+								if (potion.code.includes("mp")) {
 									needmp = false;
 
 									break;
@@ -83,15 +87,15 @@ Misc.townCheck = function () {
 };
 
 Misc.openChests = function (range = 15) {
-	let unitList = [],
-		containers = [
-			"chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack",
-			"holeanim", "roguecorpse", "corpse", "tomb2", "tomb3", "chest3",
-			"skeleton", "guardcorpse", "sarcophagus", "object2", "cocoon", "hollow log", "hungskeleton",
-			"bonechest", "woodchestl", "woodchestr",
-			"burialchestr", "burialchestl", "chestl", "chestr", "groundtomb", "tomb3l", "tomb1l",
-			"deadperson", "deadperson2", "groundtombl", "casket"
-		];
+	let unitList = [];
+	let containers = [
+		"chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack",
+		"holeanim", "roguecorpse", "corpse", "tomb2", "tomb3", "chest3",
+		"skeleton", "guardcorpse", "sarcophagus", "object2", "cocoon", "hollow log", "hungskeleton",
+		"bonechest", "woodchestl", "woodchestr",
+		"burialchestr", "burialchestl", "chestl", "chestr", "groundtomb", "tomb3l", "tomb1l",
+		"deadperson", "deadperson2", "groundtombl", "casket"
+	];
 
 	if (Config.OpenChests.Types.some((el) => el.toLowerCase() === "all")) {
 		containers = [
@@ -149,8 +153,8 @@ Misc.useWell = function (range = 15) {
 	let unitList = [];
 
 	// I'm in perfect health, don't need this shit
-	if (me.hpPercent >= 95 && me.mpPercent >= 95 && me.staminaPercent >= 95 &&
-		[sdk.states.Frozen, sdk.states.Poison, sdk.states.AmplifyDamage, sdk.states.Decrepify].every(function (states) { return !me.getState(states); })) {
+	if (me.hpPercent >= 95 && me.mpPercent >= 95 && me.staminaPercent >= 50
+		&& [sdk.states.Frozen, sdk.states.Poison, sdk.states.AmplifyDamage, sdk.states.Decrepify].every((states) => !me.getState(states))) {
 		return true;
 	}
 
