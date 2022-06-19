@@ -25,6 +25,7 @@ const CharData = {
 			socketUsed: false,
 		},
 		me: {
+			task: "",
 			startTime: 0,
 			charName: "",
 			classid: -1,
@@ -43,6 +44,7 @@ const CharData = {
 			classid: 271,
 			difficulty: 0,
 			type: "",
+			gear: [],
 		}
 	},
 

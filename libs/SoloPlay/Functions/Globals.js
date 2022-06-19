@@ -54,80 +54,20 @@ function updateMyData () {
 }
 
 function ensureData () {
-	if (!myData.me.charms || !Object.keys(myData.me.charms).length) {
-		myData.me.charms = Check.finalBuild().finalCharms;
-		CharData.updateData("me", myData) && updateMyData();
-	}
-
-	let cUpdate = false;
-
-	if (!myData.me.charmGids) {
-		myData.me.charmGids = [];
-		CharData.updateData("me", myData) && updateMyData();
-	} else if (myData.me.charmGids.length > 0) {
-		// gids change from game to game so reset our list
-		myData.me.charmGids = [];
-		cUpdate = true;
-	}
-
-	const finalCharmKeys = Object.keys(myData.me.charms);
-	// gids change from game to game so reset our list
-	for (let i = 0; i < finalCharmKeys.length; i++) {
-		let cKey = finalCharmKeys[i];
-		if (myData.me.charms[cKey].have.length) {
-			myData.me.charms[cKey].have = [];
-			cUpdate = true;
-		}
-	}
-
-	cUpdate && updateMyData();
 	let temp = Misc.copy(myData);
 
 	if (myData.me.currentBuild !== SetUp.getBuild()) {
 		switch (true) {
-		case Check.currentBuild().active():
-		case Check.finalBuild().active():
-			myData.me.currentBuild = SetUp.getBuild();
+		// case Check.currentBuild().active():
+		// case Check.finalBuild().active():
+		// 	myData.me.currentBuild = SetUp.getBuild();
 
-			break;
+		// 	break;
 		case !["Start", "Stepping", "Leveling"].includes(SetUp.getBuild()) && myData.me.currentBuild !== myData.me.finalBuild:
 			myData.me.currentBuild = "Leveling";
 			myData.me.charms = {};
 
 			break;
-		}
-	}
-
-	if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff))) {
-		myData.me.highestDifficulty = sdk.difficulty.nameOf(me.diff);
-	}
-
-	if (!!me.smith && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed === false) {
-		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
-	}
-
-	if (!!me.respec && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed === false) {
-		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
-	}
-
-	myData.me.level !== me.charlvl && (myData.me.level = me.charlvl);
-	myData.me.strength !== me.rawStrength && (myData.me.strength = me.rawStrength);
-	myData.me.dexterity !== me.rawDexterity && (myData.me.dexterity = me.rawDexterity);
-
-	// Merc check
-	if (me.expansion) {
-		if (!!me.getMerc()) {
-			// TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
-			// can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
-			let merc = me.getMerc();
-			if (merc.classid !== myData.merc.classid) {
-				myData.merc.classid = merc.classid;
-				console.debug(myData.merc);
-			}
-		}
-
-		if (!!me.shenk && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed === false) {
-			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
 		}
 	}
 
@@ -154,51 +94,127 @@ const SetUp = {
 		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests",
 	],
 
-	// TODO: write me.mainDps prototype to clean up exclusions
-	/*scripts: {
-		corpsefire: {
-			preReq: () => { return me.den && me.hell; },
-			skipIf: () => { return me.druid && me.paladin; },
-			runIf: () => { return this.preReq() && !this.skipIf() && (!me.andariel || Check.brokeAf()); }
-		},
-		den: {
-			runIf: () => { return !me.den; }
-		},
-		bloodraven: {
-			skipIf: () => { return ["Lightning", "Trapsin", "Javazon"].includes(SetUp.currentBuild); },
-			byDiff: () => {
-				switch (me.diff) {
-				case sdk.difficulty.Normal:
-					return !me.bloodraven || (!me.summoner && Check.brokeAf()) || (!me.tristram && me.barbarian);
-				case sdk.difficulty.Nightmare:
-					return !me.bloodraven;
-				case sdk.difficulty.Hell:
-					return !this.skipIf();
+	init: function () {
+		let myData = CharData.getStats();
+
+		if (!myData.initialized) {
+			myData.me.startTime = me.gamestarttime;
+			myData.me.level = me.charlvl;
+			myData.me.classid = me.classid;
+			myData.me.charName = me.name;
+			myData.me.strength = me.rawStrength;
+			myData.me.dexterity = me.rawDexterity;
+			
+			if (me.expansion) {
+				myData.me.charms = Check.finalBuild().finalCharms;
+			}
+
+			myData.initialized = true;
+			CharData.updateData("me", myData);
+		}
+
+		let temp = Misc.copy(myData);
+
+		// if (myData.me.currentBuild !== SetUp.getBuild()) {
+		// 	// todo - some builds require merc to have infinity, if merc is dead while we perform this check our final build can return inactive
+		// 	// need to track mercs gear, all gear or just runewords? Might be alot of data file writes to do all gear
+		// 	switch (true) {
+		// 	case Check.currentBuild().active():
+		// 	case Check.finalBuild().active():
+		// 		myData.me.currentBuild = SetUp.getBuild();
+
+		// 		break;
+		// 	case !["Start", "Stepping", "Leveling"].includes(SetUp.getBuild()) && myData.me.currentBuild !== myData.me.finalBuild:
+		// 		myData.me.currentBuild = "Leveling";
+		// 		myData.me.charms = {};
+
+		// 		break;
+		// 	}
+		// }
+
+		if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff))) {
+			myData.me.highestDifficulty = sdk.difficulty.nameOf(me.diff);
+		}
+
+		if (!!me.smith && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed === false) {
+			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
+		}
+
+		if (!!me.respec && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed === false) {
+			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
+		}
+
+		myData.me.level !== me.charlvl && (myData.me.level = me.charlvl);
+		myData.me.strength !== me.rawStrength && (myData.me.strength = me.rawStrength);
+		myData.me.dexterity !== me.rawDexterity && (myData.me.dexterity = me.rawDexterity);
+
+		// expansion check
+		let cUpdate = false;
+		let mUpdate = false;
+
+		if (me.expansion) {
+			if (!myData.merc.gear) {
+				myData.merc.gear = [];
+				mUpdate = true;
+			}
+			
+			// merc check
+			if (!!me.getMerc()) {
+				// TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
+				// can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
+				let merc = me.getMerc();
+				
+				if (myData.merc.gear.length > 0) {
+					merc.getItemsEx().forEach(item => {
+						if (item.runeword && myData.merc.gear.indexOf(item.prefixnum) === -1) {
+							myData.merc.gear.remove(item.prefixnum);
+						}
+					});
 				}
-			},
-			runIf: () => { return this.byDiff(); }
-		},
-		treehead: {
-			skipIf: () => { return !me.hell || !me.paladin || !Pather.accessToAct(3); },
-			runIf: () => { return !this.skipIf() && SetUp.currentBuild !== SetUp.finalBuild; }
-		},
-		smith: {
-			// does smith have leveling potential? for now just if we need the q
-			runIf: () => { return !Misc.checkQuest(3, 1) && !me.smith; }
-		},
-		tristram: {
-			skipIf: () => { return },
-			byDiff: () => {
-				switch (me.diff) {
-				case sdk.difficulty.Normal:
-					return (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf());
-				case sdk.difficulty.Nightmare:
-				case sdk.difficulty.Hell:
-					return !this.skipIf();
+
+				merc.classid !== myData.merc.classid && (myData.merc.classid = merc.classid);
+
+				if (merc.classid === sdk.monsters.mercs.Guard && !Merc.checkMercSkill(myData.merc.type)) {
+				// go back, need to make sure this works properly.
+				// only "go back" if we are past the difficulty we need to be in to hire merc. Ex. In hell but want holy freeze merc
+				// only if we have enough gold on hand to hire said merc
+				// return to our orignal difficulty afterwards
 				}
 			}
-		},
-	},*/
+
+			// charm check
+			if (!myData.me.charms || !Object.keys(myData.me.charms).length) {
+				myData.me.charms = Check.finalBuild().finalCharms;
+				cUpdate = true;
+			}
+
+			if (!myData.me.charmGids || myData.me.charmGids.length > 0) {
+				myData.me.charmGids = [];
+				cUpdate = true;
+			}
+
+			const finalCharmKeys = Object.keys(myData.me.charms);
+			// gids change from game to game so reset our list
+			for (let i = 0; i < finalCharmKeys.length; i++) {
+				let cKey = finalCharmKeys[i];
+				if (myData.me.charms[cKey].have.length) {
+					myData.me.charms[cKey].have = [];
+					cUpdate = true;
+				}
+			}
+
+			if (!!me.shenk && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed === false) {
+				myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
+			}
+		}
+
+		let changed = Misc.recursiveSearch(myData, temp);
+	
+		if (Object.keys(changed).length > 0 || cUpdate || mUpdate) {
+			console.debug(changed);
+			CharData.updateData("me", myData);
+		}
+	},
 
 	// Should this be moved elsewhere? Currently have to include Globals then call this to include rest of overrides
 	// which in doing so would include globals anyway but does this always need to be included first?
@@ -206,7 +222,7 @@ const SetUp = {
 	// scriptBroadcast all the time
 	include: function () {
 		let folders = ["Functions"];
-		folders.forEach( (folder) => {
+		folders.forEach((folder) => {
 			let files = dopen("libs/SoloPlay/" + folder + "/").getFiles();
 			Array.isArray(files) && files
 				.filter(file => file.endsWith('.js'))
@@ -407,10 +423,10 @@ const SetUp = {
 		Config.Inventory[3] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
 		/* FastMod configuration. */
-		Config.FCR = Developer.developerMode.enabled ? 0 : 255;
-		Config.FHR = me.realm ? 0 : 255;
-		Config.FBR = me.realm ? 0 : 255;
-		Config.IAS = me.realm ? 0 : 255;
+		Config.FCR = 0;
+		Config.FHR = 0;
+		Config.FBR = 0;
+		Config.IAS = 0;
 
 		/* AutoStat configuration. */
 		Config.AutoStat.Enabled = true;

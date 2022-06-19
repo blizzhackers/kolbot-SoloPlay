@@ -698,7 +698,15 @@ Item.equipMerc = function (item, bodyLoc) {
 				Developer.debugging.autoEquip && Misc.logItem("Merc Equipped", mercenary.getItem(item.classid));
 			}
 
-			if (item.bodylocation === bodyLoc) {
+			let check = mercenary.getItem(item.classid);
+
+			if (check && check.bodylocation === bodyLoc) {
+				if (check.runeword) {
+					// just track runewords for now
+					myData.merc.gear.push(check.prefixnum);
+					CharData.updateData("merc", myData);
+				}
+
 				if (getCursorType() === 3) {
 					let cursorItem = getUnit(100);
 
@@ -875,6 +883,7 @@ Item.autoEquipMerc = function () {
 		items.sort(sortEq);
 		let tier = NTIP.GetMercTier(items[0]);
 		let bodyLoc = Item.getBodyLocMerc(items[0]);
+		let name = items[0].name;
 
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
@@ -888,8 +897,8 @@ Item.autoEquipMerc = function () {
 						}
 					}
 
-					console.log("Merc " + items[0].name);
-					this.equipMerc(items[0], bodyLoc[j]) && console.log("ÿc9MercEquipÿc0 :: Equipped: " + items[0].fname + " MercTier: " + tier);
+					console.log("Merc " + name);
+					this.equipMerc(items[0], bodyLoc[j]) && console.log("ÿc9MercEquipÿc0 :: Equipped: " + name + " MercTier: " + tier);
 					
 					let cursorItem = getUnit(100);
 

@@ -37,17 +37,6 @@ function SoloPlay () {
 		}
 
 		if (me.charlvl === 1) {
-			if (!myData.initialized) {
-				myData.me.startTime = me.gamestarttime;
-				myData.me.level = me.charlvl;
-				myData.me.classid = me.classid;
-				myData.me.charName = me.name;
-				myData.me.strength = me.rawStrength;
-				myData.me.dexterity = me.rawDexterity;
-				myData.initialized = true;
-				CharData.updateData("me", myData) && updateMyData();
-			}
-			
 			let buckler = me.getItem(328);
 			!!buckler && buckler.isEquipped && buckler.drop();
 		}

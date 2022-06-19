@@ -31,6 +31,30 @@ const Merc = {
 		return merc;
 	},
 
+	checkMercSkill: function (wanted = "") {
+		let merc = me.getMerc();
+		if (!merc) return false;
+		let mercSkill = merc.getStat(sdk.stats.ModifierListSkill);
+
+		// only a2 mercs for now, need to test others to see if above returns their skill
+		switch (wanted.toLowerCase()) {
+		case "defiance":
+			return mercSkill === sdk.skills.Defiance;
+		case "prayer":
+			return mercSkill === sdk.skills.Prayer;
+		case "blessed aim":
+			return mercSkill === sdk.skills.BlessedAim;
+		case "thorns":
+			return mercSkill === sdk.skills.Thorns;
+		case "holy freeze":
+			return mercSkill === sdk.skills.HolyFreeze;
+		case "might":
+			return mercSkill === sdk.skills.Might;
+		default:
+			return false;
+		}
+	},
+
 	// only supports act 2 mercs for now
 	hireMerc: function () {
 		if (me.classic) return true;
@@ -54,7 +78,7 @@ const Merc = {
 		case me.diff === mercDiff && !Pather.accessToAct(mercAct):
 		case myData.merc.type === mercAuraWanted:
 		case me.diff !== mercDiff && myData.merc.type === "Defiance":
-		case me.charlvl > Config.levelCap + 10:
+		case (me.charlvl > Config.levelCap + 10 && Merc.checkMercSkill(myData.merc.type)):
 		case me.gold < Math.round((((me.charlvl - 1) * (me.charlvl - 1)) / 2) * 7.5):
 		case this.minCost > 0 && me.gold < this.minCost:
 			return true;
@@ -84,7 +108,7 @@ const Merc = {
 					throw new Error();
 				}
 				let oldGid_1 = (_a = me.getMerc()) === null || _a === void 0 ? void 0 : _a.gid;
-				console.log('ÿc9ÿc9Mercenaryÿc0 :: Found a merc to hire ' + JSON.stringify(wantedMerc));
+				console.log('ÿc9Mercenaryÿc0 :: Found a merc to hire ' + JSON.stringify(wantedMerc));
 				wantedMerc === null || wantedMerc === void 0 ? void 0 : wantedMerc.hire();
 				let newMerc = Misc.poll(function () {
 					let merc = me.getMerc();
@@ -100,7 +124,7 @@ const Merc = {
 					myData.merc.difficulty = me.diff;
 					myData.merc.type = wantedMerc.skills.find(sk => sk.name === wantedSkill).name;
 					CharData.updateData("merc", myData) && updateMyData();
-					console.log('ÿc9ÿc9Mercenaryÿc0 :: ' + myData.merc.type + ' merc hired.');
+					console.log('ÿc9Mercenaryÿc0 :: ' + myData.merc.type + ' merc hired.');
 				}
 				me.cancelUIFlags();
 				while (getInteractedNPC()) {
