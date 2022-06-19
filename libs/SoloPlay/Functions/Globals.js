@@ -132,16 +132,18 @@ const SetUp = {
 		// 	}
 		// }
 
+		let currDiffStr = sdk.difficulty.nameOf(me.diff).toLowerCase();
+
 		if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff))) {
 			myData.me.highestDifficulty = sdk.difficulty.nameOf(me.diff);
 		}
 
-		if (!!me.smith && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed === false) {
-			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
+		if (!!me.smith && myData[currDiffStr].imbueUsed === false) {
+			myData[currDiffStr].imbueUsed = true;
 		}
 
-		if (!!me.respec && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed === false) {
-			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
+		if (!!me.respec && myData[currDiffStr].respecUsed === false) {
+			myData[currDiffStr].respecUsed = true;
 		}
 
 		myData.me.level !== me.charlvl && (myData.me.level = me.charlvl);
@@ -165,11 +167,14 @@ const SetUp = {
 				let merc = me.getMerc();
 				
 				if (myData.merc.gear.length > 0) {
-					merc.getItemsEx().forEach(item => {
-						if (item.runeword && myData.merc.gear.indexOf(item.prefixnum) === -1) {
-							myData.merc.gear.remove(item.prefixnum);
-						}
-					});
+					let mercItems = merc.getItemsEx();
+					let preLength = myData.merc.gear.length;
+					let check = myData.merc.gear.filter(i => mercItems.some(item => item.prefixnum === i));
+
+					if (check !== preLength) {
+						mUpdate = true;
+						myData.merc.gear = check;
+					}
 				}
 
 				merc.classid !== myData.merc.classid && (myData.merc.classid = merc.classid);
@@ -203,15 +208,18 @@ const SetUp = {
 				}
 			}
 
-			if (!!me.shenk && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed === false) {
-				myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
+			if (!!me.shenk && myData[currDiffStr].socketUsed === false) {
+				myData[currDiffStr].socketUsed = true;
+			}
+
+			if (mUpdate) {
+				CharData.updateData("merc", myData);
 			}
 		}
 
 		let changed = Misc.recursiveSearch(myData, temp);
 	
-		if (Object.keys(changed).length > 0 || cUpdate || mUpdate) {
-			console.debug(changed);
+		if (Object.keys(changed).length > 0 || cUpdate) {
 			CharData.updateData("me", myData);
 		}
 	},
