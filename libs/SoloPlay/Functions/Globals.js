@@ -596,7 +596,7 @@ const basicSocketables = {
 
 const goToDifficulty = function (diff = undefined, reason = "") {
 	try {
-		if (!diff) throw new Error("diff is undefined");
+		if (diff === undefined) throw new Error("diff is undefined");
 		
 		let diffString;
 		switch (typeof diff) {

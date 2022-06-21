@@ -263,11 +263,11 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 	if (typeof (range) !== "number") throw new Error("Attack.clear: range must be a number.");
 	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0 || Attack.stopClear || !x || !y) return false;
 
-	let i, start, coord, skillCheck, secAttack,
-		retry = 0,
-		monsterList = [],
-		gidAttack = [],
-		attackCount = 0;
+	let i, start, coord, skillCheck, secAttack;
+	let retry = 0;
+	let monsterList = [];
+	let gidAttack = [];
+	let attackCount = 0;
 
 	let target = getUnit(1);
 
@@ -336,7 +336,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 				switch (skillCheck) {
 				case sdk.skills.BlessedHammer:
 					// Tele in random direction with Blessed Hammer
-					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % ((target.spectype & 0x7) ? 4 : 2) === 0) {
+					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (target.isSpecial ? 4 : 2) === 0) {
 						coord = CollMap.getRandCoordinate(me.x, -1, 1, me.y, -1, 1, 5);
 						Pather.moveTo(coord.x, coord.y);
 					}
@@ -344,7 +344,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 					break;
 				default:
 					// Flash with melee skills
-					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % ((target.spectype & 0x7) ? 15 : 5) === 0 && Skill.getRange(skillCheck) < 4) {
+					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (target.isSpecial ? 15 : 5) === 0 && Skill.getRange(skillCheck) < 4) {
 						Packet.flash(me.gid);
 					}
 
@@ -352,7 +352,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 				}
 
 				// Skip non-unique monsters after 15 attacks, except in Throne of Destruction
-				if (me.area !== sdk.areas.ThroneofDestruction && !(target.spectype & 0x7) && gidAttack[i].attacks > 15) {
+				if (me.area !== sdk.areas.ThroneofDestruction && !target.isSpecial && gidAttack[i].attacks > 15) {
 					print("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
 					monsterList.shift();
 				}

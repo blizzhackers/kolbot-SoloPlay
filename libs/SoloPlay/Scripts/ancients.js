@@ -7,60 +7,6 @@
 */
 
 function ancients () {
-	// ancients resists
-	let canAncients = function () {
-		let ancient = getUnit(1);
-
-		if (ancient) {
-			do {
-				if (!ancient.getParent() && !Attack.canAttack(ancient)) {
-					return false;
-				}
-			} while (ancient.getNext());
-		}
-
-		return true;
-	};
-
-	// touch altar
-	let touchAltar = function () {
-		let tick = getTickCount();
-
-		while (getTickCount() - tick < 5000) {
-			if (getUnit(2, 546)) {
-				break;
-			}
-
-			delay(20 + me.ping);
-		}
-
-		let altar = getUnit(2, 546);
-
-		if (altar) {
-			while (altar.mode !== 2) {
-				Pather.moveToUnit(altar);
-				altar.interact();
-				delay(200 + me.ping);
-				me.cancel();
-			}
-
-			return true;
-		}
-
-		return false;
-	};
-
-	// ancients prep
-	let ancientsPrep = function () {
-		Town.goToTown();
-		Town.fillTome(sdk.items.TomeofTownPortal);
-		Town.buyPots(10, "Thawing", true);
-		Town.buyPots(10, "Antidote", true);
-		Town.buyPots(10, "Stamina", true);
-		Town.buyPotions();
-		Pather.usePortal(sdk.areas.ArreatSummit, me.name);
-	};
-
 	Town.townTasks();
 	myPrint('starting ancients');
 
@@ -101,34 +47,8 @@ function ancients () {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to ancients' altar");
 	}
 
-	touchAltar(); //activate altar
-
-	// wait for ancients to spawn
-	while (!getUnit(sdk.unittype.Monster, sdk.monsters.TalictheDefender)) {
-		delay(250 + me.ping);
-	}
-
-	// reroll ancients if unable to attack
-	while (!canAncients()) {
-		Pather.makePortal(true);
-		ancientsPrep();
-		Pather.usePortal(sdk.areas.ArreatSummit, me.name);
-		touchAltar();
-
-		while (!getUnit(sdk.unittype.Monster, sdk.monsters.TalictheDefender)) {
-			delay(10 + me.ping);
-		}
-	}
-
-	for (let i = 0; i < 3 && !me.ancients; i++) {
-		Attack.clearClassids(sdk.monsters.KorlictheProtector, sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian);
-		Pather.moveTo(10048, 12628);
-
-		if (!Misc.checkQuest(39, 0)) {
-			me.overhead("Failed to kill anicents. Attempt: " + i);
-			touchAltar(); //activate altar
-		}
-	}
+	Common.Ancients.touchAltar();
+	Common.Ancients.startAncients(true);
 	
 	me.cancel();
 	Config = tempConfig;

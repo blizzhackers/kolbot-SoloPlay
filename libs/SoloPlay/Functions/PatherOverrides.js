@@ -258,9 +258,9 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 		returnSpotOnError: true
 	}, givenSettings);
 
-	let path, adjustedNode, cleared, leaped = false,
-		node = {x: x, y: y},
-		fail = 0;
+	let path, adjustedNode, cleared, leaped = false;
+	let node = {x: x, y: y};
+	let fail = 0;
 
 	for (let i = 0; i < this.cancelFlags.length; i += 1) {
 		getUIFlag(this.cancelFlags[i]) && me.cancel();
@@ -367,9 +367,9 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	// Abort if dead
 	if (me.dead) return false;
 
-	let path, adjustedNode, cleared, leaped = false,
-		node = {x: x, y: y},
-		fail = 0;
+	let adjustedNode, cleared, leaped = false;
+	let node = {x: x, y: y};
+	let fail = 0;
 
 	for (let i = 0; i < this.cancelFlags.length; i += 1) {
 		getUIFlag(this.cancelFlags[i]) && me.cancel();
@@ -384,7 +384,8 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	let useTele = this.useTeleport();
 	let useChargedTele = this.canUseTeleCharges();
 	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
-	path = getPath(me.area, x, y, me.x, me.y, useTele || useChargedTele ? 1 : 0, useTele || useChargedTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : this.teleDistance) : this.walkDistance);
+	let annoyingArea = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
+	let path = getPath(me.area, x, y, me.x, me.y, useTele || useChargedTele ? 1 : 0, useTele || useChargedTele ? (annoyingArea ? 30 : this.teleDistance) : this.walkDistance);
 
 	if (!path) throw new Error("moveTo: Failed to generate path.");
 
@@ -404,7 +405,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 		node = path.shift();
 
 		if (getDistance(me, node) > 2) {
-			if ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area)) {
+			if (annoyingArea) {
 				adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
 
 				if (adjustedNode) {
@@ -496,9 +497,9 @@ Pather.moveToLoc = function (target, givenSettings) {
 		target = { x: target.roomx * 5 + target.x, y: target.roomy * 5 + target.y };
 	}
 
-	let path, adjustedNode, cleared, leaped = false,
-		node = {x: target.x, y: target.y},
-		fail = 0;
+	let adjustedNode, cleared, leaped = false;
+	let node = {x: target.x, y: target.y};
+	let fail = 0;
 
 	for (let i = 0; i < this.cancelFlags.length; i += 1) {
 		if (getUIFlag(this.cancelFlags[i])) me.cancel();
@@ -512,7 +513,8 @@ Pather.moveToLoc = function (target, givenSettings) {
 	let useChargedTele = settings.allowTeleport && this.canUseTeleCharges();
 	let usingTele = (useTele || useChargedTele);
 	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
-	path = getPath(me.area, target.x, target.y, me.x, me.y, usingTele ? 1 : 0, usingTele ? ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area) ? 30 : this.teleDistance) : this.walkDistance);
+	let annoyingArea = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
+	let path = getPath(me.area, target.x, target.y, me.x, me.y, usingTele ? 1 : 0, usingTele ? (annoyingArea ? 30 : this.teleDistance) : this.walkDistance);
 
 	if (!path) throw new Error("moveTo: Failed to generate path.");
 
@@ -532,7 +534,7 @@ Pather.moveToLoc = function (target, givenSettings) {
 		node = path.shift();
 
 		if (getDistance(me, node) > 2) {
-			if ([sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area)) {
+			if (annoyingArea) {
 				adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
 
 				if (adjustedNode) {
@@ -797,6 +799,7 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 	}
 
 	console.log("ÿc8Kolbot-SoloPlayÿc0: End clearToExit. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
+	return (me.area === targetarea);
 };
 
 Pather.getWalkDistance = function (x, y, area, xx, yy, reductionType, radius) {

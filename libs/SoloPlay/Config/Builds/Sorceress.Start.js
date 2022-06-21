@@ -14,7 +14,7 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.ScanShrines.push(sdk.shrines.Combat);
+			Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
 			Config.FieldID.Enabled = !Misc.checkQuest(4, 0);
 			Config.FieldID.UsedSpace = 0;
 
@@ -31,7 +31,7 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.ScanShrines.push(sdk.shrines.Combat);
+			Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
 			Config.FieldID.Enabled = !Misc.checkQuest(4, 0);
 			Config.FieldID.UsedSpace = 0;
 

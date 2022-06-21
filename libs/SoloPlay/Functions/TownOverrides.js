@@ -403,10 +403,11 @@ Town.fieldID = function () {
 	let list = this.getUnids();
 	if (!list) return false;
 
-	let tome = me.findItem(sdk.items.TomeofIdentify, 0, 3);
-	if (!tome || tome.getStat(sdk.stats.Quantity) < list.length) return false;
 
 	while (list.length > 0) {
+		let idTool = Town.getIdTool();
+		if (!idTool) return false;
+
 		let item = list.shift();
 		let result = Pickit.checkItem(item);
 
@@ -417,7 +418,7 @@ Town.fieldID = function () {
 
 		// unid item that should be identified
 		if (result.result === Pickit.result.UNID) {
-			this.identifyItem(item, tome, Config.FieldID.PacketID);
+			this.identifyItem(item, idTool, Config.FieldID.PacketID);
 			delay(50);
 			result = Pickit.checkItem(item);
 
@@ -501,8 +502,10 @@ Town.identify = function () {
 
 				break;
 			case -1:
-				if (tome) {
-					this.identifyItem(item, tome);
+				let idTool = Town.getIdTool();
+
+				if (idTool) {
+					this.identifyItem(item, idTool);
 				} else {
 					scroll = npc.getItem(530);
 
@@ -1060,6 +1063,7 @@ Town.stash = function (stashGold = true) {
 				case Runewords.keepItem(items[i]):
 				case CraftingSystem.keepItem(items[i]):
 				case SoloWants.keepItem(items[i]):
+				case AutoEquip.wanted(items[i]) && pickResult === 0: // wanted but can't use yet
 				case !items[i].sellable: // quest/essences/keys/ect
 					result = true;
 
@@ -1211,6 +1215,14 @@ Town.clearInventory = function () {
 		while (specials.length) {
 			specials.shift().interact();
 			delay(200);
+		}
+	}
+
+	if (Config.FieldID.Enabled && !me.getItem(sdk.items.TomeofIdentify)) {
+		let scrolls = me.getItemsEx().filter(i => i.isInInventory && i.classid === sdk.items.ScrollofIdentify);
+
+		while (scrolls.length > 2) {
+			sellOrDrop.push(scrolls.shift());
 		}
 	}
 

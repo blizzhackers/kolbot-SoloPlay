@@ -17,8 +17,8 @@ let AutoBuildTemplate = {
 			Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.IceBlast, sdk.skills.Blizzard, sdk.skills.IceBlast, -1, -1];
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
-			Config.HPBuffer = me.expansion ? 2 : 5;
-			Config.MPBuffer = me.expansion ? 2 : 5;
+			Config.HPBuffer = me.expansion && !me.normal ? 2 : 5;
+			Config.MPBuffer = (me.expansion && !me.normal || Item.getEquippedItemMerc(4).prefixnum === sdk.locale.items.Insight) ? 2 : 5;
 			Config.SkipImmune = ["cold"];
 		}
 	},
