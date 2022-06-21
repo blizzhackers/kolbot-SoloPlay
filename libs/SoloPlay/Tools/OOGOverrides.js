@@ -5,7 +5,6 @@
 *  @desc        OOG.js fixes to improve functionality
 *
 */
-
 !isIncluded("OOG.js") && include("OOG.js");
 
 ControlAction.makeCharacter = function (info) {
@@ -13,6 +12,14 @@ ControlAction.makeCharacter = function (info) {
 	!info.charClass && (info.charClass = "barbarian");
 
 	let clickCoords = [];
+	let soloStats = CharData.getStats();
+
+	if (soloStats.me.currentBuild !== "Start" || soloStats.me.level > 1) {
+		let finalBuild = soloStats.me.finalBuild;
+		Object.assign(soloStats, CharData.default);
+		soloStats.me.finalBuild = finalBuild;
+		CharData.updateData("me", soloStats);
+	}
 
 	// cycle until in lobby
 	while (getLocation() !== sdk.game.locations.Lobby) {
@@ -182,7 +189,6 @@ ControlAction.findCharacter = function (info) {
 		// check for additional characters up to 24 (online) or 999 offline (no character limit cap)
 		if (count > 0 && count % 8 === 0) {
 			if (Controls.CharSelectChar6.click()) {
-				console.debug("scroll, count: " + count);
 				me.blockMouse = true;
 
 				sendKey(0x28);
