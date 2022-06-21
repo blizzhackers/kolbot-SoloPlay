@@ -381,7 +381,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 	function ItemStats (unit) {
 		let self = this;
 		self.ilvl = unit.ilvl;
-		self.sockets = unit.getStat(194);
+		self.sockets = unit.sockets;
 		self.type = unit.itemType;
 		self.classid = unit.classid;
 		self.name = unit.name;

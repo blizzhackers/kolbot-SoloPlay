@@ -280,8 +280,8 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 	case me.classic: // No switch in classic
 	case me.inTown && !this.townSkill(skillId): // cant cast this in town
 	case this.getManaCost(skillId) > me.mp: // dont have enough mana for this
-	case (!me.getSkill(skillId, 1) && !settings.oSkill): // Dont have this skill
 	case !this.wereFormCheck(skillId): // can't cast in wereform
+	//case (!me.getSkill(skillId, 1) && !settings.oSkill): // Dont have this skill
 		return false;
 	case skillId === undefined:
 		throw new Error("Unit.cast: Must supply a skill ID");
@@ -324,7 +324,7 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 			break;
 		}
 		// make sure we give enough time back so we don't fail our next cast
-		delay(1 + seconds(me.castingDuration(skillId)));
+		delay(250);
 	} else {
 		let clickType, shift;
 

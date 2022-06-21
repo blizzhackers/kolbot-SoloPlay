@@ -17,7 +17,7 @@ Item.getQuantityOwned = function (item = undefined) {
 			check.itemType === item.itemType // same item type as current
 				&& check.classid === item.classid // same item classid as current
 				&& check.quality === item.quality // same item quality as current
-				&& check.getStat(sdk.stats.NumSockets) === item.getStat(sdk.stats.NumSockets) // same socket count
+				&& check.sockets === item.sockets // same socket count
 				&& check.isInStorage
 		);
 
@@ -119,8 +119,8 @@ Item.getEquippedItem = function (bodyLoc = -1) {
 			secondarytier: NTIP.GetSecondaryTier(item),
 			str: item.getStatEx(sdk.stats.Strength),
 			dex: item.getStatEx(sdk.stats.Dexterity),
-			durability: (item.getStat(sdk.stats.Quantity) ? 100 : (item.getStat(72) * 100 / item.getStat(73))),
-			sockets: item.getStat(sdk.stats.NumSockets),
+			durability: item.durabilityPercent,
+			sockets: item.sockets,
 			socketed: item.getItemsEx().length > 0,
 			isRuneword: item.runeword,
 			twoHanded: item.twoHanded,

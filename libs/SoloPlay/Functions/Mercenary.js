@@ -58,9 +58,9 @@ const Merc = {
 	// only supports act 2 mercs for now
 	hireMerc: function () {
 		if (me.classic) return true;
+		let _a;
 		let {mercAct, mercAuraWanted, mercDiff} = Check.finalBuild();
 		let typeOfMerc = (!Pather.accessToAct(2) && me.normal ? 1 : mercAct);
-		let _a;
 		let tmpAuraName = "Defiance";
 
 		// don't hire if using correct a1 merc, or passed merc hire difficulty
@@ -97,11 +97,8 @@ const Merc = {
 			Town.initNPC("Merc", "getMerc");
 			let wantedMerc = MercLib_1.default
 				.filter((merc) => merc.skills.some((skill) => (skill === null || skill === void 0 ? void 0 : skill.name) === wantedSkill))
-				.sort(function (_a, _b) {
-					let a = _a.level;
-					let b = _b.level;
-					return b - a;
-				}).first();
+				.sort((a, b) => b.level - a.level)
+				.first();
 			if (wantedMerc) {
 				if (wantedMerc.cost > me.gold) {
 					this.minCost = wantedMerc.cost;

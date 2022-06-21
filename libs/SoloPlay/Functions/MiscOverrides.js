@@ -174,10 +174,53 @@ Misc.useWell = function (range = 15) {
 	return true;
 };
 
+Misc.getShrinesInArea = function (area, type, use) {
+	let shrineLocs = [];
+	let shrineIds = [2, 81, 83];
+	let unit = getPresetUnits(area);
+
+	if (unit) {
+		for (let i = 0; i < unit.length; i += 1) {
+			if (shrineIds.includes(unit[i].id)) {
+				shrineLocs.push([unit[i].roomx * 5 + unit[i].x, unit[i].roomy * 5 + unit[i].y]);
+			}
+		}
+	}
+
+	while (shrineLocs.length > 0) {
+		shrineLocs.sort(Sort.points);
+		let coords = shrineLocs.shift();
+
+		Skill.haveTK ? Pather.moveNear(coords[0], coords[1], 20) : Pather.moveTo(coords[0], coords[1], 2);
+
+		let shrine = getUnit(2, "shrine");
+
+		if (shrine) {
+			do {
+				if (shrine.objtype === type && shrine.mode === 0) {
+					(!Skill.haveTK || !use) && Pather.moveTo(shrine.x - 2, shrine.y - 2);
+
+					if (!use || this.getShrine(shrine)) {
+						return true;
+					}
+
+					if (use && type >= sdk.shrines.Armor && type <= sdk.shrines.Experience && me.getState(type + 122)) {
+						return true;
+					}
+				}
+			} while (shrine.getNext());
+		}
+	}
+
+	return false;
+};
+
 Misc.getExpShrine = function (shrineLocs = []) {
 	if (me.getState(137)) return true;
 
 	for (let get = 0; get < shrineLocs.length; get++) {
+		me.overhead("Looking for xp shrine");
+
 		if (shrineLocs[get] === 2) {
 			Pather.journeyTo(shrineLocs[get]);
 		} else {
@@ -248,7 +291,7 @@ Misc.checkItemsForSocketing = function () {
 	if (me.classic || !me.getQuest(sdk.quest.id.SiegeOnHarrogath, 1)) return false;
 
 	let items = me.getItemsEx()
-		.filter(item => item.getStat(sdk.stats.NumSockets) === 0 && getBaseStat("items", item.classid, "gemsockets") > 0)
+		.filter(item => item.sockets === 0 && getBaseStat("items", item.classid, "gemsockets") > 0)
 		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
 
 	for (let i = 0; i < items.length; i++) {
@@ -264,7 +307,7 @@ Misc.checkItemsForSocketing = function () {
 Misc.checkItemsForImbueing = function () {
 	if (!me.getQuest(sdk.quest.id.ToolsoftheTrade, 1)) return false;
 
-	let items = me.getItemsEx().filter(item => item.getStat(sdk.stats.NumSockets) === 0 && (item.normal || item.superior));
+	let items = me.getItemsEx().filter(item => item.sockets === 0 && (item.normal || item.superior));
 
 	for (let i = 0; i < items.length; i++) {
 		if (Config.imbueables.some(item => item.name === items[i].classid && Item.canEquip(items[i]))) {
@@ -276,7 +319,7 @@ Misc.checkItemsForImbueing = function () {
 };
 
 Misc.addSocketablesToItem = function (item, runes = []) {
-	if (!item || item.getStat(sdk.stats.NumSockets) === 0) return false;
+	if (!item || item.sockets === 0) return false;
 	let preSockets = item.getItemsEx().length;
 	let original = preSockets;
 	let bodyLoc;
@@ -339,7 +382,7 @@ Misc.getSocketables = function (item, itemInfo) {
 	let itemSocketInfo = item.getItemsEx();
 	let preSockets = itemSocketInfo.length;
 	let allowTemp = (!!itemInfo && !!itemInfo.temp && itemInfo.temp.length > 0 && (preSockets === 0 || preSockets > 0 && itemSocketInfo.some(el => !itemInfo.socketWith.includes(el.classid))));
-	let sockets = item.getStat(sdk.stats.NumSockets);
+	let sockets = item.sockets;
 	let openSockets = sockets - preSockets;
 	let {classid, quality} = item;
 	let socketables = me.getItemsEx()
@@ -467,13 +510,13 @@ Misc.getSocketables = function (item, itemInfo) {
 
 Misc.checkSocketables = function () {
 	let items = me.getItemsEx()
-		.filter(item => item.getStat(sdk.stats.NumSockets) > 0 && AutoEquip.hasTier(item) && item.quality > sdk.itemquality.Superior)
+		.filter(item => item.sockets > 0 && AutoEquip.hasTier(item) && item.quality > sdk.itemquality.Superior)
 		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
 
 	if (!items) return;
 
 	for (let i = 0; i < items.length; i++) {
-		let sockets = items[i].getStat(sdk.stats.NumSockets);
+		let sockets = items[i].sockets;
 
 		switch (items[i].quality) {
 		case sdk.itemquality.Magic:

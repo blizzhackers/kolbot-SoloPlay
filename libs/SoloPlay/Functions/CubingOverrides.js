@@ -714,7 +714,7 @@ Cubing.validItem = function (unit, recipe) {
 
 	if (recipe.Index >= Recipe.Socket.Shield && recipe.Index <= Recipe.Socket.Helm) {
 		// Normal item matching pickit entry, no sockets
-		if (unit.normal && unit.getStat(194) === 0) {
+		if (unit.normal && unit.sockets === 0) {
 			switch (recipe.Ethereal) {
 			case 0:
 			case undefined:

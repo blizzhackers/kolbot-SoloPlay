@@ -1056,14 +1056,13 @@ const Check = {
 	},
 
 	resistance: function () {
-		let resStatus;
 		let resPenalty = me.getResPenalty(me.diff + 1);
 		let frRes = me.getStat(sdk.stats.FireResist) - resPenalty;
 		let lrRes = me.getStat(sdk.stats.LightResist) - resPenalty;
 		let crRes = me.getStat(sdk.stats.ColdResist) - resPenalty;
 		let prRes = me.getStat(sdk.stats.PoisonResist) - resPenalty;
 
-		resStatus = ((frRes > 0) && (lrRes > 0) && (crRes > 0));
+		let resStatus = ((frRes > 0) && (lrRes > 0) && (crRes > 0));
 
 		return {
 			Status: resStatus,
@@ -1274,7 +1273,7 @@ const Check = {
 			.filter(item => item.isBaseType && item.isInStorage && (isClassID ? item.classid === type : item.itemType === type));
 
 		for (let i = 0; i < items.length; i++) {
-			if (items[i].getStat(sdk.stats.NumSockets) === sockets && (isClassID ? items[i].classid === type : items[i].itemType === type)) {
+			if (items[i].sockets === sockets && (isClassID ? items[i].classid === type : items[i].itemType === type)) {
 				return true;
 			}
 		}
@@ -1469,7 +1468,7 @@ const SoloWants = {
 	buildList: function () {
 		let myItems = me.getItemsEx()
 			.filter(function (item) {
-				return !item.isRuneword && !item.questItem && item.quality >= sdk.itemquality.Magic && (item.getStat(sdk.stats.NumSockets) > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
+				return !item.isRuneword && !item.questItem && item.quality >= sdk.itemquality.Magic && (item.sockets > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
 			});
 		myItems
 			.filter(item => item.isEquipped)
@@ -1487,7 +1486,7 @@ const SoloWants = {
 		let hasWantedItems;
 		let list = [];
 		let socketedWith = item.getItemsEx();
-		let numSockets = item.getStat(sdk.stats.NumSockets);
+		let numSockets = item.sockets;
 		let curr = Config.socketables.find(({ classid }) => item.classid === classid);
 
 		if (curr && curr.socketWith.length > 0) {

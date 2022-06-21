@@ -7,6 +7,15 @@
 */
 
 // todo: change all values over to sdk for readability
+const sumElementalDmg = function (item) {
+	if (!item) return 0;
+	let fire = item.getStatEx(sdk.stats.FireMinDamage) + item.getStatEx(sdk.stats.FireMaxDamage);
+	let light = item.getStatEx(sdk.stats.LightMinDamage) + item.getStatEx(sdk.stats.LightMaxDamage);
+	let magic = item.getStatEx(sdk.stats.MagicMinDamage) + item.getStatEx(sdk.stats.MagicMaxDamage);
+	let cold = item.getStatEx(sdk.stats.ColdMinDamage) + item.getStatEx(sdk.stats.ColdMaxDamage);
+	let poison = (item.getStatEx(sdk.stats.PoisonMinDamage) * 125 / 256); // PSN damage adjusted for damage per frame (125/256)
+	return (fire + light + magic + cold + poison);
+};
 
 const mercscore = function (item) {
 	const mercWeights = {
@@ -64,7 +73,7 @@ const mercscore = function (item) {
 	mercRating += item.getStatEx(41) * mercWeights.LR; // add LR
 	mercRating += item.getStatEx(45) * mercWeights.PR; // add PR
 	mercRating += (item.getStatEx(3) + item.getStatEx(7) + (item.getStatEx(216) / 2048 * me.charlvl)) * mercWeights.HP; // add HP
-	mercRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 512)) * mercWeights.ELEDMG; // add elemental damage
+	mercRating += sumElementalDmg(item) * mercWeights.ELEDMG; // add elemental damage
 	mercRating += (item.getStatEx(142) + item.getStatEx(144) + item.getStatEx(146) + item.getStatEx(148)) * mercWeights.ABS; // add absorb damage
 	mercRating += item.getStatEx(34) * mercWeights.DR; // add integer damage resist
 	mercRating += item.getStatEx(36) * mercWeights.DR * 2; // add damage resist %
@@ -115,7 +124,7 @@ const mercscore = function (item) {
 		let sockets = Config.Runewords[x][0].length;
 		let baseCID = Config.Runewords[x][1];
 
-		if (item.classid === baseCID && item.quality < 4 && item.getStat(194) === sockets && !item.isRuneword) {
+		if (item.classid === baseCID && item.quality < 4 && item.sockets === sockets && !item.isRuneword) {
 			rwBase = true;
 		}
 	}
@@ -323,8 +332,8 @@ const tierscore = function (item, bodyloc) {
 	const buildInfo = Check.currentBuild();
 
 	this.generalScore = function (item) {
-		let generalRating = 0,
-			canTele = Pather.canTeleport();
+		let generalRating = 0;
+		let canTele = Pather.canTeleport();
 
 		// get item body location
 		let itembodyloc = Item.getBodyLoc(item);
@@ -431,7 +440,7 @@ const tierscore = function (item, bodyloc) {
 		buildRating += item.getStatEx(93) * buildWeights.IAS; // add IAS
 		buildRating += item.getStatEx(74) * buildWeights.HPREGEN; // add hp regeneration
 		buildRating += item.getStatEx(26) * buildWeights.MANAREGEN; // add mana recovery
-		!item.isRuneword && (buildRating += (item.getStatEx(sdk.stats.NumSockets) * 10)); // priortize sockets
+		!item.isRuneword && (buildRating += (item.sockets * 10)); // priortize sockets
 
 		// pierce/mastery's not sure how I want to weight this so for now just its base value
 		buildInfo.usefulStats.forEach(stat => buildRating += item.getStatEx(stat));
@@ -451,7 +460,7 @@ const tierscore = function (item, bodyloc) {
 			//buildRating += item.getStatEx(23) * buildWeights.SECMINDMG; // add MIN damage
 			//buildRating += item.getStatEx(24) * buildWeights.SECMAXDMG; // add MAX damage
 			
-			buildRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 256)) * (buildWeights.ELEDMG / eleDmgModifer); // add elemental damage PSN damage adjusted for damage per frame (125/256)
+			buildRating += sumElementalDmg(item) * (buildWeights.ELEDMG / eleDmgModifer); // add elemental damage
 			buildRating += item.getStatEx(19) * buildWeights.AR; // add AR
 			buildRating += item.getStatEx(136) * buildWeights.CB; // add crushing blow
 			buildRating += item.getStatEx(135) * buildWeights.OW; // add open wounds
@@ -602,7 +611,7 @@ const tierscore = function (item, bodyloc) {
 		let sockets = Config.Runewords[x][0].length;
 		let baseCID = Config.Runewords[x][1];
 
-		if (item.classid === baseCID && item.quality < 4 && item.getStat(194) === sockets && !item.isRuneword && !item.getItem()) {
+		if (item.classid === baseCID && item.quality < 4 && item.sockets === sockets && !item.isRuneword && !item.getItem()) {
 			rwBase = true;
 		}
 	}
@@ -656,7 +665,7 @@ const charmscore = function (item) {
 	if (!buildInfo.caster) {
 		charmRating += item.getStatEx(21) * 3; // add MIN damage
 		charmRating += item.getStatEx(22) * 3; // add MAX damage
-		charmRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 256)); // add elemental damage PSN damage adjusted for damage per frame (125/256)
+		charmRating += sumElementalDmg(item); // add elemental damage 
 		charmRating += item.getStatEx(19) * 0.5; // add AR
 	}
 

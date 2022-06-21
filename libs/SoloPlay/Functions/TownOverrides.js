@@ -1047,8 +1047,8 @@ Town.stash = function (stashGold = true) {
 
 	me.cancel();
 
-	let result = false,
-		items = Storage.Inventory.Compare(Config.Inventory);
+	let result = false;
+	let items = Storage.Inventory.Compare(Config.Inventory);
 
 	if (items) {
 		for (let i = 0; i < items.length; i += 1) {
@@ -1231,9 +1231,9 @@ Town.clearInventory = function () {
 	items.length > 0 && items.forEach(function (item) {
 		let result = Pickit.checkItem(item).result;
 
-		if ([0, 4].indexOf(result) === -1) {
-			if ((item.isBaseType && item.getStat(194) > 0) ||
-				([25, 69, 70, 71, 72].includes(item.itemType) && item.normal && item.getStat(194) === 0)) {
+		if ([Pickit.result.UNWANTED, Pickit.result.TRASH].indexOf(result) === -1) {
+			if ((item.isBaseType && item.sockets > 0) ||
+				([25, 69, 70, 71, 72].includes(item.itemType) && item.normal && item.sockets === 0)) {
 				if (Town.worseBaseThanStashed(item) && !Town.betterBaseThanWearing(item, Developer.debugging.junkCheck)) {
 					result = 4;
 				}
@@ -1242,7 +1242,7 @@ Town.clearInventory = function () {
 
 		!item.identified && (result = -1);
 
-		[0, 4].includes(result) && sell.push(item);
+		[Pickit.result.UNWANTED, Pickit.result.TRASH].includes(result) && sell.push(item);
 	});
 
 	sell = (sell.length > 0 ? sell.concat(sellOrDrop) : sellOrDrop.slice(0));
@@ -1345,11 +1345,11 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 			break;
 		}
 
-		if (base.getStat(194) <= 0 && !preSocketCheck) {
+		if (base.sockets <= 0 && !preSocketCheck) {
 			return true;
 		}
 
-		if (base.getStat(194) === equippedItem.sockets || preSocketCheck) {
+		if (base.sockets === equippedItem.sockets || preSocketCheck) {
 			switch (equippedItem.prefixnum) {
 			case 20507: 	//Ancient's Pledge
 				if (me.paladin) {
@@ -1782,7 +1782,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[2, 70].indexOf(item.itemType) > -1// same item type as current
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b))
@@ -1791,7 +1791,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
@@ -1804,7 +1804,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[2, 69].indexOf(item.itemType) > -1// same item type as current
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
@@ -1813,7 +1813,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck))) {
 					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
@@ -1826,7 +1826,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 				.filter(item =>
 					item.itemType === 2// same item type as current
 					&& !item.ethereal // only noneth runeword bases
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on tier value, (better for skills)
@@ -1835,7 +1835,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0) {
+			if (base.sockets > 0) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					!base.ethereal &&
 					(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
@@ -1853,7 +1853,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			.filter(item =>
 				item.itemType === 3// same item type as current
 				&& !item.ethereal // only noneth runeword bases
-				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+				&& item.sockets === base.sockets // sockets match junk in review
 				&& [3, 7].indexOf(item.location) > -1 // locations
 			)
 			.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on tier value, (better for skills)
@@ -1862,7 +1862,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		if (itemsToCheck === undefined) return false;
 		if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-		if (base.getStat(194) > 0) {
+		if (base.sockets > 0) {
 			if (([3, 6, 7].indexOf(base.location) > -1) &&
 				!base.ethereal &&
 				(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
@@ -1882,7 +1882,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[37, 75, 71, 72].indexOf(item.itemType) > -1// same item type as current
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
@@ -1891,7 +1891,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.getStatEx(31) < itemsToCheck.getStatEx(31)))) {
@@ -1905,7 +1905,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 				.filter(item =>
 					[37, 75].indexOf(item.itemType) > -1// same item type as current
 					&& !item.ethereal // only noneth runeword bases
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on defense
@@ -1914,7 +1914,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					!base.ethereal &&
 					(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
@@ -1932,7 +1932,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[25].indexOf(item.itemType) > -1// same item type as current
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
@@ -1941,7 +1941,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
@@ -1973,7 +1973,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		itemsToCheck = me.getItemsEx()
 			.filter(item =>
 				item.itemType === base.itemType// same item type as current
-				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+				&& item.sockets === base.sockets // sockets match junk in review
 				&& [3, 7].indexOf(item.location) > -1 // locations
 				&& me.getStat(0) >= item.strreq && me.getStat(2) >= item.dexreq // I have enough str/dex for this item
 			)
@@ -1992,7 +1992,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			return true;
 		}
 
-		if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+		if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
 			if (([3, 4, 7].indexOf(base.location) > -1) &&
 				(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && (Item.getQuantityOwned(base) > 2 || base.getStatEx(18) < itemsToCheck.getStatEx(18))))) {
@@ -2011,7 +2011,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[67, 88].indexOf(item.itemType) > -1// same item type as current
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
@@ -2020,7 +2020,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0) {
+			if (base.sockets > 0) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck))) {
 					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
@@ -2035,7 +2035,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		itemsToCheck = me.getItemsEx()
 			.filter(item =>
 				[34].indexOf(item.itemType) > -1// same item type as current
-				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+				&& item.sockets === base.sockets // sockets match junk in review
 				&& [3, 7].indexOf(item.location) > -1 // locations
 			)
 			.sort((a, b) => (a.getStatEx(23) + a.getStatEx(24)) - (b.getStatEx(23) + b.getStatEx(24))) // Sort on damage, low to high.
@@ -2044,7 +2044,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		if (itemsToCheck === undefined) return false;
 		if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-		if (base.getStat(194) > 0) {
+		if (base.sockets > 0) {
 			if (([3, 4, 7].indexOf(base.location) > -1) &&
 				(base.getStatEx(23) + base.getStatEx(24)) < (itemsToCheck.getStatEx(23) + itemsToCheck.getStatEx(24))) {
 				Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDamage: " + (base.getStatEx(23) + base.getStatEx(24)) + " itemToCheckDamage: " + (itemsToCheck.getStatEx(23) + itemsToCheck.getStatEx(24)));
@@ -2241,12 +2241,12 @@ Town.npcInteract = function (name, cancel = true) {
 };
 
 Town.needRepair = function () {
-	let quiver, bowCheck, quantity, inventoryQuiver,
-		repairAction = [],
-		canAfford = me.gold >= me.getRepairCost();
+	let quiver, quantity, inventoryQuiver;
+	let repairAction = [];
+	let canAfford = me.gold >= me.getRepairCost();
 
 	// Arrow/Bolt check
-	bowCheck = Attack.usingBow();
+	let bowCheck = Attack.usingBow();
 
 	if (bowCheck) {
 		switch (bowCheck) {
