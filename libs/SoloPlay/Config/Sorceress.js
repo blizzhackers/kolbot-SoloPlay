@@ -28,11 +28,11 @@ function LoadConfig () {
 
 	/* Level Specifc Settings */
 	Config.respecOne = me.expansion ? 26 : 26;
-	Config.respecOneB = me.expansion ? 65 : 60;
+	Config.respecOneB = me.expansion ? 63 : 60;
 	Config.levelCap = (function() {
 		let tmpCap;
 		if (me.softcore) {
-			tmpCap = me.expansion ? [33, 67, 100] : [33, 60, 100];
+			tmpCap = me.expansion ? [33, 64, 100] : [33, 60, 100];
 		} else {
 			tmpCap = me.expansion ? [33, 67, 100] : [33, 67, 100];
 		}
@@ -93,6 +93,7 @@ function LoadConfig () {
 	// AutoEquip setup
 	let levelingTiers = [
 		// Weapon
+		"me.normal && [type] == orb && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"me.charlvl > 1 && ([type] == orb || [type] == wand || [type] == sword || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"me.classic && [type] == staff && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Helmet
@@ -147,7 +148,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = false;
 	Config.ClearType = 0;
-	Config.ClearPath = { Range: 30, Spectype: 0};
+	Config.ClearPath = {Range: 30, Spectype: 0};
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];

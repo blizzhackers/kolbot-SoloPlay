@@ -48,7 +48,7 @@ function ancients () {
 	}
 
 	Common.Ancients.touchAltar();
-	Common.Ancients.startAncients(true);
+	Common.Ancients.startAncients(true, true);
 	
 	me.cancel();
 	Config = tempConfig;

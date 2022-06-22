@@ -553,10 +553,10 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0 || Attack.stopClear) return false;
 	!sortfunc && (sortfunc = this.sortMonsters);
 
-	let i, boss, orgx, orgy, start, skillCheck,
-		retry = 0,
-		gidAttack = [],
-		attackCount = 0;
+	let i, boss, orgx, orgy, start, skillCheck;
+	let retry = 0;
+	let gidAttack = [];
+	let attackCount = 0;
 
 	if (bossId) {
 		boss = Misc.poll(function () {
@@ -633,20 +633,20 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 
 				gidAttack[i].attacks += 1;
 				attackCount += 1;
-				let secAttack = me.barbarian ? ((target.spectype & 0x7) ? 2 : 4) : 5;
+				let secAttack = me.barbarian ? (target.isSpecial ? 2 : 4) : 5;
 
-				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3]) ||
+				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[target.isSpecial ? 1 : 3]) ||
 						(me.paladin && Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3] === sdk.skills.BlessedHammer && !ClassAttack.getHammerPosition(target)))) {
 					skillCheck = Config.AttackSkill[secAttack];
 				} else {
-					skillCheck = Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3];
+					skillCheck = Config.AttackSkill[target.isSpecial ? 1 : 3];
 				}
 
 				// Desync/bad position handler
 				switch (skillCheck) {
 				case sdk.skills.BlessedHammer:
 					// Tele in random direction with Blessed Hammer
-					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % ((target.spectype & 0x7) ? 4 : 2) === 0) {
+					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (target.isSpecial ? 4 : 2) === 0) {
 						let coord = CollMap.getRandCoordinate(me.x, -1, 1, me.y, -1, 1, 5);
 						Pather.moveTo(coord.x, coord.y);
 					}
@@ -654,7 +654,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 					break;
 				default:
 					// Flash with melee skills
-					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % ((target.spectype & 0x7) ? 15 : 5) === 0 && Skill.getRange(skillCheck) < 4) {
+					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (target.isSpecial ? 15 : 5) === 0 && Skill.getRange(skillCheck) < 4) {
 						Packet.flash(me.gid);
 					}
 
@@ -662,7 +662,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 				}
 
 				// Skip non-unique monsters after 15 attacks, except in Throne of Destruction
-				if (me.area !== sdk.areas.ThroneofDestruction && !(target.spectype & 0x7) && gidAttack[i].attacks > 15) {
+				if (me.area !== sdk.areas.ThroneofDestruction && !target.isSpecial && gidAttack[i].attacks > 15) {
 					print("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
 					monsterList.shift();
 				}

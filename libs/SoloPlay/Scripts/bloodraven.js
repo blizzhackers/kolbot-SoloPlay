@@ -11,9 +11,15 @@ function bloodraven () {
 	if (!Pather.checkWP(sdk.areas.StonyField, true)) {
 		Pather.getWP(sdk.areas.StonyField);
 		me.charlvl < 6 && Attack.clearLevelUntilLevel(6);
-
 	} else {
-		Pather.useWaypoint(sdk.areas.ColdPlains);
+		if (me.hell && Pather.canTeleport()) {
+			Misc.getExpShrine([sdk.areas.StonyField, sdk.areas.ColdPlains, sdk.areas.DarkWood, sdk.areas.BloodMoor]);
+			if (me.area !== sdk.areas.ColdPlains) {
+				Town.goToTown() && Pather.useWaypoint(sdk.areas.ColdPlains);
+			}
+		} else {
+			Pather.useWaypoint(sdk.areas.ColdPlains);
+		}
 	}
 
 	Precast.doPrecast(true);
@@ -31,8 +37,7 @@ function bloodraven () {
 		return true;
 	}
 
-	print('ÿc8Kolbot-SoloPlayÿc0: blood raven :: starting mausoleum');
-	me.overhead("mausoleum");
+	myPrint('blood raven :: starting mausoleum');
 
 	if (!Pather.moveToExit([sdk.areas.BurialGrounds, sdk.areas.Mausoleum], true)) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Mausoleum");
@@ -59,8 +64,7 @@ function bloodraven () {
 		return true;
 	}
 
-	me.overhead("crypt");
-	print('ÿc8Kolbot-SoloPlayÿc0: blood raven :: starting crypt');
+	myPrint('blood raven :: starting crypt');
 	Pather.journeyTo(sdk.areas.Crypt) && Attack.clearLevel();
 	
 	return true;

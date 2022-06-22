@@ -786,7 +786,7 @@ const Check = {
 			break;
 		case "templeruns":
 			if (!Pather.accessToAct(3)) return false;
-			if ((!me.lamessen || (me.nightmare && me.charlvl < 50) || (me.hell && !me.classic))
+			if ((!me.lamessen || (me.nightmare && me.charlvl < 50) || (me.hell && !me.classic && me.charlvl > 80))
 				&& (!me.paladin || (me.paladin && !Check.currentBuild().caster))) {
 				return true;
 			}

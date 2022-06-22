@@ -113,6 +113,12 @@ function SoloPlay () {
 						delete this[SetUp.scripts[k]];
 					}
 				}
+
+				if (me.sorceress && me.hell && SetUp.scripts[k] === "bloodraven" && me.charlvl < 68) {
+					console.debug("End-run, we are not ready to keep pushing yet");
+					
+					break;
+				}
 			}
 		}
 
