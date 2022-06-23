@@ -1,7 +1,8 @@
-/*
-*	@filename	bloodraven.js
-*	@author		theBGuy
-*	@desc		kill bloodraven for free merc normal and maus/crypt MF hunting for endgame
+/**
+*  @filename    bloodraven.js
+*  @author      theBGuy
+*  @desc        kill bloodraven for free merc normal and maus/crypt MF hunting for endgame
+*
 */
 
 function bloodraven () {
@@ -12,7 +13,7 @@ function bloodraven () {
 		Pather.getWP(sdk.areas.StonyField);
 		me.charlvl < 6 && Attack.clearLevelUntilLevel(6);
 	} else {
-		if (me.hell && Pather.canTeleport()) {
+		if (me.hell && Pather.canTeleport() && me.charlvl < 74/*xp penalty makes this not worth it after 74*/) {
 			Misc.getExpShrine([sdk.areas.StonyField, sdk.areas.ColdPlains, sdk.areas.DarkWood, sdk.areas.BloodMoor]);
 			if (me.area !== sdk.areas.ColdPlains) {
 				Town.goToTown() && Pather.useWaypoint(sdk.areas.ColdPlains);
@@ -26,7 +27,7 @@ function bloodraven () {
 
 	me.overhead("blood raven");
 	Pather.moveToExit(sdk.areas.BurialGrounds, true);
-	me.sorceress && !me.normal ? Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805, 10) : Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805);
+	me.sorceress && !me.normal ? Pather.moveNearPreset(sdk.areas.BurialGrounds, 1, 805, 20) : Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805);
 	Attack.killTarget("Blood Raven");
 	Pickit.pickItems();
 

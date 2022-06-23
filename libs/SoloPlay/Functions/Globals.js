@@ -718,7 +718,7 @@ const Check = {
 			break;
 		case "a1chests":
 			if (me.classic) return false;
-			if (me.charlvl >= 70 && Pather.canTeleport()
+			if (me.charlvl >= 80 && Pather.canTeleport()
 				|| (me.barbarian && me.hell && !Pather.accessToAct(3)
 				&& (Item.getEquippedItem(5).tier < 1270 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
 				return true;
@@ -767,7 +767,7 @@ const Check = {
 
 			break;
 		case "tombs":
-			if (Pather.accessToAct(2) && me.normal && me.charlvl < 24) {
+			if (Pather.accessToAct(2) && (me.normal && me.charlvl < 24) || (me.sorceress && me.hell && me.charlvl >= 74 && me.charlvl < 81)) {
 				return true;
 			}
 

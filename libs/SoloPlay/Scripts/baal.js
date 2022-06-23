@@ -233,43 +233,50 @@ function baal () {
 		return true;
 	}
 
-	Attack.clear(15);
-	Common.Baal.clearThrone();
+	try {
+		Messaging.sendToScript(SoloEvents.filePath, 'addBaalEvent');
+		Attack.clear(15);
+		Common.Baal.clearThrone();
 
-	if (me.coldRes < 75 || me.poisonRes < 75) {
-		Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
-		Town.move("portalspot");
-		Pather.usePortal(sdk.areas.ThroneofDestruction, me.name);
-	}
+		if (me.coldRes < 75 || me.poisonRes < 75) {
+			Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
+			Town.move("portalspot");
+			Pather.usePortal(sdk.areas.ThroneofDestruction, me.name);
+		}
 
-	if (!clearWaves()) {
-		return true;
-	}
+		if (!clearWaves()) {
+			throw new Error("Can't clear waves");
+		}
 
-	Common.Baal.clearThrone(); // double check
-	Pather.moveTo(15094, me.paladin ? 5029 : 5038);
-	Pickit.pickItems();
-	Pather.moveTo(15094, me.paladin ? 5029 : 5038);
-	Pickit.pickItems();
-	Pather.moveTo(15090, 5008);
-	delay(2500 + me.ping);
-	Precast.doPrecast(true);
-
-	if (SetUp.finalBuild === "Bumper") {
-		return true;
-	}
-
-	Config.BossPriority = true;
-
-	if (Common.Baal.killBaal()) {
-		// Grab static gold
-		NTIP.addLine("[name] == gold # [gold] >= 25");
-		Pather.moveTo(15072, 5894);
+		Common.Baal.clearThrone(); // double check
+		Pather.moveTo(15094, me.paladin ? 5029 : 5038);
 		Pickit.pickItems();
-		Pather.moveTo(15095, 5881);
+		Pather.moveTo(15094, me.paladin ? 5029 : 5038);
 		Pickit.pickItems();
-	} else {
-		print("ÿc8Kolbot-SoloPlayÿc0: Couldn't access portal.");
+		Pather.moveTo(15090, 5008);
+		delay(2500 + me.ping);
+		Precast.doPrecast(true);
+
+		if (SetUp.finalBuild === "Bumper") {
+			throw new Error("BUMPER");
+		}
+
+		Config.BossPriority = true;
+
+		if (Common.Baal.killBaal()) {
+			// Grab static gold
+			NTIP.addLine("[name] == gold # [gold] >= 25");
+			Pather.moveTo(15072, 5894);
+			Pickit.pickItems();
+			Pather.moveTo(15095, 5881);
+			Pickit.pickItems();
+		} else {
+			print("ÿc8Kolbot-SoloPlayÿc0: Couldn't access portal.");
+		}
+	} catch (e) {
+		//
+	} finally {
+		Messaging.sendToScript(SoloEvents.filePath, 'removeBaalEvent');
 	}
 
 	return true;

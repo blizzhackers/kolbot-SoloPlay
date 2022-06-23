@@ -98,6 +98,26 @@ function main () {
 		
 		if (msg && typeof msg === "string" && msg !== "") {
 			switch (msg) {
+			case "addDiaEvent":
+				console.log("Added dia lightning listener");
+				addEventListener("gamepacket", SoloEvents.diaEvent);
+
+				break;
+			case "removeDiaEvent":
+				console.log("Removed dia lightning listener");
+				removeEventListener("gamepacket", SoloEvents.diaEvent);
+
+				break;
+			case "addBaalEvent":
+				console.log("Added baal wave listener");
+				addEventListener("gamepacket", SoloEvents.baalEvent);
+
+				break;
+			case "removeBaalEvent":
+				console.log("Removed baal wave listener");
+				removeEventListener("gamepacket", SoloEvents.baalEvent);
+
+				break;
 			// ignore common scriptBroadcast messages that aren't relevent to this thread
 			case "mule":
 			case "muleTorch":
@@ -204,7 +224,6 @@ function main () {
 	};
 
 	addEventListener("scriptmsg", this.scriptEvent);
-	addEventListener("gamepacket", SoloEvents.gamePacket);
 	addEventListener('copydata', this.receiveCopyData); // should this just be added to the starter? would remove needing 3 copydata event listeners (entry, default, and here)
 
 	// Start

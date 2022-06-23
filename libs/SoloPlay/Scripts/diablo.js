@@ -126,23 +126,9 @@ function diablo () {
 
 	Config.MercWatch = false;
 
-	if (!me.sorceress && !me.necromancer && !me.assassin) {
-		Pather.moveTo(7788, 5292, 3, 30);
-	} else {
-		Pather.moveNear(7792, 5292, 35);
-	}
-
-	this.diabloPrep();
-	let theD = getUnit(sdk.unittype.Monster, sdk.monsters.Diablo);
-
-	if (!theD) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Diablo not found. Checking seal bosses.");
-		try {
-			Common.Diablo.vizierSeal();
-			Common.Diablo.seisSeal();
-			Common.Diablo.infectorSeal();
-		} catch (e) {
-			//
+	try {
+		if (!Pather.canTeleport() && (me.necromancer && ["Poison", "Summon"].includes(SetUp.currentBuild) || !me.sorceress)) {
+			Messaging.sendToScript(SoloEvents.filePath, 'addDiaEvent');
 		}
 
 		if (!me.sorceress && !me.necromancer && !me.assassin) {
@@ -150,15 +136,39 @@ function diablo () {
 		} else {
 			Pather.moveNear(7792, 5292, 35);
 		}
-
+		
 		this.diabloPrep();
-	}
+		let theD = getUnit(sdk.unittype.Monster, sdk.monsters.Diablo);
 
-	if (!Attack.pwnDia()) {
-		Attack.killTarget(sdk.monsters.Diablo);
-	}
+		if (!theD) {
+			print("ÿc8Kolbot-SoloPlayÿc0: Diablo not found. Checking seal bosses.");
+			try {
+				Common.Diablo.vizierSeal();
+				Common.Diablo.seisSeal();
+				Common.Diablo.infectorSeal();
+			} catch (e) {
+				//
+			}
 
-	Pickit.pickItems();
+			if (!me.sorceress && !me.necromancer && !me.assassin) {
+				Pather.moveTo(7788, 5292, 3, 30);
+			} else {
+				Pather.moveNear(7792, 5292, 35);
+			}
+
+			this.diabloPrep();
+		}
+
+		if (!Attack.pwnDia()) {
+			Attack.killTarget(sdk.monsters.Diablo);
+		}
+
+		Pickit.pickItems();
+	} catch (e) {
+		//
+	} finally {
+		Messaging.sendToScript(SoloEvents.filePath, 'removeDiaEvent');
+	}
 
 	if (me.classic) {
 		return true;

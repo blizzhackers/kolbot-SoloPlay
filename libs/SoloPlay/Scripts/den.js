@@ -49,62 +49,91 @@ function den () {
 	// START
 	let attempt = 1;
 	let killTracker = false;
+	let denLights = false;
 	Precast.doPrecast(true);
 	Attack.clear(50);
 	Pather.moveToExit(sdk.areas.DenofEvil, true);
 
+	this.denLightsListener = function (bytes = []) {
+		if (!bytes.length) return;
+		// d2gs unique event - den lights
+		if (bytes[0] === 0x89) {
+			denLights = true;
+		}
+	};
+
 	if (me.area === sdk.areas.DenofEvil) {
+		addEventListener("gamepacket", this.denLightsListener);
 		const Worker = require('../../modules/Worker');
 		let corpseTick = getTickCount();
 		let corpsefire;
 
-		if (!me.normal) {
-			Worker.runInBackground.corpseTracker = function () {
+		try {
+			if (!me.normal) {
+				Worker.runInBackground.corpseTracker = function () {
+					if (killTracker) return false;
+					if (me.area === sdk.areas.DenofEvil) {
+						if (getTickCount() - corpseTick < 1000) return true;
+						corpseTick = getTickCount();
+						corpsefire = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.Corpsefire));
+
+						if (corpsefire && !Attack.canAttack(corpsefire)) {
+							killTracker = true;
+							myPrint("Exit den. Corpsefire is immune");
+							throw new Error('ÿc8Kolbot-SoloPlayÿc0: Exit den. Corpsefire is immune');
+						}
+					}
+
+					return true;
+				};
+			}
+
+			Worker.runInBackground.denLightsTracker = function () {
 				if (killTracker) return false;
 				if (me.area === sdk.areas.DenofEvil) {
-					if (getTickCount() - corpseTick < 1000) return true;
-					corpseTick = getTickCount();
-					corpsefire = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.Corpsefire));
-
-					if (corpsefire && !Attack.canAttack(corpsefire)) {
+					if (denLights) {
 						killTracker = true;
-						myPrint("Exit den. Corpsefire is immune");
-						throw new Error('ÿc8Kolbot-SoloPlayÿc0: Exit den. Corpsefire is immune');
+						throw new Error('DEN COMPLETE');
 					}
 				}
 
 				return true;
 			};
-		}
 
-		while (!Misc.checkQuest(1, 0)) {
-			console.log("ÿc8Kolbot-SoloPlayÿc0: Clearing den attempt: " + attempt);
-			Attack.clearLevel();
+			while (!Misc.checkQuest(1, 0)) {
+				console.log("ÿc8Kolbot-SoloPlayÿc0: Clearing den attempt: " + attempt);
+				Attack.clearLevel();
 
-			if (me.area !== sdk.areas.DenofEvil) {
-				break;
+				if (me.area !== sdk.areas.DenofEvil) {
+					break;
+				}
+
+				if (Misc.checkQuest(1, 13)) {
+					customGoToTown();
+					Town.npcInteract("akara");
+					
+					break;
+				}
+
+				if (attempt >= 5) {
+					console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to complete den");
+					customGoToTown();
+
+					break;
+				}
+
+				attempt++;
 			}
 
-			if (Misc.checkQuest(1, 13)) {
-				customGoToTown();
-				Town.npcInteract("akara");
-				
-				break;
-			}
-
-			if (attempt >= 5) {
-				console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to complete den");
-				customGoToTown();
-
-				break;
-			}
-
-			attempt++;
+		} catch (e) {
+			//
+		} finally {
+			removeEventListener("gamepacket", this.denLightsListener);
+			SoloEvents.finishDen();
+			killTracker = true;
+			me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
 		}
 	}
-
-	killTracker = true;
-	me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
 
 	return true;
 }
