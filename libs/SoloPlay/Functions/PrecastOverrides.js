@@ -115,7 +115,7 @@ Precast.getBetterSlot = function (skillId) {
 let Overrides = require('../../modules/Override');
 
 new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
-	if (!Precast.enabled) return;
+	if (!Precast.enabled) return false;
 
 	switch (me.classid) {
 	case sdk.charclass.Paladin:

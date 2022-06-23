@@ -785,6 +785,9 @@ Misc.shapeShift = function (mode) {
 		throw new Error("shapeShift: Invalid parameter");
 	}
 
+	// don't have wanted skill
+	if (Skill.canUse(skill)) return false;
+	// already in wanted state
 	if (me.getState(state)) return true;
 
 	let slot = me.weaponswitch;

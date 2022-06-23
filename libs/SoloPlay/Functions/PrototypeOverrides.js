@@ -269,11 +269,11 @@ Object.defineProperties(me, {
 });
 
 Unit.prototype.castChargedSkill = function (...args) {
-	let skillId, x, y, unit, chargedItem, charge,
-		chargedItems = [],
-		validCharge = function (itemCharge) {
-			return itemCharge.skill === skillId && itemCharge.charges;
-		};
+	let skillId, x, y, unit, chargedItem, charge;
+	let chargedItems = [];
+	let validCharge = function (itemCharge) {
+		return itemCharge.skill === skillId && itemCharge.charges;
+	};
 
 	switch (args.length) {
 	case 0: // item.castChargedSkill()
@@ -325,7 +325,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 
 		// Item must be equipped, or a charm in inventory
 		this.getItemsEx(-1)
-			.filter(item => item && (item.isEquipped || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(item.itemType) > -1)))
+			.filter(item => item && (item.isEquipped || (item.isInInventory && item.isCharm)))
 			.forEach(function (item) {
 				let stats = item.getStat(-2);
 

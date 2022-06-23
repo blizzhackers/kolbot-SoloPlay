@@ -8,17 +8,18 @@
 
 !isIncluded("common/Misc.js") && include("common/Misc.js");
 !isIncluded("SoloPlay/Functions/PrototypesOverrides.js") && include("SoloPlay/Functions/PrototypesOverrides.js");
+!isIncluded("SoloPlay/Functions/ItemPrototypes.js") && include("SoloPlay/Functions/ItemPrototypes.js");
 
 Item.getQuantityOwned = function (item = undefined) {
 	if (!item) return 0;
 	
 	let myItems = me.getItemsEx()
 		.filter(check =>
-			check.itemType === item.itemType // same item type as current
-				&& check.classid === item.classid // same item classid as current
-				&& check.quality === item.quality // same item quality as current
-				&& check.sockets === item.sockets // same socket count
-				&& check.isInStorage
+			check.itemType === item.itemType
+			&& check.classid === item.classid
+			&& check.quality === item.quality
+			&& check.sockets === item.sockets
+			&& check.isInStorage
 		);
 
 	return myItems.length;
@@ -428,15 +429,7 @@ Item.equip = function (item, bodyLoc) {
 							rolledBack = true;
 						}
 
-						if (Pickit.checkItem(cursorItem).result === 1
-						// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						|| (cursorItem.unique && Pickit.checkItem(cursorItem).result === 2)
-						// or keep if item is worth selling
-						|| (cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
-							if (Storage.Inventory.CanFit(cursorItem)) {
-								Storage.Inventory.MoveTo(cursorItem);
-							}
-						} else {
+						if (cursorItem && !cursorItem.shouldKeep()) {
 							cursorItem.drop();
 						}
 					}
@@ -555,16 +548,8 @@ Item.secondaryEquip = function (item, bodyLoc) {
 				if (getCursorType() === 3) {
 					let cursorItem = getUnit(100);
 
-					if (cursorItem) {
-						if (Pickit.checkItem(cursorItem).result === 1
-						// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						|| (cursorItem.unique && Pickit.checkItem(cursorItem).result === 2)
-						// or keep if item is worth selling
-						|| (cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
-							Storage.Inventory.CanFit(cursorItem) && Storage.Inventory.MoveTo(cursorItem);
-						} else {
-							cursorItem.drop();
-						}
+					if (cursorItem && !cursorItem.shouldKeep()) {
+						cursorItem.drop();
 					}
 				}
 
@@ -584,8 +569,8 @@ Item.autoEquipCheckSecondary = function (item) {
 	if (!Config.AutoEquip) return true;
 	if (me.classic) return false;
 
-	let tier = NTIP.GetSecondaryTier(item),
-		bodyLoc = Item.getBodyLocSecondary(item);
+	let tier = NTIP.GetSecondaryTier(item);
+	let bodyLoc = Item.getBodyLocSecondary(item);
 
 	for (let i = 0; tier > 0 && i < bodyLoc.length; i += 1) {
 		if (tier > Item.getEquippedItem(bodyLoc[i]).secondarytier && (Item.canEquip(item) || !item.identified)) {
@@ -710,16 +695,8 @@ Item.equipMerc = function (item, bodyLoc) {
 				if (getCursorType() === 3) {
 					let cursorItem = getUnit(100);
 
-					if (cursorItem) {
-						if (Pickit.checkItem(cursorItem).result === 1
-						// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						|| (cursorItem.unique && Pickit.checkItem(cursorItem).result === 2)
-						// or keep if item is worth selling
-						|| (cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
-							Storage.Inventory.CanFit(cursorItem) && Storage.Inventory.MoveTo(cursorItem);
-						} else {
-							cursorItem.drop();
-						}
+					if (cursorItem && !cursorItem.shouldKeep()) {
+						cursorItem.drop();
 					}
 				}
 
