@@ -16,13 +16,9 @@ Pickit.enabled = true;
 Pickit.checkItem = function (unit) {
 	let rval = NTIP.CheckItem(unit, false, true);
 
-	let durability = unit.getStat(72);
-
-	if (unit.getStat(73) > 0 && typeof durability === "number" && durability * 100 / unit.getStat(73) <= 0) {
-		return {
-			result: 4,
-			line: null
-		};
+	// quick return on essentials - we know they aren't going to be in the other checks
+	if (Pickit.essentials.includes(unit.itemType)) {
+		return rval;
 	}
 
 	if ((unit.classid === sdk.items.runes.Ral || unit.classid === sdk.items.runes.Ort) && Town.repairIngredientCheck(unit)) {
@@ -50,6 +46,15 @@ Pickit.checkItem = function (unit) {
 		return {
 			result: 1,
 			line: "Frozen"
+		};
+	}
+
+	let durability = unit.getStat(72);
+
+	if (unit.getStat(73) > 0 && typeof durability === "number" && durability * 100 / unit.getStat(73) <= 0) {
+		return {
+			result: 4,
+			line: null
 		};
 	}
 
@@ -391,13 +396,13 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		self.gold = unit.getStat(14);
 		self.dist = (unit.distance || Infinity);
 		let canTk = (me.sorceress && Skill.haveTK
-			&& (this.type === 4 || this.type === 22 || (this.type > 75 && this.type < 82))
-			&& this.dist > 5 && this.dist < 20 && !checkCollision(me, unit, 0x5));
+			&& (self.type === 4 || self.type === 22 || (self.type > 75 && self.type < 82))
+			&& self.dist > 5 && self.dist < 20 && !checkCollision(me, unit, 0x5));
 		self.useTk = canTk && (me.mpPercent > 50);
 		self.picked = false;
 	}
 
-	let item, tick, gid, stats, retry = false;
+	let item, tick, gid, retry = false;
 	let cancelFlags = [0x01, 0x08, 0x14, 0x0c, 0x19, 0x1a];
 	let itemCount = me.itemcount;
 
@@ -419,7 +424,8 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		}
 	}
 
-	stats = new ItemStats(item);
+	let stats = new ItemStats(item);
+	let tkMana = stats.useTk ? Skill.getManaCost(sdk.skills.Telekinesis) * 2 : Infinity;
 
 	MainLoop:
 	for (let i = 0; i < 3; i += 1) {
@@ -437,10 +443,10 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			break;
 		}
 
-		if (stats.useTk) {
+		if (stats.useTk && me.mp > tkMana) {
 			Skill.cast(sdk.skills.Telekinesis, 0, item);
 		} else {
-			if (getDistance(me, item) > (i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
+			if (item.distance > (Config.FastPick || i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
 				if (item.getMobCount(8, 0x1 | 0x400 | 0x800) !== 0) {
 					print("ÿc8PickItemÿc0 :: Clearing area around item I want to pick");
 					Pickit.enabled = false;		// Don't pick while trying to clear
@@ -448,14 +454,13 @@ Pickit.pickItem = function (unit, status, keptLine) {
 					Pickit.enabled = true;		// Reset value
 				}
 
-				if (getDistance(me, item) > (Config.FastPick && i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
-					if ((Pather.useTeleport() && !Pather.moveToUnit(item)) || !Pather.moveTo(item.x, item.y, 0)) {
-						continue;
-					}
+				if (!Pather.moveToUnit(item)) {
+					continue;
 				}
 			}
 
-			sendPacket(1, 0x16, 4, 0x4, 4, item.gid, 4, 0);
+			// use packet first, if we fail and not using fast pick use click
+			(Config.FastPick || i < 1) ? sendPacket(1, 0x16, 4, 0x4, 4, gid, 4, 0) : Misc.click(0, 0, item);
 		}
 
 		tick = getTickCount();
