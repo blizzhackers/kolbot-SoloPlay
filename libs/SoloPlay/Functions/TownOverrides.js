@@ -120,7 +120,7 @@ Town.townTasks = function (buyPots = {}) {
 	!me.inTown && Town.goToTown();
 
 	// Burst of speed while in town
-	if (me.inTown && Precast.precastables.BurstofSpeed && !me.getState(sdk.states.BurstofSpeed)) {
+	if (me.inTown && Skill.canUse(sdk.skills.BurstofSpeed) && !me.getState(sdk.states.BurstofSpeed)) {
 		Skill.cast(sdk.skills.BurstofSpeed, 0);
 	}
 
@@ -188,7 +188,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	!me.inTown && Town.goToTown();
 
 	// Burst of speed while in town
-	if (me.inTown && Precast.precastables.BurstofSpeed && !me.getState(sdk.states.BurstofSpeed)) {
+	if (me.inTown && Skill.canUse(sdk.skills.BurstofSpeed) && !me.getState(sdk.states.BurstofSpeed)) {
 		Skill.cast(sdk.skills.BurstofSpeed, 0);
 	}
 

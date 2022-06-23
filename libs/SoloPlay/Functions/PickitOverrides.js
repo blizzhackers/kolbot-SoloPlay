@@ -88,7 +88,7 @@ Pickit.checkItem = function (unit) {
 		};
 	}
 
-	if ([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(unit.classid) && NTIP.GetCharmTier(unit) > 0 && unit.identified) {
+	if (unit.isCharm && NTIP.GetCharmTier(unit) > 0 && unit.identified) {
 		if (Item.autoEquipCharmCheck(unit)) {
 			return {
 				result: 1,
@@ -135,13 +135,15 @@ Pickit.checkItem = function (unit) {
 			};
 		}
 
-		if (unit.getItemCost(1) / (unit.sizex * unit.sizey) >= 2000) {
+		let itemValuePerSquare = unit.getItemCost(1) / (unit.sizex * unit.sizey);
+
+		if (itemValuePerSquare >= 2000) {
 			// If total gold is less than 500k pick up anything worth 2k gold per square to sell in town.
 			return {
 				result: 4,
 				line: "Valuable Item: " + unit.getItemCost(1)
 			};
-		} else if (unit.getItemCost(1) / (unit.sizex * unit.sizey) >= 10) {
+		} else if (itemValuePerSquare >= 10 && me.gold < Config.LowGold) {
 			// If total gold is less than LowGold setting pick up anything worth 10 gold per square to sell in town.
 			return {
 				result: 4,
@@ -176,7 +178,7 @@ Pickit.amountOfPotsNeeded = function () {
 	_a);
 	if (hpMax > 0 || mpMax > 0 || rvMax > 0) {
 		me.getItemsEx()
-			.filter(function (pot) { return potTypes.includes(pot.itemType) && (pot.isInBelt || pot.isInInventory); })
+			.filter((pot) => potTypes.includes(pot.itemType) && (pot.isInBelt || pot.isInInventory))
 			.forEach(function (pot) {
 				needed[pot.itemType][pot.location] -= 1;
 			});
@@ -387,8 +389,10 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		self.name = unit.name;
 		self.color = Pickit.itemColor(unit);
 		self.gold = unit.getStat(14);
-		let canTk = me.sorceress && me.getSkill(sdk.skills.Telekinesis, 1) && (this.type === 4 || this.type === 22 || (this.type > 75 && this.type < 82)) &&
-					getDistance(me, unit) > 5 && getDistance(me, unit) < 20 && !checkCollision(me, unit, 0x4);
+		self.dist = (unit.distance || Infinity);
+		let canTk = (me.sorceress && Skill.haveTK
+			&& (this.type === 4 || this.type === 22 || (this.type > 75 && this.type < 82))
+			&& this.dist > 5 && this.dist < 20 && !checkCollision(me, unit, 0x5));
 		self.useTk = canTk && (me.mpPercent > 50);
 		self.picked = false;
 	}

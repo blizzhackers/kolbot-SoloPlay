@@ -421,9 +421,9 @@ const tierscore = function (item, bodyloc) {
 		resistRating += (item.getStatEx(sdk.stats.MaxPoisonResist) * tierWeights.resistWeights.MAXPR);
 
 		resistRating += (item.getStatEx(142) + item.getStatEx(144) + item.getStatEx(146) + item.getStatEx(148)) * tierWeights.resistWeights.ABS; // add absorb damage
-		resistRating += item.getStatEx(34) * tierWeights.resistWeights.DR; // add integer damage resist
+		resistRating += item.getStatEx(34) * tierWeights.resistWeights.DR / 2; // add integer damage resist
 		resistRating += item.getStatEx(36) * tierWeights.resistWeights.DR * 2; // add damage resist %
-		resistRating += item.getStatEx(35) * tierWeights.resistWeights.MR; // add integer magic damage resist
+		resistRating += item.getStatEx(35) * tierWeights.resistWeights.MR / 2; // add integer magic damage resist
 		resistRating += item.getStatEx(37) * tierWeights.resistWeights.MR * 2; // add magic damage resist %
 
 		return resistRating;

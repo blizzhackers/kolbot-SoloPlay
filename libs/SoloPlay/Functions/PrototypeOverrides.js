@@ -80,6 +80,18 @@ Object.defineProperties(Unit.prototype, {
 			return [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(this.classid);
 		},
 	},
+	isGem: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			return (this.itemType >= sdk.itemtype.Amethyst && this.itemType <= sdk.itemtype.Skull);
+		},
+	},
+	isInsertable: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			return [sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(this.itemType) || this.isGem;
+		},
+	},
 	isRuneword: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
@@ -391,11 +403,11 @@ Unit.prototype.castChargedSkill = function (...args) {
 };
 
 Unit.prototype.castSwitchChargedSkill = function (...args) {
-	let skillId, x, y, unit, chargedItem,
-		chargedItems = [],
-		validCharge = function (itemCharge) {
-			return itemCharge.skill === skillId && itemCharge.charges;
-		};
+	let skillId, x, y, unit, chargedItem;
+	let chargedItems = [];
+	let validCharge = function (itemCharge) {
+		return itemCharge.skill === skillId && itemCharge.charges;
+	};
 
 	switch (args.length) {
 	case 0: // item.castChargedSkill()

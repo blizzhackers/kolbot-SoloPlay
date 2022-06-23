@@ -1107,16 +1107,17 @@ const Check = {
 		switch (me.diff) {
 		case sdk.difficulty.Normal:
 			// Have runes or stealth and ancients pledge
-			if ([sdk.items.runes.Tal, sdk.items.runes.Eth].every((i) => !!me.getItem(i)) || this.haveItem("armor", "runeword", "Stealth")) {
+			if ([sdk.items.runes.Tal, sdk.items.runes.Eth].every((i) => !!me.getItem(i)) || me.checkItem({name: sdk.locale.items.Stealth}).have) {
 				needRunes = false;
 			}
 
 			break;
 		case sdk.difficulty.Nightmare:
 			if (([sdk.items.runes.Tal, sdk.items.runes.Thul, sdk.items.runes.Ort, sdk.items.runes.Amn].every((i) => !!me.getItem(i)) && Check.currentBuild().caster)
-				|| (!me.paladin && this.haveItem("sword", "runeword", "Spirit"))
-				|| (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit"))
-				|| (me.necromancer && this.haveItem("wand", "runeword", "White") && (this.haveItem("voodooheads", "runeword", "Rhyme") || Item.getEquippedItem(5).tier > 800))
+				|| (!me.paladin && me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Sword}).have)
+				|| (me.paladin && me.haveAll([{name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Sword}, {name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.AuricShields}]))
+				|| (me.necromancer && me.checkItem({name: sdk.locale.items.White}).have
+					&& (me.checkItem({name: sdk.locale.items.Rhyme, itemtype: sdk.itemtype.VoodooHeads}).have || Item.getEquippedItem(5).tier > 800))
 				|| (me.barbarian && (me.checkItem({name: sdk.locale.items.Lawbringer}).have || me.baal))) {
 				needRunes = false;
 			}

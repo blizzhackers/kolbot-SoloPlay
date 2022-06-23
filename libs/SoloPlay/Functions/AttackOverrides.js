@@ -53,7 +53,7 @@ Attack.getLowerResistPercent = function () {
 	if (me.expansion && CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) {
 		return calc(CharData.skillData.chargedSkillsOnSwitch.find(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist).level);
 	}
-	if (me.getSkill(sdk.skills.LowerResist, 1)) {
+	if (Skill.canUse(sdk.skills.LowerResist)) {
 		return calc(me.getSkill(sdk.skills.LowerResist, 1));
 	}
 	return 0;
@@ -63,7 +63,7 @@ Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
 	if (!unit || !unit.type || unit.type === sdk.unittype.Player) return true;
 
 	let damageType = typeof val === "number" ? this.getSkillElement(val) : val;
-	let addLowerRes = !!(me.getSkill(sdk.skills.LowerResist, 1) || CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) && unit.curseable;
+	let addLowerRes = !!(Skill.canUse(sdk.skills.LowerResist) || CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) && unit.curseable;
 
 	// Static handler
 	if (val === sdk.skills.StaticField && this.getResist(unit, damageType) < 100) {
@@ -877,7 +877,7 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 
 	// Item must be equipped, or a charm in inventory
 	me.getItemsEx(-1)
-		.filter(item => item && (item.isEquipped && !item.rare || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
+		.filter(item => item && (item.isEquipped && !item.rare || (item.isInInventory && item.isCharm)))
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 
@@ -933,7 +933,7 @@ Attack.getItemCharges = function (skillId = undefined) {
 
 	// Item must equipped, or a charm in inventory
 	me.getItemsEx(-1)
-		.filter(item => item && (item.isEquipped && !item.rare || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
+		.filter(item => item && (item.isEquipped && !item.rare || (item.isInInventory && item.isCharm)))
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 

@@ -385,8 +385,7 @@ Misc.getSocketables = function (item, itemInfo) {
 	let sockets = item.sockets;
 	let openSockets = sockets - preSockets;
 	let {classid, quality} = item;
-	let socketables = me.getItemsEx()
-		.filter(item => [sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(item.itemType) || (item.itemType >= sdk.itemtype.Amethyst && item.itemType <= sdk.itemtype.Skull));
+	let socketables = me.getItemsEx().filter(item => item.isInsertable);
 
 	if (!socketables || (!allowTemp && openSockets === 0)) return false;
 
@@ -574,12 +573,10 @@ Misc.logItem = function (action, unit, keptLine) {
 
 	if (!unit.fname) return false;
 
-	let lastArea, code, desc, sock, itemObj,
-		color = -1,
-		name = unit.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<:;.*]|\/|\\/g, "").trim();
-
-	desc = this.getItemDesc(unit);
-	color = unit.getColor();
+	let lastArea, code, sock, itemObj;
+	let name = unit.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<:;.*]|\/|\\/g, "").trim();
+	let desc = (this.getItemDesc(unit) || "");
+	let color = (unit.getColor() || -1);
 
 	if (action.match("kept", "i")) {
 		lastArea = DataFile.getStats().lastArea;
@@ -815,11 +812,11 @@ Misc.shapeShift = function (mode) {
 };
 
 Misc.errorReport = function (error, script) {
-	let i, date, dateString, msg, oogmsg, filemsg, source, stack,
-		stackLog = "";
+	let msg, oogmsg, filemsg, source, stack;
+	let stackLog = "";
 
-	date = new Date();
-	dateString = "[" + new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, -5).replace(/-/g, '/').replace('T', ' ') + "]";
+	let date = new Date();
+	let dateString = "[" + new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, -5).replace(/-/g, '/').replace('T', ' ') + "]";
 
 	if (typeof error === "string") {
 		msg = error;
@@ -841,7 +838,7 @@ Misc.errorReport = function (error, script) {
 					stack.reverse();
 				}
 
-				for (i = 0; i < stack.length; i += 1) {
+				for (let i = 0; i < stack.length; i += 1) {
 					if (stack[i]) {
 						stackLog += stack[i].substr(0, stack[i].indexOf("@") + 1) + stack[i].substr(stack[i].lastIndexOf("\\") + 1, stack[i].length - 1);
 

@@ -16,9 +16,9 @@ const AutoBuild = new function AutoBuild () {
 	Config.AutoBuild.DebugMode && (Config.AutoBuild.Verbose = true);
 	this.usingFinalBuildFile = false;
 
-	let debug = !!Config.AutoBuild.DebugMode,
-		verbose = !!Config.AutoBuild.Verbose,
-		configUpdateLevel = 0, lastSuccessfulUpdateLevel = 0;
+	let debug = !!Config.AutoBuild.DebugMode;
+	let verbose = !!Config.AutoBuild.Verbose;
+	let configUpdateLevel = 0, lastSuccessfulUpdateLevel = 0;
 
 	// Apply all Update functions from the build template in order from level 1 to me.charlvl.
 	// By reapplying all of the changes to the Config object, we preserve

@@ -135,14 +135,14 @@ ClassAttack.doAttack = function (unit) {
 		}
 	}
 
-	let checkSkill,
-		mercRevive = 0,
-		timedSkill = -1,
-		untimedSkill = -1,
-		gold = me.gold,
-		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3,
-		useTerror = me.getSkill(sdk.skills.Terror, 0),
-		useBP = me.getSkill(sdk.skills.BonePrison, 1);
+	let checkSkill;
+	let mercRevive = 0;
+	let timedSkill = -1;
+	let untimedSkill = -1;
+	let gold = me.gold;
+	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+	let useTerror = me.getSkill(sdk.skills.Terror, 0);
+	let useBP = me.getSkill(sdk.skills.BonePrison, 1);
 	let bpAllowedAreas = [37, 38, 39, 41, 42, 43, 44, 46, 73, 76, 77, 78, 79, 80, 81, 83, 102, 104, 105, 106, 108, 110, 111, 120, 121, 128, 129, 130, 131];
 
 	// Bone prison
