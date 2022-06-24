@@ -446,30 +446,33 @@ const tierscore = function (item, bodyloc) {
 		buildInfo.usefulStats.forEach(stat => buildRating += item.getStatEx(stat));
 
 		// Melee Specific
-		if (!buildInfo.caster) {
+		if (!buildInfo.caster || Config.AttackSkill.includes(sdk.skills.Attack) || Config.LowManaSkill.includes(sdk.skills.Attack)) {
 			let eleDmgModifer = [sdk.itemtype.Ring, sdk.itemtype.Amulet].includes(item.itemType) ? 2 : 1;
+			let meleeRating = 0;
 
-			item.getStatEx(sdk.stats.ReplenishDurability) && (buildRating += 15);
-			item.getStatEx(sdk.stats.IgnoreTargetDefense) && (buildRating += 50);
+			item.getStatEx(sdk.stats.ReplenishDurability) && (meleeRating += 15);
+			item.getStatEx(sdk.stats.IgnoreTargetDefense) && (meleeRating += 50);
 
 			// should these be added and calc avg dmg instead?
 			// Sometimes we replace good weps with 2-300 ED weps that may be high dmg but aren't as good as the item we replaced
 			//buildRating += item.getStatEx(21) * buildWeights.MINDMG; // add MIN damage
 			//buildRating += item.getStatEx(22) * buildWeights.MAXDMG; // add MAX damage
-			buildRating += ((item.getStatEx(sdk.stats.MaxDamage) + item.getStatEx(sdk.stats.MinDamage)) / 2) * buildWeights.AVGDMG;
 			//buildRating += item.getStatEx(23) * buildWeights.SECMINDMG; // add MIN damage
 			//buildRating += item.getStatEx(24) * buildWeights.SECMAXDMG; // add MAX damage
+			meleeRating += ((item.getStatEx(sdk.stats.MaxDamage) + item.getStatEx(sdk.stats.MinDamage)) / 2) * tierWeights.meleeWeights.AVGDMG;
 			
-			buildRating += sumElementalDmg(item) * (buildWeights.ELEDMG / eleDmgModifer); // add elemental damage
-			buildRating += item.getStatEx(19) * buildWeights.AR; // add AR
-			buildRating += item.getStatEx(136) * buildWeights.CB; // add crushing blow
-			buildRating += item.getStatEx(135) * buildWeights.OW; // add open wounds
-			buildRating += item.getStatEx(141) * buildWeights.DS; // add deadly strike
-			buildRating += item.getStatEx(60) * buildWeights.LL; // add LL
-			buildRating += item.getStatEx(62) * buildWeights.ML; // add ML
-			buildRating += item.getStatEx(151, 119) * 25; // sanctuary aura
-			buildRating += item.getStatEx(121) * buildWeights.DMGTODEMONS; // add damage % to demons
-			buildRating += item.getStatEx(122) * buildWeights.DMGTOUNDEAD; // add damage % to undead
+			meleeRating += sumElementalDmg(item) * (tierWeights.meleeWeights.ELEDMG / eleDmgModifer); // add elemental damage
+			meleeRating += item.getStatEx(19) * tierWeights.meleeWeights.AR; // add AR
+			meleeRating += item.getStatEx(136) * tierWeights.meleeWeights.CB; // add crushing blow
+			meleeRating += item.getStatEx(135) * tierWeights.meleeWeights.OW; // add open wounds
+			meleeRating += item.getStatEx(141) * tierWeights.meleeWeights.DS; // add deadly strike
+			meleeRating += item.getStatEx(60) * tierWeights.meleeWeights.LL; // add LL
+			meleeRating += item.getStatEx(62) * tierWeights.meleeWeights.ML; // add ML
+			meleeRating += item.getStatEx(151, 119) * 25; // sanctuary aura
+			meleeRating += item.getStatEx(121) * tierWeights.meleeWeights.DMGTODEMONS; // add damage % to demons
+			meleeRating += item.getStatEx(122) * tierWeights.meleeWeights.DMGTOUNDEAD; // add damage % to undead
+			
+			buildRating += (buildInfo.caster ? (meleeRating / 2) : meleeRating);
 		}
 
 		return buildRating;
