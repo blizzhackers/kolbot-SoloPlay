@@ -877,18 +877,14 @@
 			case sdk.skills.FireBall:
 			case sdk.skills.GlacialSpike:
 			case sdk.skills.ChargedBolt:
-				if (skillID === sdk.skills.Blizzard) {
-					let notLava;
-					try {
-						notLava = !!(getCollision(unit.area, unit.x, unit.y) & Coords_1.BlockBits.IsOnFloor);
-					} catch (e) {
-						return 0;
-					}
-
-					if (!notLava) { return 0; }
+				let {x, y} = unit;
+				
+				if (!Attack.validSpot(x, y, skillID)) {
+					return 0;
+				} else {
+					avgDmg = calculateSplashDamage(skillID, 4, unit);
 				}
 
-				avgDmg = calculateSplashDamage(skillID, 4, unit);
 				break;
 			case sdk.skills.FrostNova:
 			case sdk.skills.Nova:
