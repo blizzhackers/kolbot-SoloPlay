@@ -787,14 +787,13 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 
 	me.area !== currentarea && Pather.journeyTo(currentarea);
 
-	while (me.area === currentarea) {
+	while (me.area !== targetarea) {
 		try {
 			Pather.moveToExit(targetarea, true, cleartype);
 		} catch (e) {
-			console.debug("Caught Error: " + e);
+			console.debug("Caught Error: ", e);
 		}
 
-		Packet.flash(me.gid);
 		delay(500);
 	}
 

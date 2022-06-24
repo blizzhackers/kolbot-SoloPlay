@@ -64,6 +64,10 @@ Misc.townCheck = function () {
 							check = true;
 						}
 					}
+
+					if (check) {
+						break;
+					}
 				}
 			}
 
@@ -76,11 +80,12 @@ Misc.townCheck = function () {
 	}
 
 	if (check) {
-		Messaging.sendToScript("libs/SoloPlay/Threads/TownChicken.js", "townCheck");
-		print("BroadCasted townCheck");
-		delay(500);
+		if (Messaging.sendToScript("libs/SoloPlay/Threads/TownChicken.js", "townCheck")) {
+			print("BroadCasted townCheck");
+			
+			return true;
+		}
 
-		return true;
 	}
 
 	return false;
@@ -216,7 +221,7 @@ Misc.getShrinesInArea = function (area, type, use) {
 };
 
 Misc.getExpShrine = function (shrineLocs = []) {
-	if (me.getState(137)) return true;
+	if (me.getState(sdk.states.ShrineExperience)) return true;
 
 	for (let get = 0; get < shrineLocs.length; get++) {
 		me.overhead("Looking for xp shrine");
@@ -228,9 +233,9 @@ Misc.getExpShrine = function (shrineLocs = []) {
 		}
 
 		Precast.doPrecast(true);
-		Misc.getShrinesInArea(shrineLocs[get], 15, true);
+		Misc.getShrinesInArea(shrineLocs[get], sdk.shrines.Experience, true);
 
-		if (me.getState(137)) {
+		if (me.getState(sdk.states.ShrineExperience)) {
 			break;
 		}
 
@@ -761,57 +766,6 @@ Misc.logItem = function (action, unit, keptLine) {
 	D2Bot.printToItemLog(itemObj);
 
 	return true;
-};
-
-Misc.shapeShift = function (mode) {
-	let skill, state;
-
-	switch (mode.toString().toLowerCase()) {
-	case "0":
-		return false;
-	case "1":
-	case "werewolf":
-		state = 139;
-		skill = 223;
-
-		break;
-	case "2":
-	case "werebear":
-		state = 140;
-		skill = 228;
-
-		break;
-	default:
-		throw new Error("shapeShift: Invalid parameter");
-	}
-
-	// don't have wanted skill
-	if (Skill.canUse(skill)) return false;
-	// already in wanted state
-	if (me.getState(state)) return true;
-
-	let slot = me.weaponswitch;
-	me.switchWeapons(Precast.getBetterSlot(skill));
-
-	for (let i = 0; i < 3; i += 1) {
-		Skill.cast(skill, 0);
-		let tick = getTickCount();
-
-		while (getTickCount() - tick < 2000) {
-			if (me.getState(state)) {
-				delay(250);
-				me.weaponswitch !== slot && me.switchWeapons(0);
-
-				return true;
-			}
-
-			delay(10);
-		}
-	}
-
-	me.weaponswitch !== slot && me.switchWeapons(0);
-
-	return false;
 };
 
 Misc.errorReport = function (error, script) {
