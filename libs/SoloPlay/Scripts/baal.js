@@ -205,7 +205,11 @@ function baal () {
 
 		console.debug("Can Attack: " + canAttack.length, " Can't Attack: " + cantAttack.length);
 
-		return (canAttack.length > cantAttack.length);
+		if (!canAttack.length && !cantAttack.length) {
+			return true;
+		} else {
+			return (canAttack.length > cantAttack.length);
+		}
 	};
 
 	// START
@@ -214,8 +218,9 @@ function baal () {
 
 	Pather.checkWP(sdk.areas.WorldstoneLvl2, true) ? Pather.useWaypoint(sdk.areas.WorldstoneLvl2) : Pather.getWP(sdk.areas.WorldstoneLvl2, true);
 	Precast.doPrecast(true);
-	Pather.clearToExit(sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, true);
-	Pather.clearToExit(sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction, true);
+	Pather.canTeleport()
+		? Pather.moveToExit([sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction], true)
+		: (Pather.clearToExit(sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, true) && Pather.clearToExit(sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction, true));
 
 	// Enter throne room
 	Pather.moveTo(15095, 5029, 5);
@@ -259,6 +264,10 @@ function baal () {
 
 		if (SetUp.finalBuild === "Bumper") {
 			throw new Error("BUMPER");
+		}
+
+		if (Misc.poll(() => me.getMobCount(15) > 1)) {
+			clearWaves();
 		}
 
 		Config.BossPriority = true;

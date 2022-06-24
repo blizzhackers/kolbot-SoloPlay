@@ -493,6 +493,8 @@ const SoloEvents = {
 		}
 	},
 
+	skippedWaves: [],
+
 	baalEvent: function (bytes = []) {
 		if (!bytes.length) return;
 		// baal wave
@@ -504,6 +506,7 @@ const SoloEvents = {
 				let waveMonster = ((bytes[1]) | (bytes[2] << 8));
 				let wave = [62, 105, 557, 558, 571].indexOf(waveMonster);
 				console.debug("Wave # " + wave);
+				if (SoloEvents.skippedWaves.includes(wave)) return;
 				let waveBoss = {
 					COLENZO: 0,
 					ACHMEL: 1,
@@ -520,6 +523,7 @@ const SoloEvents = {
 						|| (me.barbarian && ((me.charlvl < Config.levelCap && !me.baal)
 						|| me.hardcore))) {
 						Messaging.sendToScript(SoloEvents.filePath, 'skip');
+						SoloEvents.skippedWaves.push(wave);
 					}
 
 					break;
@@ -530,6 +534,7 @@ const SoloEvents = {
 					if ((me.barbarian && (me.charlvl < Config.levelCap || !me.baal || me.hardcore))
 						|| (me.charlvl < Config.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
 						Messaging.sendToScript(SoloEvents.filePath, 'skip');
+						SoloEvents.skippedWaves.push(wave);
 					}
 
 					break;

@@ -90,7 +90,8 @@ function diablo () {
 
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
-	Pather.clearToExit(sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, true) && Pather.moveTo(7790, 5544);
+	Pather.canTeleport() ? Pather.moveToExit(sdk.areas.ChaosSanctuary, true) : Pather.clearToExit(sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, true);
+	Pather.moveTo(7790, 5544);
 
 	if (me.coldRes < 75 || me.poisonRes < 75) {
 		Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
