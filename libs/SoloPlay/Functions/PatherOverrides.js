@@ -783,18 +783,30 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 // credit - Legacy Autosmurf
 Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 	let tick = getTickCount();
+	let retry = 0;
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Start clearToExit. ÿc8Currently in: ÿc0" + Pather.getAreaName(me.area) + "ÿc8Clearing to: ÿc0" + Pather.getAreaName(targetarea));
 
 	me.area !== currentarea && Pather.journeyTo(currentarea);
 
-	while (me.area !== targetarea) {
-		try {
-			Pather.moveToExit(targetarea, true, cleartype);
-		} catch (e) {
-			console.debug("Caught Error: ", e);
-		}
+	if (me.area !== targetarea) {
+		do {
+			try {
+				Pather.moveToExit(targetarea, true, cleartype);
+			} catch (e) {
+				console.debug("Caught Error: ", e);
+			}
 
-		delay(500);
+			delay(500);
+			Misc.poll(() => me.gameReady, 1000, 100);
+			
+			if (retry > 5) {
+				console.log("ÿc8Kolbot-SoloPlayÿc0: clearToExit. ÿc2Failed to move to: ÿc0" + Pather.getAreaName(targetarea));
+
+				break;
+			}
+
+			retry++;
+		} while (me.area !== targetarea);
 	}
 
 	console.log("ÿc8Kolbot-SoloPlayÿc0: End clearToExit. Time elapsed: " + Developer.formatTime(getTickCount() - tick));

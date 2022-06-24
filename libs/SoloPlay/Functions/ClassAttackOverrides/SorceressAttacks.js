@@ -55,9 +55,9 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	// Keep Energy Shield active
-	!me.getState(sdk.states.EnergyShield) && Skill.canUse(sdk.skills.EnergyShield) && Skill.cast(sdk.skills.EnergyShield, 0);
+	Skill.canUse(sdk.skills.EnergyShield) && !me.getState(sdk.states.EnergyShield) && Skill.cast(sdk.skills.EnergyShield, 0);
 	// Keep Thunder-Storm active
-	!me.getState(sdk.states.ThunderStorm) && Skill.canUse(sdk.skills.ThunderStorm) && Skill.cast(sdk.skills.ThunderStorm, 0);
+	Skill.canUse(sdk.skills.ThunderStorm) && !me.getState(sdk.states.ThunderStorm) && Skill.cast(sdk.skills.ThunderStorm, 0);
 
 	// Handle Charge skill casting
 	if (me.expansion && index === 1 && !unit.dead) {
@@ -322,8 +322,6 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 };
 
 ClassAttack.doCast = function (unit, timedSkill, data) {
-	let walk, tick, targetPoint;
-
 	// No valid skills can be found
 	if (unit === undefined || !!(timedSkill.skill < 0)) return 2;
 
@@ -353,7 +351,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 
 		if (unit.distance > tsRange || Coords_1.isBlockedBetween(me, unit)) {
 			// Allow short-distance walking for melee skills
-			walk = (tsRange < 4 || (ts === sdk.skills.ChargedBolt && tsRange === 5)) && unit.distance < 10 && !checkCollision(me, unit, Coords_1.BlockBits.BlockWall);
+			let walk = (tsRange < 4 || (ts === sdk.skills.ChargedBolt && tsRange === 5)) && unit.distance < 10 && !checkCollision(me, unit, Coords_1.BlockBits.BlockWall);
 
 			if (ranged) {
 				if (!Attack.getIntoPosition(unit, timedSkill.range, Coords_1.Collision.BLOCK_MISSILE, walk)) return 0;
@@ -364,7 +362,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 
 		// Only delay if there are no mobs in our immediate area
 		if (tsMana > me.mp && me.getMobCount() === 0) {
-			tick = getTickCount();
+			let tick = getTickCount();
 
 			while (getTickCount() - tick < 750) {
 				if (tsMana < me.mp) {
@@ -396,7 +394,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 					}
 				}
 			} else {
-				targetPoint = GameData.targetPointForSkill(ts, unit);
+				let targetPoint = GameData.targetPointForSkill(ts, unit);
 
 				if (targetPoint) {
 					Skill.cast(ts, Skill.getHand(ts), targetPoint.x, targetPoint.y);
