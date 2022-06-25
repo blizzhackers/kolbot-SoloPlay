@@ -44,7 +44,13 @@ function den () {
 	Town.move("portalspot");
 
 	// Check if there are any portals before trying to use one
-	!!getUnit(sdk.unittype.Object, sdk.units.BluePortal) ? Pather.usePortal(sdk.areas.BloodMoor, me.name) : Pather.moveToExit(sdk.areas.BloodMoor, true);
+	let p = getUnit(sdk.unittype.Object, sdk.units.BluePortal);
+	
+	if (!!p && [sdk.areas.BloodMoor, sdk.areas.DenofEvil].includes(p.objtype)) {
+		Pather.usePortal(null, me.name);
+	} else {
+		Pather.moveToExit(sdk.areas.BloodMoor, true);
+	}
 
 	// START
 	let attempt = 1;
