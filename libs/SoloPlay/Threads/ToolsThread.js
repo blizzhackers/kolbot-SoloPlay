@@ -32,13 +32,13 @@ include("SoloPlay/Tools/Tracker.js");
 include("SoloPlay/Functions/Globals.js");
 
 function main () {
-	let ironGolem, tick, debugInfo = {area: 0, currScript: "no entry"},
-		pingTimer = [],
-		quitFlag = false,
-		restart = false,
-		quitListDelayTime,
-		canQuit = true,
-		timerLastDrink = [];
+	let ironGolem, tick, debugInfo = {area: 0, currScript: "no entry"};
+	let pingTimer = [];
+	let quitFlag = false;
+	let restart = false;
+	let quitListDelayTime;
+	let canQuit = true;
+	let timerLastDrink = [];
 
 	print("ÿc8Kolbot-SoloPlayÿc0: Start Custom ToolsThread script");
 	D2Bot.init();
@@ -121,7 +121,7 @@ function main () {
 		let items = me.getItemsEx().filter(item => item.itemType === pottype);
 		if (items.length === 0) return false;
 
-		// Get highest id = highest potion first
+		// Get highest id = highest potion first - todo write this to use invo pots first
 		items.sort(function (a, b) {
 			return b.classid - a.classid;
 		});
@@ -181,6 +181,7 @@ function main () {
 		chickenExit && D2Bot.updateChickens();
 		Config.LogExperience && Experience.log();
 		Developer.logPerformance && Tracker.update();
+		console.log("ÿc8Run duration ÿc2" + Developer.formatTime(getTickCount() - me.gamestarttime));
 		this.stopDefault();
 		quit();
 	};
@@ -720,11 +721,11 @@ function main () {
 	addEventListener("scriptmsg", this.scriptEvent);
 	addEventListener("scriptmsg", Tracker.logLeveling);
 
-	// Load Fastmod
-	Packet.changeStat(105, Config.FCR);
-	Packet.changeStat(99, Config.FHR);
-	Packet.changeStat(102, Config.FBR);
-	Packet.changeStat(93, Config.IAS);
+	// Load Fastmod - patched
+	// Packet.changeStat(105, Config.FCR);
+	// Packet.changeStat(99, Config.FHR);
+	// Packet.changeStat(102, Config.FBR);
+	// Packet.changeStat(93, Config.IAS);
 
 	if (Config.QuitListMode > 0) {
 		this.initQuitList();
@@ -835,7 +836,6 @@ function main () {
 		}
 
 		if (quitFlag && canQuit && (typeof quitListDelayTime === "undefined" || getTickCount() >= quitListDelayTime)) {
-			print("ÿc8Run duration ÿc2" + Developer.formatTime(getTickCount() - me.gamestarttime));
 			this.checkPing(false); // In case of quitlist triggering first
 			this.exit();
 

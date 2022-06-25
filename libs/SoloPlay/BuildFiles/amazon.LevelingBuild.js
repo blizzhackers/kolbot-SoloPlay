@@ -64,5 +64,5 @@ let build = {
 
 // Has to be set after its loaded
 build.stats = me.classic ? build.classicStats : build.expansionStats;
-build.skills = me.classic ? build.classicSkills : build.classicSkills;
+build.skills = me.classic ? build.classicSkills : build.expansionSkills;
 me.classic && build.usefulStats.push(sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois);
