@@ -259,10 +259,10 @@ function LoadConfig () {
 			}
 		}
 
-		// Heart of the Oak
-		if (!me.checkItem({name: sdk.locale.items.HeartoftheOak}).have) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js")) {
-				include("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
+		// Silence
+		if (!me.checkItem({name: sdk.locale.items.Silence}).have) {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Silence.js")) {
+				include("SoloPlay/BuildFiles/Runewords/Silence.js");
 			}
 		}
 
