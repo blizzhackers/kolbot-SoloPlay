@@ -358,7 +358,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 
 		if (skillId) {
 			if (charge instanceof Array) {
-				charge = charge.filter(item => (skillId && item.skill === skillId) && !!item.charges); // Filter out all other charged skills
+				charge = charge.filter(item => (item && item.skill === skillId) && !!item.charges); // Filter out all other charged skills
 				charge = charge.first();
 			} else {
 				if (charge.skill !== skillId || !charge.charges) {
@@ -948,9 +948,9 @@ if (!Array.prototype.equals) {
 		// if the other array is a falsy value, return
 		if (!array) return false;
 
-		// compare lengths - can save a lot of time 
+		// compare lengths - can save a lot of time
 		if (this.length !== array.length) return false;
-    
+
 		// call basic sort method, (my addition as I don't care if its the same order just if it contains the same values)
 		this.sort();
 		array.sort();
