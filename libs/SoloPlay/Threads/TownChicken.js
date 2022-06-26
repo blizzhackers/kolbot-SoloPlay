@@ -190,11 +190,12 @@ function main() {
 				this.togglePause();
 
 				while (!me.gameReady) {
-					if (me.dead) return false;
-					delay(100);
+					if (me.dead) {
+						scriptBroadcast("quit");
+						return false;
+					}
+					delay(40);
 				}
-
-				if (me.dead) return false;
 
 				try {
 					myPrint("ÿc8TownChicken :: ÿc0Going to town");

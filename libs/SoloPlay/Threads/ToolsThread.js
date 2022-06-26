@@ -795,9 +795,7 @@ function main () {
 					tick = getTickCount();
 				}
 
-				if (this.checkPing(true)) {
-					quitFlag = true;
-				}
+				this.checkPing(true) && (quitFlag = true);
 			}
 		} catch (e) {
 			Misc.errorReport(e, "ToolsThread");

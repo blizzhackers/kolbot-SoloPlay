@@ -102,8 +102,9 @@ Pather.teleportTo = function (x, y, maxRange = 5) {
 	for (let i = 0; i < 3; i += 1) {
 		Config.PacketCasting ? Skill.setSkill(sdk.skills.Teleport, 0) && Packet.castSkill(0, x, y) : Skill.cast(sdk.skills.Teleport, 0, x, y);
 		let tick = getTickCount();
+		let pingDelay = me.gameReady ? me.ping : 100;
 
-		while (getTickCount() - tick < Math.max(500, me.ping * 2 + 200)) {
+		while (getTickCount() - tick < Math.max(500, pingDelay * 2 + 200)) {
 			if (getDistance(me.x, me.y, x, y) < maxRange) {
 				return true;
 			}
