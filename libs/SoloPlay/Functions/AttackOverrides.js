@@ -149,8 +149,8 @@ Attack.openChests = function (range = 10, x = undefined, y = undefined) {
 
 	if (me.getMobCount(range) > 1) return false;
 
-	let list = [],
-		ids = ["chest", "chest3", "weaponrack", "armorstand"];
+	let list = [];
+	let ids = ["chest", "chest3", "weaponrack", "armorstand"];
 
 	let unit = getUnit(2);
 
@@ -397,11 +397,10 @@ Attack.buildMonsterList = function (skipBlocked = false) {
 };
 
 Attack.getMobCountAtPosition = function (x, y, range, filter = false, debug = true) {
-	let list = [],
-		count = 0,
-		ignored = [243];
+	let count = 0;
+	let ignored = [243];
 
-	list = this.buildMonsterList(true);
+	let list = (this.buildMonsterList(true) || []);
 	filter && (list = list.filter(mob => mob.spectype === 0));
 	list.sort(Sort.units);
 	debug = Developer.debugging.pathing;
@@ -476,19 +475,18 @@ Attack.clearLevelEx = function (givenSettings = {}) {
 
 // Clear an entire area until area is done or level is reached
 Attack.clearLevelUntilLevel = function (charlvl = undefined, spectype = 0) {
-	let room, result, rooms, myRoom, currentArea, previousArea;
+	let result, myRoom, previousArea;
 	!charlvl && (charlvl = me.charlvl + 1);
 
 	function RoomSort(a, b) {
 		return getDistance(myRoom[0], myRoom[1], a[0], a[1]) - getDistance(myRoom[0], myRoom[1], b[0], b[1]);
 	}
 
-	room = getRoom();
-
+	let room = getRoom();
 	if (!room) return false;
 
-	rooms = [];
-	currentArea = getArea().id;
+	let rooms = [];
+	let currentArea = getArea().id;
 
 	do {
 		rooms.push([room.x * 5 + room.xsize / 2, room.y * 5 + room.ysize / 2]);
@@ -498,9 +496,7 @@ Attack.clearLevelUntilLevel = function (charlvl = undefined, spectype = 0) {
 
 	while (rooms.length > 0) {
 		// get the first room + initialize myRoom var
-		if (!myRoom) {
-			room = getRoom(me.x, me.y);
-		}
+		!myRoom && (room = getRoom(me.x, me.y));
 
 		if (room) {
 			if (room instanceof Array) { // use previous room to calculate distance
@@ -715,10 +711,10 @@ Attack.clearEx = function (givenSettings) {
 	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0 || Attack.stopClear) return false;
 	!settings.sortfunc && (settings.sortfunc = this.sortMonsters);
 
-	let i, boss, orgx, orgy, target, result, monsterList, start, coord, skillCheck, secAttack,
-		retry = 0,
-		gidAttack = [],
-		attackCount = 0;
+	let i, boss, orgx, orgy, target, result, monsterList, start, coord, skillCheck, secAttack;
+	let retry = 0;
+	let gidAttack = [];
+	let attackCount = 0;
 
 	if (settings.bossId) {
 		for (i = 0; !boss && i < 5; i++) {

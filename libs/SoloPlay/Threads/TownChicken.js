@@ -44,8 +44,8 @@ function main() {
 	Runewords.init();
 	Cubing.init();
 
-	let useHowl = me.barbarian && me.getSkill(sdk.skills.Howl, 0);
-	let useTerror = me.necromancer && me.getSkill(sdk.skills.Terror, 0);
+	let useHowl = Skill.canUse(sdk.skills.Howl);
+	let useTerror = Skill.canUse(sdk.skills.Terror);
 
 	this.togglePause = function () {
 		let scripts = ["default.dbj", "tools/antihostile.js"];
@@ -76,9 +76,9 @@ function main() {
 	};
 
 	this.getNearestMonster = function () {
-		let gid, distance,
-			monster = getUnit(1),
-			range = 30;
+		let gid, distance;
+		let monster = getUnit(1);
+		let range = 30;
 
 		if (monster) {
 			do {

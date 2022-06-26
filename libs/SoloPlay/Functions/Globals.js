@@ -452,7 +452,7 @@ const SetUp = {
 		Config.AutoBuild.Enabled = true;
 		Config.AutoBuild.Verbose = false;
 		Config.AutoBuild.DebugMode = false;
-		Config.AutoBuild.Template = SetUp.getBuild();
+		Config.AutoBuild.Template = SetUp.currentBuild;
 	}
 };
 
@@ -620,6 +620,7 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 		D2Bot.setProfile(null, null, null, diffString);
 		CharData.updateData("me", "setDifficulty", diffString);
 		myPrint("Going to " + diffString + reason, true);
+		delay(250);
 		D2Bot.restart();
 	} catch (e) {
 		console.debug(e.message ? e.message : e);
@@ -636,11 +637,7 @@ const Check = {
 
 		switch (sequenceName.toLowerCase()) {
 		case "den":
-			if (!me.den) {
-				return true;
-			}
-
-			break;
+			return !me.den;
 		case "corpsefire":
 			if (me.den && me.hell && (!me.andariel || Check.brokeAf()) && !me.druid && !me.paladin) {
 				return true;
@@ -1011,7 +1008,7 @@ const Check = {
 		let myGold = me.gold;
 		let repairCost = me.getRepairCost();
 		let items = (Town.getItemsForRepair(100, false) || []);
-		let meleeChar = Check.currentBuild().caster;
+		let meleeChar = !Check.currentBuild().caster;
 		let msg = "";
 		let diff = -1;
 
@@ -1050,6 +1047,7 @@ const Check = {
 		}
 
 		if (diff > -1) {
+			console.debug("My gold: " + myGold + ", Repair cost: " + repairCost);
 			goToDifficulty(diff, msg);
 			scriptBroadcast("quit");
 		}

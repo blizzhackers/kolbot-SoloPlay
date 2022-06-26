@@ -40,7 +40,7 @@ function main () {
 	let canQuit = true;
 	let timerLastDrink = [];
 
-	print("ÿc8Kolbot-SoloPlayÿc0: Start Custom ToolsThread script");
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Start Custom ToolsThread script");
 	D2Bot.init();
 	SetUp.include();
 	Config.init(false);
@@ -62,9 +62,9 @@ function main () {
 	me.chickenmp = -1;
 
 	// General functions
-	this.checkPing = function (print) {
+	this.checkPing = function (print = false) {
 		// Quit after at least 5 seconds in game
-		if (getTickCount() - me.gamestarttime < 5000) {
+		if ((getTickCount() - me.gamestarttime < 5000) || !me.gameReady) {
 			return false;
 		}
 
@@ -78,10 +78,7 @@ function main () {
 					}
 
 					if (getTickCount() - pingTimer[m] >= Config.PingQuit[m].Duration * 1000) {
-						if (print) {
-							D2Bot.printToConsole("High ping (" + me.ping + "/" + Config.PingQuit[m].Ping + ") - leaving game.", 9);
-						}
-
+						print && D2Bot.printToConsole("High ping (" + me.ping + "/" + Config.PingQuit[m].Ping + ") - leaving game.", 9);
 						scriptBroadcast("pingquit");
 
 						return true;
@@ -96,14 +93,14 @@ function main () {
 	};
 
 	this.initQuitList = function () {
-		let string, obj, temp = [];
+		let temp = [];
 
 		for (let j = 0; j < Config.QuitList.length; j += 1) {
 			if (FileTools.exists("data/" + Config.QuitList[j] + ".json")) {
-				string = Misc.fileAction("data/" + Config.QuitList[j] + ".json", 0);
+				let string = Misc.fileAction("data/" + Config.QuitList[j] + ".json", 0);
 
 				if (string) {
-					obj = JSON.parse(string);
+					let obj = JSON.parse(string);
 
 					if (obj && obj.hasOwnProperty("name")) {
 						temp.push(obj.name);
@@ -113,32 +110,6 @@ function main () {
 		}
 
 		Config.QuitList = temp.slice(0);
-	};
-
-	this.getPotion = function (pottype, type) {
-		if (pottype === undefined) return false;
-
-		let items = me.getItemsEx().filter(item => item.itemType === pottype);
-		if (items.length === 0) return false;
-
-		// Get highest id = highest potion first - todo write this to use invo pots first
-		items.sort(function (a, b) {
-			return b.classid - a.classid;
-		});
-
-		for (let k = 0; k < items.length; k += 1) {
-			if (type < 3 && items[k].isInInventory && items[k].itemType === pottype) {
-				console.log("ÿc2Drinking potion from inventory.");
-				return copyUnit(items[k]);
-			}
-
-			if (items[k].mode === 2 && items[k].itemType === pottype) {
-				console.log("ÿc2" + (type > 2 ? "Giving Merc" : "Drinking") + " potion from belt.");
-				return copyUnit(items[k]);
-			}
-		}
-
-		return false;
 	};
 
 	this.togglePause = function () {
@@ -167,7 +138,10 @@ function main () {
 	};
 
 	this.stopDefault = function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/EventThread.js", "libs/SoloPlay/Threads/AutoBuildThread.js", "libs/SoloPlay/Modules/Guard.js"];
+		let scripts = [
+			"default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/EventThread.js",
+			"libs/SoloPlay/Threads/AutoBuildThread.js", "libs/SoloPlay/Modules/Guard.js"
+		];
 
 		for (let l = 0; l < scripts.length; l += 1) {
 			let script = getScript(scripts[l]);
@@ -191,6 +165,32 @@ function main () {
 		Developer.logPerformance && Tracker.update();
 		this.stopDefault();
 		D2Bot.restart();
+	};
+
+	this.getPotion = function (pottype, type) {
+		if (pottype === undefined) return false;
+
+		let items = me.getItemsEx().filter(item => item.itemType === pottype);
+		if (items.length === 0) return false;
+
+		// Get highest id = highest potion first - todo write this to use invo pots first
+		items.sort(function (a, b) {
+			return b.classid - a.classid;
+		});
+
+		for (let k = 0; k < items.length; k += 1) {
+			if (type < 3 && items[k].isInInventory && items[k].itemType === pottype) {
+				console.log("ÿc2Drinking potion from inventory.");
+				return copyUnit(items[k]);
+			}
+
+			if (items[k].mode === 2 && items[k].itemType === pottype) {
+				console.log("ÿc2" + (type > 2 ? "Giving Merc" : "Drinking") + " potion from belt.");
+				return copyUnit(items[k]);
+			}
+		}
+
+		return false;
 	};
 
 	this.drinkPotion = function (type) {
@@ -306,9 +306,9 @@ function main () {
 	};
 
 	this.getNearestMonster = function () {
-		let gid, distance,
-			monster = getUnit(1),
-			range = 30;
+		let gid, distance;
+		let monster = getUnit(1);
+		let range = 30;
 
 		if (monster) {
 			do {
@@ -532,7 +532,7 @@ function main () {
 
 			break;
 		case 105: // numpad 9 - get nearest preset unit id
-			print(this.getNearestPreset());
+			console.log(this.getNearestPreset());
 
 			break;
 		case 106: // numpad * - precast
@@ -554,9 +554,9 @@ function main () {
 		case 0x00: // "%Name1(%Name2) dropped due to time out."
 		case 0x01: // "%Name1(%Name2) dropped due to errors."
 		case 0x03: // "%Name1(%Name2) left our world. Diablo's minions weaken."
-			if ((typeof Config.QuitList === "string" && Config.QuitList.toLowerCase() === "any") ||
-					(Config.QuitList instanceof Array && Config.QuitList.indexOf (name1) > -1)) {
-				print(name1 + (mode === 0 ? " timed out" : " left"));
+			if ((typeof Config.QuitList === "string" && Config.QuitList.toLowerCase() === "any")
+				|| (Config.QuitList instanceof Array && Config.QuitList.indexOf (name1) > -1)) {
+				console.log(name1 + (mode === 0 ? " timed out" : " left"));
 
 				if (typeof Config.QuitListDelay !== "undefined" && typeof quitListDelayTime === "undefined" && Config.QuitListDelay.length > 0) {
 					Config.QuitListDelay.sort(function (a, b) {
@@ -570,9 +570,7 @@ function main () {
 				quitFlag = true;
 			}
 
-			if (Config.AntiHostile) {
-				scriptBroadcast("remove " + name1);
-			}
+			Config.AntiHostile && scriptBroadcast("remove " + name1);
 
 			break;
 		case 0x06:
@@ -696,13 +694,8 @@ function main () {
 			}
 
 			if (obj) {
-				if (obj.hasOwnProperty("currScript")) {
-					debugInfo.currScript = obj.currScript;
-				}
-
-				if (obj.hasOwnProperty("lastAction")) {
-					debugInfo.lastAction = obj.lastAction;
-				}
+				obj.hasOwnProperty("currScript") && (debugInfo.currScript = obj.currScript);
+				obj.hasOwnProperty("lastAction") && (debugInfo.lastAction = obj.lastAction);
 
 				//D2Bot.store(JSON.stringify(debugInfo));
 				DataFile.updateStats("debugInfo", JSON.stringify(debugInfo));
@@ -727,9 +720,7 @@ function main () {
 	// Packet.changeStat(102, Config.FBR);
 	// Packet.changeStat(93, Config.IAS);
 
-	if (Config.QuitListMode > 0) {
-		this.initQuitList();
-	}
+	Config.QuitListMode > 0 && this.initQuitList();
 
 	let myAct = me.act;
 
