@@ -167,7 +167,7 @@ Town.townTasks = function (buyPots = {}) {
 		Pather.checkForTeleCharges();
 	}
 
-	delay(200 + me.ping * 2);
+	delay(300);
 	console.debug("ÿc8End ÿc0:: ÿc8TownTasksÿc0 - ÿc7Duration: ÿc0" + formatTime(getTickCount() - tick));
 
 	return true;
@@ -238,7 +238,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 		Pather.checkForTeleCharges();
 	}
 
-	delay(250);
+	delay(300);
 	console.debug("ÿc8End ÿc0:: ÿc8TownChoresÿc0 - ÿc7Duration: ÿc0" + formatTime(getTickCount() - tick));
 
 	return true;
@@ -469,9 +469,10 @@ Town.identify = function () {
 	
 	// Avoid unnecessary NPC visits
 	// Only unid items or sellable junk (low level) should trigger a NPC visit
-	if (!list.some(item =>
-		((!item.identified || Config.LowGold > 0) && ([-1, 4].includes(Pickit.checkItem(item).result) || (!item.identified && AutoEquip.hasTier(item))))
-	)) {
+	if (!list.some(item => {
+		let identified = item.identified;
+		return (!identified && ([-1, 4].includes(Pickit.checkItem(item).result) || (!identified && AutoEquip.hasTier(item))));
+	})) {
 		return false;
 	}
 
@@ -485,7 +486,7 @@ Town.identify = function () {
 	while (list.length > 0) {
 		let item = list.shift();
 
-		if (!item.identified && item.location === sdk.storage.Inventory && !this.ignoredItemTypes.includes(item.itemType)) {
+		if (!this.ignoredItemTypes.includes(item.itemType) && item.location === sdk.storage.Inventory && !item.identified) {
 			let result = Pickit.checkItem(item);
 
 			// Force ID for unid items matching autoEquip criteria

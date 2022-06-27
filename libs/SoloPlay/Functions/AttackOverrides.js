@@ -1269,17 +1269,14 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
 		return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
 	}
 
-	let grid, index, currCount;
-	let monList = [];
+	let index, currCount;
 	let count = 999;
-
-	monList = this.buildMonsterList();
-	monList.sort(Sort.units);
+	let monList = (this.buildMonsterList() || []).sort(Sort.units);
 
 	if (this.getMonsterCount(me.x, me.y, 15, monList) === 0) return true;
 
 	CollMap.getNearbyRooms(unit.x, unit.y);
-	grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
+	let grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
 
 	if (!grid.length) return false;
 	grid.sort(sortGrid);

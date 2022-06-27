@@ -47,60 +47,96 @@ function main() {
 	let useHowl = Skill.canUse(sdk.skills.Howl);
 	let useTerror = Skill.canUse(sdk.skills.Terror);
 
-	this.togglePause = function () {
-		let scripts = ["default.dbj", "tools/antihostile.js"];
+	let Overrides = require('../../modules/Override');
 
-		for (let i = 0; i < scripts.length; i++) {
-			let script = getScript(scripts[i]);
+	new Overrides.Override(Town, Town.visitTown, function () {
+		console.log("ÿc8Start ÿc0:: ÿc8visitTown");
+	
+		let preArea = me.area;
+		let preAct = sdk.areas.actOf(preArea);
 
-			if (script) {
-				if (script.running) {
-					scripts[i] === "default.dbj" && console.log("ÿc8TownChicken:: ÿc1Pausing " + scripts[i]);
+		// not an essential function -> handle thrown errors
+		try {
+			this.goToTown();
+		} catch (e) {
+			return false;
+		}
 
-					script.pause();
-				} else {
-					if (scripts[i] === "default.dbj") {
-						// don't resume if dclone walked
-						if (!SoloEvents.cloneWalked) {
-							print("ÿc8TownChicken :: ÿc2Resuming threads");
-							script.resume();
-						}
-					} else {
-						script.resume();
-					}
-				}
+		this.doChores();
+
+		me.act !== preAct && this.goToTown(preAct);
+		this.move("portalspot");
+
+		if (!Pather.usePortal(null, me.name)) {
+			try {
+				Pather.usePortal(preArea, me.name);
+			} catch (e) {
+				throw new Error("Town.visitTown: Failed to go back from town");
 			}
 		}
 
+		console.log("ÿc8End ÿc0:: ÿc8visitTown - currentArea: " + Pather.getAreaName(me.area));
+
 		return true;
-	};
+	}).apply();
 
-	this.getNearestMonster = function () {
-		let gid, distance;
-		let monster = getUnit(1);
-		let range = 30;
-
+	new Overrides.Override(Attack, Attack.getNearestMonster, function (orignal, givenSettings = {}) {
+		let settings = Object.assign({
+			skipBlocked: false,
+			skipImmune: false
+		}, givenSettings);
+		let monster = orignal(settings);
+		
 		if (monster) {
-			do {
-				if (monster.hp > 0 && monster.attackable && !monster.getParent()) {
-					distance = getDistance(me, monster);
-
-					if (distance < range) {
-						range = distance;
-						gid = monster.gid;
-					}
-				}
-			} while (monster.getNext());
-		}
-
-		monster = gid ? getUnit(1, -1, -1, gid) : false;
-
-		if (monster) {
-			print("ÿc9TownChickenÿc0 :: Closest monster to me: " + monster.name + " | Monster classid: " + monster.classid);
+			console.log("ÿc9TownChickenÿc0 :: Closest monster to me: " + monster.name + " | Monster classid: " + monster.classid);
 			return monster.classid;
 		}
 
 		return -1;
+	}).apply();
+
+	new Overrides.Override(NodeAction, NodeAction.go, function () {
+		return;
+	}).apply();
+
+	let pausedScripts = [];
+	const scripts = ["default.dbj", "tools/antihostile.js", "libs/SoloPlay/Modules/Guard.js"];
+
+	// keep track of what scripts we paused to reduce getScript calls
+	this.togglePause = function () {
+		let mode = pausedScripts.length ? "Resuming" : "Pausing";
+
+		switch (mode) {
+		case "Pausing":
+			for (let i = 0; i < scripts.length; i += 1) {
+				let script = getScript(scripts[i]);
+
+				if (!!script && script.running) {
+					pausedScripts.push(script);
+					scripts[i] === "default.dbj" && console.log("ÿc8TownChicken:: ÿc1Pausing " + scripts[i]);
+					script.pause();
+				}
+			}
+
+			break;
+		case "Resuming":
+			while (pausedScripts.length) {
+				let script = pausedScripts.shift();
+				// don't resume if dclone walked
+				if (script.name === "default.dbj" || script.name.match("guard", "gi")) {
+					if (!SoloEvents.cloneWalked) {
+						script.name === "default.dbj" && print("ÿc8TownChicken:: ÿc2Resuming threads");
+						!!script && !script.running && script.resume();
+					}
+				} else {
+					!!script && !script.running && script.resume();
+				}
+			}
+
+			break;
+		}
+
+		return true;
 	};
 
 	this.scriptEvent = function (msg) {
@@ -117,11 +153,27 @@ function main() {
 			case "getMuleMode":
 			case "pingquit":
 				return;
+			case "townCheck":
+				switch (me.area) {
+				case sdk.areas.ArreatSummit:
+				case sdk.areas.UberTristram:
+					console.warn("Don't tp from " + Pather.getAreaName(me.area));
+					return;
+				default:
+					console.log("townCheck message recieved. First check passed.");
+					townCheck = true;
+
+					return;
+				}
+			case "quit":
+				//quitFlag = true;
+				// Maybe stop townChicken thread? Would that keep us from the crash that happens when we try to leave game while townChickening
+
+				break;
 			default:
 				break;
 			}
 
-			let updated = false;
 			switch (true) {
 			case msg.substring(0, 8) === "config--":
 				console.debug("update config");
@@ -150,32 +202,6 @@ function main() {
 
 				break;
 			}
-
-			if (updated) return;
-		}
-
-		switch (msg) {
-		case "townCheck":
-			switch (me.area) {
-			case sdk.areas.ArreatSummit:
-			case sdk.areas.UberTristram:
-				console.warn("Don't tp from " + Pather.getAreaName(me.area));
-				return;
-			default:
-				console.log("townCheck message recieved. First check passed.");
-				townCheck = true;
-
-				break;
-			}
-
-			break;
-		case "quit":
-			//quitFlag = true;
-			// Maybe stop townChicken thread? Would that keep us from the crash that happens when we try to leave game while townChickening
-
-			break;
-		default:
-			break;
 		}
 	};
 
@@ -196,7 +222,8 @@ function main() {
 					}
 					delay(40);
 				}
-
+				
+				let t4 = getTickCount();
 				try {
 					myPrint("ÿc8TownChicken :: ÿc0Going to town");
 					Attack.stopClear = true;
@@ -204,7 +231,7 @@ function main() {
 					
 					// determine if this is really worth it
 					if (useHowl || useTerror) {
-						if ([156, 211, 242, 243, 544, 571, 345].indexOf(this.getNearestMonster()) === -1) {
+						if ([156, 211, 242, 243, 544, 571, 345].indexOf(Attack.getNearestMonster()) === -1) {
 							if (useHowl && Skill.getManaCost(130) < me.mp) {
 								Skill.cast(130, 0);
 							}
@@ -222,6 +249,7 @@ function main() {
 
 					return false;
 				} finally {
+					console.log("Took: " + formatTime(getTickCount() - t4) + " to visit town");
 					this.togglePause();
 
 					Attack.stopClear = false;

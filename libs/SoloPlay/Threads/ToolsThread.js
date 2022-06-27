@@ -40,6 +40,13 @@ function main () {
 	let canQuit = true;
 	let timerLastDrink = [];
 
+	let Overrides = require('../../modules/Override');
+
+	new Overrides.Override(Attack, Attack.getNearestMonster, function (orignal) {
+		let monster = orignal({skipBlocked: false, skipImmune: false});
+		return (monster ? " to " + monster.name : "");
+	}).apply();
+
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Start Custom ToolsThread script");
 	D2Bot.init();
 	SetUp.include();
@@ -303,29 +310,6 @@ function main () {
 		}
 
 		return false;
-	};
-
-	this.getNearestMonster = function () {
-		let gid, distance;
-		let monster = getUnit(1);
-		let range = 30;
-
-		if (monster) {
-			do {
-				if (monster.hp > 0 && monster.attackable && !monster.getParent()) {
-					distance = getDistance(me, monster);
-
-					if (distance < range) {
-						range = distance;
-						gid = monster.gid;
-					}
-				}
-			} while (monster.getNext());
-		}
-
-		monster = gid ? getUnit(1, -1, -1, gid) : false;
-
-		return monster ? " to " + monster.name : "";
 	};
 
 	this.checkVipers = function () {
@@ -732,7 +716,7 @@ function main () {
 				Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && this.drinkPotion(2);
 
 				if (Config.LifeChicken > 0 && me.hpPercent <= Config.LifeChicken && !me.inTown) {
-					!Developer.hideChickens && D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + this.getNearestMonster() + " in " + Pather.getAreaName(me.area) + ". Ping: " + me.ping, 9);
+					!Developer.hideChickens && D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + Pather.getAreaName(me.area) + ". Ping: " + me.ping, 9);
 					this.exit(true);
 
 					break;

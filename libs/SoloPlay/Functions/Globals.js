@@ -354,7 +354,7 @@ const SetUp = {
 
 		D2Bot.setProfile(null, null, NameGen());
 		CharData.delete(true);
-		delay(100 + me.ping);
+		delay(250);
 		D2Bot.restart();
 	},
 

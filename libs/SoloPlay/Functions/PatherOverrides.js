@@ -313,7 +313,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 						NodeAction.go({clearPath: settings.clearPath});
 
 						if (getDistance(me, node.x, node.y) > 5) {
-							this.moveNear(node.x, node.y);
+							this.moveTo(node.x, node.y);
 						}
 
 						this.recursion = true;
@@ -322,36 +322,41 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 					Misc.townCheck();
 				}
 			} else {
-				if (fail > 0 && !useTele && !me.inTown) {
-					if (!cleared) {
-						Attack.clear(5) && Misc.openChests(2);
-						cleared = true;
+				if (!me.inTown) {
+					if (!useTele && ((me.getMobCount(10) > 0 && Attack.clear(8)) || this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
+						continue;
 					}
 
-					// Only do this once
-					if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, 1) && !leaped) {
-						Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y);
-						leaped = true;
+					if (fail > 0 && (!useTele || tpMana > me.mp)) {
+						// Don't go berserk on longer paths
+						if (!cleared && me.getMobCount(5) > 0 && Attack.clear(5)) {
+							cleared = true;
+						}
+
+						// Only do this once
+						if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y)) {
+							leaped = true;
+						}
 					}
 				}
 
 				path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? rand(25, 35) : rand(10, 15));
 				if (!path) { throw new Error("moveNear: Failed to generate path."); }
 
-				fail += 1;
 				path.reverse();
 				PathDebug.drawPath(path);
 				settings.pop && path.pop();
-				print("move retry " + fail);
 
 				if (fail > 0) {
+					console.debug("move retry " + fail);
 					Packet.flash(me.gid);
-					Attack.clear(5) && Misc.openChests(2);
 
 					if (fail >= 15) {
+						console.log("Failed moveNear: Retry = " + retry);
 						break;
 					}
 				}
+				fail++;
 			}
 		}
 
@@ -444,7 +449,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 						}
 
 						// Only do this once
-						if (fail > 1 && !leaped && me.getSkill(sdk.skills.LeapAttack, 1) && Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y)) {
+						if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y)) {
 							leaped = true;
 						}
 					}
@@ -453,22 +458,20 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 				path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? rand(25, 35) : rand(10, 15));
 				if (!path) throw new Error("moveTo: Failed to generate path.");
 
-				fail += 1;
 				path.reverse();
 				PathDebug.drawPath(path);
 				pop && path.pop();
-				print("move retry " + fail);
 
 				if (fail > 0) {
+					console.debug("move retry " + fail);
 					Packet.flash(me.gid);
-					!me.inTown && Attack.clear(5) && Misc.openChests(2);
 
 					if (fail >= retry) {
 						console.log("Failed moveTo: Retry = " + retry);
-						
 						break;
 					}
 				}
+				fail++;
 			}
 		}
 
@@ -478,7 +481,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	useTele && Config.TeleSwitch && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
 	PathDebug.removeHooks();
 
-	return getDistance(me, node.x, node.y) < 5;
+	return node.distance < 5;
 };
 
 Pather.moveToLoc = function (target, givenSettings) {
