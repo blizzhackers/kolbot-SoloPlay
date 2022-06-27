@@ -982,3 +982,32 @@ if (!Array.prototype.equals) {
 	// Hide method from for-in loops
 	Object.defineProperty(Array.prototype, "equals", {enumerable: false});
 }
+
+/**
+ * @description Returns boolean if we have all the runes given by itemInfo array
+ * @param itemInfo: Array of rune classids -
+ * @returns Boolean
+ */
+Unit.prototype.haveRunes = function (itemInfo = []) {
+	if (this === undefined || this.type > 1) return false;
+	if (!Array.isArray(itemInfo) || typeof itemInfo[0] !== "number") return false;
+	let itemList = this.getItemsEx().filter(i => i.isInStorage && i.itemType === sdk.itemtype.Rune);
+	if (!itemList.length || itemList.length < itemInfo.length) return false;
+	let checkedGids = [];
+
+	for (let i = 0; i < itemInfo.length; i++) {
+		let rCheck = itemInfo[i];
+		
+		if (!itemList.some(i => {
+			if (i.classid === rCheck && checkedGids.indexOf(i.gid) === -1) {
+				checkedGids.push(i.gid);
+				return true;
+			}
+			return false;
+		})) {
+			return false;
+		}
+	}
+
+	return true;
+};
