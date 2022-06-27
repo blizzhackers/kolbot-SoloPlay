@@ -2084,9 +2084,10 @@ Town.clearJunk = function () {
 
 	while (junkItems.length > 0) {
 		let junk = junkItems.shift();
+		const pickitResult = Pickit.checkItem(junk).result;
 
 		if ((junk.isInStorage) && // stash/invo/cube
-			([1, 2, 3, 5].indexOf(Pickit.checkItem(junk).result) === -1) &&
+			([1, 2, 3, 5].indexOf(pickitResult) === -1) &&
 			!AutoEquip.wanted(junk) && // Don't toss wanted auto equip items
 			!Cubing.keepItem(junk) && // Don't throw cubing ingredients
 			!Runewords.keepItem(junk) && // Don't throw runeword ingredients
@@ -2094,9 +2095,9 @@ Town.clearJunk = function () {
 			!SoloWants.keepItem(junk) && // Don't throw SoloWants system ingredients
 			!Town.ignoredItemTypes.includes(junk.itemType) && // Don't drop tomes, keys or potions
 			junk.sellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
-			([0, 4].includes(Pickit.checkItem(junk).result)) // only drop unwanted or sellable
+			([0, 4].includes(pickitResult)) // only drop unwanted or sellable
 		) {
-			print("ÿc9JunkCheckÿc0 :: Junk: " + junk.name + " Pickit Result: " + Pickit.checkItem(junk).result);
+			print("ÿc9JunkCheckÿc0 :: Junk: " + junk.name + " Pickit Result: " + pickitResult);
 
 			!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
 			junk.isInCube && Cubing.emptyCube();
@@ -2113,9 +2114,9 @@ Town.clearJunk = function () {
 			}
 		}
 
-		if (junk.isInStorage && junk.sellable) {
+		if (junk.isInStorage && junk.sellable && pickitResult !== 1) {
 			if (!junk.identified && !Cubing.keepItem(junk) && !CraftingSystem.keepItem(junk)) {
-				print("ÿc9UnidJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + Pickit.checkItem(junk).result);
+				print("ÿc9UnidJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
 
 				!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
 				junk.isInCube && Cubing.emptyCube();
@@ -2136,7 +2137,7 @@ Town.clearJunk = function () {
 				!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
 				junk.isInCube && Cubing.emptyCube();
 
-				print("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + Pickit.checkItem(junk).result);
+				print("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
 
 				if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
 					junkToSell.push(junk);
@@ -2152,7 +2153,7 @@ Town.clearJunk = function () {
 
 			if (junk.isBaseType) {
 				if (this.worseBaseThanStashed(junk, true)) {
-					print("ÿc9WorseBaseThanStashedCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + Pickit.checkItem(junk).result);
+					print("ÿc9WorseBaseThanStashedCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
 					
 					!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
 					junk.isInCube && Cubing.emptyCube();
@@ -2170,7 +2171,7 @@ Town.clearJunk = function () {
 				}
 
 				if (!this.betterBaseThanWearing(junk, Developer.debugging.junkCheck)) {
-					print("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + Pickit.checkItem(junk).result);
+					print("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
 
 					!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
 					junk.isInCube && Cubing.emptyCube();
