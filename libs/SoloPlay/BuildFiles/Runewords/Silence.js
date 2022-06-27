@@ -14,7 +14,7 @@ if (me.getItem(sdk.items.runes.Vex)) {
 
 	// Have Ist+Vex rune but do not have a base yet
 	if (me.getItem(sdk.items.runes.Ist) && !Check.haveBase("phaseblade", 6)) {
-		NTIP.addLine("[name] == phaseblade && [quality] <= superior && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1");
+		NTIP.addLine("[name] == phaseblade && [quality] == normal && [flag] != ethereal # [sockets] == 0 # [maxquantity] == 1");
 		Config.Recipes.push([Recipe.Socket.Weapon, "phaseblade"]);
 	}
 }
