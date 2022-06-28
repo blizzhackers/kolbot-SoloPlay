@@ -99,6 +99,104 @@ function main() {
 		return;
 	}).apply();
 
+	new Overrides.Override(Pather, Pather.usePortal, function (original, targetArea, owner = me.name, unit = null) {
+		if (targetArea && me.area === targetArea) return true;
+
+		me.cancelUIFlags();
+
+		function townAreaCheck (area = 0) {
+			return [sdk.areas.RogueEncampment, sdk.areas.LutGholein, sdk.areas.KurastDocktown, sdk.areas.PandemoniumFortress, sdk.areas.Harrogath].includes(area);
+		}
+
+		let preArea = me.area;
+		let leavingTown = townAreaCheck(preArea);
+
+		for (let i = 0; i < 10; i += 1) {
+			if (me.dead) {
+				break;
+			}
+
+			if (i > 0 && owner && me.inTown) {
+				Town.move("portalspot");
+			}
+
+			let portal = unit ? copyUnit(unit) : this.getPortal(targetArea, owner);
+
+			if (portal) {
+				let redPortal = portal.classid === 60;
+
+				if (portal.area === me.area) {
+					if (Skill.useTK(portal) && i < 3) {
+						portal.distance > 21 && (me.inTown && me.act === 5 ? Town.move("portalspot") : Pather.moveNearUnit(portal, 20));
+						if (Skill.cast(sdk.skills.Telekinesis, 0, portal)) {
+							if (Misc.poll(() => {
+								if (me.area !== preArea) {
+									Pather.lastPortalTick = getTickCount();
+									delay(100);
+
+									return true;
+								}
+
+								return false;
+							}, 500, 50)) {
+								return true;
+							}
+						}
+					} else {
+						portal.distance > 5 && this.moveToUnit(portal);
+
+						if (getTickCount() - this.lastPortalTick > (!leavingTown ? 250 : 2500)) {
+							i < 2 ? sendPacket(1, 0x13, 4, 0x2, 4, portal.gid) : Misc.click(0, 0, portal);
+							!!redPortal && delay(150);
+						} else {
+							// only delay if we are in town and leaving town, don't delay if we are attempting to portal from out of town since this is the chicken thread
+							// and we are likely being attacked
+							leavingTown && delay(300);
+							
+							continue;
+						}
+					}
+				}
+
+				// Portal to/from Arcane
+				if (portal.classid === 298 && portal.mode !== 2) {
+					Misc.click(0, 0, portal);
+					let tick = getTickCount();
+
+					while (getTickCount() - tick < 2000) {
+						if (portal.mode === 2 || me.area === sdk.areas.ArcaneSanctuary) {
+							break;
+						}
+
+						delay(10);
+					}
+				}
+
+				let tick = getTickCount();
+
+				while (getTickCount() - tick < 500) {
+					if (me.area !== preArea) {
+						this.lastPortalTick = getTickCount();
+						delay(100);
+
+						return true;
+					}
+
+					delay(10);
+				}
+
+				i > 1 && Packet.flash(me.gid);
+			} else {
+				console.log("Didn't find portal, retry: " + i);
+				Packet.flash(me.gid);
+			}
+
+			delay(250);
+		}
+
+		return (targetArea ? me.area === targetArea : me.area !== preArea);
+	}).apply();
+
 	let pausedScripts = [];
 	const scripts = ["default.dbj", "tools/antihostile.js"/* , "libs/SoloPlay/Modules/Guard.js" */];
 

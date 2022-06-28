@@ -1445,11 +1445,14 @@ Attack.castableSpot = function (x = undefined, y = undefined) {
 // hotfix for now, bugged with flying mobs (specters, ghosts, ect) apparently underneath them doesn't register as ground? so it fails the needFloor test
 // despite there being floor there. so for now check if its an area that doesn't have floor in some spots
 // better fix would be passing unit directly in instead of x and y, but that is going to need more changes all over
-Attack.validSpot = function (x, y, skill = -1) {
+Attack.validSpot = function (x, y, skill = -1, unitid = 0) {
 	// Just in case
 	if (!me.area || !x || !y) return false;
 	// for now this just returns true and we leave getting into position to the actual class attack files
-	if (Skill.missileSkills.includes(skill)) return true;
+	if (Skill.missileSkills.includes(skill)
+		|| ([sdk.skills.Blizzard, sdk.skills.Meteor].includes(skill) && unitid > 0 && !getBaseStat("monstats", unitid, "flying"))) {
+		return true;
+	}
 
 	let result;
 	let nonFloorAreas = [sdk.areas.ArcaneSanctuary, sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit];

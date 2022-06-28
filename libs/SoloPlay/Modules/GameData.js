@@ -879,7 +879,7 @@
 			case sdk.skills.ChargedBolt:
 				let {x, y} = unit;
 				
-				if (!Attack.validSpot(x, y, skillID)) {
+				if (!Attack.validSpot(x, y, skillID, unit.classid)) {
 					return 0;
 				} else {
 					avgDmg = calculateSplashDamage(skillID, 4, unit);
@@ -1857,7 +1857,7 @@
 	});
 
 	function targetPointForSkill (skillId, monster) {
-		if (monster === undefined || skillId === undefined) { return null; }
+		if (monster === undefined || skillId === undefined || !monster.attackable) return null;
 		let missileName = getBaseStat("skills", skillId, "cltmissile");
 		let missile = MissileData[missileName];
 		if (!missile) {
@@ -1879,16 +1879,16 @@
 				if (path && path.length) {
 				// path is reversed from target to monster, we will check from last path position (target) to monster position
 					path.reverse();
-					let diffS = void 0;
-					let diffF = void 0;
-					let found = void 0;
+					let diffS = 0;
+					let diffF = 0;
+					let found = 0;
 					let time = {
 						missile: {},
 						monster: {}
 					};
 					for (let i = 0; i < path.length; i++) {
 						let pos = path[i];
-						// ToDo : does missing spawn at me position ?
+						// ToDo : does missile spawn at me position ?
 						let distanceForMissile = getDistance(me, pos);
 						if (distanceForMissile > missile.range) {
 						// too far for missile to reach this position
@@ -1940,9 +1940,9 @@
 						}
 					}
 					if (found) {
-					/*console.log("missile will hit monster in "+time.missile.seconds+" ("+time.missile.frames+") at "+found.x+", "+found.y);
-					console.log("time for monster = "+time.monster.seconds+ " ("+time.monster.frames+")")
-					console.log("diff missile-monster = "+diffS+ " ("+diffF+")");*/
+						// console.log("missile will hit monster in "+time.missile.seconds+" ("+time.missile.frames+") at "+found.x+", "+found.y);
+						// console.log("time for monster = "+time.monster.seconds+ " ("+time.monster.frames+")")
+						// console.log("diff missile-monster = "+diffS+ " ("+diffF+")");
 						return found;
 					}
 				}

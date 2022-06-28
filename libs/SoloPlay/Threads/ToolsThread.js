@@ -179,20 +179,32 @@ function main () {
 
 		let items = me.getItemsEx().filter(item => item.itemType === pottype && (type > 2 ? item.isInBelt : true));
 		if (items.length === 0) return false;
+		let invoFirst = [0, 1].includes(type);
 
-		// Get highest id = highest potion first - todo write this to use invo pots first
-		items.sort(function (a, b) {
-			return b.classid - a.classid;
-		});
+		if (invoFirst) {
+			// sort by location (invo first, then classid)
+			items.sort(function (a, b) {
+				let aLoc = a.location;
+				let bLoc = b.location;
+				if (bLoc < aLoc) return -1;
+				if (bLoc > aLoc) return 1;
+				return b.classid - a.classid;
+			});
+		} else {
+			// Get highest id = highest potion first
+			items.sort(function (a, b) {
+				return b.classid - a.classid;
+			});
+		}
 
 		for (let k = 0; k < items.length; k += 1) {
 			if (type < 3 && items[k].isInInventory && items[k].itemType === pottype) {
-				console.log("ÿc2Drinking potion from inventory.");
+				console.log("ÿc2Drinking " + items[k].name + " from inventory.");
 				return copyUnit(items[k]);
 			}
 
 			if (items[k].mode === 2 && items[k].itemType === pottype) {
-				console.log("ÿc2" + (type > 2 ? "Giving Merc" : "Drinking") + " potion from belt.");
+				console.log("ÿc2" + (type > 2 ? "Giving Merc " : "Drinking ") + items[k].name + " from belt.");
 				return copyUnit(items[k]);
 			}
 		}
