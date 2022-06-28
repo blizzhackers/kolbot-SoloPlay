@@ -343,6 +343,7 @@ function locationAction (location) {
 
 			// only set the profile if the values aren't already the same
 			if (Starter.gameInfo.difficulty !== Starter.profileInfo.difficulty) {
+				delay(rand(250, 1000));
 				D2Bot.setProfile(null, null, null, Starter.gameInfo.difficulty);
 			}
 			delay(200);
