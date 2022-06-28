@@ -6,9 +6,9 @@
 *
 */
 
-if (!isIncluded("SoloPlay/Tools/Developer.js")) { include("SoloPlay/Tools/Developer.js"); }
-if (!isIncluded("SoloPlay/Tools/Tracker.js")) { include("SoloPlay/Tools/Tracker.js"); }
-if (!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js")) { include("SoloPlay/Functions/ProtoTypesOverrides.js"); }
+!isIncluded("SoloPlay/Tools/Developer.js") && include("SoloPlay/Tools/Developer.js");
+!isIncluded("SoloPlay/Tools/Tracker.js") && include("SoloPlay/Tools/Tracker.js");
+!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js") && include("SoloPlay/Functions/ProtoTypesOverrides.js");
 
 const Overlay = {
 	resfix: {x: -10, y: me.screensize ? 0 : -120},
@@ -17,6 +17,9 @@ const Overlay = {
 	dashboard: {x: 120, y: 470},
 	timer: {x: 0, y: 595},
 	build: SetUp.currentBuild,
+	realm: (me.realm ? me.realm : "SinglePlayer"),
+	difficulty: () => sdk.difficulty.nameOf(me.diff),
+	level: () => myData.me.level,
 	text: {
 		hooks: [],
 		GameTracker: Developer.readObj(Tracker.GTPath),
@@ -30,9 +33,8 @@ const Overlay = {
 			let currInGame = getTickCount() - me.gamestarttime;
 			let totalTime = Developer.formatTime(this.GameTracker.Total + currInGame);
 			let totalInGame = Developer.formatTime(this.GameTracker.InGame + currInGame);
-			let totalDays = Developer.totalDays(this.GameTracker.Total + currInGame);
 
-			return "Total: ÿc0" + totalTime + "ÿc4 InGame: ÿc0" + totalInGame + "ÿc4 OOG: ÿc0" + Developer.formatTime(this.GameTracker.OOG);
+			return ("Total: ÿc0" + totalTime + "ÿc4 InGame: ÿc0" + totalInGame + "ÿc4 OOG: ÿc0" + Developer.formatTime(this.GameTracker.OOG));
 		},
 
 		timer: function () {
@@ -72,9 +74,9 @@ const Overlay = {
 
 			if (!this.getHook("level")) {
 				this.add("level");
-			} else if (this.charlvl !== me.charlvl) {
-				this.getHook("level").hook.text = "Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + me.charlvl;
-				this.charlvl = me.charlvl;
+			} else if (this.charlvl !== Overlay.level()) {
+				this.getHook("level").hook.text = "Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + Overlay.difficulty() + "ÿc4  Level: ÿc0" + Overlay.level();
+				this.charlvl = Overlay.level();
 			}
 		},
 
@@ -97,15 +99,15 @@ const Overlay = {
 			case "credits":
 				this.hooks.push({
 					name: "credits",
-					hook: new Text("Kolbot-SoloPlay by: ÿc0 theBGuy" + "ÿc4  Realm: ÿc0" + (me.realm ? me.realm : "SinglePlayer"), Overlay.dashboard.x, Overlay.dashboard.y + Overlay.resfix.y + 15, 4, 13, 0)
+					hook: new Text("Kolbot-SoloPlay by: ÿc0 theBGuy" + "ÿc4  Realm: ÿc0" + Overlay.realm, Overlay.dashboard.x, Overlay.dashboard.y + Overlay.resfix.y + 15, 4, 13, 0)
 				});
 
 				break;
 			case "level":
-				this.charlvl = me.charlvl;
+				this.charlvl = Overlay.level();
 				this.hooks.push({
 					name: "level",
-					hook: new Text("Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + sdk.difficulty.nameOf(me.diff) + "ÿc4  Level: ÿc0" + this.charlvl, Overlay.dashboard.x, Overlay.dashboard.y + Overlay.resfix.y + 30, 4, 13, 0)
+					hook: new Text("Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + Overlay.difficulty() + "ÿc4  Level: ÿc0" + this.charlvl, Overlay.dashboard.x, Overlay.dashboard.y + Overlay.resfix.y + 30, 4, 13, 0)
 				});
 
 				break;
@@ -159,19 +161,132 @@ const Overlay = {
 		font: 12,
 		qHooks: [],
 
+		data: {
+			Den: {
+				complete: false,
+				condition: () => me.getQuest(1, 0)
+			},
+			BloodRaven: {
+				complete: false,
+				condition: () => me.getQuest(2, 0)
+			},
+			Tristram: {
+				complete: false,
+				condition: () => me.getQuest(4, 0)
+			},
+			Countess: {
+				complete: false,
+				condition: () => me.getQuest(5, 0)
+			},
+			Smith: {
+				complete: false,
+				condition: () => (me.getQuest(3, 0) || me.getQuest(3, 1))
+			},
+			Andariel: {
+				complete: false,
+				condition: () => me.getQuest(6, 0)
+			},
+			Cube: {
+				complete: false,
+				condition: () => me.cube
+			},
+			Radament: {
+				complete: false,
+				condition: () => me.getQuest(9, 0)
+			},
+			HoradricStaff: {
+				complete: false,
+				condition: () => me.getQuest(10, 0)
+			},
+			Amulet: {
+				complete: false,
+				condition: () => me.getQuest(11, 0)
+			},
+			Summoner: {
+				complete: false,
+				condition: () => me.getQuest(13, 0)
+			},
+			Duriel: {
+				complete: false,
+				condition: () => me.getQuest(14, 0)
+			},
+			GoldenBird: {
+				complete: false,
+				condition: () => me.getQuest(20, 0)
+			},
+			KhalimsWill: {
+				complete: false,
+				condition: () => me.getQuest(18, 0)
+			},
+			LamEsen: {
+				complete: false,
+				condition: () => me.getQuest(17, 0)
+			},
+			Travincal: {
+				complete: false,
+				condition: () => me.getQuest(21, 0)
+			},
+			Mephisto: {
+				complete: false,
+				condition: () => me.getQuest(22, 0)
+			},
+			Izual: {
+				complete: false,
+				condition: () => me.getQuest(25, 0)
+			},
+			HellForge: {
+				complete: false,
+				condition: () => me.getQuest(27, 0)
+			},
+			Diablo: {
+				complete: false,
+				condition: () => me.getQuest(26, 0)
+			},
+			Shenk: {
+				complete: false,
+				condition: () => (me.getQuest(35, 0) || me.getQuest(35, 1))
+			},
+			Barbies: {
+				complete: false,
+				condition: () => me.getQuest(36, 0)
+			},
+			Anya: {
+				complete: false,
+				condition: () => me.getQuest(37, 0)
+			},
+			Ancients: {
+				complete: false,
+				condition: () => me.getQuest(39, 0)
+			},
+			Baal: {
+				complete: false,
+				condition: () => me.getQuest(40, 0)
+			},
+		},
+
+		questStatus: function (q = "") {
+			if (typeof this.data[q] === "undefined") return "undefined";
+			if (this.data[q].complete) return "ÿc2Complete";
+			let status = this.data[q].condition();
+			if (!!status) {
+				this.data[q].complete = true;
+				return "ÿc2Complete";
+			}
+			return "ÿc1Incomplete";
+		},
+
 		getRes: function () {
 			// Double check in case still got here before being ready
 			if (!me.gameReady || !me.ingame || !me.area) return "";
-
-			return "FR: ÿc1" + me.FR + "ÿc4  CR: ÿc3" + me.CR + "ÿc4  LR: ÿc9" + me.LR + "ÿc4  PR: ÿc2" + me.PR + "ÿc4  CurrentBuild: ÿc0" + Overlay.build;
+			return ("FR: ÿc1" + me.FR + "ÿc4  CR: ÿc3" + me.CR + "ÿc4  LR: ÿc9" + me.LR + "ÿc4  PR: ÿc2" + me.PR + "ÿc4  CurrentBuild: ÿc0" + Overlay.build);
 		},
 
 		getStats: function () {
 			// Double check in case still got here before being ready
 			if (!me.gameReady || !me.ingame || !me.area) return "";
 
-			let textLine = "MF: ÿc8" + me.getStat(80) + "ÿc4  FHR: ÿc8" + (me.FHR) + "ÿc4  FBR: ÿc8" + (me.FBR) + "ÿc4  FCR: ÿc8" + (me.FCR)
-				+ "ÿc4  IAS: ÿc8" + (me.IAS);
+			let textLine = ("MF: ÿc8" + me.getStat(80) + "ÿc4  FHR: ÿc8" + (me.FHR) + "ÿc4  FBR: ÿc8" + (me.FBR) + "ÿc4  FCR: ÿc8" + (me.FCR)
+				+ "ÿc4  IAS: ÿc8" + (me.IAS));
 
 			return textLine;
 		},
@@ -208,75 +323,75 @@ const Overlay = {
 				if (!this.getHook("Den")) {
 					this.add("Den");
 				} else {
-					this.getHook("Den").hook.text = "Den: " + (me.getQuest(1, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Den").hook.text = "Den: " + this.questStatus("Den");
 				}
 
 				if (!this.getHook("BloodRaven")) {
 					this.add("BloodRaven");
 				} else {
-					this.getHook("BloodRaven").hook.text = "Blood Raven: " + (me.getQuest(2, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("BloodRaven").hook.text = "Blood Raven: " + this.questStatus("BloodRaven");
 				}
 
 				if (!this.getHook("Tristram")) {
 					this.add("Tristram");
 				} else {
-					this.getHook("Tristram").hook.text = "Tristram: " + (me.getQuest(4, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Tristram").hook.text = "Tristram: " + this.questStatus("Tristram");
 				}
 
 				if (!this.getHook("Countess")) {
 					this.add("Countess");
 				} else {
-					this.getHook("Countess").hook.text = "Countess: " + (me.getQuest(5, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Countess").hook.text = "Countess: " + this.questStatus("Countess");
 				}
 
 				if (!this.getHook("Smith")) {
 					this.add("Smith");
 				} else {
-					this.getHook("Smith").hook.text = "Smith: " + (me.getQuest(3, 0) || me.getQuest(3, 1) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Smith").hook.text = "Smith: " + this.questStatus("Smith");
 				}
 
 				if (!this.getHook("Andariel")) {
 					this.add("Andariel");
 				} else {
-					this.getHook("Andariel").hook.text = "Andariel: " + (me.getQuest(6, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Andariel").hook.text = "Andariel: " + this.questStatus("Andariel");
 				}
 
 				break;
 			case 2:
-				if (!this.getHook("Cube")) {
-					this.add("Cube");
-				} else {
-					this.getHook("Cube").hook.text = "Horadric Cube: " + (me.getItem(553) ? "ÿc2Complete" : "ÿc1Incomplete");
-				}
-
 				if (!this.getHook("Radament")) {
 					this.add("Radament");
 				} else {
-					this.getHook("Radament").hook.text = "Radament: " + (me.getQuest(9, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Radament").hook.text = "Radament: " + this.questStatus("Radament");
 				}
+
+				// if (!this.getHook("Cube")) {
+				// 	this.add("Cube");
+				// } else {
+				// 	this.getHook("Cube").hook.text = "Horadric Cube: " + this.questStatus("Cube");
+				// }
 
 				if (!this.getHook("HoradricStaff")) {
 					this.add("HoradricStaff");
 				} else {
-					this.getHook("HoradricStaff").hook.text = "Horadric Staff: " + (me.getQuest(10, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("HoradricStaff").hook.text = "Horadric Staff: " + this.questStatus("HoradricStaff");
 				}
 
 				if (!this.getHook("Amulet")) {
 					this.add("Amulet");
 				} else {
-					this.getHook("Amulet").hook.text = "Amulet: " + (me.getQuest(11, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Amulet").hook.text = "Amulet: " + this.questStatus("Amulet");
 				}
 
 				if (!this.getHook("Summoner")) {
 					this.add("Summoner");
 				} else {
-					this.getHook("Summoner").hook.text = "Summoner: " + (me.getQuest(13, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Summoner").hook.text = "Summoner: " + this.questStatus("Summoner");
 				}
 
 				if (!this.getHook("Duriel")) {
 					this.add("Duriel");
 				} else {
-					this.getHook("Duriel").hook.text = "Duriel: " + (me.getQuest(14, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Duriel").hook.text = "Duriel: " + this.questStatus("Duriel");
 				}
 
 				break;
@@ -284,31 +399,31 @@ const Overlay = {
 				if (!this.getHook("GoldenBird")) {
 					this.add("GoldenBird");
 				} else {
-					this.getHook("GoldenBird").hook.text = "Golden Bird: " + (me.getQuest(20, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("GoldenBird").hook.text = "Golden Bird: " + this.questStatus("GoldenBird");
 				}
 
-				if (!this.getHook("Khalim'sWill")) {
-					this.add("Khalim'sWill");
+				if (!this.getHook("KhalimsWill")) {
+					this.add("KhalimsWill");
 				} else {
-					this.getHook("Khalim'sWill").hook.text = "Khalim's Will: " + (me.getQuest(18, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("KhalimsWill").hook.text = "Khalim's Will: " + this.questStatus("KhalimsWill");
 				}
 
 				if (!this.getHook("LamEsen")) {
 					this.add("LamEsen");
 				} else {
-					this.getHook("LamEsen").hook.text = "LamEsen: " + (me.getQuest(17, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("LamEsen").hook.text = "LamEsen: " + this.questStatus("LamEsen");
 				}
 
 				if (!this.getHook("Travincal")) {
 					this.add("Travincal");
 				} else {
-					this.getHook("Travincal").hook.text = "Travincal: " + (me.getQuest(21, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Travincal").hook.text = "Travincal: " + this.questStatus("Travincal");
 				}
 
 				if (!this.getHook("Mephisto")) {
 					this.add("Mephisto");
 				} else {
-					this.getHook("Mephisto").hook.text = "Mephisto: " + (me.getQuest(22, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Mephisto").hook.text = "Mephisto: " + this.questStatus("Mephisto");
 				}
 
 				break;
@@ -316,19 +431,19 @@ const Overlay = {
 				if (!this.getHook("Izual")) {
 					this.add("Izual");
 				} else {
-					this.getHook("Izual").hook.text = "Izual: " + (me.getQuest(25, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Izual").hook.text = "Izual: " + this.questStatus("Izual");
 				}
 
 				if (!this.getHook("HellForge")) {
 					this.add("HellForge");
 				} else {
-					this.getHook("HellForge").hook.text = "HellForge: " + (me.getQuest(27, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("HellForge").hook.text = "HellForge: " + this.questStatus("HellForge");
 				}
 
 				if (!this.getHook("Diablo")) {
 					this.add("Diablo");
 				} else {
-					this.getHook("Diablo").hook.text = "Diablo: " + (me.getQuest(26, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Diablo").hook.text = "Diablo: " + this.questStatus("Diablo");
 				}
 
 				break;
@@ -336,31 +451,31 @@ const Overlay = {
 				if (!this.getHook("Shenk")) {
 					this.add("Shenk");
 				} else {
-					this.getHook("Shenk").hook.text = "Shenk: " + ((me.getQuest(35, 0) || me.getQuest(35, 1)) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Shenk").hook.text = "Shenk: " + this.questStatus("Shenk");
 				}
 
 				if (!this.getHook("Barbies")) {
 					this.add("Barbies");
 				} else {
-					this.getHook("Barbies").hook.text = "Barbies: " + (me.getQuest(36, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Barbies").hook.text = "Barbies: " + this.questStatus("Barbies");
 				}
 
 				if (!this.getHook("Anya")) {
 					this.add("Anya");
 				} else {
-					this.getHook("Anya").hook.text = "Anya: " + (me.getQuest(37, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Anya").hook.text = "Anya: " + this.questStatus("Anya");
 				}
 
 				if (!this.getHook("Ancients")) {
 					this.add("Ancients");
 				} else {
-					this.getHook("Ancients").hook.text = "Ancients: " + (me.getQuest(39, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Ancients").hook.text = "Ancients: " + this.questStatus("Ancients");
 				}
 
 				if (!this.getHook("Baal")) {
 					this.add("Baal");
 				} else {
-					this.getHook("Baal").hook.text = "Baal: " + (me.getQuest(40, 0) ? "ÿc2Complete" : "ÿc1Incomplete");
+					this.getHook("Baal").hook.text = "Baal: " + this.questStatus("Baal");
 				}
 
 				break;
@@ -411,168 +526,168 @@ const Overlay = {
 			case "Den":
 				this.qHooks.push({
 					name: "Den",
-					hook: new Text("Den: " + (me.getQuest(1, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Den: " + this.questStatus("Den"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "BloodRaven":
 				this.qHooks.push({
 					name: "BloodRaven",
-					hook: new Text("Blood Raven: " + (me.getQuest(2, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Blood Raven: " + this.questStatus("BloodRaven"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Tristram":
 				this.qHooks.push({
 					name: "Tristram",
-					hook: new Text("Tristram: " + (me.getQuest(4, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Tristram: " + this.questStatus("Tristram"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Countess":
 				this.qHooks.push({
 					name: "Countess",
-					hook: new Text("Countess: " + (me.getQuest(5, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Countess: " + this.questStatus("Countess"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Smith":
 				this.qHooks.push({
 					name: "Smith",
-					hook: new Text("Smith: " + (me.getQuest(3, 0) || me.getQuest(3, 1) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Smith: " + this.questStatus("Smith"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Andariel":
 				this.qHooks.push({
 					name: "Andariel",
-					hook: new Text("Andariel: " + (me.getQuest(6, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Andariel: " + this.questStatus("Andariel"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Radament":
 				this.qHooks.push({
 					name: "Radament",
-					hook: new Text("Radament: " + (me.getQuest(9, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Radament: " + this.questStatus("Radament"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "HoradricStaff":
 				this.qHooks.push({
 					name: "HoradricStaff",
-					hook: new Text("Horadric Staff: " + (me.getQuest(10, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Horadric Staff: " + this.questStatus("HoradricStaff"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Amulet":
 				this.qHooks.push({
 					name: "Amulet",
-					hook: new Text("Amulet: " + (me.getQuest(11, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Amulet: " + this.questStatus("Amulet"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Summoner":
 				this.qHooks.push({
 					name: "Summoner",
-					hook: new Text("Summoner: " + (me.getQuest(13, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Summoner: " + this.questStatus("Summoner"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Duriel":
 				this.qHooks.push({
 					name: "Duriel",
-					hook: new Text("Duriel: " + (me.getQuest(14, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Duriel: " + this.questStatus("Duriel"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "GoldenBird":
 				this.qHooks.push({
 					name: "GoldenBird",
-					hook: new Text("Golden Bird: " + (me.getQuest(20, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Golden Bird: " + this.questStatus("GoldenBird"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
-			case "Khalim'sWill":
+			case "KhalimsWill":
 				this.qHooks.push({
-					name: "Khalim'sWill",
-					hook: new Text("Khalim's Will: " + (me.getQuest(18, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					name: "KhalimsWill",
+					hook: new Text("Khalim's Will: " + this.questStatus("KhalimsWill"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "LamEsen":
 				this.qHooks.push({
 					name: "LamEsen",
-					hook: new Text("LamEsen: " + (me.getQuest(17, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("LamEsen: " + this.questStatus("LamEsen"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Travincal":
 				this.qHooks.push({
 					name: "Travincal",
-					hook: new Text("Travincal: " + (me.getQuest(21, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Travincal: " + this.questStatus("Travincal"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Mephisto":
 				this.qHooks.push({
 					name: "Mephisto",
-					hook: new Text("Mephisto: " + (me.getQuest(22, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Mephisto: " + this.questStatus("Mephisto"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Izual":
 				this.qHooks.push({
 					name: "Izual",
-					hook: new Text("Izual: " + (me.getQuest(25, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Izual: " + this.questStatus("Izual"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "HellForge":
 				this.qHooks.push({
 					name: "HellForge",
-					hook: new Text("HellForge: " + (me.getQuest(27, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("HellForge: " + this.questStatus("HellForge"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Diablo":
 				this.qHooks.push({
 					name: "Diablo",
-					hook: new Text("Diablo: " + (me.getQuest(26, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Diablo: " + this.questStatus("Diablo"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Shenk":
 				this.qHooks.push({
 					name: "Shenk",
-					hook: new Text("Shenk: " + ((me.getQuest(35, 0) || me.getQuest(35, 1)) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Shenk: " + this.questStatus("Shenk"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Barbies":
 				this.qHooks.push({
 					name: "Barbies",
-					hook: new Text("Barbies: " + (me.getQuest(36, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Barbies: " + this.questStatus("Barbies"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Anya":
 				this.qHooks.push({
 					name: "Anya",
-					hook: new Text("Anya: " + (me.getQuest(37, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Anya: " + this.questStatus("Anya"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Ancients":
 				this.qHooks.push({
 					name: "Ancients",
-					hook: new Text("Ancients: " + (me.getQuest(39, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Ancients: " + this.questStatus("Ancients"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
 			case "Baal":
 				this.qHooks.push({
 					name: "Baal",
-					hook: new Text("Baal: " + (me.getQuest(26, 0) ? "ÿc2Complete" : "ÿc1Incomplete"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
+					hook: new Text("Baal: " + this.questStatus("Baal"), Overlay.quest.x, Overlay.quest.y + Overlay.resfix.y + (15 * this.qHooks.length), 4, this.font, 0)
 				});
 
 				break;
@@ -581,7 +696,7 @@ const Overlay = {
 
 		getHook: function (name, hooks) {
 			while (!me.gameReady || !me.ingame || !me.area) {
-				delay(500 + me.ping);
+				delay(500);
 			}
 
 			hooks === undefined && (hooks = this.qHooks);
@@ -628,10 +743,10 @@ const Overlay = {
 						Overlay.quests.flush();
 
 						while (getUIFlag(hide[flag])) {
-							delay(100 + me.ping);
+							delay(100);
 						}
 
-						Misc.poll((function () { return me.gameReady; }));
+						Misc.poll(() => me.gameReady);
 						flag = 0;
 					} else {
 						Overlay.text.enabled = true;

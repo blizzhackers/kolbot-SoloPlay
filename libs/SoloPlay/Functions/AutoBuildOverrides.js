@@ -7,6 +7,7 @@
 */
 js_strict(true);
 
+!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
 !isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
 !isIncluded("SoloPlay/Functions/CubingOverrides.js") && include("SoloPlay/Functions/CubingOverrides.js");
 !isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js") && include("SoloPlay/Functions/ProtoTypesOverrides.js");
@@ -24,10 +25,11 @@ const AutoBuild = new function AutoBuild () {
 	// By reapplying all of the changes to the Config object, we preserve
 	// the state of the Config file without altering the saved char config.
 	function applyConfigUpdates () {
-		debug && this.print("Updating Config from level " + configUpdateLevel + " to " + me.charlvl);
+		let cLvl = me.charlvl;
+		debug && this.print("Updating Config from level " + configUpdateLevel + " to " + cLvl);
 		let reapply = true;
 
-		while (configUpdateLevel < me.charlvl) {
+		while (configUpdateLevel < cLvl) {
 			configUpdateLevel += 1;
 			Skill.init();
 			if (this.usingFinalBuildFile) {
@@ -50,6 +52,11 @@ const AutoBuild = new function AutoBuild () {
 					reapply = false;
 				}
 			}
+		}
+
+		if (myData.me.level !== cLvl) {
+			myData.me.level = cLvl;
+			CharData.updateData("me", "level", cLvl) && updateMyData();
 		}
 	}
 

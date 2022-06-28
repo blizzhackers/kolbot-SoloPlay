@@ -408,10 +408,12 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			} else {
 				let targetPoint = GameData.targetPointForSkill(ts, unit);
 
-				if (targetPoint) {
-					Skill.cast(ts, Skill.getHand(ts), targetPoint.x, targetPoint.y);
-				} else {
-					Skill.cast(ts, Skill.getHand(ts), unit);
+				if (unit.attackable) {
+					if (targetPoint) {
+						Skill.cast(ts, Skill.getHand(ts), targetPoint.x, targetPoint.y);
+					} else {
+						Skill.cast(ts, Skill.getHand(ts), unit);
+					}
 				}
 			}
 		}
