@@ -105,7 +105,6 @@ Town.needPotions = function () {
 
 // need to build task list then do them.
 // This way we can look ahead to see if there is a task thats going to be done at the current npc like buyPots and just go ahead and do it
-
 Town.townTasks = function (buyPots = {}) {
 	let extraTasks = Object.assign({}, {
 		thawing: false,
@@ -169,6 +168,7 @@ Town.townTasks = function (buyPots = {}) {
 
 	delay(300);
 	console.debug("ÿc8End ÿc0:: ÿc8TownTasksÿc0 - ÿc7Duration: ÿc0" + formatTime(getTickCount() - tick));
+	Town.lastInteractedNPC = null; // unassign
 
 	return true;
 };
@@ -240,6 +240,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 
 	delay(300);
 	console.debug("ÿc8End ÿc0:: ÿc8TownChoresÿc0 - ÿc7Duration: ÿc0" + formatTime(getTickCount() - tick));
+	Town.lastInteractedNPC = null; // unassign
 
 	return true;
 };
@@ -402,7 +403,6 @@ Town.cainID = function (force = false) {
 Town.fieldID = function () {
 	let list = this.getUnids();
 	if (!list) return false;
-
 
 	while (list.length > 0) {
 		let idTool = Town.getIdTool();
@@ -2210,48 +2210,6 @@ Town.clearJunk = function () {
 	}
 
 	return true;
-};
-
-Town.npcInteract = function (name, cancel = true) {
-	let npc;
-
-	!name.includes("_") && (name = name.capitalize(true));
-	name.includes("_") && (name = "Qual_Kehk");
-
-	!me.inTown && Town.goToTown();
-
-	switch (NPC[name]) {
-	case NPC.Jerhyn:
-		Town.move('palace');
-		break;
-	case NPC.Hratli:
-		if (!me.getQuest(sdk_1.default.quests.SpokeToHratli, 0)) {
-			Town.move(NPC.Meshif);
-			break;
-		}
-		// eslint-disable-next-line no-fallthrough
-	default:
-		Town.move(NPC[name]);
-	}
-
-	npc = getUnit(1, NPC[name]);
-
-	// In case Jerhyn is by Warriv
-	if (name === "Jerhyn" && !npc) {
-		me.cancel();
-		Pather.moveTo(5166, 5206);
-		npc = getUnit(1, NPC[name]);
-	}
-
-	Packet.flash(me.gid);
-	delay(1 + me.ping * 2);
-
-	if (npc && npc.openMenu()) {
-		cancel && me.cancel();
-		return npc;
-	}
-
-	return false;
 };
 
 Town.needRepair = function () {

@@ -1265,10 +1265,6 @@ Attack.pwnDia = function () {
 Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
 	if (arguments.length < 4) throw new Error("deploy: Not enough arguments supplied");
 
-	function sortGrid(a, b) {
-		return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
-	}
-
 	let index, currCount;
 	let count = 999;
 	let monList = (this.buildMonsterList() || []).sort(Sort.units);
@@ -1279,7 +1275,9 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
 	let grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
 
 	if (!grid.length) return false;
-	grid.sort(sortGrid);
+	grid.sort(function (a, b) {
+		return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
+	});
 
 	for (let i = 0; i < grid.length; i += 1) {
 		if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & 0x1) && !CollMap.checkColl(unit, {x: grid[i].x, y: grid[i].y}, 0x4)) {

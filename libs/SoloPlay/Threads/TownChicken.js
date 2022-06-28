@@ -100,7 +100,7 @@ function main() {
 	}).apply();
 
 	let pausedScripts = [];
-	const scripts = ["default.dbj", "tools/antihostile.js", "libs/SoloPlay/Modules/Guard.js"];
+	const scripts = ["default.dbj", "tools/antihostile.js"/* , "libs/SoloPlay/Modules/Guard.js" */];
 
 	// keep track of what scripts we paused to reduce getScript calls
 	this.togglePause = function () {
@@ -178,27 +178,23 @@ function main() {
 			case msg.substring(0, 8) === "config--":
 				console.debug("update config");
 				Config = JSON.parse(msg.split("config--")[1]);
-				updated = true;
 
 				break;
 			case msg.substring(0, 7) === "skill--":
 				console.debug("update skillData");
 				obj = JSON.parse(msg.split("skill--")[1]);
 				Misc.updateRecursively(CharData.skillData, obj);
-				updated = true;
 
 				break;
 			case msg.substring(0, 6) === "data--":
 				console.debug("update myData");
 				obj = JSON.parse(msg.split("data--")[1]);
 				Misc.updateRecursively(myData, obj);
-				updated = true;
 
 				break;
 			case msg.toLowerCase() === "test":
 				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//\nÿc8MainData ::\n",
 					myData, "\nÿc8BuffData ::\n", CharData.buffData, "\nÿc8SkillData ::\n", CharData.skillData, "\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
-				updated = true;
 
 				break;
 			}

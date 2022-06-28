@@ -22,7 +22,9 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 	case sdk.charclass.Paladin:
 		// Force BO 30 seconds before it expires
 		if (this.haveCTA > -1) {
-			let forceBo = (force || (getTickCount() - this.BOTick >= this.BODuration - 30000) || !me.getState(sdk.states.BattleCommand));
+			let forceBo = (force
+				|| (getTickCount() - this.precastables.BattleOrders.tick >= this.precastables.BattleOrders.duration - 30000)
+				|| !me.getState(sdk.states.BattleCommand));
 			forceBo && this.precastCTA(forceBo);
 		}
 

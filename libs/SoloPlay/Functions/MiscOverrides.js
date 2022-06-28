@@ -92,7 +92,6 @@ Misc.townCheck = function () {
 };
 
 Misc.openChests = function (range = 15) {
-	let unitList = [];
 	let containers = [
 		"chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack",
 		"holeanim", "roguecorpse", "corpse", "tomb2", "tomb3", "chest3",
@@ -113,9 +112,9 @@ Misc.openChests = function (range = 15) {
 		];
 	}
 
-	unitList = getUnits(2).filter(function (chest) {
-		return chest.name && chest.mode === 0 && chest.distance <= range &&
-		(containers.includes(chest.name.toLowerCase()) || (chest.name.toLowerCase() === "evilurn" && me.baal));
+	let unitList = getUnits(2).filter(function (chest) {
+		return chest.name && chest.mode === 0 && chest.distance <= range
+			&& (containers.includes(chest.name.toLowerCase()) || (chest.name.toLowerCase() === "evilurn" && me.baal));
 	});
 
 	while (unitList.length > 0) {
@@ -155,15 +154,13 @@ Misc.getWell = function (unit) {
 };
 
 Misc.useWell = function (range = 15) {
-	let unitList = [];
-
 	// I'm in perfect health, don't need this shit
 	if (me.hpPercent >= 95 && me.mpPercent >= 95 && me.staminaPercent >= 50
 		&& [sdk.states.Frozen, sdk.states.Poison, sdk.states.AmplifyDamage, sdk.states.Decrepify].every((states) => !me.getState(states))) {
 		return true;
 	}
 
-	unitList = getUnits(sdk.unittype.Object, "well").filter(function (well) {
+	let unitList = getUnits(sdk.unittype.Object, "well").filter(function (well) {
 		return well.distance < range && well.mode !== 2;
 	});
 

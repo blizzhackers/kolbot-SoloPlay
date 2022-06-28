@@ -174,10 +174,10 @@ function main () {
 		D2Bot.restart();
 	};
 
-	this.getPotion = function (pottype, type) {
+	this.getPotion = function (pottype = -1, type = -1) {
 		if (pottype === undefined) return false;
 
-		let items = me.getItemsEx().filter(item => item.itemType === pottype);
+		let items = me.getItemsEx().filter(item => item.itemType === pottype && (type > 2 ? item.isInBelt : true));
 		if (items.length === 0) return false;
 
 		// Get highest id = highest potion first - todo write this to use invo pots first
@@ -266,10 +266,11 @@ function main () {
 					sendPacket(1, 0x26, 4, potion.gid, 4, 1, 4, 0);
 				}
 			} catch (e) {
-				console.warn(e);
+				console.errorReport(e);
 			}
 
 			timerLastDrink[type] = getTickCount();
+			delay(25);
 
 			return true;
 		}
