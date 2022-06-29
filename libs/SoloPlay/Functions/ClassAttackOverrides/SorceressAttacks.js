@@ -359,18 +359,26 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			unit.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE) < 3 && (tsRange = 5);
 		}
 
-		if (tsRange < 4 && !Attack.validSpot(unit.x, unit.y)) return 0;
+		if (ts === sdk.skills.Attack) {
+			if (me.hpPercent < 50 && me.mode !== 4 && me.getMobCount(10) === 0) {
+				console.log("Low health but safe right now, going to delay a bit");
+				let tick = getTickCount();
+				let howLongToDelay = Config.AttackSkill.some(sk => sk > 1 && Skill.canUse(sk)) ? seconds(2) : seconds(1);
 
-		if (unit.distance > tsRange || Coords_1.isBlockedBetween(me, unit)) {
-			// Allow short-distance walking for melee skills
-			let walk = (tsRange < 4 || (ts === sdk.skills.ChargedBolt && tsRange === 5)) && unit.distance < 10 && !checkCollision(me, unit, Coords_1.BlockBits.BlockWall);
+				while (getTickCount() - tick < howLongToDelay) {
+					if (me.mode === 4) {
+						console.debug("no longer safe, we are being attacked");
+						break;
+					} else if (me.hpPercent >= 55) {
+						return 3;
+					}
 
-			if (ranged) {
-				if (!Attack.getIntoPosition(unit, timedSkill.range, Coords_1.Collision.BLOCK_MISSILE, walk)) return 0;
-			} else if (!Attack.getIntoPosition(unit, tsRange, Coords_1.BlockBits.Ranged, walk)) {
-				return 0;
+					delay(40);
+				}
 			}
 		}
+
+		if (tsRange < 4 && !Attack.validSpot(unit.x, unit.y)) return 0;
 
 		// Only delay if there are no mobs in our immediate area
 		if (tsMana > me.mp && me.getMobCount() === 0) {
@@ -379,16 +387,30 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			while (getTickCount() - tick < 750) {
 				if (tsMana < me.mp) {
 					break;
+				} else if (me.mode === 4) {
+					console.debug("no longer safe, we are being attacked");
+					return 3;
 				}
 
 				delay(25);
 			}
 		}
 
+		if (unit.distance > tsRange || Coords_1.isBlockedBetween(me, unit)) {
+			// Allow short-distance walking for melee skills
+			let walk = (tsRange < 4 || (ts === sdk.skills.ChargedBolt && tsRange === 5)) && unit.distance < 10 && !checkCollision(me, unit, Coords_1.BlockBits.BlockWall);
+
+			if (ranged) {
+				if (!Attack.getIntoPosition(unit, tsRange, Coords_1.Collision.BLOCK_MISSILE, walk)) return 0;
+			} else if (!Attack.getIntoPosition(unit, tsRange, Coords_1.BlockBits.Ranged, walk)) {
+				return 0;
+			}
+		}
+
 		if (!unit.dead && !checkCollision(me, unit, Coords_1.BlockBits.Ranged)) {
 			if (ts === sdk.skills.ChargedBolt) {
 				// Randomized x coord changes bolt path and prevents constant missing
-				!unit.dead && Skill.cast(ts, Skill.getHand(ts), unit.x + rand(-2, 2), unit.y);
+				!unit.dead && Skill.cast(ts, Skill.getHand(ts), unit.x + rand(-1, 1), unit.y);
 			} else if (ts === sdk.skills.StaticField) {
 				for (let i = 0; i < 4; i++) {
 					if (!unit.dead) {

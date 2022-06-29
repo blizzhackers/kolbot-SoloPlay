@@ -53,11 +53,6 @@ const AutoBuild = new function AutoBuild () {
 				}
 			}
 		}
-
-		if (myData.me.level !== cLvl) {
-			myData.me.level = cLvl;
-			CharData.updateData("me", "level", cLvl) && updateMyData();
-		}
 	}
 
 	function getBuildType () {
