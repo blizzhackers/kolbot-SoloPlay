@@ -62,8 +62,7 @@ Skill.cast = function (skillId, hand, x, y, item) {
 
 	switch (true) {
 	case me.inTown && !this.townSkill(skillId): // cant cast this in town
-	case !item && this.getManaCost(skillId) > me.mp: // dont have enough mana for this
-	case !item && !Skill.canUse(skillId): // Dont have this skill
+	case !item && (!Skill.canUse(skillId) || this.getManaCost(skillId) > me.mp): // Dont have this skill or dont have enough mana for this
 	case !this.wereFormCheck(skillId): // can't cast in wereform
 		return false;
 	case skillId === undefined:

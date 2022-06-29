@@ -13,65 +13,11 @@ Misc.townEnabled = true;
 Misc.townCheck = function () {
 	if (!Town.canTpToTown()) return false;
 	
-	let potion, check;
-	let needhp = true;
-	let needmp = true;
+	let check = false;
 
 	if (Config.TownCheck && !me.inTown) {
 		try {
-			if (me.charlvl > 2 && me.gold > 1000) {
-				for (let i = 0; i < 4; i += 1) {
-					if (Config.MinColumn[i] <= 0) {
-						continue;
-					}
-					
-					if (Config.BeltColumn[i] === "hp") {
-						potion = me.getItem(-1, 2); // belt item
-
-						if (potion) {
-							do {
-								if (potion.code.includes("hp")) {
-									needhp = false;
-
-									break;
-								}
-							} while (potion.getNext());
-						}
-
-						if (needhp) {
-							print("We need healing potions");
-
-							check = true;
-						}
-					}
-
-					if (Config.BeltColumn[i] === "mp") {
-						potion = me.getItem(-1, 2); // belt item
-
-						if (potion) {
-							do {
-								if (potion.code.includes("mp")) {
-									needmp = false;
-
-									break;
-								}
-							} while (potion.getNext());
-						}
-
-						if (needmp) {
-							print("We need mana potions");
-
-							check = true;
-						}
-					}
-
-					if (check) {
-						break;
-					}
-				}
-			}
-
-			if (Config.OpenChests.Enabled && Town.needKeys()) {
+			if (Town.needPotions() || (Config.OpenChests.Enabled && Town.needKeys())) {
 				check = true;
 			}
 		} catch (e) {
