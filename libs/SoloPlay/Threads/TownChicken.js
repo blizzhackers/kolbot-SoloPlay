@@ -57,15 +57,15 @@ function main() {
 
 		// not an essential function -> handle thrown errors
 		try {
-			this.goToTown();
+			Town.goToTown();
 		} catch (e) {
 			return false;
 		}
 
-		this.doChores();
+		Town.doChores();
 
-		me.act !== preAct && this.goToTown(preAct);
-		this.move("portalspot");
+		me.act !== preAct && Town.goToTown(preAct);
+		Town.move("portalspot");
 
 		if (!Pather.usePortal(null, me.name)) {
 			try {
@@ -111,7 +111,7 @@ function main() {
 		let preArea = me.area;
 		let leavingTown = townAreaCheck(preArea);
 
-		for (let i = 0; i < 10; i += 1) {
+		for (let i = 0; i < 13; i += 1) {
 			if (me.dead) {
 				break;
 			}
@@ -123,7 +123,7 @@ function main() {
 			let portal = unit ? copyUnit(unit) : this.getPortal(targetArea, owner);
 
 			if (portal) {
-				let redPortal = portal.classid === 60;
+				let redPortal = portal.classid === sdk.units.RedPortal;
 
 				if (portal.area === me.area) {
 					if (Skill.useTK(portal) && i < 3) {
@@ -185,7 +185,7 @@ function main() {
 					delay(10);
 				}
 
-				i > 1 && Packet.flash(me.gid);
+				i > 1 && (i % 3) === 0 && Packet.flash(me.gid);
 			} else {
 				console.log("Didn't find portal, retry: " + i);
 				Packet.flash(me.gid);

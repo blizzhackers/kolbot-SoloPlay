@@ -1397,7 +1397,7 @@ Item.autoEquipCharms = function () {
 
 		for (let i = 0; i < totalSell.length; i++) {
 			totalSell[i].isInStash && !getUIFlag(sdk.uiflags.Stash) && Town.openStash();
-			if (totalSell[i].isInStash && !Storage.Inventory.MoveTo(totalSell[i])) {
+			if (totalSell[i].isInStash && (!totalSell[i].sellable || !Storage.Inventory.MoveTo(totalSell[i]))) {
 				totalSell[i].drop();
 				totalSell.splice(i, 1);
 				i -= 1;

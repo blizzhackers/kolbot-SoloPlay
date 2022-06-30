@@ -150,6 +150,12 @@ const SetUp = {
 		myData.me.strength !== me.rawStrength && (myData.me.strength = me.rawStrength);
 		myData.me.dexterity !== me.rawDexterity && (myData.me.dexterity = me.rawDexterity);
 
+		if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < (Profile().difficulty)) {
+			// extra check to ensure of profile is set right
+			delay(rand(250, 1000));
+			D2Bot.setProfile(null, null, null, sdk.difficulty.nameOf(me.diff));
+		}
+
 		// expansion check
 		let cUpdate = false;
 		let mUpdate = false;
@@ -731,7 +737,8 @@ const Check = {
 		case "radament":
 			if (!Pather.accessToAct(2)) return false;
 			if (!me.radament || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild && me.hell)
-				|| (me.hell && me.sorceress && me.classic && !me.diablo)) {
+				|| (me.hell && me.sorceress && me.classic && !me.diablo)
+				|| (me.sorceress && me.hell && me.charlvl >= 74 && me.charlvl < 81)) {
 				return true;
 			}
 
@@ -764,7 +771,7 @@ const Check = {
 
 			break;
 		case "tombs":
-			if (Pather.accessToAct(2) && (me.normal && me.charlvl < 24) || (me.sorceress && me.hell && me.charlvl >= 74 && me.charlvl < 81)) {
+			if (Pather.accessToAct(2) && (me.normal && me.charlvl < 24)) {
 				return true;
 			}
 

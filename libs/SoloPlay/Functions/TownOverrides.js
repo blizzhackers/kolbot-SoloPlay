@@ -14,7 +14,7 @@ new Overrides.Override(Town, Town.canTpToTown, function (orignal) {
 
 new Overrides.Override(Town, Town.repair, function (orignal, force = false) {
 	if (orignal(force)) {
-		this.shopItems();
+		Town.shopItems();
 
 		return true;
 	}
@@ -32,8 +32,8 @@ new Overrides.Override(Town, Town.buyPotions, function (orignal) {
 
 		// keep cold/pois res high with potions
 		if (me.gold > 50000 && npc.getItem(sdk.items.ThawingPotion)) {
-			CharData.buffData.thawing.need() && this.buyPots(12, "thawing", true);
-			CharData.buffData.antidote.need() && this.buyPots(12, "antidote", true);
+			CharData.buffData.thawing.need() && Town.buyPots(12, "thawing", true);
+			CharData.buffData.antidote.need() && Town.buyPots(12, "antidote", true);
 		}
 
 		return true;
@@ -191,7 +191,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	!me.inTown && Town.goToTown();
 
 	// Burst of speed while in town
-	if (me.inTown && Skill.canUse(sdk.skills.BurstofSpeed) && !me.getState(sdk.states.BurstofSpeed)) {
+	if (Skill.canUse(sdk.skills.BurstofSpeed) && !me.getState(sdk.states.BurstofSpeed)) {
 		Skill.cast(sdk.skills.BurstofSpeed, 0);
 	}
 
@@ -329,11 +329,6 @@ Town.cainID = function (force = false) {
 
 				break;
 			default:
-				Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm && Misc.logItem("Sold", item);
-				Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm && Misc.logItem("Sold", item);
-				Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm && Misc.logItem("Sold", item);
-
-				Misc.itemLogger("Sold", item);
 				if ((getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) && (item.getItemCost(1) <= 1 || !item.sellable)) {
 					continue;
 				}
@@ -343,7 +338,20 @@ Town.cainID = function (force = false) {
 				// Might as well sell the item if already in shop
 				if (getUIFlag(sdk.uiflags.Shop) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
 					console.log("clearInventory sell " + item.name);
-					Misc.itemLogger("Sold", item);
+					
+					switch (true) {
+					case (Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm):
+					case (Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm):
+					case (Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm):
+						Misc.logItem("Sold", item);
+
+						break;
+					default:
+						Misc.itemLogger("Dropped", item, "clearInventory");
+						
+						break;
+					}
+
 					item.sell();
 				} else {
 					console.log("clearInventory dropped " + item.name);
@@ -573,13 +581,22 @@ Town.identify = function () {
 
 					break;
 				default:
-					Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm && Misc.logItem("Sold", item);
-					Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm && Misc.logItem("Sold", item);
-					Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm && Misc.logItem("Sold", item);
+					if (!item.sellable) continue;
 
-					Misc.itemLogger("Sold", item);
+					switch (true) {
+					case (Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm):
+					case (Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm):
+					case (Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm):
+						Misc.logItem("Sold", item);
+
+						break;
+					default:
+						Misc.itemLogger("Sold", item);
+						
+						break;
+					}
+
 					item.sell();
-
 					timer = getTickCount() - this.sellTimer; // shop speedup test
 
 					if (timer > 0 && timer < 500) {
@@ -841,10 +858,7 @@ Town.unfinishedQuests = function () {
 	// Act 1
 	// Tools of the trade
 	let malus = me.getItem(sdk.items.quest.HoradricMalus);
-	if (malus) {
-		Town.goToTown(1);
-		Town.npcInteract("charsi");
-	}
+	!!malus && Town.goToTown(1) && Town.npcInteract("charsi");
 
 	let imbueItem = Misc.checkItemsForImbueing();
 	if (imbueItem) {
@@ -865,7 +879,7 @@ Town.unfinishedQuests = function () {
 	// Radament skill book
 	let book = me.getItem(sdk.items.quest.BookofSkill);
 	if (book) {
-		book.isInStash && this.openStash() && delay(300 + me.ping);
+		book.isInStash && Town.openStash() && delay(300 + me.ping);
 		book.interact();
 		print('ÿc8Kolbot-SoloPlayÿc0: used Radament skill book');
 		delay(500 + me.ping) && me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
@@ -875,20 +889,18 @@ Town.unfinishedQuests = function () {
 	// Figurine -> Golden Bird
 	if (me.getItem(sdk.items.quest.AJadeFigurine)) {
 		myPrint("starting jade figurine");
-		Town.goToTown(3);
-		Town.npcInteract("meshif");
+		Town.goToTown(3) && Town.npcInteract("meshif");
 	}
 
 	// Golden Bird -> Ashes
 	if (me.getItem(sdk.items.quest.TheGoldenBird)) {
-		Town.goToTown(3);
-		Town.npcInteract("alkor");
+		Town.goToTown(3) && Town.npcInteract("alkor");
 	}
 
 	// Potion of life
 	let pol = me.getItem(sdk.items.quest.PotofLife);
 	if (pol) {
-		pol.isInStash && this.openStash() && delay(300 + me.ping);
+		pol.isInStash && Town.openStash() && delay(300 + me.ping);
 		pol.interact();
 		print('ÿc8Kolbot-SoloPlayÿc0: used potion of life');
 	}
@@ -918,8 +930,7 @@ Town.unfinishedQuests = function () {
 	// Killed council but haven't talked to cain
 	if (!Misc.checkQuest(21, 0) && Misc.checkQuest(21, 4)) {
 		me.overhead("Finishing Travincal by talking to cain");
-		Town.goToTown(3);
-		Town.npcInteract("cain");
+		Town.goToTown(3) && Town.npcInteract("cain");
 		delay(300 + me.ping);
 		me.cancel();
 	}
@@ -1271,7 +1282,7 @@ Town.clearInventory = function () {
 				delay(100);
 			}
 		} catch (e) {
-			console.warn(e);
+			console.errorReport(e);
 		}
 	});
 
@@ -2105,13 +2116,13 @@ Town.clearJunk = function () {
 			!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
 			junk.isInCube && Cubing.emptyCube();
 
-			if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
+			if (junk.sellable && (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)))) {
 				junkToSell.push(junk);
 
 				continue;
 			} else if (junk.drop()) {
 				myPrint("Cleared junk - " + junk.name);
-				delay(50 + me.ping);
+				delay(50);
 
 				continue;
 			}

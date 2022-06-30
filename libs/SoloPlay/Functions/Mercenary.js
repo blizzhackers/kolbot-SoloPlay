@@ -31,8 +31,8 @@ const Merc = {
 		return merc;
 	},
 
-	checkMercSkill: function (wanted = "") {
-		let merc = me.getMerc();
+	checkMercSkill: function (wanted = "", merc = undefined) {
+		merc = !!merc ? merc : me.getMerc();
 		if (!merc) return false;
 		let mercSkill = merc.getStat(sdk.stats.ModifierListSkill);
 
@@ -83,9 +83,24 @@ const Merc = {
 		case this.minCost > 0 && me.gold < this.minCost:
 			return true;
 		}
+		
+		// lets check what our current actually merc is
+		let checkMyMerc = Misc.poll(() => me.getMerc(), 50, 500);
+		let wantedSkill = (typeOfMerc === 1 ? 'Cold Arrow' : me.normal ? tmpAuraName : mercAuraWanted);
+		if (checkMyMerc && Merc.checkMercSkill(wantedSkill, checkMyMerc)) {
+			// we have our wanted merc, data file was probably erased so lets re-update it
+			myData.merc.act = me.act;
+			myData.merc.classid = checkMyMerc.classid;
+			myData.merc.difficulty = me.diff;
+			myData.merc.type = wantedSkill;
+			CharData.updateData("merc", myData) && updateMyData();
+			return true;
+		} else if (!!checkMyMerc && checkMyMerc.classid === sdk.monsters.mercs.Guard && !checkMyMerc.getStat(sdk.stats.ModifierListSkill)) {
+			// aura isn't active so we can't check it
+			return true;
+		}
 
 		let MercLib_1 = require("../Modules/MercLib");
-		let wantedSkill = (typeOfMerc === 1 ? 'Cold Arrow' : me.normal ? tmpAuraName : mercAuraWanted);
 		try {
 			Town.goToTown(typeOfMerc);
 			myPrint("ÿc9Mercenaryÿc0 :: getting merc");

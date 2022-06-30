@@ -1,7 +1,7 @@
 /**
 *  @filename    SoloPlay.js
 *  @author      theBGuy
-*  @credit      isid0re
+*  @credit      kolton (built off of Questing.js)
 *  @desc        Base script file for Kolbot-SoloPlay system
 *
 */
@@ -118,6 +118,15 @@ function SoloPlay () {
 					console.debug("End-run, we are not ready to keep pushing yet");
 					
 					break;
+				}
+
+				if (me.dead) {
+					// not sure how we got here but we are dead, why did toolsthread not quit lets check it
+					let tThread = getScript("libs/SoloPlay/Threads/ToolsThread.js");
+					if (!tThread || !tThread.running) {
+						// well that explains why, toolsthread seems to have crashed lets restart it so we quit properly
+						load("libs/SoloPlay/Threads/ToolsThread.js");
+					}
 				}
 			}
 		}
