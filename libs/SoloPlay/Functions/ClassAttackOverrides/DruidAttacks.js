@@ -22,18 +22,18 @@ ClassAttack.doAttack = function (unit, preattack) {
 		}
 	}
 
-	let checkSkill,
-		mercRevive = 0,
-		timedSkill = -1,
-		untimedSkill = -1,
-		gold = me.gold;
+	let checkSkill;
+	let mercRevive = 0;
+	let timedSkill = -1;
+	let untimedSkill = -1;
+	let gold = me.gold;
 	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
 	// Rebuff Hurricane
-	me.getSkill(sdk.skills.Hurricane, 1) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, 0);
+	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, 0);
 
 	// Rebuff Cyclone Armor
-	me.getSkill(sdk.skills.CycloneArmor, 1) && !me.getState(sdk.states.CycloneArmor) && Skill.cast(sdk.skills.CycloneArmor, 0);
+	Skill.canUse(sdk.skills.CycloneArmor) && !me.getState(sdk.states.CycloneArmor) && Skill.cast(sdk.skills.CycloneArmor, 0);
 
 	if (index === 1 && !unit.dead && unit.curseable) {
 		let commonCheck = (gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
@@ -113,7 +113,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	if (me.normal && me.charlvl > 12 && gold < 5000 && Skill.getManaCost(timedSkill) > me.mp) {
 		switch (SetUp.currentBuild) {
 		case "Start":
-			if (me.getSkill(sdk.skills.Firestorm, 1) && Skill.getManaCost(sdk.skills.Firestorm) < me.mp) {
+			if (Skill.canUse(sdk.skills.Firestorm) && Skill.getManaCost(sdk.skills.Firestorm) < me.mp) {
 				timedSkill = sdk.skills.Firestorm;
 			} else if (me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall) >= 1) {
 				// I have no mana and there are mobs around me, just attack
@@ -174,7 +174,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 	if (timedSkill < 0 && untimedSkill < 0) return 2;
 
 	// Rebuff Hurricane
-	me.getSkill(sdk.skills.Hurricane, 1) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, 0);
+	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, 0);
 
 	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 		switch (timedSkill) {

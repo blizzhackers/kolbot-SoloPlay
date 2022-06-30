@@ -10,12 +10,11 @@
 ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	if (!unit || unit.dead) return true;
 
-	let gid = unit.gid,
-		mercRevive = 0,
-		attackSkill = -1,
-		aura = -1,
-		gold = me.gold;
-
+	let gid = unit.gid;
+	let mercRevive = 0;
+	let attackSkill = -1;
+	let aura = -1;
+	let gold = me.gold;
 	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
 
 	if (Config.MercWatch && Town.needMerc()) {
@@ -163,7 +162,8 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 ClassAttack.afterAttack = function () {
 	Precast.doPrecast(false);
 
-	if (me.getState(sdk.states.Poison) && me.getMobCount(12, Coords_1.BlockBits.BlockWall) === 0 && Skill.setSkill(sdk.skills.Cleansing, 0)) {
+	if (Skill.canUse(sdk.skills.Cleansing) && me.getState(sdk.states.Poison)
+		&& me.getMobCount(12, Coords_1.BlockBits.BlockWall) === 0 && Skill.setSkill(sdk.skills.Cleansing, 0)) {
 		Misc.poll(function () {
 			me.overhead("Delaying for a second to get rid of Poison");
 
@@ -171,7 +171,7 @@ ClassAttack.afterAttack = function () {
 		}, 1500, 30);
 	}
 
-	if (Config.Redemption instanceof Array
+	if (Skill.canUse(sdk.skills.Redemption) && Config.Redemption instanceof Array
 		&& (me.hpPercent < Config.Redemption[0] || me.mpPercent < Config.Redemption[1])
 		&& Attack.checkNearCorpses(me) > 2 && Skill.setSkill(sdk.skills.Redemption, 0)) {
 		delay(1500);

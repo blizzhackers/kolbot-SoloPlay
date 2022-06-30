@@ -35,8 +35,8 @@ const inDanger = function () {
 ClassAttack.doAttack = function (unit, skipStatic = false) {
 	Developer.debugging.skills && print(sdk.colors.Green + "Test Start-----------------------------------------//");
 	if (!unit) return 1;
+	
 	let gid = unit.gid;
-
 	let tick = getTickCount();
 	let timedSkill = {have: false, skill: -1, range: undefined, mana: undefined, dmg: 0};
 	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;

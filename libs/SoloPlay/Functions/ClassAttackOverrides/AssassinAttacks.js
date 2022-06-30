@@ -8,7 +8,7 @@
 !isIncluded("common/Attacks/Assassin.js") && include("common/Attacks/Assassin.js");
 
 ClassAttack.mindBlast = function (unit) {
-	if (!unit || !me.getSkill(sdk.skills.MindBlast, 1)) return;
+	if (!unit || !Skill.canUse(sdk.skills.MindBlast)) return;
 	// Main bosses
 	if (Attack.mainBosses.includes(unit.classid)) return;
 	// Duriel's Lair, Arreat Summit, Worldstone Chamber
@@ -66,9 +66,9 @@ ClassAttack.placeTraps = function (unit, amount) {
 					case sdk.skills.LightningSentry:
 						// Immune to lightning but not immune to fire, use fire trap if available
 						if (!Attack.checkResist(unit, "lightning") && Attack.checkResist(unit, "fire")) {
-							if (me.getSkill(sdk.skills.WakeofFire, 1)) {
+							if (Skill.canUse(sdk.skills.WakeofFire)) {
 								Skill.cast(sdk.skills.WakeofFire, 0, unit.x + i, unit.y + j);
-							} else if (me.getSkill(sdk.skills.WakeofInferno, 1)) {
+							} else if (Skill.canUse(sdk.skills.WakeofInferno)) {
 								Skill.cast(sdk.skills.WakeofInferno, 0, unit.x + i, unit.y + j);
 							}
 
@@ -82,9 +82,9 @@ ClassAttack.placeTraps = function (unit, amount) {
 					case sdk.skills.WakeofInferno:
 						// Immune to fire but not immune to lightning, use light trap if available
 						if (Attack.checkResist(unit, "lightning") && !Attack.checkResist(unit, "fire")) {
-							if (me.getSkill(sdk.skills.LightningSentry, 1)) {
+							if (Skill.canUse(sdk.skills.LightningSentry)) {
 								Skill.cast(sdk.skills.LightningSentry, 0, unit.x + i, unit.y + j);
-							} else if (me.getSkill(sdk.skills.ChargedBoltSentry, 1)) {
+							} else if (Skill.canUse(sdk.skills.ChargedBoltSentry)) {
 								Skill.cast(sdk.skills.ChargedBoltSentry, 0, unit.x + i, unit.y + j);
 							}
 
@@ -124,13 +124,13 @@ ClassAttack.doAttack = function (unit, preattack) {
 		}
 	}
 
-	let checkSkill,
-		mercRevive = 0,
-		timedSkill = -1,
-		untimedSkill = -1,
-		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3,
-		gold = me.gold,
-		shouldUseCloak = (me.getSkill(sdk.skills.CloakofShadows, 1) && !unit.isUnderLowerRes && unit.getMobCount(15, 0x1) > 1);
+	let checkSkill;
+	let mercRevive = 0;
+	let timedSkill = -1;
+	let untimedSkill = -1;
+	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+	let gold = me.gold;
+	let shouldUseCloak = (Skill.canUse(sdk.skills.CloakofShadows) && !unit.isUnderLowerRes && unit.getMobCount(15, 0x1) > 1);
 
 	this.mindBlast(unit);
 
@@ -266,7 +266,7 @@ ClassAttack.farCast = function (unit) {
 	let checkTraps = this.checkTraps(unit);
 
 	if (checkTraps) {
-		if (Math.round(getDistance(me, unit)) > 30 || checkCollision(me, unit, 0x4)) {
+		if (unit.distance > 30 || checkCollision(me, unit, 0x4)) {
 			if (!Attack.getIntoPosition(unit, 30, 0x4) || (checkCollision(me, unit, 0x1) && (getCollision(me.area, unit.x, unit.y) & 0x1))) {
 				return false;
 			}
@@ -276,18 +276,12 @@ ClassAttack.farCast = function (unit) {
 	}
 
 	if (timedSkill > -1 && (!me.skillDelay || !Skill.isTimed(timedSkill))) {
-		if (!unit.dead) {
-			Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
-		}
+		!unit.dead && Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
 	}
 
 	if (untimedSkill > -1) {
-		if (!unit.dead) {
-			Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
-		}
+		!unit.dead && Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
 	}
-
-	//print("FarCasting: Diablo's health " + ((unit.hp / unit.hpmax) * 100) + " % left" + " my distance from diablo: " + Math.round(getDistance(me, unit)));
 
 	return true;
 };

@@ -102,7 +102,7 @@ Pather.teleportTo = function (x, y, maxRange = 5) {
 	for (let i = 0; i < 3; i += 1) {
 		Config.PacketCasting ? Skill.setSkill(sdk.skills.Teleport, 0) && Packet.castSkill(0, x, y) : Skill.cast(sdk.skills.Teleport, 0, x, y);
 		let tick = getTickCount();
-		let pingDelay = me.gameReady ? me.ping : 100;
+		let pingDelay = me.getPingDelay();
 
 		while (getTickCount() - tick < Math.max(500, pingDelay * 2 + 200)) {
 			if (getDistance(me.x, me.y, x, y) < maxRange) {
@@ -150,12 +150,14 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 		delay(40);
 	}
 
-	if (!getWaypoint(Pather.wpAreas.indexOf(area))) {
+	// only do this if we haven't initialzed our wp data
+	if (!getWaypoint(Pather.wpAreas.indexOf(area)) && !Pather.initialized) {
 		me.inTown && !getUIFlag(sdk.uiflags.Waypoint) && Town.move("waypoint");
 
 		for (let i = 0; i < 15; i++) {
 			let wp = getUnit(sdk.unittype.Object, "waypoint");
 			let useTK = (Skill.useTK(wp) && i < 5);
+			let pingDelay = me.getPingDelay();
 
 			if (wp && wp.area === me.area) {
 				if (useTK) {
@@ -168,13 +170,13 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 
 				let tick = getTickCount();
 
-				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), (1 + me.ping * 2))) {
+				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), (1 + pingDelay * 2))) {
 					if (getUIFlag(sdk.uiflags.Waypoint)) {
-						delay(500 + me.ping);
+						delay(500 + pingDelay);
 						break;
 					}
 
-					delay(50 + me.ping);
+					delay(50 + pingDelay);
 				}
 			} else {
 				me.inTown && Town.move("waypoint");
@@ -182,6 +184,7 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 
 			if (getUIFlag(sdk.uiflags.Waypoint)) {
 				!keepMenuOpen && me.cancel();
+				Pather.initialized = true;
 				break;
 			}
 		}
@@ -219,12 +222,13 @@ Pather.changeAct = function () {
 
 	let npcUnit = Town.npcInteract(npc);
 	let timeout = getTickCount() + 3000;
+	let pingDelay = me.getPingDelay();
 
 	if (!npcUnit) {
 		while (!npcUnit && timeout < getTickCount()) {
 			Town.move(NPC[npc]);
-			Packet.flash(me.gid);
-			delay(me.ping * 2 + 100);
+			Packet.flash(me.gid, pingDelay);
+			delay(pingDelay * 2 + 100);
 			npcUnit = getUnit(sdk.unittype.NPC, npc);
 		}
 	}
@@ -232,7 +236,7 @@ Pather.changeAct = function () {
 	if (npcUnit) {
 		for (let i = 0; i < 5; i++) {
 			sendPacket(1, 56, 4, 0, 4, npcUnit.gid, 4, loc);
-			delay(500 + me.ping);
+			delay(500 + pingDelay);
 
 			if (me.act === act) {
 				break;
@@ -572,14 +576,13 @@ Pather.moveToLoc = function (target, givenSettings) {
 					}
 
 					// Only do this once
-					if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, 1) && !leaped) {
-						Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y);
+					if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y)) {
 						leaped = true;
 					}
 				}
 
 				path = getPath(me.area, target.x, target.y, me.x, me.y, useTele ? 1 : 0, useTele ? rand(25, 35) : rand(10, 15));
-				if (!path) { throw new Error("moveTo: Failed to generate path."); }
+				if (!path) throw new Error("moveTo: Failed to generate path.");
 
 				fail += 1;
 				path.reverse();
@@ -623,6 +626,9 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 		break;
 	}
 
+	console.log("ÿc7Start ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area));
+	let wpTick = getTickCount();
+
 	for (let i = 0; i < 12; i += 1) {
 		if (me.area === targetArea || me.dead) {
 			break;
@@ -631,13 +637,11 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 		if (me.inTown) {
 			let npc = getUnit(sdk.unittype.NPC, NPC.Warriv);
 
-			if (me.area === sdk.areas.LutGholein && npc && getDistance(me, npc) < 50) {
+			if (me.area === sdk.areas.LutGholein && !!npc && npc.distance < 50) {
 				if (npc && npc.openMenu()) {
 					Misc.useMenu(sdk.menu.GoWest);
 
-					if (!Misc.poll(function () {
-						return me.area === sdk.areas.RogueEncampment;
-					}, 2000, 100)) {
+					if (!Misc.poll(() => me.gameReady && me.area === sdk.areas.RogueEncampment, 2000, 100)) {
 						throw new Error("Failed to go to act 1 using Warriv");
 					}
 				}
@@ -648,26 +652,32 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 		let wp = getUnit(sdk.unittype.Object, "waypoint");
 
-		if (wp && wp.area === me.area) {
-			if (Skill.useTK(wp) && i < 3 && !getUIFlag(sdk.uiflags.Waypoint)) {
-				wp.distance > 21 && Pather.moveNearUnit(wp, 20);
-				checkCollision(me, wp, 0x4) && Attack.getIntoPosition(wp, 20, 0x4);
+		if (!!wp && wp.area === me.area) {
+			let useTK = (Skill.useTK(wp) && i < 3);
+			let pingDelay = me.getPingDelay();
 
+			if (useTK && !getUIFlag(sdk.uiflags.Waypoint)) {
+				wp.distance > 21 && Pather.moveNearUnit(wp, 20);
+				i > 1 && checkCollision(me, wp, 0x4) && Attack.getIntoPosition(wp, 20, 0x4);
 				Skill.cast(sdk.skills.Telekinesis, 0, wp);
 			} else if (!me.inTown && wp.distance > 7) {
 				this.moveToUnit(wp);
 			}
 
-			if (check || Config.WaypointMenu) {
-				if ((!Skill.useTK(wp) || i > 3) && (wp.distance > 5 || !getUIFlag(sdk.uiflags.Waypoint))) {
+			if (check || Config.WaypointMenu || !this.initialized) {
+				if (!useTK && (wp.distance > 5 || !getUIFlag(sdk.uiflags.Waypoint))) {
 					this.moveToUnit(wp) && Misc.click(0, 0, wp);
 				}
 
-				!getUIFlag(sdk.uiflags.Waypoint) && Misc.click(0, 0, wp);
+				// handle getUnit bug
+				if (!getUIFlag(sdk.uiflags.Waypoint) && wp.name.toLowerCase() === "dummy") {
+					Town.getDistance("waypoint") > 5 && Town.move("waypoint");
+					Misc.click(0, 0, wp);
+				}
 
 				let tick = getTickCount();
 
-				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), me.ping * 2)) {
+				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), pingDelay * 2)) {
 					if (getUIFlag(sdk.uiflags.Waypoint)) {
 						delay(500);
 
@@ -676,13 +686,15 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 							let retry = 0;
 
 							while (true) {
-								targetArea = this.wpAreas[rand(0, this.wpAreas.length - 1)];
+								targetArea = this.nonTownWpAreas[rand(0, this.nonTownWpAreas.length - 1)];
 
 								// get a valid wp, avoid towns
-								if (!sdk.areas.Towns.includes(targetArea) && getWaypoint(this.wpAreas.indexOf(targetArea))) {
+								if (getWaypoint(this.wpAreas.indexOf(targetArea))) {
 									break;
 								}
 
+								// no valid areas, get the cold plains wp
+								// maybe just walk out of town instead?
 								if (retry >= 10) {
 									if (!getWaypoint(this.wpAreas.indexOf(sdk.areas.ColdPlains))) {
 										me.cancel();
@@ -697,7 +709,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 								}
 
 								retry++;
-								delay(5);
+								delay(25);
 							}
 
 							break;
@@ -725,12 +737,13 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 				}
 
 				if (!getUIFlag(sdk.uiflags.Waypoint)) {
-					print("waypoint retry " + (i + 1));
+					console.warn("waypoint retry " + (i + 1));
 					let retry = Math.min(i + 1, 5);
 					let coord = CollMap.getRandCoordinate(me.x, -5 * retry, 5 * retry, me.y, -5 * retry, 5 * retry);
 					!!coord && this.moveTo(coord.x, coord.y);
-					Packet.flash(me.gid, 250);
-					wp && wp.distance > 5 && !getUIFlag(sdk.uiflags.Waypoint) && this.moveToUnit(wp);
+					delay(200);
+					Packet.flash(me.gid, pingDelay);
+					//wp && wp.distance > 5 && !getUIFlag(sdk.uiflags.Waypoint) && this.moveToUnit(wp);
 
 					continue;
 				}
@@ -741,9 +754,10 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 				wp.interact(targetArea);
 				let tick = getTickCount();
 
-				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), me.ping * 4)) {
+				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), pingDelay * 4)) {
 					if (me.area === targetArea) {
 						delay(1500);
+						console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (formatTime(getTickCount() - wpTick)));
 
 						return true;
 					}
@@ -759,14 +773,11 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 				getUIFlag(sdk.uiflags.Waypoint) && me.cancel();
 			}
 
-			Packet.flash(me.gid);
-
+			Packet.flash(me.gid, pingDelay);
 			// Activate check if we fail direct interact twice
-			if (i > 1) {
-				check = true;
-			}
+			i > 1 && (check = true);
 		} else {
-			Packet.flash(me.gid);
+			Packet.flash(me.gid, pingDelay);
 		}
 
 		// We can't seem to get the wp maybe attempt portal to town instead and try to use that wp
@@ -777,6 +788,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 	if (me.area === targetArea) {
 		delay(500);
+		console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (formatTime(getTickCount() - wpTick)));
 
 		return true;
 	}

@@ -42,7 +42,7 @@ ClassAttack.tauntMonsters = function (unit, attackSkill, data) {
 	// Don't have skill
 	// Only mob in these areas are bosses
 	// Can't taunt Main bosses or MinionsofDestruction
-	if (!me.getSkill(sdk.skills.Taunt, 0) || !data) return;
+	if (!Skill.canUse(sdk.skills.Taunt) || !data) return;
 	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].includes(me.area)) return;
 	if (Attack.mainBosses.includes(unit.classid) || unit.classid === 571) return;
 
@@ -114,7 +114,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	if (!Attack.checkResist(unit, attackSkill)) {
 		attackSkill = -1;
 
-		if (Config.AttackSkill[index + 1] > -1 && me.getSkill(Config.AttackSkill[index + 1], 0) && Attack.checkResist(unit, Config.AttackSkill[index + 1])) {
+		if (Config.AttackSkill[index + 1] > -1 && Skill.canUse(Config.AttackSkill[index + 1]) && Attack.checkResist(unit, Config.AttackSkill[index + 1])) {
 			attackSkill = Config.AttackSkill[index + 1];
 		}
 	}
@@ -137,47 +137,47 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	let data = {
 		switchCast: me.expansion && !!(Precast.getBetterSlot(sdk.skills.BattleCry) === 1 || Precast.getBetterSlot(sdk.skills.WarCry) === 1),
 		howl: {
-			have: me.getSkill(sdk.skills.Howl, 1), skill: sdk.skills.Howl, range: Skill.getRange(sdk.skills.Howl), mana: Skill.getManaCost(sdk.skills.Howl)
+			have: Skill.canUse(sdk.skills.Howl), skill: sdk.skills.Howl, range: Skill.getRange(sdk.skills.Howl), mana: Skill.getManaCost(sdk.skills.Howl)
 		},
 		taunt: {
-			have: me.getSkill(sdk.skills.Taunt, 1), skill: sdk.skills.Taunt, mana: Skill.getManaCost(sdk.skills.Taunt)
+			have: Skill.canUse(sdk.skills.Taunt), skill: sdk.skills.Taunt, mana: Skill.getManaCost(sdk.skills.Taunt)
 		},
 		grimWard: {
-			have: me.getSkill(sdk.skills.GrimWard, 1), skill: sdk.skills.GrimWard, range: 15, mana: Skill.getManaCost(sdk.skills.GrimWard)
+			have: Skill.canUse(sdk.skills.GrimWard), skill: sdk.skills.GrimWard, range: 15, mana: Skill.getManaCost(sdk.skills.GrimWard)
 		},
 		battleCry: {
-			have: me.getSkill(sdk.skills.BattleCry, 1), skill: sdk.skills.BattleCry, range: Skill.getRange(sdk.skills.BattleCry), mana: Skill.getManaCost(sdk.skills.BattleCry)
+			have: Skill.canUse(sdk.skills.BattleCry), skill: sdk.skills.BattleCry, range: Skill.getRange(sdk.skills.BattleCry), mana: Skill.getManaCost(sdk.skills.BattleCry)
 		},
 		warCry: {
-			have: me.getSkill(sdk.skills.WarCry, 1), skill: sdk.skills.WarCry, range: Skill.getRange(sdk.skills.WarCry), mana: Skill.getManaCost(sdk.skills.WarCry)
+			have: Skill.canUse(sdk.skills.WarCry), skill: sdk.skills.WarCry, range: Skill.getRange(sdk.skills.WarCry), mana: Skill.getManaCost(sdk.skills.WarCry)
 		},
 		bash: {
-			have: me.getSkill(sdk.skills.Bash, 1), skill: sdk.skills.Bash, range: Skill.getRange(sdk.skills.Bash), mana: Skill.getManaCost(sdk.skills.Bash)
+			have: Skill.canUse(sdk.skills.Bash), skill: sdk.skills.Bash, range: Skill.getRange(sdk.skills.Bash), mana: Skill.getManaCost(sdk.skills.Bash)
 		},
 		stun: {
-			have: me.getSkill(sdk.skills.Stun, 1), skill: sdk.skills.Stun, range: Skill.getRange(sdk.skills.Stun), mana: Skill.getManaCost(sdk.skills.Stun)
+			have: Skill.canUse(sdk.skills.Stun), skill: sdk.skills.Stun, range: Skill.getRange(sdk.skills.Stun), mana: Skill.getManaCost(sdk.skills.Stun)
 		},
 		concentrate: {
-			have: me.getSkill(sdk.skills.Concentrate, 1), skill: sdk.skills.Concentrate, range: Skill.getRange(sdk.skills.Concentrate), mana: Skill.getManaCost(sdk.skills.Concentrate)
+			have: Skill.canUse(sdk.skills.Concentrate), skill: sdk.skills.Concentrate, range: Skill.getRange(sdk.skills.Concentrate), mana: Skill.getManaCost(sdk.skills.Concentrate)
 		},
 		leap: {
-			have: me.getSkill(sdk.skills.Leap, 1), skill: sdk.skills.Leap, range: Skill.getRange(sdk.skills.Leap), mana: Skill.getManaCost(sdk.skills.Leap)
+			have: Skill.canUse(sdk.skills.Leap), skill: sdk.skills.Leap, range: Skill.getRange(sdk.skills.Leap), mana: Skill.getManaCost(sdk.skills.Leap)
 		},
 		leapAttack: {
-			have: me.getSkill(sdk.skills.LeapAttack, 1), skill: sdk.skills.LeapAttack, range: Skill.getRange(sdk.skills.LeapAttack), mana: Skill.getManaCost(sdk.skills.LeapAttack)
+			have: Skill.canUse(sdk.skills.LeapAttack), skill: sdk.skills.LeapAttack, range: Skill.getRange(sdk.skills.LeapAttack), mana: Skill.getManaCost(sdk.skills.LeapAttack)
 		},
 		doubleSwing: {
-			have: me.getSkill(sdk.skills.DoubleSwing, 1), skill: sdk.skills.DoubleSwing, range: Skill.getRange(sdk.skills.DoubleSwing), mana: Skill.getManaCost(sdk.skills.DoubleSwing)
+			have: Skill.canUse(sdk.skills.DoubleSwing), skill: sdk.skills.DoubleSwing, range: Skill.getRange(sdk.skills.DoubleSwing), mana: Skill.getManaCost(sdk.skills.DoubleSwing)
 		},
 		whirlwind: {
-			have: me.getSkill(sdk.skills.Whirlwind, 1), skill: sdk.skills.Whirlwind, range: Skill.getRange(sdk.skills.Whirlwind), mana: Skill.getManaCost(sdk.skills.Whirlwind)
+			have: Skill.canUse(sdk.skills.Whirlwind), skill: sdk.skills.Whirlwind, range: Skill.getRange(sdk.skills.Whirlwind), mana: Skill.getManaCost(sdk.skills.Whirlwind)
 		},
 		main: {
-			have: me.getSkill(Config.AttackSkill[index], 1), skill: Config.AttackSkill[index], range: Skill.getRange(Config.AttackSkill[index]), mana: Skill.getManaCost(Config.AttackSkill[index]),
+			have: Skill.canUse(Config.AttackSkill[index]), skill: Config.AttackSkill[index], range: Skill.getRange(Config.AttackSkill[index]), mana: Skill.getManaCost(Config.AttackSkill[index]),
 			timed: Skill.isTimed(Config.AttackSkill[index])
 		},
 		secondary: {
-			have: me.getSkill(Config.AttackSkill[index + 1], 1), skill: Config.AttackSkill[index + 1], range: Skill.getRange(Config.AttackSkill[index + 1]), mana: Skill.getManaCost(Config.AttackSkill[index + 1]),
+			have: Skill.canUse(Config.AttackSkill[index + 1]), skill: Config.AttackSkill[index + 1], range: Skill.getRange(Config.AttackSkill[index + 1]), mana: Skill.getManaCost(Config.AttackSkill[index + 1]),
 			timed: Skill.isTimed(Config.AttackSkill[index + 1])
 		},
 	};
@@ -223,7 +223,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	}
 
 	// Probably going to get rid of preattack
-	if (preattack && Config.AttackSkill[0] > 0 && Config.AttackSkill[0] !== sdk.skills.WarCry && me.getSkill(Config.AttackSkill[0], 1)
+	if (preattack && Config.AttackSkill[0] > 0 && Config.AttackSkill[0] !== sdk.skills.WarCry && Skill.canUse(Config.AttackSkill[0])
 		&& Attack.checkResist(unit, Attack.getSkillElement(Config.AttackSkill[0])) && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp)
 		&& (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
 		if (unit.distance > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
@@ -289,7 +289,7 @@ ClassAttack.doCast = function (unit, attackSkill, data) {
 			Skill.cast(attackSkill, Skill.getHand(attackSkill), unit);
 
 			if (!unit.dead && attackSkill === sdk.skills.Berserk && me.duelWielding
-				&& me.getSkill(sdk.skills.Frenzy, 1) && unit.distance < 4 && !me.getState(sdk.states.Frenzy)) {
+				&& Skill.canUse(sdk.skills.Frenzy) && unit.distance < 4 && !me.getState(sdk.states.Frenzy)) {
 				Skill.cast(sdk.skills.Frenzy, Skill.getHand(sdk.skills.Frenzy), unit);
 			}
 
@@ -322,7 +322,7 @@ ClassAttack.afterAttack = function (pickit = false) {
 
 ClassAttack.findItemIgnoreGids = [];
 ClassAttack.findItem = function (range = 10) {
-	if (!Config.FindItem || !me.getSkill(sdk.skills.FindItem, 1)) return false;
+	if (!Config.FindItem || !Skill.canUse(sdk.skills.FindItem)) return false;
 
 	Config.FindItemSwitch = (me.expansion && Precast.getBetterSlot(sdk.skills.FindItem));
 	let retry = false, pick = false, corpseList = [];
@@ -391,7 +391,7 @@ ClassAttack.findItem = function (range = 10) {
 };
 
 ClassAttack.grimWard = function (range = 10) {
-	if (!me.getSkill(sdk.skills.GrimWard, 1)) return false;
+	if (!Skill.canUse(sdk.skills.GrimWard)) return false;
 	let corpseList = [], orgX = me.x, orgY = me.y;
 
 	for (let i = 0; i < 3; i += 1) {

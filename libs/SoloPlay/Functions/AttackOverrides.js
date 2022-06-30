@@ -629,20 +629,21 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 
 				gidAttack[i].attacks += 1;
 				attackCount += 1;
-				let secAttack = me.barbarian ? (target.isSpecial ? 2 : 4) : 5;
+				let isSpecial = target.isSpecial;
+				let secAttack = me.barbarian ? (isSpecial ? 2 : 4) : 5;
 
-				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[target.isSpecial ? 1 : 3]) ||
-						(me.paladin && Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3] === sdk.skills.BlessedHammer && !ClassAttack.getHammerPosition(target)))) {
+				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[isSpecial ? 1 : 3])
+						|| (me.paladin && Config.AttackSkill[isSpecial ? 1 : 3] === sdk.skills.BlessedHammer && !ClassAttack.getHammerPosition(target)))) {
 					skillCheck = Config.AttackSkill[secAttack];
 				} else {
-					skillCheck = Config.AttackSkill[target.isSpecial ? 1 : 3];
+					skillCheck = Config.AttackSkill[isSpecial ? 1 : 3];
 				}
 
 				// Desync/bad position handler
 				switch (skillCheck) {
 				case sdk.skills.BlessedHammer:
 					// Tele in random direction with Blessed Hammer
-					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (target.isSpecial ? 4 : 2) === 0) {
+					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (isSpecial ? 4 : 2) === 0) {
 						let coord = CollMap.getRandCoordinate(me.x, -1, 1, me.y, -1, 1, 5);
 						Pather.moveTo(coord.x, coord.y);
 					}
@@ -650,7 +651,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 					break;
 				default:
 					// Flash with melee skills
-					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (target.isSpecial ? 15 : 5) === 0 && Skill.getRange(skillCheck) < 4) {
+					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (isSpecial ? 15 : 5) === 0 && Skill.getRange(skillCheck) < 4) {
 						Packet.flash(me.gid);
 					}
 
@@ -658,7 +659,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 				}
 
 				// Skip non-unique monsters after 15 attacks, except in Throne of Destruction
-				if (me.area !== sdk.areas.ThroneofDestruction && !target.isSpecial && gidAttack[i].attacks > 15) {
+				if (me.area !== sdk.areas.ThroneofDestruction && !isSpecial && gidAttack[i].attacks > 15) {
 					print("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
 					monsterList.shift();
 				}
@@ -707,7 +708,7 @@ Attack.clearEx = function (givenSettings) {
 		sortfunc: () => {}
 	}, givenSettings);
 
-	if (typeof (settings.range) !== "number") { throw new Error("Attack.clear: range must be a number."); }
+	if (typeof (settings.range) !== "number") throw new Error("Attack.clear: range must be a number.");
 	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0 || Attack.stopClear) return false;
 	!settings.sortfunc && (settings.sortfunc = this.sortMonsters);
 
@@ -764,9 +765,7 @@ Attack.clearEx = function (givenSettings) {
 		target = copyUnit(monsterList[0]);
 
 		if (target.x !== undefined && (getDistance(target, orgx, orgy) <= range || (this.getScarinessLevel(target) > 7 && target.distance <= settings.range)) && target.attackable) {
-			if (Config.Dodge && me.hpPercent <= Config.DodgeHP) {
-				this.deploy(target, Config.DodgeRange, 5, 9);
-			}
+			Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
 
 			settings.allowTown && Misc.townCheck(true);
 			result = ClassAttack.doAttack(target, attackCount % 15 === 0);
@@ -1440,47 +1439,4 @@ Attack.castableSpot = function (x = undefined, y = undefined) {
 	}
 
 	return !(result === undefined || !!(result & Coords_1.BlockBits.Casting) || !!(result & Coords_1.Collision.BLOCK_MISSILE) || (result & 0x400) || (result & 0x1));
-};
-
-// hotfix for now, bugged with flying mobs (specters, ghosts, ect) apparently underneath them doesn't register as ground? so it fails the needFloor test
-// despite there being floor there. so for now check if its an area that doesn't have floor in some spots
-// better fix would be passing unit directly in instead of x and y, but that is going to need more changes all over
-Attack.validSpot = function (x, y, skill = -1, unitid = 0) {
-	// Just in case
-	if (!me.area || !x || !y) return false;
-	// for now this just returns true and we leave getting into position to the actual class attack files
-	if (Skill.missileSkills.includes(skill)
-		|| ([sdk.skills.Blizzard, sdk.skills.Meteor].includes(skill) && unitid > 0 && !getBaseStat("monstats", unitid, "flying"))) {
-		return true;
-	}
-
-	let result;
-	let nonFloorAreas = [sdk.areas.ArcaneSanctuary, sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit];
-
-	// Treat thrown errors as invalid spot
-	try {
-		result = getCollision(me.area, x, y);
-	} catch (e) {
-		return false;
-	}
-
-	if (result === undefined) return false;
-
-	switch (true) {
-	case Skill.needFloor.includes(skill) && nonFloorAreas.includes(me.area):
-		let isFloor = !!(result & (0 | 0x1000));
-		// this spot is not on the floor (lava (river/chaos, space (arcane), ect))
-		if (!isFloor) {
-			return false;
-		}
-
-		return !(result & 0x1); // outside lava area in abaddon returns coll 1
-	default:
-		// Avoid non-walkable spots, objects - this preserves the orignal function and also physical attack skills will get here
-		if ((result & 0x1) || (result & 0x400)) return false;
-
-		break;
-	}
-
-	return true;
 };

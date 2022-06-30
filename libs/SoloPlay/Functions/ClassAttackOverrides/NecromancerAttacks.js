@@ -13,7 +13,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.AmplifyDamage,
 		priority: 2,
 		useIf: function (unit) {
-			return me.getSkill(this.skillId, 1) && !unit.getState(sdk.states.Decrepify) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical");
+			return Skill.canUse(this.skillId) && !unit.getState(sdk.states.Decrepify) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical");
 		}
 	},
 	{
@@ -24,7 +24,7 @@ ClassAttack.curseIndex = [
 			return unit.isSpecial || [sdk.monsters.OblivionKnight1, sdk.monsters.OblivionKnight2, sdk.monsters.OblivionKnight3].includes(unit.classid);
 		},
 		useIf: function (unit) {
-			return !this.skipIf(unit) && me.getSkill(this.skillId, 1) && unit.distance > 15;
+			return !this.skipIf(unit) && Skill.canUse(this.skillId) && unit.distance > 15;
 		}
 	},
 	{
@@ -32,7 +32,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.Weaken,
 		priority: 3,
 		useIf: function (unit) {
-			return me.getSkill(this.skillId, 1) && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.AmplifyDamage);
+			return Skill.canUse(this.skillId) && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.AmplifyDamage);
 		}
 	},
 	{
@@ -40,7 +40,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.IronMaiden,
 		priority: 1,
 		useIf: function (unit) {
-			return me.getSkill(this.skillId, 1) && me.area === sdk.areas.DurielsLair && me.normal && unit;
+			return Skill.canUse(this.skillId) && me.area === sdk.areas.DurielsLair && me.normal && unit;
 		}
 	},
 	{
@@ -48,7 +48,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.Terror,
 		priority: 1,
 		useIf: function (unit) {
-			return unit.scareable && me.getSkill(this.skillId, 1) && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting, 0, true) >= 3
+			return unit.scareable && Skill.canUse(this.skillId) && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting, 0, true) >= 3
 				&& Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hpPercent < 75;
 		}
 	},
@@ -57,7 +57,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.Confuse,
 		priority: 2,
 		useIf: function (unit) {
-			return unit.scareable && unit.distance > 8 && me.getSkill(this.skillId, 1);
+			return unit.scareable && unit.distance > 8 && Skill.canUse(this.skillId);
 		}
 	},
 	{
@@ -75,7 +75,7 @@ ClassAttack.curseIndex = [
 		priority: 1,
 		useIf: function (unit) {
 			return unit.scareable && me.area === sdk.areas.ThroneofDestruction && unit.distance > 8
-				&& me.getSkill(this.skillId, 1);
+				&& Skill.canUse(this.skillId);
 		}
 	},
 	{
@@ -83,7 +83,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.Decrepify,
 		priority: 1,
 		useIf: function () {
-			return me.getSkill(this.skillId, 1);
+			return Skill.canUse(this.skillId);
 		}
 	},
 	{
@@ -91,7 +91,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.LowerResist,
 		priority: 1,
 		useIf: function (unit) {
-			return me.getSkill(this.skillId, 1) && SetUp.currentBuild === "Poison" && Attack.checkResist(unit, "poison");
+			return Skill.canUse(this.skillId) && SetUp.currentBuild === "Poison" && Attack.checkResist(unit, "poison");
 		}
 	},
 ];
@@ -141,8 +141,8 @@ ClassAttack.doAttack = function (unit) {
 	let untimedSkill = -1;
 	let gold = me.gold;
 	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
-	let useTerror = me.getSkill(sdk.skills.Terror, 0);
-	let useBP = me.getSkill(sdk.skills.BonePrison, 1);
+	let useTerror = Skill.canUse(sdk.skills.Terror);
+	let useBP = Skill.canUse(sdk.skills.BonePrison);
 	let bpAllowedAreas = [37, 38, 39, 41, 42, 43, 44, 46, 73, 76, 77, 78, 79, 80, 81, 83, 102, 104, 105, 106, 108, 110, 111, 120, 121, 128, 129, 130, 131];
 
 	// Bone prison
@@ -400,12 +400,12 @@ ClassAttack.farCast = function (unit) {
 ClassAttack.explodeCorpses = function (unit) {
 	if (Config.ExplodeCorpses === 0 || unit.mode === 0 || unit.mode === 12) return false;
 
-	let corpseList = [],
-		useAmp = me.getSkill(sdk.skills.AmplifyDamage, 1),
-		ampManaCost = Skill.getManaCost(sdk.skills.AmplifyDamage),
-		explodeCorpsesManaCost = Skill.getManaCost(Config.ExplodeCorpses),
-		range = Math.floor((me.getSkill(Config.ExplodeCorpses, 1) + 7) / 3),
-		corpse = getUnit(1, -1, 12);
+	let corpseList = [];
+	let useAmp = Skill.canUse(sdk.skills.AmplifyDamage);
+	let ampManaCost = Skill.getManaCost(sdk.skills.AmplifyDamage);
+	let explodeCorpsesManaCost = Skill.getManaCost(Config.ExplodeCorpses);
+	let range = Math.floor((me.getSkill(Config.ExplodeCorpses, 1) + 7) / 3);
+	let corpse = getUnit(1, -1, 12);
 
 	if (corpse) {
 		do {
