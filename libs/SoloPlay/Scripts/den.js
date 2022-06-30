@@ -19,11 +19,12 @@ function den () {
 
 	myPrint('starting den');
 
-	if (!Pather.checkWP(sdk.areas.ColdPlains)) {
+	if (!Pather.checkWP(sdk.areas.ColdPlains) || me.charlvl < 4) {
 		Pather.moveToExit(sdk.areas.BloodMoor, true);
 
 		// make sure we are ready for cold plains
-		me.charlvl < 2 && Attack.clearLevelUntilLevel(2);
+		let clearUntil = me.charlvl === 1 ? /*just started*/ 2 : 3; // if this is our second attempt, then bloor moor should be repopulated with mobs
+		me.charlvl < clearUntil && Attack.clearLevelUntilLevel(clearUntil);
 
 		// now make portal at den entrace
 		Pather.moveToExit(sdk.areas.DenofEvil, false, true);
@@ -34,7 +35,8 @@ function den () {
 		Storage.Inventory.UsedSpacePercent() > 50 && Pather.useWaypoint(sdk.areas.RogueEncampment) && Town.doChores() && Pather.useWaypoint(sdk.areas.ColdPlains);
 
 		// make sure we are ready for den
-		me.charlvl < 3 && Attack.clearLevelUntilLevel(3);
+		clearUntil = me.charlvl === 2 ? /*just started*/ 3 : 4;
+		me.charlvl < clearUntil && Attack.clearLevelUntilLevel(clearUntil);
 
 		Pather.getWP(sdk.areas.ColdPlains);
 		Pather.useWaypoint(sdk.areas.RogueEncampment);
@@ -57,7 +59,7 @@ function den () {
 	let killTracker = false;
 	let denLights = false;
 	Precast.doPrecast(true);
-	Attack.clear(50);
+	Attack.clear(20);
 	Pather.moveToExit(sdk.areas.DenofEvil, true);
 
 	this.denLightsListener = function (bytes = []) {

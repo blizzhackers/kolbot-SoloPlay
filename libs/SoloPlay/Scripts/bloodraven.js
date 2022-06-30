@@ -10,7 +10,7 @@ function bloodraven () {
 	print('ÿc8Kolbot-SoloPlayÿc0: starting blood raven');
 
 	if (!Pather.checkWP(sdk.areas.StonyField, true)) {
-		Pather.getWP(sdk.areas.StonyField);
+		Pather.getWP(sdk.areas.StonyField, true);
 		me.charlvl < 6 && Attack.clearLevelUntilLevel(6);
 	} else {
 		if (me.hell && Pather.canTeleport() && me.charlvl < 74/*xp penalty makes this not worth it after 74*/) {
