@@ -75,8 +75,8 @@ const Overlay = {
 			if (!this.getHook("level")) {
 				this.add("level");
 			} else if (this.charlvl !== Overlay.level()) {
-				this.getHook("level").hook.text = "Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + Overlay.difficulty() + "ÿc4  Level: ÿc0" + Overlay.level();
 				this.charlvl = Overlay.level();
+				this.getHook("level").hook.text = "Name: ÿc0" + me.name + "ÿc4  Diff: ÿc0" + Overlay.difficulty() + "ÿc4  Level: ÿc0" + this.charlvl;
 			}
 		},
 
@@ -292,191 +292,55 @@ const Overlay = {
 		},
 
 		check: function () {
-			if (!this.enabled) {
+			if (!this.enabled || !me.gameReady || !me.ingame || !me.area || me.dead) {
 				this.flush();
 
 				return;
 			}
 
-			if (!me.gameReady || !me.ingame || !me.area || me.dead) {
-				this.flush();
-
-				return;
-			}
-
-			if (!this.getHook("resistances", this.hooks)) {
-				this.add("resistances");
-			} else {
-				this.getHook("resistances", this.hooks).hook.text = this.getRes();
-			}
-
-			if (!this.getHook("stats", this.hooks)) {
-				this.add("stats");
-			} else {
-				this.getHook("stats", this.hooks).hook.text = this.getStats();
-			}
-
+			!this.getHook("resistances", this.hooks) ? this.add("resistances") : this.getHook("resistances", this.hooks).hook.text = this.getRes();
+			!this.getHook("stats", this.hooks) ? this.add("stats") : this.getHook("stats", this.hooks).hook.text = this.getStats();
 			!this.getHook("questheader") && this.add("questheader");
 
 			switch (me.act) {
 			case 1:
-				if (!this.getHook("Den")) {
-					this.add("Den");
-				} else {
-					this.getHook("Den").hook.text = "Den: " + this.questStatus("Den");
-				}
-
-				if (!this.getHook("BloodRaven")) {
-					this.add("BloodRaven");
-				} else {
-					this.getHook("BloodRaven").hook.text = "Blood Raven: " + this.questStatus("BloodRaven");
-				}
-
-				if (!this.getHook("Tristram")) {
-					this.add("Tristram");
-				} else {
-					this.getHook("Tristram").hook.text = "Tristram: " + this.questStatus("Tristram");
-				}
-
-				if (!this.getHook("Countess")) {
-					this.add("Countess");
-				} else {
-					this.getHook("Countess").hook.text = "Countess: " + this.questStatus("Countess");
-				}
-
-				if (!this.getHook("Smith")) {
-					this.add("Smith");
-				} else {
-					this.getHook("Smith").hook.text = "Smith: " + this.questStatus("Smith");
-				}
-
-				if (!this.getHook("Andariel")) {
-					this.add("Andariel");
-				} else {
-					this.getHook("Andariel").hook.text = "Andariel: " + this.questStatus("Andariel");
-				}
+				!this.getHook("Den") ? this.add("Den") : this.getHook("Den").hook.text = "Den: " + this.questStatus("Den");
+				!this.getHook("BloodRaven") ? this.add("BloodRaven") : this.getHook("BloodRaven").hook.text = "Blood Raven: " + this.questStatus("BloodRaven");
+				!this.getHook("Tristram") ? this.add("Tristram") : this.getHook("Tristram").hook.text = "Tristram: " + this.questStatus("Tristram");
+				!this.getHook("Countess") ? this.add("Countess") : this.getHook("Countess").hook.text = "Countess: " + this.questStatus("Countess");
+				!this.getHook("Smith") ? this.add("Smith") : this.getHook("Smith").hook.text = "Smith: " + this.questStatus("Smith");
+				!this.getHook("Andariel") ? this.add("Andariel") : this.getHook("Andariel").hook.text = "Andariel: " + this.questStatus("Andariel");
 
 				break;
 			case 2:
-				if (!this.getHook("Radament")) {
-					this.add("Radament");
-				} else {
-					this.getHook("Radament").hook.text = "Radament: " + this.questStatus("Radament");
-				}
-
-				// if (!this.getHook("Cube")) {
-				// 	this.add("Cube");
-				// } else {
-				// 	this.getHook("Cube").hook.text = "Horadric Cube: " + this.questStatus("Cube");
-				// }
-
-				if (!this.getHook("HoradricStaff")) {
-					this.add("HoradricStaff");
-				} else {
-					this.getHook("HoradricStaff").hook.text = "Horadric Staff: " + this.questStatus("HoradricStaff");
-				}
-
-				if (!this.getHook("Amulet")) {
-					this.add("Amulet");
-				} else {
-					this.getHook("Amulet").hook.text = "Amulet: " + this.questStatus("Amulet");
-				}
-
-				if (!this.getHook("Summoner")) {
-					this.add("Summoner");
-				} else {
-					this.getHook("Summoner").hook.text = "Summoner: " + this.questStatus("Summoner");
-				}
-
-				if (!this.getHook("Duriel")) {
-					this.add("Duriel");
-				} else {
-					this.getHook("Duriel").hook.text = "Duriel: " + this.questStatus("Duriel");
-				}
+				!this.getHook("Radament") ? this.add("Radament") : this.getHook("Radament").hook.text = "Radament: " + this.questStatus("Radament");
+				//!this.getHook("Cube") ? this.add("Cube") : this.getHook("Cube").hook.text = "Horadric Cube: " + this.questStatus("Cube");
+				!this.getHook("HoradricStaff") ? this.add("HoradricStaff") : this.getHook("HoradricStaff").hook.text = "Horadric Staff: " + this.questStatus("HoradricStaff");
+				!this.getHook("Amulet") ? this.add("Amulet") : this.getHook("Amulet").hook.text = "Amulet: " + this.questStatus("Amulet");
+				!this.getHook("Summoner") ? this.add("Summoner") : this.getHook("Summoner").hook.text = "Summoner: " + this.questStatus("Summoner");
+				!this.getHook("Duriel") ? this.add("Duriel") : this.getHook("Duriel").hook.text = "Duriel: " + this.questStatus("Duriel");
 
 				break;
 			case 3:
-				if (!this.getHook("GoldenBird")) {
-					this.add("GoldenBird");
-				} else {
-					this.getHook("GoldenBird").hook.text = "Golden Bird: " + this.questStatus("GoldenBird");
-				}
-
-				if (!this.getHook("KhalimsWill")) {
-					this.add("KhalimsWill");
-				} else {
-					this.getHook("KhalimsWill").hook.text = "Khalim's Will: " + this.questStatus("KhalimsWill");
-				}
-
-				if (!this.getHook("LamEsen")) {
-					this.add("LamEsen");
-				} else {
-					this.getHook("LamEsen").hook.text = "LamEsen: " + this.questStatus("LamEsen");
-				}
-
-				if (!this.getHook("Travincal")) {
-					this.add("Travincal");
-				} else {
-					this.getHook("Travincal").hook.text = "Travincal: " + this.questStatus("Travincal");
-				}
-
-				if (!this.getHook("Mephisto")) {
-					this.add("Mephisto");
-				} else {
-					this.getHook("Mephisto").hook.text = "Mephisto: " + this.questStatus("Mephisto");
-				}
+				!this.getHook("GoldenBird") ? this.add("GoldenBird") : this.getHook("GoldenBird").hook.text = "Golden Bird: " + this.questStatus("GoldenBird");
+				!this.getHook("KhalimsWill") ? this.add("KhalimsWill") : this.getHook("KhalimsWill").hook.text = "Khalim's Will: " + this.questStatus("KhalimsWill");
+				!this.getHook("LamEsen") ? this.add("LamEsen") : this.getHook("LamEsen").hook.text = "LamEsen: " + this.questStatus("LamEsen");
+				!this.getHook("Travincal") ? this.add("Travincal") : this.getHook("Travincal").hook.text = "Travincal: " + this.questStatus("Travincal");
+				!this.getHook("Mephisto") ? this.add("Mephisto") : this.getHook("Mephisto").hook.text = "Mephisto: " + this.questStatus("Mephisto");
 
 				break;
 			case 4:
-				if (!this.getHook("Izual")) {
-					this.add("Izual");
-				} else {
-					this.getHook("Izual").hook.text = "Izual: " + this.questStatus("Izual");
-				}
-
-				if (!this.getHook("HellForge")) {
-					this.add("HellForge");
-				} else {
-					this.getHook("HellForge").hook.text = "HellForge: " + this.questStatus("HellForge");
-				}
-
-				if (!this.getHook("Diablo")) {
-					this.add("Diablo");
-				} else {
-					this.getHook("Diablo").hook.text = "Diablo: " + this.questStatus("Diablo");
-				}
+				!this.getHook("Izual") ? this.add("Izual") : this.getHook("Izual").hook.text = "Izual: " + this.questStatus("Izual");
+				!this.getHook("HellForge") ? this.add("HellForge") : this.getHook("HellForge").hook.text = "HellForge: " + this.questStatus("HellForge");
+				!this.getHook("Diablo") ? this.add("Diablo") : this.getHook("Diablo").hook.text = "Diablo: " + this.questStatus("Diablo");
 
 				break;
 			case 5:
-				if (!this.getHook("Shenk")) {
-					this.add("Shenk");
-				} else {
-					this.getHook("Shenk").hook.text = "Shenk: " + this.questStatus("Shenk");
-				}
-
-				if (!this.getHook("Barbies")) {
-					this.add("Barbies");
-				} else {
-					this.getHook("Barbies").hook.text = "Barbies: " + this.questStatus("Barbies");
-				}
-
-				if (!this.getHook("Anya")) {
-					this.add("Anya");
-				} else {
-					this.getHook("Anya").hook.text = "Anya: " + this.questStatus("Anya");
-				}
-
-				if (!this.getHook("Ancients")) {
-					this.add("Ancients");
-				} else {
-					this.getHook("Ancients").hook.text = "Ancients: " + this.questStatus("Ancients");
-				}
-
-				if (!this.getHook("Baal")) {
-					this.add("Baal");
-				} else {
-					this.getHook("Baal").hook.text = "Baal: " + this.questStatus("Baal");
-				}
+				!this.getHook("Shenk") ? this.add("Shenk") : this.getHook("Shenk").hook.text = "Shenk: " + this.questStatus("Shenk");
+				!this.getHook("Barbies") ? this.add("Barbies") : this.getHook("Barbies").hook.text = "Barbies: " + this.questStatus("Barbies");
+				!this.getHook("Anya") ? this.add("Anya") : this.getHook("Anya").hook.text = "Anya: " + this.questStatus("Anya");
+				!this.getHook("Ancients") ? this.add("Ancients") : this.getHook("Ancients").hook.text = "Ancients: " + this.questStatus("Ancients");
+				!this.getHook("Baal") ? this.add("Baal") : this.getHook("Baal").hook.text = "Baal: " + this.questStatus("Baal");
 
 				break;
 			}
