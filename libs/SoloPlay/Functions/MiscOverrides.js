@@ -67,6 +67,14 @@ Misc.openChests = function (range = 15) {
 		unitList.sort(Sort.units);
 		let unit = unitList.shift();
 
+		if (unit) {
+			// check mob count at chest - think I need a new prototype for faster checking
+			// allow specifying an amount and return true/false, rather than building the whole list then deciding what amount is too much
+			// possibly also specify a danger modifier - 3 champions around a chest is much more dangerous than 3 fallens
+			// also think we need to take into account mob count arround us, we shouldn't open chests when we are surrounded and in the process of clearing
+			// that needs a handler as well though, if we aren't clearing and are just pathing (tele char) opening a chest and moving on is fine
+		}
+
 		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, 0x5)) && this.openChest(unit)) {
 			Pickit.pickItems();
 		}
@@ -105,6 +113,8 @@ Misc.useWell = function (range = 15) {
 		&& [sdk.states.Frozen, sdk.states.Poison, sdk.states.AmplifyDamage, sdk.states.Decrepify].every((states) => !me.getState(states))) {
 		return true;
 	}
+
+	Pather.canTeleport() && me.hpPercent < 60 && (range = 25);
 
 	let unitList = getUnits(sdk.unittype.Object, "well").filter(function (well) {
 		return well.distance < range && well.mode !== 2;

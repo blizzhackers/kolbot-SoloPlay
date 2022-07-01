@@ -156,7 +156,7 @@ Town.townTasks = function (buyPots = {}) {
 	Item.autoEquipMerc();
 	this.stash();
 	this.clearJunk();
-	this.sortInventory();
+	Town.sortInventory();
 	this.sortStash();
 	Quest.characterRespec();
 
@@ -171,7 +171,7 @@ Town.townTasks = function (buyPots = {}) {
 
 	delay(300);
 	console.debug("ÿc8End ÿc0:: ÿc8TownTasksÿc0 - ÿc7Duration: ÿc0" + formatTime(getTickCount() - tick));
-	Town.lastInteractedNPC = null; // unassign
+	Town.lastInteractedNPC.reset(); // unassign
 
 	return true;
 };
@@ -243,7 +243,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 
 	delay(300);
 	console.debug("ÿc8End ÿc0:: ÿc8TownChoresÿc0 - ÿc7Duration: ÿc0" + formatTime(getTickCount() - tick));
-	Town.lastInteractedNPC = null; // unassign
+	Town.lastInteractedNPC.reset(); // unassign
 
 	return true;
 };
@@ -557,7 +557,7 @@ Town.identify = function () {
 					break;
 				case -1: // unidentified
 					// At low level its not worth keeping these items until we can Id them it just takes up too much room
-					if (me.charlvl < 10 && item.quality === sdk.itemquality.Magic && item.classid !== sdk.items.SmallCharm) {
+					if (me.charlvl < 10 && item.magic && item.classid !== sdk.items.SmallCharm) {
 						Misc.itemLogger("Sold", item);
 						item.sell();
 					}

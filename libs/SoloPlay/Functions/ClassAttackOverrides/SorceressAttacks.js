@@ -34,7 +34,8 @@ const inDanger = function () {
 
 ClassAttack.doAttack = function (unit, skipStatic = false) {
 	Developer.debugging.skills && print(sdk.colors.Green + "Test Start-----------------------------------------//");
-	if (!unit) return 1;
+	// unit became invalidated
+	if (!unit || !unit.attackable) return 1;
 	
 	let gid = unit.gid;
 	let tick = getTickCount();
@@ -158,7 +159,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	// We lost track of the mob or killed it
-	if (unit === undefined || !unit || unit.dead) return true;
+	if (unit === undefined || !unit || !unit.attackable) return 1;
 
 	// Set damage values
 	data.static.have && (data.static.dmg = GameData.avgSkillDamage(data.static.skill, unit));
@@ -189,7 +190,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	// We lost track of the mob or killed it (recheck after using static)
-	if (unit === undefined || !unit || unit.dead) return true;
+	if (unit === undefined || !unit || !unit.attackable) return true;
 
 	// Choose Skill
 	switch (true) {
@@ -261,7 +262,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 
 			break;
 		default:
-			!unit.getEnchant(sdk.enchant.ManaBurn) && me.normal && (timedSkill = lowManaData.attack);
+			me.normal && me.normal && (timedSkill = lowManaData.attack);
 
 			break;
 		}
@@ -334,8 +335,10 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 };
 
 ClassAttack.doCast = function (unit, timedSkill, data) {
+	// unit became invalidated
+	if (!unit || !unit.attackable) return 1;
 	// No valid skills can be found
-	if (unit === undefined || !!(timedSkill.skill < 0)) return 2;
+	if (!!(timedSkill.skill < 0)) return 2;
 
 	// print damage values
 	Developer.debugging.skills && timedSkill.have && print(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(timedSkill.skill) + ") DMG: " + timedSkill.dmg);

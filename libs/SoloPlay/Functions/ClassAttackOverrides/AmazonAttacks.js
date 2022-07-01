@@ -12,7 +12,9 @@
 ClassAttack.decoyTick = getTickCount();
 
 ClassAttack.doAttack = function (unit, preattack) {
-	if (!unit) return 1;
+	// unit became invalidated
+	if (!unit || !unit.attackable) return 1;
+	
 	let gid = unit.gid;
 	let needRepair = me.charlvl < 5 ? [] : Town.needRepair();
 
@@ -27,21 +29,17 @@ ClassAttack.doAttack = function (unit, preattack) {
 		}
 	}
 
-	let checkSkill,
-		mercRevive = 0,
-		timedSkill = -1,
-		untimedSkill = -1,
-		preattackRange = Skill.getRange(Config.AttackSkill[0]),
-		decoyDuration = Skill.getDuration(sdk.skills.Dopplezon),
-		gold = me.gold,
-		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+	let preattackRange = Skill.getRange(Config.AttackSkill[0]);
+	let decoyDuration = Skill.getDuration(sdk.skills.Dopplezon);
+	let gold = me.gold;
+	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
-	let useInnerSight = (me.getSkill(sdk.skills.InnerSight, 1));
-	let useSlowMissiles = (me.getSkill(sdk.skills.SlowMissiles, 1));
-	let useDecoy = (me.getSkill(sdk.skills.Dopplezon, 1) && !me.normal);
+	let useInnerSight = Skill.canUse(sdk.skills.InnerSight);
+	let useSlowMissiles = Skill.canUse(sdk.skills.SlowMissiles);
+	let useDecoy = (Skill.canUse(sdk.skills.Dopplezon) && !me.normal);
+	let usePlague = (!me.normal && Skill.canUse(sdk.skills.PlagueJavelin));
+	let useJab = (Item.getEquippedItem(4).tier >= 1000 && Skill.canUse(sdk.skills.Jab));
 	let useLightFury = me.getSkill(sdk.skills.LightningFury, 1) >= 10;
-	let usePlague = (!me.normal && me.getSkill(sdk.skills.PlagueJavelin, 1));
-	let useJab = (Item.getEquippedItem(4).tier >= 1000 && me.getSkill(sdk.skills.Jab, 1));
 	let forcePlague = (me.getSkill(sdk.skills.PlagueJavelin, 1) >= 15);	//Extra poison damage then attack
 
 	// Precast Section -----------------------------------------------------------------------------------------------------------------//
@@ -49,9 +47,9 @@ ClassAttack.doAttack = function (unit, preattack) {
 		if (!unit.getState(sdk.states.SlowMissiles)) {
 			if ((unit.distance > 3 || unit.getEnchant(sdk.enchant.LightningEnchanted)) && unit.distance < 13 && !checkCollision(me, unit, 0x4)) {
 				// Act Bosses and mini-bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
-				if ([156, 211, 242, 243, 544, 571, 391, 365, 267, 229].includes(unit.classid)) {
+				if ([sdk.monsters.HellBovine].includes(unit.classid) || unit.isBoss) {
 					// Check if already in this state
-					if (!unit.getState(sdk.states.InnerSight)) {
+					if (useInnerSight && !unit.getState(sdk.states.InnerSight)) {
 						Skill.cast(sdk.skills.InnerSight, 0, unit);
 					}
 				} else {
@@ -61,11 +59,11 @@ ClassAttack.doAttack = function (unit, preattack) {
 		}
 	}
 
-	if (unit.getEnchant(sdk.enchant.ManaBurn) && me.getSkill(sdk.skills.LightningFury, 1) && unit.getMobCount(7) > 2) {
+	if (Skill.canUse(sdk.skills.LightningFury) && unit.getEnchant(sdk.enchant.ManaBurn) && unit.getMobCount(7) > 2) {
 		useLightFury = true;
 	}
 
-	if (unit.getEnchant(sdk.enchant.ManaBurn) && me.getSkill(sdk.skills.PlagueJavelin, 1) && unit.getMobCount(7) > 2) {
+	if (Skill.canUse(sdk.skills.PlagueJavelin) && unit.getEnchant(sdk.enchant.ManaBurn) && unit.getMobCount(7) > 2) {
 		forcePlague = true;
 	}
 
@@ -147,7 +145,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 				// We are within melee distance might as well use jab rather than stand there
 				// Make sure monster is not physical immune
 				if (unit.distance < 4 && Attack.checkResist(unit, "physical")) {
-					if (me.getSkill(sdk.skills.Jab, 1)) {
+					if (Skill.canUse(sdk.skills.Jab)) {
 						if (unit.distance > 3 || checkCollision(me, unit, 0x4)) {
 							if (!Attack.getIntoPosition(unit, 3, 0x1)) {
 								return 0;
@@ -201,35 +199,9 @@ ClassAttack.doAttack = function (unit, preattack) {
 		return 1;
 	}
 
-	// Get timed skill
-	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
-
-	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill)) {
-		timedSkill = checkSkill;
-	} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[5])) {
-		timedSkill = Config.AttackSkill[5];
-	}
-
-	// Get untimed skill
-	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[1] : Config.AttackSkill[index + 1];
-
-	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill)) {
-		untimedSkill = checkSkill;
-	} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[6])) {
-		untimedSkill = Config.AttackSkill[6];
-	}
-
-	// Low mana timed skill
-	if (Config.LowManaSkill[0] > -1 && Skill.getManaCost(timedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[0])) {
-		timedSkill = Config.LowManaSkill[0];
-	}
-
-	// Low mana untimed skill
-	if (Config.LowManaSkill[1] > -1 && Skill.getManaCost(untimedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[1])) {
-		untimedSkill = Config.LowManaSkill[1];
-	}
-
-	let result = this.doCast(unit, timedSkill, untimedSkill);
+	let mercRevive = 0;
+	let skills = this.decideSkill(unit);
+	let result = this.doCast(unit, skills.timed, skills.untimed);
 
 	if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
 		let merc = me.getMerc();
@@ -261,7 +233,11 @@ ClassAttack.doAttack = function (unit, preattack) {
 			}
 
 			let closeMob = Attack.getNearestMonster({skipGid: gid});
-			!!closeMob && this.doCast(closeMob, timedSkill, untimedSkill);
+				
+			if (!!closeMob) {
+				let findSkill = this.decideSkill(closeMob);
+				(this.doCast(closeMob, findSkill.timed, findSkill.untimed) === 1) || (Skill.canUse(sdk.skills.Decoy) && Skill.cast(sdk.skills.Decoy, 0, unit));
+			}
 		}
 
 		return 1;
@@ -285,24 +261,20 @@ ClassAttack.afterAttack = function () {
 
 // Returns: 0 - fail, 1 - success, 2 - no valid attack skills
 ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-	let walk;
-
 	// No valid skills can be found
 	if (timedSkill < 0 && untimedSkill < 0) return 2;
+	// unit became invalidated
+	if (!unit || !unit.attackable) return 1;
+	
+	let walk;
 
 	// Arrow/bolt check
 	if (this.bowCheck) {
-		switch (this.bowCheck) {
-		case "bow":
-			if (!me.getItem("aqv", 1)) {
-				Town.visitTown();
-			}
-
-			break;
-		case "crossbow":
-			if (!me.getItem("cqv", 1)) {
-				Town.visitTown();
-			}
+		switch (true) {
+		case this.bowCheck === "bow" && !me.getItem("aqv", 1):
+		case this.bowCheck === "crossbow" && !me.getItem("cqv", 1):
+			console.log("Bow check");
+			Town.visitTown();
 
 			break;
 		}

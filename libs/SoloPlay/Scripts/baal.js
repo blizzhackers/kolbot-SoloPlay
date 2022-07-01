@@ -1,8 +1,9 @@
-/*
-*	@filename	baal.js
-*	@author		theBGuy
-*	@credits 	sonic
-*	@desc		clear throne and kill baal
+/**
+*  @filename    baal.js
+*  @author      theBGuy
+*  @author      sonic
+*  @desc        clear throne and kill baal
+*
 */
 
 function baal () {
