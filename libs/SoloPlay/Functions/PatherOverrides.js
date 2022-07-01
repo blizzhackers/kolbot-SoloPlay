@@ -396,7 +396,6 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
 	let annoyingArea = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
 	let path = getPath(me.area, x, y, me.x, me.y, useTele || useChargedTele ? 1 : 0, useTele || useChargedTele ? (annoyingArea ? 30 : this.teleDistance) : this.walkDistance);
-
 	if (!path) throw new Error("moveTo: Failed to generate path.");
 
 	path.reverse();
@@ -635,19 +634,21 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 		}
 
 		if (me.inTown) {
-			let npc = getUnit(sdk.unittype.NPC, NPC.Warriv);
+			if (me.area === sdk.areas.LutGholein) {
+				let npc = getUnit(sdk.unittype.NPC, NPC.Warriv);
 
-			if (me.area === sdk.areas.LutGholein && !!npc && npc.distance < 50) {
-				if (npc && npc.openMenu()) {
-					Misc.useMenu(sdk.menu.GoWest);
+				if (!!npc && npc.distance < 50) {
+					if (npc && npc.openMenu()) {
+						Misc.useMenu(sdk.menu.GoWest);
 
-					if (!Misc.poll(() => me.gameReady && me.area === sdk.areas.RogueEncampment, 2000, 100)) {
-						throw new Error("Failed to go to act 1 using Warriv");
+						if (!Misc.poll(() => me.gameReady && me.area === sdk.areas.RogueEncampment, 2000, 100)) {
+							throw new Error("Failed to go to act 1 using Warriv");
+						}
 					}
 				}
 			}
 
-			!getUIFlag(sdk.uiflags.Waypoint) && (!Skill.useTK(wp) || i > 1) && Town.move("waypoint");
+			!getUIFlag(sdk.uiflags.Waypoint) && Town.getDistance("waypoint") > (Skill.haveTK ? 20 : 5) && Town.move("waypoint");
 		}
 
 		let wp = getUnit(sdk.unittype.Object, "waypoint");
@@ -670,7 +671,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 				}
 
 				// handle getUnit bug
-				if (!getUIFlag(sdk.uiflags.Waypoint) && wp.name.toLowerCase() === "dummy") {
+				if (me.inTown && !getUIFlag(sdk.uiflags.Waypoint) && wp.name.toLowerCase() === "dummy") {
 					Town.getDistance("waypoint") > 5 && Town.move("waypoint");
 					Misc.click(0, 0, wp);
 				}
@@ -742,8 +743,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 					let coord = CollMap.getRandCoordinate(me.x, -5 * retry, 5 * retry, me.y, -5 * retry, 5 * retry);
 					!!coord && this.moveTo(coord.x, coord.y);
 					delay(200);
-					Packet.flash(me.gid, pingDelay);
-					//wp && wp.distance > 5 && !getUIFlag(sdk.uiflags.Waypoint) && this.moveToUnit(wp);
+					i > 1 && (i % 3) === 0 && Packet.flash(me.gid, pingDelay);
 
 					continue;
 				}
@@ -773,11 +773,11 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 				getUIFlag(sdk.uiflags.Waypoint) && me.cancel();
 			}
 
-			Packet.flash(me.gid, pingDelay);
+			i > 1 && (i % 3) === 0 && Packet.flash(me.gid, pingDelay);
 			// Activate check if we fail direct interact twice
 			i > 1 && (check = true);
 		} else {
-			Packet.flash(me.gid, pingDelay);
+			Packet.flash(me.gid);
 		}
 
 		// We can't seem to get the wp maybe attempt portal to town instead and try to use that wp
