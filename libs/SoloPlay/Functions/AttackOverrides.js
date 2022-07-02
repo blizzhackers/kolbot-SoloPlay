@@ -868,11 +868,12 @@ Attack.clearCoordList = function (list, pick) {
 // maybe store the copyUnit of the item or at least gid so we don't need to iterate through all our items to find the one with the charged skill when we need it
 Attack.getCurrentChargedSkillIds = function (init = false) {
 	let currentChargedSkills = [];
+	let chargedSkills = [];
 	let chargedSkillsOnSwitch = [];
 
-	// Item must be equipped, or a charm in inventory
+	// Item must be equipped - removed charms as I don't think at any point using hydra from torch has ever been worth it
 	me.getItemsEx(-1)
-		.filter(item => item && (item.isEquipped && !item.rare || (item.isInInventory && item.isCharm)))
+		.filter(item => item && ((item.isEquipped && !item.rare)))
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 
@@ -880,14 +881,25 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 				if (stats[204] instanceof Array) {
 					for (let i = 0; i < stats[204].length; i += 1) {
 						if (stats[204][i] !== undefined) {
-							// add to total list
+							// add to total list of skillIds
 							if (stats[204][i].charges > 0 && !currentChargedSkills.includes(stats[204][i].skill)) {
 								currentChargedSkills.push(stats[204][i].skill);
+								chargedSkills.push({
+									skill: stats[204][i].skill,
+									level: stats[204][i].level,
+									gid: item.gid,
+									//item: copyUnit(item)
+								});
 							}
 
 							// add to switch only list for use with swtich casting
 							if (stats[204][i].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204][i].skill) && item.isOnSwap) {
-								chargedSkillsOnSwitch.push({skill: stats[204][i].skill, level: stats[204][i].level});
+								chargedSkillsOnSwitch.push({
+									skill: stats[204][i].skill,
+									level: stats[204][i].level,
+									gid: item.gid,
+									//item: copyUnit(item)
+								});
 							}
 						}
 					}
@@ -895,11 +907,22 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 					// add to total list
 					if (stats[204].charges > 0 && !currentChargedSkills.includes(stats[204].skill)) {
 						currentChargedSkills.push(stats[204].skill);
+						chargedSkills.push({
+							skill: stats[204].skill,
+							level: stats[204].level,
+							gid: item.gid,
+							//item: copyUnit(item)
+						});
 					}
 
 					// add to switch only list for use with swtich casting
 					if (stats[204].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204].skill) && item.isOnSwap) {
-						chargedSkillsOnSwitch.push({skill: stats[204].skill, level: stats[204].skill});
+						chargedSkillsOnSwitch.push({
+							skill: stats[204].skill,
+							level: stats[204].level,
+							gid: item.gid,
+							//item: copyUnit(item)
+						});
 					}
 				}
 			}
@@ -910,7 +933,8 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 		switch (true) {
 		case !currentChargedSkills.equals(CharData.skillData.currentChargedSkills):
 		case Object.keys(Misc.recursiveSearch(chargedSkillsOnSwitch, CharData.skillData.chargedSkillsOnSwitch)).length > 0:
-			CharData.skillData.init(currentChargedSkills, chargedSkillsOnSwitch);
+		case Object.keys(Misc.recursiveSearch(chargedSkills, CharData.skillData.chargedSkills)).length > 0:
+			CharData.skillData.init(currentChargedSkills, chargedSkills, chargedSkillsOnSwitch);
 			!init && CharData.skillData.update();
 			break;
 		}
@@ -958,7 +982,7 @@ Attack.castCharges = function (skillId = undefined, unit = undefined) {
 		return false;
 	}
 
-	me.castChargedSkill(skillId, unit);
+	me.castChargedSkillEx(skillId, unit) && delay(25);
 	me.weaponswitch === 1 && me.switchWeapons(0);
 
 	return true;
@@ -969,7 +993,7 @@ Attack.switchCastCharges = function (skillId = undefined, unit = undefined) {
 		return false;
 	}
 
-	me.castSwitchChargedSkill(skillId, unit);
+	me.castSwitchChargedSkill(skillId, unit) && delay(25);
 	me.weaponswitch === 1 && me.switchWeapons(0);
 
 	return true;

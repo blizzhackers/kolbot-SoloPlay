@@ -268,12 +268,9 @@ Object.defineProperties(me, {
 	},
 });
 
-Unit.prototype.castChargedSkill = function (...args) {
+Unit.prototype.castChargedSkillEx = function (...args) {
 	let skillId, x, y, unit, chargedItem, charge;
 	let chargedItems = [];
-	let validCharge = function (itemCharge) {
-		return itemCharge.skill === skillId && itemCharge.charges;
-	};
 
 	switch (args.length) {
 	case 0: // item.castChargedSkill()
@@ -323,29 +320,17 @@ Unit.prototype.castChargedSkill = function (...args) {
 
 		chargedItems = [];
 
-		// Item must be equipped, or a charm in inventory
-		this.getItemsEx(-1)
-			.filter(item => item && (item.isEquipped || (item.isInInventory && item.isCharm)))
-			.forEach(function (item) {
-				let stats = item.getStat(-2);
-
-				if (stats.hasOwnProperty(204)) {
-					if (stats[204] instanceof Array) {
-						stats = stats[204].filter(validCharge);
-						stats.length && chargedItems.push({
-							charge: stats.first(),
-							item: item
-						});
-					} else {
-						if (stats[204].skill === skillId && stats[204].charges > 1) {
-							chargedItems.push({
-								charge: stats[204].charges,
-								item: item
-							});
-						}
-					}
-				}
-			});
+		CharData.skillData.chargedSkills.forEach(chargeSkill => {
+			if (chargeSkill.skill === skillId) {
+				console.debug(chargeSkill);
+				let item = me.getItem(-1, sdk.itemmode.Equipped, chargeSkill.gid);
+				!!item && chargedItems.push({
+					charge: chargeSkill.skill,
+					level: chargeSkill.level,
+					item: item
+				});
+			}
+		});
 
 		if (chargedItems.length === 0) {
 			print("ÿc9CastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
@@ -359,7 +344,7 @@ Unit.prototype.castChargedSkill = function (...args) {
 			me.switchWeapons(1);
 		}
 
-		return chargedItem.castChargedSkill.apply(chargedItem, args);
+		return chargedItem.castChargedSkillEx.apply(chargedItem, args);
 	} else if (this.type === 4) {
 		charge = this.getStat(-2)[204]; // WARNING. Somehow this gives duplicates
 
@@ -405,9 +390,6 @@ Unit.prototype.castChargedSkill = function (...args) {
 Unit.prototype.castSwitchChargedSkill = function (...args) {
 	let skillId, x, y, unit, chargedItem;
 	let chargedItems = [];
-	let validCharge = function (itemCharge) {
-		return itemCharge.skill === skillId && itemCharge.charges;
-	};
 
 	switch (args.length) {
 	case 0: // item.castChargedSkill()
@@ -451,30 +433,17 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 
 		chargedItems = [];
 
-		// Item must be equipped in the switch position
-		// change this, store the item that has the charge we want in our skillData so we don't need to run through all these checks to find it
-		this.getItemsEx(-1)
-			.filter(item => item && item.isOnSwap)
-			.forEach(function (item) {
-				let stats = item.getStat(-2);
-
-				if (stats.hasOwnProperty(204)) {
-					if (stats[204] instanceof Array) {
-						stats = stats[204].filter(validCharge);
-						stats.length && chargedItems.push({
-							charge: stats.first(),
-							item: item
-						});
-					} else {
-						if (stats[204].skill === skillId && stats[204].charges > 1) {
-							chargedItems.push({
-								charge: stats[204].charges,
-								item: item
-							});
-						}
-					}
-				}
-			});
+		CharData.skillData.chargedSkillsOnSwitch.forEach(chargeSkill => {
+			if (chargeSkill.skill === skillId) {
+				console.debug(chargeSkill);
+				let item = me.getItem(-1, sdk.itemmode.Equipped, chargeSkill.gid);
+				!!item && chargedItems.push({
+					charge: chargeSkill.skill,
+					level: chargeSkill.level,
+					item: item
+				});
+			}
+		});
 
 		if (chargedItems.length === 0) {
 			print("ÿc9SwitchCastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
@@ -485,7 +454,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 
 		chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
 
-		return chargedItem.castChargedSkill.apply(chargedItem, args);
+		return chargedItem.castChargedSkillEx.apply(chargedItem, args);
 	}
 
 	return false;

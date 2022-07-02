@@ -171,10 +171,12 @@ const CharData = {
 	skillData: {
 		skills: [],
 		currentChargedSkills: [],
+		chargedSkills: [],
 		chargedSkillsOnSwitch: [],
 
-		init: function (all, switchSkills) {
-			this.currentChargedSkills = all.slice(0);
+		init: function (skillIds, mainSkills, switchSkills) {
+			this.currentChargedSkills = skillIds.slice(0);
+			this.chargedSkills = mainSkills.slice(0);
 			this.chargedSkillsOnSwitch = switchSkills.slice(0);
 			this.skills = me.getSkill(4).map((skill) => skill[0]);
 		},
