@@ -1,10 +1,12 @@
-/*
-*	@filename	summoner.js
-*	@author		isid0re
-*	@desc		summoner quest and Hate key hunting
+/**
+*  @filename    summoner.js
+*  @author      theBGuy
+*  @desc        summoner quest and Hate key hunting
+*
 */
 
 function summoner () {
+	// @isid0re
 	let teleportPads = function () {
 		if (me.area !== sdk.areas.ArcaneSanctuary || Pather.useTeleport()) {
 			return true;
@@ -114,6 +116,8 @@ function summoner () {
 	} else {
 		Pather.useWaypoint(sdk.areas.LutGholein);
 	}
+
+	!me.summoner && Town.npcInteract("drognan");
 
 	return true;
 }
