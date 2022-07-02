@@ -49,37 +49,6 @@ function main() {
 
 	let Overrides = require('../../modules/Override');
 
-	new Overrides.Override(Town, Town.visitTown, function () {
-		console.log("ÿc8Start ÿc0:: ÿc8visitTown");
-	
-		let preArea = me.area;
-		let preAct = sdk.areas.actOf(preArea);
-
-		// not an essential function -> handle thrown errors
-		try {
-			Town.goToTown();
-		} catch (e) {
-			return false;
-		}
-
-		Town.doChores();
-
-		me.act !== preAct && Town.goToTown(preAct);
-		Town.move("portalspot");
-
-		if (!Pather.usePortal(null, me.name)) {
-			try {
-				Pather.usePortal(preArea, me.name);
-			} catch (e) {
-				throw new Error("Town.visitTown: Failed to go back from town");
-			}
-		}
-
-		console.log("ÿc8End ÿc0:: ÿc8visitTown - currentArea: " + Pather.getAreaName(me.area));
-
-		return true;
-	}).apply();
-
 	new Overrides.Override(Attack, Attack.getNearestMonster, function (orignal, givenSettings = {}) {
 		let settings = Object.assign({
 			skipBlocked: false,
@@ -95,11 +64,11 @@ function main() {
 		return -1;
 	}).apply();
 
-	new Overrides.Override(NodeAction, NodeAction.go, function () {
+	NodeAction.go = function () {
 		return;
-	}).apply();
+	};
 
-	new Overrides.Override(Pather, Pather.usePortal, function (original, targetArea, owner = me.name, unit = null) {
+	Pather.usePortal = function (targetArea, owner, unit) {
 		if (targetArea && me.area === targetArea) return true;
 
 		me.cancelUIFlags();
@@ -112,7 +81,7 @@ function main() {
 		let leavingTown = townAreaCheck(preArea);
 
 		for (let i = 0; i < 13; i += 1) {
-			if (me.dead) {
+			if (me.dead || me.area !== preArea) {
 				break;
 			}
 
@@ -120,7 +89,7 @@ function main() {
 				Town.move("portalspot");
 			}
 
-			let portal = unit ? copyUnit(unit) : this.getPortal(targetArea, owner);
+			let portal = unit ? copyUnit(unit) : Pather.getPortal(targetArea, owner);
 
 			if (portal) {
 				let redPortal = portal.classid === sdk.units.RedPortal;
@@ -188,6 +157,17 @@ function main() {
 				i > 1 && (i % 3) === 0 && Packet.flash(me.gid);
 			} else {
 				console.log("Didn't find portal, retry: " + i);
+				i > 3 && me.inTown && Town.move("portalspot", false);
+				if (i === 12) {
+					let p = getUnit(2, "portal");
+					console.debug(p);
+					if (!!p && Misc.click(0, 0, p) && Misc.poll(() => me.area !== preArea, 1000, 100)) {
+						this.lastPortalTick = getTickCount();
+						delay(100);
+
+						return true;
+					}
+				}
 				Packet.flash(me.gid);
 			}
 
@@ -195,43 +175,62 @@ function main() {
 		}
 
 		return (targetArea ? me.area === targetArea : me.area !== preArea);
-	}).apply();
+	};
 
-	let pausedScripts = [];
-	const scripts = ["default.dbj", "tools/antihostile.js"/* , "libs/SoloPlay/Modules/Guard.js" */];
+	Town.visitTown = function () {
+		console.log("ÿc8Start ÿc0:: ÿc8visitTown");
+	
+		let preArea = me.area;
+		let preAct = sdk.areas.actOf(preArea);
 
-	// keep track of what scripts we paused to reduce getScript calls
+		// not an essential function -> handle thrown errors
+		try {
+			Town.goToTown();
+		} catch (e) {
+			return false;
+		}
+
+		Town.doChores();
+
+		me.act !== preAct && Town.goToTown(preAct);
+		Town.move("portalspot");
+
+		if (!Pather.usePortal(null, me.name)) {
+			try {
+				Pather.usePortal(preArea, me.name);
+			} catch (e) {
+				throw new Error("Town.visitTown: Failed to go back from town");
+			}
+		}
+
+		console.log("ÿc8End ÿc0:: ÿc8visitTown - currentArea: " + Pather.getAreaName(me.area));
+
+		return me.area === preArea;
+	};
+
 	this.togglePause = function () {
-		let mode = pausedScripts.length ? "Resuming" : "Pausing";
+		let scripts = ["default.dbj", "tools/antihostile.js"];
 
-		switch (mode) {
-		case "Pausing":
-			for (let i = 0; i < scripts.length; i += 1) {
-				let script = getScript(scripts[i]);
+		for (let i = 0; i < scripts.length; i++) {
+			let script = getScript(scripts[i]);
 
-				if (!!script && script.running) {
-					pausedScripts.push(script);
+			if (script) {
+				if (script.running) {
 					scripts[i] === "default.dbj" && console.log("ÿc8TownChicken:: ÿc1Pausing " + scripts[i]);
+
 					script.pause();
-				}
-			}
-
-			break;
-		case "Resuming":
-			while (pausedScripts.length) {
-				let script = pausedScripts.shift();
-				// don't resume if dclone walked
-				if (script.name === "default.dbj" || script.name.match("guard", "gi")) {
-					if (!SoloEvents.cloneWalked) {
-						script.name === "default.dbj" && print("ÿc8TownChicken:: ÿc2Resuming threads");
-						!!script && !script.running && script.resume();
-					}
 				} else {
-					!!script && !script.running && script.resume();
+					if (scripts[i] === "default.dbj") {
+						// don't resume if dclone walked
+						if (!SoloEvents.cloneWalked) {
+							print("ÿc8TownChicken :: ÿc2Resuming threads");
+							script.resume();
+						}
+					} else {
+						script.resume();
+					}
 				}
 			}
-
-			break;
 		}
 
 		return true;

@@ -192,6 +192,16 @@ const CharData = {
 				}
 			});
 		},
+
+		haveChargedSkill: function (skillid = []) {
+			// convert to array if not one
+			!Array.isArray(skillid) && (skillid = [skillid]);
+			return this.currentChargedSkills.some(s => skillid.includes(s));
+		},
+
+		haveChargedSkillOnSwitch: function (skillid = 0) {
+			return this.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === skillid);
+		}
 	},
 
 	// updates config obj across all threads - excluding our current

@@ -669,7 +669,7 @@ Town.shopItems = function () {
 	if (!items.length) return false;
 
 	let tick = getTickCount();
-	let haveMerc = !me.classic && Config.UseMerc && !!me.mercrevivecost && Misc.poll(() => !!me.getMerc(), 500, 100);
+	let haveMerc = !me.classic && Config.UseMerc && Misc.poll(() => !!me.getMerc(), 500, 100);
 	console.log("ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Evaluating " + npc.itemcount + " items.");
 

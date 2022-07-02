@@ -393,7 +393,6 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 
 	switch (args.length) {
 	case 0: // item.castChargedSkill()
-		break;
 	case 1: // hellfire.castChargedSkill(monster);
 		break;
 	case 2:

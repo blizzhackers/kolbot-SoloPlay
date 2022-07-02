@@ -19,7 +19,7 @@ const slowable = function (unit, freezeable = false) {
 
 const frostNovaCheck = function () {
 	return getUnits(1).some(function(el) {
-		return !!el && el.attackable && el.distance < 7
+		return !!el && el.distance < 7 && el.attackable
 			&& ![sdk.monsters.Andariel].includes(el.classid)
 			&& !el.isChilled && Attack.checkResist(el, 'cold')
 			&& !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
@@ -62,49 +62,46 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 
 	// Handle Charge skill casting
 	if (index === 1 && me.expansion && !unit.dead) {
-		let isBoss;
-		let dangerZone;
-		
-		if (CharData.skillData.currentChargedSkills.some(s => [sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken].includes(s))) {
-			isBoss = unit.isBoss;
-			dangerZone = [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area);
-		}
-		// If we have slow missles we might as well use it, currently only on Lighting Enchanted mobs as they are dangerous
-		// Might be worth it to use on souls too TODO: test this idea
-		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.SlowMissiles) && gold > 500000 && !isBoss
-			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && unit.curseable
-			&& !checkCollision(me, unit, 0x4)) {
-			// Cast slow missiles
-			Attack.castCharges(sdk.skills.SlowMissiles, unit);
-		}
-		// Handle Switch casting
-		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)
-			&& (gold > 500000 || isBoss || dangerZone)
-			&& !unit.getState(sdk.states.LowerResist) && unit.curseable
-			&& !checkCollision(me, unit, 0x4)) {
-			// Switch cast lower resist
-			Attack.switchCastCharges(sdk.skills.LowerResist, unit);
-		}
+		if (CharData.skillData.haveChargedSkill([sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken]) && unit.curseable) {
+			let isBoss = unit.isBoss;
+			let dangerZone = [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area);
+			// If we have slow missles we might as well use it, currently only on Lighting Enchanted mobs as they are dangerous
+			// Might be worth it to use on souls too TODO: test this idea
+			if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && gold > 500000 && !isBoss
+				&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
+				&& !checkCollision(me, unit, 0x4)) {
+				// Cast slow missiles
+				Attack.castCharges(sdk.skills.SlowMissiles, unit);
+			}
+			// Handle Switch casting
+			if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
+				&& (gold > 500000 || isBoss || dangerZone)
+				&& !unit.getState(sdk.states.LowerResist)
+				&& !checkCollision(me, unit, 0x4)) {
+				// Switch cast lower resist
+				Attack.switchCastCharges(sdk.skills.LowerResist, unit);
+			}
 
-		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Weaken)
-			&& (gold > 500000 || isBoss || dangerZone)
-			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist) && unit.curseable
-			&& !checkCollision(me, unit, 0x4)) {
-			// Switch cast weaken
-			Attack.switchCastCharges(sdk.skills.Weaken, unit);
+			if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
+				&& (gold > 500000 || isBoss || dangerZone)
+				&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist)
+				&& !checkCollision(me, unit, 0x4)) {
+				// Switch cast weaken
+				Attack.switchCastCharges(sdk.skills.Weaken, unit);
+			}
 		}
 	}
 
 	let data = {
 		static: {
-			have: Skill.canUse(sdk.skills.StaticField), skill: sdk.skills.StaticField, range: Skill.getRange(sdk.skills.StaticField), mana: Skill.getManaCost(sdk.skills.StaticField),
+			have: Skill.canUse(sdk.skills.StaticField), skill: sdk.skills.StaticField, range: -1, mana: Infinity,
 			dmg: 0,
 		},
 		frostNova: {
-			have: Skill.canUse(sdk.skills.FrostNova), skill: sdk.skills.FrostNova, range: 7, mana: Skill.getManaCost(sdk.skills.FrostNova), timed: false,
+			have: Skill.canUse(sdk.skills.FrostNova), skill: sdk.skills.FrostNova, range: 7, mana: Infinity, timed: false,
 		},
 		glacialSpike: {
-			have: Skill.canUse(sdk.skills.GlacialSpike), skill: sdk.skills.GlacialSpike, range: 15, mana: Skill.getManaCost(sdk.skills.GlacialSpike), timed: false, dmg: 0,
+			have: Skill.canUse(sdk.skills.GlacialSpike), skill: sdk.skills.GlacialSpike, range: 15, mana: Infinity, timed: false, dmg: 0,
 		},
 		customTimed: {
 			have: false, skill: -1, range: undefined, mana: undefined, timed: undefined, dmg: 0,
@@ -137,24 +134,30 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 		uts > 0 && (data.customUntimed = {have: true, range: Skill.getRange(uts), mana: Skill.getManaCost(uts), timed: Skill.isTimed(uts), dmg: GameData.avgSkillDamage(uts, unit)});
 	}
 
-	if (data.frostNova.have && me.mp > data.frostNova.mana) {
-		frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, 0);
-		let ticktwo = getTickCount();
-		// if the nova cause the death of any monsters around us, its worth it
-		if (GameData.calculateKillableFallensByFrostNova() > 0) {
-			Developer.debugging.skills && print("took " + ((getTickCount() - ticktwo) / 1000) + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens");
-			Skill.cast(sdk.skills.FrostNova, 0);
+	if (data.frostNova.have) {
+		data.frostNova.mana = Skill.getManaCost(sdk.skills.FrostNova);
+		if (me.mp > data.frostNova.mana) {
+			frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, 0);
+			let ticktwo = getTickCount();
+			// if the nova cause the death of any monsters around us, its worth it
+			if (GameData.calculateKillableFallensByFrostNova() > 0) {
+				Developer.debugging.skills && print("took " + ((getTickCount() - ticktwo) / 1000) + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens");
+				Skill.cast(sdk.skills.FrostNova, 0);
+			}
 		}
 	}
 
-	if (data.glacialSpike.have && me.mp > data.glacialSpike.mana * 2) {
-		let shouldSpike = unit && unit.distance < 10 &&
-		getUnits(1).filter(function (el) {
-			return getDistance(el, unit) < 4 && slowable(el, true);
-		}).length > 1;
-		if (shouldSpike && !Coords_1.isBlockedBetween(me, unit)) {
-			Developer.debugging.skills && print("SPIKE");
-			Skill.cast(sdk.skills.GlacialSpike, 0, unit);
+	if (data.glacialSpike.have) {
+		data.glacialSpike.mana = Skill.getManaCost(sdk.skills.GlacialSpike);
+		if (me.mp > data.glacialSpike.mana * 2) {
+			let shouldSpike = unit && unit.distance < 10 &&
+			getUnits(1).filter(function (el) {
+				return getDistance(el, unit) < 4 && slowable(el, true);
+			}).length > 1;
+			if (shouldSpike && !Coords_1.isBlockedBetween(me, unit)) {
+				Developer.debugging.skills && print("SPIKE");
+				Skill.cast(sdk.skills.GlacialSpike, 0, unit);
+			}
 		}
 	}
 
@@ -162,7 +165,11 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	if (unit === undefined || !unit || !unit.attackable) return 1;
 
 	// Set damage values
-	data.static.have && (data.static.dmg = GameData.avgSkillDamage(data.static.skill, unit));
+	if (data.static.have) {
+		data.static.dmg = GameData.avgSkillDamage(data.static.skill, unit);
+		data.static.mana = Skill.getManaCost(sdk.skills.StaticField);
+		data.static.range = Skill.getRange(sdk.skills.StaticField);
+	}
 	data.glacialSpike.have && ![data.mainUntimed.skill, data.secondaryUntimed.skill].includes(data.glacialSpike.skill) && (data.glacialSpike.dmg = GameData.avgSkillDamage(data.glacialSpike.skill, unit));
 	data.mainTimed.have && (data.mainTimed.dmg = GameData.avgSkillDamage(data.mainTimed.skill, unit));
 	data.mainUntimed.have && (data.mainUntimed.dmg = GameData.avgSkillDamage(data.mainUntimed.skill, unit));
@@ -179,13 +186,14 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	// If we have enough mana for Static and it will do more damage than our other skills then duh use it
+	// should this return afterwards since the calulations will now be different?
 	if (data.static.have && (data.static.mana * 3) < me.mp) {
 		let closeMobCheck = getUnits(1)
 			.filter(unit => !!unit && unit.attackable && unit.distance < data.static.range)
 			.find(unit => Attack.checkResist(unit, "lightning") && unit.hpPercent > Config.CastStatic);
 		if (!!closeMobCheck && data.static.dmg > Math.max(data.mainTimed.dmg, data.mainUntimed.dmg, data.secondaryTimed.dmg, data.secondaryUntimed.dmg) && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
 			Developer.debugging.skills && print("STATIC");
-			Skill.cast(sdk.skills.StaticField, 0, closeMobCheck);
+			Skill.cast(sdk.skills.StaticField, 0, closeMobCheck) && Skill.cast(sdk.skills.StaticField, 0, closeMobCheck);
 		}
 	}
 
@@ -272,10 +280,6 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 		timedSkill = sdk.skills.IceBolt;
 	}
 
-	if (timedSkill === sdk.skills.ChargedBolt && data.secondaryUntimed.skill === sdk.skills.IceBolt) {
-		console.log("Slowable? ", slowable(unit));
-	}
-
 	switch (ClassAttack.doCast(unit, timedSkill, data)) {
 	case 0: // Fail
 		Developer.debugging.skills && print(sdk.colors.Red + "Fail Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
@@ -344,7 +348,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 	Developer.debugging.skills && timedSkill.have && print(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(timedSkill.skill) + ") DMG: " + timedSkill.dmg);
 
 	if (![sdk.skills.FrostNova, sdk.skills.Nova, sdk.skills.StaticField].includes(timedSkill.skill) && Skill.canUse(sdk.skills.Teleport)) {
-		if (inDanger() && me.mp > Skill.getManaCost(sdk.skills.Teleport) + timedSkill.mana) {
+		if (me.mp > Skill.getManaCost(sdk.skills.Teleport) + timedSkill.mana && inDanger()) {
 			//print("FINDING NEW SPOT");
 			Attack.getIntoPosition(unit, timedSkill.range, 0
                 | Coords_1.BlockBits.LineOfSight
@@ -423,7 +427,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 							frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, 0);
 						}
 
-						if (inDanger() || tsMana > me.mp || unit.hpPercent < Config.CastStatic) {
+						if (tsMana > me.mp || unit.hpPercent < Config.CastStatic || inDanger()) {
 							break;
 						}
 					} else {

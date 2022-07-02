@@ -49,8 +49,8 @@ Attack.init = function () {
 };
 
 Attack.getLowerResistPercent = function () {
-	let calc = function (level) { return Math.floor(Math.min(25 + (45 * ((110 * level) / (level + 6)) / 100), 70));};
-	if (me.expansion && CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) {
+	let calc = function (level) { return Math.floor(Math.min(25 + (45 * ((110 * level) / (level + 6)) / 100), 70)); };
+	if (me.expansion && CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)) {
 		return calc(CharData.skillData.chargedSkillsOnSwitch.find(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist).level);
 	}
 	if (Skill.canUse(sdk.skills.LowerResist)) {
@@ -63,7 +63,7 @@ Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
 	if (!unit || !unit.type || unit.type === sdk.unittype.Player) return true;
 
 	let damageType = typeof val === "number" ? this.getSkillElement(val) : val;
-	let addLowerRes = !!(Skill.canUse(sdk.skills.LowerResist) || CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) && unit.curseable;
+	let addLowerRes = !!(Skill.canUse(sdk.skills.LowerResist) || CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)) && unit.curseable;
 
 	// Static handler
 	if (val === sdk.skills.StaticField && this.getResist(unit, damageType) < 100) {
@@ -143,7 +143,7 @@ Attack.canAttack = function (unit = undefined) {
 };
 
 Attack.openChests = function (range = 10, x = undefined, y = undefined) {
-	if (!Config.OpenChests.Enabled) return false;
+	if (!Config.OpenChests.Enabled || !Misc.openChestsEnabled) return false;
 	x === undefined && (x = me.x);
 	y === undefined && (y = me.y);
 
@@ -203,42 +203,50 @@ Attack.killTarget = function (name = undefined) {
 		return Attack.clear(15, 0, target);
 	}
 
-	while (attackCount < Config.MaxAttackCount) {
-		if (Misc.townCheck()) {
-			if (!target || !copyUnit(target).x) {
-				target = Misc.poll(() => getUnit(sdk.unittype.Monster, name), 1500, 60);
+	try {
+		// disable opening chests while killing unit
+		Misc.openChestsEnabled = false;
+
+		while (attackCount < Config.MaxAttackCount) {
+			if (Misc.townCheck()) {
+				if (!target || !copyUnit(target).x) {
+					target = Misc.poll(() => getUnit(sdk.unittype.Monster, name), 1500, 60);
+				}
 			}
-		}
 
-		// Check if unit got invalidated, happens if necro raises a skeleton from the boss's corpse.
-		if (!target || !copyUnit(target).x) {
-			target = getUnit(1, -1, -1, gid);
+			// Check if unit got invalidated, happens if necro raises a skeleton from the boss's corpse.
+			if (!target || !copyUnit(target).x) {
+				target = getUnit(1, -1, -1, gid);
 
-			if (!target) {
+				if (!target) {
+					break;
+				}
+			}
+
+			Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
+			attackCount > 0 && attackCount % 15 === 0 && Skill.getRange(Config.AttackSkill[1]) < 4 && Packet.flash(me.gid);
+
+			if (!ClassAttack.doAttack(target, attackCount % 15 === 0)) {
+				Packet.flash(me.gid);
+			}
+
+			me.overhead("KillTarget: " + target.name + " health " + target.hpPercent + " % left");
+
+			attackCount += 1;
+
+			if (!target.attackable) {
 				break;
 			}
 		}
 
-		Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
-		attackCount > 0 && attackCount % 15 === 0 && Skill.getRange(Config.AttackSkill[1]) < 4 && Packet.flash(me.gid);
+		ClassAttack.afterAttack();
 
-		if (!ClassAttack.doAttack(target, attackCount % 15 === 0)) {
-			Packet.flash(me.gid);
+		if (!target || !target.attackable) {
+			Pickit.pickItems();
 		}
-
-		me.overhead("KillTarget: " + target.name + " health " + target.hpPercent + " % left");
-
-		attackCount += 1;
-
-		if (!target.attackable) {
-			break;
-		}
-	}
-
-	ClassAttack.afterAttack();
-
-	if (!target || !target.attackable) {
-		Pickit.pickItems();
+	} finally {
+		// re-enable
+		Misc.openChestsEnabled = true;
 	}
 
 	return true;
@@ -374,7 +382,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 	}
 
 	ClassAttack.afterAttack(pickit);
-	pickit && this.openChests(range, x, y);
+	pickit && Attack.openChests(range, x, y);
 	attackCount > 0 && pickit && Pickit.pickItems();
 
 	return true;

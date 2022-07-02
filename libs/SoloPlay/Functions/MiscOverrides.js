@@ -37,7 +37,10 @@ Misc.townCheck = function () {
 	return false;
 };
 
+Misc.openChestsEnabled = true;
+
 Misc.openChests = function (range = 15) {
+	if (!Misc.openChestsEnabled) return false;
 	let containers = [
 		"chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack",
 		"holeanim", "roguecorpse", "corpse", "tomb2", "tomb3", "chest3",

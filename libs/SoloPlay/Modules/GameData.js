@@ -155,9 +155,9 @@
 			return level / total;
 		},
 		killExp: function (playerID, monsterID, areaID) {
-			let exp = this.monsterExp(monsterID, areaID), party = getParty(GameData.myReference), partyid = -1,
-				level = 0, total = 0,
-				gamesize = 0;
+			let exp = this.monsterExp(monsterID, areaID), party = getParty(GameData.myReference), partyid = -1;
+			let level = 0, total = 0;
+			let gamesize = 0;
 
 			if (!party) {
 				return 0;
@@ -848,7 +848,7 @@
 				}
 			};
 			let calculateRawStaticDamage = function (distanceUnit) {
-				if (distanceUnit === void 0) { distanceUnit = me; }
+				distanceUnit === undefined && (distanceUnit = me);
 				if (!Skill.canUse(sdk.skills.StaticField)) return 0;
 				let range = Skill.getRange(sdk.skills.StaticField), cap = (me.gametype === sdk.game.gametype.Classic ? 1 : [1, 25, 50][me.diff]);
 				return getUnits(1)
@@ -1048,7 +1048,6 @@
 		],
 		monsterResist: function (unit, type) {
 			let stat = this.resistMap[type];
-
 			return stat ? (unit.getStat ? unit.getStat(stat) : MonsterData[unit][type]) : 0;
 		},
 		getConviction: function () {
@@ -1065,10 +1064,10 @@
 		},
 		monsterEffort: function (unit, areaID, skillDamageInfo = undefined, parent = undefined, preattack = false, all = false) {
 			let eret = {effort: Infinity, skill: -1, type: "Physical"};
-			let useCooldown = (typeof unit === 'number' ? false : Boolean(me.skillDelay)),
-				hp = this.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, areaID);
-			let conviction = this.getConviction(), ampDmg = this.getAmp(),
-				isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+			let useCooldown = (typeof unit === 'number' ? false : Boolean(me.skillDelay));
+			let hp = this.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, areaID);
+			let conviction = this.getConviction(), ampDmg = this.getAmp();
+			let isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
 			skillDamageInfo = skillDamageInfo || this.allSkillDamage(unit);
 			const allData = [];
 			// if (conviction && unit instanceof Unit && !unit.getState(sdk.states.Conviction)) conviction = 0; //ToDo; enable when fixed telestomp
@@ -1208,8 +1207,8 @@
 			if (areaID === undefined) { areaID = me.area; }
 			let eret = {effort: Infinity, skill: -1, type: "Physical"};
 			let hp = this.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, areaID);
-			let conviction = this.getConviction(), ampDmg = this.getAmp(),
-				isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+			let conviction = this.getConviction(), ampDmg = this.getAmp();
+			let isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
 			let skillDamageInfo = this.allSkillDamage(unit);
 			const allData = [];
 
@@ -1351,9 +1350,7 @@
 		},
 		areaSoloExp: function (areaID, skills) {
 			let procentageBroke = ((100 - Math.min(100, Math.max(0, (100 / (Config.LowGold || 1) * me.gold)))));
-
 			let brokeness = 1 + (procentageBroke / 100 / 3 * 1);
-
 			let effortpool = 0, raritypool = 0, dmgAcc = 0;
 
 			skills = skills || this.allSkillDamage();
@@ -1364,13 +1361,11 @@
 				dmgAcc += (rarity * this.monsterAvgDmg(mon.Index, areaID));
 			});
 
-
 			let log = 1, avgDmg = 0;
 			if (brokeness !== 1) {
 				log = ((5 - Math.log(areaID)) * (brokeness * 0.6));
 				avgDmg = (raritypool ? dmgAcc / raritypool : Infinity) * log;
 			}
-
 
 			return (raritypool ? effortpool / raritypool : 0) - (avgDmg);
 		},
@@ -1381,7 +1376,8 @@
 			for (let i = 50; i < 120; i++) {
 				try {
 					effort.push(GameData.monsterEffort(i, sdk.areas.ThroneOfDestruction));
-				} catch (e) {/*dontcare*/
+				} catch (e) {
+					/*dontcare*/
 				}
 			}
 
@@ -1405,7 +1401,6 @@
 					// In the end always return x
 					|| x
 				);
-
 
 			return (GameData.myReference.__cachedMostUsedSkills = uniqueSkills.sort((a, b) => b.used - a.used));
 		},
@@ -1794,20 +1789,22 @@
 	};
 
 	function calculateKillableFallensByFrostNova() {
-		let fallens = [sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2];
 		if (!Skill.canUse(sdk.skills.FrostNova)) return 0;
+		let fallens = [sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2];
+		let area = me.area;
 		return getUnits(1)
 			.filter(unit => !!unit && fallens.includes(unit.classid) && unit.distance < 7)
 			.filter(function (unit) {
 				return unit.attackable
 				&& typeof unit.x === 'number' // happens if monster despawns
 				&& !checkCollision(me, unit, Coords_1.Collision.BLOCK_MISSILE)
-				&& unit.getStat(sdk.stats.ColdResist) < 100
-				&& !unit.getState(sdk.states.Frozen);
+				&& unit.getStat(sdk.stats.ColdResist) < 100;
+				//&& !unit.getState(sdk.states.Frozen);
 			})
 			.reduce(function (acc, cur) {
-				let classId = cur.classid, areaId = cur.area, minDmg = GameData.skillDamage(sdk.skills.FrostNova, cur).min,
-					currentHealth = GameData.monsterMaxHP(classId, areaId, cur.charlvl - GameData.monsterLevel(classId, areaId)) / 100 * (cur.hp * 100 / cur.hpmax);
+				let classId = cur.classid, minDmg = GameData.skillDamage(sdk.skills.FrostNova, cur).min;
+				//let charLvl = GameData.monsterLevel(classId, area);
+				let currentHealth = GameData.monsterMaxHP(classId, area, cur.charlvl - GameData.monsterLevel(classId, area)) / 100 * (cur.hp * 100 / cur.hpmax);
 				if (currentHealth < minDmg) {
 					acc++;
 				}
@@ -1816,11 +1813,11 @@
 	}
 
 	function calculateKillableSummonsByNova() {
+		if (!Skill.canUse(sdk.skills.Nova)) return 0;
 		let summons = [
 			sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2,
 			sdk.monsters.BurningDead, sdk.monsters.Returned1, sdk.monsters.Returned2, sdk.monsters.BoneWarrior1, sdk.monsters.BoneWarrior2
 		];
-		if (!Skill.canUse(sdk.skills.Nova)) return 0;
 		return getUnits(1)
 			.filter(unit => !!unit && summons.includes(unit.classid) && unit.distance < 7)
 			.filter(function (unit) {
@@ -1830,8 +1827,8 @@
 				&& Attack.checkResist(unit, "lightning");
 			})
 			.reduce(function (acc, cur) {
-				let classId = cur.classid, areaId = cur.area, minDmg = GameData.skillDamage(sdk.skills.Nova, cur).min,
-					currentHealth = GameData.monsterMaxHP(classId, areaId, cur.charlvl - GameData.monsterLevel(classId, areaId)) / 100 * (cur.hp * 100 / cur.hpmax);
+				let classId = cur.classid, areaId = cur.area, minDmg = GameData.skillDamage(sdk.skills.Nova, cur).min;
+				let currentHealth = GameData.monsterMaxHP(classId, areaId, cur.charlvl - GameData.monsterLevel(classId, areaId)) / 100 * (cur.hp * 100 / cur.hpmax);
 				if (currentHealth < minDmg) {
 					acc++;
 				}
@@ -1841,9 +1838,7 @@
 
 	Object.defineProperty(Unit.prototype, 'currentVelocity', {
 		get: function () {
-			if (!this.isMoving || this.isFrozen) {
-				return 0;
-			}
+			if (!this.isMoving || this.isFrozen) return 0;
 			let velocity = this.isRunning ? MonsterData[this.classid].Run : MonsterData[this.classid].Velocity;
 			if (this.isChilled) {
 				let malus = MonsterData[this.classid].ColdEffect;
