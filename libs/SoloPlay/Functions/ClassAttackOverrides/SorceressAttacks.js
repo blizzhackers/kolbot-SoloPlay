@@ -18,18 +18,32 @@ const slowable = function (unit, freezeable = false) {
 };
 
 const frostNovaCheck = function () {
-	return getUnits(1).some(function(el) {
-		return !!el && el.distance < 7 && el.attackable
-			&& ![sdk.monsters.Andariel].includes(el.classid)
-			&& !el.isChilled && Attack.checkResist(el, 'cold')
-			&& !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
-	});
+	// return getUnits(1).some(function(el) {
+	// 	return !!el && el.distance < 7 && el.attackable
+	// 		&& ![sdk.monsters.Andariel].includes(el.classid)
+	// 		&& !el.isChilled && Attack.checkResist(el, 'cold')
+	// 		&& !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE);
+	// });
+
+	// don't build whole list - since we are just trying if at least one passes the test
+	// todo - test to time difference between these two methods
+	let mob = getUnit(sdk.unittype.Monster);
+	if (mob) {
+		do {
+			if (mob.distance < 7 && ![sdk.monsters.Andariel].includes(mob.classid) && mob.attackable
+				&& !mob.isChilled && Attack.checkResist(mob, 'cold') && !checkCollision(me, mob, Coords_1.Collision.BLOCK_MISSILE)) {
+				return true;
+			}
+		} while (mob.getNext());
+	}
+	return false;
 };
 
 const inDanger = function () {
-	let nearUnits = getUnits(sdk.unittype.Monster).filter((mon) => mon.attackable && mon.distance < 10);
+	let nearUnits = getUnits(sdk.unittype.Monster).filter((mon) => mon && mon.attackable && mon.distance < 10);
+	if (nearUnits.length > me.maxNearMonsters) return true;
 	let dangerClose = nearUnits.find(mon => [sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted].some(chant => mon.getEnchant(chant)));
-	return nearUnits.length > me.maxNearMonsters || dangerClose;
+	return dangerClose;
 };
 
 ClassAttack.doAttack = function (unit, skipStatic = false) {
@@ -52,6 +66,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 				console.debug("Lost reference to unit");
 				return 1;
 			}
+			gold = me.gold; // reset value after town
 		}
 	}
 
@@ -165,6 +180,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	if (unit === undefined || !unit || !unit.attackable) return 1;
 
 	// Set damage values
+	// redo gamedata to be more efficent
 	if (data.static.have) {
 		data.static.dmg = GameData.avgSkillDamage(data.static.skill, unit);
 		data.static.mana = Skill.getManaCost(sdk.skills.StaticField);

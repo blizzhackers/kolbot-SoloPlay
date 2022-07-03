@@ -426,9 +426,10 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	if (typeof x !== "number" || typeof y !== "number") throw new Error("moveTo: Coords must be numbers");
 	if (getDistance(me, x, y) < 2) return true;
 
-	let useTeleport = this.useTeleport();
-	let useChargedTele = this.canUseTeleCharges();
-	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
+	let inTown = me.inTown;
+	let useTeleport = !inTown && this.useTeleport();
+	let useChargedTele = !inTown && this.canUseTeleCharges();
+	let tpMana = inTown ? Infinity : Skill.getManaCost(sdk.skills.Teleport);
 	let clearSettings = {
 		clearPath: (!!clearPath || (!useTeleport && !useChargedTele)), // walking characters need to clear in front of them
 		range: 10,

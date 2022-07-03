@@ -49,13 +49,15 @@ Pickit.checkItem = function (unit) {
 		};
 	}
 
-	let durability = unit.getStat(72);
-
-	if (unit.getStat(73) > 0 && typeof durability === "number" && durability * 100 / unit.getStat(73) <= 0) {
-		return {
-			result: 4,
-			line: null
-		};
+	if (rval.result === 1) {
+		let durability = unit.getStat(72);
+		
+		if (typeof durability === "number" && unit.getStat(73) > 0 && durability * 100 / unit.getStat(73) <= 0) {
+			return {
+				result: 4,
+				line: null
+			};
+		}
 	}
 
 	if (SoloWants.checkItem(unit)) {
@@ -188,8 +190,7 @@ Pickit.amountOfPotsNeeded = function () {
 				needed[pot.itemType][pot.location] -= 1;
 			});
 	}
-	let belt = Storage.BeltSize();
-	let missing = Town.checkColumns(belt);
+	let missing = Town.checkColumns(Pickit.beltSize);
 	Config.BeltColumn.forEach(function (column, index) {
 		if (column === 'hp') {needed[sdk.itemtype.HealingPotion][sdk.storage.Belt] = missing[index];}
 		if (column === 'mp') {needed[sdk.itemtype.ManaPotion][sdk.storage.Belt] = missing[index];}
@@ -360,7 +361,7 @@ Pickit.canPick = function (unit) {
 				do {
 					if (potion.itemType === unit.itemType && ((potion.mode === 0 && potion.location === 3) || potion.mode === 2)) {
 						if (potion.classid < unit.classid) {
-							potion.interact();
+							potion.use();
 							needPots += 1;
 
 							break;
@@ -447,7 +448,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			Skill.cast(sdk.skills.Telekinesis, 0, item);
 		} else {
 			if (item.distance > (Config.FastPick || i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
-				if (item.getMobCount(8, 0x1 | 0x400 | 0x800) !== 0) {
+				if (item.checkForMobs({range: 8, coll: (0x1 | 0x400 | 0x800)})) {
 					print("ÿc8PickItemÿc0 :: Clearing area around item I want to pick");
 					Pickit.enabled = false;		// Don't pick while trying to clear
 					Attack.clearPos(item.x, item.y, 10, false);
@@ -553,13 +554,11 @@ Pickit.pickItem = function (unit, status, keptLine) {
 };
 
 Pickit.pickItems = function (range = Config.PickRange, once = false) {
+	if (me.dead || range < 0 || !Pickit.enabled) return false;
+	
 	let status, canFit;
 	let needMule = false;
 	let pickList = [];
-
-	Town.clearBelt();
-
-	if (me.dead || range < 0 || !Pickit.enabled) return false;
 
 	while (!me.idle) {
 		delay(40);
@@ -575,6 +574,11 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 		} while (item.getNext());
 	}
 
+	if (pickList.some(i => [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion].includes(i.itemType))) {
+		Town.clearBelt();
+		Pickit.beltSize = Storage.BeltSize();
+	}
+
 	while (pickList.length > 0) {
 		if (me.dead || !Pickit.enabled) return false;
 
@@ -588,7 +592,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 			status = this.checkItem(pickList[0]);
 
 			if (status.result && Pickit.canPick(pickList[0])) {
-				canFit = this.canFit(pickList[0]);
+				canFit = (Storage.Inventory.CanFit(pickList[0]) || Pickit.canFit(pickList[0]));
 
 				// Field id when our used space is above a certain percent or if we are full try to make room with FieldID
 				if (Config.FieldID.Enabled && (!canFit || Storage.Inventory.UsedSpacePercent() > Config.FieldID.UsedSpace)) {

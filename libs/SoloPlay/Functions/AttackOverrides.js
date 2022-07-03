@@ -298,12 +298,6 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 		monsterList.sort(this.sortMonsters);
 		target = copyUnit(monsterList[0]);
 
-		if ([29, 30, 31].indexOf(me.area) > -1 && me.amazon && me.hell) {
-			if ([11, 12, 13, 14].indexOf(target.classid) > -1) {
-				Attack.stopClear = true;
-			}
-		}
-
 		if (target.x !== undefined
 			&& (getDistance(target, x, y) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && target.attackable) {
 			Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
@@ -333,8 +327,8 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 				attackCount += 1;
 				secAttack = me.barbarian ? ((target.spectype & 0x7) ? 2 : 4) : 5;
 
-				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3]) ||
-						(me.paladin && Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3] === 112 && !ClassAttack.getHammerPosition(target)))) {
+				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3])
+						|| (me.paladin && Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3] === 112 && !ClassAttack.getHammerPosition(target)))) {
 					skillCheck = Config.AttackSkill[secAttack];
 				} else {
 					skillCheck = Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3];
@@ -384,6 +378,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 	ClassAttack.afterAttack(pickit);
 	pickit && Attack.openChests(range, x, y);
 	attackCount > 0 && pickit && Pickit.pickItems();
+	Pather.moveTo(x, y);
 
 	return true;
 };

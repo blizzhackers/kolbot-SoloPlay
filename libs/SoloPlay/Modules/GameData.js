@@ -785,13 +785,17 @@
 
 			return dmg;
 		},
+		// todo - build me metadata - then use it to calulate a range of skills rather than redo the exact same calculations
+		// example - trying to check the damage of blizard and then frozen orb
+		// currently it would check our stats, then check amp and conviction - those could all be pre-built as they aren't going to change
 		avgSkillDamage: function (skillID, unit) {
 			if (skillID === undefined || unit === undefined || !skillID || !unit || !Skill.canUse(skillID)) return 0;
 			let skillToCheck, avgDmg;
 			let getTotalDmg = function (skillData, unit) {
+				let ampDmg = Skill.canUse(66) ? 100 : (Skill.canUse(87) ? 50 : 0);
 				let avgPDmg = (skillData.pmin + skillData.pmax) / 2, totalDmg = 0, avgDmg = (skillData.min + skillData.max) / 2;
-				let hp = GameData.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, me.area);
-				let conviction = GameData.getConviction(), ampDmg = GameData.getAmp(), isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+				//let hp = GameData.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, me.area);
+				let conviction = GameData.getConviction(), isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
 				if (avgPDmg > 0) {
 					let presist = GameData.monsterResist(unit, "Physical");
 					presist -= (presist >= 100 ? ampDmg / 5 : ampDmg);
@@ -851,17 +855,16 @@
 				distanceUnit === undefined && (distanceUnit = me);
 				if (!Skill.canUse(sdk.skills.StaticField)) return 0;
 				let range = Skill.getRange(sdk.skills.StaticField), cap = (me.gametype === sdk.game.gametype.Classic ? 1 : [1, 25, 50][me.diff]);
+				let pierce = me.getStat(sdk.stats.PierceLtng);
 				return getUnits(1)
 					.filter(function (mon) {
 						return mon.attackable && getDistance(mon, distanceUnit) < range;
-						// && !isBlockedBetween(distanceUnit, mon)
 					}).reduce(function (acc, unit) {
 						let classId = unit.classid, areaId = unit.area;
 						let maxHealth = GameData.monsterAvgHP(classId, areaId, unit.charlvl - GameData.monsterLevel(classId, areaId));
 						let currentHealth = maxHealth / 100 * (unit.hp * 100 / unit.hpmax), baseDamage = currentHealth * 0.25;
 						// monsterRes already considers conviction state
 						let monsterRes = unit.getStat(sdk.stats.LightResist);
-						let pierce = me.getStat(sdk.stats.PierceLtng);
 						let totalRes = Math.min(100, Math.max(-100, monsterRes - pierce));
 						// calculate the actual damage we do
 						let potentialDamage = baseDamage / (100 / (100 - totalRes));
@@ -1054,7 +1057,7 @@
 			let merc = GameData.myReference.getMerc(), sl = this.skillLevel(123); // conviction
 			if (( // Either me, or merc is wearing a conviction
 				merc && merc.getItemsEx().filter(item => item.getPrefix(sdk.locale.items.Infinity)).first()
-				|| GameData.myReference.getItemsEx().filter(item => item.getPrefix(sdk.locale.items.Infinity)).first())) {
+				|| GameData.myReference.getItemsEx(-1, 1).filter(item => item.getPrefix(sdk.locale.items.Infinity)).first())) {
 				sl = 12;
 			}
 			return sl > 0 ? Math.min(150, 30 + (sl - 1) * 5) : 0;

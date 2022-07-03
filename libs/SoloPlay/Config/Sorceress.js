@@ -67,7 +67,6 @@ function LoadConfig () {
 	Config.FieldID.UsedSpace = 80; // how much space has been used before trying to field id, set to 0 to id after every item picked
 	//	Config.PickitFiles.push("kolton.nip");
 	//	Config.PickitFiles.push("LLD.nip");
-	//Config.PickitFiles.push("test.nip");
 
 	/* Gambling configuration. */
 	Config.Gamble = true;
@@ -138,6 +137,10 @@ function LoadConfig () {
 		"me.mercid === 338 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
+	if (SetUp.currentBuild !== "Start") {
+		NTIP.addLine("([type] == orb || [type] == wand || [type] == sword || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] == ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
+	}
+
 	NTIP.arrayLooping(levelingTiers);
 	me.expansion && NTIP.arrayLooping(expansionTiers);
 
@@ -148,12 +151,12 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = false;
 	Config.ClearType = 0;
-	Config.ClearPath = {Range: 30, Spectype: 0};
+	Config.ClearPath = {Range: 30, Spectype: (me.hell && Pather.canTeleport() ? 0xF : 0)};
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];
 	Config.SkipAura = [];
-	me.lightRes < 75 && Config.SkipEnchant.push("lightning enchanted");
+	Pather.canTeleport() && me.lightRes < 75 && Config.SkipEnchant.push("lightning enchanted");
 
 	/* Shrine scan configuration. */
 	Config.ScanShrines = [
@@ -175,7 +178,7 @@ function LoadConfig () {
 	];
 
 	/* Class specific configuration. */
-	Config.UseTelekinesis = !!me.getSkill(sdk.skills.Telekinesis, 0); // use telekinesis if have skill
+	Config.UseTelekinesis = true; // use telekinesis if have skill
 	Config.UseColdArmor = true;
 	Config.Dodge = !!(me.charlvl >= Config.respecOne); // Move away from monsters that get too close. Don't use with short-ranged attacks like Poison Dagger.
 	Config.DodgeRange = 15; // Distance to keep from monsters.
