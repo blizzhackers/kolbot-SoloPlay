@@ -8,8 +8,6 @@
 
 !isIncluded('libs/common/Prototypes.js') && include('libs/common/Prototypes.js');
 
-sdk.skills.tabs.BarbCombat = 32;
-
 Unit.prototype.getResPenalty = function (difficulty) {
 	difficulty > 2 && (difficulty = 2);
 	return me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][difficulty] : [0, 40, 100][difficulty];
@@ -322,7 +320,6 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 
 		CharData.skillData.chargedSkills.forEach(chargeSkill => {
 			if (chargeSkill.skill === skillId) {
-				console.debug(chargeSkill);
 				let item = me.getItem(-1, sdk.itemmode.Equipped, chargeSkill.gid);
 				!!item && chargedItems.push({
 					charge: chargeSkill.skill,
@@ -434,7 +431,6 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 
 		CharData.skillData.chargedSkillsOnSwitch.forEach(chargeSkill => {
 			if (chargeSkill.skill === skillId) {
-				console.debug(chargeSkill);
 				let item = me.getItem(-1, sdk.itemmode.Equipped, chargeSkill.gid);
 				!!item && chargedItems.push({
 					charge: chargeSkill.skill,

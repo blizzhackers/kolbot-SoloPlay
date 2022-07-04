@@ -38,25 +38,25 @@ ClassAttack.doAttack = function (unit, preattack) {
 	if (index === 1 && !unit.dead && unit.curseable) {
 		let commonCheck = (gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
 
-		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
+		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
 			&& (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
 
-		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight)
+		if (CharData.skillData.haveChargedSkill(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight)
 			&& gold > 500000 && !checkCollision(me, unit, 0x4)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.InnerSight, unit);
 		}
 
-		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Decrepify)
+		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Decrepify)
 			&& !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, 0x4)) {
 			// Switch cast decrepify
 			Attack.switchCastCharges(sdk.skills.Decrepify, unit);
 		}
 		
-		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Weaken)
+		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
 			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, 0x4)) {
 			// Switch cast weaken
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);

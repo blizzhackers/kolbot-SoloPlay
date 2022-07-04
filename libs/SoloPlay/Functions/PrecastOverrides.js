@@ -53,7 +53,7 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 			me.weaponswitch !== primary && me.switchWeapons(primary);
 		}
 
-		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.Enchant) && !me.getState(sdk.states.Enchant) && me.gold > 500000) {
+		if (CharData.skillData.haveChargedSkill(sdk.skills.Enchant) && !me.getState(sdk.states.Enchant) && me.gold > 500000) {
 			// Cast enchant
 			Attack.castCharges(sdk.skills.Enchant, me);
 		}

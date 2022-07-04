@@ -162,7 +162,7 @@ ClassAttack.doAttack = function (unit) {
 	this.smartCurse(unit);
 
 	if (me.expansion && index === 1 && !unit.dead) {
-		if (CharData.skillData.currentChargedSkills.includes(sdk.skills.SlowMissiles)
+		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
 			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
 			&& unit.curseable && (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
 			// Cast slow missiles

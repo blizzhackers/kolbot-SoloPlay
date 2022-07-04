@@ -76,13 +76,13 @@ ClassAttack.doAttack = function (unit, preattack) {
 	// Handle Switch casting
 	let commonCheck = (gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
 	if (me.expansion && index === 1 && unit.curseable) {
-		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)
+		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
 			&& !unit.getState(sdk.states.LowerResist) && commonCheck && !checkCollision(me, unit, 0x4)) {
 			// Switch cast lower resist
 			Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 		}
 
-		if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.Weaken) && !unit.getState(sdk.states.Weaken)
+		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken) && !unit.getState(sdk.states.Weaken)
 			&& !unit.getState(sdk.states.LowerResist) && commonCheck && !checkCollision(me, unit, 0x4)) {
 			// Switch cast weaken
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);
@@ -130,7 +130,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 			// Handle Switch casting
 			if (!unit.dead) {
-				if (CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)
+				if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
 					&& !unit.getState(sdk.states.LowerResist) && unit.curseable && commonCheck && !checkCollision(me, unit, 0x4)) {
 					// Switch cast lower resist
 					Attack.switchCastCharges(sdk.skills.LowerResist, unit);
