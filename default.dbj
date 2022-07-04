@@ -41,6 +41,7 @@ function main () {
 		include("SoloPlay/Functions/ConfigOverrides.js");
 		include("SoloPlay/Functions/Globals.js");
 		SetUp.include();
+		SetUp.init();
 	}
 
 	if (getScript("d2botmap.dbj")) {

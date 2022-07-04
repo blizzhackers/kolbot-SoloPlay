@@ -31,12 +31,36 @@ const Merc = {
 		return merc;
 	},
 
+	checkMercSkill: function (wanted = "", merc = undefined) {
+		merc = !!merc ? merc : me.getMerc();
+		if (!merc) return false;
+		let mercSkill = merc.getStat(sdk.stats.ModifierListSkill);
+
+		// only a2 mercs for now, need to test others to see if above returns their skill
+		switch (wanted.toLowerCase()) {
+		case "defiance":
+			return mercSkill === sdk.skills.Defiance;
+		case "prayer":
+			return mercSkill === sdk.skills.Prayer;
+		case "blessed aim":
+			return mercSkill === sdk.skills.BlessedAim;
+		case "thorns":
+			return mercSkill === sdk.skills.Thorns;
+		case "holy freeze":
+			return mercSkill === sdk.skills.HolyFreeze;
+		case "might":
+			return mercSkill === sdk.skills.Might;
+		default:
+			return false;
+		}
+	},
+
 	// only supports act 2 mercs for now
 	hireMerc: function () {
 		if (me.classic) return true;
+		let _a;
 		let {mercAct, mercAuraWanted, mercDiff} = Check.finalBuild();
 		let typeOfMerc = (!Pather.accessToAct(2) && me.normal ? 1 : mercAct);
-		let _a;
 		let tmpAuraName = "Defiance";
 
 		// don't hire if using correct a1 merc, or passed merc hire difficulty
@@ -54,14 +78,29 @@ const Merc = {
 		case me.diff === mercDiff && !Pather.accessToAct(mercAct):
 		case myData.merc.type === mercAuraWanted:
 		case me.diff !== mercDiff && myData.merc.type === "Defiance":
-		case me.charlvl > Config.levelCap + 10:
+		case (me.charlvl > Config.levelCap + 10 && Merc.checkMercSkill(myData.merc.type)):
 		case me.gold < Math.round((((me.charlvl - 1) * (me.charlvl - 1)) / 2) * 7.5):
 		case this.minCost > 0 && me.gold < this.minCost:
 			return true;
 		}
+		
+		// lets check what our current actually merc is
+		let checkMyMerc = Misc.poll(() => me.getMerc(), 50, 500);
+		let wantedSkill = (typeOfMerc === 1 ? 'Cold Arrow' : me.normal ? tmpAuraName : mercAuraWanted);
+		if (checkMyMerc && Merc.checkMercSkill(wantedSkill, checkMyMerc)) {
+			// we have our wanted merc, data file was probably erased so lets re-update it
+			myData.merc.act = me.act;
+			myData.merc.classid = checkMyMerc.classid;
+			myData.merc.difficulty = me.diff;
+			myData.merc.type = wantedSkill;
+			CharData.updateData("merc", myData) && updateMyData();
+			return true;
+		} else if (!!checkMyMerc && checkMyMerc.classid === sdk.monsters.mercs.Guard && !checkMyMerc.getStat(sdk.stats.ModifierListSkill)) {
+			// aura isn't active so we can't check it
+			return true;
+		}
 
 		let MercLib_1 = require("../Modules/MercLib");
-		let wantedSkill = (typeOfMerc === 1 ? 'Cold Arrow' : me.normal ? tmpAuraName : mercAuraWanted);
 		try {
 			Town.goToTown(typeOfMerc);
 			myPrint("ÿc9Mercenaryÿc0 :: getting merc");
@@ -73,18 +112,15 @@ const Merc = {
 			Town.initNPC("Merc", "getMerc");
 			let wantedMerc = MercLib_1.default
 				.filter((merc) => merc.skills.some((skill) => (skill === null || skill === void 0 ? void 0 : skill.name) === wantedSkill))
-				.sort(function (_a, _b) {
-					let a = _a.level;
-					let b = _b.level;
-					return b - a;
-				}).first();
+				.sort((a, b) => b.level - a.level)
+				.first();
 			if (wantedMerc) {
 				if (wantedMerc.cost > me.gold) {
 					this.minCost = wantedMerc.cost;
 					throw new Error();
 				}
 				let oldGid_1 = (_a = me.getMerc()) === null || _a === void 0 ? void 0 : _a.gid;
-				console.log('ÿc9ÿc9Mercenaryÿc0 :: Found a merc to hire ' + JSON.stringify(wantedMerc));
+				console.log('ÿc9Mercenaryÿc0 :: Found a merc to hire ' + JSON.stringify(wantedMerc));
 				wantedMerc === null || wantedMerc === void 0 ? void 0 : wantedMerc.hire();
 				let newMerc = Misc.poll(function () {
 					let merc = me.getMerc();
@@ -100,7 +136,7 @@ const Merc = {
 					myData.merc.difficulty = me.diff;
 					myData.merc.type = wantedMerc.skills.find(sk => sk.name === wantedSkill).name;
 					CharData.updateData("merc", myData) && updateMyData();
-					console.log('ÿc9ÿc9Mercenaryÿc0 :: ' + myData.merc.type + ' merc hired.');
+					console.log('ÿc9Mercenaryÿc0 :: ' + myData.merc.type + ' merc hired.');
 				}
 				me.cancelUIFlags();
 				while (getInteractedNPC()) {

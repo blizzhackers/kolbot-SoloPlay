@@ -25,6 +25,7 @@ const CharData = {
 			socketUsed: false,
 		},
 		me: {
+			task: "",
 			startTime: 0,
 			charName: "",
 			classid: -1,
@@ -43,6 +44,7 @@ const CharData = {
 			classid: 271,
 			difficulty: 0,
 			type: "",
+			gear: [],
 		}
 	},
 
@@ -169,10 +171,12 @@ const CharData = {
 	skillData: {
 		skills: [],
 		currentChargedSkills: [],
+		chargedSkills: [],
 		chargedSkillsOnSwitch: [],
 
-		init: function (all, switchSkills) {
-			this.currentChargedSkills = all.slice(0);
+		init: function (skillIds, mainSkills, switchSkills) {
+			this.currentChargedSkills = skillIds.slice(0);
+			this.chargedSkills = mainSkills.slice(0);
 			this.chargedSkillsOnSwitch = switchSkills.slice(0);
 			this.skills = me.getSkill(4).map((skill) => skill[0]);
 		},
@@ -188,6 +192,16 @@ const CharData = {
 				}
 			});
 		},
+
+		haveChargedSkill: function (skillid = []) {
+			// convert to array if not one
+			!Array.isArray(skillid) && (skillid = [skillid]);
+			return this.currentChargedSkills.some(s => skillid.includes(s));
+		},
+
+		haveChargedSkillOnSwitch: function (skillid = 0) {
+			return this.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === skillid);
+		}
 	},
 
 	// updates config obj across all threads - excluding our current

@@ -6,8 +6,7 @@
 */
 
 function templeruns () {
-	print('ÿc8Kolbot-SoloPlayÿc0: starting temple runs');
-	me.overhead("temple runs");
+	myPrint('starting temple runs');
 
 	let temples = [
 		[sdk.areas.FlayerJungle, sdk.areas.LowerKurast], [sdk.areas.KurastBazaar, sdk.areas.RuinedTemple],

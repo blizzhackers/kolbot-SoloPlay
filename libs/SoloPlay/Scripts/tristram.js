@@ -1,6 +1,7 @@
 /**
 *  @filename    tristram.js
-*  @author      theBGuy, isid0re
+*  @author      theBGuy
+*  @credit      sonic, autosmurf
 *  @desc        rescue cain and leveling
 *
 */
@@ -55,19 +56,22 @@ function tristram () {
 
 	if (!Misc.checkQuest(4, 4) && me.getItem(sdk.items.quest.KeytotheCairnStones)) {
 		try {
-			// go to tristram @jaenster
 			let stones = [
-				getUnit(2, 17),
-				getUnit(2, 18),
-				getUnit(2, 19),
-				getUnit(2, 20),
-				getUnit(2, 21)
+				object(sdk.quest.chest.StoneAlpha),
+				object(sdk.quest.chest.StoneBeta),
+				object(sdk.quest.chest.StoneGamma),
+				object(sdk.quest.chest.StoneDelta),
+				object(sdk.quest.chest.StoneLambda)
 			];
 
 			while (stones.some((stone) => !stone.mode)) {
-				for (let i = 0, stone = void 0; i < stones.length; i++) {
-					stone = stones[i];
-					Misc.openChest(stone);
+				for (let i = 0; i < stones.length; i++) {
+					let stone = stones[i];
+
+					if (Misc.openChest(stone)) {
+						stones.splice(i, 1);
+						i--;
+					}
 					Attack.securePosition(me.x, me.y, 10, 0);
 					delay(10);
 				}

@@ -1,7 +1,8 @@
-/*
-*	@filename	bloodraven.js
-*	@author		theBGuy
-*	@desc		kill bloodraven for free merc normal and maus/crypt MF hunting for endgame
+/**
+*  @filename    bloodraven.js
+*  @author      theBGuy
+*  @desc        kill bloodraven for free merc normal and maus/crypt MF hunting for endgame
+*
 */
 
 function bloodraven () {
@@ -11,16 +12,23 @@ function bloodraven () {
 	if (!Pather.checkWP(sdk.areas.StonyField, true)) {
 		Pather.getWP(sdk.areas.StonyField);
 		me.charlvl < 6 && Attack.clearLevelUntilLevel(6);
-
 	} else {
-		Pather.useWaypoint(sdk.areas.ColdPlains);
+		if (me.hell && Pather.canTeleport() && me.charlvl < 74/*xp penalty makes this not worth it after 74*/) {
+			Misc.getExpShrine([sdk.areas.StonyField, sdk.areas.ColdPlains, sdk.areas.DarkWood, sdk.areas.BloodMoor]);
+			if (me.area !== sdk.areas.ColdPlains) {
+				Town.goToTown() && Pather.useWaypoint(sdk.areas.ColdPlains);
+			}
+		} else {
+			Pather.useWaypoint(sdk.areas.ColdPlains);
+			me.charlvl < 6 && Attack.clearLevelUntilLevel(6);
+		}
 	}
 
 	Precast.doPrecast(true);
 
 	me.overhead("blood raven");
 	Pather.moveToExit(sdk.areas.BurialGrounds, true);
-	me.sorceress && !me.normal ? Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805, 10) : Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805);
+	me.sorceress && !me.normal ? Pather.moveNearPreset(sdk.areas.BurialGrounds, 1, 805, 20) : Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805);
 	Attack.killTarget("Blood Raven");
 	Pickit.pickItems();
 
@@ -31,8 +39,7 @@ function bloodraven () {
 		return true;
 	}
 
-	print('ÿc8Kolbot-SoloPlayÿc0: blood raven :: starting mausoleum');
-	me.overhead("mausoleum");
+	myPrint('blood raven :: starting mausoleum');
 
 	if (!Pather.moveToExit([sdk.areas.BurialGrounds, sdk.areas.Mausoleum], true)) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Mausoleum");
@@ -59,8 +66,7 @@ function bloodraven () {
 		return true;
 	}
 
-	me.overhead("crypt");
-	print('ÿc8Kolbot-SoloPlayÿc0: blood raven :: starting crypt');
+	myPrint('blood raven :: starting crypt');
 	Pather.journeyTo(sdk.areas.Crypt) && Attack.clearLevel();
 	
 	return true;

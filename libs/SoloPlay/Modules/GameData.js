@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-irregular-whitespace */
 /**
  *    @filename  GameData.js
  *    @author    Nishimura-Katsuo
@@ -6,7 +8,7 @@
 (function (module, require) {
 	const MonsterData = require('./MonsterData');
 	const AreaData = require('./AreaData');
-	const MissileData = require('../Modules/MissileData');
+	const MissileData = require('./MissileData');
 	const Coords_1 = require("./Coords");
 	const sdk = require("../../modules/sdk");
 
@@ -153,9 +155,9 @@
 			return level / total;
 		},
 		killExp: function (playerID, monsterID, areaID) {
-			let exp = this.monsterExp(monsterID, areaID), party = getParty(GameData.myReference), partyid = -1,
-				level = 0, total = 0,
-				gamesize = 0;
+			let exp = this.monsterExp(monsterID, areaID), party = getParty(GameData.myReference), partyid = -1;
+			let level = 0, total = 0;
+			let gamesize = 0;
 
 			if (!party) {
 				return 0;
@@ -478,56 +480,56 @@
 				eliteBonus = (target.spectype && target.spectype & 0x7) ? 1 : 0, hitcap = 1;
 
 			switch (skillID) { // charged bolt/strike excluded, it's so unreliably random
-				case 15: // poison javalin
-				case 25: // plague javalin
-				case 16: // exploding arrow
-				case 27: // immolation arrow
-				case 31: // freezing arrow
-				case 35: // lightning fury
-				case 44: // frost nova
-				case 48: // nova
-				case 56: // meteor
-				case 59: // blizzard
-				case 64: // frozen orb
-				case 83: // poison explosion
-				case 92: // poison nova
-				case 112: // blessed hammer
-				case 154: // war cry
-				case 229: // molten boulder
-				case 234: // fissure
-				case 249: // armageddon
-				case 244: // volcano
-				case 250: // hurricane
-				case 251: // fireblast
-				case 261: // charged bolt sentry
-				case 262: // wake of fire
-				case 55: // glacial spike
-				case 47: // fire ball
-				case 42: // Static field.
-				case 38: // charged bolt
-					hitcap = Infinity;
-					break;
-				case 34: // lightning strike
-					hitcap = 1 + this.skillLevel(34);
-					break;
-				case 67: // teeth
-					hitcap = 1 + this.skillLevel(67);
-					break;
-				case 53: // chain lightning
-					hitcap = 5 + ((this.skillLevel(53) / 5) | 0);
-					break;
-				case 24:
-					hitcap = 3 + ((this.skillLevel(24) / 5) | 0);
-					break;
-				case 49: // lightning
-				case 84: // bone spear
-				case 271: // lightning sentry
-				case 276: // death sentry
-					hitcap = aps ? Math.sqrt(aps / Math.PI) * 2 : 1;
-					break;
-				default:
-					hitcap = 1;
-					break;
+			case 15: // poison javalin
+			case 25: // plague javalin
+			case 16: // exploding arrow
+			case 27: // immolation arrow
+			case 31: // freezing arrow
+			case 35: // lightning fury
+			case 44: // frost nova
+			case 48: // nova
+			case 56: // meteor
+			case 59: // blizzard
+			case 64: // frozen orb
+			case 83: // poison explosion
+			case 92: // poison nova
+			case 112: // blessed hammer
+			case 154: // war cry
+			case 229: // molten boulder
+			case 234: // fissure
+			case 249: // armageddon
+			case 244: // volcano
+			case 250: // hurricane
+			case 251: // fireblast
+			case 261: // charged bolt sentry
+			case 262: // wake of fire
+			case 55: // glacial spike
+			case 47: // fire ball
+			case 42: // Static field.
+			case 38: // charged bolt
+				hitcap = Infinity;
+				break;
+			case 34: // lightning strike
+				hitcap = 1 + this.skillLevel(34);
+				break;
+			case 67: // teeth
+				hitcap = 1 + this.skillLevel(67);
+				break;
+			case 53: // chain lightning
+				hitcap = 5 + ((this.skillLevel(53) / 5) | 0);
+				break;
+			case 24:
+				hitcap = 3 + ((this.skillLevel(24) / 5) | 0);
+				break;
+			case 49: // lightning
+			case 84: // bone spear
+			case 271: // lightning sentry
+			case 276: // death sentry
+				hitcap = aps ? Math.sqrt(aps / Math.PI) * 2 : 1;
+				break;
+			default:
+				hitcap = 1;
+				break;
 			}
 
 			if (typeof target !== 'number') {
@@ -599,31 +601,31 @@
 			}
 
 			switch (dmg.type) {
-				case "Fire": // fire mastery
-					mastery = 1 + GameData.myReference.getStat(329) / 100;
-					dmg.min *= mastery;
-					dmg.max *= mastery;
-					break;
-				case "Lightning": // lightning mastery
-					mastery = 1 + GameData.myReference.getStat(330) / 100;
-					dmg.min *= mastery;
-					dmg.max *= mastery;
-					break;
-				case "Cold": // cold mastery
-					mastery = 1 + GameData.myReference.getStat(331) / 100;
-					dmg.min *= mastery;
-					dmg.max *= mastery;
-					break;
-				case "Poison": // poison mastery
-					mastery = 1 + GameData.myReference.getStat(332) / 100;
-					dmg.min *= mastery;
-					dmg.max *= mastery;
-					break;
-				case "Magic": // magic mastery
-					mastery = 1 + GameData.myReference.getStat(357) / 100;
-					dmg.min *= mastery;
-					dmg.max *= mastery;
-					break;
+			case "Fire": // fire mastery
+				mastery = 1 + GameData.myReference.getStat(329) / 100;
+				dmg.min *= mastery;
+				dmg.max *= mastery;
+				break;
+			case "Lightning": // lightning mastery
+				mastery = 1 + GameData.myReference.getStat(330) / 100;
+				dmg.min *= mastery;
+				dmg.max *= mastery;
+				break;
+			case "Cold": // cold mastery
+				mastery = 1 + GameData.myReference.getStat(331) / 100;
+				dmg.min *= mastery;
+				dmg.max *= mastery;
+				break;
+			case "Poison": // poison mastery
+				mastery = 1 + GameData.myReference.getStat(332) / 100;
+				dmg.min *= mastery;
+				dmg.max *= mastery;
+				break;
+			case "Magic": // magic mastery
+				mastery = 1 + GameData.myReference.getStat(357) / 100;
+				dmg.min *= mastery;
+				dmg.max *= mastery;
+				break;
 			}
 
 			dmg.pmin *= psynergy;
@@ -636,23 +638,23 @@
 			dmg.max *= synergy;
 
 			switch (skillID) {
-				case 102: // holy fire
-					dmg.min *= 6; // weapon damage is 6x the aura damage
-					dmg.max *= 6;
-					break;
-				case 114: // holy freeze
-					dmg.min *= 5; // weapon damage is 5x the aura damage
-					dmg.max *= 5;
-					break;
-				case 118: // holy shock
-					dmg.min *= 6; // weapon damage is 6x the aura damage
-					dmg.max *= 6;
-					break;
-				case 249: // armageddon
-					dmg.pmin = dmg.pmax = 0;
-					break;
-				case 24: // charged strike
-					dmg.max *= 3 + ((this.skillLevel(24) / 5) | 0);
+			case 102: // holy fire
+				dmg.min *= 6; // weapon damage is 6x the aura damage
+				dmg.max *= 6;
+				break;
+			case 114: // holy freeze
+				dmg.min *= 5; // weapon damage is 5x the aura damage
+				dmg.max *= 5;
+				break;
+			case 118: // holy shock
+				dmg.min *= 6; // weapon damage is 6x the aura damage
+				dmg.max *= 6;
+				break;
+			case 249: // armageddon
+				dmg.pmin = dmg.pmax = 0;
+				break;
+			case 24: // charged strike
+				dmg.max *= 3 + ((this.skillLevel(24) / 5) | 0);
 			}
 
 			dmg.pmin >>= 8;
@@ -661,120 +663,119 @@
 			dmg.max >>= 8;
 
 			switch (skillID) {
-				case sdk.skills.ChargedBolt: // more than one bolt can hit but may calc this is splashdamage instead
-					dmg.min *= 1.5;
-					dmg.max *= 1.5;
-					break;
-				case 59: // blizzard - on average hits twice
-					dmg.min *= 2;
-					dmg.max *= 2;
-					break;
-				case 62: // hydra - 3 heads
-					dmg.min *= 3;
-					dmg.max *= 3;
-					break;
-				case 64: // frozen orb - on average hits ~5 times
-					dmg.min *= 5;
-					dmg.max *= 5;
-					break;
-				case 70: // skeleton - a hit per skeleton
-					sl = this.skillLevel(70);
-					shots = sl < 4 ? sl : (2 + sl / 3) | 0;
-					sl = Math.max(0, sl - 3);
-					dmg.pmin = shots * (dmg.pmin + 1 + this.skillLevel(69) * 2) * (1 + sl * 0.07);
-					dmg.pmax = shots * (dmg.pmax + 2 + this.skillLevel(69) * 2) * (1 + sl * 0.07);
-					break;
-				case 94: // fire golem
-					sl = this.skillLevel(94);
-					dmg.min = [10, 15, 18][me.diff] + dmg.min + (this.stagedDamage(sl + 7, 2, 1, 2, 3, 5, 7) >> 1) * 6; // basically holy fire added
-					dmg.max = [27, 39, 47][me.diff] + dmg.max + (this.stagedDamage(sl + 7, 6, 1, 2, 3, 5, 7) >> 1) * 6;
-					break;
-				case 101: // holy bolt
-					dmg.undeadOnly = true;
-					break;
-				case 112: // blessed hammer
-					sl = this.skillLevel(113);
+			case sdk.skills.ChargedBolt: // more than one bolt can hit but may calc this as splashdamage instead
+				dmg.min *= 1.5;
+				dmg.max *= 1.5;
 
-					if (sl > 0) {
-						mastery = (100 + ((45 + this.skillLevel(113) * 15) >> 1)) / 100;	// hammer gets half concentration dmg bonus
-						dmg.min *= mastery;
-						dmg.max *= mastery;
-					}
+				// need to take into account the amount of bolts released
+				// the size of the unit we are targetting
+				// the distance from the target
+				break;
+			case 59: // blizzard - on average hits twice
+				dmg.min *= 2;
+				dmg.max *= 2;
+				break;
+			case 62: // hydra - 3 heads
+				dmg.min *= 3;
+				dmg.max *= 3;
+				break;
+			case 64: // frozen orb - on average hits ~5 times
+				dmg.min *= 5;
+				dmg.max *= 5;
+				break;
+			case 70: // skeleton - a hit per skeleton
+				sl = this.skillLevel(70);
+				shots = sl < 4 ? sl : (2 + sl / 3) | 0;
+				sl = Math.max(0, sl - 3);
+				dmg.pmin = shots * (dmg.pmin + 1 + this.skillLevel(69) * 2) * (1 + sl * 0.07);
+				dmg.pmax = shots * (dmg.pmax + 2 + this.skillLevel(69) * 2) * (1 + sl * 0.07);
+				break;
+			case 94: // fire golem
+				sl = this.skillLevel(94);
+				dmg.min = [10, 15, 18][me.diff] + dmg.min + (this.stagedDamage(sl + 7, 2, 1, 2, 3, 5, 7) >> 1) * 6; // basically holy fire added
+				dmg.max = [27, 39, 47][me.diff] + dmg.max + (this.stagedDamage(sl + 7, 6, 1, 2, 3, 5, 7) >> 1) * 6;
+				break;
+			case 101: // holy bolt
+				dmg.undeadOnly = true;
+				break;
+			case 112: // blessed hammer
+				sl = this.skillLevel(113);
 
+				if (sl > 0) {
+					mastery = (100 + ((45 + this.skillLevel(113) * 15) >> 1)) / 100;	// hammer gets half concentration dmg bonus
+					dmg.min *= mastery;
+					dmg.max *= mastery;
+				}
+
+				break;
+			case 221: // raven - a hit per raven
+				shots = Math.min(5, this.skillLevel(221)); // 1-5 ravens
+				dmg.pmin *= shots;
+				dmg.pmax *= shots;
+				break;
+			case 227: // spirit wolf - a hit per wolf
+				shots = Math.min(5, this.skillLevel(227));
+				dmg.pmin *= shots;
+				dmg.pmax *= shots;
+				break;
+			case 237: // dire wolf - a hit per wolf
+				shots = Math.min(3, this.skillLevel(237));
+				dmg.pmin *= shots;
+				dmg.pmax *= shots;
+				break;
+			case 240: // twister
+				dmg.pmin *= 3;
+				dmg.pmax *= 3;
+				break;
+			case 261: // charged bolt sentry
+			case 262: // wake of fire
+			case 271: // lightning sentry
+			case 272: // inferno sentry
+			case 276: // death sentry
+				dmg.min *= 5;	// can have 5 traps out at a time
+				dmg.max *= 5;
+				break;
+
+			case sdk.skills.StaticField:
+				if (!(unit instanceof Unit)) {
 					break;
-				case 221: // raven - a hit per raven
-					shots = Math.min(5, this.skillLevel(221)); // 1-5 ravens
-					dmg.pmin *= shots;
-					dmg.pmax *= shots;
+				}
+				// No cap in classic
+				let staticCap = (me.gametype === sdk.game.gametype.Classic ? 0 : [0, 33, 50][me.diff]);
+				const [monsterId, areaId] = [unit.classid, unit.area];
+				let percentLeft = (unit.hp * 100 / unit.hpmax);
+				if (staticCap > percentLeft) {
 					break;
-				case 227: // spirit wolf - a hit per wolf
-					shots = Math.min(5, this.skillLevel(227));
-					dmg.pmin *= shots;
-					dmg.pmax *= shots;
-					break;
-				case 237: // dire wolf - a hit per wolf
-					shots = Math.min(3, this.skillLevel(237));
-					dmg.pmin *= shots;
-					dmg.pmax *= shots;
-					break;
-				case 240: // twister
-					dmg.pmin *= 3;
-					dmg.pmax *= 3;
-					break;
-				case 261: // charged bolt sentry
-				case 262: // wake of fire
-				case 271: // lightning sentry
-				case 272: // inferno sentry
-				case 276: // death sentry
-					dmg.min *= 5;	// can have 5 traps out at a time
-					dmg.max *= 5;
-					break;
+				}
 
-				case sdk.skills.StaticField:
-					if (!(unit instanceof Unit)) {
-						break;
-					}
-					// No cap in classic
-					let staticCap = (me.gametype === sdk.game.gametype.Classic ? 0 : [0, 33, 50][me.diff]);
-					const [monsterId, areaId] = [unit.classid, unit.area],
-						percentLeft = (unit.hp * 100 / unit.hpmax);
-					if (staticCap > percentLeft) {
-						break;
-					}
+				const maxReal = this.monsterMaxHP(monsterId, areaId, unit.charlvl - this.monsterLevel(monsterId, areaId));
+				let hpReal = maxReal / 100 * percentLeft;
+				let potencialDmg = (hpReal / 100 * percentLeft) * 0.25;
 
-					const maxReal = this.monsterMaxHP(monsterId, areaId, unit.charlvl - this.monsterLevel(monsterId, areaId)),
-						hpReal = maxReal / 100 * percentLeft,
-						potencialDmg = (hpReal / 100 * percentLeft) * .25;
+				let tmpDmg = (maxReal / 100 * percentLeft) * (0.25);
 
-					let tmpDmg = (maxReal / 100 * percentLeft) * (0.25);
+				// We do need to calculate the extra damage, or less damage due to resistance
+				let resist = this.monsterResist(unit, 'Lightning');
+				let pierce = GameData.myReference.getStat(this.pierceMap.Lightning);
 
-					// We do need to calculate the extra damage, or less damage due to resistance
-					let resist = this.monsterResist(unit, 'Lightning');
-					let pierce = GameData.myReference.getStat(this.pierceMap['Lightning']);
+				let conviction = this.getConviction();
+				// if (conviction && !unit.getState(sdk.states.Conviction)) conviction = 0; //ToDo; enable when fixed telestomp
+				resist -= (resist >= 100 ? conviction / 5 : conviction);
+				resist = (resist < 100 ? Math.max(-100, resist - pierce) : 100);
+				tmpDmg = potencialDmg * ((100 - resist) / 100);
+				const percentageDamage = 100 / maxReal * tmpDmg;
 
-					let conviction = this.getConviction();
-					// if (conviction && !unit.getState(sdk.states.Conviction)) conviction = 0; //ToDo; enable when fixed telestomp
-					resist -= (resist >= 100 ? conviction / 5 : conviction);
-
-					if (resist < 100) {
-						resist = Math.max(-100, resist - pierce);
-					} else {
-						resist = 100;
-					}
-					tmpDmg = potencialDmg * ((100 - resist) / 100);
-					const percentageDamage = 100 / maxReal * tmpDmg;
-
-					let avgDmg = tmpDmg;
-					let overCap = percentLeft - staticCap - percentageDamage;
-					if (overCap < 0) {
-						let maxDmgPercentage = percentageDamage - Math.abs(overCap);
-						avgDmg = maxReal / 100 * maxDmgPercentage;
-					}
-					avgDmg = avgDmg > 0 && avgDmg || 0;
-					//print('Static will chop off -> ' + (100 / maxReal * avgDmg) + '%');
-					dmg.min = avgDmg;
-					dmg.max = avgDmg;
-					break;
+				let avgDmg = tmpDmg;
+				let overCap = percentLeft - staticCap - percentageDamage;
+				if (overCap < 0) {
+					let maxDmgPercentage = percentageDamage - Math.abs(overCap);
+					avgDmg = maxReal / 100 * maxDmgPercentage;
+				}
+				avgDmg = avgDmg > 0 && avgDmg || 0;
+				//print('Static will chop off -> ' + (100 / maxReal * avgDmg) + '%');
+				dmg.min = avgDmg;
+				dmg.max = avgDmg;
+				break;
 			}
 
 			dmg.pmin |= 0;
@@ -784,116 +785,109 @@
 
 			return dmg;
 		},
+		// todo - build me metadata - then use it to calulate a range of skills rather than redo the exact same calculations
+		// example - trying to check the damage of blizard and then frozen orb
+		// currently it would check our stats, then check amp and conviction - those could all be pre-built as they aren't going to change
 		avgSkillDamage: function (skillID, unit) {
-			if (skillID === undefined || unit === undefined || !skillID || !unit || !me.getSkill(skillID, 1)) { return 0; }
+			if (skillID === undefined || unit === undefined || !skillID || !unit || !Skill.canUse(skillID)) return 0;
 			let skillToCheck, avgDmg;
 			let getTotalDmg = function (skillData, unit) {
-	            let avgPDmg = (skillData.pmin + skillData.pmax) / 2, totalDmg = 0, avgDmg = (skillData.min + skillData.max) / 2;
-	            let hp = GameData.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, me.area);
-        		let conviction = GameData.getConviction(), ampDmg = GameData.getAmp(), isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
-	            if (avgPDmg > 0) {
-                    let presist = GameData.monsterResist(unit, "Physical");
-                    presist -= (presist >= 100 ? ampDmg / 5 : ampDmg);
-                    presist = Math.max(-100, Math.min(100, presist));
-                    totalDmg += avgPDmg * (100 - presist) / 100;
-                }
-                if (avgDmg > 0 && (!isUndead || !skillData.undeadOnly)) {
-                    let resist = GameData.monsterResist(unit, skillData.type);
-                    let pierce = GameData.myReference.getStat(GameData.pierceMap[skillData.type]);
-                    if (GameData.convictionEligible[skillData.type]) {
-                        resist -= (resist >= 100 ? conviction / 5 : conviction);
-                    }
-                    if (resist < 100) {
-                        resist = Math.max(-100, resist - pierce);
-                    }
-                    else {
-                        resist = 100;
-                    }
-                    totalDmg += avgDmg * (100 - resist) / 100;
-                }
-                return totalDmg;
+				let ampDmg = Skill.canUse(66) ? 100 : (Skill.canUse(87) ? 50 : 0);
+				let avgPDmg = (skillData.pmin + skillData.pmax) / 2, totalDmg = 0, avgDmg = (skillData.min + skillData.max) / 2;
+				//let hp = GameData.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, me.area);
+				let conviction = GameData.getConviction(), isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+				if (avgPDmg > 0) {
+					let presist = GameData.monsterResist(unit, "Physical");
+					presist -= (presist >= 100 ? ampDmg / 5 : ampDmg);
+					presist = Math.max(-100, Math.min(100, presist));
+					totalDmg += avgPDmg * (100 - presist) / 100;
+				}
+				if (avgDmg > 0 && (!isUndead || !skillData.undeadOnly)) {
+					let resist = GameData.monsterResist(unit, skillData.type);
+					let pierce = GameData.myReference.getStat(GameData.pierceMap[skillData.type]);
+					if (GameData.convictionEligible[skillData.type]) {
+						resist -= (resist >= 100 ? conviction / 5 : conviction);
+					}
+					resist = (resist < 100 ? Math.max(-100, resist - pierce) : 100);
+					totalDmg += avgDmg * (100 - resist) / 100;
+				}
+				return totalDmg;
 			};
 			let calculateSplashDamage = function (skill, splash, target) {
-		        return getUnits(1)
-		            .filter(function (mon) { return mon.attackable && getDistance(target, mon) < splash; })
-		            .reduce(function (acc, cur) {
-			            let _a = GameData.skillDamage(skill, cur);
-			            return acc + getTotalDmg(_a, cur);
-			        }, 0);
-		    };
-		    let calculateChainDamage = function (skill, target) {
-		    	skill === undefined && (skill = -1);
-		    	let rawDmg = 0, totalDmg = 0, range = 0, hits = 0;
-		    	switch (skill) {
-		    	case sdk.skills.ChainLightning:
-			    	hits = Math.round((25 + me.getSkill(sdk.skills.ChainLightning, 1)) / 5);
-		    		range = 13;
-		    		break;
-		    	}
-		    	let units = getUnits(1)
-		            .filter(function (mon) { return mon.attackable && getDistance(mon, target) < range; })
-		            .sort((a, b) => getDistance(target, a) - getDistance(target, b));
-		        if (units.length === 1) {
-		        	rawDmg = GameData.skillDamage(skill, target);
-		        	return getTotalDmg(rawDmg, target);
-		        } else {
-		        	print("Units to check: " + units.length);
-		        	for (let i = 0; i < units.length; i++) {
-		        		if (units[i] !== undefined) {
-			        		rawDmg = GameData.skillDamage(skill, units[i]);
-			        		totalDmg += getTotalDmg(rawDmg, units[i]);
-
-			        		if (i > hits) { break; }
-		        		} else {
-		        			units.splice(i, 1);
+				return getUnits(1)
+					.filter((mon) => mon.attackable && getDistance(target, mon) < splash)
+					.reduce(function (acc, cur) {
+						let _a = GameData.skillDamage(skill, cur);
+						return acc + getTotalDmg(_a, cur);
+					}, 0);
+			};
+			let calculateChainDamage = function (skill, target) {
+				skill === undefined && (skill = -1);
+				let rawDmg = 0, totalDmg = 0, range = 0, hits = 0;
+				switch (skill) {
+				case sdk.skills.ChainLightning:
+					hits = Math.round((25 + me.getSkill(sdk.skills.ChainLightning, 1)) / 5);
+					range = 13;
+					break;
+				}
+				let units = getUnits(1)
+					.filter((mon) => mon.attackable && getDistance(mon, target) < range)
+					.sort((a, b) => getDistance(target, a) - getDistance(target, b));
+				if (units.length === 1) {
+					rawDmg = GameData.skillDamage(skill, target);
+					return getTotalDmg(rawDmg, target);
+				} else {
+					print("Units to check: " + units.length);
+					for (let i = 0; i < units.length; i++) {
+						if (units[i] !== undefined) {
+							rawDmg = GameData.skillDamage(skill, units[i]);
+							totalDmg += getTotalDmg(rawDmg, units[i]);
+							if (i > hits) { break; }
+						} else {
+							units.splice(i, 1);
 							i -= 1;
-		        		}
-		        	}
-		        	return totalDmg;
-		        }
-		    };
-		    let calculateRawStaticDamage = function (distanceUnit) {
-		        if (distanceUnit === void 0) { distanceUnit = me; }
-		        if (!me.getSkill(sdk.skills.StaticField, 1)) { return 0; }
-		        let range = Skill.getRange(sdk.skills.StaticField), cap = (me.gametype === sdk.game.gametype.Classic ? 1 : [1, 25, 50][me.diff]);
-		        return getUnits(1)
-		            .filter(function (mon) { return mon.attackable
-		            && getDistance(mon, distanceUnit) < range; }
-		        // && !isBlockedBetween(distanceUnit, mon)
-		        ).reduce(function (acc, unit) {
-		            let classId = unit.classid, areaId = unit.area,
-		            	maxHealth = GameData.monsterAvgHP(classId, areaId, unit.charlvl - GameData.monsterLevel(classId, areaId)),
-		            	currentHealth = maxHealth / 100 * (unit.hp * 100 / unit.hpmax), baseDamage = currentHealth * 0.25;
-		            // monsterRes already considers conviction state
-		            let monsterRes = unit.getStat(sdk.stats.LightResist),
-		            	pierce = me.getStat(sdk.stats.PierceLtng),
-		            	totalRes = Math.min(100, Math.max(-100, monsterRes - pierce));
-		            // calculate the actual damage we do
-		            let potentialDamage = baseDamage / (100 / (100 - totalRes)),
-		            	cappedAtHealth = maxHealth / 100 * cap;
-		            // cap max damage
-		            let actualDamage = currentHealth - Math.max(cappedAtHealth, (currentHealth - potentialDamage));
-		            return acc + (actualDamage);
-		        }, 0);
-		    };
+						}
+					}
+					return totalDmg;
+				}
+			};
+			let calculateRawStaticDamage = function (distanceUnit) {
+				distanceUnit === undefined && (distanceUnit = me);
+				if (!Skill.canUse(sdk.skills.StaticField)) return 0;
+				let range = Skill.getRange(sdk.skills.StaticField), cap = (me.gametype === sdk.game.gametype.Classic ? 1 : [1, 25, 50][me.diff]);
+				let pierce = me.getStat(sdk.stats.PierceLtng);
+				return getUnits(1)
+					.filter(function (mon) {
+						return mon.attackable && getDistance(mon, distanceUnit) < range;
+					}).reduce(function (acc, unit) {
+						let classId = unit.classid, areaId = unit.area;
+						let maxHealth = GameData.monsterAvgHP(classId, areaId, unit.charlvl - GameData.monsterLevel(classId, areaId));
+						let currentHealth = maxHealth / 100 * (unit.hp * 100 / unit.hpmax), baseDamage = currentHealth * 0.25;
+						// monsterRes already considers conviction state
+						let monsterRes = unit.getStat(sdk.stats.LightResist);
+						let totalRes = Math.min(100, Math.max(-100, monsterRes - pierce));
+						// calculate the actual damage we do
+						let potentialDamage = baseDamage / (100 / (100 - totalRes));
+						let cappedAtHealth = maxHealth / 100 * cap;
+						// cap max damage
+						let actualDamage = currentHealth - Math.max(cappedAtHealth, (currentHealth - potentialDamage));
+						return acc + (actualDamage);
+					}, 0);
+			};
 			switch (skillID) {
 			case sdk.skills.Blizzard:
 			case sdk.skills.Meteor:
 			case sdk.skills.FireBall:
 			case sdk.skills.GlacialSpike:
 			case sdk.skills.ChargedBolt:
-				if (skillID === sdk.skills.Blizzard) {
-					let notLava;
-					try {
-						notLava = !!(getCollision(unit.area, unit.x, unit.y) & Coords_1.BlockBits.IsOnFloor);
-					} catch (e) {
-						return 0;
-					}
-
-					if (!notLava) { return 0; }
+				let {x, y} = unit;
+				
+				if (!Attack.validSpot(x, y, skillID, unit.classid)) {
+					return 0;
+				} else {
+					avgDmg = calculateSplashDamage(skillID, 4, unit);
 				}
 
-				avgDmg = calculateSplashDamage(skillID, 4, unit);
 				break;
 			case sdk.skills.FrostNova:
 			case sdk.skills.Nova:
@@ -1057,14 +1051,13 @@
 		],
 		monsterResist: function (unit, type) {
 			let stat = this.resistMap[type];
-
 			return stat ? (unit.getStat ? unit.getStat(stat) : MonsterData[unit][type]) : 0;
 		},
 		getConviction: function () {
 			let merc = GameData.myReference.getMerc(), sl = this.skillLevel(123); // conviction
 			if (( // Either me, or merc is wearing a conviction
 				merc && merc.getItemsEx().filter(item => item.getPrefix(sdk.locale.items.Infinity)).first()
-				|| GameData.myReference.getItemsEx().filter(item => item.getPrefix(sdk.locale.items.Infinity)).first())) {
+				|| GameData.myReference.getItemsEx(-1, 1).filter(item => item.getPrefix(sdk.locale.items.Infinity)).first())) {
 				sl = 12;
 			}
 			return sl > 0 ? Math.min(150, 30 + (sl - 1) * 5) : 0;
@@ -1074,10 +1067,10 @@
 		},
 		monsterEffort: function (unit, areaID, skillDamageInfo = undefined, parent = undefined, preattack = false, all = false) {
 			let eret = {effort: Infinity, skill: -1, type: "Physical"};
-			let useCooldown = (typeof unit === 'number' ? false : Boolean(me.getState(121))),
-				hp = this.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, areaID);
-			let conviction = this.getConviction(), ampDmg = this.getAmp(),
-				isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+			let useCooldown = (typeof unit === 'number' ? false : Boolean(me.skillDelay));
+			let hp = this.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, areaID);
+			let conviction = this.getConviction(), ampDmg = this.getAmp();
+			let isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
 			skillDamageInfo = skillDamageInfo || this.allSkillDamage(unit);
 			const allData = [];
 			// if (conviction && unit instanceof Unit && !unit.getState(sdk.states.Conviction)) conviction = 0; //ToDo; enable when fixed telestomp
@@ -1217,8 +1210,8 @@
 			if (areaID === undefined) { areaID = me.area; }
 			let eret = {effort: Infinity, skill: -1, type: "Physical"};
 			let hp = this.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, areaID);
-			let conviction = this.getConviction(), ampDmg = this.getAmp(),
-				isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+			let conviction = this.getConviction(), ampDmg = this.getAmp();
+			let isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
 			let skillDamageInfo = this.allSkillDamage(unit);
 			const allData = [];
 
@@ -1360,9 +1353,7 @@
 		},
 		areaSoloExp: function (areaID, skills) {
 			let procentageBroke = ((100 - Math.min(100, Math.max(0, (100 / (Config.LowGold || 1) * me.gold)))));
-
 			let brokeness = 1 + (procentageBroke / 100 / 3 * 1);
-
 			let effortpool = 0, raritypool = 0, dmgAcc = 0;
 
 			skills = skills || this.allSkillDamage();
@@ -1373,13 +1364,11 @@
 				dmgAcc += (rarity * this.monsterAvgDmg(mon.Index, areaID));
 			});
 
-
 			let log = 1, avgDmg = 0;
 			if (brokeness !== 1) {
 				log = ((5 - Math.log(areaID)) * (brokeness * 0.6));
 				avgDmg = (raritypool ? dmgAcc / raritypool : Infinity) * log;
 			}
-
 
 			return (raritypool ? effortpool / raritypool : 0) - (avgDmg);
 		},
@@ -1389,8 +1378,9 @@
 			const effort = [], uniqueSkills = [];
 			for (let i = 50; i < 120; i++) {
 				try {
-					effort.push(GameData.monsterEffort(i, sdk.areas.ThroneOfDestruction))
-				} catch (e) {/*dontcare*/
+					effort.push(GameData.monsterEffort(i, sdk.areas.ThroneOfDestruction));
+				} catch (e) {
+					/*dontcare*/
 				}
 			}
 
@@ -1415,7 +1405,6 @@
 					|| x
 				);
 
-
 			return (GameData.myReference.__cachedMostUsedSkills = uniqueSkills.sort((a, b) => b.used - a.used));
 		},
 
@@ -1425,8 +1414,8 @@
 				Weapon:        hth 1hs 2hs 1ht 2ht stf bow xbw
 				StartingFrame: 1   2   2   2   2   2   0   0
 			*/
-			if (charClass == sdk.charclass.Amazon || charClass == sdk.charclass.Sorceress) {
-				if (weaponClass == "hth") {
+			if (charClass === sdk.charclass.Amazon || charClass === sdk.charclass.Sorceress) {
+				if (weaponClass === "hth") {
 					return 1;
 				}
 				if (["1hs", "2hs", "1ht", "2ht", "stf"].indexOf(weaponClass) > -1) {
@@ -1452,7 +1441,7 @@
 		attackModeForSkill: function (skillId, charClass = GameData.myReference.classid) {
 			//TODO:
 
-			if (skillId == sdk.skills.Smite) {
+			if (skillId === sdk.skills.Smite) {
 				return "S1";
 			}
 			/*
@@ -1504,12 +1493,12 @@
 			//TODO: vampire form or werewolf
 			let attackMode = this.attackModeForSkill(skill, charClass);
 			switch (true) {
-				case charClass == sdk.charclass.Assassin && attackMode.startsWith("A") && weaponClass.startsWith("ht") && weaponClass != "hth":
-					return 208;
-				case charClass == sdk.charclass.Assassin && attackMode == "S2":
-					return 128;
-				case charClass == sdk.charclass.Assassin && attackMode == "S4" && weaponClass == "ht2":
-					return 208;
+			case charClass === sdk.charclass.Assassin && attackMode.startsWith("A") && weaponClass.startsWith("ht") && weaponClass !== "hth":
+				return 208;
+			case charClass === sdk.charclass.Assassin && attackMode === "S2":
+				return 128;
+			case charClass === sdk.charclass.Assassin && attackMode === "S4" && weaponClass === "ht2":
+				return 208;
 			}
 			// wolf or bear :
 			//AnimationSpeed ​​= [Hitshift * NeutralFrames / Delay]
@@ -1573,169 +1562,169 @@
 			A1 xxx      06 15 256     11 16 256     06 15 256     05/12 16 256
 						*/
 			switch (true) {
-				case charClass == sdk.charclass.Sorceress && attackMode.startsWith("A") && weaponClass == "hth":
-					return 16;
-				case charClass == sdk.charclass.Sorceress && attackMode == "A1" && weaponClass == "1hs":
-					return 20;
-				case charClass == sdk.charclass.Sorceress && attackMode.startsWith("A") && weaponClass == "2hs":
-					return 24;
-				case charClass == sdk.charclass.Sorceress && attackMode == "A1" && weaponClass == "1ht":
-					return 19;
-				case charClass == sdk.charclass.Sorceress && attackMode.startsWith("A") && weaponClass == "2ht":
-					return 23;
-				case charClass == sdk.charclass.Sorceress && attackMode == "A1" && weaponClass == "stf":
-					return 18;
-				case charClass == sdk.charclass.Sorceress && attackMode == "A1" && weaponClass == "bow":
-					return 17;
-				case charClass == sdk.charclass.Sorceress && attackMode == "A1" && weaponClass == "xbw":
-					return 20;
-				case charClass == sdk.charclass.Sorceress && attackMode == "TH":
-					return 20;
+			case charClass === sdk.charclass.Sorceress && attackMode.startsWith("A") && weaponClass === "hth":
+				return 16;
+			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "1hs":
+				return 20;
+			case charClass === sdk.charclass.Sorceress && attackMode.startsWith("A") && weaponClass === "2hs":
+				return 24;
+			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "1ht":
+				return 19;
+			case charClass === sdk.charclass.Sorceress && attackMode.startsWith("A") && weaponClass === "2ht":
+				return 23;
+			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "stf":
+				return 18;
+			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "bow":
+				return 17;
+			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "xbw":
+				return 20;
+			case charClass === sdk.charclass.Sorceress && attackMode === "TH":
+				return 20;
 
-				case charClass == sdk.charclass.Paladin && attackMode.startsWith("A") && weaponClass == "hth":
-					return 14;
-				case charClass == sdk.charclass.Paladin && attackMode == "A1" && weaponClass == "1hs":
-					return 15;
-				case charClass == sdk.charclass.Paladin && attackMode == "A1" && weaponClass == "2hs":
-					return 18;
-				case charClass == sdk.charclass.Paladin && attackMode == "A2" && weaponClass == "2hs":
-					return 19;
-				case charClass == sdk.charclass.Paladin && attackMode == "A1" && weaponClass == "1ht":
-					return 17;
-				case charClass == sdk.charclass.Paladin && attackMode == "A1" && weaponClass == "2ht":
-					return 20;
-				case charClass == sdk.charclass.Paladin && attackMode == "A2" && weaponClass == "2ht":
-					return 20;
-				case charClass == sdk.charclass.Paladin && attackMode == "A1" && weaponClass == "stf":
-					return 18;
-				case charClass == sdk.charclass.Paladin && attackMode == "A1" && weaponClass == "bow":
-					return 16;
-				case charClass == sdk.charclass.Paladin && attackMode == "A1" && weaponClass == "xbw":
-					return 20;
-				case charClass == sdk.charclass.Paladin && attackMode == "TH":
-					return 16;
-				case charClass == sdk.charclass.Paladin && attackMode == "S1":
-					return 12;
+			case charClass === sdk.charclass.Paladin && attackMode.startsWith("A") && weaponClass === "hth":
+				return 14;
+			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "1hs":
+				return 15;
+			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "2hs":
+				return 18;
+			case charClass === sdk.charclass.Paladin && attackMode === "A2" && weaponClass === "2hs":
+				return 19;
+			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "1ht":
+				return 17;
+			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "2ht":
+				return 20;
+			case charClass === sdk.charclass.Paladin && attackMode === "A2" && weaponClass === "2ht":
+				return 20;
+			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "stf":
+				return 18;
+			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "bow":
+				return 16;
+			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "xbw":
+				return 20;
+			case charClass === sdk.charclass.Paladin && attackMode === "TH":
+				return 16;
+			case charClass === sdk.charclass.Paladin && attackMode === "S1":
+				return 12;
 
 				//TODO: full trag oul set
-				case charClass == sdk.charclass.Necromancer && attackMode.startsWith("A") && weaponClass == "hth":
-					return 15;
-				case charClass == sdk.charclass.Necromancer && attackMode == "A1" && weaponClass == "1hs":
-					return 19;
-				case charClass == sdk.charclass.Necromancer && attackMode.startsWith("A") && weaponClass == "2hs":
-					return 23;
-				case charClass == sdk.charclass.Necromancer && attackMode == "A1" && weaponClass == "1ht":
-					return 19;
-				case charClass == sdk.charclass.Necromancer && attackMode.startsWith("A") && weaponClass == "2ht":
-					return 24;
-				case charClass == sdk.charclass.Necromancer && attackMode == "A1" && weaponClass == "stf":
-					return 20;
-				case charClass == sdk.charclass.Necromancer && attackMode == "A1" && weaponClass == "bow":
-					return 18;
-				case charClass == sdk.charclass.Necromancer && attackMode == "A1" && weaponClass == "xbw":
-					return 20;
-				case charClass == sdk.charclass.Necromancer && attackMode == "TH":
-					return 20;
+			case charClass === sdk.charclass.Necromancer && attackMode.startsWith("A") && weaponClass === "hth":
+				return 15;
+			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "1hs":
+				return 19;
+			case charClass === sdk.charclass.Necromancer && attackMode.startsWith("A") && weaponClass === "2hs":
+				return 23;
+			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "1ht":
+				return 19;
+			case charClass === sdk.charclass.Necromancer && attackMode.startsWith("A") && weaponClass === "2ht":
+				return 24;
+			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "stf":
+				return 20;
+			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "bow":
+				return 18;
+			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "xbw":
+				return 20;
+			case charClass === sdk.charclass.Necromancer && attackMode === "TH":
+				return 20;
 
-				case this.shiftState() == "wolf" && attackMode == "A1":
-					return 13;
-				case this.shiftState() == "wolf" && attackMode == "S3":
-					return 10;
+			case this.shiftState() === "wolf" && attackMode === "A1":
+				return 13;
+			case this.shiftState() === "wolf" && attackMode === "S3":
+				return 10;
 
-				case this.shiftState() == "bear" && attackMode == "A1":
-					return 12;
-				case this.shiftState() == "bear" && attackMode == "S3":
-					return 10;
+			case this.shiftState() === "bear" && attackMode === "A1":
+				return 12;
+			case this.shiftState() === "bear" && attackMode === "S3":
+				return 10;
 
-				case charClass == sdk.charclass.Druid && attackMode.startsWith("A") && weaponClass == "hth":
-					return 16;
-				case charClass == sdk.charclass.Druid && attackMode == "A1" && weaponClass == "1hs":
-					return 19;
-				case charClass == sdk.charclass.Druid && attackMode.startsWith("A") && weaponClass == "2hs":
-					return 21;
-				case charClass == sdk.charclass.Druid && attackMode == "A1" && weaponClass == "1ht":
-					return 19;
-				case charClass == sdk.charclass.Druid && attackMode.startsWith("A") && weaponClass == "2ht":
-					return 23;
-				case charClass == sdk.charclass.Druid && attackMode == "A1" && weaponClass == "stf":
-					return 17;
-				case charClass == sdk.charclass.Druid && attackMode == "A1" && weaponClass == "bow":
-					return 16;
-				case charClass == sdk.charclass.Druid && attackMode == "A1" && weaponClass == "xbw":
-					return 20;
-				case charClass == sdk.charclass.Druid && attackMode == "TH":
-					return 18;
+			case charClass === sdk.charclass.Druid && attackMode.startsWith("A") && weaponClass === "hth":
+				return 16;
+			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "1hs":
+				return 19;
+			case charClass === sdk.charclass.Druid && attackMode.startsWith("A") && weaponClass === "2hs":
+				return 21;
+			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "1ht":
+				return 19;
+			case charClass === sdk.charclass.Druid && attackMode.startsWith("A") && weaponClass === "2ht":
+				return 23;
+			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "stf":
+				return 17;
+			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "bow":
+				return 16;
+			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "xbw":
+				return 20;
+			case charClass === sdk.charclass.Druid && attackMode === "TH":
+				return 18;
 
-				case charClass == sdk.charclass.Barbarian && attackMode.startsWith("A") && weaponClass == "hth":
-					return 12;
-				case charClass == sdk.charclass.Barbarian && attackMode == "A1" && weaponClass == "1hs":
-					return 16;
-				case charClass == sdk.charclass.Barbarian && attackMode.startsWith("A") && weaponClass == "2hs":
-					return 18;
-				case charClass == sdk.charclass.Barbarian && attackMode == "A1" && weaponClass == "1ht":
-					return 16;
-				case charClass == sdk.charclass.Barbarian && attackMode.startsWith("A") && weaponClass == "2ht":
-					return 19;
-				case charClass == sdk.charclass.Barbarian && attackMode == "A1" && weaponClass == "stf":
-					return 19;
-				case charClass == sdk.charclass.Barbarian && attackMode == "A1" && weaponClass == "bow":
-					return 15;
-				case charClass == sdk.charclass.Barbarian && attackMode == "A1" && weaponClass == "xbw":
-					return 20;
-				case charClass == sdk.charclass.Barbarian && attackMode == "TH":
-					return 16;
-				case charClass == sdk.charclass.Barbarian && attackMode == "S3":
-					return 12;
-				case charClass == sdk.charclass.Barbarian && attackMode == "S4":
-					return 16;
+			case charClass === sdk.charclass.Barbarian && attackMode.startsWith("A") && weaponClass === "hth":
+				return 12;
+			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "1hs":
+				return 16;
+			case charClass === sdk.charclass.Barbarian && attackMode.startsWith("A") && weaponClass === "2hs":
+				return 18;
+			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "1ht":
+				return 16;
+			case charClass === sdk.charclass.Barbarian && attackMode.startsWith("A") && weaponClass === "2ht":
+				return 19;
+			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "stf":
+				return 19;
+			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "bow":
+				return 15;
+			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "xbw":
+				return 20;
+			case charClass === sdk.charclass.Barbarian && attackMode === "TH":
+				return 16;
+			case charClass === sdk.charclass.Barbarian && attackMode === "S3":
+				return 12;
+			case charClass === sdk.charclass.Barbarian && attackMode === "S4":
+				return 16;
 
-				case charClass == sdk.charclass.Assassin && attackMode == "A1" && weaponClass.startsWith("ht"):
-					return 11;
-				case charClass == sdk.charclass.Assassin && attackMode == "A2" && weaponClass.startsWith("ht"):
-					return 12;
-				case charClass == sdk.charclass.Assassin && attackMode == "A1" && weaponClass == "1hs":
-					return 15;
-				case charClass == sdk.charclass.Assassin && attackMode.startsWith("A") && weaponClass == "2hs":
-					return 23;
-				case charClass == sdk.charclass.Assassin && attackMode == "A1" && weaponClass == "1ht":
-					return 15;
-				case charClass == sdk.charclass.Assassin && attackMode.startsWith("A") && weaponClass == "2ht":
-					return 23;
-				case charClass == sdk.charclass.Assassin && attackMode == "A1" && weaponClass == "stf":
-					return 19;
-				case charClass == sdk.charclass.Assassin && attackMode == "A1" && weaponClass == "bow":
-					return 16;
-				case charClass == sdk.charclass.Assassin && attackMode == "A1" && weaponClass == "xbw":
-					return 21;
-				case charClass == sdk.charclass.Assassin && attackMode == "TH":
-					return 16;
-				case charClass == sdk.charclass.Assassin && attackMode == "KK":
-					return 13;
-				case charClass == sdk.charclass.Assassin && attackMode == "S2":
-					return 8;
-				case charClass == sdk.charclass.Assassin && attackMode == "S4" && weaponClass == "ht2":
-					return 12;
+			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass.startsWith("ht"):
+				return 11;
+			case charClass === sdk.charclass.Assassin && attackMode === "A2" && weaponClass.startsWith("ht"):
+				return 12;
+			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "1hs":
+				return 15;
+			case charClass === sdk.charclass.Assassin && attackMode.startsWith("A") && weaponClass === "2hs":
+				return 23;
+			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "1ht":
+				return 15;
+			case charClass === sdk.charclass.Assassin && attackMode.startsWith("A") && weaponClass === "2ht":
+				return 23;
+			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "stf":
+				return 19;
+			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "bow":
+				return 16;
+			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "xbw":
+				return 21;
+			case charClass === sdk.charclass.Assassin && attackMode === "TH":
+				return 16;
+			case charClass === sdk.charclass.Assassin && attackMode === "KK":
+				return 13;
+			case charClass === sdk.charclass.Assassin && attackMode === "S2":
+				return 8;
+			case charClass === sdk.charclass.Assassin && attackMode === "S4" && weaponClass === "ht2":
+				return 12;
 
-				case charClass == sdk.charclass.Amazon && attackMode.startsWith("A") && weaponClass == "hth":
-					return 13;
-				case charClass == sdk.charclass.Amazon && attackMode == "A1" && weaponClass == "1hs":
-					return 16;
-				case charClass == sdk.charclass.Amazon && attackMode.startsWith("A") && weaponClass == "2hs":
-					return 20;
-				case charClass == sdk.charclass.Amazon && attackMode == "A1" && weaponClass == "1ht":
-					return 15;
-				case charClass == sdk.charclass.Amazon && attackMode.startsWith("A") && weaponClass == "2ht":
-					return 18;
-				case charClass == sdk.charclass.Amazon && attackMode == "A1" && weaponClass == "stf":
-					return 20;
-				case charClass == sdk.charclass.Amazon && attackMode == "A1" && weaponClass == "bow":
-					return 14;
-				case charClass == sdk.charclass.Amazon && attackMode == "A1" && weaponClass == "xbw":
-					return 20;
-				case charClass == sdk.charclass.Amazon && attackMode == "TH":
-					return 16;
-				case charClass == sdk.charclass.Amazon && attackMode == "S1":
-					return 9;
+			case charClass === sdk.charclass.Amazon && attackMode.startsWith("A") && weaponClass === "hth":
+				return 13;
+			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "1hs":
+				return 16;
+			case charClass === sdk.charclass.Amazon && attackMode.startsWith("A") && weaponClass === "2hs":
+				return 20;
+			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "1ht":
+				return 15;
+			case charClass === sdk.charclass.Amazon && attackMode.startsWith("A") && weaponClass === "2ht":
+				return 18;
+			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "stf":
+				return 20;
+			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "bow":
+				return 14;
+			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "xbw":
+				return 20;
+			case charClass === sdk.charclass.Amazon && attackMode === "TH":
+				return 16;
+			case charClass === sdk.charclass.Amazon && attackMode === "S1":
+				return 9;
 			}
 			return -1;
 		},
@@ -1803,164 +1792,164 @@
 	};
 
 	function calculateKillableFallensByFrostNova() {
-        let fallens = [sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2];
-        if (!me.getSkill(sdk.skills.FrostNova, 1)) { return 0; }
-        return getUnits(1)
-        	.filter(unit => !!unit && fallens.includes(unit.classid) && unit.distance < 7)
-            .filter(function (unit) {
-	            return unit.attackable
-	                && typeof unit.x === 'number' // happens if monster despawns
-	                && !checkCollision(me, unit, Coords_1.Collision.BLOCK_MISSILE)
-	                && unit.getStat(sdk.stats.ColdResist) < 100
-	                && !unit.getState(sdk.states.Frozen);
-	        	})
-            .reduce(function (acc, cur) {
-	            let classId = cur.classid, areaId = cur.area, minDmg = GameData.skillDamage(sdk.skills.FrostNova, cur).min,
-	            	currentHealth = GameData.monsterMaxHP(classId, areaId, cur.charlvl - GameData.monsterLevel(classId, areaId)) / 100 * (cur.hp * 100 / cur.hpmax);
-	            if (currentHealth < minDmg) {
-	                acc++;
-	            }
-	            return acc;
-        	}, 0);
-    }
+		if (!Skill.canUse(sdk.skills.FrostNova)) return 0;
+		let fallens = [sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2];
+		let area = me.area;
+		return getUnits(1)
+			.filter(unit => !!unit && fallens.includes(unit.classid) && unit.distance < 7)
+			.filter(function (unit) {
+				return unit.attackable
+				&& typeof unit.x === 'number' // happens if monster despawns
+				&& !checkCollision(me, unit, Coords_1.Collision.BLOCK_MISSILE)
+				&& unit.getStat(sdk.stats.ColdResist) < 100;
+				//&& !unit.getState(sdk.states.Frozen);
+			})
+			.reduce(function (acc, cur) {
+				let classId = cur.classid, minDmg = GameData.skillDamage(sdk.skills.FrostNova, cur).min;
+				//let charLvl = GameData.monsterLevel(classId, area);
+				let currentHealth = GameData.monsterMaxHP(classId, area, cur.charlvl - GameData.monsterLevel(classId, area)) / 100 * (cur.hp * 100 / cur.hpmax);
+				if (currentHealth < minDmg) {
+					acc++;
+				}
+				return acc;
+			}, 0);
+	}
 
-    function calculateKillableSummonsByNova() {
-        let summons = [
-        		sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2,
-        		sdk.monsters.BurningDead, sdk.monsters.Returned1, sdk.monsters.Returned2, sdk.monsters.BoneWarrior1, sdk.monsters.BoneWarrior2
-        	];
-        if (!me.getSkill(sdk.skills.Nova, 1)) { return 0; }
-        return getUnits(1)
-        	.filter(unit => !!unit && summons.includes(unit.classid) && unit.distance < 7)
-            .filter(function (unit) {
-	            return unit.attackable
-	                && typeof unit.x === 'number' // happens if monster despawns
-	                && !checkCollision(me, unit, Coords_1.Collision.BLOCK_MISSILE)
-	                && Attack.checkResist(unit, "lightning");
-	        	})
-            .reduce(function (acc, cur) {
-	            let classId = cur.classid, areaId = cur.area, minDmg = GameData.skillDamage(sdk.skills.Nova, cur).min,
-	            	currentHealth = GameData.monsterMaxHP(classId, areaId, cur.charlvl - GameData.monsterLevel(classId, areaId)) / 100 * (cur.hp * 100 / cur.hpmax);
-	            if (currentHealth < minDmg) {
-	                acc++;
-	            }
-	            return acc;
-        	}, 0);
-    }
+	function calculateKillableSummonsByNova() {
+		if (!Skill.canUse(sdk.skills.Nova)) return 0;
+		let summons = [
+			sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2,
+			sdk.monsters.BurningDead, sdk.monsters.Returned1, sdk.monsters.Returned2, sdk.monsters.BoneWarrior1, sdk.monsters.BoneWarrior2
+		];
+		return getUnits(1)
+			.filter(unit => !!unit && summons.includes(unit.classid) && unit.distance < 7)
+			.filter(function (unit) {
+				return unit.attackable
+				&& typeof unit.x === 'number' // happens if monster despawns
+				&& !checkCollision(me, unit, Coords_1.Collision.BLOCK_MISSILE)
+				&& Attack.checkResist(unit, "lightning");
+			})
+			.reduce(function (acc, cur) {
+				let classId = cur.classid, areaId = cur.area, minDmg = GameData.skillDamage(sdk.skills.Nova, cur).min;
+				let currentHealth = GameData.monsterMaxHP(classId, areaId, cur.charlvl - GameData.monsterLevel(classId, areaId)) / 100 * (cur.hp * 100 / cur.hpmax);
+				if (currentHealth < minDmg) {
+					acc++;
+				}
+				return acc;
+			}, 0);
+	}
 
-    Object.defineProperty(Unit.prototype, 'currentVelocity', {
-    	get: function () {
-            if (!this.isMoving ||this.isFrozen) {
-                return 0;
-            }
-            let velocity = this.isRunning ? MonsterData[this.classid].Run : MonsterData[this.classid].Velocity;
-            if (this.isChilled) {
-                let malus = MonsterData[this.classid].ColdEffect;
-                if (malus > 0) {
-                    malus = malus - 256;
-                }
-                return Math.max(1, ~~(velocity * (1 + malus)));
-            }
-            return velocity;
-        }
-    });
+	Object.defineProperty(Unit.prototype, 'currentVelocity', {
+		get: function () {
+			if (!this.isMoving || this.isFrozen) return 0;
+			let velocity = this.isRunning ? MonsterData[this.classid].Run : MonsterData[this.classid].Velocity;
+			if (this.isChilled) {
+				let malus = MonsterData[this.classid].ColdEffect;
+				if (malus > 0) {
+					malus = malus - 256;
+				}
+				return Math.max(1, ~~(velocity * (1 + malus)));
+			}
+			return velocity;
+		}
+	});
 
-    function targetPointForSkill (skillId, monster) {
-    	if (monster === undefined || skillId === undefined) { return null; }
-	    let missileName = getBaseStat("skills", skillId, "cltmissile");
-	    let missile = MissileData[missileName];
-	    if (!missile) {
-	    	missileName = getBaseStat("skills", skillId, "srvmissile");
-	    	missile = MissileData[missileName];
-	    }
-	    if (missile && missile.velocity > 0) {
-	        if (monster.isMoving && (monster.targetx !== me.x || monster.targety !== me.y)) {
-	            let startX = monster.x, startY = monster.y;
-	            // tiles per second velocities
-	            // ToDo: is monster slowed by freeze or something ?
-	            let monsterVelocityTPS = monster.currentVelocity;
-	            let missileVelocityTPS = missile.velocity;
-	            // tiles per frame velocities
-	            let monsterVelocityTPF = monsterVelocityTPS / 25;
-	            let missileVelocityTPF = missileVelocityTPS / 25;
-	            //console.log("monster is moving to "+monster.targetx+", "+monster.targety + " at speed "+monsterVelocity);
-	            let path = getPath(monster.area, startX, startY, monster.targetx, monster.targety, 2, 1);
-	            if (path && path.length) {
-	                // path is reversed from target to monster, we will check from last path position (target) to monster position
-	                path.reverse();
-	                let diffS = void 0;
-	                let diffF = void 0;
-	                let found = void 0;
-	                let time = {
-	                    missile: {},
-	                    monster: {}
-	                };
-	                for (let i = 0; i < path.length; i++) {
-	                    let pos = path[i];
-	                    // ToDo : does missing spawn at me position ?
-	                    let distanceForMissile = getDistance(me, pos);
-	                    if (distanceForMissile > missile.range) {
-	                        // too far for missile to reach this position
-	                        continue;
-	                    }
-	                    let distanceForMonster = getDistance({ x: startX, y: startY }, pos);
-	                    let timeForMonsterF = distanceForMonster / monsterVelocityTPF;
-	                    // time in seconds
-	                    // let castTimeS = GameData.castingDuration(skillId);
-	                    // let timeForMissileS = distanceForMissile / missileVelocityTPS + castTimeS;
-	                    // time in frames
-	                    let castTimeF = me.castingFrames(skillId);
-	                    let timeForMissileF = distanceForMissile / missileVelocityTPF + castTimeF;
-	                    // let timeForMonsterS = distanceForMonster / monsterVelocityTPS;
-	                    // Todo: missile and monster size
-	                    // diff seconds
-	                    // diffS = timeForMissileS-timeForMonsterS;
-	                    // diff frames
-	                    diffF = timeForMissileF - timeForMonsterF;
-	                    // diff > 0 : missile will reach pos after monster
-	                    // diff < 0 : missile will reach pos before monster
-	                    // console.log("time for monster to reach "+pos+" = "+timeForMonster);
-	                    // console.log("time for missile to reach "+pos+" = "+timeForMissile);
-	                    // console.log("diff = "+diff)
-	                    if (i === 0 && diffF >= 0) {
-	                        // last path position and missile is late, we can't predict next monster target, shoot at last path position
-	                        // it may fail because monster may be moving at other target while missile is arriving
-	                        // console.log("missile will be too late");
-	                        found = pos;
-	                        // time.missile.seconds = timeForMissileS;
-	                        time.missile.frames = timeForMissileF;
-	                        // time.monster.seconds = timeForMonsterS;
-	                        time.monster.frames = timeForMonsterF;
-	                        break;
-	                    }
-	                    // the number of frames needed for unit to move 1 tile
-	                    var timeToMoveOneTileMonsterF = 1 / monsterVelocityTPF;
-	                    // let timeToMoveOneTileMissileF = 1 / missileVelocityTPF;
-	                    // while missile is travelling, monster will continue to move
-	                    // if the difference is greater than the time a monster will move 1 tile, the missile will miss
-	                    // todo: monster size, missile size
-	                    if (diffF >= -1 * timeToMoveOneTileMonsterF && diffF <= 1 * timeToMoveOneTileMonsterF) {
-	                        found = pos;
-	                        // time.missile.seconds = timeForMissileS;
-	                        time.missile.frames = timeForMissileF;
-	                        // time.monster.seconds = timeForMonsterS;
-	                        time.monster.frames = timeForMonsterF;
-	                        break;
-	                    }
-	                }
-	                if (found) {
-	                    /*console.log("missile will hit monster in "+time.missile.seconds+" ("+time.missile.frames+") at "+found.x+", "+found.y);
-	                    console.log("time for monster = "+time.monster.seconds+ " ("+time.monster.frames+")")
-	                    console.log("diff missile-monster = "+diffS+ " ("+diffF+")");*/
-	                    return found;
-	                }
-	            }
-	        }
-	    }
-	    return null;
-	};
+	function targetPointForSkill (skillId, monster) {
+		if (monster === undefined || skillId === undefined || !monster.attackable) return null;
+		let missileName = getBaseStat("skills", skillId, "cltmissile");
+		let missile = MissileData[missileName];
+		if (!missile) {
+			missileName = getBaseStat("skills", skillId, "srvmissile");
+			missile = MissileData[missileName];
+		}
+		if (missile && missile.velocity > 0) {
+			if (monster.isMoving && (monster.targetx !== me.x || monster.targety !== me.y)) {
+				let startX = monster.x, startY = monster.y;
+				// tiles per second velocities
+				// ToDo: is monster slowed by freeze or something ?
+				let monsterVelocityTPS = monster.currentVelocity;
+				let missileVelocityTPS = missile.velocity;
+				// tiles per frame velocities
+				let monsterVelocityTPF = monsterVelocityTPS / 25;
+				let missileVelocityTPF = missileVelocityTPS / 25;
+				//console.log("monster is moving to "+monster.targetx+", "+monster.targety + " at speed "+monsterVelocity);
+				let path = getPath(monster.area, startX, startY, monster.targetx, monster.targety, 2, 1);
+				if (path && path.length) {
+				// path is reversed from target to monster, we will check from last path position (target) to monster position
+					path.reverse();
+					let diffS = 0;
+					let diffF = 0;
+					let found = 0;
+					let time = {
+						missile: {},
+						monster: {}
+					};
+					for (let i = 0; i < path.length; i++) {
+						let pos = path[i];
+						// ToDo : does missile spawn at me position ?
+						let distanceForMissile = getDistance(me, pos);
+						if (distanceForMissile > missile.range) {
+						// too far for missile to reach this position
+							continue;
+						}
+						let distanceForMonster = getDistance({ x: startX, y: startY }, pos);
+						let timeForMonsterF = distanceForMonster / monsterVelocityTPF;
+						// time in seconds
+						// let castTimeS = GameData.castingDuration(skillId);
+						// let timeForMissileS = distanceForMissile / missileVelocityTPS + castTimeS;
+						// time in frames
+						let castTimeF = me.castingFrames(skillId);
+						let timeForMissileF = distanceForMissile / missileVelocityTPF + castTimeF;
+						// let timeForMonsterS = distanceForMonster / monsterVelocityTPS;
+						// Todo: missile and monster size
+						// diff seconds
+						// diffS = timeForMissileS-timeForMonsterS;
+						// diff frames
+						diffF = timeForMissileF - timeForMonsterF;
+						// diff > 0 : missile will reach pos after monster
+						// diff < 0 : missile will reach pos before monster
+						// console.log("time for monster to reach "+pos+" = "+timeForMonster);
+						// console.log("time for missile to reach "+pos+" = "+timeForMissile);
+						// console.log("diff = "+diff)
+						if (i === 0 && diffF >= 0) {
+						// last path position and missile is late, we can't predict next monster target, shoot at last path position
+						// it may fail because monster may be moving at other target while missile is arriving
+						// console.log("missile will be too late");
+							found = pos;
+							// time.missile.seconds = timeForMissileS;
+							time.missile.frames = timeForMissileF;
+							// time.monster.seconds = timeForMonsterS;
+							time.monster.frames = timeForMonsterF;
+							break;
+						}
+						// the number of frames needed for unit to move 1 tile
+						let timeToMoveOneTileMonsterF = 1 / monsterVelocityTPF;
+						// let timeToMoveOneTileMissileF = 1 / missileVelocityTPF;
+						// while missile is travelling, monster will continue to move
+						// if the difference is greater than the time a monster will move 1 tile, the missile will miss
+						// todo: monster size, missile size
+						if (diffF >= -1 * timeToMoveOneTileMonsterF && diffF <= 1 * timeToMoveOneTileMonsterF) {
+							found = pos;
+							// time.missile.seconds = timeForMissileS;
+							time.missile.frames = timeForMissileF;
+							// time.monster.seconds = timeForMonsterS;
+							time.monster.frames = timeForMonsterF;
+							break;
+						}
+					}
+					if (found) {
+						// console.log("missile will hit monster in "+time.missile.seconds+" ("+time.missile.frames+") at "+found.x+", "+found.y);
+						// console.log("time for monster = "+time.monster.seconds+ " ("+time.monster.frames+")")
+						// console.log("diff missile-monster = "+diffS+ " ("+diffF+")");
+						return found;
+					}
+				}
+			}
+		}
+		return null;
+	}
 
-// Export data
+	// Export data
 	GameData.isEnemy = isEnemy;
 	GameData.isAlive = isAlive;
 	GameData.onGround = onGround;

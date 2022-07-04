@@ -296,7 +296,7 @@ function LoadConfig () {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js")) {
 					include("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 				}
-			} 
+			}
 
 			break;
 		case 'Auradin':
@@ -596,11 +596,11 @@ function LoadConfig () {
 		}
 
 		// Spirit Shield
-        if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 100000 || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit)) {
-            if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js")) {
-                include("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
-            }
-        }
+		if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 100000 || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit)) {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js")) {
+				include("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
+			}
+		}
 
 		// Merc Insight
 		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).tier < 3600) {

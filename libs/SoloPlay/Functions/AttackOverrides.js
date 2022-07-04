@@ -49,11 +49,11 @@ Attack.init = function () {
 };
 
 Attack.getLowerResistPercent = function () {
-	let calc = function (level) { return Math.floor(Math.min(25 + (45 * ((110 * level) / (level + 6)) / 100), 70));};
-	if (me.expansion && CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) {
+	let calc = function (level) { return Math.floor(Math.min(25 + (45 * ((110 * level) / (level + 6)) / 100), 70)); };
+	if (me.expansion && CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)) {
 		return calc(CharData.skillData.chargedSkillsOnSwitch.find(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist).level);
 	}
-	if (me.getSkill(sdk.skills.LowerResist, 1)) {
+	if (Skill.canUse(sdk.skills.LowerResist)) {
 		return calc(me.getSkill(sdk.skills.LowerResist, 1));
 	}
 	return 0;
@@ -63,7 +63,7 @@ Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
 	if (!unit || !unit.type || unit.type === sdk.unittype.Player) return true;
 
 	let damageType = typeof val === "number" ? this.getSkillElement(val) : val;
-	let addLowerRes = !!(me.getSkill(sdk.skills.LowerResist, 1) || CharData.skillData.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist)) && unit.curseable;
+	let addLowerRes = !!(Skill.canUse(sdk.skills.LowerResist) || CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)) && unit.curseable;
 
 	// Static handler
 	if (val === sdk.skills.StaticField && this.getResist(unit, damageType) < 100) {
@@ -143,14 +143,14 @@ Attack.canAttack = function (unit = undefined) {
 };
 
 Attack.openChests = function (range = 10, x = undefined, y = undefined) {
-	if (!Config.OpenChests.Enabled) return false;
+	if (!Config.OpenChests.Enabled || !Misc.openChestsEnabled) return false;
 	x === undefined && (x = me.x);
 	y === undefined && (y = me.y);
 
 	if (me.getMobCount(range) > 1) return false;
 
-	let list = [],
-		ids = ["chest", "chest3", "weaponrack", "armorstand"];
+	let list = [];
+	let ids = ["chest", "chest3", "weaponrack", "armorstand"];
 
 	let unit = getUnit(2);
 
@@ -203,42 +203,50 @@ Attack.killTarget = function (name = undefined) {
 		return Attack.clear(15, 0, target);
 	}
 
-	while (attackCount < Config.MaxAttackCount) {
-		if (Misc.townCheck()) {
-			if (!target || !copyUnit(target).x) {
-				target = Misc.poll(() => getUnit(sdk.unittype.Monster, name), 1500, 60);
+	try {
+		// disable opening chests while killing unit
+		Misc.openChestsEnabled = false;
+
+		while (attackCount < Config.MaxAttackCount) {
+			if (Misc.townCheck()) {
+				if (!target || !copyUnit(target).x) {
+					target = Misc.poll(() => getUnit(sdk.unittype.Monster, name), 1500, 60);
+				}
 			}
-		}
 
-		// Check if unit got invalidated, happens if necro raises a skeleton from the boss's corpse.
-		if (!target || !copyUnit(target).x) {
-			target = getUnit(1, -1, -1, gid);
+			// Check if unit got invalidated, happens if necro raises a skeleton from the boss's corpse.
+			if (!target || !copyUnit(target).x) {
+				target = getUnit(1, -1, -1, gid);
 
-			if (!target) {
+				if (!target) {
+					break;
+				}
+			}
+
+			Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
+			attackCount > 0 && attackCount % 15 === 0 && Skill.getRange(Config.AttackSkill[1]) < 4 && Packet.flash(me.gid);
+
+			if (!ClassAttack.doAttack(target, attackCount % 15 === 0)) {
+				Packet.flash(me.gid);
+			}
+
+			me.overhead("KillTarget: " + target.name + " health " + target.hpPercent + " % left");
+
+			attackCount += 1;
+
+			if (!target.attackable) {
 				break;
 			}
 		}
 
-		Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
-		attackCount > 0 && attackCount % 15 === 0 && Skill.getRange(Config.AttackSkill[1]) < 4 && Packet.flash(me.gid);
+		ClassAttack.afterAttack();
 
-		if (!ClassAttack.doAttack(target, attackCount % 15 === 0)) {
-			Packet.flash(me.gid);
+		if (!target || !target.attackable) {
+			Pickit.pickItems();
 		}
-
-		me.overhead("KillTarget: " + target.name + " health " + target.hpPercent + " % left");
-
-		attackCount += 1;
-
-		if (!target.attackable) {
-			break;
-		}
-	}
-
-	ClassAttack.afterAttack();
-
-	if (!target || !target.attackable) {
-		Pickit.pickItems();
+	} finally {
+		// re-enable
+		Misc.openChestsEnabled = true;
 	}
 
 	return true;
@@ -263,11 +271,11 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 	if (typeof (range) !== "number") throw new Error("Attack.clear: range must be a number.");
 	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0 || Attack.stopClear || !x || !y) return false;
 
-	let i, start, coord, skillCheck, secAttack,
-		retry = 0,
-		monsterList = [],
-		gidAttack = [],
-		attackCount = 0;
+	let i, start, coord, skillCheck, secAttack;
+	let retry = 0;
+	let monsterList = [];
+	let gidAttack = [];
+	let attackCount = 0;
 
 	let target = getUnit(1);
 
@@ -289,12 +297,6 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 
 		monsterList.sort(this.sortMonsters);
 		target = copyUnit(monsterList[0]);
-
-		if ([29, 30, 31].indexOf(me.area) > -1 && me.amazon && me.hell) {
-			if ([11, 12, 13, 14].indexOf(target.classid) > -1) {
-				Attack.stopClear = true;
-			}
-		}
 
 		if (target.x !== undefined
 			&& (getDistance(target, x, y) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && target.attackable) {
@@ -325,8 +327,8 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 				attackCount += 1;
 				secAttack = me.barbarian ? ((target.spectype & 0x7) ? 2 : 4) : 5;
 
-				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3]) ||
-						(me.paladin && Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3] === 112 && !ClassAttack.getHammerPosition(target)))) {
+				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3])
+						|| (me.paladin && Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3] === 112 && !ClassAttack.getHammerPosition(target)))) {
 					skillCheck = Config.AttackSkill[secAttack];
 				} else {
 					skillCheck = Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3];
@@ -336,7 +338,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 				switch (skillCheck) {
 				case sdk.skills.BlessedHammer:
 					// Tele in random direction with Blessed Hammer
-					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % ((target.spectype & 0x7) ? 4 : 2) === 0) {
+					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (target.isSpecial ? 4 : 2) === 0) {
 						coord = CollMap.getRandCoordinate(me.x, -1, 1, me.y, -1, 1, 5);
 						Pather.moveTo(coord.x, coord.y);
 					}
@@ -344,7 +346,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 					break;
 				default:
 					// Flash with melee skills
-					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % ((target.spectype & 0x7) ? 15 : 5) === 0 && Skill.getRange(skillCheck) < 4) {
+					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (target.isSpecial ? 15 : 5) === 0 && Skill.getRange(skillCheck) < 4) {
 						Packet.flash(me.gid);
 					}
 
@@ -352,7 +354,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 				}
 
 				// Skip non-unique monsters after 15 attacks, except in Throne of Destruction
-				if (me.area !== sdk.areas.ThroneofDestruction && !(target.spectype & 0x7) && gidAttack[i].attacks > 15) {
+				if (me.area !== sdk.areas.ThroneofDestruction && !target.isSpecial && gidAttack[i].attacks > 15) {
 					print("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
 					monsterList.shift();
 				}
@@ -374,8 +376,9 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 	}
 
 	ClassAttack.afterAttack(pickit);
-	pickit && this.openChests(range, x, y);
+	pickit && Attack.openChests(range, x, y);
 	attackCount > 0 && pickit && Pickit.pickItems();
+	Pather.moveTo(x, y);
 
 	return true;
 };
@@ -397,11 +400,10 @@ Attack.buildMonsterList = function (skipBlocked = false) {
 };
 
 Attack.getMobCountAtPosition = function (x, y, range, filter = false, debug = true) {
-	let list = [],
-		count = 0,
-		ignored = [243];
+	let count = 0;
+	let ignored = [243];
 
-	list = this.buildMonsterList(true);
+	let list = (this.buildMonsterList(true) || []);
 	filter && (list = list.filter(mob => mob.spectype === 0));
 	list.sort(Sort.units);
 	debug = Developer.debugging.pathing;
@@ -476,19 +478,18 @@ Attack.clearLevelEx = function (givenSettings = {}) {
 
 // Clear an entire area until area is done or level is reached
 Attack.clearLevelUntilLevel = function (charlvl = undefined, spectype = 0) {
-	let room, result, rooms, myRoom, currentArea, previousArea;
+	let result, myRoom, previousArea;
 	!charlvl && (charlvl = me.charlvl + 1);
 
 	function RoomSort(a, b) {
 		return getDistance(myRoom[0], myRoom[1], a[0], a[1]) - getDistance(myRoom[0], myRoom[1], b[0], b[1]);
 	}
 
-	room = getRoom();
-
+	let room = getRoom();
 	if (!room) return false;
 
-	rooms = [];
-	currentArea = getArea().id;
+	let rooms = [];
+	let currentArea = getArea().id;
 
 	do {
 		rooms.push([room.x * 5 + room.xsize / 2, room.y * 5 + room.ysize / 2]);
@@ -498,9 +499,7 @@ Attack.clearLevelUntilLevel = function (charlvl = undefined, spectype = 0) {
 
 	while (rooms.length > 0) {
 		// get the first room + initialize myRoom var
-		if (!myRoom) {
-			room = getRoom(me.x, me.y);
-		}
+		!myRoom && (room = getRoom(me.x, me.y));
 
 		if (room) {
 			if (room instanceof Array) { // use previous room to calculate distance
@@ -553,10 +552,10 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0 || Attack.stopClear) return false;
 	!sortfunc && (sortfunc = this.sortMonsters);
 
-	let i, boss, orgx, orgy, start, skillCheck,
-		retry = 0,
-		gidAttack = [],
-		attackCount = 0;
+	let i, boss, orgx, orgy, start, skillCheck;
+	let retry = 0;
+	let gidAttack = [];
+	let attackCount = 0;
 
 	if (bossId) {
 		boss = Misc.poll(function () {
@@ -633,20 +632,21 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 
 				gidAttack[i].attacks += 1;
 				attackCount += 1;
-				let secAttack = me.barbarian ? ((target.spectype & 0x7) ? 2 : 4) : 5;
+				let isSpecial = target.isSpecial;
+				let secAttack = me.barbarian ? (isSpecial ? 2 : 4) : 5;
 
-				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3]) ||
-						(me.paladin && Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3] === sdk.skills.BlessedHammer && !ClassAttack.getHammerPosition(target)))) {
+				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[isSpecial ? 1 : 3])
+						|| (me.paladin && Config.AttackSkill[isSpecial ? 1 : 3] === sdk.skills.BlessedHammer && !ClassAttack.getHammerPosition(target)))) {
 					skillCheck = Config.AttackSkill[secAttack];
 				} else {
-					skillCheck = Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3];
+					skillCheck = Config.AttackSkill[isSpecial ? 1 : 3];
 				}
 
 				// Desync/bad position handler
 				switch (skillCheck) {
 				case sdk.skills.BlessedHammer:
 					// Tele in random direction with Blessed Hammer
-					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % ((target.spectype & 0x7) ? 4 : 2) === 0) {
+					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (isSpecial ? 4 : 2) === 0) {
 						let coord = CollMap.getRandCoordinate(me.x, -1, 1, me.y, -1, 1, 5);
 						Pather.moveTo(coord.x, coord.y);
 					}
@@ -654,7 +654,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 					break;
 				default:
 					// Flash with melee skills
-					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % ((target.spectype & 0x7) ? 15 : 5) === 0 && Skill.getRange(skillCheck) < 4) {
+					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (isSpecial ? 15 : 5) === 0 && Skill.getRange(skillCheck) < 4) {
 						Packet.flash(me.gid);
 					}
 
@@ -662,7 +662,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 				}
 
 				// Skip non-unique monsters after 15 attacks, except in Throne of Destruction
-				if (me.area !== sdk.areas.ThroneofDestruction && !(target.spectype & 0x7) && gidAttack[i].attacks > 15) {
+				if (me.area !== sdk.areas.ThroneofDestruction && !isSpecial && gidAttack[i].attacks > 15) {
 					print("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
 					monsterList.shift();
 				}
@@ -711,14 +711,14 @@ Attack.clearEx = function (givenSettings) {
 		sortfunc: () => {}
 	}, givenSettings);
 
-	if (typeof (settings.range) !== "number") { throw new Error("Attack.clear: range must be a number."); }
+	if (typeof (settings.range) !== "number") throw new Error("Attack.clear: range must be a number.");
 	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0 || Attack.stopClear) return false;
 	!settings.sortfunc && (settings.sortfunc = this.sortMonsters);
 
-	let i, boss, orgx, orgy, target, result, monsterList, start, coord, skillCheck, secAttack,
-		retry = 0,
-		gidAttack = [],
-		attackCount = 0;
+	let i, boss, orgx, orgy, target, result, monsterList, start, coord, skillCheck, secAttack;
+	let retry = 0;
+	let gidAttack = [];
+	let attackCount = 0;
 
 	if (settings.bossId) {
 		for (i = 0; !boss && i < 5; i++) {
@@ -768,9 +768,7 @@ Attack.clearEx = function (givenSettings) {
 		target = copyUnit(monsterList[0]);
 
 		if (target.x !== undefined && (getDistance(target, orgx, orgy) <= range || (this.getScarinessLevel(target) > 7 && target.distance <= settings.range)) && target.attackable) {
-			if (Config.Dodge && me.hpPercent <= Config.DodgeHP) {
-				this.deploy(target, Config.DodgeRange, 5, 9);
-			}
+			Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
 
 			settings.allowTown && Misc.townCheck(true);
 			result = ClassAttack.doAttack(target, attackCount % 15 === 0);
@@ -873,11 +871,12 @@ Attack.clearCoordList = function (list, pick) {
 // maybe store the copyUnit of the item or at least gid so we don't need to iterate through all our items to find the one with the charged skill when we need it
 Attack.getCurrentChargedSkillIds = function (init = false) {
 	let currentChargedSkills = [];
+	let chargedSkills = [];
 	let chargedSkillsOnSwitch = [];
 
-	// Item must be equipped, or a charm in inventory
+	// Item must be equipped - removed charms as I don't think at any point using hydra from torch has ever been worth it
 	me.getItemsEx(-1)
-		.filter(item => item && (item.isEquipped && !item.rare || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
+		.filter(item => item && ((item.isEquipped && !item.rare)))
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 
@@ -885,14 +884,25 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 				if (stats[204] instanceof Array) {
 					for (let i = 0; i < stats[204].length; i += 1) {
 						if (stats[204][i] !== undefined) {
-							// add to total list
+							// add to total list of skillIds
 							if (stats[204][i].charges > 0 && !currentChargedSkills.includes(stats[204][i].skill)) {
 								currentChargedSkills.push(stats[204][i].skill);
+								chargedSkills.push({
+									skill: stats[204][i].skill,
+									level: stats[204][i].level,
+									gid: item.gid,
+									//item: copyUnit(item)
+								});
 							}
 
 							// add to switch only list for use with swtich casting
 							if (stats[204][i].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204][i].skill) && item.isOnSwap) {
-								chargedSkillsOnSwitch.push({skill: stats[204][i].skill, level: stats[204][i].level});
+								chargedSkillsOnSwitch.push({
+									skill: stats[204][i].skill,
+									level: stats[204][i].level,
+									gid: item.gid,
+									//item: copyUnit(item)
+								});
 							}
 						}
 					}
@@ -900,11 +910,22 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 					// add to total list
 					if (stats[204].charges > 0 && !currentChargedSkills.includes(stats[204].skill)) {
 						currentChargedSkills.push(stats[204].skill);
+						chargedSkills.push({
+							skill: stats[204].skill,
+							level: stats[204].level,
+							gid: item.gid,
+							//item: copyUnit(item)
+						});
 					}
 
 					// add to switch only list for use with swtich casting
 					if (stats[204].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204].skill) && item.isOnSwap) {
-						chargedSkillsOnSwitch.push({skill: stats[204].skill, level: stats[204].skill});
+						chargedSkillsOnSwitch.push({
+							skill: stats[204].skill,
+							level: stats[204].level,
+							gid: item.gid,
+							//item: copyUnit(item)
+						});
 					}
 				}
 			}
@@ -915,7 +936,8 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 		switch (true) {
 		case !currentChargedSkills.equals(CharData.skillData.currentChargedSkills):
 		case Object.keys(Misc.recursiveSearch(chargedSkillsOnSwitch, CharData.skillData.chargedSkillsOnSwitch)).length > 0:
-			CharData.skillData.init(currentChargedSkills, chargedSkillsOnSwitch);
+		case Object.keys(Misc.recursiveSearch(chargedSkills, CharData.skillData.chargedSkills)).length > 0:
+			CharData.skillData.init(currentChargedSkills, chargedSkills, chargedSkillsOnSwitch);
 			!init && CharData.skillData.update();
 			break;
 		}
@@ -933,7 +955,7 @@ Attack.getItemCharges = function (skillId = undefined) {
 
 	// Item must equipped, or a charm in inventory
 	me.getItemsEx(-1)
-		.filter(item => item && (item.isEquipped && !item.rare || (item.isInInventory && [sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType))))
+		.filter(item => item && (item.isEquipped && !item.rare || (item.isInInventory && item.isCharm)))
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 
@@ -963,7 +985,7 @@ Attack.castCharges = function (skillId = undefined, unit = undefined) {
 		return false;
 	}
 
-	me.castChargedSkill(skillId, unit);
+	me.castChargedSkillEx(skillId, unit) && delay(25);
 	me.weaponswitch === 1 && me.switchWeapons(0);
 
 	return true;
@@ -974,7 +996,7 @@ Attack.switchCastCharges = function (skillId = undefined, unit = undefined) {
 		return false;
 	}
 
-	me.castSwitchChargedSkill(skillId, unit);
+	me.castSwitchChargedSkill(skillId, unit) && delay(25);
 	me.weaponswitch === 1 && me.switchWeapons(0);
 
 	return true;
@@ -1269,24 +1291,19 @@ Attack.pwnDia = function () {
 Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
 	if (arguments.length < 4) throw new Error("deploy: Not enough arguments supplied");
 
-	function sortGrid(a, b) {
-		return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
-	}
-
-	let grid, index, currCount;
-	let monList = [];
+	let index, currCount;
 	let count = 999;
-
-	monList = this.buildMonsterList();
-	monList.sort(Sort.units);
+	let monList = (this.buildMonsterList() || []).sort(Sort.units);
 
 	if (this.getMonsterCount(me.x, me.y, 15, monList) === 0) return true;
 
 	CollMap.getNearbyRooms(unit.x, unit.y);
-	grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
+	let grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
 
 	if (!grid.length) return false;
-	grid.sort(sortGrid);
+	grid.sort(function (a, b) {
+		return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
+	});
 
 	for (let i = 0; i < grid.length; i += 1) {
 		if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & 0x1) && !CollMap.checkColl(unit, {x: grid[i].x, y: grid[i].y}, 0x4)) {
@@ -1449,44 +1466,4 @@ Attack.castableSpot = function (x = undefined, y = undefined) {
 	}
 
 	return !(result === undefined || !!(result & Coords_1.BlockBits.Casting) || !!(result & Coords_1.Collision.BLOCK_MISSILE) || (result & 0x400) || (result & 0x1));
-};
-
-// hotfix for now, bugged with flying mobs (specters, ghosts, ect) apparently underneath them doesn't register as ground? so it fails the needFloor test
-// despite there being floor there. so for now check if its an area that doesn't have floor in some spots
-// better fix would be passing unit directly in instead of x and y, but that is going to need more changes all over
-Attack.validSpot = function (x, y, skill = -1) {
-	// Just in case
-	if (!me.area || !x || !y) return false;
-	// for now this just returns true and we leave getting into position to the actual class attack files
-	if (Skill.missileSkills.includes(skill)) return true;
-
-	let result;
-	let nonFloorAreas = [sdk.areas.ArcaneSanctuary, sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit];
-
-	// Treat thrown errors as invalid spot
-	try {
-		result = getCollision(me.area, x, y);
-	} catch (e) {
-		return false;
-	}
-
-	if (result === undefined) return false;
-
-	switch (true) {
-	case Skill.needFloor.includes(skill) && nonFloorAreas.includes(me.area):
-		let isFloor = !!(result & (0 | 0x1000));
-		// this spot is not on the floor (lava (river/chaos, space (arcane), ect))
-		if (!isFloor) {
-			return false;
-		}
-
-		return !(result & 0x1); // outside lava area in abaddon returns coll 1
-	default:
-		// Avoid non-walkable spots, objects - this preserves the orignal function and also physical attack skills will get here
-		if ((result & 0x1) || (result & 0x400)) return false;
-
-		break;
-	}
-
-	return true;
 };

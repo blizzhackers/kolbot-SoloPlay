@@ -32,15 +32,22 @@ include("SoloPlay/Tools/Tracker.js");
 include("SoloPlay/Functions/Globals.js");
 
 function main () {
-	let ironGolem, tick, debugInfo = {area: 0, currScript: "no entry"},
-		pingTimer = [],
-		quitFlag = false,
-		restart = false,
-		quitListDelayTime,
-		canQuit = true,
-		timerLastDrink = [];
+	let ironGolem, tick, debugInfo = {area: 0, currScript: "no entry"};
+	let pingTimer = [];
+	let quitFlag = false;
+	let restart = false;
+	let quitListDelayTime;
+	let canQuit = true;
+	let timerLastDrink = [];
 
-	print("ÿc8Kolbot-SoloPlayÿc0: Start Custom ToolsThread script");
+	let Overrides = require('../../modules/Override');
+
+	new Overrides.Override(Attack, Attack.getNearestMonster, function (orignal) {
+		let monster = orignal({skipBlocked: false, skipImmune: false});
+		return (monster ? " to " + monster.name : "");
+	}).apply();
+
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Start Custom ToolsThread script");
 	D2Bot.init();
 	SetUp.include();
 	Config.init(false);
@@ -62,9 +69,9 @@ function main () {
 	me.chickenmp = -1;
 
 	// General functions
-	this.checkPing = function (print) {
+	this.checkPing = function (print = false) {
 		// Quit after at least 5 seconds in game
-		if (getTickCount() - me.gamestarttime < 5000) {
+		if ((getTickCount() - me.gamestarttime < 5000) || !me.gameReady) {
 			return false;
 		}
 
@@ -78,10 +85,7 @@ function main () {
 					}
 
 					if (getTickCount() - pingTimer[m] >= Config.PingQuit[m].Duration * 1000) {
-						if (print) {
-							D2Bot.printToConsole("High ping (" + me.ping + "/" + Config.PingQuit[m].Ping + ") - leaving game.", 9);
-						}
-
+						print && D2Bot.printToConsole("High ping (" + me.ping + "/" + Config.PingQuit[m].Ping + ") - leaving game.", 9);
 						scriptBroadcast("pingquit");
 
 						return true;
@@ -96,14 +100,14 @@ function main () {
 	};
 
 	this.initQuitList = function () {
-		let string, obj, temp = [];
+		let temp = [];
 
 		for (let j = 0; j < Config.QuitList.length; j += 1) {
 			if (FileTools.exists("data/" + Config.QuitList[j] + ".json")) {
-				string = Misc.fileAction("data/" + Config.QuitList[j] + ".json", 0);
+				let string = Misc.fileAction("data/" + Config.QuitList[j] + ".json", 0);
 
 				if (string) {
-					obj = JSON.parse(string);
+					let obj = JSON.parse(string);
 
 					if (obj && obj.hasOwnProperty("name")) {
 						temp.push(obj.name);
@@ -115,34 +119,8 @@ function main () {
 		Config.QuitList = temp.slice(0);
 	};
 
-	this.getPotion = function (pottype, type) {
-		if (pottype === undefined) return false;
-
-		let items = me.getItemsEx().filter(item => item.itemType === pottype);
-		if (items.length === 0) return false;
-
-		// Get highest id = highest potion first
-		items.sort(function (a, b) {
-			return b.classid - a.classid;
-		});
-
-		for (let k = 0; k < items.length; k += 1) {
-			if (type < 3 && items[k].isInInventory && items[k].itemType === pottype) {
-				console.log("ÿc2Drinking potion from inventory.");
-				return copyUnit(items[k]);
-			}
-
-			if (items[k].mode === 2 && items[k].itemType === pottype) {
-				console.log("ÿc2" + (type > 2 ? "Giving Merc" : "Drinking") + " potion from belt.");
-				return copyUnit(items[k]);
-			}
-		}
-
-		return false;
-	};
-
 	this.togglePause = function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js", "tools/rushthread.js"];
+		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
 
 		for (let l = 0; l < scripts.length; l += 1) {
 			let script = getScript(scripts[l]);
@@ -167,7 +145,10 @@ function main () {
 	};
 
 	this.stopDefault = function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/EventThread.js", "libs/SoloPlay/Threads/AutoBuildThread.js", "libs/SoloPlay/Modules/Guard.js"];
+		let scripts = [
+			"default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/EventThread.js",
+			"libs/SoloPlay/Threads/AutoBuildThread.js", "libs/SoloPlay/Modules/Guard.js"
+		];
 
 		for (let l = 0; l < scripts.length; l += 1) {
 			let script = getScript(scripts[l]);
@@ -181,6 +162,7 @@ function main () {
 		chickenExit && D2Bot.updateChickens();
 		Config.LogExperience && Experience.log();
 		Developer.logPerformance && Tracker.update();
+		console.log("ÿc8Run duration ÿc2" + Developer.formatTime(getTickCount() - me.gamestarttime));
 		this.stopDefault();
 		quit();
 	};
@@ -190,6 +172,44 @@ function main () {
 		Developer.logPerformance && Tracker.update();
 		this.stopDefault();
 		D2Bot.restart();
+	};
+
+	this.getPotion = function (pottype = -1, type = -1) {
+		if (pottype === undefined) return false;
+
+		let items = me.getItemsEx().filter(item => item.itemType === pottype && (type > 2 ? item.isInBelt : true));
+		if (items.length === 0) return false;
+		let invoFirst = [0, 1].includes(type);
+
+		if (invoFirst) {
+			// sort by location (invo first, then classid)
+			items.sort(function (a, b) {
+				let aLoc = a.location;
+				let bLoc = b.location;
+				if (bLoc < aLoc) return -1;
+				if (bLoc > aLoc) return 1;
+				return b.classid - a.classid;
+			});
+		} else {
+			// Get highest id = highest potion first
+			items.sort(function (a, b) {
+				return b.classid - a.classid;
+			});
+		}
+
+		for (let k = 0; k < items.length; k += 1) {
+			if (type < 3 && items[k].isInInventory && items[k].itemType === pottype) {
+				console.log("ÿc2Drinking " + items[k].name + " from inventory.");
+				return copyUnit(items[k]);
+			}
+
+			if (items[k].mode === 2 && items[k].itemType === pottype) {
+				console.log("ÿc2" + (type > 2 ? "Giving Merc " : "Drinking ") + items[k].name + " from belt.");
+				return copyUnit(items[k]);
+			}
+		}
+
+		return false;
 	};
 
 	this.drinkPotion = function (type) {
@@ -258,10 +278,11 @@ function main () {
 					sendPacket(1, 0x26, 4, potion.gid, 4, 1, 4, 0);
 				}
 			} catch (e) {
-				console.warn(e);
+				console.errorReport(e);
 			}
 
 			timerLastDrink[type] = getTickCount();
+			delay(25);
 
 			return true;
 		}
@@ -302,29 +323,6 @@ function main () {
 		}
 
 		return false;
-	};
-
-	this.getNearestMonster = function () {
-		let gid, distance,
-			monster = getUnit(1),
-			range = 30;
-
-		if (monster) {
-			do {
-				if (monster.hp > 0 && monster.attackable && !monster.getParent()) {
-					distance = getDistance(me, monster);
-
-					if (distance < range) {
-						range = distance;
-						gid = monster.gid;
-					}
-				}
-			} while (monster.getNext());
-		}
-
-		monster = gid ? getUnit(1, -1, -1, gid) : false;
-
-		return monster ? " to " + monster.name : "";
 	};
 
 	this.checkVipers = function () {
@@ -508,14 +506,14 @@ function main () {
 				let generalString = "";
 				let itemToCheck = getUnit(101);
 				if (!!itemToCheck) {
-					itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) +
-									" | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n" +
-									"ÿc4AutoEquipKeepCheck: ÿc0" + Item.autoEquipKeepCheck(itemToCheck) + " | ÿc4AutoEquipCheckSecondary: ÿc0" + Item.autoEquipCheckSecondary(itemToCheck) +
-									" | ÿc4AutoEquipKeepCheckMerc: ÿc0" + Item.autoEquipKeepCheckMerc(itemToCheck) + "\nÿc4Cubing Item: ÿc0" + Cubing.keepItem(itemToCheck) +
-									" | ÿc4Runeword Item: ÿc0" + Runewords.keepItem(itemToCheck) + " | ÿc4Crafting Item: ÿc0" + CraftingSystem.keepItem(itemToCheck) + " | ÿc4SoloWants Item: ÿc0" + SoloWants.keepItem(itemToCheck) +
-									"\nÿc4ItemType: ÿc0" + itemToCheck.itemType + "| ÿc4Classid: ÿc0" + itemToCheck.classid + "| ÿc4Quality: ÿc0" + itemToCheck.quality;
-					charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + Item.isFinalCharm(itemToCheck) + "\n" +
-							"ÿc4CharmType: ÿc0" + Item.getCharmType(itemToCheck) + " | ÿc4AutoEquipCharmCheck: ÿc0" + Item.autoEquipCharmCheck(itemToCheck) + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck);
+					itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck)
+						+ " | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n"
+						+ "ÿc4AutoEquipKeepCheck: ÿc0" + Item.autoEquipKeepCheck(itemToCheck) + " | ÿc4AutoEquipCheckSecondary: ÿc0" + Item.autoEquipCheckSecondary(itemToCheck)
+						+ " | ÿc4AutoEquipKeepCheckMerc: ÿc0" + Item.autoEquipKeepCheckMerc(itemToCheck) + "\nÿc4Cubing Item: ÿc0" + Cubing.keepItem(itemToCheck)
+						+ " | ÿc4Runeword Item: ÿc0" + Runewords.keepItem(itemToCheck) + " | ÿc4Crafting Item: ÿc0" + CraftingSystem.keepItem(itemToCheck) + " | ÿc4SoloWants Item: ÿc0" + SoloWants.keepItem(itemToCheck)
+						+ "\nÿc4ItemType: ÿc0" + itemToCheck.itemType + "| ÿc4Classid: ÿc0" + itemToCheck.classid + "| ÿc4Quality: ÿc0" + itemToCheck.quality;
+					charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + Item.isFinalCharm(itemToCheck) + "\n"
+						+ "ÿc4CharmType: ÿc0" + Item.getCharmType(itemToCheck) + " | ÿc4AutoEquipCharmCheck: ÿc0" + Item.autoEquipCharmCheck(itemToCheck) + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck);
 					generalString = "ÿc4ItemName: ÿc0" + itemToCheck.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<;.*]/, "")
 						+ "\nÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(itemToCheck, NTIP_CheckListNoTier, true).result;
 				}
@@ -531,7 +529,7 @@ function main () {
 
 			break;
 		case 105: // numpad 9 - get nearest preset unit id
-			print(this.getNearestPreset());
+			console.log(this.getNearestPreset());
 
 			break;
 		case 106: // numpad * - precast
@@ -553,9 +551,9 @@ function main () {
 		case 0x00: // "%Name1(%Name2) dropped due to time out."
 		case 0x01: // "%Name1(%Name2) dropped due to errors."
 		case 0x03: // "%Name1(%Name2) left our world. Diablo's minions weaken."
-			if ((typeof Config.QuitList === "string" && Config.QuitList.toLowerCase() === "any") ||
-					(Config.QuitList instanceof Array && Config.QuitList.indexOf (name1) > -1)) {
-				print(name1 + (mode === 0 ? " timed out" : " left"));
+			if ((typeof Config.QuitList === "string" && Config.QuitList.toLowerCase() === "any")
+				|| (Config.QuitList instanceof Array && Config.QuitList.indexOf (name1) > -1)) {
+				console.log(name1 + (mode === 0 ? " timed out" : " left"));
 
 				if (typeof Config.QuitListDelay !== "undefined" && typeof quitListDelayTime === "undefined" && Config.QuitListDelay.length > 0) {
 					Config.QuitListDelay.sort(function (a, b) {
@@ -569,9 +567,7 @@ function main () {
 				quitFlag = true;
 			}
 
-			if (Config.AntiHostile) {
-				scriptBroadcast("remove " + name1);
-			}
+			Config.AntiHostile && scriptBroadcast("remove " + name1);
 
 			break;
 		case 0x06:
@@ -695,13 +691,8 @@ function main () {
 			}
 
 			if (obj) {
-				if (obj.hasOwnProperty("currScript")) {
-					debugInfo.currScript = obj.currScript;
-				}
-
-				if (obj.hasOwnProperty("lastAction")) {
-					debugInfo.lastAction = obj.lastAction;
-				}
+				obj.hasOwnProperty("currScript") && (debugInfo.currScript = obj.currScript);
+				obj.hasOwnProperty("lastAction") && (debugInfo.lastAction = obj.lastAction);
 
 				//D2Bot.store(JSON.stringify(debugInfo));
 				DataFile.updateStats("debugInfo", JSON.stringify(debugInfo));
@@ -720,15 +711,13 @@ function main () {
 	addEventListener("scriptmsg", this.scriptEvent);
 	addEventListener("scriptmsg", Tracker.logLeveling);
 
-	// Load Fastmod
-	Packet.changeStat(105, Config.FCR);
-	Packet.changeStat(99, Config.FHR);
-	Packet.changeStat(102, Config.FBR);
-	Packet.changeStat(93, Config.IAS);
+	// Load Fastmod - patched
+	// Packet.changeStat(105, Config.FCR);
+	// Packet.changeStat(99, Config.FHR);
+	// Packet.changeStat(102, Config.FBR);
+	// Packet.changeStat(93, Config.IAS);
 
-	if (Config.QuitListMode > 0) {
-		this.initQuitList();
-	}
+	Config.QuitListMode > 0 && this.initQuitList();
 
 	let myAct = me.act;
 
@@ -740,7 +729,7 @@ function main () {
 				Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && this.drinkPotion(2);
 
 				if (Config.LifeChicken > 0 && me.hpPercent <= Config.LifeChicken && !me.inTown) {
-					!Developer.hideChickens && D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + this.getNearestMonster() + " in " + Pather.getAreaName(me.area) + ". Ping: " + me.ping, 9);
+					!Developer.hideChickens && D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + Pather.getAreaName(me.area) + ". Ping: " + me.ping, 9);
 					this.exit(true);
 
 					break;
@@ -803,9 +792,7 @@ function main () {
 					tick = getTickCount();
 				}
 
-				if (this.checkPing(true)) {
-					quitFlag = true;
-				}
+				this.checkPing(true) && (quitFlag = true);
 			}
 		} catch (e) {
 			Misc.errorReport(e, "ToolsThread");
@@ -835,7 +822,6 @@ function main () {
 		}
 
 		if (quitFlag && canQuit && (typeof quitListDelayTime === "undefined" || getTickCount() >= quitListDelayTime)) {
-			print("ÿc8Run duration ÿc2" + Developer.formatTime(getTickCount() - me.gamestarttime));
 			this.checkPing(false); // In case of quitlist triggering first
 			this.exit();
 

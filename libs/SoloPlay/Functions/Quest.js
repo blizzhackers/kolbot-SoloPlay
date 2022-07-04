@@ -419,7 +419,7 @@ const Quest = {
 		try {
 			if (!item || item.mode === 3) throw new Error("Couldn't find item");
 			if (!me.getQuest(35, 1)) throw new Error("Quest unavailable");
-			if (item.getStat(194) > 0 || getBaseStat("items", item.classid, "gemsockets") === 0) throw new Error("Item cannot be socketed");
+			if (item.sockets > 0 || getBaseStat("items", item.classid, "gemsockets") === 0) throw new Error("Item cannot be socketed");
 			if (!Storage.Inventory.CanFit(item)) throw new Error("(useSocketQuest) No space to get item back");
 			if (me.act !== 5 || !me.inTown) {
 				if (!Town.goToTown(5)) throw new Error("Failed to go to act 5");
@@ -456,7 +456,7 @@ const Quest = {
 				}
 			}
 
-			if (!item || item.getStat(194) === 0) {
+			if (!item || item.sockets === 0) {
 				me.itemoncursor && Storage.Stash.MoveTo(item);
 				throw new Error("Failed to socket item");
 			}
@@ -495,7 +495,7 @@ const Quest = {
 		try {
 			if (!item || item.mode === 3) throw new Error("Couldn't find item");
 			if (!Misc.checkQuest(3, 1)) throw new Error("Quest unavailable");
-			if (item.getStat(194) > 0 || item.quality > 3) throw new Error("Item cannot be imbued");
+			if (item.sockets > 0 || item.quality > 3) throw new Error("Item cannot be imbued");
 			if (!Storage.Inventory.CanFit(item)) throw new Error("(useImbueQuest) No space to get item back");
 			if (me.act !== 1 || !me.inTown) {
 				if (!Town.goToTown(1)) throw new Error("Failed to go to act 1");

@@ -1,31 +1,16 @@
-/*
-*	@filename	baal.js
-*	@author		theBGuy
-*	@credits 	sonic
-*	@desc		clear throne and kill baal
+/**
+*  @filename    baal.js
+*  @author      theBGuy
+*  @author      sonic
+*  @desc        clear throne and kill baal
+*
 */
 
 function baal () {
 	Config.BossPriority = false;
 
-	let decoyTick, decoyDuration;
-
-	if (me.amazon) {
-		decoyTick = 0;
-		decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, 1) * 5) * 1000;
-	}
-
-	let clearThrone = function () {
-		let pos = [
-			{ x: 15097, y: 5054 }, { x: 15085, y: 5053 },
-			{ x: 15085, y: 5040 }, { x: 15098, y: 5040 },
-			{ x: 15099, y: 5022 }, { x: 15086, y: 5024 }
-		];
-		return pos.forEach((node) => {
-			Pather.moveTo(node.x, node.y);
-			Attack.clear(30);
-		});
-	};
+	let decoyTick = 0;
+	let decoyDuration = (me.amazon ? Skill.getDuration(sdk.skills.Decoy) : 0);
 
 	let preattack = function () {
 		switch (me.classid) {
@@ -91,38 +76,6 @@ function baal () {
 		return false;
 	};
 
-	let checkThrone = function () {
-		let monster = getUnit(1);
-
-		if (monster) {
-			do {
-				if (monster.attackable && Attack.canAttack(monster) && monster.y < 5080) {
-					switch (monster.classid) {
-					case 23:
-					case 62:
-						return 1;
-					case 105:
-					case 381:
-						return 2;
-					case 557:
-						return 3;
-					case 558:
-						return 4;
-					case 571:
-						return 5;
-					default:
-						Attack.getIntoPosition(monster, 10, 0x4);
-						Attack.clear(15);
-
-						return false;
-					}
-				}
-			} while (monster.getNext());
-		}
-
-		return false;
-	};
-
 	let clearWaves = function () {
 		let boss;
 		let tick = getTickCount();
@@ -135,7 +88,7 @@ function baal () {
 
 			Misc.townCheck();
 
-			switch (checkThrone()) {
+			switch (Common.Baal.checkThrone()) {
 			case 1:
 				Attack.clearClassids(23, 62);
 
@@ -175,7 +128,7 @@ function baal () {
 					return false;
 				}
 
-				Attack.clearClassids(571);
+				Attack.clearClassids(sdk.monsters.ListerTheTormenter, sdk.monsters.Minion1, sdk.monsters.Minion2);
 
 				break MainLoop;
 			default:
@@ -187,7 +140,7 @@ function baal () {
 
 				if (getTickCount() - tick > 20000) {
 					tick = getTickCount();
-					clearThrone();
+					Common.Baal.clearThrone();
 				}
 
 				if (!preattack()) {
@@ -242,14 +195,33 @@ function baal () {
 		return count > totalAmount;
 	};
 
+	let canClearThrone = function () {
+		Pather.moveTo(15094, 5029);
+		let monList = getUnits(1).filter(i => i.attackable);
+		let canAttack = [], cantAttack = [];
+
+		monList.forEach(mon => {
+			Attack.canAttack(mon) ? canAttack.push(mon) : cantAttack.push(mon);
+		});
+
+		console.debug("Can Attack: " + canAttack.length, " Can't Attack: " + cantAttack.length);
+
+		if (!canAttack.length && !cantAttack.length) {
+			return true;
+		} else {
+			return (canAttack.length > cantAttack.length);
+		}
+	};
+
 	// START
 	Town.townTasks();
 	myPrint('starting baal');
 
 	Pather.checkWP(sdk.areas.WorldstoneLvl2, true) ? Pather.useWaypoint(sdk.areas.WorldstoneLvl2) : Pather.getWP(sdk.areas.WorldstoneLvl2, true);
 	Precast.doPrecast(true);
-	Pather.clearToExit(sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, true);
-	Pather.clearToExit(sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction, true);
+	Pather.canTeleport()
+		? Pather.moveToExit([sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction], true)
+		: (Pather.clearToExit(sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, true) && Pather.clearToExit(sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction, true));
 
 	// Enter throne room
 	Pather.moveTo(15095, 5029, 5);
@@ -262,53 +234,59 @@ function baal () {
 		return true;
 	}
 
-	Attack.clear(15);
-	clearThrone();
-
-	if (me.coldRes < 75 || me.poisonRes < 75) {
-		Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
-		Town.move("portalspot");
-		Pather.usePortal(sdk.areas.ThroneofDestruction, me.name);
-	}
-
-	if (!clearWaves()) {
+	if (!canClearThrone()) {
+		myPrint("Too many mobs I can't attack");
 		return true;
 	}
 
-	clearThrone(); // double check
-	Pather.moveTo(15094, me.paladin ? 5029 : 5038);
-	Pickit.pickItems();
-	Pather.moveTo(15094, me.paladin ? 5029 : 5038);
-	Pickit.pickItems();
-	Pather.moveTo(15090, 5008);
-	delay(2500 + me.ping);
-	Precast.doPrecast(true);
+	try {
+		Messaging.sendToScript(SoloEvents.filePath, 'addBaalEvent');
+		Attack.clear(15);
+		Common.Baal.clearThrone();
 
-	while (getUnit(1, 543)) {
-		delay(500 + me.ping);
-	}
+		if (me.coldRes < 75 || me.poisonRes < 75) {
+			Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
+			Town.move("portalspot");
+			Pather.usePortal(sdk.areas.ThroneofDestruction, me.name);
+		}
 
-	if (SetUp.finalBuild === "Bumper") {
-		return true;
-	}
+		if (!clearWaves()) {
+			throw new Error("Can't clear waves");
+		}
 
-	let portal = getUnit(2, 563);
-	portal && Pather.usePortal(null, null, portal);
+		Common.Baal.clearThrone(); // double check
+		Pather.moveTo(15094, me.paladin ? 5029 : 5038);
+		Pickit.pickItems();
+		Pather.moveTo(15094, me.paladin ? 5029 : 5038);
+		Pickit.pickItems();
+		Pather.moveTo(15090, 5008);
+		delay(2500 + me.ping);
+		Precast.doPrecast(true);
 
-	if (me.area === sdk.areas.WorldstoneChamber) {
+		if (SetUp.finalBuild === "Bumper") {
+			throw new Error("BUMPER");
+		}
+
+		if (Misc.poll(() => me.getMobCount(15) > 1)) {
+			clearWaves();
+		}
+
 		Config.BossPriority = true;
-		Pather.moveTo(15134, 5923);
-		Attack.killTarget(544); // Baal	
-		Pickit.pickItems();
 
-		// Grab static gold
-		NTIP.addLine("[name] == gold # [gold] >= 25");
-		Pather.moveTo(15072, 5894);
-		Pickit.pickItems();
-		Pather.moveTo(15095, 5881);
-		Pickit.pickItems();
-	} else {
-		print("ÿc8Kolbot-SoloPlayÿc0: Couldn't access portal.");
+		if (Common.Baal.killBaal()) {
+			// Grab static gold
+			NTIP.addLine("[name] == gold # [gold] >= 25");
+			Pather.moveTo(15072, 5894);
+			Pickit.pickItems();
+			Pather.moveTo(15095, 5881);
+			Pickit.pickItems();
+		} else {
+			print("ÿc8Kolbot-SoloPlayÿc0: Couldn't access portal.");
+		}
+	} catch (e) {
+		//
+	} finally {
+		Messaging.sendToScript(SoloEvents.filePath, 'removeBaalEvent');
 	}
 
 	return true;

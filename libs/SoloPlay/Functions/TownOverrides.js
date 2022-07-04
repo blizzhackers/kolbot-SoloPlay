@@ -14,7 +14,7 @@ new Overrides.Override(Town, Town.canTpToTown, function (orignal) {
 
 new Overrides.Override(Town, Town.repair, function (orignal, force = false) {
 	if (orignal(force)) {
-		this.shopItems();
+		Town.shopItems();
 
 		return true;
 	}
@@ -31,9 +31,9 @@ new Overrides.Override(Town, Town.buyPotions, function (orignal) {
 		if (!npc) return true;
 
 		// keep cold/pois res high with potions
-		if (me.gold > 10000 && npc.getItem(sdk.items.ThawingPotion)) {
-			CharData.buffData.thawing.need() && this.buyPots(12, "thawing", true);
-			CharData.buffData.antidote.need() && this.buyPots(12, "antidote", true);
+		if (me.gold > 50000 && npc.getItem(sdk.items.ThawingPotion)) {
+			CharData.buffData.thawing.need() && Town.buyPots(12, "thawing", true);
+			CharData.buffData.antidote.need() && Town.buyPots(12, "antidote", true);
 		}
 
 		return true;
@@ -52,50 +52,53 @@ Town.ignoredItemTypes = [
 ];
 
 Town.needPotions = function () {
+	// we aren't using MinColumn if none of the values are set
+	if (!Config.MinColumn.some(el => el > 0)) return false;
+	// no hp pots or mp pots in Config.BeltColumn (who uses only rejuv pots?)
+	if (!Config.BeltColumn.some(el => ["hp", "mp"].includes(el))) return false;
+	
+	// Start
 	if (me.charlvl > 2 && me.gold > 1000) {
-		let potion;
-		let needhp = true;
-		let needmp = true;
+		let pots = {
+			hp: [],
+			mp: [],
+		};
+		me.getItemsEx(-1, sdk.itemmode.inBelt)
+			.filter(p => [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion].includes(p.itemType) && p.x < 4)
+			.forEach(p => {
+				if (p.itemType === sdk.itemtype.HealingPotion) {
+					pots.hp.push(copyUnit(p));
+				} else if (p.itemType === sdk.itemtype.ManaPotion) {
+					pots.mp.push(copyUnit(p));
+				}
+			});
 
+		// quick check
+		if ((Config.BeltColumn.includes("hp") && !pots.hp.length)
+			|| (Config.BeltColumn.includes("mp") && !pots.hp.length)) {
+			return true;
+		}
+
+		// should we check the actual amount in the column?
+		// For now just keeping the way it was and checking if a column is empty
 		for (let i = 0; i < 4; i += 1) {
 			if (Config.MinColumn[i] <= 0) {
 				continue;
 			}
-			
-			if (Config.BeltColumn[i] === "hp") {
-				potion = me.getItem(-1, 2); // belt item
 
-				if (potion) {
-					do {
-						if (potion.code.includes("hp")) {
-							needhp = false;
-
-							break;
-						}
-					} while (potion.getNext());
-				}
-
-				if (needhp) {
+			switch (Config.BeltColumn[i]) {
+			case "hp":
+				if (!pots.hp.some(p => p.x === i)) {
+					console.debug("Column: " + (i + 1) + " needs hp pots");
 					return true;
 				}
-			}
-
-			if (Config.BeltColumn[i] === "mp") {
-				potion = me.getItem(-1, 2); // belt item
-
-				if (potion) {
-					do {
-						if (potion.code.includes("mp")) {
-							needmp = false;
-
-							break;
-						}
-					} while (potion.getNext());
-				}
-
-				if (needmp) {
+				break;
+			case "mp":
+				if (!pots.mp.some(p => p.x === i)) {
+					console.debug("Column: " + (i + 1) + " needs mp pots");
 					return true;
 				}
+				break;
 			}
 		}
 	}
@@ -105,7 +108,6 @@ Town.needPotions = function () {
 
 // need to build task list then do them.
 // This way we can look ahead to see if there is a task thats going to be done at the current npc like buyPots and just go ahead and do it
-
 Town.townTasks = function (buyPots = {}) {
 	let extraTasks = Object.assign({}, {
 		thawing: false,
@@ -120,7 +122,7 @@ Town.townTasks = function (buyPots = {}) {
 	!me.inTown && Town.goToTown();
 
 	// Burst of speed while in town
-	if (me.inTown && Precast.precastables.BurstofSpeed && !me.getState(sdk.states.BurstofSpeed)) {
+	if (me.inTown && Skill.canUse(sdk.skills.BurstofSpeed) && !me.getState(sdk.states.BurstofSpeed)) {
 		Skill.cast(sdk.skills.BurstofSpeed, 0);
 	}
 
@@ -154,7 +156,7 @@ Town.townTasks = function (buyPots = {}) {
 	Item.autoEquipMerc();
 	this.stash();
 	this.clearJunk();
-	this.sortInventory();
+	Town.sortInventory();
 	this.sortStash();
 	Quest.characterRespec();
 
@@ -167,8 +169,9 @@ Town.townTasks = function (buyPots = {}) {
 		Pather.checkForTeleCharges();
 	}
 
-	delay(200 + me.ping * 2);
+	delay(300);
 	console.debug("ÿc8End ÿc0:: ÿc8TownTasksÿc0 - ÿc7Duration: ÿc0" + formatTime(getTickCount() - tick));
+	Town.lastInteractedNPC.reset(); // unassign
 
 	return true;
 };
@@ -188,7 +191,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	!me.inTown && Town.goToTown();
 
 	// Burst of speed while in town
-	if (me.inTown && Precast.precastables.BurstofSpeed && !me.getState(sdk.states.BurstofSpeed)) {
+	if (Skill.canUse(sdk.skills.BurstofSpeed) && !me.getState(sdk.states.BurstofSpeed)) {
 		Skill.cast(sdk.skills.BurstofSpeed, 0);
 	}
 
@@ -238,8 +241,9 @@ Town.doChores = function (repair = false, buyPots = {}) {
 		Pather.checkForTeleCharges();
 	}
 
-	delay(250);
+	delay(300);
 	console.debug("ÿc8End ÿc0:: ÿc8TownChoresÿc0 - ÿc7Duration: ÿc0" + formatTime(getTickCount() - tick));
+	Town.lastInteractedNPC.reset(); // unassign
 
 	return true;
 };
@@ -325,11 +329,6 @@ Town.cainID = function (force = false) {
 
 				break;
 			default:
-				Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm && Misc.logItem("Sold", item);
-				Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm && Misc.logItem("Sold", item);
-				Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm && Misc.logItem("Sold", item);
-
-				Misc.itemLogger("Sold", item);
 				if ((getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) && (item.getItemCost(1) <= 1 || !item.sellable)) {
 					continue;
 				}
@@ -339,7 +338,20 @@ Town.cainID = function (force = false) {
 				// Might as well sell the item if already in shop
 				if (getUIFlag(sdk.uiflags.Shop) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
 					console.log("clearInventory sell " + item.name);
-					Misc.itemLogger("Sold", item);
+					
+					switch (true) {
+					case (Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm):
+					case (Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm):
+					case (Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm):
+						Misc.logItem("Sold", item);
+
+						break;
+					default:
+						Misc.itemLogger("Dropped", item, "clearInventory");
+						
+						break;
+					}
+
 					item.sell();
 				} else {
 					console.log("clearInventory dropped " + item.name);
@@ -403,10 +415,10 @@ Town.fieldID = function () {
 	let list = this.getUnids();
 	if (!list) return false;
 
-	let tome = me.findItem(sdk.items.TomeofIdentify, 0, 3);
-	if (!tome || tome.getStat(sdk.stats.Quantity) < list.length) return false;
-
 	while (list.length > 0) {
+		let idTool = Town.getIdTool();
+		if (!idTool) return false;
+
 		let item = list.shift();
 		let result = Pickit.checkItem(item);
 
@@ -417,7 +429,7 @@ Town.fieldID = function () {
 
 		// unid item that should be identified
 		if (result.result === Pickit.result.UNID) {
-			this.identifyItem(item, tome, Config.FieldID.PacketID);
+			this.identifyItem(item, idTool, Config.FieldID.PacketID);
 			delay(50);
 			result = Pickit.checkItem(item);
 
@@ -468,9 +480,10 @@ Town.identify = function () {
 	
 	// Avoid unnecessary NPC visits
 	// Only unid items or sellable junk (low level) should trigger a NPC visit
-	if (!list.some(item =>
-		((!item.identified || Config.LowGold > 0) && ([-1, 4].includes(Pickit.checkItem(item).result) || (!item.identified && AutoEquip.hasTier(item))))
-	)) {
+	if (!list.some(item => {
+		let identified = item.identified;
+		return (!identified && ([-1, 4].includes(Pickit.checkItem(item).result) || (!identified && AutoEquip.hasTier(item))));
+	})) {
 		return false;
 	}
 
@@ -484,7 +497,7 @@ Town.identify = function () {
 	while (list.length > 0) {
 		let item = list.shift();
 
-		if (!item.identified && item.location === sdk.storage.Inventory && !this.ignoredItemTypes.includes(item.itemType)) {
+		if (!this.ignoredItemTypes.includes(item.itemType) && item.location === sdk.storage.Inventory && !item.identified) {
 			let result = Pickit.checkItem(item);
 
 			// Force ID for unid items matching autoEquip criteria
@@ -501,8 +514,10 @@ Town.identify = function () {
 
 				break;
 			case -1:
-				if (tome) {
-					this.identifyItem(item, tome);
+				let idTool = Town.getIdTool();
+
+				if (idTool) {
+					this.identifyItem(item, idTool);
 				} else {
 					scroll = npc.getItem(530);
 
@@ -542,7 +557,7 @@ Town.identify = function () {
 					break;
 				case -1: // unidentified
 					// At low level its not worth keeping these items until we can Id them it just takes up too much room
-					if (me.charlvl < 10 && item.quality === sdk.itemquality.Magic && item.classid !== sdk.items.SmallCharm) {
+					if (me.charlvl < 10 && item.magic && item.classid !== sdk.items.SmallCharm) {
 						Misc.itemLogger("Sold", item);
 						item.sell();
 					}
@@ -566,13 +581,22 @@ Town.identify = function () {
 
 					break;
 				default:
-					Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm && Misc.logItem("Sold", item);
-					Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm && Misc.logItem("Sold", item);
-					Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm && Misc.logItem("Sold", item);
+					if (!item.sellable) continue;
 
-					Misc.itemLogger("Sold", item);
+					switch (true) {
+					case (Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm):
+					case (Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm):
+					case (Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm):
+						Misc.logItem("Sold", item);
+
+						break;
+					default:
+						Misc.itemLogger("Sold", item);
+						
+						break;
+					}
+
 					item.sell();
-
 					timer = getTickCount() - this.sellTimer; // shop speedup test
 
 					if (timer > 0 && timer < 500) {
@@ -645,7 +669,7 @@ Town.shopItems = function () {
 	if (!items.length) return false;
 
 	let tick = getTickCount();
-	let haveMerc = !me.classic && Config.UseMerc && !!me.mercrevivecost && Misc.poll(() => !!me.getMerc(), 500, 100);
+	let haveMerc = !me.classic && Config.UseMerc && Misc.poll(() => !!me.getMerc(), 500, 100);
 	console.log("ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Evaluating " + npc.itemcount + " items.");
 
@@ -834,10 +858,7 @@ Town.unfinishedQuests = function () {
 	// Act 1
 	// Tools of the trade
 	let malus = me.getItem(sdk.items.quest.HoradricMalus);
-	if (malus) {
-		Town.goToTown(1);
-		Town.npcInteract("charsi");
-	}
+	!!malus && Town.goToTown(1) && Town.npcInteract("charsi");
 
 	let imbueItem = Misc.checkItemsForImbueing();
 	if (imbueItem) {
@@ -858,7 +879,7 @@ Town.unfinishedQuests = function () {
 	// Radament skill book
 	let book = me.getItem(sdk.items.quest.BookofSkill);
 	if (book) {
-		book.isInStash && this.openStash() && delay(300 + me.ping);
+		book.isInStash && Town.openStash() && delay(300 + me.ping);
 		book.interact();
 		print('ÿc8Kolbot-SoloPlayÿc0: used Radament skill book');
 		delay(500 + me.ping) && me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
@@ -868,20 +889,18 @@ Town.unfinishedQuests = function () {
 	// Figurine -> Golden Bird
 	if (me.getItem(sdk.items.quest.AJadeFigurine)) {
 		myPrint("starting jade figurine");
-		Town.goToTown(3);
-		Town.npcInteract("meshif");
+		Town.goToTown(3) && Town.npcInteract("meshif");
 	}
 
 	// Golden Bird -> Ashes
 	if (me.getItem(sdk.items.quest.TheGoldenBird)) {
-		Town.goToTown(3);
-		Town.npcInteract("alkor");
+		Town.goToTown(3) && Town.npcInteract("alkor");
 	}
 
 	// Potion of life
 	let pol = me.getItem(sdk.items.quest.PotofLife);
 	if (pol) {
-		pol.isInStash && this.openStash() && delay(300 + me.ping);
+		pol.isInStash && Town.openStash() && delay(300 + me.ping);
 		pol.interact();
 		print('ÿc8Kolbot-SoloPlayÿc0: used potion of life');
 	}
@@ -911,8 +930,7 @@ Town.unfinishedQuests = function () {
 	// Killed council but haven't talked to cain
 	if (!Misc.checkQuest(21, 0) && Misc.checkQuest(21, 4)) {
 		me.overhead("Finishing Travincal by talking to cain");
-		Town.goToTown(3);
-		Town.npcInteract("cain");
+		Town.goToTown(3) && Town.npcInteract("cain");
 		delay(300 + me.ping);
 		me.cancel();
 	}
@@ -1047,8 +1065,8 @@ Town.stash = function (stashGold = true) {
 
 	me.cancel();
 
-	let result = false,
-		items = Storage.Inventory.Compare(Config.Inventory);
+	let result = false;
+	let items = Storage.Inventory.Compare(Config.Inventory);
 
 	if (items) {
 		for (let i = 0; i < items.length; i += 1) {
@@ -1060,6 +1078,7 @@ Town.stash = function (stashGold = true) {
 				case Runewords.keepItem(items[i]):
 				case CraftingSystem.keepItem(items[i]):
 				case SoloWants.keepItem(items[i]):
+				case AutoEquip.wanted(items[i]) && pickResult === 0: // wanted but can't use yet
 				case !items[i].sellable: // quest/essences/keys/ect
 					result = true;
 
@@ -1214,6 +1233,14 @@ Town.clearInventory = function () {
 		}
 	}
 
+	if (Config.FieldID.Enabled && !me.getItem(sdk.items.TomeofIdentify)) {
+		let scrolls = me.getItemsEx().filter(i => i.isInInventory && i.classid === sdk.items.ScrollofIdentify);
+
+		while (scrolls.length > 2) {
+			sellOrDrop.push(scrolls.shift());
+		}
+	}
+
 	// Any leftover items from a failed ID (crashed game, disconnect etc.)
 	let items = (Storage.Inventory.Compare(Config.Inventory) || []);
 	items.length > 0 && (items = items.filter(function (item) {
@@ -1231,9 +1258,9 @@ Town.clearInventory = function () {
 	items.length > 0 && items.forEach(function (item) {
 		let result = Pickit.checkItem(item).result;
 
-		if ([0, 4].indexOf(result) === -1) {
-			if ((item.isBaseType && item.getStat(194) > 0) ||
-				([25, 69, 70, 71, 72].includes(item.itemType) && item.normal && item.getStat(194) === 0)) {
+		if ([Pickit.result.UNWANTED, Pickit.result.TRASH].indexOf(result) === -1) {
+			if ((item.isBaseType && item.sockets > 0) ||
+				([25, 69, 70, 71, 72].includes(item.itemType) && item.normal && item.sockets === 0)) {
 				if (Town.worseBaseThanStashed(item) && !Town.betterBaseThanWearing(item, Developer.debugging.junkCheck)) {
 					result = 4;
 				}
@@ -1242,7 +1269,7 @@ Town.clearInventory = function () {
 
 		!item.identified && (result = -1);
 
-		[0, 4].includes(result) && sell.push(item);
+		[Pickit.result.UNWANTED, Pickit.result.TRASH].includes(result) && sell.push(item);
 	});
 
 	sell = (sell.length > 0 ? sell.concat(sellOrDrop) : sellOrDrop.slice(0));
@@ -1255,7 +1282,7 @@ Town.clearInventory = function () {
 				delay(100);
 			}
 		} catch (e) {
-			console.warn(e);
+			console.errorReport(e);
 		}
 	});
 
@@ -1345,11 +1372,11 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 			break;
 		}
 
-		if (base.getStat(194) <= 0 && !preSocketCheck) {
+		if (base.sockets <= 0 && !preSocketCheck) {
 			return true;
 		}
 
-		if (base.getStat(194) === equippedItem.sockets || preSocketCheck) {
+		if (base.sockets === equippedItem.sockets || preSocketCheck) {
 			switch (equippedItem.prefixnum) {
 			case 20507: 	//Ancient's Pledge
 				if (me.paladin) {
@@ -1782,7 +1809,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[2, 70].indexOf(item.itemType) > -1// same item type as current
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b))
@@ -1791,7 +1818,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
@@ -1804,7 +1831,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[2, 69].indexOf(item.itemType) > -1// same item type as current
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
@@ -1813,7 +1840,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck))) {
 					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
@@ -1826,7 +1853,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 				.filter(item =>
 					item.itemType === 2// same item type as current
 					&& !item.ethereal // only noneth runeword bases
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on tier value, (better for skills)
@@ -1835,7 +1862,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0) {
+			if (base.sockets > 0) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					!base.ethereal &&
 					(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
@@ -1853,7 +1880,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			.filter(item =>
 				item.itemType === 3// same item type as current
 				&& !item.ethereal // only noneth runeword bases
-				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+				&& item.sockets === base.sockets // sockets match junk in review
 				&& [3, 7].indexOf(item.location) > -1 // locations
 			)
 			.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on tier value, (better for skills)
@@ -1862,7 +1889,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		if (itemsToCheck === undefined) return false;
 		if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-		if (base.getStat(194) > 0) {
+		if (base.sockets > 0) {
 			if (([3, 6, 7].indexOf(base.location) > -1) &&
 				!base.ethereal &&
 				(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
@@ -1882,7 +1909,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[37, 75, 71, 72].indexOf(item.itemType) > -1// same item type as current
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
@@ -1891,7 +1918,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.getStatEx(31) < itemsToCheck.getStatEx(31)))) {
@@ -1905,7 +1932,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 				.filter(item =>
 					[37, 75].indexOf(item.itemType) > -1// same item type as current
 					&& !item.ethereal // only noneth runeword bases
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on defense
@@ -1914,7 +1941,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					!base.ethereal &&
 					(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
@@ -1932,7 +1959,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[25].indexOf(item.itemType) > -1// same item type as current
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
@@ -1941,7 +1968,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
@@ -1973,7 +2000,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		itemsToCheck = me.getItemsEx()
 			.filter(item =>
 				item.itemType === base.itemType// same item type as current
-				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+				&& item.sockets === base.sockets // sockets match junk in review
 				&& [3, 7].indexOf(item.location) > -1 // locations
 				&& me.getStat(0) >= item.strreq && me.getStat(2) >= item.dexreq // I have enough str/dex for this item
 			)
@@ -1992,7 +2019,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			return true;
 		}
 
-		if (base.getStat(194) > 0 || itemsToCheck.getStat(194) === base.getStat(194)) {
+		if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
 			if (([3, 4, 7].indexOf(base.location) > -1) &&
 				(generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && (Item.getQuantityOwned(base) > 2 || base.getStatEx(18) < itemsToCheck.getStatEx(18))))) {
@@ -2011,7 +2038,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
 					[67, 88].indexOf(item.itemType) > -1// same item type as current
-					&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+					&& item.sockets === base.sockets // sockets match junk in review
 					&& [3, 7].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
@@ -2020,7 +2047,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.getStat(194) > 0) {
+			if (base.sockets > 0) {
 				if (([3, 4, 7].indexOf(base.location) > -1) &&
 					(generalScore(base) < generalScore(itemsToCheck))) {
 					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
@@ -2035,7 +2062,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		itemsToCheck = me.getItemsEx()
 			.filter(item =>
 				[34].indexOf(item.itemType) > -1// same item type as current
-				&& item.getStat(194) === base.getStat(194) // sockets match junk in review
+				&& item.sockets === base.sockets // sockets match junk in review
 				&& [3, 7].indexOf(item.location) > -1 // locations
 			)
 			.sort((a, b) => (a.getStatEx(23) + a.getStatEx(24)) - (b.getStatEx(23) + b.getStatEx(24))) // Sort on damage, low to high.
@@ -2044,7 +2071,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		if (itemsToCheck === undefined) return false;
 		if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-		if (base.getStat(194) > 0) {
+		if (base.sockets > 0) {
 			if (([3, 4, 7].indexOf(base.location) > -1) &&
 				(base.getStatEx(23) + base.getStatEx(24)) < (itemsToCheck.getStatEx(23) + itemsToCheck.getStatEx(24))) {
 				Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDamage: " + (base.getStatEx(23) + base.getStatEx(24)) + " itemToCheckDamage: " + (itemsToCheck.getStatEx(23) + itemsToCheck.getStatEx(24)));
@@ -2089,13 +2116,13 @@ Town.clearJunk = function () {
 			!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
 			junk.isInCube && Cubing.emptyCube();
 
-			if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
+			if (junk.sellable && (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)))) {
 				junkToSell.push(junk);
 
 				continue;
 			} else if (junk.drop()) {
 				myPrint("Cleared junk - " + junk.name);
-				delay(50 + me.ping);
+				delay(50);
 
 				continue;
 			}
@@ -2199,55 +2226,13 @@ Town.clearJunk = function () {
 	return true;
 };
 
-Town.npcInteract = function (name, cancel = true) {
-	let npc;
-
-	!name.includes("_") && (name = name.capitalize(true));
-	name.includes("_") && (name = "Qual_Kehk");
-
-	!me.inTown && Town.goToTown();
-
-	switch (NPC[name]) {
-	case NPC.Jerhyn:
-		Town.move('palace');
-		break;
-	case NPC.Hratli:
-		if (!me.getQuest(sdk_1.default.quests.SpokeToHratli, 0)) {
-			Town.move(NPC.Meshif);
-			break;
-		}
-		// eslint-disable-next-line no-fallthrough
-	default:
-		Town.move(NPC[name]);
-	}
-
-	npc = getUnit(1, NPC[name]);
-
-	// In case Jerhyn is by Warriv
-	if (name === "Jerhyn" && !npc) {
-		me.cancel();
-		Pather.moveTo(5166, 5206);
-		npc = getUnit(1, NPC[name]);
-	}
-
-	Packet.flash(me.gid);
-	delay(1 + me.ping * 2);
-
-	if (npc && npc.openMenu()) {
-		cancel && me.cancel();
-		return npc;
-	}
-
-	return false;
-};
-
 Town.needRepair = function () {
-	let quiver, bowCheck, quantity, inventoryQuiver,
-		repairAction = [],
-		canAfford = me.gold >= me.getRepairCost();
+	let quiver, quantity, inventoryQuiver;
+	let repairAction = [];
+	let canAfford = me.gold >= me.getRepairCost();
 
 	// Arrow/Bolt check
-	bowCheck = Attack.usingBow();
+	let bowCheck = Attack.usingBow();
 
 	if (bowCheck) {
 		switch (bowCheck) {

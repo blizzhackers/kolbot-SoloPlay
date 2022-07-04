@@ -1,13 +1,13 @@
-/*
-*	@filename	radament.js
-*	@author		isid0re
-*	@desc		radament quest for skillbook
+/**
+*  @filename    radament.js
+*  @author      theBGuy
+*  @desc        kill radament
+*
 */
 
 function radament () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting radament');
-	me.overhead("radament");
+	myPrint('starting radament');
 
 	if (!Pather.checkWP(sdk.areas.A2SewersLvl2, true)) {
 		Town.goToTown(2);
@@ -19,8 +19,10 @@ function radament () {
 
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.A2SewersLvl2, sdk.areas.A2SewersLvl3, true);
-	Pather.moveToPreset(me.area, 2, 355);
+	Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.HoradricScrollChest);
 	Attack.killTarget("Radament");
+	let book = item(sdk.quest.item.BookofSkill);
+	!!book ? Pickit.pickItem(book) : Attack.killTarget("Radament");
 	Pickit.pickItems();
 
 	if (Misc.checkQuest(9, 1)) {
@@ -29,9 +31,8 @@ function radament () {
 
 		let book = me.getItem(sdk.items.quest.BookofSkill);
 		if (book) {
-			book.isInStash && Town.openStash() && delay(300 + me.ping);
-			book.interact();
-			delay(500 + me.ping) && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
+			book.isInStash && Town.openStash() && delay(300);
+			book.use() && delay(500) && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
 		}
 	}
 

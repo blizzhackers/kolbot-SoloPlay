@@ -44,8 +44,169 @@ function main() {
 	Runewords.init();
 	Cubing.init();
 
-	let useHowl = me.barbarian && me.getSkill(sdk.skills.Howl, 0);
-	let useTerror = me.necromancer && me.getSkill(sdk.skills.Terror, 0);
+	let useHowl = Skill.canUse(sdk.skills.Howl);
+	let useTerror = Skill.canUse(sdk.skills.Terror);
+
+	let Overrides = require('../../modules/Override');
+
+	new Overrides.Override(Attack, Attack.getNearestMonster, function (orignal, givenSettings = {}) {
+		let settings = Object.assign({
+			skipBlocked: false,
+			skipImmune: false
+		}, givenSettings);
+		let monster = orignal(settings);
+		
+		if (monster) {
+			console.log("ÿc9TownChickenÿc0 :: Closest monster to me: " + monster.name + " | Monster classid: " + monster.classid);
+			return monster.classid;
+		}
+
+		return -1;
+	}).apply();
+
+	NodeAction.go = function () {
+		return;
+	};
+
+	Pather.usePortal = function (targetArea, owner, unit) {
+		if (targetArea && me.area === targetArea) return true;
+
+		me.cancelUIFlags();
+
+		function townAreaCheck (area = 0) {
+			return [sdk.areas.RogueEncampment, sdk.areas.LutGholein, sdk.areas.KurastDocktown, sdk.areas.PandemoniumFortress, sdk.areas.Harrogath].includes(area);
+		}
+
+		let preArea = me.area;
+		let leavingTown = townAreaCheck(preArea);
+
+		for (let i = 0; i < 13; i += 1) {
+			if (me.dead || me.area !== preArea) {
+				break;
+			}
+
+			if (i > 0 && owner && me.inTown) {
+				Town.move("portalspot");
+			}
+
+			let portal = unit ? copyUnit(unit) : Pather.getPortal(targetArea, owner);
+
+			if (portal) {
+				let redPortal = portal.classid === sdk.units.RedPortal;
+
+				if (portal.area === me.area) {
+					if (Skill.useTK(portal) && i < 3) {
+						portal.distance > 21 && (me.inTown && me.act === 5 ? Town.move("portalspot") : Pather.moveNearUnit(portal, 20));
+						if (Skill.cast(sdk.skills.Telekinesis, 0, portal)) {
+							if (Misc.poll(() => {
+								if (me.area !== preArea) {
+									Pather.lastPortalTick = getTickCount();
+									delay(100);
+
+									return true;
+								}
+
+								return false;
+							}, 500, 50)) {
+								return true;
+							}
+						}
+					} else {
+						portal.distance > 5 && this.moveToUnit(portal);
+
+						if (getTickCount() - this.lastPortalTick > (!leavingTown ? 250 : 2500)) {
+							i < 2 ? sendPacket(1, 0x13, 4, 0x2, 4, portal.gid) : Misc.click(0, 0, portal);
+							!!redPortal && delay(150);
+						} else {
+							// only delay if we are in town and leaving town, don't delay if we are attempting to portal from out of town since this is the chicken thread
+							// and we are likely being attacked
+							leavingTown && delay(300);
+							
+							continue;
+						}
+					}
+				}
+
+				// Portal to/from Arcane
+				if (portal.classid === 298 && portal.mode !== 2) {
+					Misc.click(0, 0, portal);
+					let tick = getTickCount();
+
+					while (getTickCount() - tick < 2000) {
+						if (portal.mode === 2 || me.area === sdk.areas.ArcaneSanctuary) {
+							break;
+						}
+
+						delay(10);
+					}
+				}
+
+				let tick = getTickCount();
+
+				while (getTickCount() - tick < 500) {
+					if (me.area !== preArea) {
+						this.lastPortalTick = getTickCount();
+						delay(100);
+
+						return true;
+					}
+
+					delay(10);
+				}
+
+				i > 1 && (i % 3) === 0 && Packet.flash(me.gid);
+			} else {
+				console.log("Didn't find portal, retry: " + i);
+				i > 3 && me.inTown && Town.move("portalspot", false);
+				if (i === 12) {
+					let p = getUnit(2, "portal");
+					console.debug(p);
+					if (!!p && Misc.click(0, 0, p) && Misc.poll(() => me.area !== preArea, 1000, 100)) {
+						this.lastPortalTick = getTickCount();
+						delay(100);
+
+						return true;
+					}
+				}
+				Packet.flash(me.gid);
+			}
+
+			delay(250);
+		}
+
+		return (targetArea ? me.area === targetArea : me.area !== preArea);
+	};
+
+	Town.visitTown = function () {
+		console.log("ÿc8Start ÿc0:: ÿc8visitTown");
+	
+		let preArea = me.area;
+		let preAct = sdk.areas.actOf(preArea);
+
+		// not an essential function -> handle thrown errors
+		try {
+			Town.goToTown();
+		} catch (e) {
+			return false;
+		}
+
+		Town.doChores();
+
+		me.act !== preAct && Town.goToTown(preAct);
+		Town.move("portalspot");
+
+		if (!Pather.usePortal(null, me.name)) {
+			try {
+				Pather.usePortal(preArea, me.name);
+			} catch (e) {
+				throw new Error("Town.visitTown: Failed to go back from town");
+			}
+		}
+
+		console.log("ÿc8End ÿc0:: ÿc8visitTown - currentArea: " + Pather.getAreaName(me.area));
+
+		return me.area === preArea;
+	};
 
 	this.togglePause = function () {
 		let scripts = ["default.dbj", "tools/antihostile.js"];
@@ -75,34 +236,6 @@ function main() {
 		return true;
 	};
 
-	this.getNearestMonster = function () {
-		let gid, distance,
-			monster = getUnit(1),
-			range = 30;
-
-		if (monster) {
-			do {
-				if (monster.hp > 0 && monster.attackable && !monster.getParent()) {
-					distance = getDistance(me, monster);
-
-					if (distance < range) {
-						range = distance;
-						gid = monster.gid;
-					}
-				}
-			} while (monster.getNext());
-		}
-
-		monster = gid ? getUnit(1, -1, -1, gid) : false;
-
-		if (monster) {
-			print("ÿc9TownChickenÿc0 :: Closest monster to me: " + monster.name + " | Monster classid: " + monster.classid);
-			return monster.classid;
-		}
-
-		return -1;
-	};
-
 	this.scriptEvent = function (msg) {
 		let obj;
 
@@ -117,65 +250,51 @@ function main() {
 			case "getMuleMode":
 			case "pingquit":
 				return;
+			case "townCheck":
+				switch (me.area) {
+				case sdk.areas.ArreatSummit:
+				case sdk.areas.UberTristram:
+					console.warn("Don't tp from " + Pather.getAreaName(me.area));
+					return;
+				default:
+					console.log("townCheck message recieved. First check passed.");
+					townCheck = true;
+
+					return;
+				}
+			case "quit":
+				//quitFlag = true;
+				// Maybe stop townChicken thread? Would that keep us from the crash that happens when we try to leave game while townChickening
+
+				break;
 			default:
 				break;
 			}
 
-			let updated = false;
 			switch (true) {
 			case msg.substring(0, 8) === "config--":
 				console.debug("update config");
 				Config = JSON.parse(msg.split("config--")[1]);
-				updated = true;
 
 				break;
 			case msg.substring(0, 7) === "skill--":
 				console.debug("update skillData");
 				obj = JSON.parse(msg.split("skill--")[1]);
 				Misc.updateRecursively(CharData.skillData, obj);
-				updated = true;
 
 				break;
 			case msg.substring(0, 6) === "data--":
 				console.debug("update myData");
 				obj = JSON.parse(msg.split("data--")[1]);
 				Misc.updateRecursively(myData, obj);
-				updated = true;
 
 				break;
 			case msg.toLowerCase() === "test":
 				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//\nÿc8MainData ::\n",
 					myData, "\nÿc8BuffData ::\n", CharData.buffData, "\nÿc8SkillData ::\n", CharData.skillData, "\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
-				updated = true;
 
 				break;
 			}
-
-			if (updated) return;
-		}
-
-		switch (msg) {
-		case "townCheck":
-			switch (me.area) {
-			case sdk.areas.ArreatSummit:
-			case sdk.areas.UberTristram:
-				console.warn("Don't tp from " + Pather.getAreaName(me.area));
-				return;
-			default:
-				console.log("townCheck message recieved. First check passed.");
-				townCheck = true;
-
-				break;
-			}
-
-			break;
-		case "quit":
-			//quitFlag = true;
-			// Maybe stop townChicken thread? Would that keep us from the crash that happens when we try to leave game while townChickening
-
-			break;
-		default:
-			break;
 		}
 	};
 
@@ -190,12 +309,14 @@ function main() {
 				this.togglePause();
 
 				while (!me.gameReady) {
-					if (me.dead) return false;
-					delay(100);
+					if (me.dead) {
+						scriptBroadcast("quit");
+						return false;
+					}
+					delay(40);
 				}
-
-				if (me.dead) return false;
-
+				
+				let t4 = getTickCount();
 				try {
 					myPrint("ÿc8TownChicken :: ÿc0Going to town");
 					Attack.stopClear = true;
@@ -203,7 +324,7 @@ function main() {
 					
 					// determine if this is really worth it
 					if (useHowl || useTerror) {
-						if ([156, 211, 242, 243, 544, 571, 345].indexOf(this.getNearestMonster()) === -1) {
+						if ([156, 211, 242, 243, 544, 571, 345].indexOf(Attack.getNearestMonster()) === -1) {
 							if (useHowl && Skill.getManaCost(130) < me.mp) {
 								Skill.cast(130, 0);
 							}
@@ -221,6 +342,7 @@ function main() {
 
 					return false;
 				} finally {
+					console.log("Took: " + formatTime(getTickCount() - t4) + " to visit town");
 					this.togglePause();
 
 					Attack.stopClear = false;

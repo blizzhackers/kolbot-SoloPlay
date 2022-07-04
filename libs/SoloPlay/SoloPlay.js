@@ -1,7 +1,7 @@
 /**
 *  @filename    SoloPlay.js
 *  @author      theBGuy
-*  @credit      isid0re
+*  @credit      kolton (built off of Questing.js)
 *  @desc        Base script file for Kolbot-SoloPlay system
 *
 */
@@ -37,17 +37,6 @@ function SoloPlay () {
 		}
 
 		if (me.charlvl === 1) {
-			if (!myData.initialized) {
-				myData.me.startTime = me.gamestarttime;
-				myData.me.level = me.charlvl;
-				myData.me.classid = me.classid;
-				myData.me.charName = me.name;
-				myData.me.strength = me.rawStrength;
-				myData.me.dexterity = me.rawDexterity;
-				myData.initialized = true;
-				CharData.updateData("me", myData) && updateMyData();
-			}
-			
 			let buckler = me.getItem(328);
 			!!buckler && buckler.isEquipped && buckler.drop();
 		}
@@ -122,6 +111,21 @@ function SoloPlay () {
 					// remove script function from function scope, so it can be cleared by GC
 					if (k < SetUp.scripts.length) {
 						delete this[SetUp.scripts[k]];
+					}
+				}
+
+				if (me.sorceress && me.hell && SetUp.scripts[k] === "bloodraven" && me.charlvl < 68) {
+					console.debug("End-run, we are not ready to keep pushing yet");
+					
+					break;
+				}
+
+				if (me.dead) {
+					// not sure how we got here but we are dead, why did toolsthread not quit lets check it
+					let tThread = getScript("libs/SoloPlay/Threads/ToolsThread.js");
+					if (!tThread || !tThread.running) {
+						// well that explains why, toolsthread seems to have crashed lets restart it so we quit properly
+						load("libs/SoloPlay/Threads/ToolsThread.js");
 					}
 				}
 			}

@@ -375,7 +375,7 @@ const SoloEvents = {
 
 		// 5 second delay (5000ms), then leave throne
 		while (getTickCount() - tick < 5000) {
-			this.customMoveTo(15098, 5082);
+			this.customMoveTo(15098, 5082, {allowTeleport: true});
 		}
 
 		tick = getTickCount();
@@ -485,57 +485,61 @@ const SoloEvents = {
 		}
 	},
 
-	// TODO: change this so we only start listening for an event when we know its relevent, i.e we start diablo script so start listening for dodge packet
-	// or we start den and haven't yet completed the quest. Also remove the listener when we are done
-	gamePacket: function (bytes) {
-		let wave, waveMonster;
+	diaEvent: function (bytes = []) {
+		if (!bytes.length) return;
+		// dia lightning
+		if (bytes[0] === 0x4C && bytes[6] === 193) {
+			Messaging.sendToScript(SoloEvents.filePath, 'dodge');
+		}
+	},
 
-		switch (bytes[0]) {
-		case 0x89: // d2gs unique event
-			if (me.area === sdk.areas.DenofEvil) {
-				Messaging.sendToScript(SoloEvents.filePath, 'finishDen');
-			}
+	skippedWaves: [],
 
-			break;
-		case 0x4c: // diablo lightning dodge
-			if (me.area === sdk.areas.ChaosSanctuary) {
-				if (bytes[6] === 193) {
-					if (!Pather.canTeleport() && (me.necromancer && ["Poison", "Summon"].includes(SetUp.currentBuild) || !me.sorceress)) {
-						Messaging.sendToScript(SoloEvents.filePath, 'dodge');
-					}
-				}
-			}
-
-			break;
-		case 0xa4: //baalwave
-			if ((me.hell && me.paladin && !Attack.auradin) || me.barbarian || me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")) {
-				waveMonster = ((bytes[1]) | (bytes[2] << 8));
-				wave = [62, 105, 557, 558, 571].indexOf(waveMonster);
+	baalEvent: function (bytes = []) {
+		if (!bytes.length) return;
+		// baal wave
+		if (bytes[0] === 0xA4) {
+			if ((me.hell && me.paladin && !Attack.auradin)
+				|| me.barbarian
+				|| me.gold < 5000
+				|| (!me.baal && SetUp.finalBuild !== "Bumper")) {
+				let waveMonster = ((bytes[1]) | (bytes[2] << 8));
+				let wave = [62, 105, 557, 558, 571].indexOf(waveMonster);
+				console.debug("Wave # " + wave);
+				if (SoloEvents.skippedWaves.includes(wave)) return;
+				let waveBoss = {
+					COLENZO: 0,
+					ACHMEL: 1,
+					BARTUC: 2,
+					VENTAR: 3,
+					LISTER: 4
+				};
 
 				switch (wave) {
-				case 0:
+				case waveBoss.COLENZO:
 					break;
-				case 1: 	// Achmel
-					if ((me.paladin && !Attack.auradin && me.hell) || (me.barbarian && ((me.charlvl < Config.levelCap && !me.baal) || me.hardcore))) {
+				case waveBoss.ACHMEL:
+					if ((me.paladin && !Attack.auradin && me.hell)
+						|| (me.barbarian && ((me.charlvl < Config.levelCap && !me.baal)
+						|| me.hardcore))) {
 						Messaging.sendToScript(SoloEvents.filePath, 'skip');
+						SoloEvents.skippedWaves.push(wave);
 					}
 
 					break;
-				case 2:
-				case 3:
+				case waveBoss.BARTUC:
+				case waveBoss.VENTAR:
 					break;
-				case 4: 	// Lister
-					if ((me.barbarian && (me.charlvl < Config.levelCap || !me.baal || me.hardcore)) || (me.charlvl < Config.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
+				case waveBoss.LISTER:
+					if ((me.barbarian && (me.charlvl < Config.levelCap || !me.baal || me.hardcore))
+						|| (me.charlvl < Config.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
 						Messaging.sendToScript(SoloEvents.filePath, 'skip');
+						SoloEvents.skippedWaves.push(wave);
 					}
 
 					break;
 				}
 			}
-
-			break;
-		default:
-			break;
 		}
 	},
 };

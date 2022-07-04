@@ -10,8 +10,8 @@
 !isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
 
 MuleLogger.getItemDesc = function (unit, logIlvl) {
-	let desc, index,
-		stringColor = "";
+	let desc, index;
+	let stringColor = "";
 
 	logIlvl === undefined && (logIlvl = this.LogItemLevel);
 
@@ -35,7 +35,8 @@ MuleLogger.getItemDesc = function (unit, logIlvl) {
 
 	// Lines are normally in reverse. Add color tags if needed and reverse order.
 	for (let i = 0; i < desc.length; i += 1) {
-		if (desc[i].indexOf(getLocaleString(3331)) > -1) { // Remove sell value
+		// Remove sell value
+		if (desc[i].indexOf(getLocaleString(3331)) > -1) {
 			desc.splice(i, 1);
 
 			i -= 1;
@@ -74,17 +75,15 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 
 	logIlvl === undefined && (logIlvl = this.LogItemLevel);
 
-	let i, code, desc, sock,
-		header = "",
-		color = -1,
-		name = unit.itemType + "_" + unit.fname.split("\n").reverse().join(" ").replace(/(y|ÿ)c[0-9!"+<:;.*]|\/|\\/g, "").trim();
-
-	desc = this.getItemDesc(unit, logIlvl);
-	color = unit.getColor();
+	let i, code, sock;
+	let header = "";
+	let name = unit.itemType + "_" + unit.fname.split("\n").reverse().join(" ").replace(/(y|ÿ)c[0-9!"+<:;.*]|\/|\\/g, "").trim();
+	let desc = (this.getItemDesc(unit, logIlvl) || "");
+	let color = (unit.getColor() || -1);
 
 	if (NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) {
 		if (unit.mode === sdk.itemmode.inStorage && type === "Player") {
-			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].indexOf(unit.itemType) > -1) {
+			if (unit.isCharm) {
 				desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit));
 			} else {
 				desc += ("\n\\xffc0Autoequip tier: " + NTIP.GetTier(unit));
@@ -95,7 +94,6 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 			}
 		} else if (unit.mode === sdk.itemmode.inStorage && type === "Merc") {
 			desc += ("\n\\xffc0Autoequip merctier: " + NTIP.GetMercTier(unit));
-
 		}
 	}
 
@@ -269,11 +267,10 @@ MuleLogger.logEquippedItems = function () {
 		delay(100);
 	}
 
-	let i, folder, string, parsedItem,
-		realm = me.realm || "Single Player",
-		merc, charClass,
-		finalString = "",
-		items = me.getItemsEx().filter(item => item.isEquipped || item.isEquippedCharm || (item.isInStorage && item.itemType === sdk.itemtype.Rune));
+	let folder, string, parsedItem;
+	let realm = me.realm || "Single Player";
+	let finalString = "";
+	let items = me.getItemsEx().filter(item => item.isEquipped || item.isEquippedCharm || (item.isInStorage && item.itemType === sdk.itemtype.Rune));
 
 	if (!FileTools.exists("mules/" + realm)) {
 		folder = dopen("mules");
@@ -297,26 +294,19 @@ MuleLogger.logEquippedItems = function () {
 		return;
 	}
 
-	function itemSort (a, b) {
-		return b.itemType - a.itemType;
-	}
+	items.sort((a, b) => b.itemType - a.itemType);
 
-	items.sort(itemSort);
-
-	for (i = 0; i < items.length; i += 1) {
+	for (let i = 0; i < items.length; i += 1) {
 		parsedItem = this.logItem(items[i], true, "Player");
 
 		// Always put name on Char Viewer items
-		if (!parsedItem.header) {
-			parsedItem.header = (me.account || "Single Player") + " / " + me.name;
-		}
-
+		!parsedItem.header && (parsedItem.header = (me.account || "Single Player") + " / " + me.name);
 		// Remove itemtype_ prefix from the name
 		parsedItem.title = parsedItem.title.substr(parsedItem.title.indexOf("_") + 1);
 
 		switch (items[i].mode) {
 		case sdk.itemmode.inStorage:
-			if (items[i].isInInventory) {
+			if (items[i].isInInventory && items[i].isEquippedCharm) {
 				parsedItem.title += " (equipped charm)";
 			} else {
 				parsedItem.title += " (in stash)";
@@ -324,11 +314,7 @@ MuleLogger.logEquippedItems = function () {
 
 			break;
 		case sdk.itemmode.Equipped:
-			if (items[i].isOnSwap) {
-				parsedItem.title += " (secondary equipped)";
-			} else {
-				parsedItem.title += " (equipped)";
-			}
+			parsedItem.title += (items[i].isOnSwap ? " (secondary equipped)" : " (equipped)");
 
 			break;
 		}
@@ -338,12 +324,12 @@ MuleLogger.logEquippedItems = function () {
 	}
 
 	if (Config.UseMerc) {
-		merc = Merc.getMercFix();
+		let merc = Merc.getMercFix();
 
 		if (merc) {
 			items = merc.getItemsEx();
 
-			for (i = 0; i < items.length; i += 1) {
+			for (let i = 0; i < items.length; i += 1) {
 				parsedItem = this.logItem(items[i], true, "Merc");
 				parsedItem.title += " (merc)";
 
@@ -354,7 +340,7 @@ MuleLogger.logEquippedItems = function () {
 
 	}
 
-	charClass = ["amazon-", "sorceress-", "necromancer-", "paladin-", "barbarian-", "druid-", "assassin-"][me.classid];
+	let charClass = ["amazon-", "sorceress-", "necromancer-", "paladin-", "barbarian-", "druid-", "assassin-"][me.classid];
 
 	// hccl = hardcore classic ladder
 	// scnl = softcore expan nonladder

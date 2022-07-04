@@ -8,17 +8,18 @@
 
 !isIncluded("common/Misc.js") && include("common/Misc.js");
 !isIncluded("SoloPlay/Functions/PrototypesOverrides.js") && include("SoloPlay/Functions/PrototypesOverrides.js");
+!isIncluded("SoloPlay/Functions/ItemPrototypes.js") && include("SoloPlay/Functions/ItemPrototypes.js");
 
 Item.getQuantityOwned = function (item = undefined) {
 	if (!item) return 0;
 	
 	let myItems = me.getItemsEx()
 		.filter(check =>
-			check.itemType === item.itemType // same item type as current
-				&& check.classid === item.classid // same item classid as current
-				&& check.quality === item.quality // same item quality as current
-				&& check.getStat(sdk.stats.NumSockets) === item.getStat(sdk.stats.NumSockets) // same socket count
-				&& check.isInStorage
+			check.itemType === item.itemType
+			&& check.classid === item.classid
+			&& check.quality === item.quality
+			&& check.sockets === item.sockets
+			&& check.isInStorage
 		);
 
 	return myItems.length;
@@ -119,8 +120,8 @@ Item.getEquippedItem = function (bodyLoc = -1) {
 			secondarytier: NTIP.GetSecondaryTier(item),
 			str: item.getStatEx(sdk.stats.Strength),
 			dex: item.getStatEx(sdk.stats.Dexterity),
-			durability: (item.getStat(sdk.stats.Quantity) ? 100 : (item.getStat(72) * 100 / item.getStat(73))),
-			sockets: item.getStat(sdk.stats.NumSockets),
+			durability: item.durabilityPercent,
+			sockets: item.sockets,
 			socketed: item.getItemsEx().length > 0,
 			isRuneword: item.runeword,
 			twoHanded: item.twoHanded,
@@ -428,15 +429,7 @@ Item.equip = function (item, bodyLoc) {
 							rolledBack = true;
 						}
 
-						if (Pickit.checkItem(cursorItem).result === 1
-						// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						|| (cursorItem.unique && Pickit.checkItem(cursorItem).result === 2)
-						// or keep if item is worth selling
-						|| (cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
-							if (Storage.Inventory.CanFit(cursorItem)) {
-								Storage.Inventory.MoveTo(cursorItem);
-							}
-						} else {
+						if (cursorItem && !cursorItem.shouldKeep()) {
 							cursorItem.drop();
 						}
 					}
@@ -555,16 +548,8 @@ Item.secondaryEquip = function (item, bodyLoc) {
 				if (getCursorType() === 3) {
 					let cursorItem = getUnit(100);
 
-					if (cursorItem) {
-						if (Pickit.checkItem(cursorItem).result === 1
-						// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						|| (cursorItem.unique && Pickit.checkItem(cursorItem).result === 2)
-						// or keep if item is worth selling
-						|| (cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
-							Storage.Inventory.CanFit(cursorItem) && Storage.Inventory.MoveTo(cursorItem);
-						} else {
-							cursorItem.drop();
-						}
+					if (cursorItem && !cursorItem.shouldKeep()) {
+						cursorItem.drop();
 					}
 				}
 
@@ -584,8 +569,8 @@ Item.autoEquipCheckSecondary = function (item) {
 	if (!Config.AutoEquip) return true;
 	if (me.classic) return false;
 
-	let tier = NTIP.GetSecondaryTier(item),
-		bodyLoc = Item.getBodyLocSecondary(item);
+	let tier = NTIP.GetSecondaryTier(item);
+	let bodyLoc = Item.getBodyLocSecondary(item);
 
 	for (let i = 0; tier > 0 && i < bodyLoc.length; i += 1) {
 		if (tier > Item.getEquippedItem(bodyLoc[i]).secondarytier && (Item.canEquip(item) || !item.identified)) {
@@ -698,20 +683,20 @@ Item.equipMerc = function (item, bodyLoc) {
 				Developer.debugging.autoEquip && Misc.logItem("Merc Equipped", mercenary.getItem(item.classid));
 			}
 
-			if (item.bodylocation === bodyLoc) {
+			let check = mercenary.getItem(item.classid);
+
+			if (check && check.bodylocation === bodyLoc) {
+				if (check.runeword) {
+					// just track runewords for now
+					myData.merc.gear.push(check.prefixnum);
+					CharData.updateData("merc", myData);
+				}
+
 				if (getCursorType() === 3) {
 					let cursorItem = getUnit(100);
 
-					if (cursorItem) {
-						if (Pickit.checkItem(cursorItem).result === 1
-						// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
-						|| (cursorItem.unique && Pickit.checkItem(cursorItem).result === 2)
-						// or keep if item is worth selling
-						|| (cursorItem.getItemCost(1) / (cursorItem.sizex * cursorItem.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
-							Storage.Inventory.CanFit(cursorItem) && Storage.Inventory.MoveTo(cursorItem);
-						} else {
-							cursorItem.drop();
-						}
+					if (cursorItem && !cursorItem.shouldKeep()) {
+						cursorItem.drop();
 					}
 				}
 
@@ -875,6 +860,7 @@ Item.autoEquipMerc = function () {
 		items.sort(sortEq);
 		let tier = NTIP.GetMercTier(items[0]);
 		let bodyLoc = Item.getBodyLocMerc(items[0]);
+		let name = items[0].name;
 
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
@@ -888,8 +874,8 @@ Item.autoEquipMerc = function () {
 						}
 					}
 
-					console.log("Merc " + items[0].name);
-					this.equipMerc(items[0], bodyLoc[j]) && console.log("ÿc9MercEquipÿc0 :: Equipped: " + items[0].fname + " MercTier: " + tier);
+					console.log("Merc " + name);
+					this.equipMerc(items[0], bodyLoc[j]) && console.log("ÿc9MercEquipÿc0 :: Equipped: " + name + " MercTier: " + tier);
 					
 					let cursorItem = getUnit(100);
 
@@ -1411,7 +1397,7 @@ Item.autoEquipCharms = function () {
 
 		for (let i = 0; i < totalSell.length; i++) {
 			totalSell[i].isInStash && !getUIFlag(sdk.uiflags.Stash) && Town.openStash();
-			if (totalSell[i].isInStash && !Storage.Inventory.MoveTo(totalSell[i])) {
+			if (totalSell[i].isInStash && (!totalSell[i].sellable || !Storage.Inventory.MoveTo(totalSell[i]))) {
 				totalSell[i].drop();
 				totalSell.splice(i, 1);
 				i -= 1;

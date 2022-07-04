@@ -7,6 +7,15 @@
 */
 
 // todo: change all values over to sdk for readability
+const sumElementalDmg = function (item) {
+	if (!item) return 0;
+	let fire = item.getStatEx(sdk.stats.FireMinDamage) + item.getStatEx(sdk.stats.FireMaxDamage);
+	let light = item.getStatEx(sdk.stats.LightMinDamage) + item.getStatEx(sdk.stats.LightMaxDamage);
+	let magic = item.getStatEx(sdk.stats.MagicMinDamage) + item.getStatEx(sdk.stats.MagicMaxDamage);
+	let cold = item.getStatEx(sdk.stats.ColdMinDamage) + item.getStatEx(sdk.stats.ColdMaxDamage);
+	let poison = (item.getStatEx(sdk.stats.PoisonMinDamage) * 125 / 256); // PSN damage adjusted for damage per frame (125/256)
+	return (fire + light + magic + cold + poison);
+};
 
 const mercscore = function (item) {
 	const mercWeights = {
@@ -64,7 +73,7 @@ const mercscore = function (item) {
 	mercRating += item.getStatEx(41) * mercWeights.LR; // add LR
 	mercRating += item.getStatEx(45) * mercWeights.PR; // add PR
 	mercRating += (item.getStatEx(3) + item.getStatEx(7) + (item.getStatEx(216) / 2048 * me.charlvl)) * mercWeights.HP; // add HP
-	mercRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 512)) * mercWeights.ELEDMG; // add elemental damage
+	mercRating += sumElementalDmg(item) * mercWeights.ELEDMG; // add elemental damage
 	mercRating += (item.getStatEx(142) + item.getStatEx(144) + item.getStatEx(146) + item.getStatEx(148)) * mercWeights.ABS; // add absorb damage
 	mercRating += item.getStatEx(34) * mercWeights.DR; // add integer damage resist
 	mercRating += item.getStatEx(36) * mercWeights.DR * 2; // add damage resist %
@@ -115,7 +124,7 @@ const mercscore = function (item) {
 		let sockets = Config.Runewords[x][0].length;
 		let baseCID = Config.Runewords[x][1];
 
-		if (item.classid === baseCID && item.quality < 4 && item.getStat(194) === sockets && !item.isRuneword) {
+		if (item.classid === baseCID && item.quality < 4 && item.sockets === sockets && !item.isRuneword) {
 			rwBase = true;
 		}
 	}
@@ -323,8 +332,8 @@ const tierscore = function (item, bodyloc) {
 	const buildInfo = Check.currentBuild();
 
 	this.generalScore = function (item) {
-		let generalRating = 0,
-			canTele = Pather.canTeleport();
+		let generalRating = 0;
+		let canTele = Pather.canTeleport();
 
 		// get item body location
 		let itembodyloc = Item.getBodyLoc(item);
@@ -412,9 +421,9 @@ const tierscore = function (item, bodyloc) {
 		resistRating += (item.getStatEx(sdk.stats.MaxPoisonResist) * tierWeights.resistWeights.MAXPR);
 
 		resistRating += (item.getStatEx(142) + item.getStatEx(144) + item.getStatEx(146) + item.getStatEx(148)) * tierWeights.resistWeights.ABS; // add absorb damage
-		resistRating += item.getStatEx(34) * tierWeights.resistWeights.DR; // add integer damage resist
+		resistRating += item.getStatEx(34) * tierWeights.resistWeights.DR / 2; // add integer damage resist
 		resistRating += item.getStatEx(36) * tierWeights.resistWeights.DR * 2; // add damage resist %
-		resistRating += item.getStatEx(35) * tierWeights.resistWeights.MR; // add integer magic damage resist
+		resistRating += item.getStatEx(35) * tierWeights.resistWeights.MR / 2; // add integer magic damage resist
 		resistRating += item.getStatEx(37) * tierWeights.resistWeights.MR * 2; // add magic damage resist %
 
 		return resistRating;
@@ -431,36 +440,39 @@ const tierscore = function (item, bodyloc) {
 		buildRating += item.getStatEx(93) * buildWeights.IAS; // add IAS
 		buildRating += item.getStatEx(74) * buildWeights.HPREGEN; // add hp regeneration
 		buildRating += item.getStatEx(26) * buildWeights.MANAREGEN; // add mana recovery
-		!item.isRuneword && (buildRating += (item.getStatEx(sdk.stats.NumSockets) * 10)); // priortize sockets
+		!item.isRuneword && (buildRating += (item.sockets * 10)); // priortize sockets
 
 		// pierce/mastery's not sure how I want to weight this so for now just its base value
 		buildInfo.usefulStats.forEach(stat => buildRating += item.getStatEx(stat));
 
 		// Melee Specific
-		if (!buildInfo.caster) {
+		if (!buildInfo.caster || Config.AttackSkill.includes(sdk.skills.Attack) || Config.LowManaSkill.includes(sdk.skills.Attack)) {
 			let eleDmgModifer = [sdk.itemtype.Ring, sdk.itemtype.Amulet].includes(item.itemType) ? 2 : 1;
+			let meleeRating = 0;
 
-			item.getStatEx(sdk.stats.ReplenishDurability) && (buildRating += 15);
-			item.getStatEx(sdk.stats.IgnoreTargetDefense) && (buildRating += 50);
+			item.getStatEx(sdk.stats.ReplenishDurability) && (meleeRating += 15);
+			item.getStatEx(sdk.stats.IgnoreTargetDefense) && (meleeRating += 50);
 
 			// should these be added and calc avg dmg instead?
 			// Sometimes we replace good weps with 2-300 ED weps that may be high dmg but aren't as good as the item we replaced
 			//buildRating += item.getStatEx(21) * buildWeights.MINDMG; // add MIN damage
 			//buildRating += item.getStatEx(22) * buildWeights.MAXDMG; // add MAX damage
-			buildRating += ((item.getStatEx(sdk.stats.MaxDamage) + item.getStatEx(sdk.stats.MinDamage)) / 2) * buildWeights.AVGDMG;
 			//buildRating += item.getStatEx(23) * buildWeights.SECMINDMG; // add MIN damage
 			//buildRating += item.getStatEx(24) * buildWeights.SECMAXDMG; // add MAX damage
+			meleeRating += ((item.getStatEx(sdk.stats.MaxDamage) + item.getStatEx(sdk.stats.MinDamage)) / 2) * tierWeights.meleeWeights.AVGDMG;
 			
-			buildRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 256)) * (buildWeights.ELEDMG / eleDmgModifer); // add elemental damage PSN damage adjusted for damage per frame (125/256)
-			buildRating += item.getStatEx(19) * buildWeights.AR; // add AR
-			buildRating += item.getStatEx(136) * buildWeights.CB; // add crushing blow
-			buildRating += item.getStatEx(135) * buildWeights.OW; // add open wounds
-			buildRating += item.getStatEx(141) * buildWeights.DS; // add deadly strike
-			buildRating += item.getStatEx(60) * buildWeights.LL; // add LL
-			buildRating += item.getStatEx(62) * buildWeights.ML; // add ML
-			buildRating += item.getStatEx(151, 119) * 25; // sanctuary aura
-			buildRating += item.getStatEx(121) * buildWeights.DMGTODEMONS; // add damage % to demons
-			buildRating += item.getStatEx(122) * buildWeights.DMGTOUNDEAD; // add damage % to undead
+			meleeRating += sumElementalDmg(item) * (tierWeights.meleeWeights.ELEDMG / eleDmgModifer); // add elemental damage
+			meleeRating += item.getStatEx(19) * tierWeights.meleeWeights.AR; // add AR
+			meleeRating += item.getStatEx(136) * tierWeights.meleeWeights.CB; // add crushing blow
+			meleeRating += item.getStatEx(135) * tierWeights.meleeWeights.OW; // add open wounds
+			meleeRating += item.getStatEx(141) * tierWeights.meleeWeights.DS; // add deadly strike
+			meleeRating += item.getStatEx(60) * tierWeights.meleeWeights.LL; // add LL
+			meleeRating += item.getStatEx(62) * tierWeights.meleeWeights.ML; // add ML
+			meleeRating += item.getStatEx(151, 119) * 25; // sanctuary aura
+			meleeRating += item.getStatEx(121) * tierWeights.meleeWeights.DMGTODEMONS; // add damage % to demons
+			meleeRating += item.getStatEx(122) * tierWeights.meleeWeights.DMGTOUNDEAD; // add damage % to undead
+			
+			buildRating += (buildInfo.caster ? (meleeRating / 2) : meleeRating);
 		}
 
 		return buildRating;
@@ -602,7 +614,7 @@ const tierscore = function (item, bodyloc) {
 		let sockets = Config.Runewords[x][0].length;
 		let baseCID = Config.Runewords[x][1];
 
-		if (item.classid === baseCID && item.quality < 4 && item.getStat(194) === sockets && !item.isRuneword && !item.getItem()) {
+		if (item.classid === baseCID && item.quality < 4 && item.sockets === sockets && !item.isRuneword && !item.getItem()) {
 			rwBase = true;
 		}
 	}
@@ -656,7 +668,7 @@ const charmscore = function (item) {
 	if (!buildInfo.caster) {
 		charmRating += item.getStatEx(21) * 3; // add MIN damage
 		charmRating += item.getStatEx(22) * 3; // add MAX damage
-		charmRating += (item.getStatEx(48) + item.getStatEx(49) + item.getStatEx(50) + item.getStatEx(51) + item.getStatEx(52) + item.getStatEx(53) + item.getStatEx(54) + item.getStatEx(55) + (item.getStatEx(57) * 125 / 256)); // add elemental damage PSN damage adjusted for damage per frame (125/256)
+		charmRating += sumElementalDmg(item); // add elemental damage 
 		charmRating += item.getStatEx(19) * 0.5; // add AR
 	}
 

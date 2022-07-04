@@ -1,7 +1,8 @@
 /**
-*	@filename	cows.js
-*	@author		kolton, modified by isid0re and theBGuy for SoloPlay, leave if near cow king by theBGuy
-*	@desc		clear the Moo Moo Farm without killing the Cow King
+*  @filename    cows.js
+*  @author      kolton, theBGuy
+*  @desc        clear the Moo Moo Farm without killing the Cow King
+*
 */
 
 function cows () {
@@ -12,9 +13,7 @@ function cows () {
 
 		// Cain is incomplete, complete it then continue @isid0re
 		if (!me.tristram) {
-			if (!isIncluded("SoloPlay/Scripts/tristram.js")) {
-				include("SoloPlay/Scripts/tristram.js");
-			}
+			!isIncluded("SoloPlay/Scripts/tristram.js") && include("SoloPlay/Scripts/tristram.js");
 
 			for (let i = 0; i < 5; i++) {
 				tristram();
@@ -24,9 +23,7 @@ function cows () {
 				}
 			}
 
-			if (!me.inTown) {
-				Town.goToTown();
-			}
+			!me.inTown && Town.goToTown();
 		}
 
 		Pather.useWaypoint(sdk.areas.StonyField);
@@ -47,8 +44,43 @@ function cows () {
 	};
 
 	this.openPortal = function (portalID, ...classIDS) {
-		if (me.area !== sdk.areas.RogueEncampment) {
-			Town.goToTown(1);
+		me.area !== sdk.areas.RogueEncampment && Town.goToTown(1);
+
+		let npc, tome, scroll;
+		let tpTome = me.findItems(sdk.items.TomeofTownPortal, 0, 3);
+
+		try {
+			if (tpTome.length < 2) {
+				npc = Town.initNPC("Shop", "buyTpTome");
+
+				if (!getInteractedNPC()) {
+					throw new Error("Failed to find npc");
+				}
+
+				tome = npc.getItem(sdk.items.TomeofTownPortal);
+
+				if (!!tome && tome.getItemCost(0) < me.gold && tome.buy()) {
+					delay(500);
+					tpTome = me.findItems(sdk.items.TomeofTownPortal, 0, 3);
+					scroll = npc.getItem(529);
+					let scrollCost = scroll.getItemCost(0);
+					tpTome.forEach(function (book) {
+						while (book.getStat(sdk.stats.Quantity) < 20) {
+							scroll = npc.getItem(529);
+							
+							if (!!scroll && scrollCost < me.gold) {
+								scroll.buy(true);
+							} else {
+								break;
+							}
+
+							delay(20);
+						}
+					});
+				}
+			}
+		} finally {
+			me.cancelUIFlags();
 		}
 
 		!Town.openStash() && console.log('ÿc8Kolbot-SoloPlayÿc0: Failed to open stash. (openPortal)');
@@ -58,29 +90,23 @@ function cows () {
 			return false;
 		}
 
-		let cubingItem;
-
 		for (let classID of classIDS) {
-			cubingItem = me.getItem(classID);
+			let cubingItem = me.getItem(classID);
 
 			if (!cubingItem || !Storage.Cube.MoveTo(cubingItem)) {
 				return false;
 			}
 		}
 
-		while (!Cubing.openCube()) {
-			delay(1 + me.ping * 2);
-			Packet.flash(me.gid);
-		}
+		Misc.poll(() => Cubing.openCube(), seconds(10), 1000);
 
-		let cowPortal;
 		let tick = getTickCount();
 
 		while (getTickCount() - tick < 5000) {
 			if (Cubing.openCube()) {
 				transmute();
-				delay(750 + me.ping);
-				cowPortal = Pather.getPortal(portalID);
+				delay(750);
+				let cowPortal = Pather.getPortal(portalID);
 
 				if (cowPortal) {
 					break;
@@ -89,12 +115,13 @@ function cows () {
 		}
 
 		me.cancel();
+		Town.sortInventory();
 
 		return true;
 	};
 
 	if (!me.diffCompleted) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Final quest incomplete, cannot make cows yet');
+		console.log('ÿc8Kolbot-SoloPlayÿc0: Final quest incomplete, cannot make cows yet');
 		return true;
 	}
 
@@ -110,6 +137,7 @@ function cows () {
 	this.openPortal(sdk.areas.MooMooFarm, sdk.items.quest.WirtsLeg, sdk.items.TomeofTownPortal);
 	Town.buyBook();
 
+	// when does this become not worth it
 	if (Pather.canTeleport()) {
 		Misc.getExpShrine([sdk.areas.StonyField, sdk.areas.DarkWood, sdk.areas.BlackMarsh]);
 	} else {

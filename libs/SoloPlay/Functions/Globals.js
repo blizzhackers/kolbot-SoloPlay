@@ -54,80 +54,20 @@ function updateMyData () {
 }
 
 function ensureData () {
-	if (!myData.me.charms || !Object.keys(myData.me.charms).length) {
-		myData.me.charms = Check.finalBuild().finalCharms;
-		CharData.updateData("me", myData) && updateMyData();
-	}
-
-	let cUpdate = false;
-
-	if (!myData.me.charmGids) {
-		myData.me.charmGids = [];
-		CharData.updateData("me", myData) && updateMyData();
-	} else if (myData.me.charmGids.length > 0) {
-		// gids change from game to game so reset our list
-		myData.me.charmGids = [];
-		cUpdate = true;
-	}
-
-	const finalCharmKeys = Object.keys(myData.me.charms);
-	// gids change from game to game so reset our list
-	for (let i = 0; i < finalCharmKeys.length; i++) {
-		let cKey = finalCharmKeys[i];
-		if (myData.me.charms[cKey].have.length) {
-			myData.me.charms[cKey].have = [];
-			cUpdate = true;
-		}
-	}
-
-	cUpdate && updateMyData();
 	let temp = Misc.copy(myData);
 
 	if (myData.me.currentBuild !== SetUp.getBuild()) {
 		switch (true) {
-		case Check.currentBuild().active():
-		case Check.finalBuild().active():
-			myData.me.currentBuild = SetUp.getBuild();
+		// case Check.currentBuild().active():
+		// case Check.finalBuild().active():
+		// 	myData.me.currentBuild = SetUp.getBuild();
 
-			break;
+		// 	break;
 		case !["Start", "Stepping", "Leveling"].includes(SetUp.getBuild()) && myData.me.currentBuild !== myData.me.finalBuild:
 			myData.me.currentBuild = "Leveling";
 			myData.me.charms = {};
 
 			break;
-		}
-	}
-
-	if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff))) {
-		myData.me.highestDifficulty = sdk.difficulty.nameOf(me.diff);
-	}
-
-	if (!!me.smith && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed === false) {
-		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
-	}
-
-	if (!!me.respec && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed === false) {
-		myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
-	}
-
-	myData.me.level !== me.charlvl && (myData.me.level = me.charlvl);
-	myData.me.strength !== me.rawStrength && (myData.me.strength = me.rawStrength);
-	myData.me.dexterity !== me.rawDexterity && (myData.me.dexterity = me.rawDexterity);
-
-	// Merc check
-	if (me.expansion) {
-		if (!!me.getMerc()) {
-			// TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
-			// can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
-			let merc = me.getMerc();
-			if (merc.classid !== myData.merc.classid) {
-				myData.merc.classid = merc.classid;
-				console.debug(myData.merc);
-			}
-		}
-
-		if (!!me.shenk && myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed === false) {
-			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
 		}
 	}
 
@@ -154,51 +94,141 @@ const SetUp = {
 		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests",
 	],
 
-	// TODO: write me.mainDps prototype to clean up exclusions
-	/*scripts: {
-		corpsefire: {
-			preReq: () => { return me.den && me.hell; },
-			skipIf: () => { return me.druid && me.paladin; },
-			runIf: () => { return this.preReq() && !this.skipIf() && (!me.andariel || Check.brokeAf()); }
-		},
-		den: {
-			runIf: () => { return !me.den; }
-		},
-		bloodraven: {
-			skipIf: () => { return ["Lightning", "Trapsin", "Javazon"].includes(SetUp.currentBuild); },
-			byDiff: () => {
-				switch (me.diff) {
-				case sdk.difficulty.Normal:
-					return !me.bloodraven || (!me.summoner && Check.brokeAf()) || (!me.tristram && me.barbarian);
-				case sdk.difficulty.Nightmare:
-					return !me.bloodraven;
-				case sdk.difficulty.Hell:
-					return !this.skipIf();
+	init: function () {
+		let myData = CharData.getStats();
+
+		if (!myData.initialized) {
+			myData.me.startTime = me.gamestarttime;
+			myData.me.level = me.charlvl;
+			myData.me.classid = me.classid;
+			myData.me.charName = me.name;
+			myData.me.strength = me.rawStrength;
+			myData.me.dexterity = me.rawDexterity;
+			
+			if (me.expansion) {
+				myData.me.charms = Check.finalBuild().finalCharms;
+			}
+
+			myData.initialized = true;
+			CharData.updateData("me", myData);
+		}
+
+		let temp = Misc.copy(myData);
+
+		// if (myData.me.currentBuild !== SetUp.getBuild()) {
+		// 	// todo - some builds require merc to have infinity, if merc is dead while we perform this check our final build can return inactive
+		// 	// need to track mercs gear, all gear or just runewords? Might be alot of data file writes to do all gear
+		// 	switch (true) {
+		// 	case Check.currentBuild().active():
+		// 	case Check.finalBuild().active():
+		// 		myData.me.currentBuild = SetUp.getBuild();
+
+		// 		break;
+		// 	case !["Start", "Stepping", "Leveling"].includes(SetUp.getBuild()) && myData.me.currentBuild !== myData.me.finalBuild:
+		// 		myData.me.currentBuild = "Leveling";
+		// 		myData.me.charms = {};
+
+		// 		break;
+		// 	}
+		// }
+
+		let currDiffStr = sdk.difficulty.nameOf(me.diff).toLowerCase();
+
+		if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff))) {
+			myData.me.highestDifficulty = sdk.difficulty.nameOf(me.diff);
+		}
+
+		if (!!me.smith && myData[currDiffStr].imbueUsed === false) {
+			myData[currDiffStr].imbueUsed = true;
+		}
+
+		if (!!me.respec && myData[currDiffStr].respecUsed === false) {
+			myData[currDiffStr].respecUsed = true;
+		}
+
+		myData.me.level !== me.charlvl && (myData.me.level = me.charlvl);
+		myData.me.strength !== me.rawStrength && (myData.me.strength = me.rawStrength);
+		myData.me.dexterity !== me.rawDexterity && (myData.me.dexterity = me.rawDexterity);
+
+		if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < (Profile().difficulty)) {
+			// extra check to ensure of profile is set right
+			delay(rand(250, 1000));
+			D2Bot.setProfile(null, null, null, sdk.difficulty.nameOf(me.diff));
+		}
+
+		// expansion check
+		let cUpdate = false;
+		let mUpdate = false;
+
+		if (me.expansion) {
+			if (!myData.merc.gear) {
+				myData.merc.gear = [];
+				mUpdate = true;
+			}
+			
+			// merc check
+			if (!!me.getMerc()) {
+				// TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
+				// can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
+				let merc = me.getMerc();
+				
+				if (myData.merc.gear.length > 0) {
+					let mercItems = merc.getItemsEx();
+					let preLength = myData.merc.gear.length;
+					let check = myData.merc.gear.filter(i => mercItems.some(item => item.prefixnum === i));
+
+					if (check !== preLength) {
+						mUpdate = true;
+						myData.merc.gear = check;
+					}
 				}
-			},
-			runIf: () => { return this.byDiff(); }
-		},
-		treehead: {
-			skipIf: () => { return !me.hell || !me.paladin || !Pather.accessToAct(3); },
-			runIf: () => { return !this.skipIf() && SetUp.currentBuild !== SetUp.finalBuild; }
-		},
-		smith: {
-			// does smith have leveling potential? for now just if we need the q
-			runIf: () => { return !Misc.checkQuest(3, 1) && !me.smith; }
-		},
-		tristram: {
-			skipIf: () => { return },
-			byDiff: () => {
-				switch (me.diff) {
-				case sdk.difficulty.Normal:
-					return (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf());
-				case sdk.difficulty.Nightmare:
-				case sdk.difficulty.Hell:
-					return !this.skipIf();
+
+				merc.classid !== myData.merc.classid && (myData.merc.classid = merc.classid);
+
+				if (merc.classid === sdk.monsters.mercs.Guard && !Merc.checkMercSkill(myData.merc.type)) {
+				// go back, need to make sure this works properly.
+				// only "go back" if we are past the difficulty we need to be in to hire merc. Ex. In hell but want holy freeze merc
+				// only if we have enough gold on hand to hire said merc
+				// return to our orignal difficulty afterwards
 				}
 			}
-		},
-	},*/
+
+			// charm check
+			if (!myData.me.charms || !Object.keys(myData.me.charms).length) {
+				myData.me.charms = Check.finalBuild().finalCharms;
+				cUpdate = true;
+			}
+
+			if (!myData.me.charmGids || myData.me.charmGids.length > 0) {
+				myData.me.charmGids = [];
+				cUpdate = true;
+			}
+
+			const finalCharmKeys = Object.keys(myData.me.charms);
+			// gids change from game to game so reset our list
+			for (let i = 0; i < finalCharmKeys.length; i++) {
+				let cKey = finalCharmKeys[i];
+				if (myData.me.charms[cKey].have.length) {
+					myData.me.charms[cKey].have = [];
+					cUpdate = true;
+				}
+			}
+
+			if (!!me.shenk && myData[currDiffStr].socketUsed === false) {
+				myData[currDiffStr].socketUsed = true;
+			}
+
+			if (mUpdate) {
+				CharData.updateData("merc", myData);
+			}
+		}
+
+		let changed = Misc.recursiveSearch(myData, temp);
+	
+		if (Object.keys(changed).length > 0 || cUpdate) {
+			CharData.updateData("me", myData);
+		}
+	},
 
 	// Should this be moved elsewhere? Currently have to include Globals then call this to include rest of overrides
 	// which in doing so would include globals anyway but does this always need to be included first?
@@ -206,7 +236,7 @@ const SetUp = {
 	// scriptBroadcast all the time
 	include: function () {
 		let folders = ["Functions"];
-		folders.forEach( (folder) => {
+		folders.forEach((folder) => {
 			let files = dopen("libs/SoloPlay/" + folder + "/").getFiles();
 			Array.isArray(files) && files
 				.filter(file => file.endsWith('.js'))
@@ -330,7 +360,7 @@ const SetUp = {
 
 		D2Bot.setProfile(null, null, NameGen());
 		CharData.delete(true);
-		delay(100 + me.ping);
+		delay(250);
 		D2Bot.restart();
 	},
 
@@ -407,10 +437,10 @@ const SetUp = {
 		Config.Inventory[3] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
 		/* FastMod configuration. */
-		Config.FCR = Developer.developerMode.enabled ? 0 : 255;
-		Config.FHR = me.realm ? 0 : 255;
-		Config.FBR = me.realm ? 0 : 255;
-		Config.IAS = me.realm ? 0 : 255;
+		Config.FCR = 0;
+		Config.FHR = 0;
+		Config.FBR = 0;
+		Config.IAS = 0;
 
 		/* AutoStat configuration. */
 		Config.AutoStat.Enabled = true;
@@ -428,7 +458,7 @@ const SetUp = {
 		Config.AutoBuild.Enabled = true;
 		Config.AutoBuild.Verbose = false;
 		Config.AutoBuild.DebugMode = false;
-		Config.AutoBuild.Template = SetUp.getBuild();
+		Config.AutoBuild.Template = SetUp.currentBuild;
 	}
 };
 
@@ -572,7 +602,7 @@ const basicSocketables = {
 
 const goToDifficulty = function (diff = undefined, reason = "") {
 	try {
-		if (!diff) throw new Error("diff is undefined");
+		if (diff === undefined) throw new Error("diff is undefined");
 		
 		let diffString;
 		switch (typeof diff) {
@@ -596,6 +626,7 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 		D2Bot.setProfile(null, null, null, diffString);
 		CharData.updateData("me", "setDifficulty", diffString);
 		myPrint("Going to " + diffString + reason, true);
+		delay(250);
 		D2Bot.restart();
 	} catch (e) {
 		console.debug(e.message ? e.message : e);
@@ -612,11 +643,7 @@ const Check = {
 
 		switch (sequenceName.toLowerCase()) {
 		case "den":
-			if (!me.den) {
-				return true;
-			}
-
-			break;
+			return !me.den;
 		case "corpsefire":
 			if (me.den && me.hell && (!me.andariel || Check.brokeAf()) && !me.druid && !me.paladin) {
 				return true;
@@ -694,7 +721,7 @@ const Check = {
 			break;
 		case "a1chests":
 			if (me.classic) return false;
-			if (me.charlvl >= 70 && Pather.canTeleport()
+			if (me.charlvl >= 80 && Pather.canTeleport()
 				|| (me.barbarian && me.hell && !Pather.accessToAct(3)
 				&& (Item.getEquippedItem(5).tier < 1270 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
 				return true;
@@ -710,7 +737,8 @@ const Check = {
 		case "radament":
 			if (!Pather.accessToAct(2)) return false;
 			if (!me.radament || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild && me.hell)
-				|| (me.hell && me.sorceress && me.classic && !me.diablo)) {
+				|| (me.hell && me.sorceress && me.classic && !me.diablo)
+				|| (me.sorceress && me.hell && me.charlvl >= 74 && me.charlvl < 81)) {
 				return true;
 			}
 
@@ -743,7 +771,7 @@ const Check = {
 
 			break;
 		case "tombs":
-			if (Pather.accessToAct(2) && me.normal && me.charlvl < 24) {
+			if (Pather.accessToAct(2) && (me.normal && me.charlvl < 24)) {
 				return true;
 			}
 
@@ -762,7 +790,7 @@ const Check = {
 			break;
 		case "templeruns":
 			if (!Pather.accessToAct(3)) return false;
-			if ((!me.lamessen || (me.nightmare && me.charlvl < 50) || (me.hell && !me.classic))
+			if ((!me.lamessen || (me.nightmare && me.charlvl < 50) || (me.hell && !me.classic && me.charlvl > 80))
 				&& (!me.paladin || (me.paladin && !Check.currentBuild().caster))) {
 				return true;
 			}
@@ -987,7 +1015,7 @@ const Check = {
 		let myGold = me.gold;
 		let repairCost = me.getRepairCost();
 		let items = (Town.getItemsForRepair(100, false) || []);
-		let meleeChar = Check.currentBuild().caster;
+		let meleeChar = !Check.currentBuild().caster;
 		let msg = "";
 		let diff = -1;
 
@@ -1026,20 +1054,20 @@ const Check = {
 		}
 
 		if (diff > -1) {
+			console.debug("My gold: " + myGold + ", Repair cost: " + repairCost);
 			goToDifficulty(diff, msg);
 			scriptBroadcast("quit");
 		}
 	},
 
 	resistance: function () {
-		let resStatus;
 		let resPenalty = me.getResPenalty(me.diff + 1);
 		let frRes = me.getStat(sdk.stats.FireResist) - resPenalty;
 		let lrRes = me.getStat(sdk.stats.LightResist) - resPenalty;
 		let crRes = me.getStat(sdk.stats.ColdResist) - resPenalty;
 		let prRes = me.getStat(sdk.stats.PoisonResist) - resPenalty;
 
-		resStatus = ((frRes > 0) && (lrRes > 0) && (crRes > 0));
+		let resStatus = ((frRes > 0) && (lrRes > 0) && (crRes > 0));
 
 		return {
 			Status: resStatus,
@@ -1084,16 +1112,17 @@ const Check = {
 		switch (me.diff) {
 		case sdk.difficulty.Normal:
 			// Have runes or stealth and ancients pledge
-			if ([sdk.items.runes.Tal, sdk.items.runes.Eth].every((i) => !!me.getItem(i)) || this.haveItem("armor", "runeword", "Stealth")) {
+			if ([sdk.items.runes.Tal, sdk.items.runes.Eth].every((i) => !!me.getItem(i)) || me.checkItem({name: sdk.locale.items.Stealth}).have) {
 				needRunes = false;
 			}
 
 			break;
 		case sdk.difficulty.Nightmare:
 			if (([sdk.items.runes.Tal, sdk.items.runes.Thul, sdk.items.runes.Ort, sdk.items.runes.Amn].every((i) => !!me.getItem(i)) && Check.currentBuild().caster)
-				|| (!me.paladin && this.haveItem("sword", "runeword", "Spirit"))
-				|| (me.paladin && this.haveItem("sword", "runeword", "Spirit") && this.haveItem("auricshields", "runeword", "Spirit"))
-				|| (me.necromancer && this.haveItem("wand", "runeword", "White") && (this.haveItem("voodooheads", "runeword", "Rhyme") || Item.getEquippedItem(5).tier > 800))
+				|| (!me.paladin && me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Sword}).have)
+				|| (me.paladin && me.haveAll([{name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Sword}, {name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.AuricShields}]))
+				|| (me.necromancer && me.checkItem({name: sdk.locale.items.White}).have
+					&& (me.checkItem({name: sdk.locale.items.Rhyme, itemtype: sdk.itemtype.VoodooHeads}).have || Item.getEquippedItem(5).tier > 800))
 				|| (me.barbarian && (me.checkItem({name: sdk.locale.items.Lawbringer}).have || me.baal))) {
 				needRunes = false;
 			}
@@ -1250,7 +1279,7 @@ const Check = {
 			.filter(item => item.isBaseType && item.isInStorage && (isClassID ? item.classid === type : item.itemType === type));
 
 		for (let i = 0; i < items.length; i++) {
-			if (items[i].getStat(sdk.stats.NumSockets) === sockets && (isClassID ? items[i].classid === type : items[i].itemType === type)) {
+			if (items[i].sockets === sockets && (isClassID ? items[i].classid === type : items[i].itemType === type)) {
 				return true;
 			}
 		}
@@ -1445,7 +1474,7 @@ const SoloWants = {
 	buildList: function () {
 		let myItems = me.getItemsEx()
 			.filter(function (item) {
-				return !item.isRuneword && !item.questItem && item.quality >= sdk.itemquality.Magic && (item.getStat(sdk.stats.NumSockets) > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
+				return !item.isRuneword && !item.questItem && item.quality >= sdk.itemquality.Magic && (item.sockets > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
 			});
 		myItems
 			.filter(item => item.isEquipped)
@@ -1463,7 +1492,7 @@ const SoloWants = {
 		let hasWantedItems;
 		let list = [];
 		let socketedWith = item.getItemsEx();
-		let numSockets = item.getStat(sdk.stats.NumSockets);
+		let numSockets = item.sockets;
 		let curr = Config.socketables.find(({ classid }) => item.classid === classid);
 
 		if (curr && curr.socketWith.length > 0) {

@@ -16,13 +16,9 @@ Pickit.enabled = true;
 Pickit.checkItem = function (unit) {
 	let rval = NTIP.CheckItem(unit, false, true);
 
-	let durability = unit.getStat(72);
-
-	if (unit.getStat(73) > 0 && typeof durability === "number" && durability * 100 / unit.getStat(73) <= 0) {
-		return {
-			result: 4,
-			line: null
-		};
+	// quick return on essentials - we know they aren't going to be in the other checks
+	if (Pickit.essentials.includes(unit.itemType)) {
+		return rval;
 	}
 
 	if ((unit.classid === sdk.items.runes.Ral || unit.classid === sdk.items.runes.Ort) && Town.repairIngredientCheck(unit)) {
@@ -51,6 +47,17 @@ Pickit.checkItem = function (unit) {
 			result: 1,
 			line: "Frozen"
 		};
+	}
+
+	if (rval.result === 1) {
+		let durability = unit.getStat(72);
+		
+		if (typeof durability === "number" && unit.getStat(73) > 0 && durability * 100 / unit.getStat(73) <= 0) {
+			return {
+				result: 4,
+				line: null
+			};
+		}
 	}
 
 	if (SoloWants.checkItem(unit)) {
@@ -88,7 +95,7 @@ Pickit.checkItem = function (unit) {
 		};
 	}
 
-	if ([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(unit.classid) && NTIP.GetCharmTier(unit) > 0 && unit.identified) {
+	if (unit.isCharm && NTIP.GetCharmTier(unit) > 0 && unit.identified) {
 		if (Item.autoEquipCharmCheck(unit)) {
 			return {
 				result: 1,
@@ -125,8 +132,8 @@ Pickit.checkItem = function (unit) {
 	}
 
 	// LowGold
-	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && !Town.ignoredItemTypes.includes(unit.itemType) && !unit.questItem &&
-		(unit.isInInventory || (me.gold < Config.LowGold || me.gold < 500000))) {
+	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && !Town.ignoredItemTypes.includes(unit.itemType) && !unit.questItem
+		&& (unit.isInInventory || (me.gold < Config.LowGold || me.gold < 500000))) {
 		// Gold doesn't take up room, just pick it up
 		if (unit.classid === sdk.items.Gold) {
 			return {
@@ -135,13 +142,15 @@ Pickit.checkItem = function (unit) {
 			};
 		}
 
-		if (unit.getItemCost(1) / (unit.sizex * unit.sizey) >= 2000) {
+		let itemValuePerSquare = unit.getItemCost(1) / (unit.sizex * unit.sizey);
+
+		if (itemValuePerSquare >= 2000) {
 			// If total gold is less than 500k pick up anything worth 2k gold per square to sell in town.
 			return {
 				result: 4,
 				line: "Valuable Item: " + unit.getItemCost(1)
 			};
-		} else if (unit.getItemCost(1) / (unit.sizex * unit.sizey) >= 10) {
+		} else if (itemValuePerSquare >= 10 && me.gold < Config.LowGold) {
 			// If total gold is less than LowGold setting pick up anything worth 10 gold per square to sell in town.
 			return {
 				result: 4,
@@ -176,13 +185,12 @@ Pickit.amountOfPotsNeeded = function () {
 	_a);
 	if (hpMax > 0 || mpMax > 0 || rvMax > 0) {
 		me.getItemsEx()
-			.filter(function (pot) { return potTypes.includes(pot.itemType) && (pot.isInBelt || pot.isInInventory); })
+			.filter((pot) => potTypes.includes(pot.itemType) && (pot.isInBelt || pot.isInInventory))
 			.forEach(function (pot) {
 				needed[pot.itemType][pot.location] -= 1;
 			});
 	}
-	let belt = Storage.BeltSize();
-	let missing = Town.checkColumns(belt);
+	let missing = Town.checkColumns(Pickit.beltSize);
 	Config.BeltColumn.forEach(function (column, index) {
 		if (column === 'hp') {needed[sdk.itemtype.HealingPotion][sdk.storage.Belt] = missing[index];}
 		if (column === 'mp') {needed[sdk.itemtype.ManaPotion][sdk.storage.Belt] = missing[index];}
@@ -353,7 +361,7 @@ Pickit.canPick = function (unit) {
 				do {
 					if (potion.itemType === unit.itemType && ((potion.mode === 0 && potion.location === 3) || potion.mode === 2)) {
 						if (potion.classid < unit.classid) {
-							potion.interact();
+							potion.use();
 							needPots += 1;
 
 							break;
@@ -381,19 +389,21 @@ Pickit.pickItem = function (unit, status, keptLine) {
 	function ItemStats (unit) {
 		let self = this;
 		self.ilvl = unit.ilvl;
-		self.sockets = unit.getStat(194);
+		self.sockets = unit.sockets;
 		self.type = unit.itemType;
 		self.classid = unit.classid;
 		self.name = unit.name;
 		self.color = Pickit.itemColor(unit);
 		self.gold = unit.getStat(14);
-		let canTk = me.sorceress && me.getSkill(sdk.skills.Telekinesis, 1) && (this.type === 4 || this.type === 22 || (this.type > 75 && this.type < 82)) &&
-					getDistance(me, unit) > 5 && getDistance(me, unit) < 20 && !checkCollision(me, unit, 0x4);
+		self.dist = (unit.distance || Infinity);
+		let canTk = (me.sorceress && Skill.haveTK
+			&& (self.type === 4 || self.type === 22 || (self.type > 75 && self.type < 82))
+			&& self.dist > 5 && self.dist < 20 && !checkCollision(me, unit, 0x5));
 		self.useTk = canTk && (me.mpPercent > 50);
 		self.picked = false;
 	}
 
-	let item, tick, gid, stats, retry = false;
+	let item, tick, gid, retry = false;
 	let cancelFlags = [0x01, 0x08, 0x14, 0x0c, 0x19, 0x1a];
 	let itemCount = me.itemcount;
 
@@ -415,7 +425,8 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		}
 	}
 
-	stats = new ItemStats(item);
+	let stats = new ItemStats(item);
+	let tkMana = stats.useTk ? Skill.getManaCost(sdk.skills.Telekinesis) * 2 : Infinity;
 
 	MainLoop:
 	for (let i = 0; i < 3; i += 1) {
@@ -433,25 +444,24 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			break;
 		}
 
-		if (stats.useTk) {
+		if (stats.useTk && me.mp > tkMana) {
 			Skill.cast(sdk.skills.Telekinesis, 0, item);
 		} else {
-			if (getDistance(me, item) > (i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
-				if (item.getMobCount(8, 0x1 | 0x400 | 0x800) !== 0) {
+			if (item.distance > (Config.FastPick || i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
+				if (item.checkForMobs({range: 8, coll: (0x1 | 0x400 | 0x800)})) {
 					print("ÿc8PickItemÿc0 :: Clearing area around item I want to pick");
 					Pickit.enabled = false;		// Don't pick while trying to clear
 					Attack.clearPos(item.x, item.y, 10, false);
 					Pickit.enabled = true;		// Reset value
 				}
 
-				if (getDistance(me, item) > (Config.FastPick && i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
-					if ((Pather.useTeleport() && !Pather.moveToUnit(item)) || !Pather.moveTo(item.x, item.y, 0)) {
-						continue;
-					}
+				if (!Pather.moveToUnit(item)) {
+					continue;
 				}
 			}
 
-			sendPacket(1, 0x16, 4, 0x4, 4, item.gid, 4, 0);
+			// use packet first, if we fail and not using fast pick use click
+			(Config.FastPick || i < 1) ? sendPacket(1, 0x16, 4, 0x4, 4, gid, 4, 0) : Misc.click(0, 0, item);
 		}
 
 		tick = getTickCount();
@@ -544,13 +554,11 @@ Pickit.pickItem = function (unit, status, keptLine) {
 };
 
 Pickit.pickItems = function (range = Config.PickRange, once = false) {
+	if (me.dead || range < 0 || !Pickit.enabled) return false;
+	
 	let status, canFit;
 	let needMule = false;
 	let pickList = [];
-
-	Town.clearBelt();
-
-	if (me.dead || range < 0 || !Pickit.enabled) return false;
 
 	while (!me.idle) {
 		delay(40);
@@ -566,6 +574,11 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 		} while (item.getNext());
 	}
 
+	if (pickList.some(i => [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion].includes(i.itemType))) {
+		Town.clearBelt();
+		Pickit.beltSize = Storage.BeltSize();
+	}
+
 	while (pickList.length > 0) {
 		if (me.dead || !Pickit.enabled) return false;
 
@@ -579,7 +592,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 			status = this.checkItem(pickList[0]);
 
 			if (status.result && Pickit.canPick(pickList[0])) {
-				canFit = this.canFit(pickList[0]);
+				canFit = (Storage.Inventory.CanFit(pickList[0]) || Pickit.canFit(pickList[0]));
 
 				// Field id when our used space is above a certain percent or if we are full try to make room with FieldID
 				if (Config.FieldID.Enabled && (!canFit || Storage.Inventory.UsedSpacePercent() > Config.FieldID.UsedSpace)) {
