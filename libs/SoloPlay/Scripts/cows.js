@@ -33,7 +33,7 @@ function cows () {
 
 		if (me.area === sdk.areas.Tristram) {
 			Pather.moveTo(25048, 5177);
-			Quest.collectItem(sdk.items.quest.WirtsLeg, 268);
+			Quest.collectItem(sdk.items.quest.WirtsLeg, sdk.quest.chest.Wirt);
 			Pickit.pickItems();
 			Town.goToTown();
 		} else {
@@ -62,11 +62,11 @@ function cows () {
 				if (!!tome && tome.getItemCost(0) < me.gold && tome.buy()) {
 					delay(500);
 					tpTome = me.findItems(sdk.items.TomeofTownPortal, 0, 3);
-					scroll = npc.getItem(529);
+					scroll = npc.getItem(sdk.items.ScrollofTownPortal);
 					let scrollCost = scroll.getItemCost(0);
 					tpTome.forEach(function (book) {
 						while (book.getStat(sdk.stats.Quantity) < 20) {
-							scroll = npc.getItem(529);
+							scroll = npc.getItem(sdk.items.ScrollofTownPortal);
 							
 							if (!!scroll && scrollCost < me.gold) {
 								scroll.buy(true);

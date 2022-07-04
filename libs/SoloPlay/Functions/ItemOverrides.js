@@ -747,7 +747,7 @@ Item.getBodyLocMerc = function (item) {
 
 	switch (item.itemType) {
 	case sdk.itemtype.Shield:
-		if (mercenary.classid === sdk.monsters.mercs.IronWolf) {
+		if (mercenary.classid === sdk.units.mercs.IronWolf) {
 			bodyLoc = 5;
 		}
 
@@ -762,26 +762,26 @@ Item.getBodyLocMerc = function (item) {
 
 		break;
 	case sdk.itemtype.PrimalHelm:
-		if (mercenary.classid === sdk.monsters.mercs.A5Barb) {
+		if (mercenary.classid === sdk.units.mercs.A5Barb) {
 			bodyLoc = 1;
 		}
 		
 		break;
 	case sdk.itemtype.Bow:
-		if (mercenary.classid === sdk.monsters.mercs.Rogue) {
+		if (mercenary.classid === sdk.units.mercs.Rogue) {
 			bodyLoc = 4;
 		}
 
 		break;
 	case sdk.itemtype.Spear:
 	case sdk.itemtype.Polearm:
-		if (mercenary.classid === sdk.monsters.mercs.Guard) {
+		if (mercenary.classid === sdk.units.mercs.Guard) {
 			bodyLoc = 4;
 		}
 
 		break;
 	case sdk.itemtype.Sword:
-		if (mercenary.classid === sdk.monsters.mercs.IronWolf || mercenary.classid === sdk.monsters.mercs.A5Barb) {
+		if (mercenary.classid === sdk.units.mercs.IronWolf || mercenary.classid === sdk.units.mercs.A5Barb) {
 			bodyLoc = 4;
 		}
 
@@ -1160,20 +1160,25 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 		let next = false;
 
 		for (let i = 0; i < finalCharmKeys.length; i++) {
-			let cKey = finalCharmKeys[i];
-			if (myData.me.charms[cKey].have.indexOf(item.gid) === -1 && myData.me.charms[cKey].have.length < myData.me.charms[cKey].max) {
-				if (finalCharmInfo[cKey].stats(item)) {
-					console.debug(item.fname);
-					myData.me.charmGids.push(item.gid);
-					myData.me.charms[cKey].have.push(item.gid);
-					charms.keep.push(item);
-					found = true;
-					next = true;
-					
-					break;
-				}
-			}
-		}
+            let cKey = finalCharmKeys[i];
+            try {
+                if (!!myData.me.charms[cKey] && myData.me.charms[cKey].have.indexOf(item.gid) === -1
+                    && myData.me.charms[cKey].have.length < myData.me.charms[cKey].max) {
+                    if (finalCharmInfo[cKey].stats(item)) {
+                        console.debug(item.fname);
+                        myData.me.charmGids.push(item.gid);
+                        myData.me.charms[cKey].have.push(item.gid);
+                        charms.keep.push(item);
+                        found = true;
+                        next = true;
+                        
+                        break;
+                    }
+                }
+            } catch (e) {
+                console.errorReport(e);
+            }
+        }
 
 		if (next) {
 			continue;

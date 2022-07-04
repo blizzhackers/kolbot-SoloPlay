@@ -12,7 +12,7 @@ function mephisto () {
 			[coords[i], coords[i + 1]].distance > 60 && Pather.moveNear(coords[i], coords[i + 1], 60);
 			if ([coords[i], coords[i + 1]].mobCount(30) === 0) continue;
 			Pather.moveTo(coords[i], coords[i + 1]);
-			Attack.clearList(Attack.getMob([345, 346, 347], 0, 40));
+			Attack.clearList(Attack.getMob([sdk.units.monsters.Council1, sdk.units.monsters.Council2, sdk.units.monsters.Council3], 0, 40));
 		}
 
 		return true;
@@ -26,7 +26,7 @@ function mephisto () {
 	Pather.clearToExit(sdk.areas.DuranceofHateLvl2, sdk.areas.DuranceofHateLvl3, true);
 	
 	if (me.area !== sdk.areas.DuranceofHateLvl3) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to move to mephisto');
+		myPrint('Failed to move to mephisto');
 		return false;
 	}
 
@@ -50,7 +50,7 @@ function mephisto () {
 
 	Config.MercWatch = oldUseMerc ? false : oldUseMerc;
 
-	Attack.killTarget("Mephisto");
+	Attack.killTarget(sdk.units.monsters.Mephisto);
 
 	Config.MercWatch = oldUseMerc;
 	// Reset to normal value
@@ -64,7 +64,7 @@ function mephisto () {
 
 	Pather.moveTo(17581, 8070);
 	delay(250 + me.ping * 2);
-	Pather.useUnit(2, 342, sdk.areas.PandemoniumFortress);
+	Pather.useUnit(sdk.unittype.Object, sdk.units.portals.RedPortalToAct4, sdk.areas.PandemoniumFortress);
 	Misc.poll(() => me.area === sdk.areas.PandemoniumFortress, 1000, 30);
 
 	while (!me.gameReady) {

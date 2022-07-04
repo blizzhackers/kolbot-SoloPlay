@@ -30,14 +30,21 @@ if (!me.getItem(sdk.items.runes.Ber)) {
 
 // Have Ber and Jah runes before looking for normal base
 if (me.getItem(sdk.items.runes.Ber) && me.getItem(sdk.items.runes.Jah)) {
+	if (!Check.haveBase("armor", 3)) {
+		NTIP.addLine("([name] == mageplate || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [flag] != ethereal && ([quality] == normal # ([sockets] == 3 || [sockets] == 0) || ([quality] == superior # [sockets] == 3)) # [maxquantity] == 1");
+	} else {
+		NTIP.addLine("([name] == mageplate || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [flag] != ethereal && [quality] == superior # [enhanceddefense] >= 10 && [sockets] == 3 # [maxquantity] == 1");
+	}
+
+	Config.Recipes.push([Recipe.Socket.Armor, "mageplate", Roll.NonEth]);
+	Config.Recipes.push([Recipe.Socket.Armor, "duskshroud", Roll.NonEth]);
+	Config.Recipes.push([Recipe.Socket.Armor, "wyrmhide", Roll.NonEth]);
+	Config.Recipes.push([Recipe.Socket.Armor, "scarabhusk", Roll.NonEth]);
+	
 	Config.Runewords.push([Runeword.Enigma, "mageplate", Roll.NonEth]);
 	Config.Runewords.push([Runeword.Enigma, "duskshroud", Roll.NonEth]);
 	Config.Runewords.push([Runeword.Enigma, "wyrmhide", Roll.NonEth]);
 	Config.Runewords.push([Runeword.Enigma, "scarabhusk", Roll.NonEth]);
-
-	NTIP.addLine("([name] == mageplate || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1");
-} else {
-	NTIP.addLine("([name] == mageplate || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [flag] != ethereal && [quality] == superior # [enhanceddefense] >= 10 && [sockets] == 3 # [maxquantity] == 1");
 }
 
 Config.KeepRunewords.push("[type] == armor # [itemallskills] == 2");

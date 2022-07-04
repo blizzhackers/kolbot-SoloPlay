@@ -85,13 +85,13 @@ const mercscore = function (item) {
 	}
 
 	switch (myData.merc.classid) {
-	case sdk.monsters.mercs.Rogue:
-	case sdk.monsters.mercs.IronWolf:
+	case sdk.units.mercs.Rogue:
+	case sdk.units.mercs.IronWolf:
 		mercRating += item.getStatEx(21) * mercWeights.MINDMG; // add MIN damage
 		mercRating += item.getStatEx(22) * mercWeights.MAXDMG; // add MAX damage
 
 		break;
-	case sdk.monsters.mercs.A5Barb:
+	case sdk.units.mercs.A5Barb:
 		if ([item.getStatEx(23), item.getStatEx(24)].includes(0)) {
 			mercRating += item.getStatEx(21) * mercWeights.MINDMG; // add MIN damage
 			mercRating += item.getStatEx(22) * mercWeights.MAXDMG; // add MAX damage
@@ -99,7 +99,7 @@ const mercscore = function (item) {
 			break;
 		}
 	// eslint-disable-next-line no-fallthrough
-	case sdk.monsters.mercs.Guard:
+	case sdk.units.mercs.Guard:
 	default:
 		mercRating += item.getStatEx(23) * mercWeights.SECMINDMG;
 		mercRating += item.getStatEx(24) * mercWeights.SECMAXDMG;

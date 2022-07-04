@@ -11,18 +11,18 @@ function hellforge () {
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
 
-	if (!Pather.moveToPreset(me.area, 2, 376)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Hephasto");
+	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.HellForge)) {
+		myPrint("Failed to move to Hephasto");
 	}
 
 	try {
-		Attack.clear(20, 0, getLocaleString(1067)); // Hephasto The Armorer
+		Attack.clear(20, 0, getLocaleString(sdk.locale.monsters.HephastoTheArmorer));
 	} catch (err) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Hephasto');
+		myPrint('Failed to kill Hephasto');
 	}
 
 	Pickit.pickItems();
-	let forge = getUnit(2, 376);
+	let forge = getUnit(sdk.unittype.Object, sdk.quest.chest.HellForge);
 	!!forge && Attack.clearPos(forge.x, forge.y, 25) && Attack.securePosition(forge.x, forge.y, 25, 3000);
 
 	if (!me.getItem(sdk.items.quest.HellForgeHammer)) {
@@ -55,14 +55,14 @@ function hellforge () {
 	
 	Pather.usePortal(sdk.areas.RiverofFlame, me.name);
 
-	if (!Pather.moveToPreset(me.area, 2, 376)) {
+	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.HellForge)) {
 		console.warn('ÿc8Kolbot-SoloPlayÿc0: Failed to move to forge');
 
 		return true;
 	}
 
-	Misc.openChest(376);
-	Quest.smashSomething(376) && delay(4500 + me.ping);
+	Misc.openChest(sdk.quest.chest.HellForge);
+	Quest.smashSomething(sdk.quest.chest.HellForge) && delay(4500 + me.ping);
 	!!oldItem && oldItem.isInInventory && oldItem.equip(4);
 	Pickit.pickItems();
 	Item.autoEquip();

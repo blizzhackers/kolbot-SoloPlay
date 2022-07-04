@@ -1793,7 +1793,7 @@
 
 	function calculateKillableFallensByFrostNova() {
 		if (!Skill.canUse(sdk.skills.FrostNova)) return 0;
-		let fallens = [sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2];
+		let fallens = [sdk.units.monsters.Fallen, sdk.units.monsters.Carver2, sdk.units.monsters.Devilkin2, sdk.units.monsters.DarkOne1, sdk.units.monsters.WarpedFallen, sdk.units.monsters.Carver1, sdk.units.monsters.Devilkin, sdk.units.monsters.DarkOne2];
 		let area = me.area;
 		return getUnits(1)
 			.filter(unit => !!unit && fallens.includes(unit.classid) && unit.distance < 7)
@@ -1818,8 +1818,8 @@
 	function calculateKillableSummonsByNova() {
 		if (!Skill.canUse(sdk.skills.Nova)) return 0;
 		let summons = [
-			sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2,
-			sdk.monsters.BurningDead, sdk.monsters.Returned1, sdk.monsters.Returned2, sdk.monsters.BoneWarrior1, sdk.monsters.BoneWarrior2
+			sdk.units.monsters.Fallen, sdk.units.monsters.Carver2, sdk.units.monsters.Devilkin2, sdk.units.monsters.DarkOne1, sdk.units.monsters.WarpedFallen, sdk.units.monsters.Carver1, sdk.units.monsters.Devilkin, sdk.units.monsters.DarkOne2,
+			sdk.units.monsters.BurningDead, sdk.units.monsters.Returned1, sdk.units.monsters.Returned2, sdk.units.monsters.BoneWarrior1, sdk.units.monsters.BoneWarrior2
 		];
 		return getUnits(1)
 			.filter(unit => !!unit && summons.includes(unit.classid) && unit.distance < 7)

@@ -14,7 +14,7 @@ const slowable = function (unit, freezeable = false) {
 	&& Attack.checkResist(unit, 'cold')
 	// those that are not frozen yet and those that can be frozen or not yet chilled
 	&& (freezeable ? !unit.isFrozen && !unit.getStat(sdk.stats.CannotbeFrozen) : !el.isChilled)
-	&& ![sdk.monsters.Andariel, 510].includes(unit.classid));
+	&& ![sdk.units.monsters.Andariel, 510].includes(unit.classid));
 };
 
 const frostNovaCheck = function () {
@@ -30,7 +30,7 @@ const frostNovaCheck = function () {
 	let mob = getUnit(sdk.unittype.Monster);
 	if (mob) {
 		do {
-			if (mob.distance < 7 && ![sdk.monsters.Andariel].includes(mob.classid) && mob.attackable
+			if (mob.distance < 7 && ![sdk.units.monsters.Andariel].includes(mob.classid) && mob.attackable
 				&& !mob.isChilled && Attack.checkResist(mob, 'cold') && !checkCollision(me, mob, Coords_1.Collision.BLOCK_MISSILE)) {
 				return true;
 			}

@@ -23,7 +23,7 @@ function amulet () {
 		Pather.moveTo(15045, 14051, null, false);
 	}
 
-	if (!Quest.collectItem(sdk.items.quest.ViperAmulet, 149)) {
+	if (!Quest.collectItem(sdk.items.quest.ViperAmulet, sdk.quest.chest.ViperAmuletChest)) {
 		myPrint("Failed to collect viper amulet");
 		return false;
 	}

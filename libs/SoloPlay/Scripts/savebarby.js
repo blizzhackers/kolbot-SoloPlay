@@ -14,7 +14,7 @@ function savebarby () {
 
 	Pather.checkWP(sdk.areas.FrigidHighlands, true) ? Pather.useWaypoint(sdk.areas.FrigidHighlands) : Pather.getWP(sdk.areas.FrigidHighlands);
 	Precast.doPrecast(true);
-	barbies = getPresetUnits(me.area, 2, 473);
+	barbies = getPresetUnits(me.area, sdk.unittype.Object, sdk.units.objects.BarbCage);
 
 	if (!barbies) return false;
 
@@ -28,7 +28,7 @@ function savebarby () {
 	for (let k = 0; k < coords.length; k += 1) {
 		me.overhead("let my barby go! " + (k + 1) + "/" + barbies.length);
 		Pather.moveToUnit(coords[k], 2, 0);
-		let door = getUnit(1, 434);
+		let door = getUnit(sdk.unittype.Monster, sdk.monsters.PrisonDoor);
 
 		if (door) {
 			Pather.moveToUnit(door, 1, 0);

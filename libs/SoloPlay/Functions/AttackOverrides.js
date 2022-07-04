@@ -11,11 +11,11 @@
 let Coords_1 = require("../Modules/Coords");
 
 Attack.stopClear = false;
-Attack.mainBosses = [sdk.monsters.Andariel, sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal];
+Attack.mainBosses = [sdk.units.monsters.Andariel, sdk.units.monsters.Duriel, sdk.units.monsters.Mephisto, sdk.units.monsters.Diablo, sdk.units.monsters.Baal];
 Attack.bossesAndMiniBosses = [
-	sdk.monsters.Andariel, sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal,
-	sdk.monsters.Radament, sdk.monsters.Summoner, sdk.monsters.Izual, sdk.monsters.BloodRaven, sdk.monsters.Griswold,
-	sdk.monsters.Hephasto, sdk.monsters.KorlictheProtector, sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian
+	sdk.units.monsters.Andariel, sdk.units.monsters.Duriel, sdk.units.monsters.Mephisto, sdk.units.monsters.Diablo, sdk.units.monsters.Baal,
+	sdk.units.monsters.Radament, sdk.units.monsters.Summoner, sdk.units.monsters.Izual, sdk.units.monsters.BloodRaven, sdk.units.monsters.Griswold,
+	sdk.units.monsters.Hephasto, sdk.units.monsters.KorlictheProtector, sdk.units.monsters.TalictheDefender, sdk.units.monsters.MadawctheGuardian
 ];
 
 Attack.init = function () {
@@ -1043,7 +1043,7 @@ Attack.shouldDodge = function (coord, monster) {
 };
 
 Attack.pwnDury = function () {
-	let duriel = Misc.poll(() => getUnit(1, sdk.monsters.Duriel));
+	let duriel = Misc.poll(() => getUnit(sdk.unittype.Monster, sdk.units.monsters.Duriel));
 
 	if (!duriel) return false;
 	Attack.stopClear = true;
@@ -1092,7 +1092,7 @@ Attack.pwnDia = function () {
 
 	let checkMobs = function () {
 		let mobs = getUnits(1).filter(function(el) {
-			return !!el && el.attackable && el.classid !== sdk.monsters.Diablo && el.distance < 20;
+			return !!el && el.attackable && el.classid !== sdk.units.monsters.Diablo && el.distance < 20;
 		});
 		return mobs;
 	};
@@ -1100,7 +1100,7 @@ Attack.pwnDia = function () {
 	let getDiablo = function () {
 		let check = checkMobs();
 		!!check && Attack.clearList(check);
-		return getUnit(sdk.unittype.Monster, sdk.monsters.Diablo);
+		return getUnit(sdk.unittype.Monster, sdk.units.monsters.Diablo);
 	};
 	{
 		let nearSpot = Pather.spotOnDistance({ x: 7792, y: 5292 }, 35, {returnSpotOnError: false});

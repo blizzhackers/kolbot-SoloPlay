@@ -95,7 +95,7 @@ const Merc = {
 			myData.merc.type = wantedSkill;
 			CharData.updateData("merc", myData) && updateMyData();
 			return true;
-		} else if (!!checkMyMerc && checkMyMerc.classid === sdk.monsters.mercs.Guard && !checkMyMerc.getStat(sdk.stats.ModifierListSkill)) {
+		} else if (!!checkMyMerc && checkMyMerc.classid === sdk.units.mercs.Guard && !checkMyMerc.getStat(sdk.stats.ModifierListSkill)) {
 			// aura isn't active so we can't check it
 			return true;
 		}

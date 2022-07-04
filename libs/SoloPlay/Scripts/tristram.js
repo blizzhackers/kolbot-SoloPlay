@@ -18,7 +18,7 @@ function tristram () {
 	myPrint('starting tristram');
 
 	// Tristram portal hasn't been opened
-	if (!Misc.checkQuest(4, 4)) {
+	if (!Misc.checkQuest(sdk.quest.id.TheSearchForCain, 4)) {
 		// missing scroll and key
 		if (!me.getItem(sdk.items.quest.ScrollofInifuss) && !me.getItem(sdk.items.quest.KeytotheCairnStones)) {
 			if (!Pather.checkWP(sdk.areas.BlackMarsh, true)) {
@@ -30,12 +30,12 @@ function tristram () {
 
 			Precast.doPrecast(true);
 
-			if (!Pather.moveToPreset(sdk.areas.DarkWood, 2, 30, 5, 5)) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Tree of Inifuss");
+			if (!Pather.moveToPreset(sdk.areas.DarkWood, sdk.unittype.Object, sdk.items.chest.InifussTree, 5, 5)) {
+				myPrint("Failed to move to Tree of Inifuss");
 				return false;
 			}
 
-			Quest.collectItem(524, 30);
+			Quest.collectItem(sdk.items.quest.ScrollofInifuss, sdk.quest.chest.InifussTree);
 			Pickit.pickItems();
 		}
 
@@ -50,12 +50,13 @@ function tristram () {
 
 	Pather.checkWP(sdk.areas.StonyField, true) ? Pather.useWaypoint(sdk.areas.StonyField) : Pather.getWP(sdk.areas.StonyField);
 	Precast.doPrecast(true);
-	Pather.moveToPreset(sdk.areas.StonyField, 1, 737, 10, 10, false, true);
-	Attack.killTarget(getLocaleString(2872)); // Rakanishu
-	Pather.moveToPreset(sdk.areas.StonyField, 2, 17, null, null, true);
+	Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Monster, sdk.monsters.preset.Rakanishu, 10, 10, false, true);
+	Attack.killTarget(getLocaleString(sdk.locale.monsters.Rakanishu));
+	Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Object, sdk.units.objects.StoneAlpha, null, null, true);
 
-	if (!Misc.checkQuest(4, 4) && me.getItem(sdk.items.quest.KeytotheCairnStones)) {
+	if (!Misc.checkQuest(sdk.quest.id.TheSearchForCain, 4) && me.getItem(sdk.items.quest.KeytotheCairnStones)) {
 		try {
+			// go to tristram @jaenster
 			let stones = [
 				object(sdk.quest.chest.StoneAlpha),
 				object(sdk.quest.chest.StoneBeta),
@@ -65,13 +66,9 @@ function tristram () {
 			];
 
 			while (stones.some((stone) => !stone.mode)) {
-				for (let i = 0; i < stones.length; i++) {
-					let stone = stones[i];
-
-					if (Misc.openChest(stone)) {
-						stones.splice(i, 1);
-						i--;
-					}
+				for (let i = 0, stone = void 0; i < stones.length; i++) {
+					stone = stones[i];
+					Misc.openChest(stone);
 					Attack.securePosition(me.x, me.y, 10, 0);
 					delay(10);
 				}
@@ -95,17 +92,17 @@ function tristram () {
 	if (me.area === sdk.areas.Tristram) {
 		if (!me.tristram) {
 			let clearCoords = [
-				{"x": 25166, "y": 5108, "radius": 10},
-				{"x": 25164, "y": 5115, "radius": 10},
-				{"x": 25163, "y": 5121, "radius": 10},
-				{"x": 25158, "y": 5126, "radius": 10},
-				{"x": 25151, "y": 5125, "radius": 10},
-				{"x": 25145, "y": 5129, "radius": 10},
-				{"x": 25142, "y": 5135, "radius": 10}
+				{ "x": 25166, "y": 5108, "radius": 10 },
+				{ "x": 25164, "y": 5115, "radius": 10 },
+				{ "x": 25163, "y": 5121, "radius": 10 },
+				{ "x": 25158, "y": 5126, "radius": 10 },
+				{ "x": 25151, "y": 5125, "radius": 10 },
+				{ "x": 25145, "y": 5129, "radius": 10 },
+				{ "x": 25142, "y": 5135, "radius": 10 }
 			];
 			Attack.clearCoordList(clearCoords);
 
-			let gibbet = getUnit(2, 26);
+			let gibbet = getUnit(sdk.unittype.Object, sdk.units.objects.CainsJail);
 
 			if (gibbet && !gibbet.mode) {
 				Pather.moveTo(gibbet.x, gibbet.y);

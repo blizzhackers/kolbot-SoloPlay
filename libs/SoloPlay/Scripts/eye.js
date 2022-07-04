@@ -14,7 +14,7 @@ function eye () {
 	if (!Pather.moveToExit([sdk.areas.SpiderForest, sdk.areas.SpiderCavern], true)) {
 		if (me.area !== sdk.areas.SpiderCavern) {
 			if (!Pather.journeyTo(sdk.areas.SpiderCavern)) {
-				print('ÿc8Kolbot-SoloPlayÿc0: Failed to get the eye');
+				myPrint('Failed to get the eye');
 				return false;
 			}
 		}
@@ -22,9 +22,9 @@ function eye () {
 
 	Town.doChores(null, {antidote: me.poisonRes < 75});
 	Pather.usePortal(sdk.areas.SpiderCavern, me.name);
-	Pather.moveToPreset(me.area, 2, 407);
+	Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.KhalimsEyeChest);
 	Attack.clear(0x7);
-	Quest.collectItem(sdk.items.quest.KhalimsEye, 407);
+	Quest.collectItem(sdk.items.quest.KhalimsEye, sdk.quests.chest.KhalimsEyeChest);
 	Quest.stashItem(sdk.items.quest.KhalimsEye);
 
 	return me.getItem(sdk.items.quest.KhalimsEye);

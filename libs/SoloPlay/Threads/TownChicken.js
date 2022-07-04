@@ -92,7 +92,7 @@ function main() {
 			let portal = unit ? copyUnit(unit) : Pather.getPortal(targetArea, owner);
 
 			if (portal) {
-				let redPortal = portal.classid === sdk.units.RedPortal;
+				let redPortal = portal.classid === sdk.units.portals.RedPortal;
 
 				if (portal.area === me.area) {
 					if (Skill.useTK(portal) && i < 3) {

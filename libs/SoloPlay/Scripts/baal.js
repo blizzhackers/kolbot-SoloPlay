@@ -16,7 +16,7 @@ function baal () {
 		switch (me.classid) {
 		case sdk.charclass.Amazon:
 			if (me.getSkill(sdk.skills.Decoy, 1)) {
-				let decoy = getUnit(1, 356);
+				let decoy = getUnit(sdk.unittype.Monster, sdk.units.minions.Dopplezon);
 
 				if (!decoy || (getTickCount() - decoyTick >= decoyDuration)) {
 					Skill.cast(sdk.skills.Decoy, 0, 15092, 5028);
@@ -82,7 +82,7 @@ function baal () {
 
 		MainLoop:
 		while (true) {
-			if (!getUnit(1, 543)) {
+			if (!getUnit(sdk.unittype.Monster, sdk.units.monsters.ThroneBaal)) {
 				break;
 			}
 
@@ -90,45 +90,45 @@ function baal () {
 
 			switch (Common.Baal.checkThrone()) {
 			case 1:
-				Attack.clearClassids(23, 62);
+				Attack.clearClassids(sdk.units.monsters.WarpedFallen, sdk.units.monsters.WarpedShaman);
 
 				tick = getTickCount();
 
 				break;
 			case 2:
-				boss = getUnit(1, "Achmel the Cursed");
+				boss = getUnit(sdk.unittype.Monster, "Achmel the Cursed"); // preset missing on sdk.js
 
 				if (boss && !Attack.canAttack(boss)) {
 					me.overhead("immune achmel");
 					return false;
 				}
 
-				Attack.clearClassids(105, 381);
-
-				tick = getTickCount();
-
-				break;
-			case 4:
-				Attack.clearClassids(558);
+				Attack.clearClassids(sdk.units.monsters.BaalSubjectMummy, sdk.units.monsters.BaalColdMage);
 
 				tick = getTickCount();
 
 				break;
 			case 3:
-				Attack.clearClassids(557);
+				Attack.clearClassids(sdk.units.monsters.Council4);
+
+				tick = getTickCount();
+
+				break;
+			case 4:
+				Attack.clearClassids(sdk.units.monsters.VenomLord2);
 
 				tick = getTickCount();
 
 				break;
 			case 5:
-				boss = getUnit(1, "Lister the Tormentor");
+				boss = getUnit(sdk.unittype.Monster, sdk.units.monsters.preset.ListertheTormentor);
 
 				if (boss && !Attack.canAttack(boss)) {
 					me.overhead("immune lister");
 					return false;
 				}
 
-				Attack.clearClassids(sdk.monsters.ListerTheTormenter, sdk.monsters.Minion1, sdk.monsters.Minion2);
+				Attack.clearClassids(571);
 
 				break MainLoop;
 			default:
@@ -167,7 +167,7 @@ function baal () {
 	};
 
 	let unSafeCheck = function (soulAmount, totalAmount) {
-		let soul = getUnit(1, 641);
+		let soul = getUnit(sdk.unittype.Monster, sdk.units.monsters.BurningSoul1);
 		let count = 0;
 
 		if (soul) {
@@ -182,11 +182,11 @@ function baal () {
 			return true;
 		}
 
-		let monster = getUnit(1);
+		let monster = getUnit(sdk.unittype.Monster);
 
 		if (monster) {
 			do {
-				if (!monster.getParent() && monster.classid !== 641 && getDistance(me, monster) < 45) {
+				if (!monster.getParent() && monster.classid !== sdk.units.monsters.BurningSoul1 && getDistance(me, monster) < 45) {
 					count += 1;
 				}
 			} while (monster.getNext());
@@ -281,10 +281,10 @@ function baal () {
 			Pather.moveTo(15095, 5881);
 			Pickit.pickItems();
 		} else {
-			print("ÿc8Kolbot-SoloPlayÿc0: Couldn't access portal.");
+			myPrint("Couldn't access portal.");
 		}
 	} catch (e) {
-		//
+
 	} finally {
 		Messaging.sendToScript(SoloEvents.filePath, 'removeBaalEvent');
 	}

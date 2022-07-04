@@ -18,7 +18,7 @@ function diablo () {
 				switch (me.classid) {
 				case sdk.charclass.Amazon:
 					if (me.getSkill(sdk.skills.Decoy, 1)) {
-						let decoy = getUnit(sdk.unittype.Monster, 356);
+						let decoy = monster(sdk.units.minions.Dopplezon);
 
 						if (!decoy || (getTickCount() - tick >= decoyDuration)) {
 							Skill.cast(sdk.skills.Decoy, 0, 7793, 5293);
@@ -27,7 +27,7 @@ function diablo () {
 
 					break;
 				case sdk.charclass.Sorceress:
-					if ([56, 59, 64].indexOf(Config.AttackSkill[1]) > -1) {
+					if ([sdk.skills.Meteor, sdk.skills.Blizzard, sdk.skills.FrozenOrb].indexOf(Config.AttackSkill[1]) > -1) {
 						if (me.skillDelay) {
 							delay(500 + me.ping);
 						} else {
@@ -76,7 +76,7 @@ function diablo () {
 				delay(500 + me.ping);
 			}
 
-			if (getUnit(sdk.unittype.Monster, sdk.monsters.Diablo)) {
+			if (getUnit(sdk.unittype.Monster, sdk.units.monsters.Diablo)) {
 				return true;
 			}
 		}
@@ -137,18 +137,18 @@ function diablo () {
 		} else {
 			Pather.moveNear(7792, 5292, 35);
 		}
-		
+
 		this.diabloPrep();
-		let theD = getUnit(sdk.unittype.Monster, sdk.monsters.Diablo);
+		let theD = getUnit(sdk.unittype.Monster, sdk.units.monsters.Diablo);
 
 		if (!theD) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Diablo not found. Checking seal bosses.");
+			myPrint("Diablo not found. Checking seal bosses.");
 			try {
 				Common.Diablo.vizierSeal();
 				Common.Diablo.seisSeal();
 				Common.Diablo.infectorSeal();
 			} catch (e) {
-				//
+
 			}
 
 			if (!me.sorceress && !me.necromancer && !me.assassin) {
@@ -156,12 +156,11 @@ function diablo () {
 			} else {
 				Pather.moveNear(7792, 5292, 35);
 			}
-
 			this.diabloPrep();
 		}
 
 		if (!Attack.pwnDia()) {
-			Attack.killTarget(sdk.monsters.Diablo);
+			Attack.killTarget(sdk.units.monsters.Diablo);
 		}
 
 		Pickit.pickItems();
@@ -181,7 +180,7 @@ function diablo () {
 		Town.npcInteract("tyrael");
 		me.cancel();
 		delay(500 + me.ping);
-		Pather.useUnit(sdk.unittype.Object, 566, 109);
+		Pather.useUnit(sdk.unittype.Object, sdk.units.portals.RedPortalToAct5, sdk.areas.Harrogath);
 	}
 
 	Config.MercWatch = true;

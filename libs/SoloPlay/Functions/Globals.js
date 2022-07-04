@@ -185,7 +185,7 @@ const SetUp = {
 
 				merc.classid !== myData.merc.classid && (myData.merc.classid = merc.classid);
 
-				if (merc.classid === sdk.monsters.mercs.Guard && !Merc.checkMercSkill(myData.merc.type)) {
+				if (merc.classid === sdk.units.mercs.Guard && !Merc.checkMercSkill(myData.merc.type)) {
 				// go back, need to make sure this works properly.
 				// only "go back" if we are past the difficulty we need to be in to hire merc. Ex. In hell but want holy freeze merc
 				// only if we have enough gold on hand to hire said merc

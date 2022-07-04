@@ -47,7 +47,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		if (!unit.getState(sdk.states.SlowMissiles)) {
 			if ((unit.distance > 3 || unit.getEnchant(sdk.enchant.LightningEnchanted)) && unit.distance < 13 && !checkCollision(me, unit, 0x4)) {
 				// Act Bosses and mini-bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
-				if ([sdk.monsters.HellBovine].includes(unit.classid) || unit.isBoss) {
+				if ([sdk.units.monsters.HellBovine].includes(unit.classid) || unit.isBoss) {
 					// Check if already in this state
 					if (useInnerSight && !unit.getState(sdk.states.InnerSight)) {
 						Skill.cast(sdk.skills.InnerSight, 0, unit);

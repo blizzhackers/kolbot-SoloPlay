@@ -21,7 +21,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.DimVision,
 		priority: 1,
 		skipIf: function (unit) {
-			return unit.isSpecial || [sdk.monsters.OblivionKnight1, sdk.monsters.OblivionKnight2, sdk.monsters.OblivionKnight3].includes(unit.classid);
+			return unit.isSpecial || [sdk.units.monsters.OblivionKnight1, sdk.units.monsters.OblivionKnight2, sdk.units.monsters.OblivionKnight3].includes(unit.classid);
 		},
 		useIf: function (unit) {
 			return !this.skipIf(unit) && Skill.canUse(this.skillId) && unit.distance > 15;

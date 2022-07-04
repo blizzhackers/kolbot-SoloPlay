@@ -212,7 +212,7 @@ const SoloEvents = {
 			Pather.moveToPreset(me.area, 1, 774, 0, 0, false, true);
 		}
 
-		Attack.killTarget(sdk.monsters.DiabloClone);
+		Attack.killTarget(sdk.units.monsters.DiabloClone);
 		Pickit.pickItems();
 
 		let newAnni = getUnit(4, 603, 3);
@@ -395,7 +395,7 @@ const SoloEvents = {
 
 		let skipWorked = getUnits(sdk.unittype.Monster)
 			.some(function (el) {
-				return !el.dead && el.attackable && el.classid !== sdk.monsters.ThroneBaal && el.x >= 15070 && el.x <= 15120 &&
+				return !el.dead && el.attackable && el.classid !== sdk.units.monsters.ThroneBaal && el.x >= 15070 && el.x <= 15120 &&
                     el.y >= 5000 && el.y <= 5075;
 			});
 		myPrint("skip " + (skipWorked ? "worked" : "failed"));

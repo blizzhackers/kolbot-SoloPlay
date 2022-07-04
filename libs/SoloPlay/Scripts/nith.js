@@ -7,28 +7,27 @@
 
 function nith() {
 	Town.doChores();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting nith');
-	me.overhead("nith");
+	myPrint('starting nith');
 
 	Pather.checkWP(sdk.areas.HallsofPain, true) ? Pather.useWaypoint(sdk.areas.HallsofPain) : Pather.getWP(sdk.areas.HallsofPain);
 	Precast.doPrecast(false);
 
 	if (!Pather.moveToExit(sdk.areas.HallsofVaught, true)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to go to Nihlathak");
+		myPrint("Failed to go to Nihlathak");
 		
 		return true;
 	}
 
-	Pather.moveToPreset(me.area, 2, 462);
+	Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.units.objects.NihlathaksPlatform);
 
 	// Stop script in hardcore mode if vipers are found
-	if (me.hardcore && getUnit(1, 597)) {
-		print("Tomb Vipers found.");
+	if (me.hardcore && getUnit(sdk.unittype.Monster, sdk.monsters.TombViper2)) {
+		myPrint("Tomb Vipers found.");
 
 		return true;
 	}
 
-	Attack.killTarget(526); // Nihlathak
+	Attack.killTarget(sdk.units.monsters.Nihlathak);
 	Pickit.pickItems();
 
 	return true;

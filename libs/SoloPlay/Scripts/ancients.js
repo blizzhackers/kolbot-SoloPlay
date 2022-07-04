@@ -36,15 +36,15 @@ function ancients () {
 
 	Town.buyPotions();
 	if (!Pather.usePortal(sdk.areas.ArreatSummit, me.name)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to take portal back to Arreat Summit");
+		myPrint("Failed to take portal back to Arreat Summit");
 		Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter Arreat Summit
 	}
 	
 	Precast.doPrecast(true);
 
 	// move to altar
-	if (!Pather.moveToPreset(sdk.areas.ArreatSummit, sdk.unittype.Object, 546)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to ancients' altar");
+	if (!Pather.moveToPreset(sdk.areas.ArreatSummit, sdk.unittype.Object, sdk.units.objects.AncientsAltar)) {
+		myPrint("Failed to move to ancients' altar");
 	}
 
 	Common.Ancients.touchAltar();
@@ -57,13 +57,13 @@ function ancients () {
 	Precast.doPrecast(true);
 
 	try {
-		if (Misc.checkQuest(39, 0)) {
+		if (Misc.checkQuest(sdk.quest.id.RiteofPassage, 0)) {
 			Pather.clearToExit(sdk.areas.ArreatSummit, sdk.areas.WorldstoneLvl1, true);
 			Pather.clearToExit(sdk.areas.WorldstoneLvl1, sdk.areas.WorldstoneLvl2, true);
 			Pather.getWP(sdk.areas.WorldstoneLvl2);
 		}
 	} catch (err) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Cleared Ancients. Failed to get WSK Waypoint');
+		myPrint('Cleared Ancients. Failed to get WSK Waypoint');
 	}
 
 	return true;

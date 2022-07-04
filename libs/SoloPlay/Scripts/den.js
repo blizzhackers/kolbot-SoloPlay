@@ -46,7 +46,7 @@ function den () {
 	Town.move("portalspot");
 
 	// Check if there are any portals before trying to use one
-	let p = getUnit(sdk.unittype.Object, sdk.units.BluePortal);
+	let p = getUnit(sdk.unittype.Object, sdk.units.portals.BluePortal);
 	
 	if (!!p && [sdk.areas.BloodMoor, sdk.areas.DenofEvil].includes(p.objtype)) {
 		Pather.usePortal(null, me.name);
@@ -108,7 +108,7 @@ function den () {
 				return true;
 			};
 
-			while (!Misc.checkQuest(1, 0)) {
+			while (!Misc.checkQuest(sdk.quest.id.DenofEvil, 0)) {
 				console.log("ÿc8Kolbot-SoloPlayÿc0: Clearing den attempt: " + attempt);
 				Attack.clearLevel();
 
@@ -116,7 +116,7 @@ function den () {
 					break;
 				}
 
-				if (Misc.checkQuest(1, 13)) {
+				if (Misc.checkQuest(sdk.quest.id.DenofEvil, 13)) {
 					customGoToTown();
 					Town.npcInteract("akara");
 					

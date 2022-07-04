@@ -9,7 +9,7 @@ function andariel () {
 	Town.townTasks();
 	myPrint('starting andy');
 
-	if (me.normal && Misc.checkQuest(6, 1)) {
+	if (me.normal && Misc.checkQuest(sdk.quest.id.SistersToTheSlaughter, 1)) {
 		Pather.changeAct();
 
 		return true;
@@ -47,7 +47,7 @@ function andariel () {
 		Pather.moveTo(22571, 9590);
 	} else {
 		while (coords.length) {
-			let andy = monster(sdk.monsters.Andariel);
+			let andy = monster(sdk.units.monsters.Andariel);
 
 			if (andy && andy.distance < 15) {
 				break;
@@ -61,7 +61,7 @@ function andariel () {
 	
 	Config.MercWatch = false;
 
-	Attack.killTarget("Andariel");
+	Attack.killTarget(sdk.units.monsters.Andariel);
 
 	if (questBug) {
 		Config.TownCheck = false;
@@ -80,7 +80,7 @@ function andariel () {
 			// Now check my area
 			if (me.act === 2) {
 				// Act change sucessful, Andy has been bugged
-				let result = (Misc.checkQuest(6, 15) ? 'Sucessful' : 'Unsucessful');
+				let result = (Misc.checkQuest(sdk.quest.id.SistersToTheSlaughter, 15) ? 'Sucessful' : 'Unsucessful');
 				myPrint("Andy bugged was " + result);
 				scriptBroadcast('quit');
 			}

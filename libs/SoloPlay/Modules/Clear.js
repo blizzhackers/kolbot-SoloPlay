@@ -27,12 +27,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         filter: undefined //(monster: Monster, node: {x, y}[]) => true
     };
     const shamans = [
-        sdk_1.default.monsters.FallenShaman, sdk_1.default.monsters.CarverShaman2, sdk_1.default.monsters.DevilkinShaman2, sdk_1.default.monsters.DarkShaman1,
-        sdk_1.default.monsters.WarpedShaman, sdk_1.default.monsters.CarverShaman, sdk_1.default.monsters.DevilkinShaman, sdk_1.default.monsters.DarkShaman2
+        sdk_1.default.units.monsters.FallenShaman, sdk_1.default.units.monsters.CarverShaman2, sdk_1.default.units.monsters.DevilkinShaman2, sdk_1.default.units.monsters.DarkShaman1,
+        sdk_1.default.units.monsters.WarpedShaman, sdk_1.default.units.monsters.CarverShaman, sdk_1.default.units.monsters.DevilkinShaman, sdk_1.default.units.monsters.DarkShaman2
     ];
     const fallens = [
-        sdk_1.default.monsters.Fallen, sdk_1.default.monsters.Carver2, sdk_1.default.monsters.Devilkin2, sdk_1.default.monsters.DarkOne1,
-        sdk_1.default.monsters.WarpedFallen, sdk_1.default.monsters.Carver1, sdk_1.default.monsters.Devilkin, sdk_1.default.monsters.DarkOne2
+        sdk_1.default.units.monsters.Fallen, sdk_1.default.units.monsters.Carver2, sdk_1.default.units.monsters.Devilkin2, sdk_1.default.units.monsters.DarkOne1,
+        sdk_1.default.units.monsters.WarpedFallen, sdk_1.default.units.monsters.Carver1, sdk_1.default.units.monsters.Devilkin, sdk_1.default.units.monsters.DarkOne2
     ];
     const clearDistance = function (x, y, xx, yy) {
         getUnits(1).forEach(function (monster) {

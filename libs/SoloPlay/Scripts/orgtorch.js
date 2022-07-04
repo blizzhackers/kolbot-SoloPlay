@@ -17,7 +17,7 @@ function orgtorch() {
 
 		Town.doChores();
 
-		let torch = me.findItem(604, 0, null, 7);
+		let torch = me.findItem(sdk.items.LargeCharm, sdk.unittype.Player, null, 7);
 
 		if (!torch || torch === undefined) {
 			return false;
@@ -56,7 +56,7 @@ function orgtorch() {
 	// Try to lure a monster - wait until it's close enough
 	this.lure = function (bossId) {
 		let tick,
-			unit = getUnit(1, bossId);
+			unit = getUnit(sdk.unittype.Monster, bossId);
 
 		if (unit) {
 			tick = getTickCount();
@@ -139,7 +139,7 @@ function orgtorch() {
 			transmute();
 			delay(1000);
 
-			portal = getUnit(2, "portal");
+			portal = getUnit(sdk.unittype.Object, sdk.units.portals.RedPortal);
 
 			if (portal) {
 				do {
@@ -173,8 +173,8 @@ function orgtorch() {
 		switch (me.area) {
 		case sdk.areas.MatronsDen:
 			Precast.doPrecast(true);
-			Pather.moveToPreset(sdk.areas.MatronsDen, 2, 397, 2, 2);
-			Attack.killTarget(707);
+			Pather.moveToPreset(sdk.areas.MatronsDen, sdk.unittype.Object, sdk.units.chests.SparklyChest, 2, 2);
+			Attack.killTarget(sdk.units.monsters.Lilith);
 			Pickit.pickItems();
 			Town.goToTown();
 
@@ -188,20 +188,20 @@ function orgtorch() {
 				Pather.moveTo(findLoc[i], findLoc[i + 1]);
 				delay(500);
 
-				if (getUnit(1, 708)) {
+				if (getUnit(sdk.unittype.Monster, sdk.units.monsters.UberDuriel)) {
 					break;
 				}
 			}
 
-			Attack.killTarget(708);
+			Attack.killTarget(sdk.units.monsters.UberDuriel);
 			Pickit.pickItems();
 			Town.goToTown();
 
 			break;
 		case sdk.areas.FurnaceofPain:
 			Precast.doPrecast(true);
-			Pather.moveToPreset(sdk.areas.FurnaceofPain, 2, 397, 2, 2);
-			Attack.killTarget(706);
+			Pather.moveToPreset(sdk.areas.FurnaceofPain, sdk.unittype.Object, sdk.units.chests.SparklyChest, 2, 2);
+			Attack.killTarget(sdk.units.monsters.UberIzual);
 			Pickit.pickItems();
 			Town.goToTown();
 
@@ -220,35 +220,35 @@ function orgtorch() {
 				Skill.setSkill(sdk.skills.Salvation, 0);
 			}
 
-			this.lure(704);
+			this.lure(sdk.units.monsters.UberMephisto);
 			Pather.moveTo(25129, 5198);
 			
 			if (me.paladin && me.getSkill(sdk.skills.Salvation, 1)) {
 				Skill.setSkill(sdk.skills.Salvation, 0);
 			}
 
-			this.lure(704);
+			this.lure(sdk.units.monsters.UberMephisto);
 
-			if (!getUnit(1, 704)) {
+			if (!getUnit(sdk.unittype.Monster, sdk.units.monsters.UberMephisto)) {
 				Pather.moveTo(25122, 5170);
 			}
 
-			Attack.killTarget(704);
+			Attack.killTarget(sdk.units.monsters.UberMephisto);
 
 			Pather.moveTo(25162, 5141);
 			delay(3250);
 
-			if (!getUnit(1, 709)) {
+			if (!getUnit(sdk.unittype.Monster, sdk.monsters.UberDiablo)) {
 				Pather.moveTo(25122, 5170);
 			}
 
-			Attack.killTarget(709);
+			Attack.killTarget(sdk.units.monsters.UberDiablo);
 
-			if (!getUnit(1, 705)) {
+			if (!getUnit(sdk.unittype.Monster, sdk.units.monsters.UberBaal)) {
 				Pather.moveTo(25122, 5170);
 			}
 
-			Attack.killTarget(705);
+			Attack.killTarget(sdk.units.monsters.UberBaal);
 			Pickit.pickItems();
 			this.checkTorch();
 
@@ -267,7 +267,7 @@ function orgtorch() {
 			}
 		}
 
-		print("Need " + needJuvs + " juvs.");
+		myPrint("Need " + needJuvs + " juvs.");
 
 		return needJuvs;
 	};
@@ -350,7 +350,7 @@ function orgtorch() {
 	// We have enough organs, do Tristram
 	if (brains && eyes && horns) {
 		this.getFade();
-		print("ÿc8Kolbot-SoloPlayÿc0: Making torch");
+		myPrint("Making torch");
 		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making torch.", 8);
 
 		portal = this.openPortal(1);

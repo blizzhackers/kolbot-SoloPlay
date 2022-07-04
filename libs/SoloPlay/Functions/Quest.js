@@ -143,7 +143,7 @@ const Quest = {
 		if (me.horadricstaff) return true;
 
 		let tick = getTickCount();
-		let orifice = Misc.poll(() => getUnit(sdk.unittype.Object, sdk.units.HoradricStaffHolder));
+		let orifice = Misc.poll(() => getUnit(sdk.unittype.Object, sdk.quest.chest.HoradricStaffHolder));
 		if (!orifice) return false;
 		
 		let hstaff = (me.getItem(sdk.items.quest.HoradricStaff) || Quest.cubeItems(sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff, sdk.items.quest.ViperAmulet));
@@ -304,11 +304,11 @@ const Quest = {
 		let tool;
 
 		switch (classid) {
-		case 404:
+		case sdk.units.objects.CompellingOrb:
 			tool = sdk.items.quest.KhalimsWill;
 
 			break;
-		case 376:
+		case sdk.quest.chest.HellForge:
 			tool = sdk.items.quest.HellForgeHammer;
 
 			break;

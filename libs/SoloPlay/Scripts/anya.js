@@ -14,12 +14,12 @@ function anya () {
 		Precast.doPrecast(true);
 		Pather.clearToExit(sdk.areas.CrystalizedPassage, sdk.areas.FrozenRiver, Pather.useTeleport());
 
-		if (!Pather.moveToPreset(me.area, 2, 460)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Anya");
+		if (!Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.units.objects.FrozenAnyasPlatform)) {
+			myPrint("Failed to move to Anya");
 			return false;
 		}
 
-		let frozenanya = getUnit(2, 558);
+		let frozenanya = Object(sdk.units.objects.FrozenAnya);
 
 		if (frozenanya) {
 			Pather.moveToUnit(frozenanya);
@@ -32,7 +32,7 @@ function anya () {
 		Town.doChores();
 		Pather.usePortal(sdk.areas.FrozenRiver, me.name);
 
-		frozenanya = getUnit(2, 558);	// Check again in case she's no longer there from first intereaction
+		frozenanya = Object(sdk.units.object.FrozenAnya);	// Check again in case she's no longer there from first intereaction
 
 		if (frozenanya) {
 			while (!frozenanya.mode) {
@@ -58,7 +58,7 @@ function anya () {
 
 		Precast.doPrecast(true);
 		Pather.moveTo(10058, 13234);
-		Attack.killTarget(getLocaleString(22497)); // pindleskin
+		Attack.killTarget(getLocaleString(sdk.locale.monsters.Pindleskin));
 		Pickit.pickItems();
 	}
 

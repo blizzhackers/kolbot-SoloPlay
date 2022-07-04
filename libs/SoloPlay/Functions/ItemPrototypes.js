@@ -177,7 +177,7 @@ Unit.prototype.mercBodyLocation = function () {
 
 	switch (this.itemType) {
 	case sdk.itemtype.Shield:
-		if (mercenary.classid === sdk.monsters.mercs.IronWolf) {
+		if (mercenary.classid === sdk.units.mercs.IronWolf) {
 			bodyLoc = 5;
 		}
 
@@ -192,27 +192,27 @@ Unit.prototype.mercBodyLocation = function () {
 
 		break;
 	case sdk.itemtype.PrimalHelm:
-		if (mercenary.classid === sdk.monsters.mercs.A5Barb) {
+		if (mercenary.classid === sdk.units.mercs.A5Barb) {
 			bodyLoc = 1;
 		}
 		
 		break;
 	case sdk.itemtype.Bow:
-		if (mercenary.classid === sdk.monsters.mercs.Rogue) {
+		if (mercenary.classid === sdk.units.mercs.Rogue) {
 			bodyLoc = 4;
 		}
 
 		break;
 	case sdk.itemtype.Spear:
 	case sdk.itemtype.Polearm:
-		if (mercenary.classid === sdk.monsters.mercs.Guard) {
+		if (mercenary.classid === sdk.units.mercs.Guard) {
 			bodyLoc = 4;
 		}
 
 		break;
 	case sdk.itemtype.Sword:
-		if (mercenary.classid === sdk.monsters.mercs.IronWolf
-			|| mercenary.classid === sdk.monsters.mercs.A5Barb) {
+		if (mercenary.classid === sdk.units.mercs.IronWolf
+			|| mercenary.classid === sdk.units.mercs.A5Barb) {
 			bodyLoc = 4;
 		}
 
