@@ -57,11 +57,11 @@ function tristram () {
 	if (!Misc.checkQuest(4, 4) && me.getItem(sdk.items.quest.KeytotheCairnStones)) {
 		try {
 			let stones = [
-				object(sdk.quest.chest.StoneAlpha),
-				object(sdk.quest.chest.StoneBeta),
-				object(sdk.quest.chest.StoneGamma),
-				object(sdk.quest.chest.StoneDelta),
-				object(sdk.quest.chest.StoneLambda)
+				Game.getObject(sdk.quest.chest.StoneAlpha),
+				Game.getObject(sdk.quest.chest.StoneBeta),
+				Game.getObject(sdk.quest.chest.StoneGamma),
+				Game.getObject(sdk.quest.chest.StoneDelta),
+				Game.getObject(sdk.quest.chest.StoneLambda)
 			];
 
 			while (stones.some((stone) => !stone.mode)) {

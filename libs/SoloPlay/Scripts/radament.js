@@ -21,7 +21,7 @@ function radament () {
 	Pather.clearToExit(sdk.areas.A2SewersLvl2, sdk.areas.A2SewersLvl3, true);
 	Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.HoradricScrollChest);
 	Attack.killTarget("Radament");
-	let book = item(sdk.quest.item.BookofSkill);
+	let book = Game.getItem(sdk.quest.item.BookofSkill);
 	!!book ? Pickit.pickItem(book) : Attack.killTarget("Radament");
 	Pickit.pickItems();
 

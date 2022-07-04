@@ -15,7 +15,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	let attackSkill = -1;
 	let aura = -1;
 	let gold = me.gold;
-	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
 	if (Config.MercWatch && Town.needMerc()) {
 		print("mercwatch");
