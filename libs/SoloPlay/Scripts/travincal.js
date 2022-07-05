@@ -23,17 +23,17 @@ function travincal () {
 
 	// go to orb
 	if (!Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.units.objects.CompellingOrb)) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to move to compelling orb');
+		myPrint('Failed to move to compelling orb');
 	}
 
-	let orb = getUnit(sdk.unittype.Objects, sdk.units.objects.CompellingOrb);
+	let orb = Game.getObjects(sdk.units.objects.CompellingOrb);
 	!!orb && Attack.clearPos(orb.x, orb.y, 15);
 
 	// khalim's will quest not complete
 	if (!me.travincal) {
 		// cleared council didn't pick flail and hasn't already made flail
 		if (!me.getItem(sdk.items.quest.KhalimsFlail) && !me.getItem(sdk.items.quest.KhalimsWill)) {
-			let flail = getUnit(sdk.unittype.Item, sdk.items.quest.KhalimsFlail);
+			let flail = Game.getItem(sdk.items.quest.KhalimsFlail);
 
 			Pather.moveToUnit(flail);
 			Pickit.pickItems();
@@ -51,7 +51,7 @@ function travincal () {
 			Town.goToTown();
 		}
 
-		Quest.equipItem(sdk.items.quest.KhalimsWill, 4);
+		Quest.equipItem(sdk.items.quest.KhalimsWill, sdk.body.RightArm);
 		delay(250 + me.ping);
 
 		// return to Trav
@@ -59,7 +59,7 @@ function travincal () {
 			myPrint("Failed to go back to Travincal and smash orb");
 		}
 
-		Quest.smashSomething(404); // smash orb
+		Quest.smashSomething(sdk.units.objects.CompellingOrb); // smash orb
 		Item.autoEquip(); // equip previous weapon
 		Town.townTasks();
 
@@ -71,9 +71,9 @@ function travincal () {
 		}
 
 		// Wait until exit pops open
-		Misc.poll(() => getUnit(sdk.unittype.Object, sdk.units.exits.DuranceEntryStairs).mode === 2, 10000);
+		Misc.poll(() => Game.getObject(sdk.units.exits.DuranceEntryStairs).mode === 2, 10000);
 		// Move close to the exit
-		let exit_1 = getUnit(sdk.unittype.Object, sdk.units.exits.DuranceEntryStairs);
+		let exit_1 = Game.getObject(sdk.units.exits.DuranceEntryStairs);
 		// Since d2 sucks, move around the thingy
 		Pather.moveToUnit(exit_1, 7, 7);
 		// keep on clicking the exit until we are not @ travincal anymore

@@ -19,7 +19,7 @@ function anya () {
 			return false;
 		}
 
-		let frozenanya = Object(sdk.units.objects.FrozenAnya);
+		let frozenanya = Game.getObject(sdk.units.objects.FrozenAnya);
 
 		if (frozenanya) {
 			Pather.moveToUnit(frozenanya);
@@ -32,7 +32,7 @@ function anya () {
 		Town.doChores();
 		Pather.usePortal(sdk.areas.FrozenRiver, me.name);
 
-		frozenanya = Object(sdk.units.object.FrozenAnya);	// Check again in case she's no longer there from first intereaction
+		frozenanya = Game.getObject(sdk.units.object.FrozenAnya);	// Check again in case she's no longer there from first intereaction
 
 		if (frozenanya) {
 			while (!frozenanya.mode) {

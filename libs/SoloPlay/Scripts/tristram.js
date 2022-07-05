@@ -58,11 +58,11 @@ function tristram () {
 		try {
 			// go to tristram @jaenster
 			let stones = [
-				object(sdk.quest.chest.StoneAlpha),
-				object(sdk.quest.chest.StoneBeta),
-				object(sdk.quest.chest.StoneGamma),
-				object(sdk.quest.chest.StoneDelta),
-				object(sdk.quest.chest.StoneLambda)
+				Game.getObject(sdk.quest.chest.StoneAlpha),
+				Game.getObject(sdk.quest.chest.StoneBeta),
+				Game.getObject(sdk.quest.chest.StoneGamma),
+				Game.getObject(sdk.quest.chest.StoneDelta),
+				Game.getObject(sdk.quest.chest.StoneLambda)
 			];
 
 			while (stones.some((stone) => !stone.mode)) {
@@ -102,7 +102,7 @@ function tristram () {
 			];
 			Attack.clearCoordList(clearCoords);
 
-			let gibbet = getUnit(sdk.unittype.Object, sdk.units.objects.CainsJail);
+			let gibbet = Game.getObject(sdk.units.objects.CainsJail);
 
 			if (gibbet && !gibbet.mode) {
 				Pather.moveTo(gibbet.x, gibbet.y);

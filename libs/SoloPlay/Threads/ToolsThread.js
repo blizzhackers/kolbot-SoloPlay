@@ -326,7 +326,7 @@ function main () {
 	};
 
 	this.checkVipers = function () {
-		let monster = getUnit(1, 597);
+		let monster = Game.getMonster(sdk.units.monsters.TombViper2);
 
 		if (monster) {
 			do {
@@ -344,7 +344,7 @@ function main () {
 	};
 
 	this.getIronGolem = function () {
-		let golem = getUnit(1, 291);
+		let golem = Game.getMonster(sdk.units.summons.IronGolem);
 
 		if (golem) {
 			do {

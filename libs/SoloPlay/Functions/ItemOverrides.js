@@ -1143,7 +1143,7 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 				Town.identify();
 			}
 
-			if (!getUnit(4, -1, -1, gid)) {
+			if (!Game.getItem(-1, -1, gid)) {
 				verbose && console.log("Sold charm during Town.identify()");
 				items.shift();
 

@@ -52,7 +52,7 @@ function summoner () {
 					Pather.moveTo(wpX - tppPath[i][0], wpY - tppPath[i][1]);
 
 					for (let activate = 0; activate < tppID.length; activate += 1) {
-						let telepad = getUnit(2, tppID[activate]);
+						let telepad = Game.getObject(tppID[activate]);
 
 						if (telepad) {
 							do {
@@ -98,7 +98,7 @@ function summoner () {
 		return false;
 	}
 
-	let journal = getUnit(sdk.unittype.Object, sdk.units.objects.Journal);
+	let journal = Game.getObject(sdk.units.objects.Journal);
 
 	if (journal) {
 		while (!Pather.getPortal(sdk.areas.CanyonofMagic)) {

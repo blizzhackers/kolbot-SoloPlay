@@ -154,7 +154,7 @@ Misc.getShrinesInArea = function (area, type, use) {
 
 		Skill.haveTK ? Pather.moveNear(coords[0], coords[1], 20) : Pather.moveTo(coords[0], coords[1], 2);
 
-		let shrine = getUnit(2, "shrine");
+		let shrine = Game.getObject("shrine");
 
 		if (shrine) {
 			do {

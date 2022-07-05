@@ -143,7 +143,7 @@ const Quest = {
 		if (me.horadricstaff) return true;
 
 		let tick = getTickCount();
-		let orifice = Misc.poll(() => getUnit(sdk.unittype.Object, sdk.quest.chest.HoradricStaffHolder));
+		let orifice = Misc.poll(() => Game.getObject(sdk.quest.chest.HoradricStaffHolder));
 		if (!orifice) return false;
 		
 		let hstaff = (me.getItem(sdk.items.quest.HoradricStaff) || Quest.cubeItems(sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff, sdk.items.quest.ViperAmulet));
@@ -196,7 +196,7 @@ const Quest = {
 		Pather.moveTo(22577, 15649, 10);
 		Pather.moveTo(22577, 15609, 10);
 
-		let tyrael = getUnit(1, NPC.Tyrael);
+		let tyrael = Game.getNPC(NPC.Tyrael);
 
 		if (!tyrael) return false;
 
@@ -245,11 +245,11 @@ const Quest = {
 		if (me.getItem(classid)) return true;
 
 		if (chestID !== undefined) {
-			let chest = getUnit(2, chestID);
+			let chest = Game.getObject(chestID);
 			if (!chest || !Misc.openChest(chest)) return false;
 		}
 
-		let questItem = Misc.poll(() => getUnit(4, classid), 3000, 100 + me.ping);
+		let questItem = Misc.poll(() => Game.getItem(classid), 3000, 100 + me.ping);
 
 		if (Storage.Inventory.CanFit(questItem)) {
 			Pickit.pickItem(questItem);
@@ -314,7 +314,7 @@ const Quest = {
 			break;
 		}
 
-		let smashable = getUnit(2, classid);
+		let smashable = Game.getObject(classid);
 
 		if (Item.getEquippedItem(4).classid !== tool || !me.getItem(tool)) return false;
 		if (!smashable) return false;
@@ -349,7 +349,7 @@ const Quest = {
 		!me.inTown && Town.goToTown();
 		npcName = npcName[0].toUpperCase() + npcName.substring(1).toLowerCase();
 		Town.move(NPC[npcName]);
-		let npc = Misc.poll(() => getUnit(1, NPC[npcName]));
+		let npc = Misc.poll(() => Game.getNPC(NPC[npcName]));
 
 		Packet.flash(me.gid);
 		delay(1 + me.ping * 2);

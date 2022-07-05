@@ -27,7 +27,7 @@ const frostNovaCheck = function () {
 
 	// don't build whole list - since we are just trying if at least one passes the test
 	// todo - test to time difference between these two methods
-	let mob = getUnit(sdk.unittype.Monster);
+	let mob = Game.getMonster();
 	if (mob) {
 		do {
 			if (mob.distance < 7 && ![sdk.units.monsters.Andariel].includes(mob.classid) && mob.attackable
@@ -62,7 +62,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 
 		if (Town.visitTown()) {
 			// lost reference to the mob we were attacking
-			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+			if (!unit || !copyUnit(unit).x || !Game.getMonsters(-1, -1, gid) || unit.dead) {
 				console.debug("Lost reference to unit");
 				return 1;
 			}
@@ -314,7 +314,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			while (unit.attackable) {
 				if (Misc.townCheck()) {
 					if (!unit || !copyUnit(unit).x) {
-						unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
+						unit = Misc.poll(() => Game.getMonsters(-1, -1, gid), 1000, 80);
 					}
 				}
 

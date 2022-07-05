@@ -159,7 +159,7 @@ function main() {
 				console.log("Didn't find portal, retry: " + i);
 				i > 3 && me.inTown && Town.move("portalspot", false);
 				if (i === 12) {
-					let p = getUnit(2, "portal");
+					let p = Game.getObject("portal");
 					console.debug(p);
 					if (!!p && Misc.click(0, 0, p) && Misc.poll(() => me.area !== preArea, 1000, 100)) {
 						this.lastPortalTick = getTickCount();
@@ -324,13 +324,13 @@ function main() {
 					
 					// determine if this is really worth it
 					if (useHowl || useTerror) {
-						if ([156, 211, 242, 243, 544, 571, 345].indexOf(Attack.getNearestMonster()) === -1) {
+						if ([sdk.units.monsters.Andariel, sdk.units.monsters.Duriel, sdk.units.monsters.Mephisto, sdk.units.monsters.Diablo, sdk.units.monsters.Baal, sdk.units.monsters.ListerTheTormenter, sdk.units.monsters.Council1].indexOf(Attack.getNearestMonster()) === -1) {
 							if (useHowl && Skill.getManaCost(130) < me.mp) {
-								Skill.cast(130, 0);
+								Skill.cast(sdk.skills.Howl, 0);
 							}
 
 							if (useTerror && Skill.getManaCost(77) < me.mp) {
-								Skill.cast(77, 0, Attack.getNearestMonster({skipImmune: false}));
+								Skill.cast(sdk.skills.Terror, 0, Attack.getNearestMonster({skipImmune: false}));
 							}
 						}
 					}

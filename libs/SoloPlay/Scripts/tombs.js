@@ -23,7 +23,7 @@ function tombs () {
 			Attack.clear(50);
 			Pickit.pickItems();
 
-			if (me.duriel && getUnit(sdk.unittype.Object, sdk.units.exits.EntrancetoDurielsLair)) {
+			if (me.duriel && Game.getObject(sdk.units.exits.EntrancetoDurielsLair)) {
 				Pather.useUnit(sdk.unittype.Object, sdk.units.exits.EntrancetoDurielsLair, sdk.areas.DurielsLair);
 				me.sorceress && !me.normal ? Attack.pwnDury() : Attack.killTarget("Duriel");
 				Pickit.pickItems();

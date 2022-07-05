@@ -21,7 +21,7 @@ function nith() {
 	Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.units.objects.NihlathaksPlatform);
 
 	// Stop script in hardcore mode if vipers are found
-	if (me.hardcore && getUnit(sdk.unittype.Monster, sdk.monsters.TombViper2)) {
+	if (me.hardcore && Game.getMonster(sdk.monsters.TombViper2)) {
 		myPrint("Tomb Vipers found.");
 
 		return true;

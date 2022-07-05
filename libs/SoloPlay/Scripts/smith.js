@@ -14,14 +14,14 @@ function smith () {
 	Pather.moveToExit(sdk.areas.Barracks);
 
 	if (!Pather.moveToPreset(sdk.areas.Barracks, sdk.unittype.Object, sdk.quest.chest.MalusHolder)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to the Smith");
+		myPrint('Failed to move to the Smith');
 		return false;
 	}
 
 	try {
 		Attack.killTarget(sdk.monsters.TheSmith);
 	} catch (err) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Smith');
+		myPrint('Failed to kill Smith');
 	}
 
 	Quest.collectItem(sdk.items.quest.HoradricMalus, sdk.quest.chest.MalusHolder);

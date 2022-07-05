@@ -68,27 +68,27 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 	return true;
 }).apply();
 
-Precast.summon = function (skillId, Type) {
+Precast.summon = function (skillId, type) {
 	if (!Skill.canUse(skillId)) return false;
 
 	let rv, retry = 0;
 	let count = Skill.getMaxSummonCount(skillId);
 
-	while (me.getMinionCount(Type) < count) {
+	while (me.getMinionCount(type) < count) {
 		rv = true;
 		let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	// Get a random coordinate to summon using
 		let unit = Attack.getNearestMonster({skipImmune: false});
 
-		if (unit && [sdk.units.minions.Golem, sdk.units.minions.Grizzly, sdk.units.minions.Shadow].includes(Type) && unit.distance < 20 && !checkCollision(me, unit, 0x4)) {
+		if (unit && [sdk.units.minions.Golem, sdk.units.minions.Grizzly, sdk.units.minions.Shadow].includes(type) && unit.distance < 20 && !checkCollision(me, unit, 0x4)) {
 			try {
 				if (Skill.cast(skillId, 0, unit)) {
-					if (me.getMinionCount(Type) === count) {
+					if (me.getMinionCount(type) === count) {
 						continue;
 					} else {
 						retry++;
 					}
 				} else if (Skill.cast(skillId, 0, me.x, me.y)) {
-					if (me.getMinionCount(Type) === count) {
+					if (me.getMinionCount(type) === count) {
 						continue;
 					} else {
 						retry++;
@@ -102,7 +102,7 @@ Precast.summon = function (skillId, Type) {
 		if (coord && Attack.castableSpot(coord.x, coord.y)) {
 			Skill.cast(skillId, 0, coord.x, coord.y);
 
-			if (me.getMinionCount(Type) === count) {
+			if (me.getMinionCount(type) === count) {
 				continue;
 			} else {
 				retry++;
@@ -110,7 +110,7 @@ Precast.summon = function (skillId, Type) {
 		} else if (Attack.castableSpot(me.x, me.y)) {
 			Skill.cast(skillId, 0, me.x, me.y);
 
-			if (me.getMinionCount(Type) === count) {
+			if (me.getMinionCount(type) === count) {
 				continue;
 			} else {
 				retry++;

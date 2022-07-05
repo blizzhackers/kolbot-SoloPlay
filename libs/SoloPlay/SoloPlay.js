@@ -37,7 +37,7 @@ function SoloPlay () {
 		}
 
 		if (me.charlvl === 1) {
-			let buckler = me.getItem(328);
+			let buckler = me.getItem(sdk.items.Buckler);
 			!!buckler && buckler.isEquipped && buckler.drop();
 		}
 
@@ -187,7 +187,7 @@ function SoloPlay () {
 				Developer.debugging.pathing && (me.automap = true);
 				this.developermode();
 			} else {
-				print("ÿc8Kolbot-SoloPlayÿc0: Failed to include developermode");
+				myPrint("Failed to include developermode");
 			}
 		}
 	}

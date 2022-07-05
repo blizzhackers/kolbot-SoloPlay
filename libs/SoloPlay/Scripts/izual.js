@@ -14,7 +14,7 @@ function izual () {
 	Pather.moveToPreset(sdk.areas.PlainsofDespair, sdk.unittype.Monster, sdk.monsters.Izual);
 	Attack.killTarget("Izual");
 
-	if (!Misc.checkQuest(25, 0)) {
+	if (!Misc.checkQuest(sdk.quest.id.TheFallenAngel, 0)) {
 		Town.goToTown();
 		Town.npcInteract("tyrael");
 		me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);

@@ -46,7 +46,7 @@ function den () {
 	Town.move("portalspot");
 
 	// Check if there are any portals before trying to use one
-	let p = getUnit(sdk.unittype.Object, sdk.units.portals.BluePortal);
+	let p = Game.getObject(sdk.units.portals.BluePortal);
 	
 	if (!!p && [sdk.areas.BloodMoor, sdk.areas.DenofEvil].includes(p.objtype)) {
 		Pather.usePortal(null, me.name);
@@ -83,7 +83,7 @@ function den () {
 					if (me.area === sdk.areas.DenofEvil) {
 						if (getTickCount() - corpseTick < 1000) return true;
 						corpseTick = getTickCount();
-						corpsefire = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.Corpsefire));
+						corpsefire = Game.getMonster(getLocaleString(sdk.locale.monsters.Corpsefire));
 
 						if (corpsefire && !Attack.canAttack(corpsefire)) {
 							killTracker = true;

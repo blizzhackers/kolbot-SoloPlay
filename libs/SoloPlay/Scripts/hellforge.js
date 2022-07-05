@@ -22,16 +22,16 @@ function hellforge () {
 	}
 
 	Pickit.pickItems();
-	let forge = getUnit(sdk.unittype.Object, sdk.quest.chest.HellForge);
+	let forge = Game.getObject(sdk.quest.chest.HellForge);
 	!!forge && Attack.clearPos(forge.x, forge.y, 25) && Attack.securePosition(forge.x, forge.y, 25, 3000);
 
 	if (!me.getItem(sdk.items.quest.HellForgeHammer)) {
 		// we don't have the hammer, is Hephasto dead?
-		let heph = getUnits(1).filter((unit) => unit.classid === sdk.monsters.Hephasto).first();
+		let heph = Game.getItem().filter((unit) => unit.classid === sdk.monsters.Hephasto).first();
 		!!heph && heph.attackable && Attack.kill(heph);
 		// hammer on ground?
-		let ham = getUnits(4).filter((unit) => unit.classid === sdk.items.quest.HellForgeHammer).first();
-		!!ham && [3, 5].includes(ham.mode) && Pather.moveToUnit(ham) && Pickit.pickItem(ham);
+		let ham = Game.getItem().filter((unit) => unit.classid === sdk.items.quest.HellForgeHammer).first();
+		!!ham && ham.onGroundOrDropping && Pather.moveToUnit && Pickit.pickItem(ham);
 		// do we have the hammer now?
 		if (!me.getItem(sdk.items.quest.HellForgeHammer)) {
 			console.warn("Failed to collect Hellforge hammer");
@@ -44,10 +44,10 @@ function hellforge () {
 	Town.npcInteract("cain");
 
 	let oldItem = me.getItemsEx().filter(function (item) {
-		return item.isEquipped && item.bodylocation === 4 && !item.isOnSwap;
+		return item.isEquipped && item.bodylocation === sdk.body.RightArm && !item.isOnSwap;
 	}).first();
 
-	if (!Quest.equipItem(sdk.items.quest.HellForgeHammer, 4)) {
+	if (!Quest.equipItem(sdk.items.quest.HellForgeHammer, sdk.body.RightArm)) {
 		console.warn("Failed to equip HellForge Hammer");
 
 		return true;
@@ -63,7 +63,7 @@ function hellforge () {
 
 	Misc.openChest(sdk.quest.chest.HellForge);
 	Quest.smashSomething(sdk.quest.chest.HellForge) && delay(4500 + me.ping);
-	!!oldItem && oldItem.isInInventory && oldItem.equip(4);
+	!!oldItem && oldItem.isInInventory && oldItem.equip(sdk.body.RightArm);
 	Pickit.pickItems();
 	Item.autoEquip();
 	Town.npcInteract("cain");

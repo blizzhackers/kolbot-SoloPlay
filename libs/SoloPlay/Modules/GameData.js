@@ -533,7 +533,7 @@
 			}
 
 			if (typeof target !== 'number') {
-				let unit = getUnit(1);
+				let unit  = Game.getMonster();
 				let radius = this.skillRadius[skillID] || 18;
 
 				if (unit) {

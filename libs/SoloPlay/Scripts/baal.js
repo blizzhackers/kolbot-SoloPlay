@@ -16,7 +16,7 @@ function baal () {
 		switch (me.classid) {
 		case sdk.charclass.Amazon:
 			if (me.getSkill(sdk.skills.Decoy, 1)) {
-				let decoy = getUnit(sdk.unittype.Monster, sdk.units.minions.Dopplezon);
+				let decoy = Game.getMonster(sdk.units.minions.Dopplezon);
 
 				if (!decoy || (getTickCount() - decoyTick >= decoyDuration)) {
 					Skill.cast(sdk.skills.Decoy, 0, 15092, 5028);
@@ -82,7 +82,7 @@ function baal () {
 
 		MainLoop:
 		while (true) {
-			if (!getUnit(sdk.unittype.Monster, sdk.units.monsters.ThroneBaal)) {
+			if (!Game.getMonster(sdk.units.monsters.ThroneBaal)) {
 				break;
 			}
 
@@ -96,7 +96,7 @@ function baal () {
 
 				break;
 			case 2:
-				boss = getUnit(sdk.unittype.Monster, "Achmel the Cursed"); // preset missing on sdk.js
+				boss = Game.getMonster("Achmel the Cursed"); // preset missing on sdk.js
 
 				if (boss && !Attack.canAttack(boss)) {
 					me.overhead("immune achmel");
@@ -121,14 +121,14 @@ function baal () {
 
 				break;
 			case 5:
-				boss = getUnit(sdk.unittype.Monster, sdk.units.monsters.preset.ListertheTormentor);
+				boss = Game.getMonster(sdk.units.monsters.preset.ListertheTormentor);
 
 				if (boss && !Attack.canAttack(boss)) {
 					me.overhead("immune lister");
 					return false;
 				}
 
-				Attack.clearClassids(571);
+				Attack.clearClassids(sdk.units.monsters.ListerTheTormenter);
 
 				break MainLoop;
 			default:
@@ -167,7 +167,7 @@ function baal () {
 	};
 
 	let unSafeCheck = function (soulAmount, totalAmount) {
-		let soul = getUnit(sdk.unittype.Monster, sdk.units.monsters.BurningSoul1);
+		let soul = Game.getMonster(sdk.units.monsters.BurningSoul1);
 		let count = 0;
 
 		if (soul) {
@@ -182,7 +182,7 @@ function baal () {
 			return true;
 		}
 
-		let monster = getUnit(sdk.unittype.Monster);
+		let monster = Game.getMonster();
 
 		if (monster) {
 			do {
@@ -197,7 +197,7 @@ function baal () {
 
 	let canClearThrone = function () {
 		Pather.moveTo(15094, 5029);
-		let monList = getUnits(1).filter(i => i.attackable);
+		let monList = Game.getMonster().filter(i => i.attackable);
 		let canAttack = [], cantAttack = [];
 
 		monList.forEach(mon => {
@@ -241,6 +241,10 @@ function baal () {
 
 	try {
 		Messaging.sendToScript(SoloEvents.filePath, 'addBaalEvent');
+		if (((me.hell && me.paladin && !Attack.auradin) || me.barbarian || me.gold < 25000 || (!me.baal && SetUp.finalBuild !== "Bumper"))) {
+			Messaging.sendToScript(SoloEvents.filePath, 'addBaalEvent');
+		}
+
 		Attack.clear(15);
 		Common.Baal.clearThrone();
 

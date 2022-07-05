@@ -56,7 +56,7 @@ function orgtorch() {
 	// Try to lure a monster - wait until it's close enough
 	this.lure = function (bossId) {
 		let tick,
-			unit = getUnit(sdk.unittype.Monster, bossId);
+			unit = Game.getMonster(bossId);
 
 		if (unit) {
 			tick = getTickCount();
@@ -139,7 +139,7 @@ function orgtorch() {
 			transmute();
 			delay(1000);
 
-			portal = getUnit(sdk.unittype.Object, sdk.units.portals.RedPortal);
+			portal = Game.getObject(sdk.units.portals.RedPortal);
 
 			if (portal) {
 				do {
@@ -188,7 +188,7 @@ function orgtorch() {
 				Pather.moveTo(findLoc[i], findLoc[i + 1]);
 				delay(500);
 
-				if (getUnit(sdk.unittype.Monster, sdk.units.monsters.UberDuriel)) {
+				if (Game.getMonster(sdk.units.monsters.UberDuriel)) {
 					break;
 				}
 			}
@@ -229,7 +229,7 @@ function orgtorch() {
 
 			this.lure(sdk.units.monsters.UberMephisto);
 
-			if (!getUnit(sdk.unittype.Monster, sdk.units.monsters.UberMephisto)) {
+			if (!Game.getMonster(sdk.units.monsters.UberMephisto)) {
 				Pather.moveTo(25122, 5170);
 			}
 
@@ -238,13 +238,13 @@ function orgtorch() {
 			Pather.moveTo(25162, 5141);
 			delay(3250);
 
-			if (!getUnit(sdk.unittype.Monster, sdk.monsters.UberDiablo)) {
+			if (!Game.getMonster(sdk.units.monsters.UberDiablo)) {
 				Pather.moveTo(25122, 5170);
 			}
 
 			Attack.killTarget(sdk.units.monsters.UberDiablo);
 
-			if (!getUnit(sdk.unittype.Monster, sdk.units.monsters.UberBaal)) {
+			if (!Game.getMonster(sdk.units.monsters.UberBaal)) {
 				Pather.moveTo(25122, 5170);
 			}
 

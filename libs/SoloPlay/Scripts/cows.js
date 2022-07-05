@@ -91,7 +91,7 @@ function cows () {
 		}
 
 		for (let classID of classIDS) {
-			let cubingItem = me.getItem(classID);
+			let cubingItem = Game.getItem(classID)
 
 			if (!cubingItem || !Storage.Cube.MoveTo(cubingItem)) {
 				return false;
@@ -156,7 +156,7 @@ function cows () {
 			if (me.area === sdk.areas.MooMooFarm) {
 				if (getTickCount() - kingTick < 1000) return true;
 				kingTick = getTickCount();
-				king = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.TheCowKing));
+				king = Game.getMonster(getLocaleString(sdk.locale.monsters.TheCowKing));
 				// only get the preset unit once
 				!kingPreset && (kingPreset = getPresetUnit(me.area, sdk.unittype.Monster, sdk.monsters.preset.TheCowKing));
 

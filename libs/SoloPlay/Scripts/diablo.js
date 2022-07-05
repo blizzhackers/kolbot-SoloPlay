@@ -18,7 +18,7 @@ function diablo () {
 				switch (me.classid) {
 				case sdk.charclass.Amazon:
 					if (me.getSkill(sdk.skills.Decoy, 1)) {
-						let decoy = monster(sdk.units.minions.Dopplezon);
+						let decoy = Game.getMonster(sdk.units.minions.Dopplezon);
 
 						if (!decoy || (getTickCount() - tick >= decoyDuration)) {
 							Skill.cast(sdk.skills.Decoy, 0, 7793, 5293);
@@ -76,7 +76,7 @@ function diablo () {
 				delay(500 + me.ping);
 			}
 
-			if (getUnit(sdk.unittype.Monster, sdk.units.monsters.Diablo)) {
+			if (Game.getMonster(sdk.units.monsters.Diablo)) {
 				return true;
 			}
 		}
@@ -108,7 +108,7 @@ function diablo () {
 		!me.diablo && me.barbarian && (Config.BossPriority = true);
 
 		if (me.baal && me.normal && me.sorceress && me.charlvl > 28) {
-			// try running fast diablo - may neeed work
+			// try running fast diablo - may need work
 			Config.Diablo.Fast = true;
 			Config.ClearPath.Range = 15;
 			Config.ClearPath.Spectype = 0xF; // skip normal mobs
@@ -139,7 +139,7 @@ function diablo () {
 		}
 
 		this.diabloPrep();
-		let theD = getUnit(sdk.unittype.Monster, sdk.units.monsters.Diablo);
+		let theD = Game.geMonster(sdk.units.monsters.Diablo)
 
 		if (!theD) {
 			myPrint("Diablo not found. Checking seal bosses.");

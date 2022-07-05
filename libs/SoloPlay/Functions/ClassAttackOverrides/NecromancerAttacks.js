@@ -129,7 +129,7 @@ ClassAttack.doAttack = function (unit) {
 
 		if (Town.visitTown()) {
 			// lost reference to the mob we were attacking
-			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+			if (!unit || !copyUnit(unit).x || !Game.getMonsters(-1, -1, gid) || unit.dead) {
 				return 1;
 			}
 		}
@@ -209,7 +209,7 @@ ClassAttack.doAttack = function (unit) {
 		while (unit.attackable) {
 			if (Misc.townCheck()) {
 				if (!unit || !copyUnit(unit).x) {
-					unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
+					unit = Misc.poll(() => Game.getMonsters(-1, -1, gid), 1000, 80);
 				}
 			}
 
@@ -405,7 +405,7 @@ ClassAttack.explodeCorpses = function (unit) {
 	let ampManaCost = Skill.getManaCost(sdk.skills.AmplifyDamage);
 	let explodeCorpsesManaCost = Skill.getManaCost(Config.ExplodeCorpses);
 	let range = Math.floor((me.getSkill(Config.ExplodeCorpses, 1) + 7) / 3);
-	let corpse = getUnit(1, -1, 12);
+	let corpse = Game.getMonsters(-1, -1, 12);
 
 	if (corpse) {
 		do {

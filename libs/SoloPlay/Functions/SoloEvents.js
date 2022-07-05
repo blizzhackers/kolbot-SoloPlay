@@ -66,8 +66,8 @@ const SoloEvents = {
 
 					me.overhead("Waiting for charm to drop");
 					while (getTickCount() - tick < 120 * 1000) {
-						anni = me.findItem(603, 3, null, 7);
-						torch = me.findItem(604, 3, null, 7);
+						anni = me.findItem(sdk.items.SmallCharm, 3, null, sdk.itemquality.Unique);
+						torch = me.findItem(sdk.items.LargeCharm, 3, null, sdk.itemquality.Unique);
 
 						if (torch || anni) {
 							break;
@@ -75,7 +75,7 @@ const SoloEvents = {
 					}
 
 					if (torch || anni) {
-						for (let j = 0; j < 12 || me.findItem((anni ? 603 : 604), 0, -1, 7); j++) {
+						for (let j = 0; j < 12 || me.findItem((anni ? sdk.items.SmallCharm : sdk.items.LargeCharm), 0, -1, sdk.itemquality.Unique); j++) {
 							Town.move("stash");
 							me.overhead("Looking for " + (anni ? "Annihilus" : "Torch"));
 							Pickit.pickItems();
@@ -200,7 +200,7 @@ const SoloEvents = {
 			Precast.doPrecast(true);
 
 			if (!Pather.usePortal(null)) {
-				print("ÿc8Kolbot-SoloPlayÿc1: Failed to move to Palace Cellar");
+				myPrint("Failed to move to Palace Cellar");
 			}
 		} else if (Pather.checkWP(sdk.areas.InnerCloister)) {
 			Pather.useWaypoint(sdk.areas.InnerCloister);
@@ -209,14 +209,14 @@ const SoloEvents = {
 			Pather.useWaypoint(sdk.areas.ColdPlains);
 			Pather.moveToExit(sdk.areas.BloodMoor, true);
 			Pather.clearToExit(sdk.areas.BloodMoor, sdk.areas.DenofEvil, true);
-			Pather.moveToPreset(me.area, 1, 774, 0, 0, false, true);
+			Pather.moveToPreset(me.area, sdk.unittype.Monster, sdk.units.monster.Corpsefire, 0, 0, false, true);
 		}
 
 		Attack.killTarget(sdk.units.monsters.DiabloClone);
 		Pickit.pickItems();
 
-		let newAnni = getUnit(4, 603, 3);
-		let oldAnni = me.findItem(603, 0, -1, 7);
+		let newAnni = Game.getItem(sdk.items.SmallCharm, 3);
+		let oldAnni = me.findItem(sdk.items.SmallCharm, 0, -1, sdk.itemquality.Unique);
 
 		if (newAnni && oldAnni) {
 			this.sendToList({profile: me.profile, ladder: 32}, 60);
@@ -402,7 +402,7 @@ const SoloEvents = {
 	},
 
 	dodge: function () {
-		let diablo = getUnit(1, 243);
+		let diablo = Game.getMonster(sdk.units.monsters.Diablo);
 		// Credit @Jaenster
 		let shouldDodge = function (coord) {
 			return !!diablo && getUnits(3)
@@ -462,9 +462,9 @@ const SoloEvents = {
 
 		// No Tome, or tome has no tps, or no scrolls
 		if (!Town.canTpToTown()) {
-			Pather.moveToExit([2, 3], true);
-			Pather.getWP(3);
-			Pather.useWaypoint(1);
+			Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.ColdPlains], true);
+			Pather.getWP(sdk.areas.ColdPlains);
+			Pather.useWaypoint(sdk.areas.RogueEncampment);
 		} else {
 			Town.goToTown();
 		}
@@ -480,7 +480,7 @@ const SoloEvents = {
 		// Now check my area
 		if (me.act === 2) {
 			// Act change sucessful, Andy has been bugged
-			myPrint("Andy bug " + (!me.getQuest(6, 15) ? "sucessful" : "failed"));
+			myPrint("Andy bug " + (!me.getQuest(sdk.quest.id.SistersToTheSlaughter, 15) ? "sucessful" : "failed"));
 			scriptBroadcast('quit');
 		}
 	},
@@ -504,7 +504,7 @@ const SoloEvents = {
 				|| me.gold < 5000
 				|| (!me.baal && SetUp.finalBuild !== "Bumper")) {
 				let waveMonster = ((bytes[1]) | (bytes[2] << 8));
-				let wave = [62, 105, 557, 558, 571].indexOf(waveMonster);
+				let wave = [sdk.units.monsters.WarpedShaman, sdk.units.monsters.BaalSubjectMummy, sdk.units.monsters.sdk.units.monsters.VenomLord2, sdk.units.monsters.Council4, sdk.units.monsters.sdk.monsters.ListerTheTormenter].indexOf(waveMonster);
 				console.debug("Wave # " + wave);
 				if (SoloEvents.skippedWaves.includes(wave)) return;
 				let waveBoss = {

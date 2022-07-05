@@ -16,7 +16,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 		if (Town.visitTown()) {
 			// lost reference to the mob we were attacking
-			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+			if (!unit || !copyUnit(unit).x || !Game.getMonsters(-1, -1, gid) || unit.dead) {
 				return 1;
 			}
 		}
@@ -134,7 +134,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		while (unit.attackable) {
 			if (Misc.townCheck()) {
 				if (!unit || !copyUnit(unit).x) {
-					unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
+					unit = Misc.poll(() => Game.getMonsters(-1, -1, gid), 1000, 80);
 				}
 			}
 

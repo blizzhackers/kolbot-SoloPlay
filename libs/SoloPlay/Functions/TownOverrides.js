@@ -1014,7 +1014,7 @@ Town.buyMercPots = function (quantity, type) {
 	if (type === "Antidote" && merc.poisonRes >= 75) return true;
 
 	Town.move(NPC[potDealer]);
-	npc = getUnit(sdk.unittype.NPC, NPC[potDealer]);
+	npc = Game.getNPC(NPC[potDealer]);
 
 	if (!npc || !npc.openMenu()) return false;
 
@@ -1244,7 +1244,7 @@ Town.clearInventory = function () {
 	// Any leftover items from a failed ID (crashed game, disconnect etc.)
 	let items = (Storage.Inventory.Compare(Config.Inventory) || []);
 	items.length > 0 && (items = items.filter(function (item) {
-		return (!!item && ([18, 41, 76, 77, 78].indexOf(item.itemType) === -1 // Don't drop tomes, keys or potions
+		return (!!item && ([sdk.itemtype.Book, sdk.itemtype.Key, sdk.itemtype.HealingPotion, sdk.itemtype.HealingPotion, sdk.itemtype.RejuvPotion].indexOf(item.itemType) === -1
 					&& item.sellable // Don't try to sell/drop quest-items
 					&& !AutoEquip.wanted(item) // Don't throw auto equip wanted items
 					&& !Cubing.keepItem(item) // Don't throw cubing ingredients
@@ -1260,7 +1260,7 @@ Town.clearInventory = function () {
 
 		if ([Pickit.result.UNWANTED, Pickit.result.TRASH].indexOf(result) === -1) {
 			if ((item.isBaseType && item.sockets > 0) ||
-				([25, 69, 70, 71, 72].includes(item.itemType) && item.normal && item.sockets === 0)) {
+				([sdk.itemtype.Wand, sdk.itemtype.VoodooHeads, sdk.itemtype.AuricShields, sdk.itemtype.PrimalHelm, sdk.itemtype.Pelt].includes(item.itemType) && item.normal && item.sockets === 0)) {
 				if (Town.worseBaseThanStashed(item) && !Town.betterBaseThanWearing(item, Developer.debugging.junkCheck)) {
 					result = 4;
 				}
@@ -1298,8 +1298,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 
 	let skillsScore = function (item) {
 		let skillsRating = 0;
-		skillsRating += item.getStatEx(83, me.classid) * 200; // + class skills
-		skillsRating += item.getStatEx(188, Check.currentBuild().tabSkills) * 100; // + TAB skills
+		skillsRating += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 200; // + class skills
+		skillsRating += item.getStatEx(sdk.stats.AddSkillTab, Check.currentBuild().tabSkills) * 100; // + TAB skills
 		let selectedWeights = [30, 20];
 		let selectedSkills = [Check.currentBuild().wantedSkills, Check.currentBuild().usefulSkills];
 
@@ -1319,7 +1319,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 	let bodyLoc = Item.getBodyLoc(base);
 
 	// Can't use so its worse then what we already have
-	if ((me.getStat(0) < base.strreq || me.getStat(2) < base.dexreq)) {
+	if ((me.getStat(sdk.stats.Strength) < base.strreq || me.getStat(sdk.stats.Dexterity) < base.dexreq)) {
 		return false;
 	}
 
@@ -1328,25 +1328,25 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 	for (let i = 0; i < bodyLoc.length; i++) {
 		if (item) {
 			do {
-				if (item.location === 1 && item.bodylocation === bodyLoc[i]) {
+				if (item.location === sdk.storage.Equipped && item.bodylocation === bodyLoc[i]) {
 					equippedItem = {
 						classid: item.classid,
 						type: item.itemType,
-						sockets: item.getStatEx(194),
+						sockets: item.getStatEx(sdk.stats.NumSockets),
 						name: item.name,
 						tier: NTIP.GetTier(item),
 						prefixnum: item.prefixnum,
-						str: item.getStatEx(0),
-						dex: item.getStatEx(2),
-						def: item.getStatEx(31),
-						eDef: item.getStatEx(16),
-						fr: item.getStatEx(39),
-						lr: item.getStatEx(41),
-						cr: item.getStatEx(43),
-						pr: item.getStatEx(45),
-						minDmg: item.getStatEx(21),
-						maxDmg: item.getStatEx(22),
-						eDmg: item.getStatEx(18),
+						str: item.getStatEx(sdk.stats.Strength),
+						dex: item.getStatEx(sdk.stats.Dexterity),
+						def: item.getStatEx(sdk.stats.ArmorClass),
+						eDef: item.getStatEx(sdk.stats.ArmorPercent),
+						fr: item.getStatEx(sdk.stats.FireResist),
+						lr: item.getStatEx(sdk.stats.LightResist),
+						cr: item.getStatEx(sdk.stats.ColdResist),
+						pr: item.getStatEx(sdk.stats.PoisonResist),
+						minDmg: item.getStatEx(sdk.stats.MinDamage),
+						maxDmg: item.getStatEx(sdk.stats.MaxDamage),
+						eDmg: item.getStatEx(sdk.stats.MinDamagePercent),
 						runeword: item.isRuneword,
 					};
 					check = item;
@@ -1360,12 +1360,12 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 		}
 
 		switch (equippedItem.prefixnum) {
-		case 20507: 	//Ancient's Pledge
-		case 20543: 	//Exile
-		case 20581: 	//Lore
-		case 20635: 	//Spirit
-		case 20667: 	//White
-		case 20625: 	//Rhyme
+		case sdk.locale.items.AncientsPledge:
+		case sdk.locale.items.Exile:
+		case sdk.locale.items.Lore:
+		case sdk.locale.items.Spirit:
+		case sdk.locale.items.White:
+		case sdk.locale.items.Rhyme:
 			preSocketCheck = true;
 			break;
 		default:
@@ -1378,10 +1378,10 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 
 		if (base.sockets === equippedItem.sockets || preSocketCheck) {
 			switch (equippedItem.prefixnum) {
-			case 20507: 	//Ancient's Pledge
+			case sdk.locale.items.AncientsPledge:
 				if (me.paladin) {
 					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 187;
-					baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+					baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
 
 					if (baseResists !== itemsResists) {
 						verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
@@ -1394,7 +1394,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 					}
 				} else {
 					itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
-					baseDefense = base.getStatEx(31);
+					baseDefense = base.getStatEx(sdk.stats.Defense);
 
 					if (baseDefense !== itemsDefense) {
 						verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
@@ -1408,12 +1408,12 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 				
 				break;
-			case 20512: 	//Black
+			case sdk.locale.items.Black:
 				ED = equippedItem.eDmg > 120 ? 120 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Black) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
@@ -1426,12 +1426,12 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20523: 	//Crescent Moon
+			case sdk.locale.items.CrescentMoon:
 				ED = equippedItem.eDmg > 220 ? 220 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Crescent Moon) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
@@ -1444,9 +1444,9 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20543: 	//Exile
+			case sdk.locale.items.Exile: 	//Exile
 				itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr);
-				baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+				baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
 
 				if (baseResists !== itemsResists) {
 					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
@@ -1459,12 +1459,12 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20561: 	//Honor
+			case sdk.locale.items.Honor:
 				ED = equippedItem.eDmg > 160 ? 160 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 9) / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Honor) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
@@ -1477,12 +1477,12 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20571: 	//King's Grace
+			case sdk.locale.items.KingsGrace:
 				ED = equippedItem.eDmg > 100 ? 100 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(King's Grace) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
@@ -1495,12 +1495,12 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20577: 	//Lawbringer
+			case sdk.locale.items.Lawbringer:
 				ED = equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Lawbringer) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
@@ -1513,9 +1513,9 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20581: 	//Lore
-				itemsDefense = check.getStatEx(31);
-				baseDefense = base.getStatEx(31);
+			case sdk.locale.items.Lore:
+				itemsDefense = check.getStatEx(sdk.stats.Defense);
+				baseDefense = base.getStatEx(sdk.stats.Defense);
 					
 				if (me.barbarian || me.druid) {	//Barbarian or Druid (PrimalHelms and Pelts)
 					equippedSkillsTier = skillsScore(check);
@@ -1551,14 +1551,14 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20586: 	//Malice
+			case sdk.locale.items.Malice:
 				ED = equippedItem.eDmg > 33 ? 33 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 
-				if (me.classid === 3) {	//Paladin TODO: See if its worth it to calculate the added damage skills would add
+				if (me.classid === sdk.charclass.Paladin) {	//Paladin TODO: See if its worth it to calculate the added damage skills would add
 					equippedSkillsTier = skillsScore(check);
 					baseSkillsTier = skillsScore(base);
 				}
@@ -1574,8 +1574,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20625: 	//Rhyme
-				if (me.necromancer) {	//Necromancer
+			case sdk.locale.items.Rhyme:
+				if (me.necromancer) {
 					equippedSkillsTier = skillsScore(check);
 					baseSkillsTier = skillsScore(base);
 
@@ -1588,7 +1588,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 							break;
 						}
 					} else if (equippedSkillsTier === baseSkillsTier) {
-						baseDefense = base.getStatEx(31);
+						baseDefense = base.getStatEx(sdk.stats.Defense);
 						verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) EquippedDefense: " + equippedItem.def + " BaseDefense: " + baseDefense);
 
 						if (baseDefense < equippedItem.def) {
@@ -1599,7 +1599,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 					}
 				} else if (me.paladin) {
 					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 100;
-					baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+					baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
 
 					if (baseResists !== itemsResists) {
 						verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
@@ -1614,12 +1614,12 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20626: 	//Rift
+			case sdk.locale.items.Rift:
 				ED = equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Rift) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
@@ -1632,10 +1632,10 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20635: 	//Spirit
+			case sdk.locale.items.Spirit:
 				if (me.paladin && bodyLoc[i] === 5) {
 					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 115;
-					baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+					baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
 				} else {
 					break;
 				}
@@ -1651,12 +1651,12 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20639: 	//Steel
+			case sdk.locale.items.Steel:
 				ED = equippedItem.eDmg > 20 ? 20 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 3) / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 3) / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Steel) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
@@ -1669,12 +1669,12 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20644: 	//Strength
+			case sdk.locale.items.Strength:
 				ED = equippedItem.eDmg > 35 ? 35 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Strength) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
@@ -1687,8 +1687,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20667: 	//White
-				if (me.necromancer) {	//Necromancer
+			case sdk.locale.items.White:
+				if (me.necromancer) {
 					equippedSkillsTier = skillsScore(check) - 550;
 					baseSkillsTier = skillsScore(base);
 
@@ -1704,10 +1704,10 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20633: 	// Smoke
-			case 20638: 	// Stealth
+			case sdk.locale.items.Smoke:
+			case sdk.locale.items.Stealth:
 				itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
-				baseDefense = base.getStatEx(31);
+				baseDefense = base.getStatEx(sdk.stats.Defense);
 
 				if (baseDefense !== itemsDefense) {
 					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Stealth/Smoke) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
@@ -1720,29 +1720,29 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20514: 	// Bone
-			case 20592: 	// Myth
-			case 20603: 	// Peace
-			case 20653: 	// Treachery
+			case sdk.locale.items.Bone:
+			case sdk.locale.items.Myth:
+			case sdk.locale.items.Peace:
+			case sdk.locale.items.Treachery:
 				let name = "";
 
 				switch (equippedItem.prefixnum) {
-				case 20514: 	// Bone
+				case sdk.locale.items.Bone:
 					name = "Bone";
 					break;
-				case 20592: 	// Myth
+				case sdk.locale.items.Myth:
 					name = "Myth";
 					break;
-				case 20603: 	// Peace
+				case sdk.locale.items.Peace:
 					name = "Peace";
 					break;
-				case 20653: 	// Treachery
+				case sdk.locale.items.Treachery:
 					name = "Treachery";
 					break;
 				}
 
 				itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
-				baseDefense = base.getStatEx(31);
+				baseDefense = base.getStatEx(sdk.stats.Defense);
 
 				if (baseDefense !== itemsDefense) {
 					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
@@ -1786,14 +1786,14 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 
 		if (generalScore === 0) {
 			if (me.paladin) {
-				generalScore += item.getStatEx(39) * 2;	// Resist
+				generalScore += item.getStatEx(sdk.stats.FireResist) * 2;	// Resist
 			}
 
-			generalScore += item.getStatEx(31) * 0.5;		// Defense
-			generalScore += item.getStatEx(21); // add MIN damage
-			generalScore += item.getStatEx(22); // add MAX damage
-			//generalScore += item.getStatEx(23); // add MIN damage
-			//generalScore += item.getStatEx(24); // add MAX damage
+			generalScore += item.getStatEx(sdk.stats.Defense) * 0.5;		// Defense
+			generalScore += item.getStatEx(sdk.stats.MinDamage); // add MIN damage
+			generalScore += item.getStatEx(sdk.stats.MaxDamage); // add MAX damage
+			//generalScore += item.getStatEx(sdk.stats.SecondaryMinDamage); // add MIN damage
+			//generalScore += item.getStatEx(sdk.stats.SecondaryMaXDamage); // add MAX damage
 		}
 
 		return generalScore;
@@ -1802,15 +1802,14 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 	let itemsToCheck, result = false;
 
 	switch (base.itemType) {
-	case 2: // Shield
-	case 69: // Voodoo heads
-	case 70: // Auric Shields
+	case sdk.itemtype.Shield:
+	case sdk.itemtype.VoodooHeads:
+	case sdk.itemtype.AuricShields:
 		if (me.paladin) {
 			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[2, 70].indexOf(item.itemType) > -1// same item type as current
+				.filter(item => [sdk.itemtype.Shield, sdk.itemtype.AuricShields].indexOf(item.itemType) > -1// same item type as current
 					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
+					&& [sdk.storage.Inventory, sdk.storage.Stash].indexOf(item.location) > -1
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b))
 				.last(); // select last
@@ -1819,8 +1818,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
 			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck) ||
+				if (base.isInStorage && (generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
 					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 
@@ -1829,10 +1827,9 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			}
 		} else if (me.necromancer) {
 			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[2, 69].indexOf(item.itemType) > -1// same item type as current
+				.filter(item => [sdk.itemtype.Shield, sdk.itemtype.VoodooHeads].indexOf(item.itemType) > -1// same item type as current
 					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
+					&& [sdk.storage.Inventory, sdk.storage.Stash].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
 				.last(); // select last
@@ -1841,8 +1838,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
 			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck))) {
+				if (base.isInStorage && (generalScore(base) < generalScore(itemsToCheck))) {
 					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 
 					result = true;
@@ -1851,23 +1847,21 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		} else {
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
-					item.itemType === 2// same item type as current
+					item.itemType === sdk.itemType.Shield// same item type as current
 					&& !item.ethereal // only noneth runeword bases
 					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
+					&& [sdk.storage.Inventory, sdk.storage.Stash].indexOf(item.location) > -1 // locations
 				)
-				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on tier value, (better for skills)
+				.sort((a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)) // Sort on tier value, (better for skills)
 				.last(); // select last
 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
 			if (base.sockets > 0) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					!base.ethereal &&
-					(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
-						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
-					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(31) + " itemToCheckDefense: " + itemsToCheck.getStatEx(31));
+				if (base.isInStorage && !base.ethereal && (base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense) ||
+						base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
+					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(sdk.stats.Defense) + " itemToCheckDefense: " + itemsToCheck.getStatEx(sdk.stats.Defense));
 
 					result = true;
 				}
@@ -1875,42 +1869,40 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		}
 
 		break;
-	case 3: // Armor
+	case sdk.itemtype.Armor:
 		itemsToCheck = me.getItemsEx()
 			.filter(item =>
-				item.itemType === 3// same item type as current
+				item.itemType === sdk.itemtype.Armor // same item type as current
 				&& !item.ethereal // only noneth runeword bases
 				&& item.sockets === base.sockets // sockets match junk in review
-				&& [3, 7].indexOf(item.location) > -1 // locations
+				&& [sdk.storage.Inventory, sdk.storage.Stash].indexOf(item.location) > -1 // locations
 			)
-			.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on tier value, (better for skills)
+			.sort((a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)) // Sort on tier value, (better for skills)
 			.last(); // select last
 
 		if (itemsToCheck === undefined) return false;
 		if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
 		if (base.sockets > 0) {
-			if (([3, 6, 7].indexOf(base.location) > -1) &&
-				!base.ethereal &&
-				(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
-						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
-				Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(31) + " itemToCheckDefense: " + itemsToCheck.getStatEx(31));
+			if (base.isInStorage && !base.ethereal && (base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense) ||
+					base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
+				Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(sdk.stats.Defense) + " itemToCheckDefense: " + itemsToCheck.getStatEx(sdk.stats.Defense));
 
 				result = true;
 			}
 		}
 
 		break;
-	case 37: // Helm
-	case 71: // Barb Helm
-	case 72: //	Druid Pelt
-	case 75: // Circlet
+	case sdk.itemtype.Helm:
+	case sdk.itemtype.PrimalHelm:
+	case sdk.itemtype.Pelt:
+	case sdk.itemtype.Circlet:
 		if (me.barbarian || me.druid) {
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
-					[37, 75, 71, 72].indexOf(item.itemType) > -1// same item type as current
+					[sdk.itemtype.Helm, sdk.itemtype.Circlet, sdk.itemtype.PrimalHelm, sdk.itemtype.Pelt].indexOf(item.itemType) > -1// same item type as current
 					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
+					&& [sdk.storage.Inventory, sdk.storage.Stash].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
 				.last(); // select last
@@ -1919,9 +1911,8 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
 			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck) ||
-						(generalScore(base) === generalScore(itemsToCheck) && base.getStatEx(31) < itemsToCheck.getStatEx(31)))) {
+				if (base.isInStorage && (generalScore(base) < generalScore(itemsToCheck) ||
+						(generalScore(base) === generalScore(itemsToCheck) && base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense)))) {
 					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 
 					result = true;
@@ -1930,23 +1921,21 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		} else {
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
-					[37, 75].indexOf(item.itemType) > -1// same item type as current
+					[sdk.itemtype.Helm, sdk.itemtype.Circlet].indexOf(item.itemType) > -1// same item type as current
 					&& !item.ethereal // only noneth runeword bases
 					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
+					&& [sdk.storage.Inventory, sdk.storage.Stash].indexOf(item.location) > -1 // locations
 				)
-				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on defense
+				.sort((a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)) // Sort on defense
 				.last(); // select last
 
 			if (itemsToCheck === undefined) return false;
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
 			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					!base.ethereal &&
-					(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
-						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
-					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStat(31) + " itemToCheckDefense: " + itemsToCheck.getStat(31));
+				if (base.isInStorage && !base.ethereal && (base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense) ||
+						base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
+					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStat(31) + " itemToCheckDefense: " + itemsToCheck.getStat(sdk.stats.Defense));
 
 					result = true;
 				}
@@ -1954,13 +1943,13 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		}
 
 		break;
-	case 25: //	Wand
+	case sdk.itemtype.Wand:
 		if (me.necromancer) {
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
-					[25].indexOf(item.itemType) > -1// same item type as current
+					[sdk.itemtype.Wand].indexOf(item.itemType) > -1// same item type as current
 					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
+					&& [sdk.storage.Inventory, sdk.storage.Stash].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
 				.last(); // select last
@@ -1969,8 +1958,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
 			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck) ||
+				if (base.isInStorage && (generalScore(base) < generalScore(itemsToCheck) ||
 						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
 					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 
@@ -1980,20 +1968,21 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		}
 
 		break;
-	case 24: //	Scepter
-	case 26: //	Staff
-	case 27: //	Bow
-	case 28: //	Axe
-	case 29: //	Club
-	case 30: //	Sword
-	case 31: //	Hammer
-	case 33: //	Spear
-	case 35: //	Crossbow
-	case 36: //	Mace
-	case 68: //	Orb
-	case 85: //	Amazon Bow
-	case 86: //	Amazon Spear
-		if ((me.getStat(0) < base.strreq || me.getStat(2) < base.dexreq) && !me.paladin) {	// don't toss grief base
+		// Todo: Separate amazonbow/xbow
+	case sdk.itemtype.Scepter:
+	case sdk.itemtype.Staff:
+	case sdk.itemtype.Bow:
+	case sdk.itemtype.Axe:
+	case sdk.itemtype.Club:
+	case sdk.itemtype.Sword:
+	case sdk.itemtype.Hammer:
+	case sdk.itemtype.Spear:
+	case sdk.itemtype.Crossbow:
+	case sdk.itemtype.Mace:
+	case sdk.itemtype.Orb:
+	case sdk.itemtype.AmazonBow:
+	case sdk.itemtype.AmazonSpear:
+		if ((me.getStat(sdk.stats.Strength) < base.strreq || me.getStat(sdk.stats.Dexterity) < base.dexreq) && !me.paladin) {	// don't toss grief base
 			return true; // Can't use so it's worse then what we already have
 		}
 
@@ -2001,8 +1990,8 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			.filter(item =>
 				item.itemType === base.itemType// same item type as current
 				&& item.sockets === base.sockets // sockets match junk in review
-				&& [3, 7].indexOf(item.location) > -1 // locations
-				&& me.getStat(0) >= item.strreq && me.getStat(2) >= item.dexreq // I have enough str/dex for this item
+				&& [sdk.storage.Inventory, sdk.storage.Stash].indexOf(item.location) > -1 // locations
+				&& me.getStat(sdk.stats.Strength) >= item.strreq && me.getStat(sdk.stats.Dexterity) >= item.dexreq // I have enough str/dex for this item
 			)
 			.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
 			.last(); // select last
@@ -2020,9 +2009,8 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		}
 
 		if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-			if (([3, 4, 7].indexOf(base.location) > -1) &&
-				(generalScore(base) < generalScore(itemsToCheck) ||
-						(generalScore(base) === generalScore(itemsToCheck) && (Item.getQuantityOwned(base) > 2 || base.getStatEx(18) < itemsToCheck.getStatEx(18))))) {
+			if (base.isInStorage && (generalScore(base) < generalScore(itemsToCheck) ||
+					(generalScore(base) === generalScore(itemsToCheck) && (Item.getQuantityOwned(base) > 2 || base.getStatEx(sdk.stats.MinDamagePercent) < itemsToCheck.getStatEx(sdk.stats.MinDamagePercent))))) {
 				if (Developer.debugging.junkCheck) {
 					print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 				}
@@ -2032,14 +2020,14 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		}
 		
 		break;
-	case 67: // Handtohand (Assasin Claw)
-	case 88: //	Assassin Claw
+	case sdk.itemtype.HandtoHand:
+	case sdk.itemtype.AssassinClaw:
 		if (me.assassin) {
 			itemsToCheck = me.getItemsEx()
 				.filter(item =>
-					[67, 88].indexOf(item.itemType) > -1// same item type as current
+					[sdk.itemtype.HandtoHand, sdk.itemtype.AssassinClaw].indexOf(item.itemType) > -1// same item type as current
 					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
+					&& [sdk.storage.Inventory, sdk.storage.Stash].indexOf(item.location) > -1 // locations
 				)
 				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
 				.last(); // select last
@@ -2048,8 +2036,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
 			if (base.sockets > 0) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck))) {
+				if (base.isInStorage && (generalScore(base) < generalScore(itemsToCheck))) {
 					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 
 					result = true;
@@ -2058,23 +2045,22 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		}
 
 		break;
-	case 34: //	Polearm
+	case sdk.itemtype.Polearm:
 		itemsToCheck = me.getItemsEx()
 			.filter(item =>
-				[34].indexOf(item.itemType) > -1// same item type as current
+				[sdk.itemtype.Polearm].indexOf(item.itemType) > -1// same item type as current
 				&& item.sockets === base.sockets // sockets match junk in review
-				&& [3, 7].indexOf(item.location) > -1 // locations
+				&& [sdk.storage.Inventory, sdk.storage.Stash].indexOf(item.location) > -1 // locations
 			)
-			.sort((a, b) => (a.getStatEx(23) + a.getStatEx(24)) - (b.getStatEx(23) + b.getStatEx(24))) // Sort on damage, low to high.
+			.sort((a, b) => (a.getStatEx(sdk.stats.SecondaryMinDamage) + a.getStatEx(sdk.stats.SecondaryMaxDamage)) - (b.getStatEx(sdk.stats.SecondaryMinDamage) + b.getStatEx(sdk.stats.SecondaryMaxDamage))) // Sort on damage, low to high.
 			.last(); // select last
 
 		if (itemsToCheck === undefined) return false;
 		if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
 		if (base.sockets > 0) {
-			if (([3, 4, 7].indexOf(base.location) > -1) &&
-				(base.getStatEx(23) + base.getStatEx(24)) < (itemsToCheck.getStatEx(23) + itemsToCheck.getStatEx(24))) {
-				Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDamage: " + (base.getStatEx(23) + base.getStatEx(24)) + " itemToCheckDamage: " + (itemsToCheck.getStatEx(23) + itemsToCheck.getStatEx(24)));
+			if (base.isInStorage && (base.getStatEx(sdk.stats.SecondaryMinDamage) + base.getStatEx(sdk.stats.SecondaryMaxDamage)) < (itemsToCheck.getStatEx(sdk.stats.SecondaryMinDamage) + itemsToCheck.getStatEx(sdk.stats.SecondaryMaxDamage))) {
+				Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDamage: " + (base.getStatEx(sdk.stats.SecondaryMinDamage) + base.getStatEx(sdk.stats.SecondaryMaxDamage)) + " itemToCheckDamage: " + (itemsToCheck.getStatEx(sdk.stats.SecondaryMinDamage) + itemsToCheck.getStatEx(sdk.stats.SecondaryMaxDamage)));
 
 				result = true;
 			}
@@ -2101,7 +2087,7 @@ Town.clearJunk = function () {
 		const pickitResult = Pickit.checkItem(junk).result;
 
 		if ((junk.isInStorage) && // stash/invo/cube
-			([1, 2, 3, 5].indexOf(pickitResult) === -1) &&
+			([Pickit.result.WANTED, Pickit.result.CUBING, Pickit.result.RUNEWORD, Pickit.result.CRAFTING].indexOf(pickitResult) === -1) &&
 			!AutoEquip.wanted(junk) && // Don't toss wanted auto equip items
 			!Cubing.keepItem(junk) && // Don't throw cubing ingredients
 			!Runewords.keepItem(junk) && // Don't throw runeword ingredients
@@ -2109,7 +2095,7 @@ Town.clearJunk = function () {
 			!SoloWants.keepItem(junk) && // Don't throw SoloWants system ingredients
 			!Town.ignoredItemTypes.includes(junk.itemType) && // Don't drop tomes, keys or potions
 			junk.sellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
-			([0, 4].includes(pickitResult)) // only drop unwanted or sellable
+			([Pickit.result.UNWANTED, Pickit.result.TRASH].includes(pickitResult)) // only drop unwanted or sellable
 		) {
 			print("ÿc9JunkCheckÿc0 :: Junk: " + junk.name + " Pickit Result: " + pickitResult);
 

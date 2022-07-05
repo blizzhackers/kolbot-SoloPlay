@@ -34,7 +34,7 @@ function duriel () {
 	}
 
 	// move to and kill dury
-	let unit = Misc.poll(function () { return getUnit(sdk.unittype.Object, sdk.units.exits.EntrancetoDurielsLair); });
+	let unit = Misc.poll(function () { return Game.getObject(sdk.units.exits.EntrancetoDurielsLair) });
 
 	if (me.sorceress && unit && Skill.useTK(unit)) {
 		for (let i = 0; i < 3; i++) {
