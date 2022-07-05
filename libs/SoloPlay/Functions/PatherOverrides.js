@@ -119,9 +119,9 @@ Pather.teleportTo = function (x, y, maxRange = 5) {
 	Developer.debugging.pathing && print("Mob Count at next node: " + [x, y].mobCount());
 	
 	for (let i = 0; i < 3; i += 1) {
-		Config.PacketCasting ? Skill.setSkill(sdk.skills.Teleport, 0) && Packet.castSkill(0, x, y) : Skill.cast(sdk.skills.Teleport, 0, x, y);
+		Skill.setSkill(sdk.skills.Teleport, 0) && Packet.castSkill(0, x, y);
 		let tick = getTickCount();
-		let pingDelay = me.getPingDelay();
+		let pingDelay = i === 0 ? 250 : me.getPingDelay();
 
 		while (getTickCount() - tick < Math.max(500, pingDelay * 2 + 200)) {
 			if (getDistance(me.x, me.y, x, y) < maxRange) {
