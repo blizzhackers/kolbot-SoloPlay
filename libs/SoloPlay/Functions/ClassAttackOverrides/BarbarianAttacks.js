@@ -33,7 +33,8 @@ let warCryCheck = function () {
 	return getUnits(1).some(function (el) {
 		if (el === undefined) return false;
 		return (el.attackable && el.distance < 5 && !(el.spectype & 0x7) && el.curseable
-			&& ![sdk.monsters.Andariel, 211, 242, 243, 544, 562, 570, 540, 541, 542].includes(el.classid)
+			&& ![sdk.units.monsters.Andariel, sdk.units.monsters.Duriel, sdk.units.monsters.Mephisto, sdk.units.monsters.Diablo, sdk.units.monsters.Baal, sdk.units.monsters.Tentacle1,
+				sdk.units.monsters.BaalClone, sdk.units.monsters.KorlictheProtector, sdk.units.monsters.TalictheDefender, sdk.units.monsters.MadawctheGuardian].includes(el.classid)
 			&& (!el.isStunned || getTickCount() - ClassAttack.warCryTick >= 1500) && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE));
 	});
 };
@@ -44,22 +45,29 @@ ClassAttack.tauntMonsters = function (unit, attackSkill, data) {
 	// Can't taunt Main bosses or MinionsofDestruction
 	if (!Skill.canUse(sdk.skills.Taunt) || !data) return;
 	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].includes(me.area)) return;
-	if (Attack.mainBosses.includes(unit.classid) || unit.classid === 571) return;
+	if (Attack.mainBosses.includes(unit.classid) || unit.classid === sdk.units.monsters.ListerTheTormenter) return;
 
 	let range = (me.area !== sdk.areas.ThroneofDestruction ? 15 : 30);
 	let rangedMobsClassIDs = [
-		10, 11, 12, 13, 14, 118, 119, 120, 121, 131, 132, 133, 134,
-		135, 170, 171, 172, 173, 174, 238, 239, 240, 310, 362, 501,
-		502, 503, 504, 505, 506, 507, 508, 509, 510, 580, 581, 582, 583, 584, 645, 646, 647, 697
+		sdk.units.monsters.Afflicted, sdk.units.monsters.Tainted, sdk.units.monsters.Misshapen1, sdk.units.monsters.Disfigured, sdk.units.monsters.Damned1, sdk.units.monsters.Gloam1, sdk.units.monsters.SwampGhost,
+		sdk.units.monsters.BurningSoul2, sdk.units.monsters.BlackSoul1, sdk.units.monsters.GhoulLord1, sdk.units.monsters.NightLord, sdk.units.monsters.DarkLord1, sdk.units.monsters.BloodLord1,
+		sdk.units.monsters.Banished, sdk.units.monsters.SkeletonArcher, sdk.units.monsters.ReturnedArcher1, sdk.units.monsters.BoneArcher1, sdk.units.monsters.BurningDeadArcher1, sdk.units.monsters.HorrorArcher1,
+		sdk.units.monsters.Sexton, sdk.units.monsters.Cantor, sdk.units.monsters.Heirophant1, sdk.units.monsters.DoomKnight, sdk.units.monsters.VenomLord1, sdk.units.monsters.Horror1, sdk.units.monsters.Horror2,
+		sdk.units.monsters.Horror3, sdk.units.monsters.Horror4, sdk.units.monsters.Horror5, sdk.units.monsters.Lord1, sdk.units.monsters.Lord2, sdk.units.monsters.Lord3, sdk.units.monsters.Lord4,
+		sdk.units.monsters.Lord4, sdk.units.monsters.Afflicted2, sdk.units.monsters.Tainted, sdk.units.monsters.Misshapen2, sdk.units.monsters.Disfigured2, sdk.units.monsters.Damned2, sdk.units.monsters.DarkShaman2,
+		sdk.units.monsters.DevilkinShaman, sdk.units.monsters.DarkShaman2, sdk.units.monsters.DarkLord2
 	];
 	let dangerousAndSummoners = [
-		636, 637, 638, 639, 640, 641, 58, 59, 60, 61, 101, 102,
-		103, 104, 105, 557, 558, 669, 670, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478
+		sdk.units.monsters.Dominus2, sdk.units.monsters.Witch1, sdk.units.monsters.VileWitch2, sdk.units.monsters.Gloam2, sdk.units.monsters.BlackSoul2, sdk.units.monsters.BurningSoul1,
+		sdk.units.monsters.FallenShaman, sdk.units.monsters.CarverShaman2, sdk.units.monsters.DevilkinShaman2, sdk.units.monsters.DarkShaman1, sdk.units.monsters.HollowOne, sdk.units.monsters.Guardian1,
+		sdk.units.monsters.Unraveler1, sdk.units.monsters.Ancient1, sdk.units.monsters.BaalSubjectMummy, sdk.units.monsters.Council4, sdk.units.monsters.VenomLord2, sdk.units.monsters.Ancient2,
+		sdk.units.monsters.Ancient3, sdk.units.monsters.Succubusexp1, sdk.units.monsters.VileTemptress, sdk.units.monsters.StygianHarlot, sdk.units.monsters.Temptress1, sdk.units.monsters.Temptress2,
+		sdk.units.monsters.Dominus1, sdk.units.monsters.VileWitch1, sdk.units.monsters.StygianFury, sdk.units.monsters.Witch2, sdk.units.monsters.Witch3
 	];
 
 	[sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary].includes(me.area) && rangedMobsClassIDs.push(305, 306);
 	
-	let list = getUnits(sdk.unittype.Monster)
+	let list = Game.getMonster()
 		.filter(function (mob) {
 			return ([0, 8].includes(mob.spectype) && [sdk.states.BattleCry, sdk.states.Decrepify, sdk.states.Taunt].every(state => !mob.getState(state))
 				&& ((rangedMobsClassIDs.includes(mob.classid) && mob.distance <= range) || (dangerousAndSummoners.includes(mob.classid) && mob.distance <= 30)));
@@ -108,7 +116,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		}
 	}
 	
-	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 	let attackSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
 
 	if (!Attack.checkResist(unit, attackSkill)) {

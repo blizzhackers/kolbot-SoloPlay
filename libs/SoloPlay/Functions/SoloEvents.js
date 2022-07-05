@@ -209,7 +209,7 @@ const SoloEvents = {
 			Pather.useWaypoint(sdk.areas.ColdPlains);
 			Pather.moveToExit(sdk.areas.BloodMoor, true);
 			Pather.clearToExit(sdk.areas.BloodMoor, sdk.areas.DenofEvil, true);
-			Pather.moveToPreset(me.area, sdk.unittype.Monster, sdk.units.monster.Corpsefire, 0, 0, false, true);
+			Pather.moveToPreset(me.area, unit.isMonster, sdk.units.monster.Corpsefire, 0, 0, false, true);
 		}
 
 		Attack.killTarget(sdk.units.monsters.DiabloClone);
@@ -393,7 +393,7 @@ const SoloEvents = {
 		Misc.townEnabled = true;
 		Pickit.enabled = true;
 
-		let skipWorked = getUnits(sdk.unittype.Monster)
+		let skipWorked = Game.getMonster()
 			.some(function (el) {
 				return !el.dead && el.attackable && el.classid !== sdk.units.monsters.ThroneBaal && el.x >= 15070 && el.x <= 15120 &&
                     el.y >= 5000 && el.y <= 5075;

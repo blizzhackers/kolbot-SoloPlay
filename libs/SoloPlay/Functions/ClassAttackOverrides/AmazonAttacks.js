@@ -90,7 +90,9 @@ ClassAttack.doAttack = function (unit, preattack) {
 	}
 
 	// specials and dolls for now, should make dolls much less dangerous with the reduction of their damage
-	if (Precast.haveCTA > -1 && unit.curseable && (index === 1 || [212, 213, 214, 215, 216, 690, 691].includes(unit.classid))
+	if (Precast.haveCTA > -1 && unit.curseable && (index === 1
+		|| [sdk.units.monsters.BoneFetish1, sdk.units.monsters.BoneFetish3, sdk.units.monsters.BoneFetish3, sdk.units.monsters.SoulKiller3,
+			sdk.units.monsters.StygianDoll2, sdk.units.monsters.StygianDoll6, sdk.units.monsters.SoulKiller].includes(unit.classid))
 		&& unit.distance < 5 && !unit.getState(sdk.states.BattleCry) && unit.curseable) {
 		Skill.switchCast(sdk.skills.BattleCry, {oSkill: true});
 	}
@@ -103,7 +105,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 			// Don't use decoy if within melee distance
 			if (unit.distance > 4) {
 				// Check to see if decoy has already been cast
-				let decoy = Misc.poll(() => getUnit(-1, 356), 1000, 10);
+				let decoy = Misc.poll(() => getUnit(-1, sdk.units.summons.Dopplezon), 1000, 10);
 				
 				if (!decoy && (getTickCount() - this.decoyTick >= decoyDuration) && unit.distance > 4) {
 					if (unit.distance > 10 || checkCollision(me, unit, 0x4)) {

@@ -27,7 +27,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let timedSkill = -1;
 	let untimedSkill = -1;
 	let gold = me.gold;
-	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
 	// Rebuff Hurricane
 	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, 0);
@@ -64,7 +64,9 @@ ClassAttack.doAttack = function (unit, preattack) {
 	}
 
 	// specials and dolls for now, should make dolls much less dangerous with the reduction of their damage
-	if (Precast.haveCTA > -1 && !unit.dead && (index === 1 || [212, 213, 214, 215, 216, 690, 691].includes(unit.classid))
+	if (Precast.haveCTA > -1 && !unit.dead && (index === 1
+		|| [sdk.units.monsters.BoneFetish1, sdk.units.monsters.BoneFetish2, sdk.units.monsters.BoneFetish3, sdk.units.monsters.SoulKiller3,
+			sdk.units.monsters.StygianDoll2, sdk.units.monsters.StygianDoll6, sdk.units.monsters.SoulKiller].includes(unit.classid))
 		&& unit.distance < 5 && !unit.getState(sdk.states.BattleCry) && unit.curseable) {
 		Skill.switchCast(sdk.skills.BattleCry, {oSkill: true});
 	}

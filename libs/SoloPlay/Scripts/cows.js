@@ -28,7 +28,7 @@ function cows () {
 
 		Pather.useWaypoint(sdk.areas.StonyField);
 		Precast.doPrecast(true);
-		Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Monster, sdk.monsters.preset.Rakanishu, 8, 8);
+		Pather.moveToPreset(sdk.areas.StonyField, unit.isMonster, sdk.monsters.preset.Rakanishu, 8, 8);
 		Pather.usePortal(sdk.areas.Tristram);
 
 		if (me.area === sdk.areas.Tristram) {
@@ -158,7 +158,7 @@ function cows () {
 				kingTick = getTickCount();
 				king = Game.getMonster(getLocaleString(sdk.locale.monsters.TheCowKing));
 				// only get the preset unit once
-				!kingPreset && (kingPreset = getPresetUnit(me.area, sdk.unittype.Monster, sdk.monsters.preset.TheCowKing));
+				!kingPreset && (kingPreset = getPresetUnit(me.area, unit.isMonster, sdk.monsters.preset.TheCowKing));
 
 				if (king && kingPreset) {
 					if (getDistance(me.x, me.y, getRoom(kingPreset.roomx * 5 + kingPreset.x), getRoom(kingPreset.roomy * 5 + kingPreset.y)) <= 25) {

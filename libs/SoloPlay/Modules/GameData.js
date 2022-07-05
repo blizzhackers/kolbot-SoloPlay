@@ -30,7 +30,7 @@
 
 	const GameData = {
 		myReference: me,
-		townAreas: [0, 1, 40, 75, 103, 109],
+		townAreas: [sdk.areas.None, sdk.areas.RogueEncampment, sdk.areas.LutGholein, sdk.areas.KurastDocktown, sdk.areas.PandemoniumFortress, sdk.areas.Harrogath],
 		HPLookup: [["1", "1", "1"], ["7", "107", "830"], ["9", "113", "852"], ["12", "120", "875"], ["15", "125", "897"], ["17", "132", "920"], ["20", "139", "942"], ["23", "145", "965"], ["27", "152", "987"], ["31", "157", "1010"], ["35", "164", "1032"], ["36", "171", "1055"], ["40", "177", "1077"], ["44", "184", "1100"], ["48", "189", "1122"], ["52", "196", "1145"], ["56", "203", "1167"], ["60", "209", "1190"], ["64", "216", "1212"], ["68", "221", "1235"], ["73", "228", "1257"], ["78", "236", "1280"], ["84", "243", "1302"], ["89", "248", "1325"], ["94", "255", "1347"], ["100", "261", "1370"], ["106", "268", "1392"], ["113", "275", "1415"], ["120", "280", "1437"], ["126", "287", "1460"], ["134", "320", "1482"], ["142", "355", "1505"], ["150", "388", "1527"], ["158", "423", "1550"], ["166", "456", "1572"], ["174", "491", "1595"], ["182", "525", "1617"], ["190", "559", "1640"], ["198", "593", "1662"], ["206", "627", "1685"], ["215", "661", "1707"], ["225", "696", "1730"], ["234", "729", "1752"], ["243", "764", "1775"], ["253", "797", "1797"], ["262", "832", "1820"], ["271", "867", "1842"], ["281", "900", "1865"], ["290", "935", "1887"], ["299", "968", "1910"], ["310", "1003", "1932"], ["321", "1037", "1955"], ["331", "1071", "1977"], ["342", "1105", "2000"], ["352", "1139", "2030"], ["363", "1173", "2075"], ["374", "1208", "2135"], ["384", "1241", "2222"], ["395", "1276", "2308"], ["406", "1309", "2394"], ["418", "1344", "2480"], ["430", "1379", "2567"], ["442", "1412", "2653"], ["454", "1447", "2739"], ["466", "1480", "2825"], ["477", "1515", "2912"], ["489", "1549", "2998"], ["501", "1583", "3084"], ["513", "1617", "3170"], ["525", "1651", "3257"], ["539", "1685", "3343"], ["552", "1720", "3429"], ["565", "1753", "3515"], ["579", "1788", "3602"], ["592", "1821", "3688"], ["605", "1856", "3774"], ["618", "1891", "3860"], ["632", "1924", "3947"], ["645", "1959", "4033"], ["658", "1992", "4119"], ["673", "2027", "4205"], ["688", "2061", "4292"], ["702", "2095", "4378"], ["717", "2129", "4464"], ["732", "2163", "4550"], ["746", "2197", "4637"], ["761", "2232", "4723"], ["775", "2265", "4809"], ["790", "2300", "4895"], ["805", "2333", "4982"], ["821", "2368", "5068"], ["837", "2403", "5154"], ["853", "2436", "5240"], ["868", "2471", "5327"], ["884", "2504", "5413"], ["900", "2539", "5499"], ["916", "2573", "5585"], ["932", "2607", "5672"], ["948", "2641", "5758"], ["964", "2675", "5844"], ["982", "2709", "5930"], ["999", "2744", "6017"], ["1016", "2777", "6103"], ["1033", "2812", "6189"], ["1051", "2845", "6275"], ["1068", "2880", "6362"], ["1085", "2915", "6448"], ["1103", "2948", "6534"], ["1120", "2983", "6620"], ["1137", "3016", "6707"], ["10000", "10000", "10000"]],
 		monsterLevel: function (monsterID, areaID) {
 			return me.diff ? AreaData.hasOwnProperty(areaID) && AreaData[areaID].Level : MonsterData.hasOwnProperty(monsterID) && MonsterData[monsterID].Level; // levels on nm/hell are determined by area, not by monster data
@@ -321,7 +321,7 @@
 			let l = this.skillLevel(skillID), m = this.skillMult[skillID] || 1;
 			let dmgFields = [['MinDam', 'MinLevDam1', 'MinLevDam2', 'MinLevDam3', 'MinLevDam4', 'MinLevDam5', 'MaxDam', 'MaxLevDam1', 'MaxLevDam2', 'MaxLevDam3', 'MaxLevDam4', 'MaxLevDam5'], ['EMin', 'EMinLev1', 'EMinLev2', 'EMinLev3', 'EMinLev4', 'EMinLev5', 'EMax', 'EMaxLev1', 'EMaxLev2', 'EMaxLev3', 'EMaxLev4', 'EMaxLev5']];
 
-			if (skillID === 70) {
+			if (skillID === sdk.skills.RaiseSkeleton) {
 				return {
 					type: "Physical",
 					pmin: this.stagedDamage(l, getBaseStat('skills', skillID, dmgFields[1][0]), getBaseStat('skills', skillID, dmgFields[1][1]), getBaseStat('skills', skillID, dmgFields[1][2]), getBaseStat('skills', skillID, dmgFields[1][3]), getBaseStat('skills', skillID, dmgFields[1][4]), getBaseStat('skills', skillID, dmgFields[1][5]), getBaseStat('skills', skillID, 'HitShift'), m),
@@ -428,21 +428,21 @@
 			if (this.shiftState() === "human" && this.humanBanned[skillID]) {
 				let highest = {ID: 0, Level: 0};
 
-				if (!this.wolfBanned[skillID] && this.skillLevel(223) > highest.Level) {
-					highest.ID = 223;
-					highest.Level = this.skillLevel(223);
+				if (!this.wolfBanned[skillID] && this.skillLevel(sdk.skills.Werewolf) > highest.Level) {
+					highest.ID = sdk.skills.Werewolf;
+					highest.Level = this.skillLevel(Werewolf);
 				}
 
-				if (!this.bearBanned[skillID] && this.skillLevel(228) > highest.Level) {
-					highest.ID = 228;
-					highest.Level = this.skillLevel(228);
+				if (!this.bearBanned[skillID] && this.skillLevel(sdk.skills.Werebear) > highest.Level) {
+					highest.ID = sdk.skills.Werebear;
+					highest.Level = this.skillLevel(Werebear);
 				}
 
 				return highest.ID;
 			} else if (this.shiftState() === "wolf" && this.wolfBanned[skillID]) {
-				return 223;
+				return sdk.skills.Werewolf;
 			} else if (this.shiftState() === "bear" && this.bearBanned[skillID]) {
-				return 228;
+				return sdk.skills.Werebear;
 			}
 
 			return 0;
@@ -480,51 +480,51 @@
 				eliteBonus = (target.spectype && target.spectype & 0x7) ? 1 : 0, hitcap = 1;
 
 			switch (skillID) { // charged bolt/strike excluded, it's so unreliably random
-			case 15: // poison javalin
-			case 25: // plague javalin
-			case 16: // exploding arrow
-			case 27: // immolation arrow
-			case 31: // freezing arrow
-			case 35: // lightning fury
-			case 44: // frost nova
-			case 48: // nova
-			case 56: // meteor
-			case 59: // blizzard
-			case 64: // frozen orb
-			case 83: // poison explosion
-			case 92: // poison nova
-			case 112: // blessed hammer
-			case 154: // war cry
-			case 229: // molten boulder
-			case 234: // fissure
-			case 249: // armageddon
-			case 244: // volcano
-			case 250: // hurricane
-			case 251: // fireblast
-			case 261: // charged bolt sentry
-			case 262: // wake of fire
-			case 55: // glacial spike
-			case 47: // fire ball
-			case 42: // Static field.
-			case 38: // charged bolt
+			case sdk.skills.PoisonJavelin:
+			case sdk.skills.PlagueJavelin:
+			case sdk.skills.ExplodingArrow:
+			case sdk.skills.ImmolationArrow:
+			case sdk.skills.FreezingArrow:
+			case sdk.skills.LightningFury:
+			case sdk.skills.FrostNova:
+			case sdk.skills.Nova:
+			case sdk.skills.Meteor:
+			case sdk.skills.Blizzard:
+			case sdk.skills.FrozenOrb:
+			case sdk.skills.PoisonExplosion:
+			case sdk.skills.PoisonNova:
+			case sdk.skills.BlessedHammer:
+			case sdk.skills.WarCry:
+			case sdk.skills.MoltenBoulder:
+			case sdk.skills.Fissure:
+			case sdk.skills.Armageddon:
+			case sdk.skills.Volcano:
+			case sdk.skills.Tornado:
+			case sdk.skills.FireBlast:
+			case sdk.skills.ChargedBoltSentry:
+			case sdk.skills.WakeofFire:
+			case sdk.skills.GlacialSpike:
+			case sdk.skills.FireBall:
+			case sdk.skills.StaticField:
+			case sdk.skills.ChargedBolt:
 				hitcap = Infinity;
 				break;
-			case 34: // lightning strike
-				hitcap = 1 + this.skillLevel(34);
+			case sdk.skills.LightningStrike:
+				hitcap = 1 + this.skillLevel(sdk.skills.LightningStrike);
 				break;
-			case 67: // teeth
-				hitcap = 1 + this.skillLevel(67);
+			case sdk.skills.Teeth:
+				hitcap = 1 + this.skillLevel(sdk.skills.Teeth);
 				break;
-			case 53: // chain lightning
-				hitcap = 5 + ((this.skillLevel(53) / 5) | 0);
+			case sdk.skills.ChainLightning:
+				hitcap = 5 + ((this.skillLevel(sdk.skills.ChainLightning) / 5) | 0);
 				break;
-			case 24:
-				hitcap = 3 + ((this.skillLevel(24) / 5) | 0);
+			case sdk.skills.ChargedStrike:
+				hitcap = 3 + ((this.skillLevel(sdk.skills.ChargedStrike) / 5) | 0);
 				break;
-			case 49: // lightning
-			case 84: // bone spear
-			case 271: // lightning sentry
-			case 276: // death sentry
+			case sdk.skills.Lightning:
+			case sdk.skills.BoneSpear:
+			case sdk.skills.LightningSentry:
+			case sdk.skills.DeathSentry: // death sentry
 				hitcap = aps ? Math.sqrt(aps / Math.PI) * 2 : 1;
 				break;
 			default:
@@ -545,7 +545,7 @@
 						if (target.gid !== unit.gid && getDistance(unit, this.novaLike[skillID] ? GameData.myReference : target) <= radius && isEnemy(unit)) {
 							aps++;
 
-							if (unit.spectype & 0x7) {
+							if (unit.isSpecial) {
 								eliteBonus++;
 							}
 						}
@@ -594,35 +594,35 @@
 				}
 			}
 
-			if (skillID === 227 || skillID === 237 || skillID === 247) {
-				sl = this.skillLevel(247);
+			if (skillID === sdk.skills.SpiritWolf || skillID === sdk.skills.SummonDireWolf || skillID === sdk.skills.Grizzly) {
+				sl = this.skillLevel(sdk.skills.Grizzly);
 				psynergy += 0.15 + sl * 0.10;
 				synergy += 0.15 + sl * 0.10;
 			}
 
 			switch (dmg.type) {
 			case "Fire": // fire mastery
-				mastery = 1 + GameData.myReference.getStat(329) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveFireMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
 			case "Lightning": // lightning mastery
-				mastery = 1 + GameData.myReference.getStat(330) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveLightningMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
 			case "Cold": // cold mastery
-				mastery = 1 + GameData.myReference.getStat(331) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveColdMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
 			case "Poison": // poison mastery
-				mastery = 1 + GameData.myReference.getStat(332) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassivePoisonMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
 			case "Magic": // magic mastery
-				mastery = 1 + GameData.myReference.getStat(357) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveMagMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
@@ -638,23 +638,23 @@
 			dmg.max *= synergy;
 
 			switch (skillID) {
-			case 102: // holy fire
+			case sdk.skills.HolyFire:
 				dmg.min *= 6; // weapon damage is 6x the aura damage
 				dmg.max *= 6;
 				break;
-			case 114: // holy freeze
+			case sdk.skills.HolyFreeze:
 				dmg.min *= 5; // weapon damage is 5x the aura damage
 				dmg.max *= 5;
 				break;
-			case 118: // holy shock
+			case sdk.skills.HolyShock:
 				dmg.min *= 6; // weapon damage is 6x the aura damage
 				dmg.max *= 6;
 				break;
-			case 249: // armageddon
+			case sdk.skills.Armageddon:
 				dmg.pmin = dmg.pmax = 0;
 				break;
-			case 24: // charged strike
-				dmg.max *= 3 + ((this.skillLevel(24) / 5) | 0);
+			case sdk.skills.ChargedStrike:
+				dmg.max *= 3 + ((this.skillLevel(sdk.skills.ChargedStrike) / 5) | 0);
 			}
 
 			dmg.pmin >>= 8;
@@ -671,67 +671,67 @@
 				// the size of the unit we are targetting
 				// the distance from the target
 				break;
-			case 59: // blizzard - on average hits twice
+			case sdk.skills.Blizzard: // on average hits twice
 				dmg.min *= 2;
 				dmg.max *= 2;
 				break;
-			case 62: // hydra - 3 heads
+			case sdk.skills.Hydra: // 3 heads
 				dmg.min *= 3;
 				dmg.max *= 3;
 				break;
-			case 64: // frozen orb - on average hits ~5 times
+			case sdk.skills.FrozenOrb: // on average hits ~5 times
 				dmg.min *= 5;
 				dmg.max *= 5;
 				break;
-			case 70: // skeleton - a hit per skeleton
-				sl = this.skillLevel(70);
+			case sdk.skills.RaiseSkeleton: // a hit per skeleton
+				sl = this.skillLevel(sdk.skills.RaiseSkeleton);
 				shots = sl < 4 ? sl : (2 + sl / 3) | 0;
 				sl = Math.max(0, sl - 3);
-				dmg.pmin = shots * (dmg.pmin + 1 + this.skillLevel(69) * 2) * (1 + sl * 0.07);
-				dmg.pmax = shots * (dmg.pmax + 2 + this.skillLevel(69) * 2) * (1 + sl * 0.07);
+				dmg.pmin = shots * (dmg.pmin + 1 + this.skillLevel(sdk.skills.SkeletonMastery) * 2) * (1 + sl * 0.07);
+				dmg.pmax = shots * (dmg.pmax + 2 + this.skillLevel(sdk.skills.SkeletonMastery) * 2) * (1 + sl * 0.07);
 				break;
-			case 94: // fire golem
-				sl = this.skillLevel(94);
+			case sdk.skills.FireGole: // fire golem
+				sl = this.skillLevel(sdk.skills.FireGole);
 				dmg.min = [10, 15, 18][me.diff] + dmg.min + (this.stagedDamage(sl + 7, 2, 1, 2, 3, 5, 7) >> 1) * 6; // basically holy fire added
 				dmg.max = [27, 39, 47][me.diff] + dmg.max + (this.stagedDamage(sl + 7, 6, 1, 2, 3, 5, 7) >> 1) * 6;
 				break;
-			case 101: // holy bolt
+			case sdk.skills.HolyBolt:
 				dmg.undeadOnly = true;
 				break;
-			case 112: // blessed hammer
-				sl = this.skillLevel(113);
+			case sdk.skills.BlessedHammer:
+				sl = this.skillLevel(sdk.skills.Concentration);
 
 				if (sl > 0) {
-					mastery = (100 + ((45 + this.skillLevel(113) * 15) >> 1)) / 100;	// hammer gets half concentration dmg bonus
+					mastery = (100 + ((45 + this.skillLevel(sdk.skills.Concentration) * 15) >> 1)) / 100;	// hammer gets half concentration dmg bonus
 					dmg.min *= mastery;
 					dmg.max *= mastery;
 				}
 
 				break;
-			case 221: // raven - a hit per raven
-				shots = Math.min(5, this.skillLevel(221)); // 1-5 ravens
+			case sdk.skills.Raven: // a hit per raven
+				shots = Math.min(5, this.skillLevel(sdk.skills.Raven)); // 1-5 ravens
 				dmg.pmin *= shots;
 				dmg.pmax *= shots;
 				break;
-			case 227: // spirit wolf - a hit per wolf
-				shots = Math.min(5, this.skillLevel(227));
+			case sdk.skills.SpiritWolf: // a hit per wolf
+				shots = Math.min(5, this.skillLevel(sdk.skills.SpiritWolf));
 				dmg.pmin *= shots;
 				dmg.pmax *= shots;
 				break;
-			case 237: // dire wolf - a hit per wolf
-				shots = Math.min(3, this.skillLevel(237));
+			case sdk.skills.SummonDireWolf: // a hit per wolf
+				shots = Math.min(3, this.skillLevel(sdk.skills.SummonDireWolf));
 				dmg.pmin *= shots;
 				dmg.pmax *= shots;
 				break;
-			case 240: // twister
+			case sdk.skills.Twister:
 				dmg.pmin *= 3;
 				dmg.pmax *= 3;
 				break;
-			case 261: // charged bolt sentry
-			case 262: // wake of fire
-			case 271: // lightning sentry
-			case 272: // inferno sentry
-			case 276: // death sentry
+			case sdk.skills.ChargedBoltSentry:
+			case sdk.skills.WakeofFire:
+			case sdk.skills.LightningSentry:
+			case sdk.skills.WakeofInferno:
+			case sdk.skills.DeathSentry:
 				dmg.min *= 5;	// can have 5 traps out at a time
 				dmg.max *= 5;
 				break;
@@ -792,7 +792,7 @@
 			if (skillID === undefined || unit === undefined || !skillID || !unit || !Skill.canUse(skillID)) return 0;
 			let skillToCheck, avgDmg;
 			let getTotalDmg = function (skillData, unit) {
-				let ampDmg = Skill.canUse(66) ? 100 : (Skill.canUse(87) ? 50 : 0);
+				let ampDmg = Skill.canUse(sdk.skills.AmplifyDamage) ? 100 : (Skill.canUse(sdk.skills.Decrepify) ? 50 : 0);
 				let avgPDmg = (skillData.pmin + skillData.pmax) / 2, totalDmg = 0, avgDmg = (skillData.min + skillData.max) / 2;
 				//let hp = GameData.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, me.area);
 				let conviction = GameData.getConviction(), isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);

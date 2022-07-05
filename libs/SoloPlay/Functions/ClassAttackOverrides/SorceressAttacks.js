@@ -40,7 +40,7 @@ const frostNovaCheck = function () {
 };
 
 const inDanger = function () {
-	let nearUnits = getUnits(sdk.unittype.Monster).filter((mon) => mon && mon.attackable && mon.distance < 10);
+	let nearUnits = Game.getMonster().filter((mon) => mon && mon.attackable && mon.distance < 10);
 	if (nearUnits.length > me.maxNearMonsters) return true;
 	let dangerClose = nearUnits.find(mon => [sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted].some(chant => mon.getEnchant(chant)));
 	return dangerClose;

@@ -60,7 +60,7 @@ Attack.getLowerResistPercent = function () {
 };
 
 Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
-	if (!unit || !unit.type || unit.type === sdk.unittype.Player) return true;
+	if (!unit || !unit.type || unit.isPlayer) return true;
 
 	let damageType = typeof val === "number" ? this.getSkillElement(val) : val;
 	let addLowerRes = !!(Skill.canUse(sdk.skills.LowerResist) || CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)) && unit.curseable;
@@ -74,7 +74,7 @@ Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
 	// baal in throne room doesn't have getState
 	if (this.infinity && ["fire", "lightning", "cold"].includes(damageType) && unit.getState) {
 		if (!unit.getState(sdk.states.Conviction)) {
-			if (addLowerRes && !unit.getState(sdk.states.LowerResist) && ((unit.spectype & 0x7) || me.necromancer)) {
+			if (addLowerRes && !unit.getState(sdk.states.LowerResist) && ((unit.isSpecial) || me.necromancer)) {
 				let lowerResPercent = this.getLowerResistPercent();
 				return (this.getResist(unit, damageType) - (Math.floor((lowerResPercent + 85) / 5))) < 100;
 			}
@@ -122,9 +122,9 @@ Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
 // Maybe make this a prototype and use game data to also check if should attack not just can based on effort?
 Attack.canAttack = function (unit = undefined) {
 	if (!unit) return false;
-	if (unit.type === sdk.unittype.Monster) {
+	if (unit.isMonster) {
 		// Unique/Champion
-		if (unit.spectype & 0x7) {
+		if (unit.isSpecial) {
 			if (Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[1])) || Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[2]))) {
 				return true;
 			}
@@ -880,26 +880,26 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 
-			if (stats.hasOwnProperty(204)) {
-				if (stats[204] instanceof Array) {
-					for (let i = 0; i < stats[204].length; i += 1) {
-						if (stats[204][i] !== undefined) {
+			if (stats.hasOwnProperty(sdk.stats.ChargedSkill)) {
+				if (stats[sdk.stats.ChargedSkill] instanceof Array) {
+					for (let i = 0; i < stats[sdk.stats.ChargedSkill].length; i += 1) {
+						if (stats[sdk.stats.ChargedSkill][i] !== undefined) {
 							// add to total list of skillIds
-							if (stats[204][i].charges > 0 && !currentChargedSkills.includes(stats[204][i].skill)) {
-								currentChargedSkills.push(stats[204][i].skill);
+							if (stats[sdk.stats.ChargedSkill][i].charges > 0 && !currentChargedSkills.includes(stats[sdk.stats.ChargedSkill][i].skill)) {
+								currentChargedSkills.push(stats[sdk.stats.ChargedSkill][i].skill);
 								chargedSkills.push({
-									skill: stats[204][i].skill,
-									level: stats[204][i].level,
+									skill: stats[sdk.stats.ChargedSkill][i].skill,
+									level: stats[sdk.stats.ChargedSkill][i].level,
 									gid: item.gid,
 									//item: copyUnit(item)
 								});
 							}
 
 							// add to switch only list for use with swtich casting
-							if (stats[204][i].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204][i].skill) && item.isOnSwap) {
+							if (stats[sdk.stats.ChargedSkill][i].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[sdk.stats.ChargedSkill][i].skill) && item.isOnSwap) {
 								chargedSkillsOnSwitch.push({
-									skill: stats[204][i].skill,
-									level: stats[204][i].level,
+									skill: stats[sdk.stats.ChargedSkill][i].skill,
+									level: stats[sdk.stats.ChargedSkill][i].level,
 									gid: item.gid,
 									//item: copyUnit(item)
 								});
@@ -908,21 +908,21 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 					}
 				} else {
 					// add to total list
-					if (stats[204].charges > 0 && !currentChargedSkills.includes(stats[204].skill)) {
-						currentChargedSkills.push(stats[204].skill);
+					if (stats[sdk.stats.ChargedSkill].charges > 0 && !currentChargedSkills.includes(stats[sdk.stats.ChargedSkill].skill)) {
+						currentChargedSkills.push(stats[sdk.stats.ChargedSkill].skill);
 						chargedSkills.push({
-							skill: stats[204].skill,
-							level: stats[204].level,
+							skill: stats[sdk.stats.ChargedSkill].skill,
+							level: stats[sdk.stats.ChargedSkill].level,
 							gid: item.gid,
 							//item: copyUnit(item)
 						});
 					}
 
 					// add to switch only list for use with swtich casting
-					if (stats[204].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204].skill) && item.isOnSwap) {
+					if (stats[sdk.stats.ChargedSkill].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[sdk.stats.ChargedSkill].skill) && item.isOnSwap) {
 						chargedSkillsOnSwitch.push({
-							skill: stats[204].skill,
-							level: stats[204].level,
+							skill: stats[sdk.stats.ChargedSkill].skill,
+							level: stats[sdk.stats.ChargedSkill].level,
 							gid: item.gid,
 							//item: copyUnit(item)
 						});
@@ -959,17 +959,17 @@ Attack.getItemCharges = function (skillId = undefined) {
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 
-			if (stats.hasOwnProperty(204)) {
-				if (stats[204] instanceof Array) {
-					stats = stats[204].filter(validCharge);
+			if (stats.hasOwnProperty(sdk.stats.ChargedSkill)) {
+				if (stats[sdk.stats.ChargedSkill] instanceof Array) {
+					stats = stats[sdk.stats.ChargedSkill].filter(validCharge);
 					stats.length && chargedItems.push({
 						charge: stats.first(),
 						item: item
 					});
 				} else {
-					if (stats[204].skill === skillId && stats[204].charges > 1) {
+					if (stats[sdk.stats.ChargedSkill].skill === skillId && stats[sdk.stats.ChargedSkill].charges > 1) {
 						chargedItems.push({
-							charge: stats[204].charges,
+							charge: stats[sdk.stats.ChargedSkill].charges,
 							item: item
 						});
 					}

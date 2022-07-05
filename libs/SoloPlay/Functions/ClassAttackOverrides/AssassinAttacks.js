@@ -15,7 +15,7 @@ ClassAttack.mindBlast = function (unit) {
 	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].includes(me.area)) return;
 
 	let mindBlastMpCost = Skill.getManaCost(sdk.skills.MindBlast);
-	let list = getUnits(sdk.unittype.Monster)
+	let list = Game.getMonster()
 		.filter(function (mob) {
 			if (mob.attackable && !mob.isStunned && !mob.isUnderLowerRes && !mob.isUnique) {
 				let dist = mob.distance;
@@ -50,7 +50,8 @@ ClassAttack.placeTraps = function (unit, amount) {
 				}
 
 				// Duriel, Mephisto, Diablo, Baal, other players
-				if ((unit.hasOwnProperty("classid") && [211, 242, 243, 544].includes(unit.classid)) || (unit.hasOwnProperty("type") && unit.type === 0)) {
+				if ((unit.hasOwnProperty("classid") && [sdk.units.monsters.Duriel, sdk.units.monsters.Mephisto, sdk.units.monsters.Diablo, sdk.units.monsters.Baal].includes(unit.classid))
+					|| (unit.hasOwnProperty("type") && unit.isPlayer)) {
 					if (traps >= Config.BossTraps.length) {
 						return true;
 					}
@@ -128,7 +129,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let mercRevive = 0;
 	let timedSkill = -1;
 	let untimedSkill = -1;
-	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 	let gold = me.gold;
 	let shouldUseCloak = (Skill.canUse(sdk.skills.CloakofShadows) && !unit.isUnderLowerRes && unit.getMobCount(15, 0x1) > 1);
 

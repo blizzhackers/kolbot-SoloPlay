@@ -17,7 +17,7 @@ function ancienttunnels () {
 		!!getPresetUnit(me.area, sdk.unittype.Object, sdk.units.chests.SparklyChest)
 		&& Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.units.chests.SparklyChest) && Misc.openChests(5) && Pickit.pickItems();
 
-		if (getPresetUnit(me.area, sdk.unittype.Monster, sdk.monsters.preset.DarkElder) && Pather.moveToPreset(me.area, sdk.unittype.Monster, sdk.monsters.preset.DarkElder)) {
+		if (getPresetUnit(me.area, unit.isMonster, sdk.monsters.preset.DarkElder) && Pather.moveToPreset(me.area, unit.isMonster, sdk.monsters.preset.DarkElder)) {
 			try {
 				Attack.clear(15, 0, getLocaleString(sdk.locale.monsters.DarkElder));
 			} catch (err) {

@@ -140,13 +140,17 @@ ClassAttack.doAttack = function (unit) {
 	let timedSkill = -1;
 	let untimedSkill = -1;
 	let gold = me.gold;
-	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 	let useTerror = Skill.canUse(sdk.skills.Terror);
 	let useBP = Skill.canUse(sdk.skills.BonePrison);
-	let bpAllowedAreas = [37, 38, 39, 41, 42, 43, 44, 46, 73, 76, 77, 78, 79, 80, 81, 83, 102, 104, 105, 106, 108, 110, 111, 120, 121, 128, 129, 130, 131];
+	let bpAllowedAreas = [sdk.areas.CatacombsLvl4, sdk.areas.Tristram, sdk.areas.MooMooFarm, sdk.areas.RockyWaste, sdk.areas.DryHills, sdk.areas.FarOasis, sdk.areas.LostCity, sdk.areas.ValleyofSnakes,
+		sdk.areas.DurielsLair, sdk.areas.SpiderForest, sdk.areas.GreatMarsh, sdk.areas.FlayerJungle, sdk.areas.LowerKurast, sdk.areas.KurastBazaar, sdk.areas.UpperKurast, sdk.areas.KurastCauseway,
+		sdk.areas.DuranceofHateLvl3, sdk.areas.OuterSteppes, sdk.areas.PlainsofDespair, sdk.areas.CityoftheDamned, sdk.areas.ChaosSanctuary, sdk.areas.BloodyFoothills, sdk.areas.FrigidHighlands,
+		sdk.areas.ArreatSummit, sdk.areas.NihlathaksTemple, sdk.areas.WorldstoneLvl1, sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction];
 
 	// Bone prison
-	if (useBP && unit.distance > ([73, 120].includes(me.area) ? 6 : 10) && bpAllowedAreas.includes(me.area) && (index === 1 || [571, 391].includes(unit.classid))
+	if (useBP && unit.distance > ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit].includes(me.area) ? 6 : 10)
+		&& bpAllowedAreas.includes(me.area) && (index === 1 || [sdk.units.monsters.ListerTheTormenter, sdk.units.monsters.HellBovine].includes(unit.classid))
 		&& !checkCollision(me, unit, 0x4) && Skill.getManaCost(sdk.skills.BonePrison) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
 		if (Skill.cast(sdk.skills.BonePrison, 0, unit)) {
 			this.bpTick = getTickCount();

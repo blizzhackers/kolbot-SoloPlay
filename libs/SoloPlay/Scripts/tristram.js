@@ -50,7 +50,7 @@ function tristram () {
 
 	Pather.checkWP(sdk.areas.StonyField, true) ? Pather.useWaypoint(sdk.areas.StonyField) : Pather.getWP(sdk.areas.StonyField);
 	Precast.doPrecast(true);
-	Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Monster, sdk.monsters.preset.Rakanishu, 10, 10, false, true);
+	Pather.moveToPreset(sdk.areas.StonyField, unit.isMonster, sdk.monsters.preset.Rakanishu, 10, 10, false, true);
 	Attack.killTarget(getLocaleString(sdk.locale.monsters.Rakanishu));
 	Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Object, sdk.units.objects.StoneAlpha, null, null, true);
 

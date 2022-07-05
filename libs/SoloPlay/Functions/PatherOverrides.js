@@ -92,7 +92,7 @@ Pather.forceRun = false;
 
 	Object.prototype.mobCount = function (range = 5) {
 		let [x, y] = coords.apply(this);
-		return getUnits(sdk.unittype.Monster)
+		return getUnits(unit.isMonster)
 			.filter(function (mon) {
 				return mon.attackable && getDistance(x, y, mon.x, mon.y) < range &&
 					!CollMap.checkColl({x: x, y: y}, mon, Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.ClosedDoor | Coords_1.BlockBits.LineOfSight, 1);
