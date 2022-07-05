@@ -386,7 +386,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			if (me.hpPercent < 50 && me.mode !== 4 && me.getMobCount(10) === 0) {
 				console.log("Low health but safe right now, going to delay a bit");
 				let tick = getTickCount();
-				let howLongToDelay = Config.AttackSkill.some(sk => sk > 1 && Skill.canUse(sk)) ? seconds(2) : seconds(1);
+				let howLongToDelay = Config.AttackSkill.some(sk => sk > 1 && Skill.canUse(sk)) ? Time.seconds(2) : Time.seconds(1);
 
 				while (getTickCount() - tick < howLongToDelay) {
 					if (me.mode === 4) {

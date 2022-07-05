@@ -47,7 +47,7 @@ function andariel () {
 		Pather.moveTo(22571, 9590);
 	} else {
 		while (coords.length) {
-			let andy = monster(sdk.monsters.Andariel);
+			let andy = Game.getMonster(sdk.monsters.Andariel);
 
 			if (andy && andy.distance < 15) {
 				break;

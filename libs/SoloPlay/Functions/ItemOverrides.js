@@ -1161,17 +1161,22 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 
 		for (let i = 0; i < finalCharmKeys.length; i++) {
 			let cKey = finalCharmKeys[i];
-			if (myData.me.charms[cKey].have.indexOf(item.gid) === -1 && myData.me.charms[cKey].have.length < myData.me.charms[cKey].max) {
-				if (finalCharmInfo[cKey].stats(item)) {
-					console.debug(item.fname);
-					myData.me.charmGids.push(item.gid);
-					myData.me.charms[cKey].have.push(item.gid);
-					charms.keep.push(item);
-					found = true;
-					next = true;
-					
-					break;
+			try {
+				if (!!myData.me.charms[cKey] && myData.me.charms[cKey].have.indexOf(item.gid) === -1
+					&& myData.me.charms[cKey].have.length < myData.me.charms[cKey].max) {
+					if (finalCharmInfo[cKey].stats(item)) {
+						console.debug(item.fname);
+						myData.me.charmGids.push(item.gid);
+						myData.me.charms[cKey].have.push(item.gid);
+						charms.keep.push(item);
+						found = true;
+						next = true;
+						
+						break;
+					}
 				}
+			} catch (e) {
+				console.errorReport(e);
 			}
 		}
 

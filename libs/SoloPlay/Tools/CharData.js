@@ -122,7 +122,7 @@ const CharData = {
 				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
 			},
 			need: function () {
-				return (!this.active() || this.timeLeft() < minutes(5));
+				return (!this.active() || this.timeLeft() < Time.minutes(5));
 			},
 		},
 
@@ -136,7 +136,7 @@ const CharData = {
 				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
 			},
 			need: function () {
-				return (me.coldRes < 75 && (!this.active() || this.timeLeft() < minutes(5)));
+				return (me.coldRes < 75 && (!this.active() || this.timeLeft() < Time.minutes(5)));
 			},
 		},
 
@@ -151,7 +151,7 @@ const CharData = {
 			},
 			need: function () {
 				// don't really like the hardcoded time value of 5 minutes, its okay but feel like it should be more dynamic
-				return (me.poisonRes < 75 && (!this.active() || this.timeLeft() < minutes(5)));
+				return (me.poisonRes < 75 && (!this.active() || this.timeLeft() < Time.minutes(5)));
 			},
 		},
 

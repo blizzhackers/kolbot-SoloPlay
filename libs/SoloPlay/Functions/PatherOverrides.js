@@ -119,9 +119,9 @@ Pather.teleportTo = function (x, y, maxRange = 5) {
 	Developer.debugging.pathing && print("Mob Count at next node: " + [x, y].mobCount());
 	
 	for (let i = 0; i < 3; i += 1) {
-		Config.PacketCasting ? Skill.setSkill(sdk.skills.Teleport, 0) && Packet.castSkill(0, x, y) : Skill.cast(sdk.skills.Teleport, 0, x, y);
+		Skill.setSkill(sdk.skills.Teleport, 0) && Packet.castSkill(0, x, y);
 		let tick = getTickCount();
-		let pingDelay = me.getPingDelay();
+		let pingDelay = i === 0 ? 250 : me.getPingDelay();
 
 		while (getTickCount() - tick < Math.max(500, pingDelay * 2 + 200)) {
 			if (getDistance(me.x, me.y, x, y) < maxRange) {
@@ -834,7 +834,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), pingDelay * 4)) {
 					if (me.area === targetArea) {
 						delay(1500);
-						console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (formatTime(getTickCount() - wpTick)));
+						console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (Time.format(getTickCount() - wpTick)));
 
 						return true;
 					}
@@ -865,7 +865,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 	if (me.area === targetArea) {
 		delay(500);
-		console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (formatTime(getTickCount() - wpTick)));
+		console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (Time.format(getTickCount() - wpTick)));
 
 		return true;
 	}

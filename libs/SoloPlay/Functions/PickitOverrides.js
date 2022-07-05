@@ -396,7 +396,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		self.color = Pickit.itemColor(unit);
 		self.gold = unit.getStat(14);
 		self.dist = (unit.distance || Infinity);
-		let canTk = (me.sorceress && Skill.haveTK
+		let canTk = (Skill.haveTK
 			&& (self.type === 4 || self.type === 22 || (self.type > 75 && self.type < 82))
 			&& self.dist > 5 && self.dist < 20 && !checkCollision(me, unit, 0x5));
 		self.useTk = canTk && (me.mpPercent > 50);
