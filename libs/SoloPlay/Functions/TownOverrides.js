@@ -170,7 +170,7 @@ Town.townTasks = function (buyPots = {}) {
 	}
 
 	delay(300);
-	console.debug("ÿc8End ÿc0:: ÿc8TownTasksÿc0 - ÿc7Duration: ÿc0" + formatTime(getTickCount() - tick));
+	console.debug("ÿc8End ÿc0:: ÿc8TownTasksÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick));
 	Town.lastInteractedNPC.reset(); // unassign
 
 	return true;
@@ -242,7 +242,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	}
 
 	delay(300);
-	console.debug("ÿc8End ÿc0:: ÿc8TownChoresÿc0 - ÿc7Duration: ÿc0" + formatTime(getTickCount() - tick));
+	console.debug("ÿc8End ÿc0:: ÿc8TownChoresÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick));
 	Town.lastInteractedNPC.reset(); // unassign
 
 	return true;

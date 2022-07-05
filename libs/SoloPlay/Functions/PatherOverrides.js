@@ -834,7 +834,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), pingDelay * 4)) {
 					if (me.area === targetArea) {
 						delay(1500);
-						console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (formatTime(getTickCount() - wpTick)));
+						console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (Time.format(getTickCount() - wpTick)));
 
 						return true;
 					}
@@ -865,7 +865,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 	if (me.area === targetArea) {
 		delay(500);
-		console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (formatTime(getTickCount() - wpTick)));
+		console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (Time.format(getTickCount() - wpTick)));
 
 		return true;
 	}

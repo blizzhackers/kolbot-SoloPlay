@@ -342,7 +342,7 @@ function main() {
 
 					return false;
 				} finally {
-					console.log("Took: " + formatTime(getTickCount() - t4) + " to visit town");
+					console.log("Took: " + Time.format(getTickCount() - t4) + " to visit town");
 					this.togglePause();
 
 					Attack.stopClear = false;
