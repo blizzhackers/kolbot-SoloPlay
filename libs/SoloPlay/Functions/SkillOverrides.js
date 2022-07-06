@@ -85,9 +85,8 @@ Skill.cast = function (skillId, hand, x, y, item) {
 
 	if (!this.setSkill(skillId, hand, item)) return false;
 
-	if ((this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [67, 245].indexOf(skillId) === -1))
-		|| Config.PacketCasting > 1
-		|| skillId === sdk.skills.Teleport) {
+	if (Config.PacketCasting > 1 || [sdk.skills.Teleport, sdk.skills.Telekinesis].includes(skillId)
+		|| (this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [67, 245].indexOf(skillId) === -1))) {
 		switch (typeof x) {
 		case "number":
 			Packet.castSkill(hand, x, y);

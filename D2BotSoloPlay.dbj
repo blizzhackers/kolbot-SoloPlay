@@ -147,7 +147,7 @@ new Overrides.Override(Starter, Starter.scriptMsgEvent, function (orignal, msg) 
 }).apply();
 
 function timer (tick) {
-	let timeStr = " (Time:" + formatTime(getTickCount() - tick) + ") ";
+	let timeStr = " (Time:" + Time.format(getTickCount() - tick) + ") ";
 	
 	if (Developer.displayClockInConsole) {
 		try {

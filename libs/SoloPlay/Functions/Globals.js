@@ -327,7 +327,7 @@ const SetUp = {
 	specPush: function (specType) {
 		let buildInfo = SetUp.getTemplate();
 
-		if (!include(buildInfo.template)) throw new Error("Failed to include template: " + buildInfo.template);
+		if (!isIncluded(buildInfo.template) && !include(buildInfo.template)) throw new Error("Failed to include template: " + buildInfo.template);
 
 		let specCheck = [];
 		let final = buildInfo.buildType === SetUp.finalBuild;
@@ -1290,7 +1290,7 @@ const Check = {
 	currentBuild: function () {
 		let buildInfo = SetUp.getTemplate();
 
-		if (!include(buildInfo.template)) throw new Error("currentBuild(): Failed to include template: " + buildInfo.template);
+		if (!isIncluded(buildInfo.template) && !include(buildInfo.template)) throw new Error("currentBuild(): Failed to include template: " + buildInfo.template);
 
 		let final = buildInfo.buildType === SetUp.finalBuild;
 
@@ -1327,7 +1327,7 @@ const Check = {
 
 		let template = getBuildTemplate();
 
-		if (!include(template)) {
+		if (!isIncluded(template) && !include(template)) {
 			let foundError = false;
 			let buildType;
 			

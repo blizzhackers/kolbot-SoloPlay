@@ -240,11 +240,10 @@ function baal () {
 	}
 
 	try {
-		Messaging.sendToScript(SoloEvents.filePath, 'addBaalEvent');
 		if (((me.hell && me.paladin && !Attack.auradin) || me.barbarian || me.gold < 25000 || (!me.baal && SetUp.finalBuild !== "Bumper"))) {
 			Messaging.sendToScript(SoloEvents.filePath, 'addBaalEvent');
 		}
-
+		
 		Attack.clear(15);
 		Common.Baal.clearThrone();
 

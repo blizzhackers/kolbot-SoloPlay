@@ -320,6 +320,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 
 		CharData.skillData.chargedSkills.forEach(chargeSkill => {
 			if (chargeSkill.skill === skillId) {
+				Config.DebugMode && console.debug(chargeSkill);
 				let item = me.getItem(-1, sdk.itemmode.Equipped, chargeSkill.gid);
 				!!item && chargedItems.push({
 					charge: chargeSkill.skill,
@@ -365,12 +366,18 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 		}
 
 		if (charge) {
-			// Setting skill on hand
-			if (!Config.PacketCasting || Config.PacketCasting === 1 && skillId !== 54) {
+			let usePacket = ([
+				sdk.skills.Valkyrie, sdk.skills.Decoy, sdk.skills.RaiseSkeleton, sdk.skills.ClayGolem, sdk.skills.RaiseSkeletalMage, sdk.skills.BloodGolem, sdk.skills.Shout,
+				sdk.skills.IronGolem, sdk.skills.Revive, sdk.skills.Werewolf, sdk.skills.Werebear, sdk.skills.OakSage, sdk.skills.SpiritWolf, sdk.skills.PoisonCreeper, sdk.skills.BattleOrders,
+				sdk.skills.SummonDireWolf, sdk.skills.Grizzly, sdk.skills.HeartofWolverine, sdk.skills.SpiritofBarbs, sdk.skills.ShadowMaster, sdk.skills.ShadowWarrior, sdk.skills.BattleCommand,
+			].indexOf(skillId) === -1);
+
+			if (!usePacket) {
 				return Skill.cast(skillId, 0, x || me.x, y || me.y, this); // Non packet casting
 			}
 
 			// Packet casting
+			// Setting skill on hand
 			sendPacket(1, 0x3c, 2, charge.skill, 1, 0x0, 1, 0x00, 4, this.gid);
 			// No need for a delay, since its TCP, the server recv's the next statement always after the send cast skill packet
 
@@ -431,6 +438,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 
 		CharData.skillData.chargedSkillsOnSwitch.forEach(chargeSkill => {
 			if (chargeSkill.skill === skillId) {
+				Config.DebugMode && console.debug(chargeSkill);
 				let item = me.getItem(-1, sdk.itemmode.Equipped, chargeSkill.gid);
 				!!item && chargedItems.push({
 					charge: chargeSkill.skill,

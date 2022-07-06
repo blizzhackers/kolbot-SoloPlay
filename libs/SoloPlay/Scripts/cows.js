@@ -98,7 +98,7 @@ function cows () {
 			}
 		}
 
-		Misc.poll(() => Cubing.openCube(), seconds(10), 1000);
+		Misc.poll(() => Cubing.openCube(), Time.seconds(10), 1000);
 
 		let tick = getTickCount();
 

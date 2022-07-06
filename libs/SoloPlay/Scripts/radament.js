@@ -20,6 +20,8 @@ function radament () {
 	Pather.clearToExit(sdk.areas.A2SewersLvl2, sdk.areas.A2SewersLvl3, true);
 	Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.units.object.HoradricScrollChest);
 	Attack.killTarget(sdk.units.monsters.Radament);
+	let book = Game.getItem(sdk.quest.item.BookofSkill);
+	!!book ? Pickit.pickItem(book) : Attack.killTarget(sdk.units.monsters.Radament);
 	Pickit.pickItems();
 
 	if (Misc.checkQuest(sdk.quest.id.RadamentsLair, 1)) {
@@ -28,8 +30,8 @@ function radament () {
 
 		let book = me.getItem(sdk.items.quest.BookofSkill);
 		if (book) {
-			book.isInStash && Town.openStash() && delay(300 + me.ping);
-			book.interact();
+			book.isInStash && Town.openStash() && delay(300);
+			book.use();
 			delay(500 + me.ping) && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
 		}
 	}
