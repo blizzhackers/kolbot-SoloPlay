@@ -148,7 +148,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal;
 	Config.ClearType = 0;
-	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0};
+	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 10), Spectype: sdk.units.monsters.spectype.All};
 
 	/* Monster skip configuration. */
 	Config.SkipException = [];

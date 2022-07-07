@@ -50,7 +50,7 @@ Pickit.checkItem = function (unit) {
 	}
 
 	if (rval.result === 1) {
-		let durability = unit.getStat(72);
+		let durability = unit.getStat(sdk.stats.Durability);
 		
 		if (typeof durability === "number" && unit.getStat(sdk.stats.MaxDurability) > 0 && durability * 100 / unit.getStat(sdk.stats.MaxDurability) <= 0) {
 			return {
@@ -270,7 +270,7 @@ Pickit.canPick = function (unit) {
 
 		if (myKey && key) {
 			do {
-				if (myKey.location === 3 && myKey.getStat(sdk.stats.Quantity) + key.getStat(sdk.stats.Quantity) > 12) {
+				if (myKey.location === sdk.storage.Inventory && myKey.getStat(sdk.stats.Quantity) + key.getStat(sdk.stats.Quantity) > 12) {
 					return false;
 				}
 			} while (myKey.getNext());
@@ -344,7 +344,7 @@ Pickit.canPick = function (unit) {
 
 						if (potion) {
 							do {
-								if (potion.itemType === pottype && potion.location === 3) {
+								if (potion.itemType === pottype && potion.location === sdk.itemmode.onGround) {
 									needPots -= 1;
 								}
 							} while (potion.getNext());
@@ -359,7 +359,7 @@ Pickit.canPick = function (unit) {
 
 			if (potion) {
 				do {
-					if (potion.itemType === unit.itemType && ((potion.mode === 0 && potion.location === 3) || potion.mode === 2)) {
+					if (potion.itemType === unit.itemType && ((potion.mode === sdk.itemmode.inStorage && potion.location === sdk.storage.Inventory) || potion.mode === sdk.itemmode.inBelt)) {
 						if (potion.classid < unit.classid) {
 							potion.use();
 							needPots += 1;
@@ -394,7 +394,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		self.classid = unit.classid;
 		self.name = unit.name;
 		self.color = Pickit.itemColor(unit);
-		self.gold = unit.getStat(14);
+		self.gold = unit.getStat(sdk.stats.Gold);
 		self.dist = (unit.distance || Infinity);
 		let canTk = (Skill.haveTK
 			&& (self.type === 4 || self.type === 22 || (self.type > 75 && self.type < 82))

@@ -29,15 +29,18 @@ NodeAction.killMonsters = function (arg = {}) {
 	let sanityCheck = (annoyingArea.includes(myArea) || (me.paladin && pallyAnnoyingAreas.includes(myArea)));
 	let settings = Object.assign({}, {
 		clearPath: false,
-		specType: 0,
+		Spectype: sdk.units.monsters.spectype.All,
 		range: 8,
 		overrideConfig: false,
 	}, arg);
 
 	// todo: we don't need this if we have a lightning chain based skill, e.g light sorc, light zon
-	if (!canTele && [8, 3, 4, 38, 5, 6, 27, 28, 33, 37, 56, 57, 60, 45, 58, 66, 67, 68, 69, 70, 71, 72].includes(myArea)) {
-		let monList = Attack.getMob([58, 59, 60, 61, 101, 102, 103, 104], 0, 30);
-
+	if (!canTele && [ sdk.areas.ColdPlains, sdk.areas.StonyField, sdk.areas.DarkWood, sdk.areas.BlackMarsh, sdk.areas.DenofEvil, sdk.areas.OuterCloister,
+		sdk.areas.Barracks, sdk.areas.Cathedral, sdk.areas.CatacombsLvl4, sdk.areas.Tristram, sdk.areas.ValleyofSnakes, sdk.areas.HallsoftheDeadLvl1,
+		sdk.areas.HallsoftheDeadLvl2, sdk.areas.HallsoftheDeadLvl3, sdk.areas.ClawViperTempleLvl1, sdk.areas.TalRashasTomb1, sdk.areas.TalRashasTomb2,
+		sdk.areas.TalRashasTomb3, sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7].includes(myArea)) {
+		let monList = Attack.getMob([sdk.units.monsters.FallenShaman, sdk.units.monsters.CarverShaman2, sdk.units.monsters.DevilkinShaman2,sdk.units.monsters.DarkShaman1,
+			sdk.units.monsters.HollowOne, sdk.units.monsters.Guardian1, sdk.units.monsters.Unraveler1, sdk.units.monsters.Ancient1], 0, 30);
 		if (monList.length) {
 			Attack.clear(7, 0);
 			Attack.clearList(monList);
@@ -280,7 +283,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 		clearSettings: {
 			clearPath: false,
 			range: 10,
-			specType: 0,
+			Spectype: sdk.units.monsters.spectype.All,
 		},
 		pop: false,
 		returnSpotOnError: true

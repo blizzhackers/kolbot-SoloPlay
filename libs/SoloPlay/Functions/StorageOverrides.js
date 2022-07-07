@@ -161,7 +161,7 @@ var Container = function (name, width, height, location) {
 					continue; // dont try to touch non-storage items | TODO: prevent non-storage items from getting this far
 				}
 
-				if (this.location === 3 && this.IsLocked(item, Config.Inventory)) {
+				if (this.location === sdk.storage.Inventory && this.IsLocked(item, Config.Inventory)) {
 					continue; // locked spot / item
 				}
 
@@ -180,12 +180,12 @@ var Container = function (name, width, height, location) {
 				}
 
 				// always sort stash left-to-right
-				if (this.location === 7) {
+				if (this.location === sdk.storage.Stash) {
 					nPos = this.FindSpot(item);
-				} else if (this.location === 3 && ((!itemIdsLeft && !itemIdsRight) || !itemIdsLeft || itemIdsRight.includes(item.classid) || itemIdsLeft.indexOf(item.classid) === -1)) {
+				} else if (this.location === sdk.storage.Inventory && ((!itemIdsLeft && !itemIdsRight) || !itemIdsLeft || itemIdsRight.includes(item.classid) || itemIdsLeft.indexOf(item.classid) === -1)) {
 					// sort from right by default or if specified
 					nPos = this.FindSpot(item, true, false, SetUp.sortSettings.ItemsSortedFromRightPriority);
-				} else if (this.location === 3 && itemIdsRight.indexOf(item.classid) === -1 && itemIdsLeft.includes(item.classid)) {
+				} else if (this.location === sdk.storage.Inventory && itemIdsRight.indexOf(item.classid) === -1 && itemIdsLeft.includes(item.classid)) {
 					// sort from left only if specified
 					nPos = this.FindSpot(item, false, false, SetUp.sortSettings.ItemsSortedFromLeftPriority);
 				}
@@ -382,7 +382,7 @@ var Container = function (name, width, height, location) {
 		let n, nDelay, cItem, cube;
 
 		// Cube -> Stash, must place item in inventory first
-		if (item.location === 6 && this.location === 7 && !Storage.Inventory.MoveTo(item)) {
+		if (item.location === sdk.storage.Cube && this.location === sdk.storage.stash && !Storage.Inventory.MoveTo(item)) {
 			return false;
 		}
 
@@ -390,10 +390,10 @@ var Container = function (name, width, height, location) {
 		if (item.mode === 3) return false;
 
 		// Item already on the cursor.
-		if (me.itemoncursor && item.mode !== 4) return false;
+		if (me.itemoncursor && item.mode !== sdk.itemmode.onCursor) return false;
 
 		// Make sure stash is open
-		if (this.location === 7 && !Town.openStash()) return false;
+		if (this.location === sdk.storage.Stash && !Town.openStash()) return false;
 
 		if (Packet.itemToCursor(item)) {
 			for (n = 0; n < 5; n += 1) {

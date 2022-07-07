@@ -707,7 +707,7 @@ Attack.clearEx = function (givenSettings) {
 		allowPicking: true,
 		range: 25,
 		bossId: false,
-		spectype: 0,
+		Spectype: sdk.units.monsters.spectype.All,
 		sortfunc: () => {}
 	}, givenSettings);
 

@@ -76,13 +76,13 @@ const Tracker = {
 		// csv file
 		let scriptTime = Developer.Timer(starttime);
 		let diffString = sdk.difficulty.nameOf(me.diff);
-		let gainAMT = me.getStat(13) - startexp;
+		let gainAMT = me.getStat(sdk.stats.Experience) - startexp;
 		let gainTime = gainAMT / (scriptTime / 60000);
 		let currentBuild = SetUp.currentBuild;
-		let FR = me.getStat(39);
-		let CR = me.getStat(43);
-		let LR = me.getStat(41);
-		let PR = me.getStat(45);
+		let FR = me.getStat(sdk.stats.FireResist);
+		let CR = me.getStat(sdk.stats.ColdResist);
+		let LR = me.getStat(sdk.stats.LightResist);
+		let PR = me.getStat(sdk.stats.PoisonResist);
 		let string = Developer.formatTime(GameTracker.Total) + "," + Developer.formatTime(GameTracker.InGame) + "," + Developer.formatTime(scriptTime) + "," + subscript + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n";
 
 		Misc.fileAction(Tracker.SPPath, 2, string);
@@ -111,12 +111,12 @@ const Tracker = {
 		let diffString = sdk.difficulty.nameOf(me.diff);
 		let areaName = Pather.getAreaName(me.area);
 		let currentBuild = SetUp.currentBuild;
-		let gainAMT = me.getStat(13) - Experience.totalExp[me.charlvl - 1];
+		let gainAMT = me.getStat(sdk.stats.Experience) - Experience.totalExp[me.charlvl - 1];
 		let gainTime = gainAMT / (splitTime / 60000);
-		let FR = me.getStat(39);
-		let CR = me.getStat(43);
-		let LR = me.getStat(41);
-		let PR = me.getStat(45);
+		let FR = me.getStat(sdk.stats.FireResist);
+		let CR = me.getStat(sdk.stats.ColdResist);
+		let LR = me.getStat(sdk.stats.LightResist);
+		let PR = me.getStat(sdk.stats.PoisonResist);
 		let string = Developer.formatTime(GameTracker.Total) + "," + Developer.formatTime(GameTracker.InGame) + "," + Developer.formatTime(splitTime) + "," + areaName + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n";
 
 		Misc.fileAction(Tracker.LPPath, 2, string);

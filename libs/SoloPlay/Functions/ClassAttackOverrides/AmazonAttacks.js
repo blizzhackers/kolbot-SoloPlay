@@ -105,7 +105,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 			// Don't use decoy if within melee distance
 			if (unit.distance > 4) {
 				// Check to see if decoy has already been cast
-				let decoy = Misc.poll(() => getUnit(-1, sdk.units.summons.Dopplezon), 1000, 10);
+				let decoy = Misc.poll(() => Game.getMonster(sdk.units.summons.Dopplezon), 1000, 10);
 				
 				if (!decoy && (getTickCount() - this.decoyTick >= decoyDuration) && unit.distance > 4) {
 					if (unit.distance > 10 || checkCollision(me, unit, 0x4)) {

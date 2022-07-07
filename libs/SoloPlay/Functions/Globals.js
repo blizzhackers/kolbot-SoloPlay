@@ -1025,7 +1025,7 @@ const Check = {
 		case sdk.difficulty.Nightmare:
 			if (myGold < repairCost) {
 				// check how broke we are - only for melee chars since casters don't care about weapons
-				wep = items.filter(i => i.isEquipped && i.bodylocation === 4).first();
+				wep = items.filter(i => i.isEquipped && i.bodylocation === sdk.body.RightArm).first();
 				if (!!wep && meleeChar && wep.durabilityPercent === 0) {
 					// we are really broke - go back to normal
 					msg = " We are broken - lets get some easy gold in normal";
@@ -1039,7 +1039,7 @@ const Check = {
 		case sdk.difficulty.Hell:
 			if (myGold < repairCost) {
 				// check how broke we are - only for melee chars since casters don't care about weapons
-				wep = items.filter(i => i.isEquipped && i.bodylocation === 4).first();
+				wep = items.filter(i => i.isEquipped && i.bodylocation === sdk.body.RightArm).first();
 				if (!!wep && meleeChar && wep.durabilityPercent === 0) {
 					// we are really broke - go back to normal
 					msg = " We are broken - lets get some easy gold in normal";

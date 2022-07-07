@@ -20,7 +20,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const MissileData_1 = __importDefault(require("./MissileData"));
     const defaults = {
         range: 14,
-        spectype: 0,
+        Spectype: sdk.units.monsters.spectype.All,
         once: false,
         nodes: [],
         callback: undefined,
