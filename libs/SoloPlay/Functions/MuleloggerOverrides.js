@@ -100,7 +100,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 	switch (unit.quality) {
 	case sdk.itemquality.Set:
 		switch (unit.classid) {
-			case sdk.items.Sabre: // Angelic sabre
+		case sdk.items.Sabre: // Angelic sabre
 			code = "inv9sbu";
 
 			break;
