@@ -259,11 +259,11 @@ Unit.prototype.autoEquipCheck = function (checkCanEquip = true) {
 			if (tier > Item.getEquippedItem(bodyLoc[i]).tier
                 && ((checkCanEquip ? this.canEquip() : true) || !this.identified)) {
 				if (this.twoHanded && !me.barbarian) {
-					if (tier < Item.getEquippedItem(4).tier + Item.getEquippedItem(5).tier) return false;
+					if (tier < Item.getEquippedItem(sdk.body.RightArm).tier + Item.getEquippedItem(sdk.body.LeftArm).tier) return false;
 				}
 
 				if (!me.barbarian && bodyLoc[i] === 5 && Item.getEquippedItem(bodyLoc[i]).tier === -1) {
-					if (Item.getEquippedItem(4).twoHanded && tier < Item.getEquippedItem(4).tier) return false;
+					if (Item.getEquippedItem(sdk.body.RightArm).twoHanded && tier < Item.getEquippedItem(sdk.body.RightArm).tier) return false;
 				}
 
 				return true;
@@ -286,11 +286,11 @@ Unit.prototype.autoEquipCheckSecondary = function (checkCanEquip = true) {
 			if (tier > Item.getEquippedItem(bodyLoc[i]).secondarytier
                 && ((checkCanEquip ? this.canEquip() : true) || !this.identified)) {
 				if (this.twoHanded && !me.barbarian) {
-					if (tier < Item.getEquippedItem(11).secondarytier + Item.getEquippedItem(12).secondarytier) return false;
+					if (tier < Item.getEquippedItem(sdk.body.RightArmSecondary).secondarytier + Item.getEquippedItem(sdk.body.LeftArmSecondary).secondarytier) return false;
 				}
 
 				if (!me.barbarian && bodyLoc[i] === 12 && Item.getEquippedItem(bodyLoc[i]).secondarytier === -1) {
-					if (Item.getEquippedItem(11).twoHanded && tier < Item.getEquippedItem(11).secondarytier) return false;
+					if (Item.getEquippedItem(sdk.body.RightArmSecondary).twoHanded && tier < Item.getEquippedItem(sdk.body.RightArmSecondary).secondarytier) return false;
 				}
 
 				return true;

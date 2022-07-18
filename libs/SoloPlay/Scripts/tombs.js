@@ -17,7 +17,7 @@ function tombs () {
 		if (Pather.moveToExit(tombID[number], true, true)) {
 			me.overhead("Tomb #" + (number + 1));
 
-			let obj = getRoom().correcttomb === me.area ? getPresetUnit(me.area, sdk.unittype.Object, sdk.quest.chest.HoradricStaffHolder) : getPresetUnit(me.area, sdk.unittype.Object, sdk.units.SparklyChest);
+			let obj = getRoom().correcttomb === me.area ? getPresetUnit(me.area, sdk.unittype.Object, sdk.quest.chest.HoradricStaffHolder) : getPresetUnit(me.area, sdk.unittype.Object, sdk.units.SmallSparklyChest);
 			!!obj && Pather.moveToUnit(obj);
 
 			Attack.clear(50);

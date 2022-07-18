@@ -723,7 +723,7 @@ const Check = {
 			if (me.classic) return false;
 			if (me.charlvl >= 80 && Pather.canTeleport()
 				|| (me.barbarian && me.hell && !Pather.accessToAct(3)
-				&& (Item.getEquippedItem(5).tier < 1270 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
+				&& (Item.getEquippedItem(sdk.body.LeftArm).tier < 1270 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
 				return true;
 			}
 
@@ -980,7 +980,7 @@ const Check = {
 		let gold = me.gold;
 		let goldLimit = [10000, 25000, 50000][me.diff];
 
-		if (gold >= goldLimit || me.charlvl < 15 || (me.charlvl >= 15 && gold > 1000 && Item.getEquippedItem(4).durability !== 0)) {
+		if (gold >= goldLimit || me.charlvl < 15 || (me.charlvl >= 15 && gold > 1000 && Item.getEquippedItem(sdk.body.RightArm).durability !== 0)) {
 			return false;
 		}
 
@@ -994,14 +994,14 @@ const Check = {
 		let gold = me.gold;
 
 		// Almost broken but not quite
-		if (((Item.getEquippedItem(4).durability <= 30 && Item.getEquippedItem(4).durability > 0)
-			|| (Item.getEquippedItem(5).durability <= 30 && Item.getEquippedItem(5).durability > 0)
+		if (((Item.getEquippedItem(sdk.body.RightArm).durability <= 30 && Item.getEquippedItem(sdk.body.RightArm).durability > 0)
+			|| (Item.getEquippedItem(sdk.body.LeftArm).durability <= 30 && Item.getEquippedItem(sdk.body.LeftArm).durability > 0)
 			&& !me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000)) {
 			return 1;
 		}
 
 		// Broken
-		if ((Item.getEquippedItem(4).durability === 0 || Item.getEquippedItem(5).durability === 0) && me.charlvl >= 15 && !me.normal && gold < 1000) {
+		if ((Item.getEquippedItem(sdk.body.RightArm).durability === 0 || Item.getEquippedItem(sdk.body.LeftArm).durability === 0) && me.charlvl >= 15 && !me.normal && gold < 1000) {
 			return 2;
 		}
 
@@ -1122,7 +1122,7 @@ const Check = {
 				|| (!me.paladin && me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Sword}).have)
 				|| (me.paladin && me.haveAll([{name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Sword}, {name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.AuricShields}]))
 				|| (me.necromancer && me.checkItem({name: sdk.locale.items.White}).have
-					&& (me.checkItem({name: sdk.locale.items.Rhyme, itemtype: sdk.itemtype.VoodooHeads}).have || Item.getEquippedItem(5).tier > 800))
+					&& (me.checkItem({name: sdk.locale.items.Rhyme, itemtype: sdk.itemtype.VoodooHeads}).have || Item.getEquippedItem(sdk.body.LeftArm).tier > 800))
 				|| (me.barbarian && (me.checkItem({name: sdk.locale.items.Lawbringer}).have || me.baal))) {
 				needRunes = false;
 			}
@@ -1430,7 +1430,7 @@ const Check = {
 	usePreviousSocketQuest: function () {
 		if (me.classic) return;
 		if (!Check.resistance().Status) {
-			if (me.weaponswitch === 0 && Item.getEquippedItem(5).fname.includes("Lidless Wall") && !Item.getEquippedItem(5).socketed) {
+			if (me.weaponswitch === 0 && Item.getEquippedItem(sdk.body.LeftArm).fname.includes("Lidless Wall") && !Item.getEquippedItem(sdk.body.LeftArm).socketed) {
 				if (!me.normal) {
 					if (!myData.normal.socketUsed) goToDifficulty(sdk.difficulty.Normal, " to use socket quest");
 					if (me.hell && !myData.nightmare.socketUsed) goToDifficulty(sdk.difficulty.Nightmare, " to use socket quest");

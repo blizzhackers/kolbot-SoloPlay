@@ -477,7 +477,7 @@
 		},
 		dmgModifier: function (skillID, target) {
 			let aps = (typeof target === 'number' ? this.averagePackSize(target) : 1),
-				eliteBonus = (target.spectype && target.spectype & 0x7) ? 1 : 0, hitcap = 1;
+				eliteBonus = (target.spectype && target.isSpecial) ? 1 : 0, hitcap = 1;
 
 			switch (skillID) { // charged bolt/strike excluded, it's so unreliably random
 			case sdk.skills.PoisonJavelin:

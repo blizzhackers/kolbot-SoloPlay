@@ -918,7 +918,7 @@ Town.unfinishedQuests = function () {
 	// Remove Khalim's Will if quest not completed and restarting run.
 	let kw = me.getItem(sdk.items.quest.KhalimsWill);
 	if (kw) {
-		if (Item.getEquippedItem(4).classid === sdk.items.quest.KhalimsWill) {
+		if (Item.getEquippedItem(sdk.body.RightArm).classid === sdk.items.quest.KhalimsWill) {
 			Town.clearInventory();
 			delay(500 + me.ping * 2);
 			Quest.stashItem(sdk.items.quest.KhalimsWill);

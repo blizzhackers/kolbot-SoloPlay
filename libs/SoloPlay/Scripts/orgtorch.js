@@ -173,7 +173,7 @@ function orgtorch() {
 		switch (me.area) {
 		case sdk.areas.MatronsDen:
 			Precast.doPrecast(true);
-			Pather.moveToPreset(sdk.areas.MatronsDen, sdk.unittype.Object, sdk.units.chests.SparklyChest, 2, 2);
+			Pather.moveToPreset(sdk.areas.MatronsDen, sdk.unittype.Object, sdk.units.chests.SmallSparklyChest, 2, 2);
 			Attack.killTarget(sdk.units.monsters.Lilith);
 			Pickit.pickItems();
 			Town.goToTown();
@@ -200,7 +200,7 @@ function orgtorch() {
 			break;
 		case sdk.areas.FurnaceofPain:
 			Precast.doPrecast(true);
-			Pather.moveToPreset(sdk.areas.FurnaceofPain, sdk.unittype.Object, sdk.units.chests.SparklyChest, 2, 2);
+			Pather.moveToPreset(sdk.areas.FurnaceofPain, sdk.unittype.Object, sdk.units.chests.SmallSparklyChest, 2, 2);
 			Attack.killTarget(sdk.units.monsters.UberIzual);
 			Pickit.pickItems();
 			Town.goToTown();

@@ -316,7 +316,7 @@ const Quest = {
 
 		let smashable = Game.getObject(classid);
 
-		if (Item.getEquippedItem(4).classid !== tool || !me.getItem(tool)) return false;
+		if (Item.getEquippedItem(sdk.body.RightArm).classid !== tool || !me.getItem(tool)) return false;
 		if (!smashable) return false;
 		let tick = getTickCount();
 		let questTool = me.getItem(tool);

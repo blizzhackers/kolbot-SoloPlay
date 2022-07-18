@@ -32,7 +32,7 @@ let battleCryCheck = function () {
 let warCryCheck = function () {
 	return Game.getMonster().some(function (el) {
 		if (el === undefined) return false;
-		return (el.attackable && el.distance < 5 && !(el.spectype & 0x7) && el.curseable
+		return (el.attackable && el.distance < 5 && !(el.isSpecial) && el.curseable
 			&& ![sdk.units.monsters.Andariel, sdk.units.monsters.Duriel, sdk.units.monsters.Mephisto, sdk.units.monsters.Diablo, sdk.units.monsters.Baal, sdk.units.monsters.Tentacle1,
 				sdk.units.monsters.BaalClone, sdk.units.monsters.KorlictheProtector, sdk.units.monsters.TalictheDefender, sdk.units.monsters.MadawctheGuardian].includes(el.classid)
 			&& (!el.isStunned || getTickCount() - ClassAttack.warCryTick >= 1500) && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE));

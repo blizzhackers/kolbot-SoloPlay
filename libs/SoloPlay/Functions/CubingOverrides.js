@@ -676,13 +676,13 @@ Cubing.validItem = function (unit, recipe) {
 				}
 			}
 			switch (recipe.Ethereal) {
-			case 0:
+			case Roll.All:
 			case undefined:
 				return NTIP.CheckItem(unit) === 1 && valid;
-			case 1:
-				return unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1 && valid;
-			case 2:
-				return !unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1 && valid;
+			case Roll.Eth:
+				return unit.ethereal && NTIP.CheckItem(unit) === 1 && valid;
+			case Roll.NonEth:
+				return !unit.ethereal && NTIP.CheckItem(unit) === 1 && valid;
 			}
 		}
 
@@ -699,13 +699,13 @@ Cubing.validItem = function (unit, recipe) {
 		// Rare item matching pickit entry
 		if (unit.rare && NTIP.CheckItem(unit) === 1) {
 			switch (recipe.Ethereal) {
-			case 0:
+			case Roll.All:
 			case undefined:
 				return NTIP.CheckItem(unit) === 1;
-			case 1:
-				return unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
-			case 2:
-				return !unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
+			case Roll.Eth:
+				return unit.ethereal && NTIP.CheckItem(unit) === 1;
+			case Roll.NonEth:
+				return !unit.ethereal && NTIP.CheckItem(unit) === 1;
 			}
 		}
 
@@ -716,13 +716,13 @@ Cubing.validItem = function (unit, recipe) {
 		// Normal item matching pickit entry, no sockets
 		if (unit.normal && unit.sockets === 0) {
 			switch (recipe.Ethereal) {
-			case 0:
+			case Roll.All:
 			case undefined:
 				return NTIP.CheckItem(unit) === 1;
-			case 1:
-				return unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
-			case 2:
-				return !unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
+			case Roll.Eth:
+				return unit.ethereal && NTIP.CheckItem(unit) === 1;
+			case Roll.NonEth:
+				return !unit.ethereal && NTIP.CheckItem(unit) === 1;
 			}
 		}
 

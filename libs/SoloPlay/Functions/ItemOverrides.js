@@ -163,11 +163,11 @@ Item.autoEquipCheck = function (item) {
 		for (let i = 0; i < bodyLoc.length; i += 1) {
 			if (tier > this.getEquippedItem(bodyLoc[i]).tier && (this.canEquip(item) || !item.identified)) {
 				if (item.twoHanded && !me.barbarian) {
-					if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) return false;
+					if (tier < this.getEquippedItem(sdk.body.RightArm).tier + this.getEquippedItem(sdk.body.LeftArm).tier) return false;
 				}
 
-				if (!me.barbarian && bodyLoc[i] === 5 && this.getEquippedItem(bodyLoc[i]).tier === -1) {
-					if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tier) return false;
+				if (!me.barbarian && bodyLoc[i] === sdk.body.LeftArm && this.getEquippedItem(bodyLoc[i]).tier === -1) {
+					if (this.getEquippedItem(sdk.body.RightArm).twoHanded && tier < this.getEquippedItem(sdk.body.RightArm).tier) return false;
 				}
 
 				return true;
@@ -188,11 +188,11 @@ Item.autoEquipKeepCheck = function (item) {
 		for (let i = 0; i < bodyLoc.length; i += 1) {
 			if (tier > this.getEquippedItem(bodyLoc[i]).tier) {
 				if (item.twoHanded && !me.barbarian) {
-					if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) return false;
+					if (tier < this.getEquippedItem(sdk.body.RightArm).tier + this.getEquippedItem(sdk.body.LeftArm).tier) return false;
 				}
 
-				if (!me.barbarian && bodyLoc[i] === 5 && this.getEquippedItem(bodyLoc[i]).tier === -1) {
-					if (this.getEquippedItem(4).twoHanded && tier < this.getEquippedItem(4).tier) return false;
+				if (!me.barbarian && bodyLoc[i] === sdk.body.LeftArm && this.getEquippedItem(bodyLoc[i]).tier === -1) {
+					if (this.getEquippedItem(sdk.body.RightArm).twoHanded && tier < this.getEquippedItem(sdk.body.RightArm).tier) return false;
 				}
 
 				return true;
@@ -227,13 +227,13 @@ Item.autoEquip = function () {
 	}
 
 	// ring check - sometimes a higher tier ring ends up on the wrong finger causing a rollback loop
-	if (this.getEquippedItem(7).tier > this.getEquippedItem(6).tier) {
+	if (this.getEquippedItem(sdk.body.RingLeft).tier > this.getEquippedItem(sdk.body.RingRight).tier) {
 		console.log("ÿc9AutoEquipÿc0 :: Swapping rings, higher tier ring is on the wrong finger");
-		clickItemAndWait(0, 7);
+		clickItemAndWait(sdk.clicktypes.Left, sdk.body.RingLeft);
 		delay(200);
-		me.itemoncursor && clickItemAndWait(0, 6);
+		me.itemoncursor && clickItemAndWait(sdk.clicktypes.Left, sdk.body.RingRight);
 		delay(200);
-		me.itemoncursor && clickItemAndWait(0, 7);
+		me.itemoncursor && clickItemAndWait(sdk.clicktypes.Left, sdk.body.RingLeft);
 	}
 
 	me.cancel();
@@ -257,14 +257,14 @@ Item.autoEquip = function () {
 					}
 
 					if (items[0].twoHanded && !me.barbarian) {
-						if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
+						if (tier < this.getEquippedItem(sdk.body.RightArm).tier + this.getEquippedItem(sdk.body.LefttArm).tier) {
 							continue;
 						}
 						console.log("ÿc9AutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
 					}
 
-					if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1 && this.getEquippedItem(4).twoHanded) {
-						if (tier < this.getEquippedItem(4).tier) {
+					if (!me.barbarian && bodyLoc[j] === sdk.body.LeftArm && equippedItem.tier === -1 && this.getEquippedItem(sdk.body.RightArm).twoHanded) {
+						if (tier < this.getEquippedItem(sdk.body.RightArm).tier) {
 							continue;
 						}
 						console.log("ÿc9AutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
@@ -328,13 +328,13 @@ Item.outOfTownAutoEquip = function () {
 	}
 
 	// ring check - sometimes a higher tier ring ends up on the wrong finger causing a rollback loop
-	if (this.getEquippedItem(7).tier > this.getEquippedItem(6).tier) {
-		console.log("ÿc9OutOfTownAutoEquipÿc0 :: Swapping rings, higher tier ring is on the wrong finger");
-		clickItemAndWait(0, 7);
+	if (this.getEquippedItem(sdk.body.RingLeft).tier > this.getEquippedItem(sdk.body.RingRight).tier) {
+		console.log("ÿc9AutoEquipÿc0 :: Swapping rings, higher tier ring is on the wrong finger");
+		clickItemAndWait(sdk.clicktypes.Left, sdk.body.RingLeft);
 		delay(200);
-		me.itemoncursor && clickItemAndWait(0, 6);
+		me.itemoncursor && clickItemAndWait(sdk.clicktypes.Left, sdk.body.RingRight);
 		delay(200);
-		me.itemoncursor && clickItemAndWait(0, 7);
+		me.itemoncursor && clickItemAndWait(sdk.clicktypes.Left, sdk.body.RingLeft);
 	}
 
 	me.cancel();
@@ -354,14 +354,14 @@ Item.outOfTownAutoEquip = function () {
 					}
 
 					if (items[0].twoHanded && !me.barbarian) {
-						if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
+						if (tier < this.getEquippedItem(sdk.body.RightArm).tier + this.getEquippedItem(sdk.body.LeftArm).tier) {
 							continue;
 						}
 						console.log("ÿc9OutOfTownAutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
 					}
 
-					if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1 && this.getEquippedItem(4).twoHanded) {
-						if (tier < this.getEquippedItem(4).tier) {
+					if (!me.barbarian && bodyLoc[j] === sdk.body.LeftArm && equippedItem.tier === -1 && this.getEquippedItem(sdk.body.RightArm).twoHanded) {
+						if (tier < this.getEquippedItem(sdk.body.RightArm).tier) {
 							continue;
 						}
 						console.log("ÿc9OutOfTownAutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);

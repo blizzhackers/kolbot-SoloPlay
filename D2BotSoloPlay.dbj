@@ -862,7 +862,7 @@ function main () {
 						myGold = me.getStat(Gold) + me.getStat(GoldBank);
 						frRes = Math.min(75 + me.getStat(sdk.stats.MaxFireResist), me.getStat(sdk.stats.MaxFireResist) - resPenalty);
 						crRes = Math.min(75 + me.getStat(sdk.stats.MaxColdResist), me.getStat(sdk.stats.MaxColdResist) - resPenalty);
-						lrRes = Math.min(75 + me.getStat(sdk.stats.MaxLightResist), me.getStat(sdk.stats.MaxColdResist) - resPenalty);
+						lrRes = Math.min(75 + me.getStat(sdk.stats.MaxLightResist), me.getStat(sdk.stats.MaxLightResist) - resPenalty);
 						prRes = Math.min(75 + me.getStat(sdk.stats.MaxPoisonResist), me.getStat(sdk.stats.MaxPoisonResist) - resPenalty);
 						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
 						statusString = me.name + " | Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";

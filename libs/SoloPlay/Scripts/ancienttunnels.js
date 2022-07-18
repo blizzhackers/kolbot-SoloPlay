@@ -14,8 +14,8 @@ function ancienttunnels () {
 	if (me.hell && me.classic) {
 		Attack.clearLevel();
 	} else {
-		!!getPresetUnit(me.area, sdk.unittype.Object, sdk.units.chests.SparklyChest)
-		&& Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.units.chests.SparklyChest) && Misc.openChests(5) && Pickit.pickItems();
+		!!getPresetUnit(me.area, sdk.unittype.Object, sdk.units.chests.SmallSparklyChest)
+		&& Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.units.chests.SmallSparklyChest) && Misc.openChests(5) && Pickit.pickItems();
 
 		if (getPresetUnit(me.area, unit.isMonster, sdk.monsters.preset.DarkElder) && Pather.moveToPreset(me.area, unit.isMonster, sdk.monsters.preset.DarkElder)) {
 			try {
