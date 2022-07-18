@@ -180,10 +180,10 @@
 			return Math.floor(exp * this.levelModifier(level, this.monsterLevel(monsterID, areaID)) * this.multiplayerModifier(gamesize) * level / total);
 		},
 		baseLevel: function (...skillIDs) {
-			return skillIDs.reduce((total, skillID) => total + GameData.myReference.getSkill(skillID, 0), 0);
+			return skillIDs.reduce((total, skillID) => total + GameData.myReference.getSkill(skillID, sdk.skills.subindex.hardpoints), 0);
 		},
 		skillLevel: function (...skillIDs) {
-			return skillIDs.reduce((total, skillID) => total + GameData.myReference.getSkill(skillID, 1), 0);
+			return skillIDs.reduce((total, skillID) => total + GameData.myReference.getSkill(skillID, sdk.skills.subindex.softpoints), 0);
 		},
 		skillCooldown: function (skillID) {
 			return getBaseStat('Skills', skillID, 'delay') !== -1;
@@ -451,23 +451,23 @@
 			let dmg = 0;
 			switch (skillID) {
 			case sdk.skills.Bash:
-				dmg = 45 + (5 + GameData.myReference.getSkill(skillID, 1)) + (5 * GameData.myReference.getSkill(sdk.skills.Stun, 0));
+				dmg = 45 + (5 + GameData.myReference.getSkill(skillID, sdk.skills.subindex.softpoints)) + (5 * GameData.myReference.getSkill(sdk.skills.Stun, sdk.skills.subindex.hardpoints));
 
 				break;
 			case sdk.skills.Stun:
-				dmg = (8 * GameData.myReference.getSkill(sdk.skills.Bash, 0));
+				dmg = (8 * GameData.myReference.getSkill(sdk.skills.Bash, sdk.skills.subindex.hardpoints));
 
 				break;
 			case sdk.skills.Concentrate:
-				dmg = (65 + (5 * GameData.myReference.getSkill(skillID, 1)) + (5 * GameData.myReference.getSkill(sdk.skills.Bash, 0)) + (10 * GameData.myReference.getSkill(sdk.skills.BattleOrders, 0)));
+				dmg = (65 + (5 * GameData.myReference.getSkill(skillID, sdk.skills.subindex.softpoints)) + (5 * GameData.myReference.getSkill(sdk.skills.Bash, sdk.skills.subindex.hardpoints)) + (10 * GameData.myReference.getSkill(sdk.skills.BattleOrders, sdk.skills.subindex.hardpoints)));
 
 				break;
 			case sdk.skills.LeapAttack:
-				dmg = (70 + (30 * GameData.myReference.getSkill(skillID, 1)) + (10 * GameData.myReference.getSkill(sdk.skills.Leap, 0)));
+				dmg = (70 + (30 * GameData.myReference.getSkill(skillID, sdk.skills.subindex.softpoints)) + (10 * GameData.myReference.getSkill(sdk.skills.Leap, sdk.skills.subindex.hardpoints)));
 
 				break;
 			case sdk.skills.Whirlwind:
-				dmg = (8 * GameData.myReference.getSkill(skillID, 1)) - 58;
+				dmg = (8 * GameData.myReference.getSkill(skillID, sdk.skills.subindex.softpoints)) - 58;
 
 				break;
 			}
@@ -814,7 +814,7 @@
 				return totalDmg;
 			};
 			let calculateSplashDamage = function (skill, splash, target) {
-				return getUnits(1)
+				return Game.getMonster()
 					.filter((mon) => mon.attackable && getDistance(target, mon) < splash)
 					.reduce(function (acc, cur) {
 						let _a = GameData.skillDamage(skill, cur);
@@ -826,11 +826,11 @@
 				let rawDmg = 0, totalDmg = 0, range = 0, hits = 0;
 				switch (skill) {
 				case sdk.skills.ChainLightning:
-					hits = Math.round((25 + me.getSkill(sdk.skills.ChainLightning, 1)) / 5);
+					hits = Math.round((25 + me.getSkill(sdk.skills.ChainLightning, sdk.skills.subindex.softpoints)) / 5);
 					range = 13;
 					break;
 				}
-				let units = getUnits(1)
+				let units = Game.getMonster()
 					.filter((mon) => mon.attackable && getDistance(mon, target) < range)
 					.sort((a, b) => getDistance(target, a) - getDistance(target, b));
 				if (units.length === 1) {
@@ -856,7 +856,7 @@
 				if (!Skill.canUse(sdk.skills.StaticField)) return 0;
 				let range = Skill.getRange(sdk.skills.StaticField), cap = (me.gametype === sdk.game.gametype.Classic ? 1 : [1, 25, 50][me.diff]);
 				let pierce = me.getStat(sdk.stats.PierceLtng);
-				return getUnits(1)
+				return Game.getMonster()
 					.filter(function (mon) {
 						return mon.attackable && getDistance(mon, distanceUnit) < range;
 					}).reduce(function (acc, unit) {
@@ -1386,7 +1386,7 @@
 
 			effort
 				.filter(e => e !== null && typeof e === 'object' && e.hasOwnProperty('skill'))
-				.filter(x => GameData.myReference.getSkill(x.skill, 0)) // Only skills where we have hard points in
+				.filter(x => GameData.myReference.getSkill(x.skill, sdk.skills.subindex.hardpoints)) // Only skills where we have hard points in
 				.filter(x => Skills.class[x.skill] < 7) // Needs to be a skill of a class, not my class but a class
 				.map(x =>
 					// Search for this unique skill
@@ -1795,7 +1795,7 @@
 		if (!Skill.canUse(sdk.skills.FrostNova)) return 0;
 		let fallens = [sdk.units.monsters.Fallen, sdk.units.monsters.Carver2, sdk.units.monsters.Devilkin2, sdk.units.monsters.DarkOne1, sdk.units.monsters.WarpedFallen, sdk.units.monsters.Carver1, sdk.units.monsters.Devilkin, sdk.units.monsters.DarkOne2];
 		let area = me.area;
-		return getUnits(1)
+		return Game.getMonster()
 			.filter(unit => !!unit && fallens.includes(unit.classid) && unit.distance < 7)
 			.filter(function (unit) {
 				return unit.attackable
@@ -1821,7 +1821,7 @@
 			sdk.units.monsters.Fallen, sdk.units.monsters.Carver2, sdk.units.monsters.Devilkin2, sdk.units.monsters.DarkOne1, sdk.units.monsters.WarpedFallen, sdk.units.monsters.Carver1, sdk.units.monsters.Devilkin, sdk.units.monsters.DarkOne2,
 			sdk.units.monsters.BurningDead, sdk.units.monsters.Returned1, sdk.units.monsters.Returned2, sdk.units.monsters.BoneWarrior1, sdk.units.monsters.BoneWarrior2
 		];
-		return getUnits(1)
+		return Game.getMonster()
 			.filter(unit => !!unit && summons.includes(unit.classid) && unit.distance < 7)
 			.filter(function (unit) {
 				return unit.attackable

@@ -94,7 +94,7 @@ let build = {
 	stats: undefined,
 
 	active: function () {
-		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.Concentration, 0) >= 1 && !Check.finalBuild().active());
+		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.Concentration, sdk.skills.subindex.hardpoints) >= 1 && !Check.finalBuild().active());
 	},
 };
 

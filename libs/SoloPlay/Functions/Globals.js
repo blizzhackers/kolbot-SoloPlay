@@ -356,7 +356,7 @@ const SetUp = {
 
 		// log info
 		myPrint(this.finalBuild + " goal reached. On to the next.");
-		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", 6);
+		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", sdk.colors.D2Bot.Gold);
 
 		D2Bot.setProfile(null, null, NameGen());
 		CharData.delete(true);
@@ -667,7 +667,7 @@ const Check = {
 
 			break;
 		case "smith":
-			if (!Misc.checkQuest(3, 1) && !me.smith) {
+			if (!Misc.checkQuest(sdk.quest.id.SistersBurialGrounds, 1) && !me.smith) {
 				return true;
 			}
 
@@ -1334,25 +1334,25 @@ const Check = {
 			// try to see if we can correct the finalBuild
 			if (myData.me.finalBuild.match("Build", "gi")) {
 				myData.me.finalBuild = myData.me.finalBuild.substring(0, SetUp.finalBuild.length - 5);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, sdk.colors.D2Bot.Red);
 				foundError = true;
 			}
 
 			if (myData.me.finalBuild.includes(".")) {
 				myData.me.finalBuild = myData.me.finalBuild.substring(myData.me.finalBuild.indexOf(".") + 1).capitalize(true);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, sdk.colors.D2Bot.Red);
 				foundError = true;
 			}
 
 			if (myData.me.finalBuild.includes(" ")) {
 				myData.me.finalBuild = myData.me.finalBuild.trim().capitalize(true);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, sdk.colors.D2Bot.Red);
 				foundError = true;
 			}
 
 			if (myData.me.finalBuild.includes("-")) {
 				myData.me.finalBuild = myData.me.finalBuild.substring(myData.me.finalBuild.indexOf("-") + 1).capitalize(true);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '-' which is unecessary and means you likely entered something along the lines of Classname-finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '-' which is unecessary and means you likely entered something along the lines of Classname-finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, sdk.colors.D2Bot.Red);
 				foundError = true;
 			}
 
@@ -1392,8 +1392,8 @@ const Check = {
 
 		switch (true) {
 		case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
-		case !!(SetUp.finalBuild === "Socketmule" && Misc.checkQuest(35, 1)):
-		case !!(SetUp.finalBuild === "Imbuemule" && Misc.checkQuest(3, 1) && me.charlvl >= Developer.imbueStopLevel):
+		case !!(SetUp.finalBuild === "Socketmule" && Misc.checkQuest(sdk.quest.id.SiegeOnHarrogath, 1)):
+		case !!(SetUp.finalBuild === "Imbuemule" && Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, 1) && me.charlvl >= Developer.imbueStopLevel):
 			goal = SetUp.finalBuild;
 			goalReached = true;
 
@@ -1419,7 +1419,7 @@ const Check = {
 			if (Developer.fillAccount.bumpers || Developer.fillAccount.socketMules) {
 				SetUp.makeNext();
 			} else {
-				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + ")" : ""), 6);
+				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
 				Developer.logPerformance && Tracker.update();
 				D2Bot.stop();
 			}

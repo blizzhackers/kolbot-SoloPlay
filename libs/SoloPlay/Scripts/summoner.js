@@ -8,7 +8,7 @@
 function summoner () {
 	// @isid0re
 	let teleportPads = function () {
-		if (me.area !== sdk.areas.ArcaneSanctuary || Pather.useTeleport()) {
+		if (!me.inArea(sdk.areas.ArcaneSanctuary) || Pather.useTeleport()) {
 			return true;
 		}
 

@@ -134,6 +134,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && !me.getSkill(sdk.skills.Meteor, 0);
+		return this.respec && !Skill.canUse(sdk.skills.Meteor);
 	},
 };

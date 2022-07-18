@@ -30,10 +30,10 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
 	// Rebuff Hurricane
-	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, 0);
+	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, sdk.skills.subindex.hardpoints);
 
 	// Rebuff Cyclone Armor
-	Skill.canUse(sdk.skills.CycloneArmor) && !me.getState(sdk.states.CycloneArmor) && Skill.cast(sdk.skills.CycloneArmor, 0);
+	Skill.canUse(sdk.skills.CycloneArmor) && !me.getState(sdk.states.CycloneArmor) && Skill.cast(sdk.skills.CycloneArmor, sdk.skills.subindex.hardpoints);
 
 	if (index === 1 && !unit.dead && unit.curseable) {
 		let commonCheck = (gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
@@ -130,7 +130,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	let result = this.doCast(unit, timedSkill, untimedSkill);
 
-	if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+	if (result === this.result.CantAttack && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
 		let merc = me.getMerc();
 
 		while (unit.attackable) {
@@ -176,7 +176,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 	if (timedSkill < 0 && untimedSkill < 0) return 2;
 
 	// Rebuff Hurricane
-	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, 0);
+	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, sdk.skills.subindex.hardpoints);
 
 	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 		switch (timedSkill) {

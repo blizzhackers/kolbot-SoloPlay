@@ -37,6 +37,6 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl < Config.respecOne && !me.getSkill(sdk.skills.ColdMastery, 0);
+		return me.charlvl < Config.respecOne && !Skill.canUse(sdk.skills.ColdMastery);
 	},
 };

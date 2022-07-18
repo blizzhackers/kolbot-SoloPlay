@@ -53,7 +53,7 @@ const mercscore = function (item) {
 
 	let mercRating = 1;
 	// start
-	item.prefixnum === sdk.locale.items.Treachery && (mercRating += item.getStatEx(sdk.stats.SkillWhenStruck, 2/*sdk.stats.subindex.Level*/) * 1000); // fade
+	item.prefixnum === sdk.locale.items.Treachery && (mercRating += item.getStatEx(sdk.stats.SkillWhenStruck, sdk.stats.subindex.Level) * 1000); // fade
 	mercRating += item.getStatEx(sdk.stats.SkillOnAura, sdk.skills.Conviction) * 1000;
 	mercRating += item.getStatEx(sdk.stats.SkillOnAura, sdk.skills.Meditation) * 100;
 	mercRating += item.getStatEx(sdk.stats.AllSkills) * mercWeights.ALL;

@@ -164,27 +164,27 @@ const Overlay = {
 		data: {
 			Den: {
 				complete: false,
-				condition: () => me.getQuest(1, 0)
+				condition: () => me.getQuest(sdk.quest.id.DenofEvil, 0)
 			},
 			BloodRaven: {
 				complete: false,
-				condition: () => me.getQuest(2, 0)
+				condition: () => me.getQuest(sdk.quest.id.SistersBurialGrounds, 0)
 			},
 			Tristram: {
 				complete: false,
-				condition: () => me.getQuest(4, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheSearchForCain, 0)
 			},
 			Countess: {
 				complete: false,
-				condition: () => me.getQuest(5, 0)
+				condition: () => me.getQuest(sdk.quest.id.ForgottenTower, 0)
 			},
 			Smith: {
 				complete: false,
-				condition: () => (me.getQuest(3, 0) || me.getQuest(3, 1))
+				condition: () => (me.getQuest(sdk.quest.id.ToolsoftheTrade, 0) || me.getQuest(sdk.quest.id.ToolsoftheTrade, 1))
 			},
 			Andariel: {
 				complete: false,
-				condition: () => me.getQuest(6, 0)
+				condition: () => me.getQuest(sdk.quest.id.SistersToTheSlaughter, 0)
 			},
 			Cube: {
 				complete: false,
@@ -192,75 +192,75 @@ const Overlay = {
 			},
 			Radament: {
 				complete: false,
-				condition: () => me.getQuest(9, 0)
+				condition: () => me.getQuest(sdk.quest.id.RadamentsLair, 0)
 			},
 			HoradricStaff: {
 				complete: false,
-				condition: () => me.getQuest(10, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheHoradricStaff, 0)
 			},
 			Amulet: {
 				complete: false,
-				condition: () => me.getQuest(11, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheTaintedSun, 0)
 			},
 			Summoner: {
 				complete: false,
-				condition: () => me.getQuest(13, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheSummoner, 0)
 			},
 			Duriel: {
 				complete: false,
-				condition: () => me.getQuest(14, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheSevenTombs, 0)
 			},
 			GoldenBird: {
 				complete: false,
-				condition: () => me.getQuest(20, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheGoldenBird, 0)
 			},
 			KhalimsWill: {
 				complete: false,
-				condition: () => me.getQuest(18, 0)
+				condition: () => me.getQuest(sdk.quest.id.KhalimsWill, 0)
 			},
 			LamEsen: {
 				complete: false,
-				condition: () => me.getQuest(17, 0)
+				condition: () => me.getQuest(sdk.quest.id.LamEsensTome, 0)
 			},
 			Travincal: {
 				complete: false,
-				condition: () => me.getQuest(21, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheBlackenedTemple, 0)
 			},
 			Mephisto: {
 				complete: false,
-				condition: () => me.getQuest(22, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheGuardian, 0)
 			},
 			Izual: {
 				complete: false,
-				condition: () => me.getQuest(25, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheFallenAngel, 0)
 			},
 			HellForge: {
 				complete: false,
-				condition: () => me.getQuest(27, 0)
+				condition: () => me.getQuest(sdk.quest.id.HellsForge, 0)
 			},
 			Diablo: {
 				complete: false,
-				condition: () => me.getQuest(26, 0)
+				condition: () => me.getQuest(sdk.quest.id.TerrorsEnd, 0)
 			},
 			Shenk: {
 				complete: false,
-				condition: () => (me.getQuest(35, 0) || me.getQuest(35, 1))
+				condition: () => (me.getQuest(sdk.quest.id.SiegeOnHarrogath, 0) || me.getQuest(sdk.quest.id.SiegeOnHarrogath, 1))
 			},
 			Barbies: {
 				complete: false,
-				condition: () => me.getQuest(36, 0)
+				condition: () => me.getQuest(sdk.quest.id.RescueonMountArreat, 0)
 			},
 			Anya: {
 				complete: false,
-				condition: () => me.getQuest(37, 0)
+				condition: () => me.getQuest(sdk.quest.id.PrisonofIce, 0)
 			},
 			Ancients: {
 				complete: false,
-				condition: () => me.getQuest(39, 0)
+				condition: () => me.getQuest(sdk.quest.id.RiteofPassage, 0)
 			},
 			Baal: {
 				complete: false,
-				condition: () => me.getQuest(40, 0)
+				condition: () => me.getQuest(sdk.quest.id.EveofDestruction, 0)
 			},
 		},
 

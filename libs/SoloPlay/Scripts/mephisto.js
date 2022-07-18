@@ -25,7 +25,7 @@ function mephisto () {
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.DuranceofHateLvl2, sdk.areas.DuranceofHateLvl3, true);
 	
-	if (me.area !== sdk.areas.DuranceofHateLvl3) {
+	if (!me.inArea(sdk.areas.DuranceofHateLvl3)) {
 		myPrint('Failed to move to mephisto');
 		return false;
 	}
@@ -65,11 +65,11 @@ function mephisto () {
 	Pather.moveTo(17581, 8070);
 	delay(250 + me.ping * 2);
 	Pather.useUnit(sdk.unittype.Object, sdk.units.portals.RedPortalToAct4, sdk.areas.PandemoniumFortress);
-	Misc.poll(() => me.area === sdk.areas.PandemoniumFortress, 1000, 30);
+	Misc.poll(() => me.inArea(sdk.areas.PandemoniumFortress), 1000, 30);
 
 	while (!me.gameReady) {
 		delay(40);
 	}
 
-	return me.area === sdk.areas.PandemoniumFortress;
+	return me.inArea(sdk.areas.PandemoniumFortress);
 }

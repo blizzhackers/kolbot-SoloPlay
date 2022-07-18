@@ -10,14 +10,14 @@
 function diablo () {
 	// Start Diablo Quest
 	this.diabloPrep = function () {
-		let tick = getTickCount(), decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, 1) * 5) * 1000;
+		let tick = getTickCount(), decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.softpoints) * 5) * 1000;
 
 		while (getTickCount() - tick < 17500) {
-			me.getMobCount(20) > 1 && Attack.clear(20);
+			me.checkForMobs({range: 20}) && Attack.clear(20);
 			if (getTickCount() - tick >= 8000) {
 				switch (me.classid) {
 				case sdk.charclass.Amazon:
-					if (me.getSkill(sdk.skills.Decoy, 1)) {
+					if (Skill.canUse(sdk.skills.Decoy)) {
 						let decoy = Game.getMonster(sdk.units.minions.Dopplezon);
 
 						if (!decoy || (getTickCount() - tick >= decoyDuration)) {

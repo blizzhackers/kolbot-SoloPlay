@@ -89,7 +89,7 @@ function tristram () {
 		Pather.usePortal(sdk.areas.Tristram);
 	}
 
-	if (me.area === sdk.areas.Tristram) {
+	if (me.inArea(sdk.areas.Tristram)) {
 		if (!me.tristram) {
 			let clearCoords = [
 				{ "x": 25166, "y": 5108, "radius": 10 },

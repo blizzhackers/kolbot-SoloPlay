@@ -54,7 +54,7 @@ Attack.getLowerResistPercent = function () {
 		return calc(CharData.skillData.chargedSkillsOnSwitch.find(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist).level);
 	}
 	if (Skill.canUse(sdk.skills.LowerResist)) {
-		return calc(me.getSkill(sdk.skills.LowerResist, 1));
+		return calc(Skill.canUse(sdk.skills.LowerResist));
 	}
 	return 0;
 };
@@ -308,7 +308,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 			if (result) {
 				retry = 0;
 
-				if (result === 2) {
+				if (result === this.result.CantAttack) {
 					monsterList.shift();
 					continue;
 				}
@@ -354,7 +354,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 				}
 
 				// Skip non-unique monsters after 15 attacks, except in Throne of Destruction
-				if (me.area !== sdk.areas.ThroneofDestruction && !target.isSpecial && gidAttack[i].attacks > 15) {
+				if (!me.inArea(sdk.areas.ThroneofDestruction) && !target.isSpecial && gidAttack[i].attacks > 15) {
 					print("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
 					monsterList.shift();
 				}
@@ -615,7 +615,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 			if (result) {
 				retry = 0;
 
-				if (result === 2) {
+				if (result === this.result.CantAttack) {
 					monsterList.shift();
 					continue;
 				}
@@ -662,7 +662,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 				}
 
 				// Skip non-unique monsters after 15 attacks, except in Throne of Destruction
-				if (me.area !== sdk.areas.ThroneofDestruction && !isSpecial && gidAttack[i].attacks > 15) {
+				if (!me.inArea(sdk.areas.ThroneofDestruction) && !isSpecial && gidAttack[i].attacks > 15) {
 					print("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
 					monsterList.shift();
 				}
@@ -776,7 +776,7 @@ Attack.clearEx = function (givenSettings) {
 			if (result) {
 				retry = 0;
 
-				if (result === 2) {
+				if (result === CantAttack) {
 					monsterList.shift();
 					continue;
 				}
@@ -822,7 +822,7 @@ Attack.clearEx = function (givenSettings) {
 				}
 
 				// Skip non-unique monsters after 15 attacks, except in Throne of Destruction
-				if (me.area !== sdk.areas.ThroneofDestruction && !(target.spectype & 0x7) && gidAttack[i].attacks > 15) {
+				if (!me.inArea(sdk.areas.ThroneofDestruction) && !(target.spectype & 0x7) && gidAttack[i].attacks > 15) {
 					print("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
 					monsterList.shift();
 				}
@@ -1027,7 +1027,7 @@ Attack.inverseSpotDistance = function (spot, distance, otherSpot) {
 };
 
 Attack.shouldDodge = function (coord, monster) {
-	return !!monster && getUnits(3)
+	return !!monster && Game.getMissile()
 		// for every missle that isnt from our merc
 		.filter(missile => missile && monster && monster.gid === missile.owner)
 		// if any
@@ -1091,7 +1091,7 @@ Attack.pwnDia = function () {
 	};
 
 	let checkMobs = function () {
-		let mobs = getUnits(1).filter(function(el) {
+		let mobs = Game.getMonster().filter(function(el) {
 			return !!el && el.attackable && el.classid !== sdk.units.monsters.Diablo && el.distance < 20;
 		});
 		return mobs;
@@ -1225,7 +1225,7 @@ Attack.pwnDia = function () {
 				ClassAttack.farCast(dia);
 			} else {
 				// If we got enough mana to teleport close to diablo, static the bitch, and jump back
-				let diabloMissiles = getUnits(3).filter(function (unit) { let _a; return ((_a = unit.getParent()) === null || _a === void 0 ? void 0 : _a.gid) === dia.gid; });
+				let diabloMissiles = Game.getMissile().filter(function (unit) { let _a; return ((_a = unit.getParent()) === null || _a === void 0 ? void 0 : _a.gid) === dia.gid; });
 				print('Diablo missiles: ' + diabloMissiles.length);
 				print('Diablo mode:' + dia.mode);
 				me.overhead('Dia life ' + (~~(dia.hp / 128 * 100)).toString() + '%');

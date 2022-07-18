@@ -167,7 +167,7 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.Telekinesis, 0) === 20;
+		return this.respec && me.getSkill(sdk.skills.Telekinesis, sdk.skills.subindex.hardpoints) === 20;
 	},
 };
 

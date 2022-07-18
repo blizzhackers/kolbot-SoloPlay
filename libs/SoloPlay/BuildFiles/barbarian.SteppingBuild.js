@@ -50,6 +50,6 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl > Config.respecOne && me.charlvl < Config.respecOneB && me.getSkill(sdk.skills.NaturalResistance, 0) && !me.getSkill(sdk.skills.Berserk, 0);
+		return me.charlvl > Config.respecOne && me.charlvl < Config.respecOneB && Skill.canUse(sdk.skills.NaturalResistance) && !Skill.canUse(sdk.skills.Berserk);
 	},
 };

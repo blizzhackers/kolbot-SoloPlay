@@ -142,22 +142,58 @@ function LoadConfig () {
 	Config.SkipAura = [];
 
 	/* Shrine scan configuration. */
-	Config.ScanShrines = [15, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14];
-
+	if (Check.currentBuild().caster) {
+		Config.ScanShrines = [
+			sdk.shrines.Refilling,
+			sdk.shrines.Health,
+			sdk.shrines.Mana,
+			sdk.shrines.Gem,
+			sdk.shrines.Monster,
+			sdk.shrines.HealthExchange,
+			sdk.shrines.ManaExchange,
+			sdk.shrines.Experience,
+			sdk.shrines.Armor,
+			sdk.shrines.ResistFire,
+			sdk.shrines.ResistCold,
+			sdk.shrines.ResistLightning,
+			sdk.shrines.ResistPoison,
+			sdk.shrines.Skill,
+			sdk.shrines.ManaRecharge,
+			sdk.shrines.Stamina];
+	} else {
+		Config.ScanShrines = [
+			sdk.shrines.Refilling,
+			sdk.shrines.Health,
+			sdk.shrines.Mana,
+			sdk.shrines.Gem,
+			sdk.shrines.Monster,
+			sdk.shrines.HealthExchange,
+			sdk.shrines.ManaExchange,
+			sdk.shrines.Experience,
+			sdk.shrines.Combat,
+			sdk.shrines.Skill,
+			sdk.shrines.Armor,
+			sdk.shrines.ResistFire,
+			sdk.shrines.ResistCold,
+			sdk.shrines.ResistLightning,
+			sdk.shrines.ResistPoison,
+			sdk.shrines.ManaRecharge,
+			sdk.shrines.Stamina];
+	}
 	/* Class specific configuration. */
 	Config.UseTraps = true;
 	Config.Traps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry];
 	Config.BossTraps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry];
 
-	Config.SummonShadow = me.getSkill(sdk.skills.ShadowMaster, 0) ? "Master" : 0;
-	Config.UseFade = !!me.getSkill(sdk.skills.Fade, 0);
-	Config.UseBoS = !!me.getSkill(sdk.skills.BurstofSpeed, 0);
+	Config.SummonShadow = Skill.canUse(sdk.skills.ShadowMaster, sdk.skills.subindex.hardpoints) ? "Master" : 0;
+	Config.UseFade = !!Skill.canUse(sdk.skills.Fade);
+	Config.UseBoS = !!Skill.canUse(sdk.skills.BurstofSpeed);
 	Config.UseVenom = false;
-	Config.UseCloakofShadows = !!me.getSkill(sdk.skills.CloakofShadows, 0);
+	Config.UseCloakofShadows = !!Skill.canUse(sdk.skills.CloakofShadows);
 	Config.AggressiveCloak = false;
 
 	/* Dodge configuration. */
-	Config.Dodge = !!me.getSkill(sdk.skills.LightningSentry, 0);
+	Config.Dodge = !!Skill.canUse(sdk.skills.LightningSentry);
 	Config.DodgeRange = 10;
 	Config.DodgeHP = 75;
 

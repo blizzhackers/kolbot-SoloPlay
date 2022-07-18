@@ -164,9 +164,9 @@ function LoadConfig () {
 		sdk.shrines.Health,
 		sdk.shrines.Mana,
 		sdk.shrines.Gem,
-		sdk.shrines.Experience,
 		sdk.shrines.HealthExchange,
 		sdk.shrines.ManaExchange,
+		sdk.shrines.Experience,
 		sdk.shrines.Armor,
 		sdk.shrines.ResistFire,
 		sdk.shrines.ResistCold,
@@ -174,9 +174,7 @@ function LoadConfig () {
 		sdk.shrines.ResistPoison,
 		sdk.shrines.Skill,
 		sdk.shrines.ManaRecharge,
-		sdk.shrines.Stamina
-	];
-
+		sdk.shrines.Stamina];
 	/* Class specific configuration. */
 	Config.UseTelekinesis = true; // use telekinesis if have skill
 	Config.UseColdArmor = true;

@@ -70,7 +70,7 @@ function den () {
 		}
 	};
 
-	if (me.area === sdk.areas.DenofEvil) {
+	if (me.inArea(sdk.areas.DenofEvil)) {
 		addEventListener("gamepacket", this.denLightsListener);
 		const Worker = require('../../modules/Worker');
 		let corpseTick = getTickCount();
@@ -80,7 +80,7 @@ function den () {
 			if (!me.normal) {
 				Worker.runInBackground.corpseTracker = function () {
 					if (killTracker) return false;
-					if (me.area === sdk.areas.DenofEvil) {
+					if (me.inArea(sdk.areas.DenofEvil)) {
 						if (getTickCount() - corpseTick < 1000) return true;
 						corpseTick = getTickCount();
 						corpsefire = Game.getMonster(getLocaleString(sdk.locale.monsters.Corpsefire));
@@ -98,7 +98,7 @@ function den () {
 
 			Worker.runInBackground.denLightsTracker = function () {
 				if (killTracker) return false;
-				if (me.area === sdk.areas.DenofEvil) {
+				if (me.inArea(sdk.areas.DenofEvil)) {
 					if (denLights) {
 						killTracker = true;
 						throw new Error('DEN COMPLETE');
@@ -112,7 +112,7 @@ function den () {
 				console.log("ÿc8Kolbot-SoloPlayÿc0: Clearing den attempt: " + attempt);
 				Attack.clearLevel();
 
-				if (me.area !== sdk.areas.DenofEvil) {
+				if (!me.inArea(sdk.areas.DenofEvil)) {
 					break;
 				}
 

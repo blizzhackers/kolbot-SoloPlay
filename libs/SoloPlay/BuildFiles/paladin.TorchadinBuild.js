@@ -121,6 +121,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.Conviction, 0) === 20;
+		return this.respec && me.getSkill(sdk.skills.Conviction, sdk.skills.subindex.hardpoints) === 20;
 	},
 };

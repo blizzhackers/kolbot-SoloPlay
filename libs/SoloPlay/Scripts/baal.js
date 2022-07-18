@@ -15,7 +15,7 @@ function baal () {
 	let preattack = function () {
 		switch (me.classid) {
 		case sdk.charclass.Amazon:
-			if (me.getSkill(sdk.skills.Decoy, 1)) {
+			if (Skill.canUse(sdk.skills.Decoy)) {
 				let decoy = Game.getMonster(sdk.units.minions.Dopplezon);
 
 				if (!decoy || (getTickCount() - decoyTick >= decoyDuration)) {
@@ -134,7 +134,7 @@ function baal () {
 			default:
 				if (getTickCount() - tick < 7e3) {
 					if (me.paladin && me.getState(sdk.states.Poison)) {
-						Skill.setSkill(sdk.skills.Cleansing, 0);
+						Skill.setSkill(sdk.skills.Cleansing, sdk.skills.subindex.hardpoints);
 					}
 				}
 

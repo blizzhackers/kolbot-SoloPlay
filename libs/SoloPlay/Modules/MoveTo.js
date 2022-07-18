@@ -44,7 +44,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             }
             return 0;
         };
-        var searchShrine = function () { return getUnits(2, "shrine")
+        var searchShrine = function () { return Game.getObject("shrine")
             .filter(function (el) { return el.mode === 0 && Config.ScanShrines.includes(el.objtype); })
             .filter(function (el) {
                 // Dont do anything with shrines we already found
@@ -221,7 +221,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                             // once we are near
                             nearestShrine_1.hook = function () {
                                 console.log('Should take shrine');
-                                var shrine = getUnits(2, "shrine").filter(function (el) { return el.gid === shrineId; }).first();
+                                var shrine = Game.getObject("shrine").filter(function (el) { return el.gid === shrineId; }).first();
                                 if (shrine) {
                                     // ToDo; use walk near / tk if we got it
                                     moveTo([{

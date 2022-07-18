@@ -150,7 +150,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	// Cloak of Shadows (Aggressive) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
 	if (Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && !me.skillDelay && !me.getState(sdk.states.CloakofShadows)) {
 		if (getDistance(me, unit) < 20) {
-			Skill.cast(sdk.skills.CloakofShadows, 0);
+			Skill.cast(sdk.skills.CloakofShadows, sdk.skills.subindex.hardpoints);
 		} else if (!Attack.getIntoPosition(unit, 20, 0x4)) {
 			return 0;
 		}
@@ -170,7 +170,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	// Cloak of Shadows (Defensive; default) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
 	if (!Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && unit.distance < 20 && !me.skillDelay && !me.getState(sdk.states.CloakofShadows)) {
-		Skill.cast(sdk.skills.CloakofShadows, 0);
+		Skill.cast(sdk.skills.CloakofShadows, sdk.skills.subindex.hardpoints);
 	}
 
 	// Handle Switch casting
@@ -219,7 +219,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	let result = this.doCast(unit, timedSkill, untimedSkill);
 
-	if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+	if (result === this.result.CantAttack && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
 		let merc = me.getMerc();
 
 		while (unit.attackable) {

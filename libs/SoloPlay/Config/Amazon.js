@@ -149,8 +149,23 @@ function LoadConfig () {
 	Config.SkipAura = [];
 
 	/* Shrine scan configuration. */
-	Config.ScanShrines = [15, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14];
-
+	Config.ScanShrines = [
+		sdk.shrines.Refilling,
+		sdk.shrines.Health,
+		sdk.shrines.Mana,
+		sdk.shrines.Gem,
+		sdk.shrines.Monster,
+		sdk.shrines.HealthExchange,
+		sdk.shrines.ManaExchange,
+		sdk.shrines.Experience,
+		sdk.shrines.Armor,
+		sdk.shrines.ResistFire,
+		sdk.shrines.ResistCold,
+		sdk.shrines.ResistLightning,
+		sdk.shrines.ResistPoison,
+		sdk.shrines.Skill,
+		sdk.shrines.ManaRecharge,
+		sdk.shrines.Stamina];
 	// Class specific config
 	Config.LightningFuryDelay = 10; // Lightning fury interval in seconds. LF is treated as timed skill.
 	Config.SummonValkyrie = true; 	// Summon Valkyrie
@@ -290,7 +305,7 @@ function LoadConfig () {
 		case 'Javazon':
 			Config.SkipImmune = ["lightning and physical"];
 
-			if (me.getSkill(sdk.skills.ChargedStrike, 0)) {
+			if (Skill.canUse(sdk.skills.ChargedStrike)) {
 				// "Monster name": [-1, -1],
 				Config.CustomAttack = {
 					"Fire Tower": [sdk.skills.ChargedStrike, -1],

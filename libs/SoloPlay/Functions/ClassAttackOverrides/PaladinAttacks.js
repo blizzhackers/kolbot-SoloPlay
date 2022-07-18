@@ -121,7 +121,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 	let result = this.doCast(unit, attackSkill, aura);
 
-	if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+	if (result === this.result.CantAttack && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
 		let merc = me.getMerc();
 
 		while (unit.attackable) {
@@ -164,7 +164,7 @@ ClassAttack.afterAttack = function () {
 	Precast.doPrecast(false);
 
 	if (Skill.canUse(sdk.skills.Cleansing) && me.getState(sdk.states.Poison)
-		&& me.getMobCount(12, Coords_1.BlockBits.BlockWall) === 0 && Skill.setSkill(sdk.skills.Cleansing, 0)) {
+		&& me.getMobCount(12, Coords_1.BlockBits.BlockWall) === 0 && Skill.setSkill(sdk.skills.Cleansing, sdk.skills.subindex.hardpoints)) {
 		Misc.poll(function () {
 			me.overhead("Delaying for a second to get rid of Poison");
 
@@ -174,7 +174,7 @@ ClassAttack.afterAttack = function () {
 
 	if (Skill.canUse(sdk.skills.Redemption) && Config.Redemption instanceof Array
 		&& (me.hpPercent < Config.Redemption[0] || me.mpPercent < Config.Redemption[1])
-		&& Attack.checkNearCorpses(me) > 2 && Skill.setSkill(sdk.skills.Redemption, 0)) {
+		&& Attack.checkNearCorpses(me) > 2 && Skill.setSkill(sdk.skills.Redemption, sdk.skills.subindex.hardpoints)) {
 		delay(1500);
 	}
 };

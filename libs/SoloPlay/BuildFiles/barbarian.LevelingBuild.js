@@ -39,6 +39,6 @@ let build = {
 	],
 
 	active: function () {
-		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.WarCry, 0) >= 5 && !Check.finalBuild().active());
+		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.WarCry, sdk.skills.subindex.hardpoints) >= 5 && !Check.finalBuild().active());
 	},
 };

@@ -10,7 +10,7 @@ function orgtorch() {
 
 	// Identify & mule
 	this.checkTorch = function () {
-		if (me.area === sdk.areas.UberTristram) {
+		if (me.inArea(sdk.areas.UberTristram)) {
 			Pather.moveTo(25105, 5140);
 			Pather.usePortal(sdk.areas.Harrogath);
 		}
@@ -75,9 +75,9 @@ function orgtorch() {
 
 	// Check if we have complete sets of organs
 	this.completeSetCheck = function () {
-		let horns = me.findItems(sdk.items.quest.DiablosHorn),
-			brains = me.findItems(sdk.items.quest.MephistosBrain),
-			eyes = me.findItems(sdk.items.quest.BaalsEye);
+		let horns = me.findItems(sdk.items.quest.DiablosHorn);
+		let brains = me.findItems(sdk.items.quest.MephistosBrain);
+		let eyes = me.findItems(sdk.items.quest.BaalsEye);
 
 		if (!horns || !brains || !eyes) {
 			return false;
@@ -99,7 +99,7 @@ function orgtorch() {
 				Precast.doPrecast(true);
 				Pather.moveTo(7811, 5872);
 
-				me.paladin && me.getSkill(sdk.skills.Salvation, 1) && Skill.setSkill(sdk.skills.Salvation, 0);
+				me.paladin && me.getSkill(sdk.skills.Salvation, sdk.skills.subindex.softpoints) && Skill.setSkill(sdk.skills.Salvation, sdk.skills.subindex.hardpoints);
 
 				while (!me.getState(sdk.states.Fade)) {
 					delay(100);
@@ -216,15 +216,15 @@ function orgtorch() {
 				Pather.moveTo(findLoc[i], findLoc[i + 1]);
 			}
 
-			if (me.paladin && me.getSkill(sdk.skills.Salvation, 1)) {
-				Skill.setSkill(sdk.skills.Salvation, 0);
+			if (me.paladin && me.getSkill(sdk.skills.Salvation, sdk.skills.subindex.softpoints)) {
+				Skill.setSkill(sdk.skills.Salvation, sdk.skills.subindex.hardpoints);
 			}
 
 			this.lure(sdk.units.monsters.UberMephisto);
 			Pather.moveTo(25129, 5198);
 			
-			if (me.paladin && me.getSkill(sdk.skills.Salvation, 1)) {
-				Skill.setSkill(sdk.skills.Salvation, 0);
+			if (me.paladin && me.getSkill(sdk.skills.Salvation, sdk.skills.subindex.softpoints)) {
+				Skill.setSkill(sdk.skills.Salvation, sdk.skills.subindex.hardpoints);
 			}
 
 			this.lure(sdk.units.monsters.UberMephisto);
@@ -299,7 +299,7 @@ function orgtorch() {
 	if (tkeys >= 3 && hkeys >= 3 && dkeys >= 3) {
 		this.getFade();
 		print("ÿc8Kolbot-SoloPlayÿc0: Making organs.");
-		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making organs.", 8);
+		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making organs.", sdk.colors.D2Bot.Orange);
 
 		for (i = 0; i < 3; i += 1) {
 			// Abort if we have a complete set of organs
@@ -351,7 +351,7 @@ function orgtorch() {
 	if (brains && eyes && horns) {
 		this.getFade();
 		myPrint("Making torch");
-		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making torch.", 8);
+		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making torch.", sdk.colors.D2Bot.Orange);
 
 		portal = this.openPortal(1);
 

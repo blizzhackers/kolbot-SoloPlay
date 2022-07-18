@@ -162,7 +162,7 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.RaiseSkeleton, 0) === 20;
+		return this.respec && me.getSkill(sdk.skills.RaiseSkeleton, sdk.skills.subindex.hardpoints) === 20;
 	},
 };
 

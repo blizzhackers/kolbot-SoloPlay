@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         sdk_1.default.units.monsters.WarpedFallen, sdk_1.default.units.monsters.Carver1, sdk_1.default.units.monsters.Devilkin, sdk_1.default.units.monsters.DarkOne2
     ];
     const clearDistance = function (x, y, xx, yy) {
-        getUnits(1).forEach(function (monster) {
+        Game.getMonster().forEach(function (monster) {
             if (typeof monster['beendead'] === 'undefined')
                 monster.beendead = false;
             monster.beendead = monster.beendead || monster.dead;
@@ -110,7 +110,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 
         let start = [], startArea = me.area, cachedNodes = undefined;
         const getUnits_filtered = function () {
-            let monsters = getUnits(1, -1)
+            let monsters = Game.getMonster(-1)
                 .filter(function (m) { return m.area === me.area && m.attackable && !global['__________ignoreMonster'].includes(m.gid); })
                 .filter(function (unit) { return ( // Shamaans have a higher range
             (function (range) {

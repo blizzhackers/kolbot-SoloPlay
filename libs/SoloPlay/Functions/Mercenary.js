@@ -73,7 +73,7 @@ const Merc = {
 		// we don't have enough spare gold to buy a1 merc
 		// we don't have enough gold to hire our wanted merc
 		switch (true) {
-		case typeOfMerc === 1 && (myData.merc.type === "Cold Arrow" || !Misc.checkQuest(2, 0)):
+		case typeOfMerc === 1 && (myData.merc.type === "Cold Arrow" || !Misc.checkQuest(sdk.quest.id.SistersBurialGrounds, 0)):
 		case me.diff > mercDiff:
 		case me.diff === mercDiff && !Pather.accessToAct(mercAct):
 		case myData.merc.type === mercAuraWanted:

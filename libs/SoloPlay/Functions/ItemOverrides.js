@@ -467,7 +467,7 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 					Storage.Cube.MoveTo(cursorItem);
 				}
 			} else {
-				D2Bot.printToConsole("Dropped " + cursorItem.fname + " during un-equip process", 9);
+				D2Bot.printToConsole("Dropped " + cursorItem.fname + " during un-equip process", sdk.colors.D2Bot.Red);
 				cursorItem.drop();
 			}
 		}

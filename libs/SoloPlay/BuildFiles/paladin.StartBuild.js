@@ -9,7 +9,7 @@ let build = {
 	caster: false,
 	skillstab: sdk.skills.tabs.PalaCombat,
 	wantedskills: [sdk.skills.Zeal, sdk.skills.HolyFire],
-	usefulskills: [(me.getSkill(sdk.skills.HolyFire, 1) ? sdk.skills.Sacrifice : sdk.skills.Might), sdk.skills.ResistFire],
+	usefulskills: [(me.getSkill(sdk.skills.HolyFire, sdk.skills.subindex.softpoints) ? sdk.skills.Sacrifice : sdk.skills.Might), sdk.skills.ResistFire],
 	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
 	mercAuraWanted: "Holy Freeze",
@@ -34,6 +34,6 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl < Config.respecOne && !me.getSkill(sdk.skills.BlessedAim, 0);
+		return me.charlvl < Config.respecOne && !Skill.canUse(sdk.skills.BlessedAim);
 	},
 };

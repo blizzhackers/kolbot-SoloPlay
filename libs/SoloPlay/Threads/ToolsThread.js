@@ -85,7 +85,7 @@ function main () {
 					}
 
 					if (getTickCount() - pingTimer[m] >= Config.PingQuit[m].Duration * 1000) {
-						print && D2Bot.printToConsole("High ping (" + me.ping + "/" + Config.PingQuit[m].Ping + ") - leaving game.", 9);
+						print && D2Bot.printToConsole("High ping (" + me.ping + "/" + Config.PingQuit[m].Ping + ") - leaving game.", sdk.colors.D2Bot.Red);
 						scriptBroadcast("pingquit");
 
 						return true;
@@ -594,7 +594,7 @@ function main () {
 
 			// Only do this in expansion
 			if (Config.SoJWaitTime && !me.classic) {
-				!!me.gameserverip && D2Bot.printToConsole(param1 + " Stones of Jordan Sold to Merchants on IP " + me.gameserverip.split(".")[3], 7);
+				!!me.gameserverip && D2Bot.printToConsole(param1 + " Stones of Jordan Sold to Merchants on IP " + me.gameserverip.split(".")[3], sdk.colors.D2Bot.DarkGold);
 				Messaging.sendToScript("default.dbj", "soj");
 			}
 
@@ -609,7 +609,7 @@ function main () {
 
 			// Only do this in expansion
 			if (Config.StopOnDClone && !me.classic && me.hell) {
-				D2Bot.printToConsole("Diablo Walks the Earth", 7);
+				D2Bot.printToConsole("Diablo Walks the Earth", sdk.colors.D2Bot.DarkGold);
 				SoloEvents.cloneWalked = true;
 				this.togglePause();
 				Town.goToTown();
@@ -729,7 +729,7 @@ function main () {
 				Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && this.drinkPotion(2);
 
 				if (Config.LifeChicken > 0 && me.hpPercent <= Config.LifeChicken && !me.inTown) {
-					!Developer.hideChickens && D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + Pather.getAreaName(me.area) + ". Ping: " + me.ping, 9);
+					!Developer.hideChickens && D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + Pather.getAreaName(me.area) + ". Ping: " + me.ping, sdk.colors.D2Bot.Red);
 					this.exit(true);
 
 					break;
@@ -742,7 +742,7 @@ function main () {
 				[sdk.states.Frozen, sdk.states.FrozenSolid].some(state => me.getState(state)) && this.drinkSpecialPotion(sdk.items.ThawingPotion);
 
 				if (Config.ManaChicken > 0 && me.mpPercent <= Config.ManaChicken && !me.inTown) {
-					!Developer.hideChickens && D2Bot.printToConsole("Mana Chicken: (" + me.mp + "/" + me.mpmax + ") in " + Pather.getAreaName(me.area), 9);
+					!Developer.hideChickens && D2Bot.printToConsole("Mana Chicken: (" + me.mp + "/" + me.mpmax + ") in " + Pather.getAreaName(me.area), sdk.colors.D2Bot.Red);
 					this.exit(true);
 
 					break;
@@ -756,7 +756,7 @@ function main () {
 					if (ironGolem) {
 						// ironGolem.hpmax is bugged with BO
 						if (ironGolem.hp <= Math.floor(128 * Config.IronGolemChicken / 100)) {
-							!Developer.hideChickens && D2Bot.printToConsole("Irom Golem Chicken in " + Pather.getAreaName(me.area), 9);
+							!Developer.hideChickens && D2Bot.printToConsole("Irom Golem Chicken in " + Pather.getAreaName(me.area), sdk.colors.D2Bot.Red);
 							this.exit(true);
 
 							break;
@@ -771,7 +771,7 @@ function main () {
 
 						if (mercHP > 0 && merc.mode !== 12) {
 							if (mercHP < Config.MercChicken) {
-								!Developer.hideChickens && D2Bot.printToConsole("Merc Chicken in " + Pather.getAreaName(me.area), 9);
+								!Developer.hideChickens && D2Bot.printToConsole("Merc Chicken in " + Pather.getAreaName(me.area), sdk.colors.D2Bot.Red);
 								this.exit(true);
 
 								break;
@@ -785,7 +785,7 @@ function main () {
 
 				if (Config.ViperCheck && getTickCount() - tick >= 250) {
 					if (this.checkVipers()) {
-						D2Bot.printToConsole("Revived Tomb Vipers found. Leaving game.", 9);
+						D2Bot.printToConsole("Revived Tomb Vipers found. Leaving game.", sdk.colors.D2Bot.Red);
 						quitFlag = true;
 					}
 
@@ -817,7 +817,7 @@ function main () {
 					}
 				}
 			} else {
-				D2Bot.printToConsole('Overlay cannot work without Developer.logPerformance = true;', 4);
+				D2Bot.printToConsole('Overlay cannot work without Developer.logPerformance = true;', sdk.colors.D2Bot.Blue);
 			}
 		}
 

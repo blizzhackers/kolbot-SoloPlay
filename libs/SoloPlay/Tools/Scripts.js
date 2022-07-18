@@ -107,7 +107,7 @@ const Scripts = {
 			name: "smith",
 			skipIf: function () {
 				// todo - test leveling/experience potential
-				return (!!Misc.checkQuest(3, 1) || me.smith);
+				return (!!Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, 1) || me.smith);
 			},
 			shouldRun: function () {
 				if (this.skipIf()) return false;

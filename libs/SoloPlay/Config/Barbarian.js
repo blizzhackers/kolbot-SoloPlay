@@ -128,7 +128,7 @@ function LoadConfig () {
 
 	/* Attack configuration. */
 	Config.AttackSkill = [-1, 0, 0, 0, 0];
-	Config.LowManaSkill = me.getSkill(sdk.skills.DoubleSwing, 1) >= 9 ? [sdk.skills.DoubleSwing, 0] : [0, -1];
+	Config.LowManaSkill = me.getSkill(sdk.skills.DoubleSwing, sdk.skills.subindex.softpoints) >= 9 ? [sdk.skills.DoubleSwing, 0] : [0, -1];
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal;
 	Config.ClearType = 0;
@@ -141,11 +141,43 @@ function LoadConfig () {
 
 	/* Shrine scan configuration. */
 	if (Check.currentBuild().caster) {
-		Config.ScanShrines = [15, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14];
+		Config.ScanShrines = [
+			sdk.shrines.Refilling,
+			sdk.shrines.Health,
+			sdk.shrines.Mana,
+			sdk.shrines.Gem,
+			sdk.shrines.Monster,
+			sdk.shrines.HealthExchange,
+			sdk.shrines.ManaExchange,
+			sdk.shrines.Experience,
+			sdk.shrines.Armor,
+			sdk.shrines.ResistFire,
+			sdk.shrines.ResistCold,
+			sdk.shrines.ResistLightning,
+			sdk.shrines.ResistPoison,
+			sdk.shrines.Skill,
+			sdk.shrines.ManaRecharge,
+			sdk.shrines.Stamina];
 	} else {
-		Config.ScanShrines = [15, 1, 2, 3, 4, 5, 7, 12, 6, 8, 9, 10, 11, 13, 14];
+		Config.ScanShrines = [
+			sdk.shrines.Refilling,
+			sdk.shrines.Health,
+			sdk.shrines.Mana,
+			sdk.shrines.Gem,
+			sdk.shrines.Monster,
+			sdk.shrines.HealthExchange,
+			sdk.shrines.ManaExchange,
+			sdk.shrines.Experience,
+			sdk.shrines.Combat,
+			sdk.shrines.Skill,
+			sdk.shrines.Armor,
+			sdk.shrines.ResistFire,
+			sdk.shrines.ResistCold,
+			sdk.shrines.ResistLightning,
+			sdk.shrines.ResistPoison,
+			sdk.shrines.ManaRecharge,
+			sdk.shrines.Stamina];
 	}
-
 	// Class specific config
 	Config.FindItem = true; 		// Use Find Item skill on corpses after clearing.
 	Config.FindItemSwitch = false; 	// Switch to non-primary slot when using Find Item skills

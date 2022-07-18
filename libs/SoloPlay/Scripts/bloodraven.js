@@ -15,7 +15,7 @@ function bloodraven () {
 	} else {	/*xp penalty makes this not worth it after 74*/
 		if (me.hell && Pather.canTeleport() && me.charlvl < 74) {
 			Misc.getExpShrine([sdk.areas.StonyField, sdk.areas.ColdPlains, sdk.areas.DarkWood, sdk.areas.BloodMoor]);
-			if (me.area !== sdk.areas.ColdPlains) {
+			if (!me.inArea(sdk.areas.ColdPlains)) {
 				Town.goToTown() && Pather.useWaypoint(sdk.areas.ColdPlains);
 			}
 		} else {
@@ -45,7 +45,7 @@ function bloodraven () {
 		myPrint("blood raven :: Failed to move to Mausoleum");
 	}
 
-	me.area === sdk.areas.Mausoleum && Attack.clearLevel();
+	me.inArea(sdk.areas.Mausoleum) && Attack.clearLevel();
 
 	if (me.hell) {
 		switch (me.gametype) {

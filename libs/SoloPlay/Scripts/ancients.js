@@ -15,7 +15,7 @@ function ancients () {
 	Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter Arreat Summit
 
 	// failed to move to Arreat Summit
-	if (me.area !== sdk.areas.ArreatSummit) {
+	if (!me.inArea(sdk.areas.ArreatSummit)) {
 		return false;
 	}
 

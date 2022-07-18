@@ -146,8 +146,23 @@ function LoadConfig () {
 	Config.SkipAura = [];
 
 	/* Shrine scan configuration. */
-	Config.ScanShrines = [15, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14];
-
+	Config.ScanShrines = [
+		sdk.shrines.Refilling,
+		sdk.shrines.Health,
+		sdk.shrines.Mana,
+		sdk.shrines.Gem,
+		sdk.shrines.Monster,
+		sdk.shrines.HealthExchange,
+		sdk.shrines.ManaExchange,
+		sdk.shrines.Experience,
+		sdk.shrines.Armor,
+		sdk.shrines.ResistFire,
+		sdk.shrines.ResistCold,
+		sdk.shrines.ResistLightning,
+		sdk.shrines.ResistPoison,
+		sdk.shrines.Skill,
+		sdk.shrines.ManaRecharge,
+		sdk.shrines.Stamina];
 	/* Class specific configuration. */
 	Config.Dodge = Check.haveItem("armor", "runeword", "Enigma");
 	Config.DodgeRange = Check.haveItem("armor", "runeword", "Enigma") ? 10 : 5;
@@ -156,14 +171,14 @@ function LoadConfig () {
 	/* Summons. */
 	Config.ReviveUnstackable = true;
 	Config.ActiveSummon = me.charlvl < 10 || SetUp.currentBuild === "Summon";
-	Config.Golem = me.getSkill(sdk.skills.ClayGolem, 0) ? "Clay" : "None";
+	Config.Golem = me.getSkill(sdk.skills.ClayGolem, sdk.skills.subindex.hardpoints) ? "Clay" : "None";
 	Config.Skeletons = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
 	Config.SkeletonMages = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
 	Config.Revives = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
 
 	/* Skill Specific */
 	Config.PoisonNovaDelay = 1;		// In Seconds
-	Config.ExplodeCorpses = me.getSkill(sdk.skills.CorpseExplosion, 0) ? sdk.skills.CorpseExplosion : me.getSkill(sdk.skills.PoisonExplosion, 0) ? sdk.skills.PoisonExplosion : 0;
+	Config.ExplodeCorpses = me.getSkill(sdk.skills.CorpseExplosion, sdk.skills.subindex.hardpoints) ? sdk.skills.CorpseExplosion : me.getSkill(sdk.skills.PoisonExplosion, sdk.skills.subindex.hardpoints) ? sdk.skills.PoisonExplosion : 0;
 
 	/* Gear */
 	let finalGear = Check.finalBuild().finalGear;

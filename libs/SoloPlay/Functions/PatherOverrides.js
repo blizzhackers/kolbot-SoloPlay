@@ -122,7 +122,7 @@ Pather.teleportTo = function (x, y, maxRange = 5) {
 	Developer.debugging.pathing && print("Mob Count at next node: " + [x, y].mobCount());
 	
 	for (let i = 0; i < 3; i += 1) {
-		Skill.setSkill(sdk.skills.Teleport, 0) && Packet.castSkill(0, x, y);
+		Skill.setSkill(sdk.skills.Teleport, sdk.skills.subindex.hardpoints) && Packet.castSkill(0, x, y);
 		let tick = getTickCount();
 		let pingDelay = i === 0 ? 250 : me.getPingDelay();
 
@@ -365,13 +365,13 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 				}
 			} else {
 				if (!me.inTown) {
-					if (!useTeleport && ((me.getMobCount(10) > 0 && Attack.clear(8)) || this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
+					if (!useTeleport && ((me.checkForMobs({range: 10}) && Attack.clear(8)) || this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
 						continue;
 					}
 
 					if (fail > 0 && (!useTeleport || tpMana > me.mp)) {
 						// Don't go berserk on longer paths
-						if (!cleared && me.getMobCount(5) > 0 && Attack.clear(5)) {
+						if (!cleared && me.checkForMobs({range: 6}) && Attack.clear(5)) {
 							cleared = true;
 						}
 
@@ -628,7 +628,7 @@ Pather.moveToLoc = function (target, givenSettings) {
 
 			if (useTeleport && tpMana <= me.mp
 				? this.teleportTo(node.x, node.y)
-				: useChargedTele && (getDistance(me, node) >= 15 || me.area === sdk.areas.ThroneofDestruction)
+				: useChargedTele && (getDistance(me, node) >= 15 || me.inArea(sdk.areas.ThroneofDestruction))
 					? this.teleUsingCharges(node.x, node.y)
 					: this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
 				if (!me.inTown) {
@@ -709,19 +709,19 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 	let wpTick = getTickCount();
 
 	for (let i = 0; i < 12; i += 1) {
-		if (me.area === targetArea || me.dead) {
+		if (me.inArea(targetArea) || me.dead) {
 			break;
 		}
 
 		if (me.inTown) {
-			if (me.area === sdk.areas.LutGholein) {
+			if (me.inArea(sdk.areas.LutGholein)) {
 				let npc = Game.getNPC(NPC.Warriv);
 
 				if (!!npc && npc.distance < 50) {
 					if (npc && npc.openMenu()) {
 						Misc.useMenu(sdk.menu.GoWest);
 
-						if (!Misc.poll(() => me.gameReady && me.area === sdk.areas.RogueEncampment, 2000, 100)) {
+						if (!Misc.poll(() => me.gameReady && me.inArea(sdk.areas.RogueEncampment), 2000, 100)) {
 							throw new Error("Failed to go to act 1 using Warriv");
 						}
 					}
@@ -835,7 +835,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 				let tick = getTickCount();
 
 				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), pingDelay * 4)) {
-					if (me.area === targetArea) {
+					if (me.inArea(targetArea)) {
 						delay(1500);
 						console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (Time.format(getTickCount() - wpTick)));
 
@@ -866,7 +866,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 		delay(250);
 	}
 
-	if (me.area === targetArea) {
+	if (me.inArea(targetArea)) {
 		delay(500);
 		console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (Time.format(getTickCount() - wpTick)));
 
@@ -882,9 +882,9 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 	let retry = 0;
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Start clearToExit. ÿc8Currently in: ÿc0" + Pather.getAreaName(me.area) + "ÿc8Clearing to: ÿc0" + Pather.getAreaName(targetarea));
 
-	me.area !== currentarea && Pather.journeyTo(currentarea);
+	!me.inArea(currentarea) && Pather.journeyTo(currentarea);
 
-	if (me.area !== targetarea) {
+	if (!me.inArea(targetarea)) {
 		do {
 			try {
 				Pather.moveToExit(targetarea, true, cleartype);
@@ -902,11 +902,11 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 			}
 
 			retry++;
-		} while (me.area !== targetarea);
+		} while (!me.inArea(targetarea));
 	}
 
 	console.log("ÿc8Kolbot-SoloPlayÿc0: End clearToExit. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
-	return (me.area === targetarea);
+	return (me.inArea(targetarea));
 };
 
 Pather.getWalkDistance = function (x, y, area, xx, yy, reductionType, radius) {

@@ -40,7 +40,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.IronMaiden,
 		priority: 1,
 		useIf: function (unit) {
-			return Skill.canUse(this.skillId) && me.area === sdk.areas.DurielsLair && me.normal && unit;
+			return Skill.canUse(this.skillId) && me.inArea(sdk.areas.DurielsLair) && me.normal && unit;
 		}
 	},
 	{
@@ -74,7 +74,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.Attract,
 		priority: 1,
 		useIf: function (unit) {
-			return unit.scareable && me.area === sdk.areas.ThroneofDestruction && unit.distance > 8
+			return unit.scareable && me.inArea(sdk.areas.ThroneofDestruction) && unit.distance > 8
 				&& Skill.canUse(this.skillId);
 		}
 	},
@@ -160,7 +160,7 @@ ClassAttack.doAttack = function (unit) {
 	// write terrorCheck function, need to take into account if monsters are even scareable
 	if (useTerror && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting, 0, true) >= 3
 		&& Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hpPercent < 75) {
-		Skill.cast(sdk.skills.Terror, 0);
+		Skill.cast(sdk.skills.Terror, sdk.skills.subindex.hardpoints);
 	}
 
 	this.smartCurse(unit);
@@ -204,10 +204,10 @@ ClassAttack.doAttack = function (unit) {
 
 	let result = this.doCast(unit, timedSkill, untimedSkill);
 
-	if (result === 1) {
+	if (result === this.result.Success) {
 		Config.ActiveSummon && this.raiseArmy();
 		this.explodeCorpses(unit);
-	} else if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+	} else if (result === this.result.CantAttack && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
 		let merc = me.getMerc();
 
 		while (unit.attackable) {
@@ -408,7 +408,7 @@ ClassAttack.explodeCorpses = function (unit) {
 	let useAmp = Skill.canUse(sdk.skills.AmplifyDamage);
 	let ampManaCost = Skill.getManaCost(sdk.skills.AmplifyDamage);
 	let explodeCorpsesManaCost = Skill.getManaCost(Config.ExplodeCorpses);
-	let range = Math.floor((me.getSkill(Config.ExplodeCorpses, 1) + 7) / 3);
+	let range = Math.floor((me.getSkill(Config.ExplodeCorpses, sdk.skills.subindex.softpoints) + 7) / 3);
 	let corpse = Game.getMonsters(-1, -1, sdk.units.monster.mode.Dead);
 
 	if (corpse) {

@@ -23,7 +23,7 @@ const SoloEvents = {
 		}
 
 		if (this.gameInfo.gameName.length > 0) {
-			D2Bot.printToConsole("Kolbot-SoloPlay :: SoloEvents.outOfGameCheck(): Attempting to join other bots game", 6);
+			D2Bot.printToConsole("Kolbot-SoloPlay :: SoloEvents.outOfGameCheck(): Attempting to join other bots game", sdk.colors.D2Bot.Gold);
 			this.inGame = true;
 			me.blockmouse = true;
 
@@ -56,7 +56,7 @@ const SoloEvents = {
 
 			for (let i = 0; i < possibleChars.length; i++) {
 				if (Misc.findPlayer(possibleChars[i].toLowerCase())) {
-					if (me.area !== sdk.areas.RogueEncampment) {
+					if (!me.inArea(sdk.areas.RogueEncampment)) {
 						Town.goToTown(1);
 					}
 
@@ -405,7 +405,7 @@ const SoloEvents = {
 		let diablo = Game.getMonster(sdk.units.monsters.Diablo);
 		// Credit @Jaenster
 		let shouldDodge = function (coord) {
-			return !!diablo && getUnits(3)
+			return !!diablo && Game.getMissile()
 				// For every missle that isnt from our merc
 				.filter((missile) => missile && diablo && diablo.gid === missile.owner)
 				// if any

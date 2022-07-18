@@ -12,8 +12,8 @@ const GameData = require('../../Modules/GameData');
 ClassAttack.warCryTick = 0;
 
 let howlCheck = function () {
-	let levelCheck = (me.getSkill(sdk.skills.Howl, 1) + me.charlvl + 1);
-	return getUnits(1).filter(function (el) {
+	let levelCheck = (me.getSkill(sdk.skills.Howl, sdk.skills.subindex.softpoints) + me.charlvl + 1);
+	return Game.getMonster().filter(function (el) {
 		return (!!el && el.attackable && el.distance < 6 && el.scareable && GameData.monsterLevel(el.classid, me.area) < levelCheck && !el.isStunned
 			&& [sdk.states.BattleCry, sdk.states.AmplifyDamage, sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt].every(state => !el.getState(state))
 			&& !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE));
@@ -21,7 +21,7 @@ let howlCheck = function () {
 };
 
 let battleCryCheck = function () {
-	return getUnits(1).some(function (el) {
+	return Game.getMonster().some(function (el) {
 		if (el === undefined) return false;
 		return (el.attackable && el.distance < 5 && el.curseable
 			&& [sdk.states.BattleCry, sdk.states.AmplifyDamage, sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt].every(state => !el.getState(state))
@@ -30,7 +30,7 @@ let battleCryCheck = function () {
 };
 
 let warCryCheck = function () {
-	return getUnits(1).some(function (el) {
+	return Game.getMonster().some(function (el) {
 		if (el === undefined) return false;
 		return (el.attackable && el.distance < 5 && !(el.spectype & 0x7) && el.curseable
 			&& ![sdk.units.monsters.Andariel, sdk.units.monsters.Duriel, sdk.units.monsters.Mephisto, sdk.units.monsters.Diablo, sdk.units.monsters.Baal, sdk.units.monsters.Tentacle1,
@@ -47,7 +47,7 @@ ClassAttack.tauntMonsters = function (unit, attackSkill, data) {
 	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].includes(me.area)) return;
 	if (Attack.mainBosses.includes(unit.classid) || unit.classid === sdk.units.monsters.ListerTheTormenter) return;
 
-	let range = (me.area !== sdk.areas.ThroneofDestruction ? 15 : 30);
+	let range = (!me.inArea(sdk.areas.ThroneofDestruction) ? 15 : 30);
 	let rangedMobsClassIDs = [
 		sdk.units.monsters.Afflicted, sdk.units.monsters.Tainted, sdk.units.monsters.Misshapen1, sdk.units.monsters.Disfigured, sdk.units.monsters.Damned1, sdk.units.monsters.Gloam1, sdk.units.monsters.SwampGhost,
 		sdk.units.monsters.BurningSoul2, sdk.units.monsters.BlackSoul1, sdk.units.monsters.GhoulLord1, sdk.units.monsters.NightLord, sdk.units.monsters.DarkLord1, sdk.units.monsters.BloodLord1,
@@ -77,14 +77,14 @@ ClassAttack.tauntMonsters = function (unit, attackSkill, data) {
 	if (list.length >= 1) {
 		for (let i = 0; i < list.length; i++) {
 			let currMob = list[i];
-			if (battleCryCheck() && Skill.cast(sdk.skills.BattleCry, 0)) {
+			if (battleCryCheck() && Skill.cast(sdk.skills.BattleCry, sdk.skills.subindex.hardpoints)) {
 				continue;
 			}
 
 			if (data.howl.have && !data.warCry.have && data.howl.mana < me.mp && howlCheck()) {
-				Skill.cast(sdk.skills.Howl, 0);
+				Skill.cast(sdk.skills.Howl, sdk.skills.subindex.hardpoints);
 			} else if (data.warCry.have && data.warCry.mana < me.mp && warCryCheck()) {
-				Skill.cast(sdk.skills.WarCry, 0);
+				Skill.cast(sdk.skills.WarCry, sdk.skills.subindex.hardpoints);
 			}
 
 			if (!!currMob && !currMob.dead && [sdk.states.Terror, sdk.states.BattleCry, sdk.states.Decrepify, sdk.states.Taunt].every(state => !currMob.getState(state))
@@ -204,7 +204,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	}
 
 	if (data.howl.have && attackSkill !== 151 && data.howl.mana < me.mp && howlCheck() && me.hpPercent <= 85) {
-		data.grimWard.have ? this.grimWard(6) : Skill.cast(sdk.skills.Howl, 0);
+		data.grimWard.have ? this.grimWard(6) : Skill.cast(sdk.skills.Howl, sdk.skills.subindex.hardpoints);
 	}
 
 	data.taunt.have && this.tauntMonsters(unit, attackSkill, data);
@@ -391,7 +391,7 @@ ClassAttack.findItem = function (range = 10) {
 		}
 	}
 
-	if (retry) return this.findItem(me.area === sdk.areas.Travincal ? 60 : 20);
+	if (retry) return this.findItem(me.inArea(sdk.areas.Travincal) ? 60 : 20);
 	Config.FindItemSwitch && me.weaponswitch === 1 && me.switchWeapons(Attack.getPrimarySlot());
 	pick && Pickit.pickItems();
 

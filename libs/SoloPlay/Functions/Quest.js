@@ -393,7 +393,7 @@ const Quest = {
 					this.npcAction("akara", [sdk.menu.Respec, sdk.menu.Ok]);
 				}
 
-				Misc.checkQuest(41, 0);
+				Misc.checkQuest(sdk.quest.id.Respec, 0);
 				delay(10 + me.ping * 2);
 
 				if (me.respec || (me.getStat(sdk.stats.NewSkills) > preSkillAmount && me.getStat(sdk.stats.StatPts) > preStatAmount)) {
@@ -418,7 +418,7 @@ const Quest = {
 
 		try {
 			if (!item || item.mode === 3) throw new Error("Couldn't find item");
-			if (!me.getQuest(35, 1)) throw new Error("Quest unavailable");
+			if (!me.getQuest(sdk.quest.id.SiegeOnHarrogath, 1)) throw new Error("Quest unavailable");
 			if (item.sockets > 0 || getBaseStat("items", item.classid, "gemsockets") === 0) throw new Error("Item cannot be socketed");
 			if (!Storage.Inventory.CanFit(item)) throw new Error("(useSocketQuest) No space to get item back");
 			if (me.act !== 5 || !me.inTown) {
@@ -429,7 +429,7 @@ const Quest = {
 				throw new Error("Failed to move item from stash to inventory");
 			}
 
-			let invo = me.findItems(-1, 0, 3);
+			let invo = me.findItems(-1, sdk.itemmode.inStorage, sdk.itemmode.onGround);
 			let slot = item.bodylocation;
 			
 			// Take note of all the items in the invo minus the item to socket
@@ -448,7 +448,7 @@ const Quest = {
 			sendPacket(1, 0x40);
 
 			item = false; // Delete item reference, it's not longer valid anyway
-			let items = me.findItems(-1, 0, 3);
+			let items = me.findItems(-1, sdk.itemmode.inStorage, sdk.itemmode.onGround);
 				
 			for (let i = 0; i < items.length; i++) {
 				if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {
@@ -462,7 +462,7 @@ const Quest = {
 			}
 
 			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : ", item);
-			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, 6);
+			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, sdk.colors.D2Bot.Gold);
 			CharData.updateData(sdk.difficulty.nameOf(me.diff), "socketUsed", true);
 			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
 			updateMyData();
@@ -494,7 +494,7 @@ const Quest = {
 
 		try {
 			if (!item || item.mode === 3) throw new Error("Couldn't find item");
-			if (!Misc.checkQuest(3, 1)) throw new Error("Quest unavailable");
+			if (!Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, 1)) throw new Error("Quest unavailable");
 			if (item.sockets > 0 || item.quality > 3) throw new Error("Item cannot be imbued");
 			if (!Storage.Inventory.CanFit(item)) throw new Error("(useImbueQuest) No space to get item back");
 			if (me.act !== 1 || !me.inTown) {
@@ -505,7 +505,7 @@ const Quest = {
 				throw new Error("Failed to move item from stash to inventory");
 			}
 
-			let invo = me.findItems(-1, 0, 3);
+			let invo = me.findItems(-1, sdk.itemmode.inStorage, sdk.itemmode.onGround);
 			let slot = item.bodylocation;
 			
 			// Take note of all the items in the invo minus the item to socket
@@ -524,7 +524,7 @@ const Quest = {
 			sendPacket(1, 0x40);
 
 			item = false; // Delete item reference, it's not longer valid anyway
-			let items = me.findItems(-1, 0, 3);
+			let items = me.findItems(-1, sdk.itemmode.inStorage, sdk.itemmode.onGround);
 				
 			for (let i = 0; i < items.length; i++) {
 				if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {
@@ -532,13 +532,13 @@ const Quest = {
 				}
 			}
 
-			if (!item || item.quality !== 6) {
+			if (!item || item.quality !== item.rare) {
 				me.itemoncursor && Storage.Stash.MoveTo(item);
 				throw new Error("Failed to imbue item");
 			}
 
 			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : ", item);
-			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, 6);
+			("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, sdk.colors.D2Bot.Gold);
 			CharData.updateData(sdk.difficulty.nameOf(me.diff), "imbueUsed", true);
 			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
 			updateMyData();

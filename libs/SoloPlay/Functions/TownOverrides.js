@@ -123,7 +123,7 @@ Town.townTasks = function (buyPots = {}) {
 
 	// Burst of speed while in town
 	if (me.inTown && Skill.canUse(sdk.skills.BurstofSpeed) && !me.getState(sdk.states.BurstofSpeed)) {
-		Skill.cast(sdk.skills.BurstofSpeed, 0);
+		Skill.cast(sdk.skills.BurstofSpeed, sdk.skills.subindex.hardpoints);
 	}
 
 	let preAct = me.act;
@@ -192,7 +192,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 
 	// Burst of speed while in town
 	if (Skill.canUse(sdk.skills.BurstofSpeed) && !me.getState(sdk.states.BurstofSpeed)) {
-		Skill.cast(sdk.skills.BurstofSpeed, 0);
+		Skill.cast(sdk.skills.BurstofSpeed, sdk.skills.subindex.hardpoints);
 	}
 
 	let preAct = me.act;
@@ -786,7 +786,7 @@ Town.gamble = function () {
 	let npc = this.initNPC("Gamble", "gamble");
 	if (!npc) return false;
 
-	let items = me.findItems(-1, 0, 3);
+	let items = me.findItems(-1, sdk.itemmode.inStorage, sdk.itemmode.onGround);
 
 	while (items && items.length > 0) {
 		list.push(items.shift().gid);
@@ -928,7 +928,7 @@ Town.unfinishedQuests = function () {
 	}
 
 	// Killed council but haven't talked to cain
-	if (!Misc.checkQuest(21, 0) && Misc.checkQuest(21, 4)) {
+	if (!Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, 0) && Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, 4)) {
 		me.overhead("Finishing Travincal by talking to cain");
 		Town.goToTown(3) && Town.npcInteract("cain");
 		delay(300 + me.ping);
@@ -2077,7 +2077,7 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 };
 
 Town.clearJunk = function () {
-	let junkItems = me.findItems(-1, 0);
+	let junkItems = me.findItems(-1, sdk.itemmode.inStorage);
 	let junkToSell = [];
 
 	if (!junkItems) return false;

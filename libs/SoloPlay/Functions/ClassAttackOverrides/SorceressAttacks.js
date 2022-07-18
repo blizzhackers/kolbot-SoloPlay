@@ -18,7 +18,7 @@ const slowable = function (unit, freezeable = false) {
 };
 
 const frostNovaCheck = function () {
-	// return getUnits(1).some(function(el) {
+	// return Game.getMonster().some(function(el) {
 	// 	return !!el && el.distance < 7 && el.attackable
 	// 		&& ![sdk.monsters.Andariel].includes(el.classid)
 	// 		&& !el.isChilled && Attack.checkResist(el, 'cold')
@@ -71,9 +71,9 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	// Keep Energy Shield active
-	Skill.canUse(sdk.skills.EnergyShield) && !me.getState(sdk.states.EnergyShield) && Skill.cast(sdk.skills.EnergyShield, 0);
+	Skill.canUse(sdk.skills.EnergyShield) && !me.getState(sdk.states.EnergyShield) && Skill.cast(sdk.skills.EnergyShield, sdk.skills.subindex.hardpoints);
 	// Keep Thunder-Storm active
-	Skill.canUse(sdk.skills.ThunderStorm) && !me.getState(sdk.states.ThunderStorm) && Skill.cast(sdk.skills.ThunderStorm, 0);
+	Skill.canUse(sdk.skills.ThunderStorm) && !me.getState(sdk.states.ThunderStorm) && Skill.cast(sdk.skills.ThunderStorm, sdk.skills.subindex.hardpoints);
 
 	// Handle Charge skill casting
 	if (index === 1 && me.expansion && !unit.dead) {
@@ -152,12 +152,12 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	if (data.frostNova.have) {
 		data.frostNova.mana = Skill.getManaCost(sdk.skills.FrostNova);
 		if (me.mp > data.frostNova.mana) {
-			frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, 0);
+			frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, sdk.skills.subindex.hardpoints);
 			let ticktwo = getTickCount();
 			// if the nova cause the death of any monsters around us, its worth it
 			if (GameData.calculateKillableFallensByFrostNova() > 0) {
 				Developer.debugging.skills && print("took " + ((getTickCount() - ticktwo) / 1000) + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens");
-				Skill.cast(sdk.skills.FrostNova, 0);
+				Skill.cast(sdk.skills.FrostNova, sdk.skills.subindex.hardpoints);
 			}
 		}
 	}
@@ -166,7 +166,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 		data.glacialSpike.mana = Skill.getManaCost(sdk.skills.GlacialSpike);
 		if (me.mp > data.glacialSpike.mana * 2) {
 			let shouldSpike = unit && unit.distance < 10 &&
-			getUnits(1).filter(function (el) {
+			Game.getMonster().filter(function (el) {
 				return getDistance(el, unit) < 4 && slowable(el, true);
 			}).length > 1;
 			if (shouldSpike && !Coords_1.isBlockedBetween(me, unit)) {
@@ -204,7 +204,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	// If we have enough mana for Static and it will do more damage than our other skills then duh use it
 	// should this return afterwards since the calulations will now be different?
 	if (data.static.have && (data.static.mana * 3) < me.mp) {
-		let closeMobCheck = getUnits(1)
+		let closeMobCheck = Game.getMonster()
 			.filter(unit => !!unit && unit.attackable && unit.distance < data.static.range)
 			.find(unit => Attack.checkResist(unit, "lightning") && unit.hpPercent > Config.CastStatic);
 		if (!!closeMobCheck && data.static.dmg > Math.max(data.mainTimed.dmg, data.mainUntimed.dmg, data.secondaryTimed.dmg, data.secondaryUntimed.dmg) && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
@@ -338,7 +338,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 				}
 
 				if (Attack.checkResist(unit, "lightning") && data.static.have && unit.hpPercent > Config.CastStatic) {
-					Skill.cast(sdk.skills.StaticField, 0);
+					Skill.cast(sdk.skills.StaticField, sdk.skills.subindex.hardpoints);
 				}
 
 				let closeMob = Attack.getNearestMonster({skipGid: gid});
@@ -440,7 +440,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 						Skill.cast(ts, Skill.getHand(ts), unit);
 
 						if (data.frostNova.have && me.mp > data.frostNova.mana) {
-							frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, 0);
+							frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, sdk.skills.subindex.hardpoints);
 						}
 
 						if (tsMana > me.mp || unit.hpPercent < Config.CastStatic || inDanger()) {

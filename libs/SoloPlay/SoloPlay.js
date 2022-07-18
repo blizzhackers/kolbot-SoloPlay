@@ -30,7 +30,7 @@ function SoloPlay () {
 				throw new Error("Kolbot-SoloPlay: " + SetUp.finalBuild + " cannot be used in non-ladder as they require ladder runewords. Change the info tag or remake as an ladder character...Shutting down");
 			}
 		} catch (e) {
-			D2Bot.printToConsole(e, 9);
+			D2Bot.printToConsole(e, sdk.colors.D2Bot.Red);
 			FileTools.remove("data/" + me.profile + ".json");
 			FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
 			D2Bot.stop();

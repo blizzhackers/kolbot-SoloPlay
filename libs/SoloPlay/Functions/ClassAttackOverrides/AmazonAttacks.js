@@ -39,8 +39,8 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let useDecoy = (Skill.canUse(sdk.skills.Dopplezon) && !me.normal);
 	let usePlague = (!me.normal && Skill.canUse(sdk.skills.PlagueJavelin));
 	let useJab = (Item.getEquippedItem(4).tier >= 1000 && Skill.canUse(sdk.skills.Jab));
-	let useLightFury = me.getSkill(sdk.skills.LightningFury, 1) >= 10;
-	let forcePlague = (me.getSkill(sdk.skills.PlagueJavelin, 1) >= 15);	//Extra poison damage then attack
+	let useLightFury = me.getSkill(sdk.skills.LightningFury, sdk.skills.subindex.softpoints) >= 10;
+	let forcePlague = (me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.softpoints) >= 15);	//Extra poison damage then attack
 
 	// Precast Section -----------------------------------------------------------------------------------------------------------------//
 	if (useSlowMissiles) {
@@ -205,7 +205,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let skills = this.decideSkill(unit);
 	let result = this.doCast(unit, skills.timed, skills.untimed);
 
-	if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+	if (result === this.result.CantAttack && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
 		let merc = me.getMerc();
 
 		while (unit.attackable) {
@@ -302,7 +302,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 			break;
 		default:
 			// If main attack skill is lightning strike and charged strike's skill level is at least level 15, check current monster count. If monster count is less than 3, use CS as its more effective with small mobs
-			if (timedSkill === sdk.skills.LightningStrike && me.getSkill(sdk.skills.ChargedStrike, 1) >= 15) {
+			if (timedSkill === sdk.skills.LightningStrike && me.getSkill(sdk.skills.ChargedStrike, sdk.skills.subindex.softpoints) >= 15) {
 				if (me.getMobCount(15, Coords_1.BlockBits.LineOfSight | Coords_1.BlockBits.Ranged | Coords_1.BlockBits.ClosedDoor | Coords_1.BlockBits.BlockWall) <= 3) {
 					timedSkill = sdk.skills.ChargedStrike;
 				}

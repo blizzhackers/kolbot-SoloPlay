@@ -307,7 +307,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 	// Charged skills can only be casted on x, y coordinates
 	unit && ([x, y] = [unit.x, unit.y]);
 
-	if (this !== me && this.type !== 4) {
+	if (this !== me && this.type !== sdk.unittype.Item) {
 		Developer.debugging.skills && print("ÿc9CastChargedSkillÿc0 :: Wierd Error, invalid arguments, expected 'me' object or 'item' unit" + " unit type : " + this.type);
 		return false;
 	}
@@ -343,8 +343,8 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 		}
 
 		return chargedItem.castChargedSkillEx.apply(chargedItem, args);
-	} else if (this.type === 4) {
-		charge = this.getStat(-2)[204]; // WARNING. Somehow this gives duplicates
+	} else if (this.type === sdk.unittype.Item) {
+		charge = this.getStat(-2)[sdk.stats.ChargedSkill]; // WARNING. Somehow this gives duplicates
 
 		if (!charge) {
 			print("ÿc9CastChargedSkillÿc0 :: No charged skill on this item");
@@ -467,10 +467,10 @@ Unit.prototype.getStatEx = function (id, subid) {
 	let i, temp, rval, regex;
 
 	switch (id) {
-	case 555: //calculates all res, doesnt exists trough
+	case sdk.stats.AllRes: //calculates all res, doesnt exists trough
 	{ // Block scope due to the variable declaration
 		// Get all res
-		let allres = [this.getStatEx(39), this.getStatEx(41), this.getStatEx(43), this.getStatEx(45)];
+		let allres = [this.getStatEx(sdk.stats.FireResist), this.getStatEx(sdk.stats.LightResist), this.getStatEx(sdk.stats.ColdResist), this.getStatEx(sdk.stats.PoisonResist)];
 
 		// What is the minimum of the 4?
 		let min = Math.min.apply(null, allres);
@@ -484,93 +484,93 @@ Unit.prototype.getStatEx = function (id, subid) {
 		return fire === cold && cold === light && light === psn ? min : 0;
 	}
 
-	case 9: // Max mana
-		rval = this.getStat(9);
+	case sdk.stats.MaxMana: // Max mana
+		rval = this.getStat(sdk.stats.MaxMana);
 
 		if (rval > 446) {
 			return rval - 16777216; // Fix for negative values (Gull knife)
 		}
 
 		return rval;
-	case 20: // toblock
+	case sdk.stats.ToBlock:
 		switch (this.classid) {
-		case 328: // buckler
-			return this.getStat(20);
-		case 413: // preserved
-		case 483: // mummified
-		case 503: // minion
-			return this.getStat(20) - 3;
-		case 329: // small
-		case 414: // zombie
-		case 484: // fetish
-		case 504: // hellspawn
-			return this.getStat(20) - 5;
-		case 331: // kite
-		case 415: // unraveller
-		case 485: // sexton
-		case 505: // overseer
-			return this.getStat(20) - 8;
-		case 351: // spiked
-		case 374: // deefender
-		case 416: // gargoyle
-		case 486: // cantor
-		case 506: // succubus
-		case 408: // targe
-		case 478: // akaran t
-			return this.getStat(20) - 10;
-		case 330: // large
-		case 375: // round
-		case 417: // demon
-		case 487: // hierophant
-		case 507: // bloodlord
-			return this.getStat(20) - 12;
-		case 376: // scutum
-			return this.getStat(20) - 14;
-		case 409: // rondache
-		case 479: // akaran r
-			return this.getStat(20) - 15;
-		case 333: // goth
-		case 379: // ancient
-			return this.getStat(20) - 16;
-		case 397: // barbed
-			return this.getStat(20) - 17;
-		case 377: // dragon
-			return this.getStat(20) - 18;
-		case 502: // vortex
-			return this.getStat(20) - 19;
-		case 350: // bone
-		case 396: // grim
-		case 445: // luna
-		case 467: // blade barr
-		case 466: // troll
-		case 410: // heraldic
-		case 480: // protector
-			return this.getStat(20) - 20;
-		case 444: // heater
-		case 447: // monarch
-		case 411: // aerin
-		case 481: // gilded
-		case 501: // zakarum
-			return this.getStat(20) - 22;
-		case 332: // tower
-		case 378: // pavise
-		case 446: // hyperion
-		case 448: // aegis
-		case 449: // ward
-			return this.getStat(20) - 24;
-		case 412: // crown
-		case 482: // royal
-		case 500: // kurast
-			return this.getStat(20) - 25;
-		case 499: // sacred r
-			return this.getStat(20) - 28;
-		case 498: // sacred t
-			return this.getStat(20) - 30;
+		case sdk.items.Buckler:
+			return this.getStat(sdk.stats.ToBlock);
+		case sdk.items.PreservedHead:
+		case sdk.items.MummifiedTrophy:
+		case sdk.items.MinionSkull:
+			return this.getStat(sdk.stats.ToBlock) - 3;
+		case sdk.items.SmallShield:
+		case sdk.items.ZombieHead:
+		case sdk.items.FetishTrophy:
+		case sdk.items.HellspawnSkull:
+			return this.getStat(sdk.stats.ToBlock) - 5;
+		case sdk.items.KiteShield:
+		case sdk.items.UnravellerHead:
+		case sdk.items.SextonTrophy:
+		case sdk.items.OverseerSkull:
+			return this.getStat(sdk.stats.ToBlock) - 8;
+		case sdk.items.SpikedShield:
+		case sdk.items.Defender:
+		case sdk.items.GargoyleHead:
+		case sdk.items.CantorTrophy:
+		case sdk.items.SuccubusSkull:
+		case sdk.items.Targe:
+		case sdk.items.AkaranTarge:
+			return this.getStat(sdk.stats.ToBlock) - 10;
+		case sdk.items.LargeShield:
+		case sdk.items.RoundShield:
+		case sdk.items.DemonHead:
+		case sdk.items.HierophantTrophy:
+		case sdk.items.BloodlordSkull:
+			return this.getStat(sdk.stats.ToBlock) - 12;
+		case sdk.items.Scutum:
+			return this.getStat(sdk.stats.ToBlock) - 14;
+		case sdk.items.Rondache:
+		case sdk.items.AkaranRondache:
+			return this.getStat(sdk.stats.ToBlock) - 15;
+		case sdk.items.GothicShield:
+		case sdk.items.AncientShield:
+			return this.getStat(sdk.stats.ToBlock) - 16;
+		case sdk.items.BarbedShield:
+			return this.getStat(sdk.stats.ToBlock) - 17;
+		case sdk.items.DragonShield:
+			return this.getStat(sdk.stats.ToBlock) - 18;
+		case sdk.items.VortexShield:
+			return this.getStat(sdk.stats.ToBlock) - 19;
+		case sdk.items.BoneShield:
+		case sdk.items.GrimShield:
+		case sdk.items.Luna:
+		case sdk.items.BladeBarrier:
+		case sdk.items.TrollNest:
+		case sdk.items.HeraldicShield:
+		case sdk.items.ProtectorShield:
+			return this.getStat(sdk.stats.ToBlock) - 20;
+		case sdk.items.Heater:
+		case sdk.items.Monarch:
+		case sdk.items.AerinShield:
+		case sdk.items.GildedShield:
+		case sdk.items.ZakarumShield:
+			return this.getStat(sdk.stats.ToBlock) - 22;
+		case sdk.items.TowerShield:
+		case sdk.items.Pavise:
+		case sdk.items.Hyperion:
+		case sdk.items.Aegis:
+		case sdk.items.Ward:
+			return this.getStat(sdk.stats.ToBlock) - 24;
+		case sdk.items.CrownShield:
+		case sdk.items.RoyalShield:
+		case sdk.items.KurastShield:
+			return this.getStat(sdk.stats.ToBlock) - 25;
+		case sdk.items.SacredRondache:
+			return this.getStat(sdk.stats.ToBlock) - 28;
+		case sdk.items.SacredTarge:
+			return this.getStat(sdk.stats.ToBlock) - 30;
 		}
 
 		break;
-	case 21: // plusmindamage
-	case 22: // plusmaxdamage
+	case sdk.stats.MinDamage:
+	case sdk.stats.MaxDamage:
 		if (subid === 1) {
 			temp = this.getStat(-1);
 			rval = 0;
@@ -598,19 +598,19 @@ Unit.prototype.getStatEx = function (id, subid) {
 		}
 
 		break;
-	case 31: // plusdefense
+	case sdk.stats.Defense:
 		if (subid === 0) {
 			if ([0, 1].indexOf(this.mode) < 0) {
 				break;
 			}
 
 			switch (this.itemType) {
-			case 58: // jewel
-			case 82: // charms
-			case 83:
-			case 84:
+			case sdk.itemtype.Jewel:
+			case sdk.itemtype.SmallCharm:
+			case sdk.itemtype.MediumCharm:
+			case sdk.itemtype.LargeCharm:
 				// defense is the same as plusdefense for these items
-				return this.getStat(31);
+				return this.getStat(sdk.stats.Defense);
 			}
 
 			if (!this.desc) {
@@ -630,17 +630,17 @@ Unit.prototype.getStatEx = function (id, subid) {
 		}
 
 		break;
-	case 57:
+	case sdk.stats.PoisonMinDamage:
 		if (subid === 1) {
-			return Math.round(this.getStat(57) * this.getStat(59) / 256);
+			return Math.round(this.getStat(sdk.stats.PoisonMinDamage) * this.getStat(sdk.stats.PoisonLength) / 256);
 		}
 
 		break;
-	case 83: // itemaddclassskills
+	case sdk.stats.AddClassSkills:
 		if (subid === undefined) {
 			for (i = 0; i < 7; i += 1) {
-				if (this.getStat(83, i)) {
-					return this.getStat(83, i);
+				if (this.getStat(sdk.stats.AddClassSkills, i)) {
+					return this.getStat(sdk.stats.AddClassSkills, i);
 				}
 			}
 
@@ -648,13 +648,17 @@ Unit.prototype.getStatEx = function (id, subid) {
 		}
 
 		break;
-	case 188: // itemaddskilltab
+	case sdk.stats.AddSkillTab:
 		if (subid === undefined) {
-			temp = [0, 1, 2, 8, 9, 10, 16, 17, 18, 24, 25, 26, 32, 33, 34, 40, 41, 42, 48, 49, 50];
+			temp = [sdk.skills.tabs.BowandCrossbow, sdk.skills.tabs.PassiveandMagic, sdk.skills.tabs.JavelinandSpear, sdk.skills.tabs.Fire,
+				sdk.skills.tabs.Lightning, sdk.skills.tabs.Cold, sdk.skills.tabs.Curses, sdk.skills.tabs.PoisonandBone, sdk.skills.tabs.NecroSummoning,
+				sdk.skills.tabs.PalaCombat, sdk.skills.tabs.Offensive, sdk.skills.tabs.Defensive, sdk.skills.tabs.BarbCombat, sdk.skills.tabs.Masteries,
+				sdk.skills.tabs.Warcries, sdk.skills.tabs.DruidSummon, sdk.skills.tabs.ShapeShifting, sdk.skills.tabs.Elemental, sdk.skills.tabs.raps,
+				sdk.skills.tabs.ShadowDisciplines, sdk.skills.tabs.MartialArts];
 
 			for (i = 0; i < temp.length; i += 1) {
-				if (this.getStat(188, temp[i])) {
-					return this.getStat(188, temp[i]);
+				if (this.getStat(sdk.stats.AddSkillTab, temp[i])) {
+					return this.getStat(sdk.stats.AddSkillTab, temp[i]);
 				}
 			}
 
@@ -662,13 +666,13 @@ Unit.prototype.getStatEx = function (id, subid) {
 		}
 
 		break;
-	case 195: // itemskillonattack
-	case 196: // itemskillonkill
-	case 197: // itemskillondeath
-	case 198: // itemskillonhit
-	case 199: // itemskillonlevelup
-	case 201: // itemskillongethit
-	case 204: // itemchargedskill
+	case sdk.stats.SkillOnAttack: // itemskillonattack
+	case sdk.stats.SkillOnKill: // itemskillonkill
+	case sdk.stats.SkillOnDeath: // itemskillondeath
+	case sdk.stats.SkillOnHit: // itemskillonhit
+	case sdk.stats.SkillOnLevelUp: // itemskillonlevelup
+	case sdk.stats.SkillOnGetHit: // itemskillongethit
+	case sdk.stats.ChargedSkill: // itemchargedskill
 		if (subid === 1) {
 			temp = this.getStat(-2);
 
@@ -706,13 +710,13 @@ Unit.prototype.getStatEx = function (id, subid) {
 		}
 
 		break;
-	case 216: // itemhpperlevel (for example Fortitude with hp per lvl can be defined now with 1.5)
-		return this.getStat(216) / 2048;
+	case sdk.stats.PerLevelHp: // hpperlevel (for example Fortitude with hp per lvl can be defined now with 1.5)
+		return this.getStat(sdk.stats.PerLevelHp) / 2048;
 	}
 
 	if (this.getFlag(0x04000000)) { // Runeword
 		switch (id) {
-		case 16: // enhanceddefense
+		case sdk.stats.ArmorPercent:
 			if ([0, 1].indexOf(this.mode) < 0) {
 				break;
 			}
@@ -728,7 +732,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 			}
 
 			return 0;
-		case 18: // enhanceddamage
+		case sdk.stats.MinDamagePercent:
 			if ([0, 1].indexOf(this.mode) < 0) {
 				break;
 			}

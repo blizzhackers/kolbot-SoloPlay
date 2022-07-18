@@ -39,7 +39,7 @@ let build = {
 	stats: undefined,
 
 	active: function () {
-		return me.charlvl > Config.respecOne && me.charlvl < Config.respecOneB && me.getSkill(sdk.skills.LightningStrike, 0) && me.getSkill(sdk.skills.PlagueJavelin, 0) <= 5;
+		return me.charlvl > Config.respecOne && me.charlvl < Config.respecOneB && Skill.canUse(sdk.skills.LightningStrike) && me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.hardpoints) <= 5;
 	},
 };
 
