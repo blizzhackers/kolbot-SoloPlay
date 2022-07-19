@@ -79,7 +79,7 @@ Precast.summon = function (skillId, type) {
 		let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	// Get a random coordinate to summon using
 		let unit = Attack.getNearestMonster({skipImmune: false});
 
-		if (unit && [sdk.units.minions.Golem, sdk.units.minions.Grizzly, sdk.units.minions.Shadow].includes(type) && unit.distance < 20 && !checkCollision(me, unit, 0x4)) {
+		if (unit && [sdk.units.minions.Golem, sdk.units.minions.Grizzly, sdk.units.minions.Shadow].includes(type) && unit.distance < 20 && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			try {
 				if (Skill.cast(skillId, 0, unit)) {
 					if (me.getMinionCount(type) === count) {

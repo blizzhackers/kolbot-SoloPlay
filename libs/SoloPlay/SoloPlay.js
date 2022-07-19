@@ -100,7 +100,7 @@ function SoloPlay () {
 						myPrint("script " + SetUp.scripts[k] + " failed.");
 					}
 				} catch (e) {
-					console.errorReport(e);
+					console.error(e);
 				} finally {
 					Developer.logPerformance && Tracker.script(tick, SetUp.scripts[k], currentExp);
 					console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));

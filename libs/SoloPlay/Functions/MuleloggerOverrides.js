@@ -36,7 +36,7 @@ MuleLogger.getItemDesc = function (unit, logIlvl) {
 	// Lines are normally in reverse. Add color tags if needed and reverse order.
 	for (let i = 0; i < desc.length; i += 1) {
 		// Remove sell value
-		if (desc[i].indexOf(getLocaleString(3331)) > -1) {
+		if (desc[i].indexOf(getLocaleString(sdk.locale.text.SellValue)) > -1) {
 			desc.splice(i, 1);
 
 			i -= 1;
@@ -250,7 +250,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 		}
 	}
 
-	desc += "$" + unit.gid + ":" + unit.classid + ":" + unit.location + ":" + unit.x + ":" + unit.y + (unit.getFlag(0x400000) ? ":eth" : "");
+	desc += "$" + unit.gid + ":" + unit.classid + ":" + unit.location + ":" + unit.x + ":" + unit.y + (unit.ethereal ? ":eth" : "");
 
 	return {
 		itemColor: color,

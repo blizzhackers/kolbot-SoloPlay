@@ -283,7 +283,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 		do {
 			if (target.attackable && !this.skipCheck(target) && this.canAttack(target)) {
 				// Speed optimization - don't go through monster list until there's at least one within clear range
-				if (!start && getDistance(target, x, y) <= range && (Pather.useTeleport() || !checkCollision(me, target, 0x5))) {
+				if (!start && getDistance(target, x, y) <= range && (Pather.useTeleport() || !checkCollision(me, target, sdk.collision.WallOrRanged))) {
 					start = true;
 				}
 
@@ -328,7 +328,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 				secAttack = me.barbarian ? ((target.isSpecial) ? 2 : 4) : 5;
 
 				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[(target.isSpecial) ? 1 : 3])
-						|| (me.paladin && Config.AttackSkill[(target.isSpecial) ? 1 : 3] === 112 && !ClassAttack.getHammerPosition(target)))) {
+						|| (me.paladin && Config.AttackSkill[(target.isSpecial) ? 1 : 3] === sdk.skills.BlessedHammer && !ClassAttack.getHammerPosition(target)))) {
 					skillCheck = Config.AttackSkill[secAttack];
 				} else {
 					skillCheck = Config.AttackSkill[(target.isSpecial) ? 1 : 3];
@@ -359,7 +359,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 					monsterList.shift();
 				}
 
-				if (target.mode === 0 || target.mode === 12 || Config.FastPick === 2) {
+				if (target.mode === sdk.units.monsters.mode.Death || target.mode === sdk.units.monsters.mode.Dead || Config.FastPick === 2) {
 					Pickit.fastPick();
 				}
 			} else {
@@ -587,7 +587,7 @@ Attack.clear = function (range = 25, spectype = sdk.units.monsters.spectype.All,
 		do {
 			if ((!spectype || (target.spectype & spectype)) && target.attackable && !this.skipCheck(target)) {
 				// Speed optimization - don't go through monster list until there's at least one within clear range
-				if (!start && getDistance(target, orgx, orgy) <= range && (Pather.canTeleport() || !checkCollision(me, target, 0x1))) {
+				if (!start && getDistance(target, orgx, orgy) <= range && (Pather.canTeleport() || !checkCollision(me, target, sdk.collision.BlockWall))) {
 					start = true;
 				}
 
@@ -667,7 +667,7 @@ Attack.clear = function (range = 25, spectype = sdk.units.monsters.spectype.All,
 					monsterList.shift();
 				}
 
-				if (target.mode === 0 || target.mode === 12 || Config.FastPick === 2) {
+				if (target.mode === sdk.units.monsters.mode.Death || target.mode === sdk.units.monsters.mode.Dead || Config.FastPick === 2) {
 					Pickit.fastPick();
 				}
 			} else {
@@ -747,7 +747,7 @@ Attack.clearEx = function (givenSettings) {
 		do {
 			if ((!settings.spectype || (target.spectype & settings.spectype)) && target.attackable && !this.skipCheck(target)) {
 				// Speed optimization - don't go through monster list until there's at least one within clear range
-				if (!start && getDistance(target, orgx, orgy) <= range && (Pather.canTeleport() || !checkCollision(me, target, 0x5))) {
+				if (!start && getDistance(target, orgx, orgy) <= range && (Pather.canTeleport() || !checkCollision(me, target, sdk.collision.WallOrRanged))) {
 					start = true;
 				}
 
@@ -827,7 +827,7 @@ Attack.clearEx = function (givenSettings) {
 					monsterList.shift();
 				}
 
-				if (target.mode === 0 || target.mode === 12 || Config.FastPick === 2) {
+				if (target.mode === sdk.units.monsters.mode.Death || target.mode === sdk.units.monsters.mode.Dead || Config.FastPick === 2) {
 					Pickit.fastPick();
 				}
 			} else {
@@ -1229,7 +1229,9 @@ Attack.pwnDia = function () {
 				print('Diablo missiles: ' + diabloMissiles.length);
 				print('Diablo mode:' + dia.mode);
 				me.overhead('Dia life ' + (~~(dia.hp / 128 * 100)).toString() + '%');
-				if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3 && ![4, 5, 7, 8, 9, 10, 11].includes(dia.mode) && dia.hpPercent > Config.CastStatic) {
+				if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3
+					&& ![sdk.units.monsters.mode.Attacking1, sdk.units.monsters.mode.Attacking2, sdk.units.monsters.mode.CastingSkill, sdk.units.monsters.mode.UsingSkill1,
+						sdk.units.monsters.mode.UsingSkill2, sdk.units.monsters.mode.UsingSkill3, sdk.units.monsters.mode.UsingSkill4].includes(dia.mode) && dia.hpPercent > Config.CastStatic) {
 					let x = me.x, y = me.y;
 					// Find a spot close to Diablo
 					let spot = Pather.spotOnDistance(dia, rangeStatic * (2 / 3), {returnSpotOnError: false});
@@ -1249,10 +1251,10 @@ Attack.pwnDia = function () {
 					});
 					Pather.moveTo(x, y);
 				}
-				Skill.cast(Config.AttackSkill[1], 0, dia);
+				Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, dia);
 
 				if (!!dia && !checkCollision(me, dia, Coords_1.Collision.BLOCK_MISSILE) && Skill.getRange(Config.AttackSkill[2]) > 15) {
-					Skill.cast(Config.AttackSkill[2], 0, dia);
+					Skill.cast(Config.AttackSkill[2], sdk.skills.hand.Right, dia);
 				}
 			}
 		}
@@ -1328,7 +1330,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 	let useTele = Pather.useTeleport();
 	walk === true && (walk = 1);
 
-	if (distance < 4 && (!unit.hasOwnProperty("mode") || (unit.mode !== 0 && unit.mode !== 12))) {
+	if (distance < 4 && (!unit.hasOwnProperty("mode") || (unit.mode !== sdk.units.monsters.mode.Death && unit.mode !== sdk.units.monsters.mode.Dead))) {
 		// we are actually able to walk to where we want to go, hopefully prevent wall hugging
 		if (walk && (unit.distance < 8 || !CollMap.checkColl(me, unit, 0x5 | 0x400 | 0x1000))) {
 			Pather.walkTo(unit.x, unit.y, 3);

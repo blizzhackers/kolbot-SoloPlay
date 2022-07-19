@@ -97,7 +97,7 @@ function main() {
 				if (portal.area === me.area) {
 					if (Skill.useTK(portal) && i < 3) {
 						portal.distance > 21 && (me.inTown && me.act === 5 ? Town.move("portalspot") : Pather.moveNearUnit(portal, 20));
-						if (Skill.cast(sdk.skills.Telekinesis, 0, portal)) {
+						if (Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, portal)) {
 							if (Misc.poll(() => {
 								if (!me.inArea(preArea)) {
 									Pather.lastPortalTick = getTickCount();
@@ -128,12 +128,12 @@ function main() {
 				}
 
 				// Portal to/from Arcane
-				if (portal.classid === 298 && portal.mode !== 2) {
+				if (portal.classid === sdk.units.portals.ArcaneSanctuaryPortal && portal.mode !== sdk.units.objects.mode.Active) { // === sdk.units.objects.mode.Inactive ?
 					Misc.click(0, 0, portal);
 					let tick = getTickCount();
 
 					while (getTickCount() - tick < 2000) {
-						if (portal.mode === 2 || me.inArea(sdk.areas.ArcaneSanctuary)) {
+						if (portal.mode === sdk.units.objects.mode.Active || me.inArea(sdk.areas.ArcaneSanctuary)) {
 							break;
 						}
 
@@ -330,7 +330,7 @@ function main() {
 							}
 
 							if (useTerror && Skill.getManaCost(77) < me.mp) {
-								Skill.cast(sdk.skills.Terror, 0, Attack.getNearestMonster({skipImmune: false}));
+								Skill.cast(sdk.skills.Terror, sdk.skills.hand.Right, Attack.getNearestMonster({skipImmune: false}));
 							}
 						}
 					}

@@ -239,8 +239,8 @@ Object.defineProperties(me, {
 			// only classes that can duel wield
 			if (!me.assassin && !me.barbarian) return false;
 			let items = me.getItemsEx()
-				.filter((item) => item.isEquipped && [4, 5].includes(item.bodylocation));
-			return !!items.length && items.length >= 2 && items.every((item) => ![2, 69, 70].includes(item.itemType) && !getBaseStat("items", item.classid, "block"));
+				.filter((item) => item.isEquipped && [sdk.body.RightArm, sdk.body.LeftArm].includes(item.bodylocation));
+			return !!items.length && items.length >= 2 && items.every((item) => ![sdk.itemtype.Shield, sdk.itemtype.VoodooHeads, sdk.itemtype.AuricShields].includes(item.itemType) && !getBaseStat("items", item.classid, "block"));
 		}
 	},
 	// for visual purposes really, return res with cap

@@ -412,11 +412,11 @@ Item.equip = function (item, bodyLoc) {
 
 	for (let i = 0; i < 3; i += 1) {
 		if (item.toCursor()) {
-			clickItemAndWait(0, bodyLoc);
+			clickItemAndWait(sdk.clicktypes.Left, bodyLoc);
 
 			if (item.bodylocation === bodyLoc) {
-				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+				if (getCursorType() === sdk.cursortype.ItemOnUnitHover) {
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem) {
 						// rollback check
@@ -424,8 +424,8 @@ Item.equip = function (item, bodyLoc) {
 						if (NTIP.GetTier(cursorItem) > justEquipped.tier && !item.questItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attempt rollback*/) {
 							console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
 							console.debug("OldItem: " + NTIP.GetTier(cursorItem) + " Just Equipped Item: " + this.getEquippedItem(bodyLoc).tier);
-							clickItemAndWait(0, bodyLoc);
-							cursorItem = getUnit(100);
+							clickItemAndWait(sdk.clicktypes.Left, bodyLoc);
+							cursorItem = Game.getCursorUnit();
 							rolledBack = true;
 						}
 
@@ -454,7 +454,7 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 	if (removable) {
 		removable.isOnSwap && me.weaponswitch !== 1 && me.switchWeapons(1);
 		removable.toCursor();
-		let cursorItem = getUnit(100);
+		let cursorItem = Game.getCursorUnit();
 
 		if (cursorItem) {
 			// only keep wanted items
@@ -493,7 +493,7 @@ Item.getBodyLocSecondary = function (item) {
 	case sdk.itemtype.VoodooHeads:
 	case sdk.itemtype.BowQuiver:
 	case sdk.itemtype.CrossbowQuiver:
-		bodyLoc = 12;
+		bodyLoc = sdk.body.LeftArmSecondary;
 
 		break;
 	case sdk.itemtype.Scepter:
@@ -517,12 +517,12 @@ Item.getBodyLocSecondary = function (item) {
 	case sdk.itemtype.AmazonSpear:
 	case sdk.itemtype.AmazonJavelin:
 	case sdk.itemtype.MissilePotion:
-		bodyLoc = me.barbarian ? [11, 12] : 11;
+		bodyLoc = me.barbarian ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary] : sdk.body.RightArmSecondary;
 
 		break;
 	case sdk.itemtype.HandtoHand:
 	case sdk.itemtype.AssassinClaw:
-		bodyLoc = !Check.currentBuild().caster && me.assassin ? [11, 12] : 11;
+		bodyLoc = !Check.currentBuild().caster && me.assassin ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary] : sdk.body.RightArmSecondary;
 
 		break;
 	default:
@@ -542,11 +542,11 @@ Item.secondaryEquip = function (item, bodyLoc) {
 
 	for (let i = 0; i < 3; i += 1) {
 		if (item.toCursor()) {
-			clickItemAndWait(0, bodyLoc - 7);
+			clickItemAndWait(sdk.clicktypes.Left, bodyLoc - sdk.body.RingLeft);
 
-			if (item.bodylocation === bodyLoc - 7) {
-				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+			if (item.bodylocation === bodyLoc - sdk.body.RingLeft) {
+				if (getCursorType() === sdk.cursortype.ItemOnUnitHover) {
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem && !cursorItem.shouldKeep()) {
 						cursorItem.drop();
@@ -678,7 +678,7 @@ Item.equipMerc = function (item, bodyLoc) {
 
 	for (let i = 0; i < 3; i += 1) {
 		if (item.toCursor()) {
-			if (clickItem(4, bodyLoc)) {
+			if (clickItem(sdk.clicktypes.click.Mercenary, bodyLoc)) {
 				delay(500 + me.ping * 2);
 				Developer.debugging.autoEquip && Misc.logItem("Merc Equipped", mercenary.getItem(item.classid));
 			}
@@ -692,8 +692,8 @@ Item.equipMerc = function (item, bodyLoc) {
 					CharData.updateData("merc", myData);
 				}
 
-				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+				if (getCursorType() === sdk.cursortype.ItemOnUnitHover) {
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem && !cursorItem.shouldKeep()) {
 						cursorItem.drop();
@@ -877,7 +877,7 @@ Item.autoEquipMerc = function () {
 					console.log("Merc " + name);
 					this.equipMerc(items[0], bodyLoc[j]) && console.log("ÿc9MercEquipÿc0 :: Equipped: " + name + " MercTier: " + tier);
 					
-					let cursorItem = getUnit(100);
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem) {
 						cursorItem.drop();
@@ -903,10 +903,10 @@ Item.removeItemsMerc = function () {
 
 	if (items) {
 		for (let i = 0; i < items.length; i++) {
-			clickItem(4, items[i].bodylocation);
+			clickItem(sdk.clicktypes.click.Mercenary, items[i].bodylocation);
 			delay(500 + me.ping * 2);
 
-			let cursorItem = getUnit(100);
+			let cursorItem = Game.getCursorUnit();
 
 			if (cursorItem) {
 				if (Storage.Inventory.CanFit(cursorItem)) {
@@ -1446,13 +1446,16 @@ Item.getCharmType = function (charm = undefined) {
 	if (!NTIP.hasStats(charm) && NTIP.GetCharmTier(charm) > 0) return "misc";
 
 	let charmType = "";
-	let skillerStats = [[0, 1, 2], [8, 9, 10], [16, 17, 18], [24, 25, 26], [32, 33, 34], [40, 41, 42], [48, 49, 50]][me.classid];
+	let skillerStats = [[sdk.skills.tabs.BowandCrossbow, sdk.skills.tabs.PassiveandMagic, sdk.skills.tabs.JavelinandSpear], [sdk.skills.tabs.Fire, sdk.skills.tabs.Lightning, sdk.skills.tabs.Cold],
+		[sdk.skills.tabs.Curses, sdk.skills.tabs.PoisonandBone, sdk.skills.tabs.NecroSummoning], [sdk.skills.tabs.PalaCombat, sdk.skills.tabs.Offensive, sdk.skills.tabs.Defensive],
+		[sdk.skills.tabs.BarbCombat, sdk.skills.tabs.Masteries, sdk.skills.tabs.Warcries], [sdk.skills.tabs.DruidSummon, sdk.skills.tabs.ShapeShifting, sdk.skills.tabs.Elemental],
+		[sdk.skills.tabs.Traps, sdk.skills.tabs.ShadowDisciplines, sdk.skills.tabs.MartialArts]][me.classid];
 
-	if (charm.getStat(188, skillerStats[0])) {
+	if (charm.getStat(sdk.stats.AddSkillTab, skillerStats[0])) {
 		charmType = "skillerTypeA";
-	} else if (charm.getStat(188, skillerStats[1])) {
+	} else if (charm.getStat(sdk.stats.AddSkillTab, skillerStats[1])) {
 		charmType = "skillerTypeB";
-	} else if (charm.getStat(188, skillerStats[2])) {
+	} else if (charm.getStat(sdk.stats.AddSkillTab, skillerStats[2])) {
 		charmType = "skillerTypeC";
 	}
 

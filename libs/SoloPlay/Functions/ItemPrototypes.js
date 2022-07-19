@@ -351,11 +351,11 @@ Unit.prototype.equipItem = function (bodyLoc = -1) {
 
 	for (let i = 0; i < 3; i += 1) {
 		if (this.toCursor()) {
-			clickItemAndWait(0, bodyLoc);
+			clickItemAndWait(sdk.clicktypes.Left, bodyLoc);
 
 			if (this.bodylocation === bodyLoc) {
-				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+				if (getCursorType() === sdk.cursortype.ItemOnUnitHover) {
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem) {
 						// rollback check
@@ -363,8 +363,8 @@ Unit.prototype.equipItem = function (bodyLoc = -1) {
 						if (NTIP.GetTier(cursorItem) > justEquipped.tier && !this.questItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attempt rollback*/) {
 							console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
 							console.debug("OldItem: " + NTIP.GetTier(cursorItem) + " Just Equipped Item: " + Item.getEquippedItem(bodyLoc).tier);
-							clickItemAndWait(0, bodyLoc);
-							cursorItem = getUnit(100);
+							clickItemAndWait(sdk.clicktypes.Left, bodyLoc);
+							cursorItem = Game.getCursorUnit();
 							rolledBack = true;
 						}
 
@@ -397,11 +397,11 @@ Unit.prototype.secondaryEquip = function (bodyLoc = -1) {
 	
 	for (let i = 0; i < 3; i += 1) {
 		if (this.toCursor()) {
-			clickItemAndWait(0, bodyLoc - 7);
+			clickItemAndWait(sdk.clicktypes.Left, bodyLoc - sdk.body.RingLeft);
 
-			if (this.bodylocation === bodyLoc - 7) {
-				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+			if (this.bodylocation === bodyLoc - sdk.body.RingLeft) {
+				if (getCursorType() === sdk.cursortype.ItemOnUnitHover) {
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem) {
 						if (!this.shouldKeep()) {
@@ -434,11 +434,11 @@ Unit.prototype.equipMerc = function (bodyLoc = -1) {
 	
 	for (let i = 0; i < 3; i += 1) {
 		if (this.toCursor()) {
-			clickItemAndWait(4, bodyLoc);
+			clickItemAndWait(sdk.clicktypes.click.Mercenary, bodyLoc);
 
 			if (this.bodylocation === bodyLoc) {
-				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+				if (getCursorType() === sdk.cursortype.ItemOnUnitHover) {
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem) {
 						if (!this.shouldKeep()) {

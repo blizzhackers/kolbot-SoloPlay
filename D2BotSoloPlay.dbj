@@ -548,9 +548,9 @@ function locationAction (location) {
 				D2Bot.restart();
 
 				break;
-			case getLocaleString(5208): // Invalid account
-			case getLocaleString(5239): // An account name already exists
-			case getLocaleString(5249): // Unable to create account
+			case getLocaleString(sdk.locale.text.AccountDoesNotExist):
+			case getLocaleString(sdk.locale.text.AccountNameAlreadyExist):
+			case getLocaleString(sdk.locale.text.UnableToCreateAccount):
 				D2Bot.updateStatus("Invalid Account Name");
 				D2Bot.printToConsole("Invalid Account Name");
 				Starter.profileInfo.account = "";
@@ -559,8 +559,8 @@ function locationAction (location) {
 				D2Bot.restart(true);
 
 				break;
-			case getLocaleString(5202): // cd key intended for another product
-			case getLocaleString(10915): // lod key intended for another product
+			case getLocaleString(sdk.locale.text.CdKeyIntendedForAnotherProduct):
+			case getLocaleString(sdk.locale.text.LoDKeyIntendedForAnotherProduct):
 				D2Bot.updateStatus("Invalid CDKey");
 				D2Bot.printToConsole("Invalid CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
 				D2Bot.CDKeyDisabled();
@@ -573,7 +573,7 @@ function locationAction (location) {
 				}
 
 				break;
-			case getLocaleString(5199):
+			case getLocaleString(sdk.locale.text.CdKeyDisabled):
 				D2Bot.updateStatus("Disabled CDKey");
 				D2Bot.printToConsole("Disabled CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
 				D2Bot.CDKeyDisabled();
@@ -586,7 +586,7 @@ function locationAction (location) {
 				}
 
 				break;
-			case getLocaleString(10913):
+			case getLocaleString(sdk.locale.text.LoDKeyDisabled):
 				D2Bot.updateStatus("Disabled LoD CDKey");
 				D2Bot.printToConsole("Disabled LoD CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
 				D2Bot.CDKeyDisabled();
@@ -599,7 +599,7 @@ function locationAction (location) {
 				}
 
 				break;
-			case getLocaleString(5347):
+			case getLocaleString(sdk.locale.text.Disconnected):
 				D2Bot.updateStatus("Disconnected from battle.net.");
 				D2Bot.printToConsole("Disconnected from battle.net.");
 				Controls.OkCentered.click();
@@ -679,7 +679,7 @@ function locationAction (location) {
 			}
 
 			// CDKey disabled from realm play
-			if (string === getLocaleString(11161)) {
+			if (string === getLocaleString(sdk.locale.text.CdKeyDisabledFromRealm)) {
 				D2Bot.updateStatus("Realm Disabled CDKey");
 				D2Bot.printToConsole("Realm Disabled CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
 				D2Bot.CDKeyDisabled();
@@ -860,10 +860,10 @@ function main () {
 					try {
 						myExp = me.getStat(sdk.stats.Experience) > 0 ? Experience.progress() : 0;
 						myGold = me.getStat(Gold) + me.getStat(GoldBank);
-						frRes = Math.min(75 + me.getStat(sdk.stats.MaxFireResist), me.getStat(sdk.stats.MaxFireResist) - resPenalty);
-						crRes = Math.min(75 + me.getStat(sdk.stats.MaxColdResist), me.getStat(sdk.stats.MaxColdResist) - resPenalty);
-						lrRes = Math.min(75 + me.getStat(sdk.stats.MaxLightResist), me.getStat(sdk.stats.MaxLightResist) - resPenalty);
-						prRes = Math.min(75 + me.getStat(sdk.stats.MaxPoisonResist), me.getStat(sdk.stats.MaxPoisonResist) - resPenalty);
+						frRes = Math.min(75 + me.getStat(sdk.stats.MaxFireResist), me.getStat(sdk.stats.FireResist) - resPenalty);
+						crRes = Math.min(75 + me.getStat(sdk.stats.MaxColdResist), me.getStat(sdk.stats.ColdResist) - resPenalty);
+						lrRes = Math.min(75 + me.getStat(sdk.stats.MaxLightResist), me.getStat(sdk.stats.LightResist) - resPenalty);
+						prRes = Math.min(75 + me.getStat(sdk.stats.MaxPoisonResist), me.getStat(sdk.stats.PoisonResist) - resPenalty);
 						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
 						statusString = me.name + " | Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
 					} catch (e) {

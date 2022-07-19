@@ -78,7 +78,7 @@ Misc.openChests = function (range = 15) {
 			// that needs a handler as well though, if we aren't clearing and are just pathing (tele char) opening a chest and moving on is fine
 		}
 
-		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, 0x5)) && this.openChest(unit)) {
+		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, sdk.collision.WallOrRanged)) && this.openChest(unit)) {
 			Pickit.pickItems();
 		}
 	}
@@ -92,8 +92,8 @@ Misc.getWell = function (unit) {
 	for (let i = 0; i < 3; i++) {
 		if (Skill.useTK(unit) && i < 2) {
 			unit.distance > 21 && Pather.moveNearUnit(unit, 20);
-			checkCollision(me, unit, 0x4) && Attack.getIntoPosition(unit, 20, 0x4);
-			Skill.cast(sdk.skills.Telekinesis, 0, unit);
+			checkCollision(me, unit, sdk.collision.Ranged) && Attack.getIntoPosition(unit, 20, 0x4);
+			Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, unit);
 		} else {
 			if (unit.distance < 4 || Pather.moveToUnit(unit, 3, 0)) {
 				Misc.click(0, 0, unit);
@@ -127,7 +127,7 @@ Misc.useWell = function (range = 15) {
 		unitList.sort(Sort.units);
 		let unit = unitList.shift();
 
-		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, 0x5))) {
+		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, sdk.collision.WallOrRanged))) {
 			this.getWell(unit);
 		}
 	}
@@ -707,7 +707,7 @@ Misc.logItem = function (action, unit, keptLine) {
 	}
 
 	keptLine && (desc += ("\n\\xffc0Line: " + keptLine));
-	desc += "$" + (unit.getFlag(0x400000) ? ":eth" : "");
+	desc += "$" + (unit.ethereal ? ":eth" : "");
 
 	itemObj = {
 		title: action + " " + name,

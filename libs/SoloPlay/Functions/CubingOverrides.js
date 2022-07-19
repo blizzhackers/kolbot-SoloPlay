@@ -436,7 +436,7 @@ Cubing.buildLists = function () {
 			for (let k = 0; k < items.length; k += 1) {
 				if (((this.recipes[i].Ingredients[j] === "pgem" && this.gemList.includes(items[k].classid))
 					|| (this.recipes[i].Ingredients[j] === "fgem" && [sdk.items.gems.Flawless.Amethyst, sdk.items.gems.Flawless.Topaz, sdk.items.gems.Flawed.Sapphire, sdk.items.gems.Flawless.Emerald, sdk.items.gems.Flawless.Ruby, sdk.items.gems.Flawless.Diamond, sdk.items.gems.Flawless.Skull].includes(items[k].classid))
-					|| (this.recipes[i].Ingredients[j] === "cgem" && [sdk.items.gems.Chipped.Amethyst, sdk.items.gems.Chipped.Topaz, sdk.items.gems.Chipped.Sapphire, sdk.items.gems.Chipped.Emerald, sdk.items.gems.Chipped.Ruby, sdk.items.gems.Chipped.Diamond, sdk.items.gems.Chipped.Skull].includes(items[k].classid))
+					|| (this.recipes[i].Ingredients[j] === "cgem" && this.chippedGems.includes(items[k].classid))
 					|| items[k].classid === this.recipes[i].Ingredients[j]) && this.validItem(items[k], this.recipes[i])) {
 
 					// push the item's info into the valid ingredients array. this will be used to find items when checking recipes
@@ -557,7 +557,7 @@ Cubing.buildLists = function () {
 // Added try again to emptying cube if it fails it will clear inventory then organize it
 Cubing.emptyCube = function () {
 	let cube = me.getItem(sdk.items.quest.Cube),
-		items = me.findItems(-1, -1, 6);
+		items = me.findItems(-1, -1, sdk.storage.Cube);
 
 	if (!cube || !items) return false;
 
@@ -640,7 +640,7 @@ Cubing.validItem = function (unit, recipe) {
 		}
 		// Junk jewels (NOT matching a pickit entry)
 		if (unit.itemType === sdk.itemtype.Jewel) {
-			if (recipe.Enabled && NTIP.CheckItem(unit) === 0) return true;
+			if (recipe.Enabled && ntipResult === Pickit.result.UNWANTED) return true;
 		// Main item, NOT matching a pickit entry
 		} else if (unit.magic && Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) >= recipe.Level && NTIP.CheckItem(unit, NTIP_CheckListNoTier) === 0) {
 			return true;
@@ -657,7 +657,7 @@ Cubing.validItem = function (unit, recipe) {
 			}
 		}
 		// Unique item matching pickit entry
-		if (unit.unique && NTIP.CheckItem(unit) === 1) {
+		if (unit.unique && Pickit.result.WANTED) {
 			// check items name (prevents upgrading lavagout when we want to be upgrading magefist for the second time)
 			if (recipe.Name !== undefined) {
 				valid = !!unit.fname.toLowerCase().includes(recipe.Name.toLowerCase());
@@ -678,11 +678,11 @@ Cubing.validItem = function (unit, recipe) {
 			switch (recipe.Ethereal) {
 			case Roll.All:
 			case undefined:
-				return NTIP.CheckItem(unit) === 1 && valid;
+				return ntipResult === Pickit.result.WANTED && valid;
 			case Roll.Eth:
-				return unit.ethereal && NTIP.CheckItem(unit) === 1 && valid;
+				return unit.ethereal && ntipResult === Pickit.result.WANTED && valid;
 			case Roll.NonEth:
-				return !unit.ethereal && NTIP.CheckItem(unit) === 1 && valid;
+				return !unit.ethereal && ntipResult === Pickit.result.WANTED && valid;
 			}
 		}
 
@@ -697,15 +697,15 @@ Cubing.validItem = function (unit, recipe) {
 			}
 		}
 		// Rare item matching pickit entry
-		if (unit.rare && NTIP.CheckItem(unit) === 1) {
+		if (unit.rare && ntipResult === Pickit.result.WANTED) {
 			switch (recipe.Ethereal) {
 			case Roll.All:
 			case undefined:
-				return NTIP.CheckItem(unit) === 1;
+				return ntipResult === Pickit.result.WANTED;
 			case Roll.Eth:
-				return unit.ethereal && NTIP.CheckItem(unit) === 1;
+				return unit.ethereal && ntipResult === Pickit.result.WANTED;
 			case Roll.NonEth:
-				return !unit.ethereal && NTIP.CheckItem(unit) === 1;
+				return !unit.ethereal && ntipResult === Pickit.result.WANTED;
 			}
 		}
 
@@ -718,11 +718,11 @@ Cubing.validItem = function (unit, recipe) {
 			switch (recipe.Ethereal) {
 			case Roll.All:
 			case undefined:
-				return NTIP.CheckItem(unit) === 1;
+				return ntipResult === Pickit.result.WANTED;
 			case Roll.Eth:
-				return unit.ethereal && NTIP.CheckItem(unit) === 1;
+				return unit.ethereal && ntipResult === Pickit.result.WANTED;
 			case Roll.NonEth:
-				return !unit.ethereal && NTIP.CheckItem(unit) === 1;
+				return !unit.ethereal && ntipResult === Pickit.result.WANTED;
 			}
 		}
 
@@ -730,7 +730,7 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index === Recipe.Reroll.Magic) {
-		if (unit.magic && unit.ilvl >= recipe.Level && NTIP.CheckItem(unit) === 0) {
+		if (unit.magic && unit.ilvl >= recipe.Level && ntipResult === Pickit.result.UNWANTED) {
 			return true;
 		}
 
@@ -738,7 +738,7 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index === Recipe.Reroll.Charm) {
-		if (unit.magic && NTIP.CheckItem(unit) === 0) {
+		if (unit.magic && ntipResult === Pickit.result.UNWANTED) {
 			switch (unit.itemType) {
 			case sdk.itemtype.SmallCharm:
 				if (unit.ilvl >= recipe.Level.cm1.ilvl) {
@@ -762,7 +762,7 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index === Recipe.Reroll.Rare) {
-		if (unit.rare && NTIP.CheckItem(unit) === 0) {
+		if (unit.rare && ntipResult === Pickit.result.UNWANTED) {
 			return true;
 		}
 
@@ -770,7 +770,7 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index === Recipe.Reroll.HighRare) {
-		if (recipe.Ingredients[0] === unit.classid && unit.rare && NTIP.CheckItem(unit) === 0) {
+		if (recipe.Ingredients[0] === unit.classid && unit.rare && ntipResult === Pickit.result.UNWANTED) {
 			recipe.Enabled = true;
 
 			return true;
@@ -784,7 +784,7 @@ Cubing.validItem = function (unit, recipe) {
 	}
 
 	if (recipe.Index === Recipe.LowToNorm.Armor || recipe.Index === Recipe.LowToNorm.Weapon) {
-		if (unit.lowquality && NTIP.CheckItem(unit) === 0) {
+		if (unit.lowquality && ntipResult === Pickit.result.UNWANTED) {
 			return true;
 		}
 
@@ -861,7 +861,7 @@ Cubing.doCubing = function () {
 						Misc.logItem("Cubing Kept", items[j], result.line);
 
 						break;
-					case 5: // Crafting System
+					case Pickit.result.CRAFTING:
 						CraftingSystem.update(items[j]);
 
 						break;

@@ -86,7 +86,7 @@ Skill.cast = function (skillId, hand, x, y, item) {
 	if (!this.setSkill(skillId, hand, item)) return false;
 
 	if (Config.PacketCasting > 1 || [sdk.skills.Teleport, sdk.skills.Telekinesis].includes(skillId)
-		|| (this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [67, 245].indexOf(skillId) === -1))) {
+		|| (this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [sdk.skills.Teeth, sdk.skills.Tornado].indexOf(skillId) === -1))) {
 		switch (typeof x) {
 		case "number":
 			Packet.castSkill(hand, x, y);
@@ -100,25 +100,26 @@ Skill.cast = function (skillId, hand, x, y, item) {
 			break;
 		}
 	} else {
+		// todo - get a better idea of clickType in reference to clickMap
 		switch (hand) {
-		case 0: // Right hand + No Shift
+		case sdk.skills.hand.Right: // Right hand + No Shift
 			clickType = 3;
-			shift = 0;
+			shift = sdk.clicktypes.shift.NoShift;
 
 			break;
-		case 1: // Left hand + Shift
+		case sdk.skills.hand.Left: // Left hand + Shift
 			clickType = 0;
-			shift = 1;
+			shift = sdk.clicktypes.shift.Shift;
 
 			break;
-		case 2: // Left hand + No Shift
+		case sdk.skills.hand.LeftNoShift: // Left hand + No Shift
 			clickType = 0;
-			shift = 0;
+			shift = sdk.clicktypes.shift.NoShift;
 
 			break;
-		case 3: // Right hand + Shift
+		case sdk.skills.hand.RightShift: // Right hand + Shift
 			clickType = 3;
-			shift = 1;
+			shift = sdk.clicktypes.shift.Shift;
 
 			break;
 		}
@@ -200,7 +201,7 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 		return false;
 	}
 
-	if ((this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [67, 245].indexOf(skillId) === -1))
+	if ((this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [sdk.skills.Teeth, sdk.skills.Tornado].indexOf(skillId) === -1))
 		|| Config.PacketCasting > 1
 		|| skillId === sdk.skills.Teleport) {
 		switch (typeof settings.x) {
@@ -217,26 +218,26 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 		delay(250);
 	} else {
 		let clickType, shift;
-
+		// todo - get a better idea of clickType in reference to clickMap
 		switch (settings.hand) {
-		case 0: // Right hand + No Shift
+		case sdk.skills.hand.Right: // Right hand + No Shift
 			clickType = 3;
-			shift = 0;
+			shift = sdk.clicktypes.shift.NoShift;
 
 			break;
-		case 1: // Left hand + Shift
+		case sdk.skills.hand.Left: // Left hand + Shift
 			clickType = 0;
-			shift = 1;
+			shift = sdk.clicktypes.shift.Shift;
 
 			break;
-		case 2: // Left hand + No Shift
+		case sdk.skills.hand.LeftNoShift: // Left hand + No Shift
 			clickType = 0;
-			shift = 0;
+			shift = sdk.clicktypes.shift.NoShift;
 
 			break;
-		case 3: // Right hand + Shift
+		case sdk.skills.hand.RightShift: // Right hand + Shift
 			clickType = 3;
-			shift = 1;
+			shift = sdk.clicktypes.shift.Shift;
 
 			break;
 		}

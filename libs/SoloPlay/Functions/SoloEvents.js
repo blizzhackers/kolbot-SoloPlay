@@ -298,7 +298,7 @@ const SoloEvents = {
 
 			if (getDistance(me, node) > 2) {
 				if (mLair) {
-					adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
+					adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
 
 					if (adjustedNode) {
 						node.x = adjustedNode[0];
@@ -323,8 +323,8 @@ const SoloEvents = {
 				} else {
 					if (fail > 0 && !useTele && !me.inTown) {
 						// Only do this once
-						if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, 1) && !leaped) {
-							Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y);
+						if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, sdk.skills.hand.Left) && !leaped) {
+							Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y);
 							leaped = true;
 						}
 					}

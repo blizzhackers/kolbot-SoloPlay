@@ -17,7 +17,7 @@ const Merc = {
 
 		for (let i = 0; i < 3; i++) {
 			if (merc) {
-				if (merc.mode === 0 || merc.mode === 12) {
+				if (merc.mode === sdk.units.monsters.mode.Death || merc.mode === sdk.units.monsters.mode.Dead) {
 					return null;
 				}
 

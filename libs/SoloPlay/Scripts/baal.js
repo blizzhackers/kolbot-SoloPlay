@@ -19,7 +19,7 @@ function baal () {
 				let decoy = Game.getMonster(sdk.units.minions.Dopplezon);
 
 				if (!decoy || (getTickCount() - decoyTick >= decoyDuration)) {
-					Skill.cast(sdk.skills.Decoy, 0, 15092, 5028);
+					Skill.cast(sdk.skills.Decoy, sdk.skills.hand.Right, 15092, 5028);
 					decoyTick = getTickCount();
 				}
 			}
@@ -30,7 +30,7 @@ function baal () {
 				if (me.getState(sdk.states.SkillDelay)) {
 					delay(50);
 				} else {
-					Skill.cast(Config.AttackSkill[1], 0, 15093, 5024);
+					Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 15093, 5024);
 				}
 			}
 
@@ -45,15 +45,15 @@ function baal () {
 			}
 
 			if (Config.AttackSkill[4] > 0) {
-				Skill.setSkill(Config.AttackSkill[4], 0);
+				Skill.setSkill(Config.AttackSkill[4], sdk.skills.hand.Right);
 			}
 
-			Skill.cast(Config.AttackSkill[3], 1);
+			Skill.cast(Config.AttackSkill[3], sdk.skills.hand.Left);
 
 			return true;
 		case sdk.charclass.Druid:
 			if ([sdk.skills.Tornado, sdk.skills.Fissure, sdk.skills.Volcano].includes(Config.AttackSkill[3])) {
-				Skill.cast(Config.AttackSkill[3], 0, 15093, 5029);
+				Skill.cast(Config.AttackSkill[3], sdk.skills.hand.Right, 15093, 5029);
 
 				return true;
 			}

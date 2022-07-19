@@ -31,7 +31,14 @@ include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
 include("SoloPlay/Functions/Globals.js");
 
-function main () {
+function main() {
+	const pots = {
+		  Health: 0,
+		  Mana: 1,
+		  Rejuv: 2,
+		  MercHealth: 3,
+		  MercRejuv: 4
+	  };
 	let ironGolem, tick, debugInfo = {area: 0, currScript: "no entry"};
 	let pingTimer = [];
 	let quitFlag = false;
@@ -203,7 +210,7 @@ function main () {
 				return copyUnit(items[k]);
 			}
 
-			if (items[k].mode === 2 && items[k].itemType === pottype) {
+			if (items[k].mode === sdk.itemmode.inBelt && items[k].itemType === pottype) {
 				console.log("ÿc2" + (type > 2 ? "Giving Merc " : "Drinking ") + items[k].name + " from belt.");
 				return copyUnit(items[k]);
 			}
@@ -217,21 +224,21 @@ function main () {
 		let pottype, tNow = getTickCount();
 
 		switch (type) {
-		case 0:
-		case 1:
-			if ((timerLastDrink[type] && (tNow - timerLastDrink[type] < 1000)) || me.getState(type === 0 ? 100 : 106)) {
+		case pots.Health:
+		case pots.Mana:
+			if ((timerLastDrink[type] && (tNow - timerLastDrink[type] < 1000)) || me.getState(type === 0 ? sdk.states.HealthPot : sdk.states.ManaPot)) {
 				return false;
 			}
 
 			break;
-		case 2:
+		case pots.Rejuv:
 			// small delay for juvs just to prevent using more at once
 			if (timerLastDrink[type] && (tNow - timerLastDrink[type] < 300)) {
 				return false;
 			}
 
 			break;
-		case 4:
+		case pots.MercRejuv:
 			// larger delay for juvs just to prevent using more at once, considering merc update rate
 			if (timerLastDrink[type] && (tNow - timerLastDrink[type] < 2000)) {
 				return false;
@@ -250,17 +257,17 @@ function main () {
 		if ([0, 17, 18].includes(me.mode)) return false;
 
 		switch (type) {
-		case 0:
-		case 3:
-			pottype = 76;
+		case pots.Health:
+		case pots.MercHealth:
+			pottype = sdk.itemtype.HealingPotion;
 
 			break;
-		case 1:
-			pottype = 77;
+		case pots.Mana:
+			pottype = sdk.itemtype.ManaPotion;
 
 			break;
 		default:
-			pottype = 78;
+			pottype = sdk.itemtype.RejuvPotion;
 
 			break;
 		}
@@ -272,13 +279,9 @@ function main () {
 			if ([0, 17, 18].includes(me.mode)) return false;
 
 			try {
-				if (type < 3) {
-					potion.interact();
-				} else {
-					sendPacket(1, 0x26, 4, potion.gid, 4, 1, 4, 0);
-				}
+				type < pots.MercHealth ? potion.interact() : Packet.useBeltItemForMerc(potion);
 			} catch (e) {
-				console.errorReport(e);
+				console.error(e);
 			}
 
 			timerLastDrink[type] = getTickCount();
@@ -427,42 +430,42 @@ function main () {
 	// Event functions
 	this.keyEvent = function (key) {
 		switch (key) {
-		case 19: // Pause/Break key
+		case sdk.keys.PauseBreak: // pause default.dbj
 			this.togglePause();
 
 			break;
-		case 96: // numpad 0
+		case sdk.keys.Numpad0: // quit current game
 			Developer.logPerformance && Tracker.update();
 			print("ÿc8Kolbot-SoloPlay: ÿc1Stopping profile");
 			delay(rand(2e3, 5e3));
 			D2Bot.stop(me.profile, true);
 
 			break;
-		case 35: // End key
+		case sdk.keys.End: // stop profile and log character
 			Developer.logEquipped ? MuleLogger.logEquippedItems() : MuleLogger.logChar();
 			Developer.logPerformance && Tracker.update();
 
-			delay(rand(Config.QuitListDelay[0] * 1e3, Config.QuitListDelay[1] * 1e3));
+			delay(rand(Time.seconds(Config.QuitListDelay[0]), Time.seconds(Config.QuitListDelay[1])));
 			D2Bot.printToConsole(me.profile + " - end run " + me.gamename);
 			D2Bot.stop(me.profile, true);
 
 			break;
-		case 45: // Ins key
+		case sdk.keys.Insert: // reveal level
 			me.overhead("Revealing " + Pather.getAreaName(me.area));
 			revealLevel(true);
 
 			break;
-		case 107: // Numpad +
+		case sdk.keys.NumpadPlus: // log stats
 			showConsole();
 
-			print("ÿc8My stats :: " + this.getStatsString(me));
+			console.log("ÿc8My stats :: " + this.getStatsString(me));
 			let merc = me.getMerc();
-			!!merc && print("ÿc8Merc stats :: " + this.getStatsString(merc));
+			!!merc && console.log("ÿc8Merc stats :: " + this.getStatsString(merc));
 			console.log("//------ÿc8SoloWants.needListÿc0-----//");
 			console.log(SoloWants.needList);
 
 			break;
-		case 101: // numpad 5
+		case sdk.keys.Numpad5: // force automule check
 			if (AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("muleInfo")) {
 				if (AutoMule.getMuleItems().length > 0) {
 					print("ÿc2Mule triggered");
@@ -477,14 +480,14 @@ function main () {
 			}
 
 			break;
-		case 102: // Numpad 6
+		case sdk.keys.Numpad6: // log character to char viewer
 			Developer.logEquipped ? MuleLogger.logEquippedItems() : MuleLogger.logChar();
 			me.overhead("Logged char: " + me.name);
 
 			break;
-		case 109: // Numpad -
+		case sdk.keys.NumpadDash: // log our items to item log ? should this try to get nearest player? Isn't that what it was meant for
 			{
-				let itemToCheck = getUnit(101);
+				let itemToCheck = Game.getSelectedUnit();
 				if (!!itemToCheck) {
 					D2Bot.printToConsole('getTier: ' + NTIP.GetTier(itemToCheck));
 					D2Bot.printToConsole('tierscore: ' + tierscore(itemToCheck));
@@ -499,12 +502,12 @@ function main () {
 			}
 
 			break;
-		case 110: // numpad decimal point
+		case sdk.keys.NumpadDecimal: // dump item info
 			{
 				let itemString = "";
 				let charmString = "";
 				let generalString = "";
-				let itemToCheck = getUnit(101);
+				let itemToCheck = Game.getSelectedUnit();
 				if (!!itemToCheck) {
 					itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck)
 						+ " | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n"
@@ -528,15 +531,15 @@ function main () {
 			}
 
 			break;
-		case 105: // numpad 9 - get nearest preset unit id
+		case sdk.keys.Numpad9: // get nearest preset unit id
 			console.log(this.getNearestPreset());
 
 			break;
-		case 106: // numpad * - precast
+		case sdk.keys.NumpadStar: // precast
 			Precast.doPrecast(true);
 
 			break;
-		case 111: // numpad / - re-load default
+		case sdk.keys.NumpadSlash: // re-load default
 			print("ÿc8ToolsThread :: " + sdk.colors.Red + "Stopping threads and waiting 5 seconds to restart");
 			this.stopDefault() && delay(5e3);
 			print('Starting default.dbj');
@@ -725,8 +728,8 @@ function main () {
 	while (true) {
 		try {
 			if (me.gameReady && !me.inTown) {
-				Config.UseHP > 0 && me.hpPercent < Config.UseHP && this.drinkPotion(0);
-				Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && this.drinkPotion(2);
+				Config.UseHP > 0 && me.hpPercent < Config.UseHP && this.drinkPotion(pots.Health);
+				Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && this.drinkPotion(pots.Rejuv);
 
 				if (Config.LifeChicken > 0 && me.hpPercent <= Config.LifeChicken && !me.inTown) {
 					!Developer.hideChickens && D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + Pather.getAreaName(me.area) + ". Ping: " + me.ping, sdk.colors.D2Bot.Red);
@@ -735,8 +738,8 @@ function main () {
 					break;
 				}
 
-				Config.UseMP > 0 && me.mpPercent < Config.UseMP && this.drinkPotion(1);
-				Config.UseRejuvMP > 0 && me.mpPercent < Config.UseRejuvMP && this.drinkPotion(2);
+				Config.UseMP > 0 && me.mpPercent < Config.UseMP && this.drinkPotion(pots.Mana);
+				Config.UseRejuvMP > 0 && me.mpPercent < Config.UseRejuvMP && this.drinkPotion(pots.Rejuv);
 
 				me.getState(sdk.states.Poison) && this.drinkSpecialPotion(sdk.items.AntidotePotion);
 				[sdk.states.Frozen, sdk.states.FrozenSolid].some(state => me.getState(state)) && this.drinkSpecialPotion(sdk.items.ThawingPotion);
@@ -769,7 +772,7 @@ function main () {
 					if (!!merc) {
 						let mercHP = getMercHP();
 
-						if (mercHP > 0 && merc.mode !== 12) {
+						if (mercHP > 0 && merc.mode !== sdk.units.monsters.mode.Dead) {
 							if (mercHP < Config.MercChicken) {
 								!Developer.hideChickens && D2Bot.printToConsole("Merc Chicken in " + Pather.getAreaName(me.area), sdk.colors.D2Bot.Red);
 								this.exit(true);
@@ -777,8 +780,8 @@ function main () {
 								break;
 							}
 
-							mercHP < Config.UseMercHP && this.drinkPotion(3);
-							mercHP < Config.UseMercRejuv && this.drinkPotion(4);
+							mercHP < Config.UseMercHP && this.drinkPotion(pots.MercHealth);
+							mercHP < Config.UseMercRejuv && this.drinkPotion(pots.MercRejuv);
 						}
 					}
 				}

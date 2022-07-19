@@ -123,7 +123,7 @@ const mercscore = function (item) {
 		let sockets = Config.Runewords[x][0].length;
 		let baseCID = Config.Runewords[x][1];
 
-		if (item.classid === baseCID && item.quality < 4 && item.sockets === sockets && !item.isRuneword) {
+		if (item.classid === baseCID && item.quality < sdk.itemquality.Magic && item.sockets === sockets && !item.isRuneword) {
 			rwBase = true;
 		}
 	}
@@ -613,7 +613,7 @@ const tierscore = function (item, bodyloc) {
 		let sockets = Config.Runewords[x][0].length;
 		let baseCID = Config.Runewords[x][1];
 
-		if (item.classid === baseCID && item.quality < 4 && item.sockets === sockets && !item.isRuneword && !item.getItem()) {
+		if (item.classid === baseCID && item.quality < sdk.itemquality.Magic && item.sockets === sockets && !item.isRuneword && !item.getItem()) {
 			rwBase = true;
 		}
 	}

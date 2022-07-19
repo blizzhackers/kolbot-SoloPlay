@@ -84,7 +84,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			// Might be worth it to use on souls too TODO: test this idea
 			if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && gold > 500000 && !isBoss
 				&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-				&& !checkCollision(me, unit, 0x4)) {
+				&& !checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Cast slow missiles
 				Attack.castCharges(sdk.skills.SlowMissiles, unit);
 			}
@@ -92,7 +92,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
 				&& (gold > 500000 || isBoss || dangerZone)
 				&& !unit.getState(sdk.states.LowerResist)
-				&& !checkCollision(me, unit, 0x4)) {
+				&& !checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Switch cast lower resist
 				Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 			}
@@ -100,7 +100,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
 				&& (gold > 500000 || isBoss || dangerZone)
 				&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist)
-				&& !checkCollision(me, unit, 0x4)) {
+				&& !checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Switch cast weaken
 				Attack.switchCastCharges(sdk.skills.Weaken, unit);
 			}
@@ -171,7 +171,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			}).length > 1;
 			if (shouldSpike && !Coords_1.isBlockedBetween(me, unit)) {
 				Developer.debugging.skills && print("SPIKE");
-				Skill.cast(sdk.skills.GlacialSpike, 0, unit);
+				Skill.cast(sdk.skills.GlacialSpike, sdk.skills.hand.Right, unit);
 			}
 		}
 	}
@@ -209,7 +209,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			.find(unit => Attack.checkResist(unit, "lightning") && unit.hpPercent > Config.CastStatic);
 		if (!!closeMobCheck && data.static.dmg > Math.max(data.mainTimed.dmg, data.mainUntimed.dmg, data.secondaryTimed.dmg, data.secondaryUntimed.dmg) && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
 			Developer.debugging.skills && print("STATIC");
-			Skill.cast(sdk.skills.StaticField, 0, closeMobCheck) && Skill.cast(sdk.skills.StaticField, 0, closeMobCheck);
+			Skill.cast(sdk.skills.StaticField, sdk.skills.hand.Right, closeMobCheck) && Skill.cast(sdk.skills.StaticField, sdk.skills.hand.Right, closeMobCheck);
 		}
 	}
 
@@ -342,7 +342,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 				}
 
 				let closeMob = Attack.getNearestMonster({skipGid: gid});
-				!!closeMob ? this.doCast(closeMob, timedSkill, data) : haveTK && Skill.cast(sdk.skills.Telekinesis, 0, unit);
+				!!closeMob ? this.doCast(closeMob, timedSkill, data) : haveTK && Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, unit);
 			}
 
 			return true;
@@ -389,7 +389,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 				let howLongToDelay = Config.AttackSkill.some(sk => sk > 1 && Skill.canUse(sk)) ? Time.seconds(2) : Time.seconds(1);
 
 				while (getTickCount() - tick < howLongToDelay) {
-					if (me.mode === 4) {
+					if (me.mode === sdk.units.player.mode.Gettinghit) {
 						console.debug("no longer safe, we are being attacked");
 						break;
 					} else if (me.hpPercent >= 55) {
@@ -410,7 +410,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			while (getTickCount() - tick < 750) {
 				if (tsMana < me.mp) {
 					break;
-				} else if (me.mode === 4) {
+				} else if (me.mode === sdk.units.player.mode.Gettinghit) {
 					console.debug("no longer safe, we are being attacked");
 					return 3;
 				}

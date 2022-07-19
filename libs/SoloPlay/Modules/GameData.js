@@ -21,7 +21,7 @@
 	}
 
 	function onGround(item) {
-		if (item.mode === 3 || item.mode === 5) {
+		if (item.onGroundOrDropping) {
 			return true;
 		}
 

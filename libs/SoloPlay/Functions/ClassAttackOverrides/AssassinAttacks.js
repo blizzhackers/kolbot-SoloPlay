@@ -29,7 +29,7 @@ ClassAttack.mindBlast = function (unit) {
 		for (let i = 0; i < list.length; i++) {
 			if (!list[i].dead && !checkCollision(me, list[i], 0x1) && me.mp > mindBlastMpCost * 2) {
 				me.overhead("MindBlasting " + list[i].name);
-				Skill.cast(sdk.skills.MindBlast, 0, list[i]);
+				Skill.cast(sdk.skills.MindBlast, sdk.skills.hand.Right, list[i]);
 			}
 		}
 	}
@@ -45,7 +45,7 @@ ClassAttack.placeTraps = function (unit, amount) {
 			// Used for X formation
 			if (Math.abs(i) === Math.abs(j)) {
 				// Unit can be an object with x, y props too, that's why having "mode" prop is checked
-				if (traps >= amount || (unit.hasOwnProperty("mode") && (unit.mode === 0 || unit.mode === 12))) {
+				if (traps >= amount || (unit.hasOwnProperty("mode") && (unit.mode === sdk.units.monsters.mode.Death || unit.mode === sdk.units.monsters.mode.Dead))) {
 					return true;
 				}
 
@@ -68,9 +68,9 @@ ClassAttack.placeTraps = function (unit, amount) {
 						// Immune to lightning but not immune to fire, use fire trap if available
 						if (!Attack.checkResist(unit, "lightning") && Attack.checkResist(unit, "fire")) {
 							if (Skill.canUse(sdk.skills.WakeofFire)) {
-								Skill.cast(sdk.skills.WakeofFire, 0, unit.x + i, unit.y + j);
+								Skill.cast(sdk.skills.WakeofFire, sdk.skills.hand.Right, unit.x + i, unit.y + j);
 							} else if (Skill.canUse(sdk.skills.WakeofInferno)) {
-								Skill.cast(sdk.skills.WakeofInferno, 0, unit.x + i, unit.y + j);
+								Skill.cast(sdk.skills.WakeofInferno, sdk.skills.hand.Right, unit.x + i, unit.y + j);
 							}
 
 							break;
@@ -84,19 +84,19 @@ ClassAttack.placeTraps = function (unit, amount) {
 						// Immune to fire but not immune to lightning, use light trap if available
 						if (Attack.checkResist(unit, "lightning") && !Attack.checkResist(unit, "fire")) {
 							if (Skill.canUse(sdk.skills.LightningSentry)) {
-								Skill.cast(sdk.skills.LightningSentry, 0, unit.x + i, unit.y + j);
+								Skill.cast(sdk.skills.LightningSentry, sdk.skills.hand.Right, unit.x + i, unit.y + j);
 							} else if (Skill.canUse(sdk.skills.ChargedBoltSentry)) {
-								Skill.cast(sdk.skills.ChargedBoltSentry, 0, unit.x + i, unit.y + j);
+								Skill.cast(sdk.skills.ChargedBoltSentry, sdk.skills.hand.Right, unit.x + i, unit.y + j);
 							}
 
 							break;
 						} else {
-							Skill.cast(Config.Traps[traps], 0, unit.x + i, unit.y + j);
+							Skill.cast(Config.Traps[traps], sdk.skills.hand.Right, unit.x + i, unit.y + j);
 						}
 
 						break;
 					default:
-						Skill.cast(Config.Traps[traps], 0, unit.x + i, unit.y + j);
+						Skill.cast(Config.Traps[traps], sdk.skills.hand.Right, unit.x + i, unit.y + j);
 
 						break;
 					}
@@ -136,7 +136,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	this.mindBlast(unit);
 
 	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.skillDelay || !Skill.isTimed(Config.AttackSkill[0]))) {
-		if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
+		if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 				return 0;
 			}
@@ -159,8 +159,8 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let checkTraps = this.checkTraps(unit);
 
 	if (checkTraps) {
-		if (Math.round(getDistance(me, unit)) > this.trapRange || checkCollision(me, unit, 0x4)) {
-			if (!Attack.getIntoPosition(unit, this.trapRange, 0x4) || (checkCollision(me, unit, 0x1) && (getCollision(me.area, unit.x, unit.y) & 0x1))) {
+		if (Math.round(getDistance(me, unit)) > this.trapRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (!Attack.getIntoPosition(unit, this.trapRange, 0x4) || (checkCollision(me, unit, sdk.collision.BlockWall) && (getCollision(me.area, unit.x, unit.y) & 0x1))) {
 				return 0;
 			}
 		}
@@ -176,14 +176,14 @@ ClassAttack.doAttack = function (unit, preattack) {
 	// Handle Switch casting
 	if (index === 1 && !unit.dead) {
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-			&& unit.curseable && (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+			&& unit.curseable && (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
 		
 		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist) && !unit.getState(sdk.states.LowerResist)
 			&& unit.curseable && (gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area))
-			&& !checkCollision(me, unit, 0x4)) {
+			&& !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Switch cast lower resist
 			Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 		}
@@ -267,8 +267,8 @@ ClassAttack.farCast = function (unit) {
 	let checkTraps = this.checkTraps(unit);
 
 	if (checkTraps) {
-		if (unit.distance > 30 || checkCollision(me, unit, 0x4)) {
-			if (!Attack.getIntoPosition(unit, 30, 0x4) || (checkCollision(me, unit, 0x1) && (getCollision(me.area, unit.x, unit.y) & 0x1))) {
+		if (unit.distance > 30 || checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (!Attack.getIntoPosition(unit, 30, 0x4) || (checkCollision(me, unit, sdk.collision.BlockWall) && (getCollision(me.area, unit.x, unit.y) & 0x1))) {
 				return false;
 			}
 		}

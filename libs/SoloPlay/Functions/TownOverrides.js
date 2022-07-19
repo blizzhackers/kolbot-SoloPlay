@@ -1282,7 +1282,7 @@ Town.clearInventory = function () {
 				delay(100);
 			}
 		} catch (e) {
-			console.errorReport(e);
+			console.error(e);
 		}
 	});
 

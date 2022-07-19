@@ -31,7 +31,7 @@ function diablo () {
 						if (me.skillDelay) {
 							delay(500 + me.ping);
 						} else {
-							Skill.cast(Config.AttackSkill[1], 0, 7793, 5293);
+							Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793, 5293);
 						}
 
 						break;
@@ -42,12 +42,12 @@ function diablo () {
 					break;
 				case sdk.charclass.Paladin:
 					Skill.setSkill(Config.AttackSkill[2]);
-					Skill.cast(Config.AttackSkill[1], 1);
+					Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Left);
 
 					break;
 				case sdk.charclass.Druid:
 					if (Config.AttackSkill[1] === sdk.skills.Tornado) {
-						Skill.cast(Config.AttackSkill[1], 0, 7793, 5293);
+						Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793, 5293);
 
 						break;
 					}

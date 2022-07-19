@@ -33,25 +33,25 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
 			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-			&& (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+			&& (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
 
 		if (CharData.skillData.haveChargedSkill(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight)
-			&& gold > 500000 && !checkCollision(me, unit, 0x4)) {
+			&& gold > 500000 && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast Inner sight
 			Attack.castCharges(sdk.skills.InnerSight, unit);
 		}
 
 		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Decrepify)
-			&& !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, 0x4)) {
+			&& !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Switch cast decrepify
 			Attack.switchCastCharges(sdk.skills.Decrepify, unit);
 		}
 		
 		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
-			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, 0x4)) {
+			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Switch cast weaken
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);
 		}
@@ -65,7 +65,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	}
 
 	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
-		if (getDistance(me, unit) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
+		if (getDistance(me, unit) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 				return 0;
 			}
@@ -168,7 +168,7 @@ ClassAttack.afterAttack = function () {
 		Misc.poll(function () {
 			me.overhead("Delaying for a second to get rid of Poison");
 
-			return (!me.getState(sdk.states.Poison) || me.mode === 4/*Getting hit*/);
+			return (!me.getState(sdk.states.Poison) || me.mode === sdk.units.player.mode.Gettinghit);
 		}, 1500, 30);
 	}
 

@@ -58,7 +58,7 @@ var Container = function (name, width, height, location) {
 		reference = baseRef.slice(0);
 
 		// Make sure it is in this container.
-		if (item.mode !== 0 || item.location !== this.location) {
+		if (item.mode !== sdk.itemmode.inStorage || item.location !== this.location) {
 			return false;
 		}
 
@@ -169,12 +169,12 @@ var Container = function (name, width, height, location) {
 					continue; // not top left part of item
 				}
 
-				if (item.type !== 4) {
+				if (item.type !== sdk.itemtype.Gold) {
 					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a non-item in the list: " + item.name + " at " + ix + "," + iy, sdk.colors.D2Bot.Gold);
 					continue; // dont try to touch non-items | TODO: prevent non-items from getting this far
 				}
 
-				if (item.mode === 3 ) {
+				if (item.mode === sdk.itemmode.onGround) {
 					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a ground item in the list: " + item.name + " at " + ix + "," + iy, sdk.colors.D2Bot.Gold);
 					continue; // dont try to touch ground items | TODO: prevent ground items from getting this far
 				}
@@ -387,7 +387,7 @@ var Container = function (name, width, height, location) {
 		}
 
 		// Can't deal with items on ground!
-		if (item.mode === 3) return false;
+		if (item.mode ===sdk.itemmode.onGround) return false;
 
 		// Item already on the cursor.
 		if (me.itemoncursor && item.mode !== sdk.itemmode.onCursor) return false;
@@ -399,7 +399,7 @@ var Container = function (name, width, height, location) {
 			for (n = 0; n < 5; n += 1) {
 				switch (this.location) {
 				case sdk.storage.Belt:
-					cItem = getUnit(100);
+					cItem = Game.getCursorUnit();
 
 					if (cItem !== null) {
 						sendPacket(1, 0x23, 4, cItem.gid, 4, y);
@@ -411,7 +411,7 @@ var Container = function (name, width, height, location) {
 
 					break;
 				case sdk.storage.Cube:
-					cItem = getUnit(100);
+					cItem = Game.getCursorUnit();
 					cube = me.getItem(sdk.items.quest.Cube);
 
 					if (cItem !== null && cube !== null) {
@@ -424,7 +424,7 @@ var Container = function (name, width, height, location) {
 
 					break;
 				default:
-					clickItemAndWait(0, x, y, this.location);
+					clickItemAndWait(sdk.clicktypes.Left, x, y, this.location);
 
 					break;
 				}
@@ -568,7 +568,7 @@ var Storage = new function () {
 		}
 
 		do {
-			if (item.bodylocation === 8) { // belt slot
+			if (item.bodylocation === sdk.body.Belt) { // belt slot
 				switch (item.code) {
 				case "lbl": // sash
 				case "vbl": // light belt
@@ -600,23 +600,23 @@ var Storage = new function () {
 
 		do {
 			switch (item.location) {
-			case 3:
+			case sdk.storage.Inventory:
 				this.Inventory.Mark(item);
 
 				break;
-			case 5:
+			case sdk.storage.TradeWindow:
 				this.TradeScreen.Mark(item);
 
 				break;
-			case 2:
+			case sdk.storage.Belt:
 				this.Belt.Mark(item);
 
 				break;
-			case 6:
+			case sdk.storage.Cube:
 				this.Cube.Mark(item);
 
 				break;
-			case 7:
+			case sdk.storage.Stash:
 				this.Stash.Mark(item);
 
 				break;

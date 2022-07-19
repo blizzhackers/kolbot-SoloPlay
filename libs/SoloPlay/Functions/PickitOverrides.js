@@ -398,7 +398,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		self.dist = (unit.distance || Infinity);
 		let canTk = (Skill.haveTK
 			&& (self.type === 4 || self.type === 22 || (self.type > 75 && self.type < 82))
-			&& self.dist > 5 && self.dist < 20 && !checkCollision(me, unit, 0x5));
+			&& self.dist > 5 && self.dist < 20 && !checkCollision(me, unit, sdk.collision.WallOrRanged));
 		self.useTk = canTk && (me.mpPercent > 50);
 		self.picked = false;
 	}
@@ -445,7 +445,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		}
 
 		if (stats.useTk && me.mp > tkMana) {
-			Skill.cast(sdk.skills.Telekinesis, 0, item);
+			Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, item);
 		} else {
 			if (item.distance > (Config.FastPick || i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
 				if (item.checkForMobs({range: 8, coll: (0x1 | 0x400 | 0x800)})) {
@@ -533,7 +533,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			Runewords.update(stats.classid, gid);
 
 			break;
-		case 5: // Crafting System
+		case Pickit.result.CRAFTING:
 			print("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Crafting System)");
 			CraftingSystem.update(item);
 

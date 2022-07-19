@@ -122,7 +122,7 @@ Pather.teleportTo = function (x, y, maxRange = 5) {
 	Developer.debugging.pathing && print("Mob Count at next node: " + [x, y].mobCount());
 	
 	for (let i = 0; i < 3; i += 1) {
-		Skill.setSkill(sdk.skills.Teleport, sdk.skills.subindex.hardpoints) && Packet.castSkill(0, x, y);
+		Skill.setSkill(sdk.skills.Teleport, sdk.skills.subindex.hardpoints) && Packet.castSkill(sdk.skills.hand.Right, x, y);
 		let tick = getTickCount();
 		let pingDelay = i === 0 ? 250 : me.getPingDelay();
 
@@ -184,7 +184,7 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 			if (wp && wp.area === me.area) {
 				if (useTK) {
 					wp.distance > 21 && Pather.moveNearUnit(wp, 20);
-					Skill.cast(sdk.skills.Telekinesis, 0, wp);
+					Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, wp);
 				} else {
 					wp.distance > 7 && this.moveToUnit(wp);
 					Misc.click(0, 0, wp);
@@ -332,7 +332,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 		if (getDistance(me, node) > 2) {
 			fail >= 3 && fail % 3 === 0 && !Attack.validSpot(node.x, node.y) && (invalidCheck = true);
 			if (annoyingArea || invalidCheck) {
-				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
+				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
 
 				if (adjustedNode) {
 					node.x = adjustedNode[0];
@@ -376,7 +376,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 						}
 
 						// Only do this once
-						if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y)) {
+						if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
 							leaped = true;
 						}
 					}
@@ -483,7 +483,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 			fail >= 3 && fail % 3 === 0 && !Attack.validSpot(node.x, node.y) && (invalidCheck = true);
 			// Make life in Maggot Lair easier - should this include arcane as well?
 			if (annoyingArea || invalidCheck) {
-				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
+				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
 
 				if (adjustedNode) {
 					node.x = adjustedNode[0];
@@ -528,7 +528,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 						}
 
 						// Only do this once
-						if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y)) {
+						if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
 							leaped = true;
 						}
 					}
@@ -618,7 +618,7 @@ Pather.moveToLoc = function (target, givenSettings) {
 
 		if (getDistance(me, node) > 2) {
 			if (annoyingArea) {
-				adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
+				adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
 
 				if (adjustedNode) {
 					node.x = adjustedNode[0];
@@ -655,7 +655,7 @@ Pather.moveToLoc = function (target, givenSettings) {
 					}
 
 					// Only do this once
-					if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y)) {
+					if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
 						leaped = true;
 					}
 				}
@@ -740,7 +740,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 			if (useTK && !getUIFlag(sdk.uiflags.Waypoint)) {
 				wp.distance > 21 && Pather.moveNearUnit(wp, 20);
 				i > 1 && checkCollision(me, wp, 0x4) && Attack.getIntoPosition(wp, 20, 0x4);
-				Skill.cast(sdk.skills.Telekinesis, 0, wp);
+				Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, wp);
 			} else if (!me.inTown && wp.distance > 7) {
 				this.moveToUnit(wp);
 			}

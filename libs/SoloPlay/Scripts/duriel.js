@@ -38,7 +38,7 @@ function duriel () {
 
 	if (me.sorceress && unit && Skill.useTK(unit)) {
 		for (let i = 0; i < 3; i++) {
-			!me.inArea(sdk.areas.DurielsLair) && Skill.cast(sdk.Skills.Telekinesis, 0, unit);
+			!me.inArea(sdk.areas.DurielsLair) && Skill.cast(sdk.Skills.Telekinesis, sdk.skills.hand.Right, unit);
 			if (me.inArea(sdk.areas.DurielsLair)) {
 				break;
 			}
