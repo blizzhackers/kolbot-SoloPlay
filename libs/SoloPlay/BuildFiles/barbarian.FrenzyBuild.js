@@ -115,7 +115,7 @@ const finalBuild = {
 		1:	{
 			Update: function () {
 				Config.AttackSkill = [sdk.skills.WarCry, sdk.skills.Frenzy, -1, sdk.skills.Frenzy, -1];
-				Config.LowManaSkill = me.getSkill(sdk.skills.DoubleSwing, 1) >= 9 ? [sdk.skills.DoubleSwing, 0] : [0, -1];
+				Config.LowManaSkill = me.getSkill(sdk.skills.DoubleSwing, sdk.skills.subindex.softpoints) >= 9 ? [sdk.skills.DoubleSwing, sdk.skills.subindex.hardpoints] : [0, -1];
 				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
 				Config.MPBuffer = 2;
 				Config.HPBuffer = 2;
@@ -132,6 +132,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.Frenzy, 0) === 20;
+		return this.respec && me.getSkill(sdk.skills.Frenzy, sdk.skills.subindex.hardpoints) === 20;
 	},
 };

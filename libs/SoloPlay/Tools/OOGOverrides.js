@@ -99,7 +99,7 @@ ControlAction.makeCharacter = function (info) {
 					switch (info.charClass) {
 					case "druid":
 					case "assassin":
-						D2Bot.printToConsole("Error in profile name. Expansion characters cannot be made in classic", 9);
+						D2Bot.printToConsole("Error in profile name. Expansion characters cannot be made in classic", sdk.colors.D2Bot.Red);
 						D2Bot.stop();
 
 						break;
@@ -352,7 +352,7 @@ ControlAction.deleteAndRemakeChar = function (info) {
 	DataFile.create();
 	CharData.updateData("me", "finalBuild", Starter.profileInfo.tag);
 	Developer.logPerformance && Tracker.initialize();
-	D2Bot.printToConsole("Deleted: " + info.charName + ". Now remaking...", 6);
+	D2Bot.printToConsole("Deleted: " + info.charName + ". Now remaking...", sdk.colors.D2Bot.Gold);
 	ControlAction.makeCharacter(Starter.profileInfo);
 
 	return true;

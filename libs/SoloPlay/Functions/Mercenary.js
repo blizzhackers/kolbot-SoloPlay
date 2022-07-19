@@ -17,7 +17,7 @@ const Merc = {
 
 		for (let i = 0; i < 3; i++) {
 			if (merc) {
-				if (merc.mode === 0 || merc.mode === 12) {
+				if (merc.mode === sdk.units.monsters.mode.Death || merc.mode === sdk.units.monsters.mode.Dead) {
 					return null;
 				}
 
@@ -73,7 +73,7 @@ const Merc = {
 		// we don't have enough spare gold to buy a1 merc
 		// we don't have enough gold to hire our wanted merc
 		switch (true) {
-		case typeOfMerc === 1 && (myData.merc.type === "Cold Arrow" || !Misc.checkQuest(2, 0)):
+		case typeOfMerc === 1 && (myData.merc.type === "Cold Arrow" || !Misc.checkQuest(sdk.quest.id.SistersBurialGrounds, 0)):
 		case me.diff > mercDiff:
 		case me.diff === mercDiff && !Pather.accessToAct(mercAct):
 		case myData.merc.type === mercAuraWanted:
@@ -95,7 +95,7 @@ const Merc = {
 			myData.merc.type = wantedSkill;
 			CharData.updateData("merc", myData) && updateMyData();
 			return true;
-		} else if (!!checkMyMerc && checkMyMerc.classid === sdk.monsters.mercs.Guard && !checkMyMerc.getStat(sdk.stats.ModifierListSkill)) {
+		} else if (!!checkMyMerc && checkMyMerc.classid === sdk.units.mercs.Guard && !checkMyMerc.getStat(sdk.stats.ModifierListSkill)) {
 			// aura isn't active so we can't check it
 			return true;
 		}

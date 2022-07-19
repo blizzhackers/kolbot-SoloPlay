@@ -22,7 +22,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 		if (Town.visitTown()) {
 			// lost reference to the mob we were attacking
-			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+			if (!unit || !copyUnit(unit).x || !Game.getMonsters(-1, -1, gid) || unit.dead) {
 				return 1;
 			}
 		}
@@ -33,38 +33,39 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
 			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-			&& (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+			&& (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
 
 		if (CharData.skillData.haveChargedSkill(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight)
-			&& gold > 500000 && !checkCollision(me, unit, 0x4)) {
+			&& gold > 500000 && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast Inner sight
 			Attack.castCharges(sdk.skills.InnerSight, unit);
 		}
 
 		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Decrepify)
-			&& !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, 0x4)) {
+			&& !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Switch cast decrepify
 			Attack.switchCastCharges(sdk.skills.Decrepify, unit);
 		}
 		
 		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
-			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, 0x4)) {
+			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Switch cast weaken
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);
 		}
 	}
 
 	// specials and dolls for now, should make dolls much less dangerous with the reduction of their damage
-	if (Precast.haveCTA > -1 && !unit.dead && (index === 1 || [212, 213, 214, 215, 216, 690, 691].includes(unit.classid))
+	if (Precast.haveCTA > -1 && !unit.dead && (index === 1 || [sdk.units.monsters.BoneFetish1, sdk.units.monsters.BoneFetish2, sdk.units.monsters.BoneFetish2,
+		sdk.units.monsters.SoulKiller3, sdk.units.monsters.StygianDoll2, sdk.units.monsters.StygianDoll6, sdk.units.monsters.SoulKiller].includes(unit.classid))
 		&& unit.distance < 5 && !unit.getState(sdk.states.BattleCry) && unit.curseable) {
 		Skill.switchCast(sdk.skills.BattleCry, {oSkill: true});
 	}
 
 	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
-		if (getDistance(me, unit) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
+		if (getDistance(me, unit) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 				return 0;
 			}
@@ -120,13 +121,13 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 	let result = this.doCast(unit, attackSkill, aura);
 
-	if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+	if (result === this.result.CantAttack && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
 		let merc = me.getMerc();
 
 		while (unit.attackable) {
 			if (Misc.townCheck()) {
 				if (!unit || !copyUnit(unit).x) {
-					unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
+					unit = Misc.poll(() => Game.getMonsters(-1, -1, gid), 1000, 80);
 				}
 			}
 
@@ -163,17 +164,17 @@ ClassAttack.afterAttack = function () {
 	Precast.doPrecast(false);
 
 	if (Skill.canUse(sdk.skills.Cleansing) && me.getState(sdk.states.Poison)
-		&& me.getMobCount(12, Coords_1.BlockBits.BlockWall) === 0 && Skill.setSkill(sdk.skills.Cleansing, 0)) {
+		&& me.getMobCount(12, Coords_1.BlockBits.BlockWall) === 0 && Skill.setSkill(sdk.skills.Cleansing, sdk.skills.subindex.hardpoints)) {
 		Misc.poll(function () {
 			me.overhead("Delaying for a second to get rid of Poison");
 
-			return (!me.getState(sdk.states.Poison) || me.mode === 4/*Getting hit*/);
+			return (!me.getState(sdk.states.Poison) || me.mode === sdk.units.player.mode.Gettinghit);
 		}, 1500, 30);
 	}
 
 	if (Skill.canUse(sdk.skills.Redemption) && Config.Redemption instanceof Array
 		&& (me.hpPercent < Config.Redemption[0] || me.mpPercent < Config.Redemption[1])
-		&& Attack.checkNearCorpses(me) > 2 && Skill.setSkill(sdk.skills.Redemption, 0)) {
+		&& Attack.checkNearCorpses(me) > 2 && Skill.setSkill(sdk.skills.Redemption, sdk.skills.subindex.hardpoints)) {
 		delay(1500);
 	}
 };

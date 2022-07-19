@@ -58,7 +58,7 @@ var Container = function (name, width, height, location) {
 		reference = baseRef.slice(0);
 
 		// Make sure it is in this container.
-		if (item.mode !== 0 || item.location !== this.location) {
+		if (item.mode !== sdk.itemmode.inStorage || item.location !== this.location) {
 			return false;
 		}
 
@@ -157,11 +157,11 @@ var Container = function (name, width, height, location) {
 				let ix = item.y, iy = item.x; // x and y are backwards!
 
 				if (this.location !== item.location) {
-					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a non-storage item in the list: " + item.name + " at " + ix + "," + iy, 6);
+					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a non-storage item in the list: " + item.name + " at " + ix + "," + iy, sdk.colors.D2Bot.Gold);
 					continue; // dont try to touch non-storage items | TODO: prevent non-storage items from getting this far
 				}
 
-				if (this.location === 3 && this.IsLocked(item, Config.Inventory)) {
+				if (this.location === sdk.storage.Inventory && this.IsLocked(item, Config.Inventory)) {
 					continue; // locked spot / item
 				}
 
@@ -169,23 +169,23 @@ var Container = function (name, width, height, location) {
 					continue; // not top left part of item
 				}
 
-				if (item.type !== 4) {
-					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a non-item in the list: " + item.name + " at " + ix + "," + iy, 6);
+				if (item.type !== sdk.itemtype.Gold) {
+					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a non-item in the list: " + item.name + " at " + ix + "," + iy, sdk.colors.D2Bot.Gold);
 					continue; // dont try to touch non-items | TODO: prevent non-items from getting this far
 				}
 
-				if (item.mode === 3 ) {
-					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a ground item in the list: " + item.name + " at " + ix + "," + iy, 6);
+				if (item.mode === sdk.itemmode.onGround) {
+					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a ground item in the list: " + item.name + " at " + ix + "," + iy, sdk.colors.D2Bot.Gold);
 					continue; // dont try to touch ground items | TODO: prevent ground items from getting this far
 				}
 
 				// always sort stash left-to-right
-				if (this.location === 7) {
+				if (this.location === sdk.storage.Stash) {
 					nPos = this.FindSpot(item);
-				} else if (this.location === 3 && ((!itemIdsLeft && !itemIdsRight) || !itemIdsLeft || itemIdsRight.includes(item.classid) || itemIdsLeft.indexOf(item.classid) === -1)) {
+				} else if (this.location === sdk.storage.Inventory && ((!itemIdsLeft && !itemIdsRight) || !itemIdsLeft || itemIdsRight.includes(item.classid) || itemIdsLeft.indexOf(item.classid) === -1)) {
 					// sort from right by default or if specified
 					nPos = this.FindSpot(item, true, false, SetUp.sortSettings.ItemsSortedFromRightPriority);
-				} else if (this.location === 3 && itemIdsRight.indexOf(item.classid) === -1 && itemIdsLeft.includes(item.classid)) {
+				} else if (this.location === sdk.storage.Inventory && itemIdsRight.indexOf(item.classid) === -1 && itemIdsLeft.includes(item.classid)) {
 					// sort from left only if specified
 					nPos = this.FindSpot(item, false, false, SetUp.sortSettings.ItemsSortedFromLeftPriority);
 				}
@@ -359,22 +359,22 @@ var Container = function (name, width, height, location) {
 			for (let i = 0; i < itemsToMove.length; i++) {
 				let reverseX = !(SetUp.sortSettings.ItemsSortedFromRight.indexOf(item.classid) > -1);
 				tmpLocation = this.FindSpot(itemsToMove[i], reverseX, false);
-				// D2Bot.printToConsole(itemsToMove[i].name + " moving from " + itemsToMove[i].x + "," + itemsToMove[i].y + " to "  + tmpLocation.y + "," + tmpLocation.x, 6);
+				// D2Bot.printToConsole(itemsToMove[i].name + " moving from " + itemsToMove[i].x + "," + itemsToMove[i].y + " to "  + tmpLocation.y + "," + tmpLocation.x, sdk.colors.D2Bot.Gold);
 
 				if (this.MoveToSpot(itemsToMove[i], tmpLocation.y, tmpLocation.x)) {
-					// D2Bot.printToConsole(itemsToMove[i].name + " moved to " + tmpLocation.y + "," + tmpLocation.x, 6);
+					// D2Bot.printToConsole(itemsToMove[i].name + " moved to " + tmpLocation.y + "," + tmpLocation.x, sdk.colors.D2Bot.Gold);
 					itemsMoved.push(copyUnit(itemsToMove[i]));
 					Storage.Reload(); // success on this item, reload!
 					delay(1); // give reload a moment of time to avoid moving the same item twice
 				} else {
-					D2Bot.printToConsole(itemsToMove[i].name + " failed to move to " + tmpLocation.y + "," + tmpLocation.x, 6);
+					D2Bot.printToConsole(itemsToMove[i].name + " failed to move to " + tmpLocation.y + "," + tmpLocation.x, sdk.colors.D2Bot.Gold);
 
 					return false;
 				}
 			}
 		}
 
-		//D2Bot.printToConsole("MakeSpot success! " + item.name + " can now be placed at " + location.y + "," + location.x, 6);
+		//D2Bot.printToConsole("MakeSpot success! " + item.name + " can now be placed at " + location.y + "," + location.x, sdk.colors.D2Bot.Gold);
 		return ({x: location.x, y: location.y});
 	};
 
@@ -382,24 +382,24 @@ var Container = function (name, width, height, location) {
 		let n, nDelay, cItem, cube;
 
 		// Cube -> Stash, must place item in inventory first
-		if (item.location === 6 && this.location === 7 && !Storage.Inventory.MoveTo(item)) {
+		if (item.location === sdk.storage.Cube && this.location === sdk.storage.stash && !Storage.Inventory.MoveTo(item)) {
 			return false;
 		}
 
 		// Can't deal with items on ground!
-		if (item.mode === 3) return false;
+		if (item.mode ===sdk.itemmode.onGround) return false;
 
 		// Item already on the cursor.
-		if (me.itemoncursor && item.mode !== 4) return false;
+		if (me.itemoncursor && item.mode !== sdk.itemmode.onCursor) return false;
 
 		// Make sure stash is open
-		if (this.location === 7 && !Town.openStash()) return false;
+		if (this.location === sdk.storage.Stash && !Town.openStash()) return false;
 
 		if (Packet.itemToCursor(item)) {
 			for (n = 0; n < 5; n += 1) {
 				switch (this.location) {
 				case sdk.storage.Belt:
-					cItem = getUnit(100);
+					cItem = Game.getCursorUnit();
 
 					if (cItem !== null) {
 						sendPacket(1, 0x23, 4, cItem.gid, 4, y);
@@ -411,7 +411,7 @@ var Container = function (name, width, height, location) {
 
 					break;
 				case sdk.storage.Cube:
-					cItem = getUnit(100);
+					cItem = Game.getCursorUnit();
 					cube = me.getItem(sdk.items.quest.Cube);
 
 					if (cItem !== null && cube !== null) {
@@ -424,7 +424,7 @@ var Container = function (name, width, height, location) {
 
 					break;
 				default:
-					clickItemAndWait(0, x, y, this.location);
+					clickItemAndWait(sdk.clicktypes.Left, x, y, this.location);
 
 					break;
 				}
@@ -568,7 +568,7 @@ var Storage = new function () {
 		}
 
 		do {
-			if (item.bodylocation === 8) { // belt slot
+			if (item.bodylocation === sdk.body.Belt) { // belt slot
 				switch (item.code) {
 				case "lbl": // sash
 				case "vbl": // light belt
@@ -600,23 +600,23 @@ var Storage = new function () {
 
 		do {
 			switch (item.location) {
-			case 3:
+			case sdk.storage.Inventory:
 				this.Inventory.Mark(item);
 
 				break;
-			case 5:
+			case sdk.storage.TradeWindow:
 				this.TradeScreen.Mark(item);
 
 				break;
-			case 2:
+			case sdk.storage.Belt:
 				this.Belt.Mark(item);
 
 				break;
-			case 6:
+			case sdk.storage.Cube:
 				this.Cube.Mark(item);
 
 				break;
-			case 7:
+			case sdk.storage.Stash:
 				this.Stash.Mark(item);
 
 				break;

@@ -21,7 +21,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.DimVision,
 		priority: 1,
 		skipIf: function (unit) {
-			return unit.isSpecial || [sdk.monsters.OblivionKnight1, sdk.monsters.OblivionKnight2, sdk.monsters.OblivionKnight3].includes(unit.classid);
+			return unit.isSpecial || [sdk.units.monsters.OblivionKnight1, sdk.units.monsters.OblivionKnight2, sdk.units.monsters.OblivionKnight3].includes(unit.classid);
 		},
 		useIf: function (unit) {
 			return !this.skipIf(unit) && Skill.canUse(this.skillId) && unit.distance > 15;
@@ -40,7 +40,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.IronMaiden,
 		priority: 1,
 		useIf: function (unit) {
-			return Skill.canUse(this.skillId) && me.area === sdk.areas.DurielsLair && me.normal && unit;
+			return Skill.canUse(this.skillId) && me.inArea(sdk.areas.DurielsLair) && me.normal && unit;
 		}
 	},
 	{
@@ -74,7 +74,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.Attract,
 		priority: 1,
 		useIf: function (unit) {
-			return unit.scareable && me.area === sdk.areas.ThroneofDestruction && unit.distance > 8
+			return unit.scareable && me.inArea(sdk.areas.ThroneofDestruction) && unit.distance > 8
 				&& Skill.canUse(this.skillId);
 		}
 	},
@@ -105,7 +105,7 @@ ClassAttack.smartCurse = function (unit) {
 		.find((curse) => this.canCurse(unit, curse.skillId) && Skill.getManaCost(curse.skillId) < me.mp) || false);
 
 	if (choosenCurse) {
-		if (!checkCollision(me, unit, 0x4)) {
+		if (!checkCollision(me, unit, sdk.collision.Ranged)) {
 			me.overhead("Cursing " + unit.name + " with " + getSkillById(choosenCurse.skillId));
 			return Skill.cast(choosenCurse.skillId, 0, unit);
 		} else {
@@ -129,7 +129,7 @@ ClassAttack.doAttack = function (unit) {
 
 		if (Town.visitTown()) {
 			// lost reference to the mob we were attacking
-			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+			if (!unit || !copyUnit(unit).x || !Game.getMonsters(-1, -1, gid) || unit.dead) {
 				return 1;
 			}
 		}
@@ -140,15 +140,19 @@ ClassAttack.doAttack = function (unit) {
 	let timedSkill = -1;
 	let untimedSkill = -1;
 	let gold = me.gold;
-	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 	let useTerror = Skill.canUse(sdk.skills.Terror);
 	let useBP = Skill.canUse(sdk.skills.BonePrison);
-	let bpAllowedAreas = [37, 38, 39, 41, 42, 43, 44, 46, 73, 76, 77, 78, 79, 80, 81, 83, 102, 104, 105, 106, 108, 110, 111, 120, 121, 128, 129, 130, 131];
+	let bpAllowedAreas = [sdk.areas.CatacombsLvl4, sdk.areas.Tristram, sdk.areas.MooMooFarm, sdk.areas.RockyWaste, sdk.areas.DryHills, sdk.areas.FarOasis, sdk.areas.LostCity, sdk.areas.ValleyofSnakes,
+		sdk.areas.DurielsLair, sdk.areas.SpiderForest, sdk.areas.GreatMarsh, sdk.areas.FlayerJungle, sdk.areas.LowerKurast, sdk.areas.KurastBazaar, sdk.areas.UpperKurast, sdk.areas.KurastCauseway,
+		sdk.areas.DuranceofHateLvl3, sdk.areas.OuterSteppes, sdk.areas.PlainsofDespair, sdk.areas.CityoftheDamned, sdk.areas.ChaosSanctuary, sdk.areas.BloodyFoothills, sdk.areas.FrigidHighlands,
+		sdk.areas.ArreatSummit, sdk.areas.NihlathaksTemple, sdk.areas.WorldstoneLvl1, sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction];
 
 	// Bone prison
-	if (useBP && unit.distance > ([73, 120].includes(me.area) ? 6 : 10) && bpAllowedAreas.includes(me.area) && (index === 1 || [571, 391].includes(unit.classid))
-		&& !checkCollision(me, unit, 0x4) && Skill.getManaCost(sdk.skills.BonePrison) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
-		if (Skill.cast(sdk.skills.BonePrison, 0, unit)) {
+	if (useBP && unit.distance > ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit].includes(me.area) ? 6 : 10)
+		&& bpAllowedAreas.includes(me.area) && (index === 1 || [sdk.units.monsters.ListerTheTormenter, sdk.units.monsters.HellBovine].includes(unit.classid))
+		&& !checkCollision(me, unit, sdk.collision.Ranged) && Skill.getManaCost(sdk.skills.BonePrison) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
+		if (Skill.cast(sdk.skills.BonePrison, sdk.skills.hand.Right, unit)) {
 			this.bpTick = getTickCount();
 		}
 	}
@@ -156,7 +160,7 @@ ClassAttack.doAttack = function (unit) {
 	// write terrorCheck function, need to take into account if monsters are even scareable
 	if (useTerror && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting, 0, true) >= 3
 		&& Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hpPercent < 75) {
-		Skill.cast(sdk.skills.Terror, 0);
+		Skill.cast(sdk.skills.Terror, sdk.skills.subindex.hardpoints);
 	}
 
 	this.smartCurse(unit);
@@ -164,7 +168,7 @@ ClassAttack.doAttack = function (unit) {
 	if (me.expansion && index === 1 && !unit.dead) {
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
 			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-			&& unit.curseable && (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+			&& unit.curseable && (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
@@ -200,16 +204,16 @@ ClassAttack.doAttack = function (unit) {
 
 	let result = this.doCast(unit, timedSkill, untimedSkill);
 
-	if (result === 1) {
+	if (result === this.result.Success) {
 		Config.ActiveSummon && this.raiseArmy();
 		this.explodeCorpses(unit);
-	} else if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+	} else if (result === this.result.CantAttack && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
 		let merc = me.getMerc();
 
 		while (unit.attackable) {
 			if (Misc.townCheck()) {
 				if (!unit || !copyUnit(unit).x) {
-					unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
+					unit = Misc.poll(() => Game.getMonsters(-1, -1, gid), 1000, 80);
 				}
 			}
 
@@ -263,7 +267,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		switch (timedSkill) {
 		case sdk.skills.PoisonNova:
 			if (!this.novaTick || getTickCount() - this.novaTick > Config.PoisonNovaDelay * 1000) {
-				if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, 0x4)) {
+				if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 					if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4)) {
 						return 0;
 					}
@@ -275,8 +279,8 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 			}
 
 			break;
-		case 500: // Pure Summoner
-			if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, 0x4)) {
+		case sdk.skills.Summoner: // Pure Summoner
+			if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 				if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4)) {
 					return 0;
 				}
@@ -292,9 +296,9 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 				timedSkillRange = me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting) <= 3 ? 6 : timedSkillRange;
 			}
 
-			if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, 0x4)) {
+			if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Allow short-distance walking for melee skills
-				walk = timedSkillRange < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
+				walk = timedSkillRange < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
 				if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4, walk)) return 0;
 			}
@@ -317,9 +321,9 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 
 		if (untimedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) return 0;
 
-		if (Math.round(getDistance(me, unit)) > untimedSkillRange || checkCollision(me, unit, 0x4)) {
+		if (Math.round(getDistance(me, unit)) > untimedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Allow short-distance walking for melee skills
-			walk = Skill.getRange(untimedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
+			walk = Skill.getRange(untimedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
 			if (!Attack.getIntoPosition(unit, untimedSkillRange, 0x4, walk)) {
 				return 0;
@@ -353,8 +357,8 @@ ClassAttack.farCast = function (unit) {
 	if (Skill.getRange(timedSkill) < 4 && Skill.getRange(untimedSkill) < 4) return 2;
 
 	// Bone prison
-	if (unit.distance > 10 && !checkCollision(me, unit, 0x4) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
-		if (Skill.cast(sdk.skills.BonePrison, 0, unit)) {
+	if (unit.distance > 10 && !checkCollision(me, unit, sdk.collision.Ranged) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
+		if (Skill.cast(sdk.skills.BonePrison, sdk.skills.hand.Right, unit)) {
 			this.bpTick = getTickCount();
 		}
 	}
@@ -369,10 +373,10 @@ ClassAttack.farCast = function (unit) {
 	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 		switch (timedSkill) {
 		case sdk.skills.PoisonNova:
-		case 500: 	// Pure Summoner (Note: unsure where the 500 is coming from)
+		case sdk.skills.Summoner: 	// Pure Summoner
 			break;
 		default:
-			if (!unit.dead && !checkCollision(me, unit, 0x4)) {
+			if (!unit.dead && !checkCollision(me, unit, sdk.collision.Ranged)) {
 				Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
 			}
 
@@ -385,7 +389,7 @@ ClassAttack.farCast = function (unit) {
 			return 0;
 		}
 
-		if (!unit.dead && !checkCollision(me, unit, 0x4)) {
+		if (!unit.dead && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
 		}
 
@@ -398,14 +402,14 @@ ClassAttack.farCast = function (unit) {
 };
 
 ClassAttack.explodeCorpses = function (unit) {
-	if (Config.ExplodeCorpses === 0 || unit.mode === 0 || unit.mode === 12) return false;
+	if (Config.ExplodeCorpses === 0 || unit.mode === sdk.units.monsters.mode.Death || unit.mode === sdk.units.monsters.mode.Dead) return false;
 
 	let corpseList = [];
 	let useAmp = Skill.canUse(sdk.skills.AmplifyDamage);
 	let ampManaCost = Skill.getManaCost(sdk.skills.AmplifyDamage);
 	let explodeCorpsesManaCost = Skill.getManaCost(Config.ExplodeCorpses);
-	let range = Math.floor((me.getSkill(Config.ExplodeCorpses, 1) + 7) / 3);
-	let corpse = getUnit(1, -1, 12);
+	let range = Math.floor((me.getSkill(Config.ExplodeCorpses, sdk.skills.subindex.softpoints) + 7) / 3);
+	let corpse = Game.getMonsters(-1, -1, sdk.units.monster.mode.Dead);
 
 	if (corpse) {
 		do {
@@ -428,10 +432,10 @@ ClassAttack.explodeCorpses = function (unit) {
 						me.overhead("Exploding: " + corpse.classid + " " + corpse.name + " id:" + corpse.gid);
 
 						if (useAmp && !unit.getState(sdk.states.AmplifyDamage) && !unit.getState(sdk.states.Decrepify) && me.mp > (ampManaCost + explodeCorpsesManaCost)) {
-							Skill.cast(sdk.skills.AmplifyDamage, 0, unit);
+							Skill.cast(sdk.skills.AmplifyDamage, sdk.skills.hand.Right, unit);
 						}
 
-						if (Skill.cast(Config.ExplodeCorpses, 0, corpse)) {
+						if (Skill.cast(Config.ExplodeCorpses, sdk.skills.hand.Right, corpse)) {
 							delay(me.ping + 1);
 						}
 					}
@@ -447,10 +451,10 @@ ClassAttack.explodeCorpses = function (unit) {
 						me.overhead("Exploding: " + corpse.classid + " " + corpse.name);
 
 						if (useAmp && !unit.getState(sdk.states.AmplifyDamage) && !unit.getState(sdk.states.Decrepify) && me.mp > (ampManaCost + explodeCorpsesManaCost)) {
-							Skill.cast(sdk.skills.AmplifyDamage, 0, unit);
+							Skill.cast(sdk.skills.AmplifyDamage, sdk.skills.hand.Right, unit);
 						}
 
-						if (Skill.cast(Config.ExplodeCorpses, 0, corpse)) {
+						if (Skill.cast(Config.ExplodeCorpses, sdk.skills.hand.Right, corpse)) {
 							delay(200);
 						}
 					}

@@ -19,12 +19,12 @@ function templeruns () {
 		Precast.doPrecast(true);
 
 		if (Pather.moveToExit(temples[run], true, true)) {
-			if (me.area === sdk.areas.LowerKurast) {
+			if (me.inArea(sdk.areas.LowerKurast)) {
 				Misc.openChestsInArea(sdk.areas.LowerKurast);
-			} else if (me.area === sdk.areas.RuinedTemple && !me.lamessen) {
+			} else if (me.inArea(sdk.areas.RuinedTemple) && !me.lamessen) {
 				me.overhead("lamessen");
-				Pather.moveToPreset(sdk.areas.RuinedTemple, 2, 193);
-				Quest.collectItem(548, 193);
+				Pather.moveToPreset(sdk.areas.RuinedTemple, sdk.unittype.Object, sdk.quest.chest.LamEsensTomeHolder);
+				Quest.collectItem(sdk.quest.item.LamEsensTome, sdk.quest.chest.LamEsensTomeHolder);
 				Town.unfinishedQuests();
 			} else {
 				Attack.clearLevel(0xF);

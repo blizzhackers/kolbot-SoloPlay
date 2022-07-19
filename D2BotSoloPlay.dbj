@@ -88,8 +88,8 @@ new Overrides.Override(Starter, Starter.receiveCopyData, function (orignal, mode
 			Starter.profileInfo.ladder = buildCheck[0].indexOf("NL") === -1; // not NL so its ladder - true
 
 			if (buildCheck.length <= 1) {
-				D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', 6);
-				D2Bot.printToConsole("If you are still confused please read the included readMe. https://github.com/blizzhackers/kolbot-SoloPlay/blob/main/README.md", 6);
+				D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', sdk.colors.D2Bot.Gold);
+				D2Bot.printToConsole("If you are still confused please read the included readMe. https://github.com/blizzhackers/kolbot-SoloPlay/blob/main/README.md", sdk.colors.D2Bot.Gold);
 				D2Bot.stop();
 			}
 
@@ -450,13 +450,13 @@ function locationAction (location) {
 							Starter.profileInfo.password = Starter.Config.GlobalAccountPassword.length > 0 ? Starter.Config.GlobalAccountPassword : Starter.randomString(12, true);
 
 							if (Starter.profileInfo.account.length > 15) {
-								D2Bot.printToConsole("Kolbot-SoloPlay: Account name exceeds MAXIMUM length (15). Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig", 6);
+								D2Bot.printToConsole("Kolbot-SoloPlay: Account name exceeds MAXIMUM length (15). Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig", sdk.colors.D2Bot.Gold);
 								D2Bot.setProfile("", "", null, "Normal");
 								D2Bot.stop();
 							}
 
 							if (Starter.profileInfo.password.length > 15) {
-								D2Bot.printToConsole("Kolbot-SoloPlay: Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig", 6);
+								D2Bot.printToConsole("Kolbot-SoloPlay: Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig", sdk.colors.D2Bot.Gold);
 								D2Bot.setProfile("", "", null, "Normal");
 								D2Bot.stop();
 							}
@@ -495,14 +495,14 @@ function locationAction (location) {
 						// Pop-up that happens when choosing a dead HC char
 						if (getLocation() === sdk.game.locations.OkCenteredErrorPopUp) {
 							Controls.OkCentered.click();	// Exit from that pop-up
-							D2Bot.printToConsole("Character died", 9);
+							D2Bot.printToConsole("Character died", sdk.colors.D2Bot.Red);
 							ControlAction.deleteAndRemakeChar(Starter.profileInfo);
 						} else {
 							// If make character fails, check how many characters are on that account
 							if (!ControlAction.makeCharacter(Starter.profileInfo)) {
 								// Account is full
 								if (ControlAction.getCharacters().length >= 18) {
-									D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", 8);
+									D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", sdk.colors.D2Bot.Orange);
 									D2Bot.stop();
 								}
 							}
@@ -548,9 +548,9 @@ function locationAction (location) {
 				D2Bot.restart();
 
 				break;
-			case getLocaleString(5208): // Invalid account
-			case getLocaleString(5239): // An account name already exists
-			case getLocaleString(5249): // Unable to create account
+			case getLocaleString(sdk.locale.text.AccountDoesNotExist):
+			case getLocaleString(sdk.locale.text.AccountNameAlreadyExist):
+			case getLocaleString(sdk.locale.text.UnableToCreateAccount):
 				D2Bot.updateStatus("Invalid Account Name");
 				D2Bot.printToConsole("Invalid Account Name");
 				Starter.profileInfo.account = "";
@@ -559,10 +559,10 @@ function locationAction (location) {
 				D2Bot.restart(true);
 
 				break;
-			case getLocaleString(5202): // cd key intended for another product
-			case getLocaleString(10915): // lod key intended for another product
+			case getLocaleString(sdk.locale.text.CdKeyIntendedForAnotherProduct):
+			case getLocaleString(sdk.locale.text.LoDKeyIntendedForAnotherProduct):
 				D2Bot.updateStatus("Invalid CDKey");
-				D2Bot.printToConsole("Invalid CDKey: " + Starter.gameInfo.mpq, 6);
+				D2Bot.printToConsole("Invalid CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
 				D2Bot.CDKeyDisabled();
 
 				if (Starter.gameInfo.switchKeys) {
@@ -573,9 +573,9 @@ function locationAction (location) {
 				}
 
 				break;
-			case getLocaleString(5199):
+			case getLocaleString(sdk.locale.text.CdKeyDisabled):
 				D2Bot.updateStatus("Disabled CDKey");
-				D2Bot.printToConsole("Disabled CDKey: " + Starter.gameInfo.mpq, 6);
+				D2Bot.printToConsole("Disabled CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
 				D2Bot.CDKeyDisabled();
 
 				if (Starter.gameInfo.switchKeys) {
@@ -586,9 +586,9 @@ function locationAction (location) {
 				}
 
 				break;
-			case getLocaleString(10913):
+			case getLocaleString(sdk.locale.text.LoDKeyDisabled):
 				D2Bot.updateStatus("Disabled LoD CDKey");
-				D2Bot.printToConsole("Disabled LoD CDKey: " + Starter.gameInfo.mpq, 6);
+				D2Bot.printToConsole("Disabled LoD CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
 				D2Bot.CDKeyDisabled();
 
 				if (Starter.gameInfo.switchKeys) {
@@ -599,7 +599,7 @@ function locationAction (location) {
 				}
 
 				break;
-			case getLocaleString(5347):
+			case getLocaleString(sdk.locale.text.Disconnected):
 				D2Bot.updateStatus("Disconnected from battle.net.");
 				D2Bot.printToConsole("Disconnected from battle.net.");
 				Controls.OkCentered.click();
@@ -679,9 +679,9 @@ function locationAction (location) {
 			}
 
 			// CDKey disabled from realm play
-			if (string === getLocaleString(11161)) {
+			if (string === getLocaleString(sdk.locale.text.CdKeyDisabledFromRealm)) {
 				D2Bot.updateStatus("Realm Disabled CDKey");
-				D2Bot.printToConsole("Realm Disabled CDKey: " + Starter.gameInfo.mpq, 6);
+				D2Bot.printToConsole("Realm Disabled CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
 				D2Bot.CDKeyDisabled();
 
 				if (Starter.gameInfo.switchKeys) {
@@ -707,7 +707,7 @@ function locationAction (location) {
 				} else {
 					if (!ControlAction.makeCharacter(Starter.profileInfo)) {
 						if (ControlAction.getCharacters().length >= 18) {
-							D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", 9);
+							D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", sdk.colors.D2Bot.Red);
 							D2Bot.stop();
 						}
 					}
@@ -858,12 +858,12 @@ function main () {
 					let statusString = "";
 
 					try {
-						myExp = me.getStat(13) > 0 ? Experience.progress() : 0;
-						myGold = me.getStat(14) + me.getStat(15);
-						frRes = Math.min(75 + me.getStat(sdk.stats.MaxFireResist), me.getStat(39) - resPenalty);
-						crRes = Math.min(75 + me.getStat(sdk.stats.MaxColdResist), me.getStat(43) - resPenalty);
-						lrRes = Math.min(75 + me.getStat(sdk.stats.MaxLightResist), me.getStat(41) - resPenalty);
-						prRes = Math.min(75 + me.getStat(sdk.stats.MaxPoisonResist), me.getStat(45) - resPenalty);
+						myExp = me.getStat(sdk.stats.Experience) > 0 ? Experience.progress() : 0;
+						myGold = me.getStat(Gold) + me.getStat(GoldBank);
+						frRes = Math.min(75 + me.getStat(sdk.stats.MaxFireResist), me.getStat(sdk.stats.FireResist) - resPenalty);
+						crRes = Math.min(75 + me.getStat(sdk.stats.MaxColdResist), me.getStat(sdk.stats.ColdResist) - resPenalty);
+						lrRes = Math.min(75 + me.getStat(sdk.stats.MaxLightResist), me.getStat(sdk.stats.LightResist) - resPenalty);
+						prRes = Math.min(75 + me.getStat(sdk.stats.MaxPoisonResist), me.getStat(sdk.stats.PoisonResist) - resPenalty);
 						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
 						statusString = me.name + " | Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
 					} catch (e) {

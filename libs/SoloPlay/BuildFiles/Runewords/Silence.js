@@ -1,4 +1,4 @@
-let Silence = [
+const Silence = [
 	"[name] == EldRune # # [maxquantity] == 1",
 	"[name] == TirRune # # [maxquantity] == 1",
 	"[name] == DolRune # # [maxquantity] == 1",
@@ -19,18 +19,18 @@ if (me.getItem(sdk.items.runes.Vex)) {
 	}
 }
 
-// Cube to Ist rune
+// Cube to Ist and Keep cubing to Vex rune
 if (!me.getItem(sdk.items.runes.Ist)) {
-	Config.Recipes.push([Recipe.Rune, "Um Rune"]);
-	Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
+	if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Ist) < 2)) {
+		Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
+		Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+		Config.Recipes.push([Recipe.Rune, "Um Rune"]);
+		Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
+	}
+	(Item.getQuantityOwned(me.getItem(sdk.items.runes.Ist) > 1) && !me.getItem(sdk.items.runes.Vex) && Config.Recipes.push([Recipe.Rune, "Ist Rune"]));
 }
-
 // Cube to Vex rune
 if (!me.getItem(sdk.items.runes.Vex)) {
-	Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
-	Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
-	Config.Recipes.push([Recipe.Rune, "Um Rune"]);
-	Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
 }

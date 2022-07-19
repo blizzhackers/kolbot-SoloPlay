@@ -101,6 +101,23 @@ const finalBuild = {
 				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
 				Config.MPBuffer = 4;
 				Config.HPBuffer = 2;
+				Config.ScanShrines = [
+					sdk.shrines.Refilling,
+					sdk.shrines.Health,
+					sdk.shrines.Mana,
+					sdk.shrines.Gem,
+					sdk.shrines.Monster,
+					sdk.shrines.HealthExchange,
+					sdk.shrines.ManaExchange,
+					sdk.shrines.Experience,
+					sdk.shrines.Armor,
+					sdk.shrines.ResistFire,
+					sdk.shrines.ResistCold,
+					sdk.shrines.ResistLightning,
+					sdk.shrines.ResistPoison,
+					sdk.shrines.Skill,
+					sdk.shrines.ManaRecharge,
+					sdk.shrines.Stamina];
 			}
 		},
 	},
@@ -114,6 +131,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.WarCry, 0) === 20;
+		return this.respec && me.getSkill(sdk.skills.WarCry, sdk.skills.subindex.hardpoints) === 20;
 	},
 };

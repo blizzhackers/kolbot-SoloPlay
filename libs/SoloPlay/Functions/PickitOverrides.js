@@ -50,9 +50,9 @@ Pickit.checkItem = function (unit) {
 	}
 
 	if (rval.result === 1) {
-		let durability = unit.getStat(72);
+		let durability = unit.getStat(sdk.stats.Durability);
 		
-		if (typeof durability === "number" && unit.getStat(73) > 0 && durability * 100 / unit.getStat(73) <= 0) {
+		if (typeof durability === "number" && unit.getStat(sdk.stats.MaxDurability) > 0 && durability * 100 / unit.getStat(sdk.stats.MaxDurability) <= 0) {
 			return {
 				result: 4,
 				line: null
@@ -265,21 +265,21 @@ Pickit.canPick = function (unit) {
 		// Assassins don't ever need keys
 		if (me.assassin) return false;
 
-		myKey = me.getItem(543, 0);
-		key = getUnit(4, -1, -1, unit.gid); // Passed argument isn't an actual unit, we need to get it
+		myKey = me.getItem(sdk.items.Key, 0);
+		key = Game.getItem(-1, -1, unit.gid); // Passed argument isn't an actual unit, we need to get it
 
 		if (myKey && key) {
 			do {
-				if (myKey.location === 3 && myKey.getStat(sdk.stats.Quantity) + key.getStat(sdk.stats.Quantity) > 12) {
+				if (myKey.location === sdk.storage.Inventory && myKey.getStat(sdk.stats.Quantity) + key.getStat(sdk.stats.Quantity) > 12) {
 					return false;
 				}
 			} while (myKey.getNext());
 		}
 
 		break;
-	case 82: // Small Charm
-	case 83: // Large Charm
-	case 84: // Grand Charm
+	case sdk.itemtype.SmallCharm:
+	case sdk.itemtype.LargeCharm:
+	case sdk.itemtype.GrandCharm:
 		if (unit.unique) {
 			charm = me.getItem(unit.classid, 0);
 
@@ -293,9 +293,9 @@ Pickit.canPick = function (unit) {
 		}
 
 		break;
-	case 76: // Healing Potion
-	case 77: // Mana Potion
-	case 78: // Rejuvenation Potion
+	case sdk.itemtype.HealingPotion:
+	case sdk.itemtype.ManaPotion:
+	case sdk.itemtype.RejuvenationPotion:
 		needPots = 0;
 
 		for (i = 0; i < 4; i += 1) {
@@ -321,15 +321,15 @@ Pickit.canPick = function (unit) {
 				if (Config[buffers[i]]) {
 					switch (buffers[i]) {
 					case "HPBuffer":
-						pottype = 76;
+						pottype = sdk.itemtype.HealingPotion;
 
 						break;
 					case "MPBuffer":
-						pottype = 77;
+						pottype = sdk.itemtype.ManaPotion;
 
 						break;
 					case "RejuvBuffer":
-						pottype = 78;
+						pottype = sdk.itemtype.RejuvenationPotion;
 
 						break;
 					}
@@ -344,7 +344,7 @@ Pickit.canPick = function (unit) {
 
 						if (potion) {
 							do {
-								if (potion.itemType === pottype && potion.location === 3) {
+								if (potion.itemType === pottype && potion.location === sdk.itemmode.onGround) {
 									needPots -= 1;
 								}
 							} while (potion.getNext());
@@ -359,7 +359,7 @@ Pickit.canPick = function (unit) {
 
 			if (potion) {
 				do {
-					if (potion.itemType === unit.itemType && ((potion.mode === 0 && potion.location === 3) || potion.mode === 2)) {
+					if (potion.itemType === unit.itemType && ((potion.mode === sdk.itemmode.inStorage && potion.location === sdk.storage.Inventory) || potion.mode === sdk.itemmode.inBelt)) {
 						if (potion.classid < unit.classid) {
 							potion.use();
 							needPots += 1;
@@ -394,11 +394,11 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		self.classid = unit.classid;
 		self.name = unit.name;
 		self.color = Pickit.itemColor(unit);
-		self.gold = unit.getStat(14);
+		self.gold = unit.getStat(sdk.stats.Gold);
 		self.dist = (unit.distance || Infinity);
 		let canTk = (Skill.haveTK
 			&& (self.type === 4 || self.type === 22 || (self.type > 75 && self.type < 82))
-			&& self.dist > 5 && self.dist < 20 && !checkCollision(me, unit, 0x5));
+			&& self.dist > 5 && self.dist < 20 && !checkCollision(me, unit, sdk.collision.WallOrRanged));
 		self.useTk = canTk && (me.mpPercent > 50);
 		self.picked = false;
 	}
@@ -411,7 +411,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 
 	if (unit.gid) {
 		gid = unit.gid;
-		item = getUnit(4, -1, -1, gid);
+		item = Game.getItem(-1, -1, gid);
 	}
 
 	if (!item) return false;
@@ -430,7 +430,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 
 	MainLoop:
 	for (let i = 0; i < 3; i += 1) {
-		if (!getUnit(4, -1, -1, gid)) {
+		if (!Game.getItem(-1, -1, gid)) {
 			break;
 		}
 
@@ -440,12 +440,12 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			delay(40);
 		}
 
-		if (item.mode !== 3 && item.mode !== 5) {
+		if (!item.onGroundOrDropping) {
 			break;
 		}
 
 		if (stats.useTk && me.mp > tkMana) {
-			Skill.cast(sdk.skills.Telekinesis, 0, item);
+			Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, item);
 		} else {
 			if (item.distance > (Config.FastPick || i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
 				if (item.checkForMobs({range: 8, coll: (0x1 | 0x400 | 0x800)})) {
@@ -469,22 +469,22 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		while (getTickCount() - tick < 1000) {
 			item = copyUnit(item);
 
-			if (stats.classid === 523) {
-				if (!item.getStat(14) || item.getStat(14) < stats.gold) {
-					print("ÿc7Picked up " + stats.color + (item.getStat(14) ? (item.getStat(14) - stats.gold) : stats.gold) + " " + stats.name);
+			if (stats.classid === sdk.items.Gold) {
+				if (!item.getStat(sdk.stats.Gold) || item.getStat(sdk.stats.Gold) < stats.gold) {
+					print("ÿc7Picked up " + stats.color + (item.getStat(sdk.stats.Gold) ? (item.getStat(sdk.stats.Gold) - stats.gold) : stats.gold) + " " + stats.name);
 
 					return true;
 				}
 			}
 
-			if (item.mode !== 3 && item.mode !== 5) {
+			if (!item.onGroundOrDropping) {
 				switch (stats.classid) {
-				case 543: // Key
+				case sdk.items.Key:
 					print("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + Town.checkKeys() + "/12)");
 
 					return true;
-				case 529: // Scroll of Town Portal
-				case 530: // Scroll of Identify
+				case sdk.items.ScrollofTownPortal:
+				case sdk.items.ScrollofIdentify:
 					print("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + Town.checkScrolls(stats.classid === 529 ? "tbk" : "ibk") + "/20)");
 
 					return true;
@@ -533,7 +533,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			Runewords.update(stats.classid, gid);
 
 			break;
-		case 5: // Crafting System
+		case Pickit.result.CRAFTING:
 			print("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Crafting System)");
 			CraftingSystem.update(item);
 
@@ -564,11 +564,11 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 		delay(40);
 	}
 
-	let item = getUnit(4);
+	let item = Game.getItem();
 
 	if (item) {
 		do {
-			if ((item.mode === 3 || item.mode === 5) && getDistance(me, item) <= range) {
+			if ((item.onGroundOrDropping) && getDistance(me, item) <= range) {
 				pickList.push(copyUnit(item));
 			}
 		} while (item.getNext());
@@ -586,7 +586,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 
 		// Check if the item unit is still valid and if it's on ground or being dropped
 		// Don't pick items behind walls/obstacles when walking
-		if (copyUnit(pickList[0]).x !== undefined && (pickList[0].mode === 3 || pickList[0].mode === 5)
+		if (copyUnit(pickList[0]).x !== undefined && (pickList[0].onGroundOrDropping)
 			&& (Pather.useTeleport() || me.inTown || !checkCollision(me, pickList[0], 0x1))) {
 			// Check if the item should be picked
 			status = this.checkItem(pickList[0]);

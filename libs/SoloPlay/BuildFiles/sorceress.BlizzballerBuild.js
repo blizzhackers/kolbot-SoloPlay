@@ -148,6 +148,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.FireBall, 0) === 20 && me.getSkill(sdk.skills.Blizzard, 0) === 20;
+		return this.respec && me.getSkill(sdk.skills.FireBall, sdk.skills.subindex.hardpoints) === 20 && me.getSkill(sdk.skills.Blizzard, sdk.skills.subindex.hardpoints) === 20;
 	},
 };

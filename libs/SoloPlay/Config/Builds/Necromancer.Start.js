@@ -44,7 +44,7 @@ let AutoBuildTemplate = {
 			Config.AttackSkill = [-1, sdk.skills.Teeth, -1, sdk.skills.Teeth, -1, -1, -1];
 			Config.ExplodeCorpses = sdk.skills.CorpseExplosion;
 
-			if (me.getSkill(sdk.skills.BoneSpear, 0)) {
+			if (Skill.canUse(sdk.skills.BoneSpear)) {
 				Config.AttackSkill = [-1, sdk.skills.BoneSpear, -1, sdk.skills.BoneSpear, -1, -1, -1];
 			}
 		}

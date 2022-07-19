@@ -8,9 +8,9 @@ NTIP.arrayLooping(PhoenixRunes);
 // Cube to vex and Keep cubing to Jah rune
 if (!me.getItem(sdk.items.runes.Jah)) {
 	if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Vex) < 2)) {
-	Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
-	Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
-	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
+		Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
+		Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
+		Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
 	}
 	(Item.getQuantityOwned(me.getItem(sdk.items.runes.Vex) > 1) && !me.getItem(sdk.items.runes.Jah) && Config.Recipes.push([Recipe.Rune, "Vex Rune"]));
 }

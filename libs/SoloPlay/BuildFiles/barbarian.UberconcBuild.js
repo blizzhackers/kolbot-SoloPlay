@@ -110,6 +110,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.Concentrate, 0) >= 5;
+		return this.respec && me.getSkill(sdk.skills.Concentrate, sdk.skills.subindex.hardpoints) >= 5;
 	},
 };

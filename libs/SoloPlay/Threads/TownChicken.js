@@ -69,7 +69,7 @@ function main() {
 	};
 
 	Pather.usePortal = function (targetArea, owner, unit) {
-		if (targetArea && me.area === targetArea) return true;
+		if (targetArea && me.inArea(targetArea)) return true;
 
 		me.cancelUIFlags();
 
@@ -81,7 +81,7 @@ function main() {
 		let leavingTown = townAreaCheck(preArea);
 
 		for (let i = 0; i < 13; i += 1) {
-			if (me.dead || me.area !== preArea) {
+			if (me.dead || !me.inArea(preArea)) {
 				break;
 			}
 
@@ -92,14 +92,14 @@ function main() {
 			let portal = unit ? copyUnit(unit) : Pather.getPortal(targetArea, owner);
 
 			if (portal) {
-				let redPortal = portal.classid === sdk.units.RedPortal;
+				let redPortal = portal.classid === sdk.units.portals.RedPortal;
 
 				if (portal.area === me.area) {
 					if (Skill.useTK(portal) && i < 3) {
 						portal.distance > 21 && (me.inTown && me.act === 5 ? Town.move("portalspot") : Pather.moveNearUnit(portal, 20));
-						if (Skill.cast(sdk.skills.Telekinesis, 0, portal)) {
+						if (Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, portal)) {
 							if (Misc.poll(() => {
-								if (me.area !== preArea) {
+								if (!me.inArea(preArea)) {
 									Pather.lastPortalTick = getTickCount();
 									delay(100);
 
@@ -128,12 +128,12 @@ function main() {
 				}
 
 				// Portal to/from Arcane
-				if (portal.classid === 298 && portal.mode !== 2) {
+				if (portal.classid === sdk.units.portals.ArcaneSanctuaryPortal && portal.mode !== sdk.units.objects.mode.Active) { // === sdk.units.objects.mode.Inactive ?
 					Misc.click(0, 0, portal);
 					let tick = getTickCount();
 
 					while (getTickCount() - tick < 2000) {
-						if (portal.mode === 2 || me.area === sdk.areas.ArcaneSanctuary) {
+						if (portal.mode === sdk.units.objects.mode.Active || me.inArea(sdk.areas.ArcaneSanctuary)) {
 							break;
 						}
 
@@ -144,7 +144,7 @@ function main() {
 				let tick = getTickCount();
 
 				while (getTickCount() - tick < 500) {
-					if (me.area !== preArea) {
+					if (!me.inArea(preArea)) {
 						this.lastPortalTick = getTickCount();
 						delay(100);
 
@@ -159,9 +159,9 @@ function main() {
 				console.log("Didn't find portal, retry: " + i);
 				i > 3 && me.inTown && Town.move("portalspot", false);
 				if (i === 12) {
-					let p = getUnit(2, "portal");
+					let p = Game.getObject("portal");
 					console.debug(p);
-					if (!!p && Misc.click(0, 0, p) && Misc.poll(() => me.area !== preArea, 1000, 100)) {
+					if (!!p && Misc.click(0, 0, p) && Misc.poll(() => !me.inArea(preArea), 1000, 100)) {
 						this.lastPortalTick = getTickCount();
 						delay(100);
 
@@ -174,7 +174,7 @@ function main() {
 			delay(250);
 		}
 
-		return (targetArea ? me.area === targetArea : me.area !== preArea);
+		return (targetArea ? me.inArea(targetArea) : !me.inArea(preArea));
 	};
 
 	Town.visitTown = function () {
@@ -205,7 +205,7 @@ function main() {
 
 		console.log("ÿc8End ÿc0:: ÿc8visitTown - currentArea: " + Pather.getAreaName(me.area));
 
-		return me.area === preArea;
+		return me.inArea(preArea);
 	};
 
 	this.togglePause = function () {
@@ -324,13 +324,13 @@ function main() {
 					
 					// determine if this is really worth it
 					if (useHowl || useTerror) {
-						if ([156, 211, 242, 243, 544, 571, 345].indexOf(Attack.getNearestMonster()) === -1) {
+						if ([sdk.units.monsters.Andariel, sdk.units.monsters.Duriel, sdk.units.monsters.Mephisto, sdk.units.monsters.Diablo, sdk.units.monsters.Baal, sdk.units.monsters.ListerTheTormenter, sdk.units.monsters.Council1].indexOf(Attack.getNearestMonster()) === -1) {
 							if (useHowl && Skill.getManaCost(130) < me.mp) {
-								Skill.cast(130, 0);
+								Skill.cast(sdk.skills.Howl, sdk.skills.subindex.hardpoints);
 							}
 
 							if (useTerror && Skill.getManaCost(77) < me.mp) {
-								Skill.cast(77, 0, Attack.getNearestMonster({skipImmune: false}));
+								Skill.cast(sdk.skills.Terror, sdk.skills.hand.Right, Attack.getNearestMonster({skipImmune: false}));
 							}
 						}
 					}

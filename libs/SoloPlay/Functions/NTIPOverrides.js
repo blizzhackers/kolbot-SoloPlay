@@ -251,7 +251,7 @@ NTIP.CheckItem = function (item, entryList = [], verbose = false) {
 									break;
 								} else {
 									// attempt at inv fix for maxquantity
-									if (item.getParent() && item.getParent().name === me.name && item.mode === 0 && num === wanted.MaxQuantity) {
+									if (item.getParent() && item.getParent().name === me.name && item.mode === sdk.itemmode.inStorage && num === wanted.MaxQuantity) {
 										result = 1;
 
 										break;
@@ -279,7 +279,7 @@ NTIP.CheckItem = function (item, entryList = [], verbose = false) {
 								break;
 							} else {
 								// attempt at inv fix for maxquantity
-								if (item.getParent() && item.getParent().name === me.name && item.mode === 0 && num === wanted.MaxQuantity) {
+								if (item.getParent() && item.getParent().name === me.name && item.mode === sdk.itemmode.inStorage && num === wanted.MaxQuantity) {
 									result = 1;
 
 									break;
@@ -303,7 +303,7 @@ NTIP.CheckItem = function (item, entryList = [], verbose = false) {
 							break;
 						} else {
 							// attempt at inv fix for maxquantity
-							if (item.getParent() && item.getParent().name === me.name && item.mode === 0 && num === wanted.MaxQuantity) {
+							if (item.getParent() && item.getParent().name === me.name && item.mode === sdk.itemmode.inStorage && num === wanted.MaxQuantity) {
 								result = 1;
 
 								break;

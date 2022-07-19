@@ -183,7 +183,7 @@ function main () {
 			print("Mesage recived for torch...processing");
 
 			if (profile !== me.profile && (me.hell || (me.nightmare && me.baal)) && me.ladder === ladder) {
-				if (torchType === me.classid && !me.findItem(604, 0, null, 7)) {
+				if (torchType === me.classid && !me.findItem(sdk.items.LargeCharm, 0, -1, sdk.itemquality.Unique)) {
 					print("Sent Response");
 					SoloEvents.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 604});
 				}
@@ -198,7 +198,7 @@ function main () {
 			print("Mesage recived for Annhilus...processing");
 
 			if (profile !== me.profile && (me.hell || (me.nightmare && me.baal)) && me.ladder === ladder) {
-				if (!me.findItem(603, 0, null, 7)) {
+				if (!me.findItem(sdk.items.SmallCharm, 0, -1, sdk.itemquality.Unique)) {
 					print("Sent Response");
 					SoloEvents.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 603});
 				}

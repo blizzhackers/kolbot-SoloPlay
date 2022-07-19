@@ -142,7 +142,7 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && (me.getSkill(sdk.skills.HolyShock, 0) === 20 && me.getSkill(sdk.skills.BlessedHammer, 0) === 20);
+		return this.respec && (me.getSkill(sdk.skills.HolyShock, sdk.skills.subindex.hardpoints) === 20 && me.getSkill(sdk.skills.BlessedHammer, sdk.skills.subindex.hardpoints) === 20);
 	},
 };
 

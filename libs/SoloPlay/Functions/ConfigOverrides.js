@@ -68,7 +68,7 @@ Config.init = function (notify) {
 		}
 	} catch (e1) {
 		print("ÿc1" + e1 + "\nÿc0If you are seeing this message you likely did not copy over all the files or are using the wrong kolbot version.");
-		D2Bot.printToConsole("Please return to the kolbot-SoloPlay main github page and read the readMe. https://github.com/blizzhackers/kolbot-SoloPlay#readme", 8);
+		D2Bot.printToConsole("Please return to the kolbot-SoloPlay main github page and read the readMe. https://github.com/blizzhackers/kolbot-SoloPlay#readme", sdk.colors.D2Bot.Orange);
 
 		throw new Error("Failed to load character config.");
 	}

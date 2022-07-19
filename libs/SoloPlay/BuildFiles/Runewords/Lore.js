@@ -34,7 +34,7 @@ if (me.druid) {
 	NTIP.arrayLooping(classLoreHelm);
 
 	// Normal Helms
-	if (Item.getEquippedItem(1).tier < 150) {
+	if (Item.getEquippedItem(sdk.body.Head).tier < 150) {
 		NTIP.arrayLooping(loreHelm);
 	}
 
@@ -83,7 +83,7 @@ if (me.barbarian) {
 	NTIP.arrayLooping(classLoreHelm);
 
 	// Normal Helms
-	if (Item.getEquippedItem(1).tier < 150) {
+	if (Item.getEquippedItem(sdk.body.Head).tier < 150) {
 		NTIP.arrayLooping(loreHelm);
 	}
 

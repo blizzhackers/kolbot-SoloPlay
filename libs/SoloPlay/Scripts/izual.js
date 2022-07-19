@@ -11,10 +11,10 @@ function izual () {
 
 	Pather.checkWP(sdk.areas.CityoftheDamned, true) ? Pather.useWaypoint(sdk.areas.CityoftheDamned) : Pather.getWP(sdk.areas.CityoftheDamned);
 	Precast.doPrecast(true);
-	Pather.moveToPreset(sdk.areas.PlainsofDespair, 1, 256);
+	Pather.moveToPreset(sdk.areas.PlainsofDespair, unit.isMonster, sdk.monsters.Izual);
 	Attack.killTarget("Izual");
 
-	if (!Misc.checkQuest(25, 0)) {
+	if (!Misc.checkQuest(sdk.quest.id.TheFallenAngel, 0)) {
 		Town.goToTown();
 		Town.npcInteract("tyrael");
 		me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);

@@ -10,15 +10,15 @@
 function diablo () {
 	// Start Diablo Quest
 	this.diabloPrep = function () {
-		let tick = getTickCount(), decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, 1) * 5) * 1000;
+		let tick = getTickCount(), decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.softpoints) * 5) * 1000;
 
 		while (getTickCount() - tick < 17500) {
-			me.getMobCount(20) > 1 && Attack.clear(20);
+			me.checkForMobs({range: 20}) && Attack.clear(20);
 			if (getTickCount() - tick >= 8000) {
 				switch (me.classid) {
 				case sdk.charclass.Amazon:
-					if (me.getSkill(sdk.skills.Decoy, 1)) {
-						let decoy = getUnit(sdk.unittype.Monster, 356);
+					if (Skill.canUse(sdk.skills.Decoy)) {
+						let decoy = Game.getMonster(sdk.units.minions.Dopplezon);
 
 						if (!decoy || (getTickCount() - tick >= decoyDuration)) {
 							Skill.cast(sdk.skills.Decoy, 0, 7793, 5293);
@@ -27,11 +27,11 @@ function diablo () {
 
 					break;
 				case sdk.charclass.Sorceress:
-					if ([56, 59, 64].indexOf(Config.AttackSkill[1]) > -1) {
+					if ([sdk.skills.Meteor, sdk.skills.Blizzard, sdk.skills.FrozenOrb].indexOf(Config.AttackSkill[1]) > -1) {
 						if (me.skillDelay) {
 							delay(500 + me.ping);
 						} else {
-							Skill.cast(Config.AttackSkill[1], 0, 7793, 5293);
+							Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793, 5293);
 						}
 
 						break;
@@ -42,12 +42,12 @@ function diablo () {
 					break;
 				case sdk.charclass.Paladin:
 					Skill.setSkill(Config.AttackSkill[2]);
-					Skill.cast(Config.AttackSkill[1], 1);
+					Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Left);
 
 					break;
 				case sdk.charclass.Druid:
 					if (Config.AttackSkill[1] === sdk.skills.Tornado) {
-						Skill.cast(Config.AttackSkill[1], 0, 7793, 5293);
+						Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793, 5293);
 
 						break;
 					}
@@ -76,7 +76,7 @@ function diablo () {
 				delay(500 + me.ping);
 			}
 
-			if (getUnit(sdk.unittype.Monster, sdk.monsters.Diablo)) {
+			if (Game.getMonster(sdk.units.monsters.Diablo)) {
 				return true;
 			}
 		}
@@ -108,7 +108,7 @@ function diablo () {
 		!me.diablo && me.barbarian && (Config.BossPriority = true);
 
 		if (me.baal && me.normal && me.sorceress && me.charlvl > 28) {
-			// try running fast diablo - may neeed work
+			// try running fast diablo - may need work
 			Config.Diablo.Fast = true;
 			Config.ClearPath.Range = 15;
 			Config.ClearPath.Spectype = 0xF; // skip normal mobs
@@ -137,18 +137,18 @@ function diablo () {
 		} else {
 			Pather.moveNear(7792, 5292, 35);
 		}
-		
+
 		this.diabloPrep();
-		let theD = getUnit(sdk.unittype.Monster, sdk.monsters.Diablo);
+		let theD = Game.geMonster(sdk.units.monsters.Diablo)
 
 		if (!theD) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Diablo not found. Checking seal bosses.");
+			myPrint("Diablo not found. Checking seal bosses.");
 			try {
 				Common.Diablo.vizierSeal();
 				Common.Diablo.seisSeal();
 				Common.Diablo.infectorSeal();
 			} catch (e) {
-				//
+
 			}
 
 			if (!me.sorceress && !me.necromancer && !me.assassin) {
@@ -156,12 +156,11 @@ function diablo () {
 			} else {
 				Pather.moveNear(7792, 5292, 35);
 			}
-
 			this.diabloPrep();
 		}
 
 		if (!Attack.pwnDia()) {
-			Attack.killTarget(sdk.monsters.Diablo);
+			Attack.killTarget(sdk.units.monsters.Diablo);
 		}
 
 		Pickit.pickItems();
@@ -181,7 +180,7 @@ function diablo () {
 		Town.npcInteract("tyrael");
 		me.cancel();
 		delay(500 + me.ping);
-		Pather.useUnit(sdk.unittype.Object, 566, 109);
+		Pather.useUnit(sdk.unittype.Object, sdk.units.portals.RedPortalToAct5, sdk.areas.Harrogath);
 	}
 
 	Config.MercWatch = true;

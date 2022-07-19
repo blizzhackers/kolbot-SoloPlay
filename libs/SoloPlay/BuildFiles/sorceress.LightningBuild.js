@@ -147,6 +147,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.Lightning, 0) === 20 && !me.getSkill(sdk.skills.Blizzard, 0);
+		return this.respec && me.getSkill(sdk.skills.Lightning, sdk.skills.subindex.hardpoints) === 20 && !me.getSkill(sdk.skills.Blizzard, sdk.skills.subindex.hardpoints);
 	},
 };

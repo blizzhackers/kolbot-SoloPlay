@@ -16,7 +16,7 @@ if (me.getItem(sdk.items.runes.Hel)) {
 }
 
 // Have Hel rune and currently equipped armor is low tier
-if (me.getItem(sdk.items.runes.Hel) && Item.getEquippedItem(3).tier < 200) {
+if (me.getItem(sdk.items.runes.Hel) && Item.getEquippedItem(sdk.body.Armor).tier < 200) {
 	NTIP.addLine("[name] == breastplate && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1");
 }
 

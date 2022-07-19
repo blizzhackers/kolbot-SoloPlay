@@ -42,10 +42,10 @@ Skill.getManaCost = function (skillId = -1) {
 	// first skills dont use mana
 	if (skillId < 6) return 0;
 	// Decoy wasn't reading from skill bin
-	if (skillId === sdk.skills.Decoy) return Math.max(19.75 - (0.75 * me.getSkill(sdk.skills.Decoy, 1)), 1);
+	if (skillId === sdk.skills.Decoy) return Math.max(19.75 - (0.75 * me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.softpoints)), sdk.skills.subindex.softpoints);
 	if (this.manaCostList.hasOwnProperty(skillId)) return this.manaCostList[skillId];
 
-	let skillLvl = me.getSkill(skillId, 1), effectiveShift = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
+	let skillLvl = me.getSkill(skillId, sdk.skills.subindex.softpoints), effectiveShift = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
 	let lvlmana = getBaseStat(3, skillId, "lvlmana") === 65535 ? -1 : getBaseStat(3, skillId, "lvlmana"); // Correction for skills that need less mana with levels (kolton)
 	let ret = Math.max((getBaseStat(3, skillId, "mana") + lvlmana * (skillLvl - 1)) * (effectiveShift[getBaseStat(3, skillId, "manashift")] / 256), getBaseStat(3, skillId, "minmana"));
 
@@ -86,7 +86,7 @@ Skill.cast = function (skillId, hand, x, y, item) {
 	if (!this.setSkill(skillId, hand, item)) return false;
 
 	if (Config.PacketCasting > 1 || [sdk.skills.Teleport, sdk.skills.Telekinesis].includes(skillId)
-		|| (this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [67, 245].indexOf(skillId) === -1))) {
+		|| (this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [sdk.skills.Teeth, sdk.skills.Tornado].indexOf(skillId) === -1))) {
 		switch (typeof x) {
 		case "number":
 			Packet.castSkill(hand, x, y);
@@ -100,25 +100,26 @@ Skill.cast = function (skillId, hand, x, y, item) {
 			break;
 		}
 	} else {
+		// todo - get a better idea of clickType in reference to clickMap
 		switch (hand) {
-		case 0: // Right hand + No Shift
+		case sdk.skills.hand.Right: // Right hand + No Shift
 			clickType = 3;
-			shift = 0;
+			shift = sdk.clicktypes.shift.NoShift;
 
 			break;
-		case 1: // Left hand + Shift
+		case sdk.skills.hand.Left: // Left hand + Shift
 			clickType = 0;
-			shift = 1;
+			shift = sdk.clicktypes.shift.Shift;
 
 			break;
-		case 2: // Left hand + No Shift
+		case sdk.skills.hand.LeftNoShift: // Left hand + No Shift
 			clickType = 0;
-			shift = 0;
+			shift = sdk.clicktypes.shift.NoShift;
 
 			break;
-		case 3: // Right hand + Shift
+		case sdk.skills.hand.RightShift: // Right hand + Shift
 			clickType = 3;
-			shift = 1;
+			shift = sdk.clicktypes.shift.Shift;
 
 			break;
 		}
@@ -171,7 +172,7 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 	case me.inTown && !this.townSkill(skillId): // cant cast this in town
 	case this.getManaCost(skillId) > me.mp: // dont have enough mana for this
 	case !this.wereFormCheck(skillId): // can't cast in wereform
-	//case (!me.getSkill(skillId, 1) && !settings.oSkill): // Dont have this skill
+	//case (!me.getSkill(skillId, sdk.skills.subindex.softpoints) && !settings.oSkill): // Dont have this skill
 		return false;
 	case skillId === undefined:
 		throw new Error("Unit.cast: Must supply a skill ID");
@@ -200,7 +201,7 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 		return false;
 	}
 
-	if ((this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [67, 245].indexOf(skillId) === -1))
+	if ((this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [sdk.skills.Teeth, sdk.skills.Tornado].indexOf(skillId) === -1))
 		|| Config.PacketCasting > 1
 		|| skillId === sdk.skills.Teleport) {
 		switch (typeof settings.x) {
@@ -217,26 +218,26 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 		delay(250);
 	} else {
 		let clickType, shift;
-
+		// todo - get a better idea of clickType in reference to clickMap
 		switch (settings.hand) {
-		case 0: // Right hand + No Shift
+		case sdk.skills.hand.Right: // Right hand + No Shift
 			clickType = 3;
-			shift = 0;
+			shift = sdk.clicktypes.shift.NoShift;
 
 			break;
-		case 1: // Left hand + Shift
+		case sdk.skills.hand.Left: // Left hand + Shift
 			clickType = 0;
-			shift = 1;
+			shift = sdk.clicktypes.shift.Shift;
 
 			break;
-		case 2: // Left hand + No Shift
+		case sdk.skills.hand.LeftNoShift: // Left hand + No Shift
 			clickType = 0;
-			shift = 0;
+			shift = sdk.clicktypes.shift.NoShift;
 
 			break;
-		case 3: // Right hand + Shift
+		case sdk.skills.hand.RightShift: // Right hand + Shift
 			clickType = 3;
-			shift = 1;
+			shift = sdk.clicktypes.shift.Shift;
 
 			break;
 		}

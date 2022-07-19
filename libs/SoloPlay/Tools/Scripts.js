@@ -107,7 +107,7 @@ const Scripts = {
 			name: "smith",
 			skipIf: function () {
 				// todo - test leveling/experience potential
-				return (!!Misc.checkQuest(3, 1) || me.smith);
+				return (!!Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, 1) || me.smith);
 			},
 			shouldRun: function () {
 				if (this.skipIf()) return false;
@@ -181,7 +181,7 @@ const Scripts = {
 			},
 			skipIf: function () {
 				if (me.barbarian && (!me.hell || Pather.accessToAct(3)
-					|| (Item.getEquippedItem(5).tier > 1270
+					|| (Item.getEquippedItem(sdk.body.LeftArm).tier > 1270
 					|| me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
 					return true;
 				}

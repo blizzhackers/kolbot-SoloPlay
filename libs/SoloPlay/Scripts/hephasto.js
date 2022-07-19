@@ -11,14 +11,14 @@ function hephasto() {
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
 
-	if (!Pather.moveToPreset(me.area, 2, 376)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Hephasto");
+	if (!Pather.moveToPreset(me.area, sdk.quest.chest.HellForge)) {
+		myPrint("Failed to move to Hephasto");
 	}
 
 	try {
-		Attack.killTarget(getLocaleString(1067)); // Hephasto The Armorer
+		Attack.killTarget(getLocaleString(sdk.locale.monsters.HephastoTheArmorer)); // Hephasto The Armorer
 	} catch (err) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Hephasto');
+		myPrint('Failed to kill Hephasto');
 	}
 
 	Pickit.pickItems();

@@ -113,6 +113,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.Werewolf, 0) === 20;
+		return this.respec && me.getSkill(sdk.skills.Werewolf, sdk.skills.subindex.hardpoints) === 20;
 	},
 };

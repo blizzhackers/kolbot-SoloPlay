@@ -155,7 +155,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 			if (from === void 0) { from = me; }
 			return from.getItemsEx()
 				.filter(function (item) { return item.location === sdk_1.default.storage.Equipment
-                || (item.location === sdk_1.default.storage.Inventory && [603, 604, 605].indexOf(item.classid) > -1); })
+                || (item.location === sdk_1.default.storage.Inventory && [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].indexOf(item.classid) > -1); })
 				.map(function (x) { return MockItem.fromItem(x); });
 		};
 		return MockItem;

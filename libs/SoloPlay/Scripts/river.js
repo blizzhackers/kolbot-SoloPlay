@@ -13,14 +13,14 @@ function river() {
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.CityoftheDamned, sdk.areas.RiverofFlame, true);
 
-	if (!Pather.moveToPreset(me.area, 2, 376)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Hephasto");
+	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.HellForge)) {
+		myPrint("Failed to move to Hephasto");
 	}
 
 	try {
-		Attack.clear(20, 0, getLocaleString(1067)); // Hephasto The Armorer
+		Attack.clear(20, 0, getLocaleString(sdk.locale.monsters.HephastoTheArmorer))
 	} catch (err) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Hephasto');
+		myPrint('Failed to kill Hephasto');
 	}
 
 	Pather.getWP(sdk.areas.RiverofFlame, true);

@@ -58,7 +58,7 @@ let build = {
 	skills: undefined,
 
 	active: function () {
-		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.PlagueJavelin, 0) === 20 && !Check.finalBuild().active());
+		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.hardpoints) === 20 && !Check.finalBuild().active());
 	},
 };
 

@@ -57,6 +57,6 @@ let build = {
 	],
 
 	active: function () {
-		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.LightningSentry, 0) === 20 && !Check.finalBuild().active());
+		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.LightningSentry, sdk.skills.subindex.hardpoints) === 20 && !Check.finalBuild().active());
 	},
 };

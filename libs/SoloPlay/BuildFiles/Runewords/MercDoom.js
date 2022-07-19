@@ -23,11 +23,13 @@ if (!me.getItem(sdk.items.runes.Cham)) {
 	Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
+	
 	if ((me.barbarian && me.haveAll([{name: sdk.locale.items.Grief}, {name: sdk.locale.items.Fortitude}]))
 		|| (["Witchyzon", "Wfzon"].includes(SetUp.finalBuild) && me.checkItem({name: sdk.locale.items.ChainsofHonor}).have)
 		|| (SetUp.currentBuild === "Faithbowzon")) {
 		Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
 	}
+
 	Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Ber Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Jah Rune"]);
@@ -54,8 +56,10 @@ Config.Recipes.push([Recipe.Socket.Weapon, "giantthresher"]);
 Config.Recipes.push([Recipe.Socket.Weapon, "greatpoleaxe"]);
 Config.Recipes.push([Recipe.Socket.Weapon, "crypticaxe"]);
 Config.Recipes.push([Recipe.Socket.Weapon, "thresher"]);
+
 Config.Runewords.push([Runeword.Doom, "giantthresher"]);
 Config.Runewords.push([Runeword.Doom, "greatpoleaxe"]);
 Config.Runewords.push([Runeword.Doom, "crypticaxe"]);
 Config.Runewords.push([Runeword.Doom, "thresher"]);
+
 Config.KeepRunewords.push("[type] == polearm # [holyfreezeaura] == 12");

@@ -111,6 +111,24 @@ const finalBuild = {
 			Update: function () {
 				Config.AttackSkill = [-1, sdk.skills.FreezingArrow, -1, sdk.skills.FreezingArrow, -1, sdk.skills.Strafe, -1];
 				Config.LowManaSkill = [0, -1];
+				Config.ScanShrines = [
+					sdk.shrines.Refilling,
+					sdk.shrines.Health,
+					sdk.shrines.Mana,
+					sdk.shrines.Gem,
+					sdk.shrines.Monster,
+					sdk.shrines.HealthExchange,
+					sdk.shrines.ManaExchange,
+					sdk.shrines.Experience,
+					sdk.shrines.Skill,
+					sdk.shrines.Combat,
+					sdk.shrines.Armor,
+					sdk.shrines.ResistFire,
+					sdk.shrines.ResistCold,
+					sdk.shrines.ResistLightning,
+					sdk.shrines.ResistPoison,
+					sdk.shrines.ManaRecharge,
+					sdk.shrines.Stamina];
 			}
 		},
 	},
@@ -124,6 +142,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.FreezingArrow, 0);
+		return this.respec && Skill.canUse(sdk.skills.FreezingArrow);
 	},
 };

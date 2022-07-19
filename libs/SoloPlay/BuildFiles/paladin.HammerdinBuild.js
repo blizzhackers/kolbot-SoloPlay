@@ -154,7 +154,7 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.BlessedHammer, 0) === 20;
+		return this.respec && me.getSkill(sdk.skills.BlessedHammer, sdk.skills.subindex.hardpoints) === 20;
 	},
 };
 

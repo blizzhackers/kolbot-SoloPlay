@@ -200,7 +200,7 @@
 	MockItem.fromGear = function () {
 		return me.getItemsEx()
 			.filter(item => item.location === sdk.storage.Equipped
-				|| (item.location === sdk.storage.Inventory && [603, 604, 605].indexOf(item.classid) > -1))
+				|| (item.location === sdk.storage.Inventory && [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].indexOf(item.classid) > -1))
 			.map(x => MockItem.fromItem(x));
 	};
 

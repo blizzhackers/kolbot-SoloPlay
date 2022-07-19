@@ -185,7 +185,7 @@ const SetUp = {
 
 				merc.classid !== myData.merc.classid && (myData.merc.classid = merc.classid);
 
-				if (merc.classid === sdk.monsters.mercs.Guard && !Merc.checkMercSkill(myData.merc.type)) {
+				if (merc.classid === sdk.units.mercs.Guard && !Merc.checkMercSkill(myData.merc.type)) {
 				// go back, need to make sure this works properly.
 				// only "go back" if we are past the difficulty we need to be in to hire merc. Ex. In hell but want holy freeze merc
 				// only if we have enough gold on hand to hire said merc
@@ -356,7 +356,7 @@ const SetUp = {
 
 		// log info
 		myPrint(this.finalBuild + " goal reached. On to the next.");
-		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", 6);
+		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", sdk.colors.D2Bot.Gold);
 
 		D2Bot.setProfile(null, null, NameGen());
 		CharData.delete(true);
@@ -667,7 +667,7 @@ const Check = {
 
 			break;
 		case "smith":
-			if (!Misc.checkQuest(3, 1) && !me.smith) {
+			if (!Misc.checkQuest(sdk.quest.id.SistersBurialGrounds, 1) && !me.smith) {
 				return true;
 			}
 
@@ -723,7 +723,7 @@ const Check = {
 			if (me.classic) return false;
 			if (me.charlvl >= 80 && Pather.canTeleport()
 				|| (me.barbarian && me.hell && !Pather.accessToAct(3)
-				&& (Item.getEquippedItem(5).tier < 1270 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
+				&& (Item.getEquippedItem(sdk.body.LeftArm).tier < 1270 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
 				return true;
 			}
 
@@ -980,7 +980,7 @@ const Check = {
 		let gold = me.gold;
 		let goldLimit = [10000, 25000, 50000][me.diff];
 
-		if (gold >= goldLimit || me.charlvl < 15 || (me.charlvl >= 15 && gold > 1000 && Item.getEquippedItem(4).durability !== 0)) {
+		if (gold >= goldLimit || me.charlvl < 15 || (me.charlvl >= 15 && gold > 1000 && Item.getEquippedItem(sdk.body.RightArm).durability !== 0)) {
 			return false;
 		}
 
@@ -994,14 +994,14 @@ const Check = {
 		let gold = me.gold;
 
 		// Almost broken but not quite
-		if (((Item.getEquippedItem(4).durability <= 30 && Item.getEquippedItem(4).durability > 0)
-			|| (Item.getEquippedItem(5).durability <= 30 && Item.getEquippedItem(5).durability > 0)
+		if (((Item.getEquippedItem(sdk.body.RightArm).durability <= 30 && Item.getEquippedItem(sdk.body.RightArm).durability > 0)
+			|| (Item.getEquippedItem(sdk.body.LeftArm).durability <= 30 && Item.getEquippedItem(sdk.body.LeftArm).durability > 0)
 			&& !me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000)) {
 			return 1;
 		}
 
 		// Broken
-		if ((Item.getEquippedItem(4).durability === 0 || Item.getEquippedItem(5).durability === 0) && me.charlvl >= 15 && !me.normal && gold < 1000) {
+		if ((Item.getEquippedItem(sdk.body.RightArm).durability === 0 || Item.getEquippedItem(sdk.body.LeftArm).durability === 0) && me.charlvl >= 15 && !me.normal && gold < 1000) {
 			return 2;
 		}
 
@@ -1025,7 +1025,7 @@ const Check = {
 		case sdk.difficulty.Nightmare:
 			if (myGold < repairCost) {
 				// check how broke we are - only for melee chars since casters don't care about weapons
-				wep = items.filter(i => i.isEquipped && i.bodylocation === 4).first();
+				wep = items.filter(i => i.isEquipped && i.bodylocation === sdk.body.RightArm).first();
 				if (!!wep && meleeChar && wep.durabilityPercent === 0) {
 					// we are really broke - go back to normal
 					msg = " We are broken - lets get some easy gold in normal";
@@ -1039,7 +1039,7 @@ const Check = {
 		case sdk.difficulty.Hell:
 			if (myGold < repairCost) {
 				// check how broke we are - only for melee chars since casters don't care about weapons
-				wep = items.filter(i => i.isEquipped && i.bodylocation === 4).first();
+				wep = items.filter(i => i.isEquipped && i.bodylocation === sdk.body.RightArm).first();
 				if (!!wep && meleeChar && wep.durabilityPercent === 0) {
 					// we are really broke - go back to normal
 					msg = " We are broken - lets get some easy gold in normal";
@@ -1122,7 +1122,7 @@ const Check = {
 				|| (!me.paladin && me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Sword}).have)
 				|| (me.paladin && me.haveAll([{name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Sword}, {name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.AuricShields}]))
 				|| (me.necromancer && me.checkItem({name: sdk.locale.items.White}).have
-					&& (me.checkItem({name: sdk.locale.items.Rhyme, itemtype: sdk.itemtype.VoodooHeads}).have || Item.getEquippedItem(5).tier > 800))
+					&& (me.checkItem({name: sdk.locale.items.Rhyme, itemtype: sdk.itemtype.VoodooHeads}).have || Item.getEquippedItem(sdk.body.LeftArm).tier > 800))
 				|| (me.barbarian && (me.checkItem({name: sdk.locale.items.Lawbringer}).have || me.baal))) {
 				needRunes = false;
 			}
@@ -1334,25 +1334,25 @@ const Check = {
 			// try to see if we can correct the finalBuild
 			if (myData.me.finalBuild.match("Build", "gi")) {
 				myData.me.finalBuild = myData.me.finalBuild.substring(0, SetUp.finalBuild.length - 5);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, sdk.colors.D2Bot.Red);
 				foundError = true;
 			}
 
 			if (myData.me.finalBuild.includes(".")) {
 				myData.me.finalBuild = myData.me.finalBuild.substring(myData.me.finalBuild.indexOf(".") + 1).capitalize(true);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, sdk.colors.D2Bot.Red);
 				foundError = true;
 			}
 
 			if (myData.me.finalBuild.includes(" ")) {
 				myData.me.finalBuild = myData.me.finalBuild.trim().capitalize(true);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, sdk.colors.D2Bot.Red);
 				foundError = true;
 			}
 
 			if (myData.me.finalBuild.includes("-")) {
 				myData.me.finalBuild = myData.me.finalBuild.substring(myData.me.finalBuild.indexOf("-") + 1).capitalize(true);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '-' which is unecessary and means you likely entered something along the lines of Classname-finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, 9);
+				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '-' which is unecessary and means you likely entered something along the lines of Classname-finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, sdk.colors.D2Bot.Red);
 				foundError = true;
 			}
 
@@ -1392,8 +1392,8 @@ const Check = {
 
 		switch (true) {
 		case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
-		case !!(SetUp.finalBuild === "Socketmule" && Misc.checkQuest(35, 1)):
-		case !!(SetUp.finalBuild === "Imbuemule" && Misc.checkQuest(3, 1) && me.charlvl >= Developer.imbueStopLevel):
+		case !!(SetUp.finalBuild === "Socketmule" && Misc.checkQuest(sdk.quest.id.SiegeOnHarrogath, 1)):
+		case !!(SetUp.finalBuild === "Imbuemule" && Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, 1) && me.charlvl >= Developer.imbueStopLevel):
 			goal = SetUp.finalBuild;
 			goalReached = true;
 
@@ -1419,7 +1419,7 @@ const Check = {
 			if (Developer.fillAccount.bumpers || Developer.fillAccount.socketMules) {
 				SetUp.makeNext();
 			} else {
-				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + ")" : ""), 6);
+				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
 				Developer.logPerformance && Tracker.update();
 				D2Bot.stop();
 			}
@@ -1430,7 +1430,7 @@ const Check = {
 	usePreviousSocketQuest: function () {
 		if (me.classic) return;
 		if (!Check.resistance().Status) {
-			if (me.weaponswitch === 0 && Item.getEquippedItem(5).fname.includes("Lidless Wall") && !Item.getEquippedItem(5).socketed) {
+			if (me.weaponswitch === 0 && Item.getEquippedItem(sdk.body.LeftArm).fname.includes("Lidless Wall") && !Item.getEquippedItem(sdk.body.LeftArm).socketed) {
 				if (!me.normal) {
 					if (!myData.normal.socketUsed) goToDifficulty(sdk.difficulty.Normal, " to use socket quest");
 					if (me.hell && !myData.nightmare.socketUsed) goToDifficulty(sdk.difficulty.Nightmare, " to use socket quest");

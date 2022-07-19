@@ -160,7 +160,7 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && (me.expansion ? me.getSkill(sdk.skills.PlagueJavelin, 0) > 1 && me.getSkill(sdk.skills.PlagueJavelin, 0) < 5 : me.getSkill(sdk.skills.PlagueJavelin, 0) === 20);
+		return this.respec && (me.expansion ? me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.hardpoints) > 1 && me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.hardpoints) < 5 : me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.hardpoints) === 20);
 	},
 };
 

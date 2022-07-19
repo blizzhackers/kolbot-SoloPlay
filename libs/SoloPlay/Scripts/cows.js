@@ -28,12 +28,12 @@ function cows () {
 
 		Pather.useWaypoint(sdk.areas.StonyField);
 		Precast.doPrecast(true);
-		Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Monster, sdk.monsters.preset.Rakanishu, 8, 8);
+		Pather.moveToPreset(sdk.areas.StonyField, unit.isMonster, sdk.monsters.preset.Rakanishu, 8, 8);
 		Pather.usePortal(sdk.areas.Tristram);
 
-		if (me.area === sdk.areas.Tristram) {
+		if (me.inArea(sdk.areas.Tristram)) {
 			Pather.moveTo(25048, 5177);
-			Quest.collectItem(sdk.items.quest.WirtsLeg, 268);
+			Quest.collectItem(sdk.items.quest.WirtsLeg, sdk.quest.chest.Wirt);
 			Pickit.pickItems();
 			Town.goToTown();
 		} else {
@@ -44,10 +44,10 @@ function cows () {
 	};
 
 	this.openPortal = function (portalID, ...classIDS) {
-		me.area !== sdk.areas.RogueEncampment && Town.goToTown(1);
+		!me.inArea(sdk.areas.RogueEncampment) && Town.goToTown(1);
 
 		let npc, tome, scroll;
-		let tpTome = me.findItems(sdk.items.TomeofTownPortal, 0, 3);
+		let tpTome = me.findItems(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.itemmode.Inventory);
 
 		try {
 			if (tpTome.length < 2) {
@@ -61,12 +61,12 @@ function cows () {
 
 				if (!!tome && tome.getItemCost(0) < me.gold && tome.buy()) {
 					delay(500);
-					tpTome = me.findItems(sdk.items.TomeofTownPortal, 0, 3);
-					scroll = npc.getItem(529);
+					tpTome = me.findItems(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.itemmode.Inventory);
+					scroll = npc.getItem(sdk.items.ScrollofTownPortal);
 					let scrollCost = scroll.getItemCost(0);
 					tpTome.forEach(function (book) {
 						while (book.getStat(sdk.stats.Quantity) < 20) {
-							scroll = npc.getItem(529);
+							scroll = npc.getItem(sdk.items.ScrollofTownPortal);
 							
 							if (!!scroll && scrollCost < me.gold) {
 								scroll.buy(true);
@@ -91,7 +91,7 @@ function cows () {
 		}
 
 		for (let classID of classIDS) {
-			let cubingItem = me.getItem(classID);
+			let cubingItem = Game.getItem(classID)
 
 			if (!cubingItem || !Storage.Cube.MoveTo(cubingItem)) {
 				return false;
@@ -153,12 +153,12 @@ function cows () {
 		let kingPreset;
 
 		Worker.runInBackground.kingTracker = function () {
-			if (me.area === sdk.areas.MooMooFarm) {
+			if (me.inArea(sdk.areas.MooMooFarm)) {
 				if (getTickCount() - kingTick < 1000) return true;
 				kingTick = getTickCount();
-				king = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.TheCowKing));
+				king = Game.getMonster(getLocaleString(sdk.locale.monsters.TheCowKing));
 				// only get the preset unit once
-				!kingPreset && (kingPreset = getPresetUnit(me.area, sdk.unittype.Monster, sdk.monsters.preset.TheCowKing));
+				!kingPreset && (kingPreset = getPresetUnit(me.area, unit.isMonster, sdk.monsters.preset.TheCowKing));
 
 				if (king && kingPreset) {
 					if (getDistance(me.x, me.y, getRoom(kingPreset.roomx * 5 + kingPreset.x), getRoom(kingPreset.roomy * 5 + kingPreset.y)) <= 25) {

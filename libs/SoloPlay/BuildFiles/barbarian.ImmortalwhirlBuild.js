@@ -120,6 +120,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.MaceMastery, 0) === 20;
+		return this.respec && me.getSkill(sdk.skills.MaceMastery, sdk.skills.subindex.hardpoints) === 20;
 	},
 };

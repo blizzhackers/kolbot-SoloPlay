@@ -58,7 +58,7 @@ let build = {
 	skills: undefined,
 
 	active: function () {
-		return me.charlvl > Config.respecOne && me.charlvl < Config.respecOneB && me.getSkill(sdk.skills.Blizzard, 0) && !me.getSkill(sdk.skills.Nova, 0) && !me.getSkill(sdk.skills.FireMastery, 0);
+		return me.charlvl > Config.respecOne && me.charlvl < Config.respecOneB && Skill.canUse(sdk.skills.Blizzard) && !Skill.canUse(sdk.skills.Nova) && !Skill.canUse(sdk.skills.FireMastery);
 	},
 };
 

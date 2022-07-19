@@ -177,7 +177,7 @@ Unit.prototype.mercBodyLocation = function () {
 
 	switch (this.itemType) {
 	case sdk.itemtype.Shield:
-		if (mercenary.classid === sdk.monsters.mercs.IronWolf) {
+		if (mercenary.classid === sdk.units.mercs.IronWolf) {
 			bodyLoc = 5;
 		}
 
@@ -192,27 +192,27 @@ Unit.prototype.mercBodyLocation = function () {
 
 		break;
 	case sdk.itemtype.PrimalHelm:
-		if (mercenary.classid === sdk.monsters.mercs.A5Barb) {
+		if (mercenary.classid === sdk.units.mercs.A5Barb) {
 			bodyLoc = 1;
 		}
 		
 		break;
 	case sdk.itemtype.Bow:
-		if (mercenary.classid === sdk.monsters.mercs.Rogue) {
+		if (mercenary.classid === sdk.units.mercs.Rogue) {
 			bodyLoc = 4;
 		}
 
 		break;
 	case sdk.itemtype.Spear:
 	case sdk.itemtype.Polearm:
-		if (mercenary.classid === sdk.monsters.mercs.Guard) {
+		if (mercenary.classid === sdk.units.mercs.Guard) {
 			bodyLoc = 4;
 		}
 
 		break;
 	case sdk.itemtype.Sword:
-		if (mercenary.classid === sdk.monsters.mercs.IronWolf
-			|| mercenary.classid === sdk.monsters.mercs.A5Barb) {
+		if (mercenary.classid === sdk.units.mercs.IronWolf
+			|| mercenary.classid === sdk.units.mercs.A5Barb) {
 			bodyLoc = 4;
 		}
 
@@ -259,11 +259,11 @@ Unit.prototype.autoEquipCheck = function (checkCanEquip = true) {
 			if (tier > Item.getEquippedItem(bodyLoc[i]).tier
                 && ((checkCanEquip ? this.canEquip() : true) || !this.identified)) {
 				if (this.twoHanded && !me.barbarian) {
-					if (tier < Item.getEquippedItem(4).tier + Item.getEquippedItem(5).tier) return false;
+					if (tier < Item.getEquippedItem(sdk.body.RightArm).tier + Item.getEquippedItem(sdk.body.LeftArm).tier) return false;
 				}
 
 				if (!me.barbarian && bodyLoc[i] === 5 && Item.getEquippedItem(bodyLoc[i]).tier === -1) {
-					if (Item.getEquippedItem(4).twoHanded && tier < Item.getEquippedItem(4).tier) return false;
+					if (Item.getEquippedItem(sdk.body.RightArm).twoHanded && tier < Item.getEquippedItem(sdk.body.RightArm).tier) return false;
 				}
 
 				return true;
@@ -286,11 +286,11 @@ Unit.prototype.autoEquipCheckSecondary = function (checkCanEquip = true) {
 			if (tier > Item.getEquippedItem(bodyLoc[i]).secondarytier
                 && ((checkCanEquip ? this.canEquip() : true) || !this.identified)) {
 				if (this.twoHanded && !me.barbarian) {
-					if (tier < Item.getEquippedItem(11).secondarytier + Item.getEquippedItem(12).secondarytier) return false;
+					if (tier < Item.getEquippedItem(sdk.body.RightArmSecondary).secondarytier + Item.getEquippedItem(sdk.body.LeftArmSecondary).secondarytier) return false;
 				}
 
 				if (!me.barbarian && bodyLoc[i] === 12 && Item.getEquippedItem(bodyLoc[i]).secondarytier === -1) {
-					if (Item.getEquippedItem(11).twoHanded && tier < Item.getEquippedItem(11).secondarytier) return false;
+					if (Item.getEquippedItem(sdk.body.RightArmSecondary).twoHanded && tier < Item.getEquippedItem(sdk.body.RightArmSecondary).secondarytier) return false;
 				}
 
 				return true;
@@ -351,11 +351,11 @@ Unit.prototype.equipItem = function (bodyLoc = -1) {
 
 	for (let i = 0; i < 3; i += 1) {
 		if (this.toCursor()) {
-			clickItemAndWait(0, bodyLoc);
+			clickItemAndWait(sdk.clicktypes.Left, bodyLoc);
 
 			if (this.bodylocation === bodyLoc) {
-				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+				if (getCursorType() === sdk.cursortype.ItemOnUnitHover) {
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem) {
 						// rollback check
@@ -363,8 +363,8 @@ Unit.prototype.equipItem = function (bodyLoc = -1) {
 						if (NTIP.GetTier(cursorItem) > justEquipped.tier && !this.questItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attempt rollback*/) {
 							console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
 							console.debug("OldItem: " + NTIP.GetTier(cursorItem) + " Just Equipped Item: " + Item.getEquippedItem(bodyLoc).tier);
-							clickItemAndWait(0, bodyLoc);
-							cursorItem = getUnit(100);
+							clickItemAndWait(sdk.clicktypes.Left, bodyLoc);
+							cursorItem = Game.getCursorUnit();
 							rolledBack = true;
 						}
 
@@ -397,11 +397,11 @@ Unit.prototype.secondaryEquip = function (bodyLoc = -1) {
 	
 	for (let i = 0; i < 3; i += 1) {
 		if (this.toCursor()) {
-			clickItemAndWait(0, bodyLoc - 7);
+			clickItemAndWait(sdk.clicktypes.Left, bodyLoc - sdk.body.RingLeft);
 
-			if (this.bodylocation === bodyLoc - 7) {
-				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+			if (this.bodylocation === bodyLoc - sdk.body.RingLeft) {
+				if (getCursorType() === sdk.cursortype.ItemOnUnitHover) {
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem) {
 						if (!this.shouldKeep()) {
@@ -434,11 +434,11 @@ Unit.prototype.equipMerc = function (bodyLoc = -1) {
 	
 	for (let i = 0; i < 3; i += 1) {
 		if (this.toCursor()) {
-			clickItemAndWait(4, bodyLoc);
+			clickItemAndWait(sdk.clicktypes.click.Mercenary, bodyLoc);
 
 			if (this.bodylocation === bodyLoc) {
-				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+				if (getCursorType() === sdk.cursortype.ItemOnUnitHover) {
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem) {
 						if (!this.shouldKeep()) {
