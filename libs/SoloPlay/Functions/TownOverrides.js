@@ -152,7 +152,7 @@ Town.townTasks = function (buyPots = {}) {
 	Item.autoEquip();
 	Item.autoEquipSecondary();
 	Item.autoEquipCharms();
-	Merc.hireMerc();
+	Mercenary.hireMerc();
 	Item.autoEquipMerc();
 	this.stash();
 	this.clearJunk();
@@ -221,7 +221,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	Item.autoEquip();
 	Item.autoEquipSecondary();
 	Item.autoEquipCharms();
-	Merc.hireMerc();
+	Mercenary.hireMerc();
 	Item.autoEquipMerc();
 	this.stash();
 	this.clearJunk();
@@ -259,7 +259,7 @@ Town.getIdTool = function () {
 };
 
 Town.cainID = function (force = false) {
-	if ((!Config.CainID.Enable && !force) || !Misc.checkQuest(sdk.quest.id.TheSearchForCain, 0)) return false;
+	if ((!Config.CainID.Enable && !force) || !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed)) return false;
 
 	let npc = getInteractedNPC();
 
@@ -928,7 +928,7 @@ Town.unfinishedQuests = function () {
 	}
 
 	// Killed council but haven't talked to cain
-	if (!Misc.checkQuest(21, 0) && Misc.checkQuest(21, 4)) {
+	if (!Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, sdk.quest.states.Completed) && Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, 4)) {
 		me.overhead("Finishing Travincal by talking to cain");
 		Town.goToTown(3) && Town.npcInteract("cain");
 		delay(300 + me.ping);

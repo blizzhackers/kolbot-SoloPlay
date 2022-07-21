@@ -10,7 +10,7 @@ function andariel () {
 	Town.townTasks();
 	myPrint("starting andy");
 
-	if (me.normal && Misc.checkQuest(6, 1)) {
+	if (me.normal && Misc.checkQuest(sdk.quest.id.SistersToTheSlaughter, sdk.quest.states.ReqComplete)) {
 		Pather.changeAct();
 
 		return true;
@@ -55,7 +55,7 @@ function andariel () {
 			}
 
 			Pather.moveToUnit(coords[0]);
-			Attack.clearClassids(61);
+			Attack.clearClassids(sdk.monsters.DarkShaman1);
 			coords.shift();
 		}
 	}
@@ -81,7 +81,7 @@ function andariel () {
 			// Now check my area
 			if (me.act === 2) {
 				// Act change sucessful, Andy has been bugged
-				let result = (Misc.checkQuest(6, 15) ? "Sucessful" : "Unsucessful");
+				let result = (Misc.checkQuest(sdk.quest.id.SistersToTheSlaughter, 15) ? "Sucessful" : "Unsucessful");
 				myPrint("Andy bugged was " + result);
 				scriptBroadcast("quit");
 			}

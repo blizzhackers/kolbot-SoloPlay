@@ -5,9 +5,9 @@
 *
 */
 
-!isIncluded("SoloPlay/Tools/Developer.js") && include("SoloPlay/Tools/Developer.js");
-!isIncluded("SoloPlay/Functions/PrototypesOverrides.js") && include("SoloPlay/Functions/PrototypesOverrides.js");
-!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
+includeIfNotIncluded("SoloPlay/Tools/Developer.js");
+includeIfNotIncluded("SoloPlay/Functions/PrototypesOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 
 const Tracker = {
 	GTPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-GameTime.json",
@@ -68,13 +68,13 @@ const Tracker = {
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
 
 		let newTick = me.gamestarttime >= GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
-		GameTracker.InGame += Developer.Timer(newTick);
-		GameTracker.Total += Developer.Timer(newTick);
+		GameTracker.InGame += Developer.timer(newTick);
+		GameTracker.Total += Developer.timer(newTick);
 		GameTracker.LastSave = getTickCount();
 		Developer.writeObj(GameTracker, Tracker.GTPath);
 
 		// csv file
-		let scriptTime = Developer.Timer(starttime);
+		let scriptTime = Developer.timer(starttime);
 		let diffString = sdk.difficulty.nameOf(me.diff);
 		let gainAMT = me.getStat(sdk.stats.Experience) - startexp;
 		let gainTime = gainAMT / (scriptTime / 60000);
@@ -100,9 +100,9 @@ const Tracker = {
 
 		let newSave = getTickCount();
 		let newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
-		let splitTime = Developer.Timer(GameTracker.LastLevel);
-		GameTracker.InGame += Developer.Timer(newTick);
-		GameTracker.Total += Developer.Timer(newTick);
+		let splitTime = Developer.timer(GameTracker.LastLevel);
+		GameTracker.InGame += Developer.timer(newTick);
+		GameTracker.Total += Developer.timer(newTick);
 		GameTracker.LastLevel = newSave;
 		GameTracker.LastSave = newSave;
 		Developer.writeObj(GameTracker, Tracker.GTPath);
@@ -145,8 +145,8 @@ const Tracker = {
 		let newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
 
 		GameTracker.OOG += oogTick;
-		GameTracker.InGame += Developer.Timer(newTick);
-		GameTracker.Total += (Developer.Timer(newTick) + oogTick);
+		GameTracker.InGame += Developer.timer(newTick);
+		GameTracker.Total += (Developer.timer(newTick) + oogTick);
 		GameTracker.LastSave = getTickCount();
 		Developer.writeObj(GameTracker, Tracker.GTPath);
 		this.tick = GameTracker.LastSave;

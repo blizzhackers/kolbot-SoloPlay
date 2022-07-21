@@ -7,13 +7,11 @@
 
 function cows () {
 	this.getLeg = function () {
-		if (me.getItem(sdk.items.quest.WirtsLeg)) {
-			return me.getItem(sdk.items.quest.WirtsLeg);
-		}
+		if (me.getItem(sdk.items.quest.WirtsLeg)) return me.getItem(sdk.items.quest.WirtsLeg);
 
 		// Cain is incomplete, complete it then continue @isid0re
 		if (!me.tristram) {
-			!isIncluded("SoloPlay/Scripts/tristram.js") && include("SoloPlay/Scripts/tristram.js");
+			includeIfNotIncluded("SoloPlay/Scripts/tristram.js");
 
 			for (let i = 0; i < 5; i++) {
 				tristram();
@@ -52,10 +50,7 @@ function cows () {
 		try {
 			if (tpTome.length < 2) {
 				npc = Town.initNPC("Shop", "buyTpTome");
-
-				if (!getInteractedNPC()) {
-					throw new Error("Failed to find npc");
-				}
+				if (!getInteractedNPC()) throw new Error("Failed to find npc");
 
 				tome = npc.getItem(sdk.items.TomeofTownPortal);
 
@@ -85,10 +80,7 @@ function cows () {
 
 		!Town.openStash() && console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to open stash. (openPortal)");
 		!Cubing.emptyCube() && console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to empty cube. (openPortal)");
-
-		if (!me.getItem(sdk.items.quest.WirtsLeg)) {
-			return false;
-		}
+		if (!me.getItem(sdk.items.quest.WirtsLeg)) return false;
 
 		for (let classID of classIDS) {
 			let cubingItem = me.getItem(classID);
@@ -120,18 +112,13 @@ function cows () {
 		return true;
 	};
 
-	if (!me.diffCompleted) {
-		console.log("ÿc8Kolbot-SoloPlayÿc0: Final quest incomplete, cannot make cows yet");
-		return true;
-	}
+	if (!me.diffCompleted) throw new Error("Final quest incomplete, cannot make cows yet");
 
 	// START
 	Town.townTasks();
 	myPrint("starting cows");
 
-	if (!Pather.getPortal(sdk.areas.MooMooFarm) && !this.getLeg()) {
-		return true;
-	}
+	if (!Pather.getPortal(sdk.areas.MooMooFarm) && !this.getLeg()) return true;
 	
 	Town.doChores();
 	this.openPortal(sdk.areas.MooMooFarm, sdk.items.quest.WirtsLeg, sdk.items.TomeofTownPortal);
@@ -156,14 +143,14 @@ function cows () {
 			if (me.area === sdk.areas.MooMooFarm) {
 				if (getTickCount() - kingTick < 1000) return true;
 				kingTick = getTickCount();
-				king = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.TheCowKing));
+				king = Game.getMonster(getLocaleString(sdk.locale.monsters.TheCowKing));
 				// only get the preset unit once
 				!kingPreset && (kingPreset = getPresetUnit(me.area, sdk.unittype.Monster, sdk.monsters.preset.TheCowKing));
 
 				if (king && kingPreset) {
 					if (getDistance(me.x, me.y, getRoom(kingPreset.roomx * 5 + kingPreset.x), getRoom(kingPreset.roomy * 5 + kingPreset.y)) <= 25) {
 						myPrint("exit cows. Near the king");
-						throw new Error("ÿc8Kolbot-SoloPlayÿc0: exit cows. Near the king");
+						throw new Error("exit cows. Near the king");
 					}
 				}
 			}

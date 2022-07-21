@@ -6,9 +6,9 @@
 *
 */
 
-!isIncluded("SoloPlay/Tools/Developer.js") && include("SoloPlay/Tools/Developer.js");
-!isIncluded("SoloPlay/Tools/Tracker.js") && include("SoloPlay/Tools/Tracker.js");
-!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js") && include("SoloPlay/Functions/ProtoTypesOverrides.js");
+includeIfNotIncluded("SoloPlay/Tools/Developer.js");
+includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
+includeIfNotIncluded("SoloPlay/Functions/ProtoTypesOverrides.js");
 
 const Overlay = {
 	resfix: {x: -10, y: me.screensize ? 0 : -120},
@@ -164,27 +164,27 @@ const Overlay = {
 		data: {
 			Den: {
 				complete: false,
-				condition: () => me.getQuest(1, 0)
+				condition: () => me.getQuest(sdk.quest.id.DenofEvil, sdk.quest.states.Completed)
 			},
 			BloodRaven: {
 				complete: false,
-				condition: () => me.getQuest(2, 0)
+				condition: () => me.getQuest(sdk.quest.id.SistersBurialGrounds, sdk.quest.states.Completed)
 			},
 			Tristram: {
 				complete: false,
-				condition: () => me.getQuest(4, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed)
 			},
 			Countess: {
 				complete: false,
-				condition: () => me.getQuest(5, 0)
+				condition: () => me.getQuest(sdk.quest.id.ForgottenTower, sdk.quest.states.Completed)
 			},
 			Smith: {
 				complete: false,
-				condition: () => (me.getQuest(3, 0) || me.getQuest(3, 1))
+				condition: () => (me.getQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.Completed) || me.getQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete))
 			},
 			Andariel: {
 				complete: false,
-				condition: () => me.getQuest(6, 0)
+				condition: () => me.getQuest(sdk.quest.id.SistersToTheSlaughter, sdk.quest.states.Completed)
 			},
 			Cube: {
 				complete: false,
@@ -192,75 +192,75 @@ const Overlay = {
 			},
 			Radament: {
 				complete: false,
-				condition: () => me.getQuest(9, 0)
+				condition: () => me.getQuest(sdk.quest.id.RadamentsLair, sdk.quest.states.Completed)
 			},
 			HoradricStaff: {
 				complete: false,
-				condition: () => me.getQuest(10, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheHoradricStaff, sdk.quest.states.Completed)
 			},
 			Amulet: {
 				complete: false,
-				condition: () => me.getQuest(11, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheTaintedSun, sdk.quest.states.Completed)
 			},
 			Summoner: {
 				complete: false,
-				condition: () => me.getQuest(13, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheSummoner, sdk.quest.states.Completed)
 			},
 			Duriel: {
 				complete: false,
-				condition: () => me.getQuest(14, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheSevenTombs, sdk.quest.states.Completed)
 			},
 			GoldenBird: {
 				complete: false,
-				condition: () => me.getQuest(20, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheGoldenBird, sdk.quest.states.Completed)
 			},
 			KhalimsWill: {
 				complete: false,
-				condition: () => me.getQuest(18, 0)
+				condition: () => me.getQuest(sdk.quest.id.KhalimsWill, sdk.quest.states.Completed)
 			},
 			LamEsen: {
 				complete: false,
-				condition: () => me.getQuest(17, 0)
+				condition: () => me.getQuest(sdk.quest.id.LamEsensTome, sdk.quest.states.Completed)
 			},
 			Travincal: {
 				complete: false,
-				condition: () => me.getQuest(21, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheBlackenedTemple, sdk.quest.states.Completed)
 			},
 			Mephisto: {
 				complete: false,
-				condition: () => me.getQuest(22, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheGuardian, sdk.quest.states.Completed)
 			},
 			Izual: {
 				complete: false,
-				condition: () => me.getQuest(25, 0)
+				condition: () => me.getQuest(sdk.quest.id.TheFallenAngel, sdk.quest.states.Completed)
 			},
 			HellForge: {
 				complete: false,
-				condition: () => me.getQuest(27, 0)
+				condition: () => me.getQuest(sdk.quest.id.HellsForge, sdk.quest.states.Completed)
 			},
 			Diablo: {
 				complete: false,
-				condition: () => me.getQuest(26, 0)
+				condition: () => me.getQuest(sdk.quest.id.TerrorsEnd, sdk.quest.states.Completed)
 			},
 			Shenk: {
 				complete: false,
-				condition: () => (me.getQuest(35, 0) || me.getQuest(35, 1))
+				condition: () => (me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.Completed) || me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.ReqComplete))
 			},
 			Barbies: {
 				complete: false,
-				condition: () => me.getQuest(36, 0)
+				condition: () => me.getQuest(sdk.quest.id.RescueonMountArreat, sdk.quest.states.Completed)
 			},
 			Anya: {
 				complete: false,
-				condition: () => me.getQuest(37, 0)
+				condition: () => me.getQuest(sdk.quest.id.PrisonofIce, sdk.quest.states.Completed)
 			},
 			Ancients: {
 				complete: false,
-				condition: () => me.getQuest(39, 0)
+				condition: () => me.getQuest(sdk.quest.id.RiteofPassage, sdk.quest.states.Completed)
 			},
 			Baal: {
 				complete: false,
-				condition: () => me.getQuest(40, 0)
+				condition: () => me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.Completed)
 			},
 		},
 

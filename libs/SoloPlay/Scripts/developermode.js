@@ -227,9 +227,7 @@ function developermode() {
 
 	while (!done) {
 		if (action) {
-			if (!isIncluded("SoloPlay/Scripts/" + action + ".js")) {
-				include("SoloPlay/Scripts/" + action + ".js");
-			}
+			includeIfNotIncluded("SoloPlay/Scripts/" + action + ".js");
 
 			if (!UnitInfo.cleared) {
 				UnitInfo.remove();
@@ -239,11 +237,13 @@ function developermode() {
 			if (isIncluded("SoloPlay/Scripts/" + action + ".js")) {
 				try {
 					this[action]();
+				} catch (e) {
+					console.warn("ÿc8Kolbot-SoloPlayÿc0: " + e);
 				} finally {
 					delete this[action];
 				}
 			} else {
-				print("Failed to include: " + action);
+				console.warn("Failed to include: " + action);
 			}
 
 			me.overhead("Done with action");

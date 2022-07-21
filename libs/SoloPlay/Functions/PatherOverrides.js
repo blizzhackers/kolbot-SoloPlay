@@ -174,7 +174,7 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 		me.inTown && !getUIFlag(sdk.uiflags.Waypoint) && Town.move("waypoint");
 
 		for (let i = 0; i < 15; i++) {
-			let wp = getUnit(sdk.unittype.Object, "waypoint");
+			let wp = Game.getObject("waypoint");
 			let useTK = (Skill.useTK(wp) && i < 5);
 			let pingDelay = me.getPingDelay();
 
@@ -728,7 +728,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 			!getUIFlag(sdk.uiflags.Waypoint) && Town.getDistance("waypoint") > (Skill.haveTK ? 20 : 5) && Town.move("waypoint");
 		}
 
-		let wp = getUnit(sdk.unittype.Object, "waypoint");
+		let wp = Game.getObject("waypoint");
 
 		if (!!wp && wp.area === me.area) {
 			let useTK = (Skill.useTK(wp) && i < 3);

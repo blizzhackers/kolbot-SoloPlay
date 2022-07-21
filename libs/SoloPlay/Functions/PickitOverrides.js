@@ -564,7 +564,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 		delay(40);
 	}
 
-	let item = getUnit(4);
+	let item = Game.getItem();
 
 	if (item) {
 		do {

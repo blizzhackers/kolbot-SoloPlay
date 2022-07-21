@@ -735,7 +735,7 @@ Item.hasMercTier = function (item) {
 // need to re-work using char data so we can shop/keep items if merc is dead *but* we have enough to revive him and buy the item and enough space
 Item.canEquipMerc = function (item, bodyLoc) {
 	if (item.type !== sdk.unittype.Item || me.classic) return false;
-	let mercenary = Merc.getMercFix();
+	let mercenary = Mercenary.getMercFix();
 
 	// dont have merc or he is dead or unidentifed item
 	if (!mercenary || !item.identified) return false;
@@ -752,7 +752,7 @@ Item.canEquipMerc = function (item, bodyLoc) {
 };
 
 Item.equipMerc = function (item, bodyLoc) {
-	let mercenary = Merc.getMercFix();
+	let mercenary = Mercenary.getMercFix();
 
 	// dont have merc or he is dead or higher requirements
 	if (!mercenary || !Item.canEquipMerc(item, bodyLoc)) return false;
@@ -795,7 +795,7 @@ Item.equipMerc = function (item, bodyLoc) {
 };
 
 Item.getEquippedItemMerc = function (bodyLoc = -1) {
-	let mercenary = Merc.getMercFix();
+	let mercenary = Mercenary.getMercFix();
 
 	if (mercenary) {
 		let item = mercenary.getItemsEx().filter((item) => item.isEquipped && item.bodylocation === bodyLoc).first();
@@ -824,7 +824,7 @@ Item.getEquippedItemMerc = function (bodyLoc = -1) {
 };
 
 Item.getBodyLocMerc = function (item) {
-	let bodyLoc = false, mercenary = Merc.getMercFix();
+	let bodyLoc = false, mercenary = Mercenary.getMercFix();
 
 	// dont have merc or he is dead
 	if (!mercenary) return false;
@@ -879,7 +879,7 @@ Item.getBodyLocMerc = function (item) {
 
 Item.autoEquipCheckMerc = function (item) {
 	if (!Config.AutoEquip) return true;
-	if (Config.AutoEquip && !Merc.getMercFix()) return false;
+	if (Config.AutoEquip && !Mercenary.getMercFix()) return false;
 
 	let tier = NTIP.GetMercTier(item), bodyLoc = Item.getBodyLocMerc(item);
 
@@ -898,7 +898,7 @@ Item.autoEquipCheckMerc = function (item) {
 
 Item.autoEquipKeepCheckMerc = function (item) {
 	if (!Config.AutoEquip) return true;
-	if (Config.AutoEquip && !Merc.getMercFix()) return false;
+	if (Config.AutoEquip && !Mercenary.getMercFix()) return false;
 
 	let tier = NTIP.GetMercTier(item), bodyLoc = Item.getBodyLocMerc(item);
 
@@ -916,7 +916,7 @@ Item.autoEquipKeepCheckMerc = function (item) {
 };
 
 Item.autoEquipMerc = function () {
-	if (!Config.AutoEquip || !Merc.getMercFix()) return true;
+	if (!Config.AutoEquip || !Mercenary.getMercFix()) return true;
 
 	let items = me.getItemsEx()
 		.filter(function (item) {
@@ -980,7 +980,7 @@ Item.autoEquipMerc = function () {
 };
 
 Item.removeItemsMerc = function () {
-	let mercenary = Merc.getMercFix();
+	let mercenary = Mercenary.getMercFix();
 	if (!mercenary) return true;
 	// Sort items so we try to keep the highest tier'd items in case space in our invo is limited
 	let items = mercenary.getItemsEx().sort((a, b) => NTIP.GetMercTier(b) - NTIP.GetMercTier(a));

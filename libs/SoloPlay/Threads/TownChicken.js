@@ -221,7 +221,7 @@ function main() {
 						}
 					} else {
 						// check dummy
-						let dummy = getUnit(sdk.unittype.Object, "portal");
+						let dummy = Game.getObject("portal");
 						if (dummy) {
 							console.debug(dummy);
 							if (use) {

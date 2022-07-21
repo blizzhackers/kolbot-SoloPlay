@@ -480,7 +480,7 @@ const SoloEvents = {
 		// Now check my area
 		if (me.act === 2) {
 			// Act change sucessful, Andy has been bugged
-			myPrint("Andy bug " + (!me.getQuest(6, 15) ? "sucessful" : "failed"));
+			myPrint("Andy bug " + (!me.getQuest(sdk.quest.id.SistersToTheSlaughter, 15) ? "sucessful" : "failed"));
 			scriptBroadcast("quit");
 		}
 	},

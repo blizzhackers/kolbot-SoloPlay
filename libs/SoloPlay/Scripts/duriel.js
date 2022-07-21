@@ -28,10 +28,7 @@ function duriel () {
 	Config.MercWatch = false;
 
 	if (!Pather.usePortal(preArea, me.name)) {
-		if (!Pather.journeyTo(preArea)) {
-			myPrint("Failed to move back to duriels tomb");
-			return false;
-		}
+		if (!Pather.journeyTo(preArea)) throw new Error("Failed to move back to duriels tomb");
 	}
 
 	// move to and kill dury
@@ -39,7 +36,7 @@ function duriel () {
 
 	if (me.sorceress && unit && Skill.useTK(unit)) {
 		for (let i = 0; i < 3; i++) {
-			me.area !== sdk.areas.DurielsLair && Skill.cast(43, 0, unit);
+			me.area !== sdk.areas.DurielsLair && Packet.telekinesis(unit);
 			if (me.area === sdk.areas.DurielsLair) {
 				break;
 			}
@@ -56,18 +53,16 @@ function duriel () {
 	me.sorceress && !me.normal ? Attack.pwnDury() : Attack.killTarget("Duriel");
 	Pickit.pickItems();
 
-	if (!me.duriel && !Misc.checkQuest(14, 3)) {
-		Quest.tyraelTomb();
-	}
+	!me.duriel && !Misc.checkQuest(sdk.quest.id.TheSevenTombs, 3) && Quest.tyraelTomb();
 
-	if (Misc.checkQuest(14, 3)) {
+	if (Misc.checkQuest(sdk.quest.id.TheSevenTombs, 3)) {
 		for (let i = 0; i < 3; i++) {
-			if (!me.duriel && !Misc.checkQuest(14, 4)) {
+			if (!me.duriel && !Misc.checkQuest(sdk.quest.id.TheSevenTombs, 4)) {
 				Town.move("palace");
 				Town.npcInteract("jerhyn");
 			}
 
-			if (Misc.checkQuest(14, 4)) {
+			if (Misc.checkQuest(sdk.quest.id.TheSevenTombs, 4)) {
 				Pather.moveToExit(50, true);
 				break;
 			} else {

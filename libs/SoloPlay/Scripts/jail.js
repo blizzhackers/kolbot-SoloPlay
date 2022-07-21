@@ -18,7 +18,7 @@ function jail () {
 		Precast.doPrecast(true);
 		Attack.clearLevelEx({quitWhen: function () {
 			if (!me.hell) return false; // don't quit
-			let dangerMob = getUnit(1);
+			let dangerMob = Game.getMonster();
 
 			if (dangerMob) {
 				do {

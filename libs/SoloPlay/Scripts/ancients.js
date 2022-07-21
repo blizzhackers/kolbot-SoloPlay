@@ -43,8 +43,8 @@ function ancients () {
 	Precast.doPrecast(true);
 
 	// move to altar
-	if (!Pather.moveToPreset(sdk.areas.ArreatSummit, sdk.unittype.Object, 546)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to ancients' altar");
+	if (!Pather.moveToPreset(sdk.areas.ArreatSummit, sdk.unittype.Object, sdk.quest.chest.AncientsAltar)) {
+		console.warn("ÿc8Kolbot-SoloPlayÿc0: Failed to move to ancients' altar");
 	}
 
 	Common.Ancients.touchAltar();
@@ -57,7 +57,7 @@ function ancients () {
 	Precast.doPrecast(true);
 
 	try {
-		if (Misc.checkQuest(39, 0)) {
+		if (Misc.checkQuest(sdk.quest.id.RiteofPassage, sdk.quest.states.Completed)) {
 			Pather.clearToExit(sdk.areas.ArreatSummit, sdk.areas.WorldstoneLvl1, true);
 			Pather.clearToExit(sdk.areas.WorldstoneLvl1, sdk.areas.WorldstoneLvl2, true);
 			Pather.getWP(sdk.areas.WorldstoneLvl2);

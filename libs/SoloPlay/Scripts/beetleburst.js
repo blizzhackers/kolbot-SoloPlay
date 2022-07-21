@@ -7,7 +7,7 @@
 
 function beetleburst () {
 	Town.townTasks();
-	print("ÿc8Kolbot-SoloPlayÿc0: starting beetleburst");
+	myPrint("ÿc8Kolbot-SoloPlayÿc0: starting beetleburst");
 
 	Pather.checkWP(sdk.areas.FarOasis, true) ? Pather.useWaypoint(sdk.areas.FarOasis) : Pather.getWP(sdk.areas.FarOasis);
 	Precast.doPrecast(true);

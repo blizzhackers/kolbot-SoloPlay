@@ -15,7 +15,7 @@ function baal () {
 	let preattack = function () {
 		switch (me.classid) {
 		case sdk.charclass.Amazon:
-			if (me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.SoftPoints)) {
+			if (Skill.canUse(sdk.skills.Decoy)) {
 				let decoy = Game.getMonster(356);
 
 				if (!decoy || (getTickCount() - decoyTick >= decoyDuration)) {
@@ -27,7 +27,7 @@ function baal () {
 			break;
 		case sdk.charclass.Sorceress:
 			if ([sdk.skills.Meteor, sdk.skills.Blizzard, sdk.skills.FrozenOrb].includes(Config.AttackSkill[1])) {
-				if (me.getState(sdk.states.SkillDelay)) {
+				if (me.skillDelay) {
 					delay(50);
 				} else {
 					Skill.cast(Config.AttackSkill[1], 0, 15093, 5024);
@@ -36,24 +36,16 @@ function baal () {
 
 			return true;
 		case sdk.charclass.Paladin:
-			if (Config.AttackSkill[3] !== sdk.skills.BlessedHammer) {
-				return false;
-			}
+			if (Config.AttackSkill[3] !== sdk.skills.BlessedHammer) return false;
+			[15093, 5029].distance > 3 && Pather.moveTo(15093, 5029);
+			Config.AttackSkill[4] > 0 && Skill.setSkill(Config.AttackSkill[4], sdk.skills.hand.Right);
 
-			if (getDistance(me, 15093, 5029) > 3) {
-				Pather.moveTo(15093, 5029);
-			}
-
-			if (Config.AttackSkill[4] > 0) {
-				Skill.setSkill(Config.AttackSkill[4], sdk.skills.hand.Right);
-			}
-
-			Skill.cast(Config.AttackSkill[3], 1);
+			Skill.cast(Config.AttackSkill[3], sdk.skills.hand.Left);
 
 			return true;
 		case sdk.charclass.Druid:
 			if ([sdk.skills.Tornado, sdk.skills.Fissure, sdk.skills.Volcano].includes(Config.AttackSkill[3])) {
-				Skill.cast(Config.AttackSkill[3], 0, 15093, 5029);
+				Skill.cast(Config.AttackSkill[3], sdk.skills.hand.Right, 15093, 5029);
 
 				return true;
 			}
@@ -108,14 +100,14 @@ function baal () {
 				tick = getTickCount();
 
 				break;
-			case 4:
-				Attack.clearClassids(558);
+			case 3:
+				Attack.clearClassids(557);
 
 				tick = getTickCount();
 
 				break;
-			case 3:
-				Attack.clearClassids(557);
+			case 4:
+				Attack.clearClassids(558);
 
 				tick = getTickCount();
 
@@ -156,9 +148,7 @@ function baal () {
 			}
 
 			// If we've been in the throne for 30 minutes that's way too long
-			if (getTickCount() - totalTick > 30 * 60000) {
-				return false;
-			}
+			if (getTickCount() - totalTick > 30 * 60000) return false;
 
 			delay(10);
 		}
@@ -182,7 +172,7 @@ function baal () {
 			return true;
 		}
 
-		let monster = getUnit(1);
+		let monster = Game.getMonster();
 
 		if (monster) {
 			do {

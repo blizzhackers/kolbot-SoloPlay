@@ -292,7 +292,7 @@ Misc.unsocketItem = function (item) {
 };
 
 Misc.checkItemsForSocketing = function () {
-	if (me.classic || !me.getQuest(sdk.quest.id.SiegeOnHarrogath, 1)) return false;
+	if (me.classic || !me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.ReqComplete)) return false;
 
 	let items = me.getItemsEx()
 		.filter(item => item.sockets === 0 && getBaseStat("items", item.classid, "gemsockets") > 0)
@@ -309,7 +309,7 @@ Misc.checkItemsForSocketing = function () {
 };
 
 Misc.checkItemsForImbueing = function () {
-	if (!me.getQuest(sdk.quest.id.ToolsoftheTrade, 1)) return false;
+	if (!me.getQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete)) return false;
 
 	let items = me.getItemsEx().filter(item => item.sockets === 0 && (item.normal || item.superior));
 

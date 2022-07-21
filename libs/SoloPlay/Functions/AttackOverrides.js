@@ -152,7 +152,7 @@ Attack.openChests = function (range = 10, x = undefined, y = undefined) {
 	let list = [];
 	let ids = ["chest", "chest3", "weaponrack", "armorstand"];
 
-	let unit = getUnit(2);
+	let unit = Game.getObject();
 
 	if (unit) {
 		do {
@@ -210,7 +210,7 @@ Attack.killTarget = function (name = undefined) {
 		while (attackCount < Config.MaxAttackCount) {
 			if (Misc.townCheck()) {
 				if (!target || !copyUnit(target).x) {
-					target = Misc.poll(() => getUnit(sdk.unittype.Monster, name), 1500, 60);
+					target = Misc.poll(() => Game.getMonster(name), 1500, 60);
 				}
 			}
 
@@ -277,7 +277,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 	let gidAttack = [];
 	let attackCount = 0;
 
-	let target = getUnit(1);
+	let target = Game.getMonster();
 
 	if (target) {
 		do {
@@ -386,7 +386,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 Attack.buildMonsterList = function (skipBlocked = false) {
 	let monster, monList = [];
 	skipBlocked === true && (skipBlocked = 0x4);
-	monster = getUnit(1);
+	monster = Game.getMonster();
 
 	if (monster) {
 		do {
@@ -581,7 +581,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 	}
 
 	let monsterList = [];
-	let target = getUnit(1);
+	let target = Game.getMonster();
 
 	if (target) {
 		do {
@@ -722,7 +722,7 @@ Attack.clearEx = function (givenSettings) {
 
 	if (settings.bossId) {
 		for (i = 0; !boss && i < 5; i++) {
-			boss = settings.bossId > 999 ? getUnit(sdk.unittype.Monster, -1, -1, settings.bossId) : getUnit(sdk.unittype.Monster, settings.bossId);
+			boss = settings.bossId > 999 ? Game.getMonster(-1, -1, settings.bossId) : Game.getMonster(settings.bossId);
 			delay(200);
 		}
 
@@ -741,7 +741,7 @@ Attack.clearEx = function (givenSettings) {
 	}
 
 	monsterList = [];
-	target = getUnit(1);
+	target = Game.getMonster();
 
 	if (target) {
 		do {
@@ -1100,7 +1100,7 @@ Attack.pwnDia = function () {
 	let getDiablo = function () {
 		let check = checkMobs();
 		!!check && Attack.clearList(check);
-		return getUnit(sdk.unittype.Monster, sdk.monsters.Diablo);
+		return Game.getMonster(sdk.monsters.Diablo);
 	};
 	{
 		let nearSpot = Pather.spotOnDistance({ x: 7792, y: 5292 }, 35, {returnSpotOnError: false});

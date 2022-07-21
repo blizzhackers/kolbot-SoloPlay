@@ -15,12 +15,12 @@ function anya () {
 		Precast.doPrecast(true);
 		Pather.clearToExit(sdk.areas.CrystalizedPassage, sdk.areas.FrozenRiver, Pather.useTeleport());
 
-		if (!Pather.moveToPreset(me.area, sdk.unittype.Object, 460)) {
+		if (!Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.units.FrozenAnyasPlatform)) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Anya");
 			return false;
 		}
 
-		let frozenanya = Game.getObject(558);
+		let frozenanya = Game.getObject(sdk.units.FrozenAnya);
 
 		if (frozenanya) {
 			Pather.moveToUnit(frozenanya);
@@ -31,16 +31,20 @@ function anya () {
 
 		Town.npcInteract("malah");
 		Town.doChores();
-		Pather.usePortal(sdk.areas.FrozenRiver, me.name);
+		if (!Misc.poll(() => {
+			Pather.usePortal(sdk.areas.FrozenRiver, me.name);
+			return me.area === sdk.areas.FrozenRiver;
+		}, Time.seconds(30), 1000)) throw new Error("Anya quest failed - Failed to return to frozen river");
 
-		frozenanya = Game.getObject(558);	// Check again in case she's no longer there from first intereaction
-
-		if (frozenanya) {
-			while (!frozenanya.mode) {
+		frozenanya = Game.getObject(sdk.units.FrozenAnya);	// Check again in case she's no longer there from first intereaction
+		if (!Misc.poll(() => {
+			if (frozenanya) {
 				Packet.entityInteract(frozenanya);
 				delay(300 + me.ping);
+				return frozenanya.mode;
 			}
-		}
+			return false;
+		}, Time.seconds(30), 1000)) throw new Error("Anya quest failed - Failed to return to frozen river");
 
 		Town.npcInteract("malah");
 		Town.unfinishedQuests();
@@ -49,17 +53,12 @@ function anya () {
 	}
 
 	if (me.anya) {
-		if (!Pather.getPortal(sdk.areas.NihlathaksTemple)) {
-			Town.npcInteract("anya");
-		}
-
-		if (!Pather.usePortal(sdk.areas.NihlathaksTemple)) {
-			return true;
-		}
+		!Pather.getPortal(sdk.areas.NihlathaksTemple) && Town.npcInteract("anya");
+		if (!Pather.usePortal(sdk.areas.NihlathaksTemple)) return true;
 
 		Precast.doPrecast(true);
 		Pather.moveTo(10058, 13234);
-		Attack.killTarget(getLocaleString(22497)); // pindleskin
+		Attack.killTarget(getLocaleString(sdk.locale.monsters.Pindleskin));
 		Pickit.pickItems();
 	}
 

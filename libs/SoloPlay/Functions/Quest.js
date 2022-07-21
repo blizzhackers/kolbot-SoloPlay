@@ -143,7 +143,7 @@ const Quest = {
 		if (me.horadricstaff) return true;
 
 		let tick = getTickCount();
-		let orifice = Misc.poll(() => getUnit(sdk.unittype.Object, sdk.units.HoradricStaffHolder));
+		let orifice = Misc.poll(() => Game.getObject(sdk.units.HoradricStaffHolder));
 		if (!orifice) return false;
 		
 		let hstaff = (me.getItem(sdk.items.quest.HoradricStaff) || Quest.cubeItems(sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff, sdk.items.quest.ViperAmulet));
@@ -418,7 +418,7 @@ const Quest = {
 
 		try {
 			if (!item || item.mode === 3) throw new Error("Couldn't find item");
-			if (!me.getQuest(35, 1)) throw new Error("Quest unavailable");
+			if (!me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.ReqComplete)) throw new Error("Quest unavailable");
 			if (item.sockets > 0 || getBaseStat("items", item.classid, "gemsockets") === 0) throw new Error("Item cannot be socketed");
 			if (!Storage.Inventory.CanFit(item)) throw new Error("(useSocketQuest) No space to get item back");
 			if (me.act !== 5 || !me.inTown) {
@@ -494,7 +494,7 @@ const Quest = {
 
 		try {
 			if (!item || item.mode === 3) throw new Error("Couldn't find item");
-			if (!Misc.checkQuest(3, 1)) throw new Error("Quest unavailable");
+			if (!Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete)) throw new Error("Quest unavailable");
 			if (item.sockets > 0 || item.quality > 3) throw new Error("Item cannot be imbued");
 			if (!Storage.Inventory.CanFit(item)) throw new Error("(useImbueQuest) No space to get item back");
 			if (me.act !== 1 || !me.inTown) {

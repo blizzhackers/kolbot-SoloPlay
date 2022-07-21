@@ -11,16 +11,16 @@ function treehead() {
 	Precast.doPrecast(true);
 
 	try {
-		Pather.moveToPreset(me.area, sdk.unittype.Object, 30, 5, 5);
+		Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.InifussTree, 5, 5);
 	} catch (e) {
 		Attack.clear(5);
 		// Try again
-		if (Pather.moveToPreset(me.area, sdk.unittype.Object, 30, 5, 5)) {
+		if (Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.InifussTree, 5, 5)) {
 			return false;
 		}
 	}
 
-	Attack.killTarget(getLocaleString(2873));
+	Attack.killTarget(getLocaleString(sdk.locale.monsters.TreeheadWoodFist));
 
 	return true;
 }

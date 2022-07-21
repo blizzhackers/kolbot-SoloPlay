@@ -5,6 +5,8 @@
 *
 */
 
+includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
+
 const CharData = {
 	filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-CharData.json",
 	default: {
@@ -219,7 +221,7 @@ const CharData = {
 
 	create: function () {
 		let obj = Object.assign({}, this.default);
-		let string = JSON.stringify(obj);
+		let string = JSON.stringify(obj, null, 2);
 
 		if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile)) {
 			let folder = dopen("libs/SoloPlay/Data");
@@ -232,12 +234,9 @@ const CharData = {
 	},
 
 	getObj: function () {
+		if (!FileTools.exists(this.filePath)) return CharData.create();
+
 		let obj;
-
-		if (!FileTools.exists(this.filePath)) {
-			return CharData.create();
-		}
-
 		let string = Misc.fileAction(this.filePath, 0);
 
 		try {
@@ -266,12 +265,12 @@ const CharData = {
 
 		if (typeof property === "object") {
 			obj = Object.assign(obj, property);
-			return Misc.fileAction(this.filePath, 1, JSON.stringify(obj));
+			return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
 		}
 
 		if (!!obj[arg] && obj[arg].hasOwnProperty(property)) {
 			obj[arg][property] = value;
-			return Misc.fileAction(this.filePath, 1, JSON.stringify(obj));
+			return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
 		}
 
 		return false;
@@ -282,13 +281,8 @@ const CharData = {
 			FileTools.remove("data/" + me.profile + ".json");
 		}
 			
-		if (FileTools.exists(this.filePath)) {
-			FileTools.remove(this.filePath);
-		}
-
-		if (FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json")) {
-			FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
-		}
+		FileTools.exists(this.filePath) && FileTools.remove(this.filePath);
+		FileTools.exists(Tracker.GTPath) && FileTools.remove(Tracker.GTPath);
 
 		return !(FileTools.exists(this.filePath) && FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json"));
 	},

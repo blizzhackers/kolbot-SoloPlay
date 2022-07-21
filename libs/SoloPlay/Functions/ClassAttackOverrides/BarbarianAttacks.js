@@ -330,7 +330,7 @@ ClassAttack.findItem = function (range = 10) {
 
 	MainLoop:
 	for (let i = 0; i < 3; i++) {
-		let corpse = getUnit(1);
+		let corpse = Game.getMonster();
 
 		if (corpse) {
 			do {
@@ -395,7 +395,7 @@ ClassAttack.grimWard = function (range = 10) {
 	let corpseList = [], orgX = me.x, orgY = me.y;
 
 	for (let i = 0; i < 3; i += 1) {
-		let corpse = getUnit(1);
+		let corpse = Game.getMonster();
 
 		if (corpse) {
 			do {

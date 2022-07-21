@@ -23,11 +23,11 @@ function travincal () {
 	Pickit.pickItems();
 
 	// go to orb
-	if (!Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, 404)) {
+	if (!Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.units.CompellingOrb)) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to compelling orb");
 	}
 
-	let orb = Game.getObject(404);
+	let orb = Game.getObject(sdk.units.CompellingOrb);
 	!!orb && Attack.clearPos(orb.x, orb.y, 15);
 
 	// khalim's will quest not complete
@@ -38,12 +38,13 @@ function travincal () {
 
 			Pather.moveToUnit(flail);
 			Pickit.pickItems();
-			Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, 404);
+			Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.units.CompellingOrb);
 		}
 
 		// cube flail to will
 		if (!me.getItem(sdk.items.quest.KhalimsWill) && me.getItem(sdk.items.quest.KhalimsFlail)) {
-			Quest.cubeItems(sdk.items.quest.KhalimsWill, 553, 554, 555, 173);
+			Quest.cubeItems(sdk.items.quest.KhalimsWill,
+				sdk.quest.item.KhalimsEye, sdk.quest.item.KhalimsHeart, sdk.quest.item.KhalimsBrain, sdk.quest.item.KhalimsFlail);
 			delay(250 + me.ping);
 		}
 
@@ -60,7 +61,7 @@ function travincal () {
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed to go back to Travincal and smash orb");
 		}
 
-		Quest.smashSomething(404); // smash orb
+		Quest.smashSomething(sdk.units.CompellingOrb); // smash orb
 		Item.autoEquip(); // equip previous weapon
 		Town.townTasks();
 
@@ -68,13 +69,13 @@ function travincal () {
 		if (!Pather.usePortal(sdk.areas.Travincal, me.name)) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed to go back to Travincal and take entrance");
 			Pather.useWaypoint(sdk.areas.Travincal);
-			Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, 404);
+			Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.units.CompellingOrb);
 		}
 
 		// Wait until exit pops open
-		Misc.poll(() => Game.getObject(386).mode === 2, 10000);
+		Misc.poll(() => Game.getObject(sdk.units.DuranceEntryStairs).mode === sdk.units.objects.mode.Active, 10000);
 		// Move close to the exit
-		let exit_1 = Game.getObject(386);
+		let exit_1 = Game.getObject(sdk.units.DuranceEntryStairs);
 		// Since d2 sucks, move around the thingy
 		Pather.moveToUnit(exit_1, 7, 7);
 		// keep on clicking the exit until we are not @ travincal anymore

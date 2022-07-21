@@ -27,7 +27,7 @@ const frostNovaCheck = function () {
 
 	// don't build whole list - since we are just trying if at least one passes the test
 	// todo - test to time difference between these two methods
-	let mob = getUnit(sdk.unittype.Monster);
+	let mob = Game.getMonster();
 	if (mob) {
 		do {
 			if (mob.distance < 7 && ![sdk.monsters.Andariel].includes(mob.classid) && mob.attackable

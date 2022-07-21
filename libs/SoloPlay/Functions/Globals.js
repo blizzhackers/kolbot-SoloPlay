@@ -6,10 +6,10 @@
 *
 */
 
-!isIncluded("OOG.js") && include("OOG.js");
-!isIncluded("SoloPlay/Tools/Developer.js") && include("SoloPlay/Tools/Developer.js");
-!isIncluded("SoloPlay/Tools/CharData.js") && include("SoloPlay/Tools/CharData.js");
-!isIncluded("SoloPlay/Functions/PrototypesOverrides.js") && include("SoloPlay/Functions/PrototypesOverrides.js");
+includeIfNotIncluded("OOG.js");
+includeIfNotIncluded("SoloPlay/Tools/Developer.js");
+includeIfNotIncluded("SoloPlay/Tools/CharData.js");
+includeIfNotIncluded("SoloPlay/Functions/PrototypesOverrides.js");
 
 let myData = CharData.getStats();
 
@@ -171,21 +171,21 @@ const SetUp = {
 				// TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
 				// can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
 				let merc = me.getMerc();
-				
-				if (myData.merc.gear.length > 0) {
-					let mercItems = merc.getItemsEx();
-					let preLength = myData.merc.gear.length;
-					let check = myData.merc.gear.filter(i => mercItems.some(item => item.prefixnum === i));
+				let mercItems = merc.getItemsEx();
+				let preLength = myData.merc.gear.length;
+				let check = myData.merc.gear.filter(i => mercItems.some(item => item.prefixnum === i));
 
-					if (check !== preLength) {
-						mUpdate = true;
-						myData.merc.gear = check;
-					}
+				if (check !== preLength) {
+					mUpdate = true;
+					myData.merc.gear = check;
 				}
 
-				merc.classid !== myData.merc.classid && (myData.merc.classid = merc.classid);
+				let mercInfo = Mercenary.getMercInfo(merc);
+				mercInfo.classid !== myData.merc.classid && (myData.merc.classid = mercInfo.classid);
+				mercInfo.act !== myData.merc.act && (myData.merc.act = mercInfo.act);
+				mercInfo.difficulty !== myData.merc.difficulty && (myData.merc.difficulty = mercInfo.difficulty);
 
-				if (merc.classid === sdk.monsters.mercs.Guard && !Merc.checkMercSkill(myData.merc.type)) {
+				if (merc.classid === sdk.monsters.mercs.Guard && !Mercenary.checkMercSkill(myData.merc.type)) {
 				// go back, need to make sure this works properly.
 				// only "go back" if we are past the difficulty we need to be in to hire merc. Ex. In hell but want holy freeze merc
 				// only if we have enough gold on hand to hire said merc
@@ -356,7 +356,7 @@ const SetUp = {
 
 		// log info
 		myPrint(this.finalBuild + " goal reached. On to the next.");
-		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", 6);
+		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", 6);
 
 		D2Bot.setProfile(null, null, NameGen());
 		CharData.delete(true);
@@ -667,7 +667,7 @@ const Check = {
 
 			break;
 		case "smith":
-			if (!Misc.checkQuest(3, 1) && !me.smith) {
+			if (!Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete) && !me.smith) {
 				return true;
 			}
 
@@ -1392,8 +1392,8 @@ const Check = {
 
 		switch (true) {
 		case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
-		case !!(SetUp.finalBuild === "Socketmule" && Misc.checkQuest(35, 1)):
-		case !!(SetUp.finalBuild === "Imbuemule" && Misc.checkQuest(3, 1) && me.charlvl >= Developer.imbueStopLevel):
+		case !!(SetUp.finalBuild === "Socketmule" && Misc.checkQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.ReqComplete)):
+		case !!(SetUp.finalBuild === "Imbuemule" && Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete) && me.charlvl >= Developer.imbueStopLevel):
 			goal = SetUp.finalBuild;
 			goalReached = true;
 
@@ -1419,7 +1419,7 @@ const Check = {
 			if (Developer.fillAccount.bumpers || Developer.fillAccount.socketMules) {
 				SetUp.makeNext();
 			} else {
-				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.Timer(gameObj.LastSave))) + ")" : ""), 6);
+				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.timer(gameObj.LastSave))) + ")" : ""), 6);
 				Developer.logPerformance && Tracker.update();
 				D2Bot.stop();
 			}

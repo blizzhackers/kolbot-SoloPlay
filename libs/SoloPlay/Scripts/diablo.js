@@ -18,7 +18,7 @@ function diablo () {
 				switch (me.classid) {
 				case sdk.charclass.Amazon:
 					if (me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.SoftPoints)) {
-						let decoy = getUnit(sdk.unittype.Monster, 356);
+						let decoy = Game.getMonster(356);
 
 						if (!decoy || (getTickCount() - tick >= decoyDuration)) {
 							Skill.cast(sdk.skills.Decoy, 0, 7793, 5293);
@@ -76,7 +76,7 @@ function diablo () {
 				delay(500 + me.ping);
 			}
 
-			if (getUnit(sdk.unittype.Monster, sdk.monsters.Diablo)) {
+			if (Game.getMonster(sdk.monsters.Diablo)) {
 				return true;
 			}
 		}
@@ -90,8 +90,14 @@ function diablo () {
 
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
-	Pather.canTeleport() ? Pather.moveToExit(sdk.areas.ChaosSanctuary, true) : Pather.clearToExit(sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, true);
-	Pather.moveTo(7790, 5544);
+
+	let attempts = 0;
+	
+	while ([7790, 5544].distance > 15 && attempts < 5) {
+		myPrint("Moving to Chaos Sanctuary Entrance :: Attempt: " + attempts);
+		Pather.moveTo(7790, 5544);
+		attempts++;
+	}
 
 	if (me.coldRes < 75 || me.poisonRes < 75) {
 		Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
@@ -146,7 +152,7 @@ function diablo () {
 		}
 		
 		this.diabloPrep();
-		let theD = getUnit(sdk.unittype.Monster, sdk.monsters.Diablo);
+		let theD = Game.getMonster(sdk.monsters.Diablo);
 
 		if (!theD) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Diablo not found. Checking seal bosses.");

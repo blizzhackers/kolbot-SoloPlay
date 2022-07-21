@@ -324,7 +324,7 @@ MuleLogger.logEquippedItems = function () {
 	}
 
 	if (Config.UseMerc) {
-		let merc = Merc.getMercFix();
+		let merc = Mercenary.getMercFix();
 
 		if (merc) {
 			items = merc.getItemsEx();

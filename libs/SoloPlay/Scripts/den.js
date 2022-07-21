@@ -46,7 +46,7 @@ function den () {
 	Town.move("portalspot");
 
 	// Check if there are any portals before trying to use one
-	let p = getUnit(sdk.unittype.Object, sdk.units.BluePortal);
+	let p = Game.getObject(sdk.units.BluePortal);
 	
 	if (!!p && [sdk.areas.BloodMoor, sdk.areas.DenofEvil].includes(p.objtype)) {
 		Pather.usePortal(null, me.name);
@@ -73,8 +73,8 @@ function den () {
 	if (me.area === sdk.areas.DenofEvil) {
 		addEventListener("gamepacket", this.denLightsListener);
 		const Worker = require("../../modules/Worker");
-		let corpseTick = getTickCount();
 		let corpsefire;
+		let corpseTick = getTickCount();
 
 		try {
 			if (!me.normal) {
@@ -83,12 +83,16 @@ function den () {
 					if (me.area === sdk.areas.DenofEvil) {
 						if (getTickCount() - corpseTick < 1000) return true;
 						corpseTick = getTickCount();
-						corpsefire = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.Corpsefire));
+						corpsefire = Game.getMonster(getLocaleString(sdk.locale.monsters.Corpsefire));
 
-						if (corpsefire && !Attack.canAttack(corpsefire)) {
-							killTracker = true;
-							myPrint("Exit den. Corpsefire is immune");
-							throw new Error("ÿc8Kolbot-SoloPlayÿc0: Exit den. Corpsefire is immune");
+						if (corpsefire) {
+							if (!Attack.canAttack(corpsefire)) {
+								killTracker = true;
+								throw new Error("Exit den. Corpsefire is immune");
+							} else {
+								// we can attack, no need to run this in the background any longer
+								return false;
+							}
 						}
 					}
 
@@ -108,7 +112,7 @@ function den () {
 				return true;
 			};
 
-			while (!Misc.checkQuest(1, 0)) {
+			while (!Misc.checkQuest(sdk.quest.id.DenofEvil, sdk.quest.states.Completed)) {
 				console.log("ÿc8Kolbot-SoloPlayÿc0: Clearing den attempt: " + attempt);
 				Attack.clearLevel();
 
@@ -116,7 +120,7 @@ function den () {
 					break;
 				}
 
-				if (Misc.checkQuest(1, 13)) {
+				if (Misc.checkQuest(sdk.quest.id.DenofEvil, sdk.quest.states.PartyMemberComplete)) {
 					customGoToTown();
 					Town.npcInteract("akara");
 					

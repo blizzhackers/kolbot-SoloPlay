@@ -6,7 +6,7 @@
 *
 */
 
-const Merc = {
+const Mercenary = {
 	minCost: -1,
 
 	// merc is null fix
@@ -17,9 +17,7 @@ const Merc = {
 
 		for (let i = 0; i < 3; i++) {
 			if (merc) {
-				if (merc.mode === 0 || merc.mode === 12) {
-					return null;
-				}
+				if (merc.dead) return null;
 
 				break;
 			}
@@ -29,6 +27,58 @@ const Merc = {
 		}
 
 		return merc;
+	},
+
+	// only a2 mercs for now, need to test others to see if ModifierListSkill returns their skill
+	getMercSkill: function (merc = undefined) {
+		!merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
+		if (!merc) return false;
+		let mercSkill = merc.getStat(sdk.stats.ModifierListSkill);
+		return mercSkill ? getSkillById(mercSkill) : "";
+	},
+
+	// only a2 mercs for now
+	getMercDifficulty: function (merc = undefined) {
+		!merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
+		if (!merc) return false;
+		let mercSkill = merc.getStat(sdk.stats.ModifierListSkill);
+
+		switch (mercSkill) {
+		case sdk.skills.Thorns:
+		case sdk.skills.HolyFreeze:
+		case sdk.skills.Might:
+			return sdk.difficulty.Nightmare;
+		default:
+			return sdk.difficulty.Normal;
+		}
+	},
+
+	getMercAct: function (merc) {
+		!merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
+		if (!merc) return 0;
+		switch (merc.classid) {
+		case sdk.monsters.mercs.Rogue:
+			return 1;
+		case sdk.monsters.mercs.Guard:
+			return 2;
+		case sdk.monsters.mercs.IronWolf:
+			return 3;
+		case sdk.monsters.mercs.A5Barb:
+			return 5;
+		default:
+			return 0;
+		}
+	},
+
+	getMercInfo: function (merc) {
+		!merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
+		if (!merc) return { classid: 0, act: 0, difficulty: 0, type: "" };
+		return {
+			classid: merc.classid,
+			act: this.getMercAct(merc),
+			difficulty: this.getMercDifficulty(merc),
+			type: this.getMercSkill(merc)
+		};
 	},
 
 	checkMercSkill: function (wanted = "", merc = undefined) {
@@ -73,12 +123,12 @@ const Merc = {
 		// we don't have enough spare gold to buy a1 merc
 		// we don't have enough gold to hire our wanted merc
 		switch (true) {
-		case typeOfMerc === 1 && (myData.merc.type === "Cold Arrow" || !Misc.checkQuest(2, 0)):
+		case typeOfMerc === 1 && (myData.merc.type === "Cold Arrow" || !Misc.checkQuest(sdk.quest.id.SistersBurialGrounds, sdk.quest.states.Completed)):
 		case me.diff > mercDiff:
 		case me.diff === mercDiff && !Pather.accessToAct(mercAct):
 		case myData.merc.type === mercAuraWanted:
 		case me.diff !== mercDiff && myData.merc.type === "Defiance":
-		case (me.charlvl > Config.levelCap + 10 && Merc.checkMercSkill(myData.merc.type)):
+		case (me.charlvl > Config.levelCap + 10 && Mercenary.checkMercSkill(myData.merc.type)):
 		case me.gold < Math.round((((me.charlvl - 1) * (me.charlvl - 1)) / 2) * 7.5):
 		case this.minCost > 0 && me.gold < this.minCost:
 			return true;
@@ -87,11 +137,11 @@ const Merc = {
 		// lets check what our current actually merc is
 		let checkMyMerc = Misc.poll(() => me.getMerc(), 50, 500);
 		let wantedSkill = (typeOfMerc === 1 ? "Cold Arrow" : me.normal ? tmpAuraName : mercAuraWanted);
-		if (checkMyMerc && Merc.checkMercSkill(wantedSkill, checkMyMerc)) {
+		if (checkMyMerc && Mercenary.checkMercSkill(wantedSkill, checkMyMerc)) {
 			// we have our wanted merc, data file was probably erased so lets re-update it
-			myData.merc.act = me.act;
+			myData.merc.act = Mercenary.getMercAct(checkMyMerc);
 			myData.merc.classid = checkMyMerc.classid;
-			myData.merc.difficulty = me.diff;
+			myData.merc.difficulty = Mercenary.getMercDifficulty(checkMyMerc);
 			myData.merc.type = wantedSkill;
 			CharData.updateData("merc", myData) && updateMyData();
 			return true;

@@ -7,7 +7,7 @@
 
 function bloodraven () {
 	Town.townTasks();
-	print("ÿc8Kolbot-SoloPlayÿc0: starting blood raven");
+	myPrint("ÿc8Kolbot-SoloPlayÿc0: starting blood raven");
 
 	if (!Pather.checkWP(sdk.areas.StonyField, true)) {
 		Pather.getWP(sdk.areas.StonyField);
@@ -20,7 +20,7 @@ function bloodraven () {
 			}
 		} else {
 			Pather.useWaypoint(sdk.areas.ColdPlains);
-			me.charlvl < 6 && Attack.clearLevelUntilLevel(6);
+			me.charlvl < 5 && Attack.clearLevelUntilLevel(5);
 		}
 	}
 

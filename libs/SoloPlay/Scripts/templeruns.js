@@ -1,8 +1,9 @@
-/*
-*	@filename	templeruns.js
-*	@author		isid0re
-*	@desc		temple runs for exp.
-*	@credits	Xcon
+/**
+*  @filename    templeruns.js
+*  @author      isid0re, theBGuy
+*  @author      Xcon
+*  @desc        temple runs for exp
+*
 */
 
 function templeruns () {
@@ -11,7 +12,8 @@ function templeruns () {
 	let temples = [
 		[sdk.areas.FlayerJungle, sdk.areas.LowerKurast], [sdk.areas.KurastBazaar, sdk.areas.RuinedTemple],
 		[sdk.areas.KurastBazaar, sdk.areas.DisusedFane], [sdk.areas.UpperKurast, sdk.areas.ForgottenReliquary],
-		[sdk.areas.UpperKurast, sdk.areas.ForgottenTemple], [sdk.areas.UpperKurast, sdk.areas.KurastCauseway, sdk.areas.RuinedFane], [sdk.areas.UpperKurast, sdk.areas.KurastCauseway, sdk.areas.DisusedReliquary]];
+		[sdk.areas.UpperKurast, sdk.areas.ForgottenTemple], [sdk.areas.UpperKurast, sdk.areas.KurastCauseway, sdk.areas.RuinedFane], [sdk.areas.UpperKurast, sdk.areas.KurastCauseway, sdk.areas.DisusedReliquary]
+	];
 	Town.townTasks();
 
 	for (let run = 0; run < temples.length; run++) {
@@ -23,8 +25,8 @@ function templeruns () {
 				Misc.openChestsInArea(sdk.areas.LowerKurast);
 			} else if (me.area === sdk.areas.RuinedTemple && !me.lamessen) {
 				me.overhead("lamessen");
-				Pather.moveToPreset(sdk.areas.RuinedTemple, sdk.unittype.Object, 193);
-				Quest.collectItem(548, 193);
+				Pather.moveToPreset(sdk.areas.RuinedTemple, sdk.unittype.Object, sdk.quest.chest.LamEsensTomeHolder);
+				Quest.collectItem(sdk.quest.item.LamEsensTome, sdk.quest.chest.LamEsensTomeHolder);
 				Town.unfinishedQuests();
 			} else {
 				Attack.clearLevel(0xF);
