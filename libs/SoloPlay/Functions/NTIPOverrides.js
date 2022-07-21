@@ -36,11 +36,11 @@ NTIP.generateTierFunc = function (tierType) {
 			let [type, stat, wanted] = NTIP_CheckList[i];
 
 			// If the line doesnt have a tier of this type, we dont need to call it
-			if (typeof wanted === 'object' && wanted && typeof wanted[tierType] === 'function') {
+			if (typeof wanted === "object" && wanted && typeof wanted[tierType] === "function") {
 				try {
-					if (typeof type === 'function') {
+					if (typeof type === "function") {
 						if (type(item)) {
-							if (typeof stat === 'function') {
+							if (typeof stat === "function") {
 								if (stat(item)) {
 									updateTier(wanted);
 								}
@@ -48,7 +48,7 @@ NTIP.generateTierFunc = function (tierType) {
 								updateTier(wanted);
 							}
 						}
-					} else if (typeof stat === 'function') {
+					} else if (typeof stat === "function") {
 						if (stat(item)) {
 							updateTier(wanted);
 						}
@@ -64,8 +64,8 @@ NTIP.generateTierFunc = function (tierType) {
 	};
 };
 
-NTIP.GetCharmTier = NTIP.generateTierFunc('Charmtier');
-NTIP.GetSecondaryTier = NTIP.generateTierFunc('Secondarytier');
+NTIP.GetCharmTier = NTIP.generateTierFunc("Charmtier");
+NTIP.GetSecondaryTier = NTIP.generateTierFunc("Secondarytier");
 
 NTIP.addLine = function (itemString) {
 	let info = {
@@ -107,9 +107,9 @@ NTIP.hasStats = function (item, entryList = [], verbose = false) {
 			// eslint-disable-next-line no-unused-vars
 			let [type, stat, wanted] = list[i];
 
-			if (typeof type === 'function') {
+			if (typeof type === "function") {
 				if (type(item)) {
-					if (typeof stat === 'function') {
+					if (typeof stat === "function") {
 						if (stat(item)) {
 							hasStat = true;
 							stats = stat;
@@ -148,9 +148,9 @@ NTIP.getInvoQuantity = function (item, entryList = []) {
 		try {
 			let [type, stat, wanted] = list[i];
 
-			if (typeof type === 'function') {
+			if (typeof type === "function") {
 				if (type(item)) {
-					if (typeof stat === 'function') {
+					if (typeof stat === "function") {
 						if (stat(item)) {
 							if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
 								invoquantity = wanted.InvoQuantity;
@@ -166,7 +166,7 @@ NTIP.getInvoQuantity = function (item, entryList = []) {
 						}
 					}
 				}
-			} else if (typeof stat === 'function') {
+			} else if (typeof stat === "function") {
 				if (stat(item)) {
 					if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
 						invoquantity = wanted.InvoQuantity;
@@ -191,9 +191,9 @@ NTIP.getMaxQuantity = function (item, entryList = []) {
 		try {
 			let [type, stat, wanted] = list[i];
 
-			if (typeof type === 'function') {
+			if (typeof type === "function") {
 				if (type(item)) {
-					if (typeof stat === 'function') {
+					if (typeof stat === "function") {
 						if (stat(item)) {
 							if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
 								maxquantity = wanted.MaxQuantity;
@@ -209,7 +209,7 @@ NTIP.getMaxQuantity = function (item, entryList = []) {
 						}
 					}
 				}
-			} else if (typeof stat === 'function') {
+			} else if (typeof stat === "function") {
 				if (stat(item)) {
 					if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
 						maxquantity = wanted.MaxQuantity;
@@ -238,9 +238,9 @@ NTIP.CheckItem = function (item, entryList = [], verbose = false) {
 			// Get the values in separated variables (its faster)
 			const [type, stat, wanted] = list[i];
 
-			if (typeof type === 'function') {
+			if (typeof type === "function") {
 				if (type(item)) {
-					if (typeof stat === 'function') {
+					if (typeof stat === "function") {
 						if (stat(item)) {
 							if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
 								num = NTIP.CheckQuantityOwned(type, stat);
@@ -292,7 +292,7 @@ NTIP.CheckItem = function (item, entryList = [], verbose = false) {
 						}
 					}
 				}
-			} else if (typeof stat === 'function') {
+			} else if (typeof stat === "function") {
 				if (stat(item)) {
 					if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
 						num = NTIP.CheckQuantityOwned(null, stat);
@@ -443,49 +443,49 @@ NTIP.ParseLineInt = function (input, info) {
 			property = p_section[i].substring(0, p_end - 1);
 
 			switch (property) {
-			case 'wsm':
-			case 'weaponspeed':
+			case "wsm":
+			case "weaponspeed":
 				p_result[0] += 'getBaseStat("items", item.classid, "speed")';
 
 				break;
-			case 'minimumsockets':
+			case "minimumsockets":
 				p_result[0] += 'getBaseStat("items", item.classid, "gemsockets")';
 
 				break;
-			case 'strreq':
-				p_result[0] += 'item.strreq';
+			case "strreq":
+				p_result[0] += "item.strreq";
 
 				break;
-			case 'dexreq':
-				p_result[0] += 'item.dexreq';
+			case "dexreq":
+				p_result[0] += "item.dexreq";
 
 				break;
-			case '2handed':
+			case "2handed":
 				p_result[0] += 'getBaseStat("items", item.classid, "2handed")';
 
 				break;
-			case 'color':
+			case "color":
 				p_result[0] += "item.getColor()";
 
 				break;
-			case 'type':
+			case "type":
 				p_result[0] += "item.itemType";
 
 				break;
-			case 'name':
+			case "name":
 				p_result[0] += "item.classid";
 
 				break;
-			case 'class':
+			case "class":
 				p_result[0] += "item.itemclass";
 
 				break;
-			case 'quality':
+			case "quality":
 				p_result[0] += "item.quality";
 
 				break;
-			case 'flag':
-				if (p_section[i][p_end] === '!') {
+			case "flag":
+				if (p_section[i][p_end] === "!") {
 					p_result[0] += "!item.getFlag(";
 				} else {
 					p_result[0] += "item.getFlag(";
@@ -494,12 +494,12 @@ NTIP.ParseLineInt = function (input, info) {
 				p_end += 2;
 
 				break;
-			case 'level':
+			case "level":
 				p_result[0] += "item.ilvl";
 
 				break;
-			case 'prefix':
-				if (p_section[i][p_end] === '!') {
+			case "prefix":
+				if (p_section[i][p_end] === "!") {
 					p_result[0] += "!item.getPrefix(";
 				} else {
 					p_result[0] += "item.getPrefix(";
@@ -508,8 +508,8 @@ NTIP.ParseLineInt = function (input, info) {
 				p_end += 2;
 
 				break;
-			case 'suffix':
-				if (p_section[i][p_end] === '!') {
+			case "suffix":
+				if (p_section[i][p_end] === "!") {
 					p_result[0] += "!item.getSuffix(";
 				} else {
 					p_result[0] += "item.getSuffix(";
@@ -518,22 +518,22 @@ NTIP.ParseLineInt = function (input, info) {
 				p_end += 2;
 
 				break;
-			case 'europe':
-			case 'uswest':
-			case 'useast':
-			case 'asia':
+			case "europe":
+			case "uswest":
+			case "useast":
+			case "asia":
 				p_result[0] += '("' + me.realm.toLowerCase() + '"==="' + property.toLowerCase() + '")';
 
 				break;
-			case 'ladder':
+			case "ladder":
 				p_result[0] += "me.ladder";
 
 				break;
-			case 'hardcore':
+			case "hardcore":
 				p_result[0] += "(!!me.playertype)";
 
 				break;
-			case 'classic':
+			case "classic":
 				p_result[0] += "(!me.gametype)";
 
 				break;
@@ -567,7 +567,7 @@ NTIP.ParseLineInt = function (input, info) {
 
 			if (isNaN(p_keyword)) {
 				switch (property) {
-				case 'color':
+				case "color":
 					if (NTIPAliasColor[p_keyword] === undefined) {
 						Misc.errorReport("Unknown color: " + p_keyword + " File: " + info.file + " Line: " + info.line);
 
@@ -577,7 +577,7 @@ NTIP.ParseLineInt = function (input, info) {
 					p_result[0] += NTIPAliasColor[p_keyword];
 
 					break;
-				case 'type':
+				case "type":
 					if (NTIPAliasType[p_keyword] === undefined) {
 						Misc.errorReport("Unknown type: " + p_keyword + " File: " + info.file + " Line: " + info.line);
 
@@ -587,7 +587,7 @@ NTIP.ParseLineInt = function (input, info) {
 					p_result[0] += NTIPAliasType[p_keyword];
 
 					break;
-				case 'name':
+				case "name":
 					if (NTIPAliasClassID[p_keyword] === undefined) {
 						Misc.errorReport("Unknown name: " + p_keyword + " File: " + info.file + " Line: " + info.line);
 
@@ -597,7 +597,7 @@ NTIP.ParseLineInt = function (input, info) {
 					p_result[0] += NTIPAliasClassID[p_keyword];
 
 					break;
-				case 'class':
+				case "class":
 					if (NTIPAliasClass[p_keyword] === undefined) {
 						Misc.errorReport("Unknown class: " + p_keyword + " File: " + info.file + " Line: " + info.line);
 
@@ -607,7 +607,7 @@ NTIP.ParseLineInt = function (input, info) {
 					p_result[0] += NTIPAliasClass[p_keyword];
 
 					break;
-				case 'quality':
+				case "quality":
 					if (NTIPAliasQuality[p_keyword] === undefined) {
 						Misc.errorReport("Unknown quality: " + p_keyword + " File: " + info.file + " Line: " + info.line);
 
@@ -617,7 +617,7 @@ NTIP.ParseLineInt = function (input, info) {
 					p_result[0] += NTIPAliasQuality[p_keyword];
 
 					break;
-				case 'flag':
+				case "flag":
 					if (NTIPAliasFlag[p_keyword] === undefined) {
 						Misc.errorReport("Unknown flag: " + p_keyword + " File: " + info.file + " Line: " + info.line);
 
@@ -627,14 +627,14 @@ NTIP.ParseLineInt = function (input, info) {
 					p_result[0] += NTIPAliasFlag[p_keyword] + ")";
 
 					break;
-				case 'prefix':
-				case 'suffix':
+				case "prefix":
+				case "suffix":
 					p_result[0] += "\"" + p_keyword + "\")";
 
 					break;
 				}
 			} else {
-				if (property === 'flag' || property === 'prefix' || property === 'suffix') {
+				if (property === "flag" || property === "prefix" || property === "suffix") {
 					p_result[0] += p_keyword + ")";
 				} else {
 					p_result[0] += p_keyword;
@@ -714,7 +714,7 @@ NTIP.ParseLineInt = function (input, info) {
 			case "charmtier":
 			case "merctier":
 				try {
-					p_result[2][keyword.charAt(0).toUpperCase() + keyword.slice(1)] = (new Function('return function(item) { return ' + p_section[i].split("==")[1] + ';}')).call(null); // generate function out of
+					p_result[2][keyword.charAt(0).toUpperCase() + keyword.slice(1)] = (new Function("return function(item) { return " + p_section[i].split("==")[1] + ";}")).call(null); // generate function out of
 				} catch (e) {
 					Misc.errorReport("ÿc1Pickit Tier (" + keyword + ") error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message);
 				}
@@ -729,12 +729,10 @@ NTIP.ParseLineInt = function (input, info) {
 	}
 
 	// Compile the line, to 1) remove the eval lines, and 2) increase the speed
-	for (let i = 0, tmp; i < 2; i++) {
-		tmp = p_result[i];
-
+	for (let i = 0; i < 2; i++) {
 		if (p_result[i].length) {
 			try {
-				p_result[i] = (new Function('return function(item) { return ' + p_result[i] + ';}')).call(null); // generate function out of
+				p_result[i] = (new Function("return function(item) { return " + p_result[i] + ";}")).call(null); // generate function out of
 			} catch (e) {
 				Misc.errorReport("ÿc1Pickit error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message);
 

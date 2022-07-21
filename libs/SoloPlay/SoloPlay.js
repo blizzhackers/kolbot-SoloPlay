@@ -11,15 +11,15 @@
 
 //---------------- Do Not Touch Below ----------------\\
 
-!isIncluded("SoloPlay/Tools/Tracker.js") && include("SoloPlay/Tools/Tracker.js");
-!isIncluded("SoloPlay/Tools/CharData.js") && include("SoloPlay/Tools/CharData.js");
+includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
+includeIfNotIncluded("SoloPlay/Tools/CharData.js");
 
 function SoloPlay () {
 	this.setup = function () {
-		myPrint('start setup');
+		myPrint("start setup");
 		NTIP.arrayLooping(nipItems.Quest);
 		NTIP.arrayLooping(nipItems.General);
-		myPrint('starting run');
+		myPrint("starting run");
 
 		try {
 			if (impossibleClassicBuilds.includes(SetUp.finalBuild) && me.classic) {
@@ -83,9 +83,7 @@ function SoloPlay () {
 				let currentExp;
 
 				try {
-					if (!isIncluded("SoloPlay/Scripts/" + SetUp.scripts[k] + ".js")) {
-						include("SoloPlay/Scripts/" + SetUp.scripts[k] + ".js");
-					}
+					includeIfNotIncluded("SoloPlay/Scripts/" + SetUp.scripts[k] + ".js");
 
 					tick = getTickCount();
 					currentExp = me.getStat(sdk.stats.Experience);
@@ -195,7 +193,7 @@ function SoloPlay () {
 
 	this.runScripts();
 
-	scriptBroadcast('quit');
+	scriptBroadcast("quit");
 
 	return true;
 }

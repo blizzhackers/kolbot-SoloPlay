@@ -262,10 +262,10 @@ Misc.unsocketItem = function (item) {
 
 	try {
 		// failed to move any of the items to the cube
-		if (!Storage.Cube.MoveTo(item) || !Storage.Cube.MoveTo(hel) || !Storage.Cube.MoveTo(scroll)) throw 'Failed to move items to cube';
+		if (!Storage.Cube.MoveTo(item) || !Storage.Cube.MoveTo(hel) || !Storage.Cube.MoveTo(scroll)) throw "Failed to move items to cube";
 
 		// probably only happens on server crash
-		if (!Cubing.openCube()) throw 'Failed to open cube';
+		if (!Cubing.openCube()) throw "Failed to open cube";
 
 		myPrint("ÿc4Removing sockets from: ÿc0" + item.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<;.*]/, ""));
 		transmute();
@@ -275,7 +275,7 @@ Misc.unsocketItem = function (item) {
 		!!item && bodyLoc && item.equip(bodyLoc);
 
 		// can't pull the item out = no space = fail
-		if (!Cubing.emptyCube()) throw 'Failed to empty cube';
+		if (!Cubing.emptyCube()) throw "Failed to empty cube";
 	} catch (e) {
 		console.debug(e);
 	} finally {
@@ -730,7 +730,7 @@ Misc.logItem = function (action, unit, keptLine) {
 
 	if (!code) {
 		// Tiara/Diadem
-		code = ["ci2", "ci3"].indexOf(unit.code) > -1 ? unit.code : getBaseStat(0, unit.classid, 'normcode') || unit.code;
+		code = ["ci2", "ci3"].indexOf(unit.code) > -1 ? unit.code : getBaseStat(0, unit.classid, "normcode") || unit.code;
 		code = code.replace(" ", "");
 
 		if ([10, 12, 58, 82, 83, 84].indexOf(unit.itemType) > -1) {
@@ -772,7 +772,7 @@ Misc.errorReport = function (error, script) {
 	let stackLog = "";
 
 	let date = new Date();
-	let dateString = "[" + new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, -5).replace(/-/g, '/').replace('T', ' ') + "]";
+	let dateString = "[" + new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, -5).replace(/-/g, "/").replace("T", " ") + "]";
 
 	if (typeof error === "string") {
 		msg = error;
@@ -825,8 +825,8 @@ Misc.errorReport = function (error, script) {
 Misc.updateRecursively = function (oldObj, newObj, path) {
 	if (path === void 0) { path = []; }
 	Object.keys(newObj).forEach(function (key) {
-		if (typeof newObj[key] === 'function') return; // skip
-		if (typeof newObj[key] !== 'object') {
+		if (typeof newObj[key] === "function") return; // skip
+		if (typeof newObj[key] !== "object") {
 			if (!oldObj.hasOwnProperty(key) || oldObj[key] !== newObj[key]) {
 				oldObj[key] = newObj[key];
 			}
@@ -836,7 +836,7 @@ Misc.updateRecursively = function (oldObj, newObj, path) {
 				oldObj[key] = newObj[key].slice(0);
 			}
 		} else {
-			if (typeof oldObj[key] !== 'object') {
+			if (typeof oldObj[key] !== "object") {
 				oldObj[key] = {};
 			}
 			path.push(key);
@@ -848,13 +848,13 @@ Misc.updateRecursively = function (oldObj, newObj, path) {
 Misc.recursiveSearch = function (o, n, changed) {
 	if (changed === void 0) { changed = {}; }
 	Object.keys(n).forEach(function (key) {
-		if (typeof n[key] === 'function') return; // skip
-		if (typeof n[key] !== 'object') {
+		if (typeof n[key] === "function") return; // skip
+		if (typeof n[key] !== "object") {
 			if (!o.hasOwnProperty(key) || o[key] !== n[key]) {
 				changed[key] = n[key];
 			}
 		} else {
-			if (typeof changed[key] !== 'object' || !changed[key]) {
+			if (typeof changed[key] !== "object" || !changed[key]) {
 				changed[key] = {};
 			}
 			Misc.recursiveSearch((o === null || o === void 0 ? void 0 : o[key]) || {}, (n === null || n === void 0 ? void 0 : n[key]) || {}, changed[key]);

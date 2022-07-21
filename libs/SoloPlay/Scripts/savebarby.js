@@ -10,7 +10,7 @@ function savebarby () {
 	let barbies = [];
 
 	Town.townTasks();
-	myPrint('starting barbies');
+	myPrint("starting barbies");
 
 	Pather.checkWP(sdk.areas.FrigidHighlands, true) ? Pather.useWaypoint(sdk.areas.FrigidHighlands) : Pather.getWP(sdk.areas.FrigidHighlands);
 	Precast.doPrecast(true);

@@ -215,7 +215,7 @@ function baal () {
 
 	// START
 	Town.townTasks();
-	myPrint('starting baal');
+	myPrint("starting baal");
 
 	Pather.checkWP(sdk.areas.WorldstoneLvl2, true) ? Pather.useWaypoint(sdk.areas.WorldstoneLvl2) : Pather.getWP(sdk.areas.WorldstoneLvl2, true);
 	Precast.doPrecast(true);
@@ -241,7 +241,7 @@ function baal () {
 
 	try {
 		if (((me.hell && me.paladin && !Attack.auradin) || me.barbarian || me.gold < 25000 || (!me.baal && SetUp.finalBuild !== "Bumper"))) {
-			Messaging.sendToScript(SoloEvents.filePath, 'addBaalEvent');
+			Messaging.sendToScript(SoloEvents.filePath, "addBaalEvent");
 		}
 		
 		Attack.clear(15);
@@ -289,7 +289,7 @@ function baal () {
 	} catch (e) {
 		//
 	} finally {
-		Messaging.sendToScript(SoloEvents.filePath, 'removeBaalEvent');
+		Messaging.sendToScript(SoloEvents.filePath, "removeBaalEvent");
 	}
 
 	return true;

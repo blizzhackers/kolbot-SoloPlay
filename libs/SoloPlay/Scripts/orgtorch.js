@@ -1,8 +1,8 @@
 /**
-*	@filename	orgtorch.js
-*	@author		kolton, theBGuy (modified for Kolbot-SoloPlay)
-*	@desc		Convert keys to organs and organs to torches.
-*	@notes		Search for the word "Start" and follow the comments if you want to know what this script does and when.
+*  @filename    orgtorch.js
+*  @author      kolton, theBGuy
+*  @desc        Convert keys to organs and organs to torches.
+*
 */
 
 function orgtorch() {

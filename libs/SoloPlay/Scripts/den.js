@@ -17,7 +17,7 @@ function den () {
 		}
 	};
 
-	myPrint('starting den');
+	myPrint("starting den");
 
 	if (!Pather.checkWP(sdk.areas.ColdPlains) || me.charlvl < 4) {
 		Pather.moveToExit(sdk.areas.BloodMoor, true);
@@ -72,7 +72,7 @@ function den () {
 
 	if (me.area === sdk.areas.DenofEvil) {
 		addEventListener("gamepacket", this.denLightsListener);
-		const Worker = require('../../modules/Worker');
+		const Worker = require("../../modules/Worker");
 		let corpseTick = getTickCount();
 		let corpsefire;
 
@@ -88,7 +88,7 @@ function den () {
 						if (corpsefire && !Attack.canAttack(corpsefire)) {
 							killTracker = true;
 							myPrint("Exit den. Corpsefire is immune");
-							throw new Error('ÿc8Kolbot-SoloPlayÿc0: Exit den. Corpsefire is immune');
+							throw new Error("ÿc8Kolbot-SoloPlayÿc0: Exit den. Corpsefire is immune");
 						}
 					}
 
@@ -101,7 +101,7 @@ function den () {
 				if (me.area === sdk.areas.DenofEvil) {
 					if (denLights) {
 						killTracker = true;
-						throw new Error('DEN COMPLETE');
+						throw new Error("DEN COMPLETE");
 					}
 				}
 

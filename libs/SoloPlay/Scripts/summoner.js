@@ -45,7 +45,7 @@ function summoner () {
 		}
 
 		if (getPath(me.area, me.x, me.y, stand.roomx * 5 + stand.x, stand.roomy * 5 + stand.y, 0, 10).length === 0) {
-			me.overhead('Using telepad layout');
+			me.overhead("Using telepad layout");
 
 			for (let i = 0; i < tppPath.length; i += 1) {
 				for (let h = 0; h < 5; h += 1) {
@@ -72,7 +72,7 @@ function summoner () {
 
 	// START
 	Town.townTasks();
-	myPrint('starting summoner');
+	myPrint("starting summoner");
 
 	Pather.checkWP(sdk.areas.ArcaneSanctuary, true) ? Pather.useWaypoint(sdk.areas.ArcaneSanctuary) : Pather.getWP(sdk.areas.ArcaneSanctuary);
 	Precast.doPrecast(true);
@@ -81,10 +81,10 @@ function summoner () {
 	try {
 		Pather.moveToPreset(sdk.areas.ArcaneSanctuary, sdk.unittype.Object, 357, -3, -3);
 	} catch (err) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to reach Summoner. Retry');
+		print("ÿc8Kolbot-SoloPlayÿc0: Failed to reach Summoner. Retry");
 
 		if (!Pather.moveToPreset(sdk.areas.ArcaneSanctuary, sdk.unittype.Object, 357, -3, -3)) {
-			print('ÿc8Kolbot-SoloPlayÿc0: Failed to reach summoner');
+			print("ÿc8Kolbot-SoloPlayÿc0: Failed to reach summoner");
 
 			return false;
 		}
@@ -93,7 +93,7 @@ function summoner () {
 	try {
 		Attack.killTarget(250); // The Summoner
 	} catch (e) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill summoner');
+		print("ÿc8Kolbot-SoloPlayÿc0: Failed to kill summoner");
 
 		return false;
 	}

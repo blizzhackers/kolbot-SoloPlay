@@ -7,7 +7,7 @@
 
 function amulet () {
 	Town.townTasks();
-	myPrint('starting amulet');
+	myPrint("starting amulet");
 
 	Pather.checkWP(sdk.areas.LostCity, true) ? Pather.useWaypoint(sdk.areas.LostCity) : Pather.getWP(sdk.areas.LostCity);
 	Precast.doPrecast(true);

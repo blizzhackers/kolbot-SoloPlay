@@ -6,7 +6,7 @@
 */
 
 function templeruns () {
-	myPrint('starting temple runs');
+	myPrint("starting temple runs");
 
 	let temples = [
 		[sdk.areas.FlayerJungle, sdk.areas.LowerKurast], [sdk.areas.KurastBazaar, sdk.areas.RuinedTemple],

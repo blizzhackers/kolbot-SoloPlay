@@ -7,7 +7,7 @@
 
 function nith() {
 	Town.doChores();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting nith');
+	print("ÿc8Kolbot-SoloPlayÿc0: starting nith");
 	me.overhead("nith");
 
 	Pather.checkWP(sdk.areas.HallsofPain, true) ? Pather.useWaypoint(sdk.areas.HallsofPain) : Pather.getWP(sdk.areas.HallsofPain);

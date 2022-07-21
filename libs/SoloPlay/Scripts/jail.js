@@ -1,18 +1,19 @@
-/*
-*	@filename	jail.js
-*	@author		theBGuy
-*	@desc		jail runs for levels
+/**
+*  @filename    jail.js
+*  @author      theBGuy
+*  @desc        jail runs for levels
+*
 */
 
 function jail () {
 	Town.townTasks();
-	myPrint('starting jail');
+	myPrint("starting jail");
 	let levels = [sdk.areas.JailLvl1, sdk.areas.JailLvl2, sdk.areas.JailLvl3];
 
 	Pather.checkWP(sdk.areas.JailLvl1, true) ? Pather.useWaypoint(sdk.areas.JailLvl1) : Pather.getWP(sdk.areas.JailLvl1);
 
 	for (let i = 1; i < levels.length; i++) {
-		myPrint('clearing jail level ' + i);
+		myPrint("clearing jail level " + i);
 
 		Precast.doPrecast(true);
 		Attack.clearLevelEx({quitWhen: function () {

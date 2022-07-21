@@ -7,7 +7,7 @@
 
 !isIncluded("common/Attacks/Barbarian.js") && include("common/Attacks/Barbarian.js");
 
-const GameData = require('../../Modules/GameData');
+const GameData = require("../../Modules/GameData");
 
 ClassAttack.warCryTick = 0;
 

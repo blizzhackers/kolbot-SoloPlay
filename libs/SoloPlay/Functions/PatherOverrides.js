@@ -83,7 +83,7 @@ Pather.forceRun = false;
 			return [this[0], this[1]];
 		}
 
-		if (typeof this.x !== 'undefined' && typeof this.y !== 'undefined') {
+		if (typeof this.x !== "undefined" && typeof this.y !== "undefined") {
 			return this instanceof PresetUnit && [this.roomx * 5 + this.x, this.roomy * 5 + this.y] || [this.x, this.y];
 		}
 

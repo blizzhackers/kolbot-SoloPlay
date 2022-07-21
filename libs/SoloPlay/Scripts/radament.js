@@ -7,7 +7,7 @@
 
 function radament () {
 	Town.townTasks();
-	myPrint('starting radament');
+	myPrint("starting radament");
 
 	if (!Pather.checkWP(sdk.areas.A2SewersLvl2, true)) {
 		Town.goToTown(2);

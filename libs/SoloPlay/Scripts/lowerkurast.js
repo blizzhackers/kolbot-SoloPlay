@@ -1,12 +1,13 @@
-/*
-*	@filename	lowerkurast.js
-*	@author		isid0re, theBGuy
-*	@desc		LK runs for MF, rune drops, and gold
+/**
+*  @filename    lowerkurast.js
+*  @author      isid0re, theBGuy
+*  @desc        LK runs for MF, rune drops, and gold
+*
 */
 
 function lowerkurast () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting lower kurast');
+	print("ÿc8Kolbot-SoloPlayÿc0: starting lower kurast");
 	me.overhead("lower kurast");
 
 	Pather.checkWP(sdk.areas.LowerKurast, true) ? Pather.useWaypoint(sdk.areas.LowerKurast) : Pather.getWP(sdk.areas.LowerKurast);

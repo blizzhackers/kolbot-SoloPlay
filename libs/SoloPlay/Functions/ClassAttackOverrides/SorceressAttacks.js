@@ -7,11 +7,11 @@
 
 !isIncluded("common/Attacks/Sorceress.js") && include("common/Attacks/Sorceress.js");
 
-const GameData = require('../../Modules/GameData');
+const GameData = require("../../Modules/GameData");
 
 const slowable = function (unit, freezeable = false) {
 	return (!!unit && unit.attackable // those that we can attack
-	&& Attack.checkResist(unit, 'cold')
+	&& Attack.checkResist(unit, "cold")
 	// those that are not frozen yet and those that can be frozen or not yet chilled
 	&& (freezeable ? !unit.isFrozen && !unit.getStat(sdk.stats.CannotbeFrozen) : !el.isChilled)
 	&& ![sdk.monsters.Andariel, 510].includes(unit.classid));
@@ -31,7 +31,7 @@ const frostNovaCheck = function () {
 	if (mob) {
 		do {
 			if (mob.distance < 7 && ![sdk.monsters.Andariel].includes(mob.classid) && mob.attackable
-				&& !mob.isChilled && Attack.checkResist(mob, 'cold') && !checkCollision(me, mob, Coords_1.Collision.BLOCK_MISSILE)) {
+				&& !mob.isChilled && Attack.checkResist(mob, "cold") && !checkCollision(me, mob, Coords_1.Collision.BLOCK_MISSILE)) {
 				return true;
 			}
 		} while (mob.getNext());

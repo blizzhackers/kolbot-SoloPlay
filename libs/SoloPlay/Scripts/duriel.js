@@ -1,7 +1,8 @@
-/*
-*	@filename	duriel.js
-*	@author		isid0re, theBGuy
-*	@desc		duriel quest
+/**
+*  @filename    duriel.js
+*  @author      isid0re, theBGuy
+*  @desc        duriel quest
+*
 */
 
 function duriel () {
@@ -11,7 +12,7 @@ function duriel () {
 
 	// Start
 	Town.townTasks();
-	myPrint('starting duriel');
+	myPrint("starting duriel");
 	Pather.checkWP(sdk.areas.CanyonofMagic, true) ? Pather.useWaypoint(sdk.areas.CanyonofMagic) : Pather.getWP(sdk.areas.CanyonofMagic);
 	Precast.doPrecast(true);
 	Pather.moveToExit(getRoom().correcttomb, true);

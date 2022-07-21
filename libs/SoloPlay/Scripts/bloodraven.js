@@ -7,7 +7,7 @@
 
 function bloodraven () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting blood raven');
+	print("ÿc8Kolbot-SoloPlayÿc0: starting blood raven");
 
 	if (!Pather.checkWP(sdk.areas.StonyField, true)) {
 		Pather.getWP(sdk.areas.StonyField);
@@ -39,7 +39,7 @@ function bloodraven () {
 		return true;
 	}
 
-	myPrint('blood raven :: starting mausoleum');
+	myPrint("blood raven :: starting mausoleum");
 
 	if (!Pather.moveToExit([sdk.areas.BurialGrounds, sdk.areas.Mausoleum], true)) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Mausoleum");
@@ -66,7 +66,7 @@ function bloodraven () {
 		return true;
 	}
 
-	myPrint('blood raven :: starting crypt');
+	myPrint("blood raven :: starting crypt");
 	Pather.journeyTo(sdk.areas.Crypt) && Attack.clearLevel();
 	
 	return true;

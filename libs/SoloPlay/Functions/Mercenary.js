@@ -86,7 +86,7 @@ const Merc = {
 		
 		// lets check what our current actually merc is
 		let checkMyMerc = Misc.poll(() => me.getMerc(), 50, 500);
-		let wantedSkill = (typeOfMerc === 1 ? 'Cold Arrow' : me.normal ? tmpAuraName : mercAuraWanted);
+		let wantedSkill = (typeOfMerc === 1 ? "Cold Arrow" : me.normal ? tmpAuraName : mercAuraWanted);
 		if (checkMyMerc && Merc.checkMercSkill(wantedSkill, checkMyMerc)) {
 			// we have our wanted merc, data file was probably erased so lets re-update it
 			myData.merc.act = me.act;
@@ -108,7 +108,7 @@ const Merc = {
 			Town.sortInventory();
 			Item.removeItemsMerc(); // strip temp merc gear
 			delay(500 + me.ping);
-			addEventListener('gamepacket', MercLib_1.mercPacket);
+			addEventListener("gamepacket", MercLib_1.mercPacket);
 			Town.initNPC("Merc", "getMerc");
 			let wantedMerc = MercLib_1.default
 				.filter((merc) => merc.skills.some((skill) => (skill === null || skill === void 0 ? void 0 : skill.name) === wantedSkill))
@@ -120,7 +120,7 @@ const Merc = {
 					throw new Error();
 				}
 				let oldGid_1 = (_a = me.getMerc()) === null || _a === void 0 ? void 0 : _a.gid;
-				console.log('ÿc9Mercenaryÿc0 :: Found a merc to hire ' + JSON.stringify(wantedMerc));
+				console.log("ÿc9Mercenaryÿc0 :: Found a merc to hire " + JSON.stringify(wantedMerc));
 				wantedMerc === null || wantedMerc === void 0 ? void 0 : wantedMerc.hire();
 				let newMerc = Misc.poll(function () {
 					let merc = me.getMerc();
@@ -128,15 +128,15 @@ const Merc = {
 					if (oldGid_1 && oldGid_1 === merc.gid) return false;
 					return merc;
 				});
-				console.log('Hired a merc?');
+				console.log("Hired a merc?");
 				if (newMerc) {
-					console.log('Yep');
+					console.log("Yep");
 					myData.merc.act = me.act;
 					myData.merc.classid = newMerc.classid;
 					myData.merc.difficulty = me.diff;
 					myData.merc.type = wantedMerc.skills.find(sk => sk.name === wantedSkill).name;
 					CharData.updateData("merc", myData) && updateMyData();
-					console.log('ÿc9Mercenaryÿc0 :: ' + myData.merc.type + ' merc hired.');
+					console.log("ÿc9Mercenaryÿc0 :: " + myData.merc.type + " merc hired.");
 				}
 				me.cancelUIFlags();
 				while (getInteractedNPC()) {
@@ -147,7 +147,7 @@ const Merc = {
 		} catch (e) {
 			//
 		} finally {
-			removeEventListener('gamepacket', MercLib_1.mercPacket);
+			removeEventListener("gamepacket", MercLib_1.mercPacket);
 		}
 
 		Item.autoEquipMerc();

@@ -1,12 +1,13 @@
-/*
-*	@filename	staff.js
-*	@author		isid0re, theBGuy
-*	@desc		maggot lair for staff needed for act2 quests
+/**
+*  @filename    staff.js
+*  @author      isid0re, theBGuy
+*  @desc        maggot lair for staff needed for act2 quests
+*
 */
 
 function staff () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting staff');
+	print("ÿc8Kolbot-SoloPlayÿc0: starting staff");
 	me.overhead("staff");
 
 	Pather.checkWP(sdk.areas.FarOasis, true) ? Pather.useWaypoint(sdk.areas.FarOasis) : Pather.getWP(sdk.areas.FarOasis);
@@ -16,7 +17,7 @@ function staff () {
 	Pather.clearToExit(sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3, true);
 
 	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, 356)) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to move to staff');
+		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to staff");
 		return me.getItem(sdk.items.quest.ShaftoftheHoradricStaff);
 	}
 

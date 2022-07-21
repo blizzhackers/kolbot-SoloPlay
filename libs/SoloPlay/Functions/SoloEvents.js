@@ -481,7 +481,7 @@ const SoloEvents = {
 		if (me.act === 2) {
 			// Act change sucessful, Andy has been bugged
 			myPrint("Andy bug " + (!me.getQuest(6, 15) ? "sucessful" : "failed"));
-			scriptBroadcast('quit');
+			scriptBroadcast("quit");
 		}
 	},
 
@@ -489,7 +489,7 @@ const SoloEvents = {
 		if (!bytes.length) return;
 		// dia lightning
 		if (bytes[0] === 0x4C && bytes[6] === 193) {
-			Messaging.sendToScript(SoloEvents.filePath, 'dodge');
+			Messaging.sendToScript(SoloEvents.filePath, "dodge");
 		}
 	},
 
@@ -522,7 +522,7 @@ const SoloEvents = {
 					if ((me.paladin && !Attack.auradin && me.hell)
 						|| (me.barbarian && ((me.charlvl < Config.levelCap && !me.baal)
 						|| me.hardcore))) {
-						Messaging.sendToScript(SoloEvents.filePath, 'skip');
+						Messaging.sendToScript(SoloEvents.filePath, "skip");
 						SoloEvents.skippedWaves.push(wave);
 					}
 
@@ -533,7 +533,7 @@ const SoloEvents = {
 				case waveBoss.LISTER:
 					if ((me.barbarian && (me.charlvl < Config.levelCap || !me.baal || me.hardcore))
 						|| (me.charlvl < Config.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
-						Messaging.sendToScript(SoloEvents.filePath, 'skip');
+						Messaging.sendToScript(SoloEvents.filePath, "skip");
 						SoloEvents.skippedWaves.push(wave);
 					}
 

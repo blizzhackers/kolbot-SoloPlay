@@ -174,7 +174,7 @@ const chargeditemscore = function (item, skillId, buildInfo) {
 		}
 	}
 
-	chargedItems = chargedItems.filter((v, i, a) => a.findIndex(el => ['skill', 'level'].every(k => el[k] === v[k])) === i);
+	chargedItems = chargedItems.filter((v, i, a) => a.findIndex(el => ["skill", "level"].every(k => el[k] === v[k])) === i);
 
 	if (skillId > 0) {
 		chargedItems = chargedItems.filter(check => check.skill === skillId);
@@ -572,7 +572,7 @@ const tierscore = function (item, bodyloc) {
 			}
 		}
 
-		ctcItems = ctcItems.filter((v, i, a) => a.findIndex(el => ['ctcType', 'skill'].every(k => el[k] === v[k])) === i);
+		ctcItems = ctcItems.filter((v, i, a) => a.findIndex(el => ["ctcType", "skill"].every(k => el[k] === v[k])) === i);
 
 		for (let i = 0; i < ctcItems.length; i++) {
 			try {

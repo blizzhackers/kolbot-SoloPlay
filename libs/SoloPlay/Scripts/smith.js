@@ -7,7 +7,7 @@
 
 function smith () {
 	Town.townTasks();
-	myPrint('starting smith');
+	myPrint("starting smith");
 
 	Pather.checkWP(sdk.areas.OuterCloister, true) ? Pather.useWaypoint(sdk.areas.OuterCloister) : Pather.getWP(sdk.areas.OuterCloister);
 	Precast.doPrecast(true);
@@ -21,7 +21,7 @@ function smith () {
 	try {
 		Attack.killTarget(sdk.monsters.TheSmith);
 	} catch (err) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Smith');
+		print("ÿc8Kolbot-SoloPlayÿc0: Failed to kill Smith");
 	}
 
 	Quest.collectItem(sdk.items.quest.HoradricMalus, sdk.quest.chest.MalusHolder);

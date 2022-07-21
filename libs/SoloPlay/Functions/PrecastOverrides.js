@@ -13,7 +13,7 @@ Precast.enabled = true;
 // Can't be on a weapon due to consistent switching but
 // Clay Goldem from Stone RW, Iron Golem from Metalgrid, Posion Creeper from Carrior Wind ring, Oak, HoW, or SoB from wisp
 
-let Overrides = require('../../modules/Override');
+let Overrides = require("../../modules/Override");
 
 new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 	if (!Precast.enabled) return false;

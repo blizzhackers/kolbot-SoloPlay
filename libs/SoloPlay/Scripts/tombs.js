@@ -1,11 +1,12 @@
-/*
-*	@filename	tombs.js
-*	@author		isid0re, theBGuy
-*	@desc		leveling in act 2 tombs
+/**
+*  @filename    tombs.js
+*  @author      theBGuy
+*  @desc        leveling in act 2 tombs
+*
 */
 
 function tombs () {
-	myPrint('starting tombs');
+	myPrint("starting tombs");
 
 	let tombID = [sdk.areas.TalRashasTomb1, sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb3, sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7];
 	Town.townTasks();
@@ -17,14 +18,14 @@ function tombs () {
 		if (Pather.moveToExit(tombID[number], true, true)) {
 			me.overhead("Tomb #" + (number + 1));
 
-			let obj = getRoom().correcttomb === me.area ? getPresetUnit(me.area, 2, 152) : getPresetUnit(me.area, 2, 397);
+			let obj = getRoom().correcttomb === me.area ? Game.getPresetObject(me.area, sdk.units.HoradricStaffHolder) : Game.getPresetObject(me.area, sdk.units.SmallSparklyChest);
 			!!obj && Pather.moveToUnit(obj);
 
 			Attack.clear(50);
 			Pickit.pickItems();
 
-			if (me.duriel && getUnit(2, 100)) {
-				Pather.useUnit(2, 100, sdk.areas.DurielsLair);
+			if (me.duriel && Game.getObject(sdk.units.PortaltoDurielsLair)) {
+				Pather.useUnit(sdk.unittype.Object, sdk.units.PortaltoDurielsLair, sdk.areas.DurielsLair);
 				me.sorceress && !me.normal ? Attack.pwnDury() : Attack.killTarget("Duriel");
 				Pickit.pickItems();
 			}

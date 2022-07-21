@@ -83,8 +83,8 @@ function cows () {
 			me.cancelUIFlags();
 		}
 
-		!Town.openStash() && console.log('ÿc8Kolbot-SoloPlayÿc0: Failed to open stash. (openPortal)');
-		!Cubing.emptyCube() && console.log('ÿc8Kolbot-SoloPlayÿc0: Failed to empty cube. (openPortal)');
+		!Town.openStash() && console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to open stash. (openPortal)");
+		!Cubing.emptyCube() && console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to empty cube. (openPortal)");
 
 		if (!me.getItem(sdk.items.quest.WirtsLeg)) {
 			return false;
@@ -121,13 +121,13 @@ function cows () {
 	};
 
 	if (!me.diffCompleted) {
-		console.log('ÿc8Kolbot-SoloPlayÿc0: Final quest incomplete, cannot make cows yet');
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Final quest incomplete, cannot make cows yet");
 		return true;
 	}
 
 	// START
 	Town.townTasks();
-	myPrint('starting cows');
+	myPrint("starting cows");
 
 	if (!Pather.getPortal(sdk.areas.MooMooFarm) && !this.getLeg()) {
 		return true;
@@ -147,7 +147,7 @@ function cows () {
 	Town.move("stash");
 
 	if (Pather.usePortal(sdk.areas.MooMooFarm)) {
-		const Worker = require('../../modules/Worker');
+		const Worker = require("../../modules/Worker");
 		let kingTick = getTickCount();
 		let king;
 		let kingPreset;
@@ -163,7 +163,7 @@ function cows () {
 				if (king && kingPreset) {
 					if (getDistance(me.x, me.y, getRoom(kingPreset.roomx * 5 + kingPreset.x), getRoom(kingPreset.roomy * 5 + kingPreset.y)) <= 25) {
 						myPrint("exit cows. Near the king");
-						throw new Error('ÿc8Kolbot-SoloPlayÿc0: exit cows. Near the king');
+						throw new Error("ÿc8Kolbot-SoloPlayÿc0: exit cows. Near the king");
 					}
 				}
 			}

@@ -155,8 +155,8 @@ const Tracker = {
 	}
 };
 
-if (getScript(true).name.toString() === 'default.dbj') {
-	const Worker = require('../../modules/Worker');
+if (getScript(true).name.toString() === "default.dbj") {
+	const Worker = require("../../modules/Worker");
 
 	Worker.runInBackground.intervalUpdate = function () {
 		if (getTickCount() - Tracker.tick < 3 * 60000) return true;

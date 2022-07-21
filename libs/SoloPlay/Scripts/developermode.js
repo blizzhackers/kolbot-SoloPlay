@@ -1,7 +1,8 @@
 /**
-*	@filename	developermode.js
-*	@author		theBGuy
-*	@desc		developer mode made easy
+*  @filename    developermode.js
+*  @author      theBGuy
+*  @desc        developer mode made easy
+*
 */
 include("UnitInfo.js");
 
@@ -219,7 +220,7 @@ function developermode() {
 		return false;
 	};
 
-	myPrint('ÿc8Kolbot-SoloPlayÿc0: starting developermode');
+	myPrint("ÿc8Kolbot-SoloPlayÿc0: starting developermode");
 	addEventListener("gamepacketsent", packetSent);
 	addEventListener("gamepacket", packetReceived);
 	Config.Silence = false;

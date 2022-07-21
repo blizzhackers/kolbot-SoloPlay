@@ -8,8 +8,8 @@
 !isIncluded("common/Config.js") && include("common/Config.js");
 
 Config.init = function (notify) {
-	let configFilename = "",
-		classes = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"];
+	let configFilename = "";
+	let classes = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"];
 
 	for (let i = 0; i <= 5; i++) {
 		switch (i) {
@@ -86,7 +86,7 @@ Config.init = function (notify) {
 	if (Config.Silence && !Config.LocalChat.Enabled) {
 		// Override the say function with print, so it just gets printed to console
 		global._say = global.say;
-		global.say = (what) => print('Tryed to say: ' + what);
+		global.say = (what) => print("Tryed to say: " + what);
 	}
 
 	try {

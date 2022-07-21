@@ -229,7 +229,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 		if (["ci2", "ci3"].indexOf(unit.code) > -1) { // Tiara/Diadem
 			code = unit.code;
 		} else {
-			code = getBaseStat(0, unit.classid, 'normcode') || unit.code;
+			code = getBaseStat(0, unit.classid, "normcode") || unit.code;
 		}
 
 		code = code.replace(" ", "");

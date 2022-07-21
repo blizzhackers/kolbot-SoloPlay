@@ -10,14 +10,14 @@
 function diablo () {
 	// Start Diablo Quest
 	this.diabloPrep = function () {
-		let tick = getTickCount(), decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, 1) * 5) * 1000;
+		let tick = getTickCount(), decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.SoftPoints) * 5) * 1000;
 
 		while (getTickCount() - tick < 17500) {
 			me.getMobCount(20) > 1 && Attack.clear(20);
 			if (getTickCount() - tick >= 8000) {
 				switch (me.classid) {
 				case sdk.charclass.Amazon:
-					if (me.getSkill(sdk.skills.Decoy, 1)) {
+					if (me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.SoftPoints)) {
 						let decoy = getUnit(sdk.unittype.Monster, 356);
 
 						if (!decoy || (getTickCount() - tick >= decoyDuration)) {
@@ -86,7 +86,7 @@ function diablo () {
 
 	// START
 	Town.townTasks();
-	myPrint('starting diablo');
+	myPrint("starting diablo");
 
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
@@ -97,6 +97,13 @@ function diablo () {
 		Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
 		Town.move("portalspot");
 		Pather.usePortal(sdk.areas.ChaosSanctuary, me.name);
+		Misc.poll(() => {
+			if (me.area === sdk.areas.ChaosSanctuary) {
+				console.log("Returned to chaos");
+				return true;
+			}
+			return false;
+		}, 500, 100);
 	}
 
 	Common.Diablo.initLayout();
@@ -129,7 +136,7 @@ function diablo () {
 
 	try {
 		if (!Pather.canTeleport() && (me.necromancer && ["Poison", "Summon"].includes(SetUp.currentBuild) || !me.sorceress)) {
-			Messaging.sendToScript(SoloEvents.filePath, 'addDiaEvent');
+			Messaging.sendToScript(SoloEvents.filePath, "addDiaEvent");
 		}
 
 		if (!me.sorceress && !me.necromancer && !me.assassin) {
@@ -168,7 +175,7 @@ function diablo () {
 	} catch (e) {
 		//
 	} finally {
-		Messaging.sendToScript(SoloEvents.filePath, 'removeDiaEvent');
+		Messaging.sendToScript(SoloEvents.filePath, "removeDiaEvent");
 	}
 
 	if (me.classic) {

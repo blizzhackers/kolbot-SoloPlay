@@ -1,13 +1,14 @@
-/*
-*	@filename	travincal.js
-*	@author		isid0re, theBGuy
-*	@desc		travincal sequence for flail
+/**
+*  @filename    travincal.js
+*  @author      isid0re, theBGuy
+*  @desc        travincal sequence for flail
+*
 */
 
 function travincal () {
 	Quest.preReqs();
 	Town.townTasks();
-	myPrint('starting travincal');
+	myPrint("starting travincal");
 
 	Pather.checkWP(sdk.areas.Travincal, true) ? Pather.useWaypoint(sdk.areas.Travincal) : Pather.getWP(sdk.areas.Travincal);
 	Precast.doPrecast(true);
@@ -23,7 +24,7 @@ function travincal () {
 
 	// go to orb
 	if (!Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, 404)) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to move to compelling orb');
+		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to compelling orb");
 	}
 
 	let orb = Game.getObject(404);

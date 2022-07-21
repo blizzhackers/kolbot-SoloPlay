@@ -192,9 +192,9 @@ Pickit.amountOfPotsNeeded = function () {
 	}
 	let missing = Town.checkColumns(Pickit.beltSize);
 	Config.BeltColumn.forEach(function (column, index) {
-		if (column === 'hp') {needed[sdk.itemtype.HealingPotion][sdk.storage.Belt] = missing[index];}
-		if (column === 'mp') {needed[sdk.itemtype.ManaPotion][sdk.storage.Belt] = missing[index];}
-		if (column === 'rv') {needed[sdk.itemtype.RejuvPotion][sdk.storage.Belt] = missing[index];}
+		if (column === "hp") {needed[sdk.itemtype.HealingPotion][sdk.storage.Belt] = missing[index];}
+		if (column === "mp") {needed[sdk.itemtype.ManaPotion][sdk.storage.Belt] = missing[index];}
+		if (column === "rv") {needed[sdk.itemtype.RejuvPotion][sdk.storage.Belt] = missing[index];}
 	});
 	return needed;
 };

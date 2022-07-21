@@ -1,13 +1,14 @@
-/*
-*	@filename	anya.js
-*	@author		isid0re, theBGuy
-*	@desc		Anya rescue from frozen river
+/**
+*  @filename    anya.js
+*  @author      isid0re, theBGuy
+*  @desc        Anya rescue from frozen river
+*
 */
 
 function anya () {
 	Town.townTasks();
 	Town.goToTown(5);
-	myPrint('starting anya');
+	myPrint("starting anya");
 
 	if (!me.anya) {
 		Pather.checkWP(sdk.areas.CrystalizedPassage, true) ? Pather.useWaypoint(sdk.areas.CrystalizedPassage) : Pather.getWP(sdk.areas.CrystalizedPassage);

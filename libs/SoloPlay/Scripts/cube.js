@@ -1,12 +1,13 @@
-/*
-*	@filename	cube.js
-*	@author		isid0re, theBGuy
-*	@desc		get horadric cube
+/**
+*  @filename    cube.js
+*  @author      isid0re, theBGuy
+*  @desc        get horadric cube
+*
 */
 
 function cube () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting cube');
+	print("ÿc8Kolbot-SoloPlayÿc0: starting cube");
 	me.overhead("cube");
 
 	Pather.checkWP(sdk.areas.HallsoftheDeadLvl2, true) ? Pather.useWaypoint(sdk.areas.HallsoftheDeadLvl2) : Pather.getWP(sdk.areas.HallsoftheDeadLvl2);

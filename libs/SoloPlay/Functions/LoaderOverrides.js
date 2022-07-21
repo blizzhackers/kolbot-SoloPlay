@@ -61,7 +61,7 @@ Loader.loadScripts = function () {
 				if (this.skipTown.includes(script) || Town.goToTown()) {
 					console.log("ÿc2Starting script: ÿc9" + script);
 					Messaging.sendToScript("libs/SoloPlay/Threads/ToolsThread.js", JSON.stringify({currScript: script}));
-					reconfiguration = typeof Scripts[script] === 'object';
+					reconfiguration = typeof Scripts[script] === "object";
 
 					if (reconfiguration) {
 						print("ÿc2Copying Config properties from " + script + " object.");

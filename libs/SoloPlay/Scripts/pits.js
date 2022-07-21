@@ -1,12 +1,13 @@
-/*
-*	@filename	pits.js
-*	@author		isid0re, theBGuy
-*	@desc		pits A1 for MF and gold
+/**
+*  @filename    pits.js
+*  @author      isid0re, theBGuy
+*  @desc        pits A1 for MF and gold
+*
 */
 
 function pits () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting pits');
+	print("ÿc8Kolbot-SoloPlayÿc0: starting pits");
 	me.overhead("pits");
 
 	Pather.checkWP(sdk.areas.BlackMarsh, true) ? Pather.useWaypoint(sdk.areas.BlackMarsh) : Pather.getWP(sdk.areas.BlackMarsh);

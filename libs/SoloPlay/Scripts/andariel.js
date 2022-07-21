@@ -1,13 +1,14 @@
-/*
-*	@filename	andariel.js
-*	@author		theBGuy
-*	@desc		andariel quest.
+/**
+*  @filename    andariel.js
+*  @author      theBGuy
+*  @desc        andariel quest.
+*
 */
 
 // todo: clean this up
 function andariel () {
 	Town.townTasks();
-	myPrint('starting andy');
+	myPrint("starting andy");
 
 	if (me.normal && Misc.checkQuest(6, 1)) {
 		Pather.changeAct();
@@ -80,9 +81,9 @@ function andariel () {
 			// Now check my area
 			if (me.act === 2) {
 				// Act change sucessful, Andy has been bugged
-				let result = (Misc.checkQuest(6, 15) ? 'Sucessful' : 'Unsucessful');
+				let result = (Misc.checkQuest(6, 15) ? "Sucessful" : "Unsucessful");
 				myPrint("Andy bugged was " + result);
-				scriptBroadcast('quit');
+				scriptBroadcast("quit");
 			}
 		}
 	}

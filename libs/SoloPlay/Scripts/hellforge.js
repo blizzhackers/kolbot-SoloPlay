@@ -1,11 +1,12 @@
-/*
-*	@filename	hellforge.js
-*	@author		theBGuy
-*	@desc		get the forge quest for rune drops for gear.
+/**
+*  @filename    hellforge.js
+*  @author      theBGuy
+*  @desc        get the forge quest for rune drops for gear.
+*
 */
 
 function hellforge () {
-	myPrint('starting hellforge');
+	myPrint("starting hellforge");
 	Town.townTasks({thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
 	
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
@@ -18,7 +19,7 @@ function hellforge () {
 	try {
 		Attack.clear(20, 0, getLocaleString(1067)); // Hephasto The Armorer
 	} catch (err) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Hephasto');
+		print("ÿc8Kolbot-SoloPlayÿc0: Failed to kill Hephasto");
 	}
 
 	Pickit.pickItems();
@@ -56,7 +57,7 @@ function hellforge () {
 	Pather.usePortal(sdk.areas.RiverofFlame, me.name);
 
 	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, 376)) {
-		console.warn('ÿc8Kolbot-SoloPlayÿc0: Failed to move to forge');
+		console.warn("ÿc8Kolbot-SoloPlayÿc0: Failed to move to forge");
 
 		return true;
 	}

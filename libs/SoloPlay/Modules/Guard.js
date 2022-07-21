@@ -1,18 +1,18 @@
 (function (module, require, thread) {
-	const Messaging = require('../../modules/Messaging');
-	const Worker = require('../../modules/Worker');
-	const sdk = require('../../modules/sdk');
+	const Messaging = require("../../modules/Messaging");
+	const Worker = require("../../modules/Worker");
+	const sdk = require("../../modules/sdk");
 
 	switch (thread) {
-	case 'thread': {
+	case "thread": {
 		Worker.runInBackground.stackTrace = (new function () {
 			let self = this;
 			let stack;
 
-			let myStack = '';
+			let myStack = "";
 
 			// recv stack
-			Messaging.on('Guard', (data => typeof data === 'object' && data && data.hasOwnProperty('stack') && (myStack = data.stack)));
+			Messaging.on("Guard", (data => typeof data === "object" && data && data.hasOwnProperty("stack") && (myStack = data.stack)));
 
 			/**
 			* @constructor
@@ -39,21 +39,21 @@
 
 
 			for (let i = 0; i < 20; i++) {
-				(i => this.hooks.push(new UpdateableText(() => stack && stack.length > i && stack[i] || '')))(i);
+				(i => this.hooks.push(new UpdateableText(() => stack && stack.length > i && stack[i] || "")))(i);
 			}
 
 			this.update = () => {
 				stack = myStack.match(/[^\r\n]+/g);
 				stack = stack && stack.slice(6/*skip path to here*/).map(el => {
-					let line = el.substr(el.lastIndexOf(':') + 1),
-						functionName = el.substr(0, el.indexOf('@')),
-						filename = el.substr(el.lastIndexOf('\\') + 1);
+					let line = el.substr(el.lastIndexOf(":") + 1),
+						functionName = el.substr(0, el.indexOf("@")),
+						filename = el.substr(el.lastIndexOf("\\") + 1);
 
-					filename = filename.substr(0, filename.indexOf('.'));
+					filename = filename.substr(0, filename.indexOf("."));
 
-					return filename + 'ÿc::ÿc0' + line + 'ÿc:@ÿc0' + functionName;
+					return filename + "ÿc::ÿc0" + line + "ÿc:@ÿc0" + functionName;
 				}).reverse();
-				this.hooks.filter(hook => hook.hasOwnProperty('update') && typeof hook.update === 'function' && hook.update());
+				this.hooks.filter(hook => hook.hasOwnProperty("update") && typeof hook.update === "function" && hook.update());
 				return true;
 			};
 
@@ -63,35 +63,35 @@
 			let myHeartbeat = 0;
 
 			// recv heartbeat
-			Messaging.on('Guard', (data => typeof data === 'object' && data && data.hasOwnProperty('heartbeat') && (myHeartbeat = data.heartbeat)));
+			Messaging.on("Guard", (data => typeof data === "object" && data && data.hasOwnProperty("heartbeat") && (myHeartbeat = data.heartbeat)));
 
 			this.update = function () {
 				// Do not deal with this shit if default is paused
-				const script = getScript('default.dbj');
+				const script = getScript("default.dbj");
 				if (!script || !script.running) {
 					myHeartbeat = getTickCount();
 					return true;
 				}
 				if (myHeartbeat && getTickCount() - myHeartbeat > (2 * 6e4)) {
-					print('Default.dbj seems to have crashed');
+					print("Default.dbj seems to have crashed");
 					myHeartbeat = 0;
 					if (script) script.stop();
-					print('Waiting 10 seconds to restart default.dbj');
+					print("Waiting 10 seconds to restart default.dbj");
 					delay(1e4);
-					load('default.dbj');
-					print('Starting default.dbj');
+					load("default.dbj");
+					print("Starting default.dbj");
 				}
 				return true;
 			};
 		}).update;
 
 		let quiting = false;
-		addEventListener('scriptmsg', data => data === 'quit' && (quiting = true));
+		addEventListener("scriptmsg", data => data === "quit" && (quiting = true));
 
 		while (!quiting) delay(1000);
 		break;
 	}
-	case 'started': {
+	case "started": {
 		let sendStack = getTickCount();
 		Worker.push(function highPrio() {
 			Worker.push(highPrio);
@@ -111,9 +111,9 @@
 		};
 		break;
 	}
-	case 'loaded': {
+	case "loaded": {
 		break;
 	}
 	}
 
-}).call(null, typeof module === 'object' && module || {}, typeof require === 'undefined' && (include('require.js') && require) || require, getScript.startAsThread());
+}).call(null, typeof module === "object" && module || {}, typeof require === "undefined" && (include("require.js") && require) || require, getScript.startAsThread());

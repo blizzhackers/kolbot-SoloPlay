@@ -6,7 +6,7 @@
 */
 
 function a5chests() {
-	myPrint('starting a5 chests');
+	myPrint("starting a5 chests");
 
 	let areas = [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit, sdk.areas.GlacialTrail, sdk.areas.DrifterCavern, sdk.areas.IcyCellar];
 

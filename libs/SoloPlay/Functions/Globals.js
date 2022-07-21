@@ -18,15 +18,15 @@ let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "
 // these builds are not possible to do without ladder runewords
 let impossibleNonLadderBuilds = ["Auradin", "Sancdreamer", "Faithbowzon"];
 
-Unit.prototype.__defineGetter__('mercid', function () {
+Unit.prototype.__defineGetter__("mercid", function () {
 	return !!myData ? myData.merc.classid : me.getMerc().classid;
 });
 
-Unit.prototype.__defineGetter__('trueStr', function () {
+Unit.prototype.__defineGetter__("trueStr", function () {
 	return !!myData ? myData.me.strength : me.rawStrength;
 });
 
-Unit.prototype.__defineGetter__('trueDex', function () {
+Unit.prototype.__defineGetter__("trueDex", function () {
 	return !!myData ? myData.me.dexterity : me.rawDexterity;
 });
 
@@ -239,7 +239,7 @@ const SetUp = {
 		folders.forEach((folder) => {
 			let files = dopen("libs/SoloPlay/" + folder + "/").getFiles();
 			Array.isArray(files) && files
-				.filter(file => file.endsWith('.js'))
+				.filter(file => file.endsWith(".js"))
 				.sort(a => a.startsWith("PrototypesOverrides.js") ? 0 : 1) // Dirty fix to load new prototypes first
 				.forEach(function (x) {
 					if (!isIncluded("SoloPlay/" + folder + "/" + x)) {
@@ -971,7 +971,7 @@ const Check = {
 			return true;
 		}
 
-		me.overhead('low gold');
+		me.overhead("low gold");
 
 		return false;
 	},
@@ -1087,13 +1087,13 @@ const Check = {
 			if (lvlReq) {
 				if (res.Status) {
 					diffShift = me.diff + 1;
-					announce && D2Bot.printToConsole('Kolbot-SoloPlay: next difficulty requirements met. Starting: ' + sdk.difficulty.nameOf(diffShift), sdk.colors.D2Bot.Blue);
+					announce && D2Bot.printToConsole("Kolbot-SoloPlay: next difficulty requirements met. Starting: " + sdk.difficulty.nameOf(diffShift), sdk.colors.D2Bot.Blue);
 				} else {
 					if (me.charlvl >= Config.levelCap + (!me.normal ? 5 : 2)) {
 						diffShift = me.diff + 1;
-						announce && D2Bot.printToConsole('Kolbot-SoloPlay: Over leveled. Starting: ' + sdk.difficulty.nameOf(diffShift));
+						announce && D2Bot.printToConsole("Kolbot-SoloPlay: Over leveled. Starting: " + sdk.difficulty.nameOf(diffShift));
 					} else {
-						announce && myPrint(sdk.difficulty.nameOf(diffShift + 1) + ' requirements not met. Negative resistance. FR: ' + res.FR + ' | CR: ' + res.CR + ' | LR: ' + res.LR);
+						announce && myPrint(sdk.difficulty.nameOf(diffShift + 1) + " requirements not met. Negative resistance. FR: " + res.FR + " | CR: " + res.CR + " | LR: " + res.LR);
 						return false;
 					}
 				}
@@ -1184,12 +1184,12 @@ const Check = {
 
 		for (let i = 0; i < items.length; i++) {
 			switch (flag) {
-			case 'Set':
-			case 'Unique':
-			case 'Crafted':
+			case "Set":
+			case "Unique":
+			case "Crafted":
 				itemCHECK = !!(items[i].quality === sdk.itemquality[flag]) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 				break;
-			case 'Runeword':
+			case "Runeword":
 				itemCHECK = !!(items[i].isRuneword) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 				break;
 			}

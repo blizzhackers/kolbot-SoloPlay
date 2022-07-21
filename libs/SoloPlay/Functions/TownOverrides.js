@@ -6,7 +6,7 @@
 */
 !isIncluded("common/Town.js") && include("common/Town.js");
 
-let Overrides = require('../../modules/Override');
+let Overrides = require("../../modules/Override");
 
 new Overrides.Override(Town, Town.canTpToTown, function (orignal) {
 	return (Misc.townEnabled && orignal());
@@ -632,7 +632,7 @@ Town.buyBook = function () {
 	if (tpBook && me.gold >= tpBook.getItemCost(sdk.items.cost.ToBuy) && Storage.Inventory.CanFit(tpBook)) {
 		try {
 			if (tpBook.buy()) {
-				console.log('ÿc9BuyBookÿc0 :: bought Tome of Town Portal');
+				console.log("ÿc9BuyBookÿc0 :: bought Tome of Town Portal");
 				this.fillTome(sdk.items.TomeofTownPortal);
 			}
 		} catch (e1) {
@@ -644,7 +644,7 @@ Town.buyBook = function () {
 		if (tpScroll && me.gold >= tpScroll.getItemCost(sdk.items.cost.ToBuy) && Storage.Inventory.CanFit(tpScroll)) {
 			try {
 				if (tpScroll.buy()) {
-					console.log('ÿc9BuyBookÿc0 :: bought Scroll of Town Portal');
+					console.log("ÿc9BuyBookÿc0 :: bought Scroll of Town Portal");
 				}
 			} catch (e1) {
 				console.warn(e1);
@@ -881,7 +881,7 @@ Town.unfinishedQuests = function () {
 	if (book) {
 		book.isInStash && Town.openStash() && delay(300 + me.ping);
 		book.interact();
-		print('ÿc8Kolbot-SoloPlayÿc0: used Radament skill book');
+		print("ÿc8Kolbot-SoloPlayÿc0: used Radament skill book");
 		delay(500 + me.ping) && me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
 	}
 
@@ -902,7 +902,7 @@ Town.unfinishedQuests = function () {
 	if (pol) {
 		pol.isInStash && Town.openStash() && delay(300 + me.ping);
 		pol.interact();
-		print('ÿc8Kolbot-SoloPlayÿc0: used potion of life');
+		print("ÿc8Kolbot-SoloPlayÿc0: used potion of life");
 	}
 
 	// LamEssen's Tome
@@ -912,7 +912,7 @@ Town.unfinishedQuests = function () {
 		tome.isInStash && Town.openStash() && Storage.Inventory.MoveTo(tome) && delay(300 + me.ping);
 		Town.npcInteract("alkor") && delay(300 + me.ping);
 		me.getStat(sdk.stats.StatPts) > 0 && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
-		print('ÿc8Kolbot-SoloPlayÿc0: LamEssen Tome completed');
+		print("ÿc8Kolbot-SoloPlayÿc0: LamEssen Tome completed");
 	}
 
 	// Remove Khalim's Will if quest not completed and restarting run.
@@ -922,7 +922,7 @@ Town.unfinishedQuests = function () {
 			Town.clearInventory();
 			delay(500 + me.ping * 2);
 			Quest.stashItem(sdk.items.quest.KhalimsWill);
-			print('ÿc8Kolbot-SoloPlayÿc0: removed khalims will');
+			print("ÿc8Kolbot-SoloPlayÿc0: removed khalims will");
 			Item.autoEquip();
 		}
 	}
@@ -962,7 +962,7 @@ Town.unfinishedQuests = function () {
 	if (sor) {
 		sor.isInStash && this.openStash() && delay(300 + me.ping);
 		sor.interact();
-		print('ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance');
+		print("ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance");
 	}
 
 	Misc.checkSocketables();
@@ -977,7 +977,7 @@ new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
 	let objDrank = orignal(type, false);
 	
 	if (objDrank.potName) {
-		let objID = objDrank.potName.split(' ')[0].toLowerCase();
+		let objID = objDrank.potName.split(" ")[0].toLowerCase();
 
 		if (objID) {
 			// non-english version
@@ -992,7 +992,7 @@ new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
 				CharData.buffData[objID].duration += (objDrank.quantity * 30 * 1000) - (getTickCount() - CharData.buffData[objID].tick);
 			}
 
-			console.log('ÿc9DrinkPotsÿc0 :: drank ' + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Developer.formatTime(CharData.buffData[objID].duration) + "]");
+			console.log("ÿc9DrinkPotsÿc0 :: drank " + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Developer.formatTime(CharData.buffData[objID].duration) + "]");
 		}
 	}
 
@@ -1035,7 +1035,7 @@ Town.buyMercPots = function (quantity, type) {
 		break;
 	}
 
-	print('ÿc8Kolbot-SoloPlayÿc0: buying ' + quantity + ' ' + type + ' Potions for merc');
+	print("ÿc8Kolbot-SoloPlayÿc0: buying " + quantity + " " + type + " Potions for merc");
 
 	for (let totalspecialpotions = 0; totalspecialpotions < quantity; totalspecialpotions++) {
 		if (jugs) {

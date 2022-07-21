@@ -1,11 +1,12 @@
-/*
-*	@filename	izual.js
-*	@author		isid0re, theBGuy
-*	@desc		izual for quest and xp
+/**
+*  @filename    izual.js
+*  @author      isid0re, theBGuy
+*  @desc        izual for quest and xp
+*
 */
 
 function izual () {
-	myPrint('starting izual');
+	myPrint("starting izual");
 
 	Town.townTasks({thawing: true, antidote: true, stamina: true});
 

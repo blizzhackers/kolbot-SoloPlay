@@ -15,7 +15,7 @@ Skill.casterSkills = [
 ];
 Skill.forcePacket = (Developer.forcePacketCasting.enabled && !Developer.forcePacketCasting.excludeProfiles.includes(me.profile));
 
-let Overrides = require('../../modules/Override');
+let Overrides = require("../../modules/Override");
 
 new Overrides.Override(Skill, Skill.getRange, function (orignal, skillId) {
 	switch (skillId) {

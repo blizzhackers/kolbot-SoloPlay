@@ -6,7 +6,7 @@
 */
 
 function a1chests() {
-	myPrint('starting a1 chests');
+	myPrint("starting a1 chests");
 
 	let areas = [sdk.areas.CaveLvl2, sdk.areas.UndergroundPassageLvl2, sdk.areas.HoleLvl2, sdk.areas.PitLvl2];
 

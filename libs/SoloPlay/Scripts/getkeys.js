@@ -1,7 +1,8 @@
 /**
-*	@filename	getkeys.js
-*	@author		theBGuy
-*	@desc		Run key bosses
+*  @filename    getkeys.js
+*  @author      theBGuy
+*  @desc        Run key bosses
+*
 */
 
 function getkeys() {

@@ -1,12 +1,13 @@
-/*
-*	@filename	brain.js
-*	@author		isid0re, theBGuy
-*	@desc		get brain for khalims will
+/**
+*  @filename    brain.js
+*  @author      isid0re, theBGuy
+*  @desc        get brain for khalims will
+*
 */
 
 function brain () {
 	Town.townTasks();
-	myPrint('starting brain');
+	myPrint("starting brain");
 
 	Pather.checkWP(sdk.areas.FlayerJungle, true) ? Pather.useWaypoint(sdk.areas.FlayerJungle) : Pather.getWP(sdk.areas.FlayerJungle);
 	Precast.doPrecast(true);
@@ -15,7 +16,7 @@ function brain () {
 	Pather.clearToExit(sdk.areas.FlayerDungeonLvl2, sdk.areas.FlayerDungeonLvl3, Pather.useTeleport());
 
 	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, 406)) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to get the Brain');
+		print("ÿc8Kolbot-SoloPlayÿc0: Failed to get the Brain");
 	}
 
 	Attack.clear(0x7);

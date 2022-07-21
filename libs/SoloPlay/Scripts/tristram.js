@@ -15,7 +15,7 @@ function tristram () {
 	];
 
 	Town.townTasks();
-	myPrint('starting tristram');
+	myPrint("starting tristram");
 
 	// Tristram portal hasn't been opened
 	if (!Misc.checkQuest(4, 4)) {

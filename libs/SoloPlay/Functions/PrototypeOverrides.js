@@ -6,7 +6,7 @@
 *
 */
 
-!isIncluded('libs/common/Prototypes.js') && include('libs/common/Prototypes.js');
+!isIncluded("libs/common/Prototypes.js") && include("libs/common/Prototypes.js");
 
 Unit.prototype.getResPenalty = function (difficulty) {
 	difficulty > 2 && (difficulty = 2);
@@ -282,20 +282,20 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 
 		break;
 	case 2:
-		if (typeof args[0] === 'number') {
+		if (typeof args[0] === "number") {
 			if (args[1] instanceof Unit) { // me.castChargedSkill(skillId,unit)
 				[skillId, unit] = [...args];
-			} else if (typeof args[1] === 'number') { // item.castChargedSkill(x,y)
+			} else if (typeof args[1] === "number") { // item.castChargedSkill(x,y)
 				[x, y] = [...args];
 			}
 		} else {
-			throw new Error(' invalid arguments, expected (skillId, unit) or (x, y)');
+			throw new Error(" invalid arguments, expected (skillId, unit) or (x, y)");
 		}
 
 		break;
 	case 3:
 		// If all arguments are numbers
-		if (typeof args[0] === 'number' && typeof args[1] === 'number' && typeof args[2] === 'number') {
+		if (typeof args[0] === "number" && typeof args[1] === "number" && typeof args[2] === "number") {
 			[skillId, x, y] = [...args];
 		}
 
@@ -314,7 +314,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 
 	// Called the function the unit, me.
 	if (this === me) {
-		if (!skillId) throw Error('Must supply skillId on me.castChargedSkill');
+		if (!skillId) throw Error("Must supply skillId on me.castChargedSkill");
 
 		chargedItems = [];
 
@@ -362,7 +362,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 				}
 			}
 		} else if (charge.length > 1) {
-			throw new Error('multiple charges on this item without a given skillId');
+			throw new Error("multiple charges on this item without a given skillId");
 		}
 
 		if (charge) {
@@ -400,21 +400,21 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 	case 1: // hellfire.castChargedSkill(monster);
 		break;
 	case 2:
-		if (typeof args[0] === 'number') {
+		if (typeof args[0] === "number") {
 			if (args[1] instanceof Unit) {
 				// me.castChargedSkill(skillId, unit)
 				[skillId, unit] = [...args];
-			} else if (typeof args[1] === 'number') {
+			} else if (typeof args[1] === "number") {
 				// item.castChargedSkill(x, y)
 				[x, y] = [...args];
 			}
 		} else {
-			throw new Error(' invalid arguments, expected (skillId, unit) or (x, y)');
+			throw new Error(" invalid arguments, expected (skillId, unit) or (x, y)");
 		}
 
 		break;
 	case 3: // If all arguments are numbers
-		if (typeof args[0] === 'number' && typeof args[1] === 'number' && typeof args[2] === 'number') {
+		if (typeof args[0] === "number" && typeof args[1] === "number" && typeof args[2] === "number") {
 			[skillId, x, y] = [...args];
 		}
 
@@ -432,7 +432,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 
 	// Called the function the unit, me.
 	if (this === me) {
-		if (!skillId) throw Error('Must supply skillId on me.castChargedSkill');
+		if (!skillId) throw Error("Must supply skillId on me.castChargedSkill");
 
 		chargedItems = [];
 
@@ -794,7 +794,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 		if (time === void 0) { time = 0; }
 		if (args === void 0) { args = []; }
 		Timer.instances.push(this);
-		Worker.runInBackground['__setTimeout__' + (Timer.counter++)] = (function (startTick) {
+		Worker.runInBackground["__setTimeout__" + (Timer.counter++)] = (function (startTick) {
 			return function () {
 				let finished = getTickCount() - startTick >= time;
 				if (finished) {
@@ -817,12 +817,12 @@ Unit.prototype.getStatEx = function (id, subid) {
 		for (let _i = 2; _i < arguments.length; _i++) {
 			args[_i - 2] = arguments[_i];
 		}
-		if (typeof cb === 'string') {
-			console.debug('Warning: Do not use raw code @ setTimeout and does not support lexical scoping');
+		if (typeof cb === "string") {
+			console.debug("Warning: Do not use raw code @ setTimeout and does not support lexical scoping");
 			cb = [].filter.constructor(cb);
 		}
-		if (typeof cb !== 'function') {
-			throw new TypeError('setTimeout callback needs to be a function');
+		if (typeof cb !== "function") {
+			throw new TypeError("setTimeout callback needs to be a function");
 		}
 		return new Timer(cb, time, args);
 	};
@@ -837,11 +837,11 @@ Unit.prototype.getStatEx = function (id, subid) {
 		}
 	};
 	// getScript(true).name.toString() !== 'default.dbj' && setTimeout(function () {/* test code*/}, 1000)
-})([].filter.constructor('return this')(), setTimeout);
+})([].filter.constructor("return this")(), setTimeout);
 
 if (!Object.setPrototypeOf) {
 	// Only works in Chrome and FireFox, does not work in IE:
-	Object.defineProperty(Object.prototype, 'setPrototypeOf', {
+	Object.defineProperty(Object.prototype, "setPrototypeOf", {
 		value: function (obj, proto) {
 			// @ts-ignore
 			if (obj.__proto__) {

@@ -1,12 +1,13 @@
-/*
-*	@filename	eye.js
-*	@author		isid0re, theBGuy
-*	@desc		get the eye for khalims will
+/**
+*  @filename    eye.js
+*  @author      isid0re, theBGuy
+*  @desc        get the eye for khalims will
+*
 */
 
 function eye () {
 	Town.townTasks();
-	myPrint('starting eye');
+	myPrint("starting eye");
 
 	Pather.checkWP(sdk.areas.SpiderForest, true) ? Pather.useWaypoint(sdk.areas.SpiderForest) : Pather.getWP(sdk.areas.SpiderForest);
 	Precast.doPrecast(true);
@@ -14,7 +15,7 @@ function eye () {
 	if (!Pather.moveToExit([sdk.areas.SpiderForest, sdk.areas.SpiderCavern], true)) {
 		if (me.area !== sdk.areas.SpiderCavern) {
 			if (!Pather.journeyTo(sdk.areas.SpiderCavern)) {
-				print('ÿc8Kolbot-SoloPlayÿc0: Failed to get the eye');
+				print("ÿc8Kolbot-SoloPlayÿc0: Failed to get the eye");
 				return false;
 			}
 		}

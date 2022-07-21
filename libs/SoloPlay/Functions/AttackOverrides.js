@@ -21,9 +21,9 @@ Attack.bossesAndMiniBosses = [
 Attack.init = function () {
 	if (Config.Wereform) {
 		include("common/Attacks/wereform.js");
-	} else if (Config.CustomClassAttack && FileTools.exists('libs/common/Attacks/' + Config.CustomClassAttack + '.js')) {
-		print('Loading custom attack file');
-		include('common/Attacks/' + Config.CustomClassAttack + '.js');
+	} else if (Config.CustomClassAttack && FileTools.exists("libs/common/Attacks/" + Config.CustomClassAttack + ".js")) {
+		print("Loading custom attack file");
+		include("common/Attacks/" + Config.CustomClassAttack + ".js");
 	} else {
 		if (!include("SoloPlay/Functions/ClassAttackOverrides/" + sdk.charclass.nameOf(me.classid) + "Attacks.js")) {
 			print(sdk.colors.Red + "Failed to include: " + "SoloPlay/Functions/ClassAttackOverrides/" + this.classes[me.classid] + "Attacks.js");
@@ -1215,7 +1215,7 @@ Attack.pwnDia = function () {
 			}
 
 			if (me.sorceress && me.mp < manaSK + manaTP) {
-				me.overhead('Dont attack, save mana for teleport');
+				me.overhead("Dont attack, save mana for teleport");
 				delay(10);
 				continue;
 			}
@@ -1226,9 +1226,9 @@ Attack.pwnDia = function () {
 			} else {
 				// If we got enough mana to teleport close to diablo, static the bitch, and jump back
 				let diabloMissiles = getUnits(3).filter(function (unit) { let _a; return ((_a = unit.getParent()) === null || _a === void 0 ? void 0 : _a.gid) === dia.gid; });
-				print('Diablo missiles: ' + diabloMissiles.length);
-				print('Diablo mode:' + dia.mode);
-				me.overhead('Dia life ' + (~~(dia.hp / 128 * 100)).toString() + '%');
+				print("Diablo missiles: " + diabloMissiles.length);
+				print("Diablo mode:" + dia.mode);
+				me.overhead("Dia life " + (~~(dia.hp / 128 * 100)).toString() + "%");
 				if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3 && ![4, 5, 7, 8, 9, 10, 11].includes(dia.mode) && dia.hpPercent > Config.CastStatic) {
 					let x = me.x, y = me.y;
 					// Find a spot close to Diablo

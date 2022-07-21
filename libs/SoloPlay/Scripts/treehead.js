@@ -1,7 +1,8 @@
 /**
-*	@filename	treehead.js
-*	@author		theBGuy
-*	@desc		kill Treehead
+*  @filename    treehead.js
+*  @author      theBGuy
+*  @desc        kill Treehead
+*
 */
 
 function treehead() {

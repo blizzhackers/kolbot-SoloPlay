@@ -1,12 +1,13 @@
-/*
-*	@filename	ancienttunnels.js
-*	@author		isid0re, theBGuy
-*	@desc		ancient tunnel runs in act 2 for MF hunting and leveling.
+/**
+*  @filename    ancienttunnels.js
+*  @author      isid0re, theBGuy
+*  @desc        ancient tunnel runs in act 2 for MF hunting and leveling.
+*
 */
 
 function ancienttunnels () {
 	Town.townTasks();
-	myPrint('starting ancient tunnels');
+	myPrint("starting ancient tunnels");
 
 	Pather.checkWP(sdk.areas.LostCity, true) ? Pather.useWaypoint(sdk.areas.LostCity) : Pather.getWP(sdk.areas.LostCity);
 	Precast.doPrecast(true);
@@ -20,7 +21,7 @@ function ancienttunnels () {
 			try {
 				Attack.clear(15, 0, getLocaleString(sdk.locale.monsters.DarkElder));
 			} catch (err) {
-				print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill Dark Elder');
+				print("ÿc8Kolbot-SoloPlayÿc0: Failed to kill Dark Elder");
 			}
 		}
 	}

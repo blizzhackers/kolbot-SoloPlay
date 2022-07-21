@@ -1,7 +1,8 @@
-/*
-*	@filename	mephisto.js
-*	@author		isid0re, theBGuy
-*	@desc		mephisto quest
+/**
+*  @filename    mephisto.js
+*  @author      isid0re, theBGuy
+*  @desc        mephisto quest
+*
 */
 
 function mephisto () {
@@ -19,14 +20,14 @@ function mephisto () {
 	};
 
 	Town.townTasks();
-	myPrint('starting mephisto');
+	myPrint("starting mephisto");
 
 	Pather.checkWP(sdk.areas.DuranceofHateLvl2, true) ? Pather.useWaypoint(sdk.areas.DuranceofHateLvl2) : Pather.getWP(sdk.areas.DuranceofHateLvl2);
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.DuranceofHateLvl2, sdk.areas.DuranceofHateLvl3, true);
 	
 	if (me.area !== sdk.areas.DuranceofHateLvl3) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to move to mephisto');
+		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to mephisto");
 		return false;
 	}
 

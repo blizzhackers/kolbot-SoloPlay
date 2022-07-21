@@ -8,7 +8,7 @@
 
 function ancients () {
 	Town.townTasks();
-	myPrint('starting ancients');
+	myPrint("starting ancients");
 
 	Pather.checkWP(sdk.areas.AncientsWay) ? Pather.useWaypoint(sdk.areas.AncientsWay) : Pather.getWP(sdk.areas.AncientsWay);
 	Precast.doPrecast(true);
@@ -32,7 +32,7 @@ function ancients () {
 	Config.MPBuffer = 15;
 	Config.LifeChicken = 10;
 	CharData.updateConfig();
-	me.overhead('updated settings');
+	me.overhead("updated settings");
 
 	Town.buyPotions();
 	if (!Pather.usePortal(sdk.areas.ArreatSummit, me.name)) {
@@ -53,7 +53,7 @@ function ancients () {
 	me.cancel();
 	Config = tempConfig;
 	CharData.updateConfig();
-	me.overhead('restored settings');
+	me.overhead("restored settings");
 	Precast.doPrecast(true);
 
 	try {
@@ -63,7 +63,7 @@ function ancients () {
 			Pather.getWP(sdk.areas.WorldstoneLvl2);
 		}
 	} catch (err) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Cleared Ancients. Failed to get WSK Waypoint');
+		print("ÿc8Kolbot-SoloPlayÿc0: Cleared Ancients. Failed to get WSK Waypoint");
 	}
 
 	return true;

@@ -1,11 +1,12 @@
 /**
-*	@filename	corpsefire.js
-*	@author		theBGuy
-*	@desc		clear den, kill corpsefire not for quest
+*  @filename    corpsefire.js
+*  @author      theBGuy
+*  @desc        clear den, kill corpsefire not for quest
+*
 */
 
 function corpsefire() {
-	myPrint('starting corpsefire');
+	myPrint("starting corpsefire");
 
 	Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
 

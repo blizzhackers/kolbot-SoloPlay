@@ -92,7 +92,7 @@ const Quest = {
 		}
 
 		!me.inTown && Town.goToTown();
-		outcome === 91 ? me.overhead('cubing staff') : outcome === 174 ? me.overhead('cubing flail') : me.overhead('cubing ' + outcome);
+		outcome === 91 ? me.overhead("cubing staff") : outcome === 174 ? me.overhead("cubing flail") : me.overhead("cubing " + outcome);
 
 		Town.doChores();
 		Town.openStash();
@@ -470,7 +470,7 @@ const Quest = {
 			if (!slot && !item.isInStash) {
 				// Move item back to stash
 				if (Storage.Stash.CanFit(item)) {
-					Town.move('stash');
+					Town.move("stash");
 					Storage.Stash.MoveTo(item);
 					me.cancel();
 				}
@@ -546,7 +546,7 @@ const Quest = {
 			if (!slot && !item.isInStash) {
 				// Move item back to stash
 				if (Storage.Stash.CanFit(item)) {
-					Town.move('stash');
+					Town.move("stash");
 					Storage.Stash.MoveTo(item);
 					me.cancel();
 				}
