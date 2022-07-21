@@ -209,13 +209,13 @@ const SoloEvents = {
 			Pather.useWaypoint(sdk.areas.ColdPlains);
 			Pather.moveToExit(sdk.areas.BloodMoor, true);
 			Pather.clearToExit(sdk.areas.BloodMoor, sdk.areas.DenofEvil, true);
-			Pather.moveToPreset(me.area, 1, 774, 0, 0, false, true);
+			Pather.moveToPreset(me.area, sdk.unittype.Monster, 774, 0, 0, false, true);
 		}
 
 		Attack.killTarget(sdk.monsters.DiabloClone);
 		Pickit.pickItems();
 
-		let newAnni = getUnit(4, 603, 3);
+		let newAnni = Game.getItem(603, 3);
 		let oldAnni = me.findItem(603, 0, -1, 7);
 
 		if (newAnni && oldAnni) {
@@ -323,7 +323,7 @@ const SoloEvents = {
 				} else {
 					if (fail > 0 && !useTele && !me.inTown) {
 						// Only do this once
-						if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, 1) && !leaped) {
+						if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, sdk.skills.subindex.SoftPoints) && !leaped) {
 							Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y);
 							leaped = true;
 						}
@@ -402,7 +402,7 @@ const SoloEvents = {
 	},
 
 	dodge: function () {
-		let diablo = getUnit(1, 243);
+		let diablo = Game.getMonster(243);
 		// Credit @Jaenster
 		let shouldDodge = function (coord) {
 			return !!diablo && getUnits(3)
@@ -464,7 +464,7 @@ const SoloEvents = {
 		if (!Town.canTpToTown()) {
 			Pather.moveToExit([2, 3], true);
 			Pather.getWP(3);
-			Pather.useWaypoint(1);
+			Pather.useWaypoint(sdk.areas.RogueEncampment);
 		} else {
 			Town.goToTown();
 		}

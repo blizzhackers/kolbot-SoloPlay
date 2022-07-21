@@ -14,16 +14,16 @@ function anya () {
 		Precast.doPrecast(true);
 		Pather.clearToExit(sdk.areas.CrystalizedPassage, sdk.areas.FrozenRiver, Pather.useTeleport());
 
-		if (!Pather.moveToPreset(me.area, 2, 460)) {
+		if (!Pather.moveToPreset(me.area, sdk.unittype.Object, 460)) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Anya");
 			return false;
 		}
 
-		let frozenanya = getUnit(2, 558);
+		let frozenanya = Game.getObject(558);
 
 		if (frozenanya) {
 			Pather.moveToUnit(frozenanya);
-			sendPacket(1, 0x13, 4, 0x2, 4, frozenanya.gid);
+			Packet.entityInteract(frozenanya);
 			delay(1200 + me.ping);
 			me.cancel();
 		}
@@ -32,11 +32,11 @@ function anya () {
 		Town.doChores();
 		Pather.usePortal(sdk.areas.FrozenRiver, me.name);
 
-		frozenanya = getUnit(2, 558);	// Check again in case she's no longer there from first intereaction
+		frozenanya = Game.getObject(558);	// Check again in case she's no longer there from first intereaction
 
 		if (frozenanya) {
 			while (!frozenanya.mode) {
-				sendPacket(1, 0x13, 4, 0x2, 4, frozenanya.gid);
+				Packet.entityInteract(frozenanya);
 				delay(300 + me.ping);
 			}
 		}

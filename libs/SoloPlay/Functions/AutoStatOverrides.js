@@ -22,12 +22,12 @@ AutoStat.init = function (statBuildOrder, save = 0, block = 0, bulkStat = true) 
 		return false;
 	}
 
-	while (me.getStat(4) > AutoStat.save) {
+	while (me.getStat(sdk.stats.StatPts) > AutoStat.save) {
 		AutoStat.addStatPoint() && (usedStatPoints = true);
 		delay(150 + me.ping); // spending multiple single stat at a time with short delay may cause r/d
 
 		// break out of loop if we have stat points available but finished allocating as configured
-		if (me.getStat(4) === AutoStat.remaining) {
+		if (me.getStat(sdk.stats.StatPts) === AutoStat.remaining) {
 			AutoStat.count += 1;
 		}
 

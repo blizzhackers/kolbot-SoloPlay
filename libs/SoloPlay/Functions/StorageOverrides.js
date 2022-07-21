@@ -399,7 +399,7 @@ var Container = function (name, width, height, location) {
 			for (n = 0; n < 5; n += 1) {
 				switch (this.location) {
 				case sdk.storage.Belt:
-					cItem = getUnit(100);
+					cItem = Game.getCursorUnit();
 
 					if (cItem !== null) {
 						sendPacket(1, 0x23, 4, cItem.gid, 4, y);
@@ -411,7 +411,7 @@ var Container = function (name, width, height, location) {
 
 					break;
 				case sdk.storage.Cube:
-					cItem = getUnit(100);
+					cItem = Game.getCursorUnit();
 					cube = me.getItem(sdk.items.quest.Cube);
 
 					if (cItem !== null && cube !== null) {

@@ -13,7 +13,7 @@ function river() {
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.CityoftheDamned, sdk.areas.RiverofFlame, true);
 
-	if (!Pather.moveToPreset(me.area, 2, 376)) {
+	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, 376)) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Hephasto");
 	}
 

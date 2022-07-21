@@ -14,7 +14,7 @@ function brain () {
 	Pather.clearToExit(sdk.areas.FlayerDungeonLvl1, sdk.areas.FlayerDungeonLvl2, Pather.useTeleport());
 	Pather.clearToExit(sdk.areas.FlayerDungeonLvl2, sdk.areas.FlayerDungeonLvl3, Pather.useTeleport());
 
-	if (!Pather.moveToPreset(me.area, 2, 406)) {
+	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, 406)) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to get the Brain');
 	}
 

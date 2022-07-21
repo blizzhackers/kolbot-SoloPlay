@@ -156,14 +156,14 @@ function LoadConfig () {
 	/* Summons. */
 	Config.ReviveUnstackable = true;
 	Config.ActiveSummon = me.charlvl < 10 || SetUp.currentBuild === "Summon";
-	Config.Golem = me.getSkill(sdk.skills.ClayGolem, 0) ? "Clay" : "None";
+	Config.Golem = me.getSkill(sdk.skills.ClayGolem, sdk.skills.subindex.HardPoints) ? "Clay" : "None";
 	Config.Skeletons = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
 	Config.SkeletonMages = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
 	Config.Revives = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
 
 	/* Skill Specific */
 	Config.PoisonNovaDelay = 1;		// In Seconds
-	Config.ExplodeCorpses = me.getSkill(sdk.skills.CorpseExplosion, 0) ? sdk.skills.CorpseExplosion : me.getSkill(sdk.skills.PoisonExplosion, 0) ? sdk.skills.PoisonExplosion : 0;
+	Config.ExplodeCorpses = me.getSkill(sdk.skills.CorpseExplosion, sdk.skills.subindex.HardPoints) ? sdk.skills.CorpseExplosion : me.getSkill(sdk.skills.PoisonExplosion, sdk.skills.subindex.HardPoints) ? sdk.skills.PoisonExplosion : 0;
 
 	/* Gear */
 	let finalGear = Check.finalBuild().finalGear;

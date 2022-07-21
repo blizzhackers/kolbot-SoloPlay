@@ -10,6 +10,49 @@
 
 Misc.townEnabled = true;
 
+Misc.testTP = function () {
+	let t1 = getTickCount();
+	let tpTool = me.getItem(-1, sdk.itemmode.inStorage);
+
+	if (tpTool) {
+		do {
+			if (tpTool.isInInventory) {
+				if (tpTool.classid === sdk.items.TomeofTownPortal && tpTool.getStat(sdk.stats.Quantity) > 0) {
+					break;
+					//return tpTool;
+				} else if (tpTool.classid === sdk.items.ScrollofTownPortal) {
+					break;
+					//return tpTool;
+				}
+			}
+		} while (tpTool.getNext());
+	}
+	console.debug("took " + (getTickCount() - t1) + " to find tpTool using old method");
+
+	t1 = getTickCount();
+	tpTool = Town.getTpTool();
+	console.debug("took " + (getTickCount() - t1) + " to find tpTool using new method");
+
+	t1 = getTickCount();
+	let items = me.getItems();
+	typeof items === "object" && (items = items.filter(i => i.isInStorage));
+	console.debug("took " + (getTickCount() - t1) + " to get items using old method len" + items.length);
+	t1 = getTickCount();
+	items = me.getItemsEx(-1, 0);
+	console.debug("took " + (getTickCount() - t1) + " to get items using new method len" + items.length);
+
+	return true;
+};
+
+Misc.testC = function () {
+	let t1 = getTickCount();
+	let m = me.getMobCount(10) > 0;
+	console.debug("took " + (getTickCount() - t1) + " to check mobs" + m);
+	t1 = getTickCount();
+	m = me.checkForMobs({range: 10});
+	console.debug("took " + (getTickCount() - t1) + " to check mobs new method " + m);
+};
+
 Misc.townCheck = function () {
 	if (!Town.canTpToTown()) return false;
 	
@@ -154,7 +197,7 @@ Misc.getShrinesInArea = function (area, type, use) {
 
 		Skill.haveTK ? Pather.moveNear(coords[0], coords[1], 20) : Pather.moveTo(coords[0], coords[1], 2);
 
-		let shrine = getUnit(2, "shrine");
+		let shrine = Game.getObject("shrine");
 
 		if (shrine) {
 			do {
@@ -555,7 +598,7 @@ Misc.logItem = function (action, unit, keptLine) {
 		}
 	}
 
-	if (unit.getFlag(0x10)) {
+	if (unit.getFlag(sdk.items.flags.Identified)) {
 		switch (unit.quality) {
 		case 5: // Set
 			switch (unit.classid) {
@@ -707,7 +750,7 @@ Misc.logItem = function (action, unit, keptLine) {
 	}
 
 	keptLine && (desc += ("\n\\xffc0Line: " + keptLine));
-	desc += "$" + (unit.getFlag(0x400000) ? ":eth" : "");
+	desc += "$" + (unit.getFlag(sdk.items.flags.Ethereal) ? ":eth" : "");
 
 	itemObj = {
 		title: action + " " + name,

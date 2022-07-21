@@ -22,7 +22,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 		if (Town.visitTown()) {
 			// lost reference to the mob we were attacking
-			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+			if (!unit || !copyUnit(unit).x || !Game.getMonster(-1, -1, gid) || unit.dead) {
 				return 1;
 			}
 		}
@@ -126,7 +126,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		while (unit.attackable) {
 			if (Misc.townCheck()) {
 				if (!unit || !copyUnit(unit).x) {
-					unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
+					unit = Misc.poll(() => Game.getMonster(-1, -1, gid), 1000, 80);
 				}
 			}
 
@@ -163,7 +163,7 @@ ClassAttack.afterAttack = function () {
 	Precast.doPrecast(false);
 
 	if (Skill.canUse(sdk.skills.Cleansing) && me.getState(sdk.states.Poison)
-		&& me.getMobCount(12, Coords_1.BlockBits.BlockWall) === 0 && Skill.setSkill(sdk.skills.Cleansing, 0)) {
+		&& me.getMobCount(12, Coords_1.BlockBits.BlockWall) === 0 && Skill.setSkill(sdk.skills.Cleansing, sdk.skills.hand.Right)) {
 		Misc.poll(function () {
 			me.overhead("Delaying for a second to get rid of Poison");
 
@@ -173,7 +173,7 @@ ClassAttack.afterAttack = function () {
 
 	if (Skill.canUse(sdk.skills.Redemption) && Config.Redemption instanceof Array
 		&& (me.hpPercent < Config.Redemption[0] || me.mpPercent < Config.Redemption[1])
-		&& Attack.checkNearCorpses(me) > 2 && Skill.setSkill(sdk.skills.Redemption, 0)) {
+		&& Attack.checkNearCorpses(me) > 2 && Skill.setSkill(sdk.skills.Redemption, sdk.skills.hand.Right)) {
 		delay(1500);
 	}
 };

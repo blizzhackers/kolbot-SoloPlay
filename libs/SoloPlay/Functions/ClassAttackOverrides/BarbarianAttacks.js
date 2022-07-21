@@ -12,7 +12,7 @@ const GameData = require('../../Modules/GameData');
 ClassAttack.warCryTick = 0;
 
 let howlCheck = function () {
-	let levelCheck = (me.getSkill(sdk.skills.Howl, 1) + me.charlvl + 1);
+	let levelCheck = (me.getSkill(sdk.skills.Howl, sdk.skills.subindex.SoftPoints) + me.charlvl + 1);
 	return getUnits(1).filter(function (el) {
 		return (!!el && el.attackable && el.distance < 6 && el.scareable && GameData.monsterLevel(el.classid, me.area) < levelCheck && !el.isStunned
 			&& [sdk.states.BattleCry, sdk.states.AmplifyDamage, sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt].every(state => !el.getState(state))
@@ -102,7 +102,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 		if (Town.visitTown(!!needRepair.length)) {
 			// lost reference to the mob we were attacking
-			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+			if (!unit || !copyUnit(unit).x || !Game.getMonster(-1, -1, gid) || unit.dead) {
 				return 1;
 			}
 		}

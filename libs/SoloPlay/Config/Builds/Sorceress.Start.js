@@ -39,10 +39,10 @@ let AutoBuildTemplate = {
 			Config.LowManaSkill = [0, 0];
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
-			if (!!me.getSkill(sdk.skills.IceBolt, 1)) {
+			if (!!me.getSkill(sdk.skills.IceBolt, sdk.skills.subindex.SoftPoints)) {
 				Config.AttackSkill = [-1, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.IceBolt, 0];
 			} else {
-				Config.AttackSkill = [-1, sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, 1) ? sdk.skills.FireBolt : -1), sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, 1) ? sdk.skills.FireBolt : -1), 0, 0];
+				Config.AttackSkill = [-1, sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, sdk.skills.subindex.SoftPoints) ? sdk.skills.FireBolt : -1), sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, sdk.skills.subindex.SoftPoints) ? sdk.skills.FireBolt : -1), 0, 0];
 			}
 		}
 	},
@@ -61,7 +61,7 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			if (!!me.getSkill(sdk.skills.Blizzard, 0)) {
+			if (!!me.getSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints)) {
 				Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Nova, sdk.skills.ChargedBolt];
 			}
 		}

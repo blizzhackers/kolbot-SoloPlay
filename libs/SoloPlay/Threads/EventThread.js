@@ -224,7 +224,7 @@ function main () {
 	};
 
 	addEventListener("scriptmsg", this.scriptEvent);
-	addEventListener('copydata', this.receiveCopyData); // should this just be added to the starter? would remove needing 3 copydata event listeners (entry, default, and here)
+	addEventListener("copydata", this.receiveCopyData); // should this just be added to the starter? would remove needing 3 copydata event listeners (entry, default, and here)
 
 	// Start
 	while (true) {

@@ -250,7 +250,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 		}
 	}
 
-	desc += "$" + unit.gid + ":" + unit.classid + ":" + unit.location + ":" + unit.x + ":" + unit.y + (unit.getFlag(0x400000) ? ":eth" : "");
+	desc += "$" + unit.gid + ":" + unit.classid + ":" + unit.location + ":" + unit.x + ":" + unit.y + (unit.getFlag(sdk.items.flags.Ethereal) ? ":eth" : "");
 
 	return {
 		itemColor: color,

@@ -15,8 +15,8 @@ function baal () {
 	let preattack = function () {
 		switch (me.classid) {
 		case sdk.charclass.Amazon:
-			if (me.getSkill(sdk.skills.Decoy, 1)) {
-				let decoy = getUnit(1, 356);
+			if (me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.SoftPoints)) {
+				let decoy = Game.getMonster(356);
 
 				if (!decoy || (getTickCount() - decoyTick >= decoyDuration)) {
 					Skill.cast(sdk.skills.Decoy, 0, 15092, 5028);
@@ -45,7 +45,7 @@ function baal () {
 			}
 
 			if (Config.AttackSkill[4] > 0) {
-				Skill.setSkill(Config.AttackSkill[4], 0);
+				Skill.setSkill(Config.AttackSkill[4], sdk.skills.hand.Right);
 			}
 
 			Skill.cast(Config.AttackSkill[3], 1);
@@ -82,7 +82,7 @@ function baal () {
 
 		MainLoop:
 		while (true) {
-			if (!getUnit(1, 543)) {
+			if (!Game.getMonster(543)) {
 				break;
 			}
 
@@ -96,7 +96,7 @@ function baal () {
 
 				break;
 			case 2:
-				boss = getUnit(1, "Achmel the Cursed");
+				boss = Game.getMonster("Achmel the Cursed");
 
 				if (boss && !Attack.canAttack(boss)) {
 					me.overhead("immune achmel");
@@ -121,7 +121,7 @@ function baal () {
 
 				break;
 			case 5:
-				boss = getUnit(1, "Lister the Tormentor");
+				boss = Game.getMonster("Lister the Tormentor");
 
 				if (boss && !Attack.canAttack(boss)) {
 					me.overhead("immune lister");
@@ -134,7 +134,7 @@ function baal () {
 			default:
 				if (getTickCount() - tick < 7e3) {
 					if (me.paladin && me.getState(sdk.states.Poison)) {
-						Skill.setSkill(sdk.skills.Cleansing, 0);
+						Skill.setSkill(sdk.skills.Cleansing, sdk.skills.hand.Right);
 					}
 				}
 
@@ -167,7 +167,7 @@ function baal () {
 	};
 
 	let unSafeCheck = function (soulAmount, totalAmount) {
-		let soul = getUnit(1, 641);
+		let soul = Game.getMonster(sdk.monsters.BurningSoul1);
 		let count = 0;
 
 		if (soul) {

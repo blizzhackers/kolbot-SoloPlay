@@ -149,15 +149,15 @@ function LoadConfig () {
 	Config.Traps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry];
 	Config.BossTraps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry];
 
-	Config.SummonShadow = me.getSkill(sdk.skills.ShadowMaster, 0) ? "Master" : 0;
-	Config.UseFade = !!me.getSkill(sdk.skills.Fade, 0);
-	Config.UseBoS = !!me.getSkill(sdk.skills.BurstofSpeed, 0);
+	Config.SummonShadow = me.getSkill(sdk.skills.ShadowMaster, sdk.skills.subindex.HardPoints) ? "Master" : 0;
+	Config.UseFade = !!me.getSkill(sdk.skills.Fade, sdk.skills.subindex.HardPoints);
+	Config.UseBoS = !!me.getSkill(sdk.skills.BurstofSpeed, sdk.skills.subindex.HardPoints);
 	Config.UseVenom = false;
-	Config.UseCloakofShadows = !!me.getSkill(sdk.skills.CloakofShadows, 0);
+	Config.UseCloakofShadows = !!me.getSkill(sdk.skills.CloakofShadows, sdk.skills.subindex.HardPoints);
 	Config.AggressiveCloak = false;
 
 	/* Dodge configuration. */
-	Config.Dodge = !!me.getSkill(sdk.skills.LightningSentry, 0);
+	Config.Dodge = !!me.getSkill(sdk.skills.LightningSentry, sdk.skills.subindex.HardPoints);
 	Config.DodgeRange = 10;
 	Config.DodgeHP = 75;
 
@@ -259,10 +259,10 @@ function LoadConfig () {
 			}
 		}
 
-		// Silence
-		if (!me.checkItem({name: sdk.locale.items.Silence}).have) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Silence.js")) {
-				include("SoloPlay/BuildFiles/Runewords/Silence.js");
+		// Heart of the Oak
+		if (!me.checkItem({name: sdk.locale.items.HeartoftheOak}).have) {
+			if (!isIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js")) {
+				include("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
 			}
 		}
 

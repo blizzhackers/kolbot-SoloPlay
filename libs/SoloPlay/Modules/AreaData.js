@@ -96,7 +96,7 @@
 			waypointPreset: function () {
 				const wpIDs = [119, 145, 156, 157, 237, 238, 288, 323, 324, 398, 402, 429, 494, 496, 511, 539];
 				for (let i = 0, preset, wpArea = this.nearestWaypointArea(); i < wpIDs.length || preset; i++) {
-					if ((preset = getPresetUnit(wpArea, 2, wpIDs[i]))) {
+					if ((preset = Game.getPresetObject(wpArea, wpIDs[i]))) {
 						return preset;
 					}
 				}
@@ -115,35 +115,35 @@
 	AreaData.dungeons = {
 		DenOfEvil: [sdk.areas.DenOfEvil],
 
-		Hole: [sdk.areas.HoleLvl1, sdk.areas.HoleLvl2,],
+		Hole: [sdk.areas.HoleLvl1, sdk.areas.HoleLvl2, ],
 
 		Pit: [sdk.areas.PitLvl1, sdk.areas.PitLvl2],
 
 		Cave: [sdk.areas.CaveLvl1, sdk.areas.CaveLvl2],
 
-		UndergroundPassage: [sdk.areas.UndergroundPassageLvl1, sdk.areas.UndergroundPassageLvl2,],
+		UndergroundPassage: [sdk.areas.UndergroundPassageLvl1, sdk.areas.UndergroundPassageLvl2, ],
 
-		Cellar: [sdk.areas.TowerCellarLvl1, sdk.areas.TowerCellarLvl2, sdk.areas.TowerCellarLvl3, sdk.areas.TowerCellarLvl4, sdk.areas.TowerCellarLvl5,],
+		Cellar: [sdk.areas.TowerCellarLvl1, sdk.areas.TowerCellarLvl2, sdk.areas.TowerCellarLvl3, sdk.areas.TowerCellarLvl4, sdk.areas.TowerCellarLvl5, ],
 
 		// act 2
-		A2Sewers: [sdk.areas.A2SewersLvl1, sdk.areas.A2SewersLvl2, sdk.areas.A2SewersLvl3,],
+		A2Sewers: [sdk.areas.A2SewersLvl1, sdk.areas.A2SewersLvl2, sdk.areas.A2SewersLvl3, ],
 
-		StonyTomb: [sdk.areas.StonyTombLvl1, sdk.areas.StonyTombLvl2,],
+		StonyTomb: [sdk.areas.StonyTombLvl1, sdk.areas.StonyTombLvl2, ],
 
-		HallsOfDead: [sdk.areas.HallsOfDeadLvl1, sdk.areas.HallsOfDeadLvl2, sdk.areas.HallsOfDeadLvl3,],
+		HallsOfDead: [sdk.areas.HallsOfDeadLvl1, sdk.areas.HallsOfDeadLvl2, sdk.areas.HallsOfDeadLvl3, ],
 
-		ClawViperTemple: [sdk.areas.ClawViperTempleLvl1, sdk.areas.ClawViperTempleLvl2,],
+		ClawViperTemple: [sdk.areas.ClawViperTempleLvl1, sdk.areas.ClawViperTempleLvl2, ],
 
-		MaggotLair: [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3,],
+		MaggotLair: [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3, ],
 
-		Tombs: [sdk.areas.TalRashasTomb1, sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb3, sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7,],
+		Tombs: [sdk.areas.TalRashasTomb1, sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb3, sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7, ],
 
 		// act 3
-		Swamp: [sdk.areas.SwampyPitLvl1, sdk.areas.SwampyPitLvl2, sdk.areas.SwampyPitLvl3,],
+		Swamp: [sdk.areas.SwampyPitLvl1, sdk.areas.SwampyPitLvl2, sdk.areas.SwampyPitLvl3, ],
 
-		FlayerDungeon: [sdk.areas.FlayerDungeonLvl1, sdk.areas.FlayerDungeonLvl2, sdk.areas.FlayerDungeonLvl3,],
+		FlayerDungeon: [sdk.areas.FlayerDungeonLvl1, sdk.areas.FlayerDungeonLvl2, sdk.areas.FlayerDungeonLvl3, ],
 
-		A3Sewers: [sdk.areas.A3SewersLvl1, sdk.areas.A3SewersLvl2,],
+		A3Sewers: [sdk.areas.A3SewersLvl1, sdk.areas.A3SewersLvl2, ],
 
 		HighLevelForgottenTemples: [sdk.areas.ForgottenTemple, sdk.areas.RuinedFane, sdk.areas.DisusedReliquary],
 
@@ -152,7 +152,7 @@
 		// act 4 has no areas like that
 
 		// act 5
-		RedPortalPits: [sdk.areas.Abaddon, sdk.areas.PitOfAcheron, sdk.areas.InfernalPit,],
+		RedPortalPits: [sdk.areas.Abaddon, sdk.areas.PitOfAcheron, sdk.areas.InfernalPit, ],
 	};
 
 	module.exports = AreaData;

@@ -46,7 +46,7 @@ let AutoBuildTemplate = {
 		Update: function () {
 			Config.HPBuffer = me.expansion ? 2 : 4;
 			Config.MPBuffer = 6;
-			Config.AttackSkill = [-1, (me.getSkill(sdk.skills.Sacrifice, 0) ? sdk.skills.Sacrifice : 0), sdk.skills.HolyFire, 0, sdk.skills.HolyFire, 0, sdk.skills.Might];
+			Config.AttackSkill = [-1, (me.getSkill(sdk.skills.Sacrifice, sdk.skills.subindex.HardPoints) ? sdk.skills.Sacrifice : 0), sdk.skills.HolyFire, 0, sdk.skills.HolyFire, 0, sdk.skills.Might];
 		}
 	},
 
@@ -54,7 +54,7 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			if (me.getSkill(sdk.skills.Zeal, 0)) {
+			if (me.getSkill(sdk.skills.Zeal, sdk.skills.subindex.HardPoints)) {
 				Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.HolyFire, sdk.skills.Zeal, sdk.skills.HolyFire, 0, sdk.skills.Might];
 			}
 			Config.Charge = true;

@@ -602,27 +602,27 @@
 
 			switch (dmg.type) {
 			case "Fire": // fire mastery
-				mastery = 1 + GameData.myReference.getStat(329) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveFireMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
 			case "Lightning": // lightning mastery
-				mastery = 1 + GameData.myReference.getStat(330) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveLightningMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
 			case "Cold": // cold mastery
-				mastery = 1 + GameData.myReference.getStat(331) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveColdMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
 			case "Poison": // poison mastery
-				mastery = 1 + GameData.myReference.getStat(332) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassivePoisonMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
 			case "Magic": // magic mastery
-				mastery = 1 + GameData.myReference.getStat(357) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveMagMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
@@ -826,7 +826,7 @@
 				let rawDmg = 0, totalDmg = 0, range = 0, hits = 0;
 				switch (skill) {
 				case sdk.skills.ChainLightning:
-					hits = Math.round((25 + me.getSkill(sdk.skills.ChainLightning, 1)) / 5);
+					hits = Math.round((25 + me.getSkill(sdk.skills.ChainLightning, sdk.skills.subindex.SoftPoints)) / 5);
 					range = 13;
 					break;
 				}

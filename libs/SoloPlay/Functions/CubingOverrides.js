@@ -680,9 +680,9 @@ Cubing.validItem = function (unit, recipe) {
 			case undefined:
 				return NTIP.CheckItem(unit) === 1 && valid;
 			case 1:
-				return unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1 && valid;
+				return unit.getFlag(sdk.items.flags.Ethereal) && NTIP.CheckItem(unit) === 1 && valid;
 			case 2:
-				return !unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1 && valid;
+				return !unit.getFlag(sdk.items.flags.Ethereal) && NTIP.CheckItem(unit) === 1 && valid;
 			}
 		}
 
@@ -703,9 +703,9 @@ Cubing.validItem = function (unit, recipe) {
 			case undefined:
 				return NTIP.CheckItem(unit) === 1;
 			case 1:
-				return unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
+				return unit.getFlag(sdk.items.flags.Ethereal) && NTIP.CheckItem(unit) === 1;
 			case 2:
-				return !unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
+				return !unit.getFlag(sdk.items.flags.Ethereal) && NTIP.CheckItem(unit) === 1;
 			}
 		}
 
@@ -720,9 +720,9 @@ Cubing.validItem = function (unit, recipe) {
 			case undefined:
 				return NTIP.CheckItem(unit) === 1;
 			case 1:
-				return unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
+				return unit.getFlag(sdk.items.flags.Ethereal) && NTIP.CheckItem(unit) === 1;
 			case 2:
-				return !unit.getFlag(0x400000) && NTIP.CheckItem(unit) === 1;
+				return !unit.getFlag(sdk.items.flags.Ethereal) && NTIP.CheckItem(unit) === 1;
 			}
 		}
 
@@ -776,7 +776,7 @@ Cubing.validItem = function (unit, recipe) {
 			return true;
 		}
 
-		if (recipe.Enabled && recipe.Ingredients[2] === unit.classid && unit.itemType === 10 && unit.getStat(77) && !Storage.Inventory.IsLocked(unit, Config.Inventory)) {
+		if (recipe.Enabled && recipe.Ingredients[2] === unit.classid && unit.itemType === 10 && unit.getStat(sdk.stats.MaxManaPercent) && !Storage.Inventory.IsLocked(unit, Config.Inventory)) {
 			return true;
 		}
 
@@ -844,7 +844,7 @@ Cubing.doCubing = function () {
 					switch (result.result) {
 					case 0:
 						// keep if item is worth selling
-						if (items[j].getItemCost(1) / (items[j].sizex * items[j].sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000)) {
+						if (items[j].getItemCost(sdk.items.cost.ToSell) / (items[j].sizex * items[j].sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000)) {
 							if (Storage.Inventory.CanFit(items[j])) {
 								Storage.Inventory.MoveTo(items[j]);
 							} else {

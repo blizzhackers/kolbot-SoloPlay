@@ -22,7 +22,7 @@ Starter.Config.GlobalAccountPassword = ""; // Set value for a global password fo
 // Starter.Config.ValueToChange = value; // Example: Starter.Config.MinGameTime = 500; // changes MinGameTime to 500 seconds
 
 // No touchy!
-include('polyfill.js');
+include("polyfill.js");
 include("json2.js");
 include("OOG.js");
 include("automule.js");
@@ -41,13 +41,13 @@ include("SoloPlay/Tools/OOGOverrides.js");
 include("SoloPlay/Functions/SoloEvents.js");
 include("SoloPlay/Functions/ConfigOverrides.js");
 
-let Controls = require('./modules/Control');
-let Overrides = require('./modules/Override');
+let Controls = require("./modules/Control");
+let Overrides = require("./modules/Override");
 
-let joinInfo, chatActionsDone,
-	gameTracker,
-	battlenet = ([sdk.game.profiletype.Battlenet, sdk.game.profiletype.OpenBattlenet].includes(Profile().type)),
-	charClassMap = {"ZON": "amazon", "SOR": "sorceress", "NEC": "necromancer", "PAL": "paladin", "BAR": "barbarian", "DRU": "druid", "SIN": "assassin"};
+let joinInfo, chatActionsDone;
+let gameTracker;
+let battlenet = ([sdk.game.profiletype.Battlenet, sdk.game.profiletype.OpenBattlenet].includes(Profile().type));
+let charClassMap = {"ZON": "amazon", "SOR": "sorceress", "NEC": "necromancer", "PAL": "paladin", "BAR": "barbarian", "DRU": "druid", "SIN": "assassin"};
 
 if (!FileTools.exists("data/" + me.profile + ".json") && DataFile.create()) {
 	Starter.firstRun = true;
@@ -776,8 +776,8 @@ function locationAction (location) {
 
 function main () {
 	debugLog(me.profile);
-	addEventListener('copydata', Starter.receiveCopyData);
-	addEventListener('scriptmsg', Starter.scriptMsgEvent);
+	addEventListener("copydata", Starter.receiveCopyData);
+	addEventListener("scriptmsg", Starter.scriptMsgEvent);
 
 	let oogTick = getTickCount();
 
@@ -814,7 +814,7 @@ function main () {
 		D2Bot.getProfile();
 		print("Getting Profile");
 		delay(500);
-		console.log(Starter.profileInfo);
+		//console.log(Starter.profileInfo);
 	}
 
 	if (Starter.profileInfo.charName === "") {
@@ -846,7 +846,7 @@ function main () {
 					Starter.lastGameStatus = "ingame";
 					Starter.inGame = true;
 					resPenalty = me.gametype === 0 ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff];
-					diffName = ['Norm', 'Night', 'Hell'][me.diff];
+					diffName = ["Norm", "Night", "Hell"][me.diff];
 					DataFile.updateStats("runs", Starter.gameCount);
 					DataFile.updateStats("ingameTick");
 					Developer.logPerformance && Tracker.update((getTickCount() - oogTick));
@@ -858,12 +858,12 @@ function main () {
 					let statusString = "";
 
 					try {
-						myExp = me.getStat(13) > 0 ? Experience.progress() : 0;
-						myGold = me.getStat(14) + me.getStat(15);
-						frRes = Math.min(75 + me.getStat(sdk.stats.MaxFireResist), me.getStat(39) - resPenalty);
-						crRes = Math.min(75 + me.getStat(sdk.stats.MaxColdResist), me.getStat(43) - resPenalty);
-						lrRes = Math.min(75 + me.getStat(sdk.stats.MaxLightResist), me.getStat(41) - resPenalty);
-						prRes = Math.min(75 + me.getStat(sdk.stats.MaxPoisonResist), me.getStat(45) - resPenalty);
+						myExp = me.getStat(sdk.stats.Experience) > 0 ? Experience.progress() : 0;
+						myGold = me.getStat(sdk.stats.Gold) + me.getStat(sdk.stats.GoldBank);
+						frRes = Math.min(75 + me.getStat(sdk.stats.MaxFireResist), me.getStat(sdk.stats.FireResist) - resPenalty);
+						crRes = Math.min(75 + me.getStat(sdk.stats.MaxColdResist), me.getStat(sdk.stats.ColdResist) - resPenalty);
+						lrRes = Math.min(75 + me.getStat(sdk.stats.MaxLightResist), me.getStat(sdk.stats.LightResist) - resPenalty);
+						prRes = Math.min(75 + me.getStat(sdk.stats.MaxPoisonResist), me.getStat(sdk.stats.PoisonResist) - resPenalty);
 						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
 						statusString = me.name + " | Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
 					} catch (e) {

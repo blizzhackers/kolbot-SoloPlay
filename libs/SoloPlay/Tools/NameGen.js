@@ -6,7 +6,7 @@
 */
 
 const NameGen = function () {
-	let adjectives = [
+	const adjectives = [
 		"Ancient", "Angry", "Artful", "Able", "Abundant", "Accepting", "Acclaimed", "Active", "Addictive", "Adept", "Adequate", "Admired", "Adorable",
 		"Adored", "Agile", "Amazing", "Amiable", "Amicable", "Amusing", "Anxious", "Anxious", "Apathetic", "Aquatic", "Arrogant", "Artistic",
 		"Attentive", "Awesome", "Azure", "Barren", "Bitter", "Black", "Blue", "Blasted", "Bold", "Bonding", "Boorish", "Bountiful", "Braggart",
@@ -46,7 +46,7 @@ const NameGen = function () {
 		"Worthy", "Yellow", "Yearning", "Yielding", "Yielding", "Yourself", "Youthful", "Zany", "Zealot", "Zealous", "Zealous", "Zero",
 	];
 
-	let nouns = [
+	const nouns = [
 		"glue", "riot", "boom", "veil", "poet", "hype", "cafe", "gene", "fame", "sin", "zon", "barb", "core", "dust", "bite", "maid", "scar",
 		"wing", "horn", "crew", "lake", "duke", "mask", "dawn", "seed", "tank", "flag", "jazz", "tart", "brew", "meow", "boot", "shoe", "sage", "drum",
 		"babe", "cash", "luck", "lime", "eyes", "boat", "milk", "tuna", "cube", "oreo", "worm", "rage", "itch", "four", "bomb", "pear", "ship", "oven",
@@ -234,14 +234,15 @@ const NameGen = function () {
 		"zoo", "zoology",
 	];
 
-	let random1 = Math.floor(Math.random() * (adjectives.length + 1));
-	let list2Limit = 16 - adjectives[random1].length;
+	//let random1 = Math.floor(Math.random() * (adjectives.length + 1));
+	let adjective = adjectives[rand(0, adjectives.length - 1)];
+	let list2Limit = 16 - adjective.length;
 	let list2 = nouns.filter(function (element) {
 		return element.length < list2Limit;
 	});
 
-	let random2 = Math.floor(Math.random() * (list2.length + 1));
-	let namechosen = adjectives[random1].toLowerCase() + list2[random2].toLowerCase();
+	let noun = list2[rand(0, list2.length - 1)];
+	let namechosen = adjective.toLowerCase() + noun.toLowerCase();
 
 	return namechosen;
 };

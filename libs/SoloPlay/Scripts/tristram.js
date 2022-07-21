@@ -30,7 +30,7 @@ function tristram () {
 
 			Precast.doPrecast(true);
 
-			if (!Pather.moveToPreset(sdk.areas.DarkWood, 2, 30, 5, 5)) {
+			if (!Pather.moveToPreset(sdk.areas.DarkWood, sdk.unittype.Object, 30, 5, 5)) {
 				print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Tree of Inifuss");
 				return false;
 			}
@@ -50,9 +50,9 @@ function tristram () {
 
 	Pather.checkWP(sdk.areas.StonyField, true) ? Pather.useWaypoint(sdk.areas.StonyField) : Pather.getWP(sdk.areas.StonyField);
 	Precast.doPrecast(true);
-	Pather.moveToPreset(sdk.areas.StonyField, 1, 737, 10, 10, false, true);
+	Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Monster, sdk.monsters.preset.Rakanishu, 10, 10, false, true);
 	Attack.killTarget(getLocaleString(2872)); // Rakanishu
-	Pather.moveToPreset(sdk.areas.StonyField, 2, 17, null, null, true);
+	Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Object, 17, null, null, true);
 
 	if (!Misc.checkQuest(4, 4) && me.getItem(sdk.items.quest.KeytotheCairnStones)) {
 		try {
@@ -105,7 +105,7 @@ function tristram () {
 			];
 			Attack.clearCoordList(clearCoords);
 
-			let gibbet = getUnit(2, 26);
+			let gibbet = Game.getObject(26);
 
 			if (gibbet && !gibbet.mode) {
 				Pather.moveTo(gibbet.x, gibbet.y);

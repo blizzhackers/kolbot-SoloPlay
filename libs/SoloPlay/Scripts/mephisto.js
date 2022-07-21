@@ -64,7 +64,7 @@ function mephisto () {
 
 	Pather.moveTo(17581, 8070);
 	delay(250 + me.ping * 2);
-	Pather.useUnit(2, 342, sdk.areas.PandemoniumFortress);
+	Pather.useUnit(sdk.unittype.Object, 342, sdk.areas.PandemoniumFortress);
 	Misc.poll(() => me.area === sdk.areas.PandemoniumFortress, 1000, 30);
 
 	while (!me.gameReady) {

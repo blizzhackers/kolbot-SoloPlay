@@ -50,9 +50,9 @@ Pickit.checkItem = function (unit) {
 	}
 
 	if (rval.result === 1) {
-		let durability = unit.getStat(72);
+		let durability = unit.getStat(sdk.stats.Durability);
 		
-		if (typeof durability === "number" && unit.getStat(73) > 0 && durability * 100 / unit.getStat(73) <= 0) {
+		if (typeof durability === "number" && unit.getStat(sdk.stats.MaxDurability) > 0 && durability * 100 / unit.getStat(sdk.stats.MaxDurability) <= 0) {
 			return {
 				result: 4,
 				line: null
@@ -142,19 +142,19 @@ Pickit.checkItem = function (unit) {
 			};
 		}
 
-		let itemValuePerSquare = unit.getItemCost(1) / (unit.sizex * unit.sizey);
+		let itemValuePerSquare = unit.getItemCost(sdk.items.cost.ToSell) / (unit.sizex * unit.sizey);
 
 		if (itemValuePerSquare >= 2000) {
 			// If total gold is less than 500k pick up anything worth 2k gold per square to sell in town.
 			return {
 				result: 4,
-				line: "Valuable Item: " + unit.getItemCost(1)
+				line: "Valuable Item: " + unit.getItemCost(sdk.items.cost.ToSell)
 			};
 		} else if (itemValuePerSquare >= 10 && me.gold < Config.LowGold) {
 			// If total gold is less than LowGold setting pick up anything worth 10 gold per square to sell in town.
 			return {
 				result: 4,
-				line: "LowGold Item: " + unit.getItemCost(1)
+				line: "LowGold Item: " + unit.getItemCost(sdk.items.cost.ToSell)
 			};
 		}
 	}
@@ -266,7 +266,7 @@ Pickit.canPick = function (unit) {
 		if (me.assassin) return false;
 
 		myKey = me.getItem(543, 0);
-		key = getUnit(4, -1, -1, unit.gid); // Passed argument isn't an actual unit, we need to get it
+		key = Game.getItem(-1, -1, unit.gid); // Passed argument isn't an actual unit, we need to get it
 
 		if (myKey && key) {
 			do {
@@ -394,7 +394,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		self.classid = unit.classid;
 		self.name = unit.name;
 		self.color = Pickit.itemColor(unit);
-		self.gold = unit.getStat(14);
+		self.gold = unit.getStat(sdk.stats.Gold);
 		self.dist = (unit.distance || Infinity);
 		let canTk = (Skill.haveTK
 			&& (self.type === 4 || self.type === 22 || (self.type > 75 && self.type < 82))
@@ -411,7 +411,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 
 	if (unit.gid) {
 		gid = unit.gid;
-		item = getUnit(4, -1, -1, gid);
+		item = Game.getItem(-1, -1, gid);
 	}
 
 	if (!item) return false;
@@ -430,7 +430,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 
 	MainLoop:
 	for (let i = 0; i < 3; i += 1) {
-		if (!getUnit(4, -1, -1, gid)) {
+		if (!Game.getItem(-1, -1, gid)) {
 			break;
 		}
 
@@ -445,7 +445,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		}
 
 		if (stats.useTk && me.mp > tkMana) {
-			Skill.cast(sdk.skills.Telekinesis, 0, item);
+			Skill.setSkill(sdk.skills.Telekinesis, sdk.skills.hand.Right) && Packet.unitCast(0, item);
 		} else {
 			if (item.distance > (Config.FastPick || i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
 				if (item.checkForMobs({range: 8, coll: (0x1 | 0x400 | 0x800)})) {
@@ -470,8 +470,8 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			item = copyUnit(item);
 
 			if (stats.classid === 523) {
-				if (!item.getStat(14) || item.getStat(14) < stats.gold) {
-					print("ÿc7Picked up " + stats.color + (item.getStat(14) ? (item.getStat(14) - stats.gold) : stats.gold) + " " + stats.name);
+				if (!item.getStat(sdk.stats.Gold) || item.getStat(sdk.stats.Gold) < stats.gold) {
+					print("ÿc7Picked up " + stats.color + (item.getStat(sdk.stats.Gold) ? (item.getStat(sdk.stats.Gold) - stats.gold) : stats.gold) + " " + stats.name);
 
 					return true;
 				}

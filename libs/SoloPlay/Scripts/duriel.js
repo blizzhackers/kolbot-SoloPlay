@@ -15,7 +15,7 @@ function duriel () {
 	Pather.checkWP(sdk.areas.CanyonofMagic, true) ? Pather.useWaypoint(sdk.areas.CanyonofMagic) : Pather.getWP(sdk.areas.CanyonofMagic);
 	Precast.doPrecast(true);
 	Pather.moveToExit(getRoom().correcttomb, true);
-	Pather.moveToPreset(me.area, 2, 152);
+	Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.units.HoradricStaffHolder);
 	Attack.securePosition(me.x, me.y, 30, 3000, true, me.hell);
 	Quest.placeStaff();
 
@@ -34,7 +34,7 @@ function duriel () {
 	}
 
 	// move to and kill dury
-	let unit = Misc.poll(function () { return getUnit(2, 100); });
+	let unit = Misc.poll(() => Game.getObject(sdk.units.PortaltoDurielsLair));
 
 	if (me.sorceress && unit && Skill.useTK(unit)) {
 		for (let i = 0; i < 3; i++) {
@@ -44,12 +44,12 @@ function duriel () {
 			}
 		}
 
-		if (me.area !== sdk.areas.DurielsLair && !Pather.useUnit(2, 100, sdk.areas.DurielsLair)) {
+		if (me.area !== sdk.areas.DurielsLair && !Pather.useUnit(sdk.unittype.Object, sdk.units.PortaltoDurielsLair, sdk.areas.DurielsLair)) {
 			Attack.clear(10);
-			Pather.useUnit(2, 100, sdk.areas.DurielsLair);
+			Pather.useUnit(sdk.unittype.Object, sdk.units.PortaltoDurielsLair, sdk.areas.DurielsLair);
 		}
 	} else {
-		Pather.useUnit(2, 100, sdk.areas.DurielsLair);
+		Pather.useUnit(sdk.unittype.Object, sdk.units.PortaltoDurielsLair, sdk.areas.DurielsLair);
 	}
 
 	me.sorceress && !me.normal ? Attack.pwnDury() : Attack.killTarget("Duriel");

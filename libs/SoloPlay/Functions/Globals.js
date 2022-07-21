@@ -284,7 +284,7 @@ const SetUp = {
 	})(),
 
 	// pulls respec requirments from final build file
-	respecTwo: function () {
+	finalRespec: function () {
 		let respec = Check.finalBuild().respec() ? me.charlvl : 100;
 
 		if (respec === me.charlvl && me.charlvl < 60) {
@@ -302,7 +302,7 @@ const SetUp = {
 
 		if (me.charlvl < Config.respecOne) {
 			buildType = "Start";
-		} else if (me.charlvl >= SetUp.respecTwo()) {
+		} else if (me.charlvl >= SetUp.finalRespec()) {
 			buildType = SetUp.finalBuild;
 		} else if (Config.respecOneB > 0 && me.charlvl >= Config.respecOne && me.charlvl < Config.respecOneB) {
 			buildType = "Stepping";
@@ -316,7 +316,7 @@ const SetUp = {
 	getTemplate: function () {
 		let buildType = SetUp.currentBuild;
 		let build = buildType + "Build" ;
-		let template = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js";
+		let template = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js";
 
 		return {
 			buildType: buildType,
@@ -1322,7 +1322,7 @@ const Check = {
 				build = buildType + "Build";
 			}
 
-			return ("SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js").toLowerCase();
+			return ("SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js").toLowerCase();
 		}
 
 		let template = getBuildTemplate();

@@ -32,7 +32,7 @@ let AutoBuildTemplate = {
 			SetUp.belt();
 			Config.HPBuffer = 2;
 			Config.MPBuffer = 6;
-			Config.AttackSkill = [-1, sdk.skills.FireBlast, -1, sdk.skills.FireBlast, -1, (me.getSkill(sdk.skills.PsychicHammer, 1) ? sdk.skills.PsychicHammer : 0), 0];
+			Config.AttackSkill = [-1, sdk.skills.FireBlast, -1, sdk.skills.FireBlast, -1, (me.getSkill(sdk.skills.PsychicHammer, sdk.skills.subindex.SoftPoints) ? sdk.skills.PsychicHammer : 0), 0];
 			Config.UseBoS = true;
 		}
 	},
@@ -41,7 +41,7 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			Config.AttackSkill = [-1, sdk.skills.FireBlast, -1, sdk.skills.FireBlast, -1, (me.getSkill(sdk.skills.PsychicHammer, 1) ? sdk.skills.PsychicHammer : 0), 0];
+			Config.AttackSkill = [-1, sdk.skills.FireBlast, -1, sdk.skills.FireBlast, -1, (me.getSkill(sdk.skills.PsychicHammer, sdk.skills.subindex.SoftPoints) ? sdk.skills.PsychicHammer : 0), 0];
 			Config.UseTraps = true;
 			Config.Traps = [sdk.skills.WakeofFire, sdk.skills.WakeofFire, sdk.skills.WakeofFire, -1, -1]; // Skill IDs for traps to be cast on all mosters except act bosses.
 			Config.BossTraps = [sdk.skills.WakeofFire, sdk.skills.WakeofFire, sdk.skills.WakeofFire, sdk.skills.WakeofFire, sdk.skills.WakeofFire]; // Skill IDs for traps to be cast on act bosses.

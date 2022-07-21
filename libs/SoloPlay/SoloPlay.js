@@ -88,7 +88,8 @@ function SoloPlay () {
 					}
 
 					tick = getTickCount();
-					currentExp = me.getStat(13);
+					currentExp = me.getStat(sdk.stats.Experience);
+					Messaging.sendToScript("libs/SoloPlay/Threads/ToolsThread.js", JSON.stringify({currScript: SetUp.scripts[k]}));
 
 					for (j = 0; j < 5; j += 1) {
 						if (this[SetUp.scripts[k]]()) {

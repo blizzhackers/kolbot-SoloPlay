@@ -119,7 +119,7 @@ Pather.teleportTo = function (x, y, maxRange = 5) {
 	Developer.debugging.pathing && print("Mob Count at next node: " + [x, y].mobCount());
 	
 	for (let i = 0; i < 3; i += 1) {
-		Skill.setSkill(sdk.skills.Teleport, 0) && Packet.castSkill(0, x, y);
+		Skill.setSkill(sdk.skills.Teleport, sdk.skills.hand.Right) && Packet.castSkill(0, x, y);
 		let tick = getTickCount();
 		let pingDelay = i === 0 ? 250 : me.getPingDelay();
 
@@ -362,13 +362,13 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 				}
 			} else {
 				if (!me.inTown) {
-					if (!useTeleport && ((me.getMobCount(10) > 0 && Attack.clear(8)) || this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
+					if (!useTeleport && ((me.checkForMobs({range: 10}) && Attack.clear(8)) || this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
 						continue;
 					}
 
 					if (fail > 0 && (!useTeleport || tpMana > me.mp)) {
 						// Don't go berserk on longer paths
-						if (!cleared && me.getMobCount(5) > 0 && Attack.clear(5)) {
+						if (!cleared && me.checkForMobs({range: 6}) && Attack.clear(5)) {
 							cleared = true;
 						}
 
@@ -514,13 +514,13 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 				}
 			} else {
 				if (!me.inTown) {
-					if (!useTeleport && ((me.getMobCount(10) > 0 && Attack.clear(8)) || this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
+					if (!useTeleport && ((me.checkForMobs({range: 10}) && Attack.clear(8)) || this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
 						continue;
 					}
 
 					if (fail > 0 && (!useTeleport || tpMana > me.mp)) {
 						// Don't go berserk on longer paths
-						if (!cleared && me.getMobCount(5) > 0 && Attack.clear(5)) {
+						if (!cleared && me.checkForMobs({range: 6}) && Attack.clear(5)) {
 							cleared = true;
 						}
 

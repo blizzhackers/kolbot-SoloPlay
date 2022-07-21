@@ -93,7 +93,7 @@ Object.defineProperties(Unit.prototype, {
 	isRuneword: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
-			return !!this.getFlag(0x4000000);
+			return !!this.getFlag(sdk.items.flags.Runeword);
 		},
 	},
 	isStunned: {
@@ -145,8 +145,8 @@ Object.defineProperties(Unit.prototype, {
 	upgradedStrReq: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
-			let code, id, baseReq, finalReq, ethereal = this.getFlag(0x400000),
-				reqModifier = this.getStat(91);
+			let code, id, baseReq, finalReq, ethereal = this.getFlag(sdk.items.flags.Ethereal),
+				reqModifier = this.getStat(sdk.stats.ReqPercent);
 
 			switch (this.itemclass) {
 			case sdk.itemclass.Normal:
@@ -171,8 +171,8 @@ Object.defineProperties(Unit.prototype, {
 	upgradedDexReq: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
-			let code, id, baseReq, finalReq, ethereal = this.getFlag(0x400000),
-				reqModifier = this.getStat(91);
+			let code, id, baseReq, finalReq, ethereal = this.getFlag(sdk.items.flags.Ethereal),
+				reqModifier = this.getStat(sdk.stats.ReqPercent);
 
 			switch (this.itemclass) {
 			case sdk.itemclass.Normal:
@@ -320,7 +320,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 
 		CharData.skillData.chargedSkills.forEach(chargeSkill => {
 			if (chargeSkill.skill === skillId) {
-				Config.DebugMode && console.debug(chargeSkill);
+				console.debug(chargeSkill);
 				let item = me.getItem(-1, sdk.itemmode.Equipped, chargeSkill.gid);
 				!!item && chargedItems.push({
 					charge: chargeSkill.skill,
@@ -438,7 +438,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 
 		CharData.skillData.chargedSkillsOnSwitch.forEach(chargeSkill => {
 			if (chargeSkill.skill === skillId) {
-				Config.DebugMode && console.debug(chargeSkill);
+				console.debug(chargeSkill);
 				let item = me.getItem(-1, sdk.itemmode.Equipped, chargeSkill.gid);
 				!!item && chargedItems.push({
 					charge: chargeSkill.skill,
@@ -470,7 +470,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 	case 555: //calculates all res, doesnt exists trough
 	{ // Block scope due to the variable declaration
 		// Get all res
-		let allres = [this.getStatEx(39), this.getStatEx(41), this.getStatEx(43), this.getStatEx(45)];
+		let allres = [this.getStatEx(sdk.stats.FireResist), this.getStatEx(sdk.stats.LightResist), this.getStatEx(sdk.stats.ColdResist), this.getStatEx(sdk.stats.PoisonResist)];
 
 		// What is the minimum of the 4?
 		let min = Math.min.apply(null, allres);
@@ -485,7 +485,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 	}
 
 	case 9: // Max mana
-		rval = this.getStat(9);
+		rval = this.getStat(sdk.stats.MaxMana);
 
 		if (rval > 446) {
 			return rval - 16777216; // Fix for negative values (Gull knife)
@@ -495,21 +495,21 @@ Unit.prototype.getStatEx = function (id, subid) {
 	case 20: // toblock
 		switch (this.classid) {
 		case 328: // buckler
-			return this.getStat(20);
+			return this.getStat(sdk.stats.ToBlock);
 		case 413: // preserved
 		case 483: // mummified
 		case 503: // minion
-			return this.getStat(20) - 3;
+			return this.getStat(sdk.stats.ToBlock) - 3;
 		case 329: // small
 		case 414: // zombie
 		case 484: // fetish
 		case 504: // hellspawn
-			return this.getStat(20) - 5;
+			return this.getStat(sdk.stats.ToBlock) - 5;
 		case 331: // kite
 		case 415: // unraveller
 		case 485: // sexton
 		case 505: // overseer
-			return this.getStat(20) - 8;
+			return this.getStat(sdk.stats.ToBlock) - 8;
 		case 351: // spiked
 		case 374: // deefender
 		case 416: // gargoyle
@@ -517,27 +517,27 @@ Unit.prototype.getStatEx = function (id, subid) {
 		case 506: // succubus
 		case 408: // targe
 		case 478: // akaran t
-			return this.getStat(20) - 10;
+			return this.getStat(sdk.stats.ToBlock) - 10;
 		case 330: // large
 		case 375: // round
 		case 417: // demon
 		case 487: // hierophant
 		case 507: // bloodlord
-			return this.getStat(20) - 12;
+			return this.getStat(sdk.stats.ToBlock) - 12;
 		case 376: // scutum
-			return this.getStat(20) - 14;
+			return this.getStat(sdk.stats.ToBlock) - 14;
 		case 409: // rondache
 		case 479: // akaran r
-			return this.getStat(20) - 15;
+			return this.getStat(sdk.stats.ToBlock) - 15;
 		case 333: // goth
 		case 379: // ancient
-			return this.getStat(20) - 16;
+			return this.getStat(sdk.stats.ToBlock) - 16;
 		case 397: // barbed
-			return this.getStat(20) - 17;
+			return this.getStat(sdk.stats.ToBlock) - 17;
 		case 377: // dragon
-			return this.getStat(20) - 18;
+			return this.getStat(sdk.stats.ToBlock) - 18;
 		case 502: // vortex
-			return this.getStat(20) - 19;
+			return this.getStat(sdk.stats.ToBlock) - 19;
 		case 350: // bone
 		case 396: // grim
 		case 445: // luna
@@ -545,27 +545,27 @@ Unit.prototype.getStatEx = function (id, subid) {
 		case 466: // troll
 		case 410: // heraldic
 		case 480: // protector
-			return this.getStat(20) - 20;
+			return this.getStat(sdk.stats.ToBlock) - 20;
 		case 444: // heater
 		case 447: // monarch
 		case 411: // aerin
 		case 481: // gilded
 		case 501: // zakarum
-			return this.getStat(20) - 22;
+			return this.getStat(sdk.stats.ToBlock) - 22;
 		case 332: // tower
 		case 378: // pavise
 		case 446: // hyperion
 		case 448: // aegis
 		case 449: // ward
-			return this.getStat(20) - 24;
+			return this.getStat(sdk.stats.ToBlock) - 24;
 		case 412: // crown
 		case 482: // royal
 		case 500: // kurast
-			return this.getStat(20) - 25;
+			return this.getStat(sdk.stats.ToBlock) - 25;
 		case 499: // sacred r
-			return this.getStat(20) - 28;
+			return this.getStat(sdk.stats.ToBlock) - 28;
 		case 498: // sacred t
-			return this.getStat(20) - 30;
+			return this.getStat(sdk.stats.ToBlock) - 30;
 		}
 
 		break;
@@ -610,7 +610,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 			case 83:
 			case 84:
 				// defense is the same as plusdefense for these items
-				return this.getStat(31);
+				return this.getStat(sdk.stats.Defense);
 			}
 
 			if (!this.desc) {
@@ -632,7 +632,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 		break;
 	case 57:
 		if (subid === 1) {
-			return Math.round(this.getStat(57) * this.getStat(59) / 256);
+			return Math.round(this.getStat(sdk.stats.PoisonMinDamage) * this.getStat(sdk.stats.PoisonLength) / 256);
 		}
 
 		break;
@@ -707,10 +707,10 @@ Unit.prototype.getStatEx = function (id, subid) {
 
 		break;
 	case 216: // itemhpperlevel (for example Fortitude with hp per lvl can be defined now with 1.5)
-		return this.getStat(216) / 2048;
+		return this.getStat(sdk.stats.PerLevelHp) / 2048;
 	}
 
-	if (this.getFlag(0x04000000)) { // Runeword
+	if (this.getFlag(sdk.items.flags.Runeword)) { // Runeword
 		switch (id) {
 		case 16: // enhanceddefense
 			if ([0, 1].indexOf(this.mode) < 0) {

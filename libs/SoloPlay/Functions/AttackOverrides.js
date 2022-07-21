@@ -54,7 +54,7 @@ Attack.getLowerResistPercent = function () {
 		return calc(CharData.skillData.chargedSkillsOnSwitch.find(chargeSkill => chargeSkill.skill === sdk.skills.LowerResist).level);
 	}
 	if (Skill.canUse(sdk.skills.LowerResist)) {
-		return calc(me.getSkill(sdk.skills.LowerResist, 1));
+		return calc(me.getSkill(sdk.skills.LowerResist, sdk.skills.subindex.SoftPoints));
 	}
 	return 0;
 };
@@ -180,7 +180,7 @@ Attack.killTarget = function (name = undefined) {
 	if (!name) return false;
 
 	typeof name === "string" && (name = name.toLowerCase());
-	let target = (typeof name === "object" ? name : Misc.poll(() => getUnit(1, name), 2000, 100));
+	let target = (typeof name === "object" ? name : Misc.poll(() => Game.getMonster(name), 2000, 100));
 
 	let attackCount = 0;
 
@@ -216,7 +216,7 @@ Attack.killTarget = function (name = undefined) {
 
 			// Check if unit got invalidated, happens if necro raises a skeleton from the boss's corpse.
 			if (!target || !copyUnit(target).x) {
-				target = getUnit(1, -1, -1, gid);
+				target = Game.getMonster(-1, -1, gid);
 
 				if (!target) {
 					break;
@@ -563,9 +563,9 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 			case typeof bossId === "object":
 				return bossId;
 			case ((typeof bossId === "number" && bossId > 999)):
-				return getUnit(1, -1, -1, bossId);
+				return Game.getMonster(-1, -1, bossId);
 			default:
-				return getUnit(1, bossId);
+				return Game.getMonster(bossId);
 			}
 		}, 2000, 100);
 
@@ -1043,7 +1043,7 @@ Attack.shouldDodge = function (coord, monster) {
 };
 
 Attack.pwnDury = function () {
-	let duriel = Misc.poll(() => getUnit(1, sdk.monsters.Duriel));
+	let duriel = Misc.poll(() => Game.getMonster(sdk.monsters.Duriel));
 
 	if (!duriel) return false;
 	Attack.stopClear = true;

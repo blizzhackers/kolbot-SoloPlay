@@ -6,9 +6,10 @@
 *
 */
 
-!isIncluded("common/Misc.js") && include("common/Misc.js");
-!isIncluded("SoloPlay/Functions/PrototypesOverrides.js") && include("SoloPlay/Functions/PrototypesOverrides.js");
-!isIncluded("SoloPlay/Functions/ItemPrototypes.js") && include("SoloPlay/Functions/ItemPrototypes.js");
+includeIfNotIncluded("common/Misc.js");
+includeIfNotIncluded("common/Item.js");
+includeIfNotIncluded("SoloPlay/Functions/PrototypesOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/ItemPrototypes.js");
 
 Item.getQuantityOwned = function (item = undefined) {
 	if (!item) return 0;
@@ -117,6 +118,7 @@ Item.getEquippedItem = function (bodyLoc = -1) {
 			itemType: item.itemType,
 			quality: item.quality,
 			tier: NTIP.GetTier(item),
+			tierScore: tierscore(item, bodyLoc),
 			secondarytier: NTIP.GetSecondaryTier(item),
 			str: item.getStatEx(sdk.stats.Strength),
 			dex: item.getStatEx(sdk.stats.Dexterity),
@@ -137,6 +139,7 @@ Item.getEquippedItem = function (bodyLoc = -1) {
 		itemType: -1,
 		quality: -1,
 		tier: -1,
+		tierScore: -1,
 		secondarytier: -1,
 		str: 0,
 		dex: 0,
@@ -227,7 +230,7 @@ Item.autoEquip = function () {
 	}
 
 	// ring check - sometimes a higher tier ring ends up on the wrong finger causing a rollback loop
-	if (this.getEquippedItem(7).tier > this.getEquippedItem(6).tier) {
+	if (this.getEquippedItem(7).tierScore > this.getEquippedItem(6).tierScore) {
 		console.log("ÿc9AutoEquipÿc0 :: Swapping rings, higher tier ring is on the wrong finger");
 		clickItemAndWait(0, 7);
 		delay(200);
@@ -246,7 +249,8 @@ Item.autoEquip = function () {
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
 				let equippedItem = this.getEquippedItem(bodyLoc[j]);
-				if (items[0].isInStorage && tier > equippedItem.tier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
+				if (items[0].isInStorage && items[0].itemType === sdk.itemtype.Ring) {
+					// rings are special
 					if (!items[0].identified) {
 						let idTool = Town.getIdTool();
 
@@ -255,44 +259,78 @@ Item.autoEquip = function () {
 							Town.identifyItem(items[0], idTool);
 						}
 					}
+					// have to pass in the specific location
+					tier = tierscore(items[0], bodyLoc[j]);
 
-					if (items[0].twoHanded && !me.barbarian) {
-						if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
+					if (tier > equippedItem.tierScore) {
+						let gid = items[0].gid;
+						console.debug(items[0].name);
+
+						if (this.equip(items[0], bodyLoc[j])) {
+							console.log("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
+
+							Developer.debugging.autoEquip && Misc.logItem("Equipped", me.getItem(-1, -1, gid));
+							Developer.logEquipped && MuleLogger.logEquippedItems();
+						} else if (items[0].lvlreq > me.charlvl && !items[0].isInStash) {
+							if (Storage.Stash.CanFit(items[0])) {
+								console.log("ÿc9AutoEquipÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + items[0].fname + " Tier: " + tier);
+								Storage.Stash.MoveTo(items[0]);
+							}
+						} else if (me.getItem(-1, -1, gid)) {
+							// Make sure we didn't lose it during roll back
 							continue;
 						}
-						console.log("ÿc9AutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
 					}
+				} else {
+					if (items[0].isInStorage && tier > equippedItem.tier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
+						if (!items[0].identified) {
+							let idTool = Town.getIdTool();
 
-					if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1 && this.getEquippedItem(4).twoHanded) {
-						if (tier < this.getEquippedItem(4).tier) {
-							continue;
+							if (idTool) {
+								items[0].isInStash && Town.openStash();
+								Town.identifyItem(items[0], idTool);
+							}
 						}
-						console.log("ÿc9AutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
-					}
 
-					let gid = items[0].gid;
-					console.debug(items[0].name);
+						if (items[0].twoHanded && !me.barbarian) {
+							if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
+								continue;
+							}
+							console.log("ÿc9AutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
+						}
 
-					if (this.equip(items[0], bodyLoc[j])) {
-						console.log("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
-						// item that can have sockets
-						if (items[0].getItemType()) {
-							SoloWants.addToList(items[0]);
-							SoloWants.ensureList();
+						if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1 && this.getEquippedItem(4).twoHanded) {
+							if (tier < this.getEquippedItem(4).tier) {
+								continue;
+							}
+							console.log("ÿc9AutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
 						}
-						Developer.debugging.autoEquip && Misc.logItem("Equipped", me.getItem(-1, -1, gid));
-						Developer.logEquipped && MuleLogger.logEquippedItems();
-					} else if (items[0].lvlreq > me.charlvl && !items[0].isInStash) {
-						if (Storage.Stash.CanFit(items[0])) {
-							console.log("ÿc9AutoEquipÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + items[0].fname + " Tier: " + tier);
-							Storage.Stash.MoveTo(items[0]);
-						}
-					} else if (me.getItem(-1, -1, gid)) {
+
+						let gid = items[0].gid;
+						console.debug(items[0].name);
+
+						if (this.equip(items[0], bodyLoc[j])) {
+							console.log("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
+							// item that can have sockets
+							if (items[0].getItemType()) {
+								SoloWants.addToList(items[0]);
+								SoloWants.ensureList();
+							}
+							Developer.debugging.autoEquip && Misc.logItem("Equipped", me.getItem(-1, -1, gid));
+							Developer.logEquipped && MuleLogger.logEquippedItems();
+						} else if (items[0].lvlreq > me.charlvl && !items[0].isInStash) {
+							if (Storage.Stash.CanFit(items[0])) {
+								console.log("ÿc9AutoEquipÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + items[0].fname + " Tier: " + tier);
+								Storage.Stash.MoveTo(items[0]);
+							}
+						} else if (me.getItem(-1, -1, gid)) {
 						// Make sure we didn't lose it during roll back
-						continue;
+							continue;
+						}
+
+						break;
 					}
 
-					break;
 				}
 			}
 		}
@@ -328,7 +366,7 @@ Item.outOfTownAutoEquip = function () {
 	}
 
 	// ring check - sometimes a higher tier ring ends up on the wrong finger causing a rollback loop
-	if (this.getEquippedItem(7).tier > this.getEquippedItem(6).tier) {
+	if (this.getEquippedItem(7).tierScore > this.getEquippedItem(6).tierScore) {
 		console.log("ÿc9OutOfTownAutoEquipÿc0 :: Swapping rings, higher tier ring is on the wrong finger");
 		clickItemAndWait(0, 7);
 		delay(200);
@@ -347,44 +385,72 @@ Item.outOfTownAutoEquip = function () {
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
 				let equippedItem = this.getEquippedItem(bodyLoc[j]);
-				if (items[0].isInInventory && tier > equippedItem.tier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
+				if (items[0].isInInventory && items[0].itemType === sdk.itemtype.Ring) {
+					// rings are special
 					if (!items[0].identified) {
 						let idTool = Town.getIdTool();
-						idTool && Town.identifyItem(items[0], idTool);
-					}
 
-					if (items[0].twoHanded && !me.barbarian) {
-						if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
+						if (idTool) {
+							items[0].isInStash && Town.openStash();
+							Town.identifyItem(items[0], idTool);
+						}
+					}
+					// have to pass in the specific location
+					tier = tierscore(items[0], bodyLoc[j]);
+
+					if (tier > equippedItem.tierScore) {
+						let gid = items[0].gid;
+						console.debug(items[0].name);
+
+						if (this.equip(items[0], bodyLoc[j])) {
+							console.log("ÿc9OutOfTownAutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
+							Developer.debugging.autoEquip && Misc.logItem("Field Equipped", me.getItem(-1, -1, gid));
+							Developer.logEquipped && MuleLogger.logEquippedItems();
+						} else if (me.getItem(-1, -1, gid)) {
+							// Make sure we didn't lose it during roll back
 							continue;
 						}
-						console.log("ÿc9OutOfTownAutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
 					}
+				} else {
+					if (items[0].isInInventory && tier > equippedItem.tier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
+						if (!items[0].identified) {
+							let idTool = Town.getIdTool();
+							idTool && Town.identifyItem(items[0], idTool);
+						}
 
-					if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1 && this.getEquippedItem(4).twoHanded) {
-						if (tier < this.getEquippedItem(4).tier) {
+						if (items[0].twoHanded && !me.barbarian) {
+							if (tier < this.getEquippedItem(4).tier + this.getEquippedItem(5).tier) {
+								continue;
+							}
+							console.log("ÿc9OutOfTownAutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
+						}
+
+						if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1 && this.getEquippedItem(4).twoHanded) {
+							if (tier < this.getEquippedItem(4).tier) {
+								continue;
+							}
+							console.log("ÿc9OutOfTownAutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
+						}
+
+						let gid = items[0].gid;
+						console.debug(items[0].name);
+
+						if (this.equip(items[0], bodyLoc[j])) {
+							console.log("ÿc9OutOfTownAutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
+							// item that can have sockets
+							if (items[0].getItemType()) {
+								SoloWants.addToList(items[0]);
+								SoloWants.ensureList();
+							}
+							Developer.debugging.autoEquip && Misc.logItem("Field Equipped", me.getItem(-1, -1, gid));
+							Developer.logEquipped && MuleLogger.logEquippedItems();
+						} else if (me.getItem(-1, -1, gid)) {
+							// Make sure we didn't lose it during roll back
 							continue;
 						}
-						console.log("ÿc9OutOfTownAutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
+
+						break;
 					}
-
-					let gid = items[0].gid;
-					console.debug(items[0].name);
-
-					if (this.equip(items[0], bodyLoc[j])) {
-						console.log("ÿc9OutOfTownAutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
-						// item that can have sockets
-						if (items[0].getItemType()) {
-							SoloWants.addToList(items[0]);
-							SoloWants.ensureList();
-						}
-						/* Developer.debugging.autoEquip &&  */Misc.logItem("Field Equipped", me.getItem(-1, -1, gid));
-						Developer.logEquipped && MuleLogger.logEquippedItems();
-					} else if (me.getItem(-1, -1, gid)) {
-						// Make sure we didn't lose it during roll back
-						continue;
-					}
-
-					break;
 				}
 			}
 		}
@@ -416,17 +482,35 @@ Item.equip = function (item, bodyLoc) {
 
 			if (item.bodylocation === bodyLoc) {
 				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem) {
 						// rollback check
 						let justEquipped = this.getEquippedItem(bodyLoc);
-						if (NTIP.GetTier(cursorItem) > justEquipped.tier && !item.questItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attempt rollback*/) {
-							console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
-							console.debug("OldItem: " + NTIP.GetTier(cursorItem) + " Just Equipped Item: " + this.getEquippedItem(bodyLoc).tier);
-							clickItemAndWait(0, bodyLoc);
-							cursorItem = getUnit(100);
-							rolledBack = true;
+						let checkScore = 0;
+						switch (cursorItem.itemType) {
+						case sdk.itemtype.Ring:
+							checkScore = tierscore(cursorItem, bodyLoc);
+							if (checkScore > justEquipped.tierScore) {
+								console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
+								console.debug("OldItem: " + checkScore + " Just Equipped Item: " + this.getEquippedItem(bodyLoc).tierScore);
+								clickItemAndWait(0, bodyLoc);
+								cursorItem = Game.getCursorUnit();
+								rolledBack = true;
+							}
+
+							break;
+						default:
+							checkScore = NTIP.GetTier(cursorItem);
+							if (checkScore > justEquipped.tier && !item.questItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attempt rollback*/) {
+								console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
+								console.debug("OldItem: " + checkScore + " Just Equipped Item: " + this.getEquippedItem(bodyLoc).tier);
+								clickItemAndWait(0, bodyLoc);
+								cursorItem = Game.getCursorUnit();
+								rolledBack = true;
+							}
+
+							break;
 						}
 
 						if (cursorItem && !cursorItem.shouldKeep()) {
@@ -454,7 +538,7 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 	if (removable) {
 		removable.isOnSwap && me.weaponswitch !== 1 && me.switchWeapons(1);
 		removable.toCursor();
-		let cursorItem = getUnit(100);
+		let cursorItem = Game.getCursorUnit();
 
 		if (cursorItem) {
 			// only keep wanted items
@@ -546,7 +630,7 @@ Item.secondaryEquip = function (item, bodyLoc) {
 
 			if (item.bodylocation === bodyLoc - 7) {
 				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem && !cursorItem.shouldKeep()) {
 						cursorItem.drop();
@@ -693,7 +777,7 @@ Item.equipMerc = function (item, bodyLoc) {
 				}
 
 				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem && !cursorItem.shouldKeep()) {
 						cursorItem.drop();
@@ -877,7 +961,7 @@ Item.autoEquipMerc = function () {
 					console.log("Merc " + name);
 					this.equipMerc(items[0], bodyLoc[j]) && console.log("ÿc9MercEquipÿc0 :: Equipped: " + name + " MercTier: " + tier);
 					
-					let cursorItem = getUnit(100);
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem) {
 						cursorItem.drop();
@@ -906,7 +990,7 @@ Item.removeItemsMerc = function () {
 			clickItem(4, items[i].bodylocation);
 			delay(500 + me.ping * 2);
 
-			let cursorItem = getUnit(100);
+			let cursorItem = Game.getCursorUnit();
 
 			if (cursorItem) {
 				if (Storage.Inventory.CanFit(cursorItem)) {
@@ -1143,7 +1227,7 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 				Town.identify();
 			}
 
-			if (!getUnit(4, -1, -1, gid)) {
+			if (!Game.getItem(-1, -1, gid)) {
 				verbose && console.log("Sold charm during Town.identify()");
 				items.shift();
 
@@ -1411,7 +1495,7 @@ Item.autoEquipCharms = function () {
 
 		Town.initNPC("Shop", "clearInventory");
 
-		if (getUIFlag(0xC) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
+		if (getUIFlag(sdk.uiflags.Shop) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
 			for (let i = 0; i < totalSell.length; i++) {
 				console.log("ÿc8Kolbot-SoloPlayÿc0: Sell old charm " + totalSell[i].name);
 				verbose && Misc.itemLogger("Sold", totalSell[i]);

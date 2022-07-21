@@ -22,22 +22,22 @@ function travincal () {
 	Pickit.pickItems();
 
 	// go to orb
-	if (!Pather.moveToPreset(sdk.areas.Travincal, 2, 404)) {
+	if (!Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, 404)) {
 		print('ÿc8Kolbot-SoloPlayÿc0: Failed to move to compelling orb');
 	}
 
-	let orb = getUnit(2, 404);
+	let orb = Game.getObject(404);
 	!!orb && Attack.clearPos(orb.x, orb.y, 15);
 
 	// khalim's will quest not complete
 	if (!me.travincal) {
 		// cleared council didn't pick flail and hasn't already made flail
 		if (!me.getItem(sdk.items.quest.KhalimsFlail) && !me.getItem(sdk.items.quest.KhalimsWill)) {
-			let flail = getUnit(4, sdk.items.quest.KhalimsFlail);
+			let flail = Game.getItem(sdk.items.quest.KhalimsFlail);
 
 			Pather.moveToUnit(flail);
 			Pickit.pickItems();
-			Pather.moveToPreset(sdk.areas.Travincal, 2, 404);
+			Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, 404);
 		}
 
 		// cube flail to will
@@ -67,13 +67,13 @@ function travincal () {
 		if (!Pather.usePortal(sdk.areas.Travincal, me.name)) {
 			print("ÿc8Kolbot-SoloPlayÿc0: Failed to go back to Travincal and take entrance");
 			Pather.useWaypoint(sdk.areas.Travincal);
-			Pather.moveToPreset(sdk.areas.Travincal, 2, 404);
+			Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, 404);
 		}
 
 		// Wait until exit pops open
-		Misc.poll(() => getUnit(2, 386).mode === 2, 10000);
+		Misc.poll(() => Game.getObject(386).mode === 2, 10000);
 		// Move close to the exit
-		let exit_1 = getUnit(2, 386);
+		let exit_1 = Game.getObject(386);
 		// Since d2 sucks, move around the thingy
 		Pather.moveToUnit(exit_1, 7, 7);
 		// keep on clicking the exit until we are not @ travincal anymore

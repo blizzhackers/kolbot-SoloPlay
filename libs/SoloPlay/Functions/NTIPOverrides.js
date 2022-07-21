@@ -231,7 +231,7 @@ NTIP.CheckItem = function (item, entryList = [], verbose = false) {
 	let rval = {};
 	let result = 0;
 	let list = entryList.length ? entryList : NTIP_CheckList;
-	let identified = item.getFlag(0x10);
+	let identified = item.getFlag(sdk.items.flags.Identified);
 
 	for (i = 0; i < list.length; i++) {
 		try {

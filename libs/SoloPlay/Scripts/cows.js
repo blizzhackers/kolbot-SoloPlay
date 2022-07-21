@@ -59,11 +59,11 @@ function cows () {
 
 				tome = npc.getItem(sdk.items.TomeofTownPortal);
 
-				if (!!tome && tome.getItemCost(0) < me.gold && tome.buy()) {
+				if (!!tome && tome.getItemCost(sdk.items.cost.ToBuy) < me.gold && tome.buy()) {
 					delay(500);
 					tpTome = me.findItems(sdk.items.TomeofTownPortal, 0, 3);
 					scroll = npc.getItem(529);
-					let scrollCost = scroll.getItemCost(0);
+					let scrollCost = scroll.getItemCost(sdk.items.cost.ToBuy);
 					tpTome.forEach(function (book) {
 						while (book.getStat(sdk.stats.Quantity) < 20) {
 							scroll = npc.getItem(529);

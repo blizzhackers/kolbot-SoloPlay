@@ -56,7 +56,7 @@ function orgtorch() {
 	// Try to lure a monster - wait until it's close enough
 	this.lure = function (bossId) {
 		let tick,
-			unit = getUnit(1, bossId);
+			unit = Game.getMonster(bossId);
 
 		if (unit) {
 			tick = getTickCount();
@@ -99,7 +99,7 @@ function orgtorch() {
 				Precast.doPrecast(true);
 				Pather.moveTo(7811, 5872);
 
-				me.paladin && me.getSkill(sdk.skills.Salvation, 1) && Skill.setSkill(sdk.skills.Salvation, 0);
+				me.paladin && me.getSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints) && Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
 
 				while (!me.getState(sdk.states.Fade)) {
 					delay(100);
@@ -139,7 +139,7 @@ function orgtorch() {
 			transmute();
 			delay(1000);
 
-			portal = getUnit(2, "portal");
+			portal = Game.getObject("portal");
 
 			if (portal) {
 				do {
@@ -173,7 +173,7 @@ function orgtorch() {
 		switch (me.area) {
 		case sdk.areas.MatronsDen:
 			Precast.doPrecast(true);
-			Pather.moveToPreset(sdk.areas.MatronsDen, 2, 397, 2, 2);
+			Pather.moveToPreset(sdk.areas.MatronsDen, sdk.unittype.Object, 397, 2, 2);
 			Attack.killTarget(707);
 			Pickit.pickItems();
 			Town.goToTown();
@@ -188,7 +188,7 @@ function orgtorch() {
 				Pather.moveTo(findLoc[i], findLoc[i + 1]);
 				delay(500);
 
-				if (getUnit(1, 708)) {
+				if (Game.getMonster(708)) {
 					break;
 				}
 			}
@@ -200,7 +200,7 @@ function orgtorch() {
 			break;
 		case sdk.areas.FurnaceofPain:
 			Precast.doPrecast(true);
-			Pather.moveToPreset(sdk.areas.FurnaceofPain, 2, 397, 2, 2);
+			Pather.moveToPreset(sdk.areas.FurnaceofPain, sdk.unittype.Object, 397, 2, 2);
 			Attack.killTarget(706);
 			Pickit.pickItems();
 			Town.goToTown();
@@ -216,20 +216,20 @@ function orgtorch() {
 				Pather.moveTo(findLoc[i], findLoc[i + 1]);
 			}
 
-			if (me.paladin && me.getSkill(sdk.skills.Salvation, 1)) {
-				Skill.setSkill(sdk.skills.Salvation, 0);
+			if (me.paladin && me.getSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints)) {
+				Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
 			}
 
 			this.lure(704);
 			Pather.moveTo(25129, 5198);
 			
-			if (me.paladin && me.getSkill(sdk.skills.Salvation, 1)) {
-				Skill.setSkill(sdk.skills.Salvation, 0);
+			if (me.paladin && me.getSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints)) {
+				Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
 			}
 
 			this.lure(704);
 
-			if (!getUnit(1, 704)) {
+			if (!Game.getMonster(704)) {
 				Pather.moveTo(25122, 5170);
 			}
 
@@ -238,13 +238,13 @@ function orgtorch() {
 			Pather.moveTo(25162, 5141);
 			delay(3250);
 
-			if (!getUnit(1, 709)) {
+			if (!Game.getMonster(709)) {
 				Pather.moveTo(25122, 5170);
 			}
 
 			Attack.killTarget(709);
 
-			if (!getUnit(1, 705)) {
+			if (!Game.getMonster(705)) {
 				Pather.moveTo(25122, 5170);
 			}
 

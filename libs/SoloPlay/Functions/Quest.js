@@ -164,7 +164,7 @@ const Quest = {
 			}
 		}
 
-		Pather.moveToPreset(me.area, 2, 152);
+		Pather.moveToPreset(me.area, sdk.unittype.Object, 152);
 		Misc.openChest(orifice);
 
 		if (!hstaff) {
@@ -196,7 +196,7 @@ const Quest = {
 		Pather.moveTo(22577, 15649, 10);
 		Pather.moveTo(22577, 15609, 10);
 
-		let tyrael = getUnit(1, NPC.Tyrael);
+		let tyrael = Game.getNPC(NPC.Tyrael);
 
 		if (!tyrael) return false;
 
@@ -245,11 +245,11 @@ const Quest = {
 		if (me.getItem(classid)) return true;
 
 		if (chestID !== undefined) {
-			let chest = getUnit(2, chestID);
+			let chest = Game.getObject(chestID);
 			if (!chest || !Misc.openChest(chest)) return false;
 		}
 
-		let questItem = Misc.poll(() => getUnit(4, classid), 3000, 100 + me.ping);
+		let questItem = Misc.poll(() => Game.getItem(classid), 3000, 100 + me.ping);
 
 		if (Storage.Inventory.CanFit(questItem)) {
 			Pickit.pickItem(questItem);
@@ -279,7 +279,7 @@ const Quest = {
 		}
 
 		if (me.itemoncursor) {
-			let olditem = getUnit(100);
+			let olditem = Game.getCursorUnit();
 
 			if (olditem) {
 				if (Storage.Inventory.CanFit(olditem)) {
@@ -314,7 +314,7 @@ const Quest = {
 			break;
 		}
 
-		let smashable = getUnit(2, classid);
+		let smashable = Game.getObject(classid);
 
 		if (Item.getEquippedItem(4).classid !== tool || !me.getItem(tool)) return false;
 		if (!smashable) return false;
@@ -349,7 +349,7 @@ const Quest = {
 		!me.inTown && Town.goToTown();
 		npcName = npcName[0].toUpperCase() + npcName.substring(1).toLowerCase();
 		Town.move(NPC[npcName]);
-		let npc = Misc.poll(() => getUnit(1, NPC[npcName]));
+		let npc = Misc.poll(() => Game.getNPC(NPC[npcName]));
 
 		Packet.flash(me.gid);
 		delay(1 + me.ping * 2);
@@ -369,7 +369,7 @@ const Quest = {
 		switch (true) {
 		case me.charlvl >= Config.respecOne && SetUp.currentBuild === "Start":
 		case Config.respecOneB > 0 && me.charlvl >= Config.respecOneB && SetUp.currentBuild === "Stepping":
-		case me.charlvl === SetUp.respecTwo() && SetUp.currentBuild === "Leveling":
+		case me.charlvl === SetUp.finalRespec() && SetUp.currentBuild === "Leveling":
 			if (!me.den) {
 				myPrint("time to respec, but den is incomplete");
 				return;
@@ -445,7 +445,7 @@ const Quest = {
 
 			submitItem();
 			delay(500 + me.ping);
-			sendPacket(1, 0x40);
+			Packet.questRefresh();
 
 			item = false; // Delete item reference, it's not longer valid anyway
 			let items = me.findItems(-1, 0, 3);
@@ -479,7 +479,7 @@ const Quest = {
 			slot && Item.equip(item, slot);
 		} catch (e) {
 			myPrint(e);
-			me.itemoncursor && Storage.Inventory.MoveTo(getUnit(100));
+			me.itemoncursor && Storage.Inventory.MoveTo(Game.getCursorUnit());
 			me.cancelUIFlags();
 
 			return false;
@@ -521,7 +521,7 @@ const Quest = {
 
 			submitItem();
 			delay(500 + me.ping);
-			sendPacket(1, 0x40);
+			Packet.questRefresh();
 
 			item = false; // Delete item reference, it's not longer valid anyway
 			let items = me.findItems(-1, 0, 3);
@@ -555,7 +555,7 @@ const Quest = {
 			slot && Item.equip(item, slot);
 		} catch (e) {
 			myPrint(e);
-			me.itemoncursor && Storage.Inventory.MoveTo(getUnit(100));
+			me.itemoncursor && Storage.Inventory.MoveTo(Game.getCursorUnit());
 			me.cancelUIFlags();
 
 			return false;

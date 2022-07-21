@@ -11,7 +11,7 @@ function hellforge () {
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
 
-	if (!Pather.moveToPreset(me.area, 2, 376)) {
+	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, 376)) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Hephasto");
 	}
 
@@ -22,7 +22,7 @@ function hellforge () {
 	}
 
 	Pickit.pickItems();
-	let forge = getUnit(2, 376);
+	let forge = Game.getObject(376);
 	!!forge && Attack.clearPos(forge.x, forge.y, 25) && Attack.securePosition(forge.x, forge.y, 25, 3000);
 
 	if (!me.getItem(sdk.items.quest.HellForgeHammer)) {
@@ -55,7 +55,7 @@ function hellforge () {
 	
 	Pather.usePortal(sdk.areas.RiverofFlame, me.name);
 
-	if (!Pather.moveToPreset(me.area, 2, 376)) {
+	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, 376)) {
 		console.warn('ÿc8Kolbot-SoloPlayÿc0: Failed to move to forge');
 
 		return true;

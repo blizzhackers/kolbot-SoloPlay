@@ -285,7 +285,7 @@ const Overlay = {
 			// Double check in case still got here before being ready
 			if (!me.gameReady || !me.ingame || !me.area) return "";
 
-			let textLine = ("MF: ÿc8" + me.getStat(80) + "ÿc4  FHR: ÿc8" + (me.FHR) + "ÿc4  FBR: ÿc8" + (me.FBR) + "ÿc4  FCR: ÿc8" + (me.FCR)
+			let textLine = ("MF: ÿc8" + me.getStat(sdk.stats.MagicBonus) + "ÿc4  FHR: ÿc8" + (me.FHR) + "ÿc4  FBR: ÿc8" + (me.FBR) + "ÿc4  FCR: ÿc8" + (me.FCR)
 				+ "ÿc4  IAS: ÿc8" + (me.IAS));
 
 			return textLine;

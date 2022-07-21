@@ -42,10 +42,10 @@ Skill.getManaCost = function (skillId = -1) {
 	// first skills dont use mana
 	if (skillId < 6) return 0;
 	// Decoy wasn't reading from skill bin
-	if (skillId === sdk.skills.Decoy) return Math.max(19.75 - (0.75 * me.getSkill(sdk.skills.Decoy, 1)), 1);
+	if (skillId === sdk.skills.Decoy) return Math.max(19.75 - (0.75 * me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.SoftPoints)), 1);
 	if (this.manaCostList.hasOwnProperty(skillId)) return this.manaCostList[skillId];
 
-	let skillLvl = me.getSkill(skillId, 1), effectiveShift = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
+	let skillLvl = me.getSkill(skillId, sdk.skills.subindex.SoftPoints), effectiveShift = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
 	let lvlmana = getBaseStat(3, skillId, "lvlmana") === 65535 ? -1 : getBaseStat(3, skillId, "lvlmana"); // Correction for skills that need less mana with levels (kolton)
 	let ret = Math.max((getBaseStat(3, skillId, "mana") + lvlmana * (skillLvl - 1)) * (effectiveShift[getBaseStat(3, skillId, "manashift")] / 256), getBaseStat(3, skillId, "minmana"));
 
@@ -171,7 +171,7 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 	case me.inTown && !this.townSkill(skillId): // cant cast this in town
 	case this.getManaCost(skillId) > me.mp: // dont have enough mana for this
 	case !this.wereFormCheck(skillId): // can't cast in wereform
-	//case (!me.getSkill(skillId, 1) && !settings.oSkill): // Dont have this skill
+	//case (!me.getSkill(skillId, sdk.skills.subindex.SoftPoints) && !settings.oSkill): // Dont have this skill
 		return false;
 	case skillId === undefined:
 		throw new Error("Unit.cast: Must supply a skill ID");

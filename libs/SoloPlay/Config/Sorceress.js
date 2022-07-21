@@ -67,6 +67,9 @@ function LoadConfig () {
 	Config.FieldID.UsedSpace = 80; // how much space has been used before trying to field id, set to 0 to id after every item picked
 	//	Config.PickitFiles.push("kolton.nip");
 	//	Config.PickitFiles.push("LLD.nip");
+	// if (me.profile === "scl-sorc-001") {
+	// 	Config.PickitFiles.push("test.nip");
+	// }
 
 	/* Gambling configuration. */
 	Config.Gamble = true;

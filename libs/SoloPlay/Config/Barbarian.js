@@ -128,7 +128,7 @@ function LoadConfig () {
 
 	/* Attack configuration. */
 	Config.AttackSkill = [-1, 0, 0, 0, 0];
-	Config.LowManaSkill = me.getSkill(sdk.skills.DoubleSwing, 1) >= 9 ? [sdk.skills.DoubleSwing, 0] : [0, -1];
+	Config.LowManaSkill = me.getSkill(sdk.skills.DoubleSwing, sdk.skills.subindex.SoftPoints) >= 9 ? [sdk.skills.DoubleSwing, 0] : [0, -1];
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal;
 	Config.ClearType = 0;

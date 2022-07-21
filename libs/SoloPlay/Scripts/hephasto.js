@@ -11,7 +11,7 @@ function hephasto() {
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
 
-	if (!Pather.moveToPreset(me.area, 2, 376)) {
+	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, 376)) {
 		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Hephasto");
 	}
 

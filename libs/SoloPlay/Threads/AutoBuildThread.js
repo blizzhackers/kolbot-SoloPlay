@@ -55,16 +55,16 @@ function skillInValidRange (id) {
 function gainedLevels () { return me.charlvl - prevLevel; }
 
 function canSpendPoints () {
-	let unusedStatPoints = me.getStat(4);
+	let unusedStatPoints = me.getStat(sdk.stats.StatPts);
 	let haveUnusedStatpoints = unusedStatPoints >= 5;	// We spend 5 stat points per level up
-	let unusedSkillPoints = me.getStat(5);
+	let unusedSkillPoints = me.getStat(sdk.stats.NewSkills);
 	let haveUnusedSkillpoints = unusedSkillPoints >= 1;	// We spend 1 skill point per level up
 	debug && AutoBuild.print("Stat points:", unusedStatPoints, "     Skill points:", unusedSkillPoints);
 	return haveUnusedStatpoints && haveUnusedSkillpoints;
 }
 
 function spendStatPoint (id) {
-	let unusedStatPoints = me.getStat(4);
+	let unusedStatPoints = me.getStat(sdk.stats.StatPts);
 	if (SPEND_POINTS) {
 		useStatPoint(id);
 		AutoBuild.print("useStatPoint(" + id + "): " + STAT_ID_TO_NAME[id]);
@@ -72,7 +72,7 @@ function spendStatPoint (id) {
 		AutoBuild.print("Fake useStatPoint(" + id + "): " + STAT_ID_TO_NAME[id]);
 	}
 	delay(100);											// TODO: How long should we wait... if at all?
-	return (unusedStatPoints - me.getStat(4) === 1);	// Check if we spent one point
+	return (unusedStatPoints - me.getStat(sdk.stats.StatPts) === 1);	// Check if we spent one point
 }
 
 // TODO: What do we do if it fails? report/ignore/continue?
@@ -81,7 +81,7 @@ function spendStatPoints () {
 	let stats = usingFinalBuiild ? finalBuild.AutoBuildTemplate[me.charlvl].StatPoints : AutoBuildTemplate[me.charlvl].StatPoints;
 	let errorMessage = "\nInvalid stat point set in build template " + getTemplateFilename() + " at level " + me.charlvl;
 	let spentEveryPoint = true;
-	let unusedStatPoints = me.getStat(4);
+	let unusedStatPoints = me.getStat(sdk.stats.StatPts);
 	let len = stats.length;
 
 	if (Config.AutoStat.Enabled) {
@@ -127,7 +127,7 @@ function getTemplateFilename () {
 	if (["Start", "Stepping", "Leveling"].includes(build)) {
 		templateFilename = "SoloPlay/Config/Builds/" + sdk.charclass.nameOf(me.classid) + "." + buildType + ".js";
 	} else {
-		templateFilename = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + buildType + "Build.js";
+		templateFilename = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "/" + sdk.charclass.nameOf(me.classid) + "." + buildType + "Build.js";
 	}
 	return templateFilename;
 }
@@ -146,7 +146,7 @@ function getRequiredSkills (id) {
 		for (let i = 0; i < results.length; i++) {
 			let skill = results[i];
 			let skillInValidRange = (0 < skill && skill <= 280) && (![217, 218, 219, 220].contains(skill));
-			let hardPointsInSkill = me.getSkill(skill, 0);
+			let hardPointsInSkill = me.getSkill(skill, sdk.skills.subindex.HardPoints);
 
 			if (skillInValidRange && !hardPointsInSkill) {
 				requirements.push(skill);
@@ -162,7 +162,7 @@ function getRequiredSkills (id) {
 }
 
 function spendSkillPoint (id) {
-	let unusedSkillPoints = me.getStat(5);
+	let unusedSkillPoints = me.getStat(sdk.stats.NewSkills);
 	let skillName = getSkillById(id) + " (" + id + ")";
 	if (SPEND_POINTS) {
 		useSkillPoint(id);
@@ -171,7 +171,7 @@ function spendSkillPoint (id) {
 		AutoBuild.print("Fake useSkillPoint(): " + skillName);
 	}
 	delay(200);											// TODO: How long should we wait... if at all?
-	return (unusedSkillPoints - me.getStat(5) === 1);	// Check if we spent one point
+	return (unusedSkillPoints - me.getStat(sdk.stats.NewSkills) === 1);	// Check if we spent one point
 }
 
 function spendSkillPoints () {
@@ -179,7 +179,7 @@ function spendSkillPoints () {
 	let skills = usingFinalBuiild ? finalBuild.AutoBuildTemplate[me.charlvl].SkillPoints : AutoBuildTemplate[me.charlvl].SkillPoints;
 	let errInvalidSkill = "\nInvalid skill point set in build template " + getTemplateFilename() + " for level " + me.charlvl;
 	let spentEveryPoint = true;
-	let unusedSkillPoints = me.getStat(5);
+	let unusedSkillPoints = me.getStat(sdk.stats.NewSkills);
 	let len = skills.length;
 
 	if (Config.AutoSkill.Enabled) {
@@ -220,7 +220,7 @@ function spendSkillPoints () {
 				spentEveryPoint = false;
 				AutoBuild.print("Attempt to spend skill point " + (i + 1) + " in " + skillName + " may have failed!");
 			} else if (debug) {
-				let actualSkillLevel = me.getSkill(id, 1);
+				let actualSkillLevel = me.getSkill(id, sdk.skills.subindex.SoftPoints);
 				AutoBuild.print("Skill (" + (i + 1) + "/" + len + ") Increased " + skillName + " by one (level: ", actualSkillLevel + ")");
 			}
 		}

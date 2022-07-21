@@ -328,7 +328,7 @@ Unit.prototype.shouldKeep = function () {
 		// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
 		|| (this.unique && Pickit.checkItem(this).result === 2)
 		// or keep if item is worth selling
-		|| (this.getItemCost(1) / (this.sizex * this.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
+		|| (this.getItemCost(sdk.items.cost.ToSell) / (this.sizex * this.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
 		return (Storage.Inventory.CanFit(this) && Storage.Inventory.MoveTo(this));
 	}
 
@@ -355,7 +355,7 @@ Unit.prototype.equipItem = function (bodyLoc = -1) {
 
 			if (this.bodylocation === bodyLoc) {
 				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem) {
 						// rollback check
@@ -364,7 +364,7 @@ Unit.prototype.equipItem = function (bodyLoc = -1) {
 							console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
 							console.debug("OldItem: " + NTIP.GetTier(cursorItem) + " Just Equipped Item: " + Item.getEquippedItem(bodyLoc).tier);
 							clickItemAndWait(0, bodyLoc);
-							cursorItem = getUnit(100);
+							cursorItem = Game.getCursorUnit();
 							rolledBack = true;
 						}
 
@@ -401,7 +401,7 @@ Unit.prototype.secondaryEquip = function (bodyLoc = -1) {
 
 			if (this.bodylocation === bodyLoc - 7) {
 				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem) {
 						if (!this.shouldKeep()) {
@@ -438,7 +438,7 @@ Unit.prototype.equipMerc = function (bodyLoc = -1) {
 
 			if (this.bodylocation === bodyLoc) {
 				if (getCursorType() === 3) {
-					let cursorItem = getUnit(100);
+					let cursorItem = Game.getCursorUnit();
 
 					if (cursorItem) {
 						if (!this.shouldKeep()) {

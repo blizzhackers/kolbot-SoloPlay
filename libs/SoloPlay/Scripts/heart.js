@@ -12,7 +12,7 @@ function heart () {
 	Pather.checkWP(sdk.areas.KurastBazaar, true) ? Pather.useWaypoint(sdk.areas.KurastBazaar) : Pather.getWP(sdk.areas.KurastBazaar);
 	Precast.doPrecast(true);
 
-	if (!Pather.moveToExit([sdk.areas.KurastBazaar, sdk.areas.A3SewersLvl1, sdk.areas.A3SewersLvl2], true) || !Pather.moveToPreset(me.area, 2, 405)) {
+	if (!Pather.moveToExit([sdk.areas.KurastBazaar, sdk.areas.A3SewersLvl1, sdk.areas.A3SewersLvl2], true) || !Pather.moveToPreset(me.area, sdk.unittype.Object, 405)) {
 		if (!me.getItem(sdk.items.quest.KhalimsHeart)) {
 			print('ÿc8Kolbot-SoloPlayÿc0: Failed to get the heart');
 			return false;
