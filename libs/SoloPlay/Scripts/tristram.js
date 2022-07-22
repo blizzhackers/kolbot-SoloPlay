@@ -31,7 +31,7 @@ function tristram () {
 			Precast.doPrecast(true);
 
 			if (!Pather.moveToPreset(sdk.areas.DarkWood, sdk.unittype.Object, sdk.quest.chest.InifussTree, 5, 5)) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Tree of Inifuss");
+				console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Tree of Inifuss");
 				return false;
 			}
 

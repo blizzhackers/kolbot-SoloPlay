@@ -274,7 +274,7 @@ function baal () {
 			Pather.moveTo(15095, 5881);
 			Pickit.pickItems();
 		} else {
-			print("ÿc8Kolbot-SoloPlayÿc0: Couldn't access portal.");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Couldn't access portal.");
 		}
 	} catch (e) {
 		//

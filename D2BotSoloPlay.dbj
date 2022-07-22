@@ -338,9 +338,10 @@ function locationAction (location) {
 
 		typeof Starter.Config.MaxPlayerCount === "number" && Controls.MaxPlayerCount.setText(Starter.Config.MaxPlayerCount.toString());
 
-		if (CharData.getStats().me.setDifficulty) {
-			Starter.gameInfo.difficulty = CharData.getStats().me.setDifficulty;
-
+		// todo - really don't need use profiles set difficulty for online. Only single player so re-write difficulty stuff
+		let setDiff = CharData.getStats().me.setDifficulty;
+		if (setDiff) {
+			Starter.gameInfo.difficulty = setDiff;
 			// only set the profile if the values aren't already the same
 			if (Starter.gameInfo.difficulty !== Starter.profileInfo.difficulty) {
 				delay(rand(250, 1000));
@@ -723,9 +724,9 @@ function locationAction (location) {
 		}
 
 		break;
-	case sdk.game.locations.ServerDown: // Server Down - not much to do but wait..
+	case sdk.game.locations.ServerDown:
 		break;
-	case sdk.game.locations.LobbyPleaseWait: // Lobby - Please Wait
+	case sdk.game.locations.LobbyPleaseWait:
 		!Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, location) && Controls.OkCentered.click();
 
 		break;
@@ -867,7 +868,7 @@ function main () {
 						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
 						statusString = me.name + " | Lvl: " + me.charlvl + " (" + myExp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + frRes + "/C: " + crRes + "/L: " + lrRes + "/P: " + prRes + ")";
 					} catch (e) {
-						print(e);
+						console.error(e);
 					}
 
 					D2Bot.updateStatus(statusString + timer(Starter.gameStart));

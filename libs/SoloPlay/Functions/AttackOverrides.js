@@ -22,19 +22,19 @@ Attack.init = function () {
 	if (Config.Wereform) {
 		include("common/Attacks/wereform.js");
 	} else if (Config.CustomClassAttack && FileTools.exists("libs/common/Attacks/" + Config.CustomClassAttack + ".js")) {
-		print("Loading custom attack file");
+		console.log("Loading custom attack file");
 		include("common/Attacks/" + Config.CustomClassAttack + ".js");
 	} else {
 		if (!include("SoloPlay/Functions/ClassAttackOverrides/" + sdk.charclass.nameOf(me.classid) + "Attacks.js")) {
-			print(sdk.colors.Red + "Failed to include: " + "SoloPlay/Functions/ClassAttackOverrides/" + this.classes[me.classid] + "Attacks.js");
-			print(sdk.colors.Blue + "Loading default attacks instead");
+			console.log(sdk.colors.Red + "Failed to include: " + "SoloPlay/Functions/ClassAttackOverrides/" + this.classes[me.classid] + "Attacks.js");
+			console.log(sdk.colors.Blue + "Loading default attacks instead");
 			include("common/Attacks/" + sdk.charclass.nameOf(me.classid) + ".js");
 		}
 	}
 
 	if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0) {
 		showConsole();
-		print("ÿc1Bad attack config. Don't expect your bot to attack.");
+		console.log("ÿc1Bad attack config. Don't expect your bot to attack.");
 	}
 
 	this.getPrimarySlot();
@@ -355,7 +355,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 
 				// Skip non-unique monsters after 15 attacks, except in Throne of Destruction
 				if (me.area !== sdk.areas.ThroneofDestruction && !target.isSpecial && gidAttack[i].attacks > 15) {
-					print("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
+					console.log("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
 					monsterList.shift();
 				}
 
@@ -663,7 +663,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 
 				// Skip non-unique monsters after 15 attacks, except in Throne of Destruction
 				if (me.area !== sdk.areas.ThroneofDestruction && !isSpecial && gidAttack[i].attacks > 15) {
-					print("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
+					console.log("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
 					monsterList.shift();
 				}
 
@@ -672,7 +672,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 				}
 			} else {
 				if (Coords_1.isBlockedBetween(me, target)) {
-					print("ÿc1Skipping " + target.name + " because they are blocked. Collision: " + Coords_1.getCollisionBetweenCoords(me.x, me.y, target.x, target.y).toString(16));
+					console.log("ÿc1Skipping " + target.name + " because they are blocked. Collision: " + Coords_1.getCollisionBetweenCoords(me.x, me.y, target.x, target.y).toString(16));
 					monsterList.shift();
 					retry = 0;
 				}
@@ -727,7 +727,7 @@ Attack.clearEx = function (givenSettings) {
 		}
 
 		if (!boss) {
-			print("Attack.clear: " + bossId + " not found");
+			console.log("Attack.clear: " + bossId + " not found");
 
 			orgx = me.x;
 			orgy = me.y;
@@ -823,7 +823,7 @@ Attack.clearEx = function (givenSettings) {
 
 				// Skip non-unique monsters after 15 attacks, except in Throne of Destruction
 				if (me.area !== sdk.areas.ThroneofDestruction && !(target.spectype & 0x7) && gidAttack[i].attacks > 15) {
-					print("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
+					console.log("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
 					monsterList.shift();
 				}
 
@@ -832,7 +832,7 @@ Attack.clearEx = function (givenSettings) {
 				}
 			} else {
 				if (Coords_1.isBlockedBetween(me, target)) {
-					print("ÿc1Skipping " + target.name + " because they are blocked. Collision: " + Coords_1.getCollisionBetweenCoords(me.x, me.y, target.x, target.y).toString(16));
+					console.log("ÿc1Skipping " + target.name + " because they are blocked. Collision: " + Coords_1.getCollisionBetweenCoords(me.x, me.y, target.x, target.y).toString(16));
 					monsterList.shift();
 					retry = 0;
 				}
@@ -1116,7 +1116,7 @@ Attack.pwnDia = function () {
 	}
 
 	if (!dia) {
-		print("No diablo");
+		console.log("No diablo");
 		return false;
 	}
 
@@ -1226,8 +1226,8 @@ Attack.pwnDia = function () {
 			} else {
 				// If we got enough mana to teleport close to diablo, static the bitch, and jump back
 				let diabloMissiles = getUnits(3).filter(function (unit) { let _a; return ((_a = unit.getParent()) === null || _a === void 0 ? void 0 : _a.gid) === dia.gid; });
-				print("Diablo missiles: " + diabloMissiles.length);
-				print("Diablo mode:" + dia.mode);
+				console.log("Diablo missiles: " + diabloMissiles.length);
+				console.log("Diablo mode:" + dia.mode);
 				me.overhead("Dia life " + (~~(dia.hp / 128 * 100)).toString() + "%");
 				if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3 && ![4, 5, 7, 8, 9, 10, 11].includes(dia.mode) && dia.hpPercent > Config.CastStatic) {
 					let x = me.x, y = me.y;
@@ -1391,11 +1391,11 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 						if (currCount < count) {
 							count = currCount;
 							potentialSpot = {x: coords[i].x, y: coords[i].y};
-							Developer.debugging.pathing	&& print(sdk.colors.Blue + "CheckedSpot" + sdk.colors.Yellow + ": x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + count);
+							Developer.debugging.pathing	&& console.log(sdk.colors.Blue + "CheckedSpot" + sdk.colors.Yellow + ": x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + count);
 						}
 
 						if (currCount !== 0) {
-							Developer.debugging.pathing	&& print(sdk.colors.Red + "Not Zero, check next: currCount: " + sdk.colors.NeonGreen + " " + currCount);
+							Developer.debugging.pathing	&& console.log(sdk.colors.Red + "Not Zero, check next: currCount: " + sdk.colors.NeonGreen + " " + currCount);
 							continue;
 						}
 					}
@@ -1410,7 +1410,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 						Pather.moveToEx(coords[i].x, coords[i].y, {clearSettings: {allowClearing: !useTele, range: useTele ? 10 : 5, retry: 3}});
 					}
 
-					Developer.debugging.pathing && print(sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow + "Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + currCount);
+					Developer.debugging.pathing && console.log(sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow + "Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + currCount);
 
 					return true;
 				}
@@ -1443,12 +1443,12 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 			}
 		}
 
-		Developer.debugging.pathing && print(sdk.colors.Orange + "DefaultCheck :: " + sdk.colors.Yellow + "Moving to: x: " + potentialSpot.x + " y: " + potentialSpot.y + " mob amount: " + sdk.colors.NeonGreen + count);
+		Developer.debugging.pathing && console.log(sdk.colors.Orange + "DefaultCheck :: " + sdk.colors.Yellow + "Moving to: x: " + potentialSpot.x + " y: " + potentialSpot.y + " mob amount: " + sdk.colors.NeonGreen + count);
 
 		return true;
 	}
 
-	!!name && print("ÿc4Attackÿc0: No valid positions for: " + name);
+	!!name && console.log("ÿc4Attackÿc0: No valid positions for: " + name);
 
 	return false;
 };

@@ -13,13 +13,13 @@ function hephasto() {
 	Precast.doPrecast(true);
 
 	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, 376)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Hephasto");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Hephasto");
 	}
 
 	try {
 		Attack.killTarget(getLocaleString(1067)); // Hephasto The Armorer
 	} catch (err) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to kill Hephasto");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to kill Hephasto");
 	}
 
 	Pickit.pickItems();

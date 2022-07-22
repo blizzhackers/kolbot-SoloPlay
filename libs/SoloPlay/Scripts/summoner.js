@@ -79,7 +79,7 @@ function summoner () {
 	try {
 		Pather.moveToPreset(sdk.areas.ArcaneSanctuary, sdk.unittype.Object, sdk.units.Journal, -3, -3);
 	} catch (err) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to reach Summoner. Retry");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to reach Summoner. Retry");
 
 		if (!Pather.moveToPreset(sdk.areas.ArcaneSanctuary, sdk.unittype.Object, sdk.units.Journal, -3, -3)) {
 			throw new Error("Failed to reach summoner");
@@ -89,7 +89,7 @@ function summoner () {
 	try {
 		Attack.killTarget(sdk.monsters.TheSummoner);
 	} catch (e) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to kill summoner");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to kill summoner");
 
 		return false;
 	}

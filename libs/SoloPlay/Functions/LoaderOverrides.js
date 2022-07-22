@@ -64,7 +64,7 @@ Loader.loadScripts = function () {
 					reconfiguration = typeof Scripts[script] === "object";
 
 					if (reconfiguration) {
-						print("ÿc2Copying Config properties from " + script + " object.");
+						console.log("ÿc2Copying Config properties from " + script + " object.");
 						this.copy(Scripts[script], Config);
 					}
 
@@ -84,7 +84,7 @@ Loader.loadScripts = function () {
 				}
 					
 				if (reconfiguration) {
-					print("ÿc2Reverting back unmodified config properties.");
+					console.log("ÿc2Reverting back unmodified config properties.");
 					this.copy(unmodifiedConfig, Config);
 				}
 			}

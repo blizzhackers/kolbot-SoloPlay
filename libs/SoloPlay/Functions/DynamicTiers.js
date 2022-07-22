@@ -593,7 +593,7 @@ const tierscore = function (item, bodyloc) {
 					}
 				}
 			} catch (e) {
-				print(e);
+				console.log(e);
 			}
 		}
 

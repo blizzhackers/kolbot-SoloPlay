@@ -637,7 +637,7 @@ const Overlay = {
 		} else {
 			Overlay.quests.flush();
 			Overlay.quests.enabled = false;
-			print(Overlay.quests.enabled);
+			console.log(Overlay.quests.enabled);
 		}
 
 		delay(100);

@@ -24,7 +24,7 @@ function travincal () {
 
 	// go to orb
 	if (!Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.units.CompellingOrb)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to compelling orb");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to compelling orb");
 	}
 
 	let orb = Game.getObject(sdk.units.CompellingOrb);
@@ -58,7 +58,7 @@ function travincal () {
 
 		// return to Trav
 		if (!Pather.usePortal(sdk.areas.Travincal, me.name)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to go back to Travincal and smash orb");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to go back to Travincal and smash orb");
 		}
 
 		Quest.smashSomething(sdk.units.CompellingOrb); // smash orb
@@ -67,7 +67,7 @@ function travincal () {
 
 		// return to Trav
 		if (!Pather.usePortal(sdk.areas.Travincal, me.name)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to go back to Travincal and take entrance");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to go back to Travincal and take entrance");
 			Pather.useWaypoint(sdk.areas.Travincal);
 			Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.units.CompellingOrb);
 		}

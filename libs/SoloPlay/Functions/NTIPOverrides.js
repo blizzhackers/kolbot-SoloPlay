@@ -125,7 +125,7 @@ NTIP.hasStats = function (item, entryList = [], verbose = false) {
 				}
 			}
 		} catch (e) {
-			print(e);
+			console.log(e);
 			hasStat = false;
 
 			break;
@@ -410,7 +410,7 @@ NTIP.OpenFile = function (filepath, notify) {
 	}
 
 	if (notify) {
-		print("ÿc4Loaded NIP: ÿc2" + filename + "ÿc4. Lines: ÿc2" + lines.length + "ÿc4. Valid entries: ÿc2" + entries + ". ÿc4Time: ÿc2" + (getTickCount() - tick) + " ms");
+		console.log("ÿc4Loaded NIP: ÿc2" + filename + "ÿc4. Lines: ÿc2" + lines.length + "ÿc4. Valid entries: ÿc2" + entries + ". ÿc4Time: ÿc2" + (getTickCount() - tick) + " ms");
 	}
 
 	return true;

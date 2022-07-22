@@ -5,3 +5,6 @@ libs/SoloPlay/Data/**
 libs/SoloPlay/Functions/BlizzardError
 libs/SoloPlay/Functions/*.png
 libs/SoloPlay/Functions/*.jpg
+libs/SoloPlay/Modules/RuneData.js
+libs/SoloPlay/Modules/SkillData.js
+libs/SoloPlay/Modules/util.js

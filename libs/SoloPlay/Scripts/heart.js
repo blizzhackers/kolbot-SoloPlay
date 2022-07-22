@@ -7,7 +7,7 @@
 
 function heart () {
 	Town.townTasks();
-	print("ÿc8Kolbot-SoloPlayÿc0: starting heart");
+	console.log("ÿc8Kolbot-SoloPlayÿc0: starting heart");
 	me.overhead("heart");
 
 	Pather.checkWP(sdk.areas.KurastBazaar, true) ? Pather.useWaypoint(sdk.areas.KurastBazaar) : Pather.getWP(sdk.areas.KurastBazaar);
@@ -15,7 +15,7 @@ function heart () {
 
 	if (!Pather.moveToExit([sdk.areas.KurastBazaar, sdk.areas.A3SewersLvl1, sdk.areas.A3SewersLvl2], true) || !Pather.moveToPreset(me.area, sdk.unittype.Object, 405)) {
 		if (!me.getItem(sdk.items.quest.KhalimsHeart)) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to get the heart");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to get the heart");
 			return false;
 		}
 	}

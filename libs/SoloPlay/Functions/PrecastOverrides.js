@@ -95,7 +95,7 @@ Precast.summon = function (skillId, minionType) {
 					}
 				}
 			} catch (e) {
-				print(e);
+				console.log(e);
 			}
 		}
 

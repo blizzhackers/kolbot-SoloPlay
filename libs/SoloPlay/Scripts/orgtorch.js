@@ -267,7 +267,7 @@ function orgtorch() {
 			}
 		}
 
-		print("Need " + needJuvs + " juvs.");
+		console.log("Need " + needJuvs + " juvs.");
 
 		return needJuvs;
 	};
@@ -288,7 +288,7 @@ function orgtorch() {
 
 	// End the script if we don't have enough keys nor organs
 	if ((tkeys < 3 || hkeys < 3 || dkeys < 3) && (brains < 1 || eyes < 1 || horns < 1)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Not enough keys or organs.");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Not enough keys or organs.");
 
 		return true;
 	}
@@ -298,7 +298,7 @@ function orgtorch() {
 	// We have enough keys, do mini ubers
 	if (tkeys >= 3 && hkeys >= 3 && dkeys >= 3) {
 		this.getFade();
-		print("ÿc8Kolbot-SoloPlayÿc0: Making organs.");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Making organs.");
 		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making organs.", 8);
 
 		for (i = 0; i < 3; i += 1) {
@@ -350,7 +350,7 @@ function orgtorch() {
 	// We have enough organs, do Tristram
 	if (brains && eyes && horns) {
 		this.getFade();
-		print("ÿc8Kolbot-SoloPlayÿc0: Making torch");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Making torch");
 		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making torch.", 8);
 
 		portal = this.openPortal(1);

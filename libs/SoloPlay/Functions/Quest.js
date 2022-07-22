@@ -271,10 +271,10 @@ const Quest = {
 			
 			if (!Item.equip(questItem, loc)) {
 				Pickit.pickItems();
-				print("ÿc8Kolbot-SoloPlayÿc0: failed to equip " + classid + " .(Quest.equipItem)");
+				console.log("ÿc8Kolbot-SoloPlayÿc0: failed to equip " + classid + " .(Quest.equipItem)");
 			}
 		} else {
-			print("ÿc8Kolbot-SoloPlayÿc0: Lost " + classid + " before trying to equip it. (Quest.equipItem)");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Lost " + classid + " before trying to equip it. (Quest.equipItem)");
 			return false;
 		}
 
@@ -283,12 +283,12 @@ const Quest = {
 
 			if (olditem) {
 				if (Storage.Inventory.CanFit(olditem)) {
-					print("ÿc8Kolbot-SoloPlayÿc0: Keeping weapon");
+					console.log("ÿc8Kolbot-SoloPlayÿc0: Keeping weapon");
 
 					Storage.Inventory.MoveTo(olditem);
 				} else {
 					me.cancel();
-					print("ÿc8Kolbot-SoloPlayÿc0: No room to keep weapon");
+					console.log("ÿc8Kolbot-SoloPlayÿc0: No room to keep weapon");
 
 					olditem.drop();
 				}

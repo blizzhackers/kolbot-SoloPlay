@@ -98,7 +98,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	me.charlvl >= 5 && (needRepair = Town.needRepair());
 
 	if ((Config.MercWatch && Town.needMerc()) || needRepair.length > 0) {
-		print("towncheck");
+		console.log("towncheck");
 
 		if (Town.visitTown(!!needRepair.length)) {
 			// lost reference to the mob we were attacking

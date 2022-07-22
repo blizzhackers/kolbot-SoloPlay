@@ -70,7 +70,7 @@ Misc.townCheck = function () {
 
 	if (check) {
 		if (Messaging.sendToScript("libs/SoloPlay/Threads/TownChicken.js", "townCheck")) {
-			print("BroadCasted townCheck");
+			console.log("BroadCasted townCheck");
 			
 			return true;
 		}
@@ -335,7 +335,7 @@ Misc.addSocketablesToItem = function (item, runes = []) {
 			Town.sortInventory();
 
 			if (!Storage.Inventory.CanFit(item) && !Storage.Inventory.MoveTo(item)) {
-				print("ÿc8AddSocketableToItemÿc0 :: No space to get item back");
+				console.log("ÿc8AddSocketableToItemÿc0 :: No space to get item back");
 				return false;
 			}
 		} else {
@@ -494,7 +494,7 @@ Misc.getSocketables = function (item, itemInfo) {
 		// check to ensure I am a high enough level to use wanted socketables
 		for (let i = 0; i < multiple.length; i++) {
 			if (me.charlvl < multiple[i].lvlreq) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Not high enough level for " + multiple[i].fname);
+				console.log("ÿc8Kolbot-SoloPlayÿc0: Not high enough level for " + multiple[i].fname);
 				return false;
 			}
 		}
@@ -502,7 +502,7 @@ Misc.getSocketables = function (item, itemInfo) {
 		if (Misc.addSocketablesToItem(item, multiple)) {
 			delay(250 + me.ping);
 		} else {
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to add socketable to " + item.fname);
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to add socketable to " + item.fname);
 		}
 
 		return item.getItemsEx().length === sockets || item.getItemsEx().length > preSockets;
@@ -587,14 +587,32 @@ Misc.logItem = function (action, unit, keptLine) {
 		lastArea && (desc += ("\n\\xffc0Area: " + lastArea));
 	}
 
-	let mercCheck = action.match("Merc");
+	const mercCheck = action.match("Merc");
+	const hasTier = AutoEquip.hasTier(unit);
+	const charmCheck = (unit.isCharm && Item.autoEquipCharmCheck(unit));
+	const nTResult = !!(NTIP.CheckItem(unit, NTIP_CheckListNoTier, true).result && (keptLine && !keptLine.match("SoloPlay")));
 
-	if (!action.match("kept", "i") && !action.match("Shopped") && AutoEquip.hasTier(unit)) {
+	if (!action.match("kept", "i") && !action.match("Shopped") && hasTier) {
 		if (!mercCheck) {
 			NTIP.GetCharmTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit)));
 			NTIP.GetTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip char tier: " + NTIP.GetTier(unit)));
 		} else {
 			desc += ("\n\\xffc0Autoequip merc tier: " + NTIP.GetMercTier(unit));
+		}
+	}
+
+	// should stop logging items unless we wish to see them or it's part of normal pickit
+	if (nTResult || unit.isCharm || hasTier) {
+		console.debug("NT: " + nTResult + " CC: " + charmCheck + " HT: " + hasTier);
+		switch (true) {
+		case nTResult:
+		case hasTier && !unit.isCharm && Developer.debugging.autoEquip:
+		case (charmCheck && Developer.debugging.smallCharm && unit.classid === sdk.items.SmallCharm):
+		case (charmCheck && Developer.debugging.largeCharm && unit.classid === sdk.items.LargeCharm):
+		case (charmCheck && Developer.debugging.grandCharm && unit.classid === sdk.items.GrandCharm):
+			break;
+		default:
+			return true;
 		}
 	}
 
@@ -816,7 +834,7 @@ Misc.errorReport = function (error, script) {
 	}
 
 	showConsole();
-	print(msg);
+	console.log(msg);
 	this.fileAction("logs/ScriptErrorLog.txt", 2, filemsg);
 	takeScreenshot();
 	delay(500);

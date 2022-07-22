@@ -457,7 +457,7 @@ var Container = function (name, width, height, location) {
 
 			return this.MoveToSpot(item, nPos.y, nPos.x);
 		} catch (e) {
-			print("Storage.Container.MoveTo caught error : " + e + " - " + e.toSource());
+			console.log("Storage.Container.MoveTo caught error : " + e + " - " + e.toSource());
 
 			return false;
 		}
@@ -474,11 +474,11 @@ var Container = function (name, width, height, location) {
 					string += (this.buffer[x][y] > 0) ? "ÿc1x" : "ÿc0o";
 				}
 
-				print(string);
+				console.log(string);
 			}
 		}
 
-		print("ÿc9SoloPlayÿc0: " + this.name + " has used " + this.UsedSpacePercent().toFixed(2) + "% of its total space");
+		console.log("ÿc9SoloPlayÿc0: " + this.name + " has used " + this.UsedSpacePercent().toFixed(2) + "% of its total space");
 	};
 
 	this.UsedSpacePercent = function () {

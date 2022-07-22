@@ -36,7 +36,7 @@ function main () {
 	let profiles = [];
 	let tickDelay = 0;
 
-	print("ÿc8Kolbot-SoloPlayÿc0: Start EventThread");
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Start EventThread");
 	D2Bot.init();
 	SetUp.include();
 	Config.init(false);
@@ -180,11 +180,11 @@ function main () {
 		// Torch
 		if (id === 55) {
 			let { profile, ladder, torchType } = JSON.parse(info);
-			print("Mesage recived for torch...processing");
+			console.log("Mesage recived for torch...processing");
 
 			if (profile !== me.profile && (me.hell || (me.nightmare && me.baal)) && me.ladder === ladder) {
 				if (torchType === me.classid && !me.findItem(604, 0, null, 7)) {
-					print("Sent Response");
+					console.log("Sent Response");
 					SoloEvents.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 604});
 				}
 			}
@@ -195,11 +195,11 @@ function main () {
 		// Annhilus
 		if (id === 60) {
 			let { profile, ladder } = JSON.parse(info);
-			print("Mesage recived for Annhilus...processing");
+			console.log("Mesage recived for Annhilus...processing");
 
 			if (profile !== me.profile && (me.hell || (me.nightmare && me.baal)) && me.ladder === ladder) {
 				if (!me.findItem(603, 0, null, 7)) {
-					print("Sent Response");
+					console.log("Sent Response");
 					SoloEvents.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 603});
 				}
 			}
@@ -210,7 +210,7 @@ function main () {
 		if (id === 65) {
 			let { profile, level, event } = JSON.parse(info);
 
-			print("Sucess: profile that contacted me: " + profile + " level of char: " + level);
+			console.log("Sucess: profile that contacted me: " + profile + " level of char: " + level);
 			SoloEvents.profileResponded = true;
 			profiles.push({profile: profile, level: level, event: event});
 			tickDelay += 1000;
@@ -234,7 +234,7 @@ function main () {
 					try {
 						SoloEvents[action.shift()]();
 					} catch (e) {
-						print(e);
+						console.log(e);
 					}
 
 					this.resumeThreadsAfterEvent();
@@ -262,7 +262,7 @@ function main () {
 			}
 		} catch (e) {
 			D2Bot.printToConsole(JSON.stringify(e));
-			print(e);
+			console.log(e);
 		}
 
 		delay(20);

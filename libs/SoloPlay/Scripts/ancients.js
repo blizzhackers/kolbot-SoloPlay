@@ -36,7 +36,7 @@ function ancients () {
 
 	Town.buyPotions();
 	if (!Pather.usePortal(sdk.areas.ArreatSummit, me.name)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to take portal back to Arreat Summit");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to take portal back to Arreat Summit");
 		Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter Arreat Summit
 	}
 	
@@ -63,7 +63,7 @@ function ancients () {
 			Pather.getWP(sdk.areas.WorldstoneLvl2);
 		}
 	} catch (err) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Cleared Ancients. Failed to get WSK Waypoint");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Cleared Ancients. Failed to get WSK Waypoint");
 	}
 
 	return true;

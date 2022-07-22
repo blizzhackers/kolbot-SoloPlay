@@ -6,7 +6,7 @@
 *
 */
 
-!isIncluded("libs/common/Prototypes.js") && include("libs/common/Prototypes.js");
+includeIfNotIncluded("libs/common/Prototypes.js");
 
 Unit.prototype.getResPenalty = function (difficulty) {
 	difficulty > 2 && (difficulty = 2);
@@ -308,7 +308,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 	unit && ([x, y] = [unit.x, unit.y]);
 
 	if (this !== me && this.type !== 4) {
-		Developer.debugging.skills && print("ÿc9CastChargedSkillÿc0 :: Wierd Error, invalid arguments, expected 'me' object or 'item' unit" + " unit type : " + this.type);
+		Developer.debugging.skills && console.log("ÿc9CastChargedSkillÿc0 :: Wierd Error, invalid arguments, expected 'me' object or 'item' unit" + " unit type : " + this.type);
 		return false;
 	}
 
@@ -331,7 +331,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 		});
 
 		if (chargedItems.length === 0) {
-			print("ÿc9CastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
+			console.log("ÿc9CastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
 			return false;
 		}
 
@@ -347,7 +347,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 		charge = this.getStat(-2)[204]; // WARNING. Somehow this gives duplicates
 
 		if (!charge) {
-			print("ÿc9CastChargedSkillÿc0 :: No charged skill on this item");
+			console.warn("ÿc9CastChargedSkillÿc0 :: No charged skill on this item");
 			return false;
 		}
 
@@ -357,7 +357,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 				charge = charge.first();
 			} else {
 				if (charge.skill !== skillId || !charge.charges) {
-					print("No charges matching skillId");
+					console.warn("No charges matching skillId");
 					charge = false;
 				}
 			}
@@ -379,10 +379,13 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 			// Packet casting
 			// Setting skill on hand
 			sendPacket(1, 0x3c, 2, charge.skill, 1, 0x0, 1, 0x00, 4, this.gid);
+			console.log("Set charge skill " + charge.skill + " on hand");
 			// No need for a delay, since its TCP, the server recv's the next statement always after the send cast skill packet
 
+			// Cast the skill
+			sendPacket(1, 0x0C, 2, x || me.x, 2, y || me.y);
+			console.log("Cast charge skill " + charge.skill);
 			// The result of "successfully" casted is different, so we cant wait for it here. We have to assume it worked
-			sendPacket(1, 0x0C, 2, x || me.x, 2, y || me.y); // Cast the skill
 
 			return true;
 		}
@@ -449,7 +452,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 		});
 
 		if (chargedItems.length === 0) {
-			print("ÿc9SwitchCastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
+			console.log("ÿc9SwitchCastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
 			return false;
 		}
 

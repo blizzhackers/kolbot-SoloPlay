@@ -116,7 +116,7 @@ Pather.canUseTeleCharges = function () {
 };
 
 Pather.teleportTo = function (x, y, maxRange = 5) {
-	Developer.debugging.pathing && print("Mob Count at next node: " + [x, y].mobCount());
+	Developer.debugging.pathing && console.log("Mob Count at next node: " + [x, y].mobCount());
 	
 	for (let i = 0; i < 3; i += 1) {
 		Skill.setSkill(sdk.skills.Teleport, sdk.skills.hand.Right) && Packet.castSkill(0, x, y);
@@ -664,7 +664,7 @@ Pather.moveToLoc = function (target, givenSettings) {
 				path.reverse();
 				PathDebug.drawPath(path);
 				pop && path.pop();
-				print("move retry " + fail);
+				console.log("move retry " + fail);
 
 				if (fail > 0) {
 					settings.allowClearing && Attack.clear(5) && Misc.openChests(2);

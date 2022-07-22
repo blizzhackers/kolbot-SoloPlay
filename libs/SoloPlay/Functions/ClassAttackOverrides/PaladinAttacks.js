@@ -18,7 +18,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
 	if (Config.MercWatch && Town.needMerc()) {
-		print("mercwatch");
+		console.log("mercwatch");
 
 		if (Town.visitTown()) {
 			// lost reference to the mob we were attacking

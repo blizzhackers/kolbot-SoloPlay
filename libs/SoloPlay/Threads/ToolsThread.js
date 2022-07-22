@@ -84,7 +84,7 @@ function main () {
 						script.pause();
 					}
 				} else {
-					scripts[l] === "default.dbj" && print("ÿc8ToolsThread :: ÿc2Resuming threads");
+					scripts[l] === "default.dbj" && console.log("ÿc8ToolsThread :: ÿc2Resuming threads");
 					script.resume();
 				}
 			}
@@ -283,7 +283,7 @@ function main () {
 			break;
 		case 96: // numpad 0
 			Developer.logPerformance && Tracker.update();
-			print("ÿc8Kolbot-SoloPlay: ÿc1Stopping profile");
+			console.log("ÿc8Kolbot-SoloPlay: ÿc1Stopping profile");
 			delay(rand(2e3, 5e3));
 			D2Bot.stop(me.profile, true);
 
@@ -305,9 +305,9 @@ function main () {
 		case 107: // Numpad +
 			showConsole();
 
-			print("ÿc8My stats :: " + Common.Toolsthread.getStatsString(me));
+			console.log("ÿc8My stats :: " + Common.Toolsthread.getStatsString(me));
 			let merc = me.getMerc();
-			!!merc && print("ÿc8Merc stats :: " + Common.Toolsthread.getStatsString(merc));
+			!!merc && console.log("ÿc8Merc stats :: " + Common.Toolsthread.getStatsString(merc));
 			console.log("//------ÿc8SoloWants.needListÿc0-----//");
 			console.log(SoloWants.needList);
 
@@ -315,7 +315,7 @@ function main () {
 		case 101: // numpad 5
 			if (AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("muleInfo")) {
 				if (AutoMule.getMuleItems().length > 0) {
-					print("ÿc2Mule triggered");
+					console.log("ÿc2Mule triggered");
 					scriptBroadcast("mule");
 					this.exit();
 
@@ -344,7 +344,7 @@ function main () {
 					D2Bot.printToConsole("charmscore: " + charmscore(itemToCheck));
 					D2Bot.printToConsole("getMercTier: " + NTIP.GetMercTier(itemToCheck));
 					D2Bot.printToConsole("mercscore: " + mercscore(itemToCheck));
-					print(itemToCheck.fname + " info printed to console");
+					console.log(itemToCheck.fname + " info printed to console");
 				}
 			}
 
@@ -372,13 +372,13 @@ function main () {
 						+ "\nÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(itemToCheck, NTIP_CheckListNoTier, true).result;
 				}
 				
-				print("ÿc8Kolbot-SoloPlay: ÿc2Item Info Start");
-				print(itemString);
-				print("ÿc8Kolbot-SoloPlay: ÿc2Charm Info Start");
-				print(charmString);
-				print("ÿc8Kolbot-SoloPlay: ÿc2General Info Start");
-				print(generalString);
-				print("ÿc8Kolbot-SoloPlay: ÿc1****************Info End****************");
+				console.log("ÿc8Kolbot-SoloPlay: ÿc2Item Info Start");
+				console.log(itemString);
+				console.log("ÿc8Kolbot-SoloPlay: ÿc2Charm Info Start");
+				console.log(charmString);
+				console.log("ÿc8Kolbot-SoloPlay: ÿc2General Info Start");
+				console.log(generalString);
+				console.log("ÿc8Kolbot-SoloPlay: ÿc1****************Info End****************");
 			}
 
 			break;
@@ -391,9 +391,9 @@ function main () {
 
 			break;
 		case 111: // numpad / - re-load default
-			print("ÿc8ToolsThread :: " + sdk.colors.Red + "Stopping threads and waiting 5 seconds to restart");
+			console.log("ÿc8ToolsThread :: " + sdk.colors.Red + "Stopping threads and waiting 5 seconds to restart");
 			this.stopDefault() && delay(5e3);
-			print("Starting default.dbj");
+			console.log("Starting default.dbj");
 			load("default.dbj");
 
 			break;
@@ -656,7 +656,7 @@ function main () {
 		}
 
 		if (me.maxgametime - (getTickCount() - me.gamestarttime) < 10e3) {
-			print("Max game time reached");
+			console.log("Max game time reached");
 			quitFlag = true;
 		}
 

@@ -7,7 +7,7 @@
 
 function lowerkurast () {
 	Town.townTasks();
-	print("ÿc8Kolbot-SoloPlayÿc0: starting lower kurast");
+	console.log("ÿc8Kolbot-SoloPlayÿc0: starting lower kurast");
 	me.overhead("lower kurast");
 
 	Pather.checkWP(sdk.areas.LowerKurast, true) ? Pather.useWaypoint(sdk.areas.LowerKurast) : Pather.getWP(sdk.areas.LowerKurast);

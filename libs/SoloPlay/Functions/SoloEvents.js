@@ -38,7 +38,7 @@ const SoloEvents = {
 				delay(1000);
 			}
 
-			print("ÿc8Kolbot-SoloPlayÿc0: End of SoloEvents.outOfGameCheck()");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: End of SoloEvents.outOfGameCheck()");
 			this.inGame = false;
 			this.check = false;
 			this.gameInfo.gameName = "";
@@ -90,7 +90,7 @@ const SoloEvents = {
 				}
 			}
 
-			print("Couldnt find player");
+			console.log("Couldnt find player");
 		}
 
 		return false;
@@ -113,7 +113,7 @@ const SoloEvents = {
 					profileList.push(profileInfo.profile);
 				}
 			} catch (e) {
-				print(e);
+				console.log(e);
 			}
 		}
 
@@ -137,7 +137,7 @@ const SoloEvents = {
 					charList.push(characterInfo.charName);
 				}
 			} catch (e) {
-				print(e);
+				console.log(e);
 			}
 		}
 
@@ -200,7 +200,7 @@ const SoloEvents = {
 			Precast.doPrecast(true);
 
 			if (!Pather.usePortal(null)) {
-				print("ÿc8Kolbot-SoloPlayÿc1: Failed to move to Palace Cellar");
+				console.log("ÿc8Kolbot-SoloPlayÿc1: Failed to move to Palace Cellar");
 			}
 		} else if (Pather.checkWP(sdk.areas.InnerCloister)) {
 			Pather.useWaypoint(sdk.areas.InnerCloister);
@@ -335,7 +335,7 @@ const SoloEvents = {
 					fail += 1;
 					path.reverse();
 					PathDebug.drawPath(path);
-					print("move retry " + fail);
+					console.log("move retry " + fail);
 
 					if (fail > 0) {
 						Packet.flash(me.gid);
@@ -426,7 +426,7 @@ const SoloEvents = {
 			Precast.enabled = false;
 			Misc.townEnabled = false;
 			Pickit.enabled = false;
-			print("DODGE");
+			console.log("DODGE");
 			// Disable things that will cause us to stop
 			let dist = me.assassin ? 15 : 3;
 

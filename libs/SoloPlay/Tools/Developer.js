@@ -93,7 +93,7 @@ const Developer = {
 			return obj;
 		}
 
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to read Obj. (Developer.parseObj)");
+		console.error("ÿc8Kolbot-SoloPlayÿc0: Failed to read Obj. (Developer.parseObj)");
 
 		return false;
 	},

@@ -293,7 +293,7 @@ function main() {
 					if (scripts[i] === "default.dbj") {
 						// don't resume if dclone walked
 						if (!SoloEvents.cloneWalked) {
-							print("ÿc8TownChicken :: ÿc2Resuming threads");
+							console.log("ÿc8TownChicken :: ÿc2Resuming threads");
 							script.resume();
 						}
 					} else {

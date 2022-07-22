@@ -17,7 +17,7 @@ AutoStat.init = function (statBuildOrder, save = 0, block = 0, bulkStat = true) 
 	let usedStatPoints = false;
 
 	if (!AutoStat.statBuildOrder || !AutoStat.statBuildOrder.length) {
-		print("AutoStat: No build array specified");
+		console.log("AutoStat: No build array specified");
 
 		return false;
 	}
@@ -44,7 +44,7 @@ AutoStat.init = function (statBuildOrder, save = 0, block = 0, bulkStat = true) 
 		CharData.updateData("me", myData) && updateMyData();
 	}
 
-	print("AutoStat: Finished allocating stat points");
+	console.log("AutoStat: Finished allocating stat points");
 
 	return true;
 };

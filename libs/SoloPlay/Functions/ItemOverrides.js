@@ -1086,7 +1086,7 @@ const spliceCharmKeepList = function (keep = [], sell = [], verbose = false) {
 };
 
 Item.autoEquipSC = function () {
-	let verbose = (Developer.debugging.smallCharm || Developer.debugging.autoEquip);
+	let verbose = Developer.debugging.smallCharm;
 	// build list of our charms
 	let items = me.getItemsEx()
 		.filter((charm) => charm.isInStorage && charm.classid === sdk.items.SmallCharm && charm.magic);
@@ -1112,7 +1112,7 @@ Item.autoEquipSC = function () {
 };
 
 Item.autoEquipLC = function () {
-	let verbose = (Developer.debugging.largeCharm || Developer.debugging.autoEquip);
+	let verbose = Developer.debugging.largeCharm;
 	let items = me.getItemsEx()
 		.filter((charm) => charm.isInStorage && charm.classid === sdk.items.LargeCharm && charm.magic);
 
@@ -1137,7 +1137,7 @@ Item.autoEquipLC = function () {
 };
 
 Item.autoEquipGC = function () {
-	let verbose = (Developer.debugging.largeCharm || Developer.debugging.autoEquip);
+	let verbose = Developer.debugging.largeCharm;
 	let items = me.getItemsEx()
 		.filter((charm) => charm.isInStorage && charm.classid === sdk.items.GrandCharm && charm.magic);
 
@@ -1335,7 +1335,7 @@ Item.autoEquipCharmCheck = function (item = undefined) {
 	let lowestCharm;
 	let items = me.getItemsEx()
 		.filter(charm => charm.classid === item.classid && charm.isInStorage && charm.magic && NTIP.GetCharmTier(charm) > 0);
-	if (!items.length) return false;
+	if (!items.length) return true;
 
 	let charms = Item.autoEquipCharmSort(items);
 	let charmType = Item.getCharmType(item);

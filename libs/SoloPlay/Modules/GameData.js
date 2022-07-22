@@ -533,7 +533,7 @@
 			}
 
 			if (typeof target !== "number") {
-				let unit = getUnit(1);
+				let unit = Game.getMonster();
 				let radius = this.skillRadius[skillID] || 18;
 
 				if (unit) {
@@ -772,7 +772,7 @@
 					avgDmg = maxReal / 100 * maxDmgPercentage;
 				}
 				avgDmg = avgDmg > 0 && avgDmg || 0;
-				//print('Static will chop off -> ' + (100 / maxReal * avgDmg) + '%');
+				//console.log('Static will chop off -> ' + (100 / maxReal * avgDmg) + '%');
 				dmg.min = avgDmg;
 				dmg.max = avgDmg;
 				break;
@@ -837,7 +837,7 @@
 					rawDmg = GameData.skillDamage(skill, target);
 					return getTotalDmg(rawDmg, target);
 				} else {
-					print("Units to check: " + units.length);
+					console.log("Units to check: " + units.length);
 					for (let i = 0; i < units.length; i++) {
 						if (units[i] !== undefined) {
 							rawDmg = GameData.skillDamage(skill, units[i]);
@@ -1182,7 +1182,7 @@
 
 					// Use less cool down spells, if something better is around
 					/*if (this.skillCooldown(sk | 0)) {
-						print("tmpEffort: " + (Math.ceil(tmpEffort)) + " eretEffor: " + eret.effort);
+						console.log("tmpEffort: " + (Math.ceil(tmpEffort)) + " eretEffor: " + eret.effort);
 						tmpEffort *= 5;
 					}*/
 					if (tmpEffort <= eret.effort) {
@@ -1749,7 +1749,7 @@
 		// 	*/
 		// 	let weaponData = (new CSV("sdk/weapons.txt")).findObject("code", weaponCode);
 		// 	if (!weaponData) {
-		// 		print(sdk.colors.Orange + "No weapon data found for code " + weaponCode);
+		// 		console.log(sdk.colors.Orange + "No weapon data found for code " + weaponCode);
 		// 	}
 		// 	let weaponClass = weaponData.wclass;
 		// 	let baseRate = 100;
@@ -1766,21 +1766,21 @@
 		// 	let startingFrame = this.attackStartingFrame(weaponClass, charClass);
 		// 	let framesPerDirection = this.weaponFramesPerDirection(skillId, weaponClass, charClass);
 		// 	if (framesPerDirection < 1) {
-		// 		print(sdk.colors.Orange + "wrong value for framesPerDirection, IAS calculation may be wrong");
+		// 		console.log(sdk.colors.Orange + "wrong value for framesPerDirection, IAS calculation may be wrong");
 		// 	}
 
-		// 	print("skillId " + skillId);
-		// 	print("charClass " + charClass);
-		// 	print("weaponCode " + weaponCode);
-		// 	print("weaponClass " + weaponClass);
-		// 	print("ias " + ias);
-		// 	print("effectiveIAS " + effectiveIAS);
-		// 	print("skillsIAS " + skillsIAS);
-		// 	print("weaponSpeedModifier " + weaponSpeedModifier);
-		// 	print("coldEffect " + coldEffect);
-		// 	print("acceleration " + acceleration);
-		// 	print("startingFrame " + startingFrame);
-		// 	print("framesPerDirection " + framesPerDirection);
+		// 	console.log("skillId " + skillId);
+		// 	console.log("charClass " + charClass);
+		// 	console.log("weaponCode " + weaponCode);
+		// 	console.log("weaponClass " + weaponClass);
+		// 	console.log("ias " + ias);
+		// 	console.log("effectiveIAS " + effectiveIAS);
+		// 	console.log("skillsIAS " + skillsIAS);
+		// 	console.log("weaponSpeedModifier " + weaponSpeedModifier);
+		// 	console.log("coldEffect " + coldEffect);
+		// 	console.log("acceleration " + acceleration);
+		// 	console.log("startingFrame " + startingFrame);
+		// 	console.log("framesPerDirection " + framesPerDirection);
 		// 	let frames = Math.ceil(BASE_ANIMATION_SPEED * (framesPerDirection - startingFrame) / Math.floor(animationSpeed * acceleration / 100)) - 1;
 		// 	return frames;
 		// },

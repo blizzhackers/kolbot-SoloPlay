@@ -38,7 +38,7 @@ function myPrint (str = "", toConsole = false, color = 0) {
 		color = color.capitalize(true);
 		color = !!sdk.colors.D2Bot[color] ? sdk.colors.D2Bot[color] : 0;
 	}
-	toConsole && D2Bot.printToConsole("Kolbot-SoloPlayÿ :: " + str, color);
+	toConsole && D2Bot.printToConsole("Kolbot-SoloPlay :: " + str, color);
 }
 
 function updateMyData () {
@@ -289,8 +289,8 @@ const SetUp = {
 
 		if (respec === me.charlvl && me.charlvl < 60) {
 			showConsole();
-			print("ÿc8Kolbot-SoloPlayÿc0: Bot has respecTwo items but is too low a level to respec.");
-			print("ÿc8Kolbot-SoloPlayÿc0: This only happens with user intervention. Remove the items you gave the bot until at least level 60");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Bot has respecTwo items but is too low a level to respec.");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: This only happens with user intervention. Remove the items you gave the bot until at least level 60");
 			respec = 100;
 		}
 
@@ -327,7 +327,7 @@ const SetUp = {
 	specPush: function (specType) {
 		let buildInfo = SetUp.getTemplate();
 
-		if (!isIncluded(buildInfo.template) && !include(buildInfo.template)) throw new Error("Failed to include template: " + buildInfo.template);
+		if (!includeIfNotIncluded(buildInfo.template)) throw new Error("Failed to include template: " + buildInfo.template);
 
 		let specCheck = [];
 		let final = buildInfo.buildType === SetUp.finalBuild;
@@ -349,8 +349,8 @@ const SetUp = {
 	},
 
 	makeNext: function () {
-		!isIncluded("SoloPlay/Tools/NameGen.js") && include("SoloPlay/Tools/NameGen.js");
-		!isIncluded("SoloPlay/Tools/Tracker.js") && include("SoloPlay/Tools/Tracker.js");
+		includeIfNotIncluded("SoloPlay/Tools/NameGen.js");
+		includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
 		let gameObj, printTotalTime = Developer.logPerformance;
 		printTotalTime && (gameObj = Developer.readObj(Tracker.GTPath));
 
@@ -380,7 +380,7 @@ const SetUp = {
 					temp.push("[name] == " + imbueItem.name + " && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1");
 				}
 			} catch (e) {
-				print(e);
+				console.log(e);
 			}
 		}
 		return temp;
@@ -608,7 +608,6 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 		switch (typeof diff) {
 		case "string":
 			diff = diff.capitalize(true);
-
 			if (!sdk.difficulty.Difficulties.includes(diff)) throw new Error("difficulty doesn't exist" + diff);
 			if (sdk.difficulty.Difficulties.indexOf(diff) === me.diff) throw new Error("already in this difficulty" + diff);
 			diffString = diff;
@@ -620,13 +619,16 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 
 			break;
 		default:
-			throw ("?");
+			throw new Error("?");
 		}
 
 		D2Bot.setProfile(null, null, null, diffString);
 		CharData.updateData("me", "setDifficulty", diffString);
-		myPrint("Going to " + diffString + reason, true);
-		delay(250);
+		myPrint("Going to " + diffString + " " + reason, true);
+		delay(1000);
+		if (CharData.getStats().me.setDifficulty !== diffString) {
+			throw new Error("Failed to set difficulty");
+		}
 		D2Bot.restart();
 	} catch (e) {
 		console.debug(e.message ? e.message : e);

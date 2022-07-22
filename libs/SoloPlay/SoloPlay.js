@@ -63,10 +63,6 @@ function SoloPlay () {
 
 	this.runScripts = function () {
 		let j, k;
-
-		Check.brokeCheck();
-		Check.usePreviousSocketQuest(); // Currently only supports going back to nightmare to socket a lidless if one is equipped.
-
 		let updatedDifficulty = Check.nextDifficulty();
 
 		if (updatedDifficulty) {
@@ -186,11 +182,13 @@ function SoloPlay () {
 				Developer.debugging.pathing && (me.automap = true);
 				this.developermode();
 			} else {
-				print("ÿc8Kolbot-SoloPlayÿc0: Failed to include developermode");
+				console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to include developermode");
 			}
 		}
 	}
 
+	Check.brokeCheck();
+	Check.usePreviousSocketQuest(); // Currently only supports going back to nightmare to socket a lidless if one is equipped.
 	this.runScripts();
 
 	scriptBroadcast("quit");

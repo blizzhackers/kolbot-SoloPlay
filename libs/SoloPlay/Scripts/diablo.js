@@ -155,7 +155,7 @@ function diablo () {
 		let theD = Game.getMonster(sdk.monsters.Diablo);
 
 		if (!theD) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Diablo not found. Checking seal bosses.");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Diablo not found. Checking seal bosses.");
 			try {
 				Common.Diablo.vizierSeal();
 				Common.Diablo.seisSeal();

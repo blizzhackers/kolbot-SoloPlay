@@ -167,9 +167,9 @@
 
 	MockItem.fromItem = function (item, settings) {
 		if (settings === void 0) { settings = {}; }
-		print(JSON.stringify(settings));
+		console.log(JSON.stringify(settings));
 		Object.keys(item).forEach(key => settings[key] = item[key]);
-		print(JSON.stringify(settings));
+		console.log(JSON.stringify(settings));
 		settings.socketedWith = item.getItemsEx().map(item => MockItem.fromItem(item)) || []; // Mock its sockets too
 		var initializer = Object.keys(item)
 			.filter(function (key) { return typeof item[key] !== 'function'; })

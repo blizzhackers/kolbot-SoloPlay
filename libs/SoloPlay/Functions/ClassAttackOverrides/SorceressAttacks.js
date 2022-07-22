@@ -47,7 +47,7 @@ const inDanger = function () {
 };
 
 ClassAttack.doAttack = function (unit, skipStatic = false) {
-	Developer.debugging.skills && print(sdk.colors.Green + "Test Start-----------------------------------------//");
+	Developer.debugging.skills && console.log(sdk.colors.Green + "Test Start-----------------------------------------//");
 	// unit became invalidated
 	if (!unit || !unit.attackable) return 1;
 	
@@ -156,7 +156,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			let ticktwo = getTickCount();
 			// if the nova cause the death of any monsters around us, its worth it
 			if (GameData.calculateKillableFallensByFrostNova() > 0) {
-				Developer.debugging.skills && print("took " + ((getTickCount() - ticktwo) / 1000) + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens");
+				Developer.debugging.skills && console.log("took " + ((getTickCount() - ticktwo) / 1000) + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens");
 				Skill.cast(sdk.skills.FrostNova, 0);
 			}
 		}
@@ -170,7 +170,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 				return getDistance(el, unit) < 4 && slowable(el, true);
 			}).length > 1;
 			if (shouldSpike && !Coords_1.isBlockedBetween(me, unit)) {
-				Developer.debugging.skills && print("SPIKE");
+				Developer.debugging.skills && console.log("SPIKE");
 				Skill.cast(sdk.skills.GlacialSpike, 0, unit);
 			}
 		}
@@ -194,11 +194,11 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
     
 	// print damage values
 	if (Developer.debugging.skills) {
-		data.static.have && print(getSkillById(data.static.skill) + " : " + data.static.dmg);
-		data.mainTimed.have && print(getSkillById(data.mainTimed.skill) + " Main: " + data.mainTimed.dmg);
-		data.mainUntimed.have && print(getSkillById(data.mainUntimed.skill) + " MainUnTimed: " + data.mainUntimed.dmg);
-		data.secondaryTimed.have && print(getSkillById(data.secondaryTimed.skill) + " Second: " + data.secondaryTimed.dmg);
-		data.secondaryUntimed.have && print(getSkillById(data.secondaryUntimed.skill) + " SecondUnTimed: " + data.secondaryUntimed.dmg);
+		data.static.have && console.log(getSkillById(data.static.skill) + " : " + data.static.dmg);
+		data.mainTimed.have && console.log(getSkillById(data.mainTimed.skill) + " Main: " + data.mainTimed.dmg);
+		data.mainUntimed.have && console.log(getSkillById(data.mainUntimed.skill) + " MainUnTimed: " + data.mainUntimed.dmg);
+		data.secondaryTimed.have && console.log(getSkillById(data.secondaryTimed.skill) + " Second: " + data.secondaryTimed.dmg);
+		data.secondaryUntimed.have && console.log(getSkillById(data.secondaryUntimed.skill) + " SecondUnTimed: " + data.secondaryUntimed.dmg);
 	}
 
 	// If we have enough mana for Static and it will do more damage than our other skills then duh use it
@@ -208,7 +208,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			.filter(unit => !!unit && unit.attackable && unit.distance < data.static.range)
 			.find(unit => Attack.checkResist(unit, "lightning") && unit.hpPercent > Config.CastStatic);
 		if (!!closeMobCheck && data.static.dmg > Math.max(data.mainTimed.dmg, data.mainUntimed.dmg, data.secondaryTimed.dmg, data.secondaryUntimed.dmg) && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
-			Developer.debugging.skills && print("STATIC");
+			Developer.debugging.skills && console.log("STATIC");
 			Skill.cast(sdk.skills.StaticField, 0, closeMobCheck) && Skill.cast(sdk.skills.StaticField, 0, closeMobCheck);
 		}
 	}
@@ -236,7 +236,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	if (!timedSkill.have || timedSkill.mana > me.mp) {
-		Developer.debugging.skills && print("Choosing lower mana skill, Was I not able to use one of my better skills? (" + (!timedSkill.have) + "). Did I not have enough mana? " + (timedSkill.mana > me.mp));
+		Developer.debugging.skills && console.log("Choosing lower mana skill, Was I not able to use one of my better skills? (" + (!timedSkill.have) + "). Did I not have enough mana? " + (timedSkill.mana > me.mp));
 		let lowManaData = {
 			fBolt: {
 				have: Skill.canUse(sdk.skills.FireBolt), skill: sdk.skills.FireBolt, range: Skill.getRange(sdk.skills.FireBolt), mana: Skill.getManaCost(sdk.skills.FireBolt),
@@ -298,10 +298,10 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 
 	switch (ClassAttack.doCast(unit, timedSkill, data)) {
 	case 0: // Fail
-		Developer.debugging.skills && print(sdk.colors.Red + "Fail Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
+		Developer.debugging.skills && console.log(sdk.colors.Red + "Fail Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
 		break;
 	case 1: // Success
-		Developer.debugging.skills && print(sdk.colors.Red + "Sucess Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
+		Developer.debugging.skills && console.log(sdk.colors.Red + "Sucess Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
 		return true;
 	case 2: // Try to telestomp
 		if (Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc()
@@ -361,11 +361,11 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 	if (!!(timedSkill.skill < 0)) return 2;
 
 	// print damage values
-	Developer.debugging.skills && timedSkill.have && print(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(timedSkill.skill) + ") DMG: " + timedSkill.dmg);
+	Developer.debugging.skills && timedSkill.have && console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(timedSkill.skill) + ") DMG: " + timedSkill.dmg);
 
 	if (![sdk.skills.FrostNova, sdk.skills.Nova, sdk.skills.StaticField].includes(timedSkill.skill) && Skill.canUse(sdk.skills.Teleport)) {
 		if (me.mp > Skill.getManaCost(sdk.skills.Teleport) + timedSkill.mana && inDanger()) {
-			//print("FINDING NEW SPOT");
+			//console.log("FINDING NEW SPOT");
 			Attack.getIntoPosition(unit, timedSkill.range, 0
                 | Coords_1.BlockBits.LineOfSight
                 | Coords_1.BlockBits.Ranged

@@ -15,7 +15,7 @@ function eye () {
 	if (!Pather.moveToExit([sdk.areas.SpiderForest, sdk.areas.SpiderCavern], true)) {
 		if (me.area !== sdk.areas.SpiderCavern) {
 			if (!Pather.journeyTo(sdk.areas.SpiderCavern)) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Failed to get the eye");
+				console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to get the eye");
 				return false;
 			}
 		}

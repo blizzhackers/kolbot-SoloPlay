@@ -22,7 +22,7 @@ Config.init = function (notify) {
 				if (CustomConfig.hasOwnProperty(n)) {
 					if (CustomConfig[n].indexOf(me.profile) > -1) {
 						if (notify) {
-							print("ÿc2Loading custom config: ÿc9" + n + ".js");
+							console.log("ÿc2Loading custom config: ÿc9" + n + ".js");
 						}
 
 						configFilename = n + ".js";
@@ -64,10 +64,10 @@ Config.init = function (notify) {
 		if (!include("SoloPlay/Config/" + configFilename)) {
 			throw new Error();
 		} else {
-			notify && print("ÿc2Loaded: ÿc9SoloPlay/Config/" + configFilename);
+			notify && console.log("ÿc2Loaded: ÿc9SoloPlay/Config/" + configFilename);
 		}
 	} catch (e1) {
-		print("ÿc1" + e1 + "\nÿc0If you are seeing this message you likely did not copy over all the files or are using the wrong kolbot version.");
+		console.log("ÿc1" + e1 + "\nÿc0If you are seeing this message you likely did not copy over all the files or are using the wrong kolbot version.");
 		D2Bot.printToConsole("Please return to the kolbot-SoloPlay main github page and read the readMe. https://github.com/blizzhackers/kolbot-SoloPlay#readme", 8);
 
 		throw new Error("Failed to load character config.");
@@ -77,7 +77,7 @@ Config.init = function (notify) {
 		LoadConfig.call();
 	} catch (e2) {
 		if (notify) {
-			print("ÿc8Error in " + e2.fileName.substring(e2.fileName.lastIndexOf("\\") + 1, e2.fileName.length) + "(line " + e2.lineNumber + "): " + e2.message);
+			console.log("ÿc8Error in " + e2.fileName.substring(e2.fileName.lastIndexOf("\\") + 1, e2.fileName.length) + "(line " + e2.lineNumber + "): " + e2.message);
 
 			throw new Error("Config.init: Error in character config.");
 		}
@@ -86,7 +86,7 @@ Config.init = function (notify) {
 	if (Config.Silence && !Config.LocalChat.Enabled) {
 		// Override the say function with print, so it just gets printed to console
 		global._say = global.say;
-		global.say = (what) => print("Tryed to say: " + what);
+		global.say = (what) => console.log("Tryed to say: " + what);
 	}
 
 	try {
@@ -94,7 +94,7 @@ Config.init = function (notify) {
 			AutoBuild.initialize();
 		}
 	} catch (e3) {
-		print("ÿc8Error in libs/SoloPlay/Functions/AutoBuildOverrides.js (AutoBuild system is not active!)");
-		print(e3.toSource());
+		console.log("ÿc8Error in libs/SoloPlay/Functions/AutoBuildOverrides.js (AutoBuild system is not active!)");
+		console.log(e3.toSource());
 	}
 };

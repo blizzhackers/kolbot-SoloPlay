@@ -27,7 +27,7 @@ function mephisto () {
 	Pather.clearToExit(sdk.areas.DuranceofHateLvl2, sdk.areas.DuranceofHateLvl3, true);
 	
 	if (me.area !== sdk.areas.DuranceofHateLvl3) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to mephisto");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to mephisto");
 		return false;
 	}
 

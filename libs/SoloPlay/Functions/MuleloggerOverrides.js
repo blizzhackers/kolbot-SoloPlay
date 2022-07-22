@@ -345,5 +345,5 @@ MuleLogger.logEquippedItems = function () {
 	// hccl = hardcore classic ladder
 	// scnl = softcore expan nonladder
 	FileTools.writeText("mules/" + realm + "/" + "Kolbot-SoloPlay/" + me.account + "/" + charClass + "-" + me.profile + "-" + me.name + "." + ( me.playertype ? "hc" : "sc" ) + (me.classic ? "c" : "" ) + ( me.ladder > 0 ? "l" : "nl" ) + ".txt", finalString);
-	print("Item logging done.");
+	console.log("Item logging done.");
 };

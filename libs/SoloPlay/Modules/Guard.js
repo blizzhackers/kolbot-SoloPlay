@@ -73,13 +73,13 @@
 					return true;
 				}
 				if (myHeartbeat && getTickCount() - myHeartbeat > (2 * 6e4)) {
-					print("Default.dbj seems to have crashed");
+					console.log("Default.dbj seems to have crashed");
 					myHeartbeat = 0;
 					if (script) script.stop();
-					print("Waiting 10 seconds to restart default.dbj");
+					console.log("Waiting 10 seconds to restart default.dbj");
 					delay(1e4);
 					load("default.dbj");
-					print("Starting default.dbj");
+					console.log("Starting default.dbj");
 				}
 				return true;
 			};

@@ -29,7 +29,7 @@ function ancienttunnels () {
 	}
 
 	if (!Pather.moveToExit(sdk.areas.AncientTunnels, true)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Ancient Tunnels");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Ancient Tunnels");
 		return false;
 	}
 

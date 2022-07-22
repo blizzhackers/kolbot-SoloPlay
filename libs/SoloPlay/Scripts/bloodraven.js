@@ -42,7 +42,7 @@ function bloodraven () {
 	myPrint("blood raven :: starting mausoleum");
 
 	if (!Pather.moveToExit([sdk.areas.BurialGrounds, sdk.areas.Mausoleum], true)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Mausoleum");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Mausoleum");
 	}
 
 	me.area === sdk.areas.Mausoleum && Attack.clearLevel();

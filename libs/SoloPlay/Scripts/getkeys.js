@@ -14,7 +14,7 @@ function getkeys() {
 				this.countess();
 			}
 		} catch (countessError) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Countess failed");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Countess failed");
 		}
 	}
 
@@ -24,7 +24,7 @@ function getkeys() {
 				this.summoner();
 			}
 		} catch (summonerError) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Summoner failed");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Summoner failed");
 		}
 	}
 
@@ -34,7 +34,7 @@ function getkeys() {
 				this.nith();
 			}
 		} catch (nihlathakError) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Nihlathak failed");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Nihlathak failed");
 		}
 	}
 

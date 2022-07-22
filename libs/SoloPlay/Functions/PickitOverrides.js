@@ -6,55 +6,54 @@
 *
 */
 
-!isIncluded("common/Pickit.js") && include("common/Pickit.js");
-!isIncluded("SoloPlay/Functions/NTIPOverrides.js") && include("SoloPlay/Functions/NTIPOverrides.js");
-!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
-!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js") &&	include("SoloPlay/Functions/ProtoTypesOverrides.js");
+includeIfNotIncluded("common/Pickit.js");
+includeIfNotIncluded("SoloPlay/Functions/ProtoTypesOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/NTIPOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 
 Pickit.enabled = true;
+Pickit.Result.SOLOWANTS = 8;
 
 Pickit.checkItem = function (unit) {
 	let rval = NTIP.CheckItem(unit, false, true);
 
 	// quick return on essentials - we know they aren't going to be in the other checks
-	if (Pickit.essentials.includes(unit.itemType)) {
-		return rval;
-	}
+	if (Pickit.essentials.includes(unit.itemType)) return rval;
 
 	if ((unit.classid === sdk.items.runes.Ral || unit.classid === sdk.items.runes.Ort) && Town.repairIngredientCheck(unit)) {
 		return {
-			result: 6,
+			result: Pickit.Result.UTILITY,
 			line: null
 		};
 	}
 
 	if (unit.classid === sdk.items.StaminaPotion && (me.staminaPercent <= 85 || me.runwalk === 0) && Item.getQuantityOwned(unit) < 2) {
 		return {
-			result: 1,
+			result: Pickit.Result.WANTED,
 			line: "LowStamina"
 		};
 	}
 
 	if (unit.classid === sdk.items.AntidotePotion && me.getState(sdk.states.Poison) && Item.getQuantityOwned(unit) < 2) {
 		return {
-			result: 1,
+			result: Pickit.Result.WANTED,
 			line: "Poisoned"
 		};
 	}
 
 	if (unit.classid === sdk.items.ThawingPotion && [sdk.states.Frozen, sdk.states.FrozenSolid].some(state => me.getState(state)) && Item.getQuantityOwned(unit) < 2) {
 		return {
-			result: 1,
+			result: Pickit.Result.WANTED,
 			line: "Frozen"
 		};
 	}
 
-	if (rval.result === 1) {
+	if (rval.result === Pickit.Result.WANTED) {
 		let durability = unit.getStat(sdk.stats.Durability);
 		
 		if (typeof durability === "number" && unit.getStat(sdk.stats.MaxDurability) > 0 && durability * 100 / unit.getStat(sdk.stats.MaxDurability) <= 0) {
 			return {
-				result: 4,
+				result: Pickit.Result.TRASH,
 				line: null
 			};
 		}
@@ -62,35 +61,35 @@ Pickit.checkItem = function (unit) {
 
 	if (SoloWants.checkItem(unit)) {
 		return {
-			result: 8,
+			result: Pickit.Result.SOLOWANTS,
 			line: null
 		};
 	}
 
 	if (CraftingSystem.checkItem(unit)) {
 		return {
-			result: 5,
+			result: Pickit.Result.CRAFTING,
 			line: null
 		};
 	}
 
 	if (Cubing.checkItem(unit)) {
 		return {
-			result: 2,
+			result: Pickit.Result.CUBING,
 			line: null
 		};
 	}
 
 	if (Runewords.checkItem(unit)) {
 		return {
-			result: 3,
+			result: Pickit.Result.RUNEWORD,
 			line: null
 		};
 	}
 
 	if (AutoEquip.hasTier(unit) && !unit.identified) {
 		return {
-			result: -1,
+			result: Pickit.Result.UNID,
 			line: null
 		};
 	}
@@ -98,7 +97,7 @@ Pickit.checkItem = function (unit) {
 	if (unit.isCharm && NTIP.GetCharmTier(unit) > 0 && unit.identified) {
 		if (Item.autoEquipCharmCheck(unit)) {
 			return {
-				result: 1,
+				result: Pickit.Result.WANTED,
 				line: "Autoequip charm Tier: " + NTIP.GetCharmTier(unit)
 			};
 		}
@@ -109,21 +108,21 @@ Pickit.checkItem = function (unit) {
 	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) && unit.identified) {
 		if (Item.autoEquipCheck(unit)) {
 			return {
-				result: 1,
+				result: Pickit.Result.WANTED,
 				line: "Autoequip Tier: " + NTIP.GetTier(unit)
 			};
 		}
 
 		if (Item.autoEquipCheckMerc(unit)) {
 			return {
-				result: 1,
+				result: Pickit.Result.WANTED,
 				line: "Autoequip MercTier: " + NTIP.GetMercTier(unit)
 			};
 		}
 
 		if (Item.autoEquipCheckSecondary(unit)) {
 			return {
-				result: 1,
+				result: Pickit.Result.WANTED,
 				line: "Autoequip Secondary Tier: " + NTIP.GetSecondaryTier(unit)
 			};
 		}
@@ -132,12 +131,12 @@ Pickit.checkItem = function (unit) {
 	}
 
 	// LowGold
-	if (rval.result === 0 && !getBaseStat("items", unit.classid, "quest") && !Town.ignoredItemTypes.includes(unit.itemType) && !unit.questItem
+	if (rval.result === Pickit.Result.UNWANTED && !getBaseStat("items", unit.classid, "quest") && !Town.ignoredItemTypes.includes(unit.itemType) && !unit.questItem
 		&& (unit.isInInventory || (me.gold < Config.LowGold || me.gold < 500000))) {
 		// Gold doesn't take up room, just pick it up
 		if (unit.classid === sdk.items.Gold) {
 			return {
-				result: 4,
+				result: Pickit.Result.TRASH,
 				line: null
 			};
 		}
@@ -147,13 +146,13 @@ Pickit.checkItem = function (unit) {
 		if (itemValuePerSquare >= 2000) {
 			// If total gold is less than 500k pick up anything worth 2k gold per square to sell in town.
 			return {
-				result: 4,
+				result: Pickit.Result.TRASH,
 				line: "Valuable Item: " + unit.getItemCost(sdk.items.cost.ToSell)
 			};
 		} else if (itemValuePerSquare >= 10 && me.gold < Config.LowGold) {
 			// If total gold is less than LowGold setting pick up anything worth 10 gold per square to sell in town.
 			return {
-				result: 4,
+				result: Pickit.Result.TRASH,
 				line: "LowGold Item: " + unit.getItemCost(sdk.items.cost.ToSell)
 			};
 		}
@@ -377,7 +376,7 @@ Pickit.canPick = function (unit) {
 
 		break;
 	case undefined: // Yes, it does happen
-		print("undefined item (!?)");
+		console.log("undefined item (!?)");
 
 		return false;
 	}
@@ -449,7 +448,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		} else {
 			if (item.distance > (Config.FastPick || i < 1 ? 6 : 4) || checkCollision(me, item, 0x1)) {
 				if (item.checkForMobs({range: 8, coll: (0x1 | 0x400 | 0x800)})) {
-					print("ÿc8PickItemÿc0 :: Clearing area around item I want to pick");
+					console.log("ÿc8PickItemÿc0 :: Clearing area around item I want to pick");
 					Pickit.enabled = false;		// Don't pick while trying to clear
 					Attack.clearPos(item.x, item.y, 10, false);
 					Pickit.enabled = true;		// Reset value
@@ -471,7 +470,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 
 			if (stats.classid === 523) {
 				if (!item.getStat(sdk.stats.Gold) || item.getStat(sdk.stats.Gold) < stats.gold) {
-					print("ÿc7Picked up " + stats.color + (item.getStat(sdk.stats.Gold) ? (item.getStat(sdk.stats.Gold) - stats.gold) : stats.gold) + " " + stats.name);
+					console.log("ÿc7Picked up " + stats.color + (item.getStat(sdk.stats.Gold) ? (item.getStat(sdk.stats.Gold) - stats.gold) : stats.gold) + " " + stats.name);
 
 					return true;
 				}
@@ -480,12 +479,12 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			if (item.mode !== 3 && item.mode !== 5) {
 				switch (stats.classid) {
 				case 543: // Key
-					print("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + Town.checkKeys() + "/12)");
+					console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + Town.checkKeys() + "/12)");
 
 					return true;
 				case 529: // Scroll of Town Portal
 				case 530: // Scroll of Identify
-					print("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + Town.checkScrolls(stats.classid === 529 ? "tbk" : "ibk") + "/20)");
+					console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + Town.checkScrolls(stats.classid === 529 ? "tbk" : "ibk") + "/20)");
 
 					return true;
 				}
@@ -499,7 +498,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		// TK failed, disable it
 		stats.useTk = false;
 
-		//print("pick retry");
+		//console.log("pick retry");
 	}
 
 	if (retry) {
@@ -512,8 +511,8 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		DataFile.updateStats("lastArea");
 
 		switch (status) {
-		case 1:
-			print("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (stats.sockets > 0 ? ") (sockets " + stats.sockets : "") + (keptLine ? ") (" + keptLine + ")" : ")"));
+		case Pickit.Result.WANTED:
+			console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (stats.sockets > 0 ? ") (sockets " + stats.sockets : "") + (keptLine ? ") (" + keptLine + ")" : ")"));
 
 			if (this.ignoreLog.indexOf(stats.type) === -1) {
 				Misc.itemLogger("Kept", item);
@@ -521,30 +520,30 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			}
 
 			break;
-		case 2:
-			print("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Cubing)");
+		case Pickit.Result.CUBING:
+			console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Cubing)");
 			Misc.itemLogger("Kept", item, "Cubing " + me.findItems(item.classid).length);
 			Cubing.update();
 
 			break;
-		case 3:
-			print("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Runewords)");
+		case Pickit.Result.RUNEWORD:
+			console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Runewords)");
 			Misc.itemLogger("Kept", item, "Runewords");
 			Runewords.update(stats.classid, gid);
 
 			break;
-		case 5: // Crafting System
-			print("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Crafting System)");
+		case Pickit.Result.CRAFTING:
+			console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Crafting System)");
 			CraftingSystem.update(item);
 
 			break;
-		case 8: // SoloWants system
-			print("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (SoloWants System)");
+		case Pickit.Result.SOLOWANTS:
+			console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (SoloWants System)");
 			SoloWants.update(item);
 
 			break;
 		default:
-			print("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (keptLine ? ") (" + keptLine + ")" : ")"));
+			console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (keptLine ? ") (" + keptLine + ")" : ")"));
 
 			break;
 		}
@@ -603,7 +602,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 				if (!canFit) {
 					// Check if any of the current inventory items can be stashed or need to be identified and eventually sold to make room
 					if (this.canMakeRoom()) {
-						print("ÿc7Trying to make room for " + this.itemColor(pickList[0]) + pickList[0].name);
+						console.log("ÿc7Trying to make room for " + this.itemColor(pickList[0]) + pickList[0].name);
 
 						// Go to town and do town chores
 						if (Town.visitTown()) {
@@ -614,14 +613,14 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 						}
 
 						// Town visit failed - abort
-						print("ÿc7Not enough room for " + this.itemColor(pickList[0]) + pickList[0].name);
+						console.log("ÿc7Not enough room for " + this.itemColor(pickList[0]) + pickList[0].name);
 
 						return false;
 					}
 
 					// Can't make room - trigger automule
 					Misc.itemLogger("No room for", pickList[0]);
-					print("ÿc7Not enough room for " + this.itemColor(pickList[0]) + pickList[0].name);
+					console.log("ÿc7Not enough room for " + this.itemColor(pickList[0]) + pickList[0].name);
 
 					needMule = true;
 				}

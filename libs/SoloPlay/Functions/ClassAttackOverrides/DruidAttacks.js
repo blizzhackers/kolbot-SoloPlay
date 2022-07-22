@@ -12,7 +12,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let gid = unit.gid;
 
 	if (Config.MercWatch && Town.needMerc()) {
-		print("mercwatch");
+		console.log("mercwatch");
 
 		if (Town.visitTown()) {
 			// lost reference to the mob we were attacking

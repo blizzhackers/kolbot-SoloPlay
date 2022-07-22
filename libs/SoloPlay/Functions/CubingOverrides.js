@@ -830,7 +830,7 @@ Cubing.doCubing = function () {
 
 			transmute();
 			delay(700 + me.ping);
-			print("ÿc4Cubing: " + string);
+			console.log("ÿc4Cubing: " + string);
 			Config.ShowCubingInfo && D2Bot.printToConsole(string, sdk.colors.D2Bot.Green);
 
 			this.update();

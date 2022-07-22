@@ -16,7 +16,7 @@ function staff () {
 	Pather.clearToExit(sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3, true);
 
 	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.ShaftoftheHoradricStaffChest)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to staff");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to staff");
 		return me.getItem(sdk.items.quest.ShaftoftheHoradricStaff);
 	}
 
