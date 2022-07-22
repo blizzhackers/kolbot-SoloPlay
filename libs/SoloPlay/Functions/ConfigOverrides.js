@@ -14,9 +14,7 @@ Config.init = function (notify) {
 	for (let i = 0; i <= 5; i++) {
 		switch (i) {
 		case 0: // Custom config
-			if (!isIncluded("config/_customconfig.js")) {
-				include("config/_customconfig.js");
-			}
+			includeIfNotIncluded("config/_customconfig.js");
 
 			for (let n in CustomConfig) {
 				if (CustomConfig.hasOwnProperty(n)) {

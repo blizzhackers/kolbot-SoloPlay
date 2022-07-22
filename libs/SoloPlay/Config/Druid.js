@@ -216,9 +216,7 @@ function LoadConfig () {
 	case "Elemental":
 		// Call to Arms
 		if (!me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js")) {
-				include("SoloPlay/BuildFiles/Runewords/CallToArms.js");
-			}
+			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js");
 		}
 
 		if (SetUp.finalBuild === "Elemental") {
@@ -235,23 +233,17 @@ function LoadConfig () {
 
 			// Heart of the Oak
 			if (!Check.haveItem("mace", "runeword", "Heart of the Oak")) {
-				if (!isIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js")) {
-					include("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
-				}
+				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
 			}
 
 			// Phoenix Shield
 			if ((me.ladder || Developer.addLadderRW) && SetUp.finalBuild === "Elemental" && me.checkItem({name: sdk.locale.items.Enigma}).have && !me.checkItem({name: sdk.locale.items.Phoenix, itemtype: sdk.itemtype.Shield}).have) {
-				if (!isIncluded("SoloPlay/BuildFiles/Runewords/PhoneixShield.js")) {
-					include("SoloPlay/BuildFiles/Runewords/PhoneixShield.js");
-				}
+				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PhoneixShield.js");
 			}
 
 			// Enigma
 			if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
-				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js")) {
-					include("SoloPlay/BuildFiles/Runewords/Enigma.js");
-				}
+				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
 			}
 
 			// upgrade magefist
@@ -266,17 +258,13 @@ function LoadConfig () {
 	case "Plaguewolf":
 		// Chains of Honor
 		if (!me.checkItem({name: sdk.locale.items.ChainsofHonor}).have) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js")) {
-				include("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
-			}
+			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
 		}
 
 		if (SetUp.finalBuild === "Plaguewolf") {
 			// Grief
 			if (!me.checkItem({name: sdk.locale.items.Grief}).have) {
-				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Grief.js")) {
-					include("SoloPlay/BuildFiles/Runewords/Grief.js");
-				}
+				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Grief.js");
 			}
 		} else {
 			// Make sure to have CoH first

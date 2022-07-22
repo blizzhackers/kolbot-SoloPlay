@@ -198,30 +198,22 @@ function LoadConfig () {
 		
 		// Pride
 		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Pride) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercPride.js")) {
-				include("SoloPlay/BuildFiles/Runewords/MercPride.js");
-			}
+			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercPride.js");
 		}
 
 		// Chaos
 		if (!me.checkItem({name: sdk.locale.items.Chaos}).have) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Chaos.js")) {
-				include("SoloPlay/BuildFiles/Runewords/Chaos.js");
-			}
+			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Chaos.js");
 		}
 
 		// Fury
 		if (!me.checkItem({name: sdk.locale.items.Fury}).have) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Fury.js")) {
-				include("SoloPlay/BuildFiles/Runewords/Fury.js");
-			}
+			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Fury.js");
 		}
 
 		// Fortitude
 		if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Fortitude, itemtype: sdk.itemtype.Armor}).have) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Fortitude.js")) {
-				include("SoloPlay/BuildFiles/Runewords/Fortitude.js");
-			}
+			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Fortitude.js");
 		}
 
 		break;
@@ -239,23 +231,17 @@ function LoadConfig () {
 		
 		// Infinity
 		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Infinity) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js")) {
-				include("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
-			}
+			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
 		}
 
 		// Heart of the Oak
 		if (!me.checkItem({name: sdk.locale.items.HeartoftheOak}).have) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js")) {
-				include("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
-			}
+			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
 		}
 
 		// Enigma
 		if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
-			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js")) {
-				include("SoloPlay/BuildFiles/Runewords/Enigma.js");
-			}
+			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
 		}
 
 		break;
