@@ -23,12 +23,12 @@
 ## Available Characters and Builds
 | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
 |:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
-| Javazon | Cold | Poison | Hammerdin| Whirlwind | Wind |Trapsin|
-| *`Witchyzon`* | Blizzballer | Bone | Smiter| *`Immortalwhirl`* | Elemental | Whirlsin |
-| | Meteorb | Summon | *`Auradin`* | Frenzy | Plaguewolf |
-| | Blova | | Zealer | Uberconc | Wolf |
-| | Lightning | | *`Torchadin`* | Singer |
-| |  | | Classicauradin |  |
+| Javazon | Cold | Poison | Hammerdin| Whirlwind | *`Wind`* |*`Trapsin`*|
+| *`Witchyzon`* | Blizzballer | Bone | Smiter| *`Immortalwhirl`* | *`Elemental`* | *`Whirlsin`* |
+|*`Faithbowzon`*| Meteorb | Summon | *`Auradin`* | Frenzy | *`Plaguewolf`* |
+|Frostmaiden | Blova | | Zealer | Uberconc | *`Wolf`* |
+|*`Wfzon`* | Lightning | | *`Torchadin`* | Singer |*`Firewolf`*
+| | Esorb | | Classicauradin | Throw |
 | |  | | Hammershock |  |
 | |  | | *`Sancdreamer`* |  |
 - **NOTE:** Expansion only builds marked.
