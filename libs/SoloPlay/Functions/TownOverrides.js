@@ -4,6 +4,7 @@
 *  @desc        Town related functions
 *
 */
+
 includeIfNotIncluded("common/Town.js");
 
 let Overrides = require("../../modules/Override");
@@ -1761,16 +1762,15 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 };
 
 // TODO: clean this up (which is gonna suck)
-Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) {
-	if (!base) return false;
-	if (base.quality > sdk.itemquality.Superior || base.isRuneword) return false;
+Town.worseBaseThanStashed = function (base = undefined) {
+	if (!base || base.quality > sdk.itemquality.Superior || base.isRuneword) return false;
 
 	function generalScore (item) {
 		let generalScore = 0;
-		generalScore += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 200; // + class skills
-		generalScore += item.getStatEx(sdk.stats.AddSkillTab, Check.currentBuild().tabSkills) * 100; // + TAB skills
 		let selectedWeights = [30, 20];
 		let selectedSkills = [Check.currentBuild().wantedSkills, Check.currentBuild().usefulSkills];
+		generalScore += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 200; // + class skills
+		generalScore += item.getStatEx(sdk.stats.AddSkillTab, Check.currentBuild().tabSkills) * 100; // + TAB skills
 
 		for (let i = 0; i < selectedWeights.length; i++) {
 			for (let j = 0; j < selectedSkills.length; j++) {
@@ -1781,298 +1781,203 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		}
 
 		if (generalScore === 0) {
-			if (me.paladin) {
-				generalScore += item.getStatEx(sdk.stats.FireResist) * 2;	// Resist
-			}
+			me.paladin && (generalScore += item.getStatEx(sdk.stats.FireResist) * 2);
 
-			generalScore += item.getStatEx(sdk.stats.Defense) * 0.5;		// Defense
+			generalScore += item.getStatEx(sdk.stats.Defense) * 0.5; // Defense
 			generalScore += item.getStatEx(sdk.stats.MinDamage); // add MIN damage
 			generalScore += item.getStatEx(sdk.stats.MaxDamage); // add MAX damage
-			//generalScore += item.getStatEx(sdk.stats.SecondaryMinDamage); // add MIN damage
-			//generalScore += item.getStatEx(sdk.stats.SecondaryMaxDamage); // add MAX damage
 		}
 
 		return generalScore;
 	}
 
+	function getAvgDmg (item) {
+		return Math.round((item.getStatEx(sdk.stats.SecondaryMinDamage) + item.getStatEx(sdk.stats.SecondaryMaxDamage)) / 2);
+	}
+
+	function getItemToCompare (itemtypes = [], eth = null, sort = (a, b) => a - b) {
+		return me.getItemsEx(-1, sdk.itemmode.inStorage)
+			.filter(item =>
+				item.gid !== base.gid && itemtypes.includes(item.itemType) && item.sockets === base.sockets && (eth === null || item.ethereal === eth))
+			.sort(sort)
+			.last();
+	}
+
 	let itemsToCheck, result = false;
+	let gScoreBase, gScoreCheck;
 
 	switch (base.itemType) {
-	case 2: // Shield
-	case 69: // Voodoo heads
-	case 70: // Auric Shields
-		if (me.paladin) {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[2, 70].indexOf(item.itemType) > -1// same item type as current
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => generalScore(a) - generalScore(b))
-				.last(); // select last
-
+	case sdk.itemtype.Shield:
+	case sdk.itemtype.AuricShields:
+	case sdk.itemtype.VoodooHeads:
+		if (me.paladin || me.necromancer) {
+			let iType = [sdk.itemtype.Shield];
+			me.paladin ? iType.push(sdk.itemtype.VoodooHeads) : iType.push(sdk.itemtype.AuricShields);
+			
+			itemsToCheck = getItemToCompare(
+				iType, false, (a, b) => generalScore(a) - generalScore(b)
+			);
 			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
 			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck) ||
-						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
-					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
-
-					result = true;
-				}
-			}
-		} else if (me.necromancer) {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[2, 69].indexOf(item.itemType) > -1// same item type as current
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
-				.last(); // select last
-
-			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
-
-			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck))) {
+				if ((base.isInStorage) && (generalScore(base) < generalScore(itemsToCheck)
+					|| (generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
 					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 
 					result = true;
 				}
 			}
 		} else {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					item.itemType === 2// same item type as current
-					&& !item.ethereal // only noneth runeword bases
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)) // Sort on tier value, (better for skills)
-				.last(); // select last
-
+			itemsToCheck = getItemToCompare(
+				[sdk.itemtype.Shield], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
+			);
 			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.sockets > 0) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					!base.ethereal &&
-					(base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense) ||
-						base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
+			if (base.isInStorage && !base.ethereal && base.sockets > 0) {
+				if ((base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense)
+					|| base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
 					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(sdk.stats.Defense) + " itemToCheckDefense: " + itemsToCheck.getStatEx(sdk.stats.Defense));
-
-					result = true;
+					return true;
 				}
 			}
 		}
 
 		break;
-	case 3: // Armor
-		itemsToCheck = me.getItemsEx()
-			.filter(item =>
-				item.itemType === 3// same item type as current
-				&& !item.ethereal // only noneth runeword bases
-				&& item.sockets === base.sockets // sockets match junk in review
-				&& [3, 7].indexOf(item.location) > -1 // locations
-			)
-			.sort((a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)) // Sort on tier value, (better for skills)
-			.last(); // select last
-
+	case sdk.itemtype.Armor:
+		itemsToCheck = getItemToCompare(
+			[sdk.itemtype.Armor], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
+		);
 		if (itemsToCheck === undefined) return false;
-		if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-		if (base.sockets > 0) {
-			if (([3, 6, 7].indexOf(base.location) > -1) &&
-				!base.ethereal &&
-				(base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense) ||
-						base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
+		if (base.isInStorage && !base.ethereal && base.sockets > 0) {
+			if ((base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense)
+				|| base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
 				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(sdk.stats.Defense) + " itemToCheckDefense: " + itemsToCheck.getStatEx(sdk.stats.Defense));
-
-				result = true;
+				return true;
 			}
 		}
 
 		break;
-	case 37: // Helm
-	case 71: // Barb Helm
-	case 72: //	Druid Pelt
-	case 75: // Circlet
+	case sdk.itemtype.Helm:
+	case sdk.itemtype.PrimalHelm:
+	case sdk.itemtype.Circlet:
+	case sdk.itemtype.Pelt:
 		if (me.barbarian || me.druid) {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[37, 75, 71, 72].indexOf(item.itemType) > -1// same item type as current
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
-				.last(); // select last
-
+			let iType = [sdk.itemtype.Helm, sdk.itemtype.Circlet];
+			me.druid ? iType.push(sdk.itemtype.Pelt) : iType.push(sdk.itemtype.PrimalHelm);
+			
+			itemsToCheck = getItemToCompare(
+				iType, false, (a, b) => generalScore(a) - generalScore(b)
+			);
 			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck) ||
-						(generalScore(base) === generalScore(itemsToCheck) && base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense)))) {
-					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
-
-					result = true;
+			if (base.isInStorage && (base.sockets > 0 || itemsToCheck.sockets === base.sockets)) {
+				gScoreBase = generalScore(base);
+				gScoreCheck = generalScore(itemsToCheck);
+				if (gScoreBase < gScoreCheck || (gScoreBase === gScoreCheck && base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense))) {
+					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + gScoreBase + " itemToCheckScore: " + gScoreCheck);
+					return true;
 				}
 			}
 		} else {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[37, 75].indexOf(item.itemType) > -1// same item type as current
-					&& !item.ethereal // only noneth runeword bases
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)) // Sort on defense
-				.last(); // select last
-
+			itemsToCheck = getItemToCompare(
+				[sdk.itemtype.Helm, sdk.itemtype.Circlet], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
+			);
 			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					!base.ethereal &&
-					(base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense) ||
-						base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
+			if (base.isInStorage && (base.sockets > 0 || itemsToCheck.sockets === base.sockets)) {
+				if (!base.ethereal && (base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense)
+					|| base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
 					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStat(sdk.stats.Defense) + " itemToCheckDefense: " + itemsToCheck.getStat(sdk.stats.Defense));
-
-					result = true;
+					return true;
 				}
 			}
 		}
 
 		break;
-	case 25: //	Wand
-		if (me.necromancer) {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[25].indexOf(item.itemType) > -1// same item type as current
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
-				.last(); // select last
+	case sdk.itemtype.Wand:
+		if (!me.necromancer) return true;
 
-			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
+		itemsToCheck = getItemToCompare(
+			[sdk.itemtype.Wand], null, (a, b) => generalScore(a) - generalScore(b)
+		);
+		if (itemsToCheck === undefined) return false;
 
-			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck) ||
-						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
-					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
-
-					result = true;
-				}
+		if (base.isInStorage && (base.sockets > 0 || itemsToCheck.sockets === base.sockets)) {
+			gScoreBase = generalScore(base);
+			gScoreCheck = generalScore(itemsToCheck);
+			if (gScoreBase < gScoreCheck || (gScoreBase === gScoreCheck && base.ilvl > itemsToCheck.ilvl)) {
+				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
+				return true;
 			}
 		}
 
 		break;
-	case 24: //	Scepter
-	case 26: //	Staff
-	case 27: //	Bow
-	case 28: //	Axe
-	case 29: //	Club
-	case 30: //	Sword
-	case 31: //	Hammer
-	case 33: //	Spear
-	case 35: //	Crossbow
-	case 36: //	Mace
-	case 68: //	Orb
-	case 85: //	Amazon Bow
-	case 86: //	Amazon Spear
-		if ((me.getStat(sdk.stats.Strength) < base.strreq || me.getStat(sdk.stats.Dexterity) < base.dexreq) && !me.paladin) {	// don't toss grief base
-			return true; // Can't use so it's worse then what we already have
-		}
+	case sdk.itemtype.Scepter:
+	case sdk.itemtype.Staff:
+	case sdk.itemtype.Bow:
+	case sdk.itemtype.Axe:
+	case sdk.itemtype.Club:
+	case sdk.itemtype.Sword:
+	case sdk.itemtype.Hammer:
+	case sdk.itemtype.Knife:
+	case sdk.itemtype.Spear:
+	case sdk.itemtype.Crossbow:
+	case sdk.itemtype.Mace:
+	case sdk.itemtype.Orb:
+	case sdk.itemtype.AmazonBow:
+	case sdk.itemtype.AmazonSpear:
+		// don't toss grief base
+		// Can't use so it's worse then what we already have
+		// todo - need better solution to know what the max stats are for our current build and wanted final build
+		if ((me.trueStr < base.strreq || me.trueDex < base.dexreq) && !me.paladin) return true;
+		// need better solution for comparison based on what runeword can be made in a base type
+		// should allow comparing multiple item types given they are all for the same runeword
+		itemsToCheck = getItemToCompare(
+			[base.itemType], false, (a, b) => generalScore(a) - generalScore(b)
+		);
 
-		itemsToCheck = me.getItemsEx()
-			.filter(item =>
-				item.itemType === base.itemType// same item type as current
-				&& item.sockets === base.sockets // sockets match junk in review
-				&& [3, 7].indexOf(item.location) > -1 // locations
-				&& me.getStat(sdk.stats.Strength) >= item.strreq && me.getStat(sdk.stats.Dexterity) >= item.dexreq // I have enough str/dex for this item
-			)
-			.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
-			.last(); // select last
+		itemsToCheck === undefined && Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: itemsToCheck is undefined");
+		if (itemsToCheck === undefined) return false;
 
-		if (itemsToCheck === undefined) {
-			Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: itemsToCheck is undefined");
-
-			return false;
-		}
-
-		if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
-			Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: same item");
-
-			return true;
-		}
-
-		if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-			if (([3, 4, 7].indexOf(base.location) > -1) &&
-				(generalScore(base) < generalScore(itemsToCheck) ||
-						(generalScore(base) === generalScore(itemsToCheck) && (Item.getQuantityOwned(base) > 2 || base.getStatEx(sdk.stats.MinDamagePercent) < itemsToCheck.getStatEx(sdk.stats.MinDamagePercent))))) {
-				if (Developer.debugging.junkCheck) {
-					console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
-				}
-
-				result = true;
+		if (base.isInStorage && (base.sockets > 0 || itemsToCheck.sockets === base.sockets)) {
+			gScoreBase = generalScore(base);
+			gScoreCheck = generalScore(itemsToCheck);
+			if (gScoreBase < gScoreCheck
+				|| (gScoreBase === gScoreCheck && (Item.getQuantityOwned(base) > 2 || base.getStatEx(sdk.stats.MinDamagePercent) < itemsToCheck.getStatEx(sdk.stats.MinDamagePercent)))) {
+				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + gScoreBase + " itemToCheckScore: " + gScoreCheck);
+				return true;
 			}
 		}
 		
 		break;
-	case 67: // Handtohand (Assasin Claw)
-	case 88: //	Assassin Claw
-		if (me.assassin) {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[67, 88].indexOf(item.itemType) > -1// same item type as current
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
-				.last(); // select last
+	case sdk.itemtype.HandtoHand:
+	case sdk.itemtype.AssassinClaw:
+		if (!me.assassin) return true;
 
-			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
+		itemsToCheck = getItemToCompare(
+			[sdk.itemtype.HandtoHand, sdk.itemtype.AssassinClaw], false, (a, b) => generalScore(a) - generalScore(b)
+		);
+		if (itemsToCheck === undefined) return false;
 
-			if (base.sockets > 0) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck))) {
-					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
-
-					result = true;
-				}
+		if (base.sockets > 0) {
+			if (base.isInStorage && (generalScore(base) < generalScore(itemsToCheck))) {
+				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
+				return true;
 			}
 		}
 
 		break;
-	case 34: //	Polearm
-		itemsToCheck = me.getItemsEx()
-			.filter(item =>
-				[34].indexOf(item.itemType) > -1// same item type as current
-				&& item.sockets === base.sockets // sockets match junk in review
-				&& [3, 7].indexOf(item.location) > -1 // locations
-			)
-			.sort((a, b) => (a.getStatEx(sdk.stats.SecondaryMinDamage) + a.getStatEx(sdk.stats.SecondaryMaxDamage)) - (b.getStatEx(sdk.stats.SecondaryMinDamage) + b.getStatEx(sdk.stats.SecondaryMaxDamage))) // Sort on damage, low to high.
-			.last(); // select last
-
+	case sdk.itemtype.Polearm:
+		itemsToCheck = getItemToCompare(
+			[sdk.itemtype.Polearm], null, (a, b) => getAvgDmg(a) - getAvgDmg(b)
+		);
 		if (itemsToCheck === undefined) return false;
-		if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-		if (base.sockets > 0) {
-			if (([3, 4, 7].indexOf(base.location) > -1) &&
-				(base.getStatEx(sdk.stats.SecondaryMinDamage) + base.getStatEx(sdk.stats.SecondaryMaxDamage)) < (itemsToCheck.getStatEx(sdk.stats.SecondaryMinDamage) + itemsToCheck.getStatEx(sdk.stats.SecondaryMaxDamage))) {
+		if (base.isInStorage && base.sockets > 0) {
+			if (getAvgDmg(base) < getAvgDmg(itemsToCheck)) {
 				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseDamage: " + (base.getStatEx(sdk.stats.SecondaryMinDamage) + base.getStatEx(sdk.stats.SecondaryMaxDamage)) + " itemToCheckDamage: " + (itemsToCheck.getStatEx(sdk.stats.SecondaryMinDamage) + itemsToCheck.getStatEx(sdk.stats.SecondaryMaxDamage)));
-
-				result = true;
+				return true;
 			}
 		}
 
