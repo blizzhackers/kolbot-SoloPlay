@@ -477,7 +477,7 @@
 		},
 		dmgModifier: function (skillID, target) {
 			let aps = (typeof target === "number" ? this.averagePackSize(target) : 1),
-				eliteBonus = (target.spectype && target.spectype & 0x7) ? 1 : 0, hitcap = 1;
+				eliteBonus = (target.spectype && target.isSpecial) ? 1 : 0, hitcap = 1;
 
 			switch (skillID) { // charged bolt/strike excluded, it's so unreliably random
 			case 15: // poison javalin
@@ -545,7 +545,7 @@
 						if (target.gid !== unit.gid && getDistance(unit, this.novaLike[skillID] ? GameData.myReference : target) <= radius && isEnemy(unit)) {
 							aps++;
 
-							if (unit.spectype & 0x7) {
+							if (unit.isSpecial) {
 								eliteBonus++;
 							}
 						}
@@ -814,7 +814,7 @@
 				return totalDmg;
 			};
 			let calculateSplashDamage = function (skill, splash, target) {
-				return getUnits(1)
+				return getUnits(sdk.unittype.Monster)
 					.filter((mon) => mon.attackable && getDistance(target, mon) < splash)
 					.reduce(function (acc, cur) {
 						let _a = GameData.skillDamage(skill, cur);
@@ -830,7 +830,7 @@
 					range = 13;
 					break;
 				}
-				let units = getUnits(1)
+				let units = getUnits(sdk.unittype.Monster)
 					.filter((mon) => mon.attackable && getDistance(mon, target) < range)
 					.sort((a, b) => getDistance(target, a) - getDistance(target, b));
 				if (units.length === 1) {
@@ -856,7 +856,7 @@
 				if (!Skill.canUse(sdk.skills.StaticField)) return 0;
 				let range = Skill.getRange(sdk.skills.StaticField), cap = (me.gametype === sdk.game.gametype.Classic ? 1 : [1, 25, 50][me.diff]);
 				let pierce = me.getStat(sdk.stats.PierceLtng);
-				return getUnits(1)
+				return getUnits(sdk.unittype.Monster)
 					.filter(function (mon) {
 						return mon.attackable && getDistance(mon, distanceUnit) < range;
 					}).reduce(function (acc, unit) {
@@ -1795,7 +1795,7 @@
 		if (!Skill.canUse(sdk.skills.FrostNova)) return 0;
 		let fallens = [sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2];
 		let area = me.area;
-		return getUnits(1)
+		return getUnits(sdk.unittype.Monster)
 			.filter(unit => !!unit && fallens.includes(unit.classid) && unit.distance < 7)
 			.filter(function (unit) {
 				return unit.attackable
@@ -1821,7 +1821,7 @@
 			sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2,
 			sdk.monsters.BurningDead, sdk.monsters.Returned1, sdk.monsters.Returned2, sdk.monsters.BoneWarrior1, sdk.monsters.BoneWarrior2
 		];
-		return getUnits(1)
+		return getUnits(sdk.unittype.Monster)
 			.filter(unit => !!unit && summons.includes(unit.classid) && unit.distance < 7)
 			.filter(function (unit) {
 				return unit.attackable

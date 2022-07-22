@@ -28,10 +28,10 @@ function hellforge () {
 
 	if (!me.getItem(sdk.items.quest.HellForgeHammer)) {
 		// we don't have the hammer, is Hephasto dead?
-		let heph = getUnits(1).filter((unit) => unit.classid === sdk.monsters.Hephasto).first();
+		let heph = getUnits(sdk.unittype.Monster).filter((unit) => unit.classid === sdk.monsters.Hephasto).first();
 		!!heph && heph.attackable && Attack.kill(heph);
 		// hammer on ground?
-		let ham = getUnits(4).filter((unit) => unit.classid === sdk.items.quest.HellForgeHammer).first();
+		let ham = getUnits(sdk.unittype.Item).filter((unit) => unit.classid === sdk.items.quest.HellForgeHammer).first();
 		!!ham && [3, 5].includes(ham.mode) && Pather.moveToUnit(ham) && Pickit.pickItem(ham);
 		// do we have the hammer now?
 		if (!me.getItem(sdk.items.quest.HellForgeHammer)) {

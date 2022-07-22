@@ -74,7 +74,7 @@ Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
 	// baal in throne room doesn't have getState
 	if (this.infinity && ["fire", "lightning", "cold"].includes(damageType) && unit.getState) {
 		if (!unit.getState(sdk.states.Conviction)) {
-			if (addLowerRes && !unit.getState(sdk.states.LowerResist) && ((unit.spectype & 0x7) || me.necromancer)) {
+			if (addLowerRes && !unit.getState(sdk.states.LowerResist) && ((unit.isSpecial) || me.necromancer)) {
 				let lowerResPercent = this.getLowerResistPercent();
 				return (this.getResist(unit, damageType) - (Math.floor((lowerResPercent + 85) / 5))) < 100;
 			}
@@ -124,7 +124,7 @@ Attack.canAttack = function (unit = undefined) {
 	if (!unit) return false;
 	if (unit.type === sdk.unittype.Monster) {
 		// Unique/Champion
-		if (unit.spectype & 0x7) {
+		if (unit.isSpecial) {
 			if (Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[1])) || Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[2]))) {
 				return true;
 			}
@@ -283,7 +283,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 		do {
 			if (target.attackable && !this.skipCheck(target) && this.canAttack(target)) {
 				// Speed optimization - don't go through monster list until there's at least one within clear range
-				if (!start && getDistance(target, x, y) <= range && (Pather.useTeleport() || !checkCollision(me, target, 0x5))) {
+				if (!start && getDistance(target, x, y) <= range && (Pather.useTeleport() || !checkCollision(me, target, sdk.collision.WallOrRanged))) {
 					start = true;
 				}
 
@@ -325,13 +325,13 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 
 				gidAttack[i].attacks += 1;
 				attackCount += 1;
-				secAttack = me.barbarian ? ((target.spectype & 0x7) ? 2 : 4) : 5;
+				secAttack = me.barbarian ? ((target.isSpecial) ? 2 : 4) : 5;
 
-				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3])
-						|| (me.paladin && Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3] === 112 && !ClassAttack.getHammerPosition(target)))) {
+				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[(target.isSpecial) ? 1 : 3])
+						|| (me.paladin && Config.AttackSkill[(target.isSpecial) ? 1 : 3] === 112 && !ClassAttack.getHammerPosition(target)))) {
 					skillCheck = Config.AttackSkill[secAttack];
 				} else {
-					skillCheck = Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3];
+					skillCheck = Config.AttackSkill[(target.isSpecial) ? 1 : 3];
 				}
 
 				// Desync/bad position handler
@@ -359,7 +359,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 					monsterList.shift();
 				}
 
-				if (target.mode === 0 || target.mode === 12 || Config.FastPick === 2) {
+				if (target.dead || Config.FastPick) {
 					Pickit.fastPick();
 				}
 			} else {
@@ -587,7 +587,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 		do {
 			if ((!spectype || (target.spectype & spectype)) && target.attackable && !this.skipCheck(target)) {
 				// Speed optimization - don't go through monster list until there's at least one within clear range
-				if (!start && getDistance(target, orgx, orgy) <= range && (Pather.canTeleport() || !checkCollision(me, target, 0x1))) {
+				if (!start && getDistance(target, orgx, orgy) <= range && (Pather.canTeleport() || !checkCollision(me, target, sdk.collision.BlockWall))) {
 					start = true;
 				}
 
@@ -667,7 +667,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 					monsterList.shift();
 				}
 
-				if (target.mode === 0 || target.mode === 12 || Config.FastPick === 2) {
+				if (target.dead || Config.FastPick) {
 					Pickit.fastPick();
 				}
 			} else {
@@ -747,7 +747,7 @@ Attack.clearEx = function (givenSettings) {
 		do {
 			if ((!settings.spectype || (target.spectype & settings.spectype)) && target.attackable && !this.skipCheck(target)) {
 				// Speed optimization - don't go through monster list until there's at least one within clear range
-				if (!start && getDistance(target, orgx, orgy) <= range && (Pather.canTeleport() || !checkCollision(me, target, 0x5))) {
+				if (!start && getDistance(target, orgx, orgy) <= range && (Pather.canTeleport() || !checkCollision(me, target, sdk.collision.WallOrRanged))) {
 					start = true;
 				}
 
@@ -793,20 +793,20 @@ Attack.clearEx = function (givenSettings) {
 
 				gidAttack[i].attacks += 1;
 				attackCount += 1;
-				secAttack = me.barbarian ? ((target.spectype & 0x7) ? 2 : 4) : 5;
+				secAttack = me.barbarian ? ((target.isSpecial) ? 2 : 4) : 5;
 
-				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3]) ||
-						(me.paladin && Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3] === sdk.skills.BlessedHammer && !ClassAttack.getHammerPosition(target)))) {
+				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[(target.isSpecial) ? 1 : 3]) ||
+						(me.paladin && Config.AttackSkill[(target.isSpecial) ? 1 : 3] === sdk.skills.BlessedHammer && !ClassAttack.getHammerPosition(target)))) {
 					skillCheck = Config.AttackSkill[secAttack];
 				} else {
-					skillCheck = Config.AttackSkill[(target.spectype & 0x7) ? 1 : 3];
+					skillCheck = Config.AttackSkill[(target.isSpecial) ? 1 : 3];
 				}
 
 				// Desync/bad position handler
 				switch (skillCheck) {
 				case sdk.skills.BlessedHammer:
 					// Tele in random direction with Blessed Hammer
-					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % ((target.spectype & 0x7) ? 4 : 2) === 0) {
+					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % ((target.isSpecial) ? 4 : 2) === 0) {
 						coord = CollMap.getRandCoordinate(me.x, -1, 1, me.y, -1, 1, 5);
 						Pather.moveTo(coord.x, coord.y);
 					}
@@ -814,7 +814,7 @@ Attack.clearEx = function (givenSettings) {
 					break;
 				default:
 					// Flash with melee skills
-					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % ((target.spectype & 0x7) ? 15 : 5) === 0 && Skill.getRange(skillCheck) < 4) {
+					if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % ((target.isSpecial) ? 15 : 5) === 0 && Skill.getRange(skillCheck) < 4) {
 						Packet.flash(me.gid);
 					}
 
@@ -822,12 +822,12 @@ Attack.clearEx = function (givenSettings) {
 				}
 
 				// Skip non-unique monsters after 15 attacks, except in Throne of Destruction
-				if (me.area !== sdk.areas.ThroneofDestruction && !(target.spectype & 0x7) && gidAttack[i].attacks > 15) {
+				if (me.area !== sdk.areas.ThroneofDestruction && !(target.isSpecial) && gidAttack[i].attacks > 15) {
 					console.log("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
 					monsterList.shift();
 				}
 
-				if (target.mode === 0 || target.mode === 12 || Config.FastPick === 2) {
+				if (target.dead || Config.FastPick) {
 					Pickit.fastPick();
 				}
 			} else {
@@ -880,26 +880,26 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 
-			if (stats.hasOwnProperty(204)) {
-				if (stats[204] instanceof Array) {
-					for (let i = 0; i < stats[204].length; i += 1) {
-						if (stats[204][i] !== undefined) {
+			if (stats.hasOwnProperty(sdk.stats.ChargedSkill)) {
+				if (stats[sdk.stats.ChargedSkill] instanceof Array) {
+					for (let i = 0; i < stats[sdk.stats.ChargedSkill].length; i += 1) {
+						if (stats[sdk.stats.ChargedSkill][i] !== undefined) {
 							// add to total list of skillIds
-							if (stats[204][i].charges > 0 && !currentChargedSkills.includes(stats[204][i].skill)) {
-								currentChargedSkills.push(stats[204][i].skill);
+							if (stats[sdk.stats.ChargedSkill][i].charges > 0 && !currentChargedSkills.includes(stats[sdk.stats.ChargedSkill][i].skill)) {
+								currentChargedSkills.push(stats[sdk.stats.ChargedSkill][i].skill);
 								chargedSkills.push({
-									skill: stats[204][i].skill,
-									level: stats[204][i].level,
+									skill: stats[sdk.stats.ChargedSkill][i].skill,
+									level: stats[sdk.stats.ChargedSkill][i].level,
 									gid: item.gid,
 									//item: copyUnit(item)
 								});
 							}
 
 							// add to switch only list for use with swtich casting
-							if (stats[204][i].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204][i].skill) && item.isOnSwap) {
+							if (stats[sdk.stats.ChargedSkill][i].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[sdk.stats.ChargedSkill][i].skill) && item.isOnSwap) {
 								chargedSkillsOnSwitch.push({
-									skill: stats[204][i].skill,
-									level: stats[204][i].level,
+									skill: stats[sdk.stats.ChargedSkill][i].skill,
+									level: stats[sdk.stats.ChargedSkill][i].level,
 									gid: item.gid,
 									//item: copyUnit(item)
 								});
@@ -908,21 +908,21 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 					}
 				} else {
 					// add to total list
-					if (stats[204].charges > 0 && !currentChargedSkills.includes(stats[204].skill)) {
-						currentChargedSkills.push(stats[204].skill);
+					if (stats[sdk.stats.ChargedSkill].charges > 0 && !currentChargedSkills.includes(stats[sdk.stats.ChargedSkill].skill)) {
+						currentChargedSkills.push(stats[sdk.stats.ChargedSkill].skill);
 						chargedSkills.push({
-							skill: stats[204].skill,
-							level: stats[204].level,
+							skill: stats[sdk.stats.ChargedSkill].skill,
+							level: stats[sdk.stats.ChargedSkill].level,
 							gid: item.gid,
 							//item: copyUnit(item)
 						});
 					}
 
 					// add to switch only list for use with swtich casting
-					if (stats[204].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[204].skill) && item.isOnSwap) {
+					if (stats[sdk.stats.ChargedSkill].charges > 0 && !chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === stats[sdk.stats.ChargedSkill].skill) && item.isOnSwap) {
 						chargedSkillsOnSwitch.push({
-							skill: stats[204].skill,
-							level: stats[204].level,
+							skill: stats[sdk.stats.ChargedSkill].skill,
+							level: stats[sdk.stats.ChargedSkill].level,
 							gid: item.gid,
 							//item: copyUnit(item)
 						});
@@ -959,17 +959,17 @@ Attack.getItemCharges = function (skillId = undefined) {
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 
-			if (stats.hasOwnProperty(204)) {
-				if (stats[204] instanceof Array) {
-					stats = stats[204].filter(validCharge);
+			if (stats.hasOwnProperty(sdk.stats.ChargedSkill)) {
+				if (stats[sdk.stats.ChargedSkill] instanceof Array) {
+					stats = stats[sdk.stats.ChargedSkill].filter(validCharge);
 					stats.length && chargedItems.push({
 						charge: stats.first(),
 						item: item
 					});
 				} else {
-					if (stats[204].skill === skillId && stats[204].charges > 1) {
+					if (stats[sdk.stats.ChargedSkill].skill === skillId && stats[sdk.stats.ChargedSkill].charges > 1) {
 						chargedItems.push({
-							charge: stats[204].charges,
+							charge: stats[sdk.stats.ChargedSkill].charges,
 							item: item
 						});
 					}
@@ -1027,7 +1027,7 @@ Attack.inverseSpotDistance = function (spot, distance, otherSpot) {
 };
 
 Attack.shouldDodge = function (coord, monster) {
-	return !!monster && getUnits(3)
+	return !!monster && getUnits(sdk.unittype.Missile)
 		// for every missle that isnt from our merc
 		.filter(missile => missile && monster && monster.gid === missile.owner)
 		// if any
@@ -1091,7 +1091,7 @@ Attack.pwnDia = function () {
 	};
 
 	let checkMobs = function () {
-		let mobs = getUnits(1).filter(function(el) {
+		let mobs = getUnits(sdk.unittype.Monster).filter(function(el) {
 			return !!el && el.attackable && el.classid !== sdk.monsters.Diablo && el.distance < 20;
 		});
 		return mobs;
@@ -1225,7 +1225,7 @@ Attack.pwnDia = function () {
 				ClassAttack.farCast(dia);
 			} else {
 				// If we got enough mana to teleport close to diablo, static the bitch, and jump back
-				let diabloMissiles = getUnits(3).filter(function (unit) { let _a; return ((_a = unit.getParent()) === null || _a === void 0 ? void 0 : _a.gid) === dia.gid; });
+				let diabloMissiles = getUnits(sdk.unittype.Missile).filter(function (unit) { let _a; return ((_a = unit.getParent()) === null || _a === void 0 ? void 0 : _a.gid) === dia.gid; });
 				console.log("Diablo missiles: " + diabloMissiles.length);
 				console.log("Diablo mode:" + dia.mode);
 				me.overhead("Dia life " + (~~(dia.hp / 128 * 100)).toString() + "%");
@@ -1249,10 +1249,10 @@ Attack.pwnDia = function () {
 					});
 					Pather.moveTo(x, y);
 				}
-				Skill.cast(Config.AttackSkill[1], 0, dia);
+				Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, dia);
 
 				if (!!dia && !checkCollision(me, dia, Coords_1.Collision.BLOCK_MISSILE) && Skill.getRange(Config.AttackSkill[2]) > 15) {
-					Skill.cast(Config.AttackSkill[2], 0, dia);
+					Skill.cast(Config.AttackSkill[2], sdk.skills.hand.Right, dia);
 				}
 			}
 		}

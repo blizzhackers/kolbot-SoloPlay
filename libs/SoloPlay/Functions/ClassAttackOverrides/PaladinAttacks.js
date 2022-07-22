@@ -23,7 +23,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		if (Town.visitTown()) {
 			// lost reference to the mob we were attacking
 			if (!unit || !copyUnit(unit).x || !Game.getMonster(-1, -1, gid) || unit.dead) {
-				return 1;
+				return Attack.Result.SUCCESS;
 			}
 		}
 	}
@@ -33,46 +33,46 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
 			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-			&& (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+			&& (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
 
 		if (CharData.skillData.haveChargedSkill(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight)
-			&& gold > 500000 && !checkCollision(me, unit, 0x4)) {
+			&& gold > 500000 && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast Inner sight
 			Attack.castCharges(sdk.skills.InnerSight, unit);
 		}
 
 		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Decrepify)
-			&& !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, 0x4)) {
+			&& !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Switch cast decrepify
 			Attack.switchCastCharges(sdk.skills.Decrepify, unit);
 		}
 		
 		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
-			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, 0x4)) {
+			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Switch cast weaken
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);
 		}
 	}
 
 	// specials and dolls for now, should make dolls much less dangerous with the reduction of their damage
-	if (Precast.haveCTA > -1 && !unit.dead && (index === 1 || [212, 213, 214, 215, 216, 690, 691].includes(unit.classid))
+	if (Precast.haveCTA > -1 && !unit.dead && (index === 1 || unit.isDoll)
 		&& unit.distance < 5 && !unit.getState(sdk.states.BattleCry) && unit.curseable) {
 		Skill.switchCast(sdk.skills.BattleCry, {oSkill: true});
 	}
 
 	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
-		if (getDistance(me, unit) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
+		if (getDistance(me, unit) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
-				return 0;
+				return Attack.Result.FAILED;
 			}
 		}
 
 		Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
 
-		return 1;
+		return Attack.Result.SUCCESS;
 	}
 
 	if (Attack.getCustomAttack(unit)) {
@@ -120,7 +120,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 	let result = this.doCast(unit, attackSkill, aura);
 
-	if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+	if (result === Attack.Result.CANTATTACK && Attack.canTeleStomp(unit)) {
 		let merc = me.getMerc();
 
 		while (unit.attackable) {
@@ -130,13 +130,13 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 				}
 			}
 
-			if (!unit) return 1;
+			if (!unit) return Attack.Result.SUCCESS;
 
 			if (Town.needMerc()) {
 				if (Config.MercWatch && mercRevive++ < 1) {
 					Town.visitTown();
 				} else {
-					return 2;
+					return Attack.Result.CANTATTACK;
 				}
 
 				(merc === undefined || !merc) && (merc = me.getMerc());
@@ -153,7 +153,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 			!!closeMob && this.doCast(closeMob, attackSkill, aura);
 		}
 
-		return 1;
+		return Attack.Result.SUCCESS;
 	}
 
 	return result;

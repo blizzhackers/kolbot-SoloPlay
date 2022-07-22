@@ -561,7 +561,7 @@ var Storage = new function () {
 	};
 
 	this.BeltSize = function () {
-		let item = me.getItem(-1, 1); // get equipped item
+		let item = me.getItem(-1, sdk.itemmode.Equipped); // get equipped item
 
 		if (!item) { // nothing equipped
 			return 1;

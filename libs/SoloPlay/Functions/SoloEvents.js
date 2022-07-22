@@ -215,7 +215,7 @@ const SoloEvents = {
 		Attack.killTarget(sdk.monsters.DiabloClone);
 		Pickit.pickItems();
 
-		let newAnni = Game.getItem(603, 3);
+		let newAnni = Game.getItem(603, sdk.itemmode.onGround);
 		let oldAnni = me.findItem(603, 0, -1, 7);
 
 		if (newAnni && oldAnni) {
@@ -324,7 +324,7 @@ const SoloEvents = {
 					if (fail > 0 && !useTele && !me.inTown) {
 						// Only do this once
 						if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, sdk.skills.subindex.SoftPoints) && !leaped) {
-							Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y);
+							Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y);
 							leaped = true;
 						}
 					}
@@ -405,7 +405,7 @@ const SoloEvents = {
 		let diablo = Game.getMonster(243);
 		// Credit @Jaenster
 		let shouldDodge = function (coord) {
-			return !!diablo && getUnits(3)
+			return !!diablo && getUnits(sdk.unittype.Missile)
 				// For every missle that isnt from our merc
 				.filter((missile) => missile && diablo && diablo.gid === missile.owner)
 				// if any

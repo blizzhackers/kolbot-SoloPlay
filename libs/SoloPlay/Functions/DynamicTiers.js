@@ -152,24 +152,24 @@ const chargeditemscore = function (item, skillId, buildInfo) {
 	let stats = item.getStat(-2);
 	let chargedItems = [];
 
-	if (stats.hasOwnProperty(204)) {
-		if (stats[204] instanceof Array) {
-			for (let i = 0; i < stats[204].length; i++) {
-				if (stats[204][i] !== undefined) {
+	if (stats.hasOwnProperty(sdk.stats.ChargedSkill)) {
+		if (stats[sdk.stats.ChargedSkill] instanceof Array) {
+			for (let i = 0; i < stats[sdk.stats.ChargedSkill].length; i++) {
+				if (stats[sdk.stats.ChargedSkill][i] !== undefined) {
 					chargedItems.push({
-						skill: stats[204][i].skill,
-						level: stats[204][i].level,
-						charges: stats[204][i].charges,
-						maxcharges: stats[204][i].maxcharges
+						skill: stats[sdk.stats.ChargedSkill][i].skill,
+						level: stats[sdk.stats.ChargedSkill][i].level,
+						charges: stats[sdk.stats.ChargedSkill][i].charges,
+						maxcharges: stats[sdk.stats.ChargedSkill][i].maxcharges
 					});
 				}
 			}
 		} else {
 			chargedItems.push({
-				skill: stats[204].skill,
-				level: stats[204].level,
-				charges: stats[204].charges,
-				maxcharges: stats[204].maxcharges
+				skill: stats[sdk.stats.ChargedSkill].skill,
+				level: stats[sdk.stats.ChargedSkill].level,
+				charges: stats[sdk.stats.ChargedSkill].charges,
+				maxcharges: stats[sdk.stats.ChargedSkill].maxcharges
 			});
 		}
 	}

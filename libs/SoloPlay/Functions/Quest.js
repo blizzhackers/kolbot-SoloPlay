@@ -323,7 +323,7 @@ const Quest = {
 
 		while (me.getItem(tool)) {
 			smashable.distance > 4 && Pather.moveToEx(smashable.x, smashable.y, {clearSettings: {allowClearing: false}});
-			Skill.cast(0, 0, smashable);
+			Skill.cast(0, sdk.skills.hand.Right, smashable);
 			smashable.interact();
 
 			if (getTickCount() - tick > 30 * 1000) {

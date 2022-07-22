@@ -97,7 +97,7 @@ function main() {
 				if (portal.area === me.area) {
 					if (Skill.useTK(portal) && i < 3) {
 						portal.distance > 21 && (me.inTown && me.act === 5 ? Town.move("portalspot") : Pather.moveNearUnit(portal, 20));
-						if (Skill.cast(sdk.skills.Telekinesis, 0, portal)) {
+						if (Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, portal)) {
 							if (Misc.poll(() => {
 								if (me.area !== preArea) {
 									Pather.lastPortalTick = getTickCount();
@@ -396,11 +396,11 @@ function main() {
 					if (useHowl || useTerror) {
 						if ([156, 211, 242, 243, 544, 571, 345].indexOf(Attack.getNearestMonster()) === -1) {
 							if (useHowl && Skill.getManaCost(130) < me.mp) {
-								Skill.cast(130, 0);
+								Skill.cast(130, sdk.skills.hand.Right);
 							}
 
 							if (useTerror && Skill.getManaCost(77) < me.mp) {
-								Skill.cast(77, 0, Attack.getNearestMonster({skipImmune: false}));
+								Skill.cast(77, sdk.skills.hand.Right, Attack.getNearestMonster({skipImmune: false}));
 							}
 						}
 					}

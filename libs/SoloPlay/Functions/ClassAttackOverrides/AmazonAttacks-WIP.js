@@ -60,7 +60,7 @@ ClassAttack.decideSkill = function (unit) {
 };
 
 ClassAttack.doAttack = function (unit) {
-	if (!unit) return 1;
+	if (!unit) return Attack.Result.SUCCESS;
 	let gid = unit.gid;
 	let needRepair = me.charlvl < 5 ? [] : Town.needRepair();
 
@@ -70,14 +70,14 @@ ClassAttack.doAttack = function (unit) {
 		if (Town.visitTown(!!needRepair.length)) {
 			// lost reference to the mob we were attacking
 			if (!unit || !copyUnit(unit).x || !Game.getMonster(-1, -1, gid) || unit.dead) {
-				return 1;
+				return Attack.Result.SUCCESS;
 			}
 		}
 	}
 
 	let mercRevive = 0,
 		gold = me.gold,
-		index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+		index = ((unit.isSpecial) || unit.type === 0) ? 1 : 3;
 	
 	// todo: assign main attack damage, if we have a range skill but we are attacking a mob thats resistant with our close up skill, move away and use far attack
 	// figure out better slow-missiles casting
@@ -146,15 +146,15 @@ ClassAttack.doAttack = function (unit) {
 	// Pre-attacks Section -----------------------------------------------------------------------------------------------------------------//
 	if (data.slowMissiles.use()) {
 		if (!unit.getState(sdk.states.SlowMissiles)) {
-			if ((unit.distance > 3 || unit.getEnchant(sdk.enchant.LightningEnchanted)) && unit.distance < 13 && !checkCollision(me, unit, 0x4)) {
+			if ((unit.distance > 3 || unit.getEnchant(sdk.enchant.LightningEnchanted)) && unit.distance < 13 && !checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Act Bosses and mini-bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
 				if ([156, 211, 242, 243, 544, 571, 391, 365, 267, 229].includes(unit.classid)) {
 					// Check if already in this state
 					if (!unit.getState(sdk.states.InnerSight)) {
-						Skill.cast(sdk.skills.InnerSight, 0, unit);
+						Skill.cast(sdk.skills.InnerSight, sdk.skills.hand.Right, unit);
 					}
 				} else {
-					Skill.cast(sdk.skills.SlowMissiles, 0, unit);
+					Skill.cast(sdk.skills.SlowMissiles, sdk.skills.hand.Right, unit);
 				}
 			}
 		}
@@ -168,8 +168,8 @@ ClassAttack.doAttack = function (unit) {
 	}
 
 	if (data.innerSight.use()) {
-		if (!unit.getState(sdk.states.InnerSight) && unit.distance > 3 && unit.distance < 13 && !checkCollision(me, unit, 0x4)) {
-			Skill.cast(sdk.skills.InnerSight, 0, unit);
+		if (!unit.getState(sdk.states.InnerSight) && unit.distance > 3 && unit.distance < 13 && !checkCollision(me, unit, sdk.collision.Ranged)) {
+			Skill.cast(sdk.skills.InnerSight, sdk.skills.hand.Right, unit);
 		}
 	}
 
@@ -177,20 +177,20 @@ ClassAttack.doAttack = function (unit) {
 	let commonCheck = (gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
 	if (me.expansion && index === 1 && unit.curseable) {
 		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
-			&& !unit.getState(sdk.states.LowerResist) && commonCheck && !checkCollision(me, unit, 0x4)) {
+			&& !unit.getState(sdk.states.LowerResist) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Switch cast lower resist
 			Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 		}
 
 		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken) && !unit.getState(sdk.states.Weaken)
-			&& !unit.getState(sdk.states.LowerResist) && commonCheck && !checkCollision(me, unit, 0x4)) {
+			&& !unit.getState(sdk.states.LowerResist) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Switch cast weaken
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);
 		}
 	}
 
 	// specials and dolls for now, should make dolls much less dangerous with the reduction of their damage
-	if (Precast.haveCTA > -1 && unit.curseable && (index === 1 || [212, 213, 214, 215, 216, 690, 691].includes(unit.classid))
+	if (Precast.haveCTA > -1 && unit.curseable && (index === 1 || unit.isDoll)
 		&& unit.distance < 5 && !unit.getState(sdk.states.BattleCry) && unit.curseable) {
 		Skill.switchCast(sdk.skills.BattleCry, {oSkill: true});
 	}
@@ -208,12 +208,12 @@ ClassAttack.doAttack = function (unit) {
 				if ((!decoy || data.decoy.force) && (getTickCount() - this.decoyTick >= data.decoy.duration)) {
 					if (unit.distance > 10 || checkCollision(me, unit, 0x7)) {
 						if (!Attack.getIntoPosition(unit, 10, 0x7)) {
-							return 0;
+							return Attack.Result.FAILED;
 						}
 					}
 
 					let coord = CollMap.getRandCoordinate(unit.x, -2, 2, unit.y, -2, 2);
-					!!coord && Skill.cast(sdk.skills.Decoy, 0, coord.x, coord.y);
+					!!coord && Skill.cast(sdk.skills.Decoy, sdk.skills.hand.Right, coord.x, coord.y);
 
 					// Check if it was a sucess
 					!!me.getMinionCount(8) && (this.decoyTick = getTickCount());
@@ -224,14 +224,14 @@ ClassAttack.doAttack = function (unit) {
 
 	// Only try attacking light immunes if I have my end game javelin - preAttack with Plague Javelin
 	if (data.plagueJav.use() && !Attack.checkResist(unit, "lightning")) {
-		if (unit.distance <= 15 && !checkCollision(me, unit, 0x4)) {
+		if (unit.distance <= 15 && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast Slow-Missles, then proceed with Plague Jav. Lowers amount of damage from projectiles.
-			!unit.getState(sdk.states.SlowMissiles) && data.slowMissiles.use() && Skill.cast(sdk.skills.SlowMissiles, 0, unit);
+			!unit.getState(sdk.states.SlowMissiles) && data.slowMissiles.use() && Skill.cast(sdk.skills.SlowMissiles, sdk.skills.hand.Right, unit);
 
 			// Handle Switch casting
 			if (!unit.dead) {
 				// should we switch cast any mob thats light immune?
-				if (!unit.getState(sdk.states.LowerResist) && unit.curseable && commonCheck && !checkCollision(me, unit, 0x4)) {
+				if (!unit.getState(sdk.states.LowerResist) && unit.curseable && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
 					// Switch cast lower resist
 					Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 				}
@@ -247,16 +247,16 @@ ClassAttack.doAttack = function (unit) {
 				if (unit.distance < 4 && Attack.checkResist(unit, "physical")) {
 					if (checkCollision(me, unit, 0x7)) {
 						if (!Attack.getIntoPosition(unit, 3, 0x7)) {
-							return 0;
+							return Attack.Result.FAILED;
 						}
 					}
 
 					!unit.dead && Skill.cast(sdk.skills.Jab, Skill.getHand(sdk.skills.Jab), unit);
 						
-					return 1;
+					return Attack.Result.SUCCESS;
 				}
 				
-				return 1;
+				return Attack.Result.SUCCESS;
 			}
 		}
 	}
@@ -264,31 +264,31 @@ ClassAttack.doAttack = function (unit) {
 	// Only try attacking immunes if I have my end game javelin and they aren't lightning enchanted - use jab as main attack
 	// why? don't remember reason I did this
 	// if (data.jab.use() && !Attack.checkResist(unit, Config.AttackSkill[1]) && Attack.checkResist(unit, "physical") && !unit.getEnchant(sdk.enchant.LightningEnchanted)) {
-	// 	if ((unit.distance > 3 || checkCollision(me, unit, 0x4)) && !Attack.getIntoPosition(unit, 3, 0x1)) {
-	// 		return 0;
+	// 	if ((unit.distance > 3 || checkCollision(me, unit, sdk.collision.Ranged)) && !Attack.getIntoPosition(unit, 3, sdk.collision.BlockWall)) {
+	// 		return Attack.Result.FAILED;
 	// 	}
 
 	// 	!unit.dead && Skill.cast(sdk.skills.Jab, Skill.getHand(sdk.skills.Jab), unit);
 		
-	// 	return 1;
+	// 	return Attack.Result.SUCCESS;
 	// }
 
 	if (data.plagueJav.use() && Attack.checkResist(unit, "poison") && !unit.getState(sdk.states.Poison) && !me.skillDelay) {
-		if (((data.plagueJav.force || unit.distance >= 8) && unit.distance <= 25) && !checkCollision(me, unit, 0x4)) {
+		if (((data.plagueJav.force || unit.distance >= 8) && unit.distance <= 25) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			Skill.cast(sdk.skills.PlagueJavelin, Skill.getHand(sdk.skills.PlagueJavelin), unit);
 		}
 	}
 
 	if (data.lightFury.use()) {
-		if ((unit.distance >= 8 && unit.distance <= 25) && !checkCollision(me, unit, 0x4)) {
-			if (Skill.cast(sdk.skills.LightningFury, Skill.getHand(sdk.skills.LightningFury), unit) && data.lightFury.force) return 1;
+		if ((unit.distance >= 8 && unit.distance <= 25) && !checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (Skill.cast(sdk.skills.LightningFury, Skill.getHand(sdk.skills.LightningFury), unit) && data.lightFury.force) return Attack.Result.SUCCESS;
 		}
 	}
 
 	let skills = this.decideSkill(unit);
 	let result = this.doCast(unit, skills.timed, skills.untimed);
 
-	if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+	if (result === Attack.Result.CANTATTACK && Attack.canTeleStomp(unit)) {
 		let merc = me.getMerc();
 
 		while (unit.attackable) {
@@ -298,13 +298,13 @@ ClassAttack.doAttack = function (unit) {
 				}
 			}
 
-			if (!unit) return 1;
+			if (!unit) return Attack.Result.SUCCESS;
 
 			if (Town.needMerc()) {
 				if (Config.MercWatch && mercRevive++ < 1) {
 					Town.visitTown();
 				} else {
-					return 2;
+					return Attack.Result.CANTATTACK;
 				}
 
 				(merc === undefined || !merc) && (merc = me.getMerc());
@@ -321,11 +321,11 @@ ClassAttack.doAttack = function (unit) {
 			
 			if (!!closeMob) {
 				let findSkill = this.decideSkill(closeMob);
-				(this.doCast(closeMob, findSkill.timed, findSkill.untimed) === 1) || (data.decoy.level && Skill.cast(sdk.skills.Decoy, 0, unit));
+				(this.doCast(closeMob, findSkill.timed, findSkill.untimed) === 1) || (data.decoy.level && Skill.cast(sdk.skills.Decoy, sdk.skills.hand.Right, unit));
 			}
 		}
 
-		return 1;
+		return Attack.Result.SUCCESS;
 	}
 
 	return result;
@@ -349,13 +349,13 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 	let walk;
 
 	// No valid skills can be found
-	if (timedSkill < 0 && untimedSkill < 0) return 2;
+	if (timedSkill < 0 && untimedSkill < 0) return Attack.Result.CANTATTACK;
 
 	// Arrow/bolt check
 	if (this.bowCheck) {
 		switch (true) {
-		case this.bowCheck === "bow" && !me.getItem("aqv", 1):
-		case this.bowCheck === "crossbow" && !me.getItem("cqv", 1):
+		case this.bowCheck === "bow" && !me.getItem("aqv", sdk.itemmode.Equipped):
+		case this.bowCheck === "crossbow" && !me.getItem("cqv", sdk.itemmode.Equipped):
 			console.log("Bow check");
 			Town.visitTown();
 
@@ -367,9 +367,9 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		switch (timedSkill) {
 		case sdk.skills.LightningFury:
 			if (!this.lightFuryTick || getTickCount() - this.lightFuryTick > Config.LightningFuryDelay * 1000) {
-				if (unit.distance > Skill.getRange(timedSkill) || checkCollision(me, unit, 0x4)) {
+				if (unit.distance > Skill.getRange(timedSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
 					if (!Attack.getIntoPosition(unit, Skill.getRange(timedSkill), 0x4)) {
-						return 0;
+						return Attack.Result.FAILED;
 					}
 				}
 
@@ -377,7 +377,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 					this.lightFuryTick = getTickCount();
 				}
 
-				return 1;
+				return Attack.Result.SUCCESS;
 			}
 
 			break;
@@ -390,15 +390,15 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 			}
 
 			if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
-				return 0;
+				return Attack.Result.FAILED;
 			}
 
-			if (Math.round(getDistance(me, unit)) > Skill.getRange(timedSkill) || checkCollision(me, unit, 0x4)) {
+			if (Math.round(getDistance(me, unit)) > Skill.getRange(timedSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Allow short-distance walking for melee skills
-				walk = Skill.getRange(timedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, 0x1);
+				walk = Skill.getRange(timedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
 				if (!Attack.getIntoPosition(unit, Skill.getRange(timedSkill), 0x4, walk)) {
-					return 0;
+					return Attack.Result.FAILED;
 				}
 			}
 
@@ -406,21 +406,21 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 				Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
 			}
 
-			return 1;
+			return Attack.Result.SUCCESS;
 		}
 	}
 
 	if (untimedSkill > -1) {
 		if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
-			return 0;
+			return Attack.Result.FAILED;
 		}
 
-		if (unit.distance > Skill.getRange(untimedSkill) || checkCollision(me, unit, 0x4)) {
+		if (unit.distance > Skill.getRange(untimedSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Allow short-distance walking for melee skills
-			walk = Skill.getRange(untimedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, 0x1);
+			walk = Skill.getRange(untimedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
 			if (!Attack.getIntoPosition(unit, Skill.getRange(untimedSkill), 0x4, walk)) {
-				return 0;
+				return Attack.Result.FAILED;
 			}
 		}
 
@@ -428,7 +428,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 			Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
 		}
 
-		return 1;
+		return Attack.Result.SUCCESS;
 	}
 
 	Misc.poll(() => !me.skillDelay, 1000, 40);
@@ -438,5 +438,5 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		delay(40);
 	}
 
-	return 1;
+	return Attack.Result.SUCCESS;
 };

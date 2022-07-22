@@ -8,7 +8,7 @@
 !isIncluded("common/Attacks/Druid.js") && include("common/Attacks/Druid.js");
 
 ClassAttack.doAttack = function (unit, preattack) {
-	if (!unit) return 1;
+	if (!unit) return Attack.Result.SUCCESS;
 	let gid = unit.gid;
 
 	if (Config.MercWatch && Town.needMerc()) {
@@ -17,7 +17,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		if (Town.visitTown()) {
 			// lost reference to the mob we were attacking
 			if (!unit || !copyUnit(unit).x || !Game.getMonster(-1, -1, gid) || unit.dead) {
-				return 1;
+				return Attack.Result.SUCCESS;
 			}
 		}
 	}
@@ -27,59 +27,59 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let timedSkill = -1;
 	let untimedSkill = -1;
 	let gold = me.gold;
-	let index = ((unit.spectype & 0x7) || unit.type === 0) ? 1 : 3;
+	let index = ((unit.isSpecial) || unit.type === 0) ? 1 : 3;
 
 	// Rebuff Hurricane
-	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, 0);
+	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, sdk.skills.hand.Right);
 
 	// Rebuff Cyclone Armor
-	Skill.canUse(sdk.skills.CycloneArmor) && !me.getState(sdk.states.CycloneArmor) && Skill.cast(sdk.skills.CycloneArmor, 0);
+	Skill.canUse(sdk.skills.CycloneArmor) && !me.getState(sdk.states.CycloneArmor) && Skill.cast(sdk.skills.CycloneArmor, sdk.skills.hand.Right);
 
 	if (index === 1 && !unit.dead && unit.curseable) {
 		let commonCheck = (gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
 
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-			&& (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, 0x4)) {
+			&& (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
 
 		if (CharData.skillData.haveChargedSkill(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight)
-			&& gold > 500000 && !checkCollision(me, unit, 0x4)) {
+			&& gold > 500000 && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.InnerSight, unit);
 		}
 
 		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Decrepify)
-			&& !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, 0x4)) {
+			&& !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Switch cast decrepify
 			Attack.switchCastCharges(sdk.skills.Decrepify, unit);
 		}
 		
 		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
-			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, 0x4)) {
+			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Switch cast weaken
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);
 		}
 	}
 
 	// specials and dolls for now, should make dolls much less dangerous with the reduction of their damage
-	if (Precast.haveCTA > -1 && !unit.dead && (index === 1 || [212, 213, 214, 215, 216, 690, 691].includes(unit.classid))
+	if (Precast.haveCTA > -1 && !unit.dead && (index === 1 || unit.isDoll)
 		&& unit.distance < 5 && !unit.getState(sdk.states.BattleCry) && unit.curseable) {
 		Skill.switchCast(sdk.skills.BattleCry, {oSkill: true});
 	}
 
 	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0])
 		&& (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
-		if (unit.distance > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, 0x4)) {
+		if (unit.distance > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
-				return 0;
+				return Attack.Result.FAILED;
 			}
 		}
 
 		Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
 
-		return 1;
+		return Attack.Result.SUCCESS;
 	}
 
 	// Get timed skill
@@ -128,7 +128,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	let result = this.doCast(unit, timedSkill, untimedSkill);
 
-	if (result === 2 && Config.TeleStomp && Config.UseMerc && Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc() && Attack.validSpot(unit.x, unit.y)) {
+	if (result === Attack.Result.CANTATTACK && Attack.canTeleStomp(unit)) {
 		let merc = me.getMerc();
 
 		while (unit.attackable) {
@@ -138,13 +138,13 @@ ClassAttack.doAttack = function (unit, preattack) {
 				}
 			}
 
-			if (!unit) return 1;
+			if (!unit) return Attack.Result.SUCCESS;
 
 			if (Town.needMerc()) {
 				if (Config.MercWatch && mercRevive++ < 1) {
 					Town.visitTown();
 				} else {
-					return 2;
+					return Attack.Result.CANTATTACK;
 				}
 
 				(merc === undefined || !merc) && (merc = me.getMerc());
@@ -161,7 +161,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 			!!closeMob && this.doCast(closeMob, timedSkill, untimedSkill);
 		}
 
-		return 1;
+		return Attack.Result.SUCCESS;
 	}
 
 	return result;
@@ -171,17 +171,17 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 	let walk;
 
 	// No valid skills can be found
-	if (timedSkill < 0 && untimedSkill < 0) return 2;
+	if (timedSkill < 0 && untimedSkill < 0) return Attack.Result.CANTATTACK;
 
 	// Rebuff Hurricane
-	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, 0);
+	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, sdk.skills.hand.Right);
 
 	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 		switch (timedSkill) {
 		case sdk.skills.Tornado:
-			if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(timedSkill)) || checkCollision(me, unit, 0x4)) {
+			if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(timedSkill)) || checkCollision(me, unit, sdk.collision.Ranged)) {
 				if (!Attack.getIntoPosition(unit, (Skill.getRange(timedSkill)), 0x4)) {
-					return 0;
+					return Attack.Result.FAILED;
 				}
 			}
 
@@ -190,18 +190,18 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 				Skill.cast(timedSkill, Skill.getHand(timedSkill), unit.x + rand(-1, 1), unit.y);
 			}
 
-			return 1;
+			return Attack.Result.SUCCESS;
 		default:
 			if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
-				return 0;
+				return Attack.Result.FAILED;
 			}
 
-			if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(timedSkill)) || checkCollision(me, unit, 0x4)) {
+			if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(timedSkill)) || checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Allow short-distance walking for melee skills
-				walk = Skill.getRange(timedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
+				walk = Skill.getRange(timedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
 				if (!Attack.getIntoPosition(unit, (Skill.getRange(timedSkill)), 0x4, walk)) {
-					return 0;
+					return Attack.Result.FAILED;
 				}
 			}
 
@@ -209,21 +209,21 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 				Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
 			}
 
-			return 1;
+			return Attack.Result.SUCCESS;
 		}
 	}
 
 	if (untimedSkill > -1) {
 		if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
-			return 0;
+			return Attack.Result.FAILED;
 		}
 
-		if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(untimedSkill)) || checkCollision(me, unit, 0x4)) {
+		if (Math.ceil(getDistance(me, unit)) > (Skill.getRange(untimedSkill)) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Allow short-distance walking for melee skills
-			walk = Skill.getRange(untimedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, 0x1);
+			walk = Skill.getRange(untimedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
 			if (!Attack.getIntoPosition(unit, (Skill.getRange(untimedSkill)), 0x4, walk)) {
-				return 0;
+				return Attack.Result.FAILED;
 			}
 		}
 
@@ -231,11 +231,11 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 			Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
 		}
 
-		return 1;
+		return Attack.Result.SUCCESS;
 	}
 
 	Misc.poll(() => !me.skillDelay, 1000, 40);
 
-	return 1;
+	return Attack.Result.SUCCESS;
 };
 

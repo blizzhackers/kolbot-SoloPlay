@@ -344,7 +344,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 
 		return chargedItem.castChargedSkillEx.apply(chargedItem, args);
 	} else if (this.type === 4) {
-		charge = this.getStat(-2)[204]; // WARNING. Somehow this gives duplicates
+		charge = this.getStat(-2)[sdk.stats.ChargedSkill]; // WARNING. Somehow this gives duplicates
 
 		if (!charge) {
 			console.warn("ÿc9CastChargedSkillÿc0 :: No charged skill on this item");
@@ -373,7 +373,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 			].indexOf(skillId) === -1);
 
 			if (!usePacket) {
-				return Skill.cast(skillId, 0, x || me.x, y || me.y, this); // Non packet casting
+				return Skill.cast(skillId, sdk.skills.hand.Right, x || me.x, y || me.y, this); // Non packet casting
 			}
 
 			// Packet casting

@@ -79,15 +79,15 @@ Precast.summon = function (skillId, minionType) {
 		let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	// Get a random coordinate to summon using
 		let unit = Attack.getNearestMonster({skipImmune: false});
 
-		if (unit && [sdk.minions.Golem, sdk.minions.Grizzly, sdk.minions.Shadow].includes(minionType) && unit.distance < 20 && !checkCollision(me, unit, 0x4)) {
+		if (unit && [sdk.minions.Golem, sdk.minions.Grizzly, sdk.minions.Shadow].includes(minionType) && unit.distance < 20 && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			try {
-				if (Skill.cast(skillId, 0, unit)) {
+				if (Skill.cast(skillId, sdk.skills.hand.Right, unit)) {
 					if (me.getMinionCount(minionType) === count) {
 						continue;
 					} else {
 						retry++;
 					}
-				} else if (Skill.cast(skillId, 0, me.x, me.y)) {
+				} else if (Skill.cast(skillId, sdk.skills.hand.Right, me.x, me.y)) {
 					if (me.getMinionCount(minionType) === count) {
 						continue;
 					} else {
@@ -100,7 +100,7 @@ Precast.summon = function (skillId, minionType) {
 		}
 
 		if (coord && Attack.castableSpot(coord.x, coord.y)) {
-			Skill.cast(skillId, 0, coord.x, coord.y);
+			Skill.cast(skillId, sdk.skills.hand.Right, coord.x, coord.y);
 
 			if (me.getMinionCount(minionType) === count) {
 				continue;
@@ -108,7 +108,7 @@ Precast.summon = function (skillId, minionType) {
 				retry++;
 			}
 		} else if (Attack.castableSpot(me.x, me.y)) {
-			Skill.cast(skillId, 0, me.x, me.y);
+			Skill.cast(skillId, sdk.skills.hand.Right, me.x, me.y);
 
 			if (me.getMinionCount(minionType) === count) {
 				continue;
@@ -130,14 +130,14 @@ Precast.summon = function (skillId, minionType) {
 				}
 				
 				Town.move("portalspot");
-				Skill.cast(skillId, 0, me.x, me.y);
+				Skill.cast(skillId, sdk.skills.hand.Right, me.x, me.y);
 			} else {
 				coord = CollMap.getRandCoordinate(me.x, -6, 6, me.y, -6, 6);
 
 				// Keep bots from getting stuck trying to summon
 				if (coord && Attack.validSpot(coord.x, coord.y)) {
 					Pather.moveTo(coord.x, coord.y);
-					Skill.cast(skillId, 0, me.x, me.y);
+					Skill.cast(skillId, sdk.skills.hand.Right, me.x, me.y);
 				}
 			}
 

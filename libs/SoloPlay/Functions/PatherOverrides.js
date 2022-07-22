@@ -181,7 +181,7 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 			if (wp && wp.area === me.area) {
 				if (useTK) {
 					wp.distance > 21 && Pather.moveNearUnit(wp, 20);
-					Skill.cast(sdk.skills.Telekinesis, 0, wp);
+					Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, wp);
 				} else {
 					wp.distance > 7 && this.moveToUnit(wp);
 					Misc.click(0, 0, wp);
@@ -248,7 +248,7 @@ Pather.changeAct = function () {
 			Town.move(NPC[npc]);
 			Packet.flash(me.gid, pingDelay);
 			delay(pingDelay * 2 + 100);
-			npcUnit = getUnit(sdk.unittype.NPC, npc);
+			npcUnit = Game.getNPC(npc);
 		}
 	}
 
@@ -373,7 +373,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 						}
 
 						// Only do this once
-						if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y)) {
+						if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
 							leaped = true;
 						}
 					}
@@ -525,7 +525,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 						}
 
 						// Only do this once
-						if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y)) {
+						if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
 							leaped = true;
 						}
 					}
@@ -652,7 +652,7 @@ Pather.moveToLoc = function (target, givenSettings) {
 					}
 
 					// Only do this once
-					if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y)) {
+					if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
 						leaped = true;
 					}
 				}
@@ -712,7 +712,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 		if (me.inTown) {
 			if (me.area === sdk.areas.LutGholein) {
-				let npc = getUnit(sdk.unittype.NPC, NPC.Warriv);
+				let npc = Game.getNPC(NPC.Warriv);
 
 				if (!!npc && npc.distance < 50) {
 					if (npc && npc.openMenu()) {
@@ -736,8 +736,8 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 			if (useTK && !getUIFlag(sdk.uiflags.Waypoint)) {
 				wp.distance > 21 && Pather.moveNearUnit(wp, 20);
-				i > 1 && checkCollision(me, wp, 0x4) && Attack.getIntoPosition(wp, 20, 0x4);
-				Skill.cast(sdk.skills.Telekinesis, 0, wp);
+				i > 1 && checkCollision(me, wp, sdk.collision.Ranged) && Attack.getIntoPosition(wp, 20, sdk.collision.Ranged);
+				Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, wp);
 			} else if (!me.inTown && wp.distance > 7) {
 				this.moveToUnit(wp);
 			}

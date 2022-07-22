@@ -19,7 +19,7 @@ function baal () {
 				let decoy = Game.getMonster(356);
 
 				if (!decoy || (getTickCount() - decoyTick >= decoyDuration)) {
-					Skill.cast(sdk.skills.Decoy, 0, 15092, 5028);
+					Skill.cast(sdk.skills.Decoy, sdk.skills.hand.Right, 15092, 5028);
 					decoyTick = getTickCount();
 				}
 			}
@@ -30,7 +30,7 @@ function baal () {
 				if (me.skillDelay) {
 					delay(50);
 				} else {
-					Skill.cast(Config.AttackSkill[1], 0, 15093, 5024);
+					Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 15093, 5024);
 				}
 			}
 
@@ -187,7 +187,7 @@ function baal () {
 
 	let canClearThrone = function () {
 		Pather.moveTo(15094, 5029);
-		let monList = getUnits(1).filter(i => i.attackable);
+		let monList = getUnits(sdk.unittype.Monster).filter(i => i.attackable);
 		let canAttack = [], cantAttack = [];
 
 		monList.forEach(mon => {

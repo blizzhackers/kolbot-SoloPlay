@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 		sdk_1.default.monsters.WarpedFallen, sdk_1.default.monsters.Carver1, sdk_1.default.monsters.Devilkin, sdk_1.default.monsters.DarkOne2
 	];
 	const clearDistance = function (x, y, xx, yy) {
-		getUnits(1).forEach(function (monster) {
+		getUnits(sdk.unittype.Monster).forEach(function (monster) {
 			if (typeof monster["beendead"] === "undefined")
 				monster.beendead = false;
 			monster.beendead = monster.beendead || monster.dead;

@@ -123,7 +123,7 @@ Town.townTasks = function (buyPots = {}) {
 
 	// Burst of speed while in town
 	if (me.inTown && Skill.canUse(sdk.skills.BurstofSpeed) && !me.getState(sdk.states.BurstofSpeed)) {
-		Skill.cast(sdk.skills.BurstofSpeed, 0);
+		Skill.cast(sdk.skills.BurstofSpeed, sdk.skills.hand.Right);
 	}
 
 	let preAct = me.act;
@@ -192,7 +192,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 
 	// Burst of speed while in town
 	if (Skill.canUse(sdk.skills.BurstofSpeed) && !me.getState(sdk.states.BurstofSpeed)) {
-		Skill.cast(sdk.skills.BurstofSpeed, 0);
+		Skill.cast(sdk.skills.BurstofSpeed, sdk.skills.hand.Right);
 	}
 
 	let preAct = me.act;
@@ -2231,12 +2231,12 @@ Town.needRepair = function () {
 	if (bowCheck) {
 		switch (bowCheck) {
 		case "bow":
-			quiver = me.getItem("aqv", 1); // Equipped arrow quiver
+			quiver = me.getItem("aqv", sdk.itemmode.Equipped); // Equipped arrow quiver
 			inventoryQuiver = me.getItem("aqv");
 
 			break;
 		case "crossbow":
-			quiver = me.getItem("cqv", 1); // Equipped bolt quiver
+			quiver = me.getItem("cqv", sdk.itemmode.Equipped); // Equipped bolt quiver
 			inventoryQuiver = me.getItem("cqv");
 
 			break;
