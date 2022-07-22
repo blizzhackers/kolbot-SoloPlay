@@ -17,27 +17,13 @@
 */
 
 function LoadConfig () {
-	!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
-	!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
+	includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
+	includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
 	SetUp.include();
 
 	/* Script */
 	Scripts.SoloPlay = true;
-
-	/* Level Specifc Settings */
-	Config.respecOne = 24;
-	Config.respecOneB = 0;
-	Config.levelCap = (function() {
-		let tmpCap;
-		if (me.softcore) {
-			tmpCap = [33, 73, 100];
-		} else {
-			tmpCap = [33, 73, 100];
-		}
-		return tmpCap[me.diff];
-	})();
-
 	SetUp.config();
 
 	/* Chicken configuration. */
@@ -172,11 +158,11 @@ function LoadConfig () {
 
 	Config.imbueables = [
 		{name: sdk.items.SpiritMask, condition: () => (me.normal)},
-		{name: sdk.items.TotemicMask, condition: () => (!me.normal && Item.getEquippedItem(1).tier < 100000 && (me.charlvl < 66 || me.trueStr < 118))},
-		{name: sdk.items.DreamSpirit, condition: () => (Item.getEquippedItem(1).tier < 100000 && me.trueStr >= 118)},
-		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(1).tier > 100000))},
-		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(1).tier > 100000))},
-		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(1).tier > 100000))},
+		{name: sdk.items.TotemicMask, condition: () => (!me.normal && Item.getEquippedItem(sdk.body.Head).tier < 100000 && (me.charlvl < 66 || me.trueStr < 118))},
+		{name: sdk.items.DreamSpirit, condition: () => (Item.getEquippedItem(sdk.body.Head).tier < 100000 && me.trueStr >= 118)},
+		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(sdk.body.Head).tier > 100000))},
+		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(sdk.body.Head).tier > 100000))},
+		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(sdk.body.Head).tier > 100000))},
 	].filter((item) => item.condition());
 
 	let imbueArr = SetUp.imbueItems();
@@ -226,8 +212,8 @@ function LoadConfig () {
 
 	// FinalBuild specific setup
 	switch (SetUp.finalBuild) {
-	case 'Wind':
-	case 'Elemental':
+	case "Wind":
+	case "Elemental":
 		// Call to Arms
 		if (!me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js")) {
@@ -276,8 +262,8 @@ function LoadConfig () {
 		}
 
 		break;
-	case 'Wolf':
-	case 'Plaguewolf':
+	case "Wolf":
+	case "Plaguewolf":
 		// Chains of Honor
 		if (!me.checkItem({name: sdk.locale.items.ChainsofHonor}).have) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js")) {
@@ -285,7 +271,7 @@ function LoadConfig () {
 			}
 		}
 
-		if (SetUp.finalBuild === 'Plaguewolf') {
+		if (SetUp.finalBuild === "Plaguewolf") {
 			// Grief
 			if (!me.checkItem({name: sdk.locale.items.Grief}).have) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/Grief.js")) {
@@ -318,14 +304,14 @@ function LoadConfig () {
 	Check.itemSockables(sdk.items.TotemicMask, "unique", "Jalal's Mane");
 
 	// Spirit Sword
-	if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(4).tier < 777) {
+	if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(sdk.body.RightArm).tier < 777) {
 		if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js")) {
 			include("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
 		}
 	}
 
 	// Spirit Shield
-	if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 1000 || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit)) {
+	if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(sdk.body.LeftArm).tier < 1000 || Item.getEquippedItem(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
 		if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js")) {
 			include("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 		}
@@ -339,14 +325,14 @@ function LoadConfig () {
 	}
 
 	// Lore
-	if (Item.getEquippedItem(1).tier < 100000) {
+	if (Item.getEquippedItem(sdk.body.Head).tier < 100000) {
 		if (!isIncluded("SoloPlay/BuildFiles/Runewords/Lore.js")) {
 			include("SoloPlay/BuildFiles/Runewords/Lore.js");
 		}
 	}
 
 	// Ancients' Pledge
-	if (Item.getEquippedItem(5).tier < 500) {
+	if (Item.getEquippedItem(sdk.body.LeftArm).tier < 500) {
 		if (!isIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js")) {
 			include("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
 		}
@@ -367,14 +353,14 @@ function LoadConfig () {
 	}
 
 	// Smoke
-	if (Item.getEquippedItem(3).tier < 634) {
+	if (Item.getEquippedItem(sdk.body.Armor).tier < 634) {
 		if (!isIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js")) {
 			include("SoloPlay/BuildFiles/Runewords/Smoke.js");
 		}
 	}
 
 	// Stealth
-	if (Item.getEquippedItem(3).tier < 233) {
+	if (Item.getEquippedItem(sdk.body.Armor).tier < 233) {
 		if (!isIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js")) {
 			include("SoloPlay/BuildFiles/Runewords/Stealth.js");
 		}

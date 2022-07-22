@@ -40,7 +40,7 @@ let build = {
 	stats: undefined,
 
 	active: function () {
-		return (me.charlvl > Config.respecOne && me.charlvl > Config.respecOneB && me.getSkill(sdk.skills.BonePrison, sdk.skills.subindex.HardPoints) >= 1 && !Check.finalBuild().active());
+		return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.getSkill(sdk.skills.BonePrison, sdk.skills.subindex.HardPoints) >= 1 && !Check.finalBuild().active());
 	},
 };
 

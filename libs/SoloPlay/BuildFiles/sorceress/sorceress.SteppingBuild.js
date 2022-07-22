@@ -58,7 +58,7 @@ let build = {
 	skills: undefined,
 
 	active: function () {
-		return me.charlvl > Config.respecOne && me.charlvl < Config.respecOneB && me.getSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints) && !me.getSkill(sdk.skills.Nova, sdk.skills.subindex.HardPoints) && !me.getSkill(sdk.skills.FireMastery, sdk.skills.subindex.HardPoints);
+		return me.charlvl > CharInfo.respecOne && me.charlvl < CharInfo.respecTwo && me.getSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints) && !me.getSkill(sdk.skills.Nova, sdk.skills.subindex.HardPoints) && !me.getSkill(sdk.skills.FireMastery, sdk.skills.subindex.HardPoints);
 	},
 };
 

@@ -136,7 +136,7 @@ const finalBuild = {
 	},
 
 	respec: function () {
-		return Attack.checkInfinity() && Check.haveItem("armor", "runeword", "Enigma");
+		return (Attack.checkInfinity() || (myData.merc.gear.includes(sdk.locale.items.Infinity) && !Misc.poll(() => me.getMerc(), 200, 50))) && Check.haveItem("armor", "runeword", "Enigma");
 	},
 
 	active: function () {

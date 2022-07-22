@@ -424,7 +424,7 @@ var Container = function (name, width, height, location) {
 
 					break;
 				default:
-					clickItemAndWait(0, x, y, this.location);
+					clickItemAndWait(sdk.clicktypes.click.Left, x, y, this.location);
 
 					break;
 				}

@@ -138,7 +138,7 @@ const finalBuild = {
 		if (me.classic) {
 			return me.charlvl >= 75 && me.diablo;
 		} else {
-			return Attack.checkInfinity();
+			return (Attack.checkInfinity() || (myData.merc.gear.includes(sdk.locale.items.Infinity) && !Misc.poll(() => me.getMerc(), 200, 50)));
 		}
 	},
 

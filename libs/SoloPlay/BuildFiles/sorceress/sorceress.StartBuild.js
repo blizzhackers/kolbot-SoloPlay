@@ -37,6 +37,6 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl < Config.respecOne && !me.getSkill(sdk.skills.ColdMastery, sdk.skills.subindex.HardPoints);
+		return me.charlvl < CharInfo.respecOne && !me.getSkill(sdk.skills.ColdMastery, sdk.skills.subindex.HardPoints);
 	},
 };

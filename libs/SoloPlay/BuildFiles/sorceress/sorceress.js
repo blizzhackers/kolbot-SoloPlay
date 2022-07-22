@@ -1,23 +1,23 @@
 /**
-*  @filename    amazon.js
+*  @filename    sorceress.js
 *  @author      theBGuy
-*  @desc        Zon specifics
+*  @desc        Sorceress specifics
 *
 */
 
 const CharInfo = {
-	respecOne: me.expansion ? 30 : 30,
-	respecTwo: me.expansion ? 64 : 64,
+	respecOne: me.expansion ? 26 : 26,
+	respecTwo: me.expansion ? 63 : 60,
 	levelCap: (function() {
 		const currentDiff = sdk.difficulty.nameOf(me.diff);
 		const softcoreMode = {
 			"Normal": me.expansion ? 33 : 33,
-			"Nightmare": me.expansion ? 70 : 70,
+			"Nightmare": me.expansion ? 64 : 60,
 			"Hell": 100,
 		};
 		const hardcoreMode = {
 			"Normal": me.expansion ? 33 : 33,
-			"Nightmare": me.expansion ? 65 : 65,
+			"Nightmare": me.expansion ? 67 : 67,
 			"Hell": 100,
 		};
 
@@ -30,10 +30,10 @@ const CharInfo = {
 		const justRepeced = (nSkills >= currLevel);
 
 		switch (true) {
-		case currLevel < this.respecOne && !me.getSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints):
+		case currLevel < this.respecOne && !me.getSkill(sdk.skills.ColdMastery, sdk.skills.subindex.HardPoints):
 			return "Start";
 		case currLevel > this.respecOne && currLevel < this.respecTwo && justRepeced:
-		case currLevel > this.respecOne && currLevel < this.respecTwo && me.getSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints) && !me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.HardPoints):
+		case currLevel > this.respecOne && currLevel < this.respecTwo && me.getSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints) && !me.getSkill(sdk.skills.Nova, sdk.skills.subindex.HardPoints) && !me.getSkill(sdk.skills.FireMastery, sdk.skills.subindex.HardPoints):
 			return "Stepping";
 		case Check.finalBuild().respec() && justRepeced:
 		case Check.finalBuild().active():

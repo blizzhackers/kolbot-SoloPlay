@@ -18,27 +18,13 @@
 */
 
 function LoadConfig () {
-	!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
-	!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
+	includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
+	includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
 	SetUp.include();
 
 	/* Script */
 	Scripts.SoloPlay = true;
-
-	/* Level Specifc Settings */
-	Config.respecOne = me.expansion ? 26 : 26;
-	Config.respecOneB = me.expansion ? 63 : 60;
-	Config.levelCap = (function() {
-		let tmpCap;
-		if (me.softcore) {
-			tmpCap = me.expansion ? [33, 64, 100] : [33, 60, 100];
-		} else {
-			tmpCap = me.expansion ? [33, 67, 100] : [33, 67, 100];
-		}
-		return tmpCap[me.diff];
-	})();
-
 	SetUp.config();
 
 	/* Chicken configuration. */
@@ -183,7 +169,7 @@ function LoadConfig () {
 	/* Class specific configuration. */
 	Config.UseTelekinesis = true; // use telekinesis if have skill
 	Config.UseColdArmor = true;
-	Config.Dodge = !!(me.charlvl >= Config.respecOne); // Move away from monsters that get too close. Don't use with short-ranged attacks like Poison Dagger.
+	Config.Dodge = !!(me.charlvl >= CharInfo.respecOne); // Move away from monsters that get too close. Don't use with short-ranged attacks like Poison Dagger.
 	Config.DodgeRange = 15; // Distance to keep from monsters.
 	Config.DodgeHP = me.hardcore ? 90 : 75; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
 	Config.TeleStomp = false; // Use merc to attack bosses if they're immune to attacks, but not to physical damage
@@ -197,10 +183,10 @@ function LoadConfig () {
 	Config.imbueables = [
 		{name: sdk.items.JaredsStone, condition: () => (me.normal && me.expansion)},
 		{name: sdk.items.SwirlingCrystal, condition: () => (!me.normal && me.charlvl < 66 && me.expansion)},
-		{name: sdk.items.DimensionalShard, condition: () => (Item.getEquippedItem(4).tier < 777 && me.expansion)},
-		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(4).tier > 777 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(4).tier > 777 || me.classic))},
+		{name: sdk.items.DimensionalShard, condition: () => (Item.getEquippedItem(sdk.body.RightArm).tier < 777 && me.expansion)},
+		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(sdk.body.RightArm).tier > 777 || me.classic))},
+		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(sdk.body.RightArm).tier > 777 || me.classic))},
+		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(sdk.body.RightArm).tier > 777 || me.classic))},
 	].filter((item) => item.condition());
 
 	let imbueArr = SetUp.imbueItems();
@@ -210,7 +196,7 @@ function LoadConfig () {
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:
 		// Res shield
-		if ((Item.getEquippedItem(5).tier < 487 && !Item.getEquippedItem(4).twoHanded) || (Item.getEquippedItem(4).tier < 487 && Item.getEquippedItem(4).twoHanded)) {
+		if ((Item.getEquippedItem(sdk.body.LeftArm).tier < 487 && !Item.getEquippedItem(sdk.body.RightArm).twoHanded) || (Item.getEquippedItem(sdk.body.RightArm).tier < 487 && Item.getEquippedItem(sdk.body.RightArm).twoHanded)) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js")) {
 				include("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
 			}
@@ -236,8 +222,8 @@ function LoadConfig () {
 
 		// FinalBuild specific setup
 		switch (SetUp.finalBuild) {
-		case 'Blova':
-		case 'Lightning':
+		case "Blova":
+		case "Lightning":
 			// Infinity
 			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Infinity) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js")) {
@@ -246,7 +232,7 @@ function LoadConfig () {
 			}
 
 			// Spirit Shield
-			if ((me.ladder || Developer.addLadderRW) && SetUp.currentBuild === SetUp.finalBuild && (Item.getEquippedItem(5).tier < 1000 || Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit)) {
+			if ((me.ladder || Developer.addLadderRW) && SetUp.currentBuild === SetUp.finalBuild && (Item.getEquippedItem(sdk.body.LeftArm).tier < 1000 || Item.getEquippedItem(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
 				if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js")) {
 					include("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 				}
@@ -347,7 +333,7 @@ function LoadConfig () {
 		}
 
 		// Spirit Sword
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(4).tier < 777) {
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(sdk.body.RightArm).tier < 777) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js")) {
 				include("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
 			}
@@ -361,14 +347,14 @@ function LoadConfig () {
 		}
 
 		// Lore
-		if (Item.getEquippedItem(1).tier < 315) {
+		if (Item.getEquippedItem(sdk.body.Head).tier < 315) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Lore.js")) {
 				include("SoloPlay/BuildFiles/Runewords/Lore.js");
 			}
 		}
 
 		// Ancients' Pledge
-		if (Item.getEquippedItem(5).tier < 500) {
+		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 500) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js")) {
 				include("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
 			}
@@ -382,7 +368,7 @@ function LoadConfig () {
 		}
 
 		// Bone
-		if (Item.getEquippedItem(3).tier < 450) {
+		if (Item.getEquippedItem(sdk.body.Armor).tier < 450) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Bone.js")) {
 				include("SoloPlay/BuildFiles/Runewords/Bone.js");
 			}
@@ -396,14 +382,14 @@ function LoadConfig () {
 		}
 
 		// Smoke
-		if (Item.getEquippedItem(3).tier < 300) {
+		if (Item.getEquippedItem(sdk.body.Armor).tier < 300) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js")) {
 				include("SoloPlay/BuildFiles/Runewords/Smoke.js");
 			}
 		}
 
 		// Stealth
-		if (Item.getEquippedItem(3).tier < 233) {
+		if (Item.getEquippedItem(sdk.body.Armor).tier < 233) {
 			if (!isIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js")) {
 				include("SoloPlay/BuildFiles/Runewords/Stealth.js");
 			}

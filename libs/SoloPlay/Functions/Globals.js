@@ -1,7 +1,7 @@
 /**
 *  @filename    Globals.js
 *  @author      theBGuy
-*  @credit      alogwe, isid0re
+*  @credit      alogwe
 *  @desc        Global functions for Kolbot-SoloPlay functionality
 *
 */
@@ -10,6 +10,9 @@ includeIfNotIncluded("OOG.js");
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/CharData.js");
 includeIfNotIncluded("SoloPlay/Functions/PrototypesOverrides.js");
+
+const MYCLASSNAME = sdk.charclass.nameOf(me.classid).toLowerCase();
+includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + ".js");
 
 let myData = CharData.getStats();
 
@@ -56,21 +59,6 @@ function updateMyData () {
 function ensureData () {
 	let temp = Misc.copy(myData);
 
-	if (myData.me.currentBuild !== SetUp.getBuild()) {
-		switch (true) {
-		// case Check.currentBuild().active():
-		// case Check.finalBuild().active():
-		// 	myData.me.currentBuild = SetUp.getBuild();
-
-		// 	break;
-		case !["Start", "Stepping", "Leveling"].includes(SetUp.getBuild()) && myData.me.currentBuild !== myData.me.finalBuild:
-			myData.me.currentBuild = "Leveling";
-			myData.me.charms = {};
-
-			break;
-		}
-	}
-
 	let changed = Misc.recursiveSearch(myData, temp);
 	
 	if (Object.keys(changed).length > 0) {
@@ -115,22 +103,9 @@ const SetUp = {
 
 		let temp = Misc.copy(myData);
 
-		// if (myData.me.currentBuild !== SetUp.getBuild()) {
-		// 	// todo - some builds require merc to have infinity, if merc is dead while we perform this check our final build can return inactive
-		// 	// need to track mercs gear, all gear or just runewords? Might be alot of data file writes to do all gear
-		// 	switch (true) {
-		// 	case Check.currentBuild().active():
-		// 	case Check.finalBuild().active():
-		// 		myData.me.currentBuild = SetUp.getBuild();
-
-		// 		break;
-		// 	case !["Start", "Stepping", "Leveling"].includes(SetUp.getBuild()) && myData.me.currentBuild !== myData.me.finalBuild:
-		// 		myData.me.currentBuild = "Leveling";
-		// 		myData.me.charms = {};
-
-		// 		break;
-		// 	}
-		// }
+		if (myData.me.currentBuild !== CharInfo.getActiveBuild()) {
+			myData.me.currentBuild = CharInfo.getActiveBuild();
+		}
 
 		let currDiffStr = sdk.difficulty.nameOf(me.diff).toLowerCase();
 
@@ -297,26 +272,10 @@ const SetUp = {
 		return respec;
 	},
 
-	getBuild: function () {
-		let buildType;
-
-		if (me.charlvl < Config.respecOne) {
-			buildType = "Start";
-		} else if (me.charlvl >= SetUp.finalRespec()) {
-			buildType = SetUp.finalBuild;
-		} else if (Config.respecOneB > 0 && me.charlvl >= Config.respecOne && me.charlvl < Config.respecOneB) {
-			buildType = "Stepping";
-		} else {
-			buildType = "Leveling";
-		}
-
-		return buildType;
-	},
-
 	getTemplate: function () {
 		let buildType = SetUp.currentBuild;
 		let build = buildType + "Build" ;
-		let template = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js";
+		let template = "SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + "." + build + ".js";
 
 		return {
 			buildType: buildType,
@@ -725,7 +684,7 @@ const Check = {
 			if (me.classic) return false;
 			if (me.charlvl >= 80 && Pather.canTeleport()
 				|| (me.barbarian && me.hell && !Pather.accessToAct(3)
-				&& (Item.getEquippedItem(5).tier < 1270 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
+				&& (Item.getEquippedItem(sdk.body.LeftArm).tier < 1270 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
 				return true;
 			}
 
@@ -982,7 +941,7 @@ const Check = {
 		let gold = me.gold;
 		let goldLimit = [10000, 25000, 50000][me.diff];
 
-		if (gold >= goldLimit || me.charlvl < 15 || (me.charlvl >= 15 && gold > 1000 && Item.getEquippedItem(4).durability !== 0)) {
+		if (gold >= goldLimit || me.charlvl < 15 || (me.charlvl >= 15 && gold > 1000 && Item.getEquippedItem(sdk.body.RightArm).durability !== 0)) {
 			return false;
 		}
 
@@ -996,14 +955,14 @@ const Check = {
 		let gold = me.gold;
 
 		// Almost broken but not quite
-		if (((Item.getEquippedItem(4).durability <= 30 && Item.getEquippedItem(4).durability > 0)
-			|| (Item.getEquippedItem(5).durability <= 30 && Item.getEquippedItem(5).durability > 0)
+		if (((Item.getEquippedItem(sdk.body.RightArm).durability <= 30 && Item.getEquippedItem(sdk.body.RightArm).durability > 0)
+			|| (Item.getEquippedItem(sdk.body.LeftArm).durability <= 30 && Item.getEquippedItem(sdk.body.LeftArm).durability > 0)
 			&& !me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000)) {
 			return 1;
 		}
 
 		// Broken
-		if ((Item.getEquippedItem(4).durability === 0 || Item.getEquippedItem(5).durability === 0) && me.charlvl >= 15 && !me.normal && gold < 1000) {
+		if ((Item.getEquippedItem(sdk.body.RightArm).durability === 0 || Item.getEquippedItem(sdk.body.LeftArm).durability === 0) && me.charlvl >= 15 && !me.normal && gold < 1000) {
 			return 2;
 		}
 
@@ -1124,7 +1083,7 @@ const Check = {
 				|| (!me.paladin && me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Sword}).have)
 				|| (me.paladin && me.haveAll([{name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Sword}, {name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.AuricShields}]))
 				|| (me.necromancer && me.checkItem({name: sdk.locale.items.White}).have
-					&& (me.checkItem({name: sdk.locale.items.Rhyme, itemtype: sdk.itemtype.VoodooHeads}).have || Item.getEquippedItem(5).tier > 800))
+					&& (me.checkItem({name: sdk.locale.items.Rhyme, itemtype: sdk.itemtype.VoodooHeads}).have || Item.getEquippedItem(sdk.body.LeftArm).tier > 800))
 				|| (me.barbarian && (me.checkItem({name: sdk.locale.items.Lawbringer}).have || me.baal))) {
 				needRunes = false;
 			}
@@ -1292,7 +1251,7 @@ const Check = {
 	currentBuild: function () {
 		let buildInfo = SetUp.getTemplate();
 
-		if (!isIncluded(buildInfo.template) && !include(buildInfo.template)) throw new Error("currentBuild(): Failed to include template: " + buildInfo.template);
+		if (!includeIfNotIncluded(buildInfo.template)) throw new Error("currentBuild(): Failed to include template: " + buildInfo.template);
 
 		let final = buildInfo.buildType === SetUp.finalBuild;
 
@@ -1324,12 +1283,12 @@ const Check = {
 				build = buildType + "Build";
 			}
 
-			return ("SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js").toLowerCase();
+			return ("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + "." + build + ".js").toLowerCase();
 		}
 
 		let template = getBuildTemplate();
 
-		if (!isIncluded(template) && !include(template)) {
+		if (!includeIfNotIncluded(template)) {
 			let foundError = false;
 			let buildType;
 			
@@ -1432,7 +1391,7 @@ const Check = {
 	usePreviousSocketQuest: function () {
 		if (me.classic) return;
 		if (!Check.resistance().Status) {
-			if (me.weaponswitch === 0 && Item.getEquippedItem(5).fname.includes("Lidless Wall") && !Item.getEquippedItem(5).socketed) {
+			if (me.weaponswitch === 0 && Item.getEquippedItem(sdk.body.LeftArm).fname.includes("Lidless Wall") && !Item.getEquippedItem(sdk.body.LeftArm).socketed) {
 				if (!me.normal) {
 					if (!myData.normal.socketUsed) goToDifficulty(sdk.difficulty.Normal, " to use socket quest");
 					if (me.hell && !myData.nightmare.socketUsed) goToDifficulty(sdk.difficulty.Nightmare, " to use socket quest");

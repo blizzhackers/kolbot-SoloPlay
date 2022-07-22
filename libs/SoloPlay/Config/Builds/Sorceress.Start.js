@@ -6,7 +6,7 @@
 */
 js_strict(true);
 
-!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
+includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 let AutoBuildTemplate = {
@@ -15,7 +15,7 @@ let AutoBuildTemplate = {
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
-			Config.FieldID.Enabled = !Misc.checkQuest(4, 0);
+			Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
 			Config.FieldID.UsedSpace = 0;
 
 			Config.BeltColumn = ["hp", "hp", "hp", "hp"];
@@ -32,7 +32,7 @@ let AutoBuildTemplate = {
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
-			Config.FieldID.Enabled = !Misc.checkQuest(4, 0);
+			Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
 			Config.FieldID.UsedSpace = 0;
 
 			Config.TownHP = me.hardcore ? 0 : 35;

@@ -11,9 +11,7 @@ const Quest = {
 		// horadric staff
 		if (Pather.accessToAct(2) && !me.staff && !me.horadricstaff) {
 			if (!me.amulet) {
-				if (!isIncluded("SoloPlay/Scripts/amulet.js")) {
-					include("SoloPlay/Scripts/amulet.js");
-				}
+				includeIfNotIncluded("SoloPlay/Scripts/amulet.js");
 
 				for (let getAmmy = 0; getAmmy < 5; getAmmy++) {
 					amulet();
@@ -26,7 +24,7 @@ const Quest = {
 
 			if (!me.shaft) {
 				if (!isIncluded("SoloPlay/Scripts/staff.js")) {
-					include("SoloPlay/Scripts/staff.js");
+					includeIfNotIncluded("SoloPlay/Scripts/staff.js");
 				}
 
 				for (let getStaff = 0; getStaff < 5; getStaff++) {
@@ -41,9 +39,7 @@ const Quest = {
 
 		if (Pather.accessToAct(3) && !me.travincal && !me.khalimswill) {
 			if (!me.eye) {
-				if (!isIncluded("SoloPlay/Scripts/eye.js")) {
-					include("SoloPlay/Scripts/eye.js");
-				}
+				includeIfNotIncluded("SoloPlay/Scripts/eye.js");
 
 				for (let getEye = 0; getEye < 5; getEye++) {
 					eye();
@@ -55,9 +51,7 @@ const Quest = {
 			}
 
 			if (!me.heart) {
-				if (!isIncluded("SoloPlay/Scripts/heart.js")) {
-					include("SoloPlay/Scripts/heart.js");
-				}
+				includeIfNotIncluded("SoloPlay/Scripts/heart.js");
 
 				for (let getHeart = 0; getHeart < 5; getHeart++) {
 					heart();
@@ -69,9 +63,7 @@ const Quest = {
 			}
 
 			if (!me.brain) {
-				if (!isIncluded("SoloPlay/Scripts/brain.js")) {
-					include("SoloPlay/Scripts/brain.js");
-				}
+				includeIfNotIncluded("SoloPlay/Scripts/brain.js");
 
 				for (let getBrain = 0; getBrain < 5; getBrain++) {
 					brain();
@@ -175,15 +167,15 @@ const Quest = {
 			return false;
 		}
 
-		clickItemAndWait(0, hstaff);
+		clickItemAndWait(sdk.clicktypes.click.Left, hstaff);
 		submitItem();
 		delay(750 + me.ping);
 
 		// Clear cursor of staff - credit @Jaenster
 		let item = me.getItemsEx().filter((el) => el.isInInventory).first();
 		let _b = [item.x, item.y, item.location], x = _b[0], y = _b[1], loc = _b[2];
-		clickItemAndWait(0, item);
-		clickItemAndWait(0, x, y, loc);
+		clickItemAndWait(sdk.clicktypes.click.Left, item);
+		clickItemAndWait(sdk.clicktypes.click.Left, x, y, loc);
 		delay(750 + me.ping);
 
 		return true;
@@ -316,7 +308,7 @@ const Quest = {
 
 		let smashable = Game.getObject(classid);
 
-		if (Item.getEquippedItem(4).classid !== tool || !me.getItem(tool)) return false;
+		if (Item.getEquippedItem(sdk.body.RightArm).classid !== tool || !me.getItem(tool)) return false;
 		if (!smashable) return false;
 		let tick = getTickCount();
 		let questTool = me.getItem(tool);
@@ -367,8 +359,8 @@ const Quest = {
 		if (me.respec || SetUp.currentBuild === SetUp.finalBuild) return;
 
 		switch (true) {
-		case me.charlvl >= Config.respecOne && SetUp.currentBuild === "Start":
-		case Config.respecOneB > 0 && me.charlvl >= Config.respecOneB && SetUp.currentBuild === "Stepping":
+		case me.charlvl >= CharInfo.respecOne && SetUp.currentBuild === "Start":
+		case CharInfo.respecTwo > 0 && me.charlvl >= CharInfo.respecTwo && SetUp.currentBuild === "Stepping":
 		case me.charlvl === SetUp.finalRespec() && SetUp.currentBuild === "Leveling":
 			if (!me.den) {
 				myPrint("time to respec, but den is incomplete");
@@ -397,7 +389,7 @@ const Quest = {
 				delay(10 + me.ping * 2);
 
 				if (me.respec || (me.getStat(sdk.stats.NewSkills) > preSkillAmount && me.getStat(sdk.stats.StatPts) > preStatAmount)) {
-					myData.me.currentBuild = SetUp.getBuild();
+					myData.me.currentBuild = CharInfo.getActiveBuild();
 					myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
 					CharData.updateData("me", myData);
 					delay(750 + me.ping * 2);

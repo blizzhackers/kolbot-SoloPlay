@@ -1,18 +1,18 @@
 /**
-*  @filename    amazon.js
+*  @filename    paladin.js
 *  @author      theBGuy
-*  @desc        Zon specifics
+*  @desc        Paladin specifics
 *
 */
 
 const CharInfo = {
-	respecOne: me.expansion ? 30 : 30,
-	respecTwo: me.expansion ? 64 : 64,
+	respecOne: 19,
+	respecTwo: 0,
 	levelCap: (function() {
 		const currentDiff = sdk.difficulty.nameOf(me.diff);
 		const softcoreMode = {
 			"Normal": me.expansion ? 33 : 33,
-			"Nightmare": me.expansion ? 70 : 70,
+			"Nightmare": me.expansion ? 65 : 65,
 			"Hell": 100,
 		};
 		const hardcoreMode = {
@@ -30,11 +30,8 @@ const CharInfo = {
 		const justRepeced = (nSkills >= currLevel);
 
 		switch (true) {
-		case currLevel < this.respecOne && !me.getSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints):
+		case currLevel < this.respecOne && !me.getSkill(sdk.skills.BlessedAim, sdk.skills.subindex.HardPoints):
 			return "Start";
-		case currLevel > this.respecOne && currLevel < this.respecTwo && justRepeced:
-		case currLevel > this.respecOne && currLevel < this.respecTwo && me.getSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints) && !me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.HardPoints):
-			return "Stepping";
 		case Check.finalBuild().respec() && justRepeced:
 		case Check.finalBuild().active():
 			return SetUp.finalBuild;
