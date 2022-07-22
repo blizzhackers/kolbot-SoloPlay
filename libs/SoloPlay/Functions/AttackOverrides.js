@@ -6,7 +6,7 @@
 *
 */
 
-!isIncluded("common/Attack.js") && include("common/Attack.js");
+includeIfNotIncluded("common/Attack.js");
 
 let Coords_1 = require("../Modules/Coords");
 

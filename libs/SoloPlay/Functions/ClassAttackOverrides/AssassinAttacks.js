@@ -5,7 +5,7 @@
 *
 */
 
-!isIncluded("common/Attacks/Assassin.js") && include("common/Attacks/Assassin.js");
+includeIfNotIncluded("common/Attacks/Assassin.js");
 
 ClassAttack.mindBlast = function (unit) {
 	if (!unit || !Skill.canUse(sdk.skills.MindBlast)) return;
@@ -50,7 +50,8 @@ ClassAttack.placeTraps = function (unit, amount) {
 				}
 
 				// Duriel, Mephisto, Diablo, Baal, other players
-				if ((unit.hasOwnProperty("classid") && [211, 242, 243, 544].includes(unit.classid)) || (unit.hasOwnProperty("type") && unit.type === 0)) {
+				if ((unit.hasOwnProperty("classid") && [sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal].includes(unit.classid))
+						|| (unit.hasOwnProperty("type") && unit.isPlayer)) {
 					if (traps >= Config.BossTraps.length) {
 						return true;
 					}
@@ -128,14 +129,14 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let mercRevive = 0;
 	let timedSkill = -1;
 	let untimedSkill = -1;
-	let index = ((unit.isSpecial) || unit.type === 0) ? 1 : 3;
+	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 	let gold = me.gold;
 	let shouldUseCloak = (Skill.canUse(sdk.skills.CloakofShadows) && !unit.isUnderLowerRes && unit.getMobCount(15, 0x1) > 1);
 
 	this.mindBlast(unit);
 
 	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.skillDelay || !Skill.isTimed(Config.AttackSkill[0]))) {
-		if (Math.round(getDistance(me, unit)) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
+		if (Math.round(unit.distance) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 				return Attack.Result.FAILED;
 			}
@@ -148,7 +149,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	// Cloak of Shadows (Aggressive) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
 	if (Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && !me.skillDelay && !me.getState(sdk.states.CloakofShadows)) {
-		if (getDistance(me, unit) < 20) {
+		if (unit.distance < 20) {
 			Skill.cast(sdk.skills.CloakofShadows, sdk.skills.hand.Right);
 		} else if (!Attack.getIntoPosition(unit, 20, sdk.collision.Ranged)) {
 			return Attack.Result.FAILED;
@@ -158,8 +159,8 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let checkTraps = this.checkTraps(unit);
 
 	if (checkTraps) {
-		if (Math.round(getDistance(me, unit)) > this.trapRange || checkCollision(me, unit, sdk.collision.Ranged)) {
-			if (!Attack.getIntoPosition(unit, this.trapRange, 0x4) || (checkCollision(me, unit, sdk.collision.BlockWall) && (getCollision(me.area, unit.x, unit.y) & 0x1))) {
+		if (Math.round(unit.distance) > this.trapRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (!Attack.getIntoPosition(unit, this.trapRange, sdk.collision.Ranged) || (checkCollision(me, unit, sdk.collision.BlockWall) && (getCollision(me.area, unit.x, unit.y) & 0x1))) {
 				return Attack.Result.FAILED;
 			}
 		}

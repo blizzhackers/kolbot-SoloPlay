@@ -5,7 +5,7 @@
 *
 */
 
-!isIncluded("common/Attacks/Barbarian.js") && include("common/Attacks/Barbarian.js");
+includeIfNotIncluded("common/Attacks/Barbarian.js");
 
 const GameData = require("../../Modules/GameData");
 
@@ -108,7 +108,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		}
 	}
 	
-	let index = ((unit.isSpecial) || unit.type === 0) ? 1 : 3;
+	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 	let attackSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
 
 	if (!Attack.checkResist(unit, attackSkill)) {
@@ -271,7 +271,7 @@ ClassAttack.doCast = function (unit, attackSkill, data) {
 			return Attack.Result.FAILED;
 		}
 
-		if (Math.round(getDistance(me, unit)) > Skill.getRange(attackSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
+		if (Math.round(unit.distance) > Skill.getRange(attackSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			walk = (Skill.getRange(attackSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall));
 
 			// think this should be re-written in pather with some form of leap pathing similar to teleport
@@ -280,7 +280,7 @@ ClassAttack.doCast = function (unit, attackSkill, data) {
 				Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, unit.x, unit.y);
 			}
 
-			if (!Attack.getIntoPosition(unit, Skill.getRange(attackSkill), 0x4, walk)) {
+			if (!Attack.getIntoPosition(unit, Skill.getRange(attackSkill), sdk.collision.Ranged, walk)) {
 				return Attack.Result.FAILED;
 			}
 		}

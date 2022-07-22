@@ -6,7 +6,7 @@
 *
 */
 
-!isIncluded("common/Pather.js") && include("common/Pather.js");
+includeIfNotIncluded("common/Pather.js");
 
 Developer.debugging.pathing && (PathDebug.enableHooks = true);
 
@@ -119,7 +119,7 @@ Pather.teleportTo = function (x, y, maxRange = 5) {
 	Developer.debugging.pathing && console.log("Mob Count at next node: " + [x, y].mobCount());
 	
 	for (let i = 0; i < 3; i += 1) {
-		Skill.setSkill(sdk.skills.Teleport, sdk.skills.hand.Right) && Packet.castSkill(0, x, y);
+		Skill.setSkill(sdk.skills.Teleport, sdk.skills.hand.Right) && Packet.castSkill(sdk.skills.hand.Right, x, y);
 		let tick = getTickCount();
 		let pingDelay = i === 0 ? 250 : me.getPingDelay();
 

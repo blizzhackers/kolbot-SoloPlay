@@ -5,7 +5,7 @@
 *
 */
 
-!isIncluded("common/Attacks/Sorceress.js") && include("common/Attacks/Sorceress.js");
+includeIfNotIncluded("common/Attacks/Sorceress.js");
 
 const GameData = require("../../Modules/GameData");
 

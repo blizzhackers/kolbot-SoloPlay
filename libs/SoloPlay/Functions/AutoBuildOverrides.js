@@ -7,11 +7,11 @@
 */
 js_strict(true);
 
-!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
-!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
-!isIncluded("SoloPlay/Functions/CubingOverrides.js") && include("SoloPlay/Functions/CubingOverrides.js");
-!isIncluded("SoloPlay/Functions/ProtoTypesOverrides.js") && include("SoloPlay/Functions/ProtoTypesOverrides.js");
-!isIncluded("SoloPlay/Functions/RunewordsOverrides.js") && include("SoloPlay/Functions/RunewordsOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/Globals.js");
+includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/CubingOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/ProtoTypesOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/RunewordsOverrides.js");
 
 const AutoBuild = new function AutoBuild () {
 	Config.AutoBuild.DebugMode && (Config.AutoBuild.Verbose = true);

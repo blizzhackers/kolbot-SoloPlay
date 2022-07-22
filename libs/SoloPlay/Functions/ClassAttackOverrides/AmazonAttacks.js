@@ -7,7 +7,7 @@
 
 // TODO: clean up this whole file
 
-!isIncluded("common/Attacks/Amazon.js") && include("common/Attacks/Amazon.js");
+includeIfNotIncluded("common/Attacks/Amazon.js");
 
 ClassAttack.decoyTick = getTickCount();
 
@@ -103,7 +103,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 			// Don't use decoy if within melee distance
 			if (unit.distance > 4) {
 				// Check to see if decoy has already been cast
-				let decoy = Misc.poll(() => getUnit(-1, 356), 1000, 10);
+				let decoy = Misc.poll(() => Game.getMonster(356), 1000, 10);
 				
 				if (!decoy && (getTickCount() - this.decoyTick >= decoyDuration) && unit.distance > 4) {
 					if (unit.distance > 10 || checkCollision(me, unit, sdk.collision.Ranged)) {
@@ -285,7 +285,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		case sdk.skills.LightningFury:
 			if (!this.lightFuryTick || getTickCount() - this.lightFuryTick > Config.LightningFuryDelay * 1000) {
 				if (unit.distance > Skill.getRange(timedSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
-					if (!Attack.getIntoPosition(unit, Skill.getRange(timedSkill), 0x4)) {
+					if (!Attack.getIntoPosition(unit, Skill.getRange(timedSkill), sdk.collision.Ranged)) {
 						return Attack.Result.FAILED;
 					}
 				}
@@ -306,44 +306,36 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 				}
 			}
 
-			if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
-				return Attack.Result.FAILED;
-			}
+			if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
 
-			if (Math.round(getDistance(me, unit)) > Skill.getRange(timedSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (Math.round(unit.distance) > Skill.getRange(timedSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Allow short-distance walking for melee skills
 				walk = Skill.getRange(timedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
-				if (!Attack.getIntoPosition(unit, Skill.getRange(timedSkill), 0x4, walk)) {
+				if (!Attack.getIntoPosition(unit, Skill.getRange(timedSkill), sdk.collision.Ranged, walk)) {
 					return Attack.Result.FAILED;
 				}
 			}
 
-			if (!unit.dead) {
-				Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
-			}
+			!unit.dead && Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
 
 			return Attack.Result.SUCCESS;
 		}
 	}
 
 	if (untimedSkill > -1) {
-		if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
-			return Attack.Result.FAILED;
-		}
+		if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
 
 		if (unit.distance > Skill.getRange(untimedSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Allow short-distance walking for melee skills
 			walk = Skill.getRange(untimedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
-			if (!Attack.getIntoPosition(unit, Skill.getRange(untimedSkill), 0x4, walk)) {
+			if (!Attack.getIntoPosition(unit, Skill.getRange(untimedSkill), sdk.collision.Ranged, walk)) {
 				return Attack.Result.FAILED;
 			}
 		}
 
-		if (!unit.dead) {
-			Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
-		}
+		!unit.dead && Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
 
 		return Attack.Result.SUCCESS;
 	}

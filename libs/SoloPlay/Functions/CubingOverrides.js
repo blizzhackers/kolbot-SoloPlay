@@ -5,7 +5,7 @@
 *
 */
 
-!isIncluded("common/Cubing.js") && include("common/Cubing.js");
+includeIfNotIncluded("common/Cubing.js");
 
 Recipe.Reroll.Charm = 56;
 Recipe.Socket.LowMagic = 57;

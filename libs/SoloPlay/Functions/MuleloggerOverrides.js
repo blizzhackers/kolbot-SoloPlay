@@ -5,9 +5,9 @@
 *
 */
 
-!isIncluded("MuleLogger.js") && include("MuleLogger.js");
-!isIncluded("SoloPlay/Functions/NTIPOverrides.js") && include("SoloPlay/Functions/NTIPOverrides.js");
-!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
+includeIfNotIncluded("MuleLogger.js");
+includeIfNotIncluded("SoloPlay/Functions/NTIPOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 
 MuleLogger.getItemDesc = function (unit, logIlvl) {
 	let desc, index;

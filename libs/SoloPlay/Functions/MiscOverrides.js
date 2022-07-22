@@ -6,7 +6,7 @@
 *
 */
 
-!isIncluded("common/Misc.js") && include("common/Misc.js");
+includeIfNotIncluded("common/Misc.js");
 
 Misc.townEnabled = true;
 

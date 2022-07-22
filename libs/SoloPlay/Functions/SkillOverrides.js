@@ -5,8 +5,8 @@
 *
 */
 
-!isIncluded("common/Misc.js") && include("common/Misc.js");
-!isIncluded("SoloPlay/Tools/Developer.js") && include("SoloPlay/Tools/Developer.js");
+includeIfNotIncluded("common/Misc.js");
+includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 
 Skill.casterSkills = [
 	36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 84,

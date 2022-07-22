@@ -5,7 +5,7 @@
 *
 */
 
-!isIncluded("common/Attacks/Necromancer.js") && include("common/Attacks/Necromancer.js");
+includeIfNotIncluded("common/Attacks/Necromancer.js");
 
 ClassAttack.curseIndex = [
 	{
@@ -140,7 +140,7 @@ ClassAttack.doAttack = function (unit) {
 	let timedSkill = -1;
 	let untimedSkill = -1;
 	let gold = me.gold;
-	let index = ((unit.isSpecial) || unit.type === 0) ? 1 : 3;
+	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 	let useTerror = Skill.canUse(sdk.skills.Terror);
 	let useBP = Skill.canUse(sdk.skills.BonePrison);
 	let bpAllowedAreas = [37, 38, 39, 41, 42, 43, 44, 46, 73, 76, 77, 78, 79, 80, 81, 83, 102, 104, 105, 106, 108, 110, 111, 120, 121, 128, 129, 130, 131];
@@ -263,7 +263,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		switch (timedSkill) {
 		case sdk.skills.PoisonNova:
 			if (!this.novaTick || getTickCount() - this.novaTick > Config.PoisonNovaDelay * 1000) {
-				if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+				if (Math.round(unit.distance) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 					if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4)) {
 						return Attack.Result.FAILED;
 					}
@@ -276,7 +276,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 
 			break;
 		case 500: // Pure Summoner
-			if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (Math.round(unit.distance) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 				if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4)) {
 					return Attack.Result.FAILED;
 				}
@@ -292,16 +292,16 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 				timedSkillRange = me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting) <= 3 ? 6 : timedSkillRange;
 			}
 
-			if (Math.round(getDistance(me, unit)) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (Math.round(unit.distance) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Allow short-distance walking for melee skills
-				walk = timedSkillRange < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
+				walk = timedSkillRange < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
 				if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4, walk)) return Attack.Result.FAILED;
 			}
 
 			if (!unit.dead) {
 				// Try to find better spot
-				if (Math.round(getDistance(me, unit)) < 4 && timedSkillRange > 6) {
+				if (Math.round(unit.distance) < 4 && timedSkillRange > 6) {
 					Attack.deploy(unit, 4, 5, 9);
 				}
 
@@ -317,18 +317,16 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 
 		if (untimedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
 
-		if (Math.round(getDistance(me, unit)) > untimedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+		if (Math.round(unit.distance) > untimedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Allow short-distance walking for melee skills
-			walk = Skill.getRange(untimedSkill) < 4 && getDistance(me, unit) < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
+			walk = Skill.getRange(untimedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
 			if (!Attack.getIntoPosition(unit, untimedSkillRange, 0x4, walk)) {
 				return Attack.Result.FAILED;
 			}
 		}
 
-		if (!unit.dead) {
-			Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
-		}
+		!unit.dead && Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
 
 		return Attack.Result.SUCCESS;
 	}
@@ -381,9 +379,7 @@ ClassAttack.farCast = function (unit) {
 	}
 
 	if (untimedSkill > -1) {
-		if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
-			return Attack.Result.FAILED;
-		}
+		if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
 
 		if (!unit.dead && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);

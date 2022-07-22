@@ -55,8 +55,8 @@ const mercscore = function (item) {
 	let mercRating = 1;
 	// start
 	item.prefixnum === sdk.locale.items.Treachery && (mercRating += item.getStatEx(201, 2) * 1000); // fade
-	mercRating += item.getStatEx(151, 123) * 1000; // conviction aura
-	mercRating += item.getStatEx(151, 120) * 100; // meditation aura
+	mercRating += item.getStatEx(sdk.stats.SkillOnAura, 123) * 1000; // conviction aura
+	mercRating += item.getStatEx(sdk.stats.SkillOnAura, 120) * 100; // meditation aura
 	mercRating += item.getStatEx(sdk.stats.AllSkills) * mercWeights.ALL; // add all skills
 	mercRating += item.getStatEx(sdk.stats.IAS) * mercWeights.IAS; // add IAS
 	mercRating += item.getStatEx(sdk.stats.ToHit) * mercWeights.AR; // add AR
@@ -108,14 +108,14 @@ const mercscore = function (item) {
 	}
 
 	if (!me.sorceress && !me.necromancer && !me.assassin) {
-		mercRating += item.getStatEx(195, 4238) * mercWeights.CTCOAAMP; // add CTC amplify damage on attack
-		mercRating += item.getStatEx(195, 4225) * mercWeights.CTCOAAMP; // add CTC amplify damage on attack (magic items)
-		mercRating += item.getStatEx(195, 5583) * mercWeights.CTCOADECREP; // add CTC decrepify on attack
-		mercRating += item.getStatEx(195, 5631) * mercWeights.CTCOADECREP; // add CTC decrepify on attack (magic items)
-		mercRating += item.getStatEx(198, 4238) * mercWeights.CTCOSAMP; // add CTC amplify damage on strikng
-		mercRating += item.getStatEx(198, 4225) * mercWeights.CTCOSAMP; // add CTC amplify damage on strikng (magic items)
-		mercRating += item.getStatEx(198, 5583) * mercWeights.CTCOSDECREP; // add CTC decrepify on strikng
-		mercRating += item.getStatEx(198, 5631) * mercWeights.CTCOSDECREP; // add CTC decrepify on strikng (magic items)
+		mercRating += item.getStatEx(sdk.stats.SkillOnAttack, 4238) * mercWeights.CTCOAAMP; // add CTC amplify damage on attack
+		mercRating += item.getStatEx(sdk.stats.SkillOnAttack, 4225) * mercWeights.CTCOAAMP; // add CTC amplify damage on attack (magic items)
+		mercRating += item.getStatEx(sdk.stats.SkillOnAttack, 5583) * mercWeights.CTCOADECREP; // add CTC decrepify on attack
+		mercRating += item.getStatEx(sdk.stats.SkillOnAttack, 5631) * mercWeights.CTCOADECREP; // add CTC decrepify on attack (magic items)
+		mercRating += item.getStatEx(sdk.stats.SkillOnHit, 4238) * mercWeights.CTCOSAMP; // add CTC amplify damage on strikng
+		mercRating += item.getStatEx(sdk.stats.SkillOnHit, 4225) * mercWeights.CTCOSAMP; // add CTC amplify damage on strikng (magic items)
+		mercRating += item.getStatEx(sdk.stats.SkillOnHit, 5583) * mercWeights.CTCOSDECREP; // add CTC decrepify on strikng
+		mercRating += item.getStatEx(sdk.stats.SkillOnHit, 5631) * mercWeights.CTCOSDECREP; // add CTC decrepify on strikng (magic items)
 	}
 
 	let rwBase;
@@ -468,7 +468,7 @@ const tierscore = function (item, bodyloc) {
 			meleeRating += item.getStatEx(sdk.stats.DeadlyStrike) * tierWeights.meleeWeights.DS; // add deadly strike
 			meleeRating += item.getStatEx(sdk.stats.LifeLeech) * tierWeights.meleeWeights.LL; // add LL
 			meleeRating += item.getStatEx(sdk.stats.ManaDrainMinDamage) * tierWeights.meleeWeights.ML; // add ML
-			meleeRating += item.getStatEx(151, 119) * 25; // sanctuary aura
+			meleeRating += item.getStatEx(sdk.stats.SkillOnAura, 119) * 25; // sanctuary aura
 			meleeRating += item.getStatEx(sdk.stats.DemonDamagePercent) * tierWeights.meleeWeights.DMGTODEMONS; // add damage % to demons
 			meleeRating += item.getStatEx(sdk.stats.UndeadDamagePercent) * tierWeights.meleeWeights.DMGTOUNDEAD; // add damage % to undead
 			
@@ -483,8 +483,8 @@ const tierscore = function (item, bodyloc) {
 		let weaponModifer = !buildInfo.caster && item.getItemType() === "Weapon" ? 4 : 1;
 
 		skillsRating += item.getStatEx(sdk.stats.AllSkills) * (tierWeights.skillsWeights.ALL / weaponModifer); // + all skills
-		skillsRating += item.getStatEx(83, me.classid) * (tierWeights.skillsWeights.CLASS / weaponModifer); // + class skills
-		skillsRating += item.getStatEx(188, buildInfo.tabSkills) * (tierWeights.skillsWeights.TAB / weaponModifer); // + TAB skills
+		skillsRating += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * (tierWeights.skillsWeights.CLASS / weaponModifer); // + class skills
+		skillsRating += item.getStatEx(sdk.stats.AddSkillTab, buildInfo.tabSkills) * (tierWeights.skillsWeights.TAB / weaponModifer); // + TAB skills
 		let selectedWeights = [tierWeights.skillsWeights.WANTED, tierWeights.skillsWeights.USEFUL];
 		let selectedSkills = [buildInfo.wantedSkills, buildInfo.usefulSkills];
 
@@ -630,8 +630,8 @@ const secondaryscore = function (item) {
 	let tier = 0;
 
 	tier += item.getStatEx(sdk.stats.AllSkills) * 200; // + all skills
-	tier += item.getStatEx(83, me.classid) * 100; // + class skills
-	tier += item.getStatEx(188, Check.finalBuild().tabSkills) * 75; // + TAB skills
+	tier += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 100; // + class skills
+	tier += item.getStatEx(sdk.stats.AddSkillTab, Check.finalBuild().tabSkills) * 75; // + TAB skills
 	let precastSkills = [Check.finalBuild().precastSkills];
 
 	for (let i = 0; i < precastSkills.length; i++) {
@@ -648,10 +648,10 @@ const charmscore = function (item) {
 	if (myData.me.charmGids.includes(item.gid)) return 1000;
 	let charmRating = 1;
 	let skillerStats = [[0, 1, 2], [8, 9, 10], [16, 17, 18], [24, 25, 26], [32, 33, 34], [40, 41, 42], [48, 49, 50]][me.classid];
-	if (!item.unique && item.classid === sdk.items.GrandCharm && !skillerStats.some(s => item.getStatEx(188, s))) return -1;
+	if (!item.unique && item.classid === sdk.items.GrandCharm && !skillerStats.some(s => item.getStatEx(sdk.stats.AddSkillTab, s))) return -1;
 	const buildInfo = Check.currentBuild();
 
-	charmRating += item.getStatEx(188, buildInfo.tabSkills) * tierWeights.charmWeights.TAB; // + TAB skills
+	charmRating += item.getStatEx(sdk.stats.AddSkillTab, buildInfo.tabSkills) * tierWeights.charmWeights.TAB; // + TAB skills
 	charmRating += item.getStatEx(sdk.stats.FireResist) * tierWeights.charmWeights.FR; // add FR
 	charmRating += item.getStatEx(sdk.stats.ColdResist) * tierWeights.charmWeights.CR; // add CR
 	charmRating += item.getStatEx(sdk.stats.LightResist) * tierWeights.charmWeights.LR; // add LR
@@ -675,7 +675,7 @@ const charmscore = function (item) {
 	// Gheeds, Torch, annhi
 	if (item.unique) {
 		charmRating += item.getStatEx(sdk.stats.AllSkills) * tierWeights.charmWeights.ALL; // + all skills
-		charmRating += item.getStatEx(83, me.classid) * tierWeights.charmWeights.CLASS; // + class skills
+		charmRating += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * tierWeights.charmWeights.CLASS; // + class skills
 		charmRating += item.getStatEx(sdk.stats.GoldBonus); // add gold find
 		charmRating += item.getStatEx(sdk.stats.ReducedPrices) * 1.5; // add reduced vendor prices
 		charmRating += item.getStatEx(sdk.stats.Strength); // add STR

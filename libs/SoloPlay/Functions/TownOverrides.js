@@ -4,7 +4,7 @@
 *  @desc        Town related functions
 *
 */
-!isIncluded("common/Town.js") && include("common/Town.js");
+includeIfNotIncluded("common/Town.js");
 
 let Overrides = require("../../modules/Override");
 
@@ -1294,8 +1294,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 
 	let skillsScore = function (item) {
 		let skillsRating = 0;
-		skillsRating += item.getStatEx(83, me.classid) * 200; // + class skills
-		skillsRating += item.getStatEx(188, Check.currentBuild().tabSkills) * 100; // + TAB skills
+		skillsRating += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 200; // + class skills
+		skillsRating += item.getStatEx(sdk.stats.AddSkillTab, Check.currentBuild().tabSkills) * 100; // + TAB skills
 		let selectedWeights = [30, 20];
 		let selectedSkills = [Check.currentBuild().wantedSkills, Check.currentBuild().usefulSkills];
 
@@ -1767,8 +1767,8 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 
 	function generalScore (item) {
 		let generalScore = 0;
-		generalScore += item.getStatEx(83, me.classid) * 200; // + class skills
-		generalScore += item.getStatEx(188, Check.currentBuild().tabSkills) * 100; // + TAB skills
+		generalScore += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 200; // + class skills
+		generalScore += item.getStatEx(sdk.stats.AddSkillTab, Check.currentBuild().tabSkills) * 100; // + TAB skills
 		let selectedWeights = [30, 20];
 		let selectedSkills = [Check.currentBuild().wantedSkills, Check.currentBuild().usefulSkills];
 

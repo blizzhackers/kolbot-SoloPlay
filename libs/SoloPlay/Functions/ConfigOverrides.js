@@ -5,7 +5,7 @@
 *
 */
 
-!isIncluded("common/Config.js") && include("common/Config.js");
+includeIfNotIncluded("common/Config.js");
 
 Config.init = function (notify) {
 	let configFilename = "";

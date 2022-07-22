@@ -62,7 +62,7 @@ function orgtorch() {
 			tick = getTickCount();
 
 			while (getTickCount() - tick < 2000) {
-				if (getDistance(me, unit) <= 10) {
+				if (unit.distance <= 10) {
 					return true;
 				}
 

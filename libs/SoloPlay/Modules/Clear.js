@@ -116,7 +116,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 					(function (range) {
 						return start.length // If start has a length
 							? getDistance(start[0], start[1], unit) < range // If it has a range smaller as from the start point (when using me.clear)
-							: getDistance(me, unit) < range;
+							: unit.distance < range;
 					} // if "me" move, the object doesnt move. So, check distance of object
 					)(shamans.includes(unit.classid) ? settings.range * 1.6 : settings.range)
                 // clear monsters on the path

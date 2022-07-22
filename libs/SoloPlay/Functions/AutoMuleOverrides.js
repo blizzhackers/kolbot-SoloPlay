@@ -5,7 +5,7 @@
 *
 */
 
-!isIncluded("Automule.js") && include("Automule.js");
+includeIfNotIncluded("Automule.js");
 
 AutoMule.getMuleItems = function () {
 	let info = this.getInfo();

@@ -5,7 +5,7 @@
 *
 */
 
-!isIncluded("common/Attacks/Paladin.js") && include("common/Attacks/Paladin.js");
+includeIfNotIncluded("common/Attacks/Paladin.js");
 
 ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	if (!unit || unit.dead) return true;
@@ -64,7 +64,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	}
 
 	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
-		if (getDistance(me, unit) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
+		if (unit.distance > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
 				return Attack.Result.FAILED;
 			}

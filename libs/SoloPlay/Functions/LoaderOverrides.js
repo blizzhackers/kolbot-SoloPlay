@@ -7,7 +7,7 @@
 
 // TODO: make this a loader for the actual scripts run by SoloPlay rather than the just the SoloPlay base script
 
-!isIncluded("common/Loader.js") && include("common/Loader.js");
+includeIfNotIncluded("common/Loader.js");
 
 Loader.getScripts = function () {
 	let fileList = dopen("libs/SoloPlay/").getFiles();

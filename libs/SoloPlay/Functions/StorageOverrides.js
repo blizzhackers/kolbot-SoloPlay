@@ -7,7 +7,7 @@
 *
 */
 
-!isIncluded("SoloPlay/Tools/Developer.js") && include("SoloPlay/Tools/Developer.js");
+includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 
 // eslint-disable-next-line no-var
 var Container = function (name, width, height, location) {
