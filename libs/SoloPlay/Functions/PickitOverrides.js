@@ -443,6 +443,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			break;
 		}
 
+		// todo - allow picking near potions/scrolls while attacking distance < 5
 		if (stats.useTk && me.mp > tkMana) {
 			Skill.setSkill(sdk.skills.Telekinesis, sdk.skills.hand.Right) && Packet.unitCast(0, item);
 		} else {

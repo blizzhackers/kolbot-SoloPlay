@@ -8,6 +8,7 @@
 includeIfNotIncluded("common/Town.js");
 
 let Overrides = require("../../modules/Override");
+let PotData = require("../modules/PotData");
 
 new Overrides.Override(Town, Town.canTpToTown, function (orignal) {
 	return (Misc.townEnabled && orignal());
@@ -105,6 +106,119 @@ Town.needPotions = function () {
 	}
 
 	return false;
+};
+
+Town.buyPotions = function () {
+	// Ain't got money fo' dat shyt
+	if (me.gold < 1000) return false;
+
+	let needPots = false;
+	let needBuffer = true;
+	let buffer = {
+		hp: 0,
+		mp: 0
+	};
+
+	this.clearBelt();
+	let beltSize = Storage.BeltSize();
+	let col = this.checkColumns(beltSize);
+
+	// HP/MP Buffer
+	if (Config.HPBuffer > 0 || Config.MPBuffer > 0) {
+		me.getItemsEx().filter(function (p) {
+			return p.isInInventory && [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion].includes(p.itemType);
+		}).forEach(function (p) {
+			switch (p.itemType) {
+			case sdk.itemtype.HealingPotion:
+				buffer.hp++;
+
+				break;
+			case sdk.itemtype.ManaPotion:
+				buffer.mp++;
+
+				break;
+			}
+		});
+	}
+
+	// Check if we need to buy potions based on Config.MinColumn
+	for (let i = 0; i < 4; i += 1) {
+		if (["hp", "mp"].includes(Config.BeltColumn[i]) && col[i] > (beltSize - Math.min(Config.MinColumn[i], beltSize))) {
+			needPots = true;
+		}
+	}
+
+	// Check if we need any potions for buffers
+	if (buffer.mp < Config.MPBuffer || buffer.hp < Config.HPBuffer) {
+		for (let i = 0; i < 4; i += 1) {
+			// We can't buy potions because they would go into belt instead
+			if (col[i] >= beltSize && (!needPots || Config.BeltColumn[i] === "rv")) {
+				needBuffer = false;
+
+				break;
+			}
+		}
+	}
+
+	// We have enough potions in inventory
+	(buffer.mp >= Config.MPBuffer && buffer.hp >= Config.HPBuffer) && (needBuffer = false);
+
+	// No columns to fill
+	if (!needPots && !needBuffer) return true;
+	// todo: buy the cheaper potions if we are low on gold or don't need the higher ones i.e have low mana/health pool
+	// why buy potion that heals 225 (greater mana) if we only have sub 100 mana
+	me.normal && me.highestAct >= 4 && me.act < 4 && this.goToTown(4);
+
+	let highestPot = 5;
+	let npc = this.initNPC("Shop", "buyPotions");
+	if (!npc) return false;
+
+	// only do this if we are low on gold in the first place
+	if (me.gold < Config.LowGold) {
+		const mpPotsEffects = PotData.getMpPots().map(el => el.effect[me.classid]);
+		const hpPotsEffects = PotData.getHpPots().map(el => el.effect[me.classid]);
+
+		let wantedHpPot = (hpPotsEffects.findIndex(eff => me.hpmax / 2 < eff) + 1 || hpPotsEffects.length - 1);
+		let wantedMpPot = (mpPotsEffects.findIndex(eff => me.mpmax / 2 < eff) + 1 || mpPotsEffects.length - 1);
+		console.debug("Wanted hpPot: " + wantedHpPot + " Wanted mpPot: " + wantedMpPot);
+	}
+
+	for (let i = 0; i < 4; i += 1) {
+		if (col[i] > 0) {
+			let useShift = this.shiftCheck(col, beltSize);
+			let pot = this.getPotion(npc, Config.BeltColumn[i], highestPot);
+
+			if (pot) {
+				//print("ÿc2column ÿc0" + i + "ÿc2 needs ÿc0" + col[i] + " ÿc2potions");
+				// Shift+buy will trigger if there's no empty columns or if only the current column is empty
+				if (useShift) {
+					pot.buy(true);
+				} else {
+					for (let j = 0; j < col[i]; j += 1) {
+						pot.buy(false);
+					}
+				}
+			}
+		}
+
+		col = this.checkColumns(beltSize); // Re-initialize columns (needed because 1 shift-buy can fill multiple columns)
+	}
+
+	if (needBuffer && buffer.hp < Config.HPBuffer) {
+		for (let i = 0; i < Config.HPBuffer - buffer.hp; i += 1) {
+			let pot = this.getPotion(npc, "hp");
+			!!pot && Storage.Inventory.CanFit(pot) && pot.buy(false);
+		}
+	}
+
+	if (needBuffer && buffer.mp < Config.MPBuffer) {
+		for (let i = 0; i < Config.MPBuffer - buffer.mp; i += 1) {
+			let pot = this.getPotion(npc, "mp");
+			!!pot && Storage.Inventory.CanFit(pot) && pot.buy(false);
+		}
+	}
+
+	return true;
 };
 
 // need to build task list then do them.

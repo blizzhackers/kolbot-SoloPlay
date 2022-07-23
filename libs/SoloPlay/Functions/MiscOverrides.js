@@ -69,12 +69,11 @@ Misc.townCheck = function () {
 	}
 
 	if (check) {
-		if (Messaging.sendToScript("libs/SoloPlay/Threads/TownChicken.js", "townCheck")) {
+		if (Messaging.sendToScript("libs/SoloPlay/Threads/TownChicken.js", "fastTown")) {
 			console.log("BroadCasted townCheck");
 			
 			return true;
 		}
-
 	}
 
 	return false;

@@ -32,6 +32,7 @@ SetUp.include();
 
 function main() {
 	let townCheck = false;
+	let fastTown = false;
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Start TownChicken thread");
 
 	// Init config and attacks
@@ -185,25 +186,28 @@ function main() {
 	Pather.makePortal = function (use = false) {
 		if (me.inTown) return true;
 
-		let oldGid;
+		let oldGid = -1;
 
 		for (let i = 0; i < 5; i += 1) {
-			if (me.dead) {
-				break;
-			}
+			if (me.dead) return false;
 
 			let tpTool = Town.getTpTool();
 			if (!tpTool) return false;
 
-			let oldPortal = getUnits(sdk.unittype.Object, "portal")
-				.filter((p) => p.getParent() === me.name)
-				.first();
-
-			!!oldPortal && (oldGid = oldPortal.gid);
+			let oldPortal = Game.getObject(sdk.units.BluePortal);
+			if (oldPortal) {
+				do {
+					if (oldPortal.getParent() === me.name) {
+						oldGid = oldPortal.gid;
+						break;
+					}
+				} while (oldPortal.getNext());
+			}
 			
+			let pingDelay = i === 0 ? 100 : me.gameReady ? (me.ping + 25) : 350;
+
 			if (tpTool.use()) {
 				let tick = getTickCount();
-				let pingDelay = me.gameReady ? me.ping : 350;
 
 				while (getTickCount() - tick < Math.max(500 + i * 100, pingDelay * 2 + 100)) {
 					let portal = getUnits(sdk.unittype.Object, "portal")
@@ -320,6 +324,10 @@ function main() {
 			case "getMuleMode":
 			case "pingquit":
 				return;
+			case "fastTown":
+				fastTown = true;
+				
+				return;
 			case "townCheck":
 				switch (me.area) {
 				case sdk.areas.ArreatSummit:
@@ -369,56 +377,68 @@ function main() {
 	};
 
 	addEventListener("scriptmsg", this.scriptEvent);
+	let tGuard = getScript("libs/SoloPlay/Modules/TownGuard.js");
+	!!tGuard && tGuard.running && tGuard.stop();
+	Developer.debugging.showStack.profiles.some(profile => profile.toLowerCase() === "all" || profile.toLowerCase() === me.profile.toLowerCase()) && require("../Modules/TownGuard");
+	
+	// START
+	// test for getUnit bug
+	let test = Game.getMonster();
+	test === null && console.warn("getUnit is bugged");
 
 	while (true) {
-		if (!me.inTown && (townCheck
+		if (!me.inTown && (townCheck || fastTown
 			|| ((Config.TownHP > 0 && me.hpPercent < Config.TownHP)
 			|| (Config.TownMP > 0 && me.mpPercent < Config.TownMP)))) {
 			// should we exit if we can't tp to town?
-			if (Town.canTpToTown()) {
-				this.togglePause();
+			if (townCheck && !Town.canTpToTown()) {
+				townCheck = false;
 
-				while (!me.gameReady) {
-					if (me.dead) {
-						scriptBroadcast("quit");
-						return false;
-					}
-					delay(40);
+				continue;
+			}
+			this.togglePause();
+
+			while (!me.gameReady) {
+				if (me.dead) {
+					scriptBroadcast("quit");
+					return false;
 				}
+				delay(40);
+			}
+			
+			let t4 = getTickCount();
+			try {
+				myPrint("ÿc8TownChicken :: ÿc0Going to town");
+				Attack.stopClear = true;
+				SoloEvents.townChicken = true;
 				
-				let t4 = getTickCount();
-				try {
-					myPrint("ÿc8TownChicken :: ÿc0Going to town");
-					Attack.stopClear = true;
-					SoloEvents.townChicken = true;
-					
-					// determine if this is really worth it
-					if (useHowl || useTerror) {
-						if ([156, 211, 242, 243, 544, 571, 345].indexOf(Attack.getNearestMonster()) === -1) {
-							if (useHowl && Skill.getManaCost(130) < me.mp) {
-								Skill.cast(130, sdk.skills.hand.Right);
-							}
+				// determine if this is really worth it
+				if (useHowl || useTerror) {
+					if ([156, 211, 242, 243, 544, 571, 345].indexOf(Attack.getNearestMonster()) === -1) {
+						if (useHowl && Skill.getManaCost(130) < me.mp) {
+							Skill.cast(130, sdk.skills.hand.Right);
+						}
 
-							if (useTerror && Skill.getManaCost(77) < me.mp) {
-								Skill.cast(77, sdk.skills.hand.Right, Attack.getNearestMonster({skipImmune: false}));
-							}
+						if (useTerror && Skill.getManaCost(77) < me.mp) {
+							Skill.cast(77, sdk.skills.hand.Right, Attack.getNearestMonster({skipImmune: false}));
 						}
 					}
-					
-					Town.visitTown();
-				} catch (e) {
-					Misc.errorReport(e, "TownChicken.js");
-					scriptBroadcast("quit");
-
-					return false;
-				} finally {
-					console.log("Took: " + Time.format(getTickCount() - t4) + " to visit town");
-					this.togglePause();
-
-					Attack.stopClear = false;
-					SoloEvents.townChicken = false;
-					townCheck = false;
 				}
+				
+				Town.visitTown();
+			} catch (e) {
+				Misc.errorReport(e, "TownChicken.js");
+				scriptBroadcast("quit");
+
+				return false;
+			} finally {
+				console.log("Took: " + Time.format(getTickCount() - t4) + " to visit town");
+				this.togglePause();
+
+				Attack.stopClear = false;
+				SoloEvents.townChicken = false;
+				townCheck = false;
+				fastTown = false;
 			}
 		}
 

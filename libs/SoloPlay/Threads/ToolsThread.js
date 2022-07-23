@@ -96,7 +96,7 @@ function main () {
 	this.stopDefault = function () {
 		let scripts = [
 			"default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/EventThread.js",
-			"libs/SoloPlay/Threads/AutoBuildThread.js", "libs/SoloPlay/Modules/Guard.js"
+			"libs/SoloPlay/Threads/AutoBuildThread.js", "libs/SoloPlay/Modules/Guard.js", "libs/SoloPlay/Modules/TownGuard.js"
 		];
 
 		for (let l = 0; l < scripts.length; l += 1) {

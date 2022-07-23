@@ -260,7 +260,7 @@ const Overlay = {
 			},
 			Baal: {
 				complete: false,
-				condition: () => me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.Completed)
+				condition: () => me.getQuest(sdk.quest.id.EyeofDestruction, sdk.quest.states.Completed)
 			},
 		},
 
