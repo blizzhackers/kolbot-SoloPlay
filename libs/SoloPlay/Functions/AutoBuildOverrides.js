@@ -10,7 +10,7 @@ js_strict(true);
 includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 includeIfNotIncluded("SoloPlay/Functions/CubingOverrides.js");
-includeIfNotIncluded("SoloPlay/Functions/ProtoTypesOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 includeIfNotIncluded("SoloPlay/Functions/RunewordsOverrides.js");
 
 const AutoBuild = new function AutoBuild () {

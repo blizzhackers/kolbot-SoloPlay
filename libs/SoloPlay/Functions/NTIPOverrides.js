@@ -7,7 +7,7 @@
 */
 
 includeIfNotIncluded("NTItemParser.dbl");
-includeIfNotIncluded("SoloPlay/Functions/ProtoTypesOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
 NTIPAliasStat["addfireskills"] = [126, 1];
 NTIPAliasStat["plusskillwhirlwind"] = [97, 151];

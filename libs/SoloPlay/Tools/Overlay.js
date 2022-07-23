@@ -8,7 +8,7 @@
 
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
-includeIfNotIncluded("SoloPlay/Functions/ProtoTypesOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
 const Overlay = {
 	resfix: {x: -10, y: me.screensize ? 0 : -120},

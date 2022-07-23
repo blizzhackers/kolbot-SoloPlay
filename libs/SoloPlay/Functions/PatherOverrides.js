@@ -11,6 +11,8 @@ includeIfNotIncluded("common/Pather.js");
 Developer.debugging.pathing && (PathDebug.enableHooks = true);
 
 // TODO: clean up this mess
+// todo - determine effort level of mobs to kill once we have teleport
+// clearing specials is good but sometimes can not be worth the time spent when they are too tough
 NodeAction.killMonsters = function (arg = {}) {
 	if (Attack.stopClear) return;
 

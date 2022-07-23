@@ -8,7 +8,7 @@
 
 includeIfNotIncluded("common/Misc.js");
 includeIfNotIncluded("common/Item.js");
-includeIfNotIncluded("SoloPlay/Functions/PrototypesOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 includeIfNotIncluded("SoloPlay/Functions/ItemPrototypes.js");
 
 Item.getQuantityOwned = function (item = undefined) {

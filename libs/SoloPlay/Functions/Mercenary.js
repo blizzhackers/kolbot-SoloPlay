@@ -128,7 +128,7 @@ const Mercenary = {
 		case me.diff === mercDiff && !Pather.accessToAct(mercAct):
 		case myData.merc.type === mercAuraWanted:
 		case me.diff !== mercDiff && myData.merc.type === "Defiance":
-		case (me.charlvl > Config.levelCap + 10 && Mercenary.checkMercSkill(myData.merc.type)):
+		case (me.charlvl > CharInfo.levelCap + 10 && Mercenary.checkMercSkill(myData.merc.type)):
 		case me.gold < Math.round((((me.charlvl - 1) * (me.charlvl - 1)) / 2) * 7.5):
 		case this.minCost > 0 && me.gold < this.minCost:
 			return true;

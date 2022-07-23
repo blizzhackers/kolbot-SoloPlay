@@ -1070,7 +1070,7 @@ Town.stash = function (stashGold = true) {
 			if (this.canStash(items[i])) {
 				let pickResult = Pickit.checkItem(items[i]).result;
 				switch (true) {
-				case pickResult > 0 && pickResult < 4:
+				case pickResult > Pickit.Result.UNWANTED && pickResult < Pickit.Result.TRASH:
 				case Cubing.keepItem(items[i]):
 				case Runewords.keepItem(items[i]):
 				case CraftingSystem.keepItem(items[i]):
@@ -1119,6 +1119,9 @@ Town.sortStash = function (force = false) {
 };
 
 Town.clearInventory = function () {
+	console.log("ÿc8Start ÿc0:: ÿc8clearInventory");
+	let clearInvoTick = getTickCount();
+	
 	// If we are at an npc already, open the window otherwise moving potions around fails
 	if (getUIFlag(sdk.uiflags.NPCMenu) && !getUIFlag(sdk.uiflags.Shop)) {
 		try {
@@ -1239,17 +1242,19 @@ Town.clearInventory = function () {
 	}
 
 	// Any leftover items from a failed ID (crashed game, disconnect etc.)
-	let items = (Storage.Inventory.Compare(Config.Inventory) || []);
-	items.length > 0 && (items = items.filter(function (item) {
-		return (!!item && ([18, 41, 76, 77, 78].indexOf(item.itemType) === -1 // Don't drop tomes, keys or potions
-					&& item.sellable // Don't try to sell/drop quest-items
-					&& !AutoEquip.wanted(item) // Don't throw auto equip wanted items
-					&& !Cubing.keepItem(item) // Don't throw cubing ingredients
-					&& !Runewords.keepItem(item) // Don't throw runeword ingredients
-					&& !CraftingSystem.keepItem(item) // Don't throw crafting system ingredients
-					&& !SoloWants.keepItem(item) // Don't throw SoloWants system ingredients
-		));
-	}));
+	let ignoreTypes = [
+		sdk.itemtype.Book, sdk.itemtype.Key, sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion
+	];
+	let items = (Storage.Inventory.Compare(Config.Inventory) || [])
+		.filter(function (item) {
+			if (!item) return false;
+			if (ignoreTypes.indexOf(item.itemType) === -1 && item.sellable
+				&& !AutoEquip.wanted(item) && !SoloWants.keepItem(item)
+				&& !Cubing.keepItem(item) && !Runewords.keepItem(item) && !CraftingSystem.keepItem(item)) {
+				return true;
+			}
+			return false;
+		});
 
 	let sell = [];
 	items.length > 0 && items.forEach(function (item) {
@@ -1283,6 +1288,8 @@ Town.clearInventory = function () {
 		}
 	});
 
+	console.log("ÿc8Exit clearInventory ÿc0- ÿc7Duration: ÿc0" + Time.format(getTickCount() - clearInvoTick));
+
 	return true;
 };
 
@@ -1293,7 +1300,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 	let baseSkillsTier, equippedSkillsTier;
 	let result = true, preSocketCheck = false;
 
-	let skillsScore = function (item) {
+	const skillsScore = function (item) {
 		let skillsRating = 0;
 		skillsRating += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 200; // + class skills
 		skillsRating += item.getStatEx(sdk.stats.AddSkillTab, Check.currentBuild().tabSkills) * 100; // + TAB skills

@@ -9,7 +9,7 @@
 includeIfNotIncluded("OOG.js");
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/CharData.js");
-includeIfNotIncluded("SoloPlay/Functions/PrototypesOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
 const MYCLASSNAME = sdk.charclass.nameOf(me.classid).toLowerCase();
 includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + ".js");
@@ -215,7 +215,7 @@ const SetUp = {
 			let files = dopen("libs/SoloPlay/" + folder + "/").getFiles();
 			Array.isArray(files) && files
 				.filter(file => file.endsWith(".js"))
-				.sort(a => a.startsWith("PrototypesOverrides.js") ? 0 : 1) // Dirty fix to load new prototypes first
+				.sort(a => a.startsWith("PrototypeOverrides.js") ? 0 : 1) // Dirty fix to load new prototypes first
 				.forEach(function (x) {
 					if (!isIncluded("SoloPlay/" + folder + "/" + x)) {
 						if (!include("SoloPlay/" + folder + "/" + x)) {
@@ -598,6 +598,7 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 
 // General Game functions
 const Check = {
+	lowGold: false,
 	// TODO: clean this up somehow, I dislike how it looks right now as its not completely clear
 	task: function (sequenceName) {
 		let needRunes = this.runes();
@@ -972,7 +973,6 @@ const Check = {
 	brokeCheck: function () {
 		Town.doChores();
 
-		let wep;
 		let myGold = me.gold;
 		let repairCost = me.getRepairCost();
 		let items = (Town.getItemsForRepair(100, false) || []);
@@ -980,43 +980,33 @@ const Check = {
 		let msg = "";
 		let diff = -1;
 
-		switch (me.diff) {
-		case sdk.difficulty.Normal:
+		switch (true) {
+		case myGold > repairCost:
 			return;
-		case sdk.difficulty.Nightmare:
-			if (myGold < repairCost) {
-				// check how broke we are - only for melee chars since casters don't care about weapons
-				wep = items.filter(i => i.isEquipped && i.bodylocation === 4).first();
-				if (!!wep && meleeChar && wep.durabilityPercent === 0) {
-					// we are really broke - go back to normal
-					msg = " We are broken - lets get some easy gold in normal";
-					diff = sdk.difficulty.Normal;
-				} else {
-					console.log(" We are pretty broke, lets runs some easy stuff for gold");
-				}
+		case me.normal:
+		case !meleeChar && me.nightmare:
+			this.lowGold = myGold < repairCost;
+			return;
+		case meleeChar && !me.normal:
+			// check how broke we are - only for melee chars since casters don't care about weapons
+			let wep = items.filter(i => i.isEquipped && i.bodylocation === sdk.body.RightArm).first();
+			if (!!wep && meleeChar && wep.durabilityPercent === 0) {
+				// we are really broke - go back to normal
+				msg = " We are broken - lets get some easy gold in normal.";
+				diff = sdk.difficulty.Normal;
 			}
 
 			break;
-		case sdk.difficulty.Hell:
-			if (myGold < repairCost) {
-				// check how broke we are - only for melee chars since casters don't care about weapons
-				wep = items.filter(i => i.isEquipped && i.bodylocation === 4).first();
-				if (!!wep && meleeChar && wep.durabilityPercent === 0) {
-					// we are really broke - go back to normal
-					msg = " We are broken - lets get some easy gold in normal";
-					diff = sdk.difficulty.Normal;
-				} else {
-					msg = " We are pretty broke, lets run some easy stuff in nightmare for gold";
-					diff = sdk.difficulty.Nightmare;
-				}
-			}
+		case !meleeChar && me.hell:
+			msg = " We are pretty broke, lets run some easy stuff in nightmare for gold";
+			diff = sdk.difficulty.Nightmare;
 
 			break;
 		}
 
 		if (diff > -1) {
 			console.debug("My gold: " + myGold + ", Repair cost: " + repairCost);
-			goToDifficulty(diff, msg);
+			goToDifficulty(diff, msg + (" My gold: " + myGold + ", Repair cost: " + repairCost));
 			scriptBroadcast("quit");
 		}
 	},
@@ -1042,7 +1032,7 @@ const Check = {
 	nextDifficulty: function (announce = true) {
 		let diffShift = me.diff;
 		let res = this.resistance();
-		let lvlReq = !!((me.charlvl >= Config.levelCap) && !["Bumper", "Socketmule"].includes(SetUp.finalBuild) && !this.broken());
+		let lvlReq = !!((me.charlvl >= CharInfo.levelCap) && !["Bumper", "Socketmule"].includes(SetUp.finalBuild) && !this.broken());
 
 		if (me.diffCompleted) {
 			if (lvlReq) {
@@ -1050,7 +1040,7 @@ const Check = {
 					diffShift = me.diff + 1;
 					announce && D2Bot.printToConsole("Kolbot-SoloPlay: next difficulty requirements met. Starting: " + sdk.difficulty.nameOf(diffShift), sdk.colors.D2Bot.Blue);
 				} else {
-					if (me.charlvl >= Config.levelCap + (!me.normal ? 5 : 2)) {
+					if (me.charlvl >= CharInfo.levelCap + (!me.normal ? 5 : 2)) {
 						diffShift = me.diff + 1;
 						announce && D2Bot.printToConsole("Kolbot-SoloPlay: Over leveled. Starting: " + sdk.difficulty.nameOf(diffShift));
 					} else {

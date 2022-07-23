@@ -6,7 +6,7 @@
 *
 */
 
-includeIfNotIncluded("libs/common/Prototypes.js");
+includeIfNotIncluded("common/Prototypes.js");
 
 Unit.prototype.getResPenalty = function (difficulty) {
 	difficulty > 2 && (difficulty = 2);

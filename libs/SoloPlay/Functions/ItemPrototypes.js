@@ -7,7 +7,7 @@
 *
 */
 
-includeIfNotIncluded("SoloPlay/Functions/PrototypesOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
 Unit.prototype.getQuantityOwned = function () {
 	if (this === undefined || this.type !== sdk.unittype.Item) return 0;

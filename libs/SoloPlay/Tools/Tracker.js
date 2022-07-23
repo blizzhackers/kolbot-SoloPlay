@@ -6,7 +6,7 @@
 */
 
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
-includeIfNotIncluded("SoloPlay/Functions/PrototypesOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 
 const Tracker = {

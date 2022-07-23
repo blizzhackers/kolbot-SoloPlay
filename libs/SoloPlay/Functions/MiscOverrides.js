@@ -591,6 +591,7 @@ Misc.logItem = function (action, unit, keptLine) {
 	const hasTier = AutoEquip.hasTier(unit);
 	const charmCheck = (unit.isCharm && Item.autoEquipCharmCheck(unit));
 	const nTResult = !!(NTIP.CheckItem(unit, NTIP_CheckListNoTier, true).result && (keptLine && !keptLine.match("SoloPlay")));
+	const nTCharm = (unit.isCharm && !charmCheck && (keptLine && !keptLine.match("SoloPlay", "gi")));
 
 	if (!action.match("kept", "i") && !action.match("Shopped") && hasTier) {
 		if (!mercCheck) {
@@ -602,7 +603,7 @@ Misc.logItem = function (action, unit, keptLine) {
 	}
 
 	// should stop logging items unless we wish to see them or it's part of normal pickit
-	if (nTResult || unit.isCharm || hasTier) {
+	if (nTResult || unit.isCharm || hasTier || nTCharm) {
 		console.debug("NT: " + nTResult + " CC: " + charmCheck + " HT: " + hasTier);
 		switch (true) {
 		case nTResult:

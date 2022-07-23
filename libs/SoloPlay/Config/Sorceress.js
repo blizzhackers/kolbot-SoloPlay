@@ -46,16 +46,8 @@ function LoadConfig () {
 
 	/* Pickit configuration. */
 	Config.PickRange = 40;
-	Config.FastPick = false;
-	Config.CainID.Enable = false;
-	Config.FieldID.Enabled = false; // Identify items while in the field
-	Config.FieldID.PacketID = true; // use packets to speed up id process (recommended to use this)
-	Config.FieldID.UsedSpace = 80; // how much space has been used before trying to field id, set to 0 to id after every item picked
 	//	Config.PickitFiles.push("kolton.nip");
 	//	Config.PickitFiles.push("LLD.nip");
-	// if (me.profile === "scl-sorc-001") {
-	// 	Config.PickitFiles.push("test.nip");
-	// }
 
 	/* Gambling configuration. */
 	Config.Gamble = true;
@@ -143,8 +135,6 @@ function LoadConfig () {
 	Config.ClearPath = {Range: 30, Spectype: (me.hell && Pather.canTeleport() ? 0xF : 0)};
 
 	/* Monster skip configuration. */
-	Config.SkipException = [];
-	Config.SkipAura = [];
 	Pather.canTeleport() && me.lightRes < 75 && Config.SkipEnchant.push("lightning enchanted");
 
 	/* Shrine scan configuration. */

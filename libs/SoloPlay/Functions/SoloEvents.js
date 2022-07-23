@@ -520,7 +520,7 @@ const SoloEvents = {
 					break;
 				case waveBoss.ACHMEL:
 					if ((me.paladin && !Attack.auradin && me.hell)
-						|| (me.barbarian && ((me.charlvl < Config.levelCap && !me.baal)
+						|| (me.barbarian && ((me.charlvl < CharInfo.levelCap && !me.baal)
 						|| me.hardcore))) {
 						Messaging.sendToScript(SoloEvents.filePath, "skip");
 						SoloEvents.skippedWaves.push(wave);
@@ -531,8 +531,8 @@ const SoloEvents = {
 				case waveBoss.VENTAR:
 					break;
 				case waveBoss.LISTER:
-					if ((me.barbarian && (me.charlvl < Config.levelCap || !me.baal || me.hardcore))
-						|| (me.charlvl < Config.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
+					if ((me.barbarian && (me.charlvl < CharInfo.levelCap || !me.baal || me.hardcore))
+						|| (me.charlvl < CharInfo.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
 						Messaging.sendToScript(SoloEvents.filePath, "skip");
 						SoloEvents.skippedWaves.push(wave);
 					}

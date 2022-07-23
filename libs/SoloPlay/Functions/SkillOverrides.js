@@ -8,14 +8,14 @@
 includeIfNotIncluded("common/Misc.js");
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 
+let Overrides = require("../../modules/Override");
+
+Skill.forcePacket = (Developer.forcePacketCasting.enabled && !Developer.forcePacketCasting.excludeProfiles.includes(me.profile));
 Skill.casterSkills = [
 	36, 38, 39, 44, 45, 47, 48, 49, 53, 54, 55, 56, 59, 64, 84,
 	87, 92, 93, 101, 112, 121, 130, 137, 146, 154, 225,
 	229, 230, 234, 240, 244, 249, 250, 251, 256, 261, 262, 271, 276
 ];
-Skill.forcePacket = (Developer.forcePacketCasting.enabled && !Developer.forcePacketCasting.excludeProfiles.includes(me.profile));
-
-let Overrides = require("../../modules/Override");
 
 new Overrides.Override(Skill, Skill.getRange, function (orignal, skillId) {
 	switch (skillId) {
@@ -58,8 +58,6 @@ Skill.getManaCost = function (skillId = -1) {
 
 // Cast a skill on self, Unit or coords. Always use packet casting for caster skills becasue it's more stable.
 Skill.cast = function (skillId, hand, x, y, item) {
-	let clickType, shift;
-
 	switch (true) {
 	case me.inTown && !this.townSkill(skillId): // cant cast this in town
 	case !item && (!Skill.canUse(skillId) || this.getManaCost(skillId) > me.mp): // Dont have this skill or dont have enough mana for this
@@ -100,6 +98,8 @@ Skill.cast = function (skillId, hand, x, y, item) {
 			break;
 		}
 	} else {
+		let clickType, shift;
+
 		switch (hand) {
 		case 0: // Right hand + No Shift
 			clickType = 3;
@@ -146,7 +146,7 @@ Skill.cast = function (skillId, hand, x, y, item) {
 	// account for lag, state 121 doesn't kick in immediately
 	if (this.isTimed(skillId)) {
 		for (let i = 0; i < 10; i++) {
-			if ([4, 9].includes(me.mode) || me.skillDelay) {
+			if ([sdk.units.player.mode.GettingHit, sdk.units.player.mode.Blocking].includes(me.mode) || me.skillDelay) {
 				break;
 			}
 
@@ -264,7 +264,7 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 	// account for lag, state 121 doesn't kick in immediately
 	if (this.isTimed(skillId)) {
 		for (let i = 0; i < 10; i++) {
-			if ([4, 9].includes(me.mode) || me.skillDelay) {
+			if ([sdk.units.player.mode.GettingHit, sdk.units.player.mode.Blocking].includes(me.mode) || me.skillDelay) {
 				break;
 			}
 
@@ -276,44 +276,4 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 	me.weaponswitch === 1 && settings.switchBack && me.switchWeapons(0);
 
 	return true;
-};
-
-Skill.wereformAllowed = function (skillId = -1) {
-	if (!Config.Wereform) return true;
-	if (skillId < 0) return false;
-
-	let wolf = false;
-	let bear = false;
-
-	switch (Config.Wereform.toString().toLowerCase()) {
-	case "1":
-	case "werewolf":
-		wolf = true;
-
-		break;
-	case "2":
-	case "werebear":
-		bear = true;
-
-		break;
-	default:
-		return false;
-	}
-
-	// Can be cast by both
-	if ([0, 1, 221, 222, 226, 227, 231, 236, 237, 239, 241, 242, 246, 247, 249].includes(skillId)) {
-		return true;
-	}
-
-	// Can be cast by werewolf only
-	if (wolf && [223, 232, 238, 248].includes(skillId)) {
-		return true;
-	}
-
-	// Can be cast by werebear only
-	if (bear && [228, 233, 243].includes(skillId)) {
-		return true;
-	}
-
-	return false;
 };

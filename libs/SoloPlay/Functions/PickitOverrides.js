@@ -7,7 +7,7 @@
 */
 
 includeIfNotIncluded("common/Pickit.js");
-includeIfNotIncluded("SoloPlay/Functions/ProtoTypesOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 includeIfNotIncluded("SoloPlay/Functions/NTIPOverrides.js");
 includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 

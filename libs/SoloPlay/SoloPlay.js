@@ -8,6 +8,7 @@
 
 // todo: maybe turn this into a thread and use it as a default.dbj replacement
 // call loader from here and change loader to use the soloplay script files
+// todo - global skip gid array
 
 //---------------- Do Not Touch Below ----------------\\
 
@@ -178,8 +179,8 @@ function SoloPlay () {
 	// Start Developer mode - this stops the script from progressing past this point and allows running specific scripts/functions through chat commands
 	if (Developer.developerMode.enabled) {
 		if (Developer.developerMode.profiles.some(profile => profile.toLowerCase() === me.profile.toLowerCase())) {
-			if (include("SoloPlay/Scripts/developermode.js")) {
-				Developer.debugging.pathing && (me.automap = true);
+			Developer.debugging.pathing && (me.automap = true);
+			if (includeIfNotIncluded("SoloPlay/Scripts/developermode.js")) {
 				this.developermode();
 			} else {
 				console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to include developermode");
