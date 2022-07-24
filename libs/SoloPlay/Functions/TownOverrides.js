@@ -1639,8 +1639,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 					equippedSkillsTier = skillsScore(check);
 					baseSkillsTier = skillsScore(base);
 
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 					if (equippedSkillsTier !== baseSkillsTier) {
-						console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 
 						if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense helm
 							result = false;
@@ -2114,7 +2114,9 @@ Town.worseBaseThanStashed = function (base = undefined) {
 
 Town.clearJunk = function () {
 	let junkItems = me.findItems(-1, 0);
+	let totalJunk = [];
 	let junkToSell = [];
+	let junkToDrop = [];
 
 	if (!junkItems) return false;
 
@@ -2122,110 +2124,106 @@ Town.clearJunk = function () {
 		let junk = junkItems.shift();
 		const pickitResult = Pickit.checkItem(junk).result;
 
-		if ((junk.isInStorage) && ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(pickitResult))
-			&& !AutoEquip.wanted(junk) // Don't toss wanted auto equip items
-			&& !Cubing.keepItem(junk) // Don't throw cubing ingredients
-			&& !Runewords.keepItem(junk) // Don't throw runeword ingredients
-			&& !CraftingSystem.keepItem(junk) // Don't throw crafting system ingredients
-			&& !SoloWants.keepItem(junk) // Don't throw SoloWants system ingredients
-			&& !Town.ignoredItemTypes.includes(junk.itemType) // Don't drop tomes, keys or potions
-			&& junk.sellable // Don't try to sell/drop quest-items/keys/essences/tokens/organs
-		) {
-			console.log("ÿc9JunkCheckÿc0 :: Junk: " + junk.name + " Pickit Result: " + pickitResult);
+		try {
+			if (junk.isInStorage && ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(pickitResult))
+				&& !AutoEquip.wanted(junk) // Don't toss wanted auto equip items
+				&& !Cubing.keepItem(junk) // Don't throw cubing ingredients
+				&& !Runewords.keepItem(junk) // Don't throw runeword ingredients
+				&& !CraftingSystem.keepItem(junk) // Don't throw crafting system ingredients
+				&& !SoloWants.keepItem(junk) // Don't throw SoloWants system ingredients
+				&& !Town.ignoredItemTypes.includes(junk.itemType) // Don't drop tomes, keys or potions
+				&& junk.sellable // Don't try to sell/drop quest-items/keys/essences/tokens/organs
+			) {
+				console.log("ÿc9JunkCheckÿc0 :: Junk: " + junk.name + " Pickit Result: " + pickitResult);
 
-			!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
-			junk.isInCube && Cubing.emptyCube();
+				if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
+					throw new Error("ÿc9JunkCheckÿc0 :: Failed to get " + junk.name + " from stash");
+				}
 
-			if (junk.sellable && (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)))) {
-				junkToSell.push(junk);
+				if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9JunkCheckÿc0 :: Failed to remove " + junk.name + " from cube");
 
-				continue;
-			} else if (junk.drop()) {
-				myPrint("Cleared junk - " + junk.name);
-				delay(50);
+				totalJunk.push(junk);
 
 				continue;
 			}
-		}
 
-		if (junk.isInStorage && junk.sellable && pickitResult !== 1) {
-			if (!junk.identified && !Cubing.keepItem(junk) && !CraftingSystem.keepItem(junk)) {
-				console.log("ÿc9UnidJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+			if (junk.isInStorage && junk.sellable) {
+				if (pickitResult !== Pickit.Result.WANTED) {
+					if (!junk.identified && !Cubing.keepItem(junk) && !CraftingSystem.keepItem(junk) && junk.quality < sdk.itemquality.Set) {
+						console.log("ÿc9UnidJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
 
-				!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
-				junk.isInCube && Cubing.emptyCube();
+						if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
+							throw new Error("ÿc9UnidJunkCheckÿc0 :: Failed to get " + junk.name + " from stash");
+						}
 
-				if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
-					junkToSell.push(junk);
+						if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9UnidJunkCheckÿc0 :: Failed to remove " + junk.name + " from cube");
 
-					continue;
-				} else if (junk.drop()) {
-					myPrint("Cleared unid junk - " + junk.name);
-					delay(50 + me.ping);
-
-					continue;
-				}
-			}
-
-			if (junk.isRuneword && !AutoEquip.wanted(junk)) {
-				!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
-				junk.isInCube && Cubing.emptyCube();
-
-				console.log("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
-
-				if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
-					junkToSell.push(junk);
-
-					continue;
-				} else if (junk.drop()) {
-					myPrint("Cleared old runeword junk - " + junk.name);
-					delay(50 + me.ping);
-
-					continue;
-				}
-			}
-
-			if (junk.isBaseType) {
-				if (this.worseBaseThanStashed(junk, true)) {
-					console.log("ÿc9WorseBaseThanStashedCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
-					
-					!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
-					junk.isInCube && Cubing.emptyCube();
-
-					if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
-						junkToSell.push(junk);
+						totalJunk.push(junk);
 
 						continue;
-					} else if (junk.drop()) {
-						myPrint("Cleared runeword base junk - " + junk.name);
-						delay(50 + me.ping);
+					}
+
+					if (junk.isRuneword && !AutoEquip.wanted(junk)) {
+						console.log("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+
+						if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
+							throw new Error("ÿc9AutoEquipJunkCheckÿc0 :: Failed to get " + junk.name + " from stash");
+						}
+
+						if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9AutoEquipJunkCheckÿc0 :: Failed to remove " + junk.name + " from cube");
+
+						totalJunk.push(junk);
 
 						continue;
 					}
 				}
 
-				if (!this.betterBaseThanWearing(junk, Developer.debugging.junkCheck)) {
-					console.log("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+				if (junk.isBaseType) {
+					if (this.worseBaseThanStashed(junk)) {
+						console.log("ÿc9WorseBaseThanStashedCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+						
+						if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
+							throw new Error("ÿc9WorseBaseThanStashedCheckÿc0 :: Failed to get " + junk.name + " from stash");
+						}
 
-					!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
-					junk.isInCube && Cubing.emptyCube();
+						if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9WorseBaseThanStashedCheckÿc0 :: Failed to remove " + junk.name + " from cube");
 
-					if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
-						junkToSell.push(junk);
+						totalJunk.push(junk);
 
 						continue;
-					} else if (junk.drop()) {
-						myPrint("Cleared bad runeword base junk - " + junk.name);
-						delay(50 + me.ping);
+					}
+
+					if (!this.betterBaseThanWearing(junk, Developer.debugging.junkCheck)) {
+						console.log("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+
+						if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
+							throw new Error("ÿc9BetterThanWearingCheckÿc0 :: Failed to get " + junk.name + " from stash");
+						}
+
+						if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9BetterThanWearingCheckÿc0 :: Failed to remove " + junk.name + " from cube");
+
+						totalJunk.push(junk);
 
 						continue;
 					}
 				}
 			}
+		} catch (e) {
+			console.warn(e.message ? e.message : e);
 		}
 	}
 
-	if (junkToSell.length > 0) {
+	if (totalJunk.length > 0) {
+		totalJunk
+			.sort((a, b) => b.getItemCost(sdk.items.cost.ToSell) - a.getItemCost(sdk.items.cost.ToSell))
+			.forEach(junk => {
+				if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
+					junkToSell.push(junk);
+				} else {
+					junkToDrop.push(junk);
+				}
+			});
+		
 		myPrint("Junk items to sell: " + junkToSell.length);
 		Town.initNPC("Shop", "clearInventory");
 
@@ -2236,11 +2234,20 @@ Town.clearJunk = function () {
 				Developer.debugging.junkCheck && Misc.logItem("JunkCheck Sold", junkToSell[i]);
 
 				junkToSell[i].sell();
-				delay(50 + me.ping);
+				delay(100);
 			}
 		}
 
 		me.cancelUIFlags();
+
+		for (let i = 0; i < junkToDrop.length; i++) {
+			console.log("ÿc9JunkCheckÿc0 :: Drop " + junkToDrop[i].name);
+			Misc.itemLogger("Sold", junkToDrop[i]);
+			Developer.debugging.junkCheck && Misc.logItem("JunkCheck Sold", junkToDrop[i]);
+
+			junkToDrop[i].drop();
+			delay(100);
+		}
 	}
 
 	return true;
