@@ -23,7 +23,7 @@ const SoloEvents = {
 		}
 
 		if (this.gameInfo.gameName.length > 0) {
-			D2Bot.printToConsole("Kolbot-SoloPlay :: SoloEvents.outOfGameCheck(): Attempting to join other bots game", 6);
+			D2Bot.printToConsole("Kolbot-SoloPlay :: SoloEvents.outOfGameCheck(): Attempting to join other bots game", sdk.colors.D2Bot.Gold);
 			this.inGame = true;
 			me.blockmouse = true;
 
@@ -190,7 +190,7 @@ const SoloEvents = {
 	},
 
 	killdclone: function () {
-		D2Bot.printToConsole("Kolbot-SoloPlay :: Trying to kill DClone.", 8);
+		D2Bot.printToConsole("Kolbot-SoloPlay :: Trying to kill DClone.", sdk.colors.D2Bot.Orange);
 		let orginalLocation = {area: me.area, x: me.x, y: me.y};
 
 		!me.inTown && Town.goToTown();

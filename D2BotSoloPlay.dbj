@@ -29,8 +29,8 @@ include("automule.js");
 include("gambling.js");
 include("craftingsystem.js");
 include("torchsystem.js");
-include("common/misc.js");
 include("common/util.js");
+include("common/misc.js");
 include("common/pather.js");
 include("common/prototypes.js");
 include("SoloPlay/Tools/Developer.js");
@@ -89,7 +89,7 @@ new Overrides.Override(Starter, Starter.receiveCopyData, function (orignal, mode
 
 			if (buildCheck.length <= 1) {
 				D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', 6);
-				D2Bot.printToConsole("If you are still confused please read the included readMe. https://github.com/blizzhackers/kolbot-SoloPlay/blob/main/README.md", 6);
+				D2Bot.printToConsole("If you are still confused please read the included readMe. https://github.com/blizzhackers/kolbot-SoloPlay/blob/main/README.md", sdk.colors.D2Bot.Gold);
 				D2Bot.stop();
 			}
 
@@ -451,13 +451,13 @@ function locationAction (location) {
 							Starter.profileInfo.password = Starter.Config.GlobalAccountPassword.length > 0 ? Starter.Config.GlobalAccountPassword : Starter.randomString(12, true);
 
 							if (Starter.profileInfo.account.length > 15) {
-								D2Bot.printToConsole("Kolbot-SoloPlay: Account name exceeds MAXIMUM length (15). Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig", 6);
+								D2Bot.printToConsole("Kolbot-SoloPlay: Account name exceeds MAXIMUM length (15). Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig", sdk.colors.D2Bot.Gold);
 								D2Bot.setProfile("", "", null, "Normal");
 								D2Bot.stop();
 							}
 
 							if (Starter.profileInfo.password.length > 15) {
-								D2Bot.printToConsole("Kolbot-SoloPlay: Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig", 6);
+								D2Bot.printToConsole("Kolbot-SoloPlay: Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig", sdk.colors.D2Bot.Gold);
 								D2Bot.setProfile("", "", null, "Normal");
 								D2Bot.stop();
 							}
@@ -496,14 +496,14 @@ function locationAction (location) {
 						// Pop-up that happens when choosing a dead HC char
 						if (getLocation() === sdk.game.locations.OkCenteredErrorPopUp) {
 							Controls.OkCentered.click();	// Exit from that pop-up
-							D2Bot.printToConsole("Character died", 9);
+							D2Bot.printToConsole("Character died", sdk.colors.D2Bot.Red);
 							ControlAction.deleteAndRemakeChar(Starter.profileInfo);
 						} else {
 							// If make character fails, check how many characters are on that account
 							if (!ControlAction.makeCharacter(Starter.profileInfo)) {
 								// Account is full
 								if (ControlAction.getCharacters().length >= 18) {
-									D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", 8);
+									D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", sdk.colors.D2Bot.Orange);
 									D2Bot.stop();
 								}
 							}
@@ -708,7 +708,7 @@ function locationAction (location) {
 				} else {
 					if (!ControlAction.makeCharacter(Starter.profileInfo)) {
 						if (ControlAction.getCharacters().length >= 18) {
-							D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", 9);
+							D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", sdk.colors.D2Bot.Red);
 							D2Bot.stop();
 						}
 					}

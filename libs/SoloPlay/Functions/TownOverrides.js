@@ -120,7 +120,7 @@ Town.buyPotions = function () {
 	};
 
 	this.clearBelt();
-	let beltSize = Storage.BeltSize();
+	const beltSize = Storage.BeltSize();
 	let col = this.checkColumns(beltSize);
 
 	// HP/MP Buffer
@@ -224,7 +224,7 @@ Town.buyPotions = function () {
 // need to build task list then do them.
 // This way we can look ahead to see if there is a task thats going to be done at the current npc like buyPots and just go ahead and do it
 Town.townTasks = function (buyPots = {}) {
-	let extraTasks = Object.assign({}, {
+	const extraTasks = Object.assign({}, {
 		thawing: false,
 		antidote: false,
 		stamina: false,
@@ -292,7 +292,7 @@ Town.townTasks = function (buyPots = {}) {
 };
 
 Town.doChores = function (repair = false, buyPots = {}) {
-	let extraTasks = Object.assign({}, {
+	const extraTasks = Object.assign({}, {
 		thawing: false,
 		antidote: false,
 		stamina: false,
@@ -772,27 +772,27 @@ Town.buyBook = function () {
 	return true;
 };
 
+// todo - allow earlier shopping, mainly to get a belt
 Town.shopItems = function () {
 	if (!Config.MiniShopBot) return true;
 
 	let npc = getInteractedNPC();
-	let goldLimit = [10000, 20000, 30000][me.diff];
-
 	if (!npc || !npc.itemcount) return false;
 
 	let items = npc.getItemsEx().filter((item) => Town.ignoredItemTypes.indexOf(item.itemType) === -1);
 	if (!items.length) return false;
 
-	let tick = getTickCount();
-	let haveMerc = !me.classic && Config.UseMerc && !me.mercrevivecost && Misc.poll(() => !!me.getMerc(), 500, 100);
-	console.log("ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
-	console.log("ÿc8Kolbot-SoloPlayÿc0: Evaluating " + npc.itemcount + " items.");
+	console.time("shopItems");
+	let bought = 0;
+	const goldLimit = [10000, 20000, 30000][me.diff];
+	const haveMerc = (!me.classic && Config.UseMerc && !me.mercrevivecost && Misc.poll(() => !!me.getMerc(), 500, 100));
+	console.info(true, "ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
 
 	for (let i = 0; i < items.length; i++) {
-		let item = items[i];
-		let result = Pickit.checkItem(item);
-		let myGold = me.gold;
-		let itemCost = item.getItemCost(sdk.items.cost.ToBuy);
+		const item = items[i];
+		const result = Pickit.checkItem(item);
+		const myGold = me.gold;
+		const itemCost = item.getItemCost(sdk.items.cost.ToBuy);
 
 		// no tier'ed items
 		if (result.result === Pickit.Result.WANTED && NTIP.CheckItem(item, NTIP_CheckListNoTier, true).result !== Pickit.Result.UNWANTED) {
@@ -803,14 +803,14 @@ Town.shopItems = function () {
 							Misc.itemLogger("Shopped", item);
 							Developer.debugging.autoEquip && Misc.logItem("Shopped", item, result.line);
 							console.log("ÿc8Kolbot-SoloPlayÿc0: Bought better base");
-							item.buy();
+							item.buy() && bought++;
 
 							continue;
 						}
 					} else {
 						Misc.itemLogger("Shopped", item);
 						Misc.logItem("Shopped", item, result.line);
-						item.buy();
+						item.buy() && bought++;
 
 						continue;
 					}
@@ -829,7 +829,7 @@ Town.shopItems = function () {
 							Misc.itemLogger("AutoEquip Shopped", item);
 							console.log("ÿc9ShopItemsÿc0 :: AutoEquip Shopped: " + item.fname + " Tier: " + NTIP.GetTier(item));
 							Developer.debugging.autoEquip && Misc.logItem("AutoEquip Shopped", item, result.line);
-							item.buy();
+							item.buy() && bought++;
 						} catch (e) {
 							console.warn(e);
 						}
@@ -840,7 +840,7 @@ Town.shopItems = function () {
 					if (haveMerc && Item.hasMercTier(item) && Item.autoEquipCheckMerc(item)) {
 						Misc.itemLogger("AutoEquipMerc Shopped", item);
 						Developer.debugging.autoEquip && Misc.logItem("AutoEquipMerc Shopped", item, result.line);
-						item.buy();
+						item.buy() && bought++;
 
 						continue;
 					}
@@ -850,7 +850,7 @@ Town.shopItems = function () {
 							Misc.itemLogger("AutoEquip Switch Shopped", item);
 							console.log("ÿc9ShopItemsÿc0 :: AutoEquip Switch Shopped: " + item.fname + " SecondaryTier: " + NTIP.GetSecondaryTier(item));
 							Developer.debugging.autoEquip && Misc.logItem("AutoEquip Switch Shopped", item, result.line);
-							item.buy();
+							item.buy() && bought++;
 						} catch (e) {
 							console.warn(e);
 						}
@@ -859,14 +859,14 @@ Town.shopItems = function () {
 					}
 				}
 			} catch (e) {
-				console.warn(e);
+				console.error(e);
 			}
 		}
 
 		delay(2);
 	}
 
-	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting Town.shopItems. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
+	console.info(false, "Bought " + bought + " items", "shopItems");
 
 	return true;
 };
@@ -1120,7 +1120,6 @@ Town.buyMercPots = function (quantity, type) {
 
 	// Don't buy if already at max res
 	if (type === "Thawing" && merc.coldRes >= 75) return true;
-
 	// Don't buy if already at max res
 	if (type === "Antidote" && merc.poisonRes >= 75) return true;
 
@@ -1182,7 +1181,7 @@ Town.stash = function (stashGold = true) {
 	if (items) {
 		for (let i = 0; i < items.length; i += 1) {
 			if (this.canStash(items[i])) {
-				let pickResult = Pickit.checkItem(items[i]).result;
+				const pickResult = Pickit.checkItem(items[i]).result;
 				switch (true) {
 				case pickResult > Pickit.Result.UNWANTED && pickResult < Pickit.Result.TRASH:
 				case Cubing.keepItem(items[i]):
@@ -1251,7 +1250,7 @@ Town.clearInventory = function () {
 
 	// Return potions from inventory to belt
 	let potsInInventory;
-	let beltSize = Storage.BeltSize();
+	const beltSize = Storage.BeltSize();
 	// belt 4x4 locations
 	/**
 	* 12 13 14 15
@@ -1259,8 +1258,8 @@ Town.clearInventory = function () {
 	* 4  5  6  7
 	* 0  1  2  3
 	*/
-	let beltMax = (beltSize * 4);
-	let beltCapRef = [(0 + beltMax), (1 + beltMax), (2 + beltMax), (3 + beltMax)];
+	const beltMax = (beltSize * 4);
+	const beltCapRef = [(0 + beltMax), (1 + beltMax), (2 + beltMax), (3 + beltMax)];
 
 	// check if we have empty belt slots
 	let needCleanup = Town.checkColumns(beltSize).some(slot => slot > 0);
@@ -1356,7 +1355,7 @@ Town.clearInventory = function () {
 	}
 
 	// Any leftover items from a failed ID (crashed game, disconnect etc.)
-	let ignoreTypes = [
+	const ignoreTypes = [
 		sdk.itemtype.Book, sdk.itemtype.Key, sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion
 	];
 	let items = (Storage.Inventory.Compare(Config.Inventory) || [])

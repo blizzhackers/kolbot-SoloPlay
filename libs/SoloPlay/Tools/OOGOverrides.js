@@ -5,7 +5,7 @@
 *  @desc        OOG.js fixes to improve functionality
 *
 */
-!isIncluded("OOG.js") && include("OOG.js");
+includeIfNotIncluded("OOG.js");
 
 ControlAction.makeCharacter = function (info) {
 	me.blockMouse = true;
@@ -99,7 +99,7 @@ ControlAction.makeCharacter = function (info) {
 					switch (info.charClass) {
 					case "druid":
 					case "assassin":
-						D2Bot.printToConsole("Error in profile name. Expansion characters cannot be made in classic", 9);
+						D2Bot.printToConsole("Error in profile name. Expansion characters cannot be made in classic", sdk.colors.D2Bot.Red);
 						D2Bot.stop();
 
 						break;
@@ -287,7 +287,13 @@ ControlAction.makeAccount = function (info) {
 
 			break;
 		case sdk.game.locations.RegisterEmail:
-			Controls.EmailDontRegisterContinue.control ? Controls.EmailDontRegisterContinue.click() : Controls.EmailDontRegister.click();
+			if (Developer.setEmail.enabled
+				&& (!Developer.setEmail.profiles.length || Developer.setEmail.profiles.includes(me.profile))
+				&& (!Developer.setEmail.realms.length || Developer.setEmail.realms.includes(Profile().gateway.toLowerCase()))) {
+				ControlAction.setEmail();
+			} else {
+				Controls.EmailDontRegisterContinue.control ? Controls.EmailDontRegisterContinue.click() : Controls.EmailDontRegister.click();
+			}
 
 			break;
 		default:
@@ -352,7 +358,7 @@ ControlAction.deleteAndRemakeChar = function (info) {
 	DataFile.create();
 	CharData.updateData("me", "finalBuild", Starter.profileInfo.tag);
 	Developer.logPerformance && Tracker.initialize();
-	D2Bot.printToConsole("Deleted: " + info.charName + ". Now remaking...", 6);
+	D2Bot.printToConsole("Deleted: " + info.charName + ". Now remaking...", sdk.colors.D2Bot.Gold);
 	ControlAction.makeCharacter(Starter.profileInfo);
 
 	return true;
@@ -446,7 +452,7 @@ ControlAction.loginAccount = function (info) {
 			
 			break;
 		default:
-			print(getLocation());
+			console.log(getLocation());
 
 			me.blockMouse = false;
 

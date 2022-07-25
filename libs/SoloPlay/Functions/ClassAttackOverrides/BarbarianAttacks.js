@@ -9,9 +9,16 @@ includeIfNotIncluded("common/Attacks/Barbarian.js");
 
 const GameData = require("../../Modules/GameData");
 
+/**
+*  @todo:
+*   - use leap to stun in close distance
+*   - use leap attack with getIntoPosition, long distance or when targetting summoners
+*   - use leap/leap attack with dodge, useful if we can't tele it provides a similar benefit
+*/
+
 ClassAttack.warCryTick = 0;
 
-let howlCheck = function () {
+const howlCheck = function () {
 	let levelCheck = (me.getSkill(sdk.skills.Howl, sdk.skills.subindex.SoftPoints) + me.charlvl + 1);
 	return getUnits(sdk.unittype.Monster).filter(function (el) {
 		return (!!el && el.attackable && el.distance < 6 && el.scareable && GameData.monsterLevel(el.classid, me.area) < levelCheck && !el.isStunned
@@ -20,7 +27,7 @@ let howlCheck = function () {
 	}).length > me.maxNearMonsters;
 };
 
-let battleCryCheck = function () {
+const battleCryCheck = function () {
 	return getUnits(sdk.unittype.Monster).some(function (el) {
 		if (el === undefined) return false;
 		return (el.attackable && el.distance < 5 && el.curseable
@@ -29,7 +36,7 @@ let battleCryCheck = function () {
 	});
 };
 
-let warCryCheck = function () {
+const warCryCheck = function () {
 	return getUnits(sdk.unittype.Monster).some(function (el) {
 		if (el === undefined) return false;
 		return (el.attackable && el.distance < 5 && !(el.isSpecial) && el.curseable

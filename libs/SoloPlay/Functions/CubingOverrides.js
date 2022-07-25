@@ -745,12 +745,12 @@ Cubing.validItem = function (unit, recipe) {
 					return true;
 				}
 				break;
-			case sdk.itemtype.MediumCharm:
+			case sdk.itemtype.LargeCharm:
 				if (unit.ilvl >= recipe.Level.cm2.ilvl) {
 					return true;
 				}
 				break;
-			case sdk.itemtype.LargeCharm:
+			case sdk.itemtype.GrandCharm:
 				if (unit.ilvl >= recipe.Level.cm2.ilvl) {
 					return true;
 				}

@@ -227,7 +227,7 @@ function main () {
 					sendPacket(1, 0x26, 4, potion.gid, 4, 1, 4, 0);
 				}
 			} catch (e) {
-				console.errorReport(e);
+				console.error(e);
 			}
 
 			timerLastDrink[type] = getTickCount();
@@ -463,7 +463,7 @@ function main () {
 
 			// Only do this in expansion
 			if (Config.StopOnDClone && !me.classic && me.hell) {
-				D2Bot.printToConsole("Diablo Walks the Earth", 7);
+				D2Bot.printToConsole("Diablo Walks the Earth", sdk.colors.D2Bot.DarkGold);
 				SoloEvents.cloneWalked = true;
 				this.togglePause();
 				Town.goToTown();
@@ -640,7 +640,7 @@ function main () {
 
 				if (Config.ViperCheck && getTickCount() - tick >= 250) {
 					if (Common.Toolsthread.checkVipers()) {
-						D2Bot.printToConsole("Revived Tomb Vipers found. Leaving game.", 9);
+						D2Bot.printToConsole("Revived Tomb Vipers found. Leaving game.", sdk.colors.D2Bot.Red);
 						quitFlag = true;
 					}
 
@@ -672,7 +672,7 @@ function main () {
 					}
 				}
 			} else {
-				D2Bot.printToConsole("Overlay cannot work without Developer.logPerformance = true;", 4);
+				D2Bot.printToConsole("Overlay cannot work without Developer.logPerformance = true;", sdk.colors.D2Bot.Blue);
 			}
 		}
 

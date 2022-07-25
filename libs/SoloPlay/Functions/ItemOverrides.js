@@ -551,7 +551,7 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 					Storage.Cube.MoveTo(cursorItem);
 				}
 			} else {
-				D2Bot.printToConsole("Dropped " + cursorItem.fname + " during un-equip process", 9);
+				D2Bot.printToConsole("Dropped " + cursorItem.fname + " during un-equip process", sdk.colors.D2Bot.Red);
 				cursorItem.drop();
 			}
 		}
@@ -1260,7 +1260,7 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 					}
 				}
 			} catch (e) {
-				console.errorReport(e);
+				console.error(e);
 			}
 		}
 
@@ -1679,7 +1679,7 @@ const AutoEquip = {
 		if (me.classic) {
 			return Item.hasTier(item);
 		} else {
-			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType)) {
+			if ([sdk.itemtype.SmallCharm, sdk.itemtype.LargeCharm, sdk.itemtype.GrandCharm].includes(item.itemType)) {
 				return Item.hasCharmTier(item);
 			} else {
 				return Item.hasMercTier(item) || Item.hasTier(item) || Item.hasSecondaryTier(item);
@@ -1691,7 +1691,7 @@ const AutoEquip = {
 		if (me.classic) {
 			return Item.autoEquipKeepCheck(item);
 		} else {
-			if ([sdk.itemtype.SmallCharm, sdk.itemtype.MediumCharm, sdk.itemtype.LargeCharm].includes(item.itemType)) {
+			if ([sdk.itemtype.SmallCharm, sdk.itemtype.LargeCharm, sdk.itemtype.GrandCharm].includes(item.itemType)) {
 				return Item.autoEquipCharmCheck(item);
 			} else {
 				return Item.autoEquipKeepCheckMerc(item) || Item.autoEquipKeepCheck(item) || Item.autoEquipCheckSecondary(item);

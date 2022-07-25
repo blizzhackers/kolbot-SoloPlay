@@ -11,7 +11,7 @@ const Mercenary = {
 
 	// merc is null fix
 	getMercFix: function () {
-		if (!Config.UseMerc || me.classic) return null;
+		if (!Config.UseMerc || me.classic || me.mercrevivecost) return null;
 
 		let merc = me.getMerc();
 
@@ -22,7 +22,7 @@ const Mercenary = {
 				break;
 			}
 
-			delay(50 + me.ping);
+			delay(50);
 			merc = me.getMerc();
 		}
 

@@ -315,7 +315,7 @@ const SetUp = {
 
 		// log info
 		myPrint(this.finalBuild + " goal reached. On to the next.");
-		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", 6);
+		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", sdk.colors.D2Bot.Gold);
 
 		D2Bot.setProfile(null, null, NameGen());
 		CharData.delete(true);

@@ -299,7 +299,7 @@ function orgtorch() {
 	if (tkeys >= 3 && hkeys >= 3 && dkeys >= 3) {
 		this.getFade();
 		console.log("ÿc8Kolbot-SoloPlayÿc0: Making organs.");
-		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making organs.", 8);
+		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making organs.", sdk.colors.D2Bot.Orange);
 
 		for (i = 0; i < 3; i += 1) {
 			// Abort if we have a complete set of organs
@@ -351,7 +351,7 @@ function orgtorch() {
 	if (brains && eyes && horns) {
 		this.getFade();
 		console.log("ÿc8Kolbot-SoloPlayÿc0: Making torch");
-		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making torch.", 8);
+		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making torch.", sdk.colors.D2Bot.Orange);
 
 		portal = this.openPortal(1);
 
