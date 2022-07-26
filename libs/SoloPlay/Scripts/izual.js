@@ -12,7 +12,7 @@ function izual () {
 
 	Pather.checkWP(sdk.areas.CityoftheDamned, true) ? Pather.useWaypoint(sdk.areas.CityoftheDamned) : Pather.getWP(sdk.areas.CityoftheDamned);
 	Precast.doPrecast(true);
-	Pather.moveToPreset(sdk.areas.PlainsofDespair, sdk.unittype.Monster, 256);
+	Pather.moveToPreset(sdk.areas.PlainsofDespair, sdk.unittype.Monster, sdk.monsters.Izual);
 	Attack.killTarget("Izual");
 
 	if (!Misc.checkQuest(sdk.quest.id.TheFallenAngel, sdk.quest.states.Completed)) {

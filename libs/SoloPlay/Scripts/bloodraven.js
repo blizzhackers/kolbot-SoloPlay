@@ -28,7 +28,9 @@ function bloodraven () {
 
 	me.overhead("blood raven");
 	Pather.moveToExit(sdk.areas.BurialGrounds, true);
-	me.sorceress && !me.normal ? Pather.moveNearPreset(sdk.areas.BurialGrounds, sdk.unittype.Monster, 805, 20) : Pather.moveToPreset(sdk.areas.BurialGrounds, sdk.unittype.Monster, 805);
+	me.sorceress && !me.normal
+		? Pather.moveNearPreset(sdk.areas.BurialGrounds, sdk.unittype.Monster, sdk.monsters.preset.BloodRaven, 20)
+		: Pather.moveToPreset(sdk.areas.BurialGrounds, sdk.unittype.Monster, sdk.monsters.preset.BloodRaven);
 	Attack.killTarget("Blood Raven");
 	Pickit.pickItems();
 

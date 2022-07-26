@@ -38,7 +38,7 @@ Misc.testTP = function () {
 	typeof items === "object" && (items = items.filter(i => i.isInStorage));
 	console.debug("took " + (getTickCount() - t1) + " to get items using old method len" + items.length);
 	t1 = getTickCount();
-	items = me.getItemsEx(-1, 0);
+	items = me.getItemsEx(-1, sdk.itemmode.inStorage);
 	console.debug("took " + (getTickCount() - t1) + " to get items using new method len" + items.length);
 
 	return true;
@@ -248,7 +248,7 @@ Misc.unsocketItem = function (item) {
 	// Item doesn't have anything socketed
 	if (item.getItemsEx().length === 0) return true;
 
-	let hel = me.getItem(sdk.items.runes.Hel, 0);
+	let hel = me.getItem(sdk.items.runes.Hel, sdk.itemmode.inStorage);
 	if (!hel) return false;
 
 	let scroll = Runewords.getScroll();

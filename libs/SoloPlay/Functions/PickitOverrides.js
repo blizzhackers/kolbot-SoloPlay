@@ -141,19 +141,20 @@ Pickit.checkItem = function (unit) {
 			};
 		}
 
-		let itemValuePerSquare = unit.getItemCost(sdk.items.cost.ToSell) / (unit.sizex * unit.sizey);
+		const itemValue = unit.getItemCost(sdk.items.cost.ToSell);
+		const itemValuePerSquare = itemValue / (unit.sizex * unit.sizey);
 
 		if (itemValuePerSquare >= 2000) {
 			// If total gold is less than 500k pick up anything worth 2k gold per square to sell in town.
 			return {
 				result: Pickit.Result.TRASH,
-				line: "Valuable Item: " + unit.getItemCost(sdk.items.cost.ToSell)
+				line: "Valuable Item: " + itemValue
 			};
 		} else if (itemValuePerSquare >= 10 && me.gold < Config.LowGold) {
 			// If total gold is less than LowGold setting pick up anything worth 10 gold per square to sell in town.
 			return {
 				result: Pickit.Result.TRASH,
-				line: "LowGold Item: " + unit.getItemCost(sdk.items.cost.ToSell)
+				line: "LowGold Item: " + itemValue
 			};
 		}
 	}
@@ -226,10 +227,8 @@ Pickit.canFit = function (item) {
 Pickit.canPick = function (unit) {
 	if (!unit) return false;
 	
-	if (sdk.quest.items.includes(unit.classid)) {
-		if (me.getItem(unit.classid)) {
-			return false;
-		}
+	if (sdk.quest.items.includes(unit.classid) && me.getItem(unit.classid)) {
+		return false;
 	}
 	
 	// TODO: clean this up
@@ -246,7 +245,7 @@ Pickit.canPick = function (unit) {
 		break;
 	case sdk.itemtype.Scroll:
 		// 518 - Tome of Town Portal or 519 - Tome of Identify, mode 0 - inventory/stash
-		tome = me.getItem(unit.classid - 11, 0);
+		tome = me.getItem(unit.classid - 11, sdk.itemmode.inStorage);
 
 		if (tome) {
 			do {
@@ -264,37 +263,38 @@ Pickit.canPick = function (unit) {
 		// Assassins don't ever need keys
 		if (me.assassin) return false;
 
-		myKey = me.getItem(543, 0);
+		myKey = me.getItem(sdk.items.Key, sdk.itemmode.inStorage);
 		key = Game.getItem(-1, -1, unit.gid); // Passed argument isn't an actual unit, we need to get it
 
 		if (myKey && key) {
 			do {
-				if (myKey.location === 3 && myKey.getStat(sdk.stats.Quantity) + key.getStat(sdk.stats.Quantity) > 12) {
+				if (myKey.isInInventory && myKey.getStat(sdk.stats.Quantity) + key.getStat(sdk.stats.Quantity) > 12) {
 					return false;
 				}
 			} while (myKey.getNext());
 		}
 
 		break;
-	case 82: // Small Charm
-	case 83: // Large Charm
-	case 84: // Grand Charm
+	case sdk.itemtype.SmallCharm:
+	case sdk.itemtype.LargeCharm:
+	case sdk.itemtype.GrandCharm:
 		if (unit.unique) {
-			charm = me.getItem(unit.classid, 0);
+			charm = me.getItem(unit.classid, sdk.itemmode.inStorage);
 
 			if (charm) {
 				do {
+					// Skip Gheed's Fortune, Hellfire Torch or Annihilus if we already have one
 					if (unit.unique) {
-						return false; // Skip Gheed's Fortune, Hellfire Torch or Annihilus if we already have one
+						return false;
 					}
 				} while (charm.getNext());
 			}
 		}
 
 		break;
-	case 76: // Healing Potion
-	case 77: // Mana Potion
-	case 78: // Rejuvenation Potion
+	case sdk.itemtype.HealingPotion:
+	case sdk.itemtype.ManaPotion:
+	case sdk.itemtype.RejuvPotion:
 		needPots = 0;
 
 		for (i = 0; i < 4; i += 1) {
@@ -303,7 +303,7 @@ Pickit.canPick = function (unit) {
 			}
 		}
 
-		potion = me.getItem(-1, 2);
+		potion = me.getItem(-1, sdk.itemmode.inBelt);
 
 		if (potion) {
 			do {
@@ -320,15 +320,15 @@ Pickit.canPick = function (unit) {
 				if (Config[buffers[i]]) {
 					switch (buffers[i]) {
 					case "HPBuffer":
-						pottype = 76;
+						pottype = sdk.itemtype.HealingPotion;
 
 						break;
 					case "MPBuffer":
-						pottype = 77;
+						pottype = sdk.itemtype.ManaPotion;
 
 						break;
 					case "RejuvBuffer":
-						pottype = 78;
+						pottype = sdk.itemtype.RejuvPotion;
 
 						break;
 					}
@@ -339,11 +339,11 @@ Pickit.canPick = function (unit) {
 						}
 
 						needPots = Config[buffers[i]];
-						potion = me.getItem(-1, 0);
+						potion = me.getItem(-1, sdk.itemmode.inStorage);
 
 						if (potion) {
 							do {
-								if (potion.itemType === pottype && potion.location === 3) {
+								if (potion.itemType === pottype && potion.isInInventory) {
 									needPots -= 1;
 								}
 							} while (potion.getNext());
@@ -358,7 +358,7 @@ Pickit.canPick = function (unit) {
 
 			if (potion) {
 				do {
-					if (potion.itemType === unit.itemType && ((potion.mode === 0 && potion.location === 3) || potion.mode === 2)) {
+					if (potion.itemType === unit.itemType && (potion.isInInventory || potion.isInBelt)) {
 						if (potion.classid < unit.classid) {
 							potion.use();
 							needPots += 1;
@@ -376,7 +376,7 @@ Pickit.canPick = function (unit) {
 
 		break;
 	case undefined: // Yes, it does happen
-		console.log("undefined item (!?)");
+		console.warn("undefined item (!?)");
 
 		return false;
 	}
@@ -395,15 +395,14 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		self.color = Pickit.itemColor(unit);
 		self.gold = unit.getStat(sdk.stats.Gold);
 		self.dist = (unit.distance || Infinity);
-		let canTk = (Skill.haveTK
-			&& (self.type === 4 || self.type === 22 || (self.type > 75 && self.type < 82))
+		let canTk = (Skill.haveTK && Pickit.tkable.includes(self.type)
 			&& self.dist > 5 && self.dist < 20 && !checkCollision(me, unit, sdk.collision.WallOrRanged));
 		self.useTk = canTk && (me.mpPercent > 50);
 		self.picked = false;
 	}
 
 	let item, tick, gid, retry = false;
-	let cancelFlags = [0x01, 0x08, 0x14, 0x0c, 0x19, 0x1a];
+	let cancelFlags = [sdk.uiflags.Inventory, sdk.uiflags.NPCMenu, sdk.uiflags.Waypoint, sdk.uiflags.Shop, sdk.uiflags.Stash, sdk.uiflags.Cube];
 	let itemCount = me.itemcount;
 
 	if (!unit || unit === undefined) return false;
@@ -439,13 +438,13 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			delay(40);
 		}
 
-		if (item.mode !== 3 && item.mode !== 5) {
+		if (!item.onGroundOrDropping) {
 			break;
 		}
 
 		// todo - allow picking near potions/scrolls while attacking distance < 5
 		if (stats.useTk && me.mp > tkMana) {
-			Skill.setSkill(sdk.skills.Telekinesis, sdk.skills.hand.Right) && Packet.unitCast(0, item);
+			Packet.telekinesis(item);
 		} else {
 			if (item.distance > (Config.FastPick || i < 1 ? 6 : 4) || checkCollision(me, item, sdk.collision.BlockWall)) {
 				if (item.checkForMobs({range: 8, coll: (0x1 | 0x400 | 0x800)})) {
@@ -461,7 +460,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			}
 
 			// use packet first, if we fail and not using fast pick use click
-			(Config.FastPick || i < 1) ? sendPacket(1, 0x16, 4, 0x4, 4, gid, 4, 0) : Misc.click(0, 0, item);
+			(Config.FastPick || i < 1) ? Packet.click(item) : Misc.click(0, 0, item);
 		}
 
 		tick = getTickCount();
@@ -469,7 +468,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 		while (getTickCount() - tick < 1000) {
 			item = copyUnit(item);
 
-			if (stats.classid === 523) {
+			if (stats.classid === sdk.items.Gold) {
 				if (!item.getStat(sdk.stats.Gold) || item.getStat(sdk.stats.Gold) < stats.gold) {
 					console.log("ÿc7Picked up " + stats.color + (item.getStat(sdk.stats.Gold) ? (item.getStat(sdk.stats.Gold) - stats.gold) : stats.gold) + " " + stats.name);
 
@@ -477,15 +476,15 @@ Pickit.pickItem = function (unit, status, keptLine) {
 				}
 			}
 
-			if (item.mode !== 3 && item.mode !== 5) {
+			if (!item.onGroundOrDropping) {
 				switch (stats.classid) {
-				case 543: // Key
+				case sdk.items.Key:
 					console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + Town.checkKeys() + "/12)");
 
 					return true;
-				case 529: // Scroll of Town Portal
-				case 530: // Scroll of Identify
-					console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + Town.checkScrolls(stats.classid === 529 ? "tbk" : "ibk") + "/20)");
+				case sdk.items.ScrollofTownPortal:
+				case sdk.items.ScrollofIdentify:
+					console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + Town.checkScrolls(stats.classid === sdk.items.ScrollofTownPortal ? "tbk" : "ibk") + "/20)");
 
 					return true;
 				}
@@ -568,7 +567,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 
 	if (item) {
 		do {
-			if ((item.mode === 3 || item.mode === 5) && getDistance(me, item) <= range) {
+			if (item.onGroundOrDropping && getDistance(me, item) <= range) {
 				pickList.push(copyUnit(item));
 			}
 		} while (item.getNext());
@@ -586,8 +585,8 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 
 		// Check if the item unit is still valid and if it's on ground or being dropped
 		// Don't pick items behind walls/obstacles when walking
-		if (copyUnit(pickList[0]).x !== undefined && (pickList[0].mode === 3 || pickList[0].mode === 5)
-			&& (Pather.useTeleport() || me.inTown || !checkCollision(me, pickList[0], 0x1))) {
+		if (copyUnit(pickList[0]).x !== undefined && pickList[0].onGroundOrDropping
+			&& (Pather.useTeleport() || me.inTown || !checkCollision(me, pickList[0], sdk.collision.BlockWall))) {
 			// Check if the item should be picked
 			status = this.checkItem(pickList[0]);
 

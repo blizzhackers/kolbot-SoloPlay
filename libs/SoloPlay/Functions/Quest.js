@@ -23,9 +23,7 @@ const Quest = {
 			}
 
 			if (!me.shaft) {
-				if (!isIncluded("SoloPlay/Scripts/staff.js")) {
-					includeIfNotIncluded("SoloPlay/Scripts/staff.js");
-				}
+				includeIfNotIncluded("SoloPlay/Scripts/staff.js");
 
 				for (let getStaff = 0; getStaff < 5; getStaff++) {
 					staff();
@@ -78,13 +76,17 @@ const Quest = {
 
 	cubeItems: function (outcome, ...classids) {
 		if (me.getItem(outcome)
-			|| outcome === 91 && me.horadricstaff
-			|| outcome === 174 && me.travincal) {
+			|| outcome === sdk.quest.item.HoradricStaff && me.horadricstaff
+			|| outcome === sdk.quest.item.KhalimsWill && me.travincal) {
 			return true;
 		}
 
 		!me.inTown && Town.goToTown();
-		outcome === 91 ? me.overhead("cubing staff") : outcome === 174 ? me.overhead("cubing flail") : me.overhead("cubing " + outcome);
+		outcome === sdk.quest.item.HoradricStaff
+			? me.overhead("cubing staff")
+			: outcome === sdk.quest.item.KhalimsWill
+				? me.overhead("cubing flail")
+				: me.overhead("cubing " + outcome);
 
 		Town.doChores();
 		Town.openStash();
@@ -189,7 +191,6 @@ const Quest = {
 		Pather.moveTo(22577, 15609, 10);
 
 		let tyrael = Game.getNPC(NPC.Tyrael);
-
 		if (!tyrael) return false;
 
 		for (let talk = 0; talk < 3; talk += 1) {
@@ -223,7 +224,7 @@ const Quest = {
 			if (!Storage.Stash.CanFit(questItem)) return false;
 		}
 
-		while (questItem.location !== 7) {
+		while (!questItem.isInStash) {
 			Storage.Stash.MoveTo(questItem);
 			delay(1 + me.ping);
 
@@ -259,7 +260,7 @@ const Quest = {
 		!getUIFlag(sdk.uiflags.Stash) && me.cancel();
 
 		if (questItem) {
-			me.duelWielding && Item.removeItem(5);
+			me.duelWielding && Item.removeItem(sdk.body.LeftArm);
 			
 			if (!Item.equip(questItem, loc)) {
 				Pickit.pickItems();
@@ -293,18 +294,11 @@ const Quest = {
 	},
 
 	smashSomething: function (classid) {
-		let tool;
-
-		switch (classid) {
-		case 404:
-			tool = sdk.items.quest.KhalimsWill;
-
-			break;
-		case 376:
-			tool = sdk.items.quest.HellForgeHammer;
-
-			break;
-		}
+		let tool = classid === sdk.units.CompellingOrb
+			? sdk.items.quest.KhalimsWill
+			: classid === sdk.quest.chest.HellForge
+				? sdk.items.quest.HellForgeHammer
+				: null;
 
 		let smashable = Game.getObject(classid);
 
@@ -315,10 +309,10 @@ const Quest = {
 
 		while (me.getItem(tool)) {
 			smashable.distance > 4 && Pather.moveToEx(smashable.x, smashable.y, {clearSettings: {allowClearing: false}});
-			Skill.cast(0, sdk.skills.hand.Right, smashable);
+			Skill.cast(sdk.skills.Attack, sdk.skills.hand.Right, smashable);
 			smashable.interact();
 
-			if (getTickCount() - tick > 30 * 1000) {
+			if (getTickCount() - tick > Time.seconds(30)) {
 				console.warn("Timed out trying to smash quest object");
 				
 				return false;
@@ -385,7 +379,7 @@ const Quest = {
 					this.npcAction("akara", [sdk.menu.Respec, sdk.menu.Ok]);
 				}
 
-				Misc.checkQuest(41, 0);
+				Misc.checkQuest(sdk.quest.id.Respec, sdk.quest.states.Completed);
 				delay(10 + me.ping * 2);
 
 				if (me.respec || (me.getStat(sdk.stats.NewSkills) > preSkillAmount && me.getStat(sdk.stats.StatPts) > preStatAmount)) {
@@ -409,7 +403,7 @@ const Quest = {
 		if (SetUp.finalBuild === "Socketmule") return false;
 
 		try {
-			if (!item || item.mode === 3) throw new Error("Couldn't find item");
+			if (!item || item.mode === sdk.itemmode.onGround) throw new Error("Couldn't find item");
 			if (!me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.ReqComplete)) throw new Error("Quest unavailable");
 			if (item.sockets > 0 || getBaseStat("items", item.classid, "gemsockets") === 0) throw new Error("Item cannot be socketed");
 			if (!Storage.Inventory.CanFit(item)) throw new Error("(useSocketQuest) No space to get item back");
@@ -421,7 +415,7 @@ const Quest = {
 				throw new Error("Failed to move item from stash to inventory");
 			}
 
-			let invo = me.findItems(-1, 0, 3);
+			let invo = me.findItems(-1, sdk.itemmode.inStorage, sdk.storage.Inventory);
 			let slot = item.bodylocation;
 			
 			// Take note of all the items in the invo minus the item to socket
@@ -431,7 +425,7 @@ const Quest = {
 				}
 			}
 
-			if (!this.npcAction("larzuk", 0x58DC)) throw new Error("Failed to interact with Lazruk");
+			if (!this.npcAction("larzuk", sdk.menu.AddSockets)) throw new Error("Failed to interact with Lazruk");
 			if (!getUIFlag(sdk.uiflags.SubmitItem)) throw new Error("Failed to open SubmitItem screen");
 			if (!item.toCursor()) throw new Error("Couldn't get item");
 
@@ -440,7 +434,7 @@ const Quest = {
 			Packet.questRefresh();
 
 			item = false; // Delete item reference, it's not longer valid anyway
-			let items = me.findItems(-1, 0, 3);
+			let items = me.findItems(-1, sdk.itemmode.inStorage, sdk.storage.Inventory);
 				
 			for (let i = 0; i < items.length; i++) {
 				if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {
@@ -485,9 +479,9 @@ const Quest = {
 		if (SetUp.finalBuild === "Imbuemule") return false;
 
 		try {
-			if (!item || item.mode === 3) throw new Error("Couldn't find item");
+			if (!item || item.mode === sdk.itemmode.onGround) throw new Error("Couldn't find item");
 			if (!Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete)) throw new Error("Quest unavailable");
-			if (item.sockets > 0 || item.quality > 3) throw new Error("Item cannot be imbued");
+			if (item.sockets > 0 || item.quality > sdk.itemquality.Superior) throw new Error("Item cannot be imbued");
 			if (!Storage.Inventory.CanFit(item)) throw new Error("(useImbueQuest) No space to get item back");
 			if (me.act !== 1 || !me.inTown) {
 				if (!Town.goToTown(1)) throw new Error("Failed to go to act 1");
@@ -497,7 +491,7 @@ const Quest = {
 				throw new Error("Failed to move item from stash to inventory");
 			}
 
-			let invo = me.findItems(-1, 0, 3);
+			let invo = me.findItems(-1, sdk.itemmode.inStorage, sdk.storage.Inventory);
 			let slot = item.bodylocation;
 			
 			// Take note of all the items in the invo minus the item to socket
@@ -516,7 +510,7 @@ const Quest = {
 			Packet.questRefresh();
 
 			item = false; // Delete item reference, it's not longer valid anyway
-			let items = me.findItems(-1, 0, 3);
+			let items = me.findItems(-1, sdk.itemmode.inStorage, sdk.storage.Inventory);
 				
 			for (let i = 0; i < items.length; i++) {
 				if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {
@@ -524,7 +518,7 @@ const Quest = {
 				}
 			}
 
-			if (!item || item.quality !== 6) {
+			if (!item || !item.rare) {
 				me.itemoncursor && Storage.Stash.MoveTo(item);
 				throw new Error("Failed to imbue item");
 			}

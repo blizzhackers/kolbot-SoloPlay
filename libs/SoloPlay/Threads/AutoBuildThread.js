@@ -22,10 +22,10 @@ let	debug = !!Config.AutoBuild.DebugMode, prevLevel	= me.charlvl;
 const usingFinalBuiild = !["Start", "Stepping", "Leveling"].includes(Config.AutoBuild.Template);
 const SPEND_POINTS 	= true;	// For testing, it actually allows skill and stat point spending.
 const STAT_ID_TO_NAME =	[
-	getLocaleString(4060),		// Strength
-	getLocaleString(4069),		// Energy
-	getLocaleString(4062),		// Dexterity
-	getLocaleString(4066)		// Vitality
+	getLocaleString(sdk.locale.text.Strength),
+	getLocaleString(sdk.locale.text.Energy),
+	getLocaleString(sdk.locale.text.Dexterity),
+	getLocaleString(sdk.locale.text.Vitality)
 ];
 
 // Will check if value exists in an Array
@@ -145,7 +145,7 @@ function getRequiredSkills (id) {
 
 		for (let i = 0; i < results.length; i++) {
 			let skill = results[i];
-			let skillInValidRange = (0 < skill && skill <= 280) && (![217, 218, 219, 220].contains(skill));
+			let skillInValidRange = (sdk.skills.Attack < skill && skill <= sdk.skills.PhoenixStrike) && (![217, 218, sdk.skills.IdentifyScroll, sdk.skills.TownPortal].contains(skill));
 			let hardPointsInSkill = me.getSkill(skill, sdk.skills.subindex.HardPoints);
 
 			if (skillInValidRange && !hardPointsInSkill) {

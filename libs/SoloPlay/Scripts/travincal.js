@@ -61,7 +61,7 @@ function travincal () {
 			console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to go back to Travincal and smash orb");
 		}
 
-		Quest.smashSomething(sdk.units.CompellingOrb); // smash orb
+		Quest.smashSomething(sdk.units.CompellingOrb);
 		Item.autoEquip(); // equip previous weapon
 		Town.townTasks();
 

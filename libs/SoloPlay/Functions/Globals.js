@@ -1487,7 +1487,7 @@ const SoloWants = {
 				}
 				// Make sure we keep a hel rune so we can unsocket temp socketables if needed
 				if (!SoloWants.needList.some(check => sdk.items.runes.Hel === check.classid)) {
-					let hel = me.getItemsEx(sdk.items.runes.Hel, 0);
+					let hel = me.getItemsEx(sdk.items.runes.Hel, sdk.itemmode.inStorage);
 					// we don't have any hel runes and its not already in our needList
 					if ((!hel || hel.length === 0)) {
 						SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});

@@ -39,33 +39,28 @@ function mephisto () {
 		Precast.doPrecast(true);
 	}
 
-	let oldPickRange = Config.PickRange;
-	let oldUseMerc = Config.MercWatch;
+	const oldPickRange = Config.PickRange;
+	const oldUseMerc = Config.MercWatch;
 
 	if (me.mephisto) {
+		// activate bridge
 		Pather.moveTo(17587, 8069);
 		delay(400);
 	}
 
 	Pather.moveTo(17563, 8072);
-
-	Config.MercWatch = oldUseMerc ? false : oldUseMerc;
-
 	Attack.killTarget("Mephisto");
 
-	Config.MercWatch = oldUseMerc;
 	// Reset to normal value
-	Config.PickRange = oldPickRange;
+	Config.MercWatch !== oldUseMerc && (Config.MercWatch = oldUseMerc);
+	Config.PickRange !== oldPickRange && (Config.PickRange = oldPickRange);
 	
 	Pickit.pickItems();
-
-	if (me.mephisto && !me.hell) {
-		this.killCouncil();
-	}
+	me.mephisto && !me.hell && this.killCouncil();
 
 	Pather.moveTo(17581, 8070);
 	delay(250 + me.ping * 2);
-	Pather.useUnit(sdk.unittype.Object, 342, sdk.areas.PandemoniumFortress);
+	Pather.useUnit(sdk.unittype.Object, sdk.units.RedPortalToAct4, sdk.areas.PandemoniumFortress);
 	Misc.poll(() => me.area === sdk.areas.PandemoniumFortress, 1000, 30);
 
 	while (!me.gameReady) {

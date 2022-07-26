@@ -116,14 +116,14 @@ function orgtorch() {
 	this.openPortal = function (mode) {
 		let portal,
 			item1 = mode === 0
-				? me.findItem(sdk.items.quest.KeyofTerror, 0)
-				: me.findItem(sdk.items.quest.DiablosHorn, 0),
+				? me.findItem(sdk.items.quest.KeyofTerror, sdk.itemmode.inStorage)
+				: me.findItem(sdk.items.quest.DiablosHorn, sdk.itemmode.inStorage),
 			item2 = mode === 0
-				? me.findItem(sdk.items.quest.KeyofHate, 0)
-				: me.findItem(sdk.items.quest.BaalsEye, 0),
+				? me.findItem(sdk.items.quest.KeyofHate, sdk.itemmode.inStorage)
+				: me.findItem(sdk.items.quest.BaalsEye, sdk.itemmode.inStorage),
 			item3 = mode === 0
-				? me.findItem(sdk.items.quest.KeyofDestruction, 0)
-				: me.findItem(sdk.items.quest.MephistosBrain, 0);
+				? me.findItem(sdk.items.quest.KeyofDestruction, sdk.itemmode.inStorage)
+				: me.findItem(sdk.items.quest.MephistosBrain, sdk.itemmode.inStorage);
 
 		Town.goToTown(5);
 		Town.doChores();
@@ -279,12 +279,12 @@ function orgtorch() {
 	this.checkTorch();
 
 	// Count keys and organs
-	tkeys = me.findItems(sdk.items.quest.KeyofTerror, 0).length || 0;
-	hkeys = me.findItems(sdk.items.quest.KeyofHate, 0).length || 0;
-	dkeys = me.findItems(sdk.items.quest.KeyofDestruction, 0).length || 0;
-	brains = me.findItems(sdk.items.quest.MephistosBrain, 0).length || 0;
-	eyes = me.findItems(sdk.items.quest.BaalsEye, 0).length || 0;
-	horns = me.findItems(sdk.items.quest.DiablosHorn, 0).length || 0;
+	tkeys = me.findItems(sdk.items.quest.KeyofTerror, sdk.itemmode.inStorage).length || 0;
+	hkeys = me.findItems(sdk.items.quest.KeyofHate, sdk.itemmode.inStorage).length || 0;
+	dkeys = me.findItems(sdk.items.quest.KeyofDestruction, sdk.itemmode.inStorage).length || 0;
+	brains = me.findItems(sdk.items.quest.MephistosBrain, sdk.itemmode.inStorage).length || 0;
+	eyes = me.findItems(sdk.items.quest.BaalsEye, sdk.itemmode.inStorage).length || 0;
+	horns = me.findItems(sdk.items.quest.DiablosHorn, sdk.itemmode.inStorage).length || 0;
 
 	// End the script if we don't have enough keys nor organs
 	if ((tkeys < 3 || hkeys < 3 || dkeys < 3) && (brains < 1 || eyes < 1 || horns < 1)) {
@@ -343,9 +343,9 @@ function orgtorch() {
 	}
 
 	// Count organs
-	brains = me.findItems(sdk.items.quest.MephistosBrain, 0).length || 0;
-	eyes = me.findItems(sdk.items.quest.BaalsEye, 0).length || 0;
-	horns = me.findItems(sdk.items.quest.DiablosHorn, 0).length || 0;
+	brains = me.findItems(sdk.items.quest.MephistosBrain, sdk.itemmode.inStorage).length || 0;
+	eyes = me.findItems(sdk.items.quest.BaalsEye, sdk.itemmode.inStorage).length || 0;
+	horns = me.findItems(sdk.items.quest.DiablosHorn, sdk.itemmode.inStorage).length || 0;
 
 	// We have enough organs, do Tristram
 	if (brains && eyes && horns) {

@@ -8,7 +8,7 @@
 function jail () {
 	Town.townTasks();
 	myPrint("starting jail");
-	let levels = [sdk.areas.JailLvl1, sdk.areas.JailLvl2, sdk.areas.JailLvl3];
+	const levels = [sdk.areas.JailLvl1, sdk.areas.JailLvl2, sdk.areas.JailLvl3];
 
 	Pather.checkWP(sdk.areas.JailLvl1, true) ? Pather.useWaypoint(sdk.areas.JailLvl1) : Pather.getWP(sdk.areas.JailLvl1);
 

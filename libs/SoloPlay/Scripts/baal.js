@@ -12,7 +12,7 @@ function baal () {
 	let decoyTick = 0;
 	let decoyDuration = (me.amazon ? Skill.getDuration(sdk.skills.Decoy) : 0);
 
-	let preattack = function () {
+	const preattack = function () {
 		switch (me.classid) {
 		case sdk.charclass.Amazon:
 			if (Skill.canUse(sdk.skills.Decoy)) {
@@ -68,7 +68,7 @@ function baal () {
 		return false;
 	};
 
-	let clearWaves = function () {
+	const clearWaves = function () {
 		let boss;
 		let tick = getTickCount();
 
@@ -156,7 +156,7 @@ function baal () {
 		return true;
 	};
 
-	let unSafeCheck = function (soulAmount, totalAmount) {
+	const unSafeCheck = function (soulAmount, totalAmount) {
 		let soul = Game.getMonster(sdk.monsters.BurningSoul1);
 		let count = 0;
 
@@ -185,7 +185,7 @@ function baal () {
 		return count > totalAmount;
 	};
 
-	let canClearThrone = function () {
+	const canClearThrone = function () {
 		Pather.moveTo(15094, 5029);
 		let monList = getUnits(sdk.unittype.Monster).filter(i => i.attackable);
 		let canAttack = [], cantAttack = [];

@@ -621,7 +621,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 			}
 
 			temp = this.desc.split("\n");
-			regex = new RegExp("\\+\\d+ " + getLocaleString(3481).replace(/^\s+|\s+$/g, ""));
+			regex = new RegExp("\\+\\d+ " + getLocaleString(sdk.locale.text.Defense).replace(/^\s+|\s+$/g, ""));
 
 			for (i = 0; i < temp.length; i += 1) {
 				if (temp[i].match(regex, "i")) {
@@ -725,7 +725,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 			temp = !!this.desc ? this.desc.split("\n") : "";
 
 			for (i = 0; i < temp.length; i += 1) {
-				if (temp[i].match(getLocaleString(3520).replace(/^\s+|\s+$/g, ""), "i")) {
+				if (temp[i].match(getLocaleString(sdk.locale.text.EnhancedDefense).replace(/^\s+|\s+$/g, ""), "i")) {
 					return parseInt(temp[i].replace(/ÿc[0-9!"+<;.*]/, ""), 10);
 				}
 			}
@@ -741,7 +741,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 			temp = !!this.desc ? this.desc.split("\n") : "";
 
 			for (i = 0; i < temp.length; i += 1) {
-				if (temp[i].match(getLocaleString(10038).replace(/^\s+|\s+$/g, ""), "i")) {
+				if (temp[i].match(getLocaleString(sdk.locale.text.EnhancedDamage).replace(/^\s+|\s+$/g, ""), "i")) {
 					return parseInt(temp[i].replace(/ÿc[0-9!"+<;.*]/, ""), 10);
 				}
 			}

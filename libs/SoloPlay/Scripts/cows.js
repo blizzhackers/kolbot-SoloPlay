@@ -31,7 +31,7 @@ function cows () {
 
 		if (me.area === sdk.areas.Tristram) {
 			Pather.moveTo(25048, 5177);
-			Quest.collectItem(sdk.items.quest.WirtsLeg, 268);
+			Quest.collectItem(sdk.items.quest.WirtsLeg, sdk.quest.chest.Wirt);
 			Pickit.pickItems();
 			Town.goToTown();
 		} else {
@@ -45,7 +45,7 @@ function cows () {
 		me.area !== sdk.areas.RogueEncampment && Town.goToTown(1);
 
 		let npc, tome, scroll;
-		let tpTome = me.findItems(sdk.items.TomeofTownPortal, 0, 3);
+		let tpTome = me.findItems(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory);
 
 		try {
 			if (tpTome.length < 2) {
@@ -56,12 +56,12 @@ function cows () {
 
 				if (!!tome && tome.getItemCost(sdk.items.cost.ToBuy) < me.gold && tome.buy()) {
 					delay(500);
-					tpTome = me.findItems(sdk.items.TomeofTownPortal, 0, 3);
-					scroll = npc.getItem(529);
+					tpTome = me.findItems(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory);
+					scroll = npc.getItem(sdk.items.ScrollofTownPortal);
 					let scrollCost = scroll.getItemCost(sdk.items.cost.ToBuy);
 					tpTome.forEach(function (book) {
 						while (book.getStat(sdk.stats.Quantity) < 20) {
-							scroll = npc.getItem(529);
+							scroll = npc.getItem(sdk.items.ScrollofTownPortal);
 							
 							if (!!scroll && scrollCost < me.gold) {
 								scroll.buy(true);
@@ -145,7 +145,7 @@ function cows () {
 				kingTick = getTickCount();
 				king = Game.getMonster(getLocaleString(sdk.locale.monsters.TheCowKing));
 				// only get the preset unit once
-				!kingPreset && (kingPreset = getPresetUnit(me.area, sdk.unittype.Monster, sdk.monsters.preset.TheCowKing));
+				!kingPreset && (kingPreset = Game.getPresetMonster(me.area, sdk.monsters.preset.TheCowKing));
 
 				if (king && kingPreset) {
 					if (getDistance(me.x, me.y, getRoom(kingPreset.roomx * 5 + kingPreset.x), getRoom(kingPreset.roomy * 5 + kingPreset.y)) <= 25) {

@@ -6,7 +6,7 @@
 */
 
 function den () {
-	let customGoToTown = function () {
+	const customGoToTown = function () {
 		if (me.inTown) return;
 		if (!Town.canTpToTown()) {
 			Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.ColdPlains], true);
@@ -22,6 +22,7 @@ function den () {
 	if (!Pather.checkWP(sdk.areas.ColdPlains) || me.charlvl < 4) {
 		Pather.moveToExit(sdk.areas.BloodMoor, true);
 
+		// todo - write walking clearLevel function
 		// make sure we are ready for cold plains
 		let clearUntil = me.charlvl === 1 ? /*just started*/ 2 : 3; // if this is our second attempt, then bloor moor should be repopulated with mobs
 		me.charlvl < clearUntil && Attack.clearLevelUntilLevel(clearUntil);

@@ -16,20 +16,20 @@ Developer.debugging.pathing && (PathDebug.enableHooks = true);
 NodeAction.killMonsters = function (arg = {}) {
 	if (Attack.stopClear) return;
 
-	let canTele = Pather.canTeleport();
-	let myArea = me.area;
-	let annoyingArea = [
+	const canTele = Pather.canTeleport();
+	const myArea = me.area;
+	const annoyingArea = [
 		sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3, sdk.areas.ArcaneSanctuary
 	];
 	// I don't think this is even needed anymore, pretty sure I fixed wall hugging. todo - check it
-	let pallyAnnoyingAreas = [
+	const pallyAnnoyingAreas = [
 		sdk.areas.DenofEvil, sdk.areas.CaveLvl1, sdk.areas.UndergroundPassageLvl1, sdk.areas.HoleLvl1, sdk.areas.PitLvl1, sdk.areas.CaveLvl2,
 		sdk.areas.UndergroundPassageLvl2, sdk.areas.PitLvl2, sdk.areas.HoleLvl2, sdk.areas.DisusedFane, sdk.areas.RuinedTemple,
 		sdk.areas.ForgottenReliquary, sdk.areas.ForgottenTemple, sdk.areas.RuinedFane, sdk.areas.DisusedReliquary
 	];
 	// sanityCheck from isid0re - added paladin specific areas - theBGuy - a mess.. sigh
-	let sanityCheck = (annoyingArea.includes(myArea) || (me.paladin && pallyAnnoyingAreas.includes(myArea)));
-	let settings = Object.assign({}, {
+	const sanityCheck = (annoyingArea.includes(myArea) || (me.paladin && pallyAnnoyingAreas.includes(myArea)));
+	const settings = Object.assign({}, {
 		clearPath: false,
 		specType: 0,
 		range: 8,
@@ -68,7 +68,7 @@ NodeAction.killMonsters = function (arg = {}) {
 };
 
 NodeAction.popChests = function () {
-	let range = Pather.useTeleport() ? 25 : 15;
+	const range = Pather.useTeleport() ? 25 : 15;
 	Config.OpenChests.Enabled && Misc.openChests(range);
 	Misc.useWell(range);
 };
@@ -277,7 +277,7 @@ Pather.changeAct = function () {
 Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 	// Abort if dead
 	if (me.dead) return false;
-	let settings = Object.assign({}, {
+	const settings = Object.assign({}, {
 		allowTeleport: true,
 		clearSettings: {
 			clearPath: false,
@@ -565,7 +565,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 Pather.moveToLoc = function (target, givenSettings) {
 	// Abort if dead
 	if (me.dead || !target) return false;
-	let settings = Object.assign({}, {
+	const settings = Object.assign({}, {
 		allowTeleport: true,
 		allowClearing: true,
 		allowTown: true,

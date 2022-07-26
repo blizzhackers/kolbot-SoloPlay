@@ -23,9 +23,9 @@ function eye () {
 
 	Town.doChores(null, {antidote: me.poisonRes < 75});
 	Pather.usePortal(sdk.areas.SpiderCavern, me.name);
-	Pather.moveToPreset(me.area, sdk.unittype.Object, 407);
+	Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.KhalimsEyeChest);
 	Attack.clear(0x7);
-	Quest.collectItem(sdk.items.quest.KhalimsEye, 407);
+	Quest.collectItem(sdk.items.quest.KhalimsEye, sdk.quest.chest.KhalimsEyeChest);
 	Quest.stashItem(sdk.items.quest.KhalimsEye);
 
 	return me.getItem(sdk.items.quest.KhalimsEye);

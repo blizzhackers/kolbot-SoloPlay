@@ -158,7 +158,7 @@ Skill.cast = function (skillId, hand, x, y, item) {
 };
 
 Skill.switchCast = function (skillId, givenSettings = {}) {
-	let settings = Object.assign({}, {
+	const settings = Object.assign({}, {
 		hand: undefined,
 		x: undefined,
 		y: undefined,

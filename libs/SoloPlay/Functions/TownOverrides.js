@@ -485,11 +485,11 @@ Town.cainID = function (force = false) {
 				if (tome) {
 					this.identifyItem(item, tome);
 				} else {
-					scroll = npc.getItem(530);
+					let scroll = npc.getItem(sdk.items.ScrollofIdentify);
 
 					if (scroll) {
 						if (!Storage.Inventory.CanFit(scroll)) {
-							tpTome = me.findItem(518, 0, 3);
+							tpTome = me.findItem(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory);
 
 							if (tpTome) {
 								tpTome.sell();
@@ -504,7 +504,7 @@ Town.cainID = function (force = false) {
 						}
 					}
 
-					scroll = me.findItem(530, 0, 3);
+					scroll = me.findItem(sdk.items.ScrollofIdentify, sdk.itemmode.inStorage, sdk.storage.Inventory);
 
 					if (!scroll) {
 						continue;
@@ -605,7 +605,7 @@ Town.identify = function () {
 	let npc = this.initNPC("Shop", "identify");
 	if (!npc) return false;
 
-	let tome = me.findItem(sdk.items.TomeofIdentify, 0, 3);
+	let tome = me.findItem(sdk.items.TomeofIdentify, sdk.itemmode.inStorage, sdk.storage.Inventory);
 	tome && tome.getStat(sdk.stats.Quantity) < list.length && this.fillTome(sdk.items.TomeofIdentify);
 
 	MainLoop:
@@ -634,11 +634,11 @@ Town.identify = function () {
 				if (idTool) {
 					this.identifyItem(item, idTool);
 				} else {
-					scroll = npc.getItem(530);
+					scroll = npc.getItem(sdk.items.ScrollofIdentify);
 
 					if (scroll) {
 						if (!Storage.Inventory.CanFit(scroll)) {
-							let tpTome = me.findItem(518, 0, 3);
+							let tpTome = me.findItem(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory);
 
 							if (tpTome) {
 								tpTome.sell();
@@ -653,7 +653,7 @@ Town.identify = function () {
 						}
 					}
 
-					scroll = me.findItem(530, 0, 3);
+					scroll = me.findItem(sdk.items.ScrollofIdentify, sdk.itemmode.inStorage, sdk.storage.Inventory);
 
 					if (!scroll) {
 						break MainLoop;
@@ -726,14 +726,14 @@ Town.identify = function () {
 		}
 	}
 
-	this.fillTome(518); // Check for TP tome in case it got sold for ID scrolls
+	this.fillTome(sdk.items.TomeofTownPortal); // Check for TP tome in case it got sold for ID scrolls
 
 	return true;
 };
 
 // credit isid0re
 Town.buyBook = function () {
-	if (me.findItem(sdk.items.TomeofTownPortal, 0, 3)) return true;
+	if (me.findItem(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory)) return true;
 	if (me.gold < 500) return false;
 
 	let npc = this.initNPC("Shop", "buyTpTome");
@@ -742,7 +742,7 @@ Town.buyBook = function () {
 	delay(500);
 
 	let tpBook = npc.getItem(sdk.items.TomeofTownPortal);
-	let tpScroll = npc.getItem(529);
+	let tpScroll = npc.getItem(sdk.items.ScrollofTownPortal);
 
 	if (tpBook && me.gold >= tpBook.getItemCost(sdk.items.cost.ToBuy) && Storage.Inventory.CanFit(tpBook)) {
 		try {
@@ -899,7 +899,7 @@ Town.gamble = function () {
 	let npc = this.initNPC("Gamble", "gamble");
 	if (!npc) return false;
 
-	let items = me.findItems(-1, 0, 3);
+	let items = me.findItems(-1, sdk.itemmode.inStorage, sdk.storage.Inventory);
 
 	while (items && items.length > 0) {
 		list.push(items.shift().gid);
@@ -2112,7 +2112,7 @@ Town.worseBaseThanStashed = function (base = undefined) {
 };
 
 Town.clearJunk = function () {
-	let junkItems = me.findItems(-1, 0);
+	let junkItems = me.findItems(-1, sdk.itemmode.inStorage);
 	let totalJunk = [];
 	let junkToSell = [];
 	let junkToDrop = [];
