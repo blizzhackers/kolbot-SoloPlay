@@ -8,7 +8,10 @@
 function tombs () {
 	myPrint("starting tombs");
 
-	let tombID = [sdk.areas.TalRashasTomb1, sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb3, sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7];
+	const tombID = [
+		sdk.areas.TalRashasTomb1, sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb3,
+		sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7
+	];
 	Town.townTasks();
 
 	for (let number = 0; number < tombID.length; number++) {
@@ -17,8 +20,9 @@ function tombs () {
 
 		if (Pather.moveToExit(tombID[number], true, true)) {
 			me.overhead("Tomb #" + (number + 1));
+			const duryTomb = getRoom().correcttomb === me.area;
 
-			let obj = getRoom().correcttomb === me.area ? Game.getPresetObject(me.area, sdk.units.HoradricStaffHolder) : Game.getPresetObject(me.area, sdk.units.SmallSparklyChest);
+			let obj = Game.getPresetObject(me.area, (duryTomb ? sdk.units.SmallSparklyChest : sdk.units.HoradricStaffHolder));
 			!!obj && Pather.moveToUnit(obj);
 
 			Attack.clear(50);

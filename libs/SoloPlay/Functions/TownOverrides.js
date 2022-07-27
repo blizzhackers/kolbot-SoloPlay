@@ -241,7 +241,7 @@ Town.townTasks = function (buyPots = {}) {
 		Skill.cast(sdk.skills.BurstofSpeed, sdk.skills.hand.Right);
 	}
 
-	let preAct = me.act;
+	const preAct = me.act;
 
 	me.switchWeapons(Attack.getPrimarySlot());
 	this.unfinishedQuests();
@@ -300,8 +300,8 @@ Town.doChores = function (repair = false, buyPots = {}) {
 
 	delay(250);
 
-	console.debug("ÿc8Start ÿc0:: ÿc8TownChores");
-	let tick = getTickCount();
+	console.info(true);
+	console.time("doChores");
 
 	!me.inTown && Town.goToTown();
 
@@ -310,7 +310,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 		Skill.cast(sdk.skills.BurstofSpeed, sdk.skills.hand.Right);
 	}
 
-	let preAct = me.act;
+	const preAct = me.act;
 
 	me.switchWeapons(Attack.getPrimarySlot());
 
@@ -357,7 +357,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	}
 
 	delay(300);
-	console.debug("ÿc8End ÿc0:: ÿc8TownChoresÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick));
+	console.info(false, null, "doChores");
 	Town.lastInteractedNPC.reset(); // unassign
 
 	return true;
@@ -538,7 +538,7 @@ Town.fieldID = function () {
 		let result = Pickit.checkItem(item);
 
 		// Force ID for unid items matching autoEquip criteria
-		if ([1, 2].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
+		if ([Pickit.Result.WANTED, Pickit.Result.CUBING].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
 			result.result = -1;
 		}
 
@@ -559,17 +559,17 @@ Town.fieldID = function () {
 
 				break;
 			case Pickit.Result.CUBING:
-				Misc.itemLogger("Field Kept", item, "Cubing-Town");
+				Misc.itemLogger("Field Kept", item, "Cubing");
 				Cubing.update();
 
 				break;
 			case Pickit.Result.CRAFTING:
-				Misc.itemLogger("Field Kept", item, "CraftSys-Town");
+				Misc.itemLogger("Field Kept", item, "CraftSys");
 				CraftingSystem.update(item);
 
 				break;
 			case Pickit.Result.SOLOWANTS:
-				Misc.itemLogger("Field Kept", item, "SoloWants-Town");
+				Misc.itemLogger("Field Kept", item, "SoloWants");
 				SoloWants.update(item);
 
 				break;

@@ -507,7 +507,7 @@ const SoloEvents = {
 				let wave = [62, 105, 557, 558, 571].indexOf(waveMonster);
 				console.debug("Wave # " + wave);
 				if (SoloEvents.skippedWaves.includes(wave)) return;
-				let waveBoss = {
+				const waveBoss = {
 					COLENZO: 0,
 					ACHMEL: 1,
 					BARTUC: 2,

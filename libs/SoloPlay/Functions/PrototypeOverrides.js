@@ -120,33 +120,33 @@ Object.defineProperties(Unit.prototype, {
 	},
 	rawStrength: {
 		get: function () {
-			let lvl = this.getStat(sdk.stats.Level);
-			let rawBonus = function (i) { return i.getStat(sdk.stats.Strength); };
-			let perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelStrength) / 8; };
-			let bonus = ~~(this.getItemsEx()
-				.filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
-				.map(function (i) { return rawBonus(i) + perLvlBonus(i); })
-				.reduce(function (acc, v) { return acc + v; }, 0));
+			const lvl = this.getStat(sdk.stats.Level);
+			const rawBonus = (i) => i.getStat(sdk.stats.Strength);
+			const perLvlBonus = (i) => lvl * i.getStat(sdk.stats.PerLevelStrength) / 8;
+			const bonus = ~~(this.getItemsEx()
+				.filter((i) => i.isEquipped || i.isEquippedCharm)
+				.map((i) => rawBonus(i) + perLvlBonus(i))
+				.reduce((acc, v) => acc + v, 0));
 			return this.getStat(sdk.stats.Strength) - bonus;
 		},
 	},
 	rawDexterity: {
 		get: function () {
-			let lvl = this.getStat(sdk.stats.Level);
-			let rawBonus = function (i) { return i.getStat(sdk.stats.Dexterity); };
-			let perLvlBonus = function (i) { return lvl * i.getStat(sdk.stats.PerLevelDexterity) / 8; };
-			let bonus = ~~(this.getItemsEx()
-				.filter(function (i) { return i.isEquipped || i.isEquippedCharm; })
-				.map(function (i) { return rawBonus(i) + perLvlBonus(i); })
-				.reduce(function (acc, v) { return acc + v; }, 0));
+			const lvl = this.getStat(sdk.stats.Level);
+			const rawBonus = (i) => i.getStat(sdk.stats.Dexterity);
+			const perLvlBonus = (i) => lvl * i.getStat(sdk.stats.PerLevelDexterity) / 8;
+			const bonus = ~~(this.getItemsEx()
+				.filter((i) => i.isEquipped || i.isEquippedCharm)
+				.map((i) => rawBonus(i) + perLvlBonus(i))
+				.reduce((acc, v) => acc + v, 0));
 			return this.getStat(sdk.stats.Dexterity) - bonus;
 		},
 	},
 	upgradedStrReq: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
-			let code, id, baseReq, finalReq, ethereal = this.getFlag(sdk.items.flags.Ethereal),
-				reqModifier = this.getStat(sdk.stats.ReqPercent);
+			let code, id, baseReq, finalReq, ethereal = this.getFlag(sdk.items.flags.Ethereal);
+			let reqModifier = this.getStat(sdk.stats.ReqPercent);
 
 			switch (this.itemclass) {
 			case sdk.itemclass.Normal:
@@ -164,15 +164,15 @@ Object.defineProperties(Unit.prototype, {
 			id = NTIPAliasClassID[code];
 			baseReq = getBaseStat("items", id, "reqstr");
 			finalReq = baseReq + Math.floor(baseReq * reqModifier / 100);
-			if (ethereal) { finalReq -= 10; }
+			ethereal && (finalReq -= 10);
 			return Math.max(finalReq, 0);
 		}
 	},
 	upgradedDexReq: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
-			let code, id, baseReq, finalReq, ethereal = this.getFlag(sdk.items.flags.Ethereal),
-				reqModifier = this.getStat(sdk.stats.ReqPercent);
+			let code, id, baseReq, finalReq, ethereal = this.getFlag(sdk.items.flags.Ethereal);
+			let reqModifier = this.getStat(sdk.stats.ReqPercent);
 
 			switch (this.itemclass) {
 			case sdk.itemclass.Normal:
@@ -190,7 +190,7 @@ Object.defineProperties(Unit.prototype, {
 			id = NTIPAliasClassID[code];
 			baseReq = getBaseStat("items", id, "reqdex");
 			finalReq = baseReq + Math.floor(baseReq * reqModifier / 100);
-			if (ethereal) { finalReq -= 10; }
+			ethereal && (finalReq -= 10);
 			return Math.max(finalReq, 0);
 		}
 	},
@@ -238,9 +238,8 @@ Object.defineProperties(me, {
 		get: function () {
 			// only classes that can duel wield
 			if (!me.assassin && !me.barbarian) return false;
-			let items = me.getItemsEx()
-				.filter((item) => item.isEquipped && [4, 5].includes(item.bodylocation));
-			return !!items.length && items.length >= 2 && items.every((item) => ![2, 69, 70].includes(item.itemType) && !getBaseStat("items", item.classid, "block"));
+			let items = me.getItemsEx().filter((item) => item.isEquipped && item.isOnMain);
+			return !!items.length && items.length >= 2 && items.every((item) => !item.isShield && !getBaseStat("items", item.classid, "block"));
 		}
 	},
 	// for visual purposes really, return res with cap
@@ -338,12 +337,10 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 		chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
 
 		// Check if item with charges is equipped on the switch spot
-		if (me.weaponswitch === 0 && chargedItem.isOnSwap) {
-			me.switchWeapons(1);
-		}
+		me.weaponswitch === 0 && chargedItem.isOnSwap && me.switchWeapons(1);
 
 		return chargedItem.castChargedSkillEx.apply(chargedItem, args);
-	} else if (this.type === 4) {
+	} else if (this.type === sdk.unittype.Item) {
 		charge = this.getStat(-2)[sdk.stats.ChargedSkill]; // WARNING. Somehow this gives duplicates
 
 		if (!charge) {
@@ -366,7 +363,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 		}
 
 		if (charge) {
-			let usePacket = ([
+			const usePacket = ([
 				sdk.skills.Valkyrie, sdk.skills.Decoy, sdk.skills.RaiseSkeleton, sdk.skills.ClayGolem, sdk.skills.RaiseSkeletalMage, sdk.skills.BloodGolem, sdk.skills.Shout,
 				sdk.skills.IronGolem, sdk.skills.Revive, sdk.skills.Werewolf, sdk.skills.Werebear, sdk.skills.OakSage, sdk.skills.SpiritWolf, sdk.skills.PoisonCreeper, sdk.skills.BattleOrders,
 				sdk.skills.SummonDireWolf, sdk.skills.Grizzly, sdk.skills.HeartofWolverine, sdk.skills.SpiritofBarbs, sdk.skills.ShadowMaster, sdk.skills.ShadowWarrior, sdk.skills.BattleCommand,
@@ -470,10 +467,15 @@ Unit.prototype.getStatEx = function (id, subid) {
 	let i, temp, rval, regex;
 
 	switch (id) {
-	case 555: //calculates all res, doesnt exists trough
+	case sdk.stats.AllRes: //calculates all res, doesnt exists trough
 	{ // Block scope due to the variable declaration
 		// Get all res
-		let allres = [this.getStatEx(sdk.stats.FireResist), this.getStatEx(sdk.stats.LightResist), this.getStatEx(sdk.stats.ColdResist), this.getStatEx(sdk.stats.PoisonResist)];
+		let allres = [
+			this.getStatEx(sdk.stats.FireResist),
+			this.getStatEx(sdk.stats.ColdResist),
+			this.getStatEx(sdk.stats.LightningResist),
+			this.getStatEx(sdk.stats.PoisonResist)
+		];
 
 		// What is the minimum of the 4?
 		let min = Math.min.apply(null, allres);
@@ -486,8 +488,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 
 		return fire === cold && cold === light && light === psn ? min : 0;
 	}
-
-	case 9: // Max mana
+	case sdk.stats.MaxMana:
 		rval = this.getStat(sdk.stats.MaxMana);
 
 		if (rval > 446) {
@@ -495,85 +496,85 @@ Unit.prototype.getStatEx = function (id, subid) {
 		}
 
 		return rval;
-	case 20: // toblock
+	case sdk.stats.ToBlock:
 		switch (this.classid) {
-		case 328: // buckler
+		case sdk.items.Buckler:
 			return this.getStat(sdk.stats.ToBlock);
-		case 413: // preserved
-		case 483: // mummified
-		case 503: // minion
+		case sdk.items.PreservedHead:
+		case sdk.items.MummifiedTrophy:
+		case sdk.items.MinionSkull:
 			return this.getStat(sdk.stats.ToBlock) - 3;
-		case 329: // small
-		case 414: // zombie
-		case 484: // fetish
-		case 504: // hellspawn
+		case sdk.items.SmallShield:
+		case sdk.items.ZombieHead:
+		case sdk.items.FetishTrophy:
+		case sdk.items.HellspawnSkull:
 			return this.getStat(sdk.stats.ToBlock) - 5;
-		case 331: // kite
-		case 415: // unraveller
-		case 485: // sexton
-		case 505: // overseer
+		case sdk.items.KiteShield:
+		case sdk.items.UnravellerHead:
+		case sdk.items.SextonTrophy:
+		case sdk.items.OverseerSkull:
 			return this.getStat(sdk.stats.ToBlock) - 8;
-		case 351: // spiked
-		case 374: // deefender
-		case 416: // gargoyle
-		case 486: // cantor
-		case 506: // succubus
-		case 408: // targe
-		case 478: // akaran t
+		case sdk.items.SpikedShield:
+		case sdk.items.Defender:
+		case sdk.items.GargoyleHead:
+		case sdk.items.CantorTrophy:
+		case sdk.items.SuccubusSkull:
+		case sdk.items.Targe:
+		case sdk.items.AkaranTarge:
 			return this.getStat(sdk.stats.ToBlock) - 10;
-		case 330: // large
-		case 375: // round
-		case 417: // demon
-		case 487: // hierophant
-		case 507: // bloodlord
+		case sdk.items.LargeShield:
+		case sdk.items.RoundShield:
+		case sdk.items.DemonHead:
+		case sdk.items.HierophantTrophy:
+		case sdk.items.BloodlordSkull:
 			return this.getStat(sdk.stats.ToBlock) - 12;
-		case 376: // scutum
+		case sdk.items.Scutum:
 			return this.getStat(sdk.stats.ToBlock) - 14;
-		case 409: // rondache
-		case 479: // akaran r
+		case sdk.items.Rondache:
+		case sdk.items.AkaranRondache:
 			return this.getStat(sdk.stats.ToBlock) - 15;
-		case 333: // goth
-		case 379: // ancient
+		case sdk.items.GothicShield:
+		case sdk.items.AncientShield:
 			return this.getStat(sdk.stats.ToBlock) - 16;
-		case 397: // barbed
+		case sdk.items.BarbedShield:
 			return this.getStat(sdk.stats.ToBlock) - 17;
-		case 377: // dragon
+		case sdk.items.DragonShield:
 			return this.getStat(sdk.stats.ToBlock) - 18;
-		case 502: // vortex
+		case sdk.items.VortexShield:
 			return this.getStat(sdk.stats.ToBlock) - 19;
-		case 350: // bone
-		case 396: // grim
-		case 445: // luna
-		case 467: // blade barr
-		case 466: // troll
-		case 410: // heraldic
-		case 480: // protector
+		case sdk.items.BoneShield:
+		case sdk.items.GrimShield:
+		case sdk.items.Luna:
+		case sdk.items.BladeBarrier:
+		case sdk.items.TrollNest:
+		case sdk.items.HeraldicShield:
+		case sdk.items.ProtectorShield:
 			return this.getStat(sdk.stats.ToBlock) - 20;
-		case 444: // heater
-		case 447: // monarch
-		case 411: // aerin
-		case 481: // gilded
-		case 501: // zakarum
+		case sdk.items.Heater:
+		case sdk.items.Monarch:
+		case sdk.items.AerinShield:
+		case sdk.items.GildedShield:
+		case sdk.items.ZakarumShield:
 			return this.getStat(sdk.stats.ToBlock) - 22;
-		case 332: // tower
-		case 378: // pavise
-		case 446: // hyperion
-		case 448: // aegis
-		case 449: // ward
+		case sdk.items.TowerShield:
+		case sdk.items.Pavise:
+		case sdk.items.Hyperion:
+		case sdk.items.Aegis:
+		case sdk.items.Ward:
 			return this.getStat(sdk.stats.ToBlock) - 24;
-		case 412: // crown
-		case 482: // royal
-		case 500: // kurast
+		case sdk.items.CrownShield:
+		case sdk.items.RoyalShield:
+		case sdk.items.KurastShield:
 			return this.getStat(sdk.stats.ToBlock) - 25;
-		case 499: // sacred r
+		case sdk.items.SacredRondache:
 			return this.getStat(sdk.stats.ToBlock) - 28;
-		case 498: // sacred t
+		case sdk.items.SacredTarge:
 			return this.getStat(sdk.stats.ToBlock) - 30;
 		}
 
 		break;
-	case 21: // plusmindamage
-	case 22: // plusmaxdamage
+	case sdk.stats.MinDamage:
+	case sdk.stats.MaxDamage:
 		if (subid === 1) {
 			temp = this.getStat(-1);
 			rval = 0;
@@ -601,31 +602,31 @@ Unit.prototype.getStatEx = function (id, subid) {
 		}
 
 		break;
-	case 31: // plusdefense
+	case sdk.stats.Defense:
 		if (subid === 0) {
 			if ([0, 1].indexOf(this.mode) < 0) {
 				break;
 			}
 
 			switch (this.itemType) {
-			case 58: // jewel
-			case 82: // charms
-			case 83:
-			case 84:
+			case sdk.itemtype.Jewel:
+			case sdk.itemtype.SmallCharm:
+			case sdk.itemtype.LargeCharm:
+			case sdk.itemtype.GrandCharm:
 				// defense is the same as plusdefense for these items
 				return this.getStat(sdk.stats.Defense);
 			}
 
-			if (!this.desc) {
-				this.desc = this.description;
-			}
+			!this.desc && (this.desc = this.description);
 
-			temp = this.desc.split("\n");
-			regex = new RegExp("\\+\\d+ " + getLocaleString(sdk.locale.text.Defense).replace(/^\s+|\s+$/g, ""));
+			if (this.desc) {
+				temp = this.desc.split("\n");
+				regex = new RegExp("\\+\\d+ " + getLocaleString(sdk.locale.text.Defense).replace(/^\s+|\s+$/g, ""));
 
-			for (i = 0; i < temp.length; i += 1) {
-				if (temp[i].match(regex, "i")) {
-					return parseInt(temp[i].replace(/ÿc[0-9!"+<;.*]/, ""), 10);
+				for (let i = 0; i < temp.length; i += 1) {
+					if (temp[i].match(regex, "i")) {
+						return parseInt(temp[i].replace(/ÿc[0-9!"+<;.*]/, ""), 10);
+					}
 				}
 			}
 
@@ -633,17 +634,18 @@ Unit.prototype.getStatEx = function (id, subid) {
 		}
 
 		break;
-	case 57:
+	case sdk.stats.PoisonMinDamage:
 		if (subid === 1) {
 			return Math.round(this.getStat(sdk.stats.PoisonMinDamage) * this.getStat(sdk.stats.PoisonLength) / 256);
 		}
 
 		break;
-	case 83: // itemaddclassskills
+	case sdk.stats.AddClassSkills:
 		if (subid === undefined) {
-			for (i = 0; i < 7; i += 1) {
-				if (this.getStat(83, i)) {
-					return this.getStat(83, i);
+			for (let i = 0; i < 7; i += 1) {
+				let cSkill = this.getStat(sdk.stats.AddClassSkills, i);
+				if (cSkill) {
+					return cSkill;
 				}
 			}
 
@@ -651,13 +653,14 @@ Unit.prototype.getStatEx = function (id, subid) {
 		}
 
 		break;
-	case 188: // itemaddskilltab
+	case sdk.stats.AddSkillTab:
 		if (subid === undefined) {
 			temp = [0, 1, 2, 8, 9, 10, 16, 17, 18, 24, 25, 26, 32, 33, 34, 40, 41, 42, 48, 49, 50];
 
-			for (i = 0; i < temp.length; i += 1) {
-				if (this.getStat(188, temp[i])) {
-					return this.getStat(188, temp[i]);
+			for (let i = 0; i < temp.length; i += 1) {
+				let sTab = this.getStat(sdk.stats.AddSkillTab, temp[i]);
+				if (sTab) {
+					return sTab;
 				}
 			}
 
@@ -665,20 +668,21 @@ Unit.prototype.getStatEx = function (id, subid) {
 		}
 
 		break;
-	case 195: // itemskillonattack
-	case 196: // itemskillonkill
-	case 197: // itemskillondeath
-	case 198: // itemskillonhit
-	case 199: // itemskillonlevelup
-	case 201: // itemskillongethit
-	case 204: // itemchargedskill
+	case sdk.stats.SkillOnAttack:
+	case sdk.stats.SkillOnKill:
+	case sdk.stats.SkillOnDeath:
+	case sdk.stats.SkillOnStrike:
+	case sdk.stats.SkillOnLevelUp:
+	case sdk.stats.SkillWhenStruck:
+	case sdk.stats.ChargedSkill:
 		if (subid === 1) {
 			temp = this.getStat(-2);
 
 			if (temp.hasOwnProperty(id)) {
 				if (temp[id] instanceof Array) {
 					for (i = 0; i < temp[id].length; i += 1) {
-						if (temp[id][i] !== undefined && temp[id][i].skill !== undefined) { // fix reference to undefined property temp[id][i].skill.
+						// fix reference to undefined property temp[id][i].skill.
+						if (temp[id][i] !== undefined && temp[id][i].skill !== undefined) {
 							return temp[id][i].skill;
 						}
 					}
@@ -709,24 +713,26 @@ Unit.prototype.getStatEx = function (id, subid) {
 		}
 
 		break;
-	case 216: // itemhpperlevel (for example Fortitude with hp per lvl can be defined now with 1.5)
+	case sdk.stats.PerLevelHp: // (for example Fortitude with hp per lvl can be defined now with 1.5)
 		return this.getStat(sdk.stats.PerLevelHp) / 2048;
 	}
 
-	if (this.getFlag(sdk.items.flags.Runeword)) { // Runeword
+	if (this.getFlag(sdk.items.flags.Runeword)) {
 		switch (id) {
-		case 16: // enhanceddefense
+		case sdk.stats.ArmorPercent:
 			if ([0, 1].indexOf(this.mode) < 0) {
 				break;
 			}
 
 			this.desc === undefined && (this.desc = this.description);
 
-			temp = !!this.desc ? this.desc.split("\n") : "";
+			if (this.desc) {
+				temp = !!this.desc ? this.desc.split("\n") : "";
 
-			for (i = 0; i < temp.length; i += 1) {
-				if (temp[i].match(getLocaleString(sdk.locale.text.EnhancedDefense).replace(/^\s+|\s+$/g, ""), "i")) {
-					return parseInt(temp[i].replace(/ÿc[0-9!"+<;.*]/, ""), 10);
+				for (let i = 0; i < temp.length; i += 1) {
+					if (temp[i].match(getLocaleString(sdk.locale.text.EnhancedDefense).replace(/^\s+|\s+$/g, ""), "i")) {
+						return parseInt(temp[i].replace(/ÿc[0-9!"+<;.*]/, ""), 10);
+					}
 				}
 			}
 
@@ -738,11 +744,13 @@ Unit.prototype.getStatEx = function (id, subid) {
 
 			this.desc === undefined && (this.desc = this.description);
 
-			temp = !!this.desc ? this.desc.split("\n") : "";
+			if (this.desc) {
+				temp = !!this.desc ? this.desc.split("\n") : "";
 
-			for (i = 0; i < temp.length; i += 1) {
-				if (temp[i].match(getLocaleString(sdk.locale.text.EnhancedDamage).replace(/^\s+|\s+$/g, ""), "i")) {
-					return parseInt(temp[i].replace(/ÿc[0-9!"+<;.*]/, ""), 10);
+				for (let i = 0; i < temp.length; i += 1) {
+					if (temp[i].match(getLocaleString(sdk.locale.text.EnhancedDamage).replace(/^\s+|\s+$/g, ""), "i")) {
+						return parseInt(temp[i].replace(/ÿc[0-9!"+<;.*]/, ""), 10);
+					}
 				}
 			}
 
@@ -787,11 +795,11 @@ Unit.prototype.getStatEx = function (id, subid) {
 	let Worker = __importStar(require("../../modules/Worker"));
 	global._setTimeout = _original;
 	/**
-         * @param {function} cb
-         * @param {number} time
-         * @param args
-         * @constructor
-         */
+	* @param {function} cb
+	* @param {number} time
+	* @param args
+	* @constructor
+	*/
 	function Timer(cb, time, args) {
 		let _this = this;
 		if (time === void 0) { time = 0; }
@@ -830,9 +838,9 @@ Unit.prototype.getStatEx = function (id, subid) {
 		return new Timer(cb, time, args);
 	};
 	/**
-         *
-         * @param {Timer} timer
-         */
+	*
+	* @param {Timer} timer
+	*/
 	global.clearTimeout = function (timer) {
 		let index = Timer.instances.indexOf(timer);
 		if (index > -1) {

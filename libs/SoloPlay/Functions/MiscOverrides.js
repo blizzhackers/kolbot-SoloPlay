@@ -603,7 +603,6 @@ Misc.logItem = function (action, unit, keptLine) {
 
 	// should stop logging items unless we wish to see them or it's part of normal pickit
 	if (nTResult || unit.isCharm || hasTier || nTCharm) {
-		console.debug("NT: " + nTResult + " CC: " + charmCheck + " HT: " + hasTier);
 		switch (true) {
 		case nTResult:
 		case hasTier && !unit.isCharm && Developer.debugging.autoEquip:

@@ -9,14 +9,14 @@
 includeIfNotIncluded("NTItemParser.dbl");
 includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
-NTIPAliasStat["addfireskills"] = [126, 1];
-NTIPAliasStat["plusskillwhirlwind"] = [97, 151];
+NTIPAliasStat["addfireskills"] = [sdk.stats.ElemSkill, 1];
+NTIPAliasStat["plusskillwhirlwind"] = [sdk.stats.NonClassSkill, sdk.skills.Whirlwind];
 
 let NTIP_CheckListNoTier = [];
 
 NTIP.generateTierFunc = function (tierType) {
 	return function (item) {
-		let i, tier = -1;
+		let tier = -1;
 
 		const updateTier = (wanted) => {
 			const tmpTier = wanted[tierType](item);
@@ -27,13 +27,12 @@ NTIP.generateTierFunc = function (tierType) {
 		};
 
 		// Go through ALL lines that describe the item
-		for (i = 0; i < NTIP_CheckList.length; i += 1) {
-
+		for (let i = 0; i < NTIP_CheckList.length; i += 1) {
 			if (NTIP_CheckList[i].length !== 3) {
 				continue;
 			}
 
-			let [type, stat, wanted] = NTIP_CheckList[i];
+			const [type, stat, wanted] = NTIP_CheckList[i];
 
 			// If the line doesnt have a tier of this type, we dont need to call it
 			if (typeof wanted === "object" && wanted && typeof wanted[tierType] === "function") {
@@ -68,7 +67,7 @@ NTIP.GetCharmTier = NTIP.generateTierFunc("Charmtier");
 NTIP.GetSecondaryTier = NTIP.generateTierFunc("Secondarytier");
 
 NTIP.addLine = function (itemString) {
-	let info = {
+	const info = {
 		line: 1,
 		file: "Kolbot-SoloPlay",
 		string: line
@@ -387,7 +386,7 @@ NTIP.OpenFile = function (filepath, notify) {
 	nipfile.close();
 
 	for (let i = 0; i < lines.length; i += 1) {
-		let info = {
+		const info = {
 			line: i + 1,
 			file: filename,
 			string: lines[i]

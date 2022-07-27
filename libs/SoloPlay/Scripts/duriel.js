@@ -8,7 +8,7 @@
 function duriel () {
 	// pre-tasks
 	Quest.preReqs();
-	Quest.cubeItems(91, 92, 521);
+	Quest.cubeItems(sdk.quest.item.HoradricStaff, sdk.quest.item.ShaftoftheHoradricStaff, sdk.quest.item.ViperAmulet);
 
 	// Start
 	Town.townTasks();
@@ -63,7 +63,7 @@ function duriel () {
 			}
 
 			if (Misc.checkQuest(sdk.quest.id.TheSevenTombs, 4)) {
-				Pather.moveToExit(50, true);
+				Pather.moveToExit(sdk.areas.HaremLvl1, true);
 				break;
 			} else {
 				delay(250 + me.ping);

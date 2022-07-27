@@ -10,10 +10,10 @@ includeIfNotIncluded("SoloPlay/Functions/NTIPOverrides.js");
 includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 
 MuleLogger.getItemDesc = function (unit, logIlvl) {
+	logIlvl === undefined && (logIlvl = this.LogItemLevel);
+	
 	let desc, index;
 	let stringColor = "";
-
-	logIlvl === undefined && (logIlvl = this.LogItemLevel);
 
 	try {
 		// Try a few times, sometimes it fails

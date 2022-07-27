@@ -10,7 +10,8 @@
 function diablo () {
 	// Start Diablo Quest
 	this.diabloPrep = function () {
-		let tick = getTickCount(), decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.SoftPoints) * 5) * 1000;
+		let tick = getTickCount();
+		let decoyDuration = (me.amazon ? Skill.getDuration(sdk.skills.Decoy) : 0);
 
 		while (getTickCount() - tick < 17500) {
 			me.getMobCount(20) > 1 && Attack.clear(20);
@@ -27,53 +28,44 @@ function diablo () {
 
 					break;
 				case sdk.charclass.Sorceress:
-					if ([56, 59, 64].indexOf(Config.AttackSkill[1]) > -1) {
-						if (me.skillDelay) {
-							delay(500 + me.ping);
-						} else {
-							Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793, 5293);
-						}
-
-						break;
+					if ([sdk.skills.Meteor, sdk.skills.Blizzard, sdk.skills.FrozenOrb, sdk.skills.FireWall].includes(Config.AttackSkill[1])) {
+						Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793 + rand(-1, 1), 5293);
 					}
 
-					delay(500 + me.ping);
+					delay(500);
 
 					break;
 				case sdk.charclass.Paladin:
 					Skill.setSkill(Config.AttackSkill[2]);
-					Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Left);
+					Config.AttackSkill[1] === sdk.skills.BlessedHammer && Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Left);
 
 					break;
 				case sdk.charclass.Druid:
-					if (Config.AttackSkill[1] === sdk.skills.Tornado) {
-						Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793, 5293);
+					if ([sdk.skills.Tornado, sdk.skills.Fissure, sdk.skills.Volcano].includes(Config.AttackSkill[3])) {
+						Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793 + rand(-1, 1), 5293);
 
 						break;
 					}
 
-					delay(500 + me.ping);
+					delay(500);
 
 					break;
 				case sdk.charclass.Assassin:
 					if (Config.UseTraps) {
-						let check = ClassAttack.checkTraps({x: 7793, y: 5293});
-
-						if (check) {
-							ClassAttack.placeTraps({x: 7793, y: 5293, classid: 243}, check);
-
-							break;
-						}
+						let trapCheck = ClassAttack.checkTraps({x: 7793, y: 5293});
+						trapCheck && ClassAttack.placeTraps({x: 7793, y: 5293, classid: sdk.monsters.Diablo}, trapCheck);
 					}
 
-					delay(500 + me.ping);
+					Config.AttackSkill[1] === sdk.skills.ShockWeb && Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793, 5293);
+
+					delay(500);
 
 					break;
 				default:
-					delay(500 + me.ping);
+					delay(500);
 				}
 			} else {
-				delay(500 + me.ping);
+				delay(500);
 			}
 
 			if (Game.getMonster(sdk.monsters.Diablo)) {
@@ -114,8 +106,8 @@ function diablo () {
 
 	Common.Diablo.initLayout();
 
-	let oldCP = Object.assign({}, Config.ClearPath);
-	let oldBP = Config.BossPriority;
+	const oldCP = Object.assign({}, Config.ClearPath);
+	const oldBP = Config.BossPriority;
 
 	try {
 		!me.diablo && me.barbarian && (Config.BossPriority = true);
@@ -173,10 +165,7 @@ function diablo () {
 			this.diabloPrep();
 		}
 
-		if (!Attack.pwnDia()) {
-			Attack.killTarget(sdk.monsters.Diablo);
-		}
-
+		!Attack.pwnDia() && Attack.killTarget(sdk.monsters.Diablo);
 		Pickit.pickItems();
 	} catch (e) {
 		//
@@ -193,7 +182,7 @@ function diablo () {
 	} catch (err) {
 		Town.npcInteract("tyrael");
 		me.cancel();
-		delay(500 + me.ping);
+		delay(500);
 		Pather.useUnit(sdk.unittype.Object, 566, 109);
 	}
 

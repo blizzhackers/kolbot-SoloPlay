@@ -62,6 +62,10 @@ function baal () {
 				}
 			}
 
+			if (Config.AttackSkill[3] === sdk.skills.ShockWeb) {
+				return Skill.cast(Config.AttackSkill[3], sdk.skills.hand.Right, 15094, 5028);
+			}
+
 			break;
 		}
 
@@ -74,17 +78,13 @@ function baal () {
 
 		MainLoop:
 		while (true) {
-			if (!Game.getMonster(543)) {
-				break;
-			}
+			if (!Game.getMonster(sdk.monsters.ThroneBaal)) return true;
 
 			Misc.townCheck();
 
 			switch (Common.Baal.checkThrone()) {
 			case 1:
-				Attack.clearClassids(23, 62);
-
-				tick = getTickCount();
+				Attack.clearClassids(sdk.monsters.WarpedFallen, sdk.monsters.WarpedShaman) && (tick = getTickCount());
 
 				break;
 			case 2:
@@ -95,21 +95,16 @@ function baal () {
 					return false;
 				}
 
-				Attack.clearClassids(105, 381);
-
-				tick = getTickCount();
+				Attack.clearClassids(sdk.monsters.BaalSubjectMummy, sdk.monsters.BaalColdMage) && (tick = getTickCount());
 
 				break;
 			case 3:
-				Attack.clearClassids(557);
-
-				tick = getTickCount();
+				Attack.clearClassids(sdk.monsters.Council4) && (tick = getTickCount());
+				this.checkHydra() && (tick = getTickCount());
 
 				break;
 			case 4:
-				Attack.clearClassids(558);
-
-				tick = getTickCount();
+				Attack.clearClassids(sdk.monsters.VenomLord2) && (tick = getTickCount());
 
 				break;
 			case 5:
@@ -124,13 +119,19 @@ function baal () {
 
 				break MainLoop;
 			default:
-				if (getTickCount() - tick < 7e3) {
-					if (me.paladin && me.getState(sdk.states.Poison)) {
+				if (getTickCount() - tick < Time.seconds(7)) {
+					if (Skill.canUse(sdk.skills.Cleansing) && me.getState(sdk.states.Poison)) {
 						Skill.setSkill(sdk.skills.Cleansing, sdk.skills.hand.Right);
+						Misc.poll(() => {
+							if (Config.AttackSkill[3] === sdk.skills.BlessedHammer) {
+								Skill.cast(Config.AttackSkill[3], sdk.skills.hand.Left);
+							}
+							return !me.getState(sdk.states.Poison) || me.mode === sdk.units.player.mode.GettingHit;
+						}, Time.seconds(3), 100);
 					}
 				}
 
-				if (getTickCount() - tick > 20000) {
+				if (getTickCount() - tick > Time.seconds(20)) {
 					tick = getTickCount();
 					Common.Baal.clearThrone();
 				}
@@ -148,7 +149,7 @@ function baal () {
 			}
 
 			// If we've been in the throne for 30 minutes that's way too long
-			if (getTickCount() - totalTick > 30 * 60000) return false;
+			if (getTickCount() - totalTick > Time.minutes(30)) return false;
 
 			delay(10);
 		}
@@ -156,9 +157,9 @@ function baal () {
 		return true;
 	};
 
-	const unSafeCheck = function (soulAmount, totalAmount) {
-		let soul = Game.getMonster(sdk.monsters.BurningSoul1);
+	const unSafeCheck = function (soulAmount = 0, totalAmount = 0) {
 		let count = 0;
+		let soul = Game.getMonster(sdk.monsters.BurningSoul1);
 
 		if (soul) {
 			do {
@@ -168,15 +169,13 @@ function baal () {
 			} while (soul.getNext());
 		}
 
-		if (count > soulAmount) {
-			return true;
-		}
+		if (count > soulAmount) return true;
 
 		let monster = Game.getMonster();
 
 		if (monster) {
 			do {
-				if (!monster.getParent() && monster.classid !== 641 && getDistance(me, monster) < 45) {
+				if (!monster.getParent() && monster.classid !== sdk.monsters.BurningSoul1 && getDistance(me, monster) < 45) {
 					count += 1;
 				}
 			} while (monster.getNext());
