@@ -188,7 +188,7 @@ function LoadConfig () {
 			);
 		
 		// Pride
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Pride) {
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum !== sdk.locale.items.Pride) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercPride.js");
 		}
 
@@ -221,7 +221,7 @@ function LoadConfig () {
 			);
 		
 		// Infinity
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Infinity) {
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
 		}
 
@@ -272,7 +272,7 @@ function LoadConfig () {
 	}
 
 	// Merc Insight
-	if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).tier < 3600) {
+	if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).tier < 3600) {
 		if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js")) {
 			include("SoloPlay/BuildFiles/Runewords/MercInsight.js");
 		}
@@ -293,14 +293,14 @@ function LoadConfig () {
 	}
 
 	// Merc Fortitude
-	if (Item.getEquippedItemMerc(3).prefixnum !== sdk.locale.items.Fortitude) {
+	if (Item.getEquippedItemMerc(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude) {
 		if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js")) {
 			include("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 		}
 	}
 
 	// Merc Treachery
-	if (Item.getEquippedItemMerc(3).tier < 15000) {
+	if (Item.getEquippedItemMerc(sdk.body.Armor).tier < 15000) {
 		if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercTreachery.js")) {
 			include("SoloPlay/BuildFiles/Runewords/MercTreachery.js");
 		}

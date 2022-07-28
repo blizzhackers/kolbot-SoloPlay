@@ -412,7 +412,7 @@ var Container = function (name, width, height, location) {
 					break;
 				case sdk.storage.Cube:
 					cItem = Game.getCursorUnit();
-					cube = me.getItem(sdk.items.quest.Cube);
+					cube = me.getItem(sdk.quest.item.Cube);
 
 					if (cItem !== null && cube !== null) {
 						sendPacket(1, 0x2a, 4, cItem.gid, 4, cube.gid);

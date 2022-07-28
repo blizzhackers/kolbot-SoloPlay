@@ -209,17 +209,17 @@ const SoloEvents = {
 			Pather.useWaypoint(sdk.areas.ColdPlains);
 			Pather.moveToExit(sdk.areas.BloodMoor, true);
 			Pather.clearToExit(sdk.areas.BloodMoor, sdk.areas.DenofEvil, true);
-			Pather.moveToPreset(me.area, sdk.unittype.Monster, 774, 0, 0, false, true);
+			Pather.moveToPreset(me.area, sdk.unittype.Monster, sdk.monsters.preset.Corpsefire, 0, 0, false, true);
 		}
 
 		Attack.killTarget(sdk.monsters.DiabloClone);
 		Pickit.pickItems();
 
-		let newAnni = Game.getItem(603, sdk.itemmode.onGround);
-		let oldAnni = me.findItem(603, 0, -1, 7);
+		let newAnni = Game.getItem(sdk.items.SmallCharm, sdk.itemmode.onGround);
+		let oldAnni = me.findItem(sdk.items.SmallCharm, sdk.itemmode.inStorage, -1, sdk.itemquality.Unique);
 
 		if (newAnni && oldAnni) {
-			this.sendToList({profile: me.profile, ladder: 32}, 60);
+			this.sendToList({profile: me.profile, ladder: me.ladder}, 60);
 
 			let tick = getTickCount();
 
@@ -298,7 +298,7 @@ const SoloEvents = {
 
 			if (getDistance(me, node) > 2) {
 				if (mLair) {
-					adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
+					adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
 
 					if (adjustedNode) {
 						node.x = adjustedNode[0];

@@ -264,7 +264,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		case sdk.skills.PoisonNova:
 			if (!this.novaTick || getTickCount() - this.novaTick > Config.PoisonNovaDelay * 1000) {
 				if (Math.round(unit.distance) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
-					if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4)) {
+					if (!Attack.getIntoPosition(unit, timedSkillRange, sdk.collision.Ranged)) {
 						return Attack.Result.FAILED;
 					}
 				}
@@ -277,7 +277,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 			break;
 		case 500: // Pure Summoner
 			if (Math.round(unit.distance) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
-				if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4)) {
+				if (!Attack.getIntoPosition(unit, timedSkillRange, sdk.collision.Ranged)) {
 					return Attack.Result.FAILED;
 				}
 			}
@@ -296,7 +296,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 				// Allow short-distance walking for melee skills
 				walk = timedSkillRange < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
-				if (!Attack.getIntoPosition(unit, timedSkillRange, 0x4, walk)) return Attack.Result.FAILED;
+				if (!Attack.getIntoPosition(unit, timedSkillRange, sdk.collision.Ranged, walk)) return Attack.Result.FAILED;
 			}
 
 			if (!unit.dead) {
@@ -321,7 +321,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 			// Allow short-distance walking for melee skills
 			walk = Skill.getRange(untimedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
-			if (!Attack.getIntoPosition(unit, untimedSkillRange, 0x4, walk)) {
+			if (!Attack.getIntoPosition(unit, untimedSkillRange, sdk.collision.Ranged, walk)) {
 				return Attack.Result.FAILED;
 			}
 		}

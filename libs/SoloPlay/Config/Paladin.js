@@ -335,7 +335,7 @@ function LoadConfig () {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js");
 			}
 
-			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(3).prefixnum !== sdk.locale.items.Fortitude
+			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude
 				&& me.haveAll([{name: sdk.locale.items.HandofJustice}, {name: sdk.locale.items.Dragon, itemtype: sdk.itemtype.Armor},
 					{name: sdk.locale.items.Dream, itemtype: sdk.itemtype.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.itemtype.Helm}])) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
@@ -408,13 +408,13 @@ function LoadConfig () {
 			if ((me.ladder || Developer.addLadderRW) && me.haveAll([{name: sdk.locale.items.LastWish}, {name: sdk.locale.items.ChainsofHonor},
 				{name: sdk.locale.items.Dream, itemtype: sdk.itemtype.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.itemtype.Helm}])) {
 				// Infinity
-				if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Infinity) {
+				if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
 					if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js")) {
 						include("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
 					}
 				}
 				// Merc Fortitude
-				if (Item.getEquippedItemMerc(3).prefixnum !== sdk.locale.items.Fortitude) {
+				if (Item.getEquippedItemMerc(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude) {
 					if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js")) {
 						include("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 					}
@@ -493,7 +493,7 @@ function LoadConfig () {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js");
 			}
 
-			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(3).prefixnum !== sdk.locale.items.Fortitude
+			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude
 				&& me.haveAll([{name: sdk.locale.items.HandofJustice}, {name: sdk.locale.items.Dragon, itemtype: sdk.itemtype.Armor}, {name: sdk.locale.items.Exile, itemtype: sdk.itemtype.AuricShields}])) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 			}
@@ -526,7 +526,7 @@ function LoadConfig () {
 		}
 
 		// Merc Insight
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(4).tier < 3600) {
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).tier < 3600) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
 		}
 
@@ -541,12 +541,12 @@ function LoadConfig () {
 		}
 
 		// Merc Fortitude
-		if (Item.getEquippedItemMerc(3).prefixnum !== sdk.locale.items.Fortitude && ["Hammerdin", "Smiter"].indexOf(SetUp.finalBuild) > -1) {
+		if (Item.getEquippedItemMerc(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude && ["Hammerdin", "Smiter"].indexOf(SetUp.finalBuild) > -1) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 		}
 
 		// Merc Treachery
-		if (Item.getEquippedItemMerc(3).tier < 15000) {
+		if (Item.getEquippedItemMerc(sdk.body.Armor).tier < 15000) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercTreachery.js");
 		}
 

@@ -331,7 +331,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 		if (getDistance(me, node) > 2) {
 			fail >= 3 && fail % 3 === 0 && !Attack.validSpot(node.x, node.y) && (invalidCheck = true);
 			if (annoyingArea || invalidCheck) {
-				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
+				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
 
 				if (adjustedNode) {
 					node.x = adjustedNode[0];
@@ -482,7 +482,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 			fail >= 3 && fail % 3 === 0 && !Attack.validSpot(node.x, node.y) && (invalidCheck = true);
 			// Make life in Maggot Lair easier - should this include arcane as well?
 			if (annoyingArea || invalidCheck) {
-				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
+				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
 
 				if (adjustedNode) {
 					node.x = adjustedNode[0];
@@ -617,7 +617,7 @@ Pather.moveToLoc = function (target, givenSettings) {
 
 		if (getDistance(me, node) > 2) {
 			if (annoyingArea) {
-				adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
+				adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
 
 				if (adjustedNode) {
 					node.x = adjustedNode[0];

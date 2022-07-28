@@ -72,7 +72,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0])
 		&& (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
 		if (unit.distance > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
-			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
+			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), sdk.collision.Ranged)) {
 				return Attack.Result.FAILED;
 			}
 		}
@@ -180,7 +180,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		switch (timedSkill) {
 		case sdk.skills.Tornado:
 			if (Math.ceil(unit.distance) > (Skill.getRange(timedSkill)) || checkCollision(me, unit, sdk.collision.Ranged)) {
-				if (!Attack.getIntoPosition(unit, (Skill.getRange(timedSkill)), 0x4)) {
+				if (!Attack.getIntoPosition(unit, (Skill.getRange(timedSkill)), sdk.collision.Ranged)) {
 					return Attack.Result.FAILED;
 				}
 			}
@@ -198,7 +198,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 				// Allow short-distance walking for melee skills
 				walk = Skill.getRange(timedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
-				if (!Attack.getIntoPosition(unit, (Skill.getRange(timedSkill)), 0x4, walk)) {
+				if (!Attack.getIntoPosition(unit, (Skill.getRange(timedSkill)), sdk.collision.Ranged, walk)) {
 					return Attack.Result.FAILED;
 				}
 			}
@@ -216,7 +216,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 			// Allow short-distance walking for melee skills
 			walk = Skill.getRange(untimedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
-			if (!Attack.getIntoPosition(unit, (Skill.getRange(untimedSkill)), 0x4, walk)) {
+			if (!Attack.getIntoPosition(unit, (Skill.getRange(untimedSkill)), sdk.collision.Ranged, walk)) {
 				return Attack.Result.FAILED;
 			}
 		}

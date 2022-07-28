@@ -1312,7 +1312,7 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
 	});
 
 	for (let i = 0; i < grid.length; i += 1) {
-		if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & 0x1) && !CollMap.checkColl(unit, {x: grid[i].x, y: grid[i].y}, 0x4)) {
+		if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & 0x1) && !CollMap.checkColl(unit, {x: grid[i].x, y: grid[i].y}, sdk.collision.Ranged)) {
 			currCount = this.getMonsterCount(grid[i].x, grid[i].y, range, monList);
 
 			if (currCount < count) {
@@ -1334,9 +1334,9 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 	let useTele = Pather.useTeleport();
 	walk === true && (walk = 1);
 
-	if (distance < 4 && (!unit.hasOwnProperty("mode") || (unit.mode !== 0 && unit.mode !== 12))) {
+	if (distance < 4 && (!unit.hasOwnProperty("mode") || !unit.dead)) {
 		// we are actually able to walk to where we want to go, hopefully prevent wall hugging
-		if (walk && (unit.distance < 8 || !CollMap.checkColl(me, unit, 0x5 | 0x400 | 0x1000))) {
+		if (walk && (unit.distance < 8 || !CollMap.checkColl(me, unit, sdk.collision.WallOrRanged | sdk.collision.Objects | sdk.collision.IsOnFloor))) {
 			Pather.walkTo(unit.x, unit.y, 3);
 		} else {
 			// don't clear while trying to reposition
@@ -1378,7 +1378,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 			if (!force) {
 				for (let i = 0; i < coords.length; i += 1) {
 					if ((getDistance(me, coords[i].x, coords[i].y) < 1
-						&& !CollMap.checkColl(unit, {x: coords[i].x, y: coords[i].y}, 0x5 | 0x400 | 0x1000, 1))
+						&& !CollMap.checkColl(unit, {x: coords[i].x, y: coords[i].y}, sdk.collision.WallOrRanged | sdk.collision.Objects | sdk.collision.IsOnFloor, 1))
 						|| (getDistance(me, coords[i].x, coords[i].y) <= 5 && me.getMobCount(6) > 2)) {
 						return true;
 					}
@@ -1410,7 +1410,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 					if (coords[i].distance < 3) return true;
 
 					// we are actually able to walk to where we want to go, hopefully prevent wall hugging
-					if (walk && (coords[i].distance < 6 || !CollMap.checkColl(me, unit, 0x5 | 0x400 | 0x1000))) {
+					if (walk && (coords[i].distance < 6 || !CollMap.checkColl(me, unit, sdk.collision.WallOrRanged | sdk.collision.Objects | sdk.collision.IsOnFloor))) {
 						Pather.walkTo(coords[i].x, coords[i].y, 2);
 					} else {
 						Pather.moveToEx(coords[i].x, coords[i].y, {clearSettings: {allowClearing: !useTele, range: useTele ? 10 : 5, retry: 3}});
@@ -1435,7 +1435,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 
 				break;
 			case 2:
-				if (potentialSpot.distance < 6 && !CollMap.checkColl(me, potentialSpot, 0x5)) {
+				if (potentialSpot.distance < 6 && !CollMap.checkColl(me, potentialSpot, sdk.collision.WallOrRanged)) {
 					Pather.walkTo(potentialSpot.x, potentialSpot.y, 2);
 				} else {
 					Pather.moveTo(potentialSpot.x, potentialSpot.y, 1);

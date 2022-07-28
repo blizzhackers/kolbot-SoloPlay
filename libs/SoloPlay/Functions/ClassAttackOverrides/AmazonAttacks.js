@@ -189,7 +189,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	if (preattack && Config.AttackSkill[0] > 0 && [8, 17].indexOf(Config.AttackSkill[0]) === -1
 		&& Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.skillDelay || !Skill.isTimed(Config.AttackSkill[0]))) {
 		if (unit.distance > preattackRange || checkCollision(me, unit, sdk.collision.Ranged)) {
-			if (!Attack.getIntoPosition(unit, preattackRange, 0x4)) {
+			if (!Attack.getIntoPosition(unit, preattackRange, sdk.collision.Ranged)) {
 				return Attack.Result.FAILED;
 			}
 		}

@@ -35,38 +35,38 @@ Item.getBodyLoc = function (item) {
 	case sdk.itemtype.VoodooHeads:
 	case sdk.itemtype.BowQuiver:
 	case sdk.itemtype.CrossbowQuiver:
-		bodyLoc = 5;
+		bodyLoc = sdk.body.LeftArm;
 
 		break;
 	case sdk.itemtype.Armor:
-		bodyLoc = 3;
+		bodyLoc = sdk.body.Armor;
 
 		break;
 	case sdk.itemtype.Ring:
-		bodyLoc = [6, 7];
+		bodyLoc = [sdk.body.RingRight, sdk.body.RingLeft];
 
 		break;
 	case sdk.itemtype.Amulet:
-		bodyLoc = 2;
+		bodyLoc = sdk.body.Neck;
 
 		break;
 	case sdk.itemtype.Boots:
-		bodyLoc = 9;
+		bodyLoc = sdk.body.Feet;
 
 		break;
 	case sdk.itemtype.Gloves:
-		bodyLoc = 10;
+		bodyLoc = sdk.body.Gloves;
 
 		break;
 	case sdk.itemtype.Belt:
-		bodyLoc = 8;
+		bodyLoc = sdk.body.Belt;
 
 		break;
 	case sdk.itemtype.Helm:
 	case sdk.itemtype.PrimalHelm:
 	case sdk.itemtype.Circlet:
 	case sdk.itemtype.Pelt:
-		bodyLoc = 1;
+		bodyLoc = sdk.body.Head;
 
 		break;
 	case sdk.itemtype.Scepter:
@@ -90,12 +90,12 @@ Item.getBodyLoc = function (item) {
 	case sdk.itemtype.AmazonSpear:
 	case sdk.itemtype.AmazonJavelin:
 	case sdk.itemtype.MissilePotion:
-		bodyLoc = me.barbarian ? [4, 5] : 4;
+		bodyLoc = me.barbarian ? [sdk.body.RightArm, sdk.body.LeftArm] : sdk.body.RightArm;
 
 		break;
 	case sdk.itemtype.HandtoHand:
 	case sdk.itemtype.AssassinClaw:
-		bodyLoc = !Check.currentBuild().caster && me.assassin ? [4, 5] : 4;
+		bodyLoc = !Check.currentBuild().caster && me.assassin ? [sdk.body.RightArm, sdk.body.LeftArm] : sdk.body.RightArm;
 
 		break;
 	default:
@@ -169,7 +169,7 @@ Item.autoEquipCheck = function (item) {
 					if (tier < this.getEquippedItem(sdk.body.RightArm).tier + this.getEquippedItem(sdk.body.LeftArm).tier) return false;
 				}
 
-				if (!me.barbarian && bodyLoc[i] === 5 && this.getEquippedItem(bodyLoc[i]).tier === -1) {
+				if (!me.barbarian && bodyLoc[i] === sdk.body.LeftArm && this.getEquippedItem(bodyLoc[i]).tier === -1) {
 					if (this.getEquippedItem(sdk.body.RightArm).twoHanded && tier < this.getEquippedItem(sdk.body.RightArm).tier) return false;
 				}
 
@@ -194,7 +194,7 @@ Item.autoEquipKeepCheck = function (item) {
 					if (tier < this.getEquippedItem(sdk.body.RightArm).tier + this.getEquippedItem(sdk.body.LeftArm).tier) return false;
 				}
 
-				if (!me.barbarian && bodyLoc[i] === 5 && this.getEquippedItem(bodyLoc[i]).tier === -1) {
+				if (!me.barbarian && bodyLoc[i] === sdk.body.LeftArm && this.getEquippedItem(bodyLoc[i]).tier === -1) {
 					if (this.getEquippedItem(sdk.body.RightArm).twoHanded && tier < this.getEquippedItem(sdk.body.RightArm).tier) return false;
 				}
 
@@ -248,7 +248,7 @@ Item.autoEquip = function () {
 
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
-				let equippedItem = this.getEquippedItem(bodyLoc[j]);
+				const equippedItem = this.getEquippedItem(bodyLoc[j]);
 				if (items[0].isInStorage && items[0].itemType === sdk.itemtype.Ring) {
 					// rings are special
 					if (!items[0].identified) {
@@ -299,7 +299,7 @@ Item.autoEquip = function () {
 							console.log("ÿc9AutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
 						}
 
-						if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1 && this.getEquippedItem(sdk.body.RightArm).twoHanded) {
+						if (!me.barbarian && bodyLoc[j] === sdk.body.LeftArm && equippedItem.tier === -1 && this.getEquippedItem(sdk.body.RightArm).twoHanded) {
 							if (tier < this.getEquippedItem(sdk.body.RightArm).tier) {
 								continue;
 							}
@@ -384,7 +384,7 @@ Item.outOfTownAutoEquip = function () {
 
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
-				let equippedItem = this.getEquippedItem(bodyLoc[j]);
+				const equippedItem = this.getEquippedItem(bodyLoc[j]);
 				if (items[0].isInInventory && items[0].itemType === sdk.itemtype.Ring) {
 					// rings are special
 					if (!items[0].identified) {
@@ -425,7 +425,7 @@ Item.outOfTownAutoEquip = function () {
 							console.log("ÿc9OutOfTownAutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
 						}
 
-						if (!me.barbarian && bodyLoc[j] === 5 && equippedItem.tier === -1 && this.getEquippedItem(sdk.body.RightArm).twoHanded) {
+						if (!me.barbarian && bodyLoc[j] === sdk.body.LeftArm && equippedItem.tier === -1 && this.getEquippedItem(sdk.body.RightArm).twoHanded) {
 							if (tier < this.getEquippedItem(sdk.body.RightArm).tier) {
 								continue;
 							}
@@ -542,7 +542,7 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 
 		if (cursorItem) {
 			// only keep wanted items
-			if (Pickit.checkItem(cursorItem).result === 1 || AutoEquip.wanted(cursorItem)) {
+			if (Pickit.checkItem(cursorItem).result === Pickit.Result.WANTED || AutoEquip.wanted(cursorItem)) {
 				if (Storage.Inventory.CanFit(cursorItem)) {
 					Storage.Inventory.MoveTo(cursorItem);
 				} else if (Storage.Stash.CanFit(cursorItem)) {
@@ -577,7 +577,7 @@ Item.getBodyLocSecondary = function (item) {
 	case sdk.itemtype.VoodooHeads:
 	case sdk.itemtype.BowQuiver:
 	case sdk.itemtype.CrossbowQuiver:
-		bodyLoc = 12;
+		bodyLoc = sdk.body.LeftArmSecondary;
 
 		break;
 	case sdk.itemtype.Scepter:
@@ -601,12 +601,12 @@ Item.getBodyLocSecondary = function (item) {
 	case sdk.itemtype.AmazonSpear:
 	case sdk.itemtype.AmazonJavelin:
 	case sdk.itemtype.MissilePotion:
-		bodyLoc = me.barbarian ? [11, 12] : 11;
+		bodyLoc = me.barbarian ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary] : sdk.body.RightArmSecondary;
 
 		break;
 	case sdk.itemtype.HandtoHand:
 	case sdk.itemtype.AssassinClaw:
-		bodyLoc = !Check.currentBuild().caster && me.assassin ? [11, 12] : 11;
+		bodyLoc = !Check.currentBuild().caster && me.assassin ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary] : sdk.body.RightArmSecondary;
 
 		break;
 	default:
@@ -696,7 +696,8 @@ Item.autoEquipSecondary = function () {
 
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
-				if ([sdk.storage.Inventory, sdk.storage.Stash].indexOf(items[0].location) > -1 && tier > this.getEquippedItem(bodyLoc[j]).secondarytier && this.getEquippedItem(bodyLoc[j]).classid !== sdk.items.quest.KhalimsWill) {
+				const equippedItem = this.getEquippedItem(bodyLoc[j]);
+				if ([sdk.storage.Inventory, sdk.storage.Stash].includes(items[0].location) && tier > equippedItem.secondarytier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
 					if (!items[0].identified) {
 						let idTool = Town.getIdTool();
 
@@ -832,41 +833,41 @@ Item.getBodyLocMerc = function (item) {
 	switch (item.itemType) {
 	case sdk.itemtype.Shield:
 		if (mercenary.classid === sdk.monsters.mercs.IronWolf) {
-			bodyLoc = 5;
+			bodyLoc = sdk.body.LeftArm;
 		}
 
 		break;
 	case sdk.itemtype.Armor:
-		bodyLoc = 3;
+		bodyLoc = sdk.body.Armor;
 
 		break;
 	case sdk.itemtype.Helm:
 	case sdk.itemtype.Circlet:
-		bodyLoc = 1;
+		bodyLoc = sdk.body.Head;
 
 		break;
 	case sdk.itemtype.PrimalHelm:
 		if (mercenary.classid === sdk.monsters.mercs.A5Barb) {
-			bodyLoc = 1;
+			bodyLoc = sdk.body.Head;
 		}
 		
 		break;
 	case sdk.itemtype.Bow:
 		if (mercenary.classid === sdk.monsters.mercs.Rogue) {
-			bodyLoc = 4;
+			bodyLoc = sdk.body.RightArm;
 		}
 
 		break;
 	case sdk.itemtype.Spear:
 	case sdk.itemtype.Polearm:
 		if (mercenary.classid === sdk.monsters.mercs.Guard) {
-			bodyLoc = 4;
+			bodyLoc = sdk.body.RightArm;
 		}
 
 		break;
 	case sdk.itemtype.Sword:
 		if (mercenary.classid === sdk.monsters.mercs.IronWolf || mercenary.classid === sdk.monsters.mercs.A5Barb) {
-			bodyLoc = 4;
+			bodyLoc = sdk.body.RightArm;
 		}
 
 		break;

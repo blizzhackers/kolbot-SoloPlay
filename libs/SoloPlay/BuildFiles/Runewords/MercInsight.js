@@ -5,7 +5,7 @@ const Insight = [
 ];
 NTIP.arrayLooping(Insight);
 
-if (!me.hell && Item.getEquippedItemMerc(4).prefixnum !== sdk.locale.items.Insight && !Check.haveBase("polearm", 4)) {
+if (!me.hell && Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum !== sdk.locale.items.Insight && !Check.haveBase("polearm", 4)) {
 	NTIP.addLine("[name] == voulge && [flag] != ethereal && [quality] == normal && [level] >= 26 && [level] <= 40 # [sockets] == 0 # [maxquantity] == 1");
 }
 

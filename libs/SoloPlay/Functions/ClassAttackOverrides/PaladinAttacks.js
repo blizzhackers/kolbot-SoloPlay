@@ -65,7 +65,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
 		if (unit.distance > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
-			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
+			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), sdk.collision.Ranged)) {
 				return Attack.Result.FAILED;
 			}
 		}
@@ -167,7 +167,7 @@ ClassAttack.afterAttack = function () {
 		Misc.poll(function () {
 			me.overhead("Delaying for a second to get rid of Poison");
 
-			return (!me.getState(sdk.states.Poison) || me.mode === 4/*Getting hit*/);
+			return (!me.getState(sdk.states.Poison) || me.mode === sdk.units.player.mode.GettingHit);
 		}, 1500, 30);
 	}
 

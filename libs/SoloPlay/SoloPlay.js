@@ -38,7 +38,7 @@ function SoloPlay () {
 		}
 
 		if (me.charlvl === 1) {
-			let buckler = me.getItem(328);
+			let buckler = me.getItem(sdk.items.Buckler);
 			!!buckler && buckler.isEquipped && buckler.drop();
 		}
 

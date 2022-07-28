@@ -212,7 +212,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		// Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
 		if ([sdk.states.BattleCry, sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt].every(state => !unit.getState(state))) {
 			if (unit.distance > data.battleCry.range || checkCollision(me, unit, sdk.collision.Ranged)) {
-				if (!Attack.getIntoPosition(unit, data.battleCry.range, 0x4)) {
+				if (!Attack.getIntoPosition(unit, data.battleCry.range, sdk.collision.Ranged)) {
 					return Attack.Result.FAILED;
 				}
 			}
@@ -234,7 +234,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		&& Attack.checkResist(unit, Attack.getSkillElement(Config.AttackSkill[0])) && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp)
 		&& (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
 		if (unit.distance > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
-			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), 0x4)) {
+			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), sdk.collision.Ranged)) {
 				return Attack.Result.FAILED;
 			}
 		}

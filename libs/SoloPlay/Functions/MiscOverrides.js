@@ -129,7 +129,7 @@ Misc.openChests = function (range = 15) {
 };
 
 Misc.getWell = function (unit) {
-	if (!unit || unit.mode === 2) return false;
+	if (!unit || unit.mode === sdk.units.objects.mode.Active) return false;
 
 	for (let i = 0; i < 3; i++) {
 		if (Skill.useTK(unit) && i < 2) {
@@ -162,7 +162,7 @@ Misc.useWell = function (range = 15) {
 	Pather.canTeleport() && me.hpPercent < 60 && (range = 25);
 
 	let unitList = getUnits(sdk.unittype.Object, "well").filter(function (well) {
-		return well.distance < range && well.mode !== 2;
+		return well.distance < range && well.mode !== sdk.units.objects.mode.Active;
 	});
 
 	while (unitList.length > 0) {
@@ -200,7 +200,7 @@ Misc.getShrinesInArea = function (area, type, use) {
 
 		if (shrine) {
 			do {
-				if (shrine.objtype === type && shrine.mode === 0) {
+				if (shrine.objtype === type && shrine.mode === sdk.units.objects.mode.Inactive) {
 					(!Skill.haveTK || !use) && Pather.moveTo(shrine.x - 2, shrine.y - 2);
 
 					if (!use || this.getShrine(shrine)) {
@@ -224,7 +224,7 @@ Misc.getExpShrine = function (shrineLocs = []) {
 	for (let get = 0; get < shrineLocs.length; get++) {
 		me.overhead("Looking for xp shrine");
 
-		if (shrineLocs[get] === 2) {
+		if (shrineLocs[get] === sdk.areas.BloodMoor) {
 			Pather.journeyTo(shrineLocs[get]);
 		} else {
 			Pather.checkWP(shrineLocs[get], true) ? Pather.useWaypoint(shrineLocs[get]) : Pather.getWP(shrineLocs[get]);
@@ -529,7 +529,7 @@ Misc.checkSocketables = function () {
 				continue;
 			}
 			// Any magic, rare, or crafted item with open sockets
-			if (items[i].isEquipped && [1, 3, 4, 5].includes(items[i].bodylocation)) {
+			if (items[i].isEquipped && [sdk.body.Head, sdk.body.Armor, sdk.body.RightArm, sdk.body.LeftArm].includes(items[i].bodylocation)) {
 				Misc.getSocketables(items[i]);
 			}
 
@@ -560,8 +560,7 @@ Misc.checkSocketables = function () {
 
 // Log kept item stats in the manager.
 Misc.logItem = function (action, unit, keptLine) {
-	if (!this.useItemLog || unit === undefined || !unit) return false;
-
+	if (!this.useItemLog || unit === undefined || !unit || !unit.fname) return false;
 	if (!Config.LogKeys && ["pk1", "pk2", "pk3"].includes(unit.code)) return false;
 	if (!Config.LogOrgans && ["dhn", "bey", "mbr"].includes(unit.code)) return false;
 	if (!Config.LogLowRunes && ["r01", "r02", "r03", "r04", "r05", "r06", "r07", "r08", "r09", "r10", "r11", "r12", "r13", "r14"].includes(unit.code)) return false;
@@ -574,9 +573,7 @@ Misc.logItem = function (action, unit, keptLine) {
 		if (Config.SkipLogging[i] === unit.classid || Config.SkipLogging[i] === unit.code) return false;
 	}
 
-	if (!unit.fname) return false;
-
-	let lastArea, code, sock, itemObj;
+	let lastArea;
 	let name = unit.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<:;.*]|\/|\\/g, "").trim();
 	let desc = (this.getItemDesc(unit) || "");
 	let color = (unit.getColor() || -1);
@@ -615,151 +612,12 @@ Misc.logItem = function (action, unit, keptLine) {
 		}
 	}
 
-	if (unit.getFlag(sdk.items.flags.Identified)) {
-		switch (unit.quality) {
-		case 5: // Set
-			switch (unit.classid) {
-			case 27: // Angelic sabre
-				code = "inv9sbu";
-
-				break;
-			case 74: // Arctic short war bow
-				code = "invswbu";
-
-				break;
-			case 308: // Berserker's helm
-				code = "invhlmu";
-
-				break;
-			case 330: // Civerb's large shield
-				code = "invlrgu";
-
-				break;
-			case 31: // Cleglaw's long sword
-			case 227: // Szabi's cryptic sword
-				code = "invlsdu";
-
-				break;
-			case 329: // Cleglaw's small shield
-				code = "invsmlu";
-
-				break;
-			case 328: // Hsaru's buckler
-				code = "invbucu";
-
-				break;
-			case 306: // Infernal cap / Sander's cap
-				code = "invcapu";
-
-				break;
-			case 30: // Isenhart's broad sword
-				code = "invbsdu";
-
-				break;
-			case 309: // Isenhart's full helm
-				code = "invfhlu";
-
-				break;
-			case 333: // Isenhart's gothic shield
-				code = "invgtsu";
-
-				break;
-			case 326: // Milabrega's ancient armor
-			case 442: // Immortal King's sacred armor
-				code = "invaaru";
-
-				break;
-			case 331: // Milabrega's kite shield
-				code = "invkitu";
-
-				break;
-			case 332: // Sigon's tower shield
-				code = "invtowu";
-
-				break;
-			case 325: // Tancred's full plate mail
-				code = "invfulu";
-
-				break;
-			case 3: // Tancred's military pick
-				code = "invmpiu";
-
-				break;
-			case 113: // Aldur's jagged star
-				code = "invmstu";
-
-				break;
-			case 234: // Bul-Kathos' colossus blade
-				code = "invgsdu";
-
-				break;
-			case 372: // Grizwold's ornate plate
-				code = "invxaru";
-
-				break;
-			case 366: // Heaven's cuirass
-			case 215: // Heaven's reinforced mace
-			case 449: // Heaven's ward
-			case 426: // Heaven's spired helm
-				code = "inv" + unit.code + "s";
-
-				break;
-			case 357: // Hwanin's grand crown
-				code = "invxrnu";
-
-				break;
-			case 195: // Nalya's scissors suwayyah
-				code = "invskru";
-
-				break;
-			case 395: // Nalya's grim helm
-			case 465: // Trang-Oul's bone visage
-				code = "invbhmu";
-
-				break;
-			case 261: // Naj's elder staff
-				code = "invcstu";
-
-				break;
-			case 375: // Orphan's round shield
-				code = "invxmlu";
-
-				break;
-			case 12: // Sander's bone wand
-				code = "invbwnu";
-
-				break;
-			}
-
-			break;
-		case 7: // Unique
-			for (let i = 0; i < 401; i += 1) {
-				if (unit.code === getBaseStat(17, i, 4).trim() && unit.fname.split("\n").reverse()[0].indexOf(getLocaleString(getBaseStat(17, i, 2))) > -1) {
-					code = getBaseStat(17, i, "invfile");
-
-					break;
-				}
-			}
-
-			break;
-		}
-	}
-
-	if (!code) {
-		// Tiara/Diadem
-		code = ["ci2", "ci3"].indexOf(unit.code) > -1 ? unit.code : getBaseStat(0, unit.classid, "normcode") || unit.code;
-		code = code.replace(" ", "");
-
-		if ([10, 12, 58, 82, 83, 84].indexOf(unit.itemType) > -1) {
-			code += (unit.gfx + 1);
-		}
-	}
-
-	sock = unit.getItem();
+	let code = this.getItemCode(unit);
+	let sock = unit.getItem();
 
 	if (sock) {
 		do {
-			if (sock.itemType === 58) {
+			if (sock.itemType === sdk.itemtype.Jewel) {
 				desc += "\n\n";
 				desc += this.getItemDesc(sock);
 			}
@@ -769,7 +627,7 @@ Misc.logItem = function (action, unit, keptLine) {
 	keptLine && (desc += ("\n\\xffc0Line: " + keptLine));
 	desc += "$" + (unit.getFlag(sdk.items.flags.Ethereal) ? ":eth" : "");
 
-	itemObj = {
+	let itemObj = {
 		title: action + " " + name,
 		description: desc,
 		image: code,
