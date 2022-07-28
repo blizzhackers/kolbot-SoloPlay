@@ -103,7 +103,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 			// Don't use decoy if within melee distance
 			if (unit.distance > 4) {
 				// Check to see if decoy has already been cast
-				let decoy = Misc.poll(() => Game.getMonster(356), 1000, 10);
+				let decoy = Misc.poll(() => Game.getMonster(sdk.monsters.Dopplezon), 1000, 10);
 				
 				if (!decoy && (getTickCount() - this.decoyTick >= decoyDuration) && unit.distance > 4) {
 					if (unit.distance > 10 || checkCollision(me, unit, sdk.collision.Ranged)) {
@@ -116,7 +116,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 					!!coord && Skill.cast(sdk.skills.Decoy, sdk.skills.hand.Right, coord.x, coord.y);
 
 					// Check if it was a sucess
-					!!me.getMinionCount(8) && (this.decoyTick = getTickCount());
+					!!me.getMinionCount(sdk.minions.Dopplezon) && (this.decoyTick = getTickCount());
 				}
 			}
 		}
@@ -186,7 +186,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		}
 	}
 
-	if (preattack && Config.AttackSkill[0] > 0 && [8, 17].indexOf(Config.AttackSkill[0]) === -1
+	if (preattack && Config.AttackSkill[0] > 0 && [sdk.skills.InnerSight, sdk.skills.SlowMissiles].indexOf(Config.AttackSkill[0]) === -1
 		&& Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.skillDelay || !Skill.isTimed(Config.AttackSkill[0]))) {
 		if (unit.distance > preattackRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 			if (!Attack.getIntoPosition(unit, preattackRange, sdk.collision.Ranged)) {

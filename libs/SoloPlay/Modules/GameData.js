@@ -4,7 +4,9 @@
  *    @filename  GameData.js
  *    @author    Nishimura-Katsuo
  *    @desc      game data library
+ *
  */
+// todo - remove the magic numbers here
 (function (module, require) {
 	const MonsterData = require("./MonsterData");
 	const AreaData = require("./AreaData");

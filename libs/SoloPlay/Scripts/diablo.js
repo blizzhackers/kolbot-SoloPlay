@@ -19,7 +19,7 @@ function diablo () {
 				switch (me.classid) {
 				case sdk.charclass.Amazon:
 					if (me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.SoftPoints)) {
-						let decoy = Game.getMonster(356);
+						let decoy = Game.getMonster(sdk.monsters.Dopplezon);
 
 						if (!decoy || (getTickCount() - tick >= decoyDuration)) {
 							Skill.cast(sdk.skills.Decoy, sdk.skills.hand.Right, 7793, 5293);

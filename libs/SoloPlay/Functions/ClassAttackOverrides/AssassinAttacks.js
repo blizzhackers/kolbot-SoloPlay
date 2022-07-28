@@ -27,7 +27,7 @@ ClassAttack.mindBlast = function (unit) {
 
 	if (list.length >= 1) {
 		for (let i = 0; i < list.length; i++) {
-			if (!list[i].dead && !checkCollision(me, list[i], 0x1) && me.mp > mindBlastMpCost * 2) {
+			if (!list[i].dead && !checkCollision(me, list[i], sdk.collision.BlockWall) && me.mp > mindBlastMpCost * 2) {
 				me.overhead("MindBlasting " + list[i].name);
 				Skill.cast(sdk.skills.MindBlast, sdk.skills.hand.Right, list[i]);
 			}
@@ -45,7 +45,7 @@ ClassAttack.placeTraps = function (unit, amount) {
 			// Used for X formation
 			if (Math.abs(i) === Math.abs(j)) {
 				// Unit can be an object with x, y props too, that's why having "mode" prop is checked
-				if (traps >= amount || (unit.hasOwnProperty("mode") && (unit.mode === 0 || unit.mode === 12))) {
+				if (traps >= amount || (unit.hasOwnProperty("mode") && unit.dead)) {
 					return true;
 				}
 
@@ -131,7 +131,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let untimedSkill = -1;
 	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 	let gold = me.gold;
-	let shouldUseCloak = (Skill.canUse(sdk.skills.CloakofShadows) && !unit.isUnderLowerRes && unit.getMobCount(15, 0x1) > 1);
+	let shouldUseCloak = (Skill.canUse(sdk.skills.CloakofShadows) && !unit.isUnderLowerRes && unit.getMobCount(15, sdk.collision.BlockWall) > 1);
 
 	this.mindBlast(unit);
 
@@ -160,7 +160,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	if (checkTraps) {
 		if (Math.round(unit.distance) > this.trapRange || checkCollision(me, unit, sdk.collision.Ranged)) {
-			if (!Attack.getIntoPosition(unit, this.trapRange, sdk.collision.Ranged) || (checkCollision(me, unit, sdk.collision.BlockWall) && (getCollision(me.area, unit.x, unit.y) & 0x1))) {
+			if (!Attack.getIntoPosition(unit, this.trapRange, sdk.collision.Ranged) || (checkCollision(me, unit, sdk.collision.BlockWall) && (getCollision(me.area, unit.x, unit.y) & sdk.collision.BlockWall))) {
 				return Attack.Result.FAILED;
 			}
 		}
@@ -268,7 +268,7 @@ ClassAttack.farCast = function (unit) {
 
 	if (checkTraps) {
 		if (unit.distance > 30 || checkCollision(me, unit, sdk.collision.Ranged)) {
-			if (!Attack.getIntoPosition(unit, 30, sdk.collision.Ranged) || (checkCollision(me, unit, sdk.collision.BlockWall) && (getCollision(me.area, unit.x, unit.y) & 0x1))) {
+			if (!Attack.getIntoPosition(unit, 30, sdk.collision.Ranged) || (checkCollision(me, unit, sdk.collision.BlockWall) && (getCollision(me.area, unit.x, unit.y) & sdk.collision.BlockWall))) {
 				return false;
 			}
 		}

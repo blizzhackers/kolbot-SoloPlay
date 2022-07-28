@@ -14,7 +14,7 @@ const slowable = function (unit, freezeable = false) {
 	&& Attack.checkResist(unit, "cold")
 	// those that are not frozen yet and those that can be frozen or not yet chilled
 	&& (freezeable ? !unit.isFrozen && !unit.getStat(sdk.stats.CannotbeFrozen) : !el.isChilled)
-	&& ![sdk.monsters.Andariel, 510].includes(unit.classid));
+	&& ![sdk.monsters.Andariel, sdk.monsters.Lord5].includes(unit.classid));
 };
 
 const frostNovaCheck = function () {
@@ -186,6 +186,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 		data.static.mana = Skill.getManaCost(sdk.skills.StaticField);
 		data.static.range = Skill.getRange(sdk.skills.StaticField);
 	}
+	
 	data.glacialSpike.have && ![data.mainUntimed.skill, data.secondaryUntimed.skill].includes(data.glacialSpike.skill) && (data.glacialSpike.dmg = GameData.avgSkillDamage(data.glacialSpike.skill, unit));
 	data.mainTimed.have && (data.mainTimed.dmg = GameData.avgSkillDamage(data.mainTimed.skill, unit));
 	data.mainUntimed.have && (data.mainUntimed.dmg = GameData.avgSkillDamage(data.mainUntimed.skill, unit));
@@ -297,13 +298,13 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	switch (ClassAttack.doCast(unit, timedSkill, data)) {
-	case 0: // Fail
+	case Attack.Result.FAILED:
 		Developer.debugging.skills && console.log(sdk.colors.Red + "Fail Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
 		break;
-	case 1: // Success
+	case Attack.Result.SUCCESS:
 		Developer.debugging.skills && console.log(sdk.colors.Red + "Sucess Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
 		return true;
-	case 2: // Try to telestomp
+	case Attack.Result.CANTATTACK: // Try to telestomp
 		if (Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc()
 			&& Attack.validSpot(unit.x, unit.y)
 			&& (Config.TeleStomp || (!me.hell && (unit.getMobCount(10) < me.maxNearMonsters && unit.isSpecial)))) {
@@ -383,13 +384,13 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 		}
 
 		if (ts === sdk.skills.Attack) {
-			if (me.hpPercent < 50 && me.mode !== 4 && me.getMobCount(10) === 0) {
+			if (me.hpPercent < 50 && me.mode !== sdk.units.player.mode.GettingHit && me.getMobCount(10) === 0) {
 				console.log("Low health but safe right now, going to delay a bit");
 				let tick = getTickCount();
 				let howLongToDelay = Config.AttackSkill.some(sk => sk > 1 && Skill.canUse(sk)) ? Time.seconds(2) : Time.seconds(1);
 
 				while (getTickCount() - tick < howLongToDelay) {
-					if (me.mode === 4) {
+					if (me.mode === sdk.units.player.mode.GettingHit) {
 						console.debug("no longer safe, we are being attacked");
 						break;
 					} else if (me.hpPercent >= 55) {
@@ -410,9 +411,9 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			while (getTickCount() - tick < 750) {
 				if (tsMana < me.mp) {
 					break;
-				} else if (me.mode === 4) {
+				} else if (me.mode === sdk.units.player.mode.GettingHit) {
 					console.debug("no longer safe, we are being attacked");
-					return 3;
+					return Attack.Result.NEEDMANA;
 				}
 
 				delay(25);

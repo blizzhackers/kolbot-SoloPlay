@@ -96,6 +96,7 @@ ClassAttack.curseIndex = [
 	},
 ];
 
+// todo - need to re-work this a bit so we don't focus too much on curses when we should be attacking
 ClassAttack.smartCurse = function (unit) {
 	if (unit === undefined || unit.dead || !unit.curseable) return false;
 
@@ -143,10 +144,16 @@ ClassAttack.doAttack = function (unit) {
 	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 	let useTerror = Skill.canUse(sdk.skills.Terror);
 	let useBP = Skill.canUse(sdk.skills.BonePrison);
-	let bpAllowedAreas = [37, 38, 39, 41, 42, 43, 44, 46, 73, 76, 77, 78, 79, 80, 81, 83, 102, 104, 105, 106, 108, 110, 111, 120, 121, 128, 129, 130, 131];
+	let bpAllowedAreas = [
+		sdk.areas.CatacombsLvl4, sdk.areas.Tristram, sdk.areas.MooMooFarm, sdk.areas.RockyWaste, sdk.areas.DryHills, sdk.areas.FarOasis, sdk.areas.LostCity, sdk.areas.ValleyofSnakes,
+		sdk.areas.DurielsLair, sdk.areas.SpiderForest, sdk.areas.GreatMarsh, sdk.areas.FlayerJungle, sdk.areas.LowerKurast, sdk.areas.KurastBazaar, sdk.areas.UpperKurast, sdk.areas.KurastCauseway,
+		sdk.areas.DuranceofHateLvl3, sdk.areas.OuterSteppes, sdk.areas.PlainsofDespair, sdk.areas.CityoftheDamned, sdk.areas.ChaosSanctuary, sdk.areas.BloodyFoothills, sdk.areas.FrigidHighlands,
+		sdk.areas.ArreatSummit, sdk.areas.NihlathaksTemple, sdk.areas.WorldstoneLvl1, sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction
+	];
 
 	// Bone prison
-	if (useBP && unit.distance > ([73, 120].includes(me.area) ? 6 : 10) && bpAllowedAreas.includes(me.area) && (index === 1 || [571, 391].includes(unit.classid))
+	if (useBP && unit.distance > ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit].includes(me.area) ? 6 : 10)
+		&& bpAllowedAreas.includes(me.area) && (index === 1 || [sdk.monsters.ListerTheTormenter, sdk.monsters.HellBovine].includes(unit.classid))
 		&& !checkCollision(me, unit, sdk.collision.Ranged) && Skill.getManaCost(sdk.skills.BonePrison) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
 		if (Skill.cast(sdk.skills.BonePrison, sdk.skills.hand.Right, unit)) {
 			this.bpTick = getTickCount();
@@ -247,8 +254,6 @@ ClassAttack.doAttack = function (unit) {
 
 // Returns: 0 - fail, 1 - success, 2 - no valid attack skills
 ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-	let walk, timedSkillRange, untimedSkillRange;
-
 	// No valid skills can be found
 	if (timedSkill < 0 && untimedSkill < 0) return Attack.Result.CANTATTACK;
 
@@ -256,6 +261,8 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 	if (Config.Skeletons + Config.SkeletonMages + Config.Revives === 0) {
 		this.checkCorpseNearMonster(unit) && this.explodeCorpses(unit);
 	}
+
+	let walk, timedSkillRange, untimedSkillRange;
 
 	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 		timedSkillRange = Skill.getRange(timedSkill);
@@ -275,7 +282,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 			}
 
 			break;
-		case 500: // Pure Summoner
+		case sdk.skills.Summoner: // Pure Summoner
 			if (Math.round(unit.distance) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 				if (!Attack.getIntoPosition(unit, timedSkillRange, sdk.collision.Ranged)) {
 					return Attack.Result.FAILED;
@@ -351,7 +358,7 @@ ClassAttack.farCast = function (unit) {
 	if (Skill.getRange(timedSkill) < 4 && Skill.getRange(untimedSkill) < 4) return Attack.Result.CANTATTACK;
 
 	// Bone prison
-	if (unit.distance > 10 && !checkCollision(me, unit, sdk.collision.Ranged) && Skill.getManaCost(88) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
+	if (unit.distance > 10 && !checkCollision(me, unit, sdk.collision.Ranged) && Skill.getManaCost(sdk.skills.BonePrison) * 2 < me.mp && getTickCount() - this.bpTick > 2000) {
 		if (Skill.cast(sdk.skills.BonePrison, sdk.skills.hand.Right, unit)) {
 			this.bpTick = getTickCount();
 		}
@@ -367,7 +374,7 @@ ClassAttack.farCast = function (unit) {
 	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
 		switch (timedSkill) {
 		case sdk.skills.PoisonNova:
-		case 500: 	// Pure Summoner (Note: unsure where the 500 is coming from)
+		case sdk.skills.Summoner: // Pure Summoner
 			break;
 		default:
 			if (!unit.dead && !checkCollision(me, unit, sdk.collision.Ranged)) {
@@ -394,14 +401,14 @@ ClassAttack.farCast = function (unit) {
 };
 
 ClassAttack.explodeCorpses = function (unit) {
-	if (Config.ExplodeCorpses === 0 || unit.mode === 0 || unit.mode === 12) return false;
+	if (Config.ExplodeCorpses === 0 || unit.dead) return false;
 
 	let corpseList = [];
 	let useAmp = Skill.canUse(sdk.skills.AmplifyDamage);
 	let ampManaCost = Skill.getManaCost(sdk.skills.AmplifyDamage);
 	let explodeCorpsesManaCost = Skill.getManaCost(Config.ExplodeCorpses);
 	let range = Math.floor((me.getSkill(Config.ExplodeCorpses, sdk.skills.subindex.SoftPoints) + 7) / 3);
-	let corpse = Game.getMonster(-1, 12);
+	let corpse = Game.getMonster(-1, sdk.units.monsters.monstermode.Dead);
 
 	if (corpse) {
 		do {

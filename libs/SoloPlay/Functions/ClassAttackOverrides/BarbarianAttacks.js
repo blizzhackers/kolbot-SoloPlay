@@ -40,7 +40,8 @@ const warCryCheck = function () {
 	return getUnits(sdk.unittype.Monster).some(function (el) {
 		if (el === undefined) return false;
 		return (el.attackable && el.distance < 5 && !(el.isSpecial) && el.curseable
-			&& ![sdk.monsters.Andariel, 211, 242, 243, 544, 562, 570, 540, 541, 542].includes(el.classid)
+			&& ![sdk.monsters.Andariel, sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal, sdk.monsters.Tentacle1,
+				sdk.monsters.BaalClone, sdk.monsters.KorlictheProtector, sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian].includes(el.classid)
 			&& (!el.isStunned || getTickCount() - ClassAttack.warCryTick >= 1500) && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE));
 	});
 };
@@ -51,24 +52,32 @@ ClassAttack.tauntMonsters = function (unit, attackSkill, data) {
 	// Can't taunt Main bosses or MinionsofDestruction
 	if (!Skill.canUse(sdk.skills.Taunt) || !data) return;
 	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].includes(me.area)) return;
-	if (Attack.mainBosses.includes(unit.classid) || unit.classid === 571) return;
+	if (Attack.mainBosses.includes(unit.classid) || unit.classid === sdk.monsters.ListerTheTormenter) return;
 
-	let range = (me.area !== sdk.areas.ThroneofDestruction ? 15 : 30);
+	let range = (!me.inArea(sdk.areas.ThroneofDestruction) ? 15 : 30);
 	let rangedMobsClassIDs = [
-		10, 11, 12, 13, 14, 118, 119, 120, 121, 131, 132, 133, 134,
-		135, 170, 171, 172, 173, 174, 238, 239, 240, 310, 362, 501,
-		502, 503, 504, 505, 506, 507, 508, 509, 510, 580, 581, 582, 583, 584, 645, 646, 647, 697
+		sdk.monsters.Afflicted, sdk.monsters.Tainted, sdk.monsters.Misshapen1, sdk.monsters.Disfigured, sdk.monsters.Damned1, sdk.monsters.Gloam1, sdk.monsters.SwampGhost,
+		sdk.monsters.BurningSoul2, sdk.monsters.BlackSoul1, sdk.monsters.GhoulLord1, sdk.monsters.NightLord, sdk.monsters.DarkLord1, sdk.monsters.BloodLord1,
+		sdk.monsters.Banished, sdk.monsters.SkeletonArcher, sdk.monsters.ReturnedArcher1, sdk.monsters.BoneArcher1, sdk.monsters.BurningDeadArcher1, sdk.monsters.HorrorArcher1,
+		sdk.monsters.Sexton, sdk.monsters.Cantor, sdk.monsters.Heirophant1, sdk.monsters.DoomKnight, sdk.monsters.VenomLord1, sdk.monsters.Horror1, sdk.monsters.Horror2,
+		sdk.monsters.Horror3, sdk.monsters.Horror4, sdk.monsters.Horror5, sdk.monsters.Lord1, sdk.monsters.Lord2, sdk.monsters.Lord3, sdk.monsters.Lord4,
+		sdk.monsters.Lord4, sdk.monsters.Afflicted2, sdk.monsters.Tainted, sdk.monsters.Misshapen2, sdk.monsters.Disfigured2, sdk.monsters.Damned2, sdk.monsters.DarkShaman2,
+		sdk.monsters.DevilkinShaman, sdk.monsters.DarkShaman2, sdk.monsters.DarkLord2
 	];
 	let dangerousAndSummoners = [
-		636, 637, 638, 639, 640, 641, 58, 59, 60, 61, 101, 102,
-		103, 104, 105, 557, 558, 669, 670, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478
+		sdk.monsters.Dominus2, sdk.monsters.Witch1, sdk.monsters.VileWitch2, sdk.monsters.Gloam2, sdk.monsters.BlackSoul2, sdk.monsters.BurningSoul1,
+		sdk.monsters.FallenShaman, sdk.monsters.CarverShaman2, sdk.monsters.DevilkinShaman2, sdk.monsters.DarkShaman1, sdk.monsters.HollowOne, sdk.monsters.Guardian1,
+		sdk.monsters.Unraveler1, sdk.monsters.Ancient1, sdk.monsters.BaalSubjectMummy, sdk.monsters.Council4, sdk.monsters.VenomLord2, sdk.monsters.Ancient2,
+		sdk.monsters.Ancient3, sdk.monsters.Succubusexp1, sdk.monsters.VileTemptress, sdk.monsters.StygianHarlot, sdk.monsters.Temptress1, sdk.monsters.Temptress2,
+		sdk.monsters.Dominus1, sdk.monsters.VileWitch1, sdk.monsters.StygianFury, sdk.monsters.Witch2, sdk.monsters.Witch3
 	];
 
-	[sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary].includes(me.area) && rangedMobsClassIDs.push(305, 306);
+	[sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary].includes(me.area) && rangedMobsClassIDs.push(sdk.monsters.Strangler1, sdk.monsters.StormCaster1);
 	
 	let list = getUnits(sdk.unittype.Monster)
 		.filter(function (mob) {
-			return ([0, 8].includes(mob.spectype) && [sdk.states.BattleCry, sdk.states.Decrepify, sdk.states.Taunt].every(state => !mob.getState(state))
+			return ([sdk.units.monsters.spectype.All, sdk.units.monsters.spectype.Minion].includes(mob.spectype)
+				&& [sdk.states.BattleCry, sdk.states.Decrepify, sdk.states.Taunt].every(state => !mob.getState(state))
 				&& ((rangedMobsClassIDs.includes(mob.classid) && mob.distance <= range) || (dangerousAndSummoners.includes(mob.classid) && mob.distance <= 30)));
 		})
 		.sort(Sort.units);
@@ -202,7 +211,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		attackSkill = oneHandSk ? oneHandSk.skill : 0;
 	}
 
-	if (data.howl.have && attackSkill !== 151 && data.howl.mana < me.mp && howlCheck() && me.hpPercent <= 85) {
+	if (data.howl.have && attackSkill !== sdk.skills.Whirlwind && data.howl.mana < me.mp && howlCheck() && me.hpPercent <= 85) {
 		data.grimWard.have ? this.grimWard(6) : Skill.cast(sdk.skills.Howl, sdk.skills.hand.Right);
 	}
 
@@ -265,7 +274,7 @@ ClassAttack.doCast = function (unit, attackSkill, data) {
 	switch (attackSkill) {
 	case sdk.skills.Whirlwind:
 		if (unit.distance > Skill.getRange(attackSkill) || checkCollision(me, unit, sdk.collision.BlockWall)) {
-			if (!Attack.getIntoPosition(unit, Skill.getRange(attackSkill), 0x1, 2)) {
+			if (!Attack.getIntoPosition(unit, Skill.getRange(attackSkill), sdk.collision.BlockWall, 2)) {
 				return Attack.Result.FAILED;
 			}
 		}
@@ -341,7 +350,7 @@ ClassAttack.findItem = function (range = 10) {
 
 		if (corpse) {
 			do {
-				if ((corpse.mode === 0 || corpse.mode === 12) && getDistance(corpse, orgX, orgY) <= range && this.checkCorpse(corpse)) {
+				if (corpse.dead && getDistance(corpse, orgX, orgY) <= range && this.checkCorpse(corpse)) {
 					corpseList.push(copyUnit(corpse));
 				}
 			} while (corpse.getNext());
@@ -406,7 +415,7 @@ ClassAttack.grimWard = function (range = 10) {
 
 		if (corpse) {
 			do {
-				if ((corpse.mode === 0 || corpse.mode === 12) && getDistance(corpse, orgX, orgY) <= range && this.checkCorpse(corpse)) {
+				if (corpse.dead && getDistance(corpse, orgX, orgY) <= range && this.checkCorpse(corpse)) {
 					corpseList.push(copyUnit(corpse));
 				}
 			} while (corpse.getNext());

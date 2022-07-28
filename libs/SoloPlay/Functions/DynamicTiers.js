@@ -6,7 +6,6 @@
 *
 */
 
-// todo: change all values over to sdk for readability
 const sumElementalDmg = function (item) {
 	if (!item) return 0;
 	let fire = item.getStatEx(sdk.stats.FireMinDamage) + item.getStatEx(sdk.stats.FireMaxDamage);
@@ -54,9 +53,9 @@ const mercscore = function (item) {
 
 	let mercRating = 1;
 	// start
-	item.prefixnum === sdk.locale.items.Treachery && (mercRating += item.getStatEx(201, 2) * 1000); // fade
-	mercRating += item.getStatEx(sdk.stats.SkillOnAura, 123) * 1000; // conviction aura
-	mercRating += item.getStatEx(sdk.stats.SkillOnAura, 120) * 100; // meditation aura
+	item.prefixnum === sdk.locale.items.Treachery && (mercRating += item.getStatEx(sdk.stats.SkillWhenStruck, 2) * 1000); // fade
+	mercRating += item.getStatEx(sdk.stats.SkillOnAura, sdk.skills.Conviction) * 1000; // conviction aura
+	mercRating += item.getStatEx(sdk.stats.SkillOnAura, sdk.skills.Meditation) * 100; // meditation aura
 	mercRating += item.getStatEx(sdk.stats.AllSkills) * mercWeights.ALL; // add all skills
 	mercRating += item.getStatEx(sdk.stats.IAS) * mercWeights.IAS; // add IAS
 	mercRating += item.getStatEx(sdk.stats.ToHit) * mercWeights.AR; // add AR
@@ -124,7 +123,7 @@ const mercscore = function (item) {
 		let sockets = Config.Runewords[x][0].length;
 		let baseCID = Config.Runewords[x][1];
 
-		if (item.classid === baseCID && item.quality < 4 && item.sockets === sockets && !item.isRuneword) {
+		if (item.classid === baseCID && item.quality < sdk.itemquality.Magic && item.sockets === sockets && !item.isRuneword) {
 			rwBase = true;
 		}
 	}
@@ -468,7 +467,7 @@ const tierscore = function (item, bodyloc) {
 			meleeRating += item.getStatEx(sdk.stats.DeadlyStrike) * tierWeights.meleeWeights.DS; // add deadly strike
 			meleeRating += item.getStatEx(sdk.stats.LifeLeech) * tierWeights.meleeWeights.LL; // add LL
 			meleeRating += item.getStatEx(sdk.stats.ManaDrainMinDamage) * tierWeights.meleeWeights.ML; // add ML
-			meleeRating += item.getStatEx(sdk.stats.SkillOnAura, 119) * 25; // sanctuary aura
+			meleeRating += item.getStatEx(sdk.stats.SkillOnAura, sdk.skills.Sanctuary) * 25; // sanctuary aura
 			meleeRating += item.getStatEx(sdk.stats.DemonDamagePercent) * tierWeights.meleeWeights.DMGTODEMONS; // add damage % to demons
 			meleeRating += item.getStatEx(sdk.stats.UndeadDamagePercent) * tierWeights.meleeWeights.DMGTOUNDEAD; // add damage % to undead
 			
@@ -614,7 +613,7 @@ const tierscore = function (item, bodyloc) {
 		let sockets = Config.Runewords[x][0].length;
 		let baseCID = Config.Runewords[x][1];
 
-		if (item.classid === baseCID && item.quality < 4 && item.sockets === sockets && !item.isRuneword && !item.getItem()) {
+		if (item.classid === baseCID && item.quality < sdk.itemquality.Magic && item.sockets === sockets && !item.isRuneword && !item.getItem()) {
 			rwBase = true;
 		}
 	}
@@ -647,7 +646,15 @@ const secondaryscore = function (item) {
 const charmscore = function (item) {
 	if (myData.me.charmGids.includes(item.gid)) return 1000;
 	let charmRating = 1;
-	let skillerStats = [[0, 1, 2], [8, 9, 10], [16, 17, 18], [24, 25, 26], [32, 33, 34], [40, 41, 42], [48, 49, 50]][me.classid];
+	let skillerStats = [
+		[sdk.skills.tabs.BowandCrossbow, sdk.skills.tabs.PassiveandMagic, sdk.skills.tabs.JavelinandSpear],
+		[sdk.skills.tabs.Fire, sdk.skills.tabs.Lightning, sdk.skills.tabs.Cold],
+		[sdk.skills.tabs.Curses, sdk.skills.tabs.PoisonandBone, sdk.skills.tabs.NecroSummoning],
+		[sdk.skills.tabs.PalaCombat, sdk.skills.tabs.Offensive, sdk.skills.tabs.Defensive],
+		[sdk.skills.tabs.BarbCombat, sdk.skills.tabs.Masteries, sdk.skills.tabs.Warcries],
+		[sdk.skills.tabs.DruidSummon, sdk.skills.tabs.ShapeShifting, sdk.skills.tabs.Elemental],
+		[sdk.skills.tabs.Traps, sdk.skills.tabs.ShadowDisciplines, sdk.skills.tabs.MartialArts]
+	][me.classid];
 	if (!item.unique && item.classid === sdk.items.GrandCharm && !skillerStats.some(s => item.getStatEx(sdk.stats.AddSkillTab, s))) return -1;
 	const buildInfo = Check.currentBuild();
 

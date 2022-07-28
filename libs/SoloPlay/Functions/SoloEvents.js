@@ -18,9 +18,7 @@ const SoloEvents = {
 	},
 
 	outOfGameCheck: function () {
-		if (!this.check) {
-			return false;
-		}
+		if (!this.check) return false;
 
 		if (this.gameInfo.gameName.length > 0) {
 			D2Bot.printToConsole("Kolbot-SoloPlay :: SoloEvents.outOfGameCheck(): Attempting to join other bots game", sdk.colors.D2Bot.Gold);
@@ -66,8 +64,8 @@ const SoloEvents = {
 
 					me.overhead("Waiting for charm to drop");
 					while (getTickCount() - tick < 120 * 1000) {
-						anni = me.findItem(603, 3, null, 7);
-						torch = me.findItem(604, 3, null, 7);
+						anni = me.findItem(sdk.items.SmallCharm, sdk.itemmode.onGround, -1, sdk.itemquality.Unique);
+						torch = me.findItem(sdk.items.LargeCharm, sdk.itemmode.onGround, -1, sdk.itemquality.Unique);
 
 						if (torch || anni) {
 							break;
@@ -75,7 +73,7 @@ const SoloEvents = {
 					}
 
 					if (torch || anni) {
-						for (let j = 0; j < 12 || me.findItem((anni ? 603 : 604), 0, -1, 7); j++) {
+						for (let j = 0; j < 12 || me.findItem((anni ? sdk.items.SmallCharm : sdk.items.LargeCharm), sdk.itemmode.inStorage, -1, sdk.itemquality.Unique); j++) {
 							Town.move("stash");
 							me.overhead("Looking for " + (anni ? "Annihilus" : "Torch"));
 							Pickit.pickItems();
@@ -258,16 +256,16 @@ const SoloEvents = {
 		// Abort if dead
 		if (me.dead) return false;
 
-		let settings = Object.assign({}, {
+		const settings = Object.assign({}, {
 			allowTeleport: false,
 			allowClearing: false,
 			allowTown: false,
 			retry: 10,
 		}, givenSettings);
 
-		let path, adjustedNode, leaped = false,
-			node = {x: x, y: y},
-			fail = 0;
+		let path, adjustedNode, leaped = false;
+		let node = {x: x, y: y};
+		let fail = 0;
 
 		me.cancelUIFlags();
 
@@ -402,9 +400,9 @@ const SoloEvents = {
 	},
 
 	dodge: function () {
-		let diablo = Game.getMonster(243);
+		let diablo = Game.getMonster(sdk.monsters.Diablo);
 		// Credit @Jaenster
-		let shouldDodge = function (coord) {
+		const shouldDodge = function (coord) {
 			return !!diablo && getUnits(sdk.unittype.Missile)
 				// For every missle that isnt from our merc
 				.filter((missile) => missile && diablo && diablo.gid === missile.owner)
@@ -462,7 +460,8 @@ const SoloEvents = {
 
 		// No Tome, or tome has no tps, or no scrolls
 		if (!Town.canTpToTown()) {
-			Pather.moveToExit([2, 3], true);
+			// should really check how close the town exit is
+			Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.ColdPlains], true);
 			Pather.getWP(3);
 			Pather.useWaypoint(sdk.areas.RogueEncampment);
 		} else {
@@ -504,7 +503,7 @@ const SoloEvents = {
 				|| me.gold < 5000
 				|| (!me.baal && SetUp.finalBuild !== "Bumper")) {
 				let waveMonster = ((bytes[1]) | (bytes[2] << 8));
-				let wave = [62, 105, 557, 558, 571].indexOf(waveMonster);
+				let wave = [sdk.monsters.WarpedShaman, sdk.monsters.BaalSubjectMummy, sdk.monsters.Council4, sdk.monsters.VenomLord2, sdk.monsters.ListerTheTormenter].indexOf(waveMonster);
 				console.debug("Wave # " + wave);
 				if (SoloEvents.skippedWaves.includes(wave)) return;
 				const waveBoss = {

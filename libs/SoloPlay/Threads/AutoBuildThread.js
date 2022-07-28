@@ -52,7 +52,7 @@ function skillInValidRange (id) {
 	}
 }
 
-function gainedLevels () { return me.charlvl - prevLevel; }
+const gainedLevels = () => me.charlvl - prevLevel;
 
 function canSpendPoints () {
 	let unusedStatPoints = me.getStat(sdk.stats.StatPts);
@@ -135,9 +135,9 @@ function getTemplateFilename () {
 function getRequiredSkills (id) {
 	function searchSkillTree (id) {
 		let results = [];
-		let skillTreeRight	= getBaseStat("skills", id, 181);
-		let skillTreeMiddle	= getBaseStat("skills", id, 182);
-		let skillTreeLeft	= getBaseStat("skills", id, 183);
+		let skillTreeRight = getBaseStat("skills", id, sdk.stats.PreviousSkillRight);
+		let skillTreeMiddle = getBaseStat("skills", id, sdk.stats.PreviousSkillMiddle);
+		let skillTreeLeft = getBaseStat("skills", id, sdk.stats.PreviousSkillLeft);
 
 		results.push(skillTreeRight);
 		results.push(skillTreeMiddle);
@@ -145,7 +145,7 @@ function getRequiredSkills (id) {
 
 		for (let i = 0; i < results.length; i++) {
 			let skill = results[i];
-			let skillInValidRange = (sdk.skills.Attack < skill && skill <= sdk.skills.PhoenixStrike) && (![217, 218, sdk.skills.IdentifyScroll, sdk.skills.TownPortal].contains(skill));
+			let skillInValidRange = (sdk.skills.Attack < skill && skill <= sdk.skills.PhoenixStrike) && (![sdk.skills.IdentifyScroll, sdk.skills.BookofIdentify, sdk.skills.TownPortalScroll, sdk.skills.BookofTownPortal].contains(skill));
 			let hardPointsInSkill = me.getSkill(skill, sdk.skills.subindex.HardPoints);
 
 			if (skillInValidRange && !hardPointsInSkill) {
@@ -157,7 +157,7 @@ function getRequiredSkills (id) {
 
 	let requirements = [];
 	searchSkillTree(id);
-	function increasing (a, b) { return a - b; }
+	const increasing = () => a - b;
 	return requirements.sort(increasing);
 }
 
@@ -208,7 +208,7 @@ function spendSkillPoints () {
 			throw new Error("You need prerequisite skills " + requiredSkills.join(", ") + " before adding " + skillName + errInvalidSkill);
 		}
 
-		let requiredLevel = getBaseStat("skills", id, 176);
+		let requiredLevel = getBaseStat("skills", id, sdk.stats.MinimumRequiredLevel);
 		if (me.charlvl < requiredLevel) {
 			throw new Error("You need to be at least level " + requiredLevel + " before you get " + skillName + errInvalidSkill);
 		}
