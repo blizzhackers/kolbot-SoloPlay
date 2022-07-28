@@ -88,7 +88,7 @@ new Overrides.Override(Starter, Starter.receiveCopyData, function (orignal, mode
 			Starter.profileInfo.ladder = buildCheck[0].indexOf("NL") === -1; // not NL so its ladder - true
 
 			if (buildCheck.length <= 1) {
-				D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', 6);
+				D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', sdk.colors.D2Bot.Gold);
 				D2Bot.printToConsole("If you are still confused please read the included readMe. https://github.com/blizzhackers/kolbot-SoloPlay/blob/main/README.md", sdk.colors.D2Bot.Gold);
 				D2Bot.stop();
 			}
@@ -563,7 +563,7 @@ function locationAction (location) {
 			case getLocaleString(5202): // cd key intended for another product
 			case getLocaleString(10915): // lod key intended for another product
 				D2Bot.updateStatus("Invalid CDKey");
-				D2Bot.printToConsole("Invalid CDKey: " + Starter.gameInfo.mpq, 6);
+				D2Bot.printToConsole("Invalid CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
 				D2Bot.CDKeyDisabled();
 
 				if (Starter.gameInfo.switchKeys) {
@@ -576,7 +576,7 @@ function locationAction (location) {
 				break;
 			case getLocaleString(5199):
 				D2Bot.updateStatus("Disabled CDKey");
-				D2Bot.printToConsole("Disabled CDKey: " + Starter.gameInfo.mpq, 6);
+				D2Bot.printToConsole("Disabled CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
 				D2Bot.CDKeyDisabled();
 
 				if (Starter.gameInfo.switchKeys) {
@@ -589,7 +589,7 @@ function locationAction (location) {
 				break;
 			case getLocaleString(10913):
 				D2Bot.updateStatus("Disabled LoD CDKey");
-				D2Bot.printToConsole("Disabled LoD CDKey: " + Starter.gameInfo.mpq, 6);
+				D2Bot.printToConsole("Disabled LoD CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
 				D2Bot.CDKeyDisabled();
 
 				if (Starter.gameInfo.switchKeys) {
@@ -680,9 +680,9 @@ function locationAction (location) {
 			}
 
 			// CDKey disabled from realm play
-			if (string === getLocaleString(11161)) {
+			if (string === getLocaleString(sdk.locale.text.CdKeyDisabledFromRealm)) {
 				D2Bot.updateStatus("Realm Disabled CDKey");
-				D2Bot.printToConsole("Realm Disabled CDKey: " + Starter.gameInfo.mpq, 6);
+				D2Bot.printToConsole("Realm Disabled CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
 				D2Bot.CDKeyDisabled();
 
 				if (Starter.gameInfo.switchKeys) {

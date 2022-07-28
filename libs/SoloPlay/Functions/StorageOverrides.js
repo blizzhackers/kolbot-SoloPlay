@@ -157,7 +157,7 @@ var Container = function (name, width, height, location) {
 				let ix = item.y, iy = item.x; // x and y are backwards!
 
 				if (this.location !== item.location) {
-					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a non-storage item in the list: " + item.name + " at " + ix + "," + iy, 6);
+					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a non-storage item in the list: " + item.name + " at " + ix + "," + iy, sdk.colors.D2Bot.Gold);
 					continue; // dont try to touch non-storage items | TODO: prevent non-storage items from getting this far
 				}
 
@@ -170,12 +170,12 @@ var Container = function (name, width, height, location) {
 				}
 
 				if (item.type !== 4) {
-					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a non-item in the list: " + item.name + " at " + ix + "," + iy, 6);
+					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a non-item in the list: " + item.name + " at " + ix + "," + iy, sdk.colors.D2Bot.Gold);
 					continue; // dont try to touch non-items | TODO: prevent non-items from getting this far
 				}
 
 				if (item.mode === 3 ) {
-					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a ground item in the list: " + item.name + " at " + ix + "," + iy, 6);
+					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a ground item in the list: " + item.name + " at " + ix + "," + iy, sdk.colors.D2Bot.Gold);
 					continue; // dont try to touch ground items | TODO: prevent ground items from getting this far
 				}
 
@@ -359,22 +359,22 @@ var Container = function (name, width, height, location) {
 			for (let i = 0; i < itemsToMove.length; i++) {
 				let reverseX = !(SetUp.sortSettings.ItemsSortedFromRight.indexOf(item.classid) > -1);
 				tmpLocation = this.FindSpot(itemsToMove[i], reverseX, false);
-				// D2Bot.printToConsole(itemsToMove[i].name + " moving from " + itemsToMove[i].x + "," + itemsToMove[i].y + " to "  + tmpLocation.y + "," + tmpLocation.x, 6);
+				// D2Bot.printToConsole(itemsToMove[i].name + " moving from " + itemsToMove[i].x + "," + itemsToMove[i].y + " to "  + tmpLocation.y + "," + tmpLocation.x, sdk.colors.D2Bot.Gold);
 
 				if (this.MoveToSpot(itemsToMove[i], tmpLocation.y, tmpLocation.x)) {
-					// D2Bot.printToConsole(itemsToMove[i].name + " moved to " + tmpLocation.y + "," + tmpLocation.x, 6);
+					// D2Bot.printToConsole(itemsToMove[i].name + " moved to " + tmpLocation.y + "," + tmpLocation.x, sdk.colors.D2Bot.Gold);
 					itemsMoved.push(copyUnit(itemsToMove[i]));
 					Storage.Reload(); // success on this item, reload!
 					delay(1); // give reload a moment of time to avoid moving the same item twice
 				} else {
-					D2Bot.printToConsole(itemsToMove[i].name + " failed to move to " + tmpLocation.y + "," + tmpLocation.x, 6);
+					D2Bot.printToConsole(itemsToMove[i].name + " failed to move to " + tmpLocation.y + "," + tmpLocation.x, sdk.colors.D2Bot.Gold);
 
 					return false;
 				}
 			}
 		}
 
-		//D2Bot.printToConsole("MakeSpot success! " + item.name + " can now be placed at " + location.y + "," + location.x, 6);
+		//D2Bot.printToConsole("MakeSpot success! " + item.name + " can now be placed at " + location.y + "," + location.x, sdk.colors.D2Bot.Gold);
 		return ({x: location.x, y: location.y});
 	};
 

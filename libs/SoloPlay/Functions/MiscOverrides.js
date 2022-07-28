@@ -363,7 +363,7 @@ Misc.addSocketablesToItem = function (item, runes = []) {
 			}
 
 			if (item.getItemsEx().length > preSockets) {
-				D2Bot.printToConsole("Added socketable: " + rune.fname + " to " + item.fname, 6);
+				D2Bot.printToConsole("Added socketable: " + rune.fname + " to " + item.fname, sdk.colors.D2Bot.Gold);
 				Misc.logItem("Added " + rune.name + " to: ", item);
 				preSockets++;
 			}
@@ -687,7 +687,7 @@ Misc.errorReport = function (error, script) {
 	}
 
 	if (this.errorConsolePrint) {
-		D2Bot.printToConsole(oogmsg, 10);
+		D2Bot.printToConsole(oogmsg, sdk.colors.D2Bot.Gray);
 	}
 
 	showConsole();

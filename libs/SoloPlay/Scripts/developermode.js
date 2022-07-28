@@ -259,7 +259,7 @@ function developermode() {
 			try {
 				eval(command);
 			} catch (e) {
-				console.errorReport(e);
+				console.error(e);
 			}
 
 			me.overhead("Done with action");

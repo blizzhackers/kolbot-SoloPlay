@@ -167,7 +167,7 @@ const SoloEvents = {
 	dropCharm: function (charm) {
 		if (!charm || charm === undefined) return false;
 
-		D2Bot.printToConsole("Kolbot-SoloPlay :: Dropping " + charm.name, 8);
+		D2Bot.printToConsole("Kolbot-SoloPlay :: Dropping " + charm.name, sdk.colors.D2Bot.Orange);
 		let orginalLocation = {act: me.act, area: me.area, x: me.x, y: me.y};
 
 		if (!me.inTown) {

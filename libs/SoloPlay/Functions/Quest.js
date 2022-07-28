@@ -448,7 +448,7 @@ const Quest = {
 			}
 
 			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : ", item);
-			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, 6);
+			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, sdk.colors.D2Bot.Gold);
 			CharData.updateData(sdk.difficulty.nameOf(me.diff), "socketUsed", true);
 			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
 			updateMyData();
@@ -524,7 +524,7 @@ const Quest = {
 			}
 
 			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : ", item);
-			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, 6);
+			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, sdk.colors.D2Bot.Gold);
 			CharData.updateData(sdk.difficulty.nameOf(me.diff), "imbueUsed", true);
 			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
 			updateMyData();
