@@ -363,6 +363,21 @@ const SetUp = {
 		Config.Cubing = !!me.getItem(sdk.items.quest.Cube);
 		Config.MakeRunewords = true;
 
+		/* Shrine scan configuration. */
+		if (Check.currentBuild().caster) {
+			Config.ScanShrines = [
+				sdk.shrines.Refilling, sdk.shrines.Health, sdk.shrines.Mana, sdk.shrines.Gem, sdk.shrines.Monster, sdk.shrines.HealthExchange,
+				sdk.shrines.ManaExchange, sdk.shrines.Experience, sdk.shrines.Armor, sdk.shrines.ResistFire, sdk.shrines.ResistCold,
+				sdk.shrines.ResistLightning, sdk.shrines.ResistPoison, sdk.shrines.Skill, sdk.shrines.ManaRecharge, sdk.shrines.Stamina
+			];
+		} else {
+			Config.ScanShrines = [
+				sdk.shrines.Refilling, sdk.shrines.Health, sdk.shrines.Mana, sdk.shrines.Gem, sdk.shrines.Monster, sdk.shrines.HealthExchange,
+				sdk.shrines.ManaExchange, sdk.shrines.Experience, sdk.shrines.Combat, sdk.shrines.Skill, sdk.shrines.Armor, sdk.shrines.ResistFire,
+				sdk.shrines.ResistCold, sdk.shrines.ResistLightning, sdk.shrines.ResistPoison, sdk.shrines.ManaRecharge, sdk.shrines.Stamina
+			];
+		}
+
 		/* General logging. */
 		Config.ItemInfo = false;
 		Config.LogKeys = false;

@@ -71,7 +71,7 @@ function LoadConfig () {
 	Config.AutoEquip = true;
 
 	// AutoEquip setup
-	let levelingTiers = [
+	const levelingTiers = [
 		// Weapon
 		"me.normal && [type] == orb && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"me.charlvl > 1 && ([type] == orb || [type] == wand || [type] == sword || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
@@ -96,7 +96,7 @@ function LoadConfig () {
 		"[type] == ring && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 	];
 
-	let expansionTiers = [
+	const expansionTiers = [
 		// Switch
 		"[type] == wand && [quality] >= Normal # [itemchargedskill] == 72 # [secondarytier] == 25000",								// Weaken charged wand
 		"[type] == wand && [quality] >= Normal # [itemchargedskill] == 91 # [secondarytier] == 50000 + chargeditemscore(item, 91)",	// Lower Resist charged wand
@@ -136,25 +136,6 @@ function LoadConfig () {
 
 	/* Monster skip configuration. */
 	Pather.canTeleport() && me.lightRes < 75 && Config.SkipEnchant.push("lightning enchanted");
-
-	/* Shrine scan configuration. */
-	Config.ScanShrines = [
-		sdk.shrines.Refilling,
-		sdk.shrines.Health,
-		sdk.shrines.Mana,
-		sdk.shrines.Gem,
-		sdk.shrines.Experience,
-		sdk.shrines.HealthExchange,
-		sdk.shrines.ManaExchange,
-		sdk.shrines.Armor,
-		sdk.shrines.ResistFire,
-		sdk.shrines.ResistCold,
-		sdk.shrines.ResistLightning,
-		sdk.shrines.ResistPoison,
-		sdk.shrines.Skill,
-		sdk.shrines.ManaRecharge,
-		sdk.shrines.Stamina
-	];
 
 	/* Class specific configuration. */
 	Config.UseTelekinesis = true; // use telekinesis if have skill
