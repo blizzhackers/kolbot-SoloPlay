@@ -22,14 +22,14 @@ function tombs () {
 			me.overhead("Tomb #" + (number + 1));
 			const duryTomb = getRoom().correcttomb === me.area;
 
-			let obj = Game.getPresetObject(me.area, (duryTomb ? sdk.units.SmallSparklyChest : sdk.units.HoradricStaffHolder));
+			let obj = Game.getPresetObject(me.area, (duryTomb ? sdk.objects.SmallSparklyChest : sdk.objects.HoradricStaffHolder));
 			!!obj && Pather.moveToUnit(obj);
 
 			Attack.clear(50);
 			Pickit.pickItems();
 
-			if (me.duriel && Game.getObject(sdk.units.PortaltoDurielsLair)) {
-				Pather.useUnit(sdk.unittype.Object, sdk.units.PortaltoDurielsLair, sdk.areas.DurielsLair);
+			if (me.duriel && Game.getObject(sdk.objects.PortaltoDurielsLair)) {
+				Pather.useUnit(sdk.unittype.Object, sdk.objects.PortaltoDurielsLair, sdk.areas.DurielsLair);
 				me.sorceress && !me.normal ? Attack.pwnDury() : Attack.killTarget("Duriel");
 				Pickit.pickItems();
 			}

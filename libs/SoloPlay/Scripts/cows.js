@@ -45,7 +45,7 @@ function cows () {
 		me.area !== sdk.areas.RogueEncampment && Town.goToTown(1);
 
 		let npc, tome, scroll;
-		let tpTome = me.findItems(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory);
+		let tpTome = me.findItems(sdk.items.TomeofTownPortal, sdk.items.mode.inStorage, sdk.storage.Inventory);
 
 		try {
 			if (tpTome.length < 2) {
@@ -56,7 +56,7 @@ function cows () {
 
 				if (!!tome && tome.getItemCost(sdk.items.cost.ToBuy) < me.gold && tome.buy()) {
 					delay(500);
-					tpTome = me.findItems(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory);
+					tpTome = me.findItems(sdk.items.TomeofTownPortal, sdk.items.mode.inStorage, sdk.storage.Inventory);
 					scroll = npc.getItem(sdk.items.ScrollofTownPortal);
 					let scrollCost = scroll.getItemCost(sdk.items.cost.ToBuy);
 					tpTome.forEach(function (book) {

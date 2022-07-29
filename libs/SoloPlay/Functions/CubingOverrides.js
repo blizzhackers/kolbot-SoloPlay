@@ -424,7 +424,7 @@ Cubing.buildLists = function () {
 	this.validIngredients = [];
 	this.neededIngredients = [];
 	let items = me.getItemsEx()
-		.filter(item => [sdk.itemmode.inStorage, sdk.itemmode.Equipped].includes(item.mode))
+		.filter(item => [sdk.items.mode.inStorage, sdk.items.mode.Equipped].includes(item.mode))
 		.sort((a, b) => b.ilvl - a.ilvl);
 
 	for (let i = 0; i < this.recipes.length; i += 1) {
@@ -583,7 +583,7 @@ Cubing.checkItem = function (unit) {
 
 	for (let i = 0; i < this.validIngredients.length; i++) {
 		// not the same item but the same type of item
-		if (unit.mode !== sdk.itemmode.Equipped && unit.gid !== this.validIngredients[i].gid && unit.classid === this.validIngredients[i].classid && unit.quality === this.validIngredients[i].quality) {
+		if (unit.mode !== sdk.items.mode.Equipped && unit.gid !== this.validIngredients[i].gid && unit.classid === this.validIngredients[i].classid && unit.quality === this.validIngredients[i].quality) {
 			// item is better than the one we currently have, so add it to validIngredient array and remove old item
 			if (unit.ilvl > this.validIngredients[i].ilvl && this.validItem(unit, this.validIngredients[i].recipe)) {
 				this.validIngredients.push({classid: unit.classid, quality: unit.quality, ilvl: unit.ilvl, gid: unit.gid, recipe: this.validIngredients[i].recipe});
@@ -614,7 +614,7 @@ Cubing.validItem = function (unit, recipe) {
 	if (Runewords.validGids.includes(unit.gid) || CraftingSystem.validGids.includes(unit.gid)) return false;
 
 	// Gems and runes
-	if ((unit.itemType >= sdk.itemtype.Amethyst && unit.itemType <= sdk.itemtype.Skull) || unit.itemType === sdk.itemtype.Rune) {
+	if ((unit.itemType >= sdk.items.type.Amethyst && unit.itemType <= sdk.items.type.Skull) || unit.itemType === sdk.items.type.Rune) {
 		if (!recipe.Enabled && recipe.Ingredients[0] !== unit.classid && recipe.Ingredients[1] !== unit.classid) {
 			return false;
 		}
@@ -643,7 +643,7 @@ Cubing.validItem = function (unit, recipe) {
 			}
 		}
 		// Junk jewels (NOT matching a pickit entry)
-		if (unit.itemType === sdk.itemtype.Jewel) {
+		if (unit.itemType === sdk.items.type.Jewel) {
 			if (recipe.Enabled && ntipResult === Pickit.Result.UNWANTED) return true;
 		// Main item, NOT matching a pickit entry
 		} else if (unit.magic && Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) >= recipe.Level
@@ -745,17 +745,17 @@ Cubing.validItem = function (unit, recipe) {
 	if (recipe.Index === Recipe.Reroll.Charm) {
 		if (unit.magic && ntipResult === Pickit.Result.UNWANTED) {
 			switch (unit.itemType) {
-			case sdk.itemtype.SmallCharm:
+			case sdk.items.type.SmallCharm:
 				if (unit.ilvl >= recipe.Level.cm1.ilvl) {
 					return true;
 				}
 				break;
-			case sdk.itemtype.LargeCharm:
+			case sdk.items.type.LargeCharm:
 				if (unit.ilvl >= recipe.Level.cm2.ilvl) {
 					return true;
 				}
 				break;
-			case sdk.itemtype.GrandCharm:
+			case sdk.items.type.GrandCharm:
 				if (unit.ilvl >= recipe.Level.cm2.ilvl) {
 					return true;
 				}
@@ -781,7 +781,7 @@ Cubing.validItem = function (unit, recipe) {
 			return true;
 		}
 
-		if (recipe.Enabled && recipe.Ingredients[2] === unit.classid && unit.itemType === sdk.itemtype.Ring
+		if (recipe.Enabled && recipe.Ingredients[2] === unit.classid && unit.itemType === sdk.items.type.Ring
 			&& unit.getStat(sdk.stats.MaxManaPercent) && !Storage.Inventory.IsLocked(unit, Config.Inventory)) {
 			return true;
 		}

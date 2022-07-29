@@ -103,7 +103,7 @@ const finalBuild = {
 				Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.Conviction, sdk.skills.Zeal, sdk.skills.Conviction, -1, -1];
 				Config.LowManaSkill = [-1, -1];
 
-				if (!me.haveSome([{name: sdk.locale.items.Dragon, itemtype: sdk.itemtype.Armor}, {name: sdk.locale.items.HandofJustice}])) {
+				if (!me.haveSome([{name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}, {name: sdk.locale.items.HandofJustice}])) {
 					Config.SkipImmune = ["lightning and physical"];
 				} else {
 					Config.SkipImmune = ["lightning and fire and physical"];	// Don't think this ever happens but should skip if it does
@@ -118,7 +118,7 @@ const finalBuild = {
 		if (me.classic) {
 			return false;
 		} else {
-			return me.haveAll([{name: sdk.locale.items.Dream, itemtype: sdk.itemtype.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.itemtype.Helm}]);
+			return me.haveAll([{name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}]);
 		}
 	},
 

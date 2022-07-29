@@ -25,10 +25,10 @@ Attack.init = function () {
 		console.log("Loading custom attack file");
 		include("common/Attacks/" + Config.CustomClassAttack + ".js");
 	} else {
-		if (!include("SoloPlay/Functions/ClassAttackOverrides/" + sdk.charclass.nameOf(me.classid) + "Attacks.js")) {
+		if (!include("SoloPlay/Functions/ClassAttackOverrides/" + sdk.player.class.nameOf(me.classid) + "Attacks.js")) {
 			console.log(sdk.colors.Red + "Failed to include: " + "SoloPlay/Functions/ClassAttackOverrides/" + this.classes[me.classid] + "Attacks.js");
 			console.log(sdk.colors.Blue + "Loading default attacks instead");
-			include("common/Attacks/" + sdk.charclass.nameOf(me.classid) + ".js");
+			include("common/Attacks/" + sdk.player.class.nameOf(me.classid) + ".js");
 		}
 	}
 
@@ -1130,7 +1130,7 @@ Attack.pwnDia = function () {
 
 	// set values
 	switch (me.classid) {
-	case sdk.charclass.Sorceress:
+	case sdk.player.class.Sorceress:
 		manaTP = Skill.getManaCost(sdk.skills.Teleport);
 		manaSK = Skill.getManaCost(Config.AttackSkill[1]);
 		manaStatic = Skill.getManaCost(sdk.skills.StaticField);
@@ -1162,14 +1162,14 @@ Attack.pwnDia = function () {
 		}
 
 		break;
-	case sdk.charclass.Necromancer:
+	case sdk.player.class.Necromancer:
 		minDist = 35;
 		maxDist = 40;
 		minRange = 15;
 		maxRange = 50;
 
 		break;
-	case sdk.charclass.Assassin:
+	case sdk.player.class.Assassin:
 		minDist = 25;
 		maxDist = 30;
 		minRange = 15;

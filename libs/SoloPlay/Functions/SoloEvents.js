@@ -64,8 +64,8 @@ const SoloEvents = {
 
 					me.overhead("Waiting for charm to drop");
 					while (getTickCount() - tick < 120 * 1000) {
-						anni = me.findItem(sdk.items.SmallCharm, sdk.itemmode.onGround, -1, sdk.itemquality.Unique);
-						torch = me.findItem(sdk.items.LargeCharm, sdk.itemmode.onGround, -1, sdk.itemquality.Unique);
+						anni = me.findItem(sdk.items.SmallCharm, sdk.items.mode.onGround, -1, sdk.items.quality.Unique);
+						torch = me.findItem(sdk.items.LargeCharm, sdk.items.mode.onGround, -1, sdk.items.quality.Unique);
 
 						if (torch || anni) {
 							break;
@@ -73,7 +73,7 @@ const SoloEvents = {
 					}
 
 					if (torch || anni) {
-						for (let j = 0; j < 12 || me.findItem((anni ? sdk.items.SmallCharm : sdk.items.LargeCharm), sdk.itemmode.inStorage, -1, sdk.itemquality.Unique); j++) {
+						for (let j = 0; j < 12 || me.findItem((anni ? sdk.items.SmallCharm : sdk.items.LargeCharm), sdk.items.mode.inStorage, -1, sdk.items.quality.Unique); j++) {
 							Town.move("stash");
 							me.overhead("Looking for " + (anni ? "Annihilus" : "Torch"));
 							Pickit.pickItems();
@@ -213,8 +213,8 @@ const SoloEvents = {
 		Attack.killTarget(sdk.monsters.DiabloClone);
 		Pickit.pickItems();
 
-		let newAnni = Game.getItem(sdk.items.SmallCharm, sdk.itemmode.onGround);
-		let oldAnni = me.findItem(sdk.items.SmallCharm, sdk.itemmode.inStorage, -1, sdk.itemquality.Unique);
+		let newAnni = Game.getItem(sdk.items.SmallCharm, sdk.items.mode.onGround);
+		let oldAnni = me.findItem(sdk.items.SmallCharm, sdk.items.mode.inStorage, -1, sdk.items.quality.Unique);
 
 		if (newAnni && oldAnni) {
 			this.sendToList({profile: me.profile, ladder: me.ladder}, 60);

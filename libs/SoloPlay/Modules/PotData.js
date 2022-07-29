@@ -85,7 +85,7 @@
 				sdk.items.HealingPotion, sdk.items.HealingPotion, sdk.items.HealingPotion,
 				sdk.items.ManaPotion, sdk.items.ManaPotion, sdk.items.ManaPotion,
 				function (item) {
-					return item.itemType === sdk.itemtype.ChippedGem;
+					return item.itemType === sdk.items.type.ChippedGem;
 				}
 			]
 		]
@@ -104,7 +104,7 @@
 				sdk.items.HealingPotion, sdk.items.HealingPotion, sdk.items.HealingPotion,
 				sdk.items.ManaPotion, sdk.items.ManaPotion, sdk.items.ManaPotion,
 				function (item) {
-					return item.itemType === sdk.itemtype.Gem;
+					return item.itemType === sdk.items.type.Gem;
 				}
 			],
 		]

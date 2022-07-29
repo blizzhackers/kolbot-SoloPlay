@@ -84,13 +84,13 @@ const mercscore = function (item) {
 	}
 
 	switch (myData.merc.classid) {
-	case sdk.monsters.mercs.Rogue:
-	case sdk.monsters.mercs.IronWolf:
+	case sdk.mercs..Rogue:
+	case sdk.mercs..IronWolf:
 		mercRating += item.getStatEx(sdk.stats.MinDamage) * mercWeights.MINDMG; // add MIN damage
 		mercRating += item.getStatEx(sdk.stats.MaxDamage) * mercWeights.MAXDMG; // add MAX damage
 
 		break;
-	case sdk.monsters.mercs.A5Barb:
+	case sdk.mercs..A5Barb:
 		if ([item.getStatEx(sdk.stats.SecondaryMinDamage), item.getStatEx(sdk.stats.SecondaryMaxDamage)].includes(0)) {
 			mercRating += item.getStatEx(sdk.stats.MinDamage) * mercWeights.MINDMG; // add MIN damage
 			mercRating += item.getStatEx(sdk.stats.MaxDamage) * mercWeights.MAXDMG; // add MAX damage
@@ -98,7 +98,7 @@ const mercscore = function (item) {
 			break;
 		}
 	// eslint-disable-next-line no-fallthrough
-	case sdk.monsters.mercs.Guard:
+	case sdk.mercs..Guard:
 	default:
 		mercRating += item.getStatEx(sdk.stats.SecondaryMinDamage) * mercWeights.SECMINDMG;
 		mercRating += item.getStatEx(sdk.stats.SecondaryMaxDamage) * mercWeights.SECMAXDMG;
@@ -123,7 +123,7 @@ const mercscore = function (item) {
 		let sockets = Config.Runewords[x][0].length;
 		let baseCID = Config.Runewords[x][1];
 
-		if (item.classid === baseCID && item.quality < sdk.itemquality.Magic && item.sockets === sockets && !item.isRuneword) {
+		if (item.classid === baseCID && item.quality < sdk.items.quality.Magic && item.sockets === sockets && !item.isRuneword) {
 			rwBase = true;
 		}
 	}
@@ -352,7 +352,7 @@ const tierscore = function (item, bodyloc) {
 		!canTele && (generalRating += item.getStatEx(sdk.stats.FRW) * tierWeights.generalWeights.FRW);
 
 		// belt slots
-		item.itemType === sdk.itemtype.Belt && (generalRating += Storage.BeltSize() * 4 * tierWeights.generalWeights.BELTSLOTS); // rows * columns * weight
+		item.itemType === sdk.items.type.Belt && (generalRating += Storage.BeltSize() * 4 * tierWeights.generalWeights.BELTSLOTS); // rows * columns * weight
 
 		// start generalRating
 		generalRating += item.getStatEx(sdk.stats.MagicBonus) * tierWeights.generalWeights.MF; // add magic find
@@ -446,7 +446,7 @@ const tierscore = function (item, bodyloc) {
 
 		// Melee Specific
 		if (!buildInfo.caster || Config.AttackSkill.includes(sdk.skills.Attack) || Config.LowManaSkill.includes(sdk.skills.Attack)) {
-			let eleDmgModifer = [sdk.itemtype.Ring, sdk.itemtype.Amulet].includes(item.itemType) ? 2 : 1;
+			let eleDmgModifer = [sdk.items.type.Ring, sdk.items.type.Amulet].includes(item.itemType) ? 2 : 1;
 			let meleeRating = 0;
 
 			item.getStatEx(sdk.stats.ReplenishDurability) && (meleeRating += 15);
@@ -613,7 +613,7 @@ const tierscore = function (item, bodyloc) {
 		let sockets = Config.Runewords[x][0].length;
 		let baseCID = Config.Runewords[x][1];
 
-		if (item.classid === baseCID && item.quality < sdk.itemquality.Magic && item.sockets === sockets && !item.isRuneword && !item.getItem()) {
+		if (item.classid === baseCID && item.quality < sdk.items.quality.Magic && item.sockets === sockets && !item.isRuneword && !item.getItem()) {
 			rwBase = true;
 		}
 	}

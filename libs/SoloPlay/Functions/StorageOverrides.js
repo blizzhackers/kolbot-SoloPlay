@@ -34,7 +34,7 @@ var Container = function (name, width, height, location) {
 		let x, y;
 
 		// Make sure it is in this container.
-		if (item.location !== this.location || (item.mode !== sdk.itemmode.inStorage && item.mode !== sdk.itemmode.inBelt)) {
+		if (item.location !== this.location || (item.mode !== sdk.items.mode.inStorage && item.mode !== sdk.items.mode.inBelt)) {
 			return false;
 		}
 
@@ -58,7 +58,7 @@ var Container = function (name, width, height, location) {
 		reference = baseRef.slice(0);
 
 		// Make sure it is in this container.
-		if (item.mode !== sdk.itemmode.inStorage || item.location !== this.location) {
+		if (item.mode !== sdk.items.mode.inStorage || item.location !== this.location) {
 			return false;
 		}
 
@@ -172,7 +172,7 @@ var Container = function (name, width, height, location) {
 					continue; // dont try to touch non-items | TODO: prevent non-items from getting this far
 				}
 
-				if (item.mode === sdk.itemmode.onGround) {
+				if (item.mode === sdk.items.mode.onGround) {
 					D2Bot.printToConsole("StorageOverrides.js>SortItems WARNING: Detected a ground item in the list: " + item.name + " at " + ix + "," + iy, sdk.colors.D2Bot.Gold);
 					continue; // dont try to touch ground items | TODO: prevent ground items from getting this far
 				}
@@ -379,9 +379,9 @@ var Container = function (name, width, height, location) {
 		}
 
 		// Can't deal with items on ground!
-		if (item.mode === sdk.itemmode.onGround) return false;
+		if (item.mode === sdk.items.mode.onGround) return false;
 		// Item already on the cursor.
-		if (me.itemoncursor && item.mode !== sdk.itemmode.onCursor) return false;
+		if (me.itemoncursor && item.mode !== sdk.items.mode.onCursor) return false;
 
 		// Make sure stash is open
 		if (this.location === sdk.storage.Stash && !Town.openStash()) return false;
@@ -541,7 +541,7 @@ var Storage = new function () {
 	};
 
 	this.BeltSize = function () {
-		let item = me.getItem(-1, sdk.itemmode.Equipped); // get equipped item
+		let item = me.getItem(-1, sdk.items.mode.Equipped); // get equipped item
 		if (!item) return 1; // nothing equipped
 
 		do {

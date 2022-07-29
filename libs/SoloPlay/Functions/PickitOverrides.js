@@ -165,20 +165,20 @@ Pickit.checkItem = function (unit) {
 // @jaenster
 Pickit.amountOfPotsNeeded = function () {
 	let _a, _b, _c, _d;
-	let potTypes = [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion];
+	let potTypes = [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion];
 	let hpMax = (Array.isArray(Config.HPBuffer) ? Config.HPBuffer[1] : Config.HPBuffer);
 	let mpMax = (Array.isArray(Config.MPBuffer) ? Config.MPBuffer[1] : Config.MPBuffer);
 	let rvMax = (Array.isArray(Config.RejuvBuffer) ? Config.RejuvBuffer[1] : Config.RejuvBuffer);
 	let needed = (_a = {},
-	_a[sdk.itemtype.HealingPotion] = (_b = {},
+	_a[sdk.items.type.HealingPotion] = (_b = {},
 	_b[sdk.storage.Belt] = 0,
 	_b[sdk.storage.Inventory] = hpMax,
 	_b),
-	_a[sdk.itemtype.ManaPotion] = (_c = {},
+	_a[sdk.items.type.ManaPotion] = (_c = {},
 	_c[sdk.storage.Belt] = 0,
 	_c[sdk.storage.Inventory] = mpMax,
 	_c),
-	_a[sdk.itemtype.RejuvPotion] = (_d = {},
+	_a[sdk.items.type.RejuvPotion] = (_d = {},
 	_d[sdk.storage.Belt] = 0,
 	_d[sdk.storage.Inventory] = rvMax,
 	_d),
@@ -192,25 +192,25 @@ Pickit.amountOfPotsNeeded = function () {
 	}
 	let missing = Town.checkColumns(Pickit.beltSize);
 	Config.BeltColumn.forEach(function (column, index) {
-		if (column === "hp") {needed[sdk.itemtype.HealingPotion][sdk.storage.Belt] = missing[index];}
-		if (column === "mp") {needed[sdk.itemtype.ManaPotion][sdk.storage.Belt] = missing[index];}
-		if (column === "rv") {needed[sdk.itemtype.RejuvPotion][sdk.storage.Belt] = missing[index];}
+		if (column === "hp") {needed[sdk.items.type.HealingPotion][sdk.storage.Belt] = missing[index];}
+		if (column === "mp") {needed[sdk.items.type.ManaPotion][sdk.storage.Belt] = missing[index];}
+		if (column === "rv") {needed[sdk.items.type.RejuvPotion][sdk.storage.Belt] = missing[index];}
 	});
 	return needed;
 };
 
 Pickit.canFit = function (item) {
 	switch (item.itemType) {
-	case sdk.itemtype.Gold:
+	case sdk.items.type.Gold:
 		return true;
-	case sdk.itemtype.Scroll:
+	case sdk.items.type.Scroll:
 	{
 		let tome = me.findItem(item.classid - 11, 0, sdk.storage.Inventory);
 		return (tome && tome.getStat(sdk.stats.Quantity) < 20) || Storage.Inventory.CanFit(item);
 	}
-	case sdk.itemtype.HealingPotion:
-	case sdk.itemtype.ManaPotion:
-	case sdk.itemtype.RejuvPotion:
+	case sdk.items.type.HealingPotion:
+	case sdk.items.type.ManaPotion:
+	case sdk.items.type.RejuvPotion:
 		{
 			let pots = this.amountOfPotsNeeded();
 			if (pots[item.itemType][sdk.storage.Belt] > 0) {
@@ -236,16 +236,16 @@ Pickit.canPick = function (unit) {
 	let tome, charm, i, potion, needPots, buffers, pottype, myKey, key;
 
 	switch (unit.itemType) {
-	case sdk.itemtype.Gold:
+	case sdk.items.type.Gold:
 		// Check current gold vs max capacity (cLvl*10000)
 		if (me.getStat(sdk.stats.Gold) === me.getStat(sdk.stats.Level) * 10000) {
 			return false; // Skip gold if full
 		}
 
 		break;
-	case sdk.itemtype.Scroll:
+	case sdk.items.type.Scroll:
 		// 518 - Tome of Town Portal or 519 - Tome of Identify, mode 0 - inventory/stash
-		tome = me.getItem(unit.classid - 11, sdk.itemmode.inStorage);
+		tome = me.getItem(unit.classid - 11, sdk.items.mode.inStorage);
 
 		if (tome) {
 			do {
@@ -259,11 +259,11 @@ Pickit.canPick = function (unit) {
 		}
 
 		break;
-	case sdk.itemtype.Key:
+	case sdk.items.type.Key:
 		// Assassins don't ever need keys
 		if (me.assassin) return false;
 
-		myKey = me.getItem(sdk.items.Key, sdk.itemmode.inStorage);
+		myKey = me.getItem(sdk.items.Key, sdk.items.mode.inStorage);
 		key = Game.getItem(-1, -1, unit.gid); // Passed argument isn't an actual unit, we need to get it
 
 		if (myKey && key) {
@@ -275,11 +275,11 @@ Pickit.canPick = function (unit) {
 		}
 
 		break;
-	case sdk.itemtype.SmallCharm:
-	case sdk.itemtype.LargeCharm:
-	case sdk.itemtype.GrandCharm:
+	case sdk.items.type.SmallCharm:
+	case sdk.items.type.LargeCharm:
+	case sdk.items.type.GrandCharm:
 		if (unit.unique) {
-			charm = me.getItem(unit.classid, sdk.itemmode.inStorage);
+			charm = me.getItem(unit.classid, sdk.items.mode.inStorage);
 
 			if (charm) {
 				do {
@@ -292,9 +292,9 @@ Pickit.canPick = function (unit) {
 		}
 
 		break;
-	case sdk.itemtype.HealingPotion:
-	case sdk.itemtype.ManaPotion:
-	case sdk.itemtype.RejuvPotion:
+	case sdk.items.type.HealingPotion:
+	case sdk.items.type.ManaPotion:
+	case sdk.items.type.RejuvPotion:
 		needPots = 0;
 
 		for (i = 0; i < 4; i += 1) {
@@ -303,7 +303,7 @@ Pickit.canPick = function (unit) {
 			}
 		}
 
-		potion = me.getItem(-1, sdk.itemmode.inBelt);
+		potion = me.getItem(-1, sdk.items.mode.inBelt);
 
 		if (potion) {
 			do {
@@ -320,15 +320,15 @@ Pickit.canPick = function (unit) {
 				if (Config[buffers[i]]) {
 					switch (buffers[i]) {
 					case "HPBuffer":
-						pottype = sdk.itemtype.HealingPotion;
+						pottype = sdk.items.type.HealingPotion;
 
 						break;
 					case "MPBuffer":
-						pottype = sdk.itemtype.ManaPotion;
+						pottype = sdk.items.type.ManaPotion;
 
 						break;
 					case "RejuvBuffer":
-						pottype = sdk.itemtype.RejuvPotion;
+						pottype = sdk.items.type.RejuvPotion;
 
 						break;
 					}
@@ -339,7 +339,7 @@ Pickit.canPick = function (unit) {
 						}
 
 						needPots = Config[buffers[i]];
-						potion = me.getItem(-1, sdk.itemmode.inStorage);
+						potion = me.getItem(-1, sdk.items.mode.inStorage);
 
 						if (potion) {
 							do {
@@ -573,7 +573,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 		} while (item.getNext());
 	}
 
-	if (pickList.some(i => [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion].includes(i.itemType))) {
+	if (pickList.some(i => [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion].includes(i.itemType))) {
 		Town.clearBelt();
 		Pickit.beltSize = Storage.BeltSize();
 	}

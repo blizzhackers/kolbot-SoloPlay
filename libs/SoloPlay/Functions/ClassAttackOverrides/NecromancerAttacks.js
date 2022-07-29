@@ -408,7 +408,7 @@ ClassAttack.explodeCorpses = function (unit) {
 	let ampManaCost = Skill.getManaCost(sdk.skills.AmplifyDamage);
 	let explodeCorpsesManaCost = Skill.getManaCost(Config.ExplodeCorpses);
 	let range = Math.floor((me.getSkill(Config.ExplodeCorpses, sdk.skills.subindex.SoftPoints) + 7) / 3);
-	let corpse = Game.getMonster(-1, sdk.units.monsters.monstermode.Dead);
+	let corpse = Game.getMonster(-1, sdk.monsters.mode.Dead);
 
 	if (corpse) {
 		do {

@@ -17,9 +17,9 @@ function diablo () {
 			me.getMobCount(20) > 1 && Attack.clear(20);
 			if (getTickCount() - tick >= 8000) {
 				switch (me.classid) {
-				case sdk.charclass.Amazon:
+				case sdk.player.class.Amazon:
 					if (me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.SoftPoints)) {
-						let decoy = Game.getMonster(sdk.monsters.Dopplezon);
+						let decoy = Game.getMonster(sdk.summons.Dopplezon);
 
 						if (!decoy || (getTickCount() - tick >= decoyDuration)) {
 							Skill.cast(sdk.skills.Decoy, sdk.skills.hand.Right, 7793, 5293);
@@ -27,7 +27,7 @@ function diablo () {
 					}
 
 					break;
-				case sdk.charclass.Sorceress:
+				case sdk.player.class.Sorceress:
 					if ([sdk.skills.Meteor, sdk.skills.Blizzard, sdk.skills.FrozenOrb, sdk.skills.FireWall].includes(Config.AttackSkill[1])) {
 						Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793 + rand(-1, 1), 5293);
 					}
@@ -35,12 +35,12 @@ function diablo () {
 					delay(500);
 
 					break;
-				case sdk.charclass.Paladin:
+				case sdk.player.class.Paladin:
 					Skill.setSkill(Config.AttackSkill[2]);
 					Config.AttackSkill[1] === sdk.skills.BlessedHammer && Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Left);
 
 					break;
-				case sdk.charclass.Druid:
+				case sdk.player.class.Druid:
 					if ([sdk.skills.Tornado, sdk.skills.Fissure, sdk.skills.Volcano].includes(Config.AttackSkill[3])) {
 						Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793 + rand(-1, 1), 5293);
 
@@ -50,7 +50,7 @@ function diablo () {
 					delay(500);
 
 					break;
-				case sdk.charclass.Assassin:
+				case sdk.player.class.Assassin:
 					if (Config.UseTraps) {
 						let trapCheck = ClassAttack.checkTraps({x: 7793, y: 5293});
 						trapCheck && ClassAttack.placeTraps({x: 7793, y: 5293, classid: sdk.monsters.Diablo}, trapCheck);

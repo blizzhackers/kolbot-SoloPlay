@@ -25,7 +25,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 	let code = Misc.getItemCode(unit);
 
 	if (NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) {
-		if (unit.mode === sdk.itemmode.inStorage && type === "Player") {
+		if (unit.mode === sdk.items.mode.inStorage && type === "Player") {
 			if (unit.isCharm) {
 				desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit));
 			} else {
@@ -35,7 +35,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 					desc += ("\n\\xffc0Autoequip Secondary tier: " + NTIP.GetSecondaryTier(unit));
 				}
 			}
-		} else if (unit.mode === sdk.itemmode.inStorage && type === "Merc") {
+		} else if (unit.mode === sdk.items.mode.inStorage && type === "Merc") {
 			desc += ("\n\\xffc0Autoequip merctier: " + NTIP.GetMercTier(unit));
 		}
 	}
@@ -44,7 +44,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 
 	if (sock) {
 		for (let i = 0; i < sock.length; i += 1) {
-			if (sock[i].itemType === sdk.itemtype.Jewel) {
+			if (sock[i].itemType === sdk.items.type.Jewel) {
 				desc += "\n\n";
 				desc += Misc.getItemDesc(sock[i]);
 			}
@@ -71,7 +71,7 @@ MuleLogger.logEquippedItems = function () {
 	let folder, string, parsedItem;
 	let realm = me.realm || "Single Player";
 	let finalString = "";
-	let items = me.getItemsEx().filter(item => item.isEquipped || item.isEquippedCharm || (item.isInStorage && item.itemType === sdk.itemtype.Rune));
+	let items = me.getItemsEx().filter(item => item.isEquipped || item.isEquippedCharm || (item.isInStorage && item.itemType === sdk.items.type.Rune));
 
 	if (!FileTools.exists("mules/" + realm)) {
 		folder = dopen("mules");
@@ -106,7 +106,7 @@ MuleLogger.logEquippedItems = function () {
 		parsedItem.title = parsedItem.title.substr(parsedItem.title.indexOf("_") + 1);
 
 		switch (items[i].mode) {
-		case sdk.itemmode.inStorage:
+		case sdk.items.mode.inStorage:
 			if (items[i].isInInventory && items[i].isEquippedCharm) {
 				parsedItem.title += " (equipped charm)";
 			} else {
@@ -114,7 +114,7 @@ MuleLogger.logEquippedItems = function () {
 			}
 
 			break;
-		case sdk.itemmode.Equipped:
+		case sdk.items.mode.Equipped:
 			parsedItem.title += (items[i].isOnSwap ? " (secondary equipped)" : " (equipped)");
 
 			break;

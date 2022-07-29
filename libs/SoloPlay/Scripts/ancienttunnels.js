@@ -16,7 +16,7 @@ function ancienttunnels () {
 		Attack.clearLevel();
 	} else {
 		try {
-			Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.units.SuperChest) && Misc.openChests(5) && Pickit.pickItems();
+			Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.objects.SuperChest) && Misc.openChests(5) && Pickit.pickItems();
 		} catch (e) {
 			console.error(e);
 		}

@@ -238,14 +238,14 @@ function LoadConfig () {
 				}
 
 				// Exile
-				if (!me.checkItem({name: sdk.locale.items.Exile, itemtype: sdk.itemtype.AuricShields}).have) {
+				if (!me.checkItem({name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields}).have) {
 					if (!isIncluded("SoloPlay/BuildFiles/Runewords/Exile.js")) {
 						include("SoloPlay/BuildFiles/Runewords/Exile.js");
 					}
 				}
 
 				// Fortitude
-				if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Fortitude, itemtype: sdk.itemtype.Armor}).have) {
+				if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Fortitude, itemtype: sdk.items.type.Armor}).have) {
 					if (!isIncluded("SoloPlay/BuildFiles/Runewords/Fortitude.js")) {
 						include("SoloPlay/BuildFiles/Runewords/Fortitude.js");
 					}
@@ -266,15 +266,15 @@ function LoadConfig () {
 
 			break;
 		case "Auradin":
-			dreamerCheck = me.haveAll([{name: sdk.locale.items.Dream, itemtype: sdk.itemtype.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.itemtype.Helm}]);
+			dreamerCheck = me.haveAll([{name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}]);
 
 			// Dream Shield
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dream, itemtype: sdk.itemtype.AuricShields}).have) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/DreamShield.js");
 			}
 
 			// Dream Helm
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dream, itemtype: sdk.itemtype.Helm}).have) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/DreamHelm.js");
 			}
 
@@ -310,7 +310,7 @@ function LoadConfig () {
 			}
 
 			// Dragon Armor
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dragon, itemtype: sdk.itemtype.Armor}).have && dreamerCheck) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}).have && dreamerCheck) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/DragonArmor.js");
 			}
 
@@ -333,22 +333,22 @@ function LoadConfig () {
 			}
 
 			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude
-				&& me.haveAll([{name: sdk.locale.items.HandofJustice}, {name: sdk.locale.items.Dragon, itemtype: sdk.itemtype.Armor},
-					{name: sdk.locale.items.Dream, itemtype: sdk.itemtype.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.itemtype.Helm}])) {
+				&& me.haveAll([{name: sdk.locale.items.HandofJustice}, {name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor},
+					{name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}])) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 			}
 
 			break;
 		case "Sancdreamer":
-			dreamerCheck = me.haveAll([{name: sdk.locale.items.Dream, itemtype: sdk.itemtype.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.itemtype.Helm}]);
+			dreamerCheck = me.haveAll([{name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}]);
 
 			// Dream Shield
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dream, itemtype: sdk.itemtype.AuricShields}).have) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/DreamShield.js");
 			}
 
 			// Dream Helm
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dream, itemtype: sdk.itemtype.Helm}).have) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/DreamHelm.js");
 			}
 
@@ -403,7 +403,7 @@ function LoadConfig () {
 			}
 
 			if ((me.ladder || Developer.addLadderRW) && me.haveAll([{name: sdk.locale.items.LastWish}, {name: sdk.locale.items.ChainsofHonor},
-				{name: sdk.locale.items.Dream, itemtype: sdk.itemtype.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.itemtype.Helm}])) {
+				{name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}])) {
 				// Infinity
 				if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
 					if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js")) {
@@ -421,7 +421,7 @@ function LoadConfig () {
 			break;
 		case "Torchadin":
 			// Dragon Armor
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dragon, itemtype: sdk.itemtype.Armor}).have) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/DragonArmor.js");
 			}
 
@@ -433,12 +433,12 @@ function LoadConfig () {
 			}
 
 			// Exile
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Exile, itemtype: sdk.itemtype.AuricShields}).have) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields}).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Exile.js");
 			}
 
 			if ((me.ladder || Developer.addLadderRW) && !me.haveAll([{name: sdk.locale.items.HandofJustice},
-				{name: sdk.locale.items.Exile, itemtype: sdk.itemtype.AuricShields}, {name: sdk.locale.items.Dragon, itemtype: sdk.itemtype.Armor}])) {
+				{name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields}, {name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}])) {
 				// Cube to Cham rune
 				if (!me.getItem(sdk.items.runes.Cham) || !me.getItem(sdk.items.runes.Sur) || !me.getItem(sdk.items.runes.Lo)) {
 					if (me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
@@ -446,18 +446,18 @@ function LoadConfig () {
 						Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 						Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
 
-						if (me.checkItem({name: sdk.locale.items.Exile, itemtype: sdk.itemtype.AuricShields}).have) {
+						if (me.checkItem({name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields}).have) {
 							Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
 							Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
-						} else if (!me.checkItem({name: sdk.locale.items.Exile, itemtype: sdk.itemtype.AuricShields}).have && !me.getItem(sdk.items.runes.Ohm)) {
+						} else if (!me.checkItem({name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields}).have && !me.getItem(sdk.items.runes.Ohm)) {
 							Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
 						}
 					}
 
-					if (me.checkItem({name: sdk.locale.items.Dragon, itemtype: sdk.itemtype.Armor}).have) {
+					if (me.checkItem({name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}).have) {
 						Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
 						Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
-					} else if ((!me.haveAll([{name: sdk.locale.items.Dragon, itemtype: sdk.itemtype.Armor}, {name: sdk.locale.items.HandofJustice}]) && !me.getItem(sdk.items.runes.Sur))) {
+					} else if ((!me.haveAll([{name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}, {name: sdk.locale.items.HandofJustice}]) && !me.getItem(sdk.items.runes.Sur))) {
 						Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
 					}
 
@@ -491,7 +491,7 @@ function LoadConfig () {
 			}
 
 			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude
-				&& me.haveAll([{name: sdk.locale.items.HandofJustice}, {name: sdk.locale.items.Dragon, itemtype: sdk.itemtype.Armor}, {name: sdk.locale.items.Exile, itemtype: sdk.itemtype.AuricShields}])) {
+				&& me.haveAll([{name: sdk.locale.items.HandofJustice}, {name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}, {name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields}])) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 			}
 			break;

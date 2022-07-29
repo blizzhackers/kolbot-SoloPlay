@@ -137,7 +137,7 @@ const Quest = {
 		if (me.horadricstaff) return true;
 
 		let tick = getTickCount();
-		let orifice = Misc.poll(() => Game.getObject(sdk.units.HoradricStaffHolder));
+		let orifice = Misc.poll(() => Game.getObject(sdk.objects.HoradricStaffHolder));
 		if (!orifice) return false;
 		
 		let hstaff = (me.getItem(sdk.items.quest.HoradricStaff) || Quest.cubeItems(sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff, sdk.items.quest.ViperAmulet));
@@ -294,7 +294,7 @@ const Quest = {
 	},
 
 	smashSomething: function (classid) {
-		let tool = classid === sdk.units.CompellingOrb
+		let tool = classid === sdk.objects.CompellingOrb
 			? sdk.items.quest.KhalimsWill
 			: classid === sdk.quest.chest.HellForge
 				? sdk.items.quest.HellForgeHammer
@@ -403,7 +403,7 @@ const Quest = {
 		if (SetUp.finalBuild === "Socketmule") return false;
 
 		try {
-			if (!item || item.mode === sdk.itemmode.onGround) throw new Error("Couldn't find item");
+			if (!item || item.mode === sdk.items.mode.onGround) throw new Error("Couldn't find item");
 			if (!me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.ReqComplete)) throw new Error("Quest unavailable");
 			if (item.sockets > 0 || getBaseStat("items", item.classid, "gemsockets") === 0) throw new Error("Item cannot be socketed");
 			if (!Storage.Inventory.CanFit(item)) throw new Error("(useSocketQuest) No space to get item back");
@@ -415,7 +415,7 @@ const Quest = {
 				throw new Error("Failed to move item from stash to inventory");
 			}
 
-			let invo = me.findItems(-1, sdk.itemmode.inStorage, sdk.storage.Inventory);
+			let invo = me.findItems(-1, sdk.items.mode.inStorage, sdk.storage.Inventory);
 			let slot = item.bodylocation;
 			
 			// Take note of all the items in the invo minus the item to socket
@@ -434,7 +434,7 @@ const Quest = {
 			Packet.questRefresh();
 
 			item = false; // Delete item reference, it's not longer valid anyway
-			let items = me.findItems(-1, sdk.itemmode.inStorage, sdk.storage.Inventory);
+			let items = me.findItems(-1, sdk.items.mode.inStorage, sdk.storage.Inventory);
 				
 			for (let i = 0; i < items.length; i++) {
 				if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {
@@ -479,9 +479,9 @@ const Quest = {
 		if (SetUp.finalBuild === "Imbuemule") return false;
 
 		try {
-			if (!item || item.mode === sdk.itemmode.onGround) throw new Error("Couldn't find item");
+			if (!item || item.mode === sdk.items.mode.onGround) throw new Error("Couldn't find item");
 			if (!Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete)) throw new Error("Quest unavailable");
-			if (item.sockets > 0 || item.quality > sdk.itemquality.Superior) throw new Error("Item cannot be imbued");
+			if (item.sockets > 0 || item.quality > sdk.items.quality.Superior) throw new Error("Item cannot be imbued");
 			if (!Storage.Inventory.CanFit(item)) throw new Error("(useImbueQuest) No space to get item back");
 			if (me.act !== 1 || !me.inTown) {
 				if (!Town.goToTown(1)) throw new Error("Failed to go to act 1");
@@ -491,7 +491,7 @@ const Quest = {
 				throw new Error("Failed to move item from stash to inventory");
 			}
 
-			let invo = me.findItems(-1, sdk.itemmode.inStorage, sdk.storage.Inventory);
+			let invo = me.findItems(-1, sdk.items.mode.inStorage, sdk.storage.Inventory);
 			let slot = item.bodylocation;
 			
 			// Take note of all the items in the invo minus the item to socket
@@ -510,7 +510,7 @@ const Quest = {
 			Packet.questRefresh();
 
 			item = false; // Delete item reference, it's not longer valid anyway
-			let items = me.findItems(-1, sdk.itemmode.inStorage, sdk.storage.Inventory);
+			let items = me.findItems(-1, sdk.items.mode.inStorage, sdk.storage.Inventory);
 				
 			for (let i = 0; i < items.length; i++) {
 				if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {

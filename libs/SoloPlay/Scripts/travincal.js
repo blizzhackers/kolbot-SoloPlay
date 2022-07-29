@@ -23,11 +23,11 @@ function travincal () {
 	Pickit.pickItems();
 
 	// go to orb
-	if (!Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.units.CompellingOrb)) {
+	if (!Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.objects.CompellingOrb)) {
 		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to compelling orb");
 	}
 
-	let orb = Game.getObject(sdk.units.CompellingOrb);
+	let orb = Game.getObject(sdk.objects.CompellingOrb);
 	!!orb && Attack.clearPos(orb.x, orb.y, 15);
 
 	// khalim's will quest not complete
@@ -38,7 +38,7 @@ function travincal () {
 
 			Pather.moveToUnit(flail);
 			Pickit.pickItems();
-			Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.units.CompellingOrb);
+			Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.objects.CompellingOrb);
 		}
 
 		// cube flail to will
@@ -61,7 +61,7 @@ function travincal () {
 			console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to go back to Travincal and smash orb");
 		}
 
-		Quest.smashSomething(sdk.units.CompellingOrb);
+		Quest.smashSomething(sdk.objects.CompellingOrb);
 		Item.autoEquip(); // equip previous weapon
 		Town.townTasks();
 
@@ -69,13 +69,13 @@ function travincal () {
 		if (!Pather.usePortal(sdk.areas.Travincal, me.name)) {
 			console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to go back to Travincal and take entrance");
 			Pather.useWaypoint(sdk.areas.Travincal);
-			Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.units.CompellingOrb);
+			Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.objects.CompellingOrb);
 		}
 
 		// Wait until exit pops open
-		Misc.poll(() => Game.getObject(sdk.units.DuranceEntryStairs).mode === sdk.units.objects.mode.Active, 10000);
+		Misc.poll(() => Game.getObject(sdk.objects.DuranceEntryStairs).mode === sdk.objects.mode.Active, 10000);
 		// Move close to the exit
-		let exit_1 = Game.getObject(sdk.units.DuranceEntryStairs);
+		let exit_1 = Game.getObject(sdk.objects.DuranceEntryStairs);
 		// Since d2 sucks, move around the thingy
 		Pather.moveToUnit(exit_1, 7, 7);
 		// keep on clicking the exit until we are not @ travincal anymore

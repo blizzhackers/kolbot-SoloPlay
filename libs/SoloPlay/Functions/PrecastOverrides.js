@@ -19,7 +19,7 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 	if (!Precast.enabled) return false;
 
 	switch (me.classid) {
-	case sdk.charclass.Paladin:
+	case sdk.player.class.Paladin:
 		// Force BO 30 seconds before it expires
 		if (this.haveCTA > -1) {
 			let forceBo = (force
@@ -35,7 +35,7 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 		}
 
 		break;
-	case sdk.charclass.Barbarian:
+	case sdk.player.class.Barbarian:
 		let needShout = (Skill.canUse(sdk.skills.Shout) && (force || !me.getState(sdk.states.Shout)));
 		let needBo = (Skill.canUse(sdk.skills.BattleOrders) && (force || !me.getState(sdk.states.BattleOrders)));
 		let needBc = (Skill.canUse(sdk.skills.BattleCommand) && (force || !me.getState(sdk.states.BattleCommand)));
@@ -79,7 +79,7 @@ Precast.summon = function (skillId, minionType) {
 		let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	// Get a random coordinate to summon using
 		let unit = Attack.getNearestMonster({skipImmune: false});
 
-		if (unit && [sdk.minions.Golem, sdk.minions.Grizzly, sdk.minions.Shadow].includes(minionType) && unit.distance < 20 && !checkCollision(me, unit, sdk.collision.Ranged)) {
+		if (unit && [sdk.summons.type.Golem, sdk.summons.type.Grizzly, sdk.summons.type.Shadow].includes(minionType) && unit.distance < 20 && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			try {
 				if (Skill.cast(skillId, sdk.skills.hand.Right, unit)) {
 					if (me.getMinionCount(minionType) === count) {

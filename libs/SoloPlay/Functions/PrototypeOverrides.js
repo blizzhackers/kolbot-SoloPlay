@@ -15,54 +15,54 @@ Unit.prototype.getResPenalty = function (difficulty) {
 
 Unit.prototype.getItemType = function () {
 	switch (this.itemType) {
-	case sdk.itemtype.Shield:
-	case sdk.itemtype.AuricShields:
-	case sdk.itemtype.VoodooHeads:
+	case sdk.items.type.Shield:
+	case sdk.items.type.AuricShields:
+	case sdk.items.type.VoodooHeads:
 		return "Shield";
-	case sdk.itemtype.Armor:
+	case sdk.items.type.Armor:
 		return "Armor";
-	case sdk.itemtype.Helm:
-	case sdk.itemtype.PrimalHelm:
-	case sdk.itemtype.Circlet:
-	case sdk.itemtype.Pelt:
+	case sdk.items.type.Helm:
+	case sdk.items.type.PrimalHelm:
+	case sdk.items.type.Circlet:
+	case sdk.items.type.Pelt:
 		return "Helmet";
-	case sdk.itemtype.Scepter:
-	case sdk.itemtype.Wand:
-	case sdk.itemtype.Staff:
-	case sdk.itemtype.Bow:
-	case sdk.itemtype.Axe:
-	case sdk.itemtype.Club:
-	case sdk.itemtype.Sword:
-	case sdk.itemtype.Hammer:
-	case sdk.itemtype.Knife:
-	case sdk.itemtype.Spear:
-	case sdk.itemtype.Polearm:
-	case sdk.itemtype.Crossbow:
-	case sdk.itemtype.Mace:
-	case sdk.itemtype.ThrowingKnife:
-	case sdk.itemtype.ThrowingAxe:
-	case sdk.itemtype.Javelin:
-	case sdk.itemtype.Orb:
-	case sdk.itemtype.AmazonBow:
-	case sdk.itemtype.AmazonSpear:
-	case sdk.itemtype.AmazonJavelin:
-	case sdk.itemtype.MissilePotion:
-	case sdk.itemtype.HandtoHand:
-	case sdk.itemtype.AssassinClaw:
+	case sdk.items.type.Scepter:
+	case sdk.items.type.Wand:
+	case sdk.items.type.Staff:
+	case sdk.items.type.Bow:
+	case sdk.items.type.Axe:
+	case sdk.items.type.Club:
+	case sdk.items.type.Sword:
+	case sdk.items.type.Hammer:
+	case sdk.items.type.Knife:
+	case sdk.items.type.Spear:
+	case sdk.items.type.Polearm:
+	case sdk.items.type.Crossbow:
+	case sdk.items.type.Mace:
+	case sdk.items.type.ThrowingKnife:
+	case sdk.items.type.ThrowingAxe:
+	case sdk.items.type.Javelin:
+	case sdk.items.type.Orb:
+	case sdk.items.type.AmazonBow:
+	case sdk.items.type.AmazonSpear:
+	case sdk.items.type.AmazonJavelin:
+	case sdk.items.type.MissilePotion:
+	case sdk.items.type.HandtoHand:
+	case sdk.items.type.AssassinClaw:
 		return "Weapon";
 	// currently only use this function for socket related things so might as well make non-socketable things return false
-	// case sdk.itemtype.BowQuiver:
-	// case sdk.itemtype.CrossbowQuiver:
+	// case sdk.items.type.BowQuiver:
+	// case sdk.items.type.CrossbowQuiver:
 	// 	//return "Quiver";
-	// case sdk.itemtype.Ring:
+	// case sdk.items.type.Ring:
 	// 	//return "Ring";
-	// case sdk.itemtype.Amulet:
+	// case sdk.items.type.Amulet:
 	// 	//return "Amulet";
-	// case sdk.itemtype.Boots:
+	// case sdk.items.type.Boots:
 	// 	//return "Boots";
-	// case sdk.itemtype.Gloves:
+	// case sdk.items.type.Gloves:
 	// 	//return "Gloves";
-	// case sdk.itemtype.Belt:
+	// case sdk.items.type.Belt:
 	// 	//return "Belt";
 	// default:
 	// 	return "";
@@ -81,13 +81,13 @@ Object.defineProperties(Unit.prototype, {
 	isGem: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
-			return (this.itemType >= sdk.itemtype.Amethyst && this.itemType <= sdk.itemtype.Skull);
+			return (this.itemType >= sdk.items.type.Amethyst && this.itemType <= sdk.items.type.Skull);
 		},
 	},
 	isInsertable: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
-			return [sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(this.itemType) || this.isGem;
+			return [sdk.items.type.Jewel, sdk.items.type.Rune].includes(this.itemType) || this.isGem;
 		},
 	},
 	isRuneword: {
@@ -114,8 +114,8 @@ Object.defineProperties(Unit.prototype, {
 	isBaseType: {
 		get: function () {
 			if (this.type !== sdk.unittype.Item) return false;
-			return [sdk.itemquality.Normal, sdk.itemquality.Superior].includes(this.quality) && !this.questItem && !this.isRuneword
-				&& getBaseStat("items", this.classid, "gemsockets") > 0 && [sdk.itemtype.Ring, sdk.itemtype.Amulet].indexOf(this.itemType) === -1;
+			return [sdk.items.quality.Normal, sdk.items.quality.Superior].includes(this.quality) && !this.questItem && !this.isRuneword
+				&& getBaseStat("items", this.classid, "gemsockets") > 0 && [sdk.items.type.Ring, sdk.items.type.Amulet].indexOf(this.itemType) === -1;
 		}
 	},
 	rawStrength: {
@@ -149,15 +149,15 @@ Object.defineProperties(Unit.prototype, {
 			let reqModifier = this.getStat(sdk.stats.ReqPercent);
 
 			switch (this.itemclass) {
-			case sdk.itemclass.Normal:
+			case sdk.items.class.Normal:
 				code = getBaseStat("items", this.classid, "ubercode").trim();
 
 				break;
-			case sdk.itemclass.Exceptional:
+			case sdk.items.class.Exceptional:
 				code = getBaseStat("items", this.classid, "ultracode").trim();
 
 				break;
-			case sdk.itemclass.Elite:
+			case sdk.items.class.Elite:
 				return this.strreq;
 			}
 
@@ -175,15 +175,15 @@ Object.defineProperties(Unit.prototype, {
 			let reqModifier = this.getStat(sdk.stats.ReqPercent);
 
 			switch (this.itemclass) {
-			case sdk.itemclass.Normal:
+			case sdk.items.class.Normal:
 				code = getBaseStat("items", this.classid, "ubercode").trim();
 
 				break;
-			case sdk.itemclass.Exceptional:
+			case sdk.items.class.Exceptional:
 				code = getBaseStat("items", this.classid, "ultracode").trim();
 
 				break;
-			case sdk.itemclass.Elite:
+			case sdk.items.class.Elite:
 				return this.dexreq;
 			}
 
@@ -200,15 +200,15 @@ Object.defineProperties(Unit.prototype, {
 			let code, id;
 
 			switch (this.itemclass) {
-			case sdk.itemclass.Normal:
+			case sdk.items.class.Normal:
 				code = getBaseStat("items", this.classid, "ubercode").trim();
 
 				break;
-			case sdk.itemclass.Exceptional:
+			case sdk.items.class.Exceptional:
 				code = getBaseStat("items", this.classid, "ultracode").trim();
 
 				break;
-			case sdk.itemclass.Elite:
+			case sdk.items.class.Elite:
 				return this.lvlreq;
 			}
 
@@ -320,7 +320,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 		CharData.skillData.chargedSkills.forEach(chargeSkill => {
 			if (chargeSkill.skill === skillId) {
 				console.debug(chargeSkill);
-				let item = me.getItem(-1, sdk.itemmode.Equipped, chargeSkill.gid);
+				let item = me.getItem(-1, sdk.items.mode.Equipped, chargeSkill.gid);
 				!!item && chargedItems.push({
 					charge: chargeSkill.skill,
 					level: chargeSkill.level,
@@ -439,7 +439,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 		CharData.skillData.chargedSkillsOnSwitch.forEach(chargeSkill => {
 			if (chargeSkill.skill === skillId) {
 				console.debug(chargeSkill);
-				let item = me.getItem(-1, sdk.itemmode.Equipped, chargeSkill.gid);
+				let item = me.getItem(-1, sdk.items.mode.Equipped, chargeSkill.gid);
 				!!item && chargedItems.push({
 					charge: chargeSkill.skill,
 					level: chargeSkill.level,
@@ -609,10 +609,10 @@ Unit.prototype.getStatEx = function (id, subid) {
 			}
 
 			switch (this.itemType) {
-			case sdk.itemtype.Jewel:
-			case sdk.itemtype.SmallCharm:
-			case sdk.itemtype.LargeCharm:
-			case sdk.itemtype.GrandCharm:
+			case sdk.items.type.Jewel:
+			case sdk.items.type.SmallCharm:
+			case sdk.items.type.LargeCharm:
+			case sdk.items.type.GrandCharm:
 				// defense is the same as plusdefense for these items
 				return this.getStat(sdk.stats.Defense);
 			}
@@ -982,7 +982,7 @@ if (!Array.prototype.equals) {
 Unit.prototype.haveRunes = function (itemInfo = []) {
 	if (this === undefined || this.type > 1) return false;
 	if (!Array.isArray(itemInfo) || typeof itemInfo[0] !== "number") return false;
-	let itemList = this.getItemsEx().filter(i => i.isInStorage && i.itemType === sdk.itemtype.Rune);
+	let itemList = this.getItemsEx().filter(i => i.isInStorage && i.itemType === sdk.items.type.Rune);
 	if (!itemList.length || itemList.length < itemInfo.length) return false;
 	let checkedGids = [];
 

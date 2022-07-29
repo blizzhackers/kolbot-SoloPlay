@@ -47,10 +47,10 @@ new Overrides.Override(Town, Town.buyPotions, function (orignal) {
 // Removed Missle Potions for easy gold
 // Items that won't be stashed
 Town.ignoredItemTypes = [
-	sdk.itemtype.BowQuiver, sdk.itemtype.CrossbowQuiver, sdk.itemtype.Book,
-	sdk.itemtype.Scroll, sdk.itemtype.Key, sdk.itemtype.HealingPotion,
-	sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion, sdk.itemtype.StaminaPotion,
-	sdk.itemtype.AntidotePotion, sdk.itemtype.ThawingPotion
+	sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver, sdk.items.type.Book,
+	sdk.items.type.Scroll, sdk.items.type.Key, sdk.items.type.HealingPotion,
+	sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion, sdk.items.type.StaminaPotion,
+	sdk.items.type.AntidotePotion, sdk.items.type.ThawingPotion
 ];
 
 Town.needPotions = function () {
@@ -65,12 +65,12 @@ Town.needPotions = function () {
 			hp: [],
 			mp: [],
 		};
-		me.getItemsEx(-1, sdk.itemmode.inBelt)
-			.filter(p => [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion].includes(p.itemType) && p.x < 4)
+		me.getItemsEx(-1, sdk.items.mode.inBelt)
+			.filter(p => [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion].includes(p.itemType) && p.x < 4)
 			.forEach(p => {
-				if (p.itemType === sdk.itemtype.HealingPotion) {
+				if (p.itemType === sdk.items.type.HealingPotion) {
 					pots.hp.push(copyUnit(p));
-				} else if (p.itemType === sdk.itemtype.ManaPotion) {
+				} else if (p.itemType === sdk.items.type.ManaPotion) {
 					pots.mp.push(copyUnit(p));
 				}
 			});
@@ -126,14 +126,14 @@ Town.buyPotions = function () {
 	// HP/MP Buffer
 	if (Config.HPBuffer > 0 || Config.MPBuffer > 0) {
 		me.getItemsEx().filter(function (p) {
-			return p.isInInventory && [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion].includes(p.itemType);
+			return p.isInInventory && [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion].includes(p.itemType);
 		}).forEach(function (p) {
 			switch (p.itemType) {
-			case sdk.itemtype.HealingPotion:
+			case sdk.items.type.HealingPotion:
 				buffer.hp++;
 
 				break;
-			case sdk.itemtype.ManaPotion:
+			case sdk.items.type.ManaPotion:
 				buffer.mp++;
 
 				break;
@@ -489,7 +489,7 @@ Town.cainID = function (force = false) {
 
 					if (scroll) {
 						if (!Storage.Inventory.CanFit(scroll)) {
-							tpTome = me.findItem(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory);
+							tpTome = me.findItem(sdk.items.TomeofTownPortal, sdk.items.mode.inStorage, sdk.storage.Inventory);
 
 							if (tpTome) {
 								tpTome.sell();
@@ -504,7 +504,7 @@ Town.cainID = function (force = false) {
 						}
 					}
 
-					scroll = me.findItem(sdk.items.ScrollofIdentify, sdk.itemmode.inStorage, sdk.storage.Inventory);
+					scroll = me.findItem(sdk.items.ScrollofIdentify, sdk.items.mode.inStorage, sdk.storage.Inventory);
 
 					if (!scroll) {
 						continue;
@@ -605,7 +605,7 @@ Town.identify = function () {
 	let npc = this.initNPC("Shop", "identify");
 	if (!npc) return false;
 
-	let tome = me.findItem(sdk.items.TomeofIdentify, sdk.itemmode.inStorage, sdk.storage.Inventory);
+	let tome = me.findItem(sdk.items.TomeofIdentify, sdk.items.mode.inStorage, sdk.storage.Inventory);
 	tome && tome.getStat(sdk.stats.Quantity) < list.length && this.fillTome(sdk.items.TomeofIdentify);
 
 	MainLoop:
@@ -638,7 +638,7 @@ Town.identify = function () {
 
 					if (scroll) {
 						if (!Storage.Inventory.CanFit(scroll)) {
-							let tpTome = me.findItem(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory);
+							let tpTome = me.findItem(sdk.items.TomeofTownPortal, sdk.items.mode.inStorage, sdk.storage.Inventory);
 
 							if (tpTome) {
 								tpTome.sell();
@@ -653,7 +653,7 @@ Town.identify = function () {
 						}
 					}
 
-					scroll = me.findItem(sdk.items.ScrollofIdentify, sdk.itemmode.inStorage, sdk.storage.Inventory);
+					scroll = me.findItem(sdk.items.ScrollofIdentify, sdk.items.mode.inStorage, sdk.storage.Inventory);
 
 					if (!scroll) {
 						break MainLoop;
@@ -733,7 +733,7 @@ Town.identify = function () {
 
 // credit isid0re
 Town.buyBook = function () {
-	if (me.findItem(sdk.items.TomeofTownPortal, sdk.itemmode.inStorage, sdk.storage.Inventory)) return true;
+	if (me.findItem(sdk.items.TomeofTownPortal, sdk.items.mode.inStorage, sdk.storage.Inventory)) return true;
 	if (me.gold < 500) return false;
 
 	let npc = this.initNPC("Shop", "buyTpTome");
@@ -899,7 +899,7 @@ Town.gamble = function () {
 	let npc = this.initNPC("Gamble", "gamble");
 	if (!npc) return false;
 
-	let items = me.findItems(-1, sdk.itemmode.inStorage, sdk.storage.Inventory);
+	let items = me.findItems(-1, sdk.items.mode.inStorage, sdk.storage.Inventory);
 
 	while (items && items.length > 0) {
 		list.push(items.shift().gid);
@@ -1266,7 +1266,7 @@ Town.clearInventory = function () {
 
 	if (needCleanup) {
 		potsInInventory = me.getItemsEx()
-			.filter((p) => p.isInInventory && [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion].includes(p.itemType))
+			.filter((p) => p.isInInventory && [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion].includes(p.itemType))
 			.sort((a, b) => a.itemType - b.itemType);
 
 		potsInInventory.length > 0 && console.debug("clearInventory: start pots clean-up");
@@ -1299,8 +1299,8 @@ Town.clearInventory = function () {
 	let sellOrDrop = [];
 	potsInInventory = me.getItemsEx()
 		.filter((p) => p.isInInventory && [
-			sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion,
-			sdk.itemtype.ThawingPotion, sdk.itemtype.AntidotePotion, sdk.itemtype.StaminaPotion
+			sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion,
+			sdk.items.type.ThawingPotion, sdk.items.type.AntidotePotion, sdk.items.type.StaminaPotion
 		].includes(p.itemType));
 
 	if (potsInInventory.length > 0) {
@@ -1309,15 +1309,15 @@ Town.clearInventory = function () {
 			if (!p || p === undefined) return false;
 
 			switch (p.itemType) {
-			case sdk.itemtype.HealingPotion:
+			case sdk.items.type.HealingPotion:
 				return (hp.push(copyUnit(p)));
-			case sdk.itemtype.ManaPotion:
+			case sdk.items.type.ManaPotion:
 				return (mp.push(copyUnit(p)));
-			case sdk.itemtype.RejuvPotion:
+			case sdk.items.type.RejuvPotion:
 				return (rv.push(copyUnit(p)));
-			case sdk.itemtype.ThawingPotion:
-			case sdk.itemtype.AntidotePotion:
-			case sdk.itemtype.StaminaPotion:
+			case sdk.items.type.ThawingPotion:
+			case sdk.items.type.AntidotePotion:
+			case sdk.items.type.StaminaPotion:
 				return (specials.push(copyUnit(p)));
 			}
 
@@ -1356,7 +1356,7 @@ Town.clearInventory = function () {
 
 	// Any leftover items from a failed ID (crashed game, disconnect etc.)
 	const ignoreTypes = [
-		sdk.itemtype.Book, sdk.itemtype.Key, sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion
+		sdk.items.type.Book, sdk.items.type.Key, sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion
 	];
 	let items = (Storage.Inventory.Compare(Config.Inventory) || [])
 		.filter(function (item) {
@@ -1883,7 +1883,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 
 // TODO: clean this up (which is gonna suck)
 Town.worseBaseThanStashed = function (base = undefined) {
-	if (!base || base.quality > sdk.itemquality.Superior || base.isRuneword) return false;
+	if (!base || base.quality > sdk.items.quality.Superior || base.isRuneword) return false;
 
 	function generalScore (item) {
 		let generalScore = 0;
@@ -1916,7 +1916,7 @@ Town.worseBaseThanStashed = function (base = undefined) {
 	}
 
 	function getItemToCompare (itemtypes = [], eth = null, sort = (a, b) => a - b) {
-		return me.getItemsEx(-1, sdk.itemmode.inStorage)
+		return me.getItemsEx(-1, sdk.items.mode.inStorage)
 			.filter(item =>
 				item.gid !== base.gid && itemtypes.includes(item.itemType) && item.sockets === base.sockets && (eth === null || item.ethereal === eth))
 			.sort(sort)
@@ -1927,12 +1927,12 @@ Town.worseBaseThanStashed = function (base = undefined) {
 	let gScoreBase, gScoreCheck;
 
 	switch (base.itemType) {
-	case sdk.itemtype.Shield:
-	case sdk.itemtype.AuricShields:
-	case sdk.itemtype.VoodooHeads:
+	case sdk.items.type.Shield:
+	case sdk.items.type.AuricShields:
+	case sdk.items.type.VoodooHeads:
 		if (me.paladin || me.necromancer) {
-			let iType = [sdk.itemtype.Shield];
-			me.paladin ? iType.push(sdk.itemtype.VoodooHeads) : iType.push(sdk.itemtype.AuricShields);
+			let iType = [sdk.items.type.Shield];
+			me.paladin ? iType.push(sdk.items.type.VoodooHeads) : iType.push(sdk.items.type.AuricShields);
 			
 			itemsToCheck = getItemToCompare(
 				iType, false, (a, b) => generalScore(a) - generalScore(b)
@@ -1949,7 +1949,7 @@ Town.worseBaseThanStashed = function (base = undefined) {
 			}
 		} else {
 			itemsToCheck = getItemToCompare(
-				[sdk.itemtype.Shield], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
+				[sdk.items.type.Shield], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
 			);
 			if (itemsToCheck === undefined) return false;
 
@@ -1963,9 +1963,9 @@ Town.worseBaseThanStashed = function (base = undefined) {
 		}
 
 		break;
-	case sdk.itemtype.Armor:
+	case sdk.items.type.Armor:
 		itemsToCheck = getItemToCompare(
-			[sdk.itemtype.Armor], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
+			[sdk.items.type.Armor], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
 		);
 		if (itemsToCheck === undefined) return false;
 
@@ -1978,13 +1978,13 @@ Town.worseBaseThanStashed = function (base = undefined) {
 		}
 
 		break;
-	case sdk.itemtype.Helm:
-	case sdk.itemtype.PrimalHelm:
-	case sdk.itemtype.Circlet:
-	case sdk.itemtype.Pelt:
+	case sdk.items.type.Helm:
+	case sdk.items.type.PrimalHelm:
+	case sdk.items.type.Circlet:
+	case sdk.items.type.Pelt:
 		if (me.barbarian || me.druid) {
-			let iType = [sdk.itemtype.Helm, sdk.itemtype.Circlet];
-			me.druid ? iType.push(sdk.itemtype.Pelt) : iType.push(sdk.itemtype.PrimalHelm);
+			let iType = [sdk.items.type.Helm, sdk.items.type.Circlet];
+			me.druid ? iType.push(sdk.items.type.Pelt) : iType.push(sdk.items.type.PrimalHelm);
 			
 			itemsToCheck = getItemToCompare(
 				iType, false, (a, b) => generalScore(a) - generalScore(b)
@@ -2001,7 +2001,7 @@ Town.worseBaseThanStashed = function (base = undefined) {
 			}
 		} else {
 			itemsToCheck = getItemToCompare(
-				[sdk.itemtype.Helm, sdk.itemtype.Circlet], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
+				[sdk.items.type.Helm, sdk.items.type.Circlet], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
 			);
 			if (itemsToCheck === undefined) return false;
 
@@ -2015,11 +2015,11 @@ Town.worseBaseThanStashed = function (base = undefined) {
 		}
 
 		break;
-	case sdk.itemtype.Wand:
+	case sdk.items.type.Wand:
 		if (!me.necromancer) return true;
 
 		itemsToCheck = getItemToCompare(
-			[sdk.itemtype.Wand], null, (a, b) => generalScore(a) - generalScore(b)
+			[sdk.items.type.Wand], null, (a, b) => generalScore(a) - generalScore(b)
 		);
 		if (itemsToCheck === undefined) return false;
 
@@ -2033,20 +2033,20 @@ Town.worseBaseThanStashed = function (base = undefined) {
 		}
 
 		break;
-	case sdk.itemtype.Scepter:
-	case sdk.itemtype.Staff:
-	case sdk.itemtype.Bow:
-	case sdk.itemtype.Axe:
-	case sdk.itemtype.Club:
-	case sdk.itemtype.Sword:
-	case sdk.itemtype.Hammer:
-	case sdk.itemtype.Knife:
-	case sdk.itemtype.Spear:
-	case sdk.itemtype.Crossbow:
-	case sdk.itemtype.Mace:
-	case sdk.itemtype.Orb:
-	case sdk.itemtype.AmazonBow:
-	case sdk.itemtype.AmazonSpear:
+	case sdk.items.type.Scepter:
+	case sdk.items.type.Staff:
+	case sdk.items.type.Bow:
+	case sdk.items.type.Axe:
+	case sdk.items.type.Club:
+	case sdk.items.type.Sword:
+	case sdk.items.type.Hammer:
+	case sdk.items.type.Knife:
+	case sdk.items.type.Spear:
+	case sdk.items.type.Crossbow:
+	case sdk.items.type.Mace:
+	case sdk.items.type.Orb:
+	case sdk.items.type.AmazonBow:
+	case sdk.items.type.AmazonSpear:
 		// don't toss grief base
 		// Can't use so it's worse then what we already have
 		// todo - need better solution to know what the max stats are for our current build and wanted final build
@@ -2071,12 +2071,12 @@ Town.worseBaseThanStashed = function (base = undefined) {
 		}
 		
 		break;
-	case sdk.itemtype.HandtoHand:
-	case sdk.itemtype.AssassinClaw:
+	case sdk.items.type.HandtoHand:
+	case sdk.items.type.AssassinClaw:
 		if (!me.assassin) return true;
 
 		itemsToCheck = getItemToCompare(
-			[sdk.itemtype.HandtoHand, sdk.itemtype.AssassinClaw], false, (a, b) => generalScore(a) - generalScore(b)
+			[sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw], false, (a, b) => generalScore(a) - generalScore(b)
 		);
 		if (itemsToCheck === undefined) return false;
 
@@ -2088,9 +2088,9 @@ Town.worseBaseThanStashed = function (base = undefined) {
 		}
 
 		break;
-	case sdk.itemtype.Polearm:
+	case sdk.items.type.Polearm:
 		itemsToCheck = getItemToCompare(
-			[sdk.itemtype.Polearm], null, (a, b) => getAvgDmg(a) - getAvgDmg(b)
+			[sdk.items.type.Polearm], null, (a, b) => getAvgDmg(a) - getAvgDmg(b)
 		);
 		if (itemsToCheck === undefined) return false;
 
@@ -2112,7 +2112,7 @@ Town.worseBaseThanStashed = function (base = undefined) {
 };
 
 Town.clearJunk = function () {
-	let junkItems = me.findItems(-1, sdk.itemmode.inStorage);
+	let junkItems = me.findItems(-1, sdk.items.mode.inStorage);
 	let totalJunk = [];
 	let junkToSell = [];
 	let junkToDrop = [];
@@ -2148,7 +2148,7 @@ Town.clearJunk = function () {
 
 			if (junk.isInStorage && junk.sellable) {
 				if (pickitResult !== Pickit.Result.WANTED) {
-					if (!junk.identified && !Cubing.keepItem(junk) && !CraftingSystem.keepItem(junk) && junk.quality < sdk.itemquality.Set) {
+					if (!junk.identified && !Cubing.keepItem(junk) && !CraftingSystem.keepItem(junk) && junk.quality < sdk.items.quality.Set) {
 						console.log("ÿc9UnidJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
 
 						if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
@@ -2263,12 +2263,12 @@ Town.needRepair = function () {
 	if (bowCheck) {
 		switch (bowCheck) {
 		case "bow":
-			quiver = me.getItem("aqv", sdk.itemmode.Equipped); // Equipped arrow quiver
+			quiver = me.getItem("aqv", sdk.items.mode.Equipped); // Equipped arrow quiver
 			inventoryQuiver = me.getItem("aqv");
 
 			break;
 		case "crossbow":
-			quiver = me.getItem("cqv", sdk.itemmode.Equipped); // Equipped bolt quiver
+			quiver = me.getItem("cqv", sdk.items.mode.Equipped); // Equipped bolt quiver
 			inventoryQuiver = me.getItem("cqv");
 
 			break;

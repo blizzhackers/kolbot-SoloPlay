@@ -1412,7 +1412,7 @@
 				Weapon:        hth 1hs 2hs 1ht 2ht stf bow xbw
 				StartingFrame: 1   2   2   2   2   2   0   0
 			*/
-			if (charClass === sdk.charclass.Amazon || charClass === sdk.charclass.Sorceress) {
+			if (charClass === sdk.player.class.Amazon || charClass === sdk.player.class.Sorceress) {
 				if (weaponClass === "hth") {
 					return 1;
 				}
@@ -1491,11 +1491,11 @@
 			//TODO: vampire form or werewolf
 			let attackMode = this.attackModeForSkill(skill, charClass);
 			switch (true) {
-			case charClass === sdk.charclass.Assassin && attackMode.startsWith("A") && weaponClass.startsWith("ht") && weaponClass !== "hth":
+			case charClass === sdk.player.class.Assassin && attackMode.startsWith("A") && weaponClass.startsWith("ht") && weaponClass !== "hth":
 				return 208;
-			case charClass === sdk.charclass.Assassin && attackMode === "S2":
+			case charClass === sdk.player.class.Assassin && attackMode === "S2":
 				return 128;
-			case charClass === sdk.charclass.Assassin && attackMode === "S4" && weaponClass === "ht2":
+			case charClass === sdk.player.class.Assassin && attackMode === "S4" && weaponClass === "ht2":
 				return 208;
 			}
 			// wolf or bear :
@@ -1560,68 +1560,68 @@
 			A1 xxx      06 15 256     11 16 256     06 15 256     05/12 16 256
 						*/
 			switch (true) {
-			case charClass === sdk.charclass.Sorceress && attackMode.startsWith("A") && weaponClass === "hth":
+			case charClass === sdk.player.class.Sorceress && attackMode.startsWith("A") && weaponClass === "hth":
 				return 16;
-			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Sorceress && attackMode === "A1" && weaponClass === "1hs":
 				return 20;
-			case charClass === sdk.charclass.Sorceress && attackMode.startsWith("A") && weaponClass === "2hs":
+			case charClass === sdk.player.class.Sorceress && attackMode.startsWith("A") && weaponClass === "2hs":
 				return 24;
-			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Sorceress && attackMode === "A1" && weaponClass === "1ht":
 				return 19;
-			case charClass === sdk.charclass.Sorceress && attackMode.startsWith("A") && weaponClass === "2ht":
+			case charClass === sdk.player.class.Sorceress && attackMode.startsWith("A") && weaponClass === "2ht":
 				return 23;
-			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Sorceress && attackMode === "A1" && weaponClass === "stf":
 				return 18;
-			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Sorceress && attackMode === "A1" && weaponClass === "bow":
 				return 17;
-			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Sorceress && attackMode === "A1" && weaponClass === "xbw":
 				return 20;
-			case charClass === sdk.charclass.Sorceress && attackMode === "TH":
+			case charClass === sdk.player.class.Sorceress && attackMode === "TH":
 				return 20;
 
-			case charClass === sdk.charclass.Paladin && attackMode.startsWith("A") && weaponClass === "hth":
+			case charClass === sdk.player.class.Paladin && attackMode.startsWith("A") && weaponClass === "hth":
 				return 14;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "1hs":
 				return 15;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "2hs":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "2hs":
 				return 18;
-			case charClass === sdk.charclass.Paladin && attackMode === "A2" && weaponClass === "2hs":
+			case charClass === sdk.player.class.Paladin && attackMode === "A2" && weaponClass === "2hs":
 				return 19;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "1ht":
 				return 17;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "2ht":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "2ht":
 				return 20;
-			case charClass === sdk.charclass.Paladin && attackMode === "A2" && weaponClass === "2ht":
+			case charClass === sdk.player.class.Paladin && attackMode === "A2" && weaponClass === "2ht":
 				return 20;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "stf":
 				return 18;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "bow":
 				return 16;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "xbw":
 				return 20;
-			case charClass === sdk.charclass.Paladin && attackMode === "TH":
+			case charClass === sdk.player.class.Paladin && attackMode === "TH":
 				return 16;
-			case charClass === sdk.charclass.Paladin && attackMode === "S1":
+			case charClass === sdk.player.class.Paladin && attackMode === "S1":
 				return 12;
 
 				//TODO: full trag oul set
-			case charClass === sdk.charclass.Necromancer && attackMode.startsWith("A") && weaponClass === "hth":
+			case charClass === sdk.player.class.Necromancer && attackMode.startsWith("A") && weaponClass === "hth":
 				return 15;
-			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Necromancer && attackMode === "A1" && weaponClass === "1hs":
 				return 19;
-			case charClass === sdk.charclass.Necromancer && attackMode.startsWith("A") && weaponClass === "2hs":
+			case charClass === sdk.player.class.Necromancer && attackMode.startsWith("A") && weaponClass === "2hs":
 				return 23;
-			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Necromancer && attackMode === "A1" && weaponClass === "1ht":
 				return 19;
-			case charClass === sdk.charclass.Necromancer && attackMode.startsWith("A") && weaponClass === "2ht":
+			case charClass === sdk.player.class.Necromancer && attackMode.startsWith("A") && weaponClass === "2ht":
 				return 24;
-			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Necromancer && attackMode === "A1" && weaponClass === "stf":
 				return 20;
-			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Necromancer && attackMode === "A1" && weaponClass === "bow":
 				return 18;
-			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Necromancer && attackMode === "A1" && weaponClass === "xbw":
 				return 20;
-			case charClass === sdk.charclass.Necromancer && attackMode === "TH":
+			case charClass === sdk.player.class.Necromancer && attackMode === "TH":
 				return 20;
 
 			case this.shiftState() === "wolf" && attackMode === "A1":
@@ -1634,94 +1634,94 @@
 			case this.shiftState() === "bear" && attackMode === "S3":
 				return 10;
 
-			case charClass === sdk.charclass.Druid && attackMode.startsWith("A") && weaponClass === "hth":
+			case charClass === sdk.player.class.Druid && attackMode.startsWith("A") && weaponClass === "hth":
 				return 16;
-			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Druid && attackMode === "A1" && weaponClass === "1hs":
 				return 19;
-			case charClass === sdk.charclass.Druid && attackMode.startsWith("A") && weaponClass === "2hs":
+			case charClass === sdk.player.class.Druid && attackMode.startsWith("A") && weaponClass === "2hs":
 				return 21;
-			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Druid && attackMode === "A1" && weaponClass === "1ht":
 				return 19;
-			case charClass === sdk.charclass.Druid && attackMode.startsWith("A") && weaponClass === "2ht":
+			case charClass === sdk.player.class.Druid && attackMode.startsWith("A") && weaponClass === "2ht":
 				return 23;
-			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Druid && attackMode === "A1" && weaponClass === "stf":
 				return 17;
-			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Druid && attackMode === "A1" && weaponClass === "bow":
 				return 16;
-			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Druid && attackMode === "A1" && weaponClass === "xbw":
 				return 20;
-			case charClass === sdk.charclass.Druid && attackMode === "TH":
+			case charClass === sdk.player.class.Druid && attackMode === "TH":
 				return 18;
 
-			case charClass === sdk.charclass.Barbarian && attackMode.startsWith("A") && weaponClass === "hth":
+			case charClass === sdk.player.class.Barbarian && attackMode.startsWith("A") && weaponClass === "hth":
 				return 12;
-			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Barbarian && attackMode === "A1" && weaponClass === "1hs":
 				return 16;
-			case charClass === sdk.charclass.Barbarian && attackMode.startsWith("A") && weaponClass === "2hs":
+			case charClass === sdk.player.class.Barbarian && attackMode.startsWith("A") && weaponClass === "2hs":
 				return 18;
-			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Barbarian && attackMode === "A1" && weaponClass === "1ht":
 				return 16;
-			case charClass === sdk.charclass.Barbarian && attackMode.startsWith("A") && weaponClass === "2ht":
+			case charClass === sdk.player.class.Barbarian && attackMode.startsWith("A") && weaponClass === "2ht":
 				return 19;
-			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Barbarian && attackMode === "A1" && weaponClass === "stf":
 				return 19;
-			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Barbarian && attackMode === "A1" && weaponClass === "bow":
 				return 15;
-			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Barbarian && attackMode === "A1" && weaponClass === "xbw":
 				return 20;
-			case charClass === sdk.charclass.Barbarian && attackMode === "TH":
+			case charClass === sdk.player.class.Barbarian && attackMode === "TH":
 				return 16;
-			case charClass === sdk.charclass.Barbarian && attackMode === "S3":
+			case charClass === sdk.player.class.Barbarian && attackMode === "S3":
 				return 12;
-			case charClass === sdk.charclass.Barbarian && attackMode === "S4":
+			case charClass === sdk.player.class.Barbarian && attackMode === "S4":
 				return 16;
 
-			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass.startsWith("ht"):
+			case charClass === sdk.player.class.Assassin && attackMode === "A1" && weaponClass.startsWith("ht"):
 				return 11;
-			case charClass === sdk.charclass.Assassin && attackMode === "A2" && weaponClass.startsWith("ht"):
+			case charClass === sdk.player.class.Assassin && attackMode === "A2" && weaponClass.startsWith("ht"):
 				return 12;
-			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Assassin && attackMode === "A1" && weaponClass === "1hs":
 				return 15;
-			case charClass === sdk.charclass.Assassin && attackMode.startsWith("A") && weaponClass === "2hs":
+			case charClass === sdk.player.class.Assassin && attackMode.startsWith("A") && weaponClass === "2hs":
 				return 23;
-			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Assassin && attackMode === "A1" && weaponClass === "1ht":
 				return 15;
-			case charClass === sdk.charclass.Assassin && attackMode.startsWith("A") && weaponClass === "2ht":
+			case charClass === sdk.player.class.Assassin && attackMode.startsWith("A") && weaponClass === "2ht":
 				return 23;
-			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Assassin && attackMode === "A1" && weaponClass === "stf":
 				return 19;
-			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Assassin && attackMode === "A1" && weaponClass === "bow":
 				return 16;
-			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Assassin && attackMode === "A1" && weaponClass === "xbw":
 				return 21;
-			case charClass === sdk.charclass.Assassin && attackMode === "TH":
+			case charClass === sdk.player.class.Assassin && attackMode === "TH":
 				return 16;
-			case charClass === sdk.charclass.Assassin && attackMode === "KK":
+			case charClass === sdk.player.class.Assassin && attackMode === "KK":
 				return 13;
-			case charClass === sdk.charclass.Assassin && attackMode === "S2":
+			case charClass === sdk.player.class.Assassin && attackMode === "S2":
 				return 8;
-			case charClass === sdk.charclass.Assassin && attackMode === "S4" && weaponClass === "ht2":
+			case charClass === sdk.player.class.Assassin && attackMode === "S4" && weaponClass === "ht2":
 				return 12;
 
-			case charClass === sdk.charclass.Amazon && attackMode.startsWith("A") && weaponClass === "hth":
+			case charClass === sdk.player.class.Amazon && attackMode.startsWith("A") && weaponClass === "hth":
 				return 13;
-			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Amazon && attackMode === "A1" && weaponClass === "1hs":
 				return 16;
-			case charClass === sdk.charclass.Amazon && attackMode.startsWith("A") && weaponClass === "2hs":
+			case charClass === sdk.player.class.Amazon && attackMode.startsWith("A") && weaponClass === "2hs":
 				return 20;
-			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Amazon && attackMode === "A1" && weaponClass === "1ht":
 				return 15;
-			case charClass === sdk.charclass.Amazon && attackMode.startsWith("A") && weaponClass === "2ht":
+			case charClass === sdk.player.class.Amazon && attackMode.startsWith("A") && weaponClass === "2ht":
 				return 18;
-			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Amazon && attackMode === "A1" && weaponClass === "stf":
 				return 20;
-			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Amazon && attackMode === "A1" && weaponClass === "bow":
 				return 14;
-			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Amazon && attackMode === "A1" && weaponClass === "xbw":
 				return 20;
-			case charClass === sdk.charclass.Amazon && attackMode === "TH":
+			case charClass === sdk.player.class.Amazon && attackMode === "TH":
 				return 16;
-			case charClass === sdk.charclass.Amazon && attackMode === "S1":
+			case charClass === sdk.player.class.Amazon && attackMode === "S1":
 				return 9;
 			}
 			return -1;

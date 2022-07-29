@@ -116,7 +116,7 @@ const finalBuild = {
 		if (me.classic) {
 			return false;
 		} else {
-			return me.haveAll([{name: sdk.locale.items.HandofJustice}, {name: sdk.locale.items.Dragon, itemtype: sdk.itemtype.Armor}]);
+			return me.haveAll([{name: sdk.locale.items.HandofJustice}, {name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}]);
 		}
 	},
 

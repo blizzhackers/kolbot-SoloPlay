@@ -30,71 +30,71 @@ Item.getBodyLoc = function (item) {
 	let bodyLoc;
 
 	switch (item.itemType) {
-	case sdk.itemtype.Shield:
-	case sdk.itemtype.AuricShields:
-	case sdk.itemtype.VoodooHeads:
-	case sdk.itemtype.BowQuiver:
-	case sdk.itemtype.CrossbowQuiver:
+	case sdk.items.type.Shield:
+	case sdk.items.type.AuricShields:
+	case sdk.items.type.VoodooHeads:
+	case sdk.items.type.BowQuiver:
+	case sdk.items.type.CrossbowQuiver:
 		bodyLoc = sdk.body.LeftArm;
 
 		break;
-	case sdk.itemtype.Armor:
+	case sdk.items.type.Armor:
 		bodyLoc = sdk.body.Armor;
 
 		break;
-	case sdk.itemtype.Ring:
+	case sdk.items.type.Ring:
 		bodyLoc = [sdk.body.RingRight, sdk.body.RingLeft];
 
 		break;
-	case sdk.itemtype.Amulet:
+	case sdk.items.type.Amulet:
 		bodyLoc = sdk.body.Neck;
 
 		break;
-	case sdk.itemtype.Boots:
+	case sdk.items.type.Boots:
 		bodyLoc = sdk.body.Feet;
 
 		break;
-	case sdk.itemtype.Gloves:
+	case sdk.items.type.Gloves:
 		bodyLoc = sdk.body.Gloves;
 
 		break;
-	case sdk.itemtype.Belt:
+	case sdk.items.type.Belt:
 		bodyLoc = sdk.body.Belt;
 
 		break;
-	case sdk.itemtype.Helm:
-	case sdk.itemtype.PrimalHelm:
-	case sdk.itemtype.Circlet:
-	case sdk.itemtype.Pelt:
+	case sdk.items.type.Helm:
+	case sdk.items.type.PrimalHelm:
+	case sdk.items.type.Circlet:
+	case sdk.items.type.Pelt:
 		bodyLoc = sdk.body.Head;
 
 		break;
-	case sdk.itemtype.Scepter:
-	case sdk.itemtype.Wand:
-	case sdk.itemtype.Staff:
-	case sdk.itemtype.Bow:
-	case sdk.itemtype.Axe:
-	case sdk.itemtype.Club:
-	case sdk.itemtype.Sword:
-	case sdk.itemtype.Hammer:
-	case sdk.itemtype.Knife:
-	case sdk.itemtype.Spear:
-	case sdk.itemtype.Polearm:
-	case sdk.itemtype.Crossbow:
-	case sdk.itemtype.Mace:
-	case sdk.itemtype.ThrowingKnife:
-	case sdk.itemtype.ThrowingAxe:
-	case sdk.itemtype.Javelin:
-	case sdk.itemtype.Orb:
-	case sdk.itemtype.AmazonBow:
-	case sdk.itemtype.AmazonSpear:
-	case sdk.itemtype.AmazonJavelin:
-	case sdk.itemtype.MissilePotion:
+	case sdk.items.type.Scepter:
+	case sdk.items.type.Wand:
+	case sdk.items.type.Staff:
+	case sdk.items.type.Bow:
+	case sdk.items.type.Axe:
+	case sdk.items.type.Club:
+	case sdk.items.type.Sword:
+	case sdk.items.type.Hammer:
+	case sdk.items.type.Knife:
+	case sdk.items.type.Spear:
+	case sdk.items.type.Polearm:
+	case sdk.items.type.Crossbow:
+	case sdk.items.type.Mace:
+	case sdk.items.type.ThrowingKnife:
+	case sdk.items.type.ThrowingAxe:
+	case sdk.items.type.Javelin:
+	case sdk.items.type.Orb:
+	case sdk.items.type.AmazonBow:
+	case sdk.items.type.AmazonSpear:
+	case sdk.items.type.AmazonJavelin:
+	case sdk.items.type.MissilePotion:
 		bodyLoc = me.barbarian ? [sdk.body.RightArm, sdk.body.LeftArm] : sdk.body.RightArm;
 
 		break;
-	case sdk.itemtype.HandtoHand:
-	case sdk.itemtype.AssassinClaw:
+	case sdk.items.type.HandtoHand:
+	case sdk.items.type.AssassinClaw:
 		bodyLoc = !Check.currentBuild().caster && me.assassin ? [sdk.body.RightArm, sdk.body.LeftArm] : sdk.body.RightArm;
 
 		break;
@@ -249,7 +249,7 @@ Item.autoEquip = function () {
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
 				const equippedItem = this.getEquippedItem(bodyLoc[j]);
-				if (items[0].isInStorage && items[0].itemType === sdk.itemtype.Ring) {
+				if (items[0].isInStorage && items[0].itemType === sdk.items.type.Ring) {
 					// rings are special
 					if (!items[0].identified) {
 						let idTool = Town.getIdTool();
@@ -385,7 +385,7 @@ Item.outOfTownAutoEquip = function () {
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
 				const equippedItem = this.getEquippedItem(bodyLoc[j]);
-				if (items[0].isInInventory && items[0].itemType === sdk.itemtype.Ring) {
+				if (items[0].isInInventory && items[0].itemType === sdk.items.type.Ring) {
 					// rings are special
 					if (!items[0].identified) {
 						let idTool = Town.getIdTool();
@@ -467,7 +467,7 @@ Item.equip = function (item, bodyLoc) {
 	if (!this.canEquip(item)) return false;
 
 	// Already equipped in the right slot
-	if (item.mode === sdk.itemmode.Equipped && item.bodylocation === bodyLoc) return true;
+	if (item.mode === sdk.items.mode.Equipped && item.bodylocation === bodyLoc) return true;
 	// failed to open stash
 	if (item.isInStash && !Town.openStash()) return false;
 	// failed to open cube
@@ -489,7 +489,7 @@ Item.equip = function (item, bodyLoc) {
 						let justEquipped = this.getEquippedItem(bodyLoc);
 						let checkScore = 0;
 						switch (cursorItem.itemType) {
-						case sdk.itemtype.Ring:
+						case sdk.items.type.Ring:
 							checkScore = tierscore(cursorItem, bodyLoc);
 							if (checkScore > justEquipped.tierScore) {
 								console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
@@ -572,40 +572,40 @@ Item.getBodyLocSecondary = function (item) {
 	let bodyLoc;
 
 	switch (item.itemType) {
-	case sdk.itemtype.Shield:
-	case sdk.itemtype.AuricShields:
-	case sdk.itemtype.VoodooHeads:
-	case sdk.itemtype.BowQuiver:
-	case sdk.itemtype.CrossbowQuiver:
+	case sdk.items.type.Shield:
+	case sdk.items.type.AuricShields:
+	case sdk.items.type.VoodooHeads:
+	case sdk.items.type.BowQuiver:
+	case sdk.items.type.CrossbowQuiver:
 		bodyLoc = sdk.body.LeftArmSecondary;
 
 		break;
-	case sdk.itemtype.Scepter:
-	case sdk.itemtype.Wand:
-	case sdk.itemtype.Staff:
-	case sdk.itemtype.Bow:
-	case sdk.itemtype.Axe:
-	case sdk.itemtype.Club:
-	case sdk.itemtype.Sword:
-	case sdk.itemtype.Hammer:
-	case sdk.itemtype.Knife:
-	case sdk.itemtype.Spear:
-	case sdk.itemtype.Polearm:
-	case sdk.itemtype.Crossbow:
-	case sdk.itemtype.Mace:
-	case sdk.itemtype.ThrowingKnife:
-	case sdk.itemtype.ThrowingAxe:
-	case sdk.itemtype.Javelin:
-	case sdk.itemtype.Orb:
-	case sdk.itemtype.AmazonBow:
-	case sdk.itemtype.AmazonSpear:
-	case sdk.itemtype.AmazonJavelin:
-	case sdk.itemtype.MissilePotion:
+	case sdk.items.type.Scepter:
+	case sdk.items.type.Wand:
+	case sdk.items.type.Staff:
+	case sdk.items.type.Bow:
+	case sdk.items.type.Axe:
+	case sdk.items.type.Club:
+	case sdk.items.type.Sword:
+	case sdk.items.type.Hammer:
+	case sdk.items.type.Knife:
+	case sdk.items.type.Spear:
+	case sdk.items.type.Polearm:
+	case sdk.items.type.Crossbow:
+	case sdk.items.type.Mace:
+	case sdk.items.type.ThrowingKnife:
+	case sdk.items.type.ThrowingAxe:
+	case sdk.items.type.Javelin:
+	case sdk.items.type.Orb:
+	case sdk.items.type.AmazonBow:
+	case sdk.items.type.AmazonSpear:
+	case sdk.items.type.AmazonJavelin:
+	case sdk.items.type.MissilePotion:
 		bodyLoc = me.barbarian ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary] : sdk.body.RightArmSecondary;
 
 		break;
-	case sdk.itemtype.HandtoHand:
-	case sdk.itemtype.AssassinClaw:
+	case sdk.items.type.HandtoHand:
+	case sdk.items.type.AssassinClaw:
 		bodyLoc = !Check.currentBuild().caster && me.assassin ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary] : sdk.body.RightArmSecondary;
 
 		break;
@@ -619,7 +619,7 @@ Item.getBodyLocSecondary = function (item) {
 Item.secondaryEquip = function (item, bodyLoc) {
 	if (!this.canEquip(item) && me.expansion) return false;
 	// Already equipped in the right slot
-	if (item.mode === sdk.itemmode.Equipped && item.bodylocation === bodyLoc) return true;
+	if (item.mode === sdk.items.mode.Equipped && item.bodylocation === bodyLoc) return true;
 	if (item.isInStash && !Town.openStash()) return false;
 
 	me.switchWeapons(1); // Switch weapons
@@ -758,7 +758,7 @@ Item.equipMerc = function (item, bodyLoc) {
 	// dont have merc or he is dead or higher requirements
 	if (!mercenary || !Item.canEquipMerc(item, bodyLoc)) return false;
 	// Already equipped in the right slot
-	if (item.mode === sdk.itemmode.Equipped && item.bodylocation === bodyLoc) return true;
+	if (item.mode === sdk.items.mode.Equipped && item.bodylocation === bodyLoc) return true;
 	if (item.isInStash && !Town.openStash()) return false;
 
 	for (let i = 0; i < 3; i += 1) {
@@ -831,42 +831,42 @@ Item.getBodyLocMerc = function (item) {
 	if (!mercenary) return false;
 
 	switch (item.itemType) {
-	case sdk.itemtype.Shield:
-		if (mercenary.classid === sdk.monsters.mercs.IronWolf) {
+	case sdk.items.type.Shield:
+		if (mercenary.classid === sdk.mercs..IronWolf) {
 			bodyLoc = sdk.body.LeftArm;
 		}
 
 		break;
-	case sdk.itemtype.Armor:
+	case sdk.items.type.Armor:
 		bodyLoc = sdk.body.Armor;
 
 		break;
-	case sdk.itemtype.Helm:
-	case sdk.itemtype.Circlet:
+	case sdk.items.type.Helm:
+	case sdk.items.type.Circlet:
 		bodyLoc = sdk.body.Head;
 
 		break;
-	case sdk.itemtype.PrimalHelm:
-		if (mercenary.classid === sdk.monsters.mercs.A5Barb) {
+	case sdk.items.type.PrimalHelm:
+		if (mercenary.classid === sdk.mercs..A5Barb) {
 			bodyLoc = sdk.body.Head;
 		}
 		
 		break;
-	case sdk.itemtype.Bow:
-		if (mercenary.classid === sdk.monsters.mercs.Rogue) {
+	case sdk.items.type.Bow:
+		if (mercenary.classid === sdk.mercs..Rogue) {
 			bodyLoc = sdk.body.RightArm;
 		}
 
 		break;
-	case sdk.itemtype.Spear:
-	case sdk.itemtype.Polearm:
-		if (mercenary.classid === sdk.monsters.mercs.Guard) {
+	case sdk.items.type.Spear:
+	case sdk.items.type.Polearm:
+		if (mercenary.classid === sdk.mercs..Guard) {
 			bodyLoc = sdk.body.RightArm;
 		}
 
 		break;
-	case sdk.itemtype.Sword:
-		if (mercenary.classid === sdk.monsters.mercs.IronWolf || mercenary.classid === sdk.monsters.mercs.A5Barb) {
+	case sdk.items.type.Sword:
+		if (mercenary.classid === sdk.mercs..IronWolf || mercenary.classid === sdk.mercs..A5Barb) {
 			bodyLoc = sdk.body.RightArm;
 		}
 
@@ -1680,7 +1680,7 @@ const AutoEquip = {
 		if (me.classic) {
 			return Item.hasTier(item);
 		} else {
-			if ([sdk.itemtype.SmallCharm, sdk.itemtype.LargeCharm, sdk.itemtype.GrandCharm].includes(item.itemType)) {
+			if ([sdk.items.type.SmallCharm, sdk.items.type.LargeCharm, sdk.items.type.GrandCharm].includes(item.itemType)) {
 				return Item.hasCharmTier(item);
 			} else {
 				return Item.hasMercTier(item) || Item.hasTier(item) || Item.hasSecondaryTier(item);
@@ -1692,7 +1692,7 @@ const AutoEquip = {
 		if (me.classic) {
 			return Item.autoEquipKeepCheck(item);
 		} else {
-			if ([sdk.itemtype.SmallCharm, sdk.itemtype.LargeCharm, sdk.itemtype.GrandCharm].includes(item.itemType)) {
+			if ([sdk.items.type.SmallCharm, sdk.items.type.LargeCharm, sdk.items.type.GrandCharm].includes(item.itemType)) {
 				return Item.autoEquipCharmCheck(item);
 			} else {
 				return Item.autoEquipKeepCheckMerc(item) || Item.autoEquipKeepCheck(item) || Item.autoEquipCheckSecondary(item);

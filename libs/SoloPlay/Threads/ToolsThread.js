@@ -152,7 +152,7 @@ function main () {
 				return copyUnit(items[k]);
 			}
 
-			if (items[k].mode === sdk.itemmode.inBelt && items[k].itemType === pottype) {
+			if (items[k].mode === sdk.items.mode.inBelt && items[k].itemType === pottype) {
 				console.log("ÿc2" + (type > 2 ? "Giving Merc " : "Drinking ") + items[k].name + " from belt.");
 				return copyUnit(items[k]);
 			}
@@ -196,20 +196,20 @@ function main () {
 		}
 
 		// mode 18 - can't drink while leaping/whirling etc.
-		if (me.dead || me.mode === sdk.units.player.mode.SkillActionSequence) return false;
+		if (me.dead || me.mode === sdk.player.mode.SkillActionSequence) return false;
 
 		switch (type) {
 		case Common.Toolsthread.pots.Health:
 		case Common.Toolsthread.pots.MercHealth:
-			pottype = sdk.itemtype.HealingPotion;
+			pottype = sdk.items.type.HealingPotion;
 
 			break;
 		case Common.Toolsthread.pots.Mana:
-			pottype = sdk.itemtype.ManaPotion;
+			pottype = sdk.items.type.ManaPotion;
 
 			break;
 		default:
-			pottype = sdk.itemtype.RejuvPotion;
+			pottype = sdk.items.type.RejuvPotion;
 
 			break;
 		}
@@ -218,7 +218,7 @@ function main () {
 
 		if (!!potion) {
 			// mode 18 - can't drink while leaping/whirling etc.
-			if (me.dead || me.mode === sdk.units.player.mode.SkillActionSequence) return false;
+			if (me.dead || me.mode === sdk.player.mode.SkillActionSequence) return false;
 
 			try {
 				type < Common.Toolsthread.pots.MercHealth ? potion.interact() : Packet.useBeltItemForMerc(potion);
@@ -242,11 +242,11 @@ function main () {
 
 		// mode 18 - can't drink while leaping/whirling etc.
 		// give at least a second delay between pots
-		if (me.dead || me.mode === sdk.units.player.mode.SkillActionSequence || (getTickCount() - CharData.buffData[name].tick < 1000)) {
+		if (me.dead || me.mode === sdk.player.mode.SkillActionSequence || (getTickCount() - CharData.buffData[name].tick < 1000)) {
 			return false;
 		}
 
-		let pot = me.getItemsEx(-1, sdk.itemmode.inStorage).filter((p) => p.isInInventory && p.classid === type).first();
+		let pot = me.getItemsEx(-1, sdk.items.mode.inStorage).filter((p) => p.isInInventory && p.classid === type).first();
 		!!pot && (objID = pot.name.split(" ")[0].toLowerCase());
 
 		if (objID) {
@@ -353,7 +353,7 @@ function main () {
 				let itemToCheck = Game.getSelectedUnit();
 				if (!!itemToCheck) {
 					let special = "";
-					if (itemToCheck.itemType === sdk.itemtype.Ring) {
+					if (itemToCheck.itemType === sdk.items.type.Ring) {
 						special = (" | ÿc4TierLHS: ÿc0" + tierscore(itemToCheck, sdk.body.RingRight) + " | ÿc4TierRHS: ÿc0" + tierscore(itemToCheck, sdk.body.RingLeft));
 					}
 					itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) + (special ? special : "")
@@ -618,7 +618,7 @@ function main () {
 					if (!!merc) {
 						let mercHP = getMercHP();
 
-						if (mercHP > 0 && merc.mode !== sdk.units.monsters.monstermode.Dead) {
+						if (mercHP > 0 && merc.mode !== sdk.monsters.mode.Dead) {
 							if (mercHP < Config.MercChicken) {
 								!Developer.hideChickens && D2Bot.printToConsole("Merc Chicken in " + Pather.getAreaName(me.area), sdk.colors.D2Bot.Red);
 								this.exit(true);

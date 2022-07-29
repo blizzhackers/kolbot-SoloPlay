@@ -150,7 +150,7 @@ Skill.cast = function (skillId, hand, x, y, item) {
 	// account for lag, state 121 doesn't kick in immediately
 	if (this.isTimed(skillId)) {
 		for (let i = 0; i < 10; i++) {
-			if ([sdk.units.player.mode.GettingHit, sdk.units.player.mode.Blocking].includes(me.mode) || me.skillDelay) {
+			if ([sdk.player.mode.GettingHit, sdk.player.mode.Blocking].includes(me.mode) || me.skillDelay) {
 				break;
 			}
 
@@ -268,7 +268,7 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 	// account for lag, state 121 doesn't kick in immediately
 	if (this.isTimed(skillId)) {
 		for (let i = 0; i < 10; i++) {
-			if ([sdk.units.player.mode.GettingHit, sdk.units.player.mode.Blocking].includes(me.mode) || me.skillDelay) {
+			if ([sdk.player.mode.GettingHit, sdk.player.mode.Blocking].includes(me.mode) || me.skillDelay) {
 				break;
 			}
 

@@ -12,7 +12,7 @@ Misc.townEnabled = true;
 
 Misc.testTP = function () {
 	let t1 = getTickCount();
-	let tpTool = me.getItem(-1, sdk.itemmode.inStorage);
+	let tpTool = me.getItem(-1, sdk.items.mode.inStorage);
 
 	if (tpTool) {
 		do {
@@ -38,7 +38,7 @@ Misc.testTP = function () {
 	typeof items === "object" && (items = items.filter(i => i.isInStorage));
 	console.debug("took " + (getTickCount() - t1) + " to get items using old method len" + items.length);
 	t1 = getTickCount();
-	items = me.getItemsEx(-1, sdk.itemmode.inStorage);
+	items = me.getItemsEx(-1, sdk.items.mode.inStorage);
 	console.debug("took " + (getTickCount() - t1) + " to get items using new method len" + items.length);
 
 	return true;
@@ -104,7 +104,7 @@ Misc.openChests = function (range = 15) {
 	}
 
 	let unitList = getUnits(sdk.unittype.Object).filter(function (chest) {
-		return chest.name && chest.mode === sdk.units.objects.mode.Inactive && chest.distance <= range
+		return chest.name && chest.mode === sdk.objects.mode.Inactive && chest.distance <= range
 			&& (containers.includes(chest.name.toLowerCase()) || (chest.name.toLowerCase() === "evilurn" && me.baal));
 	});
 
@@ -129,7 +129,7 @@ Misc.openChests = function (range = 15) {
 };
 
 Misc.getWell = function (unit) {
-	if (!unit || unit.mode === sdk.units.objects.mode.Active) return false;
+	if (!unit || unit.mode === sdk.objects.mode.Active) return false;
 
 	for (let i = 0; i < 3; i++) {
 		if (Skill.useTK(unit) && i < 2) {
@@ -162,7 +162,7 @@ Misc.useWell = function (range = 15) {
 	Pather.canTeleport() && me.hpPercent < 60 && (range = 25);
 
 	let unitList = getUnits(sdk.unittype.Object, "well").filter(function (well) {
-		return well.distance < range && well.mode !== sdk.units.objects.mode.Active;
+		return well.distance < range && well.mode !== sdk.objects.mode.Active;
 	});
 
 	while (unitList.length > 0) {
@@ -200,7 +200,7 @@ Misc.getShrinesInArea = function (area, type, use) {
 
 		if (shrine) {
 			do {
-				if (shrine.objtype === type && shrine.mode === sdk.units.objects.mode.Inactive) {
+				if (shrine.objtype === type && shrine.mode === sdk.objects.mode.Inactive) {
 					(!Skill.haveTK || !use) && Pather.moveTo(shrine.x - 2, shrine.y - 2);
 
 					if (!use || this.getShrine(shrine)) {
@@ -248,7 +248,7 @@ Misc.unsocketItem = function (item) {
 	// Item doesn't have anything socketed
 	if (item.getItemsEx().length === 0) return true;
 
-	let hel = me.getItem(sdk.items.runes.Hel, sdk.itemmode.inStorage);
+	let hel = me.getItem(sdk.items.runes.Hel, sdk.items.mode.inStorage);
 	if (!hel) return false;
 
 	let scroll = Runewords.getScroll();
@@ -512,7 +512,7 @@ Misc.getSocketables = function (item, itemInfo) {
 
 Misc.checkSocketables = function () {
 	let items = me.getItemsEx()
-		.filter(item => item.sockets > 0 && AutoEquip.hasTier(item) && item.quality > sdk.itemquality.Superior)
+		.filter(item => item.sockets > 0 && AutoEquip.hasTier(item) && item.quality > sdk.items.quality.Superior)
 		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
 
 	if (!items) return;
@@ -521,9 +521,9 @@ Misc.checkSocketables = function () {
 		let sockets = items[i].sockets;
 
 		switch (items[i].quality) {
-		case sdk.itemquality.Magic:
-		case sdk.itemquality.Rare:
-		case sdk.itemquality.Crafted:
+		case sdk.items.quality.Magic:
+		case sdk.items.quality.Rare:
+		case sdk.items.quality.Crafted:
 			// no need to check anything else if already socketed
 			if (items[i].getItemsEx().length === sockets) {
 				continue;
@@ -534,8 +534,8 @@ Misc.checkSocketables = function () {
 			}
 
 			break;
-		case sdk.itemquality.Set:
-		case sdk.itemquality.Unique:
+		case sdk.items.quality.Set:
+		case sdk.items.quality.Unique:
 			{
 				let curr = Config.socketables.find(({ classid }) => items[i].classid === classid);
 
@@ -617,7 +617,7 @@ Misc.logItem = function (action, unit, keptLine) {
 
 	if (sock) {
 		do {
-			if (sock.itemType === sdk.itemtype.Jewel) {
+			if (sock.itemType === sdk.items.type.Jewel) {
 				desc += "\n\n";
 				desc += this.getItemDesc(sock);
 			}

@@ -15,12 +15,12 @@ function anya () {
 		Precast.doPrecast(true);
 		Pather.clearToExit(sdk.areas.CrystalizedPassage, sdk.areas.FrozenRiver, Pather.useTeleport());
 
-		if (!Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.units.FrozenAnyasPlatform)) {
+		if (!Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.objects.FrozenAnyasPlatform)) {
 			console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Anya");
 			return false;
 		}
 
-		let frozenanya = Game.getObject(sdk.units.FrozenAnya);
+		let frozenanya = Game.getObject(sdk.objects.FrozenAnya);
 		// todo - tele char can lure frozenstein away from anya as he can be hard to kill
 		// aggro the pack then move back until there isn't any monster around anya (note) we can only detect mobs around 40 yards of us
 		// then should use a static location behind anya as our destination to tele to
@@ -38,7 +38,7 @@ function anya () {
 			return me.area === sdk.areas.FrozenRiver;
 		}, Time.seconds(30), 1000)) throw new Error("Anya quest failed - Failed to return to frozen river");
 
-		frozenanya = Game.getObject(sdk.units.FrozenAnya);	// Check again in case she's no longer there from first intereaction
+		frozenanya = Game.getObject(sdk.objects.FrozenAnya);	// Check again in case she's no longer there from first intereaction
 		
 		if (frozenanya) {
 			for (let i = 0; i < 3; i++) {

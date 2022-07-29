@@ -76,7 +76,7 @@ ClassAttack.tauntMonsters = function (unit, attackSkill, data) {
 	
 	let list = getUnits(sdk.unittype.Monster)
 		.filter(function (mob) {
-			return ([sdk.units.monsters.spectype.All, sdk.units.monsters.spectype.Minion].includes(mob.spectype)
+			return ([sdk.monsters.spectype.All, sdk.monsters.spectype.Minion].includes(mob.spectype)
 				&& [sdk.states.BattleCry, sdk.states.Decrepify, sdk.states.Taunt].every(state => !mob.getState(state))
 				&& ((rangedMobsClassIDs.includes(mob.classid) && mob.distance <= range) || (dangerousAndSummoners.includes(mob.classid) && mob.distance <= 30)));
 		})

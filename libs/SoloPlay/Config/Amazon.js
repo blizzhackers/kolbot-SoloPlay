@@ -123,7 +123,7 @@ function LoadConfig () {
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = false;
 	Config.ClearType = 0;
-	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 20), Spectype: sdk.units.monsters.spectype.All};
+	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 20), Spectype: sdk.monsters.spectype.All};
 
 	// Class specific config
 	Config.LightningFuryDelay = 10; // Lightning fury interval in seconds. LF is treated as timed skill.
@@ -216,7 +216,7 @@ function LoadConfig () {
 							socketWith: [sdk.items.runes.Shael],
 							temp: [sdk.items.gems.Perfect.Amn],
 							useSocketQuest: true,
-							condition: (item) => item.quality === sdk.itemquality.Unique
+							condition: (item) => item.quality === sdk.items.quality.Unique
 						}
 					);
 			}

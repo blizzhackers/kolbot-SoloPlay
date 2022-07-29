@@ -46,7 +46,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 		};
 		let searchShrine = function () {
 			return getUnits(2, "shrine")
-				.filter(function (el) { return el.mode === sdk.units.objects.mode.Inactive && Config.ScanShrines.includes(el.objtype); })
+				.filter(function (el) { return el.mode === sdk.objects.mode.Inactive && Config.ScanShrines.includes(el.objtype); })
 				.filter(function (el) {
 					// Dont do anything with shrines we already found
 					if (skipShrine.includes(el.gid)) return false;

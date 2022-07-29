@@ -11,7 +11,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/CharData.js");
 includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
-const MYCLASSNAME = sdk.charclass.nameOf(me.classid).toLowerCase();
+const MYCLASSNAME = sdk.player.class.nameOf(me.classid).toLowerCase();
 includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + ".js");
 
 let myData = CharData.getStats();
@@ -160,7 +160,7 @@ const SetUp = {
 				mercInfo.act !== myData.merc.act && (myData.merc.act = mercInfo.act);
 				mercInfo.difficulty !== myData.merc.difficulty && (myData.merc.difficulty = mercInfo.difficulty);
 
-				if (merc.classid === sdk.monsters.mercs.Guard && !Mercenary.checkMercSkill(myData.merc.type)) {
+				if (merc.classid === sdk.mercs..Guard && !Mercenary.checkMercSkill(myData.merc.type)) {
 				// go back, need to make sure this works properly.
 				// only "go back" if we are past the difficulty we need to be in to hire merc. Ex. In hell but want holy freeze merc
 				// only if we have enough gold on hand to hire said merc
@@ -1085,10 +1085,10 @@ const Check = {
 			break;
 		case sdk.difficulty.Nightmare:
 			if (([sdk.items.runes.Tal, sdk.items.runes.Thul, sdk.items.runes.Ort, sdk.items.runes.Amn].every((i) => !!me.getItem(i)) && Check.currentBuild().caster)
-				|| (!me.paladin && me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Sword}).have)
-				|| (me.paladin && me.haveAll([{name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Sword}, {name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.AuricShields}]))
+				|| (!me.paladin && me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have)
+				|| (me.paladin && me.haveAll([{name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}, {name: sdk.locale.items.Spirit, itemtype: sdk.items.type.AuricShields}]))
 				|| (me.necromancer && me.checkItem({name: sdk.locale.items.White}).have
-					&& (me.checkItem({name: sdk.locale.items.Rhyme, itemtype: sdk.itemtype.VoodooHeads}).have || Item.getEquippedItem(sdk.body.LeftArm).tier > 800))
+					&& (me.checkItem({name: sdk.locale.items.Rhyme, itemtype: sdk.items.type.VoodooHeads}).have || Item.getEquippedItem(sdk.body.LeftArm).tier > 800))
 				|| (me.barbarian && (me.checkItem({name: sdk.locale.items.Lawbringer}).have || me.baal))) {
 				needRunes = false;
 			}
@@ -1326,7 +1326,7 @@ const Check = {
 				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
 				CharData.updateData("me", "finalBuild", SetUp.finalBuild);
 				buildType = myData.me.finalBuild;
-				template = ("SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "." + buildType + "Build.js").toLowerCase();
+				template = ("SoloPlay/BuildFiles/" + sdk.player.class.nameOf(me.classid) + "." + buildType + "Build.js").toLowerCase();
 			}
 
 			// try-again - if it fails again throw error
@@ -1415,7 +1415,7 @@ const SoloWants = {
 		if (this.validGids.includes(item.gid)) return true;
 		let i = 0;
 		for (let el of this.needList) {
-			if ([sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(item.itemType) || (item.itemType >= sdk.itemtype.Amethyst && item.itemType <= sdk.itemtype.Skull)) {
+			if ([sdk.items.type.Jewel, sdk.items.type.Rune].includes(item.itemType) || (item.itemType >= sdk.items.type.Amethyst && item.itemType <= sdk.items.type.Skull)) {
 				if (el.needed.includes(item.classid)) {
 					this.validGids.push(item.gid);
 					this.needList[i].needed.splice(this.needList[i].needed.indexOf(item.classid), 1);
@@ -1440,7 +1440,7 @@ const SoloWants = {
 	buildList: function () {
 		let myItems = me.getItemsEx()
 			.filter(function (item) {
-				return !item.isRuneword && !item.questItem && item.quality >= sdk.itemquality.Magic && (item.sockets > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
+				return !item.isRuneword && !item.questItem && item.quality >= sdk.items.quality.Magic && (item.sockets > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
 			});
 		myItems
 			.filter(item => item.isEquipped)
@@ -1502,7 +1502,7 @@ const SoloWants = {
 				}
 				// Make sure we keep a hel rune so we can unsocket temp socketables if needed
 				if (!SoloWants.needList.some(check => sdk.items.runes.Hel === check.classid)) {
-					let hel = me.getItemsEx(sdk.items.runes.Hel, sdk.itemmode.inStorage);
+					let hel = me.getItemsEx(sdk.items.runes.Hel, sdk.items.mode.inStorage);
 					// we don't have any hel runes and its not already in our needList
 					if ((!hel || hel.length === 0)) {
 						SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});
@@ -1544,7 +1544,7 @@ const SoloWants = {
 				this.needList.splice(i, 1);
 				continue;
 			}
-			if ([sdk.itemtype.Jewel, sdk.itemtype.Rune].includes(item.itemType) || (item.itemType >= sdk.itemtype.Amethyst && item.itemType <= sdk.itemtype.Skull)) {
+			if ([sdk.items.type.Jewel, sdk.items.type.Rune].includes(item.itemType) || (item.itemType >= sdk.items.type.Amethyst && item.itemType <= sdk.items.type.Skull)) {
 				if (el.needed.includes(item.classid)) {
 					this.validGids.push(item.gid);
 					this.needList[i].needed.splice(this.needList[i].needed.indexOf(item.classid), 1);

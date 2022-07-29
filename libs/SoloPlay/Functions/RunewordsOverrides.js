@@ -34,7 +34,7 @@ Runeword.Wrath = (me.ladder || Developer.addLadderRW) ? [sdk.items.runes.Pul, sd
 Runeword.PDiamondShield = [sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Diamond];
 
 Runewords.getBase = function (runeword, base, ethFlag, reroll) {
-	let item = typeof base === "object" ? base : me.getItem(base, sdk.itemmode.inStorage);
+	let item = typeof base === "object" ? base : me.getItem(base, sdk.items.mode.inStorage);
 
 	if (item) {
 		do {

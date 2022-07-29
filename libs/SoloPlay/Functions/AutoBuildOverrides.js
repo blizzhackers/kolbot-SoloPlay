@@ -78,10 +78,10 @@ const AutoBuild = new function AutoBuild () {
 		let build = getBuildType();
 		let template;
 		if (["Start", "Stepping", "Leveling"].includes(build)) {
-			template = "SoloPlay/Config/Builds/" + sdk.charclass.nameOf(me.classid) + "." + build + ".js";
+			template = "SoloPlay/Config/Builds/" + sdk.player.class.nameOf(me.classid) + "." + build + ".js";
 		} else {
 			this.usingFinalBuildFile = true;
-			template = "SoloPlay/BuildFiles/" + sdk.charclass.nameOf(me.classid) + "/" + sdk.charclass.nameOf(me.classid) + "." + build + "Build.js";
+			template = "SoloPlay/BuildFiles/" + sdk.player.class.nameOf(me.classid) + "/" + sdk.player.class.nameOf(me.classid) + "." + build + "Build.js";
 		}
 		return template.toLowerCase();
 	}

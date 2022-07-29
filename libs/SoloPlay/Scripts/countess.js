@@ -27,7 +27,7 @@ function countess () {
 			Pather.moveToExit(floors, true);
 		}
 
-		Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.units.SuperChest);
+		Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.objects.SuperChest);
 		Attack.killTarget(getLocaleString(sdk.locale.monsters.TheCountess));
 	} catch (err) {
 		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to kill Countess: " + err);

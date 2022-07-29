@@ -269,7 +269,7 @@ function LoadConfig () {
 		}
 
 		// Go ahead and keep two P-diamonds prior to finding a moser's unless already using a better shield
-		if (!Check.haveItem("shield", "unique", "Moser's Blessed Circle") && !me.haveSome([{name: sdk.locale.items.Sanctuary}, {name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Shield}])) {
+		if (!Check.haveItem("shield", "unique", "Moser's Blessed Circle") && !me.haveSome([{name: sdk.locale.items.Sanctuary}, {name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield}])) {
 			NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");
 
 			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond) < 2)) {
@@ -280,7 +280,7 @@ function LoadConfig () {
 		Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
 
 		// Sanctuary
-		if (!me.haveSome([{name: sdk.locale.items.Sanctuary}, {name: sdk.locale.items.Spirit, itemtype: sdk.itemtype.Shield}]) && ["Blova", "Lightning"].indexOf(SetUp.currentBuild) === -1) {
+		if (!me.haveSome([{name: sdk.locale.items.Sanctuary}, {name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield}]) && ["Blova", "Lightning"].indexOf(SetUp.currentBuild) === -1) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Sanctuary.js");
 		}
 

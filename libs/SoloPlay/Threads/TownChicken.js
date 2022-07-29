@@ -90,7 +90,7 @@ function main() {
 			let portal = unit ? copyUnit(unit) : Pather.getPortal(targetArea, owner);
 
 			if (portal) {
-				let redPortal = portal.classid === sdk.units.RedPortal;
+				let redPortal = portal.classid === sdk.objects.RedPortal;
 
 				if (portal.area === me.area) {
 					if (Skill.useTK(portal) && i < 3) {
@@ -131,12 +131,12 @@ function main() {
 				}
 
 				// Portal to/from Arcane
-				if (portal.classid === 298 && portal.mode !== sdk.units.objects.mode.Active) {
+				if (portal.classid === sdk.objects.ArcaneSanctuaryPortal && portal.mode !== sdk.objects.mode.Active) {
 					Misc.click(0, 0, portal);
 					let tick = getTickCount();
 
 					while (getTickCount() - tick < 2000) {
-						if (portal.mode === sdk.units.objects.mode.Active || me.area === sdk.areas.ArcaneSanctuary) {
+						if (portal.mode === sdk.objects.mode.Active || me.area === sdk.areas.ArcaneSanctuary) {
 							break;
 						}
 
@@ -191,7 +191,7 @@ function main() {
 			let tpTool = Town.getTpTool();
 			if (!tpTool) return false;
 
-			let oldPortal = Game.getObject(sdk.units.BluePortal);
+			let oldPortal = Game.getObject(sdk.objects.BluePortal);
 			if (oldPortal) {
 				do {
 					if (oldPortal.getParent() === me.name) {

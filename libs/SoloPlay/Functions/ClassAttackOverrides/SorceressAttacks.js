@@ -384,13 +384,13 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 		}
 
 		if (ts === sdk.skills.Attack) {
-			if (me.hpPercent < 50 && me.mode !== sdk.units.player.mode.GettingHit && me.getMobCount(10) === 0) {
+			if (me.hpPercent < 50 && me.mode !== sdk.player.mode.GettingHit && me.getMobCount(10) === 0) {
 				console.log("Low health but safe right now, going to delay a bit");
 				let tick = getTickCount();
 				let howLongToDelay = Config.AttackSkill.some(sk => sk > 1 && Skill.canUse(sk)) ? Time.seconds(2) : Time.seconds(1);
 
 				while (getTickCount() - tick < howLongToDelay) {
-					if (me.mode === sdk.units.player.mode.GettingHit) {
+					if (me.mode === sdk.player.mode.GettingHit) {
 						console.debug("no longer safe, we are being attacked");
 						break;
 					} else if (me.hpPercent >= 55) {
@@ -411,7 +411,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			while (getTickCount() - tick < 750) {
 				if (tsMana < me.mp) {
 					break;
-				} else if (me.mode === sdk.units.player.mode.GettingHit) {
+				} else if (me.mode === sdk.player.mode.GettingHit) {
 					console.debug("no longer safe, we are being attacked");
 					return Attack.Result.NEEDMANA;
 				}

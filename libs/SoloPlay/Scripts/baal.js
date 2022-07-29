@@ -14,9 +14,9 @@ function baal () {
 
 	const preattack = function () {
 		switch (me.classid) {
-		case sdk.charclass.Amazon:
+		case sdk.player.class.Amazon:
 			if (Skill.canUse(sdk.skills.Decoy)) {
-				let decoy = Game.getMonster(sdk.monsters.Dopplezon);
+				let decoy = Game.getMonster(sdk.summons.Dopplezon);
 
 				if (!decoy || (getTickCount() - decoyTick >= decoyDuration)) {
 					Skill.cast(sdk.skills.Decoy, sdk.skills.hand.Right, 15092, 5028);
@@ -25,7 +25,7 @@ function baal () {
 			}
 
 			break;
-		case sdk.charclass.Sorceress:
+		case sdk.player.class.Sorceress:
 			if ([sdk.skills.Meteor, sdk.skills.Blizzard, sdk.skills.FrozenOrb].includes(Config.AttackSkill[1])) {
 				if (me.skillDelay) {
 					delay(50);
@@ -35,7 +35,7 @@ function baal () {
 			}
 
 			return true;
-		case sdk.charclass.Paladin:
+		case sdk.player.class.Paladin:
 			if (Config.AttackSkill[3] !== sdk.skills.BlessedHammer) return false;
 			[15093, 5029].distance > 3 && Pather.moveTo(15093, 5029);
 			Config.AttackSkill[4] > 0 && Skill.setSkill(Config.AttackSkill[4], sdk.skills.hand.Right);
@@ -43,7 +43,7 @@ function baal () {
 			Skill.cast(Config.AttackSkill[3], sdk.skills.hand.Left);
 
 			return true;
-		case sdk.charclass.Druid:
+		case sdk.player.class.Druid:
 			if ([sdk.skills.Tornado, sdk.skills.Fissure, sdk.skills.Volcano].includes(Config.AttackSkill[3])) {
 				Skill.cast(Config.AttackSkill[3], sdk.skills.hand.Right, 15093, 5029);
 
@@ -51,7 +51,7 @@ function baal () {
 			}
 
 			break;
-		case sdk.charclass.Assassin:
+		case sdk.player.class.Assassin:
 			if (Config.UseTraps) {
 				let check = ClassAttack.checkTraps({x: 15093, y: 5029});
 
@@ -126,7 +126,7 @@ function baal () {
 							if (Config.AttackSkill[3] === sdk.skills.BlessedHammer) {
 								Skill.cast(Config.AttackSkill[3], sdk.skills.hand.Left);
 							}
-							return !me.getState(sdk.states.Poison) || me.mode === sdk.units.player.mode.GettingHit;
+							return !me.getState(sdk.states.Poison) || me.mode === sdk.player.mode.GettingHit;
 						}, Time.seconds(3), 100);
 					}
 				}

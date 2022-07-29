@@ -116,7 +116,7 @@ const finalBuild = {
 		if (me.classic) {
 			return false;
 		} else {
-			return me.haveAll([{name: sdk.locale.items.Dream, itemtype: sdk.itemtype.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.itemtype.Helm},
+			return me.haveAll([{name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm},
 				{name: sdk.locale.items.LastWish}]);
 		}
 	},

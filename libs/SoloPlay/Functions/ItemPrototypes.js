@@ -44,71 +44,71 @@ Unit.prototype.bodyLocation = function () {
 	let bodyLoc;
 
 	switch (this.itemType) {
-	case sdk.itemtype.Shield:
-	case sdk.itemtype.AuricShields:
-	case sdk.itemtype.VoodooHeads:
-	case sdk.itemtype.BowQuiver:
-	case sdk.itemtype.CrossbowQuiver:
+	case sdk.items.type.Shield:
+	case sdk.items.type.AuricShields:
+	case sdk.items.type.VoodooHeads:
+	case sdk.items.type.BowQuiver:
+	case sdk.items.type.CrossbowQuiver:
 		bodyLoc = 5;
 
 		break;
-	case sdk.itemtype.Armor:
+	case sdk.items.type.Armor:
 		bodyLoc = 3;
 
 		break;
-	case sdk.itemtype.Ring:
+	case sdk.items.type.Ring:
 		bodyLoc = [6, 7];
 
 		break;
-	case sdk.itemtype.Amulet:
+	case sdk.items.type.Amulet:
 		bodyLoc = 2;
 
 		break;
-	case sdk.itemtype.Boots:
+	case sdk.items.type.Boots:
 		bodyLoc = 9;
 
 		break;
-	case sdk.itemtype.Gloves:
+	case sdk.items.type.Gloves:
 		bodyLoc = 10;
 
 		break;
-	case sdk.itemtype.Belt:
+	case sdk.items.type.Belt:
 		bodyLoc = 8;
 
 		break;
-	case sdk.itemtype.Helm:
-	case sdk.itemtype.PrimalHelm:
-	case sdk.itemtype.Circlet:
-	case sdk.itemtype.Pelt:
+	case sdk.items.type.Helm:
+	case sdk.items.type.PrimalHelm:
+	case sdk.items.type.Circlet:
+	case sdk.items.type.Pelt:
 		bodyLoc = 1;
 
 		break;
-	case sdk.itemtype.Scepter:
-	case sdk.itemtype.Wand:
-	case sdk.itemtype.Staff:
-	case sdk.itemtype.Bow:
-	case sdk.itemtype.Axe:
-	case sdk.itemtype.Club:
-	case sdk.itemtype.Sword:
-	case sdk.itemtype.Hammer:
-	case sdk.itemtype.Knife:
-	case sdk.itemtype.Spear:
-	case sdk.itemtype.Polearm:
-	case sdk.itemtype.Crossbow:
-	case sdk.itemtype.Mace:
-	case sdk.itemtype.ThrowingKnife:
-	case sdk.itemtype.ThrowingAxe:
-	case sdk.itemtype.Javelin:
-	case sdk.itemtype.Orb:
-	case sdk.itemtype.AmazonBow:
-	case sdk.itemtype.AmazonSpear:
-	case sdk.itemtype.AmazonJavelin:
-	case sdk.itemtype.MissilePotion:
+	case sdk.items.type.Scepter:
+	case sdk.items.type.Wand:
+	case sdk.items.type.Staff:
+	case sdk.items.type.Bow:
+	case sdk.items.type.Axe:
+	case sdk.items.type.Club:
+	case sdk.items.type.Sword:
+	case sdk.items.type.Hammer:
+	case sdk.items.type.Knife:
+	case sdk.items.type.Spear:
+	case sdk.items.type.Polearm:
+	case sdk.items.type.Crossbow:
+	case sdk.items.type.Mace:
+	case sdk.items.type.ThrowingKnife:
+	case sdk.items.type.ThrowingAxe:
+	case sdk.items.type.Javelin:
+	case sdk.items.type.Orb:
+	case sdk.items.type.AmazonBow:
+	case sdk.items.type.AmazonSpear:
+	case sdk.items.type.AmazonJavelin:
+	case sdk.items.type.MissilePotion:
 		bodyLoc = me.barbarian ? [4, 5] : 4;
 
 		break;
-	case sdk.itemtype.HandtoHand:
-	case sdk.itemtype.AssassinClaw:
+	case sdk.items.type.HandtoHand:
+	case sdk.items.type.AssassinClaw:
 		bodyLoc = !Check.currentBuild().caster && me.assassin ? [4, 5] : 4;
 
 		break;
@@ -125,40 +125,40 @@ Unit.prototype.secondaryBodyLocation = function () {
 	let bodyLoc;
 
 	switch (this.itemType) {
-	case sdk.itemtype.Shield:
-	case sdk.itemtype.AuricShields:
-	case sdk.itemtype.VoodooHeads:
-	case sdk.itemtype.BowQuiver:
-	case sdk.itemtype.CrossbowQuiver:
+	case sdk.items.type.Shield:
+	case sdk.items.type.AuricShields:
+	case sdk.items.type.VoodooHeads:
+	case sdk.items.type.BowQuiver:
+	case sdk.items.type.CrossbowQuiver:
 		bodyLoc = 12;
 
 		break;
-	case sdk.itemtype.Scepter:
-	case sdk.itemtype.Wand:
-	case sdk.itemtype.Staff:
-	case sdk.itemtype.Bow:
-	case sdk.itemtype.Axe:
-	case sdk.itemtype.Club:
-	case sdk.itemtype.Sword:
-	case sdk.itemtype.Hammer:
-	case sdk.itemtype.Knife:
-	case sdk.itemtype.Spear:
-	case sdk.itemtype.Polearm:
-	case sdk.itemtype.Crossbow:
-	case sdk.itemtype.Mace:
-	case sdk.itemtype.ThrowingKnife:
-	case sdk.itemtype.ThrowingAxe:
-	case sdk.itemtype.Javelin:
-	case sdk.itemtype.Orb:
-	case sdk.itemtype.AmazonBow:
-	case sdk.itemtype.AmazonSpear:
-	case sdk.itemtype.AmazonJavelin:
-	case sdk.itemtype.MissilePotion:
+	case sdk.items.type.Scepter:
+	case sdk.items.type.Wand:
+	case sdk.items.type.Staff:
+	case sdk.items.type.Bow:
+	case sdk.items.type.Axe:
+	case sdk.items.type.Club:
+	case sdk.items.type.Sword:
+	case sdk.items.type.Hammer:
+	case sdk.items.type.Knife:
+	case sdk.items.type.Spear:
+	case sdk.items.type.Polearm:
+	case sdk.items.type.Crossbow:
+	case sdk.items.type.Mace:
+	case sdk.items.type.ThrowingKnife:
+	case sdk.items.type.ThrowingAxe:
+	case sdk.items.type.Javelin:
+	case sdk.items.type.Orb:
+	case sdk.items.type.AmazonBow:
+	case sdk.items.type.AmazonSpear:
+	case sdk.items.type.AmazonJavelin:
+	case sdk.items.type.MissilePotion:
 		bodyLoc = me.barbarian ? [11, 12] : 11;
 
 		break;
-	case sdk.itemtype.HandtoHand:
-	case sdk.itemtype.AssassinClaw:
+	case sdk.items.type.HandtoHand:
+	case sdk.items.type.AssassinClaw:
 		bodyLoc = !Check.currentBuild().caster && me.assassin ? [11, 12] : 11;
 
 		break;
@@ -176,43 +176,43 @@ Unit.prototype.mercBodyLocation = function () {
 	if (!mercenary) return [];
 
 	switch (this.itemType) {
-	case sdk.itemtype.Shield:
-		if (mercenary.classid === sdk.monsters.mercs.IronWolf) {
+	case sdk.items.type.Shield:
+		if (mercenary.classid === sdk.mercs..IronWolf) {
 			bodyLoc = 5;
 		}
 
 		break;
-	case sdk.itemtype.Armor:
+	case sdk.items.type.Armor:
 		bodyLoc = 3;
 
 		break;
-	case sdk.itemtype.Helm:
-	case sdk.itemtype.Circlet:
+	case sdk.items.type.Helm:
+	case sdk.items.type.Circlet:
 		bodyLoc = 1;
 
 		break;
-	case sdk.itemtype.PrimalHelm:
-		if (mercenary.classid === sdk.monsters.mercs.A5Barb) {
+	case sdk.items.type.PrimalHelm:
+		if (mercenary.classid === sdk.mercs..A5Barb) {
 			bodyLoc = 1;
 		}
 		
 		break;
-	case sdk.itemtype.Bow:
-		if (mercenary.classid === sdk.monsters.mercs.Rogue) {
+	case sdk.items.type.Bow:
+		if (mercenary.classid === sdk.mercs..Rogue) {
 			bodyLoc = 4;
 		}
 
 		break;
-	case sdk.itemtype.Spear:
-	case sdk.itemtype.Polearm:
-		if (mercenary.classid === sdk.monsters.mercs.Guard) {
+	case sdk.items.type.Spear:
+	case sdk.items.type.Polearm:
+		if (mercenary.classid === sdk.mercs..Guard) {
 			bodyLoc = 4;
 		}
 
 		break;
-	case sdk.itemtype.Sword:
-		if (mercenary.classid === sdk.monsters.mercs.IronWolf
-			|| mercenary.classid === sdk.monsters.mercs.A5Barb) {
+	case sdk.items.type.Sword:
+		if (mercenary.classid === sdk.mercs..IronWolf
+			|| mercenary.classid === sdk.mercs..A5Barb) {
 			bodyLoc = 4;
 		}
 
@@ -340,7 +340,7 @@ Unit.prototype.equipItem = function (bodyLoc = -1) {
 	if (this === undefined || this.type !== sdk.unittype.Item || !this.canEquip()) return false;
 	bodyLoc === -1 && (bodyLoc = this.bodyLocation().first());
 	// Already equipped in the right slot
-	if (this.mode === sdk.itemmode.Equipped && this.bodylocation === bodyLoc) return true;
+	if (this.mode === sdk.items.mode.Equipped && this.bodylocation === bodyLoc) return true;
 	// failed to open stash
 	if (this.isInStash && !Town.openStash()) return false;
 	// failed to open cube
@@ -387,7 +387,7 @@ Unit.prototype.secondaryEquip = function (bodyLoc = -1) {
 	if (this === undefined || this.type !== sdk.unittype.Item || (!this.canEquip() && me.expansion)) return false;
 	bodyLoc === -1 && (bodyLoc = this.secondaryBodyLocation().first());
 	// Already equipped in the right slot
-	if (this.mode === sdk.itemmode.Equipped && this.bodylocation === bodyLoc) return true;
+	if (this.mode === sdk.items.mode.Equipped && this.bodylocation === bodyLoc) return true;
 	// failed to open stash
 	if (this.isInStash && !Town.openStash()) return false;
 	// failed to open cube
@@ -426,7 +426,7 @@ Unit.prototype.equipMerc = function (bodyLoc = -1) {
 	if (this === undefined || this.type !== sdk.unittype.Item || !this.canEquipMerc()) return false;
 	bodyLoc === -1 && (bodyLoc = this.mercBodyLocation().first());
 	// Already equipped in the right slot
-	if (this.mode === sdk.itemmode.Equipped && this.bodylocation === bodyLoc) return true;
+	if (this.mode === sdk.items.mode.Equipped && this.bodylocation === bodyLoc) return true;
 	// failed to open stash
 	if (this.isInStash && !Town.openStash()) return false;
 	// failed to open cube

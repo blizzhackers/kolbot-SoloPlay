@@ -167,7 +167,7 @@ ClassAttack.afterAttack = function () {
 		Misc.poll(function () {
 			me.overhead("Delaying for a second to get rid of Poison");
 
-			return (!me.getState(sdk.states.Poison) || me.mode === sdk.units.player.mode.GettingHit);
+			return (!me.getState(sdk.states.Poison) || me.mode === sdk.player.mode.GettingHit);
 		}, 1500, 30);
 	}
 

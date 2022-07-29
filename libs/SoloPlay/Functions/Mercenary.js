@@ -57,13 +57,13 @@ const Mercenary = {
 		!merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
 		if (!merc) return 0;
 		switch (merc.classid) {
-		case sdk.monsters.mercs.Rogue:
+		case sdk.mercs..Rogue:
 			return 1;
-		case sdk.monsters.mercs.Guard:
+		case sdk.mercs..Guard:
 			return 2;
-		case sdk.monsters.mercs.IronWolf:
+		case sdk.mercs..IronWolf:
 			return 3;
-		case sdk.monsters.mercs.A5Barb:
+		case sdk.mercs..A5Barb:
 			return 5;
 		default:
 			return 0;
@@ -145,7 +145,7 @@ const Mercenary = {
 			myData.merc.type = wantedSkill;
 			CharData.updateData("merc", myData) && updateMyData();
 			return true;
-		} else if (!!checkMyMerc && checkMyMerc.classid === sdk.monsters.mercs.Guard && !checkMyMerc.getStat(sdk.stats.ModifierListSkill)) {
+		} else if (!!checkMyMerc && checkMyMerc.classid === sdk.mercs..Guard && !checkMyMerc.getStat(sdk.stats.ModifierListSkill)) {
 			// aura isn't active so we can't check it
 			return true;
 		}
