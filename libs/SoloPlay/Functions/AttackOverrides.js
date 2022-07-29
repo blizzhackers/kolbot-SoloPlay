@@ -1312,7 +1312,7 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
 	});
 
 	for (let i = 0; i < grid.length; i += 1) {
-		if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & 0x1) && !CollMap.checkColl(unit, {x: grid[i].x, y: grid[i].y}, sdk.collision.Ranged)) {
+		if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & sdk.collision.BlockWall) && !CollMap.checkColl(unit, {x: grid[i].x, y: grid[i].y}, sdk.collision.Ranged)) {
 			currCount = this.getMonsterCount(grid[i].x, grid[i].y, range, monList);
 
 			if (currCount < count) {
@@ -1366,7 +1366,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 			cx = Math.round((Math.cos((angle + angles[i]) * Math.PI / 180)) * distance + unit.x);
 			cy = Math.round((Math.sin((angle + angles[i]) * Math.PI / 180)) * distance + unit.y);
 
-			if (Pather.checkSpot(cx, cy, 0x1, false)) {
+			if (Pather.checkSpot(cx, cy, sdk.collision.BlockWall, false)) {
 				coords.push({x: cx, y: cy});
 			}
 		}
@@ -1471,5 +1471,5 @@ Attack.castableSpot = function (x = undefined, y = undefined) {
 		return false;
 	}
 
-	return !(result === undefined || !!(result & Coords_1.BlockBits.Casting) || !!(result & Coords_1.Collision.BLOCK_MISSILE) || (result & 0x400) || (result & 0x1));
+	return !(result === undefined || !!(result & Coords_1.BlockBits.Casting) || !!(result & Coords_1.Collision.BLOCK_MISSILE) || (result & sdk.collision.Objects) || (result & sdk.collision.BlockWall));
 };

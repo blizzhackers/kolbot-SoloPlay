@@ -23,11 +23,7 @@
 	}
 
 	function onGround(item) {
-		if (item.mode === 3 || item.mode === 5) {
-			return true;
-		}
-
-		return false;
+		return item.onGroundOrDropping;
 	}
 
 	const GameData = {

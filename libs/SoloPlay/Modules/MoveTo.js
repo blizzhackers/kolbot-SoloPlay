@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-var
 var __importDefault = (this && this.__importDefault) || function (mod) {
 	return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -43,25 +44,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 			}
 			return 0;
 		};
-		let searchShrine = function () { return getUnits(2, "shrine")
-			.filter(function (el) { return el.mode === 0 && Config.ScanShrines.includes(el.objtype); })
-			.filter(function (el) {
-				// Dont do anything with shrines we already found
-				if (skipShrine.includes(el.gid)) return false;
-				let currentIndex = Config.ScanShrines.findIndex(function (s) { return me.getState(stateForShrine(s)); });
-				let index = Config.ScanShrines.indexOf(el.objtype);
-				if (currentIndex === -1 || index <= currentIndex || stateForShrine(el.objtype) === 0) {
-					if (el.objtype !== sdk_1.default.shrines.Mana || me.mpPercent >= 50) {
-						return true;
-					} else {
-						return getDistance(me, el) <= 10;
+		let searchShrine = function () {
+			return getUnits(2, "shrine")
+				.filter(function (el) { return el.mode === sdk.units.objects.mode.Inactive && Config.ScanShrines.includes(el.objtype); })
+				.filter(function (el) {
+					// Dont do anything with shrines we already found
+					if (skipShrine.includes(el.gid)) return false;
+					let currentIndex = Config.ScanShrines.findIndex((s) => me.getState(stateForShrine(s)));
+					let index = Config.ScanShrines.indexOf(el.objtype);
+					if (currentIndex === -1 || index <= currentIndex || stateForShrine(el.objtype) === 0) {
+						if (el.objtype !== sdk_1.default.shrines.Mana || me.mpPercent >= 50) {
+							return true;
+						} else {
+							return getDistance(me, el) <= 10;
+						}
 					}
-				}
-				return false;
-			})
-			.filter(function (el) { return Pather.getWalkDistance(el.x, el.y, el.area, me.x, me.y, 0, 5) <= 40; })
-			.sort(function (a, b) { return (Config.ScanShrines.indexOf(a.objtype) - Config.ScanShrines.indexOf(b.objtype)) || a.distance - b.distance; })
-			.first();
+					return false;
+				})
+				.filter(function (el) { return Pather.getWalkDistance(el.x, el.y, el.area, me.x, me.y, 0, 5) <= 40; })
+				.sort(function (a, b) { return (Config.ScanShrines.indexOf(a.objtype) - Config.ScanShrines.indexOf(b.objtype)) || a.distance - b.distance; })
+				.first();
 		};
 		// convert presetunit to x,y target
 		if (target instanceof PresetUnit) {
@@ -244,8 +246,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 						i = path_1.index;
 						hookEvent && hookEvent();
 						return out_i_1 = i, out_node_1 = node, "continue";
-					}
-					else {
+					} else {
 						// Sometimes we go way out track due to clearing,
 						// lets find the nearest node on the path and go from there
 						// but not of the next node path
@@ -294,5 +295,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 	}
 
 	exports.default = moveTo;
+	// eslint-disable-next-line no-var, no-unused-vars
 	var recursiveMoveTo = 0;
 });

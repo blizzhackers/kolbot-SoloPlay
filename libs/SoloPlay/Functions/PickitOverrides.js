@@ -447,7 +447,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 			Packet.telekinesis(item);
 		} else {
 			if (item.distance > (Config.FastPick || i < 1 ? 6 : 4) || checkCollision(me, item, sdk.collision.BlockWall)) {
-				if (item.checkForMobs({range: 8, coll: (0x1 | 0x400 | 0x800)})) {
+				if (item.checkForMobs({range: 8, coll: (sdk.collision.BlockWall | sdk.collision.Objects | sdk.collision.ClosedDoor)})) {
 					console.log("ÿc8PickItemÿc0 :: Clearing area around item I want to pick");
 					Pickit.enabled = false;		// Don't pick while trying to clear
 					Attack.clearPos(item.x, item.y, 10, false);

@@ -45,9 +45,6 @@ function main() {
 	Runewords.init();
 	Cubing.init();
 
-	let useHowl = Skill.canUse(sdk.skills.Howl);
-	let useTerror = Skill.canUse(sdk.skills.Terror);
-
 	let Overrides = require("../../modules/Override");
 
 	new Overrides.Override(Attack, Attack.getNearestMonster, function (orignal, givenSettings = {}) {
@@ -134,12 +131,12 @@ function main() {
 				}
 
 				// Portal to/from Arcane
-				if (portal.classid === 298 && portal.mode !== 2) {
+				if (portal.classid === 298 && portal.mode !== sdk.units.objects.mode.Active) {
 					Misc.click(0, 0, portal);
 					let tick = getTickCount();
 
 					while (getTickCount() - tick < 2000) {
-						if (portal.mode === 2 || me.area === sdk.areas.ArcaneSanctuary) {
+						if (portal.mode === sdk.units.objects.mode.Active || me.area === sdk.areas.ArcaneSanctuary) {
 							break;
 						}
 
@@ -386,6 +383,9 @@ function main() {
 	let test = Game.getMonster();
 	test === null && console.warn("getUnit is bugged");
 
+	const useHowl = Skill.canUse(sdk.skills.Howl);
+	const useTerror = Skill.canUse(sdk.skills.Terror);
+
 	while (true) {
 		if (!me.inTown && (townCheck || fastTown
 			|| ((Config.TownHP > 0 && me.hpPercent < Config.TownHP)
@@ -432,7 +432,7 @@ function main() {
 
 				return false;
 			} finally {
-				console.log("Took: " + Time.format(getTickCount() - t4) + " to visit town");
+				console.log("ÿc8TownChicken :: Took: " + Time.format(getTickCount() - t4) + " to visit town");
 				this.togglePause();
 
 				Attack.stopClear = false;

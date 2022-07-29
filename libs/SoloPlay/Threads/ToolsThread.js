@@ -126,9 +126,9 @@ function main () {
 	this.getPotion = function (pottype = -1, type = -1) {
 		if (pottype === undefined) return false;
 
-		let items = me.getItemsEx().filter(item => item.itemType === pottype && (type > 2 ? item.isInBelt : true));
+		let items = me.getItemsEx().filter(item => item.itemType === pottype && (type > Common.Toolsthread.pots.Rejuv ? item.isInBelt : true));
 		if (items.length === 0) return false;
-		let invoFirst = [0, 1].includes(type);
+		let invoFirst = [Common.Toolsthread.pots.Health, Common.Toolsthread.pots.Mana].includes(type);
 
 		if (invoFirst) {
 			// sort by location (invo first, then classid)
@@ -147,12 +147,12 @@ function main () {
 		}
 
 		for (let k = 0; k < items.length; k += 1) {
-			if (type < 3 && items[k].isInInventory && items[k].itemType === pottype) {
+			if (type < Common.Toolsthread.pots.MercHealth && items[k].isInInventory && items[k].itemType === pottype) {
 				console.log("ÿc2Drinking " + items[k].name + " from inventory.");
 				return copyUnit(items[k]);
 			}
 
-			if (items[k].mode === 2 && items[k].itemType === pottype) {
+			if (items[k].mode === sdk.itemmode.inBelt && items[k].itemType === pottype) {
 				console.log("ÿc2" + (type > 2 ? "Giving Merc " : "Drinking ") + items[k].name + " from belt.");
 				return copyUnit(items[k]);
 			}
@@ -166,21 +166,21 @@ function main () {
 		let pottype, tNow = getTickCount();
 
 		switch (type) {
-		case 0:
-		case 1:
+		case Common.Toolsthread.pots.Health:
+		case Common.Toolsthread.pots.Mana:
 			if ((timerLastDrink[type] && (tNow - timerLastDrink[type] < 1000)) || me.getState(type === 0 ? 100 : 106)) {
 				return false;
 			}
 
 			break;
-		case 2:
+		case Common.Toolsthread.pots.Rejuv:
 			// small delay for juvs just to prevent using more at once
 			if (timerLastDrink[type] && (tNow - timerLastDrink[type] < 300)) {
 				return false;
 			}
 
 			break;
-		case 4:
+		case Common.Toolsthread.pots.MercRejuv:
 			// larger delay for juvs just to prevent using more at once, considering merc update rate
 			if (timerLastDrink[type] && (tNow - timerLastDrink[type] < 2000)) {
 				return false;
@@ -196,20 +196,20 @@ function main () {
 		}
 
 		// mode 18 - can't drink while leaping/whirling etc.
-		if ([0, 17, 18].includes(me.mode)) return false;
+		if (me.dead || me.mode === sdk.units.player.mode.SkillActionSequence) return false;
 
 		switch (type) {
-		case 0:
-		case 3:
-			pottype = 76;
+		case Common.Toolsthread.pots.Health:
+		case Common.Toolsthread.pots.MercHealth:
+			pottype = sdk.itemtype.HealingPotion;
 
 			break;
-		case 1:
-			pottype = 77;
+		case Common.Toolsthread.pots.Mana:
+			pottype = sdk.itemtype.ManaPotion;
 
 			break;
 		default:
-			pottype = 78;
+			pottype = sdk.itemtype.RejuvPotion;
 
 			break;
 		}
@@ -218,14 +218,10 @@ function main () {
 
 		if (!!potion) {
 			// mode 18 - can't drink while leaping/whirling etc.
-			if ([0, 17, 18].includes(me.mode)) return false;
+			if (me.dead || me.mode === sdk.units.player.mode.SkillActionSequence) return false;
 
 			try {
-				if (type < 3) {
-					potion.interact();
-				} else {
-					sendPacket(1, 0x26, 4, potion.gid, 4, 1, 4, 0);
-				}
+				type < Common.Toolsthread.pots.MercHealth ? potion.interact() : Packet.useBeltItemForMerc(potion);
 			} catch (e) {
 				console.error(e);
 			}
@@ -246,7 +242,7 @@ function main () {
 
 		// mode 18 - can't drink while leaping/whirling etc.
 		// give at least a second delay between pots
-		if ([0, 17, 18].includes(me.mode) || (getTickCount() - CharData.buffData[name].tick < 1000)) {
+		if (me.dead || me.mode === sdk.units.player.mode.SkillActionSequence || (getTickCount() - CharData.buffData[name].tick < 1000)) {
 			return false;
 		}
 
@@ -277,18 +273,18 @@ function main () {
 	// Event functions
 	this.keyEvent = function (key) {
 		switch (key) {
-		case 19: // Pause/Break key
+		case sdk.keys.PauseBreak: // pause default.dbj
 			this.togglePause();
 
 			break;
-		case 96: // numpad 0
+		case sdk.keys.Numpad0: // stop profile without logging character
 			Developer.logPerformance && Tracker.update();
 			console.log("ÿc8Kolbot-SoloPlay: ÿc1Stopping profile");
 			delay(rand(2e3, 5e3));
 			D2Bot.stop(me.profile, true);
 
 			break;
-		case 35: // End key
+		case sdk.keys.End: // stop profile and log character
 			Developer.logEquipped ? MuleLogger.logEquippedItems() : MuleLogger.logChar();
 			Developer.logPerformance && Tracker.update();
 
@@ -297,12 +293,12 @@ function main () {
 			D2Bot.stop(me.profile, true);
 
 			break;
-		case 45: // Ins key
+		case sdk.keys.Insert: // reveal level
 			me.overhead("Revealing " + Pather.getAreaName(me.area));
 			revealLevel(true);
 
 			break;
-		case 107: // Numpad +
+		case sdk.keys.NumpadPlus: // log stats
 			showConsole();
 
 			console.log("ÿc8My stats :: " + Common.Toolsthread.getStatsString(me));
@@ -312,7 +308,7 @@ function main () {
 			console.log(SoloWants.needList);
 
 			break;
-		case 101: // numpad 5
+		case sdk.keys.Numpad5: // force automule check
 			if (AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("muleInfo")) {
 				if (AutoMule.getMuleItems().length > 0) {
 					console.log("ÿc2Mule triggered");
@@ -327,12 +323,12 @@ function main () {
 			}
 
 			break;
-		case 102: // Numpad 6
+		case sdk.keys.Numpad6: // log character to char viewer
 			Developer.logEquipped ? MuleLogger.logEquippedItems() : MuleLogger.logChar();
 			me.overhead("Logged char: " + me.name);
 
 			break;
-		case 109: // Numpad -
+		case sdk.keys.NumpadDash:
 			{
 				let itemToCheck = Game.getSelectedUnit();
 				if (!!itemToCheck) {
@@ -349,7 +345,7 @@ function main () {
 			}
 
 			break;
-		case 110: // numpad decimal point
+		case sdk.keys.NumpadDecimal: // dump item info
 			{
 				let itemString = "";
 				let charmString = "";
@@ -358,7 +354,7 @@ function main () {
 				if (!!itemToCheck) {
 					let special = "";
 					if (itemToCheck.itemType === sdk.itemtype.Ring) {
-						special = (" | ÿc4TierLHS: ÿc0" + tierscore(itemToCheck, 6) + " | ÿc4TierRHS: ÿc0" + tierscore(itemToCheck, 7));
+						special = (" | ÿc4TierLHS: ÿc0" + tierscore(itemToCheck, sdk.body.RingRight) + " | ÿc4TierRHS: ÿc0" + tierscore(itemToCheck, sdk.body.RingLeft));
 					}
 					itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) + (special ? special : "")
 						+ " | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n"
@@ -382,15 +378,15 @@ function main () {
 			}
 
 			break;
-		case 105: // numpad 9 - get nearest preset unit id
+		case sdk.keys.Numpad9: // get nearest preset unit id
 			console.log(Common.Toolsthread.getNearestPreset());
 
 			break;
-		case 106: // numpad * - precast
+		case sdk.keys.NumpadStar: // precast
 			Precast.doPrecast(true);
 
 			break;
-		case 111: // numpad / - re-load default
+		case sdk.keys.NumpadSlash: // re-load default
 			console.log("ÿc8ToolsThread :: " + sdk.colors.Red + "Stopping threads and waiting 5 seconds to restart");
 			this.stopDefault() && delay(5e3);
 			console.log("Starting default.dbj");
@@ -410,9 +406,7 @@ function main () {
 				console.log(name1 + (mode === 0 ? " timed out" : " left"));
 
 				if (typeof Config.QuitListDelay !== "undefined" && typeof quitListDelayTime === "undefined" && Config.QuitListDelay.length > 0) {
-					Config.QuitListDelay.sort(function (a, b) {
-						return a - b;
-					});
+					Config.QuitListDelay.sort((a, b) => a - b);
 					quitListDelayTime = getTickCount() + rand(Config.QuitListDelay[0] * 1e3, Config.QuitListDelay[1] * 1e3);
 				} else {
 					quitListDelayTime = getTickCount();
@@ -580,8 +574,8 @@ function main () {
 		try {
 			if (me.gameReady && !me.inTown) {
 				// todo - build potion list only once per iteration
-				Config.UseHP > 0 && me.hpPercent < Config.UseHP && this.drinkPotion(0);
-				Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && this.drinkPotion(2);
+				Config.UseHP > 0 && me.hpPercent < Config.UseHP && this.drinkPotion(Common.Toolsthread.pots.Health);
+				Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && this.drinkPotion(Common.Toolsthread.pots.Rejuv);
 
 				if (Config.LifeChicken > 0 && me.hpPercent <= Config.LifeChicken && !me.inTown) {
 					!Developer.hideChickens && D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + Pather.getAreaName(me.area) + ". Ping: " + me.ping, sdk.colors.D2Bot.Red);
@@ -590,8 +584,8 @@ function main () {
 					break;
 				}
 
-				Config.UseMP > 0 && me.mpPercent < Config.UseMP && this.drinkPotion(1);
-				Config.UseRejuvMP > 0 && me.mpPercent < Config.UseRejuvMP && this.drinkPotion(2);
+				Config.UseMP > 0 && me.mpPercent < Config.UseMP && this.drinkPotion(Common.Toolsthread.pots.Mana);
+				Config.UseRejuvMP > 0 && me.mpPercent < Config.UseRejuvMP && this.drinkPotion(Common.Toolsthread.pots.Rejuv);
 
 				me.getState(sdk.states.Poison) && this.drinkSpecialPotion(sdk.items.AntidotePotion);
 				[sdk.states.Frozen, sdk.states.FrozenSolid].some(state => me.getState(state)) && this.drinkSpecialPotion(sdk.items.ThawingPotion);
@@ -624,7 +618,7 @@ function main () {
 					if (!!merc) {
 						let mercHP = getMercHP();
 
-						if (mercHP > 0 && merc.mode !== 12) {
+						if (mercHP > 0 && merc.mode !== sdk.units.monsters.monstermode.Dead) {
 							if (mercHP < Config.MercChicken) {
 								!Developer.hideChickens && D2Bot.printToConsole("Merc Chicken in " + Pather.getAreaName(me.area), sdk.colors.D2Bot.Red);
 								this.exit(true);
@@ -632,8 +626,8 @@ function main () {
 								break;
 							}
 
-							mercHP < Config.UseMercHP && this.drinkPotion(3);
-							mercHP < Config.UseMercRejuv && this.drinkPotion(4);
+							mercHP < Config.UseMercHP && this.drinkPotion(Common.Toolsthread.pots.MercHealth);
+							mercHP < Config.UseMercRejuv && this.drinkPotion(Common.Toolsthread.pots.MercRejuv);
 						}
 					}
 				}

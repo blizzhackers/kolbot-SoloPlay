@@ -104,7 +104,7 @@ Misc.openChests = function (range = 15) {
 	}
 
 	let unitList = getUnits(sdk.unittype.Object).filter(function (chest) {
-		return chest.name && chest.mode === 0 && chest.distance <= range
+		return chest.name && chest.mode === sdk.units.objects.mode.Inactive && chest.distance <= range
 			&& (containers.includes(chest.name.toLowerCase()) || (chest.name.toLowerCase() === "evilurn" && me.baal));
 	});
 

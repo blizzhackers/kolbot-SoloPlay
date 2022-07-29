@@ -18,10 +18,10 @@ include("SoloPlay/Functions/Globals.js");
 SetUp.include();
 Config.init(); // includes libs/SoloPlay/Functions/AutoBuildOverrides.js
 
-let	debug = !!Config.AutoBuild.DebugMode, prevLevel	= me.charlvl;
+let debug = !!Config.AutoBuild.DebugMode, prevLevel	= me.charlvl;
 const usingFinalBuiild = !["Start", "Stepping", "Leveling"].includes(Config.AutoBuild.Template);
-const SPEND_POINTS 	= true;	// For testing, it actually allows skill and stat point spending.
-const STAT_ID_TO_NAME =	[
+const SPEND_POINTS = true; // For testing, it actually allows skill and stat point spending.
+const STAT_ID_TO_NAME = [
 	getLocaleString(sdk.locale.text.Strength),
 	getLocaleString(sdk.locale.text.Energy),
 	getLocaleString(sdk.locale.text.Dexterity),
@@ -29,7 +29,7 @@ const STAT_ID_TO_NAME =	[
 ];
 
 // Will check if value exists in an Array
-Array.prototype.contains = function (val) { return this.indexOf(val) > -1; };
+Array.prototype.contains = (val) => this.indexOf(val) > -1;
 
 function skillInValidRange (id) {
 	switch (me.classid) {
