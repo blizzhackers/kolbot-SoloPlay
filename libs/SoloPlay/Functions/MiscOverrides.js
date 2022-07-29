@@ -349,7 +349,7 @@ Misc.addSocketablesToItem = function (item, runes = []) {
 		if (!rune.toCursor()) return false;
 
 		for (let i = 0; i < 3; i += 1) {
-			sendPacket(1, 0x28, 4, rune.gid, 4, item.gid);
+			sendPacket(1, sdk.packets.send.InsertSocketItem, 4, rune.gid, 4, item.gid);
 			let tick = getTickCount();
 
 			while (getTickCount() - tick < 2000) {

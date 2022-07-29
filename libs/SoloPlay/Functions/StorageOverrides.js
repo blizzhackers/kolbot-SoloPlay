@@ -391,21 +391,21 @@ var Container = function (name, width, height, location) {
 				switch (this.location) {
 				case sdk.storage.Belt:
 					cItem = Game.getCursorUnit();
-					cItem !== null && sendPacket(1, 0x23, 4, cItem.gid, 4, y);
+					cItem !== null && sendPacket(1, sdk.packets.send.ItemToBelt, 4, cItem.gid, 4, y);
 
 					break;
 				case sdk.storage.Inventory:
-					sendPacket(1, 0x18, 4, item.gid, 4, x, 4, y, 4, 0x00);
+					sendPacket(1, sdk.packets.send.ItemToBuffer, 4, item.gid, 4, x, 4, y, 4, 0x00);
 
 					break;
 				case sdk.storage.Cube:
 					cItem = Game.getCursorUnit();
 					cube = me.getItem(sdk.quest.item.Cube);
-					(cItem !== null && cube !== null) && sendPacket(1, 0x2a, 4, cItem.gid, 4, cube.gid);
+					(cItem !== null && cube !== null) && sendPacket(1, sdk.packets.send.ItemToCube, 4, cItem.gid, 4, cube.gid);
 
 					break;
 				case sdk.storage.Stash:
-					sendPacket(1, 0x18, 4, item.gid, 4, x, 4, y, 4, 0x04);
+					sendPacket(1, sdk.packets.send.ItemToBuffer, 4, item.gid, 4, x, 4, y, 4, 0x04);
 
 					break;
 				default:

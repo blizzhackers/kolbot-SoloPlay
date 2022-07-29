@@ -1,3 +1,5 @@
+/* eslint-disable no-sparse-arrays */
+/* eslint-disable eqeqeq */
 /**
  *   @filename   Merc.js
  *   @author     dzik
@@ -13,31 +15,32 @@
  */
 (function (factory) {
 	if (typeof module === "object" && typeof module.exports === "object") {
-		var v = factory(require, exports);
+		let v = factory(require, exports);
 		if (v !== undefined) module.exports = v;
-	}
-	else if (typeof define === "function" && define.amd) {
+	} else if (typeof define === "function" && define.amd) {
 		define(["require", "exports", "./bigInt"], factory);
 	}
 })(function (require, exports) {
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.mercPacket = exports.Merc = exports.Rnd = void 0;
-	var bigInt_1 = require("./bigInt");
+	let bigInt_1 = require("./bigInt");
 	/// The actual Merc.js code of dzik
 	function leftShift(val, shift) {
-		var l;
+		let l;
 		while (shift >= bigInt_1.bpe) {
 			l = Math.ceil((bigInt_1.bitSize(val) + bigInt_1.bpe - 1) / bigInt_1.bpe) + 1;
-			if (val.length < l)
+			if (val.length < l) {
 				val = bigInt_1.expand(val, l);
+			}
 			bigInt_1.leftShift_(val, bigInt_1.bpe - 1);
 			shift -= bigInt_1.bpe - 1;
 		}
 		if (shift > 0) {
 			l = Math.ceil((bigInt_1.bitSize(val) + bigInt_1.bpe - 1) / bigInt_1.bpe) + 1;
-			if (val.length < l)
+			if (val.length < l) {
 				val = bigInt_1.expand(val, l);
+			}
 			bigInt_1.leftShift_(val, shift);
 		}
 		return val;
@@ -47,41 +50,41 @@
 			bigInt_1.rightShift_(val, bigInt_1.bpe - 1);
 			shift -= bigInt_1.bpe - 1;
 		}
-		if (shift > 0)
+		if (shift > 0) {
 			bigInt_1.rightShift_(val, shift);
+		}
 	}
-	var Rnd = /** @class */ (function () {
+	let Rnd = /** @class */ (function () {
 		function Rnd(seed) {
-			var tmp = bigInt_1.int2bigInt(666, 16, 0);
+			let tmp = bigInt_1.int2bigInt(666, 16, 0);
 			tmp = leftShift(tmp, 32);
 			this.val = bigInt_1.add(tmp, bigInt_1.str2bigInt(seed.toString(16), 16, 33));
 		}
 		Rnd.prototype.roll = function () {
-			var tmp = bigInt_1.modInt(this.val, 0x100000000);
-			var tmp2 = bigInt_1.mult(bigInt_1.str2bigInt(tmp.toString(16), 16, 33), bigInt_1.int2bigInt(1791398085, 33, 0));
+			let tmp = bigInt_1.modInt(this.val, 0x100000000);
+			let tmp2 = bigInt_1.mult(bigInt_1.str2bigInt(tmp.toString(16), 16, 33), bigInt_1.int2bigInt(1791398085, 33, 0));
 			rightShift(this.val, 32);
-			var res = bigInt_1.add(tmp2, this.val);
-			var rescopy = bigInt_1.dup(res);
+			let res = bigInt_1.add(tmp2, this.val);
+			let rescopy = bigInt_1.dup(res);
 			rightShift(rescopy, 64);
 			res = bigInt_1.sub(res, rescopy);
 			this.val = res;
 		};
-		;
 		Rnd.prototype.get = function () {
 			return bigInt_1.modInt(this.val, 0x100000000);
 		};
 		return Rnd;
 	}());
 	exports.Rnd = Rnd;
-	var Merc = /** @class */ (function () {
+	let Merc = /** @class */ (function () {
 		function Merc(name, seed) {
 			this.id = name;
 			this.name = getLocaleString(name);
-			var getTable = function () {
-				var list = [];
-				var level = 0;
-				var act = checkActByName(name);
-				for (var i = 0; i < MercTable.length; i++) {
+			const getTable = function () {
+				let list = [];
+				let level = 0;
+				let act = checkActByName(name);
+				for (let i = 0; i < MercTable.length; i++) {
 					if (MercTable[i][5] == act && MercTable[i][6] == me.diff + 1 && MercTable[i][2] == me.gametype * 100) {
 						if (level == 0 || MercTable[i][7] == level) {
 							list.push(MercTable[i]);
@@ -91,93 +94,106 @@
 				}
 				return list;
 			};
-			var getMercInfo = function (index, infoindex) {
+			const getMercInfo = function (index, infoindex) {
 				if (validMercTable[index].hasOwnProperty(infoindex)) {
 					return validMercTable[index][infoindex];
 				}
 
 				return false;
 			};
-			var checkActByName = function (name) {
-				if (name >= 3411 && name <= 3451)
+			const checkActByName = function (name) {
+				if (name >= 3411 && name <= 3451) {
 					return 1;
-				else if (name >= 1019 && name <= 1039)
+
+				} else if (name >= 1019 && name <= 1039) {
 					return 2;
-				else if (name >= 1040 && name <= 1059)
+				} else if (name >= 1040 && name <= 1059) {
 					return 3;
-				else if (name >= 10835 && name <= 10901)
+				} else if (name >= 10835 && name <= 10901) {
 					return 5;
-				else
+				} else {
 					return false;
+				}
 			};
-			var validMercTable = getTable();
-			var newseed = new Rnd(seed);
+			const validMercTable = getTable();
+			let newseed = new Rnd(seed);
 			newseed.roll();
-			var index = (newseed.get()) % validMercTable.length;
+			let index = (newseed.get()) % validMercTable.length;
 			newseed.roll();
 			this.level = (newseed.get()) % 5 + me.charlvl - 5;
-			var lvl = this.level;
-			var difference = this.level - getMercInfo(index, 7);
+			let lvl = this.level;
+			let difference = this.level - getMercInfo(index, 7);
 			this.hireling = getMercInfo(index, 0);
 			this.typeid = getMercInfo(index, 3);
 			this.subtype = getMercInfo(index, 1);
 			this.skills = [];
-			if (getMercInfo(index, 33) !== undefined)
+			if (getMercInfo(index, 33) !== undefined) {
 				this.skills.push({
 					name: getMercInfo(index, 33),
 					lvl: Math.floor(lvl * 10 / 32) // experimental
 				});
-			if (getMercInfo(index, 39) !== undefined)
+			}
+			if (getMercInfo(index, 39) !== undefined) {
 				this.skills.push({
 					name: getMercInfo(index, 39),
 					lvl: Math.floor(lvl * 10 / 32) // experimental
 				});
-			if (getMercInfo(index, 45) !== undefined)
+			}
+			if (getMercInfo(index, 45) !== undefined) {
 				this.skills.push({
 					name: getMercInfo(index, 45),
 					lvl: Math.floor(lvl * 10 / 32) // experimental
 				});
+			}
 			this.cost = getMercInfo(index, 11) * (15 * difference + 100) / 100;
-			if (this.cost < getMercInfo(index, 11))
+			if (this.cost < getMercInfo(index, 11)) {
 				this.cost = getMercInfo(index, 11);
+			}
 			this.cost = Math.floor(this.cost);
 			this.hp = getMercInfo(index, 13) + getMercInfo(index, 14) * difference;
-			if (this.hp < 40)
+			if (this.hp < 40) {
 				this.hp = 40;
+			}
 			this.defense = getMercInfo(index, 15) + getMercInfo(index, 16) * difference;
-			if (this.defense < 0)
+			if (this.defense < 0) {
 				this.defense = 0;
+			}
 			this.strength = getMercInfo(index, 17) + getMercInfo(index, 18) * difference;
-			if (this.strength < 10)
+			if (this.strength < 10) {
 				this.strength = 10;
+			}
 			this.dexterity = getMercInfo(index, 19) + getMercInfo(index, 20) * difference;
-			if (this.dexterity < 10)
+			if (this.dexterity < 10) {
 				this.dexterity = 10;
+			}
 			this.experience = this.level * this.level * (this.level + 1) * getMercInfo(index, 12);
-			if (this.experience < 0)
+			if (this.experience < 0) {
 				this.experience = 0;
+			}
 			this.attackrating = getMercInfo(index, 21) + getMercInfo(index, 22) * difference;
-			if (this.attackrating < 1)
+			if (this.attackrating < 1) {
 				this.attackrating = 1;
+			}
 			this.dmg_min = getMercInfo(index, 24) + getMercInfo(index, 26) * difference;
-			if (this.dmg_min < 0)
+			if (this.dmg_min < 0) {
 				this.dmg_min = 0;
+			}
 			this.dmg_max = getMercInfo(index, 25) + getMercInfo(index, 26) * difference;
-			if (this.dmg_max < 1)
+			if (this.dmg_max < 1) {
 				this.dmg_max = 1;
+			}
 			this.resists = getMercInfo(index, 27) + getMercInfo(index, 28) * difference;
-			if (this.resists < 1)
+			if (this.resists < 1) {
 				this.resists = 1;
+			}
 		}
 		Merc.prototype.hire = function () {
-			var npc = getInteractedNPC();
-			if (!npc)
-				throw new Error("To buy merc you need to interact with npc first");
-			if (me.gold < this.cost)
-				throw new Error("Merc is too expensive to buy.");
-			var before = me.gold;
+			let npc = getInteractedNPC();
+			if (!npc) throw new Error("To buy merc you need to interact with npc first");
+			if (me.gold < this.cost) throw new Error("Merc is too expensive to buy.");
+			let before = me.gold;
 			while (before === me.gold) {
-				sendPacket(1, 0x36, 4, npc.gid, 4, this.id);
+				sendPacket(1, sdk.packets.send.HireMerc, 4, npc.gid, 4, this.id);
 				delay((me.ping || 1) * 5);
 			}
 			return true;
@@ -185,7 +201,7 @@
 		return Merc;
 	}());
 	exports.Merc = Merc;
-	var Mercs = [];
+	let Mercs = [];
 	exports.default = Mercs;
 	function mercPacket(pByte) {
 		switch (pByte[0]) {
@@ -194,7 +210,7 @@
 			Mercs.splice(0, Mercs.length);
 			break;
 		case 0x4e:
-			var name = ((pByte[1]) | (pByte[2] << 8)), seed = ((pByte[3]) | (pByte[4] << 8) | (pByte[5] << 16) | (pByte[6] << 24)) >>> 0;
+			let name = ((pByte[1]) | (pByte[2] << 8)), seed = ((pByte[3]) | (pByte[4] << 8) | (pByte[5] << 16) | (pByte[6] << 24)) >>> 0;
 			Mercs.push(new Merc(name, seed));
 			break;
 		}
@@ -202,7 +218,7 @@
 	exports.mercPacket = mercPacket;
 	//addEventListener("gamepacket", mercPacket);
 	//removeEventListener("gamepacket", mercPacket);
-	var MercTable = [
+	const MercTable = [
 		//       0.Hireling , 1.SubType          , 2.Version , 3.Id , 4.Class , 5.Act , 6.Diff , 7.Level , 8.Seller , 9.NameFirst , 10.NameLast , 11.Gold , 12.Exp/Lvl , 13.HP , 14.HP/Lvl , 15.Def , 16.Def/Lvl , Str , Str/Lvl , Dex , Dex/Lvl , AR   , AR/Lvl , Share , Dmg-Min , Dmg-Max , Dmg/Lvl , Resist , Resist/Lvl , WType1 , WType2 , HireDesc , DefaultChance , Skill1          , Mode1 , Chance1 , ChancePerLvl1 , Level1 , LvlPerLvl1 , Skill2         , Mode2 , Chance2 , ChancePerLvl2 , Level2 , LvlPerLvl2 , Skill3      , Mode3 , Chance3 , ChancePerLvl3 , Level3 , LvlPerLvl3 , Skill4 , Mode4 , Chance4 , ChancePerLvl4 , Level4 , LvlPerLvl4 , Skill5 , Mode5 , Chance5 , ChancePerLvl5 , Level5 , LvlPerLvl5 , Skill6 , Mode6 , Chance6 , ChancePerLvl6 , Level6 , LvlPerLvl6 , Head , Torso , Weapon , Shield
 		["Rogue Scout", "Fire - Normal", 0, 0, 271, 1, 1, 3, 150, "merc01", "merc41", 100, 100, 45, 8, 15, 6, 35, 10, 45, 16, 10, 10, , 1, 3, 2, 0, 8, "bow", , "farw", 75, "Inner Sight", 4, 10, 0, 1, 10, "Fire Arrow", 4, 25, 8, 1, 10, , , , , , , , , , , , , , , , , , , , , , , , , 2, 1, 2, 0],
 		["Rogue Scout", "Fire - Normal", 0, 0, 271, 1, 1, 25, 150, "merc01", "merc41", 100, 100, 221, 13, 147, 12, 63, 10, 89, 16, 230, 20, 1, 7, 9, 4, 44, 7, "bow", , "farw", 75, "Inner Sight", 4, 10, 0, 8, 10, "Fire Arrow", 4, 69, 0, 8, 10, , , , , , , , , , , , , , , , , , , , , , , , , 2, 1, 2, 0],

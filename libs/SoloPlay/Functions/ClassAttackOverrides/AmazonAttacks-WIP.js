@@ -26,7 +26,7 @@ ClassAttack.decideSkill = function (unit) {
 	let skills = {timed: -1, untimed: -1};
 	if (!unit) return skills;
 
-	let index = (unit.isSpecial || unit.type === 0) ? 1 : 3;
+	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
 	// Get timed skill
 	let checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
@@ -75,9 +75,9 @@ ClassAttack.doAttack = function (unit) {
 		}
 	}
 
-	let mercRevive = 0,
-		gold = me.gold,
-		index = ((unit.isSpecial) || unit.type === 0) ? 1 : 3;
+	let mercRevive = 0;
+	let gold = me.gold;
+	let index = ((unit.isSpecial) || unit.isPlayer) ? 1 : 3;
 	
 	// todo: assign main attack damage, if we have a range skill but we are attacking a mob thats resistant with our close up skill, move away and use far attack
 	// figure out better slow-missiles casting

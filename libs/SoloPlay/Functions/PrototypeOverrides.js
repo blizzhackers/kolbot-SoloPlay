@@ -306,7 +306,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 	// Charged skills can only be casted on x, y coordinates
 	unit && ([x, y] = [unit.x, unit.y]);
 
-	if (this !== me && this.type !== 4) {
+	if (this !== me && this.type !== sdk.unittype.Item) {
 		Developer.debugging.skills && console.log("ÿc9CastChargedSkillÿc0 :: Wierd Error, invalid arguments, expected 'me' object or 'item' unit" + " unit type : " + this.type);
 		return false;
 	}
@@ -375,12 +375,12 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 
 			// Packet casting
 			// Setting skill on hand
-			sendPacket(1, 0x3c, 2, charge.skill, 1, 0x0, 1, 0x00, 4, this.gid);
+			sendPacket(1, sdk.packets.send.SelectSkill, 2, charge.skill, 1, 0x0, 1, 0x00, 4, this.gid);
 			console.log("Set charge skill " + charge.skill + " on hand");
 			// No need for a delay, since its TCP, the server recv's the next statement always after the send cast skill packet
 
 			// Cast the skill
-			sendPacket(1, 0x0C, 2, x || me.x, 2, y || me.y);
+			sendPacket(1, sdk.packets.send.RightSkillOnLocation, 2, x || me.x, 2, y || me.y);
 			console.log("Cast charge skill " + charge.skill);
 			// The result of "successfully" casted is different, so we cant wait for it here. We have to assume it worked
 

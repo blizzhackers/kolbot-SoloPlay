@@ -374,7 +374,7 @@ const Quest = {
 					npc = Town.npcInteract("akara");
 					me.cancelUIFlags();
 					delay(100 + me.ping);
-					npc && sendPacket(1, 0x38, 4, 0, 4, npc.gid, 4, 0);
+					npc && sendPacket(1, sdk.packets.send.EntityAction, 4, 0, 4, npc.gid, 4, 0);
 				} else {
 					this.npcAction("akara", [sdk.menu.Respec, sdk.menu.Ok]);
 				}
