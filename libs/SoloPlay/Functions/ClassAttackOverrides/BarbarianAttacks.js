@@ -399,7 +399,7 @@ ClassAttack.findItem = function (range = 10) {
 		}
 	}
 
-	if (retry) return this.findItem(me.area === sdk.areas.Travincal ? 60 : 20);
+	if (retry) return this.findItem(me.inArea(sdk.areas.Travincal) ? 60 : 20);
 	Config.FindItemSwitch && me.weaponswitch === 1 && me.switchWeapons(Attack.getPrimarySlot());
 	pick && Pickit.pickItems();
 

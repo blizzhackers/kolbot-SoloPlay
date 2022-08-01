@@ -54,7 +54,7 @@ const SoloEvents = {
 
 			for (let i = 0; i < possibleChars.length; i++) {
 				if (Misc.findPlayer(possibleChars[i].toLowerCase())) {
-					if (me.area !== sdk.areas.RogueEncampment) {
+					if (!me.inArea(sdk.areas.RogueEncampment)) {
 						Town.goToTown(1);
 					}
 

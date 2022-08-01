@@ -80,13 +80,13 @@ function travincal () {
 		Pather.moveToUnit(exit_1, 7, 7);
 		// keep on clicking the exit until we are not @ travincal anymore
 		Misc.poll(function () {
-			if (me.area === sdk.areas.Travincal) {
+			if (me.inArea(sdk.areas.Travincal)) {
 				Pather.moveToUnit(exit_1);
 				Misc.click(2, 0, exit_1);
 			}
-			return me.area === sdk.areas.DuranceofHateLvl1;
+			return me.inArea(sdk.areas.DuranceofHateLvl1);
 		}, 10000, 40);
-		if (me.area !== sdk.areas.DuranceofHateLvl1) {
+		if (!me.inArea(sdk.areas.DuranceofHateLvl1)) {
 			Pather.moveToExit([sdk.areas.DuranceofHateLvl1, sdk.areas.DuranceofHateLvl2]);
 		} else {
 			Pather.journeyTo(sdk.areas.DuranceofHateLvl2);

@@ -13,7 +13,7 @@ function eye () {
 	Precast.doPrecast(true);
 
 	if (!Pather.moveToExit([sdk.areas.SpiderForest, sdk.areas.SpiderCavern], true)) {
-		if (me.area !== sdk.areas.SpiderCavern) {
+		if (!me.inArea(sdk.areas.SpiderCavern)) {
 			if (!Pather.journeyTo(sdk.areas.SpiderCavern)) {
 				console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to get the eye");
 				return false;

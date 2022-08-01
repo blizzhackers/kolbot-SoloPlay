@@ -96,7 +96,7 @@ function diablo () {
 		Town.move("portalspot");
 		Pather.usePortal(sdk.areas.ChaosSanctuary, me.name);
 		Misc.poll(() => {
-			if (me.area === sdk.areas.ChaosSanctuary) {
+			if (me.inArea(sdk.areas.ChaosSanctuary)) {
 				console.log("Returned to chaos");
 				return true;
 			}

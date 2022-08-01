@@ -40,7 +40,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.IronMaiden,
 		priority: 1,
 		useIf: function (unit) {
-			return Skill.canUse(this.skillId) && me.area === sdk.areas.DurielsLair && me.normal && unit;
+			return Skill.canUse(this.skillId) && me.inArea(sdk.areas.DurielsLair) && me.normal && unit;
 		}
 	},
 	{
@@ -74,7 +74,7 @@ ClassAttack.curseIndex = [
 		state: sdk.states.Attract,
 		priority: 1,
 		useIf: function (unit) {
-			return unit.scareable && me.area === sdk.areas.ThroneofDestruction && unit.distance > 8
+			return unit.scareable && me.inArea(sdk.areas.ThroneofDestruction) && unit.distance > 8
 				&& Skill.canUse(this.skillId);
 		}
 	},

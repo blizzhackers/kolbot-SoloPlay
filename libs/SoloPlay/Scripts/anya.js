@@ -35,7 +35,7 @@ function anya () {
 		Town.doChores();
 		if (!Misc.poll(() => {
 			Pather.usePortal(sdk.areas.FrozenRiver, me.name);
-			return me.area === sdk.areas.FrozenRiver;
+			return me.inArea(sdk.areas.FrozenRiver);
 		}, Time.seconds(30), 1000)) throw new Error("Anya quest failed - Failed to return to frozen river");
 
 		frozenanya = Game.getObject(sdk.objects.FrozenAnya);	// Check again in case she's no longer there from first intereaction

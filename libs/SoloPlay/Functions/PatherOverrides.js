@@ -627,7 +627,7 @@ Pather.moveToLoc = function (target, givenSettings) {
 
 			if (useTeleport && tpMana <= me.mp
 				? this.teleportTo(node.x, node.y)
-				: useChargedTele && (getDistance(me, node) >= 15 || me.area === sdk.areas.ThroneofDestruction)
+				: useChargedTele && (getDistance(me, node) >= 15 || me.inArea(sdk.areas.ThroneofDestruction))
 					? this.teleUsingCharges(node.x, node.y)
 					: this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
 				if (!me.inTown) {
@@ -713,14 +713,14 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 		}
 
 		if (me.inTown) {
-			if (me.area === sdk.areas.LutGholein) {
+			if (me.inArea(sdk.areas.LutGholein)) {
 				let npc = Game.getNPC(NPC.Warriv);
 
 				if (!!npc && npc.distance < 50) {
 					if (npc && npc.openMenu()) {
 						Misc.useMenu(sdk.menu.GoWest);
 
-						if (!Misc.poll(() => me.gameReady && me.area === sdk.areas.RogueEncampment, 2000, 100)) {
+						if (!Misc.poll(() => me.gameReady && me.inArea(sdk.areas.RogueEncampment), 2000, 100)) {
 							throw new Error("Failed to go to act 1 using Warriv");
 						}
 					}

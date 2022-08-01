@@ -36,13 +36,13 @@ function duriel () {
 
 	if (me.sorceress && unit && Skill.useTK(unit)) {
 		for (let i = 0; i < 3; i++) {
-			me.area !== sdk.areas.DurielsLair && Packet.telekinesis(unit);
-			if (me.area === sdk.areas.DurielsLair) {
+			!me.inArea(sdk.areas.DurielsLair) && Packet.telekinesis(unit);
+			if (me.inArea(sdk.areas.DurielsLair)) {
 				break;
 			}
 		}
 
-		if (me.area !== sdk.areas.DurielsLair && !Pather.useUnit(sdk.unittype.Object, sdk.objects.PortaltoDurielsLair, sdk.areas.DurielsLair)) {
+		if (!me.inArea(sdk.areas.DurielsLair) && !Pather.useUnit(sdk.unittype.Object, sdk.objects.PortaltoDurielsLair, sdk.areas.DurielsLair)) {
 			Attack.clear(10);
 			Pather.useUnit(sdk.unittype.Object, sdk.objects.PortaltoDurielsLair, sdk.areas.DurielsLair);
 		}

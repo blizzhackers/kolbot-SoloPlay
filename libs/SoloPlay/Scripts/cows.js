@@ -29,7 +29,7 @@ function cows () {
 		Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Monster, sdk.monsters.preset.Rakanishu, 8, 8);
 		Pather.usePortal(sdk.areas.Tristram);
 
-		if (me.area === sdk.areas.Tristram) {
+		if (me.inArea(sdk.areas.Tristram)) {
 			Pather.moveTo(25048, 5177);
 			Quest.collectItem(sdk.items.quest.WirtsLeg, sdk.quest.chest.Wirt);
 			Pickit.pickItems();
@@ -42,7 +42,7 @@ function cows () {
 	};
 
 	this.openPortal = function (portalID, ...classIDS) {
-		me.area !== sdk.areas.RogueEncampment && Town.goToTown(1);
+		!me.inArea(sdk.areas.RogueEncampment) && Town.goToTown(1);
 
 		let npc, tome, scroll;
 		let tpTome = me.findItems(sdk.items.TomeofTownPortal, sdk.items.mode.inStorage, sdk.storage.Inventory);
@@ -140,7 +140,7 @@ function cows () {
 		let kingPreset;
 
 		Worker.runInBackground.kingTracker = function () {
-			if (me.area === sdk.areas.MooMooFarm) {
+			if (me.inArea(sdk.areas.MooMooFarm)) {
 				if (getTickCount() - kingTick < 1000) return true;
 				kingTick = getTickCount();
 				king = Game.getMonster(getLocaleString(sdk.locale.monsters.TheCowKing));

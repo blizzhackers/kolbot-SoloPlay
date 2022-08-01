@@ -24,26 +24,6 @@ new Overrides.Override(Town, Town.repair, function (orignal, force = false) {
 	return false;
 }).apply();
 
-new Overrides.Override(Town, Town.buyPotions, function (orignal) {
-	// no town portal book
-	if (!me.getItem(sdk.items.TomeofTownPortal)) return false;
-
-	if (orignal()) {
-		let npc = getInteractedNPC();
-		if (!npc) return true;
-
-		// keep cold/pois res high with potions
-		if (me.gold > 50000 && npc.getItem(sdk.items.ThawingPotion)) {
-			CharData.buffData.thawing.need() && Town.buyPots(12, "thawing", true);
-			CharData.buffData.antidote.need() && Town.buyPots(12, "antidote", true);
-		}
-
-		return true;
-	}
-
-	return false;
-}).apply();
-
 // Removed Missle Potions for easy gold
 // Items that won't be stashed
 Town.ignoredItemTypes = [
@@ -110,7 +90,7 @@ Town.needPotions = function () {
 
 Town.buyPotions = function () {
 	// Ain't got money fo' dat shyt
-	if (me.gold < 1000) return false;
+	if (me.gold < 1000 || !me.getItem(sdk.items.TomeofTownPortal)) return false;
 
 	let needPots = false;
 	let needBuffer = true;
@@ -216,6 +196,12 @@ Town.buyPotions = function () {
 			let pot = this.getPotion(npc, "mp");
 			!!pot && Storage.Inventory.CanFit(pot) && pot.buy(false);
 		}
+	}
+
+	// keep cold/pois res high with potions
+	if (me.gold > 50000 && npc.getItem(sdk.items.ThawingPotion)) {
+		CharData.buffData.thawing.need() && Town.buyPots(12, "thawing", true);
+		CharData.buffData.antidote.need() && Town.buyPots(12, "antidote", true);
 	}
 
 	return true;
