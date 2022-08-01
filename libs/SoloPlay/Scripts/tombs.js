@@ -5,6 +5,15 @@
 *
 */
 
+/**
+*  @todo:
+*   - before going to town after reaching chest, whether we need to do town chores
+*   - If not
+*     - check distance from curr position to tomb exit + curr tomb exit -> next tomb exit
+*     - will also need to know distance from current tomb exit to next tomb exit in comparison to town portalspot -> wp + canyon wp -> next tomb
+*     - choose shortest path
+*/
+
 function tombs () {
 	myPrint("starting tombs");
 
@@ -22,7 +31,7 @@ function tombs () {
 			me.overhead("Tomb #" + (number + 1));
 			const duryTomb = getRoom().correcttomb === me.area;
 
-			let obj = Game.getPresetObject(me.area, (duryTomb ? sdk.objects.SmallSparklyChest : sdk.objects.HoradricStaffHolder));
+			let obj = Game.getPresetObject(me.area, (!duryTomb ? sdk.objects.SmallSparklyChest : sdk.objects.HoradricStaffHolder));
 			!!obj && Pather.moveToUnit(obj);
 
 			Attack.clear(50);
