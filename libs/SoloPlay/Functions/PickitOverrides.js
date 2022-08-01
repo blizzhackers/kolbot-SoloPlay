@@ -27,7 +27,7 @@ Pickit.checkItem = function (unit) {
 		};
 	}
 
-	if (unit.classid === sdk.items.StaminaPotion && (me.staminaPercent <= 85 || me.runwalk === 0) && Item.getQuantityOwned(unit) < 2) {
+	if (unit.classid === sdk.items.StaminaPotion && (me.staminaPercent <= 85 || me.walking) && Item.getQuantityOwned(unit) < 2) {
 		return {
 			result: Pickit.Result.WANTED,
 			line: "LowStamina"

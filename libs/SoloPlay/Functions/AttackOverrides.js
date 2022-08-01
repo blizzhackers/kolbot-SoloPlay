@@ -122,7 +122,7 @@ Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
 // Maybe make this a prototype and use game data to also check if should attack not just can based on effort?
 Attack.canAttack = function (unit = undefined) {
 	if (!unit) return false;
-	if (unit.type === sdk.unittype.Monster) {
+	if (unit.isMonster) {
 		// Unique/Champion
 		if (unit.isSpecial) {
 			if (Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[1])) || Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[2]))) {

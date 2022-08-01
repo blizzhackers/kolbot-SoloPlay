@@ -160,7 +160,7 @@ const SetUp = {
 				mercInfo.act !== myData.merc.act && (myData.merc.act = mercInfo.act);
 				mercInfo.difficulty !== myData.merc.difficulty && (myData.merc.difficulty = mercInfo.difficulty);
 
-				if (merc.classid === sdk.mercs..Guard && !Mercenary.checkMercSkill(myData.merc.type)) {
+				if (merc.classid === sdk.mercs.Guard && !Mercenary.checkMercSkill(myData.merc.type)) {
 				// go back, need to make sure this works properly.
 				// only "go back" if we are past the difficulty we need to be in to hire merc. Ex. In hell but want holy freeze merc
 				// only if we have enough gold on hand to hire said merc
