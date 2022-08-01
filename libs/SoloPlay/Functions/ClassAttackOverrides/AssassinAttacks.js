@@ -182,7 +182,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		}
 		
 		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist) && !unit.getState(sdk.states.LowerResist)
-			&& unit.curseable && (gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area))
+			&& unit.curseable && (gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area))
 			&& !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Switch cast lower resist
 			Attack.switchCastCharges(sdk.skills.LowerResist, unit);

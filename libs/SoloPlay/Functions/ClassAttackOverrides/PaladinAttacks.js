@@ -8,7 +8,7 @@
 includeIfNotIncluded("common/Attacks/Paladin.js");
 
 ClassAttack.doAttack = function (unit = undefined, preattack = false) {
-	if (!unit || unit.dead) return true;
+	if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
 
 	let gid = unit.gid;
 	let mercRevive = 0;
@@ -26,10 +26,11 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 				return Attack.Result.SUCCESS;
 			}
 		}
+		gold = me.gold; // reset value after town
 	}
 
 	if (me.expansion && index === 1 && unit.curseable) {
-		let commonCheck = (gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
+		let commonCheck = (gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
 
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
 			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
@@ -84,7 +85,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	}
 
 	// Classic auradin check
-	if ([sdk.skills.HolyFire, sdk.skills.HolyFreeze, sdk.skills.HolyShock].includes(aura)) {
+	if (this.attackAuras.includes(aura)) {
 		// Monster immune to primary aura
 		if (!Attack.checkResist(unit, aura)) {
 			// Reset skills
@@ -92,7 +93,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 			aura = -1;
 
 			// Set to secondary if not immune, check if using secondary attack aura if not check main skill for immunity
-			if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, ([sdk.skills.HolyFire, sdk.skills.HolyFreeze, sdk.skills.HolyShock].includes(Config.AttackSkill[6]) ? Config.AttackSkill[6] : Config.AttackSkill[5]))) {
+			if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, (this.attackAuras.includes(Config.AttackSkill[6]) ? Config.AttackSkill[6] : Config.AttackSkill[5]))) {
 				attackSkill = Config.AttackSkill[5];
 				aura = Config.AttackSkill[6];
 			}

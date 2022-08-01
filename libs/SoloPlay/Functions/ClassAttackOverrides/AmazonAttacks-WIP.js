@@ -174,7 +174,7 @@ ClassAttack.doAttack = function (unit) {
 	}
 
 	// Handle Switch casting
-	let commonCheck = (gold > 500000 || Attack.bossesAndMiniBosses.includes(unit.classid) || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
+	let commonCheck = (gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
 	if (me.expansion && index === 1 && unit.curseable) {
 		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
 			&& !unit.getState(sdk.states.LowerResist) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {

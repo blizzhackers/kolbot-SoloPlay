@@ -447,7 +447,7 @@ Misc.getSocketables = function (item, itemInfo) {
 			// If itemtype was matched with a gemType
 			if (gemType) {
 				// current item matches wanted gemType
-				if (socketables[i].itemType === sdk.itemtype[gemType]) {
+				if (socketables[i].itemType === sdk.items.type[gemType]) {
 					// is the highest gem of that type
 					if (highestGemAvailable(socketables[i], multiple)) {
 						if (multiple.length < sockets) {

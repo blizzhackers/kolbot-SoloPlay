@@ -8,8 +8,8 @@
 includeIfNotIncluded("common/Config.js");
 
 Config.init = function (notify) {
+	const MYCLASSNAME = sdk.player.class.nameOf(me.classid);
 	let configFilename = "";
-	let classes = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"];
 
 	for (let i = 0; i <= 5; i++) {
 		switch (i) {
@@ -18,7 +18,7 @@ Config.init = function (notify) {
 
 			for (let n in CustomConfig) {
 				if (CustomConfig.hasOwnProperty(n)) {
-					if (CustomConfig[n].indexOf(me.profile) > -1) {
+					if (CustomConfig[n].includes(me.profile)) {
 						if (notify) {
 							console.log("ÿc2Loading custom config: ÿc9" + n + ".js");
 						}
@@ -32,15 +32,15 @@ Config.init = function (notify) {
 
 			break;
 		case 1:// Class.Profile.js
-			configFilename = classes[me.classid] + "." + me.profile + ".js";
+			configFilename = MYCLASSNAME + "." + me.profile + ".js";
 
 			break;
 		case 2: // Realm.Class.Charname.js
-			configFilename = me.realm + "." + classes[me.classid] + "." + me.charname + ".js";
+			configFilename = me.realm + "." + MYCLASSNAME + "." + me.charname + ".js";
 
 			break;
 		case 3: // Class.Charname.js
-			configFilename = classes[me.classid] + "." + me.charname + ".js";
+			configFilename = MYCLASSNAME + "." + me.charname + ".js";
 
 			break;
 		case 4: // Profile.js
@@ -48,7 +48,7 @@ Config.init = function (notify) {
 
 			break;
 		case 5: // Class.js
-			configFilename = classes[me.classid] + ".js";
+			configFilename = MYCLASSNAME + ".js";
 
 			break;
 		}

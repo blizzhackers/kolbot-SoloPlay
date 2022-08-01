@@ -1116,7 +1116,7 @@ const Check = {
 
 		let items = me.getItemsEx()
 			.filter(function (item) {
-				return !item.questItem && (flag === "Runeword" ? item.isRuneword : item.quality === sdk.itemquality[flag]);
+				return !item.questItem && (flag === "Runeword" ? item.isRuneword : item.quality === sdk.items.quality[flag]);
 			});
 
 		switch (typeof type) {
@@ -1134,9 +1134,9 @@ const Check = {
 			
 			break;
 		case "number":
-			if (!Object.values(sdk.itemtype).includes(type) && !Object.values(sdk.items).includes(type)) return false;
+			if (!Object.values(sdk.items.type).includes(type) && !Object.values(sdk.items).includes(type)) return false;
 			// check if item is a classid but with hacky fix for items like belt which is a type and classid...sigh
-			isClassID = Object.values(sdk.items).includes(type) && !Object.values(sdk.itemtype).includes(type);
+			isClassID = Object.values(sdk.items).includes(type) && !Object.values(sdk.items.type).includes(type);
 
 			break;
 		}
@@ -1153,7 +1153,7 @@ const Check = {
 			case "Set":
 			case "Unique":
 			case "Crafted":
-				itemCHECK = !!(items[i].quality === sdk.itemquality[flag]) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
+				itemCHECK = !!(items[i].quality === sdk.items.quality[flag]) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
 				break;
 			case "Runeword":
 				itemCHECK = !!(items[i].isRuneword) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
@@ -1174,7 +1174,7 @@ const Check = {
 	},
 
 	itemSockables: function (type, quality, iName) {
-		quality && typeof quality === "string" && (quality = sdk.itemquality[quality.capitalize(true)]);
+		quality && typeof quality === "string" && (quality = sdk.items.quality[quality.capitalize(true)]);
 		typeof iName === "string" && (iName = iName.toLowerCase());
 		let isClassID = false;
 
@@ -1187,7 +1187,7 @@ const Check = {
 			
 			break;
 		case "number":
-			if (!Object.values(sdk.itemtype).includes(type) && !Object.values(sdk.items).includes(type)) return false;
+			if (!Object.values(sdk.items.type).includes(type) && !Object.values(sdk.items).includes(type)) return false;
 			isClassID = Object.values(sdk.items).includes(type);
 
 			break;
@@ -1234,7 +1234,7 @@ const Check = {
 			
 			break;
 		case "number":
-			if (!Object.values(sdk.itemtype).includes(type) && !Object.values(sdk.items).includes(type)) return false;
+			if (!Object.values(sdk.items.type).includes(type) && !Object.values(sdk.items).includes(type)) return false;
 			isClassID = Object.values(sdk.items).includes(type);
 
 			break;
@@ -1520,7 +1520,7 @@ const SoloWants = {
 			// Tir rune in normal, Io rune otherwise and Shael's if assassin TODO: use jewels too
 			!gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
 
-			hasWantedItems = socketedWith.some(el => gemType ? el.itemType === sdk.itemtype[gemType] : el.classid === sdk.items.runes[runeType]);
+			hasWantedItems = socketedWith.some(el => gemType ? el.itemType === sdk.items.type[gemType] : el.classid === sdk.items.runes[runeType]);
 			if (hasWantedItems && socketedWith.length === numSockets) {
 				return true; // this item is full
 			}
