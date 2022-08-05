@@ -13,7 +13,7 @@ function mephisto () {
 			[coords[i], coords[i + 1]].distance > 60 && Pather.moveNear(coords[i], coords[i + 1], 60);
 			if ([coords[i], coords[i + 1]].mobCount(30) === 0) continue;
 			Pather.moveTo(coords[i], coords[i + 1]);
-			Attack.clearList(Attack.getMob([345, 346, 347], 0, 40));
+			Attack.clearList(Attack.getMob([sdk.monsters.Council1, sdk.monsters.Council2, sdk.monsters.Council3], 0, 40));
 		}
 
 		return true;

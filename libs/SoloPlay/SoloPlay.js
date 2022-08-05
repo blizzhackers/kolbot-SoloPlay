@@ -96,7 +96,7 @@ function SoloPlay () {
 						myPrint("script " + SetUp.scripts[k] + " failed.");
 					}
 				} catch (e) {
-					console.warn("ÿc8Kolbot-SoloPlayÿc0: " + e);
+					console.warn("ÿc8Kolbot-SoloPlayÿc0: ", (typeof e === "object" ? e.message : e));
 				} finally {
 					Developer.logPerformance && Tracker.script(tick, SetUp.scripts[k], currentExp);
 					console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));

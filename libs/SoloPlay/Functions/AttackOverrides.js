@@ -493,7 +493,6 @@ Attack.clearLevelUntilLevel = function (charlvl = undefined, spectype = 0) {
 	let result, myRoom, previousArea;
 	let rooms = [];
 	const currentArea = getArea().id;
-	const canTele = Pather.canTeleport();
 
 	do {
 		rooms.push([room.x * 5 + room.xsize / 2, room.y * 5 + room.ysize / 2]);
@@ -518,11 +517,6 @@ Attack.clearLevelUntilLevel = function (charlvl = undefined, spectype = 0) {
 		result = Pather.getNearestWalkable(room[0], room[1], 18, 3);
 
 		if (result) {
-			// probably needs more testing but idea is if there are no mobs near the next position then skip it
-			// if (!canTele && [result[0], result[1]].distance < 30 && [result[0], result[1]].mobCount({range: 40}) === 0) {
-			// 	continue;
-			// }
-
 			Pather.moveTo(result[0], result[1], 3, spectype);
 			previousArea = result;
 

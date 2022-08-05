@@ -276,7 +276,7 @@ function baal () {
 			console.log("ÿc8Kolbot-SoloPlayÿc0: Couldn't access portal.");
 		}
 	} catch (e) {
-		//
+		console.warn(e.message ? e.message : e);
 	} finally {
 		Messaging.sendToScript(SoloEvents.filePath, "removeBaalEvent");
 	}

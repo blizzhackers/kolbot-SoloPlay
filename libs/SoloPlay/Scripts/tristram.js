@@ -68,7 +68,7 @@ function tristram () {
 				for (let i = 0; i < stones.length; i++) {
 					let stone = stones[i];
 
-					if (Misc.openChest(stone)) {
+					if (Common.Questing.activateStone(stone)) {
 						stones.splice(i, 1);
 						i--;
 					}
@@ -86,6 +86,7 @@ function tristram () {
 				Attack.securePosition(me.x, me.y, 10, 1000);
 			}
 		} catch (err) {
+			console.error(err);
 			Pather.usePortal(sdk.areas.Tristram);
 		}
 	} else {

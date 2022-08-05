@@ -1356,12 +1356,16 @@ Town.clearInventory = function () {
 		});
 
 	let sell = [];
+	const classItemType = (item) => [
+		sdk.items.type.Wand, sdk.items.type.VoodooHeads, sdk.items.type.AuricShields, sdk.items.type.PrimalHelm, sdk.items.type.Pelt
+	].includes(item.itemType);
+
 	items.length > 0 && items.forEach(function (item) {
 		let result = Pickit.checkItem(item).result;
 
 		if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].indexOf(result) === -1) {
-			if ((item.isBaseType && item.sockets > 0) ||
-				([25, 69, 70, 71, 72].includes(item.itemType) && item.normal && item.sockets === 0)) {
+			if ((item.isBaseType && item.sockets > 0)
+				|| (classItemType(item) && item.normal && item.sockets === 0)) {
 				if (Town.worseBaseThanStashed(item) && !Town.betterBaseThanWearing(item, Developer.debugging.junkCheck)) {
 					result = 4;
 				}
@@ -1463,12 +1467,12 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 		}
 
 		switch (equippedItem.prefixnum) {
-		case 20507: 	// Ancient's Pledge
-		case 20543: 	// Exile
-		case 20581: 	// Lore
-		case 20635: 	// Spirit
-		case 20667: 	// White
-		case 20625: 	// Rhyme
+		case sdk.locale.items.AncientsPledge:
+		case sdk.locale.items.Exile:
+		case sdk.locale.items.Lore:
+		case sdk.locale.items.Spirit:
+		case sdk.locale.items.White:
+		case sdk.locale.items.Rhyme:
 			preSocketCheck = true;
 			break;
 		default:
@@ -1481,7 +1485,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 
 		if (base.sockets === equippedItem.sockets || preSocketCheck) {
 			switch (equippedItem.prefixnum) {
-			case 20507: 	//Ancient's Pledge
+			case sdk.locale.items.AncientsPledge:
 				if (me.paladin) {
 					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 187;
 					baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
@@ -1489,7 +1493,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 					if (baseResists !== itemsResists) {
 						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
 
-						if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+						// base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+						if (baseResists < itemsResists) {
 							result = false;
 
 							break;
@@ -1502,7 +1507,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 					if (baseDefense !== itemsDefense) {
 						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 
-						if (baseDefense < itemsDefense) {	//base has lower defense
+						if (baseDefense < itemsDefense) {
 							result = false;
 
 							break;
@@ -1511,7 +1516,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 				
 				break;
-			case 20512: 	//Black
+			case sdk.locale.items.Black:
 				ED = equippedItem.eDmg > 120 ? 120 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
@@ -1521,7 +1526,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Black) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1529,7 +1534,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20523: 	//Crescent Moon
+			case sdk.locale.items.CrescentMoon:
 				ED = equippedItem.eDmg > 220 ? 220 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
@@ -1539,7 +1544,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Crescent Moon) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1547,14 +1552,15 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20543: 	//Exile
+			case sdk.locale.items.Exile:
 				itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr);
 				baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
 
 				if (baseResists !== itemsResists) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
 
-					if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+					// base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+					if (baseResists < itemsResists) {
 						result = false;
 
 						break;
@@ -1562,7 +1568,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20561: 	//Honor
+			case sdk.locale.items.Honor:
 				ED = equippedItem.eDmg > 160 ? 160 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 9) / ((ED + 100) / 100)));
@@ -1572,7 +1578,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Honor) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1580,7 +1586,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20571: 	//King's Grace
+			case sdk.locale.items.KingsGrace:
 				ED = equippedItem.eDmg > 100 ? 100 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
@@ -1590,7 +1596,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(King's Grace) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1598,7 +1604,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20577: 	//Lawbringer
+			case sdk.locale.items.Lawbringer:
 				ED = equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
@@ -1608,7 +1614,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lawbringer) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1616,18 +1622,20 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20581: 	//Lore
+			case sdk.locale.items.Lore:
 				itemsDefense = check.getStatEx(sdk.stats.Defense);
 				baseDefense = base.getStatEx(sdk.stats.Defense);
 					
-				if (me.barbarian || me.druid) {	//Barbarian or Druid (PrimalHelms and Pelts)
+				if (me.barbarian || me.druid) {
+					// (PrimalHelms and Pelts)
 					equippedSkillsTier = skillsScore(check);
 					baseSkillsTier = skillsScore(base);
 
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 					if (equippedSkillsTier !== baseSkillsTier) {
 
-						if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense helm
+						// Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense helm
+						if (baseSkillsTier < equippedSkillsTier) {
 							result = false;
 
 							break;
@@ -1635,7 +1643,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 					} else if (baseDefense !== itemsDefense) {
 						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 
-						if (baseDefense < itemsDefense) {	//base has lower defense
+						if (baseDefense < itemsDefense) {
 							result = false;
 
 							break;
@@ -1645,7 +1653,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 					if (baseDefense !== itemsDefense) {
 						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 
-						if (baseDefense < itemsDefense) {	//base has lower defense
+						if (baseDefense < itemsDefense) {
 							result = false;
 
 							break;
@@ -1654,14 +1662,15 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20586: 	//Malice
+			case sdk.locale.items.Malice:
 				ED = equippedItem.eDmg > 33 ? 33 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
 				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 
-				if (me.classid === 3) {	//Paladin TODO: See if its worth it to calculate the added damage skills would add
+				if (me.paladin) {
+					// Paladin TODO: See if its worth it to calculate the added damage skills would add
 					equippedSkillsTier = skillsScore(check);
 					baseSkillsTier = skillsScore(base);
 				}
@@ -1669,7 +1678,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Malice) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1677,15 +1686,16 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20625: 	//Rhyme
-				if (me.necromancer) {	//Necromancer
+			case sdk.locale.items.Rhyme:
+				if (me.necromancer) {
 					equippedSkillsTier = skillsScore(check);
 					baseSkillsTier = skillsScore(base);
 
 					if (equippedSkillsTier !== baseSkillsTier) {
 						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 
-						if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense shield
+						// Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense shield
+						if (baseSkillsTier < equippedSkillsTier) {
 							result = false;
 
 							break;
@@ -1707,7 +1717,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 					if (baseResists !== itemsResists) {
 						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
 
-						if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+						// base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+						if (baseResists < itemsResists) {
 							result = false;
 
 							break;
@@ -1717,7 +1728,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20626: 	//Rift
+			case sdk.locale.items.Rift:
 				ED = equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
@@ -1727,7 +1738,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Rift) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1735,8 +1746,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20635: 	//Spirit
-				if (me.paladin && bodyLoc[i] === 5) {
+			case sdk.locale.items.Spirit:
+				if (me.paladin && bodyLoc[i] === sdk.body.LeftArm) {
 					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 115;
 					baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
 				} else {
@@ -1746,7 +1757,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				if (baseResists !== itemsResists) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(spirit) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
 
-					if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+					// base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+					if (baseResists < itemsResists) {
 						result = false;
 
 						break;
@@ -1754,7 +1766,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20639: 	//Steel
+			case sdk.locale.items.Steel:
 				ED = equippedItem.eDmg > 20 ? 20 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 3) / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 3) / ((ED + 100) / 100)));
@@ -1764,7 +1776,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Steel) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1772,7 +1784,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20644: 	//Strength
+			case sdk.locale.items.Strength:
 				ED = equippedItem.eDmg > 35 ? 35 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
@@ -1782,7 +1794,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				if (baseDmg !== itemsTotalDmg) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Strength) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1790,8 +1802,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20667: 	//White
-				if (me.necromancer) {	//Necromancer
+			case sdk.locale.items.White:
+				if (me.necromancer) {
 					equippedSkillsTier = skillsScore(check) - 550;
 					baseSkillsTier = skillsScore(base);
 
@@ -1807,15 +1819,15 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20633: 	// Smoke
-			case 20638: 	// Stealth
+			case sdk.locale.items.Smoke:
+			case sdk.locale.items.Stealth:
 				itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
 				baseDefense = base.getStatEx(sdk.stats.Defense);
 
 				if (baseDefense !== itemsDefense) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Stealth/Smoke) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 
-					if (baseDefense < itemsDefense) {	//base has lower defense
+					if (baseDefense < itemsDefense) {
 						result = false;
 
 						break;
@@ -1823,23 +1835,23 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20514: 	// Bone
-			case 20592: 	// Myth
-			case 20603: 	// Peace
-			case 20653: 	// Treachery
+			case sdk.locale.items.Bone:
+			case sdk.locale.items.Myth:
+			case sdk.locale.items.Peace:
+			case sdk.locale.items.Treachery:
 				let name = "";
 
 				switch (equippedItem.prefixnum) {
-				case 20514: 	// Bone
+				case sdk.locale.items.Bone:
 					name = "Bone";
 					break;
-				case 20592: 	// Myth
+				case sdk.locale.items.Myth:
 					name = "Myth";
 					break;
-				case 20603: 	// Peace
+				case sdk.locale.items.Peace:
 					name = "Peace";
 					break;
-				case 20653: 	// Treachery
+				case sdk.locale.items.Treachery:
 					name = "Treachery";
 					break;
 				}
@@ -1850,7 +1862,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				if (baseDefense !== itemsDefense) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 
-					if (baseDefense < itemsDefense) {	//base has lower defense
+					if (baseDefense < itemsDefense) {
 						result = false;
 
 						break;
@@ -1859,7 +1871,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 
 				break;
 			default:
-				return true;	// Runeword base isn't in the list, keep the base
+				// Runeword base isn't in the list, keep the base
+				return true;
 			}
 		}
 	}
