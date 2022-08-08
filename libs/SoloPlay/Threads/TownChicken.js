@@ -136,7 +136,7 @@ function main() {
 					let tick = getTickCount();
 
 					while (getTickCount() - tick < 2000) {
-						if (portal.mode === sdk.objects.mode.Active || me.area === sdk.areas.ArcaneSanctuary) {
+						if (portal.mode === sdk.objects.mode.Active || me.inArea(sdk.areas.ArcaneSanctuary)) {
 							break;
 						}
 
@@ -203,7 +203,7 @@ function main() {
 			
 			let pingDelay = i === 0 ? 100 : me.gameReady ? (me.ping + 25) : 350;
 
-			if (tpTool.use()) {
+			if (tpTool.use() || Game.getObject("portal")) {
 				let tick = getTickCount();
 
 				while (getTickCount() - tick < Math.max(500 + i * 100, pingDelay * 2 + 100)) {

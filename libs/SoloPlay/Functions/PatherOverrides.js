@@ -31,7 +31,7 @@ NodeAction.killMonsters = function (arg = {}) {
 	const sanityCheck = (annoyingArea.includes(myArea) || (me.paladin && pallyAnnoyingAreas.includes(myArea)));
 	const settings = Object.assign({}, {
 		clearPath: false,
-		specType: 0,
+		specType: sdk.monsters.spectype.All,
 		range: 8,
 		overrideConfig: false,
 	}, arg);
@@ -62,7 +62,7 @@ NodeAction.killMonsters = function (arg = {}) {
 		}
 	}
 
-	if (!!settings.clearPath) {
+	if (settings.clearPath !== false) {
 		Attack.clear(sanityCheck ? settings.range : 15, settings.specType);
 	}
 };
@@ -432,14 +432,16 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	let useTeleport = !inTown && this.useTeleport();
 	let useChargedTele = !inTown && this.canUseTeleCharges();
 	let tpMana = inTown ? Infinity : Skill.getManaCost(sdk.skills.Teleport);
-	let clearSettings = {
-		clearPath: (!!clearPath || (!useTeleport && !useChargedTele)), // walking characters need to clear in front of them
+	const useTeleCheck = (useTeleport || useChargedTele);
+	const annoyingArea = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
+	const clearSettings = {
+		clearPath: (!!clearPath || !useTeleCheck), // walking characters need to clear in front of them
 		range: 10,
 		specType: (typeof clearPath === "number" ? clearPath : 0),
 	};
-	(!useTeleport && !useChargedTele) && (clearSettings.clearPath = true);
+	!useTeleCheck && (clearSettings.clearPath = true);
 	(!retry || (retry <= 3 && !useTeleport)) && (retry = useTeleport ? 5 : 15);
-	let annoyingArea = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
+	
 	let path;
 	if (Config.DebugMode && [x, y].distance > 200) {
 		console.debug("Real distance: " + [x, y].distance);
@@ -459,7 +461,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 		}
 	}
 	let t1 = getTickCount();
-	path = getPath(me.area, x, y, me.x, me.y, useTeleport || useChargedTele ? 1 : 0, useTeleport || useChargedTele ? (annoyingArea ? 30 : this.teleDistance) : this.walkDistance);
+	path = getPath(me.area, x, y, me.x, me.y, useTeleCheck ? 1 : 0, useTeleCheck ? (annoyingArea ? 30 : this.teleDistance) : this.walkDistance);
 	Config.DebugMode && console.log("Took: " + (getTickCount() - t1) + " to generate path");
 	if (!path) throw new Error("moveTo: Failed to generate path.");
 
@@ -498,7 +500,11 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 				retry <= 3 && !useTeleport && (retry = 15);
 			}
 
-			if (useTeleport && tpMana <= me.mp ? this.teleportTo(node.x, node.y) : useChargedTele && node.distance >= 15 ? this.teleUsingCharges(node.x, node.y) : this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
+			if (useTeleport && tpMana <= me.mp
+				? this.teleportTo(node.x, node.y)
+				: useChargedTele && node.distance >= 15
+					? this.teleUsingCharges(node.x, node.y)
+					: this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
 				if (!me.inTown) {
 					if (this.recursion) {
 						this.recursion = false;
