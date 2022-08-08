@@ -140,6 +140,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.Strafe, sdk.skills.subindex.HardPoints);
+		return this.respec() && me.getSkill(sdk.skills.Strafe, sdk.skills.subindex.HardPoints);
 	},
 };

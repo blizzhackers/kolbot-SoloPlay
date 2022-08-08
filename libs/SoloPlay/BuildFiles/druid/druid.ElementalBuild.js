@@ -123,6 +123,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.Volcano, sdk.skills.subindex.HardPoints);
+		return this.respec() && me.getSkill(sdk.skills.Volcano, sdk.skills.subindex.HardPoints);
 	},
 };

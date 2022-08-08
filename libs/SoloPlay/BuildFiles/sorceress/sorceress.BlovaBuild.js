@@ -143,6 +143,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.Nova, sdk.skills.subindex.HardPoints) === 20 && me.getSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints) >= 1;
+		return this.respec() && me.getSkill(sdk.skills.Nova, sdk.skills.subindex.HardPoints) === 20 && me.getSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints) >= 1;
 	},
 };

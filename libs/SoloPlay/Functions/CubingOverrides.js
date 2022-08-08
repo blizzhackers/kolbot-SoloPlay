@@ -828,7 +828,7 @@ Cubing.doCubing = function () {
 			while (items.length) {
 				string += (items[0].name.trim() + (items.length > 1 ? " + " : ""));
 				items[0].isEquipped && (wasEquipped = true);
-				Storage.Cube.MoveTo(items[0]);
+				if (!Storage.Cube.MoveTo(items[0])) return false;
 				items.shift();
 			}
 

@@ -124,6 +124,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.DoubleThrow, sdk.skills.subindex.HardPoints) === 20;
+		return this.respec() && me.getSkill(sdk.skills.DoubleThrow, sdk.skills.subindex.HardPoints) === 20;
 	},
 };

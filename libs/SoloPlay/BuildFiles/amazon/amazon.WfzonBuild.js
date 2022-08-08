@@ -53,7 +53,7 @@ const finalBuild = {
 		"[name] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] == 5 # [tier] == 110000",
 		// Rings - Raven Frost && Bul-Kathos' Wedding Band
 		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == # [tier] == 100000",
-		"[name] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] >= 3 # [tier] == 100000",// Switch Final Weapon - CTA
+		"[name] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] >= 3 # [tier] == 100000", // Switch Final Weapon - CTA
 		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
 		// Switch Temporary Weapon - Life Tap charged wand
 		"[type] == wand && [quality] >= normal # [itemchargedskill] == 82 # [secondarytier] == 75000 + chargeditemscore(item, 82)",
@@ -136,6 +136,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.Strafe, sdk.skills.subindex.HardPoints);
+		return this.respec() && me.getSkill(sdk.skills.Strafe, sdk.skills.subindex.HardPoints);
 	},
 };

@@ -329,7 +329,10 @@ Unit.prototype.shouldKeep = function () {
 		|| (this.unique && Pickit.checkItem(this).result === 2)
 		// or keep if item is worth selling
 		|| (this.getItemCost(sdk.items.cost.ToSell) / (this.sizex * this.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
-		return (Storage.Inventory.CanFit(this) && Storage.Inventory.MoveTo(this));
+		if ((Storage.Inventory.CanFit(this) && Storage.Inventory.MoveTo(this))) {
+			Town.sell.push(this);
+			return true;
+		}
 	}
 
 	return false;

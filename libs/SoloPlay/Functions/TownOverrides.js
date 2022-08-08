@@ -32,6 +32,7 @@ Town.ignoredItemTypes = [
 	sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion, sdk.items.type.StaminaPotion,
 	sdk.items.type.AntidotePotion, sdk.items.type.ThawingPotion
 ];
+Town.sell = [];
 
 Town.needPotions = function () {
 	// we aren't using MinColumn if none of the values are set
@@ -207,6 +208,35 @@ Town.buyPotions = function () {
 	return true;
 };
 
+Town.haveItemsToSell = function () {
+	Town.sell = Town.sell.filter(i => i && i.isInStorage);
+	return Town.sell.length;
+};
+
+Town.sellItems = function (itemList = []) {
+	!itemList.length && (itemList = Town.sell);
+
+	if (this.initNPC("Shop", "sell")) {
+		while (itemList.length) {
+			let item = itemList.shift();
+			if (!item.isInStorage) continue;
+
+			try {
+				if (getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) {
+					console.log("sell " + item.name);
+					Misc.itemLogger("Sold", item);
+					item.sell();
+					delay(100);
+				}
+			} catch (e) {
+				console.error(e);
+			}
+		}
+	}
+
+	return !itemList.length;
+};
+
 // need to build task list then do them.
 // This way we can look ahead to see if there is a task thats going to be done at the current npc like buyPots and just go ahead and do it
 Town.townTasks = function (buyPots = {}) {
@@ -324,6 +354,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	Item.autoEquipCharms();
 	Mercenary.hireMerc();
 	Item.autoEquipMerc();
+	Town.haveItemsToSell() && Town.sellItems() && me.cancelUIFlags();
 	this.stash();
 	this.clearJunk();
 	!!me.getItem(sdk.items.TomeofTownPortal) && this.clearScrolls();
@@ -1931,7 +1962,7 @@ Town.worseBaseThanStashed = function (base = undefined) {
 	case sdk.items.type.VoodooHeads:
 		if (me.paladin || me.necromancer) {
 			let iType = [sdk.items.type.Shield];
-			me.paladin ? iType.push(sdk.items.type.VoodooHeads) : iType.push(sdk.items.type.AuricShields);
+			me.necromancer ? iType.push(sdk.items.type.VoodooHeads) : iType.push(sdk.items.type.AuricShields);
 			
 			itemsToCheck = getItemToCompare(
 				iType, false, (a, b) => generalScore(a) - generalScore(b)
@@ -2161,19 +2192,20 @@ Town.clearJunk = function () {
 						continue;
 					}
 
-					if (junk.isRuneword && !AutoEquip.wanted(junk)) {
-						console.log("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+				}
 
-						if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
-							throw new Error("ÿc9AutoEquipJunkCheckÿc0 :: Failed to get " + junk.name + " from stash");
-						}
+				if (junk.isRuneword && !AutoEquip.wanted(junk)) {
+					console.log("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
 
-						if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9AutoEquipJunkCheckÿc0 :: Failed to remove " + junk.name + " from cube");
-
-						totalJunk.push(junk);
-
-						continue;
+					if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
+						throw new Error("ÿc9AutoEquipJunkCheckÿc0 :: Failed to get " + junk.name + " from stash");
 					}
+
+					if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9AutoEquipJunkCheckÿc0 :: Failed to remove " + junk.name + " from cube");
+
+					totalJunk.push(junk);
+
+					continue;
 				}
 
 				if (junk.isBaseType) {

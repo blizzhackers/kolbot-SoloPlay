@@ -170,7 +170,7 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec && me.getSkill(sdk.skills.Meteor, sdk.skills.subindex.HardPoints) === 20 && me.getSkill(sdk.skills.FrozenOrb, sdk.skills.subindex.HardPoints) === 20;
+		return this.respec() && me.getSkill(sdk.skills.Meteor, sdk.skills.subindex.HardPoints) === 20 && me.getSkill(sdk.skills.FrozenOrb, sdk.skills.subindex.HardPoints) === 20;
 	},
 };
 

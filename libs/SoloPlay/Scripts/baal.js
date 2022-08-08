@@ -100,7 +100,7 @@ function baal () {
 				break;
 			case 3:
 				Attack.clearClassids(sdk.monsters.Council4) && (tick = getTickCount());
-				this.checkHydra() && (tick = getTickCount());
+				Common.Baal.checkHydra() && (tick = getTickCount());
 
 				break;
 			case 4:
