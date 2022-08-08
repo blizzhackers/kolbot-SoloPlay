@@ -98,7 +98,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 		}
 		MockItem.getAllItemStats = function (item) {
 			var stats = [];
-			if (!item.getFlag(0x4000000)) {
+			if (!item.getFlag(sdk.items.flags.Runeword)) {
 				// since getStat(-1) is a perfect copy from item.getStat(major, minor), loop over it and get the real value
 				// example, item.getStat(7, 0) != item.getStat(-1).find(([major])=> major === 7)[2]
 				// its shifted with 8 bytes

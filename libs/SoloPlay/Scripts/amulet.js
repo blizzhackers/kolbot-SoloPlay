@@ -7,7 +7,7 @@
 
 function amulet () {
 	Town.townTasks();
-	myPrint('starting amulet');
+	myPrint("starting amulet");
 
 	Pather.checkWP(sdk.areas.LostCity, true) ? Pather.useWaypoint(sdk.areas.LostCity) : Pather.getWP(sdk.areas.LostCity);
 	Precast.doPrecast(true);
@@ -15,6 +15,8 @@ function amulet () {
 	Precast.doPrecast(true);
 
 	if (!Pather.useTeleport()) {
+		// change this to be array loop, sometimes bot gets lucky to have a clearish path to the chest but
+		// then because Attack.clear on nodeaction we move from the chest even though we were there and the vipers can't get to the altar
 		Pather.moveTo(15065, 14047);
 		Pather.moveTo(15063, 14066);
 		Pather.moveTo(15051, 14066);
@@ -23,7 +25,7 @@ function amulet () {
 		Pather.moveTo(15045, 14051, null, false);
 	}
 
-	if (!Quest.collectItem(sdk.items.quest.ViperAmulet, 149)) {
+	if (!Quest.collectItem(sdk.quest.item.ViperAmulet, sdk.quest.chest.ViperAmuletChest)) {
 		myPrint("Failed to collect viper amulet");
 		return false;
 	}

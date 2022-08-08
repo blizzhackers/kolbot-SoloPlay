@@ -15,10 +15,10 @@ function tristram () {
 	];
 
 	Town.townTasks();
-	myPrint('starting tristram');
+	myPrint("starting tristram");
 
 	// Tristram portal hasn't been opened
-	if (!Misc.checkQuest(4, 4)) {
+	if (!Misc.checkQuest(sdk.quest.id.TheSearchForCain, 4)) {
 		// missing scroll and key
 		if (!me.getItem(sdk.items.quest.ScrollofInifuss) && !me.getItem(sdk.items.quest.KeytotheCairnStones)) {
 			if (!Pather.checkWP(sdk.areas.BlackMarsh, true)) {
@@ -30,12 +30,12 @@ function tristram () {
 
 			Precast.doPrecast(true);
 
-			if (!Pather.moveToPreset(sdk.areas.DarkWood, 2, 30, 5, 5)) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Tree of Inifuss");
+			if (!Pather.moveToPreset(sdk.areas.DarkWood, sdk.unittype.Object, sdk.quest.chest.InifussTree, 5, 5)) {
+				console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Tree of Inifuss");
 				return false;
 			}
 
-			Quest.collectItem(524, 30);
+			Quest.collectItem(sdk.quest.item.ScrollofInifuss, sdk.quest.chest.InifussTree);
 			Pickit.pickItems();
 		}
 
@@ -50,11 +50,11 @@ function tristram () {
 
 	Pather.checkWP(sdk.areas.StonyField, true) ? Pather.useWaypoint(sdk.areas.StonyField) : Pather.getWP(sdk.areas.StonyField);
 	Precast.doPrecast(true);
-	Pather.moveToPreset(sdk.areas.StonyField, 1, 737, 10, 10, false, true);
-	Attack.killTarget(getLocaleString(2872)); // Rakanishu
-	Pather.moveToPreset(sdk.areas.StonyField, 2, 17, null, null, true);
+	Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Monster, sdk.monsters.preset.Rakanishu, 10, 10, false, true);
+	Attack.killTarget(getLocaleString(sdk.locale.monsters.Rakanishu));
+	Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Object, sdk.quest.chest.StoneAlpha, null, null, true);
 
-	if (!Misc.checkQuest(4, 4) && me.getItem(sdk.items.quest.KeytotheCairnStones)) {
+	if (!Misc.checkQuest(sdk.quest.id.TheSearchForCain, 4) && me.getItem(sdk.items.quest.KeytotheCairnStones)) {
 		try {
 			let stones = [
 				Game.getObject(sdk.quest.chest.StoneAlpha),
@@ -68,7 +68,7 @@ function tristram () {
 				for (let i = 0; i < stones.length; i++) {
 					let stone = stones[i];
 
-					if (Misc.openChest(stone)) {
+					if (Common.Questing.activateStone(stone)) {
 						stones.splice(i, 1);
 						i--;
 					}
@@ -86,13 +86,14 @@ function tristram () {
 				Attack.securePosition(me.x, me.y, 10, 1000);
 			}
 		} catch (err) {
+			console.error(err);
 			Pather.usePortal(sdk.areas.Tristram);
 		}
 	} else {
 		Pather.usePortal(sdk.areas.Tristram);
 	}
 
-	if (me.area === sdk.areas.Tristram) {
+	if (me.inArea(sdk.areas.Tristram)) {
 		if (!me.tristram) {
 			let clearCoords = [
 				{"x": 25166, "y": 5108, "radius": 10},
@@ -105,7 +106,7 @@ function tristram () {
 			];
 			Attack.clearCoordList(clearCoords);
 
-			let gibbet = getUnit(2, 26);
+			let gibbet = Game.getObject(sdk.quest.chest.CainsJail);
 
 			if (gibbet && !gibbet.mode) {
 				Pather.moveTo(gibbet.x, gibbet.y);

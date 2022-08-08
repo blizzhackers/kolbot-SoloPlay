@@ -161,7 +161,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 		if (thickness === void 0) { thickness = 5; }
 		if (collision === void 0) { collision = Collision.BLOCK_MISSILE; }
 		var range = Skill.getRange(skill);
-		print('Searching range for', skill, Object.keys(sdk_1.skills).find(function (el) { return sdk_1.skills[el] === skill; }), range);
+		console.log('Searching range for', skill, Object.keys(sdk_1.skills).find(function (el) { return sdk_1.skills[el] === skill; }), range);
 		return findCastingSpotRange(range, unit, minRange, thickness, collision);
 	}
 	exports.findCastingSpotSkill = findCastingSpotSkill;

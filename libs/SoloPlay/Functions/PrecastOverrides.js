@@ -5,7 +5,7 @@
 *
 */
 
-!isIncluded("common/Precast.js") && include("common/Precast.js");
+includeIfNotIncluded("common/Precast.js");
 
 Precast.enabled = true;
 
@@ -13,13 +13,13 @@ Precast.enabled = true;
 // Can't be on a weapon due to consistent switching but
 // Clay Goldem from Stone RW, Iron Golem from Metalgrid, Posion Creeper from Carrior Wind ring, Oak, HoW, or SoB from wisp
 
-let Overrides = require('../../modules/Override');
+let Overrides = require("../../modules/Override");
 
 new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 	if (!Precast.enabled) return false;
 
 	switch (me.classid) {
-	case sdk.charclass.Paladin:
+	case sdk.player.class.Paladin:
 		// Force BO 30 seconds before it expires
 		if (this.haveCTA > -1) {
 			let forceBo = (force
@@ -35,7 +35,7 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 		}
 
 		break;
-	case sdk.charclass.Barbarian:
+	case sdk.player.class.Barbarian:
 		let needShout = (Skill.canUse(sdk.skills.Shout) && (force || !me.getState(sdk.states.Shout)));
 		let needBo = (Skill.canUse(sdk.skills.BattleOrders) && (force || !me.getState(sdk.states.BattleOrders)));
 		let needBc = (Skill.canUse(sdk.skills.BattleCommand) && (force || !me.getState(sdk.states.BattleCommand)));
@@ -79,15 +79,15 @@ Precast.summon = function (skillId, minionType) {
 		let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	// Get a random coordinate to summon using
 		let unit = Attack.getNearestMonster({skipImmune: false});
 
-		if (unit && [sdk.minions.Golem, sdk.minions.Grizzly, sdk.minions.Shadow].includes(minionType) && unit.distance < 20 && !checkCollision(me, unit, 0x4)) {
+		if (unit && [sdk.summons.type.Golem, sdk.summons.type.Grizzly, sdk.summons.type.Shadow].includes(minionType) && unit.distance < 20 && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			try {
-				if (Skill.cast(skillId, 0, unit)) {
+				if (Skill.cast(skillId, sdk.skills.hand.Right, unit)) {
 					if (me.getMinionCount(minionType) === count) {
 						continue;
 					} else {
 						retry++;
 					}
-				} else if (Skill.cast(skillId, 0, me.x, me.y)) {
+				} else if (Skill.cast(skillId, sdk.skills.hand.Right, me.x, me.y)) {
 					if (me.getMinionCount(minionType) === count) {
 						continue;
 					} else {
@@ -95,12 +95,12 @@ Precast.summon = function (skillId, minionType) {
 					}
 				}
 			} catch (e) {
-				print(e);
+				console.log(e);
 			}
 		}
 
 		if (coord && Attack.castableSpot(coord.x, coord.y)) {
-			Skill.cast(skillId, 0, coord.x, coord.y);
+			Skill.cast(skillId, sdk.skills.hand.Right, coord.x, coord.y);
 
 			if (me.getMinionCount(minionType) === count) {
 				continue;
@@ -108,7 +108,7 @@ Precast.summon = function (skillId, minionType) {
 				retry++;
 			}
 		} else if (Attack.castableSpot(me.x, me.y)) {
-			Skill.cast(skillId, 0, me.x, me.y);
+			Skill.cast(skillId, sdk.skills.hand.Right, me.x, me.y);
 
 			if (me.getMinionCount(minionType) === count) {
 				continue;
@@ -130,14 +130,14 @@ Precast.summon = function (skillId, minionType) {
 				}
 				
 				Town.move("portalspot");
-				Skill.cast(skillId, 0, me.x, me.y);
+				Skill.cast(skillId, sdk.skills.hand.Right, me.x, me.y);
 			} else {
 				coord = CollMap.getRandCoordinate(me.x, -6, 6, me.y, -6, 6);
 
 				// Keep bots from getting stuck trying to summon
 				if (coord && Attack.validSpot(coord.x, coord.y)) {
 					Pather.moveTo(coord.x, coord.y);
-					Skill.cast(skillId, 0, me.x, me.y);
+					Skill.cast(skillId, sdk.skills.hand.Right, me.x, me.y);
 				}
 			}
 

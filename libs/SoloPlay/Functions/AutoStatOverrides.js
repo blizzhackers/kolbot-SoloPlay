@@ -6,7 +6,7 @@
 *
 */
 
-!isIncluded("common/AutoStat.js") && include("common/AutoStat.js");
+includeIfNotIncluded("common/AutoStat.js");
 
 AutoStat.init = function (statBuildOrder, save = 0, block = 0, bulkStat = true) {
 	AutoStat.statBuildOrder = statBuildOrder;
@@ -17,17 +17,17 @@ AutoStat.init = function (statBuildOrder, save = 0, block = 0, bulkStat = true) 
 	let usedStatPoints = false;
 
 	if (!AutoStat.statBuildOrder || !AutoStat.statBuildOrder.length) {
-		print("AutoStat: No build array specified");
+		console.log("AutoStat: No build array specified");
 
 		return false;
 	}
 
-	while (me.getStat(4) > AutoStat.save) {
+	while (me.getStat(sdk.stats.StatPts) > AutoStat.save) {
 		AutoStat.addStatPoint() && (usedStatPoints = true);
 		delay(150 + me.ping); // spending multiple single stat at a time with short delay may cause r/d
 
 		// break out of loop if we have stat points available but finished allocating as configured
-		if (me.getStat(4) === AutoStat.remaining) {
+		if (me.getStat(sdk.stats.StatPts) === AutoStat.remaining) {
 			AutoStat.count += 1;
 		}
 
@@ -44,7 +44,7 @@ AutoStat.init = function (statBuildOrder, save = 0, block = 0, bulkStat = true) 
 		CharData.updateData("me", myData) && updateMyData();
 	}
 
-	print("AutoStat: Finished allocating stat points");
+	console.log("AutoStat: Finished allocating stat points");
 
 	return true;
 };

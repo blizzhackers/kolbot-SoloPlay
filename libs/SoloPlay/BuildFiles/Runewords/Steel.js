@@ -4,9 +4,9 @@ const Steel = [
 ];
 NTIP.arrayLooping(Steel);
 
-if (Item.getEquippedItem(5).tier < 500 && Item.getEquippedItem(5).tier > 395) {
+if (Item.getEquippedItem(sdk.body.LeftArm).tier < 500 && Item.getEquippedItem(sdk.body.LeftArm).tier > 395) {
 	NTIP.addLine("[type] == sword && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [wsm] <= 10 && [strreq] <= 150 && [class] == elite # [sockets] == 2 # [maxquantity] == 1");
-} else if (Item.getEquippedItem(5).tier < 500 && Item.getEquippedItem(5).tier > 278) {
+} else if (Item.getEquippedItem(sdk.body.LeftArm).tier < 500 && Item.getEquippedItem(sdk.body.LeftArm).tier > 278) {
 	NTIP.addLine("[type] == sword && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [wsm] <= 10 && [strreq] <= 150 && [class] > normal # [sockets] == 2 # [maxquantity] == 1");
 } else {
 	NTIP.addLine("[type] == sword && [flag] != ethereal && [quality] == superior && [wsm] <= 10 && [strreq] <= 150 # [enhanceddamage] >= 10 && [sockets] == 2 # [maxquantity] == 1");

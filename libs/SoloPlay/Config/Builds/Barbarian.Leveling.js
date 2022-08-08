@@ -7,7 +7,7 @@
 */
 js_strict(true);
 
-!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
+includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 let AutoBuildTemplate = {

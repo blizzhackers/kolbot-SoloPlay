@@ -11,9 +11,7 @@ const Quest = {
 		// horadric staff
 		if (Pather.accessToAct(2) && !me.staff && !me.horadricstaff) {
 			if (!me.amulet) {
-				if (!isIncluded("SoloPlay/Scripts/amulet.js")) {
-					include("SoloPlay/Scripts/amulet.js");
-				}
+				includeIfNotIncluded("SoloPlay/Scripts/amulet.js");
 
 				for (let getAmmy = 0; getAmmy < 5; getAmmy++) {
 					amulet();
@@ -25,9 +23,7 @@ const Quest = {
 			}
 
 			if (!me.shaft) {
-				if (!isIncluded("SoloPlay/Scripts/staff.js")) {
-					include("SoloPlay/Scripts/staff.js");
-				}
+				includeIfNotIncluded("SoloPlay/Scripts/staff.js");
 
 				for (let getStaff = 0; getStaff < 5; getStaff++) {
 					staff();
@@ -41,9 +37,7 @@ const Quest = {
 
 		if (Pather.accessToAct(3) && !me.travincal && !me.khalimswill) {
 			if (!me.eye) {
-				if (!isIncluded("SoloPlay/Scripts/eye.js")) {
-					include("SoloPlay/Scripts/eye.js");
-				}
+				includeIfNotIncluded("SoloPlay/Scripts/eye.js");
 
 				for (let getEye = 0; getEye < 5; getEye++) {
 					eye();
@@ -55,9 +49,7 @@ const Quest = {
 			}
 
 			if (!me.heart) {
-				if (!isIncluded("SoloPlay/Scripts/heart.js")) {
-					include("SoloPlay/Scripts/heart.js");
-				}
+				includeIfNotIncluded("SoloPlay/Scripts/heart.js");
 
 				for (let getHeart = 0; getHeart < 5; getHeart++) {
 					heart();
@@ -69,9 +61,7 @@ const Quest = {
 			}
 
 			if (!me.brain) {
-				if (!isIncluded("SoloPlay/Scripts/brain.js")) {
-					include("SoloPlay/Scripts/brain.js");
-				}
+				includeIfNotIncluded("SoloPlay/Scripts/brain.js");
 
 				for (let getBrain = 0; getBrain < 5; getBrain++) {
 					brain();
@@ -86,13 +76,17 @@ const Quest = {
 
 	cubeItems: function (outcome, ...classids) {
 		if (me.getItem(outcome)
-			|| outcome === 91 && me.horadricstaff
-			|| outcome === 174 && me.travincal) {
+			|| outcome === sdk.quest.item.HoradricStaff && me.horadricstaff
+			|| outcome === sdk.quest.item.KhalimsWill && me.travincal) {
 			return true;
 		}
 
 		!me.inTown && Town.goToTown();
-		outcome === 91 ? me.overhead('cubing staff') : outcome === 174 ? me.overhead('cubing flail') : me.overhead('cubing ' + outcome);
+		outcome === sdk.quest.item.HoradricStaff
+			? me.overhead("cubing staff")
+			: outcome === sdk.quest.item.KhalimsWill
+				? me.overhead("cubing flail")
+				: me.overhead("cubing " + outcome);
 
 		Town.doChores();
 		Town.openStash();
@@ -143,7 +137,7 @@ const Quest = {
 		if (me.horadricstaff) return true;
 
 		let tick = getTickCount();
-		let orifice = Misc.poll(() => getUnit(sdk.unittype.Object, sdk.units.HoradricStaffHolder));
+		let orifice = Misc.poll(() => Game.getObject(sdk.objects.HoradricStaffHolder));
 		if (!orifice) return false;
 		
 		let hstaff = (me.getItem(sdk.items.quest.HoradricStaff) || Quest.cubeItems(sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff, sdk.items.quest.ViperAmulet));
@@ -164,7 +158,7 @@ const Quest = {
 			}
 		}
 
-		Pather.moveToPreset(me.area, 2, 152);
+		Pather.moveToPreset(me.area, sdk.unittype.Object, 152);
 		Misc.openChest(orifice);
 
 		if (!hstaff) {
@@ -175,15 +169,15 @@ const Quest = {
 			return false;
 		}
 
-		clickItemAndWait(0, hstaff);
+		clickItemAndWait(sdk.clicktypes.click.Left, hstaff);
 		submitItem();
 		delay(750 + me.ping);
 
 		// Clear cursor of staff - credit @Jaenster
 		let item = me.getItemsEx().filter((el) => el.isInInventory).first();
 		let _b = [item.x, item.y, item.location], x = _b[0], y = _b[1], loc = _b[2];
-		clickItemAndWait(0, item);
-		clickItemAndWait(0, x, y, loc);
+		clickItemAndWait(sdk.clicktypes.click.Left, item);
+		clickItemAndWait(sdk.clicktypes.click.Left, x, y, loc);
 		delay(750 + me.ping);
 
 		return true;
@@ -196,8 +190,7 @@ const Quest = {
 		Pather.moveTo(22577, 15649, 10);
 		Pather.moveTo(22577, 15609, 10);
 
-		let tyrael = getUnit(1, NPC.Tyrael);
-
+		let tyrael = Game.getNPC(NPC.Tyrael);
 		if (!tyrael) return false;
 
 		for (let talk = 0; talk < 3; talk += 1) {
@@ -231,7 +224,7 @@ const Quest = {
 			if (!Storage.Stash.CanFit(questItem)) return false;
 		}
 
-		while (questItem.location !== 7) {
+		while (!questItem.isInStash) {
 			Storage.Stash.MoveTo(questItem);
 			delay(1 + me.ping);
 
@@ -245,11 +238,11 @@ const Quest = {
 		if (me.getItem(classid)) return true;
 
 		if (chestID !== undefined) {
-			let chest = getUnit(2, chestID);
+			let chest = Game.getObject(chestID);
 			if (!chest || !Misc.openChest(chest)) return false;
 		}
 
-		let questItem = Misc.poll(() => getUnit(4, classid), 3000, 100 + me.ping);
+		let questItem = Misc.poll(() => Game.getItem(classid), 3000, 100 + me.ping);
 
 		if (Storage.Inventory.CanFit(questItem)) {
 			Pickit.pickItem(questItem);
@@ -267,28 +260,28 @@ const Quest = {
 		!getUIFlag(sdk.uiflags.Stash) && me.cancel();
 
 		if (questItem) {
-			me.duelWielding && Item.removeItem(5);
+			me.duelWielding && Item.removeItem(sdk.body.LeftArm);
 			
 			if (!Item.equip(questItem, loc)) {
 				Pickit.pickItems();
-				print("ÿc8Kolbot-SoloPlayÿc0: failed to equip " + classid + " .(Quest.equipItem)");
+				console.log("ÿc8Kolbot-SoloPlayÿc0: failed to equip " + classid + " .(Quest.equipItem)");
 			}
 		} else {
-			print("ÿc8Kolbot-SoloPlayÿc0: Lost " + classid + " before trying to equip it. (Quest.equipItem)");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Lost " + classid + " before trying to equip it. (Quest.equipItem)");
 			return false;
 		}
 
 		if (me.itemoncursor) {
-			let olditem = getUnit(100);
+			let olditem = Game.getCursorUnit();
 
 			if (olditem) {
 				if (Storage.Inventory.CanFit(olditem)) {
-					print("ÿc8Kolbot-SoloPlayÿc0: Keeping weapon");
+					console.log("ÿc8Kolbot-SoloPlayÿc0: Keeping weapon");
 
 					Storage.Inventory.MoveTo(olditem);
 				} else {
 					me.cancel();
-					print("ÿc8Kolbot-SoloPlayÿc0: No room to keep weapon");
+					console.log("ÿc8Kolbot-SoloPlayÿc0: No room to keep weapon");
 
 					olditem.drop();
 				}
@@ -301,32 +294,25 @@ const Quest = {
 	},
 
 	smashSomething: function (classid) {
-		let tool;
+		let tool = classid === sdk.objects.CompellingOrb
+			? sdk.items.quest.KhalimsWill
+			: classid === sdk.quest.chest.HellForge
+				? sdk.items.quest.HellForgeHammer
+				: null;
 
-		switch (classid) {
-		case 404:
-			tool = sdk.items.quest.KhalimsWill;
+		let smashable = Game.getObject(classid);
 
-			break;
-		case 376:
-			tool = sdk.items.quest.HellForgeHammer;
-
-			break;
-		}
-
-		let smashable = getUnit(2, classid);
-
-		if (Item.getEquippedItem(4).classid !== tool || !me.getItem(tool)) return false;
+		if (Item.getEquippedItem(sdk.body.RightArm).classid !== tool || !me.getItem(tool)) return false;
 		if (!smashable) return false;
 		let tick = getTickCount();
 		let questTool = me.getItem(tool);
 
 		while (me.getItem(tool)) {
 			smashable.distance > 4 && Pather.moveToEx(smashable.x, smashable.y, {clearSettings: {allowClearing: false}});
-			Skill.cast(0, 0, smashable);
+			Skill.cast(sdk.skills.Attack, sdk.skills.hand.Right, smashable);
 			smashable.interact();
 
-			if (getTickCount() - tick > 30 * 1000) {
+			if (getTickCount() - tick > Time.seconds(30)) {
 				console.warn("Timed out trying to smash quest object");
 				
 				return false;
@@ -349,7 +335,7 @@ const Quest = {
 		!me.inTown && Town.goToTown();
 		npcName = npcName[0].toUpperCase() + npcName.substring(1).toLowerCase();
 		Town.move(NPC[npcName]);
-		let npc = Misc.poll(() => getUnit(1, NPC[npcName]));
+		let npc = Misc.poll(() => Game.getNPC(NPC[npcName]));
 
 		Packet.flash(me.gid);
 		delay(1 + me.ping * 2);
@@ -367,9 +353,9 @@ const Quest = {
 		if (me.respec || SetUp.currentBuild === SetUp.finalBuild) return;
 
 		switch (true) {
-		case me.charlvl >= Config.respecOne && SetUp.currentBuild === "Start":
-		case Config.respecOneB > 0 && me.charlvl >= Config.respecOneB && SetUp.currentBuild === "Stepping":
-		case me.charlvl === SetUp.respecTwo() && SetUp.currentBuild === "Leveling":
+		case me.charlvl >= CharInfo.respecOne && SetUp.currentBuild === "Start":
+		case CharInfo.respecTwo > 0 && me.charlvl >= CharInfo.respecTwo && SetUp.currentBuild === "Stepping":
+		case me.charlvl === SetUp.finalRespec() && SetUp.currentBuild === "Leveling":
 			if (!me.den) {
 				myPrint("time to respec, but den is incomplete");
 				return;
@@ -388,16 +374,16 @@ const Quest = {
 					npc = Town.npcInteract("akara");
 					me.cancelUIFlags();
 					delay(100 + me.ping);
-					npc && sendPacket(1, 0x38, 4, 0, 4, npc.gid, 4, 0);
+					npc && sendPacket(1, sdk.packets.send.EntityAction, 4, 0, 4, npc.gid, 4, 0);
 				} else {
 					this.npcAction("akara", [sdk.menu.Respec, sdk.menu.Ok]);
 				}
 
-				Misc.checkQuest(41, 0);
+				Misc.checkQuest(sdk.quest.id.Respec, sdk.quest.states.Completed);
 				delay(10 + me.ping * 2);
 
 				if (me.respec || (me.getStat(sdk.stats.NewSkills) > preSkillAmount && me.getStat(sdk.stats.StatPts) > preStatAmount)) {
-					myData.me.currentBuild = SetUp.getBuild();
+					myData.me.currentBuild = CharInfo.getActiveBuild();
 					myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
 					CharData.updateData("me", myData);
 					delay(750 + me.ping * 2);
@@ -417,8 +403,8 @@ const Quest = {
 		if (SetUp.finalBuild === "Socketmule") return false;
 
 		try {
-			if (!item || item.mode === 3) throw new Error("Couldn't find item");
-			if (!me.getQuest(35, 1)) throw new Error("Quest unavailable");
+			if (!item || item.mode === sdk.items.mode.onGround) throw new Error("Couldn't find item");
+			if (!me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.ReqComplete)) throw new Error("Quest unavailable");
 			if (item.sockets > 0 || getBaseStat("items", item.classid, "gemsockets") === 0) throw new Error("Item cannot be socketed");
 			if (!Storage.Inventory.CanFit(item)) throw new Error("(useSocketQuest) No space to get item back");
 			if (me.act !== 5 || !me.inTown) {
@@ -429,7 +415,7 @@ const Quest = {
 				throw new Error("Failed to move item from stash to inventory");
 			}
 
-			let invo = me.findItems(-1, 0, 3);
+			let invo = me.findItems(-1, sdk.items.mode.inStorage, sdk.storage.Inventory);
 			let slot = item.bodylocation;
 			
 			// Take note of all the items in the invo minus the item to socket
@@ -439,16 +425,16 @@ const Quest = {
 				}
 			}
 
-			if (!this.npcAction("larzuk", 0x58DC)) throw new Error("Failed to interact with Lazruk");
+			if (!this.npcAction("larzuk", sdk.menu.AddSockets)) throw new Error("Failed to interact with Lazruk");
 			if (!getUIFlag(sdk.uiflags.SubmitItem)) throw new Error("Failed to open SubmitItem screen");
 			if (!item.toCursor()) throw new Error("Couldn't get item");
 
 			submitItem();
 			delay(500 + me.ping);
-			sendPacket(1, 0x40);
+			Packet.questRefresh();
 
 			item = false; // Delete item reference, it's not longer valid anyway
-			let items = me.findItems(-1, 0, 3);
+			let items = me.findItems(-1, sdk.items.mode.inStorage, sdk.storage.Inventory);
 				
 			for (let i = 0; i < items.length; i++) {
 				if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {
@@ -462,7 +448,7 @@ const Quest = {
 			}
 
 			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : ", item);
-			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, 6);
+			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, sdk.colors.D2Bot.Gold);
 			CharData.updateData(sdk.difficulty.nameOf(me.diff), "socketUsed", true);
 			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
 			updateMyData();
@@ -470,7 +456,7 @@ const Quest = {
 			if (!slot && !item.isInStash) {
 				// Move item back to stash
 				if (Storage.Stash.CanFit(item)) {
-					Town.move('stash');
+					Town.move("stash");
 					Storage.Stash.MoveTo(item);
 					me.cancel();
 				}
@@ -479,7 +465,7 @@ const Quest = {
 			slot && Item.equip(item, slot);
 		} catch (e) {
 			myPrint(e);
-			me.itemoncursor && Storage.Inventory.MoveTo(getUnit(100));
+			me.itemoncursor && Storage.Inventory.MoveTo(Game.getCursorUnit());
 			me.cancelUIFlags();
 
 			return false;
@@ -493,9 +479,9 @@ const Quest = {
 		if (SetUp.finalBuild === "Imbuemule") return false;
 
 		try {
-			if (!item || item.mode === 3) throw new Error("Couldn't find item");
-			if (!Misc.checkQuest(3, 1)) throw new Error("Quest unavailable");
-			if (item.sockets > 0 || item.quality > 3) throw new Error("Item cannot be imbued");
+			if (!item || item.mode === sdk.items.mode.onGround) throw new Error("Couldn't find item");
+			if (!Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete)) throw new Error("Quest unavailable");
+			if (item.sockets > 0 || item.quality > sdk.items.quality.Superior) throw new Error("Item cannot be imbued");
 			if (!Storage.Inventory.CanFit(item)) throw new Error("(useImbueQuest) No space to get item back");
 			if (me.act !== 1 || !me.inTown) {
 				if (!Town.goToTown(1)) throw new Error("Failed to go to act 1");
@@ -505,7 +491,7 @@ const Quest = {
 				throw new Error("Failed to move item from stash to inventory");
 			}
 
-			let invo = me.findItems(-1, 0, 3);
+			let invo = me.findItems(-1, sdk.items.mode.inStorage, sdk.storage.Inventory);
 			let slot = item.bodylocation;
 			
 			// Take note of all the items in the invo minus the item to socket
@@ -521,10 +507,10 @@ const Quest = {
 
 			submitItem();
 			delay(500 + me.ping);
-			sendPacket(1, 0x40);
+			Packet.questRefresh();
 
 			item = false; // Delete item reference, it's not longer valid anyway
-			let items = me.findItems(-1, 0, 3);
+			let items = me.findItems(-1, sdk.items.mode.inStorage, sdk.storage.Inventory);
 				
 			for (let i = 0; i < items.length; i++) {
 				if (invo.indexOf(items[i].x + "/" + items[i].y) === -1) {
@@ -532,13 +518,13 @@ const Quest = {
 				}
 			}
 
-			if (!item || item.quality !== 6) {
+			if (!item || !item.rare) {
 				me.itemoncursor && Storage.Stash.MoveTo(item);
 				throw new Error("Failed to imbue item");
 			}
 
 			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : ", item);
-			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, 6);
+			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, sdk.colors.D2Bot.Gold);
 			CharData.updateData(sdk.difficulty.nameOf(me.diff), "imbueUsed", true);
 			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
 			updateMyData();
@@ -546,7 +532,7 @@ const Quest = {
 			if (!slot && !item.isInStash) {
 				// Move item back to stash
 				if (Storage.Stash.CanFit(item)) {
-					Town.move('stash');
+					Town.move("stash");
 					Storage.Stash.MoveTo(item);
 					me.cancel();
 				}
@@ -555,7 +541,7 @@ const Quest = {
 			slot && Item.equip(item, slot);
 		} catch (e) {
 			myPrint(e);
-			me.itemoncursor && Storage.Inventory.MoveTo(getUnit(100));
+			me.itemoncursor && Storage.Inventory.MoveTo(Game.getCursorUnit());
 			me.cancelUIFlags();
 
 			return false;

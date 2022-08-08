@@ -6,10 +6,9 @@
 */
 
 function a5chests() {
-	myPrint('starting a5 chests');
-
-	let areas = [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit, sdk.areas.GlacialTrail, sdk.areas.DrifterCavern, sdk.areas.IcyCellar];
-
+	const areas = [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit, sdk.areas.GlacialTrail, sdk.areas.DrifterCavern, sdk.areas.IcyCellar];
+	
+	myPrint("starting a5 chests");
 	Town.doChores();
 
 	for (let i = 0; i < areas.length; i++) {

@@ -10,73 +10,65 @@
 function diablo () {
 	// Start Diablo Quest
 	this.diabloPrep = function () {
-		let tick = getTickCount(), decoyDuration = (10 + me.getSkill(sdk.skills.Decoy, 1) * 5) * 1000;
+		let tick = getTickCount();
+		let decoyDuration = (me.amazon ? Skill.getDuration(sdk.skills.Decoy) : 0);
 
 		while (getTickCount() - tick < 17500) {
 			me.getMobCount(20) > 1 && Attack.clear(20);
 			if (getTickCount() - tick >= 8000) {
 				switch (me.classid) {
-				case sdk.charclass.Amazon:
-					if (me.getSkill(sdk.skills.Decoy, 1)) {
-						let decoy = getUnit(sdk.unittype.Monster, 356);
+				case sdk.player.class.Amazon:
+					if (me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.SoftPoints)) {
+						let decoy = Game.getMonster(sdk.summons.Dopplezon);
 
 						if (!decoy || (getTickCount() - tick >= decoyDuration)) {
-							Skill.cast(sdk.skills.Decoy, 0, 7793, 5293);
+							Skill.cast(sdk.skills.Decoy, sdk.skills.hand.Right, 7793, 5293);
 						}
 					}
 
 					break;
-				case sdk.charclass.Sorceress:
-					if ([56, 59, 64].indexOf(Config.AttackSkill[1]) > -1) {
-						if (me.skillDelay) {
-							delay(500 + me.ping);
-						} else {
-							Skill.cast(Config.AttackSkill[1], 0, 7793, 5293);
-						}
-
-						break;
+				case sdk.player.class.Sorceress:
+					if ([sdk.skills.Meteor, sdk.skills.Blizzard, sdk.skills.FrozenOrb, sdk.skills.FireWall].includes(Config.AttackSkill[1])) {
+						Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793 + rand(-1, 1), 5293);
 					}
 
-					delay(500 + me.ping);
+					delay(500);
 
 					break;
-				case sdk.charclass.Paladin:
+				case sdk.player.class.Paladin:
 					Skill.setSkill(Config.AttackSkill[2]);
-					Skill.cast(Config.AttackSkill[1], 1);
+					Config.AttackSkill[1] === sdk.skills.BlessedHammer && Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Left);
 
 					break;
-				case sdk.charclass.Druid:
-					if (Config.AttackSkill[1] === sdk.skills.Tornado) {
-						Skill.cast(Config.AttackSkill[1], 0, 7793, 5293);
+				case sdk.player.class.Druid:
+					if ([sdk.skills.Tornado, sdk.skills.Fissure, sdk.skills.Volcano].includes(Config.AttackSkill[3])) {
+						Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793 + rand(-1, 1), 5293);
 
 						break;
 					}
 
-					delay(500 + me.ping);
+					delay(500);
 
 					break;
-				case sdk.charclass.Assassin:
+				case sdk.player.class.Assassin:
 					if (Config.UseTraps) {
-						let check = ClassAttack.checkTraps({x: 7793, y: 5293});
-
-						if (check) {
-							ClassAttack.placeTraps({x: 7793, y: 5293, classid: 243}, check);
-
-							break;
-						}
+						let trapCheck = ClassAttack.checkTraps({x: 7793, y: 5293});
+						trapCheck && ClassAttack.placeTraps({x: 7793, y: 5293, classid: sdk.monsters.Diablo}, trapCheck);
 					}
 
-					delay(500 + me.ping);
+					Config.AttackSkill[1] === sdk.skills.ShockWeb && Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793, 5293);
+
+					delay(500);
 
 					break;
 				default:
-					delay(500 + me.ping);
+					delay(500);
 				}
 			} else {
-				delay(500 + me.ping);
+				delay(500);
 			}
 
-			if (getUnit(sdk.unittype.Monster, sdk.monsters.Diablo)) {
+			if (Game.getMonster(sdk.monsters.Diablo)) {
 				return true;
 			}
 		}
@@ -86,23 +78,36 @@ function diablo () {
 
 	// START
 	Town.townTasks();
-	myPrint('starting diablo');
+	myPrint("starting diablo");
 
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
-	Pather.canTeleport() ? Pather.moveToExit(sdk.areas.ChaosSanctuary, true) : Pather.clearToExit(sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary, true);
-	Pather.moveTo(7790, 5544);
+
+	let attempts = 0;
+	
+	while ([7790, 5544].distance > 15 && attempts < 5) {
+		myPrint("Moving to Chaos Sanctuary Entrance :: Attempt: " + attempts);
+		Pather.moveTo(7790, 5544);
+		attempts++;
+	}
 
 	if (me.coldRes < 75 || me.poisonRes < 75) {
 		Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
 		Town.move("portalspot");
 		Pather.usePortal(sdk.areas.ChaosSanctuary, me.name);
+		Misc.poll(() => {
+			if (me.inArea(sdk.areas.ChaosSanctuary)) {
+				console.log("Returned to chaos");
+				return true;
+			}
+			return false;
+		}, 500, 100);
 	}
 
 	Common.Diablo.initLayout();
 
-	let oldCP = Object.assign({}, Config.ClearPath);
-	let oldBP = Config.BossPriority;
+	const oldCP = Object.assign({}, Config.ClearPath);
+	const oldBP = Config.BossPriority;
 
 	try {
 		!me.diablo && me.barbarian && (Config.BossPriority = true);
@@ -129,7 +134,7 @@ function diablo () {
 
 	try {
 		if (!Pather.canTeleport() && (me.necromancer && ["Poison", "Summon"].includes(SetUp.currentBuild) || !me.sorceress)) {
-			Messaging.sendToScript(SoloEvents.filePath, 'addDiaEvent');
+			Messaging.sendToScript(SoloEvents.filePath, "addDiaEvent");
 		}
 
 		if (!me.sorceress && !me.necromancer && !me.assassin) {
@@ -139,10 +144,10 @@ function diablo () {
 		}
 		
 		this.diabloPrep();
-		let theD = getUnit(sdk.unittype.Monster, sdk.monsters.Diablo);
+		let theD = Game.getMonster(sdk.monsters.Diablo);
 
 		if (!theD) {
-			print("ÿc8Kolbot-SoloPlayÿc0: Diablo not found. Checking seal bosses.");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Diablo not found. Checking seal bosses.");
 			try {
 				Common.Diablo.vizierSeal();
 				Common.Diablo.seisSeal();
@@ -160,15 +165,12 @@ function diablo () {
 			this.diabloPrep();
 		}
 
-		if (!Attack.pwnDia()) {
-			Attack.killTarget(sdk.monsters.Diablo);
-		}
-
+		!Attack.pwnDia() && Attack.killTarget(sdk.monsters.Diablo);
 		Pickit.pickItems();
 	} catch (e) {
 		//
 	} finally {
-		Messaging.sendToScript(SoloEvents.filePath, 'removeDiaEvent');
+		Messaging.sendToScript(SoloEvents.filePath, "removeDiaEvent");
 	}
 
 	if (me.classic) {
@@ -180,7 +182,7 @@ function diablo () {
 	} catch (err) {
 		Town.npcInteract("tyrael");
 		me.cancel();
-		delay(500 + me.ping);
+		delay(500);
 		Pather.useUnit(sdk.unittype.Object, 566, 109);
 	}
 

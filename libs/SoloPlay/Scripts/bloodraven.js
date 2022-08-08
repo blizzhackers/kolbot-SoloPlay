@@ -7,7 +7,7 @@
 
 function bloodraven () {
 	Town.townTasks();
-	print('ÿc8Kolbot-SoloPlayÿc0: starting blood raven');
+	myPrint("ÿc8Kolbot-SoloPlayÿc0: starting blood raven");
 
 	if (!Pather.checkWP(sdk.areas.StonyField, true)) {
 		Pather.getWP(sdk.areas.StonyField);
@@ -15,12 +15,12 @@ function bloodraven () {
 	} else {
 		if (me.hell && Pather.canTeleport() && me.charlvl < 74/*xp penalty makes this not worth it after 74*/) {
 			Misc.getExpShrine([sdk.areas.StonyField, sdk.areas.ColdPlains, sdk.areas.DarkWood, sdk.areas.BloodMoor]);
-			if (me.area !== sdk.areas.ColdPlains) {
+			if (!me.inArea(sdk.areas.ColdPlains)) {
 				Town.goToTown() && Pather.useWaypoint(sdk.areas.ColdPlains);
 			}
 		} else {
 			Pather.useWaypoint(sdk.areas.ColdPlains);
-			me.charlvl < 6 && Attack.clearLevelUntilLevel(6);
+			me.charlvl < 5 && Attack.clearLevelUntilLevel(5);
 		}
 	}
 
@@ -28,7 +28,9 @@ function bloodraven () {
 
 	me.overhead("blood raven");
 	Pather.moveToExit(sdk.areas.BurialGrounds, true);
-	me.sorceress && !me.normal ? Pather.moveNearPreset(sdk.areas.BurialGrounds, 1, 805, 20) : Pather.moveToPreset(sdk.areas.BurialGrounds, 1, 805);
+	me.sorceress && !me.normal
+		? Pather.moveNearPreset(sdk.areas.BurialGrounds, sdk.unittype.Monster, sdk.monsters.preset.BloodRaven, 20)
+		: Pather.moveToPreset(sdk.areas.BurialGrounds, sdk.unittype.Monster, sdk.monsters.preset.BloodRaven);
 	Attack.killTarget("Blood Raven");
 	Pickit.pickItems();
 
@@ -39,13 +41,13 @@ function bloodraven () {
 		return true;
 	}
 
-	myPrint('blood raven :: starting mausoleum');
+	myPrint("blood raven :: starting mausoleum");
 
 	if (!Pather.moveToExit([sdk.areas.BurialGrounds, sdk.areas.Mausoleum], true)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Mausoleum");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Mausoleum");
 	}
 
-	me.area === sdk.areas.Mausoleum && Attack.clearLevel();
+	me.inArea(sdk.areas.Mausoleum) && Attack.clearLevel();
 
 	if (me.hell) {
 		switch (me.gametype) {
@@ -56,7 +58,7 @@ function bloodraven () {
 
 			break;
 		case sdk.game.gametype.Expansion:
-			if ((me.charlvl < 80 || me.charlvl > 85) && !((me.sorceress || me.druid || me.assassin) && Item.getEquippedItem(4).tier < 100000)) {
+			if ((me.charlvl < 80 || me.charlvl > 85) && !((me.sorceress || me.druid || me.assassin) && Item.getEquippedItem(sdk.body.RightArm).tier < 100000)) {
 				return true;
 			}
 
@@ -66,7 +68,7 @@ function bloodraven () {
 		return true;
 	}
 
-	myPrint('blood raven :: starting crypt');
+	myPrint("blood raven :: starting crypt");
 	Pather.journeyTo(sdk.areas.Crypt) && Attack.clearLevel();
 	
 	return true;

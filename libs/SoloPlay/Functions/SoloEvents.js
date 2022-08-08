@@ -18,12 +18,10 @@ const SoloEvents = {
 	},
 
 	outOfGameCheck: function () {
-		if (!this.check) {
-			return false;
-		}
+		if (!this.check) return false;
 
 		if (this.gameInfo.gameName.length > 0) {
-			D2Bot.printToConsole("Kolbot-SoloPlay :: SoloEvents.outOfGameCheck(): Attempting to join other bots game", 6);
+			D2Bot.printToConsole("Kolbot-SoloPlay :: SoloEvents.outOfGameCheck(): Attempting to join other bots game", sdk.colors.D2Bot.Gold);
 			this.inGame = true;
 			me.blockmouse = true;
 
@@ -38,7 +36,7 @@ const SoloEvents = {
 				delay(1000);
 			}
 
-			print("ÿc8Kolbot-SoloPlayÿc0: End of SoloEvents.outOfGameCheck()");
+			console.log("ÿc8Kolbot-SoloPlayÿc0: End of SoloEvents.outOfGameCheck()");
 			this.inGame = false;
 			this.check = false;
 			this.gameInfo.gameName = "";
@@ -56,7 +54,7 @@ const SoloEvents = {
 
 			for (let i = 0; i < possibleChars.length; i++) {
 				if (Misc.findPlayer(possibleChars[i].toLowerCase())) {
-					if (me.area !== sdk.areas.RogueEncampment) {
+					if (!me.inArea(sdk.areas.RogueEncampment)) {
 						Town.goToTown(1);
 					}
 
@@ -66,8 +64,8 @@ const SoloEvents = {
 
 					me.overhead("Waiting for charm to drop");
 					while (getTickCount() - tick < 120 * 1000) {
-						anni = me.findItem(603, 3, null, 7);
-						torch = me.findItem(604, 3, null, 7);
+						anni = me.findItem(sdk.items.SmallCharm, sdk.items.mode.onGround, -1, sdk.items.quality.Unique);
+						torch = me.findItem(sdk.items.LargeCharm, sdk.items.mode.onGround, -1, sdk.items.quality.Unique);
 
 						if (torch || anni) {
 							break;
@@ -75,7 +73,7 @@ const SoloEvents = {
 					}
 
 					if (torch || anni) {
-						for (let j = 0; j < 12 || me.findItem((anni ? 603 : 604), 0, -1, 7); j++) {
+						for (let j = 0; j < 12 || me.findItem((anni ? sdk.items.SmallCharm : sdk.items.LargeCharm), sdk.items.mode.inStorage, -1, sdk.items.quality.Unique); j++) {
 							Town.move("stash");
 							me.overhead("Looking for " + (anni ? "Annihilus" : "Torch"));
 							Pickit.pickItems();
@@ -90,7 +88,7 @@ const SoloEvents = {
 				}
 			}
 
-			print("Couldnt find player");
+			console.log("Couldnt find player");
 		}
 
 		return false;
@@ -113,7 +111,7 @@ const SoloEvents = {
 					profileList.push(profileInfo.profile);
 				}
 			} catch (e) {
-				print(e);
+				console.log(e);
 			}
 		}
 
@@ -137,7 +135,7 @@ const SoloEvents = {
 					charList.push(characterInfo.charName);
 				}
 			} catch (e) {
-				print(e);
+				console.log(e);
 			}
 		}
 
@@ -167,7 +165,7 @@ const SoloEvents = {
 	dropCharm: function (charm) {
 		if (!charm || charm === undefined) return false;
 
-		D2Bot.printToConsole("Kolbot-SoloPlay :: Dropping " + charm.name, 8);
+		D2Bot.printToConsole("Kolbot-SoloPlay :: Dropping " + charm.name, sdk.colors.D2Bot.Orange);
 		let orginalLocation = {act: me.act, area: me.area, x: me.x, y: me.y};
 
 		if (!me.inTown) {
@@ -190,7 +188,7 @@ const SoloEvents = {
 	},
 
 	killdclone: function () {
-		D2Bot.printToConsole("Kolbot-SoloPlay :: Trying to kill DClone.", 8);
+		D2Bot.printToConsole("Kolbot-SoloPlay :: Trying to kill DClone.", sdk.colors.D2Bot.Orange);
 		let orginalLocation = {area: me.area, x: me.x, y: me.y};
 
 		!me.inTown && Town.goToTown();
@@ -200,7 +198,7 @@ const SoloEvents = {
 			Precast.doPrecast(true);
 
 			if (!Pather.usePortal(null)) {
-				print("ÿc8Kolbot-SoloPlayÿc1: Failed to move to Palace Cellar");
+				console.log("ÿc8Kolbot-SoloPlayÿc1: Failed to move to Palace Cellar");
 			}
 		} else if (Pather.checkWP(sdk.areas.InnerCloister)) {
 			Pather.useWaypoint(sdk.areas.InnerCloister);
@@ -209,17 +207,17 @@ const SoloEvents = {
 			Pather.useWaypoint(sdk.areas.ColdPlains);
 			Pather.moveToExit(sdk.areas.BloodMoor, true);
 			Pather.clearToExit(sdk.areas.BloodMoor, sdk.areas.DenofEvil, true);
-			Pather.moveToPreset(me.area, 1, 774, 0, 0, false, true);
+			Pather.moveToPreset(me.area, sdk.unittype.Monster, sdk.monsters.preset.Corpsefire, 0, 0, false, true);
 		}
 
 		Attack.killTarget(sdk.monsters.DiabloClone);
 		Pickit.pickItems();
 
-		let newAnni = getUnit(4, 603, 3);
-		let oldAnni = me.findItem(603, 0, -1, 7);
+		let newAnni = Game.getItem(sdk.items.SmallCharm, sdk.items.mode.onGround);
+		let oldAnni = me.findItem(sdk.items.SmallCharm, sdk.items.mode.inStorage, -1, sdk.items.quality.Unique);
 
 		if (newAnni && oldAnni) {
-			this.sendToList({profile: me.profile, ladder: 32}, 60);
+			this.sendToList({profile: me.profile, ladder: me.ladder}, 60);
 
 			let tick = getTickCount();
 
@@ -258,16 +256,16 @@ const SoloEvents = {
 		// Abort if dead
 		if (me.dead) return false;
 
-		let settings = Object.assign({}, {
+		const settings = Object.assign({}, {
 			allowTeleport: false,
 			allowClearing: false,
 			allowTown: false,
 			retry: 10,
 		}, givenSettings);
 
-		let path, adjustedNode, leaped = false,
-			node = {x: x, y: y},
-			fail = 0;
+		let path, adjustedNode, leaped = false;
+		let node = {x: x, y: y};
+		let fail = 0;
 
 		me.cancelUIFlags();
 
@@ -298,7 +296,7 @@ const SoloEvents = {
 
 			if (getDistance(me, node) > 2) {
 				if (mLair) {
-					adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, 0x1 | 0x4 | 0x800 | 0x1000);
+					adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
 
 					if (adjustedNode) {
 						node.x = adjustedNode[0];
@@ -323,8 +321,8 @@ const SoloEvents = {
 				} else {
 					if (fail > 0 && !useTele && !me.inTown) {
 						// Only do this once
-						if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, 1) && !leaped) {
-							Skill.cast(sdk.skills.LeapAttack, 0, node.x, node.y);
+						if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, sdk.skills.subindex.SoftPoints) && !leaped) {
+							Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y);
 							leaped = true;
 						}
 					}
@@ -335,7 +333,7 @@ const SoloEvents = {
 					fail += 1;
 					path.reverse();
 					PathDebug.drawPath(path);
-					print("move retry " + fail);
+					console.log("move retry " + fail);
 
 					if (fail > 0) {
 						Packet.flash(me.gid);
@@ -402,10 +400,10 @@ const SoloEvents = {
 	},
 
 	dodge: function () {
-		let diablo = getUnit(1, 243);
+		let diablo = Game.getMonster(sdk.monsters.Diablo);
 		// Credit @Jaenster
-		let shouldDodge = function (coord) {
-			return !!diablo && getUnits(3)
+		const shouldDodge = function (coord) {
+			return !!diablo && getUnits(sdk.unittype.Missile)
 				// For every missle that isnt from our merc
 				.filter((missile) => missile && diablo && diablo.gid === missile.owner)
 				// if any
@@ -426,7 +424,7 @@ const SoloEvents = {
 			Precast.enabled = false;
 			Misc.townEnabled = false;
 			Pickit.enabled = false;
-			print("DODGE");
+			console.log("DODGE");
 			// Disable things that will cause us to stop
 			let dist = me.assassin ? 15 : 3;
 
@@ -462,9 +460,10 @@ const SoloEvents = {
 
 		// No Tome, or tome has no tps, or no scrolls
 		if (!Town.canTpToTown()) {
-			Pather.moveToExit([2, 3], true);
+			// should really check how close the town exit is
+			Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.ColdPlains], true);
 			Pather.getWP(3);
-			Pather.useWaypoint(1);
+			Pather.useWaypoint(sdk.areas.RogueEncampment);
 		} else {
 			Town.goToTown();
 		}
@@ -480,8 +479,8 @@ const SoloEvents = {
 		// Now check my area
 		if (me.act === 2) {
 			// Act change sucessful, Andy has been bugged
-			myPrint("Andy bug " + (!me.getQuest(6, 15) ? "sucessful" : "failed"));
-			scriptBroadcast('quit');
+			myPrint("Andy bug " + (!me.getQuest(sdk.quest.id.SistersToTheSlaughter, 15) ? "sucessful" : "failed"));
+			scriptBroadcast("quit");
 		}
 	},
 
@@ -489,7 +488,7 @@ const SoloEvents = {
 		if (!bytes.length) return;
 		// dia lightning
 		if (bytes[0] === 0x4C && bytes[6] === 193) {
-			Messaging.sendToScript(SoloEvents.filePath, 'dodge');
+			Messaging.sendToScript(SoloEvents.filePath, "dodge");
 		}
 	},
 
@@ -504,10 +503,10 @@ const SoloEvents = {
 				|| me.gold < 5000
 				|| (!me.baal && SetUp.finalBuild !== "Bumper")) {
 				let waveMonster = ((bytes[1]) | (bytes[2] << 8));
-				let wave = [62, 105, 557, 558, 571].indexOf(waveMonster);
+				let wave = [sdk.monsters.WarpedShaman, sdk.monsters.BaalSubjectMummy, sdk.monsters.Council4, sdk.monsters.VenomLord2, sdk.monsters.ListerTheTormenter].indexOf(waveMonster);
 				console.debug("Wave # " + wave);
 				if (SoloEvents.skippedWaves.includes(wave)) return;
-				let waveBoss = {
+				const waveBoss = {
 					COLENZO: 0,
 					ACHMEL: 1,
 					BARTUC: 2,
@@ -520,9 +519,9 @@ const SoloEvents = {
 					break;
 				case waveBoss.ACHMEL:
 					if ((me.paladin && !Attack.auradin && me.hell)
-						|| (me.barbarian && ((me.charlvl < Config.levelCap && !me.baal)
+						|| (me.barbarian && ((me.charlvl < CharInfo.levelCap && !me.baal)
 						|| me.hardcore))) {
-						Messaging.sendToScript(SoloEvents.filePath, 'skip');
+						Messaging.sendToScript(SoloEvents.filePath, "skip");
 						SoloEvents.skippedWaves.push(wave);
 					}
 
@@ -531,9 +530,9 @@ const SoloEvents = {
 				case waveBoss.VENTAR:
 					break;
 				case waveBoss.LISTER:
-					if ((me.barbarian && (me.charlvl < Config.levelCap || !me.baal || me.hardcore))
-						|| (me.charlvl < Config.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
-						Messaging.sendToScript(SoloEvents.filePath, 'skip');
+					if ((me.barbarian && (me.charlvl < CharInfo.levelCap || !me.baal || me.hardcore))
+						|| (me.charlvl < CharInfo.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
+						Messaging.sendToScript(SoloEvents.filePath, "skip");
 						SoloEvents.skippedWaves.push(wave);
 					}
 

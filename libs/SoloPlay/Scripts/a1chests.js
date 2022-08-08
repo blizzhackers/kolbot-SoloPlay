@@ -6,10 +6,9 @@
 */
 
 function a1chests() {
-	myPrint('starting a1 chests');
-
-	let areas = [sdk.areas.CaveLvl2, sdk.areas.UndergroundPassageLvl2, sdk.areas.HoleLvl2, sdk.areas.PitLvl2];
-
+	const areas = [sdk.areas.CaveLvl2, sdk.areas.UndergroundPassageLvl2, sdk.areas.HoleLvl2, sdk.areas.PitLvl2];
+	
+	myPrint("starting a1 chests");
 	Town.doChores();
 
 	for (let i = 0; i < areas.length; i++) {

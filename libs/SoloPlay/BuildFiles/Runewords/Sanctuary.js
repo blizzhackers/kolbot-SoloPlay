@@ -14,7 +14,7 @@ if (!me.getItem(sdk.items.runes.Mal)) {
 if (!me.getItem(sdk.items.runes.Ko)) {
 	Config.Recipes.push([Recipe.Rune, "Hel Rune"]);
 	Config.Recipes.push([Recipe.Rune, "Io Rune"]);
-	Config.Recipes.push([Recipe.Rune, "Lum Rune"]);		
+	Config.Recipes.push([Recipe.Rune, "Lum Rune"]);
 }
 
 if (!Check.haveBase("shield", 3)) {

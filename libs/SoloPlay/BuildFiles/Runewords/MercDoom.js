@@ -33,7 +33,7 @@ if (!me.getItem(sdk.items.runes.Cham)) {
 	Config.Recipes.push([Recipe.Rune, "Jah Rune"]);
 }
 // Cube to Lo
-if  (!me.getItem(sdk.items.runes.Lo)) {
+if (!me.getItem(sdk.items.runes.Lo)) {
 	if ((me.barbarian) || (SetUp.currentBuild === "Faithbowzon" && me.checkItem({name: sdk.locale.items.CalltoArms}).have)
 		|| (["Witchyzon", "Wfzon"].includes(SetUp.finalBuild) && me.haveAll([{name: sdk.locale.items.ChainsofHonor}, {name: sdk.locale.items.CalltoArms}]))) {
 		Config.Recipes.push([Recipe.Rune, "Mal Rune"]);

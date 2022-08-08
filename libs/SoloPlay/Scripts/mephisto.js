@@ -1,7 +1,8 @@
-/*
-*	@filename	mephisto.js
-*	@author		isid0re, theBGuy
-*	@desc		mephisto quest
+/**
+*  @filename    mephisto.js
+*  @author      isid0re, theBGuy
+*  @desc        mephisto quest
+*
 */
 
 function mephisto () {
@@ -12,21 +13,21 @@ function mephisto () {
 			[coords[i], coords[i + 1]].distance > 60 && Pather.moveNear(coords[i], coords[i + 1], 60);
 			if ([coords[i], coords[i + 1]].mobCount(30) === 0) continue;
 			Pather.moveTo(coords[i], coords[i + 1]);
-			Attack.clearList(Attack.getMob([345, 346, 347], 0, 40));
+			Attack.clearList(Attack.getMob([sdk.monsters.Council1, sdk.monsters.Council2, sdk.monsters.Council3], 0, 40));
 		}
 
 		return true;
 	};
 
 	Town.townTasks();
-	myPrint('starting mephisto');
+	myPrint("starting mephisto");
 
 	Pather.checkWP(sdk.areas.DuranceofHateLvl2, true) ? Pather.useWaypoint(sdk.areas.DuranceofHateLvl2) : Pather.getWP(sdk.areas.DuranceofHateLvl2);
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.DuranceofHateLvl2, sdk.areas.DuranceofHateLvl3, true);
 	
-	if (me.area !== sdk.areas.DuranceofHateLvl3) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to move to mephisto');
+	if (!me.inArea(sdk.areas.DuranceofHateLvl3)) {
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to mephisto");
 		return false;
 	}
 
@@ -38,38 +39,33 @@ function mephisto () {
 		Precast.doPrecast(true);
 	}
 
-	let oldPickRange = Config.PickRange;
-	let oldUseMerc = Config.MercWatch;
+	const oldPickRange = Config.PickRange;
+	const oldUseMerc = Config.MercWatch;
 
 	if (me.mephisto) {
+		// activate bridge
 		Pather.moveTo(17587, 8069);
 		delay(400);
 	}
 
 	Pather.moveTo(17563, 8072);
-
-	Config.MercWatch = oldUseMerc ? false : oldUseMerc;
-
 	Attack.killTarget("Mephisto");
 
-	Config.MercWatch = oldUseMerc;
 	// Reset to normal value
-	Config.PickRange = oldPickRange;
+	Config.MercWatch !== oldUseMerc && (Config.MercWatch = oldUseMerc);
+	Config.PickRange !== oldPickRange && (Config.PickRange = oldPickRange);
 	
 	Pickit.pickItems();
-
-	if (me.mephisto && !me.hell) {
-		this.killCouncil();
-	}
+	me.mephisto && !me.hell && this.killCouncil();
 
 	Pather.moveTo(17581, 8070);
 	delay(250 + me.ping * 2);
-	Pather.useUnit(2, 342, sdk.areas.PandemoniumFortress);
-	Misc.poll(() => me.area === sdk.areas.PandemoniumFortress, 1000, 30);
+	Pather.useUnit(sdk.unittype.Object, sdk.objects.RedPortalToAct4, sdk.areas.PandemoniumFortress);
+	Misc.poll(() => me.inArea(sdk.areas.PandemoniumFortress), 1000, 30);
 
 	while (!me.gameReady) {
 		delay(40);
 	}
 
-	return me.area === sdk.areas.PandemoniumFortress;
+	return me.inArea(sdk.areas.PandemoniumFortress);
 }

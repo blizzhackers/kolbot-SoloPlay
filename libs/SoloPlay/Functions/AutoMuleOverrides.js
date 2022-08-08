@@ -5,7 +5,7 @@
 *
 */
 
-!isIncluded("Automule.js") && include("Automule.js");
+includeIfNotIncluded("Automule.js");
 
 AutoMule.getMuleItems = function () {
 	let info = this.getInfo();
@@ -15,25 +15,24 @@ AutoMule.getMuleItems = function () {
 	}
 	
 	let items = [];
+	const isAKey = (item) => [sdk.items.quest.KeyofTerror, sdk.items.quest.KeyofHate, sdk.items.quest.KeyofDestruction].includes(item.classid);
+	// check if wanted by any of the systems
+	const isWanted = (item) => (AutoMule.cubingIngredient(item) || AutoMule.runewordIngredient(item) || AutoMule.utilityIngredient(item) || SoloWants.keepItem(item));
 
 	me.getItemsEx()
 		.filter(function (item) {
 			return (
 				item.isInStorage && Town.ignoredItemTypes.indexOf(item.itemType) === -1 && !item.questItem
-				&& ((Pickit.checkItem(item).result > 0 && NTIP.CheckItem(item, NTIP_CheckListNoTier, true) === 1) || (item.isInStash && info.muleInfo.hasOwnProperty("muleOrphans") && info.muleInfo.muleOrphans)
 				&& !AutoEquip.wanted(item) // Don't mule wanted auto equip items
+				&& ((Pickit.checkItem(item).result > 0 && NTIP.CheckItem(item, NTIP_CheckListNoTier, true) === 1) || (item.isInStash && info.muleInfo.hasOwnProperty("muleOrphans") && info.muleInfo.muleOrphans)
 				&& (item.isInStash || (item.isInInventory && !Storage.Inventory.IsLocked(item, Config.Inventory))) // Don't drop items in locked slots
-				&& ((!TorchSystem.getFarmers() && !TorchSystem.isFarmer()) || [sdk.items.quest.KeyofTerror, sdk.items.quest.KeyofHate, sdk.items.quest.KeyofDestruction].indexOf(item.classid) === -1) // Don't drop Keys if part of TorchSystem
+				&& ((!TorchSystem.getFarmers() && !TorchSystem.isFarmer()) || !isAKey(item)) // Don't drop Keys if part of TorchSystem
 				));
 		})
 		.forEach(function (item) {
 			// Always drop items on Force or Trigger list
-			if (AutoMule.matchItem(item, Config.AutoMule.Force.concat(Config.AutoMule.Trigger)) ||
-				(!AutoMule.matchItem(item, Config.AutoMule.Exclude)
-				&& !AutoMule.cubingIngredient(item) // Don't mule cubing ingredients
-				&& !AutoMule.runewordIngredient(item) // Don't mule runeword ingredients
-				&& !AutoMule.utilityIngredient(item) // Don't mule crafting system ingredients
-				&& !SoloWants.keepItem(item))) { // Don't mule SoloWants system ingredients
+			if (AutoMule.matchItem(item, Config.AutoMule.Force.concat(Config.AutoMule.Trigger))
+				|| (!AutoMule.matchItem(item, Config.AutoMule.Exclude) && !isWanted(item))) {
 				items.push(copyUnit(item));
 			}
 		});

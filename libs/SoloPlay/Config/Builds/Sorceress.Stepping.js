@@ -6,7 +6,7 @@
 */
 js_strict(true);
 
-!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
+includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 let AutoBuildTemplate = {
@@ -18,7 +18,7 @@ let AutoBuildTemplate = {
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
 			Config.HPBuffer = me.expansion && !me.normal ? 2 : 5;
-			Config.MPBuffer = (me.expansion && !me.normal || Item.getEquippedItemMerc(4).prefixnum === sdk.locale.items.Insight) ? 2 : 5;
+			Config.MPBuffer = (me.expansion && !me.normal || Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum === sdk.locale.items.Insight) ? 2 : 5;
 			Config.SkipImmune = ["cold"];
 		}
 	},

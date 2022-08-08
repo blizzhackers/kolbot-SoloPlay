@@ -7,7 +7,7 @@
 
 function radament () {
 	Town.townTasks();
-	myPrint('starting radament');
+	myPrint("starting radament");
 
 	if (!Pather.checkWP(sdk.areas.A2SewersLvl2, true)) {
 		Town.goToTown(2);
@@ -25,7 +25,7 @@ function radament () {
 	!!book ? Pickit.pickItem(book) : Attack.killTarget("Radament");
 	Pickit.pickItems();
 
-	if (Misc.checkQuest(9, 1)) {
+	if (Misc.checkQuest(sdk.quest.id.RadamentsLair, sdk.quest.states.ReqComplete)) {
 		Town.npcInteract("atma");
 		me.cancelUIFlags();
 

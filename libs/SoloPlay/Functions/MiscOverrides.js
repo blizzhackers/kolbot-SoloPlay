@@ -6,9 +6,52 @@
 *
 */
 
-!isIncluded("common/Misc.js") && include("common/Misc.js");
+includeIfNotIncluded("common/Misc.js");
 
 Misc.townEnabled = true;
+
+Misc.testTP = function () {
+	let t1 = getTickCount();
+	let tpTool = me.getItem(-1, sdk.items.mode.inStorage);
+
+	if (tpTool) {
+		do {
+			if (tpTool.isInInventory) {
+				if (tpTool.classid === sdk.items.TomeofTownPortal && tpTool.getStat(sdk.stats.Quantity) > 0) {
+					break;
+					//return tpTool;
+				} else if (tpTool.classid === sdk.items.ScrollofTownPortal) {
+					break;
+					//return tpTool;
+				}
+			}
+		} while (tpTool.getNext());
+	}
+	console.debug("took " + (getTickCount() - t1) + " to find tpTool using old method");
+
+	t1 = getTickCount();
+	tpTool = Town.getTpTool();
+	console.debug("took " + (getTickCount() - t1) + " to find tpTool using new method");
+
+	t1 = getTickCount();
+	let items = me.getItems();
+	typeof items === "object" && (items = items.filter(i => i.isInStorage));
+	console.debug("took " + (getTickCount() - t1) + " to get items using old method len" + items.length);
+	t1 = getTickCount();
+	items = me.getItemsEx(-1, sdk.items.mode.inStorage);
+	console.debug("took " + (getTickCount() - t1) + " to get items using new method len" + items.length);
+
+	return true;
+};
+
+Misc.testC = function () {
+	let t1 = getTickCount();
+	let m = me.getMobCount(10) > 0;
+	console.debug("took " + (getTickCount() - t1) + " to check mobs" + m);
+	t1 = getTickCount();
+	m = me.checkForMobs({range: 10});
+	console.debug("took " + (getTickCount() - t1) + " to check mobs new method " + m);
+};
 
 Misc.townCheck = function () {
 	if (!Town.canTpToTown()) return false;
@@ -26,12 +69,11 @@ Misc.townCheck = function () {
 	}
 
 	if (check) {
-		if (Messaging.sendToScript("libs/SoloPlay/Threads/TownChicken.js", "townCheck")) {
-			print("BroadCasted townCheck");
+		if (Messaging.sendToScript("libs/SoloPlay/Threads/TownChicken.js", "fastTown")) {
+			console.log("BroadCasted townCheck");
 			
 			return true;
 		}
-
 	}
 
 	return false;
@@ -61,8 +103,8 @@ Misc.openChests = function (range = 15) {
 		];
 	}
 
-	let unitList = getUnits(2).filter(function (chest) {
-		return chest.name && chest.mode === 0 && chest.distance <= range
+	let unitList = getUnits(sdk.unittype.Object).filter(function (chest) {
+		return chest.name && chest.mode === sdk.objects.mode.Inactive && chest.distance <= range
 			&& (containers.includes(chest.name.toLowerCase()) || (chest.name.toLowerCase() === "evilurn" && me.baal));
 	});
 
@@ -78,7 +120,7 @@ Misc.openChests = function (range = 15) {
 			// that needs a handler as well though, if we aren't clearing and are just pathing (tele char) opening a chest and moving on is fine
 		}
 
-		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, 0x5)) && this.openChest(unit)) {
+		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, sdk.collision.WallOrRanged)) && this.openChest(unit)) {
 			Pickit.pickItems();
 		}
 	}
@@ -87,13 +129,13 @@ Misc.openChests = function (range = 15) {
 };
 
 Misc.getWell = function (unit) {
-	if (!unit || unit.mode === 2) return false;
+	if (!unit || unit.mode === sdk.objects.mode.Active) return false;
 
 	for (let i = 0; i < 3; i++) {
 		if (Skill.useTK(unit) && i < 2) {
 			unit.distance > 21 && Pather.moveNearUnit(unit, 20);
-			checkCollision(me, unit, 0x4) && Attack.getIntoPosition(unit, 20, 0x4);
-			Skill.cast(sdk.skills.Telekinesis, 0, unit);
+			checkCollision(me, unit, sdk.collision.Ranged) && Attack.getIntoPosition(unit, 20, sdk.collision.Ranged);
+			Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, unit);
 		} else {
 			if (unit.distance < 4 || Pather.moveToUnit(unit, 3, 0)) {
 				Misc.click(0, 0, unit);
@@ -120,14 +162,14 @@ Misc.useWell = function (range = 15) {
 	Pather.canTeleport() && me.hpPercent < 60 && (range = 25);
 
 	let unitList = getUnits(sdk.unittype.Object, "well").filter(function (well) {
-		return well.distance < range && well.mode !== 2;
+		return well.distance < range && well.mode !== sdk.objects.mode.Active;
 	});
 
 	while (unitList.length > 0) {
 		unitList.sort(Sort.units);
 		let unit = unitList.shift();
 
-		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, 0x5))) {
+		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, sdk.collision.WallOrRanged))) {
 			this.getWell(unit);
 		}
 	}
@@ -154,11 +196,11 @@ Misc.getShrinesInArea = function (area, type, use) {
 
 		Skill.haveTK ? Pather.moveNear(coords[0], coords[1], 20) : Pather.moveTo(coords[0], coords[1], 2);
 
-		let shrine = getUnit(2, "shrine");
+		let shrine = Game.getObject("shrine");
 
 		if (shrine) {
 			do {
-				if (shrine.objtype === type && shrine.mode === 0) {
+				if (shrine.objtype === type && shrine.mode === sdk.objects.mode.Inactive) {
 					(!Skill.haveTK || !use) && Pather.moveTo(shrine.x - 2, shrine.y - 2);
 
 					if (!use || this.getShrine(shrine)) {
@@ -182,7 +224,7 @@ Misc.getExpShrine = function (shrineLocs = []) {
 	for (let get = 0; get < shrineLocs.length; get++) {
 		me.overhead("Looking for xp shrine");
 
-		if (shrineLocs[get] === 2) {
+		if (shrineLocs[get] === sdk.areas.BloodMoor) {
 			Pather.journeyTo(shrineLocs[get]);
 		} else {
 			Pather.checkWP(shrineLocs[get], true) ? Pather.useWaypoint(shrineLocs[get]) : Pather.getWP(shrineLocs[get]);
@@ -206,7 +248,7 @@ Misc.unsocketItem = function (item) {
 	// Item doesn't have anything socketed
 	if (item.getItemsEx().length === 0) return true;
 
-	let hel = me.getItem(sdk.items.runes.Hel, 0);
+	let hel = me.getItem(sdk.items.runes.Hel, sdk.items.mode.inStorage);
 	if (!hel) return false;
 
 	let scroll = Runewords.getScroll();
@@ -219,10 +261,10 @@ Misc.unsocketItem = function (item) {
 
 	try {
 		// failed to move any of the items to the cube
-		if (!Storage.Cube.MoveTo(item) || !Storage.Cube.MoveTo(hel) || !Storage.Cube.MoveTo(scroll)) throw 'Failed to move items to cube';
+		if (!Storage.Cube.MoveTo(item) || !Storage.Cube.MoveTo(hel) || !Storage.Cube.MoveTo(scroll)) throw "Failed to move items to cube";
 
 		// probably only happens on server crash
-		if (!Cubing.openCube()) throw 'Failed to open cube';
+		if (!Cubing.openCube()) throw "Failed to open cube";
 
 		myPrint("ÿc4Removing sockets from: ÿc0" + item.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<;.*]/, ""));
 		transmute();
@@ -232,7 +274,7 @@ Misc.unsocketItem = function (item) {
 		!!item && bodyLoc && item.equip(bodyLoc);
 
 		// can't pull the item out = no space = fail
-		if (!Cubing.emptyCube()) throw 'Failed to empty cube';
+		if (!Cubing.emptyCube()) throw "Failed to empty cube";
 	} catch (e) {
 		console.debug(e);
 	} finally {
@@ -249,7 +291,7 @@ Misc.unsocketItem = function (item) {
 };
 
 Misc.checkItemsForSocketing = function () {
-	if (me.classic || !me.getQuest(sdk.quest.id.SiegeOnHarrogath, 1)) return false;
+	if (me.classic || !me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.ReqComplete)) return false;
 
 	let items = me.getItemsEx()
 		.filter(item => item.sockets === 0 && getBaseStat("items", item.classid, "gemsockets") > 0)
@@ -266,7 +308,7 @@ Misc.checkItemsForSocketing = function () {
 };
 
 Misc.checkItemsForImbueing = function () {
-	if (!me.getQuest(sdk.quest.id.ToolsoftheTrade, 1)) return false;
+	if (!me.getQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete)) return false;
 
 	let items = me.getItemsEx().filter(item => item.sockets === 0 && (item.normal || item.superior));
 
@@ -292,7 +334,7 @@ Misc.addSocketablesToItem = function (item, runes = []) {
 			Town.sortInventory();
 
 			if (!Storage.Inventory.CanFit(item) && !Storage.Inventory.MoveTo(item)) {
-				print("ÿc8AddSocketableToItemÿc0 :: No space to get item back");
+				console.log("ÿc8AddSocketableToItemÿc0 :: No space to get item back");
 				return false;
 			}
 		} else {
@@ -307,7 +349,7 @@ Misc.addSocketablesToItem = function (item, runes = []) {
 		if (!rune.toCursor()) return false;
 
 		for (let i = 0; i < 3; i += 1) {
-			sendPacket(1, 0x28, 4, rune.gid, 4, item.gid);
+			sendPacket(1, sdk.packets.send.InsertSocketItem, 4, rune.gid, 4, item.gid);
 			let tick = getTickCount();
 
 			while (getTickCount() - tick < 2000) {
@@ -321,7 +363,7 @@ Misc.addSocketablesToItem = function (item, runes = []) {
 			}
 
 			if (item.getItemsEx().length > preSockets) {
-				D2Bot.printToConsole("Added socketable: " + rune.fname + " to " + item.fname, 6);
+				D2Bot.printToConsole("Added socketable: " + rune.fname + " to " + item.fname, sdk.colors.D2Bot.Gold);
 				Misc.logItem("Added " + rune.name + " to: ", item);
 				preSockets++;
 			}
@@ -405,7 +447,7 @@ Misc.getSocketables = function (item, itemInfo) {
 			// If itemtype was matched with a gemType
 			if (gemType) {
 				// current item matches wanted gemType
-				if (socketables[i].itemType === sdk.itemtype[gemType]) {
+				if (socketables[i].itemType === sdk.items.type[gemType]) {
 					// is the highest gem of that type
 					if (highestGemAvailable(socketables[i], multiple)) {
 						if (multiple.length < sockets) {
@@ -451,7 +493,7 @@ Misc.getSocketables = function (item, itemInfo) {
 		// check to ensure I am a high enough level to use wanted socketables
 		for (let i = 0; i < multiple.length; i++) {
 			if (me.charlvl < multiple[i].lvlreq) {
-				print("ÿc8Kolbot-SoloPlayÿc0: Not high enough level for " + multiple[i].fname);
+				console.log("ÿc8Kolbot-SoloPlayÿc0: Not high enough level for " + multiple[i].fname);
 				return false;
 			}
 		}
@@ -459,7 +501,7 @@ Misc.getSocketables = function (item, itemInfo) {
 		if (Misc.addSocketablesToItem(item, multiple)) {
 			delay(250 + me.ping);
 		} else {
-			print("ÿc8Kolbot-SoloPlayÿc0: Failed to add socketable to " + item.fname);
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to add socketable to " + item.fname);
 		}
 
 		return item.getItemsEx().length === sockets || item.getItemsEx().length > preSockets;
@@ -470,7 +512,7 @@ Misc.getSocketables = function (item, itemInfo) {
 
 Misc.checkSocketables = function () {
 	let items = me.getItemsEx()
-		.filter(item => item.sockets > 0 && AutoEquip.hasTier(item) && item.quality > sdk.itemquality.Superior)
+		.filter(item => item.sockets > 0 && AutoEquip.hasTier(item) && item.quality > sdk.items.quality.Superior)
 		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
 
 	if (!items) return;
@@ -479,21 +521,21 @@ Misc.checkSocketables = function () {
 		let sockets = items[i].sockets;
 
 		switch (items[i].quality) {
-		case sdk.itemquality.Magic:
-		case sdk.itemquality.Rare:
-		case sdk.itemquality.Crafted:
+		case sdk.items.quality.Magic:
+		case sdk.items.quality.Rare:
+		case sdk.items.quality.Crafted:
 			// no need to check anything else if already socketed
 			if (items[i].getItemsEx().length === sockets) {
 				continue;
 			}
 			// Any magic, rare, or crafted item with open sockets
-			if (items[i].isEquipped && [1, 3, 4, 5].includes(items[i].bodylocation)) {
+			if (items[i].isEquipped && [sdk.body.Head, sdk.body.Armor, sdk.body.RightArm, sdk.body.LeftArm].includes(items[i].bodylocation)) {
 				Misc.getSocketables(items[i]);
 			}
 
 			break;
-		case sdk.itemquality.Set:
-		case sdk.itemquality.Unique:
+		case sdk.items.quality.Set:
+		case sdk.items.quality.Unique:
 			{
 				let curr = Config.socketables.find(({ classid }) => items[i].classid === classid);
 
@@ -518,8 +560,7 @@ Misc.checkSocketables = function () {
 
 // Log kept item stats in the manager.
 Misc.logItem = function (action, unit, keptLine) {
-	if (!this.useItemLog || unit === undefined || !unit) return false;
-
+	if (!this.useItemLog || unit === undefined || !unit || !unit.fname) return false;
 	if (!Config.LogKeys && ["pk1", "pk2", "pk3"].includes(unit.code)) return false;
 	if (!Config.LogOrgans && ["dhn", "bey", "mbr"].includes(unit.code)) return false;
 	if (!Config.LogLowRunes && ["r01", "r02", "r03", "r04", "r05", "r06", "r07", "r08", "r09", "r10", "r11", "r12", "r13", "r14"].includes(unit.code)) return false;
@@ -532,9 +573,7 @@ Misc.logItem = function (action, unit, keptLine) {
 		if (Config.SkipLogging[i] === unit.classid || Config.SkipLogging[i] === unit.code) return false;
 	}
 
-	if (!unit.fname) return false;
-
-	let lastArea, code, sock, itemObj;
+	let lastArea;
 	let name = unit.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<:;.*]|\/|\\/g, "").trim();
 	let desc = (this.getItemDesc(unit) || "");
 	let color = (unit.getColor() || -1);
@@ -544,9 +583,13 @@ Misc.logItem = function (action, unit, keptLine) {
 		lastArea && (desc += ("\n\\xffc0Area: " + lastArea));
 	}
 
-	let mercCheck = action.match("Merc");
+	const mercCheck = action.match("Merc");
+	const hasTier = AutoEquip.hasTier(unit);
+	const charmCheck = (unit.isCharm && Item.autoEquipCharmCheck(unit));
+	const nTResult = !!(NTIP.CheckItem(unit, NTIP_CheckListNoTier, true).result && (keptLine && !keptLine.match("SoloPlay")));
+	const nTCharm = (unit.isCharm && !charmCheck && (keptLine && !keptLine.match("SoloPlay", "gi")));
 
-	if (!action.match("kept", "i") && !action.match("Shopped") && AutoEquip.hasTier(unit)) {
+	if (!action.match("kept", "i") && !action.match("Shopped") && hasTier) {
 		if (!mercCheck) {
 			NTIP.GetCharmTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit)));
 			NTIP.GetTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip char tier: " + NTIP.GetTier(unit)));
@@ -555,151 +598,26 @@ Misc.logItem = function (action, unit, keptLine) {
 		}
 	}
 
-	if (unit.getFlag(0x10)) {
-		switch (unit.quality) {
-		case 5: // Set
-			switch (unit.classid) {
-			case 27: // Angelic sabre
-				code = "inv9sbu";
-
-				break;
-			case 74: // Arctic short war bow
-				code = "invswbu";
-
-				break;
-			case 308: // Berserker's helm
-				code = "invhlmu";
-
-				break;
-			case 330: // Civerb's large shield
-				code = "invlrgu";
-
-				break;
-			case 31: // Cleglaw's long sword
-			case 227: // Szabi's cryptic sword
-				code = "invlsdu";
-
-				break;
-			case 329: // Cleglaw's small shield
-				code = "invsmlu";
-
-				break;
-			case 328: // Hsaru's buckler
-				code = "invbucu";
-
-				break;
-			case 306: // Infernal cap / Sander's cap
-				code = "invcapu";
-
-				break;
-			case 30: // Isenhart's broad sword
-				code = "invbsdu";
-
-				break;
-			case 309: // Isenhart's full helm
-				code = "invfhlu";
-
-				break;
-			case 333: // Isenhart's gothic shield
-				code = "invgtsu";
-
-				break;
-			case 326: // Milabrega's ancient armor
-			case 442: // Immortal King's sacred armor
-				code = "invaaru";
-
-				break;
-			case 331: // Milabrega's kite shield
-				code = "invkitu";
-
-				break;
-			case 332: // Sigon's tower shield
-				code = "invtowu";
-
-				break;
-			case 325: // Tancred's full plate mail
-				code = "invfulu";
-
-				break;
-			case 3: // Tancred's military pick
-				code = "invmpiu";
-
-				break;
-			case 113: // Aldur's jagged star
-				code = "invmstu";
-
-				break;
-			case 234: // Bul-Kathos' colossus blade
-				code = "invgsdu";
-
-				break;
-			case 372: // Grizwold's ornate plate
-				code = "invxaru";
-
-				break;
-			case 366: // Heaven's cuirass
-			case 215: // Heaven's reinforced mace
-			case 449: // Heaven's ward
-			case 426: // Heaven's spired helm
-				code = "inv" + unit.code + "s";
-
-				break;
-			case 357: // Hwanin's grand crown
-				code = "invxrnu";
-
-				break;
-			case 195: // Nalya's scissors suwayyah
-				code = "invskru";
-
-				break;
-			case 395: // Nalya's grim helm
-			case 465: // Trang-Oul's bone visage
-				code = "invbhmu";
-
-				break;
-			case 261: // Naj's elder staff
-				code = "invcstu";
-
-				break;
-			case 375: // Orphan's round shield
-				code = "invxmlu";
-
-				break;
-			case 12: // Sander's bone wand
-				code = "invbwnu";
-
-				break;
-			}
-
+	// should stop logging items unless we wish to see them or it's part of normal pickit
+	if (nTResult || unit.isCharm || hasTier || nTCharm) {
+		switch (true) {
+		case nTResult:
+		case hasTier && !unit.isCharm && Developer.debugging.autoEquip:
+		case (charmCheck && Developer.debugging.smallCharm && unit.classid === sdk.items.SmallCharm):
+		case (charmCheck && Developer.debugging.largeCharm && unit.classid === sdk.items.LargeCharm):
+		case (charmCheck && Developer.debugging.grandCharm && unit.classid === sdk.items.GrandCharm):
 			break;
-		case 7: // Unique
-			for (let i = 0; i < 401; i += 1) {
-				if (unit.code === getBaseStat(17, i, 4).trim() && unit.fname.split("\n").reverse()[0].indexOf(getLocaleString(getBaseStat(17, i, 2))) > -1) {
-					code = getBaseStat(17, i, "invfile");
-
-					break;
-				}
-			}
-
-			break;
+		default:
+			return true;
 		}
 	}
 
-	if (!code) {
-		// Tiara/Diadem
-		code = ["ci2", "ci3"].indexOf(unit.code) > -1 ? unit.code : getBaseStat(0, unit.classid, 'normcode') || unit.code;
-		code = code.replace(" ", "");
-
-		if ([10, 12, 58, 82, 83, 84].indexOf(unit.itemType) > -1) {
-			code += (unit.gfx + 1);
-		}
-	}
-
-	sock = unit.getItem();
+	let code = this.getItemCode(unit);
+	let sock = unit.getItem();
 
 	if (sock) {
 		do {
-			if (sock.itemType === 58) {
+			if (sock.itemType === sdk.items.type.Jewel) {
 				desc += "\n\n";
 				desc += this.getItemDesc(sock);
 			}
@@ -707,9 +625,9 @@ Misc.logItem = function (action, unit, keptLine) {
 	}
 
 	keptLine && (desc += ("\n\\xffc0Line: " + keptLine));
-	desc += "$" + (unit.getFlag(0x400000) ? ":eth" : "");
+	desc += "$" + (unit.getFlag(sdk.items.flags.Ethereal) ? ":eth" : "");
 
-	itemObj = {
+	let itemObj = {
 		title: action + " " + name,
 		description: desc,
 		image: code,
@@ -729,7 +647,7 @@ Misc.errorReport = function (error, script) {
 	let stackLog = "";
 
 	let date = new Date();
-	let dateString = "[" + new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, -5).replace(/-/g, '/').replace('T', ' ') + "]";
+	let dateString = "[" + new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, -5).replace(/-/g, "/").replace("T", " ") + "]";
 
 	if (typeof error === "string") {
 		msg = error;
@@ -769,11 +687,11 @@ Misc.errorReport = function (error, script) {
 	}
 
 	if (this.errorConsolePrint) {
-		D2Bot.printToConsole(oogmsg, 10);
+		D2Bot.printToConsole(oogmsg, sdk.colors.D2Bot.Gray);
 	}
 
 	showConsole();
-	print(msg);
+	console.log(msg);
 	this.fileAction("logs/ScriptErrorLog.txt", 2, filemsg);
 	takeScreenshot();
 	delay(500);
@@ -782,8 +700,8 @@ Misc.errorReport = function (error, script) {
 Misc.updateRecursively = function (oldObj, newObj, path) {
 	if (path === void 0) { path = []; }
 	Object.keys(newObj).forEach(function (key) {
-		if (typeof newObj[key] === 'function') return; // skip
-		if (typeof newObj[key] !== 'object') {
+		if (typeof newObj[key] === "function") return; // skip
+		if (typeof newObj[key] !== "object") {
 			if (!oldObj.hasOwnProperty(key) || oldObj[key] !== newObj[key]) {
 				oldObj[key] = newObj[key];
 			}
@@ -793,7 +711,7 @@ Misc.updateRecursively = function (oldObj, newObj, path) {
 				oldObj[key] = newObj[key].slice(0);
 			}
 		} else {
-			if (typeof oldObj[key] !== 'object') {
+			if (typeof oldObj[key] !== "object") {
 				oldObj[key] = {};
 			}
 			path.push(key);
@@ -805,13 +723,13 @@ Misc.updateRecursively = function (oldObj, newObj, path) {
 Misc.recursiveSearch = function (o, n, changed) {
 	if (changed === void 0) { changed = {}; }
 	Object.keys(n).forEach(function (key) {
-		if (typeof n[key] === 'function') return; // skip
-		if (typeof n[key] !== 'object') {
+		if (typeof n[key] === "function") return; // skip
+		if (typeof n[key] !== "object") {
 			if (!o.hasOwnProperty(key) || o[key] !== n[key]) {
 				changed[key] = n[key];
 			}
 		} else {
-			if (typeof changed[key] !== 'object' || !changed[key]) {
+			if (typeof changed[key] !== "object" || !changed[key]) {
 				changed[key] = {};
 			}
 			Misc.recursiveSearch((o === null || o === void 0 ? void 0 : o[key]) || {}, (n === null || n === void 0 ? void 0 : n[key]) || {}, changed[key]);

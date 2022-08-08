@@ -15,7 +15,7 @@ if (!me.getItem(sdk.items.runes.Amn)) {
 // Have Sol rune before looking for base
 if (me.getItem(sdk.items.runes.Sol)) {
 	if (!Check.haveBase("sword", 5)) {
-		if (Pather.accessToAct(5) && !me.getQuest(35, 0)) {
+		if (Pather.accessToAct(5) && !me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.Completed)) {
 			NTIP.addLine("((me.diff == 0 && [name] == flamberge) || (me.diff > 0 && [name] == zweihander) || (me.diff == 2 && [name] == colossussword)) && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [level] >= 41 # [sockets] == 0 # [maxquantity] == 1");
 		} else {
 			NTIP.addLine("([name] == flamberge || [name] == zweihander || [name] == dimensionalblade || [name] == phaseblade || [name] == colossussword) && [flag] != ethereal && [quality] == normal && [level] >= 41 # [sockets] == 0 # [maxquantity] == 1");

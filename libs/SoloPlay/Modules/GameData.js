@@ -4,11 +4,13 @@
  *    @filename  GameData.js
  *    @author    Nishimura-Katsuo
  *    @desc      game data library
+ *
  */
+// todo - remove the magic numbers here
 (function (module, require) {
-	const MonsterData = require('./MonsterData');
-	const AreaData = require('./AreaData');
-	const MissileData = require('./MissileData');
+	const MonsterData = require("./MonsterData");
+	const AreaData = require("./AreaData");
+	const MissileData = require("./MissileData");
 	const Coords_1 = require("./Coords");
 	const sdk = require("../../modules/sdk");
 
@@ -17,15 +19,11 @@
 	}
 
 	function isEnemy(unit) {
-		return Boolean(unit && isAlive(unit) && unit.getStat(sdk.stats.Alignment) !== 2 && typeof unit.classid === 'number' && MonsterData[unit.classid].Killable);
+		return Boolean(unit && isAlive(unit) && unit.getStat(sdk.stats.Alignment) !== 2 && typeof unit.classid === "number" && MonsterData[unit.classid].Killable);
 	}
 
 	function onGround(item) {
-		if (item.mode === 3 || item.mode === 5) {
-			return true;
-		}
-
-		return false;
+		return item.onGroundOrDropping;
 	}
 
 	const GameData = {
@@ -42,10 +40,10 @@
 			return this.monsterExp(monsterID, areaID, 2) * 3;
 		},
 		monsterAvgHP: function (monsterID, areaID, adjustLevel = 0) {
-			return this.HPLookup[Math.min(this.HPLookup.length - 1, this.monsterLevel(monsterID, areaID) + adjustLevel)][me.diff] * (getBaseStat('monstats', monsterID, 'minHP') + getBaseStat('monstats', monsterID, 'maxHP')) / 200;
+			return this.HPLookup[Math.min(this.HPLookup.length - 1, this.monsterLevel(monsterID, areaID) + adjustLevel)][me.diff] * (getBaseStat("monstats", monsterID, "minHP") + getBaseStat("monstats", monsterID, "maxHP")) / 200;
 		},
 		monsterMaxHP: function (monsterID, areaID, adjustLevel = 0) {
-			return this.HPLookup[Math.min(this.HPLookup.length - 1, this.monsterLevel(monsterID, areaID) + adjustLevel)][me.diff] * getBaseStat('monstats', monsterID, 'maxHP') / 100;
+			return this.HPLookup[Math.min(this.HPLookup.length - 1, this.monsterLevel(monsterID, areaID) + adjustLevel)][me.diff] * getBaseStat("monstats", monsterID, "maxHP") / 100;
 		},
 		eliteAvgHP: function (monsterID, areaID) {
 			return (6 - me.diff) / 2 * this.monsterAvgHP(monsterID, areaID, 2);
@@ -186,7 +184,7 @@
 			return skillIDs.reduce((total, skillID) => total + GameData.myReference.getSkill(skillID, 1), 0);
 		},
 		skillCooldown: function (skillID) {
-			return getBaseStat('Skills', skillID, 'delay') !== -1;
+			return getBaseStat("Skills", skillID, "delay") !== -1;
 		},
 		stagedDamage: function (l, a, b, c, d, e, f, hitshift = 0, mult = 1) {
 			if (l > 28) {
@@ -319,24 +317,24 @@
 		},
 		baseSkillDamage: function (skillID) { // TODO: rework skill damage to use both damage fields
 			let l = this.skillLevel(skillID), m = this.skillMult[skillID] || 1;
-			let dmgFields = [['MinDam', 'MinLevDam1', 'MinLevDam2', 'MinLevDam3', 'MinLevDam4', 'MinLevDam5', 'MaxDam', 'MaxLevDam1', 'MaxLevDam2', 'MaxLevDam3', 'MaxLevDam4', 'MaxLevDam5'], ['EMin', 'EMinLev1', 'EMinLev2', 'EMinLev3', 'EMinLev4', 'EMinLev5', 'EMax', 'EMaxLev1', 'EMaxLev2', 'EMaxLev3', 'EMaxLev4', 'EMaxLev5']];
+			let dmgFields = [["MinDam", "MinLevDam1", "MinLevDam2", "MinLevDam3", "MinLevDam4", "MinLevDam5", "MaxDam", "MaxLevDam1", "MaxLevDam2", "MaxLevDam3", "MaxLevDam4", "MaxLevDam5"], ["EMin", "EMinLev1", "EMinLev2", "EMinLev3", "EMinLev4", "EMinLev5", "EMax", "EMaxLev1", "EMaxLev2", "EMaxLev3", "EMaxLev4", "EMaxLev5"]];
 
 			if (skillID === 70) {
 				return {
 					type: "Physical",
-					pmin: this.stagedDamage(l, getBaseStat('skills', skillID, dmgFields[1][0]), getBaseStat('skills', skillID, dmgFields[1][1]), getBaseStat('skills', skillID, dmgFields[1][2]), getBaseStat('skills', skillID, dmgFields[1][3]), getBaseStat('skills', skillID, dmgFields[1][4]), getBaseStat('skills', skillID, dmgFields[1][5]), getBaseStat('skills', skillID, 'HitShift'), m),
-					pmax: this.stagedDamage(l, getBaseStat('skills', skillID, dmgFields[1][0]), getBaseStat('skills', skillID, dmgFields[1][1]), getBaseStat('skills', skillID, dmgFields[1][2]), getBaseStat('skills', skillID, dmgFields[1][3]), getBaseStat('skills', skillID, dmgFields[1][4]), getBaseStat('skills', skillID, dmgFields[1][5]), getBaseStat('skills', skillID, 'HitShift'), m),
+					pmin: this.stagedDamage(l, getBaseStat("skills", skillID, dmgFields[1][0]), getBaseStat("skills", skillID, dmgFields[1][1]), getBaseStat("skills", skillID, dmgFields[1][2]), getBaseStat("skills", skillID, dmgFields[1][3]), getBaseStat("skills", skillID, dmgFields[1][4]), getBaseStat("skills", skillID, dmgFields[1][5]), getBaseStat("skills", skillID, "HitShift"), m),
+					pmax: this.stagedDamage(l, getBaseStat("skills", skillID, dmgFields[1][0]), getBaseStat("skills", skillID, dmgFields[1][1]), getBaseStat("skills", skillID, dmgFields[1][2]), getBaseStat("skills", skillID, dmgFields[1][3]), getBaseStat("skills", skillID, dmgFields[1][4]), getBaseStat("skills", skillID, dmgFields[1][5]), getBaseStat("skills", skillID, "HitShift"), m),
 					min: 0, max: 0
 				};
 			} else {
-				let type = getBaseStat('skills', skillID, 'EType');
+				let type = getBaseStat("skills", skillID, "EType");
 
 				return {
 					type: this.damageTypes[type],
-					pmin: this.stagedDamage(l, getBaseStat('skills', skillID, dmgFields[0][0]), getBaseStat('skills', skillID, dmgFields[0][1]), getBaseStat('skills', skillID, dmgFields[0][2]), getBaseStat('skills', skillID, dmgFields[0][3]), getBaseStat('skills', skillID, dmgFields[0][4]), getBaseStat('skills', skillID, dmgFields[0][5]), getBaseStat('skills', skillID, 'HitShift'), m),
-					pmax: this.stagedDamage(l, getBaseStat('skills', skillID, dmgFields[0][6]), getBaseStat('skills', skillID, dmgFields[0][7]), getBaseStat('skills', skillID, dmgFields[0][8]), getBaseStat('skills', skillID, dmgFields[0][9]), getBaseStat('skills', skillID, dmgFields[0][10]), getBaseStat('skills', skillID, dmgFields[0][11]), getBaseStat('skills', skillID, 'HitShift'), m),
-					min: type ? this.stagedDamage(l, getBaseStat('skills', skillID, dmgFields[1][0]), getBaseStat('skills', skillID, dmgFields[1][1]), getBaseStat('skills', skillID, dmgFields[1][2]), getBaseStat('skills', skillID, dmgFields[1][3]), getBaseStat('skills', skillID, dmgFields[1][4]), getBaseStat('skills', skillID, dmgFields[1][5]), getBaseStat('skills', skillID, 'HitShift'), m) : 0,
-					max: type ? this.stagedDamage(l, getBaseStat('skills', skillID, dmgFields[1][6]), getBaseStat('skills', skillID, dmgFields[1][7]), getBaseStat('skills', skillID, dmgFields[1][8]), getBaseStat('skills', skillID, dmgFields[1][9]), getBaseStat('skills', skillID, dmgFields[1][10]), getBaseStat('skills', skillID, dmgFields[1][11]), getBaseStat('skills', skillID, 'HitShift'), m) : 0
+					pmin: this.stagedDamage(l, getBaseStat("skills", skillID, dmgFields[0][0]), getBaseStat("skills", skillID, dmgFields[0][1]), getBaseStat("skills", skillID, dmgFields[0][2]), getBaseStat("skills", skillID, dmgFields[0][3]), getBaseStat("skills", skillID, dmgFields[0][4]), getBaseStat("skills", skillID, dmgFields[0][5]), getBaseStat("skills", skillID, "HitShift"), m),
+					pmax: this.stagedDamage(l, getBaseStat("skills", skillID, dmgFields[0][6]), getBaseStat("skills", skillID, dmgFields[0][7]), getBaseStat("skills", skillID, dmgFields[0][8]), getBaseStat("skills", skillID, dmgFields[0][9]), getBaseStat("skills", skillID, dmgFields[0][10]), getBaseStat("skills", skillID, dmgFields[0][11]), getBaseStat("skills", skillID, "HitShift"), m),
+					min: type ? this.stagedDamage(l, getBaseStat("skills", skillID, dmgFields[1][0]), getBaseStat("skills", skillID, dmgFields[1][1]), getBaseStat("skills", skillID, dmgFields[1][2]), getBaseStat("skills", skillID, dmgFields[1][3]), getBaseStat("skills", skillID, dmgFields[1][4]), getBaseStat("skills", skillID, dmgFields[1][5]), getBaseStat("skills", skillID, "HitShift"), m) : 0,
+					max: type ? this.stagedDamage(l, getBaseStat("skills", skillID, dmgFields[1][6]), getBaseStat("skills", skillID, dmgFields[1][7]), getBaseStat("skills", skillID, dmgFields[1][8]), getBaseStat("skills", skillID, dmgFields[1][9]), getBaseStat("skills", skillID, dmgFields[1][10]), getBaseStat("skills", skillID, dmgFields[1][11]), getBaseStat("skills", skillID, "HitShift"), m) : 0
 				};
 			}
 		},
@@ -476,8 +474,8 @@
 			return dmg;
 		},
 		dmgModifier: function (skillID, target) {
-			let aps = (typeof target === 'number' ? this.averagePackSize(target) : 1),
-				eliteBonus = (target.spectype && target.spectype & 0x7) ? 1 : 0, hitcap = 1;
+			let aps = (typeof target === "number" ? this.averagePackSize(target) : 1),
+				eliteBonus = (target.spectype && target.isSpecial) ? 1 : 0, hitcap = 1;
 
 			switch (skillID) { // charged bolt/strike excluded, it's so unreliably random
 			case 15: // poison javalin
@@ -532,8 +530,8 @@
 				break;
 			}
 
-			if (typeof target !== 'number') {
-				let unit = getUnit(1);
+			if (typeof target !== "number") {
+				let unit = Game.getMonster();
 				let radius = this.skillRadius[skillID] || 18;
 
 				if (unit) {
@@ -545,7 +543,7 @@
 						if (target.gid !== unit.gid && getDistance(unit, this.novaLike[skillID] ? GameData.myReference : target) <= radius && isEnemy(unit)) {
 							aps++;
 
-							if (unit.spectype & 0x7) {
+							if (unit.isSpecial) {
 								eliteBonus++;
 							}
 						}
@@ -565,7 +563,7 @@
 
 			if (this.skillLevel(skillID) < 1) {
 				return {
-					type: this.damageTypes[getBaseStat('skills', skillID, 'EType')],
+					type: this.damageTypes[getBaseStat("skills", skillID, "EType")],
 					pmin: 0,
 					pmax: 0,
 					min: 0,
@@ -602,27 +600,27 @@
 
 			switch (dmg.type) {
 			case "Fire": // fire mastery
-				mastery = 1 + GameData.myReference.getStat(329) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveFireMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
 			case "Lightning": // lightning mastery
-				mastery = 1 + GameData.myReference.getStat(330) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveLightningMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
 			case "Cold": // cold mastery
-				mastery = 1 + GameData.myReference.getStat(331) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveColdMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
 			case "Poison": // poison mastery
-				mastery = 1 + GameData.myReference.getStat(332) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassivePoisonMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
 			case "Magic": // magic mastery
-				mastery = 1 + GameData.myReference.getStat(357) / 100;
+				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveMagMastery) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
 				break;
@@ -755,7 +753,7 @@
 				let tmpDmg = (maxReal / 100 * percentLeft) * (0.25);
 
 				// We do need to calculate the extra damage, or less damage due to resistance
-				let resist = this.monsterResist(unit, 'Lightning');
+				let resist = this.monsterResist(unit, "Lightning");
 				let pierce = GameData.myReference.getStat(this.pierceMap.Lightning);
 
 				let conviction = this.getConviction();
@@ -772,7 +770,7 @@
 					avgDmg = maxReal / 100 * maxDmgPercentage;
 				}
 				avgDmg = avgDmg > 0 && avgDmg || 0;
-				//print('Static will chop off -> ' + (100 / maxReal * avgDmg) + '%');
+				//console.log('Static will chop off -> ' + (100 / maxReal * avgDmg) + '%');
 				dmg.min = avgDmg;
 				dmg.max = avgDmg;
 				break;
@@ -795,7 +793,7 @@
 				let ampDmg = Skill.canUse(66) ? 100 : (Skill.canUse(87) ? 50 : 0);
 				let avgPDmg = (skillData.pmin + skillData.pmax) / 2, totalDmg = 0, avgDmg = (skillData.min + skillData.max) / 2;
 				//let hp = GameData.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, me.area);
-				let conviction = GameData.getConviction(), isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+				let conviction = GameData.getConviction(), isUndead = (typeof unit === "number" ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
 				if (avgPDmg > 0) {
 					let presist = GameData.monsterResist(unit, "Physical");
 					presist -= (presist >= 100 ? ampDmg / 5 : ampDmg);
@@ -814,7 +812,7 @@
 				return totalDmg;
 			};
 			let calculateSplashDamage = function (skill, splash, target) {
-				return getUnits(1)
+				return getUnits(sdk.unittype.Monster)
 					.filter((mon) => mon.attackable && getDistance(target, mon) < splash)
 					.reduce(function (acc, cur) {
 						let _a = GameData.skillDamage(skill, cur);
@@ -826,18 +824,18 @@
 				let rawDmg = 0, totalDmg = 0, range = 0, hits = 0;
 				switch (skill) {
 				case sdk.skills.ChainLightning:
-					hits = Math.round((25 + me.getSkill(sdk.skills.ChainLightning, 1)) / 5);
+					hits = Math.round((25 + me.getSkill(sdk.skills.ChainLightning, sdk.skills.subindex.SoftPoints)) / 5);
 					range = 13;
 					break;
 				}
-				let units = getUnits(1)
+				let units = getUnits(sdk.unittype.Monster)
 					.filter((mon) => mon.attackable && getDistance(mon, target) < range)
 					.sort((a, b) => getDistance(target, a) - getDistance(target, b));
 				if (units.length === 1) {
 					rawDmg = GameData.skillDamage(skill, target);
 					return getTotalDmg(rawDmg, target);
 				} else {
-					print("Units to check: " + units.length);
+					console.log("Units to check: " + units.length);
 					for (let i = 0; i < units.length; i++) {
 						if (units[i] !== undefined) {
 							rawDmg = GameData.skillDamage(skill, units[i]);
@@ -856,7 +854,7 @@
 				if (!Skill.canUse(sdk.skills.StaticField)) return 0;
 				let range = Skill.getRange(sdk.skills.StaticField), cap = (me.gametype === sdk.game.gametype.Classic ? 1 : [1, 25, 50][me.diff]);
 				let pierce = me.getStat(sdk.stats.PierceLtng);
-				return getUnits(1)
+				return getUnits(sdk.unittype.Monster)
 					.filter(function (mon) {
 						return mon.attackable && getDistance(mon, distanceUnit) < range;
 					}).reduce(function (acc, unit) {
@@ -1067,10 +1065,10 @@
 		},
 		monsterEffort: function (unit, areaID, skillDamageInfo = undefined, parent = undefined, preattack = false, all = false) {
 			let eret = {effort: Infinity, skill: -1, type: "Physical"};
-			let useCooldown = (typeof unit === 'number' ? false : Boolean(me.skillDelay));
-			let hp = this.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, areaID);
+			let useCooldown = (typeof unit === "number" ? false : Boolean(me.skillDelay));
+			let hp = this.monsterMaxHP(typeof unit === "number" ? unit : unit.classid, areaID);
 			let conviction = this.getConviction(), ampDmg = this.getAmp();
-			let isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+			let isUndead = (typeof unit === "number" ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
 			skillDamageInfo = skillDamageInfo || this.allSkillDamage(unit);
 			const allData = [];
 			// if (conviction && unit instanceof Unit && !unit.getState(sdk.states.Conviction)) conviction = 0; //ToDo; enable when fixed telestomp
@@ -1079,7 +1077,7 @@
 
 			for (let sk in skillDamageInfo) {
 				if (this.buffs[sk]) {
-					if (typeof unit === 'number') {
+					if (typeof unit === "number") {
 						buffDmg[this.buffs[sk]] = 0;
 						buffDamageInfo[sk] = skillDamageInfo[sk];
 					}
@@ -1182,7 +1180,7 @@
 
 					// Use less cool down spells, if something better is around
 					/*if (this.skillCooldown(sk | 0)) {
-						print("tmpEffort: " + (Math.ceil(tmpEffort)) + " eretEffor: " + eret.effort);
+						console.log("tmpEffort: " + (Math.ceil(tmpEffort)) + " eretEffor: " + eret.effort);
 						tmpEffort *= 5;
 					}*/
 					if (tmpEffort <= eret.effort) {
@@ -1209,9 +1207,9 @@
 			if (unit === undefined) { return null; }
 			if (areaID === undefined) { areaID = me.area; }
 			let eret = {effort: Infinity, skill: -1, type: "Physical"};
-			let hp = this.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, areaID);
+			let hp = this.monsterMaxHP(typeof unit === "number" ? unit : unit.classid, areaID);
 			let conviction = this.getConviction(), ampDmg = this.getAmp();
-			let isUndead = (typeof unit === 'number' ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+			let isUndead = (typeof unit === "number" ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
 			let skillDamageInfo = this.allSkillDamage(unit);
 			const allData = [];
 
@@ -1219,7 +1217,7 @@
 
 			for (let sk in skillDamageInfo) {
 				if (this.buffs[sk]) {
-					if (typeof unit === 'number') {
+					if (typeof unit === "number") {
 						buffDmg[this.buffs[sk]] = 0;
 						buffDamageInfo[sk] = skillDamageInfo[sk];
 					}
@@ -1373,7 +1371,7 @@
 			return (raritypool ? effortpool / raritypool : 0) - (avgDmg);
 		},
 		mostUsedSkills: function (force = false) {
-			if (!force && GameData.myReference.hasOwnProperty('__cachedMostUsedSkills') && GameData.myReference.__cachedMostUsedSkills) return GameData.myReference.__cachedMostUsedSkills;
+			if (!force && GameData.myReference.hasOwnProperty("__cachedMostUsedSkills") && GameData.myReference.__cachedMostUsedSkills) return GameData.myReference.__cachedMostUsedSkills;
 
 			const effort = [], uniqueSkills = [];
 			for (let i = 50; i < 120; i++) {
@@ -1385,7 +1383,7 @@
 			}
 
 			effort
-				.filter(e => e !== null && typeof e === 'object' && e.hasOwnProperty('skill'))
+				.filter(e => e !== null && typeof e === "object" && e.hasOwnProperty("skill"))
 				.filter(x => GameData.myReference.getSkill(x.skill, 0)) // Only skills where we have hard points in
 				.filter(x => Skills.class[x.skill] < 7) // Needs to be a skill of a class, not my class but a class
 				.map(x =>
@@ -1414,7 +1412,7 @@
 				Weapon:        hth 1hs 2hs 1ht 2ht stf bow xbw
 				StartingFrame: 1   2   2   2   2   2   0   0
 			*/
-			if (charClass === sdk.charclass.Amazon || charClass === sdk.charclass.Sorceress) {
+			if (charClass === sdk.player.class.Amazon || charClass === sdk.player.class.Sorceress) {
 				if (weaponClass === "hth") {
 					return 1;
 				}
@@ -1493,11 +1491,11 @@
 			//TODO: vampire form or werewolf
 			let attackMode = this.attackModeForSkill(skill, charClass);
 			switch (true) {
-			case charClass === sdk.charclass.Assassin && attackMode.startsWith("A") && weaponClass.startsWith("ht") && weaponClass !== "hth":
+			case charClass === sdk.player.class.Assassin && attackMode.startsWith("A") && weaponClass.startsWith("ht") && weaponClass !== "hth":
 				return 208;
-			case charClass === sdk.charclass.Assassin && attackMode === "S2":
+			case charClass === sdk.player.class.Assassin && attackMode === "S2":
 				return 128;
-			case charClass === sdk.charclass.Assassin && attackMode === "S4" && weaponClass === "ht2":
+			case charClass === sdk.player.class.Assassin && attackMode === "S4" && weaponClass === "ht2":
 				return 208;
 			}
 			// wolf or bear :
@@ -1562,68 +1560,68 @@
 			A1 xxx      06 15 256     11 16 256     06 15 256     05/12 16 256
 						*/
 			switch (true) {
-			case charClass === sdk.charclass.Sorceress && attackMode.startsWith("A") && weaponClass === "hth":
+			case charClass === sdk.player.class.Sorceress && attackMode.startsWith("A") && weaponClass === "hth":
 				return 16;
-			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Sorceress && attackMode === "A1" && weaponClass === "1hs":
 				return 20;
-			case charClass === sdk.charclass.Sorceress && attackMode.startsWith("A") && weaponClass === "2hs":
+			case charClass === sdk.player.class.Sorceress && attackMode.startsWith("A") && weaponClass === "2hs":
 				return 24;
-			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Sorceress && attackMode === "A1" && weaponClass === "1ht":
 				return 19;
-			case charClass === sdk.charclass.Sorceress && attackMode.startsWith("A") && weaponClass === "2ht":
+			case charClass === sdk.player.class.Sorceress && attackMode.startsWith("A") && weaponClass === "2ht":
 				return 23;
-			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Sorceress && attackMode === "A1" && weaponClass === "stf":
 				return 18;
-			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Sorceress && attackMode === "A1" && weaponClass === "bow":
 				return 17;
-			case charClass === sdk.charclass.Sorceress && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Sorceress && attackMode === "A1" && weaponClass === "xbw":
 				return 20;
-			case charClass === sdk.charclass.Sorceress && attackMode === "TH":
+			case charClass === sdk.player.class.Sorceress && attackMode === "TH":
 				return 20;
 
-			case charClass === sdk.charclass.Paladin && attackMode.startsWith("A") && weaponClass === "hth":
+			case charClass === sdk.player.class.Paladin && attackMode.startsWith("A") && weaponClass === "hth":
 				return 14;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "1hs":
 				return 15;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "2hs":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "2hs":
 				return 18;
-			case charClass === sdk.charclass.Paladin && attackMode === "A2" && weaponClass === "2hs":
+			case charClass === sdk.player.class.Paladin && attackMode === "A2" && weaponClass === "2hs":
 				return 19;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "1ht":
 				return 17;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "2ht":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "2ht":
 				return 20;
-			case charClass === sdk.charclass.Paladin && attackMode === "A2" && weaponClass === "2ht":
+			case charClass === sdk.player.class.Paladin && attackMode === "A2" && weaponClass === "2ht":
 				return 20;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "stf":
 				return 18;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "bow":
 				return 16;
-			case charClass === sdk.charclass.Paladin && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Paladin && attackMode === "A1" && weaponClass === "xbw":
 				return 20;
-			case charClass === sdk.charclass.Paladin && attackMode === "TH":
+			case charClass === sdk.player.class.Paladin && attackMode === "TH":
 				return 16;
-			case charClass === sdk.charclass.Paladin && attackMode === "S1":
+			case charClass === sdk.player.class.Paladin && attackMode === "S1":
 				return 12;
 
 				//TODO: full trag oul set
-			case charClass === sdk.charclass.Necromancer && attackMode.startsWith("A") && weaponClass === "hth":
+			case charClass === sdk.player.class.Necromancer && attackMode.startsWith("A") && weaponClass === "hth":
 				return 15;
-			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Necromancer && attackMode === "A1" && weaponClass === "1hs":
 				return 19;
-			case charClass === sdk.charclass.Necromancer && attackMode.startsWith("A") && weaponClass === "2hs":
+			case charClass === sdk.player.class.Necromancer && attackMode.startsWith("A") && weaponClass === "2hs":
 				return 23;
-			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Necromancer && attackMode === "A1" && weaponClass === "1ht":
 				return 19;
-			case charClass === sdk.charclass.Necromancer && attackMode.startsWith("A") && weaponClass === "2ht":
+			case charClass === sdk.player.class.Necromancer && attackMode.startsWith("A") && weaponClass === "2ht":
 				return 24;
-			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Necromancer && attackMode === "A1" && weaponClass === "stf":
 				return 20;
-			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Necromancer && attackMode === "A1" && weaponClass === "bow":
 				return 18;
-			case charClass === sdk.charclass.Necromancer && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Necromancer && attackMode === "A1" && weaponClass === "xbw":
 				return 20;
-			case charClass === sdk.charclass.Necromancer && attackMode === "TH":
+			case charClass === sdk.player.class.Necromancer && attackMode === "TH":
 				return 20;
 
 			case this.shiftState() === "wolf" && attackMode === "A1":
@@ -1636,94 +1634,94 @@
 			case this.shiftState() === "bear" && attackMode === "S3":
 				return 10;
 
-			case charClass === sdk.charclass.Druid && attackMode.startsWith("A") && weaponClass === "hth":
+			case charClass === sdk.player.class.Druid && attackMode.startsWith("A") && weaponClass === "hth":
 				return 16;
-			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Druid && attackMode === "A1" && weaponClass === "1hs":
 				return 19;
-			case charClass === sdk.charclass.Druid && attackMode.startsWith("A") && weaponClass === "2hs":
+			case charClass === sdk.player.class.Druid && attackMode.startsWith("A") && weaponClass === "2hs":
 				return 21;
-			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Druid && attackMode === "A1" && weaponClass === "1ht":
 				return 19;
-			case charClass === sdk.charclass.Druid && attackMode.startsWith("A") && weaponClass === "2ht":
+			case charClass === sdk.player.class.Druid && attackMode.startsWith("A") && weaponClass === "2ht":
 				return 23;
-			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Druid && attackMode === "A1" && weaponClass === "stf":
 				return 17;
-			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Druid && attackMode === "A1" && weaponClass === "bow":
 				return 16;
-			case charClass === sdk.charclass.Druid && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Druid && attackMode === "A1" && weaponClass === "xbw":
 				return 20;
-			case charClass === sdk.charclass.Druid && attackMode === "TH":
+			case charClass === sdk.player.class.Druid && attackMode === "TH":
 				return 18;
 
-			case charClass === sdk.charclass.Barbarian && attackMode.startsWith("A") && weaponClass === "hth":
+			case charClass === sdk.player.class.Barbarian && attackMode.startsWith("A") && weaponClass === "hth":
 				return 12;
-			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Barbarian && attackMode === "A1" && weaponClass === "1hs":
 				return 16;
-			case charClass === sdk.charclass.Barbarian && attackMode.startsWith("A") && weaponClass === "2hs":
+			case charClass === sdk.player.class.Barbarian && attackMode.startsWith("A") && weaponClass === "2hs":
 				return 18;
-			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Barbarian && attackMode === "A1" && weaponClass === "1ht":
 				return 16;
-			case charClass === sdk.charclass.Barbarian && attackMode.startsWith("A") && weaponClass === "2ht":
+			case charClass === sdk.player.class.Barbarian && attackMode.startsWith("A") && weaponClass === "2ht":
 				return 19;
-			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Barbarian && attackMode === "A1" && weaponClass === "stf":
 				return 19;
-			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Barbarian && attackMode === "A1" && weaponClass === "bow":
 				return 15;
-			case charClass === sdk.charclass.Barbarian && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Barbarian && attackMode === "A1" && weaponClass === "xbw":
 				return 20;
-			case charClass === sdk.charclass.Barbarian && attackMode === "TH":
+			case charClass === sdk.player.class.Barbarian && attackMode === "TH":
 				return 16;
-			case charClass === sdk.charclass.Barbarian && attackMode === "S3":
+			case charClass === sdk.player.class.Barbarian && attackMode === "S3":
 				return 12;
-			case charClass === sdk.charclass.Barbarian && attackMode === "S4":
+			case charClass === sdk.player.class.Barbarian && attackMode === "S4":
 				return 16;
 
-			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass.startsWith("ht"):
+			case charClass === sdk.player.class.Assassin && attackMode === "A1" && weaponClass.startsWith("ht"):
 				return 11;
-			case charClass === sdk.charclass.Assassin && attackMode === "A2" && weaponClass.startsWith("ht"):
+			case charClass === sdk.player.class.Assassin && attackMode === "A2" && weaponClass.startsWith("ht"):
 				return 12;
-			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Assassin && attackMode === "A1" && weaponClass === "1hs":
 				return 15;
-			case charClass === sdk.charclass.Assassin && attackMode.startsWith("A") && weaponClass === "2hs":
+			case charClass === sdk.player.class.Assassin && attackMode.startsWith("A") && weaponClass === "2hs":
 				return 23;
-			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Assassin && attackMode === "A1" && weaponClass === "1ht":
 				return 15;
-			case charClass === sdk.charclass.Assassin && attackMode.startsWith("A") && weaponClass === "2ht":
+			case charClass === sdk.player.class.Assassin && attackMode.startsWith("A") && weaponClass === "2ht":
 				return 23;
-			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Assassin && attackMode === "A1" && weaponClass === "stf":
 				return 19;
-			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Assassin && attackMode === "A1" && weaponClass === "bow":
 				return 16;
-			case charClass === sdk.charclass.Assassin && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Assassin && attackMode === "A1" && weaponClass === "xbw":
 				return 21;
-			case charClass === sdk.charclass.Assassin && attackMode === "TH":
+			case charClass === sdk.player.class.Assassin && attackMode === "TH":
 				return 16;
-			case charClass === sdk.charclass.Assassin && attackMode === "KK":
+			case charClass === sdk.player.class.Assassin && attackMode === "KK":
 				return 13;
-			case charClass === sdk.charclass.Assassin && attackMode === "S2":
+			case charClass === sdk.player.class.Assassin && attackMode === "S2":
 				return 8;
-			case charClass === sdk.charclass.Assassin && attackMode === "S4" && weaponClass === "ht2":
+			case charClass === sdk.player.class.Assassin && attackMode === "S4" && weaponClass === "ht2":
 				return 12;
 
-			case charClass === sdk.charclass.Amazon && attackMode.startsWith("A") && weaponClass === "hth":
+			case charClass === sdk.player.class.Amazon && attackMode.startsWith("A") && weaponClass === "hth":
 				return 13;
-			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "1hs":
+			case charClass === sdk.player.class.Amazon && attackMode === "A1" && weaponClass === "1hs":
 				return 16;
-			case charClass === sdk.charclass.Amazon && attackMode.startsWith("A") && weaponClass === "2hs":
+			case charClass === sdk.player.class.Amazon && attackMode.startsWith("A") && weaponClass === "2hs":
 				return 20;
-			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "1ht":
+			case charClass === sdk.player.class.Amazon && attackMode === "A1" && weaponClass === "1ht":
 				return 15;
-			case charClass === sdk.charclass.Amazon && attackMode.startsWith("A") && weaponClass === "2ht":
+			case charClass === sdk.player.class.Amazon && attackMode.startsWith("A") && weaponClass === "2ht":
 				return 18;
-			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "stf":
+			case charClass === sdk.player.class.Amazon && attackMode === "A1" && weaponClass === "stf":
 				return 20;
-			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "bow":
+			case charClass === sdk.player.class.Amazon && attackMode === "A1" && weaponClass === "bow":
 				return 14;
-			case charClass === sdk.charclass.Amazon && attackMode === "A1" && weaponClass === "xbw":
+			case charClass === sdk.player.class.Amazon && attackMode === "A1" && weaponClass === "xbw":
 				return 20;
-			case charClass === sdk.charclass.Amazon && attackMode === "TH":
+			case charClass === sdk.player.class.Amazon && attackMode === "TH":
 				return 16;
-			case charClass === sdk.charclass.Amazon && attackMode === "S1":
+			case charClass === sdk.player.class.Amazon && attackMode === "S1":
 				return 9;
 			}
 			return -1;
@@ -1749,7 +1747,7 @@
 		// 	*/
 		// 	let weaponData = (new CSV("sdk/weapons.txt")).findObject("code", weaponCode);
 		// 	if (!weaponData) {
-		// 		print(sdk.colors.Orange + "No weapon data found for code " + weaponCode);
+		// 		console.log(sdk.colors.Orange + "No weapon data found for code " + weaponCode);
 		// 	}
 		// 	let weaponClass = weaponData.wclass;
 		// 	let baseRate = 100;
@@ -1766,21 +1764,21 @@
 		// 	let startingFrame = this.attackStartingFrame(weaponClass, charClass);
 		// 	let framesPerDirection = this.weaponFramesPerDirection(skillId, weaponClass, charClass);
 		// 	if (framesPerDirection < 1) {
-		// 		print(sdk.colors.Orange + "wrong value for framesPerDirection, IAS calculation may be wrong");
+		// 		console.log(sdk.colors.Orange + "wrong value for framesPerDirection, IAS calculation may be wrong");
 		// 	}
 
-		// 	print("skillId " + skillId);
-		// 	print("charClass " + charClass);
-		// 	print("weaponCode " + weaponCode);
-		// 	print("weaponClass " + weaponClass);
-		// 	print("ias " + ias);
-		// 	print("effectiveIAS " + effectiveIAS);
-		// 	print("skillsIAS " + skillsIAS);
-		// 	print("weaponSpeedModifier " + weaponSpeedModifier);
-		// 	print("coldEffect " + coldEffect);
-		// 	print("acceleration " + acceleration);
-		// 	print("startingFrame " + startingFrame);
-		// 	print("framesPerDirection " + framesPerDirection);
+		// 	console.log("skillId " + skillId);
+		// 	console.log("charClass " + charClass);
+		// 	console.log("weaponCode " + weaponCode);
+		// 	console.log("weaponClass " + weaponClass);
+		// 	console.log("ias " + ias);
+		// 	console.log("effectiveIAS " + effectiveIAS);
+		// 	console.log("skillsIAS " + skillsIAS);
+		// 	console.log("weaponSpeedModifier " + weaponSpeedModifier);
+		// 	console.log("coldEffect " + coldEffect);
+		// 	console.log("acceleration " + acceleration);
+		// 	console.log("startingFrame " + startingFrame);
+		// 	console.log("framesPerDirection " + framesPerDirection);
 		// 	let frames = Math.ceil(BASE_ANIMATION_SPEED * (framesPerDirection - startingFrame) / Math.floor(animationSpeed * acceleration / 100)) - 1;
 		// 	return frames;
 		// },
@@ -1795,11 +1793,11 @@
 		if (!Skill.canUse(sdk.skills.FrostNova)) return 0;
 		let fallens = [sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2];
 		let area = me.area;
-		return getUnits(1)
+		return getUnits(sdk.unittype.Monster)
 			.filter(unit => !!unit && fallens.includes(unit.classid) && unit.distance < 7)
 			.filter(function (unit) {
 				return unit.attackable
-				&& typeof unit.x === 'number' // happens if monster despawns
+				&& typeof unit.x === "number" // happens if monster despawns
 				&& !checkCollision(me, unit, Coords_1.Collision.BLOCK_MISSILE)
 				&& unit.getStat(sdk.stats.ColdResist) < 100;
 				//&& !unit.getState(sdk.states.Frozen);
@@ -1821,11 +1819,11 @@
 			sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2,
 			sdk.monsters.BurningDead, sdk.monsters.Returned1, sdk.monsters.Returned2, sdk.monsters.BoneWarrior1, sdk.monsters.BoneWarrior2
 		];
-		return getUnits(1)
+		return getUnits(sdk.unittype.Monster)
 			.filter(unit => !!unit && summons.includes(unit.classid) && unit.distance < 7)
 			.filter(function (unit) {
 				return unit.attackable
-				&& typeof unit.x === 'number' // happens if monster despawns
+				&& typeof unit.x === "number" // happens if monster despawns
 				&& !checkCollision(me, unit, Coords_1.Collision.BLOCK_MISSILE)
 				&& Attack.checkResist(unit, "lightning");
 			})
@@ -1839,7 +1837,7 @@
 			}, 0);
 	}
 
-	Object.defineProperty(Unit.prototype, 'currentVelocity', {
+	Object.defineProperty(Unit.prototype, "currentVelocity", {
 		get: function () {
 			if (!this.isMoving || this.isFrozen) return 0;
 			let velocity = this.isRunning ? MonsterData[this.classid].Run : MonsterData[this.classid].Velocity;

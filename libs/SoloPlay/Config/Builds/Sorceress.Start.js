@@ -6,7 +6,7 @@
 */
 js_strict(true);
 
-!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
+includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 let AutoBuildTemplate = {
@@ -15,7 +15,7 @@ let AutoBuildTemplate = {
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
-			Config.FieldID.Enabled = !Misc.checkQuest(4, 0);
+			Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
 			Config.FieldID.UsedSpace = 0;
 
 			Config.BeltColumn = ["hp", "hp", "hp", "hp"];
@@ -32,17 +32,17 @@ let AutoBuildTemplate = {
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
 			Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
-			Config.FieldID.Enabled = !Misc.checkQuest(4, 0);
+			Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
 			Config.FieldID.UsedSpace = 0;
 
 			Config.TownHP = me.hardcore ? 0 : 35;
 			Config.LowManaSkill = [0, 0];
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
-			if (!!me.getSkill(sdk.skills.IceBolt, 1)) {
+			if (!!me.getSkill(sdk.skills.IceBolt, sdk.skills.subindex.SoftPoints)) {
 				Config.AttackSkill = [-1, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.IceBolt, 0];
 			} else {
-				Config.AttackSkill = [-1, sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, 1) ? sdk.skills.FireBolt : -1), sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, 1) ? sdk.skills.FireBolt : -1), 0, 0];
+				Config.AttackSkill = [-1, sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, sdk.skills.subindex.SoftPoints) ? sdk.skills.FireBolt : -1), sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, sdk.skills.subindex.SoftPoints) ? sdk.skills.FireBolt : -1), 0, 0];
 			}
 		}
 	},
@@ -61,7 +61,7 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			if (!!me.getSkill(sdk.skills.Blizzard, 0)) {
+			if (!!me.getSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints)) {
 				Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Nova, sdk.skills.ChargedBolt];
 			}
 		}

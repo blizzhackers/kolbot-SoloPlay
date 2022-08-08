@@ -6,7 +6,7 @@
 */
 
 function den () {
-	let customGoToTown = function () {
+	const customGoToTown = function () {
 		if (me.inTown) return;
 		if (!Town.canTpToTown()) {
 			Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.ColdPlains], true);
@@ -17,11 +17,12 @@ function den () {
 		}
 	};
 
-	myPrint('starting den');
+	myPrint("starting den");
 
 	if (!Pather.checkWP(sdk.areas.ColdPlains) || me.charlvl < 4) {
 		Pather.moveToExit(sdk.areas.BloodMoor, true);
 
+		// todo - write walking clearLevel function
 		// make sure we are ready for cold plains
 		let clearUntil = me.charlvl === 1 ? /*just started*/ 2 : 3; // if this is our second attempt, then bloor moor should be repopulated with mobs
 		me.charlvl < clearUntil && Attack.clearLevelUntilLevel(clearUntil);
@@ -46,7 +47,7 @@ function den () {
 	Town.move("portalspot");
 
 	// Check if there are any portals before trying to use one
-	let p = getUnit(sdk.unittype.Object, sdk.units.BluePortal);
+	let p = Game.getObject(sdk.objects.BluePortal);
 	
 	if (!!p && [sdk.areas.BloodMoor, sdk.areas.DenofEvil].includes(p.objtype)) {
 		Pather.usePortal(null, me.name);
@@ -70,25 +71,29 @@ function den () {
 		}
 	};
 
-	if (me.area === sdk.areas.DenofEvil) {
+	if (me.inArea(sdk.areas.DenofEvil)) {
 		addEventListener("gamepacket", this.denLightsListener);
-		const Worker = require('../../modules/Worker');
-		let corpseTick = getTickCount();
+		const Worker = require("../../modules/Worker");
 		let corpsefire;
+		let corpseTick = getTickCount();
 
 		try {
 			if (!me.normal) {
 				Worker.runInBackground.corpseTracker = function () {
 					if (killTracker) return false;
-					if (me.area === sdk.areas.DenofEvil) {
+					if (me.inArea(sdk.areas.DenofEvil)) {
 						if (getTickCount() - corpseTick < 1000) return true;
 						corpseTick = getTickCount();
-						corpsefire = getUnit(sdk.unittype.Monster, getLocaleString(sdk.locale.monsters.Corpsefire));
+						corpsefire = Game.getMonster(getLocaleString(sdk.locale.monsters.Corpsefire));
 
-						if (corpsefire && !Attack.canAttack(corpsefire)) {
-							killTracker = true;
-							myPrint("Exit den. Corpsefire is immune");
-							throw new Error('ÿc8Kolbot-SoloPlayÿc0: Exit den. Corpsefire is immune');
+						if (corpsefire) {
+							if (!Attack.canAttack(corpsefire)) {
+								killTracker = true;
+								throw new Error("Exit den. Corpsefire is immune");
+							} else {
+								// we can attack, no need to run this in the background any longer
+								return false;
+							}
 						}
 					}
 
@@ -98,25 +103,25 @@ function den () {
 
 			Worker.runInBackground.denLightsTracker = function () {
 				if (killTracker) return false;
-				if (me.area === sdk.areas.DenofEvil) {
+				if (me.inArea(sdk.areas.DenofEvil)) {
 					if (denLights) {
 						killTracker = true;
-						throw new Error('DEN COMPLETE');
+						throw new Error("DEN COMPLETE");
 					}
 				}
 
 				return true;
 			};
 
-			while (!Misc.checkQuest(1, 0)) {
+			while (!Misc.checkQuest(sdk.quest.id.DenofEvil, sdk.quest.states.Completed)) {
 				console.log("ÿc8Kolbot-SoloPlayÿc0: Clearing den attempt: " + attempt);
 				Attack.clearLevel();
 
-				if (me.area !== sdk.areas.DenofEvil) {
+				if (!me.inArea(sdk.areas.DenofEvil)) {
 					break;
 				}
 
-				if (Misc.checkQuest(1, 13)) {
+				if (Misc.checkQuest(sdk.quest.id.DenofEvil, sdk.quest.states.PartyMemberComplete)) {
 					customGoToTown();
 					Town.npcInteract("akara");
 					

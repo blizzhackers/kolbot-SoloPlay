@@ -8,14 +8,14 @@
 
 function ancients () {
 	Town.townTasks();
-	myPrint('starting ancients');
+	myPrint("starting ancients");
 
 	Pather.checkWP(sdk.areas.AncientsWay) ? Pather.useWaypoint(sdk.areas.AncientsWay) : Pather.getWP(sdk.areas.AncientsWay);
 	Precast.doPrecast(true);
 	Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter Arreat Summit
 
 	// failed to move to Arreat Summit
-	if (me.area !== sdk.areas.ArreatSummit) {
+	if (!me.inArea(sdk.areas.ArreatSummit)) {
 		return false;
 	}
 
@@ -32,19 +32,19 @@ function ancients () {
 	Config.MPBuffer = 15;
 	Config.LifeChicken = 10;
 	CharData.updateConfig();
-	me.overhead('updated settings');
+	me.overhead("updated settings");
 
 	Town.buyPotions();
 	if (!Pather.usePortal(sdk.areas.ArreatSummit, me.name)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to take portal back to Arreat Summit");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to take portal back to Arreat Summit");
 		Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter Arreat Summit
 	}
 	
 	Precast.doPrecast(true);
 
 	// move to altar
-	if (!Pather.moveToPreset(sdk.areas.ArreatSummit, sdk.unittype.Object, 546)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Failed to move to ancients' altar");
+	if (!Pather.moveToPreset(sdk.areas.ArreatSummit, sdk.unittype.Object, sdk.quest.chest.AncientsAltar)) {
+		console.warn("ÿc8Kolbot-SoloPlayÿc0: Failed to move to ancients' altar");
 	}
 
 	Common.Ancients.touchAltar();
@@ -53,17 +53,17 @@ function ancients () {
 	me.cancel();
 	Config = tempConfig;
 	CharData.updateConfig();
-	me.overhead('restored settings');
+	me.overhead("restored settings");
 	Precast.doPrecast(true);
 
 	try {
-		if (Misc.checkQuest(39, 0)) {
+		if (Misc.checkQuest(sdk.quest.id.RiteofPassage, sdk.quest.states.Completed)) {
 			Pather.clearToExit(sdk.areas.ArreatSummit, sdk.areas.WorldstoneLvl1, true);
 			Pather.clearToExit(sdk.areas.WorldstoneLvl1, sdk.areas.WorldstoneLvl2, true);
 			Pather.getWP(sdk.areas.WorldstoneLvl2);
 		}
 	} catch (err) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Cleared Ancients. Failed to get WSK Waypoint');
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Cleared Ancients. Failed to get WSK Waypoint");
 	}
 
 	return true;

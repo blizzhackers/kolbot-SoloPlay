@@ -6,7 +6,7 @@
 */
 js_strict(true);
 
-!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
+includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 let AutoBuildTemplate = {
@@ -44,7 +44,7 @@ let AutoBuildTemplate = {
 			Config.AttackSkill = [-1, sdk.skills.Teeth, -1, sdk.skills.Teeth, -1, -1, -1];
 			Config.ExplodeCorpses = sdk.skills.CorpseExplosion;
 
-			if (me.getSkill(sdk.skills.BoneSpear, 0)) {
+			if (me.getSkill(sdk.skills.BoneSpear, sdk.skills.subindex.HardPoints)) {
 				Config.AttackSkill = [-1, sdk.skills.BoneSpear, -1, sdk.skills.BoneSpear, -1, -1, -1];
 			}
 		}

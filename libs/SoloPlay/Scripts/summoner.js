@@ -8,9 +8,7 @@
 function summoner () {
 	// @isid0re
 	let teleportPads = function () {
-		if (me.area !== sdk.areas.ArcaneSanctuary || Pather.useTeleport()) {
-			return true;
-		}
+		if (me.inArea(sdk.areas.ArcaneSanctuary) || Pather.useTeleport()) return true;
 
 		let wpX = 25449;
 		let wpY = 5449;
@@ -18,7 +16,7 @@ function summoner () {
 		let stppPath = [[-56, 2], [-128, -7], [-98, 78], [-176, 62], [-243, 58], [-296, 62], [-372, 62], [-366, 12]];
 		let etppPath = [[28, 52], [-12, 92], [53, 112], [72, 118], [88, 172], [54, 227], [43, 247], [88, 292], [82, 378], [-16, 332], [2, 353]];
 		let wtppPath = [[-26, -63], [2, -121], [3, -133], [62, -117], [34, -183], [54, -228], [43, -243], [34, -303], [72, -351], [64, -368], [23, -338]];
-		let stand = getPresetUnit(me.area, 2, 357);
+		let stand = Game.getPresetObject(me.area, sdk.objects.Journal);
 		let tppPathX = stand.roomx * 5 + stand.x;
 		let tppPathY = stand.roomy * 5 + stand.y;
 		let tppPath;
@@ -45,14 +43,14 @@ function summoner () {
 		}
 
 		if (getPath(me.area, me.x, me.y, stand.roomx * 5 + stand.x, stand.roomy * 5 + stand.y, 0, 10).length === 0) {
-			me.overhead('Using telepad layout');
+			me.overhead("Using telepad layout");
 
 			for (let i = 0; i < tppPath.length; i += 1) {
 				for (let h = 0; h < 5; h += 1) {
 					Pather.moveTo(wpX - tppPath[i][0], wpY - tppPath[i][1]);
 
 					for (let activate = 0; activate < tppID.length; activate += 1) {
-						let telepad = getUnit(2, tppID[activate]);
+						let telepad = Game.getObject(tppID[activate]);
 
 						if (telepad) {
 							do {
@@ -72,33 +70,31 @@ function summoner () {
 
 	// START
 	Town.townTasks();
-	myPrint('starting summoner');
+	myPrint("starting summoner");
 
 	Pather.checkWP(sdk.areas.ArcaneSanctuary, true) ? Pather.useWaypoint(sdk.areas.ArcaneSanctuary) : Pather.getWP(sdk.areas.ArcaneSanctuary);
 	Precast.doPrecast(true);
 	teleportPads();
 
 	try {
-		Pather.moveToPreset(sdk.areas.ArcaneSanctuary, 2, 357, -3, -3);
+		Pather.moveToPreset(sdk.areas.ArcaneSanctuary, sdk.unittype.Object, sdk.objects.Journal, -3, -3);
 	} catch (err) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to reach Summoner. Retry');
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to reach Summoner. Retry");
 
-		if (!Pather.moveToPreset(sdk.areas.ArcaneSanctuary, 2, 357, -3, -3)) {
-			print('ÿc8Kolbot-SoloPlayÿc0: Failed to reach summoner');
-
-			return false;
+		if (!Pather.moveToPreset(sdk.areas.ArcaneSanctuary, sdk.unittype.Object, sdk.objects.Journal, -3, -3)) {
+			throw new Error("Failed to reach summoner");
 		}
 	}
 
 	try {
-		Attack.killTarget(250); // The Summoner
+		Attack.killTarget(sdk.monsters.TheSummoner);
 	} catch (e) {
-		print('ÿc8Kolbot-SoloPlayÿc0: Failed to kill summoner');
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to kill summoner");
 
 		return false;
 	}
 
-	let journal = getUnit(2, 357);
+	let journal = Game.getObject(sdk.objects.Journal);
 
 	if (journal) {
 		while (!Pather.getPortal(sdk.areas.CanyonofMagic)) {

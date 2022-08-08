@@ -5,6 +5,8 @@
 *
 */
 
+const sdk = require("../../modules/sdk");
+
 const Scripts = {
 	scripts: [
 		// Act 1
@@ -60,9 +62,9 @@ const Scripts = {
 			name: "tristram",
 			skipIf: function () {
 				switch (me.classid) {
-				case sdk.charclass.Paladin:
+				case sdk.player.class.Paladin:
 					return Pather.accessToAct(3) || Attack.auradin || me.checkItem({name: sdk.locale.items.Enigma}).have;
-				case sdk.charclass.Barbarian:
+				case sdk.player.class.Barbarian:
 					return Pather.accessToAct(3) || me.checkItem({name: sdk.locale.items.Lawbringer}).have;
 				}
 				return false;
@@ -107,7 +109,7 @@ const Scripts = {
 			name: "smith",
 			skipIf: function () {
 				// todo - test leveling/experience potential
-				return (!!Misc.checkQuest(3, 1) || me.smith);
+				return (!!Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete) || me.smith);
 			},
 			shouldRun: function () {
 				if (this.skipIf()) return false;
@@ -121,12 +123,12 @@ const Scripts = {
 			},
 			skipIf: function () {
 				switch (me.classid) {
-				case sdk.charclass.Amazon:
+				case sdk.player.class.Amazon:
 					return SetUp.currentBuild !== SetUp.finalBuild || me.charlvl < 85;
-				case sdk.charclass.Sorceress:
+				case sdk.player.class.Sorceress:
 					return me.charlvl < 85;
-				case sdk.charclass.Paladin:
-				case sdk.charclass.Druid:
+				case sdk.player.class.Paladin:
+				case sdk.player.class.Druid:
 					return !Check.currentBuild().caster;
 				}
 				return false;
@@ -181,7 +183,7 @@ const Scripts = {
 			},
 			skipIf: function () {
 				if (me.barbarian && (!me.hell || Pather.accessToAct(3)
-					|| (Item.getEquippedItem(5).tier > 1270
+					|| (Item.getEquippedItem(sdk.body.LeftArm).tier > 1270
 					|| me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
 					return true;
 				}
@@ -201,11 +203,11 @@ const Scripts = {
 			skipIf: function () {
 				if (me.normal && !Check.brokeAf()) return true;
 				switch (me.classid) {
-				case sdk.charclass.Barbarian:
+				case sdk.player.class.Barbarian:
 					return ["Whirlwind", "Immortalwhirl", "Singer"].indexOf(SetUp.currentBuild) === -1;
-				case sdk.charclass.Druid:
+				case sdk.player.class.Druid:
 					return me.nightmare && me.charlvl > 65;
-				case sdk.charclass.Sorceress:
+				case sdk.player.class.Sorceress:
 					return me.nightmare && me.expansion && me.charlvl > 62;
 				}
 				return false;
@@ -278,9 +280,9 @@ const Scripts = {
 			},
 			skipIf: function () {
 				switch (me.classid) {
-				case sdk.charclass.Amazon:
+				case sdk.player.class.Amazon:
 					return SetUp.currentBuild !== SetUp.finalBuild;
-				case sdk.charclass.Paladin:
+				case sdk.player.class.Paladin:
 					return !Check.currentBuild().caster;
 				}
 				return false;

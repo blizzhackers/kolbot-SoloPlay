@@ -4,9 +4,11 @@
 *  @desc        Town related functions
 *
 */
-!isIncluded("common/Town.js") && include("common/Town.js");
 
-let Overrides = require('../../modules/Override');
+includeIfNotIncluded("common/Town.js");
+
+let Overrides = require("../../modules/Override");
+let PotData = require("../modules/PotData");
 
 new Overrides.Override(Town, Town.canTpToTown, function (orignal) {
 	return (Misc.townEnabled && orignal());
@@ -22,33 +24,14 @@ new Overrides.Override(Town, Town.repair, function (orignal, force = false) {
 	return false;
 }).apply();
 
-new Overrides.Override(Town, Town.buyPotions, function (orignal) {
-	// no town portal book
-	if (!me.getItem(sdk.items.TomeofTownPortal)) return false;
-
-	if (orignal()) {
-		let npc = getInteractedNPC();
-		if (!npc) return true;
-
-		// keep cold/pois res high with potions
-		if (me.gold > 50000 && npc.getItem(sdk.items.ThawingPotion)) {
-			CharData.buffData.thawing.need() && Town.buyPots(12, "thawing", true);
-			CharData.buffData.antidote.need() && Town.buyPots(12, "antidote", true);
-		}
-
-		return true;
-	}
-
-	return false;
-}).apply();
-
+Town.sell = [];
 // Removed Missle Potions for easy gold
 // Items that won't be stashed
 Town.ignoredItemTypes = [
-	sdk.itemtype.BowQuiver, sdk.itemtype.CrossbowQuiver, sdk.itemtype.Book,
-	sdk.itemtype.Scroll, sdk.itemtype.Key, sdk.itemtype.HealingPotion,
-	sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion, sdk.itemtype.StaminaPotion,
-	sdk.itemtype.AntidotePotion, sdk.itemtype.ThawingPotion
+	sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver, sdk.items.type.Book,
+	sdk.items.type.Scroll, sdk.items.type.Key, sdk.items.type.HealingPotion,
+	sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion, sdk.items.type.StaminaPotion,
+	sdk.items.type.AntidotePotion, sdk.items.type.ThawingPotion
 ];
 
 Town.needPotions = function () {
@@ -63,19 +46,19 @@ Town.needPotions = function () {
 			hp: [],
 			mp: [],
 		};
-		me.getItemsEx(-1, sdk.itemmode.inBelt)
-			.filter(p => [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion].includes(p.itemType) && p.x < 4)
+		me.getItemsEx(-1, sdk.items.mode.inBelt)
+			.filter(p => [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion].includes(p.itemType) && p.x < 4)
 			.forEach(p => {
-				if (p.itemType === sdk.itemtype.HealingPotion) {
+				if (p.itemType === sdk.items.type.HealingPotion) {
 					pots.hp.push(copyUnit(p));
-				} else if (p.itemType === sdk.itemtype.ManaPotion) {
+				} else if (p.itemType === sdk.items.type.ManaPotion) {
 					pots.mp.push(copyUnit(p));
 				}
 			});
 
 		// quick check
 		if ((Config.BeltColumn.includes("hp") && !pots.hp.length)
-			|| (Config.BeltColumn.includes("mp") && !pots.hp.length)) {
+			|| (Config.BeltColumn.includes("mp") && !pots.mp.length)) {
 			return true;
 		}
 
@@ -106,10 +89,158 @@ Town.needPotions = function () {
 	return false;
 };
 
+Town.buyPotions = function () {
+	// Ain't got money fo' dat shyt
+	if (me.gold < 1000 || !me.getItem(sdk.items.TomeofTownPortal)) return false;
+
+	let needPots = false;
+	let needBuffer = true;
+	let buffer = {
+		hp: 0,
+		mp: 0
+	};
+
+	this.clearBelt();
+	const beltSize = Storage.BeltSize();
+	let col = this.checkColumns(beltSize);
+
+	// HP/MP Buffer
+	if (Config.HPBuffer > 0 || Config.MPBuffer > 0) {
+		me.getItemsEx().filter(function (p) {
+			return p.isInInventory && [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion].includes(p.itemType);
+		}).forEach(function (p) {
+			switch (p.itemType) {
+			case sdk.items.type.HealingPotion:
+				buffer.hp++;
+
+				break;
+			case sdk.items.type.ManaPotion:
+				buffer.mp++;
+
+				break;
+			}
+		});
+	}
+
+	// Check if we need to buy potions based on Config.MinColumn
+	for (let i = 0; i < 4; i += 1) {
+		if (["hp", "mp"].includes(Config.BeltColumn[i]) && col[i] > (beltSize - Math.min(Config.MinColumn[i], beltSize))) {
+			needPots = true;
+		}
+	}
+
+	// Check if we need any potions for buffers
+	if (buffer.mp < Config.MPBuffer || buffer.hp < Config.HPBuffer) {
+		for (let i = 0; i < 4; i += 1) {
+			// We can't buy potions because they would go into belt instead
+			if (col[i] >= beltSize && (!needPots || Config.BeltColumn[i] === "rv")) {
+				needBuffer = false;
+
+				break;
+			}
+		}
+	}
+
+	// We have enough potions in inventory
+	(buffer.mp >= Config.MPBuffer && buffer.hp >= Config.HPBuffer) && (needBuffer = false);
+
+	// No columns to fill
+	if (!needPots && !needBuffer) return true;
+	// todo: buy the cheaper potions if we are low on gold or don't need the higher ones i.e have low mana/health pool
+	// why buy potion that heals 225 (greater mana) if we only have sub 100 mana
+	me.normal && me.highestAct >= 4 && me.act < 4 && this.goToTown(4);
+
+	let highestPot = 5;
+	let npc = this.initNPC("Shop", "buyPotions");
+	if (!npc) return false;
+
+	// only do this if we are low on gold in the first place
+	if (me.gold < Config.LowGold) {
+		const mpPotsEffects = PotData.getMpPots().map(el => el.effect[me.classid]);
+		const hpPotsEffects = PotData.getHpPots().map(el => el.effect[me.classid]);
+
+		let wantedHpPot = (hpPotsEffects.findIndex(eff => me.hpmax / 2 < eff) + 1 || hpPotsEffects.length - 1);
+		let wantedMpPot = (mpPotsEffects.findIndex(eff => me.mpmax / 2 < eff) + 1 || mpPotsEffects.length - 1);
+		console.debug("Wanted hpPot: " + wantedHpPot + " Wanted mpPot: " + wantedMpPot);
+	}
+
+	for (let i = 0; i < 4; i += 1) {
+		if (col[i] > 0) {
+			let useShift = this.shiftCheck(col, beltSize);
+			let pot = this.getPotion(npc, Config.BeltColumn[i], highestPot);
+
+			if (pot) {
+				//print("ÿc2column ÿc0" + i + "ÿc2 needs ÿc0" + col[i] + " ÿc2potions");
+				// Shift+buy will trigger if there's no empty columns or if only the current column is empty
+				if (useShift) {
+					pot.buy(true);
+				} else {
+					for (let j = 0; j < col[i]; j += 1) {
+						pot.buy(false);
+					}
+				}
+			}
+		}
+
+		col = this.checkColumns(beltSize); // Re-initialize columns (needed because 1 shift-buy can fill multiple columns)
+	}
+
+	if (needBuffer && buffer.hp < Config.HPBuffer) {
+		for (let i = 0; i < Config.HPBuffer - buffer.hp; i += 1) {
+			let pot = this.getPotion(npc, "hp");
+			!!pot && Storage.Inventory.CanFit(pot) && pot.buy(false);
+		}
+	}
+
+	if (needBuffer && buffer.mp < Config.MPBuffer) {
+		for (let i = 0; i < Config.MPBuffer - buffer.mp; i += 1) {
+			let pot = this.getPotion(npc, "mp");
+			!!pot && Storage.Inventory.CanFit(pot) && pot.buy(false);
+		}
+	}
+
+	// keep cold/pois res high with potions
+	if (me.gold > 50000 && npc.getItem(sdk.items.ThawingPotion)) {
+		CharData.buffData.thawing.need() && Town.buyPots(12, "thawing", true);
+		CharData.buffData.antidote.need() && Town.buyPots(12, "antidote", true);
+	}
+
+	return true;
+};
+
+Town.haveItemsToSell = function () {
+	Town.sell = Town.sell.filter(i => i && i.isInStorage);
+	return Town.sell.length;
+};
+
+Town.sellItems = function (itemList = []) {
+	!itemList.length && (itemList = Town.sell);
+
+	if (this.initNPC("Shop", "sell")) {
+		while (itemList.length) {
+			let item = itemList.shift();
+			if (!item.isInStorage) continue;
+
+			try {
+				if (getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) {
+					console.log("sell " + item.name);
+					Misc.itemLogger("Sold", item);
+					item.sell();
+					delay(100);
+				}
+			} catch (e) {
+				console.error(e);
+			}
+		}
+	}
+
+	return !itemList.length;
+};
+
 // need to build task list then do them.
 // This way we can look ahead to see if there is a task thats going to be done at the current npc like buyPots and just go ahead and do it
 Town.townTasks = function (buyPots = {}) {
-	let extraTasks = Object.assign({}, {
+	const extraTasks = Object.assign({}, {
 		thawing: false,
 		antidote: false,
 		stamina: false,
@@ -123,10 +254,10 @@ Town.townTasks = function (buyPots = {}) {
 
 	// Burst of speed while in town
 	if (me.inTown && Skill.canUse(sdk.skills.BurstofSpeed) && !me.getState(sdk.states.BurstofSpeed)) {
-		Skill.cast(sdk.skills.BurstofSpeed, 0);
+		Skill.cast(sdk.skills.BurstofSpeed, sdk.skills.hand.Right);
 	}
 
-	let preAct = me.act;
+	const preAct = me.act;
 
 	me.switchWeapons(Attack.getPrimarySlot());
 	this.unfinishedQuests();
@@ -152,7 +283,7 @@ Town.townTasks = function (buyPots = {}) {
 	Item.autoEquip();
 	Item.autoEquipSecondary();
 	Item.autoEquipCharms();
-	Merc.hireMerc();
+	Mercenary.hireMerc();
 	Item.autoEquipMerc();
 	this.stash();
 	this.clearJunk();
@@ -177,7 +308,7 @@ Town.townTasks = function (buyPots = {}) {
 };
 
 Town.doChores = function (repair = false, buyPots = {}) {
-	let extraTasks = Object.assign({}, {
+	const extraTasks = Object.assign({}, {
 		thawing: false,
 		antidote: false,
 		stamina: false,
@@ -185,17 +316,17 @@ Town.doChores = function (repair = false, buyPots = {}) {
 
 	delay(250);
 
-	console.debug("ÿc8Start ÿc0:: ÿc8TownChores");
-	let tick = getTickCount();
+	console.info(true);
+	console.time("doChores");
 
 	!me.inTown && Town.goToTown();
 
 	// Burst of speed while in town
 	if (Skill.canUse(sdk.skills.BurstofSpeed) && !me.getState(sdk.states.BurstofSpeed)) {
-		Skill.cast(sdk.skills.BurstofSpeed, 0);
+		Skill.cast(sdk.skills.BurstofSpeed, sdk.skills.hand.Right);
 	}
 
-	let preAct = me.act;
+	const preAct = me.act;
 
 	me.switchWeapons(Attack.getPrimarySlot());
 
@@ -221,8 +352,9 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	Item.autoEquip();
 	Item.autoEquipSecondary();
 	Item.autoEquipCharms();
-	Merc.hireMerc();
+	Mercenary.hireMerc();
 	Item.autoEquipMerc();
+	Town.haveItemsToSell() && Town.sellItems() && me.cancelUIFlags();
 	this.stash();
 	this.clearJunk();
 	!!me.getItem(sdk.items.TomeofTownPortal) && this.clearScrolls();
@@ -242,7 +374,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	}
 
 	delay(300);
-	console.debug("ÿc8End ÿc0:: ÿc8TownChoresÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick));
+	console.info(false, null, "doChores");
 	Town.lastInteractedNPC.reset(); // unassign
 
 	return true;
@@ -259,7 +391,7 @@ Town.getIdTool = function () {
 };
 
 Town.cainID = function (force = false) {
-	if ((!Config.CainID.Enable && !force) || !Misc.checkQuest(sdk.quest.id.TheSearchForCain, 0)) return false;
+	if ((!Config.CainID.Enable && !force) || !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed)) return false;
 
 	let npc = getInteractedNPC();
 
@@ -290,12 +422,12 @@ Town.cainID = function (force = false) {
 			let result = Pickit.checkItem(item);
 
 			// Force ID for unid items matching autoEquip criteria
-			if ([1, 2].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
+			if ([Pickit.Result.WANTED, Pickit.Result.CUBING].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
 				result.result = -1;
 			}
 
 			switch (result.result) {
-			case 4:
+			case Pickit.Result.TRASH:
 				try {
 					console.log("sell " + item.name);
 					this.initNPC("Shop", "clearInventory");
@@ -306,30 +438,30 @@ Town.cainID = function (force = false) {
 				}
 
 				break;
-			case 1:
+			case Pickit.Result.WANTED:
 				Misc.itemLogger("Kept", item);
 				Misc.logItem("Kept", item, result.line);
 
 				break;
-			case 2: // cubing
+			case Pickit.Result.CUBING:
 				Misc.itemLogger("Kept", item, "Cubing-Town");
 				Cubing.update();
 
 				break;
-			case 3: // runeword (doesn't trigger normally)
+			case Pickit.Result.RUNEWORD: // (doesn't trigger normally)
 				break;
-			case 5: // Crafting System
+			case Pickit.Result.CRAFTING:
 				Misc.itemLogger("Kept", item, "CraftSys-Town");
 				CraftingSystem.update(item);
 
 				break;
-			case 8: // SoloWants System
+			case Pickit.Result.SOLOWANTS:
 				Misc.itemLogger("Kept", item, "SoloWants-Town");
 				SoloWants.update(item);
 
 				break;
 			default:
-				if ((getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) && (item.getItemCost(1) <= 1 || !item.sellable)) {
+				if ((getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) && (item.getItemCost(sdk.items.cost.ToSell) <= 1 || !item.sellable)) {
 					continue;
 				}
 
@@ -366,15 +498,15 @@ Town.cainID = function (force = false) {
 				}
 
 				break;
-			case -1:
+			case Pickit.Result.UNID:
 				if (tome) {
 					this.identifyItem(item, tome);
 				} else {
-					scroll = npc.getItem(530);
+					let scroll = npc.getItem(sdk.items.ScrollofIdentify);
 
 					if (scroll) {
 						if (!Storage.Inventory.CanFit(scroll)) {
-							tpTome = me.findItem(518, 0, 3);
+							tpTome = me.findItem(sdk.items.TomeofTownPortal, sdk.items.mode.inStorage, sdk.storage.Inventory);
 
 							if (tpTome) {
 								tpTome.sell();
@@ -389,7 +521,7 @@ Town.cainID = function (force = false) {
 						}
 					}
 
-					scroll = me.findItem(530, 0, 3);
+					scroll = me.findItem(sdk.items.ScrollofIdentify, sdk.items.mode.inStorage, sdk.storage.Inventory);
 
 					if (!scroll) {
 						continue;
@@ -423,18 +555,18 @@ Town.fieldID = function () {
 		let result = Pickit.checkItem(item);
 
 		// Force ID for unid items matching autoEquip criteria
-		if ([1, 2].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
+		if ([Pickit.Result.WANTED, Pickit.Result.CUBING].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
 			result.result = -1;
 		}
 
 		// unid item that should be identified
-		if (result.result === Pickit.result.UNID) {
+		if (result.result === Pickit.Result.UNID) {
 			this.identifyItem(item, idTool, Config.FieldID.PacketID);
 			delay(50);
 			result = Pickit.checkItem(item);
 
 			switch (result.result) {
-			case Pickit.result.WANTED:
+			case Pickit.Result.WANTED:
 				Misc.itemLogger("Field Kept", item);
 				Misc.logItem("Field Kept", item, result.line);
 
@@ -443,18 +575,18 @@ Town.fieldID = function () {
 				}
 
 				break;
-			case Pickit.result.CUBING:
-				Misc.itemLogger("Field Kept", item, "Cubing-Town");
+			case Pickit.Result.CUBING:
+				Misc.itemLogger("Field Kept", item, "Cubing");
 				Cubing.update();
 
 				break;
-			case Pickit.result.CRAFTING:
-				Misc.itemLogger("Field Kept", item, "CraftSys-Town");
+			case Pickit.Result.CRAFTING:
+				Misc.itemLogger("Field Kept", item, "CraftSys");
 				CraftingSystem.update(item);
 
 				break;
-			case 8: // SoloWants System
-				Misc.itemLogger("Field Kept", item, "SoloWants-Town");
+			case Pickit.Result.SOLOWANTS:
+				Misc.itemLogger("Field Kept", item, "SoloWants");
 				SoloWants.update(item);
 
 				break;
@@ -482,7 +614,7 @@ Town.identify = function () {
 	// Only unid items or sellable junk (low level) should trigger a NPC visit
 	if (!list.some(item => {
 		let identified = item.identified;
-		return (!identified && ([-1, 4].includes(Pickit.checkItem(item).result) || (!identified && AutoEquip.hasTier(item))));
+		return (!identified && ([Pickit.Result.UNID, Pickit.Result.TRASH].includes(Pickit.checkItem(item).result) || (!identified && AutoEquip.hasTier(item))));
 	})) {
 		return false;
 	}
@@ -490,7 +622,7 @@ Town.identify = function () {
 	let npc = this.initNPC("Shop", "identify");
 	if (!npc) return false;
 
-	let tome = me.findItem(sdk.items.TomeofIdentify, 0, 3);
+	let tome = me.findItem(sdk.items.TomeofIdentify, sdk.items.mode.inStorage, sdk.storage.Inventory);
 	tome && tome.getStat(sdk.stats.Quantity) < list.length && this.fillTome(sdk.items.TomeofIdentify);
 
 	MainLoop:
@@ -501,29 +633,29 @@ Town.identify = function () {
 			let result = Pickit.checkItem(item);
 
 			// Force ID for unid items matching autoEquip criteria
-			if ([1, 2].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
+			if ([Pickit.Result.WANTED, Pickit.Result.CUBING].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
 				result.result = -1;
 			}
 
 			switch (result.result) {
 			// Items for gold, will sell magics, etc. w/o id, but at low levels
 			// magics are often not worth iding.
-			case 4:
+			case Pickit.Result.TRASH:
 				Misc.itemLogger("Sold", item);
 				item.sell();
 
 				break;
-			case -1:
+			case Pickit.Result.UNID:
 				let idTool = Town.getIdTool();
 
 				if (idTool) {
 					this.identifyItem(item, idTool);
 				} else {
-					scroll = npc.getItem(530);
+					scroll = npc.getItem(sdk.items.ScrollofIdentify);
 
 					if (scroll) {
 						if (!Storage.Inventory.CanFit(scroll)) {
-							let tpTome = me.findItem(518, 0, 3);
+							let tpTome = me.findItem(sdk.items.TomeofTownPortal, sdk.items.mode.inStorage, sdk.storage.Inventory);
 
 							if (tpTome) {
 								tpTome.sell();
@@ -538,7 +670,7 @@ Town.identify = function () {
 						}
 					}
 
-					scroll = me.findItem(530, 0, 3);
+					scroll = me.findItem(sdk.items.ScrollofIdentify, sdk.items.mode.inStorage, sdk.storage.Inventory);
 
 					if (!scroll) {
 						break MainLoop;
@@ -550,12 +682,12 @@ Town.identify = function () {
 				result = Pickit.checkItem(item);
 
 				switch (result.result) {
-				case 1:
+				case Pickit.Result.WANTED:
 					Misc.itemLogger("Kept", item);
 					Misc.logItem("Kept", item, result.line);
 
 					break;
-				case -1: // unidentified
+				case Pickit.Result.UNID:
 					// At low level its not worth keeping these items until we can Id them it just takes up too much room
 					if (me.charlvl < 10 && item.magic && item.classid !== sdk.items.SmallCharm) {
 						Misc.itemLogger("Sold", item);
@@ -563,19 +695,19 @@ Town.identify = function () {
 					}
 
 					break;
-				case 2: // cubing
+				case Pickit.Result.CUBING:
 					Misc.itemLogger("Kept", item, "Cubing-Town");
 					Cubing.update();
 
 					break;
-				case 3: // runeword (doesn't trigger normally)
+				case Pickit.Result.RUNEWORD:
 					break;
-				case 5: // Crafting System
+				case Pickit.Result.CRAFTING:
 					Misc.itemLogger("Kept", item, "CraftSys-Town");
 					CraftingSystem.update(item);
 
 					break;
-				case 8: // SoloWants System
+				case Pickit.Result.SOLOWANTS:
 					Misc.itemLogger("Kept", item, "SoloWants-Town");
 					SoloWants.update(item);
 
@@ -611,14 +743,14 @@ Town.identify = function () {
 		}
 	}
 
-	this.fillTome(518); // Check for TP tome in case it got sold for ID scrolls
+	this.fillTome(sdk.items.TomeofTownPortal); // Check for TP tome in case it got sold for ID scrolls
 
 	return true;
 };
 
 // credit isid0re
 Town.buyBook = function () {
-	if (me.findItem(sdk.items.TomeofTownPortal, 0, 3)) return true;
+	if (me.findItem(sdk.items.TomeofTownPortal, sdk.items.mode.inStorage, sdk.storage.Inventory)) return true;
 	if (me.gold < 500) return false;
 
 	let npc = this.initNPC("Shop", "buyTpTome");
@@ -627,12 +759,12 @@ Town.buyBook = function () {
 	delay(500);
 
 	let tpBook = npc.getItem(sdk.items.TomeofTownPortal);
-	let tpScroll = npc.getItem(529);
+	let tpScroll = npc.getItem(sdk.items.ScrollofTownPortal);
 
-	if (tpBook && me.gold >= tpBook.getItemCost(0) && Storage.Inventory.CanFit(tpBook)) {
+	if (tpBook && me.gold >= tpBook.getItemCost(sdk.items.cost.ToBuy) && Storage.Inventory.CanFit(tpBook)) {
 		try {
 			if (tpBook.buy()) {
-				console.log('ÿc9BuyBookÿc0 :: bought Tome of Town Portal');
+				console.log("ÿc9BuyBookÿc0 :: bought Tome of Town Portal");
 				this.fillTome(sdk.items.TomeofTownPortal);
 			}
 		} catch (e1) {
@@ -641,10 +773,10 @@ Town.buyBook = function () {
 			return false;
 		}
 	} else {
-		if (tpScroll && me.gold >= tpScroll.getItemCost(0) && Storage.Inventory.CanFit(tpScroll)) {
+		if (tpScroll && me.gold >= tpScroll.getItemCost(sdk.items.cost.ToBuy) && Storage.Inventory.CanFit(tpScroll)) {
 			try {
 				if (tpScroll.buy()) {
-					console.log('ÿc9BuyBookÿc0 :: bought Scroll of Town Portal');
+					console.log("ÿc9BuyBookÿc0 :: bought Scroll of Town Portal");
 				}
 			} catch (e1) {
 				console.warn(e1);
@@ -657,30 +789,30 @@ Town.buyBook = function () {
 	return true;
 };
 
+// todo - allow earlier shopping, mainly to get a belt
 Town.shopItems = function () {
 	if (!Config.MiniShopBot) return true;
 
 	let npc = getInteractedNPC();
-	let goldLimit = [10000, 20000, 30000][me.diff];
-
 	if (!npc || !npc.itemcount) return false;
 
 	let items = npc.getItemsEx().filter((item) => Town.ignoredItemTypes.indexOf(item.itemType) === -1);
 	if (!items.length) return false;
 
-	let tick = getTickCount();
-	let haveMerc = !me.classic && Config.UseMerc && Misc.poll(() => !!me.getMerc(), 500, 100);
-	console.log("ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
-	console.log("ÿc8Kolbot-SoloPlayÿc0: Evaluating " + npc.itemcount + " items.");
+	console.time("shopItems");
+	let bought = 0;
+	const goldLimit = [10000, 20000, 30000][me.diff];
+	const haveMerc = (!me.classic && Config.UseMerc && !me.mercrevivecost && Misc.poll(() => !!me.getMerc(), 500, 100));
+	console.info(true, "ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
 
 	for (let i = 0; i < items.length; i++) {
-		let item = items[i];
-		let result = Pickit.checkItem(item);
-		let myGold = me.gold;
-		let itemCost = item.getItemCost(0);
+		const item = items[i];
+		const result = Pickit.checkItem(item);
+		const myGold = me.gold;
+		const itemCost = item.getItemCost(sdk.items.cost.ToBuy);
 
 		// no tier'ed items
-		if (result.result === 1 && NTIP.CheckItem(item, NTIP_CheckListNoTier, true).result !== 0) {
+		if (result.result === Pickit.Result.WANTED && NTIP.CheckItem(item, NTIP_CheckListNoTier, true).result !== Pickit.Result.UNWANTED) {
 			try {
 				if (Storage.Inventory.CanFit(item) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
 					if (item.isBaseType) {
@@ -688,14 +820,14 @@ Town.shopItems = function () {
 							Misc.itemLogger("Shopped", item);
 							Developer.debugging.autoEquip && Misc.logItem("Shopped", item, result.line);
 							console.log("ÿc8Kolbot-SoloPlayÿc0: Bought better base");
-							item.buy();
+							item.buy() && bought++;
 
 							continue;
 						}
 					} else {
 						Misc.itemLogger("Shopped", item);
 						Misc.logItem("Shopped", item, result.line);
-						item.buy();
+						item.buy() && bought++;
 
 						continue;
 					}
@@ -706,7 +838,7 @@ Town.shopItems = function () {
 		}
 
 		// tier'ed items - // todo re-write this so we don't buy multiple items just to equip one then sell the rest back
-		if (result.result === 1 && AutoEquip.wanted(item)) {
+		if (result.result === Pickit.Result.WANTED && AutoEquip.wanted(item)) {
 			try {
 				if (Storage.Inventory.CanFit(item) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
 					if (Item.hasTier(item) && Item.autoEquipCheck(item)) {
@@ -714,8 +846,7 @@ Town.shopItems = function () {
 							Misc.itemLogger("AutoEquip Shopped", item);
 							console.log("ÿc9ShopItemsÿc0 :: AutoEquip Shopped: " + item.fname + " Tier: " + NTIP.GetTier(item));
 							Developer.debugging.autoEquip && Misc.logItem("AutoEquip Shopped", item, result.line);
-							item.buy();
-
+							item.buy() && bought++;
 						} catch (e) {
 							console.warn(e);
 						}
@@ -726,7 +857,7 @@ Town.shopItems = function () {
 					if (haveMerc && Item.hasMercTier(item) && Item.autoEquipCheckMerc(item)) {
 						Misc.itemLogger("AutoEquipMerc Shopped", item);
 						Developer.debugging.autoEquip && Misc.logItem("AutoEquipMerc Shopped", item, result.line);
-						item.buy();
+						item.buy() && bought++;
 
 						continue;
 					}
@@ -736,8 +867,7 @@ Town.shopItems = function () {
 							Misc.itemLogger("AutoEquip Switch Shopped", item);
 							console.log("ÿc9ShopItemsÿc0 :: AutoEquip Switch Shopped: " + item.fname + " SecondaryTier: " + NTIP.GetSecondaryTier(item));
 							Developer.debugging.autoEquip && Misc.logItem("AutoEquip Switch Shopped", item, result.line);
-							item.buy();
-
+							item.buy() && bought++;
 						} catch (e) {
 							console.warn(e);
 						}
@@ -746,14 +876,14 @@ Town.shopItems = function () {
 					}
 				}
 			} catch (e) {
-				console.warn(e);
+				console.error(e);
 			}
 		}
 
 		delay(2);
 	}
 
-	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting Town.shopItems. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
+	console.info(false, "Bought " + bought + " items", "shopItems");
 
 	return true;
 };
@@ -786,7 +916,7 @@ Town.gamble = function () {
 	let npc = this.initNPC("Gamble", "gamble");
 	if (!npc) return false;
 
-	let items = me.findItems(-1, 0, 3);
+	let items = me.findItems(-1, sdk.items.mode.inStorage, sdk.storage.Inventory);
 
 	while (items && items.length > 0) {
 		list.push(items.shift().gid);
@@ -808,7 +938,6 @@ Town.gamble = function () {
 			for (let i = 0; i < items.length; i += 1) {
 				if (!Storage.Inventory.CanFit(items[i])) return false;
 
-				//me.overhead("Buy: " + items[i].name);
 				items[i].buy(false, true);
 
 				let newItem = this.getGambledItem(list);
@@ -817,24 +946,23 @@ Town.gamble = function () {
 					let result = Pickit.checkItem(newItem);
 
 					switch (result.result) {
-					case 1:
+					case Pickit.Result.WANTED:
 						Misc.itemLogger("Gambled", newItem);
 						Misc.logItem("Gambled", newItem, result.line);
 						list.push(newItem.gid);
 
 						break;
-					case 2:
+					case Pickit.Result.CUBING:
 						list.push(newItem.gid);
 						Cubing.update();
 
 						break;
-					case 5: // Crafting System
+					case Pickit.Result.CRAFTING:
 						CraftingSystem.update(newItem);
 
 						break;
 					default:
 						Misc.itemLogger("Sold", newItem, "Gambling");
-						//me.overhead("Sell: " + newItem.name);
 						newItem.sell();
 
 						if (!Config.PacketShopping) {
@@ -870,7 +998,7 @@ Town.unfinishedQuests = function () {
 	let leg = me.getItem(sdk.items.quest.WirtsLeg);
 	if (leg) {
 		!me.inTown && Town.goToTown();
-		leg.isInStash && Town.openStash() && Storage.Inventory.MoveTo(leg) && delay(300 + me.ping);
+		leg.isInStash && Town.openStash() && Storage.Inventory.MoveTo(leg) && delay(300);
 		getUIFlag(sdk.uiflags.Stash) && me.cancel();
 		leg.drop();
 	}
@@ -879,10 +1007,10 @@ Town.unfinishedQuests = function () {
 	// Radament skill book
 	let book = me.getItem(sdk.items.quest.BookofSkill);
 	if (book) {
-		book.isInStash && Town.openStash() && delay(300 + me.ping);
+		book.isInStash && Town.openStash() && delay(300);
 		book.interact();
-		print('ÿc8Kolbot-SoloPlayÿc0: used Radament skill book');
-		delay(500 + me.ping) && me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
+		console.log("ÿc8Kolbot-SoloPlayÿc0: used Radament skill book");
+		delay(500) && me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
 	}
 
 	// Act 3
@@ -900,38 +1028,38 @@ Town.unfinishedQuests = function () {
 	// Potion of life
 	let pol = me.getItem(sdk.items.quest.PotofLife);
 	if (pol) {
-		pol.isInStash && Town.openStash() && delay(300 + me.ping);
+		pol.isInStash && Town.openStash() && delay(300);
 		pol.interact();
-		print('ÿc8Kolbot-SoloPlayÿc0: used potion of life');
+		console.log("ÿc8Kolbot-SoloPlayÿc0: used potion of life");
 	}
 
 	// LamEssen's Tome
 	let tome = me.getItem(sdk.items.quest.LamEsensTome);
 	if (tome) {
 		!me.inTown && Town.goToTown(3);
-		tome.isInStash && Town.openStash() && Storage.Inventory.MoveTo(tome) && delay(300 + me.ping);
-		Town.npcInteract("alkor") && delay(300 + me.ping);
+		tome.isInStash && Town.openStash() && Storage.Inventory.MoveTo(tome) && delay(300);
+		Town.npcInteract("alkor") && delay(300);
 		me.getStat(sdk.stats.StatPts) > 0 && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
-		print('ÿc8Kolbot-SoloPlayÿc0: LamEssen Tome completed');
+		console.log("ÿc8Kolbot-SoloPlayÿc0: LamEssen Tome completed");
 	}
 
 	// Remove Khalim's Will if quest not completed and restarting run.
 	let kw = me.getItem(sdk.items.quest.KhalimsWill);
 	if (kw) {
-		if (Item.getEquippedItem(4).classid === sdk.items.quest.KhalimsWill) {
+		if (Item.getEquippedItem(sdk.body.RightArm).classid === sdk.items.quest.KhalimsWill) {
 			Town.clearInventory();
-			delay(500 + me.ping * 2);
+			delay(500);
 			Quest.stashItem(sdk.items.quest.KhalimsWill);
-			print('ÿc8Kolbot-SoloPlayÿc0: removed khalims will');
+			console.log("ÿc8Kolbot-SoloPlayÿc0: removed khalims will");
 			Item.autoEquip();
 		}
 	}
 
 	// Killed council but haven't talked to cain
-	if (!Misc.checkQuest(21, 0) && Misc.checkQuest(21, 4)) {
+	if (!Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, sdk.quest.states.Completed) && Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, 4)) {
 		me.overhead("Finishing Travincal by talking to cain");
 		Town.goToTown(3) && Town.npcInteract("cain");
-		delay(300 + me.ping);
+		delay(300);
 		me.cancel();
 	}
 
@@ -940,7 +1068,7 @@ Town.unfinishedQuests = function () {
 	let hammer = me.getItem(sdk.items.quest.HellForgeHammer);
 	if (hammer) {
 		!me.inTown && Town.goToTown();
-		hammer.isInStash && Town.openStash() && Storage.Inventory.MoveTo(hammer) && delay(300 + me.ping);
+		hammer.isInStash && Town.openStash() && Storage.Inventory.MoveTo(hammer) && delay(300);
 		getUIFlag(sdk.uiflags.Stash) && me.cancel();
 		hammer.drop();
 	}
@@ -948,7 +1076,7 @@ Town.unfinishedQuests = function () {
 	let soulstone = me.getItem(sdk.items.quest.MephistosSoulstone);
 	if (soulstone) {
 		!me.inTown && Town.goToTown();
-		soulstone.isInStash && Town.openStash() && Storage.Inventory.MoveTo(soulstone) && delay(300 + me.ping);
+		soulstone.isInStash && Town.openStash() && Storage.Inventory.MoveTo(soulstone) && delay(300);
 		getUIFlag(sdk.uiflags.Stash) && me.cancel();
 		soulstone.drop();
 	}
@@ -960,9 +1088,9 @@ Town.unfinishedQuests = function () {
 	// Scroll of resistance
 	let sor = me.getItem(sdk.items.quest.ScrollofResistance);
 	if (sor) {
-		sor.isInStash && this.openStash() && delay(300 + me.ping);
+		sor.isInStash && this.openStash() && delay(300);
 		sor.interact();
-		print('ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance');
+		console.log("ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance");
 	}
 
 	Misc.checkSocketables();
@@ -977,7 +1105,7 @@ new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
 	let objDrank = orignal(type, false);
 	
 	if (objDrank.potName) {
-		let objID = objDrank.potName.split(' ')[0].toLowerCase();
+		let objID = objDrank.potName.split(" ")[0].toLowerCase();
 
 		if (objID) {
 			// non-english version
@@ -992,7 +1120,7 @@ new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
 				CharData.buffData[objID].duration += (objDrank.quantity * 30 * 1000) - (getTickCount() - CharData.buffData[objID].tick);
 			}
 
-			console.log('ÿc9DrinkPotsÿc0 :: drank ' + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Developer.formatTime(CharData.buffData[objID].duration) + "]");
+			console.log("ÿc9DrinkPotsÿc0 :: drank " + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Developer.formatTime(CharData.buffData[objID].duration) + "]");
 		}
 	}
 
@@ -1009,12 +1137,11 @@ Town.buyMercPots = function (quantity, type) {
 
 	// Don't buy if already at max res
 	if (type === "Thawing" && merc.coldRes >= 75) return true;
-
 	// Don't buy if already at max res
 	if (type === "Antidote" && merc.poisonRes >= 75) return true;
 
 	Town.move(NPC[potDealer]);
-	npc = getUnit(sdk.unittype.NPC, NPC[potDealer]);
+	npc = Game.getNPC(NPC[potDealer]);
 
 	if (!npc || !npc.openMenu()) return false;
 
@@ -1035,7 +1162,7 @@ Town.buyMercPots = function (quantity, type) {
 		break;
 	}
 
-	print('ÿc8Kolbot-SoloPlayÿc0: buying ' + quantity + ' ' + type + ' Potions for merc');
+	console.log("ÿc8Kolbot-SoloPlayÿc0: buying " + quantity + " " + type + " Potions for merc");
 
 	for (let totalspecialpotions = 0; totalspecialpotions < quantity; totalspecialpotions++) {
 		if (jugs) {
@@ -1051,7 +1178,7 @@ Town.buyMercPots = function (quantity, type) {
 Town.canStash = function (item) {
 	if (this.ignoredItemTypes.includes(item.itemType)
 		|| [sdk.items.quest.HoradricStaff, sdk.items.quest.KhalimsWill].includes(item.classid)
-		|| ([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid) && Item.autoEquipCharmCheck(item))) {
+		|| (item.isCharm && Item.autoEquipCharmCheck(item))) {
 		return false;
 	}
 
@@ -1071,14 +1198,14 @@ Town.stash = function (stashGold = true) {
 	if (items) {
 		for (let i = 0; i < items.length; i += 1) {
 			if (this.canStash(items[i])) {
-				let pickResult = Pickit.checkItem(items[i]).result;
+				const pickResult = Pickit.checkItem(items[i]).result;
 				switch (true) {
-				case pickResult > 0 && pickResult < 4:
+				case pickResult > Pickit.Result.UNWANTED && pickResult < Pickit.Result.TRASH:
 				case Cubing.keepItem(items[i]):
 				case Runewords.keepItem(items[i]):
 				case CraftingSystem.keepItem(items[i]):
 				case SoloWants.keepItem(items[i]):
-				case AutoEquip.wanted(items[i]) && pickResult === 0: // wanted but can't use yet
+				case AutoEquip.wanted(items[i]) && pickResult === Pickit.Result.UNWANTED: // wanted but can't use yet
 				case !items[i].sellable: // quest/essences/keys/ect
 					result = true;
 
@@ -1099,8 +1226,8 @@ Town.stash = function (stashGold = true) {
 
 	// Stash gold
 	if (stashGold) {
-		if (me.getStat(14) >= Config.StashGold && me.getStat(15) < 25e5 && this.openStash()) {
-			gold(me.getStat(14), 3);
+		if (me.getStat(sdk.stats.Gold) >= Config.StashGold && me.getStat(sdk.stats.GoldBank) < 25e5 && this.openStash()) {
+			gold(me.getStat(sdk.stats.Gold), 3);
 			delay(1000); // allow UI to initialize
 			me.cancel();
 		}
@@ -1122,12 +1249,15 @@ Town.sortStash = function (force = false) {
 };
 
 Town.clearInventory = function () {
+	console.log("ÿc8Start ÿc0:: ÿc8clearInventory");
+	let clearInvoTick = getTickCount();
+	
 	// If we are at an npc already, open the window otherwise moving potions around fails
 	if (getUIFlag(sdk.uiflags.NPCMenu) && !getUIFlag(sdk.uiflags.Shop)) {
 		try {
 			!!getInteractedNPC() && Misc.useMenu(sdk.menu.Trade);
 		} catch (e) {
-			console.warn(e);
+			console.error(e);
 			me.cancelUIFlags();
 		}
 	}
@@ -1137,7 +1267,7 @@ Town.clearInventory = function () {
 
 	// Return potions from inventory to belt
 	let potsInInventory;
-	let beltSize = Storage.BeltSize();
+	const beltSize = Storage.BeltSize();
 	// belt 4x4 locations
 	/**
 	* 12 13 14 15
@@ -1145,15 +1275,15 @@ Town.clearInventory = function () {
 	* 4  5  6  7
 	* 0  1  2  3
 	*/
-	let beltMax = (beltSize * 4);
-	let beltCapRef = [(0 + beltMax), (1 + beltMax), (2 + beltMax), (3 + beltMax)];
+	const beltMax = (beltSize * 4);
+	const beltCapRef = [(0 + beltMax), (1 + beltMax), (2 + beltMax), (3 + beltMax)];
 
 	// check if we have empty belt slots
 	let needCleanup = Town.checkColumns(beltSize).some(slot => slot > 0);
 
 	if (needCleanup) {
 		potsInInventory = me.getItemsEx()
-			.filter((p) => p.isInInventory && [sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion].includes(p.itemType))
+			.filter((p) => p.isInInventory && [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion].includes(p.itemType))
 			.sort((a, b) => a.itemType - b.itemType);
 
 		potsInInventory.length > 0 && console.debug("clearInventory: start pots clean-up");
@@ -1169,7 +1299,7 @@ Town.clearInventory = function () {
 					// prevents shift-clicking potion into wrong column
 					if (freeSpace[i] === beltSize || freeSpace.some((spot) => spot === beltSize)) {
 						let x = freeSpace[i] === beltSize ? i : (beltCapRef[i] - (freeSpace[i] * 4));
-						p.toCursor(true) && new PacketBuilder().byte(0x23).dword(p.gid).dword(x).send();
+						p.toCursor(true) && new PacketBuilder().byte(sdk.packets.send.ItemToBelt).dword(p.gid).dword(x).send();
 					} else {
 						clickItemAndWait(sdk.clicktypes.click.ShiftLeft, p.x, p.y, p.location);
 					}
@@ -1186,8 +1316,8 @@ Town.clearInventory = function () {
 	let sellOrDrop = [];
 	potsInInventory = me.getItemsEx()
 		.filter((p) => p.isInInventory && [
-			sdk.itemtype.HealingPotion, sdk.itemtype.ManaPotion, sdk.itemtype.RejuvPotion,
-			sdk.itemtype.ThawingPotion, sdk.itemtype.AntidotePotion, sdk.itemtype.StaminaPotion
+			sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion,
+			sdk.items.type.ThawingPotion, sdk.items.type.AntidotePotion, sdk.items.type.StaminaPotion
 		].includes(p.itemType));
 
 	if (potsInInventory.length > 0) {
@@ -1196,15 +1326,15 @@ Town.clearInventory = function () {
 			if (!p || p === undefined) return false;
 
 			switch (p.itemType) {
-			case sdk.itemtype.HealingPotion:
+			case sdk.items.type.HealingPotion:
 				return (hp.push(copyUnit(p)));
-			case sdk.itemtype.ManaPotion:
+			case sdk.items.type.ManaPotion:
 				return (mp.push(copyUnit(p)));
-			case sdk.itemtype.RejuvPotion:
+			case sdk.items.type.RejuvPotion:
 				return (rv.push(copyUnit(p)));
-			case sdk.itemtype.ThawingPotion:
-			case sdk.itemtype.AntidotePotion:
-			case sdk.itemtype.StaminaPotion:
+			case sdk.items.type.ThawingPotion:
+			case sdk.items.type.AntidotePotion:
+			case sdk.items.type.StaminaPotion:
 				return (specials.push(copyUnit(p)));
 			}
 
@@ -1242,25 +1372,31 @@ Town.clearInventory = function () {
 	}
 
 	// Any leftover items from a failed ID (crashed game, disconnect etc.)
-	let items = (Storage.Inventory.Compare(Config.Inventory) || []);
-	items.length > 0 && (items = items.filter(function (item) {
-		return (!!item && ([18, 41, 76, 77, 78].indexOf(item.itemType) === -1 // Don't drop tomes, keys or potions
-					&& item.sellable // Don't try to sell/drop quest-items
-					&& !AutoEquip.wanted(item) // Don't throw auto equip wanted items
-					&& !Cubing.keepItem(item) // Don't throw cubing ingredients
-					&& !Runewords.keepItem(item) // Don't throw runeword ingredients
-					&& !CraftingSystem.keepItem(item) // Don't throw crafting system ingredients
-					&& !SoloWants.keepItem(item) // Don't throw SoloWants system ingredients
-		));
-	}));
+	const ignoreTypes = [
+		sdk.items.type.Book, sdk.items.type.Key, sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion
+	];
+	let items = (Storage.Inventory.Compare(Config.Inventory) || [])
+		.filter(function (item) {
+			if (!item) return false;
+			if (ignoreTypes.indexOf(item.itemType) === -1 && item.sellable
+				&& !AutoEquip.wanted(item) && !SoloWants.keepItem(item)
+				&& !Cubing.keepItem(item) && !Runewords.keepItem(item) && !CraftingSystem.keepItem(item)) {
+				return true;
+			}
+			return false;
+		});
 
 	let sell = [];
+	const classItemType = (item) => [
+		sdk.items.type.Wand, sdk.items.type.VoodooHeads, sdk.items.type.AuricShields, sdk.items.type.PrimalHelm, sdk.items.type.Pelt
+	].includes(item.itemType);
+
 	items.length > 0 && items.forEach(function (item) {
 		let result = Pickit.checkItem(item).result;
 
-		if ([Pickit.result.UNWANTED, Pickit.result.TRASH].indexOf(result) === -1) {
-			if ((item.isBaseType && item.sockets > 0) ||
-				([25, 69, 70, 71, 72].includes(item.itemType) && item.normal && item.sockets === 0)) {
+		if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].indexOf(result) === -1) {
+			if ((item.isBaseType && item.sockets > 0)
+				|| (classItemType(item) && item.normal && item.sockets === 0)) {
 				if (Town.worseBaseThanStashed(item) && !Town.betterBaseThanWearing(item, Developer.debugging.junkCheck)) {
 					result = 4;
 				}
@@ -1269,7 +1405,7 @@ Town.clearInventory = function () {
 
 		!item.identified && (result = -1);
 
-		[Pickit.result.UNWANTED, Pickit.result.TRASH].includes(result) && sell.push(item);
+		[Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(result) && sell.push(item);
 	});
 
 	sell = (sell.length > 0 ? sell.concat(sellOrDrop) : sellOrDrop.slice(0));
@@ -1282,9 +1418,11 @@ Town.clearInventory = function () {
 				delay(100);
 			}
 		} catch (e) {
-			console.errorReport(e);
+			console.error(e);
 		}
 	});
+
+	console.log("ÿc8Exit clearInventory ÿc0- ÿc7Duration: ÿc0" + Time.format(getTickCount() - clearInvoTick));
 
 	return true;
 };
@@ -1296,10 +1434,10 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 	let baseSkillsTier, equippedSkillsTier;
 	let result = true, preSocketCheck = false;
 
-	let skillsScore = function (item) {
+	const skillsScore = function (item) {
 		let skillsRating = 0;
-		skillsRating += item.getStatEx(83, me.classid) * 200; // + class skills
-		skillsRating += item.getStatEx(188, Check.currentBuild().tabSkills) * 100; // + TAB skills
+		skillsRating += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 200; // + class skills
+		skillsRating += item.getStatEx(sdk.stats.AddSkillTab, Check.currentBuild().tabSkills) * 100; // + TAB skills
 		let selectedWeights = [30, 20];
 		let selectedSkills = [Check.currentBuild().wantedSkills, Check.currentBuild().usefulSkills];
 
@@ -1319,7 +1457,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 	let bodyLoc = Item.getBodyLoc(base);
 
 	// Can't use so its worse then what we already have
-	if ((me.getStat(0) < base.strreq || me.getStat(2) < base.dexreq)) {
+	if ((me.getStat(sdk.stats.Strength) < base.strreq || me.getStat(sdk.stats.Dexterity) < base.dexreq)) {
 		return false;
 	}
 
@@ -1328,25 +1466,25 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 	for (let i = 0; i < bodyLoc.length; i++) {
 		if (item) {
 			do {
-				if (item.location === 1 && item.bodylocation === bodyLoc[i]) {
+				if (item.isEquipped && item.bodylocation === bodyLoc[i]) {
 					equippedItem = {
 						classid: item.classid,
 						type: item.itemType,
-						sockets: item.getStatEx(194),
+						sockets: item.getStatEx(sdk.stats.NumSockets),
 						name: item.name,
 						tier: NTIP.GetTier(item),
 						prefixnum: item.prefixnum,
-						str: item.getStatEx(0),
-						dex: item.getStatEx(2),
-						def: item.getStatEx(31),
-						eDef: item.getStatEx(16),
-						fr: item.getStatEx(39),
-						lr: item.getStatEx(41),
-						cr: item.getStatEx(43),
-						pr: item.getStatEx(45),
-						minDmg: item.getStatEx(21),
-						maxDmg: item.getStatEx(22),
-						eDmg: item.getStatEx(18),
+						str: item.getStatEx(sdk.stats.Strength),
+						dex: item.getStatEx(sdk.stats.Dexterity),
+						def: item.getStatEx(sdk.stats.Defense),
+						eDef: item.getStatEx(sdk.stats.ArmorPercent),
+						fr: item.getStatEx(sdk.stats.FireResist),
+						lr: item.getStatEx(sdk.stats.LightResist),
+						cr: item.getStatEx(sdk.stats.ColdResist),
+						pr: item.getStatEx(sdk.stats.PoisonResist),
+						minDmg: item.getStatEx(sdk.stats.MinDamage),
+						maxDmg: item.getStatEx(sdk.stats.MaxDamage),
+						eDmg: item.getStatEx(sdk.stats.MinDamagePercent),
 						runeword: item.isRuneword,
 					};
 					check = item;
@@ -1356,16 +1494,16 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 		}
 
 		if (!equippedItem.runeword) {
-			continue;	//Equipped item is not a runeword, keep the base
+			continue;	// Equipped item is not a runeword, keep the base
 		}
 
 		switch (equippedItem.prefixnum) {
-		case 20507: 	//Ancient's Pledge
-		case 20543: 	//Exile
-		case 20581: 	//Lore
-		case 20635: 	//Spirit
-		case 20667: 	//White
-		case 20625: 	//Rhyme
+		case sdk.locale.items.AncientsPledge:
+		case sdk.locale.items.Exile:
+		case sdk.locale.items.Lore:
+		case sdk.locale.items.Spirit:
+		case sdk.locale.items.White:
+		case sdk.locale.items.Rhyme:
 			preSocketCheck = true;
 			break;
 		default:
@@ -1378,15 +1516,16 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 
 		if (base.sockets === equippedItem.sockets || preSocketCheck) {
 			switch (equippedItem.prefixnum) {
-			case 20507: 	//Ancient's Pledge
+			case sdk.locale.items.AncientsPledge:
 				if (me.paladin) {
 					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 187;
-					baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+					baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
 
 					if (baseResists !== itemsResists) {
-						verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
 
-						if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+						// base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+						if (baseResists < itemsResists) {
 							result = false;
 
 							break;
@@ -1394,12 +1533,12 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 					}
 				} else {
 					itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
-					baseDefense = base.getStatEx(31);
+					baseDefense = base.getStatEx(sdk.stats.Defense);
 
 					if (baseDefense !== itemsDefense) {
-						verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 
-						if (baseDefense < itemsDefense) {	//base has lower defense
+						if (baseDefense < itemsDefense) {
 							result = false;
 
 							break;
@@ -1408,17 +1547,17 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 				
 				break;
-			case 20512: 	//Black
+			case sdk.locale.items.Black:
 				ED = equippedItem.eDmg > 120 ? 120 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
-					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Black) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Black) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1426,17 +1565,17 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20523: 	//Crescent Moon
+			case sdk.locale.items.CrescentMoon:
 				ED = equippedItem.eDmg > 220 ? 220 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
-					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Crescent Moon) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Crescent Moon) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1444,14 +1583,15 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20543: 	//Exile
+			case sdk.locale.items.Exile:
 				itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr);
-				baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+				baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
 
 				if (baseResists !== itemsResists) {
-					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
 
-					if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+					// base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+					if (baseResists < itemsResists) {
 						result = false;
 
 						break;
@@ -1459,17 +1599,17 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20561: 	//Honor
+			case sdk.locale.items.Honor:
 				ED = equippedItem.eDmg > 160 ? 160 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 9) / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
-					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Honor) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Honor) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1477,17 +1617,17 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20571: 	//King's Grace
+			case sdk.locale.items.KingsGrace:
 				ED = equippedItem.eDmg > 100 ? 100 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
-					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(King's Grace) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(King's Grace) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1495,17 +1635,17 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20577: 	//Lawbringer
+			case sdk.locale.items.Lawbringer:
 				ED = equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
-					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Lawbringer) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lawbringer) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1513,26 +1653,28 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20581: 	//Lore
-				itemsDefense = check.getStatEx(31);
-				baseDefense = base.getStatEx(31);
+			case sdk.locale.items.Lore:
+				itemsDefense = check.getStatEx(sdk.stats.Defense);
+				baseDefense = base.getStatEx(sdk.stats.Defense);
 					
-				if (me.barbarian || me.druid) {	//Barbarian or Druid (PrimalHelms and Pelts)
+				if (me.barbarian || me.druid) {
+					// (PrimalHelms and Pelts)
 					equippedSkillsTier = skillsScore(check);
 					baseSkillsTier = skillsScore(base);
 
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 					if (equippedSkillsTier !== baseSkillsTier) {
-						print("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 
-						if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense helm
+						// Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense helm
+						if (baseSkillsTier < equippedSkillsTier) {
 							result = false;
 
 							break;
 						}
 					} else if (baseDefense !== itemsDefense) {
-						verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 
-						if (baseDefense < itemsDefense) {	//base has lower defense
+						if (baseDefense < itemsDefense) {
 							result = false;
 
 							break;
@@ -1540,9 +1682,9 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 					}
 				} else {
 					if (baseDefense !== itemsDefense) {
-						verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 
-						if (baseDefense < itemsDefense) {	//base has lower defense
+						if (baseDefense < itemsDefense) {
 							result = false;
 
 							break;
@@ -1551,22 +1693,23 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20586: 	//Malice
+			case sdk.locale.items.Malice:
 				ED = equippedItem.eDmg > 33 ? 33 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 
-				if (me.classid === 3) {	//Paladin TODO: See if its worth it to calculate the added damage skills would add
+				if (me.paladin) {
+					// Paladin TODO: See if its worth it to calculate the added damage skills would add
 					equippedSkillsTier = skillsScore(check);
 					baseSkillsTier = skillsScore(base);
 				}
 					
 				if (baseDmg !== itemsTotalDmg) {
-					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Malice) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Malice) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1574,22 +1717,23 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20625: 	//Rhyme
-				if (me.necromancer) {	//Necromancer
+			case sdk.locale.items.Rhyme:
+				if (me.necromancer) {
 					equippedSkillsTier = skillsScore(check);
 					baseSkillsTier = skillsScore(base);
 
 					if (equippedSkillsTier !== baseSkillsTier) {
-						verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 
-						if (baseSkillsTier < equippedSkillsTier) {	//Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense shield
+						// Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense shield
+						if (baseSkillsTier < equippedSkillsTier) {
 							result = false;
 
 							break;
 						}
 					} else if (equippedSkillsTier === baseSkillsTier) {
-						baseDefense = base.getStatEx(31);
-						verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) EquippedDefense: " + equippedItem.def + " BaseDefense: " + baseDefense);
+						baseDefense = base.getStatEx(sdk.stats.Defense);
+						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) EquippedDefense: " + equippedItem.def + " BaseDefense: " + baseDefense);
 
 						if (baseDefense < equippedItem.def) {
 							result = false;
@@ -1599,12 +1743,13 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 					}
 				} else if (me.paladin) {
 					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 100;
-					baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+					baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
 
 					if (baseResists !== itemsResists) {
-						verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
 
-						if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+						// base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+						if (baseResists < itemsResists) {
 							result = false;
 
 							break;
@@ -1614,17 +1759,17 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20626: 	//Rift
+			case sdk.locale.items.Rift:
 				ED = equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
-					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Rift) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Rift) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1632,18 +1777,19 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20635: 	//Spirit
-				if (me.paladin && bodyLoc[i] === 5) {
+			case sdk.locale.items.Spirit:
+				if (me.paladin && bodyLoc[i] === sdk.body.LeftArm) {
 					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 115;
-					baseResists = base.getStat(39) + base.getStat(41) + base.getStat(43) + base.getStat(45);
+					baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
 				} else {
 					break;
 				}
 
 				if (baseResists !== itemsResists) {
-					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(spirit) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(spirit) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
 
-					if (baseResists < itemsResists) {	//base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+					// base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
+					if (baseResists < itemsResists) {
 						result = false;
 
 						break;
@@ -1651,17 +1797,17 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20639: 	//Steel
+			case sdk.locale.items.Steel:
 				ED = equippedItem.eDmg > 20 ? 20 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 3) / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 3) / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
-					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Steel) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Steel) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1669,17 +1815,17 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20644: 	//Strength
+			case sdk.locale.items.Strength:
 				ED = equippedItem.eDmg > 35 ? 35 : equippedItem.eDmg;
 				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
 				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
 				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(21) + base.getStat(22);
+				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
 					
 				if (baseDmg !== itemsTotalDmg) {
-					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Strength) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Strength) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {	//base has lower damage.
+					if (baseDmg < itemsTotalDmg) {
 						result = false;
 
 						break;
@@ -1687,13 +1833,13 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20667: 	//White
-				if (me.necromancer) {	//Necromancer
+			case sdk.locale.items.White:
+				if (me.necromancer) {
 					equippedSkillsTier = skillsScore(check) - 550;
 					baseSkillsTier = skillsScore(base);
 
 					if (equippedSkillsTier !== baseSkillsTier) {
-						verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 
 						if (baseSkillsTier < equippedSkillsTier) {
 							result = false;
@@ -1704,15 +1850,15 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20633: 	// Smoke
-			case 20638: 	// Stealth
+			case sdk.locale.items.Smoke:
+			case sdk.locale.items.Stealth:
 				itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
-				baseDefense = base.getStatEx(31);
+				baseDefense = base.getStatEx(sdk.stats.Defense);
 
 				if (baseDefense !== itemsDefense) {
-					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(Stealth/Smoke) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Stealth/Smoke) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 
-					if (baseDefense < itemsDefense) {	//base has lower defense
+					if (baseDefense < itemsDefense) {
 						result = false;
 
 						break;
@@ -1720,34 +1866,34 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 				}
 
 				break;
-			case 20514: 	// Bone
-			case 20592: 	// Myth
-			case 20603: 	// Peace
-			case 20653: 	// Treachery
+			case sdk.locale.items.Bone:
+			case sdk.locale.items.Myth:
+			case sdk.locale.items.Peace:
+			case sdk.locale.items.Treachery:
 				let name = "";
 
 				switch (equippedItem.prefixnum) {
-				case 20514: 	// Bone
+				case sdk.locale.items.Bone:
 					name = "Bone";
 					break;
-				case 20592: 	// Myth
+				case sdk.locale.items.Myth:
 					name = "Myth";
 					break;
-				case 20603: 	// Peace
+				case sdk.locale.items.Peace:
 					name = "Peace";
 					break;
-				case 20653: 	// Treachery
+				case sdk.locale.items.Treachery:
 					name = "Treachery";
 					break;
 				}
 
 				itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
-				baseDefense = base.getStatEx(31);
+				baseDefense = base.getStatEx(sdk.stats.Defense);
 
 				if (baseDefense !== itemsDefense) {
-					verbose && print("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
 
-					if (baseDefense < itemsDefense) {	//base has lower defense
+					if (baseDefense < itemsDefense) {
 						result = false;
 
 						break;
@@ -1756,7 +1902,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 
 				break;
 			default:
-				return true;	// Runeword base isn't in the list, keep the base
+				// Runeword base isn't in the list, keep the base
+				return true;
 			}
 		}
 	}
@@ -1765,16 +1912,15 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 };
 
 // TODO: clean this up (which is gonna suck)
-Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) {
-	if (!base) return false;
-	if (base.quality > sdk.itemquality.Superior || base.isRuneword) return false;
+Town.worseBaseThanStashed = function (base = undefined) {
+	if (!base || base.quality > sdk.items.quality.Superior || base.isRuneword) return false;
 
 	function generalScore (item) {
 		let generalScore = 0;
-		generalScore += item.getStatEx(83, me.classid) * 200; // + class skills
-		generalScore += item.getStatEx(188, Check.currentBuild().tabSkills) * 100; // + TAB skills
 		let selectedWeights = [30, 20];
 		let selectedSkills = [Check.currentBuild().wantedSkills, Check.currentBuild().usefulSkills];
+		generalScore += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 200; // + class skills
+		generalScore += item.getStatEx(sdk.stats.AddSkillTab, Check.currentBuild().tabSkills) * 100; // + TAB skills
 
 		for (let i = 0; i < selectedWeights.length; i++) {
 			for (let j = 0; j < selectedSkills.length; j++) {
@@ -1785,304 +1931,212 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 		}
 
 		if (generalScore === 0) {
-			if (me.paladin) {
-				generalScore += item.getStatEx(39) * 2;	// Resist
-			}
+			me.paladin && (generalScore += item.getStatEx(sdk.stats.FireResist) * 2);
 
-			generalScore += item.getStatEx(31) * 0.5;		// Defense
-			generalScore += item.getStatEx(21); // add MIN damage
-			generalScore += item.getStatEx(22); // add MAX damage
-			//generalScore += item.getStatEx(23); // add MIN damage
-			//generalScore += item.getStatEx(24); // add MAX damage
+			generalScore += item.getStatEx(sdk.stats.Defense) * 0.5; // Defense
+			generalScore += item.getStatEx(sdk.stats.MinDamage); // add MIN damage
+			generalScore += item.getStatEx(sdk.stats.MaxDamage); // add MAX damage
 		}
 
 		return generalScore;
 	}
 
+	function getAvgDmg (item) {
+		return Math.round((item.getStatEx(sdk.stats.SecondaryMinDamage) + item.getStatEx(sdk.stats.SecondaryMaxDamage)) / 2);
+	}
+
+	function getItemToCompare (itemtypes = [], eth = null, sort = (a, b) => a - b) {
+		return me.getItemsEx(-1, sdk.items.mode.inStorage)
+			.filter(item =>
+				item.gid !== base.gid && itemtypes.includes(item.itemType) && item.sockets === base.sockets && (eth === null || item.ethereal === eth))
+			.sort(sort)
+			.last();
+	}
+
 	let itemsToCheck, result = false;
+	let gScoreBase, gScoreCheck;
 
 	switch (base.itemType) {
-	case 2: // Shield
-	case 69: // Voodoo heads
-	case 70: // Auric Shields
-		if (me.paladin) {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[2, 70].indexOf(item.itemType) > -1// same item type as current
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => generalScore(a) - generalScore(b))
-				.last(); // select last
-
+	case sdk.items.type.Shield:
+	case sdk.items.type.AuricShields:
+	case sdk.items.type.VoodooHeads:
+		if (me.paladin || me.necromancer) {
+			let iType = [sdk.items.type.Shield];
+			me.necromancer ? iType.push(sdk.items.type.VoodooHeads) : iType.push(sdk.items.type.AuricShields);
+			
+			itemsToCheck = getItemToCompare(
+				iType, false, (a, b) => generalScore(a) - generalScore(b)
+			);
 			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
 			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck) ||
-						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
-					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
-
-					result = true;
-				}
-			}
-		} else if (me.necromancer) {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[2, 69].indexOf(item.itemType) > -1// same item type as current
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
-				.last(); // select last
-
-			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
-
-			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck))) {
-					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
+				if ((base.isInStorage) && (generalScore(base) < generalScore(itemsToCheck)
+					|| (generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
+					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 
 					result = true;
 				}
 			}
 		} else {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					item.itemType === 2// same item type as current
-					&& !item.ethereal // only noneth runeword bases
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on tier value, (better for skills)
-				.last(); // select last
-
+			itemsToCheck = getItemToCompare(
+				[sdk.items.type.Shield], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
+			);
 			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.sockets > 0) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					!base.ethereal &&
-					(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
-						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
-					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(31) + " itemToCheckDefense: " + itemsToCheck.getStatEx(31));
-
-					result = true;
+			if (base.isInStorage && !base.ethereal && base.sockets > 0) {
+				if ((base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense)
+					|| base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
+					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(sdk.stats.Defense) + " itemToCheckDefense: " + itemsToCheck.getStatEx(sdk.stats.Defense));
+					return true;
 				}
 			}
 		}
 
 		break;
-	case 3: // Armor
-		itemsToCheck = me.getItemsEx()
-			.filter(item =>
-				item.itemType === 3// same item type as current
-				&& !item.ethereal // only noneth runeword bases
-				&& item.sockets === base.sockets // sockets match junk in review
-				&& [3, 7].indexOf(item.location) > -1 // locations
-			)
-			.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on tier value, (better for skills)
-			.last(); // select last
-
+	case sdk.items.type.Armor:
+		itemsToCheck = getItemToCompare(
+			[sdk.items.type.Armor], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
+		);
 		if (itemsToCheck === undefined) return false;
-		if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-		if (base.sockets > 0) {
-			if (([3, 6, 7].indexOf(base.location) > -1) &&
-				!base.ethereal &&
-				(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
-						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
-				Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(31) + " itemToCheckDefense: " + itemsToCheck.getStatEx(31));
-
-				result = true;
+		if (base.isInStorage && !base.ethereal && base.sockets > 0) {
+			if ((base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense)
+				|| base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
+				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(sdk.stats.Defense) + " itemToCheckDefense: " + itemsToCheck.getStatEx(sdk.stats.Defense));
+				return true;
 			}
 		}
 
 		break;
-	case 37: // Helm
-	case 71: // Barb Helm
-	case 72: //	Druid Pelt
-	case 75: // Circlet
+	case sdk.items.type.Helm:
+	case sdk.items.type.PrimalHelm:
+	case sdk.items.type.Circlet:
+	case sdk.items.type.Pelt:
 		if (me.barbarian || me.druid) {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[37, 75, 71, 72].indexOf(item.itemType) > -1// same item type as current
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
-				.last(); // select last
-
+			let iType = [sdk.items.type.Helm, sdk.items.type.Circlet];
+			me.druid ? iType.push(sdk.items.type.Pelt) : iType.push(sdk.items.type.PrimalHelm);
+			
+			itemsToCheck = getItemToCompare(
+				iType, false, (a, b) => generalScore(a) - generalScore(b)
+			);
 			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck) ||
-						(generalScore(base) === generalScore(itemsToCheck) && base.getStatEx(31) < itemsToCheck.getStatEx(31)))) {
-					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
-
-					result = true;
+			if (base.isInStorage && (base.sockets > 0 || itemsToCheck.sockets === base.sockets)) {
+				gScoreBase = generalScore(base);
+				gScoreCheck = generalScore(itemsToCheck);
+				if (gScoreBase < gScoreCheck || (gScoreBase === gScoreCheck && base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense))) {
+					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + gScoreBase + " itemToCheckScore: " + gScoreCheck);
+					return true;
 				}
 			}
 		} else {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[37, 75].indexOf(item.itemType) > -1// same item type as current
-					&& !item.ethereal // only noneth runeword bases
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => a.getStatEx(31) - b.getStatEx(31)) // Sort on defense
-				.last(); // select last
-
+			itemsToCheck = getItemToCompare(
+				[sdk.items.type.Helm, sdk.items.type.Circlet], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
+			);
 			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					!base.ethereal &&
-					(base.getStatEx(31) < itemsToCheck.getStatEx(31) ||
-						base.getStatEx(31) === itemsToCheck.getStatEx(31) && base.getStatEx(16) < itemsToCheck.getStatEx(16))) {
-					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStat(31) + " itemToCheckDefense: " + itemsToCheck.getStat(31));
-
-					result = true;
+			if (base.isInStorage && (base.sockets > 0 || itemsToCheck.sockets === base.sockets)) {
+				if (!base.ethereal && (base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense)
+					|| base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
+					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStat(sdk.stats.Defense) + " itemToCheckDefense: " + itemsToCheck.getStat(sdk.stats.Defense));
+					return true;
 				}
 			}
 		}
 
 		break;
-	case 25: //	Wand
-		if (me.necromancer) {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[25].indexOf(item.itemType) > -1// same item type as current
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
-				.last(); // select last
+	case sdk.items.type.Wand:
+		if (!me.necromancer) return true;
 
-			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
+		itemsToCheck = getItemToCompare(
+			[sdk.items.type.Wand], null, (a, b) => generalScore(a) - generalScore(b)
+		);
+		if (itemsToCheck === undefined) return false;
 
-			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck) ||
-						(generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
-					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
-
-					result = true;
-				}
+		if (base.isInStorage && (base.sockets > 0 || itemsToCheck.sockets === base.sockets)) {
+			gScoreBase = generalScore(base);
+			gScoreCheck = generalScore(itemsToCheck);
+			if (gScoreBase < gScoreCheck || (gScoreBase === gScoreCheck && base.ilvl > itemsToCheck.ilvl)) {
+				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
+				return true;
 			}
 		}
 
 		break;
-	case 24: //	Scepter
-	case 26: //	Staff
-	case 27: //	Bow
-	case 28: //	Axe
-	case 29: //	Club
-	case 30: //	Sword
-	case 31: //	Hammer
-	case 33: //	Spear
-	case 35: //	Crossbow
-	case 36: //	Mace
-	case 68: //	Orb
-	case 85: //	Amazon Bow
-	case 86: //	Amazon Spear
-		if ((me.getStat(0) < base.strreq || me.getStat(2) < base.dexreq) && !me.paladin) {	// don't toss grief base
-			return true; // Can't use so it's worse then what we already have
-		}
+	case sdk.items.type.Scepter:
+	case sdk.items.type.Staff:
+	case sdk.items.type.Bow:
+	case sdk.items.type.Axe:
+	case sdk.items.type.Club:
+	case sdk.items.type.Sword:
+	case sdk.items.type.Hammer:
+	case sdk.items.type.Knife:
+	case sdk.items.type.Spear:
+	case sdk.items.type.Crossbow:
+	case sdk.items.type.Mace:
+	case sdk.items.type.Orb:
+	case sdk.items.type.AmazonBow:
+	case sdk.items.type.AmazonSpear:
+		// don't toss grief base
+		// Can't use so it's worse then what we already have
+		// todo - need better solution to know what the max stats are for our current build and wanted final build
+		// update - 8/8/2022 - checks final build stat requirements but still need a better check
+		// don't keep an item if we are only going to be able to use it when we get to our final build but also sometimes like paladin making grief
+		// we need the item to get to our final build but won't actually be able to use it till then so we can't just use max current build str/dex
+		if ((Check.finalBuild().maxStr < base.strreq || Check.finalBuild().maxStr < base.dexreq)) return true;
+		// need better solution for comparison based on what runeword can be made in a base type
+		// should allow comparing multiple item types given they are all for the same runeword
+		itemsToCheck = getItemToCompare(
+			[base.itemType], false, (a, b) => generalScore(a) - generalScore(b)
+		);
 
-		itemsToCheck = me.getItemsEx()
-			.filter(item =>
-				item.itemType === base.itemType// same item type as current
-				&& item.sockets === base.sockets // sockets match junk in review
-				&& [3, 7].indexOf(item.location) > -1 // locations
-				&& me.getStat(0) >= item.strreq && me.getStat(2) >= item.dexreq // I have enough str/dex for this item
-			)
-			.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
-			.last(); // select last
+		itemsToCheck === undefined && Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: itemsToCheck is undefined");
+		if (itemsToCheck === undefined) return false;
 
-		if (itemsToCheck === undefined) {
-			Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: itemsToCheck is undefined");
-
-			return false;
-		}
-
-		if (!clearJunkCheck && base.gid === itemsToCheck.gid) {
-			Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: same item");
-
-			return true;
-		}
-
-		if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-			if (([3, 4, 7].indexOf(base.location) > -1) &&
-				(generalScore(base) < generalScore(itemsToCheck) ||
-						(generalScore(base) === generalScore(itemsToCheck) && (Item.getQuantityOwned(base) > 2 || base.getStatEx(18) < itemsToCheck.getStatEx(18))))) {
-				if (Developer.debugging.junkCheck) {
-					print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
-				}
-
-				result = true;
+		if (base.isInStorage && (base.sockets > 0 || itemsToCheck.sockets === base.sockets)) {
+			gScoreBase = generalScore(base);
+			gScoreCheck = generalScore(itemsToCheck);
+			if (gScoreBase < gScoreCheck
+				|| (gScoreBase === gScoreCheck && (Item.getQuantityOwned(base) > 2 || base.getStatEx(sdk.stats.MinDamagePercent) < itemsToCheck.getStatEx(sdk.stats.MinDamagePercent)))) {
+				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + gScoreBase + " itemToCheckScore: " + gScoreCheck);
+				return true;
 			}
 		}
 		
 		break;
-	case 67: // Handtohand (Assasin Claw)
-	case 88: //	Assassin Claw
-		if (me.assassin) {
-			itemsToCheck = me.getItemsEx()
-				.filter(item =>
-					[67, 88].indexOf(item.itemType) > -1// same item type as current
-					&& item.sockets === base.sockets // sockets match junk in review
-					&& [3, 7].indexOf(item.location) > -1 // locations
-				)
-				.sort((a, b) => generalScore(a) - generalScore(b)) // Sort on tier value, (better for skills)
-				.last(); // select last
+	case sdk.items.type.HandtoHand:
+	case sdk.items.type.AssassinClaw:
+		if (!me.assassin) return true;
 
-			if (itemsToCheck === undefined) return false;
-			if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
+		itemsToCheck = getItemToCompare(
+			[sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw], false, (a, b) => generalScore(a) - generalScore(b)
+		);
+		if (itemsToCheck === undefined) return false;
 
-			if (base.sockets > 0) {
-				if (([3, 4, 7].indexOf(base.location) > -1) &&
-					(generalScore(base) < generalScore(itemsToCheck))) {
-					Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
-
-					result = true;
-				}
+		if (base.sockets > 0) {
+			if (base.isInStorage && (generalScore(base) < generalScore(itemsToCheck))) {
+				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
+				return true;
 			}
 		}
 
 		break;
-	case 34: //	Polearm
-		itemsToCheck = me.getItemsEx()
-			.filter(item =>
-				[34].indexOf(item.itemType) > -1// same item type as current
-				&& item.sockets === base.sockets // sockets match junk in review
-				&& [3, 7].indexOf(item.location) > -1 // locations
-			)
-			.sort((a, b) => (a.getStatEx(23) + a.getStatEx(24)) - (b.getStatEx(23) + b.getStatEx(24))) // Sort on damage, low to high.
-			.last(); // select last
-
+	case sdk.items.type.Polearm:
+		itemsToCheck = getItemToCompare(
+			[sdk.items.type.Polearm], null, (a, b) => getAvgDmg(a) - getAvgDmg(b)
+		);
 		if (itemsToCheck === undefined) return false;
-		if (!clearJunkCheck && base.gid === itemsToCheck.gid) return true;
 
-		if (base.sockets > 0) {
-			if (([3, 4, 7].indexOf(base.location) > -1) &&
-				(base.getStatEx(23) + base.getStatEx(24)) < (itemsToCheck.getStatEx(23) + itemsToCheck.getStatEx(24))) {
-				Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: BaseDamage: " + (base.getStatEx(23) + base.getStatEx(24)) + " itemToCheckDamage: " + (itemsToCheck.getStatEx(23) + itemsToCheck.getStatEx(24)));
-
-				result = true;
+		if (base.isInStorage && base.sockets > 0) {
+			if (getAvgDmg(base) < getAvgDmg(itemsToCheck)) {
+				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseDamage: " + (base.getStatEx(sdk.stats.SecondaryMinDamage) + base.getStatEx(sdk.stats.SecondaryMaxDamage)) + " itemToCheckDamage: " + (itemsToCheck.getStatEx(sdk.stats.SecondaryMinDamage) + itemsToCheck.getStatEx(sdk.stats.SecondaryMaxDamage)));
+				return true;
 			}
 		}
 
 		break;
 	default:
-		Developer.debugging.junkCheck && print("ÿc9WorseBaseThanStashedÿc0 :: No itemType to check for " + base.name);
+		Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: No itemType to check for " + base.name);
 
 		return false;
 	}
@@ -2090,137 +2144,143 @@ Town.worseBaseThanStashed = function (base = undefined, clearJunkCheck = false) 
 	return result;
 };
 
+Town.systemsKeep = function (item) {
+	return (AutoEquip.wanted(item) || Cubing.keepItem(item) || Runewords.keepItem(item) || CraftingSystem.keepItem(item) || SoloWants.keepItem(item));
+};
+
 Town.clearJunk = function () {
-	let junkItems = me.findItems(-1, 0);
+	let junkItems = me.findItems(-1, sdk.items.mode.inStorage);
+	let totalJunk = [];
 	let junkToSell = [];
+	let junkToDrop = [];
 
 	if (!junkItems) return false;
 
 	while (junkItems.length > 0) {
-		let junk = junkItems.shift();
+		const junk = junkItems.shift();
 		const pickitResult = Pickit.checkItem(junk).result;
 
-		if ((junk.isInStorage) && // stash/invo/cube
-			([1, 2, 3, 5].indexOf(pickitResult) === -1) &&
-			!AutoEquip.wanted(junk) && // Don't toss wanted auto equip items
-			!Cubing.keepItem(junk) && // Don't throw cubing ingredients
-			!Runewords.keepItem(junk) && // Don't throw runeword ingredients
-			!CraftingSystem.keepItem(junk) && // Don't throw crafting system ingredients
-			!SoloWants.keepItem(junk) && // Don't throw SoloWants system ingredients
-			!Town.ignoredItemTypes.includes(junk.itemType) && // Don't drop tomes, keys or potions
-			junk.sellable &&	// Don't try to sell/drop quest-items/keys/essences/tokens/organs
-			([0, 4].includes(pickitResult)) // only drop unwanted or sellable
-		) {
-			print("ÿc9JunkCheckÿc0 :: Junk: " + junk.name + " Pickit Result: " + pickitResult);
+		try {
+			if (junk.isInStorage && ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(pickitResult))
+				&& !Town.systemsKeep(junk)
+				&& !Town.ignoredItemTypes.includes(junk.itemType) // Don't drop tomes, keys or potions
+				&& junk.sellable // Don't try to sell/drop quest-items/keys/essences/tokens/organs
+			) {
+				console.log("ÿc9JunkCheckÿc0 :: Junk: " + junk.name + " Pickit Result: " + pickitResult);
 
-			!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
-			junk.isInCube && Cubing.emptyCube();
+				if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
+					throw new Error("ÿc9JunkCheckÿc0 :: Failed to get " + junk.name + " from stash");
+				}
 
-			if (junk.sellable && (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk)))) {
-				junkToSell.push(junk);
+				if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9JunkCheckÿc0 :: Failed to remove " + junk.name + " from cube");
 
-				continue;
-			} else if (junk.drop()) {
-				myPrint("Cleared junk - " + junk.name);
-				delay(50);
+				totalJunk.push(junk);
 
 				continue;
 			}
-		}
 
-		if (junk.isInStorage && junk.sellable && pickitResult !== 1) {
-			if (!junk.identified && !Cubing.keepItem(junk) && !CraftingSystem.keepItem(junk)) {
-				print("ÿc9UnidJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+			if (junk.isInStorage && junk.sellable) {
+				if (pickitResult !== Pickit.Result.WANTED) {
+					if (!junk.identified && !Cubing.keepItem(junk) && !CraftingSystem.keepItem(junk) && junk.quality < sdk.items.quality.Set) {
+						console.log("ÿc9UnidJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
 
-				!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
-				junk.isInCube && Cubing.emptyCube();
+						if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
+							throw new Error("ÿc9UnidJunkCheckÿc0 :: Failed to get " + junk.name + " from stash");
+						}
 
-				if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
-					junkToSell.push(junk);
+						if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9UnidJunkCheckÿc0 :: Failed to remove " + junk.name + " from cube");
 
-					continue;
-				} else if (junk.drop()) {
-					myPrint("Cleared unid junk - " + junk.name);
-					delay(50 + me.ping);
-
-					continue;
-				}
-			}
-
-			if (junk.isRuneword && !AutoEquip.wanted(junk)) {
-				!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
-				junk.isInCube && Cubing.emptyCube();
-
-				print("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
-
-				if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
-					junkToSell.push(junk);
-
-					continue;
-				} else if (junk.drop()) {
-					myPrint("Cleared old runeword junk - " + junk.name);
-					delay(50 + me.ping);
-
-					continue;
-				}
-			}
-
-			if (junk.isBaseType) {
-				if (this.worseBaseThanStashed(junk, true)) {
-					print("ÿc9WorseBaseThanStashedCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
-					
-					!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
-					junk.isInCube && Cubing.emptyCube();
-
-					if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
-						junkToSell.push(junk);
-
-						continue;
-					} else if (junk.drop()) {
-						myPrint("Cleared runeword base junk - " + junk.name);
-						delay(50 + me.ping);
+						totalJunk.push(junk);
 
 						continue;
 					}
+
 				}
 
-				if (!this.betterBaseThanWearing(junk, Developer.debugging.junkCheck)) {
-					print("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+				if (junk.isRuneword && !AutoEquip.wanted(junk)) {
+					console.log("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
 
-					!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && Town.openStash();
-					junk.isInCube && Cubing.emptyCube();
+					if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
+						throw new Error("ÿc9AutoEquipJunkCheckÿc0 :: Failed to get " + junk.name + " from stash");
+					}
 
-					if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
-						junkToSell.push(junk);
+					if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9AutoEquipJunkCheckÿc0 :: Failed to remove " + junk.name + " from cube");
+
+					totalJunk.push(junk);
+
+					continue;
+				}
+
+				if (junk.isBaseType) {
+					if (this.worseBaseThanStashed(junk)) {
+						console.log("ÿc9WorseBaseThanStashedCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+						
+						if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
+							throw new Error("ÿc9WorseBaseThanStashedCheckÿc0 :: Failed to get " + junk.name + " from stash");
+						}
+
+						if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9WorseBaseThanStashedCheckÿc0 :: Failed to remove " + junk.name + " from cube");
+
+						totalJunk.push(junk);
 
 						continue;
-					} else if (junk.drop()) {
-						myPrint("Cleared bad runeword base junk - " + junk.name);
-						delay(50 + me.ping);
+					}
+
+					if (!this.betterBaseThanWearing(junk, Developer.debugging.junkCheck)) {
+						console.log("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+
+						if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
+							throw new Error("ÿc9BetterThanWearingCheckÿc0 :: Failed to get " + junk.name + " from stash");
+						}
+
+						if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9BetterThanWearingCheckÿc0 :: Failed to remove " + junk.name + " from cube");
+
+						totalJunk.push(junk);
 
 						continue;
 					}
 				}
 			}
+		} catch (e) {
+			console.warn(e.message ? e.message : e);
 		}
 	}
 
-	if (junkToSell.length > 0) {
+	if (totalJunk.length > 0) {
+		totalJunk
+			.sort((a, b) => b.getItemCost(sdk.items.cost.ToSell) - a.getItemCost(sdk.items.cost.ToSell))
+			.forEach(junk => {
+				if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
+					junkToSell.push(junk);
+				} else {
+					junkToDrop.push(junk);
+				}
+			});
+		
 		myPrint("Junk items to sell: " + junkToSell.length);
 		Town.initNPC("Shop", "clearInventory");
 
 		if (getUIFlag(sdk.uiflags.Shop) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
 			for (let i = 0; i < junkToSell.length; i++) {
-				print("ÿc9JunkCheckÿc0 :: Sell " + junkToSell[i].name);
+				console.log("ÿc9JunkCheckÿc0 :: Sell " + junkToSell[i].name);
 				Misc.itemLogger("Sold", junkToSell[i]);
 				Developer.debugging.junkCheck && Misc.logItem("JunkCheck Sold", junkToSell[i]);
 
 				junkToSell[i].sell();
-				delay(50 + me.ping);
+				delay(100);
 			}
 		}
 
 		me.cancelUIFlags();
+
+		for (let i = 0; i < junkToDrop.length; i++) {
+			console.log("ÿc9JunkCheckÿc0 :: Drop " + junkToDrop[i].name);
+			Misc.itemLogger("Sold", junkToDrop[i]);
+			Developer.debugging.junkCheck && Misc.logItem("JunkCheck Sold", junkToDrop[i]);
+
+			junkToDrop[i].drop();
+			delay(100);
+		}
 	}
 
 	return true;
@@ -2237,12 +2297,12 @@ Town.needRepair = function () {
 	if (bowCheck) {
 		switch (bowCheck) {
 		case "bow":
-			quiver = me.getItem("aqv", 1); // Equipped arrow quiver
+			quiver = me.getItem("aqv", sdk.items.mode.Equipped); // Equipped arrow quiver
 			inventoryQuiver = me.getItem("aqv");
 
 			break;
 		case "crossbow":
-			quiver = me.getItem("cqv", 1); // Equipped bolt quiver
+			quiver = me.getItem("cqv", sdk.items.mode.Equipped); // Equipped bolt quiver
 			inventoryQuiver = me.getItem("cqv");
 
 			break;
@@ -2274,7 +2334,7 @@ Town.needRepair = function () {
 			repairAction.push("repair");
 		}
 	} else {
-		//print("ÿc4Town: ÿc1Can't afford repairs.");
+		//console.log("ÿc4Town: ÿc1Can't afford repairs.");
 	}
 
 	return repairAction;

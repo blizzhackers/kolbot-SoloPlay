@@ -1,8 +1,8 @@
 /**
-*	@filename	orgtorch.js
-*	@author		kolton, theBGuy (modified for Kolbot-SoloPlay)
-*	@desc		Convert keys to organs and organs to torches.
-*	@notes		Search for the word "Start" and follow the comments if you want to know what this script does and when.
+*  @filename    orgtorch.js
+*  @author      kolton, theBGuy
+*  @desc        Convert keys to organs and organs to torches.
+*
 */
 
 function orgtorch() {
@@ -10,7 +10,7 @@ function orgtorch() {
 
 	// Identify & mule
 	this.checkTorch = function () {
-		if (me.area === sdk.areas.UberTristram) {
+		if (me.inArea(sdk.areas.UberTristram)) {
 			Pather.moveTo(25105, 5140);
 			Pather.usePortal(sdk.areas.Harrogath);
 		}
@@ -56,13 +56,13 @@ function orgtorch() {
 	// Try to lure a monster - wait until it's close enough
 	this.lure = function (bossId) {
 		let tick,
-			unit = getUnit(1, bossId);
+			unit = Game.getMonster(bossId);
 
 		if (unit) {
 			tick = getTickCount();
 
 			while (getTickCount() - tick < 2000) {
-				if (getDistance(me, unit) <= 10) {
+				if (unit.distance <= 10) {
 					return true;
 				}
 
@@ -99,7 +99,7 @@ function orgtorch() {
 				Precast.doPrecast(true);
 				Pather.moveTo(7811, 5872);
 
-				me.paladin && me.getSkill(sdk.skills.Salvation, 1) && Skill.setSkill(sdk.skills.Salvation, 0);
+				me.paladin && me.getSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints) && Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
 
 				while (!me.getState(sdk.states.Fade)) {
 					delay(100);
@@ -116,14 +116,14 @@ function orgtorch() {
 	this.openPortal = function (mode) {
 		let portal,
 			item1 = mode === 0
-				? me.findItem(sdk.items.quest.KeyofTerror, 0)
-				: me.findItem(sdk.items.quest.DiablosHorn, 0),
+				? me.findItem(sdk.items.quest.KeyofTerror, sdk.items.mode.inStorage)
+				: me.findItem(sdk.items.quest.DiablosHorn, sdk.items.mode.inStorage),
 			item2 = mode === 0
-				? me.findItem(sdk.items.quest.KeyofHate, 0)
-				: me.findItem(sdk.items.quest.BaalsEye, 0),
+				? me.findItem(sdk.items.quest.KeyofHate, sdk.items.mode.inStorage)
+				: me.findItem(sdk.items.quest.BaalsEye, sdk.items.mode.inStorage),
 			item3 = mode === 0
-				? me.findItem(sdk.items.quest.KeyofDestruction, 0)
-				: me.findItem(sdk.items.quest.MephistosBrain, 0);
+				? me.findItem(sdk.items.quest.KeyofDestruction, sdk.items.mode.inStorage)
+				: me.findItem(sdk.items.quest.MephistosBrain, sdk.items.mode.inStorage);
 
 		Town.goToTown(5);
 		Town.doChores();
@@ -139,7 +139,7 @@ function orgtorch() {
 			transmute();
 			delay(1000);
 
-			portal = getUnit(2, "portal");
+			portal = Game.getObject("portal");
 
 			if (portal) {
 				do {
@@ -173,7 +173,7 @@ function orgtorch() {
 		switch (me.area) {
 		case sdk.areas.MatronsDen:
 			Precast.doPrecast(true);
-			Pather.moveToPreset(sdk.areas.MatronsDen, 2, 397, 2, 2);
+			Pather.moveToPreset(sdk.areas.MatronsDen, sdk.unittype.Object, 397, 2, 2);
 			Attack.killTarget(707);
 			Pickit.pickItems();
 			Town.goToTown();
@@ -188,7 +188,7 @@ function orgtorch() {
 				Pather.moveTo(findLoc[i], findLoc[i + 1]);
 				delay(500);
 
-				if (getUnit(1, 708)) {
+				if (Game.getMonster(708)) {
 					break;
 				}
 			}
@@ -200,7 +200,7 @@ function orgtorch() {
 			break;
 		case sdk.areas.FurnaceofPain:
 			Precast.doPrecast(true);
-			Pather.moveToPreset(sdk.areas.FurnaceofPain, 2, 397, 2, 2);
+			Pather.moveToPreset(sdk.areas.FurnaceofPain, sdk.unittype.Object, 397, 2, 2);
 			Attack.killTarget(706);
 			Pickit.pickItems();
 			Town.goToTown();
@@ -216,20 +216,20 @@ function orgtorch() {
 				Pather.moveTo(findLoc[i], findLoc[i + 1]);
 			}
 
-			if (me.paladin && me.getSkill(sdk.skills.Salvation, 1)) {
-				Skill.setSkill(sdk.skills.Salvation, 0);
+			if (me.paladin && me.getSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints)) {
+				Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
 			}
 
 			this.lure(704);
 			Pather.moveTo(25129, 5198);
 			
-			if (me.paladin && me.getSkill(sdk.skills.Salvation, 1)) {
-				Skill.setSkill(sdk.skills.Salvation, 0);
+			if (me.paladin && me.getSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints)) {
+				Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
 			}
 
 			this.lure(704);
 
-			if (!getUnit(1, 704)) {
+			if (!Game.getMonster(704)) {
 				Pather.moveTo(25122, 5170);
 			}
 
@@ -238,13 +238,13 @@ function orgtorch() {
 			Pather.moveTo(25162, 5141);
 			delay(3250);
 
-			if (!getUnit(1, 709)) {
+			if (!Game.getMonster(709)) {
 				Pather.moveTo(25122, 5170);
 			}
 
 			Attack.killTarget(709);
 
-			if (!getUnit(1, 705)) {
+			if (!Game.getMonster(705)) {
 				Pather.moveTo(25122, 5170);
 			}
 
@@ -267,7 +267,7 @@ function orgtorch() {
 			}
 		}
 
-		print("Need " + needJuvs + " juvs.");
+		console.log("Need " + needJuvs + " juvs.");
 
 		return needJuvs;
 	};
@@ -279,16 +279,16 @@ function orgtorch() {
 	this.checkTorch();
 
 	// Count keys and organs
-	tkeys = me.findItems(sdk.items.quest.KeyofTerror, 0).length || 0;
-	hkeys = me.findItems(sdk.items.quest.KeyofHate, 0).length || 0;
-	dkeys = me.findItems(sdk.items.quest.KeyofDestruction, 0).length || 0;
-	brains = me.findItems(sdk.items.quest.MephistosBrain, 0).length || 0;
-	eyes = me.findItems(sdk.items.quest.BaalsEye, 0).length || 0;
-	horns = me.findItems(sdk.items.quest.DiablosHorn, 0).length || 0;
+	tkeys = me.findItems(sdk.items.quest.KeyofTerror, sdk.items.mode.inStorage).length || 0;
+	hkeys = me.findItems(sdk.items.quest.KeyofHate, sdk.items.mode.inStorage).length || 0;
+	dkeys = me.findItems(sdk.items.quest.KeyofDestruction, sdk.items.mode.inStorage).length || 0;
+	brains = me.findItems(sdk.items.quest.MephistosBrain, sdk.items.mode.inStorage).length || 0;
+	eyes = me.findItems(sdk.items.quest.BaalsEye, sdk.items.mode.inStorage).length || 0;
+	horns = me.findItems(sdk.items.quest.DiablosHorn, sdk.items.mode.inStorage).length || 0;
 
 	// End the script if we don't have enough keys nor organs
 	if ((tkeys < 3 || hkeys < 3 || dkeys < 3) && (brains < 1 || eyes < 1 || horns < 1)) {
-		print("ÿc8Kolbot-SoloPlayÿc0: Not enough keys or organs.");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Not enough keys or organs.");
 
 		return true;
 	}
@@ -298,8 +298,8 @@ function orgtorch() {
 	// We have enough keys, do mini ubers
 	if (tkeys >= 3 && hkeys >= 3 && dkeys >= 3) {
 		this.getFade();
-		print("ÿc8Kolbot-SoloPlayÿc0: Making organs.");
-		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making organs.", 8);
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Making organs.");
+		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making organs.", sdk.colors.D2Bot.Orange);
 
 		for (i = 0; i < 3; i += 1) {
 			// Abort if we have a complete set of organs
@@ -343,15 +343,15 @@ function orgtorch() {
 	}
 
 	// Count organs
-	brains = me.findItems(sdk.items.quest.MephistosBrain, 0).length || 0;
-	eyes = me.findItems(sdk.items.quest.BaalsEye, 0).length || 0;
-	horns = me.findItems(sdk.items.quest.DiablosHorn, 0).length || 0;
+	brains = me.findItems(sdk.items.quest.MephistosBrain, sdk.items.mode.inStorage).length || 0;
+	eyes = me.findItems(sdk.items.quest.BaalsEye, sdk.items.mode.inStorage).length || 0;
+	horns = me.findItems(sdk.items.quest.DiablosHorn, sdk.items.mode.inStorage).length || 0;
 
 	// We have enough organs, do Tristram
 	if (brains && eyes && horns) {
 		this.getFade();
-		print("ÿc8Kolbot-SoloPlayÿc0: Making torch");
-		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making torch.", 8);
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Making torch");
+		D2Bot.printToConsole("ÿc8Kolbot-SoloPlayÿc0 :: OrgTorch: Making torch.", sdk.colors.D2Bot.Orange);
 
 		portal = this.openPortal(1);
 

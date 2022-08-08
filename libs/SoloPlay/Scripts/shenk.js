@@ -1,12 +1,13 @@
-/*
-*	@filename	shenk.js
-*	@author		isid0re, theBGuy
-*	@desc		shenk quest for sockets, wp's, and mf
+/**
+*  @filename    shenk.js
+*  @author      isid0re, theBGuy
+*  @desc        shenk quest for sockets, wp's, and mf
+*
 */
 
 function shenk () {
 	Town.townTasks();
-	myPrint('starting shenk');
+	myPrint("starting shenk");
 
 	Pather.checkWP(sdk.areas.FrigidHighlands, true) ? Pather.useWaypoint(sdk.areas.FrigidHighlands) : Pather.getWP(sdk.areas.FrigidHighlands);
 	Precast.doPrecast(true);

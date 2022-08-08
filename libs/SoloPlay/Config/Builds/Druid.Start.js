@@ -6,7 +6,7 @@
 */
 js_strict(true);
 
-!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
+includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 let AutoBuildTemplate = {
@@ -23,7 +23,7 @@ let AutoBuildTemplate = {
 			Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
 			Config.LowManaSkill = [0, 0];
 			Config.SummonVine = 1; // "Poison Creeper"
-			if (me.getSkill(sdk.skills.Firestorm, 0)) {
+			if (me.getSkill(sdk.skills.Firestorm, sdk.skills.subindex.HardPoints)) {
 				Config.AttackSkill = [-1, sdk.skills.Firestorm, -1, sdk.skills.Firestorm, -1, 0, 0];
 			} else {
 				Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
@@ -35,7 +35,7 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			if (me.getSkill(sdk.skills.Fissure, 0)) {
+			if (me.getSkill(sdk.skills.Fissure, sdk.skills.subindex.HardPoints)) {
 				Config.AttackSkill = [-1, sdk.skills.Fissure, sdk.skills.Firestorm, sdk.skills.Fissure, sdk.skills.Firestorm, 0, 0];
 			}
 		}

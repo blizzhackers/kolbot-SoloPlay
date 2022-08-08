@@ -5,20 +5,20 @@
 *
 */
 
-!isIncluded("common/Attacks/Sorceress.js") && include("common/Attacks/Sorceress.js");
+includeIfNotIncluded("common/Attacks/Sorceress.js");
 
-const GameData = require('../../Modules/GameData');
+const GameData = require("../../Modules/GameData");
 
 const slowable = function (unit, freezeable = false) {
 	return (!!unit && unit.attackable // those that we can attack
-	&& Attack.checkResist(unit, 'cold')
+	&& Attack.checkResist(unit, "cold")
 	// those that are not frozen yet and those that can be frozen or not yet chilled
 	&& (freezeable ? !unit.isFrozen && !unit.getStat(sdk.stats.CannotbeFrozen) : !el.isChilled)
-	&& ![sdk.monsters.Andariel, 510].includes(unit.classid));
+	&& ![sdk.monsters.Andariel, sdk.monsters.Lord5].includes(unit.classid));
 };
 
 const frostNovaCheck = function () {
-	// return getUnits(1).some(function(el) {
+	// return getUnits(sdk.unittype.Monster).some(function(el) {
 	// 	return !!el && el.distance < 7 && el.attackable
 	// 		&& ![sdk.monsters.Andariel].includes(el.classid)
 	// 		&& !el.isChilled && Attack.checkResist(el, 'cold')
@@ -27,11 +27,11 @@ const frostNovaCheck = function () {
 
 	// don't build whole list - since we are just trying if at least one passes the test
 	// todo - test to time difference between these two methods
-	let mob = getUnit(sdk.unittype.Monster);
+	let mob = Game.getMonster();
 	if (mob) {
 		do {
 			if (mob.distance < 7 && ![sdk.monsters.Andariel].includes(mob.classid) && mob.attackable
-				&& !mob.isChilled && Attack.checkResist(mob, 'cold') && !checkCollision(me, mob, Coords_1.Collision.BLOCK_MISSILE)) {
+				&& !mob.isChilled && Attack.checkResist(mob, "cold") && !checkCollision(me, mob, Coords_1.Collision.BLOCK_MISSILE)) {
 				return true;
 			}
 		} while (mob.getNext());
@@ -47,9 +47,9 @@ const inDanger = function () {
 };
 
 ClassAttack.doAttack = function (unit, skipStatic = false) {
-	Developer.debugging.skills && print(sdk.colors.Green + "Test Start-----------------------------------------//");
+	Developer.debugging.skills && console.log(sdk.colors.Green + "Test Start-----------------------------------------//");
 	// unit became invalidated
-	if (!unit || !unit.attackable) return 1;
+	if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
 	
 	let gid = unit.gid;
 	let tick = getTickCount();
@@ -62,18 +62,18 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 
 		if (Town.visitTown()) {
 			// lost reference to the mob we were attacking
-			if (!unit || !copyUnit(unit).x || !getUnit(1, -1, -1, gid) || unit.dead) {
+			if (!unit || !copyUnit(unit).x || !Game.getMonster(-1, -1, gid) || unit.dead) {
 				console.debug("Lost reference to unit");
-				return 1;
+				return Attack.Result.SUCCESS;
 			}
 			gold = me.gold; // reset value after town
 		}
 	}
 
 	// Keep Energy Shield active
-	Skill.canUse(sdk.skills.EnergyShield) && !me.getState(sdk.states.EnergyShield) && Skill.cast(sdk.skills.EnergyShield, 0);
+	Skill.canUse(sdk.skills.EnergyShield) && !me.getState(sdk.states.EnergyShield) && Skill.cast(sdk.skills.EnergyShield, sdk.skills.hand.Right);
 	// Keep Thunder-Storm active
-	Skill.canUse(sdk.skills.ThunderStorm) && !me.getState(sdk.states.ThunderStorm) && Skill.cast(sdk.skills.ThunderStorm, 0);
+	Skill.canUse(sdk.skills.ThunderStorm) && !me.getState(sdk.states.ThunderStorm) && Skill.cast(sdk.skills.ThunderStorm, sdk.skills.hand.Right);
 
 	// Handle Charge skill casting
 	if (index === 1 && me.expansion && !unit.dead) {
@@ -84,7 +84,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			// Might be worth it to use on souls too TODO: test this idea
 			if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && gold > 500000 && !isBoss
 				&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-				&& !checkCollision(me, unit, 0x4)) {
+				&& !checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Cast slow missiles
 				Attack.castCharges(sdk.skills.SlowMissiles, unit);
 			}
@@ -92,7 +92,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
 				&& (gold > 500000 || isBoss || dangerZone)
 				&& !unit.getState(sdk.states.LowerResist)
-				&& !checkCollision(me, unit, 0x4)) {
+				&& !checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Switch cast lower resist
 				Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 			}
@@ -100,7 +100,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
 				&& (gold > 500000 || isBoss || dangerZone)
 				&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist)
-				&& !checkCollision(me, unit, 0x4)) {
+				&& !checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Switch cast weaken
 				Attack.switchCastCharges(sdk.skills.Weaken, unit);
 			}
@@ -152,12 +152,12 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	if (data.frostNova.have) {
 		data.frostNova.mana = Skill.getManaCost(sdk.skills.FrostNova);
 		if (me.mp > data.frostNova.mana) {
-			frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, 0);
+			frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, sdk.skills.hand.Right);
 			let ticktwo = getTickCount();
 			// if the nova cause the death of any monsters around us, its worth it
 			if (GameData.calculateKillableFallensByFrostNova() > 0) {
-				Developer.debugging.skills && print("took " + ((getTickCount() - ticktwo) / 1000) + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens");
-				Skill.cast(sdk.skills.FrostNova, 0);
+				Developer.debugging.skills && console.log("took " + ((getTickCount() - ticktwo) / 1000) + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens");
+				Skill.cast(sdk.skills.FrostNova, sdk.skills.hand.Right);
 			}
 		}
 	}
@@ -166,18 +166,18 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 		data.glacialSpike.mana = Skill.getManaCost(sdk.skills.GlacialSpike);
 		if (me.mp > data.glacialSpike.mana * 2) {
 			let shouldSpike = unit && unit.distance < 10 &&
-			getUnits(1).filter(function (el) {
+			getUnits(sdk.unittype.Monster).filter(function (el) {
 				return getDistance(el, unit) < 4 && slowable(el, true);
 			}).length > 1;
 			if (shouldSpike && !Coords_1.isBlockedBetween(me, unit)) {
-				Developer.debugging.skills && print("SPIKE");
-				Skill.cast(sdk.skills.GlacialSpike, 0, unit);
+				Developer.debugging.skills && console.log("SPIKE");
+				Skill.cast(sdk.skills.GlacialSpike, sdk.skills.hand.Right, unit);
 			}
 		}
 	}
 
 	// We lost track of the mob or killed it
-	if (unit === undefined || !unit || !unit.attackable) return 1;
+	if (unit === undefined || !unit || !unit.attackable) return Attack.Result.SUCCESS;
 
 	// Set damage values
 	// redo gamedata to be more efficent
@@ -186,6 +186,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 		data.static.mana = Skill.getManaCost(sdk.skills.StaticField);
 		data.static.range = Skill.getRange(sdk.skills.StaticField);
 	}
+	
 	data.glacialSpike.have && ![data.mainUntimed.skill, data.secondaryUntimed.skill].includes(data.glacialSpike.skill) && (data.glacialSpike.dmg = GameData.avgSkillDamage(data.glacialSpike.skill, unit));
 	data.mainTimed.have && (data.mainTimed.dmg = GameData.avgSkillDamage(data.mainTimed.skill, unit));
 	data.mainUntimed.have && (data.mainUntimed.dmg = GameData.avgSkillDamage(data.mainUntimed.skill, unit));
@@ -194,22 +195,22 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
     
 	// print damage values
 	if (Developer.debugging.skills) {
-		data.static.have && print(getSkillById(data.static.skill) + " : " + data.static.dmg);
-		data.mainTimed.have && print(getSkillById(data.mainTimed.skill) + " Main: " + data.mainTimed.dmg);
-		data.mainUntimed.have && print(getSkillById(data.mainUntimed.skill) + " MainUnTimed: " + data.mainUntimed.dmg);
-		data.secondaryTimed.have && print(getSkillById(data.secondaryTimed.skill) + " Second: " + data.secondaryTimed.dmg);
-		data.secondaryUntimed.have && print(getSkillById(data.secondaryUntimed.skill) + " SecondUnTimed: " + data.secondaryUntimed.dmg);
+		data.static.have && console.log(getSkillById(data.static.skill) + " : " + data.static.dmg);
+		data.mainTimed.have && console.log(getSkillById(data.mainTimed.skill) + " Main: " + data.mainTimed.dmg);
+		data.mainUntimed.have && console.log(getSkillById(data.mainUntimed.skill) + " MainUnTimed: " + data.mainUntimed.dmg);
+		data.secondaryTimed.have && console.log(getSkillById(data.secondaryTimed.skill) + " Second: " + data.secondaryTimed.dmg);
+		data.secondaryUntimed.have && console.log(getSkillById(data.secondaryUntimed.skill) + " SecondUnTimed: " + data.secondaryUntimed.dmg);
 	}
 
 	// If we have enough mana for Static and it will do more damage than our other skills then duh use it
 	// should this return afterwards since the calulations will now be different?
 	if (data.static.have && (data.static.mana * 3) < me.mp) {
-		let closeMobCheck = getUnits(1)
+		let closeMobCheck = getUnits(sdk.unittype.Monster)
 			.filter(unit => !!unit && unit.attackable && unit.distance < data.static.range)
 			.find(unit => Attack.checkResist(unit, "lightning") && unit.hpPercent > Config.CastStatic);
 		if (!!closeMobCheck && data.static.dmg > Math.max(data.mainTimed.dmg, data.mainUntimed.dmg, data.secondaryTimed.dmg, data.secondaryUntimed.dmg) && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
-			Developer.debugging.skills && print("STATIC");
-			Skill.cast(sdk.skills.StaticField, 0, closeMobCheck) && Skill.cast(sdk.skills.StaticField, 0, closeMobCheck);
+			Developer.debugging.skills && console.log("STATIC");
+			Skill.cast(sdk.skills.StaticField, sdk.skills.hand.Right, closeMobCheck) && Skill.cast(sdk.skills.StaticField, sdk.skills.hand.Right, closeMobCheck);
 		}
 	}
 
@@ -236,7 +237,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	if (!timedSkill.have || timedSkill.mana > me.mp) {
-		Developer.debugging.skills && print("Choosing lower mana skill, Was I not able to use one of my better skills? (" + (!timedSkill.have) + "). Did I not have enough mana? " + (timedSkill.mana > me.mp));
+		Developer.debugging.skills && console.log("Choosing lower mana skill, Was I not able to use one of my better skills? (" + (!timedSkill.have) + "). Did I not have enough mana? " + (timedSkill.mana > me.mp));
 		let lowManaData = {
 			fBolt: {
 				have: Skill.canUse(sdk.skills.FireBolt), skill: sdk.skills.FireBolt, range: Skill.getRange(sdk.skills.FireBolt), mana: Skill.getManaCost(sdk.skills.FireBolt),
@@ -297,13 +298,13 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 	}
 
 	switch (ClassAttack.doCast(unit, timedSkill, data)) {
-	case 0: // Fail
-		Developer.debugging.skills && print(sdk.colors.Red + "Fail Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
+	case Attack.Result.FAILED:
+		Developer.debugging.skills && console.log(sdk.colors.Red + "Fail Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
 		break;
-	case 1: // Success
-		Developer.debugging.skills && print(sdk.colors.Red + "Sucess Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
+	case Attack.Result.SUCCESS:
+		Developer.debugging.skills && console.log(sdk.colors.Red + "Sucess Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
 		return true;
-	case 2: // Try to telestomp
+	case Attack.Result.CANTATTACK: // Try to telestomp
 		if (Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc()
 			&& Attack.validSpot(unit.x, unit.y)
 			&& (Config.TeleStomp || (!me.hell && (unit.getMobCount(10) < me.maxNearMonsters && unit.isSpecial)))) {
@@ -314,17 +315,17 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 			while (unit.attackable) {
 				if (Misc.townCheck()) {
 					if (!unit || !copyUnit(unit).x) {
-						unit = Misc.poll(() => getUnit(1, -1, -1, gid), 1000, 80);
+						unit = Misc.poll(() => Game.getMonster(-1, -1, gid), 1000, 80);
 					}
 				}
 
-				if (!unit) return 1;
+				if (!unit) return Attack.Result.SUCCESS;
 
 				if (Town.needMerc()) {
 					if (Config.MercWatch && mercRevive < 3) {
 						Town.visitTown() && (mercRevive++);
 					} else {
-						return 2;
+						return Attack.Result.CANTATTACK;
 					}
 
 					(merc === undefined || !merc) && (merc = me.getMerc());
@@ -338,11 +339,11 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 				}
 
 				if (Attack.checkResist(unit, "lightning") && data.static.have && unit.hpPercent > Config.CastStatic) {
-					Skill.cast(sdk.skills.StaticField, 0);
+					Skill.cast(sdk.skills.StaticField, sdk.skills.hand.Right);
 				}
 
 				let closeMob = Attack.getNearestMonster({skipGid: gid});
-				!!closeMob ? this.doCast(closeMob, timedSkill, data) : haveTK && Skill.cast(sdk.skills.Telekinesis, 0, unit);
+				!!closeMob ? this.doCast(closeMob, timedSkill, data) : haveTK && Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, unit);
 			}
 
 			return true;
@@ -356,16 +357,16 @@ ClassAttack.doAttack = function (unit, skipStatic = false) {
 
 ClassAttack.doCast = function (unit, timedSkill, data) {
 	// unit became invalidated
-	if (!unit || !unit.attackable) return 1;
+	if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
 	// No valid skills can be found
-	if (!!(timedSkill.skill < 0)) return 2;
+	if (!!(timedSkill.skill < 0)) return Attack.Result.CANTATTACK;
 
 	// print damage values
-	Developer.debugging.skills && timedSkill.have && print(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(timedSkill.skill) + ") DMG: " + timedSkill.dmg);
+	Developer.debugging.skills && timedSkill.have && console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(timedSkill.skill) + ") DMG: " + timedSkill.dmg);
 
 	if (![sdk.skills.FrostNova, sdk.skills.Nova, sdk.skills.StaticField].includes(timedSkill.skill) && Skill.canUse(sdk.skills.Teleport)) {
 		if (me.mp > Skill.getManaCost(sdk.skills.Teleport) + timedSkill.mana && inDanger()) {
-			//print("FINDING NEW SPOT");
+			//console.log("FINDING NEW SPOT");
 			Attack.getIntoPosition(unit, timedSkill.range, 0
                 | Coords_1.BlockBits.LineOfSight
                 | Coords_1.BlockBits.Ranged
@@ -383,13 +384,13 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 		}
 
 		if (ts === sdk.skills.Attack) {
-			if (me.hpPercent < 50 && me.mode !== 4 && me.getMobCount(10) === 0) {
+			if (me.hpPercent < 50 && me.mode !== sdk.player.mode.GettingHit && me.getMobCount(10) === 0) {
 				console.log("Low health but safe right now, going to delay a bit");
 				let tick = getTickCount();
 				let howLongToDelay = Config.AttackSkill.some(sk => sk > 1 && Skill.canUse(sk)) ? Time.seconds(2) : Time.seconds(1);
 
 				while (getTickCount() - tick < howLongToDelay) {
-					if (me.mode === 4) {
+					if (me.mode === sdk.player.mode.GettingHit) {
 						console.debug("no longer safe, we are being attacked");
 						break;
 					} else if (me.hpPercent >= 55) {
@@ -401,7 +402,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			}
 		}
 
-		if (tsRange < 4 && !Attack.validSpot(unit.x, unit.y)) return 0;
+		if (tsRange < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
 
 		// Only delay if there are no mobs in our immediate area
 		if (tsMana > me.mp && me.getMobCount() === 0) {
@@ -410,9 +411,9 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			while (getTickCount() - tick < 750) {
 				if (tsMana < me.mp) {
 					break;
-				} else if (me.mode === 4) {
+				} else if (me.mode === sdk.player.mode.GettingHit) {
 					console.debug("no longer safe, we are being attacked");
-					return 3;
+					return Attack.Result.NEEDMANA;
 				}
 
 				delay(25);
@@ -424,9 +425,9 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			let walk = (tsRange < 4 || (ts === sdk.skills.ChargedBolt && tsRange === 5)) && unit.distance < 10 && !checkCollision(me, unit, Coords_1.BlockBits.BlockWall);
 
 			if (ranged) {
-				if (!Attack.getIntoPosition(unit, tsRange, Coords_1.Collision.BLOCK_MISSILE, walk)) return 0;
+				if (!Attack.getIntoPosition(unit, tsRange, Coords_1.Collision.BLOCK_MISSILE, walk)) return Attack.Result.FAILED;
 			} else if (!Attack.getIntoPosition(unit, tsRange, Coords_1.BlockBits.Ranged, walk)) {
-				return 0;
+				return Attack.Result.FAILED;
 			}
 		}
 
@@ -440,7 +441,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 						Skill.cast(ts, Skill.getHand(ts), unit);
 
 						if (data.frostNova.have && me.mp > data.frostNova.mana) {
-							frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, 0);
+							frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, sdk.skills.hand.Right);
 						}
 
 						if (tsMana > me.mp || unit.hpPercent < Config.CastStatic || inDanger()) {
@@ -463,7 +464,7 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 			}
 		}
 
-		return 1;
+		return Attack.Result.SUCCESS;
 	}
 
 	for (let i = 0; i < 25; i++) {
@@ -479,5 +480,5 @@ ClassAttack.doCast = function (unit, timedSkill, data) {
 		delay(40);
 	}
 
-	return 1;
+	return Attack.Result.SUCCESS;
 };

@@ -7,7 +7,7 @@
 */
 js_strict(true);
 
-!isIncluded("SoloPlay/Functions/Globals.js") && include("SoloPlay/Functions/Globals.js");
+includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 let AutoBuildTemplate = {
@@ -43,7 +43,7 @@ let AutoBuildTemplate = {
 			Config.MPBuffer = 6;
 			Config.AttackSkill = [-1, sdk.skills.DoubleSwing, -1, sdk.skills.DoubleSwing, -1];
 
-			if (me.getSkill(sdk.skills.DoubleSwing, 1) >= 9) {
+			if (me.getSkill(sdk.skills.DoubleSwing, sdk.skills.subindex.SoftPoints) >= 9) {
 				Config.LowManaSkill = [sdk.skills.DoubleSwing, 0];
 			}
 		}
@@ -53,7 +53,7 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
-			if (me.getSkill(sdk.skills.Frenzy, 0)) {
+			if (me.getSkill(sdk.skills.Frenzy, sdk.skills.subindex.HardPoints)) {
 				Config.AttackSkill = [-1, sdk.skills.Frenzy, -1, sdk.skills.Frenzy, -1];
 			}
 		}

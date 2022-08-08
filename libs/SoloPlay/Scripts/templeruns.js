@@ -1,17 +1,19 @@
-/*
-*	@filename	templeruns.js
-*	@author		isid0re
-*	@desc		temple runs for exp.
-*	@credits	Xcon
+/**
+*  @filename    templeruns.js
+*  @author      isid0re, theBGuy
+*  @author      Xcon
+*  @desc        temple runs for exp
+*
 */
 
 function templeruns () {
-	myPrint('starting temple runs');
-
-	let temples = [
+	myPrint("starting temple runs");
+	// todo - calculate effort required to clear temple and decide whether to run it or move to next
+	const temples = [
 		[sdk.areas.FlayerJungle, sdk.areas.LowerKurast], [sdk.areas.KurastBazaar, sdk.areas.RuinedTemple],
 		[sdk.areas.KurastBazaar, sdk.areas.DisusedFane], [sdk.areas.UpperKurast, sdk.areas.ForgottenReliquary],
-		[sdk.areas.UpperKurast, sdk.areas.ForgottenTemple], [sdk.areas.UpperKurast, sdk.areas.KurastCauseway, sdk.areas.RuinedFane], [sdk.areas.UpperKurast, sdk.areas.KurastCauseway, sdk.areas.DisusedReliquary]];
+		[sdk.areas.UpperKurast, sdk.areas.ForgottenTemple], [sdk.areas.UpperKurast, sdk.areas.KurastCauseway, sdk.areas.RuinedFane], [sdk.areas.UpperKurast, sdk.areas.KurastCauseway, sdk.areas.DisusedReliquary]
+	];
 	Town.townTasks();
 
 	for (let run = 0; run < temples.length; run++) {
@@ -19,12 +21,12 @@ function templeruns () {
 		Precast.doPrecast(true);
 
 		if (Pather.moveToExit(temples[run], true, true)) {
-			if (me.area === sdk.areas.LowerKurast) {
+			if (me.inArea(sdk.areas.LowerKurast)) {
 				Misc.openChestsInArea(sdk.areas.LowerKurast);
-			} else if (me.area === sdk.areas.RuinedTemple && !me.lamessen) {
+			} else if (me.inArea(sdk.areas.RuinedTemple) && !me.lamessen) {
 				me.overhead("lamessen");
-				Pather.moveToPreset(sdk.areas.RuinedTemple, 2, 193);
-				Quest.collectItem(548, 193);
+				Pather.moveToPreset(sdk.areas.RuinedTemple, sdk.unittype.Object, sdk.quest.chest.LamEsensTomeHolder);
+				Quest.collectItem(sdk.quest.item.LamEsensTome, sdk.quest.chest.LamEsensTomeHolder);
 				Town.unfinishedQuests();
 			} else {
 				Attack.clearLevel(0xF);

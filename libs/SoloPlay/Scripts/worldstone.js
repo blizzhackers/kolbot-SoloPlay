@@ -1,11 +1,12 @@
 /**
-*	@filename	worldstone.js
-*	@author		kolton
-*	@desc		Clear Worldstone levels
+*  @filename    worldstone.js
+*  @author      kolton
+*  @desc        Clear Worldstone levels
+*
 */
 
 function worldstone() {
-	myPrint('starting worldstone');
+	myPrint("starting worldstone");
 
 	Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
 

@@ -5,9 +5,9 @@
 *
 */
 
-!isIncluded("SoloPlay/Tools/Developer.js") && include("SoloPlay/Tools/Developer.js");
-!isIncluded("SoloPlay/Functions/PrototypesOverrides.js") && include("SoloPlay/Functions/PrototypesOverrides.js");
-!isIncluded("SoloPlay/Functions/MiscOverrides.js") && include("SoloPlay/Functions/MiscOverrides.js");
+includeIfNotIncluded("SoloPlay/Tools/Developer.js");
+includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
+includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 
 const Tracker = {
 	GTPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-GameTime.json",
@@ -68,21 +68,21 @@ const Tracker = {
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
 
 		let newTick = me.gamestarttime >= GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
-		GameTracker.InGame += Developer.Timer(newTick);
-		GameTracker.Total += Developer.Timer(newTick);
+		GameTracker.InGame += Developer.timer(newTick);
+		GameTracker.Total += Developer.timer(newTick);
 		GameTracker.LastSave = getTickCount();
 		Developer.writeObj(GameTracker, Tracker.GTPath);
 
 		// csv file
-		let scriptTime = Developer.Timer(starttime);
+		let scriptTime = Developer.timer(starttime);
 		let diffString = sdk.difficulty.nameOf(me.diff);
-		let gainAMT = me.getStat(13) - startexp;
+		let gainAMT = me.getStat(sdk.stats.Experience) - startexp;
 		let gainTime = gainAMT / (scriptTime / 60000);
 		let currentBuild = SetUp.currentBuild;
-		let FR = me.getStat(39);
-		let CR = me.getStat(43);
-		let LR = me.getStat(41);
-		let PR = me.getStat(45);
+		let FR = me.getStat(sdk.stats.FireResist);
+		let CR = me.getStat(sdk.stats.ColdResist);
+		let LR = me.getStat(sdk.stats.LightResist);
+		let PR = me.getStat(sdk.stats.PoisonResist);
 		let string = Developer.formatTime(GameTracker.Total) + "," + Developer.formatTime(GameTracker.InGame) + "," + Developer.formatTime(scriptTime) + "," + subscript + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n";
 
 		Misc.fileAction(Tracker.SPPath, 2, string);
@@ -100,9 +100,9 @@ const Tracker = {
 
 		let newSave = getTickCount();
 		let newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
-		let splitTime = Developer.Timer(GameTracker.LastLevel);
-		GameTracker.InGame += Developer.Timer(newTick);
-		GameTracker.Total += Developer.Timer(newTick);
+		let splitTime = Developer.timer(GameTracker.LastLevel);
+		GameTracker.InGame += Developer.timer(newTick);
+		GameTracker.Total += Developer.timer(newTick);
 		GameTracker.LastLevel = newSave;
 		GameTracker.LastSave = newSave;
 		Developer.writeObj(GameTracker, Tracker.GTPath);
@@ -111,12 +111,12 @@ const Tracker = {
 		let diffString = sdk.difficulty.nameOf(me.diff);
 		let areaName = Pather.getAreaName(me.area);
 		let currentBuild = SetUp.currentBuild;
-		let gainAMT = me.getStat(13) - Experience.totalExp[me.charlvl - 1];
+		let gainAMT = me.getStat(sdk.stats.Experience) - Experience.totalExp[me.charlvl - 1];
 		let gainTime = gainAMT / (splitTime / 60000);
-		let FR = me.getStat(39);
-		let CR = me.getStat(43);
-		let LR = me.getStat(41);
-		let PR = me.getStat(45);
+		let FR = me.getStat(sdk.stats.FireResist);
+		let CR = me.getStat(sdk.stats.ColdResist);
+		let LR = me.getStat(sdk.stats.LightResist);
+		let PR = me.getStat(sdk.stats.PoisonResist);
 		let string = Developer.formatTime(GameTracker.Total) + "," + Developer.formatTime(GameTracker.InGame) + "," + Developer.formatTime(splitTime) + "," + areaName + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n";
 
 		Misc.fileAction(Tracker.LPPath, 2, string);
@@ -145,8 +145,8 @@ const Tracker = {
 		let newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
 
 		GameTracker.OOG += oogTick;
-		GameTracker.InGame += Developer.Timer(newTick);
-		GameTracker.Total += (Developer.Timer(newTick) + oogTick);
+		GameTracker.InGame += Developer.timer(newTick);
+		GameTracker.Total += (Developer.timer(newTick) + oogTick);
 		GameTracker.LastSave = getTickCount();
 		Developer.writeObj(GameTracker, Tracker.GTPath);
 		this.tick = GameTracker.LastSave;
@@ -155,8 +155,8 @@ const Tracker = {
 	}
 };
 
-if (getScript(true).name.toString() === 'default.dbj') {
-	const Worker = require('../../modules/Worker');
+if (getScript(true).name.toString() === "default.dbj") {
+	const Worker = require("../../modules/Worker");
 
 	Worker.runInBackground.intervalUpdate = function () {
 		if (getTickCount() - Tracker.tick < 3 * 60000) return true;

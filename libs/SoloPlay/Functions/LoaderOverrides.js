@@ -7,7 +7,7 @@
 
 // TODO: make this a loader for the actual scripts run by SoloPlay rather than the just the SoloPlay base script
 
-!isIncluded("common/Loader.js") && include("common/Loader.js");
+includeIfNotIncluded("common/Loader.js");
 
 Loader.getScripts = function () {
 	let fileList = dopen("libs/SoloPlay/").getFiles();
@@ -61,10 +61,10 @@ Loader.loadScripts = function () {
 				if (this.skipTown.includes(script) || Town.goToTown()) {
 					console.log("ÿc2Starting script: ÿc9" + script);
 					Messaging.sendToScript("libs/SoloPlay/Threads/ToolsThread.js", JSON.stringify({currScript: script}));
-					reconfiguration = typeof Scripts[script] === 'object';
+					reconfiguration = typeof Scripts[script] === "object";
 
 					if (reconfiguration) {
-						print("ÿc2Copying Config properties from " + script + " object.");
+						console.log("ÿc2Copying Config properties from " + script + " object.");
 						this.copy(Scripts[script], Config);
 					}
 
@@ -84,7 +84,7 @@ Loader.loadScripts = function () {
 				}
 					
 				if (reconfiguration) {
-					print("ÿc2Reverting back unmodified config properties.");
+					console.log("ÿc2Reverting back unmodified config properties.");
 					this.copy(unmodifiedConfig, Config);
 				}
 			}
