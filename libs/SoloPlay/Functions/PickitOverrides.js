@@ -402,8 +402,8 @@ Pickit.pickItem = function (unit, status, keptLine) {
 	}
 
 	let item, tick, gid, retry = false;
-	let cancelFlags = [sdk.uiflags.Inventory, sdk.uiflags.NPCMenu, sdk.uiflags.Waypoint, sdk.uiflags.Shop, sdk.uiflags.Stash, sdk.uiflags.Cube];
 	let itemCount = me.itemcount;
+	let cancelFlags = [sdk.uiflags.Inventory, sdk.uiflags.NPCMenu, sdk.uiflags.Waypoint, sdk.uiflags.Shop, sdk.uiflags.Stash, sdk.uiflags.Cube];
 
 	if (!unit || unit === undefined) return false;
 
@@ -454,7 +454,7 @@ Pickit.pickItem = function (unit, status, keptLine) {
 					Pickit.enabled = true;		// Reset value
 				}
 
-				if (!Pather.moveToUnit(item)) {
+				if (!Pather.moveNearUnit(item, 5)) {
 					continue;
 				}
 			}

@@ -24,6 +24,7 @@ new Overrides.Override(Town, Town.repair, function (orignal, force = false) {
 	return false;
 }).apply();
 
+Town.sell = [];
 // Removed Missle Potions for easy gold
 // Items that won't be stashed
 Town.ignoredItemTypes = [
@@ -32,7 +33,6 @@ Town.ignoredItemTypes = [
 	sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion, sdk.items.type.StaminaPotion,
 	sdk.items.type.AntidotePotion, sdk.items.type.ThawingPotion
 ];
-Town.sell = [];
 
 Town.needPotions = function () {
 	// we aren't using MinColumn if none of the values are set
@@ -1178,7 +1178,7 @@ Town.buyMercPots = function (quantity, type) {
 Town.canStash = function (item) {
 	if (this.ignoredItemTypes.includes(item.itemType)
 		|| [sdk.items.quest.HoradricStaff, sdk.items.quest.KhalimsWill].includes(item.classid)
-		|| ([sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(item.classid) && Item.autoEquipCharmCheck(item))) {
+		|| (item.isCharm && Item.autoEquipCharmCheck(item))) {
 		return false;
 	}
 
@@ -2080,7 +2080,10 @@ Town.worseBaseThanStashed = function (base = undefined) {
 		// don't toss grief base
 		// Can't use so it's worse then what we already have
 		// todo - need better solution to know what the max stats are for our current build and wanted final build
-		if ((me.trueStr < base.strreq || me.trueDex < base.dexreq) && !me.paladin) return true;
+		// update - 8/8/2022 - checks final build stat requirements but still need a better check
+		// don't keep an item if we are only going to be able to use it when we get to our final build but also sometimes like paladin making grief
+		// we need the item to get to our final build but won't actually be able to use it till then so we can't just use max current build str/dex
+		if ((Check.finalBuild().maxStr < base.strreq || Check.finalBuild().maxStr < base.dexreq)) return true;
 		// need better solution for comparison based on what runeword can be made in a base type
 		// should allow comparing multiple item types given they are all for the same runeword
 		itemsToCheck = getItemToCompare(
@@ -2141,6 +2144,10 @@ Town.worseBaseThanStashed = function (base = undefined) {
 	return result;
 };
 
+Town.systemsKeep = function (item) {
+	return (AutoEquip.wanted(item) || Cubing.keepItem(item) || Runewords.keepItem(item) || CraftingSystem.keepItem(item) || SoloWants.keepItem(item));
+};
+
 Town.clearJunk = function () {
 	let junkItems = me.findItems(-1, sdk.items.mode.inStorage);
 	let totalJunk = [];
@@ -2150,16 +2157,12 @@ Town.clearJunk = function () {
 	if (!junkItems) return false;
 
 	while (junkItems.length > 0) {
-		let junk = junkItems.shift();
+		const junk = junkItems.shift();
 		const pickitResult = Pickit.checkItem(junk).result;
 
 		try {
 			if (junk.isInStorage && ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(pickitResult))
-				&& !AutoEquip.wanted(junk) // Don't toss wanted auto equip items
-				&& !Cubing.keepItem(junk) // Don't throw cubing ingredients
-				&& !Runewords.keepItem(junk) // Don't throw runeword ingredients
-				&& !CraftingSystem.keepItem(junk) // Don't throw crafting system ingredients
-				&& !SoloWants.keepItem(junk) // Don't throw SoloWants system ingredients
+				&& !Town.systemsKeep(junk)
 				&& !Town.ignoredItemTypes.includes(junk.itemType) // Don't drop tomes, keys or potions
 				&& junk.sellable // Don't try to sell/drop quest-items/keys/essences/tokens/organs
 			) {

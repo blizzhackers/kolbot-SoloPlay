@@ -1240,7 +1240,6 @@ const Check = {
 			break;
 		}
 		
-
 		let items = me.getItemsEx()
 			.filter(item => item.isBaseType && item.isInStorage && (isClassID ? item.classid === type : item.itemType === type));
 
@@ -1251,6 +1250,30 @@ const Check = {
 		}
 
 		return false;
+	},
+
+	getMaxValue: function (buildInfo, stat) {
+		if (!buildInfo || !buildInfo.stats || stat === undefined) return 0;
+		let highest = 0;
+		const shorthandStr = [sdk.stats.Strength, "s", "str", "strength"];
+		const shorthandDex = [sdk.stats.Dexterity, "d", "dex", "dexterity"];
+		const statToCheck = shorthandStr.includes(stat) ? "str" : shorthandDex.includes(stat) ? "dex" : "";
+		
+		buildInfo.stats.forEach(s => {
+			switch (true) {
+			case (shorthandStr.includes(s[0]) && statToCheck === "str"):
+			case (shorthandDex.includes(s[0]) && statToCheck === "dex"):
+				if (s[1] > highest) {
+					highest = s[1];
+				}
+
+				break;
+			default:
+				break;
+			}
+		});
+
+		return highest;
 	},
 
 	currentBuild: function () {
@@ -1348,6 +1371,8 @@ const Check = {
 			mercAuraWanted: finalBuild.mercAuraWanted,
 			finalGear: finalBuild.autoEquipTiers,
 			finalCharms: (finalBuild.charms || {}),
+			maxStr: Check.getMaxValue(finalBuild, "strength"),
+			maxDex: Check.getMaxValue(finalBuild, "dexterity"),
 			respec: finalBuild.respec,
 			active: finalBuild.active,
 		};
