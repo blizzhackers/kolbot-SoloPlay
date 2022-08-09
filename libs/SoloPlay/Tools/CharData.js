@@ -50,6 +50,64 @@ const CharData = {
 		}
 	},
 
+	loginData: {
+		filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-LoginData.json",
+		default: {Acc: "", Pass: "", Char: "", existing: false},
+
+		create: function () {
+			let obj = Object.assign({}, this.default);
+			let string = JSON.stringify(obj, null, 2);
+
+			if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile)) {
+				let folder = dopen("libs/SoloPlay/Data");
+				folder && folder.create(me.profile);
+			}
+
+			Misc.fileAction(this.filePath, 1, string);
+
+			return obj;
+		},
+
+		getObj: function () {
+			if (!FileTools.exists(this.filePath)) return CharData.loginData.create();
+
+			let obj;
+			let string = Misc.fileAction(this.filePath, 0);
+
+			try {
+				obj = JSON.parse(string);
+			} catch (e) {
+			// If we failed, file might be corrupted, so create a new one
+				obj = this.create();
+			}
+
+			return obj ? obj : this.default;
+		},
+
+		getStats: function () {
+			let obj = this.getObj();
+			return Misc.clone(obj);
+		},
+
+		updateData: function (arg, property, value) {
+			let obj = this.getObj();
+			typeof arg !== "string" && (arg = arg.toString());
+			typeof arg === "string" && (arg = arg.toLowerCase());
+
+			if (typeof property === "object") {
+				obj = Object.assign(obj, property);
+				return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
+			}
+
+			if (!!obj[arg] && obj[arg].hasOwnProperty(property)) {
+				obj[arg][property] = value;
+				return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
+			}
+
+			return false;
+		},
+	},
+
 	charmData: {
 		small: {
 			getCountInfo: function () {

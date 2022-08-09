@@ -7,19 +7,17 @@
 
 function summoner () {
 	// @isid0re
-	let teleportPads = function () {
+	const teleportPads = function () {
 		if (me.inArea(sdk.areas.ArcaneSanctuary) || Pather.useTeleport()) return true;
 
-		let wpX = 25449;
-		let wpY = 5449;
+		let tppPath;
+		let [wpX, wpY] = [25449, 5449];
 		let ntppPath = [[53, 2], [103, -3], [113, -68], [173, -58], [243, -73], [293, -58], [353, -68], [372, -62], [342, -17]];
 		let stppPath = [[-56, 2], [-128, -7], [-98, 78], [-176, 62], [-243, 58], [-296, 62], [-372, 62], [-366, 12]];
 		let etppPath = [[28, 52], [-12, 92], [53, 112], [72, 118], [88, 172], [54, 227], [43, 247], [88, 292], [82, 378], [-16, 332], [2, 353]];
 		let wtppPath = [[-26, -63], [2, -121], [3, -133], [62, -117], [34, -183], [54, -228], [43, -243], [34, -303], [72, -351], [64, -368], [23, -338]];
 		let stand = Game.getPresetObject(me.area, sdk.objects.Journal);
-		let tppPathX = stand.roomx * 5 + stand.x;
-		let tppPathY = stand.roomy * 5 + stand.y;
-		let tppPath;
+		let [tppPathX, tppPathY] = [stand.roomx * 5 + stand.x, stand.roomy * 5 + stand.y];
 		let tppID = [192, 304, 305, 306];
 
 		switch (tppPathX) {

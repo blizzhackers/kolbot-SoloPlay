@@ -166,7 +166,7 @@ ControlAction.findCharacter = function (info) {
 	}
 
 	// start from beginning of the char list
-	sendKey(0x24);
+	sendKey(sdk.keys.code.Home);
 
 	while (getLocation() === sdk.game.locations.CharSelect && count < cap) {
 		let control = Controls.CharSelectCharInfo0.control;
@@ -191,10 +191,10 @@ ControlAction.findCharacter = function (info) {
 			if (Controls.CharSelectChar6.click()) {
 				me.blockMouse = true;
 
-				sendKey(0x28);
-				sendKey(0x28);
-				sendKey(0x28);
-				sendKey(0x28);
+				sendKey(sdk.keys.code.DownArrow);
+				sendKey(sdk.keys.code.DownArrow);
+				sendKey(sdk.keys.code.DownArrow);
+				sendKey(sdk.keys.code.DownArrow);
 
 				me.blockMouse = false;
 
@@ -217,17 +217,95 @@ ControlAction.findCharacter = function (info) {
 	return false;
 };
 
+ControlAction.loginCharacter = function (info, startFromTop = true) {
+	me.blockMouse = true;
+
+	let count = 0;
+
+	// start from beginning of the char list
+	startFromTop && sendKey(sdk.keys.code.Home);
+
+	MainLoop:
+	// cycle until in lobby or in game
+	while (getLocation() !== sdk.game.locations.Lobby) {
+		switch (getLocation()) {
+		case sdk.game.locations.CharSelect:
+			let control = Controls.CharSelectCharInfo0.control;
+
+			if (control) {
+				do {
+					let text = control.getText();
+
+					if (text instanceof Array && typeof text[1] === "string") {
+						count++;
+
+						if (text[1].toLowerCase() === info.charName.toLowerCase()) {
+							control.click();
+							Controls.CreateNewAccountOk.click();
+							me.blockMouse = false;
+
+							if (getLocation() === sdk.game.locations.SelectDifficultySP) {
+								try {
+									Starter.LocationEvents.selectDifficultySP();
+								} catch (err) {
+									break MainLoop;
+								}
+
+								if (me.ingame) {
+									return true;
+								}
+							}
+
+							return true;
+						}
+					}
+				} while (control.getNext());
+			}
+
+			// check for additional characters up to 24
+			if (count === 8 || count === 16) {
+				if (Controls.CharSelectChar6.click()) {
+					sendKey(sdk.keys.code.DownArrow);
+					sendKey(sdk.keys.code.DownArrow);
+					sendKey(sdk.keys.code.DownArrow);
+					sendKey(sdk.keys.code.DownArrow);
+				}
+			} else {
+				// no further check necessary
+				break MainLoop;
+			}
+
+			break;
+		case sdk.game.locations.CharSelectNoChars:
+			Controls.CharSelectExit.click();
+
+			break;
+		case sdk.game.locations.Disconnected:
+		case sdk.game.locations.OkCenteredErrorPopUp:
+			break MainLoop;
+		default:
+			break;
+		}
+
+		delay(100);
+	}
+
+	me.blockMouse = false;
+
+	return false;
+};
+
 // need open bnet check
 ControlAction.makeAccount = function (info) {
 	me.blockMouse = true;
 
-	let tick,
-		realms = {
-			"uswest": 0,
-			"useast": 1,
-			"asia": 2,
-			"europe": 3
-		};
+	let tick;
+	let realms = {
+		"uswest": 0,
+		"useast": 1,
+		"asia": 2,
+		"europe": 3
+	};
 
 	// cycle until in empty char screen
 	while (getLocation() !== sdk.game.locations.CharSelectNoChars) {
@@ -390,15 +468,14 @@ ControlAction.saveInfo = function (info) {
 ControlAction.loginAccount = function (info) {
 	me.blockMouse = true;
 
-	let locTick,
-		realms = {
-			"uswest": 0,
-			"useast": 1,
-			"asia": 2,
-			"europe": 3
-		};
-
+	let locTick;
 	let tick = getTickCount();
+	let realms = {
+		"uswest": 0,
+		"useast": 1,
+		"asia": 2,
+		"europe": 3
+	};
 
 	MainLoop:
 	while (true) {
@@ -476,8 +553,8 @@ ControlAction.loginAccount = function (info) {
 Starter.randomNumberString = function (len) {
 	len === undefined && (len = rand(2, 5));
 
-	let rval = "",
-		vals = "0123456789";
+	let rval = "";
+	let vals = "0123456789";
 
 	for (let i = 0; i < len; i += 1) {
 		rval += vals[rand(0, vals.length - 1)];
@@ -500,4 +577,382 @@ Starter.charSelectConnecting = function () {
 	} else {
 		return true;
 	}
+};
+
+Starter.BNET = false;
+Starter.LocationEvents.login = function () {
+	Starter.inGame && (Starter.inGame = false);
+	if (getLocation() === sdk.game.locations.MainMenu
+		&& Profile().type === sdk.game.profiletype.SinglePlayer
+		&& Starter.firstRun
+		&& Controls.SinglePlayer.click()) {
+		return;
+	}
+
+	// Wrong char select screen fix
+	if (getLocation() === sdk.game.locations.CharSelect) {
+		hideConsole(); // seems to fix odd crash with single-player characters if the console is open to type in
+		if ((Profile().type === sdk.game.profiletype.Battlenet && !Controls.CharSelectCurrentRealm.control)
+			|| ((Profile().type !== sdk.game.profiletype.Battlenet && Controls.CharSelectCurrentRealm.control))) {
+			Controls.CharSelectExit.click();
+			
+			return;
+		}
+	}
+
+	// Multiple realm botting fix in case of R/D or disconnect
+	Starter.firstLogin && getLocation() === sdk.game.locations.Login && Controls.CharSelectExit.click();
+				
+	D2Bot.updateStatus("Logging In");
+
+	try {
+		// make battlenet accounts/characters
+		if (Starter.BNET) {
+			ControlAction.timeoutDelay("Login Delay", Starter.Config.DelayBeforeLogin * 1e3);
+			D2Bot.updateStatus("Logging in");
+			// existing account
+			if (Starter.profileInfo.account !== "") {
+				try {
+					// ControlAction.loginAccount(Starter.profileInfo);
+					login(me.profile);
+				} catch (error) {
+					if (DataFile.getStats().AcctPswd) {
+						Starter.profileInfo.account = DataFile.getStats().AcctName;
+						Starter.profileInfo.password = DataFile.getStats().AcctPswd;
+
+						for (let i = 0; i < 5; i++) {
+							if (ControlAction.loginAccount(Starter.profileInfo)) {
+								break;
+							}
+
+							if (getLocation() === sdk.game.locations.CharSelectConnecting) {
+								if (Starter.charSelectConnecting()) {
+									break;
+								}
+							}
+
+							ControlAction.timeoutDelay("Unable to Connect", Starter.Config.UnableToConnectDelay * 6e4);
+							Starter.profileInfo.account = DataFile.getStats().AcctName;
+							Starter.profileInfo.password = DataFile.getStats().AcctPswd;
+						}
+					}
+				}
+			} else {
+				// new account
+				if (Starter.profileInfo.account === "") {
+					if (Starter.Config.GlobalAccount || Starter.Config.GlobalAccountPassword) {
+						Starter.profileInfo.account = Starter.Config.GlobalAccount.length > 0 ? Starter.Config.GlobalAccount + Starter.randomNumberString(Starter.Config.AccountSuffixLength) : Starter.randomString(12, true);
+						Starter.profileInfo.password = Starter.Config.GlobalAccountPassword.length > 0 ? Starter.Config.GlobalAccountPassword : Starter.randomString(12, true);
+
+						if (Starter.profileInfo.account.length > 15) {
+							D2Bot.printToConsole("Kolbot-SoloPlay: Account name exceeds MAXIMUM length (15). Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig", sdk.colors.D2Bot.Gold);
+							D2Bot.setProfile("", "", null, "Normal");
+							D2Bot.stop();
+						}
+
+						if (Starter.profileInfo.password.length > 15) {
+							D2Bot.printToConsole("Kolbot-SoloPlay: Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig", sdk.colors.D2Bot.Gold);
+							D2Bot.setProfile("", "", null, "Normal");
+							D2Bot.stop();
+						}
+
+						console.log("Kolbot-SoloPlay :: Generated account information. " + (Starter.Config.GlobalAccount.length > 0 ? "Pre-defined " : "Random ") + "account used");
+						console.log("Kolbot-SoloPlay :: Generated password information. " + (Starter.Config.GlobalAccountPassword.length > 0 ? "Pre-defined " : "Random ") + "password used");
+						ControlAction.timeoutDelay("Generating Account Information", Starter.Config.DelayBeforeLogin * 1e3);
+					} else {
+						Starter.profileInfo.account = Starter.randomString(12, true);
+						Starter.profileInfo.password = Starter.randomString(12, true);
+						console.log("Generating Random Account Information");
+						ControlAction.timeoutDelay("Generating Random Account Information", Starter.Config.DelayBeforeLogin * 1e3);
+					}
+
+					if (ControlAction.makeAccount(Starter.profileInfo)) {
+						D2Bot.setProfile(Starter.profileInfo.account, Starter.profileInfo.password, null, "Normal");
+						DataFile.updateStats("AcctName", Starter.profileInfo.account);
+						DataFile.updateStats("AcctPswd", Starter.profileInfo.password);
+
+						return;
+					} else {
+						Starter.profileInfo.account = "";
+						Starter.profileInfo.password = "";
+						D2Bot.setProfile(Starter.profileInfo.account, Starter.profileInfo.password, null, "Normal");
+						D2Bot.restart(true);
+					}
+				}
+			}
+		} else {
+			// SP/TCP  characters
+			try {
+				login(me.profile);
+			} catch (err) {
+				// Try to find the character and if that fails, make character
+				if (!ControlAction.findCharacter(Starter.profileInfo)) {
+					// Pop-up that happens when choosing a dead HC char
+					if (getLocation() === sdk.game.locations.OkCenteredErrorPopUp) {
+						Controls.OkCentered.click();	// Exit from that pop-up
+						D2Bot.printToConsole("Character died", sdk.colors.D2Bot.Red);
+						ControlAction.deleteAndRemakeChar(Starter.profileInfo);
+					} else {
+						// If make character fails, check how many characters are on that account
+						if (!ControlAction.makeCharacter(Starter.profileInfo)) {
+							// Account is full
+							if (ControlAction.getCharacters().length >= 18) {
+								D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", sdk.colors.D2Bot.Orange);
+								D2Bot.stop();
+							}
+						}
+					}
+				}
+			}
+		}
+	} catch (e) {
+		console.log(e + " " + getLocation());
+	}
+};
+
+Starter.LocationEvents.loginError = function () {
+	let string = "";
+	let text = Controls.LoginErrorText.getText();
+
+	if (text) {
+		for (let i = 0; i < text.length; i++) {
+			string += text[i];
+
+			if (i !== text.length - 1) {
+				string += " ";
+			}
+		}
+
+		switch (string) {
+		case getLocaleString(sdk.locale.text.UsenameIncludedIllegalChars):
+		case getLocaleString(sdk.locale.text.UsenameIncludedDisallowedwords):
+		case getLocaleString(sdk.locale.text.UsernameMustBeAtLeast):
+		case getLocaleString(sdk.locale.text.PasswordMustBeAtLeast):
+		case getLocaleString(sdk.locale.text.AccountMustBeAtLeast):
+		case getLocaleString(sdk.locale.text.PasswordCantBeMoreThan):
+		case getLocaleString(sdk.locale.text.AccountCantBeMoreThan):
+			D2Bot.printToConsole(string);
+			D2Bot.stop();
+
+			break;
+		case getLocaleString(sdk.locale.text.InvalidPassword):
+			D2Bot.updateStatus("Invalid Password");
+			D2Bot.printToConsole("Invalid Password");
+			ControlAction.timeoutDelay("Invalid password delay", Starter.Config.InvalidPasswordDelay * 6e4);
+			D2Bot.printToConsole("Invalid Password - Restart");
+			D2Bot.restart();
+
+			break;
+		case getLocaleString(5208): // Invalid account
+		case getLocaleString(5239): // An account name already exists
+		case getLocaleString(5249): // Unable to create account
+			D2Bot.updateStatus("Invalid Account Name");
+			D2Bot.printToConsole("Invalid Account Name");
+			Starter.profileInfo.account = "";
+			Starter.profileInfo.password = "";
+			D2Bot.setProfile(Starter.profileInfo.account, Starter.profileInfo.password);
+			D2Bot.restart(true);
+
+			break;
+		case getLocaleString(5202): // cd key intended for another product
+		case getLocaleString(10915): // lod key intended for another product
+			D2Bot.updateStatus("Invalid CDKey");
+			D2Bot.printToConsole("Invalid CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
+			D2Bot.CDKeyDisabled();
+
+			if (Starter.gameInfo.switchKeys) {
+				ControlAction.timeoutDelay("Key switch delay", Starter.Config.SwitchKeyDelay * 1000);
+				D2Bot.restart(true);
+			} else {
+				D2Bot.stop();
+			}
+
+			break;
+		case getLocaleString(5199):
+			D2Bot.updateStatus("Disabled CDKey");
+			D2Bot.printToConsole("Disabled CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
+			D2Bot.CDKeyDisabled();
+
+			if (Starter.gameInfo.switchKeys) {
+				ControlAction.timeoutDelay("Key switch delay", Starter.Config.SwitchKeyDelay * 1000);
+				D2Bot.restart(true);
+			} else {
+				D2Bot.stop();
+			}
+
+			break;
+		case getLocaleString(10913):
+			D2Bot.updateStatus("Disabled LoD CDKey");
+			D2Bot.printToConsole("Disabled LoD CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
+			D2Bot.CDKeyDisabled();
+
+			if (Starter.gameInfo.switchKeys) {
+				ControlAction.timeoutDelay("Key switch delay", Starter.Config.SwitchKeyDelay * 1000);
+				D2Bot.restart(true);
+			} else {
+				D2Bot.stop();
+			}
+
+			break;
+		case getLocaleString(5347):
+			D2Bot.updateStatus("Disconnected from battle.net.");
+			D2Bot.printToConsole("Disconnected from battle.net.");
+			Controls.OkCentered.click();
+			Controls.LoginErrorOk.click();
+
+			return;
+		default:
+			D2Bot.updateStatus("Login Error");
+			D2Bot.printToConsole("Login Error - " + string);
+
+			if (Starter.gameInfo.switchKeys) {
+				ControlAction.timeoutDelay("Key switch delay", Starter.Config.SwitchKeyDelay * 1000);
+				D2Bot.restart(true);
+			} else {
+				D2Bot.stop();
+			}
+
+			break;
+		}
+	}
+
+	Controls.LoginErrorOk.click();
+	delay(1000);
+	Controls.CharSelectExit.click();
+};
+
+Starter.LocationEvents.charSelect = function () {
+	let string = "";
+	let text = Controls.CharSelectError.getText();
+
+	if (text) {
+		for (let i = 0; i < text.length; i++) {
+			string += text[i];
+
+			if (i !== text.length - 1) {
+				string += " ";
+			}
+		}
+
+		// CDKey disabled from realm play
+		if (string === getLocaleString(sdk.locale.text.CdKeyDisabledFromRealm)) {
+			D2Bot.updateStatus("Realm Disabled CDKey");
+			D2Bot.printToConsole("Realm Disabled CDKey: " + Starter.gameInfo.mpq, sdk.colors.D2Bot.Gold);
+			D2Bot.CDKeyDisabled();
+
+			if (Starter.gameInfo.switchKeys) {
+				ControlAction.timeoutDelay("Key switch delay", Starter.Config.SwitchKeyDelay * 1000);
+				D2Bot.restart(true);
+			} else {
+				D2Bot.stop();
+			}
+		}
+	}
+
+	if (Starter.deadCheck && ControlAction.deleteAndRemakeChar(Starter.profileInfo)) {
+		Starter.deadCheck = false;
+	}
+
+	if (Object.keys(Starter.profileInfo).length) {
+		if (!ControlAction.findCharacter(Starter.profileInfo)) {
+			if (Starter.profileInfo.charName === DataFile.getObj().name
+					&& getLocation() !== sdk.game.locations.CharSelectNoChars) {
+				ControlAction.timeoutDelay("[R/D] Character not found ", 18e4);
+				D2Bot.printToConsole("Avoid Creating New Character - Restart");
+				D2Bot.restart();
+			} else {
+				if (!ControlAction.makeCharacter(Starter.profileInfo)) {
+					if (ControlAction.getCharacters().length >= 18) {
+						D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", sdk.colors.D2Bot.Red);
+						D2Bot.stop();
+					}
+				}
+			}
+		} else {
+			ControlAction.loginCharacter(Starter.profileInfo, false);
+		}
+	}
+
+	if (!Starter.locationTimeout(Starter.Config.ConnectingTimeout * 1e3, location)) {
+		Controls.CharSelectExit.click();
+		Starter.gameInfo.rdBlocker && D2Bot.restart();
+	}
+};
+
+Starter.LocationEvents.lobbyChat = function () {
+	D2Bot.updateStatus("Lobby Chat");
+	Starter.lastGameStatus === "pending" && (Starter.gameCount += 1);
+
+	if (Starter.inGame || Starter.gameInfo.error) {
+		!Starter.gameStart && (Starter.gameStart = DataFile.getStats().ingameTick);
+
+		if (getTickCount() - Starter.gameStart < Starter.Config.MinGameTime * 1e3) {
+			ControlAction.timeoutDelay("Min game time wait", Starter.Config.MinGameTime * 1e3 + Starter.gameStart - getTickCount());
+		}
+	}
+
+	if (Starter.inGame) {
+		if (oogCheck()) return;
+
+		console.log("updating runs");
+		D2Bot.updateRuns();
+
+		Starter.gameCount += 1;
+		Starter.lastGameStatus = "ready";
+		Starter.inGame = false;
+
+		if (Starter.Config.ResetCount && Starter.gameCount > Starter.Config.ResetCount) {
+			Starter.gameCount = 1;
+			DataFile.updateStats("runs", Starter.gameCount);
+		}
+
+		Starter.chanInfo.afterMsg = Starter.Config.AfterGameMessage;
+
+		if (Starter.chanInfo.afterMsg) {
+			!Array.isArray(Starter.chanInfo.afterMsg) && (Starter.chanInfo.afterMsg = [Starter.chanInfo.afterMsg]);
+
+			for (let i = 0; i < Starter.chanInfo.afterMsg.length; i++) {
+				Starter.sayMsg(Starter.chanInfo.afterMsg[i]);
+				delay(500);
+			}
+		}
+	}
+
+	if (!Starter.chatActionsDone) {
+		Starter.chatActionsDone = true;
+
+		Starter.chanInfo.joinChannel = Starter.Config.JoinChannel;
+		Starter.chanInfo.firstMsg = Starter.Config.FirstJoinMessage;
+
+		if (Starter.chanInfo.joinChannel) {
+			!Array.isArray(Starter.chanInfo.joinChannel) && (Starter.chanInfo.joinChannel = [Starter.chanInfo.joinChannel]);
+			!Array.isArray(Starter.chanInfo.firstMsg) && (Starter.chanInfo.firstMsg = [Starter.chanInfo.firstMsg]);
+
+			for (let i = 0; i < Starter.chanInfo.joinChannel.length; i++) {
+				ControlAction.timeoutDelay("Chat delay", Starter.Config.ChatActionsDelay * 1e3);
+
+				if (ControlAction.joinChannel(Starter.chanInfo.joinChannel[i])) {
+					Starter.useChat = true;
+				} else {
+					console.log("ÿc1Unable to join channel, disabling chat messages.");
+
+					Starter.useChat = false;
+				}
+
+				if (Starter.chanInfo.firstMsg[i] !== "") {
+					Starter.sayMsg(Starter.chanInfo.firstMsg[i]);
+					delay(500);
+				}
+			}
+		}
+	}
+
+	// Announce game
+	Starter.chanInfo.announce = Starter.Config.AnnounceGames;
+
+	if (Starter.chanInfo.announce) {
+		Starter.sayMsg("Next game is " + Starter.gameInfo.gameName + Starter.gameCount + (Starter.gameInfo.gamePass === "" ? "" : "//" + Starter.gameInfo.gamePass));
+	}
+
+	Starter.LocationEvents.openCreateGameWindow();
 };

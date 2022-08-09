@@ -9,7 +9,8 @@ const SoloIndex = {
 	// this controls the order
 	scripts: [
 		// Act 1
-		"corpsefire", "den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "boneash", "andariel", "a1chests", "cows",
+		"corpsefire", "den", "bishibosh", "bloodraven", "tristram", "treehead",
+		"countess", "smith", "pits", "jail", "boneash", "andariel", "a1chests", "cows",
 		// Act 2
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel",
 		// Act 3
@@ -39,6 +40,19 @@ const SoloIndex = {
 			},
 			shouldRun: function () {
 				if (this.skipIf()) return false;
+				return true;
+			}
+		},
+		"bishibosh": {
+			preReq: function () {
+				return false; // figure out if this would be good to run
+				// return me.normal && me.charlvl < 6;
+			},
+			skipIf: function () {
+				return me.sorceress;
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
 				return true;
 			}
 		},
