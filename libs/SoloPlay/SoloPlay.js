@@ -14,6 +14,7 @@
 
 includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
 includeIfNotIncluded("SoloPlay/Tools/CharData.js");
+includeIfNotIncluded("SoloPlay/Tools/SoloIndex.js");
 
 function SoloPlay () {
 	this.setup = function () {
@@ -71,46 +72,47 @@ function SoloPlay () {
 			D2Bot.setProfile(null, null, null, updatedDifficulty);
 		}
 
-		for (k = 0; k < SetUp.scripts.length; k++) {
+		for (k = 0; k < SoloIndex.scripts.length; k++) {
 			!me.inTown && Town.goToTown();
 			Check.checkSpecialCase();
+			const scriptName = SoloIndex.scripts[k];
 
-			if (Check.task(SetUp.scripts[k])) {
+			if (SoloIndex.index[scriptName] !== undefined && SoloIndex.index[scriptName].shouldRun()) {
 				let tick;
 				let currentExp;
 
 				try {
-					includeIfNotIncluded("SoloPlay/Scripts/" + SetUp.scripts[k] + ".js");
+					includeIfNotIncluded("SoloPlay/Scripts/" + scriptName + ".js");
 
 					tick = getTickCount();
 					currentExp = me.getStat(sdk.stats.Experience);
-					Messaging.sendToScript("libs/SoloPlay/Threads/ToolsThread.js", JSON.stringify({currScript: SetUp.scripts[k]}));
+					Messaging.sendToScript("libs/SoloPlay/Threads/ToolsThread.js", JSON.stringify({currScript: scriptName}));
 
 					for (j = 0; j < 5; j += 1) {
-						if (this[SetUp.scripts[k]]()) {
+						if (this[scriptName]()) {
 							break;
 						}
 					}
 
 					if (j === 5) {
-						myPrint("script " + SetUp.scripts[k] + " failed.");
+						myPrint("script " + scriptName + " failed.");
 					}
 				} catch (e) {
 					console.warn("ÿc8Kolbot-SoloPlayÿc0: ", (typeof e === "object" ? e.message : e));
 				} finally {
-					Developer.logPerformance && Tracker.script(tick, SetUp.scripts[k], currentExp);
+					Developer.logPerformance && Tracker.script(tick, scriptName, currentExp);
 					console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));
 					me.maxgametime += (getTickCount() - tick);
 					console.log("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Developer.formatTime(me.maxgametime));
-					console.log("ÿc8Kolbot-SoloPlayÿc0 :: ÿc8" + SetUp.scripts[k] + "ÿc0 - ÿc7Duration: ÿc0" + Developer.formatTime(getTickCount() - tick));
+					console.log("ÿc8Kolbot-SoloPlayÿc0 :: ÿc8" + scriptName + "ÿc0 - ÿc7Duration: ÿc0" + Developer.formatTime(getTickCount() - tick));
 
 					// remove script function from function scope, so it can be cleared by GC
-					if (k < SetUp.scripts.length) {
-						delete this[SetUp.scripts[k]];
+					if (k < SoloIndex.scripts.length) {
+						delete this[scriptName];
 					}
 				}
 
-				if (me.sorceress && me.hell && SetUp.scripts[k] === "bloodraven" && me.charlvl < 68) {
+				if (me.sorceress && me.hell && scriptName === "bloodraven" && me.charlvl < 68) {
 					console.debug("End-run, we are not ready to keep pushing yet");
 					
 					break;

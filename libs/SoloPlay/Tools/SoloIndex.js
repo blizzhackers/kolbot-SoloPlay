@@ -1,13 +1,12 @@
 /**
-*  @filename    Scripts.js
+*  @filename    SoloIndex.js
 *  @author      theBGuy
 *  @desc        Script index of SoloPlay
 *
 */
 
-const sdk = require("../../modules/sdk");
-
-const Scripts = {
+const SoloIndex = {
+	// this controls the order
 	scripts: [
 		// Act 1
 		"corpsefire", "den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "boneash", "andariel", "a1chests", "cows",
@@ -20,10 +19,9 @@ const Scripts = {
 		// Act 5
 		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests",
 	],
-	
-	index: [
-		{
-			name: "corpsefire",
+
+	index: {
+		"corpsefire": {
 			preReq: function () {
 				return me.den && me.hell;
 			},
@@ -35,14 +33,12 @@ const Scripts = {
 				return (!me.andariel || Check.brokeAf());
 			}
 		},
-		{
-			name: "den",
+		"den": {
 			shouldRun: function () {
 				return !me.den;
 			}
 		},
-		{
-			name: "bloodraven",
+		"bloodraven": {
 			skipIf: function () {
 				// too many light immunes - although come back to this cause maybe just kill raven
 				return ["Lightning", "Trapsin", "Javazon"].includes(SetUp.currentBuild);
@@ -56,10 +52,10 @@ const Scripts = {
 				case sdk.difficulty.Hell:
 					return !this.skipIf();
 				}
+				return false;
 			}
 		},
-		{
-			name: "tristram",
+		"tristram": {
 			skipIf: function () {
 				switch (me.classid) {
 				case sdk.player.class.Paladin:
@@ -77,10 +73,10 @@ const Scripts = {
 				case sdk.difficulty.Hell:
 					return (!me.tristram && me.diffCompleted) || !this.skipIf();
 				}
+				return false;
 			}
 		},
-		{
-			name: "treehead",
+		"treehead": {
 			preReq: function () {
 				return me.hell && !Pather.accessToAct(3);
 			},
@@ -92,8 +88,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "countess",
+		"countess": {
 			skipIf: function () {
 				if (me.classic && me.hell) return true;
 				return false;
@@ -105,8 +100,7 @@ const Scripts = {
 				return (Check.runes() || Check.brokeAf());
 			}
 		},
-		{
-			name: "smith",
+		"smith": {
 			skipIf: function () {
 				// todo - test leveling/experience potential
 				return (!!Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete) || me.smith);
@@ -116,8 +110,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "pits",
+		"pits": {
 			preReq: function () {
 				return me.hell;
 			},
@@ -138,8 +131,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "jail",
+		"jail": {
 			preReq: function () {
 				return me.hell && me.amazon && !me.mephisto;
 			},
@@ -151,8 +143,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "boneash",
+		"boneash": {
 			preReq: function () {
 				return me.hell && me.classic && !me.diablo;
 			},
@@ -161,8 +152,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "andariel",
+		"andariel": {
 			skipIf: function () {
 				if (me.hell && me.amazon && SetUp.currentBuild !== SetUp.finalBuild) return true;
 				if (!me.normal && (!Pather.canTeleport() || me.charlvl > 60)) return true;
@@ -176,8 +166,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "a1chests",
+		"a1chests": {
 			preReq: function () {
 				return !me.classic && !me.normal;
 			},
@@ -195,8 +184,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "cows",
+		"cows": {
 			preReq: function () {
 				return !me.cows && me.diffCompleted;
 			},
@@ -217,8 +205,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "cube",
+		"cube": {
 			preReq: function () {
 				return Pather.accessToAct(2);
 			},
@@ -230,8 +217,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "radament",
+		"radament": {
 			preReq: function () {
 				return Pather.accessToAct(2);
 			},
@@ -247,8 +233,7 @@ const Scripts = {
 				}
 			}
 		},
-		{
-			name: "staff",
+		"staff": {
 			preReq: function () {
 				return Pather.accessToAct(2);
 			},
@@ -260,8 +245,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "amulet",
+		"amulet": {
 			preReq: function () {
 				return Pather.accessToAct(2);
 			},
@@ -273,8 +257,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "ancienttunnels",
+		"ancienttunnels": {
 			preReq: function () {
 				return me.hell && Pather.accessToAct(2);
 			},
@@ -292,8 +275,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "summoner",
+		"summoner": {
 			preReq: function () {
 				return Pather.accessToAct(2);
 			},
@@ -306,8 +288,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "tombs",
+		"tombs": {
 			preReq: function () {
 				return Pather.accessToAct(2);
 			},
@@ -319,8 +300,7 @@ const Scripts = {
 				return true;
 			}
 		},
-		{
-			name: "duriel",
+		"duriel": {
 			preReq: function () {
 				return Pather.accessToAct(2) && me.horadricstaff;
 			},
@@ -333,5 +313,296 @@ const Scripts = {
 				return true;
 			}
 		},
-	]
+		"eye": {
+			preReq: function () {
+				return Pather.accessToAct(3);
+			},
+			skipIf: function () {
+				return (me.eye || me.khalimswill || me.travincal);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
+		"templeruns": {
+			preReq: function () {
+				return Pather.accessToAct(3);
+			},
+			skipIf: function () {
+				return (me.paladin && Check.currentBuild().caster);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return (!me.lamessen || (me.nightmare && me.charlvl < 50) || (me.hell && !me.classic && me.charlvl > 80));
+			}
+		},
+		"lamessen": {
+			preReq: function () {
+				return Pather.accessToAct(3);
+			},
+			skipIf: function () {
+				return ((me.paladin && Check.currentBuild().caster) || !me.classic);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return !me.lamessen;
+			}
+		},
+		"lowerkurast": {
+			preReq: function () {
+				return Pather.accessToAct(3);
+			},
+			skipIf: function () {
+				return (!me.barbarian);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return (me.nightmare && me.charlvl >= 50 && !me.checkItem({name: sdk.locale.items.VoiceofReason}).have);
+			}
+		},
+		"heart": {
+			preReq: function () {
+				return Pather.accessToAct(3);
+			},
+			skipIf: function () {
+				return (me.heart || me.khalimswill || me.travincal);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
+		"brain": {
+			preReq: function () {
+				return Pather.accessToAct(3);
+			},
+			skipIf: function () {
+				return (me.brain || me.khalimswill || me.travincal);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
+		"travincal": {
+			preReq: function () {
+				return Pather.accessToAct(3);
+			},
+			skipIf: function () {
+				return false;
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				switch (true) {
+				case !me.travincal:
+				case (me.charlvl < 25 || (me.charlvl >= 25 && me.normal && !me.baal && !Check.gold())):
+				case (me.nightmare && !me.diablo && me.barbarian && !me.checkItem({name: sdk.locale.items.Lawbringer}).have):
+				case (me.hell && me.paladin && me.charlvl > 85 && (!Attack.auradin || !me.checkItem({name: sdk.locale.items.Enigma}).have)):
+					return true;
+				}
+				return false;
+			}
+		},
+		"mephisto": {
+			preReq: function () {
+				return Pather.accessToAct(3) && me.mephisto;
+			},
+			skipIf: function () {
+				return false;
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				switch (true) {
+				case !me.mephisto:
+				case (me.normal && !Check.gold() || !me.diffCompleted):
+				case (me.nightmare && Pather.canTeleport() || me.charlvl <= 65):
+				case (me.hell):
+					return true;
+				}
+				return false;
+			}
+		},
+		"izual": {
+			preReq: function () {
+				return Pather.accessToAct(4);
+			},
+			skipIf: function () {
+				return (me.izual);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
+		"river": {
+			preReq: function () {
+				return Pather.accessToAct(4);
+			},
+			skipIf: function () {
+				return (me.diablo || me.normal);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				switch (true) {
+				case (me.barbarian && !me.checkItem({name: sdk.locale.items.Lawbringer}).have):
+				case (me.sorceress && me.classic):
+					return true;
+				}
+				return false;
+			}
+		},
+		"hephasto": {
+			preReq: function () {
+				return Pather.accessToAct(4);
+			},
+			skipIf: function () {
+				return (!me.barbarian || me.normal || me.diablo);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				switch (true) {
+				case (me.charlvl <= 70 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have):
+					return true;
+				}
+				return false;
+			}
+		},
+		"diablo": {
+			preReq: function () {
+				return Pather.accessToAct(4);
+			},
+			skipIf: function () {
+				return false;
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				switch (true) {
+				case !me.diablo:
+				case (me.normal && (me.charlvl < 35 || me.classic)):
+				case (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)):
+				case (me.hell):
+					return true;
+				}
+				return false;
+			}
+		},
+		"hellforge": {
+			preReq: function () {
+				return Pather.accessToAct(4);
+			},
+			skipIf: function () {
+				return (me.hellforge);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
+		"shenk": {
+			preReq: function () {
+				return (me.expansion && Pather.accessToAct(5));
+			},
+			skipIf: function () {
+				return false;
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				switch (true) {
+				case !me.shenk:
+				case (!me.druid || me.charlvl <= 70):
+					return true;
+				}
+				return false;
+			}
+		},
+		"savebarby": {
+			preReq: function () {
+				return (me.expansion && Pather.accessToAct(5));
+			},
+			skipIf: function () {
+				return me.savebarby;
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				switch (true) {
+				case Runewords.checkRune(sdk.items.runes.Tal, sdk.items.runes.Ral, sdk.items.runes.Ort):
+					return true;
+				}
+				return false;
+			}
+		},
+		"anya": {
+			preReq: function () {
+				return (me.expansion && Pather.accessToAct(5));
+			},
+			skipIf: function () {
+				return false;
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
+		"ancients": {
+			preReq: function () {
+				return (me.expansion && Pather.accessToAct(5));
+			},
+			skipIf: function () {
+				return me.ancients;
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
+		"baal": {
+			preReq: function () {
+				return (me.expansion && Pather.accessToAct(5));
+			},
+			skipIf: function () {
+				return !me.ancients;
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
+		"a5chests": {
+			preReq: function () {
+				return (me.expansion && Pather.accessToAct(5) && me.baal);
+			},
+			skipIf: function () {
+				return me.normal;
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
+		"getkeys": {
+			preReq: function () {
+				return (me.expansion && Pather.accessToAct(5) && me.hell);
+			},
+			skipIf: function () {
+				return (["Zealer", "Smiter", "Uberconc"].indexOf(SetUp.currentBuild) === -1);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
+		"orgtorch": {
+			preReq: function () {
+				return (me.expansion && Pather.accessToAct(5) && me.hell);
+			},
+			skipIf: function () {
+				return (["Zealer", "Smiter", "Uberconc"].indexOf(SetUp.currentBuild) === -1);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
+	}
 };
