@@ -102,10 +102,7 @@ const Quest = {
 			}
 		}
 
-		while (!Cubing.openCube()) {
-			delay(1 + me.ping * 2);
-			Packet.flash(me.gid);
-		}
+		Misc.poll(() => Cubing.openCube(), 5000, 1000);
 
 		let wantedItem;
 		let tick = getTickCount();
@@ -224,14 +221,9 @@ const Quest = {
 			if (!Storage.Stash.CanFit(questItem)) return false;
 		}
 
-		while (!questItem.isInStash) {
-			Storage.Stash.MoveTo(questItem);
-			delay(1 + me.ping);
+		Storage.Stash.MoveTo(questItem);
 
-			questItem = me.getItem(classid);
-		}
-
-		return true;
+		return questItem.isInStash;
 	},
 
 	collectItem: function (classid, chestID) {

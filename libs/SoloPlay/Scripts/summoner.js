@@ -8,7 +8,7 @@
 function summoner () {
 	// @isid0re
 	const teleportPads = function () {
-		if (me.inArea(sdk.areas.ArcaneSanctuary) || Pather.useTeleport()) return true;
+		if (!me.inArea(sdk.areas.ArcaneSanctuary) || Pather.useTeleport()) return true;
 
 		let tppPath;
 		let [wpX, wpY] = [25449, 5449];
@@ -17,7 +17,8 @@ function summoner () {
 		let etppPath = [[28, 52], [-12, 92], [53, 112], [72, 118], [88, 172], [54, 227], [43, 247], [88, 292], [82, 378], [-16, 332], [2, 353]];
 		let wtppPath = [[-26, -63], [2, -121], [3, -133], [62, -117], [34, -183], [54, -228], [43, -243], [34, -303], [72, -351], [64, -368], [23, -338]];
 		let stand = Game.getPresetObject(me.area, sdk.objects.Journal);
-		let [tppPathX, tppPathY] = [stand.roomx * 5 + stand.x, stand.roomy * 5 + stand.y];
+		let [tppPathX, tppPathY] = [(stand.roomx * 5 + stand.x), (stand.roomy * 5 + stand.y)];
+		console.debug(tppPathX, tppPathY);
 		let tppID = [192, 304, 305, 306];
 
 		switch (tppPathX) {
@@ -40,7 +41,7 @@ function summoner () {
 			break;
 		}
 
-		if (getPath(me.area, me.x, me.y, stand.roomx * 5 + stand.x, stand.roomy * 5 + stand.y, 0, 10).length === 0) {
+		if (getPath(me.area, me.x, me.y, tppPathX, tppPathY, 0, 10).length === 0) {
 			me.overhead("Using telepad layout");
 
 			for (let i = 0; i < tppPath.length; i += 1) {
@@ -75,7 +76,7 @@ function summoner () {
 	teleportPads();
 
 	try {
-		Pather.moveToPreset(sdk.areas.ArcaneSanctuary, sdk.unittype.Object, sdk.objects.Journal, -3, -3);
+		Pather.moveNearPreset(sdk.areas.ArcaneSanctuary, sdk.unittype.Object, sdk.objects.Journal, 10);
 	} catch (err) {
 		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to reach Summoner. Retry");
 

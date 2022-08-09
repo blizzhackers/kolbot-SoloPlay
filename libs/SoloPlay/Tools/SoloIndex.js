@@ -241,14 +241,13 @@ const SoloIndex = {
 			},
 			shouldRun: function () {
 				if (!this.preReq()) return false;
-				if (!me.radament) return true; // always run if we haven't done the q yet
 				switch (true) {
-				case me.hell && me.amazon && SetUp.currentBuild !== SetUp.finalBuild:
-				case me.hell && me.sorceress && me.classic && !me.diablo:
+				case (!me.radament):
+				case (me.hell && me.amazon && SetUp.currentBuild !== SetUp.finalBuild):
+				case (me.hell && me.sorceress && me.classic && !me.diablo):
 					return true;
-				default:
-					return false;
 				}
+				return false;
 			}
 		},
 		"staff": {
@@ -256,7 +255,7 @@ const SoloIndex = {
 				return Pather.accessToAct(2);
 			},
 			skipIf: function () {
-				return me.horadricstaff || me.shaft || me.completestaff;
+				return (me.horadricstaff || me.shaft || me.completestaff);
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
@@ -268,7 +267,7 @@ const SoloIndex = {
 				return Pather.accessToAct(2);
 			},
 			skipIf: function () {
-				return me.horadricstaff || me.amulet || me.completestaff;
+				return (me.horadricstaff || me.amulet || me.completestaff);
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
@@ -320,7 +319,7 @@ const SoloIndex = {
 		},
 		"duriel": {
 			preReq: function () {
-				return Pather.accessToAct(2) && me.horadricstaff;
+				return Pather.accessToAct(2) && (me.horadricstaff || (me.amulet && me.shaft));
 			},
 			skipIf: function () {
 				return me.duriel;

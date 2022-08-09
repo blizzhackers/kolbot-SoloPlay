@@ -1008,9 +1008,14 @@ Town.unfinishedQuests = function () {
 	let book = me.getItem(sdk.items.quest.BookofSkill);
 	if (book) {
 		book.isInStash && Town.openStash() && delay(300);
-		book.interact();
-		console.log("ÿc8Kolbot-SoloPlayÿc0: used Radament skill book");
-		delay(500) && me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
+		book.use() && Misc.poll(() => {
+			if (me.getStat(sdk.stats.NewSkills) > 0) {
+				console.log("ÿc8Kolbot-SoloPlayÿc0: used Radament skill book");
+				AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
+				return true;
+			}
+			return false;
+		}, 1000, 100);
 	}
 
 	// Act 3
@@ -1029,8 +1034,7 @@ Town.unfinishedQuests = function () {
 	let pol = me.getItem(sdk.items.quest.PotofLife);
 	if (pol) {
 		pol.isInStash && Town.openStash() && delay(300);
-		pol.interact();
-		console.log("ÿc8Kolbot-SoloPlayÿc0: used potion of life");
+		pol.use() && console.log("ÿc8Kolbot-SoloPlayÿc0: used potion of life");
 	}
 
 	// LamEssen's Tome
@@ -1089,8 +1093,7 @@ Town.unfinishedQuests = function () {
 	let sor = me.getItem(sdk.items.quest.ScrollofResistance);
 	if (sor) {
 		sor.isInStash && this.openStash() && delay(300);
-		sor.interact();
-		console.log("ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance");
+		sor.use() && console.log("ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance");
 	}
 
 	Misc.checkSocketables();
@@ -1918,9 +1921,10 @@ Town.worseBaseThanStashed = function (base = undefined) {
 	function generalScore (item) {
 		let generalScore = 0;
 		let selectedWeights = [30, 20];
-		let selectedSkills = [Check.currentBuild().wantedSkills, Check.currentBuild().usefulSkills];
+		const buildInfo = Check.currentBuild();
+		let selectedSkills = [buildInfo.wantedSkills, buildInfo.usefulSkills];
 		generalScore += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 200; // + class skills
-		generalScore += item.getStatEx(sdk.stats.AddSkillTab, Check.currentBuild().tabSkills) * 100; // + TAB skills
+		generalScore += item.getStatEx(sdk.stats.AddSkillTab, buildInfo.tabSkills) * 100; // + TAB skills - todo handle array of tab skills
 
 		for (let i = 0; i < selectedWeights.length; i++) {
 			for (let j = 0; j < selectedSkills.length; j++) {
