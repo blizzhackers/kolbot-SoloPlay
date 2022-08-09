@@ -23,10 +23,10 @@ const SoloIndex = {
 	index: {
 		"corpsefire": {
 			preReq: function () {
-				return me.den && me.hell;
+				return (me.den && me.hell);
 			},
 			skipIf: function () {
-				return me.druid && me.paladin;
+				return (me.druid && me.paladin);
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
@@ -34,8 +34,12 @@ const SoloIndex = {
 			}
 		},
 		"den": {
+			skipIf: function () {
+				return me.den;
+			},
 			shouldRun: function () {
-				return !me.den;
+				if (this.skipIf()) return false;
+				return true;
 			}
 		},
 		"bloodraven": {
@@ -94,7 +98,7 @@ const SoloIndex = {
 				return false;
 			},
 			shouldRun: function () {
-				if (!this.preReq() || this.skipIf()) return false;
+				if (this.skipIf()) return false;
 				// Farm for runes if we have a lawbringer because then we don't have to worry about phys immunes
 				if (me.barbarian && me.hell && me.checkItem({name: sdk.locale.items.Lawbringer}).have) return true;
 				return (Check.runes() || Check.brokeAf());
