@@ -192,18 +192,18 @@ locations[sdk.game.locations.Disconnected] = () => {
 	Controls.OkCentered.click();
 };
 locations[sdk.game.locations.RegisterEmail] = () => Controls.EmailDontRegisterContinue.control ? Controls.EmailDontRegisterContinue.click() : Controls.EmailDontRegister.click();
-locations[sdk.game.locations.MainMenuConnecting] = () => !Starter.locationTimeout(Starter.Config.ConnectingTimeout * 1e3, location) && Controls.LoginCancelWait.click();
-locations[sdk.game.locations.CharSelectPleaseWait] = () => !Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, location) && Controls.OkCentered.click();
+locations[sdk.game.locations.MainMenuConnecting] = (loc) => !Starter.locationTimeout(Starter.Config.ConnectingTimeout * 1e3, loc) && Controls.LoginCancelWait.click();
+locations[sdk.game.locations.CharSelectPleaseWait] = (loc) => !Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, loc) && Controls.OkCentered.click();
 locations[sdk.game.locations.CharSelect] = () => Starter.LocationEvents.charSelect();
 locations[sdk.game.locations.CharSelectConnecting] = () => Starter.LocationEvents.charSelect();
 locations[sdk.game.locations.CharSelectNoChars] = () => Starter.LocationEvents.charSelect();
 locations[sdk.game.locations.SelectDifficultySP] = () => Starter.LocationEvents.selectDifficultySP();
-locations[sdk.game.locations.CharacterCreate] = () => !Starter.locationTimeout(5e3, location) && Controls.CharSelectExit.click();
+locations[sdk.game.locations.CharacterCreate] = (loc) => !Starter.locationTimeout(5e3, loc) && Controls.CharSelectExit.click();
 locations[sdk.game.locations.ServerDown] = () => {
 	ControlAction.timeoutDelay("Server Down", Time.minutes(5));
 	Controls.OkCentered.click();
 };
-locations[sdk.game.locations.LobbyPleaseWait] = () => !Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, location) && Controls.OkCentered.click();
+locations[sdk.game.locations.LobbyPleaseWait] = (loc) => !Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, loc) && Controls.OkCentered.click();
 locations[sdk.game.locations.Lobby] = () => {
 	D2Bot.updateStatus("Lobby");
 	ControlAction.saveInfo(Starter.profileInfo);

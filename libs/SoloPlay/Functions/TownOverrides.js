@@ -1949,10 +1949,20 @@ Town.worseBaseThanStashed = function (base = undefined) {
 		return Math.round((item.getStatEx(sdk.stats.SecondaryMinDamage) + item.getStatEx(sdk.stats.SecondaryMaxDamage)) / 2);
 	}
 
+	/**
+	 * @todo - better comparison for socketed items to unsocketed items
+	 *   - should compare items with same sockets
+	 *   - should compare some items (wands, voodooheads, primalhelms, pelts) with no sockets to ones with sockets
+	 *   - should be able to compare regular items to class items and take into account the max amount of sockets an item can have
+	 * 
+	 */
 	function getItemToCompare (itemtypes = [], eth = null, sort = (a, b) => a - b) {
 		return me.getItemsEx(-1, sdk.items.mode.inStorage)
 			.filter(item =>
-				item.gid !== base.gid && itemtypes.includes(item.itemType) && item.sockets === base.sockets && (eth === null || item.ethereal === eth))
+				item.gid !== base.gid
+				&& itemtypes.includes(item.itemType)
+				&& ((item.sockets === base.sockets) || (item.sockets < base.sockets))
+				&& (eth === null || item.ethereal === eth))
 			.sort(sort)
 			.last();
 	}
@@ -1973,13 +1983,11 @@ Town.worseBaseThanStashed = function (base = undefined) {
 			);
 			if (itemsToCheck === undefined) return false;
 
-			if (base.sockets > 0 || itemsToCheck.sockets === base.sockets) {
-				if ((base.isInStorage) && (generalScore(base) < generalScore(itemsToCheck)
-					|| (generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
-					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
+			if (base.isInStorage && (generalScore(base) < generalScore(itemsToCheck)
+				|| (generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
+				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
 
-					result = true;
-				}
+				result = true;
 			}
 		} else {
 			itemsToCheck = getItemToCompare(
@@ -2057,7 +2065,7 @@ Town.worseBaseThanStashed = function (base = undefined) {
 		);
 		if (itemsToCheck === undefined) return false;
 
-		if (base.isInStorage && (base.sockets > 0 || itemsToCheck.sockets === base.sockets)) {
+		if (base.isInStorage) {
 			gScoreBase = generalScore(base);
 			gScoreCheck = generalScore(itemsToCheck);
 			if (gScoreBase < gScoreCheck || (gScoreBase === gScoreCheck && base.ilvl > itemsToCheck.ilvl)) {

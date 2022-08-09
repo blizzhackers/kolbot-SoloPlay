@@ -84,12 +84,11 @@ const SoloIndex = {
 				return false;
 			},
 			shouldRun: function () {
-				switch (me.diff) {
-				case sdk.difficulty.Normal:
-					return (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf());
-				case sdk.difficulty.Nightmare:
-				case sdk.difficulty.Hell:
-					return (!me.tristram && me.diffCompleted) || !this.skipIf();
+				switch (true) {
+				case (me.normal && !me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf()):
+				case (me.nightmare && !me.tristram && me.charlvl < 43 || Check.brokeAf()):
+				case (me.hell && (!me.tristram && me.diffCompleted) || !this.skipIf()):
+					return true;
 				}
 				return false;
 			}
@@ -351,7 +350,14 @@ const SoloIndex = {
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
-				return (!me.lamessen || (me.nightmare && me.charlvl < 50) || (me.hell && !me.classic && me.charlvl > 80));
+				switch (true) {
+				case (me.normal && (me.charlvl > 18 && me.charlvl < 25) || (me.charlvl >= 25 && me.normal && !me.baal && !Check.gold())):
+				case (me.normal && (me.charlvl >= 18 && !me.baal && !Check.gold())):
+				case (me.nightmare && me.charlvl < 50):
+				case (me.hell && !me.classic && me.charlvl > 80):
+					return true;
+				}
+				return false;
 			}
 		},
 		"lamessen": {
@@ -359,11 +365,11 @@ const SoloIndex = {
 				return Pather.accessToAct(3);
 			},
 			skipIf: function () {
-				return ((me.paladin && Check.currentBuild().caster) || !me.classic);
+				return (me.lamessen);
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
-				return !me.lamessen;
+				return true;
 			}
 		},
 		"lowerkurast": {
@@ -423,7 +429,7 @@ const SoloIndex = {
 		},
 		"mephisto": {
 			preReq: function () {
-				return Pather.accessToAct(3) && me.mephisto;
+				return Pather.accessToAct(3) && me.travincal;
 			},
 			skipIf: function () {
 				return false;
