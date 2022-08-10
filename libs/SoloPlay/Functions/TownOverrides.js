@@ -816,7 +816,7 @@ Town.shopItems = function () {
 			try {
 				if (Storage.Inventory.CanFit(item) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
 					if (item.isBaseType) {
-						if (!this.worseBaseThanStashed(item) && this.betterBaseThanWearing(item, Developer.debugging.junkCheck)) {
+						if (Town.betterThanStashed(item) && Town.betterBaseThanWearing(item, Developer.debugging.junkCheck)) {
 							Misc.itemLogger("Shopped", item);
 							Developer.debugging.autoEquip && Misc.logItem("Shopped", item, result.line);
 							console.log("ÿc8Kolbot-SoloPlayÿc0: Bought better base");
@@ -1400,7 +1400,7 @@ Town.clearInventory = function () {
 		if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].indexOf(result) === -1) {
 			if ((item.isBaseType && item.sockets > 0)
 				|| (classItemType(item) && item.normal && item.sockets === 0)) {
-				if (Town.worseBaseThanStashed(item) && !Town.betterBaseThanWearing(item, Developer.debugging.junkCheck)) {
+				if (!Town.betterThanStashed(item) && !Town.betterBaseThanWearing(item, Developer.debugging.junkCheck)) {
 					result = 4;
 				}
 			}
@@ -1430,478 +1430,259 @@ Town.clearInventory = function () {
 	return true;
 };
 
-// TODO: clean this up (sigh)
-Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
-	let equippedItem = {}, check;
-	let itemsResists, baseResists, itemsMinDmg, itemsMaxDmg, itemsTotalDmg, baseDmg, ED, itemsDefense, baseDefense;
-	let baseSkillsTier, equippedSkillsTier;
-	let result = true, preSocketCheck = false;
+const baseSkillsScore = (item, buildInfo) => {
+	let generalScore = 0;
+	let selectedWeights = [30, 20];
+	let selectedSkills = [buildInfo.wantedSkills, buildInfo.usefulSkills];
+	generalScore += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 200; // + class skills
+	generalScore += item.getStatEx(sdk.stats.AddSkillTab, buildInfo.tabSkills) * 100; // + TAB skills - todo handle array of tab skills
 
-	const skillsScore = function (item) {
-		let skillsRating = 0;
-		skillsRating += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 200; // + class skills
-		skillsRating += item.getStatEx(sdk.stats.AddSkillTab, Check.currentBuild().tabSkills) * 100; // + TAB skills
-		let selectedWeights = [30, 20];
-		let selectedSkills = [Check.currentBuild().wantedSkills, Check.currentBuild().usefulSkills];
-
-		for (let i = 0; i < selectedWeights.length; i++) {
-			for (let j = 0; j < selectedSkills.length; j++) {
-				for (let k = 0; k < selectedSkills[j].length; k++) {
-					skillsRating += item.getStatEx(107, selectedSkills[j][k]) * selectedWeights[i];
-				}
+	for (let i = 0; i < selectedWeights.length; i++) {
+		for (let j = 0; j < selectedSkills.length; j++) {
+			for (let k = 0; k < selectedSkills[j].length; k++) {
+				generalScore += item.getStatEx(107, selectedSkills[j][k]) * selectedWeights[i];
 			}
 		}
+	}
+	return generalScore;
+};
 
-		return skillsRating;
-	};
-
+// TODO: clean this up (sigh) - 8/10/22 - update refactored alot, still think more can be done though
+Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 	if (!base || !base.isBaseType) return false;
 
+	let name = "";
+	let itemsResists, baseResists, itemsTotalDmg, baseDmg, itemsDefense, baseDefense;
+	let baseSkillsTier, equippedSkillsTier;
+	let result = true, preSocketCheck = false;
 	let bodyLoc = Item.getBodyLoc(base);
+
+	const checkNoSockets = (item) => [
+		sdk.locale.items.AncientsPledge, sdk.locale.items.Exile, sdk.locale.items.Lore, sdk.locale.items.Spirit, sdk.locale.items.White, sdk.locale.items.Rhyme
+	].includes(item.prefixnum);
+	const getRes = (item) => item.getStatEx(sdk.stats.FireResist) + item.getStatEx(sdk.stats.LightResist) + item.getStatEx(sdk.stats.ColdResist) + item.getStatEx(sdk.stats.PoisonResist);
+	const getDmg = (item) => item.getStatEx(sdk.stats.MinDamage) + item.getStatEx(sdk.stats.MaxDamage);
+	const getRealDmg = (item, maxED = 0, minOffset = 0, maxOffset = 0) => {
+		let ED = item.getStatEx(sdk.stats.EnhancedDamage);
+		ED > maxED && (ED = maxED);
+		let itemsMinDmg = Math.ceil(((item.getStatEx(sdk.stats.MinDamage) - minOffset) / ((ED + 100) / 100)));
+		let itemsMaxDmg = Math.ceil(((item.getStatEx(sdk.stats.MaxDamage) - maxOffset) / ((ED + 100) / 100)));
+		return (itemsMinDmg + itemsMaxDmg);
+	};
+	const getDef = (item) => item.getStatEx(sdk.stats.Defense);
+	const getRealDef = (item, maxEDef) => {
+		let ED = item.getStatEx(sdk.stats.ArmorPercent);
+		ED > maxEDef && (ED = maxEDef);
+		return (Math.ceil((item.getStatEx(sdk.stats.Defense) / ((ED + 100) / 100))));
+	};
+	const resCheck = (baseResists, itemsResists) => {
+		verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+		return (baseResists > itemsResists);
+	};
+	const defCheck = (itemsDefense, baseDefense) => {
+		verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+		return (baseDefense > itemsDefense);
+	};
+	const dmgCheck = (itemsTotalDmg, baseDmg) => {
+		verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+		return (baseDmg > itemsTotalDmg);
+	};
 
 	// Can't use so its worse then what we already have
 	if ((me.getStat(sdk.stats.Strength) < base.strreq || me.getStat(sdk.stats.Dexterity) < base.dexreq)) {
 		return false;
 	}
 
-	let item = me.getItem();
+	let items = me.getItemsEx().filter(i => i.isEquipped && bodyLoc.includes(i.bodylocation));
 
 	for (let i = 0; i < bodyLoc.length; i++) {
-		if (item) {
-			do {
-				if (item.isEquipped && item.bodylocation === bodyLoc[i]) {
-					equippedItem = {
-						classid: item.classid,
-						type: item.itemType,
-						sockets: item.getStatEx(sdk.stats.NumSockets),
-						name: item.name,
-						tier: NTIP.GetTier(item),
-						prefixnum: item.prefixnum,
-						str: item.getStatEx(sdk.stats.Strength),
-						dex: item.getStatEx(sdk.stats.Dexterity),
-						def: item.getStatEx(sdk.stats.Defense),
-						eDef: item.getStatEx(sdk.stats.ArmorPercent),
-						fr: item.getStatEx(sdk.stats.FireResist),
-						lr: item.getStatEx(sdk.stats.LightResist),
-						cr: item.getStatEx(sdk.stats.ColdResist),
-						pr: item.getStatEx(sdk.stats.PoisonResist),
-						minDmg: item.getStatEx(sdk.stats.MinDamage),
-						maxDmg: item.getStatEx(sdk.stats.MaxDamage),
-						eDmg: item.getStatEx(sdk.stats.MinDamagePercent),
-						runeword: item.isRuneword,
-					};
-					check = item;
-					break;
-				}
-			} while (item.getNext());
-		}
+		let equippedItem = items.find(i => i.bodylocation === bodyLoc[i]);
+		if (!equippedItem || !equippedItem.runeword) continue;
+		name = getLocaleString(equippedItem.prefixnum);
 
-		if (!equippedItem.runeword) {
-			continue;	// Equipped item is not a runeword, keep the base
-		}
-
-		switch (equippedItem.prefixnum) {
-		case sdk.locale.items.AncientsPledge:
-		case sdk.locale.items.Exile:
-		case sdk.locale.items.Lore:
-		case sdk.locale.items.Spirit:
-		case sdk.locale.items.White:
-		case sdk.locale.items.Rhyme:
-			preSocketCheck = true;
-			break;
-		default:
-			break;
-		}
-
-		if (base.sockets <= 0 && !preSocketCheck) {
-			return true;
-		}
+		preSocketCheck = checkNoSockets(equippedItem);
+		if (base.sockets === 0 && !preSocketCheck) return true;
 
 		if (base.sockets === equippedItem.sockets || preSocketCheck) {
 			switch (equippedItem.prefixnum) {
 			case sdk.locale.items.AncientsPledge:
 				if (me.paladin) {
-					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 187;
-					baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
-
-					if (baseResists !== itemsResists) {
-						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Ancient's Pledge) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
-
-						// base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
-						if (baseResists < itemsResists) {
-							result = false;
-
-							break;
-						}
-					}
+					[itemsResists, baseResists] = [(getRes(equippedItem) - 187), getRes(base)];
+					if (baseResists !== itemsResists && resCheck(baseResists, itemsResists)) return true;
 				} else {
-					itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
-					baseDefense = base.getStatEx(sdk.stats.Defense);
-
-					if (baseDefense !== itemsDefense) {
-						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Ancient's Pledge) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
-
-						if (baseDefense < itemsDefense) {
-							result = false;
-
-							break;
-						}
-					}
+					[itemsDefense, baseDefense] = [getRealDef(equippedItem, 50), getDef(base)];
+					if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
 				}
 				
 				break;
 			case sdk.locale.items.Black:
-				ED = equippedItem.eDmg > 120 ? 120 : equippedItem.eDmg;
-				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
-				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
-					
-				if (baseDmg !== itemsTotalDmg) {
-					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Black) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-
-					if (baseDmg < itemsTotalDmg) {
-						result = false;
-
-						break;
-					}
-				}
+				[itemsTotalDmg, baseDmg] = [getRealDmg(equippedItem, 120), getDmg(base)];
+				if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
 
 				break;
 			case sdk.locale.items.CrescentMoon:
-				ED = equippedItem.eDmg > 220 ? 220 : equippedItem.eDmg;
-				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
-				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
-					
-				if (baseDmg !== itemsTotalDmg) {
-					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Crescent Moon) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-
-					if (baseDmg < itemsTotalDmg) {
-						result = false;
-
-						break;
-					}
-				}
+				[itemsTotalDmg, baseDmg] = [getRealDmg(equippedItem, 220), getDmg(base)];
+				if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
 
 				break;
 			case sdk.locale.items.Exile:
-				itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr);
-				baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
-
-				if (baseResists !== itemsResists) {
-					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Exile) BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
-
-					// base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
-					if (baseResists < itemsResists) {
-						result = false;
-
-						break;
-					}
-				}
+				[itemsResists, baseResists] = [getRes(equippedItem), getRes(base)];
+				if (baseResists !== itemsResists && resCheck(baseResists, itemsResists)) return true;
 
 				break;
 			case sdk.locale.items.Honor:
-				ED = equippedItem.eDmg > 160 ? 160 : equippedItem.eDmg;
-				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
-				itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 9) / ((ED + 100) / 100)));
-				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
-					
-				if (baseDmg !== itemsTotalDmg) {
-					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Honor) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-
-					if (baseDmg < itemsTotalDmg) {
-						result = false;
-
-						break;
-					}
-				}
+				[itemsTotalDmg, baseDmg] = [getRealDmg(equippedItem, 160, 9, 9), getDmg(base)];
+				if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
 
 				break;
 			case sdk.locale.items.KingsGrace:
-				ED = equippedItem.eDmg > 100 ? 100 : equippedItem.eDmg;
-				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
-				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
-					
-				if (baseDmg !== itemsTotalDmg) {
-					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(King's Grace) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-
-					if (baseDmg < itemsTotalDmg) {
-						result = false;
-
-						break;
-					}
-				}
+				[itemsTotalDmg, baseDmg] = [getRealDmg(equippedItem, 100), getDmg(base)];
+				if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
 
 				break;
 			case sdk.locale.items.Lawbringer:
-				ED = equippedItem.eDmg;
-				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
-				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
-					
-				if (baseDmg !== itemsTotalDmg) {
-					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lawbringer) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-
-					if (baseDmg < itemsTotalDmg) {
-						result = false;
-
-						break;
-					}
-				}
+				[itemsTotalDmg, baseDmg] = [getRealDmg(equippedItem), getDmg(base)];
+				if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
 
 				break;
 			case sdk.locale.items.Lore:
-				itemsDefense = check.getStatEx(sdk.stats.Defense);
-				baseDefense = base.getStatEx(sdk.stats.Defense);
+				[itemsDefense, baseDefense] = [getRealDef(equippedItem), getDef(base)];
 					
 				if (me.barbarian || me.druid) {
 					// (PrimalHelms and Pelts)
-					equippedSkillsTier = skillsScore(check);
-					baseSkillsTier = skillsScore(base);
+					[equippedSkillsTier, baseSkillsTier] = [baseSkillsScore(equippedItem), baseSkillsScore(base)];
 
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 					if (equippedSkillsTier !== baseSkillsTier) {
-
 						// Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense helm
-						if (baseSkillsTier < equippedSkillsTier) {
-							result = false;
-
-							break;
-						}
+						if (baseSkillsTier < equippedSkillsTier) return true;
 					} else if (baseDefense !== itemsDefense) {
 						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
-
-						if (baseDefense < itemsDefense) {
-							result = false;
-
-							break;
-						}
+						if (baseDefense > itemsDefense) return true;
 					}
 				} else {
-					if (baseDefense !== itemsDefense) {
-						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
-
-						if (baseDefense < itemsDefense) {
-							result = false;
-
-							break;
-						}
-					}
+					if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
 				}
 
 				break;
 			case sdk.locale.items.Malice:
-				ED = equippedItem.eDmg > 33 ? 33 : equippedItem.eDmg;
-				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 9) / ((ED + 100) / 100)));
-				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
+				[itemsTotalDmg, baseDmg] = [getRealDmg(equippedItem, 33, 9), getDmg(base)];
 
 				if (me.paladin) {
 					// Paladin TODO: See if its worth it to calculate the added damage skills would add
-					equippedSkillsTier = skillsScore(check);
-					baseSkillsTier = skillsScore(base);
+					[equippedSkillsTier, baseSkillsTier] = [baseSkillsScore(equippedItem), baseSkillsScore(base)];
 				}
-					
-				if (baseDmg !== itemsTotalDmg) {
-					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Malice) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
 
-					if (baseDmg < itemsTotalDmg) {
-						result = false;
-
-						break;
-					}
-				}
+				if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
 
 				break;
 			case sdk.locale.items.Rhyme:
 				if (me.necromancer) {
-					equippedSkillsTier = skillsScore(check);
-					baseSkillsTier = skillsScore(base);
+					[equippedSkillsTier, baseSkillsTier] = [baseSkillsScore(equippedItem), baseSkillsScore(base)];
 
 					if (equippedSkillsTier !== baseSkillsTier) {
 						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
-
 						// Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense shield
-						if (baseSkillsTier < equippedSkillsTier) {
-							result = false;
-
-							break;
-						}
+						if (baseSkillsTier > equippedSkillsTier) return true;
 					} else if (equippedSkillsTier === baseSkillsTier) {
-						baseDefense = base.getStatEx(sdk.stats.Defense);
-						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) EquippedDefense: " + equippedItem.def + " BaseDefense: " + baseDefense);
-
-						if (baseDefense < equippedItem.def) {
-							result = false;
-
-							break;
-						}
+						[itemsDefense, baseDefense] = [getRealDef(equippedItem), getDef(base)];
+						if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
 					}
 				} else if (me.paladin) {
-					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 100;
-					baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
-
-					if (baseResists !== itemsResists) {
-						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Rhyme) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
-
-						// base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
-						if (baseResists < itemsResists) {
-							result = false;
-
-							break;
-						}
-					}
-
+					[itemsResists, baseResists] = [(getRes(equippedItem) - 100), getRes(base)];
+					if (baseResists !== itemsResists && resCheck(baseResists, itemsResists)) return true;
 				}
 
 				break;
 			case sdk.locale.items.Rift:
-				ED = equippedItem.eDmg;
-				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
-				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
-					
-				if (baseDmg !== itemsTotalDmg) {
-					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Rift) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-
-					if (baseDmg < itemsTotalDmg) {
-						result = false;
-
-						break;
-					}
-				}
+				[itemsTotalDmg, baseDmg] = [getRealDmg(equippedItem), getDmg(base)];
+				if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
 
 				break;
 			case sdk.locale.items.Spirit:
-				if (me.paladin && bodyLoc[i] === sdk.body.LeftArm) {
-					itemsResists = (equippedItem.fr + equippedItem.cr + equippedItem.lr + equippedItem.pr) - 115;
-					baseResists = base.getStat(sdk.stats.FireResist) + base.getStat(sdk.stats.LightResist) + base.getStat(sdk.stats.ColdResist) + base.getStat(sdk.stats.PoisonResist);
-				} else {
+				if (!me.paladin || bodyLoc[i] !== sdk.body.LeftArm) {
 					break;
 				}
-
-				if (baseResists !== itemsResists) {
-					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(spirit) BaseResists: " + baseResists + " equippedItem: " + itemsResists);
-
-					// base has lower resists. Will only get here with a paladin shield and I think maximizing resists is more important than defense
-					if (baseResists < itemsResists) {
-						result = false;
-
-						break;
-					}
-				}
+				
+				[itemsResists, baseResists] = [(getRes(equippedItem) - 115), getRes(base)];
+				if (baseResists !== itemsResists && resCheck(baseResists, itemsResists)) return true;
 
 				break;
 			case sdk.locale.items.Steel:
-				ED = equippedItem.eDmg > 20 ? 20 : equippedItem.eDmg;
-				itemsMinDmg = Math.ceil(((equippedItem.minDmg - 3) / ((ED + 100) / 100)));
-				itemsMaxDmg = Math.ceil(((equippedItem.maxDmg - 3) / ((ED + 100) / 100)));
-				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
-					
-				if (baseDmg !== itemsTotalDmg) {
-					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Steel) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-
-					if (baseDmg < itemsTotalDmg) {
-						result = false;
-
-						break;
-					}
-				}
+				[itemsTotalDmg, baseDmg] = [getRealDmg(equippedItem, 20, 3, 3), getDmg(base)];
+				if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
 
 				break;
 			case sdk.locale.items.Strength:
-				ED = equippedItem.eDmg > 35 ? 35 : equippedItem.eDmg;
-				itemsMinDmg = Math.ceil((equippedItem.minDmg / ((ED + 100) / 100)));
-				itemsMaxDmg = Math.ceil((equippedItem.maxDmg / ((ED + 100) / 100)));
-				itemsTotalDmg = itemsMinDmg + itemsMaxDmg;
-				baseDmg = base.getStat(sdk.stats.MinDamage) + base.getStat(sdk.stats.MaxDamage);
-					
-				if (baseDmg !== itemsTotalDmg) {
-					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Strength) BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
-
-					if (baseDmg < itemsTotalDmg) {
-						result = false;
-
-						break;
-					}
-				}
+				[itemsTotalDmg, baseDmg] = [getRealDmg(equippedItem, 35, 9, 9), getDmg(base)];
+				if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
 
 				break;
 			case sdk.locale.items.White:
 				if (me.necromancer) {
-					equippedSkillsTier = skillsScore(check) - 550;
-					baseSkillsTier = skillsScore(base);
+					[equippedSkillsTier, baseSkillsTier] = [(baseSkillsScore(equippedItem) - 550), baseSkillsScore(base)];
 
 					if (equippedSkillsTier !== baseSkillsTier) {
 						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
-
-						if (baseSkillsTier < equippedSkillsTier) {
-							result = false;
-
-							break;
-						}
+						if (baseSkillsTier > equippedSkillsTier) return true;
 					}
 				}
+
+				break;
+			case sdk.locale.items.Stone:
+				[itemsDefense, baseDefense] = [getRealDef(equippedItem, 290), getDef(base)];
+				if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
 
 				break;
 			case sdk.locale.items.Smoke:
-			case sdk.locale.items.Stealth:
-				itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
-				baseDefense = base.getStatEx(sdk.stats.Defense);
-
-				if (baseDefense !== itemsDefense) {
-					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Stealth/Smoke) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
-
-					if (baseDefense < itemsDefense) {
-						result = false;
-
-						break;
-					}
-				}
+				[itemsDefense, baseDefense] = [getRealDef(equippedItem, 75), getDef(base)];
+				if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
 
 				break;
+			case sdk.locale.items.Prudence:
+				[itemsDefense, baseDefense] = [getRealDef(equippedItem, 170), getDef(base)];
+				if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
+
+				break;
+			case sdk.locale.items.Gloom:
+				[itemsDefense, baseDefense] = [getRealDef(equippedItem, 260), getDef(base)];
+				if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
+
+				break;
+			case sdk.locale.items.Fortitude:
+				[itemsDefense, baseDefense] = [getRealDef(equippedItem, 200), getDef(base)];
+				if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
+
+				break;
+			case sdk.locale.items.Enlightenment:
+				[itemsDefense, baseDefense] = [getRealDef(equippedItem, 30), getDef(base)];
+				if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
+
+				break;
+			case sdk.locale.items.Duress:
+				[itemsDefense, baseDefense] = [getRealDef(equippedItem, 200), getDef(base)];
+				if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
+
+				break;
+			case sdk.locale.items.ChainsofHonor:
+				[itemsDefense, baseDefense] = [getRealDef(equippedItem, 70), getDef(base)];
+				if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
+
+				break;
+			case sdk.locale.items.Bramble:
 			case sdk.locale.items.Bone:
+			case sdk.locale.items.Dragon:
+			case sdk.locale.items.Enigma:
+			case sdk.locale.items.Lionheart:
 			case sdk.locale.items.Myth:
 			case sdk.locale.items.Peace:
+			case sdk.locale.items.Principle:
+			case sdk.locale.items.Rain:
+			case sdk.locale.items.Stealth:
 			case sdk.locale.items.Treachery:
-				let name = "";
-
-				switch (equippedItem.prefixnum) {
-				case sdk.locale.items.Bone:
-					name = "Bone";
-					break;
-				case sdk.locale.items.Myth:
-					name = "Myth";
-					break;
-				case sdk.locale.items.Peace:
-					name = "Peace";
-					break;
-				case sdk.locale.items.Treachery:
-					name = "Treachery";
-					break;
-				}
-
-				itemsDefense = Math.ceil((equippedItem.def / ((equippedItem.eDef + 100) / 100)));
-				baseDefense = base.getStatEx(sdk.stats.Defense);
-
-				if (baseDefense !== itemsDefense) {
-					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
-
-					if (baseDefense < itemsDefense) {
-						result = false;
-
-						break;
-					}
-				}
+			case sdk.locale.items.Wealth:
+				[itemsDefense, baseDefense] = [getRealDef(equippedItem), getDef(base)];
+				if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
 
 				break;
 			default:
@@ -1914,40 +1695,39 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 	return result;
 };
 
-// TODO: clean this up (which is gonna suck)
-Town.worseBaseThanStashed = function (base = undefined) {
+Town.betterThanStashed = function (base) {
 	if (!base || base.quality > sdk.items.quality.Superior || base.isRuneword) return false;
+	if (base.sockets === 0 && getBaseStat("items", base.classid, "gemsockets") <= 1) return false;
+	if (base.sockets === 1) return false;
 
-	function generalScore (item) {
-		let generalScore = 0;
-		let selectedWeights = [30, 20];
+	const defenseScore = (item) => ({
+		def: item.getStatEx(sdk.stats.Defense),
+		eDef: item.getStatEx(sdk.stats.ArmorPercent)
+	});
+
+	const dmgScore = (item) => ({
+		dmg: Math.round((item.getStatEx(sdk.stats.MinDamagePercent) + item.getStatEx(sdk.stats.MaxDamagePercent)) / 2),
+		twoHandDmg: Math.round((item.getStatEx(sdk.stats.SecondaryMinDamage) + item.getStatEx(sdk.stats.SecondaryMaxDamage)) / 2),
+		eDmg: item.getStatEx(sdk.stats.EnhancedDamage)
+	});
+
+	const generalScore = (item) => {
 		const buildInfo = Check.currentBuild();
-		let selectedSkills = [buildInfo.wantedSkills, buildInfo.usefulSkills];
-		generalScore += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 200; // + class skills
-		generalScore += item.getStatEx(sdk.stats.AddSkillTab, buildInfo.tabSkills) * 100; // + TAB skills - todo handle array of tab skills
+		let generalScore = baseSkillsScore(item, buildInfo);
+		
+		if (generalScore === 0) {
+			// should take into account other skills that would be helpful for the current build
+			me.paladin && (generalScore += item.getStatEx(sdk.stats.FireResist) * 2);
+			generalScore += item.getStatEx(sdk.stats.Defense) * 0.5;
 
-		for (let i = 0; i < selectedWeights.length; i++) {
-			for (let j = 0; j < selectedSkills.length; j++) {
-				for (let k = 0; k < selectedSkills[j].length; k++) {
-					generalScore += item.getStatEx(107, selectedSkills[j][k]) * selectedWeights[i];
-				}
+			if (!buildInfo.caster) {
+				let dmg = dmgScore(item);
+				generalScore += (dmg.dmg + dmg.eDmg);
 			}
 		}
 
-		if (generalScore === 0) {
-			me.paladin && (generalScore += item.getStatEx(sdk.stats.FireResist) * 2);
-
-			generalScore += item.getStatEx(sdk.stats.Defense) * 0.5; // Defense
-			generalScore += item.getStatEx(sdk.stats.MinDamage); // add MIN damage
-			generalScore += item.getStatEx(sdk.stats.MaxDamage); // add MAX damage
-		}
-
 		return generalScore;
-	}
-
-	function getAvgDmg (item) {
-		return Math.round((item.getStatEx(sdk.stats.SecondaryMinDamage) + item.getStatEx(sdk.stats.SecondaryMaxDamage)) / 2);
-	}
+	};
 
 	/**
 	 * @todo - better comparison for socketed items to unsocketed items
@@ -1959,16 +1739,62 @@ Town.worseBaseThanStashed = function (base = undefined) {
 	function getItemToCompare (itemtypes = [], eth = null, sort = (a, b) => a - b) {
 		return me.getItemsEx(-1, sdk.items.mode.inStorage)
 			.filter(item =>
-				item.gid !== base.gid
-				&& itemtypes.includes(item.itemType)
-				&& ((item.sockets === base.sockets) || (item.sockets < base.sockets))
+				itemtypes.includes(item.itemType)
+				&& ((item.sockets === base.sockets) || (item.sockets > base.sockets))
 				&& (eth === null || item.ethereal === eth))
 			.sort(sort)
 			.last();
 	}
 
-	let itemsToCheck, result = false;
-	let gScoreBase, gScoreCheck;
+	const defenseSort = (a, b) => {
+		let [aDef, bDef] = [a.getStatEx(sdk.stats.Defense), b.getStatEx(sdk.stats.Defense)];
+		if (aDef !== bDef) return aDef - bDef;
+		return a.getStatEx(sdk.stats.ArmorPercent) - b.getStatEx(sdk.stats.ArmorPercent);
+	};
+
+	const generalScoreSort = (a, b) => {
+		let [aScore, bScore] = [generalScore(a), generalScore(b)];
+		if (aScore !== bScore) return aScore - bScore;
+		return a.sockets - b.sockets;
+	};
+
+	const twoHandDmgSort = (a, b) => {
+		let [aDmg, bDmg] = [dmgScore(a), dmgScore(b)];
+		if (aDmg.twoHandDmg !== bDmg.twoHandDmg) return aDmg.twoHandDmg - bDmg.twoHandDmg;
+		return aDmg.eDmg - bDmg.eDmg;
+	};
+
+	const generalScoreCheck = (base, itemToCheck) => {
+		let [gScoreBase, gScoreCheck] = [generalScore(base), generalScore(itemToCheck)];
+		console.log("ÿc9betterThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemToCheck));
+		if (gScoreBase > gScoreCheck || (gScoreBase === gScoreCheck && base.ilvl > itemToCheck.ilvl)) {
+			return true;
+		}
+		return false;
+	};
+
+	const defenseScoreCheck = (base, itemToCheck) => {
+		let [defScoreBase, defScoreItem] = [defenseScore(base), defenseScore(itemToCheck)];
+		console.log("ÿc9betterThanStashedÿc0 :: BaseScore: ", defScoreBase, " itemToCheckScore: ", defScoreItem);
+		if (defScoreBase.def > defScoreItem.def || (defScoreBase.def === defScoreItem.def && (defScoreBase.eDef > defScoreItem.eDef || base.ilvl > itemToCheck.ilvl))) {
+			return true;
+		}
+		return false;
+	};
+
+	const damageScoreCheck = (base, itemToCheck) => {
+		let [gScoreBase, gScoreCheck] = [generalScore(base), generalScore(itemToCheck)];
+		console.log("ÿc9betterThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemToCheck));
+		switch (true) {
+		case (gScoreBase > gScoreCheck || (gScoreBase === gScoreCheck && base.ilvl > itemToCheck.ilvl)):
+		case (me.barbarian && (gScoreBase === gScoreCheck && Item.getQuantityOwned(base) < 2)):
+		case (me.assassin && !Check.currentBuild().caster && (gScoreBase === gScoreCheck && Item.getQuantityOwned(base) < 2)):
+			return true;
+		}
+		return false;
+	};
+
+	let itemsToCheck;
 
 	switch (base.itemType) {
 	case sdk.items.type.Shield:
@@ -1978,48 +1804,23 @@ Town.worseBaseThanStashed = function (base = undefined) {
 			let iType = [sdk.items.type.Shield];
 			me.necromancer ? iType.push(sdk.items.type.VoodooHeads) : iType.push(sdk.items.type.AuricShields);
 			
-			itemsToCheck = getItemToCompare(
-				iType, false, (a, b) => generalScore(a) - generalScore(b)
-			);
-			if (itemsToCheck === undefined) return false;
+			itemsToCheck = getItemToCompare(iType, false, generalScoreSort);
+			if (itemsToCheck === undefined || itemsToCheck.gid === base.gid) return true;
 
-			if (base.isInStorage && (generalScore(base) < generalScore(itemsToCheck)
-				|| (generalScore(base) === generalScore(itemsToCheck) && base.ilvl > itemsToCheck.ilvl))) {
-				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
-
-				result = true;
-			}
-		} else {
-			itemsToCheck = getItemToCompare(
-				[sdk.items.type.Shield], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
-			);
-			if (itemsToCheck === undefined) return false;
-
-			if (base.isInStorage && !base.ethereal && base.sockets > 0) {
-				if ((base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense)
-					|| base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
-					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(sdk.stats.Defense) + " itemToCheckDefense: " + itemsToCheck.getStatEx(sdk.stats.Defense));
-					return true;
-				}
-			}
+			return (base.isInStorage ? generalScoreCheck(base, itemsToCheck) : false);
 		}
 
-		break;
+		if (base.ethereal || base.sockets === 0) return false;
+		itemsToCheck = getItemToCompare([sdk.items.type.Shield], false, defenseSort);
+		if (itemsToCheck === undefined || itemsToCheck.gid === base.gid) return true;
+		
+		return (base.isInStorage ? defenseScoreCheck(base, itemsToCheck) : false);
 	case sdk.items.type.Armor:
-		itemsToCheck = getItemToCompare(
-			[sdk.items.type.Armor], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
-		);
-		if (itemsToCheck === undefined) return false;
-
-		if (base.isInStorage && !base.ethereal && base.sockets > 0) {
-			if ((base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense)
-				|| base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
-				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStatEx(sdk.stats.Defense) + " itemToCheckDefense: " + itemsToCheck.getStatEx(sdk.stats.Defense));
-				return true;
-			}
-		}
-
-		break;
+		if (base.ethereal || base.sockets === 0) return false;
+		itemsToCheck = getItemToCompare([sdk.items.type.Armor], false, defenseSort);
+		if (itemsToCheck === undefined || itemsToCheck.gid === base.gid) return true;
+		
+		return (base.isInStorage ? defenseScoreCheck(base, itemsToCheck) : false);
 	case sdk.items.type.Helm:
 	case sdk.items.type.PrimalHelm:
 	case sdk.items.type.Circlet:
@@ -2028,53 +1829,23 @@ Town.worseBaseThanStashed = function (base = undefined) {
 			let iType = [sdk.items.type.Helm, sdk.items.type.Circlet];
 			me.druid ? iType.push(sdk.items.type.Pelt) : iType.push(sdk.items.type.PrimalHelm);
 			
-			itemsToCheck = getItemToCompare(
-				iType, false, (a, b) => generalScore(a) - generalScore(b)
-			);
-			if (itemsToCheck === undefined) return false;
+			itemsToCheck = getItemToCompare(iType, false, generalScoreSort);
+			if (itemsToCheck === undefined || itemsToCheck.gid === base.gid) return true;
 
-			if (base.isInStorage && (base.sockets > 0 || itemsToCheck.sockets === base.sockets)) {
-				gScoreBase = generalScore(base);
-				gScoreCheck = generalScore(itemsToCheck);
-				if (gScoreBase < gScoreCheck || (gScoreBase === gScoreCheck && base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense))) {
-					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + gScoreBase + " itemToCheckScore: " + gScoreCheck);
-					return true;
-				}
-			}
-		} else {
-			itemsToCheck = getItemToCompare(
-				[sdk.items.type.Helm, sdk.items.type.Circlet], false, (a, b) => a.getStatEx(sdk.stats.Defense) - b.getStatEx(sdk.stats.Defense)
-			);
-			if (itemsToCheck === undefined) return false;
-
-			if (base.isInStorage && (base.sockets > 0 || itemsToCheck.sockets === base.sockets)) {
-				if (!base.ethereal && (base.getStatEx(sdk.stats.Defense) < itemsToCheck.getStatEx(sdk.stats.Defense)
-					|| base.getStatEx(sdk.stats.Defense) === itemsToCheck.getStatEx(sdk.stats.Defense) && base.getStatEx(sdk.stats.ArmorPercent) < itemsToCheck.getStatEx(sdk.stats.ArmorPercent))) {
-					Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseDefense: " + base.getStat(sdk.stats.Defense) + " itemToCheckDefense: " + itemsToCheck.getStat(sdk.stats.Defense));
-					return true;
-				}
-			}
+			return (base.isInStorage ? generalScoreCheck(base, itemsToCheck) : false);
 		}
 
-		break;
+		if (base.ethereal || base.sockets === 0) return false;
+		itemsToCheck = getItemToCompare([sdk.items.type.Helm, sdk.items.type.Circlet], false, defenseSort);
+		if (itemsToCheck === undefined || itemsToCheck.gid === base.gid) return true;
+		
+		return (base.isInStorage ? defenseScoreCheck(base, itemsToCheck) : false);
 	case sdk.items.type.Wand:
-		if (!me.necromancer) return true;
+		if (!me.necromancer) return false;
 
-		itemsToCheck = getItemToCompare(
-			[sdk.items.type.Wand], null, (a, b) => generalScore(a) - generalScore(b)
-		);
-		if (itemsToCheck === undefined) return false;
-
-		if (base.isInStorage) {
-			gScoreBase = generalScore(base);
-			gScoreCheck = generalScore(itemsToCheck);
-			if (gScoreBase < gScoreCheck || (gScoreBase === gScoreCheck && base.ilvl > itemsToCheck.ilvl)) {
-				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
-				return true;
-			}
-		}
-
-		break;
+		itemsToCheck = getItemToCompare([sdk.items.type.Wand], null, generalScoreSort);
+		if (itemsToCheck === undefined || itemsToCheck.gid === base.gid) return true;
+		return (base.isInStorage ? generalScoreCheck(base, itemsToCheck) : false);
 	case sdk.items.type.Scepter:
 	case sdk.items.type.Staff:
 	case sdk.items.type.Bow:
@@ -2095,65 +1866,40 @@ Town.worseBaseThanStashed = function (base = undefined) {
 		// update - 8/8/2022 - checks final build stat requirements but still need a better check
 		// don't keep an item if we are only going to be able to use it when we get to our final build but also sometimes like paladin making grief
 		// we need the item to get to our final build but won't actually be able to use it till then so we can't just use max current build str/dex
-		if ((Check.finalBuild().maxStr < base.strreq || Check.finalBuild().maxStr < base.dexreq)) return true;
+		if ((Check.finalBuild().maxStr < base.strreq || Check.finalBuild().maxStr < base.dexreq)) return false;
 		// need better solution for comparison based on what runeword can be made in a base type
 		// should allow comparing multiple item types given they are all for the same runeword
-		itemsToCheck = getItemToCompare(
-			[base.itemType], false, (a, b) => generalScore(a) - generalScore(b)
-		);
+		itemsToCheck = getItemToCompare([base.itemType], false, generalScoreSort);
+		if (itemsToCheck === undefined || itemsToCheck.gid === base.gid) return true;
 
-		itemsToCheck === undefined && Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: itemsToCheck is undefined");
-		if (itemsToCheck === undefined) return false;
-
-		if (base.isInStorage && (base.sockets > 0 || itemsToCheck.sockets === base.sockets)) {
-			gScoreBase = generalScore(base);
-			gScoreCheck = generalScore(itemsToCheck);
-			if (gScoreBase < gScoreCheck
-				|| (gScoreBase === gScoreCheck && (Item.getQuantityOwned(base) > 2 || base.getStatEx(sdk.stats.MinDamagePercent) < itemsToCheck.getStatEx(sdk.stats.MinDamagePercent)))) {
-				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + gScoreBase + " itemToCheckScore: " + gScoreCheck);
-				return true;
-			}
-		}
-		
-		break;
+		return (base.isInStorage ? damageScoreCheck(base, itemsToCheck) : false);
 	case sdk.items.type.HandtoHand:
 	case sdk.items.type.AssassinClaw:
-		if (!me.assassin) return true;
+		if (!me.assassin) return false;
 
-		itemsToCheck = getItemToCompare(
-			[sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw], false, (a, b) => generalScore(a) - generalScore(b)
-		);
-		if (itemsToCheck === undefined) return false;
+		itemsToCheck = getItemToCompare([sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw], false, generalScoreSort);
+		if (itemsToCheck === undefined || itemsToCheck.gid === base.gid) return true;
 
-		if (base.sockets > 0) {
-			if (base.isInStorage && (generalScore(base) < generalScore(itemsToCheck))) {
-				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemsToCheck));
-				return true;
-			}
-		}
-
-		break;
+		return (base.isInStorage ? damageScoreCheck(base, itemsToCheck) : false);
 	case sdk.items.type.Polearm:
-		itemsToCheck = getItemToCompare(
-			[sdk.items.type.Polearm], null, (a, b) => getAvgDmg(a) - getAvgDmg(b)
-		);
-		if (itemsToCheck === undefined) return false;
+		itemsToCheck = getItemToCompare([sdk.items.type.Polearm], null, twoHandDmgSort);
+		if (itemsToCheck === undefined || itemsToCheck.gid === base.gid) return true;
 
 		if (base.isInStorage && base.sockets > 0) {
-			if (getAvgDmg(base) < getAvgDmg(itemsToCheck)) {
-				Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: BaseDamage: " + (base.getStatEx(sdk.stats.SecondaryMinDamage) + base.getStatEx(sdk.stats.SecondaryMaxDamage)) + " itemToCheckDamage: " + (itemsToCheck.getStatEx(sdk.stats.SecondaryMinDamage) + itemsToCheck.getStatEx(sdk.stats.SecondaryMaxDamage)));
+			let [baseDmg, itemCheckDmg] = [dmgScore(base), dmgScore(itemsToCheck)];
+			switch (true) {
+			case (baseDmg.twoHandDmg > itemCheckDmg.twoHandDmg):
+			case ((baseDmg.twoHandDmg === itemCheckDmg.twoHandDmg) && (baseDmg.eDmg > itemCheckDmg.eDmg)):
+			case ((baseDmg.twoHandDmg === itemCheckDmg.twoHandDmg) && (baseDmg.eDmg === itemCheckDmg.eDmg) && base.ilvl > itemToCheck.ilvl):
+				console.log("ÿc9betterThanStashedÿc0 :: BaseScore: ", baseDmg, " itemToCheckScore: ", itemCheckDmg);
 				return true;
 			}
 		}
 
 		break;
-	default:
-		Developer.debugging.junkCheck && console.log("ÿc9WorseBaseThanStashedÿc0 :: No itemType to check for " + base.name);
-
-		return false;
 	}
 
-	return result;
+	return false;
 };
 
 Town.systemsKeep = function (item) {
@@ -2224,8 +1970,8 @@ Town.clearJunk = function () {
 				}
 
 				if (junk.isBaseType) {
-					if (this.worseBaseThanStashed(junk)) {
-						console.log("ÿc9WorseBaseThanStashedCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+					if (!Town.betterThanStashed(junk)) {
+						console.log("ÿc9BetterThanStashedCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
 						
 						if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
 							throw new Error("ÿc9WorseBaseThanStashedCheckÿc0 :: Failed to get " + junk.name + " from stash");
