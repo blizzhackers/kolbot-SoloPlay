@@ -190,7 +190,7 @@ function SoloPlay () {
 		}
 	}
 
-	Check.brokeCheck();
+	if (Check.brokeCheck()) return true;
 	Check.usePreviousSocketQuest(); // Currently only supports going back to nightmare to socket a lidless if one is equipped.
 	this.runScripts();
 

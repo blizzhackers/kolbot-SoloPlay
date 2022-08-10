@@ -583,8 +583,8 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 			throw new Error("?");
 		}
 
-		D2Bot.setProfile(null, null, null, diffString);
 		CharData.updateData("me", "setDifficulty", diffString);
+		D2Bot.setProfile(null, null, null, diffString);
 		myPrint("Going to " + diffString + " " + reason, true);
 		delay(1000);
 		if (CharData.getStats().me.setDifficulty !== diffString) {
@@ -659,11 +659,11 @@ const Check = {
 
 		switch (true) {
 		case myGold > repairCost:
-			return;
+			return false;
 		case me.normal:
 		case !meleeChar && me.nightmare:
 			this.lowGold = myGold < repairCost;
-			return;
+			return false;
 		case meleeChar && !me.normal:
 			// check how broke we are - only for melee chars since casters don't care about weapons
 			let wep = items.filter(i => i.isEquipped && i.bodylocation === sdk.body.RightArm).first();
@@ -684,8 +684,11 @@ const Check = {
 		if (diff > -1) {
 			console.debug("My gold: " + myGold + ", Repair cost: " + repairCost);
 			goToDifficulty(diff, msg + (" My gold: " + myGold + ", Repair cost: " + repairCost));
-			scriptBroadcast("quit");
+
+			return true;
 		}
+
+		return false;
 	},
 
 	resistance: function () {
