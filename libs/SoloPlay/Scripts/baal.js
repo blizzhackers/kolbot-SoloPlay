@@ -90,9 +90,9 @@ function baal () {
 			case 2:
 				boss = Game.getMonster("Achmel the Cursed");
 
-				if (boss && !Attack.canAttack(boss)) {
-					me.overhead("immune achmel");
-					return false;
+				if (boss) {
+					if (!Attack.canAttack(boss)) throw new Error("Immune boss");
+					if (me.paladin && me.hell && Check.currentBuild().caster) throw new Error("Too much effort for hammerdin");
 				}
 
 				Attack.clearClassids(sdk.monsters.BaalSubjectMummy, sdk.monsters.BaalColdMage) && (tick = getTickCount());

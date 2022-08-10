@@ -20,7 +20,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 
 	let header = "";
 	let name = unit.itemType + "_" + unit.fname.split("\n").reverse().join(" ").replace(/(y|ÿ)c[0-9!"+<:;.*]|\/|\\/g, "").trim();
-	let desc = (this.getItemDesc(unit, logIlvl) || "");
+	let desc = (Misc.getItemDesc(unit, logIlvl) || "");
 	let color = (unit.getColor() || -1);
 	let code = Misc.getItemCode(unit);
 

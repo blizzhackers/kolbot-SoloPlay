@@ -85,8 +85,8 @@ const SoloIndex = {
 			},
 			shouldRun: function () {
 				switch (true) {
-				case (me.normal && !me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf()):
-				case (me.nightmare && !me.tristram && me.charlvl < 43 || Check.brokeAf()):
+				case (me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf())):
+				case (me.nightmare && (!me.tristram && me.charlvl < 43 || Check.brokeAf())):
 				case (me.hell && (!me.tristram && me.diffCompleted) || !this.skipIf()):
 					return true;
 				}
@@ -150,10 +150,10 @@ const SoloIndex = {
 		},
 		"jail": {
 			preReq: function () {
-				return me.hell && me.amazon && !me.mephisto;
+				return (me.hell && me.amazon && !me.mephisto);
 			},
 			skipIf: function () {
-				return SetUp.currentBuild === SetUp.finalBuild;
+				return (SetUp.currentBuild === SetUp.finalBuild);
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
@@ -185,7 +185,7 @@ const SoloIndex = {
 		},
 		"a1chests": {
 			preReq: function () {
-				return !me.classic && !me.normal;
+				return (!me.classic && !me.normal);
 			},
 			skipIf: function () {
 				if (me.barbarian && (!me.hell || Pather.accessToAct(3)
@@ -275,7 +275,7 @@ const SoloIndex = {
 		},
 		"ancienttunnels": {
 			preReq: function () {
-				return me.hell && Pather.accessToAct(2);
+				return (me.hell && Pather.accessToAct(2));
 			},
 			skipIf: function () {
 				switch (me.classid) {
@@ -429,7 +429,7 @@ const SoloIndex = {
 		},
 		"mephisto": {
 			preReq: function () {
-				return Pather.accessToAct(3) && me.travincal;
+				return (Pather.accessToAct(3) && me.travincal);
 			},
 			skipIf: function () {
 				return false;

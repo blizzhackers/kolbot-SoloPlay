@@ -359,9 +359,7 @@ const SoloEvents = {
 		myPrint("Attempting baal wave skip");
 
 		// Disable anything that will cause us to stop
-		Precast.enabled = false;
-		Misc.townEnabled = false;
-		Pickit.enabled = false;
+		[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [false, false, false];
 		me.barbarian && (Config.FindItem = false);
 
 		// Prep, move to throne entrance
@@ -377,7 +375,7 @@ const SoloEvents = {
 		}
 
 		tick = getTickCount();
-		this.customMoveTo(15099, 5078);		// Re-enter throne
+		this.customMoveTo(15099, 5078); // Re-enter throne
 
 		// 2 second delay (2000ms)
 		while (getTickCount() - tick < 2000) {
@@ -387,15 +385,10 @@ const SoloEvents = {
 		this.customMoveTo(15099, 5078);
 
 		// Re-enable
-		Precast.enabled = true;
-		Misc.townEnabled = true;
-		Pickit.enabled = true;
+		[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [true, true, true];
 
 		let skipWorked = getUnits(sdk.unittype.Monster)
-			.some(function (el) {
-				return !el.dead && el.attackable && el.classid !== sdk.monsters.ThroneBaal && el.x >= 15070 && el.x <= 15120 &&
-                    el.y >= 5000 && el.y <= 5075;
-			});
+			.some(el => el.attackable && el.x >= 15070 && el.x <= 15120 && el.y >= 5000 && el.y <= 5075);
 		myPrint("skip " + (skipWorked ? "worked" : "failed"));
 	},
 
@@ -408,10 +401,10 @@ const SoloEvents = {
 				.filter((missile) => missile && diablo && diablo.gid === missile.owner)
 				// if any
 				.some(function (missile) {
-					let xoff = Math.abs(coord.x - missile.targetx),
-						yoff = Math.abs(coord.y - missile.targety),
-						xdist = Math.abs(coord.x - missile.x),
-						ydist = Math.abs(coord.y - missile.y);
+					let xoff = Math.abs(coord.x - missile.targetx);
+					let yoff = Math.abs(coord.y - missile.targety);
+					let xdist = Math.abs(coord.x - missile.x);
+					let ydist = Math.abs(coord.y - missile.y);
 					// If missile wants to hit is and is close to us
 					return xoff < 10 && yoff < 10 && xdist < 15 && ydist < 15;
 				});
@@ -421,9 +414,7 @@ const SoloEvents = {
 			let tick = getTickCount();
 			let overrides = {allowTeleport: false, allowClearing: false, allowTown: false};
 			// Disable anything that will cause us to stop
-			Precast.enabled = false;
-			Misc.townEnabled = false;
-			Pickit.enabled = false;
+			[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [false, false, false];
 			console.log("DODGE");
 			// Disable things that will cause us to stop
 			let dist = me.assassin ? 15 : 3;
@@ -433,7 +424,6 @@ const SoloEvents = {
 				if (me.y <= diablo.y) {
 					// Move east
 					me.x <= diablo.x && this.customMoveTo(diablo.x + dist, diablo.y, overrides);
-
 					// Move south
 					me.x > diablo.x && this.customMoveTo(diablo.x, diablo.y + dist, overrides);
 				}
@@ -442,16 +432,13 @@ const SoloEvents = {
 				if (me.y > diablo.y) {
 					// Move west
 					me.x >= diablo.x && this.customMoveTo(diablo.x - dist, diablo.y, overrides);
-
 					// Move north
 					me.x < diablo.x && this.customMoveTo(diablo.x, diablo.y - dist, overrides);
 				}
 			}
 
 			// Re-enable
-			Precast.enabled = true;
-			Misc.townEnabled = true;
-			Pickit.enabled = true;
+			[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [true, true, true];
 		}
 	},
 
@@ -462,7 +449,7 @@ const SoloEvents = {
 		if (!Town.canTpToTown()) {
 			// should really check how close the town exit is
 			Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.ColdPlains], true);
-			Pather.getWP(3);
+			Pather.getWP(sdk.areas.ColdPlains);
 			Pather.useWaypoint(sdk.areas.RogueEncampment);
 		} else {
 			Town.goToTown();
