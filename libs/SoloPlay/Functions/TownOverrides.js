@@ -42,10 +42,7 @@ Town.needPotions = function () {
 	
 	// Start
 	if (me.charlvl > 2 && me.gold > 1000) {
-		let pots = {
-			hp: [],
-			mp: [],
-		};
+		let pots = { hp: [], mp: [], };
 		me.getItemsEx(-1, sdk.items.mode.inBelt)
 			.filter(p => [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion].includes(p.itemType) && p.x < 4)
 			.forEach(p => {
@@ -93,12 +90,8 @@ Town.buyPotions = function () {
 	// Ain't got money fo' dat shyt
 	if (me.gold < 1000 || !me.getItem(sdk.items.TomeofTownPortal)) return false;
 
-	let needPots = false;
-	let needBuffer = true;
-	let buffer = {
-		hp: 0,
-		mp: 0
-	};
+	let [needPots, needBuffer] = [false, true];
+	let buffer = { hp: 0, mp: 0 };
 
 	this.clearBelt();
 	const beltSize = Storage.BeltSize();
@@ -285,6 +278,7 @@ Town.townTasks = function (buyPots = {}) {
 	Item.autoEquipCharms();
 	Mercenary.hireMerc();
 	Item.autoEquipMerc();
+	Town.haveItemsToSell() && Town.sellItems() && me.cancelUIFlags();
 	this.stash();
 	this.clearJunk();
 	Town.sortInventory();
@@ -1062,8 +1056,7 @@ Town.unfinishedQuests = function () {
 	// Killed council but haven't talked to cain
 	if (!Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, sdk.quest.states.Completed) && Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, 4)) {
 		me.overhead("Finishing Travincal by talking to cain");
-		Town.goToTown(3) && Town.npcInteract("cain");
-		delay(300);
+		Town.goToTown(3) && Town.npcInteract("cain") && delay(300);
 		me.cancel();
 	}
 
@@ -1112,9 +1105,7 @@ new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
 
 		if (objID) {
 			// non-english version
-			if (!CharData.buffData[objID]) {
-				objID = type.toLowerCase();
-			}
+			(!CharData.buffData[objID]) && (objID = type.toLowerCase());
 
 			if (!CharData.buffData[objID].active() || CharData.buffData[objID].timeLeft() <= 0) {
 				CharData.buffData[objID].tick = getTickCount();
@@ -1130,54 +1121,6 @@ new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
 	return true;
 }).apply();
 
-// re-write this so its actually useable
-Town.buyMercPots = function (quantity, type) {
-	let merc = Misc.poll(() => me.getMerc(), 1000, 30);
-	if (!merc) return false;
-	
-	let npc, jugs;
-	let potDealer = ["Akara", "Lysander", "Alkor", "Jamella", "Malah"][me.act - 1];
-
-	// Don't buy if already at max res
-	if (type === "Thawing" && merc.coldRes >= 75) return true;
-	// Don't buy if already at max res
-	if (type === "Antidote" && merc.poisonRes >= 75) return true;
-
-	Town.move(NPC[potDealer]);
-	npc = Game.getNPC(NPC[potDealer]);
-
-	if (!npc || !npc.openMenu()) return false;
-
-	Misc.useMenu(sdk.menu.Trade);
-
-	switch (type) {
-	case "Thawing":
-		jugs = npc.getItem("wms");
-
-		break;
-	case "Stamina":
-		jugs = npc.getItem("vps");
-
-		break;
-	case "Antidote":
-		jugs = npc.getItem("yps");
-
-		break;
-	}
-
-	console.log("ÿc8Kolbot-SoloPlayÿc0: buying " + quantity + " " + type + " Potions for merc");
-
-	for (let totalspecialpotions = 0; totalspecialpotions < quantity; totalspecialpotions++) {
-		if (jugs) {
-			jugs.buy(false);
-		}
-	}
-
-	me.cancel();
-
-	return true;
-};
-
 Town.canStash = function (item) {
 	if (this.ignoredItemTypes.includes(item.itemType)
 		|| [sdk.items.quest.HoradricStaff, sdk.items.quest.KhalimsWill].includes(item.classid)
@@ -1192,7 +1135,6 @@ Town.canStash = function (item) {
 
 Town.stash = function (stashGold = true) {
 	if (!this.needStash()) return true;
-
 	me.cancel();
 
 	let result = false;
@@ -1489,9 +1431,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 	};
 
 	// Can't use so its worse then what we already have
-	if ((me.getStat(sdk.stats.Strength) < base.strreq || me.getStat(sdk.stats.Dexterity) < base.dexreq)) {
-		return false;
-	}
+	if ((Check.finalBuild().maxStr < base.strreq || Check.finalBuild().maxStr < base.dexreq)) return false;
 
 	let items = me.getItemsEx().filter(i => i.isEquipped && bodyLoc.includes(i.bodylocation));
 
@@ -1908,9 +1848,7 @@ Town.systemsKeep = function (item) {
 
 Town.clearJunk = function () {
 	let junkItems = me.findItems(-1, sdk.items.mode.inStorage);
-	let totalJunk = [];
-	let junkToSell = [];
-	let junkToDrop = [];
+	let [totalJunk, junkToSell, junkToDrop] = [[], [], []];
 
 	if (!junkItems) return false;
 
