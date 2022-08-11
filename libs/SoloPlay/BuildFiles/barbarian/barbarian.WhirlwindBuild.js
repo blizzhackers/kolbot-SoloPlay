@@ -31,7 +31,7 @@ const finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - Grief x2 dual wield
-		"[type] == sword && [flag] == runeword # [ias] >= 30 # [tier] == 100000",
+		"[type] == sword && [flag] == runeword # [ias] >= 30 && [itemdeadlystrike] == 20 && [passivepoispierce] >= 20 # [tier] == 100000",
 		// Final Helmet - Upp'ed Arreat's Face
 		"[name] == guardiancrown && [quality] == unique && [flag] != ethereal # [barbarianskills] == 2 && [fhr] >= 30 # [tier] == 150000 + tierscore(item)",
 		// Helmet - Arreat's Face

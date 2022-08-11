@@ -32,7 +32,7 @@ const finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - Grief
-		"[type] == sword && [flag] == runeword # [ias] >= 30 # [tier] == 100000",
+		"[type] == sword && [flag] == runeword # [ias] >= 30 && [itemdeadlystrike] == 20 && [passivepoispierce] >= 20 # [tier] == 100000",
 		// Helmet - Arreat's Face
 		"[name] == slayerguard && [quality] == unique && [flag] != ethereal # [barbarianskills] == 2 # [tier] == 100000 + tierscore(item)",
 		// Belt - Dungo's

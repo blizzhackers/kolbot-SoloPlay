@@ -30,7 +30,7 @@ const finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - Grief
-		"[type] == sword && [flag] == runeword # [ias] >= 30 # [tier] == 110000",
+		"[type] == sword && [flag] == runeword # [ias] >= 30 && [itemdeadlystrike] == 20 && [passivepoispierce] >= 20 # [tier] == 110000",
 		// Shield - Stormshield
 		"[name] == monarch && [quality] == unique # [damageresist] >= 35 # [tier] == 110000",
 		// Helmet - Jalal's Mane

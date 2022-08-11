@@ -31,7 +31,7 @@ const finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - Grief
-		"[type] == sword && [flag] == runeword # [ias] >= 30 # [tier] == 100000",
+		"[type] == sword && [flag] == runeword # [ias] >= 30 && [itemdeadlystrike] == 20 && [passivepoispierce] >= 20 # [tier] == 100000",
 		// Final Helm - Upp'ed Vamp Gaze
 		"[name] == bonevisage && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 100 && [lifeleech] >= 6 # [tier] == 100000 + tierscore(item)",
 		// Helm -Vamp Gaze

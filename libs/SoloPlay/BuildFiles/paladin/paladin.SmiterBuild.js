@@ -29,7 +29,7 @@ const finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - Grief
-		"[type] == sword && [flag] == runeword # [ias] >= 30 # [tier] == 100000",
+		"[type] == sword && [flag] == runeword # [ias] >= 30 && [itemdeadlystrike] == 20 && [passivepoispierce] >= 20 # [tier] == 100000",
 		// Helm - GFace
 		"[name] == wingedhelm && [quality] == set && [flag] != ethereal # [fhr] >= 30 # [tier] == 100000 + tierscore(item)",
 		// Belt - Tgods

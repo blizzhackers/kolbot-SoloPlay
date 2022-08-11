@@ -35,7 +35,7 @@ if (!me.getItem(sdk.items.runes.Mal)) {
 	Config.Recipes.push([Recipe.Rune, "Um Rune"]);
 }
 
-if (SetUp.finalBuild === 'Plaguewolf') {
+if (SetUp.finalBuild === "Plaguewolf") {
 	// Only start making Grief after Chains of Honor is made
 	if (Check.haveItem("armor", "runeword", "Chains of Honor")) {
 		Config.Runewords.push([Runeword.Grief, "phaseblade"]);
@@ -43,5 +43,5 @@ if (SetUp.finalBuild === 'Plaguewolf') {
 	}
 } else {
 	Config.Runewords.push([Runeword.Grief, "phaseblade"]);
-	Config.KeepRunewords.push("[type] == sword # [ias] >= 30");
+	Config.KeepRunewords.push("[type] == sword # [ias] >= 30 && [itemdeadlystrike] == 20 && [passivepoispierce] >= 20");
 }
