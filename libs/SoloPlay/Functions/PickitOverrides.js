@@ -150,7 +150,7 @@ Pickit.checkItem = function (unit) {
 				result: Pickit.Result.TRASH,
 				line: "Valuable Item: " + itemValue
 			};
-		} else if (itemValuePerSquare >= 10 && me.gold < Config.LowGold) {
+		} else if (itemValuePerSquare >= 10 && (me.gold < Config.LowGold || unit.isInInventory)) {
 			// If total gold is less than LowGold setting pick up anything worth 10 gold per square to sell in town.
 			return {
 				result: Pickit.Result.TRASH,
@@ -550,6 +550,22 @@ Pickit.pickItem = function (unit, status, keptLine) {
 	}
 
 	return true;
+};
+
+Pickit.checkSpotForItems = function (spot, range = Config.PickRange) {
+	if (spot.x === undefined) return false;
+
+	let item = Game.getItem();
+
+	if (item) {
+		do {
+			if (item.onGroundOrDropping && getDistance(spot, item) <= range && this.checkItem(item).result) {
+				return true;
+			}
+		} while (item.getNext());
+	}
+
+	return false;
 };
 
 Pickit.pickItems = function (range = Config.PickRange, once = false) {

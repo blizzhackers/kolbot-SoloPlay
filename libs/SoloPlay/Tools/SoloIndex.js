@@ -327,7 +327,7 @@ const SoloIndex = {
 		},
 		"duriel": {
 			preReq: function () {
-				return Pather.accessToAct(2) && (me.horadricstaff || (me.amulet && me.shaft));
+				return Pather.accessToAct(2) && (me.horadricstaff || me.completestaff || (me.amulet && me.shaft));
 			},
 			skipIf: function () {
 				return me.duriel;

@@ -17,7 +17,6 @@ new Overrides.Override(Town, Town.canTpToTown, function (orignal) {
 new Overrides.Override(Town, Town.repair, function (orignal, force = false) {
 	if (orignal(force)) {
 		Town.shopItems();
-
 		return true;
 	}
 
@@ -33,6 +32,15 @@ Town.ignoredItemTypes = [
 	sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion, sdk.items.type.StaminaPotion,
 	sdk.items.type.AntidotePotion, sdk.items.type.ThawingPotion
 ];
+
+Town.systemsKeep = function (item) {
+	return (AutoEquip.wanted(item) || Cubing.keepItem(item) || Runewords.keepItem(item) || CraftingSystem.keepItem(item) || SoloWants.keepItem(item));
+};
+
+Town.needForceID = function (item) {
+	const result = Pickit.checkItem(item);
+	return ([Pickit.Result.WANTED, Pickit.Result.CUBING].includes(result.result) && !item.identified && AutoEquip.hasTier(item));
+};
 
 Town.needPotions = function () {
 	// we aren't using MinColumn if none of the values are set
@@ -253,7 +261,7 @@ Town.townTasks = function (buyPots = {}) {
 	const preAct = me.act;
 
 	me.switchWeapons(Attack.getPrimarySlot());
-	this.unfinishedQuests();
+	Quest.unfinishedQuests();
 	this.heal();
 	this.identify();
 	this.clearInventory();
@@ -273,9 +281,7 @@ Town.townTasks = function (buyPots = {}) {
 	Runewords.makeRunewords();
 	Cubing.doCubing();
 	Runewords.makeRunewords();
-	Item.autoEquip();
-	Item.autoEquipSecondary();
-	Item.autoEquipCharms();
+	AutoEquip.runAutoEquip();
 	Mercenary.hireMerc();
 	Item.autoEquipMerc();
 	Town.haveItemsToSell() && Town.sellItems() && me.cancelUIFlags();
@@ -343,9 +349,7 @@ Town.doChores = function (repair = false, buyPots = {}) {
 	Runewords.makeRunewords();
 	Cubing.doCubing();
 	Runewords.makeRunewords();
-	Item.autoEquip();
-	Item.autoEquipSecondary();
-	Item.autoEquipCharms();
+	AutoEquip.runAutoEquip();
 	Mercenary.hireMerc();
 	Item.autoEquipMerc();
 	Town.haveItemsToSell() && Town.sellItems() && me.cancelUIFlags();
@@ -384,6 +388,69 @@ Town.getIdTool = function () {
 	return null;
 };
 
+Town.itemResult = function (item, result, system = "", sell = false) {
+	let timer = 0;
+	sell && !getInteractedNPC() && (sell = false);
+
+	switch (result.result) {
+	case Pickit.Result.WANTED:
+		Misc.itemLogger("Kept", item);
+		Misc.logItem("Kept", item, result.line);
+		system === "Field" && Item.autoEquipCheck(item) && Item.outOfTownAutoEquip();
+
+		break;
+	case Pickit.Result.UNID:
+		// At low level its not worth keeping these items until we can Id them it just takes up too much room
+		if (sell && me.charlvl < 10 && item.magic && item.classid !== sdk.items.SmallCharm) {
+			Misc.itemLogger("Sold", item);
+			item.sell();
+		}
+
+		break;
+	case Pickit.Result.CUBING:
+		Misc.itemLogger("Kept", item, "Cubing-" + system);
+		Cubing.update();
+
+		break;
+	case Pickit.Result.RUNEWORD:
+		break;
+	case Pickit.Result.CRAFTING:
+		Misc.itemLogger("Kept", item, "CraftSys-" + system);
+		CraftingSystem.update(item);
+
+		break;
+	case Pickit.Result.SOLOWANTS:
+		Misc.itemLogger("Kept", item, "SoloWants-" + system);
+		SoloWants.update(item);
+
+		break;
+	default:
+		if (!item.sellable || !sell) return;
+
+		switch (true) {
+		case (Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm):
+		case (Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm):
+		case (Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm):
+			Misc.logItem("Sold", item);
+
+			break;
+		default:
+			Misc.itemLogger("Sold", item);
+			
+			break;
+		}
+
+		item.sell();
+		timer = getTickCount() - this.sellTimer; // shop speedup test
+
+		if (timer > 0 && timer < 500) {
+			delay(timer);
+		}
+
+		break;
+	}
+};
+
 Town.cainID = function (force = false) {
 	if ((!Config.CainID.Enable && !force) || !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed)) return false;
 
@@ -414,11 +481,8 @@ Town.cainID = function (force = false) {
 		for (let i = 0; i < unids.length; i += 1) {
 			let item = unids[i];
 			let result = Pickit.checkItem(item);
-
-			// Force ID for unid items matching autoEquip criteria
-			if ([Pickit.Result.WANTED, Pickit.Result.CUBING].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
-				result.result = -1;
-			}
+			// Force ID for unid items matching autoEquip/cubing criteria
+			Town.needForceID(item) && (result.result = -1);
 
 			switch (result.result) {
 			case Pickit.Result.TRASH:
@@ -547,46 +611,15 @@ Town.fieldID = function () {
 
 		let item = list.shift();
 		let result = Pickit.checkItem(item);
-
-		// Force ID for unid items matching autoEquip criteria
-		if ([Pickit.Result.WANTED, Pickit.Result.CUBING].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
-			result.result = -1;
-		}
+		// Force ID for unid items matching autoEquip/cubing criteria
+		Town.needForceID(item) && (result.result = -1);
 
 		// unid item that should be identified
 		if (result.result === Pickit.Result.UNID) {
 			this.identifyItem(item, idTool, Config.FieldID.PacketID);
 			delay(50);
 			result = Pickit.checkItem(item);
-
-			switch (result.result) {
-			case Pickit.Result.WANTED:
-				Misc.itemLogger("Field Kept", item);
-				Misc.logItem("Field Kept", item, result.line);
-
-				if (Item.autoEquipCheck(item)) {
-					Item.outOfTownAutoEquip();
-				}
-
-				break;
-			case Pickit.Result.CUBING:
-				Misc.itemLogger("Field Kept", item, "Cubing");
-				Cubing.update();
-
-				break;
-			case Pickit.Result.CRAFTING:
-				Misc.itemLogger("Field Kept", item, "CraftSys");
-				CraftingSystem.update(item);
-
-				break;
-			case Pickit.Result.SOLOWANTS:
-				Misc.itemLogger("Field Kept", item, "SoloWants");
-				SoloWants.update(item);
-
-				break;
-			default:
-				break;
-			}
+			Town.itemResult(item, result, "Field", false);
 		}
 	}
 
@@ -599,7 +632,7 @@ Town.fieldID = function () {
 Town.identify = function () {
 	if (me.gold < 5000 && this.cainID(true)) return true;
 	
-	let scroll, timer;
+	let scroll;
 	let list = (Storage.Inventory.Compare(Config.Inventory) || []);
 
 	if (!list.length) return false;
@@ -625,11 +658,8 @@ Town.identify = function () {
 
 		if (!this.ignoredItemTypes.includes(item.itemType) && item.location === sdk.storage.Inventory && !item.identified) {
 			let result = Pickit.checkItem(item);
-
-			// Force ID for unid items matching autoEquip criteria
-			if ([Pickit.Result.WANTED, Pickit.Result.CUBING].includes(result.result) && !item.identified && AutoEquip.hasTier(item)) {
-				result.result = -1;
-			}
+			// Force ID for unid items matching autoEquip/cubing criteria
+			Town.needForceID(item) && (result.result = -1);
 
 			switch (result.result) {
 			// Items for gold, will sell magics, etc. w/o id, but at low levels
@@ -674,63 +704,7 @@ Town.identify = function () {
 				}
 
 				result = Pickit.checkItem(item);
-
-				switch (result.result) {
-				case Pickit.Result.WANTED:
-					Misc.itemLogger("Kept", item);
-					Misc.logItem("Kept", item, result.line);
-
-					break;
-				case Pickit.Result.UNID:
-					// At low level its not worth keeping these items until we can Id them it just takes up too much room
-					if (me.charlvl < 10 && item.magic && item.classid !== sdk.items.SmallCharm) {
-						Misc.itemLogger("Sold", item);
-						item.sell();
-					}
-
-					break;
-				case Pickit.Result.CUBING:
-					Misc.itemLogger("Kept", item, "Cubing-Town");
-					Cubing.update();
-
-					break;
-				case Pickit.Result.RUNEWORD:
-					break;
-				case Pickit.Result.CRAFTING:
-					Misc.itemLogger("Kept", item, "CraftSys-Town");
-					CraftingSystem.update(item);
-
-					break;
-				case Pickit.Result.SOLOWANTS:
-					Misc.itemLogger("Kept", item, "SoloWants-Town");
-					SoloWants.update(item);
-
-					break;
-				default:
-					if (!item.sellable) continue;
-
-					switch (true) {
-					case (Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm):
-					case (Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm):
-					case (Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm):
-						Misc.logItem("Sold", item);
-
-						break;
-					default:
-						Misc.itemLogger("Sold", item);
-						
-						break;
-					}
-
-					item.sell();
-					timer = getTickCount() - this.sellTimer; // shop speedup test
-
-					if (timer > 0 && timer < 500) {
-						delay(timer);
-					}
-
-					break;
-				}
+				Town.itemResult(item, result, "TownId", true);
 
 				break;
 			}
@@ -769,12 +743,9 @@ Town.buyBook = function () {
 	} else {
 		if (tpScroll && me.gold >= tpScroll.getItemCost(sdk.items.cost.ToBuy) && Storage.Inventory.CanFit(tpScroll)) {
 			try {
-				if (tpScroll.buy()) {
-					console.log("ÿc9BuyBookÿc0 :: bought Scroll of Town Portal");
-				}
+				tpScroll.buy() && console.log("ÿc9BuyBookÿc0 :: bought Scroll of Town Portal");
 			} catch (e1) {
 				console.warn(e1);
-
 				return false;
 			}
 		}
@@ -799,6 +770,14 @@ Town.shopItems = function () {
 	const haveMerc = (!me.classic && Config.UseMerc && !me.mercrevivecost && Misc.poll(() => !!me.getMerc(), 500, 100));
 	console.info(true, "ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
 
+	const shopReport = (item, action, result, tierInfo) => {
+		action === undefined && (action = "");
+		tierInfo === undefined && (tierInfo = "");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: " + action + (tierInfo ? " " + tierInfo : ""));
+		Misc.itemLogger(action, item);
+		Developer.debugging.autoEquip && Misc.logItem("Shopped " + action, item, result.line !== undefined ? result.line : "null");
+	};
+
 	for (let i = 0; i < items.length; i++) {
 		const item = items[i];
 		const result = Pickit.checkItem(item);
@@ -811,16 +790,13 @@ Town.shopItems = function () {
 				if (Storage.Inventory.CanFit(item) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
 					if (item.isBaseType) {
 						if (Town.betterThanStashed(item) && Town.betterBaseThanWearing(item, Developer.debugging.junkCheck)) {
-							Misc.itemLogger("Shopped", item);
-							Developer.debugging.autoEquip && Misc.logItem("Shopped", item, result.line);
-							console.log("ÿc8Kolbot-SoloPlayÿc0: Bought better base");
+							shopReport(item, "better base", result.line);
 							item.buy() && bought++;
 
 							continue;
 						}
 					} else {
-						Misc.itemLogger("Shopped", item);
-						Misc.logItem("Shopped", item, result.line);
+						shopReport(item, "NoTier", result.line);
 						item.buy() && bought++;
 
 						continue;
@@ -837,9 +813,7 @@ Town.shopItems = function () {
 				if (Storage.Inventory.CanFit(item) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
 					if (Item.hasTier(item) && Item.autoEquipCheck(item)) {
 						try {
-							Misc.itemLogger("AutoEquip Shopped", item);
-							console.log("ÿc9ShopItemsÿc0 :: AutoEquip Shopped: " + item.fname + " Tier: " + NTIP.GetTier(item));
-							Developer.debugging.autoEquip && Misc.logItem("AutoEquip Shopped", item, result.line);
+							shopReport(item, "AutoEquip", result.line, (item.fname + " Tier: " + NTIP.GetTier(item)));
 							item.buy() && bought++;
 						} catch (e) {
 							console.warn(e);
@@ -849,8 +823,7 @@ Town.shopItems = function () {
 					}
 
 					if (haveMerc && Item.hasMercTier(item) && Item.autoEquipCheckMerc(item)) {
-						Misc.itemLogger("AutoEquipMerc Shopped", item);
-						Developer.debugging.autoEquip && Misc.logItem("AutoEquipMerc Shopped", item, result.line);
+						shopReport(item, "AutoEquipMerc", result.line, (item.fname + " Tier: " + NTIP.GetMercTier(item)));
 						item.buy() && bought++;
 
 						continue;
@@ -858,9 +831,7 @@ Town.shopItems = function () {
 
 					if (Item.hasSecondaryTier(item) && Item.autoEquipCheckSecondary(item)) {
 						try {
-							Misc.itemLogger("AutoEquip Switch Shopped", item);
-							console.log("ÿc9ShopItemsÿc0 :: AutoEquip Switch Shopped: " + item.fname + " SecondaryTier: " + NTIP.GetSecondaryTier(item));
-							Developer.debugging.autoEquip && Misc.logItem("AutoEquip Switch Shopped", item, result.line);
+							shopReport(item, "AutoEquip Switch Shopped", result.line, (item.fname + " SecondaryTier: " + NTIP.GetSecondaryTier(item)));
 							item.buy() && bought++;
 						} catch (e) {
 							console.warn(e);
@@ -975,128 +946,6 @@ Town.gamble = function () {
 	return true;
 };
 
-// todo: clean this up
-Town.unfinishedQuests = function () {
-	// Act 1
-	// Tools of the trade
-	let malus = me.getItem(sdk.items.quest.HoradricMalus);
-	!!malus && Town.goToTown(1) && Town.npcInteract("charsi");
-
-	let imbueItem = Misc.checkItemsForImbueing();
-	if (imbueItem) {
-		Quest.useImbueQuest(imbueItem);
-		Item.autoEquip();
-	}
-
-	// Drop wirts leg at startup
-	let leg = me.getItem(sdk.items.quest.WirtsLeg);
-	if (leg) {
-		!me.inTown && Town.goToTown();
-		leg.isInStash && Town.openStash() && Storage.Inventory.MoveTo(leg) && delay(300);
-		getUIFlag(sdk.uiflags.Stash) && me.cancel();
-		leg.drop();
-	}
-
-	// Act 2
-	// Radament skill book
-	let book = me.getItem(sdk.items.quest.BookofSkill);
-	if (book) {
-		book.isInStash && Town.openStash() && delay(300);
-		book.use() && Misc.poll(() => {
-			if (me.getStat(sdk.stats.NewSkills) > 0) {
-				console.log("ÿc8Kolbot-SoloPlayÿc0: used Radament skill book");
-				AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
-				return true;
-			}
-			return false;
-		}, 1000, 100);
-	}
-
-	// Act 3
-	// Figurine -> Golden Bird
-	if (me.getItem(sdk.items.quest.AJadeFigurine)) {
-		myPrint("starting jade figurine");
-		Town.goToTown(3) && Town.npcInteract("meshif");
-	}
-
-	// Golden Bird -> Ashes
-	if (me.getItem(sdk.items.quest.TheGoldenBird)) {
-		Town.goToTown(3) && Town.npcInteract("alkor");
-	}
-
-	// Potion of life
-	let pol = me.getItem(sdk.items.quest.PotofLife);
-	if (pol) {
-		pol.isInStash && Town.openStash() && delay(300);
-		pol.use() && console.log("ÿc8Kolbot-SoloPlayÿc0: used potion of life");
-	}
-
-	// LamEssen's Tome
-	let tome = me.getItem(sdk.items.quest.LamEsensTome);
-	if (tome) {
-		!me.inTown && Town.goToTown(3);
-		tome.isInStash && Town.openStash() && Storage.Inventory.MoveTo(tome) && delay(300);
-		Town.npcInteract("alkor") && delay(300);
-		me.getStat(sdk.stats.StatPts) > 0 && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
-		console.log("ÿc8Kolbot-SoloPlayÿc0: LamEssen Tome completed");
-	}
-
-	// Remove Khalim's Will if quest not completed and restarting run.
-	let kw = me.getItem(sdk.items.quest.KhalimsWill);
-	if (kw) {
-		if (Item.getEquippedItem(sdk.body.RightArm).classid === sdk.items.quest.KhalimsWill) {
-			Town.clearInventory();
-			delay(500);
-			Quest.stashItem(sdk.items.quest.KhalimsWill);
-			console.log("ÿc8Kolbot-SoloPlayÿc0: removed khalims will");
-			Item.autoEquip();
-		}
-	}
-
-	// Killed council but haven't talked to cain
-	if (!Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, sdk.quest.states.Completed) && Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, 4)) {
-		me.overhead("Finishing Travincal by talking to cain");
-		Town.goToTown(3) && Town.npcInteract("cain") && delay(300);
-		me.cancel();
-	}
-
-	// Act 4
-	// Drop hellforge hammer and soulstone at startup
-	let hammer = me.getItem(sdk.items.quest.HellForgeHammer);
-	if (hammer) {
-		!me.inTown && Town.goToTown();
-		hammer.isInStash && Town.openStash() && Storage.Inventory.MoveTo(hammer) && delay(300);
-		getUIFlag(sdk.uiflags.Stash) && me.cancel();
-		hammer.drop();
-	}
-
-	let soulstone = me.getItem(sdk.items.quest.MephistosSoulstone);
-	if (soulstone) {
-		!me.inTown && Town.goToTown();
-		soulstone.isInStash && Town.openStash() && Storage.Inventory.MoveTo(soulstone) && delay(300);
-		getUIFlag(sdk.uiflags.Stash) && me.cancel();
-		soulstone.drop();
-	}
-
-	// Act 5
-	let socketItem = Misc.checkItemsForSocketing();
-	!!socketItem && Quest.useSocketQuest(socketItem);
-
-	// Scroll of resistance
-	let sor = me.getItem(sdk.items.quest.ScrollofResistance);
-	if (sor) {
-		sor.isInStash && this.openStash() && delay(300);
-		sor.use() && console.log("ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance");
-	}
-
-	Misc.checkSocketables();
-	
-	Town.heal();
-	me.cancelUIFlags();
-	
-	return true;
-};
-
 new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
 	let objDrank = orignal(type, false);
 	
@@ -1137,33 +986,28 @@ Town.stash = function (stashGold = true) {
 	if (!this.needStash()) return true;
 	me.cancel();
 
-	let result = false;
 	let items = Storage.Inventory.Compare(Config.Inventory);
 
 	if (items) {
 		for (let i = 0; i < items.length; i += 1) {
-			if (this.canStash(items[i])) {
-				const pickResult = Pickit.checkItem(items[i]).result;
-				switch (true) {
-				case pickResult > Pickit.Result.UNWANTED && pickResult < Pickit.Result.TRASH:
-				case Cubing.keepItem(items[i]):
-				case Runewords.keepItem(items[i]):
-				case CraftingSystem.keepItem(items[i]):
-				case SoloWants.keepItem(items[i]):
-				case AutoEquip.wanted(items[i]) && pickResult === Pickit.Result.UNWANTED: // wanted but can't use yet
-				case !items[i].sellable: // quest/essences/keys/ect
-					result = true;
-
-					break;
-				default:
-					result = false;
-
-					break;
-				}
+			const item = items[i];
+			if (this.canStash(item)) {
+				const pickResult = Pickit.checkItem(item).result;
+				let result = (() => {
+					switch (true) {
+					case pickResult > Pickit.Result.UNWANTED && pickResult < Pickit.Result.TRASH:
+					case Town.systemsKeep(item):
+					case AutoEquip.wanted(item) && pickResult === Pickit.Result.UNWANTED: // wanted but can't use yet
+					case !item.sellable: // quest/essences/keys/ect
+						return true;
+					default:
+						return false;
+					}
+				})();
 
 				if (result) {
-					Misc.itemLogger("Stashed", items[i]);
-					Storage.Stash.MoveTo(items[i]);
+					Misc.itemLogger("Stashed", item);
+					Storage.Stash.MoveTo(item);
 				}
 			}
 		}
@@ -1323,9 +1167,7 @@ Town.clearInventory = function () {
 	let items = (Storage.Inventory.Compare(Config.Inventory) || [])
 		.filter(function (item) {
 			if (!item) return false;
-			if (ignoreTypes.indexOf(item.itemType) === -1 && item.sellable
-				&& !AutoEquip.wanted(item) && !SoloWants.keepItem(item)
-				&& !Cubing.keepItem(item) && !Runewords.keepItem(item) && !CraftingSystem.keepItem(item)) {
+			if (ignoreTypes.indexOf(item.itemType) === -1 && item.sellable && !Town.systemsKeep(item)) {
 				return true;
 			}
 			return false;
@@ -1340,8 +1182,7 @@ Town.clearInventory = function () {
 		let result = Pickit.checkItem(item).result;
 
 		if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].indexOf(result) === -1) {
-			if ((item.isBaseType && item.sockets > 0)
-				|| (classItemType(item) && item.normal && item.sockets === 0)) {
+			if ((item.isBaseType && item.sockets > 0) || (classItemType(item) && item.normal && item.sockets === 0)) {
 				if (!Town.betterThanStashed(item) && !Town.betterBaseThanWearing(item, Developer.debugging.junkCheck)) {
 					result = 4;
 				}
@@ -1349,7 +1190,6 @@ Town.clearInventory = function () {
 		}
 
 		!item.identified && (result = -1);
-
 		[Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(result) && sell.push(item);
 	});
 
@@ -1848,99 +1688,60 @@ Town.betterThanStashed = function (base) {
 	return false;
 };
 
-Town.systemsKeep = function (item) {
-	return (AutoEquip.wanted(item) || Cubing.keepItem(item) || Runewords.keepItem(item) || CraftingSystem.keepItem(item) || SoloWants.keepItem(item));
-};
-
 Town.clearJunk = function () {
-	let junkItems = me.findItems(-1, sdk.items.mode.inStorage);
-	let [totalJunk, junkToSell, junkToDrop] = [[], [], []];
+	let junkItems = me.getItemsEx().filter(i => i.isInStorage && !Town.ignoredItemTypes.includes(i.itemType) && i.sellable);
+	if (!junkItems.length) return false;
 
-	if (!junkItems) return false;
+	let [totalJunk, junkToSell, junkToDrop] = [[], [], []];
+	const getToItem = (str = "", item = null) => {
+		if (!getUIFlag(sdk.uiflags.Stash) && item.isInStash && !Town.openStash()) {
+			throw new Error("ÿc9" + str + "ÿc0 :: Failed to get " + item.name + " from stash");
+		}
+		if (item.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9" + str + "ÿc0 :: Failed to remove " + item.name + " from cube");
+		return true;
+	};
 
 	while (junkItems.length > 0) {
 		const junk = junkItems.shift();
 		const pickitResult = Pickit.checkItem(junk).result;
 
 		try {
-			if (junk.isInStorage && ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(pickitResult))
-				&& !Town.systemsKeep(junk)
-				&& !Town.ignoredItemTypes.includes(junk.itemType) // Don't drop tomes, keys or potions
-				&& junk.sellable // Don't try to sell/drop quest-items/keys/essences/tokens/organs
-			) {
+			if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(pickitResult) && !Town.systemsKeep(junk)) {
 				console.log("ÿc9JunkCheckÿc0 :: Junk: " + junk.name + " Pickit Result: " + pickitResult);
-
-				if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
-					throw new Error("ÿc9JunkCheckÿc0 :: Failed to get " + junk.name + " from stash");
-				}
-
-				if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9JunkCheckÿc0 :: Failed to remove " + junk.name + " from cube");
-
-				totalJunk.push(junk);
+				getToItem("JunkCheck", junk) && totalJunk.push(junk);
 
 				continue;
 			}
 
-			if (junk.isInStorage && junk.sellable) {
-				if (pickitResult !== Pickit.Result.WANTED) {
-					if (!junk.identified && !Cubing.keepItem(junk) && !CraftingSystem.keepItem(junk) && junk.quality < sdk.items.quality.Set) {
-						console.log("ÿc9UnidJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+			if (pickitResult !== Pickit.Result.WANTED) {
+				if (!junk.identified && !Cubing.keepItem(junk) && !CraftingSystem.keepItem(junk) && junk.quality < sdk.items.quality.Set) {
+					console.log("ÿc9UnidJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+					getToItem("UnidJunkCheck", junk) && totalJunk.push(junk);
 
-						if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
-							throw new Error("ÿc9UnidJunkCheckÿc0 :: Failed to get " + junk.name + " from stash");
-						}
-
-						if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9UnidJunkCheckÿc0 :: Failed to remove " + junk.name + " from cube");
-
-						totalJunk.push(junk);
-
-						continue;
-					}
-
+					continue;
 				}
+			}
 
-				if (junk.isRuneword && !AutoEquip.wanted(junk)) {
-					console.log("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+			if (junk.isRuneword && !AutoEquip.wanted(junk)) {
+				console.log("ÿc9AutoEquipJunkCheckÿc0 :: Junk: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+				getToItem("AutoEquipJunkCheck", junk) && totalJunk.push(junk);
+					
+				continue;
+			}
 
-					if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
-						throw new Error("ÿc9AutoEquipJunkCheckÿc0 :: Failed to get " + junk.name + " from stash");
-					}
-
-					if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9AutoEquipJunkCheckÿc0 :: Failed to remove " + junk.name + " from cube");
-
-					totalJunk.push(junk);
+			if (junk.isBaseType) {
+				if (!Town.betterThanStashed(junk)) {
+					console.log("ÿc9BetterThanStashedCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+					getToItem("BetterThanStashedCheck", junk) && totalJunk.push(junk);
 
 					continue;
 				}
 
-				if (junk.isBaseType) {
-					if (!Town.betterThanStashed(junk)) {
-						console.log("ÿc9BetterThanStashedCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
-						
-						if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
-							throw new Error("ÿc9WorseBaseThanStashedCheckÿc0 :: Failed to get " + junk.name + " from stash");
-						}
+				if (!Town.betterBaseThanWearing(junk, Developer.debugging.junkCheck)) {
+					console.log("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
+					getToItem("BetterThanWearingCheck", junk) && totalJunk.push(junk);
 
-						if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9WorseBaseThanStashedCheckÿc0 :: Failed to remove " + junk.name + " from cube");
-
-						totalJunk.push(junk);
-
-						continue;
-					}
-
-					if (!this.betterBaseThanWearing(junk, Developer.debugging.junkCheck)) {
-						console.log("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
-
-						if (!getUIFlag(sdk.uiflags.Stash) && junk.isInStash && !Town.openStash()) {
-							throw new Error("ÿc9BetterThanWearingCheckÿc0 :: Failed to get " + junk.name + " from stash");
-						}
-
-						if (junk.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9BetterThanWearingCheckÿc0 :: Failed to remove " + junk.name + " from cube");
-
-						totalJunk.push(junk);
-
-						continue;
-					}
+					continue;
 				}
 			}
 		} catch (e) {
@@ -1989,54 +1790,36 @@ Town.clearJunk = function () {
 };
 
 Town.needRepair = function () {
-	let quiver, quantity, inventoryQuiver;
+	let bowCheck = Attack.usingBow();
 	let repairAction = [];
 	let canAfford = me.gold >= me.getRepairCost();
 
-	// Arrow/Bolt check
-	let bowCheck = Attack.usingBow();
-
 	if (bowCheck) {
-		switch (bowCheck) {
-		case "bow":
-			quiver = me.getItem("aqv", sdk.items.mode.Equipped); // Equipped arrow quiver
-			inventoryQuiver = me.getItem("aqv");
-
-			break;
-		case "crossbow":
-			quiver = me.getItem("cqv", sdk.items.mode.Equipped); // Equipped bolt quiver
-			inventoryQuiver = me.getItem("cqv");
-
-			break;
-		}
-
-		if (!quiver) { // Out of arrows/bolts
-			if (inventoryQuiver) {
-				Item.equip(inventoryQuiver, 5);
-			} else {
-				repairAction.push("buyQuiver"); // equip
-				repairAction.push("buyQuiver"); // inventory
+		let [quiver, inventoryQuiver] = (() => {
+			switch (bowCheck) {
+			case "crossbow":
+				return [me.getItem("cqv", sdk.items.mode.Equipped), me.getItem("cqv")];
+			default:
+			case "bow":
+				return [me.getItem("aqv", sdk.items.mode.Equipped), me.getItem("aqv")];
 			}
+		})();
+
+		// Out of arrows/bolts
+		if (!quiver) {
+			inventoryQuiver ? Item.equip(inventoryQuiver, 5) : repairAction.push("buyQuiver") && repairAction.push("buyQuiver");
 		} else {
-			quantity = quiver.getStat(sdk.stats.Quantity);
+			let quantity = quiver.getStat(sdk.stats.Quantity);
 
 			if (typeof quantity === "number" && quantity * 100 / getBaseStat("items", quiver.classid, "maxstack") <= Config.RepairPercent) {
-				if (inventoryQuiver) {
-					Item.equip(inventoryQuiver, 5);
-				} else {
-					repairAction.push("buyQuiver"); // equip
-					repairAction.push("buyQuiver"); // inventory
-				}
+				inventoryQuiver ? Item.equip(inventoryQuiver, 5) : repairAction.push("buyQuiver") && repairAction.push("buyQuiver");
 			}
 		}
 	}
 
-	if (canAfford) { // Repair durability/quantity/charges
-		if (this.getItemsForRepair(Config.RepairPercent, true).length > 0) {
-			repairAction.push("repair");
-		}
-	} else {
-		//console.log("ÿc4Town: ÿc1Can't afford repairs.");
+	// Repair durability/quantity/charges
+	if (canAfford && this.getItemsForRepair(Config.RepairPercent, true).length > 0) {
+		repairAction.push("repair");
 	}
 
 	return repairAction;

@@ -1699,4 +1699,10 @@ const AutoEquip = {
 			}
 		}
 	},
+
+	runAutoEquip: function () {
+		Item.autoEquip();
+		Item.autoEquipSecondary();
+		Item.autoEquipCharms();
+	}
 };
