@@ -1695,6 +1695,13 @@ Town.betterThanStashed = function (base) {
 	const generalScoreSort = (a, b) => {
 		let [aScore, bScore] = [generalScore(a), generalScore(b)];
 		if (aScore !== bScore) return aScore - bScore;
+		let [aSoc, bSoc] = [a.sockets, b.sockets];
+		if (aSoc !== bSoc) return aSoc - bSoc;
+		if (a.getItemType() !== "Weapon" && aScore === bScore) {
+			let [aDef, bDef] = [a.getStatEx(sdk.stats.Defense), b.getStatEx(sdk.stats.Defense)];
+			if (aDef !== bDef) return aDef - bDef;
+			if (aDef === bDef) a.getStatEx(sdk.stats.ArmorPercent) - b.getStatEx(sdk.stats.ArmorPercent);
+		}
 		return a.sockets - b.sockets;
 	};
 
@@ -1702,15 +1709,6 @@ Town.betterThanStashed = function (base) {
 		let [aDmg, bDmg] = [dmgScore(a), dmgScore(b)];
 		if (aDmg.twoHandDmg !== bDmg.twoHandDmg) return aDmg.twoHandDmg - bDmg.twoHandDmg;
 		return aDmg.eDmg - bDmg.eDmg;
-	};
-
-	const generalScoreCheck = (base, itemToCheck) => {
-		let [gScoreBase, gScoreCheck] = [generalScore(base), generalScore(itemToCheck)];
-		console.log("ÿc9betterThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemToCheck));
-		if (gScoreBase > gScoreCheck || (gScoreBase === gScoreCheck && base.ilvl > itemToCheck.ilvl)) {
-			return true;
-		}
-		return false;
 	};
 
 	const defenseScoreCheck = (base, itemToCheck) => {
@@ -1731,6 +1729,14 @@ Town.betterThanStashed = function (base) {
 		case (me.assassin && !Check.currentBuild().caster && (gScoreBase === gScoreCheck && Item.getQuantityOwned(base) < 2)):
 			return true;
 		}
+		return false;
+	};
+
+	const generalScoreCheck = (base, itemToCheck) => {
+		let [gScoreBase, gScoreCheck] = [generalScore(base), generalScore(itemToCheck)];
+		console.log("ÿc9betterThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemToCheck));
+		if (gScoreBase > gScoreCheck) return true;
+		if (base.getItemType() === "Shield" && gScoreBase === gScoreCheck) return defenseScoreCheck(base, itemToCheck);
 		return false;
 	};
 

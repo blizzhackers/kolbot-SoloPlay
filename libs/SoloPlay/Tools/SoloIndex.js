@@ -5,7 +5,15 @@
 *
 */
 
+/**
+ * @todo if at anypoint after a script ends we are low gold,
+ *   check the available goldScripts and run one if we haven't already completed it
+ */
+
 const SoloIndex = {
+	doneList: [],
+	goldScripts: ["bishibosh", "tristram", "treehead", "countess"],
+
 	// this controls the order
 	scripts: [
 		// Act 1
@@ -45,15 +53,15 @@ const SoloIndex = {
 		},
 		"bishibosh": {
 			preReq: function () {
-				return false; // figure out if this would be good to run
 				// return me.normal && me.charlvl < 6;
+				return (me.charlvl > 10); // figure out if this would be good to run
 			},
 			skipIf: function () {
 				return me.sorceress;
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
-				return true;
+				return !Check.gold();
 			}
 		},
 		"bloodraven": {
@@ -87,7 +95,7 @@ const SoloIndex = {
 				switch (true) {
 				case (me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf())):
 				case (me.nightmare && (!me.tristram && me.charlvl < 43 || Check.brokeAf())):
-				case (me.hell && (!me.tristram && me.diffCompleted) || !this.skipIf()):
+				case (me.hell && ((!me.tristram && me.diffCompleted) || !this.skipIf())):
 					return true;
 				}
 				return false;
@@ -162,7 +170,7 @@ const SoloIndex = {
 		},
 		"boneash": {
 			preReq: function () {
-				return me.hell && me.classic && !me.diablo;
+				return ((me.hell && me.classic && !me.diablo) || !Check.gold());
 			},
 			shouldRun: function () {
 				if (!this.preReq()) return false;
@@ -242,6 +250,7 @@ const SoloIndex = {
 				if (!this.preReq()) return false;
 				switch (true) {
 				case (!me.radament):
+				case (me.normal && !Check.gold()):
 				case (me.hell && me.amazon && SetUp.currentBuild !== SetUp.finalBuild):
 				case (me.hell && me.sorceress && me.classic && !me.diablo):
 					return true;

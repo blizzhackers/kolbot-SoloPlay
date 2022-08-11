@@ -100,6 +100,7 @@ function SoloPlay () {
 				} catch (e) {
 					console.warn("ÿc8Kolbot-SoloPlayÿc0: ", (typeof e === "object" ? e.message : e));
 				} finally {
+					SoloIndex.doneList.push(scriptName);
 					Developer.logPerformance && Tracker.script(tick, scriptName, currentExp);
 					console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));
 					me.maxgametime += (getTickCount() - tick);

@@ -5,7 +5,7 @@
 *
 */
 
-function Bishibosh() {
+function bishibosh () {
 	Town.doChores();
 	Pather.useWaypoint(sdk.areas.ColdPlains);
 	Precast.doPrecast(true);
