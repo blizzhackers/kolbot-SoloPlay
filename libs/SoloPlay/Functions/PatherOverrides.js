@@ -62,9 +62,7 @@ NodeAction.killMonsters = function (arg = {}) {
 		}
 	}
 
-	if (settings.clearPath !== false) {
-		Attack.clear(sanityCheck ? settings.range : 15, settings.specType);
-	}
+	(settings.clearPath !== false) && Attack.clear(sanityCheck ? settings.range : 15, settings.specType);
 };
 
 NodeAction.popChests = function () {
@@ -81,9 +79,7 @@ Pather.forceRun = false;
 
 {
 	let coords = function () {
-		if (Array.isArray(this) && this.length > 1) {
-			return [this[0], this[1]];
-		}
+		if (Array.isArray(this) && this.length > 1) return [this[0], this[1]];
 
 		if (typeof this.x !== "undefined" && typeof this.y !== "undefined") {
 			return this instanceof PresetUnit && [this.roomx * 5 + this.x, this.roomy * 5 + this.y] || [this.x, this.y];
@@ -217,30 +213,22 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
 };
 
 Pather.changeAct = function () {
-	let npc, loc, act = me.act + 1;
-
-	switch (act) {
-	case 2:
-		npc = "Warriv";
-		loc = sdk.areas.LutGholein;
-
-		break;
-	case 3:
-		npc = "Meshif";
-		loc = sdk.areas.KurastDocktown;
-
-		break;
-	case 5:
-		npc = "Tyrael";
-		loc = sdk.areas.Harrogath;
-
-		break;
-	default:
-		return false;
-	}
+	let act = me.act + 1;
+	let [npc, loc] = (() => {
+		switch (act) {
+		case 2:
+			return ["Warriv", sdk.areas.LutGholein];
+		case 3:
+			return ["Meshif", sdk.areas.KurastDocktown];
+		case 5:
+			return ["Tyrael", sdk.areas.Harrogath];
+		default:
+			return ["", 0];
+		}
+	})();
+	if (!npc) return false;
 
 	!me.inTown && Town.goToTown();
-
 	let npcUnit = Town.npcInteract(npc);
 	let timeout = getTickCount() + 3000;
 	let pingDelay = me.getPingDelay();
@@ -288,11 +276,9 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 		returnSpotOnError: true
 	}, givenSettings);
 
-	let cleared = false;
-	let leaped = false;
-	let invalidCheck = false;
-	let node = {x: x, y: y};
 	let fail = 0;
+	let node = {x: x, y: y};
+	let [cleared, leaped, invalidCheck] = [false, false, false];
 
 	for (let i = 0; i < this.cancelFlags.length; i += 1) {
 		getUIFlag(this.cancelFlags[i]) && me.cancel();
@@ -334,8 +320,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
 
 				if (adjustedNode) {
-					node.x = adjustedNode[0];
-					node.y = adjustedNode[1];
+					[node.x, node.y] = [adjustedNode[0], adjustedNode[1]];
 					invalidCheck && (invalidCheck = false);
 				}
 				
@@ -350,13 +335,8 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 				if (!me.inTown) {
 					if (this.recursion) {
 						this.recursion = false;
-
 						NodeAction.go(settings.clearSettings);
-
-						if (getDistance(me, node.x, node.y) > 5) {
-							this.moveTo(node.x, node.y);
-						}
-
+						(getDistance(me, node.x, node.y) > 5) && this.moveTo(node.x, node.y);
 						this.recursion = true;
 					}
 
@@ -414,11 +394,9 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	// Abort if dead
 	if (me.dead) return false;
 
-	let cleared = false;
-	let leaped = false;
-	let invalidCheck = false;
-	let node = {x: x, y: y};
 	let fail = 0;
+	let node = {x: x, y: y};
+	let [cleared, leaped, invalidCheck] = [false, false, false];
 
 	for (let i = 0; i < this.cancelFlags.length; i += 1) {
 		getUIFlag(this.cancelFlags[i]) && me.cancel();
@@ -487,16 +465,11 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
 
 				if (adjustedNode) {
-					node.x = adjustedNode[0];
-					node.y = adjustedNode[1];
+					[node.x, node.y] = [adjustedNode[0], adjustedNode[1]];
 					invalidCheck && (invalidCheck = false);
 				}
 
-				if (annoyingArea) {
-					clearSettings.overrideConfig = true;
-					clearSettings.range = 5;
-				}
-
+				annoyingArea && ([clearSettings.overrideConfig, clearSettings.range] = [true, 5]);
 				retry <= 3 && !useTeleport && (retry = 15);
 			}
 
@@ -508,13 +481,10 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 				if (!me.inTown) {
 					if (this.recursion) {
 						this.recursion = false;
-
 						NodeAction.go(clearSettings);
-
-						if (getDistance(me, node.x, node.y) > 5) {
-							this.moveTo(node.x, node.y);
-						}
-
+						// need to determine if its worth going back to our orignal node (items maybe?)
+						// vs our current proximity to our next node
+						(getDistance(me, node.x, node.y) > 5) && this.moveTo(node.x, node.y);
 						this.recursion = true;
 					}
 
@@ -581,13 +551,11 @@ Pather.moveToLoc = function (target, givenSettings) {
 	}, givenSettings);
 
 	// convert presetunit to x,y target
-	if (target instanceof PresetUnit) {
-		target = { x: target.roomx * 5 + target.x, y: target.roomy * 5 + target.y };
-	}
+	(target instanceof PresetUnit) && (target = { x: target.roomx * 5 + target.x, y: target.roomy * 5 + target.y });
 
-	let adjustedNode, cleared, leaped = false;
-	let node = {x: target.x, y: target.y};
 	let fail = 0;
+	let node = {x: target.x, y: target.y};
+	let [cleared, leaped] = [false, false];
 
 	for (let i = 0; i < this.cancelFlags.length; i += 1) {
 		if (getUIFlag(this.cancelFlags[i])) me.cancel();
@@ -623,12 +591,8 @@ Pather.moveToLoc = function (target, givenSettings) {
 
 		if (getDistance(me, node) > 2) {
 			if (annoyingArea) {
-				adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
-
-				if (adjustedNode) {
-					node.x = adjustedNode[0];
-					node.y = adjustedNode[1];
-				}
+				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
+				(adjustedNode) && ([node.x, node.y] = [adjustedNode[0], adjustedNode[1]]);
 			}
 
 			if (useTeleport && tpMana <= me.mp
@@ -639,14 +603,9 @@ Pather.moveToLoc = function (target, givenSettings) {
 				if (!me.inTown) {
 					if (this.recursion) {
 						this.recursion = false;
-
 						// need to write a better clear function or change nodeaction
 						settings.allowClearing && NodeAction.go({clearPath: true});
-
-						if (getDistance(me, node.x, node.y) > 5) {
-							this.moveToLoc(target, settings);
-						}
-
+						(getDistance(me, node.x, node.y) > 5) && this.moveToLoc(target, settings);
 						this.recursion = true;
 					}
 
