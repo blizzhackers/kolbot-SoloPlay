@@ -1213,6 +1213,7 @@ Town.clearInventory = function () {
 };
 
 const baseSkillsScore = (item, buildInfo) => {
+	buildInfo === undefined && (buildInfo = Check.currentBuild());
 	let generalScore = 0;
 	let selectedWeights = [30, 20];
 	let selectedSkills = [buildInfo.wantedSkills, buildInfo.usefulSkills];
@@ -1236,7 +1237,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 	let name = "";
 	let itemsResists, baseResists, itemsTotalDmg, baseDmg, itemsDefense, baseDefense;
 	let baseSkillsTier, equippedSkillsTier;
-	let result = true, preSocketCheck = false;
+	let result = false, preSocketCheck = false;
 	let bodyLoc = Item.getBodyLoc(base);
 
 	const checkNoSockets = (item) => [
@@ -1276,7 +1277,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 	let items = me.getItemsEx().filter(i => i.isEquipped && bodyLoc.includes(i.bodylocation));
 
 	for (let i = 0; i < bodyLoc.length; i++) {
-		let equippedItem = items.find(i => i.bodylocation === bodyLoc[i]);
+		let equippedItem = items.find(item => item.bodylocation === bodyLoc[i]);
 		if (!equippedItem || !equippedItem.runeword) continue;
 		name = getLocaleString(equippedItem.prefixnum);
 
@@ -1335,10 +1336,10 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 					verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
 					if (equippedSkillsTier !== baseSkillsTier) {
 						// Might need to add some type of std deviation, having the skills is probably better but maybe not if in hell with a 50 defense helm
-						if (baseSkillsTier < equippedSkillsTier) return true;
+						return (baseSkillsTier > equippedSkillsTier);
 					} else if (baseDefense !== itemsDefense) {
 						verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(Lore) BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
-						if (baseDefense > itemsDefense) return true;
+						return (baseDefense > itemsDefense);
 					}
 				} else {
 					if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
