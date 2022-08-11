@@ -10,7 +10,7 @@ includeIfNotIncluded("common/Attacks/Assassin.js");
 ClassAttack.mindBlast = function (unit) {
 	if (!unit || !Skill.canUse(sdk.skills.MindBlast)) return;
 	// Main bosses
-	if (Attack.mainBosses.includes(unit.classid)) return;
+	if (unit.isPrimeEvil) return;
 	// Duriel's Lair, Arreat Summit, Worldstone Chamber
 	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].includes(me.area)) return;
 
@@ -176,7 +176,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	// Handle Switch casting
 	if (index === 1 && !unit.dead) {
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-			&& unit.curseable && (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, sdk.collision.Ranged)) {
+			&& unit.curseable && (gold > 500000 && !unit.isBoss) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}

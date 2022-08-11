@@ -72,34 +72,26 @@ MuleLogger.logEquippedItems = function () {
 	let realm = me.realm || "Single Player";
 	let finalString = "";
 	let items = me.getItemsEx().filter(item => item.isEquipped || item.isEquippedCharm || (item.isInStorage && item.itemType === sdk.items.type.Rune));
+	if (!items || !items.length) return;
+	items.sort((a, b) => b.itemType - a.itemType);
 
 	if (!FileTools.exists("mules/" + realm)) {
 		folder = dopen("mules");
-
 		folder.create(realm);
 	}
 
 	if (!FileTools.exists("mules/" + realm + "/" + "Kolbot-SoloPlay")) {
 		folder = dopen("mules/" + realm);
-
 		folder.create("Kolbot-SoloPlay");
 	}
 
 	if (!FileTools.exists("mules/" + realm + "/" + "Kolbot-SoloPlay/" + me.account)) {
 		folder = dopen("mules/" + realm + "/Kolbot-SoloPlay");
-
 		folder.create(me.account);
 	}
 
-	if (!items || !items.length) {
-		return;
-	}
-
-	items.sort((a, b) => b.itemType - a.itemType);
-
 	for (let i = 0; i < items.length; i += 1) {
 		parsedItem = this.logItem(items[i], true, "Player");
-
 		// Always put name on Char Viewer items
 		!parsedItem.header && (parsedItem.header = (me.account || "Single Player") + " / " + me.name);
 		// Remove itemtype_ prefix from the name
@@ -107,11 +99,7 @@ MuleLogger.logEquippedItems = function () {
 
 		switch (items[i].mode) {
 		case sdk.items.mode.inStorage:
-			if (items[i].isInInventory && items[i].isEquippedCharm) {
-				parsedItem.title += " (equipped charm)";
-			} else {
-				parsedItem.title += " (in stash)";
-			}
+			parsedItem.title += ((items[i].isInInventory && items[i].isEquippedCharm) ? " (equipped charm)" : " (in stash)");
 
 			break;
 		case sdk.items.mode.Equipped:

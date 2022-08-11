@@ -825,55 +825,33 @@ Item.getEquippedItemMerc = function (bodyLoc = -1) {
 };
 
 Item.getBodyLocMerc = function (item) {
-	let bodyLoc = false, mercenary = Mercenary.getMercFix();
+	let mercenary = Mercenary.getMercFix();
 
 	// dont have merc or he is dead
 	if (!mercenary) return false;
 
-	switch (item.itemType) {
-	case sdk.items.type.Shield:
-		if (mercenary.classid === sdk.mercs.IronWolf) {
-			bodyLoc = sdk.body.LeftArm;
+	let bodyLoc = (() => {
+		switch (item.itemType) {
+		case sdk.items.type.Shield:
+			return (mercenary.classid === sdk.mercs.IronWolf ? sdk.body.LeftArm : []);
+		case sdk.items.type.Armor:
+			return sdk.body.Armor;
+		case sdk.items.type.Helm:
+		case sdk.items.type.Circlet:
+			return sdk.body.Head;
+		case sdk.items.type.PrimalHelm:
+			return (mercenary.classid === sdk.mercs.A5Barb ? sdk.body.Head : []);
+		case sdk.items.type.Bow:
+			return (mercenary.classid === sdk.mercs.Rogue ? sdk.body.RightArm : []);
+		case sdk.items.type.Spear:
+		case sdk.items.type.Polearm:
+			return (mercenary.classid === sdk.mercs.Guard ? sdk.body.RightArm : []);
+		case sdk.items.type.Sword:
+			return ([sdk.mercs.IronWolf, sdk.mercs.A5Barb].includes(mercenary.classid) ? sdk.body.RightArm : []);
+		default:
+			return false;
 		}
-
-		break;
-	case sdk.items.type.Armor:
-		bodyLoc = sdk.body.Armor;
-
-		break;
-	case sdk.items.type.Helm:
-	case sdk.items.type.Circlet:
-		bodyLoc = sdk.body.Head;
-
-		break;
-	case sdk.items.type.PrimalHelm:
-		if (mercenary.classid === sdk.mercs.A5Barb) {
-			bodyLoc = sdk.body.Head;
-		}
-		
-		break;
-	case sdk.items.type.Bow:
-		if (mercenary.classid === sdk.mercs.Rogue) {
-			bodyLoc = sdk.body.RightArm;
-		}
-
-		break;
-	case sdk.items.type.Spear:
-	case sdk.items.type.Polearm:
-		if (mercenary.classid === sdk.mercs.Guard) {
-			bodyLoc = sdk.body.RightArm;
-		}
-
-		break;
-	case sdk.items.type.Sword:
-		if (mercenary.classid === sdk.mercs.IronWolf || mercenary.classid === sdk.mercs.A5Barb) {
-			bodyLoc = sdk.body.RightArm;
-		}
-
-		break;
-	default:
-		return false;
-	}
+	})();
 
 	return Array.isArray(bodyLoc) ? bodyLoc : [bodyLoc];
 };

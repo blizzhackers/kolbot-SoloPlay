@@ -97,7 +97,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	if (useDecoy) {
 		// Act Bosses or Immune to my main boss skill
-		if ((Attack.mainBosses.includes(unit.classid)) || !Attack.checkResist(unit, Config.AttackSkill[1])) {
+		if ((unit.isPrimeEvil) || !Attack.checkResist(unit, Config.AttackSkill[1])) {
 			Misc.poll(() => !me.skillDelay, 1000, 40);
 
 			// Don't use decoy if within melee distance

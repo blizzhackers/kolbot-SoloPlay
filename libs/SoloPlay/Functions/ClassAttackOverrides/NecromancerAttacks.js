@@ -189,7 +189,7 @@ ClassAttack.doAttack = function (unit) {
 	if (me.expansion && index === 1 && !unit.dead) {
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
 			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-			&& unit.curseable && (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, sdk.collision.Ranged)) {
+			&& unit.curseable && (gold > 500000 && !unit.isBoss) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}

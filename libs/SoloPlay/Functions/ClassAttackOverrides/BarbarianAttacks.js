@@ -52,7 +52,7 @@ ClassAttack.tauntMonsters = function (unit, attackSkill, data) {
 	// Can't taunt Main bosses or MinionsofDestruction
 	if (!Skill.canUse(sdk.skills.Taunt) || !data) return;
 	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].includes(me.area)) return;
-	if (Attack.mainBosses.includes(unit.classid) || unit.classid === sdk.monsters.ListerTheTormenter) return;
+	if (unit.isPrimeEvil || unit.classid === sdk.monsters.ListerTheTormenter) return;
 
 	let range = (!me.inArea(sdk.areas.ThroneofDestruction) ? 15 : 30);
 	let rangedMobsClassIDs = [
@@ -137,7 +137,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 	if (me.expansion && index === 1 && !unit.dead) {
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && unit.curseable &&
-			(gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, sdk.collision.Ranged)) {
+			(gold > 500000 && !unit.isBoss) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}

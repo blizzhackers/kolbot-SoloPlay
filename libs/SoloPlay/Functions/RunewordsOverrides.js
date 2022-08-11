@@ -5,7 +5,7 @@
 *
 */
 
-if (!isIncluded("common/Runewords.js")) { include("common/Runewords.js"); }
+!includeIfNotIncluded("common/Runewords.js");
 
 // Don't use ladder-only on NL
 Runeword.Brand = (me.ladder || Developer.addLadderRW) ? [sdk.items.runes.Jah, sdk.items.runes.Lo, sdk.items.runes.Mal, sdk.items.runes.Gul] : false; // Jah + Lo + Mal + Gul

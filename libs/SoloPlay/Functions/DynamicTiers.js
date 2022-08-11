@@ -117,19 +117,9 @@ const mercscore = function (item) {
 		mercRating += item.getStatEx(sdk.stats.SkillOnHit, 5631) * mercWeights.CTCOSDECREP; // add CTC decrepify on strikng (magic items)
 	}
 
-	let rwBase;
-
 	for (let x = 0; x < Config.Runewords.length; x += 1) {
-		let sockets = Config.Runewords[x][0].length;
-		let baseCID = Config.Runewords[x][1];
-
-		if (item.classid === baseCID && item.quality < sdk.items.quality.Magic && item.sockets === sockets && !item.isRuneword) {
-			rwBase = true;
-		}
-	}
-
-	if (rwBase) {
-		mercRating = -1;
+		let [sockets, baseCID] = [Config.Runewords[x][0].length, Config.Runewords[x][1]];
+		if (item.classid === baseCID && item.isBaseType && item.sockets === sockets && !item.isRuneword) return -1;
 	}
 
 	return mercRating;
@@ -368,46 +358,32 @@ const tierscore = function (item, bodyloc) {
 	};
 
 	this.resistScore = function (item) {
+		let itembodyloc = Item.getBodyLoc(item);
+		if (!itembodyloc) return 0;
+		bodyloc === undefined && (bodyloc = itembodyloc.last()); // extract bodyloc from array
+
 		let resistRating = 0;
 		// current total resists
-		let currFR = me.fireRes;
-		let currCR = me.coldRes;
-		let currLR = me.lightRes;
-		let currPR = me.poisonRes;
-		// get item body location
-		let itembodyloc = Item.getBodyLoc(item);
-
-		if (!itembodyloc) return resistRating;
-
-		bodyloc === undefined && (bodyloc = itembodyloc.last()); // extract bodyloc from array
+		let [currFR, currCR, currLR, currPR] = [me.fireRes, me.coldRes, me.lightRes, me.poisonRes];
 		// get item resists stats from olditem equipped on body location
-		let equippedItem = me.getItemsEx().filter((equipped) => equipped.isEquipped && equipped.bodylocation === bodyloc).first();
-
-		let olditemFR = !!equippedItem ? equippedItem.getStatEx(sdk.stats.FireResist) : 0; // equipped fire resist
-		let olditemCR = !!equippedItem ? equippedItem.getStatEx(sdk.stats.ColdResist) : 0; // equipped cold resist
-		let olditemLR = !!equippedItem ? equippedItem.getStatEx(sdk.stats.LightResist) : 0; // equipped lite resist
-		let olditemPR = !!equippedItem ? equippedItem.getStatEx(sdk.stats.PoisonResist) : 0; // equipped poison resist
+		let eqItem = me.getItemsEx().filter(equipped => equipped.isEquipped && equipped.bodylocation === bodyloc).first();
+		let [olditemFR, olditemCR, olditemLR, olditemPR] = [0, 0, 0, 0];
+		if (eqItem) {
+			// equipped resists
+			[olditemFR, olditemCR] = [eqItem.getStatEx(sdk.stats.FireResist), eqItem.getStatEx(sdk.stats.ColdResist)];
+			[olditemLR, olditemPR] = [eqItem.getStatEx(sdk.stats.LightResist), eqItem.getStatEx(sdk.stats.PoisonResist)];
+		}
 		// subtract olditem resists from current total resists
-		let baseFR = currFR - olditemFR;
-		let baseCR = currCR - olditemCR;
-		let baseLR = currLR - olditemLR;
-		let basePR = currPR - olditemPR;
+		let [baseFR, baseCR, baseLR, basePR] = [(currFR - olditemFR), (currCR - olditemCR), (currLR - olditemLR), (currPR - olditemPR)];
 		// if baseRes < max resists give score value upto max resists reached
 		let maxRes = me.expansion ? 175 : 125;
-		let FRlimit = Math.max(maxRes - baseFR, 0);
-		let CRlimit = Math.max(maxRes - baseCR, 0);
-		let LRlimit = Math.max(maxRes - baseLR, 0);
-		let PRlimit = Math.max(maxRes - basePR, 0);
+		let [FRlimit, CRlimit, LRlimit, PRlimit] = [Math.max(maxRes - baseFR, 0), Math.max(maxRes - baseCR, 0), Math.max(maxRes - baseLR, 0), Math.max(maxRes - basePR, 0)];
 		// get new item stats
-		let newitemFR = Math.max(item.getStatEx(sdk.stats.FireResist), 0); // fire resist
-		let newitemCR = Math.max(item.getStatEx(sdk.stats.ColdResist), 0); // cold resist
-		let newitemLR = Math.max(item.getStatEx(sdk.stats.LightResist), 0); // lite resist
-		let newitemPR = Math.max(item.getStatEx(sdk.stats.PoisonResist), 0); // poison resist
+		let [newitemFR, newitemCR] = [Math.max(item.getStatEx(sdk.stats.FireResist), 0), Math.max(item.getStatEx(sdk.stats.ColdResist), 0)];
+		let [newitemLR, newitemPR] = [Math.max(item.getStatEx(sdk.stats.LightResist), 0), Math.max(item.getStatEx(sdk.stats.PoisonResist), 0)];
 		// newitemRes upto reslimit
-		let effectiveFR = Math.min(newitemFR, FRlimit);
-		let effectiveCR = Math.min(newitemCR, CRlimit);
-		let effectiveLR = Math.min(newitemLR, LRlimit);
-		let effectivePR = Math.min(newitemPR, PRlimit);
+		let [effectiveFR, effectiveCR] = [Math.min(newitemFR, FRlimit), Math.min(newitemCR, CRlimit)];
+		let [effectiveLR, effectivePR] = [Math.min(newitemLR, LRlimit), Math.min(newitemPR, PRlimit)];
 		// sum resistRatings
 		resistRating += effectiveFR * tierWeights.resistWeights.FR; // add fireresist
 		resistRating += effectiveCR * tierWeights.resistWeights.CR; // add coldresist
@@ -418,7 +394,7 @@ const tierscore = function (item, bodyloc) {
 		resistRating += (item.getStatEx(sdk.stats.MaxLightResist) * tierWeights.resistWeights.MAXLR);
 		resistRating += (item.getStatEx(sdk.stats.MaxColdResist) * tierWeights.resistWeights.MAXCR);
 		resistRating += (item.getStatEx(sdk.stats.MaxPoisonResist) * tierWeights.resistWeights.MAXPR);
-
+		// sum absorb and magic/damage reduction
 		resistRating += (item.getStatEx(sdk.stats.AbsorbFirePercent) + item.getStatEx(sdk.stats.AbsorbLightPercent) + item.getStatEx(sdk.stats.AbsorbMagicPercent) + item.getStatEx(sdk.stats.AbsorbColdPercent)) * tierWeights.resistWeights.ABS; // add absorb damage
 		resistRating += item.getStatEx(sdk.stats.NormalDamageReduction) * tierWeights.resistWeights.DR / 2; // add integer damage resist
 		resistRating += item.getStatEx(sdk.stats.DamageResist) * tierWeights.resistWeights.DR * 2; // add damage resist %
@@ -429,8 +405,8 @@ const tierscore = function (item, bodyloc) {
 	};
 
 	this.buildScore = function (item) {
-		let buildWeights = buildInfo.caster ? tierWeights.casterWeights : tierWeights.meleeWeights;
 		let buildRating = 0;
+		let buildWeights = buildInfo.caster ? tierWeights.casterWeights : tierWeights.meleeWeights;
 
 		me.amazon && item.getStatEx(sdk.stats.ReplenishQuantity) && (buildRating += 50);
 		//!Pather.canTeleport() && item.getStatEx(sdk.stats.ChargedSkill, 3461) && (buildRating += 50);
@@ -446,8 +422,8 @@ const tierscore = function (item, bodyloc) {
 
 		// Melee Specific
 		if (!buildInfo.caster || Config.AttackSkill.includes(sdk.skills.Attack) || Config.LowManaSkill.includes(sdk.skills.Attack)) {
-			let eleDmgModifer = [sdk.items.type.Ring, sdk.items.type.Amulet].includes(item.itemType) ? 2 : 1;
 			let meleeRating = 0;
+			let eleDmgModifer = [sdk.items.type.Ring, sdk.items.type.Amulet].includes(item.itemType) ? 2 : 1;
 
 			item.getStatEx(sdk.stats.ReplenishDurability) && (meleeRating += 15);
 			item.getStatEx(sdk.stats.IgnoreTargetDefense) && (meleeRating += 50);
@@ -496,9 +472,7 @@ const tierscore = function (item, bodyloc) {
 		}
 
 		// Spirit Fix for barb
-		if (item.prefixnum === sdk.locale.items.Spirit && !buildInfo.caster) {
-			skillsRating -= 400;
-		}
+		(item.prefixnum === sdk.locale.items.Spirit && !buildInfo.caster) && (skillsRating -= 400);
 
 		return skillsRating;
 	};
@@ -607,22 +581,12 @@ const tierscore = function (item, bodyloc) {
 	tier += this.ctcScore(item);
 	tier += chargeditemscore(item, -1, buildInfo);
 
-	let rwBase; // don't score runeword base armors
-
 	for (let x = 0; x < Config.Runewords.length; x += 1) {
-		let sockets = Config.Runewords[x][0].length;
-		let baseCID = Config.Runewords[x][1];
-
-		if (item.classid === baseCID && item.quality < sdk.items.quality.Magic && item.sockets === sockets && !item.isRuneword && !item.getItem()) {
-			rwBase = true;
-		}
+		let [sockets, baseCID] = [Config.Runewords[x][0].length, Config.Runewords[x][1]];
+		if (item.classid === baseCID && item.isBaseType && item.sockets === sockets && !item.isRuneword && !item.getItemsEx().length) return -1;
 	}
 
-	if (rwBase || item.questItem) {
-		tier = -1;
-	}
-
-	return tier;
+	return item.questItem ? -1 : tier;
 };
 
 const secondaryscore = function (item) {
