@@ -221,7 +221,7 @@ function LoadConfig () {
 				);
 
 			// Heart of the Oak
-			if (!Check.haveItem("mace", "runeword", "Heart of the Oak")) {
+			if (!me.checkItem({name: sdk.locale.items.HeartoftheOak}).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
 			}
 
