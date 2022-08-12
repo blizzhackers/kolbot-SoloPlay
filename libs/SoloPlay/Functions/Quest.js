@@ -561,10 +561,11 @@ const Quest = {
 
 		// Act 2
 		// Radament skill book
-		let book = me.getItem(sdk.items.quest.BookofSkill);
+		let book = me.getItem(sdk.quest.item.BookofSkill);
 		if (book) {
 			book.isInStash && Town.openStash() && delay(300);
-			book.use() && Misc.poll(() => {
+			Misc.poll(() => {
+				book.use();
 				if (me.getStat(sdk.stats.NewSkills) > 0) {
 					console.log("ÿc8Kolbot-SoloPlayÿc0: used Radament skill book");
 					AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);

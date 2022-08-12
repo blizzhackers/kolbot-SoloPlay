@@ -206,168 +206,69 @@ Item.autoEquipKeepCheck = function (item) {
 	return false;
 };
 
-Item.autoEquip = function () {
+Item.autoEquip = function (task = "") {
 	if (!Config.AutoEquip) return true;
+	task = task + "AutoEquip";
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Entering " + task);
 
-	console.log("ÿc8Kolbot-SoloPlayÿc0: Entering auto equip");
-
+	const noStash = (!me.inTown || task !== "AutoEquip");
 	let tick = getTickCount();
 	let items = me.getItemsEx()
 		.filter(function (item) {
 			if (!item.isInStorage) return false;
+			if (noStash && !item.isInInventory) return false;
 			let tier = NTIP.GetTier(item);
 			return (item.identified ? tier > 0 : tier !== 0);
 		});
-
 	// couldn't find my items
 	if (!items.length) return false;
 
-	function sortEq (a, b) {
+	const sortEq = (a, b) => {
 		if (Item.canEquip(a)) return -1;
 		if (Item.canEquip(b)) return 1;
-
 		return 0;
-	}
+	};
 
-	// ring check - sometimes a higher tier ring ends up on the wrong finger causing a rollback loop
-	if (this.getEquippedItem(sdk.body.RingLeft).tierScore > this.getEquippedItem(sdk.body.RingRight).tierScore) {
-		console.log("ÿc9AutoEquipÿc0 :: Swapping rings, higher tier ring is on the wrong finger");
-		clickItemAndWait(sdk.clicktypes.click.Left, sdk.body.RingLeft);
-		delay(200);
-		me.itemoncursor && clickItemAndWait(sdk.clicktypes.click.Left, sdk.body.RingRight);
-		delay(200);
-		me.itemoncursor && clickItemAndWait(sdk.clicktypes.click.Left, sdk.body.RingLeft);
-	}
+	const runEquip = (item, bodyLoc, tier) => {
+		let gid = item.gid;
+		console.debug(item.name);
 
-	me.cancel();
-
-	while (items.length > 0) {
-		items.sort(sortEq);
-		let tier = NTIP.GetTier(items[0]);
-		let bodyLoc = this.getBodyLoc(items[0]);
-
-		if (tier > 0 && bodyLoc) {
-			for (let j = 0; j < bodyLoc.length; j += 1) {
-				const equippedItem = this.getEquippedItem(bodyLoc[j]);
-				if (items[0].isInStorage && items[0].itemType === sdk.items.type.Ring) {
-					// rings are special
-					if (!items[0].identified) {
-						let idTool = Town.getIdTool();
-
-						if (idTool) {
-							items[0].isInStash && Town.openStash();
-							Town.identifyItem(items[0], idTool);
-						}
-					}
-					// have to pass in the specific location
-					tier = tierscore(items[0], bodyLoc[j]);
-
-					if (tier > equippedItem.tierScore) {
-						let gid = items[0].gid;
-						console.debug(items[0].name);
-
-						if (this.equip(items[0], bodyLoc[j])) {
-							console.log("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
-
-							Developer.debugging.autoEquip && Misc.logItem("Equipped", me.getItem(-1, -1, gid));
-							Developer.logEquipped && MuleLogger.logEquippedItems();
-						} else if (items[0].lvlreq > me.charlvl && !items[0].isInStash) {
-							if (Storage.Stash.CanFit(items[0])) {
-								console.log("ÿc9AutoEquipÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + items[0].fname + " Tier: " + tier);
-								Storage.Stash.MoveTo(items[0]);
-							}
-						} else if (me.getItem(-1, -1, gid)) {
-							// Make sure we didn't lose it during roll back
-							continue;
-						}
-					}
-				} else {
-					if (items[0].isInStorage && tier > equippedItem.tier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
-						if (!items[0].identified) {
-							let idTool = Town.getIdTool();
-
-							if (idTool) {
-								items[0].isInStash && Town.openStash();
-								Town.identifyItem(items[0], idTool);
-							}
-						}
-
-						if (items[0].twoHanded && !me.barbarian) {
-							if (tier < this.getEquippedItem(sdk.body.RightArm).tier + this.getEquippedItem(sdk.body.LeftArm).tier) {
-								continue;
-							}
-							console.log("ÿc9AutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
-						}
-
-						if (!me.barbarian && bodyLoc[j] === sdk.body.LeftArm && equippedItem.tier === -1 && this.getEquippedItem(sdk.body.RightArm).twoHanded) {
-							if (tier < this.getEquippedItem(sdk.body.RightArm).tier) {
-								continue;
-							}
-							console.log("ÿc9AutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
-						}
-
-						let gid = items[0].gid;
-						console.debug(items[0].name);
-
-						if (this.equip(items[0], bodyLoc[j])) {
-							console.log("ÿc9AutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
-							// item that can have sockets
-							if (items[0].getItemType()) {
-								SoloWants.addToList(items[0]);
-								SoloWants.ensureList();
-							}
-							Developer.debugging.autoEquip && Misc.logItem("Equipped", me.getItem(-1, -1, gid));
-							Developer.logEquipped && MuleLogger.logEquippedItems();
-						} else if (items[0].lvlreq > me.charlvl && !items[0].isInStash) {
-							if (Storage.Stash.CanFit(items[0])) {
-								console.log("ÿc9AutoEquipÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + items[0].fname + " Tier: " + tier);
-								Storage.Stash.MoveTo(items[0]);
-							}
-						} else if (me.getItem(-1, -1, gid)) {
-						// Make sure we didn't lose it during roll back
-							continue;
-						}
-
-						break;
-					}
-
-				}
+		if (this.equip(item, bodyLoc)) {
+			console.log("ÿc9" + task + "ÿc0 :: Equipped: " + item.fname + " Tier: " + tier);
+			// item that can have sockets
+			if (item.getItemType()) {
+				SoloWants.addToList(item);
+				SoloWants.ensureList();
 			}
+			Developer.debugging.autoEquip && Misc.logItem(task, me.getItem(-1, -1, gid));
+			Developer.logEquipped && MuleLogger.logEquippedItems();
+		} else if (!noStash && item.lvlreq > me.charlvl && !item.isInStash) {
+			if (Storage.Stash.CanFit(item)) {
+				console.log("ÿc9" + task + "ÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + item.fname + " Tier: " + tier);
+				Storage.Stash.MoveTo(item);
+			}
+		} else if (me.getItem(-1, -1, gid)) {
+			// Make sure we didn't lose it during roll back
+			return false;
 		}
 
-		items.shift();
-	}
+		return true;
+	};
 
-	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting auto equip. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
-	return true;
-};
+	const idItem = (item) => {
+		if (!item.identified) {
+			let idTool = Town.getIdTool();
 
-Item.outOfTownAutoEquip = function () {
-	if (!Config.AutoEquip) return true;
-
-	console.log("ÿc8Kolbot-SoloPlayÿc0: Entering out of town auto equip");
-
-	let tick = getTickCount();
-	let items = me.getItemsEx()
-		.filter(function (item) {
-			if (!item.isInInventory) return false;
-			let tier = NTIP.GetTier(item);
-			return (item.identified ? tier > 0 : tier !== 0);
-		});
-
-	// couldn't find my items
-	if (!items.length) return false;
-
-	function sortEq (a, b) {
-		if (Item.canEquip(a)) return -1;
-		if (Item.canEquip(b)) return 1;
-
-		return 0;
-	}
+			if (idTool) {
+				item.isInStash && Town.openStash();
+				Town.identifyItem(item, idTool);
+			}
+		}
+	};
 
 	// ring check - sometimes a higher tier ring ends up on the wrong finger causing a rollback loop
 	if (this.getEquippedItem(sdk.body.RingLeft).tierScore > this.getEquippedItem(sdk.body.RingRight).tierScore) {
-		console.log("ÿc9OutOfTownAutoEquipÿc0 :: Swapping rings, higher tier ring is on the wrong finger");
+		console.log("ÿc9" + task + "ÿc0 :: Swapping rings, higher tier ring is on the wrong finger");
 		clickItemAndWait(sdk.clicktypes.click.Left, sdk.body.RingLeft);
 		delay(200);
 		me.itemoncursor && clickItemAndWait(sdk.clicktypes.click.Left, sdk.body.RingRight);
@@ -375,77 +276,47 @@ Item.outOfTownAutoEquip = function () {
 		me.itemoncursor && clickItemAndWait(sdk.clicktypes.click.Left, sdk.body.RingLeft);
 	}
 
-	me.cancel();
+	!getUIFlag(sdk.uiflags.Shop) && me.cancel();
 
 	while (items.length > 0) {
 		items.sort(sortEq);
-		let tier = NTIP.GetTier(items[0]);
-		let bodyLoc = this.getBodyLoc(items[0]);
+		const item = items.shift();
+		let tier = NTIP.GetTier(item);
+		let bodyLoc = this.getBodyLoc(item);
 
 		if (tier > 0 && bodyLoc) {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
 				const equippedItem = this.getEquippedItem(bodyLoc[j]);
-				if (items[0].isInInventory && items[0].itemType === sdk.items.type.Ring) {
-					// rings are special
-					if (!items[0].identified) {
-						let idTool = Town.getIdTool();
-
-						if (idTool) {
-							items[0].isInStash && Town.openStash();
-							Town.identifyItem(items[0], idTool);
-						}
-					}
+				// rings are special
+				if (item.isInStorage && item.itemType === sdk.items.type.Ring) {
+					idItem(item);
 					// have to pass in the specific location
-					tier = tierscore(items[0], bodyLoc[j]);
+					tier = tierscore(item, bodyLoc[j]);
 
 					if (tier > equippedItem.tierScore) {
-						let gid = items[0].gid;
-						console.debug(items[0].name);
-
-						if (this.equip(items[0], bodyLoc[j])) {
-							console.log("ÿc9OutOfTownAutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
-							Developer.debugging.autoEquip && Misc.logItem("Field Equipped", me.getItem(-1, -1, gid));
-							Developer.logEquipped && MuleLogger.logEquippedItems();
-						} else if (me.getItem(-1, -1, gid)) {
-							// Make sure we didn't lose it during roll back
+						if (!runEquip(item, bodyLoc[j], tier)) {
 							continue;
 						}
 					}
 				} else {
-					if (items[0].isInInventory && tier > equippedItem.tier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
-						if (!items[0].identified) {
-							let idTool = Town.getIdTool();
-							idTool && Town.identifyItem(items[0], idTool);
-						}
+					if (item.isInStorage && tier > equippedItem.tier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
+						idItem(item);
 
-						if (items[0].twoHanded && !me.barbarian) {
+						if (item.twoHanded && !me.barbarian) {
 							if (tier < this.getEquippedItem(sdk.body.RightArm).tier + this.getEquippedItem(sdk.body.LeftArm).tier) {
 								continue;
 							}
-							console.log("ÿc9OutOfTownAutoEquipÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + items[0].fname + " Tier: " + tier);
+							console.log("ÿc9" + task + "ÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + item.fname + " Tier: " + tier);
 						}
 
 						if (!me.barbarian && bodyLoc[j] === sdk.body.LeftArm && equippedItem.tier === -1 && this.getEquippedItem(sdk.body.RightArm).twoHanded) {
 							if (tier < this.getEquippedItem(sdk.body.RightArm).tier) {
 								continue;
 							}
-							console.log("ÿc9OutOfTownAutoEquipÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + items[0].fname + " Tier: " + tier);
+							console.log("ÿc9" + task + "ÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + item.fname + " Tier: " + tier);
 						}
 
-						let gid = items[0].gid;
-						console.debug(items[0].name);
-
-						if (this.equip(items[0], bodyLoc[j])) {
-							console.log("ÿc9OutOfTownAutoEquipÿc0 :: Equipped: " + items[0].fname + " Tier: " + tier);
-							// item that can have sockets
-							if (items[0].getItemType()) {
-								SoloWants.addToList(items[0]);
-								SoloWants.ensureList();
-							}
-							Developer.debugging.autoEquip && Misc.logItem("Field Equipped", me.getItem(-1, -1, gid));
-							Developer.logEquipped && MuleLogger.logEquippedItems();
-						} else if (me.getItem(-1, -1, gid)) {
-							// Make sure we didn't lose it during roll back
+						if (!runEquip(item, bodyLoc[j], tier)) {
 							continue;
 						}
 
@@ -454,11 +325,9 @@ Item.outOfTownAutoEquip = function () {
 				}
 			}
 		}
-
-		items.shift();
 	}
 
-	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting out of town auto equip. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting ÿc9" + task + "ÿc0. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
 	return true;
 };
 
@@ -531,7 +400,6 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 	let removable = item && typeof item === "object"
 		? item
 		: me.getItemsEx().filter((item) => item.isEquipped && item.bodylocation === bodyLoc).first();
-
 	!me.inTown && Town.goToTown();
 	!getUIFlag(sdk.uiflags.Stash) && Town.openStash();
 

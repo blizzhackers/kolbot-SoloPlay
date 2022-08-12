@@ -396,7 +396,7 @@ Town.itemResult = function (item, result, system = "", sell = false) {
 	case Pickit.Result.WANTED:
 		Misc.itemLogger("Kept", item);
 		Misc.logItem("Kept", item, result.line);
-		system === "Field" && Item.autoEquipCheck(item) && Item.outOfTownAutoEquip();
+		system === "Field" && Item.autoEquipCheck(item) && Item.autoEquip("Field");
 
 		break;
 	case Pickit.Result.UNID:
@@ -619,8 +619,8 @@ Town.fieldID = function () {
 			this.identifyItem(item, idTool, Config.FieldID.PacketID);
 			delay(50);
 			result = Pickit.checkItem(item);
-			Town.itemResult(item, result, "Field", false);
 		}
+		Town.itemResult(item, result, "Field", false);
 	}
 
 	delay(200);
@@ -761,7 +761,9 @@ Town.shopItems = function () {
 	let npc = getInteractedNPC();
 	if (!npc || !npc.itemcount) return false;
 
-	let items = npc.getItemsEx().filter((item) => Town.ignoredItemTypes.indexOf(item.itemType) === -1);
+	let items = npc.getItemsEx()
+		.filter((item) => Town.ignoredItemTypes.indexOf(item.itemType) === -1)
+		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
 	if (!items.length) return false;
 
 	console.time("shopItems");
@@ -803,7 +805,7 @@ Town.shopItems = function () {
 					}
 				}
 			} catch (e) {
-				console.warn(e);
+				console.error(e);
 			}
 		}
 
@@ -815,8 +817,9 @@ Town.shopItems = function () {
 						try {
 							shopReport(item, "AutoEquip", result.line, (item.fname + " Tier: " + NTIP.GetTier(item)));
 							item.buy() && bought++;
+							Item.autoEquip("InShop");
 						} catch (e) {
-							console.warn(e);
+							console.error(e);
 						}
 
 						continue;
@@ -833,8 +836,9 @@ Town.shopItems = function () {
 						try {
 							shopReport(item, "AutoEquip Switch Shopped", result.line, (item.fname + " SecondaryTier: " + NTIP.GetSecondaryTier(item)));
 							item.buy() && bought++;
+							Item.autoEquip("InShop");
 						} catch (e) {
-							console.warn(e);
+							console.error(e);
 						}
 
 						continue;
