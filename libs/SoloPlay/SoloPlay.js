@@ -45,7 +45,6 @@ function SoloPlay () {
 
 		Town.heal() && me.cancelUIFlags();
 		Check.checkSpecialCase();
-		ensureData();
 
 		// check if any of our currently equipped items are no longer usable - can happen after respec
 		me.getItemsEx()

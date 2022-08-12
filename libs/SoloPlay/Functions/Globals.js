@@ -56,17 +56,6 @@ function updateMyData () {
 	});
 }
 
-function ensureData () {
-	let temp = Misc.copy(myData);
-
-	let changed = Misc.recursiveSearch(myData, temp);
-	
-	if (Object.keys(changed).length > 0) {
-		console.debug(changed);
-		CharData.updateData("me", myData) && updateMyData();
-	}
-}
-
 // general settings
 const SetUp = {
 	init: function () {
@@ -272,7 +261,6 @@ const SetUp = {
 
 	specPush: function (specType) {
 		let buildInfo = SetUp.getTemplate();
-
 		if (!includeIfNotIncluded(buildInfo.template)) throw new Error("Failed to include template: " + buildInfo.template);
 
 		let specCheck = [];
@@ -488,13 +476,15 @@ const basicSocketables = {
 			classid: sdk.items.BroadSword,
 			socketWith: [],
 			useSocketQuest: true,
-			condition: (item) => me.normal && !Check.haveBase("sword", 4) && !Check.haveItem("sword", "runeword", "Spirit") && item.ilvl >= 26 && item.isBaseType && !item.ethereal
+			condition: (item) => me.normal && !Check.haveBase("sword", 4) && !me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have
+				&& item.ilvl >= 26 && item.isBaseType && !item.ethereal
 		},
 		{
 			classid: sdk.items.CrystalSword,
 			socketWith: [],
 			useSocketQuest: true,
-			condition: (item) => me.normal && !Check.haveBase("sword", 4) && !Check.haveItem("sword", "runeword", "Spirit") && item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal
+			condition: (item) => me.normal && !Check.haveBase("sword", 4) && !me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have
+				&& item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal
 		},
 		{
 			// Lidless
@@ -693,15 +683,10 @@ const Check = {
 
 	resistance: function () {
 		let resPenalty = me.getResPenalty(me.diff + 1);
-		let frRes = me.getStat(sdk.stats.FireResist) - resPenalty;
-		let lrRes = me.getStat(sdk.stats.LightResist) - resPenalty;
-		let crRes = me.getStat(sdk.stats.ColdResist) - resPenalty;
-		let prRes = me.getStat(sdk.stats.PoisonResist) - resPenalty;
-
-		let resStatus = ((frRes > 0) && (lrRes > 0) && (crRes > 0));
+		let [frRes, lrRes, crRes, prRes] = [(me.realFR - resPenalty), (me.realLR - resPenalty), (me.realCR - resPenalty), (me.realPR - resPenalty)];
 
 		return {
-			Status: resStatus,
+			Status: ((frRes > 0) && (lrRes > 0) && (crRes > 0)),
 			FR: frRes,
 			CR: crRes,
 			LR: lrRes,
@@ -772,9 +757,7 @@ const Check = {
 
 	// todo: need to finish up adding locale string ids to sdk so I can remove this in favor of better me.checkItem prototype
 	haveItem: function (type, flag, iName = undefined) {
-		let isClassID = false;
-		let itemCHECK = false;
-		let typeCHECK = false;
+		let [isClassID, itemCHECK, typeCHECK] = [false, false, false];
 
 		flag && typeof flag === "string" && (flag = flag.capitalize(true));
 		typeof iName === "string" && (iName = iName.toLowerCase());
@@ -841,7 +824,7 @@ const Check = {
 	itemSockables: function (type, quality, iName) {
 		quality && typeof quality === "string" && (quality = sdk.items.quality[quality.capitalize(true)]);
 		typeof iName === "string" && (iName = iName.toLowerCase());
-		let isClassID = false;
+		let [isClassID, itemCHECK, typeCHECK] = [false, false, false];
 
 		switch (typeof type) {
 		case "string":
@@ -859,8 +842,6 @@ const Check = {
 		}
 
 		let socketableCHECK = isClassID ? Config.socketables.find(({ classid }) => type === classid) : false;
-		let typeCHECK = false;
-		let itemCHECK = false;
 		let items = me.getItemsEx()
 			.filter(function (item) {
 				return item.quality === quality && !item.questItem && !item.isRuneword && (isClassID ? item.classid === type : item.itemType === type) && getBaseStat("items", item.classid, "gemsockets") > 0;

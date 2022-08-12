@@ -1282,7 +1282,10 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 
 	for (let i = 0; i < bodyLoc.length; i++) {
 		let equippedItem = items.find(item => item.bodylocation === bodyLoc[i]);
-		if (!equippedItem || !equippedItem.runeword) continue;
+		if (!equippedItem || !equippedItem.runeword) {
+			if (i === 0 && bodyLoc.length > 1) continue;
+			return true;
+		}
 		name = getLocaleString(equippedItem.prefixnum);
 
 		preSocketCheck = checkNoSockets(equippedItem);

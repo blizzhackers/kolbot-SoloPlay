@@ -242,25 +242,45 @@ Object.defineProperties(me, {
 			return !!items.length && items.length >= 2 && items.every((item) => !item.isShield && !getBaseStat("items", item.classid, "block"));
 		}
 	},
+	realFR: {
+		get: function () {
+			return me.getStat(sdk.stats.FireResist);
+		}
+	},
+	realCR: {
+		get: function () {
+			return me.getStat(sdk.stats.ColdResist);
+		}
+	},
+	realLR: {
+		get: function () {
+			return me.getStat(sdk.stats.LightResist);
+		}
+	},
+	realPR: {
+		get: function () {
+			return me.getStat(sdk.stats.PoisonResist);
+		}
+	},
 	// for visual purposes really, return res with cap
 	FR: {
 		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxFireResist), this.getStat(sdk.stats.FireResist) - me.resPenalty);
+			return Math.min(75 + this.getStat(sdk.stats.MaxFireResist), me.realFR - me.resPenalty);
 		}
 	},
 	CR: {
 		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxColdResist), this.getStat(sdk.stats.ColdResist) - me.resPenalty);
+			return Math.min(75 + this.getStat(sdk.stats.MaxColdResist), me.realCR - me.resPenalty);
 		}
 	},
 	LR: {
 		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxLightResist), this.getStat(sdk.stats.LightResist) - me.resPenalty);
+			return Math.min(75 + this.getStat(sdk.stats.MaxLightResist), me.realLR - me.resPenalty);
 		}
 	},
 	PR: {
 		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), this.getStat(sdk.stats.PoisonResist) - me.resPenalty);
+			return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), me.realPR - me.resPenalty);
 		}
 	},
 });
