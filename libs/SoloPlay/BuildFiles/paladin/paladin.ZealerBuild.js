@@ -113,7 +113,7 @@ const finalBuild = {
 		if (me.classic) {
 			return me.charlvl >= 75 && me.diablo;
 		} else {
-			return Check.haveItem("sword", "runeword", "Grief");
+			return me.checkItem({name: sdk.locale.items.Grief, itemtype: sdk.items.type.Sword}).have;
 		}
 	},
 

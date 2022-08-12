@@ -9,7 +9,7 @@ const fort = [
 
 if (["Zealer", "Smiter", "Frenzy", "Whirlwind", "Uberconc", "Wolf"].indexOf(SetUp.finalBuild) > -1) {
 	// Make Grief first, if using it for final build
-	if (Check.haveItem("sword", "runeword", "Grief")) {
+	if (me.checkItem({name: sdk.locale.items.Grief, itemtype: sdk.items.type.Sword}).have) {
 		NTIP.arrayLooping(fort);
 	}
 } else if (["Blova", "Lightning"].indexOf(SetUp.currentBuild) > -1) {
