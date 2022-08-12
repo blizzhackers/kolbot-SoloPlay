@@ -17,7 +17,7 @@ function lamessen () {
 	}
 
 	Quest.collectItem(sdk.items.quest.LamEsensTome, sdk.quest.chest.LamEsensTomeHolder);
-	Quest.unfinishedQuests();;
+	Quest.unfinishedQuests();
 
 	return true;
 }

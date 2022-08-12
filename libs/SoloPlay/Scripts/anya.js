@@ -54,7 +54,7 @@ function anya () {
 
 		Town.goToTown(5);
 		Town.npcInteract("malah");
-		Quest.unfinishedQuests();;
+		Quest.unfinishedQuests();
 		Town.doChores();
 		Town.npcInteract("anya");
 	}
