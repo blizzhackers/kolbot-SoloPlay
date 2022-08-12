@@ -27,7 +27,7 @@ function templeruns () {
 				me.overhead("lamessen");
 				Pather.moveToPreset(sdk.areas.RuinedTemple, sdk.unittype.Object, sdk.quest.chest.LamEsensTomeHolder);
 				Quest.collectItem(sdk.quest.item.LamEsensTome, sdk.quest.chest.LamEsensTomeHolder);
-				Town.unfinishedQuests();
+				Quest.unfinishedQuests();;
 			} else {
 				Attack.clearLevel(0xF);
 			}

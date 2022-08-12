@@ -16,6 +16,7 @@ function cube () {
 	Attack.securePosition(me.x, me.y, 30, 3000, true);
 	Quest.collectItem(sdk.items.quest.Cube, sdk.quest.chest.HoradricCubeChest);
 	Quest.stashItem(sdk.items.quest.Cube);
+	Town.sortStash(true);
 
 	return me.getItem(sdk.items.quest.Cube);
 }

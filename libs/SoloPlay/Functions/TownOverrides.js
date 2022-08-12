@@ -754,6 +754,11 @@ Town.buyBook = function () {
 	return true;
 };
 
+Town.lastShopped = {
+	who: "",
+	tick: 0,
+};
+
 // todo - allow earlier shopping, mainly to get a belt
 Town.shopItems = function () {
 	if (!Config.MiniShopBot) return true;
@@ -768,6 +773,7 @@ Town.shopItems = function () {
 		.filter((item) => Town.ignoredItemTypes.indexOf(item.itemType) === -1)
 		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
 	if (!items.length) return false;
+	if (getTickCount() - Town.lastShopped.tick < Time.seconds(3) && Town.lastShopped.who === npc.name) return false;
 
 	console.time("shopItems");
 	let bought = 0;
@@ -853,6 +859,9 @@ Town.shopItems = function () {
 
 		delay(2);
 	}
+
+	Town.lastShopped.tick = getTickCount();
+	Town.lastShopped.who = npc.name;
 
 	console.info(false, "Bought " + bought + " items", "shopItems");
 
