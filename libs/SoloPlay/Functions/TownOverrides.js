@@ -757,6 +757,9 @@ Town.buyBook = function () {
 // todo - allow earlier shopping, mainly to get a belt
 Town.shopItems = function () {
 	if (!Config.MiniShopBot) return true;
+	// todo - better gold scaling
+	const goldLimit = [10000, 20000, 30000][me.diff];
+	if (me.gold < goldLimit) return true;
 
 	let npc = getInteractedNPC();
 	if (!npc || !npc.itemcount) return false;
@@ -768,7 +771,6 @@ Town.shopItems = function () {
 
 	console.time("shopItems");
 	let bought = 0;
-	const goldLimit = [10000, 20000, 30000][me.diff];
 	const haveMerc = (!me.classic && Config.UseMerc && !me.mercrevivecost && Misc.poll(() => !!me.getMerc(), 500, 100));
 	console.info(true, "ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
 

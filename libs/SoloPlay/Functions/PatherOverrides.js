@@ -413,8 +413,8 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	const useTeleCheck = (useTeleport || useChargedTele);
 	const annoyingArea = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
 	const clearSettings = {
-		clearPath: (!!clearPath || !useTeleCheck), // walking characters need to clear in front of them
-		range: 10,
+		clearPath: !!clearPath, // walking characters need to clear in front of them
+		range: (Skill.getRange(Config.AttackSkill[3]) > 10 ? 15 : 10),
 		specType: (typeof clearPath === "number" ? clearPath : 0),
 	};
 	!useTeleCheck && (clearSettings.clearPath = true);

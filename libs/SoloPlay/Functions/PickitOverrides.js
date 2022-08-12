@@ -428,11 +428,10 @@ Pickit.pickItem = function (unit, status, keptLine) {
 
 	MainLoop:
 	for (let i = 0; i < 3; i += 1) {
+		if (me.dead) return false;
 		if (!Game.getItem(-1, -1, gid)) {
 			break;
 		}
-
-		if (me.dead) return false;
 
 		while (!me.idle) {
 			delay(40);
