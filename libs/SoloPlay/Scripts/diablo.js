@@ -130,8 +130,6 @@ function diablo () {
 		oldBP !== Config.BossPriority && (Config.BossPriority = oldBP);
 	}
 
-	Config.MercWatch = false;
-
 	try {
 		if (!Pather.canTeleport() && (me.necromancer && ["Poison", "Summon"].includes(SetUp.currentBuild) || !me.sorceress)) {
 			Messaging.sendToScript(SoloEvents.filePath, "addDiaEvent");
@@ -185,8 +183,6 @@ function diablo () {
 		delay(500);
 		Pather.useUnit(sdk.unittype.Object, 566, 109);
 	}
-
-	Config.MercWatch = true;
 
 	return true;
 }

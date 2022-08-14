@@ -391,7 +391,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 
 			if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
 
-			if (Math.round(unit.distance) > Skill.getRange(timedSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (unit.distance > Skill.getRange(timedSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Allow short-distance walking for melee skills
 				walk = Skill.getRange(timedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 

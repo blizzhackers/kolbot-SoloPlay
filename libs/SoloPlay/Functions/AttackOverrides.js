@@ -42,6 +42,44 @@ Attack.init = function () {
 	}
 };
 
+Attack.decideSkill = function (unit) {
+	let skills = {timed: -1, untimed: -1};
+	if (!unit) return skills;
+
+	const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
+	const classid = unit.classid;
+
+	// Get timed skill
+	let checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
+
+	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill, classid)) {
+		skills.timed = checkSkill;
+	} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[5], classid)) {
+		skills.timed = Config.AttackSkill[5];
+	}
+
+	// Get untimed skill
+	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[1] : Config.AttackSkill[index + 1];
+
+	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill)) {
+		skills.untimed = checkSkill;
+	} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[6], classid)) {
+		skills.untimed = Config.AttackSkill[6];
+	}
+
+	// Low mana timed skill
+	if (Config.LowManaSkill[0] > -1 && Skill.getManaCost(skills.timed) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[0])) {
+		skills.timed = Config.LowManaSkill[0];
+	}
+
+	// Low mana untimed skill
+	if (Config.LowManaSkill[1] > -1 && Skill.getManaCost(skills.untimed) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[1])) {
+		skills.untimed = Config.LowManaSkill[1];
+	}
+
+	return skills;
+};
+
 Attack.getLowerResistPercent = function () {
 	const calc = (level) => Math.floor(Math.min(25 + (45 * ((110 * level) / (level + 6)) / 100), 70));
 	if (me.expansion && CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)) {

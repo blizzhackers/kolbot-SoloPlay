@@ -138,6 +138,12 @@ ClassAttack.smartCurse = function (unit) {
 
 ClassAttack.bpTick = 0;
 
+/**
+ * 
+ * @todo
+ *   - bonemancer specific check for using bonespear vs bone spirit
+ */
+
 // TODO: clean this up
 ClassAttack.doAttack = function (unit) {
 	if (!unit) return Attack.Result.SUCCESS;
@@ -154,10 +160,7 @@ ClassAttack.doAttack = function (unit) {
 		}
 	}
 
-	let checkSkill;
 	let mercRevive = 0;
-	let timedSkill = -1;
-	let untimedSkill = -1;
 	let gold = me.gold;
 	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 	let useTerror = Skill.canUse(sdk.skills.Terror);
@@ -195,35 +198,19 @@ ClassAttack.doAttack = function (unit) {
 		}
 	}
 
-	// Get timed skill
-	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
+	let skills = Attack.decideSkill(unit);
 
-	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill)) {
-		timedSkill = checkSkill;
-	} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[5])) {
-		timedSkill = Config.AttackSkill[5];
+	if (me.normal && gold < 5000 && (skills.timed === -1 || Skill.getManaCost(skills.timed) > me.mp)) {
+		if (skills.timed !== sdk.skills.Teeth && Skill.canUse(sdk.skills.Teeth) && Skill.getManaCost(sdk.skills.Teeth) < me.mp) {
+			skills.timed = sdk.skills.Teeth;
+		} else if (Skill.canUse(sdk.skills.PoisonDagger) && Skill.getManaCost(sdk.skills.PoisonDagger) < me.mp) {
+			skills.timed = sdk.skills.PoisonDagger;
+		} else if (me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall) >= 1) {
+			// I have no mana and there are mobs around me, just attack
+			skills.timed = sdk.skills.Attack;
+		}
 	}
-
-	// Get untimed skill
-	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[1] : Config.AttackSkill[index + 1];
-
-	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill)) {
-		untimedSkill = checkSkill;
-	} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[6])) {
-		untimedSkill = Config.AttackSkill[6];
-	}
-
-	// Low mana timed skill
-	if (Config.LowManaSkill[0] > -1 && Skill.getManaCost(timedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[0])) {
-		timedSkill = Config.LowManaSkill[0];
-	}
-
-	// Low mana untimed skill
-	if (Config.LowManaSkill[1] > -1 && Skill.getManaCost(untimedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[1])) {
-		untimedSkill = Config.LowManaSkill[1];
-	}
-
-	let result = this.doCast(unit, timedSkill, untimedSkill);
+	let result = this.doCast(unit, skills.timed, skills.untimed);
 
 	if (result === Attack.Result.SUCCESS) {
 		Config.ActiveSummon && this.raiseArmy();
@@ -261,7 +248,11 @@ ClassAttack.doAttack = function (unit) {
 			this.explodeCorpses(unit);
 			this.smartCurse(unit);
 			let closeMob = Attack.getNearestMonster({skipGid: gid});
-			!!closeMob && this.doCast(closeMob, timedSkill, untimedSkill);
+			if (!!closeMob) {
+				let findSkill = Attack.decideSkill(closeMob);
+				(this.doCast(closeMob, findSkill.timed, findSkill.untimed) === Attack.Result.SUCCESS)
+				|| (this.canCurse(unit, sdk.skills.Terror) && Skill.cast(sdk.skills.Terror, sdk.skills.hand.Right, unit));
+			}
 		}
 
 		return Attack.Result.SUCCESS;
@@ -280,15 +271,17 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		this.checkCorpseNearMonster(unit) && this.explodeCorpses(unit);
 	}
 
+	let lowMana = true;
 	let walk, timedSkillRange, untimedSkillRange;
 
-	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
+	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill)) && me.mp > Skill.getManaCost(timedSkill)) {
+		lowMana = false;
 		timedSkillRange = Skill.getRange(timedSkill);
 
 		switch (timedSkill) {
 		case sdk.skills.PoisonNova:
 			if (!this.novaTick || getTickCount() - this.novaTick > Config.PoisonNovaDelay * 1000) {
-				if (Math.round(unit.distance) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+				if (unit.distance > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 					if (!Attack.getIntoPosition(unit, timedSkillRange, sdk.collision.Ranged)) {
 						return Attack.Result.FAILED;
 					}
@@ -301,7 +294,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 
 			break;
 		case sdk.skills.Summoner: // Pure Summoner
-			if (Math.round(unit.distance) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (unit.distance > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 				if (!Attack.getIntoPosition(unit, timedSkillRange, sdk.collision.Ranged)) {
 					return Attack.Result.FAILED;
 				}
@@ -317,7 +310,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 				timedSkillRange = me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting) <= 3 ? 6 : timedSkillRange;
 			}
 
-			if (Math.round(unit.distance) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (unit.distance > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Allow short-distance walking for melee skills
 				walk = timedSkillRange < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
@@ -326,7 +319,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 
 			if (!unit.dead) {
 				// Try to find better spot
-				if (Math.round(unit.distance) < 4 && timedSkillRange > 6) {
+				if (unit.distance < 4 && timedSkillRange > 6) {
 					Attack.deploy(unit, 4, 5, 9);
 				}
 
@@ -337,12 +330,13 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		}
 	}
 
-	if (untimedSkill > -1) {
+	if (untimedSkill > -1 && me.mp > Skill.getManaCost(untimedSkill)) {
+		lowMana = false;
 		untimedSkillRange = Skill.getRange(untimedSkill);
 
 		if (untimedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
 
-		if (Math.round(unit.distance) > untimedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+		if (unit.distance > untimedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Allow short-distance walking for melee skills
 			walk = Skill.getRange(untimedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
@@ -363,7 +357,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		delay(40);
 	}
 
-	return Attack.Result.SUCCESS;
+	return lowMana ? Attack.Result.NEEDMANA : Attack.Result.SUCCESS;
 };
 
 ClassAttack.farCast = function (unit) {

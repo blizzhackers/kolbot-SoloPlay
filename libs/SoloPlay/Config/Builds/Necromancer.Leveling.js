@@ -1,6 +1,6 @@
 /**
 *  @filename    necromancer.Leveling.js
-*  @author      theBGuy, isid0re
+*  @author      theBGuy
 *  @desc        explosionmancer build for after respecOne
 *
 */
@@ -16,7 +16,7 @@ let AutoBuildTemplate = {
 		Update: function () {
 			Config.TownHP = me.hardcore ? 0 : 35;
 			Config.AttackSkill = [-1, sdk.skills.BoneSpear, -1, sdk.skills.BoneSpear, -1, -1, -1];
-			Config.LowManaSkill = [-1, -1];
+			Config.LowManaSkill = [sdk.skills.Teeth, -1];
 			Config.ExplodeCorpses = sdk.skills.CorpseExplosion;
 			Config.Golem = "Clay";
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];

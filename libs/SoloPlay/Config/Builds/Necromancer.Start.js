@@ -1,6 +1,6 @@
 /**
 *  @filename    necromancer.Start.js
-*  @author      theBGuy, isid0re
+*  @author      theBGuy
 *  @desc        Bonemancer build for before respecOne
 *
 */
@@ -14,6 +14,10 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
+			Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
+			Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
+			Config.FieldID.UsedSpace = 0;
+			
 			Config.TownHP = me.hardcore ? 0 : 35;
 			Config.BeltColumn = ["hp", "hp", "hp", "hp"];
 			SetUp.belt();
@@ -29,6 +33,10 @@ let AutoBuildTemplate = {
 		SkillPoints: [-1],
 		StatPoints: [-1, -1, -1, -1, -1],
 		Update: function () {
+			Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
+			Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
+			Config.FieldID.UsedSpace = 0;
+
 			Config.AttackSkill = [-1, sdk.skills.Teeth, -1, sdk.skills.Teeth, -1, -1, -1];
 			Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 			SetUp.belt();
@@ -46,6 +54,7 @@ let AutoBuildTemplate = {
 
 			if (me.getSkill(sdk.skills.BoneSpear, sdk.skills.subindex.HardPoints)) {
 				Config.AttackSkill = [-1, sdk.skills.BoneSpear, -1, sdk.skills.BoneSpear, -1, -1, -1];
+				Config.LowManaSkill = [sdk.skills.Teeth, -1];
 			}
 		}
 	},

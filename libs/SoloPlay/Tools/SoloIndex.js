@@ -61,7 +61,7 @@ const SoloIndex = {
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
-				return !Check.gold();
+				return Check.brokeAf();
 			}
 		},
 		"bloodraven": {
@@ -103,7 +103,7 @@ const SoloIndex = {
 		},
 		"treehead": {
 			preReq: function () {
-				return me.hell && !Pather.accessToAct(3);
+				return (me.hell && !Pather.accessToAct(3));
 			},
 			skipIf: function () {
 				return !me.paladin || Attack.auradin || me.checkItem({name: sdk.locale.items.Enigma}).have;
@@ -170,7 +170,7 @@ const SoloIndex = {
 		},
 		"boneash": {
 			preReq: function () {
-				return ((me.hell && me.classic && !me.diablo) || !Check.gold());
+				return ((me.hell && me.classic && !me.diablo) || Check.brokeAf());
 			},
 			shouldRun: function () {
 				if (!this.preReq()) return false;
@@ -179,16 +179,20 @@ const SoloIndex = {
 		},
 		"andariel": {
 			skipIf: function () {
+				if (!me.andariel) return false;
 				if (me.hell && me.amazon && SetUp.currentBuild !== SetUp.finalBuild) return true;
-				if (!me.normal && (!Pather.canTeleport() || me.charlvl > 60)) return true;
 				return false;
 			},
 			shouldRun: function () {
-				// always if not completed or classic hell
-				if (!me.andariel || (me.classic && me.hell)) return true;
-				// now for checks
 				if (this.skipIf()) return false;
-				return true;
+				switch (true) {
+				case (!me.andariel):
+				case (me.normal && Check.brokeAf()):
+				case (me.classic && me.hell):
+				case (!me.normal && (Pather.canTeleport() || me.charlvl < 60)):
+					return true;
+				}
+				return false;
 			}
 		},
 		"a1chests": {
@@ -250,7 +254,7 @@ const SoloIndex = {
 				if (!this.preReq()) return false;
 				switch (true) {
 				case (!me.radament):
-				case (me.normal && !Check.gold()):
+				case (me.normal && Check.brokeAf()):
 				case (me.hell && me.amazon && SetUp.currentBuild !== SetUp.finalBuild):
 				case (me.hell && me.sorceress && me.classic && !me.diablo):
 					return true;
@@ -318,7 +322,7 @@ const SoloIndex = {
 				return Pather.accessToAct(2);
 			},
 			skipIf: function () {
-				return !me.normal || me.charlvl > 24;
+				return !me.normal || me.charlvl > 22;
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
@@ -360,8 +364,7 @@ const SoloIndex = {
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
 				switch (true) {
-				case (me.normal && (me.charlvl > 18 && me.charlvl < 25) || (me.charlvl >= 25 && me.normal && !me.baal && !Check.gold())):
-				case (me.normal && (me.charlvl >= 18 && !me.baal && !Check.gold())):
+				case (me.normal && ((me.charlvl > 18 && me.charlvl < 25) || (me.charlvl >= 25 && !me.diffCompleted && Check.brokeAf()))):
 				case (me.nightmare && me.charlvl < 50):
 				case (me.hell && !me.classic && me.charlvl > 80):
 					return true;
@@ -428,7 +431,7 @@ const SoloIndex = {
 				if (!this.preReq() || this.skipIf()) return false;
 				switch (true) {
 				case !me.travincal:
-				case (me.charlvl < 25 || (me.charlvl >= 25 && me.normal && !me.baal && !Check.gold())):
+				case (me.charlvl < 25 || (me.charlvl >= 25 && me.normal && !me.diffCompleted && Check.brokeAf())):
 				case (me.nightmare && !me.diablo && me.barbarian && !me.checkItem({name: sdk.locale.items.Lawbringer}).have):
 				case (me.hell && me.paladin && me.charlvl > 85 && (!Attack.auradin || !me.checkItem({name: sdk.locale.items.Enigma}).have)):
 					return true;
@@ -447,7 +450,7 @@ const SoloIndex = {
 				if (!this.preReq() || this.skipIf()) return false;
 				switch (true) {
 				case !me.mephisto:
-				case (me.normal && !Check.gold() || !me.diffCompleted):
+				case (me.normal && Check.brokeAf() || !me.diffCompleted):
 				case (me.nightmare && Pather.canTeleport() || me.charlvl <= 65):
 				case (me.hell):
 					return true;
@@ -524,7 +527,7 @@ const SoloIndex = {
 				return Pather.accessToAct(4);
 			},
 			skipIf: function () {
-				return (me.hellforge);
+				return (me.hellforge || me.getQuest(sdk.quest.id.HellsForge, sdk.quest.states.ReqComplete));
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;

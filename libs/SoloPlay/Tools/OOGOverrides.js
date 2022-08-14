@@ -580,6 +580,10 @@ Starter.charSelectConnecting = function () {
 };
 
 Starter.BNET = false;
+Starter.LocationEvents.oogCheck = function () {
+	return (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || SoloEvents.outOfGameCheck());
+};
+
 Starter.LocationEvents.login = function () {
 	Starter.inGame && (Starter.inGame = false);
 	if (getLocation() === sdk.game.locations.MainMenu
@@ -821,7 +825,7 @@ Starter.LocationEvents.loginError = function () {
 	Controls.CharSelectExit.click();
 };
 
-Starter.LocationEvents.charSelect = function () {
+Starter.LocationEvents.charSelect = function (loc) {
 	let string = "";
 	let text = Controls.CharSelectError.getText();
 
@@ -873,7 +877,7 @@ Starter.LocationEvents.charSelect = function () {
 		}
 	}
 
-	if (!Starter.locationTimeout(Starter.Config.ConnectingTimeout * 1e3, location)) {
+	if (!Starter.locationTimeout(Starter.Config.ConnectingTimeout * 1e3, loc)) {
 		Controls.CharSelectExit.click();
 		Starter.gameInfo.rdBlocker && D2Bot.restart();
 	}

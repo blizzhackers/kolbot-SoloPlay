@@ -194,9 +194,9 @@ locations[sdk.game.locations.Disconnected] = () => {
 locations[sdk.game.locations.RegisterEmail] = () => Controls.EmailDontRegisterContinue.control ? Controls.EmailDontRegisterContinue.click() : Controls.EmailDontRegister.click();
 locations[sdk.game.locations.MainMenuConnecting] = (loc) => !Starter.locationTimeout(Starter.Config.ConnectingTimeout * 1e3, loc) && Controls.LoginCancelWait.click();
 locations[sdk.game.locations.CharSelectPleaseWait] = (loc) => !Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, loc) && Controls.OkCentered.click();
-locations[sdk.game.locations.CharSelect] = () => Starter.LocationEvents.charSelect();
-locations[sdk.game.locations.CharSelectConnecting] = () => Starter.LocationEvents.charSelect();
-locations[sdk.game.locations.CharSelectNoChars] = () => Starter.LocationEvents.charSelect();
+locations[sdk.game.locations.CharSelect] = (loc) => Starter.LocationEvents.charSelect(loc);
+locations[sdk.game.locations.CharSelectConnecting] = (loc) => Starter.LocationEvents.charSelect(loc);
+locations[sdk.game.locations.CharSelectNoChars] = (loc) => Starter.LocationEvents.charSelect(loc);
 locations[sdk.game.locations.SelectDifficultySP] = () => Starter.LocationEvents.selectDifficultySP();
 locations[sdk.game.locations.CharacterCreate] = (loc) => !Starter.locationTimeout(5e3, loc) && Controls.CharSelectExit.click();
 locations[sdk.game.locations.ServerDown] = () => {

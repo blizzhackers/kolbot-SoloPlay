@@ -136,7 +136,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	this.mindBlast(unit);
 
 	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.skillDelay || !Skill.isTimed(Config.AttackSkill[0]))) {
-		if (Math.round(unit.distance) > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
+		if (unit.distance > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), sdk.collision.Ranged)) {
 				return Attack.Result.FAILED;
 			}
@@ -159,7 +159,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	let checkTraps = this.checkTraps(unit);
 
 	if (checkTraps) {
-		if (Math.round(unit.distance) > this.trapRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+		if (unit.distance > this.trapRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 			if (!Attack.getIntoPosition(unit, this.trapRange, sdk.collision.Ranged) || (checkCollision(me, unit, sdk.collision.BlockWall) && (getCollision(me.area, unit.x, unit.y) & sdk.collision.BlockWall))) {
 				return Attack.Result.FAILED;
 			}

@@ -31,12 +31,11 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	// Rebuff Hurricane
 	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, sdk.skills.hand.Right);
-
 	// Rebuff Cyclone Armor
 	Skill.canUse(sdk.skills.CycloneArmor) && !me.getState(sdk.states.CycloneArmor) && Skill.cast(sdk.skills.CycloneArmor, sdk.skills.hand.Right);
 
 	if (index === 1 && !unit.dead && unit.curseable) {
-		let commonCheck = (gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
+		const commonCheck = (gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
 
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
 			&& (gold > 500000 && !unit.isBoss) && !checkCollision(me, unit, sdk.collision.Ranged)) {

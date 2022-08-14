@@ -24,8 +24,8 @@ const Tracker = {
 
 	initialize: function () {
 		// File Structure
-		let LPHeader = "Total Time,InGame Time,Split Time,Area,Character Level,Gained EXP,Gained EXP/Minute,Difficulty,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n"; //Leveling Performance
-		let SPHeader = "Total Time,InGame Time,Sequence Time,Sequence,Character Level,Gained EXP,Gained EXP/Minute,Difficulty,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n"; //Script Performance
+		const LPHeader = "Total Time,InGame Time,Split Time,Area,Character Level,Gained EXP,Gained EXP/Minute,Difficulty,Gold,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n"; //Leveling Performance
+		const SPHeader = "Total Time,InGame Time,Sequence Time,Sequence,Character Level,Gained EXP,Gained EXP/Minute,Difficulty,Gold,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n"; //Script Performance
 		let GameTracker = Object.assign({}, this.default);
 
 		// Create Files
@@ -79,11 +79,12 @@ const Tracker = {
 		let gainAMT = me.getStat(sdk.stats.Experience) - startexp;
 		let gainTime = gainAMT / (scriptTime / 60000);
 		let currentBuild = SetUp.currentBuild;
-		let FR = me.getStat(sdk.stats.FireResist);
-		let CR = me.getStat(sdk.stats.ColdResist);
-		let LR = me.getStat(sdk.stats.LightResist);
-		let PR = me.getStat(sdk.stats.PoisonResist);
-		let string = Developer.formatTime(GameTracker.Total) + "," + Developer.formatTime(GameTracker.InGame) + "," + Developer.formatTime(scriptTime) + "," + subscript + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n";
+		let [GOLD, FR, CR, LR, PR] = [me.gold, me.realFR, me.realCR, me.realLR, me.realPR];
+		let string = (
+			Developer.formatTime(GameTracker.Total) + "," + Developer.formatTime(GameTracker.InGame) + "," + Developer.formatTime(scriptTime)
+			+ "," + subscript + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString
+			+ "," + GOLD + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n"
+		);
 
 		Misc.fileAction(Tracker.SPPath, 2, string);
 		this.tick = GameTracker.LastSave;
@@ -113,11 +114,12 @@ const Tracker = {
 		let currentBuild = SetUp.currentBuild;
 		let gainAMT = me.getStat(sdk.stats.Experience) - Experience.totalExp[me.charlvl - 1];
 		let gainTime = gainAMT / (splitTime / 60000);
-		let FR = me.getStat(sdk.stats.FireResist);
-		let CR = me.getStat(sdk.stats.ColdResist);
-		let LR = me.getStat(sdk.stats.LightResist);
-		let PR = me.getStat(sdk.stats.PoisonResist);
-		let string = Developer.formatTime(GameTracker.Total) + "," + Developer.formatTime(GameTracker.InGame) + "," + Developer.formatTime(splitTime) + "," + areaName + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n";
+		let [GOLD, FR, CR, LR, PR] = [me.gold, me.realFR, me.realCR, me.realLR, me.realPR];
+		let string = (
+			Developer.formatTime(GameTracker.Total) + "," + Developer.formatTime(GameTracker.InGame) + "," + Developer.formatTime(splitTime) + ","
+			+ areaName + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + ","
+			+ GOLD + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n"
+		);
 
 		Misc.fileAction(Tracker.LPPath, 2, string);
 		this.tick = GameTracker.LastSave;

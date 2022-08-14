@@ -287,7 +287,7 @@ ClassAttack.doCast = function (unit, attackSkill, data) {
 			return Attack.Result.FAILED;
 		}
 
-		if (Math.round(unit.distance) > Skill.getRange(attackSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
+		if (unit.distance > Skill.getRange(attackSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			walk = (Skill.getRange(attackSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall));
 
 			// think this should be re-written in pather with some form of leap pathing similar to teleport

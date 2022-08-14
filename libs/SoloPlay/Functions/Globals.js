@@ -58,6 +58,8 @@ function updateMyData () {
 
 // general settings
 const SetUp = {
+	mercEnabled: true,
+
 	init: function () {
 		let myData = CharData.getStats();
 
@@ -372,7 +374,7 @@ const SetUp = {
 		Config.HealMP = 99;
 		Config.HealStatus = true;
 		Config.UseMerc = me.expansion;
-		Config.MercWatch = true;
+		Config.MercWatch = SetUp.mercwatch;
 		Config.StashGold = me.charlvl * 100;
 		Config.ClearInvOnStart = false;
 
@@ -421,6 +423,13 @@ Object.defineProperties(SetUp, {
 		get: function () {
 			return myData.me.finalBuild;
 		},
+	},
+	mercwatch: {
+		get: function () {
+			let myGold = me.gold;
+			let lowGold = Math.min(Math.floor(500 + (me.charlvl * 100 * Math.sqrt(me.charlvl - 1))), 250000);
+			return (SetUp.mercEnabled && (myGold > lowGold) && (myGold > me.mercrevivecost));
+		}
 	},
 });
 
@@ -605,16 +614,22 @@ const Check = {
 		return false;
 	},
 
-	brokeAf: function () {
+	brokeAf: function (announce = true) {
 		let gold = me.gold;
-		let goldLimit = [10000, 25000, 50000][me.diff];
+		let lowGold = Math.min(Math.floor(500 + (me.charlvl * 100 * Math.sqrt(me.charlvl - 1))), 250000);
 
-		if (gold >= goldLimit || me.charlvl < 15 || (me.charlvl >= 15 && gold > 1000 && Item.getEquippedItem(sdk.body.RightArm).durability !== 0)) {
+		switch (true) {
+		case (me.charlvl < 15):
+		case (me.normal && !Pather.accessToAct(2)):
+		case (gold >= lowGold):
+		case (me.charlvl >= 15 && gold > Math.floor(lowGold / 2) && gold > me.getRepairCost()):
 			return false;
 		}
 
-		me.overhead("I am broke af");
-		NTIP.addLine("[name] == gold # [gold] >= 1");
+		if (announce) {
+			myPrint("very low gold. My Gold: " + gold);
+			NTIP.addLine("[name] == gold # [gold] >= 1");
+		}
 
 		return true;
 	},

@@ -94,6 +94,7 @@ function LoadConfig () {
 	];
 
 	const expansionTiers = [
+		"me.charlvl < 33 && [name] == smallcharm && [quality] == magic # [maxmana] >= 1 # [invoquantity] == 4 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [maxhp] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",

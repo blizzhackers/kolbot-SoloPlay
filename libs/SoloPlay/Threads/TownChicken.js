@@ -253,8 +253,14 @@ function main() {
 		let preArea = me.area;
 		let preAct = sdk.areas.actOf(preArea);
 
+		if (!me.inTown && !Town.getTpTool()) {
+			console.warn("Can't chicken to town. Quit");
+			scriptBroadcast("quit");
+		}
+
 		// not an essential function -> handle thrown errors
 		try {
+			me.cancelUIFlags();
 			Town.goToTown();
 		} catch (e) {
 			return false;
@@ -432,6 +438,7 @@ function main() {
 
 				return false;
 			} finally {
+				Packet.flash(me.gid, 100);
 				console.log("ÿc8TownChicken :: Took: " + Time.format(getTickCount() - t4) + " to visit town");
 				this.togglePause();
 

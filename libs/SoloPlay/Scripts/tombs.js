@@ -24,6 +24,7 @@ function tombs () {
 	Town.townTasks();
 
 	for (let number = 0; number < tombID.length; number++) {
+		if (SoloIndex.index.duriel.skipIf()) return true;
 		Pather.checkWP(sdk.areas.CanyonofMagic, true) ? Pather.useWaypoint(sdk.areas.CanyonofMagic) : Pather.getWP(sdk.areas.CanyonofMagic);
 		Precast.doPrecast(true);
 
