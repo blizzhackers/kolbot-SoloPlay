@@ -12,7 +12,7 @@
 
 const SoloIndex = {
 	doneList: [],
-	goldScripts: ["bishibosh", "tristram", "treehead", "countess"],
+	goldScripts: ["bishibosh", "tristram", "treehead", "countess", "lowerkurast"],
 
 	// this controls the order
 	scripts: [
@@ -115,14 +115,18 @@ const SoloIndex = {
 		},
 		"countess": {
 			skipIf: function () {
-				if (me.classic && me.hell) return true;
-				return false;
+				return (me.classic && me.hell);
 			},
 			shouldRun: function () {
 				if (this.skipIf()) return false;
-				// Farm for runes if we have a lawbringer because then we don't have to worry about phys immunes
-				if (me.barbarian && me.hell && me.checkItem({name: sdk.locale.items.Lawbringer}).have) return true;
-				return (Check.runes() || Check.brokeAf());
+				let needRunes = Check.runes();
+				switch (true) {
+				case (me.normal && (needRunes || Check.brokeAf())): // todo - better determination for low gold
+				case (me.barbarian && me.hell && me.checkItem({name: sdk.locale.items.Lawbringer}).have):
+				case (!me.normal && (Pather.canTeleport() || me.charlvl < 60)):
+					return true;
+				}
+				return false;
 			}
 		},
 		"smith": {

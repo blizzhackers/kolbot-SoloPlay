@@ -131,7 +131,7 @@ function diablo () {
 	}
 
 	try {
-		if (!Pather.canTeleport() && (me.necromancer && ["Poison", "Summon"].includes(SetUp.currentBuild) || !me.sorceress)) {
+		if (!Check.currentBuild().caster || (Skill.getRange(Config.AttackSkill[1]) < 13)) {
 			Messaging.sendToScript(SoloEvents.filePath, "addDiaEvent");
 		}
 

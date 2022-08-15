@@ -6,6 +6,10 @@
 */
 
 function hellforge () {
+	if (Misc.checkQuest(sdk.quest.id.HellsForge, sdk.quest.states.ReqComplete)) {
+		Town.goToTown(4) && Town.npcInteract("cain");
+		if (Misc.poll(() => Misc.checkQuest(sdk.quest.id.HellsForge, sdk.quest.states.Completed), 2000, 500)) return true;
+	}
 	myPrint("starting hellforge");
 	Town.townTasks({thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
 	

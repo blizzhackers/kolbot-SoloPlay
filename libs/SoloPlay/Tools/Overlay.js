@@ -236,7 +236,7 @@ const Overlay = {
 			},
 			HellForge: {
 				complete: false,
-				condition: () => me.getQuest(sdk.quest.id.HellsForge, sdk.quest.states.Completed)
+				condition: () => (me.getQuest(sdk.quest.id.HellsForge, sdk.quest.states.Completed) || me.getQuest(sdk.quest.id.HellsForge, sdk.quest.states.ReqComplete))
 			},
 			Diablo: {
 				complete: false,

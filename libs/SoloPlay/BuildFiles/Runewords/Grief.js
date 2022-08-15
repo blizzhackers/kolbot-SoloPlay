@@ -39,7 +39,7 @@ if (SetUp.finalBuild === "Plaguewolf") {
 	// Only start making Grief after Chains of Honor is made
 	if (Check.haveItem("armor", "runeword", "Chains of Honor")) {
 		Config.Runewords.push([Runeword.Grief, "phaseblade"]);
-		Config.KeepRunewords.push("[type] == sword # [ias] >= 30");
+		Config.KeepRunewords.push("[type] == sword # [ias] >= 30 && [itemdeadlystrike] == 20 && [passivepoispierce] >= 20");
 	}
 } else {
 	Config.Runewords.push([Runeword.Grief, "phaseblade"]);

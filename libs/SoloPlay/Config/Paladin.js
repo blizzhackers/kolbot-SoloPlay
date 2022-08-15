@@ -241,16 +241,12 @@ function LoadConfig () {
 
 				// Exile
 				if (!me.checkItem({name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields}).have) {
-					if (!isIncluded("SoloPlay/BuildFiles/Runewords/Exile.js")) {
-						include("SoloPlay/BuildFiles/Runewords/Exile.js");
-					}
+					includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Exile.js");
 				}
 
 				// Fortitude
 				if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Fortitude, itemtype: sdk.items.type.Armor}).have) {
-					if (!isIncluded("SoloPlay/BuildFiles/Runewords/Fortitude.js")) {
-						include("SoloPlay/BuildFiles/Runewords/Fortitude.js");
-					}
+					includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Fortitude.js");
 				}
 			}
 

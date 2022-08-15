@@ -427,7 +427,7 @@ Object.defineProperties(SetUp, {
 	mercwatch: {
 		get: function () {
 			let myGold = me.gold;
-			let lowGold = Math.min(Math.floor(500 + (me.charlvl * 100 * Math.sqrt(me.charlvl - 1))), 250000);
+			let lowGold = Math.min(Math.floor(500 + (me.charlvl * 150 * Math.sqrt(me.charlvl - 1))), 250000);
 			return (SetUp.mercEnabled && (myGold > lowGold) && (myGold > me.mercrevivecost));
 		}
 	},

@@ -1256,8 +1256,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 	let bodyLoc = Item.getBodyLoc(base);
 
 	const checkNoSockets = (item) => [
-		sdk.locale.items.AncientsPledge, sdk.locale.items.Exile, sdk.locale.items.Lore, sdk.locale.items.Spirit, sdk.locale.items.White, sdk.locale.items.Rhyme
-	].includes(item.prefixnum);
+		sdk.locale.items.AncientsPledge, sdk.locale.items.Exile, sdk.locale.items.Lore, sdk.locale.items.White, sdk.locale.items.Rhyme
+	].includes(item.prefixnum) || (item.prefixnum === sdk.locale.items.Spirit && item.getItemType() === "Shield");
 	const getRes = (item) => item.getStatEx(sdk.stats.FireResist) + item.getStatEx(sdk.stats.LightResist) + item.getStatEx(sdk.stats.ColdResist) + item.getStatEx(sdk.stats.PoisonResist);
 	const getDmg = (item) => item.getStatEx(sdk.stats.MinDamage) + item.getStatEx(sdk.stats.MaxDamage);
 	const getRealDmg = (item, maxED = 0, minOffset = 0, maxOffset = 0) => {
@@ -1286,8 +1286,13 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 		return (baseDmg > itemsTotalDmg);
 	};
 
+	// @todo - betterThanMercUsing check for now just keep merc items
+	if ([sdk.items.type.Polearm, sdk.items.type.Spear].includes(base.itemType) || ([sdk.items.type.Armor].includes(base.itemType) && base.ethereal)) return true;
 	// Can't use so its worse then what we already have
-	if ((Check.finalBuild().maxStr < base.strreq || Check.finalBuild().maxStr < base.dexreq)) return false;
+	if ((Check.finalBuild().maxStr < base.strreq || Check.finalBuild().maxStr < base.dexreq)) {
+		console.log("ÿc9BetterThanWearingCheckÿc0 :: " + base.name + " has to high stat requirments strReq: " + base.strreq + " dexReq " + base.dexreq);
+		return false;
+	}
 
 	let items = me.getItemsEx().filter(i => i.isEquipped && bodyLoc.includes(i.bodylocation));
 
@@ -1399,9 +1404,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 
 				break;
 			case sdk.locale.items.Spirit:
-				if (!me.paladin || bodyLoc[i] !== sdk.body.LeftArm) {
-					break;
-				}
+				if (!me.paladin || bodyLoc[i] !== sdk.body.LeftArm || base.getItemType() !== "Shield") return true;
 				
 				[itemsResists, baseResists] = [(getRes(equippedItem) - 115), getRes(base)];
 				if (baseResists !== itemsResists && resCheck(baseResists, itemsResists)) return true;
@@ -1671,7 +1674,7 @@ Town.betterThanStashed = function (base) {
 		// update - 8/8/2022 - checks final build stat requirements but still need a better check
 		// don't keep an item if we are only going to be able to use it when we get to our final build but also sometimes like paladin making grief
 		// we need the item to get to our final build but won't actually be able to use it till then so we can't just use max current build str/dex
-		if ((Check.finalBuild().maxStr < base.strreq || Check.finalBuild().maxStr < base.dexreq)) return false;
+		if ((Check.finalBuild().maxStr < base.strreq || Check.finalBuild().maxDex < base.dexreq)) return false;
 		// need better solution for comparison based on what runeword can be made in a base type
 		// should allow comparing multiple item types given they are all for the same runeword
 		itemsToCheck = getItemToCompare([base.itemType], false, generalScoreSort);
