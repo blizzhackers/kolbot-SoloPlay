@@ -1289,7 +1289,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 	// @todo - betterThanMercUsing check for now just keep merc items
 	if ([sdk.items.type.Polearm, sdk.items.type.Spear].includes(base.itemType) || ([sdk.items.type.Armor].includes(base.itemType) && base.ethereal)) return true;
 	// Can't use so its worse then what we already have
-	if ((Check.finalBuild().maxStr < base.strreq || Check.finalBuild().maxStr < base.dexreq)) {
+	if ((Check.finalBuild().maxStr < base.strreq || Check.finalBuild().maxDex < base.dexreq)) {
 		console.log("ÿc9BetterThanWearingCheckÿc0 :: " + base.name + " has to high stat requirments strReq: " + base.strreq + " dexReq " + base.dexreq);
 		return false;
 	}

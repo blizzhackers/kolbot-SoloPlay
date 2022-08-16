@@ -924,7 +924,7 @@ const Check = {
 			switch (true) {
 			case (shorthandStr.includes(s[0]) && statToCheck === "str"):
 			case (shorthandDex.includes(s[0]) && statToCheck === "dex"):
-				if (s[1] > highest) {
+				if (typeof s[1] === "number" && s[1] > highest) {
 					highest = s[1];
 				}
 
