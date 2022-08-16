@@ -300,8 +300,9 @@ const SoloIndex = {
 					return SetUp.currentBuild !== SetUp.finalBuild;
 				case sdk.player.class.Paladin:
 					return !Check.currentBuild().caster;
+				default:
+					return Attack.getSkillElement(Config.AttackSkill[3] === "magic");
 				}
-				return false;
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
