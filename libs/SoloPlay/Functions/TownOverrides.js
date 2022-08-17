@@ -1293,6 +1293,8 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 		console.log("ÿc9BetterThanWearingCheckÿc0 :: " + base.name + " has to high stat requirments strReq: " + base.strreq + " dexReq " + base.dexreq);
 		return false;
 	}
+	// don't toss pb base crescent moon/HoJ/Grief
+	if (base.classid === sdk.items.PhaseBlade && [3, 4, 5].includes(base.sockets)) return true;
 
 	let items = me.getItemsEx().filter(i => i.isEquipped && bodyLoc.includes(i.bodylocation));
 
