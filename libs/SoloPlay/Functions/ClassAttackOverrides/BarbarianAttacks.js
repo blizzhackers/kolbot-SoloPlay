@@ -124,7 +124,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		}
 	}
 	
-	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
+	const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 	let attackSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
 
 	if (!Attack.checkResist(unit, attackSkill)) {
@@ -149,61 +149,44 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		}
 	}
 
-	// TODO: calculate damage values for physcial attacks
-	let data = {
-		switchCast: me.expansion && !!(Precast.getBetterSlot(sdk.skills.BattleCry) === 1 || Precast.getBetterSlot(sdk.skills.WarCry) === 1),
-		howl: {
-			have: Skill.canUse(sdk.skills.Howl), skill: sdk.skills.Howl, range: Skill.getRange(sdk.skills.Howl), mana: Skill.getManaCost(sdk.skills.Howl)
-		},
-		taunt: {
-			have: Skill.canUse(sdk.skills.Taunt), skill: sdk.skills.Taunt, mana: Skill.getManaCost(sdk.skills.Taunt)
-		},
-		grimWard: {
-			have: Skill.canUse(sdk.skills.GrimWard), skill: sdk.skills.GrimWard, range: 15, mana: Skill.getManaCost(sdk.skills.GrimWard)
-		},
-		battleCry: {
-			have: Skill.canUse(sdk.skills.BattleCry), skill: sdk.skills.BattleCry, range: Skill.getRange(sdk.skills.BattleCry), mana: Skill.getManaCost(sdk.skills.BattleCry)
-		},
-		warCry: {
-			have: Skill.canUse(sdk.skills.WarCry), skill: sdk.skills.WarCry, range: Skill.getRange(sdk.skills.WarCry), mana: Skill.getManaCost(sdk.skills.WarCry)
-		},
-		bash: {
-			have: Skill.canUse(sdk.skills.Bash), skill: sdk.skills.Bash, range: Skill.getRange(sdk.skills.Bash), mana: Skill.getManaCost(sdk.skills.Bash)
-		},
-		stun: {
-			have: Skill.canUse(sdk.skills.Stun), skill: sdk.skills.Stun, range: Skill.getRange(sdk.skills.Stun), mana: Skill.getManaCost(sdk.skills.Stun)
-		},
-		concentrate: {
-			have: Skill.canUse(sdk.skills.Concentrate), skill: sdk.skills.Concentrate, range: Skill.getRange(sdk.skills.Concentrate), mana: Skill.getManaCost(sdk.skills.Concentrate)
-		},
-		leap: {
-			have: Skill.canUse(sdk.skills.Leap), skill: sdk.skills.Leap, range: Skill.getRange(sdk.skills.Leap), mana: Skill.getManaCost(sdk.skills.Leap)
-		},
-		leapAttack: {
-			have: Skill.canUse(sdk.skills.LeapAttack), skill: sdk.skills.LeapAttack, range: Skill.getRange(sdk.skills.LeapAttack), mana: Skill.getManaCost(sdk.skills.LeapAttack)
-		},
-		doubleSwing: {
-			have: Skill.canUse(sdk.skills.DoubleSwing), skill: sdk.skills.DoubleSwing, range: Skill.getRange(sdk.skills.DoubleSwing), mana: Skill.getManaCost(sdk.skills.DoubleSwing)
-		},
-		whirlwind: {
-			have: Skill.canUse(sdk.skills.Whirlwind), skill: sdk.skills.Whirlwind, range: Skill.getRange(sdk.skills.Whirlwind), mana: Skill.getManaCost(sdk.skills.Whirlwind)
-		},
-		main: {
-			have: Skill.canUse(Config.AttackSkill[index]), skill: Config.AttackSkill[index], range: Skill.getRange(Config.AttackSkill[index]), mana: Skill.getManaCost(Config.AttackSkill[index]),
-			timed: Skill.isTimed(Config.AttackSkill[index])
-		},
-		secondary: {
-			have: Skill.canUse(Config.AttackSkill[index + 1]), skill: Config.AttackSkill[index + 1], range: Skill.getRange(Config.AttackSkill[index + 1]), mana: Skill.getManaCost(Config.AttackSkill[index + 1]),
-			timed: Skill.isTimed(Config.AttackSkill[index + 1])
-		},
+	const buildDataObj = (skillId = -1, reqLvl = 1) => ({
+		have: false, skill: skillId, range: Infinity, mana: Infinity, timed: false, reqLvl: reqLvl,
+		assignValues: function (range) {
+			this.have = Skill.canUse(this.skill);
+			this.range = range || Skill.getRange(this.skill);
+			this.mana = Skill.getManaCost(this.skill);
+			this.timed = Skill.isTimed(this.skill);
+		}
+	});
+	const currLvl = me.charlvl;
+	const data = {
+		switchCast: false,
+		howl: buildDataObj(sdk.skills.Howl, 1),
+		taunt: buildDataObj(sdk.skills.Taunt, 6),
+		grimWard: buildDataObj(sdk.skills.GrimWard, 24),
+		battleCry: buildDataObj(sdk.skills.BattleCry, 18),
+		warCry: buildDataObj(sdk.skills.WarCry, 30),
+		bash: buildDataObj(sdk.skills.Bash, 1),
+		stun: buildDataObj(sdk.skills.Stun, 12),
+		concentrate: buildDataObj(sdk.skills.Concentrate, 18),
+		leap: buildDataObj(sdk.skills.Leap, 6),
+		leapAttack: buildDataObj(sdk.skills.LeapAttack, 18),
+		doubleSwing: buildDataObj(sdk.skills.DoubleSwing, 6),
+		whirlwind: buildDataObj(sdk.skills.Whirlwind, 30),
+		main: buildDataObj(Config.AttackSkill[index], 1),
+		secondary: buildDataObj(Config.AttackSkill[index + 1], 1),
 	};
+	
+	// TODO: calculate damage values for physcial attacks
+	Object.keys(data).forEach(k => typeof data[k] === "object" && currLvl >= data[k].reqLvl && data[k].assignValues());
+	// console.debug(data);
 
 	// Low mana skill
 	if (Skill.getManaCost(attackSkill) > me.mp && Config.LowManaSkill[0] > -1 && Attack.checkResist(unit, Config.LowManaSkill[0])) {
 		attackSkill = Config.LowManaSkill[0];
 	}
 
-	if ([sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy].includes(attackSkill) && !me.duelWielding) {
+	if ([sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy].includes(attackSkill) && !me.duelWielding || !Skill.canUse(attackSkill)) {
 		let oneHandSk = [data.bash, data.stun, data.concentrate, data.leapAttack, data.whirlwind]
 			.filter((skill) => skill.have && me.mp > skill.mana)
 			.sort((a, b) => GameData.physicalAttackDamage(b.skill) - GameData.physicalAttackDamage(a.skill))
@@ -283,7 +266,7 @@ ClassAttack.doCast = function (unit, attackSkill, data) {
 
 		return Attack.Result.SUCCESS;
 	default:
-		if (Skill.getRange(attackSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
+		if (Skill.getRange(attackSkill) < 4 && !Attack.validSpot(unit.x, unit.y, attackSkill, unit.classid)) {
 			return Attack.Result.FAILED;
 		}
 
