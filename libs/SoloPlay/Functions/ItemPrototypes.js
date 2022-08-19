@@ -305,7 +305,7 @@ Unit.prototype.shouldKeep = function () {
 		// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
 		|| (this.unique && Pickit.checkItem(this).result === 2)
 		// or keep if item is worth selling
-		|| (this.getItemCost(sdk.items.cost.ToSell) / (this.sizex * this.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
+		|| (this.getItemCost(sdk.items.cost.ToSell) / (this.sizex * this.sizey) >= (me.charlvl < 12 ? 5 : me.normal ? 50 : me.nightmare ? 500 : 1000))) {
 		if ((Storage.Inventory.CanFit(this) && Storage.Inventory.MoveTo(this))) {
 			Town.sell.push(this);
 			return true;

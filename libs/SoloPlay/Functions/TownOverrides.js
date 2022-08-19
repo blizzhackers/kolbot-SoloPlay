@@ -238,6 +238,57 @@ Town.sellItems = function (itemList = []) {
 	return !itemList.length;
 };
 
+Town.fillTome = function (classid) {
+	if (me.gold < 450) return false;
+	let have = this.checkScrolls(classid);
+	if (have >= (me.charlvl < 12 ? 5 : 13)) return true;
+
+	let npc = this.initNPC("Shop", "fillTome");
+	if (!npc) return false;
+
+	delay(500);
+
+	if (classid === sdk.items.TomeofTownPortal && !me.findItem(sdk.items.TomeofTownPortal, sdk.items.mode.inStorage, sdk.storage.Inventory)) {
+		let tome = npc.getItem(sdk.items.TomeofTownPortal);
+
+		if (tome && Storage.Inventory.CanFit(tome)) {
+			try {
+				tome.buy();
+			} catch (e1) {
+				console.warn(e1.message ? e1.message : e1);
+				// Couldn't buy the tome, don't spam the scrolls
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	let scroll = npc.getItem(classid === sdk.items.TomeofTownPortal ? sdk.items.ScrollofTownPortal : sdk.items.ScrollofIdentify);
+	if (!scroll) return false;
+
+	try {
+		if (me.gold < 5000) {
+			let myTome = me.getItem(sdk.items.TomeofTownPortal);
+			if (myTome) {
+				while (myTome.getStat(sdk.stats.Quantity) < 5 && me.gold > 500) {
+					scroll = npc.getItem(classid === sdk.items.TomeofTownPortal ? sdk.items.ScrollofTownPortal : sdk.items.ScrollofIdentify);
+					scroll && Packet.buyScroll(scroll, myTome, false);
+					delay(50);
+				}
+			}
+		} else {
+			scroll.buy(true);
+		}
+	} catch (e2) {
+		console.warn(e2.message ? e2.message : e2);
+
+		return false;
+	}
+
+	return true;
+};
+
 // need to build task list then do them.
 // This way we can look ahead to see if there is a task thats going to be done at the current npc like buyPots and just go ahead and do it
 Town.townTasks = function (buyPots = {}) {

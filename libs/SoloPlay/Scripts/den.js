@@ -24,23 +24,39 @@ function den () {
 
 		// todo - write walking clearLevel function
 		// make sure we are ready for cold plains
-		let clearUntil = me.charlvl === 1 ? /*just started*/ 2 : 3; // if this is our second attempt, then bloor moor should be repopulated with mobs
-		me.charlvl < clearUntil && Attack.clearLevelUntilLevel(clearUntil);
+		// let clearUntil = me.charlvl === 1 ? /*just started*/ 2 : 3; // if this is our second attempt, then bloor moor should be repopulated with mobs
+		// me.charlvl < clearUntil && Attack.clearLevelUntilLevel(clearUntil);
 
-		// now make portal at den entrace
-		Pather.moveToExit(sdk.areas.DenofEvil, false, true);
-		Pather.makePortal();
+		// // now make portal at den entrace
+		// Pather.moveToExit(sdk.areas.DenofEvil, false, true);
+		// Pather.makePortal();
+		try {
+			Pather.moveToPreset(sdk.areas.BloodMoor, sdk.unittype.Object, sdk.objects.SuperChest) && Misc.openChests(5);
+		} catch (e) {
+			console.warn(e.message ? e.message : e);
+			// let cPlains = Pather.getExitCoords(me.area, sdk.areas.ColdPlains);
+			// Misc.openChestsInArea(sdk.areas.BloodMoor, [], (a, b) => {
+			// 	let aDist = getDistance(a.x, a.y, cPlains.x, cPlains.y);
+			// 	let bDist = getDistance(b.x, b.y, cPlains.x, cPlains.y);
+			// 	return (bDist - aDist);
+			// });
+		}
 		Pather.getWP(sdk.areas.ColdPlains);
 
 		// check if we need to do chores - if so use waypoint to town (preserves portal if we made one at den) - return to cold plains using waypoint
 		Storage.Inventory.UsedSpacePercent() > 50 && Pather.useWaypoint(sdk.areas.RogueEncampment) && Town.doChores() && Pather.useWaypoint(sdk.areas.ColdPlains);
 
 		// make sure we are ready for den
-		clearUntil = me.charlvl === 2 ? /*just started*/ 3 : 4;
-		me.charlvl < clearUntil && Attack.clearLevelUntilLevel(clearUntil);
+		// clearUntil = me.charlvl === 2 ? /*just started*/ 3 : 4;
+		// me.charlvl < clearUntil && Attack.clearLevelUntilLevel(clearUntil);
 
-		Pather.getWP(sdk.areas.ColdPlains);
-		Pather.useWaypoint(sdk.areas.RogueEncampment);
+		// Pather.getWP(sdk.areas.ColdPlains);
+		// Pather.useWaypoint(sdk.areas.RogueEncampment);
+	}
+
+	if (me.charlvl < 6) {
+		Loader.skipTown.push("cave") && Loader.runScript("cave");
+		if (me.charlvl < 6) return true;
 	}
 
 	Town.doChores();

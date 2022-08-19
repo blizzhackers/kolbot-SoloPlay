@@ -91,3 +91,64 @@ Loader.loadScripts = function () {
 		}
 	}
 };
+
+Loader.runScript = function (script, configOverride) {
+	let failed = false;
+	let tick;
+	let currentExp;
+	let reconfiguration, unmodifiedConfig = {};
+	let mainScript = this.scriptName();
+		
+	function buildScriptMsg () {
+		let str = "ÿc9" + mainScript + " ÿc0:: ";
+
+		if (Loader.tempList.length && Loader.tempList[0] !== mainScript) {
+			Loader.tempList.forEach(s => str += "ÿc9" + s + " ÿc0:: ");
+		}
+			
+		return str;
+	}
+
+	this.copy(Config, unmodifiedConfig);
+
+	if (includeIfNotIncluded("SoloPlay/Scripts/" + script + ".js")) {
+		try {
+			if (typeof (global[script]) !== "function") throw new Error("Invalid script function name");
+			if (this.skipTown.includes(script) || Town.goToTown()) {
+				let mainScriptStr = (mainScript !== script ? buildScriptMsg() : "");
+				this.tempList.push(script);
+				console.log(mainScriptStr + "ÿc2Starting script: ÿc9" + script);
+				Messaging.sendToScript("libs/SoloPlay/Threads/ToolsThread.js", JSON.stringify({currScript: script}));
+
+				if (typeof configOverride === "function") {
+					reconfiguration = true;
+					configOverride();
+				}
+
+				tick = getTickCount();
+				currentExp = me.getStat(sdk.stats.Experience);
+
+				if (global[script]()) {
+					console.log(mainScriptStr + "ÿc7" + script + " :: ÿc0Complete ÿc0- ÿc7Duration: ÿc0" + (Time.format(getTickCount() - tick)));
+				}
+			}
+		} catch (e) {
+			failed = true;
+			console.warn("ÿc8Kolbot-SoloPlayÿc0: " + (e.message ? e.message : e));
+		} finally {
+			SoloIndex.doneList.push(script);
+			Developer.logPerformance && Tracker.script(tick, script, currentExp);
+			delete global[script];
+			this.tempList.pop();
+				
+			if (reconfiguration) {
+				print("ÿc2Reverting back unmodified config properties.");
+				this.copy(unmodifiedConfig, Config);
+			}
+		}
+	} else {
+		console.warn("Failed to include: " + script);
+	}
+
+	return !failed;
+};

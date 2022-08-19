@@ -484,7 +484,10 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 						NodeAction.go(clearSettings);
 						// need to determine if its worth going back to our orignal node (items maybe?)
 						// vs our current proximity to our next node
-						(getDistance(me, node.x, node.y) > 5) && this.moveTo(node.x, node.y);
+						if (getDistance(me, node.x, node.y) > 5) {
+							Pickit.pickItems();
+							this.moveTo(node.x, node.y);
+						}
 						this.recursion = true;
 					}
 

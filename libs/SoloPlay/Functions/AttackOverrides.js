@@ -245,6 +245,10 @@ Attack.killTarget = function (name = undefined) {
 
 			attackCount += 1;
 
+			if (target.dead || Config.FastPick) {
+				Config.FastPick ? Pickit.fastPick() : Pickit.essessntialsPick();
+			}
+
 			if (!target.attackable) {
 				break;
 			}
@@ -365,7 +369,9 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 					monsterList.shift();
 				}
 
-				(target.dead || Config.FastPick) && Pickit.fastPick();
+				if (target.dead || Config.FastPick) {
+					Config.FastPick ? Pickit.fastPick() : Pickit.essessntialsPick(false, true);
+				}
 			} else {
 				if (retry++ > 3) {
 					monsterList.shift();
@@ -667,7 +673,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 				}
 
 				if (target.dead || Config.FastPick) {
-					Pickit.fastPick();
+					Config.FastPick ? Pickit.fastPick() : Pickit.essessntialsPick();
 				}
 			} else {
 				if (Coords_1.isBlockedBetween(me, target)) {
