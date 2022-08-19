@@ -6,6 +6,7 @@
 */
 
 let build = {
+	AutoBuildTemplate: {},
 	caster: false,
 	skillstab: sdk.skills.tabs.JavelinandSpear,
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
@@ -46,3 +47,13 @@ let build = {
 // Has to be set after its loaded
 build.stats = me.classic ? build.classicStats : build.expansionStats;
 me.classic && build.usefulStats.push(sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois);
+
+build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	let mainSkill = Skill.canUse(sdk.skills.LightningStrike) ? sdk.skills.LightningStrike : sdk.skills.ChargedStrike;
+	Config.AttackSkill = [-1, sdk.skills.ChargedStrike, 0, mainSkill, 0, -1, -1];
+	Config.BeltColumn = ["hp", "hp", "mp", "mp"];
+	Config.HPBuffer = me.expansion ? 2 : 4;
+	Config.MPBuffer = 6;
+	SetUp.belt();
+});
+

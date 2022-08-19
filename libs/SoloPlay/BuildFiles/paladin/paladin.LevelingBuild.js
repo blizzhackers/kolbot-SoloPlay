@@ -7,6 +7,7 @@
 */
 
 let build = {
+	AutoBuildTemplate: {},
 	caster: true,
 	skillstab: sdk.skills.tabs.PalaCombat,
 	wantedskills: [sdk.skills.BlessedHammer, sdk.skills.Concentration],
@@ -100,3 +101,14 @@ let build = {
 
 // Has to be set after its loaded
 build.stats = me.classic ? build.classicStats : build.expansionStats;
+
+build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	Config.TownHP = me.hardcore ? 0 : 35;
+	Config.AttackSkill = [-1, sdk.skills.BlessedHammer, sdk.skills.Concentration, sdk.skills.BlessedHammer, sdk.skills.Concentration, sdk.skills.HolyBolt, sdk.skills.Concentration];
+	Config.LowManaSkill = [0, sdk.skills.Concentration];
+	Config.BeltColumn = ["hp", "hp", "mp", "mp"];
+	Config.HPBuffer = me.expansion ? 2 : 4;
+	Config.MPBuffer = me.expansion && me.charlvl < 80 ? 6 : me.classic ? 5 : 2;
+	(me.hell && !Pather.accessToAct(5)) && (Config.SkipImmune = ["magic"]);
+	SetUp.belt();
+});

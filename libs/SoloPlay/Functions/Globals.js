@@ -560,6 +560,7 @@ const basicSocketables = {
 	]
 };
 
+// misc
 const goToDifficulty = function (diff = undefined, reason = "") {
 	try {
 		if (diff === undefined) throw new Error("diff is undefined");
@@ -596,6 +597,12 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 
 	return false;
 };
+
+const buildAutoBuildTempObj = (update = () => {}) => ({
+	SkillPoints: [-1],
+	StatPoints: [-1, -1, -1, -1, -1],
+	Update: update
+});
 
 // General Game functions
 const Check = {

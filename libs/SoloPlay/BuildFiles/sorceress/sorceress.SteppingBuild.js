@@ -6,6 +6,7 @@
 */
 
 let build = {
+	AutoBuildTemplate: {},
 	caster: true,
 	skillstab: sdk.skills.tabs.Cold,
 	wantedskills: [sdk.skills.Blizzard, sdk.skills.GlacialSpike, sdk.skills.ColdMastery],
@@ -65,3 +66,12 @@ let build = {
 // Has to be set after its loaded
 build.stats = me.classic ? build.classicStats : build.expansionStats;
 build.skills = me.classic ? build.classicSkills : build.expansionSkills;
+
+build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.IceBlast, sdk.skills.Blizzard, sdk.skills.IceBlast, -1, -1];
+	Config.BeltColumn = ["hp", "hp", "mp", "mp"];
+	Config.HPBuffer = me.expansion && !me.normal ? 2 : 5;
+	Config.MPBuffer = (me.expansion && !me.normal || Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum === sdk.locale.items.Insight) ? 2 : 5;
+	Config.SkipImmune = ["cold"];
+	SetUp.belt();
+});

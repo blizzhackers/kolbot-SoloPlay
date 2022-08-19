@@ -6,6 +6,7 @@
 */
 
 let build = {
+	AutoBuildTemplate: {},
 	caster: true,
 	skillstab: sdk.skills.tabs.PoisonandBone,
 	wantedskills: [sdk.skills.Teeth, sdk.skills.BoneSpear],
@@ -38,3 +39,38 @@ let build = {
 		return me.charlvl < CharInfo.respecOne && !me.getSkill(sdk.skills.BonePrison, sdk.skills.subindex.HardPoints);
 	},
 };
+
+build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
+	Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
+	Config.FieldID.UsedSpace = 0;
+			
+	Config.TownHP = me.hardcore ? 0 : 35;
+	Config.BeltColumn = ["hp", "hp", "hp", "hp"];
+	Config.HPBuffer = 6;
+	Config.MPBuffer = 6;
+	Config.AttackSkill = [-1, 0, 0, 0, 0, -1, -1];
+	Config.LowManaSkill = [0, 0];
+	Config.Golem = "Clay";
+	SetUp.belt();
+});
+build.AutoBuildTemplate[2] = buildAutoBuildTempObj(() => {
+	Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
+	Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
+	Config.FieldID.UsedSpace = 0;
+			
+	Config.AttackSkill = [-1, sdk.skills.Teeth, -1, sdk.skills.Teeth, -1, -1, -1];
+	Config.BeltColumn = ["hp", "hp", "mp", "mp"];
+	Config.HPBuffer = 2;
+	Config.MPBuffer = 6;
+	SetUp.belt();
+});
+build.AutoBuildTemplate[18] = buildAutoBuildTempObj(() => {
+	Config.AttackSkill = [-1, sdk.skills.Teeth, -1, sdk.skills.Teeth, -1, -1, -1];
+	Config.ExplodeCorpses = sdk.skills.CorpseExplosion;
+
+	if (me.getSkill(sdk.skills.BoneSpear, sdk.skills.subindex.HardPoints)) {
+		Config.AttackSkill = [-1, sdk.skills.BoneSpear, -1, sdk.skills.BoneSpear, -1, -1, -1];
+		Config.LowManaSkill = [sdk.skills.Teeth, -1];
+	}
+});

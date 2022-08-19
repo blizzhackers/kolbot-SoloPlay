@@ -7,6 +7,7 @@
 */
 
 let build = {
+	AutoBuildTemplate: {},
 	caster: false,
 	skillstab: sdk.skills.tabs.BarbCombat,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing, sdk.skills.SwordMastery],
@@ -53,3 +54,16 @@ let build = {
 		return me.charlvl > CharInfo.respecOne && me.charlvl < CharInfo.respecTwo && me.getSkill(sdk.skills.NaturalResistance, sdk.skills.subindex.HardPoints) && !me.getSkill(sdk.skills.Berserk, sdk.skills.subindex.HardPoints);
 	},
 };
+
+build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	Config.AttackSkill = [-1, sdk.skills.DoubleSwing, -1, sdk.skills.DoubleSwing, -1];
+	if (me.getSkill(sdk.skills.DoubleSwing, sdk.skills.subindex.SoftPoints) >= 9) {
+		Config.LowManaSkill = [sdk.skills.DoubleSwing, 0];
+	}
+	SetUp.belt();
+});
+build.AutoBuildTemplate[24] = buildAutoBuildTempObj(() => {
+	if (me.getSkill(sdk.skills.Frenzy, sdk.skills.subindex.HardPoints)) {
+		Config.AttackSkill = [-1, sdk.skills.Frenzy, -1, sdk.skills.Frenzy, -1];
+	}
+});

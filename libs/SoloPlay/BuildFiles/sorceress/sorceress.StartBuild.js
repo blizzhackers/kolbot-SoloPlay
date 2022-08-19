@@ -6,6 +6,7 @@
 */
 
 let build = {
+	AutoBuildTemplate: {},
 	caster: true,
 	skillstab: sdk.skills.tabs.Lightning,
 	wantedskills: [sdk.skills.ChargedBolt, sdk.skills.StaticField],
@@ -40,3 +41,42 @@ let build = {
 		return me.charlvl < CharInfo.respecOne && !me.getSkill(sdk.skills.ColdMastery, sdk.skills.subindex.HardPoints);
 	},
 };
+
+build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
+	Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
+	Config.FieldID.UsedSpace = 0;
+
+	Config.BeltColumn = ["hp", "hp", "hp", "hp"];
+	Config.HPBuffer = 2;
+	Config.MPBuffer = 10;
+	Config.AttackSkill = [-1, sdk.skills.FireBolt, -1, sdk.skills.FireBolt, -1, 0, 0];
+	Config.LowManaSkill = [0, 0];
+	SetUp.belt();
+});
+build.AutoBuildTemplate[2] = buildAutoBuildTempObj(() => {
+	Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
+	Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
+	Config.FieldID.UsedSpace = 0;
+
+	Config.TownHP = me.hardcore ? 0 : 35;
+	Config.LowManaSkill = [0, 0];
+	Config.BeltColumn = ["hp", "hp", "mp", "mp"];
+	SetUp.belt();
+	if (!!me.getSkill(sdk.skills.IceBolt, sdk.skills.subindex.SoftPoints)) {
+		Config.AttackSkill = [-1, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.IceBolt, 0];
+	} else {
+		Config.AttackSkill = [-1, sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, sdk.skills.subindex.SoftPoints) ? sdk.skills.FireBolt : -1), sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, sdk.skills.subindex.SoftPoints) ? sdk.skills.FireBolt : -1), 0, 0];
+	}
+	SetUp.belt();
+});
+build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
+	Config.AttackSkill = [-1, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.FrostNova, sdk.skills.IceBolt];
+	Config.DodgeHP = 50;
+	Config.DodgeRange = me.getSkill(sdk.skills.Blizzard) ? 15 : 7;
+});
+build.AutoBuildTemplate[24] = buildAutoBuildTempObj(() => {
+	if (!!me.getSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints)) {
+		Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Nova, sdk.skills.ChargedBolt];
+	}
+});

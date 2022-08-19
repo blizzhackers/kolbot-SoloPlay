@@ -16,7 +16,7 @@ includeIfNotIncluded("SoloPlay/Functions/RunewordsOverrides.js");
 const AutoBuild = new function AutoBuild () {
 	Config.AutoBuild.DebugMode && (Config.AutoBuild.Verbose = true);
 	this.usingFinalBuildFile = false;
-
+	let currAutoBuild;
 	let debug = !!Config.AutoBuild.DebugMode;
 	let verbose = !!Config.AutoBuild.Verbose;
 	let configUpdateLevel = 0, lastSuccessfulUpdateLevel = 0;
@@ -32,26 +32,34 @@ const AutoBuild = new function AutoBuild () {
 		while (configUpdateLevel < cLvl) {
 			configUpdateLevel += 1;
 			Skill.init();
-			if (this.usingFinalBuildFile) {
-				// kind of hacky/ugly solution but reduces unneeded files
-				if (finalBuild.AutoBuildTemplate[configUpdateLevel] !== undefined) {
-					finalBuild.AutoBuildTemplate[configUpdateLevel].Update.apply(Config);
-					lastSuccessfulUpdateLevel = configUpdateLevel;
-				} else if (reapply) {
-					// re-apply from the last successful update - this is helpful if inside the build file there are conditional statements
-					finalBuild.AutoBuildTemplate[lastSuccessfulUpdateLevel].Update.apply(Config);
-					reapply = false;
-				}
-			} else {
-				if (AutoBuildTemplate[configUpdateLevel] !== undefined) {
-					AutoBuildTemplate[configUpdateLevel].Update.apply(Config);
-					lastSuccessfulUpdateLevel = configUpdateLevel;
-				} else if (reapply) {
-					// re-apply from the last successful update - this is helpful if inside the build file there are conditional statements
-					AutoBuildTemplate[lastSuccessfulUpdateLevel].Update.apply(Config);
-					reapply = false;
-				}
+			if (currAutoBuild[configUpdateLevel] !== undefined) {
+				currAutoBuild[configUpdateLevel].Update.apply(Config);
+				lastSuccessfulUpdateLevel = configUpdateLevel;
+			} else if (reapply) {
+				// re-apply from the last successful update - this is helpful if inside the build file there are conditional statements
+				currAutoBuild[lastSuccessfulUpdateLevel].Update.apply(Config);
+				reapply = false;
 			}
+			// if (this.usingFinalBuildFile) {
+			// 	// kind of hacky/ugly solution but reduces unneeded files
+			// 	if (finalBuild.AutoBuildTemplate[configUpdateLevel] !== undefined) {
+			// 		finalBuild.AutoBuildTemplate[configUpdateLevel].Update.apply(Config);
+			// 		lastSuccessfulUpdateLevel = configUpdateLevel;
+			// 	} else if (reapply) {
+			// 		// re-apply from the last successful update - this is helpful if inside the build file there are conditional statements
+			// 		finalBuild.AutoBuildTemplate[lastSuccessfulUpdateLevel].Update.apply(Config);
+			// 		reapply = false;
+			// 	}
+			// } else {
+			// 	if (AutoBuildTemplate[configUpdateLevel] !== undefined) {
+			// 		AutoBuildTemplate[configUpdateLevel].Update.apply(Config);
+			// 		lastSuccessfulUpdateLevel = configUpdateLevel;
+			// 	} else if (reapply) {
+			// 		// re-apply from the last successful update - this is helpful if inside the build file there are conditional statements
+			// 		AutoBuildTemplate[lastSuccessfulUpdateLevel].Update.apply(Config);
+			// 		reapply = false;
+			// 	}
+			// }
 		}
 	}
 
@@ -75,14 +83,10 @@ const AutoBuild = new function AutoBuild () {
 	}
 
 	function getTemplateFilename () {
+		let className = sdk.player.class.nameOf(me.classid);
 		let build = getBuildType();
-		let template;
-		if (["Start", "Stepping", "Leveling"].includes(build)) {
-			template = "SoloPlay/Config/Builds/" + sdk.player.class.nameOf(me.classid) + "." + build + ".js";
-		} else {
-			this.usingFinalBuildFile = true;
-			template = "SoloPlay/BuildFiles/" + sdk.player.class.nameOf(me.classid) + "/" + sdk.player.class.nameOf(me.classid) + "." + build + "Build.js";
-		}
+		this.usingFinalBuildFile = ["Start", "Stepping", "Leveling"].includes(build);
+		let template = "SoloPlay/BuildFiles/" + className + "/" + className + "." + build + "Build.js";
 		return template.toLowerCase();
 	}
 
@@ -91,6 +95,7 @@ const AutoBuild = new function AutoBuild () {
 		let template = getTemplateFilename();
 		this.print("Including build template " + template + " into " + currentScript);
 		if (!include(template)) throw new Error("Failed to include template: " + template);
+		currAutoBuild = this.usingFinalBuildFile ? finalBuild.AutoBuildTemplate : build.AutoBuildTemplate;
 
 		// Only load() helper thread from default.dbj if it isn't loaded
 		if (currentScript === "default.dbj" && !getScript("libs\\SoloPlay\\Threads\\AutoBuildThread.js")) {

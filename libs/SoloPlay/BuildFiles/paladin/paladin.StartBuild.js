@@ -6,6 +6,7 @@
 */
 
 let build = {
+	AutoBuildTemplate: {},
 	caster: false,
 	skillstab: sdk.skills.tabs.PalaCombat,
 	wantedskills: [sdk.skills.Zeal, sdk.skills.HolyFire],
@@ -37,3 +38,47 @@ let build = {
 		return me.charlvl < CharInfo.respecOne && !me.getSkill(sdk.skills.BlessedAim, sdk.skills.subindex.HardPoints);
 	},
 };
+
+build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
+	Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
+	Config.FieldID.UsedSpace = 0;
+
+	Config.BeltColumn = ["hp", "hp", "hp", "hp"];
+	Config.HPBuffer = 8;
+	Config.AttackSkill = [-1, sdk.skills.Attack, -1, sdk.skills.Attack, -1, -1, -1];
+	Config.LowManaSkill = [sdk.skills.Attack, -1];
+	SetUp.belt();
+});
+build.AutoBuildTemplate[2] = buildAutoBuildTempObj(() => {
+	Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
+	Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
+	Config.FieldID.UsedSpace = 0;
+
+	Config.BeltColumn = ["hp", "hp", "hp", "hp"];
+	Config.HPBuffer = 8;
+	Config.AttackSkill = [-1, sdk.skills.Attack, sdk.skills.Might, sdk.skills.Attack, sdk.skills.Might, -1, -1];
+	Config.LowManaSkill = [sdk.skills.Attack, sdk.skills.Might];
+});
+build.AutoBuildTemplate[6] = buildAutoBuildTempObj(() => {
+	Config.HPBuffer = 8;
+	Config.AttackSkill = [-1, sdk.skills.Attack, sdk.skills.HolyFire, sdk.skills.Attack, sdk.skills.HolyFire, sdk.skills.Attack, sdk.skills.Might];
+	Config.LowManaSkill = [sdk.skills.Attack, sdk.skills.HolyFire];
+});
+build.AutoBuildTemplate[9] = buildAutoBuildTempObj(() => {
+	Config.HPBuffer = me.expansion ? 2 : 4;
+	Config.MPBuffer = 6;
+	Config.AttackSkill[0] = -1;
+	Config.AttackSkill[1] = (me.getSkill(sdk.skills.Sacrifice, sdk.skills.subindex.HardPoints) ? sdk.skills.Sacrifice : sdk.skills.Attack);
+	Config.AttackSkill[2] = sdk.skills.HolyFire;
+	Config.AttackSkill[3] = sdk.skills.Attack;
+	Config.AttackSkill[4] = sdk.skills.HolyFire;
+	Config.AttackSkill[3] = sdk.skills.Attack;
+	Config.AttackSkill[4] = sdk.skills.Might;
+});
+build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
+	if (me.getSkill(sdk.skills.Zeal, sdk.skills.subindex.HardPoints)) {
+		Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.HolyFire, sdk.skills.Zeal, sdk.skills.HolyFire, 0, sdk.skills.Might];
+	}
+	Config.Charge = true;
+});
