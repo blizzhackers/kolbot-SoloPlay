@@ -12,6 +12,7 @@
 
 const SoloIndex = {
 	doneList: [],
+	retryList: [],
 	goldScripts: ["bishibosh", "tristram", "treehead", "countess", "lowerkurast"],
 
 	// this controls the order
@@ -130,12 +131,15 @@ const SoloIndex = {
 			}
 		},
 		"smith": {
+			preReq: function () {
+				return me.charlvl > 8;
+			},
 			skipIf: function () {
 				// todo - test leveling/experience potential
 				return (!!Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete) || me.smith);
 			},
 			shouldRun: function () {
-				if (this.skipIf()) return false;
+				if (!this.preReq() || this.skipIf()) return false;
 				return true;
 			}
 		},
@@ -174,15 +178,25 @@ const SoloIndex = {
 		},
 		"boneash": {
 			preReq: function () {
-				return ((me.hell && me.classic && !me.diablo) || Check.brokeAf());
+				return true;
+			},
+			skipIf: function () {
+				return (me.charlvl < 10);
 			},
 			shouldRun: function () {
-				if (!this.preReq()) return false;
-				return true;
+				if (!this.preReq() || this.skipIf()) return false;
+				switch (true) {
+				case (me.charlvl < 12):
+				case (Check.brokeAf()):
+				case (me.classic && me.hell && !me.diablo):
+					return true;
+				}
+				return false;
 			}
 		},
 		"andariel": {
 			skipIf: function () {
+				if (me.charlvl < 12) return true;
 				if (!me.andariel) return false;
 				if (me.hell && me.amazon && SetUp.currentBuild !== SetUp.finalBuild) return true;
 				return false;

@@ -7,6 +7,13 @@
 */
 includeIfNotIncluded("OOG.js");
 
+(function (global, original) {
+	global.login = function (...args) {
+		console.trace();
+		return original.apply(this, args);
+	};
+})([].filter.constructor("return this")(), login);
+
 ControlAction.makeCharacter = function (info) {
 	me.blockMouse = true;
 	!info.charClass && (info.charClass = "barbarian");
@@ -44,45 +51,25 @@ ControlAction.makeCharacter = function (info) {
 
 			break;
 		case sdk.game.locations.CharacterCreate:
-			switch (info.charClass) {
-			case "barbarian":
-				clickCoords = [400, 280];
-
-				break;
-			case "amazon":
-				clickCoords = [100, 280];
-
-				break;
-			case "necromancer":
-				clickCoords = [300, 290];
-
-				break;
-			case "sorceress":
-				clickCoords = [620, 270];
-
-				break;
-			case "assassin":
-				clickCoords = [200, 280];
-
-				break;
-			case "druid":
-				clickCoords = [700, 280];
-
-				break;
-			case "paladin":
-				clickCoords = [521, 260];
-
-				break;
-			}
-
-			// coords:
-			// zon: 100, 280
-			// barb: 400, 280
-			// necro: 300, 290
-			// sin: 200, 280
-			// paladin: 521 260
-			// sorc: 620, 270
-			// druid: 700, 280
+			clickCoords = (() => {
+				switch (info.charClass) {
+				case "barbarian":
+					return [400, 280];
+				case "amazon":
+					return [100, 280];
+				case "necromancer":
+					return [300, 290];
+				case "sorceress":
+					return [620, 270];
+				case "assassin":
+					return [200, 280];
+				case "druid":
+					return [700, 280];
+				case "paladin":
+				default:
+					return [521, 260];
+				}
+			})();
 
 			getControl().click(clickCoords[0], clickCoords[1]);
 			delay(500);
@@ -96,15 +83,11 @@ ControlAction.makeCharacter = function (info) {
 				Controls.CharCreateCharName.setText(info.charName);
 
 				if (!info.expansion) {
-					switch (info.charClass) {
-					case "druid":
-					case "assassin":
+					if (["druid", "assassin"].includes(info.charClass)) {
 						D2Bot.printToConsole("Error in profile name. Expansion characters cannot be made in classic", sdk.colors.D2Bot.Red);
 						D2Bot.stop();
 
-						break;
-					default:
-						break;
+						return false;
 					}
 
 					Controls.CharCreateExpansion.click();
@@ -189,15 +172,7 @@ ControlAction.findCharacter = function (info) {
 		// check for additional characters up to 24 (online) or 999 offline (no character limit cap)
 		if (count > 0 && count % 8 === 0) {
 			if (Controls.CharSelectChar6.click()) {
-				me.blockMouse = true;
-
-				sendKey(sdk.keys.code.DownArrow);
-				sendKey(sdk.keys.code.DownArrow);
-				sendKey(sdk.keys.code.DownArrow);
-				sendKey(sdk.keys.code.DownArrow);
-
-				me.blockMouse = false;
-
+				this.scrollDown();
 				let check = Controls.CharSelectCharInfo0.control;
 
 				if (!!firstCheck && !!check) {
@@ -229,6 +204,18 @@ ControlAction.loginCharacter = function (info, startFromTop = true) {
 	// cycle until in lobby or in game
 	while (getLocation() !== sdk.game.locations.Lobby) {
 		switch (getLocation()) {
+		case sdk.game.locations.SplashScreen:
+		case sdk.game.locations.MainMenu:
+		case sdk.game.locations.Login:
+			if (getLocation() === sdk.game.locations.MainMenu
+				&& Profile().type === sdk.game.profiletype.SinglePlayer
+				&& Controls.SinglePlayer.click()) {
+				break;
+			} else if (Starter.BNET) {
+				Starter.LocationEvents.login();
+			}
+
+			break;
 		case sdk.game.locations.CharSelect:
 			let control = Controls.CharSelectCharInfo0.control;
 
@@ -247,6 +234,7 @@ ControlAction.loginCharacter = function (info, startFromTop = true) {
 							if (getLocation() === sdk.game.locations.SelectDifficultySP) {
 								try {
 									Starter.LocationEvents.selectDifficultySP();
+									Starter.locationTimeout(Time.seconds(3), sdk.game.locations.SelectDifficultySP);
 								} catch (err) {
 									break MainLoop;
 								}
@@ -264,12 +252,7 @@ ControlAction.loginCharacter = function (info, startFromTop = true) {
 
 			// check for additional characters up to 24
 			if (count === 8 || count === 16) {
-				if (Controls.CharSelectChar6.click()) {
-					sendKey(sdk.keys.code.DownArrow);
-					sendKey(sdk.keys.code.DownArrow);
-					sendKey(sdk.keys.code.DownArrow);
-					sendKey(sdk.keys.code.DownArrow);
-				}
+				Controls.CharSelectChar6.click() && this.scrollDown();
 			} else {
 				// no further check necessary
 				break MainLoop;
@@ -587,8 +570,8 @@ Starter.LocationEvents.oogCheck = function () {
 Starter.LocationEvents.login = function () {
 	Starter.inGame && (Starter.inGame = false);
 	if (getLocation() === sdk.game.locations.MainMenu
-		&& Profile().type === sdk.game.profiletype.SinglePlayer
 		&& Starter.firstRun
+		&& Profile().type === sdk.game.profiletype.SinglePlayer
 		&& Controls.SinglePlayer.click()) {
 		return;
 	}
@@ -648,14 +631,11 @@ Starter.LocationEvents.login = function () {
 						Starter.profileInfo.account = Starter.Config.GlobalAccount.length > 0 ? Starter.Config.GlobalAccount + Starter.randomNumberString(Starter.Config.AccountSuffixLength) : Starter.randomString(12, true);
 						Starter.profileInfo.password = Starter.Config.GlobalAccountPassword.length > 0 ? Starter.Config.GlobalAccountPassword : Starter.randomString(12, true);
 
-						if (Starter.profileInfo.account.length > 15) {
-							D2Bot.printToConsole("Kolbot-SoloPlay: Account name exceeds MAXIMUM length (15). Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig", sdk.colors.D2Bot.Gold);
-							D2Bot.setProfile("", "", null, "Normal");
-							D2Bot.stop();
-						}
-
-						if (Starter.profileInfo.password.length > 15) {
-							D2Bot.printToConsole("Kolbot-SoloPlay: Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig", sdk.colors.D2Bot.Gold);
+						try {
+							if (Starter.profileInfo.account.length > 15) throw new Error("Account name exceeds MAXIMUM length (15). Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig");
+							if (Starter.profileInfo.password.length > 15) throw new Error("Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig");
+						} catch (e) {
+							D2Bot.printToConsole("Kolbot-SoloPlay: " + e.message, sdk.colors.D2Bot.Gold);
 							D2Bot.setProfile("", "", null, "Normal");
 							D2Bot.stop();
 						}
@@ -687,8 +667,22 @@ Starter.LocationEvents.login = function () {
 		} else {
 			// SP/TCP  characters
 			try {
-				login(me.profile);
+				if (getLocation() === sdk.game.locations.MainMenu && Profile().type === sdk.game.profiletype.SinglePlayer) {
+					Controls.SinglePlayer.click();
+				}
+				let setDiff = CharData.getStats().me.setDifficulty;
+				if (setDiff) {
+					Starter.gameInfo.difficulty = setDiff;
+					// // only set the profile if the values aren't already the same
+					if (Starter.gameInfo.difficulty !== Starter.profileInfo.difficulty) {
+						delay(rand(250, 1000));
+						D2Bot.setProfile(null, null, null, Starter.gameInfo.difficulty);
+					}
+					delay(200);
+				}
+				Starter.LocationEvents.charSelect(getLocation());
 			} catch (err) {
+				console.error(err);
 				// Try to find the character and if that fails, make character
 				if (!ControlAction.findCharacter(Starter.profileInfo)) {
 					// Pop-up that happens when choosing a dead HC char
@@ -860,7 +854,7 @@ Starter.LocationEvents.charSelect = function (loc) {
 	if (Object.keys(Starter.profileInfo).length) {
 		if (!ControlAction.findCharacter(Starter.profileInfo)) {
 			if (Starter.profileInfo.charName === DataFile.getObj().name
-					&& getLocation() !== sdk.game.locations.CharSelectNoChars) {
+				&& getLocation() !== sdk.game.locations.CharSelectNoChars && ControlAction.getCharacters().length === 0) {
 				ControlAction.timeoutDelay("[R/D] Character not found ", 18e4);
 				D2Bot.printToConsole("Avoid Creating New Character - Restart");
 				D2Bot.restart();
@@ -872,6 +866,7 @@ Starter.LocationEvents.charSelect = function (loc) {
 					}
 				}
 			}
+			
 		} else {
 			ControlAction.loginCharacter(Starter.profileInfo, false);
 		}

@@ -100,7 +100,8 @@ function SoloPlay () {
 					console.warn("ÿc8Kolbot-SoloPlayÿc0: ", (typeof e === "object" ? e.message : e));
 				} finally {
 					SoloIndex.doneList.push(scriptName);
-					Developer.logPerformance && Tracker.script(tick, scriptName, currentExp);
+					// skip logging if we didn't actually finish it
+					!SoloIndex.retryList.includes(scriptName) && Developer.logPerformance && Tracker.script(tick, scriptName, currentExp);
 					console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));
 					me.maxgametime += (getTickCount() - tick);
 					console.log("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Developer.formatTime(me.maxgametime));
@@ -193,6 +194,11 @@ function SoloPlay () {
 	if (Check.brokeCheck()) return true;
 	Check.usePreviousSocketQuest(); // Currently only supports going back to nightmare to socket a lidless if one is equipped.
 	this.runScripts();
+	// we have scripts to retry so lets run them
+	if (SoloIndex.retryList.length) {
+		SoloIndex.scripts = SoloIndex.retryList.slice(0);
+		this.runScripts();
+	}
 
 	scriptBroadcast("quit");
 

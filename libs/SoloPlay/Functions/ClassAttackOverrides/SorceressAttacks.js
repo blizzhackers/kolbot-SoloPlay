@@ -13,7 +13,7 @@ const slowable = function (unit, freezeable = false) {
 	return (!!unit && unit.attackable // those that we can attack
 	&& Attack.checkResist(unit, "cold")
 	// those that are not frozen yet and those that can be frozen or not yet chilled
-	&& (freezeable ? !unit.isFrozen && !unit.getStat(sdk.stats.CannotbeFrozen) : !el.isChilled)
+	&& (freezeable ? !unit.isFrozen && !unit.getStat(sdk.stats.CannotbeFrozen) : !unit.isChilled)
 	&& ![sdk.monsters.Andariel, sdk.monsters.Lord5].includes(unit.classid));
 };
 
@@ -425,21 +425,28 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
 		if (!unit.dead && !checkCollision(me, unit, Coords_1.BlockBits.Ranged)) {
 			if (ts === sdk.skills.ChargedBolt) {
 				let preHealth = unit.hp;
-				// Randomized x coord changes bolt path and prevents constant missing
-				!unit.dead && Skill.cast(ts, Skill.getHand(ts), unit.x, unit.y);
-				if (!Misc.poll(() => unit.dead || unit.hp < preHealth, 300, 50)) {
-					// we still might of missed so pick another coord
-					if (!Attack.getIntoPosition(unit, (tsRange - 1), Coords_1.Collision.BLOCK_MISSILE, true)) return Attack.Result.FAILED;
+				let cRetry = 0;
+				for (let i = 0; i < 3; i++) {
 					!unit.dead && Skill.cast(ts, Skill.getHand(ts), unit.x, unit.y);
+					if (!Misc.poll(() => unit.dead || unit.hp < preHealth, 300, 50)) {
+						cRetry++;
+						// we still might of missed so pick another coord
+						if (!Attack.getIntoPosition(unit, (tsRange - cRetry), Coords_1.Collision.BLOCK_MISSILE, true)) return Attack.Result.FAILED;
+						!unit.dead && Skill.cast(ts, Skill.getHand(ts), unit.x, unit.y);
+					} else {
+						break;
+					}
 				}
 			} else if (ts === sdk.skills.StaticField) {
 				let preHealth = unit.hp;
+				let sRetry = 0;
 				for (let i = 0; i < 4; i++) {
 					if (!unit.dead) {
 						Skill.cast(ts, Skill.getHand(ts), unit);
 						if (!Misc.poll(() => unit.dead || unit.hp < preHealth, 200, 50)) {
+							sRetry++;
 							// we still might of missed so pick another coord
-							if (!Attack.getIntoPosition(unit, (tsRange - 1), Coords_1.Collision.BLOCK_MISSILE, true)) return Attack.Result.FAILED;
+							if (!Attack.getIntoPosition(unit, (tsRange - sRetry), Coords_1.Collision.BLOCK_MISSILE, true)) return Attack.Result.FAILED;
 							!unit.dead && Skill.cast(ts, Skill.getHand(ts), unit);
 						}
 
