@@ -153,6 +153,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		have: false, skill: skillId, range: Infinity, mana: Infinity, timed: false, reqLvl: reqLvl,
 		assignValues: function (range) {
 			this.have = Skill.canUse(this.skill);
+			if (!this.have) return;
 			this.range = range || Skill.getRange(this.skill);
 			this.mana = Skill.getManaCost(this.skill);
 			this.timed = Skill.isTimed(this.skill);

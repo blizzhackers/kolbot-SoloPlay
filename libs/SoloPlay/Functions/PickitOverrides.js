@@ -343,7 +343,7 @@ Pickit.canPick = function (unit) {
 						}
 					}
 
-					needPots > 0 && beltCheck && Pickit.toCursorPick.push(unit.gid);
+					needPots > 0 && !beltCheck && Pickit.toCursorPick.push(unit.gid);
 				}
 			}
 		}

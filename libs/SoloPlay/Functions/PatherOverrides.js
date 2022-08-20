@@ -338,6 +338,12 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 						NodeAction.go(settings.clearSettings);
 						(getDistance(me, node.x, node.y) > 5) && this.moveTo(node.x, node.y);
 						this.recursion = true;
+					} else if (!this.recursion) {
+						// not sure why this is happening but sometimes recursion never gets reset and we stop clearing
+						let count = 0;
+						let checkStack = new Error().stack.split("\n");
+						checkStack.forEach(el => el.includes("Pather.moveNear@") && (count++));
+						count < 2 && (this.recursion = true);
 					}
 
 					Misc.townCheck();
@@ -485,23 +491,30 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 						// need to determine if its worth going back to our orignal node (items maybe?)
 						// vs our current proximity to our next node
 						if (getDistance(me, node.x, node.y) > 5) {
+							Pickit.essessntialsPick();
 							Pickit.pickItems();
 							this.moveTo(node.x, node.y);
 						}
 						this.recursion = true;
+					} else if (!this.recursion) {
+						// not sure why this is happening but sometimes recursion never gets reset and we stop clearing
+						let count = 0;
+						let checkStack = new Error().stack.split("\n");
+						checkStack.forEach(el => el.includes("Pather.moveTo@") && (count++));
+						count < 2 && (this.recursion = true);
 					}
 
 					Misc.townCheck();
 				}
 			} else {
 				if (!me.inTown) {
-					if (!useTeleport && ((me.checkForMobs({range: 10}) && Attack.clear(8)) || this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
+					if (!useTeleport && ((me.checkForMobs({range: 10}) && Attack.clear(10)) || this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
 						continue;
 					}
 
 					if (fail > 0 && (!useTeleport || tpMana > me.mp)) {
 						// Don't go berserk on longer paths
-						if (!cleared && me.checkForMobs({range: 6}) && Attack.clear(5)) {
+						if (!cleared && me.checkForMobs({range: 6}) && Attack.clear(7)) {
 							cleared = true;
 						}
 
@@ -610,6 +623,12 @@ Pather.moveToLoc = function (target, givenSettings) {
 						settings.allowClearing && NodeAction.go({clearPath: true});
 						(getDistance(me, node.x, node.y) > 5) && this.moveToLoc(target, settings);
 						this.recursion = true;
+					} else if (!this.recursion) {
+						// not sure why this is happening but sometimes recursion never gets reset and we stop clearing
+						let count = 0;
+						let checkStack = new Error().stack.split("\n");
+						checkStack.forEach(el => el.includes("Pather.moveToLoc@") && (count++));
+						count < 2 && (this.recursion = true);
 					}
 
 					settings.allowTown && Misc.townCheck();

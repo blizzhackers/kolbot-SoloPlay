@@ -15,7 +15,6 @@ includeIfNotIncluded("SoloPlay/Functions/RunewordsOverrides.js");
 
 const AutoBuild = new function AutoBuild () {
 	Config.AutoBuild.DebugMode && (Config.AutoBuild.Verbose = true);
-	this.usingFinalBuildFile = false;
 	let currAutoBuild;
 	let debug = !!Config.AutoBuild.DebugMode;
 	let verbose = !!Config.AutoBuild.Verbose;
@@ -40,31 +39,11 @@ const AutoBuild = new function AutoBuild () {
 				currAutoBuild[lastSuccessfulUpdateLevel].Update.apply(Config);
 				reapply = false;
 			}
-			// if (this.usingFinalBuildFile) {
-			// 	// kind of hacky/ugly solution but reduces unneeded files
-			// 	if (finalBuild.AutoBuildTemplate[configUpdateLevel] !== undefined) {
-			// 		finalBuild.AutoBuildTemplate[configUpdateLevel].Update.apply(Config);
-			// 		lastSuccessfulUpdateLevel = configUpdateLevel;
-			// 	} else if (reapply) {
-			// 		// re-apply from the last successful update - this is helpful if inside the build file there are conditional statements
-			// 		finalBuild.AutoBuildTemplate[lastSuccessfulUpdateLevel].Update.apply(Config);
-			// 		reapply = false;
-			// 	}
-			// } else {
-			// 	if (AutoBuildTemplate[configUpdateLevel] !== undefined) {
-			// 		AutoBuildTemplate[configUpdateLevel].Update.apply(Config);
-			// 		lastSuccessfulUpdateLevel = configUpdateLevel;
-			// 	} else if (reapply) {
-			// 		// re-apply from the last successful update - this is helpful if inside the build file there are conditional statements
-			// 		AutoBuildTemplate[lastSuccessfulUpdateLevel].Update.apply(Config);
-			// 		reapply = false;
-			// 	}
-			// }
 		}
 	}
 
 	function getBuildType () {
-		let build = Config.AutoBuild.Template;
+		let build = CharInfo.getActiveBuild();
 		if (!build) {
 			this.print("Config.AutoBuild.Template is either 'false', or invalid (" + build + ")");
 			throw new Error("Invalid build template, read libs/config/Builds/README.txt for information");
@@ -85,7 +64,6 @@ const AutoBuild = new function AutoBuild () {
 	function getTemplateFilename () {
 		let className = sdk.player.class.nameOf(me.classid);
 		let build = getBuildType();
-		this.usingFinalBuildFile = ["Start", "Stepping", "Leveling"].includes(build);
 		let template = "SoloPlay/BuildFiles/" + className + "/" + className + "." + build + "Build.js";
 		return template.toLowerCase();
 	}
@@ -95,7 +73,11 @@ const AutoBuild = new function AutoBuild () {
 		let template = getTemplateFilename();
 		this.print("Including build template " + template + " into " + currentScript);
 		if (!include(template)) throw new Error("Failed to include template: " + template);
-		currAutoBuild = this.usingFinalBuildFile ? finalBuild.AutoBuildTemplate : build.AutoBuildTemplate;
+		if (["Start", "Stepping", "Leveling"].includes(CharInfo.getActiveBuild())) {
+			currAutoBuild = build.AutoBuildTemplate;
+		} else {
+			currAutoBuild = finalBuild.AutoBuildTemplate;
+		}
 
 		// Only load() helper thread from default.dbj if it isn't loaded
 		if (currentScript === "default.dbj" && !getScript("libs\\SoloPlay\\Threads\\AutoBuildThread.js")) {
@@ -119,7 +101,7 @@ const AutoBuild = new function AutoBuild () {
 		}
 	}
 
-	function log (message) { FileTools.appendText(getLogFilename(), message + "\n"); }
+	const log = (message) => FileTools.appendText(getLogFilename(), message + "\n");
 
 	// Only print to console from autobuildthread.js,
 	// but log from all scripts

@@ -96,7 +96,7 @@ Town.needPotions = function () {
 
 Town.buyPotions = function () {
 	// Ain't got money fo' dat shyt
-	if (me.gold < 1000 || !me.getItem(sdk.items.TomeofTownPortal)) return false;
+	if (me.gold < 450 || !me.getItem(sdk.items.TomeofTownPortal)) return false;
 
 	let [needPots, needBuffer] = [false, true];
 	let buffer = { hp: 0, mp: 0 };
@@ -186,18 +186,29 @@ Town.buyPotions = function () {
 		col = this.checkColumns(beltSize); // Re-initialize columns (needed because 1 shift-buy can fill multiple columns)
 	}
 
-	if (needBuffer && buffer.hp < Config.HPBuffer) {
-		for (let i = 0; i < Config.HPBuffer - buffer.hp; i += 1) {
-			let pot = this.getPotion(npc, "hp");
-			!!pot && Storage.Inventory.CanFit(pot) && pot.buy(false);
+	const buyHPBuffers = () => {
+		if (needBuffer && buffer.hp < Config.HPBuffer) {
+			for (let i = 0; i < Config.HPBuffer - buffer.hp; i += 1) {
+				let pot = this.getPotion(npc, "hp");
+				!!pot && Storage.Inventory.CanFit(pot) && pot.buy(false);
+			}
 		}
-	}
-
-	if (needBuffer && buffer.mp < Config.MPBuffer) {
-		for (let i = 0; i < Config.MPBuffer - buffer.mp; i += 1) {
-			let pot = this.getPotion(npc, "mp");
-			!!pot && Storage.Inventory.CanFit(pot) && pot.buy(false);
+	};
+	const buyMPBuffers = () => {
+		if (needBuffer && buffer.mp < Config.MPBuffer) {
+			for (let i = 0; i < Config.MPBuffer - buffer.mp; i += 1) {
+				let pot = this.getPotion(npc, "mp");
+				!!pot && Storage.Inventory.CanFit(pot) && pot.buy(false);
+			}
 		}
+	};
+	// priortize mana pots
+	if (Check.currentBuild().caster) {
+		buyMPBuffers();
+		buyHPBuffers();
+	} else {
+		buyHPBuffers();
+		buyMPBuffers();
 	}
 
 	// keep cold/pois res high with potions

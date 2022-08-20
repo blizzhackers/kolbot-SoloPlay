@@ -197,8 +197,7 @@ Attack.openChests = function (range = 10, x = undefined, y = undefined) {
 
 // this might be depreciated now 
 Attack.killTarget = function (name = undefined) {
-	if (!name) return false;
-
+	if (!name || Config.AttackSkill[1] < 0) return false;
 	typeof name === "string" && (name = name.toLowerCase());
 	let target = (typeof name === "object" ? name : Misc.poll(() => Game.getMonster(name), 2000, 100));
 
@@ -213,55 +212,97 @@ Attack.killTarget = function (name = undefined) {
 		return true;
 	}
 
-	let attackCount = 0;
-	let gid = target.gid;
+	const findTarget = function (gid, loc) {
+		let path = getPath(me.area, me.x, me.y, loc.x, loc.y, 1, 5);
+		if (!path) return false;
+
+		if (path.some(function (node) {
+			Pather.walkTo(node.x, node.y);
+			return Game.getMonster(-1, -1, gid);
+		})) {
+			return Game.getMonster(-1, -1, gid);
+		} else {
+			return false;
+		}
+	};
 
 	// think doing this might be safer for non-teleporters, alot of the time they end up either stuck in recursive node action <-> clear loop
 	// or try to bull their way through mobs to the boss and instead should try to clear to them but without the loop
 	if (!Pather.canTeleport()) return Attack.clear(15, 0, target);
+	
+	const who = (!!target.name ? target.name : name);
+	const gid = target.gid;
+	let retry = 0;
+	let errorInfo = "";
+	let attackCount = 0;
+	let lastLoc = {x: me.x, y: me.y};
+	let tick = getTickCount();
 
 	try {
+		console.log("ÿc7Kill ÿc0:: " + who);
 		// disable opening chests while killing unit
 		Misc.openChestsEnabled = false;
 
-		while (attackCount < Config.MaxAttackCount) {
-			if (Misc.townCheck()) {
-				(!target || !copyUnit(target).x) && (target = Misc.poll(() => Game.getMonster(name), 1500, 60));
-			}
-
+		while (attackCount < Config.MaxAttackCount && target.attackable && !this.skipCheck(target)) {
+			Misc.townCheck();
+			
 			// Check if unit got invalidated, happens if necro raises a skeleton from the boss's corpse.
 			if (!target || !copyUnit(target).x) {
 				target = Game.getMonster(-1, -1, gid);
+				!target && (target = findTarget(gid, lastLoc));
 
 				if (!target) {
+					console.warn("ÿc1Failed to kill " + who + " (couldn't relocate unit)");
 					break;
 				}
 			}
 
 			Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
 			attackCount > 0 && attackCount % 15 === 0 && Skill.getRange(Config.AttackSkill[1]) < 4 && Packet.flash(me.gid);
-			(!ClassAttack.doAttack(target, attackCount % 15 === 0)) && Packet.flash(me.gid);
 			me.overhead("KillTarget: " + target.name + " health " + target.hpPercent + " % left");
+			let result = ClassAttack.doAttack(target, attackCount % 15 === 0);
 
-			attackCount += 1;
+			if (result === this.Result.FAILED) {
+				if (retry++ > 3) {
+					errorInfo = " (doAttack failed)";
+
+					break;
+				}
+
+				Packet.flash(me.gid);
+			} else if (result === this.Result.CANTATTACK) {
+				errorInfo = " (No valid attack skills)";
+
+				break;
+			} else if (result === this.Result.NEEDMANA) {
+				continue;
+			} else {
+				retry = 0;
+			}
+
+			lastLoc = {x: me.x, y: me.y};
+			attackCount++;
 
 			if (target.dead || Config.FastPick) {
 				Config.FastPick ? Pickit.fastPick() : Pickit.essessntialsPick();
 			}
-
-			if (!target.attackable) {
-				break;
-			}
 		}
 
+		attackCount === Config.MaxAttackCount && (errorInfo = " (attackCount exceeded: " + attackCount + ")");
 		ClassAttack.afterAttack();
-		(!target || !target.attackable) && Pickit.pickItems();
+		Pickit.pickItems();
+
+		if (!!target && target.attackable) {
+			console.warn("ÿc1Failed to kill ÿc0" + who + errorInfo);
+		} else {
+			console.log("ÿc7Killed ÿc0:: " + who + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick));
+		}
 	} finally {
 		// re-enable
 		Misc.openChestsEnabled = true;
 	}
 
-	return true;
+	return (!target || !copyUnit(target).x || target.dead || !target.attackable);
 };
 
 Attack.clearLocations = function (list = []) {
@@ -312,7 +353,9 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 			Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
 
 			Misc.townCheck(true);
-			let result = ClassAttack.doAttack(target, attackCount % 15 === 0);
+			let checkMobAttackCount = gidAttack.find(g => g.gid === target.gid);
+			let checkAttackSkill = (!!checkMobAttackCount && checkMobAttackCount.attacks > 0 && checkMobAttackCount.attacks % 3 === 0);
+			let result = ClassAttack.doAttack(target, attackCount % 15 === 0, checkAttackSkill);
 
 			if (result) {
 				retry = 0;
@@ -615,7 +658,9 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 			&& (getDistance(target, orgx, orgy) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && target.attackable) {
 			Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
 			Misc.townCheck(true);
-			let result = ClassAttack.doAttack(target, attackCount % 15 === 0);
+			let checkMobAttackCount = gidAttack.find(g => g.gid === target.gid);
+			let checkAttackSkill = (!!checkMobAttackCount && checkMobAttackCount.attacks > 0 && checkMobAttackCount.attacks % 3 === 0);
+			let result = ClassAttack.doAttack(target, attackCount % 15 === 0, checkAttackSkill);
 
 			if (result) {
 				retry = 0;
@@ -1154,6 +1199,9 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 		// we are actually able to walk to where we want to go, hopefully prevent wall hugging
 		if (walk && (unit.distance < 8 || !CollMap.checkColl(me, unit, sdk.collision.WallOrRanged | sdk.collision.Objects | sdk.collision.IsOnFloor))) {
 			Pather.walkTo(unit.x, unit.y, 3);
+		} else if (walk && (unit.distance < 4 && CollMap.checkColl(me, unit, sdk.collision.MonsterIsOnFloorDarkArea))) {
+			console.debug("Are we in a doorway?");
+			return true;
 		} else {
 			// don't clear while trying to reposition
 			Pather.moveToEx(unit.x, unit.y, {clearSettings: {allowClearing: !useTele, range: useTele ? 10 : 5}});

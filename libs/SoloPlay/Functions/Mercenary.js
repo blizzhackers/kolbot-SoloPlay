@@ -137,6 +137,7 @@ const Mercenary = {
 		// lets check what our current actually merc is
 		let checkMyMerc = Misc.poll(() => me.getMerc(), 50, 500);
 		let wantedSkill = (typeOfMerc === 1 ? "Cold Arrow" : me.normal ? tmpAuraName : mercAuraWanted);
+
 		if (checkMyMerc && Mercenary.checkMercSkill(wantedSkill, checkMyMerc)) {
 			// we have our wanted merc, data file was probably erased so lets re-update it
 			myData.merc.act = Mercenary.getMercAct(checkMyMerc);
@@ -145,9 +146,13 @@ const Mercenary = {
 			myData.merc.type = wantedSkill;
 			CharData.updateData("merc", myData) && updateMyData();
 			return true;
-		} else if (!!checkMyMerc && checkMyMerc.classid === sdk.mercs.Guard && !checkMyMerc.getStat(sdk.stats.ModifierListSkill)) {
+		} else if (!!checkMyMerc && checkMyMerc.classid === sdk.mercs.Guard) {
+			let checkSkill = checkMyMerc.getStat(sdk.stats.ModifierListSkill);
 			// aura isn't active so we can't check it
-			return true;
+			if (!checkSkill) return true;
+			// or we might have multiple aura's going
+			if ([sdk.skills.Meditation, sdk.skills.Conviction, sdk.skills.Concentration].includes(checkSkill)) return true;
+			if (checkSkill > 123) return true;
 		}
 
 		let MercLib_1 = require("../Modules/MercLib");

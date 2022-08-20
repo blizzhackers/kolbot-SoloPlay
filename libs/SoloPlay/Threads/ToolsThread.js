@@ -238,7 +238,18 @@ function main () {
 	this.drinkSpecialPotion = function (type) {
 		if (type === undefined) return false;
 		let objID;
-		let name = (type === sdk.items.ThawingPotion ? "thawing" : "antidote");
+		let name = (() => {
+			switch (type) {
+			case sdk.items.ThawingPotion:
+				return "thawing";
+			case sdk.items.AntidotePotion:
+				return "antidote";
+			case sdk.items.StaminaPotion:
+				return "stamina";
+			default:
+				return "";
+			}
+		})();
 
 		// mode 18 - can't drink while leaping/whirling etc.
 		// give at least a second delay between pots
@@ -587,6 +598,7 @@ function main () {
 				Config.UseMP > 0 && me.mpPercent < Config.UseMP && this.drinkPotion(Common.Toolsthread.pots.Mana);
 				Config.UseRejuvMP > 0 && me.mpPercent < Config.UseRejuvMP && this.drinkPotion(Common.Toolsthread.pots.Rejuv);
 
+				(me.staminaPercent <= 20 || me.walking) && this.drinkSpecialPotion(sdk.items.StaminaPotion);
 				me.getState(sdk.states.Poison) && this.drinkSpecialPotion(sdk.items.AntidotePotion);
 				[sdk.states.Frozen, sdk.states.FrozenSolid].some(state => me.getState(state)) && this.drinkSpecialPotion(sdk.items.ThawingPotion);
 

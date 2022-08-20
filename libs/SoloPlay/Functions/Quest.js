@@ -11,64 +11,34 @@ const Quest = {
 		// horadric staff
 		if (Pather.accessToAct(2) && !me.staff && !me.horadricstaff) {
 			if (!me.amulet) {
-				includeIfNotIncluded("SoloPlay/Scripts/amulet.js");
-
-				for (let getAmmy = 0; getAmmy < 5; getAmmy++) {
-					amulet();
-
-					if (me.amulet) {
-						break;
-					}
+				for (let getAmmy = 0; !me.amulet && getAmmy < 5; getAmmy++) {
+					Loader.runScript("amulet");
 				}
 			}
 
 			if (!me.shaft) {
-				includeIfNotIncluded("SoloPlay/Scripts/staff.js");
-
-				for (let getStaff = 0; getStaff < 5; getStaff++) {
-					staff();
-
-					if (me.shaft) {
-						break;
-					}
+				for (let getStaff = 0; !me.shaft && getStaff < 5; getStaff++) {
+					Loader.runScript("staff");
 				}
 			}
 		}
 
 		if (Pather.accessToAct(3) && !me.travincal && !me.khalimswill) {
 			if (!me.eye) {
-				includeIfNotIncluded("SoloPlay/Scripts/eye.js");
-
-				for (let getEye = 0; getEye < 5; getEye++) {
-					eye();
-
-					if (me.eye) {
-						break;
-					}
+				for (let getEye = 0; !me.eye && getEye < 5; getEye++) {
+					Loader.runScript("eye");
 				}
 			}
 
 			if (!me.heart) {
-				includeIfNotIncluded("SoloPlay/Scripts/heart.js");
-
-				for (let getHeart = 0; getHeart < 5; getHeart++) {
-					heart();
-
-					if (me.heart) {
-						break;
-					}
+				for (let getHeart = 0; !me.heart && getHeart < 5; getHeart++) {
+					Loader.runScript("heart");
 				}
 			}
 
 			if (!me.brain) {
-				includeIfNotIncluded("SoloPlay/Scripts/brain.js");
-
-				for (let getBrain = 0; getBrain < 5; getBrain++) {
-					brain();
-
-					if (me.brain) {
-						break;
-					}
+				for (let getBrain = 0; !me.brain && getBrain < 5; getBrain++) {
+					Loader.runScript("brain");
 				}
 			}
 		}

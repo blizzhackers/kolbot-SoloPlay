@@ -11,7 +11,6 @@ function bloodraven () {
 
 	if (!Pather.checkWP(sdk.areas.StonyField, true)) {
 		Pather.getWP(sdk.areas.StonyField);
-		//me.charlvl < 6 && Attack.clearLevelUntilLevel(6);
 		if (me.charlvl < 6) {
 			Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Monster, sdk.monsters.preset.Rakanishu, 10, 10, false, true);
 			Attack.killTarget(getLocaleString(sdk.locale.monsters.Rakanishu));

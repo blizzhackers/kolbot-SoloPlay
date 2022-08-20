@@ -66,4 +66,9 @@ build.AutoBuildTemplate[24] = buildAutoBuildTempObj(() => {
 	if (me.getSkill(sdk.skills.Frenzy, sdk.skills.subindex.HardPoints)) {
 		Config.AttackSkill = [-1, sdk.skills.Frenzy, -1, sdk.skills.Frenzy, -1];
 	}
+	Config.BeltColumn = ["hp", "hp", "hp", "mp"];
+	Config.TownHP = me.hardcore ? 0 : 35;
+	Config.MPBuffer = me.expansion ? 2 : 4;
+	Config.HPBuffer = me.expansion && me.charlvl < 80 ? 6 : me.classic ? 5 : 2;
+	SetUp.belt();
 });

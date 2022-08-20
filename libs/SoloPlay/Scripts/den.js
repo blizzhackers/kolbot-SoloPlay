@@ -22,14 +22,6 @@ function den () {
 	if (!Pather.checkWP(sdk.areas.ColdPlains) || me.charlvl < 4) {
 		Pather.moveToExit(sdk.areas.BloodMoor, true);
 
-		// todo - write walking clearLevel function
-		// make sure we are ready for cold plains
-		// let clearUntil = me.charlvl === 1 ? /*just started*/ 2 : 3; // if this is our second attempt, then bloor moor should be repopulated with mobs
-		// me.charlvl < clearUntil && Attack.clearLevelUntilLevel(clearUntil);
-
-		// // now make portal at den entrace
-		// Pather.moveToExit(sdk.areas.DenofEvil, false, true);
-		// Pather.makePortal();
 		try {
 			Pather.moveToPreset(sdk.areas.BloodMoor, sdk.unittype.Object, sdk.objects.SuperChest) && Misc.openChests(5);
 		} catch (e) {
@@ -45,18 +37,14 @@ function den () {
 
 		// check if we need to do chores - if so use waypoint to town (preserves portal if we made one at den) - return to cold plains using waypoint
 		Storage.Inventory.UsedSpacePercent() > 50 && Pather.useWaypoint(sdk.areas.RogueEncampment) && Town.doChores() && Pather.useWaypoint(sdk.areas.ColdPlains);
-
-		// make sure we are ready for den
-		// clearUntil = me.charlvl === 2 ? /*just started*/ 3 : 4;
-		// me.charlvl < clearUntil && Attack.clearLevelUntilLevel(clearUntil);
-
-		// Pather.getWP(sdk.areas.ColdPlains);
-		// Pather.useWaypoint(sdk.areas.RogueEncampment);
 	}
 
-	if (me.charlvl < 6) {
+	if (me.charlvl < 8) {
 		Loader.skipTown.push("cave") && Loader.runScript("cave");
-		if (me.charlvl < 6) return true;
+		if (me.charlvl < 8) {
+			SoloIndex.retryList.push("den");
+			return true;
+		}
 	}
 
 	Town.doChores();

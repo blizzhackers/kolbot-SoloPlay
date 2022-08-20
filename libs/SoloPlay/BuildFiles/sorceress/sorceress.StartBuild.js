@@ -48,7 +48,7 @@ build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
 	Config.FieldID.UsedSpace = 0;
 
 	Config.BeltColumn = ["hp", "hp", "hp", "hp"];
-	Config.HPBuffer = 2;
+	Config.HPBuffer = 4;
 	Config.MPBuffer = 10;
 	Config.AttackSkill = [-1, sdk.skills.FireBolt, -1, sdk.skills.FireBolt, -1, 0, 0];
 	Config.LowManaSkill = [0, 0];
@@ -62,15 +62,19 @@ build.AutoBuildTemplate[2] = buildAutoBuildTempObj(() => {
 	Config.TownHP = me.hardcore ? 0 : 35;
 	Config.LowManaSkill = [0, 0];
 	Config.BeltColumn = ["hp", "hp", "mp", "mp"];
-	SetUp.belt();
+	Config.HPBuffer = 4;
+	Config.MPBuffer = 10;
 	if (!!me.getSkill(sdk.skills.IceBolt, sdk.skills.subindex.SoftPoints)) {
 		Config.AttackSkill = [-1, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.IceBolt, 0];
 	} else {
-		Config.AttackSkill = [-1, sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, sdk.skills.subindex.SoftPoints) ? sdk.skills.FireBolt : -1), sdk.skills.ChargedBolt, (me.getSkill(sdk.skills.FireBolt, sdk.skills.subindex.SoftPoints) ? sdk.skills.FireBolt : -1), 0, 0];
+		let secondSkill = Skill.canUse(sdk.skills.FireBolt) ? sdk.skills.FireBolt : sdk.skills.Attack;
+		Config.AttackSkill = [-1, sdk.skills.ChargedBolt, secondSkill, sdk.skills.ChargedBolt, secondSkill, 0, 0];
 	}
 	SetUp.belt();
 });
 build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
+	Config.HPBuffer = 4;
+	Config.MPBuffer = 8;
 	Config.AttackSkill = [-1, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.FrostNova, sdk.skills.IceBolt];
 	Config.DodgeHP = 50;
 	Config.DodgeRange = me.getSkill(sdk.skills.Blizzard) ? 15 : 7;
