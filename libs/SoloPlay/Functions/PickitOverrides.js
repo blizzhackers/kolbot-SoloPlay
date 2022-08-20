@@ -16,90 +16,47 @@ Pickit.Result.SOLOWANTS = 8;
 
 Pickit.checkItem = function (unit) {
 	let rval = NTIP.CheckItem(unit, false, true);
+	const resultObj = (result, line = null) => ({
+		result: result,
+		line: line
+	});
 
 	// quick return on essentials - we know they aren't going to be in the other checks
 	if (Pickit.essentials.includes(unit.itemType)) return rval;
 
 	if ((unit.classid === sdk.items.runes.Ral || unit.classid === sdk.items.runes.Ort) && Town.repairIngredientCheck(unit)) {
-		return {
-			result: Pickit.Result.UTILITY,
-			line: null
-		};
+		return resultObj(Pickit.Result.UTILITY);
 	}
 
 	if (unit.classid === sdk.items.StaminaPotion && (me.charlvl < 18 || me.staminaPercent <= 85 || me.walking) && Item.getQuantityOwned(unit) < 2) {
-		return {
-			result: Pickit.Result.WANTED,
-			line: "LowStamina"
-		};
+		return resultObj(Pickit.Result.WANTED, "LowStamina");
 	}
 
 	if (unit.classid === sdk.items.AntidotePotion && me.getState(sdk.states.Poison) && Item.getQuantityOwned(unit) < 2) {
-		return {
-			result: Pickit.Result.WANTED,
-			line: "Poisoned"
-		};
+		return resultObj(Pickit.Result.WANTED, "Poisoned");
 	}
 
 	if (unit.classid === sdk.items.ThawingPotion && [sdk.states.Frozen, sdk.states.FrozenSolid].some(state => me.getState(state)) && Item.getQuantityOwned(unit) < 2) {
-		return {
-			result: Pickit.Result.WANTED,
-			line: "Frozen"
-		};
+		return resultObj(Pickit.Result.WANTED, "Frozen");
 	}
 
 	if (rval.result === Pickit.Result.WANTED) {
 		let durability = unit.getStat(sdk.stats.Durability);
 		
 		if (typeof durability === "number" && unit.getStat(sdk.stats.MaxDurability) > 0 && durability * 100 / unit.getStat(sdk.stats.MaxDurability) <= 0) {
-			return {
-				result: Pickit.Result.TRASH,
-				line: null
-			};
+			return resultObj(Pickit.Result.TRASH);
 		}
 	}
 
-	if (SoloWants.checkItem(unit)) {
-		return {
-			result: Pickit.Result.SOLOWANTS,
-			line: null
-		};
-	}
-
-	if (CraftingSystem.checkItem(unit)) {
-		return {
-			result: Pickit.Result.CRAFTING,
-			line: null
-		};
-	}
-
-	if (Cubing.checkItem(unit)) {
-		return {
-			result: Pickit.Result.CUBING,
-			line: null
-		};
-	}
-
-	if (Runewords.checkItem(unit)) {
-		return {
-			result: Pickit.Result.RUNEWORD,
-			line: null
-		};
-	}
-
-	if (AutoEquip.hasTier(unit) && !unit.identified) {
-		return {
-			result: Pickit.Result.UNID,
-			line: null
-		};
-	}
+	if (SoloWants.checkItem(unit)) return resultObj(Pickit.Result.SOLOWANTS);
+	if (CraftingSystem.checkItem(unit)) return resultObj(Pickit.Result.CRAFTING);
+	if (Cubing.checkItem(unit)) return resultObj(Pickit.Result.CUBING);
+	if (Runewords.checkItem(unit)) return resultObj(Pickit.Result.RUNEWORD);
+	if (AutoEquip.hasTier(unit) && !unit.identified) return resultObj(Pickit.Result.UNID);
 
 	if (unit.isCharm && NTIP.GetCharmTier(unit) > 0 && unit.identified) {
 		if (Item.autoEquipCharmCheck(unit)) {
-			return {
-				result: Pickit.Result.WANTED,
-				line: "Autoequip charm Tier: " + NTIP.GetCharmTier(unit)
-			};
+			return resultObj(Pickit.Result.WANTED, "Autoequip charm Tier: " + NTIP.GetCharmTier(unit));
 		}
 
 		return NTIP.CheckItem(unit, NTIP_CheckListNoTier, true);
@@ -107,24 +64,15 @@ Pickit.checkItem = function (unit) {
 
 	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) && unit.identified) {
 		if (Item.autoEquipCheck(unit)) {
-			return {
-				result: Pickit.Result.WANTED,
-				line: "Autoequip Tier: " + NTIP.GetTier(unit)
-			};
+			return resultObj(Pickit.Result.WANTED, "Autoequip Tier: " + NTIP.GetTier(unit));
 		}
 
 		if (Item.autoEquipCheckMerc(unit)) {
-			return {
-				result: Pickit.Result.WANTED,
-				line: "Autoequip MercTier: " + NTIP.GetMercTier(unit)
-			};
+			return resultObj(Pickit.Result.WANTED, "Autoequip MercTier: " + NTIP.GetMercTier(unit));
 		}
 
 		if (Item.autoEquipCheckSecondary(unit)) {
-			return {
-				result: Pickit.Result.WANTED,
-				line: "Autoequip Secondary Tier: " + NTIP.GetSecondaryTier(unit)
-			};
+			return resultObj(Pickit.Result.WANTED, "Autoequip Secondary Tier: " + NTIP.GetSecondaryTier(unit));
 		}
 
 		return NTIP.CheckItem(unit, NTIP_CheckListNoTier, true);
@@ -134,28 +82,17 @@ Pickit.checkItem = function (unit) {
 	if (rval.result === Pickit.Result.UNWANTED && !getBaseStat("items", unit.classid, "quest") && !Town.ignoredItemTypes.includes(unit.itemType) && !unit.questItem
 		&& (unit.isInInventory || (me.gold < Config.LowGold || me.gold < 500000))) {
 		// Gold doesn't take up room, just pick it up
-		if (unit.classid === sdk.items.Gold) {
-			return {
-				result: Pickit.Result.TRASH,
-				line: null
-			};
-		}
+		if (unit.classid === sdk.items.Gold) return resultObj(Pickit.Result.TRASH);
 
 		const itemValue = unit.getItemCost(sdk.items.cost.ToSell);
 		const itemValuePerSquare = itemValue / (unit.sizex * unit.sizey);
 
 		if (itemValuePerSquare >= 2000) {
 			// If total gold is less than 500k pick up anything worth 2k gold per square to sell in town.
-			return {
-				result: Pickit.Result.TRASH,
-				line: "Valuable Item: " + itemValue
-			};
+			return resultObj(Pickit.Result.TRASH, "Valuable Item: " + itemValue);
 		} else if (itemValuePerSquare >= 10 && (me.gold < Config.LowGold || unit.isInInventory)) {
 			// If total gold is less than LowGold setting pick up anything worth 10 gold per square to sell in town.
-			return {
-				result: Pickit.Result.TRASH,
-				line: "LowGold Item: " + itemValue
-			};
+			return resultObj(Pickit.Result.TRASH, "LowGold Item: " + itemValue);
 		}
 	}
 
@@ -579,7 +516,9 @@ Pickit.essessntialsPick = function (once = false, ignore = false) {
 	if (item) {
 		do {
 			if (item.onGroundOrDropping && getDistance(me, item) <= maxDist && Pickit.essentials.includes(item.itemType)) {
-				pickList.push(copyUnit(item));
+				if (item.itemType !== sdk.items.type.Gold || getDistance(me, item) < 5) {
+					pickList.push(copyUnit(item));
+				}
 			}
 		} while (item.getNext());
 	}

@@ -11,6 +11,7 @@ includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
 NTIPAliasStat["addfireskills"] = [sdk.stats.ElemSkill, 1];
 NTIPAliasStat["plusskillwhirlwind"] = [sdk.stats.NonClassSkill, sdk.skills.Whirlwind];
+NTIP.MAX_TIER = 100000;
 
 NTIP.generateTierFunc = function (tierType) {
 	return function (item) {

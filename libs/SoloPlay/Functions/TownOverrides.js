@@ -1362,7 +1362,7 @@ Town.betterBaseThanWearing = function (base = undefined, verbose = true) {
 
 	for (let i = 0; i < bodyLoc.length; i++) {
 		let equippedItem = items.find(item => item.bodylocation === bodyLoc[i]);
-		if (!equippedItem || !equippedItem.runeword) {
+		if (!equippedItem || !equippedItem.runeword || NTIP.GetTier(equippedItem) >= NTIP.MAX_TIER) {
 			if (i === 0 && bodyLoc.length > 1) continue;
 			return true;
 		}

@@ -479,6 +479,12 @@ const nipItems = {
 	],
 };
 
+const addSocketableObj = (classid, socketWith = [], useSocketQuest = false, condition = () => {}) => ({
+	classid: classid,
+	socketWith: socketWith,
+	useSocketQuest: useSocketQuest,
+	condition: condition
+});
 const basicSocketables = {
 	caster: [
 		{
