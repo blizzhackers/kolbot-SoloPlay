@@ -56,13 +56,14 @@ function tristram () {
 
 	if (!Misc.checkQuest(sdk.quest.id.TheSearchForCain, 4) && me.getItem(sdk.items.quest.KeytotheCairnStones)) {
 		try {
-			let stones = [
-				Game.getObject(sdk.quest.chest.StoneAlpha),
-				Game.getObject(sdk.quest.chest.StoneBeta),
-				Game.getObject(sdk.quest.chest.StoneGamma),
-				Game.getObject(sdk.quest.chest.StoneDelta),
-				Game.getObject(sdk.quest.chest.StoneLambda)
+			const stoneIds = [
+				sdk.quest.chest.StoneAlpha, sdk.quest.chest.StoneBeta, sdk.quest.chest.StoneGamma,
+				sdk.quest.chest.StoneDelta, sdk.quest.chest.StoneLambda
 			];
+			const getStones = () => getUnits(sdk.unittype.Object).filter(s => stoneIds.includes(s.classid) && !s.mode);
+			let stones = getStones();
+			let sTick = getTickCount();
+			let retry = true;
 
 			while (stones.some((stone) => !stone.mode)) {
 				for (let i = 0; i < stones.length; i++) {
@@ -71,6 +72,15 @@ function tristram () {
 					if (Common.Questing.activateStone(stone)) {
 						stones.splice(i, 1);
 						i--;
+					}
+
+					if (getTickCount() - sTick < Time.minutes(2)) {
+						if (retry) {
+							stones = getStones();
+							sTick = getTickCount();
+						} else {
+							return false;
+						}
 					}
 					Attack.securePosition(me.x, me.y, 10, 0);
 					delay(10);

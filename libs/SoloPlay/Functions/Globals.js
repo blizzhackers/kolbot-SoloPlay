@@ -590,13 +590,13 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 		}
 
 		CharData.updateData("me", "setDifficulty", diffString);
-		D2Bot.setProfile(null, null, null, diffString);
+		// D2Bot.setProfile(null, null, null, diffString);
 		myPrint("Going to " + diffString + " " + reason, true);
 		delay(1000);
 		if (CharData.getStats().me.setDifficulty !== diffString) {
 			throw new Error("Failed to set difficulty");
 		}
-		D2Bot.restart();
+		scriptBroadcast("quit");
 	} catch (e) {
 		console.debug(e.message ? e.message : e);
 	}

@@ -138,7 +138,7 @@ new Overrides.Override(Starter, Starter.receiveCopyData, function (orignal, mode
 				throw new Error("Please update profile InfoTag. Missing the finalBuild.");
 			}
 		} catch (e) {
-			Misc.errorReport(e);
+			Misc.errorReport(e, "D2BotSoloPlay.dbj");
 			D2Bot.stop();
 		}
 
@@ -259,20 +259,11 @@ locations[sdk.game.locations.CreateGame] = (loc) => {
 
 	typeof Starter.Config.MaxPlayerCount === "number" && Controls.MaxPlayerCount.setText(Starter.Config.MaxPlayerCount.toString());
 
-	// todo - really don't need use profiles set difficulty for online. Only single player so re-write difficulty stuff
-	let setDiff = CharData.getStats().me.setDifficulty;
-	if (setDiff) {
-		Starter.gameInfo.difficulty = setDiff;
-		// // only set the profile if the values aren't already the same
-		if (Starter.gameInfo.difficulty !== Starter.profileInfo.difficulty) {
-			delay(rand(250, 1000));
-			D2Bot.setProfile(null, null, null, Starter.gameInfo.difficulty);
-		}
-		delay(200);
-	}
-
 	D2Bot.requestGameInfo();
 	delay(500);
+	
+	// todo - really don't need use profiles set difficulty for online. Only single player so re-write difficulty stuff
+	Starter.checkDifficulty();
 
 	Starter.gameInfo.gameName = DataFile.getStats().gameName;
 	Starter.gameInfo.gamePass = Starter.randomString(5, true);
@@ -328,7 +319,10 @@ function main () {
 
 	DataFile.updateStats("handle", Starter.handle);
 	delay(500);
-	D2Bot.init();
+
+	while (!D2Bot.init()) {
+		delay(250);
+	}
 	load("tools/heartbeat.js");
 
 	while (!Object.keys(Starter.gameInfo).length) {
@@ -355,22 +349,13 @@ function main () {
 		D2Bot.getProfile();
 		console.log("Getting Profile");
 		delay(500);
-		//console.log(Starter.profileInfo);
+		// console.log(Starter.profileInfo);
 	}
 
 	if (Starter.profileInfo.charName === "") {
 		console.log("Generating Character Name");
 		Starter.profileInfo.charName = NameGen();
-		D2Bot.setProfile(null, null, Starter.profileInfo.charName, "Normal");
-
-		let gamename = Starter.profileInfo.charName.substring(0, 7) + "-" + Starter.randomString(3, false) + "-";
-		DataFile.updateStats("gameName", gamename);
-
 		delay(50);
-	} else if (Starter.firstRun) {
-		// should be first run on this profile since we created a new data file so initialize difficulty to normal
-		// check first before setting to avoid unneeded setProfile calls
-		Starter.profileInfo.difficulty !== "Normal" && D2Bot.setProfile(null, null, null, "Normal");
 	}
 
 	let resPenalty, areaName, diffName;

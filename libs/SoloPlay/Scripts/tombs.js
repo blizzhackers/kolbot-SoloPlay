@@ -18,8 +18,8 @@ function tombs () {
 	myPrint("starting tombs");
 
 	const tombID = [
-		sdk.areas.TalRashasTomb1, sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb3,
-		sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7
+		sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb3, sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb1,
+		sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7
 	];
 	Town.townTasks();
 

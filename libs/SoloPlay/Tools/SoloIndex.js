@@ -323,6 +323,18 @@ const SoloIndex = {
 				return true;
 			}
 		},
+		"beetleburst": {
+			preReq: function () {
+				return (Pather.accessToAct(2));
+			},
+			skipIf: function () {
+				return (me.charlvl < 12 || me.charlvl > 20);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
 		"summoner": {
 			preReq: function () {
 				return Pather.accessToAct(2);
@@ -469,8 +481,8 @@ const SoloIndex = {
 				if (!this.preReq() || this.skipIf()) return false;
 				switch (true) {
 				case !me.mephisto:
-				case (me.normal && Check.brokeAf() || !me.diffCompleted):
-				case (me.nightmare && Pather.canTeleport() || me.charlvl <= 65):
+				case (me.normal && (Check.brokeAf() || !me.diffCompleted)):
+				case (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)):
 				case (me.hell):
 					return true;
 				}
@@ -533,7 +545,8 @@ const SoloIndex = {
 				if (!this.preReq() || this.skipIf()) return false;
 				switch (true) {
 				case !me.diablo:
-				case (me.normal && (me.charlvl < 35 || me.classic)):
+				case (me.normal && me.classic):
+				case (me.normal && me.expansion && (me.charlvl < 30 || !me.diffCompleted)):
 				case (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)):
 				case (me.hell):
 					return true;

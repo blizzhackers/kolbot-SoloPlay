@@ -1,7 +1,6 @@
 /**
 *  @filename    OOGOverrides.js
 *  @author      theBGuy
-*  @credit      isid0re
 *  @desc        OOG.js fixes to improve functionality
 *
 */
@@ -27,6 +26,8 @@ ControlAction.makeCharacter = function (info) {
 		soloStats.me.finalBuild = finalBuild;
 		CharData.updateData("me", soloStats);
 	}
+
+	D2Bot.updateStatus("Making Character: " + info.charName);
 
 	// cycle until in lobby
 	while (getLocation() !== sdk.game.locations.Lobby) {
@@ -83,6 +84,7 @@ ControlAction.makeCharacter = function (info) {
 				Controls.CharCreateCharName.setText(info.charName);
 
 				if (!info.expansion) {
+					// @credit isid0re
 					if (["druid", "assassin"].includes(info.charClass)) {
 						D2Bot.printToConsole("Error in profile name. Expansion characters cannot be made in classic", sdk.colors.D2Bot.Red);
 						D2Bot.stop();
@@ -103,9 +105,9 @@ ControlAction.makeCharacter = function (info) {
 			// char name exists (text box 4, 268, 320, 264, 120)
 			ControlAction.timeoutDelay("Character Name exists: " + info.charName + ". Making new Name.", 5e3);
 			info.charName = NameGen();
-			D2Bot.setProfile(null, null, info.charName, "Normal");
 			delay(500);
 			Controls.OkCentered.click();
+			D2Bot.updateStatus("Making Character: " + info.charName);
 
 			break;
 		default:
@@ -121,6 +123,9 @@ ControlAction.makeCharacter = function (info) {
 	}
 
 	me.blockMouse = false;
+	D2Bot.setProfile(null, null, info.charName, "Normal");
+	let gamename = Starter.profileInfo.charName.substring(0, 7) + "-" + Starter.randomString(3, false) + "-";
+	DataFile.updateStats("gameName", gamename);
 
 	return true;
 };
@@ -210,6 +215,7 @@ ControlAction.loginCharacter = function (info, startFromTop = true) {
 			if (getLocation() === sdk.game.locations.MainMenu
 				&& Profile().type === sdk.game.profiletype.SinglePlayer
 				&& Controls.SinglePlayer.click()) {
+				Starter.checkDifficulty();
 				break;
 			} else if (Starter.BNET) {
 				Starter.LocationEvents.login();
@@ -283,12 +289,8 @@ ControlAction.makeAccount = function (info) {
 	me.blockMouse = true;
 
 	let tick;
-	let realms = {
-		"uswest": 0,
-		"useast": 1,
-		"asia": 2,
-		"europe": 3
-	};
+	let realms = { "uswest": 0, "useast": 1, "asia": 2, "europe": 3 };
+	D2Bot.updateStatus("Making Account: " + info.account);
 
 	// cycle until in empty char screen
 	while (getLocation() !== sdk.game.locations.CharSelectNoChars) {
@@ -550,11 +552,8 @@ Starter.charSelectConnecting = function () {
 	if (getLocation() === sdk.game.locations.CharSelectConnecting) {
 		// bugged? lets see if we can unbug it
 		// Click create char button on infinite "connecting" screen
-		Controls.CharSelectCreate.click();
-		delay(1000);
-		
-		Controls.CharSelectExit.click();
-		delay(1000);
+		Controls.CharSelectCreate.click() && delay(1000);
+		Controls.CharSelectExit.click() && delay(1000);
 
 		return (getLocation() !== sdk.game.locations.CharSelectConnecting);
 	} else {
@@ -567,10 +566,22 @@ Starter.LocationEvents.oogCheck = function () {
 	return (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || SoloEvents.outOfGameCheck());
 };
 
+Starter.checkDifficulty = function () {
+	let setDiff = CharData.getStats().me.setDifficulty;
+	if (setDiff) {
+		Starter.gameInfo.difficulty = setDiff;
+		// // only set the profile if the values aren't already the same
+		if (Starter.gameInfo.difficulty !== Starter.profileInfo.difficulty) {
+			delay(rand(250, 1000));
+			D2Bot.setProfile(null, null, null, Starter.gameInfo.difficulty);
+		}
+		delay(200);
+	}
+};
+
 Starter.LocationEvents.login = function () {
 	Starter.inGame && (Starter.inGame = false);
-	if (getLocation() === sdk.game.locations.MainMenu
-		&& Starter.firstRun
+	if (getLocation() === sdk.game.locations.MainMenu && Starter.firstRun
 		&& Profile().type === sdk.game.profiletype.SinglePlayer
 		&& Controls.SinglePlayer.click()) {
 		return;
@@ -670,16 +681,7 @@ Starter.LocationEvents.login = function () {
 				if (getLocation() === sdk.game.locations.MainMenu && Profile().type === sdk.game.profiletype.SinglePlayer) {
 					Controls.SinglePlayer.click();
 				}
-				let setDiff = CharData.getStats().me.setDifficulty;
-				if (setDiff) {
-					Starter.gameInfo.difficulty = setDiff;
-					// // only set the profile if the values aren't already the same
-					if (Starter.gameInfo.difficulty !== Starter.profileInfo.difficulty) {
-						delay(rand(250, 1000));
-						D2Bot.setProfile(null, null, null, Starter.gameInfo.difficulty);
-					}
-					delay(200);
-				}
+				Starter.checkDifficulty();
 				Starter.LocationEvents.charSelect(getLocation());
 			} catch (err) {
 				console.error(err);
@@ -866,7 +868,6 @@ Starter.LocationEvents.charSelect = function (loc) {
 					}
 				}
 			}
-			
 		} else {
 			ControlAction.loginCharacter(Starter.profileInfo, false);
 		}

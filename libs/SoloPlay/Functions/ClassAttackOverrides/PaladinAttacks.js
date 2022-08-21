@@ -12,10 +12,9 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 	let gid = unit.gid;
 	let mercRevive = 0;
-	let attackSkill = -1;
-	let aura = -1;
 	let gold = me.gold;
-	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
+	let [attackSkill, aura] = [-1, -1];
+	const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
 	if (Config.MercWatch && Town.needMerc()) {
 		console.log("mercwatch");
@@ -30,7 +29,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	}
 
 	if (me.expansion && index === 1 && unit.curseable) {
-		let commonCheck = (gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
+		const commonCheck = (gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
 
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
 			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
@@ -77,8 +76,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	}
 
 	if (Attack.getCustomAttack(unit)) {
-		attackSkill = Attack.getCustomAttack(unit)[0];
-		aura = Attack.getCustomAttack(unit)[1];
+		[attackSkill, aura] = Attack.getCustomAttack(unit);
 	} else {
 		attackSkill = Config.AttackSkill[index];
 		aura = Config.AttackSkill[index + 1];
@@ -89,8 +87,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		// Monster immune to primary aura
 		if (!Attack.checkResist(unit, aura)) {
 			// Reset skills
-			attackSkill = -1;
-			aura = -1;
+			[attackSkill, aura] = [-1, -1];
 
 			// Set to secondary if not immune, check if using secondary attack aura if not check main skill for immunity
 			if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, (this.attackAuras.includes(Config.AttackSkill[6]) ? Config.AttackSkill[6] : Config.AttackSkill[5]))) {
@@ -102,8 +99,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		// Monster immune to primary skill
 		if (!Attack.checkResist(unit, attackSkill)) {
 			// Reset skills
-			attackSkill = -1;
-			aura = -1;
+			[attackSkill, aura] = [-1, -1];
 
 			// Set to secondary if not immune
 			if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5])) {
@@ -115,8 +111,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 	// Low mana skill
 	if (Config.LowManaSkill[0] > -1 && Skill.getManaCost(attackSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[0])) {
-		attackSkill = Config.LowManaSkill[0];
-		aura = Config.LowManaSkill[1];
+		[attackSkill, aura] = Config.LowManaSkill;
 	}
 
 	let result = this.doCast(unit, attackSkill, aura);
