@@ -81,6 +81,49 @@ Misc.townCheck = function () {
 
 Misc.openChestsEnabled = true;
 
+Misc.openChestsInArea = function (area, chestIds = [], sort = undefined) {
+	!area && (area = me.area);
+	area !== me.area && Pather.journeyTo(area);
+		
+	let presetUnits = Game.getPresetObjects(area);
+	if (!presetUnits) return false;
+
+	if (!chestIds.length) {
+		chestIds = [
+			5, 6, 87, 104, 105, 106, 107, 143, 140, 141, 144, 146, 147, 148, 176, 177, 181, 183, 198, 240, 241,
+			242, 243, 329, 330, 331, 332, 333, 334, 335, 336, 354, 355, 356, 371, 387, 389, 390, 391, 397, 405,
+			406, 407, 413, 420, 424, 425, 430, 431, 432, 433, 454, 455, 501, 502, 504, 505, 580, 581
+		];
+	}
+
+	let coords = [];
+
+	while (presetUnits.length > 0) {
+		if (chestIds.includes(presetUnits[0].id)) {
+			coords.push({
+				x: presetUnits[0].roomx * 5 + presetUnits[0].x,
+				y: presetUnits[0].roomy * 5 + presetUnits[0].y
+			});
+		}
+
+		presetUnits.shift();
+	}
+
+	while (coords.length) {
+		coords.sort(sort ? sort : Sort.units);
+		Pather.moveToUnit(coords[0], 1, 2);
+		this.openChests(20);
+
+		for (let i = 0; i < coords.length; i += 1) {
+			if (getDistance(coords[i].x, coords[i].y, coords[0].x, coords[0].y) < 20) {
+				coords.shift();
+			}
+		}
+	}
+
+	return true;
+};
+
 Misc.openChests = function (range = 15) {
 	if (!Misc.openChestsEnabled) return false;
 	let containers = [
@@ -585,6 +628,8 @@ Misc.logItem = function (action, unit, keptLine) {
 
 	const mercCheck = action.match("Merc");
 	const hasTier = AutoEquip.hasTier(unit);
+	// const runewordCheck = action.match("runeword", "gi");
+	// const cubingCheck = action.match("cubing", "gi");
 	const charmCheck = (unit.isCharm && Item.autoEquipCharmCheck(unit));
 	const nTResult = !!(NTIP.CheckItem(unit, NTIP_CheckListNoTier, true).result && (keptLine && !keptLine.match("SoloPlay")));
 	const nTCharm = (unit.isCharm && !charmCheck && (keptLine && !keptLine.match("SoloPlay", "gi")));
@@ -601,14 +646,16 @@ Misc.logItem = function (action, unit, keptLine) {
 	// should stop logging items unless we wish to see them or it's part of normal pickit
 	if (nTResult || unit.isCharm || hasTier || nTCharm) {
 		switch (true) {
-		case nTResult:
-		case hasTier && !unit.isCharm && Developer.debugging.autoEquip:
-		case (charmCheck && Developer.debugging.smallCharm && unit.classid === sdk.items.SmallCharm):
-		case (charmCheck && Developer.debugging.largeCharm && unit.classid === sdk.items.LargeCharm):
-		case (charmCheck && Developer.debugging.grandCharm && unit.classid === sdk.items.GrandCharm):
-			break;
-		default:
+		//case nTResult:
+		//case runewordCheck:
+		//case (cubingCheck && Developer.debugging.crafting):
+		//case (hasTier && !unit.isCharm && Developer.debugging.autoEquip):
+		case (charmCheck && !Developer.debugging.smallCharm && unit.classid === sdk.items.SmallCharm):
+		case (charmCheck && !Developer.debugging.largeCharm && unit.classid === sdk.items.LargeCharm):
+		case (charmCheck && !Developer.debugging.grandCharm && unit.classid === sdk.items.GrandCharm):
 			return true;
+		default:
+			break;
 		}
 	}
 

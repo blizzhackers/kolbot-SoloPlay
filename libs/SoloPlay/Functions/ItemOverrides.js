@@ -899,22 +899,18 @@ const spliceCharmCheckList = function (checkList = [], verbose = false) {
 const spliceCharmKeepList = function (keep = [], sell = [], verbose = false) {
 	if (!keep.length) return;
 	let id = keep[0].classid;
-	let cInfo;
-
-	switch (id) {
-	case sdk.items.SmallCharm:
-		cInfo = CharData.charmData.small.getCountInfo();
-
-		break;
-	case sdk.items.LargeCharm:
-		cInfo = CharData.charmData.small.getCountInfo();
-
-		break;
-	case sdk.items.GrandCharm:
-		cInfo = CharData.charmData.small.getCountInfo();
-
-		break;
-	}
+	let cInfo = (() => {
+		switch (id) {
+		case sdk.items.SmallCharm:
+			return CharData.charmData.small.getCountInfo();
+		case sdk.items.LargeCharm:
+			return CharData.charmData.small.getCountInfo();
+		case sdk.items.GrandCharm:
+			return CharData.charmData.small.getCountInfo();
+		default:
+			return { max: 0 };
+		}
+	})();
 
 	// sort through kept charms
 	if (keep.length > cInfo.max) {
@@ -1031,7 +1027,7 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 	const addToCheckList = (item) => charms.checkList.indexOf(item) === -1 && charms.checkList.push(item);
 	const addToBackUp = (item) => charms.backup.indexOf(item) === -1 && charms.backup.push(item);
 
-	function sortCharms (arr = [], verbose = false, backUpCheck = true) {
+	const sortCharms = (arr = [], verbose = false, backUpCheck = true) => {
 		let invoquantity = NTIP.getInvoQuantity(arr[0]);
 		(invoquantity === undefined || invoquantity === -1) && (invoquantity = 2);
 		let charmType = Item.getCharmType(arr[0]);
@@ -1048,7 +1044,7 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 				i -= 1;
 			}
 		}
-	}
+	};
 
 	verbose && console.log("Amount of items: " + items.length);
 	items.length > 1 && items.sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a));
@@ -1184,6 +1180,7 @@ Item.autoEquipCharmCheck = function (item = undefined) {
 		.filter(charm => charm.classid === item.classid && charm.isInStorage && charm.magic && NTIP.GetCharmTier(charm) > 0);
 	if (!items.length) return true;
 
+	let quantityCap = NTIP.getInvoQuantity(item);
 	let charms = Item.autoEquipCharmSort(items);
 	let charmType = Item.getCharmType(item);
 	let cInfo, newList = [];
@@ -1246,10 +1243,12 @@ Item.autoEquipCharmCheck = function (item = undefined) {
 	case "damage":
 	case "elemental":
 		lowestCharm = charms[charmType].last();
+		if ((charms[charmType].findIndex(c => c.gid === lowestCharm.gid) + 1) > quantityCap) return false;
 
 		break;
 	default:
 		lowestCharm = charms.backup.last();
+		if ((charms.backup.findIndex(c => c.gid === lowestCharm.gid) + 1) > quantityCap) return false;
 
 		break;
 	}

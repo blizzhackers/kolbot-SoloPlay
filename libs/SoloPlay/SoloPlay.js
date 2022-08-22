@@ -65,11 +65,7 @@ function SoloPlay () {
 	this.runScripts = function () {
 		let j, k;
 		let updatedDifficulty = Check.nextDifficulty();
-
-		if (updatedDifficulty) {
-			CharData.updateData("me", "setDifficulty", updatedDifficulty);
-			D2Bot.setProfile(null, null, null, updatedDifficulty);
-		}
+		updatedDifficulty && CharData.updateData("me", "setDifficulty", updatedDifficulty);
 
 		for (k = 0; k < SoloIndex.scripts.length; k++) {
 			!me.inTown && Town.goToTown();
@@ -133,11 +129,7 @@ function SoloPlay () {
 		// Re-check to see if after this run we now meet difficulty requirments
 		if (!updatedDifficulty) {
 			updatedDifficulty = Check.nextDifficulty(false);
-
-			if (updatedDifficulty) {
-				CharData.updateData("me", "setDifficulty", updatedDifficulty);
-				D2Bot.setProfile(null, null, null, updatedDifficulty);
-			}
+			updatedDifficulty && CharData.updateData("me", "setDifficulty", updatedDifficulty);
 		}
 
 		return true;

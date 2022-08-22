@@ -1,7 +1,7 @@
 /**
 *  @filename    AttackOverrides.js
 *  @author      theBGuy
-*  @credit      jaenster, isid0re (for killTarget func)
+*  @credit      jaenster
 *  @desc        Attack.js fixes and related functions
 *
 */

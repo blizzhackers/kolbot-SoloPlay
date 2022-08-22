@@ -455,12 +455,7 @@ ControlAction.loginAccount = function (info) {
 
 	let locTick;
 	let tick = getTickCount();
-	let realms = {
-		"uswest": 0,
-		"useast": 1,
-		"asia": 2,
-		"europe": 3
-	};
+	let realms = { "uswest": 0, "useast": 1, "asia": 2, "europe": 3 };
 
 	MainLoop:
 	while (true) {
@@ -570,12 +565,6 @@ Starter.checkDifficulty = function () {
 	let setDiff = CharData.getStats().me.setDifficulty;
 	if (setDiff) {
 		Starter.gameInfo.difficulty = setDiff;
-		// // only set the profile if the values aren't already the same
-		if (Starter.gameInfo.difficulty !== Starter.profileInfo.difficulty) {
-			delay(rand(250, 1000));
-			D2Bot.setProfile(null, null, null, Starter.gameInfo.difficulty);
-		}
-		delay(200);
 	}
 };
 

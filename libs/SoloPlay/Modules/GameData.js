@@ -79,11 +79,10 @@
 		},
 		averagePackSize: monsterID => (MonsterData[monsterID].GroupCount.Min + MonsterData[monsterID].MinionCount.Min + MonsterData[monsterID].GroupCount.Max + MonsterData[monsterID].MinionCount.Max) / 2,
 		areaLevel: function (areaID) {
+			// levels on nm/hell are determined by area, not by monster data
+			if (me.diff) return AreaData[areaID].Level;
+			
 			let levels = 0, total = 0;
-
-			if (me.diff) { // levels on nm/hell are determined by area, not by monster data
-				return AreaData[areaID].Level;
-			}
 
 			AreaData[areaID].forEachMonsterAndMinion((mon, rarity) => {
 				levels += mon.Level * rarity;
@@ -117,10 +116,7 @@
 		multiplayerModifier: function (count) {
 			if (!count) {
 				let party = getParty(GameData.myReference);
-
-				if (!party) {
-					return 1;
-				}
+				if (!party) return 1;
 
 				count = 1;
 
@@ -132,13 +128,10 @@
 			return (count + 1) / 2;
 		},
 		partyModifier: function (playerID) {
-			let party = getParty(GameData.myReference), partyid = -1, level = 0, total = 0;
+			let party = getParty(GameData.myReference), level = 0, total = 0;
+			if (!party) return 1;
 
-			if (!party) {
-				return 1;
-			}
-
-			partyid = party.partyid;
+			let partyid = party.partyid;
 
 			do {
 				if (party.partyid === partyid) {
@@ -153,15 +146,12 @@
 			return level / total;
 		},
 		killExp: function (playerID, monsterID, areaID) {
-			let exp = this.monsterExp(monsterID, areaID), party = getParty(GameData.myReference), partyid = -1;
+			let exp = this.monsterExp(monsterID, areaID), party = getParty(GameData.myReference);
+			if (!party) return 0;
+
 			let level = 0, total = 0;
 			let gamesize = 0;
-
-			if (!party) {
-				return 0;
-			}
-
-			partyid = party.partyid;
+			let partyid = party.partyid;
 
 			do {
 				gamesize++;
@@ -412,14 +402,8 @@
 			272: true, // inferno
 		},
 		shiftState: function () {
-			if (GameData.myReference.getState(139)) {
-				return "wolf";
-			}
-
-			if (GameData.myReference.getState(140)) {
-				return "bear";
-			}
-
+			if (GameData.myReference.getState(139)) return "wolf";
+			if (GameData.myReference.getState(140)) return "bear";
 			return "human";
 		},
 		bestForm: function (skillID) {
@@ -446,36 +430,29 @@
 			return 0;
 		},
 		physicalAttackDamage: function (skillID) {
-			let dmg = 0;
-			switch (skillID) {
-			case sdk.skills.Bash:
-				dmg = 45 + (5 + GameData.myReference.getSkill(skillID, 1)) + (5 * GameData.myReference.getSkill(sdk.skills.Stun, 0));
-
-				break;
-			case sdk.skills.Stun:
-				dmg = (8 * GameData.myReference.getSkill(sdk.skills.Bash, 0));
-
-				break;
-			case sdk.skills.Concentrate:
-				dmg = (65 + (5 * GameData.myReference.getSkill(skillID, 1)) + (5 * GameData.myReference.getSkill(sdk.skills.Bash, 0)) + (10 * GameData.myReference.getSkill(sdk.skills.BattleOrders, 0)));
-
-				break;
-			case sdk.skills.LeapAttack:
-				dmg = (70 + (30 * GameData.myReference.getSkill(skillID, 1)) + (10 * GameData.myReference.getSkill(sdk.skills.Leap, 0)));
-
-				break;
-			case sdk.skills.Whirlwind:
-				dmg = (8 * GameData.myReference.getSkill(skillID, 1)) - 58;
-
-				break;
-			}
+			let dmg = (() => {
+				switch (skillID) {
+				case sdk.skills.Bash:
+					return 45 + (5 + GameData.myReference.getSkill(skillID, 1)) + (5 * GameData.myReference.getSkill(sdk.skills.Stun, 0));
+				case sdk.skills.Stun:
+					return (8 * GameData.myReference.getSkill(sdk.skills.Bash, 0));
+				case sdk.skills.Concentrate:
+					return (65 + (5 * GameData.myReference.getSkill(skillID, 1)) + (5 * GameData.myReference.getSkill(sdk.skills.Bash, 0)) + (10 * GameData.myReference.getSkill(sdk.skills.BattleOrders, 0)));
+				case sdk.skills.LeapAttack:
+					return (70 + (30 * GameData.myReference.getSkill(skillID, 1)) + (10 * GameData.myReference.getSkill(sdk.skills.Leap, 0)));
+				case sdk.skills.Whirlwind:
+					return (8 * GameData.myReference.getSkill(skillID, 1)) - 58;
+				default:
+					return 0;
+				}
+			})();
 
 			// return (((GameData.myReference.getStat(sdk.stats.MaxDamage) + GameData.myReference.getStat(sdk.stats.MinDamage)) / 2) + (GameData.myReference.getStat(sdk.stats.Strength) * dmg)) / 100;
 			return dmg;
 		},
 		dmgModifier: function (skillID, target) {
-			let aps = (typeof target === "number" ? this.averagePackSize(target) : 1),
-				eliteBonus = (target.spectype && target.isSpecial) ? 1 : 0, hitcap = 1;
+			let aps = (typeof target === "number" ? this.averagePackSize(target) : 1);
+			let eliteBonus = (target.spectype && target.isSpecial) ? 1 : 0, hitcap = 1;
 
 			switch (skillID) { // charged bolt/strike excluded, it's so unreliably random
 			case 15: // poison javalin
@@ -789,7 +766,7 @@
 		avgSkillDamage: function (skillID, unit) {
 			if (skillID === undefined || unit === undefined || !skillID || !unit || !Skill.canUse(skillID)) return 0;
 			let skillToCheck, avgDmg;
-			let getTotalDmg = function (skillData, unit) {
+			const getTotalDmg = function (skillData, unit) {
 				let ampDmg = Skill.canUse(66) ? 100 : (Skill.canUse(87) ? 50 : 0);
 				let avgPDmg = (skillData.pmin + skillData.pmax) / 2, totalDmg = 0, avgDmg = (skillData.min + skillData.max) / 2;
 				//let hp = GameData.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, me.area);
@@ -811,7 +788,7 @@
 				}
 				return totalDmg;
 			};
-			let calculateSplashDamage = function (skill, splash, target) {
+			const calculateSplashDamage = function (skill, splash, target) {
 				return getUnits(sdk.unittype.Monster)
 					.filter((mon) => mon.attackable && getDistance(target, mon) < splash)
 					.reduce(function (acc, cur) {
@@ -819,7 +796,7 @@
 						return acc + getTotalDmg(_a, cur);
 					}, 0);
 			};
-			let calculateChainDamage = function (skill, target) {
+			const calculateChainDamage = function (skill, target) {
 				skill === undefined && (skill = -1);
 				let rawDmg = 0, totalDmg = 0, range = 0, hits = 0;
 				switch (skill) {
@@ -849,11 +826,11 @@
 					return totalDmg;
 				}
 			};
-			let calculateRawStaticDamage = function (distanceUnit) {
+			const calculateRawStaticDamage = function (distanceUnit) {
 				distanceUnit === undefined && (distanceUnit = me);
 				if (!Skill.canUse(sdk.skills.StaticField)) return 0;
 				let range = Skill.getRange(sdk.skills.StaticField), cap = (me.gametype === sdk.game.gametype.Classic ? 1 : [1, 25, 50][me.diff]);
-				let pierce = me.getStat(sdk.stats.PierceLtng);
+				const pierce = me.getStat(sdk.stats.PierceLtng);
 				return getUnits(sdk.unittype.Monster)
 					.filter(function (mon) {
 						return mon.attackable && getDistance(mon, distanceUnit) < range;
@@ -1064,16 +1041,17 @@
 			return this.skillLevel(66) ? 100 : (this.skillLevel(87) ? 50 : 0);
 		},
 		monsterEffort: function (unit, areaID, skillDamageInfo = undefined, parent = undefined, preattack = false, all = false) {
-			let eret = {effort: Infinity, skill: -1, type: "Physical"};
+			const allData = [];
+			const buffDamageInfo = {};
+			const newSkillDamageInfo = {};
+			let buffDmg = [];
+			let eret = { effort: Infinity, skill: -1, type: "Physical" };
 			let useCooldown = (typeof unit === "number" ? false : Boolean(me.skillDelay));
 			let hp = this.monsterMaxHP(typeof unit === "number" ? unit : unit.classid, areaID);
 			let conviction = this.getConviction(), ampDmg = this.getAmp();
 			let isUndead = (typeof unit === "number" ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
 			skillDamageInfo = skillDamageInfo || this.allSkillDamage(unit);
-			const allData = [];
 			// if (conviction && unit instanceof Unit && !unit.getState(sdk.states.Conviction)) conviction = 0; //ToDo; enable when fixed telestomp
-
-			let buffDmg = [], buffDamageInfo = {}, newSkillDamageInfo = {};
 
 			for (let sk in skillDamageInfo) {
 				if (this.buffs[sk]) {
@@ -1195,25 +1173,22 @@
 					}
 				}
 			}
-			if (all && allData.length) {
-				return allData;
-			}
-			if (eret.skill >= 0) {
-				return eret;
-			}
+			if (all && allData.length) return allData;
+			if (eret.skill >= 0) return eret;
 			return null;
 		},
 		effectiveMonsterEffort: function (unit, areaID) {
-			if (unit === undefined) { return null; }
-			if (areaID === undefined) { areaID = me.area; }
-			let eret = {effort: Infinity, skill: -1, type: "Physical"};
+			if (unit === undefined) return null;
+			areaID === undefined && (areaID = me.area);
+			const allData = [];
+			const buffDamageInfo = {};
+			const newSkillDamageInfo = {};
+			let buffDmg = [];
+			let eret = { effort: Infinity, skill: -1, type: "Physical" };
 			let hp = this.monsterMaxHP(typeof unit === "number" ? unit : unit.classid, areaID);
 			let conviction = this.getConviction(), ampDmg = this.getAmp();
 			let isUndead = (typeof unit === "number" ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
 			let skillDamageInfo = this.allSkillDamage(unit);
-			const allData = [];
-
-			let buffDmg = [], buffDamageInfo = {}, newSkillDamageInfo = {};
 
 			for (let sk in skillDamageInfo) {
 				if (this.buffs[sk]) {
@@ -1311,7 +1286,7 @@
 					}
 
 					// check valid location, blizzard and meteor fail over lava
-					if ([sdk.skills.Blizzard, sdk.skills.Meteor].indexOf(sk) && !getCollision(unit.area, unit.x, unit.y & !Coords_1.BlockBits.IsOnFloor)) {
+					if ([sdk.skills.Blizzard, sdk.skills.Meteor].indexOf(sk) && !Attack.validSpot(unit.x, unit.y, sk, unit.classid)) {
 						tmpEffort *= 5;
 					}
 
@@ -1325,12 +1300,8 @@
 					}
 				}
 			}
-			if (allData.length) {
-				return allData;
-			}
-			if (eret.skill >= 0) {
-				return eret;
-			}
+			if (allData.length) return allData;
+			if (eret.skill >= 0) return eret;
 			return null;
 		},
 		areaEffort: function (areaID, skills) {
@@ -1413,12 +1384,8 @@
 				StartingFrame: 1   2   2   2   2   2   0   0
 			*/
 			if (charClass === sdk.player.class.Amazon || charClass === sdk.player.class.Sorceress) {
-				if (weaponClass === "hth") {
-					return 1;
-				}
-				if (["1hs", "2hs", "1ht", "2ht", "stf"].indexOf(weaponClass) > -1) {
-					return 2;
-				}
+				if (weaponClass === "hth") return 1;
+				if (["1hs", "2hs", "1ht", "2ht", "stf"].includes(weaponClass)) return 2;
 			}
 			return 0;
 		},
@@ -1438,10 +1405,7 @@
 
 		attackModeForSkill: function (skillId, charClass = GameData.myReference.classid) {
 			//TODO:
-
-			if (skillId === sdk.skills.Smite) {
-				return "S1";
-			}
+			if (skillId === sdk.skills.Smite) return "S1";
 			/*
 				A1:
 				normal attack or attack skills like
@@ -1875,13 +1839,8 @@
 				if (path && path.length) {
 				// path is reversed from target to monster, we will check from last path position (target) to monster position
 					path.reverse();
-					let diffS = 0;
-					let diffF = 0;
-					let found = 0;
-					let time = {
-						missile: {},
-						monster: {}
-					};
+					let [diffS, diffF, found] = [0, 0, 0];
+					let time = { missile: {}, monster: {} };
 					for (let i = 0; i < path.length; i++) {
 						let pos = path[i];
 						// ToDo : does missile spawn at me position ?

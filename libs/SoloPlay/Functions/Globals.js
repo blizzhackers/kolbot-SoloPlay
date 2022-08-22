@@ -188,20 +188,26 @@ const SetUp = {
 	// really need a centralized way to make sure all files use/have the custom functions and all threads stay updated without having to
 	// scriptBroadcast all the time
 	include: function () {
-		let folders = ["Functions"];
-		folders.forEach((folder) => {
-			let files = dopen("libs/SoloPlay/" + folder + "/").getFiles();
-			Array.isArray(files) && files
-				.filter(file => file.endsWith(".js"))
-				.sort(a => a.startsWith("PrototypeOverrides.js") ? 0 : 1) // Dirty fix to load new prototypes first
-				.forEach(function (x) {
-					if (!isIncluded("SoloPlay/" + folder + "/" + x)) {
-						if (!include("SoloPlay/" + folder + "/" + x)) {
-							throw new Error("Failed to include " + "SoloPlay/" + folder + "/" + x);
-						}
+		let files = dopen("libs/SoloPlay/Functions/").getFiles();
+		if (!files.length) throw new Error("Failed to find my files");
+		if (!files.includes("Globals.js")) {
+			console.warn("Incorrect Files?", files);
+			// something went wrong?
+			while (!files.includes("Globals.js")) {
+				files = dopen("libs/SoloPlay/Functions/").getFiles();
+				delay(50);
+			}
+		}
+		Array.isArray(files) && files
+			.filter(file => file.endsWith(".js"))
+			.sort(a => a.startsWith("PrototypeOverrides.js") ? 0 : 1) // Dirty fix to load new prototypes first
+			.forEach(function (x) {
+				if (!isIncluded("SoloPlay/Functions/" + x)) {
+					if (!include("SoloPlay/Functions/" + x)) {
+						throw new Error("Failed to include " + "SoloPlay/Functions/" + x);
 					}
-				});
-		});
+				}
+			});
 	},
 
 	// Storage Settings
@@ -479,92 +485,59 @@ const nipItems = {
 	],
 };
 
-const addSocketableObj = (classid, socketWith = [], useSocketQuest = false, condition = () => {}) => ({
+const addSocketableObj = (classid, socketWith = [], temp = [], useSocketQuest = false, condition = () => {}) => ({
 	classid: classid,
 	socketWith: socketWith,
+	temp: temp,
 	useSocketQuest: useSocketQuest,
 	condition: condition
 });
 const basicSocketables = {
-	caster: [
-		{
-			classid: sdk.items.BroadSword,
-			socketWith: [],
-			useSocketQuest: true,
-			condition: (item) => me.normal && !Check.haveBase("sword", 4) && !me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have
-				&& item.ilvl >= 26 && item.isBaseType && !item.ethereal
-		},
-		{
-			classid: sdk.items.CrystalSword,
-			socketWith: [],
-			useSocketQuest: true,
-			condition: (item) => me.normal && !Check.haveBase("sword", 4) && !me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have
-				&& item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal
-		},
-		{
-			// Lidless
-			classid: sdk.items.GrimShield,
-			socketWith: [sdk.items.runes.Um],
-			temp: [sdk.items.gems.Perfect.Diamond],
-			useSocketQuest: !me.hell,
-			condition: (item) => item.unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal
-		},
-	],
-	all: [
-		{
-			classid: sdk.items.Bill,
-			socketWith: [],
-			useSocketQuest: true,
-			condition: (item) => me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal
-		},
-		{
-			classid: sdk.items.ColossusVoulge,
-			socketWith: [],
-			useSocketQuest: true,
-			condition: (item) => me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal
-		},
-		{
-			// Crown of Ages
-			classid: sdk.items.Corona,
-			socketWith: [sdk.items.runes.Ber, sdk.items.runes.Um],
-			temp: [sdk.items.gems.Perfect.Ruby],
-			useSocketQuest: false,
-			condition: (item) => item.unique && !item.ethereal
-		},
-		{
-			// Moser's
-			classid: sdk.items.RoundShield,
-			socketWith: [sdk.items.runes.Um],
-			temp: [sdk.items.gems.Perfect.Diamond],
-			useSocketQuest: false,
-			condition: (item) => item.unique && !item.ethereal
-		},
-		{
-			// Spirit Forge
-			classid: sdk.items.LinkedMail,
-			socketWith: [sdk.items.runes.Shael],
-			temp: [sdk.items.gems.Perfect.Ruby],
-			useSocketQuest: false,
-			condition: (item) => item.unique && !item.ethereal
-		},
-		{
-			// Dijjin Slayer
-			classid: sdk.items.Ataghan,
-			socketWith: [sdk.items.runes.Amn],
-			temp: [sdk.items.gems.Perfect.Skull],
-			useSocketQuest: false,
-			condition: (item) => !Check.currentBuild().caster && item.unique && !item.ethereal
-		},
-		{
-			// Bone Hew - for merc
-			classid: sdk.items.OgreAxe,
-			socketWith: [sdk.items.runes.Hel, sdk.items.runes.Amn],
-			temp: [sdk.items.gems.Perfect.Skull],
-			useSocketQuest: false,
-			condition: (item) => item.unique
-		},
-	]
+	caster: [],
+	all: [],
 };
+// insight base
+basicSocketables.all.push(addSocketableObj(sdk.items.Bill, [], [], true, (item) =>
+	me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal
+));
+// insight base
+basicSocketables.all.push(addSocketableObj(sdk.items.ColossusVoulge, [], [], true, (item) =>
+	me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal
+));
+// Crown of Ages
+basicSocketables.caster.push(addSocketableObj(sdk.items.Corona, [sdk.items.runes.Ber, sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+	false, (item) => item.unique
+));
+// Moser's
+basicSocketables.caster.push(addSocketableObj(sdk.items.RoundShield, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Diamond],
+	false, (item) => item.unique && !item.ethereal
+));
+// Spirit Forge
+basicSocketables.caster.push(addSocketableObj(sdk.items.LinkedMail, [sdk.items.runes.Shael], [sdk.items.gems.Perfect.Ruby],
+	false, (item) => item.unique && !item.ethereal
+));
+// Dijjin Slayer
+basicSocketables.caster.push(addSocketableObj(sdk.items.Ataghan, [sdk.items.runes.Amn], [sdk.items.gems.Perfect.Skull],
+	false, (item) => !Check.currentBuild().caster && item.unique && !item.ethereal
+));
+// Bone Hew - for merc
+basicSocketables.caster.push(addSocketableObj(sdk.items.OgreAxe, [sdk.items.runes.Hel, sdk.items.runes.Amn], [sdk.items.gems.Perfect.Skull],
+	false, (item) => item.unique
+));
+// spirit base
+basicSocketables.caster.push(addSocketableObj(sdk.items.BroadSword, [], [], true, (item) =>
+	me.normal && !Check.haveBase("sword", 4) && !me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have
+	&& item.ilvl >= 26 && item.isBaseType && !item.ethereal
+));
+// spirit base
+basicSocketables.caster.push(addSocketableObj(sdk.items.CrystalSword, [], [], true, (item) =>
+	me.normal && !Check.haveBase("sword", 4) && !me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have
+	&& item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal
+));
+// Lidless
+basicSocketables.caster.push(addSocketableObj(sdk.items.GrimShield, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Diamond], !me.hell, (item) =>
+	item.unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal
+));
 
 // misc
 const goToDifficulty = function (diff = undefined, reason = "") {
@@ -590,7 +563,6 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 		}
 
 		CharData.updateData("me", "setDifficulty", diffString);
-		// D2Bot.setProfile(null, null, null, diffString);
 		myPrint("Going to " + diffString + " " + reason, true);
 		delay(1000);
 		if (CharData.getStats().me.setDifficulty !== diffString) {
