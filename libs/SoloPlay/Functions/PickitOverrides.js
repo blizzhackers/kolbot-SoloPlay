@@ -375,7 +375,7 @@ Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
 		if (stats.useTk && me.mp > tkMana) {
 			Packet.telekinesis(item);
 		} else {
-			if (item.distance > ((Config.FastPick || i < 1) ? 6 : 4) || checkCollision(me, item, sdk.collision.BlockWall)) {
+			if (item.distance > (Config.FastPick || i < 1) ? 6 : 4 || checkCollision(me, item, sdk.collision.BlockWall)) {
 				if (!clearBeforePick && me.checkForMobs({range: 5, coll: (sdk.collision.BlockWall | sdk.collision.Objects | sdk.collision.ClosedDoor)})) {
 					continue;
 				}

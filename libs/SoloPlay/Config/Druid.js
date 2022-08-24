@@ -161,29 +161,15 @@ function LoadConfig () {
 	Config.socketables = [];
 	// basicSocketables located in Globals
 	Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
-	Config.socketables
-		.push(
-			{
-				classid: sdk.items.Monarch,
-				socketWith: [],
-				useSocketQuest: true,
-				condition: (item) => !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
-			},
-			{
-				classid: sdk.items.TotemicMask,
-				socketWith: [sdk.items.runes.Um],
-				temp: [sdk.items.gems.Perfect.Ruby],
-				useSocketQuest: true,
-				condition: (item) => item.unique && !item.ethereal
-			},
-			{
-				classid: sdk.items.Shako,
-				socketWith: [sdk.items.runes.Um],
-				temp: [sdk.items.gems.Perfect.Ruby],
-				useSocketQuest: false,
-				condition: (item) => item.unique && !item.ethereal
-			}
-		);
+	Config.socketables.push(addSocketableObj(sdk.items.Monarch, [], [],
+		!me.hell, (item) => !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+	));
+	Config.socketables.push(addSocketableObj(sdk.items.TotemicMask, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+		true, (item) => item.unique && !item.ethereal
+	));
+	Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+		true, (item) => item.unique && !item.ethereal
+	));
 
 	if (me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
 		// Spirit on swap
@@ -209,37 +195,30 @@ function LoadConfig () {
 		}
 
 		if (SetUp.finalBuild === "Elemental") {
-			Config.socketables
-				.push(
-					{
-						classid: sdk.items.SkySpirit,
-						socketWith: [sdk.items.runes.Um],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: true,
-						condition: (item) => item.unique && item.getStat(sdk.stats.PassiveFirePierce) === 20 && !item.ethereal
-					}
-				);
-
-			// Heart of the Oak
-			if (!me.checkItem({name: sdk.locale.items.HeartoftheOak}).have) {
-				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
-			}
+			Config.socketables.push(addSocketableObj(sdk.items.SkySpirit, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+				true, (item) => item.unique && item.getStat(sdk.stats.PassiveFirePierce) === 20 && !item.ethereal
+			));
 
 			// Phoenix Shield
 			if ((me.ladder || Developer.addLadderRW) && SetUp.finalBuild === "Elemental" && me.checkItem({name: sdk.locale.items.Enigma}).have && !me.checkItem({name: sdk.locale.items.Phoenix, itemtype: sdk.items.type.Shield}).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PhoneixShield.js");
 			}
+		}
 
-			// Enigma
-			if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
-				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
-			}
+		// Heart of the Oak
+		if (!me.checkItem({name: sdk.locale.items.HeartoftheOak}).have) {
+			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
+		}
 
-			// upgrade magefist
-			if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
-				Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
-				Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
-			}
+		// Enigma
+		if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
+			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
+		}
+
+		// upgrade magefist
+		if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
+			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
+			Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
 		}
 
 		break;

@@ -312,8 +312,6 @@ const SoloIndex = {
 				switch (me.classid) {
 				case sdk.player.class.Amazon:
 					return SetUp.currentBuild !== SetUp.finalBuild;
-				case sdk.player.class.Paladin:
-					return !Check.currentBuild().caster;
 				default:
 					return Attack.getSkillElement(Config.AttackSkill[3] === "magic");
 				}
@@ -483,7 +481,7 @@ const SoloIndex = {
 				case !me.mephisto:
 				case (me.normal && (Check.brokeAf() || !me.diffCompleted)):
 				case (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)):
-				case (me.hell):
+				case (me.hell && (Pather.canTeleport() || !me.hardcore)):
 					return true;
 				}
 				return false;
