@@ -1,20 +1,20 @@
 /**
 *  @filename    savebarby.js
-*  @author      theBGuy, isid0re
+*  @author      theBGuy
+*  @credit      AutoSmurf
 *  @desc        rescue barbies for runes for ancient pledge
 *
 */
 
 function savebarby () {
 	let coords = [];
-	let barbies = [];
 
 	Town.townTasks();
 	myPrint("starting barbies");
 
 	Pather.checkWP(sdk.areas.FrigidHighlands, true) ? Pather.useWaypoint(sdk.areas.FrigidHighlands) : Pather.getWP(sdk.areas.FrigidHighlands);
 	Precast.doPrecast(true);
-	barbies = (Game.getPresetObjects(me.area, sdk.quest.chest.BarbCage) || []);
+	let barbies = (Game.getPresetObjects(me.area, sdk.quest.chest.BarbCage) || []);
 
 	if (!barbies) return false;
 

@@ -149,33 +149,17 @@ function LoadConfig () {
 		Config.socketables = [];
 		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.all);
-		Config.socketables
-			.push(
-				{
-					classid: sdk.items.Flamberge,
-					socketWith: [],
-					useSocketQuest: true,
-					condition: (item) => me.normal && Item.getEquippedItem(sdk.body.LeftArm).tier < 600 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
-				},
-				{
-					classid: sdk.items.Zweihander,
-					socketWith: [],
-					useSocketQuest: true,
-					condition: (item) => Item.getEquippedItem(sdk.body.LeftArm).tier < 1000 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
-				}
-			);
+		Config.socketables.push(addSocketableObj(sdk.items.Flamberge, [], [],
+			true, (item) => me.normal && Item.getEquippedItem(sdk.body.LeftArm).tier < 600 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+		));
+		Config.socketables.push(addSocketableObj(sdk.items.Zweihander, [], [],
+			true, (item) => Item.getEquippedItem(sdk.body.LeftArm).tier < 1000 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+		));
 
 		if (SetUp.finalBuild !== "Immortalwhirl") {
-			Config.socketables
-				.push(
-					{
-						classid: sdk.items.SlayerGuard,
-						socketWith: [sdk.items.runes.Cham],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: true,
-						condition: (item) => item.unique && !item.ethereal
-					}
-				);
+			Config.socketables.push(addSocketableObj(sdk.items.SlayerGuard, [sdk.items.runes.Cham], [sdk.items.gems.Perfect.Ruby],
+				true, (item) => item.unique && !item.ethereal
+			));
 		}
 
 		if (["Immortalwhirl", "Singer"].indexOf(SetUp.finalBuild) === -1) {
@@ -234,29 +218,15 @@ function LoadConfig () {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
 			}
 
-			Config.socketables
-				.push(
-					{
-						classid: sdk.items.AvengerGuard,
-						socketWith: [sdk.items.runes.Ber],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: false,
-						condition: (item) => item.set && !item.ethereal
-					},
-					{
-						classid: sdk.items.OgreMaul,
-						socketWith: [sdk.items.runes.Shael],
-						useSocketQuest: false,
-						condition: (item) => item.set && !item.ethereal
-					},
-					{
-						classid: sdk.items.SacredArmor,
-						socketWith: [sdk.items.runes.Ber],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: true,
-						condition: (item) => item.set && !item.ethereal
-					}
-				);
+			Config.socketables.push(addSocketableObj(sdk.items.AvengerGuard, [sdk.items.runes.Ber], [sdk.items.gems.Perfect.Ruby],
+				false, (item) => item.set && !item.ethereal
+			));
+			Config.socketables.push(addSocketableObj(sdk.items.OgreMaul, [sdk.items.runes.Shael], [],
+				false, (item) => item.set && !item.ethereal
+			));
+			Config.socketables.push(addSocketableObj(sdk.items.SacredArmor, [sdk.items.runes.Ber], [sdk.items.gems.Perfect.Ruby],
+				true, (item) => item.set && !item.ethereal
+			));
 
 			Check.itemSockables(sdk.items.OgreMaul, "set", "Immortal King's Stone Crusher");
 

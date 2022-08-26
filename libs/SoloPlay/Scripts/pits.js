@@ -1,6 +1,6 @@
 /**
 *  @filename    pits.js
-*  @author      isid0re, theBGuy
+*  @author      kolton, theBGuy
 *  @desc        pits A1 for MF and gold
 *
 */

@@ -172,22 +172,12 @@ function LoadConfig () {
 		Config.socketables = [];
 		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
-		Config.socketables
-			.push(
-				{
-					classid: sdk.items.Monarch,
-					socketWith: [],
-					useSocketQuest: true,
-					condition: (item) => !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
-				},
-				{
-					classid: sdk.items.Shako,
-					socketWith: [sdk.items.runes.Um],
-					temp: [sdk.items.gems.Perfect.Ruby],
-					useSocketQuest: true,
-					condition: (item) => item.unique && !item.ethereal
-				}
-			);
+		Config.socketables.push(addSocketableObj(sdk.items.Monarch, [], [],
+			!me.hell, (item) => !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+		));
+		Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+			true, (item) => item.unique && !item.ethereal
+		));
 
 		/* Crafting */
 		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {

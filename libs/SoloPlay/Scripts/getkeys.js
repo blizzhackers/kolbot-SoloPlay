@@ -10,9 +10,7 @@ function getkeys() {
 
 	if (!me.findItems(sdk.items.quest.KeyofTerror) || me.findItems(sdk.items.quest.KeyofTerror).length < 3) {
 		try {
-			if (includeIfNotIncluded("SoloPlay/Scripts/countess.js")) {
-				this.countess();
-			}
+			Loader.runScript("countess");
 		} catch (countessError) {
 			console.log("ÿc8Kolbot-SoloPlayÿc0: Countess failed");
 		}
@@ -20,9 +18,7 @@ function getkeys() {
 
 	if (!me.findItems(sdk.items.quest.KeyofHate) || me.findItems(sdk.items.quest.KeyofHate).length < 3) {
 		try {
-			if (includeIfNotIncluded("SoloPlay/Scripts/summoner.js")) {
-				this.summoner();
-			}
+			Loader.runScript("summoner");
 		} catch (summonerError) {
 			console.log("ÿc8Kolbot-SoloPlayÿc0: Summoner failed");
 		}
@@ -30,9 +26,7 @@ function getkeys() {
 
 	if (!me.findItems(sdk.items.quest.KeyofDestruction) || me.findItems(sdk.items.quest.KeyofDestruction).length < 3) {
 		try {
-			if (includeIfNotIncluded("SoloPlay/Scripts/nith.js")) {
-				this.nith();
-			}
+			Loader.runScript("nith");
 		} catch (nihlathakError) {
 			console.log("ÿc8Kolbot-SoloPlayÿc0: Nihlathak failed");
 		}

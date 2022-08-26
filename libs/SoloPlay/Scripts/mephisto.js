@@ -1,6 +1,6 @@
 /**
 *  @filename    mephisto.js
-*  @author      isid0re, theBGuy
+*  @author      kolton, theBGuy
 *  @desc        mephisto quest
 *
 */

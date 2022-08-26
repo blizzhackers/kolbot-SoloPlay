@@ -167,22 +167,12 @@ function LoadConfig () {
 		Config.socketables = [];
 		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.all);
-		Config.socketables
-			.push(
-				{
-					classid: sdk.items.Bill,
-					socketWith: [],
-					useSocketQuest: true,
-					condition: (item) => me.normal && item.ilvl >= 26 && item.isBaseType
-				},
-				{
-					classid: sdk.items.Shako,
-					socketWith: [sdk.items.runes.Um],
-					temp: [sdk.items.gems.Perfect.Ruby],
-					useSocketQuest: true,
-					condition: (item) => item.unique && !item.ethereal
-				}
-			);
+		Config.socketables.push(addSocketableObj(sdk.items.Bill, [], [],
+			me.normal, (item) => item.ilvl >= 26 && item.isBaseType
+		));
+		Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+			true, (item) => item.unique && !item.ethereal
+		));
 
 		Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
 		Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
@@ -209,16 +199,9 @@ function LoadConfig () {
 					NTIP.addLine("[name] == hydrabow && [quality] == unique # [manaleech] >= 6 # [maxquantity] == 1");
 				}
 
-				Config.socketables
-					.push(
-						{
-							classid: sdk.items.HydraBow,
-							socketWith: [sdk.items.runes.Shael],
-							temp: [sdk.items.gems.Perfect.Amn],
-							useSocketQuest: true,
-							condition: (item) => item.quality === sdk.items.quality.Unique
-						}
-					);
+				Config.socketables.push(addSocketableObj(sdk.items.HydraBow, [sdk.items.runes.Shael], [sdk.items.runes.Amn],
+					true, (item) => item.unique
+				));
 			}
 
 			if ((SetUp.finalBuild === "Faithbowzon") && !me.checkItem({name: sdk.locale.items.Faith, classid: sdk.items.GrandMatronBow}).have) {
@@ -241,23 +224,12 @@ function LoadConfig () {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 			}
 
-			Config.socketables
-				.push(
-					{
-						classid: sdk.items.DiamondBow,
-						socketWith: [sdk.items.runes.Nef, sdk.items.runes.Shael],
-						temp: [sdk.items.gems.Perfect.Skull],
-						useSocketQuest: false,
-						condition: (item) => item.unique
-					},
-					{
-						classid: sdk.items.BoneVisage,
-						socketWith: [sdk.items.runes.Um],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: true,
-						condition: (item) => item.unique && item.getStat(sdk.stats.LifeLeech) === 8 && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal
-					}
-				);
+			Config.socketables.push(addSocketableObj(sdk.items.DiamondBow, [sdk.items.runes.Nef, sdk.items.runes.Shael], [sdk.items.gems.Perfect.Skull],
+				false, (item) => item.unique
+			));
+			Config.socketables.push(addSocketableObj(sdk.items.BoneVisage, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+				true, (item) => item.unique && item.getStat(sdk.stats.LifeLeech) === 8 && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal
+			));
 
 			break;
 		case "Javazon":

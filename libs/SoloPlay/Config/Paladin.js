@@ -172,16 +172,9 @@ function LoadConfig () {
 		Config.socketables = [];
 		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
-		Config.socketables
-			.push(
-				{
-					classid: sdk.items.Shako,
-					socketWith: [sdk.items.runes.Um],
-					temp: [sdk.items.gems.Perfect.Ruby],
-					useSocketQuest: true,
-					condition: (item) => item.unique && !item.ethereal
-				}
-			);
+		Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+			true, (item) => item.unique && !item.ethereal
+		));
 
 		/* Crafting */
 		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
@@ -213,23 +206,12 @@ function LoadConfig () {
 			}
 
 			if (SetUp.finalBuild === "Zealer") {
-				Config.socketables
-					.push(
-						{
-							classid: sdk.items.GrimHelm,
-							socketWith: [sdk.items.runes.Ber],
-							temp: [sdk.items.gems.Perfect.Ruby],
-							useSocketQuest: true,
-							condition: (item) => item.unique && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal
-						},
-						{
-							classid: sdk.items.BoneVisage,
-							socketWith: [sdk.items.runes.Ber],
-							temp: [sdk.items.gems.Perfect.Ruby],
-							useSocketQuest: true,
-							condition: (item) => item.unique && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal && item.fname.toLowerCase().includes("vampire gaze")
-						}
-					);
+				Config.socketables.push(addSocketableObj(sdk.items.GrimHelm, [sdk.items.runes.Ber], [sdk.items.gems.Perfect.Ruby],
+					true, (item) => item.unique && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal
+				));
+				Config.socketables.push(addSocketableObj(sdk.items.BoneVisage, [sdk.items.runes.Ber], [sdk.items.gems.Perfect.Ruby],
+					true, (item) => item.unique && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal && item.fname.toLowerCase().includes("vampire gaze")
+				));
 
 				Check.itemSockables(sdk.items.GrimHelm, "unique", "Vampire Gaze");
 				Check.itemSockables(sdk.items.BoneVisage, "unique", "Vampire Gaze");

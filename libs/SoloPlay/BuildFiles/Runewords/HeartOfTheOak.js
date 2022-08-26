@@ -1,4 +1,4 @@
-let HotO = [
+const HotO = [
 	"[name] == ThulRune # # [maxquantity] == 1",
 	"[name] == PulRune",
 	"[name] == KoRune # # [maxquantity] == 1",

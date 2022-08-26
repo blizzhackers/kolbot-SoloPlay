@@ -213,22 +213,12 @@ function LoadConfig () {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
 			}
 
-			Config.socketables
-				.push(
-					{
-						classid: sdk.items.Monarch,
-						socketWith: [],
-						useSocketQuest: true,
-						condition: (item) => !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
-					},
-					{
-						classid: sdk.items.Shako,
-						socketWith: [sdk.items.runes.Um],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: true,
-						condition: (item) => item.unique && !item.ethereal
-					}
-				);
+			Config.socketables.push(addSocketableObj(sdk.items.Monarch, [], [],
+				!me.hell, (item) => !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+			));
+			Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+				true, (item) => item.unique && !item.ethereal
+			));
 
 			Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
 
@@ -236,29 +226,15 @@ function LoadConfig () {
 		case "Meteorb":
 		case "Cold":
 		case "Blizzballer":
-			Config.socketables
-				.push(
-					{
-						classid: sdk.items.DeathMask,
-						socketWith: [sdk.items.runes.Um],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: true,
-						condition: (item) => item.set && !item.ethereal
-					},
-					{
-						classid: sdk.items.LacqueredPlate,
-						socketWith: [sdk.items.runes.Ber],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: true,
-						condition: (item) => item.set && !item.ethereal
-					},
-					{
-						classid: sdk.items.SwirlingCrystal,
-						socketWith: [sdk.items.runes.Ist], // would a 5/5 facet be better?
-						useSocketQuest: false,
-						condition: (item) => item.set && !item.ethereal
-					}
-				);
+			Config.socketables.push(addSocketableObj(sdk.items.DeathMask, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+				true, (item) => item.set && !item.ethereal
+			));
+			Config.socketables.push(addSocketableObj(sdk.items.LacqueredPlate, [sdk.items.runes.Ber], [sdk.items.gems.Perfect.Ruby],
+				true, (item) => item.set && !item.ethereal
+			));
+			Config.socketables.push(addSocketableObj(sdk.items.SwirlingCrystal, [sdk.items.runes.Ist], [],
+				false, (item) => item.set && !item.ethereal
+			));
 
 			Check.itemSockables(sdk.items.LacqueredPlate, "set", "Tal Rasha's Guardianship");
 			Check.itemSockables(sdk.items.DeathMask, "set", "Tal Rasha's Horadric Crest");

@@ -40,10 +40,7 @@ function tristram () {
 		}
 
 		if (me.getItem(sdk.items.quest.ScrollofInifuss)) {
-			if (!me.inTown) {
-				Town.goToTown();
-			}
-
+			!me.inTown && Town.goToTown();
 			Town.npcInteract("akara");
 		}
 	}

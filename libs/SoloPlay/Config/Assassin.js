@@ -154,35 +154,18 @@ function LoadConfig () {
 	Config.socketables = [];
 	// basicSocketables located in Globals
 	Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
-	Config.socketables
-		.push(
-			{
-				classid: sdk.items.Monarch,
-				socketWith: [],
-				useSocketQuest: true,
-				condition: (item) => !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
-			},
-			{
-				classid: sdk.items.Shako,
-				socketWith: [sdk.items.runes.Um],
-				temp: [sdk.items.gems.Perfect.Ruby],
-				useSocketQuest: false,
-				condition: (item) => item.unique && !item.ethereal
-			}
-		);
+	Config.socketables.push(addSocketableObj(sdk.items.Monarch, [], [],
+		!me.hell, (item) => !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+	));
+	Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+		true, (item) => item.unique && !item.ethereal
+	));
 
 	switch (SetUp.finalBuild) {
 	case "Whirlsin":
-		Config.socketables
-			.push(
-				{
-					classid: sdk.items.WingedHelm,
-					socketWith: [sdk.items.runes.Um],
-					temp: [sdk.items.gems.Perfect.Ruby],
-					useSocketQuest: true,
-					condition: (item) => item.set && !item.ethereal
-				}
-			);
+		Config.socketables.push(addSocketableObj(sdk.items.WingedHelm, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+			true, (item) => item.unique && !item.ethereal
+		));
 		
 		// Pride
 		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum !== sdk.locale.items.Pride) {
@@ -206,16 +189,9 @@ function LoadConfig () {
 
 		break;
 	default:
-		Config.socketables
-			.push(
-				{
-					classid: sdk.items.Demonhead,
-					socketWith: [sdk.items.runes.Um], // Ral vs Um ?
-					temp: [sdk.items.gems.Perfect.Ruby],
-					useSocketQuest: true,
-					condition: (item) => item.unique && !item.ethereal
-				}
-			);
+		Config.socketables.push(addSocketableObj(sdk.items.Demonhead, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+			true, (item) => item.unique && !item.ethereal
+		));
 		
 		// Infinity
 		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
