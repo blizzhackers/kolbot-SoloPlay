@@ -95,6 +95,8 @@ const finalBuild = {
 			Update: function () {
 				Config.AttackSkill = [-1, sdk.skills.Smite, sdk.skills.Fanaticism, sdk.skills.Smite, sdk.skills.Fanaticism, sdk.skills.BlessedHammer, sdk.skills.Concentration];
 				Config.LowManaSkill = [0, sdk.skills.Fanaticism];
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+				SetUp.belt();
 			}
 		},
 	},

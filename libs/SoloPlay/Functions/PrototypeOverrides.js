@@ -8,6 +8,17 @@
 
 includeIfNotIncluded("common/Prototypes.js");
 
+/**
+ * 
+ * @param {number} skillId 
+ * @param {number} subId 
+ * @returns boolean
+ * @description small function to force boolean return value when checking if we have a skill
+ */
+me.checkSkill = function (skillId = 0, subId = 0) {
+	return !!me.getSkill(skillId, subId);
+};
+
 Unit.prototype.getResPenalty = function (difficulty) {
 	difficulty > 2 && (difficulty = 2);
 	return me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][difficulty] : [0, 40, 100][difficulty];

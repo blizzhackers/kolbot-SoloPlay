@@ -34,7 +34,7 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl < CharInfo.respecOne && !me.getSkill(sdk.skills.Tornado, sdk.skills.subindex.HardPoints);
+		return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.Tornado, sdk.skills.subindex.HardPoints);
 	},
 };
 
@@ -47,7 +47,7 @@ build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
 	Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
 	Config.LowManaSkill = [0, 0];
 	Config.SummonVine = 1; // "Poison Creeper"
-	if (me.getSkill(sdk.skills.Firestorm, sdk.skills.subindex.HardPoints)) {
+	if (me.checkSkill(sdk.skills.Firestorm, sdk.skills.subindex.HardPoints)) {
 		Config.AttackSkill = [-1, sdk.skills.Firestorm, -1, sdk.skills.Firestorm, -1, 0, 0];
 	} else {
 		Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
@@ -56,7 +56,7 @@ build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
 });
 
 build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
-	if (me.getSkill(sdk.skills.Fissure, sdk.skills.subindex.HardPoints)) {
+	if (me.checkSkill(sdk.skills.Fissure, sdk.skills.subindex.HardPoints)) {
 		Config.AttackSkill = [-1, sdk.skills.Fissure, sdk.skills.Firestorm, sdk.skills.Fissure, sdk.skills.Firestorm, 0, 0];
 	}
 });

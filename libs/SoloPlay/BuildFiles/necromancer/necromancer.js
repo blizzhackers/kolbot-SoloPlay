@@ -30,7 +30,7 @@ const CharInfo = {
 		const justRepeced = (nSkills >= currLevel);
 
 		switch (true) {
-		case currLevel < this.respecOne && !me.getSkill(sdk.skills.BonePrison, sdk.skills.subindex.HardPoints):
+		case currLevel < this.respecOne && !me.checkSkill(sdk.skills.BonePrison, sdk.skills.subindex.HardPoints):
 			return "Start";
 		case Check.finalBuild().respec() && justRepeced:
 		case Check.finalBuild().active():

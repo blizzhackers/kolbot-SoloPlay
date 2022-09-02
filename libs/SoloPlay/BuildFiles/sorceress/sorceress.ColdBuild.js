@@ -134,6 +134,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec() && !me.getSkill(sdk.skills.Meteor, sdk.skills.subindex.HardPoints);
+		return this.respec() && !me.checkSkill(sdk.skills.Meteor, sdk.skills.subindex.HardPoints);
 	},
 };

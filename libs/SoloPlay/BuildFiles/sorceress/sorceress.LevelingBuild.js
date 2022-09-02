@@ -64,7 +64,7 @@ let build = {
 	skills: undefined,
 
 	active: function () {
-		return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.getSkill(sdk.skills.FireMastery, sdk.skills.subindex.HardPoints) && !Check.finalBuild().active());
+		return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.checkSkill(sdk.skills.FireMastery, sdk.skills.subindex.HardPoints) && !Check.finalBuild().active());
 	},
 };
 

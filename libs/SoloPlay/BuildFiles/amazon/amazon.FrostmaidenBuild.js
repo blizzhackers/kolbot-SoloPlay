@@ -124,6 +124,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec() && me.getSkill(sdk.skills.FreezingArrow, sdk.skills.subindex.HardPoints);
+		return this.respec() && me.checkSkill(sdk.skills.FreezingArrow, sdk.skills.subindex.HardPoints);
 	},
 };

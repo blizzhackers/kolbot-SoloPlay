@@ -38,7 +38,7 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl < CharInfo.respecOne && !me.getSkill(sdk.skills.ColdMastery, sdk.skills.subindex.HardPoints);
+		return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.ColdMastery, sdk.skills.subindex.HardPoints);
 	},
 };
 
@@ -64,7 +64,7 @@ build.AutoBuildTemplate[2] = buildAutoBuildTempObj(() => {
 	Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 	Config.HPBuffer = 4;
 	Config.MPBuffer = 10;
-	if (!!me.getSkill(sdk.skills.IceBolt, sdk.skills.subindex.SoftPoints)) {
+	if (me.checkSkill(sdk.skills.IceBolt, sdk.skills.subindex.SoftPoints)) {
 		Config.AttackSkill = [-1, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.IceBolt, 0];
 	} else {
 		let secondSkill = Skill.canUse(sdk.skills.FireBolt) ? sdk.skills.FireBolt : sdk.skills.Attack;
@@ -77,10 +77,10 @@ build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
 	Config.MPBuffer = 8;
 	Config.AttackSkill = [-1, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.FrostNova, sdk.skills.IceBolt];
 	Config.DodgeHP = 50;
-	Config.DodgeRange = me.getSkill(sdk.skills.Blizzard) ? 15 : 7;
+	Config.DodgeRange = me.checkSkill(sdk.skills.Blizzard, sdk.skills.subindex.SoftPoints) ? 15 : 7;
 });
 build.AutoBuildTemplate[24] = buildAutoBuildTempObj(() => {
-	if (!!me.getSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints)) {
+	if (me.checkSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints)) {
 		Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Nova, sdk.skills.ChargedBolt];
 	}
 });

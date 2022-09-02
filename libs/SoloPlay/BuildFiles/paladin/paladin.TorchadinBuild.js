@@ -108,6 +108,7 @@ const finalBuild = {
 				Config.LowManaSkill = [-1, -1];
 				Config.SkipImmune = ["fire and physical"];
 				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+				SetUp.belt();
 			}
 		},
 	},

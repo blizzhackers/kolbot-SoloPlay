@@ -110,6 +110,7 @@ const finalBuild = {
 				}
 
 				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+				SetUp.belt();
 			}
 		},
 	},

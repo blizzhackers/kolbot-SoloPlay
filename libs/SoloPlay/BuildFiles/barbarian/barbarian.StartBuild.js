@@ -41,7 +41,7 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl < CharInfo.respecOne && !me.getSkill(sdk.skills.WarCry, sdk.skills.subindex.HardPoints);
+		return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.WarCry, sdk.skills.subindex.HardPoints);
 	},
 };
 
@@ -59,7 +59,7 @@ build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
 	SetUp.belt();
 });
 build.AutoBuildTemplate[2] = buildAutoBuildTempObj(() => {
-	if (me.getSkill(sdk.skills.Bash, sdk.skills.subindex.HardPoints)) {
+	if (me.checkSkill(sdk.skills.Bash, sdk.skills.subindex.HardPoints)) {
 		Config.AttackSkill = [-1, sdk.skills.Bash, -1, sdk.skills.Attack, -1];
 	}
 });
@@ -78,7 +78,7 @@ build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
 	SetUp.belt();
 });
 build.AutoBuildTemplate[24] = buildAutoBuildTempObj(() => {
-	if (me.getSkill(sdk.skills.Frenzy, sdk.skills.subindex.HardPoints)) {
+	if (me.checkSkill(sdk.skills.Frenzy, sdk.skills.subindex.HardPoints)) {
 		Config.AttackSkill = [-1, sdk.skills.Frenzy, -1, sdk.skills.Frenzy, -1];
 	}
 });

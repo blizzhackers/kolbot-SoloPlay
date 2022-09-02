@@ -108,6 +108,7 @@ const finalBuild = {
 
 				Config.SkipImmune = ["lightning and magic and physical"];	// Don't think this ever happens but should skip if it does
 				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+				SetUp.belt();
 			}
 		},
 	},

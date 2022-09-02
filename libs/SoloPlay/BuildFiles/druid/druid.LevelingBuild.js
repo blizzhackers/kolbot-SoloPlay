@@ -40,7 +40,7 @@ let build = {
 	],
 
 	active: function () {
-		return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.getSkill(sdk.skills.Tornado, sdk.skills.subindex.HardPoints) >= 1 && !Check.finalBuild().active());
+		return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.checkSkill(sdk.skills.Tornado, sdk.skills.subindex.HardPoints) && !Check.finalBuild().active());
 	},
 };
 

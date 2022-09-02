@@ -36,7 +36,7 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl < CharInfo.respecOne && !me.getSkill(sdk.skills.BonePrison, sdk.skills.subindex.HardPoints);
+		return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.BonePrison, sdk.skills.subindex.HardPoints);
 	},
 };
 
@@ -69,7 +69,7 @@ build.AutoBuildTemplate[18] = buildAutoBuildTempObj(() => {
 	Config.AttackSkill = [-1, sdk.skills.Teeth, -1, sdk.skills.Teeth, -1, -1, -1];
 	Config.ExplodeCorpses = sdk.skills.CorpseExplosion;
 
-	if (me.getSkill(sdk.skills.BoneSpear, sdk.skills.subindex.HardPoints)) {
+	if (me.checkSkill(sdk.skills.BoneSpear, sdk.skills.subindex.HardPoints)) {
 		Config.AttackSkill = [-1, sdk.skills.BoneSpear, -1, sdk.skills.BoneSpear, -1, -1, -1];
 		Config.LowManaSkill = [sdk.skills.Teeth, -1];
 	}

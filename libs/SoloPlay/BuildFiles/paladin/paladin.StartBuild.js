@@ -10,7 +10,7 @@ let build = {
 	caster: false,
 	skillstab: sdk.skills.tabs.PalaCombat,
 	wantedskills: [sdk.skills.Zeal, sdk.skills.HolyFire],
-	usefulskills: [(me.getSkill(sdk.skills.HolyFire, sdk.skills.subindex.SoftPoints) ? sdk.skills.Sacrifice : sdk.skills.Might), sdk.skills.ResistFire],
+	usefulskills: [(me.checkSkill(sdk.skills.HolyFire, sdk.skills.subindex.SoftPoints) ? sdk.skills.Sacrifice : sdk.skills.Might), sdk.skills.ResistFire],
 	mercDiff: sdk.difficulty.Nightmare,
 	mercAct: 2,
 	mercAuraWanted: "Holy Freeze",
@@ -35,7 +35,7 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl < CharInfo.respecOne && !me.getSkill(sdk.skills.BlessedAim, sdk.skills.subindex.HardPoints);
+		return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.BlessedAim, sdk.skills.subindex.HardPoints);
 	},
 };
 
@@ -69,7 +69,7 @@ build.AutoBuildTemplate[9] = buildAutoBuildTempObj(() => {
 	Config.HPBuffer = me.expansion ? 2 : 4;
 	Config.MPBuffer = 6;
 	Config.AttackSkill[0] = -1;
-	Config.AttackSkill[1] = (me.getSkill(sdk.skills.Sacrifice, sdk.skills.subindex.HardPoints) ? sdk.skills.Sacrifice : sdk.skills.Attack);
+	Config.AttackSkill[1] = (me.checkSkill(sdk.skills.Sacrifice, sdk.skills.subindex.HardPoints) ? sdk.skills.Sacrifice : sdk.skills.Attack);
 	Config.AttackSkill[2] = sdk.skills.HolyFire;
 	Config.AttackSkill[3] = sdk.skills.Attack;
 	Config.AttackSkill[4] = sdk.skills.HolyFire;
@@ -77,7 +77,7 @@ build.AutoBuildTemplate[9] = buildAutoBuildTempObj(() => {
 	Config.AttackSkill[4] = sdk.skills.Might;
 });
 build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
-	if (me.getSkill(sdk.skills.Zeal, sdk.skills.subindex.HardPoints)) {
+	if (me.checkSkill(sdk.skills.Zeal, sdk.skills.subindex.HardPoints)) {
 		Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.HolyFire, sdk.skills.Zeal, sdk.skills.HolyFire, 0, sdk.skills.Might];
 	}
 	Config.Charge = true;

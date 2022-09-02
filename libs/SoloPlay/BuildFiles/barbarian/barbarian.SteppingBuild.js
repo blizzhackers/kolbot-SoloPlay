@@ -51,7 +51,7 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl > CharInfo.respecOne && me.charlvl < CharInfo.respecTwo && me.getSkill(sdk.skills.NaturalResistance, sdk.skills.subindex.HardPoints) && !me.getSkill(sdk.skills.Berserk, sdk.skills.subindex.HardPoints);
+		return me.charlvl > CharInfo.respecOne && me.charlvl < CharInfo.respecTwo && me.checkSkill(sdk.skills.NaturalResistance, sdk.skills.subindex.HardPoints) && !me.checkSkill(sdk.skills.Berserk, sdk.skills.subindex.HardPoints);
 	},
 };
 
@@ -63,7 +63,7 @@ build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
 	SetUp.belt();
 });
 build.AutoBuildTemplate[24] = buildAutoBuildTempObj(() => {
-	if (me.getSkill(sdk.skills.Frenzy, sdk.skills.subindex.HardPoints)) {
+	if (me.checkSkill(sdk.skills.Frenzy, sdk.skills.subindex.HardPoints)) {
 		Config.AttackSkill = [-1, sdk.skills.Frenzy, -1, sdk.skills.Frenzy, -1];
 	}
 	Config.BeltColumn = ["hp", "hp", "hp", "mp"];
