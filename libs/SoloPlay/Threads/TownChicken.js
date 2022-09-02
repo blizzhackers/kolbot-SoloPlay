@@ -48,7 +48,7 @@ function main() {
 	let Overrides = require("../../modules/Override");
 
 	new Overrides.Override(Attack, Attack.getNearestMonster, function (orignal, givenSettings = {}) {
-		let settings = Object.assign({
+		const settings = Object.assign({
 			skipBlocked: false,
 			skipImmune: false
 		}, givenSettings);
@@ -286,18 +286,18 @@ function main() {
 	};
 
 	this.togglePause = function () {
-		let scripts = ["default.dbj", "tools/antihostile.js"];
+		let scripts = ["libs/SoloPlay/SoloPlay.js", "tools/antihostile.js"];
 
 		for (let i = 0; i < scripts.length; i++) {
 			let script = getScript(scripts[i]);
 
 			if (script) {
 				if (script.running) {
-					scripts[i] === "default.dbj" && console.log("ÿc8TownChicken:: ÿc1Pausing " + scripts[i]);
+					scripts[i] === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8TownChicken:: ÿc1Pausing " + scripts[i]);
 
 					script.pause();
 				} else {
-					if (scripts[i] === "default.dbj") {
+					if (scripts[i] === "libs/SoloPlay/SoloPlay.js") {
 						// don't resume if dclone walked
 						if (!SoloEvents.cloneWalked) {
 							console.log("ÿc8TownChicken :: ÿc2Resuming threads");
@@ -391,6 +391,8 @@ function main() {
 
 	const useHowl = Skill.canUse(sdk.skills.Howl);
 	const useTerror = Skill.canUse(sdk.skills.Terror);
+
+	Config.DebugMode = true;
 
 	while (true) {
 		if (!me.inTown && (townCheck || fastTown

@@ -69,14 +69,14 @@ function main () {
 
 	// General functions
 	this.togglePause = function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
+		let scripts = ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
 
 		for (let l = 0; l < scripts.length; l += 1) {
 			let script = getScript(scripts[l]);
 
 			if (script) {
 				if (script.running) {
-					scripts[l] === "default.dbj" && console.log("ÿc8ToolsThread :: ÿc1Pausing " + scripts[l]);
+					scripts[l] === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8ToolsThread :: ÿc1Pausing " + scripts[l]);
 					scripts[l] === "libs/SoloPlay/Threads/TownChicken.js" && !SoloEvents.cloneWalked && console.log("ÿc8ToolsThread :: ÿc1Pausing " + scripts[l]);
 
 					// don't pause townchicken during clone walk
@@ -84,7 +84,7 @@ function main () {
 						script.pause();
 					}
 				} else {
-					scripts[l] === "default.dbj" && console.log("ÿc8ToolsThread :: ÿc2Resuming threads");
+					scripts[l] === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8ToolsThread :: ÿc2Resuming threads");
 					script.resume();
 				}
 			}
@@ -95,7 +95,7 @@ function main () {
 
 	this.stopDefault = function () {
 		let scripts = [
-			"default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/EventThread.js",
+			"libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/EventThread.js",
 			"libs/SoloPlay/Threads/AutoBuildThread.js", "libs/SoloPlay/Modules/Guard.js", "libs/SoloPlay/Modules/TownGuard.js"
 		];
 
@@ -133,8 +133,7 @@ function main () {
 		if (invoFirst) {
 			// sort by location (invo first, then classid)
 			items.sort(function (a, b) {
-				let aLoc = a.location;
-				let bLoc = b.location;
+				let [aLoc, bLoc] = [a.location, b.location];
 				if (bLoc < aLoc) return -1;
 				if (bLoc > aLoc) return 1;
 				return b.classid - a.classid;
@@ -163,7 +162,7 @@ function main () {
 
 	this.drinkPotion = function (type) {
 		if (type === undefined) return false;
-		let pottype, tNow = getTickCount();
+		let tNow = getTickCount();
 
 		switch (type) {
 		case Common.Toolsthread.pots.Health:
@@ -198,21 +197,17 @@ function main () {
 		// mode 18 - can't drink while leaping/whirling etc.
 		if (me.dead || me.mode === sdk.player.mode.SkillActionSequence) return false;
 
-		switch (type) {
-		case Common.Toolsthread.pots.Health:
-		case Common.Toolsthread.pots.MercHealth:
-			pottype = sdk.items.type.HealingPotion;
-
-			break;
-		case Common.Toolsthread.pots.Mana:
-			pottype = sdk.items.type.ManaPotion;
-
-			break;
-		default:
-			pottype = sdk.items.type.RejuvPotion;
-
-			break;
-		}
+		let pottype = (() => {
+			switch (type) {
+			case Common.Toolsthread.pots.Health:
+			case Common.Toolsthread.pots.MercHealth:
+				return sdk.items.type.HealingPotion;
+			case Common.Toolsthread.pots.Mana:
+				return sdk.items.type.ManaPotion;
+			default:
+				return sdk.items.type.RejuvPotion;
+			}
+		})();
 
 		let potion = this.getPotion(pottype, type);
 
@@ -400,8 +395,8 @@ function main () {
 		case sdk.keys.NumpadSlash: // re-load default
 			console.log("ÿc8ToolsThread :: " + sdk.colors.Red + "Stopping threads and waiting 5 seconds to restart");
 			this.stopDefault() && delay(5e3);
-			console.log("Starting default.dbj");
-			load("default.dbj");
+			console.log("Starting libs/SoloPlay/SoloPlay.js");
+			load("libs/SoloPlay/SoloPlay.js");
 
 			break;
 		}
@@ -552,7 +547,6 @@ function main () {
 			if (obj) {
 				obj.hasOwnProperty("currScript") && (debugInfo.currScript = obj.currScript);
 				obj.hasOwnProperty("lastAction") && (debugInfo.lastAction = obj.lastAction);
-
 				//D2Bot.store(JSON.stringify(debugInfo));
 				DataFile.updateStats("debugInfo", JSON.stringify(debugInfo));
 			}

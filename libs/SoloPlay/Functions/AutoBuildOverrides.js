@@ -15,10 +15,13 @@ includeIfNotIncluded("SoloPlay/Functions/RunewordsOverrides.js");
 
 const AutoBuild = new function AutoBuild () {
 	Config.AutoBuild.DebugMode && (Config.AutoBuild.Verbose = true);
+	const debug = !!Config.AutoBuild.DebugMode;
+	const verbose = !!Config.AutoBuild.Verbose;
 	let currAutoBuild;
-	let debug = !!Config.AutoBuild.DebugMode;
-	let verbose = !!Config.AutoBuild.Verbose;
 	let configUpdateLevel = 0, lastSuccessfulUpdateLevel = 0;
+
+	const log = (message) => FileTools.appendText(getLogFilename(), message + "\n");
+	const getCurrentScript = () => getScript(true).name.toLowerCase();
 
 	// Apply all Update functions from the build template in order from level 1 to me.charlvl.
 	// By reapplying all of the changes to the Config object, we preserve
@@ -51,10 +54,6 @@ const AutoBuild = new function AutoBuild () {
 		return build;
 	}
 
-	function getCurrentScript () {
-		return getScript(true).name.toLowerCase();
-	}
-
 	function getLogFilename () {
 		let d = new Date();
 		let dateString = d.getMonth() + "_" + d.getDate() + "_" + d.getFullYear();
@@ -80,8 +79,9 @@ const AutoBuild = new function AutoBuild () {
 		}
 
 		// Only load() helper thread from default.dbj if it isn't loaded
-		if (currentScript === "default.dbj" && !getScript("libs\\SoloPlay\\Threads\\AutoBuildThread.js")) {
+		if (currentScript === "libs\\soloplay\\soloplay.js" && !getScript("libs\\SoloPlay\\Threads\\AutoBuildThread.js")) {
 			load("libs/SoloPlay/Threads/AutoBuildThread.js");
+			delay(500);
 		}
 
 		// All threads except autobuildthread.js use this event listener
@@ -100,8 +100,6 @@ const AutoBuild = new function AutoBuild () {
 			applyConfigUpdates();
 		}
 	}
-
-	const log = (message) => FileTools.appendText(getLogFilename(), message + "\n");
 
 	// Only print to console from autobuildthread.js,
 	// but log from all scripts

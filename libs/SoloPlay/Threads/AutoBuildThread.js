@@ -237,6 +237,7 @@ function spendSkillPoints () {
 function main () {
 	try {
 		AutoBuild.print("Loaded helper thread");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Start AutoBuildThread");
 		currAutoBuild = usingFinalBuild ? finalBuild.AutoBuildTemplate : build.AutoBuildTemplate;
 
 		while (true) {

@@ -10,13 +10,23 @@
 includeIfNotIncluded("common/Loader.js");
 
 Loader.getScripts = function () {
-	let fileList = dopen("libs/SoloPlay/").getFiles();
+	let fileList = dopen("libs/SoloPlay/Scripts").getFiles();
 
 	for (let i = 0; i < fileList.length; i += 1) {
 		if (fileList[i].indexOf(".js") > -1) {
 			this.fileList.push(fileList[i].substring(0, fileList[i].indexOf(".js")));
 		}
 	}
+};
+
+Loader.scriptName = function (offset = 0) {
+	let index = this.scriptIndex + offset;
+
+	if (index >= 0 && index < SoloIndex.scripts.length) {
+		return SoloIndex.scripts[index];
+	}
+
+	return "SoloPlay";
 };
 
 Loader.loadScripts = function () {
@@ -92,10 +102,82 @@ Loader.loadScripts = function () {
 	}
 };
 
+Loader.run = function () {
+	let updatedDifficulty = Check.nextDifficulty();
+	updatedDifficulty && CharData.updateData("me", "setDifficulty", updatedDifficulty);
+
+	for (this.scriptIndex = 0; this.scriptIndex < SoloIndex.scripts.length; this.scriptIndex++) {
+		!me.inTown && Town.goToTown();
+		Check.checkSpecialCase();
+		const scriptName = SoloIndex.scripts[this.scriptIndex];
+
+		if (SoloIndex.index[scriptName] !== undefined && SoloIndex.index[scriptName].shouldRun()) {
+			let j;
+			let tick;
+			let currentExp;
+
+			try {
+				includeIfNotIncluded("SoloPlay/Scripts/" + scriptName + ".js");
+
+				tick = getTickCount();
+				currentExp = me.getStat(sdk.stats.Experience);
+				Messaging.sendToScript("libs/SoloPlay/Threads/ToolsThread.js", JSON.stringify({currScript: scriptName}));
+
+				for (j = 0; j < 5; j += 1) {
+					if (global[scriptName]()) {
+						break;
+					}
+				}
+
+				(j === 5) && myPrint("script " + scriptName + " failed.");
+			} catch (e) {
+				console.warn("ÿc8Kolbot-SoloPlayÿc0: ", (typeof e === "object" ? e.message : e));
+				console.error(e);
+			} finally {
+				SoloIndex.doneList.push(scriptName);
+				// skip logging if we didn't actually finish it
+				!SoloIndex.retryList.includes(scriptName) && Developer.logPerformance && Tracker.script(tick, scriptName, currentExp);
+				console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));
+				me.maxgametime += (getTickCount() - tick);
+				console.log("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Developer.formatTime(me.maxgametime));
+				console.log("ÿc8Kolbot-SoloPlayÿc0 :: ÿc8" + scriptName + "ÿc0 - ÿc7Duration: ÿc0" + Developer.formatTime(getTickCount() - tick));
+
+				// remove script function from function scope, so it can be cleared by GC
+				if (this.scriptIndex < SoloIndex.scripts.length) {
+					delete global[scriptName];
+				}
+			}
+
+			if (me.sorceress && me.hell && scriptName === "bloodraven" && me.charlvl < 68) {
+				console.debug("End-run, we are not ready to keep pushing yet");
+					
+				break;
+			}
+
+			if (me.dead) {
+				// not sure how we got here but we are dead, why did toolsthread not quit lets check it
+				let tThread = getScript("libs/SoloPlay/Threads/ToolsThread.js");
+				if (!tThread || !tThread.running) {
+					// well that explains why, toolsthread seems to have crashed lets restart it so we quit properly
+					load("libs/SoloPlay/Threads/ToolsThread.js");
+				}
+			}
+		}
+	}
+
+	// Re-check to see if after this run we now meet difficulty requirments
+	if (!updatedDifficulty) {
+		updatedDifficulty = Check.nextDifficulty(false);
+		updatedDifficulty && CharData.updateData("me", "setDifficulty", updatedDifficulty);
+	}
+
+	return true;
+};
+
 Loader.runScript = function (script, configOverride) {
-	let failed = false;
 	let tick;
 	let currentExp;
+	let failed = false;
 	let reconfiguration, unmodifiedConfig = {};
 	let mainScript = this.scriptName();
 		
@@ -142,7 +224,7 @@ Loader.runScript = function (script, configOverride) {
 			this.tempList.pop();
 				
 			if (reconfiguration) {
-				print("ÿc2Reverting back unmodified config properties.");
+				console.log("ÿc2Reverting back unmodified config properties.");
 				this.copy(unmodifiedConfig, Config);
 			}
 		}
