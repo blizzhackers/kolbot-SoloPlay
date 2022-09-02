@@ -220,6 +220,115 @@ Misc.useWell = function (range = 15) {
 	return true;
 };
 
+Misc.scanShrines = function (range, ignore = []) {
+	if (!Config.ScanShrines.length) return false;
+
+	!range && (range = Pather.useTeleport() ? 25 : 15);
+	!Array.isArray(ignore) && (ignore = [ignore]);
+
+	let shrineList = [];
+	const rangeCheck = (shrineType) => {
+		switch (true) {
+		case shrineType === sdk.shrines.Refilling && (me.hpPercent < 50 || me.mpPercent < 50 || me.staminaPercent < 50):
+		case shrineType === sdk.shrines.Mana && me.mpPercent < 50:
+		case shrineType === sdk.shrines.ManaRecharge && me.mpPercent < 50 && me.charlvl < 20:
+		case [sdk.shrines.Skill, sdk.shrines.Experience].includes(shrineType):
+			return 30;
+		case [sdk.shrines.Poison, sdk.shrines.Exploding].includes(shrineType):
+			return 15;
+		}
+		return range;
+	};
+
+	// add exploding/poision shrines
+	if (me.normal) {
+		Config.ScanShrines.indexOf(sdk.shrines.Poison) === -1 && Config.ScanShrines.push(sdk.shrines.Poison);
+		Config.ScanShrines.indexOf(sdk.shrines.Exploding) === -1 && Config.ScanShrines.push(sdk.shrines.Exploding);
+	}
+
+	// Initiate shrine states
+	if (!this.shrineStates) {
+		this.shrineStates = [];
+
+		for (let i = 0; i < Config.ScanShrines.length; i += 1) {
+			switch (Config.ScanShrines[i]) {
+			case sdk.shrines.None:
+			case sdk.shrines.Refilling:
+			case sdk.shrines.Health:
+			case sdk.shrines.Mana:
+			case sdk.shrines.HealthExchange: // (doesn't exist)
+			case sdk.shrines.ManaExchange: // (doesn't exist)
+			case sdk.shrines.Enirhs: // (doesn't exist)
+			case sdk.shrines.Portal:
+			case sdk.shrines.Gem:
+			case sdk.shrines.Fire:
+			case sdk.shrines.Monster:
+			case sdk.shrines.Exploding:
+			case sdk.shrines.Poison:
+				this.shrineStates[i] = 0; // no state
+
+				break;
+			case sdk.shrines.Armor:
+			case sdk.shrines.Combat:
+			case sdk.shrines.ResistFire:
+			case sdk.shrines.ResistCold:
+			case sdk.shrines.ResistLightning:
+			case sdk.shrines.ResistPoison:
+			case sdk.shrines.Skill:
+			case sdk.shrines.ManaRecharge:
+			case sdk.shrines.Stamina:
+			case sdk.shrines.Experience:
+				// Both states and shrines are arranged in same order with armor shrine starting at 128
+				this.shrineStates[i] = Config.ScanShrines[i] + 122;
+
+				break;
+			}
+		}
+	}
+	
+	let shrine = Game.getObject("shrine");
+
+	if (shrine) {
+		let index = -1;
+		// Build a list of nearby shrines
+		do {
+			if (shrine.mode === sdk.objects.mode.Inactive && !ignore.includes(shrine.objtype) && getDistance(me.x, me.y, shrine.x, shrine.y) <= rangeCheck(shrine.objtype)) {
+				shrineList.push(copyUnit(shrine));
+			}
+		} while (shrine.getNext());
+
+		// Check if we have a shrine state, store its index if yes
+		for (let i = 0; i < this.shrineStates.length; i += 1) {
+			if (me.getState(this.shrineStates[i])) {
+				index = i;
+
+				break;
+			}
+		}
+
+		for (let i = 0; i < Config.ScanShrines.length; i += 1) {
+			for (let j = 0; j < shrineList.length; j += 1) {
+				// Get the shrine if we have no active state or to refresh current state or if the shrine has no state
+				// Don't override shrine state with a lesser priority shrine
+				// todo - check to make sure we can actually get the shrine for ones without states
+				// can't grab a health shrine if we are in perfect health, can't grab mana shrine if our mana is maxed
+				if (index === -1 || i <= index || this.shrineStates[i] === 0) {
+					if (shrineList[j].objtype === Config.ScanShrines[i] && (Pather.useTeleport() || !checkCollision(me, shrineList[j], sdk.collision.WallOrRanged))) {
+						this.getShrine(shrineList[j]);
+
+						// Gem shrine - pick gem
+						if (Config.ScanShrines[i] === sdk.shrines.Gem) {
+							Pickit.pickItems();
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return true;
+};
+
 Misc.getShrinesInArea = function (area, type, use) {
 	let shrineLocs = [];
 	let shrineIds = [2, 81, 83];
