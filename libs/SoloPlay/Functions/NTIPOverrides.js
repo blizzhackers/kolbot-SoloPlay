@@ -12,6 +12,7 @@ includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 NTIPAliasStat["addfireskills"] = [sdk.stats.ElemSkill, 1];
 NTIPAliasStat["plusskillwhirlwind"] = [sdk.stats.NonClassSkill, sdk.skills.Whirlwind];
 NTIP.MAX_TIER = 100000;
+NTIP.RuntimeCheckList = [];
 
 NTIP.generateTierFunc = function (tierType) {
 	return function (item) {
@@ -67,7 +68,7 @@ NTIP.GetSecondaryTier = NTIP.generateTierFunc("Secondarytier");
 
 NTIP.addLine = function (itemString) {
 	const info = {
-		line: 1,
+		line: NTIP_CheckList.length,
 		file: "Kolbot-SoloPlay",
 		string: line
 	};
@@ -88,9 +89,34 @@ NTIP.addLine = function (itemString) {
 	return true;
 };
 
-NTIP.arrayLooping = function (arraytoloop) {
-	for (let q = 0; q < arraytoloop.length; q += 1) {
-		NTIP.addLine(arraytoloop[q]);
+// currently just using for quiver's but if that changes need to figure out way to seperate out sections
+// so things can be deleted without affecting the entire list
+NTIP.addToRuntime = function (itemString) {
+	const info = {
+		line: NTIP.RuntimeCheckList.length,
+		file: "Kolbot-SoloPlay-Runtime",
+		string: line
+	};
+
+	let line = NTIP.ParseLineInt(itemString, info);
+
+	if (line) {
+		NTIP.RuntimeCheckList.push(line);
+		stringArray.push(info);
+	}
+
+	return true;
+};
+
+NTIP.resetRuntimeList = () => NTIP.RuntimeCheckList.length = 0;
+
+NTIP.arrayLooping = function (...arraystoloop) {
+	for (let arr of arraystoloop) {
+		if (Array.isArray(arr)) {
+			for (let i = 0; i < arr.length; i++) {
+				NTIP.addLine(arr[i]);
+			}
+		}
 	}
 
 	return true;
@@ -228,7 +254,7 @@ NTIP.CheckItem = function (item, entryList = [], verbose = false) {
 	let i, num;
 	let rval = {};
 	let result = 0;
-	let list = entryList.length ? entryList : NTIP_CheckList;
+	let list = entryList.length ? entryList : [].concat(NTIP_CheckList, NTIP.RuntimeCheckList);
 	let identified = item.getFlag(sdk.items.flags.Identified);
 
 	for (i = 0; i < list.length; i++) {
