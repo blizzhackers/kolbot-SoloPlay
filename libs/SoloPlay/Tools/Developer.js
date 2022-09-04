@@ -62,6 +62,7 @@ const Developer = {
 		smallCharm: false,
 		largeCharm: false,
 		grandCharm: false,
+		baseCheck: false,
 		junkCheck: false,
 		autoEquip: false,
 		crafting: false,

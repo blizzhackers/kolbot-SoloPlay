@@ -41,7 +41,7 @@ function main () {
 	// load heartbeat if it isn't already running
 	!getScript("tools/heartbeat.js") && load("tools/heartbeat.js");
 
-	// SoloPlay run's in it's own thread
+	// SoloPlay runs in it's own thread
 	if (getScript("D2BotSoloPlay.dbj")) {
 		load("libs/SoloPlay/SoloPlay.js");
 		return true;

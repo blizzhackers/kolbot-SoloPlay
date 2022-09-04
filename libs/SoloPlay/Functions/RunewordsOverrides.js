@@ -43,7 +43,7 @@ Runewords.getBase = function (runeword, base, ethFlag, reroll) {
 					better check than getFlag(sdk.items.flags.Runeword) because randomly socketed items return false for it
 				*/
 
-				if ((!reroll && !item.getItem() && Town.betterBaseThanWearing(item, Developer.debugging.junkCheck)) ||
+				if ((!reroll && !item.getItem() && Item.betterBaseThanWearing(item, Developer.debugging.baseCheck)) ||
 					(reroll && item.getItem() && !NTIP.CheckItem(item, this.pickitEntries) && !Item.autoEquipKeepCheckMerc(item) && !Item.autoEquipKeepCheck(item))) {
 					if (!ethFlag || (ethFlag === Roll.Eth && item.ethereal) || (ethFlag === Roll.NonEth && !item.ethereal)) {
 						return copyUnit(item);

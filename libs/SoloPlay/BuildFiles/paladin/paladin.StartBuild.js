@@ -23,9 +23,10 @@ let build = {
 	skills: [
 		// Total skills points by respec = 20
 		[sdk.skills.Might, 1],      // charlevel -> 2
+		[sdk.skills.Sacrifice, 1],  // charlevel -> 3
+		[sdk.skills.HolyFire, 1, false],   // charlevel -> 6
 		[sdk.skills.ResistFire, 4], // charlevel -> 5
 		[sdk.skills.HolyFire, 3],   // charlevel -> 8
-		[sdk.skills.Sacrifice, 1],  // charlevel -> 9
 		[sdk.skills.Smite, 1],      // charlevel -> 10
 		[sdk.skills.Zeal, 1],       // charlevel -> 12
 		[sdk.skills.Charge, 1],     // charlevel -> 12
@@ -40,6 +41,7 @@ let build = {
 };
 
 build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	Config.SkipEnchant.indexOf("cold enchanted") === -1 && Config.SkipEnchant.push("cold enchanted");
 	Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
 	Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
 	Config.FieldID.UsedSpace = 0;
@@ -51,18 +53,21 @@ build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
 	SetUp.belt();
 });
 build.AutoBuildTemplate[2] = buildAutoBuildTempObj(() => {
+	Config.SkipEnchant.indexOf("cold enchanted") === -1 && Config.SkipEnchant.push("cold enchanted");
 	Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);
 	Config.FieldID.Enabled = !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed);
 	Config.FieldID.UsedSpace = 0;
 
 	Config.BeltColumn = ["hp", "hp", "hp", "hp"];
 	Config.HPBuffer = 8;
-	Config.AttackSkill = [-1, sdk.skills.Attack, sdk.skills.Might, sdk.skills.Attack, sdk.skills.Might, -1, -1];
+	const bossSkill = (me.checkSkill(sdk.skills.Sacrifice, sdk.skills.subindex.HardPoints) ? sdk.skills.Sacrifice : sdk.skills.Attack);
+	Config.AttackSkill = [-1, bossSkill, sdk.skills.Might, sdk.skills.Attack, sdk.skills.Might, -1, -1];
 	Config.LowManaSkill = [sdk.skills.Attack, sdk.skills.Might];
 });
 build.AutoBuildTemplate[6] = buildAutoBuildTempObj(() => {
 	Config.HPBuffer = 8;
-	Config.AttackSkill = [-1, sdk.skills.Attack, sdk.skills.HolyFire, sdk.skills.Attack, sdk.skills.HolyFire, sdk.skills.Attack, sdk.skills.Might];
+	const bossSkill = (me.checkSkill(sdk.skills.Sacrifice, sdk.skills.subindex.HardPoints) ? sdk.skills.Sacrifice : sdk.skills.Attack);
+	Config.AttackSkill = [-1, bossSkill, sdk.skills.HolyFire, sdk.skills.Attack, sdk.skills.HolyFire, sdk.skills.Attack, sdk.skills.Might];
 	Config.LowManaSkill = [sdk.skills.Attack, sdk.skills.HolyFire];
 });
 build.AutoBuildTemplate[9] = buildAutoBuildTempObj(() => {
@@ -73,8 +78,8 @@ build.AutoBuildTemplate[9] = buildAutoBuildTempObj(() => {
 	Config.AttackSkill[2] = sdk.skills.HolyFire;
 	Config.AttackSkill[3] = sdk.skills.Attack;
 	Config.AttackSkill[4] = sdk.skills.HolyFire;
-	Config.AttackSkill[3] = sdk.skills.Attack;
-	Config.AttackSkill[4] = sdk.skills.Might;
+	Config.AttackSkill[5] = sdk.skills.Attack;
+	Config.AttackSkill[6] = sdk.skills.Might;
 });
 build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
 	if (me.checkSkill(sdk.skills.Zeal, sdk.skills.subindex.HardPoints)) {

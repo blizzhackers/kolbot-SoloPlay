@@ -172,7 +172,7 @@ Unit.prototype.secondaryBodyLocation = function () {
 Unit.prototype.mercBodyLocation = function () {
 	if (this === undefined || this.type !== sdk.unittype.Item) return [];
 
-	let mercenary = Mercenary.getMercFix();
+	let mercenary = me.getMercEx();
 	if (!mercenary) return [];
 
 	let bodyLoc = (() => {
@@ -208,7 +208,7 @@ Unit.prototype.canEquip = function () {
 
 Unit.prototype.canEquipMerc = function (bodyLoc = -1) {
 	if (this === undefined || this.type !== sdk.unittype.Item || !this.identified || me.classic) return false;
-	let mercenary = Mercenary.getMercFix();
+	let mercenary = me.getMercEx();
 
 	// dont have merc or he is dead
 	if (!mercenary) return false;
@@ -280,7 +280,7 @@ Unit.prototype.autoEquipCheckSecondary = function (checkCanEquip = true) {
 
 Unit.prototype.autoEquipCheckMerc = function (checkCanEquip = true) {
 	if (!Config.AutoEquip) return true;
-	if (this === undefined || this.type !== sdk.unittype.Item || me.classic || !Mercenary.getMercFix()) return false;
+	if (this === undefined || this.type !== sdk.unittype.Item || me.classic || !me.getMercEx()) return false;
 
 	let tier = NTIP.GetMercTier(this);
 	let	bodyLoc = this.mercBodyLocation();

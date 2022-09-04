@@ -79,6 +79,7 @@ Skill.cast = function (skillId, hand, x, y, item) {
 	if (!item && this.getManaCost(skillId) > me.mp) {
 		// Maybe delay on ALL skills that we don't have enough mana for?
 		if (Config.AttackSkill.concat([sdk.skills.StaticField, sdk.skills.Teleport]).concat(Config.LowManaSkill).includes(skillId)) {
+			console.debug("Skill: " + getSkillById(skillId) + " manaCost: " + this.getManaCost(skillId) + " myMana: " + me.mp);
 			delay(300);
 		}
 
@@ -102,30 +103,19 @@ Skill.cast = function (skillId, hand, x, y, item) {
 			break;
 		}
 	} else {
-		let clickType, shift;
-
-		switch (hand) {
-		case sdk.skills.hand.Right: // Right hand + No Shift
-			clickType = 3;
-			shift = sdk.clicktypes.shift.NoShift;
-
-			break;
-		case sdk.skills.hand.Left: // Left hand + Shift
-			clickType = 0;
-			shift = sdk.clicktypes.shift.Shift;
-
-			break;
-		case sdk.skills.hand.LeftNoShift: // Left hand + No Shift
-			clickType = 0;
-			shift = sdk.clicktypes.shift.NoShift;
-
-			break;
-		case sdk.skills.hand.RightShift: // Right hand + Shift
-			clickType = 3;
-			shift = sdk.clicktypes.shift.Shift;
-
-			break;
-		}
+		let [clickType, shift] = (() => {
+			switch (hand) {
+			case sdk.skills.hand.Left: // Left hand + Shift
+				return [0, sdk.clicktypes.shift.Shift];
+			case sdk.skills.hand.LeftNoShift: // Left hand + No Shift
+				return [0, sdk.clicktypes.shift.NoShift];
+			case sdk.skills.hand.RightShift: // Right hand + Shift
+				return [3, sdk.clicktypes.shift.Shift];
+			case sdk.skills.hand.Right: // Right hand + No Shift
+			default:
+				return [3, sdk.clicktypes.shift.NoShift];
+			}
+		})();
 
 		MainLoop:
 		for (let n = 0; n < 3; n += 1) {
@@ -220,30 +210,19 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 		// make sure we give enough time back so we don't fail our next cast
 		delay(250);
 	} else {
-		let clickType, shift;
-
-		switch (settings.hand) {
-		case sdk.skills.hand.Right: // Right hand + No Shift
-			clickType = 3;
-			shift = sdk.clicktypes.shift.NoShift;
-
-			break;
-		case sdk.skills.hand.Left: // Left hand + Shift
-			clickType = 0;
-			shift = sdk.clicktypes.shift.Shift;
-
-			break;
-		case sdk.skills.hand.LeftNoShift: // Left hand + No Shift
-			clickType = 0;
-			shift = sdk.clicktypes.shift.NoShift;
-
-			break;
-		case sdk.skills.hand.RightShift: // Right hand + Shift
-			clickType = 3;
-			shift = sdk.clicktypes.shift.Shift;
-
-			break;
-		}
+		let [clickType, shift] = (() => {
+			switch (settings.hand) {
+			case sdk.skills.hand.Left: // Left hand + Shift
+				return [0, sdk.clicktypes.shift.Shift];
+			case sdk.skills.hand.LeftNoShift: // Left hand + No Shift
+				return [0, sdk.clicktypes.shift.NoShift];
+			case sdk.skills.hand.RightShift: // Right hand + Shift
+				return [3, sdk.clicktypes.shift.Shift];
+			case sdk.skills.hand.Right: // Right hand + No Shift
+			default:
+				return [3, sdk.clicktypes.shift.NoShift];
+			}
+		})();
 
 		MainLoop:
 		for (let n = 0; n < 3; n += 1) {

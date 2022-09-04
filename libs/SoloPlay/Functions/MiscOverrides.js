@@ -30,7 +30,7 @@ Misc.testTP = function () {
 	console.debug("took " + (getTickCount() - t1) + " to find tpTool using old method");
 
 	t1 = getTickCount();
-	tpTool = Town.getTpTool();
+	tpTool = me.getTpTool();
 	console.debug("took " + (getTickCount() - t1) + " to find tpTool using new method");
 
 	t1 = getTickCount();
@@ -60,7 +60,7 @@ Misc.townCheck = function () {
 
 	if (Config.TownCheck && !me.inTown) {
 		try {
-			if (Town.needPotions() || (Config.OpenChests.Enabled && Town.needKeys())) {
+			if (me.needPotions() || (Config.OpenChests.Enabled && Town.needKeys())) {
 				check = true;
 			}
 		} catch (e) {
@@ -80,6 +80,11 @@ Misc.townCheck = function () {
 };
 
 Misc.openChestsEnabled = true;
+Misc.presetChestIds = [
+	5, 6, 87, 104, 105, 106, 107, 143, 140, 141, 144, 146, 147, 148, 176, 177, 181, 183, 198, 240, 241,
+	242, 243, 329, 330, 331, 332, 333, 334, 335, 336, 354, 355, 356, 371, 387, 389, 390, 391, 397, 405,
+	406, 407, 413, 420, 424, 425, 430, 431, 432, 433, 454, 455, 501, 502, 504, 505, 580, 581
+];
 
 Misc.openChestsInArea = function (area, chestIds = [], sort = undefined) {
 	!area && (area = me.area);
@@ -88,13 +93,7 @@ Misc.openChestsInArea = function (area, chestIds = [], sort = undefined) {
 	let presetUnits = Game.getPresetObjects(area);
 	if (!presetUnits) return false;
 
-	if (!chestIds.length) {
-		chestIds = [
-			5, 6, 87, 104, 105, 106, 107, 143, 140, 141, 144, 146, 147, 148, 176, 177, 181, 183, 198, 240, 241,
-			242, 243, 329, 330, 331, 332, 333, 334, 335, 336, 354, 355, 356, 371, 387, 389, 390, 391, 397, 405,
-			406, 407, 413, 420, 424, 425, 430, 431, 432, 433, 454, 455, 501, 502, 504, 505, 580, 581
-		];
-	}
+	!chestIds.length && (chestIds = Misc.presetChestIds.slice(0));
 
 	let coords = [];
 
@@ -292,7 +291,8 @@ Misc.scanShrines = function (range, ignore = []) {
 		let index = -1;
 		// Build a list of nearby shrines
 		do {
-			if (shrine.mode === sdk.objects.mode.Inactive && !ignore.includes(shrine.objtype) && getDistance(me.x, me.y, shrine.x, shrine.y) <= rangeCheck(shrine.objtype)) {
+			if (shrine.mode === sdk.objects.mode.Inactive && !ignore.includes(shrine.objtype)
+				&& getDistance(me.x, me.y, shrine.x, shrine.y) <= rangeCheck(shrine.objtype)) {
 				shrineList.push(copyUnit(shrine));
 			}
 		} while (shrine.getNext());
@@ -329,9 +329,10 @@ Misc.scanShrines = function (range, ignore = []) {
 	return true;
 };
 
+Misc.presetShrineIds = [2, 81, 83];
 Misc.getShrinesInArea = function (area, type, use) {
 	let shrineLocs = [];
-	let shrineIds = [2, 81, 83];
+	const shrineIds = [2, 81, 83]; // @todo add more of the shrine id's and document them for sdk
 	let unit = getPresetUnits(area);
 
 	if (unit) {

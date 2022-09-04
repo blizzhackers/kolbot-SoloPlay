@@ -111,7 +111,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 	let gid = unit.gid;
 	let needRepair = [], gold = me.gold;
-	me.charlvl >= 5 && (needRepair = Town.needRepair());
+	me.charlvl >= 5 && (needRepair = me.needRepair());
 
 	if ((Config.MercWatch && Town.needMerc()) || needRepair.length > 0) {
 		console.log("towncheck");
@@ -310,7 +310,7 @@ ClassAttack.doCast = function (unit, attackSkill, data) {
 ClassAttack.afterAttack = function (pickit = false) {
 	Precast.doPrecast(false);
 
-	let needRepair = me.charlvl < 5 ? [] : Town.needRepair();
+	let needRepair = me.charlvl < 5 ? [] : me.needRepair();
 	
 	// Repair check, make sure i have a tome
 	if (needRepair.length > 0 && me.getItem(sdk.items.TomeofTownPortal)) {

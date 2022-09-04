@@ -188,7 +188,7 @@ function main() {
 		for (let i = 0; i < 5; i += 1) {
 			if (me.dead) return false;
 
-			let tpTool = Town.getTpTool();
+			let tpTool = me.getTpTool();
 			if (!tpTool) return false;
 
 			let oldPortal = Game.getObject(sdk.objects.BluePortal);
@@ -253,7 +253,7 @@ function main() {
 		let preArea = me.area;
 		let preAct = sdk.areas.actOf(preArea);
 
-		if (!me.inTown && !Town.getTpTool()) {
+		if (!me.inTown && !me.getTpTool()) {
 			console.warn("Can't chicken to town. Quit");
 			scriptBroadcast("quit");
 		}

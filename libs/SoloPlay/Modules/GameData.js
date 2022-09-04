@@ -1041,15 +1041,15 @@
 			return this.skillLevel(66) ? 100 : (this.skillLevel(87) ? 50 : 0);
 		},
 		monsterEffort: function (unit, areaID, skillDamageInfo = undefined, parent = undefined, preattack = false, all = false) {
+			let buffDmg = [];
 			const allData = [];
 			const buffDamageInfo = {};
 			const newSkillDamageInfo = {};
-			let buffDmg = [];
-			let eret = { effort: Infinity, skill: -1, type: "Physical" };
-			let useCooldown = (typeof unit === "number" ? false : Boolean(me.skillDelay));
-			let hp = this.monsterMaxHP(typeof unit === "number" ? unit : unit.classid, areaID);
-			let conviction = this.getConviction(), ampDmg = this.getAmp();
-			let isUndead = (typeof unit === "number" ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+			const eret = { effort: Infinity, skill: -1, type: "Physical" };
+			const useCooldown = (typeof unit === "number" ? false : Boolean(me.skillDelay));
+			const hp = this.monsterMaxHP(typeof unit === "number" ? unit : unit.classid, areaID);
+			const conviction = this.getConviction(), ampDmg = this.getAmp();
+			const isUndead = (typeof unit === "number" ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
 			skillDamageInfo = skillDamageInfo || this.allSkillDamage(unit);
 			// if (conviction && unit instanceof Unit && !unit.getState(sdk.states.Conviction)) conviction = 0; //ToDo; enable when fixed telestomp
 
