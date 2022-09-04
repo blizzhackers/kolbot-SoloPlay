@@ -18,7 +18,7 @@ const SoloIndex = {
 	// this controls the order
 	scripts: [
 		// Act 1
-		"corpsefire", "den", "bishibosh", "bloodraven", "tristram", "treehead",
+		"corpsefire", "mausoleum", "den", "bishibosh", "bloodraven", "tristram", "treehead",
 		"countess", "smith", "pits", "jail", "boneash", "andariel", "a1chests", "cows",
 		// Act 2
 		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel",
@@ -41,6 +41,18 @@ const SoloIndex = {
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
 				return (!me.andariel || Check.brokeAf());
+			}
+		},
+		"mausoleum": {
+			preReq: function () {
+				return false;
+			},
+			skipIf: function () {
+				return false;
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
 			}
 		},
 		"den": {
@@ -67,8 +79,11 @@ const SoloIndex = {
 		},
 		"bloodraven": {
 			skipIf: function () {
-				// too many light immunes - although come back to this cause maybe just kill raven
-				return ["Lightning", "Trapsin", "Javazon"].includes(SetUp.currentBuild);
+				if (me.hell) {
+					// too many light immunes - although come back to this cause maybe just kill raven
+					return (["Lightning", "Trapsin", "Javazon"].includes(SetUp.currentBuild) || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild));
+				}
+				return false;
 			},
 			shouldRun: function () {
 				switch (me.diff) {
