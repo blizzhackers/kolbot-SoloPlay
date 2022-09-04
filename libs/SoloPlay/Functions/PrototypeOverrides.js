@@ -7,17 +7,7 @@
 */
 
 includeIfNotIncluded("common/Prototypes.js");
-
-/**
- * 
- * @param {number} skillId 
- * @param {number} subId 
- * @returns boolean
- * @description small function to force boolean return value when checking if we have a skill
- */
-me.checkSkill = function (skillId = 0, subId = 0) {
-	return !!me.getSkill(skillId, subId);
-};
+includeIfNotIncluded("SoloPlay/Functions/Me.js");
 
 Unit.prototype.getResPenalty = function (difficulty) {
 	difficulty > 2 && (difficulty = 2);
@@ -237,63 +227,6 @@ Object.defineProperties(Unit.prototype, {
 			return (fr && cr && lr && pr) ? fr : 0;
 		}
 	}
-});
-
-Object.defineProperties(me, {
-	maxNearMonsters: {
-		get: function () {
-			return Math.floor((4 * (1 / me.hpmax * me.hp)) + 1);
-		}
-	},
-	duelWielding: {
-		get: function () {
-			// only classes that can duel wield
-			if (!me.assassin && !me.barbarian) return false;
-			let items = me.getItemsEx().filter((item) => item.isEquipped && item.isOnMain);
-			return !!items.length && items.length >= 2 && items.every((item) => !item.isShield && !getBaseStat("items", item.classid, "block"));
-		}
-	},
-	realFR: {
-		get: function () {
-			return me.getStat(sdk.stats.FireResist);
-		}
-	},
-	realCR: {
-		get: function () {
-			return me.getStat(sdk.stats.ColdResist);
-		}
-	},
-	realLR: {
-		get: function () {
-			return me.getStat(sdk.stats.LightResist);
-		}
-	},
-	realPR: {
-		get: function () {
-			return me.getStat(sdk.stats.PoisonResist);
-		}
-	},
-	// for visual purposes really, return res with cap
-	FR: {
-		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxFireResist), me.realFR - me.resPenalty);
-		}
-	},
-	CR: {
-		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxColdResist), me.realCR - me.resPenalty);
-		}
-	},
-	LR: {
-		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxLightResist), me.realLR - me.resPenalty);
-		}
-	},
-	PR: {
-		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), me.realPR - me.resPenalty);
-		}
-	},
 });
 
 Unit.prototype.castChargedSkillEx = function (...args) {
