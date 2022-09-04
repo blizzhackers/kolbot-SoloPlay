@@ -25,6 +25,7 @@ ControlAction.makeCharacter = function (info) {
 		Object.assign(soloStats, CharData.default);
 		soloStats.me.finalBuild = finalBuild;
 		CharData.updateData("me", soloStats);
+		Tracker.resetGameTime();
 	}
 
 	D2Bot.updateStatus("Making Character: " + info.charName);

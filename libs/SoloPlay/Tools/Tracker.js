@@ -41,6 +41,10 @@ const Tracker = {
 		return true;
 	},
 
+	resetGameTime: function () {
+		Developer.writeObj(Object.assign({}, this.default), this.GTPath);
+	},
+
 	checkValidity: function () {
 		let GameTracker = Developer.readObj(this.GTPath);
 		let found = false;
@@ -157,7 +161,7 @@ const Tracker = {
 	}
 };
 
-if (getScript(true).name.toString() === "default.dbj") {
+if (getScript(true).name.toString() === "libs\\soloplay\\soloplay.js") {
 	const Worker = require("../../modules/Worker");
 
 	Worker.runInBackground.intervalUpdate = function () {

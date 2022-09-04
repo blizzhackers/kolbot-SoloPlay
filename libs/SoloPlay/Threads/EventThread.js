@@ -35,6 +35,7 @@ function main () {
 	let action = [];
 	let profiles = [];
 	let tickDelay = 0;
+	const threads = ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
 
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Start EventThread");
 	D2Bot.init();
@@ -48,10 +49,8 @@ function main () {
 	Cubing.init();
 
 	this.pauseForEvent = function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
-
-		for (let l = 0; l < scripts.length; l += 1) {
-			let script = getScript(scripts[l]);
+		for (let i = 0; i < threads.length; i += 1) {
+			let script = getScript(threads[i]);
 
 			if (SoloEvents.townChicken) {
 				console.warn("ÿc8EventThread :: ÿc1Trying to townChicken, don't interfere.");
@@ -60,11 +59,11 @@ function main () {
 
 			if (script) {
 				if (script.running) {
-					scripts[l] === "default.dbj" && console.log("ÿc8EventThread :: ÿc1Pausing " + scripts[l]);
-					scripts[l] === "libs/SoloPlay/Threads/TownChicken.js" && !SoloEvents.cloneWalked && console.log("ÿc8EventThread :: ÿc1Pausing " + scripts[l]);
+					threads[i] === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8EventThread :: ÿc1Pausing " + threads[i]);
+					threads[i] === "libs/SoloPlay/Threads/TownChicken.js" && !SoloEvents.cloneWalked && console.log("ÿc8EventThread :: ÿc1Pausing " + threads[i]);
 
 					// don't pause townchicken during clone walk
-					if (scripts[l] !== "libs/SoloPlay/Threads/TownChicken.js" || !SoloEvents.cloneWalked) {
+					if (threads[i] !== "libs/SoloPlay/Threads/TownChicken.js" || !SoloEvents.cloneWalked) {
 						script.pause();
 					}
 				}
@@ -75,15 +74,13 @@ function main () {
 	};
 
 	this.resumeThreadsAfterEvent = function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
-
-		for (let l = 0; l < scripts.length; l += 1) {
-			let script = getScript(scripts[l]);
+		for (let i = 0; i < threads.length; i += 1) {
+			let script = getScript(threads[i]);
 
 			if (script) {
 				if (!script.running) {
-					scripts[l] === "default.dbj" && console.log("ÿc8EventThread :: ÿc2Resuming " + scripts[l]);
-					scripts[l] === "libs/SoloPlay/Threads/TownChicken.js" && console.log("ÿc8EventThread :: ÿc2Resuming " + scripts[l]);
+					threads[i] === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8EventThread :: ÿc2Resuming " + threads[i]);
+					threads[i] === "libs/SoloPlay/Threads/TownChicken.js" && console.log("ÿc8EventThread :: ÿc2Resuming " + threads[i]);
 
 					script.resume();
 				}

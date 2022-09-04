@@ -45,10 +45,9 @@ function myPrint (str = "", toConsole = false, color = 0) {
 }
 
 function updateMyData () {
-	let scripts = ["default.dbj", "libs/soloplay/threads/townchicken.js", "libs/soloplay/threads/toolsthread.js", "libs/soloplay/threads/eventthread.js"];
 	let obj = JSON.stringify(Misc.copy(myData));
 	let myThread = getScript(true).name;
-	scripts.forEach(function (script) {
+	CharData.threads.forEach(function (script) {
 		let curr = getScript(script);
 		if (curr && myThread !== curr.name) {
 			curr.send("data--" + obj);
@@ -392,6 +391,8 @@ const SetUp = {
 		Config.Inventory[1] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 		Config.Inventory[2] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 		Config.Inventory[3] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+		Config.SkipId.push(sdk.monsters.FireTower);
 
 		/* FastMod configuration. */
 		Config.FCR = 0;

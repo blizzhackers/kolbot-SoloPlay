@@ -9,6 +9,7 @@ includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
 
 const CharData = {
 	filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-CharData.json",
+	threads: ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"],
 	default: {
 		initialized: false,
 		normal: {
@@ -112,8 +113,7 @@ const CharData = {
 		small: {
 			getCountInfo: function () {
 				const finalCharmKeys = Object.keys(myData.me.charms);
-				let curr = 0;
-				let max = 0;
+				let [curr, max] = [0, 0];
 
 				for (let i = 0; i < finalCharmKeys.length; i++) {
 					let cKey = finalCharmKeys[i];
@@ -132,8 +132,7 @@ const CharData = {
 		large: {
 			getCountInfo: function () {
 				const finalCharmKeys = Object.keys(myData.me.charms);
-				let curr = 0;
-				let max = 0;
+				let [curr, max] = [0, 0];
 
 				for (let i = 0; i < finalCharmKeys.length; i++) {
 					let cKey = finalCharmKeys[i];
@@ -152,8 +151,7 @@ const CharData = {
 		grand: {
 			getCountInfo: function () {
 				const finalCharmKeys = Object.keys(myData.me.charms);
-				let curr = 0;
-				let max = 0;
+				let [curr, max] = [0, 0];
 
 				for (let i = 0; i < finalCharmKeys.length; i++) {
 					let cKey = finalCharmKeys[i];
@@ -216,10 +214,9 @@ const CharData = {
 		},
 
 		update: function () {
-			let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js"];
 			let obj = JSON.stringify(Misc.copy(this));
 			let myThread = getScript(true).name;
-			scripts.forEach(function (script) {
+			CharData.threads.forEach(function (script) {
 				let curr = getScript(script);
 				if (curr && myThread !== curr.name) {
 					curr.send("buff--" + obj);
@@ -242,10 +239,9 @@ const CharData = {
 		},
 
 		update: function () {
-			let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"];
 			let obj = JSON.stringify(Misc.copy(this));
 			let myThread = getScript(true).name;
-			scripts.forEach(function (script) {
+			CharData.threads.forEach(function (script) {
 				let curr = getScript(script);
 				if (curr && myThread !== curr.name) {
 					curr.send("skill--" + obj);
@@ -266,10 +262,9 @@ const CharData = {
 
 	// updates config obj across all threads - excluding our current
 	updateConfig: function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"];
 		let obj = JSON.stringify(Misc.copy(Config));
 		let myThread = getScript(true).name;
-		scripts.forEach(function (script) {
+		CharData.threads.forEach(function (script) {
 			let curr = getScript(script);
 			if (curr && myThread !== curr.name) {
 				curr.send("config--" + obj);
@@ -316,6 +311,8 @@ const CharData = {
 		while (me.ingame && !me.gameReady) {
 			delay(100);
 		}
+
+		console.trace();
 
 		let obj = this.getObj();
 		typeof arg !== "string" && (arg = arg.toString());

@@ -23,6 +23,14 @@ function main () {
 	D2Bot.init(); // Get D2Bot# handle
 	D2Bot.ingame();
 
+	(function (global, original) {
+		global.load = function (...args) {
+			console.trace();
+			original.apply(this, args);
+			delay(500);
+		};
+	})([].filter.constructor("return this")(), load);
+
 	// wait until game is ready
 	while (!me.gameReady) {
 		delay(50);
@@ -33,15 +41,10 @@ function main () {
 	// load heartbeat if it isn't already running
 	!getScript("tools/heartbeat.js") && load("tools/heartbeat.js");
 
-	// Include SoloPlay's librarys
+	// SoloPlay run's in it's own thread
 	if (getScript("D2BotSoloPlay.dbj")) {
-		include("SoloPlay/Tools/Developer.js");
-		include("SoloPlay/Tools/Tracker.js");
-		include("SoloPlay/Tools/CharData.js");
-		include("SoloPlay/Functions/ConfigOverrides.js");
-		include("SoloPlay/Functions/Globals.js");
-		SetUp.include();
-		SetUp.init();
+		load("libs/SoloPlay/SoloPlay.js");
+		return true;
 	}
 
 	if (getScript("d2botmap.dbj")) {
@@ -137,7 +140,7 @@ function main () {
 
 	// Check for experience decrease -> log death. Skip report if life chicken is disabled.
 	if (stats.name === me.name && me.getStat(sdk.stats.Experience) < stats.experience && Config.LifeChicken > 0) {
-		D2Bot.printToConsole("You died in last game", sdk.colors.D2Bot.Red);
+		D2Bot.printToConsole("You died in last game. | Area :: " + stats.lastArea + " | Script :: " + stats.debugInfo.currScript, sdk.colors.D2Bot.Red);
 		D2Bot.printToConsole("Experience decreased by " + (stats.experience - me.getStat(sdk.stats.Experience)), sdk.colors.D2Bot.Red);
 		DataFile.updateStats("deaths");
 		D2Bot.updateDeaths();
@@ -146,29 +149,11 @@ function main () {
 	DataFile.updateStats(["experience", "name"]);
 
 	// Load threads
-	if (getScript("D2BotSoloPlay.dbj")) {
-		if (SoloEvents.inGameCheck()) return true;
-		load("libs/SoloPlay/Threads/ToolsThread.js");
-		load("libs/SoloPlay/Threads/EventThread.js");
-		load("libs/SoloPlay/Threads/TownChicken.js");
-		delay(500 + me.ping);
-		
-		// Load guard if we want to see the stack as it runs
-		if (Developer.debugging.showStack.enabled) {
-			// check in case we reloaded and guard was still running
-			let guard = getScript("libs/SoloPlay/Modules/Guard.js");
-			!!guard && guard.running && guard.stop();
-			Developer.debugging.showStack.profiles.some(profile => profile.toLowerCase() === "all" || profile.toLowerCase() === me.profile.toLowerCase()) && require("../SoloPlay/Modules/Guard");
-		}
+	load("tools/ToolsThread.js");
+	(Config.TownCheck || Config.TownHP > 0 || Config.TownMP > 0) && load("tools/TownChicken.js");
 
-		delay(1000);
-	} else {
-		load("tools/ToolsThread.js");
-		(Config.TownCheck || Config.TownHP > 0 || Config.TownMP > 0) && load("tools/TownChicken.js");
-
-		if (Config.DebugMode) {
-			require("libs/modules/Guard");
-		}
+	if (Config.DebugMode) {
+		require("libs/modules/Guard");
 	}
 
 	if (Config.PublicMode) {
