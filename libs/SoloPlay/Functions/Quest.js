@@ -118,6 +118,7 @@ const Quest = {
 					Town.sortInventory();
 				}
 
+				hstaff.isInStash && Town.openStash();
 				hstaff.isInCube && Cubing.openCube();
 				Storage.Inventory.MoveTo(hstaff);
 				me.cancelUIFlags();
