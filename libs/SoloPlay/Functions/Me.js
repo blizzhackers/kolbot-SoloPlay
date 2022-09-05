@@ -244,6 +244,11 @@ me.fieldID = function () {
 	return true;
 };
 
+me.getWeaponQuantity = function (weaponLoc = sdk.body.RightArm) {
+	let currItem = me.getItemsEx(-1, sdk.items.mode.Equipped).filter(i => i.bodylocation === weaponLoc).first();
+	return !!currItem ? currItem.getStat(sdk.stats.Quantity) : 0;
+};
+
 me.getItemsForRepair = function (repairPercent, chargedItems) {
 	const lowLevelCheck = me.charlvl < 5;
 	// lower the required percent as we are a low level

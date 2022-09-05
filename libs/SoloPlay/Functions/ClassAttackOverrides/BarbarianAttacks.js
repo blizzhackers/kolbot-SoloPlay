@@ -243,6 +243,10 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		}
 	}
 
+	if (attackSkill === sdk.skills.DoubleThrow && me.getWeaponQuantity() <= 3 && data.secondary.have) {
+		attackSkill = data.secondary.skill;
+	}
+
 	// Telestomp with barb is pointless
 	return this.doCast(unit, attackSkill, data);
 };
