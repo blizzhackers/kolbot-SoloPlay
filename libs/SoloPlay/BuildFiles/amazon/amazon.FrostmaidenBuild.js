@@ -41,7 +41,7 @@ const finalBuild = {
 		// Amulet - Highlords
 		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 110000",
 		// Rings - Ravenfrost & Carrion Wind
-		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000",
+		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == 110000",
 		"[name] == ring && [quality] == unique # [poisonresist] == 55 && [lifeleech] >= 6 # [tier] == 110000",
 		// Switch - CTA
 		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
