@@ -140,7 +140,7 @@ const Mercenary = {
 	hireMerc: function () {
 		if (me.classic) return true;
 		let _a;
-		let {mercAct, mercAuraWanted, mercDiff} = Check.finalBuild();
+		let { mercAct, mercAuraWanted, mercDiff } = Check.finalBuild();
 		let typeOfMerc = (!Pather.accessToAct(2) && me.normal ? 1 : mercAct);
 		let tmpAuraName = "Defiance";
 
@@ -167,7 +167,9 @@ const Mercenary = {
 		
 		// lets check what our current actually merc is
 		let checkMyMerc = Misc.poll(() => me.getMerc(), 50, 500);
-		let wantedSkill = (typeOfMerc === 1 ? "Cold Arrow" : me.normal ? tmpAuraName : mercAuraWanted);
+		const wantedSkill = (typeOfMerc === 1
+			? ["Cold Arrow", "Fire Arrow"].includes(mercAuraWanted) ? mercAuraWanted : "Cold Arrow"
+			: me.normal ? tmpAuraName : mercAuraWanted);
 
 		if (checkMyMerc && Mercenary.checkMercSkill(wantedSkill, checkMyMerc)) {
 			// we have our wanted merc, data file was probably erased so lets re-update it
