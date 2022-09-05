@@ -19,21 +19,35 @@ function den () {
 
 	myPrint("starting den");
 
+	me.gold > 500 && Town.initNPC("repair", "shopItems") && Town.shopItems(500, [sdk.items.type.Bow, sdk.items.type.Crossbow, sdk.items.type.Belt]);
 	me.gold > 1000 && Town.buyPots(12, "stamina", true);
 
 	if (!Pather.checkWP(sdk.areas.ColdPlains) || me.charlvl < 4) {
 		Pather.moveToExit(sdk.areas.BloodMoor, true);
 
 		try {
-			Pather.moveToPreset(sdk.areas.BloodMoor, sdk.unittype.Object, sdk.objects.SuperChest) && Misc.openChests(5);
+			if (me.charlvl < 2) {
+				let cPlains = Pather.getExitCoords(me.area, sdk.areas.ColdPlains);
+				// sort by the ones closest to us but also by distance to cold plains exit so we end up there
+				Game.getPresetObjects(me.area)
+					.filter(el => Misc.presetShrineIds.includes(el.id) || Misc.presetChestIds.includes(el.id))
+					.sort((a, b) => {
+						let [aX, aY] = [a.roomx * 5 + a.x, a.roomy * 5 + a.y];
+						let [bX, bY] = [b.roomx * 5 + b.x, b.roomy * 5 + b.y];
+						if ([aX, aY].distance < [bX, bY].distance && getDistance(aX, aY, cPlains.x, cPlains.y) > getDistance(bX, bY, cPlains.x, cPlains.y)) {
+							return -1;
+						}
+						if ([aX, aY].distance > [bX, bY].distance && getDistance(aX, aY, cPlains.x, cPlains.y) < getDistance(bX, bY, cPlains.x, cPlains.y)) {
+							return 1;
+						}
+						return [aX, aY].distance - [bX, bY].distance;
+					})
+					.forEach(el => Pather.moveNearUnit(el, 7));
+			} else {
+				Pather.moveNearPreset(sdk.areas.BloodMoor, sdk.unittype.Object, sdk.objects.SuperChest, 8) && Misc.openChests(8);
+			}
 		} catch (e) {
 			console.warn(e.message ? e.message : e);
-			// let cPlains = Pather.getExitCoords(me.area, sdk.areas.ColdPlains);
-			// Misc.openChestsInArea(sdk.areas.BloodMoor, [], (a, b) => {
-			// 	let aDist = getDistance(a.x, a.y, cPlains.x, cPlains.y);
-			// 	let bDist = getDistance(b.x, b.y, cPlains.x, cPlains.y);
-			// 	return (bDist - aDist);
-			// });
 		}
 		Pather.getWP(sdk.areas.ColdPlains);
 
@@ -112,7 +126,7 @@ function den () {
 				if (me.inArea(sdk.areas.DenofEvil)) {
 					if (denLights) {
 						killTracker = true;
-						throw new Error("DEN COMPLETE");
+						throw new Error("EVENT :: DEN COMPLETE");
 					}
 				}
 
