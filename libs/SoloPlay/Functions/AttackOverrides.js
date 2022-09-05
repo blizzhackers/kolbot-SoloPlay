@@ -39,6 +39,7 @@ Attack.init = function () {
 		this.checkInfinity();
 		this.checkAuradin();
 		this.getCurrentChargedSkillIds(true);
+		this.checkBowOnSwitch(true);
 	}
 };
 
@@ -769,6 +770,41 @@ Attack.clearCoordList = function (list, pick) {
 		Attack.clear(node.radius);
 		pick && Pickit.pickItems(pick);
 	}
+};
+
+Attack.checkBowOnSwitch = function (firstInit = false) {
+	const preBow = CharData.skillData.bowData.bowOnSwitch;
+	const checkTypes = [sdk.items.type.AmazonBow, sdk.items.type.Bow, sdk.items.type.Crossbow, sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver];
+	
+	me.weaponswitch !== sdk.player.slot.Main && me.switchWeapons(sdk.player.slot.Main);
+	const items = me.getItemsEx().filter(item => item && item.isEquipped && item.isOnSwap && checkTypes.includes(item.itemType));
+	if (preBow && !items.some(item => [sdk.items.type.AmazonBow, sdk.items.type.Bow, sdk.items.type.Crossbow].includes(item.itemType))) {
+		CharData.skillData.bowData.resetBowData();
+		return;
+	}
+	items.forEach(item => {
+		if ([sdk.items.type.AmazonBow, sdk.items.type.Bow, sdk.items.type.Crossbow].includes(item.itemType)) {
+			CharData.skillData.bowData.bowOnSwitch = true;
+			if (CharData.skillData.bowData.bowGid !== item.gid) {
+				CharData.skillData.bowData.setBowInfo(item, firstInit);
+			}
+		}
+		if ([sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver].includes(item.itemType)) {
+			if (CharData.skillData.bowData.quiverType !== item.itemType) {
+				CharData.skillData.bowData.setArrowInfo(item, firstInit);
+			}
+		}
+	});
+};
+
+Attack.haveDependancy = function (itemType) {
+	return [sdk.items.type.AmazonBow, sdk.items.type.Bow, sdk.items.type.Crossbow].includes(itemType) ? me.getItem("aqv", sdk.items.mode.Equipped) : me.getItem("cqv", sdk.items.mode.Equipped);
+};
+
+Attack.useBowOnSwitch = function (unit, skillId = 0, switchBack = true) {
+	if (!CharData.skillData.bowData.bowOnSwitch) return false;
+	if (!this.haveDependancy(CharData.skillData.bowData.bowType)) return false;
+	return Skill.switchCast(skillId, { hand: sdk.skills.hand.Left, x: unit, switchBack: switchBack });
 };
 
 // maybe store the copyUnit of the item or at least gid so we don't need to iterate through all our items to find the one with the charged skill when we need it
