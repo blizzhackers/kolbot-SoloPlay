@@ -110,62 +110,31 @@ const CharData = {
 	},
 
 	charmData: {
-		small: {
-			getCountInfo: function () {
-				const finalCharmKeys = Object.keys(myData.me.charms);
-				let [curr, max] = [0, 0];
+		getCountInfo: function () {
+			const finalCharmKeys = Object.keys(myData.me.charms);
+			let [curr, max] = [0, 0];
 
-				for (let i = 0; i < finalCharmKeys.length; i++) {
-					let cKey = finalCharmKeys[i];
-					if (myData.me.charms[cKey].classid === sdk.items.SmallCharm) {
-						curr += myData.me.charms[cKey].have.length;
-						max += myData.me.charms[cKey].max;
-					}
+			for (let i = 0; i < finalCharmKeys.length; i++) {
+				let cKey = finalCharmKeys[i];
+				if (myData.me.charms[cKey].classid === this.id) {
+					curr += myData.me.charms[cKey].have.length;
+					max += myData.me.charms[cKey].max;
 				}
+			}
 
-				return {
-					curr: curr,
-					max: max
-				};
-			},
+			return {
+				curr: curr,
+				max: max
+			};
+		},
+		small: {
+			id: sdk.items.SmallCharm,
 		},
 		large: {
-			getCountInfo: function () {
-				const finalCharmKeys = Object.keys(myData.me.charms);
-				let [curr, max] = [0, 0];
-
-				for (let i = 0; i < finalCharmKeys.length; i++) {
-					let cKey = finalCharmKeys[i];
-					if (myData.me.charms[cKey].classid === sdk.items.LargeCharm) {
-						curr += myData.me.charms[cKey].have.length;
-						max += myData.me.charms[cKey].max;
-					}
-				}
-
-				return {
-					curr: curr,
-					max: max
-				};
-			},
+			id: sdk.items.LargeCharm,
 		},
 		grand: {
-			getCountInfo: function () {
-				const finalCharmKeys = Object.keys(myData.me.charms);
-				let [curr, max] = [0, 0];
-
-				for (let i = 0; i < finalCharmKeys.length; i++) {
-					let cKey = finalCharmKeys[i];
-					if (myData.me.charms[cKey].classid === sdk.items.GrandCharm) {
-						curr += myData.me.charms[cKey].have.length;
-						max += myData.me.charms[cKey].max;
-					}
-				}
-
-				return {
-					curr: curr,
-					max: max
-				};
-			},
+			id: sdk.items.GrandCharm,
 		}
 	},
 
@@ -214,8 +183,8 @@ const CharData = {
 		},
 
 		update: function () {
-			let obj = JSON.stringify(Misc.copy(this));
-			let myThread = getScript(true).name;
+			const obj = JSON.stringify(Misc.copy(this));
+			const myThread = getScript(true).name;
 			CharData.threads.forEach(function (script) {
 				let curr = getScript(script);
 				if (curr && myThread !== curr.name) {
@@ -230,6 +199,32 @@ const CharData = {
 		currentChargedSkills: [],
 		chargedSkills: [],
 		chargedSkillsOnSwitch: [],
+		bowData: {
+			initialized: false,
+			bowOnSwitch: false,
+			bowGid: 0,
+			bowType: 0,
+			arrows: 0,
+			quiverType: 0,
+			setBowInfo: function (bow, init = false) {
+				if (bow === undefined) return;
+				this.bowGid = bow.gid;
+				this.bowType = bow.itemType;
+				init && (this.initialized = true);
+				!init && CharData.skillData.update();
+			},
+			setArrowInfo: function (quiver) {
+				if (quiver === undefined) return;
+				this.arrows = Math.floor((quiver.getStat(sdk.stats.Quantity) * 100) / getBaseStat("items", quiver.classid, "maxstack"));
+				this.quiverType = quiver.itemType;
+			},
+			resetBowData: function () {
+				this.bowOnSwitch = false;
+				[this.bowGid, this.bowType, this.arrows, this.quiverType] = [0, 0, 0, 0];
+				NTIP.resetRuntimeList();
+				CharData.skillData.update();
+			},
+		},
 
 		init: function (skillIds, mainSkills, switchSkills) {
 			this.currentChargedSkills = skillIds.slice(0);
@@ -342,3 +337,7 @@ const CharData = {
 		return !(FileTools.exists(this.filePath) && FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json"));
 	},
 };
+
+CharData.charmData.small.getCountInfo = CharData.charmData.getCountInfo.bind(CharData.charmData.small);
+CharData.charmData.large.getCountInfo = CharData.charmData.getCountInfo.bind(CharData.charmData.large);
+CharData.charmData.grand.getCountInfo = CharData.charmData.getCountInfo.bind(CharData.charmData.grand);
