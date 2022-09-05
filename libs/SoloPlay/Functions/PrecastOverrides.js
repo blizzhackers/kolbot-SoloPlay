@@ -31,7 +31,7 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 		if (Skill.canUse(sdk.skills.HolyShield)
 			&& Math.round(Skill.getManaCost(sdk.skills.HolyShield) * 100 / me.mpmax) < 35
 			&& (!me.getState(sdk.states.HolyShield) || force)) {
-			Precast.cast(sdk.skills.HolyShield);
+			this.precastSkill(sdk.skills.HolyShield);
 		}
 
 		break;
@@ -45,10 +45,10 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 			let {x, y} = me;
 			(needBo || needBc) && me.switchWeapons(this.getBetterSlot(sdk.skills.BattleOrders));
 
-			needBc && Precast.cast(sdk.skills.BattleCommand, x, y, true);
-			needBo && Precast.cast(sdk.skills.BattleOrders, x, y, true);
-			needShout && Precast.cast(sdk.skills.Shout, x, y, true);
-			needBc && Precast.cast(sdk.skills.BattleCommand, x, y, true);
+			needBc && this.precastSkill(sdk.skills.BattleCommand, x, y, true);
+			needBo && this.precastSkill(sdk.skills.BattleOrders, x, y, true);
+			needShout && this.precastSkill(sdk.skills.Shout, x, y, true);
+			needBc && this.precastSkill(sdk.skills.BattleCommand, x, y, true);
 
 			me.weaponswitch !== primary && me.switchWeapons(primary);
 		}
