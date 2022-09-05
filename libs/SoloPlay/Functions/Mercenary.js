@@ -8,36 +8,6 @@
 
 const Mercenary = {
 	minCost: -1,
-	canHaveMerc: {
-		result: false,
-		check: function () {
-			// we've already confirmed we have bloodraven quest complete or aren't in normal.
-			if (this.result) return true;
-			// otherwise check
-			this.result = !me.normal ? true : !!Misc.checkQuest(sdk.quest.id.SistersBurialGrounds, sdk.quest.states.Completed);
-			return this.result;
-		}
-	},
-
-	// merc is null fix
-	getMercFix: function () {
-		if (!Config.UseMerc || me.classic || me.mercrevivecost) return null;
-		if (!this.canHaveMerc.check()) return null;
-		let merc = me.getMerc();
-
-		for (let i = 0; i < 3; i++) {
-			if (merc) {
-				if (merc.dead) return null;
-
-				break;
-			}
-
-			delay(50);
-			merc = me.getMerc();
-		}
-
-		return merc;
-	},
 
 	// only a2 mercs for now, need to test others to see if ModifierListSkill returns their skill
 	getMercSkill: function (merc = undefined) {
@@ -194,8 +164,6 @@ const Mercenary = {
 		case this.minCost > 0 && me.gold < this.minCost:
 			return true;
 		}
-
-		this.canHaveMerc.result = true;
 		
 		// lets check what our current actually merc is
 		let checkMyMerc = Misc.poll(() => me.getMerc(), 50, 500);

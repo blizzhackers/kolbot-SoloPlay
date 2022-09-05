@@ -6,7 +6,7 @@
 */
 
 function jail () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting jail");
 	const levels = [sdk.areas.JailLvl1, sdk.areas.JailLvl2, sdk.areas.JailLvl3];
 

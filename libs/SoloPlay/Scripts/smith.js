@@ -6,7 +6,7 @@
 */
 
 function smith () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting smith");
 
 	Pather.checkWP(sdk.areas.OuterCloister, true) ? Pather.useWaypoint(sdk.areas.OuterCloister) : Pather.getWP(sdk.areas.OuterCloister);

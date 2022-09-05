@@ -6,7 +6,7 @@
 */
 
 function pits () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting pits");
 
 	Pather.checkWP(sdk.areas.BlackMarsh, true) ? Pather.useWaypoint(sdk.areas.BlackMarsh) : Pather.getWP(sdk.areas.BlackMarsh);

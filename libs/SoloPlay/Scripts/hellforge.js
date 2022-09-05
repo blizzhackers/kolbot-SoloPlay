@@ -11,7 +11,7 @@ function hellforge () {
 		if (Misc.poll(() => Misc.checkQuest(sdk.quest.id.HellsForge, sdk.quest.states.Completed), 2000, 500)) return true;
 	}
 	myPrint("starting hellforge");
-	Town.townTasks({thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
+	Town.doChores(false, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75, fullChores: true});
 	
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);

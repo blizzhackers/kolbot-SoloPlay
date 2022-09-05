@@ -11,7 +11,7 @@ function duriel () {
 	Quest.cubeItems(sdk.quest.item.HoradricStaff, sdk.quest.item.ShaftoftheHoradricStaff, sdk.quest.item.ViperAmulet);
 
 	// Start
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting duriel");
 	Pather.checkWP(sdk.areas.CanyonofMagic, true) ? Pather.useWaypoint(sdk.areas.CanyonofMagic) : Pather.getWP(sdk.areas.CanyonofMagic);
 	Precast.doPrecast(true);

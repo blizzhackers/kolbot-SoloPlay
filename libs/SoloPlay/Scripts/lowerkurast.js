@@ -6,7 +6,7 @@
 */
 
 function lowerkurast () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting lower kurast");
 
 	Pather.checkWP(sdk.areas.LowerKurast, true) ? Pather.useWaypoint(sdk.areas.LowerKurast) : Pather.getWP(sdk.areas.LowerKurast);

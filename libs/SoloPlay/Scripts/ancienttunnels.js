@@ -6,7 +6,7 @@
 */
 
 function ancienttunnels () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting ancient tunnels");
 
 	Pather.checkWP(sdk.areas.LostCity, true) ? Pather.useWaypoint(sdk.areas.LostCity) : Pather.getWP(sdk.areas.LostCity);

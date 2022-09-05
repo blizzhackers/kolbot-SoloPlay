@@ -6,7 +6,7 @@
 */
 
 function anya () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	Town.goToTown(5);
 	myPrint("starting anya");
 

@@ -19,7 +19,7 @@ function mephisto () {
 		return true;
 	};
 
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting mephisto");
 
 	Pather.checkWP(sdk.areas.DuranceofHateLvl2, true) ? Pather.useWaypoint(sdk.areas.DuranceofHateLvl2) : Pather.getWP(sdk.areas.DuranceofHateLvl2);

@@ -68,7 +68,7 @@ function summoner () {
 	};
 
 	// START
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting summoner");
 
 	Pather.checkWP(sdk.areas.ArcaneSanctuary, true) ? Pather.useWaypoint(sdk.areas.ArcaneSanctuary) : Pather.getWP(sdk.areas.ArcaneSanctuary);

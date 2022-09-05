@@ -7,7 +7,7 @@
 
 // todo: clean this up
 function andariel () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting andy");
 
 	if (me.normal && Misc.checkQuest(sdk.quest.id.SistersToTheSlaughter, sdk.quest.states.ReqComplete)) {

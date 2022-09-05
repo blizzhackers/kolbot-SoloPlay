@@ -7,7 +7,7 @@
 */
 
 function ancients () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting ancients");
 
 	Pather.checkWP(sdk.areas.AncientsWay) ? Pather.useWaypoint(sdk.areas.AncientsWay) : Pather.getWP(sdk.areas.AncientsWay);
@@ -20,7 +20,7 @@ function ancients () {
 	}
 
 	// ancients prep
-	Town.townTasks({thawing: true, antidote: true, stamina: true});
+	Town.doChores(false, {thawing: true, antidote: true, stamina: true, fullChores: true});
 
 	let tempConfig = Misc.copy(Config); // save and update config settings
 

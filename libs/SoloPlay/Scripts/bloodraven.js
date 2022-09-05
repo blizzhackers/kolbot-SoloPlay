@@ -6,7 +6,7 @@
 */
 
 function bloodraven () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("ÿc8Kolbot-SoloPlayÿc0: starting blood raven");
 
 	if (!Pather.checkWP(sdk.areas.StonyField, true)) {

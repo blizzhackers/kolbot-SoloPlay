@@ -6,7 +6,7 @@
 */
 
 function staff () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting staff");
 
 	Pather.checkWP(sdk.areas.FarOasis, true) ? Pather.useWaypoint(sdk.areas.FarOasis) : Pather.getWP(sdk.areas.FarOasis);

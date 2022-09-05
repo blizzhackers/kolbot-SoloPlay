@@ -6,7 +6,7 @@
 */
 
 function cube () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("ÿc8Kolbot-SoloPlayÿc0: starting cube");
 
 	Pather.checkWP(sdk.areas.HallsoftheDeadLvl2, true) ? Pather.useWaypoint(sdk.areas.HallsoftheDeadLvl2) : Pather.getWP(sdk.areas.HallsoftheDeadLvl2);

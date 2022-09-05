@@ -77,7 +77,7 @@ function diablo () {
 	};
 
 	// START
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting diablo");
 
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);

@@ -115,7 +115,7 @@ function cows () {
 	if (!me.diffCompleted) throw new Error("Final quest incomplete, cannot make cows yet");
 
 	// START
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting cows");
 
 	if (!Pather.getPortal(sdk.areas.MooMooFarm) && !this.getLeg()) return true;

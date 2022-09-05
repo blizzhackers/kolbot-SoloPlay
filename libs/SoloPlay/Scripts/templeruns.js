@@ -14,7 +14,7 @@ function templeruns () {
 		[sdk.areas.KurastBazaar, sdk.areas.DisusedFane], [sdk.areas.UpperKurast, sdk.areas.ForgottenReliquary],
 		[sdk.areas.UpperKurast, sdk.areas.ForgottenTemple], [sdk.areas.UpperKurast, sdk.areas.KurastCauseway, sdk.areas.RuinedFane], [sdk.areas.UpperKurast, sdk.areas.KurastCauseway, sdk.areas.DisusedReliquary]
 	];
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 
 	for (let run = 0; run < temples.length; run++) {
 		Pather.checkWP(temples[run][0], true) ? Pather.useWaypoint(temples[run][0]) : Pather.getWP(temples[run][0]);

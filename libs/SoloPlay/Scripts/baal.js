@@ -203,7 +203,7 @@ function baal () {
 	};
 
 	// START
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting baal");
 
 	Pather.checkWP(sdk.areas.WorldstoneLvl2, true) ? Pather.useWaypoint(sdk.areas.WorldstoneLvl2) : Pather.getWP(sdk.areas.WorldstoneLvl2, true);

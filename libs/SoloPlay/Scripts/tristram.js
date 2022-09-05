@@ -14,7 +14,7 @@ function tristram () {
 		[25119, 5061], [4933, 4363]
 	];
 
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting tristram");
 
 	// Tristram portal hasn't been opened

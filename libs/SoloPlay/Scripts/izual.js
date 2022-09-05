@@ -8,7 +8,7 @@
 function izual () {
 	myPrint("starting izual");
 
-	Town.townTasks({thawing: true, antidote: true, stamina: true});
+	Town.doChores(false, {thawing: true, antidote: true, stamina: true, fullChores: true});
 
 	Pather.checkWP(sdk.areas.CityoftheDamned, true) ? Pather.useWaypoint(sdk.areas.CityoftheDamned) : Pather.getWP(sdk.areas.CityoftheDamned);
 	Precast.doPrecast(true);

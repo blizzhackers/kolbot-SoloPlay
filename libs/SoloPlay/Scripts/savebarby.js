@@ -9,7 +9,7 @@
 function savebarby () {
 	let coords = [];
 
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting barbies");
 
 	Pather.checkWP(sdk.areas.FrigidHighlands, true) ? Pather.useWaypoint(sdk.areas.FrigidHighlands) : Pather.getWP(sdk.areas.FrigidHighlands);

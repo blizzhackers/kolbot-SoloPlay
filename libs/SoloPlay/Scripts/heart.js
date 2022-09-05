@@ -6,7 +6,7 @@
 */
 
 function heart () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting heart");
 
 	Pather.checkWP(sdk.areas.KurastBazaar, true) ? Pather.useWaypoint(sdk.areas.KurastBazaar) : Pather.getWP(sdk.areas.KurastBazaar);
