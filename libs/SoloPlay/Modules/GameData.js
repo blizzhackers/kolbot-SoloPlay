@@ -1751,6 +1751,27 @@
 		// 	// https://diablo3.ingame.de/forum/threads/1218516-FAQ-Bewegungs-und-Animationsgeschwindigkeiten-Teil-2?s=&postid=17610874
 		// 	return this.attackFrames(skillId, weaponCode, ias, charClass) / 25;
 		// },
+		timeTillMissleImpact: function (skillId, monster) {
+			if (monster === undefined || skillId === undefined || !monster.attackable) return 0;
+			let missileName = getBaseStat("skills", skillId, "cltmissile");
+			let missile = MissileData[missileName];
+			if (!missile) {
+				missileName = getBaseStat("skills", skillId, "srvmissile");
+				missile = MissileData[missileName];
+			}
+			if (missile && missile.velocity > 0) {
+				const missileVelocityTPS = missile.velocity;
+				const missileVelocityTPF = missileVelocityTPS / 25;
+				const distanceForMissile = getDistance(me, monster);
+				// too far for missile to reach this position
+				if (distanceForMissile > missile.range) return 0;
+				const castTimeS = me.castingDuration(skillId);
+				console.debug("castTime: " + castTimeS, " | missileDist " + distanceForMissile, " | missleV " + missileVelocityTPF);
+				console.debug("MissleTime: " + (distanceForMissile / ((missileVelocityTPS / 32) * 25)));
+				return ((distanceForMissile / ((missileVelocityTPS / 32) * 25)) + castTimeS);
+			}
+			return 0;
+		}
 	};
 
 	function calculateKillableFallensByFrostNova() {
@@ -1804,12 +1825,10 @@
 	Object.defineProperty(Unit.prototype, "currentVelocity", {
 		get: function () {
 			if (!this.isMoving || this.isFrozen) return 0;
-			let velocity = this.isRunning ? MonsterData[this.classid].Run : MonsterData[this.classid].Velocity;
+			const velocity = this.isRunning ? MonsterData[this.classid].Run : MonsterData[this.classid].Velocity;
 			if (this.isChilled) {
 				let malus = MonsterData[this.classid].ColdEffect;
-				if (malus > 0) {
-					malus = malus - 256;
-				}
+				(malus > 0) && (malus = malus - 256);
 				return Math.max(1, ~~(velocity * (1 + malus)));
 			}
 			return velocity;

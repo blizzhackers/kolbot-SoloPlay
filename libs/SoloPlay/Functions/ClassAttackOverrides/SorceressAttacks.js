@@ -39,16 +39,7 @@ const frostNovaCheck = function () {
 	return false;
 };
 
-const inDanger = function () {
-	let count = 0;
-	let nearUnits = getUnits(sdk.unittype.Monster).filter((mon) => mon && mon.attackable && mon.distance < 10);
-	nearUnits.forEach(u => u.isSpecial ? (count += 2) : (count += 1));
-	if (count > me.maxNearMonsters) return true;
-	let dangerClose = nearUnits.find(mon => [sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted].some(chant => mon.getEnchant(chant)));
-	return dangerClose;
-};
-
-ClassAttack.doAttack = function (unit, skipStatic = false, recheckSkill = false) {
+ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
 	Developer.debugging.skills && console.log(sdk.colors.Green + "Test Start-----------------------------------------//");
 	// unit became invalidated
 	if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
@@ -203,7 +194,7 @@ ClassAttack.doAttack = function (unit, skipStatic = false, recheckSkill = false)
 	let timedSkill = buildDataObj(-1);
 	// Choose Skill
 	switch (true) {
-	case !skipStatic && data.static.have && data.static.dmg > Math.max(data.mainTimed.dmg, data.secondaryTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg) && unit.getMobCount(15, Coords_1.Collision.BLOCK_MISSILE) < 5:
+	case !recheckSkill && data.static.have && data.static.dmg > Math.max(data.mainTimed.dmg, data.secondaryTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg) && unit.getMobCount(15, Coords_1.Collision.BLOCK_MISSILE) < 5:
 		timedSkill = data.static;
 		break;
 	case data.mainTimed.have && me.mp > data.mainTimed.mana && (!data.mainTimed.timed || !me.skillDelay) && data.mainTimed.dmg > Math.max(data.secondaryTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg):
@@ -242,19 +233,18 @@ ClassAttack.doAttack = function (unit, skipStatic = false, recheckSkill = false)
 	if (!timedSkill.have || timedSkill.mana > me.mp) {
 		Developer.debugging.skills && console.log("Choosing lower mana skill, Was I not able to use one of my better skills? (" + (!timedSkill.have) + "). Did I not have enough mana? " + (timedSkill.mana > me.mp));
 		Object.keys(lowManaData).forEach(k => typeof lowManaData[k] === "object" && currLvl >= lowManaData[k].reqLvl && lowManaData[k].assignValues() && lowManaData[k].calcDmg(unit));
+		const timedSkillCheck = Object.keys(lowManaData)
+			.filter(k => typeof lowManaData[k] === "object" && lowManaData[k].have && me.mp > lowManaData[k].mana)
+			.sort((a, b) => lowManaData[b].dmg - lowManaData[a].dmg).first();
+		console.debug(timedSkillCheck);
 		timedSkill = (() => {
 			switch (true) {
-			case lowManaData.iBlast.have && me.mp > lowManaData.iBlast.mana && lowManaData.iBlast.dmg > Math.max(lowManaData.fBolt.dmg, lowManaData.cBolt.dmg, lowManaData.iBolt.dmg, lowManaData.tk.dmg):
-				return lowManaData.iBlast;
-			case lowManaData.iBolt.have && me.mp > lowManaData.iBolt.mana && lowManaData.iBolt.dmg > Math.max(lowManaData.fBolt.dmg, lowManaData.cBolt.dmg, lowManaData.tk.dmg):
-				return lowManaData.iBolt;
-			case lowManaData.cBolt.have && me.mp > lowManaData.cBolt.mana && lowManaData.cBolt.dmg > Math.max(lowManaData.fBolt.dmg, lowManaData.iBlast.dmg, lowManaData.iBolt.dmg, lowManaData.tk.dmg):
-				return lowManaData.cBolt;
-			case lowManaData.fBolt.have && me.mp > lowManaData.fBolt.mana && lowManaData.fBolt.dmg > Math.max(lowManaData.cBolt.dmg, lowManaData.iBlast.dmg, lowManaData.iBolt.dmg, lowManaData.tk.dmg):
-				return lowManaData.fBolt;
-			case lowManaData.tk.have && me.normal && me.mp > lowManaData.tk.mana && lowManaData.tk.dmg > Math.max(lowManaData.cBolt.dmg, lowManaData.iBlast.dmg, lowManaData.iBolt.dmg, lowManaData.fBolt.dmg):
+			case !!timedSkillCheck && [lowManaData.tk.skill, lowManaData.attack.skill].indexOf(lowManaData[timedSkillCheck].skill) === -1:
+				return lowManaData[timedSkillCheck];
+			case !!timedSkillCheck && lowManaData[timedSkillCheck].skill === lowManaData.tk.skill && me.normal:
 				return lowManaData.tk;
 			default:
+				if (me.charlvl < 5) return lowManaData.attack;
 				return (me.normal && me.checkForMobs({range: 10, coll: (sdk.collision.BlockWall | sdk.collision.Objects | sdk.collision.ClosedDoor)}) ? lowManaData.attack : buildDataObj(-1));
 			}
 		})();
@@ -354,7 +344,7 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
 	Developer.debugging.skills && choosenSkill.have && console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(choosenSkill.skill) + ") DMG: " + choosenSkill.dmg);
 
 	if (![sdk.skills.FrostNova, sdk.skills.Nova, sdk.skills.StaticField].includes(choosenSkill.skill)) {
-		if (Skill.canUse(sdk.skills.Teleport) && me.mp > Skill.getManaCost(sdk.skills.Teleport) + choosenSkill.mana && inDanger()) {
+		if (Skill.canUse(sdk.skills.Teleport) && me.mp > Skill.getManaCost(sdk.skills.Teleport) + choosenSkill.mana && me.inDanger()) {
 			//console.log("FINDING NEW SPOT");
 			Attack.getIntoPosition(unit, choosenSkill.range, 0
                 | Coords_1.BlockBits.LineOfSight
@@ -362,7 +352,7 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
                 | Coords_1.BlockBits.Casting
                 | Coords_1.BlockBits.ClosedDoor
                 | Coords_1.BlockBits.Objects, false, true);
-		} else if (inDanger()) {
+		} else if (me.inDanger()) {
 			Attack.getIntoPosition(unit, choosenSkill.range + 1, Coords_1.Collision.BLOCK_MISSILE, true);
 		}
 	}
@@ -375,10 +365,10 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
 		}
 
 		if (ts === sdk.skills.Attack) {
-			if (me.hpPercent < 50 && me.mode !== sdk.player.mode.GettingHit && me.getMobCount(10) === 0) {
+			if (me.hpPercent < 50 && me.mode !== sdk.player.mode.GettingHit && !me.checkForMobs({range: 12})) {
 				console.log("Low health but safe right now, going to delay a bit");
 				let tick = getTickCount();
-				let howLongToDelay = Config.AttackSkill.some(sk => sk > 1 && Skill.canUse(sk)) ? Time.seconds(2) : Time.seconds(1);
+				const howLongToDelay = Config.AttackSkill.some(sk => sk > 1 && Skill.canUse(sk)) ? Time.seconds(2) : Time.seconds(1);
 
 				while (getTickCount() - tick < howLongToDelay) {
 					if (me.mode === sdk.player.mode.GettingHit) {
@@ -396,7 +386,7 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
 		if (tsRange < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
 
 		// Only delay if there are no mobs in our immediate area
-		if (tsMana > me.mp && me.getMobCount() === 0) {
+		if (tsMana > me.mp && !me.checkForMobs({range: 12})) {
 			let tick = getTickCount();
 
 			while (getTickCount() - tick < 750) {
@@ -411,10 +401,14 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
 			}
 		}
 
+		// try to prevent missing when the monster is moving by getting just a bit closer
+		if ([sdk.skills.FireBolt, sdk.skills.IceBolt].includes(ts)/*  && unit.isMoving && unit.currentVelocity > 3 */) {
+			tsRange = 12;
+		}
 		if (unit.distance > tsRange || Coords_1.isBlockedBetween(me, unit)) {
 			// Allow short-distance walking for melee skills
 			let walk = (tsRange < 4 || (ts === sdk.skills.ChargedBolt && tsRange === 5)) && unit.distance < 10 && !checkCollision(me, unit, Coords_1.BlockBits.BlockWall);
-
+			
 			if (ranged) {
 				if (!Attack.getIntoPosition(unit, tsRange, Coords_1.Collision.BLOCK_MISSILE, walk)) return Attack.Result.FAILED;
 			} else if (!Attack.getIntoPosition(unit, tsRange, Coords_1.BlockBits.Ranged, walk)) {
@@ -454,7 +448,7 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
 							frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, sdk.skills.hand.Right);
 						}
 
-						if (tsMana > me.mp || unit.hpPercent < Config.CastStatic || inDanger()) {
+						if (tsMana > me.mp || unit.hpPercent < Config.CastStatic || me.inDanger()) {
 							break;
 						}
 					} else {
@@ -469,6 +463,12 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
 						Skill.cast(ts, Skill.getHand(ts), targetPoint.x, targetPoint.y);
 					} else {
 						Skill.cast(ts, Skill.getHand(ts), unit);
+					}
+
+					if ([sdk.skills.FireBolt, sdk.skills.IceBolt].includes(ts)) {
+						let preHealth = unit.hp;
+						let missileDelay = GameData.timeTillMissleImpact(ts, unit);
+						missileDelay > 0 && Misc.poll(() => unit.dead || unit.hp < preHealth, missileDelay, 50);
 					}
 				}
 			}
@@ -485,7 +485,7 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
 			break;
 		}
 		if (i % 5 === 0) {
-			if (inDanger()) {
+			if (me.inDanger()) {
 				break;
 			}
 		}
