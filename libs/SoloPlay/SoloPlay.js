@@ -172,11 +172,11 @@ function main () {
 	addEventListener("copydata", this.copyDataEvent);
 
 	me.maxgametime = Config.MaxGameTime * 1000;
-	let stats = DataFile.getStats();
+	const stats = DataFile.getStats();
 
 	// Check for experience decrease -> log death. Skip report if life chicken is disabled.
 	if (stats.name === me.name && me.getStat(sdk.stats.Experience) < stats.experience && Config.LifeChicken > 0) {
-		D2Bot.printToConsole("You died in last game. | Area :: " + stats.lastArea + " | Script :: " + stats.debugInfo.currScript, sdk.colors.D2Bot.Red);
+		D2Bot.printToConsole("You died in last game. | Area :: " + stats.lastArea + " | Script :: " + stats.lastScript, sdk.colors.D2Bot.Red);
 		D2Bot.printToConsole("Experience decreased by " + (stats.experience - me.getStat(sdk.stats.Experience)), sdk.colors.D2Bot.Red);
 		DataFile.updateStats("deaths");
 		D2Bot.updateDeaths();
@@ -256,11 +256,6 @@ function main () {
 		if (Developer.developerMode.profiles.some(profile => profile.toLowerCase() === me.profile.toLowerCase())) {
 			Developer.debugging.pathing && (me.automap = true);
 			Loader.runScript("developermode");
-			// if (includeIfNotIncluded("SoloPlay/Scripts/developermode.js")) {
-			// 	this.developermode();
-			// } else {
-			// 	console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to include developermode");
-			// }
 		}
 	}
 

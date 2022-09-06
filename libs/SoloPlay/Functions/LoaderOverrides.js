@@ -122,6 +122,7 @@ Loader.run = function () {
 				tick = getTickCount();
 				currentExp = me.getStat(sdk.stats.Experience);
 				Messaging.sendToScript("libs/SoloPlay/Threads/ToolsThread.js", JSON.stringify({currScript: scriptName}));
+				DataFile.updateStats("lastScript", scriptName);
 
 				for (j = 0; j < 5; j += 1) {
 					if (global[scriptName]()) {
@@ -201,6 +202,7 @@ Loader.runScript = function (script, configOverride) {
 				this.tempList.push(script);
 				console.log(mainScriptStr + "ÿc2Starting script: ÿc9" + script);
 				Messaging.sendToScript("libs/SoloPlay/Threads/ToolsThread.js", JSON.stringify({currScript: script}));
+				DataFile.updateStats("lastScript", script);
 
 				if (typeof configOverride === "function") {
 					reconfiguration = true;
