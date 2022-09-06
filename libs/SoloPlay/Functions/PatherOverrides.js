@@ -10,6 +10,12 @@ includeIfNotIncluded("common/Pather.js");
 
 Developer.debugging.pathing && (PathDebug.enableHooks = true);
 
+Pather.inAnnoyingArea = function (currArea, includeArcane = false) {
+	const areas = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3];
+	includeArcane && areas.push(sdk.areas.ArcaneSanctuary);
+	return areas.includes(currArea);
+};
+
 // TODO: clean up this mess
 // todo - determine effort level of mobs to kill once we have teleport
 // clearing specials is good but sometimes can not be worth the time spent when they are too tough
@@ -18,9 +24,6 @@ NodeAction.killMonsters = function (arg = {}) {
 
 	const canTele = Pather.canTeleport();
 	const myArea = me.area;
-	const annoyingArea = [
-		sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3, sdk.areas.ArcaneSanctuary
-	];
 	// I don't think this is even needed anymore, pretty sure I fixed wall hugging. todo - check it
 	const pallyAnnoyingAreas = [
 		sdk.areas.DenofEvil, sdk.areas.CaveLvl1, sdk.areas.UndergroundPassageLvl1, sdk.areas.HoleLvl1, sdk.areas.PitLvl1, sdk.areas.CaveLvl2,
@@ -34,7 +37,7 @@ NodeAction.killMonsters = function (arg = {}) {
 		sdk.areas.TalRashasTomb3, sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7
 	];
 	// sanityCheck from isid0re - added paladin specific areas - theBGuy - a mess.. sigh
-	const sanityCheck = (annoyingArea.includes(myArea) || (me.paladin && pallyAnnoyingAreas.includes(myArea)));
+	const sanityCheck = (Pather.inAnnoyingArea(myArea, true) || (me.paladin && pallyAnnoyingAreas.includes(myArea)));
 	const settings = Object.assign({}, {
 		clearPath: false,
 		specType: sdk.monsters.spectype.All,
@@ -128,11 +131,8 @@ Pather.checkForTeleCharges = function () {
 
 Pather.canUseTeleCharges = function () {
 	if (me.classic || me.inTown || me.shapeshifted) return false;
-
 	// Charges are costly so make sure we have enough gold to handle repairs unless we are in maggot lair since thats a pita and worth the gold spent
-	if (me.gold < 500000 && [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].indexOf(me.area) === -1) {
-		return false;
-	}
+	if (me.gold < 500000 && !Pather.inAnnoyingArea(me.area)) return false;
 
 	return this.haveTeleCharges;
 };
@@ -335,7 +335,7 @@ Pather.move = function (target, givenSettings = {}) {
 	const useChargedTele = settings.allowTeleport && this.canUseTeleCharges();
 	const usingTele = (useTeleport || useChargedTele);
 	const tpMana = Skill.getManaCost(sdk.skills.Teleport);
-	const annoyingArea = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
+	const annoyingArea = Pather.inAnnoyingArea(me.area);
 	let path = getPath(me.area, target.x, target.y, me.x, me.y, usingTele ? 1 : 0, usingTele ? (annoyingArea ? 30 : this.teleDistance) : this.walkDistance);
 	if (!path) throw new Error("move: Failed to generate path.");
 
@@ -461,6 +461,10 @@ Pather.move = function (target, givenSettings = {}) {
 						console.log("Failed move: Retry = " + settings.retry);
 						break;
 					}
+				}
+				if (fail > 100) {
+					// why?
+					console.debug(settings);
 				}
 				fail++;
 			}

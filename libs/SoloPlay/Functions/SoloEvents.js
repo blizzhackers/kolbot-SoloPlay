@@ -252,7 +252,7 @@ const SoloEvents = {
 		this.cloneWalked = false;
 	},
 
-	customMoveTo: function (x, y, givenSettings) {
+	moveTo: function (x, y, givenSettings) {
 		// Abort if dead
 		if (me.dead) return false;
 
@@ -263,95 +263,7 @@ const SoloEvents = {
 			retry: 10,
 		}, givenSettings);
 
-		let path, adjustedNode, leaped = false;
-		let node = {x: x, y: y};
-		let fail = 0;
-
-		me.cancelUIFlags();
-
-		if (!x || !y) return false; // I don't think this is a fatal error so just return false
-		if (typeof x !== "number" || typeof y !== "number") return false;
-		if (getDistance(me, x, y) < 2) return true;
-
-		let useTele = settings.allowTeleport && Pather.useTeleport();
-		let tpMana = Skill.getManaCost(sdk.skills.Teleport);
-		let mLair = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
-
-		path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? (mLair ? 30 : Pather.teleDistance) : Pather.walkDistance);
-
-		if (!path) return false;
-
-		path.reverse();
-		PathDebug.drawPath(path);
-
-		useTele && Config.TeleSwitch && path.length > 5 && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
-
-		while (path.length > 0) {
-			// Abort if dead
-			if (me.dead) return false;
-
-			me.cancelUIFlags();
-
-			node = path.shift();
-
-			if (getDistance(me, node) > 2) {
-				if (mLair) {
-					adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
-
-					if (adjustedNode) {
-						node.x = adjustedNode[0];
-						node.y = adjustedNode[1];
-					}
-				}
-
-				if (useTele && tpMana < me.mp ? Pather.teleportTo(node.x, node.y) : Pather.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
-					if (!me.inTown) {
-						if (Pather.recursion) {
-							Pather.recursion = false;
-
-							if (getDistance(me, node.x, node.y) > 5) {
-								this.customMoveTo(node.x, node.y);
-							}
-
-							Pather.recursion = true;
-						}
-
-						settings.allowTown && Misc.townCheck();
-					}
-				} else {
-					if (fail > 0 && !useTele && !me.inTown) {
-						// Only do this once
-						if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, sdk.skills.subindex.SoftPoints) && !leaped) {
-							Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y);
-							leaped = true;
-						}
-					}
-
-					path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? rand(25, 35) : rand(10, 15));
-					if (!path) return false;
-
-					fail += 1;
-					path.reverse();
-					PathDebug.drawPath(path);
-					console.log("move retry " + fail);
-
-					if (fail > 0) {
-						Packet.flash(me.gid);
-
-						if (fail >= settings.retry) {
-							break;
-						}
-					}
-				}
-			}
-
-			delay(5);
-		}
-
-		useTele && Config.TeleSwitch && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
-		PathDebug.removeHooks();
-
-		return getDistance(me, node.x, node.y) < 5;
+		return Pather.move({x: x, y: y}, settings);
 	},
 
 	skip: function () {
@@ -364,25 +276,25 @@ const SoloEvents = {
 
 		// Prep, move to throne entrance
 		while (getTickCount() - tick < 6500) {
-			this.customMoveTo(15091, 5073, {allowTeleport: true});
+			this.moveTo(15091, 5073, {allowTeleport: true});
 		}
 
 		tick = getTickCount();
 
 		// 5 second delay (5000ms), then leave throne
 		while (getTickCount() - tick < 5000) {
-			this.customMoveTo(15098, 5082, {allowTeleport: true});
+			this.moveTo(15098, 5082, {allowTeleport: true});
 		}
 
 		tick = getTickCount();
-		this.customMoveTo(15099, 5078); // Re-enter throne
+		this.moveTo(15099, 5078); // Re-enter throne
 
 		// 2 second delay (2000ms)
 		while (getTickCount() - tick < 2000) {
-			this.customMoveTo(15098, 5082);
+			this.moveTo(15098, 5082);
 		}
 
-		this.customMoveTo(15099, 5078);
+		this.moveTo(15099, 5078);
 
 		// Re-enable
 		[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [true, true, true];
@@ -423,17 +335,17 @@ const SoloEvents = {
 				// Above D
 				if (me.y <= diablo.y) {
 					// Move east
-					me.x <= diablo.x && this.customMoveTo(diablo.x + dist, diablo.y, overrides);
+					me.x <= diablo.x && this.moveTo(diablo.x + dist, diablo.y, overrides);
 					// Move south
-					me.x > diablo.x && this.customMoveTo(diablo.x, diablo.y + dist, overrides);
+					me.x > diablo.x && this.moveTo(diablo.x, diablo.y + dist, overrides);
 				}
 
 				// Below D
 				if (me.y > diablo.y) {
 					// Move west
-					me.x >= diablo.x && this.customMoveTo(diablo.x - dist, diablo.y, overrides);
+					me.x >= diablo.x && this.moveTo(diablo.x - dist, diablo.y, overrides);
 					// Move north
-					me.x < diablo.x && this.customMoveTo(diablo.x, diablo.y - dist, overrides);
+					me.x < diablo.x && this.moveTo(diablo.x, diablo.y - dist, overrides);
 				}
 			}
 
@@ -446,7 +358,7 @@ const SoloEvents = {
 		Pickit.pickItems();
 
 		// No Tome, or tome has no tps, or no scrolls
-		if (!Town.canTpToTown()) {
+		if (!Town.canTpToTown() && !me.inTown) {
 			// should really check how close the town exit is
 			Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.ColdPlains], true);
 			Pather.getWP(sdk.areas.ColdPlains);
