@@ -243,7 +243,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		}
 	}
 
-	if (attackSkill === sdk.skills.DoubleThrow && me.getWeaponQuantity() <= 3 && data.secondary.have) {
+	if (attackSkill === sdk.skills.DoubleThrow && (me.getWeaponQuantity() <= 3 || me.getWeaponQuantity(sdk.body.LeftArm) <= 3) && data.secondary.have) {
 		attackSkill = data.secondary.skill;
 	}
 
