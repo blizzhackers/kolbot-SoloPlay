@@ -14,7 +14,7 @@ Developer.debugging.pathing && (PathDebug.enableHooks = true);
 // todo - determine effort level of mobs to kill once we have teleport
 // clearing specials is good but sometimes can not be worth the time spent when they are too tough
 NodeAction.killMonsters = function (arg = {}) {
-	if (Attack.stopClear) return;
+	if (Attack.stopClear || (arg.hasOwnProperty("allowClearing") && !arg.allowClearing)) return;
 
 	const canTele = Pather.canTeleport();
 	const myArea = me.area;
@@ -27,6 +27,12 @@ NodeAction.killMonsters = function (arg = {}) {
 		sdk.areas.UndergroundPassageLvl2, sdk.areas.PitLvl2, sdk.areas.HoleLvl2, sdk.areas.DisusedFane, sdk.areas.RuinedTemple,
 		sdk.areas.ForgottenReliquary, sdk.areas.ForgottenTemple, sdk.areas.RuinedFane, sdk.areas.DisusedReliquary
 	];
+	const summonerAreas = [
+		sdk.areas.DenofEvil, sdk.areas.ColdPlains, sdk.areas.StonyField, sdk.areas.Tristram, sdk.areas.DarkWood, sdk.areas.BlackMarsh,
+		sdk.areas.OuterCloister, sdk.areas.Barracks, sdk.areas.Cathedral, sdk.areas.CatacombsLvl4, sdk.areas.HallsoftheDeadLvl1, sdk.areas.HallsoftheDeadLvl2,
+		sdk.areas.HallsoftheDeadLvl3, sdk.areas.ValleyofSnakes, sdk.areas.ClawViperTempleLvl1, sdk.areas.TalRashasTomb1, sdk.areas.TalRashasTomb2,
+		sdk.areas.TalRashasTomb3, sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7
+	];
 	// sanityCheck from isid0re - added paladin specific areas - theBGuy - a mess.. sigh
 	const sanityCheck = (annoyingArea.includes(myArea) || (me.paladin && pallyAnnoyingAreas.includes(myArea)));
 	const settings = Object.assign({}, {
@@ -36,13 +42,31 @@ NodeAction.killMonsters = function (arg = {}) {
 		overrideConfig: false,
 	}, arg);
 
-	// todo: we don't need this if we have a lightning chain based skill, e.g light sorc, light zon
-	if (!canTele && [8, 3, 4, 38, 5, 6, 27, 28, 33, 37, 56, 57, 60, 45, 58, 66, 67, 68, 69, 70, 71, 72].includes(myArea)) {
-		let monList = Attack.getMob([58, 59, 60, 61, 101, 102, 103, 104], 0, 30);
+	/**
+	 * @todo:
+	 * - we don't need this if we have a lightning chain based skill, e.g light sorc, light zon
+	 * - better monster sorting. If we are low level priortize killing easy targets like zombies/quill rats while ignoring fallens unless they are in our path
+	 */
+	if (!canTele && settings.clearPath !== false) {
+		let monList = [];
+		if (summonerAreas.includes(myArea)) {
+			monList = getUnits(sdk.unittype.Monster)
+				.filter(mon => mon.attackable && mon.distance < 30 && (mon.isUnraveler || mon.isShaman)
+					&& !checkCollision(me, mon, (sdk.collision.BlockWall | sdk.collision.LineOfSight | sdk.collision.Ranged)));
+			monList.length > 0 && Attack.clearList(monList);
+		}
 
-		if (monList.length) {
-			Attack.clear(7, 0);
-			Attack.clearList(monList);
+		if (me.inArea(sdk.areas.BloodMoor)) {
+			monList = getUnits(sdk.unittype.Monster)
+				.filter(mon => mon.attackable && mon.distance < 30 && !mon.isFallen
+					&& !checkCollision(me, mon, (sdk.collision.BlockWall | sdk.collision.LineOfSight | sdk.collision.Ranged)));
+			monList.length > 0 && Attack.clearList(monList);
+		}
+
+		if ([sdk.areas.StonyField, sdk.areas.BlackMarsh, sdk.areas.FarOasis].includes(me.area)) {
+			// monster nest's are good exp
+			monList = getUnits(sdk.unittype.Monster).filter(mon => mon.attackable && mon.distance < 35 && mon.isMonsterNest);
+			monList.length > 0 && Attack.clearList(monList);
 		}
 	}
 
@@ -262,42 +286,61 @@ Pather.changeAct = function () {
 	return me.act === act;
 };
 
-Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
+Pather.currentWalkingPath = [];
+Pather.move = function (target, givenSettings = {}) {
 	// Abort if dead
 	if (me.dead) return false;
+	// assign settings
 	const settings = Object.assign({}, {
-		allowTeleport: true,
 		clearSettings: {
-			clearPath: false,
-			range: 10,
-			specType: 0,
 		},
+		allowTeleport: true,
+		allowClearing: true,
+		allowTown: true,
+		minDist: 3,
+		retry: 5,
 		pop: false,
-		returnSpotOnError: true
+		returnSpotOnError: true,
+		callback: () => {},
 	}, givenSettings);
+	// assign clear settings becasue object.assign was removing the default properties of settings.clearSettings
+	const clearSettings = Object.assign({
+		clearPath: false,
+		range: 10,
+		specType: 0,
+		sort: Attack.sortMonsters,
+	}, settings.clearSettings);
+	// set settings.clearSettings equal to the now properly asssigned clearSettings
+	settings.clearSettings = clearSettings;
+	!settings.allowClearing && (settings.clearSettings.allowClearing = false);
+
+	(target instanceof PresetUnit) && (target = { x: target.roomx * 5 + target.x, y: target.roomy * 5 + target.y });
+
+	if (settings.minDist > 3) {
+		target = this.spotOnDistance(target, settings.minDist, {returnSpotOnError: settings.returnSpotOnError, reductionType: (me.inTown ? 0 : 2)});
+	}
 
 	let fail = 0;
-	let node = {x: x, y: y};
+	let node = {x: target.x, y: target.y};
 	let [cleared, leaped, invalidCheck] = [false, false, false];
 
 	for (let i = 0; i < this.cancelFlags.length; i += 1) {
 		getUIFlag(this.cancelFlags[i]) && me.cancel();
 	}
 
-	if (!x || !y) return false; // I don't think this is a fatal error so just return false
-	if (typeof x !== "number" || typeof y !== "number") throw new Error("moveNear: Coords must be numbers");
+	if (typeof target.x !== "number" || typeof target.y !== "number") return false;
+	if (getDistance(me, target) < 2 && !CollMap.checkColl(me, target, Coords_1.Collision.BLOCK_MISSILE, 5)) return true;
 
-	let useTeleport = settings.allowTeleport && this.useTeleport();
-	let useChargedTele = settings.allowTeleport && this.canUseTeleCharges();
-	(!useTeleport && !useChargedTele) && (settings.clearSettings.clearPath = true);
-	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
-	minDist === undefined && (minDist = me.inTown ? 2 : 5);
-	({x, y} = this.spotOnDistance(node, minDist, {returnSpotOnError: settings.returnSpotOnError, reductionType: (me.inTown ? 0 : 2)}));
-	if ([x, y].distance < 2) return true;
-	let annoyingArea = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
-	let path = getPath(me.area, x, y, me.x, me.y, useTeleport || useChargedTele ? 1 : 0, useTeleport || useChargedTele ? (annoyingArea ? 30 : this.teleDistance) : this.walkDistance);
+	const useTeleport = settings.allowTeleport && (getDistance(me, target) > 15 || me.diff || me.act > 3) && this.useTeleport();
+	const useChargedTele = settings.allowTeleport && this.canUseTeleCharges();
+	const usingTele = (useTeleport || useChargedTele);
+	const tpMana = Skill.getManaCost(sdk.skills.Teleport);
+	const annoyingArea = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
+	let path = getPath(me.area, target.x, target.y, me.x, me.y, usingTele ? 1 : 0, usingTele ? (annoyingArea ? 30 : this.teleDistance) : this.walkDistance);
+	if (!path) throw new Error("move: Failed to generate path.");
 
-	if (!path) throw new Error("moveNear: Failed to generate path.");
+	// need to work on a better force clearing method but for now just have all walkers clear unless we specifically are forcing them not to (like while repositioning)
+	settings.allowClearing && !settings.clearSettings.clearPath && !useTeleport && (settings.clearSettings.clearPath = true);
 
 	path.reverse();
 	settings.pop && path.pop();
@@ -307,156 +350,8 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 	while (path.length > 0) {
 		// Abort if dead
 		if (me.dead) return false;
-
-		for (let i = 0; i < this.cancelFlags.length; i += 1) {
-			getUIFlag(this.cancelFlags[i]) && me.cancel();
-		}
-
-		node = path.shift();
-
-		if (getDistance(me, node) > 2) {
-			fail >= 3 && fail % 3 === 0 && !Attack.validSpot(node.x, node.y) && (invalidCheck = true);
-			if (annoyingArea || invalidCheck) {
-				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
-
-				if (adjustedNode) {
-					[node.x, node.y] = [adjustedNode[0], adjustedNode[1]];
-					invalidCheck && (invalidCheck = false);
-				}
-				
-				settings.clearSettings.range = 5;
-			}
-
-			if (useTeleport && tpMana <= me.mp
-				? this.teleportTo(node.x, node.y)
-				: useChargedTele && getDistance(me, node) >= 15
-					? this.teleUsingCharges(node.x, node.y)
-					: this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
-				if (!me.inTown) {
-					if (this.recursion) {
-						this.recursion = false;
-						NodeAction.go(settings.clearSettings);
-						(getDistance(me, node.x, node.y) > 5) && this.moveTo(node.x, node.y);
-						this.recursion = true;
-					} else if (!this.recursion) {
-						// not sure why this is happening but sometimes recursion never gets reset and we stop clearing
-						let count = 0;
-						let checkStack = new Error().stack.split("\n");
-						checkStack.forEach(el => el.includes("Pather.moveNear@") && (count++));
-						count < 2 && (this.recursion = true);
-					}
-
-					Misc.townCheck();
-				}
-			} else {
-				if (!me.inTown) {
-					if (!useTeleport && ((me.checkForMobs({range: 10}) && Attack.clear(8)) || this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
-						continue;
-					}
-
-					if (fail > 0 && (!useTeleport || tpMana > me.mp)) {
-						// Don't go berserk on longer paths
-						if (!cleared && me.checkForMobs({range: 6}) && Attack.clear(5)) {
-							cleared = true;
-						}
-
-						// Only do this once
-						if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
-							leaped = true;
-						}
-					}
-				}
-
-				path = getPath(me.area, x, y, me.x, me.y, useTeleport ? 1 : 0, useTeleport ? rand(25, 35) : rand(10, 15));
-				if (!path) { throw new Error("moveNear: Failed to generate path."); }
-
-				path.reverse();
-				PathDebug.drawPath(path);
-				settings.pop && path.pop();
-
-				if (fail > 0) {
-					console.debug("move retry " + fail);
-					Packet.flash(me.gid);
-
-					if (fail >= 15) {
-						console.log("Failed moveNear: Retry = " + retry);
-						break;
-					}
-				}
-				fail++;
-			}
-		}
-
-		delay(5);
-	}
-
-	useTeleport && Config.TeleSwitch && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
-	PathDebug.removeHooks();
-
-	return getDistance(me, node.x, node.y) < 5;
-};
-
-Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clearPath = true, pop = false) {
-	// Abort if dead
-	if (me.dead) return false;
-
-	let fail = 0;
-	let node = {x: x, y: y};
-	let [cleared, leaped, invalidCheck] = [false, false, false];
-
-	for (let i = 0; i < this.cancelFlags.length; i += 1) {
-		getUIFlag(this.cancelFlags[i]) && me.cancel();
-	}
-
-	if (!x || !y) return false; // I don't think this is a fatal error so just return false
-	if (typeof x !== "number" || typeof y !== "number") throw new Error("moveTo: Coords must be numbers");
-	if (getDistance(me, x, y) < 2) return true;
-
-	let inTown = me.inTown;
-	let useTeleport = !inTown && this.useTeleport();
-	let useChargedTele = !inTown && this.canUseTeleCharges();
-	let tpMana = inTown ? Infinity : Skill.getManaCost(sdk.skills.Teleport);
-	const useTeleCheck = (useTeleport || useChargedTele);
-	const annoyingArea = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
-	const clearSettings = {
-		clearPath: !!clearPath, // walking characters need to clear in front of them
-		range: (Skill.getRange(Config.AttackSkill[3]) > 10 ? 15 : 10),
-		specType: (typeof clearPath === "number" ? clearPath : 0),
-	};
-	!useTeleCheck && (clearSettings.clearPath = true);
-	(!retry || (retry <= 3 && !useTeleport)) && (retry = useTeleport ? 5 : 15);
-	
-	let path;
-	if (Config.DebugMode && [x, y].distance > 200) {
-		console.debug("Real distance: " + [x, y].distance);
-		let goal = Math.round([x, y].distance / 2);
-		let subNodes = Math.round(goal / 2);
-		let t2 = getTickCount();
-		// generate large node path then make sub path to it
-		let longPath = getPath(me.area, x, y, me.x, me.y, 2, subNodes);
-		Config.DebugMode && console.log("Took: " + (getTickCount() - t2) + " to generate subpath");
-		if (longPath.length) {
-			let tSpot = longPath.find(s => s.distance < goal);
-			if (tSpot) {
-				console.debug(tSpot.x, tSpot.y, "Distance: " + tSpot.distance);
-				Pather.moveTo(tSpot.x, tSpot.y, retry, clearPath, pop);
-				Config.DebugMode && console.log("Took: " + (getTickCount() - t2) + " to generate and moveTo subpath");
-			}
-		}
-	}
-	let t1 = getTickCount();
-	path = getPath(me.area, x, y, me.x, me.y, useTeleCheck ? 1 : 0, useTeleCheck ? (annoyingArea ? 30 : this.teleDistance) : this.walkDistance);
-	Config.DebugMode && console.log("Took: " + (getTickCount() - t1) + " to generate path");
-	if (!path) throw new Error("moveTo: Failed to generate path.");
-
-	path.reverse();
-	pop && path.pop();
-	PathDebug.drawPath(path);
-	useTeleport && Config.TeleSwitch && path.length > 5 && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
-
-	while (path.length > 0) {
-		// Abort if dead
-		if (me.dead) return false;
+		// main path
+		this.recursion && (this.currentWalkingPath = path);
 
 		for (let i = 0; i < this.cancelFlags.length; i += 1) {
 			if (getUIFlag(this.cancelFlags[i])) me.cancel();
@@ -465,6 +360,7 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 		node = path.shift();
 
 		if (getDistance(me, node) > 2) {
+			// Make life in Maggot Lair easier
 			fail >= 3 && fail % 3 === 0 && !Attack.validSpot(node.x, node.y) && (invalidCheck = true);
 			// Make life in Maggot Lair easier - should this include arcane as well?
 			if (annoyingArea || invalidCheck) {
@@ -475,69 +371,94 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 					invalidCheck && (invalidCheck = false);
 				}
 
-				annoyingArea && ([clearSettings.overrideConfig, clearSettings.range] = [true, 5]);
-				retry <= 3 && !useTeleport && (retry = 15);
+				annoyingArea && ([settings.clearSettings.overrideConfig, settings.clearSettings.range] = [true, 5]);
+				settings.retry <= 3 && !useTeleport && (settings.retry = 15);
 			}
 
 			if (useTeleport && tpMana <= me.mp
 				? this.teleportTo(node.x, node.y)
-				: useChargedTele && node.distance >= 15
+				: useChargedTele && (getDistance(me, node) >= 15 || me.inArea(sdk.areas.ThroneofDestruction))
 					? this.teleUsingCharges(node.x, node.y)
 					: this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
 				if (!me.inTown) {
 					if (this.recursion) {
 						this.recursion = false;
-						NodeAction.go(clearSettings);
-						// need to determine if its worth going back to our orignal node (items maybe?)
-						// vs our current proximity to our next node
-						if (getDistance(me, node.x, node.y) > 5) {
-							Pickit.essessntialsPick();
-							Pickit.pickItems();
-							this.moveTo(node.x, node.y);
+						try {
+							NodeAction.go(settings.clearSettings);
+							// need to determine if its worth going back to our orignal node (items maybe?)
+							// vs our current proximity to our next node
+							// need to export our main path so other functions that cause us to move can see it
+							if (getDistance(me, node.x, node.y) > 5) {
+								let nearestNode = Pather.currentWalkingPath.length > 0 && Pather.currentWalkingPath
+									.filter(el => !!el && el.x !== node.x && el.y !== node.y)
+									.sort((a, b) => a.distance - b.distance).first();
+								if (getDistance(me, node.x, node.y) < 40) {
+									let goBack = false;
+									// lets see if it's worth walking back to old node
+									Pickit.checkSpotForItems(node) && (goBack = true);
+									// @todo check shrines/chests in proximity to old node vs next node
+									// let otherObjects = getUnits(sdk.unittype.Object).filter(el => getDistance());
+									if (goBack) {
+										this.move(node, settings);
+									} else if (nearestNode && nearestNode.distance > 5 && node.distance > 5 && 100 / node.distance * nearestNode.distance < 95) {
+										console.debug("Moving to next node");
+										let newIndex = path.findIndex(node => nearestNode.x === node.x && nearestNode.y === node.y);
+										newIndex > 1 && (path = path.slice(newIndex));
+										// this.move(nearestNode, settings);
+									}
+								} else {
+									this.move(node, settings);
+								}
+							}
+						} catch (e) {
+							let checkMsg = e.message ? e.message : e;
+							if (checkMsg.includes("EVENT") || checkMsg.includes("ENDSCRIPT")) throw new Error(checkMsg);
+							console.error(e);
+						} finally {
+							this.recursion = true;
 						}
-						this.recursion = true;
-					} else if (!this.recursion) {
-						// not sure why this is happening but sometimes recursion never gets reset and we stop clearing
-						let count = 0;
-						let checkStack = new Error().stack.split("\n");
-						checkStack.forEach(el => el.includes("Pather.moveTo@") && (count++));
-						count < 2 && (this.recursion = true);
 					}
 
-					Misc.townCheck();
+					settings.allowTown && Misc.townCheck();
 				}
 			} else {
 				if (!me.inTown) {
-					if (!useTeleport && ((me.checkForMobs({range: 10}) && Attack.clear(10)) || this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
+					if (!useTeleport && settings.allowClearing && me.checkForMobs({range: 10}) && Attack.clear(10)) {
+						console.debug("Cleared Node");
+						continue;
+					}
+					if (!useTeleport && (this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
 						continue;
 					}
 
 					if (fail > 0 && (!useTeleport || tpMana > me.mp)) {
 						// Don't go berserk on longer paths
-						if (!cleared && me.checkForMobs({range: 6}) && Attack.clear(7)) {
+						if (settings.allowClearing && !cleared && me.checkForMobs({range: 10}) && Attack.clear(10)) {
+							console.debug("Cleared Node");
 							cleared = true;
 						}
 
 						// Only do this once
-						if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
+						if (!leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
 							leaped = true;
 						}
 					}
 				}
 
-				path = getPath(me.area, x, y, me.x, me.y, useTeleport ? 1 : 0, useTeleport ? rand(25, 35) : rand(10, 15));
+				// Reduce node distance in new path
+				path = getPath(me.area, target.x, target.y, me.x, me.y, useTeleport ? 1 : 0, useTeleport ? rand(25, 35) : rand(10, 15));
 				if (!path) throw new Error("moveTo: Failed to generate path.");
 
 				path.reverse();
 				PathDebug.drawPath(path);
-				pop && path.pop();
+				settings.pop && path.pop();
 
 				if (fail > 0) {
 					console.debug("move retry " + fail);
 					Packet.flash(me.gid);
 
-					if (fail >= retry) {
-						console.log("Failed moveTo: Retry = " + retry);
+					if (fail >= settings.retry) {
+						console.log("Failed move: Retry = " + settings.retry);
 						break;
 					}
 				}
@@ -551,127 +472,23 @@ Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clear
 	useTeleport && Config.TeleSwitch && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
 	PathDebug.removeHooks();
 
-	return node.distance < 5;
+	return getDistance(me, node.x, node.y) < 5;
 };
 
-Pather.moveToLoc = function (target, givenSettings) {
-	// Abort if dead
-	if (me.dead || !target) return false;
-	const settings = Object.assign({}, {
-		allowTeleport: true,
-		allowClearing: true,
-		allowTown: true,
-		retry: 15,
-		pop: false,
-		clearType: 0
-	}, givenSettings);
+Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
+	return Pather.move({x: x, y: y}, Object.assign({minDist: minDist}, givenSettings));
+};
 
-	// convert presetunit to x,y target
-	(target instanceof PresetUnit) && (target = { x: target.roomx * 5 + target.x, y: target.roomy * 5 + target.y });
+Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clearPath = true, pop = false) {
+	return Pather.move({x: x, y: y}, { retry: retry, pop: pop, clearSettings: { clearPath: clearPath } });
+};
 
-	let fail = 0;
-	let node = {x: target.x, y: target.y};
-	let [cleared, leaped] = [false, false];
+Pather.moveToLoc = function (target, givenSettings = {}) {
+	return Pather.move(target, givenSettings);
+};
 
-	for (let i = 0; i < this.cancelFlags.length; i += 1) {
-		if (getUIFlag(this.cancelFlags[i])) me.cancel();
-	}
-
-	if (!target.x || !target.y) return false; // I don't think this is a fatal error so just return false
-	if (typeof target.x !== "number" || typeof target.y !== "number") return false;
-	if (getDistance(me, target) < 2 && !CollMap.checkColl(me, target, Coords_1.Collision.BLOCK_MISSILE, 5)) return true;
-
-	let useTeleport = settings.allowTeleport && (getDistance(me, target) > 15 || me.diff || me.act > 3) && this.useTeleport();
-	let useChargedTele = settings.allowTeleport && this.canUseTeleCharges();
-	let usingTele = (useTeleport || useChargedTele);
-	let tpMana = Skill.getManaCost(sdk.skills.Teleport);
-	let annoyingArea = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
-	let path = getPath(me.area, target.x, target.y, me.x, me.y, usingTele ? 1 : 0, usingTele ? (annoyingArea ? 30 : this.teleDistance) : this.walkDistance);
-
-	if (!path) throw new Error("moveTo: Failed to generate path.");
-
-	path.reverse();
-	settings.pop && path.pop();
-	PathDebug.drawPath(path);
-	useTeleport && Config.TeleSwitch && path.length > 5 && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
-
-	while (path.length > 0) {
-		// Abort if dead
-		if (me.dead) return false;
-
-		for (let i = 0; i < this.cancelFlags.length; i += 1) {
-			if (getUIFlag(this.cancelFlags[i])) me.cancel();
-		}
-
-		node = path.shift();
-
-		if (getDistance(me, node) > 2) {
-			if (annoyingArea) {
-				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
-				(adjustedNode) && ([node.x, node.y] = [adjustedNode[0], adjustedNode[1]]);
-			}
-
-			if (useTeleport && tpMana <= me.mp
-				? this.teleportTo(node.x, node.y)
-				: useChargedTele && (getDistance(me, node) >= 15 || me.inArea(sdk.areas.ThroneofDestruction))
-					? this.teleUsingCharges(node.x, node.y)
-					: this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
-				if (!me.inTown) {
-					if (this.recursion) {
-						this.recursion = false;
-						// need to write a better clear function or change nodeaction
-						settings.allowClearing && NodeAction.go({clearPath: true});
-						(getDistance(me, node.x, node.y) > 5) && this.moveToLoc(target, settings);
-						this.recursion = true;
-					} else if (!this.recursion) {
-						// not sure why this is happening but sometimes recursion never gets reset and we stop clearing
-						let count = 0;
-						let checkStack = new Error().stack.split("\n");
-						checkStack.forEach(el => el.includes("Pather.moveToLoc@") && (count++));
-						count < 2 && (this.recursion = true);
-					}
-
-					settings.allowTown && Misc.townCheck();
-				}
-			} else {
-				if (fail > 0 && !useTeleport && !me.inTown) {
-					if (!cleared && settings.allowClearing) {
-						Attack.clear(5) && Misc.openChests(2);
-						cleared = true;
-					}
-
-					// Only do this once
-					if (fail > 1 && !leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
-						leaped = true;
-					}
-				}
-
-				path = getPath(me.area, target.x, target.y, me.x, me.y, useTeleport ? 1 : 0, useTeleport ? rand(25, 35) : rand(10, 15));
-				if (!path) throw new Error("moveTo: Failed to generate path.");
-
-				fail += 1;
-				path.reverse();
-				PathDebug.drawPath(path);
-				pop && path.pop();
-				console.log("move retry " + fail);
-
-				if (fail > 0) {
-					settings.allowClearing && Attack.clear(5) && Misc.openChests(2);
-
-					if (fail >= retry) {
-						break;
-					}
-				}
-			}
-		}
-
-		delay(5);
-	}
-
-	useTeleport && Config.TeleSwitch && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
-	PathDebug.removeHooks();
-
-	return getDistance(me, node.x, node.y) < 5;
+Pather.moveToEx = function (x, y, givenSettings = {}) {
+	return Pather.move({x: x, y: y}, givenSettings);
 };
 
 // Add check in case "random" to return false if bot doesn't have cold plains wp yet
@@ -763,13 +580,9 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 								// no valid areas, get the cold plains wp
 								// maybe just walk out of town instead?
 								if (retry >= 10) {
-									if (!getWaypoint(this.wpAreas.indexOf(sdk.areas.ColdPlains))) {
-										me.cancel();
+									if (!getWaypoint(this.wpAreas.indexOf(sdk.areas.ColdPlains)) && me.cancel()) {
 										me.overhead("Trying to get the waypoint");
-
-										if (this.getWP(sdk.areas.ColdPlains)) {
-											return true;
-										}
+										if (this.getWP(sdk.areas.ColdPlains)) return true;
 
 										throw new Error("Pather.useWaypoint: Failed to go to waypoint " + targetArea);
 									}
@@ -786,13 +599,9 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 							return true;
 						}
 
-						if (!getWaypoint(this.wpAreas.indexOf(targetArea))) {
-							me.cancel();
+						if (!getWaypoint(this.wpAreas.indexOf(targetArea)) && me.cancel()) {
 							me.overhead("Trying to get the waypoint");
-
-							if (this.getWP(targetArea)) {
-								return true;
-							}
+							if (this.getWP(targetArea)) return true;
 
 							throw new Error("Pather.useWaypoint: Failed to go to waypoint " + targetArea);
 						}
@@ -875,7 +684,7 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 			try {
 				Pather.moveToExit(targetarea, true, cleartype);
 			} catch (e) {
-				console.debug("Caught Error: ", e);
+				console.debug("Caught Error: ", e.message ? e.message : e);
 			}
 
 			delay(500);
@@ -895,14 +704,9 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 	return (me.area === targetarea);
 };
 
-Pather.getWalkDistance = function (x, y, area, xx, yy, reductionType, radius) {
-	if (area === void 0) { area = me.area; }
-	if (xx === void 0) { xx = me.x; }
-	if (yy === void 0) { yy = me.y; }
-	if (reductionType === void 0) { reductionType = 2; }
-	if (radius === void 0) { radius = 5; }
-	return (getPath(area, x, y, xx, yy, reductionType, radius) || [])
+Pather.getWalkDistance = function (x, y, area = me.area, xx = me.x, yy = me.y, reductionType = 2, radius = 5) {
 	// distance between node x and x-1
-		.map(function (e, i, s) { return i && getDistance(s[i - 1], e) || 0; })
-		.reduce(function (acc, cur) { return acc + cur; }, 0) || Infinity;
+	return (getPath(area, x, y, xx, yy, reductionType, radius) || [])
+		.map((e, i, s) => i && getDistance(s[i - 1], e) || 0)
+		.reduce((acc, cur) => acc + cur, 0) || Infinity;
 };
