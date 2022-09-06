@@ -21,7 +21,7 @@ const SoloIndex = {
 		"corpsefire", "mausoleum", "den", "bishibosh", "bloodraven", "tristram", "treehead",
 		"countess", "smith", "pits", "jail", "boneash", "andariel", "a1chests", "cows",
 		// Act 2
-		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel",
+		"cube", "radament", "amulet", "summoner", "maggotlair", "tombs", "ancienttunnels", "staff", "duriel",
 		// Act 3
 		"lamessen", "templeruns", "lowerkurast", "eye", "heart", "brain", "travincal", "mephisto",
 		// Act 4
@@ -361,12 +361,24 @@ const SoloIndex = {
 				return true;
 			}
 		},
+		"maggotlair": {
+			preReq: function () {
+				return Pather.accessToAct(2) && Pather.canTeleport();
+			},
+			skipIf: function () {
+				return (!me.normal || me.charlvl > 21);
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
 		"tombs": {
 			preReq: function () {
 				return Pather.accessToAct(2);
 			},
 			skipIf: function () {
-				return !me.normal || me.charlvl > 22;
+				return (!me.normal || me.charlvl > 22);
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;

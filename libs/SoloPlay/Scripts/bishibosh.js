@@ -6,8 +6,10 @@
 */
 
 function bishibosh () {
-	Town.doChores();
-	Pather.useWaypoint(sdk.areas.ColdPlains);
+	if (!me.inArea(sdk.areas.ColdPlains)) {
+		Town.doChores();
+		Pather.useWaypoint(sdk.areas.ColdPlains);
+	}
 	Precast.doPrecast(true);
 
 	Pather.moveToPreset(sdk.areas.ColdPlains, sdk.unittype.Monster, sdk.monsters.preset.Bishibosh);
