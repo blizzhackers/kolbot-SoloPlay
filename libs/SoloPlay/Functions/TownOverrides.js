@@ -275,7 +275,7 @@ Town.fillTome = function (classid) {
 
 	try {
 		if (me.gold < 5000) {
-			let myTome = me.getItem(sdk.items.TomeofTownPortal);
+			let myTome = me.getItem(classid);
 			if (myTome) {
 				while (myTome.getStat(sdk.stats.Quantity) < 5 && me.gold > 500) {
 					scroll = npc.getItem(scrollId);
@@ -579,14 +579,14 @@ Town.identify = function () {
 Town.lastShopped = { who: "", tick: 0 };
 
 // todo - allow earlier shopping, mainly to get a belt
-Town.shopItems = function () {
+Town.shopItems = function (force = false) {
 	if (!Config.MiniShopBot) return true;
 	// todo - better gold scaling
 	let goldLimit = [10000, 20000, 30000][me.diff];
 	let itemTypes = [];
 	let lowLevelShop = false;
 	if (me.gold < goldLimit && me.charlvl > 6) {
-		return true;
+		return false;
 	} else if (me.charlvl < 6 && me.gold > 200) {
 		lowLevelShop = true;
 		Storage.BeltSize() === 1 && itemTypes.push(sdk.items.type.Belt);
@@ -595,7 +595,17 @@ Town.shopItems = function () {
 	}
 
 	let npc = getInteractedNPC();
-	if (!npc || !npc.itemcount) return false;
+	if (!npc || !npc.itemcount) {
+		// for now we only do force shop on low level
+		if (force && itemTypes.length) {
+			console.debug("Attempt force shopping");
+			Town.initNPC("Repair", "shopItems");
+			npc = getInteractedNPC();
+			if (!npc || !npc.itemcount) return false;
+		} else {
+			return false;
+		}
+	}
 
 	let items = npc.getItemsEx()
 		.filter((item) => Town.ignoredItemTypes.indexOf(item.itemType) === -1 && (itemTypes.length === 0 || itemTypes.includes(item.itemType)))
@@ -872,8 +882,7 @@ Town.repair = function (force = false) {
 	let npc;
 	let repairAction = this.needRepair();
 	force && repairAction.indexOf("repair") === -1 && repairAction.push("repair");
-
-	if (!repairAction || !repairAction.length) return true;
+	if (!repairAction || !repairAction.length) return false;
 
 	for (let i = 0; i < repairAction.length; i += 1) {
 		switch (repairAction[i]) {
@@ -906,6 +915,60 @@ Town.repair = function (force = false) {
 	Town.shopItems();
 
 	return true;
+};
+
+Town.reviveMerc = function () {
+	if (!me.needMerc()) return true;
+	let preArea = me.area;
+
+	// avoid Aheara
+	me.act === 3 && this.goToTown(Pather.accessToAct(4) ? 4 : 2);
+
+	let npc = this.initNPC("Merc", "reviveMerc");
+	if (!npc) return false;
+
+	MainLoop:
+	for (let i = 0; i < 3; i += 1) {
+		let dialog = getDialogLines();
+
+		for (let lines = 0; lines < dialog.length; lines += 1) {
+			if (dialog[lines].text.match(":", "gi")) {
+				dialog[lines].handler();
+				delay(Math.max(750, me.ping * 2));
+			}
+
+			// "You do not have enough gold for that."
+			if (dialog[lines].text.match(getLocaleString(sdk.locale.dialog.youDoNotHaveEnoughGoldForThat), "gi")) {
+				return false;
+			}
+		}
+
+		let tick = getTickCount();
+
+		while (getTickCount() - tick < 2000) {
+			if (me.getMercEx()) {
+				delay(Math.max(750, me.ping * 2));
+
+				break MainLoop;
+			}
+
+			delay(200);
+		}
+	}
+
+	Attack.checkInfinity();
+
+	if (!!me.getMercEx()) {
+		// Cast BO on merc so he doesn't just die again. Only do this is you are a barb or actually have a cta. Otherwise its just a waste of time.
+		if (Config.MercWatch && Precast.needOutOfTownCast()) {
+			console.log("MercWatch precast");
+			Precast.doRandomPrecast(true, preArea);
+		}
+
+		return true;
+	}
+
+	return false;
 };
 
 Town.clearInventory = function () {
@@ -995,6 +1058,7 @@ Town.clearInventory = function () {
 	let items = (Storage.Inventory.Compare(Config.Inventory) || [])
 		.filter(function (item) {
 			if (!item) return false;
+			if (item.classid === sdk.items.TomeofIdentify && !Config.FieldID.Enabled) return true;
 			if (ignoreTypes.indexOf(item.itemType) === -1 && item.sellable && !Town.systemsKeep(item)) {
 				return true;
 			}
@@ -1177,7 +1241,7 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 	extraTasks.antidote && CharData.buffData.antidote.need() && Town.buyPots(12, "Antidote", true);
 	extraTasks.stamina && Town.buyPots(12, "Stamina", true);
 	this.shopItems();
-	this.repair(repair);
+	this.repair(repair) && this.shopItems(true);
 	this.reviveMerc();
 	this.gamble();
 	Cubing.emptyCube();

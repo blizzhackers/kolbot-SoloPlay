@@ -357,3 +357,19 @@ me.needRepair = function () {
 
 	return repairAction;
 };
+
+me.needMerc = function () {
+	if (me.classic || !Config.UseMerc || me.gold < me.mercrevivecost || me.mercrevivecost === 0) return false;
+
+	Misc.poll(() => me.gameReady, 1000, 100);
+	// me.getMerc() might return null if called right after taking a portal, that's why there's retry attempts
+	for (let i = 0; i < 3; i += 1) {
+		let merc = me.getMercEx();
+		if (!!merc && !merc.dead) return false;
+
+		delay(100);
+	}
+
+	// In case we never had a merc and Config.UseMerc is still set to true for some odd reason
+	return true;
+};
