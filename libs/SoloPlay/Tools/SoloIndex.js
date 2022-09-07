@@ -528,7 +528,7 @@ const SoloIndex = {
 		},
 		"river": {
 			preReq: function () {
-				return Pather.accessToAct(4);
+				return (Pather.accessToAct(4) && me.charlvl >= 24);
 			},
 			skipIf: function () {
 				return (me.diablo || me.normal);
@@ -545,7 +545,7 @@ const SoloIndex = {
 		},
 		"hephasto": {
 			preReq: function () {
-				return Pather.accessToAct(4);
+				return (Pather.accessToAct(4) && me.charlvl >= 24);
 			},
 			skipIf: function () {
 				return (!me.barbarian || me.normal || me.diablo);
@@ -559,9 +559,21 @@ const SoloIndex = {
 				return false;
 			}
 		},
+		"hellforge": {
+			preReq: function () {
+				return (Pather.accessToAct(4) && me.charlvl >= 24);
+			},
+			skipIf: function () {
+				return (me.hellforge || me.getQuest(sdk.quest.id.HellsForge, sdk.quest.states.ReqComplete));
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
 		"diablo": {
 			preReq: function () {
-				return Pather.accessToAct(4);
+				return (Pather.accessToAct(4) && me.charlvl >= 24);
 			},
 			skipIf: function () {
 				return false;
@@ -577,18 +589,6 @@ const SoloIndex = {
 					return true;
 				}
 				return false;
-			}
-		},
-		"hellforge": {
-			preReq: function () {
-				return Pather.accessToAct(4);
-			},
-			skipIf: function () {
-				return (me.hellforge || me.getQuest(sdk.quest.id.HellsForge, sdk.quest.states.ReqComplete));
-			},
-			shouldRun: function () {
-				if (!this.preReq() || this.skipIf()) return false;
-				return true;
 			}
 		},
 		"shenk": {

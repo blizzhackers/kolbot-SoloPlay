@@ -10,7 +10,7 @@ function cave () {
 	Pather.moveToExit([sdk.areas.CaveLvl1, sdk.areas.CaveLvl2], true, true);
 
 	// coords from sonic
-	let clearCoords = [
+	const clearCoords = [
 		{"x": 7549, "y": 12554, "radius": 10},
 		{"x": 7560, "y": 12551, "radius": 10},
 		{"x": 7573, "y": 12550, "radius": 10},

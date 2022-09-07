@@ -44,6 +44,13 @@ function main () {
 	D2Bot.init(); // Get D2Bot# handle
 	D2Bot.ingame();
 
+	(function (global, original) {
+		global.load = function (...args) {
+			original.apply(this, args);
+			delay(500);
+		};
+	})([].filter.constructor("return this")(), load);
+
 	// wait until game is ready
 	while (!me.gameReady) {
 		delay(50);
@@ -171,7 +178,7 @@ function main () {
 	addEventListener("scriptmsg", this.scriptEvent);
 	addEventListener("copydata", this.copyDataEvent);
 
-	me.maxgametime = Config.MaxGameTime * 1000;
+	me.maxgametime = Time.seconds(Config.MaxGameTime);
 	const stats = DataFile.getStats();
 
 	// Check for experience decrease -> log death. Skip report if life chicken is disabled.
@@ -187,11 +194,8 @@ function main () {
 	// Load threads
 	if (SoloEvents.inGameCheck()) return true;
 	load("libs/SoloPlay/Threads/ToolsThread.js");
-	delay(500);
 	load("libs/SoloPlay/Threads/EventThread.js");
-	delay(500);
 	load("libs/SoloPlay/Threads/TownChicken.js");
-	delay(500);
 	
 	// Load guard if we want to see the stack as it runs
 	if (Developer.debugging.showStack.enabled) {

@@ -259,6 +259,7 @@ const SoloEvents = {
 		const settings = Object.assign({}, {
 			allowTeleport: false,
 			allowClearing: false,
+			allowPicking: false,
 			allowTown: false,
 			retry: 10,
 		}, givenSettings);
@@ -276,14 +277,14 @@ const SoloEvents = {
 
 		// Prep, move to throne entrance
 		while (getTickCount() - tick < 6500) {
-			this.moveTo(15091, 5073, {allowTeleport: true});
+			this.moveTo(15091, 5073, { allowTeleport: true });
 		}
 
 		tick = getTickCount();
 
 		// 5 second delay (5000ms), then leave throne
 		while (getTickCount() - tick < 5000) {
-			this.moveTo(15098, 5082, {allowTeleport: true});
+			this.moveTo(15098, 5082, { allowTeleport: true });
 		}
 
 		tick = getTickCount();
