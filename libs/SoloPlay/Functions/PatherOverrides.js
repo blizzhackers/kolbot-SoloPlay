@@ -295,6 +295,7 @@ Pather.move = function (target, givenSettings = {}) {
 		clearSettings: {
 		},
 		allowTeleport: true,
+		allowPicking: true,
 		allowClearing: true,
 		allowTown: true,
 		minDist: 3,
@@ -313,6 +314,7 @@ Pather.move = function (target, givenSettings = {}) {
 	// set settings.clearSettings equal to the now properly asssigned clearSettings
 	settings.clearSettings = clearSettings;
 	!settings.allowClearing && (settings.clearSettings.allowClearing = false);
+	!settings.allowPicking && (settings.clearSettings.allowPicking = false);
 
 	(target instanceof PresetUnit) && (target = { x: target.roomx * 5 + target.x, y: target.roomy * 5 + target.y });
 
@@ -399,11 +401,17 @@ Pather.move = function (target, givenSettings = {}) {
 									// @todo check shrines/chests in proximity to old node vs next node
 									// let otherObjects = getUnits(sdk.unittype.Object).filter(el => getDistance());
 									if (goBack) {
+										console.debug("Going back to old node");
 										this.move(node, settings);
 									} else if (nearestNode && nearestNode.distance > 5 && node.distance > 5 && 100 / node.distance * nearestNode.distance < 95) {
 										console.debug("Moving to next node");
 										let newIndex = path.findIndex(node => nearestNode.x === node.x && nearestNode.y === node.y);
-										newIndex > 1 && (path = path.slice(newIndex));
+										if (newIndex > 1) {
+											console.debug("Found new path index: " + newIndex + " of currentPathLen: " + path.length);
+											path = path.slice(newIndex);
+										} else {
+											console.debug("Couldn't find new path index");
+										}
 										// this.move(nearestNode, settings);
 									}
 								} else {

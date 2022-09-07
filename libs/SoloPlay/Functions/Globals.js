@@ -102,12 +102,6 @@ const SetUp = {
 		myData.me.strength !== me.rawStrength && (myData.me.strength = me.rawStrength);
 		myData.me.dexterity !== me.rawDexterity && (myData.me.dexterity = me.rawDexterity);
 
-		if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < (Profile().difficulty)) {
-			// extra check to ensure of profile is set right
-			delay(rand(250, 1000));
-			D2Bot.setProfile(null, null, null, sdk.difficulty.nameOf(me.diff));
-		}
-
 		// expansion check
 		let cUpdate = false;
 		let mUpdate = false;
@@ -119,10 +113,10 @@ const SetUp = {
 			}
 			
 			// merc check
-			if (!!me.getMerc()) {
+			if (!!me.getMercEx()) {
 				// TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
 				// can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
-				let merc = me.getMerc();
+				let merc = me.getMercEx();
 				let mercItems = merc.getItemsEx();
 				let preLength = myData.merc.gear.length;
 				let check = myData.merc.gear.filter(i => mercItems.some(item => item.prefixnum === i));
@@ -643,7 +637,7 @@ const Check = {
 
 		let myGold = me.gold;
 		let repairCost = me.getRepairCost();
-		let items = (Town.getItemsForRepair(100, false) || []);
+		let items = (me.getItemsForRepair(100, false) || []);
 		let meleeChar = !Check.currentBuild().caster;
 		let msg = "";
 		let diff = -1;
