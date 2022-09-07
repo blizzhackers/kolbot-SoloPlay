@@ -27,12 +27,12 @@ let build = {
 		[sdk.skills.Telekinesis, 1],        // charlvl 5
 		[sdk.skills.FrostNova, 1],          // charlvl 6
 		[sdk.skills.StaticField, 4],        // charlvl 10
+		[sdk.skills.Teleport, 1, false],    // charlvl 18
 		[sdk.skills.Nova, 7],               // charlvl 17
-		[sdk.skills.Teleport, 1],           // charlvl 18
 		[sdk.skills.StaticField, 6],        // charlvl 20
 		[sdk.skills.IceBlast, 1],           // charlvl 22
 		[sdk.skills.GlacialSpike, 1],       // charlvl 
-		[sdk.skills.IceBlast, 3],           // charlvl 23
+		[sdk.skills.IceBlast, 4, false],    // charlvl 23
 		[sdk.skills.Blizzard, 6, false],    // charlvl 29 (never gets here)
 		[sdk.skills.ColdMastery, 1, false], // charlvl 30 (never gets here)
 	],
