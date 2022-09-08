@@ -284,8 +284,8 @@ Attack.killTarget = function (name = undefined) {
 			lastLoc = {x: me.x, y: me.y};
 			attackCount++;
 
-			if (target.dead || Config.FastPick) {
-				Config.FastPick ? Pickit.fastPick() : Pickit.essessntialsPick();
+			if (target.dead || Config.FastPick || (attackCount > 0 && attackCount % 5 === 0)) {
+				Config.FastPick ? Pickit.fastPick() : Pickit.essessntialsPick(false, true);
 			}
 		}
 
@@ -413,7 +413,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 					monsterList.shift();
 				}
 
-				if (target.dead || Config.FastPick) {
+				if (target.dead || Config.FastPick || attackCount % 5 === 0) {
 					Config.FastPick ? Pickit.fastPick() : Pickit.essessntialsPick(false, true);
 				}
 			} else {
@@ -444,9 +444,7 @@ Attack.buildMonsterList = function (skipBlocked = false) {
 
 	if (monster) {
 		do {
-			if (monster.attackable) {
-				monList.push(copyUnit(monster));
-			}
+			monster.attackable && monList.push(copyUnit(monster));
 		} while (monster.getNext());
 	}
 
@@ -720,7 +718,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 					}
 					attackCount -= gidAttack[i].attacks;
 				}
-				(target.dead || Config.FastPick) && Config.FastPick ? Pickit.fastPick() : Pickit.essessntialsPick();
+				(target.dead || Config.FastPick || attackCount % 5 === 0) && Config.FastPick ? Pickit.fastPick() : Pickit.essessntialsPick(false, true);
 			} else {
 				if (Coords_1.isBlockedBetween(me, target)) {
 					let collCheck = Coords_1.getCollisionBetweenCoords(me.x, me.y, target.x, target.y);
@@ -1177,24 +1175,14 @@ Attack.pwnDia = function () {
 				console.log("Diablo mode:" + dia.mode);
 				me.overhead("Dia life " + (~~(dia.hp / 128 * 100)).toString() + "%");
 				if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3 && ![4, 5, 7, 8, 9, 10, 11].includes(dia.mode) && dia.hpPercent > Config.CastStatic) {
-					let x = me.x, y = me.y;
+					let [x, y] = me;
+					ClassAttack.switchCurse(dia, true); // curse him if we can
 					// Find a spot close to Diablo
-					let spot = Pather.spotOnDistance(dia, rangeStatic * (2 / 3), {returnSpotOnError: false});
-					Pather.moveTo(spot.x, spot.y);
+					let spot = Pather.spotOnDistance(dia, rangeStatic * (2 / 3), { returnSpotOnError: false });
+					Pather.moveToEx(spot.x, spot.y, { allowClearing: false });
 					Skill.cast(sdk.skills.StaticField);
-					// Walk randomly away from diablo
-					let randFn = function (v) { return function () { return v + rand(0, 20) - 10; }; };
-					let rX = randFn(x), rY = randFn(y);
-					[
-						Attack.inverseSpotDistance({ x: x, y: y }, 3),
-						Attack.inverseSpotDistance({ x: rX(), y: rY() }, 5),
-						Attack.inverseSpotDistance({ x: rX(), y: rY() }, 7),
-						Attack.inverseSpotDistance({ x: rX(), y: rY() }, 10),
-					].forEach(function (_a) {
-						let x = _a.x, y = _a.y;
-						return Misc.click(0, 0, x, y);
-					});
-					Pather.moveTo(x, y);
+					// move back to previous spot
+					Pather.moveToEx(x, y, { allowClearing: false });
 				}
 				Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, dia);
 
@@ -1272,7 +1260,7 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
 
 Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = false, force = false) {
 	if (!unit || !unit.x || !unit.y) return false;
-	let useTele = Pather.useTeleport();
+	const useTele = Pather.useTeleport();
 	walk === true && (walk = 1);
 
 	if (distance < 4 && (!unit.hasOwnProperty("mode") || !unit.dead)) {
@@ -1284,7 +1272,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 			return true;
 		} else {
 			// don't clear while trying to reposition
-			Pather.moveToEx(unit.x, unit.y, {clearSettings: {allowClearing: !useTele, range: useTele ? 10 : 5}});
+			Pather.moveToEx(unit.x, unit.y, { clearSettings: { allowClearing: !useTele, range: useTele ? 10 : 5 } });
 		}
 
 		return !CollMap.checkColl(me, unit, coll);

@@ -39,6 +39,41 @@ const frostNovaCheck = function () {
 	return false;
 };
 
+ClassAttack.switchCurse = function (unit, force) {
+	if (CharData.skillData.haveChargedSkill([sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken]) && unit.curseable) {
+		const gold = me.gold;
+		const isBoss = unit.isBoss;
+		const dangerZone = [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area);
+		if (force && checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (!Attack.getIntoPosition(unit, 35, sdk.collision.Ranged)) return;
+		}
+		// If we have slow missles we might as well use it, currently only on Lighting Enchanted mobs as they are dangerous
+		// Might be worth it to use on souls too TODO: test this idea
+		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && gold > 500000 && !isBoss
+			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
+			&& !checkCollision(me, unit, sdk.collision.Ranged)) {
+			// Cast slow missiles
+			Attack.castCharges(sdk.skills.SlowMissiles, unit);
+		}
+		// Handle Switch casting
+		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
+			&& (gold > 500000 || isBoss || dangerZone)
+			&& !unit.getState(sdk.states.LowerResist)
+			&& !checkCollision(me, unit, sdk.collision.Ranged)) {
+			// Switch cast lower resist
+			Attack.switchCastCharges(sdk.skills.LowerResist, unit);
+		}
+
+		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
+			&& (gold > 500000 || isBoss || dangerZone)
+			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist)
+			&& !checkCollision(me, unit, sdk.collision.Ranged)) {
+			// Switch cast weaken
+			Attack.switchCastCharges(sdk.skills.Weaken, unit);
+		}
+	}
+};
+
 ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
 	Developer.debugging.skills && console.log(sdk.colors.Green + "Test Start-----------------------------------------//");
 	// unit became invalidated
@@ -69,34 +104,7 @@ ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
 
 	// Handle Charge skill casting
 	if (index === 1 && me.expansion && !unit.dead) {
-		if (CharData.skillData.haveChargedSkill([sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken]) && unit.curseable) {
-			let isBoss = unit.isBoss;
-			let dangerZone = [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area);
-			// If we have slow missles we might as well use it, currently only on Lighting Enchanted mobs as they are dangerous
-			// Might be worth it to use on souls too TODO: test this idea
-			if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && gold > 500000 && !isBoss
-				&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-				&& !checkCollision(me, unit, sdk.collision.Ranged)) {
-				// Cast slow missiles
-				Attack.castCharges(sdk.skills.SlowMissiles, unit);
-			}
-			// Handle Switch casting
-			if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
-				&& (gold > 500000 || isBoss || dangerZone)
-				&& !unit.getState(sdk.states.LowerResist)
-				&& !checkCollision(me, unit, sdk.collision.Ranged)) {
-				// Switch cast lower resist
-				Attack.switchCastCharges(sdk.skills.LowerResist, unit);
-			}
-
-			if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
-				&& (gold > 500000 || isBoss || dangerZone)
-				&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist)
-				&& !checkCollision(me, unit, sdk.collision.Ranged)) {
-				// Switch cast weaken
-				Attack.switchCastCharges(sdk.skills.Weaken, unit);
-			}
-		}
+		ClassAttack.switchCurse(unit);
 	}
 
 	const buildDataObj = (skillId = -1, reqLvl = 1, range = 0) => ({
@@ -420,6 +428,7 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
 			if (ts === sdk.skills.ChargedBolt) {
 				let preHealth = unit.hp;
 				let cRetry = 0;
+				unit.distance <= 1 && Attack.getIntoPosition(unit, tsRange, Coords_1.Collision.BLOCK_MISSILE, true);
 				for (let i = 0; i < 3; i++) {
 					!unit.dead && Skill.cast(ts, Skill.getHand(ts), unit.x, unit.y);
 					if (!Misc.poll(() => unit.dead || unit.hp < preHealth, 300, 50)) {
@@ -448,7 +457,11 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
 							frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, sdk.skills.hand.Right);
 						}
 
-						if (tsMana > me.mp || unit.hpPercent < Config.CastStatic || me.inDanger()) {
+						if (tsMana > me.mp || unit.hpPercent < Config.CastStatic) {
+							break;
+						}
+						if (me.inDanger()) {
+							Attack.deploy(unit, Config.DodgeRange, 5, 9);
 							break;
 						}
 					} else {
@@ -469,6 +482,7 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
 						let preHealth = unit.hp;
 						let missileDelay = GameData.timeTillMissleImpact(ts, unit);
 						missileDelay > 0 && Misc.poll(() => unit.dead || unit.hp < preHealth, missileDelay, 50);
+						delay(50);
 					}
 				}
 			}
