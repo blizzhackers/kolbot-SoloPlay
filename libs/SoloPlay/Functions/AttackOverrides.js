@@ -1174,15 +1174,18 @@ Attack.pwnDia = function () {
 				console.log("Diablo missiles: " + diabloMissiles.length);
 				console.log("Diablo mode:" + dia.mode);
 				me.overhead("Dia life " + (~~(dia.hp / 128 * 100)).toString() + "%");
-				if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3 && ![4, 5, 7, 8, 9, 10, 11].includes(dia.mode) && dia.hpPercent > Config.CastStatic) {
+				if (me.mp > manaStatic + manaTP + manaTP && diabloMissiles.length < 3 && !dia.attacking && dia.hpPercent > Config.CastStatic) {
 					let [x, y] = me;
 					ClassAttack.switchCurse(dia, true); // curse him if we can
-					// Find a spot close to Diablo
-					let spot = Pather.spotOnDistance(dia, rangeStatic * (2 / 3), { returnSpotOnError: false });
-					Pather.moveToEx(spot.x, spot.y, { allowClearing: false });
-					Skill.cast(sdk.skills.StaticField);
-					// move back to previous spot
-					Pather.moveToEx(x, y, { allowClearing: false });
+					// re-check his mode
+					if (!dia.attacking) {
+						// Find a spot close to Diablo
+						let spot = Pather.spotOnDistance(dia, rangeStatic * (2 / 3), { returnSpotOnError: false });
+						Pather.moveToEx(spot.x, spot.y, { allowClearing: false });
+						Skill.cast(sdk.skills.StaticField);
+						// move back to previous spot
+						Pather.moveToEx(x, y, { allowClearing: false });
+					}
 				}
 				Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, dia);
 

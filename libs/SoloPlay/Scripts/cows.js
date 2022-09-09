@@ -11,16 +11,8 @@ function cows () {
 
 		// Cain is incomplete, complete it then continue @isid0re
 		if (!me.tristram) {
+			Loader.runScript("tristram");
 			includeIfNotIncluded("SoloPlay/Scripts/tristram.js");
-
-			for (let i = 0; i < 5; i++) {
-				tristram();
-
-				if (me.tristram) {
-					break;
-				}
-			}
-
 			!me.inTown && Town.goToTown();
 		}
 
@@ -83,7 +75,13 @@ function cows () {
 		if (!me.getItem(sdk.items.quest.WirtsLeg)) return false;
 
 		for (let classID of classIDS) {
-			let cubingItem = me.getItem(classID);
+			let cubingItem;
+			if (classID === sdk.items.TomeofTownPortal) {
+				// select the tome we just bought rather than the one we had by it's position in our invo
+				cubingItem = me.getItemsEx(sdk.items.TomeofTownPortal).filter(i => i.isInInventory).sort((a, b) => a.x - b.x).first();
+			} else {
+				cubingItem = me.getItem(classID);
+			}
 
 			if (!cubingItem || !Storage.Cube.MoveTo(cubingItem)) {
 				return false;
@@ -122,7 +120,7 @@ function cows () {
 	
 	Town.doChores();
 	this.openPortal(sdk.areas.MooMooFarm, sdk.items.quest.WirtsLeg, sdk.items.TomeofTownPortal);
-	Town.buyBook();
+	Town.fillTome(sdk.items.TomeofTownPortal);
 
 	// when does this become not worth it
 	if (Pather.canTeleport()) {
@@ -133,7 +131,7 @@ function cows () {
 	
 	Town.move("stash");
 
-	if (Pather.usePortal(sdk.areas.MooMooFarm)) {
+	if (Misc.poll(() => Pather.usePortal(sdk.areas.MooMooFarm), Time.seconds(30), Time.seconds(1))) {
 		const Worker = require("../../modules/Worker");
 		let kingTick = getTickCount();
 		let king;

@@ -1766,8 +1766,6 @@
 				// too far for missile to reach this position
 				if (distanceForMissile > missile.range) return 0;
 				const castTimeS = me.castingDuration(skillId);
-				console.debug("castTime: " + castTimeS, " | missileDist " + distanceForMissile, " | missleV " + missileVelocityTPF);
-				console.debug("MissleTime: " + (distanceForMissile / ((missileVelocityTPS / 32) * 25)));
 				return ((distanceForMissile / ((missileVelocityTPS / 32) * 25)) + castTimeS);
 			}
 			return 0;
