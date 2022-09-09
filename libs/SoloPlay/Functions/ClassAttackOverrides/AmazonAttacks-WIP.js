@@ -62,7 +62,7 @@ ClassAttack.decideSkill = function (unit) {
 ClassAttack.doAttack = function (unit) {
 	if (!unit) return Attack.Result.SUCCESS;
 	let gid = unit.gid;
-	let needRepair = me.charlvl < 5 ? [] : Town.needRepair();
+	let needRepair = me.charlvl < 5 ? [] : me.needRepair();
 
 	if ((Config.MercWatch && Town.needMerc()) || needRepair.length > 0) {
 		console.log("towncheck");
@@ -334,7 +334,7 @@ ClassAttack.doAttack = function (unit) {
 ClassAttack.afterAttack = function () {
 	Precast.doPrecast(false);
 
-	let needRepair = me.charlvl < 5 ? [] : Town.needRepair();
+	let needRepair = me.charlvl < 5 ? [] : me.needRepair();
 	
 	// Repair check, make sure i have a tome
 	if (needRepair.length > 0 && me.getItem(sdk.items.TomeofTownPortal)) {

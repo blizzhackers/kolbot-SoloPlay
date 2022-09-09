@@ -11,21 +11,26 @@ include("NTItemParser.dbl");
 include("OOG.js");
 include("Gambling.js");
 include("CraftingSystem.js");
+include("common/util.js");
 include("common/Attack.js");
 include("common/Common.js");
 include("common/Cubing.js");
 include("common/Config.js");
 include("common/CollMap.js");
 include("common/misc.js");
-include("common/util.js");
 include("common/Pickit.js");
 include("common/Pather.js");
 include("common/Precast.js");
 include("common/Prototypes.js");
 include("common/Runewords.js");
 include("common/Town.js");
+// Include SoloPlay's librarys
+include("SoloPlay/Tools/Throwable.js");
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
+include("SoloPlay/Tools/CharData.js");
+include("SoloPlay/Tools/SoloIndex.js");
+include("SoloPlay/Functions/ConfigOverrides.js");
 include("SoloPlay/Functions/Globals.js");
 
 SetUp.include();
@@ -75,8 +80,8 @@ function main() {
 			return [sdk.areas.RogueEncampment, sdk.areas.LutGholein, sdk.areas.KurastDocktown, sdk.areas.PandemoniumFortress, sdk.areas.Harrogath].includes(area);
 		}
 
-		let preArea = me.area;
-		let leavingTown = townAreaCheck(preArea);
+		const preArea = me.area;
+		const leavingTown = townAreaCheck(preArea);
 
 		for (let i = 0; i < 13; i += 1) {
 			if (me.dead || me.area !== preArea) {
@@ -125,10 +130,6 @@ function main() {
 					}
 				}
 
-				if (dummy) {
-					// try clicking portal
-					Misc.click(0, 0, portal);
-				}
 
 				// Portal to/from Arcane
 				if (portal.classid === sdk.objects.ArcaneSanctuaryPortal && portal.mode !== sdk.objects.mode.Active) {
@@ -156,6 +157,8 @@ function main() {
 
 					delay(10);
 				}
+				// try clicking portal
+				!!dummy && Misc.click(0, 0, portal);
 
 				i > 1 && (i % 3) === 0 && Packet.flash(me.gid);
 			} else {
@@ -199,23 +202,30 @@ function main() {
 						break;
 					}
 				} while (oldPortal.getNext());
+				
+				// old portal is close to use, we should try to use it
+				if (oldPortal.getParent() === me.name && oldPortal.distance < 4) {
+					if (use) {
+						if (this.usePortal(null, null, copyUnit(oldPortal))) return true;
+						break; // don't spam usePortal
+					} else {
+						return copyUnit(oldPortal);
+					}
+				}
 			}
-			
+
 			let pingDelay = i === 0 ? 100 : me.gameReady ? (me.ping + 25) : 350;
 
 			if (tpTool.use() || Game.getObject("portal")) {
 				let tick = getTickCount();
 
 				while (getTickCount() - tick < Math.max(500 + i * 100, pingDelay * 2 + 100)) {
-					let portal = getUnits(sdk.unittype.Object, "portal")
-						.filter((p) => p.getParent() === me.name && p.gid !== oldGid)
-						.first();
+					const portal = getUnits(sdk.unittype.Object, "portal")
+						.filter((p) => p.getParent() === me.name && p.gid !== oldGid).first();
 
 					if (!!portal) {
 						if (use) {
-							if (this.usePortal(null, null, copyUnit(portal))) {
-								return true;
-							}
+							if (this.usePortal(null, null, copyUnit(portal))) return true;
 							break; // don't spam usePortal
 						} else {
 							return copyUnit(portal);
@@ -225,11 +235,8 @@ function main() {
 						let dummy = Game.getObject("portal");
 						if (dummy) {
 							console.debug(dummy);
-							if (use) {
-								return Pather.usePortal(null, null, dummy, true);
-							} else {
-								return copyUnit(dummy);
-							}
+							if (use) return Pather.usePortal(null, null, dummy, true);
+							return copyUnit(dummy);
 						}
 					}
 
@@ -250,8 +257,8 @@ function main() {
 	Town.visitTown = function () {
 		console.log("ÿc8Start ÿc0:: ÿc8visitTown");
 	
-		let preArea = me.area;
-		let preAct = sdk.areas.actOf(preArea);
+		const preArea = me.area;
+		const preAct = sdk.areas.actOf(preArea);
 
 		if (!me.inTown && !me.getTpTool()) {
 			console.warn("Can't chicken to town. Quit");
