@@ -96,17 +96,6 @@ function LoadConfig () {
 		// Charms
 		"[name] == smallcharm && [quality] == magic # # [invoquantity] == 8 && [charmtier] == charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-		// Special Charms
-		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
-		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
-		"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [charmtier] == 100000",
-		// Merc
-		"([type] == circlet || [type] == helm) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		"[type] == armor && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		// Rogue
-		"me.mercid === 271 && [type] == bow && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		// A2 Guard
-		"me.mercid === 338 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
 	NTIP.arrayLooping(levelingTiers);
@@ -164,7 +153,6 @@ function LoadConfig () {
 	case sdk.game.gametype.Expansion:
 		NTIP.addLine("[name] >= Vexrune && [name] <= Zodrune");
 
-		Config.socketables = [];
 		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.all);
 		Config.socketables.push(addSocketableObj(sdk.items.Bill, [], [],
@@ -235,7 +223,7 @@ function LoadConfig () {
 		case "Javazon":
 			Config.SkipImmune = ["lightning and physical"];
 
-			if (me.getSkill(sdk.skills.ChargedStrike, sdk.skills.subindex.HardPoints)) {
+			if (me.checkSkill(sdk.skills.ChargedStrike, sdk.skills.subindex.HardPoints)) {
 				// "Monster name": [-1, -1],
 				Config.CustomAttack = {
 					"Fire Tower": [sdk.skills.ChargedStrike, -1],

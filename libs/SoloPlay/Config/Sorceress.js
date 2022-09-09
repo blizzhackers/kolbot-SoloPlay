@@ -104,18 +104,8 @@ function LoadConfig () {
 		"[name] == smallcharm && [quality] == magic # [maxhp] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
+		"me.charlvl < 40 && [name] == smallcharm && [quality] == magic ## [invoquantity] == 4 && [charmtier] == charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-		// Special Charms
-		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
-		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
-		"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [charmtier] == 100000",
-		// Merc
-		"([type] == circlet || [type] == helm) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		"[type] == armor && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		// Rogue
-		"me.mercid === 271 && [type] == bow && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		// A2 Guard
-		"me.mercid === 338 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
 	if (SetUp.currentBuild !== "Start") {
@@ -145,7 +135,6 @@ function LoadConfig () {
 	Config.DodgeHP = me.hardcore ? 90 : 75; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
 	Config.TeleStomp = false; // Use merc to attack bosses if they're immune to attacks, but not to physical damage
 	Config.CastStatic = me.classic ? 15 : [25, 33, 50][me.diff];
-	Config.StaticList = [];
 
 	/* Gear */
 	let finalGear = Check.finalBuild().finalGear;
@@ -185,7 +174,6 @@ function LoadConfig () {
 			["Blova", "Lightning"].includes(SetUp.finalBuild) && Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
 		}
 
-		Config.socketables = [];
 		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
 

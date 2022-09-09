@@ -322,6 +322,25 @@ const SetUp = {
 	},
 
 	config: function () {
+		Config.socketables = [];
+
+		if (me.expansion) {
+			const expansionExtras = [
+				// Special Charms
+				"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
+				"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
+				"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [charmtier] == 100000",
+				// Merc
+				"([type] == circlet || [type] == helm) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+				"[type] == armor && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+				// Rogue
+				"me.mercid === 271 && [type] == bow && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+				// A2 Guard
+				"me.mercid === 338 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+			];
+			NTIP.arrayLooping(expansionExtras);
+		}
+
 		/* General configuration. */
 		Config.MinGameTime = 400;
 		Config.MaxGameTime = 7200;
