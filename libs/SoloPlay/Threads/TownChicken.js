@@ -76,72 +76,39 @@ function main() {
 
 		me.cancelUIFlags();
 
-		function townAreaCheck (area = 0) {
-			return [sdk.areas.RogueEncampment, sdk.areas.LutGholein, sdk.areas.KurastDocktown, sdk.areas.PandemoniumFortress, sdk.areas.Harrogath].includes(area);
-		}
-
+		const townAreaCheck = (area = 0) => sdk.areas.Towns.includes(area);
 		const preArea = me.area;
 		const leavingTown = townAreaCheck(preArea);
 
 		for (let i = 0; i < 13; i += 1) {
-			if (me.dead || me.area !== preArea) {
-				break;
-			}
+			if (me.dead) return false;
+			if (targetArea ? me.inArea(targetArea) : me.area !== preArea) return true;
 
-			if (i > 0 && owner && me.inTown) {
-				Town.move("portalspot");
-			}
+			(i > 0 && owner && me.inTown) && Town.move("portalspot");
 
 			let portal = unit ? copyUnit(unit) : Pather.getPortal(targetArea, owner);
 
-			if (portal) {
-				let redPortal = portal.classid === sdk.objects.RedPortal;
+			if (portal && portal.area === me.area) {
+				const useTk = me.inTown && Skill.useTK(portal) && i < 3;
+				if (useTk) {
+					portal.distance > 21 && (me.inTown && me.act === 5 ? Town.move("portalspot") : Pather.moveNearUnit(portal, 20));
+					if (Packet.telekinesis(portal) && Misc.poll(() => targetArea ? me.inArea(targetArea) : me.area !== preArea)) {
+						Pather.lastPortalTick = getTickCount();
+						delay(100);
 
-				if (portal.area === me.area) {
-					if (Skill.useTK(portal) && i < 3) {
-						portal.distance > 21 && (me.inTown && me.act === 5 ? Town.move("portalspot") : Pather.moveNearUnit(portal, 20));
-						if (Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, portal)) {
-							if (Misc.poll(() => {
-								if (me.area !== preArea) {
-									Pather.lastPortalTick = getTickCount();
-									delay(100);
-
-									return true;
-								}
-
-								return false;
-							}, 500, 50)) {
-								return true;
-							}
-						}
-					} else {
-						portal.distance > 5 && this.moveToUnit(portal);
-
-						if (getTickCount() - this.lastPortalTick > (leavingTown ? 2500 : 1000)) {
-							i < 2 ? Packet.entityInteract(portal) : Misc.click(0, 0, portal);
-							!!redPortal && delay(150);
-						} else {
-							// only delay if we are in town and leaving town, don't delay if we are attempting to portal from out of town since this is the chicken thread
-							// and we are likely being attacked
-							leavingTown && delay(300);
-							
-							continue;
-						}
+						return true;
 					}
-				}
+				} else {
+					portal.distance > 5 && (i < 3 ? Pather.moveNearUnit(portal, 4, false) : Pather.moveToUnit(portal));
 
-
-				// Portal to/from Arcane
-				if (portal.classid === sdk.objects.ArcaneSanctuaryPortal && portal.mode !== sdk.objects.mode.Active) {
-					Misc.click(0, 0, portal);
-					let tick = getTickCount();
-
-					while (getTickCount() - tick < 2000) {
-						if (portal.mode === sdk.objects.mode.Active || me.inArea(sdk.areas.ArcaneSanctuary)) {
-							break;
-						}
-
-						delay(10);
+					if (getTickCount() - this.lastPortalTick > (leavingTown ? 2500 : 1000)) {
+						i < 2 ? Packet.entityInteract(portal) : Misc.click(0, 0, portal);
+					} else {
+						// only delay if we are in town and leaving town, don't delay if we are attempting to portal from out of town since this is the chicken thread
+						// and we are likely being attacked
+						leavingTown && delay(300);
+						
+						continue;
 					}
 				}
 
@@ -157,8 +124,8 @@ function main() {
 
 					delay(10);
 				}
-				// try clicking portal
-				!!dummy && Misc.click(0, 0, portal);
+				// try clicking dummy portal
+				!!dummy && portal.area === 1 && Misc.click(0, 0, portal);
 
 				i > 1 && (i % 3) === 0 && Packet.flash(me.gid);
 			} else {
@@ -180,7 +147,7 @@ function main() {
 			delay(250);
 		}
 
-		return (targetArea ? me.area === targetArea : me.area !== preArea);
+		return (targetArea ? me.inArea(targetArea) : me.area !== preArea);
 	};
 
 	Pather.makePortal = function (use = false) {
@@ -214,7 +181,7 @@ function main() {
 				}
 			}
 
-			let pingDelay = i === 0 ? 100 : me.gameReady ? (me.ping + 25) : 350;
+			let pingDelay = me.getPingDelay();
 
 			if (tpTool.use() || Game.getObject("portal")) {
 				let tick = getTickCount();
@@ -223,7 +190,7 @@ function main() {
 					const portal = getUnits(sdk.unittype.Object, "portal")
 						.filter((p) => p.getParent() === me.name && p.gid !== oldGid).first();
 
-					if (!!portal) {
+					if (portal) {
 						if (use) {
 							if (this.usePortal(null, null, copyUnit(portal))) return true;
 							break; // don't spam usePortal
@@ -232,7 +199,7 @@ function main() {
 						}
 					} else {
 						// check dummy
-						let dummy = Game.getObject("portal");
+						let dummy = getUnits(sdk.unittype.Object, "portal").filter(p => p.name === "Dummy").first();
 						if (dummy) {
 							console.debug(dummy);
 							if (use) return Pather.usePortal(null, null, dummy, true);
