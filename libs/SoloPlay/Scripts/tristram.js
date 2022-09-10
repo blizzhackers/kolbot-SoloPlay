@@ -19,17 +19,9 @@ function tristram () {
 
 	// Tristram portal hasn't been opened
 	if (!Misc.checkQuest(sdk.quest.id.TheSearchForCain, 4)) {
-		// missing scroll and key
-		if (!me.getItem(sdk.items.quest.ScrollofInifuss) && !me.getItem(sdk.items.quest.KeytotheCairnStones)) {
-			if (!Pather.checkWP(sdk.areas.BlackMarsh, true)) {
-				Pather.getWP(sdk.areas.BlackMarsh);
-				Pather.useWaypoint(sdk.areas.DarkWood);
-			} else {
-				Pather.useWaypoint(sdk.areas.DarkWood);
-			}
-
+		const getScroll = () => {
+			if (me.getItem(sdk.quest.item.ScrollofInifuss) || me.getItem(sdk.quest.item.KeytotheCairnStones)) return true;
 			Precast.doPrecast(true);
-
 			if (!Pather.moveToPreset(sdk.areas.DarkWood, sdk.unittype.Object, sdk.quest.chest.InifussTree, 5, 5)) {
 				console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Tree of Inifuss");
 				return false;
@@ -37,6 +29,18 @@ function tristram () {
 
 			Quest.collectItem(sdk.quest.item.ScrollofInifuss, sdk.quest.chest.InifussTree);
 			Pickit.pickItems();
+			return (me.getItem(sdk.quest.item.ScrollofInifuss || me.getItem(sdk.quest.item.KeytotheCairnStones)));
+		};
+		// missing scroll and key
+		if (!me.getItem(sdk.items.quest.ScrollofInifuss) && !me.getItem(sdk.items.quest.KeytotheCairnStones)) {
+			if (!Pather.checkWP(sdk.areas.BlackMarsh, true)) {
+				Pather.useWaypoint(sdk.areas.DarkWood);
+				getScroll();
+				Pather.getWP(sdk.areas.BlackMarsh);
+			} else {
+				Pather.useWaypoint(sdk.areas.DarkWood);
+				getScroll();
+			}
 		}
 
 		if (me.getItem(sdk.items.quest.ScrollofInifuss)) {

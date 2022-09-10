@@ -56,8 +56,8 @@ function den () {
 	}
 
 	if (me.charlvl < 8) {
-		me.sorceress && me.charlvl >= 2 && me.charlvl <= 5 && Loader.skipTown.push("bishibosh") && Loader.runScript("bishibosh");
-		Loader.skipTown.push("cave") && Loader.runScript("cave");
+		me.sorceress && me.charlvl >= 2 && me.charlvl < 8 && Loader.skipTown.push("bishibosh") && Loader.runScript("bishibosh");
+		me.charlvl < 6 && Loader.skipTown.push("cave") && Loader.runScript("cave");
 	}
 
 	if (me.charlvl < 8 || me.gold < 1000) {

@@ -24,7 +24,16 @@ function mephisto () {
 
 	Pather.checkWP(sdk.areas.DuranceofHateLvl2, true) ? Pather.useWaypoint(sdk.areas.DuranceofHateLvl2) : Pather.getWP(sdk.areas.DuranceofHateLvl2);
 	Precast.doPrecast(true);
-	Pather.clearToExit(sdk.areas.DuranceofHateLvl2, sdk.areas.DuranceofHateLvl3, true);
+	const oldCPRange = Config.ClearPath.Range;
+	const canTele = Pather.canTeleport();
+	try {
+		canTele && (Config.ClearPath.Range = 0);
+		Pather.canTeleport()
+			? Pather.moveToExit(sdk.areas.DuranceofHateLvl3, true, false)
+			: Pather.clearToExit(sdk.areas.DuranceofHateLvl2, sdk.areas.DuranceofHateLvl3, true);
+	} finally {
+		oldCPRange !== Config.ClearPath.Range && (Config.ClearPath.Range = oldCPRange);
+	}
 	
 	if (!me.inArea(sdk.areas.DuranceofHateLvl3)) {
 		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to mephisto");
