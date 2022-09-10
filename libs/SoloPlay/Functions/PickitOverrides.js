@@ -14,6 +14,21 @@ includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 Pickit.enabled = true;
 Pickit.Result.SOLOWANTS = 8;
 
+Pickit.minItemKeepGoldValue = function () {
+	const myGold = me.gold;
+	const cLvl = me.charlvl;
+	switch (true) {
+	case myGold < Math.min(Math.floor(500 + (cLvl * 100 * Math.sqrt(cLvl - 1))), 250000):
+		return 10;
+	case myGold < Math.min(Math.floor(500 + (cLvl * 250 * Math.sqrt(cLvl - 1))), 250000):
+		return 50;
+	case myGold < Math.min(Math.floor(500 + (cLvl * 500 * Math.sqrt(cLvl - 1))), 250000):
+		return 500;
+	default:
+		return 1000;
+	}
+};
+
 Pickit.checkItem = function (unit) {
 	let rval = NTIP.CheckItem(unit, false, true);
 	const resultObj = (result, line = null) => ({
@@ -90,7 +105,7 @@ Pickit.checkItem = function (unit) {
 		if (itemValuePerSquare >= 2000) {
 			// If total gold is less than 500k pick up anything worth 2k gold per square to sell in town.
 			return resultObj(Pickit.Result.TRASH, "Valuable Item: " + itemValue);
-		} else if (itemValuePerSquare >= 10 && (me.gold < Config.LowGold || unit.isInInventory)) {
+		} else if (itemValuePerSquare >= Pickit.minItemKeepGoldValue() && (me.gold < Config.LowGold || unit.isInInventory)) {
 			// If total gold is less than LowGold setting pick up anything worth 10 gold per square to sell in town.
 			return resultObj(Pickit.Result.TRASH, "LowGold Item: " + itemValue);
 		}
@@ -511,7 +526,7 @@ Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
 	return true;
 };
 
-Pickit.checkSpotForItems = function (spot, range = Config.PickRange) {
+Pickit.checkSpotForItems = function (spot, checkVsMyDist = false, range = Config.PickRange) {
 	if (spot.x === undefined) return false;
 	let itemList = [];
 	let item = Game.getItem();
@@ -519,16 +534,22 @@ Pickit.checkSpotForItems = function (spot, range = Config.PickRange) {
 	if (item) {
 		do {
 			if (item.onGroundOrDropping && getDistance(spot, item) <= range) {
+				const spotDist = getDistance(spot, item);
+				const itemDistFromMe = item.distance;
 				if (Pickit.essentials.includes(item.itemType)) {
 					if (Pickit.checkItem(item).result && Pickit.canPick(item) && Pickit.canFit(item)) {
-						itemList.push(copyUnit(item));
+						checkVsMyDist && itemDistFromMe < spotDist ? Pickit.essentials.push(copyUnit(item)) : itemList.push(copyUnit(item));
 					}
 				} else if (item.itemType === sdk.items.type.Key) {
 					if (Pickit.canPick(item) && Pickit.checkItem(item).result) {
-						itemList.push(copyUnit(item));
+						checkVsMyDist && itemDistFromMe < spotDist ? Pickit.pickList.push(copyUnit(item)) : itemList.push(copyUnit(item));
 					}
 				} else if (Pickit.checkItem(item).result) {
-					return true;
+					if (checkVsMyDist && itemDistFromMe < spotDist) {
+						Pickit.pickList.push(copyUnit(item));
+					} else {
+						return true;
+					}
 				}
 			}
 		} while (item.getNext());

@@ -82,7 +82,9 @@ NodeAction.killMonsters = function (arg = {}) {
 			break;
 		case "object":
 			if (!Config.ClearPath.hasOwnProperty("Areas") || Config.ClearPath.Areas.length === 0 || Config.ClearPath.Areas.includes(myArea)) {
-				Attack.clear(sanityCheck ? 7 : canTele ? 15 : Config.ClearPath.Range, canTele ? Config.ClearPath.Spectype : 0);
+				if (Config.ClearPath.Range !== 0) {
+					Attack.clear(sanityCheck ? 7 : canTele ? 15 : Config.ClearPath.Range, canTele ? Config.ClearPath.Spectype : 0);
+				}
 			}
 
 			break;
@@ -319,7 +321,7 @@ Pather.move = function (target, givenSettings = {}) {
 	(target instanceof PresetUnit) && (target = { x: target.roomx * 5 + target.x, y: target.roomy * 5 + target.y });
 
 	if (settings.minDist > 3) {
-		target = this.spotOnDistance(target, settings.minDist, {returnSpotOnError: settings.returnSpotOnError, reductionType: (me.inTown ? 0 : 2)});
+		target = this.spotOnDistance(target, settings.minDist, { returnSpotOnError: settings.returnSpotOnError, reductionType: (me.inTown ? 0 : 2) });
 	}
 
 	let fail = 0;
@@ -384,8 +386,8 @@ Pather.move = function (target, givenSettings = {}) {
 					: this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
 				if (!me.inTown) {
 					if (this.recursion) {
-						this.recursion = false;
 						try {
+							this.recursion = false;
 							NodeAction.go(settings.clearSettings);
 							// need to determine if its worth going back to our orignal node (items maybe?)
 							// vs our current proximity to our next node
@@ -397,7 +399,9 @@ Pather.move = function (target, givenSettings = {}) {
 								if (getDistance(me, node.x, node.y) < 40) {
 									let goBack = false;
 									// lets see if it's worth walking back to old node
-									Pickit.checkSpotForItems(node) && (goBack = true);
+									// @todo this function needs to take into account distance from us vs dist from node
+									// because we don't need to go back if we can just pick the item from where we are standing
+									Pickit.checkSpotForItems(node, true) && (goBack = true);
 									// @todo check shrines/chests in proximity to old node vs next node
 									// let otherObjects = getUnits(sdk.unittype.Object).filter(el => getDistance());
 									if (goBack) {
@@ -488,11 +492,11 @@ Pather.move = function (target, givenSettings = {}) {
 };
 
 Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
-	return Pather.move({x: x, y: y}, Object.assign({minDist: minDist}, givenSettings));
+	return Pather.move({ x: x, y: y }, Object.assign({ minDist: minDist }, givenSettings));
 };
 
 Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clearPath = true, pop = false) {
-	return Pather.move({x: x, y: y}, { retry: retry, pop: pop, clearSettings: { clearPath: clearPath } });
+	return Pather.move({ x: x, y: y }, { retry: retry, pop: pop, clearSettings: { clearPath: clearPath } });
 };
 
 Pather.moveToLoc = function (target, givenSettings = {}) {
@@ -500,7 +504,7 @@ Pather.moveToLoc = function (target, givenSettings = {}) {
 };
 
 Pather.moveToEx = function (x, y, givenSettings = {}) {
-	return Pather.move({x: x, y: y}, givenSettings);
+	return Pather.move({ x: x, y: y }, givenSettings);
 };
 
 // Add check in case "random" to return false if bot doesn't have cold plains wp yet
