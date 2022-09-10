@@ -930,6 +930,7 @@ Town.reviveMerc = function () {
 	MainLoop:
 	for (let i = 0; i < 3; i += 1) {
 		let dialog = getDialogLines();
+		if (!dialog) continue;
 
 		for (let lines = 0; lines < dialog.length; lines += 1) {
 			if (dialog[lines].text.match(":", "gi")) {
