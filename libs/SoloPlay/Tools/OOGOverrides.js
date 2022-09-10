@@ -20,12 +20,12 @@ ControlAction.makeCharacter = function (info) {
 	let clickCoords = [];
 	let soloStats = CharData.getStats();
 
+	soloStats.me.startTime !== 0 && Tracker.reset();
 	if (soloStats.me.currentBuild !== "Start" || soloStats.me.level > 1) {
 		let finalBuild = soloStats.me.finalBuild;
 		Object.assign(soloStats, CharData.default);
 		soloStats.me.finalBuild = finalBuild;
 		CharData.updateData("me", soloStats);
-		Tracker.resetGameTime();
 	}
 
 	D2Bot.updateStatus("Making Character: " + info.charName);
