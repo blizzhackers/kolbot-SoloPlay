@@ -104,13 +104,15 @@ const SoloIndex = {
 					return Pather.accessToAct(3) || Attack.auradin || me.checkItem({name: sdk.locale.items.Enigma}).have;
 				case sdk.player.class.Barbarian:
 					return Pather.accessToAct(3) || me.checkItem({name: sdk.locale.items.Lawbringer}).have;
+				default:
+					if (me.hell && me.charlvl > 72 && Pather.accessToAct(2)) return true;
+					return false;
 				}
-				return false;
 			},
 			shouldRun: function () {
 				switch (true) {
 				case (me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf())):
-				case (me.nightmare && (!me.tristram && me.charlvl < 43 || Check.brokeAf())):
+				case (me.nightmare && ((!me.tristram && me.charlvl < 43) || Check.brokeAf())):
 				case (me.hell && ((!me.tristram && me.diffCompleted) || !this.skipIf())):
 					return true;
 				}
@@ -328,7 +330,7 @@ const SoloIndex = {
 				case sdk.player.class.Amazon:
 					return SetUp.currentBuild !== SetUp.finalBuild;
 				default:
-					return Attack.getSkillElement(Config.AttackSkill[3] === "magic");
+					return Attack.getSkillElement(Config.AttackSkill[3]) === "magic";
 				}
 			},
 			shouldRun: function () {
@@ -506,7 +508,7 @@ const SoloIndex = {
 				if (!this.preReq() || this.skipIf()) return false;
 				switch (true) {
 				case !me.mephisto:
-				case (me.normal && (Check.brokeAf() || !me.diffCompleted)):
+				case (me.normal && (Check.brokeAf() || !me.diablo)):
 				case (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)):
 				case (me.hell && (Pather.canTeleport() || !me.hardcore)):
 					return true;
@@ -523,12 +525,18 @@ const SoloIndex = {
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
-				return true;
+				switch (true) {
+				case !me.izual:
+				case (me.normal && !me.diablo):
+					return true;
+				}
+				return false;
 			}
 		},
 		"river": {
 			preReq: function () {
-				return (Pather.accessToAct(4) && me.charlvl >= 24);
+				const cLvl = me.charlvl;
+				return (Pather.accessToAct(4) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
 			},
 			skipIf: function () {
 				return (me.diablo || me.normal);
@@ -545,7 +553,8 @@ const SoloIndex = {
 		},
 		"hephasto": {
 			preReq: function () {
-				return (Pather.accessToAct(4) && me.charlvl >= 24);
+				const cLvl = me.charlvl;
+				return (Pather.accessToAct(4) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
 			},
 			skipIf: function () {
 				return (!me.barbarian || me.normal || me.diablo);
@@ -561,7 +570,8 @@ const SoloIndex = {
 		},
 		"hellforge": {
 			preReq: function () {
-				return (Pather.accessToAct(4) && me.charlvl >= 24);
+				const cLvl = me.charlvl;
+				return (Pather.accessToAct(4) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
 			},
 			skipIf: function () {
 				return (me.hellforge || me.getQuest(sdk.quest.id.HellsForge, sdk.quest.states.ReqComplete));
@@ -573,7 +583,8 @@ const SoloIndex = {
 		},
 		"diablo": {
 			preReq: function () {
-				return (Pather.accessToAct(4) && me.charlvl >= 24);
+				const cLvl = me.charlvl;
+				return (Pather.accessToAct(4) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
 			},
 			skipIf: function () {
 				return false;
