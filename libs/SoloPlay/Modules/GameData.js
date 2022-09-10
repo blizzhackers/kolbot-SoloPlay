@@ -639,8 +639,13 @@
 
 			switch (skillID) {
 			case sdk.skills.ChargedBolt: // more than one bolt can hit but may calc this as splashdamage instead
-				dmg.min *= 1.5;
-				dmg.max *= 1.5;
+				let baseId = getBaseStat("monstats", unit.classid, "baseid");
+				let size = getBaseStat("monstats2", baseId, "sizex");
+				(typeof size !== "number" || size < 1 || size > 3) && (size = 3);
+				let dist = unit.distance;
+				const modifier = size === 1 ? 0.5 : size === 3 ? 1.5 : size === 2 && dist < 5 ? 1.2 : 1;
+				dmg.min *= modifier;
+				dmg.max *= modifier;
 
 				// need to take into account the amount of bolts released
 				// the size of the unit we are targetting
@@ -859,28 +864,20 @@
 				
 				if (!Attack.validSpot(x, y, skillID, unit.classid)) {
 					return 0;
-				} else {
-					avgDmg = calculateSplashDamage(skillID, 4, unit);
 				}
 
-				break;
+				return calculateSplashDamage(skillID, 4, unit);
 			case sdk.skills.FrostNova:
 			case sdk.skills.Nova:
-				avgDmg = calculateSplashDamage(skillID, 6, unit);
-				break;
+				return calculateSplashDamage(skillID, 6, unit);
 			case sdk.skills.StaticField:
-				avgDmg = calculateRawStaticDamage(unit);
-				break;
+				return calculateRawStaticDamage(unit);
 			case sdk.skills.ChainLightning:
-				avgDmg = calculateChainDamage(skillID, unit);
-
-				break;
+				return calculateChainDamage(skillID, unit);
 			default:
 				skillToCheck = this.skillDamage(skillID, unit);
-				avgDmg = getTotalDmg(skillToCheck, unit);
-				break;
+				return getTotalDmg(skillToCheck, unit);
 			}
-			return avgDmg;
 		},
 		allSkillDamage: function (unit) {
 			let skills = {};

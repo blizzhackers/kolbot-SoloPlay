@@ -79,10 +79,11 @@ ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
 	// unit became invalidated
 	if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
 	
+	const currLvl = me.charlvl;
+	const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 	let gid = unit.gid;
 	let tick = getTickCount();
 	let gold = me.gold;
-	const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
 	if (Config.MercWatch && Town.needMerc() && gold > me.mercrevivecost * 3) {
 		console.debug("mercwatch");
@@ -125,24 +126,30 @@ ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
 		if (main.skill === check.skill) return false;
 		return check.dmg > main.dmg;
 	};
-	const currLvl = me.charlvl;
 	const data = {};
-	data.static = buildDataObj(sdk.skills.StaticField);
+	data.static = buildDataObj(sdk.skills.StaticField, 6);
 	data.frostNova = buildDataObj(sdk.skills.FrostNova, 6, 7);
+	data.iceBlast = buildDataObj(sdk.skills.IceBlast, 6, 15);
+	data.nova = buildDataObj(sdk.skills.Nova, 12);
+	data.fireBall = buildDataObj(sdk.skills.FireBall, 12);
+	data.lightning = buildDataObj(sdk.skills.Lightning, 12);
 	data.glacialSpike = buildDataObj(sdk.skills.GlacialSpike, 18, 15);
+	data.frozenOrb = buildDataObj(sdk.skills.FrozenOrb, 30);
+	data.hydra = buildDataObj(sdk.skills.Hydra, 30);
 	data.customTimed = buildDataObj(-1);
 	data.customUntimed = buildDataObj(-1);
 	data.mainTimed = buildDataObj(Config.AttackSkill[index]);
 	data.mainUntimed = buildDataObj(Config.AttackSkill[index + 1]);
 	data.secondaryTimed = buildDataObj(Config.AttackSkill[5]);
 	data.secondaryUntimed = buildDataObj(Config.AttackSkill[6]);
-	Object.keys(data).forEach(k => typeof data[k] === "object" && currLvl >= data[k].reqLvl && data[k].assignValues());
 
 	if (Attack.getCustomAttack(unit)) {
 		let [ts, uts] = Attack.getCustomAttack(unit);
 		ts > 0 && (data.customTimed = buildDataObj(ts));
 		uts > 0 && (data.customUntimed = buildDataObj(uts));
 	}
+
+	Object.keys(data).forEach(k => typeof data[k] === "object" && currLvl >= data[k].reqLvl && data[k].assignValues());
 
 	if (data.frostNova.have) {
 		if (me.mp > data.frostNova.mana) {
@@ -196,25 +203,11 @@ ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
 	// We lost track of the mob or killed it (recheck after using static)
 	if (unit === undefined || !unit || !unit.attackable) return true;
 
-	let timedSkill = buildDataObj(-1);
-	// Choose Skill
-	switch (true) {
-	case !recheckSkill && data.static.have && data.static.dmg > Math.max(data.mainTimed.dmg, data.secondaryTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg) && unit.getMobCount(15, Coords_1.Collision.BLOCK_MISSILE) < 5:
-		timedSkill = data.static;
-		break;
-	case data.mainTimed.have && me.mp > data.mainTimed.mana && (!data.mainTimed.timed || !me.skillDelay) && data.mainTimed.dmg > Math.max(data.secondaryTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg):
-		timedSkill = data.mainTimed;
-		break;
-	case data.secondaryTimed.have && me.mp > data.secondaryTimed.mana && (!data.secondaryTimed.timed || !me.skillDelay) && data.secondaryTimed.dmg > Math.max(data.mainTimed.dmg, data.mainUntimed.dmg, data.secondaryUntimed.dmg):
-		timedSkill = data.secondaryTimed;
-		break;
-	case data.mainUntimed.have && me.mp > data.mainUntimed.mana && data.mainUntimed.dmg > Math.max(data.secondaryUntimed.dmg, data.glacialSpike.dmg):
-		timedSkill = data.mainUntimed;
-		break;
-	case data.secondaryUntimed.have && me.mp > data.secondaryUntimed.mana && data.secondaryUntimed.dmg > Math.max(data.mainUntimed.dmg, data.glacialSpike.dmg):
-		timedSkill = data.secondaryUntimed;
-		break;
-	}
+	let skillCheck = Object.keys(data)
+		.filter(k => typeof data[k] === "object" && data[k].have && me.mp > data[k].mana
+			&& (!data[k].timed || !me.skillDelay) && (data[k].skill !== sdk.skills.StaticField || !recheckSkill))
+		.sort((a, b) => data[b].dmg - data[a].dmg).first();
+	let timedSkill = typeof data[skillCheck] === "object" ? data[skillCheck] : buildDataObj(-1);
 
 	// throw in another attack when using charged bolt as sometimes it misses
 	const lowManaData = {};
@@ -325,23 +318,6 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
 	if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
 	if (!!skill && me.mp < mana) {
 		return Attack.Result.NEEDMANA;
-		// if (me.mode !== sdk.player.mode.GettingHit && me.getMobCount(10) === 0) {
-		// 	console.log("No mana but safe right now, going to delay a bit");
-		// 	let tick = getTickCount();
-		// 	let howLongToDelay = Config.AttackSkill.some(sk => sk > 1 && Skill.canUse(sk)) ? Time.seconds(2) : Time.seconds(1);
-
-		// 	while (getTickCount() - tick < howLongToDelay) {
-		// 		if (me.mode === sdk.player.mode.GettingHit) {
-		// 			console.debug("no longer safe, we are being attacked");
-		// 			break;
-		// 		} else if (me.mp > (choosenSkill.mana * 2)) {
-		// 			break;
-		// 		}
-
-		// 		delay(40);
-		// 	}
-		// 	if (me.mp < (choosenSkill.mana * 2)) return Attack.Result.NEEDMANA;
-		// }
 	}
 	// No valid skills can be found
 	if (skill < 0) return Attack.Result.CANTATTACK;

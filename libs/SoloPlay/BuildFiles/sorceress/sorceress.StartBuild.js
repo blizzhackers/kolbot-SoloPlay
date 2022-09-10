@@ -21,11 +21,13 @@ let build = {
 		["strength", 35], ["vitality", "all"]
 	],
 	skills: [
-		[sdk.skills.ChargedBolt, 3, false], // charlvl 2 (2 lvls + den)
-		[sdk.skills.IceBolt, 1],            // charlvl 4
-		[sdk.skills.FrozenArmor, 1],        // charlvl 4
-		[sdk.skills.Telekinesis, 1],        // charlvl 5
-		[sdk.skills.FrostNova, 1],          // charlvl 6
+		[sdk.skills.ChargedBolt, 3, false], // charlvl 4
+		[sdk.skills.IceBolt, 1],            // charlvl 5
+		[sdk.skills.FrozenArmor, 1],        // charlvl 6
+		[sdk.skills.Telekinesis, 1],        // charlvl 7
+		[sdk.skills.FrostNova, 1],          // charlvl 8
+		[sdk.skills.StaticField, 1, false],
+		[sdk.skills.IceBlast, 1, false],
 		[sdk.skills.StaticField, 4],        // charlvl 10
 		[sdk.skills.Teleport, 1, false],    // charlvl 18
 		[sdk.skills.Nova, 7],               // charlvl 17
@@ -64,7 +66,9 @@ build.AutoBuildTemplate[2] = buildAutoBuildTempObj(() => {
 	Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 	Config.HPBuffer = 4;
 	Config.MPBuffer = 10;
-	if (me.checkSkill(sdk.skills.IceBolt, sdk.skills.subindex.SoftPoints)) {
+	if (me.checkSkill(sdk.skills.IceBlast, sdk.skills.subindex.SoftPoints)) {
+		Config.AttackSkill = [-1, sdk.skills.ChargedBolt, sdk.skills.IceBlast, sdk.skills.ChargedBolt, sdk.skills.IceBlast, sdk.skills.IceBlast, 0];
+	} else if (me.checkSkill(sdk.skills.IceBolt, sdk.skills.subindex.SoftPoints)) {
 		Config.AttackSkill = [-1, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.IceBolt, 0];
 	} else {
 		let secondSkill = Skill.canUse(sdk.skills.FireBolt) ? sdk.skills.FireBolt : sdk.skills.Attack;
@@ -75,7 +79,7 @@ build.AutoBuildTemplate[2] = buildAutoBuildTempObj(() => {
 build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
 	Config.HPBuffer = 4;
 	Config.MPBuffer = 8;
-	Config.AttackSkill = [-1, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.FrostNova, sdk.skills.IceBolt];
+	Config.AttackSkill = [-1, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.FrostNova, sdk.skills.IceBlast];
 	Config.DodgeHP = 50;
 	Config.DodgeRange = me.checkSkill(sdk.skills.Blizzard, sdk.skills.subindex.SoftPoints) ? 15 : 7;
 });

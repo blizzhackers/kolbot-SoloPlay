@@ -26,7 +26,7 @@ let build = {
 		["vitality", 252], ["dexterity", "block"], ["vitality", "all"]
 	],
 	classicSkills: [
-		// Total skills at respec = 27
+		// Total skills at respec = 27 (assume no izual quest points)
 		[sdk.skills.Warmth, 1], 		// points left 26
 		[sdk.skills.FrozenArmor, 1], 	// points left 25
 		[sdk.skills.StaticField, 6], 	// points left 19
@@ -41,7 +41,7 @@ let build = {
 		[sdk.skills.GlacialSpike, 20, false],
 	],
 	expansionSkills: [
-		// Total skills at respec = 25 
+		// Total skills at respec = 27 (assume no izual quest points)
 		[sdk.skills.Warmth, 1], 		// points left 24
 		[sdk.skills.FrozenArmor, 1], 	// points left 23
 		[sdk.skills.StaticField, 1], 	// points left 22

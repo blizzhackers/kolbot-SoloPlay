@@ -233,9 +233,8 @@ Attack.killTarget = function (name = undefined) {
 	
 	const who = (!!target.name ? target.name : name);
 	const gid = target.gid;
-	let retry = 0;
 	let errorInfo = "";
-	let attackCount = 0;
+	let [retry, attackCount] = [0, 0];
 	let lastLoc = {x: me.x, y: me.y};
 	let tick = getTickCount();
 
@@ -575,6 +574,7 @@ Attack.clearLevelUntilLevel = function (charlvl = undefined, spectype = 0) {
 // accepts object for bossId or classid, gid sometimes works depends if the gid is > 999
 // should stop clearing after boss is killed if we are using bossid
 // @todo if we are skipping a certain monster because of enchant or aura we should skip any monsters within the area of that scary monster
+// @todo maybe include refresh call every x amount of attacks in case the we've changed position and the monster we are targetting isn't actually the right one anymore
 Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = undefined, pickit = true) {
 	while (!me.gameReady) {
 		delay(40);
@@ -1023,7 +1023,7 @@ Attack.pwnDury = function () {
 	while (!duriel.dead) {
 		//ToDo; figure out static
 		if (duriel.getState(sdk.states.Frozen) && duriel.distance < 7 || duriel.distance < 12) {
-			let safeSpot = saveSpots.sort((a, b) => getDistance(duriel, b) - getDistance(duriel, a))[0];
+			let safeSpot = saveSpots.sort((a, b) => getDistance(duriel, b) - getDistance(duriel, a)).first();
 			Pather.teleportTo(safeSpot.x, safeSpot.y);
 		}
 		ClassAttack.doAttack(duriel, true);
@@ -1054,8 +1054,8 @@ Attack.pwnDia = function () {
 				y: Math.floor(center.y + skillRange * Math.sin(i) + 0.5),
 			});
 		}
-		return coords.filter((e, i, s) => s.indexOf(e) === i) // only unique spots
-			.filter(el => Attack.validSpot(el.x, el.y));
+		// only unique spots
+		return coords.filter((e, i, s) => s.indexOf(e) === i).filter(el => Attack.validSpot(el.x, el.y));
 	};
 
 	const checkMobs = function () {
