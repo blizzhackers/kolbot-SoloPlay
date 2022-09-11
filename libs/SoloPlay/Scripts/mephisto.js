@@ -28,7 +28,7 @@ function mephisto () {
 	const canTele = Pather.canTeleport();
 	try {
 		canTele && (Config.ClearPath.Range = 0);
-		Pather.canTeleport()
+		canTele
 			? Pather.moveToExit(sdk.areas.DuranceofHateLvl3, true, false)
 			: Pather.clearToExit(sdk.areas.DuranceofHateLvl2, sdk.areas.DuranceofHateLvl3, true);
 	} finally {
