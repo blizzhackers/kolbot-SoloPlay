@@ -124,9 +124,22 @@ Town.buyPotions = function () {
 	if (!needPots && !needBuffer) return true;
 	// todo: buy the cheaper potions if we are low on gold or don't need the higher ones i.e have low mana/health pool
 	// why buy potion that heals 225 (greater mana) if we only have sub 100 mana
-	me.normal && me.highestAct >= 4 && me.act < 4 && this.goToTown(4);
+	let [wantedHpPot, wantedMpPot] = [5, 5];
+	// only do this if we are low on gold in the first place
+	if (me.gold < Config.LowGold) {
+		const mpPotsEffects = PotData.getMpPots().map(el => el.effect[me.classid]);
+		const hpPotsEffects = PotData.getHpPots().map(el => el.effect[me.classid]);
 
-	let highestPot = 5;
+		wantedHpPot = (hpPotsEffects.findIndex(eff => me.hpmax / 2 < eff) + 1 || hpPotsEffects.length - 1);
+		wantedMpPot = (mpPotsEffects.findIndex(eff => me.mpmax / 2 < eff) + 1 || mpPotsEffects.length - 1);
+		console.debug("Wanted hpPot: " + wantedHpPot + " Wanted mpPot: " + wantedMpPot);
+	}
+
+	if (me.normal && me.highestAct >= 4) {
+		let pAct = Math.max(wantedHpPot, wantedMpPot);
+		pAct >= 4 ? me.act < 4 && this.goToTown(4) : pAct > me.act && this.goToTown(pAct);
+	}
+
 	let npc = this.initNPC("Shop", "buyPotions");
 	if (!npc) return false;
 
@@ -149,23 +162,14 @@ Town.buyPotions = function () {
 		});
 	}
 
-	// only do this if we are low on gold in the first place
-	if (me.gold < Config.LowGold) {
-		const mpPotsEffects = PotData.getMpPots().map(el => el.effect[me.classid]);
-		const hpPotsEffects = PotData.getHpPots().map(el => el.effect[me.classid]);
-
-		let wantedHpPot = (hpPotsEffects.findIndex(eff => me.hpmax / 2 < eff) + 1 || hpPotsEffects.length - 1);
-		let wantedMpPot = (mpPotsEffects.findIndex(eff => me.mpmax / 2 < eff) + 1 || mpPotsEffects.length - 1);
-		console.debug("Wanted hpPot: " + wantedHpPot + " Wanted mpPot: " + wantedMpPot);
-	}
-
 	for (let i = 0; i < 4; i += 1) {
 		if (col[i] > 0) {
-			let useShift = this.shiftCheck(col, beltSize);
-			let pot = this.getPotion(npc, Config.BeltColumn[i], highestPot);
+			const useShift = this.shiftCheck(col, beltSize);
+			const wantedPot = Config.BeltColumn[i] === "hp" ? wantedHpPot : wantedMpPot;
+			let pot = this.getPotion(npc, Config.BeltColumn[i], wantedPot);
 
 			if (pot) {
-				//print("ÿc2column ÿc0" + i + "ÿc2 needs ÿc0" + col[i] + " ÿc2potions");
+				// print("ÿc2column ÿc0" + i + "ÿc2 needs ÿc0" + col[i] + " ÿc2potions");
 				// Shift+buy will trigger if there's no empty columns or if only the current column is empty
 				if (useShift) {
 					pot.buy(true);
@@ -186,7 +190,7 @@ Town.buyPotions = function () {
 	const buyHPBuffers = () => {
 		if (needBuffer && buffer.hp < Config.HPBuffer) {
 			for (let i = 0; i < Config.HPBuffer - buffer.hp; i += 1) {
-				let pot = this.getPotion(npc, "hp");
+				let pot = this.getPotion(npc, "hp", wantedHpPot);
 				!!pot && Storage.Inventory.CanFit(pot) && pot.buy(false);
 			}
 		}
@@ -195,7 +199,7 @@ Town.buyPotions = function () {
 	const buyMPBuffers = () => {
 		if (needBuffer && buffer.mp < Config.MPBuffer) {
 			for (let i = 0; i < Config.MPBuffer - buffer.mp; i += 1) {
-				let pot = this.getPotion(npc, "mp");
+				let pot = this.getPotion(npc, "mp", wantedMpPot);
 				!!pot && Storage.Inventory.CanFit(pot) && pot.buy(false);
 			}
 		}
