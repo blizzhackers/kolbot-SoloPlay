@@ -233,7 +233,7 @@ Pickit.canPick = function (unit) {
 			if (charm) {
 				do {
 					// Skip Gheed's Fortune, Hellfire Torch or Annihilus if we already have one
-					if (unit.unique) return false;
+					if (charm.unique) return false;
 				} while (charm.getNext());
 			}
 		}
