@@ -183,6 +183,28 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
 	return result;
 };
 
+ClassAttack.reposition = function (x, y) {
+	if (typeof x !== "number" || typeof y !== "number") return false;
+	if ([x, y].distance > 1) {
+		if (Pather.useTeleport()) {
+			[x, y].distance > 30 ? Pather.moveTo(x, y) : Pather.teleportTo(x, y, 3);
+		} else {
+			if ([x, y].distance <= 4 && !CollMap.checkColl(me, { x: x, y: y }, sdk.collision.BlockWalk, 3)) {
+				Misc.click(0, 0, x, y);
+			} else if (!CollMap.checkColl(me, { x: x, y: y }, sdk.collision.BlockWalk, 3)) {
+				Pather.walkTo(x, y);
+			} else {
+				// don't clear while trying to reposition
+				Pather.moveToEx(x, y, { clearSettings: { allowClearing: false } });
+			}
+
+			delay(200);
+		}
+	}
+
+	return true;
+};
+
 ClassAttack.doCast = function (unit, attackSkill = -1, aura = -1) {
 	if (attackSkill < 0) return Attack.Result.CANTATTACK;
 	// unit became invalidated
