@@ -208,7 +208,7 @@ const tierWeights = {
 		FHR: 3, // faster hit recovery
 		DEF: 0.05, // defense
 		ICB: 2, // increased chance to block
-		BELTSLOTS: 1.55, //belt potion storage
+		BELTSLOTS: 2, // belt potion storage
 		MF: 1, //Magic Find
 		// base stats
 		HP:	0.5,
@@ -342,7 +342,11 @@ const tierscore = function (item, bodyloc) {
 		!canTele && (generalRating += item.getStatEx(sdk.stats.FRW) * tierWeights.generalWeights.FRW);
 
 		// belt slots
-		item.itemType === sdk.items.type.Belt && (generalRating += Storage.BeltSize() * 4 * tierWeights.generalWeights.BELTSLOTS); // rows * columns * weight
+		if (item.itemType === sdk.items.type.Belt) {
+			const beltSize = ["lbl", "vbl"].includes(item.code) ? 2 : ["mbl", "tbl"].includes(item.code) ? 3 : 4;
+			// if our current belt-size is better, don't down-grade even if the other stats on the new item are better, not worth the town visits
+			generalRating += (Storage.BeltSize() > beltSize ? -50 : (beltSize * 4 * tierWeights.generalWeights.BELTSLOTS));
+		}
 
 		// start generalRating
 		generalRating += item.getStatEx(sdk.stats.MagicBonus) * tierWeights.generalWeights.MF; // add magic find

@@ -72,6 +72,11 @@ me.getMercEx = function () {
 	return !!merc && !merc.dead ? merc : null;
 };
 
+me.getEquippedItem = function (bodyLoc) {
+	if (!bodyLoc) return null;
+	return me.getItemsEx().filter(i => i.isEquipped && i.bodylocation === bodyLoc).first();
+};
+
 // @todo better determination of what actually constitutes being in danger
 // need check for ranged mobs so we can stick and move to avoid missiles
 me.inDanger = function () {
