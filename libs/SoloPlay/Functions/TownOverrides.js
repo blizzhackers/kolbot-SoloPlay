@@ -594,6 +594,7 @@ Town.shopItems = function (force = false) {
 	} else if (me.charlvl < 6 && me.gold > 200) {
 		lowLevelShop = true;
 		Storage.BeltSize() === 1 && itemTypes.push(sdk.items.type.Belt);
+		!CharData.skillData.bowData.bowOnSwitch && itemTypes.push(sdk.items.type.Bow, sdk.items.type.Crossbow);
 		if (!itemTypes.length) return true;
 		goldLimit = 200;
 	}
@@ -899,9 +900,22 @@ Town.repair = function (force = false) {
 			break;
 		case "buyQuiver":
 			let bowCheck = Attack.usingBow();
+			let switchBowCheck = CharData.skillData.bowData.bowOnSwitch;
+			!bowCheck && switchBowCheck && (bowCheck = (() => {
+				switch (CharData.skillData.bowData.bowType) {
+				case sdk.items.type.Bow:
+				case sdk.items.type.AmazonBow:
+					return "bow";
+				case sdk.items.type.Crossbow:
+					return "crossbow";
+				default:
+					return "";
+				}
+			})());
 
 			if (bowCheck) {
 				let quiver = bowCheck === "bow" ? "aqv" : "cqv";
+				switchBowCheck && me.switchWeapons(sdk.player.slot.Secondary);
 				let myQuiver = me.getItem(quiver, sdk.items.mode.Equipped);
 				!!myQuiver && myQuiver.drop();
 				
@@ -910,6 +924,7 @@ Town.repair = function (force = false) {
 
 				quiver = npc.getItem(quiver);
 				!!quiver && quiver.buy();
+				switchBowCheck && me.switchWeapons(sdk.player.slot.Main);
 			}
 
 			break;
