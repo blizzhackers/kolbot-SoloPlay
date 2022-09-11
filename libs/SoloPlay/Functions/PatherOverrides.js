@@ -100,6 +100,43 @@ NodeAction.popChests = function () {
 	Misc.useWell(range);
 };
 
+NodeAction.pickItems = function (arg = {}) {
+	if (arg.hasOwnProperty("allowPicking") && !arg.allowPicking) return;
+
+	let item = Game.getItem();
+	const maxDist = Skill.haveTK ? 15 : 5;
+	const regPickRange = Pather.canTeleport() ? Config.PickRange : 8;
+	const maxRange = Math.max(maxDist, regPickRange);
+	const totalList = [].concat(Pickit.essentialList, Pickit.pickList);
+	const filterJunk = (item) => !!item && item.onGroundOrDropping;
+
+	if (item) {
+		do {
+			if (item.onGroundOrDropping) {
+				const itemDist = getDistance(me, item);
+				if (itemDist > maxRange) continue;
+				if (totalList.some(el => el.gid === item.gid)) continue;
+				if (Pickit.essentials.includes(item.itemType)) {
+					if (itemDist <= maxDist && (item.itemType !== sdk.items.type.Gold || itemDist < 5)
+						&& Pickit.checkItem(item).result && Pickit.canPick(item) && Pickit.canFit(item)) {
+						Pickit.essentialList.push(copyUnit(item));
+					}
+				} else if (itemDist <= regPickRange && item.itemType === sdk.items.type.Key) {
+					if (Pickit.canPick(item) && Pickit.checkItem(item).result) {
+						Pickit.pickList.push(copyUnit(item));
+					}
+				} else if (itemDist <= regPickRange && Pickit.checkItem(item).result) {
+					Pickit.pickList.push(copyUnit(item));
+				}
+			}
+		} while (item.getNext());
+	}
+	Pickit.essentialList.length > 0 && (Pickit.essentialList = Pickit.essentialList.filter(filterJunk));
+	Pickit.pickList.length > 0 && (Pickit.pickList = Pickit.pickList.filter(filterJunk));
+	Pickit.essentialList.length > 0 && Pickit.essessntialsPick(false, false);
+	Pickit.pickList.length > 0 && Pickit.pickItems(regPickRange);
+};
+
 // todo - fast shrineing, if we are right next to a shrine then grab it even with mobs around
 
 Pather.haveTeleCharges = false;
