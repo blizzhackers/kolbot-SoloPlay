@@ -301,10 +301,10 @@ const tierWeights = {
 		ALL:	180, // + all skills
 		CLASS:	175, // + class tab
 		TAB: 300, // + skill tab
-		FR: 2, // fire resist
+		FR: 3, // fire resist
 		LR: 5, // lightning resist
 		CR: 2, // cold resist
-		PR: 1, // poison resist
+		PR: 0.5, // poison resist
 		FRW: 1, // faster run/walk
 		FHR: (me.barbarian ? 4 : 2), // faster hit recovery
 		DEF: 0.05, // defense
@@ -481,27 +481,23 @@ const tierscore = function (item, bodyloc) {
 		// chance to cast doesn't exist in classic
 		if (me.classic) return 0;
 
+		const ctcSkillObj = (ctcType, skill, level) => ({ ctcType: ctcType, skill: skill, level: level });
+		const meleeCheck = !buildInfo.caster;
 		let ctcRating = 0, ctcItems = [];
+		let skill, level;
 		let stats = item.getStat(-2);
-		let meleeCheck = !buildInfo.caster;
 
 		if (stats.hasOwnProperty(sdk.stats.SkillWhenStruck)) {
 			if (stats[sdk.stats.SkillWhenStruck] instanceof Array) {
 				for (let i = 0; i < stats[sdk.stats.SkillWhenStruck].length; i++) {
 					if (stats[sdk.stats.SkillWhenStruck][i] !== undefined) {
-						ctcItems.push({
-							ctcType: sdk.stats.SkillWhenStruck,
-							skill: stats[sdk.stats.SkillWhenStruck][i].skill,
-							level: stats[sdk.stats.SkillWhenStruck][i].level
-						});
+						({ skill, level } = stats[sdk.stats.SkillWhenStruck][i]);
+						ctcItems.push(ctcSkillObj(sdk.stats.SkillWhenStruck, skill, level));
 					}
 				}
 			} else {
-				ctcItems.push({
-					ctcType: sdk.stats.SkillWhenStruck,
-					skill: stats[sdk.stats.SkillWhenStruck].skill,
-					level: stats[sdk.stats.SkillWhenStruck].level
-				});
+				({ skill, level } = stats[sdk.stats.SkillWhenStruck]);
+				ctcItems.push(ctcSkillObj(sdk.stats.SkillWhenStruck, skill, level));
 			}
 		}
 
@@ -509,19 +505,13 @@ const tierscore = function (item, bodyloc) {
 			if (stats[sdk.stats.SkillOnAttack] instanceof Array) {
 				for (let i = 0; i < stats[sdk.stats.SkillOnAttack].length; i++) {
 					if (stats[sdk.stats.SkillOnAttack][i] !== undefined) {
-						ctcItems.push({
-							ctcType: sdk.stats.SkillOnAttack,
-							skill: stats[sdk.stats.SkillOnAttack][i].skill,
-							level: stats[sdk.stats.SkillOnAttack][i].level
-						});
+						({ skill, level } = stats[sdk.stats.SkillOnAttack][i]);
+						ctcItems.push(ctcSkillObj(sdk.stats.SkillOnAttack, skill, level));
 					}
 				}
 			} else {
-				ctcItems.push({
-					ctcType: sdk.stats.SkillOnAttack,
-					skill: stats[sdk.stats.SkillOnAttack].skill,
-					level: stats[sdk.stats.SkillOnAttack].level
-				});
+				({ skill, level } = stats[sdk.stats.SkillOnAttack]);
+				ctcItems.push(ctcSkillObj(sdk.stats.SkillOnAttack, skill, level));
 			}
 		}
 
@@ -529,19 +519,13 @@ const tierscore = function (item, bodyloc) {
 			if (stats[sdk.stats.SkillOnStrike] instanceof Array) {
 				for (let i = 0; i < stats[sdk.stats.SkillOnStrike].length; i++) {
 					if (stats[sdk.stats.SkillOnStrike][i] !== undefined) {
-						ctcItems.push({
-							ctcType: sdk.stats.SkillOnStrike,
-							skill: stats[sdk.stats.SkillOnStrike][i].skill,
-							level: stats[sdk.stats.SkillOnStrike][i].level
-						});
+						({ skill, level } = stats[sdk.stats.SkillOnStrike][i]);
+						ctcItems.push(ctcSkillObj(sdk.stats.SkillOnStrike, skill, level));
 					}
 				}
 			} else {
-				ctcItems.push({
-					ctcType: sdk.stats.SkillOnStrike,
-					skill: stats[sdk.stats.SkillOnStrike].skill,
-					level: stats[sdk.stats.SkillOnStrike].level
-				});
+				({ skill, level } = stats[sdk.stats.SkillOnStrike]);
+				ctcItems.push(ctcSkillObj(sdk.stats.SkillOnStrike, skill, level));
 			}
 		}
 
