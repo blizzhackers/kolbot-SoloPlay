@@ -52,16 +52,16 @@ NodeAction.killMonsters = function (arg = {}) {
 	 */
 	if (!canTele && settings.clearPath !== false) {
 		let monList = [];
-		if (summonerAreas.includes(myArea)) {
+		if (me.inArea(sdk.areas.BloodMoor)) {
 			monList = getUnits(sdk.unittype.Monster)
-				.filter(mon => mon.attackable && mon.distance < 30 && (mon.isUnraveler || mon.isShaman)
+				.filter(mon => mon.attackable && mon.distance < 30 && !mon.isFallen
 					&& !checkCollision(me, mon, (sdk.collision.BlockWall | sdk.collision.LineOfSight | sdk.collision.Ranged)));
 			monList.length > 0 && Attack.clearList(monList);
 		}
 
-		if (me.inArea(sdk.areas.BloodMoor)) {
+		if (summonerAreas.includes(myArea)) {
 			monList = getUnits(sdk.unittype.Monster)
-				.filter(mon => mon.attackable && mon.distance < 30 && !mon.isFallen
+				.filter(mon => mon.attackable && mon.distance < 30 && (mon.isUnraveler || mon.isShaman)
 					&& !checkCollision(me, mon, (sdk.collision.BlockWall | sdk.collision.LineOfSight | sdk.collision.Ranged)));
 			monList.length > 0 && Attack.clearList(monList);
 		}
@@ -459,10 +459,6 @@ Pather.move = function (target, givenSettings = {}) {
 									this.move(node, settings);
 								}
 							}
-						} catch (e) {
-							let checkMsg = e.message ? e.message : e;
-							if (checkMsg.includes("EVENT") || checkMsg.includes("ENDSCRIPT")) throw new Error(checkMsg);
-							console.error(e);
 						} finally {
 							this.recursion = true;
 						}
