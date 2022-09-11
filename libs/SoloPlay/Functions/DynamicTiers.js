@@ -421,7 +421,10 @@ const tierscore = function (item, bodyloc) {
 		buildInfo.usefulStats.forEach(stat => buildRating += item.getStatEx(stat));
 
 		// Melee Specific
-		if (!buildInfo.caster || Config.AttackSkill.includes(sdk.skills.Attack) || Config.LowManaSkill.includes(sdk.skills.Attack)) {
+		if (!buildInfo.caster
+			|| Config.AttackSkill.includes(sdk.skills.Attack)
+			|| Config.LowManaSkill.includes(sdk.skills.Attack)
+			|| ([sdk.items.type.Bow, sdk.items.type.AmazonBow, sdk.items.type.Crossbow].includes(item.itemType) && CharData.skillData.bowData.bowOnSwitch)) {
 			let meleeRating = 0;
 			let eleDmgModifer = [sdk.items.type.Ring, sdk.items.type.Amulet].includes(item.itemType) ? 2 : 1;
 

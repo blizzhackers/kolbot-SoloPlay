@@ -43,6 +43,14 @@ Pickit.checkItem = function (unit) {
 		return resultObj(Pickit.Result.UTILITY);
 	}
 
+	if (CharData.skillData.bowData.bowOnSwitch) {
+		if ([sdk.items.type.Bow, sdk.items.type.AmazonBow].includes(CharData.skillData.bowData.bowType) && unit.itemType === sdk.items.type.BowQuiver && Item.getQuantityOwned(unit, true) < 1) {
+			return resultObj(Pickit.Result.WANTED, "Switch-Arrows");
+		} else if (CharData.skillData.bowData.bowType === sdk.items.type.Crossbow && unit.itemType === sdk.items.type.CrossbowQuiver && Item.getQuantityOwned(unit, true) < 1) {
+			return resultObj(Pickit.Result.WANTED, "Switch-Bolts");
+		}
+	}
+
 	if (unit.classid === sdk.items.StaminaPotion && (me.charlvl < 18 || me.staminaPercent <= 85 || me.walking) && Item.getQuantityOwned(unit, true) < 2) {
 		return resultObj(Pickit.Result.WANTED, "LowStamina");
 	}
@@ -186,12 +194,8 @@ Pickit.canPick = function (unit) {
 
 	switch (unit.itemType) {
 	case sdk.items.type.Gold:
-		// Check current gold vs max capacity (cLvl*10000)
-		if (me.getStat(sdk.stats.Gold) === me.getStat(sdk.stats.Level) * 10000) {
-			return false; // Skip gold if full
-		}
-
-		break;
+		// Check current gold vs max capacity (cLvl*10000) and skip if full
+		return (me.getStat(sdk.stats.Gold) < me.getStat(sdk.stats.Level) * 10000);
 	case sdk.items.type.Scroll:
 		// 518 - Tome of Town Portal or 519 - Tome of Identify, mode 0 - inventory/stash
 		tome = me.getItem(unit.classid - 11, sdk.items.mode.inStorage);

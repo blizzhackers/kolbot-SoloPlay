@@ -306,6 +306,19 @@ const SetUp = {
 		});
 	},
 
+	bowQuiver: function () {
+		NTIP.resetRuntimeList();
+		if (CharData.skillData.bowData.bowOnSwitch) {
+			if ([sdk.items.type.Bow, sdk.items.type.AmazonBow].includes(CharData.skillData.bowData.bowType)) {
+				NTIP.addToRuntime("[type] == bowquiver # # [maxquantity] == 1");
+			} else if (CharData.skillData.bowData.bowType === sdk.items.type.Crossbow) {
+				NTIP.addToRuntime("[type] == crossbowquiver # # [maxquantity] == 1");
+			} else if (me.charlvl < 10) {
+				NTIP.addToRuntime("[type] == bowquiver # # [maxquantity] == 1");
+			}
+		}
+	},
+
 	imbueItems: function () {
 		if (SetUp.finalBuild === "Imbuemule") return [];
 		let temp = [];
@@ -326,6 +339,8 @@ const SetUp = {
 
 		if (me.expansion) {
 			const expansionExtras = [
+				// switch bow
+				"([type] == bow || [type] == crossbow) && [quality] >= normal # [itemchargedskill] >= 0 # [secondarytier] == tierscore(item)",
 				// Special Charms
 				"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
 				"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
@@ -339,6 +354,7 @@ const SetUp = {
 				"me.mercid === 338 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 			];
 			NTIP.arrayLooping(expansionExtras);
+			this.bowQuiver();
 		}
 
 		/* General configuration. */

@@ -208,6 +208,48 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 	let mercRevive = 0;
 	let skills = this.decideSkill(unit);
 
+	const switchBowAttack = (unit, attackSkill) => {
+		if (Attack.getIntoPosition(unit, 20, sdk.collision.Ranged)) {
+			try {
+				const checkForShamans = unit.isFallen && !me.inArea(sdk.areas.BloodMoor);
+				for (let i = 0; i < 5 && unit.attackable; i++) {
+					if (checkForShamans && !once) {
+						// before we waste time let's see if there is a shaman we should kill
+						const shaman = getUnits(sdk.unittype.Monster)
+							.filter(mon => mon.distance < 20 && mon.isShaman && mon.attackable)
+							.sort((a, b) => a.distance - b.distance).first();
+						if (shaman) return ClassAttack.doAttack(shaman, null, true);
+					}
+					if (!Attack.useBowOnSwitch(unit, attackSkill, i === 5)) return Attack.Result.FAILED;
+					if (unit.distance < 8 || me.inDanger()) {
+						if (once) return Attack.Result.FAILED;
+						let closeMob = getUnits(sdk.unittype.Monster)
+							.filter(mon => mon.distance < 10 && mon.attackable && mon.gid !== gid)
+							.sort(Attack.walkingSortMonsters).first();
+						if (closeMob) return ClassAttack.doAttack(closeMob, null, true);
+					}
+				}
+			} finally {
+				me.weaponswitch !== sdk.player.slot.Main && me.switchWeapons(sdk.player.slot.Main);
+			}
+		}
+		return unit.dead ? Attack.Result.SUCCESS : Attack.Result.FAILED;
+	};
+
+	// @todo damage/effort comparison vs our normal skill
+	if (CharData.skillData.bowData.bowOnSwitch
+		&& (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
+		&& (unit.distance >= 8 || (unit.isMoving && (unit.targetx !== me.x || unit.targety !== me.y)))
+		&& ([sdk.skills.Attack, sdk.skills.Jab].includes(skills.timed) || Skill.getManaCost(skills.timed) > me.mp)) {
+		let arrowSkill = (() => {
+			// todo - better determination of skills
+			if (Skill.canUse(sdk.skills.MagicArrow) && Skill.getManaCost(sdk.skills.MagicArrow) < me.mp) return sdk.skills.MagicArrow;
+			if (Skill.canUse(sdk.skills.FireArrow) && Skill.getManaCost(sdk.skills.FireArrow) < me.mp) return sdk.skills.FireArrow;
+			return 0;
+		})();
+		if (switchBowAttack(unit, arrowSkill) === Attack.Result.SUCCESS) return Attack.Result.SUCCESS;
+	}
+
 	if ([sdk.skills.Attack, sdk.skills.Jab].includes(skills.timed)
 		&& (unit.distance >= 12 || (unit.distance > 4 && unit.isMoving && (unit.targetx !== me.x || unit.targety !== me.y)) || unit.coldEnchanted)) {
 		let item = me.getItemsEx().filter(item => item.isEquipped && item.bodylocation === sdk.body.RightArm).first();

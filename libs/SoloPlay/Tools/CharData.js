@@ -210,6 +210,7 @@ const CharData = {
 				if (bow === undefined) return;
 				this.bowGid = bow.gid;
 				this.bowType = bow.itemType;
+				SetUp.bowQuiver();
 				init && (this.initialized = true);
 				!init && CharData.skillData.update();
 			},

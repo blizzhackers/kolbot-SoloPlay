@@ -138,6 +138,7 @@ ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
 	data.hydra = buildDataObj(sdk.skills.Hydra, 30);
 	data.customTimed = buildDataObj(-1);
 	data.customUntimed = buildDataObj(-1);
+	// @todo handle if these are already include in the above list, or should I just build all used skils instead and ignore these?
 	data.mainTimed = buildDataObj(Config.AttackSkill[index]);
 	data.mainUntimed = buildDataObj(Config.AttackSkill[index + 1]);
 	data.secondaryTimed = buildDataObj(Config.AttackSkill[5]);
@@ -251,6 +252,42 @@ ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
 
 	if (timedSkill.skill === sdk.skills.ChargedBolt && data.secondaryUntimed.skill === sdk.skills.IceBolt && data.secondaryUntimed.have && slowable(unit)) {
 		timedSkill = data.secondaryUntimed;
+	}
+
+	const switchBowAttack = (unit) => {
+		if (Attack.getIntoPosition(unit, 20, sdk.collision.Ranged)) {
+			try {
+				const checkForShamans = unit.isFallen && !me.inArea(sdk.areas.BloodMoor);
+				for (let i = 0; i < 5 && unit.attackable; i++) {
+					if (checkForShamans && !once) {
+						// before we waste time let's see if there is a shaman we should kill
+						const shaman = getUnits(sdk.unittype.Monster)
+							.filter(mon => mon.distance < 20 && mon.isShaman && mon.attackable)
+							.sort((a, b) => a.distance - b.distance).first();
+						if (shaman) return ClassAttack.doAttack(shaman, null, true);
+					}
+					if (!Attack.useBowOnSwitch(unit, sdk.skills.Attack, i === 5)) return Attack.Result.FAILED;
+					if (unit.distance < 8 || me.inDanger()) {
+						if (once) return Attack.Result.FAILED;
+						let closeMob = getUnits(sdk.unittype.Monster)
+							.filter(mon => mon.distance < 10 && mon.attackable && mon.gid !== gid)
+							.sort(Attack.walkingSortMonsters).first();
+						if (closeMob) return ClassAttack.doAttack(closeMob, null, true);
+					}
+				}
+			} finally {
+				me.weaponswitch !== sdk.player.slot.Main && me.switchWeapons(sdk.player.slot.Main);
+			}
+		}
+		return unit.dead ? Attack.Result.SUCCESS : Attack.Result.FAILED;
+	};
+
+	if (CharData.skillData.bowData.bowOnSwitch
+		&& (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
+		&& ([-1, sdk.skills.Attack].includes(timedSkill.skill)
+		|| timedSkill.mana > me.mp
+		|| (timedSkill.mana * 3 > me.mp && [sdk.skills.FireBolt, sdk.skills.ChargedBolt].includes(timedSkill.skill)))) {
+		if (switchBowAttack(unit) === Attack.Result.SUCCESS) return Attack.Result.SUCCESS;
 	}
 
 	switch (ClassAttack.doCast(unit, timedSkill, data)) {
@@ -435,7 +472,7 @@ ClassAttack.doCast = function (unit, choosenSkill, data) {
 							break;
 						}
 						if (me.inDanger()) {
-							Attack.deploy(unit, Config.DodgeRange, 5, 9);
+							Attack.deploy(unit, range, 5, 9);
 							break;
 						}
 					} else {

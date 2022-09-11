@@ -107,6 +107,41 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
 		[attackSkill, aura] = Config.LowManaSkill;
 	}
 
+	const switchBowAttack = (unit) => {
+		if (Attack.getIntoPosition(unit, 20, sdk.collision.Ranged)) {
+			try {
+				const checkForShamans = unit.isFallen && !me.inArea(sdk.areas.BloodMoor);
+				for (let i = 0; i < 5 && unit.attackable; i++) {
+					if (checkForShamans && !once) {
+						// before we waste time let's see if there is a shaman we should kill
+						const shaman = getUnits(sdk.unittype.Monster)
+							.filter(mon => mon.distance < 20 && mon.isShaman && mon.attackable)
+							.sort((a, b) => a.distance - b.distance).first();
+						if (shaman) return ClassAttack.doAttack(shaman, null, true);
+					}
+					if (!Attack.useBowOnSwitch(unit, sdk.skills.Attack, i === 5)) return Attack.Result.FAILED;
+					if (unit.distance < 8 || me.inDanger()) {
+						if (once) return Attack.Result.FAILED;
+						let closeMob = getUnits(sdk.unittype.Monster)
+							.filter(mon => mon.distance < 10 && mon.attackable && mon.gid !== gid)
+							.sort(Attack.walkingSortMonsters).first();
+						if (closeMob) return ClassAttack.doAttack(closeMob, null, true);
+					}
+				}
+			} finally {
+				me.weaponswitch !== sdk.player.slot.Main && me.switchWeapons(sdk.player.slot.Main);
+			}
+		}
+		return unit.dead ? Attack.Result.SUCCESS : Attack.Result.FAILED;
+	};
+
+	if (CharData.skillData.bowData.bowOnSwitch
+		&& (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
+		&& (unit.distance >= 12 || (unit.distance >= 8 && unit.isMoving && (unit.targetx !== me.x || unit.targety !== me.y)))
+		&& ([-1, sdk.skills.Attack].includes(attackSkill) || Skill.getManaCost(attackSkill) > me.mp)) {
+		if (switchBowAttack(unit) === Attack.Result.SUCCESS) return Attack.Result.SUCCESS;
+	}
+
 	let result = this.doCast(unit, attackSkill, aura);
 
 	if (result === Attack.Result.CANTATTACK && Attack.canTeleStomp(unit)) {

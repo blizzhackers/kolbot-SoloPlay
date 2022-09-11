@@ -443,6 +443,8 @@ Item.secondaryEquip = function (item, bodyLoc) {
 
 				if (item.bodylocation === bodyLoc - 7) {
 					equipped = true;
+					[sdk.items.Arrows, sdk.items.Bolts].includes(item.classid) && CharData.skillData.bowData.setArrowInfo(item);
+					[sdk.items.type.Bow, sdk.items.type.AmazonBow, sdk.items.type.Crossbow].includes(item.itemType) && CharData.skillData.bowData.setBowInfo(item);
 					if (getCursorType() === 3) {
 						let cursorItem = Game.getCursorUnit();
 						!!cursorItem && !cursorItem.shouldKeep() && cursorItem.drop();
