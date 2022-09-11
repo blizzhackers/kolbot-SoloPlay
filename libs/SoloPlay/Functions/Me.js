@@ -216,8 +216,23 @@ me.getTpTool = function () {
 	return null;
 };
 
+me.getUnids = function () {
+	let list = [];
+	let item = me.getItem(-1, sdk.items.mode.inStorage);
+
+	if (!item) return [];
+
+	do {
+		if (item.isInInventory && !item.identified) {
+			list.push(copyUnit(item));
+		}
+	} while (item.getNext());
+
+	return list;
+};
+
 me.fieldID = function () {
-	let list = Town.getUnids();
+	let list = me.getUnids();
 	if (!list) return false;
 
 	while (list.length > 0) {

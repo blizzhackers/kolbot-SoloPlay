@@ -126,7 +126,7 @@ Town.buyPotions = function () {
 	// why buy potion that heals 225 (greater mana) if we only have sub 100 mana
 	let [wantedHpPot, wantedMpPot] = [5, 5];
 	// only do this if we are low on gold in the first place
-	if (me.gold < Config.LowGold) {
+	if (me.normal && me.gold < Config.LowGold) {
 		const mpPotsEffects = PotData.getMpPots().map(el => el.effect[me.classid]);
 		const hpPotsEffects = PotData.getHpPots().map(el => el.effect[me.classid]);
 
@@ -1234,6 +1234,7 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 
 	me.switchWeapons(Attack.getPrimarySlot());
 	extraTasks.fullChores && Quest.unfinishedQuests();
+	me.getUnids().length && me.gold < 5000 && this.cainID(true);
 	this.heal();
 	this.identify();
 	this.clearInventory();
