@@ -9,37 +9,39 @@ js_strict(true);
 include("json2.js");
 include("NTItemParser.dbl");
 include("OOG.js");
-include("AutoMule.js");
 include("Gambling.js");
 include("CraftingSystem.js");
-include("TorchSystem.js");
-include("MuleLogger.js");
+include("common/util.js");
 include("common/Attack.js");
 include("common/Common.js");
 include("common/Cubing.js");
-include("common/CollMap.js");
 include("common/Config.js");
+include("common/CollMap.js");
 include("common/misc.js");
-include("common/util.js");
 include("common/Pickit.js");
 include("common/Pather.js");
 include("common/Precast.js");
 include("common/Prototypes.js");
 include("common/Runewords.js");
 include("common/Town.js");
+// Include SoloPlay's librarys
+include("SoloPlay/Tools/Throwable.js");
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
+include("SoloPlay/Tools/CharData.js");
+include("SoloPlay/Tools/SoloIndex.js");
+include("SoloPlay/Functions/ConfigOverrides.js");
 include("SoloPlay/Functions/Globals.js");
 
+SetUp.include();
+
 function main () {
-	let action = [];
-	let profiles = [];
+	let [action, profiles] = [[], []];
 	let tickDelay = 0;
 	const threads = ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
 
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Start EventThread");
 	D2Bot.init();
-	SetUp.include();
 	Config.init(false);
 	Pickit.init(false);
 	Attack.init();
@@ -224,6 +226,10 @@ function main () {
 	addEventListener("copydata", this.receiveCopyData); // should this just be added to the starter? would remove needing 3 copydata event listeners (entry, default, and here)
 
 	// Start
+	// test for getUnit bug
+	let test = Game.getMonster();
+	test === null && console.warn("getUnit is bugged");
+
 	while (true) {
 		try {
 			while (action.length) {
@@ -247,11 +253,7 @@ function main () {
 					delay(500);
 				}
 
-				profiles.sort(function(a, b) {
-					return a.level - b.level;
-				});
-
-				let lowestLevelProf = profiles.first();
+				let lowestLevelProf = profiles.sort((a, b) => a.level - b.level).first();
 
 				SoloEvents.sendToProfile(lowestLevelProf.profile, lowestLevelProf.event, 70);
 				D2Bot.joinMe(lowestLevelProf.profile, me.gamename.toLowerCase(), "", me.gamepassword.toLowerCase(), true);
