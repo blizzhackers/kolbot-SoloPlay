@@ -184,11 +184,8 @@ Misc.getWell = function (unit) {
 			}
 		}
 
-		if (Misc.poll(() => unit.mode, 1000, 50)) {
-			return true;
-		} else {
-			Packet.flash(me.gid);
-		}
+		if (Misc.poll(() => unit.mode, 1000, 50)) return true;
+		Packet.flash(me.gid);
 	}
 
 	return false;
@@ -343,29 +340,35 @@ Misc.getShrinesInArea = function (area, type, use) {
 		}
 	}
 
-	while (shrineLocs.length > 0) {
-		shrineLocs.sort(Sort.points);
-		let coords = shrineLocs.shift();
+	try {
+		NodeAction.shrinesToIgnore.push(type);
+		
+		while (shrineLocs.length > 0) {
+			shrineLocs.sort(Sort.points);
+			let coords = shrineLocs.shift();
 
-		Skill.haveTK ? Pather.moveNear(coords[0], coords[1], 20) : Pather.moveTo(coords[0], coords[1], 2);
+			Skill.haveTK ? Pather.moveNear(coords[0], coords[1], 20) : Pather.moveTo(coords[0], coords[1], 2);
 
-		let shrine = Game.getObject("shrine");
+			let shrine = Game.getObject("shrine");
 
-		if (shrine) {
-			do {
-				if (shrine.objtype === type && shrine.mode === sdk.objects.mode.Inactive) {
-					(!Skill.haveTK || !use) && Pather.moveTo(shrine.x - 2, shrine.y - 2);
+			if (shrine) {
+				do {
+					if (shrine.objtype === type && shrine.mode === sdk.objects.mode.Inactive) {
+						(!Skill.haveTK || !use) && Pather.moveTo(shrine.x - 2, shrine.y - 2);
 
-					if (!use || this.getShrine(shrine)) {
-						return true;
+						if (!use || this.getShrine(shrine)) {
+							return true;
+						}
+
+						if (use && type >= sdk.shrines.Armor && type <= sdk.shrines.Experience && me.getState(type + 122)) {
+							return true;
+						}
 					}
-
-					if (use && type >= sdk.shrines.Armor && type <= sdk.shrines.Experience && me.getState(type + 122)) {
-						return true;
-					}
-				}
-			} while (shrine.getNext());
+				} while (shrine.getNext());
+			}
 		}
+	} finally {
+		NodeAction.shrinesToIgnore.remove(type);
 	}
 
 	return false;
