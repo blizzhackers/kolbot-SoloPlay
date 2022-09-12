@@ -36,8 +36,9 @@ include("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 function main () {
-	let [action, profiles] = [[], []];
 	let tickDelay = 0;
+	let townChicken = false;
+	let [action, profiles] = [[], []];
 	const threads = ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
 
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Start EventThread");
@@ -54,7 +55,7 @@ function main () {
 		for (let i = 0; i < threads.length; i += 1) {
 			let script = getScript(threads[i]);
 
-			if (SoloEvents.townChicken) {
+			if (townChicken) {
 				console.warn("ÿc8EventThread :: ÿc1Trying to townChicken, don't interfere.");
 				return false;
 			}
@@ -97,6 +98,22 @@ function main () {
 		
 		if (msg && typeof msg === "string" && msg !== "") {
 			switch (msg) {
+			case "townchickenOn":
+				townChicken = true;
+				
+				break;
+			case "townchickenOff":
+				townChicken = false;
+				
+				break;
+			case "testing":
+			case "finishDen":
+			case "dodge":
+			case "skip":
+			case "killdclone":
+				action.push(msg);
+
+				break;
 			case "addDiaEvent":
 				console.log("Added dia lightning listener");
 				addEventListener("gamepacket", SoloEvents.diaEvent);
@@ -128,50 +145,30 @@ function main () {
 				return;
 			}
 
-			let updated = false;
 			switch (true) {
 			case msg.substring(0, 8) === "config--":
 				console.debug("update config");
 				Config = JSON.parse(msg.split("config--")[1]);
-				updated = true;
 
 				break;
 			case msg.substring(0, 7) === "skill--":
 				console.debug("update skillData");
 				obj = JSON.parse(msg.split("skill--")[1]);
 				Misc.updateRecursively(CharData.skillData, obj);
-				updated = true;
 
 				break;
 			case msg.substring(0, 6) === "data--":
 				console.debug("update myData");
 				obj = JSON.parse(msg.split("data--")[1]);
 				Misc.updateRecursively(myData, obj);
-				updated = true;
 
 				break;
 			case msg.toLowerCase() === "test":
 				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//\nÿc8MainData ::\n",
 					myData, "\nÿc8BuffData ::\n", CharData.buffData, "\nÿc8SkillData ::\n", CharData.skillData, "\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
-				updated = true;
 
 				break;
 			}
-
-			if (updated) return;
-		}
-		
-		switch (msg) {
-		case "testing":
-		case "finishDen":
-		case "dodge":
-		case "skip":
-		case "killdclone":
-			action.push(msg);
-
-			break;
-		default:
-			break;
 		}
 	};
 

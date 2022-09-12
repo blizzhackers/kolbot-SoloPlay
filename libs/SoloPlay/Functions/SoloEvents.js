@@ -187,6 +187,8 @@ const SoloEvents = {
 		return Pather.moveTo(orginalLocation.x, orginalLocation.y);
 	},
 
+	// @todo redo this, I think better option would be to make this it's own script
+	// end the current script but insert it to be continued after dclone is dead
 	killdclone: function () {
 		D2Bot.printToConsole("Kolbot-SoloPlay :: Trying to kill DClone.", sdk.colors.D2Bot.Orange);
 		let orginalLocation = {area: me.area, x: me.x, y: me.y};
@@ -325,7 +327,7 @@ const SoloEvents = {
 		
 		if (diablo && shouldDodge(me)) {
 			let tick = getTickCount();
-			let overrides = {allowTeleport: false, allowClearing: false, allowTown: false};
+			let overrides = { allowTeleport: false, allowClearing: false, allowTown: false };
 			// Disable anything that will cause us to stop
 			[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [false, false, false];
 			console.log("DODGE");

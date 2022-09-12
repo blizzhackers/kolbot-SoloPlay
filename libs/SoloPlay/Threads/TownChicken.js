@@ -36,8 +36,7 @@ include("SoloPlay/Functions/Globals.js");
 SetUp.include();
 
 function main() {
-	let townCheck = false;
-	let fastTown = false;
+	let [townCheck, fastTown] = [false, false];
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Start TownChicken thread");
 
 	// Init config and attacks
@@ -92,7 +91,8 @@ function main() {
 				const useTk = me.inTown && Skill.useTK(portal) && i < 3;
 				if (useTk) {
 					portal.distance > 21 && (me.inTown && me.act === 5 ? Town.move("portalspot") : Pather.moveNearUnit(portal, 20));
-					if (Packet.telekinesis(portal) && Misc.poll(() => targetArea ? me.inArea(targetArea) : me.area !== preArea)) {
+					if (Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, portal)
+						&& Misc.poll(() => targetArea ? me.inArea(targetArea) : me.area !== preArea)) {
 						Pather.lastPortalTick = getTickCount();
 						delay(100);
 
@@ -221,6 +221,52 @@ function main() {
 		return false;
 	};
 
+	Town.goToTown = function (act = 0, wpmenu = false) {
+		if (!me.inTown) {
+			const townArea = sdk.areas.townOf(me.act);
+			try {
+				!Pather.makePortal(true) && console.warn("Town.goToTown: Failed to make TP");
+				if (!me.inTown && !Pather.usePortal(townArea, me.name)) {
+					console.warn("Town.goToTown: Failed to take TP");
+					if (!me.inTown && !Pather.usePortal(sdk.areas.townOf(me.area))) throw new Error("Town.goToTown: Failed to take TP");
+				}
+			} catch (e) {
+				let tpTool = Town.getTpTool();
+				if (!tpTool && Misc.getPlayerCount() <= 1) {
+					Misc.errorReport(new Error("Town.goToTown: Failed to go to town and no tps available. Restart."));
+					scriptBroadcast("quit");
+				} else {
+					if (!Misc.poll(() => {
+						if (me.inTown) return true;
+						let p = Game.getObject("portal");
+						console.debug(p);
+						!!p && Misc.click(0, 0, p) && delay(100);
+						Misc.poll(() => me.idle, 1000, 100);
+						console.debug("inTown? " + me.inTown);
+						return me.inTown;
+					}, 700, 100)) {
+						Misc.errorReport(new Error("Town.goToTown: Failed to go to town. Quiting."));
+						scriptBroadcast("quit");
+					}
+				}
+			}
+		}
+
+		if (!act) return true;
+		if (act < 1 || act > 5) throw new Error("Town.goToTown: Invalid act");
+		if (act > me.highestAct) return false;
+
+		if (act !== me.act) {
+			try {
+				Pather.useWaypoint(sdk.areas.townOfAct(act), wpmenu);
+			} catch (WPError) {
+				throw new Error("Town.goToTown: Failed use WP");
+			}
+		}
+
+		return true;
+	};
+
 	Town.visitTown = function () {
 		console.log("ÿc8Start ÿc0:: ÿc8visitTown");
 	
@@ -233,8 +279,8 @@ function main() {
 		}
 
 		// not an essential function -> handle thrown errors
+		me.cancelUIFlags();
 		try {
-			me.cancelUIFlags();
 			Town.goToTown();
 		} catch (e) {
 			return false;
@@ -246,9 +292,9 @@ function main() {
 		me.act !== preAct && Town.goToTown(preAct);
 		Town.move("portalspot");
 
-		if (!Pather.usePortal(null, me.name)) {
+		if (!Pather.usePortal(preArea, me.name)) {
 			try {
-				Pather.usePortal(preArea, me.name);
+				Pather.usePortal(null, me.name);
 			} catch (e) {
 				throw new Error("Town.visitTown: Failed to go back from town");
 			}
@@ -391,8 +437,8 @@ function main() {
 			let t4 = getTickCount();
 			try {
 				myPrint("ÿc8TownChicken :: ÿc0Going to town");
-				Attack.stopClear = true;
-				SoloEvents.townChicken = true;
+				Messaging.sendToScript("libs/SoloPlay/Threads/EventThread.js", "townchickenOn");
+				[Attack.stopClear, SoloEvents.townChicken] = [true, true];
 				
 				// determine if this is really worth it
 				if (useHowl || useTerror) {
@@ -417,11 +463,8 @@ function main() {
 				Packet.flash(me.gid, 100);
 				console.log("ÿc8TownChicken :: Took: " + Time.format(getTickCount() - t4) + " to visit town");
 				this.togglePause();
-
-				Attack.stopClear = false;
-				SoloEvents.townChicken = false;
-				townCheck = false;
-				fastTown = false;
+				Messaging.sendToScript("libs/SoloPlay/Threads/EventThread.js", "townchickenOff");
+				[Attack.stopClear, SoloEvents.townChicken, townCheck, fastTown] = [false, false, false, false];
 			}
 		}
 
