@@ -362,7 +362,7 @@ Pather.move = function (target, givenSettings = {}) {
 	}
 
 	let fail = 0;
-	let node = {x: target.x, y: target.y};
+	let node = { x: target.x, y: target.y };
 	let [cleared, leaped, invalidCheck] = [false, false, false];
 
 	for (let i = 0; i < this.cancelFlags.length; i += 1) {
@@ -430,31 +430,35 @@ Pather.move = function (target, givenSettings = {}) {
 							// vs our current proximity to our next node
 							// need to export our main path so other functions that cause us to move can see it
 							if (getDistance(me, node.x, node.y) > 5) {
+								const lastNode = Pather.currentWalkingPath.last();
+								// lets try and find the nearest node that brings us close to our goal
 								let nearestNode = Pather.currentWalkingPath.length > 0 && Pather.currentWalkingPath
 									.filter(el => !!el && el.x !== node.x && el.y !== node.y)
-									.sort((a, b) => a.distance - b.distance).first();
+									.sort((a, b) => {
+										if (a.distance < b.distance && getDistance(a, lastNode) < getDistance(b, lastNode)) return -1;
+										if (a.distance > b.distance && getDistance(a, lastNode) > getDistance(b, lastNode)) return 1;
+										return a.distance - b.distance;
+									}).first();
 								if (getDistance(me, node.x, node.y) < 40) {
 									let goBack = false;
 									// lets see if it's worth walking back to old node
-									// @todo this function needs to take into account distance from us vs dist from node
-									// because we don't need to go back if we can just pick the item from where we are standing
 									Pickit.checkSpotForItems(node, true) && (goBack = true);
 									// @todo check shrines/chests in proximity to old node vs next node
 									// let otherObjects = getUnits(sdk.unittype.Object).filter(el => getDistance());
 									if (goBack) {
 										console.debug("Going back to old node");
-										this.move(node, settings);
 									} else if (nearestNode && nearestNode.distance > 5 && node.distance > 5 && 100 / node.distance * nearestNode.distance < 95) {
 										console.debug("Moving to next node");
 										let newIndex = path.findIndex(node => nearestNode.x === node.x && nearestNode.y === node.y);
-										if (newIndex > 1) {
+										if (newIndex > -1) {
 											console.debug("Found new path index: " + newIndex + " of currentPathLen: " + path.length);
 											path = path.slice(newIndex);
+											node = path.shift();
 										} else {
 											console.debug("Couldn't find new path index");
 										}
-										// this.move(nearestNode, settings);
 									}
+									node.distance > 5 && this.move(node, settings);
 								} else {
 									this.move(node, settings);
 								}
@@ -468,11 +472,12 @@ Pather.move = function (target, givenSettings = {}) {
 				}
 			} else {
 				if (!me.inTown) {
-					if (!useTeleport && settings.allowClearing && me.checkForMobs({range: 10}) && Attack.clear(10)) {
+					if (!useTeleport && settings.allowClearing
+						&& me.checkForMobs({range: (annoyingArea ? 5 : 10), coll: sdk.collision.BlockWalk}) && Attack.clear((annoyingArea ? 5 : 10))) {
 						console.debug("Cleared Node");
 						continue;
 					}
-					if (!useTeleport && (this.kickBarrels(node.x, node.y) || this.openDoors(node.x, node.y))) {
+					if (!useTeleport && (this.openDoors(node.x, node.y) || this.kickBarrels(node.x, node.y))) {
 						continue;
 					}
 
