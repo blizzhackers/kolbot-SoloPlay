@@ -577,7 +577,7 @@ const tierscore = function (item, bodyloc) {
 		if (item.classid === baseCID && item.isBaseType && item.sockets === sockets && !item.isRuneword && !item.getItemsEx().length) return -1;
 	}
 
-	return item.questItem ? -1 : tier;
+	return item.questItem ? -1 : Math.max(1, tier);
 };
 
 const secondaryscore = function (item) {
