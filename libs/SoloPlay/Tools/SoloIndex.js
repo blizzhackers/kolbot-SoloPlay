@@ -6,8 +6,9 @@
 */
 
 /**
- * @todo if at anypoint after a script ends we are low gold,
- *   check the available goldScripts and run one if we haven't already completed it
+ * @todo
+ *   if at anypoint after a script ends we are low gold, check the available goldScripts and run one if we haven't already completed it
+ *   evaluate which script would be most benefical based on current character conditions and disable teleport for the duration of the script if need be
  */
 
 const SoloIndex = {
@@ -506,11 +507,12 @@ const SoloIndex = {
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
+				const canTele = Pather.canTeleport();
 				switch (true) {
 				case !me.mephisto:
-				case (me.normal && (Check.brokeAf() || !me.diablo)):
-				case (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65)):
-				case (me.hell && (Pather.canTeleport() || !me.hardcore)):
+				case (me.normal && (Check.brokeAf() || ((canTele && !me.diablo) || !me.izual))):
+				case (me.nightmare && (canTele || me.charlvl <= 65)):
+				case (me.hell && (canTele || !me.hardcore)):
 					return true;
 				}
 				return false;
@@ -521,7 +523,7 @@ const SoloIndex = {
 				return Pather.accessToAct(4);
 			},
 			skipIf: function () {
-				return (me.izual);
+				return false;
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;

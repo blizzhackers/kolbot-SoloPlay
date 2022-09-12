@@ -11,11 +11,11 @@ includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
 includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
 const Overlay = {
-	resfix: {x: -10, y: me.screensize ? 0 : -120},
-	quest: {x: 8, y: 368},
-	qYMod: {1: 368, 2: 384, 3: 384, 4: 414, 5: 384},
-	dashboard: {x: 120, y: 470},
-	timer: {x: 0, y: 595},
+	resfix: { x: -10, y: me.screensize ? 0 : -120 },
+	quest: { x: 8, y: 368 },
+	qYMod: { 1: 368, 2: 384, 3: 384, 4: 414, 5: 384 },
+	dashboard: { x: 120, y: 470 },
+	timer: { x: 0, y: 595 },
 	build: SetUp.currentBuild,
 	realm: (me.realm ? me.realm : "SinglePlayer"),
 	difficulty: () => sdk.difficulty.nameOf(me.diff),
@@ -152,6 +152,7 @@ const Overlay = {
 			while (this.hooks.length) {
 				this.hooks.shift().hook.remove();
 			}
+			return true;
 		}
 	},
 
@@ -566,9 +567,7 @@ const Overlay = {
 			hooks === undefined && (hooks = this.qHooks);
 
 			for (let i = 0; i < hooks.length; i += 1) {
-				if (hooks[i].name === name) {
-					return hooks[i];
-				}
+				if (hooks[i].name === name) return hooks[i];
 			}
 
 			return false;
@@ -582,8 +581,11 @@ const Overlay = {
 			while (this.qHooks.length) {
 				this.qHooks.shift().hook.remove();
 			}
+			return true;
 		}
 	},
+
+	timeOut: 0,
 
 	update: function (msg = false) {
 		function status () {
@@ -619,7 +621,15 @@ const Overlay = {
 			}
 
 			Overlay.text.check();
-			Overlay.quests.enabled ? Overlay.quests.check() : Overlay.quests.flush();
+			if (Overlay.quests.enabled) {
+				Overlay.quests.check();
+			} else {
+				if (Overlay.timeOut > 0 && getTickCount() > Overlay.timeOut) {
+					Overlay.quests.enabled = true;
+					Overlay.timeOut = 0;
+				}
+				Overlay.quests.flush();
+			}
 		}
 
 		return msg ? true : (me.gameReady && me.ingame && !me.dead) ? status() : false;
@@ -630,10 +640,9 @@ const Overlay = {
 
 		if (all) {
 			me.overhead("Disable All");
-			Overlay.text.flush();
-			Overlay.quests.flush();
-			Overlay.text.enabled = false;
-			Overlay.quests.enabled = false;
+			Overlay.text.flush() && Overlay.quests.flush();
+			[Overlay.text.enabled, Overlay.quests.enabled] = [false, false];
+			this.timeOut = getTickCount() + Time.seconds(15);
 		} else {
 			Overlay.quests.flush();
 			Overlay.quests.enabled = false;
@@ -646,8 +655,6 @@ const Overlay = {
 	},
 
 	flush: function () {
-		Overlay.quests.flush();
-
-		return true;
+		return Overlay.quests.flush();
 	},
 };
