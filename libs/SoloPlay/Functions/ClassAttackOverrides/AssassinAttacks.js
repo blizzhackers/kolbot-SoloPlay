@@ -210,7 +210,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 		ClassAttack.switchCurse(unit);
 	}
 
-	let skills = this.decideSkill(unit);
+	let skills = Attack.decideSkill(unit);
 	let result = this.doCast(unit, skills.timed, skills.untimed);
 
 	if (result === Attack.Result.CANTATTACK && Attack.canTeleStomp(unit)) {
