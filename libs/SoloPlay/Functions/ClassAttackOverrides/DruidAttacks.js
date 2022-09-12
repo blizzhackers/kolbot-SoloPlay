@@ -5,6 +5,11 @@
 *
 */
 
+/**
+ * @todo
+ * Test traveling in wolf form/ utilizing wereform if we have it and need to perform normal attack
+ */
+
 includeIfNotIncluded("common/Attacks/Druid.js");
 
 ClassAttack.doAttack = function (unit, preattack) {

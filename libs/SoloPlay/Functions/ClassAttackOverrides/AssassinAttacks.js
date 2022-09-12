@@ -5,6 +5,11 @@
 *
 */
 
+/**
+ * @todo
+ * Test utilizing marital art skills if we have them
+ */
+
 includeIfNotIncluded("common/Attacks/Assassin.js");
 
 ClassAttack.mindBlast = function (unit) {
@@ -14,7 +19,7 @@ ClassAttack.mindBlast = function (unit) {
 	// Duriel's Lair, Arreat Summit, Worldstone Chamber
 	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].includes(me.area)) return;
 
-	let mindBlastMpCost = Skill.getManaCost(sdk.skills.MindBlast);
+	const mindBlastMpCost = Skill.getManaCost(sdk.skills.MindBlast);
 	let list = getUnits(sdk.unittype.Monster)
 		.filter(function (mob) {
 			if (mob.attackable && !mob.isStunned && !mob.isUnderLowerRes && !mob.isUnique) {
@@ -35,19 +40,52 @@ ClassAttack.mindBlast = function (unit) {
 	}
 };
 
+ClassAttack.switchCurse = function (unit, force) {
+	if (CharData.skillData.haveChargedSkill([sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken]) && unit.curseable) {
+		const gold = me.gold;
+		const isBoss = unit.isBoss;
+		const dangerZone = [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area);
+		if (force && checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (!Attack.getIntoPosition(unit, 35, sdk.collision.Ranged)) return;
+		}
+		// If we have slow missles we might as well use it, currently only on Lighting Enchanted mobs as they are dangerous
+		// Might be worth it to use on souls too TODO: test this idea
+		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && gold > 500000 && !isBoss
+			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
+			&& !checkCollision(me, unit, sdk.collision.Ranged)) {
+			// Cast slow missiles
+			Attack.castCharges(sdk.skills.SlowMissiles, unit);
+		}
+		// Handle Switch casting
+		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
+			&& (gold > 500000 || isBoss || dangerZone)
+			&& !unit.getState(sdk.states.LowerResist)
+			&& !checkCollision(me, unit, sdk.collision.Ranged)) {
+			// Switch cast lower resist
+			Attack.switchCastCharges(sdk.skills.LowerResist, unit);
+		}
+
+		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
+			&& (gold > 500000 || isBoss || dangerZone)
+			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist)
+			&& !checkCollision(me, unit, sdk.collision.Ranged)) {
+			// Switch cast weaken
+			Attack.switchCastCharges(sdk.skills.Weaken, unit);
+		}
+	}
+};
+
 ClassAttack.placeTraps = function (unit, amount) {
 	let traps = 0;
 
-	this.lastTrapPos = {x: unit.x, y: unit.y};
+	this.lastTrapPos = { x: unit.x, y: unit.y };
 
 	for (let i = -1; i <= 1; i += 1) {
 		for (let j = -1; j <= 1; j += 1) {
 			// Used for X formation
 			if (Math.abs(i) === Math.abs(j)) {
 				// Unit can be an object with x, y props too, that's why having "mode" prop is checked
-				if (traps >= amount || (unit.hasOwnProperty("mode") && unit.dead)) {
-					return true;
-				}
+				if (traps >= amount || (unit.hasOwnProperty("mode") && unit.dead)) return true;
 
 				// Duriel, Mephisto, Diablo, Baal, other players
 				if ((unit.hasOwnProperty("classid") && [sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal].includes(unit.classid))
@@ -58,9 +96,7 @@ ClassAttack.placeTraps = function (unit, amount) {
 
 					Skill.cast(Config.BossTraps[traps], sdk.skills.hand.Right, unit.x + i, unit.y + j);
 				} else {
-					if (traps >= Config.Traps.length) {
-						return true;
-					}
+					if (traps >= Config.Traps.length) return true;
 
 					switch (Config.Traps[traps]) {
 					case sdk.skills.ChargedBoltSentry:
@@ -114,7 +150,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 	if (!unit) return Attack.Result.SUCCESS;
 	let gid = unit.gid;
 
-	if (Config.MercWatch && Town.needMerc()) {
+	if (Config.MercWatch && me.needMerc()) {
 		console.log("mercwatch");
 
 		if (Town.visitTown()) {
@@ -125,13 +161,9 @@ ClassAttack.doAttack = function (unit, preattack) {
 		}
 	}
 
-	let checkSkill;
 	let mercRevive = 0;
-	let timedSkill = -1;
-	let untimedSkill = -1;
-	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
-	let gold = me.gold;
 	let shouldUseCloak = (Skill.canUse(sdk.skills.CloakofShadows) && !unit.isUnderLowerRes && unit.getMobCount(15, sdk.collision.BlockWall) > 1);
+	const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
 	this.mindBlast(unit);
 
@@ -175,49 +207,11 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 	// Handle Switch casting
 	if (index === 1 && !unit.dead) {
-		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-			&& unit.curseable && (gold > 500000 && !unit.isBoss) && !checkCollision(me, unit, sdk.collision.Ranged)) {
-			// Cast slow missiles
-			Attack.castCharges(sdk.skills.SlowMissiles, unit);
-		}
-		
-		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist) && !unit.getState(sdk.states.LowerResist)
-			&& unit.curseable && (gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area))
-			&& !checkCollision(me, unit, sdk.collision.Ranged)) {
-			// Switch cast lower resist
-			Attack.switchCastCharges(sdk.skills.LowerResist, unit);
-		}
+		ClassAttack.switchCurse(unit);
 	}
 
-	// Get timed skill
-	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
-
-	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill)) {
-		timedSkill = checkSkill;
-	} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[5])) {
-		timedSkill = Config.AttackSkill[5];
-	}
-
-	// Get untimed skill
-	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[1] : Config.AttackSkill[index + 1];
-
-	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill)) {
-		untimedSkill = checkSkill;
-	} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[6])) {
-		untimedSkill = Config.AttackSkill[6];
-	}
-
-	// Low mana timed skill
-	if (Config.LowManaSkill[0] > -1 && Skill.getManaCost(timedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[0])) {
-		timedSkill = Config.LowManaSkill[0];
-	}
-
-	// Low mana untimed skill
-	if (Config.LowManaSkill[1] > -1 && Skill.getManaCost(untimedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[1])) {
-		untimedSkill = Config.LowManaSkill[1];
-	}
-
-	let result = this.doCast(unit, timedSkill, untimedSkill);
+	let skills = this.decideSkill(unit);
+	let result = this.doCast(unit, skills.timed, skills.untimed);
 
 	if (result === Attack.Result.CANTATTACK && Attack.canTeleStomp(unit)) {
 		let merc = me.getMerc();
@@ -249,7 +243,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 			}
 
 			let closeMob = Attack.getNearestMonster({skipGid: gid});
-			!!closeMob && this.doCast(closeMob, timedSkill, untimedSkill);
+			!!closeMob && this.doCast(closeMob, skills.timed, skills.untimed);
 		}
 
 		return Attack.Result.SUCCESS;
@@ -275,6 +269,8 @@ ClassAttack.farCast = function (unit) {
 
 		this.placeTraps(unit, checkTraps);
 	}
+
+	ClassAttack.switchCurse(unit);
 
 	if (timedSkill > -1 && (!me.skillDelay || !Skill.isTimed(timedSkill))) {
 		!unit.dead && Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);

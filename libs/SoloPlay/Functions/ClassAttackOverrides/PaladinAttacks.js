@@ -205,6 +205,53 @@ ClassAttack.reposition = function (x, y) {
 	return true;
 };
 
+ClassAttack.getHammerPosition = function (unit) {
+	let x, y, positions, baseId = getBaseStat("monstats", unit.classid, "baseid");
+	let size = getBaseStat("monstats2", baseId, "sizex");
+	const canTele = Pather.canTeleport();
+
+	// in case base stat returns something outrageous
+	(typeof size !== "number" || size < 1 || size > 3) && (size = 3);
+
+	switch (unit.type) {
+	case sdk.unittype.Player:
+		({ x, y } = unit);
+		positions = [[x + 2, y], [x + 2, y + 1]];
+
+		break;
+	case sdk.unittype.Monster:
+		let commonCheck = (unit.isMoving && unit.distance < 10);
+		x = commonCheck && getDistance(me, unit.targetx, unit.targety) > 5 ? unit.targetx : unit.x;
+		y = commonCheck && getDistance(me, unit.targetx, unit.targety) > 5 ? unit.targety : unit.y;
+		positions = [[x + 2, y + 1], [x, y + 3], [x + 2, y - 1], [x - 2, y + 2], [x - 5, y]];
+		size === 3 && positions.unshift([x + 2, y + 2]);
+
+		break;
+	}
+
+	// If one of the valid positions is a position im at already
+	for (let i = 0; i < positions.length; i += 1) {
+		let check = { x: positions[i][0], y: positions[i][1] };
+		if (canTele && check.distance < 1) return true;
+		if (!canTele && (check.distance < 1 && !CollMap.checkColl(unit, check, sdk.collision.BlockWalk, 1))
+			|| (check.distance <= 4 && me.getMobCount(6) > 2)) {
+			return true;
+		}
+	}
+
+	for (let i = 0; i < positions.length; i += 1) {
+		let check = { x: positions[i][0], y: positions[i][1] };
+
+		if (Attack.validSpot(check.x, check.y) && !CollMap.checkColl(unit, check, sdk.collision.BlockWalk, 0)) {
+			if (this.reposition(check.x, check.y)) return true;
+		}
+	}
+
+	console.debug("Failed to find a hammer position for " + unit.name + " distance from me: " + unit.distance);
+
+	return false;
+};
+
 ClassAttack.doCast = function (unit, attackSkill = -1, aura = -1) {
 	if (attackSkill < 0) return Attack.Result.CANTATTACK;
 	// unit became invalidated

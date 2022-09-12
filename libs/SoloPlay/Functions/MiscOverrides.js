@@ -145,10 +145,10 @@ Misc.openChests = function (range = 15) {
 		];
 	}
 
-	let unitList = getUnits(sdk.unittype.Object).filter(function (chest) {
-		return chest.name && chest.mode === sdk.objects.mode.Inactive && chest.distance <= range
-			&& (containers.includes(chest.name.toLowerCase()) || (chest.name.toLowerCase() === "evilurn" && me.baal));
-	});
+	me.baal && containers.push("evilurn");
+
+	let unitList = getUnits(sdk.unittype.Object)
+		.filter(c => c.name && c.mode === sdk.objects.mode.Inactive && c.distance <= range && containers.includes(c.name.toLowerCase()));
 
 	while (unitList.length > 0) {
 		unitList.sort(Sort.units);
@@ -530,17 +530,14 @@ Misc.addSocketablesToItem = function (item, runes = []) {
 
 Misc.getSocketables = function (item, itemInfo) {
 	if (!item) return false;
-	let itemtype;
-	let gemType;
-	let runeType;
-	let multiple = [];
-	let temp = [];
+	let itemtype, gemType, runeType;
+	let [multiple, temp] = [[], []];
 	let itemSocketInfo = item.getItemsEx();
 	let preSockets = itemSocketInfo.length;
 	let allowTemp = (!!itemInfo && !!itemInfo.temp && itemInfo.temp.length > 0 && (preSockets === 0 || preSockets > 0 && itemSocketInfo.some(el => !itemInfo.socketWith.includes(el.classid))));
 	let sockets = item.sockets;
 	let openSockets = sockets - preSockets;
-	let {classid, quality} = item;
+	let { classid, quality } = item;
 	let socketables = me.getItemsEx().filter(item => item.isInsertable);
 
 	if (!socketables || (!allowTemp && openSockets === 0)) return false;
@@ -555,9 +552,7 @@ Misc.getSocketables = function (item, itemInfo) {
 			.sort((a, b) => b.classid - a.classid);
 
 		for (let i = 0; i < myItems.length; i++) {
-			if (!checkList.includes(myItems[i])) {
-				return true;
-			}
+			if (!checkList.includes(myItems[i])) return true;
 		}
 
 		return false;

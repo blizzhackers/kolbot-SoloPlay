@@ -329,7 +329,7 @@ const tierscore = function (item, bodyloc) {
 		bodyloc === undefined && (bodyloc = itembodyloc.last()); // extract bodyloc from array
 		
 		// get item cbf stat from olditem equipped on body location
-		let equippedItem = me.getItemsEx().filter((equipped) => equipped.isEquipped && equipped.bodylocation === bodyloc).first();
+		let equippedItem = me.getEquippedItem(bodyloc);
 
 		if (!canTele && item.getStatEx(sdk.stats.CannotbeFrozen)) {
 			// check if we have cbf but make sure its not from the item we are trying to un-equip
@@ -370,7 +370,7 @@ const tierscore = function (item, bodyloc) {
 		// current total resists
 		let [currFR, currCR, currLR, currPR] = [me.fireRes, me.coldRes, me.lightRes, me.poisonRes];
 		// get item resists stats from olditem equipped on body location
-		let eqItem = me.getItemsEx().filter(equipped => equipped.isEquipped && equipped.bodylocation === bodyloc).first();
+		let eqItem = me.getEquippedItem(bodyloc);
 		let [olditemFR, olditemCR, olditemLR, olditemPR] = [0, 0, 0, 0];
 		if (eqItem) {
 			// equipped resists

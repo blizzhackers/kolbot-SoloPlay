@@ -44,7 +44,7 @@ Attack.init = function () {
 };
 
 Attack.decideSkill = function (unit) {
-	let skills = {timed: -1, untimed: -1};
+	let skills = { timed: -1, untimed: -1 };
 	if (!unit) return skills;
 
 	const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
@@ -1224,6 +1224,10 @@ Attack.pwnDia = function () {
 	Attack.stopClear = false;
 
 	return dia;
+};
+
+Attack.pwnAncients = function () {
+	// @todo fillout
 };
 
 Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {

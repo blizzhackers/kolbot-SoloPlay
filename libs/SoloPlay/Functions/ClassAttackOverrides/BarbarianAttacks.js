@@ -163,16 +163,16 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	const data = {
 		switchCast: false,
 		howl: buildDataObj(sdk.skills.Howl, 1),
-		taunt: buildDataObj(sdk.skills.Taunt, 6),
-		grimWard: buildDataObj(sdk.skills.GrimWard, 24),
-		battleCry: buildDataObj(sdk.skills.BattleCry, 18),
-		warCry: buildDataObj(sdk.skills.WarCry, 30),
 		bash: buildDataObj(sdk.skills.Bash, 1),
-		stun: buildDataObj(sdk.skills.Stun, 12),
-		concentrate: buildDataObj(sdk.skills.Concentrate, 18),
+		taunt: buildDataObj(sdk.skills.Taunt, 6),
 		leap: buildDataObj(sdk.skills.Leap, 6),
-		leapAttack: buildDataObj(sdk.skills.LeapAttack, 18),
 		doubleSwing: buildDataObj(sdk.skills.DoubleSwing, 6),
+		stun: buildDataObj(sdk.skills.Stun, 12),
+		battleCry: buildDataObj(sdk.skills.BattleCry, 18),
+		concentrate: buildDataObj(sdk.skills.Concentrate, 18),
+		leapAttack: buildDataObj(sdk.skills.LeapAttack, 18),
+		grimWard: buildDataObj(sdk.skills.GrimWard, 24),
+		warCry: buildDataObj(sdk.skills.WarCry, 30),
 		whirlwind: buildDataObj(sdk.skills.Whirlwind, 30),
 		main: buildDataObj(Config.AttackSkill[index], 1),
 		secondary: buildDataObj(Config.AttackSkill[index + 1], 1),
@@ -190,8 +190,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 	if ([sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy].includes(attackSkill) && !me.duelWielding || !Skill.canUse(attackSkill)) {
 		let oneHandSk = [data.bash, data.stun, data.concentrate, data.leapAttack, data.whirlwind]
 			.filter((skill) => skill.have && me.mp > skill.mana)
-			.sort((a, b) => GameData.physicalAttackDamage(b.skill) - GameData.physicalAttackDamage(a.skill))
-			.first();
+			.sort((a, b) => GameData.physicalAttackDamage(b.skill) - GameData.physicalAttackDamage(a.skill)).first();
 		attackSkill = oneHandSk ? oneHandSk.skill : 0;
 	}
 
