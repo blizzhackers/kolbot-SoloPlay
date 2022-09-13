@@ -306,6 +306,16 @@ const SetUp = {
 		});
 	},
 
+	buffers: function () {
+		const isCaster = Check.currentBuild().caster;
+		const beltModifer = 4 - Storage.BeltSize();
+		const mpFactor = isCaster ? 80 : 50;
+		Config.MPBuffer = Math.floor(mpFactor / Math.sqrt(me.mpmax)) + (beltModifer * 2);
+		!myData.merc.gear.includes(sdk.locale.items.Insight) && (Config.MPBuffer += 2);
+		const hpFactor = isCaster ? 65 : 80;
+		Config.HPBuffer = Math.floor(hpFactor / Math.sqrt(me.hpmax)) + (beltModifer * 2);
+	},
+
 	bowQuiver: function () {
 		NTIP.resetRuntimeList();
 		if (CharData.skillData.bowData.bowOnSwitch) {

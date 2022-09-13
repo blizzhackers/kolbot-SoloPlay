@@ -601,16 +601,8 @@ const secondaryscore = function (item) {
 const charmscore = function (item) {
 	if (myData.me.charmGids.includes(item.gid)) return 1000;
 	let charmRating = 1;
-	let skillerStats = [
-		[sdk.skills.tabs.BowandCrossbow, sdk.skills.tabs.PassiveandMagic, sdk.skills.tabs.JavelinandSpear],
-		[sdk.skills.tabs.Fire, sdk.skills.tabs.Lightning, sdk.skills.tabs.Cold],
-		[sdk.skills.tabs.Curses, sdk.skills.tabs.PoisonandBone, sdk.skills.tabs.NecroSummoning],
-		[sdk.skills.tabs.PalaCombat, sdk.skills.tabs.Offensive, sdk.skills.tabs.Defensive],
-		[sdk.skills.tabs.BarbCombat, sdk.skills.tabs.Masteries, sdk.skills.tabs.Warcries],
-		[sdk.skills.tabs.DruidSummon, sdk.skills.tabs.ShapeShifting, sdk.skills.tabs.Elemental],
-		[sdk.skills.tabs.Traps, sdk.skills.tabs.ShadowDisciplines, sdk.skills.tabs.MartialArts]
-	][me.classid];
-	if (!item.unique && item.classid === sdk.items.GrandCharm && !skillerStats.some(s => item.getStatEx(sdk.stats.AddSkillTab, s))) return -1;
+
+	if (!item.unique && item.classid === sdk.items.GrandCharm && !me.getSkillTabs().some(s => item.getStatEx(sdk.stats.AddSkillTab, s))) return -1;
 	const buildInfo = Check.currentBuild();
 
 	charmRating += item.getStatEx(sdk.stats.AddSkillTab, buildInfo.tabSkills) * tierWeights.charmWeights.TAB; // + TAB skills

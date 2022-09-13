@@ -608,9 +608,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 		if (subid === undefined) {
 			for (let i = 0; i < 7; i += 1) {
 				let cSkill = this.getStat(sdk.stats.AddClassSkills, i);
-				if (cSkill) {
-					return cSkill;
-				}
+				if (cSkill) return cSkill;
 			}
 
 			return 0;
@@ -619,21 +617,11 @@ Unit.prototype.getStatEx = function (id, subid) {
 		break;
 	case sdk.stats.AddSkillTab:
 		if (subid === undefined) {
-			temp = [
-				sdk.skills.tabs.BowandCrossbow, sdk.skills.tabs.PassiveandMagic, sdk.skills.tabs.JavelinandSpear,
-				sdk.skills.tabs.Fire, sdk.skills.tabs.Lightning, sdk.skills.tabs.Cold,
-				sdk.skills.tabs.Curses, sdk.skills.tabs.PoisonandBone, sdk.skills.tabs.NecroSummoning,
-				sdk.skills.tabs.PalaCombat, sdk.skills.tabs.Offensive, sdk.skills.tabs.Defensive,
-				sdk.skills.tabs.BarbCombat, sdk.skills.tabs.Masteries, sdk.skills.tabs.Warcries,
-				sdk.skills.tabs.DruidSummon, sdk.skills.tabs.ShapeShifting, sdk.skills.tabs.Elemental,
-				sdk.skills.tabs.Traps, sdk.skills.tabs.ShadowDisciplines, sdk.skills.tabs.MartialArts
-			];
+			temp = Object.values(sdk.skills.tabs);
 
 			for (let i = 0; i < temp.length; i += 1) {
 				let sTab = this.getStat(sdk.stats.AddSkillTab, temp[i]);
-				if (sTab) {
-					return sTab;
-				}
+				if (sTab) return sTab;
 			}
 
 			return 0;

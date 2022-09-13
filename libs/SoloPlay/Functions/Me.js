@@ -77,6 +77,18 @@ me.getEquippedItem = function (bodyLoc) {
 	return me.getItemsEx().filter(i => i.isEquipped && i.bodylocation === bodyLoc).first();
 };
 
+me.getSkillTabs = function (classid = me.classid) {
+	return [
+		[sdk.skills.tabs.BowandCrossbow, sdk.skills.tabs.PassiveandMagic, sdk.skills.tabs.JavelinandSpear],
+		[sdk.skills.tabs.Fire, sdk.skills.tabs.Lightning, sdk.skills.tabs.Cold],
+		[sdk.skills.tabs.Curses, sdk.skills.tabs.PoisonandBone, sdk.skills.tabs.NecroSummoning],
+		[sdk.skills.tabs.PalaCombat, sdk.skills.tabs.Offensive, sdk.skills.tabs.Defensive],
+		[sdk.skills.tabs.BarbCombat, sdk.skills.tabs.Masteries, sdk.skills.tabs.Warcries],
+		[sdk.skills.tabs.DruidSummon, sdk.skills.tabs.ShapeShifting, sdk.skills.tabs.Elemental],
+		[sdk.skills.tabs.Traps, sdk.skills.tabs.ShadowDisciplines, sdk.skills.tabs.MartialArts]
+	][classid];
+};
+
 // @todo better determination of what actually constitutes being in danger
 // need check for ranged mobs so we can stick and move to avoid missiles
 me.inDanger = function () {

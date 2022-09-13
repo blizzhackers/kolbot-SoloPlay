@@ -81,7 +81,9 @@ Item.getBodyLoc = function (item) {
 		case Item.helmTypes.includes(item.itemType):
 			return sdk.body.Head;
 		case Item.weaponTypes.includes(item.itemType):
-			return me.barbarian ? [sdk.body.RightArm, sdk.body.LeftArm] : sdk.body.RightArm;
+			return me.barbarian && ![sdk.items.type.Bow, sdk.items.type.Crossbow].includes(item.itemType)
+				? [sdk.body.RightArm, sdk.body.LeftArm]
+				: sdk.body.RightArm;
 		case [sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw].includes(item.itemType):
 			return !Check.currentBuild().caster && me.assassin ? [sdk.body.RightArm, sdk.body.LeftArm] : sdk.body.RightArm;
 		default:
@@ -416,7 +418,9 @@ Item.getBodyLocSecondary = function (item) {
 		case Item.shieldTypes.includes(item.itemType):
 			return sdk.body.LeftArmSecondary;
 		case Item.weaponTypes.includes(item.itemType):
-			return me.barbarian ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary] : sdk.body.RightArmSecondary;
+			return me.barbarian && ![sdk.items.type.Bow, sdk.items.type.Crossbow].includes(item.itemType)
+				? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary]
+				: sdk.body.RightArmSecondary;
 		case [sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw].includes(item.itemType):
 			return !Check.currentBuild().caster && me.assassin ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary] : sdk.body.RightArmSecondary;
 		default:
@@ -1283,13 +1287,13 @@ Item.getCharmType = function (charm = undefined) {
 	if (!NTIP.hasStats(charm) && NTIP.GetCharmTier(charm) > 0) return "misc";
 
 	let charmType = "";
-	let skillerStats = [[0, 1, 2], [8, 9, 10], [16, 17, 18], [24, 25, 26], [32, 33, 34], [40, 41, 42], [48, 49, 50]][me.classid];
+	const skillerStats = me.getSkillTabs();
 
-	if (charm.getStat(188, skillerStats[0])) {
+	if (charm.getStat(sdk.stats.AddSkillTab, skillerStats[0])) {
 		charmType = "skillerTypeA";
-	} else if (charm.getStat(188, skillerStats[1])) {
+	} else if (charm.getStat(sdk.stats.AddSkillTab, skillerStats[1])) {
 		charmType = "skillerTypeB";
-	} else if (charm.getStat(188, skillerStats[2])) {
+	} else if (charm.getStat(sdk.stats.AddSkillTab, skillerStats[2])) {
 		charmType = "skillerTypeC";
 	}
 
