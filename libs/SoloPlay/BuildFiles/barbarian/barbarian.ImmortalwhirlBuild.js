@@ -15,7 +15,7 @@ const finalBuild = {
 	mercAct: 2,
 	mercAuraWanted: "Might",
 	stats: [
-		["strength", 187], ["vitality", "all"]
+		["strength", 232], ["vitality", "all"]
 	],
 	skills: [
 		[sdk.skills.MaceMastery, 20],
@@ -113,9 +113,14 @@ const finalBuild = {
 		if (me.classic) {
 			return false;
 		} else {
-			return Check.haveItem("mace", "set", "Immortal King's Stone Crusher") && Check.haveItem("boots", "set", "Immortal King's Pillar") &&
-				Check.haveItem("belt", "set", "Immortal King's Detail") && Check.haveItem("armor", "set", "Immortal King's Soul Cage") &&
-				Check.haveItem("primalhelm", "set", "Immortal King's Will") && Check.haveItem("gloves", "set", "Immortal King's Forge");
+			return me.haveAll([
+				{ name: sdk.locale.items.ImmortalKingsMaul, quality: sdk.items.quality.Set },
+				{ name: sdk.locale.items.ImmortalKingsBoots, quality: sdk.items.quality.Set },
+				{ name: sdk.locale.items.ImmortalKingsGloves, quality: sdk.items.quality.Set },
+				{ name: sdk.locale.items.ImmortalKingsBelt, quality: sdk.items.quality.Set },
+				{ name: sdk.locale.items.ImmortalKingsArmor, quality: sdk.items.quality.Set },
+				{ name: sdk.locale.items.ImmortalKingsHelmet, quality: sdk.items.quality.Set },
+			]);
 		}
 	},
 
