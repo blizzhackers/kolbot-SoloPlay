@@ -81,7 +81,7 @@ Item.getBodyLoc = function (item) {
 		case Item.helmTypes.includes(item.itemType):
 			return sdk.body.Head;
 		case Item.weaponTypes.includes(item.itemType):
-			return me.barbarian && ![sdk.items.type.Bow, sdk.items.type.Crossbow].includes(item.itemType)
+			return me.barbarian && item.twoHanded && !item.strictlyTwoHanded
 				? [sdk.body.RightArm, sdk.body.LeftArm]
 				: sdk.body.RightArm;
 		case [sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw].includes(item.itemType):
@@ -310,7 +310,7 @@ Item.autoEquip = function (task = "") {
 };
 
 Item.equip = function (item, bodyLoc) {
-	// can't equip
+	// can't equip - @todo handle if it's one of our final items and we can equip it given the stats of our other items
 	if (!this.canEquip(item)) return false;
 
 	// Already equipped in the right slot
@@ -377,7 +377,7 @@ Item.equip = function (item, bodyLoc) {
 Item.removeItem = function (bodyLoc = -1, item = undefined) {
 	let removable = item && typeof item === "object"
 		? item
-		: me.getItemsEx().filter((item) => item.isEquipped && item.bodylocation === bodyLoc).first();
+		: me.getEquippedItem(bodyLoc);
 	!me.inTown && Town.goToTown();
 	!getUIFlag(sdk.uiflags.Stash) && Town.openStash();
 
@@ -418,7 +418,7 @@ Item.getBodyLocSecondary = function (item) {
 		case Item.shieldTypes.includes(item.itemType):
 			return sdk.body.LeftArmSecondary;
 		case Item.weaponTypes.includes(item.itemType):
-			return me.barbarian && ![sdk.items.type.Bow, sdk.items.type.Crossbow].includes(item.itemType)
+			return me.barbarian && item.twoHanded && !item.strictlyTwoHanded
 				? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary]
 				: sdk.body.RightArmSecondary;
 		case [sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw].includes(item.itemType):
