@@ -380,7 +380,7 @@ const tierscore = function (item, bodyloc) {
 		// subtract olditem resists from current total resists
 		let [baseFR, baseCR, baseLR, basePR] = [(currFR - olditemFR), (currCR - olditemCR), (currLR - olditemLR), (currPR - olditemPR)];
 		// if baseRes < max resists give score value upto max resists reached
-		let maxRes = me.expansion ? 175 : 125;
+		const maxRes = me.hell ? 75 : (75 + me.getResPenalty(me.diff + 1) - me.getResPenalty(me.diff));
 		let [FRlimit, CRlimit, LRlimit, PRlimit] = [Math.max(maxRes - baseFR, 0), Math.max(maxRes - baseCR, 0), Math.max(maxRes - baseLR, 0), Math.max(maxRes - basePR, 0)];
 		// get new item stats
 		let [newitemFR, newitemCR] = [Math.max(item.getStatEx(sdk.stats.FireResist), 0), Math.max(item.getStatEx(sdk.stats.ColdResist), 0)];
