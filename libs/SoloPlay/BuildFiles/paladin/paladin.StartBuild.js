@@ -30,7 +30,7 @@ let build = {
 		[sdk.skills.Smite, 1],      // charlevel -> 10
 		[sdk.skills.Zeal, 1],       // charlevel -> 12
 		[sdk.skills.Charge, 1],     // charlevel -> 12
-		[sdk.skills.Zeal, 4],       // charlevel -> 15
+		[sdk.skills.Zeal, 4, false],       // charlevel -> 15
 		[sdk.skills.HolyFire, 6],   // charlevel -> 17
 		[sdk.skills.ResistFire, 16] // respec at 19
 	],
