@@ -145,7 +145,7 @@ ClassAttack.bpTick = 0;
  */
 
 // TODO: clean this up
-ClassAttack.doAttack = function (unit) {
+ClassAttack.doAttack = function (unit, preattack, once) {
 	if (!unit) return Attack.Result.SUCCESS;
 	let gid = unit.gid;
 
@@ -199,6 +199,42 @@ ClassAttack.doAttack = function (unit) {
 	}
 
 	let skills = Attack.decideSkill(unit);
+
+	const switchBowAttack = (unit) => {
+		if (Attack.getIntoPosition(unit, 20, sdk.collision.Ranged)) {
+			try {
+				const checkForShamans = unit.isFallen && !me.inArea(sdk.areas.BloodMoor);
+				for (let i = 0; i < 5 && unit.attackable; i++) {
+					if (checkForShamans && !once) {
+						// before we waste time let's see if there is a shaman we should kill
+						const shaman = getUnits(sdk.unittype.Monster)
+							.filter(mon => mon.distance < 20 && mon.isShaman && mon.attackable)
+							.sort((a, b) => a.distance - b.distance).first();
+						if (shaman) return ClassAttack.doAttack(shaman, null, true);
+					}
+					if (!Attack.useBowOnSwitch(unit, sdk.skills.Attack, i === 5)) return Attack.Result.FAILED;
+					if (unit.distance < 8 || me.inDanger()) {
+						if (once) return Attack.Result.FAILED;
+						let closeMob = getUnits(sdk.unittype.Monster)
+							.filter(mon => mon.distance < 10 && mon.attackable && mon.gid !== gid)
+							.sort(Attack.walkingSortMonsters).first();
+						if (closeMob) return ClassAttack.doAttack(closeMob, null, true);
+					}
+				}
+			} finally {
+				me.weaponswitch !== sdk.player.slot.Main && me.switchWeapons(sdk.player.slot.Main);
+			}
+		}
+		return unit.dead ? Attack.Result.SUCCESS : Attack.Result.FAILED;
+	};
+
+	if (CharData.skillData.bowData.bowOnSwitch
+		&& (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
+		&& ([-1, sdk.skills.Attack].includes(timedSkill.skill)
+		|| timedSkill.mana > me.mp
+		|| (timedSkill.mana * 3 > me.mp && [sdk.skills.FireBolt, sdk.skills.ChargedBolt].includes(timedSkill.skill)))) {
+		if (switchBowAttack(unit) === Attack.Result.SUCCESS) return Attack.Result.SUCCESS;
+	}
 
 	if (me.normal && gold < 5000 && (skills.timed === -1 || Skill.getManaCost(skills.timed) > me.mp)) {
 		if (skills.timed !== sdk.skills.Teeth && Skill.canUse(sdk.skills.Teeth) && Skill.getManaCost(sdk.skills.Teeth) < me.mp) {
