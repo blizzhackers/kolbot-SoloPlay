@@ -17,9 +17,9 @@ includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + 
 let myData = CharData.getStats();
 
 // these builds are not possible to do on classic
-let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl", "Sancdreamer", "Faithbowzon", "Wfzon"];
+const impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl", "Sancdreamer", "Faithbowzon", "Wfzon"];
 // these builds are not possible to do without ladder runewords
-let impossibleNonLadderBuilds = ["Auradin", "Sancdreamer", "Faithbowzon"];
+const impossibleNonLadderBuilds = ["Auradin", "Sancdreamer", "Faithbowzon"];
 
 Unit.prototype.__defineGetter__("mercid", function () {
 	return !!myData ? myData.merc.classid : me.getMerc().classid;
@@ -103,8 +103,7 @@ const SetUp = {
 		myData.me.dexterity !== me.rawDexterity && (myData.me.dexterity = me.rawDexterity);
 
 		// expansion check
-		let cUpdate = false;
-		let mUpdate = false;
+		let [cUpdate, mUpdate] = [false, false];
 
 		if (me.expansion) {
 			if (!myData.merc.gear) {
@@ -250,12 +249,11 @@ const SetUp = {
 	},
 
 	getTemplate: function () {
-		let buildType = SetUp.currentBuild;
-		let build = buildType + "Build" ;
+		let build = SetUp.currentBuild + "Build" ;
 		let template = "SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + "." + build + ".js";
 
 		return {
-			buildType: buildType,
+			buildType: SetUp.currentBuild,
 			template: template.toLowerCase()
 		};
 	},
@@ -348,9 +346,11 @@ const SetUp = {
 		Config.socketables = [];
 
 		if (me.expansion) {
+			// switch bow - only for zon/sorc/pal/necro classes right now
+			if (!me.barbarian && !me.assassin && !me.druid) {
+				NTIP.addLine("([type] == bow || [type] == crossbow) && [quality] >= normal # [itemchargedskill] >= 0 # [secondarytier] == tierscore(item)");
+			}
 			const expansionExtras = [
-				// switch bow
-				"([type] == bow || [type] == crossbow) && [quality] >= normal # [itemchargedskill] >= 0 # [secondarytier] == tierscore(item)",
 				// Special Charms
 				"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
 				"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
@@ -769,13 +769,13 @@ const Check = {
 		switch (me.diff) {
 		case sdk.difficulty.Normal:
 			// Have runes or stealth and ancients pledge
-			if ([sdk.items.runes.Tal, sdk.items.runes.Eth].every((i) => !!me.getItem(i)) || me.checkItem({name: sdk.locale.items.Stealth}).have) {
+			if (me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Eth]) || me.checkItem({name: sdk.locale.items.Stealth}).have) {
 				needRunes = false;
 			}
 
 			break;
 		case sdk.difficulty.Nightmare:
-			if (([sdk.items.runes.Tal, sdk.items.runes.Thul, sdk.items.runes.Ort, sdk.items.runes.Amn].every((i) => !!me.getItem(i)) && Check.currentBuild().caster)
+			if ((me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Thul, sdk.items.runes.Ort, sdk.items.runes.Amn]) && Check.currentBuild().caster)
 				|| (!me.paladin && me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have)
 				|| (me.paladin && me.haveAll([{name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}, {name: sdk.locale.items.Spirit, itemtype: sdk.items.type.AuricShields}]))
 				|| (me.necromancer && me.checkItem({name: sdk.locale.items.White}).have
