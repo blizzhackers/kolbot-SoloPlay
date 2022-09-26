@@ -141,7 +141,9 @@ const finalBuild = {
 	AutoBuildTemplate: {
 		1:	{
 			Update: function () {
-				Config.AttackSkill = [-1, sdk.skills.BoneSpear, -1, sdk.skills.BoneSpear, -1, -1, -1];
+				Config.AttackSkill = me.classic
+					? [-1, sdk.skills.PoisonNova, -1, sdk.skills.PoisonNova, -1, sdk.skills.BoneSpear, -1]
+					: [-1, sdk.skills.BoneSpear, -1, sdk.skills.BoneSpear, -1, -1, -1];
 				Config.LowManaSkill = [0, 0];
 				Config.ActiveSummon = true;
 				Config.Skeletons = "max";
