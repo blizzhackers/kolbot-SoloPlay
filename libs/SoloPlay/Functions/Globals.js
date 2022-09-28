@@ -11,6 +11,10 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/CharData.js");
 includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
+const Overrides = require("../../modules/Override");
+const Coords_1 = require("../Modules/Coords");
+const PotData = require("../modules/PotData");
+
 const MYCLASSNAME = sdk.player.class.nameOf(me.classid).toLowerCase();
 includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + ".js");
 

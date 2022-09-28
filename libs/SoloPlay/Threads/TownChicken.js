@@ -49,8 +49,6 @@ function main() {
 	Runewords.init();
 	Cubing.init();
 
-	let Overrides = require("../../modules/Override");
-
 	new Overrides.Override(Attack, Attack.getNearestMonster, function (orignal, givenSettings = {}) {
 		const settings = Object.assign({
 			skipBlocked: false,

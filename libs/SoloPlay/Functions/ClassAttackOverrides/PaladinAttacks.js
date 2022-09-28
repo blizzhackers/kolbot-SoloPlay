@@ -208,6 +208,7 @@ ClassAttack.reposition = function (x, y) {
 ClassAttack.getHammerPosition = function (unit) {
 	let x, y, positions, baseId = getBaseStat("monstats", unit.classid, "baseid");
 	let size = getBaseStat("monstats2", baseId, "sizex");
+	const coll = unit.isMonsterObject ? sdk.collision.WallOrRanged : sdk.collision.BlockWalk;
 	const canTele = Pather.canTeleport();
 
 	// in case base stat returns something outrageous
@@ -233,7 +234,7 @@ ClassAttack.getHammerPosition = function (unit) {
 	for (let i = 0; i < positions.length; i += 1) {
 		let check = { x: positions[i][0], y: positions[i][1] };
 		if (canTele && check.distance < 1) return true;
-		if (!canTele && (check.distance < 1 && !CollMap.checkColl(unit, check, sdk.collision.BlockWalk, 1))
+		if (!canTele && (check.distance < 1 && !CollMap.checkColl(unit, check, coll, 1))
 			|| (check.distance <= 4 && me.getMobCount(6) > 2)) {
 			return true;
 		}
@@ -242,7 +243,7 @@ ClassAttack.getHammerPosition = function (unit) {
 	for (let i = 0; i < positions.length; i += 1) {
 		let check = { x: positions[i][0], y: positions[i][1] };
 
-		if (Attack.validSpot(check.x, check.y) && !CollMap.checkColl(unit, check, sdk.collision.BlockWalk, 0)) {
+		if (Attack.validSpot(check.x, check.y) && !CollMap.checkColl(unit, check, coll, 0)) {
 			if (this.reposition(check.x, check.y)) return true;
 		}
 	}

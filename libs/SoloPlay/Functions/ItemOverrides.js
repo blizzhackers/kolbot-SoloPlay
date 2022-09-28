@@ -212,6 +212,8 @@ Item.autoEquip = function (task = "") {
 	// couldn't find my items
 	if (!items.length) return false;
 
+	me.switchWeapons(sdk.player.slot.Main);
+
 	const sortEq = (a, b) => {
 		if (Item.canEquip(a)) return -1;
 		if (Item.canEquip(b)) return 1;

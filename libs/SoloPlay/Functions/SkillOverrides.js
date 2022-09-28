@@ -8,8 +8,6 @@
 includeIfNotIncluded("common/Misc.js");
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 
-let Overrides = require("../../modules/Override");
-
 Skill.forcePacket = (Developer.forcePacketCasting.enabled && !Developer.forcePacketCasting.excludeProfiles.includes(me.profile));
 Skill.casterSkills = [
 	sdk.skills.FireBolt, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.FrostNova, sdk.skills.IceBlast, sdk.skills.FireBall,
@@ -18,7 +16,7 @@ Skill.casterSkills = [
 	sdk.skills.HolyBolt, sdk.skills.BlessedHammer, sdk.skills.FistoftheHeavens, sdk.skills.Howl, sdk.skills.Taunt, sdk.skills.BattleCry,
 	sdk.skills.WarCry, sdk.skills.Firestorm, sdk.skills.MoltenBoulder, sdk.skills.ArcticBlast, sdk.skills.Fissure, sdk.skills.Twister,
 	sdk.skills.Volcano, sdk.skills.Armageddon, sdk.skills.Hurricane, sdk.skills.FireBlast, sdk.skills.ShockField, sdk.skills.ChargedBoltSentry,
-	sdk.skills.WakeofFire, sdk.skills.LightningSentry, sdk.skills.DeathSentry
+	/* sdk.skills.WakeofFire, */ sdk.skills.LightningSentry, sdk.skills.DeathSentry
 ];
 
 new Overrides.Override(Skill, Skill.getRange, function (orignal, skillId) {

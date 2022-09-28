@@ -118,7 +118,7 @@ ClassAttack.placeTraps = function (unit, amount) {
 					case sdk.skills.WakeofFire:
 					case sdk.skills.WakeofInferno:
 						// Immune to fire but not immune to lightning, use light trap if available
-						if (Attack.checkResist(unit, "lightning") && !Attack.checkResist(unit, "fire")) {
+						if (!Attack.checkResist(unit, "fire") && Attack.checkResist(unit, "lightning")) {
 							if (Skill.canUse(sdk.skills.LightningSentry)) {
 								Skill.cast(sdk.skills.LightningSentry, sdk.skills.hand.Right, unit.x + i, unit.y + j);
 							} else if (Skill.canUse(sdk.skills.ChargedBoltSentry)) {

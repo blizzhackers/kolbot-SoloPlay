@@ -27,19 +27,21 @@ include("common/Precast.js");
 include("common/Prototypes.js");
 include("common/Runewords.js");
 include("common/Town.js");
+// Include SoloPlay's librarys
+include("SoloPlay/Tools/Throwable.js");
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
+include("SoloPlay/Tools/CharData.js");
+include("SoloPlay/Tools/SoloIndex.js");
+include("SoloPlay/Functions/ConfigOverrides.js");
 include("SoloPlay/Functions/Globals.js");
 
 function main () {
-	let ironGolem, tick, debugInfo = {area: 0, currScript: "no entry"};
-	let quitFlag = false;
-	let restart = false;
-	let quitListDelayTime;
+	let ironGolem, tick, quitListDelayTime;
 	let canQuit = true;
 	let timerLastDrink = [];
-
-	let Overrides = require("../../modules/Override");
+	let [quitFlag, restart] = [false, false];
+	let debugInfo = { area: 0, currScript: "no entry" };
 
 	new Overrides.Override(Attack, Attack.getNearestMonster, function (orignal) {
 		let monster = orignal({skipBlocked: false, skipImmune: false});
@@ -353,9 +355,7 @@ function main () {
 			break;
 		case sdk.keys.NumpadDecimal: // dump item info
 			{
-				let itemString = "";
-				let charmString = "";
-				let generalString = "";
+				let [itemString, charmString, generalString] = ["", "", ""];
 				let itemToCheck = Game.getSelectedUnit();
 				if (!!itemToCheck) {
 					let special = "";

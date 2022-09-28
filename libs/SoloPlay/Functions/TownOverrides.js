@@ -14,9 +14,6 @@
 
 includeIfNotIncluded("common/Town.js");
 
-let Overrides = require("../../modules/Override");
-let PotData = require("../modules/PotData");
-
 new Overrides.Override(Town, Town.canTpToTown, function (orignal) {
 	return (Misc.townEnabled && orignal());
 }).apply();

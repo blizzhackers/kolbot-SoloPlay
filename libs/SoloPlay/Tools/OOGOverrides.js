@@ -13,6 +13,14 @@ includeIfNotIncluded("OOG.js");
 	};
 })([].filter.constructor("return this")(), login);
 
+ControlAction.scrollDown = function () {
+	me.blockMouse = true;
+	for (let i = 0; i < 4; i++) {
+		sendKey(sdk.keys.code.DownArrow);
+	}
+	me.blockMouse = false;
+};
+
 ControlAction.makeCharacter = function (info) {
 	me.blockMouse = true;
 	!info.charClass && (info.charClass = "barbarian");

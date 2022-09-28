@@ -8,8 +8,6 @@
 
 includeIfNotIncluded("common/Attack.js");
 
-let Coords_1 = require("../Modules/Coords");
-
 Attack.stopClear = false;
 Attack.init = function () {
 	const CLASSNAME = sdk.player.class.nameOf(me.classid);
@@ -1285,7 +1283,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 		return !CollMap.checkColl(me, unit, coll);
 	}
 
-	let cx, cy, currCount, count = 999, potentialSpot = {x: undefined, y: undefined};
+	let cx, cy, currCount, count = 999, potentialSpot = { x: undefined, y: undefined };
 	let coords = [];
 	let fullDistance = distance;
 	const name = unit.hasOwnProperty("name") ? unit.name : "";
@@ -1302,7 +1300,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 		for (let i = 0; i < angles.length; i += 1) {
 			cx = Math.round((Math.cos((angle + angles[i]) * Math.PI / 180)) * distance + unit.x);
 			cy = Math.round((Math.sin((angle + angles[i]) * Math.PI / 180)) * distance + unit.y);
-			(Pather.checkSpot(cx, cy, sdk.collision.BlockWall, false)) && coords.push({x: cx, y: cy});
+			(Pather.checkSpot(cx, cy, sdk.collision.BlockWall, false)) && coords.push({ x: cx, y: cy });
 		}
 
 		if (coords.length > 0) {
@@ -1321,16 +1319,16 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 
 			for (let i = 0; i < coords.length; i += 1) {
 				// Valid position found - no collision between the spot and the unit
-				if (!CollMap.checkColl({x: coords[i].x, y: coords[i].y}, unit, coll, 1)) {
+				if (!CollMap.checkColl({ x: coords[i].x, y: coords[i].y }, unit, coll, 1)) {
 					currCount = coords[i].mobCount(7);
 
 					// this might be a valid spot but also check the mob count at that node
 					if (caster) {
-						potentialSpot.x !== undefined && (potentialSpot = {x: coords[i].x, y: coords[i].y});
+						potentialSpot.x !== undefined && (potentialSpot = { x: coords[i].x, y: coords[i].y });
 
 						if (currCount < count) {
 							count = currCount;
-							potentialSpot = {x: coords[i].x, y: coords[i].y};
+							potentialSpot = { x: coords[i].x, y: coords[i].y };
 							Developer.debugging.pathing	&& console.log(sdk.colors.Blue + "CheckedSpot" + sdk.colors.Yellow + ": x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + count);
 						}
 
@@ -1347,7 +1345,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 					if (walk && (coords[i].distance < 6 || !CollMap.checkColl(me, unit, sdk.collision.WallOrRanged | sdk.collision.Objects | sdk.collision.IsOnFloor))) {
 						Pather.walkTo(coords[i].x, coords[i].y, 2);
 					} else {
-						Pather.moveToEx(coords[i].x, coords[i].y, {clearSettings: {allowClearing: !useTele, range: useTele ? 10 : 5, retry: 3}});
+						Pather.moveToEx(coords[i].x, coords[i].y, { clearSettings: { allowClearing: !useTele, range: useTele ? 10 : 5, retry: 3 } });
 					}
 
 					Developer.debugging.pathing && console.log(sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow + "Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + currCount);
