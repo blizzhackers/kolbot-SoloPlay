@@ -210,7 +210,7 @@ function main () {
 		Config.PublicMode === true ? require("libs/modules/SimpleParty") : load("tools/Party.js");
 	}
 	
-	Config.AntiHostile && load("tools/AntiHostile.js");
+	// Config.AntiHostile && load("tools/AntiHostile.js");
 
 	// One time maintenance - check cursor, get corpse, clear leftover items, pick items in case anything important was dropped
 	Cubing.cursorCheck();
