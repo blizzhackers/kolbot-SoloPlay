@@ -8,7 +8,7 @@
 includeIfNotIncluded("common/Attacks/Necromancer.js");
 
 ClassAttack.curseIndex = [];
-
+// @todo refactor this
 ClassAttack.curseIndex[sdk.skills.AmplifyDamage] = {
 	skillId: sdk.skills.AmplifyDamage,
 	state: sdk.states.AmplifyDamage,
@@ -162,10 +162,10 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 
 	let mercRevive = 0;
 	let gold = me.gold;
-	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
-	let useTerror = Skill.canUse(sdk.skills.Terror);
-	let useBP = Skill.canUse(sdk.skills.BonePrison);
-	let bpAllowedAreas = [
+	const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
+	const useTerror = Skill.canUse(sdk.skills.Terror);
+	const useBP = Skill.canUse(sdk.skills.BonePrison);
+	const bpAllowedAreas = [
 		sdk.areas.CatacombsLvl4, sdk.areas.Tristram, sdk.areas.MooMooFarm, sdk.areas.RockyWaste, sdk.areas.DryHills, sdk.areas.FarOasis, sdk.areas.LostCity, sdk.areas.ValleyofSnakes,
 		sdk.areas.DurielsLair, sdk.areas.SpiderForest, sdk.areas.GreatMarsh, sdk.areas.FlayerJungle, sdk.areas.LowerKurast, sdk.areas.KurastBazaar, sdk.areas.UpperKurast, sdk.areas.KurastCauseway,
 		sdk.areas.DuranceofHateLvl3, sdk.areas.OuterSteppes, sdk.areas.PlainsofDespair, sdk.areas.CityoftheDamned, sdk.areas.ChaosSanctuary, sdk.areas.BloodyFoothills, sdk.areas.FrigidHighlands,
@@ -198,7 +198,8 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 		}
 	}
 
-	let skills = Attack.decideSkill(unit);
+	// maybe this should return an object with basic skill info besides the skillId. e.g timed, mana, range, and hand
+	const skills = Attack.decideSkill(unit);
 
 	const switchBowAttack = (unit) => {
 		if (Attack.getIntoPosition(unit, 20, sdk.collision.Ranged)) {
@@ -230,9 +231,9 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 
 	if (CharData.skillData.bowData.bowOnSwitch
 		&& (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
-		&& ([-1, sdk.skills.Attack].includes(timedSkill.skill)
-		|| timedSkill.mana > me.mp
-		|| (timedSkill.mana * 3 > me.mp && [sdk.skills.FireBolt, sdk.skills.ChargedBolt].includes(timedSkill.skill)))) {
+		&& ([-1, sdk.skills.Attack].includes(skills.timed)
+		|| Skill.getManaCost(skills.timed) > me.mp
+		|| (Skill.getManaCost(skills.timed) * 3 > me.mp && [sdk.skills.Teeth].includes(skills.timed)))) {
 		if (switchBowAttack(unit) === Attack.Result.SUCCESS) return Attack.Result.SUCCESS;
 	}
 
@@ -246,7 +247,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 			skills.timed = sdk.skills.Attack;
 		}
 	}
-	let result = this.doCast(unit, skills.timed, skills.untimed);
+	const result = this.doCast(unit, skills.timed, skills.untimed);
 
 	if (result === Attack.Result.SUCCESS) {
 		Config.ActiveSummon && this.raiseArmy();
