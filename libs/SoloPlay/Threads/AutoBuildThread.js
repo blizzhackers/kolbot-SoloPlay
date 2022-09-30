@@ -9,12 +9,34 @@ js_strict(true);
 include("json2.js");
 include("NTItemParser.dbl");
 include("OOG.js");
+include("common/util.js");
+include("AutoMule.js");
+include("Gambling.js");
+include("CraftingSystem.js");
+include("TorchSystem.js");
+include("MuleLogger.js");
 include("common/AutoSkill.js");
 include("common/AutoStat.js");
-include("common/Util.js");
-includeCommonLibs();
-
+include("common/Attack.js");
+include("common/Common.js");
+include("common/Cubing.js");
+include("common/CollMap.js");
+include("common/Config.js");
+include("common/misc.js");
+include("common/Pickit.js");
+include("common/Pather.js");
+include("common/Precast.js");
+include("common/Prototypes.js");
+include("common/Runewords.js");
+include("common/Town.js");
+// Include SoloPlay's librarys
+include("SoloPlay/Tools/Developer.js");
+include("SoloPlay/Tools/Tracker.js");
+include("SoloPlay/Tools/CharData.js");
+include("SoloPlay/Tools/SoloIndex.js");
+include("SoloPlay/Functions/ConfigOverrides.js");
 include("SoloPlay/Functions/Globals.js");
+
 SetUp.include();
 Config.init(); // includes libs/SoloPlay/Functions/AutoBuildOverrides.js
 

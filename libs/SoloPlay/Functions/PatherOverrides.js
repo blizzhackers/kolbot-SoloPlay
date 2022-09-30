@@ -341,7 +341,7 @@ Pather.move = function (target, givenSettings = {}) {
 		retry: 5,
 		pop: false,
 		returnSpotOnError: true,
-		callback: () => {},
+		callback: null,
 	}, givenSettings);
 	// assign clear settings becasue object.assign was removing the default properties of settings.clearSettings
 	const clearSettings = Object.assign({
@@ -358,26 +358,26 @@ Pather.move = function (target, givenSettings = {}) {
 	(target instanceof PresetUnit) && (target = { x: target.roomx * 5 + target.x, y: target.roomy * 5 + target.y });
 
 	if (settings.minDist > 3) {
-		target = this.spotOnDistance(target, settings.minDist, { returnSpotOnError: settings.returnSpotOnError, reductionType: (me.inTown ? 0 : 2) });
+		target = Pather.spotOnDistance(target, settings.minDist, { returnSpotOnError: settings.returnSpotOnError, reductionType: (me.inTown ? 0 : 2) });
 	}
 
 	let fail = 0;
 	let node = { x: target.x, y: target.y };
 	let [cleared, leaped, invalidCheck] = [false, false, false];
 
-	for (let i = 0; i < this.cancelFlags.length; i += 1) {
-		getUIFlag(this.cancelFlags[i]) && me.cancel();
+	for (let i = 0; i < Pather.cancelFlags.length; i += 1) {
+		getUIFlag(Pather.cancelFlags[i]) && me.cancel();
 	}
 
 	if (typeof target.x !== "number" || typeof target.y !== "number") return false;
 	if (getDistance(me, target) < 2 && !CollMap.checkColl(me, target, Coords_1.Collision.BLOCK_MISSILE, 5)) return true;
 
-	const useTeleport = settings.allowTeleport && (getDistance(me, target) > 15 || me.diff || me.act > 3) && this.useTeleport();
-	const useChargedTele = settings.allowTeleport && this.canUseTeleCharges();
+	const useTeleport = settings.allowTeleport && (getDistance(me, target) > 15 || me.diff || me.act > 3) && Pather.useTeleport();
+	const useChargedTele = settings.allowTeleport && Pather.canUseTeleCharges();
 	const usingTele = (useTeleport || useChargedTele);
 	const tpMana = Skill.getManaCost(sdk.skills.Teleport);
 	const annoyingArea = Pather.inAnnoyingArea(me.area);
-	let path = getPath(me.area, target.x, target.y, me.x, me.y, usingTele ? 1 : 0, usingTele ? (annoyingArea ? 30 : this.teleDistance) : this.walkDistance);
+	let path = getPath(me.area, target.x, target.y, me.x, me.y, usingTele ? 1 : 0, usingTele ? (annoyingArea ? 30 : Pather.teleDistance) : Pather.walkDistance);
 	if (!path) throw new Error("move: Failed to generate path.");
 
 	// need to work on a better force clearing method but for now just have all walkers clear unless we specifically are forcing them not to (like while repositioning)
@@ -392,10 +392,10 @@ Pather.move = function (target, givenSettings = {}) {
 		// Abort if dead
 		if (me.dead) return false;
 		// main path
-		this.recursion && (this.currentWalkingPath = path);
+		Pather.recursion && (Pather.currentWalkingPath = path);
 
-		for (let i = 0; i < this.cancelFlags.length; i += 1) {
-			if (getUIFlag(this.cancelFlags[i])) me.cancel();
+		for (let i = 0; i < Pather.cancelFlags.length; i += 1) {
+			if (getUIFlag(Pather.cancelFlags[i])) me.cancel();
 		}
 
 		node = path.shift();
@@ -405,7 +405,7 @@ Pather.move = function (target, givenSettings = {}) {
 			fail >= 3 && fail % 3 === 0 && !Attack.validSpot(node.x, node.y) && (invalidCheck = true);
 			// Make life in Maggot Lair easier - should this include arcane as well?
 			if (annoyingArea || invalidCheck) {
-				let adjustedNode = this.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
+				let adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
 
 				if (adjustedNode) {
 					[node.x, node.y] = [adjustedNode[0], adjustedNode[1]];
@@ -417,14 +417,14 @@ Pather.move = function (target, givenSettings = {}) {
 			}
 
 			if (useTeleport && tpMana <= me.mp
-				? this.teleportTo(node.x, node.y)
+				? Pather.teleportTo(node.x, node.y)
 				: useChargedTele && (getDistance(me, node) >= 15 || me.inArea(sdk.areas.ThroneofDestruction))
-					? this.teleUsingCharges(node.x, node.y)
-					: this.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
+					? Pather.teleUsingCharges(node.x, node.y)
+					: Pather.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
 				if (!me.inTown) {
-					if (this.recursion) {
+					if (Pather.recursion) {
 						try {
-							this.recursion = false;
+							Pather.recursion = false;
 							NodeAction.go(settings.clearSettings);
 							// need to determine if its worth going back to our orignal node (items maybe?)
 							// vs our current proximity to our next node
@@ -458,13 +458,13 @@ Pather.move = function (target, givenSettings = {}) {
 											console.debug("Couldn't find new path index");
 										}
 									}
-									node.distance > 5 && this.move(node, settings);
+									node.distance > 5 && Pather.move(node, settings);
 								} else {
-									this.move(node, settings);
+									Pather.move(node, settings);
 								}
 							}
 						} finally {
-							this.recursion = true;
+							Pather.recursion = true;
 						}
 					}
 
@@ -477,7 +477,7 @@ Pather.move = function (target, givenSettings = {}) {
 						console.debug("Cleared Node");
 						continue;
 					}
-					if (!useTeleport && (this.openDoors(node.x, node.y) || this.kickBarrels(node.x, node.y))) {
+					if (!useTeleport && (Pather.openDoors(node.x, node.y) || Pather.kickBarrels(node.x, node.y))) {
 						continue;
 					}
 

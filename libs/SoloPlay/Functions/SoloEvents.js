@@ -207,8 +207,7 @@ const SoloEvents = {
 			Pather.moveTo(20047, 4898);
 		} else {
 			Pather.useWaypoint(sdk.areas.ColdPlains);
-			Pather.moveToExit(sdk.areas.BloodMoor, true);
-			Pather.clearToExit(sdk.areas.BloodMoor, sdk.areas.DenofEvil, true);
+			Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.DenofEvil], true);
 			Pather.moveToPreset(me.area, sdk.unittype.Monster, sdk.monsters.preset.Corpsefire, 0, 0, false, true);
 		}
 
@@ -254,19 +253,18 @@ const SoloEvents = {
 		this.cloneWalked = false;
 	},
 
+	moveSettings: {
+		allowTeleport: false,
+		allowClearing: false,
+		allowPicking: false,
+		allowTown: false,
+		retry: 10,
+	},
+
 	moveTo: function (x, y, givenSettings) {
 		// Abort if dead
 		if (me.dead) return false;
-
-		const settings = Object.assign({}, {
-			allowTeleport: false,
-			allowClearing: false,
-			allowPicking: false,
-			allowTown: false,
-			retry: 10,
-		}, givenSettings);
-
-		return Pather.move({x: x, y: y}, settings);
+		return Pather.move({ x: x, y: y }, Object.assign({}, SoloEvents.moveSettings, givenSettings));
 	},
 
 	skip: function () {
