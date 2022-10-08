@@ -1012,22 +1012,35 @@ Attack.pwnDury = function () {
 	let duriel = Misc.poll(() => Game.getMonster(sdk.monsters.Duriel));
 
 	if (!duriel) return false;
-	Attack.stopClear = true;
-	let saveSpots = [
+	const tick = getTickCount();
+	const gid = duriel.gid;
+	const saveSpots = [
 		{ x: 22648, y: 15688 },
 		{ x: 22624, y: 15725 },
 	];
 
-	while (!duriel.dead) {
-		//ToDo; figure out static
-		if (duriel.getState(sdk.states.Frozen) && duriel.distance < 7 || duriel.distance < 12) {
-			let safeSpot = saveSpots.sort((a, b) => getDistance(duriel, b) - getDistance(duriel, a)).first();
-			Pather.teleportTo(safeSpot.x, safeSpot.y);
+	// @todo - keep track of last position to attempt relocating dury if we've lost reference
+	try {
+		Attack.stopClear = true;
+		while (!duriel.dead) {
+			if (getTickCount() - tick > Time.minutes(10)) {
+				break;
+			}
+			if (!duriel || !copyUnit(duriel).x) {
+				duriel = Misc.poll(() => Game.getMonster(-1, -1, gid), 1000, 80);
+				if (!duriel || !duriel.attackable) return true;
+			}
+			//ToDo; figure out static
+			if (duriel.getState(sdk.states.Frozen) && duriel.distance < 7 || duriel.distance < 12) {
+				let safeSpot = saveSpots.sort((a, b) => getDistance(duriel, b) - getDistance(duriel, a)).first();
+				Pather.teleportTo(safeSpot.x, safeSpot.y);
+			}
+			ClassAttack.doAttack(duriel, true);
 		}
-		ClassAttack.doAttack(duriel, true);
+	} finally {
+		Attack.stopClear = false;
 	}
 
-	Attack.stopClear = false;
 	return true;
 };
 
