@@ -206,9 +206,9 @@ Attack.killTarget = function (name = undefined) {
 	}
 
 	// exit if target is immune
-	if (target && !Attack.canAttack(target)) {
+	if (target && !Attack.canAttack(target) && !Attack.canTeleStomp(target)) {
 		console.warn("ÿc8KillTargetÿc0 :: Attack failed. " + target.name + " is immune.");
-		return true;
+		return false;
 	}
 
 	const findTarget = function (gid, loc) {

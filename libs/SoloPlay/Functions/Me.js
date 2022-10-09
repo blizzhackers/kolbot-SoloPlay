@@ -62,6 +62,12 @@ Object.defineProperties(me, {
 			return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), me.realPR - me.resPenalty);
 		}
 	},
+	onFinalBuild: {
+		get: function () {
+			myData === undefined && (myData = CharData.getStats());
+			return myData.me.currentBuild === myData.me.finalBuild;
+		}
+	}
 });
 
 me.getMercEx = function () {

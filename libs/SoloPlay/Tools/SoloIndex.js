@@ -134,7 +134,7 @@ const SoloIndex = {
 		},
 		"countess": {
 			skipIf: function () {
-				return (me.classic && me.hell);
+				return (me.hell && (me.classic || (me.sorceress && !me.onFinalBuild && !me.diffCompleted)));
 			},
 			shouldRun: function () {
 				if (this.skipIf()) return false;
