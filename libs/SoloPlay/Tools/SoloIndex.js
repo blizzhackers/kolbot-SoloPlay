@@ -418,7 +418,7 @@ const SoloIndex = {
 				return Pather.accessToAct(3);
 			},
 			skipIf: function () {
-				return (me.paladin && Check.currentBuild().caster);
+				return ((me.paladin && Check.currentBuild().caster) || (me.hell && me.sorceress && me.charlvl < 90));
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
