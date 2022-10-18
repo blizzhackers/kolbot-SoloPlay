@@ -152,7 +152,7 @@ function main () {
 	load("tools/ToolsThread.js");
 	(Config.TownCheck || Config.TownHP > 0 || Config.TownMP > 0) && load("tools/TownChicken.js");
 
-	if (Config.DebugMode) {
+	if (Config.DebugMode && FileTools.exists("libs/modules/Guard")) {
 		require("libs/modules/Guard");
 	}
 
