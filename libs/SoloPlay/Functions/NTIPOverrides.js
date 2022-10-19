@@ -258,7 +258,7 @@ NTIP.getMaxQuantity = function (item, entryList = []) {
 	return -1;
 };
 
-NTIP.CheckItem = function (item, entryList = [], verbose = false) {
+NTIP.CheckItem = function (item, entryList, verbose = false) {
 	let rval = {};
 	let result = 0;
 	const identified = item.getFlag(sdk.items.flags.Identified);
@@ -397,7 +397,7 @@ NTIP.CheckItem = function (item, entryList = [], verbose = false) {
 	};
 
 	const listOfLists = [[NTIP.SoloCheckList, NTIP.SoloStringArray], [NTIP_CheckList, stringArray], [NTIP.RuntimeCheckList, NTIP.RuntimeStringArray]];
-	if (entryList.length) return iterateList(entryList, stringArray);
+	if (Array.isArray(entryList)) return iterateList(entryList, stringArray);
 
 	for (let i = 0; i < listOfLists.length; i++) {
 		iterateList(listOfLists[i][0], listOfLists[i][1]);

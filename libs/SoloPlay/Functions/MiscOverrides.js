@@ -749,8 +749,9 @@ Misc.logItem = function (action, unit, keptLine) {
 	}
 
 	// should stop logging items unless we wish to see them or it's part of normal pickit
-	if (!nTResult && unit.isCharm) {
+	if (!nTResult) {
 		switch (true) {
+		case (!unit.isCharm && hasTier && !Developer.debugging.autoEquip):
 		case (charmCheck && !Developer.debugging.smallCharm && unit.classid === sdk.items.SmallCharm):
 		case (charmCheck && !Developer.debugging.largeCharm && unit.classid === sdk.items.LargeCharm):
 		case (charmCheck && !Developer.debugging.grandCharm && unit.classid === sdk.items.GrandCharm):

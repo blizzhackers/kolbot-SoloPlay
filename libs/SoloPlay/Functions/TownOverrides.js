@@ -638,7 +638,7 @@ Town.shopItems = function (force = false) {
 		const result = Pickit.checkItem(item);
 
 		// no tier'ed items
-		if (!lowLevelShop && result.result === Pickit.Result.WANTED && NTIP.CheckItem(item, NTIP_CheckListNoTier, true).result !== Pickit.Result.UNWANTED) {
+		if (!lowLevelShop && result.result === Pickit.Result.SOLOWANTS && NTIP.CheckItem(item, NTIP.SoloCheckListNoTier, true).result !== Pickit.Result.UNWANTED) {
 			try {
 				if (Storage.Inventory.CanFit(item) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
 					if (item.isBaseType) {
@@ -660,8 +660,8 @@ Town.shopItems = function (force = false) {
 			}
 		}
 
-		// tier'ed items - // todo re-write this so we don't buy multiple items just to equip one then sell the rest back
-		if (result.result === Pickit.Result.WANTED && AutoEquip.wanted(item)) {
+		// tier'ed items
+		if (result.result === Pickit.Result.SOLOWANTS && AutoEquip.wanted(item)) {
 			const checkDependancy = (item) => {
 				let check = Item.hasDependancy(item);
 				if (check) {
@@ -827,34 +827,25 @@ Town.canStash = function (item) {
 
 Town.stash = function (stashGold = true) {
 	if (!this.needStash()) return true;
-	me.cancel();
+	!getUIFlag(sdk.uiflags.Stash) && me.cancel();
 
-	let items = Storage.Inventory.Compare(Config.Inventory);
+	let items = (Storage.Inventory.Compare(Config.Inventory) || []);
 
-	if (items) {
-		for (let i = 0; i < items.length; i += 1) {
-			const item = items[i];
-			if (this.canStash(item)) {
-				const pickResult = Pickit.checkItem(item).result;
-				let result = (() => {
-					switch (true) {
-					case pickResult > Pickit.Result.UNWANTED && pickResult < Pickit.Result.TRASH:
-					case Town.systemsKeep(item):
-					case AutoEquip.wanted(item) && pickResult === Pickit.Result.UNWANTED: // wanted but can't use yet
-					case !item.sellable: // quest/essences/keys/ect
-						return true;
-					default:
-						return false;
-					}
-				})();
-
-				if (result) {
-					Misc.itemLogger("Stashed", item);
-					Storage.Stash.MoveTo(item);
-				}
+	items.length > 0 && items.forEach(item => {
+		if (this.canStash(item)) {
+			const pickResult = Pickit.checkItem(item).result;
+			switch (true) {
+			case pickResult !== Pickit.Result.UNWANTED && pickResult !== Pickit.Result.TRASH:
+			case Town.systemsKeep(item):
+			case AutoEquip.wanted(item) && pickResult === Pickit.Result.UNWANTED: // wanted but can't use yet
+			case !item.sellable: // quest/essences/keys/ect
+				Storage.Stash.MoveTo(item) && Misc.itemLogger("Stashed", item);
+				break;
+			default:
+				break;
 			}
 		}
-	}
+	});
 
 	// Stash gold
 	if (stashGold) {

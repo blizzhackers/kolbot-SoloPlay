@@ -443,7 +443,7 @@ const SetUp = {
 
 		/* FastMod configuration. */
 		Config.FCR = 0;
-		Config.FHR = 0;
+		Config.FHR = 255;
 		Config.FBR = 0;
 		Config.IAS = 0;
 
