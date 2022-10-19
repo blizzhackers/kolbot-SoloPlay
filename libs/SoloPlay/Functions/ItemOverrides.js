@@ -246,6 +246,12 @@ Item.autoEquip = function (task = "") {
 		return true;
 	};
 
+	// stash'd unid check
+	let unids = items.filter(item => !item.identified && item.isInStash);
+	if (unids.length && Town.fillTome(sdk.items.TomeofIdentify, true)) {
+		unids.forEach(item => Item.identify(item));
+	}
+
 	// ring check - sometimes a higher tier ring ends up on the wrong finger causing a rollback loop
 	if (this.getEquippedItem(sdk.body.RingLeft).tierScore > this.getEquippedItem(sdk.body.RingRight).tierScore) {
 		console.log("ÿc9" + task + "ÿc0 :: Swapping rings, higher tier ring is on the wrong finger");

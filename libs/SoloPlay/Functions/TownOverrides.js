@@ -238,9 +238,26 @@ Town.sellItems = function (itemList = []) {
 	return !itemList.length;
 };
 
-Town.fillTome = function (classid) {
+Town.checkScrolls = function (id, force = false) {
+	let tome = me.findItem(id, sdk.items.mode.inStorage, sdk.storage.Inventory);
+
+	if (!tome) {
+		switch (id) {
+		case sdk.items.TomeofIdentify:
+		case "ibk":
+			return (Config.FieldID.Enabled || force) ? 0 : 20; // Ignore missing ID tome if we aren't using field ID
+		case sdk.items.TomeofTownPortal:
+		case "tbk":
+			return 0; // Force TP tome check
+		}
+	}
+
+	return tome.getStat(sdk.stats.Quantity);
+};
+
+Town.fillTome = function (classid, force = false) {
 	if (me.gold < 450) return false;
-	const have = this.checkScrolls(classid);
+	const have = this.checkScrolls(classid, force);
 	if (have >= (me.charlvl < 12 ? 5 : 13)) return true;
 
 	let scroll;
