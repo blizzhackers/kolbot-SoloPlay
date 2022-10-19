@@ -9,10 +9,20 @@
 includeIfNotIncluded("NTItemParser.dbl");
 includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
+/**
+ * @todo
+ *   - need a way to build and update/remove elements from checklists during gameplay
+ */
+
 NTIPAliasStat["addfireskills"] = [sdk.stats.ElemSkill, 1];
 NTIPAliasStat["plusskillwhirlwind"] = [sdk.stats.NonClassSkill, sdk.skills.Whirlwind];
 NTIP.MAX_TIER = 100000;
+// think this might be ugly but want to work on seperating soloplay from the base so pickits don't interfere
 NTIP.RuntimeCheckList = [];
+NTIP.RuntimeStringArray = [];
+NTIP.SoloCheckList = [];
+NTIP.SoloCheckListNoTier = [];
+NTIP.SoloStringArray = [];
 
 NTIP.generateTierFunc = function (tierType) {
 	return function (item) {
@@ -27,12 +37,12 @@ NTIP.generateTierFunc = function (tierType) {
 		};
 
 		// Go through ALL lines that describe the item
-		for (let i = 0; i < NTIP_CheckList.length; i += 1) {
-			if (NTIP_CheckList[i].length !== 3) {
+		for (let i = 0; i < NTIP.SoloCheckList.length; i += 1) {
+			if (NTIP.SoloCheckList[i].length !== 3) {
 				continue;
 			}
 
-			const [type, stat, wanted] = NTIP_CheckList[i];
+			const [type, stat, wanted] = NTIP.SoloCheckList[i];
 
 			// If the line doesnt have a tier of this type, we dont need to call it
 			if (typeof wanted === "object" && wanted && typeof wanted[tierType] === "function") {
@@ -53,7 +63,7 @@ NTIP.generateTierFunc = function (tierType) {
 						}
 					}
 				} catch (e) {
-					const info = stringArray[i];
+					const info = NTIP.SoloStringArray[i];
 					Misc.errorReport("ÿc1Pickit Tier (" + tierType + ") error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message + " Trigger item: " + item.fname.split("\n").reverse().join(" "));
 				}
 			}
@@ -63,27 +73,34 @@ NTIP.generateTierFunc = function (tierType) {
 	};
 };
 
+/**@function
+ * @param item */
+NTIP.GetTier = NTIP.generateTierFunc("Tier");
+
+/**@function
+ * @param item */
+NTIP.GetMercTier = NTIP.generateTierFunc("Merctier");
 NTIP.GetCharmTier = NTIP.generateTierFunc("Charmtier");
 NTIP.GetSecondaryTier = NTIP.generateTierFunc("Secondarytier");
 
 NTIP.addLine = function (itemString) {
 	const info = {
-		line: NTIP_CheckList.length,
+		line: NTIP.SoloCheckList.length + 1,
 		file: "Kolbot-SoloPlay",
 		string: line
 	};
 
-	let line = NTIP.ParseLineInt(itemString, info);
+	const line = NTIP.ParseLineInt(itemString, info);
 
 	if (line) {
 		if (!itemString.toLowerCase().includes("tier")) {
-			NTIP_CheckListNoTier.push(line);
+			NTIP.SoloCheckListNoTier.push(line);
 		} else {
-			NTIP_CheckListNoTier.push([false, false]);
+			NTIP.SoloCheckListNoTier.push([false, false]);
 		}
 
-		NTIP_CheckList.push(line);
-		stringArray.push(info);
+		NTIP.SoloCheckList.push(line);
+		NTIP.SoloStringArray.push(info);
 	}
 
 	return true;
@@ -93,22 +110,25 @@ NTIP.addLine = function (itemString) {
 // so things can be deleted without affecting the entire list
 NTIP.addToRuntime = function (itemString) {
 	const info = {
-		line: NTIP.RuntimeCheckList.length,
+		line: NTIP.RuntimeCheckList.length + 1,
 		file: "Kolbot-SoloPlay-Runtime",
 		string: line
 	};
 
-	let line = NTIP.ParseLineInt(itemString, info);
+	const line = NTIP.ParseLineInt(itemString, info);
 
 	if (line) {
 		NTIP.RuntimeCheckList.push(line);
-		stringArray.push(info);
+		NTIP.RuntimeStringArray.push(info);
 	}
 
 	return true;
 };
 
-NTIP.resetRuntimeList = () => NTIP.RuntimeCheckList.length = 0;
+NTIP.resetRuntimeList = () => {
+	NTIP.RuntimeCheckList.length = 0;
+	NTIP.RuntimeStringArray.length = 0;
+};
 
 NTIP.arrayLooping = function (...arraystoloop) {
 	for (let arr of arraystoloop) {
@@ -124,7 +144,8 @@ NTIP.arrayLooping = function (...arraystoloop) {
 
 NTIP.hasStats = function (item, entryList = [], verbose = false) {
 	let hasStat = false, line = "", stats;
-	let list = entryList.length ? entryList : NTIP_CheckList;
+	const list = entryList.length ? entryList : NTIP.SoloCheckList;
+	const stringArr = entryList.length ? stringArray : NTIP.SoloStringArray;
 
 	for (let i = 0; i < list.length; i++) {
 		try {
@@ -137,7 +158,7 @@ NTIP.hasStats = function (item, entryList = [], verbose = false) {
 						if (stat(item)) {
 							hasStat = true;
 							stats = stat;
-							line = stringArray[i].file + " #" + stringArray[i].line + " " + stringArray[i].string;
+							line = stringArr[i].file + " #" + stringArr[i].line + " " + stringArr[i].string;
 
 							break;
 						}
@@ -164,110 +185,126 @@ NTIP.hasStats = function (item, entryList = [], verbose = false) {
 	return hasStat;
 };
 
+// this method for charms needs work
 NTIP.getInvoQuantity = function (item, entryList = []) {
-	let invoquantity = -1;
-	let list = entryList.length ? entryList : NTIP_CheckList;
+	const list = entryList.length ? entryList : NTIP.SoloCheckList;
 
 	for (let i = 0; i < list.length; i++) {
 		try {
-			let [type, stat, wanted] = list[i];
-
-			if (typeof type === "function") {
-				if (type(item)) {
-					if (typeof stat === "function") {
-						if (stat(item)) {
-							if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
-								invoquantity = wanted.InvoQuantity;
-
-								break;
-							}
-						}
-					} else {
-						if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
-							invoquantity = wanted.InvoQuantity;
-
-							break;
-						}
-					}
-				}
-			} else if (typeof stat === "function") {
-				if (stat(item)) {
-					if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
-						invoquantity = wanted.InvoQuantity;
-
-						break;
-					}
-				}
-			}
-		} catch (e) {
-			return -1;
-		}
-	}
-
-	return invoquantity;
-};
-
-NTIP.getMaxQuantity = function (item, entryList = []) {
-	let maxquantity = -1;
-	let list = entryList.length ? entryList : NTIP_CheckList;
-
-	for (let i = 0; i < list.length; i++) {
-		try {
-			let [type, stat, wanted] = list[i];
-
-			if (typeof type === "function") {
-				if (type(item)) {
-					if (typeof stat === "function") {
-						if (stat(item)) {
-							if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
-								maxquantity = wanted.MaxQuantity;
-								
-								break;
-							}
-						}
-					} else {
-						if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
-							maxquantity = wanted.MaxQuantity;
-
-							break;
-						}
-					}
-				}
-			} else if (typeof stat === "function") {
-				if (stat(item)) {
-					if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
-						maxquantity = wanted.MaxQuantity;
-
-						break;
-					}
-				}
-			}
-		} catch (e) {
-			return -1;
-		}
-	}
-
-	return maxquantity;
-};
-
-NTIP.CheckItem = function (item, entryList = [], verbose = false) {
-	let i, num;
-	let rval = {};
-	let result = 0;
-	let list = entryList.length ? entryList : [].concat(NTIP_CheckList, NTIP.RuntimeCheckList);
-	let identified = item.getFlag(sdk.items.flags.Identified);
-
-	for (i = 0; i < list.length; i++) {
-		try {
-			// Get the values in separated variables (its faster)
 			const [type, stat, wanted] = list[i];
 
 			if (typeof type === "function") {
 				if (type(item)) {
 					if (typeof stat === "function") {
 						if (stat(item)) {
+							if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+								return wanted.InvoQuantity;
+							}
+						}
+					} else {
+						if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+							return wanted.InvoQuantity;
+						}
+					}
+				}
+			} else if (typeof stat === "function") {
+				if (stat(item)) {
+					if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+						return wanted.InvoQuantity;
+					}
+				}
+			}
+		} catch (e) {
+			return -1;
+		}
+	}
+
+	return -1;
+};
+
+NTIP.getMaxQuantity = function (item, entryList = []) {
+	const list = entryList.length ? entryList : NTIP.SoloCheckList;
+
+	for (let i = 0; i < list.length; i++) {
+		try {
+			let [type, stat, wanted] = list[i];
+
+			if (typeof type === "function") {
+				if (type(item)) {
+					if (typeof stat === "function") {
+						if (stat(item)) {
 							if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
-								num = NTIP.CheckQuantityOwned(type, stat);
+								return wanted.MaxQuantity;
+							}
+						}
+					} else {
+						if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
+							return wanted.MaxQuantity;
+						}
+					}
+				}
+			} else if (typeof stat === "function") {
+				if (stat(item)) {
+					if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
+						return wanted.MaxQuantity;
+					}
+				}
+			}
+		} catch (e) {
+			return -1;
+		}
+	}
+
+	return -1;
+};
+
+NTIP.CheckItem = function (item, entryList = [], verbose = false) {
+	let rval = {};
+	let result = 0;
+	const identified = item.getFlag(sdk.items.flags.Identified);
+
+	const iterateList = (list, stringArr) => {
+		let i, num;
+
+		for (i = 0; i < list.length; i++) {
+			try {
+				// Get the values in separated variables (its faster)
+				const [type, stat, wanted] = list[i];
+
+				if (typeof type === "function") {
+					if (type(item)) {
+						if (typeof stat === "function") {
+							if (stat(item)) {
+								if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
+									num = NTIP.CheckQuantityOwned(type, stat);
+
+									if (num < wanted.MaxQuantity) {
+										result = 1;
+
+										break;
+									} else {
+										// attempt at inv fix for maxquantity
+										if (item.getParent() && item.getParent().name === me.name && item.mode === sdk.items.mode.inStorage && num === wanted.MaxQuantity) {
+											result = 1;
+
+											break;
+										}
+									}
+								} else {
+									result = 1;
+
+									break;
+								}
+							} else if (!identified && result === 0 || !identified && result === 1) {
+								result = -1;
+
+								if (verbose) {
+									rval.line = stringArr[i].file + " #" + stringArr[i].line;
+								}
+							}
+						} else {
+							if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
+								num = NTIP.CheckQuantityOwned(type, null);
 
 								if (num < wanted.MaxQuantity) {
 									result = 1;
@@ -286,16 +323,12 @@ NTIP.CheckItem = function (item, entryList = [], verbose = false) {
 
 								break;
 							}
-						} else if (!identified && result === 0 || !identified && result === 1) {
-							result = -1;
-
-							if (verbose) {
-								rval.line = stringArray[i].file + " #" + stringArray[i].line;
-							}
 						}
-					} else {
+					}
+				} else if (typeof stat === "function") {
+					if (stat(item)) {
 						if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
-							num = NTIP.CheckQuantityOwned(type, null);
+							num = NTIP.CheckQuantityOwned(null, stat);
 
 							if (num < wanted.MaxQuantity) {
 								result = 1;
@@ -314,77 +347,66 @@ NTIP.CheckItem = function (item, entryList = [], verbose = false) {
 
 							break;
 						}
-					}
-				}
-			} else if (typeof stat === "function") {
-				if (stat(item)) {
-					if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
-						num = NTIP.CheckQuantityOwned(null, stat);
+					} else if (!identified && result === 0 || !identified && result === 1) {
+						result = -1;
 
-						if (num < wanted.MaxQuantity) {
-							result = 1;
-
-							break;
-						} else {
-							// attempt at inv fix for maxquantity
-							if (item.getParent() && item.getParent().name === me.name && item.mode === sdk.items.mode.inStorage && num === wanted.MaxQuantity) {
-								result = 1;
-
-								break;
-							}
+						if (verbose) {
+							rval.line = stringArr[i].file + " #" + stringArr[i].line;
 						}
-					} else {
-						result = 1;
-
-						break;
-					}
-				} else if (!identified && result === 0 || !identified && result === 1) {
-					result = -1;
-
-					if (verbose) {
-						rval.line = stringArray[i].file + " #" + stringArray[i].line;
 					}
 				}
+			} catch (pickError) {
+				showConsole();
+
+				if (!entryList) {
+					Misc.errorReport("ÿc1Pickit error! Line # ÿc2" + stringArr[i].line + " ÿc1Entry: ÿc0" + stringArr[i].string + " (" + stringArr[i].file + ") Error message: " + pickError.message + " Trigger item: " + item.fname.split("\n").reverse().join(" "));
+
+					list.splice(i, 1); // Remove the element from the list
+				} else {
+					Misc.errorReport("ÿc1Pickit error in runeword config!");
+				}
+
+				result = 0;
 			}
-		} catch (pickError) {
-			showConsole();
+		}
 
-			if (!entryList) {
-				Misc.errorReport("ÿc1Pickit error! Line # ÿc2" + stringArray[i].line + " ÿc1Entry: ÿc0" + stringArray[i].string + " (" + stringArray[i].file + ") Error message: " + pickError.message + " Trigger item: " + item.fname.split("\n").reverse().join(" "));
+		if (verbose) {
+			switch (result) {
+			case -1:
+				break;
+			case 1:
+				rval.line = stringArr[i].file + " #" + stringArr[i].line;
 
-				NTIP_CheckList.splice(i, 1); // Remove the element from the list
-			} else {
-				Misc.errorReport("ÿc1Pickit error in runeword config!");
+				break;
+			default:
+				rval.line = null;
+
+				break;
 			}
 
-			result = 0;
+			rval.result = result;
+
+			if (!identified && result === 1) {
+				rval.result = -1;
+			}
+
+			return rval;
+		}
+
+		return result;
+	};
+
+	const listOfLists = [[NTIP.SoloCheckList, NTIP.SoloStringArray], [NTIP_CheckList, stringArray], [NTIP.RuntimeCheckList, NTIP.RuntimeStringArray]];
+	if (entryList.length) return iterateList(entryList, stringArray);
+
+	for (let i = 0; i < listOfLists.length; i++) {
+		iterateList(listOfLists[i][0], listOfLists[i][1]);
+		if ((verbose && rval.result !== 0) || (!verbose && result !== 0)) {
+			break;
 		}
 	}
 
-	if (verbose) {
-		switch (result) {
-		case -1:
-			break;
-		case 1:
-			rval.line = stringArray[i].file + " #" + stringArray[i].line;
-
-			break;
-		default:
-			rval.line = null;
-
-			break;
-		}
-
-		rval.result = result;
-
-		if (!identified && result === 1) {
-			rval.result = -1;
-		}
-
-		return rval;
-	}
-
-	return result;
+	return verbose ? rval : result;
 };
 
 NTIP.OpenFile = function (filepath, notify) {

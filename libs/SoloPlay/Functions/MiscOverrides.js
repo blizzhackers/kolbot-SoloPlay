@@ -736,11 +736,8 @@ Misc.logItem = function (action, unit, keptLine) {
 
 	const mercCheck = action.match("Merc");
 	const hasTier = AutoEquip.hasTier(unit);
-	// const runewordCheck = action.match("runeword", "gi");
-	// const cubingCheck = action.match("cubing", "gi");
 	const charmCheck = (unit.isCharm && Item.autoEquipCharmCheck(unit));
-	const nTResult = !!(NTIP.CheckItem(unit, NTIP_CheckListNoTier, true).result && (keptLine && !keptLine.match("SoloPlay")));
-	const nTCharm = (unit.isCharm && !charmCheck && (keptLine && !keptLine.match("SoloPlay", "gi")));
+	const nTResult = NTIP.CheckItem(unit, NTIP_CheckListNoTier) === 1;
 
 	if (!action.match("kept", "i") && !action.match("Shopped") && hasTier) {
 		if (!mercCheck) {
@@ -752,12 +749,8 @@ Misc.logItem = function (action, unit, keptLine) {
 	}
 
 	// should stop logging items unless we wish to see them or it's part of normal pickit
-	if (nTResult || unit.isCharm || hasTier || nTCharm) {
+	if (!nTResult && unit.isCharm) {
 		switch (true) {
-		//case nTResult:
-		//case runewordCheck:
-		//case (cubingCheck && Developer.debugging.crafting):
-		//case (hasTier && !unit.isCharm && Developer.debugging.autoEquip):
 		case (charmCheck && !Developer.debugging.smallCharm && unit.classid === sdk.items.SmallCharm):
 		case (charmCheck && !Developer.debugging.largeCharm && unit.classid === sdk.items.LargeCharm):
 		case (charmCheck && !Developer.debugging.grandCharm && unit.classid === sdk.items.GrandCharm):

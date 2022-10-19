@@ -1122,7 +1122,8 @@ Town.clearInventory = function () {
 };
 
 Town.clearJunk = function () {
-	let junkItems = me.getItemsEx().filter(i => i.isInStorage && !Town.ignoredItemTypes.includes(i.itemType) && i.sellable);
+	let junkItems = me.getItemsEx()
+		.filter(i => i.isInStorage && !Town.ignoredItemTypes.includes(i.itemType) && i.sellable && !Town.systemsKeep(i));
 	if (!junkItems.length) return false;
 
 	let [totalJunk, junkToSell, junkToDrop] = [[], [], []];
@@ -1139,7 +1140,7 @@ Town.clearJunk = function () {
 		const pickitResult = Pickit.checkItem(junk).result;
 
 		try {
-			if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(pickitResult) && !Town.systemsKeep(junk)) {
+			if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(pickitResult)) {
 				console.log("ÿc9JunkCheckÿc0 :: Junk: " + junk.name + " Pickit Result: " + pickitResult);
 				getToItem("JunkCheck", junk) && totalJunk.push(junk);
 
@@ -1162,7 +1163,7 @@ Town.clearJunk = function () {
 				continue;
 			}
 
-			if (junk.isBaseType) {
+			if (junk.isBaseType && pickitResult === Pickit.Result.SOLOWANTS) {
 				if (!Item.betterThanStashed(junk)) {
 					console.log("ÿc9BetterThanStashedCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
 					getToItem("BetterThanStashedCheck", junk) && totalJunk.push(junk);
@@ -1186,6 +1187,8 @@ Town.clearJunk = function () {
 		totalJunk
 			.sort((a, b) => b.getItemCost(sdk.items.cost.ToSell) - a.getItemCost(sdk.items.cost.ToSell))
 			.forEach(junk => {
+				// extra check should ensure no pickit wanted items get sold/dropped
+				if (NTIP.CheckItem(junk, NTIP_CheckListNoTier) === Pickit.Result.WANTED) return;
 				if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
 					junkToSell.push(junk);
 				} else {

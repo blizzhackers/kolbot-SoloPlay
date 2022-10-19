@@ -1435,27 +1435,19 @@ Item.getCharmType = function (charm = undefined) {
 
 const AutoEquip = {
 	hasTier: function (item) {
-		if (me.classic) {
-			return Item.hasTier(item);
-		} else {
-			if ([sdk.items.type.SmallCharm, sdk.items.type.LargeCharm, sdk.items.type.GrandCharm].includes(item.itemType)) {
-				return Item.hasCharmTier(item);
-			} else {
-				return Item.hasMercTier(item) || Item.hasTier(item) || Item.hasSecondaryTier(item);
-			}
+		if (me.classic) return Item.hasTier(item);
+		if (item.isCharm) {
+			return Item.hasCharmTier(item);
 		}
+		return Item.hasMercTier(item) || Item.hasTier(item) || Item.hasSecondaryTier(item);
 	},
 
 	wanted: function (item) {
-		if (me.classic) {
-			return Item.autoEquipKeepCheck(item);
-		} else {
-			if ([sdk.items.type.SmallCharm, sdk.items.type.LargeCharm, sdk.items.type.GrandCharm].includes(item.itemType)) {
-				return Item.autoEquipCharmCheck(item);
-			} else {
-				return Item.autoEquipKeepCheckMerc(item) || Item.autoEquipKeepCheck(item) || Item.autoEquipCheckSecondary(item);
-			}
+		if (me.classic) return Item.autoEquipKeepCheck(item);
+		if (item.isCharm) {
+			return Item.autoEquipCharmCheck(item);
 		}
+		return Item.autoEquipKeepCheckMerc(item) || Item.autoEquipKeepCheck(item) || Item.autoEquipCheckSecondary(item);
 	},
 
 	runAutoEquip: function () {
