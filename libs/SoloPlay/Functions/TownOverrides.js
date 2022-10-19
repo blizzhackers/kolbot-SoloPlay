@@ -302,6 +302,7 @@ Town.itemResult = function (item, result, system = "", sell = false) {
 
 	switch (result.result) {
 	case Pickit.Result.WANTED:
+	case Pickit.Result.SOLOWANTS:
 		Misc.itemLogger("Kept", item);
 		Misc.logItem("Kept", item, result.line);
 		system === "Field" && ((Item.autoEquipCheck(item) && Item.autoEquip("Field")) || (Item.autoEquipCheckSecondary(item) && Item.autoEquipSecondary("Field")));
@@ -327,7 +328,7 @@ Town.itemResult = function (item, result, system = "", sell = false) {
 		CraftingSystem.update(item);
 
 		break;
-	case Pickit.Result.SOLOWANTS:
+	case Pickit.Result.SOLOSYSTEM:
 		Misc.itemLogger("Kept", item, "SoloWants-" + system);
 		SoloWants.update(item);
 
@@ -405,6 +406,7 @@ Town.cainID = function (force = false) {
 
 				break;
 			case Pickit.Result.WANTED:
+			case Pickit.Result.SOLOWANTS:
 				Misc.itemLogger("Kept", item);
 				Misc.logItem("Kept", item, result.line);
 
@@ -421,7 +423,7 @@ Town.cainID = function (force = false) {
 				CraftingSystem.update(item);
 
 				break;
-			case Pickit.Result.SOLOWANTS:
+			case Pickit.Result.SOLOSYSTEM:
 				Misc.itemLogger("Kept", item, "SoloWants-Town");
 				SoloWants.update(item);
 

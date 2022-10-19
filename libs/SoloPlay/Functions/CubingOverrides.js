@@ -866,6 +866,7 @@ Cubing.doCubing = function () {
 
 						break;
 					case Pickit.Result.WANTED:
+					case Pickit.Result.SOLOWANTS:
 						Misc.itemLogger("Cubing Kept", items[j]);
 						Misc.logItem("Cubing Kept", items[j], result.line);
 
@@ -874,7 +875,7 @@ Cubing.doCubing = function () {
 						CraftingSystem.update(items[j]);
 
 						break;
-					case Pickit.Result.SOLOWANTS: // SoloWants System
+					case Pickit.Result.SOLOSYSTEM: // SoloWants System
 						SoloWants.update(items[j]);
 
 						break;

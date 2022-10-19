@@ -13,6 +13,7 @@ includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 
 Pickit.enabled = true;
 Pickit.Result.SOLOWANTS = 8;
+Pickit.Result.SOLOSYSTEM = 9;
 
 Pickit.minItemKeepGoldValue = function () {
 	const myGold = me.gold;
@@ -71,7 +72,7 @@ Pickit.checkItem = function (unit) {
 		}
 	}
 
-	if (SoloWants.checkItem(unit)) return resultObj(Pickit.Result.SOLOWANTS);
+	if (SoloWants.checkItem(unit)) return resultObj(Pickit.Result.SOLOSYSTEM);
 	if (CraftingSystem.checkItem(unit)) return resultObj(Pickit.Result.CRAFTING);
 	if (Cubing.checkItem(unit)) return resultObj(Pickit.Result.CUBING);
 	if (Runewords.checkItem(unit)) return resultObj(Pickit.Result.RUNEWORD);
@@ -492,6 +493,7 @@ Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
 
 		switch (status) {
 		case Pickit.Result.WANTED:
+		case Pickit.Result.SOLOWANTS:
 			console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (stats.sockets > 0 ? ") (sockets " + stats.sockets : "") + (keptLine ? ") (" + keptLine + ")" : ")"));
 
 			if (this.ignoreLog.indexOf(stats.type) === -1) {
@@ -521,7 +523,7 @@ Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
 			CraftingSystem.update(item);
 
 			break;
-		case Pickit.Result.SOLOWANTS:
+		case Pickit.Result.SOLOSYSTEM:
 			console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (SoloWants System)");
 			SoloWants.update(item);
 
