@@ -5,7 +5,7 @@
 *
 */
 
-if (!isIncluded("common/Runewords.js")) { include("common/Runewords.js"); }
+!includeIfNotIncluded("common/Runewords.js");
 
 // Don't use ladder-only on NL
 Runeword.Brand = (me.ladder || Developer.addLadderRW) ? [sdk.items.runes.Jah, sdk.items.runes.Lo, sdk.items.runes.Mal, sdk.items.runes.Gul] : false; // Jah + Lo + Mal + Gul
@@ -43,7 +43,7 @@ Runewords.getBase = function (runeword, base, ethFlag, reroll) {
 					better check than getFlag(sdk.items.flags.Runeword) because randomly socketed items return false for it
 				*/
 
-				if ((!reroll && !item.getItem() && Town.betterBaseThanWearing(item, Developer.debugging.junkCheck)) ||
+				if ((!reroll && !item.getItem() && Item.betterBaseThanWearing(item, Developer.debugging.baseCheck)) ||
 					(reroll && item.getItem() && !NTIP.CheckItem(item, this.pickitEntries) && !Item.autoEquipKeepCheckMerc(item) && !Item.autoEquipKeepCheck(item))) {
 					if (!ethFlag || (ethFlag === Roll.Eth && item.ethereal) || (ethFlag === Roll.NonEth && !item.ethereal)) {
 						return copyUnit(item);

@@ -141,6 +141,8 @@ const finalBuild = {
 				if (me.hell && !Pather.accessToAct(5)) {
 					Config.SkipImmune = ["magic"];
 				}
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+				SetUp.belt();
 			}
 		},
 	},

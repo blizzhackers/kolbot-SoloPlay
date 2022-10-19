@@ -6,12 +6,15 @@
 */
 
 function bloodraven () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("ÿc8Kolbot-SoloPlayÿc0: starting blood raven");
 
 	if (!Pather.checkWP(sdk.areas.StonyField, true)) {
 		Pather.getWP(sdk.areas.StonyField);
-		me.charlvl < 6 && Attack.clearLevelUntilLevel(6);
+		if (me.charlvl < 6) {
+			Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Monster, sdk.monsters.preset.Rakanishu, 10, 10, false, true);
+			Attack.killTarget(getLocaleString(sdk.locale.monsters.Rakanishu));
+		}
 	} else {
 		if (me.hell && Pather.canTeleport() && me.charlvl < 74/*xp penalty makes this not worth it after 74*/) {
 			Misc.getExpShrine([sdk.areas.StonyField, sdk.areas.ColdPlains, sdk.areas.DarkWood, sdk.areas.BloodMoor]);
@@ -20,7 +23,9 @@ function bloodraven () {
 			}
 		} else {
 			Pather.useWaypoint(sdk.areas.ColdPlains);
-			me.charlvl < 5 && Attack.clearLevelUntilLevel(5);
+			if (me.charlvl < 5) {
+				SoloIndex.doneList.includes("cave") ? Attack.clearLevelUntilLevel(5) : Loader.skipTown.push("cave") && Loader.runScript("cave");
+			}
 		}
 	}
 

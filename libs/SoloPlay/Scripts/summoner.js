@@ -7,19 +7,18 @@
 
 function summoner () {
 	// @isid0re
-	let teleportPads = function () {
-		if (me.inArea(sdk.areas.ArcaneSanctuary) || Pather.useTeleport()) return true;
+	const teleportPads = function () {
+		if (!me.inArea(sdk.areas.ArcaneSanctuary) || Pather.useTeleport()) return true;
 
-		let wpX = 25449;
-		let wpY = 5449;
+		let tppPath;
+		let [wpX, wpY] = [25449, 5449];
 		let ntppPath = [[53, 2], [103, -3], [113, -68], [173, -58], [243, -73], [293, -58], [353, -68], [372, -62], [342, -17]];
 		let stppPath = [[-56, 2], [-128, -7], [-98, 78], [-176, 62], [-243, 58], [-296, 62], [-372, 62], [-366, 12]];
 		let etppPath = [[28, 52], [-12, 92], [53, 112], [72, 118], [88, 172], [54, 227], [43, 247], [88, 292], [82, 378], [-16, 332], [2, 353]];
 		let wtppPath = [[-26, -63], [2, -121], [3, -133], [62, -117], [34, -183], [54, -228], [43, -243], [34, -303], [72, -351], [64, -368], [23, -338]];
 		let stand = Game.getPresetObject(me.area, sdk.objects.Journal);
-		let tppPathX = stand.roomx * 5 + stand.x;
-		let tppPathY = stand.roomy * 5 + stand.y;
-		let tppPath;
+		let [tppPathX, tppPathY] = [(stand.roomx * 5 + stand.x), (stand.roomy * 5 + stand.y)];
+		console.debug(tppPathX, tppPathY);
 		let tppID = [192, 304, 305, 306];
 
 		switch (tppPathX) {
@@ -42,7 +41,7 @@ function summoner () {
 			break;
 		}
 
-		if (getPath(me.area, me.x, me.y, stand.roomx * 5 + stand.x, stand.roomy * 5 + stand.y, 0, 10).length === 0) {
+		if (getPath(me.area, me.x, me.y, tppPathX, tppPathY, 0, 10).length === 0) {
 			me.overhead("Using telepad layout");
 
 			for (let i = 0; i < tppPath.length; i += 1) {
@@ -69,7 +68,7 @@ function summoner () {
 	};
 
 	// START
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting summoner");
 
 	Pather.checkWP(sdk.areas.ArcaneSanctuary, true) ? Pather.useWaypoint(sdk.areas.ArcaneSanctuary) : Pather.getWP(sdk.areas.ArcaneSanctuary);
@@ -77,7 +76,7 @@ function summoner () {
 	teleportPads();
 
 	try {
-		Pather.moveToPreset(sdk.areas.ArcaneSanctuary, sdk.unittype.Object, sdk.objects.Journal, -3, -3);
+		Pather.moveNearPreset(sdk.areas.ArcaneSanctuary, sdk.unittype.Object, sdk.objects.Journal, 10);
 	} catch (err) {
 		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to reach Summoner. Retry");
 

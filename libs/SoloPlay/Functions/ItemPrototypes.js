@@ -9,18 +9,18 @@
 
 includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
-Unit.prototype.getQuantityOwned = function () {
+Unit.prototype.getQuantityOwned = function (skipSameItem = false) {
 	if (this === undefined || this.type !== sdk.unittype.Item) return 0;
 
-	let myItems = me.getItemsEx()
+	return me.getItemsEx()
 		.filter(check =>
 			check.itemType === this.itemType
+			&& (!skipSameItem || check.gid !== this.gid)
 			&& check.classid === this.classid
 			&& check.quality === this.quality
 			&& check.sockets === this.sockets
 			&& check.isInStorage
-		);
-	return myItems.length;
+		).length;
 };
 
 Unit.prototype.hasTier = function () {
@@ -41,80 +41,32 @@ Unit.prototype.hasMercTier = function () {
 Unit.prototype.bodyLocation = function () {
 	if (this === undefined || this.type !== sdk.unittype.Item) return [];
 
-	let bodyLoc;
-
-	switch (this.itemType) {
-	case sdk.items.type.Shield:
-	case sdk.items.type.AuricShields:
-	case sdk.items.type.VoodooHeads:
-	case sdk.items.type.BowQuiver:
-	case sdk.items.type.CrossbowQuiver:
-		bodyLoc = 5;
-
-		break;
-	case sdk.items.type.Armor:
-		bodyLoc = 3;
-
-		break;
-	case sdk.items.type.Ring:
-		bodyLoc = [6, 7];
-
-		break;
-	case sdk.items.type.Amulet:
-		bodyLoc = 2;
-
-		break;
-	case sdk.items.type.Boots:
-		bodyLoc = 9;
-
-		break;
-	case sdk.items.type.Gloves:
-		bodyLoc = 10;
-
-		break;
-	case sdk.items.type.Belt:
-		bodyLoc = 8;
-
-		break;
-	case sdk.items.type.Helm:
-	case sdk.items.type.PrimalHelm:
-	case sdk.items.type.Circlet:
-	case sdk.items.type.Pelt:
-		bodyLoc = 1;
-
-		break;
-	case sdk.items.type.Scepter:
-	case sdk.items.type.Wand:
-	case sdk.items.type.Staff:
-	case sdk.items.type.Bow:
-	case sdk.items.type.Axe:
-	case sdk.items.type.Club:
-	case sdk.items.type.Sword:
-	case sdk.items.type.Hammer:
-	case sdk.items.type.Knife:
-	case sdk.items.type.Spear:
-	case sdk.items.type.Polearm:
-	case sdk.items.type.Crossbow:
-	case sdk.items.type.Mace:
-	case sdk.items.type.ThrowingKnife:
-	case sdk.items.type.ThrowingAxe:
-	case sdk.items.type.Javelin:
-	case sdk.items.type.Orb:
-	case sdk.items.type.AmazonBow:
-	case sdk.items.type.AmazonSpear:
-	case sdk.items.type.AmazonJavelin:
-	case sdk.items.type.MissilePotion:
-		bodyLoc = me.barbarian ? [4, 5] : 4;
-
-		break;
-	case sdk.items.type.HandtoHand:
-	case sdk.items.type.AssassinClaw:
-		bodyLoc = !Check.currentBuild().caster && me.assassin ? [4, 5] : 4;
-
-		break;
-	default:
-		return [];
-	}
+	let bodyLoc = (() => {
+		switch (true) {
+		case Item.shieldTypes.includes(this.itemType):
+			return sdk.body.LeftArm;
+		case this.itemType === sdk.items.type.Armor:
+			return sdk.body.Armor;
+		case this.itemType === sdk.items.type.Ring:
+			return [sdk.body.RingRight, sdk.body.RingLeft];
+		case this.itemType === sdk.items.type.Amulet:
+			return sdk.body.Neck;
+		case this.itemType === sdk.items.type.Boots:
+			return sdk.body.Feet;
+		case this.itemType === sdk.items.type.Gloves:
+			return sdk.body.Gloves;
+		case this.itemType === sdk.items.type.Belt:
+			return sdk.body.Belt;
+		case Item.helmTypes.includes(this.itemType):
+			return sdk.body.Head;
+		case Item.weaponTypes.includes(this.itemType):
+			return me.barbarian ? [sdk.body.RightArm, sdk.body.LeftArm] : sdk.body.RightArm;
+		case [sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw].includes(this.itemType):
+			return !Check.currentBuild().caster && me.assassin ? [sdk.body.RightArm, sdk.body.LeftArm] : sdk.body.RightArm;
+		default:
+			return false;
+		}
+	})();
 
 	return Array.isArray(bodyLoc) ? bodyLoc : [bodyLoc];
 };
@@ -122,49 +74,18 @@ Unit.prototype.bodyLocation = function () {
 Unit.prototype.secondaryBodyLocation = function () {
 	if (this === undefined || this.type !== sdk.unittype.Item) return [];
 
-	let bodyLoc;
-
-	switch (this.itemType) {
-	case sdk.items.type.Shield:
-	case sdk.items.type.AuricShields:
-	case sdk.items.type.VoodooHeads:
-	case sdk.items.type.BowQuiver:
-	case sdk.items.type.CrossbowQuiver:
-		bodyLoc = 12;
-
-		break;
-	case sdk.items.type.Scepter:
-	case sdk.items.type.Wand:
-	case sdk.items.type.Staff:
-	case sdk.items.type.Bow:
-	case sdk.items.type.Axe:
-	case sdk.items.type.Club:
-	case sdk.items.type.Sword:
-	case sdk.items.type.Hammer:
-	case sdk.items.type.Knife:
-	case sdk.items.type.Spear:
-	case sdk.items.type.Polearm:
-	case sdk.items.type.Crossbow:
-	case sdk.items.type.Mace:
-	case sdk.items.type.ThrowingKnife:
-	case sdk.items.type.ThrowingAxe:
-	case sdk.items.type.Javelin:
-	case sdk.items.type.Orb:
-	case sdk.items.type.AmazonBow:
-	case sdk.items.type.AmazonSpear:
-	case sdk.items.type.AmazonJavelin:
-	case sdk.items.type.MissilePotion:
-		bodyLoc = me.barbarian ? [11, 12] : 11;
-
-		break;
-	case sdk.items.type.HandtoHand:
-	case sdk.items.type.AssassinClaw:
-		bodyLoc = !Check.currentBuild().caster && me.assassin ? [11, 12] : 11;
-
-		break;
-	default:
-		return [];
-	}
+	let bodyLoc = (() => {
+		switch (true) {
+		case Item.shieldTypes.includes(this.itemType):
+			return sdk.body.LeftArmSecondary;
+		case Item.weaponTypes.includes(this.itemType):
+			return me.barbarian ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary] : sdk.body.RightArmSecondary;
+		case [sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw].includes(this.itemType):
+			return !Check.currentBuild().caster && me.assassin ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary] : sdk.body.RightArmSecondary;
+		default:
+			return false;
+		}
+	})();
 
 	return Array.isArray(bodyLoc) ? bodyLoc : [bodyLoc];
 };
@@ -172,54 +93,31 @@ Unit.prototype.secondaryBodyLocation = function () {
 Unit.prototype.mercBodyLocation = function () {
 	if (this === undefined || this.type !== sdk.unittype.Item) return [];
 
-	let bodyLoc, mercenary = Mercenary.getMercFix();
+	let mercenary = me.getMercEx();
 	if (!mercenary) return [];
 
-	switch (this.itemType) {
-	case sdk.items.type.Shield:
-		if (mercenary.classid === sdk.mercs.IronWolf) {
-			bodyLoc = 5;
+	let bodyLoc = (() => {
+		switch (this.itemType) {
+		case sdk.items.type.Shield:
+			return (mercenary.classid === sdk.mercs.IronWolf ? sdk.body.LeftArm : []);
+		case sdk.items.type.Armor:
+			return sdk.body.Armor;
+		case sdk.items.type.Helm:
+		case sdk.items.type.Circlet:
+			return sdk.body.Head;
+		case sdk.items.type.PrimalHelm:
+			return (mercenary.classid === sdk.mercs.A5Barb ? sdk.body.Head : []);
+		case sdk.items.type.Bow:
+			return (mercenary.classid === sdk.mercs.Rogue ? sdk.body.RightArm : []);
+		case sdk.items.type.Spear:
+		case sdk.items.type.Polearm:
+			return (mercenary.classid === sdk.mercs.Guard ? sdk.body.RightArm : []);
+		case sdk.items.type.Sword:
+			return ([sdk.mercs.IronWolf, sdk.mercs.A5Barb].includes(mercenary.classid) ? sdk.body.RightArm : []);
+		default:
+			return false;
 		}
-
-		break;
-	case sdk.items.type.Armor:
-		bodyLoc = 3;
-
-		break;
-	case sdk.items.type.Helm:
-	case sdk.items.type.Circlet:
-		bodyLoc = 1;
-
-		break;
-	case sdk.items.type.PrimalHelm:
-		if (mercenary.classid === sdk.mercs.A5Barb) {
-			bodyLoc = 1;
-		}
-		
-		break;
-	case sdk.items.type.Bow:
-		if (mercenary.classid === sdk.mercs.Rogue) {
-			bodyLoc = 4;
-		}
-
-		break;
-	case sdk.items.type.Spear:
-	case sdk.items.type.Polearm:
-		if (mercenary.classid === sdk.mercs.Guard) {
-			bodyLoc = 4;
-		}
-
-		break;
-	case sdk.items.type.Sword:
-		if (mercenary.classid === sdk.mercs.IronWolf
-			|| mercenary.classid === sdk.mercs.A5Barb) {
-			bodyLoc = 4;
-		}
-
-		break;
-	default:
-		return [];
-	}
+	})();
 
 	return Array.isArray(bodyLoc) ? bodyLoc : [bodyLoc];
 };
@@ -231,7 +129,7 @@ Unit.prototype.canEquip = function () {
 
 Unit.prototype.canEquipMerc = function (bodyLoc = -1) {
 	if (this === undefined || this.type !== sdk.unittype.Item || !this.identified || me.classic) return false;
-	let mercenary = Mercenary.getMercFix();
+	let mercenary = me.getMercEx();
 
 	// dont have merc or he is dead
 	if (!mercenary) return false;
@@ -303,7 +201,7 @@ Unit.prototype.autoEquipCheckSecondary = function (checkCanEquip = true) {
 
 Unit.prototype.autoEquipCheckMerc = function (checkCanEquip = true) {
 	if (!Config.AutoEquip) return true;
-	if (this === undefined || this.type !== sdk.unittype.Item || me.classic || !Mercenary.getMercFix()) return false;
+	if (this === undefined || this.type !== sdk.unittype.Item || me.classic || !me.getMercEx()) return false;
 
 	let tier = NTIP.GetMercTier(this);
 	let	bodyLoc = this.mercBodyLocation();
@@ -328,9 +226,9 @@ Unit.prototype.shouldKeep = function () {
 		// only keep wanted items or cubing items (in rare cases where weapon being used is also a cubing wanted item)
 		|| (this.unique && Pickit.checkItem(this).result === 2)
 		// or keep if item is worth selling
-		|| (this.getItemCost(sdk.items.cost.ToSell) / (this.sizex * this.sizey) >= (me.normal ? 50 : me.nightmare ? 500 : 1000))) {
+		|| (this.getItemCost(sdk.items.cost.ToSell) / (this.sizex * this.sizey) >= (!me.inTown && me.charlvl < 12 ? 5 : me.normal ? 50 : me.nightmare ? 500 : 1000))) {
 		if ((Storage.Inventory.CanFit(this) && Storage.Inventory.MoveTo(this))) {
-			Town.sell.push(this);
+			!AutoEquip.wanted(this) && Town.sell.push(this);
 			return true;
 		}
 	}
@@ -371,9 +269,7 @@ Unit.prototype.equipItem = function (bodyLoc = -1) {
 							rolledBack = true;
 						}
 
-						if (!this.shouldKeep()) {
-							this.drop();
-						}
+						!this.shouldKeep() && this.drop();
 					}
 				}
 
@@ -405,12 +301,7 @@ Unit.prototype.secondaryEquip = function (bodyLoc = -1) {
 			if (this.bodylocation === bodyLoc - 7) {
 				if (getCursorType() === 3) {
 					let cursorItem = Game.getCursorUnit();
-
-					if (cursorItem) {
-						if (!this.shouldKeep()) {
-							this.drop();
-						}
-					}
+					!!cursorItem && !this.shouldKeep() && this.drop();
 				}
 
 				me.switchWeapons(0);
@@ -442,12 +333,7 @@ Unit.prototype.equipMerc = function (bodyLoc = -1) {
 			if (this.bodylocation === bodyLoc) {
 				if (getCursorType() === 3) {
 					let cursorItem = Game.getCursorUnit();
-
-					if (cursorItem) {
-						if (!this.shouldKeep()) {
-							this.drop();
-						}
-					}
+					!!cursorItem && !this.shouldKeep() && this.drop();
 				}
 
 				Developer.debugging.autoEquip && Misc.logItem("Merc Equipped", me.getMerc().getItem(this.classid));

@@ -11,11 +11,15 @@ function countess () {
 		sdk.areas.TowerCellarLvl2, sdk.areas.TowerCellarLvl3,
 		sdk.areas.TowerCellarLvl4, sdk.areas.TowerCellarLvl5
 	];
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting countess");
 
 	Pather.checkWP(sdk.areas.BlackMarsh, true) ? Pather.useWaypoint(sdk.areas.BlackMarsh) : Pather.getWP(sdk.areas.BlackMarsh);
 	Precast.doPrecast(true);
+
+	if (me.charlvl < 12) {
+		// @todo - low level, lets take a scenic route and kill those hawk nests
+	}
 
 	try {
 		if (me.charlvl < 15) {

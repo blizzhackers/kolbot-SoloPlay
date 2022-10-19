@@ -14,22 +14,14 @@ function tristram () {
 		[25119, 5061], [4933, 4363]
 	];
 
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting tristram");
 
 	// Tristram portal hasn't been opened
 	if (!Misc.checkQuest(sdk.quest.id.TheSearchForCain, 4)) {
-		// missing scroll and key
-		if (!me.getItem(sdk.items.quest.ScrollofInifuss) && !me.getItem(sdk.items.quest.KeytotheCairnStones)) {
-			if (!Pather.checkWP(sdk.areas.BlackMarsh, true)) {
-				Pather.getWP(sdk.areas.BlackMarsh);
-				Pather.useWaypoint(sdk.areas.DarkWood);
-			} else {
-				Pather.useWaypoint(sdk.areas.DarkWood);
-			}
-
+		const getScroll = () => {
+			if (me.getItem(sdk.quest.item.ScrollofInifuss) || me.getItem(sdk.quest.item.KeytotheCairnStones)) return true;
 			Precast.doPrecast(true);
-
 			if (!Pather.moveToPreset(sdk.areas.DarkWood, sdk.unittype.Object, sdk.quest.chest.InifussTree, 5, 5)) {
 				console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Tree of Inifuss");
 				return false;
@@ -37,13 +29,22 @@ function tristram () {
 
 			Quest.collectItem(sdk.quest.item.ScrollofInifuss, sdk.quest.chest.InifussTree);
 			Pickit.pickItems();
+			return (me.getItem(sdk.quest.item.ScrollofInifuss || me.getItem(sdk.quest.item.KeytotheCairnStones)));
+		};
+		// missing scroll and key
+		if (!me.getItem(sdk.items.quest.ScrollofInifuss) && !me.getItem(sdk.items.quest.KeytotheCairnStones)) {
+			if (!Pather.checkWP(sdk.areas.BlackMarsh, true)) {
+				Pather.useWaypoint(sdk.areas.DarkWood);
+				getScroll();
+				Pather.getWP(sdk.areas.BlackMarsh);
+			} else {
+				Pather.useWaypoint(sdk.areas.DarkWood);
+				getScroll();
+			}
 		}
 
 		if (me.getItem(sdk.items.quest.ScrollofInifuss)) {
-			if (!me.inTown) {
-				Town.goToTown();
-			}
-
+			!me.inTown && Town.goToTown();
 			Town.npcInteract("akara");
 		}
 	}
@@ -56,13 +57,14 @@ function tristram () {
 
 	if (!Misc.checkQuest(sdk.quest.id.TheSearchForCain, 4) && me.getItem(sdk.items.quest.KeytotheCairnStones)) {
 		try {
-			let stones = [
-				Game.getObject(sdk.quest.chest.StoneAlpha),
-				Game.getObject(sdk.quest.chest.StoneBeta),
-				Game.getObject(sdk.quest.chest.StoneGamma),
-				Game.getObject(sdk.quest.chest.StoneDelta),
-				Game.getObject(sdk.quest.chest.StoneLambda)
+			const stoneIds = [
+				sdk.quest.chest.StoneAlpha, sdk.quest.chest.StoneBeta, sdk.quest.chest.StoneGamma,
+				sdk.quest.chest.StoneDelta, sdk.quest.chest.StoneLambda
 			];
+			const getStones = () => getUnits(sdk.unittype.Object).filter(s => stoneIds.includes(s.classid) && !s.mode);
+			let stones = getStones();
+			let sTick = getTickCount();
+			let retry = true;
 
 			while (stones.some((stone) => !stone.mode)) {
 				for (let i = 0; i < stones.length; i++) {
@@ -71,6 +73,15 @@ function tristram () {
 					if (Common.Questing.activateStone(stone)) {
 						stones.splice(i, 1);
 						i--;
+					}
+
+					if (getTickCount() - sTick < Time.minutes(2)) {
+						if (retry) {
+							stones = getStones();
+							sTick = getTickCount();
+						} else {
+							return false;
+						}
 					}
 					Attack.securePosition(me.x, me.y, 10, 0);
 					delay(10);

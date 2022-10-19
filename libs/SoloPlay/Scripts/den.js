@@ -19,31 +19,53 @@ function den () {
 
 	myPrint("starting den");
 
+	me.gold > 500 && Town.initNPC("repair", "shopItems") && Town.shopItems(500, [sdk.items.type.Bow, sdk.items.type.Crossbow, sdk.items.type.Belt]);
+	me.gold > 1000 && Town.buyPots(12, "stamina", true);
+
 	if (!Pather.checkWP(sdk.areas.ColdPlains) || me.charlvl < 4) {
 		Pather.moveToExit(sdk.areas.BloodMoor, true);
 
-		// todo - write walking clearLevel function
-		// make sure we are ready for cold plains
-		let clearUntil = me.charlvl === 1 ? /*just started*/ 2 : 3; // if this is our second attempt, then bloor moor should be repopulated with mobs
-		me.charlvl < clearUntil && Attack.clearLevelUntilLevel(clearUntil);
-
-		// now make portal at den entrace
-		Pather.moveToExit(sdk.areas.DenofEvil, false, true);
-		Pather.makePortal();
+		try {
+			if (me.charlvl < 2) {
+				let cPlains = Pather.getExitCoords(me.area, sdk.areas.ColdPlains);
+				// sort by the ones closest to us but also by distance to cold plains exit so we end up there
+				Game.getPresetObjects(me.area)
+					.filter(el => Misc.presetShrineIds.includes(el.id) || Misc.presetChestIds.includes(el.id))
+					.sort((a, b) => {
+						let [aX, aY] = [a.roomx * 5 + a.x, a.roomy * 5 + a.y];
+						let [bX, bY] = [b.roomx * 5 + b.x, b.roomy * 5 + b.y];
+						if ([aX, aY].distance < [bX, bY].distance && getDistance(aX, aY, cPlains.x, cPlains.y) > getDistance(bX, bY, cPlains.x, cPlains.y)) {
+							return -1;
+						}
+						if ([aX, aY].distance > [bX, bY].distance && getDistance(aX, aY, cPlains.x, cPlains.y) < getDistance(bX, bY, cPlains.x, cPlains.y)) {
+							return 1;
+						}
+						return [aX, aY].distance - [bX, bY].distance;
+					})
+					.forEach(el => Pather.moveNearUnit(el, 7));
+			} else {
+				Pather.moveNearPreset(sdk.areas.BloodMoor, sdk.unittype.Object, sdk.objects.SuperChest, 8) && Misc.openChests(8);
+			}
+		} catch (e) {
+			console.warn(e.message ? e.message : e);
+		}
 		Pather.getWP(sdk.areas.ColdPlains);
 
 		// check if we need to do chores - if so use waypoint to town (preserves portal if we made one at den) - return to cold plains using waypoint
 		Storage.Inventory.UsedSpacePercent() > 50 && Pather.useWaypoint(sdk.areas.RogueEncampment) && Town.doChores() && Pather.useWaypoint(sdk.areas.ColdPlains);
-
-		// make sure we are ready for den
-		clearUntil = me.charlvl === 2 ? /*just started*/ 3 : 4;
-		me.charlvl < clearUntil && Attack.clearLevelUntilLevel(clearUntil);
-
-		Pather.getWP(sdk.areas.ColdPlains);
-		Pather.useWaypoint(sdk.areas.RogueEncampment);
 	}
 
-	Town.doChores();
+	if (me.charlvl < 8) {
+		me.sorceress && me.charlvl >= 2 && me.charlvl < 8 && Loader.skipTown.push("bishibosh") && Loader.runScript("bishibosh");
+		me.charlvl < 6 && Loader.skipTown.push("cave") && Loader.runScript("cave");
+	}
+
+	if (me.charlvl < 8 || me.gold < 1000) {
+		SoloIndex.retryList.push("den");
+		return true;
+	}
+
+	Town.doChores(false, (me.charlvl < 18 ? { stamina: true } : {}));
 	Town.move("portalspot");
 
 	// Check if there are any portals before trying to use one
@@ -106,7 +128,7 @@ function den () {
 				if (me.inArea(sdk.areas.DenofEvil)) {
 					if (denLights) {
 						killTracker = true;
-						throw new Error("DEN COMPLETE");
+						throw new Error("EVENT :: DEN COMPLETE");
 					}
 				}
 

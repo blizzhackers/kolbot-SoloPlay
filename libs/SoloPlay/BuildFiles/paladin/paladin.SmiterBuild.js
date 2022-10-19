@@ -1,6 +1,6 @@
 /**
 *  @filename    paladin.SmiterBuild.js
-*  @author      isid0re, theBGuy
+*  @author      theBGuy
 *  @desc        Smite + Fanaticism based final build
 *
 */
@@ -29,7 +29,7 @@ const finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - Grief
-		"[type] == sword && [flag] == runeword # [ias] >= 30 # [tier] == 100000",
+		"[type] == sword && [flag] == runeword # [ias] >= 30 && [itemdeadlystrike] == 20 && [passivepoispierce] >= 20 # [tier] == 100000",
 		// Helm - GFace
 		"[name] == wingedhelm && [quality] == set && [flag] != ethereal # [fhr] >= 30 # [tier] == 100000 + tierscore(item)",
 		// Belt - Tgods
@@ -45,10 +45,10 @@ const finalBuild = {
 		// Amulet - Highlords
 		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 100000",
 		// Final Rings - Perfect Raven Frost & Bul-Kathos' Wedding Band
-		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000",
+		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == 110000",
 		"[type] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] == 5 # [tier] == 110000",
 		// Rings - Raven Frost && Bul-Kathos' Wedding Band
-		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == # [tier] == 100000",
+		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == 100000",
 		"[type] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] >= 3 # [tier] == 100000",
 		// Switch - CTA
 		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
@@ -95,6 +95,8 @@ const finalBuild = {
 			Update: function () {
 				Config.AttackSkill = [-1, sdk.skills.Smite, sdk.skills.Fanaticism, sdk.skills.Smite, sdk.skills.Fanaticism, sdk.skills.BlessedHammer, sdk.skills.Concentration];
 				Config.LowManaSkill = [0, sdk.skills.Fanaticism];
+				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+				SetUp.belt();
 			}
 		},
 	},
@@ -103,7 +105,7 @@ const finalBuild = {
 		if (me.classic) {
 			return me.charlvl >= 75 && me.diablo;
 		} else {
-			return Check.haveItem("sword", "runeword", "Grief");
+			return me.checkItem({name: sdk.locale.items.Grief, itemtype: sdk.items.type.Sword}).have;
 		}
 	},
 

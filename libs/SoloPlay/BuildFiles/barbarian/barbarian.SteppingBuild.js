@@ -7,6 +7,7 @@
 */
 
 let build = {
+	AutoBuildTemplate: {},
 	caster: false,
 	skillstab: sdk.skills.tabs.BarbCombat,
 	wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing, sdk.skills.SwordMastery],
@@ -50,6 +51,24 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl > CharInfo.respecOne && me.charlvl < CharInfo.respecTwo && me.getSkill(sdk.skills.NaturalResistance, sdk.skills.subindex.HardPoints) && !me.getSkill(sdk.skills.Berserk, sdk.skills.subindex.HardPoints);
+		return me.charlvl > CharInfo.respecOne && me.charlvl < CharInfo.respecTwo && me.checkSkill(sdk.skills.NaturalResistance, sdk.skills.subindex.HardPoints) && !me.checkSkill(sdk.skills.Berserk, sdk.skills.subindex.HardPoints);
 	},
 };
+
+build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	Config.AttackSkill = [-1, sdk.skills.DoubleSwing, -1, sdk.skills.DoubleSwing, -1];
+	if (me.getSkill(sdk.skills.DoubleSwing, sdk.skills.subindex.SoftPoints) >= 9) {
+		Config.LowManaSkill = [sdk.skills.DoubleSwing, 0];
+	}
+	SetUp.belt();
+});
+build.AutoBuildTemplate[24] = buildAutoBuildTempObj(() => {
+	if (me.checkSkill(sdk.skills.Frenzy, sdk.skills.subindex.HardPoints)) {
+		Config.AttackSkill = [-1, sdk.skills.Frenzy, -1, sdk.skills.Frenzy, -1];
+	}
+	Config.BeltColumn = ["hp", "hp", "hp", "mp"];
+	Config.TownHP = me.hardcore ? 0 : 35;
+	Config.MPBuffer = me.expansion ? 2 : 4;
+	Config.HPBuffer = me.expansion && me.charlvl < 80 ? 6 : me.classic ? 5 : 2;
+	SetUp.belt();
+});

@@ -1,7 +1,7 @@
 /**
 *  @filename    baal.js
 *  @author      theBGuy
-*  @author      sonic
+*  @credits     sonic
 *  @desc        clear throne and kill baal
 *
 */
@@ -27,11 +27,7 @@ function baal () {
 			break;
 		case sdk.player.class.Sorceress:
 			if ([sdk.skills.Meteor, sdk.skills.Blizzard, sdk.skills.FrozenOrb].includes(Config.AttackSkill[1])) {
-				if (me.skillDelay) {
-					delay(50);
-				} else {
-					Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 15093, 5024);
-				}
+				!me.skillDelay ? Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 15093, 5024) : delay(50);
 			}
 
 			return true;
@@ -90,9 +86,9 @@ function baal () {
 			case 2:
 				boss = Game.getMonster("Achmel the Cursed");
 
-				if (boss && !Attack.canAttack(boss)) {
-					me.overhead("immune achmel");
-					return false;
+				if (boss) {
+					if (!Attack.canAttack(boss)) throw new Error("Immune boss");
+					if (me.paladin && me.hell && Check.currentBuild().caster) throw new Error("Too much effort for hammerdin");
 				}
 
 				Attack.clearClassids(sdk.monsters.BaalSubjectMummy, sdk.monsters.BaalColdMage) && (tick = getTickCount());
@@ -109,11 +105,7 @@ function baal () {
 				break;
 			case 5:
 				boss = Game.getMonster("Lister the Tormentor");
-
-				if (boss && !Attack.canAttack(boss)) {
-					me.overhead("immune lister");
-					return false;
-				}
+				if (boss && !Attack.canAttack(boss)) throw new Error("Immune boss");
 
 				Attack.clearClassids(sdk.monsters.ListerTheTormenter, sdk.monsters.Minion1, sdk.monsters.Minion2);
 
@@ -143,9 +135,38 @@ function baal () {
 				break;
 			}
 
-			// Thanks aim2kill
-			if (me.barbarian ? getDistance(me, 15112, 5062) : getDistance(me, 15116, 5026) > 3) {
-				me.barbarian ? Pather.moveTo(15112, 5062) : Pather.moveTo(15116, 5026);
+			switch (me.classid) {
+			case sdk.player.class.Amazon:
+			case sdk.player.class.Sorceress:
+			case sdk.player.class.Necromancer:
+			case sdk.player.class.Assassin:
+				[15116, 5026].distance > 3 && Pather.moveTo(15116, 5026);
+
+				break;
+			case sdk.player.class.Paladin:
+				if (Config.AttackSkill[3] === sdk.skills.BlessedHammer) {
+					[15094, 5029].distance > 3 && Pather.moveTo(15094, 5029);
+					
+					break;
+				}
+			// eslint-disable-next-line no-fallthrough
+			case sdk.player.class.Druid:
+				if ([sdk.skills.Fissure, sdk.skills.Volcano].includes(Config.AttackSkill[3])) {
+					[15116, 5026].distance > 3 && Pather.moveTo(15116, 5026);
+
+					break;
+				}
+
+				if (Config.AttackSkill[3] === sdk.skills.Tornado) {
+					[15094, 5029].distance > 3 && Pather.moveTo(15106, 5041);
+					
+					break;
+				}
+			// eslint-disable-next-line no-fallthrough
+			case sdk.player.class.Barbarian:
+				[15101, 5045].distance > 3 && Pather.moveTo(15101, 5045);
+
+				break;
 			}
 
 			// If we've been in the throne for 30 minutes that's way too long
@@ -186,31 +207,32 @@ function baal () {
 
 	const canClearThrone = function () {
 		Pather.moveTo(15094, 5029);
-		let monList = getUnits(sdk.unittype.Monster).filter(i => i.attackable);
-		let canAttack = [], cantAttack = [];
-
-		monList.forEach(mon => {
+		let [canAttack, cantAttack] = [[], []];
+		getUnits(sdk.unittype.Monster).filter(i => !!i && i.attackable).forEach(mon => {
 			Attack.canAttack(mon) ? canAttack.push(mon) : cantAttack.push(mon);
 		});
 
 		console.debug("Can Attack: " + canAttack.length, " Can't Attack: " + cantAttack.length);
 
-		if (!canAttack.length && !cantAttack.length) {
-			return true;
-		} else {
-			return (canAttack.length > cantAttack.length);
-		}
+		return ((!canAttack.length && !cantAttack.length) || (canAttack.length > cantAttack.length));
 	};
 
 	// START
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting baal");
 
 	Pather.checkWP(sdk.areas.WorldstoneLvl2, true) ? Pather.useWaypoint(sdk.areas.WorldstoneLvl2) : Pather.getWP(sdk.areas.WorldstoneLvl2, true);
 	Precast.doPrecast(true);
-	Pather.canTeleport()
-		? Pather.moveToExit([sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction], true)
-		: (Pather.clearToExit(sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, true) && Pather.clearToExit(sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction, true));
+	const oldCPRange = Config.ClearPath.Range;
+	const canTele = Pather.canTeleport();
+	try {
+		canTele && (Config.ClearPath.Range = 0);
+		canTele
+			? Pather.moveToExit([sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction], true, false)
+			: (Pather.clearToExit(sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, true) && Pather.clearToExit(sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction, true));
+	} finally {
+		oldCPRange !== Config.ClearPath.Range && (Config.ClearPath.Range = oldCPRange);
+	}
 
 	// Enter throne room
 	Pather.moveTo(15095, 5029, 5);
@@ -219,14 +241,8 @@ function baal () {
 	let totalTick = getTickCount();
 
 	// souls hurt
-	if (unSafeCheck(8, 20) && me.lightRes < 70 && me.nightmare) {
-		return true;
-	}
-
-	if (!canClearThrone()) {
-		myPrint("Too many mobs I can't attack");
-		return true;
-	}
+	if (unSafeCheck(8, 20) && me.lightRes < 70 && me.nightmare) throw new Error("Unsafe to clear");
+	if (!canClearThrone()) throw new Error("Too many mobs I can't attack");
 
 	try {
 		if (((me.hell && me.paladin && !Attack.auradin) || me.barbarian || me.gold < 25000 || (!me.baal && SetUp.finalBuild !== "Bumper"))) {
@@ -242,9 +258,7 @@ function baal () {
 			Pather.usePortal(sdk.areas.ThroneofDestruction, me.name);
 		}
 
-		if (!clearWaves()) {
-			throw new Error("Can't clear waves");
-		}
+		if (!clearWaves()) throw new Error("Can't clear waves");
 
 		Common.Baal.clearThrone(); // double check
 		Pather.moveTo(15094, me.paladin ? 5029 : 5038);
@@ -255,9 +269,7 @@ function baal () {
 		delay(2500 + me.ping);
 		Precast.doPrecast(true);
 
-		if (SetUp.finalBuild === "Bumper") {
-			throw new Error("BUMPER");
-		}
+		if (SetUp.finalBuild === "Bumper") throw new Error("BUMPER");
 
 		if (Misc.poll(() => me.getMobCount(15) > 1)) {
 			clearWaves();

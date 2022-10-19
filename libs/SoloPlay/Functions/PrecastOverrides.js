@@ -13,8 +13,6 @@ Precast.enabled = true;
 // Can't be on a weapon due to consistent switching but
 // Clay Goldem from Stone RW, Iron Golem from Metalgrid, Posion Creeper from Carrior Wind ring, Oak, HoW, or SoB from wisp
 
-let Overrides = require("../../modules/Override");
-
 new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 	if (!Precast.enabled) return false;
 
@@ -23,7 +21,7 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 		// Force BO 30 seconds before it expires
 		if (this.haveCTA > -1) {
 			let forceBo = (force
-				|| (getTickCount() - this.precastables.BattleOrders.tick >= this.precastables.BattleOrders.duration - 30000)
+				|| (getTickCount() - this.skills.battleOrders.tick >= this.skills.battleOrders.duration - 30000)
 				|| !me.getState(sdk.states.BattleCommand));
 			forceBo && this.precastCTA(forceBo);
 		}
@@ -31,7 +29,7 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 		if (Skill.canUse(sdk.skills.HolyShield)
 			&& Math.round(Skill.getManaCost(sdk.skills.HolyShield) * 100 / me.mpmax) < 35
 			&& (!me.getState(sdk.states.HolyShield) || force)) {
-			Precast.precastSkill(sdk.skills.HolyShield);
+			Precast.cast(sdk.skills.HolyShield);
 		}
 
 		break;
@@ -45,10 +43,10 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 			let {x, y} = me;
 			(needBo || needBc) && me.switchWeapons(this.getBetterSlot(sdk.skills.BattleOrders));
 
-			needBc && Precast.precastSkill(sdk.skills.BattleCommand, x, y, true);
-			needBo && Precast.precastSkill(sdk.skills.BattleOrders, x, y, true);
-			needShout && Precast.precastSkill(sdk.skills.Shout, x, y, true);
-			needBc && Precast.precastSkill(sdk.skills.BattleCommand, x, y, true);
+			needBc && Precast.cast(sdk.skills.BattleCommand, x, y, true);
+			needBo && Precast.cast(sdk.skills.BattleOrders, x, y, true);
+			needShout && Precast.cast(sdk.skills.Shout, x, y, true);
+			needBc && Precast.cast(sdk.skills.BattleCommand, x, y, true);
 
 			me.weaponswitch !== primary && me.switchWeapons(primary);
 		}

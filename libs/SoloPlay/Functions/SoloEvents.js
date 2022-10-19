@@ -187,6 +187,8 @@ const SoloEvents = {
 		return Pather.moveTo(orginalLocation.x, orginalLocation.y);
 	},
 
+	// @todo redo this, I think better option would be to make this it's own script
+	// end the current script but insert it to be continued after dclone is dead
 	killdclone: function () {
 		D2Bot.printToConsole("Kolbot-SoloPlay :: Trying to kill DClone.", sdk.colors.D2Bot.Orange);
 		let orginalLocation = {area: me.area, x: me.x, y: me.y};
@@ -205,8 +207,7 @@ const SoloEvents = {
 			Pather.moveTo(20047, 4898);
 		} else {
 			Pather.useWaypoint(sdk.areas.ColdPlains);
-			Pather.moveToExit(sdk.areas.BloodMoor, true);
-			Pather.clearToExit(sdk.areas.BloodMoor, sdk.areas.DenofEvil, true);
+			Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.DenofEvil], true);
 			Pather.moveToPreset(me.area, sdk.unittype.Monster, sdk.monsters.preset.Corpsefire, 0, 0, false, true);
 		}
 
@@ -252,106 +253,18 @@ const SoloEvents = {
 		this.cloneWalked = false;
 	},
 
-	customMoveTo: function (x, y, givenSettings) {
+	moveSettings: {
+		allowTeleport: false,
+		allowClearing: false,
+		allowPicking: false,
+		allowTown: false,
+		retry: 10,
+	},
+
+	moveTo: function (x, y, givenSettings) {
 		// Abort if dead
 		if (me.dead) return false;
-
-		const settings = Object.assign({}, {
-			allowTeleport: false,
-			allowClearing: false,
-			allowTown: false,
-			retry: 10,
-		}, givenSettings);
-
-		let path, adjustedNode, leaped = false;
-		let node = {x: x, y: y};
-		let fail = 0;
-
-		me.cancelUIFlags();
-
-		if (!x || !y) return false; // I don't think this is a fatal error so just return false
-		if (typeof x !== "number" || typeof y !== "number") return false;
-		if (getDistance(me, x, y) < 2) return true;
-
-		let useTele = settings.allowTeleport && Pather.useTeleport();
-		let tpMana = Skill.getManaCost(sdk.skills.Teleport);
-		let mLair = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].includes(me.area);
-
-		path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? (mLair ? 30 : Pather.teleDistance) : Pather.walkDistance);
-
-		if (!path) return false;
-
-		path.reverse();
-		PathDebug.drawPath(path);
-
-		useTele && Config.TeleSwitch && path.length > 5 && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
-
-		while (path.length > 0) {
-			// Abort if dead
-			if (me.dead) return false;
-
-			me.cancelUIFlags();
-
-			node = path.shift();
-
-			if (getDistance(me, node) > 2) {
-				if (mLair) {
-					adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
-
-					if (adjustedNode) {
-						node.x = adjustedNode[0];
-						node.y = adjustedNode[1];
-					}
-				}
-
-				if (useTele && tpMana < me.mp ? Pather.teleportTo(node.x, node.y) : Pather.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
-					if (!me.inTown) {
-						if (Pather.recursion) {
-							Pather.recursion = false;
-
-							if (getDistance(me, node.x, node.y) > 5) {
-								this.customMoveTo(node.x, node.y);
-							}
-
-							Pather.recursion = true;
-						}
-
-						settings.allowTown && Misc.townCheck();
-					}
-				} else {
-					if (fail > 0 && !useTele && !me.inTown) {
-						// Only do this once
-						if (fail > 1 && me.getSkill(sdk.skills.LeapAttack, sdk.skills.subindex.SoftPoints) && !leaped) {
-							Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y);
-							leaped = true;
-						}
-					}
-
-					path = getPath(me.area, x, y, me.x, me.y, useTele ? 1 : 0, useTele ? rand(25, 35) : rand(10, 15));
-					if (!path) return false;
-
-					fail += 1;
-					path.reverse();
-					PathDebug.drawPath(path);
-					console.log("move retry " + fail);
-
-					if (fail > 0) {
-						Packet.flash(me.gid);
-
-						if (fail >= settings.retry) {
-							break;
-						}
-					}
-				}
-			}
-
-			delay(5);
-		}
-
-		useTele && Config.TeleSwitch && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
-		PathDebug.removeHooks();
-
-		return getDistance(me, node.x, node.y) < 5;
+		return Pather.move({ x: x, y: y }, Object.assign({}, SoloEvents.moveSettings, givenSettings));
 	},
 
 	skip: function () {
@@ -359,43 +272,36 @@ const SoloEvents = {
 		myPrint("Attempting baal wave skip");
 
 		// Disable anything that will cause us to stop
-		Precast.enabled = false;
-		Misc.townEnabled = false;
-		Pickit.enabled = false;
+		[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [false, false, false];
 		me.barbarian && (Config.FindItem = false);
 
 		// Prep, move to throne entrance
 		while (getTickCount() - tick < 6500) {
-			this.customMoveTo(15091, 5073, {allowTeleport: true});
+			this.moveTo(15091, 5073, { allowTeleport: true });
 		}
 
 		tick = getTickCount();
 
 		// 5 second delay (5000ms), then leave throne
 		while (getTickCount() - tick < 5000) {
-			this.customMoveTo(15098, 5082, {allowTeleport: true});
+			this.moveTo(15098, 5082, { allowTeleport: true });
 		}
 
 		tick = getTickCount();
-		this.customMoveTo(15099, 5078);		// Re-enter throne
+		this.moveTo(15099, 5078); // Re-enter throne
 
 		// 2 second delay (2000ms)
 		while (getTickCount() - tick < 2000) {
-			this.customMoveTo(15098, 5082);
+			this.moveTo(15098, 5082);
 		}
 
-		this.customMoveTo(15099, 5078);
+		this.moveTo(15099, 5078);
 
 		// Re-enable
-		Precast.enabled = true;
-		Misc.townEnabled = true;
-		Pickit.enabled = true;
+		[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [true, true, true];
 
 		let skipWorked = getUnits(sdk.unittype.Monster)
-			.some(function (el) {
-				return !el.dead && el.attackable && el.classid !== sdk.monsters.ThroneBaal && el.x >= 15070 && el.x <= 15120 &&
-                    el.y >= 5000 && el.y <= 5075;
-			});
+			.some(el => el.attackable && el.x >= 15070 && el.x <= 15120 && el.y >= 5000 && el.y <= 5075);
 		myPrint("skip " + (skipWorked ? "worked" : "failed"));
 	},
 
@@ -408,10 +314,10 @@ const SoloEvents = {
 				.filter((missile) => missile && diablo && diablo.gid === missile.owner)
 				// if any
 				.some(function (missile) {
-					let xoff = Math.abs(coord.x - missile.targetx),
-						yoff = Math.abs(coord.y - missile.targety),
-						xdist = Math.abs(coord.x - missile.x),
-						ydist = Math.abs(coord.y - missile.y);
+					let xoff = Math.abs(coord.x - missile.targetx);
+					let yoff = Math.abs(coord.y - missile.targety);
+					let xdist = Math.abs(coord.x - missile.x);
+					let ydist = Math.abs(coord.y - missile.y);
 					// If missile wants to hit is and is close to us
 					return xoff < 10 && yoff < 10 && xdist < 15 && ydist < 15;
 				});
@@ -419,11 +325,9 @@ const SoloEvents = {
 		
 		if (diablo && shouldDodge(me)) {
 			let tick = getTickCount();
-			let overrides = {allowTeleport: false, allowClearing: false, allowTown: false};
+			let overrides = { allowTeleport: false, allowClearing: false, allowTown: false };
 			// Disable anything that will cause us to stop
-			Precast.enabled = false;
-			Misc.townEnabled = false;
-			Pickit.enabled = false;
+			[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [false, false, false];
 			console.log("DODGE");
 			// Disable things that will cause us to stop
 			let dist = me.assassin ? 15 : 3;
@@ -432,26 +336,22 @@ const SoloEvents = {
 				// Above D
 				if (me.y <= diablo.y) {
 					// Move east
-					me.x <= diablo.x && this.customMoveTo(diablo.x + dist, diablo.y, overrides);
-
+					me.x <= diablo.x && this.moveTo(diablo.x + dist, diablo.y, overrides);
 					// Move south
-					me.x > diablo.x && this.customMoveTo(diablo.x, diablo.y + dist, overrides);
+					me.x > diablo.x && this.moveTo(diablo.x, diablo.y + dist, overrides);
 				}
 
 				// Below D
 				if (me.y > diablo.y) {
 					// Move west
-					me.x >= diablo.x && this.customMoveTo(diablo.x - dist, diablo.y, overrides);
-
+					me.x >= diablo.x && this.moveTo(diablo.x - dist, diablo.y, overrides);
 					// Move north
-					me.x < diablo.x && this.customMoveTo(diablo.x, diablo.y - dist, overrides);
+					me.x < diablo.x && this.moveTo(diablo.x, diablo.y - dist, overrides);
 				}
 			}
 
 			// Re-enable
-			Precast.enabled = true;
-			Misc.townEnabled = true;
-			Pickit.enabled = true;
+			[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [true, true, true];
 		}
 	},
 
@@ -459,10 +359,10 @@ const SoloEvents = {
 		Pickit.pickItems();
 
 		// No Tome, or tome has no tps, or no scrolls
-		if (!Town.canTpToTown()) {
+		if (!Town.canTpToTown() && !me.inTown) {
 			// should really check how close the town exit is
 			Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.ColdPlains], true);
-			Pather.getWP(3);
+			Pather.getWP(sdk.areas.ColdPlains);
 			Pather.useWaypoint(sdk.areas.RogueEncampment);
 		} else {
 			Town.goToTown();

@@ -7,10 +7,10 @@
 include("UnitInfo.js");
 
 function developermode() {
-	let done = false, action = false, command = false, userAddon = false, test = false;
-	let watchSent = [], watchRecv = [], blockSent = [], blockRecv = [];
-	let unitInfo;
-	let runCommand = function (msg) {
+	let uInfo = null;
+	let [done, action, command, userAddon, test] = [false, false, false, false, false];
+	let [watchSent, watchRecv, blockSent, blockRecv] = [[], [], [], []];
+	const runCommand = function (msg) {
 		if (msg.length <= 1) return;
 
 		let cmd = msg.split(" ")[0].split(".")[1];
@@ -171,7 +171,7 @@ function developermode() {
 	};
 
 	// Received packet handler
-	let packetReceived = function(pBytes) {
+	const packetReceived = function (pBytes) {
 		let ID = pBytes[0].toString(16);
 
 		// Block received packets from list
@@ -188,7 +188,7 @@ function developermode() {
 	};
 
 	// Sent packet handler
-	let packetSent = function (pBytes) {
+	const packetSent = function (pBytes) {
 		let ID = pBytes[0].toString(16);
 
 		// Block all commands or irc chat from being sent to server
@@ -225,64 +225,54 @@ function developermode() {
 	addEventListener("gamepacket", packetReceived);
 	Config.Silence = false;
 
-	while (!done) {
-		if (action) {
-			includeIfNotIncluded("SoloPlay/Scripts/" + action + ".js");
-
-			if (!UnitInfo.cleared) {
-				UnitInfo.remove();
-				userAddon = false;
-			}
-
-			if (isIncluded("SoloPlay/Scripts/" + action + ".js")) {
-				try {
-					this[action]();
-				} catch (e) {
-					console.warn("ÿc8Kolbot-SoloPlayÿc0: " + e);
-				} finally {
-					delete this[action];
+	try {
+		while (!done) {
+			if (action) {
+				if (!UnitInfo.cleared) {
+					UnitInfo.remove();
+					userAddon = false;
 				}
-			} else {
-				console.warn("Failed to include: " + action);
+
+				Loader.runScript(action);
+
+				me.overhead("Done with action");
+				action = false;
 			}
 
-			me.overhead("Done with action");
-			action = false;
-		}
+			if (command) {
+				if (!UnitInfo.cleared) {
+					UnitInfo.remove();
+					userAddon = false;
+				}
 
-		if (command) {
-			if (!UnitInfo.cleared) {
-				UnitInfo.remove();
-				userAddon = false;
+				try {
+					eval(command);
+				} catch (e) {
+					console.error(e);
+				}
+
+				me.overhead("Done with action");
+				command = false;
 			}
 
-			try {
-				eval(command);
-			} catch (e) {
-				console.error(e);
+			if (userAddon) {
+				!UnitInfo.cleared && !Game.getSelectedUnit() && UnitInfo.remove();
+				uInfo = Game.getSelectedUnit();
+				UnitInfo.createInfo(uInfo);
 			}
 
-			me.overhead("Done with action");
-			command = false;
-		}
+			if (test) {
+				me.overhead("done");
+				test = false;
+			}
 
-		if (userAddon) {
-			!UnitInfo.cleared && !Game.getSelectedUnit() && UnitInfo.remove();
-			unitInfo = Game.getSelectedUnit();
-			UnitInfo.createInfo(unitInfo);
+			delay(100);
 		}
-
-		if (test) {
-			me.overhead("done");
-			test = false;
-		}
-
-		delay(100);
+	} finally {
+		removeEventListener("gamepacketsent", packetSent);
+		removeEventListener("gamepacket", packetReceived);
+		Config.Silence = true;
 	}
-
-	removeEventListener("gamepacketsent", packetSent);
-	removeEventListener("gamepacket", packetReceived);
-	Config.Silence = true;
 	
 	return true;
 }

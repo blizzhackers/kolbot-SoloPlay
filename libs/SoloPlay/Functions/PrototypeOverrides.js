@@ -7,6 +7,7 @@
 */
 
 includeIfNotIncluded("common/Prototypes.js");
+includeIfNotIncluded("SoloPlay/Functions/Me.js");
 
 Unit.prototype.getResPenalty = function (difficulty) {
 	difficulty > 2 && (difficulty = 2);
@@ -226,43 +227,6 @@ Object.defineProperties(Unit.prototype, {
 			return (fr && cr && lr && pr) ? fr : 0;
 		}
 	}
-});
-
-Object.defineProperties(me, {
-	maxNearMonsters: {
-		get: function () {
-			return Math.floor((4 * (1 / me.hpmax * me.hp)) + 1);
-		}
-	},
-	duelWielding: {
-		get: function () {
-			// only classes that can duel wield
-			if (!me.assassin && !me.barbarian) return false;
-			let items = me.getItemsEx().filter((item) => item.isEquipped && item.isOnMain);
-			return !!items.length && items.length >= 2 && items.every((item) => !item.isShield && !getBaseStat("items", item.classid, "block"));
-		}
-	},
-	// for visual purposes really, return res with cap
-	FR: {
-		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxFireResist), this.getStat(sdk.stats.FireResist) - me.resPenalty);
-		}
-	},
-	CR: {
-		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxColdResist), this.getStat(sdk.stats.ColdResist) - me.resPenalty);
-		}
-	},
-	LR: {
-		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxLightResist), this.getStat(sdk.stats.LightResist) - me.resPenalty);
-		}
-	},
-	PR: {
-		get: function () {
-			return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), this.getStat(sdk.stats.PoisonResist) - me.resPenalty);
-		}
-	},
 });
 
 Unit.prototype.castChargedSkillEx = function (...args) {
@@ -644,9 +608,7 @@ Unit.prototype.getStatEx = function (id, subid) {
 		if (subid === undefined) {
 			for (let i = 0; i < 7; i += 1) {
 				let cSkill = this.getStat(sdk.stats.AddClassSkills, i);
-				if (cSkill) {
-					return cSkill;
-				}
+				if (cSkill) return cSkill;
 			}
 
 			return 0;
@@ -655,21 +617,11 @@ Unit.prototype.getStatEx = function (id, subid) {
 		break;
 	case sdk.stats.AddSkillTab:
 		if (subid === undefined) {
-			temp = [
-				sdk.skills.tabs.BowandCrossbow, sdk.skills.tabs.PassiveandMagic, sdk.skills.tabs.JavelinandSpear,
-				sdk.skills.tabs.Fire, sdk.skills.tabs.Lightning, sdk.skills.tabs.Cold,
-				sdk.skills.tabs.Curses, sdk.skills.tabs.PoisonandBone, sdk.skills.tabs.NecroSummoning,
-				sdk.skills.tabs.PalaCombat, sdk.skills.tabs.Offensive, sdk.skills.tabs.Defensive,
-				sdk.skills.tabs.BarbCombat, sdk.skills.tabs.Masteries, sdk.skills.tabs.Warcries,
-				sdk.skills.tabs.DruidSummon, sdk.skills.tabs.ShapeShifting, sdk.skills.tabs.Elemental,
-				sdk.skills.tabs.Traps, sdk.skills.tabs.ShadowDisciplines, sdk.skills.tabs.MartialArts
-			];
+			temp = Object.values(sdk.skills.tabs);
 
 			for (let i = 0; i < temp.length; i += 1) {
 				let sTab = this.getStat(sdk.stats.AddSkillTab, temp[i]);
-				if (sTab) {
-					return sTab;
-				}
+				if (sTab) return sTab;
 			}
 
 			return 0;

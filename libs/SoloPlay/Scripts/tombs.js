@@ -18,12 +18,13 @@ function tombs () {
 	myPrint("starting tombs");
 
 	const tombID = [
-		sdk.areas.TalRashasTomb1, sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb3,
-		sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7
+		sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb3, sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb1,
+		sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7
 	];
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 
 	for (let number = 0; number < tombID.length; number++) {
+		if (SoloIndex.index.duriel.skipIf()) return true;
 		Pather.checkWP(sdk.areas.CanyonofMagic, true) ? Pather.useWaypoint(sdk.areas.CanyonofMagic) : Pather.getWP(sdk.areas.CanyonofMagic);
 		Precast.doPrecast(true);
 

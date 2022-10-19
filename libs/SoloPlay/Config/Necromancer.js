@@ -83,6 +83,7 @@ function LoadConfig () {
 		"[type] == armor && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Shield
 		"([type] == shield && ([quality] >= magic || [flag] == runeword) || [type] == voodooheads) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"[type] == voodooheads && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && [sockets] == 1 # [tier] == tierscore(item)",
 		"me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Gloves
 		"[type] == gloves && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
@@ -93,21 +94,11 @@ function LoadConfig () {
 	];
 
 	const expansionTiers = [
+		"me.charlvl < 33 && [name] == smallcharm && [quality] == magic # [maxmana] >= 1 # [invoquantity] == 4 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [maxhp] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-		// Special Charms
-		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
-		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
-		"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [charmtier] == 100000",
-		// Merc
-		"([type] == circlet || [type] == helm) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		"[type] == armor && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		// Rogue
-		"me.mercid === 271 && [type] == bow && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		// A2 Guard
-		"me.mercid === 338 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
 	NTIP.arrayLooping(levelingTiers);
@@ -130,14 +121,14 @@ function LoadConfig () {
 	/* Summons. */
 	Config.ReviveUnstackable = true;
 	Config.ActiveSummon = me.charlvl < 10 || SetUp.currentBuild === "Summon";
-	Config.Golem = me.getSkill(sdk.skills.ClayGolem, sdk.skills.subindex.HardPoints) ? "Clay" : "None";
+	Config.Golem = me.checkSkill(sdk.skills.ClayGolem, sdk.skills.subindex.HardPoints) ? "Clay" : "None";
 	Config.Skeletons = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
 	Config.SkeletonMages = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
 	Config.Revives = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
 
 	/* Skill Specific */
 	Config.PoisonNovaDelay = 1;		// In Seconds
-	Config.ExplodeCorpses = me.getSkill(sdk.skills.CorpseExplosion, sdk.skills.subindex.HardPoints) ? sdk.skills.CorpseExplosion : me.getSkill(sdk.skills.PoisonExplosion, sdk.skills.subindex.HardPoints) ? sdk.skills.PoisonExplosion : 0;
+	Config.ExplodeCorpses = me.checkSkill(sdk.skills.CorpseExplosion, sdk.skills.subindex.HardPoints) ? sdk.skills.CorpseExplosion : me.checkSkill(sdk.skills.PoisonExplosion, sdk.skills.subindex.HardPoints) ? sdk.skills.PoisonExplosion : 0;
 
 	/* Gear */
 	let finalGear = Check.finalBuild().finalGear;
@@ -167,25 +158,14 @@ function LoadConfig () {
 	case sdk.game.gametype.Expansion:
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
 
-		Config.socketables = [];
 		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
-		Config.socketables
-			.push(
-				{
-					classid: sdk.items.Monarch,
-					socketWith: [],
-					useSocketQuest: true,
-					condition: (item) => !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
-				},
-				{
-					classid: sdk.items.Shako,
-					socketWith: [sdk.items.runes.Um],
-					temp: [sdk.items.gems.Perfect.Ruby],
-					useSocketQuest: true,
-					condition: (item) => item.unique && !item.ethereal
-				}
-			);
+		Config.socketables.push(addSocketableObj(sdk.items.Monarch, [], [],
+			!me.hell, (item) => !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+		));
+		Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+			true, (item) => item.unique && !item.ethereal
+		));
 
 		/* Crafting */
 		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {

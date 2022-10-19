@@ -6,6 +6,7 @@
 */
 
 let build = {
+	AutoBuildTemplate: {},
 	caster: true,
 	skillstab: sdk.skills.tabs.Traps,
 	wantedskills: [sdk.skills.FireBlast, sdk.skills.WakeofFire],
@@ -33,6 +34,31 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl < CharInfo.respecOne && !me.getSkill(sdk.skills.LightningSentry, sdk.skills.subindex.HardPoints);
+		return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.LightningSentry, sdk.skills.subindex.HardPoints);
 	},
 };
+
+build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	Config.TownHP = me.hardcore ? 0 : 35;
+	Config.BeltColumn = ["hp", "hp", "hp", "hp"];
+	Config.HPBuffer = 4;
+	Config.MPBuffer = 2;
+	Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
+	Config.LowManaSkill = [0, 0];
+	SetUp.belt();
+});
+build.AutoBuildTemplate[2] = buildAutoBuildTempObj(() => {
+	Config.BeltColumn = ["hp", "hp", "mp", "mp"];
+	Config.HPBuffer = 2;
+	Config.MPBuffer = 6;
+	Config.AttackSkill = [-1, sdk.skills.FireBlast, -1, sdk.skills.FireBlast, -1, (me.checkSkill(sdk.skills.PsychicHammer, sdk.skills.subindex.SoftPoints) ? sdk.skills.PsychicHammer : 0), 0];
+	Config.UseBoS = true;
+	SetUp.belt();
+});
+build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
+	Config.AttackSkill = [-1, sdk.skills.FireBlast, -1, sdk.skills.FireBlast, -1, (me.checkSkill(sdk.skills.PsychicHammer, sdk.skills.subindex.SoftPoints) ? sdk.skills.PsychicHammer : 0), 0];
+	Config.UseTraps = true;
+	Config.Traps = [sdk.skills.WakeofFire, sdk.skills.WakeofFire, sdk.skills.WakeofFire, -1, -1]; // Skill IDs for traps to be cast on all mosters except act bosses.
+	Config.BossTraps = [sdk.skills.WakeofFire, sdk.skills.WakeofFire, sdk.skills.WakeofFire, sdk.skills.WakeofFire, sdk.skills.WakeofFire]; // Skill IDs for traps to be cast on act bosses.
+	SetUp.belt();
+});

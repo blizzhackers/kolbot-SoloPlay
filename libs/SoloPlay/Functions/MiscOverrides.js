@@ -30,7 +30,7 @@ Misc.testTP = function () {
 	console.debug("took " + (getTickCount() - t1) + " to find tpTool using old method");
 
 	t1 = getTickCount();
-	tpTool = Town.getTpTool();
+	tpTool = me.getTpTool();
 	console.debug("took " + (getTickCount() - t1) + " to find tpTool using new method");
 
 	t1 = getTickCount();
@@ -60,7 +60,7 @@ Misc.townCheck = function () {
 
 	if (Config.TownCheck && !me.inTown) {
 		try {
-			if (Town.needPotions() || (Config.OpenChests.Enabled && Town.needKeys())) {
+			if (me.needPotions() || (Config.OpenChests.Enabled && Town.needKeys())) {
 				check = true;
 			}
 		} catch (e) {
@@ -80,6 +80,48 @@ Misc.townCheck = function () {
 };
 
 Misc.openChestsEnabled = true;
+Misc.presetChestIds = [
+	5, 6, 87, 104, 105, 106, 107, 143, 140, 141, 144, 146, 147, 148, 176, 177, 181, 183, 198, 240, 241,
+	242, 243, 329, 330, 331, 332, 333, 334, 335, 336, 354, 355, 356, 371, 387, 389, 390, 391, 397, 405,
+	406, 407, 413, 420, 424, 425, 430, 431, 432, 433, 454, 455, 501, 502, 504, 505, 580, 581
+];
+
+Misc.openChestsInArea = function (area, chestIds = [], sort = undefined) {
+	!area && (area = me.area);
+	area !== me.area && Pather.journeyTo(area);
+		
+	let presetUnits = Game.getPresetObjects(area);
+	if (!presetUnits) return false;
+
+	!chestIds.length && (chestIds = Misc.presetChestIds.slice(0));
+
+	let coords = [];
+
+	while (presetUnits.length > 0) {
+		if (chestIds.includes(presetUnits[0].id)) {
+			coords.push({
+				x: presetUnits[0].roomx * 5 + presetUnits[0].x,
+				y: presetUnits[0].roomy * 5 + presetUnits[0].y
+			});
+		}
+
+		presetUnits.shift();
+	}
+
+	while (coords.length) {
+		coords.sort(sort ? sort : Sort.units);
+		Pather.moveToUnit(coords[0], 1, 2);
+		this.openChests(20);
+
+		for (let i = 0; i < coords.length; i += 1) {
+			if (getDistance(coords[i].x, coords[i].y, coords[0].x, coords[0].y) < 20) {
+				coords.shift();
+			}
+		}
+	}
+
+	return true;
+};
 
 Misc.openChests = function (range = 15) {
 	if (!Misc.openChestsEnabled) return false;
@@ -103,10 +145,10 @@ Misc.openChests = function (range = 15) {
 		];
 	}
 
-	let unitList = getUnits(sdk.unittype.Object).filter(function (chest) {
-		return chest.name && chest.mode === sdk.objects.mode.Inactive && chest.distance <= range
-			&& (containers.includes(chest.name.toLowerCase()) || (chest.name.toLowerCase() === "evilurn" && me.baal));
-	});
+	me.baal && containers.push("evilurn");
+
+	let unitList = getUnits(sdk.unittype.Object)
+		.filter(c => c.name && c.mode === sdk.objects.mode.Inactive && c.distance <= range && containers.includes(c.name.toLowerCase()));
 
 	while (unitList.length > 0) {
 		unitList.sort(Sort.units);
@@ -142,11 +184,8 @@ Misc.getWell = function (unit) {
 			}
 		}
 
-		if (Misc.poll(() => unit.mode, 1000, 50)) {
-			return true;
-		} else {
-			Packet.flash(me.gid);
-		}
+		if (Misc.poll(() => unit.mode, 1000, 50)) return true;
+		Packet.flash(me.gid);
 	}
 
 	return false;
@@ -177,9 +216,120 @@ Misc.useWell = function (range = 15) {
 	return true;
 };
 
+Misc.scanShrines = function (range, ignore = []) {
+	if (!Config.ScanShrines.length) return false;
+
+	!range && (range = Pather.useTeleport() ? 25 : 15);
+	!Array.isArray(ignore) && (ignore = [ignore]);
+
+	let shrineList = [];
+	const rangeCheck = (shrineType) => {
+		switch (true) {
+		case shrineType === sdk.shrines.Refilling && (me.hpPercent < 50 || me.mpPercent < 50 || me.staminaPercent < 50):
+		case shrineType === sdk.shrines.Mana && me.mpPercent < 50:
+		case shrineType === sdk.shrines.ManaRecharge && me.mpPercent < 50 && me.charlvl < 20:
+		case [sdk.shrines.Skill, sdk.shrines.Experience].includes(shrineType):
+			return 30;
+		case [sdk.shrines.Poison, sdk.shrines.Exploding].includes(shrineType):
+			return 15;
+		}
+		return range;
+	};
+
+	// add exploding/poision shrines
+	if (me.normal) {
+		Config.ScanShrines.indexOf(sdk.shrines.Poison) === -1 && Config.ScanShrines.push(sdk.shrines.Poison);
+		Config.ScanShrines.indexOf(sdk.shrines.Exploding) === -1 && Config.ScanShrines.push(sdk.shrines.Exploding);
+	}
+
+	// Initiate shrine states
+	if (!this.shrineStates) {
+		this.shrineStates = [];
+
+		for (let i = 0; i < Config.ScanShrines.length; i += 1) {
+			switch (Config.ScanShrines[i]) {
+			case sdk.shrines.None:
+			case sdk.shrines.Refilling:
+			case sdk.shrines.Health:
+			case sdk.shrines.Mana:
+			case sdk.shrines.HealthExchange: // (doesn't exist)
+			case sdk.shrines.ManaExchange: // (doesn't exist)
+			case sdk.shrines.Enirhs: // (doesn't exist)
+			case sdk.shrines.Portal:
+			case sdk.shrines.Gem:
+			case sdk.shrines.Fire:
+			case sdk.shrines.Monster:
+			case sdk.shrines.Exploding:
+			case sdk.shrines.Poison:
+				this.shrineStates[i] = 0; // no state
+
+				break;
+			case sdk.shrines.Armor:
+			case sdk.shrines.Combat:
+			case sdk.shrines.ResistFire:
+			case sdk.shrines.ResistCold:
+			case sdk.shrines.ResistLightning:
+			case sdk.shrines.ResistPoison:
+			case sdk.shrines.Skill:
+			case sdk.shrines.ManaRecharge:
+			case sdk.shrines.Stamina:
+			case sdk.shrines.Experience:
+				// Both states and shrines are arranged in same order with armor shrine starting at 128
+				this.shrineStates[i] = Config.ScanShrines[i] + 122;
+
+				break;
+			}
+		}
+	}
+	
+	let shrine = Game.getObject("shrine");
+
+	if (shrine) {
+		let index = -1;
+		// Build a list of nearby shrines
+		do {
+			if (shrine.mode === sdk.objects.mode.Inactive && !ignore.includes(shrine.objtype)
+				&& getDistance(me.x, me.y, shrine.x, shrine.y) <= rangeCheck(shrine.objtype)) {
+				shrineList.push(copyUnit(shrine));
+			}
+		} while (shrine.getNext());
+
+		// Check if we have a shrine state, store its index if yes
+		for (let i = 0; i < this.shrineStates.length; i += 1) {
+			if (me.getState(this.shrineStates[i])) {
+				index = i;
+
+				break;
+			}
+		}
+
+		for (let i = 0; i < Config.ScanShrines.length; i += 1) {
+			for (let j = 0; j < shrineList.length; j += 1) {
+				// Get the shrine if we have no active state or to refresh current state or if the shrine has no state
+				// Don't override shrine state with a lesser priority shrine
+				// todo - check to make sure we can actually get the shrine for ones without states
+				// can't grab a health shrine if we are in perfect health, can't grab mana shrine if our mana is maxed
+				if (index === -1 || i <= index || this.shrineStates[i] === 0) {
+					if (shrineList[j].objtype === Config.ScanShrines[i] && (Pather.useTeleport() || !checkCollision(me, shrineList[j], sdk.collision.WallOrRanged))) {
+						this.getShrine(shrineList[j]);
+
+						// Gem shrine - pick gem
+						if (Config.ScanShrines[i] === sdk.shrines.Gem) {
+							Pickit.pickItems();
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return true;
+};
+
+Misc.presetShrineIds = [2, 81, 83];
 Misc.getShrinesInArea = function (area, type, use) {
 	let shrineLocs = [];
-	let shrineIds = [2, 81, 83];
+	const shrineIds = [2, 81, 83]; // @todo add more of the shrine id's and document them for sdk
 	let unit = getPresetUnits(area);
 
 	if (unit) {
@@ -190,29 +340,35 @@ Misc.getShrinesInArea = function (area, type, use) {
 		}
 	}
 
-	while (shrineLocs.length > 0) {
-		shrineLocs.sort(Sort.points);
-		let coords = shrineLocs.shift();
+	try {
+		NodeAction.shrinesToIgnore.push(type);
+		
+		while (shrineLocs.length > 0) {
+			shrineLocs.sort(Sort.points);
+			let coords = shrineLocs.shift();
 
-		Skill.haveTK ? Pather.moveNear(coords[0], coords[1], 20) : Pather.moveTo(coords[0], coords[1], 2);
+			Skill.haveTK ? Pather.moveNear(coords[0], coords[1], 20) : Pather.moveTo(coords[0], coords[1], 2);
 
-		let shrine = Game.getObject("shrine");
+			let shrine = Game.getObject("shrine");
 
-		if (shrine) {
-			do {
-				if (shrine.objtype === type && shrine.mode === sdk.objects.mode.Inactive) {
-					(!Skill.haveTK || !use) && Pather.moveTo(shrine.x - 2, shrine.y - 2);
+			if (shrine) {
+				do {
+					if (shrine.objtype === type && shrine.mode === sdk.objects.mode.Inactive) {
+						(!Skill.haveTK || !use) && Pather.moveTo(shrine.x - 2, shrine.y - 2);
 
-					if (!use || this.getShrine(shrine)) {
-						return true;
+						if (!use || this.getShrine(shrine)) {
+							return true;
+						}
+
+						if (use && type >= sdk.shrines.Armor && type <= sdk.shrines.Experience && me.getState(type + 122)) {
+							return true;
+						}
 					}
-
-					if (use && type >= sdk.shrines.Armor && type <= sdk.shrines.Experience && me.getState(type + 122)) {
-						return true;
-					}
-				}
-			} while (shrine.getNext());
+				} while (shrine.getNext());
+			}
 		}
+	} finally {
+		NodeAction.shrinesToIgnore.remove(type);
 	}
 
 	return false;
@@ -377,17 +533,14 @@ Misc.addSocketablesToItem = function (item, runes = []) {
 
 Misc.getSocketables = function (item, itemInfo) {
 	if (!item) return false;
-	let itemtype;
-	let gemType;
-	let runeType;
-	let multiple = [];
-	let temp = [];
+	let itemtype, gemType, runeType;
+	let [multiple, temp] = [[], []];
 	let itemSocketInfo = item.getItemsEx();
 	let preSockets = itemSocketInfo.length;
 	let allowTemp = (!!itemInfo && !!itemInfo.temp && itemInfo.temp.length > 0 && (preSockets === 0 || preSockets > 0 && itemSocketInfo.some(el => !itemInfo.socketWith.includes(el.classid))));
 	let sockets = item.sockets;
 	let openSockets = sockets - preSockets;
-	let {classid, quality} = item;
+	let { classid, quality } = item;
 	let socketables = me.getItemsEx().filter(item => item.isInsertable);
 
 	if (!socketables || (!allowTemp && openSockets === 0)) return false;
@@ -402,9 +555,7 @@ Misc.getSocketables = function (item, itemInfo) {
 			.sort((a, b) => b.classid - a.classid);
 
 		for (let i = 0; i < myItems.length; i++) {
-			if (!checkList.includes(myItems[i])) {
-				return true;
-			}
+			if (!checkList.includes(myItems[i])) return true;
 		}
 
 		return false;
@@ -585,6 +736,8 @@ Misc.logItem = function (action, unit, keptLine) {
 
 	const mercCheck = action.match("Merc");
 	const hasTier = AutoEquip.hasTier(unit);
+	// const runewordCheck = action.match("runeword", "gi");
+	// const cubingCheck = action.match("cubing", "gi");
 	const charmCheck = (unit.isCharm && Item.autoEquipCharmCheck(unit));
 	const nTResult = !!(NTIP.CheckItem(unit, NTIP_CheckListNoTier, true).result && (keptLine && !keptLine.match("SoloPlay")));
 	const nTCharm = (unit.isCharm && !charmCheck && (keptLine && !keptLine.match("SoloPlay", "gi")));
@@ -601,14 +754,16 @@ Misc.logItem = function (action, unit, keptLine) {
 	// should stop logging items unless we wish to see them or it's part of normal pickit
 	if (nTResult || unit.isCharm || hasTier || nTCharm) {
 		switch (true) {
-		case nTResult:
-		case hasTier && !unit.isCharm && Developer.debugging.autoEquip:
-		case (charmCheck && Developer.debugging.smallCharm && unit.classid === sdk.items.SmallCharm):
-		case (charmCheck && Developer.debugging.largeCharm && unit.classid === sdk.items.LargeCharm):
-		case (charmCheck && Developer.debugging.grandCharm && unit.classid === sdk.items.GrandCharm):
-			break;
-		default:
+		//case nTResult:
+		//case runewordCheck:
+		//case (cubingCheck && Developer.debugging.crafting):
+		//case (hasTier && !unit.isCharm && Developer.debugging.autoEquip):
+		case (charmCheck && !Developer.debugging.smallCharm && unit.classid === sdk.items.SmallCharm):
+		case (charmCheck && !Developer.debugging.largeCharm && unit.classid === sdk.items.LargeCharm):
+		case (charmCheck && !Developer.debugging.grandCharm && unit.classid === sdk.items.GrandCharm):
 			return true;
+		default:
+			break;
 		}
 	}
 

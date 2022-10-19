@@ -6,6 +6,7 @@
 */
 
 let build = {
+	AutoBuildTemplate: {},
 	caster: true,
 	skillstab: 42, // elemental
 	wantedskills: [sdk.skills.Tornado, sdk.skills.Hurricane, sdk.skills.Twister],
@@ -39,6 +40,17 @@ let build = {
 	],
 
 	active: function () {
-		return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.getSkill(sdk.skills.Tornado, sdk.skills.subindex.HardPoints) >= 1 && !Check.finalBuild().active());
+		return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.checkSkill(sdk.skills.Tornado, sdk.skills.subindex.HardPoints) && !Check.finalBuild().active());
 	},
 };
+
+build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	Config.AttackSkill = [-1, sdk.skills.Tornado, -1, sdk.skills.Tornado, -1, sdk.skills.ArticBlast, -1];
+	Config.LowManaSkill = [-1, -1];
+	Config.SummonAnimal = "Grizzly";
+	Config.SummonSpirit = "Oak Sage";
+	Config.BeltColumn = ["hp", "hp", "mp", "mp"];
+	Config.HPBuffer = 2;
+	Config.MPBuffer = me.charlvl < 80 ? 6 : 2;
+	SetUp.belt();
+});

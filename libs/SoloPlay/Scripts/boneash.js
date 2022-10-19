@@ -6,7 +6,7 @@
 */
 
 function boneash () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting boneash");
 
 	Pather.checkWP(sdk.areas.InnerCloister, true) ? Pather.useWaypoint(sdk.areas.InnerCloister) : Pather.getWP(sdk.areas.InnerCloister);

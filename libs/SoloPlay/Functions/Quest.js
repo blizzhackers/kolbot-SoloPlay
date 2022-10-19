@@ -11,64 +11,34 @@ const Quest = {
 		// horadric staff
 		if (Pather.accessToAct(2) && !me.staff && !me.horadricstaff) {
 			if (!me.amulet) {
-				includeIfNotIncluded("SoloPlay/Scripts/amulet.js");
-
-				for (let getAmmy = 0; getAmmy < 5; getAmmy++) {
-					amulet();
-
-					if (me.amulet) {
-						break;
-					}
+				for (let getAmmy = 0; !me.amulet && getAmmy < 5; getAmmy++) {
+					Loader.runScript("amulet");
 				}
 			}
 
 			if (!me.shaft) {
-				includeIfNotIncluded("SoloPlay/Scripts/staff.js");
-
-				for (let getStaff = 0; getStaff < 5; getStaff++) {
-					staff();
-
-					if (me.shaft) {
-						break;
-					}
+				for (let getStaff = 0; !me.shaft && getStaff < 5; getStaff++) {
+					Loader.runScript("staff");
 				}
 			}
 		}
 
 		if (Pather.accessToAct(3) && !me.travincal && !me.khalimswill) {
 			if (!me.eye) {
-				includeIfNotIncluded("SoloPlay/Scripts/eye.js");
-
-				for (let getEye = 0; getEye < 5; getEye++) {
-					eye();
-
-					if (me.eye) {
-						break;
-					}
+				for (let getEye = 0; !me.eye && getEye < 5; getEye++) {
+					Loader.runScript("eye");
 				}
 			}
 
 			if (!me.heart) {
-				includeIfNotIncluded("SoloPlay/Scripts/heart.js");
-
-				for (let getHeart = 0; getHeart < 5; getHeart++) {
-					heart();
-
-					if (me.heart) {
-						break;
-					}
+				for (let getHeart = 0; !me.heart && getHeart < 5; getHeart++) {
+					Loader.runScript("heart");
 				}
 			}
 
 			if (!me.brain) {
-				includeIfNotIncluded("SoloPlay/Scripts/brain.js");
-
-				for (let getBrain = 0; getBrain < 5; getBrain++) {
-					brain();
-
-					if (me.brain) {
-						break;
-					}
+				for (let getBrain = 0; !me.brain && getBrain < 5; getBrain++) {
+					Loader.runScript("brain");
 				}
 			}
 		}
@@ -102,10 +72,7 @@ const Quest = {
 			}
 		}
 
-		while (!Cubing.openCube()) {
-			delay(1 + me.ping * 2);
-			Packet.flash(me.gid);
-		}
+		Misc.poll(() => Cubing.openCube(), 5000, 1000);
 
 		let wantedItem;
 		let tick = getTickCount();
@@ -151,6 +118,7 @@ const Quest = {
 					Town.sortInventory();
 				}
 
+				hstaff.isInStash && Town.openStash();
 				hstaff.isInCube && Cubing.openCube();
 				Storage.Inventory.MoveTo(hstaff);
 				me.cancelUIFlags();
@@ -224,14 +192,9 @@ const Quest = {
 			if (!Storage.Stash.CanFit(questItem)) return false;
 		}
 
-		while (!questItem.isInStash) {
-			Storage.Stash.MoveTo(questItem);
-			delay(1 + me.ping);
+		Storage.Stash.MoveTo(questItem);
 
-			questItem = me.getItem(classid);
-		}
-
-		return true;
+		return questItem.isInStash;
 	},
 
 	collectItem: function (classid, chestID) {
@@ -299,7 +262,6 @@ const Quest = {
 			: classid === sdk.quest.chest.HellForge
 				? sdk.items.quest.HellForgeHammer
 				: null;
-
 		let smashable = Game.getObject(classid);
 
 		if (Item.getEquippedItem(sdk.body.RightArm).classid !== tool || !me.getItem(tool)) return false;
@@ -546,6 +508,123 @@ const Quest = {
 
 			return false;
 		}
+		
+		return true;
+	},
+
+	unfinishedQuests: function () {
+		// Act 1
+		// Tools of the trade
+		let malus = me.getItem(sdk.items.quest.HoradricMalus);
+		!!malus && Town.goToTown(1) && Town.npcInteract("charsi");
+
+		let imbueItem = Misc.checkItemsForImbueing();
+		(imbueItem) && Quest.useImbueQuest(imbueItem) && Item.autoEquip();
+
+		// Drop wirts leg at startup
+		let leg = me.getItem(sdk.items.quest.WirtsLeg);
+		if (leg) {
+			!me.inTown && Town.goToTown();
+			leg.isInStash && Town.openStash() && Storage.Inventory.MoveTo(leg) && delay(300);
+			getUIFlag(sdk.uiflags.Stash) && me.cancel();
+			leg.drop();
+		}
+
+		// Act 2
+		// Radament skill book
+		let book = me.getItem(sdk.quest.item.BookofSkill);
+		if (book) {
+			book.isInStash && Town.openStash() && delay(300);
+			Misc.poll(() => {
+				book.use();
+				if (me.getStat(sdk.stats.NewSkills) > 0) {
+					console.log("ÿc8Kolbot-SoloPlayÿc0: used Radament skill book");
+					AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
+					return true;
+				}
+				return false;
+			}, 1000, 100);
+		}
+
+		// Act 3
+		// Figurine -> Golden Bird
+		if (me.getItem(sdk.items.quest.AJadeFigurine)) {
+			myPrint("starting jade figurine");
+			Town.goToTown(3) && Town.npcInteract("meshif");
+		}
+
+		// Golden Bird -> Ashes
+		(me.getItem(sdk.items.quest.TheGoldenBird)) && Town.goToTown(3) && Town.npcInteract("alkor");
+
+		// Potion of life
+		let pol = me.getItem(sdk.items.quest.PotofLife);
+		if (pol) {
+			pol.isInStash && Town.openStash() && delay(300);
+			pol.use() && console.log("ÿc8Kolbot-SoloPlayÿc0: used potion of life");
+		}
+
+		// LamEssen's Tome
+		let tome = me.getItem(sdk.items.quest.LamEsensTome);
+		if (tome) {
+			!me.inTown && Town.goToTown(3);
+			tome.isInStash && Town.openStash() && Storage.Inventory.MoveTo(tome) && delay(300);
+			Town.npcInteract("alkor") && delay(300);
+			me.getStat(sdk.stats.StatPts) > 0 && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
+			console.log("ÿc8Kolbot-SoloPlayÿc0: LamEssen Tome completed");
+		}
+
+		// Remove Khalim's Will if quest not completed and restarting run.
+		let kw = me.getItem(sdk.items.quest.KhalimsWill);
+		if (kw) {
+			if (Item.getEquippedItem(sdk.body.RightArm).classid === sdk.items.quest.KhalimsWill) {
+				Town.clearInventory();
+				delay(500);
+				Quest.stashItem(sdk.items.quest.KhalimsWill);
+				console.log("ÿc8Kolbot-SoloPlayÿc0: removed khalims will");
+				Item.autoEquip();
+			}
+		}
+
+		// Killed council but haven't talked to cain
+		if (!Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, sdk.quest.states.Completed) && Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, 4)) {
+			me.overhead("Finishing Travincal by talking to cain");
+			Town.goToTown(3) && Town.npcInteract("cain") && delay(300);
+			me.cancel();
+		}
+
+		// Act 4
+		// Drop hellforge hammer and soulstone at startup
+		let hammer = me.getItem(sdk.items.quest.HellForgeHammer);
+		if (hammer) {
+			!me.inTown && Town.goToTown();
+			hammer.isInStash && Town.openStash() && Storage.Inventory.MoveTo(hammer) && delay(300);
+			getUIFlag(sdk.uiflags.Stash) && me.cancel();
+			hammer.drop();
+		}
+
+		let soulstone = me.getItem(sdk.items.quest.MephistosSoulstone);
+		if (soulstone) {
+			!me.inTown && Town.goToTown();
+			soulstone.isInStash && Town.openStash() && Storage.Inventory.MoveTo(soulstone) && delay(300);
+			getUIFlag(sdk.uiflags.Stash) && me.cancel();
+			soulstone.drop();
+		}
+
+		// Act 5
+		let socketItem = Misc.checkItemsForSocketing();
+		!!socketItem && Quest.useSocketQuest(socketItem);
+
+		// Scroll of resistance
+		let sor = me.getItem(sdk.items.quest.ScrollofResistance);
+		if (sor) {
+			sor.isInStash && Town.openStash() && delay(300);
+			sor.use() && console.log("ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance");
+		}
+
+		Misc.checkSocketables();
+		
+		Town.heal();
+		me.cancelUIFlags();
 		
 		return true;
 	},

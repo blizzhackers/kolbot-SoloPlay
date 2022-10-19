@@ -6,6 +6,7 @@
 */
 
 let build = {
+	AutoBuildTemplate: {},
 	caster: true,
 	skillstab: 42, // elemental
 	wantedskills: [sdk.skills.Firestorm, sdk.skills.Fissure],
@@ -33,6 +34,35 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl < CharInfo.respecOne && !me.getSkill(sdk.skills.Tornado, sdk.skills.subindex.HardPoints);
+		return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.Tornado, sdk.skills.subindex.HardPoints);
 	},
 };
+
+build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	Config.TownHP = me.hardcore ? 0 : 35;
+	Config.SkipImmune = ["fire"];
+	Config.BeltColumn = me.charlvl < 7 ? ["hp", "hp", "hp", "mp"] : ["hp", "hp", "mp", "mp"];
+	Config.HPBuffer = 4;
+	Config.MPBuffer = 4;
+	Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
+	Config.LowManaSkill = [0, 0];
+	Config.SummonVine = 1; // "Poison Creeper"
+	if (me.checkSkill(sdk.skills.Firestorm, sdk.skills.subindex.HardPoints)) {
+		Config.AttackSkill = [-1, sdk.skills.Firestorm, -1, sdk.skills.Firestorm, -1, 0, 0];
+	} else {
+		Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
+	}
+	SetUp.belt();
+});
+
+build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
+	if (me.checkSkill(sdk.skills.Fissure, sdk.skills.subindex.HardPoints)) {
+		Config.AttackSkill = [-1, sdk.skills.Fissure, sdk.skills.Firestorm, sdk.skills.Fissure, sdk.skills.Firestorm, 0, 0];
+	}
+});
+
+build.AutoBuildTemplate[13] = buildAutoBuildTempObj(() => {
+	if (Skill.canUse(sdk.skills.Fissure) && Skill.skills.all[sdk.skills.Fissure].hardpoints) {
+		Config.AttackSkill = [-1, sdk.skills.Fissure, sdk.skills.Firestorm, sdk.skills.Fissure, sdk.skills.Firestorm, 0, 0];
+	}
+});

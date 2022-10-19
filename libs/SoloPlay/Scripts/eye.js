@@ -6,7 +6,7 @@
 */
 
 function eye () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting eye");
 
 	Pather.checkWP(sdk.areas.SpiderForest, true) ? Pather.useWaypoint(sdk.areas.SpiderForest) : Pather.getWP(sdk.areas.SpiderForest);

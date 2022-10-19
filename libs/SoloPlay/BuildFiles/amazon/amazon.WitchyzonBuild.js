@@ -45,10 +45,10 @@ const finalBuild = {
 		// Amulet - Cat's Eye
 		"[type] == amulet && [quality] == unique # [dexterity] == 25 # [tier] == 110000",
 		// Final Rings - Perfect Raven Frost & Bul-Kathos' Wedding Band
-		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == # [tier] == 110000",
+		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == 110000",
 		"[type] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] == 5 # [tier] == 110000",
 		// Rings - Raven Frost && Bul-Kathos' Wedding Band
-		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == # [tier] == 100000",
+		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == 100000",
 		"[type] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] >= 3 # [tier] == 100000",
 		// Switch Final Weapon - CTA
 		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
@@ -131,6 +131,6 @@ const finalBuild = {
 	},
 
 	active: function () {
-		return this.respec() && me.getSkill(sdk.skills.Strafe, sdk.skills.subindex.HardPoints);
+		return this.respec() && me.checkSkill(sdk.skills.Strafe, sdk.skills.subindex.HardPoints);
 	},
 };

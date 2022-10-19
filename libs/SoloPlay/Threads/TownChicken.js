@@ -11,28 +11,32 @@ include("NTItemParser.dbl");
 include("OOG.js");
 include("Gambling.js");
 include("CraftingSystem.js");
+include("common/util.js");
 include("common/Attack.js");
 include("common/Common.js");
 include("common/Cubing.js");
 include("common/Config.js");
 include("common/CollMap.js");
 include("common/misc.js");
-include("common/util.js");
 include("common/Pickit.js");
 include("common/Pather.js");
 include("common/Precast.js");
 include("common/Prototypes.js");
 include("common/Runewords.js");
 include("common/Town.js");
+// Include SoloPlay's librarys
+include("SoloPlay/Tools/Throwable.js");
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
+include("SoloPlay/Tools/CharData.js");
+include("SoloPlay/Tools/SoloIndex.js");
+include("SoloPlay/Functions/ConfigOverrides.js");
 include("SoloPlay/Functions/Globals.js");
 
 SetUp.include();
 
 function main() {
-	let townCheck = false;
-	let fastTown = false;
+	let [townCheck, fastTown] = [false, false];
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Start TownChicken thread");
 
 	// Init config and attacks
@@ -45,10 +49,8 @@ function main() {
 	Runewords.init();
 	Cubing.init();
 
-	let Overrides = require("../../modules/Override");
-
 	new Overrides.Override(Attack, Attack.getNearestMonster, function (orignal, givenSettings = {}) {
-		let settings = Object.assign({
+		const settings = Object.assign({
 			skipBlocked: false,
 			skipImmune: false
 		}, givenSettings);
@@ -71,76 +73,40 @@ function main() {
 
 		me.cancelUIFlags();
 
-		function townAreaCheck (area = 0) {
-			return [sdk.areas.RogueEncampment, sdk.areas.LutGholein, sdk.areas.KurastDocktown, sdk.areas.PandemoniumFortress, sdk.areas.Harrogath].includes(area);
-		}
-
-		let preArea = me.area;
-		let leavingTown = townAreaCheck(preArea);
+		const townAreaCheck = (area = 0) => sdk.areas.Towns.includes(area);
+		const preArea = me.area;
+		const leavingTown = townAreaCheck(preArea);
 
 		for (let i = 0; i < 13; i += 1) {
-			if (me.dead || me.area !== preArea) {
-				break;
-			}
+			if (me.dead) return false;
+			if (targetArea ? me.inArea(targetArea) : me.area !== preArea) return true;
 
-			if (i > 0 && owner && me.inTown) {
-				Town.move("portalspot");
-			}
+			(i > 0 && owner && me.inTown) && Town.move("portalspot");
 
 			let portal = unit ? copyUnit(unit) : Pather.getPortal(targetArea, owner);
 
-			if (portal) {
-				let redPortal = portal.classid === sdk.objects.RedPortal;
+			if (portal && portal.area === me.area) {
+				const useTk = me.inTown && Skill.useTK(portal) && i < 3;
+				if (useTk) {
+					portal.distance > 21 && (me.inTown && me.act === 5 ? Town.move("portalspot") : Pather.moveNearUnit(portal, 20));
+					if (Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, portal)
+						&& Misc.poll(() => targetArea ? me.inArea(targetArea) : me.area !== preArea)) {
+						Pather.lastPortalTick = getTickCount();
+						delay(100);
 
-				if (portal.area === me.area) {
-					if (Skill.useTK(portal) && i < 3) {
-						portal.distance > 21 && (me.inTown && me.act === 5 ? Town.move("portalspot") : Pather.moveNearUnit(portal, 20));
-						if (Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, portal)) {
-							if (Misc.poll(() => {
-								if (me.area !== preArea) {
-									Pather.lastPortalTick = getTickCount();
-									delay(100);
-
-									return true;
-								}
-
-								return false;
-							}, 500, 50)) {
-								return true;
-							}
-						}
-					} else {
-						portal.distance > 5 && this.moveToUnit(portal);
-
-						if (getTickCount() - this.lastPortalTick > (leavingTown ? 2500 : 1000)) {
-							i < 2 ? Packet.entityInteract(portal) : Misc.click(0, 0, portal);
-							!!redPortal && delay(150);
-						} else {
-							// only delay if we are in town and leaving town, don't delay if we are attempting to portal from out of town since this is the chicken thread
-							// and we are likely being attacked
-							leavingTown && delay(300);
-							
-							continue;
-						}
+						return true;
 					}
-				}
+				} else {
+					portal.distance > 5 && (i < 3 ? Pather.moveNearUnit(portal, 4, false) : Pather.moveToUnit(portal));
 
-				if (dummy) {
-					// try clicking portal
-					Misc.click(0, 0, portal);
-				}
-
-				// Portal to/from Arcane
-				if (portal.classid === sdk.objects.ArcaneSanctuaryPortal && portal.mode !== sdk.objects.mode.Active) {
-					Misc.click(0, 0, portal);
-					let tick = getTickCount();
-
-					while (getTickCount() - tick < 2000) {
-						if (portal.mode === sdk.objects.mode.Active || me.area === sdk.areas.ArcaneSanctuary) {
-							break;
-						}
-
-						delay(10);
+					if (getTickCount() - this.lastPortalTick > (leavingTown ? 2500 : 1000)) {
+						i < 2 ? Packet.entityInteract(portal) : Misc.click(0, 0, portal);
+					} else {
+						// only delay if we are in town and leaving town, don't delay if we are attempting to portal from out of town since this is the chicken thread
+						// and we are likely being attacked
+						leavingTown && delay(300);
+						
+						continue;
 					}
 				}
 
@@ -156,6 +122,8 @@ function main() {
 
 					delay(10);
 				}
+				// try clicking dummy portal
+				!!dummy && portal.area === 1 && Misc.click(0, 0, portal);
 
 				i > 1 && (i % 3) === 0 && Packet.flash(me.gid);
 			} else {
@@ -177,7 +145,7 @@ function main() {
 			delay(250);
 		}
 
-		return (targetArea ? me.area === targetArea : me.area !== preArea);
+		return (targetArea ? me.inArea(targetArea) : me.area !== preArea);
 	};
 
 	Pather.makePortal = function (use = false) {
@@ -188,7 +156,7 @@ function main() {
 		for (let i = 0; i < 5; i += 1) {
 			if (me.dead) return false;
 
-			let tpTool = Town.getTpTool();
+			let tpTool = me.getTpTool();
 			if (!tpTool) return false;
 
 			let oldPortal = Game.getObject(sdk.objects.BluePortal);
@@ -199,37 +167,41 @@ function main() {
 						break;
 					}
 				} while (oldPortal.getNext());
+				
+				// old portal is close to use, we should try to use it
+				if (oldPortal.getParent() === me.name && oldPortal.distance < 4) {
+					if (use) {
+						if (this.usePortal(null, null, copyUnit(oldPortal))) return true;
+						break; // don't spam usePortal
+					} else {
+						return copyUnit(oldPortal);
+					}
+				}
 			}
-			
-			let pingDelay = i === 0 ? 100 : me.gameReady ? (me.ping + 25) : 350;
 
-			if (tpTool.use()) {
+			let pingDelay = me.getPingDelay();
+
+			if (tpTool.use() || Game.getObject("portal")) {
 				let tick = getTickCount();
 
 				while (getTickCount() - tick < Math.max(500 + i * 100, pingDelay * 2 + 100)) {
-					let portal = getUnits(sdk.unittype.Object, "portal")
-						.filter((p) => p.getParent() === me.name && p.gid !== oldGid)
-						.first();
+					const portal = getUnits(sdk.unittype.Object, "portal")
+						.filter((p) => p.getParent() === me.name && p.gid !== oldGid).first();
 
-					if (!!portal) {
+					if (portal) {
 						if (use) {
-							if (this.usePortal(null, null, copyUnit(portal))) {
-								return true;
-							}
+							if (this.usePortal(null, null, copyUnit(portal))) return true;
 							break; // don't spam usePortal
 						} else {
 							return copyUnit(portal);
 						}
 					} else {
 						// check dummy
-						let dummy = Game.getObject("portal");
+						let dummy = getUnits(sdk.unittype.Object, "portal").filter(p => p.name === "Dummy").first();
 						if (dummy) {
 							console.debug(dummy);
-							if (use) {
-								return Pather.usePortal(null, null, dummy, true);
-							} else {
-								return copyUnit(dummy);
-							}
+							if (use) return Pather.usePortal(null, null, dummy, true);
+							return copyUnit(dummy);
 						}
 					}
 
@@ -247,13 +219,65 @@ function main() {
 		return false;
 	};
 
+	Town.goToTown = function (act = 0, wpmenu = false) {
+		if (!me.inTown) {
+			const townArea = sdk.areas.townOf(me.act);
+			try {
+				!Pather.makePortal(true) && console.warn("Town.goToTown: Failed to make TP");
+				if (!me.inTown && !Pather.usePortal(townArea, me.name)) {
+					console.warn("Town.goToTown: Failed to take TP");
+					if (!me.inTown && !Pather.usePortal(sdk.areas.townOf(me.area))) throw new Error("Town.goToTown: Failed to take TP");
+				}
+			} catch (e) {
+				let tpTool = Town.getTpTool();
+				if (!tpTool && Misc.getPlayerCount() <= 1) {
+					Misc.errorReport(new Error("Town.goToTown: Failed to go to town and no tps available. Restart."));
+					scriptBroadcast("quit");
+				} else {
+					if (!Misc.poll(() => {
+						if (me.inTown) return true;
+						let p = Game.getObject("portal");
+						console.debug(p);
+						!!p && Misc.click(0, 0, p) && delay(100);
+						Misc.poll(() => me.idle, 1000, 100);
+						console.debug("inTown? " + me.inTown);
+						return me.inTown;
+					}, 700, 100)) {
+						Misc.errorReport(new Error("Town.goToTown: Failed to go to town. Quiting."));
+						scriptBroadcast("quit");
+					}
+				}
+			}
+		}
+
+		if (!act) return true;
+		if (act < 1 || act > 5) throw new Error("Town.goToTown: Invalid act");
+		if (act > me.highestAct) return false;
+
+		if (act !== me.act) {
+			try {
+				Pather.useWaypoint(sdk.areas.townOfAct(act), wpmenu);
+			} catch (WPError) {
+				throw new Error("Town.goToTown: Failed use WP");
+			}
+		}
+
+		return true;
+	};
+
 	Town.visitTown = function () {
 		console.log("ÿc8Start ÿc0:: ÿc8visitTown");
 	
-		let preArea = me.area;
-		let preAct = sdk.areas.actOf(preArea);
+		const preArea = me.area;
+		const preAct = sdk.areas.actOf(preArea);
+
+		if (!me.inTown && !me.getTpTool()) {
+			console.warn("Can't chicken to town. Quit");
+			scriptBroadcast("quit");
+		}
 
 		// not an essential function -> handle thrown errors
+		me.cancelUIFlags();
 		try {
 			Town.goToTown();
 		} catch (e) {
@@ -266,9 +290,9 @@ function main() {
 		me.act !== preAct && Town.goToTown(preAct);
 		Town.move("portalspot");
 
-		if (!Pather.usePortal(null, me.name)) {
+		if (!Pather.usePortal(preArea, me.name)) {
 			try {
-				Pather.usePortal(preArea, me.name);
+				Pather.usePortal(null, me.name);
 			} catch (e) {
 				throw new Error("Town.visitTown: Failed to go back from town");
 			}
@@ -280,18 +304,18 @@ function main() {
 	};
 
 	this.togglePause = function () {
-		let scripts = ["default.dbj", "tools/antihostile.js"];
+		let scripts = ["libs/SoloPlay/SoloPlay.js", "tools/antihostile.js"];
 
 		for (let i = 0; i < scripts.length; i++) {
 			let script = getScript(scripts[i]);
 
 			if (script) {
 				if (script.running) {
-					scripts[i] === "default.dbj" && console.log("ÿc8TownChicken:: ÿc1Pausing " + scripts[i]);
+					scripts[i] === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8TownChicken:: ÿc1Pausing " + scripts[i]);
 
 					script.pause();
 				} else {
-					if (scripts[i] === "default.dbj") {
+					if (scripts[i] === "libs/SoloPlay/SoloPlay.js") {
 						// don't resume if dclone walked
 						if (!SoloEvents.cloneWalked) {
 							console.log("ÿc8TownChicken :: ÿc2Resuming threads");
@@ -386,6 +410,8 @@ function main() {
 	const useHowl = Skill.canUse(sdk.skills.Howl);
 	const useTerror = Skill.canUse(sdk.skills.Terror);
 
+	Config.DebugMode = true;
+
 	while (true) {
 		if (!me.inTown && (townCheck || fastTown
 			|| ((Config.TownHP > 0 && me.hpPercent < Config.TownHP)
@@ -409,8 +435,8 @@ function main() {
 			let t4 = getTickCount();
 			try {
 				myPrint("ÿc8TownChicken :: ÿc0Going to town");
-				Attack.stopClear = true;
-				SoloEvents.townChicken = true;
+				Messaging.sendToScript("libs/SoloPlay/Threads/EventThread.js", "townchickenOn");
+				[Attack.stopClear, SoloEvents.townChicken] = [true, true];
 				
 				// determine if this is really worth it
 				if (useHowl || useTerror) {
@@ -432,13 +458,11 @@ function main() {
 
 				return false;
 			} finally {
+				Packet.flash(me.gid, 100);
 				console.log("ÿc8TownChicken :: Took: " + Time.format(getTickCount() - t4) + " to visit town");
 				this.togglePause();
-
-				Attack.stopClear = false;
-				SoloEvents.townChicken = false;
-				townCheck = false;
-				fastTown = false;
+				Messaging.sendToScript("libs/SoloPlay/Threads/EventThread.js", "townchickenOff");
+				[Attack.stopClear, SoloEvents.townChicken, townCheck, fastTown] = [false, false, false, false];
 			}
 		}
 

@@ -14,7 +14,7 @@ function a1chests() {
 	for (let i = 0; i < areas.length; i++) {
 		try {
 			// Don't run pits for its chest, when it was cleared during the pits script
-			if (((me.sorceress && me.charlvl >= 80) || me.barbarian) && areas[i] === sdk.areas.PitLvl2) {
+			if ((SoloIndex.doneList.includes("pits") || me.barbarian) && areas[i] === sdk.areas.PitLvl2) {
 				continue;
 			}
 

@@ -96,17 +96,6 @@ function LoadConfig () {
 		// Charms
 		"[name] == smallcharm && [quality] == magic # # [invoquantity] == 8 && [charmtier] == charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-		// Special Charms
-		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
-		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
-		"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [charmtier] == 100000",
-		// Merc
-		"([type] == circlet || [type] == helm) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		"[type] == armor && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		// Rogue
-		"me.mercid === 271 && [type] == bow && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		// A2 Guard
-		"me.mercid === 338 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
 	NTIP.arrayLooping(levelingTiers);
@@ -164,25 +153,14 @@ function LoadConfig () {
 	case sdk.game.gametype.Expansion:
 		NTIP.addLine("[name] >= Vexrune && [name] <= Zodrune");
 
-		Config.socketables = [];
 		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.all);
-		Config.socketables
-			.push(
-				{
-					classid: sdk.items.Bill,
-					socketWith: [],
-					useSocketQuest: true,
-					condition: (item) => me.normal && item.ilvl >= 26 && item.isBaseType
-				},
-				{
-					classid: sdk.items.Shako,
-					socketWith: [sdk.items.runes.Um],
-					temp: [sdk.items.gems.Perfect.Ruby],
-					useSocketQuest: true,
-					condition: (item) => item.unique && !item.ethereal
-				}
-			);
+		Config.socketables.push(addSocketableObj(sdk.items.Bill, [], [],
+			me.normal, (item) => item.ilvl >= 26 && item.isBaseType
+		));
+		Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+			true, (item) => item.unique && !item.ethereal
+		));
 
 		Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
 		Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
@@ -209,16 +187,9 @@ function LoadConfig () {
 					NTIP.addLine("[name] == hydrabow && [quality] == unique # [manaleech] >= 6 # [maxquantity] == 1");
 				}
 
-				Config.socketables
-					.push(
-						{
-							classid: sdk.items.HydraBow,
-							socketWith: [sdk.items.runes.Shael],
-							temp: [sdk.items.gems.Perfect.Amn],
-							useSocketQuest: true,
-							condition: (item) => item.quality === sdk.items.quality.Unique
-						}
-					);
+				Config.socketables.push(addSocketableObj(sdk.items.HydraBow, [sdk.items.runes.Shael], [sdk.items.runes.Amn],
+					true, (item) => item.unique
+				));
 			}
 
 			if ((SetUp.finalBuild === "Faithbowzon") && !me.checkItem({name: sdk.locale.items.Faith, classid: sdk.items.GrandMatronBow}).have) {
@@ -241,29 +212,18 @@ function LoadConfig () {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 			}
 
-			Config.socketables
-				.push(
-					{
-						classid: sdk.items.DiamondBow,
-						socketWith: [sdk.items.runes.Nef, sdk.items.runes.Shael],
-						temp: [sdk.items.gems.Perfect.Skull],
-						useSocketQuest: false,
-						condition: (item) => item.unique
-					},
-					{
-						classid: sdk.items.BoneVisage,
-						socketWith: [sdk.items.runes.Um],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: true,
-						condition: (item) => item.unique && item.getStat(sdk.stats.LifeLeech) === 8 && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal
-					}
-				);
+			Config.socketables.push(addSocketableObj(sdk.items.DiamondBow, [sdk.items.runes.Nef, sdk.items.runes.Shael], [sdk.items.gems.Perfect.Skull],
+				false, (item) => item.unique
+			));
+			Config.socketables.push(addSocketableObj(sdk.items.BoneVisage, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+				true, (item) => item.unique && item.getStat(sdk.stats.LifeLeech) === 8 && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal
+			));
 
 			break;
 		case "Javazon":
 			Config.SkipImmune = ["lightning and physical"];
 
-			if (me.getSkill(sdk.skills.ChargedStrike, sdk.skills.subindex.HardPoints)) {
+			if (me.checkSkill(sdk.skills.ChargedStrike, sdk.skills.subindex.HardPoints)) {
 				// "Monster name": [-1, -1],
 				Config.CustomAttack = {
 					"Fire Tower": [sdk.skills.ChargedStrike, -1],

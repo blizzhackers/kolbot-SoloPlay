@@ -1,12 +1,12 @@
 /**
 *  @filename    pits.js
-*  @author      isid0re, theBGuy
+*  @author      kolton, theBGuy
 *  @desc        pits A1 for MF and gold
 *
 */
 
 function pits () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting pits");
 
 	Pather.checkWP(sdk.areas.BlackMarsh, true) ? Pather.useWaypoint(sdk.areas.BlackMarsh) : Pather.getWP(sdk.areas.BlackMarsh);

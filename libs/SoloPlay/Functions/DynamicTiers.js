@@ -117,19 +117,9 @@ const mercscore = function (item) {
 		mercRating += item.getStatEx(sdk.stats.SkillOnHit, 5631) * mercWeights.CTCOSDECREP; // add CTC decrepify on strikng (magic items)
 	}
 
-	let rwBase;
-
 	for (let x = 0; x < Config.Runewords.length; x += 1) {
-		let sockets = Config.Runewords[x][0].length;
-		let baseCID = Config.Runewords[x][1];
-
-		if (item.classid === baseCID && item.quality < sdk.items.quality.Magic && item.sockets === sockets && !item.isRuneword) {
-			rwBase = true;
-		}
-	}
-
-	if (rwBase) {
-		mercRating = -1;
+		let [sockets, baseCID] = [Config.Runewords[x][0].length, Config.Runewords[x][1]];
+		if (item.classid === baseCID && item.isBaseType && item.sockets === sockets && !item.isRuneword) return -1;
 	}
 
 	return mercRating;
@@ -218,7 +208,7 @@ const tierWeights = {
 		FHR: 3, // faster hit recovery
 		DEF: 0.05, // defense
 		ICB: 2, // increased chance to block
-		BELTSLOTS: 1.55, //belt potion storage
+		BELTSLOTS: 2, // belt potion storage
 		MF: 1, //Magic Find
 		// base stats
 		HP:	0.5,
@@ -239,7 +229,7 @@ const tierWeights = {
 	meleeWeights: {
 		// breakpoint stats - todo actually take breakpoints into account
 		FCR: 0.5,
-		IAS: 4,
+		IAS: (me.barbarian && me.classic ? 2 : 4),
 		// Attack
 		MINDMG: 3,
 		MAXDMG: 3,
@@ -311,10 +301,10 @@ const tierWeights = {
 		ALL:	180, // + all skills
 		CLASS:	175, // + class tab
 		TAB: 300, // + skill tab
-		FR: 2, // fire resist
+		FR: 3, // fire resist
 		LR: 5, // lightning resist
 		CR: 2, // cold resist
-		PR: 1, // poison resist
+		PR: 0.5, // poison resist
 		FRW: 1, // faster run/walk
 		FHR: (me.barbarian ? 4 : 2), // faster hit recovery
 		DEF: 0.05, // defense
@@ -339,7 +329,7 @@ const tierscore = function (item, bodyloc) {
 		bodyloc === undefined && (bodyloc = itembodyloc.last()); // extract bodyloc from array
 		
 		// get item cbf stat from olditem equipped on body location
-		let equippedItem = me.getItemsEx().filter((equipped) => equipped.isEquipped && equipped.bodylocation === bodyloc).first();
+		let equippedItem = me.getEquippedItem(bodyloc);
 
 		if (!canTele && item.getStatEx(sdk.stats.CannotbeFrozen)) {
 			// check if we have cbf but make sure its not from the item we are trying to un-equip
@@ -352,7 +342,11 @@ const tierscore = function (item, bodyloc) {
 		!canTele && (generalRating += item.getStatEx(sdk.stats.FRW) * tierWeights.generalWeights.FRW);
 
 		// belt slots
-		item.itemType === sdk.items.type.Belt && (generalRating += Storage.BeltSize() * 4 * tierWeights.generalWeights.BELTSLOTS); // rows * columns * weight
+		if (item.itemType === sdk.items.type.Belt) {
+			const beltSize = ["lbl", "vbl"].includes(item.code) ? 2 : ["mbl", "tbl"].includes(item.code) ? 3 : 4;
+			// if our current belt-size is better, don't down-grade even if the other stats on the new item are better, not worth the town visits
+			generalRating += (Storage.BeltSize() > beltSize ? -50 : (beltSize * 4 * tierWeights.generalWeights.BELTSLOTS));
+		}
 
 		// start generalRating
 		generalRating += item.getStatEx(sdk.stats.MagicBonus) * tierWeights.generalWeights.MF; // add magic find
@@ -368,46 +362,32 @@ const tierscore = function (item, bodyloc) {
 	};
 
 	this.resistScore = function (item) {
+		let itembodyloc = Item.getBodyLoc(item);
+		if (!itembodyloc) return 0;
+		bodyloc === undefined && (bodyloc = itembodyloc.last()); // extract bodyloc from array
+
 		let resistRating = 0;
 		// current total resists
-		let currFR = me.fireRes;
-		let currCR = me.coldRes;
-		let currLR = me.lightRes;
-		let currPR = me.poisonRes;
-		// get item body location
-		let itembodyloc = Item.getBodyLoc(item);
-
-		if (!itembodyloc) return resistRating;
-
-		bodyloc === undefined && (bodyloc = itembodyloc.last()); // extract bodyloc from array
+		let [currFR, currCR, currLR, currPR] = [me.fireRes, me.coldRes, me.lightRes, me.poisonRes];
 		// get item resists stats from olditem equipped on body location
-		let equippedItem = me.getItemsEx().filter((equipped) => equipped.isEquipped && equipped.bodylocation === bodyloc).first();
-
-		let olditemFR = !!equippedItem ? equippedItem.getStatEx(sdk.stats.FireResist) : 0; // equipped fire resist
-		let olditemCR = !!equippedItem ? equippedItem.getStatEx(sdk.stats.ColdResist) : 0; // equipped cold resist
-		let olditemLR = !!equippedItem ? equippedItem.getStatEx(sdk.stats.LightResist) : 0; // equipped lite resist
-		let olditemPR = !!equippedItem ? equippedItem.getStatEx(sdk.stats.PoisonResist) : 0; // equipped poison resist
+		let eqItem = me.getEquippedItem(bodyloc);
+		let [olditemFR, olditemCR, olditemLR, olditemPR] = [0, 0, 0, 0];
+		if (eqItem) {
+			// equipped resists
+			[olditemFR, olditemCR] = [eqItem.getStatEx(sdk.stats.FireResist), eqItem.getStatEx(sdk.stats.ColdResist)];
+			[olditemLR, olditemPR] = [eqItem.getStatEx(sdk.stats.LightResist), eqItem.getStatEx(sdk.stats.PoisonResist)];
+		}
 		// subtract olditem resists from current total resists
-		let baseFR = currFR - olditemFR;
-		let baseCR = currCR - olditemCR;
-		let baseLR = currLR - olditemLR;
-		let basePR = currPR - olditemPR;
+		let [baseFR, baseCR, baseLR, basePR] = [(currFR - olditemFR), (currCR - olditemCR), (currLR - olditemLR), (currPR - olditemPR)];
 		// if baseRes < max resists give score value upto max resists reached
-		let maxRes = me.expansion ? 175 : 125;
-		let FRlimit = Math.max(maxRes - baseFR, 0);
-		let CRlimit = Math.max(maxRes - baseCR, 0);
-		let LRlimit = Math.max(maxRes - baseLR, 0);
-		let PRlimit = Math.max(maxRes - basePR, 0);
+		const maxRes = me.hell ? 75 : (75 + me.getResPenalty(me.diff + 1) - me.getResPenalty(me.diff));
+		let [FRlimit, CRlimit, LRlimit, PRlimit] = [Math.max(maxRes - baseFR, 0), Math.max(maxRes - baseCR, 0), Math.max(maxRes - baseLR, 0), Math.max(maxRes - basePR, 0)];
 		// get new item stats
-		let newitemFR = Math.max(item.getStatEx(sdk.stats.FireResist), 0); // fire resist
-		let newitemCR = Math.max(item.getStatEx(sdk.stats.ColdResist), 0); // cold resist
-		let newitemLR = Math.max(item.getStatEx(sdk.stats.LightResist), 0); // lite resist
-		let newitemPR = Math.max(item.getStatEx(sdk.stats.PoisonResist), 0); // poison resist
+		let [newitemFR, newitemCR] = [Math.max(item.getStatEx(sdk.stats.FireResist), 0), Math.max(item.getStatEx(sdk.stats.ColdResist), 0)];
+		let [newitemLR, newitemPR] = [Math.max(item.getStatEx(sdk.stats.LightResist), 0), Math.max(item.getStatEx(sdk.stats.PoisonResist), 0)];
 		// newitemRes upto reslimit
-		let effectiveFR = Math.min(newitemFR, FRlimit);
-		let effectiveCR = Math.min(newitemCR, CRlimit);
-		let effectiveLR = Math.min(newitemLR, LRlimit);
-		let effectivePR = Math.min(newitemPR, PRlimit);
+		let [effectiveFR, effectiveCR] = [Math.min(newitemFR, FRlimit), Math.min(newitemCR, CRlimit)];
+		let [effectiveLR, effectivePR] = [Math.min(newitemLR, LRlimit), Math.min(newitemPR, PRlimit)];
 		// sum resistRatings
 		resistRating += effectiveFR * tierWeights.resistWeights.FR; // add fireresist
 		resistRating += effectiveCR * tierWeights.resistWeights.CR; // add coldresist
@@ -418,7 +398,7 @@ const tierscore = function (item, bodyloc) {
 		resistRating += (item.getStatEx(sdk.stats.MaxLightResist) * tierWeights.resistWeights.MAXLR);
 		resistRating += (item.getStatEx(sdk.stats.MaxColdResist) * tierWeights.resistWeights.MAXCR);
 		resistRating += (item.getStatEx(sdk.stats.MaxPoisonResist) * tierWeights.resistWeights.MAXPR);
-
+		// sum absorb and magic/damage reduction
 		resistRating += (item.getStatEx(sdk.stats.AbsorbFirePercent) + item.getStatEx(sdk.stats.AbsorbLightPercent) + item.getStatEx(sdk.stats.AbsorbMagicPercent) + item.getStatEx(sdk.stats.AbsorbColdPercent)) * tierWeights.resistWeights.ABS; // add absorb damage
 		resistRating += item.getStatEx(sdk.stats.NormalDamageReduction) * tierWeights.resistWeights.DR / 2; // add integer damage resist
 		resistRating += item.getStatEx(sdk.stats.DamageResist) * tierWeights.resistWeights.DR * 2; // add damage resist %
@@ -429,8 +409,8 @@ const tierscore = function (item, bodyloc) {
 	};
 
 	this.buildScore = function (item) {
-		let buildWeights = buildInfo.caster ? tierWeights.casterWeights : tierWeights.meleeWeights;
 		let buildRating = 0;
+		let buildWeights = buildInfo.caster ? tierWeights.casterWeights : tierWeights.meleeWeights;
 
 		me.amazon && item.getStatEx(sdk.stats.ReplenishQuantity) && (buildRating += 50);
 		//!Pather.canTeleport() && item.getStatEx(sdk.stats.ChargedSkill, 3461) && (buildRating += 50);
@@ -445,9 +425,12 @@ const tierscore = function (item, bodyloc) {
 		buildInfo.usefulStats.forEach(stat => buildRating += item.getStatEx(stat));
 
 		// Melee Specific
-		if (!buildInfo.caster || Config.AttackSkill.includes(sdk.skills.Attack) || Config.LowManaSkill.includes(sdk.skills.Attack)) {
-			let eleDmgModifer = [sdk.items.type.Ring, sdk.items.type.Amulet].includes(item.itemType) ? 2 : 1;
+		if (!buildInfo.caster
+			|| Config.AttackSkill.includes(sdk.skills.Attack)
+			|| Config.LowManaSkill.includes(sdk.skills.Attack)
+			|| ([sdk.items.type.Bow, sdk.items.type.AmazonBow, sdk.items.type.Crossbow].includes(item.itemType) && CharData.skillData.bowData.bowOnSwitch)) {
 			let meleeRating = 0;
+			let eleDmgModifer = [sdk.items.type.Ring, sdk.items.type.Amulet].includes(item.itemType) ? 2 : 1;
 
 			item.getStatEx(sdk.stats.ReplenishDurability) && (meleeRating += 15);
 			item.getStatEx(sdk.stats.IgnoreTargetDefense) && (meleeRating += 50);
@@ -496,9 +479,7 @@ const tierscore = function (item, bodyloc) {
 		}
 
 		// Spirit Fix for barb
-		if (item.prefixnum === sdk.locale.items.Spirit && !buildInfo.caster) {
-			skillsRating -= 400;
-		}
+		(item.prefixnum === sdk.locale.items.Spirit && !buildInfo.caster) && (skillsRating -= 400);
 
 		return skillsRating;
 	};
@@ -507,27 +488,23 @@ const tierscore = function (item, bodyloc) {
 		// chance to cast doesn't exist in classic
 		if (me.classic) return 0;
 
+		const ctcSkillObj = (ctcType, skill, level) => ({ ctcType: ctcType, skill: skill, level: level });
+		const meleeCheck = !buildInfo.caster;
 		let ctcRating = 0, ctcItems = [];
+		let skill, level;
 		let stats = item.getStat(-2);
-		let meleeCheck = !buildInfo.caster;
 
 		if (stats.hasOwnProperty(sdk.stats.SkillWhenStruck)) {
 			if (stats[sdk.stats.SkillWhenStruck] instanceof Array) {
 				for (let i = 0; i < stats[sdk.stats.SkillWhenStruck].length; i++) {
 					if (stats[sdk.stats.SkillWhenStruck][i] !== undefined) {
-						ctcItems.push({
-							ctcType: sdk.stats.SkillWhenStruck,
-							skill: stats[sdk.stats.SkillWhenStruck][i].skill,
-							level: stats[sdk.stats.SkillWhenStruck][i].level
-						});
+						({ skill, level } = stats[sdk.stats.SkillWhenStruck][i]);
+						ctcItems.push(ctcSkillObj(sdk.stats.SkillWhenStruck, skill, level));
 					}
 				}
 			} else {
-				ctcItems.push({
-					ctcType: sdk.stats.SkillWhenStruck,
-					skill: stats[sdk.stats.SkillWhenStruck].skill,
-					level: stats[sdk.stats.SkillWhenStruck].level
-				});
+				({ skill, level } = stats[sdk.stats.SkillWhenStruck]);
+				ctcItems.push(ctcSkillObj(sdk.stats.SkillWhenStruck, skill, level));
 			}
 		}
 
@@ -535,19 +512,13 @@ const tierscore = function (item, bodyloc) {
 			if (stats[sdk.stats.SkillOnAttack] instanceof Array) {
 				for (let i = 0; i < stats[sdk.stats.SkillOnAttack].length; i++) {
 					if (stats[sdk.stats.SkillOnAttack][i] !== undefined) {
-						ctcItems.push({
-							ctcType: sdk.stats.SkillOnAttack,
-							skill: stats[sdk.stats.SkillOnAttack][i].skill,
-							level: stats[sdk.stats.SkillOnAttack][i].level
-						});
+						({ skill, level } = stats[sdk.stats.SkillOnAttack][i]);
+						ctcItems.push(ctcSkillObj(sdk.stats.SkillOnAttack, skill, level));
 					}
 				}
 			} else {
-				ctcItems.push({
-					ctcType: sdk.stats.SkillOnAttack,
-					skill: stats[sdk.stats.SkillOnAttack].skill,
-					level: stats[sdk.stats.SkillOnAttack].level
-				});
+				({ skill, level } = stats[sdk.stats.SkillOnAttack]);
+				ctcItems.push(ctcSkillObj(sdk.stats.SkillOnAttack, skill, level));
 			}
 		}
 
@@ -555,19 +526,13 @@ const tierscore = function (item, bodyloc) {
 			if (stats[sdk.stats.SkillOnStrike] instanceof Array) {
 				for (let i = 0; i < stats[sdk.stats.SkillOnStrike].length; i++) {
 					if (stats[sdk.stats.SkillOnStrike][i] !== undefined) {
-						ctcItems.push({
-							ctcType: sdk.stats.SkillOnStrike,
-							skill: stats[sdk.stats.SkillOnStrike][i].skill,
-							level: stats[sdk.stats.SkillOnStrike][i].level
-						});
+						({ skill, level } = stats[sdk.stats.SkillOnStrike][i]);
+						ctcItems.push(ctcSkillObj(sdk.stats.SkillOnStrike, skill, level));
 					}
 				}
 			} else {
-				ctcItems.push({
-					ctcType: sdk.stats.SkillOnStrike,
-					skill: stats[sdk.stats.SkillOnStrike].skill,
-					level: stats[sdk.stats.SkillOnStrike].level
-				});
+				({ skill, level } = stats[sdk.stats.SkillOnStrike]);
+				ctcItems.push(ctcSkillObj(sdk.stats.SkillOnStrike, skill, level));
 			}
 		}
 
@@ -607,22 +572,12 @@ const tierscore = function (item, bodyloc) {
 	tier += this.ctcScore(item);
 	tier += chargeditemscore(item, -1, buildInfo);
 
-	let rwBase; // don't score runeword base armors
-
 	for (let x = 0; x < Config.Runewords.length; x += 1) {
-		let sockets = Config.Runewords[x][0].length;
-		let baseCID = Config.Runewords[x][1];
-
-		if (item.classid === baseCID && item.quality < sdk.items.quality.Magic && item.sockets === sockets && !item.isRuneword && !item.getItem()) {
-			rwBase = true;
-		}
+		let [sockets, baseCID] = [Config.Runewords[x][0].length, Config.Runewords[x][1]];
+		if (item.classid === baseCID && item.isBaseType && item.sockets === sockets && !item.isRuneword && !item.getItemsEx().length) return -1;
 	}
 
-	if (rwBase || item.questItem) {
-		tier = -1;
-	}
-
-	return tier;
+	return item.questItem ? -1 : Math.max(1, tier);
 };
 
 const secondaryscore = function (item) {
@@ -646,16 +601,8 @@ const secondaryscore = function (item) {
 const charmscore = function (item) {
 	if (myData.me.charmGids.includes(item.gid)) return 1000;
 	let charmRating = 1;
-	let skillerStats = [
-		[sdk.skills.tabs.BowandCrossbow, sdk.skills.tabs.PassiveandMagic, sdk.skills.tabs.JavelinandSpear],
-		[sdk.skills.tabs.Fire, sdk.skills.tabs.Lightning, sdk.skills.tabs.Cold],
-		[sdk.skills.tabs.Curses, sdk.skills.tabs.PoisonandBone, sdk.skills.tabs.NecroSummoning],
-		[sdk.skills.tabs.PalaCombat, sdk.skills.tabs.Offensive, sdk.skills.tabs.Defensive],
-		[sdk.skills.tabs.BarbCombat, sdk.skills.tabs.Masteries, sdk.skills.tabs.Warcries],
-		[sdk.skills.tabs.DruidSummon, sdk.skills.tabs.ShapeShifting, sdk.skills.tabs.Elemental],
-		[sdk.skills.tabs.Traps, sdk.skills.tabs.ShadowDisciplines, sdk.skills.tabs.MartialArts]
-	][me.classid];
-	if (!item.unique && item.classid === sdk.items.GrandCharm && !skillerStats.some(s => item.getStatEx(sdk.stats.AddSkillTab, s))) return -1;
+
+	if (!item.unique && item.classid === sdk.items.GrandCharm && !me.getSkillTabs().some(s => item.getStatEx(sdk.stats.AddSkillTab, s))) return -1;
 	const buildInfo = Check.currentBuild();
 
 	charmRating += item.getStatEx(sdk.stats.AddSkillTab, buildInfo.tabSkills) * tierWeights.charmWeights.TAB; // + TAB skills

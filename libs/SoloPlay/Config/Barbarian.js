@@ -74,6 +74,7 @@ function LoadConfig () {
 		"[name] == phaseblade && [quality] == unique && [flag] == ethereal # [enhanceddamage] >= 100 && [ias] == 30 && [magicdamagereduction] >= 7 # [tier] == tierscore(item)",
 		// Helmet
 		"([type] == helm || [type] == primalhelm) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"[type] == primalhelm && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && [sockets] == 1 # [tier] == tierscore(item)",
 		// Belt
 		"[type] == belt && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"me.normal && [type] == belt && [quality] >= lowquality && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
@@ -93,24 +94,12 @@ function LoadConfig () {
 		// Charms
 		"[name] == smallcharm && [quality] == magic # # [invoquantity] == 8 && [charmtier] == charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-		// Special Charms
-		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
-		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
-		"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [charmtier] == 100000",
-		// Merc
-		"([type] == circlet || [type] == helm) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		"[type] == armor && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		// Rogue
-		"me.mercid === 271 && [type] == bow && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		// A2 Guard
-		"me.mercid === 338 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
 	NTIP.arrayLooping(levelingTiers);
 	me.expansion && NTIP.arrayLooping(expansionTiers);
 
 	/* Attack configuration. */
-	Config.SkipId.push(sdk.monsters.FireTower);
 	Config.AttackSkill = [-1, 0, 0, 0, 0];
 	Config.LowManaSkill = me.getSkill(sdk.skills.DoubleSwing, sdk.skills.subindex.SoftPoints) >= 9 ? [sdk.skills.DoubleSwing, 0] : [0, -1];
 	Config.MaxAttackCount = 1000;
@@ -145,36 +134,19 @@ function LoadConfig () {
 	case sdk.game.gametype.Expansion:
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
 
-		Config.socketables = [];
 		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.all);
-		Config.socketables
-			.push(
-				{
-					classid: sdk.items.Flamberge,
-					socketWith: [],
-					useSocketQuest: true,
-					condition: (item) => me.normal && Item.getEquippedItem(sdk.body.LeftArm).tier < 600 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
-				},
-				{
-					classid: sdk.items.Zweihander,
-					socketWith: [],
-					useSocketQuest: true,
-					condition: (item) => Item.getEquippedItem(sdk.body.LeftArm).tier < 1000 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
-				}
-			);
+		Config.socketables.push(addSocketableObj(sdk.items.Flamberge, [], [],
+			true, (item) => me.normal && Item.getEquippedItem(sdk.body.LeftArm).tier < 600 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+		));
+		Config.socketables.push(addSocketableObj(sdk.items.Zweihander, [], [],
+			true, (item) => Item.getEquippedItem(sdk.body.LeftArm).tier < 1000 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+		));
 
 		if (SetUp.finalBuild !== "Immortalwhirl") {
-			Config.socketables
-				.push(
-					{
-						classid: sdk.items.SlayerGuard,
-						socketWith: [sdk.items.runes.Cham],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: true,
-						condition: (item) => item.unique && !item.ethereal
-					}
-				);
+			Config.socketables.push(addSocketableObj(sdk.items.SlayerGuard, [sdk.items.runes.Cham], [sdk.items.gems.Perfect.Ruby],
+				true, (item) => item.unique && !item.ethereal
+			));
 		}
 
 		if (["Immortalwhirl", "Singer"].indexOf(SetUp.finalBuild) === -1) {
@@ -233,29 +205,15 @@ function LoadConfig () {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
 			}
 
-			Config.socketables
-				.push(
-					{
-						classid: sdk.items.AvengerGuard,
-						socketWith: [sdk.items.runes.Ber],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: false,
-						condition: (item) => item.set && !item.ethereal
-					},
-					{
-						classid: sdk.items.OgreMaul,
-						socketWith: [sdk.items.runes.Shael],
-						useSocketQuest: false,
-						condition: (item) => item.set && !item.ethereal
-					},
-					{
-						classid: sdk.items.SacredArmor,
-						socketWith: [sdk.items.runes.Ber],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: true,
-						condition: (item) => item.set && !item.ethereal
-					}
-				);
+			Config.socketables.push(addSocketableObj(sdk.items.AvengerGuard, [sdk.items.runes.Ber], [sdk.items.gems.Perfect.Ruby],
+				false, (item) => item.set && !item.ethereal
+			));
+			Config.socketables.push(addSocketableObj(sdk.items.OgreMaul, [sdk.items.runes.Shael], [],
+				false, (item) => item.set && !item.ethereal
+			));
+			Config.socketables.push(addSocketableObj(sdk.items.SacredArmor, [sdk.items.runes.Ber], [sdk.items.gems.Perfect.Ruby],
+				true, (item) => item.set && !item.ethereal
+			));
 
 			Check.itemSockables(sdk.items.OgreMaul, "set", "Immortal King's Stone Crusher");
 

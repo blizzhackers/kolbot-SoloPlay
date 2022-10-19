@@ -99,7 +99,7 @@ function orgtorch() {
 				Precast.doPrecast(true);
 				Pather.moveTo(7811, 5872);
 
-				me.paladin && me.getSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints) && Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
+				me.paladin && me.checkSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints) && Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
 
 				while (!me.getState(sdk.states.Fade)) {
 					delay(100);
@@ -216,14 +216,14 @@ function orgtorch() {
 				Pather.moveTo(findLoc[i], findLoc[i + 1]);
 			}
 
-			if (me.paladin && me.getSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints)) {
+			if (me.paladin && me.checkSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints)) {
 				Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
 			}
 
 			this.lure(704);
 			Pather.moveTo(25129, 5198);
 			
-			if (me.paladin && me.getSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints)) {
+			if (me.paladin && me.checkSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints)) {
 				Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
 			}
 

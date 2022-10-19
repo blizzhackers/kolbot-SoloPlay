@@ -52,7 +52,7 @@ ClassAttack.tauntMonsters = function (unit, attackSkill, data) {
 	// Can't taunt Main bosses or MinionsofDestruction
 	if (!Skill.canUse(sdk.skills.Taunt) || !data) return;
 	if ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit, sdk.areas.WorldstoneChamber].includes(me.area)) return;
-	if (Attack.mainBosses.includes(unit.classid) || unit.classid === sdk.monsters.ListerTheTormenter) return;
+	if (unit.isPrimeEvil || unit.classid === sdk.monsters.ListerTheTormenter) return;
 
 	let range = (!me.inArea(sdk.areas.ThroneofDestruction) ? 15 : 30);
 	let rangedMobsClassIDs = [
@@ -111,7 +111,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 	let gid = unit.gid;
 	let needRepair = [], gold = me.gold;
-	me.charlvl >= 5 && (needRepair = Town.needRepair());
+	me.charlvl >= 5 && (needRepair = me.needRepair());
 
 	if ((Config.MercWatch && Town.needMerc()) || needRepair.length > 0) {
 		console.log("towncheck");
@@ -124,7 +124,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		}
 	}
 	
-	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
+	const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 	let attackSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
 
 	if (!Attack.checkResist(unit, attackSkill)) {
@@ -137,7 +137,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 
 	if (me.expansion && index === 1 && !unit.dead) {
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && unit.curseable &&
-			(gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, sdk.collision.Ranged)) {
+			(gold > 500000 && !unit.isBoss) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
@@ -149,65 +149,48 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		}
 	}
 
-	// TODO: calculate damage values for physcial attacks
-	let data = {
-		switchCast: me.expansion && !!(Precast.getBetterSlot(sdk.skills.BattleCry) === 1 || Precast.getBetterSlot(sdk.skills.WarCry) === 1),
-		howl: {
-			have: Skill.canUse(sdk.skills.Howl), skill: sdk.skills.Howl, range: Skill.getRange(sdk.skills.Howl), mana: Skill.getManaCost(sdk.skills.Howl)
-		},
-		taunt: {
-			have: Skill.canUse(sdk.skills.Taunt), skill: sdk.skills.Taunt, mana: Skill.getManaCost(sdk.skills.Taunt)
-		},
-		grimWard: {
-			have: Skill.canUse(sdk.skills.GrimWard), skill: sdk.skills.GrimWard, range: 15, mana: Skill.getManaCost(sdk.skills.GrimWard)
-		},
-		battleCry: {
-			have: Skill.canUse(sdk.skills.BattleCry), skill: sdk.skills.BattleCry, range: Skill.getRange(sdk.skills.BattleCry), mana: Skill.getManaCost(sdk.skills.BattleCry)
-		},
-		warCry: {
-			have: Skill.canUse(sdk.skills.WarCry), skill: sdk.skills.WarCry, range: Skill.getRange(sdk.skills.WarCry), mana: Skill.getManaCost(sdk.skills.WarCry)
-		},
-		bash: {
-			have: Skill.canUse(sdk.skills.Bash), skill: sdk.skills.Bash, range: Skill.getRange(sdk.skills.Bash), mana: Skill.getManaCost(sdk.skills.Bash)
-		},
-		stun: {
-			have: Skill.canUse(sdk.skills.Stun), skill: sdk.skills.Stun, range: Skill.getRange(sdk.skills.Stun), mana: Skill.getManaCost(sdk.skills.Stun)
-		},
-		concentrate: {
-			have: Skill.canUse(sdk.skills.Concentrate), skill: sdk.skills.Concentrate, range: Skill.getRange(sdk.skills.Concentrate), mana: Skill.getManaCost(sdk.skills.Concentrate)
-		},
-		leap: {
-			have: Skill.canUse(sdk.skills.Leap), skill: sdk.skills.Leap, range: Skill.getRange(sdk.skills.Leap), mana: Skill.getManaCost(sdk.skills.Leap)
-		},
-		leapAttack: {
-			have: Skill.canUse(sdk.skills.LeapAttack), skill: sdk.skills.LeapAttack, range: Skill.getRange(sdk.skills.LeapAttack), mana: Skill.getManaCost(sdk.skills.LeapAttack)
-		},
-		doubleSwing: {
-			have: Skill.canUse(sdk.skills.DoubleSwing), skill: sdk.skills.DoubleSwing, range: Skill.getRange(sdk.skills.DoubleSwing), mana: Skill.getManaCost(sdk.skills.DoubleSwing)
-		},
-		whirlwind: {
-			have: Skill.canUse(sdk.skills.Whirlwind), skill: sdk.skills.Whirlwind, range: Skill.getRange(sdk.skills.Whirlwind), mana: Skill.getManaCost(sdk.skills.Whirlwind)
-		},
-		main: {
-			have: Skill.canUse(Config.AttackSkill[index]), skill: Config.AttackSkill[index], range: Skill.getRange(Config.AttackSkill[index]), mana: Skill.getManaCost(Config.AttackSkill[index]),
-			timed: Skill.isTimed(Config.AttackSkill[index])
-		},
-		secondary: {
-			have: Skill.canUse(Config.AttackSkill[index + 1]), skill: Config.AttackSkill[index + 1], range: Skill.getRange(Config.AttackSkill[index + 1]), mana: Skill.getManaCost(Config.AttackSkill[index + 1]),
-			timed: Skill.isTimed(Config.AttackSkill[index + 1])
-		},
+	const buildDataObj = (skillId = -1, reqLvl = 1) => ({
+		have: false, skill: skillId, range: Infinity, mana: Infinity, timed: false, reqLvl: reqLvl,
+		assignValues: function (range) {
+			this.have = Skill.canUse(this.skill);
+			if (!this.have) return;
+			this.range = range || Skill.getRange(this.skill);
+			this.mana = Skill.getManaCost(this.skill);
+			this.timed = Skill.isTimed(this.skill);
+		}
+	});
+	const currLvl = me.charlvl;
+	const data = {
+		switchCast: false,
+		howl: buildDataObj(sdk.skills.Howl, 1),
+		bash: buildDataObj(sdk.skills.Bash, 1),
+		taunt: buildDataObj(sdk.skills.Taunt, 6),
+		leap: buildDataObj(sdk.skills.Leap, 6),
+		doubleSwing: buildDataObj(sdk.skills.DoubleSwing, 6),
+		stun: buildDataObj(sdk.skills.Stun, 12),
+		battleCry: buildDataObj(sdk.skills.BattleCry, 18),
+		concentrate: buildDataObj(sdk.skills.Concentrate, 18),
+		leapAttack: buildDataObj(sdk.skills.LeapAttack, 18),
+		grimWard: buildDataObj(sdk.skills.GrimWard, 24),
+		warCry: buildDataObj(sdk.skills.WarCry, 30),
+		whirlwind: buildDataObj(sdk.skills.Whirlwind, 30),
+		main: buildDataObj(Config.AttackSkill[index], 1),
+		secondary: buildDataObj(Config.AttackSkill[index + 1], 1),
 	};
+	
+	// TODO: calculate damage values for physcial attacks
+	Object.keys(data).forEach(k => typeof data[k] === "object" && currLvl >= data[k].reqLvl && data[k].assignValues());
+	// console.debug(data);
 
 	// Low mana skill
 	if (Skill.getManaCost(attackSkill) > me.mp && Config.LowManaSkill[0] > -1 && Attack.checkResist(unit, Config.LowManaSkill[0])) {
 		attackSkill = Config.LowManaSkill[0];
 	}
 
-	if ([sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy].includes(attackSkill) && !me.duelWielding) {
+	if ([sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy].includes(attackSkill) && !me.duelWielding || !Skill.canUse(attackSkill)) {
 		let oneHandSk = [data.bash, data.stun, data.concentrate, data.leapAttack, data.whirlwind]
 			.filter((skill) => skill.have && me.mp > skill.mana)
-			.sort((a, b) => GameData.physicalAttackDamage(b.skill) - GameData.physicalAttackDamage(a.skill))
-			.first();
+			.sort((a, b) => GameData.physicalAttackDamage(b.skill) - GameData.physicalAttackDamage(a.skill)).first();
 		attackSkill = oneHandSk ? oneHandSk.skill : 0;
 	}
 
@@ -259,6 +242,10 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		}
 	}
 
+	if (attackSkill === sdk.skills.DoubleThrow && (me.getWeaponQuantity() <= 3 || me.getWeaponQuantity(sdk.body.LeftArm) <= 3) && data.secondary.have) {
+		attackSkill = data.secondary.skill;
+	}
+
 	// Telestomp with barb is pointless
 	return this.doCast(unit, attackSkill, data);
 };
@@ -283,11 +270,11 @@ ClassAttack.doCast = function (unit, attackSkill, data) {
 
 		return Attack.Result.SUCCESS;
 	default:
-		if (Skill.getRange(attackSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
+		if (Skill.getRange(attackSkill) < 4 && !Attack.validSpot(unit.x, unit.y, attackSkill, unit.classid)) {
 			return Attack.Result.FAILED;
 		}
 
-		if (Math.round(unit.distance) > Skill.getRange(attackSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
+		if (unit.distance > Skill.getRange(attackSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
 			walk = (Skill.getRange(attackSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall));
 
 			// think this should be re-written in pather with some form of leap pathing similar to teleport
@@ -326,7 +313,7 @@ ClassAttack.doCast = function (unit, attackSkill, data) {
 ClassAttack.afterAttack = function (pickit = false) {
 	Precast.doPrecast(false);
 
-	let needRepair = me.charlvl < 5 ? [] : Town.needRepair();
+	let needRepair = me.charlvl < 5 ? [] : me.needRepair();
 	
 	// Repair check, make sure i have a tome
 	if (needRepair.length > 0 && me.getItem(sdk.items.TomeofTownPortal)) {

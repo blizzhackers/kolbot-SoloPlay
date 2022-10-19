@@ -9,31 +9,50 @@
 const Mercenary = {
 	minCost: -1,
 
-	// merc is null fix
-	getMercFix: function () {
-		if (!Config.UseMerc || me.classic || me.mercrevivecost) return null;
-
-		let merc = me.getMerc();
-
-		for (let i = 0; i < 3; i++) {
-			if (merc) {
-				if (merc.dead) return null;
-
-				break;
-			}
-
-			delay(50);
-			merc = me.getMerc();
-		}
-
-		return merc;
-	},
-
 	// only a2 mercs for now, need to test others to see if ModifierListSkill returns their skill
 	getMercSkill: function (merc = undefined) {
 		!merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
 		if (!merc) return false;
-		let mercSkill = merc.getStat(sdk.stats.ModifierListSkill);
+		let mercSkill = (() => {
+			switch (merc.classid) {
+			case sdk.mercs.Rogue:
+				return [sdk.skills.FireArrow, sdk.skills.ColdArrow].find(s => merc.getSkill(s, sdk.skills.subindex.HardPoints));
+			case sdk.mercs.Guard:
+				let checkStat = merc.getStat(sdk.stats.ModifierListSkill);
+				// if ([sdk.skills.Meditation, sdk.skills.Conviction, sdk.skills.Concentration, sdk.skills.HolyFire].includes(checkStat)) {
+				// 	return [sdk.skills.Prayer, sdk.skills.BlessedAim, sdk.skills.Defiance].find(s => merc.getSkill(s, sdk.skills.subindex.HardPoints));
+				// }
+				if (![sdk.skills.Prayer, sdk.skills.BlessedAim, sdk.skills.Defiance, sdk.skills.HolyFreeze, sdk.skills.Might, sdk.skills.Thorns].includes(checkStat)) {
+					// check items for aura granting one then subtract it's skillId
+					merc.getItemsEx().forEach(item => {
+						if (!item.unique && !item.runeword) return false;
+						switch (true) {
+						case (item.getStat(sdk.stats.SkillOnAura, sdk.skills.Meditation)):
+							return (checkStat -= sdk.skills.Meditation);
+						case (item.getStat(sdk.stats.SkillOnAura, sdk.skills.Conviction)):
+							return (checkStat -= sdk.skills.Conviction);
+						case (item.getStat(sdk.stats.SkillOnAura, sdk.skills.Concentration)):
+							return (checkStat -= sdk.skills.Concentration);
+						case (item.getStat(sdk.stats.SkillOnAura, sdk.skills.HolyFreeze)):
+							return (checkStat -= sdk.skills.HolyFreeze);
+						case (item.getStat(sdk.stats.SkillOnAura, sdk.skills.HolyFire)):
+							return (checkStat -= sdk.skills.HolyFire);
+						case (item.getStat(sdk.stats.SkillOnAura, sdk.skills.HolyShock)):
+							return (checkStat -= sdk.skills.HolyShock);
+						}
+						return true;
+					});
+				}
+				return checkStat >= sdk.skills.Might ? checkStat : 0;
+			case sdk.mercs.IronWolf:
+				return [sdk.skills.IceBlast, sdk.skills.FireBall, sdk.skills.Lightning].find(s => merc.getSkill(s, sdk.skills.subindex.HardPoints));
+			case sdk.mercs.A5Barb:
+				return sdk.skills.Bash;
+			default:
+				return 0;
+			}
+		})();
+
 		return mercSkill ? getSkillById(mercSkill) : "";
 	},
 
@@ -100,6 +119,18 @@ const Mercenary = {
 			return mercSkill === sdk.skills.HolyFreeze;
 		case "might":
 			return mercSkill === sdk.skills.Might;
+		case "cold arrow":
+			return merc.getSkill(sdk.skills.ColdArrow, sdk.skills.subindex.HardPoints);
+		case "fire arrow":
+			return merc.getSkill(sdk.skills.FireArrow, sdk.skills.subindex.HardPoints);
+		case "fire ball":
+			return merc.getSkill(sdk.skills.FireBall, sdk.skills.subindex.HardPoints);
+		case "lightning":
+			return merc.getSkill(sdk.skills.Lightning, sdk.skills.subindex.HardPoints);
+		case "glacial spike":
+			return merc.getSkill(sdk.skills.GlacialSpike, sdk.skills.subindex.HardPoints);
+		case "bash":
+			return merc.getSkill(sdk.skills.Bash, sdk.skills.subindex.HardPoints);
 		default:
 			return false;
 		}
@@ -109,7 +140,7 @@ const Mercenary = {
 	hireMerc: function () {
 		if (me.classic) return true;
 		let _a;
-		let {mercAct, mercAuraWanted, mercDiff} = Check.finalBuild();
+		let { mercAct, mercAuraWanted, mercDiff } = Check.finalBuild();
 		let typeOfMerc = (!Pather.accessToAct(2) && me.normal ? 1 : mercAct);
 		let tmpAuraName = "Defiance";
 
@@ -136,7 +167,10 @@ const Mercenary = {
 		
 		// lets check what our current actually merc is
 		let checkMyMerc = Misc.poll(() => me.getMerc(), 50, 500);
-		let wantedSkill = (typeOfMerc === 1 ? "Cold Arrow" : me.normal ? tmpAuraName : mercAuraWanted);
+		const wantedSkill = (typeOfMerc === 1
+			? ["Cold Arrow", "Fire Arrow"].includes(mercAuraWanted) ? mercAuraWanted : "Cold Arrow"
+			: me.normal ? tmpAuraName : mercAuraWanted);
+
 		if (checkMyMerc && Mercenary.checkMercSkill(wantedSkill, checkMyMerc)) {
 			// we have our wanted merc, data file was probably erased so lets re-update it
 			myData.merc.act = Mercenary.getMercAct(checkMyMerc);
@@ -145,9 +179,13 @@ const Mercenary = {
 			myData.merc.type = wantedSkill;
 			CharData.updateData("merc", myData) && updateMyData();
 			return true;
-		} else if (!!checkMyMerc && checkMyMerc.classid === sdk.mercs.Guard && !checkMyMerc.getStat(sdk.stats.ModifierListSkill)) {
+		} else if (!!checkMyMerc && checkMyMerc.classid === sdk.mercs.Guard) {
+			let checkSkill = checkMyMerc.getStat(sdk.stats.ModifierListSkill);
 			// aura isn't active so we can't check it
-			return true;
+			if (!checkSkill) return true;
+			// or we might have multiple aura's going
+			if ([sdk.skills.Meditation, sdk.skills.Conviction, sdk.skills.Concentration].includes(checkSkill)) return true;
+			if (checkSkill > 123) return true;
 		}
 
 		let MercLib_1 = require("../Modules/MercLib");

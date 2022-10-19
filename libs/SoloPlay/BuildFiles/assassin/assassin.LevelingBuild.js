@@ -6,6 +6,7 @@
 */
 
 let build = {
+	AutoBuildTemplate: {},
 	caster: true,
 	skillstab: sdk.skills.tabs.Traps,
 	wantedskills: [sdk.skills.FireBlast, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.ShadowMaster],
@@ -60,3 +61,18 @@ let build = {
 		return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.getSkill(sdk.skills.LightningSentry, sdk.skills.subindex.HardPoints) === 20 && !Check.finalBuild().active());
 	},
 };
+
+build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	Config.AttackSkill = [-1, sdk.skills.ShockWeb, sdk.skills.FireBlast, sdk.skills.ShockWeb, sdk.skills.FireBlast, -1, -1];
+	Config.LowManaSkill = [-1, -1];
+	Config.UseTraps = true;
+	Config.UseFade = true;
+	Config.Traps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry];
+	Config.BossTraps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry];
+	Config.TownHP = me.hardcore ? 0 : 35;
+	Config.BeltColumn = ["hp", "hp", "mp", "mp"];
+	Config.HPBuffer = 2;
+	Config.MPBuffer = me.charlvl < 80 ? 6 : 2;
+	Config.DodgeHP = 75;
+	SetUp.belt();
+});

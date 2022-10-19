@@ -77,7 +77,7 @@ function diablo () {
 	};
 
 	// START
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting diablo");
 
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
@@ -112,36 +112,36 @@ function diablo () {
 	try {
 		!me.diablo && me.barbarian && (Config.BossPriority = true);
 
-		if (me.baal && me.normal && me.sorceress && me.charlvl > 28) {
-			// try running fast diablo - may neeed work
-			Config.Diablo.Fast = true;
-			Config.ClearPath.Range = 15;
-			Config.ClearPath.Spectype = 0xF; // skip normal mobs
-			console.debug("CP Settings: ", Config.ClearPath);
+		switch (true) {
+		case (Check.brokeAf(false)):
+			break;
+		case (me.diffCompleted && Pather.canTeleport()):
+			let cLvl = me.charlvl;
+			if ((me.normal && cLvl > 28) || (me.nightmare && cLvl > 65)) {
+				// try running fast diablo - may neeed work
+				Config.Diablo.Fast = true;
+				Config.ClearPath.Range = 15;
+				Config.ClearPath.Spectype = 0xF; // skip normal mobs
+				console.debug("CP Settings: ", Config.ClearPath);
+			}
 		}
 
 		Common.Diablo.vizierSeal();
 		Common.Diablo.seisSeal();
 		Common.Diablo.infectorSeal();
 	} catch (e) {
-		//
+		console.error(e);
 	} finally {
 		oldCP.Range !== Config.ClearPath.Range && (Object.assign(Config.ClearPath, oldCP));
 		oldBP !== Config.BossPriority && (Config.BossPriority = oldBP);
 	}
 
-	Config.MercWatch = false;
-
 	try {
-		if (!Pather.canTeleport() && (me.necromancer && ["Poison", "Summon"].includes(SetUp.currentBuild) || !me.sorceress)) {
+		if (!Check.currentBuild().caster || (Skill.getRange(Config.AttackSkill[1]) < 13)) {
 			Messaging.sendToScript(SoloEvents.filePath, "addDiaEvent");
 		}
 
-		if (!me.sorceress && !me.necromancer && !me.assassin) {
-			Pather.moveTo(7788, 5292, 3, 30);
-		} else {
-			Pather.moveNear(7792, 5292, 35);
-		}
+		(me.sorceress || me.necromancer || me.assassin) ? Pather.moveNear(7792, 5292, 37) : Pather.moveTo(7788, 5292, 3, 30);
 		
 		this.diabloPrep();
 		let theD = Game.getMonster(sdk.monsters.Diablo);
@@ -156,12 +156,7 @@ function diablo () {
 				//
 			}
 
-			if (!me.sorceress && !me.necromancer && !me.assassin) {
-				Pather.moveTo(7788, 5292, 3, 30);
-			} else {
-				Pather.moveNear(7792, 5292, 35);
-			}
-
+			(me.sorceress || me.necromancer || me.assassin) ? Pather.moveNear(7792, 5292, 37) : Pather.moveTo(7788, 5292, 3, 30);
 			this.diabloPrep();
 		}
 
@@ -173,9 +168,7 @@ function diablo () {
 		Messaging.sendToScript(SoloEvents.filePath, "removeDiaEvent");
 	}
 
-	if (me.classic) {
-		return true;
-	}
+	if (me.classic) return true;
 
 	try {
 		Pather.changeAct();
@@ -185,8 +178,6 @@ function diablo () {
 		delay(500);
 		Pather.useUnit(sdk.unittype.Object, 566, 109);
 	}
-
-	Config.MercWatch = true;
 
 	return true;
 }

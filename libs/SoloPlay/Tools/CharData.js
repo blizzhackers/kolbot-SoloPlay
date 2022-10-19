@@ -9,6 +9,7 @@ includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
 
 const CharData = {
 	filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-CharData.json",
+	threads: ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"],
 	default: {
 		initialized: false,
 		normal: {
@@ -50,66 +51,90 @@ const CharData = {
 		}
 	},
 
+	loginData: {
+		filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-LoginData.json",
+		default: {Acc: "", Pass: "", Char: "", existing: false},
+
+		create: function () {
+			let obj = Object.assign({}, this.default);
+			let string = JSON.stringify(obj, null, 2);
+
+			if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile)) {
+				let folder = dopen("libs/SoloPlay/Data");
+				folder && folder.create(me.profile);
+			}
+
+			Misc.fileAction(this.filePath, 1, string);
+
+			return obj;
+		},
+
+		getObj: function () {
+			if (!FileTools.exists(this.filePath)) return CharData.loginData.create();
+
+			let obj;
+			let string = Misc.fileAction(this.filePath, 0);
+
+			try {
+				obj = JSON.parse(string);
+			} catch (e) {
+			// If we failed, file might be corrupted, so create a new one
+				obj = this.create();
+			}
+
+			return obj ? obj : this.default;
+		},
+
+		getStats: function () {
+			let obj = this.getObj();
+			return Misc.clone(obj);
+		},
+
+		updateData: function (arg, property, value) {
+			let obj = this.getObj();
+			typeof arg !== "string" && (arg = arg.toString());
+			typeof arg === "string" && (arg = arg.toLowerCase());
+
+			if (typeof property === "object") {
+				obj = Object.assign(obj, property);
+				return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
+			}
+
+			if (!!obj[arg] && obj[arg].hasOwnProperty(property)) {
+				obj[arg][property] = value;
+				return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
+			}
+
+			return false;
+		},
+	},
+
 	charmData: {
-		small: {
-			getCountInfo: function () {
-				const finalCharmKeys = Object.keys(myData.me.charms);
-				let curr = 0;
-				let max = 0;
+		getCountInfo: function () {
+			const finalCharmKeys = Object.keys(myData.me.charms);
+			let [curr, max] = [0, 0];
 
-				for (let i = 0; i < finalCharmKeys.length; i++) {
-					let cKey = finalCharmKeys[i];
-					if (myData.me.charms[cKey].classid === sdk.items.SmallCharm) {
-						curr += myData.me.charms[cKey].have.length;
-						max += myData.me.charms[cKey].max;
-					}
+			for (let i = 0; i < finalCharmKeys.length; i++) {
+				let cKey = finalCharmKeys[i];
+				if (myData.me.charms[cKey].classid === this.id) {
+					curr += myData.me.charms[cKey].have.length;
+					max += myData.me.charms[cKey].max;
 				}
+			}
 
-				return {
-					curr: curr,
-					max: max
-				};
-			},
+			return {
+				curr: curr,
+				max: max
+			};
+		},
+		small: {
+			id: sdk.items.SmallCharm,
 		},
 		large: {
-			getCountInfo: function () {
-				const finalCharmKeys = Object.keys(myData.me.charms);
-				let curr = 0;
-				let max = 0;
-
-				for (let i = 0; i < finalCharmKeys.length; i++) {
-					let cKey = finalCharmKeys[i];
-					if (myData.me.charms[cKey].classid === sdk.items.LargeCharm) {
-						curr += myData.me.charms[cKey].have.length;
-						max += myData.me.charms[cKey].max;
-					}
-				}
-
-				return {
-					curr: curr,
-					max: max
-				};
-			},
+			id: sdk.items.LargeCharm,
 		},
 		grand: {
-			getCountInfo: function () {
-				const finalCharmKeys = Object.keys(myData.me.charms);
-				let curr = 0;
-				let max = 0;
-
-				for (let i = 0; i < finalCharmKeys.length; i++) {
-					let cKey = finalCharmKeys[i];
-					if (myData.me.charms[cKey].classid === sdk.items.GrandCharm) {
-						curr += myData.me.charms[cKey].have.length;
-						max += myData.me.charms[cKey].max;
-					}
-				}
-
-				return {
-					curr: curr,
-					max: max
-				};
-			},
+			id: sdk.items.GrandCharm,
 		}
 	},
 
@@ -158,10 +183,9 @@ const CharData = {
 		},
 
 		update: function () {
-			let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js"];
-			let obj = JSON.stringify(Misc.copy(this));
-			let myThread = getScript(true).name;
-			scripts.forEach(function (script) {
+			const obj = JSON.stringify(Misc.copy(this));
+			const myThread = getScript(true).name;
+			CharData.threads.forEach(function (script) {
 				let curr = getScript(script);
 				if (curr && myThread !== curr.name) {
 					curr.send("buff--" + obj);
@@ -175,6 +199,33 @@ const CharData = {
 		currentChargedSkills: [],
 		chargedSkills: [],
 		chargedSkillsOnSwitch: [],
+		bowData: {
+			initialized: false,
+			bowOnSwitch: false,
+			bowGid: 0,
+			bowType: 0,
+			arrows: 0,
+			quiverType: 0,
+			setBowInfo: function (bow, init = false) {
+				if (bow === undefined) return;
+				this.bowGid = bow.gid;
+				this.bowType = bow.itemType;
+				SetUp.bowQuiver();
+				init && (this.initialized = true);
+				!init && CharData.skillData.update();
+			},
+			setArrowInfo: function (quiver) {
+				if (quiver === undefined) return;
+				this.arrows = Math.floor((quiver.getStat(sdk.stats.Quantity) * 100) / getBaseStat("items", quiver.classid, "maxstack"));
+				this.quiverType = quiver.itemType;
+			},
+			resetBowData: function () {
+				this.bowOnSwitch = false;
+				[this.bowGid, this.bowType, this.arrows, this.quiverType] = [0, 0, 0, 0];
+				NTIP.resetRuntimeList();
+				CharData.skillData.update();
+			},
+		},
 
 		init: function (skillIds, mainSkills, switchSkills) {
 			this.currentChargedSkills = skillIds.slice(0);
@@ -184,10 +235,9 @@ const CharData = {
 		},
 
 		update: function () {
-			let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"];
 			let obj = JSON.stringify(Misc.copy(this));
 			let myThread = getScript(true).name;
-			scripts.forEach(function (script) {
+			CharData.threads.forEach(function (script) {
 				let curr = getScript(script);
 				if (curr && myThread !== curr.name) {
 					curr.send("skill--" + obj);
@@ -208,10 +258,9 @@ const CharData = {
 
 	// updates config obj across all threads - excluding our current
 	updateConfig: function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"];
 		let obj = JSON.stringify(Misc.copy(Config));
 		let myThread = getScript(true).name;
-		scripts.forEach(function (script) {
+		CharData.threads.forEach(function (script) {
 			let curr = getScript(script);
 			if (curr && myThread !== curr.name) {
 				curr.send("config--" + obj);
@@ -259,6 +308,8 @@ const CharData = {
 			delay(100);
 		}
 
+		console.trace();
+
 		let obj = this.getObj();
 		typeof arg !== "string" && (arg = arg.toString());
 		typeof arg === "string" && (arg = arg.toLowerCase());
@@ -287,3 +338,7 @@ const CharData = {
 		return !(FileTools.exists(this.filePath) && FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json"));
 	},
 };
+
+CharData.charmData.small.getCountInfo = CharData.charmData.getCountInfo.bind(CharData.charmData.small);
+CharData.charmData.large.getCountInfo = CharData.charmData.getCountInfo.bind(CharData.charmData.large);
+CharData.charmData.grand.getCountInfo = CharData.charmData.getCountInfo.bind(CharData.charmData.grand);

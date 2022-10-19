@@ -6,7 +6,7 @@
 */
 
 function amulet () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting amulet");
 
 	Pather.checkWP(sdk.areas.LostCity, true) ? Pather.useWaypoint(sdk.areas.LostCity) : Pather.getWP(sdk.areas.LostCity);

@@ -7,7 +7,7 @@
 
 function travincal () {
 	Quest.preReqs();
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting travincal");
 
 	Pather.checkWP(sdk.areas.Travincal, true) ? Pather.useWaypoint(sdk.areas.Travincal) : Pather.getWP(sdk.areas.Travincal);
@@ -63,7 +63,7 @@ function travincal () {
 
 		Quest.smashSomething(sdk.objects.CompellingOrb);
 		Item.autoEquip(); // equip previous weapon
-		Town.townTasks();
+		Town.doChores(false, { fullChores: true });
 
 		// return to Trav
 		if (!Pather.usePortal(sdk.areas.Travincal, me.name)) {

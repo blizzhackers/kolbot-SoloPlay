@@ -62,7 +62,7 @@ ClassAttack.decideSkill = function (unit) {
 ClassAttack.doAttack = function (unit) {
 	if (!unit) return Attack.Result.SUCCESS;
 	let gid = unit.gid;
-	let needRepair = me.charlvl < 5 ? [] : Town.needRepair();
+	let needRepair = me.charlvl < 5 ? [] : me.needRepair();
 
 	if ((Config.MercWatch && Town.needMerc()) || needRepair.length > 0) {
 		console.log("towncheck");
@@ -197,7 +197,7 @@ ClassAttack.doAttack = function (unit) {
 
 	if (data.decoy.use()) {
 		// Act Bosses or Immune to my main boss skill
-		if ((Attack.mainBosses.includes(unit.classid)) || !Attack.checkResist(unit, Config.AttackSkill[1]) || data.decoy.force) {
+		if ((unit.isPrimeEvil) || !Attack.checkResist(unit, Config.AttackSkill[1]) || data.decoy.force) {
 			Misc.poll(() => !me.skillDelay, 1000, 40);
 
 			// Don't use decoy if within melee distance
@@ -334,7 +334,7 @@ ClassAttack.doAttack = function (unit) {
 ClassAttack.afterAttack = function () {
 	Precast.doPrecast(false);
 
-	let needRepair = me.charlvl < 5 ? [] : Town.needRepair();
+	let needRepair = me.charlvl < 5 ? [] : me.needRepair();
 	
 	// Repair check, make sure i have a tome
 	if (needRepair.length > 0 && me.getItem(sdk.items.TomeofTownPortal)) {
@@ -391,7 +391,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 
 			if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
 
-			if (Math.round(unit.distance) > Skill.getRange(timedSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (unit.distance > Skill.getRange(timedSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Allow short-distance walking for melee skills
 				walk = Skill.getRange(timedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 

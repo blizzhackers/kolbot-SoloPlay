@@ -7,105 +7,123 @@
 
 includeIfNotIncluded("common/Attacks/Necromancer.js");
 
-ClassAttack.curseIndex = [
-	{
-		skillId: sdk.skills.AmplifyDamage,
-		state: sdk.states.AmplifyDamage,
-		priority: 2,
-		useIf: function (unit) {
-			return Skill.canUse(this.skillId) && !unit.getState(sdk.states.Decrepify) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical");
-		}
+ClassAttack.curseIndex = [];
+// @todo refactor this
+ClassAttack.curseIndex[sdk.skills.AmplifyDamage] = {
+	skillId: sdk.skills.AmplifyDamage,
+	state: sdk.states.AmplifyDamage,
+	priority: 2,
+	skipIf: () => false,
+	useIf: function (unit) {
+		return Skill.canUse(this.skillId) && !unit.getState(sdk.states.Decrepify) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical");
+	}
+};
+
+ClassAttack.curseIndex[sdk.skills.DimVision] = {
+	skillId: sdk.skills.DimVision,
+	state: sdk.states.DimVision,
+	priority: 1,
+	skipIf: function (unit) {
+		return unit.isSpecial || [sdk.monsters.OblivionKnight1, sdk.monsters.OblivionKnight2, sdk.monsters.OblivionKnight3].includes(unit.classid);
 	},
-	{
-		skillId: sdk.skills.DimVision,
-		state: sdk.states.DimVision,
-		priority: 1,
-		skipIf: function (unit) {
-			return unit.isSpecial || [sdk.monsters.OblivionKnight1, sdk.monsters.OblivionKnight2, sdk.monsters.OblivionKnight3].includes(unit.classid);
-		},
-		useIf: function (unit) {
-			return !this.skipIf(unit) && Skill.canUse(this.skillId) && unit.distance > 15;
-		}
-	},
-	{
-		skillId: sdk.skills.Weaken,
-		state: sdk.states.Weaken,
-		priority: 3,
-		useIf: function (unit) {
-			return Skill.canUse(this.skillId) && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.AmplifyDamage);
-		}
-	},
-	{
-		skillId: sdk.skills.IronMaiden,
-		state: sdk.states.IronMaiden,
-		priority: 1,
-		useIf: function (unit) {
-			return Skill.canUse(this.skillId) && me.inArea(sdk.areas.DurielsLair) && me.normal && unit;
-		}
-	},
-	{
-		skillId: sdk.skills.Terror,
-		state: sdk.states.Terror,
-		priority: 1,
-		useIf: function (unit) {
-			return unit.scareable && Skill.canUse(this.skillId) && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting, 0, true) >= 3
-				&& Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hpPercent < 75;
-		}
-	},
-	{
-		skillId: sdk.skills.Confuse,
-		state: sdk.states.Confuse,
-		priority: 2,
-		useIf: function (unit) {
-			return unit.scareable && unit.distance > 8 && Skill.canUse(this.skillId);
-		}
-	},
-	{
-		skillId: sdk.skills.LifeTap,
-		state: sdk.states.LifeTap,
-		priority: 10,
-		useIf: function () {
-			// false for now, maybe based on health check on merc or would this be summonmancer viable?
-			return false;
-		}
-	},
-	{
-		skillId: sdk.skills.Attract,
-		state: sdk.states.Attract,
-		priority: 1,
-		useIf: function (unit) {
-			return unit.scareable && me.inArea(sdk.areas.ThroneofDestruction) && unit.distance > 8
+	useIf: function (unit) {
+		return !this.skipIf(unit) && Skill.canUse(this.skillId) && unit.distance > 15;
+	}
+};
+
+ClassAttack.curseIndex[sdk.skills.Weaken] = {
+	skillId: sdk.skills.Weaken,
+	state: sdk.states.Weaken,
+	priority: 3,
+	skipIf: () => false,
+	useIf: function (unit) {
+		return Skill.canUse(this.skillId) && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.AmplifyDamage);
+	}
+};
+
+ClassAttack.curseIndex[sdk.skills.IronMaiden] = {
+	skillId: sdk.skills.IronMaiden,
+	state: sdk.states.IronMaiden,
+	priority: 1,
+	skipIf: () => false,
+	useIf: function (unit) {
+		return Skill.canUse(this.skillId) && me.inArea(sdk.areas.DurielsLair) && me.normal && unit;
+	}
+};
+
+ClassAttack.curseIndex[sdk.skills.Terror] = {
+	skillId: sdk.skills.Terror,
+	state: sdk.states.Terror,
+	priority: 1,
+	skipIf: () => false,
+	useIf: function (unit) {
+		return unit.scareable && Skill.canUse(this.skillId) && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting, 0, true) >= 3
+			&& Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hpPercent < 75;
+	}
+};
+
+ClassAttack.curseIndex[sdk.skills.Confuse] = {
+	skillId: sdk.skills.Confuse,
+	state: sdk.states.Confuse,
+	priority: 2,
+	skipIf: () => false,
+	useIf: function (unit) {
+		return unit.scareable && unit.distance > 8 && Skill.canUse(this.skillId);
+	}
+};
+
+ClassAttack.curseIndex[sdk.skills.LifeTap] = {
+	skillId: sdk.skills.LifeTap,
+	state: sdk.states.LifeTap,
+	priority: 10,
+	skipIf: () => false,
+	useIf: function () {
+		// false for now, maybe based on health check on merc or would this be summonmancer viable?
+		return false;
+	}
+};
+
+ClassAttack.curseIndex[sdk.skills.Attract] = {
+	skillId: sdk.skills.Attract,
+	state: sdk.states.Attract,
+	priority: 1,
+	skipIf: () => false,
+	useIf: function (unit) {
+		return unit.scareable && me.inArea(sdk.areas.ThroneofDestruction) && unit.distance > 8
 				&& Skill.canUse(this.skillId);
-		}
-	},
-	{
-		skillId: sdk.skills.Decrepify,
-		state: sdk.states.Decrepify,
-		priority: 1,
-		useIf: function () {
-			return Skill.canUse(this.skillId);
-		}
-	},
-	{
-		skillId: sdk.skills.LowerResist,
-		state: sdk.states.LowerResist,
-		priority: 1,
-		useIf: function (unit) {
-			return Skill.canUse(this.skillId) && SetUp.currentBuild === "Poison" && Attack.checkResist(unit, "poison");
-		}
-	},
-];
+	}
+};
+
+ClassAttack.curseIndex[sdk.skills.Decrepify] = {
+	skillId: sdk.skills.Decrepify,
+	state: sdk.states.Decrepify,
+	priority: 1,
+	skipIf: () => false,
+	useIf: function () {
+		return Skill.canUse(this.skillId);
+	}
+};
+
+ClassAttack.curseIndex[sdk.skills.LowerResist] = {
+	skillId: sdk.skills.LowerResist,
+	state: sdk.states.LowerResist,
+	priority: 1,
+	skipIf: () => SetUp.currentBuild !== "Poison",
+	useIf: function (unit) {
+		return !this.skipIf() && Skill.canUse(this.skillId) && Attack.checkResist(unit, "poison");
+	}
+};
 
 // todo - need to re-work this a bit so we don't focus too much on curses when we should be attacking
 ClassAttack.smartCurse = function (unit) {
 	if (unit === undefined || unit.dead || !unit.curseable) return false;
 
 	let choosenCurse = (this.curseIndex
-		.filter((curse) => curse.useIf(unit))
+		.filter((curse) => curse !== undefined && curse.useIf(unit))
 		.sort((a, b) => a.priority - b.priority)
-		.find((curse) => this.canCurse(unit, curse.skillId) && Skill.getManaCost(curse.skillId) < me.mp) || false);
+		.find((curse) => Skill.getManaCost(curse.skillId) < me.mp) || false);
 
-	if (choosenCurse) {
+	if (choosenCurse && !unit.getState(choosenCurse.state)) {
 		if (!checkCollision(me, unit, sdk.collision.Ranged)) {
 			me.overhead("Cursing " + unit.name + " with " + getSkillById(choosenCurse.skillId));
 			return Skill.cast(choosenCurse.skillId, sdk.skills.hand.Right, unit);
@@ -120,8 +138,14 @@ ClassAttack.smartCurse = function (unit) {
 
 ClassAttack.bpTick = 0;
 
+/**
+ * 
+ * @todo
+ *   - bonemancer specific check for using bonespear vs bone spirit
+ */
+
 // TODO: clean this up
-ClassAttack.doAttack = function (unit) {
+ClassAttack.doAttack = function (unit, preattack, once) {
 	if (!unit) return Attack.Result.SUCCESS;
 	let gid = unit.gid;
 
@@ -136,15 +160,12 @@ ClassAttack.doAttack = function (unit) {
 		}
 	}
 
-	let checkSkill;
 	let mercRevive = 0;
-	let timedSkill = -1;
-	let untimedSkill = -1;
 	let gold = me.gold;
-	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
-	let useTerror = Skill.canUse(sdk.skills.Terror);
-	let useBP = Skill.canUse(sdk.skills.BonePrison);
-	let bpAllowedAreas = [
+	const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
+	const useTerror = Skill.canUse(sdk.skills.Terror);
+	const useBP = Skill.canUse(sdk.skills.BonePrison);
+	const bpAllowedAreas = [
 		sdk.areas.CatacombsLvl4, sdk.areas.Tristram, sdk.areas.MooMooFarm, sdk.areas.RockyWaste, sdk.areas.DryHills, sdk.areas.FarOasis, sdk.areas.LostCity, sdk.areas.ValleyofSnakes,
 		sdk.areas.DurielsLair, sdk.areas.SpiderForest, sdk.areas.GreatMarsh, sdk.areas.FlayerJungle, sdk.areas.LowerKurast, sdk.areas.KurastBazaar, sdk.areas.UpperKurast, sdk.areas.KurastCauseway,
 		sdk.areas.DuranceofHateLvl3, sdk.areas.OuterSteppes, sdk.areas.PlainsofDespair, sdk.areas.CityoftheDamned, sdk.areas.ChaosSanctuary, sdk.areas.BloodyFoothills, sdk.areas.FrigidHighlands,
@@ -171,43 +192,64 @@ ClassAttack.doAttack = function (unit) {
 	if (me.expansion && index === 1 && !unit.dead) {
 		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
 			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-			&& unit.curseable && (gold > 500000 && Attack.bossesAndMiniBosses.indexOf(unit.classid) === -1) && !checkCollision(me, unit, sdk.collision.Ranged)) {
+			&& unit.curseable && (gold > 500000 && !unit.isBoss) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast slow missiles
 			Attack.castCharges(sdk.skills.SlowMissiles, unit);
 		}
 	}
 
-	// Get timed skill
-	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
+	// maybe this should return an object with basic skill info besides the skillId. e.g timed, mana, range, and hand
+	const skills = Attack.decideSkill(unit);
 
-	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill)) {
-		timedSkill = checkSkill;
-	} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[5])) {
-		timedSkill = Config.AttackSkill[5];
+	const switchBowAttack = (unit) => {
+		if (Attack.getIntoPosition(unit, 20, sdk.collision.Ranged)) {
+			try {
+				const checkForShamans = unit.isFallen && !me.inArea(sdk.areas.BloodMoor);
+				for (let i = 0; i < 5 && unit.attackable; i++) {
+					if (checkForShamans && !once) {
+						// before we waste time let's see if there is a shaman we should kill
+						const shaman = getUnits(sdk.unittype.Monster)
+							.filter(mon => mon.distance < 20 && mon.isShaman && mon.attackable)
+							.sort((a, b) => a.distance - b.distance).first();
+						if (shaman) return ClassAttack.doAttack(shaman, null, true);
+					}
+					if (!Attack.useBowOnSwitch(unit, sdk.skills.Attack, i === 5)) return Attack.Result.FAILED;
+					if (unit.distance < 8 || me.inDanger()) {
+						if (once) return Attack.Result.FAILED;
+						let closeMob = getUnits(sdk.unittype.Monster)
+							.filter(mon => mon.distance < 10 && mon.attackable && mon.gid !== gid)
+							.sort(Attack.walkingSortMonsters).first();
+						if (closeMob) return ClassAttack.doAttack(closeMob, null, true);
+					}
+				}
+			} finally {
+				me.weaponswitch !== sdk.player.slot.Main && me.switchWeapons(sdk.player.slot.Main);
+			}
+		}
+		return unit.dead ? Attack.Result.SUCCESS : Attack.Result.FAILED;
+	};
+
+	if (CharData.skillData.bowData.bowOnSwitch
+		&& (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
+		&& ([-1, sdk.skills.Attack].includes(skills.timed)
+		|| Skill.getManaCost(skills.timed) > me.mp
+		|| (Skill.getManaCost(skills.timed) * 3 > me.mp && [sdk.skills.Teeth].includes(skills.timed)))) {
+		if (switchBowAttack(unit) === Attack.Result.SUCCESS) return Attack.Result.SUCCESS;
 	}
 
-	// Get untimed skill
-	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[1] : Config.AttackSkill[index + 1];
-
-	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill)) {
-		untimedSkill = checkSkill;
-	} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[6])) {
-		untimedSkill = Config.AttackSkill[6];
+	if (me.normal && gold < 5000 && (skills.timed === -1 || Skill.getManaCost(skills.timed) > me.mp)) {
+		if (skills.timed !== sdk.skills.Teeth && Skill.canUse(sdk.skills.Teeth) && Skill.getManaCost(sdk.skills.Teeth) < me.mp) {
+			skills.timed = sdk.skills.Teeth;
+		} else if (Skill.canUse(sdk.skills.PoisonDagger) && Skill.getManaCost(sdk.skills.PoisonDagger) < me.mp) {
+			skills.timed = sdk.skills.PoisonDagger;
+		} else if (me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall) >= 1) {
+			// I have no mana and there are mobs around me, just attack
+			skills.timed = sdk.skills.Attack;
+		}
 	}
+	const result = this.doCast(unit, skills.timed, skills.untimed);
 
-	// Low mana timed skill
-	if (Config.LowManaSkill[0] > -1 && Skill.getManaCost(timedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[0])) {
-		timedSkill = Config.LowManaSkill[0];
-	}
-
-	// Low mana untimed skill
-	if (Config.LowManaSkill[1] > -1 && Skill.getManaCost(untimedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[1])) {
-		untimedSkill = Config.LowManaSkill[1];
-	}
-
-	let result = this.doCast(unit, timedSkill, untimedSkill);
-
-	if (result === 1) {
+	if (result === Attack.Result.SUCCESS) {
 		Config.ActiveSummon && this.raiseArmy();
 		this.explodeCorpses(unit);
 	} else if (result === Attack.Result.CANTATTACK && Attack.canTeleStomp(unit)) {
@@ -243,7 +285,11 @@ ClassAttack.doAttack = function (unit) {
 			this.explodeCorpses(unit);
 			this.smartCurse(unit);
 			let closeMob = Attack.getNearestMonster({skipGid: gid});
-			!!closeMob && this.doCast(closeMob, timedSkill, untimedSkill);
+			if (!!closeMob) {
+				let findSkill = Attack.decideSkill(closeMob);
+				(this.doCast(closeMob, findSkill.timed, findSkill.untimed) === Attack.Result.SUCCESS)
+				|| (this.canCurse(unit, sdk.skills.Terror) && Skill.cast(sdk.skills.Terror, sdk.skills.hand.Right, unit));
+			}
 		}
 
 		return Attack.Result.SUCCESS;
@@ -262,15 +308,17 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		this.checkCorpseNearMonster(unit) && this.explodeCorpses(unit);
 	}
 
+	let lowMana = true;
 	let walk, timedSkillRange, untimedSkillRange;
 
-	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
+	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill)) && me.mp > Skill.getManaCost(timedSkill)) {
+		lowMana = false;
 		timedSkillRange = Skill.getRange(timedSkill);
 
 		switch (timedSkill) {
 		case sdk.skills.PoisonNova:
 			if (!this.novaTick || getTickCount() - this.novaTick > Config.PoisonNovaDelay * 1000) {
-				if (Math.round(unit.distance) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+				if (unit.distance > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 					if (!Attack.getIntoPosition(unit, timedSkillRange, sdk.collision.Ranged)) {
 						return Attack.Result.FAILED;
 					}
@@ -283,7 +331,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 
 			break;
 		case sdk.skills.Summoner: // Pure Summoner
-			if (Math.round(unit.distance) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (unit.distance > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 				if (!Attack.getIntoPosition(unit, timedSkillRange, sdk.collision.Ranged)) {
 					return Attack.Result.FAILED;
 				}
@@ -299,7 +347,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 				timedSkillRange = me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting) <= 3 ? 6 : timedSkillRange;
 			}
 
-			if (Math.round(unit.distance) > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+			if (unit.distance > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Allow short-distance walking for melee skills
 				walk = timedSkillRange < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
@@ -308,7 +356,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 
 			if (!unit.dead) {
 				// Try to find better spot
-				if (Math.round(unit.distance) < 4 && timedSkillRange > 6) {
+				if (unit.distance < 4 && timedSkillRange > 6) {
 					Attack.deploy(unit, 4, 5, 9);
 				}
 
@@ -319,12 +367,13 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		}
 	}
 
-	if (untimedSkill > -1) {
+	if (untimedSkill > -1 && me.mp > Skill.getManaCost(untimedSkill)) {
+		lowMana = false;
 		untimedSkillRange = Skill.getRange(untimedSkill);
 
 		if (untimedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
 
-		if (Math.round(unit.distance) > untimedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+		if (unit.distance > untimedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Allow short-distance walking for melee skills
 			walk = Skill.getRange(untimedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
@@ -345,7 +394,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 		delay(40);
 	}
 
-	return Attack.Result.SUCCESS;
+	return lowMana ? Attack.Result.NEEDMANA : Attack.Result.SUCCESS;
 };
 
 ClassAttack.farCast = function (unit) {

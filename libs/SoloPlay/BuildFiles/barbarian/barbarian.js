@@ -30,10 +30,10 @@ const CharInfo = {
 		const justRepeced = (nSkills >= currLevel);
 
 		switch (true) {
-		case currLevel < this.respecOne && !me.getSkill(sdk.skills.WarCry, sdk.skills.subindex.HardPoints):
+		case currLevel < this.respecOne && !me.checkSkill(sdk.skills.WarCry, sdk.skills.subindex.HardPoints):
 			return "Start";
 		case currLevel >= this.respecOne && currLevel < this.respecTwo && justRepeced:
-		case currLevel >= this.respecOne && currLevel < this.respecTwo && me.getSkill(sdk.skills.NaturalResistance, sdk.skills.subindex.HardPoints) && !me.getSkill(sdk.skills.Berserk, sdk.skills.subindex.HardPoints):
+		case currLevel >= this.respecOne && currLevel < this.respecTwo && me.checkSkill(sdk.skills.NaturalResistance, sdk.skills.subindex.HardPoints) && !me.checkSkill(sdk.skills.Berserk, sdk.skills.subindex.HardPoints):
 			return "Stepping";
 		case Check.finalBuild().respec() && justRepeced:
 		case Check.finalBuild().active():

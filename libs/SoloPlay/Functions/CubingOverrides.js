@@ -16,7 +16,10 @@ Cubing.buildRecipes = function () {
 	this.recipes = [];
 
 	for (let i = 0; i < Config.Recipes.length; i += 1) {
-		if (typeof Config.Recipes[i] !== "object" || (Config.Recipes[i].length > 2 && typeof Config.Recipes[i][2] !== "number") || Config.Recipes[i].length < 1) {
+		if (typeof Config.Recipes[i] !== "object"
+			|| (Config.Recipes[i].length > 2
+			&& ((Config.Recipes[i][0] !== Recipe.Reroll.Charm && typeof Config.Recipes[i][2] !== "number") || (Config.Recipes[i][0] === Recipe.Reroll.Charm && typeof Config.Recipes[i][2] !== "object")))
+			|| Config.Recipes[i].length < 1) {
 			throw new Error("Cubing.buildRecipes: Invalid recipe format.");
 		}
 
@@ -242,7 +245,7 @@ Cubing.buildRecipes = function () {
 
 			break;
 		case Recipe.Reroll.Charm:
-			this.recipes.push({Ingredients: [Config.Recipes[i][1], "pgem", "pgem", "pgem"], Level: {"cm1": 95, "cm2": 91, "cm3": 91}, Index: Recipe.Reroll.Charm});
+			this.recipes.push({Ingredients: [Config.Recipes[i][1], "pgem", "pgem", "pgem"], Level: Object.assign({"cm1": 95, "cm2": 91, "cm3": 91}, Config.Recipes[i][2]), Index: Recipe.Reroll.Charm});
 
 			break;
 		case Recipe.Reroll.Rare:
@@ -746,7 +749,7 @@ Cubing.validItem = function (unit, recipe) {
 		if (unit.magic && ntipResult === Pickit.Result.UNWANTED) {
 			switch (unit.itemType) {
 			case sdk.items.type.SmallCharm:
-				if (unit.ilvl >= recipe.Level.cm1.ilvl) {
+				if (unit.ilvl >= recipe.Level[unit.code].ilvl) {
 					return true;
 				}
 				break;

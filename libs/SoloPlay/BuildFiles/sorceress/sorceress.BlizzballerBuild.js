@@ -142,8 +142,12 @@ const finalBuild = {
 		if (me.classic) {
 			return me.charlvl >= 75 && me.diablo;
 		} else {
-			return Check.haveItem("amulet", "set", "Tal Rasha's Adjudication") && Check.haveItem("belt", "set", "Tal Rasha's Fine-Spun Cloth") &&
-				Check.haveItem("armor", "set", "Tal Rasha's Guardianship") && Check.haveItem("swirlingcrystal", "set", "Tal Rasha's Lidless Eye");
+			return me.haveAll([
+				{ name: sdk.locale.items.TalRashasBelt, quality: sdk.items.quality.Set },
+				{ name: sdk.locale.items.TalRashasAmulet, quality: sdk.items.quality.Set },
+				{ name: sdk.locale.items.TalRashasArmor, quality: sdk.items.quality.Set },
+				{ name: sdk.locale.items.TalRashasOrb, quality: sdk.items.quality.Set },
+			]);
 		}
 	},
 

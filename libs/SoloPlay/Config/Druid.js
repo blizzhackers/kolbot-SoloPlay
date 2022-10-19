@@ -74,6 +74,7 @@ function LoadConfig () {
 		"([type] == wand || [type] == sword || [type] == mace || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Helmet
 		"([type] == helm || [type] == circlet || [type] == pelt) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"[type] == pelt && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && [sockets] == 1 # [tier] == tierscore(item)",
 		// Belt
 		"[type] == belt && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"me.normal && [type] == belt && [quality] >= lowquality && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
@@ -95,17 +96,6 @@ function LoadConfig () {
 		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-		// Special Charms
-		"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
-		"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
-		"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [charmtier] == 100000",
-		// Merc
-		"([type] == circlet || [type] == helm) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		"[type] == armor && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		// Rogue
-		"me.mercid === 271 && [type] == bow && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
-		// A2 Guard
-		"me.mercid === 338 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 	];
 
 	NTIP.arrayLooping(levelingTiers);
@@ -157,32 +147,17 @@ function LoadConfig () {
 
 	!me.smith && NTIP.arrayLooping(imbueArr);
 
-	Config.socketables = [];
 	// basicSocketables located in Globals
 	Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
-	Config.socketables
-		.push(
-			{
-				classid: sdk.items.Monarch,
-				socketWith: [],
-				useSocketQuest: true,
-				condition: (item) => !me.hell && !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
-			},
-			{
-				classid: sdk.items.TotemicMask,
-				socketWith: [sdk.items.runes.Um],
-				temp: [sdk.items.gems.Perfect.Ruby],
-				useSocketQuest: true,
-				condition: (item) => item.unique && !item.ethereal
-			},
-			{
-				classid: sdk.items.Shako,
-				socketWith: [sdk.items.runes.Um],
-				temp: [sdk.items.gems.Perfect.Ruby],
-				useSocketQuest: false,
-				condition: (item) => item.unique && !item.ethereal
-			}
-		);
+	Config.socketables.push(addSocketableObj(sdk.items.Monarch, [], [],
+		!me.hell, (item) => !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+	));
+	Config.socketables.push(addSocketableObj(sdk.items.TotemicMask, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+		true, (item) => item.unique && !item.ethereal
+	));
+	Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+		true, (item) => item.unique && !item.ethereal
+	));
 
 	if (me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
 		// Spirit on swap
@@ -208,37 +183,30 @@ function LoadConfig () {
 		}
 
 		if (SetUp.finalBuild === "Elemental") {
-			Config.socketables
-				.push(
-					{
-						classid: sdk.items.SkySpirit,
-						socketWith: [sdk.items.runes.Um],
-						temp: [sdk.items.gems.Perfect.Ruby],
-						useSocketQuest: true,
-						condition: (item) => item.unique && item.getStat(sdk.stats.PassiveFirePierce) === 20 && !item.ethereal
-					}
-				);
-
-			// Heart of the Oak
-			if (!Check.haveItem("mace", "runeword", "Heart of the Oak")) {
-				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
-			}
+			Config.socketables.push(addSocketableObj(sdk.items.SkySpirit, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+				true, (item) => item.unique && item.getStat(sdk.stats.PassiveFirePierce) === 20 && !item.ethereal
+			));
 
 			// Phoenix Shield
 			if ((me.ladder || Developer.addLadderRW) && SetUp.finalBuild === "Elemental" && me.checkItem({name: sdk.locale.items.Enigma}).have && !me.checkItem({name: sdk.locale.items.Phoenix, itemtype: sdk.items.type.Shield}).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PhoneixShield.js");
 			}
+		}
 
-			// Enigma
-			if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
-				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
-			}
+		// Heart of the Oak
+		if (!me.checkItem({name: sdk.locale.items.HeartoftheOak}).have) {
+			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
+		}
 
-			// upgrade magefist
-			if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
-				Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
-				Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
-			}
+		// Enigma
+		if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
+			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
+		}
+
+		// upgrade magefist
+		if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
+			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
+			Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
 		}
 
 		break;
@@ -281,65 +249,47 @@ function LoadConfig () {
 
 	// Spirit Sword
 	if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(sdk.body.RightArm).tier < 777) {
-		if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js")) {
-			include("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
-		}
+		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
 	}
 
 	// Spirit Shield
 	if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(sdk.body.LeftArm).tier < 1000 || Item.getEquippedItem(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
-		if (!isIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js")) {
-			include("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
-		}
+		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 	}
 
 	// Merc Insight
 	if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).tier < 3600) {
-		if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js")) {
-			include("SoloPlay/BuildFiles/Runewords/MercInsight.js");
-		}
+		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
 	}
 
 	// Lore
 	if (Item.getEquippedItem(sdk.body.Head).tier < 100000) {
-		if (!isIncluded("SoloPlay/BuildFiles/Runewords/Lore.js")) {
-			include("SoloPlay/BuildFiles/Runewords/Lore.js");
-		}
+		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
 	}
 
 	// Ancients' Pledge
 	if (Item.getEquippedItem(sdk.body.LeftArm).tier < 500) {
-		if (!isIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js")) {
-			include("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
-		}
+		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
 	}
 
 	// Merc Fortitude
 	if (Item.getEquippedItemMerc(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude) {
-		if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js")) {
-			include("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
-		}
+		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 	}
 
 	// Merc Treachery
 	if (Item.getEquippedItemMerc(sdk.body.Armor).tier < 15000) {
-		if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercTreachery.js")) {
-			include("SoloPlay/BuildFiles/Runewords/MercTreachery.js");
-		}
+		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercTreachery.js");
 	}
 
 	// Smoke
 	if (Item.getEquippedItem(sdk.body.Armor).tier < 634) {
-		if (!isIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js")) {
-			include("SoloPlay/BuildFiles/Runewords/Smoke.js");
-		}
+		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js");
 	}
 
 	// Stealth
 	if (Item.getEquippedItem(sdk.body.Armor).tier < 233) {
-		if (!isIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js")) {
-			include("SoloPlay/BuildFiles/Runewords/Stealth.js");
-		}
+		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js");
 	}
 
 	SoloWants.buildList();

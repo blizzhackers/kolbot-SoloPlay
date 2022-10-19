@@ -6,6 +6,7 @@
 */
 
 let build = {
+	AutoBuildTemplate: {},
 	caster: false,
 	skillstab: sdk.skills.tabs.JavelinandSpear,
 	wantedskills: [sdk.skills.ChargedStrike, sdk.skills.LightningStrike],
@@ -38,6 +39,42 @@ let build = {
 	],
 
 	active: function () {
-		return me.charlvl < CharInfo.respecOne && !me.getSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints);
+		return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints);
 	},
 };
+
+build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
+	Config.TownHP = me.hardcore ? 0 : 35;
+	Config.BeltColumn = ["hp", "hp", "hp", "hp"];
+	Config.HPBuffer = 8;
+	Config.MPBuffer = 4;
+	Config.AttackSkill = [-1, 0, 0, 0, 0, 0, 0];
+	Config.LowManaSkill = [0, 0];
+	SetUp.belt();
+});
+build.AutoBuildTemplate[2] = buildAutoBuildTempObj(() => {
+	Config.TownHP = me.hardcore ? 0 : 35;
+	Config.HPBuffer = 8;
+	Config.MPBuffer = 4;
+	Config.AttackSkill = [-1, sdk.skills.Jab, 0, sdk.skills.Jab, 0, 0, 0];
+});
+build.AutoBuildTemplate[6] = buildAutoBuildTempObj(() => {
+	Config.TownHP = me.hardcore ? 0 : 35;
+	Config.BeltColumn = ["hp", "hp", "mp", "mp"];
+	Config.HPBuffer = me.expansion ? 4 : 6;
+	Config.MPBuffer = 6;
+	Config.AttackSkill = [-1, sdk.skills.PowerStrike, 0, sdk.skills.PowerStrike, 0, -1, -1];
+	SetUp.belt();
+});
+build.AutoBuildTemplate[7] = buildAutoBuildTempObj(() => {
+	Config.HPBuffer = me.expansion ? 4 : 6;
+	Config.MPBuffer = 6;
+	Config.AttackSkill = [-1, sdk.skills.PowerStrike, 0, sdk.skills.PowerStrike, 0, -1, -1];
+});
+build.AutoBuildTemplate[18] = buildAutoBuildTempObj(() => {
+	Config.AttackSkill = [-1, sdk.skills.ChargedStrike, 0, sdk.skills.ChargedStrike, 0, -1, -1];
+});
+build.AutoBuildTemplate[50] = buildAutoBuildTempObj(() => {
+	let mainSkill = Skill.canUse(sdk.skills.LightningStrike) ? sdk.skills.LightningStrike : sdk.skills.ChargedStrike;
+	Config.AttackSkill = [-1, sdk.skills.ChargedStrike, 0, mainSkill, 0, -1, -1];
+});

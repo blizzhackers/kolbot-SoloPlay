@@ -9,17 +9,39 @@ js_strict(true);
 include("json2.js");
 include("NTItemParser.dbl");
 include("OOG.js");
+include("common/util.js");
+include("AutoMule.js");
+include("Gambling.js");
+include("CraftingSystem.js");
+include("TorchSystem.js");
+include("MuleLogger.js");
 include("common/AutoSkill.js");
 include("common/AutoStat.js");
-include("common/Util.js");
-includeCommonLibs();
-
+include("common/Attack.js");
+include("common/Common.js");
+include("common/Cubing.js");
+include("common/CollMap.js");
+include("common/Config.js");
+include("common/misc.js");
+include("common/Pickit.js");
+include("common/Pather.js");
+include("common/Precast.js");
+include("common/Prototypes.js");
+include("common/Runewords.js");
+include("common/Town.js");
+// Include SoloPlay's librarys
+include("SoloPlay/Tools/Developer.js");
+include("SoloPlay/Tools/Tracker.js");
+include("SoloPlay/Tools/CharData.js");
+include("SoloPlay/Tools/SoloIndex.js");
+include("SoloPlay/Functions/ConfigOverrides.js");
 include("SoloPlay/Functions/Globals.js");
+
 SetUp.include();
 Config.init(); // includes libs/SoloPlay/Functions/AutoBuildOverrides.js
 
 let debug = !!Config.AutoBuild.DebugMode, prevLevel	= me.charlvl;
-const usingFinalBuiild = !["Start", "Stepping", "Leveling"].includes(Config.AutoBuild.Template);
+const usingFinalBuild = !["Start", "Stepping", "Leveling"].includes(Config.AutoBuild.Template);
 const SPEND_POINTS = true; // For testing, it actually allows skill and stat point spending.
 const STAT_ID_TO_NAME = [
 	getLocaleString(sdk.locale.text.Strength),
@@ -27,6 +49,7 @@ const STAT_ID_TO_NAME = [
 	getLocaleString(sdk.locale.text.Dexterity),
 	getLocaleString(sdk.locale.text.Vitality)
 ];
+let currAutoBuild;
 
 // Will check if value exists in an Array
 Array.prototype.contains = (val) => this.indexOf(val) > -1;
@@ -77,8 +100,8 @@ function spendStatPoint (id) {
 
 // TODO: What do we do if it fails? report/ignore/continue?
 function spendStatPoints () {
-	if ((usingFinalBuiild && finalBuild.AutoBuildTemplate[me.charlvl] === undefined) || AutoBuildTemplate[me.charlvl] === undefined) return true;
-	let stats = usingFinalBuiild ? finalBuild.AutoBuildTemplate[me.charlvl].StatPoints : AutoBuildTemplate[me.charlvl].StatPoints;
+	if (currAutoBuild[me.charlvl] === undefined) return true;
+	let stats = currAutoBuild[me.charlvl].StatPoints;
 	let errorMessage = "\nInvalid stat point set in build template " + getTemplateFilename() + " at level " + me.charlvl;
 	let spentEveryPoint = true;
 	let unusedStatPoints = me.getStat(sdk.stats.StatPts);
@@ -123,12 +146,8 @@ function spendStatPoints () {
 
 function getTemplateFilename () {
 	let buildType = Config.AutoBuild.Template;
-	let templateFilename;
-	if (["Start", "Stepping", "Leveling"].includes(build)) {
-		templateFilename = "SoloPlay/Config/Builds/" + sdk.player.class.nameOf(me.classid) + "." + buildType + ".js";
-	} else {
-		templateFilename = "SoloPlay/BuildFiles/" + sdk.player.class.nameOf(me.classid) + "/" + sdk.player.class.nameOf(me.classid) + "." + buildType + "Build.js";
-	}
+	let className = sdk.player.class.nameOf(me.classid);
+	let templateFilename = "SoloPlay/BuildFiles/" + className + "/" + className + "." + buildType + "Build.js";
 	return templateFilename;
 }
 
@@ -175,8 +194,8 @@ function spendSkillPoint (id) {
 }
 
 function spendSkillPoints () {
-	if ((usingFinalBuiild && finalBuild.AutoBuildTemplate[me.charlvl] === undefined) || AutoBuildTemplate[me.charlvl] === undefined) return true;
-	let skills = usingFinalBuiild ? finalBuild.AutoBuildTemplate[me.charlvl].SkillPoints : AutoBuildTemplate[me.charlvl].SkillPoints;
+	if (currAutoBuild[me.charlvl] === undefined) return true;
+	let skills = currAutoBuild[me.charlvl].SkillPoints;
 	let errInvalidSkill = "\nInvalid skill point set in build template " + getTemplateFilename() + " for level " + me.charlvl;
 	let spentEveryPoint = true;
 	let unusedSkillPoints = me.getStat(sdk.stats.NewSkills);
@@ -240,6 +259,8 @@ function spendSkillPoints () {
 function main () {
 	try {
 		AutoBuild.print("Loaded helper thread");
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Start AutoBuildThread");
+		currAutoBuild = usingFinalBuild ? finalBuild.AutoBuildTemplate : build.AutoBuildTemplate;
 
 		while (true) {
 			let levels = gainedLevels();

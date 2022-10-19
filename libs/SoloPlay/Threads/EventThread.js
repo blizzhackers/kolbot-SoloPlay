@@ -9,36 +9,40 @@ js_strict(true);
 include("json2.js");
 include("NTItemParser.dbl");
 include("OOG.js");
-include("AutoMule.js");
 include("Gambling.js");
 include("CraftingSystem.js");
-include("TorchSystem.js");
-include("MuleLogger.js");
+include("common/util.js");
 include("common/Attack.js");
 include("common/Common.js");
 include("common/Cubing.js");
-include("common/CollMap.js");
 include("common/Config.js");
+include("common/CollMap.js");
 include("common/misc.js");
-include("common/util.js");
 include("common/Pickit.js");
 include("common/Pather.js");
 include("common/Precast.js");
 include("common/Prototypes.js");
 include("common/Runewords.js");
 include("common/Town.js");
+// Include SoloPlay's librarys
+include("SoloPlay/Tools/Throwable.js");
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
+include("SoloPlay/Tools/CharData.js");
+include("SoloPlay/Tools/SoloIndex.js");
+include("SoloPlay/Functions/ConfigOverrides.js");
 include("SoloPlay/Functions/Globals.js");
 
+SetUp.include();
+
 function main () {
-	let action = [];
-	let profiles = [];
 	let tickDelay = 0;
+	let townChicken = false;
+	let [action, profiles] = [[], []];
+	const threads = ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
 
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Start EventThread");
 	D2Bot.init();
-	SetUp.include();
 	Config.init(false);
 	Pickit.init(false);
 	Attack.init();
@@ -48,23 +52,21 @@ function main () {
 	Cubing.init();
 
 	this.pauseForEvent = function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
+		for (let i = 0; i < threads.length; i += 1) {
+			let script = getScript(threads[i]);
 
-		for (let l = 0; l < scripts.length; l += 1) {
-			let script = getScript(scripts[l]);
-
-			if (SoloEvents.townChicken) {
+			if (townChicken) {
 				console.warn("ÿc8EventThread :: ÿc1Trying to townChicken, don't interfere.");
 				return false;
 			}
 
 			if (script) {
 				if (script.running) {
-					scripts[l] === "default.dbj" && console.log("ÿc8EventThread :: ÿc1Pausing " + scripts[l]);
-					scripts[l] === "libs/SoloPlay/Threads/TownChicken.js" && !SoloEvents.cloneWalked && console.log("ÿc8EventThread :: ÿc1Pausing " + scripts[l]);
+					threads[i] === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8EventThread :: ÿc1Pausing " + threads[i]);
+					threads[i] === "libs/SoloPlay/Threads/TownChicken.js" && !SoloEvents.cloneWalked && console.log("ÿc8EventThread :: ÿc1Pausing " + threads[i]);
 
 					// don't pause townchicken during clone walk
-					if (scripts[l] !== "libs/SoloPlay/Threads/TownChicken.js" || !SoloEvents.cloneWalked) {
+					if (threads[i] !== "libs/SoloPlay/Threads/TownChicken.js" || !SoloEvents.cloneWalked) {
 						script.pause();
 					}
 				}
@@ -75,15 +77,13 @@ function main () {
 	};
 
 	this.resumeThreadsAfterEvent = function () {
-		let scripts = ["default.dbj", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
-
-		for (let l = 0; l < scripts.length; l += 1) {
-			let script = getScript(scripts[l]);
+		for (let i = 0; i < threads.length; i += 1) {
+			let script = getScript(threads[i]);
 
 			if (script) {
 				if (!script.running) {
-					scripts[l] === "default.dbj" && console.log("ÿc8EventThread :: ÿc2Resuming " + scripts[l]);
-					scripts[l] === "libs/SoloPlay/Threads/TownChicken.js" && console.log("ÿc8EventThread :: ÿc2Resuming " + scripts[l]);
+					threads[i] === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8EventThread :: ÿc2Resuming " + threads[i]);
+					threads[i] === "libs/SoloPlay/Threads/TownChicken.js" && console.log("ÿc8EventThread :: ÿc2Resuming " + threads[i]);
 
 					script.resume();
 				}
@@ -98,6 +98,22 @@ function main () {
 		
 		if (msg && typeof msg === "string" && msg !== "") {
 			switch (msg) {
+			case "townchickenOn":
+				townChicken = true;
+				
+				break;
+			case "townchickenOff":
+				townChicken = false;
+				
+				break;
+			case "testing":
+			case "finishDen":
+			case "dodge":
+			case "skip":
+			case "killdclone":
+				action.push(msg);
+
+				break;
 			case "addDiaEvent":
 				console.log("Added dia lightning listener");
 				addEventListener("gamepacket", SoloEvents.diaEvent);
@@ -129,50 +145,30 @@ function main () {
 				return;
 			}
 
-			let updated = false;
 			switch (true) {
 			case msg.substring(0, 8) === "config--":
 				console.debug("update config");
 				Config = JSON.parse(msg.split("config--")[1]);
-				updated = true;
 
 				break;
 			case msg.substring(0, 7) === "skill--":
 				console.debug("update skillData");
 				obj = JSON.parse(msg.split("skill--")[1]);
 				Misc.updateRecursively(CharData.skillData, obj);
-				updated = true;
 
 				break;
 			case msg.substring(0, 6) === "data--":
 				console.debug("update myData");
 				obj = JSON.parse(msg.split("data--")[1]);
 				Misc.updateRecursively(myData, obj);
-				updated = true;
 
 				break;
 			case msg.toLowerCase() === "test":
 				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//\nÿc8MainData ::\n",
 					myData, "\nÿc8BuffData ::\n", CharData.buffData, "\nÿc8SkillData ::\n", CharData.skillData, "\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
-				updated = true;
 
 				break;
 			}
-
-			if (updated) return;
-		}
-		
-		switch (msg) {
-		case "testing":
-		case "finishDen":
-		case "dodge":
-		case "skip":
-		case "killdclone":
-			action.push(msg);
-
-			break;
-		default:
-			break;
 		}
 	};
 
@@ -227,6 +223,10 @@ function main () {
 	addEventListener("copydata", this.receiveCopyData); // should this just be added to the starter? would remove needing 3 copydata event listeners (entry, default, and here)
 
 	// Start
+	// test for getUnit bug
+	let test = Game.getMonster();
+	test === null && console.warn("getUnit is bugged");
+
 	while (true) {
 		try {
 			while (action.length) {
@@ -250,11 +250,7 @@ function main () {
 					delay(500);
 				}
 
-				profiles.sort(function(a, b) {
-					return a.level - b.level;
-				});
-
-				let lowestLevelProf = profiles.first();
+				let lowestLevelProf = profiles.sort((a, b) => a.level - b.level).first();
 
 				SoloEvents.sendToProfile(lowestLevelProf.profile, lowestLevelProf.event, 70);
 				D2Bot.joinMe(lowestLevelProf.profile, me.gamename.toLowerCase(), "", me.gamepassword.toLowerCase(), true);

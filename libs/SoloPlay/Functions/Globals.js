@@ -11,15 +11,19 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/CharData.js");
 includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
+const Overrides = require("../../modules/Override");
+const Coords_1 = require("../Modules/Coords");
+const PotData = require("../modules/PotData");
+
 const MYCLASSNAME = sdk.player.class.nameOf(me.classid).toLowerCase();
 includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + ".js");
 
 let myData = CharData.getStats();
 
 // these builds are not possible to do on classic
-let impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl", "Sancdreamer", "Faithbowzon", "Wfzon"];
+const impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl", "Sancdreamer", "Faithbowzon", "Wfzon"];
 // these builds are not possible to do without ladder runewords
-let impossibleNonLadderBuilds = ["Auradin", "Sancdreamer", "Faithbowzon"];
+const impossibleNonLadderBuilds = ["Auradin", "Sancdreamer", "Faithbowzon"];
 
 Unit.prototype.__defineGetter__("mercid", function () {
 	return !!myData ? myData.merc.classid : me.getMerc().classid;
@@ -45,10 +49,9 @@ function myPrint (str = "", toConsole = false, color = 0) {
 }
 
 function updateMyData () {
-	let scripts = ["default.dbj", "libs/soloplay/threads/townchicken.js", "libs/soloplay/threads/toolsthread.js", "libs/soloplay/threads/eventthread.js"];
 	let obj = JSON.stringify(Misc.copy(myData));
 	let myThread = getScript(true).name;
-	scripts.forEach(function (script) {
+	CharData.threads.forEach(function (script) {
 		let curr = getScript(script);
 		if (curr && myThread !== curr.name) {
 			curr.send("data--" + obj);
@@ -56,31 +59,9 @@ function updateMyData () {
 	});
 }
 
-function ensureData () {
-	let temp = Misc.copy(myData);
-
-	let changed = Misc.recursiveSearch(myData, temp);
-	
-	if (Object.keys(changed).length > 0) {
-		console.debug(changed);
-		CharData.updateData("me", myData) && updateMyData();
-	}
-}
-
 // general settings
 const SetUp = {
-	scripts: [
-		// Act 1
-		"corpsefire", "den", "bloodraven", "tristram", "treehead", "countess", "smith", "pits", "jail", "boneash", "andariel", "a1chests", "cows",
-		// Act 2
-		"cube", "radament", "amulet", "summoner", "tombs", "ancienttunnels", "staff", "duriel",
-		// Act 3
-		"lamessen", "templeruns", "lowerkurast", "eye", "heart", "brain", "travincal", "mephisto",
-		// Act 4
-		"izual", "hellforge", "river", "hephasto", "diablo",
-		// Act 5
-		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests",
-	],
+	mercEnabled: true,
 
 	init: function () {
 		let myData = CharData.getStats();
@@ -125,15 +106,8 @@ const SetUp = {
 		myData.me.strength !== me.rawStrength && (myData.me.strength = me.rawStrength);
 		myData.me.dexterity !== me.rawDexterity && (myData.me.dexterity = me.rawDexterity);
 
-		if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < (Profile().difficulty)) {
-			// extra check to ensure of profile is set right
-			delay(rand(250, 1000));
-			D2Bot.setProfile(null, null, null, sdk.difficulty.nameOf(me.diff));
-		}
-
 		// expansion check
-		let cUpdate = false;
-		let mUpdate = false;
+		let [cUpdate, mUpdate] = [false, false];
 
 		if (me.expansion) {
 			if (!myData.merc.gear) {
@@ -142,10 +116,10 @@ const SetUp = {
 			}
 			
 			// merc check
-			if (!!me.getMerc()) {
+			if (!!me.getMercEx()) {
 				// TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
 				// can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
-				let merc = me.getMerc();
+				let merc = me.getMercEx();
 				let mercItems = merc.getItemsEx();
 				let preLength = myData.merc.gear.length;
 				let check = myData.merc.gear.filter(i => mercItems.some(item => item.prefixnum === i));
@@ -210,20 +184,26 @@ const SetUp = {
 	// really need a centralized way to make sure all files use/have the custom functions and all threads stay updated without having to
 	// scriptBroadcast all the time
 	include: function () {
-		let folders = ["Functions"];
-		folders.forEach((folder) => {
-			let files = dopen("libs/SoloPlay/" + folder + "/").getFiles();
-			Array.isArray(files) && files
-				.filter(file => file.endsWith(".js"))
-				.sort(a => a.startsWith("PrototypeOverrides.js") ? 0 : 1) // Dirty fix to load new prototypes first
-				.forEach(function (x) {
-					if (!isIncluded("SoloPlay/" + folder + "/" + x)) {
-						if (!include("SoloPlay/" + folder + "/" + x)) {
-							throw new Error("Failed to include " + "SoloPlay/" + folder + "/" + x);
-						}
+		let files = dopen("libs/SoloPlay/Functions/").getFiles();
+		if (!files.length) throw new Error("Failed to find my files");
+		if (!files.includes("Globals.js")) {
+			console.warn("Incorrect Files?", files);
+			// something went wrong?
+			while (!files.includes("Globals.js")) {
+				files = dopen("libs/SoloPlay/Functions/").getFiles();
+				delay(50);
+			}
+		}
+		Array.isArray(files) && files
+			.filter(file => file.endsWith(".js"))
+			.sort(a => a.startsWith("PrototypeOverrides.js") ? 0 : 1) // Dirty fix to load new prototypes first
+			.forEach(function (x) {
+				if (!isIncluded("SoloPlay/Functions/" + x)) {
+					if (!include("SoloPlay/Functions/" + x)) {
+						throw new Error("Failed to include " + "SoloPlay/Functions/" + x);
 					}
-				});
-		});
+				}
+			});
 	},
 
 	// Storage Settings
@@ -273,19 +253,17 @@ const SetUp = {
 	},
 
 	getTemplate: function () {
-		let buildType = SetUp.currentBuild;
-		let build = buildType + "Build" ;
+		let build = SetUp.currentBuild + "Build" ;
 		let template = "SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + "." + build + ".js";
 
 		return {
-			buildType: buildType,
+			buildType: SetUp.currentBuild,
 			template: template.toLowerCase()
 		};
 	},
 
 	specPush: function (specType) {
 		let buildInfo = SetUp.getTemplate();
-
 		if (!includeIfNotIncluded(buildInfo.template)) throw new Error("Failed to include template: " + buildInfo.template);
 
 		let specCheck = [];
@@ -330,6 +308,29 @@ const SetUp = {
 		});
 	},
 
+	buffers: function () {
+		const isCaster = Check.currentBuild().caster;
+		const beltModifer = 4 - Storage.BeltSize();
+		const mpFactor = isCaster ? 80 : 50;
+		Config.MPBuffer = Math.floor(mpFactor / Math.sqrt(me.mpmax)) + (beltModifer * 2);
+		!myData.merc.gear.includes(sdk.locale.items.Insight) && (Config.MPBuffer += 2);
+		const hpFactor = isCaster ? 65 : 80;
+		Config.HPBuffer = Math.floor(hpFactor / Math.sqrt(me.hpmax)) + (beltModifer * 2);
+	},
+
+	bowQuiver: function () {
+		NTIP.resetRuntimeList();
+		if (CharData.skillData.bowData.bowOnSwitch) {
+			if ([sdk.items.type.Bow, sdk.items.type.AmazonBow].includes(CharData.skillData.bowData.bowType)) {
+				NTIP.addToRuntime("[type] == bowquiver # # [maxquantity] == 1");
+			} else if (CharData.skillData.bowData.bowType === sdk.items.type.Crossbow) {
+				NTIP.addToRuntime("[type] == crossbowquiver # # [maxquantity] == 1");
+			} else if (me.charlvl < 10) {
+				NTIP.addToRuntime("[type] == bowquiver # # [maxquantity] == 1");
+			}
+		}
+	},
+
 	imbueItems: function () {
 		if (SetUp.finalBuild === "Imbuemule") return [];
 		let temp = [];
@@ -346,6 +347,30 @@ const SetUp = {
 	},
 
 	config: function () {
+		Config.socketables = [];
+
+		if (me.expansion) {
+			// switch bow - only for zon/sorc/pal/necro classes right now
+			if (!me.barbarian && !me.assassin && !me.druid) {
+				NTIP.addLine("([type] == bow || [type] == crossbow) && [quality] >= normal # [itemchargedskill] >= 0 # [secondarytier] == tierscore(item)");
+			}
+			const expansionExtras = [
+				// Special Charms
+				"[name] == smallcharm && [quality] == unique # [itemallskills] == 1 # [charmtier] == 100000",
+				"[name] == largecharm && [quality] == unique # [itemaddclassskills] == 3 # [charmtier] == 100000",
+				"[name] == grandcharm && [quality] == unique # [itemmagicbonus] >= 30 || [itemgoldbonus] >= 150 # [charmtier] == 100000",
+				// Merc
+				"([type] == circlet || [type] == helm) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+				"[type] == armor && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+				// Rogue
+				"me.mercid === 271 && [type] == bow && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+				// A2 Guard
+				"me.mercid === 338 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
+			];
+			NTIP.arrayLooping(expansionExtras);
+			this.bowQuiver();
+		}
+
 		/* General configuration. */
 		Config.MinGameTime = 400;
 		Config.MaxGameTime = 7200;
@@ -397,7 +422,7 @@ const SetUp = {
 		Config.HealMP = 99;
 		Config.HealStatus = true;
 		Config.UseMerc = me.expansion;
-		Config.MercWatch = true;
+		Config.MercWatch = SetUp.mercwatch;
 		Config.StashGold = me.charlvl * 100;
 		Config.ClearInvOnStart = false;
 
@@ -409,6 +434,8 @@ const SetUp = {
 		Config.Inventory[1] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 		Config.Inventory[2] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 		Config.Inventory[3] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+		Config.SkipId.push(sdk.monsters.FireTower);
 
 		/* FastMod configuration. */
 		Config.FCR = 0;
@@ -446,6 +473,14 @@ Object.defineProperties(SetUp, {
 		get: function () {
 			return myData.me.finalBuild;
 		},
+	},
+	mercwatch: {
+		get: function () {
+			const myGold = me.gold;
+			const cLvl = me.charlvl;
+			let lowGold = Math.min(Math.floor(500 + (cLvl * 150 * Math.sqrt(cLvl - 1))), 250000);
+			return (SetUp.mercEnabled && (myGold > lowGold) && (myGold > me.mercrevivecost));
+		}
 	},
 });
 
@@ -495,85 +530,61 @@ const nipItems = {
 	],
 };
 
+const addSocketableObj = (classid, socketWith = [], temp = [], useSocketQuest = false, condition = () => {}) => ({
+	classid: classid,
+	socketWith: socketWith,
+	temp: temp,
+	useSocketQuest: useSocketQuest,
+	condition: condition
+});
 const basicSocketables = {
-	caster: [
-		{
-			classid: sdk.items.BroadSword,
-			socketWith: [],
-			useSocketQuest: true,
-			condition: (item) => me.normal && !Check.haveBase("sword", 4) && !Check.haveItem("sword", "runeword", "Spirit") && item.ilvl >= 26 && item.isBaseType && !item.ethereal
-		},
-		{
-			classid: sdk.items.CrystalSword,
-			socketWith: [],
-			useSocketQuest: true,
-			condition: (item) => me.normal && !Check.haveBase("sword", 4) && !Check.haveItem("sword", "runeword", "Spirit") && item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal
-		},
-		{
-			// Lidless
-			classid: sdk.items.GrimShield,
-			socketWith: [sdk.items.runes.Um],
-			temp: [sdk.items.gems.Perfect.Diamond],
-			useSocketQuest: !me.hell,
-			condition: (item) => item.unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal
-		},
-	],
-	all: [
-		{
-			classid: sdk.items.Bill,
-			socketWith: [],
-			useSocketQuest: true,
-			condition: (item) => me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal
-		},
-		{
-			classid: sdk.items.ColossusVoulge,
-			socketWith: [],
-			useSocketQuest: true,
-			condition: (item) => me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal
-		},
-		{
-			// Crown of Ages
-			classid: sdk.items.Corona,
-			socketWith: [sdk.items.runes.Ber, sdk.items.runes.Um],
-			temp: [sdk.items.gems.Perfect.Ruby],
-			useSocketQuest: false,
-			condition: (item) => item.unique && !item.ethereal
-		},
-		{
-			// Moser's
-			classid: sdk.items.RoundShield,
-			socketWith: [sdk.items.runes.Um],
-			temp: [sdk.items.gems.Perfect.Diamond],
-			useSocketQuest: false,
-			condition: (item) => item.unique && !item.ethereal
-		},
-		{
-			// Spirit Forge
-			classid: sdk.items.LinkedMail,
-			socketWith: [sdk.items.runes.Shael],
-			temp: [sdk.items.gems.Perfect.Ruby],
-			useSocketQuest: false,
-			condition: (item) => item.unique && !item.ethereal
-		},
-		{
-			// Dijjin Slayer
-			classid: sdk.items.Ataghan,
-			socketWith: [sdk.items.runes.Amn],
-			temp: [sdk.items.gems.Perfect.Skull],
-			useSocketQuest: false,
-			condition: (item) => !Check.currentBuild().caster && item.unique && !item.ethereal
-		},
-		{
-			// Bone Hew - for merc
-			classid: sdk.items.OgreAxe,
-			socketWith: [sdk.items.runes.Hel, sdk.items.runes.Amn],
-			temp: [sdk.items.gems.Perfect.Skull],
-			useSocketQuest: false,
-			condition: (item) => item.unique
-		},
-	]
+	caster: [],
+	all: [],
 };
+// insight base
+basicSocketables.all.push(addSocketableObj(sdk.items.Bill, [], [], true, (item) =>
+	me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal
+));
+// insight base
+basicSocketables.all.push(addSocketableObj(sdk.items.ColossusVoulge, [], [], true, (item) =>
+	me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal
+));
+// Crown of Ages
+basicSocketables.caster.push(addSocketableObj(sdk.items.Corona, [sdk.items.runes.Ber, sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+	false, (item) => item.unique
+));
+// Moser's
+basicSocketables.caster.push(addSocketableObj(sdk.items.RoundShield, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Diamond],
+	false, (item) => item.unique && !item.ethereal
+));
+// Spirit Forge
+basicSocketables.caster.push(addSocketableObj(sdk.items.LinkedMail, [sdk.items.runes.Shael], [sdk.items.gems.Perfect.Ruby],
+	false, (item) => item.unique && !item.ethereal
+));
+// Dijjin Slayer
+basicSocketables.caster.push(addSocketableObj(sdk.items.Ataghan, [sdk.items.runes.Amn], [sdk.items.gems.Perfect.Skull],
+	false, (item) => !Check.currentBuild().caster && item.unique && !item.ethereal
+));
+// Bone Hew - for merc
+basicSocketables.caster.push(addSocketableObj(sdk.items.OgreAxe, [sdk.items.runes.Hel, sdk.items.runes.Amn], [sdk.items.gems.Perfect.Skull],
+	false, (item) => item.unique
+));
+// spirit base
+basicSocketables.caster.push(addSocketableObj(sdk.items.BroadSword, [], [], true, (item) =>
+	me.normal && !Check.haveBase("sword", 4) && !me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have
+	&& item.ilvl >= 26 && item.isBaseType && !item.ethereal
+));
+// spirit base
+basicSocketables.caster.push(addSocketableObj(sdk.items.CrystalSword, [], [], true, (item) =>
+	me.normal && !Check.haveBase("sword", 4) && !me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have
+	&& item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal
+));
+// Lidless
+basicSocketables.caster.push(addSocketableObj(sdk.items.GrimShield, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Diamond], !me.hell, (item) =>
+	item.unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal
+));
 
+// misc
 const goToDifficulty = function (diff = undefined, reason = "") {
 	try {
 		if (diff === undefined) throw new Error("diff is undefined");
@@ -596,14 +607,13 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 			throw new Error("?");
 		}
 
-		D2Bot.setProfile(null, null, null, diffString);
 		CharData.updateData("me", "setDifficulty", diffString);
 		myPrint("Going to " + diffString + " " + reason, true);
 		delay(1000);
 		if (CharData.getStats().me.setDifficulty !== diffString) {
 			throw new Error("Failed to set difficulty");
 		}
-		D2Bot.restart();
+		scriptBroadcast("quit");
 	} catch (e) {
 		console.debug(e.message ? e.message : e);
 	}
@@ -611,334 +621,15 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 	return false;
 };
 
+const buildAutoBuildTempObj = (update = () => {}) => ({
+	SkillPoints: [-1],
+	StatPoints: [-1, -1, -1, -1, -1],
+	Update: update
+});
+
 // General Game functions
 const Check = {
 	lowGold: false,
-	// TODO: clean this up somehow, I dislike how it looks right now as its not completely clear
-	task: function (sequenceName) {
-		let needRunes = this.runes();
-
-		switch (sequenceName.toLowerCase()) {
-		case "den":
-			return !me.den;
-		case "corpsefire":
-			if (me.den && me.hell && (!me.andariel || Check.brokeAf()) && !me.druid && !me.paladin) {
-				return true;
-			}
-
-			break;
-		case "bloodraven":
-			if ((!me.bloodraven && me.normal || (!me.summoner && Check.brokeAf()))
-				|| (me.normal && !me.tristram && me.barbarian)
-				|| (me.hell && ((me.sorceress && SetUp.currentBuild !== "Lightning")
-					|| ((me.amazon || me.assassin) && Attack.checkInfinity())
-					|| (me.barbarian || me.paladin || me.necromancer || me.druid)))) {
-				return true;
-			}
-
-			break;
-		case "treehead":
-			if (me.hell && (me.paladin && (!Attack.auradin || !me.checkItem({name: sdk.locale.items.Enigma}).have || !Pather.accessToAct(3)))) {
-				return true;
-			}
-
-			break;
-		case "smith":
-			if (!Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete) && !me.smith) {
-				return true;
-			}
-
-			break;
-		case "tristram":
-			if ((me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf()))
-				|| (!me.normal && ((!me.tristram && me.diffCompleted)
-					|| (me.barbarian && !Pather.accessToAct(3) && !me.checkItem({name: sdk.locale.items.Lawbringer}).have)
-					|| (me.paladin && me.hell && !Pather.accessToAct(3) && (!Attack.auradin || !me.checkItem({name: sdk.locale.items.Enigma}).have))))) {
-				return true;
-			}
-
-			break;
-		case "countess":
-			// classic quest not completed normal/nightmare || don't have runes for difficulty || barb in hell and have lawbringer
-			if ((me.classic && !me.hell && !me.countess)
-				|| (me.expansion && (needRunes || Check.brokeAf() || (me.barbarian && me.hell && me.checkItem({name: sdk.locale.items.Lawbringer}).have)))) {
-				return true;
-			}
-
-			break;
-		case "pits":
-			if (me.hell &&
-				((me.necromancer || me.barbarian || me.assassin) ||
-					(me.paladin || me.druid && !Check.currentBuild().caster) ||
-					(me.amazon && (SetUp.currentBuild === SetUp.finalBuild || me.charlvl >= 85)) ||
-					(me.sorceress && me.charlvl >= 80))) {
-				return true;
-			}
-
-			break;
-		case "jail":
-			if (me.hell && me.amazon && !me.mephisto) {
-				return true;
-			}
-
-			break;
-		case "boneash":
-			if (me.hell && me.classic && !me.diablo) {
-				return true;
-			}
-
-			break;
-		case "andariel":
-			if (!me.andariel || (me.classic && me.hell)
-				|| (me.expansion && (!me.normal && (Pather.canTeleport() || me.charlvl <= 60))
-					|| (me.hell && (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))))) {
-				return true;
-			}
-
-			break;
-		case "a1chests":
-			if (me.classic) return false;
-			if (me.charlvl >= 80 && Pather.canTeleport()
-				|| (me.barbarian && me.hell && !Pather.accessToAct(3)
-				&& (Item.getEquippedItem(sdk.body.LeftArm).tier < 1270 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
-				return true;
-			}
-
-			break;
-		case "cube":
-			if (Pather.accessToAct(2) && !me.cube) {
-				return true;
-			}
-
-			break;
-		case "radament":
-			if (!Pather.accessToAct(2)) return false;
-			if (!me.radament || (me.amazon && SetUp.currentBuild !== SetUp.finalBuild && me.hell)
-				|| (me.hell && me.sorceress && me.classic && !me.diablo)
-				|| (me.sorceress && me.hell && me.charlvl >= 74 && me.charlvl < 81)) {
-				return true;
-			}
-
-			break;
-		case "staff":
-			if (Pather.accessToAct(2) && !me.shaft && !me.staff && !me.horadricstaff) {
-				return true;
-			}
-
-			break;
-		case "amulet":
-			if (Pather.accessToAct(2) && !me.amulet && !me.staff && !me.horadricstaff) {
-				return true;
-			}
-
-			break;
-		case "ancienttunnels":
-			if (!Pather.accessToAct(2)) return false;
-			// No pally in hell due to magic immunes unless is melee build, No zon in hell unless at final build because light/poison immunes
-			if (me.hell && (!me.paladin || (me.paladin && !Check.currentBuild().caster))
-				&& (!me.amazon || (me.amazon && SetUp.currentBuild === SetUp.finalBuild))) {
-				return true;
-			}
-
-			break;
-		case "summoner":
-			if (Pather.accessToAct(2) && !me.summoner) {
-				return true;
-			}
-
-			break;
-		case "tombs":
-			if (Pather.accessToAct(2) && (me.normal && me.charlvl < 24)) {
-				return true;
-			}
-
-			break;
-		case "duriel":
-			if (Pather.accessToAct(2) && !me.duriel) {
-				return true;
-			}
-
-			break;
-		case "eye":
-			if (Pather.accessToAct(3) && !me.eye && !me.khalimswill && !me.travincal) {
-				return true;
-			}
-
-			break;
-		case "templeruns":
-			if (!Pather.accessToAct(3)) return false;
-			if ((!me.lamessen || (me.nightmare && me.charlvl < 50) || (me.hell && !me.classic && me.charlvl > 80))
-				&& (!me.paladin || (me.paladin && !Check.currentBuild().caster))) {
-				return true;
-			}
-
-			break;
-		case "lamessen":
-			if (Pather.accessToAct(3) && !me.lamessen && ((me.paladin && !Check.currentBuild().caster) || me.classic)) {
-				return true;
-			}
-
-			break;
-		case "lowerkurast":
-			if (Pather.accessToAct(3) && me.nightmare && me.charlvl >= 50 && me.barbarian && !me.checkItem({name: sdk.locale.items.VoiceofReason}).have) {
-				return true;
-			}
-
-			break;
-		case "heart":
-			if (Pather.accessToAct(3) && !me.heart && !me.khalimswill && !me.travincal) {
-				return true;
-			}
-
-			break;
-		case "brain":
-			if (Pather.accessToAct(3) && !me.brain && !me.khalimswill && !me.travincal) {
-				return true;
-			}
-
-			break;
-		case "travincal":
-			if (!Pather.accessToAct(3)) return false;
-			if (!me.travincal
-				|| (me.charlvl < 25 || (me.charlvl >= 25 && me.normal && !me.baal && !Check.gold()))
-				|| (me.nightmare && !me.diablo && me.barbarian && !me.checkItem({name: sdk.locale.items.Lawbringer}).have)
-				|| (me.hell && me.paladin && me.charlvl > 85 && (!Attack.auradin || !me.checkItem({name: sdk.locale.items.Enigma}).have))) {
-				return true;
-			}
-
-			break;
-		case "mephisto":
-			if (Pather.accessToAct(3)) {
-				if (!me.mephisto) return true;
-				switch (me.diff) {
-				case sdk.difficulty.Normal:
-					return !Check.gold() || !me.diffCompleted;
-				case sdk.difficulty.Nightmare:
-					return Pather.canTeleport() || me.charlvl <= 65;
-				case sdk.difficulty.Hell:
-					return true;
-				}
-			}
-
-			break;
-		case "izual":
-			if (Pather.accessToAct(4) && !me.izual) {
-				return true;
-			}
-
-			break;
-		case "river":
-			if (!Pather.accessToAct(4)) return false;
-			if (!me.diablo && !me.normal
-				&& (me.barbarian && !me.checkItem({name: sdk.locale.items.Lawbringer}).have)
-				|| (me.sorceress && me.classic)) {
-				return true;
-			}
-
-			break;
-		case "hephasto":
-			if (!Pather.accessToAct(4)) return false;
-			if (!me.normal && me.diablo && me.barbarian && me.charlvl <= 70 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have) {
-				return true;
-			}
-
-			break;
-		case "diablo":
-			if (!Pather.accessToAct(4)) return false;
-			if ((me.normal && (me.charlvl < 35 || me.classic))
-				|| (me.nightmare && (Pather.canTeleport() || me.charlvl <= 65))
-				|| me.hell || !me.diablo) {
-				return true;
-			}
-
-			break;
-		case "hellforge":
-			if (Pather.accessToAct(4) && !me.hellforge) {
-				return true;
-			}
-
-			break;
-		case "shenk":
-			if (me.expansion && Pather.accessToAct(5) && (!me.druid || me.charlvl <= 70)) {
-				return true;
-			}
-
-			break;
-		case "savebarby":
-			// I need tal, ral, or ort rune for runewords
-			if (me.expansion && Pather.accessToAct(5) && !me.savebarby
-				&& Runewords.checkRune(sdk.items.runes.Tal, sdk.items.runes.Ral, sdk.items.runes.Ort)) {
-				return true;
-			}
-
-			break;
-		case "anya":
-			if (me.expansion && Pather.accessToAct(5)) {
-				return true;
-			}
-
-			break;
-		case "ancients":
-			if (me.expansion && Pather.accessToAct(5) && !me.ancients) {
-				return true;
-			}
-
-			break;
-		case "baal":
-			if (me.expansion && Pather.accessToAct(5) && me.ancients) {
-				return true;
-			}
-
-			break;
-		case "cows":
-			if (!me.cows && me.diffCompleted) {
-				if (me.barbarian && !["Whirlwind", "Immortalwhirl", "Singer"].includes(SetUp.currentBuild) && (!me.normal || !Check.brokeAf())) return false;
-				switch (me.diff) {
-				case sdk.difficulty.Normal:
-					if (Check.brokeAf()) {
-						return true;
-					}
-					break;
-				case sdk.difficulty.Nightmare:
-					if (me.druid && me.charlvl <= 65) {
-						return true;
-					} else if (me.sorceress && (me.expansion || me.charlvl < 62)) {
-						return true;
-					} else if (!me.druid && !me.sorceress) {
-						return true;
-					}
-					
-					break;
-				case sdk.difficulty.Hell:
-					return true;
-				}
-			}
-
-			break;
-		case "a5chests":
-			if (!me.normal && me.baal) {
-				return true;
-			}
-
-			break;
-		case "getkeys":
-			if (me.expansion && Pather.accessToAct(5) && me.hell && ["Zealer", "Smiter", "Uberconc"].includes(SetUp.currentBuild)) {
-				return true;
-			}
-
-			break;
-		case "orgtorch":
-			if (me.expansion && Pather.accessToAct(5) && me.hell && ["Zealer", "Smiter", "Uberconc"].includes(SetUp.currentBuild)) {
-				return true;
-			}
-
-			break;
-		default:
-			break;
-		}
-
-		return false;
-	},
 
 	gold: function () {
 		let gold = me.gold;
@@ -953,16 +644,22 @@ const Check = {
 		return false;
 	},
 
-	brokeAf: function () {
+	brokeAf: function (announce = true) {
 		let gold = me.gold;
-		let goldLimit = [10000, 25000, 50000][me.diff];
+		let lowGold = Math.min(Math.floor(500 + (me.charlvl * 100 * Math.sqrt(me.charlvl - 1))), 250000);
 
-		if (gold >= goldLimit || me.charlvl < 15 || (me.charlvl >= 15 && gold > 1000 && Item.getEquippedItem(sdk.body.RightArm).durability !== 0)) {
+		switch (true) {
+		case (me.charlvl < 15):
+		case (me.normal && !Pather.accessToAct(2)):
+		case (gold >= lowGold):
+		case (me.charlvl >= 15 && gold > Math.floor(lowGold / 2) && gold > me.getRepairCost()):
 			return false;
 		}
 
-		me.overhead("I am broke af");
-		NTIP.addLine("[name] == gold # [gold] >= 1");
+		if (announce) {
+			myPrint("very low gold. My Gold: " + gold);
+			NTIP.addLine("[name] == gold # [gold] >= 1");
+		}
 
 		return true;
 	},
@@ -990,18 +687,18 @@ const Check = {
 
 		let myGold = me.gold;
 		let repairCost = me.getRepairCost();
-		let items = (Town.getItemsForRepair(100, false) || []);
+		let items = (me.getItemsForRepair(100, false) || []);
 		let meleeChar = !Check.currentBuild().caster;
 		let msg = "";
 		let diff = -1;
 
 		switch (true) {
 		case myGold > repairCost:
-			return;
+			return false;
 		case me.normal:
 		case !meleeChar && me.nightmare:
 			this.lowGold = myGold < repairCost;
-			return;
+			return false;
 		case meleeChar && !me.normal:
 			// check how broke we are - only for melee chars since casters don't care about weapons
 			let wep = items.filter(i => i.isEquipped && i.bodylocation === sdk.body.RightArm).first();
@@ -1022,21 +719,19 @@ const Check = {
 		if (diff > -1) {
 			console.debug("My gold: " + myGold + ", Repair cost: " + repairCost);
 			goToDifficulty(diff, msg + (" My gold: " + myGold + ", Repair cost: " + repairCost));
-			scriptBroadcast("quit");
+
+			return true;
 		}
+
+		return false;
 	},
 
 	resistance: function () {
 		let resPenalty = me.getResPenalty(me.diff + 1);
-		let frRes = me.getStat(sdk.stats.FireResist) - resPenalty;
-		let lrRes = me.getStat(sdk.stats.LightResist) - resPenalty;
-		let crRes = me.getStat(sdk.stats.ColdResist) - resPenalty;
-		let prRes = me.getStat(sdk.stats.PoisonResist) - resPenalty;
-
-		let resStatus = ((frRes > 0) && (lrRes > 0) && (crRes > 0));
+		let [frRes, lrRes, crRes, prRes] = [(me.realFR - resPenalty), (me.realLR - resPenalty), (me.realCR - resPenalty), (me.realPR - resPenalty)];
 
 		return {
-			Status: resStatus,
+			Status: ((frRes > 0) && (lrRes > 0) && (crRes > 0)),
 			FR: frRes,
 			CR: crRes,
 			LR: lrRes,
@@ -1078,13 +773,13 @@ const Check = {
 		switch (me.diff) {
 		case sdk.difficulty.Normal:
 			// Have runes or stealth and ancients pledge
-			if ([sdk.items.runes.Tal, sdk.items.runes.Eth].every((i) => !!me.getItem(i)) || me.checkItem({name: sdk.locale.items.Stealth}).have) {
+			if (me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Eth]) || me.checkItem({name: sdk.locale.items.Stealth}).have) {
 				needRunes = false;
 			}
 
 			break;
 		case sdk.difficulty.Nightmare:
-			if (([sdk.items.runes.Tal, sdk.items.runes.Thul, sdk.items.runes.Ort, sdk.items.runes.Amn].every((i) => !!me.getItem(i)) && Check.currentBuild().caster)
+			if ((me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Thul, sdk.items.runes.Ort, sdk.items.runes.Amn]) && Check.currentBuild().caster)
 				|| (!me.paladin && me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have)
 				|| (me.paladin && me.haveAll([{name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}, {name: sdk.locale.items.Spirit, itemtype: sdk.items.type.AuricShields}]))
 				|| (me.necromancer && me.checkItem({name: sdk.locale.items.White}).have
@@ -1107,9 +802,7 @@ const Check = {
 
 	// todo: need to finish up adding locale string ids to sdk so I can remove this in favor of better me.checkItem prototype
 	haveItem: function (type, flag, iName = undefined) {
-		let isClassID = false;
-		let itemCHECK = false;
-		let typeCHECK = false;
+		let [isClassID, itemCHECK, typeCHECK] = [false, false, false];
 
 		flag && typeof flag === "string" && (flag = flag.capitalize(true));
 		typeof iName === "string" && (iName = iName.toLowerCase());
@@ -1176,7 +869,7 @@ const Check = {
 	itemSockables: function (type, quality, iName) {
 		quality && typeof quality === "string" && (quality = sdk.items.quality[quality.capitalize(true)]);
 		typeof iName === "string" && (iName = iName.toLowerCase());
-		let isClassID = false;
+		let [isClassID, itemCHECK, typeCHECK] = [false, false, false];
 
 		switch (typeof type) {
 		case "string":
@@ -1194,8 +887,6 @@ const Check = {
 		}
 
 		let socketableCHECK = isClassID ? Config.socketables.find(({ classid }) => type === classid) : false;
-		let typeCHECK = false;
-		let itemCHECK = false;
 		let items = me.getItemsEx()
 			.filter(function (item) {
 				return item.quality === quality && !item.questItem && !item.isRuneword && (isClassID ? item.classid === type : item.itemType === type) && getBaseStat("items", item.classid, "gemsockets") > 0;
@@ -1263,7 +954,7 @@ const Check = {
 			switch (true) {
 			case (shorthandStr.includes(s[0]) && statToCheck === "str"):
 			case (shorthandDex.includes(s[0]) && statToCheck === "dex"):
-				if (s[1] > highest) {
+				if (typeof s[1] === "number" && s[1] > highest) {
 					highest = s[1];
 				}
 

@@ -6,7 +6,7 @@
 */
 
 function shenk () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting shenk");
 
 	Pather.checkWP(sdk.areas.FrigidHighlands, true) ? Pather.useWaypoint(sdk.areas.FrigidHighlands) : Pather.getWP(sdk.areas.FrigidHighlands);

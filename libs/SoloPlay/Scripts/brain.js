@@ -6,7 +6,7 @@
 */
 
 function brain () {
-	Town.townTasks();
+	Town.doChores(false, { fullChores: true });
 	myPrint("starting brain");
 
 	Pather.checkWP(sdk.areas.FlayerJungle, true) ? Pather.useWaypoint(sdk.areas.FlayerJungle) : Pather.getWP(sdk.areas.FlayerJungle);
