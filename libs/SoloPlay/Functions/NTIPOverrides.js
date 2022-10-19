@@ -87,7 +87,7 @@ NTIP.addLine = function (itemString) {
 	const info = {
 		line: NTIP.SoloCheckList.length + 1,
 		file: "Kolbot-SoloPlay",
-		string: line
+		string: itemString
 	};
 
 	const line = NTIP.ParseLineInt(itemString, info);
@@ -112,7 +112,7 @@ NTIP.addToRuntime = function (itemString) {
 	const info = {
 		line: NTIP.RuntimeCheckList.length + 1,
 		file: "Kolbot-SoloPlay-Runtime",
-		string: line
+		string: itemString
 	};
 
 	const line = NTIP.ParseLineInt(itemString, info);
