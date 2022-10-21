@@ -150,7 +150,13 @@ new Overrides.Override(Starter, Starter.receiveCopyData, function (orignal, mode
 
 new Overrides.Override(Starter, Starter.scriptMsgEvent, function (orignal, msg) {
 	if (typeof msg !== "string") return;
-	(msg === "event") ? (SoloEvents.check = true) : orignal(msg);
+	if (msg === "event") {
+		SoloEvents.check = true;
+	} else if (msg === "diffChange") {
+		Starter.checkDifficulty();
+	} else {
+		orignal(msg);
+	}
 }).apply();
 
 function timer (tick) {

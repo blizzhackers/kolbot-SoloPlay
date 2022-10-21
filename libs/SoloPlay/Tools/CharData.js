@@ -46,6 +46,8 @@ const CharData = {
 			act: 1,
 			classid: 271,
 			difficulty: 0,
+			strength: 0,
+			dexterity: 0,
 			type: "",
 			gear: [],
 		}
@@ -210,6 +212,7 @@ const CharData = {
 				if (bow === undefined) return;
 				this.bowGid = bow.gid;
 				this.bowType = bow.itemType;
+				this.bowOnSwitch = bow.isOnSwap;
 				SetUp.bowQuiver();
 				init && (this.initialized = true);
 				!init && CharData.skillData.update();
