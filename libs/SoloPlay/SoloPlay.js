@@ -179,7 +179,7 @@ function main () {
 	addEventListener("copydata", this.copyDataEvent);
 
 	// GameAction/AutoMule/TorchSystem/Gambling/Crafting handler
-	if (GameAction.inGameCheck() || AutoMule.inGameCheck() || TorchSystem.inGameCheck() || Gambling.inGameCheck() || CraftingSystem.inGameCheck()) {
+	if (AutoMule.inGameCheck() || TorchSystem.inGameCheck() || Gambling.inGameCheck() || CraftingSystem.inGameCheck()) {
 		return true;
 	}
 
