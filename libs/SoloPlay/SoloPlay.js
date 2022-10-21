@@ -178,6 +178,11 @@ function main () {
 	addEventListener("scriptmsg", this.scriptEvent);
 	addEventListener("copydata", this.copyDataEvent);
 
+	// GameAction/AutoMule/TorchSystem/Gambling/Crafting handler
+	if (AutoMule.inGameCheck() || TorchSystem.inGameCheck() || Gambling.inGameCheck() || CraftingSystem.inGameCheck()) {
+		return true;
+	}
+
 	me.maxgametime = Time.seconds(Config.MaxGameTime);
 	const stats = DataFile.getStats();
 
@@ -218,7 +223,7 @@ function main () {
 	Town.clearBelt();
 	Pather.init(); // initialize wp data
 	
-	let {x, y} = me;
+	let { x, y } = me;
 	Config.ClearInvOnStart && Town.clearInventory();
 	[x, y].distance > 3 && Pather.moveTo(x, y);
 	Pickit.pickItems();
