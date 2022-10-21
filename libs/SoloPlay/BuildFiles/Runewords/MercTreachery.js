@@ -1,11 +1,20 @@
-const MercTreachery = [
-	"([name] == breastplate || [name] == mageplate || [name] == hellforgeplate || [name] == krakenshell || [name] == archonplate || [name] == balrogskin || [name] == boneweave || [name] == greathauberk || [name] == loricatedmail || [name] == diamondmail || [name] == wirefleece || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1",
-	"!me.normal && ([name] == hellforgeplate || [name] == krakenshell || [name] == archonplate || [name] == balrogskin || [name] == boneweave || [name] == greathauberk || [name] == loricatedmail || [name] == diamondmail || [name] == wirefleece || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [quality] == normal && [flag] == ethereal # [sockets] == 0 # [maxquantity] == 1",
-];
+{
+	const treach = [
+		"[name] == ShaelRune # # [maxquantity] == 1",
+		"[name] == ThulRune # # [maxquantity] == 1",
+		"[name] == LemRune # # [maxquantity] == 1",
+	];
+	NTIP.arrayLooping(treach);
+	
+	const MercTreachery = [
+		"([name] == breastplate || [name] == mageplate || [name] == hellforgeplate || [name] == krakenshell || [name] == archonplate || [name] == balrogskin || [name] == boneweave || [name] == greathauberk || [name] == loricatedmail || [name] == diamondmail || [name] == wirefleece || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1",
+		"!me.normal && ([name] == hellforgeplate || [name] == krakenshell || [name] == archonplate || [name] == balrogskin || [name] == boneweave || [name] == greathauberk || [name] == loricatedmail || [name] == diamondmail || [name] == wirefleece || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [quality] == normal && [flag] == ethereal # [sockets] == 0 # [maxquantity] == 1",
+	];
 
-// Have Shael and Lem before looking for base
-if (me.getItem(sdk.items.runes.Shael) && me.getItem(sdk.items.runes.Lem)) {
-	NTIP.arrayLooping(MercTreachery);
+	// Have Shael and Lem before looking for base
+	if (me.getItem(sdk.items.runes.Shael) && me.getItem(sdk.items.runes.Lem)) {
+		NTIP.arrayLooping(MercTreachery);
+	}
 }
 
 Config.Recipes.push([Recipe.Socket.Armor, "hellforgeplate"]);
