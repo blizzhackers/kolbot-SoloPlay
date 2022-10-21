@@ -24,10 +24,10 @@ const mercscore = function (item) {
 		SECMINDMG: 3, // secondary min damage
 		SECMAXDMG: 3, // secondary max damage
 		ELEDMG: 2, // elemental damage
-		AR:	0.5, // attack rating
+		AR: 0.1, // attack rating
 		CB: 3, // crushing blow
 		OW: 3, // open wounds
-		LL: 1.5, //lifeleach
+		LL: 8, //lifeleach
 		// CTC on attack
 		CTCOAAMP: 5,
 		CTCOADECREP: 10,
