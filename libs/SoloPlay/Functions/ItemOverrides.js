@@ -841,9 +841,9 @@ const spliceCharmKeepList = function (keep = [], sell = [], verbose = false) {
 		case sdk.items.SmallCharm:
 			return CharData.charmData.small.getCountInfo();
 		case sdk.items.LargeCharm:
-			return CharData.charmData.small.getCountInfo();
+			return CharData.charmData.large.getCountInfo();
 		case sdk.items.GrandCharm:
-			return CharData.charmData.small.getCountInfo();
+			return CharData.charmData.grand.getCountInfo();
 		default:
 			return { max: 0 };
 		}
