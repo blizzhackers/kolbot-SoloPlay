@@ -8,7 +8,7 @@ const Inf = [
 NTIP.arrayLooping(Inf);
 
 // Cube to Ber rune
-if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Ber) < 2)) {
+if (me.findItems(sdk.items.runes.Ber) < 2) {
 	if (me.checkItem({name: sdk.locale.items.CalltoArms}).have || me.barbarian) {
 		Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
@@ -31,4 +31,4 @@ Config.Runewords.push([Runeword.Infinity, "greatpoleaxe"]);
 Config.Runewords.push([Runeword.Infinity, "crypticaxe"]);
 Config.Runewords.push([Runeword.Infinity, "thresher"]);
 
-Config.KeepRunewords.push("[type] == polearm # [convictionaura] >= 13");
+Config.KeepRunewords.push("[type] == polearm # [convictionaura] >= 12");

@@ -722,8 +722,8 @@ Starter.LocationEvents.loginError = function () {
 		}
 
 		switch (string) {
-		case getLocaleString(sdk.locale.text.UsenameIncludedIllegalChars):
-		case getLocaleString(sdk.locale.text.UsenameIncludedDisallowedwords):
+		case getLocaleString(sdk.locale.text.UsernameIncludedIllegalChars):
+		case getLocaleString(sdk.locale.text.UsernameIncludedDisallowedwords):
 		case getLocaleString(sdk.locale.text.UsernameMustBeAtLeast):
 		case getLocaleString(sdk.locale.text.PasswordMustBeAtLeast):
 		case getLocaleString(sdk.locale.text.AccountMustBeAtLeast):
