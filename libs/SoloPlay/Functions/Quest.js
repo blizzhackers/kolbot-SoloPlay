@@ -137,15 +137,15 @@ const Quest = {
 			return false;
 		}
 
-		clickItemAndWait(sdk.clicktypes.click.Left, hstaff);
+		clickItemAndWait(sdk.clicktypes.click.item.Left, hstaff);
 		submitItem();
 		delay(750 + me.ping);
 
 		// Clear cursor of staff - credit @Jaenster
 		let item = me.getItemsEx().filter((el) => el.isInInventory).first();
 		let _b = [item.x, item.y, item.location], x = _b[0], y = _b[1], loc = _b[2];
-		clickItemAndWait(sdk.clicktypes.click.Left, item);
-		clickItemAndWait(sdk.clicktypes.click.Left, x, y, loc);
+		clickItemAndWait(sdk.clicktypes.click.item.Left, item);
+		clickItemAndWait(sdk.clicktypes.click.item.Left, x, y, loc);
 		delay(750 + me.ping);
 
 		return true;

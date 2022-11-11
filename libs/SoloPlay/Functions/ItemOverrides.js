@@ -255,11 +255,11 @@ Item.autoEquip = function (task = "") {
 	// ring check - sometimes a higher tier ring ends up on the wrong finger causing a rollback loop
 	if (this.getEquippedItem(sdk.body.RingLeft).tierScore > this.getEquippedItem(sdk.body.RingRight).tierScore) {
 		console.log("ÿc9" + task + "ÿc0 :: Swapping rings, higher tier ring is on the wrong finger");
-		clickItemAndWait(sdk.clicktypes.click.Left, sdk.body.RingLeft);
+		clickItemAndWait(sdk.clicktypes.click.item.Left, sdk.body.RingLeft);
 		delay(200);
-		me.itemoncursor && clickItemAndWait(sdk.clicktypes.click.Left, sdk.body.RingRight);
+		me.itemoncursor && clickItemAndWait(sdk.clicktypes.click.item.Left, sdk.body.RingRight);
 		delay(200);
-		me.itemoncursor && clickItemAndWait(sdk.clicktypes.click.Left, sdk.body.RingLeft);
+		me.itemoncursor && clickItemAndWait(sdk.clicktypes.click.item.Left, sdk.body.RingLeft);
 	}
 
 	!getUIFlag(sdk.uiflags.Shop) && me.cancel();
@@ -333,7 +333,7 @@ Item.equip = function (item, bodyLoc) {
 
 	for (let i = 0; i < 3; i += 1) {
 		if (item.toCursor()) {
-			clickItemAndWait(sdk.clicktypes.click.Left, bodyLoc);
+			clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc);
 
 			if (item.bodylocation === bodyLoc) {
 				if (getCursorType() === 3) {
@@ -349,7 +349,7 @@ Item.equip = function (item, bodyLoc) {
 							if (checkScore > justEquipped.tierScore) {
 								console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
 								console.debug("OldItem: " + checkScore + " Just Equipped Item: " + this.getEquippedItem(bodyLoc).tierScore);
-								clickItemAndWait(sdk.clicktypes.click.Left, bodyLoc);
+								clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc);
 								cursorItem = Game.getCursorUnit();
 								rolledBack = true;
 							}
@@ -360,7 +360,7 @@ Item.equip = function (item, bodyLoc) {
 							if (checkScore > justEquipped.tier && !item.questItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attempt rollback*/) {
 								console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
 								console.debug("OldItem: " + checkScore + " Just Equipped Item: " + this.getEquippedItem(bodyLoc).tier);
-								clickItemAndWait(sdk.clicktypes.click.Left, bodyLoc);
+								clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc);
 								cursorItem = Game.getCursorUnit();
 								rolledBack = true;
 							}
@@ -451,7 +451,7 @@ Item.secondaryEquip = function (item, bodyLoc) {
 	try {
 		for (let i = 0; i < 3; i += 1) {
 			if (item.toCursor()) {
-				clickItemAndWait(sdk.clicktypes.click.Left, bodyLoc - 7);
+				clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc - 7);
 
 				if (item.bodylocation === bodyLoc - 7) {
 					equipped = true;
@@ -584,7 +584,7 @@ Item.equipMerc = function (item, bodyLoc) {
 
 	for (let i = 0; i < 3; i += 1) {
 		if (item.toCursor()) {
-			if (clickItem(sdk.clicktypes.click.Mercenary, bodyLoc)) {
+			if (clickItem(sdk.clicktypes.click.item.Mercenary, bodyLoc)) {
 				delay(500 + me.ping * 2);
 				Developer.debugging.autoEquip && Misc.logItem("Merc Equipped", mercenary.getItem(item.classid));
 			}
@@ -776,7 +776,7 @@ Item.removeItemsMerc = function () {
 
 	if (items) {
 		for (let i = 0; i < items.length; i++) {
-			clickItem(sdk.clicktypes.click.Mercenary, items[i].bodylocation);
+			clickItem(sdk.clicktypes.click.item.Mercenary, items[i].bodylocation);
 			delay(500 + me.ping * 2);
 
 			let cursorItem = Game.getCursorUnit();

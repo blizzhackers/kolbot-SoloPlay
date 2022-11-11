@@ -149,7 +149,7 @@ me.cleanUpInvoPotions = function (beltSize) {
 						let x = freeSpace[i] === beltSize ? i : (beltCapRef[i] - (freeSpace[i] * 4));
 						Packet.placeInBelt(p, x);
 					} else {
-						clickItemAndWait(sdk.clicktypes.click.ShiftLeft, p.x, p.y, p.location);
+						clickItemAndWait(sdk.clicktypes.click.item.ShiftLeft, p.x, p.y, p.location);
 					}
 					Misc.poll(() => !me.itemoncursor, 300, 30);
 					moved = Town.checkColumns(beltSize)[i] === freeSpace[i] - 1;

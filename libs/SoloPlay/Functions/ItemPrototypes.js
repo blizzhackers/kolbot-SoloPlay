@@ -252,7 +252,7 @@ Unit.prototype.equipItem = function (bodyLoc = -1) {
 
 	for (let i = 0; i < 3; i += 1) {
 		if (this.toCursor()) {
-			clickItemAndWait(sdk.clicktypes.click.Left, bodyLoc);
+			clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc);
 
 			if (this.bodylocation === bodyLoc) {
 				if (getCursorType() === 3) {
@@ -264,7 +264,7 @@ Unit.prototype.equipItem = function (bodyLoc = -1) {
 						if (NTIP.GetTier(cursorItem) > justEquipped.tier && !this.questItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attempt rollback*/) {
 							console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
 							console.debug("OldItem: " + NTIP.GetTier(cursorItem) + " Just Equipped Item: " + Item.getEquippedItem(bodyLoc).tier);
-							clickItemAndWait(sdk.clicktypes.click.Left, bodyLoc);
+							clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc);
 							cursorItem = Game.getCursorUnit();
 							rolledBack = true;
 						}
@@ -296,7 +296,7 @@ Unit.prototype.secondaryEquip = function (bodyLoc = -1) {
 	
 	for (let i = 0; i < 3; i += 1) {
 		if (this.toCursor()) {
-			clickItemAndWait(sdk.clicktypes.click.Left, bodyLoc - 7);
+			clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc - 7);
 
 			if (this.bodylocation === bodyLoc - 7) {
 				if (getCursorType() === 3) {
@@ -328,7 +328,7 @@ Unit.prototype.equipMerc = function (bodyLoc = -1) {
 	
 	for (let i = 0; i < 3; i += 1) {
 		if (this.toCursor()) {
-			clickItemAndWait(sdk.clicktypes.click.Mercenary, bodyLoc);
+			clickItemAndWait(sdk.clicktypes.click.item.Mercenary, bodyLoc);
 
 			if (this.bodylocation === bodyLoc) {
 				if (getCursorType() === 3) {
