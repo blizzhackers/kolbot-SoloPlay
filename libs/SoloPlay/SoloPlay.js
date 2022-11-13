@@ -152,7 +152,9 @@ function main () {
 		me.getItemsEx()
 			.filter(item => item.isEquipped)
 			.forEach(item => {
-				if (me.getStat(sdk.stats.Strength) < item.strreq || me.getStat(sdk.stats.Dexterity) < item.dexreq) {
+				if (me.getStat(sdk.stats.Strength) < item.strreq
+					|| me.getStat(sdk.stats.Dexterity) < item.dexreq
+					|| item.ethereal && item.isBroken) {
 					myPrint("No longer able to use " + item.fname);
 					Item.removeItem(null, item);
 				}
@@ -178,7 +180,7 @@ function main () {
 	addEventListener("scriptmsg", this.scriptEvent);
 	addEventListener("copydata", this.copyDataEvent);
 
-	// GameAction/AutoMule/TorchSystem/Gambling/Crafting handler
+	// AutoMule/TorchSystem/Gambling/Crafting handler
 	if (AutoMule.inGameCheck() || TorchSystem.inGameCheck() || Gambling.inGameCheck() || CraftingSystem.inGameCheck()) {
 		return true;
 	}

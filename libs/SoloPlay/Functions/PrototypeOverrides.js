@@ -97,6 +97,13 @@ Object.defineProperties(Unit.prototype, {
 			return !!this.getFlag(sdk.items.flags.Runeword);
 		},
 	},
+	isBroken: {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			if (this.getStat(sdk.stats.Indestructible)) return false;
+			return !!this.getFlag(sdk.items.flags.Broken);
+		},
+	},
 	isStunned: {
 		get: function () {
 			return this.getState(sdk.states.Stunned);
