@@ -104,14 +104,14 @@ Skill.cast = function (skillId, hand, x, y, item) {
 		let [clickType, shift] = (() => {
 			switch (hand) {
 			case sdk.skills.hand.Left: // Left hand + Shift
-				return [0, sdk.clicktypes.shift.Shift];
+				return [sdk.clicktypes.click.map.LeftDown, sdk.clicktypes.shift.Shift];
 			case sdk.skills.hand.LeftNoShift: // Left hand + No Shift
-				return [0, sdk.clicktypes.shift.NoShift];
+				return [sdk.clicktypes.click.map.LeftDown, sdk.clicktypes.shift.NoShift];
 			case sdk.skills.hand.RightShift: // Right hand + Shift
-				return [3, sdk.clicktypes.shift.Shift];
+				return [sdk.clicktypes.click.map.RightDown, sdk.clicktypes.shift.Shift];
 			case sdk.skills.hand.Right: // Right hand + No Shift
 			default:
-				return [3, sdk.clicktypes.shift.NoShift];
+				return [sdk.clicktypes.click.map.RightDown, sdk.clicktypes.shift.NoShift];
 			}
 		})();
 
@@ -211,14 +211,14 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 		let [clickType, shift] = (() => {
 			switch (settings.hand) {
 			case sdk.skills.hand.Left: // Left hand + Shift
-				return [0, sdk.clicktypes.shift.Shift];
+				return [sdk.clicktypes.click.map.LeftDown, sdk.clicktypes.shift.Shift];
 			case sdk.skills.hand.LeftNoShift: // Left hand + No Shift
-				return [0, sdk.clicktypes.shift.NoShift];
+				return [sdk.clicktypes.click.map.LeftDown, sdk.clicktypes.shift.NoShift];
 			case sdk.skills.hand.RightShift: // Right hand + Shift
-				return [3, sdk.clicktypes.shift.Shift];
+				return [sdk.clicktypes.click.map.RightDown, sdk.clicktypes.shift.Shift];
 			case sdk.skills.hand.Right: // Right hand + No Shift
 			default:
-				return [3, sdk.clicktypes.shift.NoShift];
+				return [sdk.clicktypes.click.map.RightDown, sdk.clicktypes.shift.NoShift];
 			}
 		})();
 

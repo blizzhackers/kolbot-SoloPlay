@@ -6,6 +6,10 @@
 *
 */
 
+/**
+ * @todo
+ *  - split up this file into appropriate sections
+ */
 includeIfNotIncluded("OOG.js");
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/CharData.js");

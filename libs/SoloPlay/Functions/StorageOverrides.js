@@ -137,8 +137,8 @@ var Container = function (name, width, height, location) {
 
 		let x, y, item, nPos;
 
-		for (y = this.width - 1 ; y >= 0 ; y--) {
-			for (x = this.height - 1 ; x >= 0 ; x--) {
+		for (y = this.width - 1; y >= 0; y--) {
+			for (x = this.height - 1; x >= 0; x--) {
 
 				delay(1);
 
@@ -202,7 +202,6 @@ var Container = function (name, width, height, location) {
 				y = this.width - 0;
 
 				break; // Loop again from begin
-
 			}
 		}
 
@@ -301,8 +300,7 @@ var Container = function (name, width, height, location) {
 
 	this.MakeSpot = function (item, location, force) {
 		let x, y, endx, endy, tmpLocation;
-		let itemsToMove = [];
-		let itemsMoved = [];
+		let [itemsToMove, itemsMoved] = [[], []];
 		// TODO: test the scenario where all possible items have been moved, but this item still can't be placed
 		//		 e.g. if there are many LCs in an inventory and the spot for a GC can't be freed up without
 		//			  moving other items that ARE NOT part of the position desired
@@ -347,7 +345,7 @@ var Container = function (name, width, height, location) {
 		}
 
 		// Move any item(s) out of the way
-		if (itemsToMove) {
+		if (itemsToMove.length) {
 			for (let i = 0; i < itemsToMove.length; i++) {
 				let reverseX = !(SetUp.sortSettings.ItemsSortedFromRight.includes(item.classid));
 				tmpLocation = this.FindSpot(itemsToMove[i], reverseX, false);
@@ -370,8 +368,8 @@ var Container = function (name, width, height, location) {
 		return ({x: location.x, y: location.y});
 	};
 
-	this.MoveToSpot = function (item, x, y) {
-		let n, nDelay, cItem, cube;
+	this.MoveToSpot = function (item, mX, mY) {
+		let cItem, cube;
 
 		// Cube -> Stash, must place item in inventory first
 		if (item.location === sdk.storage.Cube && this.location === sdk.storage.Stash && !Storage.Inventory.MoveTo(item)) {
@@ -386,9 +384,10 @@ var Container = function (name, width, height, location) {
 		// Make sure stash is open
 		if (this.location === sdk.storage.Stash && !Town.openStash()) return false;
 
-		if (Packet.itemToCursor(item)) {
-			for (n = 0; n < 5; n += 1) {
-				switch (this.location) {
+		const [orgX, orgY, orgLoc] = [item.x, item.y, item.location];
+		const moveItem = (x, y, location) => {
+			for (let n = 0; n < 5; n += 1) {
+				switch (location) {
 				case sdk.storage.Belt:
 					cItem = Game.getCursorUnit();
 					cItem !== null && sendPacket(1, sdk.packets.send.ItemToBelt, 4, cItem.gid, 4, y);
@@ -409,12 +408,12 @@ var Container = function (name, width, height, location) {
 
 					break;
 				default:
-					clickItemAndWait(sdk.clicktypes.click.Left, x, y, this.location);
+					clickItemAndWait(sdk.clicktypes.click.item.Left, x, y, location);
 
 					break;
 				}
 
-				nDelay = getTickCount();
+				let nDelay = getTickCount();
 
 				while ((getTickCount() - nDelay) < Math.max(1000, me.ping * 2 + 200)) {
 					if (!me.itemoncursor) return true;
@@ -422,6 +421,13 @@ var Container = function (name, width, height, location) {
 					delay(10 + me.ping);
 				}
 			}
+
+			return false;
+		};
+
+		if (Packet.itemToCursor(item)) {
+			if (moveItem(mX, mY, this.location)) return true;
+			moveItem(orgX, orgY, orgLoc) && console.debug("Failed to move " + item.fname + " to " + mX + "/" + mY);
 		}
 
 		return false;

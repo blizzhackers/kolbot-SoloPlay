@@ -13,6 +13,7 @@ includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 
 Pickit.enabled = true;
 Pickit.Result.SOLOWANTS = 8;
+Pickit.Result.SOLOSYSTEM = 9;
 
 Pickit.minItemKeepGoldValue = function () {
 	const myGold = me.gold;
@@ -30,7 +31,7 @@ Pickit.minItemKeepGoldValue = function () {
 };
 
 Pickit.checkItem = function (unit) {
-	let rval = NTIP.CheckItem(unit, false, true);
+	const rval = NTIP.CheckItem(unit, false, true);
 	const resultObj = (result, line = null) => ({
 		result: result,
 		line: line
@@ -45,9 +46,9 @@ Pickit.checkItem = function (unit) {
 
 	if (CharData.skillData.bowData.bowOnSwitch) {
 		if ([sdk.items.type.Bow, sdk.items.type.AmazonBow].includes(CharData.skillData.bowData.bowType) && unit.itemType === sdk.items.type.BowQuiver && Item.getQuantityOwned(unit, true) < 1) {
-			return resultObj(Pickit.Result.WANTED, "Switch-Arrows");
+			return resultObj(Pickit.Result.SOLOWANTS, "Switch-Arrows");
 		} else if (CharData.skillData.bowData.bowType === sdk.items.type.Crossbow && unit.itemType === sdk.items.type.CrossbowQuiver && Item.getQuantityOwned(unit, true) < 1) {
-			return resultObj(Pickit.Result.WANTED, "Switch-Bolts");
+			return resultObj(Pickit.Result.SOLOWANTS, "Switch-Bolts");
 		}
 	}
 
@@ -71,15 +72,15 @@ Pickit.checkItem = function (unit) {
 		}
 	}
 
-	if (SoloWants.checkItem(unit)) return resultObj(Pickit.Result.SOLOWANTS);
+	if (SoloWants.checkItem(unit)) return resultObj(Pickit.Result.SOLOSYSTEM);
 	if (CraftingSystem.checkItem(unit)) return resultObj(Pickit.Result.CRAFTING);
 	if (Cubing.checkItem(unit)) return resultObj(Pickit.Result.CUBING);
 	if (Runewords.checkItem(unit)) return resultObj(Pickit.Result.RUNEWORD);
 	if (AutoEquip.hasTier(unit) && !unit.identified) return resultObj(Pickit.Result.UNID);
 
-	if (unit.isCharm && NTIP.GetCharmTier(unit) > 0 && unit.identified) {
+	if (unit.isCharm/*  && NTIP.GetCharmTier(unit) > 0 && unit.identified */) {
 		if (Item.autoEquipCharmCheck(unit)) {
-			return resultObj(Pickit.Result.WANTED, "Autoequip charm Tier: " + NTIP.GetCharmTier(unit));
+			return resultObj(Pickit.Result.SOLOWANTS, "Autoequip charm Tier: " + NTIP.GetCharmTier(unit));
 		}
 
 		return NTIP.CheckItem(unit, NTIP_CheckListNoTier, true);
@@ -87,22 +88,28 @@ Pickit.checkItem = function (unit) {
 
 	if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) && unit.identified) {
 		if (Item.autoEquipCheck(unit)) {
-			return resultObj(Pickit.Result.WANTED, "Autoequip Tier: " + NTIP.GetTier(unit));
+			return resultObj(Pickit.Result.SOLOWANTS, "Autoequip Tier: " + NTIP.GetTier(unit));
 		}
 
 		if (Item.autoEquipCheckMerc(unit)) {
-			return resultObj(Pickit.Result.WANTED, "Autoequip MercTier: " + NTIP.GetMercTier(unit));
+			return resultObj(Pickit.Result.SOLOWANTS, "Autoequip MercTier: " + NTIP.GetMercTier(unit));
 		}
 
 		if (Item.autoEquipCheckSecondary(unit)) {
-			return resultObj(Pickit.Result.WANTED, "Autoequip Secondary Tier: " + NTIP.GetSecondaryTier(unit));
+			return resultObj(Pickit.Result.SOLOWANTS, "Autoequip Secondary Tier: " + NTIP.GetSecondaryTier(unit));
 		}
 
 		return NTIP.CheckItem(unit, NTIP_CheckListNoTier, true);
 	}
 
+	if (rval.result === Pickit.Result.WANTED && unit.isBaseType) {
+		if (NTIP.CheckItem(unit, NTIP.SoloCheckListNoTier)) {
+			return resultObj(Pickit.Result.SOLOWANTS, "Base Type Item");
+		}
+	}
+
 	// LowGold
-	if (rval.result === Pickit.Result.UNWANTED && !getBaseStat("items", unit.classid, "quest") && !Town.ignoredItemTypes.includes(unit.itemType) && !unit.questItem
+	if (rval.result === Pickit.Result.UNWANTED && !Town.ignoredItemTypes.includes(unit.itemType) && !unit.questItem
 		&& (unit.isInInventory || (me.gold < Config.LowGold || me.gold < 500000))) {
 		// Gold doesn't take up room, just pick it up
 		if (unit.classid === sdk.items.Gold) return resultObj(Pickit.Result.TRASH);
@@ -486,6 +493,7 @@ Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
 
 		switch (status) {
 		case Pickit.Result.WANTED:
+		case Pickit.Result.SOLOWANTS:
 			console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (stats.sockets > 0 ? ") (sockets " + stats.sockets : "") + (keptLine ? ") (" + keptLine + ")" : ")"));
 
 			if (this.ignoreLog.indexOf(stats.type) === -1) {
@@ -515,7 +523,7 @@ Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
 			CraftingSystem.update(item);
 
 			break;
-		case Pickit.Result.SOLOWANTS:
+		case Pickit.Result.SOLOSYSTEM:
 			console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (SoloWants System)");
 			SoloWants.update(item);
 

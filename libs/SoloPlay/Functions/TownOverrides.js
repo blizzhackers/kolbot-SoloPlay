@@ -238,9 +238,26 @@ Town.sellItems = function (itemList = []) {
 	return !itemList.length;
 };
 
-Town.fillTome = function (classid) {
+Town.checkScrolls = function (id, force = false) {
+	let tome = me.findItem(id, sdk.items.mode.inStorage, sdk.storage.Inventory);
+
+	if (!tome) {
+		switch (id) {
+		case sdk.items.TomeofIdentify:
+		case "ibk":
+			return (Config.FieldID.Enabled || force) ? 0 : 20; // Ignore missing ID tome if we aren't using field ID
+		case sdk.items.TomeofTownPortal:
+		case "tbk":
+			return 0; // Force TP tome check
+		}
+	}
+
+	return tome.getStat(sdk.stats.Quantity);
+};
+
+Town.fillTome = function (classid, force = false) {
 	if (me.gold < 450) return false;
-	const have = this.checkScrolls(classid);
+	const have = this.checkScrolls(classid, force);
 	if (have >= (me.charlvl < 12 ? 5 : 13)) return true;
 
 	let scroll;
@@ -302,6 +319,7 @@ Town.itemResult = function (item, result, system = "", sell = false) {
 
 	switch (result.result) {
 	case Pickit.Result.WANTED:
+	case Pickit.Result.SOLOWANTS:
 		Misc.itemLogger("Kept", item);
 		Misc.logItem("Kept", item, result.line);
 		system === "Field" && ((Item.autoEquipCheck(item) && Item.autoEquip("Field")) || (Item.autoEquipCheckSecondary(item) && Item.autoEquipSecondary("Field")));
@@ -327,7 +345,7 @@ Town.itemResult = function (item, result, system = "", sell = false) {
 		CraftingSystem.update(item);
 
 		break;
-	case Pickit.Result.SOLOWANTS:
+	case Pickit.Result.SOLOSYSTEM:
 		Misc.itemLogger("Kept", item, "SoloWants-" + system);
 		SoloWants.update(item);
 
@@ -405,6 +423,7 @@ Town.cainID = function (force = false) {
 
 				break;
 			case Pickit.Result.WANTED:
+			case Pickit.Result.SOLOWANTS:
 				Misc.itemLogger("Kept", item);
 				Misc.logItem("Kept", item, result.line);
 
@@ -421,7 +440,7 @@ Town.cainID = function (force = false) {
 				CraftingSystem.update(item);
 
 				break;
-			case Pickit.Result.SOLOWANTS:
+			case Pickit.Result.SOLOSYSTEM:
 				Misc.itemLogger("Kept", item, "SoloWants-Town");
 				SoloWants.update(item);
 
@@ -636,7 +655,7 @@ Town.shopItems = function (force = false) {
 		const result = Pickit.checkItem(item);
 
 		// no tier'ed items
-		if (!lowLevelShop && result.result === Pickit.Result.WANTED && NTIP.CheckItem(item, NTIP_CheckListNoTier, true).result !== Pickit.Result.UNWANTED) {
+		if (!lowLevelShop && result.result === Pickit.Result.SOLOWANTS && NTIP.CheckItem(item, NTIP.SoloCheckListNoTier, true).result !== Pickit.Result.UNWANTED) {
 			try {
 				if (Storage.Inventory.CanFit(item) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
 					if (item.isBaseType) {
@@ -658,8 +677,8 @@ Town.shopItems = function (force = false) {
 			}
 		}
 
-		// tier'ed items - // todo re-write this so we don't buy multiple items just to equip one then sell the rest back
-		if (result.result === Pickit.Result.WANTED && AutoEquip.wanted(item)) {
+		// tier'ed items
+		if (result.result === Pickit.Result.SOLOWANTS && AutoEquip.wanted(item)) {
 			const checkDependancy = (item) => {
 				let check = Item.hasDependancy(item);
 				if (check) {
@@ -825,34 +844,25 @@ Town.canStash = function (item) {
 
 Town.stash = function (stashGold = true) {
 	if (!this.needStash()) return true;
-	me.cancel();
+	!getUIFlag(sdk.uiflags.Stash) && me.cancel();
 
-	let items = Storage.Inventory.Compare(Config.Inventory);
+	let items = (Storage.Inventory.Compare(Config.Inventory) || []);
 
-	if (items) {
-		for (let i = 0; i < items.length; i += 1) {
-			const item = items[i];
-			if (this.canStash(item)) {
-				const pickResult = Pickit.checkItem(item).result;
-				let result = (() => {
-					switch (true) {
-					case pickResult > Pickit.Result.UNWANTED && pickResult < Pickit.Result.TRASH:
-					case Town.systemsKeep(item):
-					case AutoEquip.wanted(item) && pickResult === Pickit.Result.UNWANTED: // wanted but can't use yet
-					case !item.sellable: // quest/essences/keys/ect
-						return true;
-					default:
-						return false;
-					}
-				})();
-
-				if (result) {
-					Misc.itemLogger("Stashed", item);
-					Storage.Stash.MoveTo(item);
-				}
+	items.length > 0 && items.forEach(item => {
+		if (this.canStash(item)) {
+			const pickResult = Pickit.checkItem(item).result;
+			switch (true) {
+			case pickResult !== Pickit.Result.UNWANTED && pickResult !== Pickit.Result.TRASH:
+			case Town.systemsKeep(item):
+			case AutoEquip.wanted(item) && pickResult === Pickit.Result.UNWANTED: // wanted but can't use yet
+			case !item.sellable: // quest/essences/keys/ect
+				Storage.Stash.MoveTo(item) && Misc.itemLogger("Stashed", item);
+				break;
+			default:
+				break;
 			}
 		}
-	}
+	});
 
 	// Stash gold
 	if (stashGold) {
@@ -1122,7 +1132,8 @@ Town.clearInventory = function () {
 };
 
 Town.clearJunk = function () {
-	let junkItems = me.getItemsEx().filter(i => i.isInStorage && !Town.ignoredItemTypes.includes(i.itemType) && i.sellable);
+	let junkItems = me.getItemsEx()
+		.filter(i => i.isInStorage && !Town.ignoredItemTypes.includes(i.itemType) && i.sellable && !Town.systemsKeep(i));
 	if (!junkItems.length) return false;
 
 	let [totalJunk, junkToSell, junkToDrop] = [[], [], []];
@@ -1139,7 +1150,7 @@ Town.clearJunk = function () {
 		const pickitResult = Pickit.checkItem(junk).result;
 
 		try {
-			if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(pickitResult) && !Town.systemsKeep(junk)) {
+			if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(pickitResult)) {
 				console.log("ÿc9JunkCheckÿc0 :: Junk: " + junk.name + " Pickit Result: " + pickitResult);
 				getToItem("JunkCheck", junk) && totalJunk.push(junk);
 
@@ -1162,7 +1173,7 @@ Town.clearJunk = function () {
 				continue;
 			}
 
-			if (junk.isBaseType) {
+			if (junk.isBaseType && pickitResult === Pickit.Result.SOLOWANTS) {
 				if (!Item.betterThanStashed(junk)) {
 					console.log("ÿc9BetterThanStashedCheckÿc0 :: Base: " + junk.name + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
 					getToItem("BetterThanStashedCheck", junk) && totalJunk.push(junk);
@@ -1186,6 +1197,8 @@ Town.clearJunk = function () {
 		totalJunk
 			.sort((a, b) => b.getItemCost(sdk.items.cost.ToSell) - a.getItemCost(sdk.items.cost.ToSell))
 			.forEach(junk => {
+				// extra check should ensure no pickit wanted items get sold/dropped
+				if (NTIP.CheckItem(junk, NTIP_CheckListNoTier) === Pickit.Result.WANTED) return;
 				if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
 					junkToSell.push(junk);
 				} else {

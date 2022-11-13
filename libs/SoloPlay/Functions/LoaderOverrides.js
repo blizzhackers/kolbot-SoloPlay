@@ -104,7 +104,10 @@ Loader.loadScripts = function () {
 
 Loader.run = function () {
 	let updatedDifficulty = Check.nextDifficulty();
-	updatedDifficulty && CharData.updateData("me", "setDifficulty", updatedDifficulty);
+	if (updatedDifficulty) {
+		CharData.updateData("me", "setDifficulty", updatedDifficulty);
+		!me.realm && Messaging.sendToScript("D2BotSoloPlay.dbj", "diffChange");
+	}
 
 	for (this.scriptIndex = 0; this.scriptIndex < SoloIndex.scripts.length; this.scriptIndex++) {
 		!me.inTown && Town.goToTown();
@@ -169,7 +172,10 @@ Loader.run = function () {
 	// Re-check to see if after this run we now meet difficulty requirments
 	if (!updatedDifficulty) {
 		updatedDifficulty = Check.nextDifficulty(false);
-		updatedDifficulty && CharData.updateData("me", "setDifficulty", updatedDifficulty);
+		if (updatedDifficulty) {
+			CharData.updateData("me", "setDifficulty", updatedDifficulty);
+			!me.realm && Messaging.sendToScript("D2BotSoloPlay.dbj", "diffChange");
+		}
 	}
 
 	return true;

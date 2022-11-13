@@ -137,15 +137,15 @@ const Quest = {
 			return false;
 		}
 
-		clickItemAndWait(sdk.clicktypes.click.Left, hstaff);
+		clickItemAndWait(sdk.clicktypes.click.item.Left, hstaff);
 		submitItem();
 		delay(750 + me.ping);
 
 		// Clear cursor of staff - credit @Jaenster
 		let item = me.getItemsEx().filter((el) => el.isInInventory).first();
 		let _b = [item.x, item.y, item.location], x = _b[0], y = _b[1], loc = _b[2];
-		clickItemAndWait(sdk.clicktypes.click.Left, item);
-		clickItemAndWait(sdk.clicktypes.click.Left, x, y, loc);
+		clickItemAndWait(sdk.clicktypes.click.item.Left, item);
+		clickItemAndWait(sdk.clicktypes.click.item.Left, x, y, loc);
 		delay(750 + me.ping);
 
 		return true;
@@ -513,6 +513,7 @@ const Quest = {
 	},
 
 	unfinishedQuests: function () {
+		const highestAct = me.highestAct;
 		// Act 1
 		// Tools of the trade
 		let malus = me.getItem(sdk.items.quest.HoradricMalus);
@@ -531,94 +532,116 @@ const Quest = {
 		}
 
 		// Act 2
-		// Radament skill book
-		let book = me.getItem(sdk.quest.item.BookofSkill);
-		if (book) {
-			book.isInStash && Town.openStash() && delay(300);
-			Misc.poll(() => {
-				book.use();
-				if (me.getStat(sdk.stats.NewSkills) > 0) {
-					console.log("ÿc8Kolbot-SoloPlayÿc0: used Radament skill book");
-					AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
-					return true;
-				}
-				return false;
-			}, 1000, 100);
-		}
-
-		// Act 3
-		// Figurine -> Golden Bird
-		if (me.getItem(sdk.items.quest.AJadeFigurine)) {
-			myPrint("starting jade figurine");
-			Town.goToTown(3) && Town.npcInteract("meshif");
-		}
-
-		// Golden Bird -> Ashes
-		(me.getItem(sdk.items.quest.TheGoldenBird)) && Town.goToTown(3) && Town.npcInteract("alkor");
-
-		// Potion of life
-		let pol = me.getItem(sdk.items.quest.PotofLife);
-		if (pol) {
-			pol.isInStash && Town.openStash() && delay(300);
-			pol.use() && console.log("ÿc8Kolbot-SoloPlayÿc0: used potion of life");
-		}
-
-		// LamEssen's Tome
-		let tome = me.getItem(sdk.items.quest.LamEsensTome);
-		if (tome) {
-			!me.inTown && Town.goToTown(3);
-			tome.isInStash && Town.openStash() && Storage.Inventory.MoveTo(tome) && delay(300);
-			Town.npcInteract("alkor") && delay(300);
-			me.getStat(sdk.stats.StatPts) > 0 && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
-			console.log("ÿc8Kolbot-SoloPlayÿc0: LamEssen Tome completed");
-		}
-
-		// Remove Khalim's Will if quest not completed and restarting run.
-		let kw = me.getItem(sdk.items.quest.KhalimsWill);
-		if (kw) {
-			if (Item.getEquippedItem(sdk.body.RightArm).classid === sdk.items.quest.KhalimsWill) {
-				Town.clearInventory();
-				delay(500);
-				Quest.stashItem(sdk.items.quest.KhalimsWill);
-				console.log("ÿc8Kolbot-SoloPlayÿc0: removed khalims will");
-				Item.autoEquip();
+		if (highestAct >= 2) {
+			// Radament skill book
+			let book = me.getItem(sdk.quest.item.BookofSkill);
+			if (book) {
+				book.isInStash && Town.openStash() && delay(300);
+				Misc.poll(() => {
+					book.use();
+					if (me.getStat(sdk.stats.NewSkills) > 0) {
+						console.log("ÿc8Kolbot-SoloPlayÿc0: used Radament skill book");
+						AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
+						return true;
+					}
+					return false;
+				}, 1000, 100);
 			}
 		}
 
-		// Killed council but haven't talked to cain
-		if (!Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, sdk.quest.states.Completed) && Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, 4)) {
-			me.overhead("Finishing Travincal by talking to cain");
-			Town.goToTown(3) && Town.npcInteract("cain") && delay(300);
-			me.cancel();
+		// Act 3
+		if (highestAct >= 3) {
+			// Figurine -> Golden Bird
+			if (me.getItem(sdk.items.quest.AJadeFigurine)) {
+				myPrint("starting jade figurine");
+				Town.goToTown(3) && Town.npcInteract("meshif");
+			}
+
+			// Golden Bird -> Ashes
+			(me.getItem(sdk.items.quest.TheGoldenBird)) && Town.goToTown(3) && Town.npcInteract("alkor");
+
+			// Potion of life
+			let pol = me.getItem(sdk.items.quest.PotofLife);
+			if (pol) {
+				pol.isInStash && Town.openStash() && delay(300);
+				pol.use() && console.log("ÿc8Kolbot-SoloPlayÿc0: used potion of life");
+			}
+
+			// LamEssen's Tome
+			let tome = me.getItem(sdk.items.quest.LamEsensTome);
+			if (tome) {
+				!me.inTown && Town.goToTown(3);
+				tome.isInStash && Town.openStash() && Storage.Inventory.MoveTo(tome) && delay(300);
+				Town.npcInteract("alkor") && delay(300);
+				me.getStat(sdk.stats.StatPts) > 0 && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
+				console.log("ÿc8Kolbot-SoloPlayÿc0: LamEssen Tome completed");
+			}
+
+			// Free Lam Essen quest
+			if (Pather.accessToAct(3) && !me.getQuest(sdk.quest.id.LamEsensTome, sdk.quest.states.Completed)) {
+				!me.inArea(sdk.areas.KurastDocktown) && Town.goToTown(3);
+				Town.move("alkor");
+				let unit = getUnit(1, "alkor");
+				if (unit) {
+					sendPacket(1, sdk.packets.send.QuestMessage, 4, unit.gid, 4, 564);
+					delay((me.ping || 0) * 2 + 200);
+					unit.openMenu();
+					me.cancel();
+					me.cancel();
+				}
+			}
+
+			// Remove Khalim's Will if quest not completed and restarting run.
+			let kw = me.getItem(sdk.items.quest.KhalimsWill);
+			if (kw) {
+				if (Item.getEquippedItem(sdk.body.RightArm).classid === sdk.items.quest.KhalimsWill) {
+					Town.clearInventory();
+					delay(500);
+					Quest.stashItem(sdk.items.quest.KhalimsWill);
+					console.log("ÿc8Kolbot-SoloPlayÿc0: removed khalims will");
+					Item.autoEquip();
+				}
+			}
+
+			// Killed council but haven't talked to cain
+			if (!Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, sdk.quest.states.Completed) && Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, 4)) {
+				me.overhead("Finishing Travincal by talking to cain");
+				Town.goToTown(3) && Town.npcInteract("cain") && delay(300);
+				me.cancel();
+			}
 		}
 
 		// Act 4
-		// Drop hellforge hammer and soulstone at startup
-		let hammer = me.getItem(sdk.items.quest.HellForgeHammer);
-		if (hammer) {
-			!me.inTown && Town.goToTown();
-			hammer.isInStash && Town.openStash() && Storage.Inventory.MoveTo(hammer) && delay(300);
-			getUIFlag(sdk.uiflags.Stash) && me.cancel();
-			hammer.drop();
-		}
+		if (highestAct >= 4) {
+			// Drop hellforge hammer and soulstone at startup
+			let hammer = me.getItem(sdk.items.quest.HellForgeHammer);
+			if (hammer) {
+				!me.inTown && Town.goToTown();
+				hammer.isInStash && Town.openStash() && Storage.Inventory.MoveTo(hammer) && delay(300);
+				getUIFlag(sdk.uiflags.Stash) && me.cancel();
+				hammer.drop();
+			}
 
-		let soulstone = me.getItem(sdk.items.quest.MephistosSoulstone);
-		if (soulstone) {
-			!me.inTown && Town.goToTown();
-			soulstone.isInStash && Town.openStash() && Storage.Inventory.MoveTo(soulstone) && delay(300);
-			getUIFlag(sdk.uiflags.Stash) && me.cancel();
-			soulstone.drop();
+			let soulstone = me.getItem(sdk.items.quest.MephistosSoulstone);
+			if (soulstone) {
+				!me.inTown && Town.goToTown();
+				soulstone.isInStash && Town.openStash() && Storage.Inventory.MoveTo(soulstone) && delay(300);
+				getUIFlag(sdk.uiflags.Stash) && me.cancel();
+				soulstone.drop();
+			}
 		}
 
 		// Act 5
-		let socketItem = Misc.checkItemsForSocketing();
-		!!socketItem && Quest.useSocketQuest(socketItem);
+		if (highestAct === 5) {
+			let socketItem = Misc.checkItemsForSocketing();
+			!!socketItem && Quest.useSocketQuest(socketItem);
 
-		// Scroll of resistance
-		let sor = me.getItem(sdk.items.quest.ScrollofResistance);
-		if (sor) {
-			sor.isInStash && Town.openStash() && delay(300);
-			sor.use() && console.log("ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance");
+			// Scroll of resistance
+			let sor = me.getItem(sdk.items.quest.ScrollofResistance);
+			if (sor) {
+				sor.isInStash && Town.openStash() && delay(300);
+				sor.use() && console.log("ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance");
+			}
 		}
 
 		Misc.checkSocketables();
