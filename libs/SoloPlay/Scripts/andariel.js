@@ -81,8 +81,9 @@ function andariel () {
 			// Now check my area
 			if (me.act === 2) {
 				// Act change sucessful, Andy has been bugged
-				let result = (Misc.checkQuest(sdk.quest.id.SistersToTheSlaughter, 15) ? "Sucessful" : "Unsucessful");
-				myPrint("Andy bugged was " + result);
+				// let result = (Misc.checkQuest(sdk.quest.id.SistersToTheSlaughter, 15) ? "Sucessful" : "Unsucessful");
+				// myPrint("Andy bugged was " + result);
+				myPrint("Bugging andy");
 				scriptBroadcast("quit");
 			}
 		}
