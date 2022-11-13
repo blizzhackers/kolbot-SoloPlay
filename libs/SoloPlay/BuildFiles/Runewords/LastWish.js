@@ -1,13 +1,14 @@
-const LW = [
-	"[name] == JahRune",
-	"[name] == MalRune",
-	"[name] == JahRune",
-	"[name] == SurRune",
-	"[name] == JahRune",
-	"[name] == BerRune",
-	"[name] == phaseblade && [quality] >= normal && [quality] <= superior # [sockets] == 6 # [maxquantity] == 1",
-];
-NTIP.arrayLooping(LW);
+{
+	// Jah/Mal/Jah/Sur/Jah/Ber
+	const LW = [
+		"[name] == JahRune",
+		"[name] == MalRune",
+		"[name] == SurRune",
+		"[name] == BerRune",
+		"[name] == phaseblade && [quality] >= normal && [quality] <= superior # [sockets] == 6 # [maxquantity] == 1",
+	];
+	NTIP.arrayLooping(LW);
+}
 
 // Cube to Jah/Sur rune
 if (!me.getItem(sdk.items.runes.Jah) || !me.getItem(sdk.items.runes.Sur)) {
