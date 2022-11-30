@@ -66,6 +66,7 @@ function den () {
 	}
 
 	Town.doChores(false, (me.charlvl < 18 ? { stamina: true } : {}));
+	!me.inArea(sdk.areas.RogueEncampment) && Town.goToTown(1);
 	Town.move("portalspot");
 
 	// Check if there are any portals before trying to use one
