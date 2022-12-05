@@ -1,26 +1,45 @@
 ![extract into](https://i.imgur.com/TcRmoRm.png)
 
-## The big question, What is Kolbot-SoloPlay?
+*- "the one bot to rule them all."*
+
+<br />
+
+# Table of contents
+- [What is SoloPlay?](#the-big-question-what-is-kolbot-soloplay)
+- [Features](#features)
+- [Characters and Build](#available-characters-and-builds)
+- [Modes](#new-modes)
+- [FAQ](#frequently-asked-questions)
+- [Install-Guide](#install-guide)
+- [Extras](#extras)
+- [Discord](#discord)
+
+<br />
+
+# The big question, What is Kolbot-SoloPlay?
 - SoloPlay is a D2BS based auto-play system to level any single legacy diablo 2 character class from 1-99. That sounds like a bunch of verbage so let me break it down a bit. D2BS stands for ``Diablo 2 Botting System`` if you are familiar with Kolbot that is what you are using. SoloPlay only works for Diablo 2, so before you ask it is not for Diablo 2 Resurrected. Alright next, what is an auto-play system? In simple terms, SoloPlay works by set it and forget philosophy. It is profile driven so the only thing you need to worry about is filling out the profile with the correct format and then press start (how to set up the profile is defined below). After that it takes care of the rest, no setting up config files or settings files (like sonic or horde), ect. The goal is to be the fastest leveling system there is across all modes (classic/expansion, hardcore/softcore, ladder/non-ladder)
 
-**Important Notes:** 
+## **Important Notes:** 
 - This script is designed to be only run from [https://github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot). Most errors occur from using the wrong Kolbot repo installation. 
-- This script requires the English version of Diablo 2 to be installed.
+- **This script requires the English version of Diablo 2 to be installed.**
 
-## Features
+# Features
 - Operates in Hell difficulty within 24 hours (the exception is the barbarian class that takes 48)
   - **NOTE:** Classic mode will take a little longer
-- Final build options, or what the bot will build to (I.E Light sorceress, Hammerdin, ect) (see **Frequently Asked Questions** for more info)
+- Final build options, or what the bot will build to (I.E Light sorceress, Hammerdin, ect) (see **[Frequently Asked Questions](#frequently-asked-questions)** for more info)
 - Plays through and finishes the game
 - Hire class/build specific mercenary
 - Fully configured Auto Equip (Primary, Secondary, and Charms) for bot and mercenary
 - Makes and equips CTA and spirit shield on swap
-    - Some classes don't use CTA and spirit, Barbarian class uses duel Bo sticks. Cold based sorceress builds use CTA and Lidless for the lower strength requirment. Wereform druid builds use Mang-Songs Staff for the +5 all skills bonus. 
+    - **NOTE:** Some classes don't use CTA and spirit:
+      - Barbarian class uses duel Bo sticks.
+      - Cold based sorceress builds use CTA and Lidless for the lower strength requirment.
+      - Wereform druid builds use Mang-Songs Staff for the +5 all skills bonus. 
 - Fully configured use of socketable items for both leveling gear and end-game gear (Adding Perfect diamonds to a shield like Moser's and later replacing it with Um runes if it's our wanted end-game gear) (see **Config.socketables** inside the base config file for more info)
 - Kill diablo clone in expansion
   - Will try to share Annhilus charm if online and already has one
 
-## Available Characters and Builds
+# Available Characters and Builds
 | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
 |:------:|:-------:|:-------:|:------:|:------:|:------:|:-----:|
 | Javazon | Cold | Poison | Hammerdin| Whirlwind | Wind |Trapsin|
@@ -31,11 +50,15 @@
 | |  | | Classicauradin |  |
 | |  | | Hammershock |  |
 | |  | | *`Sancdreamer`* |  |
-- **NOTE:** Expansion only builds marked.
-- Navigate to ``kolbot\libs\SoloPlay\BuildFiles\`` and open the file with the build name for a more in-depth description of each build
+- **NOTE:** Expansion only builds marked as *`Expansion`*
+- Navigate to ``kolbot\libs\SoloPlay\``[``BuildFiles``](libs/SoloPlay/BuildFiles/) and open the file with the build name for a more in-depth description of each build
 
 ## New modes
-- New modes are available: **Bumper**, **Socketmule**, and **Imbuemule**. Enter into your D2Bot# profiles info tag to make. The bot will then stop after shenk quest for Socketmule, after it hits level 40 for a Bumper, and by default at level 30 for Imbuemule (**this can be edited in Developer.js by changing ``imbueStopLevel: 30,`` to be the level you want**.
+- New modes are available: **Bumper**, **Socketmule**, and **Imbuemule**. Enter into your D2Bot# profiles info tag to make. 
+    - The bot will then stop after completing mode requirments.
+      - Shenk quest for Socketmule
+      - Level 40 for a [Bumper](#q-what-is-a-bumper)
+      - Default at level 30 for Imbuemule (**this can be edited in [Developer.js](/libs/SoloPlay/Tools/Developer.js) by changing ``imbueStopLevel: 30,`` to be the level you want**.
 - **Note: These options only work in expansion.**
 
 | Mode | Example |
@@ -44,66 +67,70 @@
 | Socketmule | ![Socketmule](https://user-images.githubusercontent.com/60308670/131758691-5fce3c06-05a0-4058-8abb-8d81d6d538a9.png) |
 | Imbuemule | ![Imbuemule](https://user-images.githubusercontent.com/60308670/167488151-59e01f77-7d8f-4ae8-a0ae-120a02a758a6.png) |
 
-## Frequently Asked Questions
-**Q: Why isn't the bot making the build I selected?**
+# Frequently Asked Questions
+### **Q: Why isn't the bot making the build I selected?**
 
 **A:** The bot follows a set build progression. See next question.
 
-**Q: When will the bot change to the final build I selected?**
+### **Q: When will the bot change to the final build I selected?**
 
-**A:** In classic, the bot will switch to the final build after it defeats diablo and meets a level requirement. In expansion, it transitions to the final build when final gear requirements are met (Navigate to libs\SoloPlay\BuildFiles\ and look for the file with the name of the final build you choose to see what items are needed for each build and what level is required for classic).
+**A:** In classic, the bot will switch to the final build after it defeats diablo and meets a level requirement.
+In expansion, it transitions to the final build when final gear requirements are met ``(Navigate to libs\SoloPlay\``[``BuildFiles``](libs/SoloPlay/BuildFiles/)) and look for the file with the name of the final build you choose to see what items are needed for each build and what level is required for classic).
 
-**Q: The bot has beaten diablo (classic) / baal, so why isn't moving on to the next difficulty?**
+### **Q: The bot has beaten diablo (classic) / baal, so why isn't moving on to the next difficulty?**
 
 **A:** The bot will only progress once it has reached a minimum character level (`navigate to libs\SoloPlay\Config\classname.js` and see `Config.levelCap` for level requirments) and will not start the next difficulty with negative resistances. If the bot is more than 5 levels higher than the minimum character level and has not reached the required resistances, it will automatically move to the next difficulty.
 
-**Q: How can I run more than one of the same class?**
+### **Q: How can I run more than one of the same class?**
 
 **A:** Simply append a number after the class name. For example, if you want to run 5 sorceresses just name the profiles: `SCL-SORC-1`, `SCL-SORC-2`, `SCL-SORC-3`, `SCL-SORC-4`, `SCL-SORC-5`. Example Profile Names are listed at the bottom of the install guide.
 
-**Q: HELP!!! There is an error when starting the bot?**
+### **Q: HELP!!! There is an error when starting the bot?**
 
 **A:** There was a bad installation OR the profile settings are wrong. First verify that you using the kolbot version linked the install guide below. Next, confirm you have installed all the files into their proper locations (including overwriting the existing `default.dbj`). Finally, verify the profile name and infotag follow the format of the install guide's instructions.
 
-**Q: HELP!!! The bot auto created my account and I can't find the password!**
+### **Q: HELP!!! The bot auto created my account and I can't find the password!**
 
 **A:** The info for each character created is saved under logs/Kolbot-SoloPlay/realm/ , look for the name of the character whos info you're trying to find and open up the .json file. 
 
-**Q: HELP!!! The bot isn't casting any skills!**
+### **Q: HELP!!! The bot isn't casting any skills!**
 
-**A:** The bot uses packet casting for stability, which doesn't show the casting animations. It is actually casting the skills, if you would like to see the casting animations you will need to navigate to libs\SoloPlay\Tools\Developer.js and change forcePacketCasting.enabled to false.
+**A:** The bot uses packet casting for stability, which doesn't show the casting animations. It is actually casting the skills, if you would like to see the casting animations you will need to navigate to `libs\SoloPlay\Tools\`[Developer.js](libs/SoloPlay/Tools/Developer.js) and change forcePacketCasting.enabled to false.
 
-**Q: What is a Bumper?**
+### **Q: What is a Bumper?**
 
 **A:** A Bumper is a level 40 character that has not done baal quest in normal and is used to "bump" low level characters to hell difficulty where they can power level following chaos runs. 
 
-**Q: Does this work for Diablo 2 Resurected?**
+### **Q: Does this work for Diablo 2 Resurected?**
 
 **A:** No, Kolbot does not work with d2r and SoloPlay runs using Kolbot. SoloPlay only works on diablo 2. 
 
 ## Really Dumb Frequently Asked Questions
-**Q: Can I make my solo bots work together?**
+### **Q: Can I make my solo bots work together?**
 
 **A:** NO. It is SOLO not team, not group, but SoloPlay
 
-## Install Guide
+<Br>
+
+# Install Guide
+
 | Step | Instructions | |
 |:------:|:-------|-------:|
 | 1.| Download Kolbot here: [github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot). |![blizzhackers github](https://i.imgur.com/RksqKEA.jpg) |
 | 2.| Click the green button to Download SoloPlay. |![enter image description here](https://i.imgur.com/cNqZDbW.jpg) |
 | 3.a| Copy and paste the following: `default.dbj`, `D2BotSoloPlay.dbj`, and the entire `\libs` folder into `\d2bs\kolbot\`.| ![kolbot](https://i.imgur.com/WNxJOhq.png) |
 |3.b|A successful installation will show 1 new file in the folder: `D2BotSoloPlay.dbj` and look similar to the following image|![image](https://user-images.githubusercontent.com/60308670/131760184-ba777302-908e-4247-b9b7-1c9331028b2c.png)| 4.| Select Add for new a Kolbot Profile. | ![Add-profile.jpg](https://imgur.com/tHs9ZoH.jpg)|
-| 4.a| Select and Input a profile name. See the **Possible Profile Name Choices** below for a list of available options. | ![extract into](https://i.imgur.com/2YcGKVH.png) |
+| 4.a| Select and Input a profile name. See the **[Possible Profile Name Choices](#possible-profile-names)** below for a list of available options. | ![extract into](https://i.imgur.com/2YcGKVH.png) |
 | 4.b| ***Optional*** Input your account name. If no name than a random account is created. | |
 | 4.c|***Optional*** Input your account password. If no name than a random password is created. | |
 | 4.d|***Optional*** Input your character name. If no name than a random name is created. | ![enter character name](https://i.imgur.com/0jxaS8j.png) |
 |5.| Select Entry Script `D2BotSoloPlay.dbj`.| ![Select Entry Script](https://i.imgur.com/f0vTLqC.png)|
-|6.| Input your Info Tag Information. See **Available Characters and Builds** or **New modes** for a a list of options. <br><br> Make sure the spelling matches the listed builds and there are no trailing spaces. | ![enter image description here](https://i.imgur.com/zVzOBQ7.png)|
+|6.| Input your Info Tag Information. See **[Available Characters and Builds](#available-characters-and-builds)** or **[New modes](#new-modes)** for a a list of options. <br><br> Make sure the spelling matches the listed builds and there are no trailing spaces. | ![enter image description here](https://i.imgur.com/zVzOBQ7.png)|
 |7.|Ensure your Game Path, Key List, Realm, Mode are all set on the settings you want to use then click Apply.||
 |8.|Run the Bot.||
 |9.|Enjoy!||
 
-### Quick YouTube tutorial
+## Quick YouTube tutorial
 https://youtu.be/qYHUw6nNn74
 
 ## Possible Profile Names 
@@ -138,8 +165,8 @@ https://youtu.be/qYHUw6nNn74
 - **SCCNL-PAL** would make a softcore classic nonladder paladin
 - **HCCNL-SORC** would make a hardcore classic nonladder sorceress
 
-## Extras
-- Navigate to libs\SoloPlay\Tools\Developer.js for extra options
+# Extras
+- Navigate to `libs\SoloPlay\Tools\`[Developer.js](/libs/SoloPlay/Tools/Developer.js) for extra options
 - Developer.js includes options such as:
   - plugyMode toggle (allow use of larger stash when using the Mod PlugY)
   - logging equipped items to D2Bot# Char Viewer tab
@@ -184,3 +211,5 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## License
 [GPL-3.0](https://choosealicense.com/licenses/gpl-3.0/)
+
+[Back to top](#table-of-contents)
