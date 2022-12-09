@@ -133,7 +133,8 @@ const finalBuild = {
 				{ name: sdk.locale.items.TalRashasAmulet, quality: sdk.items.quality.Set },
 				{ name: sdk.locale.items.TalRashasArmor, quality: sdk.items.quality.Set },
 				{ name: sdk.locale.items.TalRashasOrb, quality: sdk.items.quality.Set },
-			]);
+				{ name: sdk.locale.items.TalRashasHelmet, quality: sdk.items.quality.Set },
+			]) && me.hell && me.baal;
 		}
 	},
 
