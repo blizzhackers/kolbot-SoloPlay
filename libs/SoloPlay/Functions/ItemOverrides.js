@@ -1226,7 +1226,7 @@ Item.autoEquipCharms = function () {
 	let LCs = Item.autoEquipLC();
 	let SCs = Item.autoEquipSC();
 	let specialCharms = me.getItemsEx()
-		.filter((charm) => [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(charm.classid) && charm.unique);
+		.filter((charm) => charm.isCharm && charm.unique);
 	let verbose = !!(Developer.debugging.smallCharm || Developer.debugging.largeCharm || Developer.debugging.grandCharm);
 
 	if (verbose) {
@@ -1243,7 +1243,9 @@ Item.autoEquipCharms = function () {
 			i--;
 		}
 	}
-	totalSell = totalSell.concat(SCs.sell, LCs.sell, GCs.sell);
+	totalSell = totalSell
+		.concat(SCs.sell, LCs.sell, GCs.sell)
+		.filter((charm) => NTIP.CheckItem(charm, NTIP_CheckListNoTier) === Pickit.Result.UNWANTED);
 	totalKeep.length > 0 && console.log("ÿc8Kolbot-SoloPlayÿc0: Total Charms Kept: " + totalKeep.length);
 
 	if (totalSell.length > 0) {
