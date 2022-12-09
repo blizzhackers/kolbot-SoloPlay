@@ -222,10 +222,11 @@ Item.autoEquip = function (task = "") {
 
 	const runEquip = (item, bodyLoc, tier) => {
 		let gid = item.gid;
-		console.debug(item.name);
+		let prettyName = item.fname.split("\n").reverse().join(" ");
+		console.debug(prettyName + " tier: " + tier);
 
 		if (this.equip(item, bodyLoc)) {
-			console.log("ÿc9" + task + "ÿc0 :: Equipped: " + item.fname + " Tier: " + tier);
+			console.log("ÿc9" + task + "ÿc0 :: Equipped: " + prettyName + " Tier: " + tier);
 			// item that can have sockets
 			if (item.getItemType()) {
 				SoloWants.addToList(item);
@@ -533,10 +534,11 @@ Item.autoEquipSecondary = function (task = "") {
 					Item.identify(item);
 
 					let gid = item.gid;
-					console.debug(item.name);
+					let prettyName = item.fname.split("\n").reverse().join(" ");
+					console.debug(prettyName + " tier: " + tier);
 
 					if (this.secondaryEquip(item, bodyLoc[j])) {
-						console.log("ÿc9SecondaryEquipÿc0 :: Equipped: " + item.fname + " SecondaryTier: " + tier);
+						console.log("ÿc9SecondaryEquipÿc0 :: Equipped: " + prettyName + " SecondaryTier: " + tier);
 						Developer.debugging.autoEquip && Misc.logItem("Equipped switch", me.getItem(-1, -1, gid));
 						Developer.logEquipped && MuleLogger.logEquippedItems();
 					}
