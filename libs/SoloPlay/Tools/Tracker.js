@@ -172,7 +172,7 @@ const Tracker = {
 	}
 };
 
-if (getScript(true).name.toString() === "libs\\soloplay\\soloplay.js") {
+if (Developer.logPerformance && getScript(true).name.toString() === "libs\\soloplay\\soloplay.js") {
 	const Worker = require("../../modules/Worker");
 
 	Worker.runInBackground.intervalUpdate = function () {

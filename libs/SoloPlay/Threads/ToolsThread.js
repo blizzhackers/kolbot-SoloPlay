@@ -574,6 +574,10 @@ function main () {
 
 	let myAct = me.act;
 
+	if (Developer.overlay && !Developer.logPerformance) {
+		console.warn("Without logPerformance set, the overlay will only show partial values");
+	}
+
 	// Start
 	while (true) {
 		try {
@@ -671,8 +675,6 @@ function main () {
 						myAct = me.act;
 					}
 				}
-			} else {
-				D2Bot.printToConsole("Overlay cannot work without Developer.logPerformance = true;", sdk.colors.D2Bot.Blue);
 			}
 		}
 

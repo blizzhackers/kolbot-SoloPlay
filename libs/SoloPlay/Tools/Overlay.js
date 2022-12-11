@@ -28,6 +28,7 @@ const Overlay = {
 		tick: 0,
 
 		clock: function () {
+			if (!Developer.logPerformance) return "";
 			this.GameTracker === undefined && (this.GameTracker = Developer.readObj(Tracker.GTPath));
 			this.tick = getTickCount();
 			let currInGame = getTickCount() - me.gamestarttime;
@@ -51,8 +52,6 @@ const Overlay = {
 			// Double check in case still got here before being ready
 			if (!me.gameReady && !me.ingame && !me.area) return;
 
-			this.GameTracker === undefined && (this.GameTracker = Developer.readObj(Tracker.GTPath));
-			
 			!this.getHook("dashboard") && this.add("dashboard");
 			!this.getHook("credits") && this.add("credits");
 			
@@ -64,11 +63,14 @@ const Overlay = {
 				}
 			}
 
-			if (!this.getHook("times")) {
-				this.add("times");
-			} else {
-				if (getTickCount() - this.tick >= 1000) {
-					this.getHook("times").hook.text = this.clock();
+			if (Developer.logPerformance) {
+				this.GameTracker === undefined && (this.GameTracker = Developer.readObj(Tracker.GTPath));
+				if (!this.getHook("times")) {
+					this.add("times");
+				} else {
+					if (getTickCount() - this.tick >= 1000) {
+						this.getHook("times").hook.text = this.clock();
+					}
 				}
 			}
 
