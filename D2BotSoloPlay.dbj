@@ -163,7 +163,7 @@ function timer (tick) {
 	const currInGame = (getTickCount() - tick);
 	let timeStr = " (Time: " + Time.format(currInGame) + ") ";
 	
-	if (Developer.displayClockInConsole) {
+	if (Developer.displayClockInConsole && Developer.logPerformance) {
 		try {
 			gameTracker === undefined && (gameTracker = Developer.readObj(Tracker.GTPath));
 			let [tTime, tInGame, tDays] = [(gameTracker.Total + currInGame), (gameTracker.InGame + currInGame), (gameTracker.Total + currInGame)];
