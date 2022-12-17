@@ -1074,12 +1074,13 @@ const Check = {
 	},
 
 	checkSpecialCase: function () {
+		const questCompleted = (id) => !!Misc.checkQuest(id, sdk.quest.states.ReqComplete);
 		let goalReached = false, goal = "";
 
 		switch (true) {
 		case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
-		case !!(SetUp.finalBuild === "Socketmule" && Misc.checkQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.ReqComplete)):
-		case !!(SetUp.finalBuild === "Imbuemule" && Misc.checkQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete) && me.charlvl >= Developer.imbueStopLevel):
+		case (SetUp.finalBuild === "Socketmule" && questCompleted(sdk.quest.id.SiegeOnHarrogath)):
+		case (SetUp.finalBuild === "Imbuemule" && questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Developer.imbueStopLevel):
 			goal = SetUp.finalBuild;
 			goalReached = true;
 
@@ -1099,13 +1100,16 @@ const Check = {
 		}
 
 		if (goalReached) {
-			let gameObj, printTotalTime = Developer.logPerformance;
-			printTotalTime && (gameObj = Developer.readObj(Tracker.GTPath));
+			const gameObj = Developer.logPerformance ? Developer.readObj(Tracker.GTPath) : null;
 
-			if (Developer.fillAccount.bumpers || Developer.fillAccount.socketMules) {
+			switch (true) {
+			case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.bumpers):
+			case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.socketMules):
 				SetUp.makeNext();
-			} else {
-				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.timer(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
+				
+				break;
+			default:
+				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (gameObj ? " (" + (Developer.formatTime(gameObj.Total + Developer.timer(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
 				Developer.logPerformance && Tracker.update();
 				D2Bot.stop();
 			}

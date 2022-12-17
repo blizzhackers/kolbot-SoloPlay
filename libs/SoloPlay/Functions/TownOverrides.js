@@ -14,29 +14,36 @@
 
 includeIfNotIncluded("common/Town.js");
 
-new Overrides.Override(Town, Town.canTpToTown, function (orignal) {
-	return (Misc.townEnabled && orignal());
-}).apply();
-
 new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
-	let objDrank = orignal(type, false);
+	const objDrank = orignal(type, false);
+	const pots = {};
+	pots[sdk.items.StaminaPotion] = "stamina";
+	pots[sdk.items.AntidotePotion] = "antidote";
+	pots[sdk.items.ThawingPotion] = "thawing";
 	
-	if (objDrank.potName) {
-		let objID = objDrank.potName.split(" ")[0].toLowerCase();
+	try {
+		if (objDrank.potName) {
+			let objID = objDrank.potName.split(" ")[0].toLowerCase();
 
-		if (objID) {
-			// non-english version
-			(!CharData.buffData[objID]) && (objID = type.toLowerCase());
+			if (objID) {
+				// non-english version
+				if (!CharData.buffData[objID]) {
+					typeof type === "number" ? (objID = pots[objID]) : (objID = type.toLowerCase());
+				}
 
-			if (!CharData.buffData[objID].active() || CharData.buffData[objID].timeLeft() <= 0) {
-				CharData.buffData[objID].tick = getTickCount();
-				CharData.buffData[objID].duration = objDrank.quantity * 30 * 1000;
-			} else {
-				CharData.buffData[objID].duration += (objDrank.quantity * 30 * 1000) - (getTickCount() - CharData.buffData[objID].tick);
+				if (!CharData.buffData[objID].active() || CharData.buffData[objID].timeLeft() <= 0) {
+					CharData.buffData[objID].tick = getTickCount();
+					CharData.buffData[objID].duration = objDrank.quantity * 30 * 1000;
+				} else {
+					CharData.buffData[objID].duration += (objDrank.quantity * 30 * 1000) - (getTickCount() - CharData.buffData[objID].tick);
+				}
+
+				console.log("ÿc9DrinkPotsÿc0 :: drank " + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Developer.formatTime(CharData.buffData[objID].duration) + "]");
 			}
-
-			console.log("ÿc9DrinkPotsÿc0 :: drank " + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Developer.formatTime(CharData.buffData[objID].duration) + "]");
 		}
+	} catch (e) {
+		console.error(e);
+		return false;
 	}
 
 	return true;
