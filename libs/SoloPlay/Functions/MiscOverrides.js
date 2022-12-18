@@ -10,51 +10,8 @@ includeIfNotIncluded("common/Misc.js");
 
 Misc.townEnabled = true;
 
-Misc.testTP = function () {
-	let t1 = getTickCount();
-	let tpTool = me.getItem(-1, sdk.items.mode.inStorage);
-
-	if (tpTool) {
-		do {
-			if (tpTool.isInInventory) {
-				if (tpTool.classid === sdk.items.TomeofTownPortal && tpTool.getStat(sdk.stats.Quantity) > 0) {
-					break;
-					//return tpTool;
-				} else if (tpTool.classid === sdk.items.ScrollofTownPortal) {
-					break;
-					//return tpTool;
-				}
-			}
-		} while (tpTool.getNext());
-	}
-	console.debug("took " + (getTickCount() - t1) + " to find tpTool using old method");
-
-	t1 = getTickCount();
-	tpTool = me.getTpTool();
-	console.debug("took " + (getTickCount() - t1) + " to find tpTool using new method");
-
-	t1 = getTickCount();
-	let items = me.getItems();
-	typeof items === "object" && (items = items.filter(i => i.isInStorage));
-	console.debug("took " + (getTickCount() - t1) + " to get items using old method len" + items.length);
-	t1 = getTickCount();
-	items = me.getItemsEx(-1, sdk.items.mode.inStorage);
-	console.debug("took " + (getTickCount() - t1) + " to get items using new method len" + items.length);
-
-	return true;
-};
-
-Misc.testC = function () {
-	let t1 = getTickCount();
-	let m = me.getMobCount(10) > 0;
-	console.debug("took " + (getTickCount() - t1) + " to check mobs" + m);
-	t1 = getTickCount();
-	m = me.checkForMobs({range: 10});
-	console.debug("took " + (getTickCount() - t1) + " to check mobs new method " + m);
-};
-
 Misc.townCheck = function () {
-	if (!Town.canTpToTown()) return false;
+	if (!me.canTpToTown()) return false;
 	
 	let check = false;
 
@@ -125,7 +82,7 @@ Misc.openChestsInArea = function (area, chestIds = [], sort = undefined) {
 
 Misc.openChests = function (range = 15) {
 	if (!Misc.openChestsEnabled) return false;
-	let containers = [
+	const containers = [
 		"chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack",
 		"holeanim", "roguecorpse", "corpse", "tomb2", "tomb3", "chest3",
 		"skeleton", "guardcorpse", "sarcophagus", "object2", "cocoon", "hollow log", "hungskeleton",
@@ -135,14 +92,12 @@ Misc.openChests = function (range = 15) {
 	];
 
 	if (Config.OpenChests.Types.some((el) => el.toLowerCase() === "all")) {
-		containers = [
-			"chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack",
-			"barrel", "holeanim", "tomb2", "tomb3", "roguecorpse", "ratnest", "corpse", "goo pile", "largeurn", "urn", "chest3",
-			"jug", "skeleton", "guardcorpse", "sarcophagus", "object2", "cocoon", "basket", "stash", "hollow log", "hungskeleton",
-			"pillar", "skullpile", "skull pile", "jar3", "jar2", "jar1", "bonechest", "woodchestl", "woodchestr", "barrel wilderness",
-			"burialchestr", "burialchestl", "explodingchest", "chestl", "chestr", "groundtomb", "icecavejar1", "icecavejar2", "icecavejar3",
-			"icecavejar4", "deadperson", "deadperson2", "evilurn", "tomb1l", "tomb3l", "groundtombl"
-		];
+		containers.push(
+			"barrel", "ratnest", "goo pile", "largeurn", "urn", "jug", "basket", "stash",
+			"pillar", "skullpile", "skull pile", "jar3", "jar2", "jar1", "barrel wilderness",
+			"explodingchest", "icecavejar1", "icecavejar2", "icecavejar3",
+			"icecavejar4", "evilurn"
+		);
 	}
 
 	me.baal && containers.push("evilurn");
