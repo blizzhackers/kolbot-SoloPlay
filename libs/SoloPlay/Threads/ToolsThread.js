@@ -150,12 +150,12 @@ function main () {
 		for (let k = 0; k < items.length; k += 1) {
 			if (type < Common.Toolsthread.pots.MercHealth && items[k].isInInventory && items[k].itemType === pottype) {
 				console.log("ÿc2Drinking " + items[k].name + " from inventory.");
-				return copyUnit(items[k]);
+				return items[k];
 			}
 
 			if (items[k].mode === sdk.items.mode.inBelt && items[k].itemType === pottype) {
 				console.log("ÿc2" + (type > 2 ? "Giving Merc " : "Drinking ") + items[k].name + " from belt.");
-				return copyUnit(items[k]);
+				return items[k];
 			}
 		}
 
@@ -666,14 +666,12 @@ function main () {
 
 		// should overlay be moved to be a background worker?
 		if (Developer.overlay) {
-			if (Developer.logPerformance) {
-				if (me.ingame && me.gameReady && me.area) {
-					Overlay.update(quitFlag);
+			if (me.ingame && me.gameReady && me.area) {
+				Overlay.update(quitFlag);
 
-					if (me.act !== myAct) {
-						Overlay.flush();
-						myAct = me.act;
-					}
+				if (me.act !== myAct) {
+					Overlay.flush();
+					myAct = me.act;
 				}
 			}
 		}

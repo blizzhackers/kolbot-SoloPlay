@@ -11,7 +11,7 @@ function mephisto () {
 
 		for (let i = 0; i < coords.length; i += 2) {
 			[coords[i], coords[i + 1]].distance > 60 && Pather.moveNear(coords[i], coords[i + 1], 60);
-			if ([coords[i], coords[i + 1]].mobCount(30) === 0) continue;
+			if ([coords[i], coords[i + 1]].mobCount({ range: 30 }) === 0) continue;
 			Pather.moveTo(coords[i], coords[i + 1]);
 			Attack.clearList(Attack.getMob([sdk.monsters.Council1, sdk.monsters.Council2, sdk.monsters.Council3], 0, 40));
 		}

@@ -8,7 +8,7 @@
 function den () {
 	const customGoToTown = function () {
 		if (me.inTown) return;
-		if (!Town.canTpToTown()) {
+		if (!me.canTpToTown()) {
 			Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.ColdPlains], true);
 			Pather.getWP(sdk.areas.ColdPlains);
 			Pather.useWaypoint(sdk.areas.RogueEncampment);

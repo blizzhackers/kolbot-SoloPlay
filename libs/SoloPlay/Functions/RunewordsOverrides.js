@@ -38,7 +38,7 @@ Runewords.getBase = function (runeword, base, ethFlag, reroll) {
 
 	if (item) {
 		do {
-			if (item && item.quality < 4 && item.sockets === runeword.length) {
+			if (item && item.quality < sdk.items.quality.Magic && item.sockets === runeword.length) {
 				/* check if item has items socketed in it
 					better check than getFlag(sdk.items.flags.Runeword) because randomly socketed items return false for it
 				*/

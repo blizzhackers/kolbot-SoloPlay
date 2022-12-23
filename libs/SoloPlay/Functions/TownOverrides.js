@@ -397,7 +397,7 @@ Town.cainID = function (force = false) {
 	me.cancel();
 	this.stash(false);
 
-	let unids = this.getUnids();
+	let unids = me.getUnids();
 
 	if (unids) {
 		// Check if we may use Cain - number of unid items
@@ -1041,15 +1041,15 @@ Town.clearInventory = function () {
 
 			switch (p.itemType) {
 			case sdk.items.type.HealingPotion:
-				return (hp.push(copyUnit(p)));
+				return (hp.push(p));
 			case sdk.items.type.ManaPotion:
-				return (mp.push(copyUnit(p)));
+				return (mp.push(p));
 			case sdk.items.type.RejuvPotion:
-				return (rv.push(copyUnit(p)));
+				return (rv.push(p));
 			case sdk.items.type.ThawingPotion:
 			case sdk.items.type.AntidotePotion:
 			case sdk.items.type.StaminaPotion:
-				return (specials.push(copyUnit(p)));
+				return (specials.push(p));
 			}
 
 			return false;

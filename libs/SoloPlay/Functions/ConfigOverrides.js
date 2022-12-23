@@ -8,50 +8,22 @@
 includeIfNotIncluded("common/Config.js");
 
 Config.init = function (notify) {
-	const MYCLASSNAME = sdk.player.class.nameOf(me.classid);
+	const formats = ((className, profile, charname, realm) => ({
+		// Class.Profile.js
+		1: className + "." + profile + ".js",
+		// Realm.Class.Charname.js
+		2: realm + "." + className + "." + charname + ".js",
+		// Class.Charname.js
+		3: className + "." + charname + ".js",
+		// Profile.js
+		4: profile + ".js",
+		// Class.js
+		5: className + ".js",
+	}))(sdk.player.class.nameOf(me.classid), me.profile, me.charname, me.realm);
 	let configFilename = "";
 
-	for (let i = 0; i <= 5; i++) {
-		switch (i) {
-		case 0: // Custom config
-			includeIfNotIncluded("config/_customconfig.js");
-
-			for (let n in CustomConfig) {
-				if (CustomConfig.hasOwnProperty(n)) {
-					if (CustomConfig[n].includes(me.profile)) {
-						if (notify) {
-							console.log("ÿc2Loading custom config: ÿc9" + n + ".js");
-						}
-
-						configFilename = n + ".js";
-
-						break;
-					}
-				}
-			}
-
-			break;
-		case 1:// Class.Profile.js
-			configFilename = MYCLASSNAME + "." + me.profile + ".js";
-
-			break;
-		case 2: // Realm.Class.Charname.js
-			configFilename = me.realm + "." + MYCLASSNAME + "." + me.charname + ".js";
-
-			break;
-		case 3: // Class.Charname.js
-			configFilename = MYCLASSNAME + "." + me.charname + ".js";
-
-			break;
-		case 4: // Profile.js
-			configFilename = me.profile + ".js";
-
-			break;
-		case 5: // Class.js
-			configFilename = MYCLASSNAME + ".js";
-
-			break;
-		}
+	for (let i = 1; i <= 5; i++) {
+		configFilename = formats[i];
 
 		if (configFilename && FileTools.exists("libs/SoloPlay/Config/" + configFilename)) {
 			break;
@@ -61,11 +33,10 @@ Config.init = function (notify) {
 	try {
 		if (!include("SoloPlay/Config/" + configFilename)) {
 			throw new Error();
-		} else {
-			notify && console.log("ÿc2Loaded: ÿc9SoloPlay/Config/" + configFilename);
 		}
+		notify && console.log("ÿc2Loaded: ÿc9SoloPlay/Config/" + configFilename);
 	} catch (e1) {
-		console.log("ÿc1" + e1 + "\nÿc0If you are seeing this message you likely did not copy over all the files or are using the wrong kolbot version.");
+		console.error("ÿc1" + e1 + "\nÿc0If you are seeing this message you likely did not copy over all the files or are using the wrong kolbot version.");
 		D2Bot.printToConsole("Please return to the kolbot-SoloPlay main github page and read the readMe. https://github.com/blizzhackers/kolbot-SoloPlay#readme", sdk.colors.D2Bot.Orange);
 
 		throw new Error("Failed to load character config.");

@@ -1333,7 +1333,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 			for (let i = 0; i < coords.length; i += 1) {
 				// Valid position found - no collision between the spot and the unit
 				if (!CollMap.checkColl({ x: coords[i].x, y: coords[i].y }, unit, coll, 1)) {
-					currCount = coords[i].mobCount(7);
+					currCount = coords[i].mobCount({ range: 7 });
 
 					// this might be a valid spot but also check the mob count at that node
 					if (caster) {
