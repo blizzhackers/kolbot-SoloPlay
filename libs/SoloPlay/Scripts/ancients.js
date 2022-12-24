@@ -20,7 +20,7 @@ function ancients () {
 	}
 
 	// ancients prep
-	Town.doChores(false, {thawing: true, antidote: true, stamina: true, fullChores: true});
+	Town.doChores(false, { thawing: true, antidote: true, stamina: true, fullChores: true });
 
 	let tempConfig = Misc.copy(Config); // save and update config settings
 

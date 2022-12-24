@@ -28,7 +28,7 @@ const SoloIndex = {
 		// Act 4
 		"izual", "hellforge", "river", "hephasto", "diablo",
 		// Act 5
-		"shenk", "savebarby", "anya", "ancients", "baal", "a5chests",
+		"shenk", "savebarby", "anya", "pindle", "ancients", "baal", "a5chests",
 	],
 
 	index: {
@@ -640,6 +640,18 @@ const SoloIndex = {
 		"anya": {
 			preReq: function () {
 				return (me.expansion && Pather.accessToAct(5));
+			},
+			skipIf: function () {
+				return me.anya;
+			},
+			shouldRun: function () {
+				if (!this.preReq() || this.skipIf()) return false;
+				return true;
+			}
+		},
+		"pindle": {
+			preReq: function () {
+				return (me.expansion && Pather.accessToAct(5) && me.anya);
 			},
 			skipIf: function () {
 				return false;

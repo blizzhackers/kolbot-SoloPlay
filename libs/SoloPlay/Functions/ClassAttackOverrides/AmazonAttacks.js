@@ -309,7 +309,7 @@ ClassAttack.afterAttack = function () {
 	let needRepair = me.needRepair();
 	
 	// Repair check, make sure i have a tome
-	if (needRepair.length > 0 && Town.canTpToTown()) {
+	if (needRepair.length > 0 && me.canTpToTown()) {
 		Town.visitTown(true);
 	}
 

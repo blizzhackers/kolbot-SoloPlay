@@ -229,7 +229,7 @@ function main() {
 					if (!me.inTown && !Pather.usePortal(sdk.areas.townOf(me.area))) throw new Error("Town.goToTown: Failed to take TP");
 				}
 			} catch (e) {
-				let tpTool = Town.getTpTool();
+				let tpTool = me.getTpTool();
 				if (!tpTool && Misc.getPlayerCount() <= 1) {
 					Misc.errorReport(new Error("Town.goToTown: Failed to go to town and no tps available. Restart."));
 					scriptBroadcast("quit");
@@ -417,7 +417,7 @@ function main() {
 			|| ((Config.TownHP > 0 && me.hpPercent < Config.TownHP)
 			|| (Config.TownMP > 0 && me.mpPercent < Config.TownMP)))) {
 			// should we exit if we can't tp to town?
-			if (townCheck && !Town.canTpToTown()) {
+			if (townCheck && !me.canTpToTown()) {
 				townCheck = false;
 
 				continue;

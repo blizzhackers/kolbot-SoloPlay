@@ -359,7 +359,7 @@ const SoloEvents = {
 		Pickit.pickItems();
 
 		// No Tome, or tome has no tps, or no scrolls
-		if (!Town.canTpToTown() && !me.inTown) {
+		if (!me.canTpToTown() && !me.inTown) {
 			// should really check how close the town exit is
 			Pather.moveToExit([sdk.areas.BloodMoor, sdk.areas.ColdPlains], true);
 			Pather.getWP(sdk.areas.ColdPlains);

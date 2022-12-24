@@ -39,7 +39,7 @@ function bloodraven () {
 	Attack.killTarget("Blood Raven");
 	Pickit.pickItems();
 
-	if (me.normal && !me.bloodraven && Town.canTpToTown()) {
+	if (me.normal && !me.bloodraven && me.canTpToTown()) {
 		Town.npcInteract("kashya");
 		return true;
 	} else if (me.paladin && Check.currentBuild().caster && !Pather.canTeleport()) {

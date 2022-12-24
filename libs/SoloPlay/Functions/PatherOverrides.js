@@ -154,14 +154,27 @@ Pather.forceRun = false;
 		return [undefined, undefined];
 	};
 
-	Object.prototype.mobCount = function (range = 5) {
-		let [x, y] = coords.apply(this);
-		return getUnits(sdk.unittype.Monster)
-			.filter(function (mon) {
-				return mon.attackable && getDistance(x, y, mon.x, mon.y) < range &&
-					!CollMap.checkColl({x: x, y: y}, mon, Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.ClosedDoor | Coords_1.BlockBits.LineOfSight, 1);
-			}).length;
-	};
+	Object.defineProperty(Object.prototype, "mobCount", {
+		writable: true,
+		enumerable: false,
+		configurable: true,
+		value: function (givenSettings = {}) {
+			let [x, y] = coords.apply(this);
+			const settings = Object.assign({}, {
+				range: 5,
+				coll: (sdk.collision.BlockWall | sdk.collision.ClosedDoor | sdk.collision.LineOfSight | sdk.collision.BlockMissile),
+				type: 0,
+				ignoreClassids: [],
+			}, givenSettings);
+			return getUnits(sdk.unittype.Monster)
+				.filter(function (mon) {
+					return mon.attackable && getDistance(x, y, mon.x, mon.y) < settings.range
+						&& (!settings.type || (settings.type & mon.spectype))
+						&& (settings.ignoreClassids.indexOf(mon.classid) === -1)
+						&& !CollMap.checkColl({x: x, y: y}, mon, settings.coll, 1);
+				}).length;
+		}
+	});
 }
 
 Pather.checkForTeleCharges = function () {
@@ -213,7 +226,7 @@ Pather.teleUsingCharges = function (x, y, maxRange = 5) {
 		}
 	}
 
-	if (me.gold > me.getRepairCost() * 3 && Town.canTpToTown()) {
+	if (me.gold > me.getRepairCost() * 3 && me.canTpToTown()) {
 		console.debug("Tele-Charge repair");
 		Town.visitTown(true);
 	} else {

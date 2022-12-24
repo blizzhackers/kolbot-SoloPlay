@@ -70,6 +70,21 @@ Object.defineProperties(me, {
 	}
 });
 
+/** @returns {boolean} */
+me.canTpToTown = function () {
+	// can't tp if dead - or not currently enabled to
+	if (me.dead || !Misc.townEnabled) return false;
+	const myArea = me.area;
+	let badAreas = [
+		sdk.areas.RogueEncampment, sdk.areas.LutGholein, sdk.areas.KurastDocktown,
+		sdk.areas.PandemoniumFortress, sdk.areas.Harrogath, sdk.areas.ArreatSummit, sdk.areas.UberTristram
+	];
+	// can't tp from town or Uber Trist, and shouldn't tp from arreat summit
+	if (badAreas.includes(myArea)) return false;
+	// If we made it this far, we can only tp if we even have a tp
+	return !!me.getTpTool();
+};
+
 me.getMercEx = function () {
 	if (!Config.UseMerc || me.classic || me.mercrevivecost) return null;
 	if (!myData.merc.type) return null;
