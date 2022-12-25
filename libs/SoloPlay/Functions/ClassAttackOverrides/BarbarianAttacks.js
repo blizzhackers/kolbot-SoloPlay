@@ -7,8 +7,6 @@
 
 includeIfNotIncluded("common/Attacks/Barbarian.js");
 
-const GameData = require("../../Modules/GameData");
-
 /**
 *  @todo:
 *   - use leap to stun in close distance

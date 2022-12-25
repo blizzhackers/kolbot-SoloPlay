@@ -80,6 +80,51 @@ Misc.openChestsInArea = function (area, chestIds = [], sort = undefined) {
 	return true;
 };
 
+/**
+ * @description Open a chest Unit (takes chestID or unit)
+ * @param {Unit | number} unit 
+ * @returns {boolean} If we opened the chest
+ */
+Misc.openChest = function (unit) {
+	typeof unit === "number" && (unit = Game.getObject(unit));
+		
+	// Skip invalid/open and Countess chests
+	if (!unit || unit.x === 12526 || unit.x === 12565 || unit.mode) return false;
+	// locked chest, no keys
+	if (!me.assassin && unit.islocked && !me.findItem(sdk.items.Key, sdk.items.mode.inStorage, sdk.storage.Inventory)) return false;
+
+	let specialChest = sdk.quest.chests.includes(unit.classid);
+
+	for (let i = 0; i < 7; i++) {
+		// don't use tk if we are right next to it
+		let useTK = (unit.distance > 5 && Skill.useTK(unit) && i < 3);
+		let useDodge = Pather.useTeleport() && Skill.useTK(unit);
+		if (useTK) {
+			unit.distance > 18 && Attack.getIntoPosition(unit, 18, sdk.collision.WallOrRanged, false, true);
+			if (!Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, unit)) {
+				console.debug("Failed to tk: attempt: " + i);
+				continue;
+			}
+		} else {
+			if (useDodge && me.inDanger()) {
+				if (Attack.getIntoPosition(unit, 18, sdk.collision.WallOrRanged, false, true)) continue;
+			}
+			[(unit.x + 1), (unit.y + 2)].distance > 5 && Pather.moveTo(unit.x + 1, unit.y + 2, 3);
+			(specialChest || i > 2) ? Misc.click(0, 0, unit) : Packet.entityInteract(unit);
+		}
+
+		if (Misc.poll(() => unit.mode, 1000, 50)) {
+			return true;
+		}
+		Packet.flash(me.gid);
+	}
+
+	// Click to stop walking in case we got stuck
+	!me.idle && Misc.click(0, 0, me.x, me.y);
+
+	return false;
+};
+
 Misc.openChests = function (range = 15) {
 	if (!Misc.openChestsEnabled) return false;
 	const containers = [

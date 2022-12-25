@@ -953,6 +953,14 @@ Attack.shouldDodge = function (coord, monster) {
 		});
 };
 
+new Overrides.Override(Attack, Attack.sortMonsters, function(orignal, unitA, unitB) {
+	let stateCheck = (m) => [sdk.states.Fanaticism, sdk.states.Conviction].some(state => m.getState(state));
+	if ((unitA.isSpecial && stateCheck(unitA)) && (unitB.isSpecial && stateCheck(unitB))) return getDistance(me, unitA) - getDistance(me, unitB);
+	if (unitA.isSpecial && stateCheck(unitA)) return -1;
+	if (unitB.isSpecial && stateCheck(unitB)) return 1;
+	return orignal(unitA, unitB);
+}).apply();
+
 Attack.walkingSortMonsters = function (unitA, unitB) {
 	// sort main bosses first
 	if ((unitA.isPrimeEvil) && (unitB.isPrimeEvil)) return getDistance(me, unitA) - getDistance(me, unitB);

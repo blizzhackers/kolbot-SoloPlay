@@ -16,13 +16,21 @@ Pather.inAnnoyingArea = function (currArea, includeArcane = false) {
 	return areas.includes(currArea);
 };
 
-// TODO: clean up this mess
-// todo - determine effort level of mobs to kill once we have teleport
-// clearing specials is good but sometimes can not be worth the time spent when they are too tough
+/**
+ * @param {Object} arg
+ * @param {boolean} arg.canTele
+ * @param {boolean} arg.clearPath
+ * @param {number} arg.range
+ * @param {number} arg.specType
+ * @param {boolean} [arg.allowClearing]
+ * @returns {void}
+ * @todo
+ * - clean this up
+ * - use effort level calculations to control clearing
+ */
 NodeAction.killMonsters = function (arg = {}) {
 	if (Attack.stopClear || (arg.hasOwnProperty("allowClearing") && !arg.allowClearing)) return;
 
-	const canTele = Pather.canTeleport();
 	const myArea = me.area;
 	// I don't think this is even needed anymore, pretty sure I fixed wall hugging. todo - check it
 	const pallyAnnoyingAreas = [
@@ -37,20 +45,16 @@ NodeAction.killMonsters = function (arg = {}) {
 		sdk.areas.TalRashasTomb3, sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5, sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7
 	];
 	// sanityCheck from isid0re - added paladin specific areas - theBGuy - a mess.. sigh
-	const sanityCheck = (Pather.inAnnoyingArea(myArea, true) || (me.paladin && pallyAnnoyingAreas.includes(myArea)));
-	const settings = Object.assign({}, {
-		clearPath: false,
-		specType: sdk.monsters.spectype.All,
-		range: 8,
-		overrideConfig: false,
-	}, arg);
+	if (Pather.inAnnoyingArea(myArea, true) || (me.paladin && pallyAnnoyingAreas.includes(myArea))) {
+		arg.range = 7;
+	}
 
 	/**
 	 * @todo:
 	 * - we don't need this if we have a lightning chain based skill, e.g light sorc, light zon
 	 * - better monster sorting. If we are low level priortize killing easy targets like zombies/quill rats while ignoring fallens unless they are in our path
 	 */
-	if (!canTele && settings.clearPath !== false) {
+	if (!arg.canTele && arg.clearPath !== false) {
 		let monList = [];
 		if (me.inArea(sdk.areas.BloodMoor)) {
 			monList = getUnits(sdk.unittype.Monster)
@@ -73,25 +77,9 @@ NodeAction.killMonsters = function (arg = {}) {
 		}
 	}
 
-	if ((typeof Config.ClearPath === "number" || typeof Config.ClearPath === "object")
-		&& settings.clearPath === false && !settings.overrideConfig) {
-		switch (typeof Config.ClearPath) {
-		case "number":
-			Attack.clear(sanityCheck ? 7 : canTele ? 15 : 30, Config.ClearPath);
-
-			break;
-		case "object":
-			if (!Config.ClearPath.hasOwnProperty("Areas") || Config.ClearPath.Areas.length === 0 || Config.ClearPath.Areas.includes(myArea)) {
-				if (Config.ClearPath.Range !== 0) {
-					Attack.clear(sanityCheck ? 7 : canTele ? 15 : Config.ClearPath.Range, canTele ? Config.ClearPath.Spectype : 0);
-				}
-			}
-
-			break;
-		}
+	if (arg.clearPath !== false) {
+		Attack.clear(arg.range, arg.specType);
 	}
-
-	(settings.clearPath !== false) && Attack.clear(sanityCheck ? settings.range : 15, settings.specType);
 };
 
 NodeAction.popChests = function () {
@@ -338,6 +326,12 @@ Pather.changeAct = function () {
 	return me.act === act;
 };
 
+Pather.clearUIFlags = function () {
+	Pather.cancelFlags.forEach(flag => {
+		getUIFlag(flag) && me.cancel();
+	});
+};
+
 Pather.currentWalkingPath = [];
 Pather.move = function (target, givenSettings = {}) {
 	// Abort if dead
@@ -358,9 +352,10 @@ Pather.move = function (target, givenSettings = {}) {
 	}, givenSettings);
 	// assign clear settings becasue object.assign was removing the default properties of settings.clearSettings
 	const clearSettings = Object.assign({
+		canTele: false,
 		clearPath: false,
-		range: 10,
-		specType: 0,
+		range: typeof Config.ClearPath.Range === "number" ? Config.ClearPath.Range : 10,
+		specType: typeof Config.ClearPath.Spectype === "number" ? Config.ClearPath.Spectype : 0,
 		sort: Attack.sortMonsters,
 	}, settings.clearSettings);
 	// set settings.clearSettings equal to the now properly asssigned clearSettings
@@ -378,14 +373,13 @@ Pather.move = function (target, givenSettings = {}) {
 	let node = { x: target.x, y: target.y };
 	let [cleared, leaped, invalidCheck] = [false, false, false];
 
-	for (let i = 0; i < Pather.cancelFlags.length; i += 1) {
-		getUIFlag(Pather.cancelFlags[i]) && me.cancel();
-	}
+	Pather.clearUIFlags();
 
 	if (typeof target.x !== "number" || typeof target.y !== "number") return false;
 	if (getDistance(me, target) < 2 && !CollMap.checkColl(me, target, Coords_1.Collision.BLOCK_MISSILE, 5)) return true;
 
 	const useTeleport = settings.allowTeleport && (getDistance(me, target) > 15 || me.diff || me.act > 3) && Pather.useTeleport();
+	settings.clearSettings.canTele = useTeleport;
 	const useChargedTele = settings.allowTeleport && Pather.canUseTeleCharges();
 	const usingTele = (useTeleport || useChargedTele);
 	const tpMana = Skill.getManaCost(sdk.skills.Teleport);
@@ -395,6 +389,20 @@ Pather.move = function (target, givenSettings = {}) {
 
 	// need to work on a better force clearing method but for now just have all walkers clear unless we specifically are forcing them not to (like while repositioning)
 	settings.allowClearing && !settings.clearSettings.clearPath && !useTeleport && (settings.clearSettings.clearPath = true);
+
+	// for now only do this for teleporters
+	if (useTeleport && !me.normal) {
+		/** @type {Array} */
+		let areaImmunities = GameData.areaImmunities(me.area);
+		if (areaImmunities.length) {
+			let mySkElems = Config.AttackSkill.filter(sk => sk > 0).map(sk => Attack.getSkillElement(sk));
+			// this area has monsters that are immune to our elements. This is a basic check for now
+			// a better way would probably be per list built to check the ratio of immunes to non?
+			if (mySkElems.length && mySkElems.every(elem => areaImmunities.includes(elem))) {
+				settings.clearSettings.clearPath = false;
+			}
+		}
+	}
 
 	path.reverse();
 	settings.pop && path.pop();
@@ -407,9 +415,7 @@ Pather.move = function (target, givenSettings = {}) {
 		// main path
 		Pather.recursion && (Pather.currentWalkingPath = path);
 
-		for (let i = 0; i < Pather.cancelFlags.length; i += 1) {
-			if (getUIFlag(Pather.cancelFlags[i])) me.cancel();
-		}
+		Pather.clearUIFlags();
 
 		node = path.shift();
 
@@ -425,7 +431,7 @@ Pather.move = function (target, givenSettings = {}) {
 					invalidCheck && (invalidCheck = false);
 				}
 
-				annoyingArea && ([settings.clearSettings.overrideConfig, settings.clearSettings.range] = [true, 5]);
+				annoyingArea && ([settings.clearSettings.clearPath, settings.clearSettings.range] = [true, 5]);
 				settings.retry <= 3 && !useTeleport && (settings.retry = 15);
 			}
 

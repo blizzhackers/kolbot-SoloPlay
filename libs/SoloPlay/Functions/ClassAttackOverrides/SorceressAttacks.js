@@ -7,8 +7,6 @@
 
 includeIfNotIncluded("common/Attacks/Sorceress.js");
 
-const GameData = require("../../Modules/GameData");
-
 const slowable = function (unit, freezeable = false) {
 	return (!!unit && unit.attackable // those that we can attack
 	&& Attack.checkResist(unit, "cold")
@@ -203,11 +201,17 @@ ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
 
 	// We lost track of the mob or killed it (recheck after using static)
 	if (unit === undefined || !unit || !unit.attackable) return true;
-
-	let skillCheck = Object.keys(data)
+	
+	/**
+	 * @todo static field is a good skill but if we are currently out of range, check how dangerous it is to tele to spot before choosing that as our skill
+	 */
+	let sortedList = Object.keys(data)
 		.filter(k => typeof data[k] === "object" && data[k].have && me.mp > data[k].mana
 			&& (!data[k].timed || !me.skillDelay) && (data[k].skill !== sdk.skills.StaticField || !recheckSkill))
-		.sort((a, b) => data[b].dmg - data[a].dmg).first();
+		.sort((a, b) => data[b].dmg - data[a].dmg);
+	let skillCheck = data[sortedList[0]].skill === sdk.skills.StaticField && unit.distance > data.static.range && me.inDanger(unit, 15)
+		? sortedList.at(1)
+		: sortedList.at(0);
 	let timedSkill = typeof data[skillCheck] === "object" ? data[skillCheck] : buildDataObj(-1);
 
 	// throw in another attack when using charged bolt as sometimes it misses

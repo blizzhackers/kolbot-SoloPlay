@@ -15,9 +15,14 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/CharData.js");
 includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
+/** @global */
 const Overrides = require("../../modules/Override");
+/** @global */
 const Coords_1 = require("../Modules/Coords");
+/** @global */
 const PotData = require("../modules/PotData");
+/** @global */
+const GameData = require("../Modules/GameData");
 
 const MYCLASSNAME = sdk.player.class.nameOf(me.classid).toLowerCase();
 includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + ".js");

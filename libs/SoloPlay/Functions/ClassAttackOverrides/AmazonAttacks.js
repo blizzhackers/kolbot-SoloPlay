@@ -13,8 +13,6 @@
 
 includeIfNotIncluded("common/Attacks/Amazon.js");
 
-const GameData = require("../../Modules/GameData");
-
 ClassAttack.decoyTick = getTickCount();
 
 ClassAttack.doAttack = function (unit, preattack, once) {
