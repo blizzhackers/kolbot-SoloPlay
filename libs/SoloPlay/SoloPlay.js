@@ -155,11 +155,21 @@ function main () {
 				if (me.getStat(sdk.stats.Strength) < item.strreq
 					|| me.getStat(sdk.stats.Dexterity) < item.dexreq
 					|| item.ethereal && item.isBroken) {
-					myPrint("No longer able to use " + item.fname);
+					myPrint("No longer able to use: " + item.fname);
+					Item.removeItem(null, item);
+				} else if (sdk.quest.items.includes(item.classid)) {
+					myPrint("Removing Quest Item: " + item.fname);
 					Item.removeItem(null, item);
 				}
 			});
 		
+		me.getItemsEx()
+			.filter(item => item.isInInventory && sdk.quest.items.includes(item.classid))
+			.forEach(item => {
+				Quest.stashItem(item);
+			});
+		
+		me.cancelUIFlags();
 		// initialize final charms if we have any
 		Item.initCharms();
 
