@@ -222,7 +222,7 @@ Item.autoEquip = function (task = "") {
 
 	const runEquip = (item, bodyLoc, tier) => {
 		let gid = item.gid;
-		let prettyName = item.fname.split("\n").reverse().join(" ");
+		let prettyName = item.prettyPrint;
 		console.debug(prettyName + " tier: " + tier);
 
 		if (this.equip(item, bodyLoc)) {
@@ -236,7 +236,7 @@ Item.autoEquip = function (task = "") {
 			Developer.logEquipped && MuleLogger.logEquippedItems();
 		} else if (!noStash && item.lvlreq > me.charlvl && !item.isInStash) {
 			if (Storage.Stash.CanFit(item)) {
-				console.log("ÿc9" + task + "ÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + item.fname + " Tier: " + tier);
+				console.log("ÿc9" + task + "ÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + prettyName + " Tier: " + tier);
 				Storage.Stash.MoveTo(item);
 			}
 		} else if (me.getItem(-1, -1, gid)) {
@@ -397,7 +397,7 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 
 		if (cursorItem) {
 			// only keep wanted items
-			if (Pickit.checkItem(cursorItem).result === Pickit.Result.WANTED || AutoEquip.wanted(cursorItem)) {
+			if ([Pickit.Result.WANTED, Pickit.Result.SOLOWANTS].includes(Pickit.checkItem(cursorItem).result) || AutoEquip.wanted(cursorItem)) {
 				if (Storage.Inventory.CanFit(cursorItem)) {
 					Storage.Inventory.MoveTo(cursorItem);
 				} else if (Storage.Stash.CanFit(cursorItem)) {
@@ -406,7 +406,7 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 					Storage.Cube.MoveTo(cursorItem);
 				}
 			} else {
-				D2Bot.printToConsole("Dropped " + cursorItem.fname + " during un-equip process", sdk.colors.D2Bot.Red);
+				D2Bot.printToConsole("Dropped " + cursorItem.prettyPrint + " during un-equip process", sdk.colors.D2Bot.Red);
 				cursorItem.drop();
 			}
 		}
@@ -534,7 +534,7 @@ Item.autoEquipSecondary = function (task = "") {
 					Item.identify(item);
 
 					let gid = item.gid;
-					let prettyName = item.fname.split("\n").reverse().join(" ");
+					let prettyName = item.prettyPrint;
 					console.debug(prettyName + " tier: " + tier);
 
 					if (this.secondaryEquip(item, bodyLoc[j])) {

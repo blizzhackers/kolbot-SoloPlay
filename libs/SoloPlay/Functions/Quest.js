@@ -180,8 +180,9 @@ const Quest = {
 	},
 
 	stashItem: function (classid) {
-		if (!me.getItem(classid)) return false;
-		let questItem = me.getItem(classid);
+		let questItem = typeof classid === "object" ? classid : me.getItem(classid);
+		if (!questItem) return false;
+		myPrint("Stashing: " + questItem.fname.split("\n").reverse().join(" "));
 
 		!me.inTown && Town.goToTown();
 		Town.openStash();
