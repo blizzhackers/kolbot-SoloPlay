@@ -329,11 +329,11 @@ const tierscore = function (item, bodyloc) {
 		bodyloc === undefined && (bodyloc = itembodyloc.last()); // extract bodyloc from array
 		
 		// get item cbf stat from olditem equipped on body location
-		let equippedItem = me.getEquippedItem(bodyloc);
+		let eqItem = me.getEquippedItem(bodyloc);
 
 		if (!canTele && item.getStatEx(sdk.stats.CannotbeFrozen)) {
 			// check if we have cbf but make sure its not from the item we are trying to un-equip
-			let haveCBF = (me.getStat(sdk.stats.CannotbeFrozen) > 0 && !equippedItem.getStatEx(sdk.stats.CannotbeFrozen));
+			let haveCBF = (me.getStat(sdk.stats.CannotbeFrozen) > 0 && (eqItem && !eqItem.getStatEx(sdk.stats.CannotbeFrozen)));
 			// Cannot be frozen is very important for Melee chars
 			!haveCBF && (generalRating += buildInfo.caster ? tierWeights.generalWeights.CBF : tierWeights.generalWeights.CBF * 4);
 		}
