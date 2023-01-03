@@ -25,7 +25,6 @@ include("common/Prototypes.js");
 include("common/Runewords.js");
 include("common/Town.js");
 // Include SoloPlay's librarys
-include("SoloPlay/Tools/Throwable.js");
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
 include("SoloPlay/Tools/CharData.js");
