@@ -112,7 +112,7 @@ const SoloIndex = {
 			},
 			shouldRun: function () {
 				switch (true) {
-				case (me.normal && (!me.tristram || me.charlvl < (me.barbarian ? 6 : 12) || Check.brokeAf())):
+				case (me.normal && (!me.tristram || me.charlvl < (me.classic || !me.barbarian ? 12 : 6) || Check.brokeAf())):
 				case (me.nightmare && ((!me.tristram && me.charlvl < 43) || Check.brokeAf())):
 				case (me.hell && ((!me.tristram && me.diffCompleted) || !this.skipIf())):
 					return true;
