@@ -10,6 +10,227 @@ includeIfNotIncluded("common/Prototypes.js");
 includeIfNotIncluded("SoloPlay/Functions/Me.js");
 includeIfNotIncluded("SoloPlay/Functions/Polyfills.js");
 
+/**
+ * @description Unit prototypes for soloplay with checks to ensure forwards compatibility
+ */
+if (!Unit.prototype.hasOwnProperty("isCharm")) {
+	Object.defineProperty(Unit.prototype, "isCharm", {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			return [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(this.classid);
+		},
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("isGem")) {
+	Object.defineProperty(Unit.prototype, "isGem", {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			return (this.itemType >= sdk.items.type.Amethyst && this.itemType <= sdk.items.type.Skull);
+		},
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("isInsertable")) {
+	Object.defineProperty(Unit.prototype, "isInsertable", {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			return [sdk.items.type.Jewel, sdk.items.type.Rune].includes(this.itemType) || this.isGem;
+		},
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("isRuneword")) {
+	Object.defineProperty(Unit.prototype, "isRuneword", {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			return !!this.getFlag(sdk.items.flags.Runeword);
+		},
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("isBroken")) {
+	Object.defineProperty(Unit.prototype, "isBroken", {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			if (this.getStat(sdk.stats.Indestructible)) return false;
+			return !!this.getFlag(sdk.items.flags.Broken);
+		},
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("isStunned")) {
+	Object.defineProperty(Unit.prototype, "isStunned", {
+		get: function () {
+			return this.getState(sdk.states.Stunned);
+		},
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("isUnderCoS")) {
+	Object.defineProperty(Unit.prototype, "isUnderCoS", {
+		get: function () {
+			return this.getState(sdk.states.Cloaked);
+		},
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("isUnderLowerRes")) {
+	Object.defineProperty(Unit.prototype, "isUnderLowerRes", {
+		get: function () {
+			return this.getState(sdk.states.LowerResist);
+		},
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("isBaseType")) {
+	Object.defineProperty(Unit.prototype, "isBaseType", {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			return [sdk.items.quality.Normal, sdk.items.quality.Superior].includes(this.quality) && !this.questItem && !this.isRuneword
+				&& getBaseStat("items", this.classid, "gemsockets") > 0 && [sdk.items.type.Ring, sdk.items.type.Amulet].indexOf(this.itemType) === -1;
+		}
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("rawStrength")) {
+	Object.defineProperty(Unit.prototype, "rawStrength", {
+		get: function () {
+			const lvl = this.getStat(sdk.stats.Level);
+			const rawBonus = (i) => i.getStat(sdk.stats.Strength);
+			const perLvlBonus = (i) => lvl * i.getStat(sdk.stats.PerLevelStrength) / 8;
+			const bonus = ~~(this.getItemsEx()
+				.filter((i) => i.isEquipped || i.isEquippedCharm)
+				.map((i) => rawBonus(i) + perLvlBonus(i))
+				.reduce((acc, v) => acc + v, 0));
+			return this.getStat(sdk.stats.Strength) - bonus;
+		},
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("rawDexterity")) {
+	Object.defineProperty(Unit.prototype, "rawDexterity", {
+		get: function () {
+			const lvl = this.getStat(sdk.stats.Level);
+			const rawBonus = (i) => i.getStat(sdk.stats.Dexterity);
+			const perLvlBonus = (i) => lvl * i.getStat(sdk.stats.PerLevelDexterity) / 8;
+			const bonus = ~~(this.getItemsEx()
+				.filter((i) => i.isEquipped || i.isEquippedCharm)
+				.map((i) => rawBonus(i) + perLvlBonus(i))
+				.reduce((acc, v) => acc + v, 0));
+			return this.getStat(sdk.stats.Dexterity) - bonus;
+		},
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("upgradedStrReq")) {
+	Object.defineProperty(Unit.prototype, "upgradedStrReq", {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			let code, id, baseReq, finalReq, ethereal = this.getFlag(sdk.items.flags.Ethereal);
+			let reqModifier = this.getStat(sdk.stats.ReqPercent);
+
+			switch (this.itemclass) {
+			case sdk.items.class.Normal:
+				code = getBaseStat("items", this.classid, "ubercode").trim();
+
+				break;
+			case sdk.items.class.Exceptional:
+				code = getBaseStat("items", this.classid, "ultracode").trim();
+
+				break;
+			case sdk.items.class.Elite:
+				return this.strreq;
+			}
+
+			id = NTIPAliasClassID[code];
+			baseReq = getBaseStat("items", id, "reqstr");
+			finalReq = baseReq + Math.floor(baseReq * reqModifier / 100);
+			ethereal && (finalReq -= 10);
+			return Math.max(finalReq, 0);
+		}
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("upgradedDexReq")) {
+	Object.defineProperty(Unit.prototype, "upgradedDexReq", {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			let code, id, baseReq, finalReq, ethereal = this.getFlag(sdk.items.flags.Ethereal);
+			let reqModifier = this.getStat(sdk.stats.ReqPercent);
+
+			switch (this.itemclass) {
+			case sdk.items.class.Normal:
+				code = getBaseStat("items", this.classid, "ubercode").trim();
+
+				break;
+			case sdk.items.class.Exceptional:
+				code = getBaseStat("items", this.classid, "ultracode").trim();
+
+				break;
+			case sdk.items.class.Elite:
+				return this.dexreq;
+			}
+
+			id = NTIPAliasClassID[code];
+			baseReq = getBaseStat("items", id, "reqdex");
+			finalReq = baseReq + Math.floor(baseReq * reqModifier / 100);
+			ethereal && (finalReq -= 10);
+			return Math.max(finalReq, 0);
+		}
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("upgradedLvlReq")) {
+	Object.defineProperty(Unit.prototype, "upgradedLvlReq", {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return false;
+			let code, id;
+
+			switch (this.itemclass) {
+			case sdk.items.class.Normal:
+				code = getBaseStat("items", this.classid, "ubercode").trim();
+
+				break;
+			case sdk.items.class.Exceptional:
+				code = getBaseStat("items", this.classid, "ultracode").trim();
+
+				break;
+			case sdk.items.class.Elite:
+				return this.lvlreq;
+			}
+
+			id = NTIPAliasClassID[code];
+			return Math.max(getBaseStat("items", id, "levelreq"), 0);
+		}
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("allRes")) {
+	Object.defineProperty(Unit.prototype, "allRes", {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return 0;
+			let fr = this.getStat(sdk.stats.FireResist);
+			let cr = this.getStat(sdk.stats.ColdResist);
+			let lr = this.getStat(sdk.stats.LightningResist);
+			let pr = this.getStat(sdk.stats.PoisonResist);
+			return (fr && cr && lr && pr) ? fr : 0;
+		}
+	});
+}
+
+if (!Unit.prototype.hasOwnProperty("prettyPrint")) {
+	Object.defineProperty(Unit.prototype, "prettyPrint", {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return this.name;
+			return this.fname.split("\n").reverse().join(" ");
+		}
+	});
+}
+
+/**
+ * @param {number} difficulty 
+ */
 Unit.prototype.getResPenalty = function (difficulty) {
 	difficulty > 2 && (difficulty = 2);
 	return me.gametype === sdk.game.gametype.Classic ? [0, 20, 50][difficulty] : [0, 40, 100][difficulty];
@@ -72,176 +293,6 @@ Unit.prototype.getItemType = function () {
 
 	return "";
 };
-
-Object.defineProperties(Unit.prototype, {
-	isCharm: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return false;
-			return [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(this.classid);
-		},
-	},
-	isGem: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return false;
-			return (this.itemType >= sdk.items.type.Amethyst && this.itemType <= sdk.items.type.Skull);
-		},
-	},
-	isInsertable: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return false;
-			return [sdk.items.type.Jewel, sdk.items.type.Rune].includes(this.itemType) || this.isGem;
-		},
-	},
-	isRuneword: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return false;
-			return !!this.getFlag(sdk.items.flags.Runeword);
-		},
-	},
-	isBroken: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return false;
-			if (this.getStat(sdk.stats.Indestructible)) return false;
-			return !!this.getFlag(sdk.items.flags.Broken);
-		},
-	},
-	isStunned: {
-		get: function () {
-			return this.getState(sdk.states.Stunned);
-		},
-	},
-	isUnderCoS: {
-		get: function () {
-			return this.getState(sdk.states.Cloaked);
-		},
-	},
-	isUnderLowerRes: {
-		get: function () {
-			return this.getState(sdk.states.LowerResist);
-		},
-	},
-	isBaseType: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return false;
-			return [sdk.items.quality.Normal, sdk.items.quality.Superior].includes(this.quality) && !this.questItem && !this.isRuneword
-				&& getBaseStat("items", this.classid, "gemsockets") > 0 && [sdk.items.type.Ring, sdk.items.type.Amulet].indexOf(this.itemType) === -1;
-		}
-	},
-	rawStrength: {
-		get: function () {
-			const lvl = this.getStat(sdk.stats.Level);
-			const rawBonus = (i) => i.getStat(sdk.stats.Strength);
-			const perLvlBonus = (i) => lvl * i.getStat(sdk.stats.PerLevelStrength) / 8;
-			const bonus = ~~(this.getItemsEx()
-				.filter((i) => i.isEquipped || i.isEquippedCharm)
-				.map((i) => rawBonus(i) + perLvlBonus(i))
-				.reduce((acc, v) => acc + v, 0));
-			return this.getStat(sdk.stats.Strength) - bonus;
-		},
-	},
-	rawDexterity: {
-		get: function () {
-			const lvl = this.getStat(sdk.stats.Level);
-			const rawBonus = (i) => i.getStat(sdk.stats.Dexterity);
-			const perLvlBonus = (i) => lvl * i.getStat(sdk.stats.PerLevelDexterity) / 8;
-			const bonus = ~~(this.getItemsEx()
-				.filter((i) => i.isEquipped || i.isEquippedCharm)
-				.map((i) => rawBonus(i) + perLvlBonus(i))
-				.reduce((acc, v) => acc + v, 0));
-			return this.getStat(sdk.stats.Dexterity) - bonus;
-		},
-	},
-	upgradedStrReq: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return false;
-			let code, id, baseReq, finalReq, ethereal = this.getFlag(sdk.items.flags.Ethereal);
-			let reqModifier = this.getStat(sdk.stats.ReqPercent);
-
-			switch (this.itemclass) {
-			case sdk.items.class.Normal:
-				code = getBaseStat("items", this.classid, "ubercode").trim();
-
-				break;
-			case sdk.items.class.Exceptional:
-				code = getBaseStat("items", this.classid, "ultracode").trim();
-
-				break;
-			case sdk.items.class.Elite:
-				return this.strreq;
-			}
-
-			id = NTIPAliasClassID[code];
-			baseReq = getBaseStat("items", id, "reqstr");
-			finalReq = baseReq + Math.floor(baseReq * reqModifier / 100);
-			ethereal && (finalReq -= 10);
-			return Math.max(finalReq, 0);
-		}
-	},
-	upgradedDexReq: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return false;
-			let code, id, baseReq, finalReq, ethereal = this.getFlag(sdk.items.flags.Ethereal);
-			let reqModifier = this.getStat(sdk.stats.ReqPercent);
-
-			switch (this.itemclass) {
-			case sdk.items.class.Normal:
-				code = getBaseStat("items", this.classid, "ubercode").trim();
-
-				break;
-			case sdk.items.class.Exceptional:
-				code = getBaseStat("items", this.classid, "ultracode").trim();
-
-				break;
-			case sdk.items.class.Elite:
-				return this.dexreq;
-			}
-
-			id = NTIPAliasClassID[code];
-			baseReq = getBaseStat("items", id, "reqdex");
-			finalReq = baseReq + Math.floor(baseReq * reqModifier / 100);
-			ethereal && (finalReq -= 10);
-			return Math.max(finalReq, 0);
-		}
-	},
-	upgradedLvlReq: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return false;
-			let code, id;
-
-			switch (this.itemclass) {
-			case sdk.items.class.Normal:
-				code = getBaseStat("items", this.classid, "ubercode").trim();
-
-				break;
-			case sdk.items.class.Exceptional:
-				code = getBaseStat("items", this.classid, "ultracode").trim();
-
-				break;
-			case sdk.items.class.Elite:
-				return this.lvlreq;
-			}
-
-			id = NTIPAliasClassID[code];
-			return Math.max(getBaseStat("items", id, "levelreq"), 0);
-		}
-	},
-	allRes: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return 0;
-			let fr = this.getStat(sdk.stats.FireResist);
-			let cr = this.getStat(sdk.stats.ColdResist);
-			let lr = this.getStat(sdk.stats.LightningResist);
-			let pr = this.getStat(sdk.stats.PoisonResist);
-			return (fr && cr && lr && pr) ? fr : 0;
-		}
-	},
-	prettyPrint: {
-		get: function () {
-			if (this.type !== sdk.unittype.Item) return this.name;
-			return this.fname.split("\n").reverse().join(" ");
-		}
-	}
-});
 
 Unit.prototype.castChargedSkillEx = function (...args) {
 	let skillId, x, y, unit, chargedItem, charge;
@@ -766,4 +817,15 @@ Unit.prototype.haveRunes = function (itemInfo = []) {
 	}
 
 	return true;
+};
+
+Unit.prototype.getMobs = function ({ range, coll, type }) {
+	if (this === undefined) return [];
+	const _this = this;
+	return getUnits(sdk.unittype.Monster)
+		.filter(function (mon) {
+			return mon.attackable && getDistance(_this, mon) < range
+				&& (!type || ((type & mon.spectype)))
+				&& (!coll || !checkCollision(_this, mon, coll));
+		});
 };
