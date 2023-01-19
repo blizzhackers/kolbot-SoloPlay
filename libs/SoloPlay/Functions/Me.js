@@ -18,8 +18,8 @@ if (!me.hasOwnProperty("maxNearMonsters")) {
 	});
 }
 
-if (!me.hasOwnProperty("duelWielding")) {
-	Object.defineProperty(me, "duelWielding", {
+if (!me.hasOwnProperty("dualWielding")) {
+	Object.defineProperty(me, "dualWielding", {
 		get: function () {
 			// only classes that can duel wield
 			if (!me.assassin && !me.barbarian) return false;

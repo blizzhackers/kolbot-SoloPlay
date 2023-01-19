@@ -224,7 +224,7 @@ const Quest = {
 		!getUIFlag(sdk.uiflags.Stash) && me.cancel();
 
 		if (questItem) {
-			me.duelWielding && Item.removeItem(sdk.body.LeftArm);
+			me.dualWielding && Item.removeItem(sdk.body.LeftArm);
 			
 			if (!Item.equip(questItem, loc)) {
 				Pickit.pickItems();

@@ -187,7 +187,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false) {
 		attackSkill = Config.LowManaSkill[0];
 	}
 
-	if ([sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy].includes(attackSkill) && !me.duelWielding || !Skill.canUse(attackSkill)) {
+	if ([sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy].includes(attackSkill) && !me.dualWielding || !Skill.canUse(attackSkill)) {
 		let oneHandSk = [data.bash, data.stun, data.concentrate, data.leapAttack, data.whirlwind]
 			.filter((skill) => skill.have && me.mp > skill.mana)
 			.sort((a, b) => GameData.physicalAttackDamage(b.skill) - GameData.physicalAttackDamage(a.skill)).first();
@@ -291,7 +291,7 @@ ClassAttack.doCast = function (unit, attackSkill, data) {
 		if (!unit.dead) {
 			Skill.cast(attackSkill, Skill.getHand(attackSkill), unit);
 
-			if (!unit.dead && attackSkill === sdk.skills.Berserk && me.duelWielding
+			if (!unit.dead && attackSkill === sdk.skills.Berserk && me.dualWielding
 				&& Skill.canUse(sdk.skills.Frenzy) && unit.distance < 4 && !me.getState(sdk.states.Frenzy)) {
 				Skill.cast(sdk.skills.Frenzy, Skill.getHand(sdk.skills.Frenzy), unit);
 			}
