@@ -64,7 +64,7 @@ AutoMule.getMuleItems = function () {
 			// we've gotten this far, mule items that are on the force list
 			if (AutoMule.matchItem(item, Config.AutoMule.Force.concat(Config.AutoMule.Trigger))) return true;
 			// alright that handles the basics -- now normal pickit check
-			return (Pickit.checkItem(item).result > 0 && NTIP.CheckItem(item, NTIP_CheckListNoTier, true) === 1) || (item.isInStash && muleOrphans);
+			return (Pickit.checkItem(item).result > 0 && NTIP.CheckItem(item, NTIP_CheckListNoTier, true).result === 1) || (item.isInStash && muleOrphans);
 		});
 
 	return items;
