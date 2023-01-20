@@ -5,6 +5,11 @@
 *
 */
 
+/**
+ * @todo Would be interesting to have soloplay get a list of items on the mule when we join it's game to check if we need anything it currently has
+ * essentially a basic form of item sharing
+ */
+
 includeIfNotIncluded("Automule.js");
 
 AutoMule.getMuleItems = function () {
@@ -14,27 +19,52 @@ AutoMule.getMuleItems = function () {
 		return false;
 	}
 	
-	let items = [];
+	const muleOrphans = !!(info.muleInfo.hasOwnProperty("muleOrphans") && info.muleInfo.muleOrphans);
+	
+	/**
+	 * @param {ItemUnit} item 
+	 */
+	const questItem = (item) => [
+		sdk.items.quest.KeytotheCairnStones, sdk.items.quest.ScrollofInifuss, sdk.items.quest.HoradricMalus, sdk.items.quest.WirtsLeg,
+		sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff, sdk.items.quest.ViperAmulet, sdk.items.quest.Cube,
+		sdk.items.quest.KhalimsBrain, sdk.items.quest.KhalimsEye, sdk.items.quest.KhalimsHeart, sdk.items.quest.KhalimsFlail,
+		sdk.items.quest.DecoyGidbinn, sdk.items.quest.TheGidbinn, sdk.items.quest.KhalimsWill, sdk.items.quest.PotofLife,
+		sdk.items.quest.MephistosSoulstone, sdk.items.quest.HellForgeHammer,
+		sdk.items.quest.MalahsPotion, sdk.items.quest.ScrollofResistance,
+	].includes(item.classid);
+
+	/**
+	 * @param {ItemUnit} item 
+	 */
 	const isAKey = (item) => [sdk.items.quest.KeyofTerror, sdk.items.quest.KeyofHate, sdk.items.quest.KeyofDestruction].includes(item.classid);
-	// check if wanted by any of the systems
+	
+	/**
+	 * check if wanted by any of the systems
+	 * @param {ItemUnit} item
+	 * @returns {boolean} if item is wanted by various systems
+	 */
 	const isWanted = (item) => (AutoMule.cubingIngredient(item) || AutoMule.runewordIngredient(item) || AutoMule.utilityIngredient(item) || SoloWants.keepItem(item));
 
-	me.getItemsEx()
+	// lets be more explicit about what we want to mule
+	let items = me.getItemsEx()
 		.filter(function (item) {
-			return (
-				item.isInStorage && Town.ignoredItemTypes.indexOf(item.itemType) === -1 && !item.questItem
-				&& !AutoEquip.wanted(item) // Don't mule wanted auto equip items
-				&& ((Pickit.checkItem(item).result > 0 && NTIP.CheckItem(item, NTIP_CheckListNoTier, true) === 1) || (item.isInStash && info.muleInfo.hasOwnProperty("muleOrphans") && info.muleInfo.muleOrphans)
-				&& (item.isInStash || (item.isInInventory && !Storage.Inventory.IsLocked(item, Config.Inventory))) // Don't drop items in locked slots
-				&& ((!TorchSystem.getFarmers() && !TorchSystem.isFarmer()) || !isAKey(item)) // Don't drop Keys if part of TorchSystem
-				));
-		})
-		.forEach(function (item) {
-			// Always drop items on Force or Trigger list
-			if (AutoMule.matchItem(item, Config.AutoMule.Force.concat(Config.AutoMule.Trigger))
-				|| (!AutoMule.matchItem(item, Config.AutoMule.Exclude) && !isWanted(item))) {
-				items.push(copyUnit(item));
-			}
+			// we don't mule items that are equipped or are junk
+			if (!item.isInStorage || Town.ignoredItemTypes.includes(item.itemType)) return false;
+			// don't mule quest items
+			if (questItem(item)) return false;
+			// don't mule wanted autoequip items
+			if (AutoEquip.wanted(item)) return false;
+			// don't mule items in locked spots - not exactly applicable for soloplay but including it
+			if (item.isInInventory && Storage.Inventory.IsLocked(item, Config.Inventory)) return false;
+			// don't mule items wanted by one of the various systems - checks that it's not on the force mule list
+			// might be worth it to ignore force for soloplay in this case, muleing an item we need would slow down progression
+			if (isWanted(item) && !AutoMule.matchItem(item, Config.AutoMule.Force.concat(Config.AutoMule.Trigger))) return false;
+			// don't mule keys if part of torchsystem, again shouldn't really be used with soloplay but still including it
+			if (isAKey(item) && TorchSystem.getFarmers() && TorchSystem.isFarmer()) return false;
+			// we've gotten this far, mule items that are on the force list
+			if (AutoMule.matchItem(item, Config.AutoMule.Force.concat(Config.AutoMule.Trigger))) return true;
+			// alright that handles the basics -- now normal pickit check
+			return (Pickit.checkItem(item).result > 0 && NTIP.CheckItem(item, NTIP_CheckListNoTier, true).result === 1) || (item.isInStash && muleOrphans);
 		});
 
 	return items;

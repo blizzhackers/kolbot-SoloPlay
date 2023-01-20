@@ -7,68 +7,103 @@
 
 includeIfNotIncluded("common/Prototypes.js");
 
-Object.defineProperties(me, {
-	maxNearMonsters: {
+/**
+ * @description me prototypes for soloplay with checks to ensure forwards compatibility
+ */
+if (!me.hasOwnProperty("maxNearMonsters")) {
+	Object.defineProperty(me, "maxNearMonsters", {
 		get: function () {
 			return Math.floor((4 * (1 / me.hpmax * me.hp)) + 1);
 		}
-	},
-	duelWielding: {
+	});
+}
+
+if (!me.hasOwnProperty("dualWielding")) {
+	Object.defineProperty(me, "dualWielding", {
 		get: function () {
 			// only classes that can duel wield
 			if (!me.assassin && !me.barbarian) return false;
 			let items = me.getItemsEx().filter((item) => item.isEquipped && item.isOnMain);
 			return !!items.length && items.length >= 2 && items.every((item) => !item.isShield && !getBaseStat("items", item.classid, "block"));
 		}
-	},
-	realFR: {
+	});
+}
+
+if (!me.hasOwnProperty("realFR")) {
+	Object.defineProperty(me, "realFR", {
 		get: function () {
 			return me.getStat(sdk.stats.FireResist);
 		}
-	},
-	realCR: {
+	});
+}
+
+if (!me.hasOwnProperty("realCR")) {
+	Object.defineProperty(me, "realCR", {
 		get: function () {
 			return me.getStat(sdk.stats.ColdResist);
 		}
-	},
-	realLR: {
+	});
+}
+
+if (!me.hasOwnProperty("realLR")) {
+	Object.defineProperty(me, "realLR", {
 		get: function () {
 			return me.getStat(sdk.stats.LightResist);
 		}
-	},
-	realPR: {
+	});
+}
+
+if (!me.hasOwnProperty("realPR")) {
+	Object.defineProperty(me, "realPR", {
 		get: function () {
 			return me.getStat(sdk.stats.PoisonResist);
 		}
-	},
-	// for visual purposes really, return res with cap
-	FR: {
+	});
+}
+
+if (!me.hasOwnProperty("FR")) {
+	Object.defineProperty(me, "FR", {
 		get: function () {
 			return Math.min(75 + this.getStat(sdk.stats.MaxFireResist), me.realFR - me.resPenalty);
 		}
-	},
-	CR: {
+	});
+}
+
+if (!me.hasOwnProperty("CR")) {
+	Object.defineProperty(me, "CR", {
 		get: function () {
 			return Math.min(75 + this.getStat(sdk.stats.MaxColdResist), me.realCR - me.resPenalty);
 		}
-	},
-	LR: {
+	});
+}
+
+if (!me.hasOwnProperty("LR")) {
+	Object.defineProperty(me, "LR", {
 		get: function () {
 			return Math.min(75 + this.getStat(sdk.stats.MaxLightResist), me.realLR - me.resPenalty);
 		}
-	},
-	PR: {
+	});
+}
+
+if (!me.hasOwnProperty("PR")) {
+	Object.defineProperty(me, "PR", {
 		get: function () {
 			return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), me.realPR - me.resPenalty);
 		}
-	},
-	onFinalBuild: {
+	});
+}
+
+/**
+ * Soloplay specific but might as well keep with the format
+ */
+if (!me.hasOwnProperty("onFinalBuild")) {
+	Object.defineProperty(me, "onFinalBuild", {
 		get: function () {
 			myData === undefined && (myData = CharData.getStats());
 			return myData.me.currentBuild === myData.me.finalBuild;
 		}
-	}
-});
+	});
+}
 
 /** @returns {boolean} */
 me.canTpToTown = function () {
