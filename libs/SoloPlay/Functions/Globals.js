@@ -23,6 +23,8 @@ const Coords_1 = require("../Modules/Coords");
 const PotData = require("../modules/PotData");
 /** @global */
 const GameData = require("../Modules/GameData");
+/** @global */
+const AreaData = require("../Modules/AreaData");
 
 const MYCLASSNAME = sdk.player.class.nameOf(me.classid).toLowerCase();
 includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + ".js");
@@ -359,6 +361,13 @@ const SetUp = {
 		Config.socketables = [];
 
 		if (me.expansion) {
+			if (Storage.Stash === undefined) {
+				Storage.Init();
+			}
+			// sometimes it seems hard to find skillers, if we have the room lets try to cube some
+			if (Storage.Stash.UsedSpacePercent() < 60 && Item.autoEquipGC().keep.length < CharData.charmData.grand.getCountInfo().max) {
+				Config.Recipes.push([Recipe.Reroll.Magic, "Grand Charm"]);
+			}
 			// switch bow - only for zon/sorc/pal/necro classes right now
 			if (!me.barbarian && !me.assassin && !me.druid) {
 				NTIP.addLine("([type] == bow || [type] == crossbow) && [quality] >= normal # [itemchargedskill] >= 0 # [secondarytier] == tierscore(item)");
