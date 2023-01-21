@@ -37,6 +37,50 @@ const frostNovaCheck = function () {
 	return false;
 };
 
+/**
+ * @typedef {Object} dataObj
+ * @property {number} skill
+ * @property {number} reqLvl
+ * @property {number} range
+ * @property {boolean} have
+ * @property {number} mana
+ * @property {boolean} timed
+ * @property {number} dmg
+ * @property {Function} assignValues
+ * @property {Function} calcDmg
+ */
+
+/**
+ * @param {number} skillId
+ * @param {number} [reqLvl]
+ * @param {number} [range]
+ * @returns {dataObj}
+ */
+const buildDataObj = (skillId = -1, reqLvl = 1, range = 0) => ({
+	have: false, skill: skillId, range: range ? range : Infinity, mana: Infinity, timed: false, reqLvl: reqLvl, dmg: 0,
+	assignValues: function (range) {
+		this.have = Skill.canUse(this.skill);
+		if (!this.have) return;
+		this.range = range || Skill.getRange(this.skill);
+		this.mana = Skill.getManaCost(this.skill);
+		this.timed = Skill.isTimed(this.skill);
+	},
+	calcDmg: function (unit) {
+		if (!this.have) return;
+		this.dmg = GameData.avgSkillDamage(this.skill, unit);
+	}
+});
+
+/**
+ * @param {dataObj} main 
+ * @param {dataObj} check 
+ * @returns {boolean}
+ */
+const compareDamage = (main, check) => {
+	if (main.skill === check.skill) return false;
+	return check.dmg > main.dmg;
+};
+
 ClassAttack.switchCurse = function (unit, force) {
 	if (CharData.skillData.haveChargedSkill([sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken]) && unit.curseable) {
 		const gold = me.gold;
@@ -70,6 +114,31 @@ ClassAttack.switchCurse = function (unit, force) {
 			Attack.switchCastCharges(sdk.skills.Weaken, unit);
 		}
 	}
+};
+
+/**
+ * @param {Unit} unit
+ * @returns {dataObj}
+ */
+ClassAttack.decideDistanceSkill = function (unit) {
+	const data = {};
+	const currLvl = me.charlvl;
+	data.iceBlast = buildDataObj(sdk.skills.IceBlast, 6, 20);
+	data.fireBall = buildDataObj(sdk.skills.FireBall, 12, 20);
+	data.lightning = buildDataObj(sdk.skills.Lightning, 12);
+	data.glacialSpike = buildDataObj(sdk.skills.GlacialSpike, 18, 25);
+	data.blizzard = buildDataObj(sdk.skills.Blizzard, 24, 40);
+	data.meteor = buildDataObj(sdk.skills.Meteor, 24, 40);
+	data.frozenOrb = buildDataObj(sdk.skills.FrozenOrb, 30);
+	data.hydra = buildDataObj(sdk.skills.Hydra, 30, 40);
+	Object.keys(data).forEach(k => typeof data[k] === "object" && currLvl >= data[k].reqLvl && data[k].assignValues());
+	Object.keys(data).forEach(k => typeof data[k] === "object" && data[k].have && data[k].calcDmg(unit));
+
+	let skillCheck = Object.keys(data)
+		.filter(k => typeof data[k] === "object" && data[k].have && me.mp > data[k].mana
+			&& (!data[k].timed || !me.skillDelay))
+		.sort((a, b) => data[b].dmg - data[a].dmg).first();
+	return typeof data[skillCheck] === "object" ? data[skillCheck] : buildDataObj(-1);
 };
 
 ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
@@ -106,24 +175,6 @@ ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
 		ClassAttack.switchCurse(unit);
 	}
 
-	const buildDataObj = (skillId = -1, reqLvl = 1, range = 0) => ({
-		have: false, skill: skillId, range: range ? range : Infinity, mana: Infinity, timed: false, reqLvl: reqLvl, dmg: 0,
-		assignValues: function (range) {
-			this.have = Skill.canUse(this.skill);
-			if (!this.have) return;
-			this.range = range || Skill.getRange(this.skill);
-			this.mana = Skill.getManaCost(this.skill);
-			this.timed = Skill.isTimed(this.skill);
-		},
-		calcDmg: function (unit) {
-			if (!this.have) return;
-			this.dmg = GameData.avgSkillDamage(this.skill, unit);
-		}
-	});
-	const compareDamage = (main, check) => {
-		if (main.skill === check.skill) return false;
-		return check.dmg > main.dmg;
-	};
 	const data = {};
 	data.static = buildDataObj(sdk.skills.StaticField, 6);
 	data.frostNova = buildDataObj(sdk.skills.FrostNova, 6, 7);
