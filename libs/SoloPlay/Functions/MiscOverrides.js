@@ -520,7 +520,7 @@ Misc.addSocketablesToItem = function (item, runes = []) {
 
 			if (item.getItemsEx().length > preSockets) {
 				D2Bot.printToConsole("Added socketable: " + rune.fname + " to " + item.fname, sdk.colors.D2Bot.Gold);
-				Misc.logItem("Added " + rune.name + " to: ", item);
+				Misc.logItem("Added " + rune.name + " to: ", item, null, true);
 				preSockets++;
 			}
 		}
@@ -710,7 +710,7 @@ Misc.checkSocketables = function () {
 };
 
 // Log kept item stats in the manager.
-Misc.logItem = function (action, unit, keptLine) {
+Misc.logItem = function (action, unit, keptLine, force) {
 	if (!this.useItemLog || unit === undefined || !unit || !unit.fname) return false;
 	if (!Config.LogKeys && ["pk1", "pk2", "pk3"].includes(unit.code)) return false;
 	if (!Config.LogOrgans && ["dhn", "bey", "mbr"].includes(unit.code)) return false;
@@ -749,7 +749,7 @@ Misc.logItem = function (action, unit, keptLine) {
 	}
 
 	// should stop logging items unless we wish to see them or it's part of normal pickit
-	if (!nTResult) {
+	if (!nTResult && !force) {
 		switch (true) {
 		case (unit.questItem || unit.isBaseType):
 		case (!unit.isCharm && hasTier && !Developer.debugging.autoEquip):

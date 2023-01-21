@@ -6,6 +6,15 @@
 *
 */
 
+/**
+ * @todo Make a list of what stats can appear on the different quality items and adjust scoring to improve effiency of the checks
+ * no point checking for stats that cannot ever exist. Also handle some of the misc stats that appear as they can be helpful.
+ */
+
+
+/**
+ * @param {ItemUnit} item 
+ */
 const sumElementalDmg = function (item) {
 	if (!item) return 0;
 	let fire = item.getStatEx(sdk.stats.FireMinDamage) + item.getStatEx(sdk.stats.FireMaxDamage);
@@ -16,6 +25,9 @@ const sumElementalDmg = function (item) {
 	return (fire + light + magic + cold + poison);
 };
 
+/**
+ * @param {ItemUnit} item 
+ */
 const mercscore = function (item) {
 	const mercWeights = {
 		IAS: 3.5,
@@ -125,6 +137,11 @@ const mercscore = function (item) {
 	return mercRating;
 };
 
+/**
+ * @param {ItemUnit} item
+ * @param {number} [skillId]
+ * @param {object} [buildInfo]
+ */
 const chargeditemscore = function (item, skillId, buildInfo) {
 	if (!item) return 0;
 
@@ -317,10 +334,14 @@ const tierWeights = {
 	}
 };
 
+/**
+ * @param {ItemUnit} item 
+ * @param {number} [bodyloc] 
+ */
 const tierscore = function (item, bodyloc) {
 	const buildInfo = Check.currentBuild();
 
-	this.generalScore = function (item) {
+	const generalScore = () => {
 		let generalRating = 0;
 		let canTele = Pather.canTeleport();
 
@@ -361,7 +382,7 @@ const tierscore = function (item, bodyloc) {
 		return generalRating;
 	};
 
-	this.resistScore = function (item) {
+	const resistScore = () => {
 		let itembodyloc = Item.getBodyLoc(item);
 		if (!itembodyloc) return 0;
 		bodyloc === undefined && (bodyloc = itembodyloc.last()); // extract bodyloc from array
@@ -408,7 +429,7 @@ const tierscore = function (item, bodyloc) {
 		return resistRating;
 	};
 
-	this.buildScore = function (item) {
+	const buildScore = () => {
 		let buildRating = 0;
 		let buildWeights = buildInfo.caster ? tierWeights.casterWeights : tierWeights.meleeWeights;
 
@@ -460,7 +481,7 @@ const tierscore = function (item, bodyloc) {
 		return buildRating;
 	};
 
-	this.skillsScore = function (item) {
+	const skillsScore = () => {
 		let skillsRating = 0;
 		let weaponModifer = !buildInfo.caster && item.getItemType() === "Weapon" ? 4 : 1;
 
@@ -484,7 +505,7 @@ const tierscore = function (item, bodyloc) {
 		return skillsRating;
 	};
 
-	this.ctcScore = function (item) {
+	const ctcScore = () => {
 		// chance to cast doesn't exist in classic
 		if (me.classic) return 0;
 
@@ -508,56 +529,57 @@ const tierscore = function (item, bodyloc) {
 			}
 		}
 
-		if (stats.hasOwnProperty(sdk.stats.SkillOnAttack)) {
-			if (stats[sdk.stats.SkillOnAttack] instanceof Array) {
-				for (let i = 0; i < stats[sdk.stats.SkillOnAttack].length; i++) {
-					if (stats[sdk.stats.SkillOnAttack][i] !== undefined) {
-						({ skill, level } = stats[sdk.stats.SkillOnAttack][i]);
-						ctcItems.push(ctcSkillObj(sdk.stats.SkillOnAttack, skill, level));
+		if (meleeCheck) {
+			if (stats.hasOwnProperty(sdk.stats.SkillOnAttack)) {
+				if (stats[sdk.stats.SkillOnAttack] instanceof Array) {
+					for (let i = 0; i < stats[sdk.stats.SkillOnAttack].length; i++) {
+						if (stats[sdk.stats.SkillOnAttack][i] !== undefined) {
+							({ skill, level } = stats[sdk.stats.SkillOnAttack][i]);
+							ctcItems.push(ctcSkillObj(sdk.stats.SkillOnAttack, skill, level));
+						}
 					}
+				} else {
+					({ skill, level } = stats[sdk.stats.SkillOnAttack]);
+					ctcItems.push(ctcSkillObj(sdk.stats.SkillOnAttack, skill, level));
 				}
-			} else {
-				({ skill, level } = stats[sdk.stats.SkillOnAttack]);
-				ctcItems.push(ctcSkillObj(sdk.stats.SkillOnAttack, skill, level));
 			}
-		}
 
-		if (stats.hasOwnProperty(sdk.stats.SkillOnStrike)) {
-			if (stats[sdk.stats.SkillOnStrike] instanceof Array) {
-				for (let i = 0; i < stats[sdk.stats.SkillOnStrike].length; i++) {
-					if (stats[sdk.stats.SkillOnStrike][i] !== undefined) {
-						({ skill, level } = stats[sdk.stats.SkillOnStrike][i]);
-						ctcItems.push(ctcSkillObj(sdk.stats.SkillOnStrike, skill, level));
+			if (stats.hasOwnProperty(sdk.stats.SkillOnStrike)) {
+				if (stats[sdk.stats.SkillOnStrike] instanceof Array) {
+					for (let i = 0; i < stats[sdk.stats.SkillOnStrike].length; i++) {
+						if (stats[sdk.stats.SkillOnStrike][i] !== undefined) {
+							({ skill, level } = stats[sdk.stats.SkillOnStrike][i]);
+							ctcItems.push(ctcSkillObj(sdk.stats.SkillOnStrike, skill, level));
+						}
 					}
+				} else {
+					({ skill, level } = stats[sdk.stats.SkillOnStrike]);
+					ctcItems.push(ctcSkillObj(sdk.stats.SkillOnStrike, skill, level));
 				}
-			} else {
-				({ skill, level } = stats[sdk.stats.SkillOnStrike]);
-				ctcItems.push(ctcSkillObj(sdk.stats.SkillOnStrike, skill, level));
+			}
+		} else {
+			tierWeights.ctcWeights.skills.Venom = 0;
+			if (me.charlvl > 50) {
+				tierWeights.ctcWeights.skills.ChargedBolt = 2;
 			}
 		}
 
 		ctcItems = ctcItems.filter((v, i, a) => a.findIndex(el => ["ctcType", "skill"].every(k => el[k] === v[k])) === i);
 
+		// might come back to redo the tierWieghts object but quick map for ctc
+		const ctcType = {};
+		ctcType[sdk.stats.SkillOnAttack] = tierWeights.ctcWeights.onAttack;
+		ctcType[sdk.stats.SkillOnStrike] = tierWeights.ctcWeights.onStrike;
+		ctcType[sdk.stats.SkillWhenStruck] = tierWeights.ctcWeights.whenStruck;
+
 		for (let i = 0; i < ctcItems.length; i++) {
 			try {
 				let skillName = getSkillById(ctcItems[i].skill).split(" ").join("");
-				if (!!tierWeights.ctcWeights.skills[skillName]) {
-					switch (ctcItems[i].ctcType) {
-					case sdk.stats.SkillOnAttack:
-						ctcRating += (meleeCheck ? ctcItems[i].level * tierWeights.ctcWeights.skills[skillName] * tierWeights.ctcWeights.onAttack : 0);
-						break;
-					case sdk.stats.SkillOnStrike:
-						ctcRating += (meleeCheck ? ctcItems[i].level * tierWeights.ctcWeights.skills[skillName] * tierWeights.ctcWeights.onStrike : 0);
-						break;
-					case sdk.stats.SkillWhenStruck:
-						ctcRating += ctcItems[i].level * tierWeights.ctcWeights.skills[skillName] * tierWeights.ctcWeights.whenStruck;
-						break;
-					default:
-						break;
-					}
+				if (!!tierWeights.ctcWeights.skills[skillName] && ctcType[ctcItems[i].ctcType]) {
+					ctcRating += (ctcItems[i].level * tierWeights.ctcWeights.skills[skillName] * ctcType[ctcItems[i].ctcType]);
 				}
 			} catch (e) {
-				console.log(e);
+				console.error(e);
 			}
 		}
 
@@ -565,11 +587,11 @@ const tierscore = function (item, bodyloc) {
 	};
 
 	let tier = 1; // set to 1 for native autoequip to use items.
-	tier += this.generalScore(item);
-	tier += this.resistScore(item);
-	tier += this.buildScore(item);
-	tier += this.skillsScore(item);
-	tier += this.ctcScore(item);
+	tier += generalScore();
+	tier += resistScore();
+	tier += buildScore();
+	tier += skillsScore();
+	tier += ctcScore();
 	tier += chargeditemscore(item, -1, buildInfo);
 
 	for (let x = 0; x < Config.Runewords.length; x += 1) {
@@ -580,6 +602,9 @@ const tierscore = function (item, bodyloc) {
 	return item.questItem ? -1 : Math.max(1, tier);
 };
 
+/**
+ * @param {ItemUnit} item 
+ */
 const secondaryscore = function (item) {
 	let tier = 0;
 
@@ -598,6 +623,9 @@ const secondaryscore = function (item) {
 	return tier;
 };
 
+/**
+ * @param {ItemUnit} item 
+ */
 const charmscore = function (item) {
 	if (myData.me.charmGids.includes(item.gid)) return 1000;
 	let charmRating = 1;

@@ -291,12 +291,17 @@ const Quest = {
 		return !me.getItem(tool);
 	},
 
+	/**
+	 * @param {string} npcName 
+	 * @param {number | number[]} action 
+	 * @returns {boolean}
+	 */
 	npcAction: function (npcName, action) {
 		if (!npcName || !action) return false;
 		!Array.isArray(action) && (action = [action]);
 
 		!me.inTown && Town.goToTown();
-		npcName = npcName[0].toUpperCase() + npcName.substring(1).toLowerCase();
+		npcName = npcName.capitalize(true);
 		Town.move(NPC[npcName]);
 		let npc = Misc.poll(() => Game.getNPC(NPC[npcName]));
 
@@ -410,7 +415,7 @@ const Quest = {
 				throw new Error("Failed to socket item");
 			}
 
-			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : ", item);
+			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : ", item, null, true);
 			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, sdk.colors.D2Bot.Gold);
 			CharData.updateData(sdk.difficulty.nameOf(me.diff), "socketUsed", true);
 			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
@@ -486,7 +491,7 @@ const Quest = {
 				throw new Error("Failed to imbue item");
 			}
 
-			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : ", item);
+			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : ", item, null, true);
 			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, sdk.colors.D2Bot.Gold);
 			CharData.updateData(sdk.difficulty.nameOf(me.diff), "imbueUsed", true);
 			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
