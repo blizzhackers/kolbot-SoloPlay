@@ -401,6 +401,8 @@ Pather.move = function (target, givenSettings = {}) {
 			if (mySkElems.length && mySkElems.every(elem => areaImmunities.includes(elem))) {
 				settings.clearSettings.clearPath = false;
 			}
+		} else if (AreaData[me.area].hasMonsterType(sdk.monsters.type.UndeadFetish)) {
+			settings.clearSettings.clearPath = false;
 		}
 	}
 
