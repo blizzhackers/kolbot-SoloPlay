@@ -1208,7 +1208,7 @@ const SoloWants = {
 			if (curr.socketWith.includes(sdk.items.runes.Hel)) {
 				let merc = me.getMerc();
 				switch (true) {
-				case Item.autoEquipKeepCheck(item) && me.trueStr >= item.strreq && me.trueDex >= item.dexreq:
+				case Item.autoEquipCheck(item, true) && me.trueStr >= item.strreq && me.trueDex >= item.dexreq:
 				case Item.autoEquipKeepCheckMerc(item) && !!merc && merc.rawStrength >= item.strreq && merc.rawDexterity >= item.dexreq:
 					curr.socketWith.splice(curr.socketWith.indexOf(sdk.items.runes.Hel), 1);
 					break;
