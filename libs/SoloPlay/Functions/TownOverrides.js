@@ -837,6 +837,9 @@ Town.gamble = function () {
 	return true;
 };
 
+/**
+ * @param {ItemUnit} item 
+ */
 Town.canStash = function (item) {
 	if (this.ignoredItemTypes.includes(item.itemType)
 		|| [sdk.items.quest.HoradricStaff, sdk.items.quest.KhalimsWill].includes(item.classid)
@@ -992,7 +995,7 @@ Town.reviveMerc = function () {
 
 	Attack.checkInfinity();
 
-	if (!!me.getMercEx()) {
+	if (me.getMercEx()) {
 		// Cast BO on merc so he doesn't just die again. Only do this is you are a barb or actually have a cta. Otherwise its just a waste of time.
 		if (Config.MercWatch && Precast.needOutOfTownCast()) {
 			console.log("MercWatch precast");

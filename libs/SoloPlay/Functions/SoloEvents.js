@@ -22,7 +22,7 @@ const SoloEvents = {
 
 		if (this.gameInfo.gameName.length > 0) {
 			D2Bot.printToConsole("Kolbot-SoloPlay :: SoloEvents.outOfGameCheck(): Attempting to join other bots game", sdk.colors.D2Bot.Gold);
-			this.inGame = true;
+			SoloEvents.inGame = true;
 			me.blockmouse = true;
 
 			delay(2000);
@@ -37,8 +37,8 @@ const SoloEvents = {
 			}
 
 			console.log("ÿc8Kolbot-SoloPlayÿc0: End of SoloEvents.outOfGameCheck()");
-			this.inGame = false;
-			this.check = false;
+			SoloEvents.inGame = false;
+			SoloEvents.check = false;
 			this.gameInfo.gameName = "";
 			this.gameInfo.gamePass = "";
 
@@ -239,7 +239,7 @@ const SoloEvents = {
 				me.overhead("No response from other profiles");
 			}
 
-			this.profileResponded = false;
+			SoloEvents.profileResponded = false;
 			Pickit.pickItems();
 		}
 
@@ -250,7 +250,7 @@ const SoloEvents = {
 		// Move back to where we orignally where
 		Pather.journeyTo(orginalLocation.area);
 		Pather.moveTo(orginalLocation.x, orginalLocation.y);
-		this.cloneWalked = false;
+		SoloEvents.cloneWalked = false;
 	},
 
 	moveSettings: {
@@ -403,7 +403,13 @@ const SoloEvents = {
 				|| me.gold < 5000
 				|| (!me.baal && SetUp.finalBuild !== "Bumper")) {
 				let waveMonster = ((bytes[1]) | (bytes[2] << 8));
-				let wave = [sdk.monsters.WarpedShaman, sdk.monsters.BaalSubjectMummy, sdk.monsters.Council4, sdk.monsters.VenomLord2, sdk.monsters.ListerTheTormenter].indexOf(waveMonster);
+				let wave = [
+					sdk.monsters.WarpedShaman,
+					sdk.monsters.BaalSubjectMummy,
+					sdk.monsters.Council4,
+					sdk.monsters.VenomLord2,
+					sdk.monsters.ListerTheTormenter
+				].indexOf(waveMonster);
 				console.debug("Wave # " + wave);
 				if (SoloEvents.skippedWaves.includes(wave)) return;
 				const waveBoss = {

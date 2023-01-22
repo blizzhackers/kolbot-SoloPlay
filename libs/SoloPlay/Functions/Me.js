@@ -147,12 +147,19 @@ me.getSkillTabs = function (classid = me.classid) {
 
 // @todo better determination of what actually constitutes being in danger
 // need check for ranged mobs so we can stick and move to avoid missiles
-me.inDanger = function () {
+me.inDanger = function (checkLoc, range) {
 	let count = 0;
-	let nearUnits = getUnits(sdk.unittype.Monster).filter((mon) => mon && mon.attackable && mon.distance < 10);
-	nearUnits.forEach(u => u.isSpecial ? (count += 2) : (count += 1));
+	let _this = typeof checkLoc !== "undefined" && checkLoc.hasOwnProperty("x") ? checkLoc : me;
+	range === undefined && (range = 10);
+	let nearUnits = getUnits(sdk.unittype.Monster).filter((mon) => mon && mon.attackable && getDistance(_this, mon) < 10);
+	nearUnits.forEach(u => u.isSpecial
+		? [sdk.states.Fanaticism, sdk.states.Conviction].some(state => u.getState(state))
+			? (count += 3)
+			: (count += 2)
+		: (count += 1));
 	if (count > me.maxNearMonsters) return true;
-	let dangerClose = nearUnits.find(mon => [sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted].some(chant => mon.getEnchant(chant)));
+	let dangerClose = nearUnits
+		.find(mon => [sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted].some(chant => mon.getEnchant(chant)));
 	return dangerClose;
 };
 

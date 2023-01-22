@@ -1,3 +1,8 @@
+/**
+ * @module
+ * @param {Object} module
+ * @param {function} require
+ */
 (function (module, require) {
 	const MonsterData = require("./MonsterData");
 	const SUPER = [0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 1, 0, 1, 4, 0, 2, 3, 1, 0, 1, 1, 0, 0, 0, 1, 3, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5, 1, 1, 1, 1, 3];
@@ -8,22 +13,25 @@
 	][me.diff && 1]; // mon is for normal, nmon is for nm/hell, umon is specific to picking champion/uniques in normal
 	const LocaleStringName = require("./LocaleStringID").LocaleStringName;
 	const AREA_INDEX_COUNT = 137;
+	
 	/**
-	 *  AreaData[areaID]
-	 *  .Super = number of super uniques present in this area
-	 *  .Index = areaID
-	 *  .Act = act this area is in [0-4]
-	 *  .MonsterDensity = value used to determine monster population density
-	 *  .ChampionPacks.Min = minimum number of champion or unique packs that spawn here
-	 *  .ChampionPacks.Max = maximum number of champion or unique packs that spawn here
-	 *  .Waypoint = number in waypoint menu that leads to this area
-	 *  .Level = level of area (use GameData.areaLevel)
-	 *  .Size.x = width of area
-	 *  .Size.y = depth of area
-	 *  .Monsters = array of monsters that can spawn in this area
-	 *  .LocaleString = locale string index for getLocaleString
+	 * @typedef AreaDataObj
+	 * @type {object}
+	 * @property {number} Super = number of super uniques present in this area
+	 * @property {number} Index = areaID
+	 * @property {number} Act = act this area is in [0-4]
+	 * @property {number} MonsterDensity = value used to determine monster population density
+	 * @property {number} ChampionPacks.Min = minimum number of champion or unique packs that spawn here
+	 * @property {number} ChampionPacks.Max = maximum number of champion or unique packs that spawn here
+	 * @property {number} Waypoint = number in waypoint menu that leads to this area
+	 * @property {number} Level = level of area (use GameData.areaLevel)
+	 * @property {number} Size.x = width of area
+	 * @property {number} Size.y = depth of area
+	 * @property {number} Monsters = array of monsters that can spawn in this area
+	 * @property {number} LocaleString = locale string index for getLocaleString
 	 */
 
+	/** @type {AreaDataObj[]} */
 	const AreaData = new Array(AREA_INDEX_COUNT);
 
 	for (let i = 0; i < AreaData.length; i++) {
@@ -54,6 +62,20 @@
 				};
 			})(),
 			Monsters: (MONSTER_KEYS.map(key => getBaseStat("levels", index, key)).filter(key => key !== 65535)),
+			/**
+			 * Check if this area has a monster of a certain type
+			 * @function
+			 * @param {number} type - monster type to check for
+			 * @returns {boolean}
+			 */
+			hasMonsterType: function (type) {
+				return this.Monsters.some(monId => MonsterData[monId].Type === type);
+			},
+			/**
+			 * Iterate through each monster in this area and apply a callback function
+			 * @function
+			 * @param {function} cb - callback function to apply to each monster
+			 */
 			forEachMonster: function (cb) {
 				if (typeof cb === "function") {
 					this.Monsters.forEach(monID => {
@@ -61,6 +83,11 @@
 					});
 				}
 			},
+			/**
+			 * Iterate through each monster and minion in this area and apply a callback function
+			 * @function
+			 * @param {function} cb - callback function to apply to each monster
+			 */
 			forEachMonsterAndMinion: function (cb) {
 				if (typeof cb === "function") {
 					this.Monsters.forEach(monID => {
@@ -75,9 +102,16 @@
 			},
 			LocaleString: getLocaleString(AREA_LOCALE_STRING[index]),
 			InternalName: LocaleStringName[AREA_LOCALE_STRING[index]],
+			/**
+			 * Check if area is a town area
+			 * @function
+			 */
 			townArea: function () {
 				return AreaData[[sdk.areas.RogueEncampment, sdk.areas.LutGholein, sdk.areas.KurastDocktown, sdk.areas.PandemoniumFortress, sdk.areas.Harrogath][this.Act]];
 			},
+			/**
+			 * @function
+			 */
 			haveWaypoint: function () {
 				// get the last area that got a WP
 				let wpArea = this.nearestWaypointArea();
@@ -85,6 +119,10 @@
 				// If you dont need a wp, we want at least the town's wp
 				return getWaypoint(Pather.wpAreas.indexOf(wpArea || this.townArea().Index));
 			},
+			/**
+			 * Find nearest waypoint in area
+			 * @function
+			 */
 			nearestWaypointArea: function () {
 				// plot toward this are
 				const plot = Pather.plotCourse(this.Index, this.townArea().Index);
@@ -92,7 +130,10 @@
 				// get the last area that got a WP
 				return plot.course.filter(el => Pather.wpAreas.indexOf(el) > -1).last();
 			},
-			/** @return PresetUnit|undefined */
+			/** 
+			 * @function
+			 * @return {PresetUnit|undefined}
+			 */
 			waypointPreset: function () {
 				const wpIDs = [119, 145, 156, 157, 237, 238, 288, 323, 324, 398, 402, 429, 494, 496, 511, 539];
 				for (let i = 0, preset, wpArea = this.nearestWaypointArea(); i < wpIDs.length || preset; i++) {
@@ -106,6 +147,11 @@
 		});
 	}
 
+	/**
+	 * @property {function} AreaData.findByName
+	 * @param {string} whatToFind 
+	 * @returns 
+	 */
 	AreaData.findByName = function (whatToFind) {
 		let matches = AreaData.map(area => [Math.min(whatToFind.diffCount(area.LocaleString), whatToFind.diffCount(area.InternalName)), area]).sort((a, b) => a[0] - b[0]);
 
@@ -113,7 +159,7 @@
 	};
 
 	AreaData.dungeons = {
-		DenOfEvil: [sdk.areas.DenOfEvil],
+		DenOfEvil: [sdk.areas.DenofEvil],
 
 		Hole: [sdk.areas.HoleLvl1, sdk.areas.HoleLvl2, ],
 
@@ -130,7 +176,7 @@
 
 		StonyTomb: [sdk.areas.StonyTombLvl1, sdk.areas.StonyTombLvl2, ],
 
-		HallsOfDead: [sdk.areas.HallsOfDeadLvl1, sdk.areas.HallsOfDeadLvl2, sdk.areas.HallsOfDeadLvl3, ],
+		HallsOfDead: [sdk.areas.HallsoftheDeadLvl1, sdk.areas.HallsoftheDeadLvl2, sdk.areas.HallsoftheDeadLvl3, ],
 
 		ClawViperTemple: [sdk.areas.ClawViperTempleLvl1, sdk.areas.ClawViperTempleLvl2, ],
 
@@ -152,7 +198,7 @@
 		// act 4 has no areas like that
 
 		// act 5
-		RedPortalPits: [sdk.areas.Abaddon, sdk.areas.PitOfAcheron, sdk.areas.InfernalPit, ],
+		RedPortalPits: [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit, ],
 	};
 
 	module.exports = AreaData;

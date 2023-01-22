@@ -953,6 +953,14 @@ Attack.shouldDodge = function (coord, monster) {
 		});
 };
 
+new Overrides.Override(Attack, Attack.sortMonsters, function(orignal, unitA, unitB) {
+	let stateCheck = (m) => [sdk.states.Fanaticism, sdk.states.Conviction].some(state => m.getState(state));
+	if ((unitA.isSpecial && stateCheck(unitA)) && (unitB.isSpecial && stateCheck(unitB))) return getDistance(me, unitA) - getDistance(me, unitB);
+	if (unitA.isSpecial && stateCheck(unitA)) return -1;
+	if (unitB.isSpecial && stateCheck(unitB)) return 1;
+	return orignal(unitA, unitB);
+}).apply();
+
 Attack.walkingSortMonsters = function (unitA, unitB) {
 	// sort main bosses first
 	if ((unitA.isPrimeEvil) && (unitB.isPrimeEvil)) return getDistance(me, unitA) - getDistance(me, unitB);
@@ -1278,6 +1286,7 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
 
 Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = false, force = false) {
 	if (!unit || !unit.x || !unit.y) return false;
+	Developer.debugging.pathing && console.time("getIntoPosition");
 	const useTele = Pather.useTeleport();
 	walk === true && (walk = 1);
 
@@ -1308,6 +1317,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 	//let t = getTickCount();
 
 	for (let n = 0; n < 3; n += 1) {
+		const nearMobs = getUnits(sdk.unittype.Monster).filter(m => m.getStat(sdk.stats.Alignment) !== 2);
 		(n > 0) && (distance -= Math.floor(fullDistance / 3 - 1));
 
 		for (let i = 0; i < angles.length; i += 1) {
@@ -1333,11 +1343,14 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 			for (let i = 0; i < coords.length; i += 1) {
 				// Valid position found - no collision between the spot and the unit
 				if (!CollMap.checkColl({ x: coords[i].x, y: coords[i].y }, unit, coll, 1)) {
-					currCount = coords[i].mobCount({ range: 7 });
+					// currCount = coords[i].mobCount({ range: 7 });
+					Developer.debugging.pathing && console.time("countMobs");
+					currCount = nearMobs.filter(m => getDistance(coords[i].x, coords[i].y, m.x, m.y) < 8).length;
+					Developer.debugging.pathing && console.timeEnd("countMobs");
 
 					// this might be a valid spot but also check the mob count at that node
 					if (caster) {
-						potentialSpot.x !== undefined && (potentialSpot = { x: coords[i].x, y: coords[i].y });
+						potentialSpot.x === undefined && (potentialSpot = { x: coords[i].x, y: coords[i].y });
 
 						if (currCount < count) {
 							count = currCount;
@@ -1362,7 +1375,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 					}
 
 					Developer.debugging.pathing && console.log(sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow + "Moving to: x: " + coords[i].x + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + currCount);
-
+					Developer.debugging.pathing && console.timeEnd("getIntoPosition");
 					return true;
 				}
 			}
@@ -1371,35 +1384,28 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 
 	if (caster && potentialSpot.x !== undefined) {
 		if (potentialSpot.distance < 3) return true;
-		if (Pather.useTeleport()) {
-			Pather.teleportTo(potentialSpot.x, potentialSpot.y);
-		} else {
+		if ((() => {
+			if (Pather.useTeleport() && Pather.teleportTo(potentialSpot.x, potentialSpot.y)) {
+				return true;
+			}
 			switch (walk) {
 			case 1:
-				Pather.walkTo(potentialSpot.x, potentialSpot.y, 2);
-
-				break;
+				return Pather.walkTo(potentialSpot.x, potentialSpot.y, 2);
 			case 2:
-				if (potentialSpot.distance < 6 && !CollMap.checkColl(me, potentialSpot, sdk.collision.WallOrRanged)) {
-					Pather.walkTo(potentialSpot.x, potentialSpot.y, 2);
-				} else {
-					Pather.moveTo(potentialSpot.x, potentialSpot.y, 1);
-				}
-
-				break;
 			default:
-				Pather.moveTo(potentialSpot.x, potentialSpot.y, 1);
-
-				break;
+				if (potentialSpot.distance < 6 && !CollMap.checkColl(me, potentialSpot, sdk.collision.WallOrRanged)) {
+					return Pather.walkTo(potentialSpot.x, potentialSpot.y, 2);
+				}
+				return Pather.moveTo(potentialSpot.x, potentialSpot.y, 1);
 			}
+		})()) {
+			Developer.debugging.pathing && console.log(sdk.colors.Orange + "DefaultCheck :: " + sdk.colors.Yellow + "Moving to: x: " + potentialSpot.x + " y: " + potentialSpot.y + " mob amount: " + sdk.colors.NeonGreen + count);
+			Developer.debugging.pathing && console.timeEnd("getIntoPosition");
+			return true;
 		}
-
-		Developer.debugging.pathing && console.log(sdk.colors.Orange + "DefaultCheck :: " + sdk.colors.Yellow + "Moving to: x: " + potentialSpot.x + " y: " + potentialSpot.y + " mob amount: " + sdk.colors.NeonGreen + count);
-
-		return true;
 	}
 
-	!!name && console.log("ÿc4Attackÿc0: No valid positions for: " + name);
+	console.warn("ÿc4Attackÿc0: Failed to get into valid position" + (name ? " for: " + name : ""));
 
 	return false;
 };

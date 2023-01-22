@@ -609,6 +609,10 @@ Cubing.checkItem = function (unit) {
 	return false;
 };
 
+/**
+ * @param {ItemUnit} unit 
+ * @param {*} recipe 
+ */
 Cubing.validItem = function (unit, recipe) {
 	// Excluded items
 	// Don't use items in locked inventory space
@@ -631,6 +635,7 @@ Cubing.validItem = function (unit, recipe) {
 	// START
 	let valid = true;
 	const ntipResult = NTIP.CheckItem(unit);
+	const ntipToTierResult = NTIP.CheckItem(unit, NTIP_CheckListNoTier);
 
 	if (recipe.Index >= Recipe.HitPower.Helm && recipe.Index <= Recipe.Safety.Weapon) {
 		if (Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) < recipe.Level) {
@@ -655,9 +660,7 @@ Cubing.validItem = function (unit, recipe) {
 		}
 
 		return false;
-	}
-
-	if (recipe.Index >= Recipe.Unique.Weapon.ToExceptional && recipe.Index <= Recipe.Unique.Armor.ToElite) {
+	} else if (recipe.Index >= Recipe.Unique.Weapon.ToExceptional && recipe.Index <= Recipe.Unique.Armor.ToElite) {
 		// If item is equipped, ensure we can use the upgraded version
 		if (unit.isEquipped) {
 			if (me.charlvl < unit.upgradedLvlReq || me.trueStr < unit.upgradedStrReq || me.trueDex < unit.upgradedDexReq) {
@@ -695,9 +698,7 @@ Cubing.validItem = function (unit, recipe) {
 		}
 
 		return false;
-	}
-
-	if (recipe.Index >= Recipe.Rare.Weapon.ToExceptional && recipe.Index <= Recipe.Rare.Armor.ToElite) {
+	} else if (recipe.Index >= Recipe.Rare.Weapon.ToExceptional && recipe.Index <= Recipe.Rare.Armor.ToElite) {
 		// If item is equipped, ensure we can use the upgraded version
 		if (unit.isEquipped) {
 			if (me.charlvl < unit.upgradedLvlReq || me.trueStr < unit.upgradedStrReq || me.trueDex < unit.upgradedDexReq) {
@@ -718,9 +719,7 @@ Cubing.validItem = function (unit, recipe) {
 		}
 
 		return false;
-	}
-
-	if (recipe.Index >= Recipe.Socket.Shield && recipe.Index <= Recipe.Socket.Helm) {
+	} else if (recipe.Index >= Recipe.Socket.Shield && recipe.Index <= Recipe.Socket.Helm) {
 		// Normal item matching pickit entry, no sockets
 		if (unit.normal && unit.sockets === 0) {
 			switch (recipe.Ethereal) {
@@ -735,18 +734,17 @@ Cubing.validItem = function (unit, recipe) {
 		}
 
 		return false;
-	}
-
-	if (recipe.Index === Recipe.Reroll.Magic) {
-		if (unit.magic && unit.ilvl >= recipe.Level && ntipResult === Pickit.Result.UNWANTED) {
+	} else if (recipe.Index === Recipe.Reroll.Magic) {
+		if (unit.magic && unit.ilvl >= recipe.Level) {
+			if (ntipResult === Pickit.Result.UNWANTED) return true;
+			// should allow for charms that aren't immeaditly wanted by equip and not nip wanted
+			if (unit.isCharm && !Item.autoEquipCharmCheck(unit) && ntipToTierResult === Pickit.Result.UNWANTED) return true;
 			return true;
 		}
 
 		return false;
-	}
-
-	if (recipe.Index === Recipe.Reroll.Charm) {
-		if (unit.magic && ntipResult === Pickit.Result.UNWANTED) {
+	} else if (recipe.Index === Recipe.Reroll.Charm) {
+		if (unit.isCharm && unit.magic && (ntipResult === Pickit.Result.UNWANTED || (!Item.autoEquipCharmCheck(unit) && ntipToTierResult === Pickit.Result.UNWANTED))) {
 			switch (unit.itemType) {
 			case sdk.items.type.SmallCharm:
 				if (unit.ilvl >= recipe.Level[unit.code].ilvl) {
@@ -767,17 +765,13 @@ Cubing.validItem = function (unit, recipe) {
 		}
 
 		return false;
-	}
-
-	if (recipe.Index === Recipe.Reroll.Rare) {
+	} else if (recipe.Index === Recipe.Reroll.Rare) {
 		if (unit.rare && ntipResult === Pickit.Result.UNWANTED) {
 			return true;
 		}
 
 		return false;
-	}
-
-	if (recipe.Index === Recipe.Reroll.HighRare) {
+	} else if (recipe.Index === Recipe.Reroll.HighRare) {
 		if (recipe.Ingredients[0] === unit.classid && unit.rare && ntipResult === Pickit.Result.UNWANTED) {
 			recipe.Enabled = true;
 
@@ -790,18 +784,10 @@ Cubing.validItem = function (unit, recipe) {
 		}
 
 		return false;
-	}
-
-	if (recipe.Index === Recipe.LowToNorm.Armor || recipe.Index === Recipe.LowToNorm.Weapon) {
+	} else if (recipe.Index === Recipe.LowToNorm.Armor || recipe.Index === Recipe.LowToNorm.Weapon) {
 		if (unit.lowquality && ntipResult === Pickit.Result.UNWANTED) {
 			return true;
 		}
-
-		return false;
-	}
-
-	if (recipe.Index === Recipe.Token) {
-		return true;
 	}
 
 	return false;

@@ -24,6 +24,10 @@ Item.helmTypes = [
 	sdk.items.type.Helm, sdk.items.type.PrimalHelm, sdk.items.type.Circlet, sdk.items.type.Pelt
 ];
 
+/**
+ * @param {ItemUnit} item 
+ * @param {boolean} [skipSameItem] 
+ */
 Item.getQuantityOwned = function (item = undefined, skipSameItem = false) {
 	if (!item) return 0;
 	
@@ -38,6 +42,9 @@ Item.getQuantityOwned = function (item = undefined, skipSameItem = false) {
 		).length;
 };
 
+/**
+ * @param {ItemUnit} item 
+ */
 Item.hasDependancy = function (item) {
 	switch (item.itemType) {
 	case sdk.items.type.Bow:
@@ -50,6 +57,9 @@ Item.hasDependancy = function (item) {
 	}
 };
 
+/**
+ * @param {ItemUnit} item 
+ */
 Item.identify = function (item) {
 	if (item.identified) return true;
 	let idTool = me.getIdTool();
@@ -61,6 +71,9 @@ Item.identify = function (item) {
 	return false;
 };
 
+/**
+ * @param {ItemUnit} item 
+ */
 Item.getBodyLoc = function (item) {
 	let bodyLoc = (() => {
 		switch (true) {
@@ -116,6 +129,7 @@ Item.getEquippedItem = function (bodyLoc = -1) {
 			socketed: item.getItemsEx().length > 0,
 			isRuneword: item.runeword,
 			twoHanded: item.twoHanded,
+			finalItem: NTIP.GetTier(item) >= NTIP.MAX_TIER,
 		};
 	}
 
@@ -140,12 +154,19 @@ Item.getEquippedItem = function (bodyLoc = -1) {
 	};
 };
 
+/**
+ * @param {ItemUnit} item 
+ */
 Item.canEquip = function (item) {
 	if (!item || item.type !== sdk.unittype.Item || !item.identified) return false;
 	return me.charlvl >= item.getStat(sdk.stats.LevelReq) && me.trueStr >= item.strreq && me.trueDex >= item.dexreq;
 };
 
-Item.autoEquipCheck = function (item) {
+/**
+ * @param {ItemUnit} item 
+ * @param {boolean} basicCheck 
+ */
+Item.autoEquipCheck = function (item, basicCheck = false) {
 	if (!Config.AutoEquip) return true;
 
 	let tier = NTIP.GetTier(item);
@@ -153,7 +174,19 @@ Item.autoEquipCheck = function (item) {
 
 	if (tier > 0 && bodyLoc) {
 		for (let i = 0; i < bodyLoc.length; i += 1) {
-			if (tier > this.getEquippedItem(bodyLoc[i]).tier && (this.canEquip(item) || !item.identified)) {
+			let equippedItem = this.getEquippedItem(bodyLoc[i]);
+
+			// rings are special
+			// first check if its a final item - can't use tierscore value as it doesn't count the bloated value
+			if (item.isInStorage && item.itemType === sdk.items.type.Ring
+				&& ((tier < NTIP.MAX_TIER && !equippedItem.finalItem) || (equippedItem.finalItem && tier >= NTIP.MAX_TIER))) {
+				// have to pass in the specific location
+				tier = tierscore(item, bodyLoc[i]);
+
+				if (tier > equippedItem.tierScore) {
+					return true;
+				}
+			} else if (tier > equippedItem.tier && (!basicCheck ? this.canEquip(item) || !item.identified : true)) {
 				if (item.twoHanded && !me.barbarian) {
 					if (tier < this.getEquippedItem(sdk.body.RightArm).tier + this.getEquippedItem(sdk.body.LeftArm).tier) return false;
 				}
@@ -170,31 +203,9 @@ Item.autoEquipCheck = function (item) {
 	return false;
 };
 
-Item.autoEquipKeepCheck = function (item) {
-	if (!Config.AutoEquip) return true;
-
-	let tier = NTIP.GetTier(item);
-	let bodyLoc = this.getBodyLoc(item);
-
-	if (tier > 0 && bodyLoc) {
-		for (let i = 0; i < bodyLoc.length; i += 1) {
-			if (tier > this.getEquippedItem(bodyLoc[i]).tier) {
-				if (item.twoHanded && !me.barbarian) {
-					if (tier < this.getEquippedItem(sdk.body.RightArm).tier + this.getEquippedItem(sdk.body.LeftArm).tier) return false;
-				}
-
-				if (!me.barbarian && bodyLoc[i] === sdk.body.LeftArm && this.getEquippedItem(bodyLoc[i]).tier === -1) {
-					if (this.getEquippedItem(sdk.body.RightArm).twoHanded && tier < this.getEquippedItem(sdk.body.RightArm).tier) return false;
-				}
-
-				return true;
-			}
-		}
-	}
-
-	return false;
-};
-
+/**
+ * @param {string} task 
+ */
 Item.autoEquip = function (task = "") {
 	if (!Config.AutoEquip) return true;
 	task = task + "AutoEquip";
@@ -220,6 +231,11 @@ Item.autoEquip = function (task = "") {
 		return 0;
 	};
 
+	/**
+	 * @param {ItemUnit} item 
+	 * @param {number} bodyLoc 
+	 * @param {number} tier 
+	 */
 	const runEquip = (item, bodyLoc, tier) => {
 		let gid = item.gid;
 		let prettyName = item.prettyPrint;
@@ -275,7 +291,7 @@ Item.autoEquip = function (task = "") {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
 				const equippedItem = this.getEquippedItem(bodyLoc[j]);
 				// rings are special
-				if (item.isInStorage && item.itemType === sdk.items.type.Ring) {
+				if (item.isInStorage && item.itemType === sdk.items.type.Ring && (tier < NTIP.MAX_TIER || (equippedItem.finalItem && tier >= NTIP.MAX_TIER))) {
 					Item.identify(item);
 					// have to pass in the specific location
 					tier = tierscore(item, bodyLoc[j]);
@@ -318,6 +334,10 @@ Item.autoEquip = function (task = "") {
 	return true;
 };
 
+/**
+ * @param {ItemUnit} item 
+ * @param {number} bodyLoc 
+ */
 Item.equip = function (item, bodyLoc) {
 	// can't equip - @todo handle if it's one of our final items and we can equip it given the stats of our other items
 	if (!this.canEquip(item)) return false;
@@ -347,7 +367,7 @@ Item.equip = function (item, bodyLoc) {
 						switch (cursorItem.itemType) {
 						case sdk.items.type.Ring:
 							checkScore = tierscore(cursorItem, bodyLoc);
-							if (checkScore > justEquipped.tierScore) {
+							if (checkScore > justEquipped.tierScore && !justEquipped.finalItem) {
 								console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
 								console.debug("OldItem: " + checkScore + " Just Equipped Item: " + this.getEquippedItem(bodyLoc).tierScore);
 								clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc);
@@ -813,12 +833,16 @@ Item.removeItemsMerc = function () {
 Item.hasCharmTier = (item) => me.expansion && Config.AutoEquip && NTIP.GetCharmTier(item) > 0;
 Item.isFinalCharm = (item) => myData.me.charmGids.includes(item.gid);
 
-// Iterate over charm checklist, pickit result 0 and 4 get sold
-// Otherwise if its not in the stash already and not a final charm try and stash it. I don't remember why I checked if it wasn't a final charm
+/**
+ * Iterate over charm checklist, pickit result 0 and 4 get sold
+ * Otherwise if its not in the stash already and not a final charm try and stash it. I don't remember why I checked if it wasn't a final charm
+ * @param {ItemUnit[]} checkList 
+ * @param {boolean} verbose 
+ */
 const spliceCharmCheckList = function (checkList = [], verbose = false) {
 	for (let i = 0; i < checkList.length; i++) {
 		const currCharm = checkList[i];
-		if (!currCharm || [0, 4].includes(Pickit.checkItem(currCharm).result)) continue;
+		if (!currCharm || [Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(Pickit.checkItem(currCharm).result)) continue;
 		if (!currCharm.isInStash && !myData.me.charmGids.includes(currCharm.gid)) {
 			if (!Storage.Stash.MoveTo(currCharm)) {
 				verbose && Misc.itemLogger("Dropped", currCharm);
@@ -906,6 +930,10 @@ Item.autoEquipLC = function () {
 	return { keep: charms.keep, sell: charms.checkList };
 };
 
+/**
+ * @memberof Item
+ * @returns { { keep: ItemUnit[], sell: ItemUnit[] } }
+ */
 Item.autoEquipGC = function () {
 	let verbose = Developer.debugging.largeCharm;
 	let items = me.getItemsEx()
@@ -1089,6 +1117,9 @@ Item.autoEquipCharmSort = function (items = [], verbose = false) {
 	return charms;
 };
 
+/**
+ * @param {ItemUnit} item 
+ */
 Item.autoEquipCharmCheck = function (item = undefined) {
 	if (!item || NTIP.GetCharmTier(item) <= 0 || !item.isCharm) return false;
 	// Annhilus, Hellfire Torch, Gheeds - Handled by a different function so return true to keep
@@ -1444,6 +1475,9 @@ Item.getCharmType = function (charm = undefined) {
 };
 
 const AutoEquip = {
+	/**
+	 * @param {ItemUnit} item 
+	 */
 	hasTier: function (item) {
 		if (me.classic) return Item.hasTier(item);
 		if (item.isCharm) {
@@ -1452,12 +1486,15 @@ const AutoEquip = {
 		return Item.hasMercTier(item) || Item.hasTier(item) || Item.hasSecondaryTier(item);
 	},
 
+	/**
+	 * @param {ItemUnit} item 
+	 */
 	wanted: function (item) {
-		if (me.classic) return Item.autoEquipKeepCheck(item);
+		if (me.classic) return Item.autoEquipCheck(item, true);
 		if (item.isCharm) {
 			return Item.autoEquipCharmCheck(item);
 		}
-		return Item.autoEquipKeepCheckMerc(item) || Item.autoEquipKeepCheck(item) || Item.autoEquipCheckSecondary(item);
+		return Item.autoEquipKeepCheckMerc(item) || Item.autoEquipCheck(item, true) || Item.autoEquipCheckSecondary(item);
 	},
 
 	runAutoEquip: function () {

@@ -15,9 +15,16 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/CharData.js");
 includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
+/** @global */
 const Overrides = require("../../modules/Override");
+/** @global */
 const Coords_1 = require("../Modules/Coords");
+/** @global */
 const PotData = require("../modules/PotData");
+/** @global */
+const GameData = require("../Modules/GameData");
+/** @global */
+const AreaData = require("../Modules/AreaData");
 
 const MYCLASSNAME = sdk.player.class.nameOf(me.classid).toLowerCase();
 includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + ".js");
@@ -354,6 +361,13 @@ const SetUp = {
 		Config.socketables = [];
 
 		if (me.expansion) {
+			if (Storage.Stash === undefined) {
+				Storage.Init();
+			}
+			// sometimes it seems hard to find skillers, if we have the room lets try to cube some
+			if (Storage.Stash.UsedSpacePercent() < 60 && Item.autoEquipGC().keep.length < CharData.charmData.grand.getCountInfo().max) {
+				Config.Recipes.push([Recipe.Reroll.Magic, "Grand Charm"]);
+			}
 			// switch bow - only for zon/sorc/pal/necro classes right now
 			if (!me.barbarian && !me.assassin && !me.druid) {
 				NTIP.addLine("([type] == bow || [type] == crossbow) && [quality] >= normal # [itemchargedskill] >= 0 # [secondarytier] == tierscore(item)");
@@ -1194,7 +1208,7 @@ const SoloWants = {
 			if (curr.socketWith.includes(sdk.items.runes.Hel)) {
 				let merc = me.getMerc();
 				switch (true) {
-				case Item.autoEquipKeepCheck(item) && me.trueStr >= item.strreq && me.trueDex >= item.dexreq:
+				case Item.autoEquipCheck(item, true) && me.trueStr >= item.strreq && me.trueDex >= item.dexreq:
 				case Item.autoEquipKeepCheckMerc(item) && !!merc && merc.rawStrength >= item.strreq && merc.rawDexterity >= item.dexreq:
 					curr.socketWith.splice(curr.socketWith.indexOf(sdk.items.runes.Hel), 1);
 					break;
