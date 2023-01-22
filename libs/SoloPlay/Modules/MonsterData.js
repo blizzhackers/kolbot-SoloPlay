@@ -1,46 +1,53 @@
 (function (module, require) {
 	const LocaleStringName = require("./LocaleStringID").LocaleStringName;
-	/**
-	 *  MonsterData[classID]
-	 *  .Index = Index of this monster
-	 *  .Level = Level of this monster in normal (use GameData.monsterLevel to find monster levels)
-	 *  .Ranged = if monster is ranged
-	 *  .Rarity = weight of this monster in level generation
-	 *  .Threat = threat level used by mercs
-	 *  .Align = alignment of unit (determines what it will attack)
-	 *  .Melee = if monster is melee
-	 *  .NPC = if unit is NPC
-	 *  .Demon = if monster is demon
-	 *  .Flying = if monster is flying
-	 *  .Boss = if monster is a boss
-	 *  .ActBoss = if monster is act boss
-	 *  .Killable = if monster can be killed
-	 *  .Convertable = if monster is affected by convert or mind blast
-	 *  .NeverCount = if not counted as a minion
-	 *  .DeathDamage = explodes on death
-	 *  .Regeneration = hp regeneration
-	 *  .LocaleString = locale string index for getLocaleString
-	 *  .ExperienceModifier = percent of base monster exp this unit rewards when killed
-	 *  .Undead = 2 if greater undead, 1 if lesser undead, 0 if neither
-	 *  .Drain = drain effectiveness percent
-	 *  .Block = block percent
-	 *  .Physical = physical resist
-	 *  .Magic = magic resist
-	 *  .Fire = fire resist
-	 *  .Lightning = lightning resist
-	 *  .Poison = poison resist
-	 *  .Minions = array of minions that can spawn with this unit
-	 *  .MinionCount.Min = minimum number of minions that can spawn with this unit
-	 *  .MinionCount.Max = maximum number of minions that can spawn with this unit
-	 */
 	const MONSTER_INDEX_COUNT = 770;
+	/**
+		*  @typedef MonsterDataObj
+		*  @type {object}
+		*  @property {number} Index = Index of this monster
+		*  @property {number} ClassID = classid of this monster
+		*  @property {number} Type = Type of monster
+		*  @property {number} Level = Level of this monster in normal (use GameData.monsterLevel to find monster levels)
+		*  @property {boolean} Ranged = if monster is ranged
+		*  @property {number} Rarity = weight of this monster in level generation
+		*  @property {number} Threat = threat level used by mercs
+		*  @property {number} Align = alignment of unit (determines what it will attack)
+		*  @property {boolean} Melee = if monster is melee
+		*  @property {boolean} NPC = if unit is NPC
+		*  @property {boolean} Demon = if monster is demon
+		*  @property {boolean} Flying = if monster is flying
+		*  @property {boolean} Boss = if monster is a boss
+		*  @property {boolean} ActBoss = if monster is act boss
+		*  @property {boolean} Killable = if monster can be killed
+		*  @property {boolean} Convertable = if monster is affected by convert or mind blast
+		*  @property {boolean} NeverCount = if not counted as a minion
+		*  @property {number} DeathDamage = explodes on death
+		*  @property {number} Regeneration = hp regeneration
+		*  @property {number} LocaleString = locale string index for getLocaleString
+		*  @property {number} ExperienceModifier = percent of base monster exp this unit rewards when killed
+		*  @property {number} Undead = 2 if greater undead, 1 if lesser undead, 0 if neither
+		*  @property {number} Drain = drain effectiveness percent
+		*  @property {number} Block = block percent
+		*  @property {number} Physical = physical resist
+		*  @property {number} Magic = magic resist
+		*  @property {number} Fire = fire resist
+		*  @property {number} Lightning = lightning resist
+		*  @property {number} Poison = poison resist
+		*  @property {number[]} Minions = array of minions that can spawn with this unit
+		*  @property {number} MinionCount.Min = minimum number of minions that can spawn with this unit
+		*  @property {number} MinionCount.Max = maximum number of minions that can spawn with this unit
+		*/
+	
+	/** @type {MonsterDataObj[]} */
 	const MonsterData = Array(MONSTER_INDEX_COUNT);
 
 	for (let i = 0; i < MonsterData.length; i++) {
 		let index = i;
+		
 		MonsterData[i] = ({
 			Index: index,
 			ClassID: index,
+			Type: getBaseStat("monstats", index, "MonType"),
 			Level: getBaseStat("monstats", index, "Level"), // normal only, nm/hell are determined by area's LevelEx
 			Ranged: getBaseStat("monstats", index, "RangedType"),
 			Rarity: getBaseStat("monstats", index, "Rarity"),
