@@ -120,61 +120,6 @@ function main () {
 		}
 	};
 
-	this.setup = function () {
-		myPrint("start setup");
-		NTIP.arrayLooping(nipItems.Quest, nipItems.General);
-
-		try {
-			if (impossibleClassicBuilds.includes(SetUp.finalBuild) && me.classic) {
-				throw new Error("Kolbot-SoloPlay: " + SetUp.finalBuild + " cannot be used in classic. Change the info tag or remake as an expansion character...Shutting down");
-			}
-
-			if (impossibleNonLadderBuilds.includes(SetUp.finalBuild) && !Developer.addLadderRW) {
-				throw new Error("Kolbot-SoloPlay: " + SetUp.finalBuild + " cannot be used in non-ladder as they require ladder runewords. Change the info tag or remake as an ladder character...Shutting down");
-			}
-		} catch (e) {
-			D2Bot.printToConsole(e, sdk.colors.D2Bot.Red);
-			FileTools.remove("data/" + me.profile + ".json");
-			FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
-			D2Bot.stop();
-		}
-
-		if (me.charlvl === 1) {
-			let buckler = me.getItem(sdk.items.Buckler);
-			!!buckler && buckler.isEquipped && buckler.drop();
-		}
-
-		Town.heal() && me.cancelUIFlags();
-		Check.checkSpecialCase();
-
-		// check if any of our currently equipped items are no longer usable - can happen after respec
-		me.getItemsEx()
-			.filter(item => item.isEquipped)
-			.forEach(item => {
-				if (me.getStat(sdk.stats.Strength) < item.strreq
-					|| me.getStat(sdk.stats.Dexterity) < item.dexreq
-					|| item.ethereal && item.isBroken) {
-					myPrint("No longer able to use: " + item.fname);
-					Item.removeItem(null, item);
-				} else if (sdk.quest.items.includes(item.classid)) {
-					myPrint("Removing Quest Item: " + item.fname);
-					Item.removeItem(null, item);
-				}
-			});
-		
-		me.getItemsEx()
-			.filter(item => item.isInInventory && sdk.quest.items.includes(item.classid))
-			.forEach(item => {
-				Quest.stashItem(item);
-			});
-		
-		me.cancelUIFlags();
-		// initialize final charms if we have any
-		Item.initCharms();
-
-		return true;
-	};
-
 	// Initialize libs - load config variables, build pickit list, attacks, containers and cubing and runeword recipes
 	Config.init(true);
 	Pickit.init(true);
@@ -269,7 +214,7 @@ function main () {
 	!me.realm && D2Bot.updateRuns();
 
 	// Start Running Script
-	this.setup();
+	includeIfNotIncluded("SoloPlay/Utils/Init.js");
 
 	// Start Developer mode - this stops the script from progressing past this point and allows running specific scripts/functions through chat commands
 	if (Developer.developerMode.enabled) {
