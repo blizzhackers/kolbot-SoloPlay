@@ -63,7 +63,7 @@ function bloodraven () {
 
 			break;
 		case sdk.game.gametype.Expansion:
-			if ((me.charlvl < 80 || me.charlvl > 85) && !((me.sorceress || me.druid || me.assassin) && Item.getEquippedItem(sdk.body.RightArm).tier < 100000)) {
+			if ((me.charlvl < 80 || me.charlvl > 85) && !((me.sorceress || me.druid || me.assassin) && Item.getEquipped(sdk.body.RightArm).tier < 100000)) {
 				return true;
 			}
 

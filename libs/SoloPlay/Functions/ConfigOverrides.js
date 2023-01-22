@@ -42,16 +42,6 @@ Config.init = function (notify) {
 		throw new Error("Failed to load character config.");
 	}
 
-	try {
-		LoadConfig.call();
-	} catch (e2) {
-		if (notify) {
-			console.log("ÿc8Error in " + e2.fileName.substring(e2.fileName.lastIndexOf("\\") + 1, e2.fileName.length) + "(line " + e2.lineNumber + "): " + e2.message);
-
-			throw new Error("Config.init: Error in character config.");
-		}
-	}
-
 	if (Config.Silence && !Config.LocalChat.Enabled) {
 		// Override the say function with print, so it just gets printed to console
 		global._say = global.say;

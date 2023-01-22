@@ -127,7 +127,7 @@ const SetUp = {
 			}
 			
 			// merc check
-			if (!!me.getMercEx()) {
+			if (me.getMercEx()) {
 				// TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
 				// can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
 				let merc = me.getMercEx();
@@ -686,14 +686,14 @@ const Check = {
 		let gold = me.gold;
 
 		// Almost broken but not quite
-		if (((Item.getEquippedItem(sdk.body.RightArm).durability <= 30 && Item.getEquippedItem(sdk.body.RightArm).durability > 0)
-			|| (Item.getEquippedItem(sdk.body.LeftArm).durability <= 30 && Item.getEquippedItem(sdk.body.LeftArm).durability > 0)
+		if (((Item.getEquipped(sdk.body.RightArm).durability <= 30 && Item.getEquipped(sdk.body.RightArm).durability > 0)
+			|| (Item.getEquipped(sdk.body.LeftArm).durability <= 30 && Item.getEquipped(sdk.body.LeftArm).durability > 0)
 			&& !me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000)) {
 			return 1;
 		}
 
 		// Broken
-		if ((Item.getEquippedItem(sdk.body.RightArm).durability === 0 || Item.getEquippedItem(sdk.body.LeftArm).durability === 0) && me.charlvl >= 15 && !me.normal && gold < 1000) {
+		if ((Item.getEquipped(sdk.body.RightArm).durability === 0 || Item.getEquipped(sdk.body.LeftArm).durability === 0) && me.charlvl >= 15 && !me.normal && gold < 1000) {
 			return 2;
 		}
 
@@ -801,7 +801,7 @@ const Check = {
 				|| (!me.paladin && me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have)
 				|| (me.paladin && me.haveAll([{name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}, {name: sdk.locale.items.Spirit, itemtype: sdk.items.type.AuricShields}]))
 				|| (me.necromancer && me.checkItem({name: sdk.locale.items.White}).have
-					&& (me.checkItem({name: sdk.locale.items.Rhyme, itemtype: sdk.items.type.VoodooHeads}).have || Item.getEquippedItem(sdk.body.LeftArm).tier > 800))
+					&& (me.checkItem({name: sdk.locale.items.Rhyme, itemtype: sdk.items.type.VoodooHeads}).have || Item.getEquipped(sdk.body.LeftArm).tier > 800))
 				|| (me.barbarian && (me.checkItem({name: sdk.locale.items.Lawbringer}).have || me.baal))) {
 				needRunes = false;
 			}
@@ -1134,7 +1134,7 @@ const Check = {
 	usePreviousSocketQuest: function () {
 		if (me.classic) return;
 		if (!Check.resistance().Status) {
-			if (me.weaponswitch === 0 && Item.getEquippedItem(sdk.body.LeftArm).fname.includes("Lidless Wall") && !Item.getEquippedItem(sdk.body.LeftArm).socketed) {
+			if (me.weaponswitch === 0 && Item.getEquipped(sdk.body.LeftArm).fname.includes("Lidless Wall") && !Item.getEquipped(sdk.body.LeftArm).socketed) {
 				if (!me.normal) {
 					if (!myData.normal.socketUsed) goToDifficulty(sdk.difficulty.Normal, " to use socket quest");
 					if (me.hell && !myData.nightmare.socketUsed) goToDifficulty(sdk.difficulty.Nightmare, " to use socket quest");
@@ -1209,7 +1209,7 @@ const SoloWants = {
 				let merc = me.getMerc();
 				switch (true) {
 				case Item.autoEquipCheck(item, true) && me.trueStr >= item.strreq && me.trueDex >= item.dexreq:
-				case Item.autoEquipKeepCheckMerc(item) && !!merc && merc.rawStrength >= item.strreq && merc.rawDexterity >= item.dexreq:
+				case Item.autoEquipCheckMerc(item, true) && !!merc && merc.rawStrength >= item.strreq && merc.rawDexterity >= item.dexreq:
 					curr.socketWith.splice(curr.socketWith.indexOf(sdk.items.runes.Hel), 1);
 					break;
 				}

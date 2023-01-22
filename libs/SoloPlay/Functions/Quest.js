@@ -265,7 +265,7 @@ const Quest = {
 				: null;
 		let smashable = Game.getObject(classid);
 
-		if (Item.getEquippedItem(sdk.body.RightArm).classid !== tool || !me.getItem(tool)) return false;
+		if (Item.getEquipped(sdk.body.RightArm).classid !== tool || !me.getItem(tool)) return false;
 		if (!smashable) return false;
 		let tick = getTickCount();
 		let questTool = me.getItem(tool);
@@ -600,7 +600,7 @@ const Quest = {
 			// Remove Khalim's Will if quest not completed and restarting run.
 			let kw = me.getItem(sdk.items.quest.KhalimsWill);
 			if (kw) {
-				if (Item.getEquippedItem(sdk.body.RightArm).classid === sdk.items.quest.KhalimsWill) {
+				if (Item.getEquipped(sdk.body.RightArm).classid === sdk.items.quest.KhalimsWill) {
 					Town.clearInventory();
 					delay(500);
 					Quest.stashItem(sdk.items.quest.KhalimsWill);

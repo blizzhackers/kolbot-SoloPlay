@@ -42,7 +42,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 	let useSlowMissiles = Skill.canUse(sdk.skills.SlowMissiles);
 	let useDecoy = (Skill.canUse(sdk.skills.Dopplezon) && !me.normal);
 	let usePlague = (!me.normal && Skill.canUse(sdk.skills.PlagueJavelin));
-	let useJab = (Item.getEquippedItem(sdk.body.RightArm).tier >= 1000 && Skill.canUse(sdk.skills.Jab));
+	let useJab = (Item.getEquipped(sdk.body.RightArm).tier >= 1000 && Skill.canUse(sdk.skills.Jab));
 	let useLightFury = me.getSkill(sdk.skills.LightningFury, sdk.skills.subindex.SoftPoints) >= 10;
 	let forcePlague = (me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.SoftPoints) >= 15);	//Extra poison damage then attack
 

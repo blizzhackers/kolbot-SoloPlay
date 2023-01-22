@@ -237,7 +237,7 @@ const SoloIndex = {
 			},
 			skipIf: function () {
 				if (me.barbarian && (!me.hell || Pather.accessToAct(3)
-					|| (Item.getEquippedItem(sdk.body.LeftArm).tier > 1270
+					|| (Item.getEquipped(sdk.body.LeftArm).tier > 1270
 					|| me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
 					return true;
 				}

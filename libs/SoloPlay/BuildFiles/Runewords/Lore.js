@@ -35,7 +35,7 @@
 		NTIP.arrayLooping(classLoreHelm);
 
 		// Normal Helms
-		if (Item.getEquippedItem(sdk.body.Head).tier < 150) {
+		if (Item.getEquipped(sdk.body.Head).tier < 150) {
 			NTIP.arrayLooping(loreHelm);
 		}
 
@@ -84,7 +84,7 @@
 		NTIP.arrayLooping(classLoreHelm);
 
 		// Normal Helms
-		if (Item.getEquippedItem(sdk.body.Head).tier < 150) {
+		if (Item.getEquipped(sdk.body.Head).tier < 150) {
 			NTIP.arrayLooping(loreHelm);
 		}
 

@@ -16,7 +16,7 @@
 *      4. Save the profile and start
 */
 
-function LoadConfig () {
+(function LoadConfig () {
 	includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 	includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
@@ -125,17 +125,17 @@ function LoadConfig () {
 	Config.imbueables = [
 		{name: sdk.items.MaidenJavelin, condition: () => me.normal && me.expansion},
 		{name: sdk.items.CeremonialJavelin, condition: () => !me.normal && (me.charlvl < 48 || me.trueStr < 107 || me.trueDex < 151) && me.expansion},
-		{name: sdk.items.MatriarchalJavelin, condition: () => (Item.getEquippedItem(sdk.body.RightArm).tier < 100000 && me.trueStr >= 107 && me.trueDex >= 151 && me.expansion)},
-		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(sdk.body.RightArm).tier > 100000 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(sdk.body.RightArm).tier > 100000 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(sdk.body.RightArm).tier > 100000 || me.classic))},
+		{name: sdk.items.MatriarchalJavelin, condition: () => (Item.getEquipped(sdk.body.RightArm).tier < 100000 && me.trueStr >= 107 && me.trueDex >= 151 && me.expansion)},
+		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic))},
+		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic))},
+		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic))},
 	];
 
 	let imbueArr = SetUp.imbueItems();
 
 	!me.smith && NTIP.arrayLooping(imbueArr);
 
-	if (Item.getEquippedItem(sdk.body.RightArm).tier < 100000) {
+	if (Item.getEquipped(sdk.body.RightArm).tier < 100000) {
 		Config.GambleItems.push("Javelin");
 		Config.GambleItems.push("Pilum");
 		Config.GambleItems.push("Short Spear");
@@ -145,15 +145,15 @@ function LoadConfig () {
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:
 		// Res shield
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 487) {
+		if (Item.getEquipped(sdk.body.LeftArm).tier < 487) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
 		}
 		
 		break;
 	case sdk.game.gametype.Expansion:
 		NTIP.addLine("[name] >= Vexrune && [name] <= Zodrune");
+		const { basicSocketables, addSocketableObj } = require("../Utils/General");
 
-		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.all);
 		Config.socketables.push(addSocketableObj(sdk.items.Bill, [], [],
 			me.normal, (item) => item.ilvl >= 26 && item.isBaseType
@@ -167,11 +167,11 @@ function LoadConfig () {
 
 		/* Crafting */
 		// Going with Blood but TODO is test HitPower vs Blood
-		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
+		if (Item.getEquipped(sdk.body.Neck).tier < 100000) {
 			Config.Recipes.push([Recipe.Blood.Amulet]);
 		}
 
-		if (Item.getEquippedItem(sdk.body.RingLeft).tier < 100000) {
+		if (Item.getEquipped(sdk.body.RingLeft).tier < 100000) {
 			Config.Recipes.push([Recipe.Blood.Ring]);
 		}
 
@@ -206,9 +206,9 @@ function LoadConfig () {
 			}
 
 			// Spirit shield - while lvling and Wf final switch
-			if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 1000
+			if ((me.ladder || Developer.addLadderRW) && (Item.getEquipped(5).tier < 1000
 				&& (["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1)
-				|| (SetUp.finalBuild === "Wfzon" && Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit))) {
+				|| (SetUp.finalBuild === "Wfzon" && Item.getEquipped(12).prefixnum !== sdk.locale.items.Spirit))) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 			}
 
@@ -231,12 +231,12 @@ function LoadConfig () {
 			}
 
 			// Infinity
-			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
+			if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
 			}
 
 			// Spirit shield
-			if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(sdk.body.LeftArm).tier < 1000 || Item.getEquippedItem(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
+			if ((me.ladder || Developer.addLadderRW) && (Item.getEquipped(sdk.body.LeftArm).tier < 1000 || Item.getEquipped(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 			}
 
@@ -256,47 +256,47 @@ function LoadConfig () {
 		}
 
 		// Merc Insight
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).tier < 3600) {
+		if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
 		}
 
 		// Lore
-		if (Item.getEquippedItem(sdk.body.Head).tier < 250) {
+		if (Item.getEquipped(sdk.body.Head).tier < 250) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
 		}
 
 		// Ancients' Pledge
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 500 && ["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) {
+		if (Item.getEquipped(sdk.body.LeftArm).tier < 500 && ["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
 		}
 
 		// Treachery
-		if (Item.getEquippedItem(sdk.body.Armor).tier < 634) {
+		if (Item.getEquipped(sdk.body.Armor).tier < 634) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Treachery.js");
 		}
 
 		// Merc Doom
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum !== 20532 && SetUp.finalBuild !== "Javazon") {
+		if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== 20532 && SetUp.finalBuild !== "Javazon") {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercDoom.js");
 		}
 
 		// Merc Fortitude
-		if (Item.getEquippedItemMerc(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude) {
+		if (Item.getMercEquipped(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 		}
 
 		// Merc Treachery
-		if (Item.getEquippedItemMerc(sdk.body.Armor).tier < 15000) {
+		if (Item.getMercEquipped(sdk.body.Armor).tier < 15000) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercTreachery.js");
 		}
 
 		// Smoke
-		if (Item.getEquippedItem(sdk.body.Armor).tier < 634) {
+		if (Item.getEquipped(sdk.body.Armor).tier < 634) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js");
 		}
 
 		// Stealth
-		if (Item.getEquippedItem(sdk.body.Armor).tier < 233) {
+		if (Item.getEquipped(sdk.body.Armor).tier < 233) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js");
 		}
 
@@ -304,4 +304,6 @@ function LoadConfig () {
 
 		break;
 	}
-}
+
+	return true;
+})();

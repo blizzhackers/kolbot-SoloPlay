@@ -16,7 +16,7 @@
 *      4. Save the profile and start
 */
 
-function LoadConfig () {
+(function LoadConfig () {
 	includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 	includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
@@ -118,10 +118,10 @@ function LoadConfig () {
 	Config.imbueables = [
 		{name: sdk.items.AvengerGuard, condition: () => (me.normal && me.expansion)},
 		{name: sdk.items.SlayerGuard, condition: () => (!me.normal && me.trueStr >= 118 && me.expansion)},
-		{name: sdk.items.CarnageHelm, condition: () => (Item.getEquippedItem(sdk.body.Head).tier < 100000 && me.trueStr >= 106 && me.expansion)},
-		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(sdk.body.Head).tier > 100000 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(sdk.body.RightArm).tier > 100000 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(sdk.body.RightArm).tier > 100000 || me.classic))},
+		{name: sdk.items.CarnageHelm, condition: () => (Item.getEquipped(sdk.body.Head).tier < 100000 && me.trueStr >= 106 && me.expansion)},
+		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.Head).tier > 100000 || me.classic))},
+		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic))},
+		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic))},
 	].filter((item) => item.condition());
 
 	let imbueArr = SetUp.imbueItems();
@@ -133,14 +133,14 @@ function LoadConfig () {
 		break;
 	case sdk.game.gametype.Expansion:
 		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
+		const { basicSocketables, addSocketableObj } = require("../Utils/General");
 
-		// basicSocketables located in Globals
 		Config.socketables = Config.socketables.concat(basicSocketables.all);
 		Config.socketables.push(addSocketableObj(sdk.items.Flamberge, [], [],
-			true, (item) => me.normal && Item.getEquippedItem(sdk.body.LeftArm).tier < 600 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+			true, (item) => me.normal && Item.getEquipped(sdk.body.LeftArm).tier < 600 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
 		));
 		Config.socketables.push(addSocketableObj(sdk.items.Zweihander, [], [],
-			true, (item) => Item.getEquippedItem(sdk.body.LeftArm).tier < 1000 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+			true, (item) => Item.getEquipped(sdk.body.LeftArm).tier < 1000 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
 		));
 
 		if (SetUp.finalBuild !== "Immortalwhirl") {
@@ -151,7 +151,7 @@ function LoadConfig () {
 
 		if (["Immortalwhirl", "Singer"].indexOf(SetUp.finalBuild) === -1) {
 			// Grief
-			if ((me.ladder || Developer.addLadderRW) && (!me.checkItem({name: sdk.locale.items.Grief}).have || (SetUp.finalBuild === "Whirlwind" && Item.getEquippedItem(sdk.body.LeftArm).prefixnum !== sdk.locale.items.Grief))) {
+			if ((me.ladder || Developer.addLadderRW) && (!me.checkItem({name: sdk.locale.items.Grief}).have || (SetUp.finalBuild === "Whirlwind" && Item.getEquipped(sdk.body.LeftArm).prefixnum !== sdk.locale.items.Grief))) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Grief.js");
 			}
 
@@ -161,7 +161,7 @@ function LoadConfig () {
 			}
 
 			// Doom
-			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum !== 20532) {
+			if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== 20532) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercDoom.js");
 			}
 		}
@@ -189,7 +189,7 @@ function LoadConfig () {
 			break;
 		case "Singer":
 			// Heart of the Oak
-			if (Item.getEquippedItem(sdk.body.LeftArm).prefixnum !== sdk.locale.items.HeartoftheOak && me.checkItem({name: sdk.locale.items.Enigma}).have) {
+			if (Item.getEquipped(sdk.body.LeftArm).prefixnum !== sdk.locale.items.HeartoftheOak && me.checkItem({name: sdk.locale.items.Enigma}).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
 			}
 
@@ -201,7 +201,7 @@ function LoadConfig () {
 			break;
 		case "Immortalwhirl":
 			// Infinity
-			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
+			if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
 			}
 
@@ -225,15 +225,15 @@ function LoadConfig () {
 		}
 
 		/* Crafting */
-		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
+		if (Item.getEquipped(sdk.body.Neck).tier < 100000) {
 			Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Amulet]) : Config.Recipes.push([Recipe.Blood.Amulet]);
 		}
 
-		if (Item.getEquippedItem(sdk.body.RingLeft).tier < 100000) {
+		if (Item.getEquipped(sdk.body.RingLeft).tier < 100000) {
 			Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Ring]) : Config.Recipes.push([Recipe.Blood.Ring]);
 		}
 
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 1370) {
+		if (Item.getEquipped(sdk.body.LeftArm).tier < 1370) {
 			if (me.rawStrength >= 150 && me.rawDexterity >= 88) {
 				// Upgrade Bloodletter to Elite
 				Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Gladius", Roll.NonEth]);
@@ -269,21 +269,21 @@ function LoadConfig () {
 		}
 
 		// Lawbringer - Amn/Lem/Ko
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 1370) {
+		if (Item.getEquipped(sdk.body.LeftArm).tier < 1370) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lawbringer.js");
 		}
 
 		// Voice Of Reason - Lem/Ko/El/Eld
-		if (Item.getEquippedItem(sdk.body.RightArm).tier > 1100 && Item.getEquippedItem(sdk.body.LeftArm).tier < 1270 && !Check.haveItem("ring", "unique", "Raven Frost")) {
+		if (Item.getEquipped(sdk.body.RightArm).tier > 1100 && Item.getEquipped(sdk.body.LeftArm).tier < 1270 && !Check.haveItem("ring", "unique", "Raven Frost")) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js");
 		}
 
 		// Crescent Moon - Shael/Um/Tir
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 1100) {
+		if (Item.getEquipped(sdk.body.LeftArm).tier < 1100) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CrescentMoon.js");
 		}
 
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 1200) {
+		if (Item.getEquipped(sdk.body.LeftArm).tier < 1200) {
 			// Cube to Ko Rune
 			if (!me.getItem(sdk.items.runes.Ko)) {
 				Config.Recipes.push([Recipe.Rune, "Hel Rune"]);
@@ -302,76 +302,76 @@ function LoadConfig () {
 		}
 
 		// Honor - Amn/El/Ith/Tir/Sol
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 1050) {
+		if (Item.getEquipped(sdk.body.LeftArm).tier < 1050) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Honor.js");
 		}
 
 		// Merc Insight
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).tier < 3600) {
+		if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
 		}
 
 		// Lore
-		if (Item.getEquippedItem(sdk.body.Head).tier < 100000) {
+		if (Item.getEquipped(sdk.body.Head).tier < 100000) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
 		}
 
 		// Merc Fortitude
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude) {
+		if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 		}
 
 		// Merc Treachery
-		if (Item.getEquippedItemMerc(sdk.body.Armor).tier < 15000 && Item.getEquippedItem(sdk.body.RightArm).tier > 1100) {
+		if (Item.getMercEquipped(sdk.body.Armor).tier < 15000 && Item.getEquipped(sdk.body.RightArm).tier > 1100) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercTreachery.js");
 		}
 
 		// Treachery
-		if (Item.getEquippedItem(sdk.body.Armor).tier < 634 && Item.getEquippedItem(sdk.body.RightArm).tier > 1100) {
+		if (Item.getEquipped(sdk.body.Armor).tier < 634 && Item.getEquipped(sdk.body.RightArm).tier > 1100) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Treachery.js");
 		}
 
 		// Smoke
-		if (Item.getEquippedItem(sdk.body.Armor).tier < 350) {
+		if (Item.getEquipped(sdk.body.Armor).tier < 350) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js");
 		}
 
 		// Duress
-		if (Item.getEquippedItem(sdk.body.Armor).tier < 600 && (me.checkItem({name: sdk.locale.items.CrescentMoon}).have || Item.getEquippedItem(sdk.body.LeftArm).tier > 900)) {
+		if (Item.getEquipped(sdk.body.Armor).tier < 600 && (me.checkItem({name: sdk.locale.items.CrescentMoon}).have || Item.getEquipped(sdk.body.LeftArm).tier > 900)) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Duress.js");
 		}
 
 		// Myth
-		if (Item.getEquippedItem(sdk.body.Armor).tier < 340) {
+		if (Item.getEquipped(sdk.body.Armor).tier < 340) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Myth.js");
 		}
 
 		// Kings Grace - Amn/Ral/Thul
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 770) {
+		if (Item.getEquipped(sdk.body.LeftArm).tier < 770) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/KingsGrace.js");
 		}
 
 		// Steel - Tir/El
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 500) {
+		if (Item.getEquipped(sdk.body.LeftArm).tier < 500) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Steel.js");
 		}
 
 		// Spirit Sword
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit) {
+		if ((me.ladder || Developer.addLadderRW) && Item.getEquipped(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
 		}
 
 		// Malice - IthElEth
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 175) {
+		if (Item.getEquipped(sdk.body.LeftArm).tier < 175) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Malice.js");
 		}
 
 		// Stealth
-		if (Item.getEquippedItem(sdk.body.Armor).tier < 233) {
+		if (Item.getEquipped(sdk.body.Armor).tier < 233) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js");
 		}
 
-		/*if (Item.getEquippedItem(sdk.body.Gloves).tier < 233) {
+		/*if (Item.getEquipped(sdk.body.Gloves).tier < 233) {
 			NTIP.addLine("[name] == heavygloves && [flag] != ethereal && [quality] == magic # [itemchargedskill] >= 0 # [maxquantity] == 1");
 			Config.Recipes.push([Recipe.Blood.Gloves, "Heavy Gloves"]); // Craft Blood Gloves
 		}*/
@@ -381,4 +381,6 @@ function LoadConfig () {
 
 		break;
 	}
-}
+
+	return true;
+})();
