@@ -639,13 +639,15 @@
 
 			switch (skillID) {
 			case sdk.skills.ChargedBolt: // more than one bolt can hit but may calc this as splashdamage instead
-				let baseId = getBaseStat("monstats", unit.classid, "baseid");
-				let size = getBaseStat("monstats2", baseId, "sizex");
-				(typeof size !== "number" || size < 1 || size > 3) && (size = 3);
-				let dist = unit.distance;
-				const modifier = size === 1 ? 0.5 : size === 3 ? 1.5 : size === 2 && dist < 5 ? 1.2 : 1;
-				dmg.min *= modifier;
-				dmg.max *= modifier;
+				if (unit) {
+					let baseId = getBaseStat("monstats", unit.classid, "baseid");
+					let size = getBaseStat("monstats2", baseId, "sizex");
+					(typeof size !== "number" || size < 1 || size > 3) && (size = 3);
+					let dist = unit.distance;
+					const modifier = size === 1 ? 0.5 : size === 3 ? 1.5 : size === 2 && dist < 5 ? 1.2 : 1;
+					dmg.min *= modifier;
+					dmg.max *= modifier;
+				}
 
 				// need to take into account the amount of bolts released
 				// the size of the unit we are targetting
@@ -1048,6 +1050,7 @@
 			const conviction = this.getConviction(), ampDmg = this.getAmp();
 			const isUndead = (typeof unit === "number" ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
 			skillDamageInfo = skillDamageInfo || this.allSkillDamage(unit);
+			console.debug(unit, "---", hp);
 			// if (conviction && unit instanceof Unit && !unit.getState(sdk.states.Conviction)) conviction = 0; //ToDo; enable when fixed telestomp
 
 			for (let sk in skillDamageInfo) {
@@ -1138,26 +1141,28 @@
 							|| avgDmg * (100 - resist) / 100;
 
 					}
-
+					console.debug(hp, "---/", totalDmg);
 					let tmpEffort = Math.ceil(hp / totalDmg);
 
 					tmpEffort /= this.dmgModifier(sk | 0, parent || unit);
 
 					// care for mana
-					if (GameData.myReference.mp < Skill.getManaCost([sk])) {
+					if (GameData.myReference.mp < Skill.getManaCost(sk)) {
 						tmpEffort *= 5; // More effort in a skill we dont have mana for
 					}
 
-					// check valid location
-					if (sk === sdk.skills.Blizzard && !getCollision(unit.area, unit.x, unit.y & !Coords_1.BlockBits.IsOnFloor)) {
-						tmpEffort *= 5;
+					// check valid location, blizzard and meteor fail over lava
+					if (typeof unit === "object") {
+						if ([sdk.skills.Blizzard, sdk.skills.Meteor].indexOf(sk) && !Attack.validSpot(unit.x, unit.y, sk, unit.classid)) {
+							tmpEffort *= 5;
+						}
 					}
 
 					// Use less cool down spells, if something better is around
-					/*if (this.skillCooldown(sk | 0)) {
+					/* if (this.skillCooldown(sk | 0)) {
 						console.log("tmpEffort: " + (Math.ceil(tmpEffort)) + " eretEffor: " + eret.effort);
 						tmpEffort *= 5;
-					}*/
+					} */
 					if (tmpEffort <= eret.effort) {
 						eret.effort = tmpEffort;
 						eret.skill = sk | 0;
@@ -1170,6 +1175,7 @@
 					}
 				}
 			}
+			console.log(eret, allData);
 			if (all && allData.length) return allData;
 			if (eret.skill >= 0) return eret;
 			return null;
@@ -1278,7 +1284,7 @@
 					tmpEffort /= this.dmgModifier(sk | 0, unit);
 
 					// care for mana
-					if (GameData.myReference.mp < Skill.getManaCost([sk])) {
+					if (GameData.myReference.mp < Skill.getManaCost(sk)) {
 						tmpEffort *= 5; // More effort in a skill we dont have mana for
 					}
 
@@ -1344,7 +1350,7 @@
 			const effort = [], uniqueSkills = [];
 			for (let i = 50; i < 120; i++) {
 				try {
-					effort.push(GameData.monsterEffort(i, sdk.areas.ThroneOfDestruction));
+					effort.push(GameData.monsterEffort(i, sdk.areas.ThroneofDestruction));
 				} catch (e) {
 					/*dontcare*/
 				}

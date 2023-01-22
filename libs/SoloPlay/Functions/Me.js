@@ -93,6 +93,14 @@ if (!me.hasOwnProperty("PR")) {
 	});
 }
 
+if (!me.hasOwnProperty("className")) {
+	Object.defineProperty(me, "className", {
+		get: function () {
+			return sdk.player.class.nameOf(me.classid);
+		}
+	});
+}
+
 /**
  * Soloplay specific but might as well keep with the format
  */

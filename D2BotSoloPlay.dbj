@@ -58,7 +58,6 @@ if (typeof AdvancedConfig[me.profile] === "object") {
 let joinInfo;
 let gameTracker;
 Starter.BNET = ([sdk.game.profiletype.Battlenet, sdk.game.profiletype.OpenBattlenet].includes(Profile().type));
-const charClassMap = {"ZON": "amazon", "SOR": "sorceress", "NEC": "necromancer", "PAL": "paladin", "BAR": "barbarian", "DRU": "druid", "SIN": "assassin"};
 
 // initialize data files
 if (!FileTools.exists("data/" + me.profile + ".json") && DataFile.create()) {
@@ -109,6 +108,15 @@ new Overrides.Override(Starter, Starter.receiveCopyData, function (orignal, mode
 				D2Bot.stop();
 			}
 
+			const charClassMap = {
+				"ZON": "amazon",
+				"SOR": "sorceress",
+				"NEC": "necromancer",
+				"PAL": "paladin",
+				"BAR": "barbarian",
+				"DRU": "druid",
+				"SIN": "assassin"
+			};
 			buildCheck[1] = buildCheck[1].toString().substring(0, 3);
 
 			if (charClassMap[buildCheck[1]]) {

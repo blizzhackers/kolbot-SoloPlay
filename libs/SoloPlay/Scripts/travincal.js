@@ -13,7 +13,7 @@ function travincal () {
 	Pather.checkWP(sdk.areas.Travincal, true) ? Pather.useWaypoint(sdk.areas.Travincal) : Pather.getWP(sdk.areas.Travincal);
 	Precast.doPrecast(true);
 
-	let council = {
+	const council = {
 		x: me.x + 76,
 		y: me.y - 67
 	};
@@ -23,9 +23,7 @@ function travincal () {
 	Pickit.pickItems();
 
 	// go to orb
-	if (!Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.objects.CompellingOrb)) {
-		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to compelling orb");
-	}
+	Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.objects.CompellingOrb);
 
 	let orb = Game.getObject(sdk.objects.CompellingOrb);
 	!!orb && Attack.clearPos(orb.x, orb.y, 15);
@@ -53,12 +51,12 @@ function travincal () {
 			Town.goToTown();
 		}
 
-		Quest.equipItem(sdk.items.quest.KhalimsWill, 4);
+		Quest.equipItem(sdk.items.quest.KhalimsWill, sdk.body.RightArm);
 		delay(250 + me.ping);
 
 		// return to Trav
 		if (!Pather.usePortal(sdk.areas.Travincal, me.name)) {
-			console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to go back to Travincal and smash orb");
+			Pather.moveToPreset(sdk.areas.Travincal, sdk.unittype.Object, sdk.objects.CompellingOrb);
 		}
 
 		Quest.smashSomething(sdk.objects.CompellingOrb);
@@ -86,6 +84,7 @@ function travincal () {
 			}
 			return me.inArea(sdk.areas.DuranceofHateLvl1);
 		}, 10000, 40);
+
 		if (!me.inArea(sdk.areas.DuranceofHateLvl1)) {
 			Pather.moveToExit([sdk.areas.DuranceofHateLvl1, sdk.areas.DuranceofHateLvl2]);
 		} else {
@@ -93,15 +92,10 @@ function travincal () {
 		}
 		Pather.getWP(sdk.areas.DuranceofHateLvl2);
 		Pather.useWaypoint(sdk.areas.KurastDocktown);
+	}
 
-		if (!Pather.moveToExit(sdk.areas.DuranceofHateLvl1, true)) {
-			delay(250 + me.ping * 2);
-			Pather.moveToExit(sdk.areas.DuranceofHateLvl1, true);
-		}
-
-		if (!Pather.checkWP(sdk.areas.DuranceofHateLvl2)) {
-			Pather.getWP(sdk.areas.DuranceofHateLvl2);
-		}
+	if (!Pather.checkWP(sdk.areas.DuranceofHateLvl2)) {
+		Pather.getWP(sdk.areas.DuranceofHateLvl2);
 	}
 
 	return true;
