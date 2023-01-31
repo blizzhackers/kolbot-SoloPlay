@@ -976,6 +976,10 @@ Town.reviveMerc = function () {
 
 			// "You do not have enough gold for that."
 			if (dialog[lines].text.match(getLocaleString(sdk.locale.dialog.youDoNotHaveEnoughGoldForThat), "gi")) {
+				dialog.find(line => !line.text.match(getLocaleString(sdk.locale.dialog.youDoNotHaveEnoughGoldForThat), "gi")).handler();
+				delay(Math.max(750, me.ping * 2));
+				me.cancelUIFlags();
+				console.error("Could not revive merc: My current gold: " + me.gold + ", current mercrevivecost: " + me.mercrevivecost);
 				return false;
 			}
 		}

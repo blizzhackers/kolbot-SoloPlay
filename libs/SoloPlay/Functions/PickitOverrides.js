@@ -724,10 +724,13 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 					}
 
 					// Can't make room - trigger automule
-					Misc.itemLogger("No room for", currItem);
-					console.log("ÿc7Not enough room for " + this.itemColor(currItem) + currItem.name);
+					if (copyUnit(currItem).x !== undefined) {
+						Misc.itemLogger("No room for", currItem);
+						console.log("ÿc7Not enough room for " + Item.color(currItem) + currItem.name);
+						needMule = true;
 
-					needMule = true;
+						break;
+					}
 				}
 
 				// Item can fit - pick it up
