@@ -190,6 +190,7 @@
 		Merc.prototype.hire = function () {
 			let npc = getInteractedNPC();
 			if (!npc) throw new Error("To buy merc you need to interact with npc first");
+			if (typeof this.cost !== "number") throw new Error("Invalid cost");
 			if (me.gold < this.cost) throw new Error("Merc is too expensive to buy.");
 			let before = me.gold;
 			while (before === me.gold) {

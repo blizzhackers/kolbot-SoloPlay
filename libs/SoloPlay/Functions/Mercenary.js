@@ -155,9 +155,9 @@ const Mercenary = {
 		// we don't have enough gold to hire our wanted merc
 		switch (true) {
 		case typeOfMerc === 1 && (myData.merc.type === "Cold Arrow" || !Misc.checkQuest(sdk.quest.id.SistersBurialGrounds, sdk.quest.states.Completed)):
+		case myData.merc.type === mercAuraWanted:
 		case me.diff > mercDiff:
 		case me.diff === mercDiff && !Pather.accessToAct(mercAct):
-		case myData.merc.type === mercAuraWanted:
 		case me.diff !== mercDiff && myData.merc.type === "Defiance":
 		case (me.charlvl > CharInfo.levelCap + 10 && Mercenary.checkMercSkill(myData.merc.type)):
 		case me.gold < Math.round((((me.charlvl - 1) * (me.charlvl - 1)) / 2) * 7.5):
@@ -168,8 +168,13 @@ const Mercenary = {
 		// lets check what our current actually merc is
 		let checkMyMerc = Misc.poll(() => me.getMerc(), 50, 500);
 		const wantedSkill = (typeOfMerc === 1
-			? ["Cold Arrow", "Fire Arrow"].includes(mercAuraWanted) ? mercAuraWanted : "Cold Arrow"
-			: me.normal ? tmpAuraName : mercAuraWanted);
+			? "Fire Arrow" === mercAuraWanted
+				? mercAuraWanted
+				: "Cold Arrow"
+			: me.normal
+				? tmpAuraName
+				: mercAuraWanted
+		);
 
 		if (checkMyMerc && Mercenary.checkMercSkill(wantedSkill, checkMyMerc)) {
 			// we have our wanted merc, data file was probably erased so lets re-update it
@@ -204,7 +209,7 @@ const Mercenary = {
 				.first();
 			if (wantedMerc) {
 				if (wantedMerc.cost > me.gold) {
-					this.minCost = wantedMerc.cost;
+					Mercenary.minCost = wantedMerc.cost;
 					throw new Error();
 				}
 				let oldGid_1 = (_a = me.getMerc()) === null || _a === void 0 ? void 0 : _a.gid;
