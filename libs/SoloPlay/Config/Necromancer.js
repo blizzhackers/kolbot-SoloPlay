@@ -22,7 +22,6 @@
 	SetUp.include();
 
 	/* Script */
-	Scripts.SoloPlay = true;
 	SetUp.config();
 
 	/* Chicken configuration. */

@@ -1,10 +1,20 @@
 /**
  * @description Data about pots
- * @author ryancrunchi
+ * @author ryancrunchi, theBGuy
+ * @type UMD module
  */
 
-// eslint-disable-next-line no-unused-vars
-(function (module, require) {
+(function (root, factory) {
+	if (typeof module === "object" && typeof module.exports === "object") {
+		const v = factory();
+		if (v !== undefined) module.exports = v;
+	} else if (typeof define === "function" && define.amd) {
+		define([], factory);
+	} else {
+		root.PotData = factory();
+	}
+}(this, function () {
+	"use strict";
 	const PotData = {
 		pots: [],
 		getMpPots: function () {
@@ -110,5 +120,5 @@
 		]
 	};
 	
-	module.exports = PotData;
-})(module, require);
+	return PotData;
+}));

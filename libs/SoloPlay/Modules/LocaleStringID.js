@@ -3,7 +3,7 @@
 *	@author    Nishimura-Katsuo
 *	@desc      locale string indexes from NameStr ids
 */
-(function (module, require) {
+(function (module) {
 	let LocaleStringID = {
 		"WarrivAct1IntroGossip1": 0,
 		"WarrivAct1IntroPalGossip1": 1,
@@ -7803,4 +7803,4 @@
 		LocaleStringName: LocaleStringName,
 		LocaleStringID: LocaleStringID
 	};
-})(module, require);
+})(module);

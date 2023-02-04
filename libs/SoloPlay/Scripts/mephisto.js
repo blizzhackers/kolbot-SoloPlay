@@ -6,7 +6,7 @@
 */
 
 function mephisto () {
-	this.killCouncil = function () {
+	const killCouncil = function () {
 		let coords = [17600, 8125, 17600, 8015, 17643, 8068];
 
 		for (let i = 0; i < coords.length; i += 2) {
@@ -65,7 +65,7 @@ function mephisto () {
 	Config.PickRange !== oldPickRange && (Config.PickRange = oldPickRange);
 	
 	Pickit.pickItems();
-	me.mephisto && !me.hell && this.killCouncil();
+	me.mephisto && !me.hell && killCouncil();
 
 	Pather.moveTo(17581, 8070);
 	delay(250 + me.ping * 2);

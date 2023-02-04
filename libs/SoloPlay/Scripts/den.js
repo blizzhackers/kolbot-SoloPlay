@@ -86,7 +86,7 @@ function den () {
 	Attack.clear(20);
 	Pather.moveToExit(sdk.areas.DenofEvil, true);
 
-	this.denLightsListener = function (bytes = []) {
+	const denLightsListener = function (bytes = []) {
 		if (!bytes.length) return;
 		// d2gs unique event - den lights
 		if (bytes[0] === 0x89) {
@@ -95,7 +95,7 @@ function den () {
 	};
 
 	if (me.inArea(sdk.areas.DenofEvil)) {
-		addEventListener("gamepacket", this.denLightsListener);
+		addEventListener("gamepacket", denLightsListener);
 		const Worker = require("../../modules/Worker");
 		let corpsefire;
 		let corpseTick = getTickCount();
@@ -164,7 +164,7 @@ function den () {
 		} catch (e) {
 			//
 		} finally {
-			removeEventListener("gamepacket", this.denLightsListener);
+			removeEventListener("gamepacket", denLightsListener);
 			SoloEvents.finishDen();
 			killTracker = true;
 			me.getStat(sdk.stats.NewSkills) > 0 && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);

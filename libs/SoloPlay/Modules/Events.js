@@ -1,9 +1,10 @@
-const __spreadArray = (this && this.__spreadArray) || function (to, from) {
-	for (let i = 0, il = from.length, j = to.length; i < il; i++, j++) {
-		to[j] = from[i];
-	}
-	return to;
-};
+/**
+ * @filename    Events.js
+ * @author      Jaenster
+ * @desc        Transpiled UMD event module
+ * 
+ */
+
 (function (factory) {
 	if (typeof module === "object" && typeof module.exports === "object") {
 		let v = factory(require, exports);
@@ -17,7 +18,14 @@ const __spreadArray = (this && this.__spreadArray) || function (to, from) {
 	exports.Events = void 0;
 	let handlers = new WeakMap();
 	let onceHandlers = new WeakMap();
-	let Events = /** @class */ (function () {
+	const __spreadArray = (this && this.__spreadArray) || function (to, from) {
+		for (let i = 0, il = from.length, j = to.length; i < il; i++, j++) {
+			to[j] = from[i];
+		}
+		return to;
+	};
+	// eslint-disable-next-line no-var
+	var Events = /** @class */ (function () {
 		function Events() {
 		}
 		// Generic type S to give to EventHandler<S> to typehint this function gets the same this as where the event is registered
@@ -28,6 +36,7 @@ const __spreadArray = (this && this.__spreadArray) || function (to, from) {
 			!map.has(key) ? map.set(key, set = []) : set = map.get(key);
 			// Add this handler, since it has to be unique we dont need to check if it exists
 			set.push(handler);
+			console.debug(set);
 			return this;
 		};
 		Events.prototype.once = function (key, handler) {

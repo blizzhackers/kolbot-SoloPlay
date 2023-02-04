@@ -59,20 +59,6 @@
 
 		}).update;
 
-		Worker.runInBackground.ping = (new function () {
-			// recv heartbeat
-			Messaging.on("TownGuard", (data => typeof data === "object" && data && data.hasOwnProperty("heartbeat")));
-
-			this.update = function () {
-				// Only deal with this shit if default is paused - townchicken
-				const script = getScript("default.dbj");
-				if (script && script.running) {
-					return true;
-				}
-				return true;
-			};
-		}).update;
-
 		let quiting = false;
 		addEventListener("scriptmsg", data => data === "quit" && (quiting = true));
 
@@ -88,15 +74,6 @@
 			return true;
 		});
 
-		let timer = getTickCount();
-		Worker.runInBackground.heartbeatForTownGuard = function () {
-			if ((getTickCount() - timer) < 1000 || (timer = getTickCount()) && false) return true;
-
-			// Every second or so, we send a heartbeat tick
-			Messaging.send({TownGuard: {heartbeat: getTickCount()}});
-
-			return true;
-		};
 		break;
 	}
 	case "loaded": {

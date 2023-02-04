@@ -1261,6 +1261,7 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 
 	console.info(true);
 	console.time("doChores");
+	console.debug("doChores Inital Gold :: " + me.gold);
 
 	!me.inTown && Town.goToTown();
 
@@ -1319,6 +1320,7 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 	}
 
 	delay(300);
+	console.debug("doChores Ending Gold :: " + me.gold);
 	console.info(false, null, "doChores");
 	Town.lastInteractedNPC.reset(); // unassign
 

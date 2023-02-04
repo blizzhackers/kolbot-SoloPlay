@@ -239,8 +239,12 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 	 * @param {number[]} priorityClassIds 
 	 */
 	Container.prototype.FindSpot = function (item, reverseX, reverseY, priorityClassIds) {
-	// Make sure it's a valid item
+		// Make sure it's a valid item
 		if (!item) return false;
+
+		/**
+		 * @todo review this to see why it sometimes fails when there is actually enough room
+		 */
 
 		let x, y, nx, ny, makeSpot;
 		let startX, startY, endX, endY, xDir = 1, yDir = 1;
@@ -577,7 +581,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 	/**
 	 * @type {storage} Storage
 	 */
-	let Storage = new function () {
+	const Storage = new function () {
 		this.Init = () => {
 			this.StashY = me.classic ? 4 : Developer.plugyMode ? 10 : 8;
 			this.Inventory = new Container("Inventory", 10, 4, 3);

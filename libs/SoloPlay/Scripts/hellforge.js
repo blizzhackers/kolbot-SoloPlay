@@ -16,6 +16,13 @@ function hellforge () {
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
 
+	/** 
+	 * @todo
+	 * - Calculate safe spots to cast from so we can kill heph from a distance
+	 * - Possibly try luring the rest of the monsters away from the forge?
+	 * - Generate path and use callback to stop after we detect heph in range instead of moving all the way to the forge
+	 */
+
 	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.HellForge)) {
 		console.warn("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Hephasto");
 	}

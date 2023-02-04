@@ -6,7 +6,7 @@
 */
 
 function maggotlair () {
-	this.clearBeetles = function () {
+	const clearBeetles = function () {
 		let room = getRoom();
 		if (!room) return false;
 
@@ -50,7 +50,7 @@ function maggotlair () {
 	Pather.checkWP(sdk.areas.FarOasis, true) ? Pather.useWaypoint(sdk.areas.FarOasis) : Pather.getWP(sdk.areas.FarOasis);
 	Precast.doPrecast(true);
 	[sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].forEach((mLair, i) => {
-		Pather.moveToExit(mLair, true) && this.clearBeetles();
+		Pather.moveToExit(mLair, true) && clearBeetles();
 		console.log("Cleared mLair " + (i + 1));
 	});
 

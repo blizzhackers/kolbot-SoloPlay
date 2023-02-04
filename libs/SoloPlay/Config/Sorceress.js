@@ -45,8 +45,8 @@
 
 	/* Pickit configuration. */
 	Config.PickRange = 40;
-	//	Config.PickitFiles.push("kolton.nip");
-	//	Config.PickitFiles.push("LLD.nip");
+	// Config.PickitFiles.push("kolton.nip");
+	// Config.PickitFiles.push("test.nip");
 
 	/* Gambling configuration. */
 	Config.Gamble = true;

@@ -1,8 +1,9 @@
 /**
-*	@filename	nith.js
-*	@author		theBGuy
-* 	@credit		kolton
-*	@desc		kill Nihlathak for Destruction key
+*  @filename    nith.js
+*  @author      theBGuy
+*  @credit      kolton
+*  @desc        kill Nihlathak for Destruction key
+*
 */
 
 function nith() {

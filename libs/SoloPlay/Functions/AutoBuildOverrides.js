@@ -111,6 +111,7 @@ const AutoBuild = new function AutoBuild () {
 		debug && log.call(this, result);
 	}
 
+	this.levelUpHandler = levelUpHandler;
 	this.print = myPrint;
 	this.initialize = initialize;
 	this.applyConfigUpdates = applyConfigUpdates;

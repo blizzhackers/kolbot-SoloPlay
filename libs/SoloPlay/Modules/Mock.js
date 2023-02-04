@@ -1,3 +1,4 @@
+/* eslint-disable no-var */
 var __extends = (this && this.__extends) || (function () {
 	var extendStatics = function (d, b) {
 		extendStatics = Object.setPrototypeOf ||
@@ -6,16 +7,16 @@ var __extends = (this && this.__extends) || (function () {
 		return extendStatics(d, b);
 	};
 	return function (d, b) {
-		if (typeof b !== "function" && b !== null)
-			throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+		if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
 		extendStatics(d, b);
 		function __() { this.constructor = d; }
 		d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 })();
 var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-	for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+	for (var i = 0, il = from.length, j = to.length; i < il; i++, j++) {
 		to[j] = from[i];
+	}
 	return to;
 };
 var __importDefault = (this && this.__importDefault) || function (mod) {
@@ -25,8 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 	if (typeof module === "object" && typeof module.exports === "object") {
 		var v = factory(require, exports);
 		if (v !== undefined) module.exports = v;
-	}
-	else if (typeof define === "function" && define.amd) {
+	} else if (typeof define === "function" && define.amd) {
 		define(["require", "exports", "./utilities", "../../modules/sdk"], factory);
 	}
 })(function (require, exports) {
@@ -69,7 +69,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 		Mockable.prototype.getItems = function () {
 			return this.overrides.items || [];
 		};
-		;
 		Mockable.prototype.toJSON = function () {
 			var _this = this;
 			var obj = {};
@@ -104,6 +103,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 				// its shifted with 8 bytes
 				return (item.getStat(-1) || [])
 					.map(function (_a) {
+						// eslint-disable-next-line no-unused-vars
 						var major = _a[0], minor = _a[1], value = _a[2];
 						return [major, minor, item.getStat(major, minor)];
 					});
@@ -122,7 +122,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 			if (settings === void 0) { settings = {}; }
 			// Add to settings
 			var initializer = Object.keys(item)
-				.filter(function (key) { return typeof item[key] !== 'function'; })
+				.filter(function (key) { return typeof item[key] !== "function"; })
 				.reduce(function (acc, key) {
 					acc[key] = item[key];
 					return acc;
@@ -154,8 +154,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 		MockItem.fromPlayer = function (from) {
 			if (from === void 0) { from = me; }
 			return from.getItemsEx()
-				.filter(function (item) { return item.location === sdk_1.default.storage.Equipment
-                || (item.location === sdk_1.default.storage.Inventory && [603, 604, 605].indexOf(item.classid) > -1); })
+				.filter(function (item) {
+					return item.location === sdk_1.default.storage.Equipment
+                || (item.location === sdk_1.default.storage.Inventory && [603, 604, 605].indexOf(item.classid) > -1);
+				})
 				.map(function (x) { return MockItem.fromItem(x); });
 		};
 		return MockItem;

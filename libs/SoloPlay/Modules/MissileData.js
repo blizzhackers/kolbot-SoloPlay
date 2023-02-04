@@ -1,7 +1,7 @@
 (function (module, require) {
 	/**
-     *  MissilesData
-     */
+	 *  MissilesData
+	 */
 	const MISSILES_COUNT = 385;
 	const MissilesData = Array(MISSILES_COUNT);
 
