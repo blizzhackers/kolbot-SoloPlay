@@ -104,7 +104,7 @@ function main () {
 		chickenExit && D2Bot.updateChickens();
 		Config.LogExperience && Experience.log();
 		Developer.logPerformance && Tracker.update();
-		console.log("ÿc8Run duration ÿc2" + Developer.formatTime(getTickCount() - me.gamestarttime));
+		console.log("ÿc8Run duration ÿc2" + Tracker.formatTime(getTickCount() - me.gamestarttime));
 		this.stopDefault();
 		quit();
 	};

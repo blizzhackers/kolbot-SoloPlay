@@ -74,10 +74,10 @@ Loader.run = function () {
 				SoloIndex.doneList.push(scriptName);
 				// skip logging if we didn't actually finish it
 				!SoloIndex.retryList.includes(scriptName) && Developer.logPerformance && Tracker.script(tick, scriptName, currentExp);
-				console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Developer.formatTime(me.maxgametime));
+				console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Tracker.formatTime(me.maxgametime));
 				me.maxgametime += (getTickCount() - tick);
-				console.log("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Developer.formatTime(me.maxgametime));
-				console.log("ÿc8Kolbot-SoloPlayÿc0 :: ÿc8" + scriptName + "ÿc0 - ÿc7Duration: ÿc0" + Developer.formatTime(getTickCount() - tick));
+				console.log("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Tracker.formatTime(me.maxgametime));
+				console.log("ÿc8Kolbot-SoloPlayÿc0 :: ÿc8" + scriptName + "ÿc0 - ÿc7Duration: ÿc0" + Tracker.formatTime(getTickCount() - tick));
 
 				// remove script function from function scope, so it can be cleared by GC
 				if (this.scriptIndex < SoloIndex.scripts.length) {

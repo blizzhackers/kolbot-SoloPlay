@@ -171,10 +171,10 @@ function timer (tick) {
 	
 	if (Developer.displayClockInConsole && Developer.logPerformance) {
 		try {
-			gameTracker === undefined && (gameTracker = Developer.readObj(Tracker.GTPath));
+			gameTracker === undefined && (gameTracker = Tracker.readObj(Tracker.GTPath));
 			let [tTime, tInGame, tDays] = [(gameTracker.Total + currInGame), (gameTracker.InGame + currInGame), (gameTracker.Total + currInGame)];
-			let [totalTime, totalInGame, totalDays] = [Developer.formatTime(tTime), Developer.formatTime(tInGame), Developer.totalDays(tDays)];
-			timeStr += ("(Days: " + totalDays + ") (Total: " + totalTime + ") (IG: " + totalInGame + ") (OOG: " + Developer.formatTime(gameTracker.OOG) + ")");
+			let [totalTime, totalInGame, totalDays] = [Tracker.formatTime(tTime), Tracker.formatTime(tInGame), Tracker.totalDays(tDays)];
+			timeStr += ("(Days: " + totalDays + ") (Total: " + totalTime + ") (IG: " + totalInGame + ") (OOG: " + Tracker.formatTime(gameTracker.OOG) + ")");
 		} catch (e) {
 			console.log(e);
 		}
@@ -392,7 +392,7 @@ function main () {
 					DataFile.updateStats("runs", Starter.gameCount);
 					DataFile.updateStats("ingameTick");
 					Developer.logPerformance && Tracker.update((getTickCount() - oogTick));
-					Developer.displayClockInConsole && (gameTracker = Developer.readObj(Tracker.GTPath));
+					Developer.displayClockInConsole && (gameTracker = Tracker.readObj(Tracker.GTPath));
 					oogTick = 0;
 				}
 

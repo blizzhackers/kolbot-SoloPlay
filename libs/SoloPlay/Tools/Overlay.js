@@ -22,20 +22,20 @@ const Overlay = {
 	level: () => myData.me.level,
 	text: {
 		hooks: [],
-		GameTracker: Developer.readObj(Tracker.GTPath),
+		GameTracker: Tracker.readObj(Tracker.GTPath),
 		enabled: true,
 		charlvl: 0,
 		tick: 0,
 
 		clock: function () {
 			if (!Developer.logPerformance) return "";
-			this.GameTracker === undefined && (this.GameTracker = Developer.readObj(Tracker.GTPath));
+			this.GameTracker === undefined && (this.GameTracker = Tracker.readObj(Tracker.GTPath));
 			this.tick = getTickCount();
 			let currInGame = getTickCount() - me.gamestarttime;
-			let totalTime = Developer.formatTime(this.GameTracker.Total + currInGame);
-			let totalInGame = Developer.formatTime(this.GameTracker.InGame + currInGame);
+			let totalTime = Tracker.formatTime(this.GameTracker.Total + currInGame);
+			let totalInGame = Tracker.formatTime(this.GameTracker.InGame + currInGame);
 
-			return ("Total: ÿc0" + totalTime + "ÿc4 InGame: ÿc0" + totalInGame + "ÿc4 OOG: ÿc0" + Developer.formatTime(this.GameTracker.OOG));
+			return ("Total: ÿc0" + totalTime + "ÿc4 InGame: ÿc0" + totalInGame + "ÿc4 OOG: ÿc0" + Tracker.formatTime(this.GameTracker.OOG));
 		},
 
 		timer: function () {
@@ -64,7 +64,7 @@ const Overlay = {
 			}
 
 			if (Developer.logPerformance) {
-				this.GameTracker === undefined && (this.GameTracker = Developer.readObj(Tracker.GTPath));
+				this.GameTracker === undefined && (this.GameTracker = Tracker.readObj(Tracker.GTPath));
 				if (!this.getHook("times")) {
 					this.add("times");
 				} else {

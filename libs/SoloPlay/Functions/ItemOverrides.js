@@ -328,7 +328,7 @@ Item.autoEquip = function (task = "") {
 		}
 	}
 
-	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting ÿc9" + task + "ÿc0. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting ÿc9" + task + "ÿc0. Time elapsed: " + Tracker.formatTime(getTickCount() - tick));
 	return true;
 };
 
@@ -583,7 +583,7 @@ Item.autoEquipSecondary = function (task = "") {
 		}
 	}
 
-	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting secondary auto equip. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting secondary auto equip. Time elapsed: " + Tracker.formatTime(getTickCount() - tick));
 	return true;
 };
 
@@ -1320,7 +1320,7 @@ Item.removeItemsMerc = function () {
 
 		me.cancelUIFlags();
 
-		console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting charm auto equip. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting charm auto equip. Time elapsed: " + Tracker.formatTime(getTickCount() - tick));
 	};
 
 	// Write charm equip version that checks by item prefix/suffix using a switch case with the various prefixes and suffixes to sort them

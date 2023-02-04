@@ -302,11 +302,11 @@ const SetUp = {
 		includeIfNotIncluded("SoloPlay/Tools/NameGen.js");
 		includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
 		let gameObj, printTotalTime = Developer.logPerformance;
-		printTotalTime && (gameObj = Developer.readObj(Tracker.GTPath));
+		printTotalTime && (gameObj = Tracker.readObj(Tracker.GTPath));
 
 		// log info
 		myPrint(this.finalBuild + " goal reached. On to the next.");
-		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Developer.formatTime(gameObj.Total + Developer.timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", sdk.colors.D2Bot.Gold);
+		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Tracker.formatTime(gameObj.Total + Tracker.timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", sdk.colors.D2Bot.Gold);
 
 		D2Bot.setProfile(null, null, NameGen());
 		CharData.delete(true);
@@ -1016,7 +1016,7 @@ const Check = {
 		}
 
 		if (goalReached) {
-			const gameObj = Developer.logPerformance ? Developer.readObj(Tracker.GTPath) : null;
+			const gameObj = Developer.logPerformance ? Tracker.readObj(Tracker.GTPath) : null;
 
 			switch (true) {
 			case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.bumpers):
@@ -1025,7 +1025,7 @@ const Check = {
 				
 				break;
 			default:
-				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (gameObj ? " (" + (Developer.formatTime(gameObj.Total + Developer.timer(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
+				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (gameObj ? " (" + (Tracker.formatTime(gameObj.Total + Tracker.timer(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
 				Developer.logPerformance && Tracker.update();
 				D2Bot.stop();
 			}
