@@ -68,9 +68,7 @@ Pickit.checkItem = function (unit) {
 	}
 
 	if (rval.result === Pickit.Result.WANTED) {
-		let durability = unit.getStat(sdk.stats.Durability);
-		
-		if (typeof durability === "number" && unit.getStat(sdk.stats.MaxDurability) > 0 && durability * 100 / unit.getStat(sdk.stats.MaxDurability) <= 0) {
+		if (unit.isBroken) {
 			return resultObj(Pickit.Result.TRASH);
 		}
 	}

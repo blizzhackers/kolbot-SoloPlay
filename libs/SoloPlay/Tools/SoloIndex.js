@@ -573,7 +573,7 @@ const SoloIndex = {
 		"hellforge": {
 			preReq: function () {
 				const cLvl = me.charlvl;
-				return (Pather.accessToAct(4) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
+				return (Pather.accessToAct(4) && (me.classic || me.anya) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
 			},
 			skipIf: function () {
 				return (me.hellforge || me.getQuest(sdk.quest.id.HellsForge, sdk.quest.states.ReqComplete));
