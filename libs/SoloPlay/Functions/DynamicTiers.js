@@ -447,15 +447,20 @@
 
 			// Melee Specific
 			if (!buildInfo.caster
-			|| Config.AttackSkill.includes(sdk.skills.Attack)
-			|| Config.LowManaSkill.includes(sdk.skills.Attack)
-			|| ([sdk.items.type.Bow, sdk.items.type.AmazonBow, sdk.items.type.Crossbow].includes(item.itemType) && CharData.skillData.bowData.bowOnSwitch)) {
+				|| Config.AttackSkill.includes(sdk.skills.Attack)
+				|| Config.LowManaSkill.includes(sdk.skills.Attack)
+				|| ([sdk.items.type.Bow, sdk.items.type.AmazonBow, sdk.items.type.Crossbow].includes(item.itemType) && CharData.skillData.bowData.bowOnSwitch)) {
 				let meleeRating = 0;
 				let eleDmgModifer = [sdk.items.type.Ring, sdk.items.type.Amulet].includes(item.itemType) ? 2 : 1;
 
 				item.getStatEx(sdk.stats.ReplenishDurability) && (meleeRating += 15);
 				item.getStatEx(sdk.stats.IgnoreTargetDefense) && (meleeRating += 50);
 
+				// dirty fix maybe?
+				if (me.barbarian && SetUp.currentBuild !== "Immortalwhirl" && item.strictlyTwoHanded) {
+					return 0;
+				}
+				
 				// should these be added and calc avg dmg instead?
 				// Sometimes we replace good weps with 2-300 ED weps that may be high dmg but aren't as good as the item we replaced
 				//buildRating += item.getStatEx(sdk.stats.MinDamage) * buildWeights.MINDMG; // add MIN damage

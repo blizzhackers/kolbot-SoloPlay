@@ -1170,7 +1170,7 @@
 						eret.name = getSkillById(eret.skill);
 						eret.cooldown = this.skillCooldown(sk | 0);
 						if (all) {
-							allData.unshift(Misc.copy(eret));
+							allData.unshift(copyObj(eret));
 						}
 					}
 				}
@@ -1299,7 +1299,7 @@
 						eret.type = skillDamageInfo[eret.skill].type;
 						eret.name = getSkillById(eret.skill);
 						eret.cooldown = this.skillCooldown(sk | 0);
-						allData.unshift(Misc.copy(eret));
+						allData.unshift(copyObj(eret));
 					}
 				}
 			}
@@ -1394,7 +1394,7 @@
 		},
 
 		/*weaponSpeedModifier: function (weapon1Code, charClass = GameData.myReference.classid, weapon2Code = null) {
-			let weapons = new CSV("sdk/weapons.txt");
+			let weapons = new CSV("sdk/txt/weapons.txt");
 			let weapon1Data = weapons.findObject("code", weapon1Code);
 			if (!weapon2Code) {
 				return weapon1Data.speed;
@@ -1712,7 +1712,7 @@
 		// 		CharSpeed ​​... This is the animation speed of the attack animation that the unchanged character would use.
 		// 		weaponIAS ... All IAS on our weapon or weapon base
 		// 	*/
-		// 	let weaponData = (new CSV("sdk/weapons.txt")).findObject("code", weaponCode);
+		// 	let weaponData = (new CSV("sdk/txt/weapons.txt")).findObject("code", weaponCode);
 		// 	if (!weaponData) {
 		// 		console.log(sdk.colors.Orange + "No weapon data found for code " + weaponCode);
 		// 	}

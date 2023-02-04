@@ -7,7 +7,7 @@
 
 // TODO: clean up this whole file
 
-includeIfNotIncluded("common/Attacks/Amazon.js");
+includeIfNotIncluded("core/Attacks/Amazon.js");
 
 ClassAttack.decoyTick = getTickCount();
 

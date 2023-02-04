@@ -5,7 +5,7 @@
 *
 */
 
-includeIfNotIncluded("common/Attacks/Necromancer.js");
+includeIfNotIncluded("core/Attacks/Necromancer.js");
 
 ClassAttack.curseIndex = [];
 // @todo refactor this

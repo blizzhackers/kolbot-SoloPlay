@@ -5,25 +5,15 @@
 *
 */
 js_strict(true);
+include("critical.js");
 
-include("json2.js");
-include("NTItemParser.dbl");
-include("OOG.js");
-include("Gambling.js");
-include("CraftingSystem.js");
-include("common/util.js");
-include("common/Attack.js");
-include("common/Common.js");
-include("common/Cubing.js");
-include("common/Config.js");
-include("common/CollMap.js");
-include("common/misc.js");
-include("common/Pickit.js");
-include("common/Pather.js");
-include("common/Precast.js");
-include("common/Prototypes.js");
-include("common/Runewords.js");
-include("common/Town.js");
+// globals needed for core gameplay
+includeCoreLibs({ exclude: ["Storage.js"]});
+
+// system libs
+includeSystemLibs();
+include("systems/mulelogger/MuleLogger.js");
+
 // Include SoloPlay's librarys
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
@@ -38,7 +28,7 @@ function main () {
 	let tickDelay = 0;
 	let townChicken = false;
 	let [action, profiles] = [[], []];
-	const threads = ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
+	const threads = ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "threads/antihostile.js", "threads/party.js"];
 
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Start EventThread");
 	D2Bot.init();

@@ -6,7 +6,7 @@
 *
 */
 
-includeIfNotIncluded("NTItemParser.dbl");
+includeIfNotIncluded("core/NTItemParser.js");
 includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
 /**

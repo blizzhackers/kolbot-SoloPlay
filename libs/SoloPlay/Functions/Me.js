@@ -5,7 +5,7 @@
 *
 */
 
-includeIfNotIncluded("common/Prototypes.js");
+includeIfNotIncluded("core/Prototypes.js");
 
 /**
  * @description me prototypes for soloplay with checks to ensure forwards compatibility

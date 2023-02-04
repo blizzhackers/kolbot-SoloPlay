@@ -1,4 +1,5 @@
 (function (module, require, thread) {
+	"use strict";
 	const Messaging = require("../../modules/Messaging");
 	const Worker = require("../../modules/Worker");
 	const sdk = require("../../modules/sdk");
@@ -45,9 +46,9 @@
 			this.update = () => {
 				stack = myStack.match(/[^\r\n]+/g);
 				stack = stack && stack.slice(6/*skip path to here*/).map(el => {
-					let line = el.substr(el.lastIndexOf(":") + 1),
-						functionName = el.substr(0, el.indexOf("@")),
-						filename = el.substr(el.lastIndexOf("\\") + 1);
+					let line = el.substr(el.lastIndexOf(":") + 1);
+					let functionName = el.substr(0, el.indexOf("@"));
+					let filename = el.substr(el.lastIndexOf("\\") + 1);
 
 					filename = filename.substr(0, filename.indexOf("."));
 
@@ -57,32 +58,6 @@
 				return true;
 			};
 
-		}).update;
-
-		Worker.runInBackground.ping = (new function () {
-			let myHeartbeat = 0;
-
-			// recv heartbeat
-			Messaging.on("Guard", (data => typeof data === "object" && data && data.hasOwnProperty("heartbeat") && (myHeartbeat = data.heartbeat)));
-
-			this.update = function () {
-				// Do not deal with this shit if default is paused
-				const script = getScript("default.dbj");
-				if (!script || !script.running) {
-					myHeartbeat = getTickCount();
-					return true;
-				}
-				if (myHeartbeat && getTickCount() - myHeartbeat > (2 * 6e4)) {
-					console.log("Default.dbj seems to have crashed");
-					myHeartbeat = 0;
-					if (script) script.stop();
-					console.log("Waiting 10 seconds to restart default.dbj");
-					delay(1e4);
-					load("default.dbj");
-					console.log("Starting default.dbj");
-				}
-				return true;
-			};
 		}).update;
 
 		let quiting = false;
@@ -100,15 +75,6 @@
 			return true;
 		});
 
-		let timer = getTickCount();
-		Worker.runInBackground.heartbeatForGuard = function () {
-			if ((getTickCount() - timer) < 1000 || (timer = getTickCount()) && false) return true;
-
-			// Every second or so, we send a heartbeat tick
-			Messaging.send({Guard: {heartbeat: getTickCount()}});
-
-			return true;
-		};
 		break;
 	}
 	case "loaded": {

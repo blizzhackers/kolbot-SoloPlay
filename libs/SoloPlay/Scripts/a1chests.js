@@ -18,13 +18,13 @@ function a1chests() {
 				continue;
 			}
 
-			myPrint("Moving to " + Pather.getAreaName(areas[i]));
+			myPrint("Moving to " + getAreaName(areas[i]));
 			Pather.journeyTo(areas[i]);
 			Precast.doPrecast();
 			Misc.openChestsInArea(areas[i]);
 			Town.doChores();
 		} catch (e) {
-			console.debug("ÿc8Kolbot-SoloPlayÿc0: Failed to move to " + Pather.getAreaName(areas[i]), e);
+			console.debug("ÿc8Kolbot-SoloPlayÿc0: Failed to move to " + getAreaName(areas[i]), e);
 			continue;
 		}
 	}

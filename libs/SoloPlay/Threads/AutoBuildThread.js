@@ -5,30 +5,18 @@
 *
 */
 js_strict(true);
+include("critical.js");
 
-include("json2.js");
-include("NTItemParser.dbl");
-include("OOG.js");
-include("common/util.js");
-include("AutoMule.js");
-include("Gambling.js");
-include("CraftingSystem.js");
-include("TorchSystem.js");
-include("MuleLogger.js");
-include("common/AutoSkill.js");
-include("common/AutoStat.js");
-include("common/Attack.js");
-include("common/Common.js");
-include("common/Cubing.js");
-include("common/CollMap.js");
-include("common/Config.js");
-include("common/misc.js");
-include("common/Pickit.js");
-include("common/Pather.js");
-include("common/Precast.js");
-include("common/Prototypes.js");
-include("common/Runewords.js");
-include("common/Town.js");
+// globals needed for core gameplay
+includeCoreLibs({ exclude: ["Storage.js"]});
+// needed for this thread
+include("core/Auto/AutoSkill.js");
+include("core/Auto/AutoStat.js");
+
+// system libs
+includeSystemLibs();
+include("systems/mulelogger/MuleLogger.js");
+
 // Include SoloPlay's librarys
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");

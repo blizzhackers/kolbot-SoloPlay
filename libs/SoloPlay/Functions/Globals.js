@@ -10,11 +10,14 @@
  * @todo
  *  - split up this file into appropriate sections
  */
-includeIfNotIncluded("OOG.js");
+
+// all we really need from oog is D2Bot
+includeIfNotIncluded("oog/D2Bot.js");
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/CharData.js");
 includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
+// not every thread needs these
 /** @global */
 const Overrides = require("../../modules/Override");
 /** @global */
@@ -29,6 +32,10 @@ const AreaData = require("../Modules/AreaData");
 const MYCLASSNAME = sdk.player.class.nameOf(me.classid).toLowerCase();
 includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + ".js");
 
+/** 
+ * @global
+ * @type {charData}
+ */
 let myData = CharData.getStats();
 
 Unit.prototype.__defineGetter__("mercid", function () {
@@ -55,7 +62,7 @@ function myPrint (str = "", toConsole = false, color = 0) {
 }
 
 function updateMyData () {
-	let obj = JSON.stringify(Misc.copy(myData));
+	let obj = JSON.stringify(copyObj(myData));
 	let myThread = getScript(true).name;
 	CharData.threads.forEach(function (script) {
 		let curr = getScript(script);
@@ -88,7 +95,7 @@ const SetUp = {
 			CharData.updateData("me", myData);
 		}
 
-		let temp = Misc.copy(myData);
+		let temp = copyObj(myData);
 
 		if (myData.me.currentBuild !== CharInfo.getActiveBuild()) {
 			myData.me.currentBuild = CharInfo.getActiveBuild();

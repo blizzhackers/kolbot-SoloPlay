@@ -5,7 +5,7 @@
 *
 */
 
-includeIfNotIncluded("common/Config.js");
+includeIfNotIncluded("core/Config.js");
 
 Config.init = function (notify) {
 	const formats = ((className, profile, charname, realm) => ({

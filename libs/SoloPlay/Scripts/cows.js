@@ -6,7 +6,7 @@
 */
 
 function cows () {
-	this.getLeg = function () {
+	const getLeg = function () {
 		if (me.getItem(sdk.items.quest.WirtsLeg)) return me.getItem(sdk.items.quest.WirtsLeg);
 
 		// Cain is incomplete, complete it then continue @isid0re
@@ -33,7 +33,7 @@ function cows () {
 		return me.getItem(sdk.items.quest.WirtsLeg);
 	};
 
-	this.openPortal = function (portalID, ...classIDS) {
+	const openPortal = function (portalID, ...classIDS) {
 		!me.inArea(sdk.areas.RogueEncampment) && Town.goToTown(1);
 
 		let npc, tome, scroll;
@@ -116,10 +116,10 @@ function cows () {
 	Town.doChores(false, { fullChores: true });
 	myPrint("starting cows");
 
-	if (!Pather.getPortal(sdk.areas.MooMooFarm) && !this.getLeg()) return true;
+	if (!Pather.getPortal(sdk.areas.MooMooFarm) && !getLeg()) return true;
 	
 	Town.doChores();
-	this.openPortal(sdk.areas.MooMooFarm, sdk.items.quest.WirtsLeg, sdk.items.TomeofTownPortal);
+	openPortal(sdk.areas.MooMooFarm, sdk.items.quest.WirtsLeg, sdk.items.TomeofTownPortal);
 	Town.fillTome(sdk.items.TomeofTownPortal);
 
 	// when does this become not worth it
@@ -132,6 +132,7 @@ function cows () {
 	Town.move("stash");
 
 	if (Misc.poll(() => Pather.usePortal(sdk.areas.MooMooFarm), Time.seconds(30), Time.seconds(1))) {
+		include("core/Common/Cows.js");
 		const Worker = require("../../modules/Worker");
 		let kingTick = getTickCount();
 		let king;

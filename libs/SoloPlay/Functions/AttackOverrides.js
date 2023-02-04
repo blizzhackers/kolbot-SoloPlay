@@ -6,21 +6,21 @@
 *
 */
 
-includeIfNotIncluded("common/Attack.js");
+includeIfNotIncluded("core/Attack.js");
 
 Attack.stopClear = false;
 Attack.init = function () {
 	const CLASSNAME = sdk.player.class.nameOf(me.classid);
 	if (Config.Wereform) {
-		include("common/Attacks/wereform.js");
-	} else if (Config.CustomClassAttack && FileTools.exists("libs/common/Attacks/" + Config.CustomClassAttack + ".js")) {
+		include("core/Attacks/wereform.js");
+	} else if (Config.CustomClassAttack && FileTools.exists("libs/core/Attacks/" + Config.CustomClassAttack + ".js")) {
 		console.log("Loading custom attack file");
-		include("common/Attacks/" + Config.CustomClassAttack + ".js");
+		include("core/Attacks/" + Config.CustomClassAttack + ".js");
 	} else {
 		if (!include("SoloPlay/Functions/ClassAttackOverrides/" + CLASSNAME + "Attacks.js")) {
 			console.log(sdk.colors.Red + "Failed to include: " + "SoloPlay/Functions/ClassAttackOverrides/" + CLASSNAME + "Attacks.js");
 			console.log(sdk.colors.Blue + "Loading default attacks instead");
-			include("common/Attacks/" + CLASSNAME + ".js");
+			include("core/Attacks/" + CLASSNAME + ".js");
 		}
 	}
 
@@ -314,7 +314,7 @@ Attack.clearLocations = function (list = []) {
 	return true;
 };
 
-Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = true) {
+Attack.clearPos = function (x, y, range = 15, pickit = true) {
 	while (!me.gameReady) {
 		delay(40);
 	}
@@ -379,7 +379,7 @@ Attack.clearPos = function (x = undefined, y = undefined, range = 15, pickit = t
 				let secAttack = me.barbarian ? (isSpecial ? 2 : 4) : 5;
 
 				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[isSpecial ? 1 : 3])
-							|| (me.paladin && Config.AttackSkill[isSpecial ? 1 : 3] === sdk.skills.BlessedHammer && !ClassAttack.getHammerPosition(target)))) {
+					|| (me.paladin && Config.AttackSkill[isSpecial ? 1 : 3] === sdk.skills.BlessedHammer && !ClassAttack.getHammerPosition(target)))) {
 					skillCheck = Config.AttackSkill[secAttack];
 				} else {
 					skillCheck = Config.AttackSkill[isSpecial ? 1 : 3];
@@ -961,6 +961,10 @@ new Overrides.Override(Attack, Attack.sortMonsters, function(orignal, unitA, uni
 	return orignal(unitA, unitB);
 }).apply();
 
+/**
+ * @param {Monster} unitA 
+ * @param {Monster} unitB 
+ */
 Attack.walkingSortMonsters = function (unitA, unitB) {
 	// sort main bosses first
 	if ((unitA.isPrimeEvil) && (unitB.isPrimeEvil)) return getDistance(me, unitA) - getDistance(me, unitB);

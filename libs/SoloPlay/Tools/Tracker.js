@@ -5,9 +5,9 @@
 *
 */
 
+includeIfNotIncluded("core/experience.js");
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
-includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 
 const Tracker = {
 	GTPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-GameTime.json",
@@ -50,8 +50,8 @@ const Tracker = {
 		this.resetGameTime();
 		// for now just re-init the header so it's easier to look at the file and see where we restarted
 		// might later save the files to a sub folder and re-init a new one
-		FileTools.exists(this.LPPath) && Misc.fileAction(this.LPPath, 2, this.LPHeader);
-		FileTools.exists(this.SPPath) && Misc.fileAction(this.SPPath, 2, this.SPHeader);
+		FileTools.exists(this.LPPath) && FileAction.append(this.LPPath, this.LPHeader);
+		FileTools.exists(this.SPPath) && FileAction.append(this.SPPath, this.SPHeader);
 	},
 
 	checkValidity: function () {
@@ -101,7 +101,7 @@ const Tracker = {
 			+ "," + GOLD + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n"
 		);
 
-		Misc.fileAction(Tracker.SPPath, 2, string);
+		FileAction.append(Tracker.SPPath, string);
 		this.tick = GameTracker.LastSave;
 
 		return true;
@@ -125,7 +125,7 @@ const Tracker = {
 
 		// csv file
 		const diffString = sdk.difficulty.nameOf(me.diff);
-		const areaName = Pather.getAreaName(me.area);
+		const areaName = getAreaName(me.area);
 		const currentBuild = SetUp.currentBuild;
 		const gainAMT = me.getStat(sdk.stats.Experience) - Experience.totalExp[me.charlvl - 1];
 		const gainTime = gainAMT / (splitTime / 60000);
@@ -136,14 +136,14 @@ const Tracker = {
 			+ GOLD + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n"
 		);
 
-		Misc.fileAction(Tracker.LPPath, 2, string);
+		FileAction.append(Tracker.LPPath, string);
 		this.tick = GameTracker.LastSave;
 
 		return true;
 	},
 
 	update: function (oogTick = 0) {
-		let heartBeat = getScript("tools/heartbeat.js");
+		let heartBeat = getScript("threads/heartbeat.js");
 		if (!heartBeat) {
 			console.debug("Couldn't find heartbeat");
 			return false;

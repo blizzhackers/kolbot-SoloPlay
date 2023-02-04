@@ -5,7 +5,7 @@
 *
 */
 
-includeIfNotIncluded("common/Item.js");
+includeIfNotIncluded("core/Item.js");
 (function() {
 	// TODO: clean this up (sigh) - 8/10/22 - update refactored alot, still think more can be done though
 	const baseSkillsScore = (item, buildInfo) => {
@@ -279,6 +279,10 @@ includeIfNotIncluded("common/Item.js");
 		return result;
 	};
 
+	/**
+	 * @param {ItemUnit} base 
+	 * @param {boolean} verbose 
+	 */
 	Item.betterThanStashed = function (base, verbose) {
 		if (!base || base.quality > sdk.items.quality.Superior || base.isRuneword) return false;
 		if (base.sockets === 0 && getBaseStat("items", base.classid, "gemsockets") <= 1) return false;
@@ -325,18 +329,26 @@ includeIfNotIncluded("common/Item.js");
 			return me.getItemsEx(-1, sdk.items.mode.inStorage)
 				.filter(item =>
 					itemtypes.includes(item.itemType)
-				&& ((item.sockets === base.sockets) || (item.sockets > base.sockets))
-				&& (eth === null || item.ethereal === eth))
+					&& ((item.sockets === base.sockets) || (item.sockets > base.sockets))
+					&& (eth === null || item.ethereal === eth))
 				.sort(sort)
 				.last();
 		}
 
+		/**
+		 * @param {ItemUnit} a 
+		 * @param {ItemUnit} b 
+		 */
 		const defenseSort = (a, b) => {
 			let [aDef, bDef] = [a.getStatEx(sdk.stats.Defense), b.getStatEx(sdk.stats.Defense)];
 			if (aDef !== bDef) return aDef - bDef;
 			return a.getStatEx(sdk.stats.ArmorPercent) - b.getStatEx(sdk.stats.ArmorPercent);
 		};
 
+		/**
+		 * @param {ItemUnit} a 
+		 * @param {ItemUnit} b 
+		 */
 		const generalScoreSort = (a, b) => {
 			let [aScore, bScore] = [generalScore(a), generalScore(b)];
 			if (aScore !== bScore) return aScore - bScore;
@@ -350,6 +362,10 @@ includeIfNotIncluded("common/Item.js");
 			return a.sockets - b.sockets;
 		};
 
+		/**
+		 * @param {ItemUnit} a 
+		 * @param {ItemUnit} b 
+		 */
 		const twoHandDmgSort = (a, b) => {
 			let [aDmg, bDmg] = [dmgScore(a), dmgScore(b)];
 			if (aDmg.twoHandDmg !== bDmg.twoHandDmg) return aDmg.twoHandDmg - bDmg.twoHandDmg;

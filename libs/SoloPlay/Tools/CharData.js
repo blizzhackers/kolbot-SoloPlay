@@ -66,7 +66,7 @@ const CharData = {
 				folder && folder.create(me.profile);
 			}
 
-			Misc.fileAction(this.filePath, 1, string);
+			FileAction.write(this.filePath, string);
 
 			return obj;
 		},
@@ -75,7 +75,7 @@ const CharData = {
 			if (!FileTools.exists(this.filePath)) return CharData.loginData.create();
 
 			let obj;
-			let string = Misc.fileAction(this.filePath, 0);
+			let string = FileAction.read(this.filePath);
 
 			try {
 				obj = JSON.parse(string);
@@ -89,7 +89,7 @@ const CharData = {
 
 		getStats: function () {
 			let obj = this.getObj();
-			return Misc.clone(obj);
+			return clone(obj);
 		},
 
 		updateData: function (arg, property, value) {
@@ -99,12 +99,12 @@ const CharData = {
 
 			if (typeof property === "object") {
 				obj = Object.assign(obj, property);
-				return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
+				return FileAction.write(this.filePath, JSON.stringify(obj, null, 2));
 			}
 
 			if (!!obj[arg] && obj[arg].hasOwnProperty(property)) {
 				obj[arg][property] = value;
-				return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
+				return FileAction.write(this.filePath, JSON.stringify(obj, null, 2));
 			}
 
 			return false;
@@ -185,7 +185,7 @@ const CharData = {
 		},
 
 		update: function () {
-			const obj = JSON.stringify(Misc.copy(this));
+			const obj = JSON.stringify(copyObj(this));
 			const myThread = getScript(true).name;
 			CharData.threads.forEach(function (script) {
 				let curr = getScript(script);
@@ -238,7 +238,7 @@ const CharData = {
 		},
 
 		update: function () {
-			let obj = JSON.stringify(Misc.copy(this));
+			let obj = JSON.stringify(copyObj(this));
 			let myThread = getScript(true).name;
 			CharData.threads.forEach(function (script) {
 				let curr = getScript(script);
@@ -261,7 +261,7 @@ const CharData = {
 
 	// updates config obj across all threads - excluding our current
 	updateConfig: function () {
-		let obj = JSON.stringify(Misc.copy(Config));
+		let obj = JSON.stringify(copyObj(Config));
 		let myThread = getScript(true).name;
 		CharData.threads.forEach(function (script) {
 			let curr = getScript(script);
@@ -271,6 +271,10 @@ const CharData = {
 		});
 	},
 
+	/**
+	 * 
+	 * @returns {charData}
+	 */
 	create: function () {
 		let obj = Object.assign({}, this.default);
 		let string = JSON.stringify(obj, null, 2);
@@ -280,16 +284,20 @@ const CharData = {
 			folder && folder.create(me.profile);
 		}
 
-		Misc.fileAction(this.filePath, 1, string);
+		FileAction.write(this.filePath, string);
 
 		return obj;
 	},
 
+	/**
+	 * 
+	 * @returns {charData}
+	 */
 	getObj: function () {
 		if (!FileTools.exists(this.filePath)) return CharData.create();
 
 		let obj;
-		let string = Misc.fileAction(this.filePath, 0);
+		let string = FileAction.read(this.filePath);
 
 		try {
 			obj = JSON.parse(string);
@@ -301,9 +309,13 @@ const CharData = {
 		return obj ? obj : this.default;
 	},
 
+	/**
+	 * 
+	 * @returns {charData}
+	 */
 	getStats: function () {
 		let obj = this.getObj();
-		return Misc.clone(obj);
+		return clone(obj);
 	},
 
 	updateData: function (arg, property, value) {
@@ -319,12 +331,12 @@ const CharData = {
 
 		if (typeof property === "object") {
 			obj = Object.assign(obj, property);
-			return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
+			return FileAction.write(this.filePath, JSON.stringify(obj, null, 2));
 		}
 
 		if (!!obj[arg] && obj[arg].hasOwnProperty(property)) {
 			obj[arg][property] = value;
-			return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
+			return FileAction.write(this.filePath, JSON.stringify(obj, null, 2));
 		}
 
 		return false;

@@ -5,7 +5,7 @@
 *
 */
 
-includeIfNotIncluded("common/Cubing.js");
+includeIfNotIncluded("core/Cubing.js");
 
 Recipe.Reroll.Charm = 56;
 Recipe.Socket.LowMagic = 57;
@@ -580,13 +580,14 @@ Cubing.emptyCube = function () {
 	return true;
 };
 
-
+/** @param {ItemUnit} unit */
 Cubing.checkItem = function (unit) {
 	if (!Config.Cubing || !unit) return false;
 
 	for (let i = 0; i < this.validIngredients.length; i++) {
 		// not the same item but the same type of item
-		if (unit.mode !== sdk.items.mode.Equipped && unit.gid !== this.validIngredients[i].gid && unit.classid === this.validIngredients[i].classid && unit.quality === this.validIngredients[i].quality) {
+		if (unit.mode !== sdk.items.mode.Equipped && unit.gid !== this.validIngredients[i].gid
+			&& unit.classid === this.validIngredients[i].classid && unit.quality === this.validIngredients[i].quality) {
 			// item is better than the one we currently have, so add it to validIngredient array and remove old item
 			if (unit.ilvl > this.validIngredients[i].ilvl && this.validItem(unit, this.validIngredients[i].recipe)) {
 				this.validIngredients.push({classid: unit.classid, quality: unit.quality, ilvl: unit.ilvl, gid: unit.gid, recipe: this.validIngredients[i].recipe});
@@ -843,18 +844,18 @@ Cubing.doCubing = function () {
 							if (Storage.Inventory.CanFit(items[j])) {
 								Storage.Inventory.MoveTo(items[j]);
 							} else {
-								Misc.itemLogger("Dropped", items[j], "doCubing");
+								Item.logger("Dropped", items[j], "doCubing");
 								items[j].drop();
 							}
 						}
 
-						Developer.debugging.crafting && Misc.logItem("Crafted but didn't want", items[j]);
+						Developer.debugging.crafting && Item.logItem("Crafted but didn't want", items[j]);
 
 						break;
 					case Pickit.Result.WANTED:
 					case Pickit.Result.SOLOWANTS:
-						Misc.itemLogger("Cubing Kept", items[j]);
-						Misc.logItem("Cubing Kept", items[j], result.line);
+						Item.logger("Cubing Kept", items[j]);
+						Item.logItem("Cubing Kept", items[j], result.line);
 
 						break;
 					case Pickit.Result.CRAFTING: // Crafting System

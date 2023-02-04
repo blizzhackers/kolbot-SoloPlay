@@ -10,7 +10,7 @@
  * Test utilizing marital art skills if we have them
  */
 
-includeIfNotIncluded("common/Attacks/Assassin.js");
+includeIfNotIncluded("core/Attacks/Assassin.js");
 
 ClassAttack.mindBlast = function (unit) {
 	if (!unit || !Skill.canUse(sdk.skills.MindBlast)) return;

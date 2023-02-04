@@ -12,7 +12,7 @@
  *  - some of these functions might be better as part of me. Example Town.getTpTool -> me.getTpTool makes more sense
  */
 
-includeIfNotIncluded("common/Town.js");
+includeIfNotIncluded("core/Town.js");
 
 new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
 	const objDrank = orignal(type, false);
@@ -38,7 +38,7 @@ new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
 					CharData.buffData[objID].duration += (objDrank.quantity * 30 * 1000) - (getTickCount() - CharData.buffData[objID].tick);
 				}
 
-				console.log("ÿc9DrinkPotsÿc0 :: drank " + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Developer.formatTime(CharData.buffData[objID].duration) + "]");
+				console.log("ÿc9DrinkPotsÿc0 :: drank " + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Tracker.formatTime(CharData.buffData[objID].duration) + "]");
 			}
 		}
 	} catch (e) {
@@ -232,7 +232,7 @@ Town.sellItems = function (itemList = []) {
 			try {
 				if (getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) {
 					console.log("sell " + item.name);
-					Misc.itemLogger("Sold", item);
+					Item.logger("Sold", item);
 					item.sell();
 					delay(100);
 				}
@@ -327,33 +327,33 @@ Town.itemResult = function (item, result, system = "", sell = false) {
 	switch (result.result) {
 	case Pickit.Result.WANTED:
 	case Pickit.Result.SOLOWANTS:
-		Misc.itemLogger("Kept", item);
-		Misc.logItem("Kept", item, result.line);
+		Item.logger("Kept", item);
+		Item.logItem("Kept", item, result.line);
 		system === "Field" && ((Item.autoEquipCheck(item) && Item.autoEquip("Field")) || (Item.autoEquipCheckSecondary(item) && Item.autoEquipSecondary("Field")));
 
 		break;
 	case Pickit.Result.UNID:
 		// At low level its not worth keeping these items until we can Id them it just takes up too much room
 		if (sell && me.charlvl < 10 && item.magic && item.classid !== sdk.items.SmallCharm) {
-			Misc.itemLogger("Sold", item);
+			Item.logger("Sold", item);
 			item.sell();
 		}
 
 		break;
 	case Pickit.Result.CUBING:
-		Misc.itemLogger("Kept", item, "Cubing-" + system);
+		Item.logger("Kept", item, "Cubing-" + system);
 		Cubing.update();
 
 		break;
 	case Pickit.Result.RUNEWORD:
 		break;
 	case Pickit.Result.CRAFTING:
-		Misc.itemLogger("Kept", item, "CraftSys-" + system);
+		Item.logger("Kept", item, "CraftSys-" + system);
 		CraftingSystem.update(item);
 
 		break;
 	case Pickit.Result.SOLOSYSTEM:
-		Misc.itemLogger("Kept", item, "SoloWants-" + system);
+		Item.logger("Kept", item, "SoloWants-" + system);
 		SoloWants.update(item);
 
 		break;
@@ -364,11 +364,11 @@ Town.itemResult = function (item, result, system = "", sell = false) {
 		case (Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm):
 		case (Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm):
 		case (Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm):
-			Misc.logItem("Sold", item);
+			Item.logItem("Sold", item);
 
 			break;
 		default:
-			Misc.itemLogger("Sold", item);
+			Item.logger("Sold", item);
 			
 			break;
 		}
@@ -422,7 +422,7 @@ Town.cainID = function (force = false) {
 				try {
 					console.log("sell " + item.name);
 					this.initNPC("Shop", "clearInventory");
-					Misc.itemLogger("Sold", item);
+					Item.logger("Sold", item);
 					item.sell();
 				} catch (e) {
 					console.error(e);
@@ -431,24 +431,24 @@ Town.cainID = function (force = false) {
 				break;
 			case Pickit.Result.WANTED:
 			case Pickit.Result.SOLOWANTS:
-				Misc.itemLogger("Kept", item);
-				Misc.logItem("Kept", item, result.line);
+				Item.logger("Kept", item);
+				Item.logItem("Kept", item, result.line);
 
 				break;
 			case Pickit.Result.CUBING:
-				Misc.itemLogger("Kept", item, "Cubing-Town");
+				Item.logger("Kept", item, "Cubing-Town");
 				Cubing.update();
 
 				break;
 			case Pickit.Result.RUNEWORD: // (doesn't trigger normally)
 				break;
 			case Pickit.Result.CRAFTING:
-				Misc.itemLogger("Kept", item, "CraftSys-Town");
+				Item.logger("Kept", item, "CraftSys-Town");
 				CraftingSystem.update(item);
 
 				break;
 			case Pickit.Result.SOLOSYSTEM:
-				Misc.itemLogger("Kept", item, "SoloWants-Town");
+				Item.logger("Kept", item, "SoloWants-Town");
 				SoloWants.update(item);
 
 				break;
@@ -467,11 +467,11 @@ Town.cainID = function (force = false) {
 					case (Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm):
 					case (Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm):
 					case (Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm):
-						Misc.logItem("Sold", item);
+						Item.logItem("Sold", item);
 
 						break;
 					default:
-						Misc.itemLogger("Dropped", item, "clearInventory");
+						Item.logger("Dropped", item, "clearInventory");
 						
 						break;
 					}
@@ -479,7 +479,7 @@ Town.cainID = function (force = false) {
 					item.sell();
 				} else {
 					console.log("clearInventory dropped " + item.name);
-					Misc.itemLogger("Dropped", item, "clearInventory");
+					Item.logger("Dropped", item, "clearInventory");
 					item.drop();
 				}
 
@@ -559,7 +559,7 @@ Town.identify = function () {
 			// Items for gold, will sell magics, etc. w/o id, but at low levels
 			// magics are often not worth iding.
 			case Pickit.Result.TRASH:
-				Misc.itemLogger("Sold", item);
+				Item.logger("Sold", item);
 				item.sell();
 
 				break;
@@ -650,8 +650,8 @@ Town.shopItems = function (force = false) {
 		action === undefined && (action = "");
 		tierInfo === undefined && (tierInfo = "");
 		console.log("ÿc8Kolbot-SoloPlayÿc0: " + action + (tierInfo ? " " + tierInfo : ""));
-		Misc.itemLogger(action, item);
-		Developer.debugging.autoEquip && Misc.logItem("Shopped " + action, item, result.line !== undefined ? result.line : "null");
+		Item.logger(action, item);
+		Developer.debugging.autoEquip && Item.logItem("Shopped " + action, item, result.line !== undefined ? result.line : "null");
 	};
 
 	for (let i = 0; i < items.length; i++) {
@@ -803,8 +803,8 @@ Town.gamble = function () {
 
 					switch (result.result) {
 					case Pickit.Result.WANTED:
-						Misc.itemLogger("Gambled", newItem);
-						Misc.logItem("Gambled", newItem, result.line);
+						Item.logger("Gambled", newItem);
+						Item.logItem("Gambled", newItem, result.line);
 						list.push(newItem.gid);
 
 						break;
@@ -818,7 +818,7 @@ Town.gamble = function () {
 
 						break;
 					default:
-						Misc.itemLogger("Sold", newItem, "Gambling");
+						Item.logger("Sold", newItem, "Gambling");
 						newItem.sell();
 
 						if (!Config.PacketShopping) {
@@ -841,7 +841,7 @@ Town.gamble = function () {
  * @param {ItemUnit} item 
  */
 Town.canStash = function (item) {
-	if (this.ignoredItemTypes.includes(item.itemType)
+	if (Town.ignoreType(item.itemType)
 		|| [sdk.items.quest.HoradricStaff, sdk.items.quest.KhalimsWill].includes(item.classid)
 		|| (item.isCharm && Item.autoEquipCharmCheck(item))) {
 		return false;
@@ -866,7 +866,7 @@ Town.stash = function (stashGold = true) {
 			case Town.systemsKeep(item):
 			case AutoEquip.wanted(item) && pickResult === Pickit.Result.UNWANTED: // wanted but can't use yet
 			case !item.sellable: // quest/essences/keys/ect
-				Storage.Stash.MoveTo(item) && Misc.itemLogger("Stashed", item);
+				Storage.Stash.MoveTo(item) && Item.logger("Stashed", item);
 				break;
 			default:
 				break;
@@ -1131,7 +1131,7 @@ Town.clearInventory = function () {
 		try {
 			if (getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) {
 				console.log("clearInventory sell " + item.name);
-				Misc.itemLogger("Sold", item);
+				Item.logger("Sold", item);
 				item.sell();
 				delay(100);
 			}
@@ -1226,8 +1226,8 @@ Town.clearJunk = function () {
 		if (getUIFlag(sdk.uiflags.Shop) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
 			for (let i = 0; i < junkToSell.length; i++) {
 				console.log("ÿc9JunkCheckÿc0 :: Sell " + junkToSell[i].name);
-				Misc.itemLogger("Sold", junkToSell[i]);
-				Developer.debugging.junkCheck && Misc.logItem("JunkCheck Sold", junkToSell[i]);
+				Item.logger("Sold", junkToSell[i]);
+				Developer.debugging.junkCheck && Item.logItem("JunkCheck Sold", junkToSell[i]);
 
 				junkToSell[i].sell();
 				delay(100);
@@ -1238,8 +1238,8 @@ Town.clearJunk = function () {
 
 		for (let i = 0; i < junkToDrop.length; i++) {
 			console.log("ÿc9JunkCheckÿc0 :: Drop " + junkToDrop[i].name);
-			Misc.itemLogger("Sold", junkToDrop[i]);
-			Developer.debugging.junkCheck && Misc.logItem("JunkCheck Sold", junkToDrop[i]);
+			Item.logger("Sold", junkToDrop[i]);
+			Developer.debugging.junkCheck && Item.logItem("JunkCheck Sold", junkToDrop[i]);
 
 			junkToDrop[i].drop();
 			delay(100);

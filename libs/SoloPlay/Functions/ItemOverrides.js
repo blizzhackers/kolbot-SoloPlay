@@ -6,9 +6,7 @@
 *
 */
 
-includeIfNotIncluded("common/Misc.js");
-includeIfNotIncluded("common/Item.js");
-includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
+includeIfNotIncluded("core/Item.js");
 includeIfNotIncluded("SoloPlay/Functions/ItemPrototypes.js");
 
 Item.weaponTypes = [
@@ -248,7 +246,7 @@ Item.autoEquip = function (task = "") {
 				SoloWants.addToList(item);
 				SoloWants.ensureList();
 			}
-			Developer.debugging.autoEquip && Misc.logItem(task, me.getItem(-1, -1, gid));
+			Developer.debugging.autoEquip && Item.logItem(task, me.getItem(-1, -1, gid));
 			Developer.logEquipped && MuleLogger.logEquippedItems();
 		} else if (!noStash && item.lvlreq > me.charlvl && !item.isInStash) {
 			if (Storage.Stash.CanFit(item)) {
@@ -575,7 +573,7 @@ Item.autoEquipSecondary = function (task = "") {
 
 					if (this.secondaryEquip(item, bodyLoc[j])) {
 						console.log("ÿc9SecondaryEquipÿc0 :: Equipped: " + prettyName + " SecondaryTier: " + tier);
-						Developer.debugging.autoEquip && Misc.logItem("Equipped switch", me.getItem(-1, -1, gid));
+						Developer.debugging.autoEquip && Item.logItem("Equipped switch", me.getItem(-1, -1, gid));
 						Developer.logEquipped && MuleLogger.logEquippedItems();
 					}
 
@@ -626,7 +624,7 @@ Item.equipMerc = function (item, bodyLoc) {
 		if (item.toCursor()) {
 			if (clickItem(sdk.clicktypes.click.item.Mercenary, bodyLoc)) {
 				delay(500 + me.ping * 2);
-				Developer.debugging.autoEquip && Misc.logItem("Merc Equipped", mercenary.getItem(item.classid));
+				Developer.debugging.autoEquip && Item.logItem("Merc Equipped", mercenary.getItem(item.classid));
 			}
 
 			let check = mercenary.getItem(item.classid);
@@ -781,7 +779,7 @@ Item.autoEquipMerc = function () {
 
 					if (cursorItem) {
 						cursorItem.drop();
-						Developer.debugging.autoEquip && Misc.logItem("Merc Dropped", cursorItem);
+						Developer.debugging.autoEquip && Item.logItem("Merc Dropped", cursorItem);
 					}
 
 					break;
@@ -849,11 +847,11 @@ Item.removeItemsMerc = function () {
 			if (!currCharm || [Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(Pickit.checkItem(currCharm).result)) continue;
 			if (!currCharm.isInStash && !myData.me.charmGids.includes(currCharm.gid)) {
 				if (!Storage.Stash.MoveTo(currCharm)) {
-					verbose && Misc.itemLogger("Dropped", currCharm);
+					verbose && Item.logger("Dropped", currCharm);
 					currCharm.drop();
 				} else {
 					if (verbose) {
-						Cubing.checkItem(currCharm) ? Misc.logItem("Stashed Cubing Ingredient", currCharm) : Misc.logItem("Stashed", currCharm);
+						Cubing.checkItem(currCharm) ? Item.logItem("Stashed Cubing Ingredient", currCharm) : Item.logItem("Stashed", currCharm);
 					}
 				}
 			}
@@ -1302,8 +1300,8 @@ Item.removeItemsMerc = function () {
 			if (getUIFlag(sdk.uiflags.Shop) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
 				for (let i = 0; i < totalSell.length; i++) {
 					console.log("ÿc8Kolbot-SoloPlayÿc0: Sell old charm " + totalSell[i].name);
-					verbose && Misc.itemLogger("Sold", totalSell[i]);
-					verbose && Misc.logItem("CharmEquip Sold", totalSell[i]);
+					verbose && Item.logger("Sold", totalSell[i]);
+					verbose && Item.logItem("CharmEquip Sold", totalSell[i]);
 					totalSell[i].sell();
 				}
 			}
@@ -1314,7 +1312,7 @@ Item.removeItemsMerc = function () {
 				if (totalKeep[i].isInStash && !Cubing.checkItem(totalKeep[i])) {
 					!getUIFlag(sdk.uiflags.Stash) && Town.openStash() && delay(300 + me.ping);
 					if (Storage.Inventory.CanFit(totalKeep[i]) && Storage.Inventory.MoveTo(totalKeep[i])) {
-						verbose && Misc.logItem("CharmEquip Equipped", totalKeep[i]);
+						verbose && Item.logItem("CharmEquip Equipped", totalKeep[i]);
 					}
 				}
 			}
@@ -1478,6 +1476,89 @@ Item.removeItemsMerc = function () {
 		return charmType;
 	};
 })();
+
+// Log kept item stats in the manager.
+Item.logItem = function (action, unit, keptLine, force) {
+	if (!this.useItemLog || unit === undefined || !unit || !unit.fname) return false;
+	if (!Config.LogKeys && ["pk1", "pk2", "pk3"].includes(unit.code)) return false;
+	if (!Config.LogOrgans && ["dhn", "bey", "mbr"].includes(unit.code)) return false;
+	if (!Config.LogLowRunes && ["r01", "r02", "r03", "r04", "r05", "r06", "r07", "r08", "r09", "r10", "r11", "r12", "r13", "r14"].includes(unit.code)) return false;
+	if (!Config.LogMiddleRunes && ["r15", "r16", "r17", "r18", "r19", "r20", "r21", "r22", "r23"].includes(unit.code)) return false;
+	if (!Config.LogHighRunes && ["r24", "r25", "r26", "r27", "r28", "r29", "r30", "r31", "r32", "r33"].includes(unit.code)) return false;
+	if (!Config.LogLowGems && ["gcv", "gcy", "gcb", "gcg", "gcr", "gcw", "skc", "gfv", "gfy", "gfb", "gfg", "gfr", "gfw", "skf", "gsv", "gsy", "gsb", "gsg", "gsr", "gsw", "sku"].includes(unit.code)) return false;
+	if (!Config.LogHighGems && ["gzv", "gly", "glb", "glg", "glr", "glw", "skl", "gpv", "gpy", "gpb", "gpg", "gpr", "gpw", "skz"].includes(unit.code)) return false;
+
+	for (let i = 0; i < Config.SkipLogging.length; i++) {
+		if (Config.SkipLogging[i] === unit.classid || Config.SkipLogging[i] === unit.code) return false;
+	}
+
+	let lastArea;
+	let name = unit.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<:;.*]|\/|\\/g, "").trim();
+	let desc = (this.getItemDesc(unit) || "");
+	let color = (unit.getColor() || -1);
+
+	if (action.match("kept", "i")) {
+		lastArea = DataFile.getStats().lastArea;
+		lastArea && (desc += ("\n\\xffc0Area: " + lastArea));
+	}
+
+	const mercCheck = action.match("Merc");
+	const hasTier = AutoEquip.hasTier(unit);
+	const charmCheck = (unit.isCharm && Item.autoEquipCharmCheck(unit));
+	const nTResult = NTIP.CheckItem(unit, NTIP_CheckListNoTier) === 1;
+
+	if (!action.match("kept", "i") && !action.match("Shopped") && hasTier) {
+		if (!mercCheck) {
+			NTIP.GetCharmTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit)));
+			NTIP.GetTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip char tier: " + NTIP.GetTier(unit)));
+		} else {
+			desc += ("\n\\xffc0Autoequip merc tier: " + NTIP.GetMercTier(unit));
+		}
+	}
+
+	// should stop logging items unless we wish to see them or it's part of normal pickit
+	if (!nTResult && !force) {
+		switch (true) {
+		case (unit.questItem || unit.isBaseType):
+		case (!unit.isCharm && hasTier && !Developer.debugging.autoEquip):
+		case (charmCheck && !Developer.debugging.smallCharm && unit.classid === sdk.items.SmallCharm):
+		case (charmCheck && !Developer.debugging.largeCharm && unit.classid === sdk.items.LargeCharm):
+		case (charmCheck && !Developer.debugging.grandCharm && unit.classid === sdk.items.GrandCharm):
+			return true;
+		default:
+			break;
+		}
+	}
+
+	let code = this.getItemCode(unit);
+	let sock = unit.getItem();
+
+	if (sock) {
+		do {
+			if (sock.itemType === sdk.items.type.Jewel) {
+				desc += "\n\n";
+				desc += this.getItemDesc(sock);
+			}
+		} while (sock.getNext());
+	}
+
+	keptLine && (desc += ("\n\\xffc0Line: " + keptLine));
+	desc += "$" + (unit.getFlag(sdk.items.flags.Ethereal) ? ":eth" : "");
+
+	let itemObj = {
+		title: action + " " + name,
+		description: desc,
+		image: code,
+		textColor: unit.quality,
+		itemColor: color,
+		header: "",
+		sockets: this.getItemSockets(unit)
+	};
+
+	D2Bot.printToItemLog(itemObj);
+
+	return true;
+};
 
 const AutoEquip = {
 	/**

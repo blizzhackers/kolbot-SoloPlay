@@ -5,28 +5,15 @@
 *
 */
 js_strict(true);
+include("critical.js");
 
-include("json2.js");
-include("NTItemParser.dbl");
-include("OOG.js");
-include("AutoMule.js");
-include("Gambling.js");
-include("CraftingSystem.js");
-include("TorchSystem.js");
-include("MuleLogger.js");
-include("common/Attack.js");
-include("common/Common.js");
-include("common/Cubing.js");
-include("common/CollMap.js");
-include("common/Config.js");
-include("common/misc.js");
-include("common/util.js");
-include("common/Pickit.js");
-include("common/Pather.js");
-include("common/Precast.js");
-include("common/Prototypes.js");
-include("common/Runewords.js");
-include("common/Town.js");
+// globals needed for core gameplay
+includeCoreLibs({ exclude: ["Storage.js"]});
+
+// system libs
+includeSystemLibs();
+include("systems/mulelogger/MuleLogger.js");
+
 // Include SoloPlay's librarys
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
@@ -35,9 +22,15 @@ include("SoloPlay/Tools/SoloIndex.js");
 include("SoloPlay/Functions/ConfigOverrides.js");
 include("SoloPlay/Functions/Globals.js");
 
-// @todo
-// call loader from here and change loader to use the soloplay script files
-// todo - global skip gid array
+// main thread specific
+const LocalChat = require("../modules/LocalChat");
+
+/**
+ * @todo
+ *  - Add priority to runewords/cubing
+ *  - proper script skipping + gold runs when needed
+ *  - fix autoequip issues with rings and dual wielding
+ */
 
 function main () {
 	D2Bot.init(); // Get D2Bot# handle
@@ -50,6 +43,16 @@ function main () {
 		};
 	})([].filter.constructor("return this")(), load);
 
+	/**
+	 * Fixes d2bs bug where this returns the "function"
+	 */
+	(function (original) {
+		me.move = function (...args) {
+			original.apply(this, args);
+			return true;
+		};
+	})(me.move);
+
 	// wait until game is ready
 	while (!me.gameReady) {
 		delay(50);
@@ -58,7 +61,7 @@ function main () {
 	clearAllEvents(); // remove any event listeners from game crash
 
 	// load heartbeat if it isn't already running
-	!getScript("tools/heartbeat.js") && load("tools/heartbeat.js");
+	!getScript("threads/heartbeat.js") && load("threads/heartbeat.js");
 
 	SetUp.include();
 	SetUp.init();
@@ -72,6 +75,11 @@ function main () {
 
 		if (msg && typeof msg === "string" && msg !== "") {
 			switch (true) {
+			case msg === "nextScript":
+				// testing - works so maybe can handle other events as well?
+				me.emit("nextScript");
+
+				break;
 			case msg === "soj":
 				sojPause = true;
 				sojCounter = 0;
@@ -95,9 +103,15 @@ function main () {
 
 				break;
 			case msg.toLowerCase() === "test":
-				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//\nÿc8MainData ::\n", getScript(true).name,
-					myData, "\nÿc8BuffData ::\n", CharData.buffData, "\nÿc8SkillData ::\n", CharData.skillData, "\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
-
+				{
+					console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//",
+						"\nÿc8ThreadData ::\n", getScript(true),
+						"\nÿc8MainData ::\n", myData,
+						"\nÿc8BuffData ::\n", CharData.buffData,
+						"\nÿc8SkillData ::\n", CharData.skillData,
+						"\nÿc8GlobalVariabls ::\n", Object.keys(global),
+						"\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
+				}
 				break;
 			}
 		}
@@ -135,7 +149,7 @@ function main () {
 	addEventListener("copydata", this.copyDataEvent);
 
 	// AutoMule/TorchSystem/Gambling/Crafting handler
-	if (AutoMule.inGameCheck() || TorchSystem.inGameCheck() || Gambling.inGameCheck() || CraftingSystem.inGameCheck()) {
+	if (AutoMule.inGameCheck() || TorchSystem.inGameCheck() || Gambling.inGameCheck() || CraftingSystem.inGameCheck() || SoloEvents.inGameCheck()) {
 		return true;
 	}
 
@@ -152,26 +166,34 @@ function main () {
 
 	DataFile.updateStats(["experience", "name"]);
 
-	// Load threads
-	if (SoloEvents.inGameCheck()) return true;
+	// Load threads - for now split between old system with threads or opt in for new system with workers
 	load("libs/SoloPlay/Threads/ToolsThread.js");
-	load("libs/SoloPlay/Threads/EventThread.js");
-	load("libs/SoloPlay/Threads/TownChicken.js");
+	if ((Developer.testingMode.enabled && Developer.testingMode.profiles.some(prof => String.isEqual(prof, me.profile)))) {
+		removeEventListener("scriptmsg", AutoBuild.levelUpHandler);
+		// require("./Modules/eventEmitter"); // needs work
+
+		includeIfNotIncluded("SoloPlay/Workers/EventWorker.js");
+		includeIfNotIncluded("SoloPlay/Workers/TownChickenWorker.js");
+		includeIfNotIncluded("SoloPlay/Workers/AutoBuildWorker.js");
+		SoloEvents.filePath = "libs/SoloPlay/SoloPlay.js"; // hacky for now, don't want to mess up others running so we just broadcast to ourselves
+	} else {
+		load("libs/SoloPlay/Threads/EventThread.js");
+		load("libs/SoloPlay/Threads/TownChicken.js");
+		load("libs/SoloPlay/Threads/AutoBuildThread.js");
+	}
 	
 	// Load guard if we want to see the stack as it runs
 	if (Developer.debugging.showStack.enabled) {
 		// check in case we reloaded and guard was still running
 		let guard = getScript("libs/SoloPlay/Modules/Guard.js");
 		!!guard && guard.running && guard.stop();
-		Developer.debugging.showStack.profiles.some(profile => profile.toLowerCase() === "all" || profile.toLowerCase() === me.profile.toLowerCase()) && require("../SoloPlay/Modules/Guard");
+		Developer.debugging.showStack.profiles.some(prof => String.isEqual(prof, me.profile) || String.isEqual(prof, "all")) && require("../SoloPlay/Modules/Guard");
 		delay(1000);
 	}
 
 	if (Config.PublicMode) {
-		Config.PublicMode === true ? require("libs/modules/SimpleParty") : load("tools/Party.js");
+		Config.PublicMode === true ? require("libs/modules/SimpleParty") : load("threads/Party.js");
 	}
-	
-	// Config.AntiHostile && load("tools/AntiHostile.js");
 
 	// One time maintenance - check cursor, get corpse, clear leftover items, pick items in case anything important was dropped
 	Cubing.cursorCheck();
@@ -185,28 +207,17 @@ function main () {
 	Pickit.pickItems();
 	me.hpPercent <= 10 && Town.heal() && me.cancelUIFlags();
 
-	if (Config.DebugMode) {
-		delay(2000);
-		let script = getScript();
-
-		if (script) {
-			do {
-				console.log(script);
-			} while (script.getNext());
-		}
-	}
-
 	me.automap = Config.AutoMap;
 
 	// Next game = drop keys
 	TorchSystem.keyCheck() && scriptBroadcast("torch");
 
 	// Auto skill and stat
-	if (Config.AutoSkill.Enabled && include("common/AutoSkill.js")) {
+	if (Config.AutoSkill.Enabled && include("core/Auto/AutoSkill.js")) {
 		AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
 	}
 
-	if (Config.AutoStat.Enabled && include("common/AutoStat.js")) {
+	if (Config.AutoStat.Enabled && include("core/Auto/AutoStat.js")) {
 		AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
 	}
 
@@ -218,7 +229,7 @@ function main () {
 
 	// Start Developer mode - this stops the script from progressing past this point and allows running specific scripts/functions through chat commands
 	if (Developer.developerMode.enabled) {
-		if (Developer.developerMode.profiles.some(profile => profile.toLowerCase() === me.profile.toLowerCase())) {
+		if (Developer.developerMode.profiles.some(prof => String.isEqual(prof, me.profile))) {
 			Developer.debugging.pathing && (me.automap = true);
 			Loader.runScript("developermode");
 		}

@@ -4,10 +4,8 @@
 *  @desc        developer mode made easy
 *
 */
-include("UnitInfo.js");
 
 function developermode() {
-	let uInfo = null;
 	let [done, action, command, userAddon, test] = [false, false, false, false, false];
 	let [watchSent, watchRecv, blockSent, blockRecv] = [[], [], [], []];
 	const runCommand = function (msg) {
@@ -170,7 +168,10 @@ function developermode() {
 		}
 	};
 
-	// Received packet handler
+	/**
+	 * Received packet handler
+	 * @param {number[]} pBytes 
+	 */
 	const packetReceived = function (pBytes) {
 		let ID = pBytes[0].toString(16);
 
@@ -179,7 +180,7 @@ function developermode() {
 
 		if (watchRecv.includes(ID)) {
 			let size = pBytes.length;
-			let array = [].slice.call(pBytes);
+			let array = [].slice.call(pBytes).map(pByte => pByte.toString(16));
 			array.shift();
 			console.log("ÿc2S  ÿc8" + ID + "ÿc0 " + array.join(" ") + "  ÿc5(" + size + " Bytes)");
 		}
@@ -220,19 +221,18 @@ function developermode() {
 		return false;
 	};
 
-	myPrint("ÿc8Kolbot-SoloPlayÿc0: starting developermode");
-	addEventListener("gamepacketsent", packetSent);
-	addEventListener("gamepacket", packetReceived);
-	Config.Silence = false;
+	const UnitInfo = new (require("../../modules/UnitInfo"));
 
 	try {
-		while (!done) {
-			if (action) {
-				if (!UnitInfo.cleared) {
-					UnitInfo.remove();
-					userAddon = false;
-				}
+		myPrint("ÿc8Kolbot-SoloPlayÿc0: starting developermode");
+		addEventListener("gamepacketsent", packetSent);
+		addEventListener("gamepacket", packetReceived);
+		Config.Silence = false;
 
+		while (!done) {
+			UnitInfo.check();
+
+			if (action) {
 				Loader.runScript(action);
 
 				me.overhead("Done with action");
@@ -240,11 +240,6 @@ function developermode() {
 			}
 
 			if (command) {
-				if (!UnitInfo.cleared) {
-					UnitInfo.remove();
-					userAddon = false;
-				}
-
 				try {
 					eval(command);
 				} catch (e) {
@@ -255,13 +250,12 @@ function developermode() {
 				command = false;
 			}
 
-			!UnitInfo.cleared && !Game.getSelectedUnit() && UnitInfo.remove();
 			if (userAddon) {
-				uInfo = Game.getSelectedUnit();
-				UnitInfo.createInfo(uInfo);
+				UnitInfo.createInfo(Game.getSelectedUnit());
 			}
 
 			if (test) {
+				console.debug("done");
 				me.overhead("done");
 				test = false;
 			}

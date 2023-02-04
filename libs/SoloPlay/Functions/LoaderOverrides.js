@@ -6,7 +6,7 @@
 *
 */
 
-includeIfNotIncluded("common/Loader.js");
+includeIfNotIncluded("core/Loader.js");
 
 Loader.getScripts = function () {
 	let fileList = dopen("libs/SoloPlay/Scripts").getFiles();

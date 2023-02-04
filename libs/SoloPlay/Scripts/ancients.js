@@ -7,6 +7,7 @@
 */
 
 function ancients () {
+	include("core/Common/Ancients.js");
 	Town.doChores(false, { fullChores: true });
 	myPrint("starting ancients");
 
@@ -22,7 +23,7 @@ function ancients () {
 	// ancients prep
 	Town.doChores(false, { thawing: true, antidote: true, stamina: true, fullChores: true });
 
-	let tempConfig = Misc.copy(Config); // save and update config settings
+	let tempConfig = copyObj(Config); // save and update config settings
 
 	Config.TownCheck = false;
 	Config.MercWatch = false;

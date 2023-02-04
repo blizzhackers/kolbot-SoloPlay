@@ -8,8 +8,9 @@
 // todo: clean this up, listen for lights game packet while opening/checking seals
 
 function diablo () {
+	include("core/Common/Diablo.js");
 	// Start Diablo Quest
-	this.diabloPrep = function () {
+	const diabloPrep = function () {
 		let tick = getTickCount();
 		let decoyDuration = (me.amazon ? Skill.getDuration(sdk.skills.Decoy) : 0);
 
@@ -143,7 +144,7 @@ function diablo () {
 
 		(me.sorceress || me.necromancer || me.assassin) ? Pather.moveNear(7792, 5292, 37) : Pather.moveTo(7788, 5292, 3, 30);
 		
-		this.diabloPrep();
+		diabloPrep();
 		let theD = Game.getMonster(sdk.monsters.Diablo);
 
 		if (!theD) {
@@ -157,7 +158,7 @@ function diablo () {
 			}
 
 			(me.sorceress || me.necromancer || me.assassin) ? Pather.moveNear(7792, 5292, 37) : Pather.moveTo(7788, 5292, 3, 30);
-			this.diabloPrep();
+			diabloPrep();
 		}
 
 		!Attack.pwnDia() && Attack.killTarget(sdk.monsters.Diablo);

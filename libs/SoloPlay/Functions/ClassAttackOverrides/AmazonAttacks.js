@@ -11,7 +11,7 @@
  * - test early on using a bow on switch for ranged attacks (might be worth a point in magic arrow)
  */
 
-includeIfNotIncluded("common/Attacks/Amazon.js");
+includeIfNotIncluded("core/Attacks/Amazon.js");
 
 ClassAttack.decoyTick = getTickCount();
 

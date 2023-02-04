@@ -10,7 +10,7 @@
  * essentially a basic form of item sharing
  */
 
-includeIfNotIncluded("Automule.js");
+includeIfNotIncluded("systems/automule/Automule.js");
 
 AutoMule.getMuleItems = function () {
 	let info = this.getInfo();

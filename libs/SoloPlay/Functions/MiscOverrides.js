@@ -6,7 +6,7 @@
 *
 */
 
-includeIfNotIncluded("common/Misc.js");
+includeIfNotIncluded("core/Misc.js");
 
 Misc.townEnabled = true;
 
@@ -520,7 +520,7 @@ Misc.addSocketablesToItem = function (item, runes = []) {
 
 			if (item.getItemsEx().length > preSockets) {
 				D2Bot.printToConsole("Added socketable: " + rune.fname + " to " + item.fname, sdk.colors.D2Bot.Gold);
-				Misc.logItem("Added " + rune.name + " to: ", item, null, true);
+				Item.logItem("Added " + rune.name + " to: ", item, null, true);
 				preSockets++;
 			}
 		}
@@ -709,89 +709,6 @@ Misc.checkSocketables = function () {
 	}
 };
 
-// Log kept item stats in the manager.
-Misc.logItem = function (action, unit, keptLine, force) {
-	if (!this.useItemLog || unit === undefined || !unit || !unit.fname) return false;
-	if (!Config.LogKeys && ["pk1", "pk2", "pk3"].includes(unit.code)) return false;
-	if (!Config.LogOrgans && ["dhn", "bey", "mbr"].includes(unit.code)) return false;
-	if (!Config.LogLowRunes && ["r01", "r02", "r03", "r04", "r05", "r06", "r07", "r08", "r09", "r10", "r11", "r12", "r13", "r14"].includes(unit.code)) return false;
-	if (!Config.LogMiddleRunes && ["r15", "r16", "r17", "r18", "r19", "r20", "r21", "r22", "r23"].includes(unit.code)) return false;
-	if (!Config.LogHighRunes && ["r24", "r25", "r26", "r27", "r28", "r29", "r30", "r31", "r32", "r33"].includes(unit.code)) return false;
-	if (!Config.LogLowGems && ["gcv", "gcy", "gcb", "gcg", "gcr", "gcw", "skc", "gfv", "gfy", "gfb", "gfg", "gfr", "gfw", "skf", "gsv", "gsy", "gsb", "gsg", "gsr", "gsw", "sku"].includes(unit.code)) return false;
-	if (!Config.LogHighGems && ["gzv", "gly", "glb", "glg", "glr", "glw", "skl", "gpv", "gpy", "gpb", "gpg", "gpr", "gpw", "skz"].includes(unit.code)) return false;
-
-	for (let i = 0; i < Config.SkipLogging.length; i++) {
-		if (Config.SkipLogging[i] === unit.classid || Config.SkipLogging[i] === unit.code) return false;
-	}
-
-	let lastArea;
-	let name = unit.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<:;.*]|\/|\\/g, "").trim();
-	let desc = (this.getItemDesc(unit) || "");
-	let color = (unit.getColor() || -1);
-
-	if (action.match("kept", "i")) {
-		lastArea = DataFile.getStats().lastArea;
-		lastArea && (desc += ("\n\\xffc0Area: " + lastArea));
-	}
-
-	const mercCheck = action.match("Merc");
-	const hasTier = AutoEquip.hasTier(unit);
-	const charmCheck = (unit.isCharm && Item.autoEquipCharmCheck(unit));
-	const nTResult = NTIP.CheckItem(unit, NTIP_CheckListNoTier) === 1;
-
-	if (!action.match("kept", "i") && !action.match("Shopped") && hasTier) {
-		if (!mercCheck) {
-			NTIP.GetCharmTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit)));
-			NTIP.GetTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip char tier: " + NTIP.GetTier(unit)));
-		} else {
-			desc += ("\n\\xffc0Autoequip merc tier: " + NTIP.GetMercTier(unit));
-		}
-	}
-
-	// should stop logging items unless we wish to see them or it's part of normal pickit
-	if (!nTResult && !force) {
-		switch (true) {
-		case (unit.questItem || unit.isBaseType):
-		case (!unit.isCharm && hasTier && !Developer.debugging.autoEquip):
-		case (charmCheck && !Developer.debugging.smallCharm && unit.classid === sdk.items.SmallCharm):
-		case (charmCheck && !Developer.debugging.largeCharm && unit.classid === sdk.items.LargeCharm):
-		case (charmCheck && !Developer.debugging.grandCharm && unit.classid === sdk.items.GrandCharm):
-			return true;
-		default:
-			break;
-		}
-	}
-
-	let code = this.getItemCode(unit);
-	let sock = unit.getItem();
-
-	if (sock) {
-		do {
-			if (sock.itemType === sdk.items.type.Jewel) {
-				desc += "\n\n";
-				desc += this.getItemDesc(sock);
-			}
-		} while (sock.getNext());
-	}
-
-	keptLine && (desc += ("\n\\xffc0Line: " + keptLine));
-	desc += "$" + (unit.getFlag(sdk.items.flags.Ethereal) ? ":eth" : "");
-
-	let itemObj = {
-		title: action + " " + name,
-		description: desc,
-		image: code,
-		textColor: unit.quality,
-		itemColor: color,
-		header: "",
-		sockets: this.getItemSockets(unit)
-	};
-
-	D2Bot.printToItemLog(itemObj);
-
-	return true;
-};
-
 Misc.errorReport = function (error, script) {
 	let msg, oogmsg, filemsg, source, stack;
 	let stackLog = "";
@@ -806,7 +723,7 @@ Misc.errorReport = function (error, script) {
 	} else {
 		source = error.fileName.substring(error.fileName.lastIndexOf("\\") + 1, error.fileName.length);
 		msg = "ÿc1Error in ÿc0" + script + " ÿc1(" + source + " line ÿc1" + error.lineNumber + "): ÿc1" + error.message;
-		oogmsg = " Error in " + script + " (" + source + " #" + error.lineNumber + ") " + error.message + " (Area: " + Pather.getAreaName(me.area) + ", Ping:" + me.ping + ", Game: " + me.gamename + ")";
+		oogmsg = " Error in " + script + " (" + source + " #" + error.lineNumber + ") " + error.message + " (Area: " + getAreaName(me.area) + ", Ping:" + me.ping + ", Game: " + me.gamename + ")";
 		filemsg = dateString + " <" + me.profile + "> " + msg.replace(/ÿc[0-9!"+<:;.*]/gi, "") + "\n";
 
 		if (error.hasOwnProperty("stack")) {
@@ -842,7 +759,7 @@ Misc.errorReport = function (error, script) {
 
 	showConsole();
 	console.log(msg);
-	this.fileAction("logs/ScriptErrorLog.txt", 2, filemsg);
+	FileAction.read("logs/ScriptErrorLog.txt", filemsg);
 	takeScreenshot();
 	delay(500);
 };

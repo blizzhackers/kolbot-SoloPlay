@@ -5,15 +5,15 @@
 *
 */
 
-includeIfNotIncluded("common/Attacks/Sorceress.js");
+includeIfNotIncluded("core/Attacks/Sorceress.js");
 
 (function() {
 	const slowable = function (unit, freezeable = false) {
 		return (!!unit && unit.attackable // those that we can attack
-	&& Attack.checkResist(unit, "cold")
-	// those that are not frozen yet and those that can be frozen or not yet chilled
-	&& (freezeable ? !unit.isFrozen && !unit.getStat(sdk.stats.CannotbeFrozen) : !unit.isChilled)
-	&& ![sdk.monsters.Andariel, sdk.monsters.Lord5].includes(unit.classid));
+			&& Attack.checkResist(unit, "cold")
+			// those that are not frozen yet and those that can be frozen or not yet chilled
+			&& (freezeable ? !unit.isFrozen && !unit.getStat(sdk.stats.CannotbeFrozen) : !unit.isChilled)
+			&& ![sdk.monsters.Andariel, sdk.monsters.Lord5].includes(unit.classid));
 	};
 
 	const frostNovaCheck = function () {
@@ -39,24 +39,24 @@ includeIfNotIncluded("common/Attacks/Sorceress.js");
 	};
 
 	/**
- * @typedef {Object} dataObj
- * @property {number} skill
- * @property {number} reqLvl
- * @property {number} range
- * @property {boolean} have
- * @property {number} mana
- * @property {boolean} timed
- * @property {number} dmg
- * @property {Function} assignValues
- * @property {Function} calcDmg
- */
+	 * @typedef {Object} dataObj
+	 * @property {number} skill
+	 * @property {number} reqLvl
+	 * @property {number} range
+	 * @property {boolean} have
+	 * @property {number} mana
+	 * @property {boolean} timed
+	 * @property {number} dmg
+	 * @property {Function} assignValues
+	 * @property {Function} calcDmg
+	 */
 
 	/**
- * @param {number} skillId
- * @param {number} [reqLvl]
- * @param {number} [range]
- * @returns {dataObj}
- */
+	 * @param {number} skillId
+	 * @param {number} [reqLvl]
+	 * @param {number} [range]
+	 * @returns {dataObj}
+	 */
 	const buildDataObj = (skillId = -1, reqLvl = 1, range = 0) => ({
 		have: false, skill: skillId, range: range ? range : Infinity, mana: Infinity, timed: false, reqLvl: reqLvl, dmg: 0,
 		assignValues: function (range) {
@@ -73,15 +73,20 @@ includeIfNotIncluded("common/Attacks/Sorceress.js");
 	});
 
 	/**
- * @param {dataObj} main 
- * @param {dataObj} check 
- * @returns {boolean}
- */
+	 * @param {dataObj} main 
+	 * @param {dataObj} check 
+	 * @returns {boolean}
+	 */
 	const compareDamage = (main, check) => {
 		if (main.skill === check.skill) return false;
 		return check.dmg > main.dmg;
 	};
 
+	/**
+	 * @param {Monster} unit 
+	 * @param {boolean} force 
+	 * @todo keep track of when, what, and who we last casted on to prevent spamming charged skills in a short period of time
+	 */
 	ClassAttack.switchCurse = function (unit, force) {
 		if (CharData.skillData.haveChargedSkill([sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken]) && unit.curseable) {
 			const gold = me.gold;
@@ -93,34 +98,34 @@ includeIfNotIncluded("common/Attacks/Sorceress.js");
 			// If we have slow missles we might as well use it, currently only on Lighting Enchanted mobs as they are dangerous
 			// Might be worth it to use on souls too TODO: test this idea
 			if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && gold > 500000 && !isBoss
-			&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-			&& !checkCollision(me, unit, sdk.collision.Ranged)) {
-			// Cast slow missiles
+				&& unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
+				&& !checkCollision(me, unit, sdk.collision.Ranged)) {
+				// Cast slow missiles
 				Attack.castCharges(sdk.skills.SlowMissiles, unit);
 			}
 			// Handle Switch casting
 			if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
-			&& (gold > 500000 || isBoss || dangerZone)
-			&& !unit.getState(sdk.states.LowerResist)
-			&& !checkCollision(me, unit, sdk.collision.Ranged)) {
-			// Switch cast lower resist
+				&& (gold > 500000 || isBoss || dangerZone)
+				&& !unit.getState(sdk.states.LowerResist)
+				&& !checkCollision(me, unit, sdk.collision.Ranged)) {
+				// Switch cast lower resist
 				Attack.switchCastCharges(sdk.skills.LowerResist, unit);
 			}
 
 			if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
-			&& (gold > 500000 || isBoss || dangerZone)
-			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist)
-			&& !checkCollision(me, unit, sdk.collision.Ranged)) {
-			// Switch cast weaken
+				&& (gold > 500000 || isBoss || dangerZone)
+				&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist)
+				&& !checkCollision(me, unit, sdk.collision.Ranged)) {
+				// Switch cast weaken
 				Attack.switchCastCharges(sdk.skills.Weaken, unit);
 			}
 		}
 	};
 
 	/**
- * @param {Unit} unit
- * @returns {dataObj}
- */
+	 * @param {Unit} unit
+	 * @returns {dataObj}
+	 */
 	ClassAttack.decideDistanceSkill = function (unit) {
 		const data = {};
 		const currLvl = me.charlvl;
@@ -137,7 +142,7 @@ includeIfNotIncluded("common/Attacks/Sorceress.js");
 
 		let skillCheck = Object.keys(data)
 			.filter(k => typeof data[k] === "object" && data[k].have && me.mp > data[k].mana
-			&& (!data[k].timed || !me.skillDelay))
+				&& (!data[k].timed || !me.skillDelay))
 			.sort((a, b) => data[b].dmg - data[a].dmg).first();
 		return typeof data[skillCheck] === "object" ? data[skillCheck] : buildDataObj(-1);
 	};
@@ -157,7 +162,7 @@ includeIfNotIncluded("common/Attacks/Sorceress.js");
 			console.debug("mercwatch");
 
 			if (Town.visitTown()) {
-			// lost reference to the mob we were attacking
+				// lost reference to the mob we were attacking
 				if (!unit || !copyUnit(unit).x || !Game.getMonster(-1, -1, gid) || unit.dead) {
 					console.debug("Lost reference to unit");
 					return Attack.Result.SUCCESS;
@@ -339,10 +344,10 @@ includeIfNotIncluded("common/Attacks/Sorceress.js");
 		};
 
 		if (CharData.skillData.bowData.bowOnSwitch
-		&& (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
-		&& ([-1, sdk.skills.Attack].includes(timedSkill.skill)
-		|| timedSkill.mana > me.mp
-		|| (timedSkill.mana * 3 > me.mp && [sdk.skills.FireBolt, sdk.skills.ChargedBolt].includes(timedSkill.skill)))) {
+			&& (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
+			&& ([-1, sdk.skills.Attack].includes(timedSkill.skill)
+			|| timedSkill.mana > me.mp
+			|| (timedSkill.mana * 3 > me.mp && [sdk.skills.FireBolt, sdk.skills.ChargedBolt].includes(timedSkill.skill)))) {
 			if (switchBowAttack(unit) === Attack.Result.SUCCESS) return Attack.Result.SUCCESS;
 		}
 
@@ -355,8 +360,8 @@ includeIfNotIncluded("common/Attacks/Sorceress.js");
 			return Attack.Result.SUCCESS;
 		case Attack.Result.CANTATTACK: // Try to telestomp
 			if (Pather.canTeleport() && Attack.checkResist(unit, "physical") && !!me.getMerc()
-			&& Attack.validSpot(unit.x, unit.y)
-			&& (Config.TeleStomp || (!me.hell && (unit.getMobCount(10) < me.maxNearMonsters && unit.isSpecial)))) {
+				&& Attack.validSpot(unit.x, unit.y)
+				&& (Config.TeleStomp || (!me.hell && (unit.getMobCount(10) < me.maxNearMonsters && unit.isSpecial)))) {
 				let merc = me.getMerc();
 				let haveTK = Skill.canUse(sdk.skills.Telekinesis);
 				let mercRevive = 0;
@@ -419,8 +424,11 @@ includeIfNotIncluded("common/Attacks/Sorceress.js");
 		Developer.debugging.skills && choosenSkill.have && console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(skill) + ") DMG: " + choosenSkill.dmg);
 
 		if (![sdk.skills.FrostNova, sdk.skills.Nova, sdk.skills.StaticField].includes(skill)) {
+			// need like a potential danger check, sometimes while me might not be immeadiate danger because there aren't a whole
+			// lot of monsters around, we can suddenly be in danger if a ranged monsters hits us or if one of the monsters near us
+			// does a lot of damage quickly
 			if (Skill.canUse(sdk.skills.Teleport) && me.mp > Skill.getManaCost(sdk.skills.Teleport) + mana && me.inDanger()) {
-			//console.log("FINDING NEW SPOT");
+				//console.log("FINDING NEW SPOT");
 				Attack.getIntoPosition(unit, range, 0
                 | Coords_1.BlockBits.LineOfSight
                 | Coords_1.BlockBits.Ranged

@@ -5,7 +5,7 @@
 *
 */
 
-includeIfNotIncluded("common/Precast.js");
+includeIfNotIncluded("core/Precast.js");
 
 Precast.enabled = true;
 

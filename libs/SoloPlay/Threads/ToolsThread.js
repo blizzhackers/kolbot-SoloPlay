@@ -5,28 +5,16 @@
 *
 */
 js_strict(true);
+include("critical.js");
 
-include("json2.js");
-include("NTItemParser.dbl");
-include("OOG.js");
-include("AutoMule.js");
-include("Gambling.js");
-include("CraftingSystem.js");
-include("TorchSystem.js");
-include("MuleLogger.js");
-include("common/Attack.js");
-include("common/Common.js");
-include("common/Cubing.js");
-include("common/CollMap.js");
-include("common/Config.js");
-include("common/misc.js");
-include("common/util.js");
-include("common/Pickit.js");
-include("common/Pather.js");
-include("common/Precast.js");
-include("common/Prototypes.js");
-include("common/Runewords.js");
-include("common/Town.js");
+// globals needed for core gameplay
+includeCoreLibs({ exclude: ["Storage.js"]});
+include("core/Common/Tools.js");
+
+// system libs
+includeSystemLibs();
+include("systems/mulelogger/MuleLogger.js");
+
 // Include SoloPlay's librarys
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
@@ -34,6 +22,10 @@ include("SoloPlay/Tools/CharData.js");
 include("SoloPlay/Tools/SoloIndex.js");
 include("SoloPlay/Functions/ConfigOverrides.js");
 include("SoloPlay/Functions/Globals.js");
+
+/**
+ * @todo trim the uneeded files/global variables from this file
+ */
 
 function main () {
 	let ironGolem, tick, quitListDelayTime;
@@ -70,7 +62,7 @@ function main () {
 
 	// General functions
 	this.togglePause = function () {
-		let scripts = ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "tools/antihostile.js", "tools/party.js"];
+		let scripts = ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "threads/antihostile.js", "threads/party.js"];
 
 		for (let l = 0; l < scripts.length; l += 1) {
 			let script = getScript(scripts[l]);
@@ -301,7 +293,7 @@ function main () {
 
 			break;
 		case sdk.keys.Insert: // reveal level
-			me.overhead("Revealing " + Pather.getAreaName(me.area));
+			me.overhead("Revealing " + getAreaName(me.area));
 			revealLevel(true);
 
 			break;
@@ -503,9 +495,15 @@ function main () {
 
 				break;
 			case msg.toLowerCase() === "test":
-				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//\nÿc8MainData ::\n",
-					myData, "\nÿc8BuffData ::\n", CharData.buffData, "\nÿc8SkillData ::\n", CharData.skillData, "\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
-				updated = true;
+				{
+					console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//",
+						"\nÿc8ThreadData ::\n", getScript(true),
+						"\nÿc8MainData ::\n", myData,
+						"\nÿc8BuffData ::\n", CharData.buffData,
+						"\nÿc8SkillData ::\n", CharData.skillData,
+						"\nÿc8GlobalVariabls ::\n", Object.keys(global),
+						"\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
+				}
 
 				break;
 			}
@@ -555,7 +553,7 @@ function main () {
 	};
 
 	// Cache variables to prevent a bug where d2bs loses the reference to Config object
-	Config = Misc.copy(Config);
+	Config = copyObj(Config);
 	tick = getTickCount();
 
 	addEventListener("keyup", this.keyEvent);
@@ -577,6 +575,9 @@ function main () {
 		console.warn("Without logPerformance set, the overlay will only show partial values");
 	}
 
+	// getUnit test
+	getUnit(-1) === null && console.warn("getUnit bug detected");
+
 	// Start
 	while (true) {
 		try {
@@ -586,7 +587,7 @@ function main () {
 				Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && this.drinkPotion(Common.Toolsthread.pots.Rejuv);
 
 				if (Config.LifeChicken > 0 && me.hpPercent <= Config.LifeChicken && !me.inTown) {
-					!Developer.hideChickens && D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + Pather.getAreaName(me.area) + ". Ping: " + me.ping, sdk.colors.D2Bot.Red);
+					!Developer.hideChickens && D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + getAreaName(me.area) + ". Ping: " + me.ping, sdk.colors.D2Bot.Red);
 					this.exit(true);
 
 					break;
@@ -600,7 +601,7 @@ function main () {
 				[sdk.states.Frozen, sdk.states.FrozenSolid].some(state => me.getState(state)) && this.drinkSpecialPotion(sdk.items.ThawingPotion);
 
 				if (Config.ManaChicken > 0 && me.mpPercent <= Config.ManaChicken && !me.inTown) {
-					!Developer.hideChickens && D2Bot.printToConsole("Mana Chicken: (" + me.mp + "/" + me.mpmax + ") in " + Pather.getAreaName(me.area), sdk.colors.D2Bot.Red);
+					!Developer.hideChickens && D2Bot.printToConsole("Mana Chicken: (" + me.mp + "/" + me.mpmax + ") in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
 					this.exit(true);
 
 					break;
@@ -614,7 +615,7 @@ function main () {
 					if (ironGolem) {
 						// ironGolem.hpmax is bugged with BO
 						if (ironGolem.hp <= Math.floor(128 * Config.IronGolemChicken / 100)) {
-							!Developer.hideChickens && D2Bot.printToConsole("Irom Golem Chicken in " + Pather.getAreaName(me.area), sdk.colors.D2Bot.Red);
+							!Developer.hideChickens && D2Bot.printToConsole("Irom Golem Chicken in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
 							this.exit(true);
 
 							break;
@@ -629,7 +630,7 @@ function main () {
 
 						if (mercHP > 0 && merc.mode !== sdk.monsters.mode.Dead) {
 							if (mercHP < Config.MercChicken) {
-								!Developer.hideChickens && D2Bot.printToConsole("Merc Chicken in " + Pather.getAreaName(me.area), sdk.colors.D2Bot.Red);
+								!Developer.hideChickens && D2Bot.printToConsole("Merc Chicken in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
 								this.exit(true);
 
 								break;
@@ -684,8 +685,8 @@ function main () {
 
 		!!restart && this.restart();
 
-		if (debugInfo.area !== Pather.getAreaName(me.area)) {
-			debugInfo.area = Pather.getAreaName(me.area);
+		if (debugInfo.area !== getAreaName(me.area)) {
+			debugInfo.area = getAreaName(me.area);
 			DataFile.updateStats("debugInfo", JSON.stringify(debugInfo));
 		}
 

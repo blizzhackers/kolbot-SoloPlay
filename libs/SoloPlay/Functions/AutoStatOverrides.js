@@ -6,7 +6,7 @@
 *
 */
 
-includeIfNotIncluded("common/AutoStat.js");
+includeIfNotIncluded("core/Auto/AutoStat.js");
 
 AutoStat.init = function (statBuildOrder, save = 0, block = 0, bulkStat = true) {
 	AutoStat.statBuildOrder = statBuildOrder;

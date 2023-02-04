@@ -5,25 +5,15 @@
 *
 */
 js_strict(true);
+include("critical.js");
 
-include("json2.js");
-include("NTItemParser.dbl");
-include("OOG.js");
-include("Gambling.js");
-include("CraftingSystem.js");
-include("common/util.js");
-include("common/Attack.js");
-include("common/Common.js");
-include("common/Cubing.js");
-include("common/Config.js");
-include("common/CollMap.js");
-include("common/misc.js");
-include("common/Pickit.js");
-include("common/Pather.js");
-include("common/Precast.js");
-include("common/Prototypes.js");
-include("common/Runewords.js");
-include("common/Town.js");
+// globals needed for core gameplay
+includeCoreLibs({ exclude: ["Storage.js"]});
+
+// system libs
+includeSystemLibs();
+include("systems/mulelogger/MuleLogger.js");
+
 // Include SoloPlay's librarys
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
@@ -297,13 +287,13 @@ function main() {
 			}
 		}
 
-		console.log("ÿc8End ÿc0:: ÿc8visitTown - currentArea: " + Pather.getAreaName(me.area));
+		console.log("ÿc8End ÿc0:: ÿc8visitTown - currentArea: " + getAreaName(me.area));
 
 		return me.area === preArea;
 	};
 
 	this.togglePause = function () {
-		let scripts = ["libs/SoloPlay/SoloPlay.js", "tools/antihostile.js"];
+		let scripts = ["libs/SoloPlay/SoloPlay.js", "threads/antihostile.js"];
 
 		for (let i = 0; i < scripts.length; i++) {
 			let script = getScript(scripts[i]);
@@ -352,7 +342,7 @@ function main() {
 				switch (me.area) {
 				case sdk.areas.ArreatSummit:
 				case sdk.areas.UberTristram:
-					console.warn("Don't tp from " + Pather.getAreaName(me.area));
+					console.warn("Don't tp from " + getAreaName(me.area));
 					return;
 				default:
 					console.log("townCheck message recieved. First check passed.");
@@ -435,7 +425,7 @@ function main() {
 			try {
 				myPrint("ÿc8TownChicken :: ÿc0Going to town");
 				Messaging.sendToScript("libs/SoloPlay/Threads/EventThread.js", "townchickenOn");
-				[Attack.stopClear, SoloEvents.townChicken] = [true, true];
+				[Attack.stopClear, SoloEvents.townChicken.running] = [true, true];
 				
 				// determine if this is really worth it
 				if (useHowl || useTerror) {
@@ -461,7 +451,7 @@ function main() {
 				console.log("ÿc8TownChicken :: Took: " + Time.format(getTickCount() - t4) + " to visit town");
 				this.togglePause();
 				Messaging.sendToScript("libs/SoloPlay/Threads/EventThread.js", "townchickenOff");
-				[Attack.stopClear, SoloEvents.townChicken, townCheck, fastTown] = [false, false, false, false];
+				[Attack.stopClear, SoloEvents.townChicken.running, townCheck, fastTown] = [false, false, false, false];
 			}
 		}
 

@@ -4,10 +4,14 @@
 *  @author      theBGuy
 *  @desc        Entry script for SoloPlay leveling system
 *
+*
+*  @typedef {import("./sdk/globals")}
 */
-include("StarterConfig.js");
 
-// D2BotSoloPlay specific settings - for global settings see libs/StarterConfig.js
+// No touchy!
+include("critical.js"); // required
+
+// D2BotSoloPlay specific settings - for global settings see libs/starter/StarterConfig.js
 Starter.Config.InvalidPasswordDelay = 10; // Minutes to wait after getting Invalid Password message
 Starter.Config.GameDoesNotExistTimeout = 600; // Seconds to wait before cancelling the 'Game does not exist.' screen
 Starter.Config.DelayBeforeLogin = rand(5, 25); // Seconds to wait before logging in
@@ -28,18 +32,13 @@ Starter.Config.GlobalAccountPassword = ""; // Set value for a global password fo
  *   - need to handle someone using a premade account
  */
 
-// No touchy!
-include("polyfill.js");
-include("json2.js");
-include("OOG.js");
-include("automule.js");
-include("gambling.js");
-include("craftingsystem.js");
-include("torchsystem.js");
-include("common/util.js");
-include("common/misc.js");
-include("common/pather.js");
-include("common/prototypes.js");
+// the only things we really need from these are their oog checks
+includeSystemLibs();
+
+// what do I need from here?
+const { getAreaName, Time } = require("./libs/core/Util");
+include("core/experience.js");
+// solo specific
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/CharData.js");
 include("SoloPlay/Tools/Tracker.js");
@@ -48,16 +47,15 @@ include("SoloPlay/Tools/OOGOverrides.js");
 include("SoloPlay/Functions/SoloEvents.js");
 include("SoloPlay/Functions/ConfigOverrides.js");
 
-let Controls = require("./modules/Control");
-let Overrides = require("./modules/Override");
-
-if (typeof AdvancedConfig[me.profile] === "object") {
-	Object.assign(Starter.Config, AdvancedConfig[me.profile]);
+if (typeof Starter.AdvancedConfig[me.profile] === "object") {
+	Object.assign(Starter.Config, Starter.AdvancedConfig[me.profile]);
+} else {
+	// no need to carry around the reference
+	delete Starter.AdvancedConfig;
 }
 
 let joinInfo;
 let gameTracker;
-Starter.BNET = ([sdk.game.profiletype.Battlenet, sdk.game.profiletype.OpenBattlenet].includes(Profile().type));
 
 // initialize data files
 if (!FileTools.exists("data/" + me.profile + ".json") && DataFile.create()) {
@@ -337,7 +335,7 @@ function main () {
 	while (!D2Bot.init()) {
 		delay(250);
 	}
-	load("tools/heartbeat.js");
+	load("threads/heartbeat.js");
 
 	while (!Object.keys(Starter.gameInfo).length) {
 		D2Bot.requestGameInfo();
@@ -349,7 +347,6 @@ function main () {
 		D2Bot.stop();
 	}
 
-	// Developer.logPerformance && Tracker.checkValidity();
 	Starter.gameCount = (DataFile.getStats().runs + 1 || 1);
 
 	if (Starter.gameInfo.error) {
@@ -363,7 +360,6 @@ function main () {
 		D2Bot.getProfile();
 		console.log("Getting Profile");
 		delay(500);
-		// console.log(Starter.profileInfo);
 	}
 
 	if (Starter.profileInfo.charName === "") {
@@ -405,7 +401,7 @@ function main () {
 
 					try {
 						let [exp, myGold, fr, cr, lr, pr] = [xp(), tGold(), fireRes(resPenalty), coldRes(resPenalty), lightRes(resPenalty), poisRes(resPenalty)];
-						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
+						areaName = !!me.area ? getAreaName(me.area) : "";
 						statusString = me.name + " | Lvl: " + me.charlvl + " (" + exp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + fr + "/C: " + cr + "/L: " + lr + "/P: " + pr + ")";
 					} catch (e) {
 						console.error(e);

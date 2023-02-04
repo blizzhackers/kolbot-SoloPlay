@@ -5,24 +5,24 @@
 *
 */
 
-includeIfNotIncluded("MuleLogger.js");
+includeIfNotIncluded("systems/mulelogger/MuleLogger.js");
 includeIfNotIncluded("SoloPlay/Functions/NTIPOverrides.js");
 includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
 
 // Added type parameter and logging tier value under picture on char viewer tab
 MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
-	if (!isIncluded("common/misc.js")) {
-		include("common/misc.js");
-		include("common/util.js");
+	if (!isIncluded("core/misc.js")) {
+		include("core/misc.js");
+		include("core/util.js");
 	}
 
 	logIlvl === undefined && (logIlvl = this.LogItemLevel);
 
 	let header = "";
 	let name = unit.itemType + "_" + unit.fname.split("\n").reverse().join(" ").replace(/(y|ÿ)c[0-9!"+<:;.*]|\/|\\/g, "").trim();
-	let desc = (Misc.getItemDesc(unit, logIlvl) || "");
+	let desc = (Item.getItemDesc(unit, logIlvl) || "");
 	let color = (unit.getColor() || -1);
-	let code = Misc.getItemCode(unit);
+	let code = Item.getItemCode(unit);
 
 	if (NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) {
 		if (unit.mode === sdk.items.mode.inStorage && type === "Player") {
@@ -46,7 +46,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 		for (let i = 0; i < sock.length; i += 1) {
 			if (sock[i].itemType === sdk.items.type.Jewel) {
 				desc += "\n\n";
-				desc += Misc.getItemDesc(sock[i]);
+				desc += Item.getItemDesc(sock[i]);
 			}
 		}
 	}
@@ -59,7 +59,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 		title: name,
 		description: desc,
 		header: header,
-		sockets: Misc.getItemSockets(unit)
+		sockets: Item.getItemSockets(unit)
 	};
 };
 

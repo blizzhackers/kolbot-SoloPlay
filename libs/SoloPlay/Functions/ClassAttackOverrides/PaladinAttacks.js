@@ -5,7 +5,7 @@
 *
 */
 
-includeIfNotIncluded("common/Attacks/Paladin.js");
+includeIfNotIncluded("core/Attacks/Paladin.js");
 
 // eslint-disable-next-line no-unused-vars
 ClassAttack.doAttack = function (unit = undefined, preattack = false, once = false) {

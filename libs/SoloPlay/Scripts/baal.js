@@ -7,6 +7,7 @@
 */
 
 function baal () {
+	include("core/Common/Baal.js");
 	Config.BossPriority = false;
 
 	let decoyTick = 0;

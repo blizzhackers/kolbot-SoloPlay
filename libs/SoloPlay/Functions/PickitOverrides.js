@@ -6,7 +6,7 @@
 *
 */
 
-includeIfNotIncluded("common/Pickit.js");
+includeIfNotIncluded("core/Pickit.js");
 includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 includeIfNotIncluded("SoloPlay/Functions/NTIPOverrides.js");
 includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
@@ -30,6 +30,9 @@ Pickit.minItemKeepGoldValue = function () {
 	}
 };
 
+/**
+ * @param {ItemUnit} unit 
+ */
 Pickit.checkItem = function (unit) {
 	const rval = NTIP.CheckItem(unit, false, true);
 	const resultObj = (result, line = null) => ({
@@ -340,7 +343,18 @@ Pickit.canPick = function (unit) {
 
 Pickit.toCursorPick = [];
 
+/**
+ * @override
+ * @param {ItemUnit} unit 
+ * @param {PickitResult} status 
+ * @param {string} keptLine 
+ * @param {boolean} clearBeforePick 
+ */
 Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
+	/**
+	 * @constructor
+	 * @param {ItemUnit} unit 
+	 */
 	function ItemStats (unit) {
 		let self = this;
 		self.x = unit.x;
@@ -350,7 +364,7 @@ Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
 		self.type = unit.itemType;
 		self.classid = unit.classid;
 		self.name = unit.name;
-		self.color = Pickit.itemColor(unit);
+		self.color = Item.color(unit);
 		self.gold = unit.getStat(sdk.stats.Gold);
 		self.dist = (unit.distance || Infinity);
 		let canTk = (Skill.haveTK && Pickit.tkable.includes(self.type) && Pickit.toCursorPick.indexOf(unit.gid) === -1
@@ -497,8 +511,8 @@ Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
 			console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (stats.sockets > 0 ? ") (sockets " + stats.sockets : "") + (keptLine ? ") (" + keptLine + ")" : ")"));
 
 			if (this.ignoreLog.indexOf(stats.type) === -1) {
-				Misc.itemLogger("Kept", item);
-				Misc.logItem("Kept", item, keptLine);
+				Item.logger("Kept", item);
+				Item.logItem("Kept", item, keptLine);
 			}
 
 			if (item.identified && item.isInInventory && AutoEquip.wanted(item)) {
@@ -508,13 +522,13 @@ Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
 			break;
 		case Pickit.Result.CUBING:
 			console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Cubing)");
-			Misc.itemLogger("Kept", item, "Cubing " + me.findItems(item.classid).length);
+			Item.logger("Kept", item, "Cubing " + me.findItems(item.classid).length);
 			Cubing.update();
 
 			break;
 		case Pickit.Result.RUNEWORD:
 			console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Runewords)");
-			Misc.itemLogger("Kept", item, "Runewords");
+			Item.logger("Kept", item, "Runewords");
 			Runewords.update(stats.classid, gid);
 
 			break;
@@ -615,7 +629,9 @@ Pickit.essessntialsPick = function (clearBeforePick = false, ignoreGold = false,
 				let canFit = (Storage.Inventory.CanFit(currItem) || Pickit.canFit(currItem));
 
 				// Field id when our used space is above a certain percent or if we are full try to make room with FieldID
-				if (Config.FieldID.Enabled && (!canFit || Storage.Inventory.UsedSpacePercent() > Config.FieldID.UsedSpace)) {
+				// or if we have an exp shrine so we don't waste it
+				if ((Config.FieldID.Enabled || me.getState(sdk.states.ShrineExperience))
+					&& (!canFit || Storage.Inventory.UsedSpacePercent() > Config.FieldID.UsedSpace)) {
 					me.fieldID() && (canFit = (currItem.gid !== undefined && Storage.Inventory.CanFit(currItem)));
 				}
 
@@ -623,7 +639,7 @@ Pickit.essessntialsPick = function (clearBeforePick = false, ignoreGold = false,
 				if (!canFit) {
 					// Check if any of the current inventory items can be stashed or need to be identified and eventually sold to make room
 					if (this.canMakeRoom()) {
-						console.log("ÿc7Trying to make room for " + this.itemColor(currItem) + currItem.name);
+						console.log("ÿc7Trying to make room for " + Item.color(currItem) + currItem.name);
 
 						// Go to town and do town chores
 						if (Town.visitTown()) {
@@ -633,14 +649,14 @@ Pickit.essessntialsPick = function (clearBeforePick = false, ignoreGold = false,
 						}
 
 						// Town visit failed - abort
-						console.log("ÿc7Not enough room for " + this.itemColor(currItem) + currItem.name);
+						console.log("ÿc7Not enough room for " + Item.color(currItem) + currItem.name);
 
 						return false;
 					}
 
 					// Can't make room
-					Misc.itemLogger("No room for", currItem);
-					console.log("ÿc7Not enough room for " + this.itemColor(currItem) + currItem.name);
+					Item.logger("No room for", currItem);
+					console.log("ÿc7Not enough room for " + Item.color(currItem) + currItem.name);
 				}
 
 				// Item can fit - pick it up
@@ -708,7 +724,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 				if (!canFit) {
 					// Check if any of the current inventory items can be stashed or need to be identified and eventually sold to make room
 					if (this.canMakeRoom()) {
-						console.log("ÿc7Trying to make room for " + this.itemColor(currItem) + currItem.name);
+						console.log("ÿc7Trying to make room for " + Item.color(currItem) + currItem.name);
 
 						// Go to town and do town chores
 						if (Town.visitTown()) {
@@ -718,14 +734,15 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 						}
 
 						// Town visit failed - abort
-						console.log("ÿc7Not enough room for " + this.itemColor(currItem) + currItem.name);
+						console.log("ÿc7Not enough room for " + Item.color(currItem) + currItem.name);
 
 						return false;
 					}
 
+
 					// Can't make room - trigger automule
 					if (copyUnit(currItem).x !== undefined) {
-						Misc.itemLogger("No room for", currItem);
+						Item.logger("No room for", currItem);
 						console.log("ÿc7Not enough room for " + Item.color(currItem) + currItem.name);
 						needMule = true;
 

@@ -5,6 +5,11 @@
 *
 */
 
+/**
+ * @todo
+ * - add override to GlobalAccount here to allow per profile options
+ * - add name choices in similar manner, would have to experiment with max lengths allowed as a prefix
+ */
 const Developer = {
 	// @desc - set to true if using the PlugY mod - allows use of larger stash
 	plugyMode: false,
@@ -47,6 +52,11 @@ const Developer = {
 	developerMode: {
 		enabled: false,
 		// Enter in the profiles that you wish to start in developermode, i.e "scl-sorc"
+		profiles: [""],
+	},
+	testingMode: {
+		enabled: false,
+		// Enter in the profiles that you wish to start in testing mode, i.e "scl-sorc"
 		profiles: [""],
 	},
 	// @desc [experimental don't use] - set email during account creation

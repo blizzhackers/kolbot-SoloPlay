@@ -6,7 +6,7 @@
 *
 */
 
-includeIfNotIncluded("common/Pather.js");
+includeIfNotIncluded("core/Pather.js");
 
 Developer.debugging.pathing && (PathDebug.enableHooks = true);
 
@@ -53,6 +53,7 @@ NodeAction.killMonsters = function (arg = {}) {
 	 * @todo:
 	 * - we don't need this if we have a lightning chain based skill, e.g light sorc, light zon
 	 * - better monster sorting. If we are low level priortize killing easy targets like zombies/quill rats while ignoring fallens unless they are in our path
+	 * - ignore dolls when walking unless absolutely necessary because we are blocked
 	 */
 	if (!arg.canTele && arg.clearPath !== false) {
 		let monList = [];
@@ -416,7 +417,6 @@ Pather.move = function (target, givenSettings = {}) {
 		if (me.dead) return false;
 		// main path
 		Pather.recursion && (Pather.currentWalkingPath = path);
-
 		Pather.clearUIFlags();
 
 		node = path.shift();
@@ -541,6 +541,10 @@ Pather.move = function (target, givenSettings = {}) {
 			}
 		}
 
+		/**
+		 * @todo handle passing in a callback function
+		 */
+
 		delay(5);
 	}
 
@@ -583,7 +587,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 		break;
 	}
 
-	console.log("ÿc7Start ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area));
+	console.log("ÿc7Start ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + getAreaName(targetArea) + " ÿc7myArea: ÿc0" + getAreaName(me.area));
 	let wpTick = getTickCount();
 
 	for (let i = 0; i < 12; i += 1) {
@@ -707,7 +711,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 				while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), pingDelay * 4)) {
 					if (me.area === targetArea) {
 						delay(1500);
-						console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (Time.format(getTickCount() - wpTick)));
+						console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + getAreaName(targetArea) + " ÿc7myArea: ÿc0" + getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (Time.format(getTickCount() - wpTick)));
 
 						return true;
 					}
@@ -738,7 +742,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 
 	if (me.area === targetArea) {
 		delay(500);
-		console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + this.getAreaName(targetArea) + " ÿc7myArea: ÿc0" + this.getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (Time.format(getTickCount() - wpTick)));
+		console.log("ÿc7End ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + getAreaName(targetArea) + " ÿc7myArea: ÿc0" + getAreaName(me.area) + "ÿc0 - ÿc7Duration: ÿc0" + (Time.format(getTickCount() - wpTick)));
 
 		return true;
 	}
@@ -750,7 +754,7 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 	let tick = getTickCount();
 	let retry = 0;
-	console.log("ÿc8Kolbot-SoloPlayÿc0: Start clearToExit. ÿc8Currently in: ÿc0" + Pather.getAreaName(me.area) + "ÿc8Clearing to: ÿc0" + Pather.getAreaName(targetarea));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Start clearToExit. ÿc8Currently in: ÿc0" + getAreaName(me.area) + "ÿc8Clearing to: ÿc0" + getAreaName(targetarea));
 
 	me.area !== currentarea && Pather.journeyTo(currentarea);
 
@@ -766,7 +770,7 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 			Misc.poll(() => me.gameReady, 1000, 100);
 			
 			if (retry > 5) {
-				console.log("ÿc8Kolbot-SoloPlayÿc0: clearToExit. ÿc2Failed to move to: ÿc0" + Pather.getAreaName(targetarea));
+				console.log("ÿc8Kolbot-SoloPlayÿc0: clearToExit. ÿc2Failed to move to: ÿc0" + getAreaName(targetarea));
 
 				break;
 			}

@@ -5,7 +5,7 @@
 *
 */
 
-includeIfNotIncluded("common/Attacks/Barbarian.js");
+includeIfNotIncluded("core/Attacks/Barbarian.js");
 
 /**
 *  @todo:

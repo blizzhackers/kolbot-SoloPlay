@@ -1,7 +1,7 @@
 /**
 *  @filename    Quest.js
 *  @author      theBGuy
-*  @credit      Dark-f, JeanMax, https://github.com/SetupSonic/clean-sonic/blob/master/libs/sonic/common/Quest.js
+*  @credit      Dark-f, JeanMax, https://github.com/SetupSonic/clean-sonic/blob/master/libs/sonic/core/Quest.js
 *  @desc        Miscellaneous quest tasks for leveling
 *
 */
@@ -415,7 +415,7 @@ const Quest = {
 				throw new Error("Failed to socket item");
 			}
 
-			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : ", item, null, true);
+			Item.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : ", item, null, true);
 			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, sdk.colors.D2Bot.Gold);
 			CharData.updateData(sdk.difficulty.nameOf(me.diff), "socketUsed", true);
 			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
@@ -491,7 +491,7 @@ const Quest = {
 				throw new Error("Failed to imbue item");
 			}
 
-			Misc.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : ", item, null, true);
+			Item.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : ", item, null, true);
 			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, sdk.colors.D2Bot.Gold);
 			CharData.updateData(sdk.difficulty.nameOf(me.diff), "imbueUsed", true);
 			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;

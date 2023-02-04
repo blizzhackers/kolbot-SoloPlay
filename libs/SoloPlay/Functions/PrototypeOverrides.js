@@ -6,7 +6,7 @@
 *
 */
 
-includeIfNotIncluded("common/Prototypes.js");
+includeIfNotIncluded("core/Prototypes.js");
 includeIfNotIncluded("SoloPlay/Functions/Me.js");
 includeIfNotIncluded("SoloPlay/Functions/Polyfills.js");
 

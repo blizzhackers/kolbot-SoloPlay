@@ -336,7 +336,7 @@ Unit.prototype.equipMerc = function (bodyLoc = -1) {
 					!!cursorItem && !this.shouldKeep() && this.drop();
 				}
 
-				Developer.debugging.autoEquip && Misc.logItem("Merc Equipped", me.getMerc().getItem(this.classid));
+				Developer.debugging.autoEquip && Item.logItem("Merc Equipped", me.getMerc().getItem(this.classid));
 				Developer.logEquipped && MuleLogger.logEquippedItems();
 
 				return true;

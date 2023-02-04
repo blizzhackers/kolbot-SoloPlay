@@ -57,6 +57,8 @@ function tristram () {
 
 	if (!Misc.checkQuest(sdk.quest.id.TheSearchForCain, 4) && me.getItem(sdk.items.quest.KeytotheCairnStones)) {
 		try {
+			include("core/Common/Cain.js");
+			
 			const stoneIds = [
 				sdk.quest.chest.StoneAlpha, sdk.quest.chest.StoneBeta, sdk.quest.chest.StoneGamma,
 				sdk.quest.chest.StoneDelta, sdk.quest.chest.StoneLambda
@@ -130,6 +132,8 @@ function tristram () {
 
 		Attack.clearLocations(spots);
 	}
+
+	delete Common.Cain;
 
 	return true;
 }
