@@ -33,27 +33,48 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 		}
 	}
 
+	let gold = me.gold;
 	let preattackRange = Skill.getRange(Config.AttackSkill[0]);
 	let decoyDuration = Skill.getDuration(sdk.skills.Dopplezon);
-	let gold = me.gold;
 	const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
+	const useSkills = {
+		InnerSight: false,
+		SlowMissiles: false,
+		Jab: false,
+		Plague: false,
+		LightFury: false,
+	};
 
-	let useInnerSight = Skill.canUse(sdk.skills.InnerSight);
-	let useSlowMissiles = Skill.canUse(sdk.skills.SlowMissiles);
-	let useDecoy = (Skill.canUse(sdk.skills.Dopplezon) && !me.normal);
-	let usePlague = (!me.normal && Skill.canUse(sdk.skills.PlagueJavelin));
-	let useJab = (Item.getEquipped(sdk.body.RightArm).tier >= 1000 && Skill.canUse(sdk.skills.Jab));
-	let useLightFury = me.getSkill(sdk.skills.LightningFury, sdk.skills.subindex.SoftPoints) >= 10;
-	let forcePlague = (me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.SoftPoints) >= 15);	//Extra poison damage then attack
+	useSkills.InnerSight = Skill.canUse(sdk.skills.InnerSight);
+	useSkills.SlowMissiles = Skill.canUse(sdk.skills.SlowMissiles);
+	useSkills.Decoy = (Skill.canUse(sdk.skills.Dopplezon) && !me.normal);
+
+	// check weapon
+	let [allowThrowing, forcePlague] = [false, false];
+	let equippedWep = me.getEquippedItem(sdk.body.RightArm);
+	if (equippedWep) {
+		allowThrowing = (equippedWep.ethereal && equippedWep.quantityPercent > 25);
+		useSkills.Jab = (NTIP.GetTier(equippedWep) >= 1000 && Skill.canUse(sdk.skills.Jab));
+		if (allowThrowing) {
+			useSkills.Plague = (!me.normal && Skill.canUse(sdk.skills.PlagueJavelin));
+			useSkills.LightFury = (me.getSkill(sdk.skills.LightningFury, sdk.skills.subindex.SoftPoints) >= 10);
+			forcePlague = (me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.SoftPoints) >= 15);	// Extra poison damage then attack
+		}
+	} else {
+		console.warn("We don't have a weapon?");
+		console.debug("Go to town, maybe can get one.");
+		Town.visitTown(true);
+		// we are probably screwed if we can't get a weapon, maybe go back a difficulty?
+	}
 
 	// Precast Section -----------------------------------------------------------------------------------------------------------------//
-	if (useSlowMissiles) {
+	if (useSkills.SlowMissiles) {
 		if (!unit.getState(sdk.states.SlowMissiles)) {
 			if ((unit.distance > 3 || unit.getEnchant(sdk.enchant.LightningEnchanted)) && unit.distance < 13 && !checkCollision(me, unit, sdk.collision.Ranged)) {
 				// Act Bosses and mini-bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
 				if ([sdk.monsters.HellBovine].includes(unit.classid) || unit.isBoss) {
 					// Check if already in this state
-					if (useInnerSight && !unit.getState(sdk.states.InnerSight)) {
+					if (useSkills.InnerSight && !unit.getState(sdk.states.InnerSight)) {
 						Skill.cast(sdk.skills.InnerSight, sdk.skills.hand.Right, unit);
 					}
 				} else {
@@ -63,15 +84,15 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 		}
 	}
 
-	if (Skill.canUse(sdk.skills.LightningFury) && unit.getEnchant(sdk.enchant.ManaBurn) && unit.getMobCount(7) > 2) {
-		useLightFury = true;
+	if (allowThrowing && Skill.canUse(sdk.skills.LightningFury) && unit.getEnchant(sdk.enchant.ManaBurn) && unit.getMobCount(7) > 2) {
+		useSkills.LightFury = true;
 	}
 
-	if (Skill.canUse(sdk.skills.PlagueJavelin) && unit.getEnchant(sdk.enchant.ManaBurn) && unit.getMobCount(7) > 2) {
+	if (allowThrowing && Skill.canUse(sdk.skills.PlagueJavelin) && unit.getEnchant(sdk.enchant.ManaBurn) && unit.getMobCount(7) > 2) {
 		forcePlague = true;
 	}
 
-	if (useInnerSight) {
+	if (useSkills.InnerSight) {
 		if (!unit.getState(sdk.states.InnerSight) && unit.distance > 3 && unit.distance < 13 && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			Skill.cast(sdk.skills.InnerSight, sdk.skills.hand.Right, unit);
 		}
@@ -99,7 +120,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 		Skill.switchCast(sdk.skills.BattleCry, {oSkill: true});
 	}
 
-	if (useDecoy) {
+	if (useSkills.Decoy) {
 		// Act Bosses or Immune to my main boss skill
 		if ((unit.isPrimeEvil) || !Attack.checkResist(unit, Config.AttackSkill[1])) {
 			Misc.poll(() => !me.skillDelay, 1000, 40);
@@ -127,10 +148,10 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 	}
 
 	// Only try attacking light immunes if I have my end game javelin - preAttack with Plague Javelin
-	if ((usePlague) && !Attack.checkResist(unit, "lightning")) {
+	if ((useSkills.Plague) && !Attack.checkResist(unit, "lightning")) {
 		if ((unit.distance <= 15) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			// Cast Slow-Missles, then proceed with Plague Jav. Lowers amount of damage from projectiles.
-			!unit.getState(sdk.states.SlowMissiles) && useSlowMissiles && Skill.cast(sdk.skills.SlowMissiles, sdk.skills.hand.Right, unit);
+			!unit.getState(sdk.states.SlowMissiles) && useSkills.SlowMissiles && Skill.cast(sdk.skills.SlowMissiles, sdk.skills.hand.Right, unit);
 
 			// Handle Switch casting
 			if (!unit.dead) {
@@ -145,7 +166,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 				Skill.cast(sdk.skills.PlagueJavelin, Skill.getHand(sdk.skills.PlagueJavelin), unit);
 			}
 
-			if (!useJab) {
+			if (!useSkills.Jab) {
 				// We are within melee distance might as well use jab rather than stand there
 				// Make sure monster is not physical immune
 				if (unit.distance < 4 && Attack.checkResist(unit, "physical")) {
@@ -168,7 +189,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 	}
 
 	// Only try attacking immunes if I have my end game javelin and they aren't lightning enchanted - use jab as main attack
-	if (useJab && !Attack.checkResist(unit, Config.AttackSkill[1]) && Attack.checkResist(unit, "physical") && !unit.getEnchant(sdk.enchant.LightningEnchanted)) {
+	if (useSkills.Jab && !Attack.checkResist(unit, Config.AttackSkill[1]) && Attack.checkResist(unit, "physical") && !unit.getEnchant(sdk.enchant.LightningEnchanted)) {
 		if ((unit.distance > 3 || checkCollision(me, unit, sdk.collision.Ranged)) && !Attack.getIntoPosition(unit, 3, sdk.collision.BlockWall)) {
 			return Attack.Result.FAILED;
 		}
@@ -184,7 +205,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 		}
 	}
 
-	if (useLightFury) {
+	if (useSkills.LightFury) {
 		if ((unit.distance >= 8 && unit.distance <= 15) && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			Skill.cast(sdk.skills.LightningFury, Skill.getHand(sdk.skills.LightningFury), unit);
 		}

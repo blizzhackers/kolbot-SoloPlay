@@ -138,7 +138,19 @@ me.getMercEx = function () {
 
 me.getEquippedItem = function (bodyLoc) {
 	if (!bodyLoc) return null;
-	return me.getItemsEx().filter(i => i.isEquipped && i.bodylocation === bodyLoc).first();
+	let equippedItem = me.getItemsEx().filter(i => i.isEquipped && i.bodylocation === bodyLoc);
+	if (!equippedItem.length) return null;
+	return equippedItem.first();
+};
+
+/**
+ * @param {number} bodyLoc 
+ */
+me.getWeaponQuantityPercent = function (bodyLoc) {
+	if (!bodyLoc) return 0;
+	let weapon = me.getEquippedItem(bodyLoc);
+	if (!weapon) return 0;
+	return weapon.quantityPercent;
 };
 
 me.getSkillTabs = function (classid = me.classid) {

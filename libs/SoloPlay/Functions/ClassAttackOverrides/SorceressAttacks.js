@@ -39,6 +39,18 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 	};
 
 	/**
+	 * @param {Monster} unit 
+	 */
+	const battleCryCheck = function (unit, force = false) {
+		// specials and dolls for now, should make dolls much less dangerous with the reduction of their damage
+		if (Precast.haveCTA > -1 && !unit.dead && (force || unit.isSpecial || unit.isDoll)
+			&& unit.distance < 5 && !unit.getState(sdk.states.BattleCry) && unit.curseable) {
+			console.debug("BATTLECRY");
+			Skill.switchCast(sdk.skills.BattleCry, { oSkill: true });
+		}
+	};
+
+	/**
 	 * @typedef {Object} dataObj
 	 * @property {number} skill
 	 * @property {number} reqLvl
@@ -252,6 +264,8 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 				.find(unit => Attack.checkResist(unit, "lightning") && unit.hpPercent > Config.CastStatic);
 			if (!!closeMobCheck && data.static.dmg > Math.max(data.mainTimed.dmg, data.mainUntimed.dmg, data.secondaryTimed.dmg, data.secondaryUntimed.dmg) && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
 				Developer.debugging.skills && console.log("STATIC");
+				// check if we should use battle cry from cta if we have it
+				battleCryCheck(closeMobCheck);
 				Skill.cast(sdk.skills.StaticField, sdk.skills.hand.Right, closeMobCheck) && Skill.cast(sdk.skills.StaticField, sdk.skills.hand.Right, closeMobCheck);
 			}
 		}
@@ -520,6 +534,8 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 					let sRetry = 0;
 					for (let i = 0; i < 4; i++) {
 						if (!unit.dead) {
+							// if we are already in close then it might be worth it to use battle cry if we have it
+							battleCryCheck(unit);
 							Skill.cast(skill, Skill.getHand(skill), unit);
 							if (!Misc.poll(() => unit.dead || unit.hp < preHealth, 200, 50)) {
 								sRetry++;

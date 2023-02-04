@@ -7,6 +7,10 @@
 
 includeIfNotIncluded("core/Attacks/Paladin.js");
 
+const MercWatch = {
+	last: 0,
+};
+
 // eslint-disable-next-line no-unused-vars
 ClassAttack.doAttack = function (unit = undefined, preattack = false, once = false) {
 	if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
@@ -17,7 +21,8 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
 	let [attackSkill, aura] = [-1, -1];
 	const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
-	if (Config.MercWatch && Town.needMerc()) {
+	// prevent running back to town quickly if our merc is just weak
+	if (Config.MercWatch && Town.needMerc() && getTickCount() - MercWatch.last > Time.seconds(5)) {
 		console.log("mercwatch");
 
 		if (Town.visitTown()) {
@@ -26,6 +31,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
 				return Attack.Result.SUCCESS;
 			}
 		}
+		MercWatch.last = getTickCount();
 		gold = me.gold; // reset value after town
 	}
 

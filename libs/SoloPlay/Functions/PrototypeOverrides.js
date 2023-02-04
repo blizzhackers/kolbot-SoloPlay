@@ -228,6 +228,18 @@ if (!Unit.prototype.hasOwnProperty("prettyPrint")) {
 	});
 }
 
+if (!Unit.prototype.hasOwnProperty("quantityPercent")) {
+	Object.defineProperty(Unit.prototype, "quantityPercent", {
+		get: function () {
+			if (this.type !== sdk.unittype.Item) return 0;
+			let quantity = this.getStat(sdk.stats.Quantity);
+			if (!quantity) return 0;
+			let extraStack = this.getStat(sdk.stats.ExtraStack) || 0;
+			return ((quantity * 100) / (getBaseStat("items", this.classid, "maxstack") + extraStack));
+		}
+	});
+}
+
 /**
  * @param {number} difficulty 
  */
