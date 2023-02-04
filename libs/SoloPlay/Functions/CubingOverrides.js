@@ -429,6 +429,18 @@ Cubing.buildLists = function () {
 	let items = me.getItemsEx()
 		.filter(item => [sdk.items.mode.inStorage, sdk.items.mode.Equipped].includes(item.mode))
 		.sort((a, b) => b.ilvl - a.ilvl);
+	/**
+	 * @param {ItemUnit} item
+	 * @param {*} recipe
+	 */
+	const ingredientObj = (item, recipe) => ({
+		classid: item.classid,
+		type: item.itemType,
+		quality: item.quality,
+		ilvl: item.ilvl,
+		gid: item.gid,
+		recipe: recipe,
+	});
 
 	for (let i = 0; i < this.recipes.length; i += 1) {
 		// Set default Enabled property - true if recipe is always enabled, false otherwise
@@ -443,7 +455,7 @@ Cubing.buildLists = function () {
 					|| items[k].classid === this.recipes[i].Ingredients[j]) && this.validItem(items[k], this.recipes[i])) {
 
 					// push the item's info into the valid ingredients array. this will be used to find items when checking recipes
-					this.validIngredients.push({classid: items[k].classid, quality: items[k].quality, ilvl: items[k].ilvl, gid: items[k].gid, recipe: this.recipes[i]});
+					this.validIngredients.push(ingredientObj(items[k], Cubing.recipes[i]));
 
 					// Remove from item list to prevent counting the same item more than once
 					items.splice(k, 1);
@@ -593,6 +605,27 @@ Cubing.checkItem = function (unit) {
 				this.validIngredients.push({classid: unit.classid, quality: unit.quality, ilvl: unit.ilvl, gid: unit.gid, recipe: this.validIngredients[i].recipe});
 				this.validIngredients.splice(i, 1);
 				return true;
+			}
+		}
+		// its an item meant for socketing so lets be sure we have the best base
+		if (this.validIngredients[i].recipe.Index >= Recipe.Socket.Shield && this.validIngredients[i].recipe.Index <= Recipe.Socket.Helm) {
+			// not the same item but the same type of item
+			if (!unit.isEquipped && unit.gid !== this.validIngredients[i].gid && unit.itemType === this.validIngredients[i].type
+				&& unit.quality === this.validIngredients[i].quality) {
+				// console.debug(this.validIngredients[i], "\n//~~~~//\n", unit, "\n//~~~~~/\n", Item.betterThanStashed(unit, true));
+				// item is better than the one we currently have, so add it to validIngredient array and remove old item
+				if (Item.betterThanStashed(unit, true) && this.validItem(unit, this.validIngredients[i].recipe)) {
+					this.validIngredients.push({
+						classid: unit.classid,
+						type: unit.itemType,
+						quality: unit.quality,
+						ilvl: unit.ilvl,
+						gid: unit.gid,
+						recipe: this.validIngredients[i].recipe
+					});
+					this.validIngredients.splice(i, 1);
+					return true;
+				}
 			}
 		}
 	}
