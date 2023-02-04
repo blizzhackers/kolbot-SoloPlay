@@ -299,7 +299,6 @@ const SetUp = {
 	},
 
 	makeNext: function () {
-		includeIfNotIncluded("SoloPlay/Tools/NameGen.js");
 		includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
 		let gameObj, printTotalTime = Developer.logPerformance;
 		printTotalTime && (gameObj = Tracker.readObj(Tracker.GTPath));
@@ -308,7 +307,7 @@ const SetUp = {
 		myPrint(this.finalBuild + " goal reached. On to the next.");
 		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Tracker.formatTime(gameObj.Total + Tracker.timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", sdk.colors.D2Bot.Gold);
 
-		D2Bot.setProfile(null, null, NameGen());
+		D2Bot.setProfile(null, null, require("../Tools/NameGen")());
 		CharData.delete(true);
 		delay(250);
 		D2Bot.restart();

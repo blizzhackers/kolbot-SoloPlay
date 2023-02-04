@@ -5,7 +5,7 @@
 *
 */
 
-const NameGen = function () {
+(function (module) {
 	const adjectives = [
 		"Ancient", "Angry", "Artful", "Able", "Abundant", "Accepting", "Acclaimed", "Active", "Addictive", "Adept", "Adequate", "Admired", "Adorable",
 		"Adored", "Agile", "Amazing", "Amiable", "Amicable", "Amusing", "Anxious", "Anxious", "Apathetic", "Aquatic", "Arrogant", "Artistic",
@@ -234,15 +234,19 @@ const NameGen = function () {
 		"zoo", "zoology",
 	];
 
-	//let random1 = Math.floor(Math.random() * (adjectives.length + 1));
-	let adjective = adjectives[rand(0, adjectives.length - 1)];
-	let list2Limit = 16 - adjective.length;
-	let list2 = nouns.filter(function (element) {
-		return element.length < list2Limit;
-	});
+	const NameGen = function () {
+		//let random1 = Math.floor(Math.random() * (adjectives.length + 1));
+		let adjective = adjectives[rand(0, adjectives.length - 1)];
+		let list2Limit = 16 - adjective.length;
+		let list2 = nouns.filter(function (element) {
+			return element.length < list2Limit;
+		});
 
-	let noun = list2[rand(0, list2.length - 1)];
-	let namechosen = adjective.toLowerCase() + noun.toLowerCase();
+		let noun = list2[rand(0, list2.length - 1)];
+		let namechosen = adjective + noun;
 
-	return namechosen;
-};
+		return namechosen.toLowerCase();
+	};
+
+	module.exports = NameGen;
+})(module);

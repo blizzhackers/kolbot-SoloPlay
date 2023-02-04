@@ -42,9 +42,18 @@ include("core/experience.js");
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/CharData.js");
 include("SoloPlay/Tools/Tracker.js");
-include("SoloPlay/Tools/NameGen.js");
 include("SoloPlay/Tools/OOGOverrides.js");
-include("SoloPlay/Functions/SoloEvents.js");
+
+// keep the namespace name but only grab the properties we need for this thread
+const SoloEvents = (() => {
+	let { outOfGameCheck, check, gameInfo } = require("./libs/SoloPlay/Functions/SoloEvents");
+	return {
+		check: check,
+		gameInfo: gameInfo,
+		outOfGameCheck: outOfGameCheck,
+	};
+})();
+// is this needed? soloplay doesn't run in default.dbj anymore
 include("SoloPlay/Functions/ConfigOverrides.js");
 
 if (typeof Starter.AdvancedConfig[me.profile] === "object") {
@@ -73,98 +82,6 @@ if (!FileTools.exists(CharData.filePath) && CharData.loginData.create()) {
 
 Developer.logPerformance && Tracker.initialize();
 
-new Overrides.Override(Starter, Starter.receiveCopyData, function (orignal, mode, msg) {
-	switch (mode) {
-	case 1: // Join Info
-		console.log("Got Join Info");
-		joinInfo = JSON.parse(msg);
-
-		SoloEvents.gameInfo.gameName = joinInfo.gameName.toLowerCase();
-		SoloEvents.gameInfo.gamePass = joinInfo.gamePass.toLowerCase();
-
-		break;
-	case 1638:
-		try {
-			let obj = JSON.parse(msg);
-			Starter.profileInfo.profile = me.profile.toUpperCase();
-			Starter.profileInfo.account = obj.Account;
-			Starter.profileInfo.password = "";
-			Starter.profileInfo.charName = obj.Character;
-			Starter.profileInfo.tag = (obj.Tag.trim().capitalize(true) || "");
-			Starter.profileInfo.difficulty = obj.Difficulty;
-			obj.Realm = obj.Realm.toLowerCase();
-			Starter.profileInfo.realm = ["east", "west"].includes(obj.Realm) ? "us" + obj.Realm : obj.Realm;
-
-			let buildCheck = Starter.profileInfo.profile.split("-"); // SCL-ZON123
-			Starter.profileInfo.hardcore = buildCheck[0].includes("HC"); // SC softcore = false
-			Starter.profileInfo.expansion = buildCheck[0].indexOf("CC") === -1; // not CC so not classic - true
-			Starter.profileInfo.ladder = buildCheck[0].indexOf("NL") === -1; // not NL so its ladder - true
-
-			if (buildCheck.length <= 1) {
-				D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', sdk.colors.D2Bot.Gold);
-				D2Bot.printToConsole("If you are still confused please read the included readMe. https://github.com/blizzhackers/kolbot-SoloPlay/blob/main/README.md", sdk.colors.D2Bot.Gold);
-				D2Bot.stop();
-			}
-
-			const charClassMap = {
-				"ZON": "amazon",
-				"SOR": "sorceress",
-				"NEC": "necromancer",
-				"PAL": "paladin",
-				"BAR": "barbarian",
-				"DRU": "druid",
-				"SIN": "assassin"
-			};
-			buildCheck[1] = buildCheck[1].toString().substring(0, 3);
-
-			if (charClassMap[buildCheck[1]]) {
-				Starter.profileInfo.charClass = charClassMap[buildCheck[1]];
-			} else {
-				throw new Error("Invalid profile name, couldn't set character class");
-			}
-
-			if (Starter.profileInfo.tag !== "") {
-				{
-					let soloStats = CharData.getStats();
-
-					if (!soloStats.me.finalBuild || soloStats.me.finalBuild !== Starter.profileInfo.tag) {
-						D2Bot.setProfile(null, null, null, null, null, Starter.profileInfo.tag);
-						soloStats.me.finalBuild = Starter.profileInfo.tag;
-						soloStats.me.charms = {};
-						CharData.updateData("me", soloStats);
-					}
-
-					if (!["Start", "Stepping", "Leveling"].includes(soloStats.me.currentBuild) && soloStats.me.currentBuild !== soloStats.me.finalBuild) {
-						soloStats.me.currentBuild = "Leveling";
-						soloStats.me.charms = {};
-						CharData.updateData("me", soloStats);
-					}
-				}
-			} else {
-				throw new Error("Please update profile InfoTag. Missing the finalBuild.");
-			}
-		} catch (e) {
-			Misc.errorReport(e, "D2BotSoloPlay.dbj");
-			D2Bot.stop();
-		}
-
-		break;
-	default:
-		orignal(mode, msg);
-	}
-}).apply();
-
-new Overrides.Override(Starter, Starter.scriptMsgEvent, function (orignal, msg) {
-	if (typeof msg !== "string") return;
-	if (msg === "event") {
-		SoloEvents.check = true;
-	} else if (msg === "diffChange") {
-		Starter.checkDifficulty();
-	} else {
-		orignal(msg);
-	}
-}).apply();
-
 function timer (tick) {
 	const currInGame = (getTickCount() - tick);
 	let timeStr = " (Time: " + Time.format(currInGame) + ") ";
@@ -181,142 +98,6 @@ function timer (tick) {
 	}
 	return timeStr;
 }
-
-const oogCheck = () => (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || SoloEvents.outOfGameCheck());
-
-const locations = {};
-locations[sdk.game.locations.PreSplash] = () => ControlAction.click();
-locations[sdk.game.locations.GatewaySelect] = () => Controls.GatewayCancel.click();
-locations[sdk.game.locations.SplashScreen] = () => Starter.LocationEvents.login();
-locations[sdk.game.locations.MainMenu] = () => Starter.LocationEvents.login();
-locations[sdk.game.locations.Login] = () => Starter.LocationEvents.login();
-locations[sdk.game.locations.OtherMultiplayer] = () => Starter.LocationEvents.otherMultiplayerSelect();
-locations[sdk.game.locations.TcpIp] = () => Profile().type === sdk.game.profiletype.TcpIpHost ? Controls.TcpIpHost.click() : Controls.TcpIpCancel.click();
-locations[sdk.game.locations.TcpIpEnterIp] = () => Controls.TcpIpCancel.click();
-locations[sdk.game.locations.LoginError] = () => Starter.LocationEvents.loginError();
-locations[sdk.game.locations.LoginUnableToConnect] = () => Starter.LocationEvents.unableToConnect();
-locations[sdk.game.locations.TcpIpUnableToConnect] = () => Starter.LocationEvents.unableToConnect();
-locations[sdk.game.locations.CdKeyInUse] = () => Starter.LocationEvents.loginError();
-locations[sdk.game.locations.InvalidCdKey] = () => Starter.LocationEvents.loginError();
-locations[sdk.game.locations.RealmDown] = () => Starter.LocationEvents.realmDown();
-locations[sdk.game.locations.Disconnected] = () => {
-	ControlAction.timeoutDelay("Disconnected", 3000);
-	Controls.OkCentered.click();
-};
-locations[sdk.game.locations.RegisterEmail] = () => Controls.EmailDontRegisterContinue.control ? Controls.EmailDontRegisterContinue.click() : Controls.EmailDontRegister.click();
-locations[sdk.game.locations.MainMenuConnecting] = (loc) => !Starter.locationTimeout(Starter.Config.ConnectingTimeout * 1e3, loc) && Controls.LoginCancelWait.click();
-locations[sdk.game.locations.CharSelectPleaseWait] = (loc) => !Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, loc) && Controls.OkCentered.click();
-locations[sdk.game.locations.CharSelect] = (loc) => Starter.LocationEvents.charSelect(loc);
-locations[sdk.game.locations.CharSelectConnecting] = (loc) => Starter.LocationEvents.charSelect(loc);
-locations[sdk.game.locations.CharSelectNoChars] = (loc) => Starter.LocationEvents.charSelect(loc);
-locations[sdk.game.locations.SelectDifficultySP] = () => Starter.LocationEvents.selectDifficultySP();
-locations[sdk.game.locations.CharacterCreate] = (loc) => !Starter.locationTimeout(5e3, loc) && Controls.CharSelectExit.click();
-locations[sdk.game.locations.ServerDown] = () => {
-	ControlAction.timeoutDelay("Server Down", Time.minutes(5));
-	Controls.OkCentered.click();
-};
-locations[sdk.game.locations.LobbyPleaseWait] = (loc) => !Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, loc) && Controls.OkCentered.click();
-locations[sdk.game.locations.Lobby] = () => {
-	D2Bot.updateStatus("Lobby");
-	ControlAction.saveInfo(Starter.profileInfo);
-
-	me.blockKeys = false;
-
-	!Starter.firstLogin && (Starter.firstLogin = true);
-	Starter.lastGameStatus === "pending" && (Starter.gameCount += 1);
-
-	if (Starter.Config.PingQuitDelay && Starter.pingQuit) {
-		ControlAction.timeoutDelay("Ping Delay", Starter.Config.PingQuitDelay * 1e3);
-		Starter.pingQuit = false;
-	}
-
-	if (Starter.Config.JoinChannel !== "" && Controls.LobbyEnterChat.click()) return;
-
-	if (Starter.inGame || Starter.gameInfo.error) {
-		!Starter.gameStart && (Starter.gameStart = DataFile.getStats().ingameTick);
-
-		if (getTickCount() - Starter.gameStart < Starter.Config.MinGameTime * 1e3 && !joinInfo) {
-			ControlAction.timeoutDelay("Min game time wait", Starter.Config.MinGameTime * 1e3 + Starter.gameStart - getTickCount());
-		}
-	}
-
-	if (Starter.inGame) {
-		if (oogCheck()) return;
-
-		D2Bot.updateRuns();
-
-		Starter.gameCount += 1;
-		Starter.lastGameStatus = "ready";
-		Starter.inGame = false;
-
-		if (Starter.Config.ResetCount && Starter.gameCount > Starter.Config.ResetCount) {
-			Starter.gameCount = 1;
-			DataFile.updateStats("runs", Starter.gameCount);
-		}
-	}
-
-	Starter.LocationEvents.openCreateGameWindow();
-};
-locations[sdk.game.locations.LobbyChat] = () => Starter.LocationEvents.lobbyChat();
-locations[sdk.game.locations.CreateGame] = (loc) => {
-	ControlAction.timeoutDelay("Create Game Delay", Starter.Config.DelayBeforeLogin * 1e3);
-	D2Bot.updateStatus("Creating Game");
-
-	if (typeof Starter.Config.CharacterDifference === "number") {
-		Controls.CharacterDifference.disabled === sdk.game.controls.Disabled && Controls.CharacterDifferenceButton.click();
-		Controls.CharacterDifference.setText(Starter.Config.CharacterDifference.toString());
-	} else if (!Starter.Config.CharacterDifference && Controls.CharacterDifference.disabled === 5) {
-		Controls.CharacterDifferenceButton.click();
-	}
-
-	typeof Starter.Config.MaxPlayerCount === "number" && Controls.MaxPlayerCount.setText(Starter.Config.MaxPlayerCount.toString());
-
-	D2Bot.requestGameInfo();
-	delay(500);
-	
-	// todo - really don't need use profiles set difficulty for online. Only single player so re-write difficulty stuff
-	Starter.checkDifficulty();
-
-	Starter.gameInfo.gameName = DataFile.getStats().gameName;
-	Starter.gameInfo.gamePass = Starter.randomString(5, true);
-
-	switch (true) {
-	case Starter.gameInfo.gameName === "":
-	case Starter.gameInfo.gameName === "Name":
-		Starter.gameInfo.gameName = Starter.profileInfo.charName.substring(0, 7) + "-" + Starter.randomString(3, false) + "-";
-
-		break;
-	}
-
-	// FTJ handler
-	if (Starter.lastGameStatus === "pending") {
-		Starter.isUp = "no";
-
-		D2Bot.printToConsole("Failed to create game");
-		ControlAction.timeoutDelay("FTJ delay", Starter.Config.FTJDelay * 1e3);
-		D2Bot.updateRuns();
-	}
-
-	ControlAction.createGame((Starter.gameInfo.gameName + Starter.gameCount), Starter.gameInfo.gamePass, Starter.gameInfo.difficulty, Starter.Config.CreateGameDelay * 1000);
-	Starter.lastGameStatus = "pending";
-	Starter.setNextGame(Starter.gameInfo);
-	Starter.locationTimeout(10000, loc);
-};
-locations[sdk.game.locations.GameNameExists] = () => {
-	Controls.CreateGameWindow.click();
-	Starter.gameCount += 1;
-	Starter.lastGameStatus = "ready";
-};
-locations[sdk.game.locations.WaitingInLine] = () => Starter.LocationEvents.waitingInLine();
-locations[sdk.game.locations.JoinGame] = () => Starter.LocationEvents.openCreateGameWindow();
-locations[sdk.game.locations.Ladder] = () => Starter.LocationEvents.openCreateGameWindow();
-locations[sdk.game.locations.ChannelList] = () => Starter.LocationEvents.openCreateGameWindow();
-locations[sdk.game.locations.LobbyLostConnection] = () => {
-	ControlAction.timeoutDelay("LostConnection", 3000);
-	Controls.OkCentered.click();
-};
-locations[sdk.game.locations.GameDoesNotExist] = () => Starter.LocationEvents.gameDoesNotExist();
-locations[sdk.game.locations.GameIsFull] = () => Starter.LocationEvents.openCreateGameWindow();
 
 function main () {
 	debugLog(me.profile);
@@ -364,7 +145,7 @@ function main () {
 
 	if (Starter.profileInfo.charName === "") {
 		console.log("Generating Character Name");
-		Starter.profileInfo.charName = NameGen();
+		Starter.profileInfo.charName = require("./libs/SoloPlay/Tools/NameGen")();
 		delay(50);
 	}
 
