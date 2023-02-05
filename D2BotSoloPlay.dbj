@@ -44,15 +44,6 @@ include("SoloPlay/Tools/CharData.js");
 include("SoloPlay/Tools/Tracker.js");
 include("SoloPlay/Tools/OOGOverrides.js");
 
-// keep the namespace name but only grab the properties we need for this thread
-const SoloEvents = (() => {
-	let { outOfGameCheck, check, gameInfo } = require("./libs/SoloPlay/Functions/SoloEvents");
-	return {
-		check: check,
-		gameInfo: gameInfo,
-		outOfGameCheck: outOfGameCheck,
-	};
-})();
 // is this needed? soloplay doesn't run in default.dbj anymore
 include("SoloPlay/Functions/ConfigOverrides.js");
 

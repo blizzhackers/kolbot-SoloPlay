@@ -21,6 +21,14 @@ const locations = {};
 (function() {
 	const Controls = require("../../modules/Control");
 	const Overrides = require("../../modules/Override");
+	const SoloEvents = (() => {
+		let { outOfGameCheck, check, gameInfo } = require("../Functions/SoloEvents");
+		return {
+			check: check,
+			gameInfo: gameInfo,
+			outOfGameCheck: outOfGameCheck,
+		};
+	})();
 
 	new Overrides.Override(Starter, Starter.receiveCopyData, function (orignal, mode, msg) {
 		switch (mode) {
@@ -262,6 +270,17 @@ const locations = {};
 			delay(25);
 		}
 
+		// Wrong char select screen fix
+		if ([sdk.game.locations.CharSelect, sdk.game.locations.CharSelectNoChars].includes(getLocation())) {
+			hideConsole(); // seems to fix odd crash with single-player characters if the console is open to type in
+			let spCheck = Profile().type === sdk.game.profiletype.Battlenet;
+			let realmControl = !!Controls.CharSelectCurrentRealm.control;
+			if ((spCheck && !realmControl) || ((!spCheck && realmControl))) {
+				Controls.CharSelectExit.click();
+				return false; // what about a recursive call to loginCharacter?
+			}
+		}
+
 		if (getLocation() === sdk.game.locations.CharSelectConnecting) {
 			if (!Starter.charSelectConnecting()) {
 				D2Bot.printToConsole("Stuck at connecting screen");
@@ -283,8 +302,8 @@ const locations = {};
 					if (text instanceof Array && typeof text[1] === "string") {
 						count++;
 
-						if (text[1].toLowerCase() === info.charName.toLowerCase()) {
-							return true;
+						if (String.isEqual(text[1], info.charName)) {
+							return control;
 						}
 					}
 				} while (count < cap && control.getNext());
@@ -296,10 +315,10 @@ const locations = {};
 					this.scrollDown();
 					let check = Controls.CharSelectCharInfo0.control;
 
-					if (!!firstCheck && !!check) {
+					if (firstCheck && check) {
 						let nameCheck = check.getText();
 
-						if (firstCheck[1].toLowerCase() === nameCheck[1].toLowerCase()) {
+						if (String.isEqual(firstCheck[1], nameCheck[1])) {
 							return false;
 						}
 					}
@@ -315,8 +334,6 @@ const locations = {};
 
 	ControlAction.loginCharacter = function (info, startFromTop = true) {
 		me.blockMouse = true;
-
-		let count = 0;
 
 		// start from beginning of the char list
 		startFromTop && sendKey(sdk.keys.code.Home);
@@ -339,50 +356,34 @@ const locations = {};
 
 				break;
 			case sdk.game.locations.CharSelect:
-				let control = Controls.CharSelectCharInfo0.control;
+				let control = ControlAction.findCharacter(info);
 
 				if (control) {
-					do {
-						let text = control.getText();
+					control.click();
+					Controls.CreateNewAccountOk.click();
+					me.blockMouse = false;
 
-						if (text instanceof Array && typeof text[1] === "string") {
-							count++;
-
-							if (text[1].toLowerCase() === info.charName.toLowerCase()) {
-								control.click();
-								Controls.CreateNewAccountOk.click();
-								me.blockMouse = false;
-
-								if (getLocation() === sdk.game.locations.SelectDifficultySP) {
-									try {
-										Starter.LocationEvents.selectDifficultySP();
-										Starter.locationTimeout(Time.seconds(3), sdk.game.locations.SelectDifficultySP);
-									} catch (err) {
-										break MainLoop;
-									}
-
-									if (me.ingame) {
-										return true;
-									}
-								}
-
-								return true;
-							}
+					if (getLocation() === sdk.game.locations.SelectDifficultySP) {
+						try {
+							Starter.LocationEvents.selectDifficultySP();
+							Starter.locationTimeout(Time.seconds(3), sdk.game.locations.SelectDifficultySP);
+						} catch (err) {
+							break MainLoop;
 						}
-					} while (control.getNext());
+
+						if (me.ingame) {
+							return true;
+						}
+					}
+
+					return true;
+				} else if (getLocation() !== sdk.game.locations.CharSelect) {
+					break;
 				}
 
-				// check for additional characters up to 24
-				if (count === 8 || count === 16) {
-					Controls.CharSelectChar6.click() && this.scrollDown();
-				} else {
-					// no further check necessary
-					break MainLoop;
-				}
-
-				break;
+				break MainLoop;
 			case sdk.game.locations.CharSelectNoChars:
-				Controls.CharSelectExit.click();
+				Controls.CharSelectExit.click(); // why exit rather than returning false?
 
 				break;
 			case sdk.game.locations.Disconnected:
@@ -694,10 +695,11 @@ const locations = {};
 		}
 
 		// Wrong char select screen fix
-		if (getLocation() === sdk.game.locations.CharSelect) {
+		if ([sdk.game.locations.CharSelect, sdk.game.locations.CharSelectNoChars].includes(getLocation())) {
 			hideConsole(); // seems to fix odd crash with single-player characters if the console is open to type in
-			if ((Profile().type === sdk.game.profiletype.Battlenet && !Controls.CharSelectCurrentRealm.control)
-				|| ((Profile().type !== sdk.game.profiletype.Battlenet && Controls.CharSelectCurrentRealm.control))) {
+			let spCheck = Profile().type === sdk.game.profiletype.Battlenet;
+			let realmControl = !!Controls.CharSelectCurrentRealm.control;
+			if ((spCheck && !realmControl) || ((!spCheck && realmControl))) {
 				Controls.CharSelectExit.click();
 				
 				return;
