@@ -23,7 +23,7 @@ include("SoloPlay/Functions/ConfigOverrides.js");
 include("SoloPlay/Functions/Globals.js");
 
 // main thread specific
-const LocalChat = require("../modules/LocalChat");
+const LocalChat = require("../modules/LocalChat", null, false);
 
 /**
  * @todo
@@ -179,7 +179,6 @@ function main () {
 	} else {
 		load("libs/SoloPlay/Threads/EventThread.js");
 		load("libs/SoloPlay/Threads/TownChicken.js");
-		load("libs/SoloPlay/Threads/AutoBuildThread.js");
 	}
 	
 	// Load guard if we want to see the stack as it runs
@@ -226,6 +225,15 @@ function main () {
 
 	// Start Running Script
 	includeIfNotIncluded("SoloPlay/Utils/Init.js");
+
+	// log threads - track memory use
+	if (Config.DebugMode.Memory) {
+		console.log("//~~~~~~~Current Threads~~~~~~~//");
+		getThreads()
+			.sort((a, b) => b.memory - a.memory)
+			.forEach(t => console.log(t));
+		console.log("//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//");
+	}
 
 	// Start Developer mode - this stops the script from progressing past this point and allows running specific scripts/functions through chat commands
 	if (Developer.developerMode.enabled) {
