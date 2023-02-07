@@ -72,7 +72,7 @@ function tristram () {
 				for (let i = 0; i < stones.length; i++) {
 					let stone = stones[i];
 
-					if (Common.Questing.activateStone(stone)) {
+					if (Common.Cain.activateStone(stone)) {
 						stones.splice(i, 1);
 						i--;
 					}
