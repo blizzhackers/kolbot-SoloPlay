@@ -93,13 +93,14 @@ NodeAction.pickItems = function (arg = {}) {
 	if (arg.hasOwnProperty("allowPicking") && !arg.allowPicking) return;
 
 	let item = Game.getItem();
-	const maxDist = Skill.haveTK ? 15 : 5;
-	const regPickRange = Pather.canTeleport() ? Config.PickRange : 8;
-	const maxRange = Math.max(maxDist, regPickRange);
-	const totalList = [].concat(Pickit.essentialList, Pickit.pickList);
-	const filterJunk = (item) => !!item && item.onGroundOrDropping;
 
 	if (item) {
+		const maxDist = Skill.haveTK ? 15 : 5;
+		const regPickRange = Pather.canTeleport() ? Config.PickRange : 8;
+		const maxRange = Math.max(maxDist, regPickRange);
+		const totalList = [].concat(Pickit.essentialList, Pickit.pickList);
+		const filterJunk = (item) => !!item && item.onGroundOrDropping;
+
 		do {
 			if (item.onGroundOrDropping) {
 				const itemDist = getDistance(me, item);
@@ -119,11 +120,12 @@ NodeAction.pickItems = function (arg = {}) {
 				}
 			}
 		} while (item.getNext());
+		
+		Pickit.essentialList.length > 0 && (Pickit.essentialList = Pickit.essentialList.filter(filterJunk));
+		Pickit.pickList.length > 0 && (Pickit.pickList = Pickit.pickList.filter(filterJunk));
+		Pickit.essentialList.length > 0 && Pickit.essessntialsPick(false, false);
+		Pickit.pickList.length > 0 && Pickit.pickItems(regPickRange);
 	}
-	Pickit.essentialList.length > 0 && (Pickit.essentialList = Pickit.essentialList.filter(filterJunk));
-	Pickit.pickList.length > 0 && (Pickit.pickList = Pickit.pickList.filter(filterJunk));
-	Pickit.essentialList.length > 0 && Pickit.essessntialsPick(false, false);
-	Pickit.pickList.length > 0 && Pickit.pickItems(regPickRange);
 };
 
 // todo - fast shrineing, if we are right next to a shrine then grab it even with mobs around
@@ -332,7 +334,6 @@ Pather.clearUIFlags = function () {
 		getUIFlag(flag) && me.cancel();
 	});
 };
-
 Pather.currentWalkingPath = [];
 Pather.move = function (target, givenSettings = {}) {
 	// Abort if dead
@@ -467,14 +468,15 @@ Pather.move = function (target, givenSettings = {}) {
 									// @todo check shrines/chests in proximity to old node vs next node
 									// let otherObjects = getUnits(sdk.unittype.Object).filter(el => getDistance());
 									if (goBack) {
-										console.debug("Going back to old node");
+										console.debug("Going back to old node. Distance: " + node.distance);
 									} else if (nearestNode && nearestNode.distance > 5 && node.distance > 5 && 100 / node.distance * nearestNode.distance < 95) {
-										console.debug("Moving to next node");
+										console.debug("Moving to next node. Distance: " + nearestNode.distance);
 										let newIndex = path.findIndex(node => nearestNode.x === node.x && nearestNode.y === node.y);
 										if (newIndex > -1) {
 											console.debug("Found new path index: " + newIndex + " of currentPathLen: " + path.length);
 											path = path.slice(newIndex);
 											node = path.shift();
+											console.debug("New path length: " + path.length);
 										} else {
 											console.debug("Couldn't find new path index");
 										}
@@ -779,7 +781,7 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 		} while (me.area !== targetarea);
 	}
 
-	console.log("ÿc8Kolbot-SoloPlayÿc0: End clearToExit. Time elapsed: " + Developer.formatTime(getTickCount() - tick));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: End clearToExit. Time elapsed: " + Tracker.formatTime(getTickCount() - tick));
 	return (me.area === targetarea);
 };
 
