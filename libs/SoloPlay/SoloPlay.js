@@ -244,7 +244,7 @@ function main () {
 	}
 
 	if (Check.brokeCheck()) return true;
-	Check.usePreviousSocketQuest(); // Currently only supports going back to nightmare to socket a lidless if one is equipped.
+	if (Check.usePreviousSocketQuest()) return true; // Currently only supports going back to nightmare to socket a lidless if one is equipped.
 	myPrint("starting run");
 	Loader.run();
 	// we have scripts to retry so lets run them

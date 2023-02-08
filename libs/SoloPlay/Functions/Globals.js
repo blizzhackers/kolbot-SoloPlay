@@ -533,11 +533,16 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 			throw new Error("Failed to set difficulty");
 		}
 		scriptBroadcast("quit");
+
+		while (me.ingame) {
+			delay(3);
+		}
 	} catch (e) {
 		console.debug(e.message ? e.message : e);
+		return false;
 	}
 
-	return false;
+	return true;
 };
 
 const buildAutoBuildTempObj = (update = () => {}) => ({
