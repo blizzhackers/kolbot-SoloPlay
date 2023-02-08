@@ -335,17 +335,26 @@ Pather.clearUIFlags = function () {
 	});
 };
 Pather.currentWalkingPath = [];
+
+/**
+ * @param {PathNode | Unit | PresetUnit} target 
+ * @param {pathSettings} givenSettings 
+ * @returns {boolean}
+ */
 Pather.move = function (target, givenSettings = {}) {
 	// Abort if dead
 	if (me.dead) return false;
-	// assign settings
+	/**
+	 * assign settings
+	 * @type {pathSettings}
+	 */
 	const settings = Object.assign({}, {
 		clearSettings: {
 		},
 		allowTeleport: true,
-		allowPicking: true,
 		allowClearing: true,
 		allowTown: true,
+		allowPicking: true,
 		minDist: 3,
 		retry: 5,
 		pop: false,
@@ -365,7 +374,7 @@ Pather.move = function (target, givenSettings = {}) {
 	!settings.allowClearing && (settings.clearSettings.allowClearing = false);
 	!settings.allowPicking && (settings.clearSettings.allowPicking = false);
 
-	(target instanceof PresetUnit) && (target = { x: target.roomx * 5 + target.x, y: target.roomy * 5 + target.y });
+	(target instanceof PresetUnit) && (target = target.realCoords());
 
 	if (settings.minDist > 3) {
 		target = Pather.spotOnDistance(target, settings.minDist, { returnSpotOnError: settings.returnSpotOnError, reductionType: (me.inTown ? 0 : 2) });
@@ -373,7 +382,22 @@ Pather.move = function (target, givenSettings = {}) {
 
 	let fail = 0;
 	let node = { x: target.x, y: target.y };
-	let [cleared, leaped, invalidCheck] = [false, false, false];
+	const leaped = {
+		at: 0,
+		/** @type {PathNode} */
+		from: { x: null, y: null }
+	};
+	const whirled = {
+		at: 0,
+		/** @type {PathNode} */
+		from: { x: null, y: null }
+	};
+	const cleared = {
+		at: 0,
+		/** @type {PathNode} */
+		where: { x: null, y: null }
+	};
+	let [invalidCheck] = [false];
 
 	Pather.clearUIFlags();
 
@@ -391,6 +415,10 @@ Pather.move = function (target, givenSettings = {}) {
 
 	// need to work on a better force clearing method but for now just have all walkers clear unless we specifically are forcing them not to (like while repositioning)
 	settings.allowClearing && !settings.clearSettings.clearPath && !useTeleport && (settings.clearSettings.clearPath = true);
+
+	if (settings.retry <= 3 && target.distance > useTeleport ? 120 : 60) {
+		settings.retry = 10;
+	}
 
 	// for now only do this for teleporters
 	if (useTeleport && !me.normal) {
@@ -421,6 +449,13 @@ Pather.move = function (target, givenSettings = {}) {
 		Pather.clearUIFlags();
 
 		node = path.shift();
+
+		if (typeof settings.callback === "function" && settings.callback()) {
+			console.debug("Callback function passed. Ending path.");
+			useTeleport && Config.TeleSwitch && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
+			PathDebug.removeHooks();
+			return true;
+		}
 
 		if (getDistance(me, node) > 2) {
 			// Make life in Maggot Lair easier
@@ -505,15 +540,46 @@ Pather.move = function (target, givenSettings = {}) {
 					}
 
 					if (fail > 0 && (!useTeleport || tpMana > me.mp)) {
-						// Don't go berserk on longer paths
-						if (settings.allowClearing && !cleared && me.checkForMobs({range: 10}) && Attack.clear(10)) {
-							console.debug("Cleared Node");
-							cleared = true;
+						// if we are allowed to clear
+						if (settings.allowClearing) {
+							// Don't go berserk on longer paths - also check that there are even mobs blocking us
+							if (cleared.at === 0 || getTickCount() - cleared.at > Time.seconds(3) && cleared.where.distance > 5 && me.checkForMobs({range: 10})) {
+								// only set that we cleared if we actually killed at least 1 mob
+								if (Attack.clear(10, null, null, null, settings.allowPicking)) {
+									console.debug("Cleared Node");
+									cleared.at = getTickCount();
+									[cleared.where.x, cleared.where.y] = [node.x, node.y];
+								}
+							}
 						}
 
-						// Only do this once
-						if (!leaped && Skill.canUse(sdk.skills.LeapAttack) && Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
-							leaped = true;
+						// Leap can be helpful on long paths but make sure we don't spam it
+						if (Skill.canUse(sdk.skills.LeapAttack)) {
+							// we can use leapAttack, now lets see if we should - either haven't used it yet or it's been long enough since last time
+							if (leaped.at === 0 || getTickCount() - leaped.at > Time.seconds(3) || leaped.from.distance > 5 || me.checkForMobs({ range: 6 })) {
+								// alright now if we have actually casted it set the values so we know
+								if (Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
+									leaped.at = getTickCount();
+									[leaped.from.x, leaped.from.y] = [node.x, node.y];
+								}
+							}
+						}
+
+						/**
+							* whirlwind can be useful as well, implement it.
+							* Things to consider:
+							* 1) Can we cast whirlwind on the node? Is it blocked by something other than monsters.
+							* 2) If we can't cast on that node, is there another node between us and it that would work?
+							*/
+						if (Skill.canUse(sdk.skills.Whirlwind)) {
+							// we can use whirlwind, now lets see if we should - either haven't used it yet or it's been long enough since last time
+							if (whirled.at === 0 || getTickCount() - whirled.at > Time.seconds(3) || whirled.from.distance > 5 || me.checkForMobs({ range: 6 })) {
+								// alright now if we have actually casted it set the values so we know
+								if (Skill.cast(sdk.skills.Whirlwind, sdk.skills.hand.Right, node.x, node.y)) {
+									whirled.at = getTickCount();
+									[whirled.from.x, whirled.from.y] = [node.x, node.y];
+								}
+							}
 						}
 					}
 				}
@@ -538,6 +604,7 @@ Pather.move = function (target, givenSettings = {}) {
 				if (fail > 100) {
 					// why?
 					console.debug(settings);
+					throw new Error("Retry limit excessivly exceeded");
 				}
 				fail++;
 			}
