@@ -16,8 +16,8 @@ const CharInfo = {
 			"Hell": 100,
 		};
 		const hardcoreMode = {
-			"Normal": me.expansion ? 33 : 33,
-			"Nightmare": me.expansion ? 67 : 67,
+			"Normal": me.expansion ? 36 : 33,
+			"Nightmare": me.expansion ? 71 : 67,
 			"Hell": 100,
 		};
 
