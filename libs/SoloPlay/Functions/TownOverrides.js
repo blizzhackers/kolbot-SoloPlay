@@ -1117,7 +1117,9 @@ Town.clearInventory = function () {
 		if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].indexOf(result) === -1) {
 			if ((item.isBaseType && item.sockets > 0) || (classItemType(item) && item.normal && item.sockets === 0)) {
 				if (!Item.betterThanStashed(item) && !Item.betterBaseThanWearing(item, Developer.debugging.baseCheck)) {
-					result = 4;
+					if (NTIP.CheckItem(item, NTIP_CheckListNoTier) === Pickit.Result.UNWANTED) {
+						result = Pickit.Result.TRASH;
+					}
 				}
 			}
 		}
