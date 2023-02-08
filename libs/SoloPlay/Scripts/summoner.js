@@ -71,6 +71,10 @@ function summoner () {
 	Town.doChores(false, { fullChores: true });
 	myPrint("starting summoner");
 
+	if (!Misc.checkQuest(sdk.quest.id.TheArcaneSanctuary, 3/* talked to Jerhyn */)) {
+		Town.npcInteract("jerhyn");
+	}
+
 	Pather.checkWP(sdk.areas.ArcaneSanctuary, true) ? Pather.useWaypoint(sdk.areas.ArcaneSanctuary) : Pather.getWP(sdk.areas.ArcaneSanctuary);
 	Precast.doPrecast(true);
 	teleportPads();
