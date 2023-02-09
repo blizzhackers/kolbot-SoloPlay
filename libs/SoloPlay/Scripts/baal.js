@@ -236,7 +236,12 @@ function baal () {
 	}
 
 	// Enter throne room
-	Pather.moveTo(15095, 5029, 5);
+	const dollQuit = me.hardcore;
+	Pather.moveToEx(15095, 5029, { callback: () => {
+		if (dollQuit && Game.getMonster(sdk.monsters.SoulKiller)) {
+			throw new ScriptError("Unsafe for hardcore, dolls found");
+		}
+	}});
 	Pather.moveTo(15113, 5040, 5);
 
 	let totalTick = getTickCount();
