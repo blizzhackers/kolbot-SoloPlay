@@ -19,6 +19,9 @@ includeIfNotIncluded("OOG.js");
 
 const locations = {};
 (function() {
+	let joinInfo;
+	
+	Starter.Config.StopOnDeadHardcore = false;
 	const Controls = require("../../modules/Control");
 	const Overrides = require("../../modules/Override");
 	const SoloEvents = (() => {
@@ -818,6 +821,8 @@ const locations = {};
 		}
 	};
 
+	Starter.accountExists = false;
+
 	Starter.LocationEvents.loginError = function () {
 		let string = "";
 		let text = Controls.LoginErrorText.getText();
@@ -839,27 +844,35 @@ const locations = {};
 			case getLocaleString(sdk.locale.text.AccountMustBeAtLeast):
 			case getLocaleString(sdk.locale.text.PasswordCantBeMoreThan):
 			case getLocaleString(sdk.locale.text.AccountCantBeMoreThan):
+			case getLocaleString(sdk.locale.text.InvalidPassword):
 				D2Bot.printToConsole(string);
 				D2Bot.stop();
 
 				break;
-			case getLocaleString(sdk.locale.text.InvalidPassword):
-				D2Bot.updateStatus("Invalid Password");
-				D2Bot.printToConsole("Invalid Password");
-				ControlAction.timeoutDelay("Invalid password delay", Starter.Config.InvalidPasswordDelay * 6e4);
-				D2Bot.printToConsole("Invalid Password - Restart");
-				D2Bot.restart();
-
-				break;
 			case getLocaleString(5208): // Invalid account
-			case getLocaleString(5239): // An account name already exists
-			case getLocaleString(5249): // Unable to create account
 				D2Bot.updateStatus("Invalid Account Name");
-				D2Bot.printToConsole("Invalid Account Name");
+				D2Bot.printToConsole("Invalid Account Name :: " + Starter.profileInfo.account);
 				Starter.profileInfo.account = "";
 				Starter.profileInfo.password = "";
 				D2Bot.setProfile(Starter.profileInfo.account, Starter.profileInfo.password);
 				D2Bot.restart(true);
+
+				break;
+			case getLocaleString(5249): // Unable to create account
+			case getLocaleString(5239): // An account name already exists
+				if (!Starter.accountExists) {
+					Starter.accountExists = true;
+					Control.LoginErrorOk.click();
+					delay(100);
+					Control.CreateNewAccountExit.click();
+					Starter.LocationEvents.login();
+					return;
+				}
+				D2Bot.updateStatus("Account name already exists :: " + Starter.profileInfo.account);
+				D2Bot.printToConsole("Account name already exists :: " + Starter.profileInfo.account);
+				Starter.profileInfo.account = "";
+				Starter.profileInfo.password = "";
+				D2Bot.setProfile(Starter.profileInfo.account, Starter.profileInfo.password);
 
 				break;
 			case getLocaleString(5202): // cd key intended for another product
