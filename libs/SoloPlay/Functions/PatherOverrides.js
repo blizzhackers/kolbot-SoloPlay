@@ -530,10 +530,16 @@ Pather.move = function (target, givenSettings = {}) {
 				}
 			} else {
 				if (!me.inTown) {
-					if (!useTeleport && settings.allowClearing
-						&& me.checkForMobs({range: (annoyingArea ? 5 : 10), coll: sdk.collision.BlockWalk}) && Attack.clear((annoyingArea ? 5 : 10))) {
-						console.debug("Cleared Node");
-						continue;
+					if (!useTeleport && settings.allowClearing) {
+						let tempRange = (annoyingArea ? 5 : 10);
+						// allowed to clear so lets see if any mobs are around us
+						if (me.checkForMobs({ range: tempRange, coll: sdk.collision.BlockWalk })) {
+							// there are at least some, but lets only continue to next iteration if we actually killed something
+							if (Attack.clear(tempRange, null, null, null, settings.allowPicking) === Attack.Result.SUCCESS) {
+								console.debug("Cleared Node");
+								continue;
+							}
+						}
 					}
 					if (!useTeleport && (Pather.openDoors(node.x, node.y) || Pather.kickBarrels(node.x, node.y))) {
 						continue;

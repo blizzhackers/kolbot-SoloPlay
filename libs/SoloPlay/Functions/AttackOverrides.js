@@ -9,6 +9,8 @@
 includeIfNotIncluded("core/Attack.js");
 
 Attack.stopClear = false;
+Attack.Result.NOOP = 4;
+
 Attack.init = function () {
 	const CLASSNAME = sdk.player.class.nameOf(me.classid);
 	if (Config.Wereform) {
@@ -567,12 +569,20 @@ Attack.clearLevelUntilLevel = function (charlvl = undefined, spectype = 0) {
 	return true;
 };
 
-// Clear monsters in a section based on range and spectype or clear monsters around a boss monster
-// probably going to change to passing an object
-// accepts object for bossId or classid, gid sometimes works depends if the gid is > 999
-// should stop clearing after boss is killed if we are using bossid
-// @todo if we are skipping a certain monster because of enchant or aura we should skip any monsters within the area of that scary monster
-// @todo maybe include refresh call every x amount of attacks in case the we've changed position and the monster we are targetting isn't actually the right one anymore
+/**
+ * @description Clear monsters in a section based on range and spectype or clear monsters around a boss monster
+ * @param {number} range - area radius to clear around
+ * @param {number} spectype - type of monsters to clear
+ * @param {number | Monster} bossId - gid, classid, or Monster unit to clear
+ * @param {Function} sortfunc - how to sort the monsters we are clearing, defaults to Attack.sortMonsters
+ * @param {boolean} pickit - Are we allowed to pick items when we are done
+ * @returns {AttackResult} - (0) on failure, (1) on success, (4) on no operation performed
+ * @todo
+ * - change to passing an object
+ * - if we are skipping a certain monster because of enchant or aura we should skip any monsters within the area of that scary monster
+ * - maybe include refresh call every x amount of attacks in case the we've changed position and the monster we are targetting isn't actually the right one anymore
+ * - should we stop clearing after boss is killed if we are using bossid?
+ */
 Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = undefined, pickit = true) {
 	while (!me.gameReady) {
 		delay(40);
@@ -588,6 +598,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 	let tick = getTickCount();
 	let [killedBoss, logged] = [false, false];
 	let [retry, attackCount] = [0, 0];
+	let clearResult = Attack.Result.NOOP;
 
 	if (bossId) {
 		boss = Misc.poll(function () {
@@ -670,14 +681,14 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 					}
 				}
 
-				(i === gidAttack.length) && gidAttack.push({gid: target.gid, attacks: 0, name: target.name});
+				(i === gidAttack.length) && gidAttack.push({ gid: target.gid, attacks: 0, name: target.name });
 				gidAttack[i].attacks += 1;
 				attackCount += 1;
 				let isSpecial = target.isSpecial;
 				let secAttack = me.barbarian ? (isSpecial ? 2 : 4) : 5;
 
 				if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[isSpecial ? 1 : 3])
-						|| (me.paladin && Config.AttackSkill[isSpecial ? 1 : 3] === sdk.skills.BlessedHammer && !ClassAttack.getHammerPosition(target)))) {
+					|| (me.paladin && Config.AttackSkill[isSpecial ? 1 : 3] === sdk.skills.BlessedHammer && !ClassAttack.getHammerPosition(target)))) {
 					skillCheck = Config.AttackSkill[secAttack];
 				} else {
 					skillCheck = Config.AttackSkill[isSpecial ? 1 : 3];
@@ -710,13 +721,16 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 
 				// we cleared this monster so subtract amount of attacks from current attack count in order to prevent pre-maturely ending clear
 				if (target.dead) {
+					clearResult = Attack.Result.SUCCESS;
 					if (boss && boss.gid === target.gid) {
 						killedBoss = true;
 						console.log("ÿc7Cleared ÿc0:: " + (!!target.name ? target.name : bossId) + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick));
 					}
 					attackCount -= gidAttack[i].attacks;
 				}
-				(target.dead || Config.FastPick || attackCount % 5 === 0) && Config.FastPick ? Pickit.fastPick() : Pickit.essessntialsPick(false, true);
+				if (target.dead || Config.FastPick || attackCount % 5 === 0) {
+					Config.FastPick ? Pickit.fastPick() : Pickit.essessntialsPick(false, true);
+				}
 			} else {
 				if (Coords_1.isBlockedBetween(me, target)) {
 					let collCheck = Coords_1.getCollisionBetweenCoords(me.x, me.y, target.x, target.y);
@@ -745,15 +759,16 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 
 	if (boss && !killedBoss) {
 		// check if boss corpse is around
+		// sometimes this fails, need better check for it
 		if (boss.dead) {
 			console.log("ÿc7Cleared ÿc0:: " + (!!boss.name ? boss.name : bossId) + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick));
 		} else {
 			console.log("ÿc7Clear ÿc0:: ÿc1Failed to clear ÿc0:: " + (!!boss.name ? boss.name : bossId));
-			return false;
+			return Attack.Result.FAILED;
 		}
 	}
 
-	return true;
+	return clearResult;
 };
 
 // Take a array of coords - path and clear
@@ -1288,6 +1303,15 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
 	return typeof index === "number" ? Pather.moveTo(grid[index].x, grid[index].y, 0) : false;
 };
 
+/**
+ * Attempt to find non blocked position to attack from
+ * @param {Monster} unit 
+ * @param {number} distance 
+ * @param {number} coll 
+ * @param {boolean} walk 
+ * @param {boolean} force 
+ * @returns {boolean}
+ */
 Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = false, force = false) {
 	if (!unit || !unit.x || !unit.y) return false;
 	Developer.debugging.pathing && console.time("getIntoPosition");
@@ -1295,6 +1319,12 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 	walk === true && (walk = 1);
 
 	if (distance < 4 && (!unit.hasOwnProperty("mode") || !unit.dead)) {
+		/**
+		 * if we are surrounded by monsters it can be near impossible to get into position
+		 * what would be good is if we are surrounded either pick an AoE skill and cast or
+		 * just attack whatever monster is the nearest to us, this would also be a good place
+		 * for necro's use of terror and barbs use of howl/leap/leapAttack/whirlwind
+		 */
 		// we are actually able to walk to where we want to go, hopefully prevent wall hugging
 		if (walk && (unit.distance < 8 || !CollMap.checkColl(me, unit, sdk.collision.WallOrRanged | sdk.collision.Objects | sdk.collision.IsOnFloor))) {
 			Pather.walkTo(unit.x, unit.y, 3);
@@ -1318,7 +1348,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 
 	let caster = (force && !me.inTown);
 
-	//let t = getTickCount();
+	// let t = getTickCount();
 
 	for (let n = 0; n < 3; n += 1) {
 		const nearMobs = getUnits(sdk.unittype.Monster).filter(m => m.getStat(sdk.stats.Alignment) !== 2);
