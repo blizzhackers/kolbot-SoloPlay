@@ -26,6 +26,11 @@ includeIfNotIncluded("core/Item.js");
 		return generalScore;
 	};
 
+	/**
+	 * @param {ItemUnit} base 
+	 * @param {boolean} verbose 
+	 * @returns {boolean} 
+	 */
 	Item.betterBaseThanWearing = function (base = undefined, verbose = Developer.debugging.baseCheck) {
 		if (!base || !base.isBaseType) return false;
 
@@ -67,7 +72,37 @@ includeIfNotIncluded("core/Item.js");
 		};
 
 		// @todo - betterThanMercUsing check for now just keep merc items
-		if ([sdk.items.type.Polearm, sdk.items.type.Spear].includes(base.itemType) || ([sdk.items.type.Armor].includes(base.itemType) && base.ethereal)) return true;
+		if ([sdk.items.type.Polearm, sdk.items.type.Spear].includes(base.itemType) || ([sdk.items.type.Armor].includes(base.itemType) && base.ethereal)) {
+			let merc = me.getMercEx();
+			if (merc) {
+				bodyLoc = Item.getBodyLocMerc(base);
+				let eqItem = merc.getItemsEx().filter(i => i.isEquipped && bodyLoc.includes(i.bodylocation));
+				if (!eqItem || !eqItem.runeword || NTIP.GetMercTier(eqItem) >= NTIP.MAX_TIER) return true;
+				name = getLocaleString(eqItem.prefixnum);
+				// todo logic checking before this to ensure we aren't keeping extra merc stuff
+				if (base.sockets === 0) return true;
+				switch (equippedItem.prefixnum) {
+				case sdk.locale.items.Insight:
+					[itemsTotalDmg, baseDmg] = [getRealDmg(equippedItem, 260), getDmg(base)];
+					if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
+
+					break;
+				case sdk.locale.items.Infinity:
+					[itemsTotalDmg, baseDmg] = [getRealDmg(equippedItem, 325), getDmg(base)];
+					if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
+
+					break;
+				case sdk.locale.items.Treachery:
+					[itemsDefense, baseDefense] = [getRealDef(equippedItem), getDef(base)];
+					if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
+
+					break;
+				default:
+					return true;
+				}
+				return false;
+			}
+		}
 		// Can't use so its worse then what we already have
 		if ((Check.finalBuild().maxStr < base.strreq || Check.finalBuild().maxDex < base.dexreq)) {
 			console.log("ÿc9BetterThanWearingCheckÿc0 :: " + base.name + " has to high stat requirments strReq: " + base.strreq + " dexReq " + base.dexreq);
