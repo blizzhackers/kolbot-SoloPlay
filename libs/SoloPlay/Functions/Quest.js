@@ -8,17 +8,26 @@
 
 const Quest = {
 	preReqs: function () {
-		// horadric staff
-		if (Pather.accessToAct(2) && !me.staff && !me.horadricstaff) {
-			if (!me.amulet) {
-				for (let getAmmy = 0; !me.amulet && getAmmy < 5; getAmmy++) {
-					Loader.runScript("amulet");
+		if (Pather.accessToAct(2)) {
+			// cube
+			if (!me.cube) {
+				for (let getCube = 0; !me.cube && getCube < 5; getCube++) {
+					Loader.runScript("cube");
 				}
 			}
 
-			if (!me.shaft) {
-				for (let getStaff = 0; !me.shaft && getStaff < 5; getStaff++) {
-					Loader.runScript("staff");
+			// horadric staff
+			if (!me.staff && !me.horadricstaff) {
+				if (!me.amulet) {
+					for (let getAmmy = 0; !me.amulet && getAmmy < 5; getAmmy++) {
+						Loader.runScript("amulet");
+					}
+				}
+
+				if (!me.shaft) {
+					for (let getStaff = 0; !me.shaft && getStaff < 5; getStaff++) {
+						Loader.runScript("staff");
+					}
 				}
 			}
 		}
