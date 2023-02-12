@@ -875,6 +875,21 @@ const locations = {};
 				D2Bot.setProfile(Starter.profileInfo.account, Starter.profileInfo.password);
 
 				break;
+			case getLocaleString(sdk.locale.text.CdKeyInUseBy):
+				string += (" " + Controls.LoginCdKeyInUseBy.getText());
+				D2Bot.printToConsole(Starter.gameInfo.mpq + " " + string, sdk.colors.D2Bot.Gold);
+				D2Bot.CDKeyInUse();
+
+				if (Starter.gameInfo.switchKeys) {
+					cdkeyError = true;
+				} else {
+					Controls.UnableToConnectOk.click();
+					ControlAction.timeoutDelay("LoD key in use", Starter.Config.CDKeyInUseDelay * 6e4);
+					
+					return;
+				}
+
+				break;
 			case getLocaleString(5202): // cd key intended for another product
 			case getLocaleString(10915): // lod key intended for another product
 				D2Bot.updateStatus("Invalid CDKey");
