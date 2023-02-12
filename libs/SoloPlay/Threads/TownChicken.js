@@ -1,6 +1,6 @@
 /**
 *  @filename    TownChicken.js
-*  @author      kolton, theBGuy (modified for Kolbot-SoloPlay)
+*  @author      kolton, theBGuy
 *  @desc        modified TownChicken for use with Kolbot-SoloPlay
 *
 */
@@ -292,32 +292,43 @@ function main() {
 		return me.area === preArea;
 	};
 
-	this.togglePause = function () {
-		let scripts = ["libs/SoloPlay/SoloPlay.js", "threads/antihostile.js"];
+	const pause = function () {
+		let script = getScript("libs/SoloPlay/SoloPlay.js");
 
-		for (let i = 0; i < scripts.length; i++) {
-			let script = getScript(scripts[i]);
+		if (!script) {
+			!!getScript("libs/SoloPlay/threads/toolsthread.js") ? scriptBroadcast("quit") : quit();
+		}
 
-			if (script) {
-				if (script.running) {
-					scripts[i] === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8TownChicken:: ÿc1Pausing " + scripts[i]);
+		if (script && script.running) {
+			script.pause();
+			console.log("ÿc8TownChicken:: ÿc1Pausing SoloPlay");
 
-					script.pause();
-				} else {
-					if (scripts[i] === "libs/SoloPlay/SoloPlay.js") {
-						// don't resume if dclone walked
-						if (!SoloEvents.cloneWalked) {
-							console.log("ÿc8TownChicken :: ÿc2Resuming threads");
-							script.resume();
-						}
-					} else {
-						script.resume();
-					}
+			return true;
+		}
+
+		return false;
+	};
+
+	const resume = function () {
+		let script = getScript("libs/SoloPlay/SoloPlay.js");
+
+		// resume only if clonekilla isn't running
+		if (!SoloEvents.cloneWalked) {
+			if (script && !script.running) {
+				console.log("ÿc8TownChicken :: ÿc2Resuming threads");
+				script.resume();
+
+				return true;
+			} else {
+				if (!script) {
+					// soloplay has crashed? We shouldn't be running then. Is toolsthread still up?
+					// if yes try to still quit normally, otherwise quit from here
+					!!getScript("libs/SoloPlay/threads/toolsthread.js") ? scriptBroadcast("quit") : quit();
 				}
 			}
 		}
 
-		return true;
+		return false;
 	};
 
 	this.scriptEvent = function (msg) {
@@ -389,7 +400,7 @@ function main() {
 	addEventListener("scriptmsg", this.scriptEvent);
 	let tGuard = getScript("libs/SoloPlay/Modules/TownGuard.js");
 	!!tGuard && tGuard.running && tGuard.stop();
-	Developer.debugging.showStack.profiles.some(profile => profile.toLowerCase() === "all" || profile.toLowerCase() === me.profile.toLowerCase()) && require("../Modules/TownGuard");
+	Developer.debugging.showStack.profiles.some(prof => String.isEqual(prof, me.profile) || String.isEqual(prof, "all")) && require("../Modules/TownGuard");
 	
 	// START
 	// test for getUnit bug
@@ -411,7 +422,7 @@ function main() {
 
 				continue;
 			}
-			this.togglePause();
+			pause();
 
 			while (!me.gameReady) {
 				if (me.dead) {
@@ -447,11 +458,10 @@ function main() {
 
 				return false;
 			} finally {
-				Packet.flash(me.gid, 100);
-				console.log("ÿc8TownChicken :: Took: " + Time.format(getTickCount() - t4) + " to visit town");
-				this.togglePause();
+				resume();
 				Messaging.sendToScript("libs/SoloPlay/Threads/EventThread.js", "townchickenOff");
 				[Attack.stopClear, SoloEvents.townChicken.running, townCheck, fastTown] = [false, false, false, false];
+				console.log("ÿc8TownChicken :: Took: " + Time.format(getTickCount() - t4) + " to visit town");
 			}
 		}
 
