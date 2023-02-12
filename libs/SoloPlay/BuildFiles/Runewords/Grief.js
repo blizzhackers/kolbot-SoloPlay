@@ -6,7 +6,7 @@
 		"[name] == MalRune # # [maxquantity] == 1",
 		"[name] == RalRune # # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(Grief);
+	NTIP.buildList(Grief);
 
 	if (me.getItem(sdk.items.runes.Lo)) {
 		NTIP.addLine("[name] == phaseblade && [quality] >= normal && [quality] <= superior # [sockets] == 5 # [maxquantity] == 1");

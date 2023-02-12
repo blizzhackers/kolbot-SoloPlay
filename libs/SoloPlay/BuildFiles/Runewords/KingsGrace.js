@@ -6,7 +6,7 @@
 		"[type] == sword && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [wsm] <= 10 && [strreq] <= 150 # [sockets] == 3 # [maxquantity] == 1",
 		"([name] == legendsword || [name] == highlandblade || [name] == balrogblade || [name] == colossussword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(KingsGrace);
+	NTIP.buildList(KingsGrace);
 
 	Config.Runewords.push([Runeword.KingsGrace, "broadsword"]);
 	Config.Runewords.push([Runeword.KingsGrace, "longsword"]);

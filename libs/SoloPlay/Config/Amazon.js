@@ -97,8 +97,8 @@
 		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 	];
 
-	NTIP.arrayLooping(levelingTiers);
-	me.expansion && NTIP.arrayLooping(expansionTiers);
+	NTIP.buildList(levelingTiers);
+	me.expansion && NTIP.buildList(expansionTiers);
 
 	if (["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) {
 		NTIP.addLine("[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
@@ -119,7 +119,7 @@
 
 	/* Gear */
 	let finalGear = Check.finalBuild().finalGear;
-	!!finalGear && NTIP.arrayLooping(finalGear);
+	!!finalGear && NTIP.buildList(finalGear);
 
 	Config.imbueables = [
 		{name: sdk.items.MaidenJavelin, condition: () => me.normal && me.expansion},
@@ -132,7 +132,7 @@
 
 	let imbueArr = SetUp.imbueItems();
 
-	!me.smith && NTIP.arrayLooping(imbueArr);
+	!me.smith && NTIP.buildList(imbueArr);
 
 	if (Item.getEquipped(sdk.body.RightArm).tier < 100000) {
 		Config.GambleItems.push("Javelin");

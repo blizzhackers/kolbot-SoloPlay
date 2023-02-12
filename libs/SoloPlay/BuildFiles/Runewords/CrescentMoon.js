@@ -4,7 +4,7 @@
 		"[name] == UmRune",
 		"[name] == TirRune # # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(Crescent);
+	NTIP.buildList(Crescent);
 
 	if (me.barbarian) {
 	// Cube to Um Rune

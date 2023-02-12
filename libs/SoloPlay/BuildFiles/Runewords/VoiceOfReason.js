@@ -5,7 +5,7 @@
 		"[name] == ElRune # # [maxquantity] == 1",
 		"[name] == EldRune # # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(VoiceofReason);
+	NTIP.buildList(VoiceofReason);
 
 	if (me.barbarian) {
 	// Have Lem and Ko runes before looking for normal base

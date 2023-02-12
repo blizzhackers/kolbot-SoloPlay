@@ -4,7 +4,7 @@
 			"[name] == OrtRune # # [maxquantity] == 1",
 			"[name] == SolRune # # [maxquantity] == 1",
 		];
-		NTIP.arrayLooping(loreRunes);
+		NTIP.buildList(loreRunes);
 
 		// Cube to Sol rune
 		if (!me.getItem(sdk.items.runes.Sol)) {
@@ -32,11 +32,11 @@
 			"[type] == pelt && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 2",
 			"[type] == pelt && [quality] == normal # ([druidskills]+[elementalskilltab]+[skillcyclonearmor]+[skilltwister]+[skilltornado]+[skillhurricane]) >= 1 && [sockets] == 0",
 		];
-		NTIP.arrayLooping(classLoreHelm);
+		NTIP.buildList(classLoreHelm);
 
 		// Normal Helms
 		if (Item.getEquipped(sdk.body.Head).tier < 150) {
-			NTIP.arrayLooping(loreHelm);
+			NTIP.buildList(loreHelm);
 		}
 
 		// Pelts
@@ -81,11 +81,11 @@
 			"[type] == primalhelm && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [strreq] <= 150 # [sockets] == 2",
 			"[type] == primalhelm && [flag] != ethereal && [quality] == normal && [strreq] <= 150 # ([barbarianskills]+[barbcombatskilltab]+[skillbattleorders]+[skillfrenzy]+[skilldoubleswing]+[skillnaturalresistance]) >= 1 && [sockets] == 0",
 		];
-		NTIP.arrayLooping(classLoreHelm);
+		NTIP.buildList(classLoreHelm);
 
 		// Normal Helms
 		if (Item.getEquipped(sdk.body.Head).tier < 150) {
-			NTIP.arrayLooping(loreHelm);
+			NTIP.buildList(loreHelm);
 		}
 
 		// Primal Helms
@@ -119,7 +119,7 @@
 	}
 
 	if (!me.druid && !me.barbarian) {
-		NTIP.arrayLooping(loreHelm);
+		NTIP.buildList(loreHelm);
 	}
 
 	// Normal helms

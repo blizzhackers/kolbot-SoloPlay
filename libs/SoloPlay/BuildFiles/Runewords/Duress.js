@@ -4,7 +4,7 @@
 		"[name] == UmRune # # [maxquantity] == 1",
 		"[name] == ThulRune # # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(Duress);
+	NTIP.buildList(Duress);
 
 	// Cube to Um rune
 	if (!me.getItem(sdk.items.runes.Um)) {

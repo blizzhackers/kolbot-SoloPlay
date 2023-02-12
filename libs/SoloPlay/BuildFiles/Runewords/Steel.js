@@ -3,7 +3,7 @@
 		"[name] == TirRune # # [maxquantity] == 2",
 		"[name] == ElRune # # [maxquantity] == 2",
 	];
-	NTIP.arrayLooping(Steel);
+	NTIP.buildList(Steel);
 
 	if (Item.getEquipped(sdk.body.LeftArm).tier < 500 && Item.getEquipped(sdk.body.LeftArm).tier > 395) {
 		NTIP.addLine("[type] == sword && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [wsm] <= 10 && [strreq] <= 150 && [class] == elite # [sockets] == 2 # [maxquantity] == 1");

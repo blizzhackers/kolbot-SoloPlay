@@ -5,7 +5,7 @@
 		"[name] == JahRune",
 		"[name] == LoRune",
 	];
-	NTIP.arrayLooping(IceRunes);
+	NTIP.buildList(IceRunes);
 
 	// Cube to Lo and Keep cubing to Jah rune
 	if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Lo)) > 1 && me.checkItem({name: sdk.locale.items.ChainofHonor}).have) {

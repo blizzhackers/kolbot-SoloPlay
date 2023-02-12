@@ -5,7 +5,7 @@
 		"[name] == KoRune # # [maxquantity] == 1",
 		"[name] == VexRune",
 	];
-	NTIP.arrayLooping(HotO);
+	NTIP.buildList(HotO);
 
 	// Have Vex rune before looking for base
 	if (me.getItem(sdk.items.runes.Vex)) {

@@ -6,7 +6,7 @@
 		"!me.hell && " + lowTier + " && [quality] >= normal && [quality] <= superior && [flag] != runeword # [sockets] == 4 # [maxquantity] == 1",
 		(highTier + " && [quality] >= normal && [quality] <= superior && [flag] != runeword # [sockets] == 4 # [maxquantity] == 1"),
 	];
-	NTIP.arrayLooping(Insight);
+	NTIP.buildList(Insight);
 
 	if (!me.hell && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Insight && !Check.haveBase("polearm", 4)) {
 		NTIP.addLine("[name] == voulge && [flag] != ethereal && [quality] == normal && [level] >= 26 && [level] <= 40 # [sockets] == 0 # [maxquantity] == 1");

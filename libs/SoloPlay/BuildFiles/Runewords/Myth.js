@@ -4,7 +4,7 @@
 		"[name] == AmnRune # # [maxquantity] == 1",
 		"[name] == NefRune # # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(Myth);
+	NTIP.buildList(Myth);
 
 	// Cube to Hel rune
 	if (!me.getItem(sdk.items.runes.Hel)) {

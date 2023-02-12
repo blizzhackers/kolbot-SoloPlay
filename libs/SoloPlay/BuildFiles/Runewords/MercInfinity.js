@@ -6,7 +6,7 @@
 		"([name] == thresher || [name] == crypticaxe || [name] == greatpoleaxe || [name] == giantthresher) && [flag] == ethereal && [quality] == normal # [Sockets] == 0 # [maxquantity] == 1",
 		"([name] == thresher || [name] == crypticaxe || [name] == greatpoleaxe || [name] == giantthresher) && [quality] >= normal && [quality] <= Superior # [Sockets] == 4 # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(Inf);
+	NTIP.buildList(Inf);
 
 	// Cube to Ber rune
 	if (me.findItems(sdk.items.runes.Ber).length < 2) {

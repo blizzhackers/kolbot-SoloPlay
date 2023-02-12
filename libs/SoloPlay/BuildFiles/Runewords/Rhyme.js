@@ -5,7 +5,7 @@
 		"[type] == voodooheads && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1",
 		"[type] == voodooheads && [quality] == normal # ([necromancerskills]+[poisonandboneskilltab]+[skillbonespear]+[skillbonespirit]+[skillteeth]+[skillbonewall]+[skillboneprison]+[skillamplifydamage]) >= 1 && [sockets] == 0 # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(rhyme);
+	NTIP.buildList(rhyme);
 
 	Config.Runewords.push([Runeword.Rhyme, "preservedhead"]);
 	Config.Runewords.push([Runeword.Rhyme, "zombiehead"]);

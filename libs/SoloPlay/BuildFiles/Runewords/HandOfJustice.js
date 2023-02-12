@@ -6,7 +6,7 @@
 		"[name] == LoRune",
 		"[name] == phaseblade && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(HoJ);
+	NTIP.buildList(HoJ);
 
 	// Cube to Lo rune
 	if (!me.getItem(sdk.items.runes.Lo)) {

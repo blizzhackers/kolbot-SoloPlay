@@ -6,7 +6,7 @@
 		"[name] == UmRune",
 		"[name] == ChamRune",
 	];
-	NTIP.arrayLooping(Doom);
+	NTIP.buildList(Doom);
 
 	// Have Cham, Lo, and Ohm Rune before looking for normal base
 	if (me.getItem(sdk.items.runes.Cham) && me.getItem(sdk.items.runes.Lo) && me.getItem(sdk.items.runes.Ohm)) {

@@ -5,7 +5,7 @@
 		"[name] == JahRune",
 		"[name] == monarch && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1"
 	];
-	NTIP.arrayLooping(PhoenixRunes);
+	NTIP.buildList(PhoenixRunes);
 	// Cube to vex and Keep cubing to Jah rune
 	if (!me.getItem(sdk.items.runes.Jah)) {
 		if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Vex)) < 2) {

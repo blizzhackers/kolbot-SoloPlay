@@ -7,7 +7,7 @@
 		"([name] == thresher || [name] == crypticaxe || [name] == greatpoleaxe || [name] == giantthresher) && [flag] == ethereal && [quality] == normal # [Sockets] == 0 # [maxquantity] == 1",
 		"([name] == thresher || [name] == crypticaxe || [name] == greatpoleaxe || [name] == giantthresher) && [quality] >= normal && [quality] <= Superior # [Sockets] == 4 # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(Pride);
+	NTIP.buildList(Pride);
 
 	// Cube to Sur/Lo rune
 	if (!me.getItem(sdk.items.runes.Sur) || !me.getItem(sdk.items.runes.Lo)) {

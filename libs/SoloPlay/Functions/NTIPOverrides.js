@@ -23,6 +23,10 @@ NTIP.RuntimeStringArray = [];
 NTIP.SoloCheckList = [];
 NTIP.SoloCheckListNoTier = [];
 NTIP.SoloStringArray = [];
+NTIP.FinalGear = {
+	list: [],
+	strArray: [],
+};
 
 NTIP.generateTierFunc = function (tierType) {
 	return function (item) {
@@ -73,14 +77,28 @@ NTIP.generateTierFunc = function (tierType) {
 	};
 };
 
-/**@function
- * @param item */
+/**
+ * @function
+ * @param item
+ */
 NTIP.GetTier = NTIP.generateTierFunc("Tier");
 
-/**@function
- * @param item */
+/**
+ * @function
+ * @param item
+ */
 NTIP.GetMercTier = NTIP.generateTierFunc("Merctier");
+
+/**
+ * @function
+ * @param item
+ */
 NTIP.GetCharmTier = NTIP.generateTierFunc("Charmtier");
+
+/**
+ * @function
+ * @param item
+ */
 NTIP.GetSecondaryTier = NTIP.generateTierFunc("Secondarytier");
 
 NTIP.addLine = function (itemString) {
@@ -101,6 +119,29 @@ NTIP.addLine = function (itemString) {
 
 		NTIP.SoloCheckList.push(line);
 		NTIP.SoloStringArray.push(info);
+	}
+
+	return true;
+};
+
+NTIP.buildFinalGear = function (arr) {
+	for (let i = 0; i < arr.length; i++) {
+		const info = {
+			line: NTIP.FinalGear.list.length + 1,
+			file: "Kolbot-SoloPlay",
+			string: arr[i]
+		};
+
+		const line = NTIP.ParseLineInt(arr[i], info);
+
+		if (line) {
+			if (!arr[i].toLowerCase().includes("tier")) {
+				continue;
+			}
+
+			NTIP.FinalGear.list.push(line);
+			NTIP.FinalGear.strArray.push(info);
+		}
 	}
 
 	return true;
@@ -130,7 +171,7 @@ NTIP.resetRuntimeList = () => {
 	NTIP.RuntimeStringArray.length = 0;
 };
 
-NTIP.arrayLooping = function (...arraystoloop) {
+NTIP.buildList = function (...arraystoloop) {
 	for (let arr of arraystoloop) {
 		if (Array.isArray(arr)) {
 			for (let i = 0; i < arr.length; i++) {
@@ -263,6 +304,12 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
 	let result = 0;
 	const identified = item.getFlag(sdk.items.flags.Identified);
 
+	/**
+	 * 
+	 * @param {any[]} list 
+	 * @param {string[]} stringArr 
+	 * @returns 
+	 */
 	const iterateList = (list, stringArr) => {
 		let i, num;
 
@@ -298,7 +345,7 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
 							} else if (!identified && result === 0 || !identified && result === 1) {
 								result = -1;
 
-								if (verbose) {
+								if (verbose && stringArr[i] !== undefined) {
 									rval.line = stringArr[i].file + " #" + stringArr[i].line;
 								}
 							}
@@ -350,7 +397,7 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
 					} else if (!identified && result === 0 || !identified && result === 1) {
 						result = -1;
 
-						if (verbose) {
+						if (verbose && stringArr[i] !== undefined) {
 							rval.line = stringArr[i].file + " #" + stringArr[i].line;
 						}
 					}
@@ -371,17 +418,21 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
 		}
 
 		if (verbose) {
-			switch (result) {
-			case -1:
-				break;
-			case 1:
-				rval.line = stringArr[i].file + " #" + stringArr[i].line;
+			try {
+				switch (result) {
+				case -1:
+					break;
+				case 1:
+					rval.line = stringArr[i].file + " #" + stringArr[i].line;
 
-				break;
-			default:
+					break;
+				default:
+					rval.line = null;
+
+					break;
+				}
+			} catch (e) {
 				rval.line = null;
-
-				break;
 			}
 
 			rval.result = result;
@@ -396,7 +447,11 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
 		return result;
 	};
 
-	const listOfLists = [[NTIP.SoloCheckList, NTIP.SoloStringArray], [NTIP_CheckList, stringArray], [NTIP.RuntimeCheckList, NTIP.RuntimeStringArray]];
+	const listOfLists = [
+		[NTIP.SoloCheckList, NTIP.SoloStringArray],
+		[NTIP_CheckList, stringArray],
+		[NTIP.RuntimeCheckList, NTIP.RuntimeStringArray]
+	];
 	if (Array.isArray(entryList)) return iterateList(entryList, stringArray);
 
 	for (let i = 0; i < listOfLists.length; i++) {

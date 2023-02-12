@@ -6,7 +6,7 @@
 		"[name] == TirRune # # [maxquantity] == 1",
 		"[name] == SolRune # # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(Honor);
+	NTIP.buildList(Honor);
 
 	// Cube to Amn rune
 	if (!me.getItem(sdk.items.runes.Amn)) {

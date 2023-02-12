@@ -6,7 +6,7 @@
 		"[name] == DolRune # # [maxquantity] == 1",
 		"[name] == sacredtarge && [quality] >= normal && [quality] <= superior # [fireresist] >= 30 && [sockets] == 4 # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(Exile);
+	NTIP.buildList(Exile);
 
 	if (!Check.haveBase("sacredtarge", 4)) {
 		NTIP.addLine("[name] == sacredtarge && [quality] == normal && [flag] == ethereal # [fireresist] >= 30 && [sockets] == 0 # [maxquantity] == 1");

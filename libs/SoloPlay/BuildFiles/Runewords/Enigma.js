@@ -4,7 +4,7 @@
 		"[name] == IthRune # # [maxquantity] == 1",
 		"[name] == BerRune",
 	];
-	NTIP.arrayLooping(Enigma);
+	NTIP.buildList(Enigma);
 
 	// Cube to Jah rune
 	if (!me.getItem(sdk.items.runes.Jah)) {

@@ -4,7 +4,7 @@
 		"[name] == ThulRune # # [maxquantity] == 1",
 		"[name] == LemRune # # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(treach);
+	NTIP.buildList(treach);
 	
 	const MercTreachery = [
 		"([name] == breastplate || [name] == mageplate || [name] == hellforgeplate || [name] == krakenshell || [name] == archonplate || [name] == balrogskin || [name] == boneweave || [name] == greathauberk || [name] == loricatedmail || [name] == diamondmail || [name] == wirefleece || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1",
@@ -13,7 +13,7 @@
 
 	// Have Shael and Lem before looking for base
 	if (me.getItem(sdk.items.runes.Shael) && me.getItem(sdk.items.runes.Lem)) {
-		NTIP.arrayLooping(MercTreachery);
+		NTIP.buildList(MercTreachery);
 	}
 
 	Config.Recipes.push([Recipe.Socket.Armor, "hellforgeplate"]);

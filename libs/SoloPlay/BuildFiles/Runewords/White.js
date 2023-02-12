@@ -5,7 +5,7 @@
 		"[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand) && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1",
 		"[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand) && [quality] == normal # ([necromancerskills]+[poisonandboneskilltab]+[skillbonespear]+[skillbonespirit]+[skillteeth]+[skillbonewall]+[skillboneprison]+[skillamplifydamage]) >= 1 && [sockets] == 0 # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(white);
+	NTIP.buildList(white);
 
 	// Cube to Io rune
 	if (!me.getItem(sdk.items.runes.Io)) {

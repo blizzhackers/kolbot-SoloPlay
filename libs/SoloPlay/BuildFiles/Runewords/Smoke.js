@@ -9,7 +9,7 @@
 			"[name] == NefRune # # [maxquantity] == 1",
 			"[name] == LumRune # # [maxquantity] == 1",
 		];
-		NTIP.arrayLooping(smokeRunes);
+		NTIP.buildList(smokeRunes);
 	}
 
 	// Have Lum rune before looking for base

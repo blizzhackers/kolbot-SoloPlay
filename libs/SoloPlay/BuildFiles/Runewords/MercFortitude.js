@@ -11,15 +11,15 @@
 	if (["Zealer", "Smiter", "Frenzy", "Whirlwind", "Uberconc", "Wolf"].includes(SetUp.finalBuild)) {
 	// Make Grief first, if using it for final build
 		if (me.checkItem({name: sdk.locale.items.Grief, itemtype: sdk.items.type.Sword}).have) {
-			NTIP.arrayLooping(fort);
+			NTIP.buildList(fort);
 		}
 	} else if (["Blova", "Lightning"].includes(SetUp.currentBuild)) {
 	// Make Chains of Honor first for Blova/Lightning, or already have ber so Lo isn't needed for cubing
 		if (me.checkItem({name: sdk.locale.items.ChainsofHonor}).have || me.getItem(sdk.items.runes.Ber)) {
-			NTIP.arrayLooping(fort);
+			NTIP.buildList(fort);
 		}
 	} else {
-		NTIP.arrayLooping(fort);
+		NTIP.buildList(fort);
 	}
 
 	Config.Recipes.push([Recipe.Socket.Armor, "hellforgeplate"]);

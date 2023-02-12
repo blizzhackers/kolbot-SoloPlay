@@ -5,7 +5,7 @@
 		"[name] == DolRune # # [maxquantity] == 1",
 		"[name] == LoRune",
 	];
-	NTIP.arrayLooping(Fortitude);
+	NTIP.buildList(Fortitude);
 
 	// Have Lo rune before looking for normal base
 	if (me.getItem(sdk.items.runes.Lo)) {

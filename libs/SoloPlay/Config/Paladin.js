@@ -112,8 +112,8 @@
 		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 	];
 
-	NTIP.arrayLooping(levelingTiers);
-	me.expansion && NTIP.arrayLooping(expansionTiers);
+	NTIP.buildList(levelingTiers);
+	me.expansion && NTIP.buildList(expansionTiers);
 
 	/* Attack configuration. */
 	Config.AttackSkill = [0, 0, 0, 0, 0, 0, 0];
@@ -131,7 +131,7 @@
 
 	/* Gear */
 	let finalGear = Check.finalBuild().finalGear;
-	!!finalGear && NTIP.arrayLooping(finalGear);
+	!!finalGear && NTIP.buildList(finalGear);
 
 	// Maybe add auric shield?
 	Config.imbueables = [
@@ -145,7 +145,7 @@
 
 	let imbueArr = SetUp.imbueItems();
 
-	!me.smith && NTIP.arrayLooping(imbueArr);
+	!me.smith && NTIP.buildList(imbueArr);
 
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:

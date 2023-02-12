@@ -4,7 +4,7 @@
 		"[name] == LemRune",
 		"[name] == KoRune",
 	];
-	NTIP.arrayLooping(Lawbringer);
+	NTIP.buildList(Lawbringer);
 
 	// Have Lem and Ko runes before looking for normal base
 	if (me.getItem(sdk.items.runes.Lem) && me.getItem(sdk.items.runes.Ko)) {

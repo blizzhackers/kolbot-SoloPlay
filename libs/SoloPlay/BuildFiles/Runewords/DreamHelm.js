@@ -5,7 +5,7 @@
 		"[name] == PulRune",
 		"[name] == bonevisage && [flag] != ethereal && [quality] == superior # [enhanceddefense] >= 15 && [sockets] == 3 # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(DreamHelm);
+	NTIP.buildList(DreamHelm);
 
 	Config.Runewords.push([Runeword.Dream, "bonevisage"]);
 	Config.KeepRunewords.push("[type] == helm # [holyshockaura] >= 15");

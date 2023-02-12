@@ -97,7 +97,7 @@
 		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 	];
 
-	NTIP.arrayLooping(levelingTiers);
+	NTIP.buildList(levelingTiers);
 
 	let switchTiers = (["Wolf", "Plaguewolf"].includes(SetUp.currentBuild)
 		? [
@@ -109,7 +109,7 @@
 			"[name] == beardedaxe && [quality] == unique # [itemchargedskill] == 87 # [secondarytier] == 50000", // Spellsteel Decrepify charged axe
 		]);
 
-	NTIP.arrayLooping(switchTiers);
+	NTIP.buildList(switchTiers);
 
 	/* Attack configuration. */
 	Config.AttackSkill = [0, 0, 0, 0, 0, 0, 0];
@@ -131,7 +131,7 @@
 
 	/* Gear */
 	let finalGear = Check.finalBuild().finalGear;
-	!!finalGear && NTIP.arrayLooping(finalGear);
+	!!finalGear && NTIP.buildList(finalGear);
 
 	Config.imbueables = [
 		{name: sdk.items.SpiritMask, condition: () => (me.normal)},
@@ -144,7 +144,7 @@
 
 	let imbueArr = SetUp.imbueItems();
 
-	!me.smith && NTIP.arrayLooping(imbueArr);
+	!me.smith && NTIP.buildList(imbueArr);
 
 	const { basicSocketables, addSocketableObj } = require("../Utils/General");
 	

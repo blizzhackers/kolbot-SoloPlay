@@ -6,7 +6,7 @@
 			"[name] == OrtRune # # [maxquantity] == 1",
 			"[name] == AmnRune # # [maxquantity] == 1",
 		];
-		NTIP.arrayLooping(SpiritSword);
+		NTIP.buildList(SpiritSword);
 
 		// Cube to Amn Rune
 		if (!me.getItem(sdk.items.runes.Amn)) {

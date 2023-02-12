@@ -386,7 +386,7 @@ const SetUp = {
 				// A2 Guard
 				"me.mercid === 338 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
 			];
-			NTIP.arrayLooping(expansionExtras);
+			NTIP.buildList(expansionExtras);
 			this.bowQuiver();
 		}
 

@@ -6,7 +6,7 @@
 		"[name] == IstRune",
 		"[name] == OhmRune",
 	];
-	NTIP.arrayLooping(CTA);
+	NTIP.buildList(CTA);
 
 	// Have Ohm before collecting base
 	if (me.getItem(sdk.items.runes.Ohm)) {

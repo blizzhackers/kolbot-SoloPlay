@@ -10,7 +10,7 @@
 	if (getScript(true).name.toLowerCase() === "libs\\soloplay\\soloplay.js") {
 		myPrint("start setup");
 		const { nipItems, impossibleClassicBuilds, impossibleNonLadderBuilds } = require("../Utils/General");
-		NTIP.arrayLooping(nipItems.Quest, nipItems.General);
+		NTIP.buildList(nipItems.Quest, nipItems.General);
 
 		try {
 			if (impossibleClassicBuilds.includes(SetUp.finalBuild) && me.classic) {

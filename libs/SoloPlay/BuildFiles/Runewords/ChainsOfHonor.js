@@ -5,7 +5,7 @@
 		"[name] == BerRune",
 		"[name] == IstRune",
 	];
-	NTIP.arrayLooping(CoH);
+	NTIP.buildList(CoH);
 
 	// Cube to Ber rune
 	if (!me.getItem(sdk.items.runes.Ber)) {

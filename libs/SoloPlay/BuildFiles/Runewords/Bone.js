@@ -3,7 +3,7 @@
 		"[name] == UmRune # # [maxquantity] == 2",
 		"[name] == SolRune # # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(Bone);
+	NTIP.buildList(Bone);
 
 	// Cube to Um Rune
 	if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Um)) < 2) {

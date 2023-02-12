@@ -5,7 +5,7 @@
 		"[name] == EthRune # # [maxquantity] == 1",
 		"[type] == sword && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [wsm] <= 10 && [strreq] <= 150 # [sockets] == 3 # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(Malice);
+	NTIP.buildList(Malice);
 
 	Config.Runewords.push([Runeword.Malice, "crystalsword"]);
 	Config.Runewords.push([Runeword.Malice, "broadsword"]);

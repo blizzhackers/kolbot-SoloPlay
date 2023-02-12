@@ -5,7 +5,7 @@
 		"[name] == EldRune # # [maxquantity] == 1",
 		"[name] == LemRune # # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(FaithRunes);
+	NTIP.buildList(FaithRunes);
 	// Cube to Ohm and Keep cubing to Jah rune
 	if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Ohm) > 1) && me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
 		if (!me.getItem(sdk.items.runes.Jah)) {

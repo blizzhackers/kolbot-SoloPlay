@@ -399,7 +399,7 @@ function main() {
 	const useHowl = Skill.canUse(sdk.skills.Howl);
 	const useTerror = Skill.canUse(sdk.skills.Terror);
 
-	Config.DebugMode = true;
+	Config.DebugMode.Stack = true;
 
 	while (true) {
 		if (!me.inTown && (townCheck || fastTown

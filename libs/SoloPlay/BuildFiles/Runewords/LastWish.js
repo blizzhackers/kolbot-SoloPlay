@@ -7,7 +7,7 @@
 		"[name] == BerRune",
 		"[name] == phaseblade && [quality] >= normal && [quality] <= superior # [sockets] == 6 # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(LW);
+	NTIP.buildList(LW);
 	// Cube to Jah/Sur rune
 	if (!me.getItem(sdk.items.runes.Jah) || !me.getItem(sdk.items.runes.Sur)) {
 		if (me.checkItem({name: sdk.locale.items.CalltoArms}).have) {

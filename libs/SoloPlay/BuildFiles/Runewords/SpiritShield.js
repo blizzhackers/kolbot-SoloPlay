@@ -5,7 +5,7 @@
 		"[name] == OrtRune # # [maxquantity] == 1",
 		"[name] == AmnRune # # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(SpiritRunes);
+	NTIP.buildList(SpiritRunes);
 
 	if (me.paladin) {
 		NTIP.addLine("([name] == targe || [name] == rondache || [name] == heraldicshield || [name] == aerinshield || [name] == akarantarge || [name] == akaranrondache || [name] == gildedshield ||[name] == protectorshield || [name] == sacredtarge) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [fireresist] > 0 && [sockets] == 4");

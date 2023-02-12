@@ -111,9 +111,6 @@
 		NTIP.addLine("([type] == orb || [type] == wand || [type] == sword || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] == ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
 	}
 
-	NTIP.arrayLooping(levelingTiers);
-	me.expansion && NTIP.arrayLooping(expansionTiers);
-
 	/* Attack configuration. */
 	Skill.usePvpRange = true;
 	Config.AttackSkill = [0, 0, 0, 0, 0, 0, 0];
@@ -136,8 +133,12 @@
 	Config.CastStatic = me.classic ? 15 : [25, 33, 50][me.diff];
 
 	/* Gear */
+	NTIP.buildList(levelingTiers);
+	me.expansion && NTIP.buildList(expansionTiers);
 	let finalGear = Check.finalBuild().finalGear;
-	!!finalGear && NTIP.arrayLooping(finalGear);
+	NTIP.buildList(finalGear);
+	NTIP.buildFinalGear(finalGear);
+
 
 	Config.imbueables = [
 		{name: sdk.items.JaredsStone, condition: () => (me.normal && me.expansion)},
@@ -150,7 +151,7 @@
 
 	let imbueArr = SetUp.imbueItems();
 
-	!me.smith && NTIP.arrayLooping(imbueArr);
+	!me.smith && NTIP.buildList(imbueArr);
 
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:

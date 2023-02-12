@@ -7,7 +7,7 @@
 		"[name] == IstRune",
 		"[name] == VexRune",
 	];
-	NTIP.arrayLooping(Silence);
+	NTIP.buildList(Silence);
 
 	// Have Vex before collecting base
 	if (me.getItem(sdk.items.runes.Vex)) {

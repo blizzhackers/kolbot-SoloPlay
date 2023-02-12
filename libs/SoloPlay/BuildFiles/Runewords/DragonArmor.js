@@ -4,7 +4,7 @@
 		"[name] == LoRune",
 		"[name] == SolRune # # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(DragonArmor);
+	NTIP.buildList(DragonArmor);
 
 	// Cube to Sur rune
 	if (!me.getItem(sdk.items.runes.Sur)) {

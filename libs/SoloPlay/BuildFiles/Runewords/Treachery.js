@@ -4,7 +4,7 @@
 		"[name] == ThulRune # # [maxquantity] == 1",
 		"[name] == LemRune # # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(treach);
+	NTIP.buildList(treach);
 
 	// Cube to Lem rune
 	if (!me.getItem(sdk.items.runes.Lem)) {

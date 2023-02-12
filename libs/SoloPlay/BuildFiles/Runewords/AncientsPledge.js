@@ -10,7 +10,7 @@
 			"[name] == OrtRune # # [maxquantity] == 1",
 			"[name] == TalRune # # [maxquantity] == 1",
 		];
-		NTIP.arrayLooping(apRunes);
+		NTIP.buildList(apRunes);
 	}
 
 	const apShields = [
@@ -18,7 +18,7 @@
 		"!me.hell && [name] == kiteshield && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1",
 		"([name] == dragonshield || [name] == scutum) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(apShields);
+	NTIP.buildList(apShields);
 
 	if (me.paladin) {
 		NTIP.addLine("([name] == targe || [name] == rondache || [name] == heraldicshield || [name] == aerinshield || [name] == akarantarge || [name] == akaranrondache || [name] == gildedshield ||[name] == protectorshield || [name] == sacredtarge) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [fireresist] > 0 && [sockets] == 3");

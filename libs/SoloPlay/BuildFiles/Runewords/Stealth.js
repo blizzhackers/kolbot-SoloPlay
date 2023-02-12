@@ -4,14 +4,14 @@
 			"[name] == TalRune # # [maxquantity] == 1",
 			"[name] == EthRune # # [maxquantity] == 1",
 		];
-		NTIP.arrayLooping(stealthRunes);
+		NTIP.buildList(stealthRunes);
 	}
 
 	const stealthArmor = [
 		"!me.hell && ([name] == studdedleather || [name] == lightplate) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1",
 		"([name] == ghostarmor || [name] == serpentskinarmor || [name] == mageplate) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(stealthArmor);
+	NTIP.buildList(stealthArmor);
 
 	if (Item.getEquipped(sdk.body.Armor).tier < 200) {
 		NTIP.addLine("[name] == breastplate && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1");

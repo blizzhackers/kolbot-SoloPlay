@@ -4,7 +4,7 @@
 		"[name] == MalRune",
 		"[name] == hyperion && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1",
 	];
-	NTIP.arrayLooping(Sanctuary);
+	NTIP.buildList(Sanctuary);
 
 	// Cube to Mal rune
 	if (!me.getItem(sdk.items.runes.Mal)) {
