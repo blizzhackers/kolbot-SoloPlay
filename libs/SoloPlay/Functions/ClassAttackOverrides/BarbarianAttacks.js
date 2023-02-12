@@ -104,7 +104,12 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 		}
 	};
 
-	ClassAttack.doAttack = function (unit = undefined, preattack = false) {
+	/**
+	 * @param {Monster} unit 
+	 * @param {boolean} preattack 
+	 * @returns {AttackResult}
+	 */
+	ClassAttack.doAttack = function (unit, preattack = false) {
 		if (unit === undefined || !unit || unit.dead) return true;
 
 		let gid = unit.gid;
@@ -326,8 +331,9 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 		if (!Config.FindItem || !Skill.canUse(sdk.skills.FindItem)) return false;
 
 		Config.FindItemSwitch = (me.expansion && Precast.getBetterSlot(sdk.skills.FindItem));
-		let retry = false, pick = false, corpseList = [];
-		let orgX = me.x, orgY = me.y;
+		let pick = false;
+		let corpseList = [];
+		const { x: orgX, y: orgY } = me;
 
 		MainLoop:
 		for (let i = 0; i < 3; i++) {
@@ -345,46 +351,66 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 				pick = true;
 
 				while (corpseList.length > 0) {
-					if (this.checkCloseMonsters(5)) {
+					if (this.checkCloseMonsters(10)) {
 						Config.FindItemSwitch && me.switchWeapons(Attack.getPrimarySlot());
 						Attack.clearPos(me.x, me.y, 10, false);
-						retry = true;
 
-						break MainLoop;
+						continue MainLoop;
 					}
 
 					corpseList.sort(Sort.units);
-					corpse = corpseList.shift();
+					const check = corpseList.shift();
+					let attempted = false;
+					let invalidated = false;
+					// get the actual corpse rather than the copied unit
+					corpse = Game.getMonster(check.classid, sdk.monsters.mode.Dead, check.gid);
 
 					if (this.checkCorpse(corpse)) {
 						if (corpse.distance > 30 || Coords_1.isBlockedBetween(me, corpse)) {
-							Pather.moveToUnit(corpse);
+							Pather.moveNearUnit(corpse, 5);
 						}
 
 						Config.FindItemSwitch && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
 						
 						CorpseLoop:
 						for (let j = 0; j < 3; j += 1) {
-							Skill.cast(sdk.skills.FindItem, sdk.skills.hand.Right, corpse);
-
-							let tick = getTickCount();
-
-							while (getTickCount() - tick < 1000) {
-								if (corpse.getState(sdk.states.CorpseNoSelect)) {
-									Pickit.fastPick();
-
-									break CorpseLoop;
+							// sometimes corpse can become invalidated - necro summoned from it or baal wave clearing, ect
+							// this still doesn't seem to capture baal wave clearing
+							if (j > 0) {
+								corpse = Game.getMonster(check.classid, sdk.monsters.mode.Dead, check.gid);
+								if (!this.checkCorpse(corpse)) {
+									invalidated = true;
+									break;
 								}
+							}
+							// see if we can find a new position if we failed the first time - sometimes findItem is bugged
+							j > 0 && Attack.getIntoPosition(corpse, 5, sdk.collision.BlockWall, Pather.useTeleport(), true);
+							// only delay if we actually casted the skill
+							if (Skill.cast(sdk.skills.FindItem, sdk.skills.hand.Right, corpse)) {
+								let tick = getTickCount();
+								attempted = true;
 
-								delay(10);
+								while (getTickCount() - tick < 1000) {
+									if (corpse.getState(sdk.states.CorpseNoSelect)) {
+										Config.FastPick ? Pickit.fastPick() : Pickit.pickItems(range);
+
+										break CorpseLoop;
+									}
+
+									delay(10);
+								}
 							}
 						}
+					}
+
+					if (attempted && !invalidated && corpse && !corpse.getState(sdk.states.CorpseNoSelect)) {
+						!me.inArea(sdk.areas.ThroneofDestruction) && D2Bot.printToConsole("Failed to hork " + JSON.stringify(corpse) + " at " + getAreaName(me.area));
+						console.debug("Failed to hork " + JSON.stringify(corpse) + " at " + getAreaName(me.area));
 					}
 				}
 			}
 		}
 
-		if (retry) return this.findItem(me.inArea(sdk.areas.Travincal) ? 60 : 20);
 		Config.FindItemSwitch && me.weaponswitch === 1 && me.switchWeapons(Attack.getPrimarySlot());
 		pick && Pickit.pickItems();
 

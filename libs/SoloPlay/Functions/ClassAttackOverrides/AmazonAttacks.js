@@ -15,6 +15,12 @@ includeIfNotIncluded("core/Attacks/Amazon.js");
 
 ClassAttack.decoyTick = getTickCount();
 
+/**
+ * @param {Monster} unit 
+ * @param {boolean} preattack 
+ * @param {boolean} once 
+ * @returns {AttackResult}
+ */
 ClassAttack.doAttack = function (unit, preattack, once) {
 	// unit became invalidated
 	if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
@@ -335,7 +341,12 @@ ClassAttack.afterAttack = function () {
 	this.lightFuryTick = 0;
 };
 
-// Returns: 0 - fail, 1 - success, 2 - no valid attack skills
+/**
+ * @param {Monster} unit 
+ * @param {number} timedSkill 
+ * @param {number} untimedSkill 
+ * @returns {AttackResult} 
+ */
 ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 	// No valid skills can be found
 	if (timedSkill < 0 && untimedSkill < 0) return Attack.Result.CANTATTACK;

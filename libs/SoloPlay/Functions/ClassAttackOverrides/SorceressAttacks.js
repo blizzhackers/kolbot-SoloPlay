@@ -280,6 +280,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 			.filter(k => typeof data[k] === "object" && data[k].have && me.mp > data[k].mana
 			&& (!data[k].timed || !me.skillDelay) && (data[k].skill !== sdk.skills.StaticField || !recheckSkill))
 			.sort((a, b) => data[b].dmg - data[a].dmg);
+		if (!sortedList.length) return Attack.Result.FAILED;
 		let skillCheck = data[sortedList[0]].skill === sdk.skills.StaticField && unit.distance > data.static.range && me.inDanger(unit, 15)
 			? sortedList.at(1)
 			: sortedList.at(0);
