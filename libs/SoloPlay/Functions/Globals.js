@@ -229,7 +229,7 @@ const SetUp = {
 			// sort all inventory potions from the right
 			sdk.items.RejuvenationPotion, sdk.items.FullRejuvenationPotion,
 			sdk.items.MinorHealingPotion, sdk.items.LightHealingPotion, sdk.items.HealingPotion, sdk.items.GreaterHealingPotion, sdk.items.SuperHealingPotion,
-			sdk.items.MinorManaPotion, sdk.items.LightManaPotion, sdk.items.ManaPotion, sdk.items.GreaterManaPotion, sdk.items.SuperHealingPotion
+			sdk.items.MinorManaPotion, sdk.items.LightManaPotion, sdk.items.ManaPotion, sdk.items.GreaterManaPotion, sdk.items.SuperManaPotion
 		],
 		PrioritySorting: true,
 		ItemsSortedFromLeftPriority: [/*605, 604, 603, 519, 518*/], // (NOTE: the earlier in the index, the further to the Left)
