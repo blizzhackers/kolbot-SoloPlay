@@ -170,9 +170,15 @@
 			Config.Recipes.push([Recipe.Caster.Amulet]);
 		}
 
-		if (Item.getEquipped(sdk.body.Gloves).tier < 110000) {
-			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
-			["Blova", "Lightning"].includes(SetUp.finalBuild) && Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
+		{
+			let maxedMage = me.getItemsEx()
+				.filter(i => i.itemType === sdk.items.type.Gloves)
+				.find(i => NTIP.GetTier(i) >= 110000);
+			
+			if (!maxedMage) {
+				Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
+				["Blova", "Lightning"].includes(SetUp.finalBuild) && Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
+			}
 		}
 
 		Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
