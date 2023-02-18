@@ -633,7 +633,7 @@ Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
 	return Pather.move({ x: x, y: y }, Object.assign({ minDist: minDist }, givenSettings));
 };
 
-Pather.moveTo = function (x = undefined, y = undefined, retry = undefined, clearPath = true, pop = false) {
+Pather.moveTo = function (x, y, retry, clearPath = true, pop = false) {
 	return Pather.move({ x: x, y: y }, { retry: retry, pop: pop, clearSettings: { clearPath: clearPath } });
 };
 

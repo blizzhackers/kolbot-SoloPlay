@@ -12,6 +12,11 @@
 
 includeIfNotIncluded("core/Attacks/Druid.js");
 
+/**
+ * @param {Monster} unit 
+ * @param {boolean} preattack 
+ * @returns {AttackResult}
+ */
 ClassAttack.doAttack = function (unit, preattack) {
 	if (!unit) return Attack.Result.SUCCESS;
 	let gid = unit.gid;
@@ -171,11 +176,17 @@ ClassAttack.doAttack = function (unit, preattack) {
 	return result;
 };
 
+/**
+ * @param {Monster} unit 
+ * @param {number} timedSkill 
+ * @param {number} untimedSkill 
+ * @returns {AttackResult} 
+ */
 ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-	let walk;
-
 	// No valid skills can be found
 	if (timedSkill < 0 && untimedSkill < 0) return Attack.Result.CANTATTACK;
+
+	let walk;
 
 	// Rebuff Hurricane
 	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, sdk.skills.hand.Right);
@@ -234,4 +245,3 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
 
 	return Attack.Result.SUCCESS;
 };
-

@@ -213,7 +213,9 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 				}
 
 				if (unit.distance < data.battleCry.range) {
-					data.switchCast ? Skill.switchCast(sdk.skills.BattleCry, {hand: 0, switchBack: !data.warCry.have}) : Skill.cast(sdk.skills.BattleCry, sdk.skills.hand.Right, unit);
+					data.switchCast
+						? Skill.switchCast(sdk.skills.BattleCry, { hand: sdk.skills.hand.Right, switchBack: !data.warCry.have })
+						: Skill.cast(sdk.skills.BattleCry, sdk.skills.hand.Right);
 				}
 			}
 		}
