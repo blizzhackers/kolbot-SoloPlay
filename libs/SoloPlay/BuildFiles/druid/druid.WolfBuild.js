@@ -30,21 +30,21 @@ const finalBuild = {
 		// Weapon - Upp'ed Ribcracker
 		"[name] == stalagmite && [quality] == unique # [enhanceddamage] >= 300 && [ias] >= 50 # [tier] == 110000",
 		// Helmet - Jalal's Mane
-		"[name] == totemicmask && [quality] == unique # [druidskills] == 2 && [shapeshiftingskilltab] == 2 # [tier] == 110000 + tierscore(item)",
+		"[name] == totemicmask && [quality] == unique # [druidskills] == 2 && [shapeshiftingskilltab] == 2 # [tier] == tierscore(item, 110000)",
 		// Belt - Verdungo's
-		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 110000 + tierscore(item)",
+		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == tierscore(item, 110000)",
 		// Armor - CoH
 		"[type] == armor && [flag] == runeword && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 110000",
 		// Gloves - Dracul's
-		"[name] == vampirebonegloves && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 110000 + tierscore(item)",
+		"[name] == vampirebonegloves && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == tierscore(item, 110000)",
 		// Amulet - Maras
-		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 110000 + tierscore(item)",
+		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == tierscore(item, 110000)",
 		// Final Rings - Perfect Wisp & Bul-Kathos' Wedding Band
-		"[type] == ring && [quality] == unique # [itemabsorblightpercent] == 20 # [tier] == 110000 + tierscore(item)",
-		"[type] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] == 5 # [tier] == 110000 + tierscore(item)",
+		"[type] == ring && [quality] == unique # [itemabsorblightpercent] == 20 # [tier] == tierscore(item, 110000)",
+		"[type] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] == 5 # [tier] == tierscore(item, 110000)",
 		// Rings - Wisp & Bul-Kathos' Wedding Band
-		"[type] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == 110000 + tierscore(item)",
-		"[type] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] >= 3 # [tier] == 110000 + tierscore(item)",
+		"[type] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == tierscore(item, 110000)",
+		"[type] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] >= 3 # [tier] == tierscore(item, 110000)",
 		// Merc Final Armor - Fortitude
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
 		// Merc Armor - Treachery

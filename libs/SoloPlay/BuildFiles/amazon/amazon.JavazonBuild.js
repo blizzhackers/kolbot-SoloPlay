@@ -55,7 +55,7 @@ const finalBuild = {
 	],
 	classicTiers: [
 		// Helm - Tarnhelm
-		"[name] == skullcap && [quality] == unique # [itemallskills] == 1 && [itemmagicbonus] >= 25 # [tier] == 100000 + tierscore(item)",
+		"[name] == skullcap && [quality] == unique # [itemallskills] == 1 && [itemmagicbonus] >= 25 # [tier] == tierscore(item, 100000)",
 		// Armor - Twitchthroe
 		"[name] == studdedleather && [quality] == unique # [ias] == 20 && [fhr] == 20 # [tier] == 100000",
 		// Belt - Death's Guard Sash
@@ -67,17 +67,17 @@ const finalBuild = {
 	],
 	expansionTiers: [
 		// Weapon - Titan's Revenge
-		"[name] == ceremonialjavelin && [quality] == unique # [itemchargedskill] >= 0 # [tier] == 100000 + tierscore(item)",
+		"[name] == ceremonialjavelin && [quality] == unique # [itemchargedskill] >= 0 # [tier] == tierscore(item, 100000)",
 		// Helmet - Harlequin's Crest
-		"[name] == shako && [quality] == unique && [flag] != ethereal # [itemallskills] == 2 # [tier] == 100000 + tierscore(item)",
+		"[name] == shako && [quality] == unique && [flag] != ethereal # [itemallskills] == 2 # [tier] == tierscore(item, 100000)",
 		// Boots - Sandstorm Treks
-		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)",
+		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == tierscore(item, 100000)",
 		// Belt - Thundergod's Vigor
-		"[name] == warbelt && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)",
+		"[name] == warbelt && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == tierscore(item, 110000)",
 		// Armor - CoH
 		"[type] == armor && [flag] == runeword && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 110000",
 		// Shield - Spirit
-		"[type] == shield # [fcr] >= 25 && [maxmana] >= 89 # [tier] == 110000 + tierscore(item)",
+		"[type] == shield # [fcr] >= 25 && [maxmana] >= 89 # [tier] == tierscore(item, 110000)",
 		// Amulet - Highlords
 		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 110000",
 		// Final Rings - Perfect Raven Frost & Wisp

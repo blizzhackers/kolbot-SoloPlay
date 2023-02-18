@@ -29,13 +29,13 @@ const finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon - Brand
-		"[name] == grandmatronbow && [flag] == runeword # [enhanceddamage] >= 260 && [itemknockback] == 1 && [itemdeadlystrike] == 20 # [tier] == 100000 + tierscore(item)",
+		"[name] == grandmatronbow && [flag] == runeword # [enhanceddamage] >= 260 && [itemknockback] == 1 && [itemdeadlystrike] == 20 # [tier] == tierscore(item, 100000)",
 		// Helmet - Dream
 		"[type] == helm && [flag] == runeword # [holyshockaura] >= 15 # [tier] == 110000",
 		// Boots - War Traveler
 		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 30 # [tier] == 100000",
 		// Belt - Nosferatu's Coil
-		"[name] == sharkskinbelt && [quality] == unique && [flag] != ethereal # [dexterity] == 15 # [tier] == 100000 + tierscore(item)",
+		"[name] == sharkskinbelt && [quality] == unique && [flag] != ethereal # [dexterity] == 15 # [tier] == tierscore(item, 100000)",
 		// Armor - Chains of Honor
 		"[type] == armor && [flag] == runeword && [flag] != ethereal # [fireresist] == 65 # [tier] == 100000",
 		// Amulet - Highlords
@@ -48,7 +48,7 @@ const finalBuild = {
 		// Switch Temporary Weapon - Life Tap charged wand
 		"[type] == wand && [quality] >= normal # [itemchargedskill] == 82 # [secondarytier] == 75000 + chargeditemscore(item, 82)",
 		// Switch Shield - Any 1+ all skill
-		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == 100000 + tierscore(item)",
+		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == tierscore(item, 100000)",
 		// Merc Armor - Fortitude
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
 		// Merc Final Helmet - Eth Andy's

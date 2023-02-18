@@ -259,7 +259,7 @@ function orgtorch() {
 	this.juvCheck = function () {
 		let i,
 			needJuvs = 0,
-			col = Town.checkColumns(Storage.BeltSize());
+			col = Storage.Belt.checkColumns(Storage.BeltSize());
 
 		for (i = 0; i < 4; i += 1) {
 			if (Config.BeltColumn[i] === "rv") {

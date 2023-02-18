@@ -198,7 +198,7 @@ const Mercenary = {
 			Town.goToTown(typeOfMerc);
 			myPrint("ÿc9Mercenaryÿc0 :: getting merc");
 			Town.move(Town.tasks[me.act - 1].Merc);
-			Town.sortInventory();
+			me.sortInventory();
 			Item.removeItemsMerc(); // strip temp merc gear
 			delay(500 + me.ping);
 			addEventListener("gamepacket", MercLib_1.mercPacket);

@@ -35,7 +35,7 @@ function ancients () {
 	CharData.updateConfig();
 	me.overhead("updated settings");
 
-	Town.buyPotions();
+	NPCAction.buyPotions();
 	if (!Pather.usePortal(sdk.areas.ArreatSummit, me.name)) {
 		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to take portal back to Arreat Summit");
 		Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter Arreat Summit

@@ -26,7 +26,7 @@ Item.helmTypes = [
  * @param {ItemUnit} item 
  * @param {boolean} [skipSameItem] 
  */
-Item.getQuantityOwned = function (item = undefined, skipSameItem = false) {
+Item.getQuantityOwned = function (item, skipSameItem = false) {
 	if (!item) return 0;
 	
 	return me.getItemsEx()
@@ -118,7 +118,7 @@ Item.getEquipped = function (bodyLoc = -1) {
 			itemType: item.itemType,
 			quality: item.quality,
 			tier: NTIP.GetTier(item),
-			tierScore: tierscore(item, bodyLoc),
+			tierScore: tierscore(item, 1, bodyLoc),
 			secondarytier: NTIP.GetSecondaryTier(item),
 			str: item.getStatEx(sdk.stats.Strength),
 			dex: item.getStatEx(sdk.stats.Dexterity),
@@ -175,11 +175,9 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
 			let equippedItem = Item.getEquipped(bodyLoc[i]);
 
 			// rings are special
-			// first check if its a final item - can't use tierscore value as it doesn't count the bloated value
-			if (item.isInStorage && item.itemType === sdk.items.type.Ring
-				&& ((tier < NTIP.MAX_TIER && !equippedItem.finalItem) || (equippedItem.finalItem && tier >= NTIP.MAX_TIER))) {
+			if (item.isInStorage && item.itemType === sdk.items.type.Ring) {
 				// have to pass in the specific location
-				tier = tierscore(item, bodyLoc[i]);
+				tier = tierscore(item, 1, bodyLoc[i]);
 
 				if (tier > equippedItem.tierScore) {
 					return true;
@@ -192,6 +190,12 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
 				if (!me.barbarian && bodyLoc[i] === sdk.body.LeftArm && Item.getEquipped(bodyLoc[i]).tier === -1) {
 					if (Item.getEquipped(sdk.body.RightArm).twoHanded && tier < Item.getEquipped(sdk.body.RightArm).tier) return false;
 				}
+
+				// lets double check that this is the highest tied'd item of this type in our storage
+				let betterItem = me.getItemsEx()
+					.filter(el => el.isInStorage && el.gid !== item.gid && Item.getBodyLoc(el).includes(bodyLoc[i]))
+					.some(el => NTIP.GetTier(el) > tier);
+				console.debug("Higher tier'd item? " + betterItem);
 
 				return true;
 			}
@@ -263,7 +267,7 @@ Item.autoEquip = function (task = "") {
 
 	// stash'd unid check
 	let unids = items.filter(item => !item.identified && item.isInStash);
-	if (unids.length && Town.fillTome(sdk.items.TomeofIdentify, true)) {
+	if (unids.length && NPCAction.fillTome(sdk.items.TomeofIdentify, true)) {
 		unids.forEach(item => Item.identify(item));
 	}
 
@@ -289,10 +293,10 @@ Item.autoEquip = function (task = "") {
 			for (let j = 0; j < bodyLoc.length; j += 1) {
 				const equippedItem = Item.getEquipped(bodyLoc[j]);
 				// rings are special
-				if (item.isInStorage && item.itemType === sdk.items.type.Ring && (tier < NTIP.MAX_TIER || (equippedItem.finalItem && tier >= NTIP.MAX_TIER))) {
+				if (item.isInStorage && item.itemType === sdk.items.type.Ring) {
 					Item.identify(item);
 					// have to pass in the specific location
-					tier = tierscore(item, bodyLoc[j]);
+					tier = tierscore(item, 1, bodyLoc[j]);
 
 					if (tier > equippedItem.tierScore) {
 						if (!runEquip(item, bodyLoc[j], tier)) {
@@ -364,8 +368,8 @@ Item.equip = function (item, bodyLoc) {
 						let checkScore = 0;
 						switch (cursorItem.itemType) {
 						case sdk.items.type.Ring:
-							checkScore = tierscore(cursorItem, bodyLoc);
-							if (checkScore > justEquipped.tierScore && !justEquipped.finalItem) {
+							checkScore = tierscore(cursorItem, 1, bodyLoc);
+							if (checkScore > justEquipped.tierScore) {
 								console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
 								console.debug("OldItem: " + checkScore + " Just Equipped Item: " + Item.getEquipped(bodyLoc).tierScore);
 								clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc);
@@ -492,7 +496,7 @@ Item.secondaryEquip = function (item, bodyLoc) {
 					}
 
 					if (Item.hasDependancy(item) && me.needRepair() && me.inTown) {
-						Town.repair(true);
+						NPCAction.repair(true);
 					}
 
 					return true;
@@ -1583,7 +1587,7 @@ const AutoEquip = {
 		return Item.autoEquipCheckMerc(item, true) || Item.autoEquipCheck(item, true) || Item.autoEquipCheckSecondary(item);
 	},
 
-	runAutoEquip: function () {
+	run: function () {
 		Item.autoEquip();
 		Item.autoEquipSecondary();
 		Item.autoEquipCharms();

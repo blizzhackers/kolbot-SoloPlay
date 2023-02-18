@@ -204,7 +204,7 @@ me.cleanUpInvoPotions = function (beltSize) {
 	*/
 	const beltCapRef = [(0 + beltMax), (1 + beltMax), (2 + beltMax), (3 + beltMax)];
 	// check if we have empty belt slots
-	let needCleanup = Town.checkColumns(beltSize).some(slot => slot > 0);
+	let needCleanup = Storage.Belt.checkColumns(beltSize).some(slot => slot > 0);
 
 	if (needCleanup) {
 		const potsInInventory = me.getItemsEx()
@@ -216,7 +216,7 @@ me.cleanUpInvoPotions = function (beltSize) {
 		beltSize > 1 && potsInInventory.forEach(function (p) {
 			let moved = false;
 			// get free space in each slot of our belt
-			let freeSpace = Town.checkColumns(beltSize);
+			let freeSpace = Storage.Belt.checkColumns(beltSize);
 			for (let i = 0; i < 4 && !moved; i += 1) {
 				// checking that current potion matches what we want in our belt
 				if (freeSpace[i] > 0 && p.code && p.code.startsWith(Config.BeltColumn[i])) {
@@ -229,7 +229,7 @@ me.cleanUpInvoPotions = function (beltSize) {
 						clickItemAndWait(sdk.clicktypes.click.item.ShiftLeft, p.x, p.y, p.location);
 					}
 					Misc.poll(() => !me.itemoncursor, 300, 30);
-					moved = Town.checkColumns(beltSize)[i] === freeSpace[i] - 1;
+					moved = Storage.Belt.checkColumns(beltSize)[i] === freeSpace[i] - 1;
 				}
 				Cubing.cursorCheck();
 			}
@@ -294,6 +294,47 @@ me.needPotions = function () {
 	}
 
 	return false;
+};
+
+me.clearBelt = function () {
+	let item = me.getItem(-1, sdk.items.mode.inBelt);
+	let clearList = [];
+
+	if (item) {
+		do {
+			switch (item.itemType) {
+			case sdk.items.type.HealingPotion:
+				if (Config.BeltColumn[item.x % 4] !== "hp") {
+					clearList.push(copyUnit(item));
+				}
+
+				break;
+			case sdk.items.type.ManaPotion:
+				if (Config.BeltColumn[item.x % 4] !== "mp") {
+					clearList.push(copyUnit(item));
+				}
+
+				break;
+			case sdk.items.type.RejuvPotion:
+				if (Config.BeltColumn[item.x % 4] !== "rv") {
+					clearList.push(copyUnit(item));
+				}
+
+				break;
+			case sdk.items.type.StaminaPotion:
+			case sdk.items.type.AntidotePotion:
+			case sdk.items.type.ThawingPotion:
+				clearList.push(copyUnit(item));
+			}
+		} while (item.getNext());
+
+		while (clearList.length > 0) {
+			clearList.shift().interact();
+			delay(200);
+		}
+	}
+
+	return true;
 };
 
 me.getIdTool = function () {
@@ -487,4 +528,11 @@ me.needMerc = function () {
 
 	// In case we never had a merc and Config.UseMerc is still set to true for some odd reason
 	return true;
+};
+
+me.sortInventory = function () {
+	return Storage.Inventory.SortItems(
+		SetUp.sortSettings.ItemsSortedFromLeft,
+		SetUp.sortSettings.ItemsSortedFromRight
+	);
 };

@@ -37,15 +37,15 @@ const finalBuild = {
 	],
 	classicTiers: [
 		// Weapon
-		"[name] == warscepter && [quality] >= magic # [paladinskills] == 2 && [ias] == 40 && [skillholyshock] >= 1 # [tier] == 100000 + tierscore(item)",
+		"[name] == warscepter && [quality] >= magic # [paladinskills] == 2 && [ias] == 40 && [skillholyshock] >= 1 # [tier] == tierscore(item, 100000)",
 		// Helm - Tarnhelm
-		"[name] == skullcap && [quality] == unique # [itemallskills] == 1 && [itemmagicbonus] >= 25 # [tier] == 100000 + tierscore(item)",
+		"[name] == skullcap && [quality] == unique # [itemallskills] == 1 && [itemmagicbonus] >= 25 # [tier] == tierscore(item, 100000)",
 		// Shield
-		"[type] == shield && [quality] >= magic # [paladinskills] == 2 && [allres] >= 16 # [tier] == 100000 + tierscore(item)",
+		"[type] == shield && [quality] >= magic # [paladinskills] == 2 && [allres] >= 16 # [tier] == tierscore(item, 100000)",
 		// Rings - SoJ
 		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000",
 		// Amulet
-		"[type] == amulet && [quality] >= magic # [paladinskills] == 2 && [allres] >= 16 # [tier] == 100000 + tierscore(item)",
+		"[type] == amulet && [quality] >= magic # [paladinskills] == 2 && [allres] >= 16 # [tier] == tierscore(item, 100000)",
 		// Boots - Hsaru's Iron Heel
 		"[name] == chainboots && [quality] == set # [frw] == 20 # [tier] == 100000",
 		// Belt - Hsaru's Iron Stay
@@ -53,19 +53,19 @@ const finalBuild = {
 	],
 	expansionTiers: [
 		// Weapon - Heaven's Light
-		"[type] == scepter && [quality] == unique && [flag] != ethereal # [paladinskills] >= 2 && [enhanceddamage] >= 250 # [tier] == 100000 + tierscore(item)",
+		"[type] == scepter && [quality] == unique && [flag] != ethereal # [paladinskills] >= 2 && [enhanceddamage] >= 250 # [tier] == tierscore(item, 100000)",
 		// Helm - Harlequin's Crest
-		"[name] == shako && [quality] == unique && [flag] != ethereal # [damageresist] == 10 # [tier] == 100000 + tierscore(item)",
+		"[name] == shako && [quality] == unique && [flag] != ethereal # [damageresist] == 10 # [tier] == tierscore(item, 100000)",
 		// Belt - TGods
-		"[name] == warbelt && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)",
+		"[name] == warbelt && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == tierscore(item, 110000)",
 		// Boots - Gore Rider
-		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)",
+		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == tierscore(item, 110000)",
 		// Armor - Enigma
 		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000",
 		// Final Shield - Exile
 		"[type] == auricshields && [flag] == runeword # [defianceaura] >= 13 # [tier] == 110000",
 		// Shield - HoZ
-		"[name] == gildedshield && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 150 # [tier] == 50000 + tierscore(item)",
+		"[name] == gildedshield && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 150 # [tier] == tierscore(item, 50000)",
 		// Gloves - Laying of Hand's
 		"[name] == bramblemitts && [quality] == set && [flag] != ethereal # [ias] >= 20 # [tier] == 110000",
 		// Amulet - Highlords

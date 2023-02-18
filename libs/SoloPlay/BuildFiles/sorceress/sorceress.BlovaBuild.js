@@ -35,25 +35,25 @@ const finalBuild = {
 		// Weapon - HotO
 		"[type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000",
 		// Helmet - Griffons
-		"[name] == diadem && [quality] == unique && [flag] != ethereal # [fcr] == 25 # [tier] == 100000 + tierscore(item)",
+		"[name] == diadem && [quality] == unique && [flag] != ethereal # [fcr] == 25 # [tier] == tierscore(item, 100000)",
 		// Belt - Arach's
-		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 100000 + tierscore(item)",
+		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == tierscore(item, 100000)",
 		// Final Boots - Sandstorm Treks
-		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == 100000 + tierscore(item)",
+		"[name] == scarabshellboots && [quality] == unique # [strength]+[vitality] >= 20 # [tier] == tierscore(item, 100000)",
 		// Boots - War Traveler
-		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 50 # [tier] == 5000 + tierscore(item)",
+		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 50 # [tier] == tierscore(item, 5000)",
 		// Armor - CoH
 		"[type] == armor && [flag] == runeword && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 100000",
 		// Shield - Spirit
-		"[type] == shield # [fcr] >= 25 && [maxmana] >= 89 # [tier] == 100000 + tierscore(item)",
+		"[type] == shield # [fcr] >= 25 && [maxmana] >= 89 # [tier] == tierscore(item, 100000)",
 		// Final Gloves - Perfect Upp'ed Magefist
-		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] == 30 && [addfireskills] == 1 # [tier] == 110000",
+		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] == 30 && [addfireskills] == 1 && [defense] == 71 # [tier] == 110000",
 		// Gloves - Upp'ed Magefist
-		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 20 && [addfireskills] == 1 # [tier] == 100000 + tierscore(item)",
+		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 20 && [addfireskills] == 1 # [tier] == tierscore(item, 100000)",
 		// Gloves - Magefist
-		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 20 && [addfireskills] == 1 # [tier] == 100000 + tierscore(item)",
+		"[name] == lightgauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 20 && [addfireskills] == 1 # [tier] == tierscore(item, 100000)",
 		// Amulet - Maras
-		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 100000 + tierscore(item)",
+		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == tierscore(item, 100000)",
 		// Final Rings - SoJ & Perfect Bul-Kathos' Wedding Band
 		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000",
 		"[name] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] == 5 # [tier] == 100000",
@@ -64,7 +64,7 @@ const finalBuild = {
 		// Switch Final Shield - Spirit
 		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000",
 		// Switch Temporary Shield - 1+ all skill
-		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == 50000 + tierscore(item)",
+		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == tierscore(item, 50000)",
 		// Merc Armor - Fortitude
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
 		// Merc Final Helmet - Eth Andy's

@@ -40,9 +40,9 @@ const finalBuild = {
 		// Helm - Dream
 		"[type] == helm && [flag] == runeword # [holyshockaura] >= 15 # [tier] == 110000",
 		// Belt - Verdungos
-		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [damageresist] == 15 # [tier] == 110000 + tierscore(item)",
+		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [damageresist] == 15 # [tier] == tierscore(item, 110000)",
 		// Boots - Gore Rider
-		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)",
+		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == tierscore(item, 110000)",
 		// Armor - CoH
 		"[type] == armor && [flag] == runeword && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 100000",
 		// Shield - Dream

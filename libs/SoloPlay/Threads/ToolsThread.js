@@ -351,7 +351,7 @@ function main () {
 				if (!!itemToCheck) {
 					let special = "";
 					if (itemToCheck.itemType === sdk.items.type.Ring) {
-						special = (" | ÿc4TierLHS: ÿc0" + tierscore(itemToCheck, sdk.body.RingRight) + " | ÿc4TierRHS: ÿc0" + tierscore(itemToCheck, sdk.body.RingLeft));
+						special = (" | ÿc4TierLHS: ÿc0" + tierscore(itemToCheck, 1, sdk.body.RingRight) + " | ÿc4TierRHS: ÿc0" + tierscore(itemToCheck, 1, sdk.body.RingLeft));
 					}
 					itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) + (special ? special : "")
 						+ " | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n"

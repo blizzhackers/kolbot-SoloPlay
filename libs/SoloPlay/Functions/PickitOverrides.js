@@ -158,7 +158,7 @@ Pickit.amountOfPotsNeeded = function () {
 				needed[pot.itemType][pot.location] -= 1;
 			});
 	}
-	let missing = Town.checkColumns(Pickit.beltSize);
+	let missing = Storage.Belt.checkColumns(Pickit.beltSize);
 	Config.BeltColumn.forEach(function (column, index) {
 		if (column === "hp") {needed[sdk.items.type.HealingPotion][sdk.storage.Belt] = missing[index];}
 		if (column === "mp") {needed[sdk.items.type.ManaPotion][sdk.storage.Belt] = missing[index];}
@@ -718,11 +718,25 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 					me.fieldID() && (canFit = (currItem.gid !== undefined && Storage.Inventory.CanFit(currItem)));
 				}
 
+				if (!canFit && !me.checkForMobs({ range: 10 })) {
+					me.sortInventory();
+					canFit = (Storage.Inventory.CanFit(currItem) || Pickit.canFit(currItem));
+				}
+
 				// Try to make room by selling items in town
 				if (!canFit) {
 					// Check if any of the current inventory items can be stashed or need to be identified and eventually sold to make room
 					if (this.canMakeRoom()) {
 						console.log("ÿc7Trying to make room for " + Item.color(currItem) + currItem.name);
+
+						/**
+						 * @todo
+						 * - Try to sort inventory if it is safe to do so
+						 * - Check to see if we can clear up enough buffer potions (exlcuding rejuvs) in order to pick the item
+						 * - If all this fails after visiting town to clear inventory and stash items then globally ignore this item
+						 * and potentially any other items it's size until our used space changes. Only way we should get to this point
+						 * is the use of an additonal pickit file without muling setup.
+						 */
 
 						// Go to town and do town chores
 						if (Town.visitTown()) {
@@ -736,7 +750,6 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 
 						return false;
 					}
-
 
 					// Can't make room - trigger automule
 					if (copyUnit(currItem).x !== undefined) {

@@ -31,19 +31,19 @@ const finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Final Weapon - Windforce
-		"[name] == hydrabow && [quality] == unique # [manaleech] >= 6 # [tier] == 100000 + tierscore(item)",
+		"[name] == hydrabow && [quality] == unique # [manaleech] >= 6 # [tier] == tierscore(item, 100000)",
 		// Weapon - WitchWild String up'd
-		"[name] == diamondbow && [quality] == unique # [fireresist] == 40 # [tier] == 50000 + tierscore(item)",
+		"[name] == diamondbow && [quality] == unique # [fireresist] == 40 # [tier] == tierscore(item, 50000)",
 		// Helmet - Vampz Gaze
-		"[name] == grimhelm && [quality] == unique && [flag] != ethereal # [manaleech] >= 6 && [lifeleech] >= 6 && [damageresist] >= 15 # [tier] == 100000 + tierscore(item)",
+		"[name] == grimhelm && [quality] == unique && [flag] != ethereal # [manaleech] >= 6 && [lifeleech] >= 6 && [damageresist] >= 15 # [tier] == tierscore(item, 100000)",
 		// Boots - War Traveler
 		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 30 # [tier] == 100000",
 		// Belt - Nosferatu's Coil
-		"[name] == vampirefangbelt && [quality] == unique && [flag] != ethereal # [lifeleech] >= 5 # [tier] == 100000 + tierscore(item)",
+		"[name] == vampirefangbelt && [quality] == unique && [flag] != ethereal # [lifeleech] >= 5 # [tier] == tierscore(item, 100000)",
 		// Armor - CoH
 		"[type] == armor && [flag] == runeword && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 100000",
 		// Gloves - Lava Gout
-		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [ias] == 20 && [enhanceddefense] >= 150 # [tier] == 3000 + tierscore(item)",
+		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [ias] == 20 && [enhanceddefense] >= 150 # [tier] == tierscore(item, 3000)",
 		// Final Amulet - Atma's Scarab
 		"[type] == amulet && [quality] == unique # [poisonresist] == 75 # [tier] == 110000",
 		// Amulet - Highlords
@@ -60,7 +60,7 @@ const finalBuild = {
 		// Switch Final Shield - Spirit
 		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000",
 		// Switch Temporary Shield - Any 1+ all skill
-		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == 100000 + tierscore(item)",
+		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == tierscore(item, 100000)",
 		// Merc Armor - Fortitude
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
 		// Merc Helmet - Eth Andy's

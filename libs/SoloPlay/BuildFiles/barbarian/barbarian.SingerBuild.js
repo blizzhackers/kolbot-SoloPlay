@@ -32,17 +32,17 @@ const finalBuild = {
 		// Weapon - HotO x2 dual wield
 		"[type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000",
 		// Helmet - Harlequin's Crest
-		"[name] == shako && [quality] == unique && [flag] != ethereal # [damageresist] == 10 # [tier] == 100000 + tierscore(item)",
+		"[name] == shako && [quality] == unique && [flag] != ethereal # [damageresist] == 10 # [tier] == tierscore(item, 100000)",
 		// Belt - Arach's
-		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 100000 + tierscore(item)",
+		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == tierscore(item, 100000)",
 		// Boots - Silkweave
-		"[name] == meshboots && [quality] == unique && [flag] != ethereal # [frw] >= 30 # [tier] == 100000 + tierscore(item)",
+		"[name] == meshboots && [quality] == unique && [flag] != ethereal # [frw] >= 30 # [tier] == tierscore(item, 100000)",
 		// Armor - Enigma
 		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000",
 		// Gloves - Frostburns
 		"[name] == gauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 10 # [tier] == 100000",
 		// Amulet - Maras
-		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 100000 + tierscore(item)",
+		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == tierscore(item, 100000)",
 		// Rings - SoJ
 		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000",
 		// Switch - BO sticks

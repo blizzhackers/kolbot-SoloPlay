@@ -35,23 +35,23 @@ const finalBuild = {
 		"[name] == phaseblade && [flag] == runeword # [enhanceddamage] >= 350 && [itemdeadlystrike] == 20 && [itemcrushingblow] == 20 # [tier] == 110000",
 		// Shield - Sanctuary
 		"[name] == hyperion # [fhr] >= 20 && [enhanceddefense] >= 130 && [fireresist] >= 70 # [tier] == 110000",
-		"[name] == hyperion # [fhr] >= 20 && [enhanceddefense] >= 130 && [fireresist] >= 50 # [tier] == 100000 + tierscore(item)",
+		"[name] == hyperion # [fhr] >= 20 && [enhanceddefense] >= 130 && [fireresist] >= 50 # [tier] == tierscore(item, 100000)",
 		// Helmet - Jalal's Mane
-		"[name] == totemicmask && [quality] == unique # [druidskills] == 2 && [shapeshiftingskilltab] == 2 # [tier] == 110000 + tierscore(item)",
+		"[name] == totemicmask && [quality] == unique # [druidskills] == 2 && [shapeshiftingskilltab] == 2 # [tier] == tierscore(item, 110000)",
 		// Belt - Verdungo's
-		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 110000 + tierscore(item)",
+		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == tierscore(item, 110000)",
 		// Armor - Chains of Honor
 		"[type] == armor && [flag] == runeword && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 110000",
 		// Gloves - Dracul's Grasp
-		"[name] == vampirebonegloves && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 110000 + tierscore(item)",
+		"[name] == vampirebonegloves && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == tierscore(item, 110000)",
 		// Boots - Gore Rider
-		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == 110000 + tierscore(item)",
+		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == tierscore(item, 110000)",
 		// Amulet - Metalgrid
-		"[type] == amulet && [quality] == unique # [tohit] >= 400 && [coldresist] >= 25 # [tier] == 110000 + tierscore(item)",
+		"[type] == amulet && [quality] == unique # [tohit] >= 400 && [coldresist] >= 25 # [tier] == tierscore(item, 110000)",
 		// Ring 1 - Ravenfrost
 		"[type] == ring && [quality] == unique # [tohit] >= 180 && [dexterity] >= 15 # [tier] == 100000",
 		// Ring 2 - Carrion Wind
-		"[name] == ring && [quality] == unique # [poisonresist] == 55 && [lifeleech] >= 6 # [tier] == 110000 + tierscore(item)",
+		"[name] == ring && [quality] == unique # [poisonresist] == 55 && [lifeleech] >= 6 # [tier] == tierscore(item, 110000)",
 		// Merc
 		// Final Armor - Fortitude
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",

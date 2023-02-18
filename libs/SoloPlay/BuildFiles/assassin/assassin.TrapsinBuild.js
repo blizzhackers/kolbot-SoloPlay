@@ -44,19 +44,19 @@ const finalBuild = {
 		// Temporary Weapon - HotO
 		"[type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000",
 		// Helmet - Andy's
-		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [tier] == 100000 + tierscore(item)",
+		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [tier] == tierscore(item, 100000)",
 		// Belt - Arach's
-		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == 100000 + tierscore(item)",
+		"[name] == spiderwebsash && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 # [tier] == tierscore(item, 100000)",
 		// Boots - Waterwalks
-		"[name] == sharkskinboots && [quality] == unique && [flag] != ethereal # [maxhp] >= 65 # [tier] == 100000 + tierscore(item)",
+		"[name] == sharkskinboots && [quality] == unique && [flag] != ethereal # [maxhp] >= 65 # [tier] == tierscore(item, 100000)",
 		// Armor - Enigma
 		"[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000",
 		// Shield - Spirit
-		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [tier] == 110000 + tierscore(item)",
+		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [tier] == tierscore(item, 110000)",
 		// Gloves - Lava Gout
-		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [ias] == 20 # [tier] == 100000 + tierscore(item)",
+		"[name] == battlegauntlets && [quality] == unique && [flag] != ethereal # [ias] == 20 # [tier] == tierscore(item, 100000)",
 		// Amulet - Maras
-		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == 100000 + tierscore(item)",
+		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == tierscore(item, 100000)",
 		// Final Rings - SoJ & Perfect Raven Frost
 		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000",
 		"[type] == ring	&& [quality] == unique # [dexterity] == 20 # [tier] == 110000",
@@ -67,7 +67,7 @@ const finalBuild = {
 		// Switch Final Shield - Spirit
 		"[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000",
 		// Switch Temporary Shield - Any 1+ all skill
-		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == 50000 + tierscore(item)",
+		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == tierscore(item, 50000)",
 		// Merc Armor - Fortitude
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
 		// Merc Final Helmet - Eth Andy's

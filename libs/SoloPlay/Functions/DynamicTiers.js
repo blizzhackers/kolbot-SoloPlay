@@ -338,7 +338,7 @@
 	 * @param {ItemUnit} item 
 	 * @param {number} [bodyloc] 
 	 */
-	const tierscore = function (item, bodyloc) {
+	const tierscore = function (item, tier, bodyloc) {
 		const buildInfo = Check.currentBuild();
 
 		const generalScore = () => {
@@ -591,7 +591,7 @@
 			return ctcRating;
 		};
 
-		let tier = 1; // set to 1 for native autoequip to use items.
+		tier === undefined && (tier = 1); // set to 1 for native autoequip to use items.
 		tier += generalScore();
 		tier += resistScore();
 		tier += buildScore();
@@ -605,6 +605,10 @@
 				if (item.classid === baseCID && item.sockets === sockets && !item.getItemsEx().length) return -1;
 			}
 		}
+
+		// if (tier > 1 && tier < NTIP.MAX_TIER && NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
+		// 	tier += NTIP.MAX_TIER;
+		// }
 
 		return item.questItem ? -1 : Math.max(1, tier);
 	};

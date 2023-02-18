@@ -579,7 +579,7 @@ Cubing.emptyCube = function () {
 
 		if (!Storage.Stash.MoveTo(items[0]) && !Storage.Inventory.MoveTo(items[0])) {
 			Town.clearInventory();
-			Town.sortInventory();
+			me.sortInventory();
 
 			if (!Storage.Stash.MoveTo(items[0]) && !Storage.Inventory.MoveTo(items[0])) {
 				return false;

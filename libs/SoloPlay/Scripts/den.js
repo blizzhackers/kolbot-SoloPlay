@@ -19,7 +19,7 @@ function den () {
 
 	myPrint("starting den");
 
-	me.gold > 500 && Town.initNPC("repair", "shopItems") && Town.shopItems(500, [sdk.items.type.Bow, sdk.items.type.Crossbow, sdk.items.type.Belt]);
+	me.gold > 500 && Town.initNPC("repair", "shopItems") && NPCAction.shopItems(500, [sdk.items.type.Bow, sdk.items.type.Crossbow, sdk.items.type.Belt]);
 	me.gold > 1000 && Town.buyPots(12, "stamina", true);
 
 	if (!Pather.checkWP(sdk.areas.ColdPlains) || me.charlvl < 4) {

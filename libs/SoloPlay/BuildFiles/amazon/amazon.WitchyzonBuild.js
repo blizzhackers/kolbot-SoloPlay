@@ -33,13 +33,13 @@ const finalBuild = {
 	],
 	autoEquipTiers: [ // autoequip final gear
 		// Weapon -  WitchWild String up'd
-		"[name] == diamondbow && [quality] == unique # [fireresist] == 40 # [tier] == 100000 + tierscore(item)",
+		"[name] == diamondbow && [quality] == unique # [fireresist] == 40 # [tier] == tierscore(item, 100000)",
 		// Helmet - Vampz Gaze
-		"[name] == grimhelm && [quality] == unique && [flag] != ethereal # [manaleech] >= 6 && [lifeleech] >= 6 && [damageresist] >= 15 # [tier] == 100000 + tierscore(item)",
+		"[name] == grimhelm && [quality] == unique && [flag] != ethereal # [manaleech] >= 6 && [lifeleech] >= 6 && [damageresist] >= 15 # [tier] == tierscore(item, 100000)",
 		// Boots - War Traveler
-		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 35 # [tier] == 100000 + tierscore(item)",
+		"[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 35 # [tier] == tierscore(item, 100000)",
 		// Belt - Nosferatu's Coil
-		"[name] == vampirefangbelt && [quality] == unique && [flag] != ethereal # [lifeleech] >= 5 # [tier] == 100000 + tierscore(item)",
+		"[name] == vampirefangbelt && [quality] == unique && [flag] != ethereal # [lifeleech] >= 5 # [tier] == tierscore(item, 100000)",
 		// Armor - CoH
 		"[type] == armor && [flag] == runeword && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 100000",
 		// Amulet - Cat's Eye
@@ -55,7 +55,7 @@ const finalBuild = {
 		// Switch Temporary Weapon - Life Tap charged wand
 		"[type] == wand && [quality] >= normal # [itemchargedskill] == 82 # [secondarytier] == 75000 + chargeditemscore(item, 82)",
 		// Switch Shield - Any 1+ all skill
-		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == 100000 + tierscore(item)",
+		"[type] == shield # [itemallskills] >= 1 # [secondarytier] == tierscore(item, 100000)",
 		// Merc Armor - Fortitude
 		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
 		// Merc Final Helmet - Eth Andy's

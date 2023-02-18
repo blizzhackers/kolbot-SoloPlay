@@ -105,7 +105,7 @@ function cows () {
 		}
 
 		me.cancel();
-		Town.sortInventory();
+		me.sortInventory();
 
 		return true;
 	};
@@ -120,7 +120,7 @@ function cows () {
 	
 	Town.doChores();
 	openPortal(sdk.areas.MooMooFarm, sdk.items.quest.WirtsLeg, sdk.items.TomeofTownPortal);
-	Town.fillTome(sdk.items.TomeofTownPortal);
+	NPCAction.fillTome(sdk.items.TomeofTownPortal);
 
 	// when does this become not worth it
 	if (Pather.canTeleport()) {

@@ -41,7 +41,7 @@ const finalBuild = {
 		// Gloves - IK Gauntlets
 		"[name] == wargauntlets && [quality] == set && [flag] != ethereal # [strength] >= 20 && [dexterity] >= 20 # [tier] == 110000",
 		// Amulet - Metalgrid
-		"[type] == amulet && [quality] == unique # [defense] >= 300 # [tier] == 110000 + tierscore(item)",
+		"[type] == amulet && [quality] == unique # [defense] >= 300 # [tier] == tierscore(item, 110000)",
 		// Final Rings - Perfect Raven Frost & Bul-Kathos' Wedding Band
 		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == 110000",
 		"[type] == ring && [quality] == unique # [maxstamina] == 50 && [lifeleech] == 5 # [tier] == 110000",

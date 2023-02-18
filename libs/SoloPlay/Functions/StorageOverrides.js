@@ -227,7 +227,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 			}
 		}
 
-		//this.Dump();
+		// this.Dump();
 
 		return true;
 	};
@@ -588,6 +588,27 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 			this.TradeScreen = new Container("Inventory", 10, 4, 5);
 			this.Stash = new Container("Stash", (Developer.plugyMode ? 10 : 6), this.StashY, 7);
 			this.Belt = new Container("Belt", 4 * this.BeltSize(), 1, 2);
+
+			/**
+			 * @description Return column status (needed potions in each column)
+			 * @param {0 | 1 | 2 | 3 | 4} beltSize 
+			 * @returns {[number, number, number, number]}
+			 */
+			this.Belt.checkColumns = function (beltSize) {
+				beltSize === undefined && (beltSize = this.width / 4);
+				let col = [beltSize, beltSize, beltSize, beltSize];
+				let pot = me.getItem(-1, sdk.items.mode.inBelt);
+
+				// No potions
+				if (!pot) return col;
+
+				do {
+					col[pot.x % 4] -= 1;
+				} while (pot.getNext());
+
+				return col;
+			};
+
 			this.Cube = new Container("Horadric Cube", 3, 4, 6);
 			this.InvRef = [];
 

@@ -12,7 +12,7 @@ const Quest = {
 			// cube
 			if (!me.cube) {
 				for (let getCube = 0; !me.cube && getCube < 5; getCube++) {
-					Loader.runScript("cube");
+					Loader.runScript("amulet");
 				}
 			}
 
@@ -124,7 +124,7 @@ const Quest = {
 
 				if (!Storage.Inventory.CanFit(hstaff)) {
 					Town.clearJunk();
-					Town.sortInventory();
+					me.sortInventory();
 				}
 
 				hstaff.isInStash && Town.openStash();

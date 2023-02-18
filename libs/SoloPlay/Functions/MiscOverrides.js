@@ -487,7 +487,7 @@ Misc.addSocketablesToItem = function (item, runes = []) {
 		bodyLoc = item.bodylocation;
 
 		if (!Storage.Inventory.CanFit(item)) {
-			Town.sortInventory();
+			me.sortInventory();
 
 			if (!Storage.Inventory.CanFit(item) && !Storage.Inventory.MoveTo(item)) {
 				console.log("ÿc8AddSocketableToItemÿc0 :: No space to get item back");

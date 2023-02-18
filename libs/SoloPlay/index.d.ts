@@ -58,6 +58,8 @@ declare global {
 		getItemsForRepair(repairPercent: number, chargedItems?: boolean): ItemUnit[];
 		needRepair(): string[];
 		needMerc(): boolean;
+		clearBelt(): boolean;
+		sortInventory(): boolean;
 	}
 
 	interface Container {
@@ -175,6 +177,30 @@ declare global {
 	}
 
 	namespace Check {
+	}
+
+	namespace NPCAction {
+		function buyPotions(): boolean;
+		function fillTome(classid: number, force?: boolean): boolean;
+		function cainID(force?: boolean): boolean;
+		function shopItems(force?: boolean): boolean;
+		function gamble(): boolean;
+		function repair(force?: boolean): boolean;
+		function reviveMerc(): boolean;
+	}
+
+	namespace AutoEquip {
+	}
+
+	type extraTasks = {
+		thawing?: boolean,
+		antidote?: boolean,
+		stamina?: boolean,
+		fullChores?: boolean,
+	};
+
+	namespace Town {
+		function doChores(repair?: boolean, givenTasks?: extraTasks): boolean;
 	}
 }
 export{};
