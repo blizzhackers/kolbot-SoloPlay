@@ -149,7 +149,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 	if (!unit) return Attack.Result.SUCCESS;
 	let gid = unit.gid;
 
-	if (Config.MercWatch && Town.needMerc()) {
+	if (Config.MercWatch && me.needMerc()) {
 		console.log("mercwatch");
 
 		if (Town.visitTown()) {
@@ -264,7 +264,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 
 			if (!unit) return Attack.Result.SUCCESS;
 
-			if (Town.needMerc()) {
+			if (me.needMerc()) {
 				if (Config.MercWatch && mercRevive++ < 1) {
 					Town.visitTown();
 				} else {

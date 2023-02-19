@@ -225,7 +225,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
 			if (!unit) return Attack.Result.SUCCESS;
 
-			if (Town.needMerc()) {
+			if (me.needMerc()) {
 				if (Config.MercWatch && mercRevive++ < 1) {
 					Town.visitTown();
 				} else {

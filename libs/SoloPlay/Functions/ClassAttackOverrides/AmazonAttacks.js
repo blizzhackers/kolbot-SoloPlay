@@ -28,7 +28,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 	let gid = unit.gid;
 	let needRepair = me.charlvl < 5 ? [] : me.needRepair();
 
-	if ((Config.MercWatch && Town.needMerc()) || needRepair.length > 0) {
+	if ((Config.MercWatch && me.needMerc()) || needRepair.length > 0) {
 		console.log("towncheck");
 
 		if (Town.visitTown(!!needRepair.length)) {
@@ -297,7 +297,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 
 			if (!unit) return Attack.Result.SUCCESS;
 
-			if (Town.needMerc()) {
+			if (me.needMerc()) {
 				if (Config.MercWatch && mercRevive++ < 1) {
 					Town.visitTown();
 				} else {

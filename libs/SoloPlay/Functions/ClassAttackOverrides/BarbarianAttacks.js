@@ -116,7 +116,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 		let needRepair = [], gold = me.gold;
 		me.charlvl >= 5 && (needRepair = me.needRepair());
 
-		if ((Config.MercWatch && Town.needMerc()) || needRepair.length > 0) {
+		if ((Config.MercWatch && me.needMerc()) || needRepair.length > 0) {
 			console.log("towncheck");
 
 			if (Town.visitTown(!!needRepair.length)) {

@@ -22,7 +22,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
 	const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
 	// prevent running back to town quickly if our merc is just weak
-	if (Config.MercWatch && Town.needMerc() && getTickCount() - MercWatch.last > Time.seconds(5)) {
+	if (Config.MercWatch && me.needMerc() && getTickCount() - MercWatch.last > Time.seconds(5)) {
 		console.log("mercwatch");
 
 		if (Town.visitTown()) {
@@ -162,7 +162,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
 
 			if (!unit) return Attack.Result.SUCCESS;
 
-			if (Town.needMerc()) {
+			if (me.needMerc()) {
 				if (Config.MercWatch && mercRevive++ < 1) {
 					Town.visitTown();
 				} else {
