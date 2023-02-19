@@ -606,9 +606,10 @@
 			}
 		}
 
-		// if (tier > 1 && tier < NTIP.MAX_TIER && NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
-		// 	tier += NTIP.MAX_TIER;
-		// }
+		if (tier > 1 && tier < NTIP.MAX_TIER && NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
+			// console.debug(item.prettyPrint + "~~~" + tier);
+			tier += NTIP.MAX_TIER;
+		}
 
 		return item.questItem ? -1 : Math.max(1, tier);
 	};
