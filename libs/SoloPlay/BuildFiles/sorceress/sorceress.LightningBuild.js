@@ -57,9 +57,9 @@ const finalBuild = {
 		"[type] == amulet && [quality] == unique # [strength] == 5 && [coldresist] >= 30 # [tier] == tierscore(item, 100000)",
 		// Final Rings - SoJ & Perfect Wisp
 		"[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000",
-		"[name] == ring && [quality] == unique # [itemabsorblightpercent] == 20 # [tier] == tierscore(item, 100000)",
+		"[name] == ring && [quality] == unique # [itemabsorblightpercent] == 20 # [tier] == tierscore(item, 110000)",
 		// Rings - Wisp
-		"[name] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == tierscore(item, 90000)",
+		"[name] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == tierscore(item, 100000)",
 		// Switch - CTA
 		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
 		// Switch Final Shield - Spirit

@@ -113,6 +113,7 @@
 	/* Gear */
 	let finalGear = Check.finalBuild().finalGear;
 	!!finalGear && NTIP.buildList(finalGear);
+	NTIP.buildFinalGear(finalGear);
 
 	Config.imbueables = [
 		{name: sdk.items.AvengerGuard, condition: () => (me.normal && me.expansion)},

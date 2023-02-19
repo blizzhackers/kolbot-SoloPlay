@@ -36,7 +36,7 @@ const finalBuild = {
 		// Final Weapon - Faith
 		"([type] == amazonbow || [type] == bow) && [flag] == runeword # [fanaticismaura] >= 12 && [itemallskills] >= 1 # [tier] == tierscore(item, 100000)",
 		// Weapon -  WitchWild String up'd
-		"[name] == diamondbow && [quality] == unique # [fireresist] == 40 # [tier] == tierscore(item, 90000)",
+		"[name] == diamondbow && [quality] == unique # [fireresist] == 40 # [tier] == tierscore(item, 100000)",
 		// Helmet - Vampz Gaze
 		"[name] == grimhelm && [quality] == unique && [flag] != ethereal # [manaleech] >= 6 && [lifeleech] >= 6 && [damageresist] >= 15 # [tier] == tierscore(item, 100000)",
 		// Boots - War Traveler
