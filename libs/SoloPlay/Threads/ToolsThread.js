@@ -292,6 +292,10 @@ function main () {
 			D2Bot.stop(me.profile, true);
 
 			break;
+		case sdk.keys.Delete: // quit current game
+			this.exit();
+
+			break;
 		case sdk.keys.Insert: // reveal level
 			me.overhead("Revealing " + getAreaName(me.area));
 			revealLevel(true);
@@ -561,13 +565,7 @@ function main () {
 	addEventListener("scriptmsg", this.scriptEvent);
 	addEventListener("scriptmsg", Tracker.logLeveling);
 
-	// Load Fastmod - patched
-	// Packet.changeStat(105, Config.FCR);
-	// Packet.changeStat(99, Config.FHR);
-	// Packet.changeStat(102, Config.FBR);
-	// Packet.changeStat(93, Config.IAS);
-
-	Config.QuitListMode > 0 && this.initQuitList();
+	Config.QuitListMode > 0 && Common.Toolsthread.initQuitList();
 
 	let myAct = me.act;
 
@@ -590,7 +588,7 @@ function main () {
 					!Developer.hideChickens && D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + getAreaName(me.area) + ". Ping: " + me.ping, sdk.colors.D2Bot.Red);
 					this.exit(true);
 
-					break;
+					return true;
 				}
 
 				Config.UseMP > 0 && me.mpPercent < Config.UseMP && this.drinkPotion(Common.Toolsthread.pots.Mana);
@@ -604,7 +602,7 @@ function main () {
 					!Developer.hideChickens && D2Bot.printToConsole("Mana Chicken: (" + me.mp + "/" + me.mpmax + ") in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
 					this.exit(true);
 
-					break;
+					return true;
 				}
 
 				if (Config.IronGolemChicken > 0 && me.necromancer) {
@@ -618,7 +616,7 @@ function main () {
 							!Developer.hideChickens && D2Bot.printToConsole("Irom Golem Chicken in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
 							this.exit(true);
 
-							break;
+							return true;
 						}
 					}
 				}
@@ -633,7 +631,7 @@ function main () {
 								!Developer.hideChickens && D2Bot.printToConsole("Merc Chicken in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
 								this.exit(true);
 
-								break;
+								return true;
 							}
 
 							mercHP < Config.UseMercHP && this.drinkPotion(Common.Toolsthread.pots.MercHealth);

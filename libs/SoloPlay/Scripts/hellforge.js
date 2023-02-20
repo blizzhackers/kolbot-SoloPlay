@@ -23,7 +23,10 @@ function hellforge () {
 	 * - Generate path and use callback to stop after we detect heph in range instead of moving all the way to the forge
 	 */
 
-	if (!Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.HellForge)) {
+	if (!Pather.moveToPresetObject(me.area, sdk.quest.chest.HellForge, { callback: () => {
+		let heph = Game.getMonster(getLocaleString(sdk.locale.monsters.HephastoTheArmorer));
+		return (heph && heph.distance < 30);
+	}})) {
 		console.warn("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Hephasto");
 	}
 

@@ -1,6 +1,6 @@
 /**
 *  @filename    anya.js
-*  @author      isid0re, theBGuy
+*  @author      theBGuy
 *  @desc        Anya rescue from frozen river
 *
 */
@@ -25,8 +25,6 @@ function anya () {
 
 	let presetLoc = Game.getPresetObject(me.area, sdk.objects.FrozenAnyasPlatform).realCoords();
 	let fStein = Game.getMonster(getLocaleString(sdk.locale.monsters.Frozenstein));
-	console.debug("dist anya-stein :: " + getDistance(presetLoc, fStein));
-	console.debug(presetLoc, fStein);
 
 	if (presetLoc && fStein && getDistance(presetLoc, fStein) < 15) {
 		// need to write a clearWhile function
