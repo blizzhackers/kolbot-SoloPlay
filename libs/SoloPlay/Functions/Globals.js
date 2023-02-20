@@ -621,7 +621,7 @@ const Check = {
 			return false;
 		case me.normal:
 		case !meleeChar && me.nightmare:
-			this.lowGold = myGold < repairCost;
+			Check.lowGold = myGold < repairCost;
 			return false;
 		case meleeChar && !me.normal:
 			// check how broke we are - only for melee chars since casters don't care about weapons
@@ -725,7 +725,7 @@ const Check = {
 	},
 
 	// todo: need to finish up adding locale string ids to sdk so I can remove this in favor of better me.checkItem prototype
-	haveItem: function (type, flag, iName = undefined) {
+	haveItem: function (type, flag, iName) {
 		let [isClassID, itemCHECK, typeCHECK] = [false, false, false];
 
 		flag && typeof flag === "string" && (flag = flag.capitalize(true));

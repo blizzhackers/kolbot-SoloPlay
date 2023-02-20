@@ -669,7 +669,7 @@ Cubing.validItem = function (unit, recipe) {
 	// START
 	let valid = true;
 	const ntipResult = NTIP.CheckItem(unit);
-	const ntipToTierResult = NTIP.CheckItem(unit, NTIP_CheckListNoTier);
+	const ntipNoTierResult = NTIP.CheckItem(unit, NTIP_CheckListNoTier);
 
 	if (recipe.Index >= Recipe.HitPower.Helm && recipe.Index <= Recipe.Safety.Weapon) {
 		if (Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) < recipe.Level) {
@@ -772,13 +772,13 @@ Cubing.validItem = function (unit, recipe) {
 		if (unit.magic && unit.ilvl >= recipe.Level) {
 			if (ntipResult === Pickit.Result.UNWANTED) return true;
 			// should allow for charms that aren't immeaditly wanted by equip and not nip wanted
-			if (unit.isCharm && !Item.autoEquipCharmCheck(unit) && ntipToTierResult === Pickit.Result.UNWANTED) return true;
+			if (unit.isCharm && !Item.autoEquipCharmCheck(unit) && ntipNoTierResult === Pickit.Result.UNWANTED) return true;
 			return true;
 		}
 
 		return false;
 	} else if (recipe.Index === Recipe.Reroll.Charm) {
-		if (unit.isCharm && unit.magic && (ntipResult === Pickit.Result.UNWANTED || (!Item.autoEquipCharmCheck(unit) && ntipToTierResult === Pickit.Result.UNWANTED))) {
+		if (unit.isCharm && unit.magic && (ntipResult === Pickit.Result.UNWANTED || (!Item.autoEquipCharmCheck(unit) && ntipNoTierResult === Pickit.Result.UNWANTED))) {
 			switch (unit.itemType) {
 			case sdk.items.type.SmallCharm:
 				if (unit.ilvl >= recipe.Level[unit.code].ilvl) {

@@ -220,7 +220,7 @@
 
 		let unids = me.getUnids();
 
-		if (unids) {
+		if (unids.length) {
 			// Check if we may use Cain - number of unid items
 			if (unids.length < Config.CainID.MinUnids && !force) return false;
 
@@ -299,7 +299,7 @@
 
 						item.sell();
 					} else {
-						console.log("clearInventory dropped " + item.name);
+						console.log("clearInventory dropped " + item.prettyPrint);
 						Item.logger("Dropped", item, "clearInventory");
 						item.drop();
 					}
@@ -319,7 +319,7 @@
 
 						if (scroll) {
 							if (!Storage.Inventory.CanFit(scroll)) {
-								let tpTome = me.findItem(sdk.items.TomeofTownPortal, sdk.items.mode.inStorage, sdk.storage.Inventory);
+								let tpTome = me.getTome(sdk.items.TomeofTownPortal);
 								!!tpTome && tpTome.sell() && delay(500);
 							}
 

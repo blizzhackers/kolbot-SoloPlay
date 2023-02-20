@@ -192,12 +192,11 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
 				}
 
 				// lets double check that this is the highest tied'd item of this type in our storage
-				// let betterItem = me.getItemsEx()
-				// 	.filter(el => el.isInStorage && el.gid !== item.gid && Item.getBodyLoc(el).includes(bodyLoc[i]))
-				// 	.some(el => NTIP.GetTier(el) > tier);
-				// console.debug("Higher tier'd item? " + betterItem);
+				let betterItem = me.getItemsEx()
+					.filter(el => el.isInStorage && el.gid !== item.gid && el.identified && Item.getBodyLoc(el).includes(bodyLoc[i]))
+					.some(el => NTIP.GetTier(el) > tier);
 
-				return true;
+				return !betterItem;
 			}
 		}
 	}
@@ -272,7 +271,7 @@ Item.autoEquip = function (task = "") {
 	}
 
 	// ring check - sometimes a higher tier ring ends up on the wrong finger causing a rollback loop
-	if (Item.getEquipped(sdk.body.RingLeft).tier > Item.getEquipped(sdk.body.RingRight).tier) {
+	if (Item.getEquipped(sdk.body.RingLeft).tierScore > Item.getEquipped(sdk.body.RingRight).tierScore) {
 		console.log("ÿc9" + task + "ÿc0 :: Swapping rings, higher tier ring is on the wrong finger");
 		clickItemAndWait(sdk.clicktypes.click.item.Left, sdk.body.RingLeft);
 		delay(200);
