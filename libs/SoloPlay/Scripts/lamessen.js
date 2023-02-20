@@ -1,7 +1,7 @@
 /**
 *  @filename    lamessen.js
-*  @author      isid0re, theBGuy
-*  @desc        get the lam essen's tome
+*  @author      theBGuy
+*  @desc        Get lamessen's tome
 *
 */
 
@@ -12,11 +12,13 @@ function lamessen () {
 	Pather.checkWP(sdk.areas.KurastBazaar, true) ? Pather.useWaypoint(sdk.areas.KurastBazaar) : Pather.getWP(sdk.areas.KurastBazaar);
 	Precast.doPrecast(true);
 
-	if (!Pather.moveToExit(sdk.areas.RuinedTemple, true) || !Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.LamEsensTomeHolder)) {
+	if (!Pather.moveToExit(sdk.areas.RuinedTemple, true) || !Pather.moveToPresetObject(me.area, sdk.quest.chest.LamEsensTomeHolder)) {
 		throw new Error("Failed to move to LamEssen Tome");
 	}
 
-	Quest.collectItem(sdk.items.quest.LamEsensTome, sdk.quest.chest.LamEsensTomeHolder);
+	if (!Misc.checkQuest(sdk.quest.id.LamEsensTome, sdk.quest.states.Completed)) {
+		Quest.collectItem(sdk.items.quest.LamEsensTome, sdk.quest.chest.LamEsensTomeHolder);
+	}
 	Quest.unfinishedQuests();
 
 	return true;

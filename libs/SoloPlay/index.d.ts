@@ -176,7 +176,39 @@ declare global {
 		function _delete(deleteMain: boolean): boolean;
 	}
 
+	namespace SetUp {
+		let mercEnabled: boolean;
+		const currentBuild: string;
+		const finalBuild: string;
+		const stopAtLevel: number | false;
+
+		function init(): void;
+		function include(): void;
+		function finalRespec(): number;
+		function getTemplate(): { buildType: string, template: string };
+		function specPush(specType: string): number[];
+		function makeNext(): void;
+		function belt(): void;
+		function buffers(): void;
+		function bowQuiver(): void;
+		function imbueItems(): string[];
+		function config(): void;
+	}
+
 	namespace Check {
+		let lowGold: boolean;
+
+		function gold(): boolean;
+		function brokeAf(): boolean;
+		function broken(): 0 | 1 | 2;
+		function brokeCheck(): boolean;
+		function resistance(): { Status: boolean, FR: number, CR: number, LR: number, PR: number };
+		function nextDifficulty(announce: boolean): string | false;
+		function runes(): boolean;
+		function haveItem(type: string | number, flag?: string | number, iName?: string): boolean;
+	}
+
+	namespace SoloWants {
 	}
 
 	namespace NPCAction {
