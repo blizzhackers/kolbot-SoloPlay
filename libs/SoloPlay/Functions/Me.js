@@ -329,7 +329,8 @@ me.clearBelt = function () {
 		} while (item.getNext());
 
 		while (clearList.length > 0) {
-			clearList.shift().interact();
+			let pot = clearList.shift();
+			(Storage.Inventory.CanFit(pot) && Storage.Inventory.MoveTo(pot)) || pot.interact();
 			delay(200);
 		}
 	}
