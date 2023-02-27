@@ -16,6 +16,7 @@ function countess () {
 
 	Pather.checkWP(sdk.areas.BlackMarsh, true) ? Pather.useWaypoint(sdk.areas.BlackMarsh) : Pather.getWP(sdk.areas.BlackMarsh);
 	Precast.doPrecast(true);
+	let forQuest = !!Misc.checkQuest(sdk.quest.id.ForgottenTower, sdk.quest.states.Completed);
 
 	if (me.charlvl < 12) {
 		// @todo - low level, lets take a scenic route and kill those hawk nests
@@ -33,6 +34,11 @@ function countess () {
 
 		Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.objects.SuperChest);
 		Attack.killTarget(getLocaleString(sdk.locale.monsters.TheCountess));
+
+		if (forQuest) {
+			Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.objects.SuperChest);
+			delay(3000);
+		}
 	} catch (err) {
 		console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to kill Countess: " + err);
 	}
