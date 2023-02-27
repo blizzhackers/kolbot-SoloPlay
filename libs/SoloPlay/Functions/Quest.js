@@ -280,7 +280,7 @@ const Quest = {
 		let questTool = me.getItem(tool);
 
 		while (me.getItem(tool)) {
-			smashable.distance > 4 && Pather.moveToEx(smashable.x, smashable.y, {clearSettings: {allowClearing: false}});
+			smashable.distance > 4 && Pather.moveToEx(smashable.x, smashable.y, { clearSettings: { allowClearing: false } });
 			Skill.cast(sdk.skills.Attack, sdk.skills.hand.Right, smashable);
 			smashable.interact();
 
@@ -656,6 +656,12 @@ const Quest = {
 			if (sor) {
 				sor.isInStash && Town.openStash() && delay(300);
 				sor.use() && console.log("ÿc8Kolbot-SoloPlayÿc0: used scroll of resistance");
+			}
+
+			if (Misc.checkQuest(sdk.quest.id.PrisonofIce, 7/** Used the scroll */)
+				&& !Misc.checkQuest(sdk.quest.id.PrisonofIce, sdk.quest.states.Completed)) {
+				// never talked to anya after drinking potion, lets do that
+				Town.npcInteract("anya");
 			}
 		}
 
