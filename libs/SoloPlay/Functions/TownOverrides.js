@@ -324,21 +324,32 @@ Town.stash = function (stashGold = true) {
 
 	let items = (Storage.Inventory.Compare(Config.Inventory) || []);
 
-	items.length > 0 && items.forEach(item => {
-		if (this.canStash(item)) {
-			const pickResult = Pickit.checkItem(item).result;
-			switch (true) {
-			case pickResult !== Pickit.Result.UNWANTED && pickResult !== Pickit.Result.TRASH:
-			case Town.systemsKeep(item):
-			case AutoEquip.wanted(item) && pickResult === Pickit.Result.UNWANTED: // wanted but can't use yet
-			case !item.sellable: // quest/essences/keys/ect
-				Storage.Stash.MoveTo(item) && Item.logger("Stashed", item);
-				break;
-			default:
-				break;
+	if (items.length > 0) {
+		Storage.Stash.SortItems();
+
+		items.forEach(item => {
+			if (this.canStash(item)) {
+				const pickResult = Pickit.checkItem(item).result;
+				switch (true) {
+				case pickResult !== Pickit.Result.UNWANTED && pickResult !== Pickit.Result.TRASH:
+				case Town.systemsKeep(item):
+				case AutoEquip.wanted(item) && pickResult === Pickit.Result.UNWANTED: // wanted but can't use yet
+				case !item.sellable: // quest/essences/keys/ect
+					if ([sdk.quest.item.PotofLife, sdk.quest.item.ScrollofResistance].includes(item.classid)) {
+						// don't stash item, use it
+						let refName = item.prettyPrint;
+						if (item.use()) {
+							console.log("Used " + refName);
+							return;
+						}
+					}
+					Storage.Stash.MoveTo(item) && Item.logger("Stashed", item);
+
+					break;
+				}
 			}
-		}
-	});
+		});
+	}
 
 	// Stash gold
 	if (stashGold) {
@@ -364,6 +375,7 @@ Town.clearInventory = function () {
 	// If we are at an npc already, open the window otherwise moving potions around fails
 	if (getUIFlag(sdk.uiflags.NPCMenu) && !getUIFlag(sdk.uiflags.Shop)) {
 		try {
+			console.debug("Open npc menu");
 			!!getInteractedNPC() && Misc.useMenu(sdk.menu.Trade);
 		} catch (e) {
 			console.error(e);
@@ -505,6 +517,9 @@ Town.clearJunk = function () {
 		.filter(i => i.isInStorage && !Town.ignoreType(i.itemType) && i.sellable && !Town.systemsKeep(i));
 	if (!junkItems.length) return false;
 
+	console.log("ÿc8Start ÿc0:: ÿc8clearJunk");
+	let clearJunkTick = getTickCount();
+
 	/**
 	 * @type {ItemUnit[][]}
 	 */
@@ -551,7 +566,7 @@ Town.clearJunk = function () {
 				continue;
 			}
 
-			if (junk.isBaseType && pickitResult === Pickit.Result.SOLOWANTS) {
+			if (junk.isBaseType && [Pickit.Result.CUBING, Pickit.Result.SOLOWANTS].includes(pickitResult)) {
 				if (!Item.betterThanStashed(junk)) {
 					console.log("ÿc9BetterThanStashedCheckÿc0 :: Base: " + junk.prettyPrint + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
 					getToItem("BetterThanStashedCheck", junk) && totalJunk.push(junk);
@@ -609,6 +624,8 @@ Town.clearJunk = function () {
 			delay(100);
 		}
 	}
+
+	console.log("ÿc8Exit clearJunk ÿc0- ÿc7Duration: ÿc0" + Time.format(getTickCount() - clearJunkTick));
 
 	return true;
 };
@@ -676,7 +693,6 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 	me.needRepair() && NPCAction.repair() && me.cancelUIFlags();
 
 	me.sortInventory();
-	extraTasks.fullChores && this.sortStash();
 	Quest.characterRespec();
 
 	me.act !== preAct && this.goToTown(preAct);
@@ -692,7 +708,6 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 	delay(300);
 	console.debug("doChores Ending Gold :: " + me.gold);
 	console.info(false, null, "doChores");
-	// Town.lastInteractedNPC.reset(); // unassign
 
 	return true;
 };
