@@ -125,6 +125,8 @@ const locations = {};
 				"\nÿc8ThreadData ::\n", getScript(true),
 				"\nÿc8GlobalVariabls ::\n", Object.keys(global),
 				"\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
+		} else if (msg === "deleteAndRemake") {
+			Starter.deadCheck = true;
 		} else {
 			orignal(msg);
 		}
@@ -542,9 +544,8 @@ const locations = {};
 		CharData.updateData("me", "finalBuild", Starter.profileInfo.tag);
 		Developer.logPerformance && Tracker.initialize();
 		D2Bot.printToConsole("Deleted: " + info.charName + ". Now remaking...", sdk.colors.D2Bot.Gold);
-		ControlAction.makeCharacter(Starter.profileInfo);
 
-		return true;
+		return ControlAction.makeCharacter(Starter.profileInfo);
 	};
 
 	ControlAction.saveInfo = function (info) {
@@ -987,12 +988,21 @@ const locations = {};
 
 		if (Starter.deadCheck && ControlAction.deleteAndRemakeChar(Starter.profileInfo)) {
 			Starter.deadCheck = false;
+			
+			return;
+		}
+
+		if (!Controls.CharSelectCreate.control) {
+			// We aren't in the right place
+			return;
 		}
 
 		if (Object.keys(Starter.profileInfo).length) {
 			if (!ControlAction.findCharacter(Starter.profileInfo)) {
+				let currLoc = getLocation();
 				if (Starter.profileInfo.charName === DataFile.getObj().name
-					&& getLocation() !== sdk.game.locations.CharSelectNoChars && ControlAction.getCharacters().length === 0) {
+					&& currLoc !== sdk.game.locations.CharSelectNoChars
+					&& ControlAction.getCharacters().length === 0) {
 					ControlAction.timeoutDelay("[R/D] Character not found ", 18e4);
 					D2Bot.printToConsole("Avoid Creating New Character - Restart");
 					D2Bot.restart();
