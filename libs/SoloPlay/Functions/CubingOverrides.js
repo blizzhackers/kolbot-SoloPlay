@@ -758,7 +758,7 @@ Cubing.validItem = function (unit, recipe) {
 		if (unit.normal && unit.sockets === 0) {
 			if (Pickit.Result.WANTED === ntipResult
 				&& [sdk.items.type.Wand, sdk.items.type.VoodooHeads, sdk.items.type.AuricShields, sdk.items.type.PrimalHelm, sdk.items.type.Pelt].includes(unit.itemType)) {
-				if (!Item.betterThanStashed(unit)) return false;
+				if (!Item.betterThanStashed(unit) || !Item.betterBaseThanWearing(unit)) return false;
 			}
 			switch (recipe.Ethereal) {
 			case Roll.All:

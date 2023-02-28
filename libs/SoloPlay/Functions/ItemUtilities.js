@@ -6,7 +6,7 @@
 */
 
 includeIfNotIncluded("core/Item.js");
-(function() {
+(function () {
 	// TODO: clean this up (sigh) - 8/10/22 - update refactored alot, still think more can be done though
 	const baseSkillsScore = (item, buildInfo) => {
 		buildInfo === undefined && (buildInfo = Check.currentBuild());
@@ -31,7 +31,7 @@ includeIfNotIncluded("core/Item.js");
 	 * @param {boolean} verbose 
 	 * @returns {boolean} 
 	 */
-	Item.betterBaseThanWearing = function (base = undefined, verbose = Developer.debugging.baseCheck) {
+	Item.betterBaseThanWearing = function (base, verbose = Developer.debugging.baseCheck) {
 		if (!base || !base.isBaseType) return false;
 
 		let name = "";
