@@ -50,10 +50,10 @@ function baal () {
 			break;
 		case sdk.player.class.Assassin:
 			if (Config.UseTraps) {
-				let check = ClassAttack.checkTraps({x: 15093, y: 5029});
+				let check = ClassAttack.checkTraps({ x: 15093, y: 5029 });
 
 				if (check) {
-					ClassAttack.placeTraps({x: 15093, y: 5029}, 5);
+					ClassAttack.placeTraps({ x: 15093, y: 5029 }, 5);
 
 					return true;
 				}
@@ -241,7 +241,7 @@ function baal () {
 		if (dollQuit && Game.getMonster(sdk.monsters.SoulKiller)) {
 			throw new ScriptError("Unsafe for hardcore, dolls found");
 		}
-	}});
+	} });
 	Pather.moveTo(15113, 5040, 5);
 
 	let totalTick = getTickCount();
@@ -259,7 +259,7 @@ function baal () {
 		Common.Baal.clearThrone();
 
 		if (me.coldRes < 75 || me.poisonRes < 75) {
-			Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
+			Town.doChores(null, { thawing: me.coldRes < 75, antidote: me.poisonRes < 75 });
 			Town.move("portalspot");
 			Pather.usePortal(sdk.areas.ThroneofDestruction, me.name);
 		}

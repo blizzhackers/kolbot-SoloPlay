@@ -8,7 +8,7 @@ js_strict(true);
 include("critical.js");
 
 // globals needed for core gameplay
-includeCoreLibs({ exclude: ["Storage.js"]});
+includeCoreLibs({ exclude: ["Storage.js"] });
 
 // system libs
 includeSystemLibs();
@@ -170,7 +170,7 @@ function main () {
 			if (profile !== me.profile && (me.hell || (me.nightmare && me.baal)) && me.ladder === ladder) {
 				if (torchType === me.classid && !me.findItem(604, 0, null, 7)) {
 					console.log("Sent Response");
-					SoloEvents.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 604});
+					SoloEvents.sendToProfile(profile, { profile: me.profile, level: me.charlvl, event: 604 });
 				}
 			}
 
@@ -185,7 +185,7 @@ function main () {
 			if (profile !== me.profile && (me.hell || (me.nightmare && me.baal)) && me.ladder === ladder) {
 				if (!me.findItem(603, 0, null, 7)) {
 					console.log("Sent Response");
-					SoloEvents.sendToProfile(profile, {profile: me.profile, level: me.charlvl, event: 603});
+					SoloEvents.sendToProfile(profile, { profile: me.profile, level: me.charlvl, event: 603 });
 				}
 			}
 
@@ -197,7 +197,7 @@ function main () {
 
 			console.log("Sucess: profile that contacted me: " + profile + " level of char: " + level);
 			SoloEvents.profileResponded = true;
-			profiles.push({profile: profile, level: level, event: event});
+			profiles.push({ profile: profile, level: level, event: event });
 			tickDelay += 1000;
 		}
 

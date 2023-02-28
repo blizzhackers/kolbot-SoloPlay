@@ -55,7 +55,7 @@ const CharData = {
 
 	loginData: {
 		filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-LoginData.json",
-		default: {Acc: "", Pass: "", Char: "", existing: false},
+		default: { Acc: "", Pass: "", Char: "", existing: false },
 
 		create: function () {
 			let obj = Object.assign({}, this.default);

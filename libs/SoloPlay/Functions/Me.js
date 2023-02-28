@@ -184,7 +184,6 @@ me.inDanger = function (checkLoc, range) {
 };
 
 /**
- * 
  * @param {number} skillId 
  * @param {number} subId 
  * @returns boolean
@@ -195,8 +194,8 @@ me.checkSkill = (skillId = 0, subId = 0) => !!me.getSkill(skillId, subId);
 me.cleanUpInvoPotions = function (beltSize) {
 	beltSize === undefined && (beltSize = Storage.BeltSize());
 	const beltMax = (beltSize * 4);
-	// belt 4x4 locations
 	/**
+	* belt 4x4 locations
 	* 12 13 14 15
 	* 8  9  10 11
 	* 4  5  6  7

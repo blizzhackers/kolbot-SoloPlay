@@ -11,7 +11,7 @@ function hellforge () {
 		if (Misc.poll(() => Misc.checkQuest(sdk.quest.id.HellsForge, sdk.quest.states.Completed), 2000, 500)) return true;
 	}
 	myPrint("starting hellforge");
-	Town.doChores(false, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75, fullChores: true});
+	Town.doChores(false, { thawing: me.coldRes < 75, antidote: me.poisonRes < 75, fullChores: true });
 	
 	Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
 	Precast.doPrecast(true);
@@ -26,7 +26,7 @@ function hellforge () {
 	if (!Pather.moveToPresetObject(me.area, sdk.quest.chest.HellForge, { callback: () => {
 		let heph = Game.getMonster(getLocaleString(sdk.locale.monsters.HephastoTheArmorer));
 		return (heph && heph.distance < 30);
-	}})) {
+	} })) {
 		console.warn("ÿc8Kolbot-SoloPlayÿc0: Failed to move to Hephasto");
 	}
 

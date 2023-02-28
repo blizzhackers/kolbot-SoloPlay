@@ -57,6 +57,9 @@ function tristram () {
 
 	if (!Misc.checkQuest(sdk.quest.id.TheSearchForCain, 4) && me.getItem(sdk.items.quest.KeytotheCairnStones)) {
 		try {
+			/**
+			 * @todo I know there is a way to read the correct stone order from the packet response, need to figure that out
+			 */
 			include("core/Common/Cain.js");
 			
 			const stoneIds = [
@@ -109,13 +112,13 @@ function tristram () {
 	if (me.inArea(sdk.areas.Tristram)) {
 		if (!me.tristram) {
 			let clearCoords = [
-				{"x": 25166, "y": 5108, "radius": 10},
-				{"x": 25164, "y": 5115, "radius": 10},
-				{"x": 25163, "y": 5121, "radius": 10},
-				{"x": 25158, "y": 5126, "radius": 10},
-				{"x": 25151, "y": 5125, "radius": 10},
-				{"x": 25145, "y": 5129, "radius": 10},
-				{"x": 25142, "y": 5135, "radius": 10}
+				{ "x": 25166, "y": 5108, "radius": 10 },
+				{ "x": 25164, "y": 5115, "radius": 10 },
+				{ "x": 25163, "y": 5121, "radius": 10 },
+				{ "x": 25158, "y": 5126, "radius": 10 },
+				{ "x": 25151, "y": 5125, "radius": 10 },
+				{ "x": 25145, "y": 5129, "radius": 10 },
+				{ "x": 25142, "y": 5135, "radius": 10 }
 			];
 			Attack.clearCoordList(clearCoords);
 

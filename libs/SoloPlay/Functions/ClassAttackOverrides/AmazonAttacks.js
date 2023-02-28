@@ -123,7 +123,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 	// specials and dolls for now, should make dolls much less dangerous with the reduction of their damage
 	if (Precast.haveCTA > -1 && unit.curseable && (index === 1 || unit.isDoll)
 		&& unit.distance < 5 && !unit.getState(sdk.states.BattleCry) && unit.curseable) {
-		Skill.switchCast(sdk.skills.BattleCry, {oSkill: true});
+		Skill.switchCast(sdk.skills.BattleCry, { oSkill: true });
 	}
 
 	if (useSkills.Decoy) {
@@ -314,7 +314,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 				!!spot && Pather.walkTo(spot.x, spot.y);
 			}
 
-			let closeMob = Attack.getNearestMonster({skipGid: gid});
+			let closeMob = Attack.getNearestMonster({ skipGid: gid });
 				
 			if (!!closeMob) {
 				let findSkill = this.decideSkill(closeMob);

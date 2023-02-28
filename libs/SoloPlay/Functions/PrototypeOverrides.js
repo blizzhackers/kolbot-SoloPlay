@@ -434,7 +434,6 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 
 Unit.prototype.castSwitchChargedSkill = function (...args) {
 	let skillId, x, y, unit, chargedItem;
-	let chargedItems = [];
 
 	switch (args.length) {
 	case 0: // item.castChargedSkill()
@@ -475,7 +474,10 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 	if (this === me) {
 		if (!skillId) throw Error("Must supply skillId on me.castChargedSkill");
 
-		chargedItems = [];
+		/**
+		 * @type {{ charge: number, level: number, item: ItemUnit }[]}
+		 */
+		let chargedItems = [];
 
 		CharData.skillData.chargedSkillsOnSwitch.forEach(chargeSkill => {
 			if (chargeSkill.skill === skillId) {

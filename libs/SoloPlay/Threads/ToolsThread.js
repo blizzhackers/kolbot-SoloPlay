@@ -8,7 +8,7 @@ js_strict(true);
 include("critical.js");
 
 // globals needed for core gameplay
-includeCoreLibs({ exclude: ["Storage.js"]});
+includeCoreLibs({ exclude: ["Storage.js"] });
 include("core/Common/Tools.js");
 
 // system libs
@@ -35,7 +35,7 @@ function main () {
 	let debugInfo = { area: 0, currScript: "no entry" };
 
 	new Overrides.Override(Attack, Attack.getNearestMonster, function (orignal) {
-		let monster = orignal({skipBlocked: false, skipImmune: false});
+		let monster = orignal({ skipBlocked: false, skipImmune: false });
 		return (monster ? " to " + monster.name : "");
 	}).apply();
 
@@ -478,6 +478,10 @@ function main () {
 		if (msg && typeof msg === "string" && msg !== "") {
 			let updated = false;
 			switch (true) {
+			case msg === "deleteAndRemake" && Developer.testingMode.enabled:
+				quitFlag = true;
+
+				break;
 			case msg.substring(0, 8) === "config--":
 				console.debug("update config");
 				Config = JSON.parse(msg.split("config--")[1]);

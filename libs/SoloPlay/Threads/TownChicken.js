@@ -8,7 +8,7 @@ js_strict(true);
 include("critical.js");
 
 // globals needed for core gameplay
-includeCoreLibs({ exclude: ["Storage.js"]});
+includeCoreLibs({ exclude: ["Storage.js"] });
 
 // system libs
 includeSystemLibs();
@@ -446,7 +446,7 @@ function main() {
 						}
 
 						if (useTerror && Skill.getManaCost(77) < me.mp) {
-							Skill.cast(77, sdk.skills.hand.Right, Attack.getNearestMonster({skipImmune: false}));
+							Skill.cast(77, sdk.skills.hand.Right, Attack.getNearestMonster({ skipImmune: false }));
 						}
 					}
 				}

@@ -92,7 +92,14 @@ Attack.getLowerResistPercent = function () {
 	return 0;
 };
 
-Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
+/**
+ * Check if monster is immmune to a damagetype
+ * @param {Monster} unit 
+ * @param {number} val 
+ * @param {number} maxres 
+ * @returns {boolean} true if they are not immune
+ */
+Attack.checkResist = function (unit, val = -1, maxres = 100) {
 	if (!unit || !unit.type || unit.type === sdk.unittype.Player) return true;
 
 	const damageType = typeof val === "number" ? this.getSkillElement(val) : val;
@@ -144,8 +151,12 @@ Attack.checkResist = function (unit = undefined, val = -1, maxres = 100) {
 	return this.getResist(unit, damageType) < maxres;
 };
 
-// Maybe make this a prototype and use game data to also check if should attack not just can based on effort?
-Attack.canAttack = function (unit = undefined) {
+/**
+ * @param {Monster} unit 
+ * @returns {boolean} If we have a valid skill to use on this monster
+ * @todo Maybe make this a prototype and use game data to also check if should attack not just can based on effort?
+ */
+Attack.canAttack = function (unit) {
 	if (!unit) return false;
 	if (unit.isMonster) {
 		// Unique/Champion
@@ -167,8 +178,15 @@ Attack.canAttack = function (unit = undefined) {
 	return false;
 };
 
-Attack.openChests = function (range = 10, x = undefined, y = undefined) {
+/**
+ * @param {number} range 
+ * @param {number} x 
+ * @param {number} y 
+ * @returns {boolean}
+ */
+Attack.openChests = function (range, x, y) {
 	if (!Config.OpenChests.Enabled || !Misc.openChestsEnabled) return false;
+	range === undefined && (range = 10);
 	x === undefined && (x = me.x);
 	y === undefined && (y = me.y);
 
@@ -196,8 +214,11 @@ Attack.openChests = function (range = 10, x = undefined, y = undefined) {
 	return true;
 };
 
-// this might be depreciated now 
-Attack.killTarget = function (name = undefined) {
+/**
+ * @param {Monster | string | number} name 
+ * @returns {boolean}
+ */
+Attack.killTarget = function (name) {
 	if (!name || Config.AttackSkill[1] < 0) return false;
 	typeof name === "string" && (name = name.toLowerCase());
 	let target = (typeof name === "object" ? name : Misc.poll(() => Game.getMonster(name), 2000, 100));
@@ -235,7 +256,7 @@ Attack.killTarget = function (name = undefined) {
 	const gid = target.gid;
 	let errorInfo = "";
 	let [retry, attackCount] = [0, 0];
-	let lastLoc = {x: me.x, y: me.y};
+	let lastLoc = { x: me.x, y: me.y };
 	let tick = getTickCount();
 
 	try {
@@ -280,7 +301,7 @@ Attack.killTarget = function (name = undefined) {
 				retry = 0;
 			}
 
-			lastLoc = {x: me.x, y: me.y};
+			lastLoc = { x: me.x, y: me.y };
 			attackCount++;
 
 			if (target.dead || Config.FastPick || (attackCount > 0 && attackCount % 5 === 0)) {
@@ -316,6 +337,14 @@ Attack.clearLocations = function (list = []) {
 	return true;
 };
 
+/**
+ * Clear around a certain node
+ * @param {number} x 
+ * @param {number} y 
+ * @param {number} range 
+ * @param {boolean} pickit 
+ * @returns {boolean}
+ */
 Attack.clearPos = function (x, y, range = 15, pickit = true) {
 	while (!me.gameReady) {
 		delay(40);
@@ -374,7 +403,7 @@ Attack.clearPos = function (x, y, range = 15, pickit = true) {
 					}
 				}
 
-				(i === gidAttack.length) && gidAttack.push({gid: target.gid, attacks: 0, name: target.name});
+				(i === gidAttack.length) && gidAttack.push({ gid: target.gid, attacks: 0, name: target.name });
 				gidAttack[i].attacks += 1;
 				attackCount += 1;
 				let isSpecial = target.isSpecial;
@@ -617,10 +646,9 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 			return Attack.clear(10);
 		}
 
-		({orgx, orgy} = {orgx: boss.x, orgy: boss.y});
-		Config.MFLeader && !!bossId && Pather.makePortal() && say("clear " + bossId);
+		({ orgx, orgy } = { orgx: boss.x, orgy: boss.y });
 	} else {
-		({orgx, orgy} = {orgx: me.x, orgy: me.y});
+		({ orgx, orgy } = { orgx: me.x, orgy: me.y });
 	}
 
 	let monsterList = [];
@@ -646,7 +674,7 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 	while (start && monsterList.length > 0 && attackCount < 300) {
 		if (me.dead || Attack.stopClear) return false;
 		
-		boss && (({orgx, orgy} = {orgx: boss.x, orgy: boss.y}));
+		boss && (({ orgx, orgy } = { orgx: boss.x, orgy: boss.y }));
 		monsterList.sort(sortfunc);
 		target = copyUnit(monsterList[0]);
 
@@ -920,7 +948,7 @@ Attack.castCharges = function (skillId = undefined, unit = undefined) {
 	return true;
 };
 
-Attack.switchCastCharges = function (skillId = undefined, unit = undefined) {
+Attack.switchCastCharges = function (skillId, unit) {
 	if (!skillId || !unit || !Skill.wereFormCheck(skillId) || (me.inTown && !Skill.townSkill(skillId))) {
 		return false;
 	}
@@ -931,14 +959,22 @@ Attack.switchCastCharges = function (skillId = undefined, unit = undefined) {
 	return true;
 };
 
-Attack.dollAvoid = function (unit = undefined) {
+/**
+ * Position ourselves further from a doll to attack
+ * @param {Monster} unit 
+ * @returns {boolean}
+ */
+Attack.dollAvoid = function (unit) {
 	if (!unit) return false;
 	let distance = 14;
 
 	for (let i = 0; i < 2 * Math.PI; i += Math.PI / 6) {
 		let cx = Math.round(Math.cos(i) * distance);
 		let cy = Math.round(Math.sin(i) * distance);
-		if (Attack.validSpot(unit.x + cx, unit.y + cy)) return Pather.moveTo(unit.x + cx, unit.y + cy);
+		if (Attack.validSpot(unit.x + cx, unit.y + cy)) {
+			// don't clear while trying to reposition
+			return Pather.moveToEx(unit.x + cx, unit.y + cy, { clearSettings: { allowClearing: false } });
+		}
 	}
 
 	return false;
@@ -1109,7 +1145,7 @@ Attack.pwnDia = function () {
 		return Game.getMonster(sdk.monsters.Diablo);
 	};
 	{
-		let nearSpot = Pather.spotOnDistance({ x: 7792, y: 5292 }, 35, {returnSpotOnError: false});
+		let nearSpot = Pather.spotOnDistance({ x: 7792, y: 5292 }, 35, { returnSpotOnError: false });
 		Pather.moveToUnit(nearSpot);
 	}
 
@@ -1286,7 +1322,7 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
 	});
 
 	for (let i = 0; i < grid.length; i += 1) {
-		if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & sdk.collision.BlockWall) && !CollMap.checkColl(unit, {x: grid[i].x, y: grid[i].y}, sdk.collision.Ranged)) {
+		if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & sdk.collision.BlockWall) && !CollMap.checkColl(unit, { x: grid[i].x, y: grid[i].y }, sdk.collision.Ranged)) {
 			currCount = this.getMonsterCount(grid[i].x, grid[i].y, range, monList);
 
 			if (currCount < count) {
@@ -1367,7 +1403,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
 			if (!force) {
 				for (let i = 0; i < coords.length; i += 1) {
 					if ((getDistance(me, coords[i].x, coords[i].y) < 1
-						&& !CollMap.checkColl(unit, {x: coords[i].x, y: coords[i].y}, sdk.collision.WallOrRanged | sdk.collision.Objects | sdk.collision.IsOnFloor, 1))
+						&& !CollMap.checkColl(unit, { x: coords[i].x, y: coords[i].y }, sdk.collision.WallOrRanged | sdk.collision.Objects | sdk.collision.IsOnFloor, 1))
 						|| (getDistance(me, coords[i].x, coords[i].y) <= 5 && me.getMobCount(6) > 2)) {
 						return true;
 					}

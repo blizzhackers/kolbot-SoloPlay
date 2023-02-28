@@ -67,7 +67,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
 	// specials and dolls for now, should make dolls much less dangerous with the reduction of their damage
 	if (Precast.haveCTA > -1 && !unit.dead && (index === 1 || unit.isDoll)
 		&& unit.distance < 5 && !unit.getState(sdk.states.BattleCry) && unit.curseable) {
-		Skill.switchCast(sdk.skills.BattleCry, {oSkill: true});
+		Skill.switchCast(sdk.skills.BattleCry, { oSkill: true });
 	}
 
 	if (Attack.getCustomAttack(unit)) {
@@ -179,7 +179,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
 				!!spot && Pather.walkTo(spot.x, spot.y);
 			}
 
-			let closeMob = Attack.getNearestMonster({skipGid: gid});
+			let closeMob = Attack.getNearestMonster({ skipGid: gid });
 			!!closeMob && this.doCast(closeMob, attackSkill, aura);
 		}
 
@@ -391,7 +391,7 @@ ClassAttack.afterAttack = function () {
 	Precast.doPrecast(false);
 
 	if (Skill.canUse(sdk.skills.Cleansing) && me.hpPercent < 85 && me.getState(sdk.states.Poison)
-		&& !me.checkForMobs({range: 12, coll: Coords_1.BlockBits.BlockWall}) && Skill.setSkill(sdk.skills.Cleansing, sdk.skills.hand.Right)) {
+		&& !me.checkForMobs({ range: 12, coll: Coords_1.BlockBits.BlockWall }) && Skill.setSkill(sdk.skills.Cleansing, sdk.skills.hand.Right)) {
 		me.overhead("Delaying for a second to get rid of Poison");
 		Misc.poll(() => (!me.getState(sdk.states.Poison) || me.mode === sdk.player.mode.GettingHit), 1500, 50);
 	}

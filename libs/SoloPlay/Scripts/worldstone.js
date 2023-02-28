@@ -8,7 +8,7 @@
 function worldstone() {
 	myPrint("starting worldstone");
 
-	Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
+	Town.doChores(null, { thawing: me.coldRes < 75, antidote: me.poisonRes < 75 });
 
 	Pather.useWaypoint(sdk.areas.WorldstoneLvl2);
 	Precast.doPrecast(true);

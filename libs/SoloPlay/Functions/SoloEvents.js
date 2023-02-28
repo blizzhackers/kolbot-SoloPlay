@@ -179,7 +179,7 @@
 			if (!charm || charm === undefined) return false;
 
 			D2Bot.printToConsole("Kolbot-SoloPlay :: Dropping " + charm.name, sdk.colors.D2Bot.Orange);
-			let orginalLocation = {act: me.act, area: me.area, x: me.x, y: me.y};
+			let orginalLocation = { act: me.act, area: me.area, x: me.x, y: me.y };
 
 			if (!me.inTown) {
 				Town.goToTown(1);
@@ -204,7 +204,7 @@
 		// end the current script but insert it to be continued after dclone is dead
 		killdclone: function () {
 			D2Bot.printToConsole("Kolbot-SoloPlay :: Trying to kill DClone.", sdk.colors.D2Bot.Orange);
-			let orginalLocation = {area: me.area, x: me.x, y: me.y};
+			let orginalLocation = { area: me.area, x: me.x, y: me.y };
 
 			!me.inTown && Town.goToTown();
 
@@ -231,7 +231,7 @@
 			let oldAnni = me.findItem(sdk.items.SmallCharm, sdk.items.mode.inStorage, -1, sdk.items.quality.Unique);
 
 			if (newAnni && oldAnni) {
-				this.sendToList({profile: me.profile, ladder: me.ladder}, 60);
+				this.sendToList({ profile: me.profile, ladder: me.ladder }, 60);
 
 				let tick = getTickCount();
 

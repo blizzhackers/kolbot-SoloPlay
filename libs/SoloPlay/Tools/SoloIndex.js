@@ -102,9 +102,9 @@ const SoloIndex = {
 			skipIf: function () {
 				switch (me.classid) {
 				case sdk.player.class.Paladin:
-					return Pather.accessToAct(3) || Attack.auradin || me.checkItem({name: sdk.locale.items.Enigma}).have;
+					return Pather.accessToAct(3) || Attack.auradin || me.checkItem({ name: sdk.locale.items.Enigma }).have;
 				case sdk.player.class.Barbarian:
-					return Pather.accessToAct(3) || me.checkItem({name: sdk.locale.items.Lawbringer}).have;
+					return Pather.accessToAct(3) || me.checkItem({ name: sdk.locale.items.Lawbringer }).have;
 				default:
 					if (me.hell && me.charlvl > 72 && Pather.accessToAct(2)) return true;
 					return false;
@@ -125,7 +125,7 @@ const SoloIndex = {
 				return (me.hell && !Pather.accessToAct(3));
 			},
 			skipIf: function () {
-				return !me.paladin || Attack.auradin || me.checkItem({name: sdk.locale.items.Enigma}).have;
+				return !me.paladin || Attack.auradin || me.checkItem({ name: sdk.locale.items.Enigma }).have;
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
@@ -141,7 +141,7 @@ const SoloIndex = {
 				let needRunes = Check.runes();
 				switch (true) {
 				case (me.normal && (needRunes || Check.brokeAf())): // todo - better determination for low gold
-				case (me.barbarian && me.hell && me.checkItem({name: sdk.locale.items.Lawbringer}).have):
+				case (me.barbarian && me.hell && me.checkItem({ name: sdk.locale.items.Lawbringer }).have):
 				case (!me.normal && (Pather.canTeleport() || me.charlvl < 60)):
 					return true;
 				}
@@ -238,7 +238,7 @@ const SoloIndex = {
 			skipIf: function () {
 				if (me.barbarian && (!me.hell || Pather.accessToAct(3)
 					|| (Item.getEquipped(sdk.body.LeftArm).tier > 1270
-					|| me.checkItem({name: sdk.locale.items.Lawbringer}).have))) {
+					|| me.checkItem({ name: sdk.locale.items.Lawbringer }).have))) {
 					return true;
 				}
 				
@@ -452,7 +452,7 @@ const SoloIndex = {
 			},
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
-				return (me.nightmare && me.charlvl >= 50 && !me.checkItem({name: sdk.locale.items.VoiceofReason}).have);
+				return (me.nightmare && me.charlvl >= 50 && !me.checkItem({ name: sdk.locale.items.VoiceofReason }).have);
 			}
 		},
 		"heart": {
@@ -491,8 +491,8 @@ const SoloIndex = {
 				switch (true) {
 				case !me.travincal:
 				case (me.charlvl < 25 || (me.charlvl >= 25 && me.normal && !me.diffCompleted && Check.brokeAf())):
-				case (me.nightmare && !me.diablo && me.barbarian && !me.checkItem({name: sdk.locale.items.Lawbringer}).have):
-				case (me.hell && me.paladin && me.charlvl > 85 && (!Attack.auradin || !me.checkItem({name: sdk.locale.items.Enigma}).have)):
+				case (me.nightmare && !me.diablo && me.barbarian && !me.checkItem({ name: sdk.locale.items.Lawbringer }).have):
+				case (me.hell && me.paladin && me.charlvl > 85 && (!Attack.auradin || !me.checkItem({ name: sdk.locale.items.Enigma }).have)):
 					return true;
 				}
 				return false;
@@ -546,7 +546,7 @@ const SoloIndex = {
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
 				switch (true) {
-				case (me.barbarian && !me.checkItem({name: sdk.locale.items.Lawbringer}).have):
+				case (me.barbarian && !me.checkItem({ name: sdk.locale.items.Lawbringer }).have):
 				case (me.sorceress && me.classic):
 					return true;
 				}
@@ -564,7 +564,7 @@ const SoloIndex = {
 			shouldRun: function () {
 				if (!this.preReq() || this.skipIf()) return false;
 				switch (true) {
-				case (me.charlvl <= 70 && !me.checkItem({name: sdk.locale.items.Lawbringer}).have):
+				case (me.charlvl <= 70 && !me.checkItem({ name: sdk.locale.items.Lawbringer }).have):
 					return true;
 				}
 				return false;

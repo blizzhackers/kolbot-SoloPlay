@@ -8,7 +8,7 @@
 function river() {
 	myPrint("starting river");
 
-	Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
+	Town.doChores(null, { thawing: me.coldRes < 75, antidote: me.poisonRes < 75 });
 
 	Pather.checkWP(sdk.areas.CityoftheDamned, true) ? Pather.useWaypoint(sdk.areas.CityoftheDamned) : Pather.getWP(sdk.areas.CityoftheDamned);
 	Precast.doPrecast(true);

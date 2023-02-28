@@ -212,5 +212,5 @@ if (!Array.prototype.equals) {
 		return true;
 	};
 	// Hide method from for-in loops
-	Object.defineProperty(Array.prototype, "equals", {enumerable: false});
+	Object.defineProperty(Array.prototype, "equals", { enumerable: false });
 }

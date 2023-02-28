@@ -155,7 +155,7 @@ Unit.prototype.autoEquipCheck = function (checkCanEquip = true) {
 	if (tier > 0 && bodyLoc.length) {
 		for (let i = 0; i < bodyLoc.length; i += 1) {
 			if (tier > Item.getEquipped(bodyLoc[i]).tier
-                && ((checkCanEquip ? this.canEquip() : true) || !this.identified)) {
+					&& ((checkCanEquip ? this.canEquip() : true) || !this.identified)) {
 				if (this.twoHanded && !me.barbarian) {
 					if (tier < Item.getEquipped(sdk.body.RightArm).tier + Item.getEquipped(sdk.body.LeftArm).tier) return false;
 				}
@@ -182,7 +182,7 @@ Unit.prototype.autoEquipCheckSecondary = function (checkCanEquip = true) {
 	if (tier > 0 && bodyLoc.length) {
 		for (let i = 0; i < bodyLoc.length; i += 1) {
 			if (tier > Item.getEquipped(bodyLoc[i]).secondarytier
-                && ((checkCanEquip ? this.canEquip() : true) || !this.identified)) {
+					&& ((checkCanEquip ? this.canEquip() : true) || !this.identified)) {
 				if (this.twoHanded && !me.barbarian) {
 					if (tier < Item.getEquipped(sdk.body.RightArmSecondary).secondarytier + Item.getEquipped(sdk.body.LeftArmSecondary).secondarytier) return false;
 				}

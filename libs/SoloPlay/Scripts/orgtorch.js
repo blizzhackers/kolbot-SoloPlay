@@ -29,7 +29,7 @@ function orgtorch() {
 
 		for (let i = 0; i < 7; i++) {
 			if (torch.getStat(sdk.stats.AddClassSkills, i)) {
-				SoloEvents.sendToList({profile: me.profile, ladder: me.ladder, torchType: i});
+				SoloEvents.sendToList({ profile: me.profile, ladder: me.ladder, torchType: i });
 
 				return true;
 			}
@@ -90,9 +90,9 @@ function orgtorch() {
 	// Get fade in River of Flames
 	this.getFade = function () {
 		if (!me.getState(sdk.states.Fade)
-			&& (me.checkItem({name: sdk.locale.items.Treachery, equipped: true}).have
-			|| me.checkItem({name: sdk.locale.items.LastWish, equipped: true}).have
-			|| me.checkItem({name: sdk.locale.items.SpiritWard, equipped: true}).have)) {
+			&& (me.checkItem({ name: sdk.locale.items.Treachery, equipped: true }).have
+			|| me.checkItem({ name: sdk.locale.items.LastWish, equipped: true }).have
+			|| me.checkItem({ name: sdk.locale.items.SpiritWard, equipped: true }).have)) {
 			if (!me.getState(sdk.states.Fade)) {
 				myPrint(sdk.colors.Orange + "OrgTorch :: " + sdk.colors.White + "Getting Fade");
 				Pather.useWaypoint(sdk.states.RiverofFlame);

@@ -16,7 +16,7 @@ function jail () {
 		myPrint("clearing jail level " + i);
 
 		Precast.doPrecast(true);
-		Attack.clearLevelEx({quitWhen: function () {
+		Attack.clearLevelEx({ quitWhen: function () {
 			if (!me.hell) return false; // don't quit
 			let dangerMob = Game.getMonster();
 
@@ -30,7 +30,7 @@ function jail () {
 			}
 
 			return false;
-		}});
+		} });
 		Pather.clearToExit(me.area, levels[i], true);
 	}
 

@@ -91,12 +91,12 @@
 	));
 	// spirit base
 	basicSocketables.caster.push(addSocketableObj(sdk.items.BroadSword, [], [], true, (item) =>
-		me.normal && !Check.haveBase("sword", 4) && !me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have
+		me.normal && !Check.haveBase("sword", 4) && !me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have
 	&& item.ilvl >= 26 && item.isBaseType && !item.ethereal
 	));
 	// spirit base
 	basicSocketables.caster.push(addSocketableObj(sdk.items.CrystalSword, [], [], true, (item) =>
-		me.normal && !Check.haveBase("sword", 4) && !me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have
+		me.normal && !Check.haveBase("sword", 4) && !me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have
 	&& item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal
 	));
 	// Lidless

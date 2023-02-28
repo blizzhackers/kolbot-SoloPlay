@@ -167,6 +167,10 @@ Pickit.amountOfPotsNeeded = function () {
 	return needed;
 };
 
+/**
+ * @param {ItemUnit} item 
+ * @returns {boolean}
+ */
 Pickit.canFit = function (item) {
 	switch (item.itemType) {
 	case sdk.items.type.Gold:
@@ -192,6 +196,10 @@ Pickit.canFit = function (item) {
 	}
 };
 
+/**
+ * @param {ItemUnit} unit
+ * @returns {boolean}
+ */
 Pickit.canPick = function (unit) {
 	if (!unit) return false;
 	if (sdk.quest.items.includes(unit.classid) && me.getItem(unit.classid)) return false;
@@ -329,7 +337,7 @@ Pickit.canPick = function (unit) {
 			}
 		}
 
-		return (needPots > 0);
+		return (needPots > 0 || (me.charlvl < 10 && Storage.Inventory.CanFit(unit)));
 	case undefined: // Yes, it does happen
 		console.warn("undefined item (!?)");
 
@@ -419,11 +427,13 @@ Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
 			let checkItem = false;
 			const maxDist = (Config.FastPick || i < 1) ? 8 : 5;
 			if (item.distance > maxDist || checkCollision(me, item, sdk.collision.BlockWall)) {
-				if (!clearBeforePick && me.checkForMobs({range: 5, coll: (sdk.collision.BlockWall | sdk.collision.Objects | sdk.collision.ClosedDoor)})) {
+				let coll = (sdk.collision.BlockWall | sdk.collision.Objects | sdk.collision.ClosedDoor);
+
+				if (!clearBeforePick && me.checkForMobs({ range: 5, coll: coll })) {
 					continue;
 				}
 
-				if (clearBeforePick && item.checkForMobs({range: 8, coll: (sdk.collision.BlockWall | sdk.collision.Objects | sdk.collision.ClosedDoor)})) {
+				if (clearBeforePick && item.checkForMobs({ range: 8, coll: coll })) {
 					try {
 						console.log("ÿc8PickItemÿc0 :: Clearing area around item I want to pick");
 						Pickit.enabled = false;		// Don't pick while trying to clear
@@ -693,7 +703,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 	}
 
 	if (Pickit.pickList.some(i => [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion].includes(i.itemType))) {
-		Town.clearBelt();
+		me.clearBelt();
 		Pickit.beltSize = Storage.BeltSize();
 	}
 

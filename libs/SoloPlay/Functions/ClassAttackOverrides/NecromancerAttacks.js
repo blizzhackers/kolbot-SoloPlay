@@ -284,7 +284,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 			Config.ActiveSummon && this.raiseArmy();
 			this.explodeCorpses(unit);
 			this.smartCurse(unit);
-			let closeMob = Attack.getNearestMonster({skipGid: gid});
+			let closeMob = Attack.getNearestMonster({ skipGid: gid });
 			if (!!closeMob) {
 				let findSkill = Attack.decideSkill(closeMob);
 				(this.doCast(closeMob, findSkill.timed, findSkill.untimed) === Attack.Result.SUCCESS)

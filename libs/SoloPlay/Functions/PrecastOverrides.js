@@ -40,7 +40,7 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
 
 		if (needShout || needBo || needBc) {
 			let primary = Attack.getPrimarySlot();
-			let {x, y} = me;
+			let { x, y } = me;
 			(needBo || needBc) && me.switchWeapons(this.getBetterSlot(sdk.skills.BattleOrders));
 
 			needBc && Precast.cast(sdk.skills.BattleCommand, x, y, true);
@@ -75,7 +75,7 @@ Precast.summon = function (skillId, minionType) {
 	while (me.getMinionCount(minionType) < count) {
 		rv = true;
 		let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	// Get a random coordinate to summon using
-		let unit = Attack.getNearestMonster({skipImmune: false});
+		let unit = Attack.getNearestMonster({ skipImmune: false });
 
 		if (unit && [sdk.summons.type.Golem, sdk.summons.type.Grizzly, sdk.summons.type.Shadow].includes(minionType) && unit.distance < 20 && !checkCollision(me, unit, sdk.collision.Ranged)) {
 			try {

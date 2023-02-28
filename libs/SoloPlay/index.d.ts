@@ -119,6 +119,10 @@ declare global {
 		function switchCast(skillId: number, givenSettings: { hand?: number, x?: number, y?: number, switchBack?: boolean, oSkill?: boolean }): boolean;
 	}
 
+	namespace Attack {
+		function clearPos(x: number, y: number, range: number, pickit: boolean): boolean;
+	}
+
 	interface charData {
     initialized: boolean;
     normal: {
@@ -209,6 +213,16 @@ declare global {
 	}
 
 	namespace SoloWants {
+		const needList: any[];
+		const validGids: number[];
+
+		function checkItem(item: ItemUnit): boolean;
+		function keepItem(item: ItemUnit): boolean;
+		function buildList(): void;
+		function addToList(item: ItemUnit): boolean;
+		function update(item: ItemUnit): boolean;
+		function ensureList(): void;
+		function checkSubrecipes(): boolean;
 	}
 
 	namespace NPCAction {
@@ -222,6 +236,13 @@ declare global {
 	}
 
 	namespace AutoEquip {
+	}
+
+	namespace SoloEvents {
+		namespace townChicken {
+			let disabled: boolean;
+			let running: boolean;
+		}
 	}
 
 	type extraTasks = {

@@ -162,7 +162,7 @@ Pather.forceRun = false;
 					return mon.attackable && getDistance(x, y, mon.x, mon.y) < settings.range
 						&& (!settings.type || (settings.type & mon.spectype))
 						&& (settings.ignoreClassids.indexOf(mon.classid) === -1)
-						&& !CollMap.checkColl({x: x, y: y}, mon, settings.coll, 1);
+						&& !CollMap.checkColl({ x: x, y: y }, mon, settings.coll, 1);
 				}).length;
 		}
 	});
@@ -549,7 +549,7 @@ Pather.move = function (target, givenSettings = {}) {
 						// if we are allowed to clear
 						if (settings.allowClearing) {
 							// Don't go berserk on longer paths - also check that there are even mobs blocking us
-							if (cleared.at === 0 || getTickCount() - cleared.at > Time.seconds(3) && cleared.where.distance > 5 && me.checkForMobs({range: 10})) {
+							if (cleared.at === 0 || getTickCount() - cleared.at > Time.seconds(3) && cleared.where.distance > 5 && me.checkForMobs({ range: 10 })) {
 								// only set that we cleared if we actually killed at least 1 mob
 								if (Attack.clear(10, null, null, null, settings.allowPicking)) {
 									console.debug("Cleared Node");

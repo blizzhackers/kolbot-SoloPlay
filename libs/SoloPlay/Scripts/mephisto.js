@@ -42,7 +42,7 @@ function mephisto () {
 
 	// Town stuff
 	if (me.coldRes < 75 || me.poisonRes < 75) {
-		Town.doChores(null, {thawing: me.coldRes < 75, antidote: me.poisonRes < 75});
+		Town.doChores(null, { thawing: me.coldRes < 75, antidote: me.poisonRes < 75 });
 		// Re-enter portal
 		Pather.usePortal(sdk.areas.DuranceofHateLvl3, me.name);
 		Precast.doPrecast(true);

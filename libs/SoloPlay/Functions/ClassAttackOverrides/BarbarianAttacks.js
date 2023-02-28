@@ -222,7 +222,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 
 		// TODO: write GameData.killableSummonsByWarCry
 		if (data.warCry.have && data.warCry.mana < me.mp && !me.skillDelay && warCryCheck()) {
-			data.switchCast ? Skill.switchCast(sdk.skills.WarCry, {hand: 0}) : Skill.cast(sdk.skills.WarCry, sdk.skills.hand.Right, unit);
+			data.switchCast ? Skill.switchCast(sdk.skills.WarCry, { hand: 0 }) : Skill.cast(sdk.skills.WarCry, sdk.skills.hand.Right, unit);
 			this.warCryTick = getTickCount();
 		}
 

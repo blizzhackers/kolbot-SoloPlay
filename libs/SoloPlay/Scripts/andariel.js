@@ -23,8 +23,8 @@ function andariel () {
 	Pather.moveToExit([sdk.areas.CatacombsLvl3, sdk.areas.CatacombsLvl4], true);
 
 	if (me.poisonRes < 75) {
-		Town.doChores(true, {thawing: me.coldRes < 75, antidote: true});
-		Pather.usePortal(sdk.areas.CatacombsLvl4, me.name);
+		Town.doChores(true, { thawing: me.coldRes < 75, antidote: true });
+		Pather.usePortal(sdk.areas.CatacombsLvl4);
 	}
 
 	Precast.doPrecast(true);
@@ -39,9 +39,9 @@ function andariel () {
 	}
 
 	let coords = [
-		{x: 22572, y: 9635}, {x: 22554, y: 9618},
-		{x: 22542, y: 9600}, {x: 22572, y: 9582},
-		{x: 22554, y: 9566}
+		{ x: 22572, y: 9635 }, { x: 22554, y: 9618 },
+		{ x: 22542, y: 9600 }, { x: 22572, y: 9582 },
+		{ x: 22554, y: 9566 }
 	];
 
 	if (Pather.useTeleport()) {

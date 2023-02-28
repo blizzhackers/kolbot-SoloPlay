@@ -129,7 +129,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 			return true;
 		}
 
-		let makeCubeSpot = this.MakeSpot(cube, {x: 0, y: 0}, true); // NOTE: passing these in buffer order [h/x][w/y]
+		let makeCubeSpot = this.MakeSpot(cube, { x: 0, y: 0 }, true); // NOTE: passing these in buffer order [h/x][w/y]
 
 		if (makeCubeSpot) {
 		// this item cannot be moved
@@ -142,8 +142,8 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 	};
 
 	/**
- * @param {ItemUnit} item 
- */
+	 * @param {ItemUnit} item 
+	 */
 	Container.prototype.CanFit = function (item) {
 		return (!!this.FindSpot(item));
 	};
@@ -285,14 +285,14 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 						&& !this.IsLocked(this.itemList[this.buffer[x][y] - 1], Config.Inventory) // don't try to make a spot by moving locked items! TODO: move this to the start of loop
 						&& (priorityClassIds.indexOf(bufferItemClass) === -1
 						|| priorityClassIds.indexOf(item.classid) < priorityClassIds.indexOf(bufferItemClass))) { // item in this spot needs to move!
-						makeSpot = this.MakeSpot(item, {x: x, y: y}); // NOTE: passing these in buffer order [h/x][w/y]
+						makeSpot = this.MakeSpot(item, { x: x, y: y }); // NOTE: passing these in buffer order [h/x][w/y]
 
 						if (item.classid !== bufferItemClass // higher priority item
 							|| (item.classid === bufferItemClass && item.quality > bufferItemQuality) // same class, higher quality item
 							|| (item.classid === bufferItemClass && item.quality === bufferItemQuality && item.gfx > bufferItemGfx) // same quality, higher graphic item
 							|| (Config.AutoEquip && item.classid === bufferItemClass && item.quality === bufferItemQuality && item.gfx === bufferItemGfx // same graphic, higher tier item
 								&& NTIP.GetTier(item) > NTIP.GetTier(this.itemList[this.buffer[x][y] - 1]))) {
-							makeSpot = this.MakeSpot(item, {x: x, y: y}); // NOTE: passing these in buffer order [h/x][w/y]
+							makeSpot = this.MakeSpot(item, { x: x, y: y }); // NOTE: passing these in buffer order [h/x][w/y]
 
 							if (makeSpot) {
 							// this item cannot be moved
@@ -323,7 +323,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 					}
 				}
 
-				return ({x: x, y: y});
+				return ({ x: x, y: y });
 			}
 		}
 
@@ -402,7 +402,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 		}
 
 		//D2Bot.printToConsole("MakeSpot success! " + item.name + " can now be placed at " + location.y + "," + location.x, sdk.colors.D2Bot.Gold);
-		return ({x: location.x, y: location.y});
+		return ({ x: location.x, y: location.y });
 	};
 
 	/**

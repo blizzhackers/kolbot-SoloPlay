@@ -242,7 +242,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 				!!spot && Pather.walkTo(spot.x, spot.y);
 			}
 
-			let closeMob = Attack.getNearestMonster({skipGid: gid});
+			let closeMob = Attack.getNearestMonster({ skipGid: gid });
 			!!closeMob && this.doCast(closeMob, skills.timed, skills.untimed);
 		}
 

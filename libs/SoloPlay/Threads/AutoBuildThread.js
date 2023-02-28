@@ -8,7 +8,7 @@ js_strict(true);
 include("critical.js");
 
 // globals needed for core gameplay
-includeCoreLibs({ exclude: ["Storage.js"]});
+includeCoreLibs({ exclude: ["Storage.js"] });
 // needed for this thread
 include("core/Auto/AutoSkill.js");
 include("core/Auto/AutoStat.js");
@@ -260,7 +260,7 @@ function main () {
 				spendStatPoints();
 				Config.AutoSkill.Enabled && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
 				Config.AutoStat.Enabled && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
-				scriptBroadcast({event: "level up"});
+				scriptBroadcast({ event: "level up" });
 				AutoBuild.applyConfigUpdates(); // scriptBroadcast() won't trigger listener on this thread.
 
 				debug && AutoBuild.print("Incrementing cached character level to", prevLevel + 1);
