@@ -408,6 +408,11 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 			|| (selectedSkill.mana * 3 > me.mp && [sdk.skills.FireBolt, sdk.skills.ChargedBolt].includes(selectedSkill.skill)))) {
 			if (switchBowAttack(unit) === Attack.Result.SUCCESS) return Attack.Result.SUCCESS;
 		}
+		
+		if (selectedSkill === sdk.skills.Attack && me.inDanger(unit, 10)) {
+			// try to stay safer for now, probably should see if there are any easy targets we can pick off
+			return Attack.Result.CANTATTACK;
+		}
 
 		let result = ClassAttack.doCast(unit, selectedSkill);
 
@@ -505,6 +510,8 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
                 | Coords_1.BlockBits.Objects, false, true);
 			} else if (me.inDanger()) {
 				Attack.getIntoPosition(unit, range + 1, Coords_1.Collision.BLOCK_MISSILE, true);
+			} else if (unit.distance < 3 && range > 4) {
+				Attack.getIntoPosition(unit, range, Coords_1.Collision.BLOCK_MISSILE, true);
 			}
 		}
 
@@ -516,7 +523,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 			}
 
 			if (skill === sdk.skills.Attack) {
-				if (me.hpPercent < 50 && me.mode !== sdk.player.mode.GettingHit && !me.checkForMobs({range: 12})) {
+				if (me.hpPercent < 50 && me.mode !== sdk.player.mode.GettingHit && !me.checkForMobs({ range: 12 })) {
 					console.log("Low health but safe right now, going to delay a bit");
 					let tick = getTickCount();
 					const howLongToDelay = Config.AttackSkill.some(sk => sk > 1 && Skill.canUse(sk)) ? Time.seconds(2) : Time.seconds(1);
@@ -537,7 +544,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 			if (range < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
 
 			// Only delay if there are no mobs in our immediate area
-			if (mana > me.mp && !me.checkForMobs({range: 12})) {
+			if (mana > me.mp && !me.checkForMobs({ range: 12 })) {
 				let tick = getTickCount();
 
 				while (getTickCount() - tick < 750) {
