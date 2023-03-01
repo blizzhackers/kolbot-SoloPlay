@@ -11,7 +11,8 @@ includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
 /**
  * @todo
- *   - need a way to build and update/remove elements from checklists during gameplay
+ *  - need a way to build and update/remove elements from checklists during gameplay
+ *  - Build parser, takes obj then coverts to normal nip string
  */
 
 NTIPAliasStat["addfireskills"] = [sdk.stats.ElemSkill, 1];
@@ -124,6 +125,10 @@ NTIP.addLine = function (itemString) {
 	return true;
 };
 
+/**
+ * @param {string[]} arr 
+ * @returns {boolean}
+ */
 NTIP.buildFinalGear = function (arr) {
 	for (let i = 0; i < arr.length; i++) {
 		const info = {
@@ -132,10 +137,17 @@ NTIP.buildFinalGear = function (arr) {
 			string: arr[i]
 		};
 
+		/** @type {string} */
 		const line = NTIP.ParseLineInt(arr[i], info);
 
 		if (line) {
-			if (!arr[i].toLowerCase().includes("tier")) {
+			let lineCheck = arr[i].toLowerCase();
+
+			switch (true) {
+			case !lineCheck.includes("tier"):
+			case line.includes("merctier"):
+			case line.includes("secondarytier"):
+			case line.includes("charmtier"):
 				continue;
 			}
 
