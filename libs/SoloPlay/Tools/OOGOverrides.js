@@ -692,8 +692,10 @@ const locations = {};
 
 	Starter.LocationEvents.login = function () {
 		Starter.inGame && (Starter.inGame = false);
+		let pType = Profile().type;
+
 		if (getLocation() === sdk.game.locations.MainMenu && Starter.firstRun
-			&& Profile().type === sdk.game.profiletype.SinglePlayer
+			&& pType === sdk.game.profiletype.SinglePlayer
 			&& Controls.SinglePlayer.click()) {
 			return;
 		}
@@ -701,7 +703,7 @@ const locations = {};
 		// Wrong char select screen fix
 		if ([sdk.game.locations.CharSelect, sdk.game.locations.CharSelectNoChars].includes(getLocation())) {
 			hideConsole(); // seems to fix odd crash with single-player characters if the console is open to type in
-			let spCheck = Profile().type === sdk.game.profiletype.Battlenet;
+			let spCheck = pType === sdk.game.profiletype.Battlenet;
 			let realmControl = !!Controls.CharSelectCurrentRealm.control;
 			if ((spCheck && !realmControl) || ((!spCheck && realmControl))) {
 				Controls.CharSelectExit.click();
@@ -790,8 +792,10 @@ const locations = {};
 			} else {
 				// SP/TCP  characters
 				try {
-					if (getLocation() === sdk.game.locations.MainMenu && Profile().type === sdk.game.profiletype.SinglePlayer) {
-						Controls.SinglePlayer.click();
+					if (getLocation() === sdk.game.locations.MainMenu) {
+						pType === sdk.game.profiletype.SinglePlayer
+							? Controls.SinglePlayer.click()
+							: ControlAction.loginOtherMultiplayer();
 					}
 					Starter.checkDifficulty();
 					Starter.LocationEvents.charSelect(getLocation());
