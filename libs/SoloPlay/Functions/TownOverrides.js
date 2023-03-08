@@ -230,6 +230,12 @@ Town.identify = function () {
 	let list = (Storage.Inventory.Compare(Config.Inventory) || []);
 	if (!list.length) return false;
 	
+	let tome = me.getTome(sdk.items.TomeofIdentify);
+	// if we have a tome might as well use it - this might prevent us from having to run from one npc to another
+	if (tome && tome.getStat(sdk.stats.Quantity) > 0 && Town.getDistance(Town.tasks[me.act - 1].Shop) > 5) {
+		me.fieldID(); // not in the field but oh well no need to repeat the code
+	}
+
 	// Avoid unnecessary NPC visits
 	// Only unid items or sellable junk (low level) should trigger a NPC visit
 	if (!list.some(item => {
@@ -243,7 +249,6 @@ Town.identify = function () {
 	let npc = Town.initNPC("Shop", "identify");
 	if (!npc) return false;
 
-	let tome = me.getTome(sdk.items.TomeofIdentify);
 	tome && tome.getStat(sdk.stats.Quantity) < list.length && NPCAction.fillTome(sdk.items.TomeofIdentify);
 
 	MainLoop:
@@ -350,6 +355,7 @@ Town.stash = function (stashGold = true) {
 			}
 		});
 	}
+	
 
 	// Stash gold
 	if (stashGold) {
@@ -630,6 +636,14 @@ Town.clearJunk = function () {
 	return true;
 };
 
+Town.lastChores = 0;
+
+Town.fillTomes = function () {
+	NPCAction.fillTome(sdk.items.TomeofTownPortal);
+	Config.FieldID.Enabled && NPCAction.fillTome(sdk.items.TomeofIdentify);
+	!!me.getItem(sdk.items.TomeofTownPortal) && this.clearScrolls();
+};
+
 /**
  * @override
  * @param {boolean} repair 
@@ -659,22 +673,33 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 
 	const preAct = me.act;
 
+	/**
+	 * @todo light chores if last chores was < minute? 2 minutes idk yet
+	 */
+
 	me.switchWeapons(Attack.getPrimarySlot());
 	extraTasks.fullChores && Quest.unfinishedQuests();
-	me.getUnids().length && me.gold < 5000 && NPCAction.cainID(true);
+
+	// Use cainId if we are low on gold or we are closer to him than the shopNPC
+	if (me.getUnids().length) {
+		if (me.gold < 5000
+			|| Town.getDistance("cain") < Town.getDistance(Town.tasks[me.act - 1].Heal)) {
+			NPCAction.cainID(true);
+		}
+	}
+
+	// maybe a check if need healing first, as we might have just used a potion
 	this.heal();
 	this.identify();
 	this.clearInventory();
-	NPCAction.fillTome(sdk.items.TomeofTownPortal);
-	Config.FieldID.Enabled && NPCAction.fillTome(sdk.items.TomeofIdentify);
-	!!me.getItem(sdk.items.TomeofTownPortal) && this.clearScrolls();
+	Town.fillTomes();
 	NPCAction.buyPotions();
 	this.buyKeys();
 	extraTasks.thawing && CharData.buffData.thawing.need() && Town.buyPots(12, "Thawing", true);
 	extraTasks.antidote && CharData.buffData.antidote.need() && Town.buyPots(12, "Antidote", true);
 	extraTasks.stamina && Town.buyPots(12, "Stamina", true);
 	NPCAction.shopItems();
-	NPCAction.repair(repair) && NPCAction.shopItems(true);
+	NPCAction.repair(repair);
 	NPCAction.reviveMerc();
 	NPCAction.gamble();
 	Cubing.emptyCube();
@@ -687,6 +712,7 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 	Town.haveItemsToSell() && Town.sellItems() && me.cancelUIFlags();
 	this.clearJunk();
 	this.stash();
+
 	// check pots again, we might have enough gold now if we didn't before
 	me.needPotions() && NPCAction.buyPotions() && me.cancelUIFlags();
 	// check repair again, we might have enough gold now if we didn't before
@@ -708,6 +734,7 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 	delay(300);
 	console.debug("doChores Ending Gold :: " + me.gold);
 	console.info(false, null, "doChores");
+	Town.lastChores = getTickCount();
 
 	return true;
 };

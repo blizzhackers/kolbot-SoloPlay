@@ -8,6 +8,52 @@
 // ugly but should handle scope issues if I decide to add this to the core in which case I can come back and remove this
 // but won't get immeadiate issues of trying to redefine a const
 (function (NPCAction) {
+	/**
+	 * Easier shopping done at a specific npc
+	 * @param {string} npcName - NPC.NameOfNPC
+	 * @returns {boolean}
+	 */
+	NPCAction.shopAt = function (npcName) {
+		if (!me.inTown) return false;
+
+		// check for invaid npcs to shop at
+		if ([NPC.Kashya, NPC.Warriv, NPC.Meshif, NPC.Atma, NPC.Greiz, NPC.Tyrael, NPC.Qual_Kehk, NPC.Cain].includes(npcName.toLowerCase())) {
+			console.warn(npcName + " is an invalid npc to shop at");
+
+			return false;
+		}
+
+		// keep track of where we start from
+		const origAct = me.act;
+		const npcAct = NPC.getAct(npcName);
+		if (!npcAct.length) return false;
+
+		try {
+			if (!npcAct.includes(origAct)) {
+				Town.goToTown(npcAct[0]);
+			}
+
+			Town.move(npcName);
+			let npc = Game.getNPC(npcName);
+
+			if (!npc && Town.move(npcName)) {
+				npc = Game.getNPC(npcName);
+			}
+
+			if (!getUIFlag(sdk.uiflags.Shop) && !npc.startTrade("Shop")) {
+				throw new Error("Failed to shop at " + npc.name);
+			}
+
+			return Town.shopItems();
+		} catch (e) {
+			console.error(e);
+
+			return false;
+		} finally {
+			me.act !== origAct && Town.goToTown(origAct);
+		}
+	};
+
 	NPCAction.buyPotions = function () {
 		if (me.gold < 450 || !me.getItem(sdk.items.TomeofTownPortal)) return false;
 
@@ -147,45 +193,64 @@
 		return true;
 	};
 
+	/**
+	 * @param {number} classid 
+	 * @param {boolean} force 
+	 * @returns {boolean}
+	 */
 	NPCAction.fillTome = function (classid, force = false) {
-		if (me.gold < 450) return false;
-		const have = Town.checkScrolls(classid, force);
-		if (have >= (me.charlvl < 12 ? 5 : 13)) return true;
-
-		let scroll;
 		const scrollId = (classid === sdk.items.TomeofTownPortal ? sdk.items.ScrollofTownPortal : sdk.items.ScrollofIdentify);
+		const have = Town.checkScrolls(classid, force);
+		let myTome = me.getTome(classid);
+		let invoScrolls = 0;
+
+		if (have > 0 && have < 20) {
+			// lets see if we have scrolls to cleanup
+			invoScrolls = me.cleanUpScrolls(myTome, scrollId);
+		}
+
+		if (have + invoScrolls >= (me.charlvl < 12 ? 5 : 13)) return true;
+		if (me.gold < 450) return false;
+
 		let npc = Town.initNPC("Shop", "fillTome");
 		if (!npc) return false;
 
 		delay(500);
 
-		if (!me.findItem(classid, sdk.items.mode.inStorage, sdk.storage.Inventory)) {
+
+		if (!myTome) {
 			let tome = npc.getItem(classid);
 
 			try {
-				if (!tome || !Storage.Inventory.CanFit(tome)) throw new Error("Can't buy tome");
-				tome.buy();
-			} catch (e) {
-				// couldn't buy tome, lets see if we can just buy a single scroll
-				if (me.getItem(scrollId)) return true;
-				scroll = npc.getItem(scrollId);
-				if (!scroll || !Storage.Inventory.CanFit(scroll)) return false;
-				try {
+				if (tome) {
+					Storage.Inventory.CanFit(tome) && tome.buy();
+				} else {
+					// couldn't buy tome, lets see if we can just buy a single scroll
+					if (me.getItem(scrollId)) return true;
+					let scroll = npc.getItem(scrollId);
+					if (!scroll || !Storage.Inventory.CanFit(scroll)) return false;
 					scroll.buy();
-				} catch (e) {
-					console.error(e);
-					return false;
+
+					return true;
 				}
-				return true;
+			} catch (e) {
+				console.error(e);
+
+				return false;
 			}
 		}
 
-		scroll = npc.getItem(scrollId);
+		let scroll = npc.getItem(scrollId);
 		if (!scroll) return false;
+		if (!myTome && !(myTome = me.getTome(classid))) return false;
+
+		// place scrolls in tome if we have any now that we know we have a tome (possibly just bought one)
+		me.cleanUpScrolls(myTome, scrollId);
 
 		try {
 			if (me.gold < 5000) {
-				let myTome = me.getItem(classid);
+				myTome = me.getTome(classid);
+
 				if (myTome) {
 					while (myTome.getStat(sdk.stats.Quantity) < 5 && me.gold > 500) {
 						scroll = npc.getItem(scrollId);
@@ -216,7 +281,6 @@
 		if (me.gold < Config.CainID.MinGold && !force) return false;
 
 		me.cancel();
-		Town.stash(false);
 
 		let unids = me.getUnids();
 
@@ -227,33 +291,21 @@
 			let cain = Town.initNPC("CainID", "cainID");
 			if (!cain) return false;
 
-			if (force) {
-				npc = Town.initNPC("Shop", "clearInventory");
-				if (!npc) return false;
-			}
+			me.cancelUIFlags();
+			
+			while (unids.length) {
+				const item = unids.shift();
+				const { result, line } = Pickit.checkItem(item);
 
-			for (let i = 0; i < unids.length; i += 1) {
-				let item = unids[i];
-				let result = Pickit.checkItem(item);
-				// Force ID for unid items matching autoEquip/cubing criteria
-				Town.needForceID(item) && (result.result = -1);
-
-				switch (result.result) {
+				switch (result) {
 				case Pickit.Result.TRASH:
-					try {
-						console.log("sell " + item.name);
-						Town.initNPC("Shop", "clearInventory");
-						Item.logger("Sold", item);
-						item.sell();
-					} catch (e) {
-						console.error(e);
-					}
+					Town.sell.push(item);
 
 					break;
 				case Pickit.Result.WANTED:
 				case Pickit.Result.SOLOWANTS:
 					Item.logger("Kept", item);
-					Item.logItem("Kept", item, result.line);
+					Item.logItem("Kept", item, line);
 
 					break;
 				case Pickit.Result.CUBING:
@@ -261,7 +313,10 @@
 					Cubing.update();
 
 					break;
-				case Pickit.Result.RUNEWORD: // (doesn't trigger normally)
+				case Pickit.Result.RUNEWORD:
+					Item.logger("Kept", item, "Runewords-Town");
+					Runewords.update(item.classid, item.gid);
+
 					break;
 				case Pickit.Result.CRAFTING:
 					Item.logger("Kept", item, "CraftSys-Town");
@@ -273,71 +328,8 @@
 					SoloWants.update(item);
 
 					break;
-				default:
-					if ((getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) && (item.getItemCost(sdk.items.cost.ToSell) <= 1 || !item.sellable)) {
-						continue;
-					}
-
-					Town.initNPC("Shop", "clearInventory");
-
-					// Might as well sell the item if already in shop
-					if (getUIFlag(sdk.uiflags.Shop) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
-						console.log("clearInventory sell " + item.name);
-						
-						switch (true) {
-						case (Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm):
-						case (Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm):
-						case (Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm):
-							Item.logItem("Sold", item);
-
-							break;
-						default:
-							Item.logger("Dropped", item, "clearInventory");
-							
-							break;
-						}
-
-						item.sell();
-					} else {
-						console.log("clearInventory dropped " + item.prettyPrint);
-						Item.logger("Dropped", item, "clearInventory");
-						item.drop();
-					}
-
-					let timer = getTickCount() - Town.sellTimer; // shop speedup test
-
-					if (timer > 0 && timer < 500) {
-						delay(timer);
-					}
-
-					break;
 				case Pickit.Result.UNID:
-					if (tome) {
-						Town.identifyItem(item, tome);
-					} else {
-						let scroll = npc.getItem(sdk.items.ScrollofIdentify);
-
-						if (scroll) {
-							if (!Storage.Inventory.CanFit(scroll)) {
-								let tpTome = me.getTome(sdk.items.TomeofTownPortal);
-								!!tpTome && tpTome.sell() && delay(500);
-							}
-
-							delay(500);
-							Storage.Inventory.CanFit(scroll) && scroll.buy();
-						}
-
-						scroll = me.findItem(sdk.items.ScrollofIdentify, sdk.items.mode.inStorage, sdk.storage.Inventory);
-						if (!scroll) continue;
-
-						Town.identifyItem(item, scroll);
-					}
-
-					// roll back to now check against other criteria
-					if (item.identified) {
-						i--;
-					}
-
+				default:
 					break;
 				}
 			}
@@ -349,24 +341,26 @@
 	// todo - allow earlier shopping, mainly to get a belt
 	NPCAction.shopItems = function (force = false) {
 		if (!Config.MiniShopBot) return true;
+		if (!me.getTome(sdk.items.TomeofTownPortal)) return false;
+		
 		// todo - better gold scaling
-		let goldLimit = [10000, 20000, 30000][me.diff];
+		// let goldLimit = [10000, 20000, 30000][me.diff];
+		const startingGold = me.gold;
+		let goldLimit = Math.floor(startingGold * 0.60);
 		let itemTypes = [];
 		let lowLevelShop = false;
-		if (me.gold < goldLimit && me.charlvl > 6) {
-			return false;
-		} else if (me.charlvl < 6 && me.gold > 200) {
-			lowLevelShop = true;
+		
+		if (me.charlvl < 6 && startingGold > 200) {
 			Storage.BeltSize() === 1 && itemTypes.push(sdk.items.type.Belt);
 			!CharData.skillData.bowData.bowOnSwitch && itemTypes.push(sdk.items.type.Bow, sdk.items.type.Crossbow);
 			if (!itemTypes.length) return true;
-			goldLimit = 200;
+			lowLevelShop = true;
 		}
 
 		let npc = getInteractedNPC();
 		if (!npc || !npc.itemcount) {
 			// for now we only do force shop on low level
-			if (force && itemTypes.length) {
+			if ((force || lowLevelShop) && itemTypes.length) {
 				console.debug("Attempt force shopping");
 				Town.initNPC("Repair", "shopItems");
 				npc = getInteractedNPC();
@@ -376,16 +370,28 @@
 			}
 		}
 
-		let items = npc.getItemsEx()
-			.filter((item) => !Town.ignoreType(item.itemType) && (itemTypes.length === 0 || itemTypes.includes(item.itemType)))
-			.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
-		if (!items.length) return false;
 		if (getTickCount() - Town.lastShopped.tick < Time.seconds(3) && Town.lastShopped.who === npc.name) return false;
+		let items = npc.getItemsEx()
+			.filter((item) => !Town.ignoreType(item.itemType)
+				&& (itemTypes.length === 0 || itemTypes.includes(item.itemType))
+				&& (NTIP.CheckItem(item) !== Pickit.Result.UNWANTED)
+				&& (startingGold - item.getItemCost(sdk.items.cost.ToBuy) > goldLimit))
+			.sort((a, b) => {
+				let priorityA = itemTypes.includes(a.itemType);
+				let priorityB = itemTypes.includes(b.itemType);
+				if (priorityA && priorityB) return NTIP.GetTier(b) - NTIP.GetTier(a);
+				if (priorityA) return 1;
+				if (priorityB) return -1;
+				return NTIP.GetTier(b) - NTIP.GetTier(a);
+			});
+		if (!items.length) return false;
+
+		const checkedItems = items.length;
 
 		console.time("shopItems");
 
 		let bought = 0;
-		const haveMerc = (!me.classic && Config.UseMerc && !me.mercrevivecost && Misc.poll(() => !!me.getMerc(), 500, 100));
+		const haveMerc = !!me.getMercEx();
 		console.info(true, "ÿc4MiniShopBotÿc0: Scanning " + npc.itemcount + " items.");
 
 		/**
@@ -402,70 +408,58 @@
 			Developer.debugging.autoEquip && Item.logItem("Shopped " + action, item, result.line !== undefined ? result.line : "null");
 		};
 
+		/**
+		 * Buy dependancy item if it's needed
+		 * @param {ItemUnit} item 
+		 */
+		const checkDependancy = (item) => {
+			let check = Item.hasDependancy(item);
+			if (check) {
+				let el = npc.getItem(check);
+				!!el && el.buy();
+			}
+		};
+
 		for (let i = 0; i < items.length; i++) {
 			const item = items[i];
 			const myGold = me.gold;
 			const itemCost = item.getItemCost(sdk.items.cost.ToBuy);
 			if (myGold < itemCost) continue;
-			const result = Pickit.checkItem(item);
+			const { result, line } = Pickit.checkItem(item);
 
 			// no tier'ed items
-			if (!lowLevelShop && result.result === Pickit.Result.SOLOWANTS && NTIP.CheckItem(item, NTIP.SoloCheckListNoTier, true).result !== Pickit.Result.UNWANTED) {
+			if (!lowLevelShop && result === Pickit.Result.SOLOWANTS && NTIP.CheckItem(item, NTIP.SoloCheckListNoTier, true).result !== Pickit.Result.UNWANTED) {
 				try {
 					if (Storage.Inventory.CanFit(item) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
 						if (item.isBaseType) {
 							if (Item.betterThanStashed(item) && Item.betterBaseThanWearing(item, Developer.debugging.baseCheck)) {
-								shopReport(item, "better base", result.line);
+								shopReport(item, "better base", line);
 								item.buy() && bought++;
-
-								continue;
 							}
 						} else {
-							shopReport(item, "NoTier", result.line);
+							shopReport(item, "NoTier", line);
 							item.buy() && bought++;
-
-							continue;
 						}
 					}
 				} catch (e) {
 					console.error(e);
 				}
-			}
-
-			// tier'ed items
-			if (result.result === Pickit.Result.SOLOWANTS && AutoEquip.wanted(item)) {
-				const checkDependancy = (item) => {
-					let check = Item.hasDependancy(item);
-					if (check) {
-						let el = npc.getItem(check);
-						!!el && el.buy();
-					}
-				};
+			} else if (result === Pickit.Result.SOLOWANTS && AutoEquip.wanted(item)) {
+				// tier'ed items
 				try {
 					if (Storage.Inventory.CanFit(item) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
-						if (Item.hasTier(item) && Item.autoEquipCheck(item)) {
-							try {
-								shopReport(item, "AutoEquip", result.line, (item.fname + " Tier: " + NTIP.GetTier(item)));
-								item.buy() && bought++;
-								Item.autoEquip("InShop");
-							} catch (e) {
-								console.error(e);
-							}
+						let [mainTier] = [NTIP.GetTier(item)];
 
+						// we want this to be at least a 5% increase in the tier value
+						if (Item.hasTier(item) && Item.autoEquipCheck(item) && ((Item.getEquippedItem(item.bodyLocation().first()).tier - mainTier) / (mainTier * 100)) > 5) {
+							shopReport(item, "AutoEquip", line, (item.prettyPrint + " Tier: " + NTIP.GetTier(item)));
+							item.buy() && bought++;
+							Item.autoEquip("InShop");
 							checkDependancy(item);
-
-							continue;
-						}
-
-						if (Item.hasSecondaryTier(item) && Item.autoEquipCheckSecondary(item)) {
-							try {
-								shopReport(item, "AutoEquip Switch Shopped", result.line, (item.fname + " SecondaryTier: " + NTIP.GetSecondaryTier(item)));
-								item.buy() && bought++;
-								Item.autoEquip("InShop");
-							} catch (e) {
-								console.error(e);
-							}
-
+						} else if (Item.hasSecondaryTier(item) && Item.autoEquipCheckSecondary(item)) {
+							shopReport(item, "AutoEquip Switch Shopped", line, (item.prettyPrint + " SecondaryTier: " + NTIP.GetSecondaryTier(item)));
+							item.buy() && bought++;
+							Item.autoEquip("InShop");
 							checkDependancy(item);
 						}
 					}
@@ -480,7 +474,7 @@
 		// merc tier'ed items
 		if (haveMerc && !lowLevelShop) {
 			items = npc.getItemsEx()
-				.filter((item) => !Town.ignoreType(item.itemType) && (itemTypes.length === 0 || itemTypes.includes(item.itemType) && NTIP.GetMercTier(item) > 0))
+				.filter((item) => !Town.ignoreType(item.itemType) && NTIP.GetMercTier(item) > 0)
 				.sort((a, b) => NTIP.GetMercTier(b) - NTIP.GetMercTier(a))
 				.forEach(item => {
 					const myGold = me.gold;
@@ -508,7 +502,7 @@
 		Town.lastShopped.tick = getTickCount();
 		Town.lastShopped.who = npc.name;
 
-		console.info(false, "Bought " + bought + " items", "shopItems");
+		console.info(false, "Evaluated " + checkedItems + " items. Bought " + bought + " items. Spent " + (startingGold - me.gold) + " gold", "shopItems");
 
 		return true;
 	};
@@ -622,32 +616,24 @@
 
 				break;
 			case "buyQuiver":
-				let bowCheck = Attack.usingBow();
-				let switchBowCheck = CharData.skillData.bowData.bowOnSwitch;
-				!bowCheck && switchBowCheck && (bowCheck = (() => {
-					switch (CharData.skillData.bowData.bowType) {
-					case sdk.items.type.Bow:
-					case sdk.items.type.AmazonBow:
-						return "bow";
-					case sdk.items.type.Crossbow:
-						return "crossbow";
-					default:
-						return "";
-					}
-				})());
+				let bowCheck = me.getItemsEx()
+					.filter(el => el.isEquipped && [sdk.items.type.Bow, sdk.items.type.Crossbow, sdk.items.type.AmazonBow].includes(el.itemType))
+					.first();
 
 				if (bowCheck) {
-					let quiver = bowCheck === "bow" ? "aqv" : "cqv";
-					switchBowCheck && me.switchWeapons(sdk.player.slot.Secondary);
-					let myQuiver = me.getItem(quiver, sdk.items.mode.Equipped);
-					!!myQuiver && myQuiver.drop();
-					
+					let quiverType = bowCheck.itemType === sdk.items.type.Crossbow ? sdk.items.Bolts : sdk.items.Arrows;
+					let onSwitch = bowCheck.isOnSwap;
+					onSwitch && me.switchWeapons(sdk.player.slot.Secondary);
+
 					npc = Town.initNPC("Repair", "buyQuiver");
 					if (!npc) return false;
 
-					quiver = npc.getItem(quiver);
+					let myQuiver = me.getItem(quiver, sdk.items.mode.Equipped);
+					!!myQuiver && myQuiver.sell();
+
+					let quiver = npc.getItem(quiverType);
 					!!quiver && quiver.buy();
-					switchBowCheck && me.switchWeapons(sdk.player.slot.Main);
+					onSwitch && me.switchWeapons(sdk.player.slot.Main);
 				}
 
 				break;
