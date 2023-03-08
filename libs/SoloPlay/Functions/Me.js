@@ -238,6 +238,46 @@ me.cleanUpInvoPotions = function (beltSize) {
 	return true;
 };
 
+me.cleanUpScrolls = function (tome, scrollId) {
+	if (!tome || !scrollId) return 0;
+
+	let cleanedUp = 0;
+	let myScrolls = me.getItemsEx()
+		.filter(el => el.isInInventory && el.classid === scrollId);
+	
+	if (myScrolls.length) {
+		try {
+			// If we are at an npc already, open the window otherwise moving potions around fails
+			if (getUIFlag(sdk.uiflags.NPCMenu) && !getUIFlag(sdk.uiflags.Shop)) {
+				console.info(null, "Opening npc menu to clean up scrolls");
+				Misc.useMenu(sdk.menu.Trade) || me.cancelUIFlags();
+			}
+
+			myScrolls.forEach(el => {
+				if (tome && tome.getStat(sdk.stats.Quantity) < 20) {
+					let currQuantity = tome.getStat(sdk.stats.Quantity);
+					if (el.toCursor()) {
+						new PacketBuilder().byte(sdk.packets.send.ScrollToMe).dword(el.gid).dword(tome.gid).send();
+						Misc.poll(() => !me.itemoncursor, 100, 25);
+
+						if (tome.getStat(sdk.stats.Quantity) > currQuantity) {
+							console.info(null, "Placed scroll in tome");
+							cleanedUp++;
+						}
+					} else {
+						console.warn("failed to place scroll in tome");
+					}
+				}
+			});
+		} catch (e) {
+			console.error(e);
+			me.cancelUIFlags();
+		}
+	}
+
+	return cleanedUp;
+};
+
 me.needPotions = function () {
 	// we aren't using MinColumn if none of the values are set
 	if (!Config.MinColumn.some(el => el > 0)) return false;
