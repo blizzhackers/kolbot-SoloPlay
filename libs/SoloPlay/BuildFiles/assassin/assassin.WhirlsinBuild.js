@@ -127,7 +127,7 @@ const finalBuild = {
 	},
 
 	respec: function () {
-		return me.haveAll([{name: sdk.locale.items.Chaos}, {name: sdk.locale.items.Fury}]);
+		return me.haveAll([{ name: sdk.locale.items.Chaos }, { name: sdk.locale.items.Fury }]);
 	},
 
 	active: function () {

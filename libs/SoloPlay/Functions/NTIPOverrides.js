@@ -430,24 +430,11 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
 		}
 
 		if (verbose) {
-			try {
-				switch (result) {
-				case -1:
-					break;
-				case 1:
-					rval.line = stringArr[i].file + " #" + stringArr[i].line;
-
-					break;
-				default:
-					rval.line = null;
-
-					break;
-				}
-			} catch (e) {
-				rval.line = null;
-			}
-
 			rval.result = result;
+			rval.line = (() => {
+				if (stringArr[i] === undefined) return null;
+				return result === 1 ? stringArr[i].file + " #" + stringArr[i].line : null;
+			})();
 
 			if (!identified && result === 1) {
 				rval.result = -1;

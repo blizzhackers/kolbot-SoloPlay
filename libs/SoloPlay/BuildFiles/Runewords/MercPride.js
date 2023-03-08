@@ -11,7 +11,7 @@
 
 	// Cube to Sur/Lo rune
 	if (!me.getItem(sdk.items.runes.Sur) || !me.getItem(sdk.items.runes.Lo)) {
-		if (me.checkItem({name: sdk.locale.items.CalltoArms}).have || me.barbarian) {
+		if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have || me.barbarian) {
 			Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 			Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 			Config.Recipes.push([Recipe.Rune, "Gul Rune"]);

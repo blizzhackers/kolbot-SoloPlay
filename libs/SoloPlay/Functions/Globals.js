@@ -397,7 +397,7 @@ const SetUp = {
 		Config.PacketShopping = true;
 		Config.TownCheck = true;
 		Config.LogExperience = false;
-		Config.PingQuit = [{Ping: 600, Duration: 10}];
+		Config.PingQuit = [{ Ping: 600, Duration: 10 }];
 		Config.Silence = true;
 		Config.OpenChests.Enabled = true;
 		Config.LowGold = me.normal ? 25000 : me.nightmare ? 50000 : 100000;
@@ -697,18 +697,18 @@ const Check = {
 		switch (me.diff) {
 		case sdk.difficulty.Normal:
 			// Have runes or stealth and ancients pledge
-			if (me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Eth]) || me.checkItem({name: sdk.locale.items.Stealth}).have) {
+			if (me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Eth]) || me.checkItem({ name: sdk.locale.items.Stealth }).have) {
 				needRunes = false;
 			}
 
 			break;
 		case sdk.difficulty.Nightmare:
 			if ((me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Thul, sdk.items.runes.Ort, sdk.items.runes.Amn]) && Check.currentBuild().caster)
-				|| (!me.paladin && me.checkItem({name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}).have)
-				|| (me.paladin && me.haveAll([{name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword}, {name: sdk.locale.items.Spirit, itemtype: sdk.items.type.AuricShields}]))
-				|| (me.necromancer && me.checkItem({name: sdk.locale.items.White}).have
-					&& (me.checkItem({name: sdk.locale.items.Rhyme, itemtype: sdk.items.type.VoodooHeads}).have || Item.getEquipped(sdk.body.LeftArm).tier > 800))
-				|| (me.barbarian && (me.checkItem({name: sdk.locale.items.Lawbringer}).have || me.baal))) {
+				|| (!me.paladin && me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have)
+				|| (me.paladin && me.haveAll([{ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }, { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.AuricShields }]))
+				|| (me.necromancer && me.checkItem({ name: sdk.locale.items.White }).have
+					&& (me.checkItem({ name: sdk.locale.items.Rhyme, itemtype: sdk.items.type.VoodooHeads }).have || Item.getEquipped(sdk.body.LeftArm).tier > 800))
+				|| (me.barbarian && (me.checkItem({ name: sdk.locale.items.Lawbringer }).have || me.baal))) {
 				needRunes = false;
 			}
 
@@ -1149,9 +1149,9 @@ const SoloWants = {
 					let hel = me.getItemsEx(sdk.items.runes.Hel, sdk.items.mode.inStorage);
 					// we don't have any hel runes and its not already in our needList
 					if ((!hel || hel.length === 0)) {
-						SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});
+						SoloWants.needList.push({ classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel] });
 					} else if (!hel.some(check => SoloWants.validGids.includes(check.gid))) {
-						SoloWants.needList.push({classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel]});
+						SoloWants.needList.push({ classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel] });
 					}
 				}
 			}
@@ -1175,7 +1175,7 @@ const SoloWants = {
 		}
 
 		// add to our needList so we pick the items
-		return list.length > 0 ? this.needList.push({classid: item.classid, needed: list}) : false;
+		return list.length > 0 ? this.needList.push({ classid: item.classid, needed: list }) : false;
 	},
 
 	update: function (item) {

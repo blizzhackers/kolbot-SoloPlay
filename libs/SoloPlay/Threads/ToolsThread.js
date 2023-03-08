@@ -62,7 +62,7 @@ function main () {
 
 	// General functions
 	this.togglePause = function () {
-		let scripts = ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "threads/antihostile.js", "threads/party.js"];
+		let scripts = ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "threads/party.js"];
 
 		for (let l = 0; l < scripts.length; l += 1) {
 			let script = getScript(scripts[l]);
@@ -269,8 +269,15 @@ function main () {
 		return false;
 	};
 
-	// Event functions
-	this.keyEvent = function (key) {
+	// ~~~~~~~~~~~~~~~ //
+	// Event functions //
+	// ~~~~~~~~~~~~~~~ //
+
+	/**
+	 * Handle keyUp events
+	 * @param {number} key 
+	 */
+	const keyEvent = function (key) {
 		switch (key) {
 		case sdk.keys.PauseBreak: // pause default.dbj
 			this.togglePause();
@@ -397,18 +404,28 @@ function main () {
 		}
 	};
 
-	this.gameEvent = function (mode, param1, param2, name1, name2) {
+	/**
+	 * Handle game events
+	 * @param {number} mode 
+	 * @param {number} [param1] 
+	 * @param {number} [param2] 
+	 * @param {string} [name1] 
+	 * @param {string} [name2] 
+	 */
+	const gameEvent = function (mode, param1, param2, name1, name2) {
 		switch (mode) {
 		case 0x00: // "%Name1(%Name2) dropped due to time out."
 		case 0x01: // "%Name1(%Name2) dropped due to errors."
 		case 0x03: // "%Name1(%Name2) left our world. Diablo's minions weaken."
-			if ((typeof Config.QuitList === "string" && Config.QuitList.toLowerCase() === "any")
-				|| (Config.QuitList instanceof Array && Config.QuitList.indexOf (name1) > -1)) {
+			Config.DebugMode.Stack && mode === 0 && D2Bot.printToConsole(name1 + " timed out, check their logs");
+
+			if (Config.QuitList.includes(name1) || Config.QuitList.some(str => String.isEqual(str, "all"))) {
 				console.log(name1 + (mode === 0 ? " timed out" : " left"));
 
-				if (typeof Config.QuitListDelay !== "undefined" && typeof quitListDelayTime === "undefined" && Config.QuitListDelay.length > 0) {
-					Config.QuitListDelay.sort((a, b) => a - b);
-					quitListDelayTime = getTickCount() + rand(Config.QuitListDelay[0] * 1e3, Config.QuitListDelay[1] * 1e3);
+				if (typeof quitListDelayTime === "undefined" && Config.QuitListDelay.length > 0) {
+					let [min, max] = Config.QuitListDelay.sort((a, b) => a - b).map(s => Time.seconds(s));
+
+					quitListDelayTime = getTickCount() + rand(min, max);
 				} else {
 					quitListDelayTime = getTickCount();
 				}
@@ -444,7 +461,7 @@ function main () {
 			// Only do this in expansion
 			if (Config.SoJWaitTime && !me.classic) {
 				!!me.gameserverip && D2Bot.printToConsole(param1 + " Stones of Jordan Sold to Merchants on IP " + me.gameserverip.split(".")[3], sdk.colors.D2Bot.DarkGold);
-				Messaging.sendToScript("default.dbj", "soj");
+				Messaging.sendToScript("libs/SoloPlay/SoloPlay.js", "soj");
 			}
 
 			break;
@@ -472,51 +489,38 @@ function main () {
 		}
 	};
 
-	this.scriptEvent = function (msg) {
+	/**
+	 * Handle script/thread communications
+	 * @param {string} msg 
+	 * @returns {void}
+	 */
+	const scriptEvent = function (msg) {
+		if (!msg || typeof msg !== "string") return;
+
 		let obj;
 
-		if (msg && typeof msg === "string" && msg !== "") {
-			let updated = false;
-			switch (true) {
-			case msg === "deleteAndRemake" && Developer.testingMode.enabled:
-				quitFlag = true;
+		if (msg.includes("--")) {
+			let sub = msg.match(/\w+?--/gm).first();
 
-				break;
-			case msg.substring(0, 8) === "config--":
+			switch (sub) {
+			case "config--":
 				console.debug("update config");
 				Config = JSON.parse(msg.split("config--")[1]);
-				updated = true;
 
-				break;
-			case msg.substring(0, 7) === "skill--":
+				return;
+			case "skill--":
 				console.debug("update skillData");
 				obj = JSON.parse(msg.split("skill--")[1]);
 				Misc.updateRecursively(CharData.skillData, obj);
-				updated = true;
 
-				break;
-			case msg.substring(0, 6) === "data--":
+				return;
+			case "data--":
 				console.debug("update myData");
 				obj = JSON.parse(msg.split("data--")[1]);
 				Misc.updateRecursively(myData, obj);
-				updated = true;
 
-				break;
-			case msg.toLowerCase() === "test":
-				{
-					console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//",
-						"\nÿc8ThreadData ::\n", getScript(true),
-						"\nÿc8MainData ::\n", myData,
-						"\nÿc8BuffData ::\n", CharData.buffData,
-						"\nÿc8SkillData ::\n", CharData.skillData,
-						"\nÿc8GlobalVariabls ::\n", Object.keys(global),
-						"\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
-				}
-
-				break;
+				return;
 			}
-
-			if (updated) return;
 		}
 
 		switch (msg) {
@@ -531,6 +535,17 @@ function main () {
 		case "restart":
 			restart = true;
 
+			break;
+		case "test":
+			{
+				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//",
+					"\nÿc8ThreadData ::\n", getScript(true),
+					"\nÿc8MainData ::\n", myData,
+					"\nÿc8BuffData ::\n", CharData.buffData,
+					"\nÿc8SkillData ::\n", CharData.skillData,
+					"\nÿc8GlobalVariabls ::\n", Object.keys(global),
+					"\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
+			}
 			break;
 		// ignore common scriptBroadcast messages that aren't relevent to this thread
 		case "mule":
@@ -564,12 +579,13 @@ function main () {
 	Config = copyObj(Config);
 	tick = getTickCount();
 
-	addEventListener("keyup", this.keyEvent);
-	addEventListener("gameevent", this.gameEvent);
-	addEventListener("scriptmsg", this.scriptEvent);
+	addEventListener("keyup", keyEvent);
+	addEventListener("gameevent", gameEvent);
+	addEventListener("scriptmsg", scriptEvent);
 	addEventListener("scriptmsg", Tracker.logLeveling);
 
 	Config.QuitListMode > 0 && Common.Toolsthread.initQuitList();
+	!Array.isArray(Config.QuitList) && (Config.QuitList = [Config.QuitList]);
 
 	let myAct = me.act;
 

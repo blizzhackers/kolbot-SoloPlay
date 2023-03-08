@@ -109,7 +109,7 @@ const finalBuild = {
 		if (me.classic) {
 			return me.charlvl >= 75 && me.diablo;
 		} else {
-			return me.haveAll([{name: sdk.locale.items.Enigma}, {name: sdk.locale.items.HeartoftheOak}]);
+			return me.haveAll([{ name: sdk.locale.items.Enigma }, { name: sdk.locale.items.HeartoftheOak }]);
 		}
 	},
 

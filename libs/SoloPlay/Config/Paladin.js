@@ -121,7 +121,7 @@
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal;
 	Config.ClearType = 0;
-	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0};
+	Config.ClearPath = { Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0 };
 
 	/* Class specific configuration. */
 	Config.AvoidDolls = true;
@@ -136,12 +136,12 @@
 
 	// Maybe add auric shield?
 	Config.imbueables = [
-		{name: sdk.items.WarScepter, condition: () => me.normal},
-		{name: sdk.items.DivineScepter, condition: () => (!me.normal && (me.trueStr < 125 || me.trueDex < 60))},
-		{name: sdk.items.MightyScepter, condition: () => (Item.getEquipped(sdk.body.RightArm).tier < 777 && (me.trueStr >= 125 || me.trueDex >= 60))},
-		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic))},
+		{ name: sdk.items.WarScepter, condition: () => me.normal },
+		{ name: sdk.items.DivineScepter, condition: () => (!me.normal && (me.trueStr < 125 || me.trueDex < 60)) },
+		{ name: sdk.items.MightyScepter, condition: () => (Item.getEquipped(sdk.body.RightArm).tier < 777 && (me.trueStr >= 125 || me.trueDex >= 60)) },
+		{ name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic)) },
+		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic)) },
+		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic)) },
 	];
 
 	let imbueArr = SetUp.imbueItems();
@@ -178,7 +178,7 @@
 			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
 		}
 
-		if (me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+		if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 			// Spirit on swap
 			NTIP.addLine("[type] == auricshields && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000");
 		}
@@ -190,7 +190,7 @@
 		case "Smiter":
 		case "Zealer":
 			// Grief
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Grief}).have) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({ name: sdk.locale.items.Grief }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Grief.js");
 			}
 
@@ -211,12 +211,12 @@
 				}
 
 				// Exile
-				if (!me.checkItem({name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields}).have) {
+				if (!me.checkItem({ name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields }).have) {
 					includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Exile.js");
 				}
 
 				// Fortitude
-				if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Fortitude, itemtype: sdk.items.type.Armor}).have) {
+				if ((me.ladder || Developer.addLadderRW) && !me.checkItem({ name: sdk.locale.items.Fortitude, itemtype: sdk.items.type.Armor }).have) {
 					includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Fortitude.js");
 				}
 			}
@@ -224,7 +224,7 @@
 			break;
 		case "Hammerdin":
 			// Heart of the Oak
-			if (!me.checkItem({name: sdk.locale.items.HeartoftheOak}).have) {
+			if (!me.checkItem({ name: sdk.locale.items.HeartoftheOak }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
 			}
 
@@ -235,22 +235,22 @@
 
 			break;
 		case "Auradin":
-			dreamerCheck = me.haveAll([{name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}]);
+			dreamerCheck = me.haveAll([{ name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields }, { name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm }]);
 
 			// Dream Shield
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}).have) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({ name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/DreamShield.js");
 			}
 
 			// Dream Helm
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}).have) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({ name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/DreamHelm.js");
 			}
 
 			if ((me.ladder || Developer.addLadderRW) && !dreamerCheck) {
 				// Cube to Jah rune
 				if (!me.getItem(sdk.items.runes.Jah)) {
-					if (me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+					if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 						Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 						Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 						Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
@@ -265,7 +265,7 @@
 
 			}
 
-			if (!me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+			if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 				// Cube to Mal rune
 				if (!me.getItem(sdk.items.runes.Mal) && Item.getEquipped(sdk.body.RightArm).tier >= 110000) {
 					Config.Recipes.push([Recipe.Rune, "Um Rune"]);
@@ -279,52 +279,52 @@
 			}
 
 			// Dragon Armor
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}).have && dreamerCheck) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({ name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor }).have && dreamerCheck) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/DragonArmor.js");
 			}
 
-			if (!me.checkItem({name: sdk.locale.items.HandofJustice}).have && dreamerCheck) {
+			if (!me.checkItem({ name: sdk.locale.items.HandofJustice }).have && dreamerCheck) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HandOfJustice.js");
 
 				// Azurewrath
 				NTIP.addLine("[name] == phaseblade && [flag] != ethereal && [quality] == unique # [enhanceddamage] >= 230 && [sanctuaryaura] >= 10 # [tier] == 115000");
 			}
 
-			if (!me.haveAll([{name: sdk.locale.items.CrescentMoon}, {name: sdk.locale.items.HandofJustice}]) && dreamerCheck) {
+			if (!me.haveAll([{ name: sdk.locale.items.CrescentMoon }, { name: sdk.locale.items.HandofJustice }]) && dreamerCheck) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CrescentMoon.js");
 
 				// Lightsabre
 				NTIP.addLine("[name] == phaseblade && [flag] != ethereal && [quality] == unique # [enhanceddamage] >= 150 && [itemabsorblightpercent] == 25 # [tier] == 105000");
 			}
 
-			if (!me.checkItem({name: sdk.locale.items.VoiceofReason}).have && !me.haveSome([{name: sdk.locale.items.CrescentMoon}, {name: sdk.locale.items.HandofJustice}]) && dreamerCheck) {
+			if (!me.checkItem({ name: sdk.locale.items.VoiceofReason }).have && !me.haveSome([{ name: sdk.locale.items.CrescentMoon }, { name: sdk.locale.items.HandofJustice }]) && dreamerCheck) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js");
 			}
 
 			if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude
-				&& me.haveAll([{name: sdk.locale.items.HandofJustice}, {name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor},
-					{name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}])) {
+				&& me.haveAll([{ name: sdk.locale.items.HandofJustice }, { name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor },
+					{ name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields }, { name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm }])) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 			}
 
 			break;
 		case "Sancdreamer":
-			dreamerCheck = me.haveAll([{name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}]);
+			dreamerCheck = me.haveAll([{ name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields }, { name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm }]);
 
 			// Dream Shield
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}).have) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({ name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/DreamShield.js");
 			}
 
 			// Dream Helm
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}).have) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({ name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/DreamHelm.js");
 			}
 
 			if ((me.ladder || Developer.addLadderRW) && !dreamerCheck) {
 				// Cube to Jah rune
 				if (!me.getItem(sdk.items.runes.Jah)) {
-					if (me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+					if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 						Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 						Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 						Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
@@ -338,7 +338,7 @@
 				}
 			}
 
-			if (!me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+			if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 				// Cube to Mal rune
 				if (!me.getItem(sdk.items.runes.Mal) && Item.getEquipped(sdk.body.RightArm).tier >= 110000) {
 					Config.Recipes.push([Recipe.Rune, "Um Rune"]);
@@ -352,27 +352,27 @@
 			}
 
 			// Chains of Honor
-			if (!me.checkItem({name: sdk.locale.items.ChainsofHonor}).have) {
+			if (!me.checkItem({ name: sdk.locale.items.ChainsofHonor }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
 			}
 
-			if (!me.checkItem({name: sdk.locale.items.LastWish}).have && dreamerCheck) {
+			if (!me.checkItem({ name: sdk.locale.items.LastWish }).have && dreamerCheck) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/LastWish.js");
 			}
 
-			if (!me.haveAll([{name: sdk.locale.items.CrescentMoon}, {name: sdk.locale.items.LastWish}]) && dreamerCheck) {
+			if (!me.haveAll([{ name: sdk.locale.items.CrescentMoon }, { name: sdk.locale.items.LastWish }]) && dreamerCheck) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CrescentMoon.js");
 
 				// Lightsabre
 				NTIP.addLine("[name] == phaseblade && [flag] != ethereal && [quality] == unique # [enhanceddamage] >= 150 && [itemabsorblightpercent] == 25 # [tier] == 105000");
 			}
 
-			if (!me.checkItem({name: sdk.locale.items.VoiceofReason}).have && !me.haveSome([{name: sdk.locale.items.CrescentMoon}, {name: sdk.locale.items.LastWish}]) && dreamerCheck) {
+			if (!me.checkItem({ name: sdk.locale.items.VoiceofReason }).have && !me.haveSome([{ name: sdk.locale.items.CrescentMoon }, { name: sdk.locale.items.LastWish }]) && dreamerCheck) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js");
 			}
 
-			if ((me.ladder || Developer.addLadderRW) && me.haveAll([{name: sdk.locale.items.LastWish}, {name: sdk.locale.items.ChainsofHonor},
-				{name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}])) {
+			if ((me.ladder || Developer.addLadderRW) && me.haveAll([{ name: sdk.locale.items.LastWish }, { name: sdk.locale.items.ChainsofHonor },
+				{ name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields }, { name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm }])) {
 				// Infinity
 				if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
 					if (!isIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js")) {
@@ -390,11 +390,11 @@
 			break;
 		case "Torchadin":
 			// Dragon Armor
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}).have) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({ name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/DragonArmor.js");
 			}
 
-			if (!me.checkItem({name: sdk.locale.items.HandofJustice}).have) {
+			if (!me.checkItem({ name: sdk.locale.items.HandofJustice }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HandOfJustice.js");
 
 				// Azurewrath
@@ -402,31 +402,31 @@
 			}
 
 			// Exile
-			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields}).have) {
+			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({ name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Exile.js");
 			}
 
-			if ((me.ladder || Developer.addLadderRW) && !me.haveAll([{name: sdk.locale.items.HandofJustice},
-				{name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields}, {name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}])) {
+			if ((me.ladder || Developer.addLadderRW) && !me.haveAll([{ name: sdk.locale.items.HandofJustice },
+				{ name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields }, { name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor }])) {
 				// Cube to Cham rune
 				if (!me.getItem(sdk.items.runes.Cham) || !me.getItem(sdk.items.runes.Sur) || !me.getItem(sdk.items.runes.Lo)) {
-					if (me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+					if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 						Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 						Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 						Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
 
-						if (me.checkItem({name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields}).have) {
+						if (me.checkItem({ name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields }).have) {
 							Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
 							Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
-						} else if (!me.checkItem({name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields}).have && !me.getItem(sdk.items.runes.Ohm)) {
+						} else if (!me.checkItem({ name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields }).have && !me.getItem(sdk.items.runes.Ohm)) {
 							Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
 						}
 					}
 
-					if (me.checkItem({name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}).have) {
+					if (me.checkItem({ name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor }).have) {
 						Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
 						Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
-					} else if ((!me.haveAll([{name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}, {name: sdk.locale.items.HandofJustice}]) && !me.getItem(sdk.items.runes.Sur))) {
+					} else if ((!me.haveAll([{ name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor }, { name: sdk.locale.items.HandofJustice }]) && !me.getItem(sdk.items.runes.Sur))) {
 						Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
 					}
 
@@ -435,7 +435,7 @@
 				}
 			}
 
-			if (!me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+			if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 				// Cube to Mal rune
 				if (!me.getItem(sdk.items.runes.Mal) && Item.getEquipped(sdk.body.RightArm).tier >= 110000) {
 					Config.Recipes.push([Recipe.Rune, "Um Rune"]);
@@ -448,19 +448,19 @@
 				}
 			}
 
-			if (!me.haveAll([{name: sdk.locale.items.CrescentMoon}, {name: sdk.locale.items.HandofJustice}])) {
+			if (!me.haveAll([{ name: sdk.locale.items.CrescentMoon }, { name: sdk.locale.items.HandofJustice }])) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CrescentMoon.js");
 
 				// Lightsabre
 				NTIP.addLine("[name] == phaseblade && [flag] != ethereal && [quality] == unique # [enhanceddamage] >= 150 && [itemabsorblightpercent] == 25 # [tier] == 105000");
 			}
 
-			if (!me.checkItem({name: sdk.locale.items.VoiceofReason}).have && !me.haveSome([{name: sdk.locale.items.CrescentMoon}, {name: sdk.locale.items.HandofJustice}])) {
+			if (!me.checkItem({ name: sdk.locale.items.VoiceofReason }).have && !me.haveSome([{ name: sdk.locale.items.CrescentMoon }, { name: sdk.locale.items.HandofJustice }])) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js");
 			}
 
 			if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude
-				&& me.haveAll([{name: sdk.locale.items.HandofJustice}, {name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}, {name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields}])) {
+				&& me.haveAll([{ name: sdk.locale.items.HandofJustice }, { name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor }, { name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields }])) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 			}
 			break;
@@ -472,12 +472,12 @@
 		Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
 
 		// Call to Arms
-		if (!me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js");
 		}
 
 		// Enigma - Don't make if not Smiter or Hammerdin
-		if (!me.checkItem({name: sdk.locale.items.Enigma}).have && ["Hammerdin", "Smiter"].includes(SetUp.finalBuild)) {
+		if (!me.checkItem({ name: sdk.locale.items.Enigma }).have && ["Hammerdin", "Smiter"].includes(SetUp.finalBuild)) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
 		}
 
@@ -500,6 +500,10 @@
 		if (Item.getEquipped(sdk.body.Head).tier < 315) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
 		}
+
+		/**
+		 * @todo Rhyme and Splendor
+		 */
 
 		// Ancients' Pledge
 		if (Item.getEquipped(sdk.body.LeftArm).tier < 500) {

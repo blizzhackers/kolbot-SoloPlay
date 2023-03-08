@@ -117,7 +117,7 @@
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal;
 	Config.ClearType = 0;
-	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0};
+	Config.ClearPath = { Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0 };
 
 	/* Class specific configuration. */
 	/* Wereform */
@@ -135,12 +135,12 @@
 	NTIP.buildFinalGear(finalGear);
 
 	Config.imbueables = [
-		{name: sdk.items.SpiritMask, condition: () => (me.normal)},
-		{name: sdk.items.TotemicMask, condition: () => (!me.normal && Item.getEquipped(sdk.body.Head).tier < 100000 && (me.charlvl < 66 || me.trueStr < 118))},
-		{name: sdk.items.DreamSpirit, condition: () => (Item.getEquipped(sdk.body.Head).tier < 100000 && me.trueStr >= 118)},
-		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.Head).tier > 100000))},
-		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.Head).tier > 100000))},
-		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.Head).tier > 100000))},
+		{ name: sdk.items.SpiritMask, condition: () => (me.normal) },
+		{ name: sdk.items.TotemicMask, condition: () => (!me.normal && Item.getEquipped(sdk.body.Head).tier < 100000 && (me.charlvl < 66 || me.trueStr < 118)) },
+		{ name: sdk.items.DreamSpirit, condition: () => (Item.getEquipped(sdk.body.Head).tier < 100000 && me.trueStr >= 118) },
+		{ name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.Head).tier > 100000)) },
+		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.Head).tier > 100000)) },
+		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.Head).tier > 100000)) },
 	].filter((item) => item.condition());
 
 	let imbueArr = SetUp.imbueItems();
@@ -160,7 +160,7 @@
 		true, (item) => item.unique && !item.ethereal
 	));
 
-	if (me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+	if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 		// Spirit on swap
 		NTIP.addLine("[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000");
 	}
@@ -179,7 +179,7 @@
 	case "Wind":
 	case "Elemental":
 		// Call to Arms
-		if (!me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js");
 		}
 
@@ -189,18 +189,18 @@
 			));
 
 			// Phoenix Shield
-			if ((me.ladder || Developer.addLadderRW) && SetUp.finalBuild === "Elemental" && me.checkItem({name: sdk.locale.items.Enigma}).have && !me.checkItem({name: sdk.locale.items.Phoenix, itemtype: sdk.items.type.Shield}).have) {
+			if ((me.ladder || Developer.addLadderRW) && SetUp.finalBuild === "Elemental" && me.checkItem({ name: sdk.locale.items.Enigma }).have && !me.checkItem({ name: sdk.locale.items.Phoenix, itemtype: sdk.items.type.Shield }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PhoneixShield.js");
 			}
 		}
 
 		// Heart of the Oak
-		if (!me.checkItem({name: sdk.locale.items.HeartoftheOak}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.HeartoftheOak }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
 		}
 
 		// Enigma
-		if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.Enigma }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
 		}
 
@@ -214,18 +214,18 @@
 	case "Wolf":
 	case "Plaguewolf":
 		// Chains of Honor
-		if (!me.checkItem({name: sdk.locale.items.ChainsofHonor}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.ChainsofHonor }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
 		}
 
 		if (SetUp.finalBuild === "Plaguewolf") {
 			// Grief
-			if (!me.checkItem({name: sdk.locale.items.Grief}).have) {
+			if (!me.checkItem({ name: sdk.locale.items.Grief }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Grief.js");
 			}
 		} else {
 			// Make sure to have CoH first
-			if (me.checkItem({name: sdk.locale.items.ChainsofHonor}).have) {
+			if (me.checkItem({ name: sdk.locale.items.ChainsofHonor }).have) {
 				// Upgrade Ribcracker to Elite
 				Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "quarterstaff", Roll.NonEth]);
 			}

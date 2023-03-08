@@ -7,7 +7,12 @@
 
 includeIfNotIncluded("core/Item.js");
 (function () {
-	// TODO: clean this up (sigh) - 8/10/22 - update refactored alot, still think more can be done though
+	/**
+	 * @param {ItemUnit} item 
+	 * @param {*} buildInfo 
+	 * @returns {number}
+	 * @todo clean this up (sigh) - 8/10/22 - update refactored alot, still think more can be done though
+	 */
 	const baseSkillsScore = (item, buildInfo) => {
 		buildInfo === undefined && (buildInfo = Check.currentBuild());
 		let generalScore = 0;

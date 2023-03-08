@@ -104,7 +104,7 @@
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal;
 	Config.ClearType = 0;
-	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0};
+	Config.ClearPath = { Range: (Pather.canTeleport() ? 30 : 10), Spectype: 0 };
 
 	// Class specific config
 	Config.FindItem = true; 		// Use Find Item skill on corpses after clearing.
@@ -116,12 +116,12 @@
 	NTIP.buildFinalGear(finalGear);
 
 	Config.imbueables = [
-		{name: sdk.items.AvengerGuard, condition: () => (me.normal && me.expansion)},
-		{name: sdk.items.SlayerGuard, condition: () => (!me.normal && me.trueStr >= 118 && me.expansion)},
-		{name: sdk.items.CarnageHelm, condition: () => (Item.getEquipped(sdk.body.Head).tier < 100000 && me.trueStr >= 106 && me.expansion)},
-		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.Head).tier > 100000 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic))},
+		{ name: sdk.items.AvengerGuard, condition: () => (me.normal && me.expansion) },
+		{ name: sdk.items.SlayerGuard, condition: () => (!me.normal && me.trueStr >= 118 && me.expansion) },
+		{ name: sdk.items.CarnageHelm, condition: () => (Item.getEquipped(sdk.body.Head).tier < 100000 && me.trueStr >= 106 && me.expansion) },
+		{ name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.Head).tier > 100000 || me.classic)) },
+		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic)) },
+		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic)) },
 	].filter((item) => item.condition());
 
 	let imbueArr = SetUp.imbueItems();
@@ -137,10 +137,10 @@
 
 		Config.socketables = Config.socketables.concat(basicSocketables.all);
 		Config.socketables.push(addSocketableObj(sdk.items.Flamberge, [], [],
-			true, (item) => me.normal && Item.getEquipped(sdk.body.LeftArm).tier < 600 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+			true, (item) => me.normal && Item.getEquipped(sdk.body.LeftArm).tier < 600 && !Check.haveBase("sword", 5) && !me.checkItem({ name: sdk.locale.items.Honor }).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
 		));
 		Config.socketables.push(addSocketableObj(sdk.items.Zweihander, [], [],
-			true, (item) => Item.getEquipped(sdk.body.LeftArm).tier < 1000 && !Check.haveBase("sword", 5) && !me.checkItem({name: sdk.locale.items.Honor}).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+			true, (item) => Item.getEquipped(sdk.body.LeftArm).tier < 1000 && !Check.haveBase("sword", 5) && !me.checkItem({ name: sdk.locale.items.Honor }).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
 		));
 
 		if (SetUp.finalBuild !== "Immortalwhirl") {
@@ -151,12 +151,12 @@
 
 		if (["Immortalwhirl", "Singer"].indexOf(SetUp.finalBuild) === -1) {
 			// Grief
-			if ((me.ladder || Developer.addLadderRW) && (!me.checkItem({name: sdk.locale.items.Grief}).have || (SetUp.finalBuild === "Whirlwind" && Item.getEquipped(sdk.body.LeftArm).prefixnum !== sdk.locale.items.Grief))) {
+			if ((me.ladder || Developer.addLadderRW) && (!me.checkItem({ name: sdk.locale.items.Grief }).have || (SetUp.finalBuild === "Whirlwind" && Item.getEquipped(sdk.body.LeftArm).prefixnum !== sdk.locale.items.Grief))) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Grief.js");
 			}
 
 			// Fortitude
-			if ((me.ladder || Developer.addLadderRW) && SetUp.finalBuild !== "Uberconc" && me.checkItem({name: sdk.locale.items.Grief}).have && !me.checkItem({name: sdk.locale.items.Fortitude, itemtype: sdk.items.type.Armor}).have) {
+			if ((me.ladder || Developer.addLadderRW) && SetUp.finalBuild !== "Uberconc" && me.checkItem({ name: sdk.locale.items.Grief }).have && !me.checkItem({ name: sdk.locale.items.Fortitude, itemtype: sdk.items.type.Armor }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Fortitude.js");
 			}
 
@@ -169,32 +169,32 @@
 		// FinalBuild specific setup
 		switch (SetUp.finalBuild) {
 		case "Uberconc":
-			if (me.checkItem({name: sdk.locale.items.Grief}).have && SetUp.finalBuild === "Uberconc") {
+			if (me.checkItem({ name: sdk.locale.items.Grief }).have && SetUp.finalBuild === "Uberconc") {
 				// Add Stormshield
 				NTIP.addLine("[name] == monarch && [quality] == unique && [flag] != ethereal # [damageresist] >= 35 # [tier] == 100000");
 			}
 
 			// Chains of Honor
-			if (!me.checkItem({name: sdk.locale.items.ChainsofHonor}).have) {
+			if (!me.checkItem({ name: sdk.locale.items.ChainsofHonor }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
 			}
 
 			break;
 		case "Frenzy":
 			// Breathe of the Dying
-			if (!me.checkItem({name: sdk.locale.items.BreathoftheDying}).have) {
+			if (!me.checkItem({ name: sdk.locale.items.BreathoftheDying }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/BreathoftheDying.js");
 			}
 
 			break;
 		case "Singer":
 			// Heart of the Oak
-			if (Item.getEquipped(sdk.body.LeftArm).prefixnum !== sdk.locale.items.HeartoftheOak && me.checkItem({name: sdk.locale.items.Enigma}).have) {
+			if (Item.getEquipped(sdk.body.LeftArm).prefixnum !== sdk.locale.items.HeartoftheOak && me.checkItem({ name: sdk.locale.items.Enigma }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
 			}
 
 			// Enigma
-			if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
+			if (!me.checkItem({ name: sdk.locale.items.Enigma }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
 			}
 
@@ -337,7 +337,7 @@
 		}
 
 		// Duress
-		if (Item.getEquipped(sdk.body.Armor).tier < 600 && (me.checkItem({name: sdk.locale.items.CrescentMoon}).have || Item.getEquipped(sdk.body.LeftArm).tier > 900)) {
+		if (Item.getEquipped(sdk.body.Armor).tier < 600 && (me.checkItem({ name: sdk.locale.items.CrescentMoon }).have || Item.getEquipped(sdk.body.LeftArm).tier > 900)) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Duress.js");
 		}
 

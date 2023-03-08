@@ -111,7 +111,7 @@
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = false;
 	Config.ClearType = 0;
-	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 20), Spectype: sdk.monsters.spectype.All};
+	Config.ClearPath = { Range: (Pather.canTeleport() ? 30 : 20), Spectype: sdk.monsters.spectype.All };
 
 	// Class specific config
 	Config.LightningFuryDelay = 10; // Lightning fury interval in seconds. LF is treated as timed skill.
@@ -123,12 +123,12 @@
 	NTIP.buildFinalGear(finalGear);
 
 	Config.imbueables = [
-		{name: sdk.items.MaidenJavelin, condition: () => me.normal && me.expansion},
-		{name: sdk.items.CeremonialJavelin, condition: () => !me.normal && (me.charlvl < 48 || me.trueStr < 107 || me.trueDex < 151) && me.expansion},
-		{name: sdk.items.MatriarchalJavelin, condition: () => (Item.getEquipped(sdk.body.RightArm).tier < 100000 && me.trueStr >= 107 && me.trueDex >= 151 && me.expansion)},
-		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic))},
+		{ name: sdk.items.MaidenJavelin, condition: () => me.normal && me.expansion },
+		{ name: sdk.items.CeremonialJavelin, condition: () => !me.normal && (me.charlvl < 48 || me.trueStr < 107 || me.trueDex < 151) && me.expansion },
+		{ name: sdk.items.MatriarchalJavelin, condition: () => (Item.getEquipped(sdk.body.RightArm).tier < 100000 && me.trueStr >= 107 && me.trueDex >= 151 && me.expansion) },
+		{ name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic)) },
+		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic)) },
+		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic)) },
 	];
 
 	let imbueArr = SetUp.imbueItems();
@@ -192,7 +192,7 @@
 				));
 			}
 
-			if ((SetUp.finalBuild === "Faithbowzon") && !me.checkItem({name: sdk.locale.items.Faith, classid: sdk.items.GrandMatronBow}).have) {
+			if ((SetUp.finalBuild === "Faithbowzon") && !me.checkItem({ name: sdk.locale.items.Faith, classid: sdk.items.GrandMatronBow }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Faith.js");
 			}
 				
@@ -246,12 +246,12 @@
 		}
 
 		// Call to Arms
-		if (!me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js");
 		}
 
 		// Chains of Honor
-		if (!me.checkItem({name: sdk.locale.items.ChainsofHonor}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.ChainsofHonor }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
 		}
 

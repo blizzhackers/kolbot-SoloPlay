@@ -103,7 +103,7 @@
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal;
 	Config.ClearType = 0;
-	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 20), Spectype: 0};
+	Config.ClearPath = { Range: (Pather.canTeleport() ? 30 : 20), Spectype: 0 };
 	
 	/* Class specific configuration. */
 	Config.UseTraps = true;
@@ -128,12 +128,12 @@
 	NTIP.buildFinalGear(finalGear);
 
 	Config.imbueables = [
-		{name: sdk.items.Claws, condition: () => (me.normal)},
-		{name: sdk.items.HandScythe, condition: () => (!me.normal && Item.getEquipped(sdk.body.RightArm).tier < 777 && (me.trueStr < 79 || me.trueDex < 79))},
-		{name: sdk.items.GreaterTalons, condition: () => (Item.getEquipped(sdk.body.RightArm).tier < 777 && me.trueStr >= 79 && me.trueDex >= 79)},
-		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.RightArm).tier > 777))},
-		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 777))},
-		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 777))},
+		{ name: sdk.items.Claws, condition: () => (me.normal) },
+		{ name: sdk.items.HandScythe, condition: () => (!me.normal && Item.getEquipped(sdk.body.RightArm).tier < 777 && (me.trueStr < 79 || me.trueDex < 79)) },
+		{ name: sdk.items.GreaterTalons, condition: () => (Item.getEquipped(sdk.body.RightArm).tier < 777 && me.trueStr >= 79 && me.trueDex >= 79) },
+		{ name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.RightArm).tier > 777)) },
+		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 777)) },
+		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 777)) },
 	].filter((item) => item.condition());
 
 	let imbueArr = SetUp.imbueItems();
@@ -162,17 +162,17 @@
 		}
 
 		// Chaos
-		if (!me.checkItem({name: sdk.locale.items.Chaos}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.Chaos }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Chaos.js");
 		}
 
 		// Fury
-		if (!me.checkItem({name: sdk.locale.items.Fury}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.Fury }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Fury.js");
 		}
 
 		// Fortitude
-		if ((me.ladder || Developer.addLadderRW) && !me.checkItem({name: sdk.locale.items.Fortitude, itemtype: sdk.items.type.Armor}).have) {
+		if ((me.ladder || Developer.addLadderRW) && !me.checkItem({ name: sdk.locale.items.Fortitude, itemtype: sdk.items.type.Armor }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Fortitude.js");
 		}
 
@@ -188,12 +188,12 @@
 		}
 
 		// Heart of the Oak
-		if (!me.checkItem({name: sdk.locale.items.HeartoftheOak}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.HeartoftheOak }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
 		}
 
 		// Enigma
-		if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.Enigma }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
 		}
 
@@ -213,7 +213,7 @@
 	}
 
 	// Call to Arms
-	if (!me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+	if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js");
 	}
 

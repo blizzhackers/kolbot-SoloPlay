@@ -127,7 +127,7 @@ const finalBuild = {
 		if (me.classic) {
 			return me.charlvl >= 75 && me.diablo;
 		} else {
-			return me.haveAll([{name: sdk.locale.items.Grief}, {name: sdk.locale.items.BreathoftheDying}]);
+			return me.haveAll([{ name: sdk.locale.items.Grief }, { name: sdk.locale.items.BreathoftheDying }]);
 		}
 	},
 

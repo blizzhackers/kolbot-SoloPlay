@@ -15,7 +15,7 @@
 		Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
 
-		if (me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+		if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 			Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
 		}
 	}

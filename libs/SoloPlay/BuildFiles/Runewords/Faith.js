@@ -7,7 +7,7 @@
 	];
 	NTIP.buildList(FaithRunes);
 	// Cube to Ohm and Keep cubing to Jah rune
-	if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Ohm) > 1) && me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+	if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Ohm) > 1) && me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 		if (!me.getItem(sdk.items.runes.Jah)) {
 			Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 			Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
@@ -17,7 +17,7 @@
 		!me.getItem(sdk.items.runes.Jah) && Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
 	}
 	// Cube to Jah rune
-	if (!me.getItem(sdk.items.runes.Jah) && me.checkItem({name: sdk.locale.items.ChainofHonor}).have) {
+	if (!me.getItem(sdk.items.runes.Jah) && me.checkItem({ name: sdk.locale.items.ChainofHonor }).have) {
 		Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Sur Rune"]);

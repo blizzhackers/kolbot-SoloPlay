@@ -119,7 +119,7 @@ const finalBuild = {
 		if (me.classic) {
 			return false;
 		} else {
-			return me.haveAll([{name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}, {name: sdk.locale.items.Brand}, {name: sdk.locale.items.ChainsofHonor}]);
+			return me.haveAll([{ name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm }, { name: sdk.locale.items.Brand }, { name: sdk.locale.items.ChainsofHonor }]);
 		}
 	},
 

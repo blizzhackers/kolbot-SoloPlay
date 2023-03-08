@@ -10,7 +10,7 @@
 	NTIP.buildList(LW);
 	// Cube to Jah/Sur rune
 	if (!me.getItem(sdk.items.runes.Jah) || !me.getItem(sdk.items.runes.Sur)) {
-		if (me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+		if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 			Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 			Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 			Config.Recipes.push([Recipe.Rune, "Gul Rune"]);

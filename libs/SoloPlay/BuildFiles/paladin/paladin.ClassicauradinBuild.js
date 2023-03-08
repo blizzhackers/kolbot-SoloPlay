@@ -138,7 +138,7 @@ const finalBuild = {
 		if (me.classic) {
 			return me.charlvl >= 75 && me.diablo;
 		} else {
-			return me.haveAll([{name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields}, {name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm}]);
+			return me.haveAll([{ name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields }, { name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm }]);
 		}
 	},
 

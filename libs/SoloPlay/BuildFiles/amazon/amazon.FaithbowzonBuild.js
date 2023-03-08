@@ -135,7 +135,7 @@ const finalBuild = {
 		if (me.classic) {
 			return false;
 		} else {
-			return (me.checkItem({name: sdk.locale.items.Faith}).have || Check.haveItem("diamondbow", "unique", "Witchwild String"));
+			return (me.checkItem({ name: sdk.locale.items.Faith }).have || Check.haveItem("diamondbow", "unique", "Witchwild String"));
 		}
 	},
 

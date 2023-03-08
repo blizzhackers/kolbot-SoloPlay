@@ -433,7 +433,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 };
 
 Unit.prototype.castSwitchChargedSkill = function (...args) {
-	let skillId, x, y, unit, chargedItem;
+	let skillId, x, y, unit;
 
 	switch (args.length) {
 	case 0: // item.castChargedSkill()
@@ -498,7 +498,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 
 		me.weaponswitch === 0 && me.switchWeapons(1);
 
-		chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
+		let chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
 
 		return chargedItem.castChargedSkillEx.apply(chargedItem, args);
 	}

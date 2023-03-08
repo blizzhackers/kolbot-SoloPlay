@@ -117,7 +117,7 @@ const finalBuild = {
 	},
 
 	respec: function () {
-		return me.haveAll([{name: sdk.locale.items.Destruction}, {name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor}]);
+		return me.haveAll([{ name: sdk.locale.items.Destruction }, { name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor }]);
 	},
 
 	active: function () {

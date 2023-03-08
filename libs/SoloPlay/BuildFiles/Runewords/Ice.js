@@ -8,7 +8,7 @@
 	NTIP.buildList(IceRunes);
 
 	// Cube to Lo and Keep cubing to Jah rune
-	if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Lo)) > 1 && me.checkItem({name: sdk.locale.items.ChainofHonor}).have) {
+	if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Lo)) > 1 && me.checkItem({ name: sdk.locale.items.ChainofHonor }).have) {
 		if (!me.getItem(sdk.items.runes.Jah)) {
 			Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 			Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
@@ -19,7 +19,7 @@
 		!me.getItem(sdk.items.runes.Jah) && Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
 	}
 	// Cube to Jah rune
-	if (!me.getItem(sdk.items.runes.Jah) && me.checkItem({name: sdk.locale.items.ChainofHonor}).have) {
+	if (!me.getItem(sdk.items.runes.Jah) && me.checkItem({ name: sdk.locale.items.ChainofHonor }).have) {
 		Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Ber Rune"]);

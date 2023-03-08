@@ -118,7 +118,7 @@
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = false;
 	Config.ClearType = 0;
-	Config.ClearPath = {Range: 30, Spectype: (me.hell && Pather.canTeleport() ? 0xF : 0)};
+	Config.ClearPath = { Range: 30, Spectype: (me.hell && Pather.canTeleport() ? 0xF : 0) };
 
 	/* Monster skip configuration. */
 	Pather.canTeleport() && me.lightRes < 75 && Config.SkipEnchant.push("lightning enchanted");
@@ -141,12 +141,12 @@
 
 
 	Config.imbueables = [
-		{name: sdk.items.JaredsStone, condition: () => (me.normal && me.expansion)},
-		{name: sdk.items.SwirlingCrystal, condition: () => (!me.normal && me.charlvl < 66 && me.expansion)},
-		{name: sdk.items.DimensionalShard, condition: () => (Item.getEquipped(sdk.body.RightArm).tier < 777 && me.expansion)},
-		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic))},
+		{ name: sdk.items.JaredsStone, condition: () => (me.normal && me.expansion) },
+		{ name: sdk.items.SwirlingCrystal, condition: () => (!me.normal && me.charlvl < 66 && me.expansion) },
+		{ name: sdk.items.DimensionalShard, condition: () => (Item.getEquipped(sdk.body.RightArm).tier < 777 && me.expansion) },
+		{ name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic)) },
+		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic)) },
+		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic)) },
 	].filter((item) => item.condition());
 
 	let imbueArr = SetUp.imbueItems();
@@ -198,12 +198,12 @@
 			}
 
 			// Chains of Honor
-			if (!me.checkItem({name: sdk.locale.items.ChainsofHonor}).have) {
+			if (!me.checkItem({ name: sdk.locale.items.ChainsofHonor }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
 			}
 
 			// Heart of the Oak
-			if (!me.checkItem({name: sdk.locale.items.HeartoftheOak}).have) {
+			if (!me.checkItem({ name: sdk.locale.items.HeartoftheOak }).have) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
 			}
 
@@ -239,7 +239,7 @@
 		}
 
 		// Go ahead and keep two P-diamonds prior to finding a moser's unless already using a better shield
-		if (!Check.haveItem("shield", "unique", "Moser's Blessed Circle") && !me.haveSome([{name: sdk.locale.items.Sanctuary}, {name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield}])) {
+		if (!Check.haveItem("shield", "unique", "Moser's Blessed Circle") && !me.haveSome([{ name: sdk.locale.items.Sanctuary }, { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield }])) {
 			NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");
 
 			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond)) < 2) {
@@ -250,12 +250,12 @@
 		Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
 
 		// Sanctuary
-		if (!me.haveSome([{name: sdk.locale.items.Sanctuary}, {name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield}]) && ["Blova", "Lightning"].indexOf(SetUp.currentBuild) === -1) {
+		if (!me.haveSome([{ name: sdk.locale.items.Sanctuary }, { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield }]) && ["Blova", "Lightning"].indexOf(SetUp.currentBuild) === -1) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Sanctuary.js");
 		}
 
 		// Call to Arms
-		if (!me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js");
 		}
 

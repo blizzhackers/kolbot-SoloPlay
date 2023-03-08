@@ -9,7 +9,7 @@
 
 	// Cube to Ber rune
 	if (!me.getItem(sdk.items.runes.Ber)) {
-		if (me.checkItem({name: sdk.locale.items.CalltoArms}).have || ["Plaguewolf", "Wolf", "Uberconc"].includes(SetUp.finalBuild)) {
+		if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have || ["Plaguewolf", "Wolf", "Uberconc"].includes(SetUp.finalBuild)) {
 			Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
 			Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 			Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
@@ -17,7 +17,7 @@
 			Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
 		}
 
-		if (me.checkItem({name: sdk.locale.items.Grief}).have || ["Uberconc"].indexOf(SetUp.finalBuild) === -1) {
+		if (me.checkItem({ name: sdk.locale.items.Grief }).have || ["Uberconc"].indexOf(SetUp.finalBuild) === -1) {
 			Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
 		}
 

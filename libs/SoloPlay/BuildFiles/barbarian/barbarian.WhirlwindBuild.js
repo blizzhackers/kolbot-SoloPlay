@@ -118,7 +118,7 @@ const finalBuild = {
 			return me.charlvl >= 75 && me.diablo;
 		} else {
 			// TODO: figure out how to make sure we have two, or determine if that even matters
-			return me.checkItem({name: sdk.locale.items.Grief, itemtype: sdk.items.type.Sword}).have;
+			return me.checkItem({ name: sdk.locale.items.Grief, itemtype: sdk.items.type.Sword }).have;
 		}
 	},
 

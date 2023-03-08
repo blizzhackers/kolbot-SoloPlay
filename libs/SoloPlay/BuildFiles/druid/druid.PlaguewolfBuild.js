@@ -106,7 +106,7 @@ const finalBuild = {
 	},
 
 	respec: function () {
-		return me.haveAll([{name: sdk.locale.items.Grief}, {name: sdk.locale.items.ChainsofHonor}]);
+		return me.haveAll([{ name: sdk.locale.items.Grief }, { name: sdk.locale.items.ChainsofHonor }]);
 	},
 
 	active: function () {

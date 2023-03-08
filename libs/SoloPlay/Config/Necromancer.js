@@ -110,7 +110,7 @@
 	Config.MaxAttackCount = 1000;
 	Config.BossPriority = me.normal;
 	Config.ClearType = 0;
-	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 20), Spectype: 0};
+	Config.ClearPath = { Range: (Pather.canTeleport() ? 30 : 20), Spectype: 0 };
 
 	/* Class specific configuration. */
 	Config.Dodge = Check.haveItem("armor", "runeword", "Enigma");
@@ -135,12 +135,12 @@
 	NTIP.buildFinalGear(finalGear);
 
 	Config.imbueables = [
-		{name: sdk.items.DemonHead, condition: () => (me.normal && me.expansion)},
-		{name: sdk.items.HierophantTrophy, condition: () => (!me.normal && (me.charlvl < 66 || me.trueStr < 106) && me.expansion)},
-		{name: sdk.items.BloodlordSkull, condition: () => (Item.getEquipped(sdk.body.LeftArm).tier < 1000 && me.expansion)},
-		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.LeftArm).tier > 1000 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.LeftArm).tier > 1000 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.LeftArm).tier > 1000 || me.classic))},
+		{ name: sdk.items.DemonHead, condition: () => (me.normal && me.expansion) },
+		{ name: sdk.items.HierophantTrophy, condition: () => (!me.normal && (me.charlvl < 66 || me.trueStr < 106) && me.expansion) },
+		{ name: sdk.items.BloodlordSkull, condition: () => (Item.getEquipped(sdk.body.LeftArm).tier < 1000 && me.expansion) },
+		{ name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.LeftArm).tier > 1000 || me.classic)) },
+		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.LeftArm).tier > 1000 || me.classic)) },
+		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.LeftArm).tier > 1000 || me.classic)) },
 	].filter((item) => item.condition());
 
 	let imbueArr = SetUp.imbueItems();
@@ -191,7 +191,7 @@
 		}
 
 		// Call to Arms
-		if (!me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js");
 		}
 
@@ -206,7 +206,7 @@
 		}
 			
 		// Enigma
-		if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
+		if (!me.checkItem({ name: sdk.locale.items.Enigma }).have) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
 		}
 
@@ -225,7 +225,7 @@
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
 		}
 
-		if (!me.haveSome([{name: sdk.locale.items.Enigma}, {name: sdk.locale.items.Bone}]) && Item.getEquipped(sdk.body.Armor).tier < 650) {
+		if (!me.haveSome([{ name: sdk.locale.items.Enigma }, { name: sdk.locale.items.Bone }]) && Item.getEquipped(sdk.body.Armor).tier < 650) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Bone.js");
 		}
 

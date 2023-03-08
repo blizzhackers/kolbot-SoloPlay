@@ -33,7 +33,7 @@
 		Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
 		Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
 
-		if (me.checkItem({name: sdk.locale.items.HeartoftheOak}).have || ["Zealer", "Smiter", "Auradin", "Meteorb", "Blizzballer", "Cold"].includes(SetUp.finalBuild)) {
+		if (me.checkItem({ name: sdk.locale.items.HeartoftheOak }).have || ["Zealer", "Smiter", "Auradin", "Meteorb", "Blizzballer", "Cold"].includes(SetUp.finalBuild)) {
 			Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
 		}
 	}
