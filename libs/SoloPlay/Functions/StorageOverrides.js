@@ -157,7 +157,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 
 		this.cubeSpot(this.name);
 
-		let x, y, item, nPos;
+		let x, y, nPos;
 
 		for (y = this.width - 1; y >= 0; y--) {
 			for (x = this.height - 1; x >= 0; x--) {
@@ -168,7 +168,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 					continue; // nothing on this spot
 				}
 
-				item = this.itemList[this.buffer[x][y] - 1];
+				let item = this.itemList[this.buffer[x][y] - 1];
 
 				if (item.classid === sdk.quest.item.Cube && item.isInStash && item.x === 0 && item.y === 0) {
 					continue; // dont touch the cube
@@ -247,12 +247,22 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 		 */
 
 		let x, y, nx, ny, makeSpot;
-		let startX, startY, endX, endY, xDir = 1, yDir = 1;
+		let xDir = 1, yDir = 1;
 
-		startX = 0;
-		startY = 0;
-		endX = this.width - (item.sizex - 1);
-		endY = this.height - (item.sizey - 1);
+		let startX = 0;
+		let startY = 0;
+		let endX = this.width - (item.sizex - 1);
+		let endY = this.height - (item.sizey - 1);
+
+		Storage.Reload();
+
+		if (item.sizex && item.sizey && item.gid === undefined) {
+			// fake item we are checking if we can fit a certain sized item so mock some props to it
+			item.gid = -1;
+			item.classid = -1;
+			item.quality = -1;
+			item.gfx = -1;
+		}
 
 		Storage.Reload();
 
