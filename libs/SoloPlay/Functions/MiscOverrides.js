@@ -113,7 +113,7 @@ Misc.openChest = function (unit) {
 			(specialChest || i > 2) ? Misc.click(0, 0, unit) : Packet.entityInteract(unit);
 		}
 
-		if (Misc.poll(() => unit.mode, 1000, 50)) {
+		if (Misc.poll(() => !unit || unit.mode, 1000, 50)) {
 			return true;
 		}
 		Packet.flash(me.gid);
@@ -125,6 +125,11 @@ Misc.openChest = function (unit) {
 	return false;
 };
 
+/**
+ * @param {number} range 
+ * @returns {boolean}
+ * @todo Take path parameter to we can open the chests in an order that brings us closer to our destination
+ */
 Misc.openChests = function (range = 15) {
 	if (!Misc.openChestsEnabled) return false;
 	const containers = [
@@ -170,6 +175,10 @@ Misc.openChests = function (range = 15) {
 	return true;
 };
 
+/**
+ * @param {ObjectUnit} unit 
+ * @returns {boolean}
+ */
 Misc.getWell = function (unit) {
 	if (!unit || unit.mode === sdk.objects.mode.Active) return false;
 
@@ -216,13 +225,39 @@ Misc.useWell = function (range = 15) {
 	return true;
 };
 
+const shrineMap = new Map();
+shrineMap.set(sdk.shrines.Refilling, 0);
+shrineMap.set(sdk.shrines.Health, 0);
+shrineMap.set(sdk.shrines.Mana, 0);
+shrineMap.set(sdk.shrines.HealthExchange, 0);
+shrineMap.set(sdk.shrines.ManaExchange, 0);
+shrineMap.set(sdk.shrines.Armor, sdk.states.ShrineArmor);
+shrineMap.set(sdk.shrines.Combat, sdk.states.ShrineCombat);
+shrineMap.set(sdk.shrines.ResistFire, sdk.states.ShrineResFire);
+shrineMap.set(sdk.shrines.ResistCold, sdk.states.ShrineResCold);
+shrineMap.set(sdk.shrines.ResistLightning, sdk.states.ShrineResLighting);
+shrineMap.set(sdk.shrines.ResistPoison, sdk.states.ShrineResPoison);
+shrineMap.set(sdk.shrines.Skill, sdk.states.ShrineSkill);
+shrineMap.set(sdk.shrines.ManaRecharge, sdk.states.ShrineManaRegen);
+shrineMap.set(sdk.shrines.Stamina, sdk.states.ShrineStamina);
+shrineMap.set(sdk.shrines.Experience, sdk.states.ShrineExperience);
+shrineMap.set(sdk.shrines.Enirhs, 0);
+shrineMap.set(sdk.shrines.Portal, 0);
+shrineMap.set(sdk.shrines.Gem, 0);
+shrineMap.set(sdk.shrines.Fire, 0);
+shrineMap.set(sdk.shrines.Monster, 0);
+shrineMap.set(sdk.shrines.Exploding, 0);
+shrineMap.set(sdk.shrines.Poison, 0);
+
 Misc.scanShrines = function (range, ignore = []) {
 	if (!Config.ScanShrines.length) return false;
 
 	!range && (range = Pather.useTeleport() ? 25 : 15);
 	!Array.isArray(ignore) && (ignore = [ignore]);
 
+	/** @type {ObjectUnit[]} */
 	let shrineList = [];
+
 	const rangeCheck = (shrineType) => {
 		switch (true) {
 		case shrineType === sdk.shrines.Refilling && (me.hpPercent < 50 || me.mpPercent < 50 || me.staminaPercent < 50):
@@ -245,47 +280,23 @@ Misc.scanShrines = function (range, ignore = []) {
 	// Initiate shrine states
 	if (!this.shrineStates) {
 		this.shrineStates = [];
-
-		for (let i = 0; i < Config.ScanShrines.length; i += 1) {
-			switch (Config.ScanShrines[i]) {
-			case sdk.shrines.None:
-			case sdk.shrines.Refilling:
-			case sdk.shrines.Health:
-			case sdk.shrines.Mana:
-			case sdk.shrines.HealthExchange: // (doesn't exist)
-			case sdk.shrines.ManaExchange: // (doesn't exist)
-			case sdk.shrines.Enirhs: // (doesn't exist)
-			case sdk.shrines.Portal:
-			case sdk.shrines.Gem:
-			case sdk.shrines.Fire:
-			case sdk.shrines.Monster:
-			case sdk.shrines.Exploding:
-			case sdk.shrines.Poison:
-				this.shrineStates[i] = 0; // no state
-
-				break;
-			case sdk.shrines.Armor:
-			case sdk.shrines.Combat:
-			case sdk.shrines.ResistFire:
-			case sdk.shrines.ResistCold:
-			case sdk.shrines.ResistLightning:
-			case sdk.shrines.ResistPoison:
-			case sdk.shrines.Skill:
-			case sdk.shrines.ManaRecharge:
-			case sdk.shrines.Stamina:
-			case sdk.shrines.Experience:
-				// Both states and shrines are arranged in same order with armor shrine starting at 128
-				this.shrineStates[i] = Config.ScanShrines[i] + 122;
-
-				break;
+		let i = 0;
+		for (let shrine of Config.ScanShrines) {
+			if (shrine > 0) {
+				this.shrineStates[i] = shrineMap.get(shrine);
+				i++;
 			}
 		}
 	}
-	
-	let shrine = Game.getObject("shrine");
 
-	if (shrine) {
+	let shrine = Game.getObject();
+
+	/**
+	 * Fix for a3/a5 shrines
+	 */
+	if (shrine && shrineMap.has(shrine.objtype) && shrine.name.toLowerCase().includes("shrine")) {
 		let index = -1;
+		
 		// Build a list of nearby shrines
 		do {
 			if (shrine.mode === sdk.objects.mode.Inactive && !ignore.includes(shrine.objtype)
@@ -304,14 +315,14 @@ Misc.scanShrines = function (range, ignore = []) {
 		}
 
 		for (let i = 0; i < Config.ScanShrines.length; i += 1) {
-			for (let j = 0; j < shrineList.length; j += 1) {
+			for (let shrine of shrineList) {
 				// Get the shrine if we have no active state or to refresh current state or if the shrine has no state
 				// Don't override shrine state with a lesser priority shrine
 				// todo - check to make sure we can actually get the shrine for ones without states
 				// can't grab a health shrine if we are in perfect health, can't grab mana shrine if our mana is maxed
 				if (index === -1 || i <= index || this.shrineStates[i] === 0) {
-					if (shrineList[j].objtype === Config.ScanShrines[i] && (Pather.useTeleport() || !checkCollision(me, shrineList[j], sdk.collision.WallOrRanged))) {
-						this.getShrine(shrineList[j]);
+					if (shrine.objtype === Config.ScanShrines[i] && (Pather.useTeleport() || !checkCollision(me, shrine, sdk.collision.WallOrRanged))) {
+						this.getShrine(shrine);
 
 						// Gem shrine - pick gem
 						if (Config.ScanShrines[i] === sdk.shrines.Gem) {
@@ -327,15 +338,25 @@ Misc.scanShrines = function (range, ignore = []) {
 };
 
 Misc.presetShrineIds = [2, 81, 83];
+
+/**
+ * Check all shrines in area and get the first one of specified type
+ * @param {number} area 
+ * @param {number} type 
+ * @param {boolean} use 
+ * @returns {boolean} Sucesfully found shrine(s)
+ * @todo If we are trying to find a specific shrine then generate path and perform callback after each node to see if we are within range
+ * of getUnit and can see the shrine type so we know whether to continue moving to it or not.
+ */
 Misc.getShrinesInArea = function (area, type, use) {
 	let shrineLocs = [];
-	const shrineIds = [2, 81, 83]; // @todo add more of the shrine id's and document them for sdk
-	let unit = getPresetUnits(area);
+	let result = false;
+	let unit = Game.getPresetObjects(area);
 
 	if (unit) {
 		for (let i = 0; i < unit.length; i += 1) {
-			if (shrineIds.includes(unit[i].id)) {
-				shrineLocs.push([unit[i].roomx * 5 + unit[i].x, unit[i].roomy * 5 + unit[i].y]);
+			if (Misc.presetShrineIds.includes(unit[i].id)) {
+				Misc.presetShrineIds.push([unit[i].roomx * 5 + unit[i].x, unit[i].roomy * 5 + unit[i].y]);
 			}
 		}
 	}
@@ -347,7 +368,11 @@ Misc.getShrinesInArea = function (area, type, use) {
 			shrineLocs.sort(Sort.points);
 			let coords = shrineLocs.shift();
 
-			Skill.haveTK ? Pather.moveNear(coords[0], coords[1], 20) : Pather.moveTo(coords[0], coords[1], 2);
+			Pather.moveToEx(coords[0], coords[1], { minDist: Skill.haveTK ? 20 : 5, callback: () => {
+				let shrine = Game.getObject("shrine");
+				// for now until I write a proper isShrineWanted check, get close enough that nodeaction checks it
+				return !!shrine && shrine.x === coords[0] && shrine.y === coords[1] && shrine.distance <= 15;
+			} });
 
 			let shrine = Game.getObject("shrine");
 
@@ -357,6 +382,11 @@ Misc.getShrinesInArea = function (area, type, use) {
 						(!Skill.haveTK || !use) && Pather.moveTo(shrine.x - 2, shrine.y - 2);
 
 						if (!use || this.getShrine(shrine)) {
+							result = true;
+
+							if (type === sdk.shrines.Gem) {
+								Pickit.pickItems();
+							}
 							return true;
 						}
 
@@ -371,7 +401,7 @@ Misc.getShrinesInArea = function (area, type, use) {
 		NodeAction.shrinesToIgnore.remove(type);
 	}
 
-	return false;
+	return result;
 };
 
 Misc.getExpShrine = function (shrineLocs = []) {
@@ -399,6 +429,10 @@ Misc.getExpShrine = function (shrineLocs = []) {
 	return true;
 };
 
+/**
+ * @param {ItemUnit} item 
+ * @returns {boolean}
+ */
 Misc.unsocketItem = function (item) {
 	if (me.classic || !me.getItem(sdk.items.quest.Cube) || !item) return false;
 	// Item doesn't have anything socketed
@@ -409,7 +443,7 @@ Misc.unsocketItem = function (item) {
 
 	let scroll = Runewords.getScroll();
 	let bodyLoc;
-	let {classid, quality} = item;
+	let { classid, quality } = item;
 	item.isEquipped && (bodyLoc = item.bodylocation);
 
 	// failed to get scroll or open stash most likely means we're stuck somewhere in town, so it's better to return false
