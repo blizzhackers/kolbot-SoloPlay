@@ -31,6 +31,12 @@ Pickit.minItemKeepGoldValue = function () {
 };
 
 /**
+ * @constant
+ * This value never changes throughout the game
+ */
+Pickit.classicMode = me.classic;
+
+/**
  * @param {ItemUnit} unit 
  */
 Pickit.checkItem = function (unit) {
@@ -43,15 +49,20 @@ Pickit.checkItem = function (unit) {
 	// quick return on essentials - we know they aren't going to be in the other checks
 	if (Pickit.essentials.includes(unit.itemType)) return rval;
 
-	if ((unit.classid === sdk.items.runes.Ral || unit.classid === sdk.items.runes.Ort) && Town.repairIngredientCheck(unit)) {
-		return resultObj(Pickit.Result.UTILITY);
-	}
+	if (!Pickit.classicMode) {
+		if ([sdk.items.runes.Ral, sdk.items.runes.Ort].includes(unit.classid) && Town.repairIngredientCheck(unit)) {
+			return resultObj(Pickit.Result.UTILITY);
+		}
 
-	if (CharData.skillData.bowData.bowOnSwitch) {
-		if ([sdk.items.type.Bow, sdk.items.type.AmazonBow].includes(CharData.skillData.bowData.bowType) && unit.itemType === sdk.items.type.BowQuiver && Item.getQuantityOwned(unit, true) < 1) {
-			return resultObj(Pickit.Result.SOLOWANTS, "Switch-Arrows");
-		} else if (CharData.skillData.bowData.bowType === sdk.items.type.Crossbow && unit.itemType === sdk.items.type.CrossbowQuiver && Item.getQuantityOwned(unit, true) < 1) {
-			return resultObj(Pickit.Result.SOLOWANTS, "Switch-Bolts");
+		/**
+		 * Need to redo this
+		 */
+		if (CharData.skillData.bowData.bowOnSwitch && [sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver].includes(unit.itemType) && rval === Pickit.Result.WANTED) {
+			if ([sdk.items.type.Bow, sdk.items.type.AmazonBow].includes(CharData.skillData.bowData.bowType) && unit.itemType === sdk.items.type.BowQuiver) {
+				return resultObj(Pickit.Result.SOLOWANTS, "Switch-Arrows");
+			} else if (CharData.skillData.bowData.bowType === sdk.items.type.Crossbow && unit.itemType === sdk.items.type.CrossbowQuiver) {
+				return resultObj(Pickit.Result.SOLOWANTS, "Switch-Bolts");
+			}
 		}
 	}
 
@@ -197,7 +208,7 @@ Pickit.canFit = function (item) {
 };
 
 /**
- * @param {ItemUnit} unit
+ * @param {ItemUnit} unit 
  * @returns {boolean}
  */
 Pickit.canPick = function (unit) {
@@ -337,7 +348,7 @@ Pickit.canPick = function (unit) {
 			}
 		}
 
-		return (needPots > 0 || (me.charlvl < 10 && Storage.Inventory.CanFit(unit)));
+		return (needPots > 0) || (me.charlvl < 10 && Storage.Inventory.CanFit(unit));
 	case undefined: // Yes, it does happen
 		console.warn("undefined item (!?)");
 
@@ -594,6 +605,7 @@ Pickit.checkSpotForItems = function (spot, checkVsMyDist = false, range = Config
 
 Pickit.pickList = [];
 Pickit.essentialList = [];
+Pickit.ignoreList = [];
 
 // Might need to do a global list so this function and pickItems see the same items to prevent an item from being in both
 Pickit.essessntialsPick = function (clearBeforePick = false, ignoreGold = false, builtList = [], once = false) {
@@ -695,6 +707,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 
 	if (item) {
 		do {
+			if (Pickit.ignoreList.includes(item.gid)) continue;
 			if (Pickit.pickList.some(el => el.gid === item.gid)) continue;
 			if (item.onGroundOrDropping && getDistance(me, item) <= range) {
 				Pickit.pickList.push(copyUnit(item));
@@ -712,6 +725,12 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 
 		Pickit.pickList.sort(this.sortItems);
 		const currItem = Pickit.pickList[0];
+
+		if (Pickit.ignoreList.includes(currItem.gid)) {
+			Pickit.pickList.shift();
+			
+			continue;
+		}
 
 		// Check if the item unit is still valid and if it's on ground or being dropped
 		// Don't pick items behind walls/obstacles when walking
@@ -752,11 +771,12 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 						if (Town.visitTown()) {
 							// Recursive check after going to town. We need to remake item list because gids can change.
 							// Called only if room can be made so it shouldn't error out or block anything.
+							Pickit.ignoreList = []; // reset the list of ignored gids
 							return this.pickItems(range, once);
 						}
 
 						// Town visit failed - abort
-						console.log("ÿc7Not enough room for " + Item.color(currItem) + currItem.name);
+						console.warn("Failed to visit town. ÿc7Not enough room for " + Item.color(currItem) + currItem.name);
 
 						return false;
 					}
@@ -764,7 +784,9 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 					// Can't make room - trigger automule
 					if (copyUnit(currItem).x !== undefined) {
 						Item.logger("No room for", currItem);
-						console.log("ÿc7Not enough room for " + Item.color(currItem) + currItem.name);
+						console.warn("ÿc7Not enough room for " + Item.color(currItem) + currItem.name);
+						// ignore the item now
+						Pickit.ignoreList.push(currItem.gid);
 						needMule = true;
 
 						break;
