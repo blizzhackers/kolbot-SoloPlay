@@ -192,6 +192,11 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 		return false;
 	}
 
+	if (me.paladin && settings.hand !== sdk.skills.hand.Right) {
+		// set aura
+		Skill.setSkill(Config.AttackSkill[2], sdk.skills.hand.Right);
+	}
+
 	if ((this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [sdk.skills.Teeth, sdk.skills.Tornado].indexOf(skillId) === -1))
 		|| Config.PacketCasting > 1
 		|| skillId === sdk.skills.Teleport) {
