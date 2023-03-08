@@ -334,6 +334,11 @@ Pather.clearUIFlags = function () {
 		getUIFlag(flag) && me.cancel();
 	});
 };
+
+/**
+ * @memberof Pather
+ * @type {PathNode[]}
+ */
 Pather.currentWalkingPath = [];
 
 /**
@@ -351,6 +356,7 @@ Pather.move = function (target, givenSettings = {}) {
 	const settings = Object.assign({}, {
 		clearSettings: {
 		},
+		allowNodeActions: true,
 		allowTeleport: true,
 		allowClearing: true,
 		allowTown: true,
@@ -478,26 +484,35 @@ Pather.move = function (target, givenSettings = {}) {
 				: useChargedTele && (getDistance(me, node) >= 15 || me.inArea(sdk.areas.ThroneofDestruction))
 					? Pather.teleUsingCharges(node.x, node.y)
 					: Pather.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
-				if (!me.inTown) {
+				if (settings.allowNodeActions && !me.inTown) {
 					if (Pather.recursion) {
 						try {
 							Pather.recursion = false;
+							/**
+							 * @todo We need to pass our path in so we can fix the recursion issues of running forward on our path only to return to the old node and continue
+							 * we should instead perform the actions in a way that moves us forward on our path ensuring we haven't skipped anything in the process as well
+							 * for long paths maybe generate a coordinate list of shrines/chests and have action hooks for them
+							 */
 							NodeAction.go(settings.clearSettings);
 							// need to determine if its worth going back to our orignal node (items maybe?)
 							// vs our current proximity to our next node
 							// need to export our main path so other functions that cause us to move can see it
-							if (getDistance(me, node.x, node.y) > 5) {
+							if (node.distance > 5) {
 								const lastNode = Pather.currentWalkingPath.last();
 								// lets try and find the nearest node that brings us close to our goal
+								/** @type {PathNode} */
 								let nearestNode = Pather.currentWalkingPath.length > 0 && Pather.currentWalkingPath
 									.filter(el => !!el && el.x !== node.x && el.y !== node.y)
 									.sort((a, b) => {
 										if (a.distance < b.distance && getDistance(a, lastNode) < getDistance(b, lastNode)) return -1;
 										if (a.distance > b.distance && getDistance(a, lastNode) > getDistance(b, lastNode)) return 1;
 										return a.distance - b.distance;
-									}).first();
-								if (getDistance(me, node.x, node.y) < 40) {
+									})
+									.find(pNode => pNode.distance > 5);
+									
+								if (node.distance < 40) {
 									let goBack = false;
+									let foundNode = false;
 									// lets see if it's worth walking back to old node
 									Pickit.checkSpotForItems(node, true) && (goBack = true);
 									// @todo check shrines/chests in proximity to old node vs next node
@@ -511,12 +526,17 @@ Pather.move = function (target, givenSettings = {}) {
 											console.debug("Found new path index: " + newIndex + " of currentPathLen: " + path.length);
 											path = path.slice(newIndex);
 											node = path.shift();
+											foundNode = true;
 											console.debug("New path length: " + path.length);
 										} else {
 											console.debug("Couldn't find new path index");
 										}
 									}
-									node.distance > 5 && Pather.move(node, settings);
+
+									if (node.distance > 5) {
+										!foundNode && console.debug("Path Recursion :: Returning to position " + node.x + "/" + node.y + " distance: " + node.distance);
+										Pather.move(node, settings);
+									}
 								} else {
 									Pather.move(node, settings);
 								}

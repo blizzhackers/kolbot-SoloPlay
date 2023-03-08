@@ -198,7 +198,9 @@ Attack.openChests = function (range, x, y) {
 
 	if (unit) {
 		do {
-			if (unit.name && getDistance(unit, x, y) <= range
+			if (unit.name
+				&& getDistance(unit, x, y) <= range
+				&& unit.mode === sdk.objects.mode.Inactive
 				&& ids.includes(unit.name.toLowerCase())
 				&& unit.getMobCount(10) === 0) {
 				list.push(copyUnit(unit));
@@ -460,7 +462,10 @@ Attack.clearPos = function (x, y, range = 15, pickit = true) {
 	ClassAttack.afterAttack(pickit);
 	pickit && Attack.openChests(range, x, y);
 	attackCount > 0 && pickit && Pickit.pickItems();
-	Pather.moveTo(x, y);
+	if ([x, y].distance > 5) {
+		Developer.debugging.pathing && console.debug("Returning to position " + x + "/" + y + " distance: " + [x, y].distance);
+		Pather.moveTo(x, y);
+	}
 
 	return true;
 };
@@ -903,7 +908,11 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 	return true;
 };
 
-Attack.getItemCharges = function (skillId = undefined) {
+/**
+ * @param {number} skillId 
+ * @returns {boolean}
+ */
+Attack.getItemCharges = function (skillId) {
 	if (!skillId) return false;
 
 	let chargedItems = [], validCharge = function (itemCharge) {
@@ -937,7 +946,12 @@ Attack.getItemCharges = function (skillId = undefined) {
 	return !!(chargedItems.length > 0);
 };
 
-Attack.castCharges = function (skillId = undefined, unit = undefined) {
+/**
+ * @param {number} skillId 
+ * @param {Monster} unit 
+ * @returns {boolean}
+ */
+Attack.castCharges = function (skillId, unit) {
 	if (!skillId || !unit || !Skill.wereFormCheck(skillId) || (me.inTown && !Skill.townSkill(skillId))) {
 		return false;
 	}
@@ -948,6 +962,11 @@ Attack.castCharges = function (skillId = undefined, unit = undefined) {
 	return true;
 };
 
+/**
+ * @param {number} skillId 
+ * @param {Monster} unit 
+ * @returns {boolean}
+ */
 Attack.switchCastCharges = function (skillId, unit) {
 	if (!skillId || !unit || !Skill.wereFormCheck(skillId) || (me.inTown && !Skill.townSkill(skillId))) {
 		return false;
