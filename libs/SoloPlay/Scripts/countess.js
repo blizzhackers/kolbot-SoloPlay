@@ -16,7 +16,7 @@ function countess () {
 
 	Pather.checkWP(sdk.areas.BlackMarsh, true) ? Pather.useWaypoint(sdk.areas.BlackMarsh) : Pather.getWP(sdk.areas.BlackMarsh);
 	Precast.doPrecast(true);
-	let forQuest = !!Misc.checkQuest(sdk.quest.id.ForgottenTower, sdk.quest.states.Completed);
+	let forQuest = !Misc.checkQuest(sdk.quest.id.ForgottenTower, sdk.quest.states.Completed);
 
 	if (me.charlvl < 12) {
 		// @todo - low level, lets take a scenic route and kill those hawk nests
