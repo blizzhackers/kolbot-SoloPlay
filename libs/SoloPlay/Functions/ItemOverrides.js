@@ -182,21 +182,40 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
 				if (tier > equippedItem.tierScore) {
 					return true;
 				}
-			} else if (tier > equippedItem.tier && (!basicCheck ? this.canEquip(item) || !item.identified : true)) {
-				if (item.twoHanded && !me.barbarian) {
-					if (tier < Item.getEquipped(sdk.body.RightArm).tier + Item.getEquipped(sdk.body.LeftArm).tier) return false;
+			} else if (tier > equippedItem.tier && (basicCheck ? true : this.canEquip(item) || !item.identified)) {
+				if (Item.canEquip(item)) {
+					if (item.twoHanded && !me.barbarian) {
+						if (tier < Item.getEquipped(sdk.body.RightArm).tier + Item.getEquipped(sdk.body.LeftArm).tier) return false;
+					}
+
+					if (!me.barbarian && bodyLoc[i] === sdk.body.LeftArm && Item.getEquipped(bodyLoc[i]).tier === -1) {
+						if (Item.getEquipped(sdk.body.RightArm).twoHanded && tier < Item.getEquipped(sdk.body.RightArm).tier) return false;
+					}
+
+					return true;
+				} else {
+					// keep wanted final gear items
+					if (NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
+						return true;
+					}
+
+					let [lvlReq, strReq, dexReq] = [item.getStat(sdk.stats.LevelReq), item.strreq, item.dexreq];
+
+					// todo - bit hacky, better way would be to track what stats are going to be allocated next
+					if ((lvlReq - me.charlvl > 5) || (strReq - me.trueStr > 10) || (dexReq - me.trueDex > 10)) {
+						return false;
+					}
+
+					// if we can't equip it, but it's a good item, keep it as long as we have space for it
+					// lets double check that this is the highest tied'd item of this type in our storage
+					let betterItem = me.getItemsEx()
+						.filter(el => el.isInStorage && el.gid !== item.gid && el.identified && Item.getBodyLoc(el).includes(bodyLoc[i]))
+						.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a))
+						.find(el => NTIP.GetTier(el) > tier);
+					if (!betterItem) return true;
+
+					return Storage.Stash.CanFit(item) && Storage.Stash.UsedSpacePercent() < 65;
 				}
-
-				if (!me.barbarian && bodyLoc[i] === sdk.body.LeftArm && Item.getEquipped(bodyLoc[i]).tier === -1) {
-					if (Item.getEquipped(sdk.body.RightArm).twoHanded && tier < Item.getEquipped(sdk.body.RightArm).tier) return false;
-				}
-
-				// lets double check that this is the highest tied'd item of this type in our storage
-				let betterItem = me.getItemsEx()
-					.filter(el => el.isInStorage && el.gid !== item.gid && el.identified && Item.getBodyLoc(el).includes(bodyLoc[i]))
-					.some(el => NTIP.GetTier(el) > tier);
-
-				return !betterItem;
 			}
 		}
 	}
@@ -227,8 +246,10 @@ Item.autoEquip = function (task = "") {
 	me.switchWeapons(sdk.player.slot.Main);
 
 	const sortEq = (a, b) => {
-		if (Item.canEquip(a)) return -1;
-		if (Item.canEquip(b)) return 1;
+		let [prioA, prioB] = [Item.canEquip(a), Item.canEquip(b)];
+		if (prioA && prioB) return NTIP.GetTier(b) - NTIP.GetTier(a);
+		if (prioA) return -1;
+		if (prioB) return 1;
 		return 0;
 	};
 
@@ -596,7 +617,11 @@ Item.autoEquipSecondary = function (task = "") {
  */
 Item.hasMercTier = (item) => Config.AutoEquip && me.expansion && NTIP.GetMercTier(item) > 0;
 
-// need to re-work using char data so we can shop/keep items if merc is dead *but* we have enough to revive him and buy the item and enough space
+/**
+ * @param {ItemUnit} item 
+ * @param {number} bodyLoc 
+ * @todo re-work using char data so we can shop/keep items if merc is dead *but* we have enough to revive him and buy the item and enough space
+ */
 Item.canEquipMerc = function (item, bodyLoc) {
 	if (item.type !== sdk.unittype.Item || me.classic) return false;
 	let mercenary = me.getMercEx();
@@ -615,6 +640,10 @@ Item.canEquipMerc = function (item, bodyLoc) {
 	return true;
 };
 
+/**
+ * @param {ItemUnit} item 
+ * @param {number} bodyLoc 
+ */
 Item.equipMerc = function (item, bodyLoc) {
 	let mercenary = me.getMercEx();
 
@@ -684,6 +713,9 @@ Item.getMercEquipped = function (bodyLoc = -1) {
 	};
 };
 
+/**
+ * @param {ItemUnit} item 
+ */
 Item.getBodyLocMerc = function (item) {
 	let mercenary = me.getMercEx();
 
@@ -724,14 +756,24 @@ Item.autoEquipCheckMerc = function (item, basicCheck = false) {
 	if (!Config.AutoEquip) return true;
 	if (Config.AutoEquip && !me.getMercEx()) return false;
 
-	let tier = NTIP.GetMercTier(item), bodyLoc = Item.getBodyLocMerc(item);
+	let tier = NTIP.GetMercTier(item);
+	let bodyLoc = Item.getBodyLocMerc(item);
 
 	if (tier > 0 && bodyLoc) {
 		for (let i = 0; i < bodyLoc.length; i += 1) {
 			let oldTier = Item.getMercEquipped(bodyLoc[i]).tier; // Low tier items shouldn't be kept if they can't be equipped
 
-			if (tier > oldTier && (!basicCheck ? Item.canEquipMerc(item) || !item.identified : true)) {
-				return true;
+			if (tier > oldTier) {
+				if (Item.canEquipMerc(item) || !item.identified) {
+					return true;
+				} else if (basicCheck) {
+					// keep wanted final gear items
+					if (NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
+						return true;
+					}
+
+					return false;
+				}
 			}
 		}
 	}
@@ -1126,7 +1168,7 @@ Item.removeItemsMerc = function () {
 	/**
 	 * @param {ItemUnit} item 
 	 */
-	Item.autoEquipCharmCheck = function (item = undefined) {
+	Item.autoEquipCharmCheck = function (item) {
 		if (!item || NTIP.GetCharmTier(item) <= 0 || !item.isCharm) return false;
 		// Annhilus, Hellfire Torch, Gheeds - Handled by a different function so return true to keep
 		if (item.isCharm && item.unique) return true;
@@ -1139,6 +1181,7 @@ Item.removeItemsMerc = function () {
 		if (!items.length) return true;
 
 		let quantityCap = NTIP.getInvoQuantity(item);
+		let have = 0;
 		let charms = Item.autoEquipCharmSort(items);
 		let charmType = Item.getCharmType(item);
 		let cInfo, newList = [];
@@ -1200,18 +1243,39 @@ Item.removeItemsMerc = function () {
 		case "magicfind":
 		case "damage":
 		case "elemental":
+			have = charms[charmType].length;
 			lowestCharm = charms[charmType].last();
 			if ((charms[charmType].findIndex(c => c.gid === lowestCharm.gid) + 1) > quantityCap) return false;
 
 			break;
 		default:
+			have = charms.backup.length;
 			lowestCharm = charms.backup.last();
 			if ((charms.backup.findIndex(c => c.gid === lowestCharm.gid) + 1) > quantityCap) return false;
+			// console.debug("Lowest Charm index " + (charms.backup.findIndex(c => c.gid === lowestCharm.gid)) + " out of " + charms.backup.length);
 
 			break;
 		}
 
-		return !!lowestCharm ? !!(NTIP.GetCharmTier(item) >= NTIP.GetCharmTier(lowestCharm) || item.gid === lowestCharm.gid) : true;
+		if (!lowestCharm) {
+			// console.debug("Didn't find any other charms of this type " + charmType);
+			return true;
+		}
+
+		if (item.gid === lowestCharm.gid) {
+			// console.debug("Same charm");
+			return true;
+		}
+
+		let [tierParamItem, tierLowestItem] = [NTIP.GetCharmTier(item), NTIP.GetCharmTier(lowestCharm)];
+
+		if (tierParamItem === tierLowestItem) {
+			// console.debug("Same tier value");
+			// super hacky - arbritrary comparsion of xpos if the tier value is the same
+			return (have < quantityCap) || (item.isInInventory && lowestCharm.isInInventory && item.x > lowestCharm.y) || (item.isInInventory && !lowestCharm.isInInventory);
+		}
+
+		return (tierParamItem >= tierLowestItem);
 	};
 
 	Item.initCharms = function () {
