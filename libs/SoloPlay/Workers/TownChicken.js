@@ -1,5 +1,5 @@
 /**
-*  @filename    TownChickenWorker.js
+*  @filename    TownChicken.js
 *  @author      theBGuy
 *  @desc        TownChicken background worker thread
 *
@@ -10,10 +10,9 @@
  * - figure out how to deal with loss of reference to whatever it was we might of been targetting beforehand.
  * - How many chickens is too many for a script? How to end a script it that amount is reached.
  */
-(function() {
+(function (module, require, Worker) {
 	// Only load this in global scope
 	if (getScript(true).name.toLowerCase() === "libs\\soloplay\\soloplay.js") {
-		const Worker = require("../../modules/Worker");
 
 		const getNearestMonster = () => {
 			let gid = null;
@@ -289,38 +288,34 @@
 
 		let [townCheck] = [false, false];
 
-		const chickenScriptEvent = function (msg) {
+		me.on("townChicken", function townChickenEvent (msg) {
 			if (SoloEvents.townChicken.disabled) return;
-			if (msg && typeof msg === "string" && msg !== "") {
-				switch (msg) {
-				case "townCheck":
-					switch (me.area) {
-					case sdk.areas.ArreatSummit:
-					case sdk.areas.UberTristram:
-						console.warn("Don't tp from " + getAreaName(me.area));
-						return;
-					default:
-						console.log("townCheck message recieved. First check passed.");
-						townCheck = true;
+			if (typeof msg !== "string") return;
+			switch (msg) {
+			case "townCheck":
+				switch (me.area) {
+				case sdk.areas.ArreatSummit:
+				case sdk.areas.UberTristram:
+					console.warn("Don't tp from " + getAreaName(me.area));
+					return;
+				default:
+					console.log("townCheck message recieved. First check passed.");
+					townCheck = true;
 
-						return;
-					}
-				case "quit":
+					return;
+				}
+			case "quit":
 				//quitFlag = true;
 				// Maybe stop townChicken thread? Would that keep us from the crash that happens when we try to leave game while townChickening
-
-					break;
-				default:
-					break;
-				}
+				break;
+			default:
+				break;
 			}
-		};
+		});
 
 		Misc.townCheck = function () {
 			return false;
 		};
-
-		addEventListener("scriptmsg", chickenScriptEvent);
 		
 		// const lastChickens = [];
 		const useHowl = Skill.canUse(sdk.skills.Howl);
@@ -408,12 +403,6 @@
 			return true;
 		};
 
-
-		try {
-			console.log("ÿc8Kolbot-SoloPlayÿc0: Start TownChicken thread");
-			console.log(Worker.runInBackground);
-		} catch (e) {
-			console.error(e);
-		}
+		console.log("ÿc8Kolbot-SoloPlayÿc0: Start TownChicken");
 	}
-})();
+})(module, require, typeof Worker === "object" && Worker || require("../../modules/Worker"));
