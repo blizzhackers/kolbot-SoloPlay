@@ -12,9 +12,7 @@ const finalBuild = {
 	wantedskills: [sdk.skills.WarCry, sdk.skills.Shout],
 	usefulskills: [sdk.skills.IncreasedSpeed, sdk.skills.NaturalResistance],
 	precastSkills: [sdk.skills.BattleOrders, sdk.skills.BattleCommand],
-	mercDiff: sdk.difficulty.Nightmare,
-	mercAct: 2,
-	mercAuraWanted: "Might",
+	wantedMerc: MercData[sdk.skills.Might],
 	stats: [
 		["dexterity", 35], ["strength", 103], ["vitality", "all"]
 	],

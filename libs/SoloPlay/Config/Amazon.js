@@ -21,26 +21,7 @@
 	includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
 	SetUp.include();
-
-	/* Script */
 	SetUp.config();
-
-	/* Chicken configuration. */
-	Config.LifeChicken = me.hardcore ? 45 : 10;
-	Config.ManaChicken = 0;
-	Config.MercChicken = 0;
-	Config.TownHP = me.hardcore ? 0 : 35;
-	Config.TownMP = 0;
-
-	/* Potions configuration. */
-	Config.UseHP = me.hardcore ? 90 : 75;
-	Config.UseRejuvHP = me.hardcore ? 65 : 40;
-	Config.UseMP = me.hardcore ? 75 : 55;
-	Config.UseMercHP = 75;
-
-	/* Belt configuration. */
-	Config.BeltColumn = ["hp", "mp", "mp", "rv"];
-	SetUp.belt();
 
 	/* Pickit configuration. */
 	Config.PickRange = 40;
@@ -48,44 +29,16 @@
 	//	Config.PickitFiles.push("LLD.nip");
 
 	/* Gambling configuration. */
-	Config.Gamble = true;
-	Config.GambleGoldStart = 1250000;
-	Config.GambleGoldStop = 750000;
 	Config.GambleItems.push("Amulet");
 	Config.GambleItems.push("Ring");
 	Config.GambleItems.push("Circlet");
 	Config.GambleItems.push("Coronet");
 
-	/* AutoMule configuration. */
-	Config.AutoMule.Trigger = [];
-	Config.AutoMule.Force = [];
-	Config.AutoMule.Exclude = [
-		"[name] >= Elrune && [name] <= Lemrune",
-	];
-
-	/* AutoEquip configuration. */
-	Config.AutoEquip = true;
-
 	// AutoEquip setup
 	const levelingTiers = [
 		// Weapon
 		"([type] == javelin || [type] == amazonjavelin) && [quality] >= normal && [flag] != ethereal && [wsm] <= 10 && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"[name] == ceremonialjavelin && [quality] == unique && [flag] == ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Helmet
-		"([type] == circlet || [type] == helm) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Belt
-		"[type] == belt && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"me.normal && [type] == belt && [quality] >= lowquality && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Boots
-		"[type] == boots && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Armor
-		"[type] == armor && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Gloves
-		"[type] == gloves && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Amulet
-		"[type] == amulet && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Rings
-		"[type] == ring && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		// "[name] == ceremonialjavelin && [quality] == unique && [flag] == ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)", // too many issues with eth titans
 	];
 
 	const expansionTiers = [
@@ -102,6 +55,7 @@
 
 	if (["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) {
 		NTIP.addLine("[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
+		NTIP.addLine("([type] == shield) && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && ([sockets] == 1 || [sockets] == 2) # [tier] == tierscore(item)");
 		NTIP.addLine("me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
 	}
 
@@ -116,11 +70,6 @@
 	// Class specific config
 	Config.LightningFuryDelay = 10; // Lightning fury interval in seconds. LF is treated as timed skill.
 	Config.SummonValkyrie = true; 	// Summon Valkyrie
-
-	/* Gear */
-	let finalGear = Check.finalBuild().finalGear;
-	!!finalGear && NTIP.buildList(finalGear);
-	NTIP.buildFinalGear(finalGear);
 
 	Config.imbueables = [
 		{ name: sdk.items.MaidenJavelin, condition: () => me.normal && me.expansion },

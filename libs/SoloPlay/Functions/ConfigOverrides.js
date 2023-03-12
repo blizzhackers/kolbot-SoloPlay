@@ -49,11 +49,11 @@ Config.init = function (notify) {
 	}
 
 	try {
-		if (Config.AutoBuild.Enabled === true && include("SoloPlay/Functions/AutoBuildOverrides.js")) {
+		if (Config.AutoBuild.Enabled === true && include("SoloPlay/Functions/AutoBuild.js")) {
 			AutoBuild.initialize();
 		}
 	} catch (e3) {
-		console.log("ÿc8Error in libs/SoloPlay/Functions/AutoBuildOverrides.js (AutoBuild system is not active!)");
-		console.log(e3.toSource());
+		console.log("ÿc8Error in libs/SoloPlay/Functions/AutoBuild.js (AutoBuild system is not active!)");
+		console.error(e3);
 	}
 };

@@ -11,9 +11,7 @@ let build = {
 	skillstab: 42, // elemental
 	wantedskills: [sdk.skills.Firestorm, sdk.skills.Fissure],
 	usefulskills: [sdk.skills.MoltenBoulder],
-	mercAuraName: "Blessed Aim",
-	mercAuraWanted: 108,
-	mercDiff: 0,
+	wantedMerc: MercData[sdk.skills.BlessedAim],
 	stats: [
 		["vitality", 70],
 		["strength", 35],

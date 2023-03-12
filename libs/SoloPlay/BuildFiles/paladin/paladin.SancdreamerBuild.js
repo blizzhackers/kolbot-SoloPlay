@@ -8,121 +8,130 @@
 *
 */
 
-const finalBuild = {
-	caster: false,
-	skillstab: sdk.skills.tabs.PalaCombat,
-	wantedskills: [sdk.skills.Zeal, sdk.skills.Sanctuary],
-	usefulskills: [sdk.skills.HolyShield, sdk.skills.Sacrifice, sdk.skills.ResistLightning],
-	precastSkills: [sdk.skills.HolyShield],
-	usefulStats: [sdk.stats.PassiveLightningMastery, sdk.stats.PassiveLightningPierce, sdk.stats.PierceLtng, sdk.stats.PassiveMagMastery, sdk.stats.PassiveMagPierce],
-	mercDiff: sdk.difficulty.Nightmare,
-	mercAct: 2,
-	mercAuraWanted: "Holy Freeze",
-	stats: [
-		["strength", 103], ["dexterity", 136], ["vitality", 300], ["dexterity", "block"], ["vitality", "all"]
-	],
-	skills: [
-		[sdk.skills.Sanctuary, 20],
-		[sdk.skills.Zeal, 4],
-		[sdk.skills.ResistLightning, 20],
-		[sdk.skills.Cleansing, 20],
-		[sdk.skills.Redemption, 1],
-		[sdk.skills.HolyShield, 15],
-		[sdk.skills.Sacrifice, 19],
-	],
-	autoEquipTiers: [ // autoequip final gear
-		// Final Weapon - Last Wish
-		"[type] == sword && [flag] == runeword # [mightaura] >= 17 # [tier] == 120000",
-		// Temporary Weapon - Crescent Moon
-		"[type] == sword && [flag] == runeword # [ias] >= 20 && [passiveltngpierce] >= 35 # [tier] == 110000",
-		// Temporary Weapon - Voice of Reason
-		"[type] == sword && [flag] == runeword # [passivecoldpierce] >= 24 # [tier] == 102500",
-		// Helm - Dream
-		"[type] == helm && [flag] == runeword # [holyshockaura] >= 15 # [tier] == 110000",
-		// Belt - Verdungos
-		"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [damageresist] == 15 # [tier] == tierscore(item, 110000)",
-		// Boots - Gore Rider
-		"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == tierscore(item, 110000)",
-		// Armor - CoH
-		"[type] == armor && [flag] == runeword && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 100000",
-		// Shield - Dream
-		"[type] == auricshields && [flag] != ethereal && [flag] == runeword # [holyshockaura] >= 15 # [tier] == 110000",
-		// Gloves  - Laying of Hands
-		"[name] == bramblemitts && [quality] == set && [flag] != ethereal # [ias] >= 20 # [tier] == 110000",
-		// Amulet - Highlords
-		"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 100000",
-		// Final Rings - Perfect Raven Frost & Perfect Wisp
-		"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == 110000",
-		"[type] == ring && [quality] == unique # [itemabsorblightpercent] == 20 # [tier] == 110000",
-		// Rings - Raven Frost & Wisp
-		"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == 100000",
-		"[type] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == 100000",
-		// Switch - CTA
-		"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
-		// Merc Final Armor - Fortitude
-		"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
-		// Merc Armor - Treachery
-		"[type] == armor && [flag] == runeword # [ias] == 45 && [coldresist] == 30 # [merctier] == 50000 + mercscore(item)",
-		// Merc Final Helmet - Eth Andy's
-		"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",
-		// Merc Helmet - Andy's
-		"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",
-	],
 
-	charms: {
-		ResLife: {
-			max: 6,
-			have: [],
-			classid: sdk.items.SmallCharm,
-			stats: function (check) {
-				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
-			}
-		},
+(function (module) {
+	module.exports = (function () {
+		const build = {
+			caster: false,
+			skillstab: sdk.skills.tabs.PalaCombat,
+			wantedskills: [sdk.skills.Zeal, sdk.skills.Sanctuary],
+			usefulskills: [sdk.skills.HolyShield, sdk.skills.Sacrifice, sdk.skills.ResistLightning],
+			precastSkills: [sdk.skills.HolyShield],
+			usefulStats: [sdk.stats.PassiveLightningMastery, sdk.stats.PassiveLightningPierce, sdk.stats.PierceLtng, sdk.stats.PassiveMagMastery, sdk.stats.PassiveMagPierce],
+			wantedMerc: MercData[sdk.skills.HolyFreeze],
+			stats: [
+				["strength", 103], ["dexterity", 136], ["vitality", 300], ["dexterity", "block"], ["vitality", "all"]
+			],
+			skills: [
+				[sdk.skills.Sanctuary, 20],
+				[sdk.skills.Zeal, 4],
+				[sdk.skills.ResistLightning, 20],
+				[sdk.skills.Cleansing, 20],
+				[sdk.skills.Redemption, 1],
+				[sdk.skills.HolyShield, 15],
+				[sdk.skills.Sacrifice, 19],
+			],
 
-		ResMf: {
-			max: 2,
-			have: [],
-			classid: sdk.items.SmallCharm,
-			stats: function (check) {
-				return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
-			}
-		},
+			charms: {
+				ResLife: {
+					max: 6,
+					have: [],
+					classid: sdk.items.SmallCharm,
+					stats: function (check) {
+						return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+					}
+				},
 
-		Skiller: {
-			max: 2,
-			have: [],
-			classid: sdk.items.GrandCharm,
-			stats: function (check) {
-				return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Offensive) === 1
-					&& check.getStat(sdk.stats.MaxHp) >= 40);
-			}
-		},
-	},
+				ResMf: {
+					max: 2,
+					have: [],
+					classid: sdk.items.SmallCharm,
+					stats: function (check) {
+						return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+					}
+				},
 
-	AutoBuildTemplate: {
-		1:	{
-			Update: function () {
-				Config.Vigor = false;
-				Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.Sanctuary, sdk.skills.Zeal, sdk.skills.Sanctuary, -1, -1];
-				Config.LowManaSkill = [-1, -1];
+				Skiller: {
+					max: 2,
+					have: [],
+					classid: sdk.items.GrandCharm,
+					stats: function (check) {
+						return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Offensive) === 1
+							&& check.getStat(sdk.stats.MaxHp) >= 40);
+					}
+				},
+			},
 
-				Config.SkipImmune = ["lightning and magic and physical"];	// Don't think this ever happens but should skip if it does
-				Config.BeltColumn = ["hp", "hp", "mp", "rv"];
-				SetUp.belt();
-			}
-		},
-	},
+			AutoBuildTemplate: {
+				1:	{
+					Update: function () {
+						Config.Vigor = false;
+						Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.Sanctuary, sdk.skills.Zeal, sdk.skills.Sanctuary, -1, -1];
+						Config.LowManaSkill = [-1, -1];
 
-	respec: function () {
-		if (me.classic) {
-			return false;
-		} else {
-			return me.haveAll([{ name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields }, { name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm },
-				{ name: sdk.locale.items.LastWish }]);
-		}
-	},
+						Config.SkipImmune = ["lightning and magic and physical"];	// Don't think this ever happens but should skip if it does
+						Config.BeltColumn = ["hp", "hp", "mp", "rv"];
+						SetUp.belt();
+					}
+				},
+			},
 
-	active: function () {
-		return this.respec() && me.getSkill(sdk.skills.Sanctuary, sdk.skills.subindex.HardPoints) === 20;
-	},
-};
+			respec: function () {
+				if (me.classic) {
+					return false;
+				} else {
+					return me.haveAll([{ name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields }, { name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm },
+						{ name: sdk.locale.items.LastWish }]);
+				}
+			},
+
+			active: function () {
+				return this.respec() && me.getSkill(sdk.skills.Sanctuary, sdk.skills.subindex.HardPoints) === 20;
+			},
+		};
+		
+		let finalGear = [ // autoequip final gear
+			// Final Weapon - Last Wish
+			"[type] == sword && [flag] == runeword # [mightaura] >= 17 # [tier] == 120000",
+			// Temporary Weapon - Crescent Moon
+			"[type] == sword && [flag] == runeword # [ias] >= 20 && [passiveltngpierce] >= 35 # [tier] == 110000",
+			// Temporary Weapon - Voice of Reason
+			"[type] == sword && [flag] == runeword # [passivecoldpierce] >= 24 # [tier] == 102500",
+			// Helm - Dream
+			"[type] == helm && [flag] == runeword # [holyshockaura] >= 15 # [tier] == 110000",
+			// Belt - Verdungos
+			"[name] == mithrilcoil && [quality] == unique && [flag] != ethereal # [damageresist] == 15 # [tier] == tierscore(item, 110000)",
+			// Boots - Gore Rider
+			"[name] == warboots && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 160 # [tier] == tierscore(item, 110000)",
+			// Armor - CoH
+			"[type] == armor && [flag] == runeword && [flag] != ethereal # [fireresist] == 65 && [hpregen] == 7 # [tier] == 100000",
+			// Shield - Dream
+			"[type] == auricshields && [flag] != ethereal && [flag] == runeword # [holyshockaura] >= 15 # [tier] == 110000",
+			// Gloves  - Laying of Hands
+			"[name] == bramblemitts && [quality] == set && [flag] != ethereal # [ias] >= 20 # [tier] == 110000",
+			// Amulet - Highlords
+			"[type] == amulet && [quality] == unique # [lightresist] == 35 # [tier] == 100000",
+			// Final Rings - Perfect Raven Frost & Perfect Wisp
+			"[type] == ring && [quality] == unique # [dexterity] == 20 && [tohit] == 250 # [tier] == 110000",
+			"[type] == ring && [quality] == unique # [itemabsorblightpercent] == 20 # [tier] == 110000",
+			// Rings - Raven Frost & Wisp
+			"[type] == ring && [quality] == unique # [dexterity] >= 15 && [tohit] >= 150 # [tier] == 100000",
+			"[type] == ring && [quality] == unique # [itemabsorblightpercent] >= 10 # [tier] == 100000",
+			// Switch - CTA
+			"[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
+			// Merc Final Armor - Fortitude
+			"[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
+			// Merc Armor - Treachery
+			"[type] == armor && [flag] == runeword # [ias] == 45 && [coldresist] == 30 # [merctier] == 50000 + mercscore(item)",
+			// Merc Final Helmet - Eth Andy's
+			"[name] == demonhead && [quality] == unique && [flag] == ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 50000 + mercscore(item)",
+			// Merc Helmet - Andy's
+			"[name] == demonhead && [quality] == unique && [flag] != ethereal # [strength] >= 25 && [enhanceddefense] >= 100 # [merctier] == 40000 + mercscore(item)",
+		];
+
+		NTIP.buildList(finalGear);
+		NTIP.buildFinalGear(finalGear);
+
+		return build;
+	})();
+})(module);

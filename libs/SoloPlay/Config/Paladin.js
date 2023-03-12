@@ -1,7 +1,6 @@
 /**
 *  @filename    Paladin.js
 *  @author      theBGuy
-*  @credit      isid0re
 *  @desc        Config Settings for SoloPlay Paladin
 *
 *  @FinalBuild
@@ -29,26 +28,7 @@
 	includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
 	SetUp.include();
-
-	/* Script */
 	SetUp.config();
-
-	/* Chicken configuration. */
-	Config.LifeChicken = me.hardcore ? 45 : 10;
-	Config.ManaChicken = 0;
-	Config.MercChicken = 0;
-	Config.TownHP = me.hardcore ? 0 : 35;
-	Config.TownMP = 0;
-
-	/* Potions configuration. */
-	Config.UseHP = me.hardcore ? 90 : 75;
-	Config.UseRejuvHP = me.hardcore ? 65 : 40;
-	Config.UseMP = me.hardcore ? 75 : 55;
-	Config.UseMercHP = 75;
-
-	/* Belt configuration. */
-	Config.BeltColumn = ["hp", "mp", "mp", "rv"];
-	SetUp.belt();
 
 	/* Pickit configuration. */
 	Config.PickRange = 40;
@@ -56,50 +36,30 @@
 	//	Config.PickitFiles.push("LLD.nip");
 
 	/* Gambling configuration. */
-	Config.Gamble = true;
-	Config.GambleGoldStart = 2000000;
-	Config.GambleGoldStop = 750000;
 	Config.GambleItems.push("Amulet");
 	Config.GambleItems.push("Ring");
 	Config.GambleItems.push("Circlet");
 	Config.GambleItems.push("Coronet");
 
-	/* AutoMule configuration. */
-	Config.AutoMule.Trigger = [];
-	Config.AutoMule.Force = [];
-	Config.AutoMule.Exclude = [
-		"[name] >= Elrune && [name] <= Lemrune",
-	];
-
-	/* AutoEquip configuration. */
-	Config.AutoEquip = true;
+	let weapons = [
+		sdk.items.type.Scepter, sdk.items.type.Mace,
+		sdk.items.type.Sword, sdk.items.type.Knife, sdk.items.type.Axe,
+		sdk.items.type.Wand, sdk.items.type.Hammer, sdk.items.type.Club
+	].map(el => "[type] == " + el).join(" || ");
 
 	// AutoEquip setup
 	const levelingTiers = [
 		// Weapon
-		"([type] == scepter || [type] == mace || [type] == sword || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"[type] == scepter && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && [sockets] == 1 # [tier] == tierscore(item)",
-		// Helmet
-		"([type] == helm || [type] == circlet) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Belt
-		"[type] == belt && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"me.normal && [type] == belt && [quality] >= lowquality && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Boots
-		"[type] == boots && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Armor
-		"[type] == armor && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"(" + weapons + ") && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Shield
 		"([type] == shield || [type] == auricshields) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"[type] == auricshields && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && [sockets] == 1 # [tier] == tierscore(item)",
 		"me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Gloves
-		"[type] == gloves && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Amulet
-		"[type] == amulet && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Rings
-		"[type] == ring && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		// non runeword white items
+		"(" + weapons + ") && [quality] >= normal && [flag] != ethereal && [flag] != runeword && [2handed] == 0 # [itemchargedskill] >= 0 && ([sockets] == 1 || [sockets] == 3) # [tier] == tierscore(item)",
+		"([type] == shield || [type] == auricshields) && [quality] >= normal && [flag] != ethereal && [flag] != runeword # [itemchargedskill] >= 0 && ([sockets] == 1 || [sockets] == 2) # [tier] == tierscore(item)",
 	];
 
+	let miscCharmQuantity = me.charlvl < 40 ? 6 : 3;
 	const expansionTiers = [
 		// Switch
 		"[type] == wand && [quality] >= normal # [itemchargedskill] == 72 # [secondarytier] == 25000",			// Weaken charged wand
@@ -107,11 +67,11 @@
 		// Charms
 		"[name] == smallcharm && [quality] == magic # [maxhp] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-		"me.charlvl < 40 && [name] == smallcharm && [quality] == magic ## [invoquantity] == 4 && [charmtier] == charmscore(item)",
+		"[name] == smallcharm && [quality] == magic # # [invoquantity] == " + miscCharmQuantity + " && [charmtier] == charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 	];
 
+	/* Gear */
 	NTIP.buildList(levelingTiers);
 	me.expansion && NTIP.buildList(expansionTiers);
 
@@ -128,11 +88,6 @@
 	Config.Vigor = true;
 	Config.Charge = true;
 	Config.Redemption = [45, 25];
-
-	/* Gear */
-	let finalGear = Check.finalBuild().finalGear;
-	!!finalGear && NTIP.buildList(finalGear);
-	NTIP.buildFinalGear(finalGear);
 
 	// Maybe add auric shield?
 	Config.imbueables = [
@@ -511,7 +466,7 @@
 		}
 
 		// Merc Fortitude
-		if (Item.getMercEquipped(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude && ["Hammerdin", "Smiter"].indexOf(SetUp.finalBuild) > -1) {
+		if (Item.getMercEquipped(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude && ["Hammerdin", "Smiter"].includes(SetUp.finalBuild)) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
 		}
 
@@ -529,6 +484,24 @@
 		if (Item.getEquipped(sdk.body.Armor).tier < 233) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js");
 		}
+
+		/* if (SetUp.currentBuild === "Start") {
+			let { maxStr, maxDex } = Check.currentBuild();
+			let basic = "[flag] != ethereal && [quality] >= normal && [quality] <= superior";
+			let myStatsReq = "[strreq] <= " + maxStr + " && [dexreq] <= " + maxDex;
+			let statsReq = "[sockets] == 2";
+			let quantityReq = "[maxquantity] == 1";
+			// add Steel RW
+			NTIP.buildList([
+				"[name] == TirRune # # [maxquantity] == 2",
+				"[name] == ElRune # # [maxquantity] == 2",
+				"([type] == sword || [type] == mace || [type] == axe) && " + basic + " && " + myStatsReq + " # " + statsReq + " # " + quantityReq,
+			]);
+
+			// need to make runewords able to process types, maybe a hacky method of just taking a nip line?
+			// or could create a base item data module and loop through whatever meets the reqs but that feels ugly too
+			Config.KeepRunewords.push("([type] == sword || [type] == mace || [type] == axe) # [enhanceddamage] >= 20 && [ias] >= 25");
+		} */
 
 		SoloWants.buildList();
 

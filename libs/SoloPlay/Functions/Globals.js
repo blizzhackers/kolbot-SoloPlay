@@ -23,11 +23,11 @@ const Overrides = require("../../modules/Override");
 /** @global */
 const Coords_1 = require("../Modules/Coords");
 /** @global */
-const PotData = require("../modules/PotData");
+const PotData = require("../Modules/GameData/PotData");
 /** @global */
-const GameData = require("../Modules/GameData");
+const GameData = require("../Modules/GameData/GameData");
 /** @global */
-const AreaData = require("../Modules/AreaData");
+const AreaData = require("../Modules/GameData/AreaData");
 
 const MYCLASSNAME = sdk.player.class.nameOf(me.classid).toLowerCase();
 includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + ".js");
@@ -35,6 +35,7 @@ includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + 
 /** 
  * @global
  * @type {charData}
+ * @todo redo how I handle this, maybe make a prop on "me" instead
  */
 let myData = CharData.getStats();
 
@@ -75,9 +76,59 @@ function updateMyData () {
 // general settings
 const SetUp = {
 	mercEnabled: true,
+	_buildTemplate: "",
 
 	init: function () {
-		let myData = CharData.getStats();
+		// ensure finalBuild is properly formatted
+		let checkBuildTemplate = () => {
+			let build = (["Bumper", "Socketmule", "Imbuemule"].includes(SetUp.finalBuild)
+				? ["Javazon", "Cold", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid]
+				: SetUp.finalBuild) + "Build";
+			return ("libs/SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + "." + build + ".js").toLowerCase();
+		};
+		SetUp._buildTemplate = checkBuildTemplate();
+
+		if (!FileTools.exists(SetUp._buildTemplate)) {
+			let errors = [];
+			/** @type {string[]} */
+			let possibleBuilds = dopen("libs/SoloPlay/BuildFiles/" + MYCLASSNAME + "/")
+				.getFiles()
+				.filter(file => file.includes("Build"))
+				.map(file => file.substring(file.indexOf(".") + 1, file.indexOf("Build")));
+
+			// try to see if we can correct the finalBuild
+			for (let build of possibleBuilds) {
+				let match = myData.me.finalBuild.match(build, "gi");
+				
+				if (match) {
+					console.log(match);
+					let old = myData.me.finalBuild;
+					myData.me.finalBuild = match[0].trim().capitalize(true);
+					errors.push(
+						"~Info tag :: " + old + " was incorrect, I have attempted to remedy this."
+						+ " If it is still giving you an error please re-read the documentation. \n"
+						+ "New InfoTag/finalBuild :: " + SetUp.finalBuild
+					);
+
+					break;
+				}
+			}
+
+			if (errors.length) {
+				D2Bot.printToConsole("Kolbot-SoloPlay Final Build Error :: \n" + errors.join("\n"), sdk.colors.D2Bot.Red);
+				SetUp._buildTemplate = checkBuildTemplate(); // check again
+				if (!FileTools.exists(SetUp._buildTemplate)) {
+					console.error(
+						"ÿc8Kolbot-SoloPlayÿc0: Failed to find finalBuild template."
+						+ " Please check that you have actually entered it in correctly,"
+						+ " and that you have the build in to BuildFiles folder."
+						+ " Here is what you currently have: " + SetUp.finalBuild);
+					throw new Error("finalBuild(): Failed to find template: " + SetUp._buildTemplate);
+				}
+				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
+				CharData.updateData("me", "finalBuild", SetUp.finalBuild);
+			}
+		}
 
 		if (!myData.initialized) {
 			myData.me.startTime = me.gamestarttime;
@@ -247,7 +298,7 @@ const SetUp = {
 	// setter for Developer option to stop a profile once it reaches a certain level
 	stopAtLevel: (function () {
 		if (!Developer.stopAtLevel.enabled) return false;
-		let level = Developer.stopAtLevel.profiles.find(profile => profile[0].toLowerCase() === me.profile.toLowerCase()) || false;
+		let level = Developer.stopAtLevel.profiles.find(prof => String.isEqual(prof[0], me.profile)) || false;
 		return level ? level[1] : false;
 	})(),
 
@@ -265,37 +316,29 @@ const SetUp = {
 		return respec;
 	},
 
-	getTemplate: function () {
-		let build = SetUp.currentBuild + "Build" ;
-		let template = "SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + "." + build + ".js";
+	autoBuild: function () {
+		let build = me.currentBuild;
+		if (!build) throw new Error("Failed to include template: " + SetUp._buildTemplate);
 
-		return {
-			buildType: SetUp.currentBuild,
-			template: template.toLowerCase()
-		};
-	},
+		/* AutoStat configuration. */
+		Config.AutoStat.Enabled = true;
+		Config.AutoStat.Save = 0;
+		Config.AutoStat.BlockChance = me.paladin ? 75 : 57;
+		Config.AutoStat.UseBulk = true;
+		Config.AutoStat.Build = JSON.parse(JSON.stringify(build.stats));
 
-	specPush: function (specType) {
-		let buildInfo = SetUp.getTemplate();
-		if (!includeIfNotIncluded(buildInfo.template)) throw new Error("Failed to include template: " + buildInfo.template);
+		/* AutoSkill configuration. */
+		Config.AutoSkill.Enabled = true;
+		Config.AutoSkill.Save = 0;
+		Config.AutoSkill.Build = JSON.parse(JSON.stringify(build.skills));
 
-		let specCheck = [];
-		let final = buildInfo.buildType === SetUp.finalBuild;
+		/* AutoBuild configuration. */
+		Config.AutoBuild.Enabled = true;
+		Config.AutoBuild.Verbose = false;
+		Config.AutoBuild.DebugMode = false;
+		Config.AutoBuild.Template = SetUp.currentBuild;
 
-		switch (specType) {
-		case "skills":
-			// Push skills value from template file
-			specCheck = JSON.parse(JSON.stringify((final ? finalBuild.skills : build.skills)));
-
-			break;
-		case "stats":
-			// Push stats value from template file
-			specCheck = JSON.parse(JSON.stringify((final ? finalBuild.stats : build.stats)));
-
-			break;
-		}
-
-		return specCheck;
+		return true;
 	},
 
 	makeNext: function () {
@@ -360,7 +403,34 @@ const SetUp = {
 
 	config: function () {
 		Config.socketables = [];
+		Config.AutoEquip = true;
 
+		if (me.ladder > 0 || Developer.addLadderRW) {
+			// Runewords.ladderOverride = true;
+			Config.LadderOveride = true;
+		}
+		
+		// common items
+		NTIP.buildList([
+			"([type] == helm || [type] == circlet) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+			// Belt
+			"[type] == belt && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+			"me.normal && [type] == belt && [quality] >= lowquality && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+			// Boots
+			"[type] == boots && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+			// Armor
+			"[type] == armor && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+			// Gloves
+			"[type] == gloves && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+			// Amulet
+			"[type] == amulet && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+			// Rings
+			"[type] == ring && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+			// non runeword white items
+			"([type] == armor) && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && [sockets] == 1 # [tier] == tierscore(item)",
+			"([type] == helm || [type] == circlet) && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && ([sockets] == 1 || [sockets] == 3) # [tier] == tierscore(item)",
+		]);
+		
 		if (me.expansion) {
 			if (Storage.Stash === undefined) {
 				Storage.Init();
@@ -406,6 +476,35 @@ const SetUp = {
 		Config.WaypointMenu = true;
 		Config.Cubing = !!me.getItem(sdk.items.quest.Cube);
 		Config.MakeRunewords = true;
+
+		/* Chicken configuration. */
+		Config.LifeChicken = me.hardcore ? 45 : 10;
+		Config.ManaChicken = 0;
+		Config.MercChicken = 0;
+		Config.TownHP = me.hardcore ? 0 : 35;
+		Config.TownMP = 0;
+
+		/* Potions configuration. */
+		Config.UseHP = me.hardcore ? 90 : 80;
+		Config.UseRejuvHP = me.hardcore ? 65 : 50;
+		Config.UseMP = me.hardcore ? 75 : 65;
+		Config.UseMercHP = 75;
+
+		/* Belt configuration. */
+		Config.BeltColumn = ["hp", "mp", "mp", "rv"];
+		SetUp.belt();
+
+		/* Gambling configuration. */
+		Config.Gamble = true;
+		Config.GambleGoldStart = 1250000;
+		Config.GambleGoldStop = 750000;
+
+		/* AutoMule configuration. */
+		Config.AutoMule.Trigger = [];
+		Config.AutoMule.Force = [];
+		Config.AutoMule.Exclude = [
+			"[name] >= Elrune && [name] <= Lemrune",
+		];
 
 		/* Shrine scan configuration. */
 		if (Check.currentBuild().caster) {
@@ -462,23 +561,7 @@ const SetUp = {
 		Config.FBR = 0;
 		Config.IAS = 0;
 
-		/* AutoStat configuration. */
-		Config.AutoStat.Enabled = true;
-		Config.AutoStat.Save = 0;
-		Config.AutoStat.BlockChance = me.paladin ? 75 : 57;
-		Config.AutoStat.UseBulk = true;
-		Config.AutoStat.Build = SetUp.specPush("stats");
-
-		/* AutoSkill configuration. */
-		Config.AutoSkill.Enabled = true;
-		Config.AutoSkill.Save = 0;
-		Config.AutoSkill.Build = SetUp.specPush("skills");
-
-		/* AutoBuild configuration. */
-		Config.AutoBuild.Enabled = true;
-		Config.AutoBuild.Verbose = false;
-		Config.AutoBuild.DebugMode = false;
-		Config.AutoBuild.Template = SetUp.currentBuild;
+		SetUp.autoBuild();
 	}
 };
 
@@ -544,12 +627,6 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 
 	return true;
 };
-
-const buildAutoBuildTempObj = (update = () => {}) => ({
-	SkillPoints: [-1],
-	StatPoints: [-1, -1, -1, -1, -1],
-	Update: update
-});
 
 // General Game functions
 const Check = {
@@ -891,88 +968,33 @@ const Check = {
 		return highest;
 	},
 
+	// repetitive code - FIX THIS
 	currentBuild: function () {
-		let buildInfo = SetUp.getTemplate();
-
-		if (!includeIfNotIncluded(buildInfo.template)) throw new Error("currentBuild(): Failed to include template: " + buildInfo.template);
-
-		let final = buildInfo.buildType === SetUp.finalBuild;
+		let build = me.currentBuild;
+		
+		if (!build) throw new Error("currentBuild(): Failed to include template: " + SetUp._buildTemplate);
 
 		return {
-			caster: final ? finalBuild.caster : build.caster,
-			tabSkills: final ? finalBuild.skillstab : build.skillstab,
-			wantedSkills: final ? finalBuild.wantedskills : build.wantedskills,
-			usefulSkills: final ? finalBuild.usefulskills : build.usefulskills,
-			precastSkills: final ? finalBuild.precastSkills : [],
-			usefulStats: final ? (!!finalBuild.usefulStats ? finalBuild.usefulStats : []) : (!!build.usefulStats ? build.usefulStats : []),
-			mercDiff: final ? finalBuild.mercDiff : null,
-			mercAct: final ? finalBuild.mercAct : null,
-			mercAuraWanted: final ? finalBuild.mercAuraWanted : null,
-			finalGear: final ? finalBuild.autoEquipTiers : [],
-			finalCharms: final ? (finalBuild.charms || {}) : {},
-			respec: final ? finalBuild.respec : () => {},
-			active: final ? finalBuild.active : build.active,
+			caster: build.caster,
+			tabSkills: build.skillstab,
+			wantedSkills: build.wantedskills,
+			usefulSkills: build.usefulskills,
+			precastSkills: build.hasOwnProperty("precastSkills") ? build.precastSkills : [],
+			usefulStats: build.hasOwnProperty("usefulStats") ? build.usefulStats : [],
+			wantedMerc: build.hasOwnProperty("wantedMerc") ? build.wantedMerc : null,
+			finalCharms: build.hasOwnProperty("charms") ? (build.charms || {}) : {},
+			maxStr: Check.getMaxValue(build, "strength"),
+			maxDex: Check.getMaxValue(build, "dexterity"),
+			respec: build.hasOwnProperty("respec") ? build.respec : () => {},
+			active: build.active,
 		};
 	},
 
+	// repetitive code - FIX THIS
 	finalBuild: function () {
-		function getBuildTemplate () {
-			let build;
-			let buildType = SetUp.finalBuild;
+		let finalBuild = me.finalBuild;
 
-			if (["Bumper", "Socketmule", "Imbuemule"].includes(buildType)) {
-				build = ["Javazon", "Cold", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid] + "Build";
-			} else {
-				build = buildType + "Build";
-			}
-
-			return ("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + "." + build + ".js").toLowerCase();
-		}
-
-		let template = getBuildTemplate();
-
-		if (!includeIfNotIncluded(template)) {
-			let foundError = false;
-			let buildType;
-			
-			// try to see if we can correct the finalBuild
-			if (myData.me.finalBuild.match("Build", "gi")) {
-				myData.me.finalBuild = myData.me.finalBuild.substring(0, SetUp.finalBuild.length - 5);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag contained build which is unecessary. It has been fixed. New InfoTag/finalBuild :: " + SetUp.finalBuild, sdk.colors.D2Bot.Red);
-				foundError = true;
-			}
-
-			if (myData.me.finalBuild.includes(".")) {
-				myData.me.finalBuild = myData.me.finalBuild.substring(myData.me.finalBuild.indexOf(".") + 1).capitalize(true);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '.' which is unecessary and means you likely entered something along the lines of Classname.finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, sdk.colors.D2Bot.Red);
-				foundError = true;
-			}
-
-			if (myData.me.finalBuild.includes(" ")) {
-				myData.me.finalBuild = myData.me.finalBuild.trim().capitalize(true);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained a trailing space. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, sdk.colors.D2Bot.Red);
-				foundError = true;
-			}
-
-			if (myData.me.finalBuild.includes("-")) {
-				myData.me.finalBuild = myData.me.finalBuild.substring(myData.me.finalBuild.indexOf("-") + 1).capitalize(true);
-				D2Bot.printToConsole("Kolbot-SoloPlay: Info tag was incorrect, it contained '-' which is unecessary and means you likely entered something along the lines of Classname-finalBuild. I have attempted to remedy this. If it is still giving you an error please re-read the documentation. New InfoTag/finalBuild :: " + SetUp.finalBuild, sdk.colors.D2Bot.Red);
-				foundError = true;
-			}
-
-			if (foundError) {
-				D2Bot.setProfile(null, null, null, null, null, SetUp.finalBuild);
-				CharData.updateData("me", "finalBuild", SetUp.finalBuild);
-				buildType = myData.me.finalBuild;
-				template = ("SoloPlay/BuildFiles/" + sdk.player.class.nameOf(me.classid) + "." + buildType + "Build.js").toLowerCase();
-			}
-
-			// try-again - if it fails again throw error
-			if (!include(template)) {
-				console.debug("ÿc8Kolbot-SoloPlayÿc0: Failed to include finalBuild template. Please check that you have actually entered it in correctly. Here is what you currently have: " + SetUp.finalBuild);
-				throw new Error("finalBuild(): Failed to include template: " + template);
-			}
-		}
+		if (!finalBuild) throw new Error("finalBuild(): Failed to include template: " + SetUp._buildTemplate);
 
 		return {
 			caster: finalBuild.caster,
@@ -981,10 +1003,7 @@ const Check = {
 			usefulSkills: finalBuild.usefulskills,
 			precastSkills: finalBuild.precastSkills,
 			usefulStats: (!!finalBuild.usefulStats ? finalBuild.usefulStats : []),
-			mercDiff: finalBuild.mercDiff,
-			mercAct: finalBuild.mercAct,
-			mercAuraWanted: finalBuild.mercAuraWanted,
-			finalGear: finalBuild.autoEquipTiers,
+			wantedMerc: finalBuild.wantedMerc,
 			finalCharms: (finalBuild.charms || {}),
 			maxStr: Check.getMaxValue(finalBuild, "strength"),
 			maxDex: Check.getMaxValue(finalBuild, "dexterity"),
@@ -1047,237 +1066,5 @@ const Check = {
 				}
 			}
 		}
-	},
-};
-
-const SoloWants = {
-	needList: [],
-	validGids: [],
-
-	checkItem: function (item) {
-		if (!item) return false;
-		if (this.validGids.includes(item.gid)) return true;
-		let i = 0;
-		for (let el of this.needList) {
-			if ([sdk.items.type.Jewel, sdk.items.type.Rune].includes(item.itemType) || (item.itemType >= sdk.items.type.Amethyst && item.itemType <= sdk.items.type.Skull)) {
-				if (el.needed.includes(item.classid)) {
-					this.validGids.push(item.gid);
-					this.needList[i].needed.splice(this.needList[i].needed.indexOf(item.classid), 1);
-					if (this.needList[i].needed.length === 0) {
-						// no more needed items so remove from list
-						this.needList.splice(i, 1);
-					}
-					return true;
-				}
-			}
-			i++; // keep track of index
-		}
-
-		return false;
-	},
-
-	keepItem: function (item) {
-		if (!item) return false;
-		return this.validGids.includes(item.gid);
-	},
-
-	buildList: function () {
-		let myItems = me.getItemsEx()
-			.filter(function (item) {
-				return !item.isRuneword && !item.questItem && item.quality >= sdk.items.quality.Magic && (item.sockets > 0 || getBaseStat("items", item.classid, "gemsockets") > 0);
-			});
-		myItems
-			.filter(item => item.isEquipped)
-			.forEach(item => SoloWants.addToList(item));
-		myItems
-			.filter(item => item.isInStorage && item.getItemType() && AutoEquip.wanted(item))
-			.forEach(item => SoloWants.addToList(item));
-		
-		return myItems.forEach(item => SoloWants.checkItem(item));
-	},
-
-	addToList: function (item) {
-		if (!item || me.classic || item.isRuneword) return false;
-		if (SoloWants.needList.some(check => item.classid === check.classid)) return false;
-		let hasWantedItems;
-		let list = [];
-		let socketedWith = item.getItemsEx();
-		let numSockets = item.sockets;
-		let curr = Config.socketables.find(({ classid }) => item.classid === classid);
-
-		if (curr && curr.socketWith.length > 0) {
-			hasWantedItems = socketedWith.some(el => curr.socketWith.includes(el.classid));
-			if (hasWantedItems && socketedWith.length === numSockets) {
-				return true; // this item is full
-			}
-
-			if (curr.socketWith.includes(sdk.items.runes.Hel)) {
-				let merc = me.getMerc();
-				switch (true) {
-				case Item.autoEquipCheck(item, true) && me.trueStr >= item.strreq && me.trueDex >= item.dexreq:
-				case Item.autoEquipCheckMerc(item, true) && !!merc && merc.rawStrength >= item.strreq && merc.rawDexterity >= item.dexreq:
-					curr.socketWith.splice(curr.socketWith.indexOf(sdk.items.runes.Hel), 1);
-					break;
-				}
-			}
-
-			if (curr.socketWith.length > 1 && hasWantedItems) {
-				// handle different wanted socketables, if we already have a wanted socketable inserted then remove it from the check list
-				socketedWith.forEach(function (socketed) {
-					if (curr.socketWith.length > 1 && curr.socketWith.includes(socketed.classid)) {
-						curr.socketWith.splice(curr.socketWith.indexOf(socketed.classid), 1);
-					}
-				});
-			}
-
-			// add the wanted items to the list
-			for (let i = 0; i < numSockets - (hasWantedItems ? socketedWith.length : 0); i++) {
-				// handle different wanted socketables
-				curr.socketWith.length === numSockets ? list.push(curr.socketWith[i]) : list.push(curr.socketWith[0]);
-			}
-
-			// currently no sockets but we might use our socket quest on it
-			numSockets === 0 && curr.useSocketQuest && list.push(curr.socketWith[0]);
-
-			// if temp socketables are used for this item and its not already socketed with wanted items add the temp items too
-			if (!hasWantedItems && !!curr.temp && !!curr.temp.length > 0) {
-				for (let i = 0; i < numSockets - socketedWith.length; i++) {
-					list.push(curr.temp[0]);
-				}
-				// Make sure we keep a hel rune so we can unsocket temp socketables if needed
-				if (!SoloWants.needList.some(check => sdk.items.runes.Hel === check.classid)) {
-					let hel = me.getItemsEx(sdk.items.runes.Hel, sdk.items.mode.inStorage);
-					// we don't have any hel runes and its not already in our needList
-					if ((!hel || hel.length === 0)) {
-						SoloWants.needList.push({ classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel] });
-					} else if (!hel.some(check => SoloWants.validGids.includes(check.gid))) {
-						SoloWants.needList.push({ classid: sdk.items.runes.Hel, needed: [sdk.items.runes.Hel] });
-					}
-				}
-			}
-		} else {
-			let itemtype = item.getItemType();
-			if (!itemtype) return false;
-			let gemType = ["Helmet", "Armor"].includes(itemtype) ? "Ruby" : itemtype === "Shield" ? "Diamond" : itemtype === "Weapon" && !Check.currentBuild().caster ? "Skull" : "";
-			let runeType;
-
-			// Tir rune in normal, Io rune otherwise and Shael's if assassin TODO: use jewels too
-			!gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
-
-			hasWantedItems = socketedWith.some(el => gemType ? el.itemType === sdk.items.type[gemType] : el.classid === sdk.items.runes[runeType]);
-			if (hasWantedItems && socketedWith.length === numSockets) {
-				return true; // this item is full
-			}
-
-			for (let i = 0; i < numSockets - socketedWith.length; i++) {
-				list.push(gemType ? sdk.items.gems.Perfect[gemType] : sdk.items.runes[runeType]);
-			}
-		}
-
-		// add to our needList so we pick the items
-		return list.length > 0 ? this.needList.push({ classid: item.classid, needed: list }) : false;
-	},
-
-	update: function (item) {
-		if (!item) return false;
-		if (this.validGids.includes(item.gid)) return true; // already in the list
-		let i = 0;
-		for (let el of this.needList) {
-			if (!me.getItem(el.classid)) {
-				// We no longer have the item we wanted socketables for
-				this.needList.splice(i, 1);
-				continue;
-			}
-			if ([sdk.items.type.Jewel, sdk.items.type.Rune].includes(item.itemType) || (item.itemType >= sdk.items.type.Amethyst && item.itemType <= sdk.items.type.Skull)) {
-				if (el.needed.includes(item.classid)) {
-					this.validGids.push(item.gid);
-					this.needList[i].needed.splice(this.needList[i].needed.indexOf(item.classid), 1);
-					if (this.needList[i].needed.length === 0) {
-						// no more needed items so remove from list
-						this.needList.splice(i, 1);
-					}
-					return true;
-				}
-			}
-			i++; // keep track of index
-		}
-
-		return false;
-	},
-
-	ensureList: function () {
-		let i = 0;
-		for (let el of this.needList) {
-			if (!me.getItem(el.classid)) {
-				// We no longer have the item we wanted socketables for
-				this.needList.splice(i, 1);
-				continue;
-			}
-			i++; // keep track of index
-		}
-	},
-
-	// Cube ingredients
-	checkSubrecipes: function () {
-		for (let el of this.needList) {
-			for (let i = 0; i < el.needed.length; i++) {
-				switch (true) {
-				case [
-					sdk.items.gems.Perfect.Ruby, sdk.items.gems.Perfect.Sapphire, sdk.items.gems.Perfect.Topaz, sdk.items.gems.Perfect.Emerald,
-					sdk.items.gems.Perfect.Amethyst, sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Skull].includes(el.needed[i]):
-					if (Cubing.subRecipes.indexOf(el.needed[i]) === -1) {
-						Cubing.subRecipes.push(el.needed[i]);
-						Cubing.recipes.push({
-							Ingredients: [el.needed[i] - 1, el.needed[i] - 1, el.needed[i] - 1],
-							Index: 0,
-							AlwaysEnabled: true,
-							MainRecipe: "Crafting"
-						});
-					}
-
-					break;
-				case el.needed[i] >= sdk.items.runes.El && el.needed[i] <= sdk.items.runes.Ort:
-					if (Cubing.subRecipes.indexOf(el.needed[i]) === -1) {
-						Cubing.subRecipes.push(el.needed[i]);
-						Cubing.recipes.push({
-							Ingredients: [el.needed[i] - 1, el.needed[i] - 1, el.needed[i] - 1],
-							Index: Recipe.Rune,
-							AlwaysEnabled: true,
-							MainRecipe: "Crafting"
-						});
-					}
-
-					break;
-				// case el.needed[i] >= sdk.items.runes.Thul && el.needed[i] <= sdk.items.runes.Lem:
-				// // gems repeat so should be able to math this out chipped (TASRED) -> repeat flawed (TASRED)
-				// 	if (Cubing.subRecipes.indexOf(el.needed[i]) === -1) {
-				// 		Cubing.subRecipes.push(el.needed[i]);
-				// 		Cubing.recipes.push({
-				// 			Ingredients: [el.needed[i] - 1, el.needed[i] - 1, el.needed[i] - 1],
-				// 			Index: Recipe.Rune,
-				// 			AlwaysEnabled: true,
-				// 			MainRecipe: "Crafting"
-				// 		});
-				// 	}
-
-				// 	break;
-				// case el.needed[i] >= sdk.items.runes.Mal && el.needed[i] <= sdk.items.runes.Zod:
-				// // gems repeat so should be able to math this out Base (TASRED) -> repeat Flawless (TASRE) (stops at Emerald)
-				// 	if (Cubing.subRecipes.indexOf(el.needed[i]) === -1) {
-				// 		Cubing.subRecipes.push(el.needed[i]);
-				// 		Cubing.recipes.push({
-				// 			Ingredients: [el.needed[i] - 1, el.needed[i] - 1],
-				// 			Index: Recipe.Rune,
-				// 			AlwaysEnabled: true,
-				// 			MainRecipe: "Crafting"
-				// 		});
-				// 	}
-
-				// 	break;
-				}
-			}
-		}
-
-		return true;
 	},
 };

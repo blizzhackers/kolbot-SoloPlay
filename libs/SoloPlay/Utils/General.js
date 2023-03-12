@@ -104,11 +104,18 @@
 		item.unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal
 	));
 
+	const buildAutoBuildTempObj = (update = () => {}) => ({
+		SkillPoints: [-1],
+		StatPoints: [-1, -1, -1, -1, -1],
+		Update: update
+	});
+
 	module.exports = {
 		impossibleClassicBuilds: impossibleClassicBuilds,
 		impossibleNonLadderBuilds: impossibleNonLadderBuilds,
 		nipItems: nipItems,
 		basicSocketables: basicSocketables,
 		addSocketableObj: addSocketableObj,
+		buildAutoBuildTempObj: buildAutoBuildTempObj,
 	};
 })(module);

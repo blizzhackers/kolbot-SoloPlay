@@ -1,5 +1,9 @@
 
 declare global {
+	interface Math {
+		percentDifference(value1: number, value2: number): number;
+	}
+	
 	interface ItemUnit {
 		readonly isCharm: boolean;
 		readonly isGem: boolean;
@@ -29,6 +33,34 @@ declare global {
 		haveRunes(itemInfo: number[]): boolean;
 	}
 
+	type MercObj = {
+		classid: number,
+		skill: number,
+		skillName: string,
+		act: number,
+		difficulty: number,
+	};
+
+	interface Build {
+		caster: boolean;
+		skillstab: number;
+		wantedskills: number[];
+		usefulskills: number[];
+		precastSkills: number[];
+		wantedMerc: MercObj;
+		stats: Array<[string, number | "block" | "all"]>;
+		skills: Array<[number, number, boolean?]>;
+		charms: Record<string, {
+			max: number;
+			have: number[];
+			classid: number;
+			stats: (check: ItemUnit) => boolean;
+		}>;
+		AutoBuildTemplate: Record<number, { Update: () => void }>;
+		respec: () => boolean;
+		active: () => boolean;
+	}
+
 	interface MeType {
 		readonly maxNearMonsters: number;
 		readonly dualWielding: boolean;
@@ -41,6 +73,9 @@ declare global {
 		readonly LR: number;
 		readonly PR: number;
 		readonly onFinalBuild: boolean;
+
+		finalBuild: Build;
+		currentBuild: Build;
 
 		canTpToTown(): boolean;
 		getMercEx(): MercUnit | null;
@@ -60,6 +95,7 @@ declare global {
 		needMerc(): boolean;
 		clearBelt(): boolean;
 		sortInventory(): boolean;
+		cleanUpScrolls(tome: ItemUnit, scrollId: number): number;
 	}
 
 	interface Container {
@@ -100,6 +136,31 @@ declare global {
 		MoveToSpot(item: ItemUnit, mX: number, mY: number): boolean;
 	}
 
+	class Merc {
+		constructor(classid: number, skill: number, act: number, difficulty?: number);
+		classid: number;
+		skill: number;
+		skillName: string;
+		act: number;
+		difficulty: number;
+	}
+
+	class MercData {
+		[sdk.skills.FireArrow]: Merc;
+		[sdk.skills.ColdArrow]: Merc;
+		[sdk.skills.Prayer]: Merc;
+		[sdk.skills.BlessedAim]: Merc;
+		[sdk.skills.Defiance]: Merc;
+		[sdk.skills.HolyFreeze]: Merc;
+		[sdk.skills.Might]: Merc;
+		[sdk.skills.Thorns]: Merc;
+		[sdk.skills.IceBlast]: Merc;
+		[sdk.skills.FireBall]: Merc;
+		[sdk.skills.Lightning]: Merc;
+		[sdk.skills.Bash]: Merc;
+		actMap: Map<number | symbol, number | Merc[]>;
+	}
+
 	namespace Mercenary {
 		let minCost: number;
 
@@ -113,14 +174,31 @@ declare global {
 
 	namespace Misc {
 		let townEnabled: boolean;
+		let openChestsEnabled: boolean;
+		const presetShrineIds: number[];
+		const presetChestIds: number[];
+
+		function openChestsInArea(area: number, chestIds: number[], sort?: Function): boolean;
+		function getExpShrine(shrineLocs: number[]): boolean;
+		function unsocketItem(item: ItemUnit): boolean;
+		function checkItemsForSocketing(): ItemUnit | boolean;
+		function checkItemsForImbueing(): ItemUnit | boolean;
+		function addSocketablesToItem(item: ItemUnit, runes: ItemUnit[]): boolean;
+		function getSocketables(
+			item: ItemUnit,
+			itemInfo?: {
+				classid: number,
+				socketWith: number[],
+				temp: number[],
+				useSocketQuest: boolean,
+				condition: Function
+			}
+		): boolean;
+		function checkSocketables(): void;
 	}
 
 	namespace Skill {
 		function switchCast(skillId: number, givenSettings: { hand?: number, x?: number, y?: number, switchBack?: boolean, oSkill?: boolean }): boolean;
-	}
-
-	namespace Attack {
-		function clearPos(x: number, y: number, range: number, pickit: boolean): boolean;
 	}
 
 	interface charData {
@@ -210,22 +288,15 @@ declare global {
 		function nextDifficulty(announce: boolean): string | false;
 		function runes(): boolean;
 		function haveItem(type: string | number, flag?: string | number, iName?: string): boolean;
+		function currentBuild(): Build;
+		function finalBuild(): Build;
 	}
 
 	namespace SoloWants {
-		const needList: any[];
-		const validGids: number[];
-
-		function checkItem(item: ItemUnit): boolean;
-		function keepItem(item: ItemUnit): boolean;
-		function buildList(): void;
-		function addToList(item: ItemUnit): boolean;
-		function update(item: ItemUnit): boolean;
-		function ensureList(): void;
-		function checkSubrecipes(): boolean;
 	}
 
 	namespace NPCAction {
+		function shopAt(npcName: string): boolean;
 		function buyPotions(): boolean;
 		function fillTome(classid: number, force?: boolean): boolean;
 		function cainID(force?: boolean): boolean;
@@ -236,13 +307,6 @@ declare global {
 	}
 
 	namespace AutoEquip {
-	}
-
-	namespace SoloEvents {
-		namespace townChicken {
-			let disabled: boolean;
-			let running: boolean;
-		}
 	}
 
 	type extraTasks = {

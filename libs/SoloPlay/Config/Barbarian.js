@@ -21,26 +21,7 @@
 	includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
 	SetUp.include();
-
-	/* Script */
 	SetUp.config();
-
-	/* Chicken configuration. */
-	Config.LifeChicken = me.hardcore ? 45 : 10;
-	Config.ManaChicken = 0;
-	Config.MercChicken = 0;
-	Config.TownHP = me.hardcore ? 0 : 35;
-	Config.TownMP = 0;
-
-	/* Potions configuration. */
-	Config.UseHP = me.hardcore ? 90 : 75;
-	Config.UseRejuvHP = me.hardcore ? 65 : 40;
-	Config.UseMP = me.hardcore ? 75 : 45;
-	Config.UseMercHP = 75;
-
-	/* Belt configuration. */
-	Config.BeltColumn = ["hp", "mp", "mp", "rv"];
-	SetUp.belt();
 
 	/* Pickit configuration. */
 	Config.PickRange = 40;
@@ -49,18 +30,8 @@
 	//	Config.PickitFiles.push("LLD.nip");
 
 	/* Gambling configuration. */
-	Config.Gamble = true;
-	Config.GambleGoldStart = 1250000;
-	Config.GambleGoldStop = 750000;
 	Config.GambleItems.push("Amulet");
 	Config.GambleItems.push("Ring");
-
-	/* AutoMule configuration. */
-	Config.AutoMule.Trigger = [];
-	Config.AutoMule.Force = [];
-	Config.AutoMule.Exclude = [
-		"[name] >= Elrune && [name] <= Lemrune",
-	];
 
 	/* AutoEquip configuration. */
 	Config.AutoEquip = true;
@@ -72,21 +43,8 @@
 		"[type] == sword && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [wsm] <= 10 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"[name] == phaseblade && [quality] == unique && [flag] == ethereal # [enhanceddamage] >= 100 && [ias] == 30 && [magicdamagereduction] >= 7 # [tier] == tierscore(item)",
 		// Helmet
-		"([type] == helm || [type] == primalhelm) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"[type] == primalhelm && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && [sockets] == 1 # [tier] == tierscore(item)",
-		// Belt
-		"[type] == belt && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"me.normal && [type] == belt && [quality] >= lowquality && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Boots
-		"[type] == boots && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Armor
-		"[type] == armor && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Gloves
-		"[type] == gloves && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Amulet
-		"[type] == amulet && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Rings
-		"[type] == ring && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"([type] == primalhelm) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		"([type] == primalhelm) && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && ([sockets] == 1 || [sockets] == 3) # [tier] == tierscore(item)",
 	];
 
 	const expansionTiers = [
@@ -109,11 +67,6 @@
 	// Class specific config
 	Config.FindItem = true; 		// Use Find Item skill on corpses after clearing.
 	Config.FindItemSwitch = false; 	// Switch to non-primary slot when using Find Item skills
-
-	/* Gear */
-	let finalGear = Check.finalBuild().finalGear;
-	!!finalGear && NTIP.buildList(finalGear);
-	NTIP.buildFinalGear(finalGear);
 
 	Config.imbueables = [
 		{ name: sdk.items.AvengerGuard, condition: () => (me.normal && me.expansion) },

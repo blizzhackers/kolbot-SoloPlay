@@ -113,10 +113,52 @@ if (!me.hasOwnProperty("onFinalBuild")) {
 	});
 }
 
+if (!me.hasOwnProperty("finalBuild")) {
+	let _finalBuild = null;
+
+	Object.defineProperty(me, "finalBuild", {
+		get: function () {
+			if (_finalBuild) return _finalBuild;
+			let className = me.className.toLowerCase();
+			let build = (["Bumper", "Socketmule", "Imbuemule"].includes(SetUp.finalBuild)
+				? ["Javazon", "Cold", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid]
+				: SetUp.finalBuild) + "Build";
+			_finalBuild = require("../BuildFiles/" + className + "/" + className + "." + build);
+			return _finalBuild;
+		},
+		set: function (v) {
+			if (v.hasOwnProperty("AutoBuildTemplate")) {
+				// Object.assign(this.finalBuild, v);
+				_finalBuild = v;
+			}
+		},
+	});
+}
+
+if (!me.hasOwnProperty("currentBuild")) {
+	let _currentBuild = null;
+
+	Object.defineProperty(me, "currentBuild", {
+		get: function () {
+			if (_currentBuild) return _currentBuild;
+			let className = me.className.toLowerCase();
+			let build = SetUp.currentBuild + "Build";
+			_currentBuild = require("../BuildFiles/" + className + "/" + className + "." + build);
+			return _currentBuild;
+		},
+		set: function (v) {
+			if (v.hasOwnProperty("AutoBuildTemplate")) {
+				// Object.assign(this.currentBuild, v);
+				_currentBuild = v;
+			}
+		},
+	});
+}
+
 /** @returns {boolean} */
 me.canTpToTown = function () {
 	// can't tp if dead - or not currently enabled to
-	if (me.dead || !Misc.townEnabled) return false;
+	if (me.dead || SoloEvents.townChicken.disabled) return false;
 	const myArea = me.area;
 	let badAreas = [
 		sdk.areas.RogueEncampment, sdk.areas.LutGholein, sdk.areas.KurastDocktown,

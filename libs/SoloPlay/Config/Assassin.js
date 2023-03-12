@@ -19,26 +19,7 @@
 	includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
 	SetUp.include();
-
-	/* Script */
 	SetUp.config();
-
-	/* Chicken configuration. */
-	Config.LifeChicken = me.hardcore ? 45 : 10;
-	Config.ManaChicken = 0;
-	Config.MercChicken = 0;
-	Config.TownHP = me.hardcore ? 0 : 35;
-	Config.TownMP = 0;
-
-	/* Potions configuration. */
-	Config.UseHP = me.hardcore ? 90 : 75;
-	Config.UseRejuvHP = me.hardcore ? 65 : 40;
-	Config.UseMP = me.hardcore ? 75 : 55;
-	Config.UseMercHP = 75;
-
-	/* Belt configuration. */
-	Config.BeltColumn = ["hp", "mp", "mp", "rv"];
-	SetUp.belt();
 
 	/* Pickit configuration. */
 	Config.PickRange = 40;
@@ -47,20 +28,10 @@
 	NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
 
 	/* Gambling configuration. */
-	Config.Gamble = true;
-	Config.GambleGoldStart = 2000000;
-	Config.GambleGoldStop = 750000;
 	Config.GambleItems.push("Amulet");
 	Config.GambleItems.push("Ring");
-	//Config.GambleItems.push("Circlet");
-	//Config.GambleItems.push("Coronet");
-
-	/* AutoMule configuration. */
-	Config.AutoMule.Trigger = [];
-	Config.AutoMule.Force = [];
-	Config.AutoMule.Exclude = [
-		"[name] >= Elrune && [name] <= Lemrune",
-	];
+	// Config.GambleItems.push("Circlet");
+	// Config.GambleItems.push("Coronet");
 
 	/* AutoEquip configuration. */
 	Config.AutoEquip = true;
@@ -69,23 +40,8 @@
 	const levelingTiers = [
 		// Weapon
 		"([type] == knife || [type] == sword && [flag] == runeword || ([type] == handtohand || [type] == assassinclaw) && [quality] >= magic) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Helmet
-		"([type] == helm || [type] == circlet) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Belt
-		"[type] == belt && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"me.normal && [type] == belt && [quality] >= lowquality && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Boots
-		"[type] == boots && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Srmor
-		"[type] == armor && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Shield
 		"[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Gloves
-		"[type] == gloves && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Amulet
-		"[type] == amulet && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Rings
-		"[type] == ring && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Switch
 		"[type] == wand && [quality] >= normal # [itemchargedskill] == 91 # [secondarytier] == 50000 + chargeditemscore(item, 91)",	// Lower Resist charged wand
 		// Charms
@@ -93,6 +49,8 @@
 		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == smallcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
 		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
+		// non runeword white items
+		"([type] == shield) && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && ([sockets] == 1 || [sockets] == 2) # [tier] == tierscore(item)",
 	];
 
 	NTIP.buildList(levelingTiers);
@@ -121,11 +79,6 @@
 	Config.Dodge = me.checkSkill(sdk.skills.LightningSentry, sdk.skills.subindex.HardPoints);
 	Config.DodgeRange = 10;
 	Config.DodgeHP = 75;
-
-	/* Gear */
-	let finalGear = Check.finalBuild().finalGear;
-	!!finalGear && NTIP.buildList(finalGear);
-	NTIP.buildFinalGear(finalGear);
 
 	Config.imbueables = [
 		{ name: sdk.items.Claws, condition: () => (me.normal) },

@@ -599,7 +599,7 @@
 		tier += ctcScore();
 		tier += chargeditemscore(item, -1, buildInfo);
 
-		if (item.isBaseType && !item.isRuneword) {
+		if (item.isBaseType && !item.isRuneword && me.charlvl > 10) {
 			for (let x = 0; x < Config.Runewords.length; x += 1) {
 				let [sockets, baseCID] = [Config.Runewords[x][0].length, Config.Runewords[x][1]];
 				if (item.classid === baseCID && item.sockets === sockets && !item.getItemsEx().length) return -1;

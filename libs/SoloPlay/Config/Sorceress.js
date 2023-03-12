@@ -22,26 +22,7 @@
 	includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
 	SetUp.include();
-
-	/* Script */
 	SetUp.config();
-
-	/* Chicken configuration. */
-	Config.LifeChicken = me.hardcore ? 45 : 10;
-	Config.ManaChicken = 0;
-	Config.MercChicken = 0;
-	Config.TownHP = me.hardcore ? 0 : 35;
-	Config.TownMP = 0;
-
-	/* Potions configuration. */
-	Config.UseHP = me.hardcore ? 90 : 80;
-	Config.UseRejuvHP = me.hardcore ? 65 : 50;
-	Config.UseMP = me.hardcore ? 75 : 65;
-	Config.UseMercHP = 75;
-
-	/* Belt configuration. */
-	Config.BeltColumn = ["hp", "mp", "mp", "rv"];
-	SetUp.belt();
 
 	/* Pickit configuration. */
 	Config.PickRange = 40;
@@ -49,25 +30,13 @@
 	// Config.PickitFiles.push("test.nip");
 
 	/* Gambling configuration. */
-	Config.Gamble = true;
-	Config.GambleGoldStart = 1250000;
-	Config.GambleGoldStop = 750000;
 	// TODO: should gambling be re-written to try and gamble for our current lowest tier'd item
 	// for example if our gloves are the lowest tier then only gamble gloves or maybe just make the others conditional like why include
 	// gambling for rings/ammys if we have our end game one
 	Config.GambleItems.push("Amulet");
 	Config.GambleItems.push("Ring");
-	Config.GambleItems.push("Circlet") && Config.GambleItems.push("Coronet");
-	
-	/* AutoMule configuration. */
-	Config.AutoMule.Trigger = [];
-	Config.AutoMule.Force = [];
-	Config.AutoMule.Exclude = [
-		"[name] >= Elrune && [name] <= Lemrune",
-	];
-
-	/* AutoEquip configuration. */
-	Config.AutoEquip = true;
+	Config.GambleItems.push("Circlet");
+	Config.GambleItems.push("Coronet");
 
 	// AutoEquip setup
 	const levelingTiers = [
@@ -75,29 +44,16 @@
 		"me.normal && [type] == orb && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"me.charlvl > 1 && ([type] == orb || [type] == wand || [type] == sword || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"me.classic && [type] == staff && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Helmet
-		"([type] == helm || [type] == circlet) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Belt
-		"[type] == belt && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"me.normal && [type] == belt && [quality] >= lowquality && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Boots
-		"[type] == boots && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Armor
-		"[type] == armor && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		// Shield
 		"[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
 		"me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Gloves
-		"[type] == gloves && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Amulet
-		"[type] == amulet && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Rings
-		"[type] == ring && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+		// non runeword white items
+		"([type] == shield) && [quality] >= normal && [flag] != ethereal && [flag] != runeword # [itemchargedskill] >= 0 && ([sockets] == 1 || [sockets] == 2) # [tier] == tierscore(item)",
 	];
 
 	const expansionTiers = [
 		// Switch
-		"[type] == wand && [quality] >= Normal # [itemchargedskill] == 72 # [secondarytier] == 25000",								// Weaken charged wand
+		"[type] == wand && [quality] >= Normal # [itemchargedskill] == 72 # [secondarytier] == 25000",  // Weaken charged wand
 		"[type] == wand && [quality] >= Normal # [itemchargedskill] == 91 # [secondarytier] == 50000 + chargeditemscore(item, 91)",	// Lower Resist charged wand
 		// Charms
 		"[name] == smallcharm && [quality] == magic # [maxhp] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
@@ -135,10 +91,6 @@
 	/* Gear */
 	NTIP.buildList(levelingTiers);
 	me.expansion && NTIP.buildList(expansionTiers);
-	let finalGear = Check.finalBuild().finalGear;
-	NTIP.buildList(finalGear);
-	NTIP.buildFinalGear(finalGear);
-
 
 	Config.imbueables = [
 		{ name: sdk.items.JaredsStone, condition: () => (me.normal && me.expansion) },
