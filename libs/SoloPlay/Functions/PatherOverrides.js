@@ -330,9 +330,16 @@ Pather.changeAct = function () {
 };
 
 Pather.clearUIFlags = function () {
-	Pather.cancelFlags.forEach(flag => {
-		getUIFlag(flag) && me.cancel();
-	});
+	while (!me.gameReady) {
+		delay(3);
+	}
+
+	for (let i = 0; i < Pather.cancelFlags.length; i++) {
+		if (getUIFlag(Pather.cancelFlags[i]) && me.cancel()) {
+			delay(250);
+			i = 0; // Reset
+		}
+	}
 };
 
 /**

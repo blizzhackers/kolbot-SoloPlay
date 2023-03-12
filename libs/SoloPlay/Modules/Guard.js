@@ -1,6 +1,6 @@
 (function (module, require, thread) {
 	"use strict";
-	const Messaging = require("../../modules/Messaging");
+	const _Messaging = require("../../modules/Messaging");
 	const Worker = require("../../modules/Worker");
 	const sdk = require("../../modules/sdk");
 
@@ -13,7 +13,7 @@
 			let myStack = "";
 
 			// recv stack
-			Messaging.on("Guard", (data => typeof data === "object" && data && data.hasOwnProperty("stack") && (myStack = data.stack)));
+			_Messaging.on("Guard", (data => typeof data === "object" && data && data.hasOwnProperty("stack") && (myStack = data.stack)));
 
 			/**
 			* @constructor
@@ -71,7 +71,7 @@
 		Worker.push(function highPrio() {
 			Worker.push(highPrio);
 			if ((getTickCount() - sendStack) < 200 || (sendStack = getTickCount()) && false) return true;
-			Messaging.send({ Guard: { stack: (new Error).stack } });
+			_Messaging.send({ Guard: { stack: (new Error).stack } });
 			return true;
 		});
 

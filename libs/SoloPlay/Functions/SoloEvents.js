@@ -410,7 +410,8 @@
 			if (!bytes.length) return;
 			// dia lightning
 			if (bytes[0] === 0x4C && bytes[6] === 193) {
-				Messaging.sendToScript(SoloEvents.filePath, "dodge");
+				// Messaging.sendToScript(SoloEvents.filePath, "dodge");
+				me.emit("soloEvent", "dodge");
 			}
 		},
 
@@ -460,7 +461,8 @@
 					case waveBoss.LISTER:
 						if ((me.barbarian && (me.charlvl < CharInfo.levelCap || !me.baal || me.hardcore))
 							|| (me.charlvl < CharInfo.levelCap && (me.gold < 5000 || (!me.baal && SetUp.finalBuild !== "Bumper")))) {
-							Messaging.sendToScript(SoloEvents.filePath, "skip");
+							// Messaging.sendToScript(SoloEvents.filePath, "skip");
+							me.emit("soloEvent", "skip");
 							SoloEvents.skippedWaves.push(wave);
 						}
 
