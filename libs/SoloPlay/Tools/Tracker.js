@@ -166,7 +166,7 @@ const Tracker = {
 		);
 
 		FileAction.append(Tracker.SPPath, string);
-		this.tick = GameTracker.LastSave;
+		Tracker.tick = GameTracker.LastSave;
 
 		return true;
 	},
@@ -201,7 +201,7 @@ const Tracker = {
 		);
 
 		FileAction.append(Tracker.LPPath, string);
-		this.tick = GameTracker.LastSave;
+		Tracker.tick = GameTracker.LastSave;
 
 		return true;
 	},
@@ -230,24 +230,8 @@ const Tracker = {
 		GameTracker.Total += (Tracker.timer(newTick) + oogTick);
 		GameTracker.LastSave = getTickCount();
 		Tracker.writeObj(GameTracker, Tracker.GTPath);
-		this.tick = GameTracker.LastSave;
+		Tracker.tick = GameTracker.LastSave;
 
 		return true;
 	}
 };
-
-if (Developer.logPerformance && getScript(true).name.toString() === "libs\\soloplay\\soloplay.js") {
-	const Worker = require("../../modules/Worker");
-
-	Worker.runInBackground.intervalUpdate = function () {
-		if (getTickCount() - Tracker.tick < 3 * 60000) return true;
-		Tracker.tick = getTickCount();
-		try {
-			Tracker.update();
-		} catch (e) {
-			console.warn(e.message);
-		}
-
-		return true;
-	};
-}

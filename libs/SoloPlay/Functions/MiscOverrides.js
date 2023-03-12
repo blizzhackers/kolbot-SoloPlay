@@ -8,34 +8,6 @@
 
 includeIfNotIncluded("core/Misc.js");
 
-Misc.townEnabled = true;
-
-Misc.townCheck = function () {
-	if (!me.canTpToTown()) return false;
-	
-	let check = false;
-
-	if (Config.TownCheck && !me.inTown) {
-		try {
-			if (me.needPotions() || (Config.OpenChests.Enabled && Town.needKeys())) {
-				check = true;
-			}
-		} catch (e) {
-			check = false;
-		}
-	}
-
-	if (check) {
-		if (Messaging.sendToScript("libs/SoloPlay/Threads/TownChicken.js", "fastTown")) {
-			console.log("BroadCasted townCheck");
-			
-			return true;
-		}
-	}
-
-	return false;
-};
-
 Misc.openChestsEnabled = true;
 Misc.presetChestIds = [
 	5, 6, 87, 104, 105, 106, 107, 143, 140, 141, 144, 146, 147, 148, 176, 177, 181, 183, 198, 240, 241,
@@ -43,6 +15,13 @@ Misc.presetChestIds = [
 	406, 407, 413, 420, 424, 425, 430, 431, 432, 433, 454, 455, 501, 502, 504, 505, 580, 581
 ];
 
+/**
+ * @override
+ * @param {number} area 
+ * @param {number[]} chestIds 
+ * @param {Function} [sort] 
+ * @returns {boolean}
+ */
 Misc.openChestsInArea = function (area, chestIds = [], sort = undefined) {
 	!area && (area = me.area);
 	area !== me.area && Pather.journeyTo(area);
@@ -289,21 +268,28 @@ Misc.scanShrines = function (range, ignore = []) {
 		}
 	}
 
+	/**
+	 * @todo - We should build a list of shrines by their preset values when we scan the area
+	 */
+
 	let shrine = Game.getObject();
 
 	/**
 	 * Fix for a3/a5 shrines
 	 */
-	if (shrine && shrineMap.has(shrine.objtype) && shrine.name.toLowerCase().includes("shrine")) {
+	if (shrine) {
 		let index = -1;
 		
 		// Build a list of nearby shrines
 		do {
-			if (shrine.mode === sdk.objects.mode.Inactive && !ignore.includes(shrine.objtype)
+			if (shrine.name.toLowerCase().includes("shrine") && shrineMap.has(shrine.objtype)
+				&& shrine.mode === sdk.objects.mode.Inactive && !ignore.includes(shrine.objtype)
 				&& getDistance(me.x, me.y, shrine.x, shrine.y) <= rangeCheck(shrine.objtype)) {
 				shrineList.push(copyUnit(shrine));
 			}
 		} while (shrine.getNext());
+
+		if (!shrineList.length) return false;
 
 		// Check if we have a shrine state, store its index if yes
 		for (let i = 0; i < this.shrineStates.length; i += 1) {
@@ -511,6 +497,11 @@ Misc.checkItemsForImbueing = function () {
 	return false;
 };
 
+/**
+ * @param {ItemUnit} item 
+ * @param {ItemUnit[]} runes 
+ * @returns {boolean}
+ */
 Misc.addSocketablesToItem = function (item, runes = []) {
 	if (!item || item.sockets === 0) return false;
 	let preSockets = item.getItemsEx().length;
@@ -565,13 +556,20 @@ Misc.addSocketablesToItem = function (item, runes = []) {
 	return item.getItemsEx().length > original;
 };
 
+/**
+ * @param {ItemUnit} item 
+ * @param {{ classid: number, socketWith: number[], temp: number[], useSocketQuest: boolean, condition: Function }} [itemInfo] 
+ * @returns {boolean}
+ */
 Misc.getSocketables = function (item, itemInfo) {
 	if (!item) return false;
+	itemInfo === undefined && (itemInfo = {});
+
 	let itemtype, gemType, runeType;
 	let [multiple, temp] = [[], []];
 	let itemSocketInfo = item.getItemsEx();
 	let preSockets = itemSocketInfo.length;
-	let allowTemp = (!!itemInfo && !!itemInfo.temp && itemInfo.temp.length > 0 && (preSockets === 0 || preSockets > 0 && itemSocketInfo.some(el => !itemInfo.socketWith.includes(el.classid))));
+	let allowTemp = (itemInfo.hasOwnProperty("temp") && itemInfo.temp.length > 0 && (preSockets === 0 || preSockets > 0 && itemSocketInfo.some(el => !itemInfo.socketWith.includes(el.classid))));
 	let sockets = item.sockets;
 	let openSockets = sockets - preSockets;
 	let { classid, quality } = item;
@@ -595,10 +593,13 @@ Misc.getSocketables = function (item, itemInfo) {
 		return false;
 	}
 
-	if (!itemInfo || (!!itemInfo && itemInfo.socketWith.length === 0)) {
+	if (itemInfo.hasOwnProperty("socketWith") && itemInfo.socketWith.length === 0) {
 		itemtype = item.getItemType();
 		if (!itemtype) return false;
-		gemType = ["Helmet", "Armor"].includes(itemtype) ? "Ruby" : itemtype === "Shield" ? "Diamond" : itemtype === "Weapon" && !Check.currentBuild().caster ? "Skull" : "";
+		gemType = ["Helmet", "Armor"].includes(itemtype)
+			? "Ruby" : itemtype === "Shield"
+				? "Diamond" : itemtype === "Weapon" && !Check.currentBuild().caster
+					? "Skull" : "";
 
 		// Tir rune in normal, Io rune otherwise and Shael's if assassin
 		!gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
@@ -609,7 +610,7 @@ Misc.getSocketables = function (item, itemInfo) {
 	}
 
 	for (let i = 0; i < socketables.length; i++) {
-		if (!!itemInfo && itemInfo.socketWith.length > 0) {
+		if (itemInfo.hasOwnProperty("socketWith") && itemInfo.socketWith.length > 0) {
 			// In case we are trying to use different runes, check if item already has current rune inserted
 			// or if its already in the muliple list. If it is, remove that socketables classid from the list of wanted classids
 			if (itemInfo.socketWith.length > 1
@@ -697,7 +698,8 @@ Misc.getSocketables = function (item, itemInfo) {
 
 Misc.checkSocketables = function () {
 	let items = me.getItemsEx()
-		.filter(item => item.sockets > 0 && AutoEquip.hasTier(item) && item.quality > sdk.items.quality.Superior)
+		.filter(item => item.sockets > 0 && AutoEquip.hasTier(item)
+			&& (item.quality >= sdk.items.quality.Magic || [sdk.items.quality.Normal, sdk.items.quality.Superior].includes(item.quality) && item.isEquipped))
 		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
 
 	if (!items) return;
@@ -706,6 +708,8 @@ Misc.checkSocketables = function () {
 		let sockets = items[i].sockets;
 
 		switch (items[i].quality) {
+		case sdk.items.quality.Normal:
+		case sdk.items.quality.Superior:
 		case sdk.items.quality.Magic:
 		case sdk.items.quality.Rare:
 		case sdk.items.quality.Crafted:

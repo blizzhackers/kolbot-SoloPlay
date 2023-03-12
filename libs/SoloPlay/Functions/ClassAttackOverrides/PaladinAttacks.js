@@ -7,9 +7,14 @@
 
 includeIfNotIncluded("core/Attacks/Paladin.js");
 
+/**
+ * @todo build selectAura method
+ */
+
 const MercWatch = {
 	last: 0,
 };
+
 
 // eslint-disable-next-line no-unused-vars
 ClassAttack.doAttack = function (unit = undefined, preattack = false, once = false) {
@@ -113,6 +118,10 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
 		[attackSkill, aura] = Config.LowManaSkill;
 	}
 
+	/**
+	 * @param {Monster} unit 
+	 * @returns {AttackResult}
+	 */
 	const switchBowAttack = (unit) => {
 		if (Attack.getIntoPosition(unit, 20, sdk.collision.Ranged)) {
 			try {
@@ -154,12 +163,6 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
 		let merc = me.getMerc();
 
 		while (unit.attackable) {
-			if (Misc.townCheck()) {
-				if (!unit || !copyUnit(unit).x) {
-					unit = Misc.poll(() => Game.getMonster(-1, -1, gid), 1000, 80);
-				}
-			}
-
 			if (!unit) return Attack.Result.SUCCESS;
 
 			if (me.needMerc()) {

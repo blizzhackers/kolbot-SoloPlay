@@ -524,6 +524,10 @@ function main () {
 		}
 
 		switch (msg) {
+		case "deleteAndRemake":
+			Developer.testingMode.enabled && (quitFlag = true);
+
+			break;
 		case "toggleQuitlist":
 			canQuit = !canQuit;
 
@@ -582,7 +586,6 @@ function main () {
 	addEventListener("keyup", keyEvent);
 	addEventListener("gameevent", gameEvent);
 	addEventListener("scriptmsg", scriptEvent);
-	addEventListener("scriptmsg", Tracker.logLeveling);
 
 	Config.QuitListMode > 0 && Common.Toolsthread.initQuitList();
 	!Array.isArray(Config.QuitList) && (Config.QuitList = [Config.QuitList]);

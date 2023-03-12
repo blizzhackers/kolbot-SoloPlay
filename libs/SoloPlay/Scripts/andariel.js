@@ -72,7 +72,7 @@ function andariel () {
 		Config.TownHP = 0;
 		Config.TownMP = 0;
 		Config.PickRange = -1;
-		Misc.townEnabled = false;
+		SoloEvents.townChicken.disabled = true;
 		CharData.updateConfig();
 
 		if (Pather.changeAct()) {

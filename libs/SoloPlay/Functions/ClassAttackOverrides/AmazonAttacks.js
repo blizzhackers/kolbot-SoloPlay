@@ -289,12 +289,6 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 		let merc = me.getMerc();
 
 		while (unit.attackable) {
-			if (Misc.townCheck()) {
-				if (!unit || !copyUnit(unit).x) {
-					unit = Misc.poll(() => Game.getMonster(-1, -1, gid), 1000, 80);
-				}
-			}
-
 			if (!unit) return Attack.Result.SUCCESS;
 
 			if (me.needMerc()) {

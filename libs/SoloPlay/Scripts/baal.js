@@ -77,8 +77,6 @@ function baal () {
 		while (true) {
 			if (!Game.getMonster(sdk.monsters.ThroneBaal)) return true;
 
-			Misc.townCheck();
-
 			switch (Common.Baal.checkThrone()) {
 			case 1:
 				Attack.clearClassids(sdk.monsters.WarpedFallen, sdk.monsters.WarpedShaman) && (tick = getTickCount());

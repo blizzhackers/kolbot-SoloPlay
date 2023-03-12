@@ -8,7 +8,7 @@ js_strict(true);
 include("critical.js");
 
 // globals needed for core gameplay
-includeCoreLibs({ exclude: ["Storage.js"]});
+includeCoreLibs({ exclude: ["Storage.js"] });
 
 // system libs
 includeSystemLibs();
@@ -30,6 +30,7 @@ const LocalChat = require("../modules/LocalChat", null, false);
  *  - Add priority to runewords/cubing
  *  - proper script skipping + gold runs when needed
  *  - fix autoequip issues with rings and dual wielding
+ *  - remove all the logic from main so all it does is call functions
  */
 
 function main () {
@@ -70,54 +71,93 @@ function main () {
 	let sojPause = false;
 	let startTime = getTickCount();
 
-	this.scriptEvent = function (msg) {
+	/**
+	 * Handle script/thread communications
+	 * @param {string} msg 
+	 * @returns {void}
+	 */
+	const scriptEvent = function (msg) {
+		if (!msg || typeof msg !== "string") return;
 		let obj;
 
-		if (msg && typeof msg === "string" && msg !== "") {
-			switch (true) {
-			case msg === "nextScript":
-				// testing - works so maybe can handle other events as well?
-				me.emit("nextScript");
+		if (msg.includes("--")) {
+			let sub = msg.match(/\w+?--/gm).first();
 
-				break;
-			case msg === "soj":
-				sojPause = true;
-				sojCounter = 0;
-				
-				break;
-			case msg.substring(0, 8) === "config--":
+			switch (sub) {
+			case "config--":
 				console.debug("update config");
 				Config = JSON.parse(msg.split("config--")[1]);
 
-				break;
-			case msg.substring(0, 7) === "skill--":
+				return;
+			case "skill--":
 				console.debug("update skillData");
 				obj = JSON.parse(msg.split("skill--")[1]);
 				Misc.updateRecursively(CharData.skillData, obj);
 
-				break;
-			case msg.substring(0, 6) === "data--":
+				return;
+			case "data--":
 				console.debug("update myData");
 				obj = JSON.parse(msg.split("data--")[1]);
 				Misc.updateRecursively(myData, obj);
 
-				break;
-			case msg.toLowerCase() === "test":
-				{
-					console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//",
-						"\nÿc8ThreadData ::\n", getScript(true),
-						"\nÿc8MainData ::\n", myData,
-						"\nÿc8BuffData ::\n", CharData.buffData,
-						"\nÿc8SkillData ::\n", CharData.skillData,
-						"\nÿc8GlobalVariabls ::\n", Object.keys(global),
-						"\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
-				}
-				break;
+				return;
 			}
+		}
+
+		switch (msg) {
+		case "testing":
+		case "finishDen":
+		case "dodge":
+		case "skip":
+		case "killdclone":
+			me.emit("soloEvent", msg);
+
+			break;
+		case "addDiaEvent":
+			console.log("Added dia lightning listener");
+			addEventListener("gamepacket", SoloEvents.diaEvent);
+
+			break;
+		case "removeDiaEvent":
+			console.log("Removed dia lightning listener");
+			removeEventListener("gamepacket", SoloEvents.diaEvent);
+
+			break;
+		case "addBaalEvent":
+			console.log("Added baal wave listener");
+			addEventListener("gamepacket", SoloEvents.baalEvent);
+
+			break;
+		case "removeBaalEvent":
+			console.log("Removed baal wave listener");
+			removeEventListener("gamepacket", SoloEvents.baalEvent);
+
+			break;
+		case "nextScript":
+			// testing - works so maybe can handle other events as well?
+			me.emit("nextScript");
+
+			break;
+		case "soj":
+			sojPause = true;
+			sojCounter = 0;
+			
+			break;
+		case "test":
+			{
+				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//",
+					"\nÿc8ThreadData ::\n", getScript(true),
+					"\nÿc8MainData ::\n", myData,
+					"\nÿc8BuffData ::\n", CharData.buffData,
+					"\nÿc8SkillData ::\n", CharData.skillData,
+					"\nÿc8GlobalVariabls ::\n", Object.keys(global),
+					"\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
+			}
+			break;
 		}
 	};
 
-	this.copyDataEvent = function (mode, msg) {
+	const copyDataEvent = function (mode, msg) {
 		// "Mule Profile" option from D2Bot#
 		if (mode === 0 && msg === "mule") {
 			if (AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("muleInfo")) {
@@ -131,6 +171,13 @@ function main () {
 			} else {
 				D2Bot.printToConsole("Profile not enabled for muling.");
 			}
+		} else if (mode === 70) {
+			Messaging.sendToScript("D2BotSoloPlay.dbj", "event");
+			delay(100 + me.ping);
+			scriptBroadcast("quit");
+		} else if ([55, 60, 65].includes(mode)) {
+			// torch/anni sharing event - does this even still work? Haven't tested in awhile
+			me.emit("processProfileEvent", mode, msg);
 		}
 	};
 
@@ -145,11 +192,15 @@ function main () {
 	LocalChat.init();
 
 	// Load event listeners
-	addEventListener("scriptmsg", this.scriptEvent);
-	addEventListener("copydata", this.copyDataEvent);
+	addEventListener("scriptmsg", scriptEvent);
+	addEventListener("copydata", copyDataEvent);
 
 	// AutoMule/TorchSystem/Gambling/Crafting handler
-	if (AutoMule.inGameCheck() || TorchSystem.inGameCheck() || Gambling.inGameCheck() || CraftingSystem.inGameCheck() || SoloEvents.inGameCheck()) {
+	if (AutoMule.inGameCheck()
+		|| TorchSystem.inGameCheck()
+		|| Gambling.inGameCheck()
+		|| CraftingSystem.inGameCheck()
+		|| SoloEvents.inGameCheck()) {
 		return true;
 	}
 
@@ -168,18 +219,11 @@ function main () {
 
 	// Load threads - for now split between old system with threads or opt in for new system with workers
 	load("libs/SoloPlay/Threads/ToolsThread.js");
-	if ((Developer.testingMode.enabled && Developer.testingMode.profiles.some(prof => String.isEqual(prof, me.profile)))) {
-		removeEventListener("scriptmsg", AutoBuild.levelUpHandler);
-		// require("./Modules/eventEmitter"); // needs work
 
-		includeIfNotIncluded("SoloPlay/Workers/EventWorker.js");
-		includeIfNotIncluded("SoloPlay/Workers/TownChickenWorker.js");
-		includeIfNotIncluded("SoloPlay/Workers/AutoBuildWorker.js");
-		SoloEvents.filePath = "libs/SoloPlay/SoloPlay.js"; // hacky for now, don't want to mess up others running so we just broadcast to ourselves
-	} else {
-		load("libs/SoloPlay/Threads/EventThread.js");
-		load("libs/SoloPlay/Threads/TownChicken.js");
-	}
+	require("./Workers/EventEmitter");
+	require("./Workers/EventHandler");
+	require("./Workers/TownChicken");
+	SoloEvents.filePath = "libs/SoloPlay/SoloPlay.js"; // hacky for now, don't want to mess up others running so we just broadcast to ourselves
 	
 	// Load guard if we want to see the stack as it runs
 	if (Developer.debugging.showStack.enabled) {

@@ -519,7 +519,7 @@ Pather.move = function (target, givenSettings = {}) {
 									// let otherObjects = getUnits(sdk.unittype.Object).filter(el => getDistance());
 									if (goBack) {
 										console.debug("Going back to old node. Distance: " + node.distance);
-									} else if (nearestNode && nearestNode.distance > 5 && node.distance > 5 && 100 / node.distance * nearestNode.distance < 95) {
+									} else if (nearestNode && nearestNode.distance > 5 && node.distance > 5 && Math.percentDifference(node.distance, nearestNode.distance) > 5/*  && 100 / node.distance * nearestNode.distance < 95 */) {
 										console.debug("Moving to next node. Distance: " + nearestNode.distance);
 										let newIndex = path.findIndex(node => nearestNode.x === node.x && nearestNode.y === node.y);
 										if (newIndex > -1) {
@@ -545,8 +545,6 @@ Pather.move = function (target, givenSettings = {}) {
 							Pather.recursion = true;
 						}
 					}
-
-					settings.allowTown && Misc.townCheck();
 				}
 			} else {
 				if (!me.inTown) {

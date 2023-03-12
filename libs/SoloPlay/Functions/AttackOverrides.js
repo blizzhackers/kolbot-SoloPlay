@@ -267,8 +267,6 @@ Attack.killTarget = function (name) {
 		Misc.openChestsEnabled = false;
 
 		while (attackCount < Config.MaxAttackCount && target.attackable && !this.skipCheck(target)) {
-			Misc.townCheck();
-			
 			// Check if unit got invalidated, happens if necro raises a skeleton from the boss's corpse.
 			if (!target || !copyUnit(target).x) {
 				target = Game.getMonster(-1, -1, gid);
@@ -382,8 +380,6 @@ Attack.clearPos = function (x, y, range = 15, pickit = true) {
 		if (target.x !== undefined
 			&& (getDistance(target, x, y) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && target.attackable) {
 			Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
-
-			Misc.townCheck(true);
 			let checkMobAttackCount = gidAttack.find(g => g.gid === target.gid);
 			let checkAttackSkill = (!!checkMobAttackCount && checkMobAttackCount.attacks > 0 && checkMobAttackCount.attacks % 3 === 0);
 			let result = ClassAttack.doAttack(target, checkAttackSkill);
@@ -686,7 +682,6 @@ Attack.clear = function (range = 25, spectype = 0, bossId = false, sortfunc = un
 		if (target.x !== undefined
 			&& (getDistance(target, orgx, orgy) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && target.attackable) {
 			Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
-			Misc.townCheck(true);
 			tick = getTickCount();
 
 			if (!logged && boss && boss.gid === target.gid) {
