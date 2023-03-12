@@ -534,9 +534,23 @@
 
 			return aps;
 		},
+
+		/**
+		 * @typedef skillDmgObj
+		 * @property {string} type
+		 * @property {number} pmin
+		 * @property {number} pmax
+		 * @property {number} min
+		 * @property {number} max
+		 * @property {boolean} [undeadOnly]
+		 *
+		 * @param {number} skillID 
+		 * @param {Monster} unit 
+		 * @returns {skillDmgObj}
+		 */
 		skillDamage: function (skillID, unit) {
 			// TODO: caluclate basic attack damage
-			if (skillID === 0) return { type: "Physical", pmin: 2, pmax: 8, min: 0, max: 0 }; // short sword, no reqs
+			if (skillID === sdk.skills.Attack) return { type: "Physical", pmin: 2, pmax: 8, min: 0, max: 0 }; // short sword, no reqs
 
 			if (this.skillLevel(skillID) < 1) {
 				return {
@@ -548,7 +562,8 @@
 				};
 			}
 
-			let dmg = this.baseSkillDamage(skillID), mastery = 1, psynergy = 1, synergy = 1, shots = 1, sl = 0;
+			let dmg = this.baseSkillDamage(skillID);
+			let mastery = 1, psynergy = 1, synergy = 1, shots = 1, sl = 0;
 
 			if (this.synergyCalc[skillID]) {
 				let sc = this.synergyCalc[skillID];
@@ -577,29 +592,14 @@
 
 			switch (dmg.type) {
 			case "Fire": // fire mastery
-				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveFireMastery) / 100;
-				dmg.min *= mastery;
-				dmg.max *= mastery;
-				break;
 			case "Lightning": // lightning mastery
-				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveLightningMastery) / 100;
-				dmg.min *= mastery;
-				dmg.max *= mastery;
-				break;
 			case "Cold": // cold mastery
-				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveColdMastery) / 100;
-				dmg.min *= mastery;
-				dmg.max *= mastery;
-				break;
 			case "Poison": // poison mastery
-				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassivePoisonMastery) / 100;
-				dmg.min *= mastery;
-				dmg.max *= mastery;
-				break;
 			case "Magic": // magic mastery
-				mastery = 1 + GameData.myReference.getStat(sdk.stats.PassiveMagMastery) / 100;
+				mastery = 1 + GameData.myReference.getStat(this.masteryMap[dmg.type]) / 100;
 				dmg.min *= mastery;
 				dmg.max *= mastery;
+
 				break;
 			}
 
@@ -690,22 +690,22 @@
 				}
 
 				break;
-			case 221: // raven - a hit per raven
+			case sdk.skills.Raven: // raven - a hit per raven
 				shots = Math.min(5, this.skillLevel(221)); // 1-5 ravens
 				dmg.pmin *= shots;
 				dmg.pmax *= shots;
 				break;
-			case 227: // spirit wolf - a hit per wolf
+			case sdk.skills.SummonSpiritWolf: // spirit wolf - a hit per wolf
 				shots = Math.min(5, this.skillLevel(227));
 				dmg.pmin *= shots;
 				dmg.pmax *= shots;
 				break;
-			case 237: // dire wolf - a hit per wolf
+			case sdk.skills.SummonDireWolf: // dire wolf - a hit per wolf
 				shots = Math.min(3, this.skillLevel(237));
 				dmg.pmin *= shots;
 				dmg.pmax *= shots;
 				break;
-			case 240: // twister
+			case sdk.skills.Twister: // twister
 				dmg.pmin *= 3;
 				dmg.pmax *= 3;
 				break;
@@ -717,7 +717,6 @@
 				dmg.min *= 5;	// can have 5 traps out at a time
 				dmg.max *= 5;
 				break;
-
 			case sdk.skills.StaticField:
 				if (!(unit instanceof Unit)) {
 					break;
@@ -767,17 +766,34 @@
 
 			return dmg;
 		},
-		// todo - build me metadata - then use it to calulate a range of skills rather than redo the exact same calculations
-		// example - trying to check the damage of blizard and then frozen orb
-		// currently it would check our stats, then check amp and conviction - those could all be pre-built as they aren't going to change
+
+		/**
+		 * Calculate actual average damage this skill does taking into account splash/range of skill
+		 * @param {number} skillID 
+		 * @param {Monster | number | string} unit 
+		 * @returns {number}
+		 * @todo
+		 * - build me metadata - then use it to calulate a range of skills rather than redo the exact same calculations.
+		 * example: trying to check the damage of blizard and then frozen orb,
+		 * currently it would check our stats, then check amp and conviction - those could all be pre-built as they aren't going to change
+		 */
 		avgSkillDamage: function (skillID, unit) {
 			if (skillID === undefined || unit === undefined || !skillID || !unit || !Skill.canUse(skillID)) return 0;
-			let skillToCheck, avgDmg;
+			const ampDmg = Skill.canUse(sdk.skills.AmplifyDamage) ? 100 : (Skill.canUse(sdk.skills.Decrepify) ? 50 : 0);
+
+			/**
+			 * 
+			 * @param {skillDmgObj} skillData 
+			 * @param {Monster | number | string} unit 
+			 * @returns 
+			 */
 			const getTotalDmg = function (skillData, unit) {
-				let ampDmg = Skill.canUse(66) ? 100 : (Skill.canUse(87) ? 50 : 0);
-				let avgPDmg = (skillData.pmin + skillData.pmax) / 2, totalDmg = 0, avgDmg = (skillData.min + skillData.max) / 2;
-				//let hp = GameData.monsterMaxHP(typeof unit === 'number' ? unit : unit.classid, me.area);
-				let conviction = GameData.getConviction(), isUndead = (typeof unit === "number" ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+				const isUndead = (typeof unit === "number" ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+				const conviction = GameData.getConviction();
+				let totalDmg = 0;
+				let avgPDmg = (skillData.pmin + skillData.pmax) / 2;
+				let avgDmg = (skillData.min + skillData.max) / 2;
+
 				if (avgPDmg > 0) {
 					let presist = GameData.monsterResist(unit, "Physical");
 					presist -= (presist >= 100 ? ampDmg / 5 : ampDmg);
@@ -795,6 +811,13 @@
 				}
 				return totalDmg;
 			};
+
+			/**
+			 * @param {number} skill 
+			 * @param {number} splash 
+			 * @param {Monster} target 
+			 * @returns {number}
+			 */
 			const calculateSplashDamage = function (skill, splash, target) {
 				return getUnits(sdk.unittype.Monster)
 					.filter((mon) => mon.attackable && getDistance(target, mon) < splash)
@@ -803,6 +826,12 @@
 						return acc + getTotalDmg(_a, cur);
 					}, 0);
 			};
+
+			/**
+			 * @param {number} skill 
+			 * @param {Monster} target 
+			 * @returns {number}
+			 */
 			const calculateChainDamage = function (skill, target) {
 				skill === undefined && (skill = -1);
 				let rawDmg = 0, totalDmg = 0, range = 0, hits = 0;
@@ -833,10 +862,12 @@
 					return totalDmg;
 				}
 			};
+			
 			const calculateRawStaticDamage = function (distanceUnit) {
 				distanceUnit === undefined && (distanceUnit = me);
 				if (!Skill.canUse(sdk.skills.StaticField)) return 0;
-				let range = Skill.getRange(sdk.skills.StaticField), cap = (me.gametype === sdk.game.gametype.Classic ? 1 : [1, 25, 50][me.diff]);
+				const range = Skill.getRange(sdk.skills.StaticField);
+				const cap = (me.gametype === sdk.game.gametype.Classic ? 1 : [1, 25, 50][me.diff]);
 				const pierce = me.getStat(sdk.stats.PierceLtng);
 				return getUnits(sdk.unittype.Monster)
 					.filter(function (mon) {
@@ -856,19 +887,82 @@
 						return acc + (actualDamage);
 					}, 0);
 			};
+
+			const calculateThroughDamage = function () {
+				// determine maximum potential distance of this missile
+				// build points from me -> monster -> max distance
+				// iterate points checking if any monsters are in the path
+				// check collision at each point and break if we encounter a missisle blocker
+				// special considerations for molten boulder:
+				// - check monster size, based on size the boulder may knock back or go through them
+				// - if we encounter a collision that causes the boulder to burst, add explosion damage
+				// 
+			};
+
+			/**
+			 * 
+			 * @param {Monster} unit 
+			 */
+			const calcVolcanoDamage = function (unit) {
+				let velocity = unit.currentVelocity;
+				/** @type {skillDmgObj} */
+				let baseDmg = GameData.skillDamage(sdk.skills.Volcano, unit);
+				// since these are random, lets take them into account but not at their full value
+				let missleDmg = Object.assign({}, baseDmg);
+				missleDmg.pmin /= 2;
+				missleDmg.pmax /= 2;
+				missleDmg.min /= 2;
+				missleDmg.max /= 2;
+				// sorta guess work for now, needs improvment to really figure out on average how many times the actual
+				// volcano damages the monster cast on based on size/speed
+				let modifier = (!unit.isMoving || velocity === 1) ? 5 : velocity === 2 ? 3 : 1;
+				if (modifier > 1) {
+					baseDmg.pmin *= modifier;
+					baseDmg.pmax *= modifier;
+					baseDmg.min *= modifier;
+					baseDmg.max *= modifier;
+				}
+
+				// sum the total in the range of the volcano missiles
+				// what about monsters just directly on the volcano?
+				return getUnits(sdk.unittype.Monster)
+					.filter((mon) => mon.attackable && getDistance(unit, mon) < 15)
+					.reduce(function (acc, cur) {
+						return acc + getTotalDmg(missleDmg, cur);
+					}, getTotalDmg(baseDmg, unit));
+			};
+
+			/**
+			 * @todo some skills need special handling
+			 * - Bone spear and Lightning both pierce enemies in a straight path, need to calculate include monsters in that path
+			 * to the total damage done as this can make the difference between wanting to use this skill vs another
+			 * - Fire Wall is similar only seems to be a random angle
+			 * - Inferno/Artic blast same as bonespear/lightning
+			 * - Molten boulder needs to take into account monster size and angle of cast
+			 * - Zeal, can hit same enemy multiple times or multiple enemies, would change total damage applied based on enemy targetted so needs to be handled
+			 * Others?
+			 */
 			switch (skillID) {
 			case sdk.skills.Blizzard:
 			case sdk.skills.Meteor:
 			case sdk.skills.FireBall:
 			case sdk.skills.GlacialSpike:
 			case sdk.skills.ChargedBolt:
+			case sdk.skills.Fissure:
 				let { x, y } = unit;
+				let rad = skillID === sdk.skills.Volcano ? 15 : skillID === sdk.skills.Fissure ? 10 : 5;
 				
 				if (!Attack.validSpot(x, y, skillID, unit.classid)) {
 					return 0;
 				}
 
-				return calculateSplashDamage(skillID, 4, unit);
+				return calculateSplashDamage(skillID, rad, unit);
+			case sdk.skills.Volcano:
+				if (!Attack.validSpot(unit.x, unit.y, skillID, unit.classid)) {
+					return 0;
+				}
+
+				return calcVolcanoDamage(unit);
 			case sdk.skills.FrostNova:
 			case sdk.skills.Nova:
 				return calculateSplashDamage(skillID, 6, unit);
@@ -877,8 +971,7 @@
 			case sdk.skills.ChainLightning:
 				return calculateChainDamage(skillID, unit);
 			default:
-				skillToCheck = this.skillDamage(skillID, unit);
-				return getTotalDmg(skillToCheck, unit);
+				return getTotalDmg(this.skillDamage(skillID, unit), unit);
 			}
 		},
 		allSkillDamage: function (unit) {
