@@ -6,11 +6,66 @@
 *
 */
 
+const MercData = new function MercData () {
+	/**
+	 * @constructor Merc
+	 * @param {number} classid 
+	 * @param {number} skill 
+	 * @param {number} act 
+	 * @param {number} [difficulty] 
+	 */
+	function Merc (classid, skill, act, difficulty) {
+		this.classid = classid;
+		this.skill = skill;
+		this.skillName = getSkillById(skill);
+		this.act = act;
+		this.difficulty = difficulty || sdk.difficulty.Normal;
+	}
+
+	this[sdk.skills.FireArrow] = new Merc(sdk.mercs.Rogue, sdk.skills.FireArrow, 1);
+	this[sdk.skills.ColdArrow] = new Merc(sdk.mercs.Rogue, sdk.skills.ColdArrow, 1);
+
+	this[sdk.skills.Prayer] = new Merc(sdk.mercs.Guard, sdk.skills.Prayer, 2, sdk.difficulty.Normal);
+	this[sdk.skills.BlessedAim] = new Merc(sdk.mercs.Guard, sdk.skills.BlessedAim, 2, sdk.difficulty.Normal);
+	this[sdk.skills.Defiance] = new Merc(sdk.mercs.Guard, sdk.skills.Defiance, 2, sdk.difficulty.Normal);
+
+	this[sdk.skills.HolyFreeze] = new Merc(sdk.mercs.Guard, sdk.skills.HolyFreeze, 2, sdk.difficulty.Nightmare);
+	this[sdk.skills.Might] = new Merc(sdk.mercs.Guard, sdk.skills.Might, 2, sdk.difficulty.Nightmare);
+	this[sdk.skills.Thorns] = new Merc(sdk.mercs.Guard, sdk.skills.Thorns, 2, sdk.difficulty.Nightmare);
+
+	this[sdk.skills.IceBlast] = new Merc(sdk.mercs.IronWolf, sdk.skills.IceBlast, 3, sdk.difficulty.Normal);
+	this[sdk.skills.FireBall] = new Merc(sdk.mercs.IronWolf, sdk.skills.FireBall, 3, sdk.difficulty.Normal);
+	this[sdk.skills.Lightning] = new Merc(sdk.mercs.IronWolf, sdk.skills.Lightning, 3, sdk.difficulty.Normal);
+
+	this[sdk.skills.Bash] = new Merc(sdk.mercs.A5Barb, sdk.skills.Bash, 5, sdk.difficulty.Normal);
+
+	this.actMap = new Map();
+	this.actMap.set(sdk.mercs.Rogue, 1);
+	this.actMap.set(1, [this[sdk.skills.FireArrow], this[sdk.skills.ColdArrow]]);
+
+	this.actMap.set(sdk.mercs.Guard, 2);
+	this.actMap.set(2, [
+		this[sdk.skills.Prayer], this[sdk.skills.BlessedAim],
+		this[sdk.skills.Defiance], this[sdk.skills.HolyFreeze],
+		this[sdk.skills.Might], this[sdk.skills.Thorns]
+	]);
+
+	this.actMap.set(sdk.mercs.IronWolf, 3);
+	this.actMap.set(3, [this[sdk.skills.IceBlast], this[sdk.skills.FireBall], this[sdk.skills.Lightning]]);
+
+	this.actMap.set(sdk.mercs.A5Barb, 5);
+	this.actMap.set(5, [this[sdk.skills.Bash]]);
+};
+
 const Mercenary = {
 	minCost: -1,
 
-	// only a2 mercs for now, need to test others to see if ModifierListSkill returns their skill
-	getMercSkill: function (merc = undefined) {
+	/**
+	 * only a2 mercs for now, need to test others to see if ModifierListSkill returns their skill
+	 * @param {MercUnit} merc 
+	 * @returns {string}
+	 */
+	getMercSkill: function (merc) {
 		!merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
 		if (!merc) return false;
 		let mercSkill = (() => {
@@ -56,10 +111,15 @@ const Mercenary = {
 		return mercSkill ? getSkillById(mercSkill) : "";
 	},
 
-	// only a2 mercs for now
-	getMercDifficulty: function (merc = undefined) {
+	/**
+	 * @param {MercUnit} merc 
+	 * @returns {number}
+	 */
+	getMercDifficulty: function (merc) {
 		!merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
 		if (!merc) return false;
+		if (merc.classid !== sdk.mercs.Guard) return sdk.difficulty.Normal;
+
 		let mercSkill = merc.getStat(sdk.stats.ModifierListSkill);
 
 		switch (mercSkill) {
@@ -72,23 +132,19 @@ const Mercenary = {
 		}
 	},
 
+	/**
+	 * @param {MercUnit} merc 
+	 * @returns {number}
+	 */
 	getMercAct: function (merc) {
 		!merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
 		if (!merc) return 0;
-		switch (merc.classid) {
-		case sdk.mercs.Rogue:
-			return 1;
-		case sdk.mercs.Guard:
-			return 2;
-		case sdk.mercs.IronWolf:
-			return 3;
-		case sdk.mercs.A5Barb:
-			return 5;
-		default:
-			return 0;
-		}
+		return MercData.actMap.get(merc.classid) || 0;
 	},
 
+	/**
+	 * @param {MercUnit} merc 
+	 */
 	getMercInfo: function (merc) {
 		!merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
 		if (!merc) return { classid: 0, act: 0, difficulty: 0, type: "" };
@@ -100,39 +156,21 @@ const Mercenary = {
 		};
 	},
 
-	checkMercSkill: function (wanted = "", merc = undefined) {
+	/**
+	 * 
+	 * @param {{ classid: number, act: number, skill: number, skillName: string, difficulty: number }} wanted 
+	 * @param {MercUnit} merc 
+	 * @returns {boolean}
+	 */
+	checkMercSkill: function (wanted, merc) {
 		merc = !!merc ? merc : me.getMerc();
 		if (!merc) return false;
 		let mercSkill = merc.getStat(sdk.stats.ModifierListSkill);
 
-		// only a2 mercs for now, need to test others to see if above returns their skill
-		switch (wanted.toLowerCase()) {
-		case "defiance":
-			return mercSkill === sdk.skills.Defiance;
-		case "prayer":
-			return mercSkill === sdk.skills.Prayer;
-		case "blessed aim":
-			return mercSkill === sdk.skills.BlessedAim;
-		case "thorns":
-			return mercSkill === sdk.skills.Thorns;
-		case "holy freeze":
-			return mercSkill === sdk.skills.HolyFreeze;
-		case "might":
-			return mercSkill === sdk.skills.Might;
-		case "cold arrow":
-			return merc.getSkill(sdk.skills.ColdArrow, sdk.skills.subindex.HardPoints);
-		case "fire arrow":
-			return merc.getSkill(sdk.skills.FireArrow, sdk.skills.subindex.HardPoints);
-		case "fire ball":
-			return merc.getSkill(sdk.skills.FireBall, sdk.skills.subindex.HardPoints);
-		case "lightning":
-			return merc.getSkill(sdk.skills.Lightning, sdk.skills.subindex.HardPoints);
-		case "glacial spike":
-			return merc.getSkill(sdk.skills.GlacialSpike, sdk.skills.subindex.HardPoints);
-		case "bash":
-			return merc.getSkill(sdk.skills.Bash, sdk.skills.subindex.HardPoints);
-		default:
-			return false;
+		if (merc.classid === sdk.mercs.Guard) {
+			return mercSkill === wanted.skill;
+		} else {
+			return merc.getSkill(wanted.skill, sdk.skills.subindex.HardPoints) > 0;
 		}
 	},
 
@@ -140,8 +178,8 @@ const Mercenary = {
 	hireMerc: function () {
 		if (me.classic) return true;
 		let _a;
-		let { mercAct, mercAuraWanted, mercDiff } = Check.finalBuild();
-		let typeOfMerc = (!Pather.accessToAct(2) && me.normal ? 1 : mercAct);
+		let { wantedMerc } = Check.finalBuild();
+		let typeOfMerc = (!Pather.accessToAct(2) && me.normal ? 1 : wantedMerc.act);
 		let tmpAuraName = "Defiance";
 
 		// don't hire if using correct a1 merc, or passed merc hire difficulty
@@ -155,33 +193,35 @@ const Mercenary = {
 		// we don't have enough gold to hire our wanted merc
 		switch (true) {
 		case typeOfMerc === 1 && (myData.merc.type === "Cold Arrow" || !Misc.checkQuest(sdk.quest.id.SistersBurialGrounds, sdk.quest.states.Completed)):
-		case myData.merc.type === mercAuraWanted:
-		case me.diff > mercDiff:
-		case me.diff === mercDiff && !Pather.accessToAct(mercAct):
-		case me.diff !== mercDiff && myData.merc.type === "Defiance":
-		case (me.charlvl > CharInfo.levelCap + 10 && Mercenary.checkMercSkill(myData.merc.type)):
+		case myData.merc.type === wantedMerc.skillName:
+		case me.diff > wantedMerc.difficulty:
+		case me.diff === wantedMerc.difficulty && !Pather.accessToAct(wantedMerc.act):
+		case me.diff !== wantedMerc.difficulty && myData.merc.type === "Defiance":
+		case (me.charlvl > CharInfo.levelCap + 10 && Mercenary.checkMercSkill(MercData[getSkillByName(myData.merc.type)])):
 		case me.gold < Math.round((((me.charlvl - 1) * (me.charlvl - 1)) / 2) * 7.5):
 		case this.minCost > 0 && me.gold < this.minCost:
 			return true;
 		}
 		
 		// lets check what our current actually merc is
+		/** @type {MercUnit} */
 		let checkMyMerc = Misc.poll(() => me.getMerc(), 50, 500);
+
 		const wantedSkill = (typeOfMerc === 1
-			? "Fire Arrow" === mercAuraWanted
-				? mercAuraWanted
+			? "Fire Arrow" === wantedMerc.skillName
+				? wantedMerc.skillName
 				: "Cold Arrow"
 			: me.normal
 				? tmpAuraName
-				: mercAuraWanted
+				: wantedMerc.skillName
 		);
 
-		if (checkMyMerc && Mercenary.checkMercSkill(wantedSkill, checkMyMerc)) {
+		if (checkMyMerc && Mercenary.checkMercSkill(wantedMerc, checkMyMerc)) {
 			// we have our wanted merc, data file was probably erased so lets re-update it
 			myData.merc.act = Mercenary.getMercAct(checkMyMerc);
 			myData.merc.classid = checkMyMerc.classid;
 			myData.merc.difficulty = Mercenary.getMercDifficulty(checkMyMerc);
-			myData.merc.type = wantedSkill;
+			myData.merc.type = wantedMerc.skillName;
 			CharData.updateData("merc", myData) && updateMyData();
 			return true;
 		} else if (!!checkMyMerc && checkMyMerc.classid === sdk.mercs.Guard) {
@@ -201,8 +241,10 @@ const Mercenary = {
 			me.sortInventory();
 			Item.removeItemsMerc(); // strip temp merc gear
 			delay(500 + me.ping);
+			
 			addEventListener("gamepacket", MercLib_1.mercPacket);
 			Town.initNPC("Merc", "getMerc");
+
 			let wantedMerc = MercLib_1.default
 				.filter((merc) => merc.skills.some((skill) => (skill === null || skill === void 0 ? void 0 : skill.name) === wantedSkill))
 				.sort((a, b) => b.level - a.level)
@@ -210,10 +252,12 @@ const Mercenary = {
 			if (wantedMerc) {
 				if (wantedMerc.cost > me.gold) {
 					Mercenary.minCost = wantedMerc.cost;
-					throw new Error();
+					throw new Error("Too expensive " + wantedMerc.cost);
 				}
-				let oldGid_1 = (_a = me.getMerc()) === null || _a === void 0 ? void 0 : _a.gid;
+
+				let oldGid_1 = (_a = me.getMercEx()) === null || _a === void 0 ? void 0 : _a.gid;
 				console.log("ÿc9Mercenaryÿc0 :: Found a merc to hire " + JSON.stringify(wantedMerc));
+
 				wantedMerc === null || wantedMerc === void 0 ? void 0 : wantedMerc.hire();
 				let newMerc = Misc.poll(function () {
 					let merc = me.getMerc();
@@ -221,6 +265,7 @@ const Mercenary = {
 					if (oldGid_1 && oldGid_1 === merc.gid) return false;
 					return merc;
 				});
+				
 				console.log("Hired a merc?");
 				if (newMerc) {
 					console.log("Yep");
@@ -228,6 +273,7 @@ const Mercenary = {
 					myData.merc.classid = newMerc.classid;
 					myData.merc.difficulty = me.diff;
 					myData.merc.type = wantedMerc.skills.find(sk => sk.name === wantedSkill).name;
+					// myData.merc.skills = getSkillByName(myData.merc.type);
 					CharData.updateData("merc", myData) && updateMyData();
 					console.log("ÿc9Mercenaryÿc0 :: " + myData.merc.type + " merc hired.");
 				}
@@ -236,9 +282,11 @@ const Mercenary = {
 					delay(me.ping || 5);
 					me.cancel();
 				}
+			} else {
+				console.warn("Failed to find wanted Merc");
 			}
 		} catch (e) {
-			//
+			console.error(e);
 		} finally {
 			removeEventListener("gamepacket", MercLib_1.mercPacket);
 		}
