@@ -14,7 +14,7 @@
 	} else {
 		root.SoloEvents = factory();
 	}
-}(this, function() {
+}(this, function () {
 	const SoloEvents = {
 		filePath: "libs/SoloPlay/Threads/EventThread.js",
 		check: false,
@@ -284,37 +284,41 @@
 			let tick = getTickCount();
 			myPrint("Attempting baal wave skip");
 
-			// Disable anything that will cause us to stop
-			[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [false, false, false];
-			me.barbarian && (Config.FindItem = false);
+			try {
+				// Disable anything that will cause us to stop
+				[Precast.enabled, Pickit.enabled] = [false, false];
+				SoloEvents.townChicken.disabled = true;
+				me.barbarian && (Config.FindItem = false);
 
-			// Prep, move to throne entrance
-			while (getTickCount() - tick < 6500) {
-				this.moveTo(15091, 5073, { allowTeleport: true });
+				// Prep, move to throne entrance
+				while (getTickCount() - tick < 6500) {
+					this.moveTo(15091, 5073, { allowTeleport: true });
+				}
+
+				tick = getTickCount();
+
+				// 5 second delay (5000ms), then leave throne
+				while (getTickCount() - tick < 5000) {
+					this.moveTo(15098, 5082, { allowTeleport: true });
+				}
+
+				tick = getTickCount();
+				this.moveTo(15099, 5078); // Re-enter throne
+
+				// 2 second delay (2000ms)
+				while (getTickCount() - tick < 2000) {
+					this.moveTo(15098, 5082);
+				}
+
+				this.moveTo(15099, 5078);
+			} finally {
+				// Re-enable
+				[Precast.enabled, Pickit.enabled] = [true, true];
+				SoloEvents.townChicken.disabled = false;
 			}
-
-			tick = getTickCount();
-
-			// 5 second delay (5000ms), then leave throne
-			while (getTickCount() - tick < 5000) {
-				this.moveTo(15098, 5082, { allowTeleport: true });
-			}
-
-			tick = getTickCount();
-			this.moveTo(15099, 5078); // Re-enter throne
-
-			// 2 second delay (2000ms)
-			while (getTickCount() - tick < 2000) {
-				this.moveTo(15098, 5082);
-			}
-
-			this.moveTo(15099, 5078);
-
-			// Re-enable
-			[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [true, true, true];
 
 			let skipWorked = getUnits(sdk.unittype.Monster)
-				.some(el => el.attackable && el.x >= 15070 && el.x <= 15120 && el.y >= 5000 && el.y <= 5075);
+				.some(mon => mon.attackable && mon.x >= 15072 && mon.x <= 15118 && mon.y >= 5002 && mon.y <= 5079);
 			myPrint("skip " + (skipWorked ? "worked" : "failed"));
 		},
 
@@ -339,32 +343,37 @@
 			if (diablo && shouldDodge(me)) {
 				let tick = getTickCount();
 				let overrides = { allowTeleport: false, allowClearing: false, allowTown: false };
-				// Disable anything that will cause us to stop
-				[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [false, false, false];
-				console.log("DODGE");
-				// Disable things that will cause us to stop
-				let dist = me.assassin ? 15 : 3;
 
-				while (getTickCount() - tick < 2000) {
-					// Above D
-					if (me.y <= diablo.y) {
-						// Move east
-						me.x <= diablo.x && this.moveTo(diablo.x + dist, diablo.y, overrides);
-						// Move south
-						me.x > diablo.x && this.moveTo(diablo.x, diablo.y + dist, overrides);
-					}
+				try {
+					// Disable anything that will cause us to stop
+					[Precast.enabled, Pickit.enabled] = [false, false];
+					SoloEvents.townChicken.disabled = true;
+					console.log("DODGE");
+					// Disable things that will cause us to stop
+					let dist = me.assassin ? 15 : 3;
 
-					// Below D
-					if (me.y > diablo.y) {
-						// Move west
-						me.x >= diablo.x && this.moveTo(diablo.x - dist, diablo.y, overrides);
-						// Move north
-						me.x < diablo.x && this.moveTo(diablo.x, diablo.y - dist, overrides);
+					while (getTickCount() - tick < 2000) {
+						// Above D
+						if (me.y <= diablo.y) {
+							// Move east
+							me.x <= diablo.x && this.moveTo(diablo.x + dist, diablo.y, overrides);
+							// Move south
+							me.x > diablo.x && this.moveTo(diablo.x, diablo.y + dist, overrides);
+						}
+
+						// Below D
+						if (me.y > diablo.y) {
+							// Move west
+							me.x >= diablo.x && this.moveTo(diablo.x - dist, diablo.y, overrides);
+							// Move north
+							me.x < diablo.x && this.moveTo(diablo.x, diablo.y - dist, overrides);
+						}
 					}
+				} finally {
+					// Re-enable
+					[Precast.enabled, Pickit.enabled] = [true, true];
+					SoloEvents.townChicken.disabled = false;
 				}
-
-				// Re-enable
-				[Precast.enabled, Misc.townEnabled, Pickit.enabled] = [true, true, true];
 			}
 		},
 
