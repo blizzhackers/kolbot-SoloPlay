@@ -96,8 +96,10 @@ Town.haveItemsToSell = function () {
 	let temp = [];
 	while (Town.sell.length) {
 		let i = Town.sell.shift();
-		if (i && i.isInStorage && !Town.ignoreType(i.itemType) && i.sellable && !Town.systemsKeep(i)) {
-			temp.push(i);
+		if (typeof i === "undefined") continue;
+		let realItem = me.getItem(i.classid, -1, i.gid);
+		if (realItem && realItem.isInStorage && !Town.ignoreType(realItem.itemType) && realItem.sellable && !Town.systemsKeep(realItem)) {
+			temp.push(realItem);
 		}
 	}
 	Town.sell = temp.slice(0);
@@ -115,6 +117,7 @@ Town.sellItems = function (itemList = []) {
 	if (this.initNPC("Shop", "sell")) {
 		while (itemList.length) {
 			let item = itemList.shift();
+			
 			if (!item.isInStorage) continue;
 
 			try {
@@ -513,6 +516,8 @@ Town.clearInventory = function () {
 		}
 	});
 
+	Town.sell = [];
+
 	console.log("ÿc8Exit clearInventory ÿc0- ÿc7Duration: ÿc0" + Time.format(getTickCount() - clearInvoTick));
 
 	return true;
@@ -702,6 +707,11 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 	NPCAction.repair(repair);
 	NPCAction.reviveMerc();
 	NPCAction.gamble();
+
+	// if (me.inArea(sdk.areas.LutGholein) && me.normal && me.gold > 10000) {
+	// 	// shop at Elzix - what about others?
+	// 	NPCAction.shopAt(NPC.Elzix);
+	// }
 	Cubing.emptyCube();
 	Runewords.makeRunewords();
 	Cubing.doCubing();
