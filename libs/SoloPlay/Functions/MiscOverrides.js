@@ -569,7 +569,8 @@ Misc.getSocketables = function (item, itemInfo) {
 	let [multiple, temp] = [[], []];
 	let itemSocketInfo = item.getItemsEx();
 	let preSockets = itemSocketInfo.length;
-	let allowTemp = (itemInfo.hasOwnProperty("temp") && itemInfo.temp.length > 0 && (preSockets === 0 || preSockets > 0 && itemSocketInfo.some(el => !itemInfo.socketWith.includes(el.classid))));
+	let allowTemp = (itemInfo.hasOwnProperty("temp") && itemInfo.temp.length > 0
+		&& (preSockets === 0 || preSockets > 0 && itemSocketInfo.some(el => !itemInfo.socketWith.includes(el.classid))));
 	let sockets = item.sockets;
 	let openSockets = sockets - preSockets;
 	let { classid, quality } = item;
@@ -593,7 +594,7 @@ Misc.getSocketables = function (item, itemInfo) {
 		return false;
 	}
 
-	if (itemInfo.hasOwnProperty("socketWith") && itemInfo.socketWith.length === 0) {
+	if (!itemInfo.hasOwnProperty("socketWith") || (itemInfo.hasOwnProperty("socketWith") && itemInfo.socketWith.length === 0)) {
 		itemtype = item.getItemType();
 		if (!itemtype) return false;
 		gemType = ["Helmet", "Armor"].includes(itemtype)
@@ -699,7 +700,7 @@ Misc.getSocketables = function (item, itemInfo) {
 Misc.checkSocketables = function () {
 	let items = me.getItemsEx()
 		.filter(item => item.sockets > 0 && AutoEquip.hasTier(item)
-			&& (item.quality >= sdk.items.quality.Magic || [sdk.items.quality.Normal, sdk.items.quality.Superior].includes(item.quality) && item.isEquipped))
+			&& (item.quality >= sdk.items.quality.Magic || ((item.normal || item.superior) && item.isEquipped)))
 		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
 
 	if (!items) return;
