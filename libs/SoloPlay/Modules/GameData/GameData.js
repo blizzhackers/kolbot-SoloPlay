@@ -11,8 +11,8 @@
 	const MonsterData = require("./MonsterData");
 	const AreaData = require("./AreaData");
 	const MissileData = require("./MissileData");
-	const Coords_1 = require("./Coords");
-	const sdk = require("../../modules/sdk");
+	const Coords_1 = require("../Coords");
+	const sdk = require("../../../modules/sdk");
 
 	function isAlive(unit) {
 		return Boolean(unit && unit.hp);
@@ -92,7 +92,7 @@
 			return Math.round(levels / total);
 		},
 		areaImmunities: function (areaID) {
-			let resists = {Physical: 0, Magic: 0, Fire: 0, Lightning: 0, Cold: 0, Poison: 0};
+			let resists = { Physical: 0, Magic: 0, Fire: 0, Lightning: 0, Cold: 0, Poison: 0 };
 
 			AreaData[areaID].forEachMonsterAndMinion(mon => {
 				for (let k in resists) {
@@ -408,7 +408,7 @@
 		},
 		bestForm: function (skillID) {
 			if (this.shiftState() === "human" && this.humanBanned[skillID]) {
-				let highest = {ID: 0, Level: 0};
+				let highest = { ID: 0, Level: 0 };
 
 				if (!this.wolfBanned[skillID] && this.skillLevel(223) > highest.Level) {
 					highest.ID = 223;
@@ -536,7 +536,7 @@
 		},
 		skillDamage: function (skillID, unit) {
 			// TODO: caluclate basic attack damage
-			if (skillID === 0) return {type: "Physical", pmin: 2, pmax: 8, min: 0, max: 0}; // short sword, no reqs
+			if (skillID === 0) return { type: "Physical", pmin: 2, pmax: 8, min: 0, max: 0 }; // short sword, no reqs
 
 			if (this.skillLevel(skillID) < 1) {
 				return {
@@ -862,7 +862,7 @@
 			case sdk.skills.FireBall:
 			case sdk.skills.GlacialSpike:
 			case sdk.skills.ChargedBolt:
-				let {x, y} = unit;
+				let { x, y } = unit;
 				
 				if (!Attack.validSpot(x, y, skillID, unit.classid)) {
 					return 0;
@@ -1367,7 +1367,7 @@
 						// Or add it and return the value
 						|| (
 							(
-								uniqueSkills.push({skillId: x.skill, used: 0})
+								uniqueSkills.push({ skillId: x.skill, used: 0 })
 								&& false
 							)
 							|| uniqueSkills[uniqueSkills.length - 1]

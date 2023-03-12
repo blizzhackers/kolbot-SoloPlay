@@ -49,11 +49,11 @@
 			Level: getBaseStat("levels", index, ["MonLvl1Ex", "MonLvl2Ex", "MonLvl3Ex"][me.diff]),
 			Size: (() => {
 				if (index === 111) { // frigid highlands doesn't specify size, manual measurement
-					return {x: 210, y: 710};
+					return { x: 210, y: 710 };
 				}
 
 				if (index === 112) { // arreat plateau doesn't specify size, manual measurement
-					return {x: 690, y: 230};
+					return { x: 690, y: 230 };
 				}
 
 				return {

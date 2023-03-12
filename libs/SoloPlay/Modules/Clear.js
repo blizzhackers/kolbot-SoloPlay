@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 	const sdk_1 = __importDefault(require("../../modules/sdk"));
 	const Events_1 = require("./Events");
 	const Coords_1 = require("./Coords");
-	const MissileData_1 = __importDefault(require("./MissileData"));
+	const MissileData_1 = __importDefault(require("./GameData/MissileData"));
 	const defaults = {
 		range: 14,
 		spectype: 0,

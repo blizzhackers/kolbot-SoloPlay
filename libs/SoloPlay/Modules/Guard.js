@@ -71,7 +71,7 @@
 		Worker.push(function highPrio() {
 			Worker.push(highPrio);
 			if ((getTickCount() - sendStack) < 200 || (sendStack = getTickCount()) && false) return true;
-			Messaging.send({Guard: {stack: (new Error).stack}});
+			Messaging.send({ Guard: { stack: (new Error).stack } });
 			return true;
 		});
 
