@@ -396,9 +396,8 @@ function main () {
 			break;
 		case sdk.keys.NumpadSlash: // re-load default
 			console.log("ÿc8ToolsThread :: " + sdk.colors.Red + "Stopping threads and waiting 5 seconds to restart");
-			this.stopDefault() && delay(5e3);
-			console.log("Starting libs/SoloPlay/SoloPlay.js");
-			load("libs/SoloPlay/SoloPlay.js");
+			this.stopDefault() && delay(1e3);
+			load("libs/SoloPlay/Threads/Reload.js");
 
 			break;
 		}
