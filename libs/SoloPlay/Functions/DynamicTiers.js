@@ -129,9 +129,11 @@
 			mercRating += item.getStatEx(sdk.stats.SkillOnHit, 5631) * mercWeights.CTCOSDECREP; // add CTC decrepify on strikng (magic items)
 		}
 
-		for (let x = 0; x < Config.Runewords.length; x += 1) {
-			let [sockets, baseCID] = [Config.Runewords[x][0].length, Config.Runewords[x][1]];
-			if (item.classid === baseCID && item.isBaseType && item.sockets === sockets && !item.isRuneword) return -1;
+		if (item.isBaseType && !item.isRuneword) {
+			for (let runeword of Config.Runewords) {
+				let [sockets, baseCID] = [runeword[0].sockets, runeword[1]];
+				if (item.classid === baseCID && item.sockets === sockets && !item.getItemsEx().length) return -1;
+			}
 		}
 
 		return mercRating;
@@ -337,6 +339,7 @@
 	/**
 	 * @param {ItemUnit} item 
 	 * @param {number} [bodyloc] 
+	 * @todo Breakpoint scoring similar to how res is scored
 	 */
 	const tierscore = function (item, tier, bodyloc) {
 		const buildInfo = Check.currentBuild();
@@ -600,8 +603,8 @@
 		tier += chargeditemscore(item, -1, buildInfo);
 
 		if (item.isBaseType && !item.isRuneword && me.charlvl > 10) {
-			for (let x = 0; x < Config.Runewords.length; x += 1) {
-				let [sockets, baseCID] = [Config.Runewords[x][0].length, Config.Runewords[x][1]];
+			for (let runeword of Config.Runewords) {
+				let [sockets, baseCID] = [runeword[0].sockets, runeword[1]];
 				if (item.classid === baseCID && item.sockets === sockets && !item.getItemsEx().length) return -1;
 			}
 		}
