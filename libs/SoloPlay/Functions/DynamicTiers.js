@@ -342,19 +342,18 @@
 	 * @todo Breakpoint scoring similar to how res is scored
 	 */
 	const tierscore = function (item, tier, bodyloc) {
+		const itembodyloc = Item.getBodyLoc(item);
+		if (!itembodyloc.length) return -1;
+		bodyloc === undefined && (bodyloc = itembodyloc.last());
+
 		const buildInfo = Check.currentBuild();
+		const canTele = Pather.canTeleport();
+		const eqItem = me.getEquippedItem(bodyloc);
 
 		const generalScore = () => {
 			let generalRating = 0;
-			let canTele = Pather.canTeleport();
 
-			// get item body location
-			let itembodyloc = Item.getBodyLoc(item);
-			bodyloc === undefined && (bodyloc = itembodyloc.last()); // extract bodyloc from array
-		
 			// get item cbf stat from olditem equipped on body location
-			let eqItem = me.getEquippedItem(bodyloc);
-
 			if (!canTele && item.getStatEx(sdk.stats.CannotbeFrozen)) {
 			// check if we have cbf but make sure its not from the item we are trying to un-equip
 				let haveCBF = (me.getStat(sdk.stats.CannotbeFrozen) > 0 && (eqItem && !eqItem.getStatEx(sdk.stats.CannotbeFrozen)));
@@ -386,37 +385,54 @@
 		};
 
 		const resistScore = () => {
-			let itembodyloc = Item.getBodyLoc(item);
-			if (!itembodyloc) return 0;
-			bodyloc === undefined && (bodyloc = itembodyloc.last()); // extract bodyloc from array
-
 			let resistRating = 0;
-			// current total resists
-			let [currFR, currCR, currLR, currPR] = [me.fireRes, me.coldRes, me.lightRes, me.poisonRes];
-			// get item resists stats from olditem equipped on body location
-			let eqItem = me.getEquippedItem(bodyloc);
-			let [olditemFR, olditemCR, olditemLR, olditemPR] = [0, 0, 0, 0];
-			if (eqItem) {
-			// equipped resists
-				[olditemFR, olditemCR] = [eqItem.getStatEx(sdk.stats.FireResist), eqItem.getStatEx(sdk.stats.ColdResist)];
-				[olditemLR, olditemPR] = [eqItem.getStatEx(sdk.stats.LightResist), eqItem.getStatEx(sdk.stats.PoisonResist)];
-			}
-			// subtract olditem resists from current total resists
-			let [baseFR, baseCR, baseLR, basePR] = [(currFR - olditemFR), (currCR - olditemCR), (currLR - olditemLR), (currPR - olditemPR)];
-			// if baseRes < max resists give score value upto max resists reached
-			const maxRes = me.hell ? 75 : (75 + me.getResPenalty(me.diff + 1) - me.getResPenalty(me.diff));
-			let [FRlimit, CRlimit, LRlimit, PRlimit] = [Math.max(maxRes - baseFR, 0), Math.max(maxRes - baseCR, 0), Math.max(maxRes - baseLR, 0), Math.max(maxRes - basePR, 0)];
+			
 			// get new item stats
-			let [newitemFR, newitemCR] = [Math.max(item.getStatEx(sdk.stats.FireResist), 0), Math.max(item.getStatEx(sdk.stats.ColdResist), 0)];
-			let [newitemLR, newitemPR] = [Math.max(item.getStatEx(sdk.stats.LightResist), 0), Math.max(item.getStatEx(sdk.stats.PoisonResist), 0)];
-			// newitemRes upto reslimit
-			let [effectiveFR, effectiveCR] = [Math.min(newitemFR, FRlimit), Math.min(newitemCR, CRlimit)];
-			let [effectiveLR, effectivePR] = [Math.min(newitemLR, LRlimit), Math.min(newitemPR, PRlimit)];
-			// sum resistRatings
-			resistRating += effectiveFR * tierWeights.resistWeights.FR; // add fireresist
-			resistRating += effectiveCR * tierWeights.resistWeights.CR; // add coldresist
-			resistRating += effectiveLR * tierWeights.resistWeights.LR; // add literesist
-			resistRating += effectivePR * tierWeights.resistWeights.PR; // add poisonresist
+			let [newitemFR, newitemCR, newitemLR, newitemPR] = [
+				Math.max(item.getStatEx(sdk.stats.FireResist), 0),
+				Math.max(item.getStatEx(sdk.stats.ColdResist), 0),
+				Math.max(item.getStatEx(sdk.stats.LightResist), 0),
+				Math.max(item.getStatEx(sdk.stats.PoisonResist), 0)
+			];
+			// only enter next block if we have a new item with resists
+			if (newitemFR || newitemCR || newitemLR || newitemPR) {
+				const maxRes = me.hell ? 75 : (75 + me.getResPenalty(me.diff + 1) - me.getResPenalty(me.diff));
+				// get item resists stats from olditem equipped on body location
+				let [olditemFR, olditemCR, olditemLR, olditemPR] = [0, 0, 0, 0];
+				if (eqItem) {
+					// equipped resists
+					[olditemFR, olditemCR, olditemLR, olditemPR] = [
+						eqItem.getStatEx(sdk.stats.FireResist), eqItem.getStatEx(sdk.stats.ColdResist),
+						eqItem.getStatEx(sdk.stats.LightResist), eqItem.getStatEx(sdk.stats.PoisonResist)
+					];
+				}
+				// subtract olditem resists from current total resists
+				const [baseFR, baseCR, baseLR, basePR] = [
+					me.fireRes - olditemFR,
+					me.coldRes - olditemCR,
+					me.lightRes - olditemLR,
+					me.poisonRes - olditemPR,
+				];
+				// if baseRes < max resists give score value upto max resists reached
+				const [FRlimit, CRlimit, LRlimit, PRlimit] = [
+					Math.max(maxRes - baseFR, 0),
+					Math.max(maxRes - baseCR, 0),
+					Math.max(maxRes - baseLR, 0),
+					Math.max(maxRes - basePR, 0)
+				];
+				// newitemRes upto reslimit
+				let [effectiveFR, effectiveCR, effectiveLR, effectivePR] = [
+					Math.min(newitemFR, FRlimit),
+					Math.min(newitemCR, CRlimit),
+					Math.min(newitemLR, LRlimit),
+					Math.min(newitemPR, PRlimit)
+				];
+				// sum resistRatings
+				resistRating += effectiveFR * tierWeights.resistWeights.FR; // add fireresist
+				resistRating += effectiveCR * tierWeights.resistWeights.CR; // add coldresist
+				resistRating += effectiveLR * tierWeights.resistWeights.LR; // add literesist
+				resistRating += effectivePR * tierWeights.resistWeights.PR; // add poisonresist
+			}
 			// sum max resists weights
 			resistRating += (item.getStatEx(sdk.stats.MaxFireResist) * tierWeights.resistWeights.MAXFR);
 			resistRating += (item.getStatEx(sdk.stats.MaxLightResist) * tierWeights.resistWeights.MAXLR);
@@ -454,16 +470,15 @@
 				|| Config.LowManaSkill.includes(sdk.skills.Attack)
 				|| ([sdk.items.type.Bow, sdk.items.type.AmazonBow, sdk.items.type.Crossbow].includes(item.itemType) && CharData.skillData.bowData.bowOnSwitch)) {
 				let meleeRating = 0;
-				let eleDmgModifer = [sdk.items.type.Ring, sdk.items.type.Amulet].includes(item.itemType) ? 2 : 1;
-
-				item.getStatEx(sdk.stats.ReplenishDurability) && (meleeRating += 15);
-				item.getStatEx(sdk.stats.IgnoreTargetDefense) && (meleeRating += 50);
 
 				// dirty fix maybe?
 				if (me.barbarian && SetUp.currentBuild !== "Immortalwhirl" && item.strictlyTwoHanded) {
 					return 0;
 				}
-				
+				let eleDmgModifer = [sdk.items.type.Ring, sdk.items.type.Amulet].includes(item.itemType) ? 2 : 1;
+
+				item.getStatEx(sdk.stats.ReplenishDurability) && (meleeRating += 15);
+				item.getStatEx(sdk.stats.IgnoreTargetDefense) && (meleeRating += 50);
 				// should these be added and calc avg dmg instead?
 				// Sometimes we replace good weps with 2-300 ED weps that may be high dmg but aren't as good as the item we replaced
 				//buildRating += item.getStatEx(sdk.stats.MinDamage) * buildWeights.MINDMG; // add MIN damage
@@ -471,7 +486,6 @@
 				//buildRating += item.getStatEx(sdk.stats.SecondaryMinDamage) * buildWeights.SECMINDMG; // add MIN damage
 				//buildRating += item.getStatEx(sdk.stats.SecondaryMaxDamage) * buildWeights.SECMAXDMG; // add MAX damage
 				meleeRating += ((item.getStatEx(sdk.stats.MaxDamage) + item.getStatEx(sdk.stats.MinDamage)) / 2) * tierWeights.meleeWeights.AVGDMG;
-			
 				meleeRating += sumElementalDmg(item) * (tierWeights.meleeWeights.ELEDMG / eleDmgModifer); // add elemental damage
 				meleeRating += item.getStatEx(sdk.stats.ToHit) * tierWeights.meleeWeights.AR; // add AR
 				meleeRating += item.getStatEx(sdk.stats.CrushingBlow) * tierWeights.meleeWeights.CB; // add crushing blow

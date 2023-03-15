@@ -73,36 +73,35 @@ Item.identify = function (item) {
  * @param {ItemUnit} item 
  */
 Item.getBodyLoc = function (item) {
-	let bodyLoc = (() => {
-		switch (true) {
-		case Item.shieldTypes.includes(item.itemType):
-			return sdk.body.LeftArm;
-		case item.itemType === sdk.items.type.Armor:
-			return sdk.body.Armor;
-		case item.itemType === sdk.items.type.Ring:
-			return [sdk.body.RingRight, sdk.body.RingLeft];
-		case item.itemType === sdk.items.type.Amulet:
-			return sdk.body.Neck;
-		case item.itemType === sdk.items.type.Boots:
-			return sdk.body.Feet;
-		case item.itemType === sdk.items.type.Gloves:
-			return sdk.body.Gloves;
-		case item.itemType === sdk.items.type.Belt:
-			return sdk.body.Belt;
-		case Item.helmTypes.includes(item.itemType):
-			return sdk.body.Head;
-		case Item.weaponTypes.includes(item.itemType):
-			return me.barbarian && item.twoHanded && !item.strictlyTwoHanded
-				? [sdk.body.RightArm, sdk.body.LeftArm]
-				: sdk.body.RightArm;
-		case [sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw].includes(item.itemType):
-			return !Check.currentBuild().caster && me.assassin ? [sdk.body.RightArm, sdk.body.LeftArm] : sdk.body.RightArm;
-		default:
-			return false;
-		}
-	})();
+	if (!item || item.isInsertable) return [];
+	if (Item.shieldTypes.includes(item.itemType)) return [sdk.body.LeftArm];
+	if (Item.helmTypes.includes(item.itemType)) return [sdk.body.Head];
+	if (Item.weaponTypes.includes(item.itemType)) {
+		return me.barbarian && item.twoHanded && !item.strictlyTwoHanded
+			? [sdk.body.RightArm, sdk.body.LeftArm]
+			: [sdk.body.RightArm];
+	}
 
-	return Array.isArray(bodyLoc) ? bodyLoc : [bodyLoc];
+	switch (item.itemType) {
+	case sdk.items.type.Armor:
+		return [sdk.body.Armor];
+	case sdk.items.type.Ring:
+		return [sdk.body.RingRight, sdk.body.RingLeft];
+	case sdk.items.type.Amulet:
+		return [sdk.body.Neck];
+	case sdk.items.type.Boots:
+		return [sdk.body.Feet];
+	case sdk.items.type.Gloves:
+		return [sdk.body.Gloves];
+	case sdk.items.type.Belt:
+		return [sdk.body.Belt];
+	case sdk.items.type.AssassinClaw:
+	case sdk.items.type.HandtoHand:
+		return !Check.currentBuild().caster && me.assassin
+			? [sdk.body.RightArm, sdk.body.LeftArm] : [sdk.body.RightArm];
+	}
+
+	return [];
 };
 
 // todo: clean this up
