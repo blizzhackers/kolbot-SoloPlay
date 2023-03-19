@@ -49,7 +49,9 @@ AutoMule.getMuleItems = function () {
 	let items = me.getItemsEx()
 		.filter(function (item) {
 			// we don't mule items that are equipped or are junk
-			if (!item.isInStorage || Town.ignoredItemTypes.includes(item.itemType)) return false;
+			if (!item.isInStorage || Town.ignoreType(item.itemType)) return false;
+			// don't mule excluded items
+			if (AutoMule.matchItem(item, Config.AutoMule.Exclude)) return false;
 			// don't mule quest items
 			if (questItem(item)) return false;
 			// don't mule wanted autoequip items
