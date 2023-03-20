@@ -1317,9 +1317,11 @@ Item.removeItemsMerc = function () {
 		changed && updateMyData();
 	};
 
+	Item.keptCharmGids = new Set();
 	Item.autoEquipCharms = function () {
 	// No charms in classic
 		if (me.classic) return;
+		Item.keptCharmGids.clear();
 
 		console.log("ÿc8Kolbot-SoloPlayÿc0: Entering charm auto equip");
 		let tick = getTickCount();
@@ -1376,6 +1378,7 @@ Item.removeItemsMerc = function () {
 
 		if (totalKeep.length > 0) {
 			for (let i = 0; i < totalKeep.length; i++) {
+				Item.keptCharmGids.add(totalKeep[i].gid);
 				if (totalKeep[i].isInStash && !Cubing.checkItem(totalKeep[i])) {
 					!getUIFlag(sdk.uiflags.Stash) && Town.openStash() && delay(300 + me.ping);
 					if (Storage.Inventory.CanFit(totalKeep[i]) && Storage.Inventory.MoveTo(totalKeep[i])) {

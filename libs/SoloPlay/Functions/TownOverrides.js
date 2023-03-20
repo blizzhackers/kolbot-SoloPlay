@@ -311,6 +311,25 @@ Town.identify = function () {
 	return true;
 };
 
+Town.needStash = function () {
+	if (Config.StashGold
+		&& me.getStat(sdk.stats.Gold) >= Config.StashGold
+		&& me.getStat(sdk.stats.GoldBank) < 25e5) {
+		return true;
+	}
+
+	let items = (Storage.Inventory.Compare(Config.Inventory) || [])
+		.filter(item => !Town.ignoreType(item.itemType) && (!item.isCharm || !Item.keptCharmGids.has(item.gid)));
+
+	for (let i = 0; i < items.length; i += 1) {
+		if (Storage.Stash.CanFit(items[i])) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
 /**
  * @param {ItemUnit} item 
  */
