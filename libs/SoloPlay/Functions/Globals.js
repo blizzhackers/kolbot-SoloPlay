@@ -741,30 +741,39 @@ const Check = {
 	},
 
 	nextDifficulty: function (announce = true) {
-		let diffShift = me.diff;
+		let currDiff = me.diff;
+		if (currDiff === sdk.difficulty.Hell) return false;
+		if (["Bumper", "Socketmule"].includes(SetUp.finalBuild)) return false;
+		if (me.charlvl < CharInfo.levelCap) return false;
+		if (!me.diffCompleted) return false;
+		let nextDiff = null;
 		let res = this.resistance();
-		let lvlReq = !!((me.charlvl >= CharInfo.levelCap) && !["Bumper", "Socketmule"].includes(SetUp.finalBuild) && !this.broken());
+		let lvlReq = !!(!this.broken());
+		let [str, color] = ["", sdk.colors.D2Bot.Black];
 
-		if (me.diffCompleted) {
-			if (lvlReq) {
-				if (res.Status) {
-					diffShift = me.diff + 1;
-					announce && D2Bot.printToConsole("Kolbot-SoloPlay: next difficulty requirements met. Starting: " + sdk.difficulty.nameOf(diffShift), sdk.colors.D2Bot.Blue);
+		if (lvlReq) {
+			if (res.Status) {
+				nextDiff = currDiff + 1;
+				[str, color] = ["next difficulty requirements met. Starting: " + sdk.difficulty.nameOf(nextDiff), sdk.colors.D2Bot.Blue];
+			} else {
+				if (me.charlvl >= CharInfo.levelCap + (!me.normal ? 5 : 2)) {
+					nextDiff = currDiff + 1;
+					str = "Over leveled. Starting: " + sdk.difficulty.nameOf(nextDiff);
 				} else {
-					if (me.charlvl >= CharInfo.levelCap + (!me.normal ? 5 : 2)) {
-						diffShift = me.diff + 1;
-						announce && D2Bot.printToConsole("Kolbot-SoloPlay: Over leveled. Starting: " + sdk.difficulty.nameOf(diffShift));
-					} else {
-						announce && myPrint(sdk.difficulty.nameOf(diffShift + 1) + " requirements not met. Negative resistance. FR: " + res.FR + " | CR: " + res.CR + " | LR: " + res.LR);
-						return false;
-					}
+					announce && myPrint(
+						sdk.difficulty.nameOf(currDiff + 1)
+						+ " requirements not met. Negative resistance. FR: " + res.FR + " | CR: " + res.CR + " | LR: " + res.LR
+					);
 				}
 			}
-		} else {
-			return false;
 		}
 
-		return sdk.difficulty.nameOf(diffShift);
+		if (!nextDiff) return false;
+		if (announce && str) {
+			D2Bot.printToConsole("Kolbot-SoloPlay: " + str, color);
+		}
+
+		return sdk.difficulty.nameOf(nextDiff);
 	},
 
 	runes: function () {
