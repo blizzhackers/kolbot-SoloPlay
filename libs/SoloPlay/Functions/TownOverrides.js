@@ -230,15 +230,10 @@ Town.identify = function () {
 	 */
 	if (me.gold < 15000 && NPCAction.cainID(true)) return true;
 	
-	let list = (Storage.Inventory.Compare(Config.Inventory) || []);
+	let list = (Storage.Inventory.Compare(Config.Inventory) || [])
+		.filter(item => !item.identified);
 	if (!list.length) return false;
 	
-	let tome = me.getTome(sdk.items.TomeofIdentify);
-	// if we have a tome might as well use it - this might prevent us from having to run from one npc to another
-	if (tome && tome.getStat(sdk.stats.Quantity) > 0 && Town.getDistance(Town.tasks[me.act - 1].Shop) > 5) {
-		me.fieldID(); // not in the field but oh well no need to repeat the code
-	}
-
 	// Avoid unnecessary NPC visits
 	// Only unid items or sellable junk (low level) should trigger a NPC visit
 	if (!list.some(item => {
@@ -247,6 +242,15 @@ Town.identify = function () {
 		return ([Pickit.Result.UNID, Pickit.Result.TRASH].includes(Pickit.checkItem(item).result));
 	})) {
 		return false;
+	}
+
+	let tome = me.getTome(sdk.items.TomeofIdentify);
+	// if we have a tome might as well use it - this might prevent us from having to run from one npc to another
+	if (tome && tome.getStat(sdk.stats.Quantity) > 0 && Town.getDistance(Town.tasks[me.act - 1].Shop) > 5) {
+		// not in the field but oh well no need to repeat the code
+		if (me.fieldID() && !me.getUnids().length) {
+			return true;
+		}
 	}
 
 	let npc = Town.initNPC("Shop", "identify");

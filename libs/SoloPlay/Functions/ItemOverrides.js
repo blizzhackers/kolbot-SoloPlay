@@ -938,10 +938,15 @@ Item.removeItemsMerc = function () {
 		}
 	};
 
-	Item.autoEquipSC = function () {
+	/**
+	 * Handle small charm autoequip
+	 * @param {ItemUnit[]} charmList 
+	 * @returns {{ keep: ItemUnit[], sell: ItemUnit[] }}
+	 */
+	Item.autoEquipSC = function (charmList = []) {
 		let verbose = Developer.debugging.smallCharm;
 		// build list of our charms
-		let items = me.getItemsEx()
+		let items = (charmList.length ? charmList : me.getItemsEx())
 			.filter((charm) => charm.isInStorage && charm.classid === sdk.items.SmallCharm && charm.magic);
 
 		if (!items.length) {
@@ -958,9 +963,14 @@ Item.removeItemsMerc = function () {
 		return { keep: charms.keep, sell: charms.checkList };
 	};
 
-	Item.autoEquipLC = function () {
+	/**
+	 * Handle large charm autoequip
+	 * @param {ItemUnit[]} charmList 
+	 * @returns {{ keep: ItemUnit[], sell: ItemUnit[] }}
+	 */
+	Item.autoEquipLC = function (charmList = []) {
 		let verbose = Developer.debugging.largeCharm;
-		let items = me.getItemsEx()
+		let items = (charmList.length ? charmList : me.getItemsEx())
 			.filter((charm) => charm.isInStorage && charm.classid === sdk.items.LargeCharm && charm.magic);
 
 		if (!items.length) {
@@ -978,12 +988,13 @@ Item.removeItemsMerc = function () {
 	};
 
 	/**
-	 * @memberof Item
-	 * @returns { { keep: ItemUnit[], sell: ItemUnit[] } }
+	 * Handle grand charm autoequip
+	 * @param {ItemUnit[]} charmList 
+	 * @returns {{ keep: ItemUnit[], sell: ItemUnit[] }}
 	 */
-	Item.autoEquipGC = function () {
+	Item.autoEquipGC = function (charmList = []) {
 		let verbose = Developer.debugging.largeCharm;
-		let items = me.getItemsEx()
+		let items = (charmList.length ? charmList : me.getItemsEx())
 			.filter((charm) => charm.isInStorage && charm.classid === sdk.items.GrandCharm && charm.magic);
 
 		if (!items.length) {
@@ -1173,6 +1184,8 @@ Item.removeItemsMerc = function () {
 		if (item.isCharm && item.unique) return true;
 		// is one of our final charms
 		if (myData.me.charmGids.includes(item.gid)) return true;
+		// is in our checkList
+		if (Item.keptCharmGids.has(item.gid)) return true;
 
 		let lowestCharm;
 		let items = me.getItemsEx()
@@ -1319,18 +1332,27 @@ Item.removeItemsMerc = function () {
 
 	Item.keptCharmGids = new Set();
 	Item.autoEquipCharms = function () {
-	// No charms in classic
+		// No charms in classic
 		if (me.classic) return;
-		Item.keptCharmGids.clear();
 
 		console.log("ÿc8Kolbot-SoloPlayÿc0: Entering charm auto equip");
 		let tick = getTickCount();
+		let charms = me.getItemsEx()
+			.filter(item => item.isInStorage && item.isCharm && item.magic);
+		// don't do anything if we don't have any charms
+		if ((!charms.length)
+			// don't do anything if we have the same charms as last time
+			|| ((Item.keptCharmGids.size && charms.every(c => Item.keptCharmGids.has(c.gid))))) {
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting charm auto equip. Time elapsed: " + Tracker.formatTime(getTickCount() - tick));
+			return;
+		}
+		if (Item.keptCharmGids.size && charms.every(c => Item.keptCharmGids.has(c.gid))) return;
+		Item.keptCharmGids.clear();
 		let totalKeep = [], totalSell = [];
-		let GCs = Item.autoEquipGC();
-		let LCs = Item.autoEquipLC();
-		let SCs = Item.autoEquipSC();
-		let specialCharms = me.getItemsEx()
-			.filter((charm) => charm.isCharm && charm.unique);
+		let GCs = Item.autoEquipGC(charms);
+		let LCs = Item.autoEquipLC(charms);
+		let SCs = Item.autoEquipSC(charms);
+		let specialCharms = charms.filter((charm) => charm.unique);
 		let verbose = !!(Developer.debugging.smallCharm || Developer.debugging.largeCharm || Developer.debugging.grandCharm);
 
 		if (verbose) {
