@@ -7,114 +7,94 @@
 
 includeIfNotIncluded("core/Attacks/Necromancer.js");
 
-ClassAttack.curseIndex = [];
-// @todo refactor this
-ClassAttack.curseIndex[sdk.skills.AmplifyDamage] = {
-	skillId: sdk.skills.AmplifyDamage,
-	state: sdk.states.AmplifyDamage,
-	priority: 2,
-	skipIf: () => false,
-	useIf: function (unit) {
-		return Skill.canUse(this.skillId) && !unit.getState(sdk.states.Decrepify) && !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical");
+ClassAttack.curseIndex = (function () {
+	/**
+	 * @constructor
+	 * @param {number} skillId 
+	 * @param {number} state 
+	 * @param {number} priority 
+	 * @param {Function} useIf 
+	 */
+	function Curse (skillId, state, priority, useIf) {
+		this.skillId = skillId;
+		this.state = state;
+		this.priority = priority;
+		this.useIf = useIf;
 	}
-};
 
-ClassAttack.curseIndex[sdk.skills.DimVision] = {
-	skillId: sdk.skills.DimVision,
-	state: sdk.states.DimVision,
-	priority: 1,
-	skipIf: function (unit) {
-		return unit.isSpecial || [sdk.monsters.OblivionKnight1, sdk.monsters.OblivionKnight2, sdk.monsters.OblivionKnight3].includes(unit.classid);
-	},
-	useIf: function (unit) {
-		return !this.skipIf(unit) && Skill.canUse(this.skillId) && unit.distance > 15;
-	}
-};
-
-ClassAttack.curseIndex[sdk.skills.Weaken] = {
-	skillId: sdk.skills.Weaken,
-	state: sdk.states.Weaken,
-	priority: 3,
-	skipIf: () => false,
-	useIf: function (unit) {
-		return Skill.canUse(this.skillId) && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.AmplifyDamage);
-	}
-};
-
-ClassAttack.curseIndex[sdk.skills.IronMaiden] = {
-	skillId: sdk.skills.IronMaiden,
-	state: sdk.states.IronMaiden,
-	priority: 1,
-	skipIf: () => false,
-	useIf: function (unit) {
-		return Skill.canUse(this.skillId) && me.inArea(sdk.areas.DurielsLair) && me.normal && unit;
-	}
-};
-
-ClassAttack.curseIndex[sdk.skills.Terror] = {
-	skillId: sdk.skills.Terror,
-	state: sdk.states.Terror,
-	priority: 1,
-	skipIf: () => false,
-	useIf: function (unit) {
-		return unit.scareable && Skill.canUse(this.skillId) && me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting, 0, true) >= 3
-			&& Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hpPercent < 75;
-	}
-};
-
-ClassAttack.curseIndex[sdk.skills.Confuse] = {
-	skillId: sdk.skills.Confuse,
-	state: sdk.states.Confuse,
-	priority: 2,
-	skipIf: () => false,
-	useIf: function (unit) {
-		return unit.scareable && unit.distance > 8 && Skill.canUse(this.skillId);
-	}
-};
-
-ClassAttack.curseIndex[sdk.skills.LifeTap] = {
-	skillId: sdk.skills.LifeTap,
-	state: sdk.states.LifeTap,
-	priority: 10,
-	skipIf: () => false,
-	useIf: function () {
-		// false for now, maybe based on health check on merc or would this be summonmancer viable?
-		return false;
-	}
-};
-
-ClassAttack.curseIndex[sdk.skills.Attract] = {
-	skillId: sdk.skills.Attract,
-	state: sdk.states.Attract,
-	priority: 1,
-	skipIf: () => false,
-	useIf: function (unit) {
-		return unit.scareable && me.inArea(sdk.areas.ThroneofDestruction) && unit.distance > 8
-				&& Skill.canUse(this.skillId);
-	}
-};
-
-ClassAttack.curseIndex[sdk.skills.Decrepify] = {
-	skillId: sdk.skills.Decrepify,
-	state: sdk.states.Decrepify,
-	priority: 1,
-	skipIf: () => false,
-	useIf: function () {
+	Curse.prototype.canUse = function () {
 		return Skill.canUse(this.skillId);
-	}
-};
+	};
 
-ClassAttack.curseIndex[sdk.skills.LowerResist] = {
-	skillId: sdk.skills.LowerResist,
-	state: sdk.states.LowerResist,
-	priority: 1,
-	skipIf: () => SetUp.currentBuild !== "Poison",
-	useIf: function (unit) {
-		return !this.skipIf() && Skill.canUse(this.skillId) && Attack.checkResist(unit, "poison");
-	}
-};
+	let curseIndex = [];
+	curseIndex.push(new Curse(sdk.skills.AmplifyDamage, sdk.states.AmplifyDamage, 2,
+		/** @param {Monster} unit */
+		function (unit) {
+			if (!unit || !Skill.canUse(this.skillId) || unit.getState(sdk.states.Decrepify)) return false;
+			return !Attack.checkResist(unit, "magic") && !Attack.checkResist(unit, "physical");
+		}
+	));
+	curseIndex.push(new Curse(sdk.skills.DimVision, sdk.states.DimVision, 1,
+		/** @param {Monster} unit */
+		function (unit) {
+			if (!unit || !this.canUse() || unit.isSpecial) return false;
+			if ([sdk.monsters.OblivionKnight1, sdk.monsters.OblivionKnight2, sdk.monsters.OblivionKnight3].includes(unit.classid)) {
+				return false;
+			}
+			return unit.distance > 15;
+		}
+	));
+	curseIndex.push(new Curse(sdk.skills.Weaken, sdk.states.Weaken, 3,
+		/** @param {Monster} unit */
+		function (unit) {
+			return this.canUse() && !unit.getState(sdk.states.Decrepify) && !unit.getState(sdk.states.AmplifyDamage);
+		}
+	));
+	curseIndex.push(new Curse(sdk.skills.IronMaiden, sdk.states.IronMaiden, 1,
+		function () {
+			return this.canUse() && me.inArea(sdk.areas.DurielsLair) && me.normal;
+		}
+	));
+	curseIndex.push(new Curse(sdk.skills.Terror, sdk.states.Terror, 1,
+		/** @param {Monster} unit */
+		function (unit) {
+			if (!this.canUse() || !unit || !unit.scareable) return false;
+			return me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall | Coords_1.BlockBits.Casting, 0, true) >= 3
+				&& Skill.getManaCost(sdk.skills.Terror) < me.mp && me.hpPercent < 75;
+		}
+	));
+	curseIndex.push(new Curse(sdk.skills.Confuse, sdk.states.Confuse, 2,
+		/** @param {Monster} unit */
+		function (unit) {
+			return this.canUse() && unit.scareable && unit.distance > 8;
+		}
+	));
+	curseIndex.push(new Curse(sdk.skills.Attract, sdk.states.Attract, 1,
+		/** @param {Monster} unit */
+		function (unit) {
+			return this.canUse() && me.inArea(sdk.areas.ThroneofDestruction) && unit.distance > 8 && unit.scareable;
+		}
+	));
+	curseIndex.push(new Curse(sdk.skills.Decrepify, sdk.states.Decrepify, 1,
+		function () {
+			return this.canUse();
+		}
+	));
+	curseIndex.push(new Curse(sdk.skills.LowerResist, sdk.states.LowerResist, 1,
+		/** @param {Monster} unit */
+		function (unit) {
+			if (SetUp.currentBuild !== "Poison") return false;
+			return this.canUse() && Attack.checkResist(unit, "poison");
+		}
+	));
 
-// todo - need to re-work this a bit so we don't focus too much on curses when we should be attacking
+	return curseIndex;
+})();
+
+/**
+ * @param {Monster} unit 
+ * @returns {boolean}
+ */
 ClassAttack.smartCurse = function (unit) {
 	if (unit === undefined || unit.dead || !unit.curseable) return false;
 
@@ -229,7 +209,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 		return unit.dead ? Attack.Result.SUCCESS : Attack.Result.FAILED;
 	};
 
-	if (CharData.skillData.bowData.bowOnSwitch
+	if (CharData.skillData.bow.onSwitch
 		&& (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
 		&& ([-1, sdk.skills.Attack].includes(skills.timed)
 		|| Skill.getManaCost(skills.timed) > me.mp

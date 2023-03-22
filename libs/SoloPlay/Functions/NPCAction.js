@@ -186,8 +186,8 @@
 
 		// keep cold/pois res high with potions
 		if (me.gold > 50000 && npc.getItem(sdk.items.ThawingPotion)) {
-			CharData.buffData.thawing.need() && Town.buyPots(12, "thawing", true);
-			CharData.buffData.antidote.need() && Town.buyPots(12, "antidote", true);
+			CharData.pots.get("thawing").need() && Town.buyPots(12, "thawing", true);
+			CharData.pots.get("antidote").need() && Town.buyPots(12, "antidote", true);
 		}
 
 		return true;
@@ -352,7 +352,7 @@
 		
 		if (me.charlvl < 6 && startingGold > 200) {
 			Storage.BeltSize() === 1 && itemTypes.push(sdk.items.type.Belt);
-			!CharData.skillData.bowData.bowOnSwitch && itemTypes.push(sdk.items.type.Bow, sdk.items.type.Crossbow);
+			!CharData.skillData.bow.onSwitch && itemTypes.push(sdk.items.type.Bow, sdk.items.type.Crossbow);
 			if (!itemTypes.length) return true;
 			lowLevelShop = true;
 		}

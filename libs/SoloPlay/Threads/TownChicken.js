@@ -383,14 +383,14 @@ function main() {
 
 				break;
 			case msg.substring(0, 6) === "data--":
-				console.debug("update myData");
+				console.debug("update me.data");
 				obj = JSON.parse(msg.split("data--")[1]);
-				Misc.updateRecursively(myData, obj);
+				Misc.updateRecursively(me.data, obj);
 
 				break;
 			case msg.toLowerCase() === "test":
 				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//\nÿc8MainData ::\n",
-					myData, "\nÿc8BuffData ::\n", CharData.buffData, "\nÿc8SkillData ::\n", CharData.skillData, "\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
+					me.data, "\nÿc8BuffData ::\n", CharData.pots, "\nÿc8SkillData ::\n", CharData.skillData, "\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
 
 				break;
 			}

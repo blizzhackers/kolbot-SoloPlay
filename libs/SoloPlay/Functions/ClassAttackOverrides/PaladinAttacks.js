@@ -150,7 +150,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
 		return unit.dead ? Attack.Result.SUCCESS : Attack.Result.FAILED;
 	};
 
-	if (CharData.skillData.bowData.bowOnSwitch
+	if (CharData.skillData.bow.onSwitch
 		&& (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
 		&& (unit.distance >= 12 || (unit.distance >= 8 && unit.isMoving && (unit.targetx !== me.x || unit.targety !== me.y)))
 		&& ([-1, sdk.skills.Attack].includes(attackSkill) || Skill.getManaCost(attackSkill) > me.mp)) {

@@ -13,7 +13,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 *   - use leap attack with getIntoPosition, long distance or when targetting summoners
 *   - use leap/leap attack with dodge, useful if we can't tele it provides a similar benefit
 */
-(function() {
+(function () {
 	ClassAttack.warCryTick = 0;
 
 	const howlCheck = function () {
@@ -419,51 +419,34 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 		return true;
 	};
 
-	ClassAttack.grimWard = function (range = 10) {
+	/**
+	 * @param {Monster} unit 
+	 * @param {number} [range] 
+	 * @returns {boolean}
+	 */
+	ClassAttack.grimWard = function (unit, range = 10) {
 		if (!Skill.canUse(sdk.skills.GrimWard)) return false;
-		let corpseList = [], orgX = me.x, orgY = me.y;
+		if (!unit || !unit.dead) return false;
 
-		for (let i = 0; i < 3; i += 1) {
-			let corpse = Game.getMonster();
+		let corpseList = getUnits(sdk.unittype.Monster)
+			.filter(mon => mon.dead && mon.distance < 30 && getDistance(mon, unit) <= range && this.checkCorpse(mon))
+			.sort(((a, b) => getDistance(a, unit) - getDistance(b, unit)));
 
-			if (corpse) {
-				do {
-					if (corpse.dead && getDistance(corpse, orgX, orgY) <= range && this.checkCorpse(corpse)) {
-						corpseList.push(copyUnit(corpse));
-					}
-				} while (corpse.getNext());
-			}
+		for (let corpse of corpseList) {
+			// corpseList uses copyUnit, so we need to get the actual corpse
+			let checkCorpse = Game.getMonster(corpse.classid, -1, corpse.gid);
 
-			if (corpseList.length > 0) {
-				while (corpseList.length > 0) {
-					corpseList.sort(Sort.units);
-					corpse = corpseList.shift();
-
-					if (this.checkCorpse(corpse)) {
-						if (corpse.distance > 30 || Coords_1.isBlockedBetween(me, corpse)) {
-							Pather.moveToUnit(corpse);
-						}
-
-						CorpseLoop:
-						for (let j = 0; j < 3; j += 1) {
-							Skill.cast(sdk.skills.GrimWard, sdk.skills.hand.Right, corpse);
-
-							let tick = getTickCount();
-
-							while (getTickCount() - tick < 1000) {
-								if (corpse.getState(sdk.states.CorpseNoSelect)) {
-
-									break CorpseLoop;
-								}
-
-								delay(10);
-							}
+			if (checkCorpse && this.checkCorpse(checkCorpse)) {
+				for (let j = 0; j < 3; j += 1) {
+					if (Skill.cast(sdk.skills.GrimWard, sdk.skills.hand.Right, checkCorpse)) {
+						if (Misc.poll(() => checkCorpse.getState(sdk.states.CorpseNoSelect), 1000)) {
+							return true;
 						}
 					}
 				}
 			}
 		}
 
-		return true;
+		return false;
 	};
 })();

@@ -49,9 +49,14 @@ function tristram () {
 		}
 	}
 
-	Pather.checkWP(sdk.areas.StonyField, true) ? Pather.useWaypoint(sdk.areas.StonyField) : Pather.getWP(sdk.areas.StonyField);
+	Pather.checkWP(sdk.areas.StonyField, true)
+		? Pather.useWaypoint(sdk.areas.StonyField)
+		: Pather.getWP(sdk.areas.StonyField);
 	Precast.doPrecast(true);
-	Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Monster, sdk.monsters.preset.Rakanishu, 10, 10, false, true);
+	Pather.moveToPresetMonster(sdk.areas.StonyField, sdk.monsters.preset.Rakanishu, { callback: () => {
+		let rak = Game.getMonster(getLocaleString(sdk.locale.monsters.Rakanishu));
+		return rak && (rak.dead || rak.distance < 20);
+	}, offX: 10, offY: 10 });
 	Attack.killTarget(getLocaleString(sdk.locale.monsters.Rakanishu));
 	Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Object, sdk.quest.chest.StoneAlpha, null, null, true);
 
@@ -136,7 +141,9 @@ function tristram () {
 		Attack.clearLocations(spots);
 	}
 
-	delete Common.Cain;
+	if (me.cain) {
+		delete Common.Cain;
+	}
 
 	return true;
 }

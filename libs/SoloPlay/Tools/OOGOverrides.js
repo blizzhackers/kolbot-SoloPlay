@@ -87,16 +87,16 @@ const locations = {};
 					{
 						let soloStats = CharData.getStats();
 
-						if (!soloStats.me.finalBuild || soloStats.me.finalBuild !== Starter.profileInfo.tag) {
+						if (!soloStats.finalBuild || soloStats.finalBuild !== Starter.profileInfo.tag) {
 							D2Bot.setProfile(null, null, null, null, null, Starter.profileInfo.tag);
-							soloStats.me.finalBuild = Starter.profileInfo.tag;
-							soloStats.me.charms = {};
+							soloStats.finalBuild = Starter.profileInfo.tag;
+							soloStats.charms = {};
 							CharData.updateData("me", soloStats);
 						}
 
-						if (!["Start", "Stepping", "Leveling"].includes(soloStats.me.currentBuild) && soloStats.me.currentBuild !== soloStats.me.finalBuild) {
-							soloStats.me.currentBuild = "Leveling";
-							soloStats.me.charms = {};
+						if (!["Start", "Stepping", "Leveling"].includes(soloStats.currentBuild) && soloStats.currentBuild !== soloStats.finalBuild) {
+							soloStats.currentBuild = "Leveling";
+							soloStats.charms = {};
 							CharData.updateData("me", soloStats);
 						}
 					}
@@ -148,11 +148,11 @@ const locations = {};
 		let soloStats = CharData.getStats();
 		const NameGen = require("./NameGen");
 
-		soloStats.me.startTime !== 0 && Tracker.reset();
-		if (soloStats.me.currentBuild !== "Start" || soloStats.me.level > 1) {
-			let finalBuild = soloStats.me.finalBuild;
-			Object.assign(soloStats, CharData.default);
-			soloStats.me.finalBuild = finalBuild;
+		soloStats.startTime !== 0 && Tracker.reset();
+		if (soloStats.currentBuild !== "Start" || soloStats.level > 1) {
+			let finalBuild = soloStats.finalBuild;
+			Object.assign(soloStats, CharData._default);
+			soloStats.finalBuild = finalBuild;
 			CharData.updateData("me", soloStats);
 		}
 
@@ -683,7 +683,7 @@ const locations = {};
 	};
 
 	Starter.checkDifficulty = function () {
-		let setDiff = CharData.getStats().me.setDifficulty;
+		let setDiff = CharData.getStats().setDifficulty;
 		if (setDiff) {
 			console.debug(setDiff);
 			Starter.gameInfo.difficulty = setDiff;

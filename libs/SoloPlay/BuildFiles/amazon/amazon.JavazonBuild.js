@@ -73,7 +73,7 @@
 				if (me.classic) {
 					return me.charlvl >= 75 && me.diablo;
 				} else {
-					return (Attack.checkInfinity() || (myData.merc.gear.includes(sdk.locale.items.Infinity) && !Misc.poll(() => me.getMerc(), 200, 50)));
+					return (Attack.checkInfinity() || (me.data.merc.gear.includes(sdk.locale.items.Infinity) && !Misc.poll(() => me.getMerc(), 200, 50)));
 				}
 			},
 

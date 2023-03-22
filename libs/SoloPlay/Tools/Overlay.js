@@ -19,7 +19,7 @@ const Overlay = {
 	build: SetUp.currentBuild,
 	realm: (me.realm ? me.realm : "SinglePlayer"),
 	difficulty: () => sdk.difficulty.nameOf(me.diff),
-	level: () => myData.me.level,
+	level: () => me.data.level,
 	text: {
 		hooks: [],
 		GameTracker: Tracker.readObj(Tracker.GTPath),

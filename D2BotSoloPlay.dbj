@@ -60,15 +60,15 @@ let gameTracker;
 // initialize data files
 if (!FileTools.exists("data/" + me.profile + ".json") && DataFile.create()) {
 	Starter.firstRun = true;
-	delay(Math.floor(rand(1, 20)));
+	delay(rand(10, 100));
 }
 
 if (!FileTools.exists(CharData.filePath) && CharData.create()) {
-	delay(Math.floor(rand(1, 20)));
+	delay(rand(10, 100));
 }
 
-if (!FileTools.exists(CharData.filePath) && CharData.loginData.create()) {
-	delay(Math.floor(rand(1, 20)));
+if (!FileTools.exists(CharData.login.filePath) && CharData.login.create()) {
+	delay(rand(10, 100));
 }
 
 Developer.logPerformance && Tracker.initialize();

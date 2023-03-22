@@ -1,4 +1,4 @@
-
+// @ts-nocheck
 declare global {
 	interface Math {
 		percentDifference(value1: number, value2: number): number;
@@ -61,6 +61,48 @@ declare global {
 		active: () => boolean;
 	}
 
+	interface MyData {
+		initialized: boolean;
+		normal: {
+			respecUsed: boolean;
+			imbueUsed: boolean;
+			socketUsed: boolean;
+		};
+		nightmare: {
+			respecUsed: boolean;
+			imbueUsed: boolean;
+			socketUsed: boolean;
+		};
+		hell: {
+			respecUsed: boolean;
+			imbueUsed: boolean;
+			socketUsed: boolean;
+		};
+		task: string;
+		startTime: number;
+		charName: string;
+		classid: number;
+		level: number;
+		strength: number;
+		dexterity: number;
+		currentBuild: string;
+		finalBuild: string;
+		highestDifficulty: string;
+		setDifficulty: string;
+		charms: Record<string, { max: number; have: number[]; classid: number; stats: (check: ItemUnit) => boolean; }>;
+		charmGids: number[];
+		merc: {
+			act: number;
+			classid: number;
+			difficulty: number;
+			strength: number;
+			dexterity: number;
+			skill: number;
+			skillName: string;
+			gear: number[];
+		};
+	}
+
 	interface MeType {
 		readonly maxNearMonsters: number;
 		readonly dualWielding: boolean;
@@ -76,6 +118,7 @@ declare global {
 
 		finalBuild: Build;
 		currentBuild: Build;
+		data: MyData;
 
 		canTpToTown(): boolean;
 		getMercEx(): MercUnit | null;
@@ -96,6 +139,7 @@ declare global {
 		clearBelt(): boolean;
 		sortInventory(): boolean;
 		cleanUpScrolls(tome: ItemUnit, scrollId: number): number;
+		update(): void;
 	}
 
 	interface Container {
@@ -201,58 +245,22 @@ declare global {
 		function switchCast(skillId: number, givenSettings: { hand?: number, x?: number, y?: number, switchBack?: boolean, oSkill?: boolean }): boolean;
 	}
 
-	interface charData {
-    initialized: boolean;
-    normal: {
-        respecUsed: boolean;
-        imbueUsed: boolean;
-        socketUsed: boolean;
-    };
-    nightmare: {
-        respecUsed: boolean;
-        imbueUsed: boolean;
-        socketUsed: boolean;
-    };
-    hell: {
-        respecUsed: boolean;
-        imbueUsed: boolean;
-        socketUsed: boolean;
-    };
-    me: {
-        task: string;
-        startTime: number;
-        charName: string;
-        classid: number;
-        level: number;
-        strength: number;
-        dexterity: number;
-        currentBuild: string;
-        finalBuild: string;
-        highestDifficulty: string;
-        setDifficulty: string;
-        charms: object;
-        charmGids: number[];
-    };
-    merc: {
-        act: number;
-        classid: number;
-        difficulty: number;
-        strength: number;
-        dexterity: number;
-        type: string;
-        gear: number[];
-    };
-	}
-
 	namespace CharData {
 		const filePath: string;
 		const threads: string[];
 
+		namespace login {
+			function create(): any;
+			function getObj(): any;
+			function getStats(): any;
+			function updateData(arg: string, property: object | string, value: any): boolean;
+		}
+
 		// ignoring the sub objs for now
 		function updateConfig(): void;
-		function create(): charData;
-		function getObj(): charData;
-		function getStats(): charData;
+		function create(): MyData;
+		function getObj(): MyData;
+		function getStats(): MyData;
 		function updateData(arg: string, property: object | string, value: any): boolean;
 		/** @alias CharData.delete */
 		function _delete(deleteMain: boolean): boolean;

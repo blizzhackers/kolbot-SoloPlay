@@ -27,18 +27,18 @@ new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
 
 			if (objID) {
 				// non-english version
-				if (!CharData.buffData[objID]) {
+				if (!CharData.pots.has(objID)) {
 					typeof type === "number" ? (objID = pots[objID]) : (objID = type.toLowerCase());
 				}
 
-				if (!CharData.buffData[objID].active() || CharData.buffData[objID].timeLeft() <= 0) {
-					CharData.buffData[objID].tick = getTickCount();
-					CharData.buffData[objID].duration = objDrank.quantity * 30 * 1000;
+				if (!CharData.pots.get(objID).active() || CharData.pots.get(objID).timeLeft() <= 0) {
+					CharData.pots.get(objID).tick = getTickCount();
+					CharData.pots.get(objID).duration = objDrank.quantity * 30 * 1000;
 				} else {
-					CharData.buffData[objID].duration += (objDrank.quantity * 30 * 1000) - (getTickCount() - CharData.buffData[objID].tick);
+					CharData.pots.get(objID).duration += (objDrank.quantity * 30 * 1000) - (getTickCount() - CharData.pots.get(objID).tick);
 				}
 
-				console.log("ÿc9DrinkPotsÿc0 :: drank " + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Tracker.formatTime(CharData.buffData[objID].duration) + "]");
+				console.log("ÿc9DrinkPotsÿc0 :: drank " + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Tracker.formatTime(CharData.pots.get(objID).duration) + "]");
 			}
 		}
 	} catch (e) {
@@ -323,7 +323,7 @@ Town.needStash = function () {
 	}
 
 	let items = (Storage.Inventory.Compare(Config.Inventory) || [])
-		.filter(item => !Town.ignoreType(item.itemType) && (!item.isCharm || !Item.keptCharmGids.has(item.gid)));
+		.filter(item => !Town.ignoreType(item.itemType) && (!item.isCharm || !CharmEquip.keptGids.has(item.gid)));
 
 	for (let i = 0; i < items.length; i += 1) {
 		if (Storage.Stash.CanFit(items[i])) {
@@ -340,7 +340,7 @@ Town.needStash = function () {
 Town.canStash = function (item) {
 	if (Town.ignoreType(item.itemType)
 		|| [sdk.items.quest.HoradricStaff, sdk.items.quest.KhalimsWill].includes(item.classid)
-		|| (item.isCharm && Item.autoEquipCharmCheck(item))) {
+		|| (item.isCharm && CharmEquip.check(item))) {
 		return false;
 	}
 
@@ -723,8 +723,8 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 	Town.fillTomes();
 	NPCAction.buyPotions();
 	this.buyKeys();
-	extraTasks.thawing && CharData.buffData.thawing.need() && Town.buyPots(12, "Thawing", true);
-	extraTasks.antidote && CharData.buffData.antidote.need() && Town.buyPots(12, "Antidote", true);
+	extraTasks.thawing && CharData.pots.get("thawing").need() && Town.buyPots(12, "Thawing", true);
+	extraTasks.antidote && CharData.pots.get("antidote").need() && Town.buyPots(12, "Antidote", true);
 	extraTasks.stamina && Town.buyPots(12, "Stamina", true);
 	NPCAction.shopItems();
 	NPCAction.repair(repair);

@@ -58,7 +58,7 @@
 		
 		me.cancelUIFlags();
 		// initialize final charms if we have any
-		Item.initCharms();
+		CharmEquip.init();
 	}
 	return true;
 })();

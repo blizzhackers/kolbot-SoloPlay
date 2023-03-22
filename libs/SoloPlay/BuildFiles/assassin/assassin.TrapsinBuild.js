@@ -100,7 +100,7 @@
 			},
 
 			respec: function () {
-				return (Attack.checkInfinity() || (myData.merc.gear.includes(sdk.locale.items.Infinity) && !Misc.poll(() => me.getMerc(), 200, 50))) && Check.haveItem("armor", "runeword", "Enigma");
+				return (Attack.checkInfinity() || (me.data.merc.gear.includes(sdk.locale.items.Infinity) && !Misc.poll(() => me.getMerc(), 200, 50))) && Check.haveItem("armor", "runeword", "Enigma");
 			},
 
 			active: function () {

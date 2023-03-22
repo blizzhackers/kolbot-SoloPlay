@@ -401,7 +401,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 			return unit.dead ? Attack.Result.SUCCESS : Attack.Result.FAILED;
 		};
 
-		if (CharData.skillData.bowData.bowOnSwitch
+		if (CharData.skillData.bow.onSwitch
 			&& (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
 			&& ([-1, sdk.skills.Attack].includes(selectedSkill.skill)
 			|| selectedSkill.mana > me.mp

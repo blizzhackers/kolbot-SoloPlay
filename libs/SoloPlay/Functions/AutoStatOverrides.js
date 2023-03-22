@@ -37,11 +37,10 @@ AutoStat.init = function (statBuildOrder, save = 0, block = 0, bulkStat = true) 
 	}
 
 	if (usedStatPoints) {
-		myData = CharData.getStats();
-		myData.me.level = me.charlvl;
-		myData.me.strength = me.rawStrength;
-		myData.me.dexterity = me.rawDexterity;
-		CharData.updateData("me", myData) && updateMyData();
+		me.data.level = me.charlvl;
+		me.data.strength = me.rawStrength;
+		me.data.dexterity = me.rawDexterity;
+		CharData.updateData("me", me.data) && me.update();
 	}
 
 	console.log("AutoStat: Finished allocating stat points");

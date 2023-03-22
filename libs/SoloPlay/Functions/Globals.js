@@ -32,25 +32,6 @@ const AreaData = require("../Modules/GameData/AreaData");
 const MYCLASSNAME = sdk.player.class.nameOf(me.classid).toLowerCase();
 includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + ".js");
 
-/** 
- * @global
- * @type {charData}
- * @todo redo how I handle this, maybe make a prop on "me" instead
- */
-let myData = CharData.getStats();
-
-Unit.prototype.__defineGetter__("mercid", function () {
-	return !!myData ? myData.merc.classid : me.getMerc().classid;
-});
-
-Unit.prototype.__defineGetter__("trueStr", function () {
-	return !!myData ? myData.me.strength : me.rawStrength;
-});
-
-Unit.prototype.__defineGetter__("trueDex", function () {
-	return !!myData ? myData.me.dexterity : me.rawDexterity;
-});
-
 function myPrint (str = "", toConsole = false, color = 0) {
 	console.log("ÿc8Kolbot-SoloPlayÿc0: " + str);
 	me.overhead(str);
@@ -60,17 +41,6 @@ function myPrint (str = "", toConsole = false, color = 0) {
 		color = !!sdk.colors.D2Bot[color] ? sdk.colors.D2Bot[color] : 0;
 	}
 	toConsole && D2Bot.printToConsole("Kolbot-SoloPlay :: " + str, color);
-}
-
-function updateMyData () {
-	let obj = JSON.stringify(copyObj(myData));
-	let myThread = getScript(true).name;
-	CharData.threads.forEach(function (script) {
-		let curr = getScript(script);
-		if (curr && myThread !== curr.name) {
-			curr.send("data--" + obj);
-		}
-	});
 }
 
 // general settings
@@ -98,12 +68,12 @@ const SetUp = {
 
 			// try to see if we can correct the finalBuild
 			for (let build of possibleBuilds) {
-				let match = myData.me.finalBuild.match(build, "gi");
+				let match = me.data.finalBuild.match(build, "gi");
 				
 				if (match) {
 					console.log(match);
-					let old = myData.me.finalBuild;
-					myData.me.finalBuild = match[0].trim().capitalize(true);
+					let old = me.data.finalBuild;
+					me.data.finalBuild = match[0].trim().capitalize(true);
 					errors.push(
 						"~Info tag :: " + old + " was incorrect, I have attempted to remedy this."
 						+ " If it is still giving you an error please re-read the documentation. \n"
@@ -130,52 +100,52 @@ const SetUp = {
 			}
 		}
 
-		if (!myData.initialized) {
-			myData.me.startTime = me.gamestarttime;
-			myData.me.level = me.charlvl;
-			myData.me.classid = me.classid;
-			myData.me.charName = me.name;
-			myData.me.strength = me.rawStrength;
-			myData.me.dexterity = me.rawDexterity;
+		if (!me.data.initialized) {
+			me.data.startTime = me.gamestarttime;
+			me.data.level = me.charlvl;
+			me.data.classid = me.classid;
+			me.data.charName = me.name;
+			me.data.strength = me.rawStrength;
+			me.data.dexterity = me.rawDexterity;
 			
 			if (me.expansion) {
-				myData.me.charms = Check.finalBuild().finalCharms;
+				me.data.charms = Check.finalBuild().finalCharms;
 			}
 
-			myData.initialized = true;
-			CharData.updateData("me", myData);
+			me.data.initialized = true;
+			CharData.updateData("me", me.data);
 		}
 
-		let temp = copyObj(myData);
+		let temp = copyObj(me.data);
 
-		if (myData.me.currentBuild !== CharInfo.getActiveBuild()) {
-			myData.me.currentBuild = CharInfo.getActiveBuild();
+		if (me.data.currentBuild !== CharInfo.getActiveBuild()) {
+			me.data.currentBuild = CharInfo.getActiveBuild();
 		}
 
 		let currDiffStr = sdk.difficulty.nameOf(me.diff).toLowerCase();
 
-		if (sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty) < sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff))) {
-			myData.me.highestDifficulty = sdk.difficulty.nameOf(me.diff);
+		if (sdk.difficulty.Difficulties.indexOf(me.data.highestDifficulty) < sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff))) {
+			me.data.highestDifficulty = sdk.difficulty.nameOf(me.diff);
 		}
 
-		if (!!me.smith && myData[currDiffStr].imbueUsed === false) {
-			myData[currDiffStr].imbueUsed = true;
+		if (me.smith && me.data[currDiffStr].imbueUsed === false) {
+			me.data[currDiffStr].imbueUsed = true;
 		}
 
-		if (!!me.respec && myData[currDiffStr].respecUsed === false) {
-			myData[currDiffStr].respecUsed = true;
+		if (me.respec && me.data[currDiffStr].respecUsed === false) {
+			me.data[currDiffStr].respecUsed = true;
 		}
 
-		myData.me.level !== me.charlvl && (myData.me.level = me.charlvl);
-		myData.me.strength !== me.rawStrength && (myData.me.strength = me.rawStrength);
-		myData.me.dexterity !== me.rawDexterity && (myData.me.dexterity = me.rawDexterity);
+		me.data.level !== me.charlvl && (me.data.level = me.charlvl);
+		me.data.strength !== me.rawStrength && (me.data.strength = me.rawStrength);
+		me.data.dexterity !== me.rawDexterity && (me.data.dexterity = me.rawDexterity);
 
 		// expansion check
 		let [cUpdate, mUpdate] = [false, false];
 
 		if (me.expansion) {
-			if (!myData.merc.gear) {
-				myData.merc.gear = [];
+			if (!me.data.merc.gear) {
+				me.data.merc.gear = [];
 				mUpdate = true;
 			}
 			
@@ -185,61 +155,72 @@ const SetUp = {
 				// can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
 				let merc = me.getMercEx();
 				let mercItems = merc.getItemsEx();
-				let preLength = myData.merc.gear.length;
-				let check = myData.merc.gear.filter(i => mercItems.some(item => item.prefixnum === i));
+				let preLength = me.data.merc.gear.length;
+				let check = me.data.merc.gear.filter(i => mercItems.some(item => item.prefixnum === i));
 
 				if (check !== preLength) {
 					mUpdate = true;
-					myData.merc.gear = check;
+					me.data.merc.gear = check;
 				}
 
 				let mercInfo = Mercenary.getMercInfo(merc);
-				mercInfo.classid !== myData.merc.classid && (myData.merc.classid = mercInfo.classid);
-				mercInfo.act !== myData.merc.act && (myData.merc.act = mercInfo.act);
-				mercInfo.difficulty !== myData.merc.difficulty && (myData.merc.difficulty = mercInfo.difficulty);
+				mercInfo.classid !== me.data.merc.classid && (me.data.merc.classid = mercInfo.classid);
+				mercInfo.act !== me.data.merc.act && (me.data.merc.act = mercInfo.act);
+				mercInfo.difficulty !== me.data.merc.difficulty && (me.data.merc.difficulty = mercInfo.difficulty);
 
-				if (merc.classid === sdk.mercs.Guard && !Mercenary.checkMercSkill(myData.merc.type)) {
-				// go back, need to make sure this works properly.
-				// only "go back" if we are past the difficulty we need to be in to hire merc. Ex. In hell but want holy freeze merc
-				// only if we have enough gold on hand to hire said merc
-				// return to our orignal difficulty afterwards
+				if (merc.classid !== sdk.mercs.Guard) {
+					try {
+						if (mercInfo.skillName !== me.data.merc.skillName) {
+							me.data.merc.skillName = mercInfo.skillName;
+							me.data.merc.skill = MercData.findByName(me.data.merc.skillName, me.data.merc.act).skill;
+						}
+					} catch (e) {
+						//
+					}
 				}
+
+				// if (merc.classid === sdk.mercs.Guard && !Mercenary.checkMercSkill(me.data.merc.type)) {
+				// // go back, need to make sure this works properly.
+				// // only "go back" if we are past the difficulty we need to be in to hire merc. Ex. In hell but want holy freeze merc
+				// // only if we have enough gold on hand to hire said merc
+				// // return to our orignal difficulty afterwards
+				// }
 			}
 
 			// charm check
-			if (!myData.me.charms || !Object.keys(myData.me.charms).length) {
-				myData.me.charms = Check.finalBuild().finalCharms;
+			if (!me.data.charms || !Object.keys(me.data.charms).length) {
+				me.data.charms = Check.finalBuild().finalCharms;
 				cUpdate = true;
 			}
 
-			if (!myData.me.charmGids || myData.me.charmGids.length > 0) {
-				myData.me.charmGids = [];
+			if (!me.data.charmGids || me.data.charmGids.length > 0) {
+				me.data.charmGids = [];
 				cUpdate = true;
 			}
 
-			const finalCharmKeys = Object.keys(myData.me.charms);
+			const finalCharmKeys = Object.keys(me.data.charms);
 			// gids change from game to game so reset our list
 			for (let i = 0; i < finalCharmKeys.length; i++) {
 				let cKey = finalCharmKeys[i];
-				if (myData.me.charms[cKey].have.length) {
-					myData.me.charms[cKey].have = [];
+				if (me.data.charms[cKey].have.length) {
+					me.data.charms[cKey].have = [];
 					cUpdate = true;
 				}
 			}
 
-			if (!!me.shenk && myData[currDiffStr].socketUsed === false) {
-				myData[currDiffStr].socketUsed = true;
+			if (!!me.shenk && me.data[currDiffStr].socketUsed === false) {
+				me.data[currDiffStr].socketUsed = true;
 			}
 
 			if (mUpdate) {
-				CharData.updateData("merc", myData);
+				CharData.updateData("merc", me.data);
 			}
 		}
 
-		let changed = Misc.recursiveSearch(myData, temp);
+		let changed = Misc.recursiveSearch(me.data, temp);
 	
 		if (Object.keys(changed).length > 0 || cUpdate) {
-			CharData.updateData("me", myData);
+			CharData.updateData("me", me.data);
 		}
 	},
 
@@ -368,17 +349,17 @@ const SetUp = {
 		const beltModifer = 4 - Storage.BeltSize();
 		const mpFactor = isCaster ? 80 : 50;
 		Config.MPBuffer = Math.floor(mpFactor / Math.sqrt(me.mpmax)) + (beltModifer * 2);
-		!myData.merc.gear.includes(sdk.locale.items.Insight) && (Config.MPBuffer += 2);
+		!me.data.merc.gear.includes(sdk.locale.items.Insight) && (Config.MPBuffer += 2);
 		const hpFactor = isCaster ? 65 : 80;
 		Config.HPBuffer = Math.floor(hpFactor / Math.sqrt(me.hpmax)) + (beltModifer * 2);
 	},
 
 	bowQuiver: function () {
 		NTIP.resetRuntimeList();
-		if (CharData.skillData.bowData.bowOnSwitch) {
-			if ([sdk.items.type.Bow, sdk.items.type.AmazonBow].includes(CharData.skillData.bowData.bowType)) {
+		if (CharData.skillData.bow.onSwitch) {
+			if ([sdk.items.type.Bow, sdk.items.type.AmazonBow].includes(CharData.skillData.bow.bowType)) {
 				NTIP.addToRuntime("[type] == bowquiver # # [maxquantity] == 1");
-			} else if (CharData.skillData.bowData.bowType === sdk.items.type.Crossbow) {
+			} else if (CharData.skillData.bow.bowType === sdk.items.type.Crossbow) {
 				NTIP.addToRuntime("[type] == crossbowquiver # # [maxquantity] == 1");
 			} else if (me.charlvl < 10) {
 				NTIP.addToRuntime("[type] == bowquiver # # [maxquantity] == 1");
@@ -436,7 +417,7 @@ const SetUp = {
 				Storage.Init();
 			}
 			// sometimes it seems hard to find skillers, if we have the room lets try to cube some
-			if (Storage.Stash.UsedSpacePercent() < 60 && Item.autoEquipGC().keep.length < CharData.charmData.grand.getCountInfo().max) {
+			if (Storage.Stash.UsedSpacePercent() < 60 && CharmEquip.grandCharm().keep.length < CharData.charms.get("grand").count().max) {
 				Config.Recipes.push([Recipe.Reroll.Magic, "Grand Charm"]);
 			}
 			// switch bow - only for zon/sorc/pal/necro classes right now
@@ -568,12 +549,12 @@ const SetUp = {
 Object.defineProperties(SetUp, {
 	currentBuild: {
 		get: function () {
-			return myData.me.currentBuild;
+			return me.data.currentBuild;
 		},
 	},
 	finalBuild: {
 		get: function () {
-			return myData.me.finalBuild;
+			return me.data.finalBuild;
 		},
 	},
 	mercwatch: {
@@ -612,7 +593,7 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 		CharData.updateData("me", "setDifficulty", diffString);
 		myPrint("Going to " + diffString + " " + reason, true);
 		delay(1000);
-		if (CharData.getStats().me.setDifficulty !== diffString) {
+		if (CharData.getStats().setDifficulty !== diffString) {
 			throw new Error("Failed to set difficulty");
 		}
 		scriptBroadcast("quit");
@@ -1038,7 +1019,7 @@ const Check = {
 			goalReached = true;
 
 			break;
-		case sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff)) < sdk.difficulty.Difficulties.indexOf(myData.me.highestDifficulty):
+		case sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff)) < sdk.difficulty.Difficulties.indexOf(me.data.highestDifficulty):
 			// TODO: fill this out, if we go back to normal from hell I want to be able to do whatever it was imbue/socket/respec then return to our orignal difficulty
 			// as it is right now if we go back it would take 2 games to get back to hell
 			// but this needs a check to ensure that one of the above reasons are why we went back in case we had gone back because low gold in which case we need to stay in the game
@@ -1070,8 +1051,8 @@ const Check = {
 		if (!Check.resistance().Status) {
 			if (me.weaponswitch === 0 && Item.getEquipped(sdk.body.LeftArm).fname.includes("Lidless Wall") && !Item.getEquipped(sdk.body.LeftArm).socketed) {
 				if (!me.normal) {
-					if (!myData.normal.socketUsed) goToDifficulty(sdk.difficulty.Normal, " to use socket quest");
-					if (me.hell && !myData.nightmare.socketUsed) goToDifficulty(sdk.difficulty.Nightmare, " to use socket quest");
+					if (!me.data.normal.socketUsed) goToDifficulty(sdk.difficulty.Normal, " to use socket quest");
+					if (me.hell && !me.data.nightmare.socketUsed) goToDifficulty(sdk.difficulty.Nightmare, " to use socket quest");
 				}
 			}
 		}

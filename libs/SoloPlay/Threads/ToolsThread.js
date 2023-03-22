@@ -119,7 +119,8 @@ function main () {
 	this.getPotion = function (pottype = -1, type = -1) {
 		if (pottype === undefined) return false;
 
-		let items = me.getItemsEx().filter(item => item.itemType === pottype && (type > Common.Toolsthread.pots.Rejuv ? item.isInBelt : true));
+		let items = me.getItemsEx()
+			.filter(item => item.itemType === pottype && (type > Common.Toolsthread.pots.Rejuv ? item.isInBelt : true));
 		if (items.length === 0) return false;
 		let invoFirst = [Common.Toolsthread.pots.Health, Common.Toolsthread.pots.Mana].includes(type);
 
@@ -223,42 +224,37 @@ function main () {
 		return false;
 	};
 
+	/**
+	 * Handles thawing/antidote/stamina potions
+	 * @param {number} type 
+	 * @returns {boolean}
+	 */
 	this.drinkSpecialPotion = function (type) {
 		if (type === undefined) return false;
-		let objID;
-		let name = (() => {
-			switch (type) {
-			case sdk.items.ThawingPotion:
-				return "thawing";
-			case sdk.items.AntidotePotion:
-				return "antidote";
-			case sdk.items.StaminaPotion:
-				return "stamina";
-			default:
-				return "";
-			}
-		})();
+		if (!CharData.pots.has(type)) return false;
+		// give at least a second delay between pots
+		if (CharData.pots.get(type).tick < 1000) return false;
 
 		// mode 18 - can't drink while leaping/whirling etc.
-		// give at least a second delay between pots
-		if (me.dead || me.mode === sdk.player.mode.SkillActionSequence || (getTickCount() - CharData.buffData[name].tick < 1000)) {
+		if (me.dead || me.mode === sdk.player.mode.SkillActionSequence) {
 			return false;
 		}
 
-		let pot = me.getItemsEx(-1, sdk.items.mode.inStorage).filter((p) => p.isInInventory && p.classid === type).first();
-		!!pot && (objID = pot.name.split(" ")[0].toLowerCase());
+		let pot = me.getItemsEx(-1, sdk.items.mode.inStorage)
+			.filter((p) => p.isInInventory && p.classid === type).first();
 
-		if (objID) {
+		if (pot) {
 			try {
 				pot.interact();
-				if (!CharData.buffData[objID].active() || CharData.buffData[objID].timeLeft() <= 0) {
-					CharData.buffData[objID].tick = getTickCount();
-					CharData.buffData[objID].duration = 3e4;
+				
+				if (!CharData.pots.get(type).active() || CharData.pots.get(type).timeLeft() <= 0) {
+					CharData.pots.get(type).tick = getTickCount();
+					CharData.pots.get(type).duration = 3e4;
 				} else {
-					CharData.buffData[objID].duration += 3e4 - (getTickCount() - CharData.buffData[objID].tick);
+					CharData.pots.get(type).duration += 3e4 - (getTickCount() - CharData.pots.get(type).tick);
 				}
 
-				console.debug(CharData.buffData);
+				console.debug(CharData.pots);
 			} catch (e) {
 				console.warn(e);
 			}
@@ -370,8 +366,8 @@ function main () {
 						+ " | ÿc4AutoEquipKeepCheckMerc: ÿc0" + Item.autoEquipCheckMerc(itemToCheck, true) + "\nÿc4Cubing Item: ÿc0" + Cubing.keepItem(itemToCheck)
 						+ " | ÿc4Runeword Item: ÿc0" + Runewords.keepItem(itemToCheck) + " | ÿc4Crafting Item: ÿc0" + CraftingSystem.keepItem(itemToCheck) + " | ÿc4SoloWants Item: ÿc0" + SoloWants.keepItem(itemToCheck)
 						+ "\nÿc4ItemType: ÿc0" + itemToCheck.itemType + "| ÿc4Classid: ÿc0" + itemToCheck.classid + "| ÿc4Quality: ÿc0" + itemToCheck.quality;
-					charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + Item.isFinalCharm(itemToCheck) + "\n"
-						+ "ÿc4CharmType: ÿc0" + Item.getCharmType(itemToCheck) + " | ÿc4AutoEquipCharmCheck: ÿc0" + Item.autoEquipCharmCheck(itemToCheck) + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck);
+					charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + CharmEquip.isFinalCharm(itemToCheck) + "\n"
+						+ "ÿc4CharmType: ÿc0" + CharmEquip.getCharmType(itemToCheck) + " | ÿc4AutoEquipCharmCheck: ÿc0" + CharmEquip.check(itemToCheck) + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck);
 					generalString = "ÿc4ItemName: ÿc0" + itemToCheck.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<;.*]/, "")
 						+ "\nÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(itemToCheck, NTIP_CheckListNoTier, true).result;
 				}
@@ -514,9 +510,9 @@ function main () {
 
 				return;
 			case "data--":
-				console.debug("update myData");
+				console.debug("update me.data");
 				obj = JSON.parse(msg.split("data--")[1]);
-				Misc.updateRecursively(myData, obj);
+				Misc.updateRecursively(me.data, obj);
 
 				return;
 			}
@@ -543,8 +539,8 @@ function main () {
 			{
 				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//",
 					"\nÿc8ThreadData ::\n", getScript(true),
-					"\nÿc8MainData ::\n", myData,
-					"\nÿc8BuffData ::\n", CharData.buffData,
+					"\nÿc8MainData ::\n", me.data,
+					"\nÿc8BuffData ::\n", CharData.pots,
 					"\nÿc8SkillData ::\n", CharData.skillData,
 					"\nÿc8GlobalVariabls ::\n", Object.keys(global),
 					"\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
@@ -607,7 +603,9 @@ function main () {
 				Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && this.drinkPotion(Common.Toolsthread.pots.Rejuv);
 
 				if (Config.LifeChicken > 0 && me.hpPercent <= Config.LifeChicken && !me.inTown) {
-					!Developer.hideChickens && D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + getAreaName(me.area) + ". Ping: " + me.ping, sdk.colors.D2Bot.Red);
+					if (!Developer.hideChickens) {
+						D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + getAreaName(me.area) + ". Ping: " + me.ping, sdk.colors.D2Bot.Red);
+					}
 					this.exit(true);
 
 					return true;

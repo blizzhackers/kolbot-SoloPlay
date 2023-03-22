@@ -57,10 +57,10 @@ Pickit.checkItem = function (unit) {
 		/**
 		 * Need to redo this
 		 */
-		if (CharData.skillData.bowData.bowOnSwitch && [sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver].includes(unit.itemType) && rval === Pickit.Result.WANTED) {
-			if ([sdk.items.type.Bow, sdk.items.type.AmazonBow].includes(CharData.skillData.bowData.bowType) && unit.itemType === sdk.items.type.BowQuiver) {
+		if (CharData.skillData.bow.onSwitch && [sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver].includes(unit.itemType) && rval === Pickit.Result.WANTED) {
+			if ([sdk.items.type.Bow, sdk.items.type.AmazonBow].includes(CharData.skillData.bow.bowType) && unit.itemType === sdk.items.type.BowQuiver) {
 				return resultObj(Pickit.Result.SOLOWANTS, "Switch-Arrows");
-			} else if (CharData.skillData.bowData.bowType === sdk.items.type.Crossbow && unit.itemType === sdk.items.type.CrossbowQuiver) {
+			} else if (CharData.skillData.bow.bowType === sdk.items.type.Crossbow && unit.itemType === sdk.items.type.CrossbowQuiver) {
 				return resultObj(Pickit.Result.SOLOWANTS, "Switch-Bolts");
 			}
 		}
@@ -91,7 +91,7 @@ Pickit.checkItem = function (unit) {
 	if (AutoEquip.hasTier(unit) && !unit.identified) return resultObj(Pickit.Result.UNID);
 
 	if (unit.isCharm/*  && NTIP.GetCharmTier(unit) > 0 && unit.identified */) {
-		if (Item.autoEquipCharmCheck(unit)) {
+		if (CharmEquip.check(unit)) {
 			return resultObj(Pickit.Result.SOLOWANTS, "Autoequip charm Tier: " + NTIP.GetCharmTier(unit));
 		}
 

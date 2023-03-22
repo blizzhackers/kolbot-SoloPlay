@@ -96,9 +96,9 @@ function main () {
 
 				return;
 			case "data--":
-				console.debug("update myData");
+				console.debug("update me.data");
 				obj = JSON.parse(msg.split("data--")[1]);
-				Misc.updateRecursively(myData, obj);
+				Misc.updateRecursively(me.data, obj);
 
 				return;
 			}
@@ -147,8 +147,8 @@ function main () {
 			{
 				console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//",
 					"\nÿc8ThreadData ::\n", getScript(true),
-					"\nÿc8MainData ::\n", myData,
-					"\nÿc8BuffData ::\n", CharData.buffData,
+					"\nÿc8MainData ::\n", me.data,
+					"\nÿc8BuffData ::\n", CharData.pots,
 					"\nÿc8SkillData ::\n", CharData.skillData,
 					"\nÿc8GlobalVariabls ::\n", Object.keys(global),
 					"\n" + sdk.colors.Red + "//-----------DataDump End-----------//");

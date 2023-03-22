@@ -91,11 +91,7 @@
 		mercRating += item.getStatEx(sdk.stats.MagicDamageReduction) * mercWeights.MR; // add integer magic damage resist
 		mercRating += item.getStatEx(sdk.stats.MagicResist) * mercWeights.MR * 2; // add magic damage resist %
 
-		if (!myData) {
-			myData = CharData.getStats();
-		}
-
-		switch (myData.merc.classid) {
+		switch (me.data.merc.classid) {
 		case sdk.mercs.Rogue:
 		case sdk.mercs.IronWolf:
 			mercRating += item.getStatEx(sdk.stats.MinDamage) * mercWeights.MINDMG; // add MIN damage
@@ -344,7 +340,14 @@
 	const tierscore = function (item, tier, bodyloc) {
 		const itembodyloc = Item.getBodyLoc(item);
 		if (!itembodyloc.length) return -1;
-		bodyloc === undefined && (bodyloc = itembodyloc.last());
+		bodyloc = bodyloc || itembodyloc.last();
+
+		if (item.isBaseType && !item.isRuneword && me.charlvl > 10) {
+			for (let runeword of Config.Runewords) {
+				let [sockets, baseCID] = [runeword[0].sockets, runeword[1]];
+				if (item.classid === baseCID && item.sockets === sockets && !item.getItemsEx().length) return -1;
+			}
+		}
 
 		const buildInfo = Check.currentBuild();
 		const canTele = Pather.canTeleport();
@@ -355,10 +358,11 @@
 
 			// get item cbf stat from olditem equipped on body location
 			if (!canTele && item.getStatEx(sdk.stats.CannotbeFrozen)) {
-			// check if we have cbf but make sure its not from the item we are trying to un-equip
-				let haveCBF = (me.getStat(sdk.stats.CannotbeFrozen) > 0 && (eqItem && !eqItem.getStatEx(sdk.stats.CannotbeFrozen)));
-				// Cannot be frozen is very important for Melee chars
-				!haveCBF && (generalRating += buildInfo.caster ? tierWeights.generalWeights.CBF : tierWeights.generalWeights.CBF * 4);
+				// check if we have cbf but make sure its not from the item we are trying to un-equip
+				if (!me.getStat(sdk.stats.CannotbeFrozen)) {
+					// Cannot be frozen is very important for Melee chars
+					generalRating += buildInfo.caster ? tierWeights.generalWeights.CBF : tierWeights.generalWeights.CBF * 4;
+				}
 			}
 
 			// faster run/walk
@@ -366,7 +370,8 @@
 
 			// belt slots
 			if (item.itemType === sdk.items.type.Belt) {
-				const beltSize = ["lbl", "vbl"].includes(item.code) ? 2 : ["mbl", "tbl"].includes(item.code) ? 3 : 4;
+				const beltSizes = { lbl: 2, vbl: 2, mbl: 3, tbl: 3 };
+				const beltSize = beltSizes[item.code] || 4;
 				// if our current belt-size is better, don't down-grade even if the other stats on the new item are better, not worth the town visits
 				generalRating += (Storage.BeltSize() > beltSize ? -50 : (beltSize * 4 * tierWeights.generalWeights.BELTSLOTS));
 			}
@@ -389,10 +394,10 @@
 			
 			// get new item stats
 			let [newitemFR, newitemCR, newitemLR, newitemPR] = [
-				Math.max(item.getStatEx(sdk.stats.FireResist), 0),
-				Math.max(item.getStatEx(sdk.stats.ColdResist), 0),
-				Math.max(item.getStatEx(sdk.stats.LightResist), 0),
-				Math.max(item.getStatEx(sdk.stats.PoisonResist), 0)
+				item.getStatEx(sdk.stats.FireResist),
+				item.getStatEx(sdk.stats.ColdResist),
+				item.getStatEx(sdk.stats.LightResist),
+				item.getStatEx(sdk.stats.PoisonResist)
 			];
 			// only enter next block if we have a new item with resists
 			if (newitemFR || newitemCR || newitemLR || newitemPR) {
@@ -468,7 +473,7 @@
 			if (!buildInfo.caster
 				|| Config.AttackSkill.includes(sdk.skills.Attack)
 				|| Config.LowManaSkill.includes(sdk.skills.Attack)
-				|| ([sdk.items.type.Bow, sdk.items.type.AmazonBow, sdk.items.type.Crossbow].includes(item.itemType) && CharData.skillData.bowData.bowOnSwitch)) {
+				|| ([sdk.items.type.Bow, sdk.items.type.AmazonBow, sdk.items.type.Crossbow].includes(item.itemType) && CharData.skillData.bow.onSwitch)) {
 				let meleeRating = 0;
 
 				// dirty fix maybe?
@@ -616,13 +621,6 @@
 		tier += ctcScore();
 		tier += chargeditemscore(item, -1, buildInfo);
 
-		if (item.isBaseType && !item.isRuneword && me.charlvl > 10) {
-			for (let runeword of Config.Runewords) {
-				let [sockets, baseCID] = [runeword[0].sockets, runeword[1]];
-				if (item.classid === baseCID && item.sockets === sockets && !item.getItemsEx().length) return -1;
-			}
-		}
-
 		if (tier > 1 && tier < NTIP.MAX_TIER && NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
 			// console.debug(item.prettyPrint + "~~~" + tier);
 			tier += NTIP.MAX_TIER;
@@ -656,7 +654,7 @@
    * @param {ItemUnit} item 
    */
 	const charmscore = function (item) {
-		if (myData.me.charmGids.includes(item.gid)) return 1000;
+		if (me.data.charmGids.includes(item.gid)) return 1000;
 		// depending on invo space it might be worth it early on to keep 1 or 2 non-skiller grandcharms - @todo test that out
 		if (!item.unique && item.classid === sdk.items.GrandCharm && !me.getSkillTabs().some(s => item.getStatEx(sdk.stats.AddSkillTab, s))) return -1;
 		const buildInfo = Check.currentBuild();

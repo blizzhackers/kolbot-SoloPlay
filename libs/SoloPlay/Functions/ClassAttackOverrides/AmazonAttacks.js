@@ -262,7 +262,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
 	};
 
 	// @todo damage/effort comparison vs our normal skill
-	if (CharData.skillData.bowData.bowOnSwitch
+	if (CharData.skillData.bow.onSwitch
 		&& (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
 		&& (unit.distance >= 8 || (unit.isMoving && (unit.targetx !== me.x || unit.targety !== me.y)))
 		&& ([sdk.skills.Attack, sdk.skills.Jab].includes(skills.timed) || Skill.getManaCost(skills.timed) > me.mp)) {

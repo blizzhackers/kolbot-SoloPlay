@@ -1,8 +1,9 @@
 /**
  * @filename    EventEmitter.js
- * @author      Jaenster
- * @desc        Transpiled Global modifying UMD module to handle emitting events and add prototypes ("on", "emit", "once", "off")
- *              to Unit
+ * @author      theBGuy
+ * @credit      jaenster
+ * @desc        Global modifying UMD module to handle emitting events
+ *              and add prototypes ("on", "emit", "once", "off") to Unit
  * 
  */
 

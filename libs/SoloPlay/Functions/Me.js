@@ -107,8 +107,44 @@ if (!me.hasOwnProperty("className")) {
 if (!me.hasOwnProperty("onFinalBuild")) {
 	Object.defineProperty(me, "onFinalBuild", {
 		get: function () {
-			myData === undefined && (myData = CharData.getStats());
-			return myData.me.currentBuild === myData.me.finalBuild;
+			return me.data.currentBuild === me.data.finalBuild;
+		}
+	});
+}
+
+if (!me.hasOwnProperty("mercid")) {
+	Object.defineProperty(me, "mercid", {
+		get: function () {
+			return me.data.merc.classid || (() => {
+				let merc = me.getMercEx();
+				if (!merc) return 0;
+				me.data.merc.classid = merc.classid;
+				return merc.classid;
+			})();
+		}
+	});
+}
+
+if (!me.hasOwnProperty("trueStr")) {
+	Object.defineProperty(me, "trueStr", {
+		get: function () {
+			return me.data.strength || (() => {
+				let str = me.rawStrength;
+				me.data.strength = str;
+				return str;
+			})();
+		}
+	});
+}
+
+if (!me.hasOwnProperty("trueDex")) {
+	Object.defineProperty(me, "trueDex", {
+		get: function () {
+			return me.data.dexterity || (() => {
+				let dex = me.rawDexterity;
+				me.data.dexterity = dex;
+				return dex;
+			})();
 		}
 	});
 }
@@ -155,6 +191,47 @@ if (!me.hasOwnProperty("currentBuild")) {
 	});
 }
 
+if (!me.hasOwnProperty("data")) {
+	let _data = null;
+
+	Object.defineProperty(me, "data", {
+		get: function () {
+			if (_data) return _data;
+			_data = CharData.getStats();
+			// handle if it was an old data file
+			if (!_data.hasOwnProperty("startTime")) {
+				let oldData = copyObj(_data);
+				_data = CharData.create();
+				Object.assign(_data, oldData.me);
+				Object.assign(_data.merc, oldData.merc);
+				if (oldData.merc.hasOwnProperty("type")) {
+					_data.merc.skillName = oldData.merc.type;
+					_data.merc.skill = MercData.findByName(_data.merc.skillName, _data.merc.act).skill;
+				}
+			}
+			return _data;
+		},
+		set: function (v) {
+			if (v.hasOwnProperty("startTime")) {
+				_data = v;
+			}
+		},
+	});
+
+	Object.defineProperty(me, "update", {
+		value: function () {
+			let obj = JSON.stringify(copyObj(me.data));
+			let myThread = getScript(true).name;
+			CharData.threads.forEach(function (script) {
+				let curr = getScript(script);
+				if (curr && myThread !== curr.name) {
+					curr.send("data--" + obj);
+				}
+			});
+		},
+	});
+}
+
 /** @returns {boolean} */
 me.canTpToTown = function () {
 	// can't tp if dead - or not currently enabled to
@@ -172,7 +249,7 @@ me.canTpToTown = function () {
 
 me.getMercEx = function () {
 	if (!Config.UseMerc || me.classic || me.mercrevivecost) return null;
-	if (!myData.merc.type) return null;
+	if (!me.data.merc.type) return null;
 	let merc = Misc.poll(() => me.getMerc(), 250, 50);
 
 	return !!merc && !merc.dead ? merc : null;
@@ -551,10 +628,10 @@ me.getItemsForRepair = function (repairPercent, chargedItems) {
 me.needRepair = function () {
 	let repairAction = [];
 	let bowCheck = Attack.usingBow();
-	let switchBowCheck = CharData.skillData.bowData.bowOnSwitch;
+	let switchBowCheck = CharData.skillData.bow.onSwitch;
 	let canAfford = me.gold >= me.getRepairCost();
 	!bowCheck && switchBowCheck && (bowCheck = (() => {
-		switch (CharData.skillData.bowData.bowType) {
+		switch (CharData.skillData.bow.bowType) {
 		case sdk.items.type.Bow:
 		case sdk.items.type.AmazonBow:
 			return "bow";

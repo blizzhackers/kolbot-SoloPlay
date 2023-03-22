@@ -360,9 +360,9 @@ const Quest = {
 				delay(10 + me.ping * 2);
 
 				if (me.respec || (me.getStat(sdk.stats.NewSkills) > preSkillAmount && me.getStat(sdk.stats.StatPts) > preStatAmount)) {
-					myData.me.currentBuild = CharInfo.getActiveBuild();
-					myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
-					CharData.updateData("me", myData);
+					me.data.currentBuild = CharInfo.getActiveBuild();
+					me.data[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
+					CharData.updateData("me", me.data);
 					delay(750 + me.ping * 2);
 					Town.clearBelt();
 					myPrint("respec done, restarting");
@@ -427,8 +427,8 @@ const Quest = {
 			Item.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : ", item, null, true);
 			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " socket quest on : " + item.name, sdk.colors.D2Bot.Gold);
 			CharData.updateData(sdk.difficulty.nameOf(me.diff), "socketUsed", true);
-			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
-			updateMyData();
+			me.data[sdk.difficulty.nameOf(me.diff).toLowerCase()].socketUsed = true;
+			me.update();
 
 			if (!slot && !item.isInStash) {
 				// Move item back to stash
@@ -503,8 +503,8 @@ const Quest = {
 			Item.logItem("Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : ", item, null, true);
 			D2Bot.printToConsole("Kolbot-SoloPlay :: Used my " + sdk.difficulty.nameOf(me.diff) + " imbue quest on : " + item.name, sdk.colors.D2Bot.Gold);
 			CharData.updateData(sdk.difficulty.nameOf(me.diff), "imbueUsed", true);
-			myData[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
-			updateMyData();
+			me.data[sdk.difficulty.nameOf(me.diff).toLowerCase()].imbueUsed = true;
+			me.update();
 
 			if (!slot && !item.isInStash) {
 				// Move item back to stash
