@@ -13,6 +13,48 @@ Runeword.PDiamondShield = Runeword.addRuneword(
 	[sdk.items.type.AnyShield]
 );
 
+Runewords.checkRunewords = function () {
+	// keep a const reference of our items so failed checks don't remove items from the list
+	const itemsRef = me.findItems(-1, sdk.items.mode.inStorage);
+
+	for (let i = 0; i < Config.Runewords.length; i += 1) {
+		let itemList = []; // reset item list
+		let items = itemsRef.slice(); // copy itemsRef
+
+		const [runeword, wantedBase, ethFlag] = Config.Runewords[i];
+		if (runeword.reqLvl > me.charlvl) continue; // skip runeword if we don't meet the level requirement
+		let base = this.getBase(runeword, wantedBase, (ethFlag || 0)); // check base
+
+		if (base) {
+			itemList.push(base); // push the base
+
+			for (let j = 0; j < runeword.runes.length; j += 1) {
+				for (let k = 0; k < items.length; k += 1) {
+					if (items[k].classid === runeword.runes[j]) { // rune matched
+						itemList.push(items[k]); // push into the item list
+						items.splice(k, 1); // remove from item list as to not count it twice
+
+						k -= 1;
+
+						break; // stop item cycle - we found the item
+					}
+				}
+
+				// can't complete runeword - go to next one
+				if (itemList.length !== j + 2) {
+					break;
+				}
+
+				if (itemList.length === runeword.runes.length + 1) { // runes + base
+					return itemList; // these items are our runeword
+				}
+			}
+		}
+	}
+
+	return false;
+};
+
 /**
  * Get the base item based on classid and runeword recipe
  * @param {runeword} runeword 
