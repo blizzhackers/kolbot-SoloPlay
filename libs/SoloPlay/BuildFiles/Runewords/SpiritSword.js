@@ -30,7 +30,8 @@
 		if (!me.barbarian) {
 			NTIP.addLine("([name] == broadsword || [name] == crystalsword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
 		} else {
-		// Have Thul and Amn before looking for base
+			!me.getItem(sdk.items.runes.Amn) && Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
+			// Have Thul and Amn before looking for base
 			if (me.getItem(sdk.items.runes.Thul) && me.getItem(sdk.items.runes.Amn)) {
 				NTIP.addLine("([name] == broadsword || [name] == crystalsword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
 			}
