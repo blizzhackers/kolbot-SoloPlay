@@ -35,9 +35,6 @@ Starter.Config.GlobalAccountPassword = ""; // Set value for a global password fo
 // the only things we really need from these are their oog checks
 includeSystemLibs();
 
-// what do I need from here?
-const { getAreaName, Time } = require("./libs/core/Util");
-include("core/experience.js");
 // solo specific
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/CharData.js");
@@ -54,9 +51,6 @@ if (typeof Starter.AdvancedConfig[me.profile] === "object") {
 	delete Starter.AdvancedConfig;
 }
 
-let joinInfo;
-let gameTracker;
-
 // initialize data files
 if (!FileTools.exists("data/" + me.profile + ".json") && DataFile.create()) {
 	Starter.firstRun = true;
@@ -72,23 +66,6 @@ if (!FileTools.exists(CharData.login.filePath) && CharData.login.create()) {
 }
 
 Developer.logPerformance && Tracker.initialize();
-
-function timer (tick) {
-	const currInGame = (getTickCount() - tick);
-	let timeStr = " (Time: " + Time.format(currInGame) + ") ";
-	
-	if (Developer.displayClockInConsole && Developer.logPerformance) {
-		try {
-			gameTracker === undefined && (gameTracker = Tracker.readObj(Tracker.GTPath));
-			let [tTime, tInGame, tDays] = [(gameTracker.Total + currInGame), (gameTracker.InGame + currInGame), (gameTracker.Total + currInGame)];
-			let [totalTime, totalInGame, totalDays] = [Tracker.formatTime(tTime), Tracker.formatTime(tInGame), Tracker.totalDays(tDays)];
-			timeStr += ("(Days: " + totalDays + ") (Total: " + totalTime + ") (IG: " + totalInGame + ") (OOG: " + Tracker.formatTime(gameTracker.OOG) + ")");
-		} catch (e) {
-			console.log(e);
-		}
-	}
-	return timeStr;
-}
 
 function main () {
 	debugLog(me.profile);
@@ -140,14 +117,6 @@ function main () {
 		delay(50);
 	}
 
-	let resPenalty, areaName, diffName;
-	const xp = () => me.getStat(sdk.stats.Experience) > 0 ? Experience.progress() : 0;
-	const tGold = () => me.getStat(sdk.stats.Gold) + me.getStat(sdk.stats.GoldBank);
-	const fireRes = (resPenalty) => Math.min(75 + me.getStat(sdk.stats.MaxFireResist), me.getStat(sdk.stats.FireResist) - resPenalty);
-	const coldRes = (resPenalty) => Math.min(75 + me.getStat(sdk.stats.MaxColdResist), me.getStat(sdk.stats.ColdResist) - resPenalty);
-	const lightRes = (resPenalty) => Math.min(75 + me.getStat(sdk.stats.MaxLightResist), me.getStat(sdk.stats.LightResist) - resPenalty);
-	const poisRes = (resPenalty) => Math.min(75 + me.getStat(sdk.stats.MaxPoisonResist), me.getStat(sdk.stats.PoisonResist) - resPenalty);
-
 	while (true) {
 		// returns true before actually in game so we can't only use this check
 		while (me.ingame) {
@@ -159,27 +128,11 @@ function main () {
 					Starter.gameStart = getTickCount();
 					Starter.lastGameStatus = "ingame";
 					Starter.inGame = true;
-					resPenalty = me.gametype === 0 ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff];
-					diffName = ["Norm", "Night", "Hell"][me.diff];
 					DataFile.updateStats("runs", Starter.gameCount);
 					DataFile.updateStats("ingameTick");
 					Developer.logPerformance && Tracker.update((getTickCount() - oogTick));
-					Developer.displayClockInConsole && (gameTracker = Tracker.readObj(Tracker.GTPath));
 					oogTick = 0;
-				}
-
-				if (me.ingame && me.gameReady) {
-					let statusString = "";
-
-					try {
-						let [exp, myGold, fr, cr, lr, pr] = [xp(), tGold(), fireRes(resPenalty), coldRes(resPenalty), lightRes(resPenalty), poisRes(resPenalty)];
-						areaName = !!me.area ? getAreaName(me.area) : "";
-						statusString = me.name + " | Lvl: " + me.charlvl + " (" + exp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + fr + "/C: " + cr + "/L: " + lr + "/P: " + pr + ")";
-					} catch (e) {
-						console.error(e);
-					}
-
-					D2Bot.updateStatus(statusString + timer(Starter.gameStart));
+					D2Bot.updateStatus("In-Game :: Initializing threads...");
 				}
 			}
 

@@ -566,7 +566,7 @@ function main () {
 			if (obj) {
 				obj.hasOwnProperty("currScript") && (debugInfo.currScript = obj.currScript);
 				obj.hasOwnProperty("lastAction") && (debugInfo.lastAction = obj.lastAction);
-				//D2Bot.store(JSON.stringify(debugInfo));
+				// D2Bot.store(JSON.stringify(debugInfo));
 				DataFile.updateStats("debugInfo", JSON.stringify(debugInfo));
 			}
 
@@ -577,6 +577,9 @@ function main () {
 	// Cache variables to prevent a bug where d2bs loses the reference to Config object
 	Config = copyObj(Config);
 	tick = getTickCount();
+
+	// getUnit test
+	getUnit(-1) === null && console.warn("getUnit bug detected");
 
 	addEventListener("keyup", keyEvent);
 	addEventListener("gameevent", gameEvent);
@@ -591,10 +594,82 @@ function main () {
 		console.warn("Without logPerformance set, the overlay will only show partial values");
 	}
 
-	// getUnit test
-	getUnit(-1) === null && console.warn("getUnit bug detected");
+	const Worker = require("../../modules/Worker");
+	const diffShort = ["Norm", "Night", "Hell"][me.diff];
 
-	// Start
+	// Start worker - handles overlay and d2bot# profile display
+	Worker.runInBackground.display = (new function () {
+		let _timeout = 0;
+		let gameTracker;
+
+		function timer () {
+			const currInGame = (getTickCount() - me.gamestarttime);
+			let timeStr = " (Time: " + Time.format(currInGame) + ") ";
+			
+			if (Developer.displayClockInConsole && Developer.logPerformance) {
+				try {
+					gameTracker === undefined && (gameTracker = Tracker.readObj(Tracker.GTPath));
+					let [tTime, tInGame, tDays] = [
+						(gameTracker.Total + currInGame),
+						(gameTracker.InGame + currInGame),
+						(gameTracker.Total + currInGame)
+					];
+					let [totalTime, totalInGame, totalDays] = [
+						Tracker.formatTime(tTime),
+						Tracker.formatTime(tInGame),
+						Tracker.totalDays(tDays)
+					];
+					timeStr += ("(Days: " + totalDays + ") (Total: " + totalTime + ") (IG: " + totalInGame + ") (OOG: " + Tracker.formatTime(gameTracker.OOG) + ")");
+				} catch (e) {
+					console.log(e);
+				}
+			}
+			return timeStr;
+		}
+		
+		this.run = () => {
+			if (getTickCount() - _timeout < 500) return true;
+			_timeout = getTickCount();
+
+			if (me.gameReady) {
+				// handle d2bot# profile display
+				let statusString = "";
+
+				try {
+					statusString = [
+						(me.name + " | "),
+						("Lvl: " + me.charlvl),
+						(" (" + Experience.progress() + "%) "),
+						("(Diff: " + diffShort + ") "),
+						("(A: " + getAreaName(me.area) + ") "),
+						("(G: " + me.gold + ") "),
+						("(F: " + me.FR + "/C: " + me.CR + "/L: " + me.LR + "/P: " + me.PR + ")"),
+					].join("");
+
+					D2Bot.updateStatus(statusString + timer());
+				} catch (e) {
+					console.error(e);
+				}
+
+				// handle overlay
+				if (Developer.overlay) {
+					if (me.ingame && me.gameReady && me.area) {
+						Overlay.update(quitFlag);
+
+						if (me.act !== myAct) {
+							Overlay.flush();
+							myAct = me.act;
+							Overlay.update(quitFlag);
+						}
+					}
+				}
+			}
+
+			return true;
+		};
+	}).run;
+
+	// Start ToolsThread
 	while (true) {
 		try {
 			if (me.gameReady && !me.inTown) {
@@ -680,18 +755,6 @@ function main () {
 		if (me.maxgametime - (getTickCount() - me.gamestarttime) < 10e3) {
 			console.log("Max game time reached");
 			quitFlag = true;
-		}
-
-		// should overlay be moved to be a background worker?
-		if (Developer.overlay) {
-			if (me.ingame && me.gameReady && me.area) {
-				Overlay.update(quitFlag);
-
-				if (me.act !== myAct) {
-					Overlay.flush();
-					myAct = me.act;
-				}
-			}
 		}
 
 		if (quitFlag && canQuit && (typeof quitListDelayTime === "undefined" || getTickCount() >= quitListDelayTime)) {
