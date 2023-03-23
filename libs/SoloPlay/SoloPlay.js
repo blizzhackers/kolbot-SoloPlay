@@ -264,8 +264,10 @@ function main () {
 		AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
 	}
 
-	// offline
-	!me.realm && D2Bot.updateRuns();
+	// offline - ensure we didn't just reload the thread and are still in the same game
+	if (!me.realm && getTickCount() - me.gamestarttime < Time.minutes(1)) {
+		D2Bot.updateRuns();
+	}
 
 	// Start Running Script
 	includeIfNotIncluded("SoloPlay/Utils/Init.js");
@@ -350,7 +352,8 @@ function main () {
 	// Anni handler. Mule Anni if it's in unlocked space and profile is set to mule torch/anni.
 	let anni = me.findItem(sdk.items.SmallCharm, sdk.items.mode.inStorage, -1, sdk.items.quality.Unique);
 
-	if (anni && !Storage.Inventory.IsLocked(anni, Config.Inventory) && AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("torchMuleInfo")) {
+	if (anni && !Storage.Inventory.IsLocked(anni, Config.Inventory)
+		&& AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("torchMuleInfo")) {
 		scriptBroadcast("muleAnni");
 	}
 
