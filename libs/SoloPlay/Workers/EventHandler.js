@@ -15,6 +15,9 @@
 		me.on("soloEvent", function msgEvent (msg) {
 			switch (msg) {
 			case "testing":
+				console.debug(msg, actions);
+
+				break;
 			case "finishDen":
 			case "dodge":
 			case "skip":

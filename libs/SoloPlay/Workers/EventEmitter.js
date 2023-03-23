@@ -3,7 +3,6 @@
  * @author      theBGuy
  * @credit      jaenster
  * @desc        Global modifying UMD module to handle emitting events
- *              and add prototypes ("on", "emit", "once", "off") to Unit
  * 
  */
 
@@ -19,7 +18,7 @@
 	Object.defineProperty(exports, "__esModule", { value: true });
 
 	const Worker = require("../../modules/Worker");
-	const Events = require("../Modules/Events");
+	require("../Modules/Events");
 	const old = {
 		level: me.charlvl,
 	};
@@ -27,64 +26,64 @@
 
 	let levelTimeout = getTickCount();
 
-	// Start
-	Worker.runInBackground.AutoBuild = function () {
-		if (getTickCount() - levelTimeout < 1000) return true;
-		levelTimeout = getTickCount();
+	const _AutoBuild = new function () {
+		this.enabled = true;
 
-		try {
-			let levels = gainedLevels();
+		this.run = function () {
+			if (!this.enabled) return;
 
-			if (levels > 0 && (Config.AutoSkill.Enabled || Config.AutoStat.Enabled)) {
-				scriptBroadcast("toggleQuitlist");
-				AutoBuild.print("Level up detected (", old.level, "-->", me.charlvl, ")");
-				Config.AutoSkill.Enabled && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
-				Config.AutoStat.Enabled && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
-				scriptBroadcast({ event: "level up" });
-				AutoBuild.applyConfigUpdates(); // scriptBroadcast() won't trigger listener on this thread.
+			try {
+				let levels = gainedLevels();
 
-				AutoBuild.print("Incrementing cached character level to", old.level + 1);
-				Tracker.leveling();
+				if (levels > 0 && (Config.AutoSkill.Enabled || Config.AutoStat.Enabled)) {
+					scriptBroadcast("toggleQuitlist");
+					AutoBuild.print("Level up detected (", old.level, "-->", me.charlvl, ")");
+					Config.AutoSkill.Enabled && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
+					Config.AutoStat.Enabled && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
+					scriptBroadcast({ event: "level up" });
+					AutoBuild.applyConfigUpdates(); // scriptBroadcast() won't trigger listener on this thread.
 
-				// prevLevel doesn't get set to me.charlvl because
-				// we may have gained multiple levels at once
-				old.level += 1;
+					AutoBuild.print("Incrementing cached character level to", old.level + 1);
+					Tracker.leveling();
 
-				scriptBroadcast("toggleQuitlist");
+					// prevLevel doesn't get set to me.charlvl because
+					// we may have gained multiple levels at once
+					old.level += 1;
+
+					scriptBroadcast("toggleQuitlist");
+				}
+			} catch (e) {
+				this.enabled = false;
+				console.error(e);
+				console.warn("Something broke! StackWalk :: ", e.stack);
 			}
-		} catch (e) {
-			console.error(e);
-			console.warn("Something broke! StackWalk :: ", e.stack);
+		};
+	};
 
-			return false;
+	// Start
+	Worker.runInBackground.EventWatcher = function () {
+		// AutoBuild
+		if (getTickCount() - levelTimeout > 1000) {
+			levelTimeout = getTickCount();
+			_AutoBuild.run();
+		}
+
+		// Tracker
+		if (Developer.logPerformance) {
+			if (getTickCount() - Tracker.tick > Time.minutes(3)) {
+				Tracker.tick = getTickCount();
+
+				try {
+					Tracker.update();
+				} catch (e) {
+					console.warn(e.message);
+				}
+			}
 		}
 
 		return true;
 	};
+
 	AutoBuild.print("Loaded AutoBuild");
 	console.log("ÿc8Kolbot-SoloPlayÿc0: Start AutoBuild");
-
-	if (Developer.logPerformance && getScript(true).name.toString() === "libs\\soloplay\\soloplay.js") {
-		Worker.runInBackground.intervalUpdate = function () {
-			if (getTickCount() - Tracker.tick < Time.minutes(3)) return true;
-			Tracker.tick = getTickCount();
-
-			try {
-				Tracker.update();
-			} catch (e) {
-				console.warn(e.message);
-			}
-
-			return true;
-		};
-	}
-	
-	// @ts-ignore
-	Unit.prototype.on = Events.Events.prototype.on;
-	// @ts-ignore
-	Unit.prototype.off = Events.Events.prototype.off;
-	// @ts-ignore
-	Unit.prototype.once = Events.Events.prototype.once;
-	// @ts-ignore
-	Unit.prototype.emit = Events.Events.prototype.emit;
 });

@@ -24,11 +24,9 @@
 				self.hooks.push(element);
 				this.update = () => {
 					element.text = callback();
-					element.visible = element.visible = [sdk.uiflags.Inventory,
+					element.visible = [sdk.uiflags.Inventory,
 						sdk.uiflags.SkillWindow,
 						sdk.uiflags.TradePrompt,
-						sdk.uiflags.Stash,
-						sdk.uiflags.Cube,
 						sdk.uiflags.QuickSkill].every(f => !getUIFlag(f));
 				};
 			}

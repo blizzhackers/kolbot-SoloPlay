@@ -13,7 +13,6 @@
 (function (module, require, Worker) {
 	// Only load this in global scope
 	if (getScript(true).name.toLowerCase() === "libs\\soloplay\\soloplay.js") {
-
 		const getNearestMonster = () => {
 			let gid = null;
 			let monster = Game.getMonster();

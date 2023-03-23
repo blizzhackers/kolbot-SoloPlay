@@ -1,7 +1,7 @@
 /**
  * @filename    Events.js
  * @author      Jaenster
- * @desc        Transpiled UMD event module
+ * @desc        Transpiled UMD event module. Adds prototypes ("on", "emit", "once", "off") to Unit
  * 
  */
 
@@ -86,5 +86,15 @@
 		};
 		return Events;
 	}());
+
+	// @ts-ignore
+	Unit.prototype.on = Events.prototype.on;
+	// @ts-ignore
+	Unit.prototype.off = Events.prototype.off;
+	// @ts-ignore
+	Unit.prototype.once = Events.prototype.once;
+	// @ts-ignore
+	Unit.prototype.emit = Events.prototype.emit;
+
 	exports.Events = Events;
 });
