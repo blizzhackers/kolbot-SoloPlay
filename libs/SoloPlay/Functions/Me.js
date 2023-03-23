@@ -249,7 +249,7 @@ me.canTpToTown = function () {
 
 me.getMercEx = function () {
 	if (!Config.UseMerc || me.classic || me.mercrevivecost) return null;
-	if (!me.data.merc.type) return null;
+	if (!me.data.merc.skill) return null;
 	let merc = Misc.poll(() => me.getMerc(), 250, 50);
 
 	return !!merc && !merc.dead ? merc : null;
