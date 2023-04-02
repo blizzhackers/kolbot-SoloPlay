@@ -226,7 +226,7 @@ const locations = {};
 
 					!info.ladder && Controls.CharCreateLadder.click();
 					info.hardcore && Controls.CharCreateHardcore.click();
-					Controls.CreateNewAccountOk.click();
+					Controls.BottomRightOk.click();
 				}
 
 				break;
@@ -281,7 +281,7 @@ const locations = {};
 			let spCheck = Profile().type === sdk.game.profiletype.Battlenet;
 			let realmControl = !!Controls.CharSelectCurrentRealm.control;
 			if ((spCheck && !realmControl) || ((!spCheck && realmControl))) {
-				Controls.CharSelectExit.click();
+				Controls.BottomLeftExit.click();
 				return false; // what about a recursive call to loginCharacter?
 			}
 		}
@@ -365,7 +365,7 @@ const locations = {};
 
 				if (control) {
 					control.click();
-					Controls.CreateNewAccountOk.click();
+					Controls.BottomRightOk.click();
 					me.blockMouse = false;
 
 					if (getLocation() === sdk.game.locations.SelectDifficultySP) {
@@ -388,7 +388,7 @@ const locations = {};
 
 				break MainLoop;
 			case sdk.game.locations.CharSelectNoChars:
-				Controls.CharSelectExit.click(); // why exit rather than returning false?
+				Controls.BottomLeftExit.click(); // why exit rather than returning false?
 
 				break;
 			case sdk.game.locations.Disconnected:
@@ -446,7 +446,7 @@ const locations = {};
 
 				break;
 			case sdk.game.locations.CharacterCreate:
-				Controls.CharSelectExit.click();
+				Controls.BottomLeftExit.click();
 
 				break;
 			case sdk.game.locations.OkCenteredErrorPopUp:
@@ -461,10 +461,10 @@ const locations = {};
 
 				break;
 			case sdk.game.locations.CreateNewAccount:
-				Controls.CreateNewAccountName.setText(info.account);
-				Controls.CreateNewAccountPassword.setText(info.password);
-				Controls.CreateNewAccountConfirmPassword.setText(info.password);
-				Controls.CreateNewAccountOk.click();
+				Controls.EnterAccountName.setText(info.account);
+				Controls.EnterAccountPassword.setText(info.password);
+				Controls.ConfirmPassword.setText(info.password);
+				Controls.BottomRightOk.click();
 
 				break;
 			case sdk.game.locations.PleaseRead:
@@ -513,7 +513,7 @@ const locations = {};
 							control.click();
 							Controls.CharSelectDelete.click();
 							delay(500);
-							Controls.CharDeleteYes.click();
+							Controls.PopupYes.click();
 
 							break MainLoop;
 						}
@@ -589,8 +589,8 @@ const locations = {};
 
 				break;
 			case sdk.game.locations.Login:
-				Controls.LoginUsername.setText(info.account);
-				Controls.LoginPassword.setText(info.password);
+				Controls.EnterAccountName.setText(info.account);
+				Controls.EnterAccountPassword.setText(info.password);
 				Controls.Login.click();
 
 				break;
@@ -669,7 +669,7 @@ const locations = {};
 			// bugged? lets see if we can unbug it
 			// Click create char button on infinite "connecting" screen
 			Controls.CharSelectCreate.click() && delay(1000);
-			Controls.CharSelectExit.click() && delay(1000);
+			Controls.BottomLeftExit.click() && delay(1000);
 
 			return (getLocation() !== sdk.game.locations.CharSelectConnecting);
 		} else {
@@ -706,14 +706,14 @@ const locations = {};
 			let spCheck = pType === sdk.game.profiletype.Battlenet;
 			let realmControl = !!Controls.CharSelectCurrentRealm.control;
 			if ((spCheck && !realmControl) || ((!spCheck && realmControl))) {
-				Controls.CharSelectExit.click();
+				Controls.BottomLeftExit.click();
 				
 				return;
 			}
 		}
 
 		// Multiple realm botting fix in case of R/D or disconnect
-		Starter.firstLogin && getLocation() === sdk.game.locations.Login && Controls.CharSelectExit.click();
+		Starter.firstLogin && getLocation() === sdk.game.locations.Login && Controls.BottomLeftExit.click();
 					
 		D2Bot.updateStatus("Logging In");
 
@@ -869,7 +869,7 @@ const locations = {};
 					Starter.accountExists = true;
 					Control.LoginErrorOk.click();
 					delay(100);
-					Control.CreateNewAccountExit.click();
+					Control.BottomLeftExit.click();
 					Starter.LocationEvents.login();
 					return;
 				}
@@ -959,7 +959,7 @@ const locations = {};
 
 		Controls.LoginErrorOk.click();
 		delay(1000);
-		Controls.CharSelectExit.click();
+		Controls.BottomLeftExit.click();
 	};
 
 	Starter.LocationEvents.charSelect = function (loc) {
@@ -1024,7 +1024,7 @@ const locations = {};
 		}
 
 		if (!Starter.locationTimeout(Starter.Config.ConnectingTimeout * 1e3, loc)) {
-			Controls.CharSelectExit.click();
+			Controls.BottomLeftExit.click();
 			Starter.gameInfo.rdBlocker && D2Bot.restart();
 		}
 	};
@@ -1137,7 +1137,7 @@ const locations = {};
 	locations[sdk.game.locations.CharSelectConnecting] = (loc) => Starter.LocationEvents.charSelect(loc);
 	locations[sdk.game.locations.CharSelectNoChars] = (loc) => Starter.LocationEvents.charSelect(loc);
 	locations[sdk.game.locations.SelectDifficultySP] = () => Starter.LocationEvents.selectDifficultySP();
-	locations[sdk.game.locations.CharacterCreate] = (loc) => !Starter.locationTimeout(5e3, loc) && Controls.CharSelectExit.click();
+	locations[sdk.game.locations.CharacterCreate] = (loc) => !Starter.locationTimeout(5e3, loc) && Controls.BottomLeftExit.click();
 	locations[sdk.game.locations.ServerDown] = () => {
 		ControlAction.timeoutDelay("Server Down", Time.minutes(5));
 		Controls.OkCentered.click();
