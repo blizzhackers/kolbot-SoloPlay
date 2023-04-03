@@ -104,7 +104,7 @@ function main () {
 		chickenExit && D2Bot.updateChickens();
 		Config.LogExperience && Experience.log();
 		Developer.logPerformance && Tracker.update();
-		console.log("ÿc8Run duration ÿc2" + Tracker.formatTime(getTickCount() - me.gamestarttime));
+		console.log("ÿc8Run duration ÿc2" + Time.format(getTickCount() - me.gamestarttime));
 		this.stopDefault();
 		quit();
 	};
@@ -615,11 +615,11 @@ function main () {
 						(gameTracker.Total + currInGame)
 					];
 					let [totalTime, totalInGame, totalDays] = [
-						Tracker.formatTime(tTime),
-						Tracker.formatTime(tInGame),
+						Time.format(tTime),
+						Time.format(tInGame),
 						Tracker.totalDays(tDays)
 					];
-					timeStr += ("(Days: " + totalDays + ") (Total: " + totalTime + ") (IG: " + totalInGame + ") (OOG: " + Tracker.formatTime(gameTracker.OOG) + ")");
+					timeStr += ("(Days: " + totalDays + ") (Total: " + totalTime + ") (IG: " + totalInGame + ") (OOG: " + Time.format(gameTracker.OOG) + ")");
 				} catch (e) {
 					console.log(e);
 				}

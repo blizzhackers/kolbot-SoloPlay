@@ -32,10 +32,10 @@ const Overlay = {
 			this.GameTracker === undefined && (this.GameTracker = Tracker.readObj(Tracker.GTPath));
 			this.tick = getTickCount();
 			let currInGame = getTickCount() - me.gamestarttime;
-			let totalTime = Tracker.formatTime(this.GameTracker.Total + currInGame);
-			let totalInGame = Tracker.formatTime(this.GameTracker.InGame + currInGame);
+			let totalTime = Time.format(this.GameTracker.Total + currInGame);
+			let totalInGame = Time.format(this.GameTracker.InGame + currInGame);
 
-			return ("Total: ÿc0" + totalTime + "ÿc4 InGame: ÿc0" + totalInGame + "ÿc4 OOG: ÿc0" + Tracker.formatTime(this.GameTracker.OOG));
+			return ("Total: ÿc0" + totalTime + "ÿc4 InGame: ÿc0" + totalInGame + "ÿc4 OOG: ÿc0" + Time.format(this.GameTracker.OOG));
 		},
 
 		timer: function () {

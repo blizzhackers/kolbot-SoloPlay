@@ -112,29 +112,9 @@ const Tracker = {
 		found && Tracker.writeObj(GameTracker, this.GTPath);
 	},
 
-	timer: function (tick) {
-		return getTickCount() - tick;
-	},
-
-	formatTime: function (milliseconds) {
-		let seconds = milliseconds / 1000;
-		let sec = (seconds % 60).toFixed(0);
-		let minutes = (Math.floor(seconds / 60) % 60).toFixed(0);
-		let hours = Math.floor(seconds / 3600).toFixed(0);
-		let timeString = hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0") + ":" + sec.toString().padStart(2, "0");
-
-		return timeString;
-	},
-
 	totalDays: function (milliseconds) {
 		let days = Math.floor(milliseconds / 86.4e6).toFixed(0);
 		return days.toString().padStart(1, "0");
-	},
-
-	logLeveling: function (obj) {
-		if (typeof obj === "object" && obj.hasOwnProperty("event") && obj.event === "level up") {
-			Tracker.leveling();
-		}
 	},
 
 	script: function (starttime, subscript, startexp) {
@@ -145,13 +125,13 @@ const Tracker = {
 		GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
 
 		const newTick = me.gamestarttime >= GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
-		GameTracker.InGame += Tracker.timer(newTick);
-		GameTracker.Total += Tracker.timer(newTick);
+		GameTracker.InGame += Time.elapsed(newTick);
+		GameTracker.Total += Time.elapsed(newTick);
 		GameTracker.LastSave = getTickCount();
 		Tracker.writeObj(GameTracker, Tracker.GTPath);
 
 		// csv file
-		const scriptTime = Tracker.timer(starttime);
+		const scriptTime = Time.elapsed(starttime);
 		const currLevel = me.charlvl;
 		const diffString = sdk.difficulty.nameOf(me.diff);
 		const gainAMT = me.getStat(sdk.stats.Experience) - startexp;
@@ -160,7 +140,7 @@ const Tracker = {
 		const currentBuild = SetUp.currentBuild;
 		const [GOLD, FR, CR, LR, PR] = [me.gold, me.realFR, me.realCR, me.realLR, me.realPR];
 		const string = (
-			Tracker.formatTime(GameTracker.Total) + "," + Tracker.formatTime(GameTracker.InGame) + "," + Tracker.formatTime(scriptTime)
+			Time.format(GameTracker.Total) + "," + Time.format(GameTracker.InGame) + "," + Time.format(scriptTime)
 			+ "," + subscript + "," + currLevel + "," + gainAMT + "," + gainTime + "," + gainPercent + "," + diffString
 			+ "," + GOLD + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n"
 		);
@@ -180,9 +160,9 @@ const Tracker = {
 
 		const newSave = getTickCount();
 		const newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
-		const splitTime = Tracker.timer(GameTracker.LastLevel);
-		GameTracker.InGame += Tracker.timer(newTick);
-		GameTracker.Total += Tracker.timer(newTick);
+		const splitTime = Time.elapsed(GameTracker.LastLevel);
+		GameTracker.InGame += Time.elapsed(newTick);
+		GameTracker.Total += Time.elapsed(newTick);
 		GameTracker.LastLevel = newSave;
 		GameTracker.LastSave = newSave;
 		Tracker.writeObj(GameTracker, Tracker.GTPath);
@@ -195,7 +175,7 @@ const Tracker = {
 		const gainTime = gainAMT / (splitTime / 60000);
 		const [GOLD, FR, CR, LR, PR] = [me.gold, me.realFR, me.realCR, me.realLR, me.realPR];
 		const string = (
-			Tracker.formatTime(GameTracker.Total) + "," + Tracker.formatTime(GameTracker.InGame) + "," + Tracker.formatTime(splitTime) + ","
+			Time.format(GameTracker.Total) + "," + Time.format(GameTracker.InGame) + "," + Time.format(splitTime) + ","
 			+ areaName + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + ","
 			+ GOLD + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n"
 		);
@@ -226,8 +206,8 @@ const Tracker = {
 		const newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
 
 		GameTracker.OOG += oogTick;
-		GameTracker.InGame += Tracker.timer(newTick);
-		GameTracker.Total += (Tracker.timer(newTick) + oogTick);
+		GameTracker.InGame += Time.elapsed(newTick);
+		GameTracker.Total += (Time.elapsed(newTick) + oogTick);
 		GameTracker.LastSave = getTickCount();
 		Tracker.writeObj(GameTracker, Tracker.GTPath);
 		Tracker.tick = GameTracker.LastSave;

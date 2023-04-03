@@ -38,7 +38,7 @@ new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
 					CharData.pots.get(objID).duration += (objDrank.quantity * 30 * 1000) - (getTickCount() - CharData.pots.get(objID).tick);
 				}
 
-				console.log("ÿc9DrinkPotsÿc0 :: drank " + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Tracker.formatTime(CharData.pots.get(objID).duration) + "]");
+				console.log("ÿc9DrinkPotsÿc0 :: drank " + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Time.format(CharData.pots.get(objID).duration) + "]");
 			}
 		}
 	} catch (e) {

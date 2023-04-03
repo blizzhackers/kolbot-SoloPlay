@@ -329,7 +329,7 @@ const SetUp = {
 
 		// log info
 		myPrint(this.finalBuild + " goal reached. On to the next.");
-		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Tracker.formatTime(gameObj.Total + Tracker.timer(gameObj.LastSave))) + "). " : ". ") + "Making next...", sdk.colors.D2Bot.Gold);
+		D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + "). " : ". ") + "Making next...", sdk.colors.D2Bot.Gold);
 
 		D2Bot.setProfile(null, null, require("../Tools/NameGen")());
 		CharData.delete(true);
@@ -1038,7 +1038,7 @@ const Check = {
 				
 				break;
 			default:
-				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (gameObj ? " (" + (Tracker.formatTime(gameObj.Total + Tracker.timer(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
+				D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (gameObj ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
 				Developer.logPerformance && Tracker.update();
 				D2Bot.stop();
 			}

@@ -879,7 +879,7 @@ Pather.clearToExit = function (currentarea, targetarea, cleartype = true) {
 		} while (me.area !== targetarea);
 	}
 
-	console.log("ÿc8Kolbot-SoloPlayÿc0: End clearToExit. Time elapsed: " + Tracker.formatTime(getTickCount() - tick));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: End clearToExit. Time elapsed: " + Time.format(getTickCount() - tick));
 	return (me.area === targetarea);
 };
 

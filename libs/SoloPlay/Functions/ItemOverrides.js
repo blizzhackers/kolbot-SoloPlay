@@ -351,7 +351,7 @@ Item.autoEquip = function (task = "") {
 		}
 	}
 
-	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting ÿc9" + task + "ÿc0. Time elapsed: " + Tracker.formatTime(getTickCount() - tick));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting ÿc9" + task + "ÿc0. Time elapsed: " + Time.format(getTickCount() - tick));
 	return true;
 };
 
@@ -607,7 +607,7 @@ Item.autoEquipSecondary = function (task = "") {
 		}
 	}
 
-	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting secondary auto equip. Time elapsed: " + Tracker.formatTime(getTickCount() - tick));
+	console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting secondary auto equip. Time elapsed: " + Time.format(getTickCount() - tick));
 	return true;
 };
 

@@ -648,7 +648,7 @@ const CharmEquip = (function () {
 			if ((!charms.length)
 				// don't do anything if we have the same charms as last time
 				|| ((CharmEquip.keptGids.size && charms.every(c => CharmEquip.keptGids.has(c.gid))))) {
-				console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting charm auto equip. Time elapsed: " + Tracker.formatTime(getTickCount() - tick));
+				console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting charm auto equip. Time elapsed: " + Time.format(getTickCount() - tick));
 				return;
 			}
 			CharmEquip.keptGids.clear();
@@ -716,7 +716,7 @@ const CharmEquip = (function () {
 
 			me.cancelUIFlags();
 
-			console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting charm auto equip. Time elapsed: " + Tracker.formatTime(getTickCount() - tick));
+			console.log("ÿc8Kolbot-SoloPlayÿc0: Exiting charm auto equip. Time elapsed: " + Time.format(getTickCount() - tick));
 		},
 	};
 })();
