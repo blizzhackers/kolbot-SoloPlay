@@ -45,63 +45,96 @@ const locations = {};
 			break;
 		case 1638:
 			try {
+				/** @type {Map<string, string>} */
+				const classMap = new Map();
+				classMap.set("ZON", "amazon");
+				classMap.set("SOR", "sorceress");
+				classMap.set("NEC", "necromancer");
+				classMap.set("PAL", "paladin");
+				classMap.set("BAR", "barbarian");
+				classMap.set("DRU", "druid");
+				classMap.set("SIN", "assassin");
+				let [modePrefix, charClass] = me.profile.toUpperCase().split("-");
+
+				if (!modePrefix || !charClass || !(charClass = classMap.get(charClass.substring(0, 3)))) {
+					D2Bot.printToConsole(
+						"*** Invalid profile name ***\n"
+						+ "Profile :: " + me.profile + " | Prefix: " + modePrefix + " | CharClass: " + charClass + "\n"
+						+ "@see https://github.com/blizzhackers/kolbot-SoloPlay#possible-profile-names \n"
+						+ "**********************************************************************************",
+						sdk.colors.D2Bot.Red
+					);
+					CharData.delete(true);
+					throw new Error("Invalid profile name :: " + me.profile);
+				}
+
 				let obj = JSON.parse(msg);
-				Starter.profileInfo.profile = me.profile.toUpperCase();
+				let infoTag = obj.Tag.trim().capitalize(true) || "";
+				if (!infoTag) {
+					D2Bot.printToConsole(
+						"*** Invalid profile InfoTag ***\n"
+						+ "Tag :: " + obj.Tag + "\n"
+						+ "@see https://github.com/blizzhackers/kolbot-SoloPlay#available-characters-and-builds \n"
+						+ "**********************************************************************************",
+						sdk.colors.D2Bot.Red
+					);
+					throw new Error("Invalid profile InfoTag :: " + obj.Tag);
+				}
+
+				Starter.profileInfo.profile = me.profile;
 				Starter.profileInfo.account = obj.Account;
+				if (Starter.profileInfo.account.length < 2 || Starter.profileInfo.account.length > 15) {
+					// console.warn("Invalid account name length");
+					Starter.profileInfo.account = "";
+				}
 				Starter.profileInfo.password = "";
 				Starter.profileInfo.charName = obj.Character;
-				Starter.profileInfo.tag = (obj.Tag.trim().capitalize(true) || "");
 				Starter.profileInfo.difficulty = obj.Difficulty;
 				obj.Realm = obj.Realm.toLowerCase();
 				Starter.profileInfo.realm = ["east", "west"].includes(obj.Realm) ? "us" + obj.Realm : obj.Realm;
+				Starter.profileInfo.mode = Profile().type;
+				Starter.profileInfo.tag = infoTag;
 
-				let buildCheck = Starter.profileInfo.profile.split("-"); // SCL-ZON123
-				Starter.profileInfo.hardcore = buildCheck[0].includes("HC"); // SC softcore = false
-				Starter.profileInfo.expansion = buildCheck[0].indexOf("CC") === -1; // not CC so not classic - true
-				Starter.profileInfo.ladder = buildCheck[0].indexOf("NL") === -1; // not NL so its ladder - true
+				/**
+				 * @example SCL-ZON123
+				 */
+				Starter.profileInfo.hardcore = modePrefix.includes("HC"); // SC softcore = false
+				Starter.profileInfo.expansion = modePrefix.indexOf("CC") === -1; // not CC so not classic - true
+				Starter.profileInfo.ladder = modePrefix.indexOf("NL") === -1; // not NL so its ladder - true
+				Starter.profileInfo.charClass = charClass;
 
-				if (buildCheck.length <= 1) {
-					D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', sdk.colors.D2Bot.Gold);
-					D2Bot.printToConsole("If you are still confused please read the included readMe. https://github.com/blizzhackers/kolbot-SoloPlay/blob/main/README.md", sdk.colors.D2Bot.Gold);
-					D2Bot.stop();
+				if (["druid", "assassin"].includes(charClass) && !Starter.profileInfo.expansion) {
+					D2Bot.printToConsole(
+						"*** Invalid character class for mode ***\n"
+						+ "CharClass :: " + charClass + "\n"
+						+ "Expansion characters cannot be made in classic\n"
+						+ "**********************************************************************************",
+						sdk.colors.D2Bot.Red
+					);
+					throw new Error("Expansion characters cannot be made in classic");
 				}
 
-				const charClassMap = {
-					"ZON": "amazon",
-					"SOR": "sorceress",
-					"NEC": "necromancer",
-					"PAL": "paladin",
-					"BAR": "barbarian",
-					"DRU": "druid",
-					"SIN": "assassin"
-				};
-				buildCheck[1] = buildCheck[1].toString().substring(0, 3);
-
-				if (charClassMap[buildCheck[1]]) {
-					Starter.profileInfo.charClass = charClassMap[buildCheck[1]];
-				} else {
-					throw new Error("Invalid profile name, couldn't set character class");
-				}
-
-				if (Starter.profileInfo.tag !== "") {
-					{
-						let soloStats = CharData.getStats();
-
-						if (!soloStats.finalBuild || soloStats.finalBuild !== Starter.profileInfo.tag) {
-							D2Bot.setProfile(null, null, null, null, null, Starter.profileInfo.tag);
-							soloStats.finalBuild = Starter.profileInfo.tag;
-							soloStats.charms = {};
-							CharData.updateData("me", soloStats);
-						}
-
-						if (!["Start", "Stepping", "Leveling"].includes(soloStats.currentBuild) && soloStats.currentBuild !== soloStats.finalBuild) {
-							soloStats.currentBuild = "Leveling";
-							soloStats.charms = {};
-							CharData.updateData("me", soloStats);
-						}
+				{
+					let soloStats = CharData.getStats();
+					let update = false;
+					// new profile
+					if (!soloStats.finalBuild) {
+						soloStats.finalBuild = Starter.profileInfo.tag;
+						CharData.updateData("me", soloStats);
+					} else if (soloStats.finalBuild !== Starter.profileInfo.tag) {
+						soloStats.finalBuild = Starter.profileInfo.tag;
+						update = true;
 					}
-				} else {
-					throw new Error("Please update profile InfoTag. Missing the finalBuild.");
+
+					if (soloStats.currentBuild !== soloStats.finalBuild
+						&& !["Start", "Stepping", "Leveling"].includes(soloStats.currentBuild)) {
+						soloStats.currentBuild = "Leveling";
+					}
+
+					if (update) {
+						soloStats.charms = {};
+						CharData.updateData("me", soloStats);
+					}
 				}
 			} catch (e) {
 				console.error(e);
@@ -121,10 +154,14 @@ const locations = {};
 		} else if (msg === "diffChange") {
 			Starter.checkDifficulty();
 		} else if (msg === "test") {
-			console.debug(sdk.colors.Green + "//-----------DataDump Start-----------//",
+			console.debug(
+				sdk.colors.Green
+				+ "//-----------DataDump Start-----------//",
 				"\nÿc8ThreadData ::\n", getScript(true),
 				"\nÿc8GlobalVariabls ::\n", Object.keys(global),
-				"\n" + sdk.colors.Red + "//-----------DataDump End-----------//");
+				"\n" + sdk.colors.Red
+				+ "//-----------DataDump End-----------//"
+			);
 		} else if (msg === "deleteAndRemake") {
 			Starter.deadCheck = true;
 		} else {
@@ -141,25 +178,36 @@ const locations = {};
 	};
 
 	ControlAction.makeCharacter = function (info) {
-		me.blockMouse = true;
+		const NameGen = require("./NameGen");
 		!info.charClass && (info.charClass = "barbarian");
+		!info.charName && (info.charName = NameGen());
+		me.blockMouse = true;
 
 		let clickCoords = [];
 		let soloStats = CharData.getStats();
-		const NameGen = require("./NameGen");
+		let timeout = getTickCount() + Time.minutes(5);
+
+		/** @type {Map<string, [number, number]} */
+		const coords = new Map();
+		coords.set("barbarian", [400, 280]);
+		coords.set("amazon", [100, 280]);
+		coords.set("necromancer", [300, 290]);
+		coords.set("sorceress", [620, 270]);
+		coords.set("assassin", [200, 280]);
+		coords.set("druid", [700, 280]);
+		coords.set("paladin", [521, 260]);
 
 		soloStats.startTime !== 0 && Tracker.reset();
 		if (soloStats.currentBuild !== "Start" || soloStats.level > 1) {
-			let finalBuild = soloStats.finalBuild;
-			Object.assign(soloStats, CharData._default);
-			soloStats.finalBuild = finalBuild;
-			CharData.updateData("me", soloStats);
+			CharData.delete(false);
+			CharData.updateData("me", "finalBuild", Starter.profileInfo.tag);
+			Developer.logPerformance && Tracker.initialize();
 		}
 
 		D2Bot.updateStatus("Making Character: " + info.charName);
 
 		// cycle until in lobby
-		while (getLocation() !== sdk.game.locations.Lobby) {
+		while (getLocation() !== sdk.game.locations.Lobby && !me.ingame) {
 			switch (getLocation()) {
 			case sdk.game.locations.CharSelect:
 			case sdk.game.locations.CharSelectConnecting:
@@ -181,26 +229,7 @@ const locations = {};
 
 				break;
 			case sdk.game.locations.CharacterCreate:
-				clickCoords = (() => {
-					switch (info.charClass) {
-					case "barbarian":
-						return [400, 280];
-					case "amazon":
-						return [100, 280];
-					case "necromancer":
-						return [300, 290];
-					case "sorceress":
-						return [620, 270];
-					case "assassin":
-						return [200, 280];
-					case "druid":
-						return [700, 280];
-					case "paladin":
-					default:
-						return [521, 260];
-					}
-				})();
-
+				clickCoords = coords.get(info.charClass.toLowerCase()) || coords.get("paladin");
 				getControl().click(clickCoords[0], clickCoords[1]);
 				delay(500);
 
@@ -233,8 +262,7 @@ const locations = {};
 			case sdk.game.locations.OkCenteredErrorPopUp:
 				// char name exists (text box 4, 268, 320, 264, 120)
 				ControlAction.timeoutDelay("Character Name exists: " + info.charName + ". Making new Name.", 5e3);
-				info.charName = NameGen();
-				delay(500);
+				Starter.profileInfo.charName = info.charName = NameGen();
 				Controls.OkCentered.click();
 				D2Bot.updateStatus("Making Character: " + info.charName);
 
@@ -246,6 +274,11 @@ const locations = {};
 			// Singleplayer loop break fix.
 			if (me.ingame) {
 				break;
+			}
+
+			if (getTickCount() > timeout) {
+				D2Bot.printToConsole("Failed to create character: " + info.charName + " Location: " + getLocation(), sdk.colors.D2Bot.Red);
+				return false;
 			}
 
 			delay(500);
@@ -494,56 +527,29 @@ const locations = {};
 	};
 
 	ControlAction.deleteAndRemakeChar = function (info) {
+		/** @type {Control} */
+		let control = ControlAction.findCharacter(info);
+		if (!control) return false;
+		let cInfo = control.getText();
+		console.debug(cInfo);
+		
 		me.blockMouse = true;
 
-		ControlAction.findCharacter(info);
-
-		MainLoop:
-		// Cycle until in lobby
-		while (getLocation() !== sdk.game.locations.Lobby) {
-			switch (getLocation()) {
-			case sdk.game.locations.CharSelect:
-				let control = Controls.CharSelectCharInfo0.control;
-
-				if (control) {
-					do {
-						let text = control.getText();
-
-						if (text instanceof Array && typeof text[1] === "string" && text[1].toLowerCase() === info.charName.toLowerCase()) {
-							control.click();
-							Controls.CharSelectDelete.click();
-							delay(500);
-							Controls.PopupYes.click();
-
-							break MainLoop;
-						}
-					} while (control.getNext());
-				}
-
-				break;
-			case sdk.game.locations.CharSelectNoChars:
-				break MainLoop;
-
-			case sdk.game.locations.Disconnected:
-			case sdk.game.locations.OkCenteredErrorPopUp:
-				me.blockMouse = false;
-
-				return false;
-			default:
-				break;
-			}
-
-			delay(100);
-		}
+		control.click();
+		Controls.CharSelectDelete.click();
+		delay(500);
+		Controls.PopupYes.click();
 
 		me.blockMouse = false;
 
 		// Delete old files - leaving csv file's for now as I don't think they interfere with the overlay
 		CharData.delete(true);
 		DataFile.create();
+		DataFile.updateStats("handle", Starter.handle);
 		CharData.updateData("me", "finalBuild", Starter.profileInfo.tag);
 		Developer.logPerformance && Tracker.initialize();
 		D2Bot.printToConsole("Deleted: " + info.charName + ". Now remaking...", sdk.colors.D2Bot.Gold);
+		Starter.deadCheck = false;
 
 		return ControlAction.makeCharacter(Starter.profileInfo);
 	};
