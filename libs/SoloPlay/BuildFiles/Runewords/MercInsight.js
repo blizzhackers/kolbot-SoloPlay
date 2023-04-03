@@ -15,9 +15,9 @@
 	].map(el => "[name] == " + el).join(" || ");
 	
 	const Insight = [
-		(high + " && [flag] == ethereal && [quality] == normal # [sockets] == 0 # [maxquantity] == 1"),
-		(high + " && [quality] >= normal && [quality] <= superior && [flag] != runeword # [sockets] == 4 # [maxquantity] == 1"),
-		mid + " && [quality] >= normal && [quality] <= superior && [flag] != runeword # [sockets] == 4 # [maxquantity] == 1",
+		("(" + high + ") && [flag] == ethereal && [quality] == normal # [sockets] == 0 # [maxquantity] == 1"),
+		("(" + high + ") && [quality] >= normal && [quality] <= superior && [flag] != runeword # [sockets] == 4 # [maxquantity] == 1"),
+		("(" + mid + ") && [quality] >= normal && [quality] <= superior && [flag] != runeword # [sockets] == 4 # [maxquantity] == 1"),
 	];
 
 	Config.Recipes.push([Recipe.Socket.Weapon, "giantthresher"]);
@@ -35,7 +35,7 @@
 	Config.Runewords.push([Runeword.Insight, "bill"]);
 	
 	if (!me.hell) {
-		Insight.push(low + " && [quality] >= normal && [quality] <= superior && [flag] != runeword # [sockets] == 4 # [maxquantity] == 1");
+		Insight.push("(" + low + ") && [quality] >= normal && [quality] <= superior && [flag] != runeword # [sockets] == 4 # [maxquantity] == 1");
 		Config.Runewords.push([Runeword.Insight, "Warscythe"]);
 		Config.Runewords.push([Runeword.Insight, "halberd"]);
 		Config.Runewords.push([Runeword.Insight, "poleaxe"]);
