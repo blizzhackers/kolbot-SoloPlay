@@ -305,47 +305,48 @@ Item.autoEquip = function (task = "") {
 	while (items.length > 0) {
 		items.sort(sortEq);
 		const item = items.shift();
+		if (!item.isInStorage) continue;
 		let tier = NTIP.GetTier(item);
+		if (tier <= 0) continue;
 		let bodyLoc = this.getBodyLoc(item);
 
-		if (tier > 0 && bodyLoc) {
-			for (let j = 0; j < bodyLoc.length; j += 1) {
-				const equippedItem = Item.getEquipped(bodyLoc[j]);
-				// rings are special
-				if (item.isInStorage && item.itemType === sdk.items.type.Ring) {
+		for (let loc of bodyLoc) {
+			const equippedItem = Item.getEquipped(loc);
+			if (equippedItem.classid === sdk.items.quest.KhalimsWill) continue;
+			// rings are special
+			if (item.itemType === sdk.items.type.Ring) {
+				Item.identify(item);
+				// have to pass in the specific location
+				tier = tierscore(item, 1, loc);
+
+				if (tier > equippedItem.tierScore) {
+					if (!runEquip(item, loc, tier)) {
+						continue;
+					}
+				}
+			} else {
+				if (tier > equippedItem.tier) {
 					Item.identify(item);
-					// have to pass in the specific location
-					tier = tierscore(item, 1, bodyLoc[j]);
 
-					if (tier > equippedItem.tierScore) {
-						if (!runEquip(item, bodyLoc[j], tier)) {
+					if (item.twoHanded && !me.barbarian) {
+						if (tier < Item.getEquipped(sdk.body.RightArm).tier + Item.getEquipped(sdk.body.LeftArm).tier) {
 							continue;
 						}
+						console.log("ÿc9" + task + "ÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + item.fname + " Tier: " + tier);
 					}
-				} else {
-					if (item.isInStorage && tier > equippedItem.tier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
-						Item.identify(item);
 
-						if (item.twoHanded && !me.barbarian) {
-							if (tier < Item.getEquipped(sdk.body.RightArm).tier + Item.getEquipped(sdk.body.LeftArm).tier) {
-								continue;
-							}
-							console.log("ÿc9" + task + "ÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + item.fname + " Tier: " + tier);
-						}
-
-						if (!me.barbarian && bodyLoc[j] === sdk.body.LeftArm && equippedItem.tier === -1 && Item.getEquipped(sdk.body.RightArm).twoHanded) {
-							if (tier < Item.getEquipped(sdk.body.RightArm).tier) {
-								continue;
-							}
-							console.log("ÿc9" + task + "ÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + item.fname + " Tier: " + tier);
-						}
-
-						if (!runEquip(item, bodyLoc[j], tier)) {
+					if (!me.barbarian && loc === sdk.body.LeftArm && equippedItem.tier === -1 && Item.getEquipped(sdk.body.RightArm).twoHanded) {
+						if (tier < Item.getEquipped(sdk.body.RightArm).tier) {
 							continue;
 						}
-
-						break;
+						console.log("ÿc9" + task + "ÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + item.fname + " Tier: " + tier);
 					}
+
+					if (!runEquip(item, loc, tier)) {
+						continue;
+					}
+
+					break;
 				}
 			}
 		}
@@ -370,6 +371,19 @@ Item.equip = function (item, bodyLoc) {
 	// failed to open cube
 	if (item.isInCube && !Cubing.openCube()) return false;
 
+	let currentEquipped = me.getItemsEx()
+		.filter(item => item.isEquipped && item.bodylocation === bodyLoc)
+		.first();
+	if (currentEquipped) {
+		console.debug(
+			"ÿc9Equipÿc0 ::\n"
+			+ "ÿc9 - Equippingÿc0: " + item.prettyPrint + "\n"
+			+ "ÿc9 - Tierÿc0: " + NTIP.GetTier(item) + "\n"
+			+ "ÿc9 - Currently Equippedÿc0: " + currentEquipped.prettyPrint + "\n"
+			+ "ÿc9 - Tierÿc0: " + NTIP.GetTier(currentEquipped) + "\n"
+			+ "ÿc9 - BodyLocÿc0: " + bodyLoc
+		);
+	}
 	let rolledBack = false;
 	// todo: sometimes rings get bugged with the higher tier ring ending up on the wrong finger, if this happens swap them
 
@@ -411,6 +425,7 @@ Item.equip = function (item, bodyLoc) {
 						}
 
 						if (cursorItem && !cursorItem.shouldKeep()) {
+							console.debug("ÿc9Equipÿc0 :: Dropping " + cursorItem.prettyPrint);
 							cursorItem.drop();
 						}
 					}
