@@ -19,45 +19,6 @@ Skill.casterSkills = [
 	/* sdk.skills.WakeofFire, */ sdk.skills.LightningSentry, sdk.skills.DeathSentry
 ];
 
-new Overrides.Override(Skill, Skill.getRange, function (orignal, skillId) {
-	switch (skillId) {
-	case sdk.skills.ChargedBolt:
-		return !!this.usePvpRange ? 11 : 6;
-	case sdk.skills.Lightning:
-	case sdk.skills.BoneSpear:
-	case sdk.skills.BoneSpirit:
-		return !!this.usePvpRange ? 30 : 15;
-	case sdk.skills.FireBall:
-	case sdk.skills.FireWall:
-	case sdk.skills.ChainLightning:
-	case sdk.skills.Meteor:
-	case sdk.skills.Blizzard:
-	case sdk.skills.MindBlast:
-		return !!this.usePvpRange ? 30 : 20;
-	default:
-		return orignal(skillId);
-	}
-}).apply();
-
-// Thank you @sakana
-Skill.getManaCost = function (skillId = -1) {
-	// first skills dont use mana
-	if (skillId < 6) return 0;
-	// Decoy wasn't reading from skill bin
-	if (skillId === sdk.skills.Decoy) return Math.max(19.75 - (0.75 * me.getSkill(sdk.skills.Decoy, sdk.skills.subindex.SoftPoints)), 1);
-	if (this.manaCostList.hasOwnProperty(skillId)) return this.manaCostList[skillId];
-
-	let skillLvl = me.getSkill(skillId, sdk.skills.subindex.SoftPoints), effectiveShift = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
-	let lvlmana = getBaseStat("skills", skillId, "lvlmana") === 65535 ? -1 : getBaseStat("skills", skillId, "lvlmana"); // Correction for skills that need less mana with levels (kolton)
-	let ret = Math.max((getBaseStat("skills", skillId, "mana") + lvlmana * (skillLvl - 1)) * (effectiveShift[getBaseStat(3, skillId, "manashift")] / 256), getBaseStat("skills", skillId, "minmana"));
-
-	if (!this.manaCostList.hasOwnProperty(skillId)) {
-		this.manaCostList[skillId] = ret;
-	}
-
-	return ret;
-};
-
 // Cast a skill on self, Unit or coords. Always use packet casting for caster skills becasue it's more stable.
 Skill.cast = function (skillId, hand, x, y, item) {
 	switch (true) {

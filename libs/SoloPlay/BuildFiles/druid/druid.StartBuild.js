@@ -68,7 +68,7 @@
 		});
 
 		build.AutoBuildTemplate[13] = buildAutoBuildTempObj(() => {
-			if (Skill.canUse(sdk.skills.Fissure) && Skill.skills.all[sdk.skills.Fissure].hardpoints) {
+			if (Skill.canUse(sdk.skills.Fissure)) {
 				Config.AttackSkill = [-1, sdk.skills.Fissure, sdk.skills.Firestorm, sdk.skills.Fissure, sdk.skills.Firestorm, 0, 0];
 			}
 		});
