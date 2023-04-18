@@ -145,9 +145,9 @@ NTIP.buildFinalGear = function (arr) {
 
 			switch (true) {
 			case !lineCheck.includes("tier"):
-			case line.includes("merctier"):
-			case line.includes("secondarytier"):
-			case line.includes("charmtier"):
+			case lineCheck.includes("merctier"):
+			case lineCheck.includes("secondarytier"):
+			case lineCheck.includes("charmtier"):
 				continue;
 			}
 
