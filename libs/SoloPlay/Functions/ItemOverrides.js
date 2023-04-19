@@ -193,9 +193,21 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
 
 					return true;
 				} else {
+					/**
+					 * @param {ItemUnit} item 
+					 * @returns {boolean}
+					 */
+					const checkForBetterItem = (item) => {
+						let betterItem = me.getItemsEx()
+							.filter(el => el.isInStorage && el.gid !== item.gid && el.identified && Item.getBodyLoc(el).includes(loc))
+							.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a))
+							.find(el => NTIP.GetTier(el) > tier);
+						return !!betterItem;
+					};
 					// keep wanted final gear items
 					if (NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
-						return true;
+						// don't horde items we can't equip
+						return !checkForBetterItem(item);
 					}
 
 					let [lvlReq, strReq, dexReq] = [item.getStat(sdk.stats.LevelReq), item.strreq, item.dexreq];
@@ -207,10 +219,7 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
 
 					// if we can't equip it, but it's a good item, keep it as long as we have space for it
 					// lets double check that this is the highest tied'd item of this type in our storage
-					let betterItem = me.getItemsEx()
-						.filter(el => el.isInStorage && el.gid !== item.gid && el.identified && Item.getBodyLoc(el).includes(bodyLoc[i]))
-						.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a))
-						.find(el => NTIP.GetTier(el) > tier);
+					let betterItem = checkForBetterItem(item);
 					if (!betterItem) return true;
 
 					return Storage.Stash.CanFit(item) && Storage.Stash.UsedSpacePercent() < 65;
