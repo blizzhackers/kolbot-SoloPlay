@@ -217,7 +217,7 @@ function main () {
 
 	DataFile.updateStats(["experience", "name"]);
 
-	// Load threads - for now split between old system with threads or opt in for new system with workers
+	// Load threads
 	load("libs/SoloPlay/Threads/ToolsThread.js");
 
 	require("./Workers/EventEmitter");

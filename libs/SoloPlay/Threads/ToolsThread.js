@@ -62,41 +62,30 @@ function main () {
 
 	// General functions
 	this.togglePause = function () {
-		let scripts = ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "threads/party.js"];
-
-		for (let l = 0; l < scripts.length; l += 1) {
-			let script = getScript(scripts[l]);
-
-			if (script) {
-				if (script.running) {
-					scripts[l] === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8ToolsThread :: ÿc1Pausing " + scripts[l]);
-					scripts[l] === "libs/SoloPlay/Threads/TownChicken.js" && !SoloEvents.cloneWalked && console.log("ÿc8ToolsThread :: ÿc1Pausing " + scripts[l]);
-
-					// don't pause townchicken during clone walk
-					if (scripts[l] !== "libs/SoloPlay/Threads/TownChicken.js" || !SoloEvents.cloneWalked) {
-						script.pause();
-					}
+		["libs/SoloPlay/SoloPlay.js", "threads/party.js"].forEach((script) => {
+			let thread = getScript(script);
+			if (thread) {
+				if (thread.running) {
+					script === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8ToolsThread :: ÿc1Pausing " + script);
+					thread.pause();
 				} else {
-					scripts[l] === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8ToolsThread :: ÿc2Resuming threads");
-					script.resume();
+					script === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8ToolsThread :: ÿc2Resuming threads");
+					thread.resume();
 				}
 			}
-		}
+		});
 
 		return true;
 	};
 
 	this.stopDefault = function () {
-		let scripts = [
-			"libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/EventThread.js",
-			"libs/SoloPlay/Threads/AutoBuildThread.js", "libs/SoloPlay/Modules/Guard.js", "libs/SoloPlay/Modules/TownGuard.js"
-		];
-
-		for (let l = 0; l < scripts.length; l += 1) {
-			let script = getScript(scripts[l]);
-			!!script && script.running && script.stop();
-		}
-
+		["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Modules/Guard.js", "threads/party.js"]
+			.forEach(script => {
+				let thread = getScript(script);
+				if (thread && thread.running) {
+					thread.stop();
+				}
+			});
 		return true;
 	};
 

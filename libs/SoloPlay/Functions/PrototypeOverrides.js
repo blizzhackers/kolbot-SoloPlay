@@ -307,8 +307,7 @@ Unit.prototype.getItemType = function () {
 };
 
 Unit.prototype.castChargedSkillEx = function (...args) {
-	let skillId, x, y, unit, chargedItem, charge;
-	let chargedItems = [];
+	let skillId, x, y, unit;
 
 	switch (args.length) {
 	case 0: // item.castChargedSkill()
@@ -348,7 +347,11 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 	unit && ([x, y] = [unit.x, unit.y]);
 
 	if (this !== me && this.type !== sdk.unittype.Item) {
-		Developer.debugging.skills && console.log("ÿc9CastChargedSkillÿc0 :: Wierd Error, invalid arguments, expected 'me' object or 'item' unit" + " unit type : " + this.type);
+		if (Developer.debugging.skills) {
+			console.debug(
+				"ÿc9CastChargedSkillÿc0 :: Wierd Error, invalid arguments, expected 'me' object or 'item' unit" + " unit type : " + this.type
+			);
+		}
 		return false;
 	}
 
@@ -356,7 +359,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 	if (this === me) {
 		if (!skillId) throw Error("Must supply skillId on me.castChargedSkill");
 
-		chargedItems = [];
+		let chargedItems = [];
 
 		CharData.skillData.chargedSkills.forEach(chargeSkill => {
 			if (chargeSkill.skill === skillId) {
@@ -375,14 +378,16 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 			return false;
 		}
 
-		chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
+		let chargedItem = chargedItems
+			.sort((a, b) => a.charge.level - b.charge.level)
+			.first().item;
 
 		// Check if item with charges is equipped on the switch spot
 		me.weaponswitch === 0 && chargedItem.isOnSwap && me.switchWeapons(1);
 
 		return chargedItem.castChargedSkillEx.apply(chargedItem, args);
 	} else if (this.type === sdk.unittype.Item) {
-		charge = this.getStat(-2)[sdk.stats.ChargedSkill]; // WARNING. Somehow this gives duplicates
+		let charge = this.getStat(-2)[sdk.stats.ChargedSkill]; // WARNING. Somehow this gives duplicates
 
 		if (!charge) {
 			console.warn("ÿc9CastChargedSkillÿc0 :: No charged skill on this item");
@@ -391,8 +396,10 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 
 		if (skillId) {
 			if (charge instanceof Array) {
-				charge = charge.filter(item => (item && item.skill === skillId) && !!item.charges); // Filter out all other charged skills
-				charge = charge.first();
+				// Filter out all other charged skills
+				charge = charge
+					.filter(item => (item && item.skill === skillId) && !!item.charges)
+					.first();
 			} else {
 				if (charge.skill !== skillId || !charge.charges) {
 					console.warn("No charges matching skillId");
@@ -405,9 +412,12 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 
 		if (charge) {
 			const usePacket = ([
-				sdk.skills.Valkyrie, sdk.skills.Decoy, sdk.skills.RaiseSkeleton, sdk.skills.ClayGolem, sdk.skills.RaiseSkeletalMage, sdk.skills.BloodGolem, sdk.skills.Shout,
-				sdk.skills.IronGolem, sdk.skills.Revive, sdk.skills.Werewolf, sdk.skills.Werebear, sdk.skills.OakSage, sdk.skills.SpiritWolf, sdk.skills.PoisonCreeper, sdk.skills.BattleOrders,
-				sdk.skills.SummonDireWolf, sdk.skills.Grizzly, sdk.skills.HeartofWolverine, sdk.skills.SpiritofBarbs, sdk.skills.ShadowMaster, sdk.skills.ShadowWarrior, sdk.skills.BattleCommand,
+				sdk.skills.Valkyrie, sdk.skills.Decoy, sdk.skills.RaiseSkeleton, sdk.skills.ClayGolem,
+				sdk.skills.RaiseSkeletalMage, sdk.skills.BloodGolem, sdk.skills.Shout,
+				sdk.skills.IronGolem, sdk.skills.Revive, sdk.skills.Werewolf, sdk.skills.Werebear,
+				sdk.skills.OakSage, sdk.skills.SpiritWolf, sdk.skills.PoisonCreeper, sdk.skills.BattleOrders,
+				sdk.skills.SummonDireWolf, sdk.skills.Grizzly, sdk.skills.HeartofWolverine, sdk.skills.SpiritofBarbs,
+				sdk.skills.ShadowMaster, sdk.skills.ShadowWarrior, sdk.skills.BattleCommand,
 			].indexOf(skillId) === -1);
 
 			if (!usePacket) {
@@ -416,12 +426,22 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 
 			// Packet casting
 			// Setting skill on hand
-			sendPacket(1, sdk.packets.send.SelectSkill, 2, charge.skill, 1, 0x0, 1, 0x00, 4, this.gid);
+			new PacketBuilder()
+				.byte(sdk.packets.send.SelectSkill)
+				.word(charge.skill)
+				.byte(0x00)
+				.byte(0x00)
+				.dword(this.gid)
+				.send();
 			console.log("Set charge skill " + charge.skill + " on hand");
 			// No need for a delay, since its TCP, the server recv's the next statement always after the send cast skill packet
 
 			// Cast the skill
-			sendPacket(1, sdk.packets.send.RightSkillOnLocation, 2, x || me.x, 2, y || me.y);
+			new PacketBuilder()
+				.byte(sdk.packets.send.RightSkillOnLocation)
+				.word(x || me.x)
+				.word(y || me.y)
+				.send();
 			console.log("Cast charge skill " + charge.skill);
 			// The result of "successfully" casted is different, so we cant wait for it here. We have to assume it worked
 
@@ -474,9 +494,7 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 	if (this === me) {
 		if (!skillId) throw Error("Must supply skillId on me.castChargedSkill");
 
-		/**
-		 * @type {{ charge: number, level: number, item: ItemUnit }[]}
-		 */
+		/** @type {{ charge: number, level: number, item: ItemUnit }[]} */
 		let chargedItems = [];
 
 		CharData.skillData.chargedSkillsOnSwitch.forEach(chargeSkill => {
@@ -498,8 +516,9 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 
 		me.weaponswitch === 0 && me.switchWeapons(1);
 
-		let chargedItem = chargedItems.sort((a, b) => a.charge.level - b.charge.level).first().item;
-
+		let chargedItem = chargedItems
+			.sort((a, b) => a.charge.level - b.charge.level)
+			.first().item;
 		return chargedItem.castChargedSkillEx.apply(chargedItem, args);
 	}
 

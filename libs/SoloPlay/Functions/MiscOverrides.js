@@ -9,6 +9,7 @@
 includeIfNotIncluded("core/Misc.js");
 
 Misc.openChestsEnabled = true;
+Misc.screenshotErrors = true;
 Misc.presetChestIds = [
 	5, 6, 87, 104, 105, 106, 107, 143, 140, 141, 144, 146, 147, 148, 176, 177, 181, 183, 198, 240, 241,
 	242, 243, 329, 330, 331, 332, 333, 334, 335, 336, 354, 355, 356, 371, 387, 389, 390, 391, 397, 405,
@@ -746,61 +747,6 @@ Misc.checkSocketables = function () {
 			break;
 		}
 	}
-};
-
-Misc.errorReport = function (error, script) {
-	let msg, oogmsg, filemsg, source, stack;
-	let stackLog = "";
-
-	let date = new Date();
-	let dateString = "[" + new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, -5).replace(/-/g, "/").replace("T", " ") + "]";
-
-	if (typeof error === "string") {
-		msg = error;
-		oogmsg = error.replace(/ÿc[0-9!"+<:;.*]/gi, "");
-		filemsg = dateString + " <" + me.profile + "> " + error.replace(/ÿc[0-9!"+<:;.*]/gi, "") + "\n";
-	} else {
-		source = error.fileName.substring(error.fileName.lastIndexOf("\\") + 1, error.fileName.length);
-		msg = "ÿc1Error in ÿc0" + script + " ÿc1(" + source + " line ÿc1" + error.lineNumber + "): ÿc1" + error.message;
-		oogmsg = " Error in " + script + " (" + source + " #" + error.lineNumber + ") " + error.message + " (Area: " + getAreaName(me.area) + ", Ping:" + me.ping + ", Game: " + me.gamename + ")";
-		filemsg = dateString + " <" + me.profile + "> " + msg.replace(/ÿc[0-9!"+<:;.*]/gi, "") + "\n";
-
-		if (error.hasOwnProperty("stack")) {
-			stack = error.stack;
-
-			if (stack) {
-				stack = stack.split("\n");
-
-				if (stack && typeof stack === "object") {
-					stack.reverse();
-				}
-
-				for (let i = 0; i < stack.length; i += 1) {
-					if (stack[i]) {
-						stackLog += stack[i].substr(0, stack[i].indexOf("@") + 1) + stack[i].substr(stack[i].lastIndexOf("\\") + 1, stack[i].length - 1);
-
-						if (i < stack.length - 1) {
-							stackLog += ", ";
-						}
-					}
-				}
-			}
-		}
-
-		if (stackLog) {
-			filemsg += "Stack: " + stackLog + "\n";
-		}
-	}
-
-	if (this.errorConsolePrint) {
-		D2Bot.printToConsole(oogmsg, sdk.colors.D2Bot.Gray);
-	}
-
-	showConsole();
-	console.log(msg);
-	FileAction.read("logs/ScriptErrorLog.txt", filemsg);
-	takeScreenshot();
-	delay(500);
 };
 
 Misc.updateRecursively = function (oldObj, newObj, path) {

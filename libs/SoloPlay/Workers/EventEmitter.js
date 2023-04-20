@@ -76,7 +76,7 @@
 				try {
 					Tracker.update();
 				} catch (e) {
-					console.warn(e.message);
+					console.error(e);
 				}
 			}
 		}
