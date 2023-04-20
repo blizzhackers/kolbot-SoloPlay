@@ -167,63 +167,62 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
 	if (!Config.AutoEquip) return true;
 
 	let tier = NTIP.GetTier(item);
+	if (tier <= 0) return false;
 	let bodyLoc = this.getBodyLoc(item);
 
-	if (tier > 0 && bodyLoc) {
-		for (let i = 0; i < bodyLoc.length; i += 1) {
-			let equippedItem = Item.getEquipped(bodyLoc[i]);
+	for (let loc of bodyLoc) {
+		let equippedItem = Item.getEquipped(loc);
 
-			// rings are special
-			if (item.isInStorage && item.itemType === sdk.items.type.Ring) {
-				// have to pass in the specific location
-				tier = tierscore(item, 1, bodyLoc[i]);
+		// rings are special
+		if (item.isInStorage && item.itemType === sdk.items.type.Ring) {
+			// have to pass in the specific location
+			tier = tierscore(item, 1, loc);
 
-				if (tier > equippedItem.tierScore) {
-					return true;
+			if (tier > equippedItem.tierScore) {
+				return true;
+			}
+		} else if (tier > equippedItem.tier && (basicCheck ? true : this.canEquip(item) || !item.identified)) {
+			if (Item.canEquip(item)) {
+				if (item.twoHanded && !me.barbarian) {
+					if (tier < Item.getEquipped(sdk.body.RightArm).tier + Item.getEquipped(sdk.body.LeftArm).tier) return false;
 				}
-			} else if (tier > equippedItem.tier && (basicCheck ? true : this.canEquip(item) || !item.identified)) {
-				if (Item.canEquip(item)) {
-					if (item.twoHanded && !me.barbarian) {
-						if (tier < Item.getEquipped(sdk.body.RightArm).tier + Item.getEquipped(sdk.body.LeftArm).tier) return false;
-					}
 
-					if (!me.barbarian && bodyLoc[i] === sdk.body.LeftArm && Item.getEquipped(bodyLoc[i]).tier === -1) {
-						if (Item.getEquipped(sdk.body.RightArm).twoHanded && tier < Item.getEquipped(sdk.body.RightArm).tier) return false;
-					}
-
-					return true;
-				} else {
-					/**
-					 * @param {ItemUnit} item 
-					 * @returns {boolean}
-					 */
-					const checkForBetterItem = (item) => {
-						let betterItem = me.getItemsEx()
-							.filter(el => el.isInStorage && el.gid !== item.gid && el.identified && Item.getBodyLoc(el).includes(loc))
-							.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a))
-							.find(el => NTIP.GetTier(el) > tier);
-						return !!betterItem;
-					};
-					// keep wanted final gear items
-					if (NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
-						// don't horde items we can't equip
-						return !checkForBetterItem(item);
-					}
-
-					let [lvlReq, strReq, dexReq] = [item.getStat(sdk.stats.LevelReq), item.strreq, item.dexreq];
-
-					// todo - bit hacky, better way would be to track what stats are going to be allocated next
-					if ((lvlReq - me.charlvl > 5) || (strReq - me.trueStr > 10) || (dexReq - me.trueDex > 10)) {
-						return false;
-					}
-
-					// if we can't equip it, but it's a good item, keep it as long as we have space for it
-					// lets double check that this is the highest tied'd item of this type in our storage
-					let betterItem = checkForBetterItem(item);
-					if (!betterItem) return true;
-
-					return Storage.Stash.CanFit(item) && Storage.Stash.UsedSpacePercent() < 65;
+				if (!me.barbarian && loc === sdk.body.LeftArm && Item.getEquipped(loc).tier === -1) {
+					if (Item.getEquipped(sdk.body.RightArm).twoHanded && tier < Item.getEquipped(sdk.body.RightArm).tier) return false;
 				}
+
+				return true;
+			} else {
+				/**
+					* @param {ItemUnit} item 
+					* @returns {boolean}
+					*/
+				const checkForBetterItem = (item) => {
+					let betterItem = me.getItemsEx()
+						.filter(el => el.isInStorage && el.gid !== item.gid && el.identified && Item.getBodyLoc(el).includes(loc))
+						.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a))
+						.find(el => NTIP.GetTier(el) > tier);
+					return !!betterItem;
+				};
+				// keep wanted final gear items
+				if (NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
+					// don't horde items we can't equip
+					return !checkForBetterItem(item);
+				}
+
+				let [lvlReq, strReq, dexReq] = [item.getStat(sdk.stats.LevelReq), item.strreq, item.dexreq];
+
+				// todo - bit hacky, better way would be to track what stats are going to be allocated next
+				if ((lvlReq - me.charlvl > 5) || (strReq - me.trueStr > 10) || (dexReq - me.trueDex > 10)) {
+					return false;
+				}
+
+				// if we can't equip it, but it's a good item, keep it as long as we have space for it
+				// lets double check that this is the highest tied'd item of this type in our storage
+				let betterItem = checkForBetterItem(item);
+				if (!betterItem) return true;
+
+				return Storage.Stash.CanFit(item) && Storage.Stash.UsedSpacePercent() < 65;
 			}
 		}
 	}
