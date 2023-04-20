@@ -605,7 +605,6 @@ Pickit.checkSpotForItems = function (spot, checkVsMyDist = false, range = Config
 
 Pickit.pickList = [];
 Pickit.essentialList = [];
-Pickit.ignoreList = [];
 
 // Might need to do a global list so this function and pickItems see the same items to prevent an item from being in both
 Pickit.essessntialsPick = function (clearBeforePick = false, ignoreGold = false, builtList = [], once = false) {
@@ -707,7 +706,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 
 	if (item) {
 		do {
-			if (Pickit.ignoreList.includes(item.gid)) continue;
+			if (Pickit.ignoreList.has(item.gid)) continue;
 			if (Pickit.pickList.some(el => el.gid === item.gid)) continue;
 			if (item.onGroundOrDropping && getDistance(me, item) <= range) {
 				Pickit.pickList.push(copyUnit(item));
@@ -722,11 +721,10 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 
 	while (Pickit.pickList.length > 0) {
 		if (me.dead || !Pickit.enabled) return false;
-
 		Pickit.pickList.sort(this.sortItems);
 		const currItem = Pickit.pickList[0];
 
-		if (Pickit.ignoreList.includes(currItem.gid)) {
+		if (Pickit.ignoreList.has(currItem.gid)) {
 			Pickit.pickList.shift();
 			
 			continue;
@@ -771,7 +769,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 						if (Town.visitTown()) {
 							// Recursive check after going to town. We need to remake item list because gids can change.
 							// Called only if room can be made so it shouldn't error out or block anything.
-							Pickit.ignoreList = []; // reset the list of ignored gids
+							Pickit.ignoreList.clear(); // reset the list of ignored gids
 							return this.pickItems(range, once);
 						}
 
@@ -786,7 +784,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 						Item.logger("No room for", currItem);
 						console.warn("ÿc7Not enough room for " + Item.color(currItem) + currItem.name);
 						// ignore the item now
-						Pickit.ignoreList.push(currItem.gid);
+						Pickit.ignoreList.add(currItem.gid);
 						needMule = true;
 
 						break;
