@@ -232,6 +232,169 @@ if (!me.hasOwnProperty("data")) {
 	});
 }
 
+if (!me.hasOwnProperty("equipped")) {
+	me.equipped = (function () {
+		const defaultsMap = new Map([
+			["gid", -1],
+			["classid", -1],
+			["name", ""],
+			["code", ""],
+			["fname", ""],
+			["quality", -1],
+			["ethereal", false],
+			["itemType", -1],
+			["strreq", -1],
+			["dexreq", -1],
+			["lvlreq", -1],
+			["sockets", -1],
+			["prefixnum", -1],
+			["suffixnum", -1],
+		]);
+
+		/**
+		 * @constructor
+		 * @param {ItemUnit} item 
+		 */
+		function EquippedItem (item) {
+			/** @type {ItemUnit} */
+			this._item = (item instanceof Unit)
+				? copyUnit(item)
+				: null;
+			this._gid = item ? item.gid : -1;
+			this._bodylocation = item ? item.bodylocation : -1;
+
+			return new Proxy(this, {
+				get: function (target, prop) {
+					if (prop in target) {
+						return target[prop];
+					}
+
+					if (target._item && prop in target._item) {
+						return target._item[prop];
+					}
+
+					return defaultsMap.get(prop);
+				}
+			});
+		}
+
+		Object.defineProperties(EquippedItem.prototype, {
+			location: {
+				/** @this EquippedItem */
+				get: function () {
+					return this._item ? this._item.bodylocation : -1;
+				},
+			},
+			durability: {
+				/** @this EquippedItem */
+				get: function () {
+					return this._item ? this._item.durabilityPercent : -1;
+				},
+			},
+			tier: {
+				/** @this EquippedItem */
+				get: function () {
+					return this._item ? NTIP.GetTier(this._item) : -1;
+				},
+			},
+			tierScore: {
+				/** @this EquippedItem */
+				get: function () {
+					return this._item ? tierscore(this._item, 1, this._bodylocation) : -1;
+				},
+			},
+			secondaryTier: {
+				/** @this EquippedItem */
+				get: function () {
+					return this._item ? NTIP.GetSecondaryTier(this._item) : -1;
+				},
+			},
+			socketed: {
+				/** @this EquippedItem */
+				get: function () {
+					return this._item ? this._item.getItemsEx().length > 0 : false;
+				},
+			},
+		});
+
+		EquippedItem.prototype.twoHandedCheck = function (strict = false) {
+			return this._item
+				? strict
+					? this._item.strictlyTwoHanded
+					: this._item.twoHanded
+				: false;
+		};
+
+		EquippedItem.prototype.getStat = function (stat, subid) {
+			return this._item ? this._item.getStat(stat, subid) : -1;
+		};
+
+		EquippedItem.prototype.getStatEx = function (stat, subid) {
+			return this._item ? this._item.getStatEx(stat, subid) : -1;
+		};
+
+		/** @type {Map<number, EquippedItem>} */
+		const bodyMap = new Map();
+		bodyMap.set(sdk.body.Head, new EquippedItem());
+		bodyMap.set(sdk.body.Neck, new EquippedItem());
+		bodyMap.set(sdk.body.Armor, new EquippedItem());
+		bodyMap.set(sdk.body.RightArm, new EquippedItem());
+		bodyMap.set(sdk.body.LeftArm, new EquippedItem());
+		bodyMap.set(sdk.body.Gloves, new EquippedItem());
+		bodyMap.set(sdk.body.RingRight, new EquippedItem());
+		bodyMap.set(sdk.body.RingLeft, new EquippedItem());
+		bodyMap.set(sdk.body.Belt, new EquippedItem());
+		bodyMap.set(sdk.body.Feet, new EquippedItem());
+		bodyMap.set(sdk.body.RightArmSecondary, new EquippedItem());
+		bodyMap.set(sdk.body.LeftArmSecondary, new EquippedItem());
+
+		// const _dummy = new EquippedItem();
+
+		return {
+			/**
+			 * @param {number} bodylocation 
+			 * @returns {EquippedItem}
+			 */
+			get: function (bodylocation) {
+				// if (!bodyMap.has(bodylocation)) return _dummy;
+				let item = bodyMap.get(bodylocation);
+				if (item._gid === -1 || (item._gid !== item.gid || (item._bodylocation !== item.location && me.weaponswitch !== sdk.player.slot.Secondary))) {
+					// item has changed - find the new item
+					let newItem = me.getItemsEx()
+						.filter((el) => el.isEquipped && el.bodylocation === bodylocation)
+						.first();
+					bodyMap.set(bodylocation, new EquippedItem(newItem));
+				}
+				return bodyMap.get(bodylocation);
+			},
+			/**
+			 * @param {number} bodylocation 
+			 * @returns {boolean}
+			 */
+			has: function (bodylocation) {
+				return bodyMap.has(bodylocation);
+			},
+			/**
+			 * @param {number} bodylocation 
+			 * @param {ItemUnit} item
+			 */
+			set: function (bodylocation, item) {
+				if (bodyMap.has(bodylocation) && item instanceof Unit) {
+					bodyMap.set(bodylocation, new EquippedItem(item));
+				}
+			},
+			/**
+			 * @description Initializes the equipped item map with the items currently equipped
+			 */
+			init: function () {
+				me.getItemsEx()
+					.filter(item => item.isEquipped)
+					.forEach(item => bodyMap.set(item.bodylocation, new EquippedItem(item)));
+			},
+		};
+	})();
+}
+
 /** @returns {boolean} */
 me.canTpToTown = function () {
 	// can't tp if dead - or not currently enabled to
