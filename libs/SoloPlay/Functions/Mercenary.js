@@ -70,6 +70,7 @@ const MercData = new function MercData () {
 
 const Mercenary = {
 	minCost: -1,
+	timeout: 0,
 
 	/**
 	 * only a2 mercs for now, need to test others to see if ModifierListSkill returns their skill
@@ -188,9 +189,10 @@ const Mercenary = {
 	// only supports act 2 mercs for now
 	hireMerc: function () {
 		if (me.classic) return true;
+		if (Mercenary.timeout && getTickCount() < Mercenary.timeout) return true;
 		let _a;
 		let { wantedMerc } = Check.finalBuild();
-		let mercAct = (!Pather.accessToAct(2) && me.normal ? 1 : wantedMerc.act);
+		let mercAct = (!me.accessToAct(2) && me.normal ? 1 : wantedMerc.act);
 		let tmpAuraName = "Defiance";
 		let currMerc = me.data.merc;
 
@@ -207,7 +209,7 @@ const Mercenary = {
 		case mercAct === 1 && (currMerc.skillName === "Cold Arrow" || !Misc.checkQuest(sdk.quest.id.SistersBurialGrounds, sdk.quest.states.Completed)):
 		case currMerc.skillName === wantedMerc.skillName:
 		case me.diff > wantedMerc.difficulty:
-		case me.diff === wantedMerc.difficulty && !Pather.accessToAct(wantedMerc.act):
+		case me.diff === wantedMerc.difficulty && !me.accessToAct(wantedMerc.act):
 		case me.diff !== wantedMerc.difficulty && currMerc.skillName === "Defiance":
 		case (me.charlvl > CharInfo.levelCap + 10 && Mercenary.checkMercSkill(wantedMerc)):
 		case me.gold < Math.round((((me.charlvl - 1) * (me.charlvl - 1)) / 2) * 7.5):
@@ -267,46 +269,44 @@ const Mercenary = {
 				.filter((merc) => merc.skills.some((skill) => (skill === null || skill === void 0 ? void 0 : skill.name) === wantedSkill))
 				.sort((a, b) => b.level - a.level)
 				.first();
-			if (wantedMerc) {
-				if (wantedMerc.cost > me.gold) {
-					Mercenary.minCost = wantedMerc.cost;
-					throw new Error("Too expensive " + wantedMerc.cost);
-				}
+			if (!wantedMerc) throw new Error("No merc found with skill " + wantedSkill);
+			if (wantedMerc.cost > me.gold) {
+				Mercenary.minCost = wantedMerc.cost;
+				throw new Error("Too expensive " + wantedMerc.cost);
+			}
 
-				let oldGid_1 = (_a = me.getMercEx()) === null || _a === void 0 ? void 0 : _a.gid;
-				console.log("ÿc9Mercenaryÿc0 :: Found a merc to hire " + JSON.stringify(wantedMerc));
+			let oldGid_1 = (_a = me.getMercEx()) === null || _a === void 0 ? void 0 : _a.gid;
+			console.log("ÿc9Mercenaryÿc0 :: Found a merc to hire " + JSON.stringify(wantedMerc));
 
-				(wantedMerc === null || wantedMerc === void 0)
-					? void 0
-					: wantedMerc.hire();
-				let newMerc = Misc.poll(function () {
-					let merc = me.getMerc();
-					if (!merc) return false;
-					if (oldGid_1 && oldGid_1 === merc.gid) return false;
-					return merc;
-				});
-				
-				console.log("Hired a merc?");
-				if (newMerc) {
-					console.log("Yep");
-					me.data.merc.act = me.act;
-					me.data.merc.classid = newMerc.classid;
-					me.data.merc.difficulty = me.diff;
-					me.data.merc.skillName = wantedMerc.skills.find(sk => sk.name === wantedSkill).name;
-					me.data.merc.skill = MercData.findByName(me.data.merc.skillName, me.act).skill;
-					CharData.updateData("merc", me.data) && me.update();
-					console.log("ÿc9Mercenaryÿc0 :: " + me.data.merc.skillName + " merc hired.");
-				}
-				me.cancelUIFlags();
-				while (getInteractedNPC()) {
-					delay(me.ping || 5);
-					me.cancel();
-				}
-			} else {
-				console.warn("Failed to find wanted Merc");
+			(wantedMerc === null || wantedMerc === void 0)
+				? void 0
+				: wantedMerc.hire();
+			let newMerc = Misc.poll(function () {
+				let merc = me.getMerc();
+				if (!merc) return false;
+				if (oldGid_1 && oldGid_1 === merc.gid) return false;
+				return merc;
+			});
+			
+			console.log("Hired a merc?");
+			if (newMerc) {
+				console.log("Yep");
+				me.data.merc.act = me.act;
+				me.data.merc.classid = newMerc.classid;
+				me.data.merc.difficulty = me.diff;
+				me.data.merc.skillName = wantedMerc.skills.find(sk => sk.name === wantedSkill).name;
+				me.data.merc.skill = MercData.findByName(me.data.merc.skillName, me.act).skill;
+				CharData.updateData("merc", me.data) && me.update();
+				console.log("ÿc9Mercenaryÿc0 :: " + me.data.merc.skillName + " merc hired.");
+			}
+			me.cancelUIFlags();
+			while (getInteractedNPC()) {
+				delay(me.ping || 5);
+				me.cancel();
 			}
 		} catch (e) {
 			console.error(e);
+			Mercenary.timeout = getTickCount() + Time.minutes(3);
 		} finally {
 			removeEventListener("gamepacket", MercLib_1.mercPacket);
 		}
