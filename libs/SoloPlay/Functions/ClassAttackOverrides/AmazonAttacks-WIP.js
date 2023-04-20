@@ -138,7 +138,7 @@ ClassAttack.doAttack = function (unit) {
 			range: Skill.getRange(sdk.skills.Jab),
 			mana: Skill.getManaCost(sdk.skills.Jab),
 			use: function () {
-				return (this.level > 0 && Item.getEquipped(sdk.body.RightArm).tier >= 1000);
+				return (this.level > 0 && me.equipped.get(sdk.body.RightArm).tier >= 1000);
 			}
 		},
 	};

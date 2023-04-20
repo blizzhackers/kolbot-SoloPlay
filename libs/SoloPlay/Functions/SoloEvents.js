@@ -208,7 +208,7 @@
 
 			!me.inTown && Town.goToTown();
 
-			if (Pather.accessToAct(2) && Pather.checkWP(sdk.areas.ArcaneSanctuary)) {
+			if (me.accessToAct(2) && Pather.checkWP(sdk.areas.ArcaneSanctuary)) {
 				Pather.useWaypoint(sdk.areas.ArcaneSanctuary);
 				Precast.doPrecast(true);
 

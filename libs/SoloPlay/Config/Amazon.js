@@ -74,17 +74,17 @@
 	Config.imbueables = [
 		{ name: sdk.items.MaidenJavelin, condition: () => me.normal && me.expansion },
 		{ name: sdk.items.CeremonialJavelin, condition: () => !me.normal && (me.charlvl < 48 || me.trueStr < 107 || me.trueDex < 151) && me.expansion },
-		{ name: sdk.items.MatriarchalJavelin, condition: () => (Item.getEquipped(sdk.body.RightArm).tier < 100000 && me.trueStr >= 107 && me.trueDex >= 151 && me.expansion) },
-		{ name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic)) },
-		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic)) },
-		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 100000 || me.classic)) },
+		{ name: sdk.items.MatriarchalJavelin, condition: () => (me.equipped.get(sdk.body.RightArm).tier < 100000 && me.trueStr >= 107 && me.trueDex >= 151 && me.expansion) },
+		{ name: sdk.items.Belt, condition: () => (me.normal && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic)) },
+		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic)) },
+		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic)) },
 	];
 
 	let imbueArr = SetUp.imbueItems();
 
 	!me.smith && NTIP.buildList(imbueArr);
 
-	if (Item.getEquipped(sdk.body.RightArm).tier < 100000) {
+	if (me.equipped.get(sdk.body.RightArm).tier < 100000) {
 		Config.GambleItems.push("Javelin");
 		Config.GambleItems.push("Pilum");
 		Config.GambleItems.push("Short Spear");
@@ -94,7 +94,7 @@
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:
 		// Res shield
-		if (Item.getEquipped(sdk.body.LeftArm).tier < 487) {
+		if (me.equipped.get(sdk.body.LeftArm).tier < 487) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
 		}
 		
@@ -116,11 +116,11 @@
 
 		/* Crafting */
 		// Going with Blood but TODO is test HitPower vs Blood
-		if (Item.getEquipped(sdk.body.Neck).tier < 100000) {
+		if (me.equipped.get(sdk.body.Neck).tier < 100000) {
 			Config.Recipes.push([Recipe.Blood.Amulet]);
 		}
 
-		if (Item.getEquipped(sdk.body.RingLeft).tier < 100000) {
+		if (me.equipped.get(sdk.body.RingLeft).tier < 100000) {
 			Config.Recipes.push([Recipe.Blood.Ring]);
 		}
 
@@ -155,9 +155,9 @@
 			}
 
 			// Spirit shield - while lvling and Wf final switch
-			if ((me.ladder || Developer.addLadderRW) && (Item.getEquipped(5).tier < 1000
+			if ((me.ladder || Developer.addLadderRW) && (me.equipped.get(5).tier < 1000
 				&& (["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1)
-				|| (SetUp.finalBuild === "Wfzon" && Item.getEquipped(12).prefixnum !== sdk.locale.items.Spirit))) {
+				|| (SetUp.finalBuild === "Wfzon" && me.equipped.get(12).prefixnum !== sdk.locale.items.Spirit))) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 			}
 
@@ -185,7 +185,7 @@
 			}
 
 			// Spirit shield
-			if ((me.ladder || Developer.addLadderRW) && (Item.getEquipped(sdk.body.LeftArm).tier < 1000 || Item.getEquipped(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
+			if ((me.ladder || Developer.addLadderRW) && (me.equipped.get(sdk.body.LeftArm).tier < 1000 || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 			}
 
@@ -210,17 +210,17 @@
 		}
 
 		// Lore
-		if (Item.getEquipped(sdk.body.Head).tier < 250) {
+		if (me.equipped.get(sdk.body.Head).tier < 250) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
 		}
 
 		// Ancients' Pledge
-		if (Item.getEquipped(sdk.body.LeftArm).tier < 500 && ["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) {
+		if (me.equipped.get(sdk.body.LeftArm).tier < 500 && ["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
 		}
 
 		// Treachery
-		if (Item.getEquipped(sdk.body.Armor).tier < 634) {
+		if (me.equipped.get(sdk.body.Armor).tier < 634) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Treachery.js");
 		}
 
@@ -240,12 +240,12 @@
 		}
 
 		// Smoke
-		if (Item.getEquipped(sdk.body.Armor).tier < 634) {
+		if (me.equipped.get(sdk.body.Armor).tier < 634) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js");
 		}
 
 		// Stealth
-		if (Item.getEquipped(sdk.body.Armor).tier < 233) {
+		if (me.equipped.get(sdk.body.Armor).tier < 233) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js");
 		}
 

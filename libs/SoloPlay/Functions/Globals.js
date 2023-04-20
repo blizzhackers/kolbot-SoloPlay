@@ -383,6 +383,11 @@ const SetUp = {
 	},
 
 	config: function () {
+		me.equipped.init();
+		// just initializes the data
+		Check.currentBuild();
+		Check.finalBuild();
+
 		Config.socketables = [];
 		Config.AutoEquip = true;
 
@@ -617,7 +622,7 @@ const Check = {
 		let gold = me.gold;
 		let goldLimit = [25000, 50000, 100000][me.diff];
 
-		if ((me.normal && !Pather.accessToAct(2)) || gold >= goldLimit) {
+		if ((me.normal && !me.accessToAct(2)) || gold >= goldLimit) {
 			return true;
 		}
 
@@ -632,7 +637,7 @@ const Check = {
 
 		switch (true) {
 		case (me.charlvl < 15):
-		case (me.normal && !Pather.accessToAct(2)):
+		case (me.normal && !me.accessToAct(2)):
 		case (gold >= lowGold):
 		case (me.charlvl >= 15 && gold > Math.floor(lowGold / 2) && gold > me.getRepairCost()):
 			return false;
@@ -650,14 +655,14 @@ const Check = {
 		let gold = me.gold;
 
 		// Almost broken but not quite
-		if (((Item.getEquipped(sdk.body.RightArm).durability <= 30 && Item.getEquipped(sdk.body.RightArm).durability > 0)
-			|| (Item.getEquipped(sdk.body.LeftArm).durability <= 30 && Item.getEquipped(sdk.body.LeftArm).durability > 0)
+		if (((me.equipped.get(sdk.body.RightArm).durability <= 30 && me.equipped.get(sdk.body.RightArm).durability > 0)
+			|| (me.equipped.get(sdk.body.LeftArm).durability <= 30 && me.equipped.get(sdk.body.LeftArm).durability > 0)
 			&& !me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000)) {
 			return 1;
 		}
 
 		// Broken
-		if ((Item.getEquipped(sdk.body.RightArm).durability === 0 || Item.getEquipped(sdk.body.LeftArm).durability === 0) && me.charlvl >= 15 && !me.normal && gold < 1000) {
+		if ((me.equipped.get(sdk.body.RightArm).durability === 0 || me.equipped.get(sdk.body.LeftArm).durability === 0) && me.charlvl >= 15 && !me.normal && gold < 1000) {
 			return 2;
 		}
 
@@ -774,7 +779,7 @@ const Check = {
 				|| (!me.paladin && me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have)
 				|| (me.paladin && me.haveAll([{ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }, { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.AuricShields }]))
 				|| (me.necromancer && me.checkItem({ name: sdk.locale.items.White }).have
-					&& (me.checkItem({ name: sdk.locale.items.Rhyme, itemtype: sdk.items.type.VoodooHeads }).have || Item.getEquipped(sdk.body.LeftArm).tier > 800))
+					&& (me.checkItem({ name: sdk.locale.items.Rhyme, itemtype: sdk.items.type.VoodooHeads }).have || me.equipped.get(sdk.body.LeftArm).tier > 800))
 				|| (me.barbarian && (me.checkItem({ name: sdk.locale.items.Lawbringer }).have || me.baal))) {
 				needRunes = false;
 			}
@@ -1049,7 +1054,7 @@ const Check = {
 	usePreviousSocketQuest: function () {
 		if (me.classic) return;
 		if (!Check.resistance().Status) {
-			if (me.weaponswitch === 0 && Item.getEquipped(sdk.body.LeftArm).fname.includes("Lidless Wall") && !Item.getEquipped(sdk.body.LeftArm).socketed) {
+			if (me.weaponswitch === 0 && me.equipped.get(sdk.body.LeftArm).fname.includes("Lidless Wall") && !me.equipped.get(sdk.body.LeftArm).socketed) {
 				if (!me.normal) {
 					if (!me.data.normal.socketUsed) goToDifficulty(sdk.difficulty.Normal, " to use socket quest");
 					if (me.hell && !me.data.nightmare.socketUsed) goToDifficulty(sdk.difficulty.Nightmare, " to use socket quest");

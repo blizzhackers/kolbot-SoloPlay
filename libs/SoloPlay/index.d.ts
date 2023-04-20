@@ -103,6 +103,31 @@ declare global {
 		};
 	}
 
+	interface EquippedItem extends ItemUnit {
+		location: number;
+		durability: number;
+		tier: number;
+		tierScore: number;
+		secondaryTier: number;
+		socketed: boolean;
+		twoHandedCheck: (strict?: boolean) => boolean;
+	}
+
+	// type EquippedItem = {
+	// 	classid: number;
+	// 	name: string;
+	// 	fname: string;
+	// 	quality: number;
+	// 	prefixnum: number;
+	// 	suffixnum: number;
+	// 	itemType: number;
+	// 	strreq: number;
+	// 	dexreq: number;
+	// 	sockets: number;
+	// 	getStat: (stat: number, subid: number) => number;
+	// };
+	type EquippedMap = Map<number, EquippedItem>;
+
 	interface MeType {
 		readonly maxNearMonsters: number;
 		readonly dualWielding: boolean;
@@ -115,10 +140,18 @@ declare global {
 		readonly LR: number;
 		readonly PR: number;
 		readonly onFinalBuild: boolean;
+		readonly trueStr: number;
+		readonly trueDex: number;
 
 		finalBuild: Build;
 		currentBuild: Build;
 		data: MyData;
+		equipped: {
+			get: (bodylocation: number) => EquippedItem | undefined;
+			has: (bodylocation: number) => boolean;
+			set: (bodylocation: number, item: ItemUnit) => void;
+			init: () => void;
+		};
 
 		canTpToTown(): boolean;
 		getMercEx(): MercUnit | null;

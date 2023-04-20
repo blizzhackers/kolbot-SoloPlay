@@ -104,53 +104,6 @@ Item.getBodyLoc = function (item) {
 	return [];
 };
 
-// todo: clean this up
-Item.getEquipped = function (bodyLoc = -1) {
-	let item = me.getItemsEx().filter((item) => item.isEquipped && item.bodylocation === bodyLoc).first();
-
-	if (item) {
-		return {
-			classid: item.classid,
-			name: item.name,
-			fname: item.fname,
-			prefixnum: item.prefixnum,
-			itemType: item.itemType,
-			quality: item.quality,
-			tier: NTIP.GetTier(item),
-			tierScore: tierscore(item, 1, bodyLoc),
-			secondarytier: NTIP.GetSecondaryTier(item),
-			str: item.getStatEx(sdk.stats.Strength),
-			dex: item.getStatEx(sdk.stats.Dexterity),
-			durability: item.durabilityPercent,
-			sockets: item.sockets,
-			socketed: item.getItemsEx().length > 0,
-			isRuneword: item.runeword,
-			twoHanded: item.twoHanded,
-			finalItem: NTIP.GetTier(item) >= NTIP.MAX_TIER,
-		};
-	}
-
-	// Don't have anything equipped in there
-	return {
-		classid: -1,
-		name: "none",
-		fname: "none",
-		prefixnum: -1,
-		itemType: -1,
-		quality: -1,
-		tier: -1,
-		tierScore: -1,
-		secondarytier: -1,
-		str: 0,
-		dex: 0,
-		durability: 0,
-		sockets: 0,
-		socketed: false,
-		isRuneword: false,
-		twoHanded: false,
-	};
-};
-
 /**
  * @param {ItemUnit} item 
  */
@@ -171,7 +124,7 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
 	let bodyLoc = this.getBodyLoc(item);
 
 	for (let loc of bodyLoc) {
-		let equippedItem = Item.getEquipped(loc);
+		const equippedItem = me.equipped.get(loc);
 
 		// rings are special
 		if (item.isInStorage && item.itemType === sdk.items.type.Ring) {
@@ -184,19 +137,19 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
 		} else if (tier > equippedItem.tier && (basicCheck ? true : this.canEquip(item) || !item.identified)) {
 			if (Item.canEquip(item)) {
 				if (item.twoHanded && !me.barbarian) {
-					if (tier < Item.getEquipped(sdk.body.RightArm).tier + Item.getEquipped(sdk.body.LeftArm).tier) return false;
+					if (tier < me.equipped.get(sdk.body.RightArm).tier + me.equipped.get(sdk.body.LeftArm).tier) return false;
 				}
 
-				if (!me.barbarian && loc === sdk.body.LeftArm && Item.getEquipped(loc).tier === -1) {
-					if (Item.getEquipped(sdk.body.RightArm).twoHanded && tier < Item.getEquipped(sdk.body.RightArm).tier) return false;
+				if (!me.barbarian && loc === sdk.body.LeftArm && me.equipped.get(loc).tier === -1) {
+					if (me.equipped.get(sdk.body.RightArm).twoHanded && tier < me.equipped.get(sdk.body.RightArm).tier) return false;
 				}
 
 				return true;
 			} else {
 				/**
-					* @param {ItemUnit} item 
-					* @returns {boolean}
-					*/
+				 * @param {ItemUnit} item 
+				 * @returns {boolean}
+				 */
 				const checkForBetterItem = (item) => {
 					let betterItem = me.getItemsEx()
 						.filter(el => el.isInStorage && el.gid !== item.gid && el.identified && Item.getBodyLoc(el).includes(loc))
@@ -271,7 +224,11 @@ Item.autoEquip = function (task = "") {
 		console.debug(prettyName + " tier: " + tier);
 
 		if (this.equip(item, bodyLoc)) {
-			console.log("ÿc9" + task + "ÿc0 :: Equipped: " + prettyName + " Tier: " + tier);
+			console.log(
+				"ÿc9" + task + "ÿc0 :: \n"
+				+ "ÿc9 - Equippedÿc0: " + prettyName + "\n"
+				+ "ÿc9 - Tierÿc0: " + tier
+			);
 			// item that can have sockets
 			if (item.getItemType()) {
 				SoloWants.addToList(item);
@@ -279,9 +236,14 @@ Item.autoEquip = function (task = "") {
 			}
 			Developer.debugging.autoEquip && Item.logItem(task, me.getItem(-1, -1, gid));
 			Developer.logEquipped && MuleLogger.logEquippedItems();
+			me.equipped.set(bodyLoc, item);
 		} else if (!noStash && item.lvlreq > me.charlvl && !item.isInStash) {
 			if (Storage.Stash.CanFit(item)) {
-				console.log("ÿc9" + task + "ÿc0 :: Item level is to high, attempting to stash for now as its better than what I currently have: " + prettyName + " Tier: " + tier);
+				console.log(
+					"ÿc9" + task + "ÿc0 :: \n"
+					+ "- " + prettyName + " Item req is too high (" + item.lvlreq + ") for my level (" + me.charlvl + ") \n"
+					+ "- Stash for now as its better than what I currently have. Tier: " + tier
+				);
 				Storage.Stash.MoveTo(item);
 			}
 		} else if (me.getItem(-1, -1, gid)) {
@@ -299,13 +261,14 @@ Item.autoEquip = function (task = "") {
 	}
 
 	// ring check - sometimes a higher tier ring ends up on the wrong finger causing a rollback loop
-	if (Item.getEquipped(sdk.body.RingLeft).tierScore > Item.getEquipped(sdk.body.RingRight).tierScore) {
+	if (me.equipped.get(sdk.body.RingLeft).tierScore > me.equipped.get(sdk.body.RingRight).tierScore) {
 		console.log("ÿc9" + task + "ÿc0 :: Swapping rings, higher tier ring is on the wrong finger");
 		clickItemAndWait(sdk.clicktypes.click.item.Left, sdk.body.RingLeft);
 		delay(200);
 		me.itemoncursor && clickItemAndWait(sdk.clicktypes.click.item.Left, sdk.body.RingRight);
 		delay(200);
 		me.itemoncursor && clickItemAndWait(sdk.clicktypes.click.item.Left, sdk.body.RingLeft);
+		me.equipped.init();
 	}
 
 	!getUIFlag(sdk.uiflags.Shop) && me.cancel();
@@ -319,7 +282,7 @@ Item.autoEquip = function (task = "") {
 		let bodyLoc = this.getBodyLoc(item);
 
 		for (let loc of bodyLoc) {
-			const equippedItem = Item.getEquipped(loc);
+			const equippedItem = me.equipped.get(loc);
 			if (equippedItem.classid === sdk.items.quest.KhalimsWill) continue;
 			// rings are special
 			if (item.itemType === sdk.items.type.Ring) {
@@ -334,17 +297,18 @@ Item.autoEquip = function (task = "") {
 				}
 			} else {
 				if (tier > equippedItem.tier) {
+					console.debug("EquippedItem :: " + equippedItem.prettyPrint + " |ÿc0 Tier: " + equippedItem.tier);
 					Item.identify(item);
 
 					if (item.twoHanded && !me.barbarian) {
-						if (tier < Item.getEquipped(sdk.body.RightArm).tier + Item.getEquipped(sdk.body.LeftArm).tier) {
+						if (tier < me.equipped.get(sdk.body.RightArm).tier + me.equipped.get(sdk.body.LeftArm).tier) {
 							continue;
 						}
 						console.log("ÿc9" + task + "ÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + item.fname + " Tier: " + tier);
 					}
 
-					if (!me.barbarian && loc === sdk.body.LeftArm && equippedItem.tier === -1 && Item.getEquipped(sdk.body.RightArm).twoHanded) {
-						if (tier < Item.getEquipped(sdk.body.RightArm).tier) {
+					if (!me.barbarian && loc === sdk.body.LeftArm && equippedItem.tier === -1 && me.equipped.get(sdk.body.RightArm).twoHanded) {
+						if (tier < me.equipped.get(sdk.body.RightArm).tier) {
 							continue;
 						}
 						console.log("ÿc9" + task + "ÿc0 :: TwoHandedWep not as good as what we want to equip on our shield hand : " + item.fname + " Tier: " + tier);
@@ -405,14 +369,14 @@ Item.equip = function (item, bodyLoc) {
 
 					if (cursorItem) {
 						// rollback check
-						let justEquipped = Item.getEquipped(bodyLoc);
+						let justEquipped = me.equipped.get(bodyLoc);
 						let checkScore = 0;
 						switch (cursorItem.itemType) {
 						case sdk.items.type.Ring:
 							checkScore = tierscore(cursorItem, 1, bodyLoc);
 							if (checkScore > justEquipped.tierScore) {
 								console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
-								console.debug("OldItem: " + checkScore + " Just Equipped Item: " + Item.getEquipped(bodyLoc).tierScore);
+								console.debug("OldItem: " + checkScore + " Just Equipped Item: " + me.equipped.get(bodyLoc).tierScore);
 								clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc);
 								cursorItem = Game.getCursorUnit();
 								rolledBack = true;
@@ -423,7 +387,7 @@ Item.equip = function (item, bodyLoc) {
 							checkScore = NTIP.GetTier(cursorItem);
 							if (checkScore > justEquipped.tier && !item.questItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attempt rollback*/) {
 								console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
-								console.debug("OldItem: " + checkScore + " Just Equipped Item: " + Item.getEquipped(bodyLoc).tier);
+								console.debug("OldItem: " + checkScore + " Just Equipped Item: " + me.equipped.get(bodyLoc).tier);
 								clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc);
 								cursorItem = Game.getCursorUnit();
 								rolledBack = true;
@@ -492,22 +456,18 @@ Item.hasSecondaryTier = (item) => Config.AutoEquip && me.expansion && NTIP.GetSe
  * @param {ItemUnit} item 
  */
 Item.getSecondaryBodyLoc = function (item) {
-	let bodyLoc = (() => {
-		switch (true) {
-		case Item.shieldTypes.includes(item.itemType):
-			return sdk.body.LeftArmSecondary;
-		case Item.weaponTypes.includes(item.itemType):
-			return me.barbarian && item.twoHanded && !item.strictlyTwoHanded
-				? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary]
-				: sdk.body.RightArmSecondary;
-		case [sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw].includes(item.itemType):
-			return !Check.currentBuild().caster && me.assassin ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary] : sdk.body.RightArmSecondary;
-		default:
-			return false;
-		}
-	})();
-
-	return Array.isArray(bodyLoc) ? bodyLoc : [bodyLoc];
+	if (Item.shieldTypes.includes(item.itemType)) return [sdk.body.LeftArmSecondary];
+	if ([sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw].includes(item.itemType)) {
+		return !Check.currentBuild().caster && me.assassin
+			? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary]
+			: [sdk.body.RightArmSecondary];
+	}
+	if (Item.weaponTypes.includes(item.itemType)) {
+		return me.barbarian && item.twoHanded && !item.strictlyTwoHanded
+			? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary]
+			: [sdk.body.RightArmSecondary];
+	}
+	return [];
 };
 
 /**
@@ -562,10 +522,11 @@ Item.autoEquipCheckSecondary = function (item) {
 	if (me.classic) return false;
 
 	let tier = NTIP.GetSecondaryTier(item);
+	if (tier <= 0) return false;
 	let bodyLoc = Item.getSecondaryBodyLoc(item);
 
-	for (let i = 0; tier > 0 && i < bodyLoc.length; i += 1) {
-		if (tier > Item.getEquipped(bodyLoc[i]).secondarytier && (Item.canEquip(item) || !item.identified)) {
+	for (let loc of bodyLoc) {
+		if (tier > me.equipped.get(loc).secondaryTier && (Item.canEquip(item) || !item.identified)) {
 			return true;
 		}
 	}
@@ -605,27 +566,30 @@ Item.autoEquipSecondary = function (task = "") {
 	while (items.length > 0) {
 		items.sort(sortEq);
 		const item = items.shift();
+		if (!item.isInStorage) continue;
 		const tier = NTIP.GetSecondaryTier(item);
+		if (tier <= 0) continue;
 		let bodyLoc = Item.getSecondaryBodyLoc(item);
 
-		if (tier > 0 && bodyLoc) {
-			for (let j = 0; j < bodyLoc.length; j += 1) {
-				const equippedItem = Item.getEquipped(bodyLoc[j]);
-				if (item.isInStorage && tier > equippedItem.secondarytier && equippedItem.classid !== sdk.items.quest.KhalimsWill) {
-					Item.identify(item);
+		for (let loc of bodyLoc) {
+			const equippedItem = me.equipped.get(loc);
+			// should never happen - but just in case
+			if (equippedItem.classid === sdk.items.quest.KhalimsWill) continue;
+			if (tier > equippedItem.secondaryTier) {
+				Item.identify(item);
 
-					let gid = item.gid;
-					let prettyName = item.prettyPrint;
-					console.debug(prettyName + " tier: " + tier);
+				let gid = item.gid;
+				let prettyName = item.prettyPrint;
+				console.debug(prettyName + " tier: " + tier);
 
-					if (this.secondaryEquip(item, bodyLoc[j])) {
-						console.log("ÿc9SecondaryEquipÿc0 :: Equipped: " + prettyName + " SecondaryTier: " + tier);
-						Developer.debugging.autoEquip && Item.logItem("Equipped switch", me.getItem(-1, -1, gid));
-						Developer.logEquipped && MuleLogger.logEquippedItems();
-					}
-
-					break;
+				if (this.secondaryEquip(item, loc)) {
+					console.log("ÿc9SecondaryEquipÿc0 :: Equipped: " + prettyName + " SecondaryTier: " + tier);
+					Developer.debugging.autoEquip && Item.logItem("Equipped switch", me.getItem(-1, -1, gid));
+					Developer.logEquipped && MuleLogger.logEquippedItems();
+					me.equipped.set(loc, item);
 				}
+
+				break;
 			}
 		}
 	}
@@ -710,7 +674,9 @@ Item.getMercEquipped = function (bodyLoc = -1) {
 	let mercenary = me.getMercEx();
 
 	if (mercenary) {
-		let item = mercenary.getItemsEx().filter((item) => item.isEquipped && item.bodylocation === bodyLoc).first();
+		let item = mercenary.getItemsEx()
+			.filter((item) => item.isEquipped && item.bodylocation === bodyLoc)
+			.first();
 
 		if (item) {
 			return {
@@ -737,37 +703,40 @@ Item.getMercEquipped = function (bodyLoc = -1) {
 
 /**
  * @param {ItemUnit} item 
+ * @returns {number[]}
  */
 Item.getBodyLocMerc = function (item) {
-	let mercenary = me.getMercEx();
+	let _mercId = me.data.merc.classid;
 
-	// dont have merc or he is dead
-	if (!mercenary) return false;
-
-	let bodyLoc = (() => {
-		switch (item.itemType) {
-		case sdk.items.type.Shield:
-			return (mercenary.classid === sdk.mercs.IronWolf ? sdk.body.LeftArm : []);
-		case sdk.items.type.Armor:
-			return sdk.body.Armor;
-		case sdk.items.type.Helm:
-		case sdk.items.type.Circlet:
-			return sdk.body.Head;
-		case sdk.items.type.PrimalHelm:
-			return (mercenary.classid === sdk.mercs.A5Barb ? sdk.body.Head : []);
-		case sdk.items.type.Bow:
-			return (mercenary.classid === sdk.mercs.Rogue ? sdk.body.RightArm : []);
-		case sdk.items.type.Spear:
-		case sdk.items.type.Polearm:
-			return (mercenary.classid === sdk.mercs.Guard ? sdk.body.RightArm : []);
-		case sdk.items.type.Sword:
-			return ([sdk.mercs.IronWolf, sdk.mercs.A5Barb].includes(mercenary.classid) ? sdk.body.RightArm : []);
-		default:
-			return false;
-		}
-	})();
-
-	return Array.isArray(bodyLoc) ? bodyLoc : [bodyLoc];
+	switch (item.itemType) {
+	case sdk.items.type.Shield:
+		return (_mercId === sdk.mercs.IronWolf
+			? [sdk.body.LeftArm]
+			: []);
+	case sdk.items.type.Armor:
+		return [sdk.body.Armor];
+	case sdk.items.type.Helm:
+	case sdk.items.type.Circlet:
+		return [sdk.body.Head];
+	case sdk.items.type.PrimalHelm:
+		return (_mercId === sdk.mercs.A5Barb
+			? [sdk.body.Head]
+			: []);
+	case sdk.items.type.Bow:
+		return (_mercId === sdk.mercs.Rogue
+			? [sdk.body.RightArm]
+			: []);
+	case sdk.items.type.Spear:
+	case sdk.items.type.Polearm:
+		return (_mercId === sdk.mercs.Guard
+			? [sdk.body.RightArm]
+			: []);
+	case sdk.items.type.Sword:
+		return ([sdk.mercs.IronWolf, sdk.mercs.A5Barb].includes(_mercId)
+			? sdk.body.RightArm
+			: []);
+	}
+	return [];
 };
 
 /**
@@ -779,23 +748,22 @@ Item.autoEquipCheckMerc = function (item, basicCheck = false) {
 	if (Config.AutoEquip && !me.getMercEx()) return false;
 
 	let tier = NTIP.GetMercTier(item);
+	if (tier <= 0) return false;
 	let bodyLoc = Item.getBodyLocMerc(item);
 
-	if (tier > 0 && bodyLoc) {
-		for (let i = 0; i < bodyLoc.length; i += 1) {
-			let oldTier = Item.getMercEquipped(bodyLoc[i]).tier; // Low tier items shouldn't be kept if they can't be equipped
+	for (let loc of bodyLoc) {
+		let oldTier = Item.getMercEquipped(loc).tier;
 
-			if (tier > oldTier) {
-				if (Item.canEquipMerc(item) || !item.identified) {
+		if (tier > oldTier) {
+			if (Item.canEquipMerc(item) || !item.identified) {
+				return true;
+			} else if (basicCheck) {
+				// keep wanted final gear items
+				if (NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
 					return true;
-				} else if (basicCheck) {
-					// keep wanted final gear items
-					if (NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
-						return true;
-					}
-
-					return false;
 				}
+
+				return false;
 			}
 		}
 	}
@@ -812,17 +780,13 @@ Item.autoEquipMerc = function () {
 			let tier = NTIP.GetMercTier(item);
 			return (item.identified ? tier > 0 : tier !== 0);
 		});
-
 	if (!items.length) return false;
 
 	function sortEq (a, b) {
-		if (Item.canEquipMerc(a) && Item.canEquipMerc(b)) {
-			return NTIP.GetMercTier(b) - NTIP.GetMercTier(a);
-		}
-
-		if (Item.canEquipMerc(a)) return -1;
-		if (Item.canEquipMerc(b)) return 1;
-
+		let [prioA, prioB] = [Item.canEquip(a), Item.canEquip(b)];
+		if (prioA && prioB) return NTIP.GetMercTier(b) - NTIP.GetMercTier(a);
+		if (prioA) return -1;
+		if (prioB) return 1;
 		return 0;
 	}
 
@@ -832,26 +796,25 @@ Item.autoEquipMerc = function () {
 		items.sort(sortEq);
 		const item = items.shift();
 		const tier = NTIP.GetMercTier(item);
+		if (tier <= 0) continue;
 		const bodyLoc = Item.getBodyLocMerc(item);
 		const name = item.name;
 
-		if (tier > 0 && bodyLoc) {
-			for (let j = 0; j < bodyLoc.length; j += 1) {
-				if ([sdk.storage.Inventory, sdk.storage.Stash].includes(item.location) && tier > Item.getMercEquipped(bodyLoc[j]).tier) {
-					Item.identify(item);
+		for (let loc of bodyLoc) {
+			if ([sdk.storage.Inventory, sdk.storage.Stash].includes(item.location) && tier > Item.getMercEquipped(loc).tier) {
+				Item.identify(item);
 
-					console.log("Merc " + name);
-					this.equipMerc(item, bodyLoc[j]) && console.log("ÿc9MercEquipÿc0 :: Equipped: " + name + " MercTier: " + tier);
-					
-					let cursorItem = Game.getCursorUnit();
+				console.log("Merc " + name);
+				this.equipMerc(item, loc) && console.log("ÿc9MercEquipÿc0 :: Equipped: " + name + " MercTier: " + tier);
+				
+				let cursorItem = Game.getCursorUnit();
 
-					if (cursorItem) {
-						cursorItem.drop();
-						Developer.debugging.autoEquip && Item.logItem("Merc Dropped", cursorItem);
-					}
-
-					break;
+				if (cursorItem) {
+					cursorItem.drop();
+					Developer.debugging.autoEquip && Item.logItem("Merc Dropped", cursorItem);
 				}
+
+				break;
 			}
 		}
 	}

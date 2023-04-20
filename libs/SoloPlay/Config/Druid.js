@@ -85,11 +85,11 @@
 
 	Config.imbueables = [
 		{ name: sdk.items.SpiritMask, condition: () => (me.normal) },
-		{ name: sdk.items.TotemicMask, condition: () => (!me.normal && Item.getEquipped(sdk.body.Head).tier < 100000 && (me.charlvl < 66 || me.trueStr < 118)) },
-		{ name: sdk.items.DreamSpirit, condition: () => (Item.getEquipped(sdk.body.Head).tier < 100000 && me.trueStr >= 118) },
-		{ name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.Head).tier > 100000)) },
-		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.Head).tier > 100000)) },
-		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.Head).tier > 100000)) },
+		{ name: sdk.items.TotemicMask, condition: () => (!me.normal && me.equipped.get(sdk.body.Head).tier < 100000 && (me.charlvl < 66 || me.trueStr < 118)) },
+		{ name: sdk.items.DreamSpirit, condition: () => (me.equipped.get(sdk.body.Head).tier < 100000 && me.trueStr >= 118) },
+		{ name: sdk.items.Belt, condition: () => (me.normal && (me.equipped.get(sdk.body.Head).tier > 100000)) },
+		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (me.equipped.get(sdk.body.Head).tier > 100000)) },
+		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.Head).tier > 100000)) },
 	].filter((item) => item.condition());
 
 	let imbueArr = SetUp.imbueItems();
@@ -115,11 +115,11 @@
 	}
 
 	/* Crafting */
-	if (Item.getEquipped(sdk.body.Neck).tier < 100000) {
+	if (me.equipped.get(sdk.body.Neck).tier < 100000) {
 		Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Amulet]) : Config.Recipes.push([Recipe.Blood.Amulet]);
 	}
 
-	if (Item.getEquipped(sdk.body.RingLeft).tier < 100000) {
+	if (me.equipped.get(sdk.body.RingLeft).tier < 100000) {
 		Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Ring]) : Config.Recipes.push([Recipe.Blood.Ring]);
 	}
 
@@ -154,7 +154,7 @@
 		}
 
 		// upgrade magefist
-		if (Item.getEquipped(sdk.body.Gloves).tier < 110000) {
+		if (me.equipped.get(sdk.body.Gloves).tier < 110000) {
 			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
 			Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
 		}
@@ -198,12 +198,12 @@
 	Check.itemSockables(sdk.items.TotemicMask, "unique", "Jalal's Mane");
 
 	// Spirit Sword
-	if ((me.ladder || Developer.addLadderRW) && Item.getEquipped(sdk.body.RightArm).tier < 777) {
+	if ((me.ladder || Developer.addLadderRW) && me.equipped.get(sdk.body.RightArm).tier < 777) {
 		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
 	}
 
 	// Spirit Shield
-	if ((me.ladder || Developer.addLadderRW) && (Item.getEquipped(sdk.body.LeftArm).tier < 1000 || Item.getEquipped(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
+	if ((me.ladder || Developer.addLadderRW) && (me.equipped.get(sdk.body.LeftArm).tier < 1000 || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
 		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 	}
 
@@ -213,12 +213,12 @@
 	}
 
 	// Lore
-	if (Item.getEquipped(sdk.body.Head).tier < 100000) {
+	if (me.equipped.get(sdk.body.Head).tier < 100000) {
 		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
 	}
 
 	// Ancients' Pledge
-	if (Item.getEquipped(sdk.body.LeftArm).tier < 500) {
+	if (me.equipped.get(sdk.body.LeftArm).tier < 500) {
 		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
 	}
 
@@ -233,12 +233,12 @@
 	}
 
 	// Smoke
-	if (Item.getEquipped(sdk.body.Armor).tier < 634) {
+	if (me.equipped.get(sdk.body.Armor).tier < 634) {
 		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js");
 	}
 
 	// Stealth
-	if (Item.getEquipped(sdk.body.Armor).tier < 233) {
+	if (me.equipped.get(sdk.body.Armor).tier < 233) {
 		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js");
 	}
 

@@ -35,7 +35,7 @@
 		NTIP.buildList(classLoreHelm);
 
 		// Normal Helms
-		if (Item.getEquipped(sdk.body.Head).tier < 150) {
+		if (me.equipped.get(sdk.body.Head).tier < 150) {
 			NTIP.buildList(loreHelm);
 		}
 
@@ -84,7 +84,7 @@
 		NTIP.buildList(classLoreHelm);
 
 		// Normal Helms
-		if (Item.getEquipped(sdk.body.Head).tier < 150) {
+		if (me.equipped.get(sdk.body.Head).tier < 150) {
 			NTIP.buildList(loreHelm);
 		}
 

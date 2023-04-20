@@ -92,7 +92,7 @@
 						Config.BeltColumn = ["hp", "hp", "mp", "mp"];
 						Config.HPBuffer = me.expansion ? 2 : 4;
 						Config.MPBuffer = me.expansion && me.charlvl < 80 ? 6 : me.classic ? 5 : 2;
-						(me.hell && !Pather.accessToAct(5)) && (Config.SkipImmune = ["magic"]);
+						(me.hell && !me.accessToAct(5)) && (Config.SkipImmune = ["magic"]);
 						SetUp.belt();
 					}
 				}

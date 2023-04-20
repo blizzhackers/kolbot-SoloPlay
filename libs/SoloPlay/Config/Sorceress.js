@@ -95,10 +95,10 @@
 	Config.imbueables = [
 		{ name: sdk.items.JaredsStone, condition: () => (me.normal && me.expansion) },
 		{ name: sdk.items.SwirlingCrystal, condition: () => (!me.normal && me.charlvl < 66 && me.expansion) },
-		{ name: sdk.items.DimensionalShard, condition: () => (Item.getEquipped(sdk.body.RightArm).tier < 777 && me.expansion) },
-		{ name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic)) },
-		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic)) },
-		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic)) },
+		{ name: sdk.items.DimensionalShard, condition: () => (me.equipped.get(sdk.body.RightArm).tier < 777 && me.expansion) },
+		{ name: sdk.items.Belt, condition: () => (me.normal && (me.equipped.get(sdk.body.RightArm).tier > 777 || me.classic)) },
+		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (me.equipped.get(sdk.body.RightArm).tier > 777 || me.classic)) },
+		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.RightArm).tier > 777 || me.classic)) },
 	].filter((item) => item.condition());
 
 	let imbueArr = SetUp.imbueItems();
@@ -108,7 +108,7 @@
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:
 		// Res shield
-		if ((Item.getEquipped(sdk.body.LeftArm).tier < 487 && !Item.getEquipped(sdk.body.RightArm).twoHanded) || (Item.getEquipped(sdk.body.RightArm).tier < 487 && Item.getEquipped(sdk.body.RightArm).twoHanded)) {
+		if ((me.equipped.get(sdk.body.LeftArm).tier < 487 && !me.equipped.get(sdk.body.RightArm).twoHanded) || (me.equipped.get(sdk.body.RightArm).tier < 487 && me.equipped.get(sdk.body.RightArm).twoHanded)) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
 		}
 
@@ -118,7 +118,7 @@
 		const { basicSocketables, addSocketableObj } = require("../Utils/General");
 
 		/* Crafting */
-		if (Item.getEquipped(sdk.body.Neck).tier < 100000) {
+		if (me.equipped.get(sdk.body.Neck).tier < 100000) {
 			Config.Recipes.push([Recipe.Caster.Amulet]);
 		}
 
@@ -145,7 +145,7 @@
 			}
 
 			// Spirit Shield
-			if ((me.ladder || Developer.addLadderRW) && SetUp.currentBuild === SetUp.finalBuild && (Item.getEquipped(sdk.body.LeftArm).tier < 1000 || Item.getEquipped(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
+			if ((me.ladder || Developer.addLadderRW) && SetUp.currentBuild === SetUp.finalBuild && (me.equipped.get(sdk.body.LeftArm).tier < 1000 || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 			}
 
@@ -191,7 +191,8 @@
 		}
 
 		// Go ahead and keep two P-diamonds prior to finding a moser's unless already using a better shield
-		if (!Check.haveItem("shield", "unique", "Moser's Blessed Circle") && !me.haveSome([{ name: sdk.locale.items.Sanctuary }, { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield }])) {
+		if (!Check.haveItem("shield", "unique", "Moser's Blessed Circle")
+			&& !me.haveSome([{ name: sdk.locale.items.Sanctuary }, { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield }])) {
 			NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");
 
 			if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond)) < 2) {
@@ -202,7 +203,8 @@
 		Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
 
 		// Sanctuary
-		if (!me.haveSome([{ name: sdk.locale.items.Sanctuary }, { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield }]) && ["Blova", "Lightning"].indexOf(SetUp.currentBuild) === -1) {
+		if (!me.haveSome([{ name: sdk.locale.items.Sanctuary }, { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield }])
+			&& ["Blova", "Lightning"].indexOf(SetUp.currentBuild) === -1) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Sanctuary.js");
 		}
 
@@ -212,7 +214,7 @@
 		}
 
 		// Spirit Sword
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquipped(sdk.body.RightArm).tier < 777) {
+		if ((me.ladder || Developer.addLadderRW) && me.equipped.get(sdk.body.RightArm).tier < 777) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
 		}
 
@@ -222,12 +224,12 @@
 		}
 
 		// Lore
-		if (Item.getEquipped(sdk.body.Head).tier < 315) {
+		if (me.equipped.get(sdk.body.Head).tier < 315) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
 		}
 
 		// Ancients' Pledge
-		if (Item.getEquipped(sdk.body.LeftArm).tier < 500) {
+		if (me.equipped.get(sdk.body.LeftArm).tier < 500) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
 		}
 
@@ -237,7 +239,7 @@
 		}
 
 		// Bone
-		if (Item.getEquipped(sdk.body.Armor).tier < 450) {
+		if (me.equipped.get(sdk.body.Armor).tier < 450) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Bone.js");
 		}
 
@@ -247,12 +249,12 @@
 		}
 
 		// Smoke
-		if (Item.getEquipped(sdk.body.Armor).tier < 300) {
+		if (me.equipped.get(sdk.body.Armor).tier < 300) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js");
 		}
 
 		// Stealth
-		if (Item.getEquipped(sdk.body.Armor).tier < 233) {
+		if (me.equipped.get(sdk.body.Armor).tier < 233) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js");
 		}
 

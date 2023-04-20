@@ -73,7 +73,7 @@
 						Config.AttackSkill = [-1, sdk.skills.BlessedHammer, sdk.skills.Concentration, sdk.skills.BlessedHammer, sdk.skills.Concentration, sdk.skills.HolyBolt, sdk.skills.Concentration];
 						Config.LowManaSkill = [0, sdk.skills.Concentration];
 
-						if (me.hell && !Pather.accessToAct(5)) {
+						if (me.hell && !me.accessToAct(5)) {
 							Config.SkipImmune = ["magic"];
 						}
 						Config.BeltColumn = ["hp", "hp", "mp", "rv"];

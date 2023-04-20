@@ -530,7 +530,7 @@
 		if (Town.gambleIds.length === 0) return true;
 
 		// avoid Alkor
-		me.act === 3 && Town.goToTown(Pather.accessToAct(4) ? 4 : 2);
+		me.act === 3 && Town.goToTown(me.accessToAct(4) ? 4 : 2);
 
 		let npc = Town.initNPC("Gamble", "gamble");
 		if (!npc) return false;
@@ -609,7 +609,7 @@
 		for (let i = 0; i < repairAction.length; i += 1) {
 			switch (repairAction[i]) {
 			case "repair":
-				me.act === 3 && Town.goToTown(Pather.accessToAct(4) ? 4 : 2);
+				me.act === 3 && Town.goToTown(me.accessToAct(4) ? 4 : 2);
 				npc = Town.initNPC("Repair", "repair");
 				if (!npc) return false;
 				me.repair();
@@ -650,7 +650,7 @@
 		let preArea = me.area;
 
 		// avoid Aheara
-		me.act === 3 && Town.goToTown(Pather.accessToAct(4) ? 4 : 2);
+		me.act === 3 && Town.goToTown(me.accessToAct(4) ? 4 : 2);
 
 		let npc = Town.initNPC("Merc", "reviveMerc");
 		if (!npc) return false;

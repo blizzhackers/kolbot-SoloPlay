@@ -8,48 +8,31 @@
 
 const Quest = {
 	preReqs: function () {
-		if (Pather.accessToAct(2)) {
-			// cube
-			if (!me.cube) {
-				for (let getCube = 0; !me.cube && getCube < 5; getCube++) {
-					Loader.runScript("amulet");
-				}
+		/**
+		 * @param {string} task 
+		 * @param {() => boolean} req 
+		 * @returns {boolean}
+		 */
+		const getReq = (task, req = () => true) => {
+			for (let i = 0; i < 5 && !req(); i++) {
+				Loader.runScript(task);
 			}
+			return req();
+		};
 
-			// horadric staff
+		if (me.accessToAct(2)) {
+			!me.cube && getReq("cube", () => me.cube);
+
 			if (!me.staff && !me.horadricstaff) {
-				if (!me.amulet) {
-					for (let getAmmy = 0; !me.amulet && getAmmy < 5; getAmmy++) {
-						Loader.runScript("amulet");
-					}
-				}
-
-				if (!me.shaft) {
-					for (let getStaff = 0; !me.shaft && getStaff < 5; getStaff++) {
-						Loader.runScript("staff");
-					}
-				}
+				!me.amulet && getReq("amulet", () => me.amulet);
+				!me.shaft && getReq("staff", () => me.shaft);
 			}
 		}
 
-		if (Pather.accessToAct(3) && !me.travincal && !me.khalimswill) {
-			if (!me.eye) {
-				for (let getEye = 0; !me.eye && getEye < 5; getEye++) {
-					Loader.runScript("eye");
-				}
-			}
-
-			if (!me.heart) {
-				for (let getHeart = 0; !me.heart && getHeart < 5; getHeart++) {
-					Loader.runScript("heart");
-				}
-			}
-
-			if (!me.brain) {
-				for (let getBrain = 0; !me.brain && getBrain < 5; getBrain++) {
-					Loader.runScript("brain");
-				}
-			}
+		if (me.accessToAct(3) && !me.travincal && !me.khalimswill) {
+			!me.eye && getReq("eye", () => me.eye);
+			!me.heart && getReq("heart", () => me.heart);
+			!me.brain && getReq("brain", () => me.brain);
 		}
 	},
 
@@ -69,12 +52,10 @@ const Quest = {
 
 		Town.doChores();
 		Town.openStash();
-		me.findItems(-1, -1, sdk.storage.Cube) && Cubing.emptyCube();
-
-		let cubingItem;
+		Cubing.emptyCube();
 
 		for (let classid of classids) {
-			cubingItem = me.getItem(classid);
+			let cubingItem = me.getItem(classid);
 
 			if (!cubingItem || !Storage.Cube.MoveTo(cubingItem)) {
 				return false;
@@ -274,7 +255,7 @@ const Quest = {
 				: null;
 		let smashable = Game.getObject(classid);
 
-		if (Item.getEquipped(sdk.body.RightArm).classid !== tool || !me.getItem(tool)) return false;
+		if (me.equipped.get(sdk.body.RightArm).classid !== tool || !me.getItem(tool)) return false;
 		if (!smashable) return false;
 		let tick = getTickCount();
 		let questTool = me.getItem(tool);
@@ -593,7 +574,7 @@ const Quest = {
 			}
 
 			// Free Lam Essen quest
-			if (Pather.accessToAct(3) && !me.getQuest(sdk.quest.id.LamEsensTome, sdk.quest.states.Completed)) {
+			if (me.accessToAct(3) && !me.getQuest(sdk.quest.id.LamEsensTome, sdk.quest.states.Completed)) {
 				!me.inArea(sdk.areas.KurastDocktown) && Town.goToTown(3);
 				Town.move("alkor");
 				let unit = getUnit(1, "alkor");
@@ -609,7 +590,7 @@ const Quest = {
 			// Remove Khalim's Will if quest not completed and restarting run.
 			let kw = me.getItem(sdk.items.quest.KhalimsWill);
 			if (kw) {
-				if (Item.getEquipped(sdk.body.RightArm).classid === sdk.items.quest.KhalimsWill) {
+				if (me.equipped.get(sdk.body.RightArm).classid === sdk.items.quest.KhalimsWill) {
 					Town.clearInventory();
 					delay(500);
 					Quest.stashItem(sdk.items.quest.KhalimsWill);

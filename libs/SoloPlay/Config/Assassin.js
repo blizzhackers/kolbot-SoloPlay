@@ -82,11 +82,11 @@
 
 	Config.imbueables = [
 		{ name: sdk.items.Claws, condition: () => (me.normal) },
-		{ name: sdk.items.HandScythe, condition: () => (!me.normal && Item.getEquipped(sdk.body.RightArm).tier < 777 && (me.trueStr < 79 || me.trueDex < 79)) },
-		{ name: sdk.items.GreaterTalons, condition: () => (Item.getEquipped(sdk.body.RightArm).tier < 777 && me.trueStr >= 79 && me.trueDex >= 79) },
-		{ name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.RightArm).tier > 777)) },
-		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 777)) },
-		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 777)) },
+		{ name: sdk.items.HandScythe, condition: () => (!me.normal && me.equipped.get(sdk.body.RightArm).tier < 777 && (me.trueStr < 79 || me.trueDex < 79)) },
+		{ name: sdk.items.GreaterTalons, condition: () => (me.equipped.get(sdk.body.RightArm).tier < 777 && me.trueStr >= 79 && me.trueDex >= 79) },
+		{ name: sdk.items.Belt, condition: () => (me.normal && (me.equipped.get(sdk.body.RightArm).tier > 777)) },
+		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (me.equipped.get(sdk.body.RightArm).tier > 777)) },
+		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.RightArm).tier > 777)) },
 	].filter((item) => item.condition());
 
 	let imbueArr = SetUp.imbueItems();
@@ -157,11 +157,11 @@
 	Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
 
 	/* Crafting */
-	if (Item.getEquipped(sdk.body.Neck).tier < 100000) {
+	if (me.equipped.get(sdk.body.Neck).tier < 100000) {
 		Config.Recipes.push([Recipe.Caster.Amulet]);
 	}
 
-	if (Item.getEquipped(sdk.body.RingLeft).tier < 100000) {
+	if (me.equipped.get(sdk.body.RingLeft).tier < 100000) {
 		Config.Recipes.push([Recipe.Caster.Ring]);
 	}
 
@@ -171,12 +171,12 @@
 	}
 
 	// Spirit Sword
-	if ((me.ladder || Developer.addLadderRW) && Item.getEquipped(sdk.body.RightArm).tier < 777) {
+	if ((me.ladder || Developer.addLadderRW) && me.equipped.get(sdk.body.RightArm).tier < 777) {
 		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
 	}
 
 	// Spirit shield
-	if ((me.ladder || Developer.addLadderRW) && (Item.getEquipped(sdk.body.LeftArm).tier < 1000 || Item.getEquipped(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
+	if ((me.ladder || Developer.addLadderRW) && (me.equipped.get(sdk.body.LeftArm).tier < 1000 || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
 		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 	}
 
@@ -186,12 +186,12 @@
 	}
 
 	// Lore
-	if (Item.getEquipped(sdk.body.Head).tier < 315) {
+	if (me.equipped.get(sdk.body.Head).tier < 315) {
 		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
 	}
 
 	// Ancients' Pledge
-	if (Item.getEquipped(sdk.body.LeftArm).tier < 500) {
+	if (me.equipped.get(sdk.body.LeftArm).tier < 500) {
 		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
 	}
 
@@ -206,12 +206,12 @@
 	}
 
 	// Smoke
-	if (Item.getEquipped(sdk.body.Armor).tier < 450) {
+	if (me.equipped.get(sdk.body.Armor).tier < 450) {
 		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js");
 	}
 
 	// Stealth
-	if (Item.getEquipped(sdk.body.Armor).tier < 233) {
+	if (me.equipped.get(sdk.body.Armor).tier < 233) {
 		includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js");
 	}
 

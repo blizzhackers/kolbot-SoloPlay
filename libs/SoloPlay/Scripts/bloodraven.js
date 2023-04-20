@@ -32,7 +32,7 @@ function bloodraven () {
 	Precast.doPrecast(true);
 
 	me.overhead("blood raven");
-	Pather.moveToExit(sdk.areas.BurialGrounds, true);
+	Pather.journeyTo(sdk.areas.BurialGrounds);
 	me.sorceress && !me.normal
 		? Pather.moveNearPreset(sdk.areas.BurialGrounds, sdk.unittype.Monster, sdk.monsters.preset.BloodRaven, 20)
 		: Pather.moveToPreset(sdk.areas.BurialGrounds, sdk.unittype.Monster, sdk.monsters.preset.BloodRaven);
@@ -57,13 +57,13 @@ function bloodraven () {
 	if (me.hell) {
 		switch (me.gametype) {
 		case sdk.game.gametype.Classic:
-			if (Pather.accessToAct(3)) {
+			if (me.accessToAct(3)) {
 				return true;
 			}
 
 			break;
 		case sdk.game.gametype.Expansion:
-			if ((me.charlvl < 80 || me.charlvl > 85) && !((me.sorceress || me.druid || me.assassin) && Item.getEquipped(sdk.body.RightArm).tier < 100000)) {
+			if ((me.charlvl < 80 || me.charlvl > 85) && !((me.sorceress || me.druid || me.assassin) && me.equipped.get(sdk.body.RightArm).tier < 100000)) {
 				return true;
 			}
 

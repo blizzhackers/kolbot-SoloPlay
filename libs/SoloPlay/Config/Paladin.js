@@ -20,8 +20,6 @@
 */
 
 // todo: clean-up how cubing to runes is handled
-// move shared config settings into its own function call
-// make and initialize me.equippedItems object so don't have to do repeated Item.getEquipped(whatever) call
 
 (function LoadConfig () {
 	includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
@@ -93,10 +91,10 @@
 	Config.imbueables = [
 		{ name: sdk.items.WarScepter, condition: () => me.normal },
 		{ name: sdk.items.DivineScepter, condition: () => (!me.normal && (me.trueStr < 125 || me.trueDex < 60)) },
-		{ name: sdk.items.MightyScepter, condition: () => (Item.getEquipped(sdk.body.RightArm).tier < 777 && (me.trueStr >= 125 || me.trueDex >= 60)) },
-		{ name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic)) },
-		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic)) },
-		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquipped(sdk.body.RightArm).tier > 777 || me.classic)) },
+		{ name: sdk.items.MightyScepter, condition: () => (me.equipped.get(sdk.body.RightArm).tier < 777 && (me.trueStr >= 125 || me.trueDex >= 60)) },
+		{ name: sdk.items.Belt, condition: () => (me.normal && (me.equipped.get(sdk.body.RightArm).tier > 777 || me.classic)) },
+		{ name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (me.equipped.get(sdk.body.RightArm).tier > 777 || me.classic)) },
+		{ name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.RightArm).tier > 777 || me.classic)) },
 	];
 
 	let imbueArr = SetUp.imbueItems();
@@ -106,7 +104,7 @@
 	switch (me.gametype) {
 	case sdk.game.gametype.Classic:
 		// Res shield
-		if (Item.getEquipped(sdk.body.LeftArm).tier < 487) {
+		if (me.equipped.get(sdk.body.LeftArm).tier < 487) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
 		}
 
@@ -121,15 +119,15 @@
 		));
 
 		/* Crafting */
-		if (Item.getEquipped(sdk.body.Neck).tier < 100000) {
+		if (me.equipped.get(sdk.body.Neck).tier < 100000) {
 			Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Amulet]) : Config.Recipes.push([Recipe.Blood.Amulet]);
 		}
 
-		if (Item.getEquipped(sdk.body.RingLeft).tier < 100000) {
+		if (me.equipped.get(sdk.body.RingLeft).tier < 100000) {
 			Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Ring]) : Config.Recipes.push([Recipe.Blood.Ring]);
 		}
 
-		if (Item.getEquipped(sdk.body.Gloves).tier < 110000) {
+		if (me.equipped.get(sdk.body.Gloves).tier < 110000) {
 			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
 		}
 
@@ -184,13 +182,16 @@
 			}
 
 			// Spirit Shield
-			if ((me.ladder || Developer.addLadderRW) && Item.getEquipped(sdk.body.LeftArm).tier < 110000) {
+			if ((me.ladder || Developer.addLadderRW) && me.equipped.get(sdk.body.LeftArm).tier < 110000) {
 				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 			}
 
 			break;
 		case "Auradin":
-			dreamerCheck = me.haveAll([{ name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields }, { name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm }]);
+			dreamerCheck = me.haveAll([
+				{ name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields },
+				{ name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm }
+			]);
 
 			// Dream Shield
 			if ((me.ladder || Developer.addLadderRW) && !me.checkItem({ name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields }).have) {
@@ -222,7 +223,7 @@
 
 			if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 				// Cube to Mal rune
-				if (!me.getItem(sdk.items.runes.Mal) && Item.getEquipped(sdk.body.RightArm).tier >= 110000) {
+				if (!me.getItem(sdk.items.runes.Mal) && me.equipped.get(sdk.body.RightArm).tier >= 110000) {
 					Config.Recipes.push([Recipe.Rune, "Um Rune"]);
 				}
 				
@@ -295,7 +296,7 @@
 
 			if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 				// Cube to Mal rune
-				if (!me.getItem(sdk.items.runes.Mal) && Item.getEquipped(sdk.body.RightArm).tier >= 110000) {
+				if (!me.getItem(sdk.items.runes.Mal) && me.equipped.get(sdk.body.RightArm).tier >= 110000) {
 					Config.Recipes.push([Recipe.Rune, "Um Rune"]);
 				}
 				
@@ -392,7 +393,7 @@
 
 			if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
 				// Cube to Mal rune
-				if (!me.getItem(sdk.items.runes.Mal) && Item.getEquipped(sdk.body.RightArm).tier >= 110000) {
+				if (!me.getItem(sdk.items.runes.Mal) && me.equipped.get(sdk.body.RightArm).tier >= 110000) {
 					Config.Recipes.push([Recipe.Rune, "Um Rune"]);
 				}
 				
@@ -437,12 +438,12 @@
 		}
 
 		// Spirit Sword
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquipped(sdk.body.RightArm).tier < 777) {
+		if ((me.ladder || Developer.addLadderRW) && me.equipped.get(sdk.body.RightArm).tier < 777) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
 		}
 
 		// Spirit Shield
-		if ((me.ladder || Developer.addLadderRW) && (Item.getEquipped(sdk.body.LeftArm).tier < 1000 || Item.getEquipped(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
+		if ((me.ladder || Developer.addLadderRW) && (me.equipped.get(sdk.body.LeftArm).tier < 1000 || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
 		}
 
@@ -452,7 +453,7 @@
 		}
 
 		// Lore
-		if (Item.getEquipped(sdk.body.Head).tier < 315) {
+		if (me.equipped.get(sdk.body.Head).tier < 315) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
 		}
 
@@ -461,7 +462,7 @@
 		 */
 
 		// Ancients' Pledge
-		if (Item.getEquipped(sdk.body.LeftArm).tier < 500) {
+		if (me.equipped.get(sdk.body.LeftArm).tier < 500) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
 		}
 
@@ -476,12 +477,12 @@
 		}
 
 		// Smoke
-		if (Item.getEquipped(sdk.body.Armor).tier < 450) {
+		if (me.equipped.get(sdk.body.Armor).tier < 450) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js");
 		}
 
 		// Stealth
-		if (Item.getEquipped(sdk.body.Armor).tier < 233) {
+		if (me.equipped.get(sdk.body.Armor).tier < 233) {
 			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js");
 		}
 

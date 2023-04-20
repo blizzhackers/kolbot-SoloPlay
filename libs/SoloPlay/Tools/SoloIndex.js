@@ -102,11 +102,11 @@ const SoloIndex = {
 			skipIf: function () {
 				switch (me.classid) {
 				case sdk.player.class.Paladin:
-					return Pather.accessToAct(3) || Attack.auradin || me.checkItem({ name: sdk.locale.items.Enigma }).have;
+					return me.accessToAct(3) || Attack.auradin || me.checkItem({ name: sdk.locale.items.Enigma }).have;
 				case sdk.player.class.Barbarian:
-					return Pather.accessToAct(3) || me.checkItem({ name: sdk.locale.items.Lawbringer }).have;
+					return me.accessToAct(3) || me.checkItem({ name: sdk.locale.items.Lawbringer }).have;
 				default:
-					if (me.hell && me.charlvl > 72 && Pather.accessToAct(2)) return true;
+					if (me.hell && me.charlvl > 72 && me.accessToAct(2)) return true;
 					return false;
 				}
 			},
@@ -122,7 +122,7 @@ const SoloIndex = {
 		},
 		"treehead": {
 			preReq: function () {
-				return (me.hell && !Pather.accessToAct(3));
+				return (me.hell && !me.accessToAct(3));
 			},
 			skipIf: function () {
 				return !me.paladin || Attack.auradin || me.checkItem({ name: sdk.locale.items.Enigma }).have;
@@ -236,8 +236,8 @@ const SoloIndex = {
 				return (!me.classic && !me.normal);
 			},
 			skipIf: function () {
-				if (me.barbarian && (!me.hell || Pather.accessToAct(3)
-					|| (Item.getEquipped(sdk.body.LeftArm).tier > 1270
+				if (me.barbarian && (!me.hell || me.accessToAct(3)
+					|| (me.equipped.get(sdk.body.LeftArm).tier > 1270
 					|| me.checkItem({ name: sdk.locale.items.Lawbringer }).have))) {
 					return true;
 				}
@@ -272,7 +272,7 @@ const SoloIndex = {
 		},
 		"cube": {
 			preReq: function () {
-				return Pather.accessToAct(2);
+				return me.accessToAct(2);
 			},
 			skipIf: function () {
 				return me.cube;
@@ -284,7 +284,7 @@ const SoloIndex = {
 		},
 		"radament": {
 			preReq: function () {
-				return Pather.accessToAct(2);
+				return me.accessToAct(2);
 			},
 			shouldRun: function () {
 				if (!this.preReq()) return false;
@@ -300,7 +300,7 @@ const SoloIndex = {
 		},
 		"staff": {
 			preReq: function () {
-				return Pather.accessToAct(2);
+				return me.accessToAct(2);
 			},
 			skipIf: function () {
 				return (me.horadricstaff || me.shaft || me.completestaff);
@@ -312,7 +312,7 @@ const SoloIndex = {
 		},
 		"amulet": {
 			preReq: function () {
-				return Pather.accessToAct(2);
+				return me.accessToAct(2);
 			},
 			skipIf: function () {
 				return (me.horadricstaff || me.amulet || me.completestaff);
@@ -324,7 +324,7 @@ const SoloIndex = {
 		},
 		"ancienttunnels": {
 			preReq: function () {
-				return (me.hell && Pather.accessToAct(2));
+				return (me.hell && me.accessToAct(2));
 			},
 			skipIf: function () {
 				switch (me.classid) {
@@ -341,7 +341,7 @@ const SoloIndex = {
 		},
 		"beetleburst": {
 			preReq: function () {
-				return (Pather.accessToAct(2));
+				return (me.accessToAct(2));
 			},
 			skipIf: function () {
 				return (me.charlvl < 12 || me.charlvl > 20);
@@ -353,7 +353,7 @@ const SoloIndex = {
 		},
 		"summoner": {
 			preReq: function () {
-				return Pather.accessToAct(2);
+				return me.accessToAct(2);
 			},
 			skipIf: function () {
 				return me.summoner;
@@ -366,7 +366,7 @@ const SoloIndex = {
 		},
 		"maggotlair": {
 			preReq: function () {
-				return Pather.accessToAct(2) && Pather.canTeleport();
+				return me.accessToAct(2) && Pather.canTeleport();
 			},
 			skipIf: function () {
 				return (!me.normal || me.charlvl > 21);
@@ -378,7 +378,7 @@ const SoloIndex = {
 		},
 		"tombs": {
 			preReq: function () {
-				return Pather.accessToAct(2);
+				return me.accessToAct(2);
 			},
 			skipIf: function () {
 				return (!me.normal || me.charlvl > 22);
@@ -390,7 +390,7 @@ const SoloIndex = {
 		},
 		"duriel": {
 			preReq: function () {
-				return Pather.accessToAct(2) && (me.horadricstaff || me.completestaff || (me.amulet && me.shaft));
+				return me.accessToAct(2) && (me.horadricstaff || me.completestaff || (me.amulet && me.shaft));
 			},
 			skipIf: function () {
 				return me.duriel;
@@ -403,7 +403,7 @@ const SoloIndex = {
 		},
 		"eye": {
 			preReq: function () {
-				return Pather.accessToAct(3);
+				return me.accessToAct(3);
 			},
 			skipIf: function () {
 				return (me.eye || me.khalimswill || me.travincal);
@@ -415,7 +415,7 @@ const SoloIndex = {
 		},
 		"templeruns": {
 			preReq: function () {
-				return Pather.accessToAct(3);
+				return me.accessToAct(3);
 			},
 			skipIf: function () {
 				return ((me.paladin && Check.currentBuild().caster) || (me.hell && me.sorceress && me.charlvl < 90));
@@ -433,7 +433,7 @@ const SoloIndex = {
 		},
 		"lamessen": {
 			preReq: function () {
-				return Pather.accessToAct(3);
+				return me.accessToAct(3);
 			},
 			skipIf: function () {
 				return (me.lamessen);
@@ -445,7 +445,7 @@ const SoloIndex = {
 		},
 		"lowerkurast": {
 			preReq: function () {
-				return Pather.accessToAct(3);
+				return me.accessToAct(3);
 			},
 			skipIf: function () {
 				return (!me.barbarian);
@@ -457,7 +457,7 @@ const SoloIndex = {
 		},
 		"heart": {
 			preReq: function () {
-				return Pather.accessToAct(3);
+				return me.accessToAct(3);
 			},
 			skipIf: function () {
 				return (me.heart || me.khalimswill || me.travincal);
@@ -469,7 +469,7 @@ const SoloIndex = {
 		},
 		"brain": {
 			preReq: function () {
-				return Pather.accessToAct(3);
+				return me.accessToAct(3);
 			},
 			skipIf: function () {
 				return (me.brain || me.khalimswill || me.travincal);
@@ -481,7 +481,7 @@ const SoloIndex = {
 		},
 		"travincal": {
 			preReq: function () {
-				return Pather.accessToAct(3);
+				return me.accessToAct(3);
 			},
 			skipIf: function () {
 				return false;
@@ -500,7 +500,7 @@ const SoloIndex = {
 		},
 		"mephisto": {
 			preReq: function () {
-				return (Pather.accessToAct(3) && me.travincal);
+				return (me.accessToAct(3) && me.travincal);
 			},
 			skipIf: function () {
 				return false;
@@ -520,7 +520,7 @@ const SoloIndex = {
 		},
 		"izual": {
 			preReq: function () {
-				return Pather.accessToAct(4);
+				return me.accessToAct(4);
 			},
 			skipIf: function () {
 				return false;
@@ -538,7 +538,7 @@ const SoloIndex = {
 		"river": {
 			preReq: function () {
 				const cLvl = me.charlvl;
-				return (Pather.accessToAct(4) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
+				return (me.accessToAct(4) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
 			},
 			skipIf: function () {
 				return (me.diablo || me.normal);
@@ -556,7 +556,7 @@ const SoloIndex = {
 		"hephasto": {
 			preReq: function () {
 				const cLvl = me.charlvl;
-				return (Pather.accessToAct(4) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
+				return (me.accessToAct(4) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
 			},
 			skipIf: function () {
 				return (!me.barbarian || me.normal || me.diablo);
@@ -573,7 +573,7 @@ const SoloIndex = {
 		"hellforge": {
 			preReq: function () {
 				const cLvl = me.charlvl;
-				return (Pather.accessToAct(4) && (me.classic || me.anya) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
+				return (me.accessToAct(4) && (me.classic || me.anya) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
 			},
 			skipIf: function () {
 				return (me.hellforge || me.getQuest(sdk.quest.id.HellsForge, sdk.quest.states.ReqComplete));
@@ -586,7 +586,7 @@ const SoloIndex = {
 		"diablo": {
 			preReq: function () {
 				const cLvl = me.charlvl;
-				return (Pather.accessToAct(4) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
+				return (me.accessToAct(4) && ((me.normal && cLvl >= 24) || (me.nightmare && cLvl >= 40) || (me.hell && cLvl >= 80)));
 			},
 			skipIf: function () {
 				return false;
@@ -606,7 +606,7 @@ const SoloIndex = {
 		},
 		"shenk": {
 			preReq: function () {
-				return (me.expansion && Pather.accessToAct(5));
+				return (me.expansion && me.accessToAct(5));
 			},
 			skipIf: function () {
 				return false;
@@ -623,7 +623,7 @@ const SoloIndex = {
 		},
 		"savebarby": {
 			preReq: function () {
-				return (me.expansion && Pather.accessToAct(5));
+				return (me.expansion && me.accessToAct(5));
 			},
 			skipIf: function () {
 				return me.savebarby;
@@ -639,7 +639,7 @@ const SoloIndex = {
 		},
 		"anya": {
 			preReq: function () {
-				return (me.expansion && Pather.accessToAct(5));
+				return (me.expansion && me.accessToAct(5));
 			},
 			skipIf: function () {
 				return me.anya;
@@ -651,7 +651,7 @@ const SoloIndex = {
 		},
 		"pindle": {
 			preReq: function () {
-				return (me.expansion && Pather.accessToAct(5) && me.anya);
+				return (me.expansion && me.accessToAct(5) && me.anya);
 			},
 			skipIf: function () {
 				return false;
@@ -663,7 +663,7 @@ const SoloIndex = {
 		},
 		"ancients": {
 			preReq: function () {
-				return (me.expansion && Pather.accessToAct(5));
+				return (me.expansion && me.accessToAct(5));
 			},
 			skipIf: function () {
 				return me.ancients;
@@ -675,7 +675,7 @@ const SoloIndex = {
 		},
 		"baal": {
 			preReq: function () {
-				return (me.expansion && Pather.accessToAct(5));
+				return (me.expansion && me.accessToAct(5));
 			},
 			skipIf: function () {
 				return !me.ancients;
@@ -687,7 +687,7 @@ const SoloIndex = {
 		},
 		"a5chests": {
 			preReq: function () {
-				return (me.expansion && Pather.accessToAct(5) && me.baal);
+				return (me.expansion && me.accessToAct(5) && me.baal);
 			},
 			skipIf: function () {
 				return me.normal;
@@ -699,7 +699,7 @@ const SoloIndex = {
 		},
 		"getkeys": {
 			preReq: function () {
-				return (me.expansion && Pather.accessToAct(5) && me.hell);
+				return (me.expansion && me.accessToAct(5) && me.hell);
 			},
 			skipIf: function () {
 				return (["Zealer", "Smiter", "Uberconc"].indexOf(SetUp.currentBuild) === -1);
@@ -711,7 +711,7 @@ const SoloIndex = {
 		},
 		"orgtorch": {
 			preReq: function () {
-				return (me.expansion && Pather.accessToAct(5) && me.hell);
+				return (me.expansion && me.accessToAct(5) && me.hell);
 			},
 			skipIf: function () {
 				return (["Zealer", "Smiter", "Uberconc"].indexOf(SetUp.currentBuild) === -1);

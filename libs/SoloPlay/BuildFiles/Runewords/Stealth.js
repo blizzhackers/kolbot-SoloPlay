@@ -13,7 +13,7 @@
 	];
 	NTIP.buildList(stealthArmor);
 
-	if (Item.getEquipped(sdk.body.Armor).tier < 200) {
+	if (me.equipped.get(sdk.body.Armor).tier < 200) {
 		NTIP.addLine("[name] == breastplate && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1");
 	}
 
