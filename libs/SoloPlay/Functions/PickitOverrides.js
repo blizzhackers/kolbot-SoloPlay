@@ -235,7 +235,9 @@ Pickit.canPick = function (unit) {
 			} while (tome.getNext());
 		} else {
 			// If we don't have a tome, go ahead and keep 2 scrolls
-			return unit.classid === sdk.items.ScrollofIdentify && me.charlvl > 5 ? false : me.getItemsEx(unit.classid).filter(el => el.isInInventory).length < 2;
+			return unit.classid === sdk.items.ScrollofIdentify && me.charlvl > 5
+				? false
+				: me.getItemsEx(unit.classid).filter(el => el.isInInventory).length < 2;
 		}
 
 		break;
@@ -668,7 +670,7 @@ Pickit.essessntialsPick = function (clearBeforePick = false, ignoreGold = false,
 						}
 
 						// Town visit failed - abort
-						console.log("ÿc7Not enough room for " + Item.color(currItem) + currItem.name);
+						console.log("ÿc7Unable to make room for " + Item.color(currItem) + currItem.name);
 
 						return false;
 					}
@@ -695,8 +697,8 @@ Pickit.essessntialsPick = function (clearBeforePick = false, ignoreGold = false,
 Pickit.pickItems = function (range = Config.PickRange, once = false) {
 	if (me.dead || range < 0 || !Pickit.enabled) return false;
 	
-	let status, canFit;
 	let needMule = false;
+	const canUseMule = AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("muleInfo");
 
 	while (!me.idle) {
 		delay(40);
@@ -735,10 +737,10 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 		if (copyUnit(currItem).x !== undefined && currItem.onGroundOrDropping
 			&& (Pather.useTeleport() || me.inTown || !checkCollision(me, currItem, sdk.collision.BlockWall))) {
 			// Check if the item should be picked
-			status = this.checkItem(currItem);
+			let status = this.checkItem(currItem);
 
 			if (status.result && Pickit.canPick(currItem)) {
-				canFit = (Storage.Inventory.CanFit(currItem) || Pickit.canFit(currItem));
+				let canFit = (Storage.Inventory.CanFit(currItem) || Pickit.canFit(currItem));
 
 				// Field id when our used space is above a certain percent or if we are full try to make room with FieldID
 				if (Config.FieldID.Enabled && (!canFit || Storage.Inventory.UsedSpacePercent() > Config.FieldID.UsedSpace)) {
@@ -803,9 +805,16 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 	}
 
 	// Quit current game and transfer the items to mule
-	if (needMule && AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("muleInfo") && AutoMule.getMuleItems().length > 0) {
+	if (needMule && canUseMule && AutoMule.getMuleItems().length > 0) {
+		console.log(
+			"ÿc7Muling items :: \n"
+			+ "- ÿc7UsedStashSpacePercentÿc0: " + Storage.Stash.UsedSpacePercent() + "\n"
+			+ "- ÿc7UsedInventorySpacePercentÿc0: " + Storage.Inventory.UsedSpacePercent()
+		);
 		scriptBroadcast("mule");
 		scriptBroadcast("quit");
+
+		return false;
 	}
 
 	return true;
