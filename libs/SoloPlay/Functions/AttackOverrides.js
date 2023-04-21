@@ -853,7 +853,7 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 
 	// Item must be equipped - removed charms as I don't think at any point using hydra from torch has ever been worth it
 	me.getItemsEx(-1)
-		.filter(item => item && ((item.isEquipped && !item.rare)))
+		.filter(item => item && ((item.isEquipped /* && !item.rare */)))
 		.forEach(function (item) {
 			let stats = item.getStat(-2);
 
@@ -947,12 +947,16 @@ Attack.getItemCharges = function (skillId) {
  * @returns {boolean}
  */
 Attack.castCharges = function (skillId, unit) {
-	if (!skillId || !unit || !Skill.wereFormCheck(skillId) || (me.inTown && !Skill.townSkill(skillId))) {
+	if (!skillId || !unit || !Skill.wereFormCheck(skillId)
+		|| (me.inTown && !Skill.townSkill(skillId))) {
 		return false;
 	}
 
-	me.castChargedSkillEx(skillId, unit) && delay(25);
-	me.weaponswitch === 1 && me.switchWeapons(0);
+	try {
+		me.castChargedSkillEx(skillId, unit) && delay(25);
+	} finally {
+		me.weaponswitch === 1 && me.switchWeapons(0);
+	}
 
 	return true;
 };
@@ -963,12 +967,16 @@ Attack.castCharges = function (skillId, unit) {
  * @returns {boolean}
  */
 Attack.switchCastCharges = function (skillId, unit) {
-	if (!skillId || !unit || !Skill.wereFormCheck(skillId) || (me.inTown && !Skill.townSkill(skillId))) {
+	if (!skillId || !unit || !Skill.wereFormCheck(skillId)
+		|| (me.inTown && !Skill.townSkill(skillId))) {
 		return false;
 	}
 
-	me.castSwitchChargedSkill(skillId, unit) && delay(25);
-	me.weaponswitch === 1 && me.switchWeapons(0);
+	try {
+		me.castSwitchChargedSkill(skillId, unit) && delay(25);
+	} finally {
+		me.weaponswitch === 1 && me.switchWeapons(0);
+	}
 
 	return true;
 };

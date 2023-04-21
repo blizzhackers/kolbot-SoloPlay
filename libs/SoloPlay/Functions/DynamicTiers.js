@@ -13,8 +13,8 @@
 
 (function () {
 	/**
-   * @param {ItemUnit} item 
-   */
+	 * @param {ItemUnit} item 
+	 */
 	const sumElementalDmg = function (item) {
 		if (!item) return 0;
 		let fire = item.getStatEx(sdk.stats.FireMinDamage) + item.getStatEx(sdk.stats.FireMaxDamage);
@@ -26,8 +26,8 @@
 	};
 
 	/**
- 	 * @param {ItemUnit} item 
- 	 */
+	 * @param {ItemUnit} item 
+	 */
 	const mercscore = function (item) {
 		const mercWeights = {
 			IAS: 3.5,
@@ -136,8 +136,8 @@
 	};
 
 	/**
- 	 * @param {ItemUnit} item
- 	 * @param {number} [skillId]
+	 * @param {ItemUnit} item
+	 * @param {number} [skillId]
 	 * @param {object} [buildInfo]
 	 */
 	const chargeditemscore = function (item, skillId, buildInfo) {
@@ -592,8 +592,8 @@
 	};
 
 	/**
-   * @param {ItemUnit} item 
-   */
+	 * @param {ItemUnit} item 
+	 */
 	const charmscore = function (item) {
 		if (me.data.charmGids.includes(item.gid)) return 1000;
 		// depending on invo space it might be worth it early on to keep 1 or 2 non-skiller grandcharms - @todo test that out
