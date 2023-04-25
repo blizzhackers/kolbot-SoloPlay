@@ -433,7 +433,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 				.byte(0x00)
 				.dword(this.gid)
 				.send();
-			console.log("Set charge skill " + charge.skill + " on hand");
+			// console.log("Set charge skill " + charge.skill + " on hand");
 			// No need for a delay, since its TCP, the server recv's the next statement always after the send cast skill packet
 
 			// Cast the skill

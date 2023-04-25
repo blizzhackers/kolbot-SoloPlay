@@ -464,7 +464,7 @@ Pather.move = function (target, givenSettings = {}) {
 		node = path.shift();
 
 		if (typeof settings.callback === "function" && settings.callback()) {
-			console.debug("Callback function passed. Ending path.");
+			// console.debug("Callback function passed. Ending path.");
 			useTeleport && Config.TeleSwitch && me.switchWeapons(Attack.getPrimarySlot() ^ 1);
 			PathDebug.removeHooks();
 			return true;
@@ -525,23 +525,23 @@ Pather.move = function (target, givenSettings = {}) {
 									// @todo check shrines/chests in proximity to old node vs next node
 									// let otherObjects = getUnits(sdk.unittype.Object).filter(el => getDistance());
 									if (goBack) {
-										console.debug("Going back to old node. Distance: " + node.distance);
+										// console.debug("Going back to old node. Distance: " + node.distance);
 									} else if (nearestNode && nearestNode.distance > 5 && node.distance > 5 && Math.percentDifference(node.distance, nearestNode.distance) > 5/*  && 100 / node.distance * nearestNode.distance < 95 */) {
-										console.debug("Moving to next node. Distance: " + nearestNode.distance);
+										// console.debug("Moving to next node. Distance: " + nearestNode.distance);
 										let newIndex = path.findIndex(node => nearestNode.x === node.x && nearestNode.y === node.y);
 										if (newIndex > -1) {
-											console.debug("Found new path index: " + newIndex + " of currentPathLen: " + path.length);
+											// console.debug("Found new path index: " + newIndex + " of currentPathLen: " + path.length);
 											path = path.slice(newIndex);
 											node = path.shift();
 											foundNode = true;
-											console.debug("New path length: " + path.length);
+											// console.debug("New path length: " + path.length);
 										} else {
-											console.debug("Couldn't find new path index");
+											// console.debug("Couldn't find new path index");
 										}
 									}
 
 									if (node.distance > 5) {
-										!foundNode && console.debug("Path Recursion :: Returning to position " + node.x + "/" + node.y + " distance: " + node.distance);
+										// !foundNode && console.debug("Path Recursion :: Returning to position " + node.x + "/" + node.y + " distance: " + node.distance);
 										Pather.move(node, settings);
 									}
 								} else {
@@ -561,7 +561,7 @@ Pather.move = function (target, givenSettings = {}) {
 						if (me.checkForMobs({ range: tempRange, coll: sdk.collision.BlockWalk })) {
 							// there are at least some, but lets only continue to next iteration if we actually killed something
 							if (Attack.clear(tempRange, null, null, null, settings.allowPicking) === Attack.Result.SUCCESS) {
-								console.debug("Cleared Node");
+								// console.debug("Cleared Node");
 								continue;
 							}
 						}
@@ -577,7 +577,7 @@ Pather.move = function (target, givenSettings = {}) {
 							if (cleared.at === 0 || getTickCount() - cleared.at > Time.seconds(3) && cleared.where.distance > 5 && me.checkForMobs({ range: 10 })) {
 								// only set that we cleared if we actually killed at least 1 mob
 								if (Attack.clear(10, null, null, null, settings.allowPicking)) {
-									console.debug("Cleared Node");
+									// console.debug("Cleared Node");
 									cleared.at = getTickCount();
 									[cleared.where.x, cleared.where.y] = [node.x, node.y];
 								}
@@ -671,7 +671,7 @@ Pather.moveToEx = function (x, y, givenSettings = {}) {
 };
 
 // Add check in case "random" to return false if bot doesn't have cold plains wp yet
-Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
+Pather.useWaypoint = function useWaypoint(targetArea, check = false, getWP = false) {
 	switch (targetArea) {
 	case undefined:
 		throw new Error("useWaypoint: Invalid targetArea parameter: " + targetArea);
@@ -687,7 +687,6 @@ Pather.useWaypoint = function useWaypoint(targetArea, check = false) {
 		break;
 	}
 
-	console.log("ÿc7Start ÿc8(useWaypoint) ÿc0:: ÿc7targetArea: ÿc0" + getAreaName(targetArea) + " ÿc7myArea: ÿc0" + getAreaName(me.area));
 	let wpTick = getTickCount();
 
 	for (let i = 0; i < 12; i += 1) {
