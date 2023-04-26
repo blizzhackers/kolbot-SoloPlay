@@ -75,11 +75,11 @@
 ### **Q: When will the bot change to the final build I selected?**
 
 **A:** In classic, the bot will switch to the final build after it defeats diablo and meets a level requirement.
-In expansion, it transitions to the final build when final gear requirements are met ``(Navigate to libs\SoloPlay\``[``BuildFiles``](libs/SoloPlay/BuildFiles/)) and look for the file with the name of the final build you choose to see what items are needed for each build and what level is required for classic).
+In expansion, it transitions to the final build when final gear requirements are met ``(Navigate to libs\SoloPlay\``[``BuildFiles\``](libs/SoloPlay/BuildFiles/)) and look for the file with the name of the final build you choose to see what items are needed for each build and what level is required for classic.
 
 ### **Q: The bot has beaten diablo (classic) / baal, so why isn't moving on to the next difficulty?**
 
-**A:** The bot will only progress once it has reached a minimum character level (`navigate to libs\SoloPlay\Config\classname.js` and see `Config.levelCap` for level requirments) and will not start the next difficulty with negative resistances. If the bot is more than 5 levels higher than the minimum character level and has not reached the required resistances, it will automatically move to the next difficulty.
+**A:** The bot will only progress once it has reached a minimum character level (``navigate to libs\SoloPlay\``[``BuildFiles``](libs/SoloPlay/BuildFiles/)``\classname\classname.js`` and see `CharInfo.levelCap` for level requirments) and will not start the next difficulty with negative resistances. If the bot is more than 5 levels higher than the minimum character level and has not reached the required resistances, it will automatically move to the next difficulty.
 
 ### **Q: How can I run more than one of the same class?**
 
