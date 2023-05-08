@@ -10,6 +10,7 @@
 			"[name] == tomeoftownportal",
 			"[name] == tomeofidentify",
 			"[name] == gold # [gold] >= me.charlvl * 3 * me.diff",
+			"[name] == gold && [distance] < 5 # [gold] >= 1",
 			"(me.charlvl < 20 || me.gold < 500) && [name] == minorhealingpotion",
 			"(me.charlvl < 25 || me.gold < 2000) && [name] == lighthealingpotion",
 			"(me.charlvl < 29 || me.gold < 5000) && [name] == healingpotion",

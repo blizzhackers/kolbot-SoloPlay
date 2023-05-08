@@ -29,6 +29,10 @@ NTIP.FinalGear = {
 	strArray: [],
 };
 
+/**
+ * @param {string} tierType 
+ * @returns {(item: ItemUnit) => number}
+ */
 NTIP.generateTierFunc = function (tierType) {
 	return function (item) {
 		let tier = -1;
@@ -80,25 +84,29 @@ NTIP.generateTierFunc = function (tierType) {
 
 /**
  * @function
- * @param item
+ * @param {ItemUnit} item
+ * @returns {number}
  */
 NTIP.GetTier = NTIP.generateTierFunc("Tier");
 
 /**
  * @function
- * @param item
+ * @param {ItemUnit} item
+ * @returns {number}
  */
 NTIP.GetMercTier = NTIP.generateTierFunc("Merctier");
 
 /**
  * @function
- * @param item
+ * @param {ItemUnit} item
+ * @returns {number}
  */
 NTIP.GetCharmTier = NTIP.generateTierFunc("Charmtier");
 
 /**
  * @function
- * @param item
+ * @param {ItemUnit} item
+ * @returns {number}
  */
 NTIP.GetSecondaryTier = NTIP.generateTierFunc("Secondarytier");
 
@@ -635,6 +643,10 @@ NTIP.ParseLineInt = function (input, info) {
 				break;
 			case "classic":
 				p_result[0] += "(!me.gametype)";
+
+				break;
+			case "distance":
+				p_result[0] += "(item.onGroundOrDropping && item.distance || Infinity)";
 
 				break;
 			default:
