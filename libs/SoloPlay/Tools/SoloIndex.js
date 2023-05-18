@@ -353,7 +353,7 @@ const SoloIndex = {
 		},
 		"summoner": {
 			preReq: function () {
-				return me.accessToAct(2);
+				return me.accessToAct(2) && me.getQuest(sdk.quest.id.TheTaintedSun, sdk.quest.states.Completed) === 1;
 			},
 			skipIf: function () {
 				return me.summoner;
@@ -378,7 +378,7 @@ const SoloIndex = {
 		},
 		"tombs": {
 			preReq: function () {
-				return me.accessToAct(2);
+				return me.accessToAct(2) && me.summoner;
 			},
 			skipIf: function () {
 				return (!me.normal || me.charlvl > 22);
