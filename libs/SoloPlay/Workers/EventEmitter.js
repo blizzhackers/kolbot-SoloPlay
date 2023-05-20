@@ -68,19 +68,6 @@
 			_AutoBuild.run();
 		}
 
-		// Tracker
-		if (Developer.logPerformance) {
-			if (getTickCount() - Tracker.tick > Time.minutes(3)) {
-				Tracker.tick = getTickCount();
-
-				try {
-					Tracker.update();
-				} catch (e) {
-					console.error(e);
-				}
-			}
-		}
-
 		return true;
 	};
 

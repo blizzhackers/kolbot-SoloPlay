@@ -1,4 +1,3 @@
-/* eslint-disable no-fallthrough */
 /**
 *  @filename    D2BotSoloPlay.dbj
 *  @author      theBGuy
@@ -24,6 +23,7 @@ Starter.Config.GlobalAccountPassword = ""; // Set value for a global password fo
 
 // Override default values for StarterConfig under here by following format
 // Starter.Config.ValueToChange = value; // Example: Starter.Config.MinGameTime = 500; // changes MinGameTime to 500 seconds
+// Profile().type === sdk.game.profiletype.SinglePlayer && (Starter.Config.CrashDelay = 2);
 
 /**
  * @todo
@@ -46,25 +46,16 @@ include("SoloPlay/Functions/ConfigOverrides.js");
 
 if (typeof Starter.AdvancedConfig[me.profile] === "object") {
 	Object.assign(Starter.Config, Starter.AdvancedConfig[me.profile]);
-} else {
-	// no need to carry around the reference
-	delete Starter.AdvancedConfig;
 }
+delete Starter.AdvancedConfig;
 
 // initialize data files
 if (!FileTools.exists("data/" + me.profile + ".json") && DataFile.create()) {
 	Starter.firstRun = true;
-	delay(rand(10, 100));
 }
 
-if (!FileTools.exists(CharData.filePath) && CharData.create()) {
-	delay(rand(10, 100));
-}
-
-if (!FileTools.exists(CharData.login.filePath) && CharData.login.create()) {
-	delay(rand(10, 100));
-}
-
+!FileTools.exists(CharData.filePath) && CharData.create();
+!FileTools.exists(CharData.login.filePath) && CharData.login.create();
 Developer.logPerformance && Tracker.initialize();
 
 function main () {
@@ -75,21 +66,14 @@ function main () {
 	let oogTick = getTickCount();
 
 	while (!Starter.handle) {
-		delay(100);
+		delay(3);
 	}
 
 	DataFile.updateStats("handle", Starter.handle);
+	D2Bot.handle = Starter.handle;
 	delay(500);
 
-	while (!D2Bot.init()) {
-		delay(250);
-	}
 	load("threads/heartbeat.js");
-
-	while (!Object.keys(Starter.gameInfo).length) {
-		D2Bot.requestGameInfo();
-		delay(500);
-	}
 
 	if (Profile().type === sdk.game.profiletype.TcpIpJoin) {
 		D2Bot.printToConsole("TcpJoin is unsupported.");
@@ -97,6 +81,12 @@ function main () {
 	}
 
 	Starter.gameCount = (DataFile.getStats().runs + 1 || 1);
+
+	while (!Object.keys(Starter.gameInfo).length) {
+		delay(rand(200, 1500));
+		D2Bot.requestGameInfo();
+		delay(500);
+	}
 
 	if (Starter.gameInfo.error) {
 		ControlAction.timeoutDelay("Crash Delay", Starter.Config.CrashDelay * 1e3);
@@ -106,15 +96,9 @@ function main () {
 	DataFile.updateStats("debugInfo", JSON.stringify({ currScript: "none", area: "out of game" }));
 
 	while (!Object.keys(Starter.profileInfo).length) {
+		delay(rand(200, 1500));
 		D2Bot.getProfile();
-		console.log("Getting Profile");
 		delay(500);
-	}
-
-	if (Starter.profileInfo.charName === "") {
-		console.log("Generating Character Name");
-		Starter.profileInfo.charName = require("./libs/SoloPlay/Tools/NameGen")();
-		delay(50);
 	}
 
 	while (true) {
@@ -133,6 +117,20 @@ function main () {
 					Developer.logPerformance && Tracker.update((getTickCount() - oogTick));
 					oogTick = 0;
 					D2Bot.updateStatus("In-Game :: Initializing threads...");
+				} else {
+					// Tracker
+					if (Developer.logPerformance) {
+						if (getTickCount() - Tracker.tick > Time.minutes(3)) {
+							Tracker.tick = getTickCount();
+
+							try {
+								Tracker.update();
+								console.log("Gametime Updated");
+							} catch (e) {
+								console.error(e);
+							}
+						}
+					}
 				}
 			}
 
