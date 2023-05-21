@@ -642,14 +642,21 @@ function main () {
 
 				// handle overlay
 				if (Developer.overlay) {
-					if (me.ingame && me.gameReady && me.area) {
-						Overlay.update(quitFlag);
-
-						if (me.act !== myAct) {
-							Overlay.flush();
-							myAct = me.act;
+					try {
+						if (me.ingame && me.gameReady && me.area) {
 							Overlay.update(quitFlag);
+
+							if (me.act !== myAct) {
+								Overlay.flush();
+								myAct = me.act;
+								Overlay.update(quitFlag);
+							}
 						}
+					} catch (e) {
+						console.error(e);
+						console.log("Overlay disabled");
+						D2Bot.printToConsole("Overlay disabled", sdk.colors.D2Bot.Red);
+						Developer.overlay = false;
 					}
 				}
 			}
