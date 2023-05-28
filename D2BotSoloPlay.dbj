@@ -125,7 +125,6 @@ function main () {
 
 							try {
 								Tracker.update();
-								console.log("Gametime Updated");
 							} catch (e) {
 								console.error(e);
 							}
