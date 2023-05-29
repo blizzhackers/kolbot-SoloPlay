@@ -260,8 +260,11 @@ const SetUp = {
       sdk.items.TomeofIdentify, sdk.items.TomeofTownPortal, sdk.items.Key, // sort tomes and keys to the right
       // sort all inventory potions from the right
       sdk.items.RejuvenationPotion, sdk.items.FullRejuvenationPotion,
-      sdk.items.MinorHealingPotion, sdk.items.LightHealingPotion, sdk.items.HealingPotion, sdk.items.GreaterHealingPotion, sdk.items.SuperHealingPotion,
-      sdk.items.MinorManaPotion, sdk.items.LightManaPotion, sdk.items.ManaPotion, sdk.items.GreaterManaPotion, sdk.items.SuperManaPotion
+      sdk.items.MinorHealingPotion, sdk.items.LightHealingPotion,
+      sdk.items.HealingPotion, sdk.items.GreaterHealingPotion,
+      sdk.items.SuperHealingPotion, sdk.items.MinorManaPotion,
+      sdk.items.LightManaPotion, sdk.items.ManaPotion,
+      sdk.items.GreaterManaPotion, sdk.items.SuperManaPotion
     ],
     PrioritySorting: true,
     ItemsSortedFromLeftPriority: [/*605, 604, 603, 519, 518*/], // (NOTE: the earlier in the index, the further to the Left)
@@ -289,8 +292,10 @@ const SetUp = {
 
     if (respec === me.charlvl && me.charlvl < 60) {
       showConsole();
-      console.log("ÿc8Kolbot-SoloPlayÿc0: Bot has respecTwo items but is too low a level to respec.");
-      console.log("ÿc8Kolbot-SoloPlayÿc0: This only happens with user intervention. Remove the items you gave the bot until at least level 60");
+      console.log(
+        "ÿc8Kolbot-SoloPlayÿc0: Bot has respecTwo items but is too low a level to respec." + "\n"
+        + "This only happens with user intervention. Remove the items you gave the bot until at least level 60"
+      );
       respec = 100;
     }
 
@@ -329,8 +334,12 @@ const SetUp = {
 
     // log info
     myPrint(this.finalBuild + " goal reached. On to the next.");
-    D2Bot.printToConsole("Kolbot-SoloPlay: " + this.finalBuild + " goal reached" + (printTotalTime ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + "). " : ". ") + "Making next...", sdk.colors.D2Bot.Gold);
-
+    D2Bot.printToConsole(
+      "Kolbot-SoloPlay: " + this.finalBuild + " goal reached"
+      + (printTotalTime ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + "). " : ". ")
+      + "Making next...",
+      sdk.colors.D2Bot.Gold
+    );
     D2Bot.setProfile(null, null, require("../Tools/NameGen")());
     CharData.delete(true);
     delay(250);
@@ -373,7 +382,11 @@ const SetUp = {
     for (let imbueItem of Config.imbueables) {
       try {
         if (imbueItem.condition()) {
-          temp.push("[name] == " + imbueItem.name + " && [quality] >= normal && [quality] <= superior && [flag] != ethereal # [Sockets] == 0 # [maxquantity] == 1");
+          temp.push(
+            "[name] == " + imbueItem.name
+            + " && [quality] >= normal && [quality] <= superior && [flag] != ethereal"
+            + " # [Sockets] == 0 # [maxquantity] == 1"
+          );
         }
       } catch (e) {
         console.log(e);
@@ -426,8 +439,10 @@ const SetUp = {
         Config.Recipes.push([Recipe.Reroll.Magic, "Grand Charm"]);
       }
       // switch bow - only for zon/sorc/pal/necro classes right now
-      if (!me.barbarian && !me.assassin && !me.druid) {
-        NTIP.addLine("([type] == bow || [type] == crossbow) && [quality] >= normal # [itemchargedskill] >= 0 # [secondarytier] == tierscore(item)");
+      if (me.charlvl < 12 && !me.barbarian && !me.assassin && !me.druid) {
+        NTIP.addLine(
+          "([type] == bow || [type] == crossbow) && [quality] >= normal # [itemchargedskill] >= 0 # [secondarytier] == tierscore(item)"
+        );
       }
       const expansionExtras = [
         // Special Charms
