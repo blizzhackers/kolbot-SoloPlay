@@ -8,51 +8,51 @@
 !includeIfNotIncluded("core/Runewords.js");
 
 Runeword.PDiamondShield = Runeword.addRuneword(
-	"PDiamondShield", 3,
-	[sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Diamond],
-	[sdk.items.type.AnyShield]
+  "PDiamondShield", 3,
+  [sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Diamond],
+  [sdk.items.type.AnyShield]
 );
 
 Runewords.checkRunewords = function () {
-	// keep a const reference of our items so failed checks don't remove items from the list
-	const itemsRef = me.findItems(-1, sdk.items.mode.inStorage);
+  // keep a const reference of our items so failed checks don't remove items from the list
+  const itemsRef = me.findItems(-1, sdk.items.mode.inStorage);
 
-	for (let i = 0; i < Config.Runewords.length; i += 1) {
-		let itemList = []; // reset item list
-		let items = itemsRef.slice(); // copy itemsRef
+  for (let i = 0; i < Config.Runewords.length; i += 1) {
+    let itemList = []; // reset item list
+    let items = itemsRef.slice(); // copy itemsRef
 
-		const [runeword, wantedBase, ethFlag] = Config.Runewords[i];
-		if (runeword.reqLvl > me.charlvl) continue; // skip runeword if we don't meet the level requirement
-		let base = this.getBase(runeword, wantedBase, (ethFlag || 0)); // check base
+    const [runeword, wantedBase, ethFlag] = Config.Runewords[i];
+    if (runeword.reqLvl > me.charlvl) continue; // skip runeword if we don't meet the level requirement
+    let base = this.getBase(runeword, wantedBase, (ethFlag || 0)); // check base
 
-		if (base) {
-			itemList.push(base); // push the base
+    if (base) {
+      itemList.push(base); // push the base
 
-			for (let j = 0; j < runeword.runes.length; j += 1) {
-				for (let k = 0; k < items.length; k += 1) {
-					if (items[k].classid === runeword.runes[j]) { // rune matched
-						itemList.push(items[k]); // push into the item list
-						items.splice(k, 1); // remove from item list as to not count it twice
+      for (let j = 0; j < runeword.runes.length; j += 1) {
+        for (let k = 0; k < items.length; k += 1) {
+          if (items[k].classid === runeword.runes[j]) { // rune matched
+            itemList.push(items[k]); // push into the item list
+            items.splice(k, 1); // remove from item list as to not count it twice
 
-						k -= 1;
+            k -= 1;
 
-						break; // stop item cycle - we found the item
-					}
-				}
+            break; // stop item cycle - we found the item
+          }
+        }
 
-				// can't complete runeword - go to next one
-				if (itemList.length !== j + 2) {
-					break;
-				}
+        // can't complete runeword - go to next one
+        if (itemList.length !== j + 2) {
+          break;
+        }
 
-				if (itemList.length === runeword.runes.length + 1) { // runes + base
-					return itemList; // these items are our runeword
-				}
-			}
-		}
-	}
+        if (itemList.length === runeword.runes.length + 1) { // runes + base
+          return itemList; // these items are our runeword
+        }
+      }
+    }
+  }
 
-	return false;
+  return false;
 };
 
 /**
@@ -64,38 +64,38 @@ Runewords.checkRunewords = function () {
  * @returns {ItemUnit | false}
  */
 Runewords.getBase = function (runeword, base, ethFlag, reroll) {
-	let item = typeof base === "object"
-		? base
-		: me.getItem(base, sdk.items.mode.inStorage);
+  let item = typeof base === "object"
+    ? base
+    : me.getItem(base, sdk.items.mode.inStorage);
 
-	if (item) {
-		do {
-			if (item && item.quality < sdk.items.quality.Magic
-				&& item.sockets === runeword.sockets && runeword.itemTypes.includes(item.itemType)) {
-				/**
-				 * check if item has items socketed in it
-				 * better check than getFlag(sdk.items.flags.Runeword) because randomly socketed items return false for it
-				 */
+  if (item) {
+    do {
+      if (item && item.quality < sdk.items.quality.Magic
+        && item.sockets === runeword.sockets && runeword.itemTypes.includes(item.itemType)) {
+        /**
+         * check if item has items socketed in it
+         * better check than getFlag(sdk.items.flags.Runeword) because randomly socketed items return false for it
+         */
 
-				if ((!reroll && !item.getItem() && Item.betterBaseThanWearing(item, Developer.debugging.baseCheck))
-					|| (reroll && item.getItem() && !NTIP.CheckItem(item, this.pickitEntries) && !Item.autoEquipCheckMerc(item, true) && !Item.autoEquipCheck(item, true))) {
-					if (!ethFlag || (ethFlag === Roll.Eth && item.ethereal) || (ethFlag === Roll.NonEth && !item.ethereal)) {
-						return copyUnit(item);
-					}
-				}
-			}
-		} while (typeof base !== "object" && item.getNext());
-	}
+        if ((!reroll && !item.getItem() && Item.betterBaseThanWearing(item, Developer.debugging.baseCheck))
+          || (reroll && item.getItem() && !NTIP.CheckItem(item, this.pickitEntries) && !Item.autoEquipCheckMerc(item, true) && !Item.autoEquipCheck(item, true))) {
+          if (!ethFlag || (ethFlag === Roll.Eth && item.ethereal) || (ethFlag === Roll.NonEth && !item.ethereal)) {
+            return copyUnit(item);
+          }
+        }
+      }
+    } while (typeof base !== "object" && item.getNext());
+  }
 
-	return false;
+  return false;
 };
 
 Runewords.checkRune = function (...runes) {
-	if (!Config.MakeRunewords || runes.length < 1) return false;
+  if (!Config.MakeRunewords || runes.length < 1) return false;
 
-	for (let classid of runes) {
-		if (this.needList.includes(classid)) return true;
-	}
+  for (let classid of runes) {
+    if (this.needList.includes(classid)) return true;
+  }
 
-	return false;
+  return false;
 };

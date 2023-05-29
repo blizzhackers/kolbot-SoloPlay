@@ -6,14 +6,14 @@
 */
 
 function boneash () {
-	Town.doChores(false, { fullChores: true });
-	myPrint("starting boneash");
+  Town.doChores(false, { fullChores: true });
+  myPrint("starting boneash");
 
-	Pather.checkWP(sdk.areas.InnerCloister, true) ? Pather.useWaypoint(sdk.areas.InnerCloister) : Pather.getWP(sdk.areas.InnerCloister);
-	Precast.doPrecast(true);
-	Pather.clearToExit(sdk.areas.InnerCloister, sdk.areas.Cathedral, true);
-	Pather.moveTo(20047, 4898);
-	Attack.killTarget(getLocaleString(sdk.locale.monsters.BoneAsh));
+  Pather.checkWP(sdk.areas.InnerCloister, true) ? Pather.useWaypoint(sdk.areas.InnerCloister) : Pather.getWP(sdk.areas.InnerCloister);
+  Precast.doPrecast(true);
+  Pather.clearToExit(sdk.areas.InnerCloister, sdk.areas.Cathedral, true);
+  Pather.moveTo(20047, 4898);
+  Attack.killTarget(getLocaleString(sdk.locale.monsters.BoneAsh));
 
-	return true;
+  return true;
 }
