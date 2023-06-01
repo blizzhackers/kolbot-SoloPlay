@@ -81,7 +81,7 @@ Misc.openChest = function (unit) {
     let useDodge = Pather.useTeleport() && Skill.useTK(unit);
     if (useTK) {
       unit.distance > 18 && Attack.getIntoPosition(unit, 18, sdk.collision.WallOrRanged, false, true);
-      if (!Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, unit)) {
+      if (!Packet.telekinesis(unit)) {
         console.debug("Failed to tk: attempt: " + i);
         continue;
       }
@@ -139,7 +139,16 @@ Misc.openChests = function (range = 15) {
     unitList.sort(Sort.units);
     let unit = unitList.shift();
 
-    if (unit) {
+    if (unit && Pather.currentWalkingPath.length) {
+      /**
+       * @todo - check if the chest is in our path of if in the future we would be closer to it
+       * and if so assign a hook to be triggered at our point nearest to it so we can open it
+       * and save time
+       */
+      if (unit.distance > 5 && PathDebug.coordsInPath(Pather.currentWalkingPath, unit.x, unit.y)) {
+        console.log("Skipping chest for now as it is in our path for later");
+        continue;
+      }
       // check mob count at chest - think I need a new prototype for faster checking
       // allow specifying an amount and return true/false, rather than building the whole list then deciding what amount is too much
       // possibly also specify a danger modifier - 3 champions around a chest is much more dangerous than 3 fallens
@@ -166,7 +175,7 @@ Misc.getWell = function (unit) {
     if (Skill.useTK(unit) && i < 2) {
       unit.distance > 21 && Pather.moveNearUnit(unit, 20);
       checkCollision(me, unit, sdk.collision.Ranged) && Attack.getIntoPosition(unit, 20, sdk.collision.Ranged);
-      Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, unit);
+      Packet.telekinesis(unit);
     } else {
       if (unit.distance < 4 || Pather.moveToUnit(unit, 3, 0)) {
         Misc.click(0, 0, unit);

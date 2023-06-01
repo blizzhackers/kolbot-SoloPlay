@@ -14,7 +14,7 @@
 
 includeIfNotIncluded("core/Town.js");
 
-new Overrides.Override(Town, Town.drinkPots, function(orignal, type) {
+new Overrides.Override(Town, Town.drinkPots, function (orignal, type) {
   const objDrank = orignal(type, false);
   const pots = {};
   pots[sdk.items.StaminaPotion] = "stamina";
@@ -246,7 +246,7 @@ Town.identify = function () {
 
   let tome = me.getTome(sdk.items.TomeofIdentify);
   // if we have a tome might as well use it - this might prevent us from having to run from one npc to another
-  if (tome && tome.getStat(sdk.stats.Quantity) > 0 && Town.getDistance(Town.tasks[me.act - 1].Shop) > 5) {
+  if (tome && tome.getStat(sdk.stats.Quantity) > 0 && Town.getDistance(Town.tasks.get(me.act).Shop) > 5) {
     // not in the field but oh well no need to repeat the code
     if (me.fieldID() && !me.getUnids().length) {
       return true;
@@ -636,7 +636,8 @@ Town.clearJunk = function () {
     myPrint("Junk items to sell: " + junkToSell.length);
     Town.initNPC("Shop", "clearInventory");
 
-    if (getUIFlag(sdk.uiflags.Shop) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
+    if (getUIFlag(sdk.uiflags.Shop)
+      || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
       for (let i = 0; i < junkToSell.length; i++) {
         console.log("ÿc9JunkCheckÿc0 :: Sell " + junkToSell[i].prettyPrint);
         Item.logger("Sold", junkToSell[i]);
@@ -711,7 +712,7 @@ Town.doChores = function (repair = false, givenTasks = {}) {
   // Use cainId if we are low on gold or we are closer to him than the shopNPC
   if (me.getUnids().length) {
     if (me.gold < 5000
-      || Town.getDistance("cain") < Town.getDistance(Town.tasks[me.act - 1].Heal)) {
+      || Town.getDistance("cain") < Town.getDistance(Town.tasks.get(me.act).Heal)) {
       NPCAction.cainID(true);
     }
   }

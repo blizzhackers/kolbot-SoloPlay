@@ -253,7 +253,7 @@ const Mercenary = {
     try {
       Town.goToTown(mercAct);
       myPrint("ÿc9Mercenaryÿc0 :: getting merc");
-      Town.move(Town.tasks[me.act - 1].Merc);
+      Town.move(Town.tasks.get(me.act).Merc);
       me.sortInventory();
       Item.removeItemsMerc(); // strip temp merc gear
       delay(500 + me.ping);

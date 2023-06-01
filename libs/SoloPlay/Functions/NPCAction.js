@@ -276,7 +276,7 @@
     let npc = getInteractedNPC();
 
     // Check if we're already in a shop. It would be pointless to go to Cain if so.
-    if (npc && npc.name.toLowerCase() === Town.tasks[me.act - 1].Shop) return false;
+    if (npc && npc.name.toLowerCase() === Town.tasks.get(me.act).Shop) return false;
     // Check if we may use Cain - minimum gold
     if (me.gold < Config.CainID.MinGold && !force) return false;
 
@@ -512,22 +512,22 @@
 
     let list = [];
 
-    if (Town.gambleIds.length === 0) {
+    if (Town.gambleIds.size === 0) {
       // change text to classid
       for (let i = 0; i < Config.GambleItems.length; i += 1) {
         if (isNaN(Config.GambleItems[i])) {
           if (NTIPAliasClassID.hasOwnProperty(Config.GambleItems[i].replace(/\s+/g, "").toLowerCase())) {
-            Town.gambleIds.push(NTIPAliasClassID[Config.GambleItems[i].replace(/\s+/g, "").toLowerCase()]);
+            Town.gambleIds.add(NTIPAliasClassID[Config.GambleItems[i].replace(/\s+/g, "").toLowerCase()]);
           } else {
             Misc.errorReport("ÿc1Invalid gamble entry:ÿc0 " + Config.GambleItems[i]);
           }
         } else {
-          Town.gambleIds.push(Config.GambleItems[i]);
+          Town.gambleIds.add(Config.GambleItems[i]);
         }
       }
     }
 
-    if (Town.gambleIds.length === 0) return true;
+    if (Town.gambleIds.size === 0) return true;
 
     // avoid Alkor
     me.act === 3 && Town.goToTown(me.accessToAct(4) ? 4 : 2);
@@ -549,7 +549,7 @@
 
       if (item) {
         do {
-          Town.gambleIds.includes(item.classid) && items.push(copyUnit(item));
+          Town.gambleIds.has(item.classid) && items.push(copyUnit(item));
         } while (item.getNext());
 
         for (let i = 0; i < items.length; i += 1) {
