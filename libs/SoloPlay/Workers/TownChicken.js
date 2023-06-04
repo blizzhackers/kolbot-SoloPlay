@@ -13,7 +13,7 @@
 (function (module, require, Worker) {
   // Only load this in global scope
   if (getScript(true).name.toLowerCase() === "libs\\soloplay\\soloplay.js") {
-    const getNearestMonster = () => {
+    const getNearestMonster = function () {
       let gid = null;
       let monster = Game.getMonster();
       let range = 30;
@@ -61,7 +61,7 @@
           const useTk = me.inTown && Skill.useTK(portal) && i < 3;
           if (useTk) {
             portal.distance > 21 && (me.inTown && me.act === 5 ? Town.move("portalspot") : Pather.moveNearUnit(portal, 20));
-            if (Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, portal)
+            if (Packet.telekinesis(portal)
               && Misc.poll(() => targetArea ? me.inArea(targetArea) : me.area !== preArea)) {
               Pather.lastPortalTick = getTickCount();
               delay(100);

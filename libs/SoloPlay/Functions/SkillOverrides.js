@@ -8,14 +8,29 @@
 includeIfNotIncluded("core/Skill.js");
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 
-Skill.forcePacket = (Developer.forcePacketCasting.enabled && !Developer.forcePacketCasting.excludeProfiles.includes(me.profile));
+Skill.forcePacket = (
+  Developer.forcePacketCasting.enabled
+  && !Developer.forcePacketCasting.excludeProfiles.includes(me.profile)
+);
 Skill.casterSkills = [
-  sdk.skills.FireBolt, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.FrostNova, sdk.skills.IceBlast, sdk.skills.FireBall,
-  sdk.skills.Nova, sdk.skills.Lightning, sdk.skills.ChainLightning, sdk.skills.Teleport, sdk.skills.GlacialSpike, sdk.skills.Meteor,
-  sdk.skills.Blizzard, sdk.skills.FrozenOrb, sdk.skills.BoneSpear, sdk.skills.Decrepify, sdk.skills.PoisonNova, sdk.skills.BoneSpirit,
-  sdk.skills.HolyBolt, sdk.skills.BlessedHammer, sdk.skills.FistoftheHeavens, sdk.skills.Howl, sdk.skills.Taunt, sdk.skills.BattleCry,
-  sdk.skills.WarCry, sdk.skills.Firestorm, sdk.skills.MoltenBoulder, sdk.skills.ArcticBlast, sdk.skills.Fissure, sdk.skills.Twister,
-  sdk.skills.Volcano, sdk.skills.Armageddon, sdk.skills.Hurricane, sdk.skills.FireBlast, sdk.skills.ShockField, sdk.skills.ChargedBoltSentry,
+  sdk.skills.FireBolt, sdk.skills.ChargedBolt,
+  sdk.skills.IceBolt, sdk.skills.FrostNova,
+  sdk.skills.IceBlast, sdk.skills.FireBall,
+  sdk.skills.Nova, sdk.skills.Lightning,
+  sdk.skills.ChainLightning, sdk.skills.Teleport,
+  sdk.skills.GlacialSpike, sdk.skills.Meteor,
+  sdk.skills.Blizzard, sdk.skills.FrozenOrb,
+  sdk.skills.BoneSpear, sdk.skills.Decrepify,
+  sdk.skills.PoisonNova, sdk.skills.BoneSpirit,
+  sdk.skills.HolyBolt, sdk.skills.BlessedHammer,
+  sdk.skills.FistoftheHeavens, sdk.skills.Howl,
+  sdk.skills.Taunt, sdk.skills.BattleCry,
+  sdk.skills.WarCry, sdk.skills.Firestorm,
+  sdk.skills.MoltenBoulder, sdk.skills.ArcticBlast,
+  sdk.skills.Fissure, sdk.skills.Twister,
+  sdk.skills.Volcano, sdk.skills.Armageddon,
+  sdk.skills.Hurricane, sdk.skills.FireBlast,
+  sdk.skills.ShockField, sdk.skills.ChargedBoltSentry,
   /* sdk.skills.WakeofFire, */ sdk.skills.LightningSentry, sdk.skills.DeathSentry
 ];
 
@@ -48,7 +63,8 @@ Skill.cast = function (skillId, hand, x, y, item) {
   if (!this.setSkill(skillId, hand, item)) return false;
 
   if (Config.PacketCasting > 1 || [sdk.skills.Teleport, sdk.skills.Telekinesis].includes(skillId)
-    || (this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [sdk.skills.Teeth, sdk.skills.Tornado].indexOf(skillId) === -1))) {
+    || (this.forcePacket && this.casterSkills.includes(skillId)
+    && (!!me.realm || [sdk.skills.Teeth, sdk.skills.Tornado].indexOf(skillId) === -1))) {
     switch (typeof x) {
     case "number":
       Packet.castSkill(hand, x, y);
@@ -62,7 +78,7 @@ Skill.cast = function (skillId, hand, x, y, item) {
       break;
     }
   } else {
-    let [clickType, shift] = (() => {
+    let [clickType, shift] = (function () {
       switch (hand) {
       case sdk.skills.hand.Left: // Left hand + Shift
         return [sdk.clicktypes.click.map.LeftDown, sdk.clicktypes.shift.Shift];
@@ -158,7 +174,8 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
     Skill.setSkill(Config.AttackSkill[2], sdk.skills.hand.Right);
   }
 
-  if ((this.forcePacket && this.casterSkills.includes(skillId) && (!!me.realm || [sdk.skills.Teeth, sdk.skills.Tornado].indexOf(skillId) === -1))
+  if ((this.forcePacket && this.casterSkills.includes(skillId)
+    && (!!me.realm || [sdk.skills.Teeth, sdk.skills.Tornado].indexOf(skillId) === -1))
     || Config.PacketCasting > 1
     || skillId === sdk.skills.Teleport) {
     switch (typeof settings.x) {
@@ -174,7 +191,7 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
     // make sure we give enough time back so we don't fail our next cast
     delay(250);
   } else {
-    let [clickType, shift] = (() => {
+    let [clickType, shift] = (function () {
       switch (settings.hand) {
       case sdk.skills.hand.Left: // Left hand + Shift
         return [sdk.clicktypes.click.map.LeftDown, sdk.clicktypes.shift.Shift];
@@ -190,9 +207,13 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
 
     MainLoop:
     for (let n = 0; n < 3; n += 1) {
-      typeof settings.x === "object" ? clickMap(clickType, shift, settings.x) : clickMap(clickType, shift, settings.x, settings.y);
+      typeof settings.x === "object"
+        ? clickMap(clickType, shift, settings.x)
+        : clickMap(clickType, shift, settings.x, settings.y);
       delay(20);
-      typeof settings.x === "object" ? clickMap(clickType + 2, shift, settings.x) : clickMap(clickType + 2, shift, settings.x, settings.y);
+      typeof settings.x === "object"
+        ? clickMap(clickType + 2, shift, settings.x)
+        : clickMap(clickType + 2, shift, settings.x, settings.y);
 
       for (let i = 0; i < 8; i++) {
         if (me.attacking) {

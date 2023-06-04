@@ -9,11 +9,11 @@ includeIfNotIncluded("core/Item.js");
 (function () {
   /**
    * @param {ItemUnit} item 
-   * @param {*} buildInfo 
+   * @param {Build} buildInfo 
    * @returns {number}
    * @todo clean this up (sigh) - 8/10/22 - update refactored alot, still think more can be done though
    */
-  const baseSkillsScore = (item, buildInfo) => {
+  const baseSkillsScore = function (item, buildInfo) {
     buildInfo === undefined && (buildInfo = Check.currentBuild());
     let generalScore = 0;
     let selectedWeights = [30, 20];
@@ -45,39 +45,67 @@ includeIfNotIncluded("core/Item.js");
     let result = false, preSocketCheck = false;
     let bodyLoc = Item.getBodyLoc(base);
 
-    const checkNoSockets = (item) => [
-      sdk.locale.items.AncientsPledge, sdk.locale.items.Exile, sdk.locale.items.Lore, sdk.locale.items.White, sdk.locale.items.Rhyme
-    ].includes(item.prefixnum) || (item.prefixnum === sdk.locale.items.Spirit && item.getItemType() === "Shield");
-    const getRes = (item) => item.getStatEx(sdk.stats.FireResist) + item.getStatEx(sdk.stats.LightResist) + item.getStatEx(sdk.stats.ColdResist) + item.getStatEx(sdk.stats.PoisonResist);
-    const getDmg = (item) => item.getStatEx(sdk.stats.MinDamage) + item.getStatEx(sdk.stats.MaxDamage);
-    const getRealDmg = (item, maxED = 0, minOffset = 0, maxOffset = 0) => {
+    /** @param {ItemUnit} item */
+    const checkNoSockets = function (item) {
+      return item.normal && [
+        sdk.locale.items.AncientsPledge,
+        sdk.locale.items.Exile,
+        sdk.locale.items.Lore,
+        sdk.locale.items.White,
+        sdk.locale.items.Rhyme
+      ].includes(item.prefixnum) || (item.prefixnum === sdk.locale.items.Spirit && item.getItemType() === "Shield");
+    };
+    /** @param {ItemUnit} item */
+    const getRes = function (item) {
+      return (
+        item.getStatEx(sdk.stats.FireResist) + item.getStatEx(sdk.stats.LightResist)
+        + item.getStatEx(sdk.stats.ColdResist) + item.getStatEx(sdk.stats.PoisonResist)
+      );
+    };
+    /** @param {ItemUnit} item */
+    const getDmg = function (item) {
+      return item.getStatEx(sdk.stats.MinDamage) + item.getStatEx(sdk.stats.MaxDamage);
+    };
+    /** @param {ItemUnit} item */
+    const getRealDmg = function (item, maxED = 0, minOffset = 0, maxOffset = 0) {
       let ED = item.getStatEx(sdk.stats.EnhancedDamage);
       ED > maxED && (ED = maxED);
       let itemsMinDmg = Math.ceil(((item.getStatEx(sdk.stats.MinDamage) - minOffset) / ((ED + 100) / 100)));
       let itemsMaxDmg = Math.ceil(((item.getStatEx(sdk.stats.MaxDamage) - maxOffset) / ((ED + 100) / 100)));
       return (itemsMinDmg + itemsMaxDmg);
     };
-    const getDef = (item) => item.getStatEx(sdk.stats.Defense);
-    const getRealDef = (item, maxEDef) => {
+    /** @param {ItemUnit} item */
+    const getDef = function (item) {
+      return item.getStatEx(sdk.stats.Defense);
+    };
+    /** @param {ItemUnit} item */
+    const getRealDef = function (item, maxEDef) {
       let ED = item.getStatEx(sdk.stats.ArmorPercent);
       ED > maxEDef && (ED = maxEDef);
       return (Math.ceil((item.getStatEx(sdk.stats.Defense) / ((ED + 100) / 100))));
     };
-    const resCheck = (baseResists, itemsResists) => {
-      verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+    const resCheck = function (baseResists, itemsResists) {
+      if (verbose) {
+        console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseResists: " + baseResists + " EquippedItem: " + itemsResists);
+      }
       return (baseResists > itemsResists);
     };
-    const defCheck = (itemsDefense, baseDefense) => {
-      verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+    const defCheck = function (itemsDefense, baseDefense) {
+      if (verbose) {
+        console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseDefense: " + baseDefense + " EquippedItem: " + itemsDefense);
+      }
       return (baseDefense > itemsDefense);
     };
-    const dmgCheck = (itemsTotalDmg, baseDmg) => {
-      verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+    const dmgCheck = function (itemsTotalDmg, baseDmg) {
+      if (verbose) {
+        console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(" + name + ") BaseDamage: " + baseDmg + " EquippedItem: " + itemsTotalDmg);
+      }
       return (baseDmg > itemsTotalDmg);
     };
 
     // @todo - betterThanMercUsing check for now just keep merc items
-    if ([sdk.items.type.Polearm, sdk.items.type.Spear].includes(base.itemType) || ([sdk.items.type.Armor].includes(base.itemType) && base.ethereal)) {
+    if ([sdk.items.type.Polearm, sdk.items.type.Spear].includes(base.itemType)
+      || ([sdk.items.type.Armor].includes(base.itemType) && base.ethereal)) {
       let merc = me.getMercEx();
       if (merc) {
         bodyLoc = Item.getBodyLocMerc(base);
@@ -116,11 +144,14 @@ includeIfNotIncluded("core/Item.js");
     // don't toss pb base crescent moon/HoJ/Grief
     if (base.classid === sdk.items.PhaseBlade && [3, 4, 5].includes(base.sockets)) return true;
 
-    let items = me.getItemsEx().filter(i => i.isEquipped && bodyLoc.includes(i.bodylocation));
+    let items = me.getItemsEx()
+      .filter(function (i) {
+        return i.isEquipped && bodyLoc.includes(i.bodylocation);
+      });
 
     for (let i = 0; i < bodyLoc.length; i++) {
       let equippedItem = items.find(item => item.bodylocation === bodyLoc[i]);
-      if (!equippedItem || !equippedItem.runeword || NTIP.GetTier(equippedItem) >= NTIP.MAX_TIER) {
+      if (!equippedItem || !equippedItem.runeword /* || NTIP.GetTier(equippedItem) >= NTIP.MAX_TIER */) {
         if (i === 0 && bodyLoc.length > 1) continue;
         return true;
       }
@@ -247,7 +278,12 @@ includeIfNotIncluded("core/Item.js");
             [equippedSkillsTier, baseSkillsTier] = [(baseSkillsScore(equippedItem) - 550), baseSkillsScore(base)];
 
             if (equippedSkillsTier !== baseSkillsTier) {
-              verbose && console.log("ÿc9BetterThanWearingCheckÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier + " BaseSkillsTier: " + baseSkillsTier);
+              if (verbose) {
+                console.debug(
+                  "ÿc0 :: RW(White) EquippedSkillsTier: " + equippedSkillsTier
+                  + " BaseSkillsTier: " + baseSkillsTier
+                );
+              }
               if (baseSkillsTier > equippedSkillsTier) return true;
             }
           }
@@ -329,17 +365,20 @@ includeIfNotIncluded("core/Item.js");
     if (base.sockets === 1) return false;
     verbose === undefined && (verbose = Developer.debugging.baseCheck);
 
+    /** @param {ItemUnit} item */
     const defenseScore = (item) => ({
       def: item.getStatEx(sdk.stats.Defense),
       eDef: item.getStatEx(sdk.stats.ArmorPercent)
     });
 
+    /** @param {ItemUnit} item */
     const dmgScore = (item) => ({
       dmg: Math.round((item.getStatEx(sdk.stats.MinDamagePercent) + item.getStatEx(sdk.stats.MaxDamagePercent)) / 2),
       twoHandDmg: Math.round((item.getStatEx(sdk.stats.SecondaryMinDamage) + item.getStatEx(sdk.stats.SecondaryMaxDamage)) / 2),
       eDmg: item.getStatEx(sdk.stats.EnhancedDamage)
     });
 
+    /** @param {ItemUnit} item */
     const generalScore = (item) => {
       const buildInfo = Check.currentBuild();
       let generalScore = baseSkillsScore(item, buildInfo);
@@ -379,7 +418,7 @@ includeIfNotIncluded("core/Item.js");
      * @param {ItemUnit} a 
      * @param {ItemUnit} b 
      */
-    const defenseSort = (a, b) => {
+    const defenseSort = function (a, b) {
       let [aDef, bDef] = [a.getStatEx(sdk.stats.Defense), b.getStatEx(sdk.stats.Defense)];
       if (aDef !== bDef) return aDef - bDef;
       return a.getStatEx(sdk.stats.ArmorPercent) - b.getStatEx(sdk.stats.ArmorPercent);
@@ -389,7 +428,7 @@ includeIfNotIncluded("core/Item.js");
      * @param {ItemUnit} a 
      * @param {ItemUnit} b 
      */
-    const generalScoreSort = (a, b) => {
+    const generalScoreSort = function (a, b) {
       let [aScore, bScore] = [generalScore(a), generalScore(b)];
       if (aScore !== bScore) return aScore - bScore;
       let [aSoc, bSoc] = [a.sockets, b.sockets];
@@ -406,13 +445,13 @@ includeIfNotIncluded("core/Item.js");
      * @param {ItemUnit} a 
      * @param {ItemUnit} b 
      */
-    const twoHandDmgSort = (a, b) => {
+    const twoHandDmgSort = function (a, b) {
       let [aDmg, bDmg] = [dmgScore(a), dmgScore(b)];
       if (aDmg.twoHandDmg !== bDmg.twoHandDmg) return aDmg.twoHandDmg - bDmg.twoHandDmg;
       return aDmg.eDmg - bDmg.eDmg;
     };
 
-    const defenseScoreCheck = (base, itemToCheck) => {
+    const defenseScoreCheck = function (base, itemToCheck) {
       let [defScoreBase, defScoreItem] = [defenseScore(base), defenseScore(itemToCheck)];
       verbose && console.log("ÿc9betterThanStashedÿc0 :: BaseScore: ", defScoreBase, " itemToCheckScore: ", defScoreItem);
       if (defScoreBase.def > defScoreItem.def || (defScoreBase.def === defScoreItem.def && (defScoreBase.eDef > defScoreItem.eDef || base.ilvl > itemToCheck.ilvl))) {
@@ -421,7 +460,7 @@ includeIfNotIncluded("core/Item.js");
       return false;
     };
 
-    const damageScoreCheck = (base, itemToCheck) => {
+    const damageScoreCheck = function (base, itemToCheck) {
       let [gScoreBase, gScoreCheck] = [generalScore(base), generalScore(itemToCheck)];
       verbose && console.log("ÿc9betterThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemToCheck));
       switch (true) {
@@ -433,7 +472,7 @@ includeIfNotIncluded("core/Item.js");
       return false;
     };
 
-    const generalScoreCheck = (base, itemToCheck) => {
+    const generalScoreCheck = function (base, itemToCheck) {
       let [gScoreBase, gScoreCheck] = [generalScore(base), generalScore(itemToCheck)];
       verbose && console.log("ÿc9betterThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemToCheck));
       if (gScoreBase > gScoreCheck) return true;

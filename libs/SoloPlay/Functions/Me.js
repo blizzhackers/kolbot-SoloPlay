@@ -115,7 +115,7 @@ if (!me.hasOwnProperty("onFinalBuild")) {
 if (!me.hasOwnProperty("mercid")) {
   Object.defineProperty(me, "mercid", {
     get: function () {
-      return me.data.merc.classid || (() => {
+      return me.data.merc.classid || (function () {
         let merc = me.getMercEx();
         if (!merc) return 0;
         me.data.merc.classid = merc.classid;
@@ -128,7 +128,7 @@ if (!me.hasOwnProperty("mercid")) {
 if (!me.hasOwnProperty("trueStr")) {
   Object.defineProperty(me, "trueStr", {
     get: function () {
-      return me.data.strength || (() => {
+      return me.data.strength || (function () {
         let str = me.rawStrength;
         me.data.strength = str;
         return str;
@@ -140,7 +140,7 @@ if (!me.hasOwnProperty("trueStr")) {
 if (!me.hasOwnProperty("trueDex")) {
   Object.defineProperty(me, "trueDex", {
     get: function () {
-      return me.data.dexterity || (() => {
+      return me.data.dexterity || (function () {
         let dex = me.rawDexterity;
         me.data.dexterity = dex;
         return dex;
@@ -334,19 +334,20 @@ if (!me.hasOwnProperty("equipped")) {
     };
 
     /** @type {Map<number, EquippedItem>} */
-    const bodyMap = new Map();
-    bodyMap.set(sdk.body.Head, new EquippedItem());
-    bodyMap.set(sdk.body.Neck, new EquippedItem());
-    bodyMap.set(sdk.body.Armor, new EquippedItem());
-    bodyMap.set(sdk.body.RightArm, new EquippedItem());
-    bodyMap.set(sdk.body.LeftArm, new EquippedItem());
-    bodyMap.set(sdk.body.Gloves, new EquippedItem());
-    bodyMap.set(sdk.body.RingRight, new EquippedItem());
-    bodyMap.set(sdk.body.RingLeft, new EquippedItem());
-    bodyMap.set(sdk.body.Belt, new EquippedItem());
-    bodyMap.set(sdk.body.Feet, new EquippedItem());
-    bodyMap.set(sdk.body.RightArmSecondary, new EquippedItem());
-    bodyMap.set(sdk.body.LeftArmSecondary, new EquippedItem());
+    const bodyMap = new Map([
+      [sdk.body.Head, new EquippedItem()],
+      [sdk.body.Neck, new EquippedItem()],
+      [sdk.body.Armor, new EquippedItem()],
+      [sdk.body.RightArm, new EquippedItem()],
+      [sdk.body.LeftArm, new EquippedItem()],
+      [sdk.body.Gloves, new EquippedItem()],
+      [sdk.body.RingRight, new EquippedItem()],
+      [sdk.body.RingLeft, new EquippedItem()],
+      [sdk.body.Belt, new EquippedItem()],
+      [sdk.body.Feet, new EquippedItem()],
+      [sdk.body.RightArmSecondary, new EquippedItem()],
+      [sdk.body.LeftArmSecondary, new EquippedItem()],
+    ]);
 
     // const _dummy = new EquippedItem();
 
@@ -358,7 +359,9 @@ if (!me.hasOwnProperty("equipped")) {
       get: function (bodylocation) {
         // if (!bodyMap.has(bodylocation)) return _dummy;
         let item = bodyMap.get(bodylocation);
-        if (item._gid === -1 || (item._gid !== item.gid || (item._bodylocation !== item.location && me.weaponswitch !== sdk.player.slot.Secondary))) {
+        if (item._gid === -1
+          || (item._gid !== item.gid
+          || (item._bodylocation !== item.location && me.weaponswitch !== sdk.player.slot.Secondary))) {
           // item has changed - find the new item
           let newItem = me.getItemsEx()
             .filter((el) => el.isEquipped && el.bodylocation === bodylocation)
@@ -450,17 +453,28 @@ me.getSkillTabs = function (classid = me.classid) {
 // need check for ranged mobs so we can stick and move to avoid missiles
 me.inDanger = function (checkLoc, range) {
   let count = 0;
-  let _this = typeof checkLoc !== "undefined" && checkLoc.hasOwnProperty("x") ? checkLoc : me;
+  const _this = typeof checkLoc !== "undefined" && checkLoc.hasOwnProperty("x")
+    ? checkLoc
+    : me;
   range === undefined && (range = 10);
-  let nearUnits = getUnits(sdk.unittype.Monster).filter((mon) => mon && mon.attackable && getDistance(_this, mon) < 10);
-  nearUnits.forEach(u => u.isSpecial
-    ? [sdk.states.Fanaticism, sdk.states.Conviction].some(state => u.getState(state))
-      ? (count += 3)
-      : (count += 2)
-    : (count += 1));
+  let nearUnits = getUnits(sdk.unittype.Monster)
+    .filter(function (mon) {
+      return mon && mon.attackable && getDistance(_this, mon) < 10;
+    });
+  nearUnits.forEach(function (u) {
+    return u.isSpecial
+      ? [sdk.states.Fanaticism, sdk.states.Conviction].some(state => u.getState(state))
+        ? (count += 3)
+        : (count += 2)
+      : (count += 1);
+  });
   if (count > me.maxNearMonsters) return true;
   let dangerClose = nearUnits
-    .find(mon => [sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted].some(chant => mon.getEnchant(chant)));
+    .find(function (mon) {
+      return [
+        sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted
+      ].some(chant => mon.getEnchant(chant));
+    });
   return dangerClose;
 };
 
@@ -659,7 +673,8 @@ me.clearBelt = function () {
 };
 
 me.getIdTool = function () {
-  let items = me.getItemsEx().filter((i) => i.isInInventory && [sdk.items.ScrollofIdentify, sdk.items.TomeofIdentify].includes(i.classid));
+  let items = me.getItemsEx()
+    .filter((i) => i.isInInventory && [sdk.items.ScrollofIdentify, sdk.items.TomeofIdentify].includes(i.classid));
   let scroll = items.find((i) => i.isInInventory && i.classid === sdk.items.ScrollofIdentify);
   if (scroll) return scroll;
   let tome = items.find((i) => i.isInInventory && i.classid === sdk.items.TomeofIdentify);
@@ -669,7 +684,8 @@ me.getIdTool = function () {
 };
 
 me.getTpTool = function () {
-  let items = me.getItemsEx(-1, sdk.items.mode.inStorage).filter((i) => i.isInInventory && [sdk.items.ScrollofTownPortal, sdk.items.TomeofTownPortal].includes(i.classid));
+  let items = me.getItemsEx(-1, sdk.items.mode.inStorage)
+    .filter((i) => i.isInInventory && [sdk.items.ScrollofTownPortal, sdk.items.TomeofTownPortal].includes(i.classid));
   if (!items.length) return null;
   let tome = items.find((i) => i.classid === sdk.items.TomeofTownPortal && i.getStat(sdk.stats.Quantity) > 0);
   if (tome) return tome;

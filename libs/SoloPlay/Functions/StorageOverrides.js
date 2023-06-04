@@ -8,7 +8,7 @@
 */
 
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
-(function() {
+(function () {
   /**
    * @constructor
    * @param {string} name - container name 
@@ -16,7 +16,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
    * @param {number} height - container height
    * @param {number} location - container location
    */
-  function Container(name, width, height, location) {
+  function Container (name, width, height, location) {
     this.name = name;
     this.width = width;
     this.height = height;

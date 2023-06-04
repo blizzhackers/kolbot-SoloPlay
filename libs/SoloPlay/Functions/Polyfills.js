@@ -22,16 +22,16 @@ if (!Array.prototype.at) {
  */
 
 (function (global, _original) {
-  let __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+  let __createBinding = (this && this.__createBinding) || (Object.create ? (function (o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-  }) : (function(o, m, k, k2) {
+    Object.defineProperty(o, k2, { enumerable: true, get: function () { return m[k]; } });
+  }) : (function (o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
   }));
-  let __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+  let __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function (o, v) {
     Object.defineProperty(o, "default", { enumerable: true, value: v });
-  }) : function(o, v) {
+  }) : function (o, v) {
     o.default = v;
   });
   let __importStar = (this && this.__importStar) || function (mod) {
@@ -49,7 +49,7 @@ if (!Array.prototype.at) {
   * @param args
   * @constructor
   */
-  function Timer(cb, time, args) {
+  function Timer (cb, time, args) {
     let _this = this;
     if (time === void 0) { time = 0; }
     if (args === void 0) { args = []; }

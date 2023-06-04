@@ -22,7 +22,9 @@
   const old = {
     level: me.charlvl,
   };
-  const gainedLevels = () => me.charlvl - old.level;
+  const gainedLevels = function () {
+    return me.charlvl - old.level;
+  };
 
   let levelTimeout = getTickCount();
 
@@ -38,8 +40,8 @@
         if (levels > 0 && (Config.AutoSkill.Enabled || Config.AutoStat.Enabled)) {
           scriptBroadcast("toggleQuitlist");
           AutoBuild.print("Level up detected (", old.level, "-->", me.charlvl, ")");
-          Config.AutoSkill.Enabled && AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
-          Config.AutoStat.Enabled && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
+          AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
+          AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
           scriptBroadcast({ event: "level up" });
           AutoBuild.applyConfigUpdates(); // scriptBroadcast() won't trigger listener on this thread.
 

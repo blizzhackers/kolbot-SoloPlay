@@ -5,7 +5,7 @@
 *
 */
 
-(function() {
+(function () {
   // Only load this in global scope
   if (getScript(true).name.toLowerCase() === "libs\\soloplay\\soloplay.js") {
     myPrint("start setup");
@@ -38,7 +38,7 @@
     // check if any of our currently equipped items are no longer usable - can happen after respec
     me.getItemsEx()
       .filter(item => item.isEquipped)
-      .forEach(item => {
+      .forEach(function (item) {
         if (me.getStat(sdk.stats.Strength) < item.strreq
           || me.getStat(sdk.stats.Dexterity) < item.dexreq
           || item.ethereal && item.isBroken) {
@@ -47,6 +47,20 @@
         } else if (sdk.quest.items.includes(item.classid)) {
           myPrint("Removing Quest Item: " + item.fname);
           Item.removeItem(null, item);
+        } else if (me.charlvl >= 16 && item.isOnSwap
+          && [
+            sdk.items.type.AmazonBow, sdk.items.type.Bow,
+            sdk.items.type.Crossbow, sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver
+          ].includes(item.itemType)) {
+          myPrint("Removing old swap Item: " + item.fname);
+          try {
+            me.switchWeapons(sdk.player.slot.Secondary);
+            item.drop();
+          } finally {
+            me.switchWeapons(sdk.player.slot.Main);
+          }
+          // Item.removeItem(null, item);
+          CharData.skillData.bow.resetBowData();
         }
       });
     

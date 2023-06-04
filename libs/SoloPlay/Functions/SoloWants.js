@@ -101,7 +101,9 @@ const SoloWants = {
       // add the wanted items to the list
       for (let i = 0; i < numSockets - (hasWantedItems ? socketedWith.length : 0); i++) {
         // handle different wanted socketables
-        curr.socketWith.length === numSockets ? list.push(curr.socketWith[i]) : list.push(curr.socketWith[0]);
+        curr.socketWith.length === numSockets
+          ? list.push(curr.socketWith[i])
+          : list.push(curr.socketWith[0]);
       }
 
       // currently no sockets but we might use our socket quest on it

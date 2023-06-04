@@ -50,7 +50,7 @@ const SetUp = {
 
   init: function () {
     // ensure finalBuild is properly formatted
-    let checkBuildTemplate = () => {
+    let checkBuildTemplate = function () {
       let build = (["Bumper", "Socketmule", "Imbuemule"].includes(SetUp.finalBuild)
         ? ["Javazon", "Cold", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid]
         : SetUp.finalBuild) + "Build";
@@ -435,7 +435,8 @@ const SetUp = {
         Storage.Init();
       }
       // sometimes it seems hard to find skillers, if we have the room lets try to cube some
-      if (Storage.Stash.UsedSpacePercent() < 60 && CharmEquip.grandCharm().keep.length < CharData.charms.get("grand").count().max) {
+      if (Storage.Stash.UsedSpacePercent() < 60
+        && CharmEquip.grandCharm().keep.length < CharData.charms.get("grand").count().max) {
         Config.Recipes.push([Recipe.Reroll.Magic, "Grand Charm"]);
       }
       // switch bow - only for zon/sorc/pal/necro classes right now
@@ -443,6 +444,7 @@ const SetUp = {
         NTIP.addLine(
           "([type] == bow || [type] == crossbow) && [quality] >= normal # [itemchargedskill] >= 0 # [secondarytier] == tierscore(item)"
         );
+        this.bowQuiver();
       }
       const expansionExtras = [
         // Special Charms
@@ -458,7 +460,6 @@ const SetUp = {
         "me.mercid === 338 && ([type] == polearm || [type] == spear) && ([quality] >= magic || [flag] == runeword) # [itemchargedskill] >= 0 # [Merctier] == mercscore(item)",
       ];
       NTIP.buildList(expansionExtras);
-      this.bowQuiver();
     }
 
     /* General configuration. */
@@ -510,15 +511,25 @@ const SetUp = {
     /* Shrine scan configuration. */
     if (Check.currentBuild().caster) {
       Config.ScanShrines = [
-        sdk.shrines.Refilling, sdk.shrines.Health, sdk.shrines.Mana, sdk.shrines.Gem, sdk.shrines.Monster, sdk.shrines.HealthExchange,
-        sdk.shrines.ManaExchange, sdk.shrines.Experience, sdk.shrines.Armor, sdk.shrines.ResistFire, sdk.shrines.ResistCold,
-        sdk.shrines.ResistLightning, sdk.shrines.ResistPoison, sdk.shrines.Skill, sdk.shrines.ManaRecharge, sdk.shrines.Stamina
+        sdk.shrines.Refilling, sdk.shrines.Health,
+        sdk.shrines.Mana, sdk.shrines.Gem,
+        sdk.shrines.Monster, sdk.shrines.HealthExchange,
+        sdk.shrines.ManaExchange, sdk.shrines.Experience,
+        sdk.shrines.Armor, sdk.shrines.ResistFire,
+        sdk.shrines.ResistCold, sdk.shrines.ResistLightning,
+        sdk.shrines.ResistPoison, sdk.shrines.Skill,
+        sdk.shrines.ManaRecharge, sdk.shrines.Stamina
       ];
     } else {
       Config.ScanShrines = [
-        sdk.shrines.Refilling, sdk.shrines.Health, sdk.shrines.Mana, sdk.shrines.Gem, sdk.shrines.Monster, sdk.shrines.HealthExchange,
-        sdk.shrines.ManaExchange, sdk.shrines.Experience, sdk.shrines.Combat, sdk.shrines.Skill, sdk.shrines.Armor, sdk.shrines.ResistFire,
-        sdk.shrines.ResistCold, sdk.shrines.ResistLightning, sdk.shrines.ResistPoison, sdk.shrines.ManaRecharge, sdk.shrines.Stamina
+        sdk.shrines.Refilling, sdk.shrines.Health,
+        sdk.shrines.Mana, sdk.shrines.Gem,
+        sdk.shrines.Monster, sdk.shrines.HealthExchange,
+        sdk.shrines.ManaExchange, sdk.shrines.Experience,
+        sdk.shrines.Combat, sdk.shrines.Skill,
+        sdk.shrines.Armor, sdk.shrines.ResistFire,
+        sdk.shrines.ResistCold, sdk.shrines.ResistLightning,
+        sdk.shrines.ResistPoison, sdk.shrines.ManaRecharge, sdk.shrines.Stamina
       ];
     }
 
@@ -677,7 +688,8 @@ const Check = {
     }
 
     // Broken
-    if ((me.equipped.get(sdk.body.RightArm).durability === 0 || me.equipped.get(sdk.body.LeftArm).durability === 0) && me.charlvl >= 15 && !me.normal && gold < 1000) {
+    if ((me.equipped.get(sdk.body.RightArm).durability === 0 || me.equipped.get(sdk.body.LeftArm).durability === 0)
+      && me.charlvl >= 15 && !me.normal && gold < 1000) {
       return 2;
     }
 
@@ -730,7 +742,12 @@ const Check = {
 
   resistance: function () {
     let resPenalty = me.getResPenalty(me.diff + 1);
-    let [frRes, lrRes, crRes, prRes] = [(me.realFR - resPenalty), (me.realLR - resPenalty), (me.realCR - resPenalty), (me.realPR - resPenalty)];
+    let [frRes, lrRes, crRes, prRes] = [
+      (me.realFR - resPenalty),
+      (me.realLR - resPenalty),
+      (me.realCR - resPenalty),
+      (me.realPR - resPenalty)
+    ];
 
     return {
       Status: ((frRes > 0) && (lrRes > 0) && (crRes > 0)),
@@ -784,7 +801,8 @@ const Check = {
     switch (me.diff) {
     case sdk.difficulty.Normal:
       // Have runes or stealth and ancients pledge
-      if (me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Eth]) || me.checkItem({ name: sdk.locale.items.Stealth }).have) {
+      if (me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Eth])
+        || me.checkItem({ name: sdk.locale.items.Stealth }).have) {
         needRunes = false;
       }
 
@@ -900,7 +918,9 @@ const Check = {
     let socketableCHECK = isClassID ? Config.socketables.find(({ classid }) => type === classid) : false;
     let items = me.getItemsEx()
       .filter(function (item) {
-        return item.quality === quality && !item.questItem && !item.isRuneword && (isClassID ? item.classid === type : item.itemType === type) && getBaseStat("items", item.classid, "gemsockets") > 0;
+        return item.quality === quality && !item.questItem && !item.isRuneword
+          && (isClassID ? item.classid === type : item.itemType === type)
+          && getBaseStat("items", item.classid, "gemsockets") > 0;
       });
 
     for (let i = 0; i < items.length; i++) {
@@ -943,10 +963,13 @@ const Check = {
     }
     
     let items = me.getItemsEx()
-      .filter(item => item.isBaseType && item.isInStorage && (isClassID ? item.classid === type : item.itemType === type));
+      .filter(function (item) {
+        return item.isBaseType && item.isInStorage && (isClassID ? item.classid === type : item.itemType === type);
+      });
 
     for (let i = 0; i < items.length; i++) {
-      if (items[i].sockets === sockets && (isClassID ? items[i].classid === type : items[i].itemType === type)) {
+      if (items[i].sockets === sockets
+        && (isClassID ? items[i].classid === type : items[i].itemType === type)) {
         return true;
       }
     }
@@ -961,7 +984,7 @@ const Check = {
     const shorthandDex = [sdk.stats.Dexterity, "d", "dex", "dexterity"];
     const statToCheck = shorthandStr.includes(stat) ? "str" : shorthandDex.includes(stat) ? "dex" : "";
     
-    buildInfo.stats.forEach(s => {
+    buildInfo.stats.forEach(function (s) {
       switch (true) {
       case (shorthandStr.includes(s[0]) && statToCheck === "str"):
       case (shorthandDex.includes(s[0]) && statToCheck === "dex"):

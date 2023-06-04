@@ -1,6 +1,10 @@
 (function (module) {
   // these builds are not possible to do on classic
-  const impossibleClassicBuilds = ["Bumper", "Socketmule", "Witchyzon", "Auradin", "Torchadin", "Immortalwhirl", "Sancdreamer", "Faithbowzon", "Wfzon"];
+  const impossibleClassicBuilds = [
+    "Bumper", "Socketmule", "Witchyzon",
+    "Auradin", "Torchadin", "Immortalwhirl",
+    "Sancdreamer", "Faithbowzon", "Wfzon"
+  ];
   // these builds are not possible to do without ladder runewords
   const impossibleNonLadderBuilds = ["Auradin", "Sancdreamer", "Faithbowzon"];
 
@@ -67,43 +71,56 @@
     me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal
   ));
   // insight base
-  basicSocketables.all.push(addSocketableObj(sdk.items.ColossusVoulge, [], [], true, (item) =>
-    me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal
-  ));
+  basicSocketables.all
+    .push(addSocketableObj(sdk.items.ColossusVoulge, [], [], true, (item) =>
+      me.nightmare && item.ilvl >= 26 && item.isBaseType && item.ethereal
+    ));
   // Crown of Ages
-  basicSocketables.caster.push(addSocketableObj(sdk.items.Corona, [sdk.items.runes.Ber, sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
-    false, (item) => item.unique
-  ));
+  basicSocketables.caster
+    .push(addSocketableObj(sdk.items.Corona, [sdk.items.runes.Ber, sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+      false, (item) => item.unique
+    ));
   // Moser's
-  basicSocketables.caster.push(addSocketableObj(sdk.items.RoundShield, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Diamond],
-    false, (item) => item.unique && !item.ethereal
-  ));
+  basicSocketables.caster
+    .push(addSocketableObj(sdk.items.RoundShield, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Diamond],
+      false, (item) => item.unique && !item.ethereal
+    ));
   // Spirit Forge
-  basicSocketables.caster.push(addSocketableObj(sdk.items.LinkedMail, [sdk.items.runes.Shael], [sdk.items.gems.Perfect.Ruby],
-    false, (item) => item.unique && !item.ethereal
-  ));
+  basicSocketables.caster
+    .push(addSocketableObj(sdk.items.LinkedMail, [sdk.items.runes.Shael], [sdk.items.gems.Perfect.Ruby],
+      false, (item) => item.unique && !item.ethereal
+    ));
   // Dijjin Slayer
-  basicSocketables.caster.push(addSocketableObj(sdk.items.Ataghan, [sdk.items.runes.Amn], [sdk.items.gems.Perfect.Skull],
-    false, (item) => !Check.currentBuild().caster && item.unique && !item.ethereal
-  ));
+  basicSocketables.caster
+    .push(addSocketableObj(sdk.items.Ataghan, [sdk.items.runes.Amn], [sdk.items.gems.Perfect.Skull],
+      false, (item) => !Check.currentBuild().caster && item.unique && !item.ethereal
+    ));
   // Bone Hew - for merc
-  basicSocketables.caster.push(addSocketableObj(sdk.items.OgreAxe, [sdk.items.runes.Hel, sdk.items.runes.Amn], [sdk.items.gems.Perfect.Skull],
-    false, (item) => item.unique
-  ));
+  basicSocketables.caster
+    .push(addSocketableObj(sdk.items.OgreAxe,
+      [sdk.items.runes.Hel, sdk.items.runes.Amn], [sdk.items.gems.Perfect.Skull],
+      false, (item) => item.unique
+    ));
   // spirit base
-  basicSocketables.caster.push(addSocketableObj(sdk.items.BroadSword, [], [], true, (item) =>
-    me.normal && !Check.haveBase("sword", 4) && !me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have
-  && item.ilvl >= 26 && item.isBaseType && !item.ethereal
-  ));
+  basicSocketables.caster
+    .push(addSocketableObj(sdk.items.BroadSword, [], [], true,
+      (item) => me.normal && !Check.haveBase("sword", 4)
+      && !me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have
+      && item.ilvl >= 26 && item.isBaseType && !item.ethereal
+    ));
   // spirit base
-  basicSocketables.caster.push(addSocketableObj(sdk.items.CrystalSword, [], [], true, (item) =>
-    me.normal && !Check.haveBase("sword", 4) && !me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have
-  && item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal
-  ));
+  basicSocketables.caster
+    .push(addSocketableObj(sdk.items.CrystalSword, [], [], true,
+      (item) => me.normal && !Check.haveBase("sword", 4)
+      && !me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have
+    && item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal
+    ));
   // Lidless
-  basicSocketables.caster.push(addSocketableObj(sdk.items.GrimShield, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Diamond], !me.hell, (item) =>
-    item.unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal
-  ));
+  basicSocketables.caster
+    .push(addSocketableObj(sdk.items.GrimShield,
+      [sdk.items.runes.Um], [sdk.items.gems.Perfect.Diamond], !me.hell,
+      (item) => item.unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal
+    ));
 
   const buildAutoBuildTempObj = (update = () => {}) => ({
     SkillPoints: [-1],

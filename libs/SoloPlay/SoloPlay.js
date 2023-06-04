@@ -209,8 +209,11 @@ function main () {
 
   // Check for experience decrease -> log death. Skip report if life chicken is disabled.
   if (stats.name === me.name && me.getStat(sdk.stats.Experience) < stats.experience && Config.LifeChicken > 0) {
-    D2Bot.printToConsole("You died in last game. | Area :: " + stats.lastArea + " | Script :: " + stats.lastScript, sdk.colors.D2Bot.Red);
-    D2Bot.printToConsole("Experience decreased by " + (stats.experience - me.getStat(sdk.stats.Experience)), sdk.colors.D2Bot.Red);
+    D2Bot.printToConsole(
+      "You died in last game. | Area :: " + stats.lastArea + " | Script :: " + stats.lastScript + "\n"
+      + "Experience decreased by " + (stats.experience - me.getStat(sdk.stats.Experience)),
+      sdk.colors.D2Bot.Red
+    );
     DataFile.updateStats("deaths");
     D2Bot.updateDeaths();
   }
@@ -230,7 +233,9 @@ function main () {
     // check in case we reloaded and guard was still running
     let guard = getScript("libs/SoloPlay/Modules/Guard.js");
     !!guard && guard.running && guard.stop();
-    Developer.debugging.showStack.profiles.some(prof => String.isEqual(prof, me.profile) || String.isEqual(prof, "all")) && require("../SoloPlay/Modules/Guard");
+    Developer.debugging.showStack.profiles
+      .some(prof => String.isEqual(prof, me.profile) || String.isEqual(prof, "all"))
+      && require("../SoloPlay/Modules/Guard");
     delay(1000);
   }
 
@@ -304,7 +309,10 @@ function main () {
       Town.goToTown();
 
       while (getTickCount() - startTime < Time.seconds(Config.MinGameTime)) {
-        me.overhead("Stalling for " + Math.round(((startTime + Time.seconds(Config.MinGameTime)) - getTickCount()) / 1000) + " Seconds");
+        me.overhead(
+          "Stalling for "
+          + Math.round(((startTime + Time.seconds(Config.MinGameTime)) - getTickCount()) / 1000) + " Seconds"
+        );
         delay(1000);
       }
     } catch (e1) {

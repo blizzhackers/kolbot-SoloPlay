@@ -51,7 +51,9 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
       me.weaponswitch !== primary && me.switchWeapons(primary);
     }
 
-    if (CharData.skillData.haveChargedSkill(sdk.skills.Enchant) && !me.getState(sdk.states.Enchant) && me.gold > 500000) {
+    if (CharData.skillData.haveChargedSkill(sdk.skills.Enchant)
+      && !me.getState(sdk.states.Enchant)
+      && me.gold > 500000) {
       // Cast enchant
       Attack.castCharges(sdk.skills.Enchant, me);
     }
@@ -77,7 +79,8 @@ Precast.summon = function (skillId, minionType) {
     let coord = CollMap.getRandCoordinate(me.x, -3, 3, me.y, -3, 3);	// Get a random coordinate to summon using
     let unit = Attack.getNearestMonster({ skipImmune: false });
 
-    if (unit && [sdk.summons.type.Golem, sdk.summons.type.Grizzly, sdk.summons.type.Shadow].includes(minionType) && unit.distance < 20 && !checkCollision(me, unit, sdk.collision.Ranged)) {
+    if (unit && [sdk.summons.type.Golem, sdk.summons.type.Grizzly, sdk.summons.type.Shadow].includes(minionType)
+      && unit.distance < 20 && !checkCollision(me, unit, sdk.collision.Ranged)) {
       try {
         if (Skill.cast(skillId, sdk.skills.hand.Right, unit)) {
           if (me.getMinionCount(minionType) === count) {
