@@ -30,7 +30,6 @@ include("SoloPlay/Functions/Globals.js");
 function main () {
   let ironGolem, tick, quitListDelayTime;
   let canQuit = true;
-  let timerLastDrink = [];
   let [quitFlag, restart] = [false, false];
   let debugInfo = { area: 0, currScript: "no entry" };
 
@@ -52,35 +51,41 @@ function main () {
 
   Developer.overlay && include("SoloPlay/Tools/Overlay.js");
 
-  for (let i = 0; i < 5; i += 1) {
-    timerLastDrink[i] = 0;
-  }
-
   // Reset core chicken
   me.chickenhp = -1;
   me.chickenmp = -1;
 
-  // General functions
-  this.togglePause = function () {
-    ["libs/SoloPlay/SoloPlay.js", "threads/party.js"].forEach((script) => {
-      let thread = getScript(script);
-      if (thread) {
-        if (thread.running) {
-          script === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8ToolsThread :: ÿc1Pausing " + script);
-          thread.pause();
-        } else {
-          script === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8ToolsThread :: ÿc2Resuming threads");
-          thread.resume();
-        }
-      }
-    });
+  const timerLastDrink = new Map([
+    [sdk.items.type.HealingPotion, 0],
+    [sdk.items.type.ManaPotion, 0],
+    [sdk.items.type.RejuvPotion, 0],
+  ]);
+  const timerMercDrink = new Map([
+    [sdk.items.type.HealingPotion, 0],
+    [sdk.items.type.RejuvPotion, 0],
+  ]);
 
+  // General functions
+  const togglePause = function () {
+    ["libs/SoloPlay/SoloPlay.js", "threads/party.js"]
+      .forEach(function (script) {
+        let thread = getScript(script);
+        if (thread) {
+          if (thread.running) {
+            script === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8ToolsThread :: ÿc1Pausing " + script);
+            thread.pause();
+          } else {
+            script === "libs/SoloPlay/SoloPlay.js" && console.log("ÿc8ToolsThread :: ÿc2Resuming threads");
+            thread.resume();
+          }
+        }
+      });
     return true;
   };
 
-  this.stopDefault = function () {
+  const stopDefault = function () {
     ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Modules/Guard.js", "threads/party.js"]
-      .forEach(script => {
+      .forEach(function (script) {
         let thread = getScript(script);
         if (thread && thread.running) {
           thread.stop();
@@ -89,29 +94,34 @@ function main () {
     return true;
   };
 
-  this.exit = function (chickenExit = false) {
+  const exit = function (chickenExit = false) {
     chickenExit && D2Bot.updateChickens();
     Config.LogExperience && Experience.log();
     Developer.logPerformance && Tracker.update();
     console.log("ÿc8Run duration ÿc2" + Time.format(getTickCount() - me.gamestarttime));
-    this.stopDefault();
+    stopDefault();
     quit();
   };
 
-  this.restart = function () {
+  const restartGame = function () {
     Config.LogExperience && Experience.log();
     Developer.logPerformance && Tracker.update();
-    this.stopDefault();
+    stopDefault();
     D2Bot.restart();
   };
 
-  this.getPotion = function (pottype = -1, type = -1) {
-    if (pottype === undefined) return false;
+  /** @param {number} type */
+  const getPotion = function (type = -1) {
+    if (type === undefined) return false;
 
     let items = me.getItemsEx()
-      .filter(item => item.itemType === pottype && (type > Common.Toolsthread.pots.Rejuv ? item.isInBelt : true));
+      .filter(function (item) {
+        return item.itemType === type;
+      });
     if (items.length === 0) return false;
-    let invoFirst = [Common.Toolsthread.pots.Health, Common.Toolsthread.pots.Mana].includes(type);
+    const invoFirst = [
+      sdk.items.type.HealingPotion, sdk.items.type.ManaPotion
+    ].includes(type);
 
     if (invoFirst) {
       // sort by location (invo first, then classid)
@@ -128,83 +138,115 @@ function main () {
       });
     }
 
-    for (let k = 0; k < items.length; k += 1) {
-      if (type < Common.Toolsthread.pots.MercHealth && items[k].isInInventory && items[k].itemType === pottype) {
-        console.log("ÿc2Drinking " + items[k].name + " from inventory.");
-        return items[k];
+    for (let item of items) {
+      if (item.isInInventory && item.itemType === type) {
+        console.log("ÿc2Drinking " + item.name + " from inventory.");
+        return item;
       }
 
-      if (items[k].mode === sdk.items.mode.inBelt && items[k].itemType === pottype) {
-        console.log("ÿc2" + (type > 2 ? "Giving Merc " : "Drinking ") + items[k].name + " from belt.");
-        return items[k];
+      if (item.mode === sdk.items.mode.inBelt && item.itemType === type) {
+        console.log("ÿc2Drinking " + item.name + " from belt.");
+        return item;
       }
     }
 
     return false;
   };
 
-  this.drinkPotion = function (type) {
+  /** @param {number} type */
+  const drinkPotion = function (type) {
     if (type === undefined) return false;
     let tNow = getTickCount();
 
     switch (type) {
-    case Common.Toolsthread.pots.Health:
-    case Common.Toolsthread.pots.Mana:
-      if ((timerLastDrink[type] && (tNow - timerLastDrink[type] < 1000)) || me.getState(type === 0 ? 100 : 106)) {
-        return false;
-      }
-
+    case sdk.items.type.HealingPotion:
+      if (tNow - timerLastDrink.get(type) < 1000 || me.getState(sdk.states.HealthPot)) return false;
       break;
-    case Common.Toolsthread.pots.Rejuv:
-      // small delay for juvs just to prevent using more at once
-      if (timerLastDrink[type] && (tNow - timerLastDrink[type] < 300)) {
-        return false;
-      }
-
+    case sdk.items.type.ManaPotion:
+      if (tNow - timerLastDrink.get(type) < 1000 || me.getState(sdk.states.ManaPot)) return false;
       break;
-    case Common.Toolsthread.pots.MercRejuv:
-      // larger delay for juvs just to prevent using more at once, considering merc update rate
-      if (timerLastDrink[type] && (tNow - timerLastDrink[type] < 2000)) {
-        return false;
-      }
-
-      break;
-    default:
-      if (timerLastDrink[type] && (tNow - timerLastDrink[type] < 8000)) {
-        return false;
-      }
-
+    case sdk.items.type.RejuvPotion:
+      if (tNow - timerLastDrink.get(type) < 300) return false;
       break;
     }
 
     // mode 18 - can't drink while leaping/whirling etc.
     if (me.dead || me.mode === sdk.player.mode.SkillActionSequence) return false;
 
-    let pottype = (() => {
-      switch (type) {
-      case Common.Toolsthread.pots.Health:
-      case Common.Toolsthread.pots.MercHealth:
-        return sdk.items.type.HealingPotion;
-      case Common.Toolsthread.pots.Mana:
-        return sdk.items.type.ManaPotion;
-      default:
-        return sdk.items.type.RejuvPotion;
-      }
-    })();
+    let potion = getPotion(type);
 
-    let potion = this.getPotion(pottype, type);
-
-    if (!!potion) {
+    if (potion) {
       // mode 18 - can't drink while leaping/whirling etc.
       if (me.dead || me.mode === sdk.player.mode.SkillActionSequence) return false;
 
       try {
-        type < Common.Toolsthread.pots.MercHealth ? potion.interact() : Packet.useBeltItemForMerc(potion);
+        potion.interact();
       } catch (e) {
         console.error(e);
       }
 
-      timerLastDrink[type] = getTickCount();
+      timerLastDrink.set(type, getTickCount());
+      delay(25);
+
+      return true;
+    }
+
+    return false;
+  };
+
+  /** @param {number} type */
+  const getMercPotion = function (type = -1) {
+    if (type === undefined) return false;
+
+    let items = me.getItemsEx()
+      .filter(function (item) {
+        return item.itemType === type && item.isInBelt;
+      })
+      .sort(function (a, b) {
+        return b.classid - a.classid;
+      });
+    if (items.length === 0) return false;
+
+    for (let item of items) {
+      if (item.itemType === type) {
+        console.log("ÿc2 Giving Merc " + item.name + " from belt.");
+        return item;
+      }
+    }
+
+    return false;
+  };
+
+  /** @param {number} type */
+  const giveMercPotion = function (type) {
+    if (type === undefined) return false;
+    let tNow = getTickCount();
+
+    switch (type) {
+    case sdk.items.type.HealingPotion:
+      if (tNow - timerMercDrink.get(type) < 8000) return false;
+      break;
+    case sdk.items.type.RejuvPotion:
+      if (tNow - timerMercDrink.get(type) < 2000) return false;
+      break;
+    }
+
+    // mode 18 - can't drink while leaping/whirling etc.
+    if (me.dead || me.mode === sdk.player.mode.SkillActionSequence) return false;
+
+    let potion = getMercPotion(type);
+
+    if (potion) {
+      // mode 18 - can't drink while leaping/whirling etc.
+      if (me.dead || me.mode === sdk.player.mode.SkillActionSequence) return false;
+
+      try {
+        Packet.useBeltItemForMerc(potion);
+      } catch (e) {
+        console.error(e);
+      }
+
+      timerMercDrink.set(type, getTickCount());
       delay(25);
 
       return true;
@@ -218,7 +260,7 @@ function main () {
    * @param {number} type 
    * @returns {boolean}
    */
-  this.drinkSpecialPotion = function (type) {
+  const drinkSpecialPotion = function (type) {
     if (type === undefined) return false;
     if (!CharData.pots.has(type)) return false;
     // give at least a second delay between pots
@@ -230,7 +272,9 @@ function main () {
     }
 
     let pot = me.getItemsEx(-1, sdk.items.mode.inStorage)
-      .filter((p) => p.isInInventory && p.classid === type).first();
+      .filter(function (p) {
+        return p.isInInventory && p.classid === type;
+      }).first();
 
     if (pot) {
       try {
@@ -265,7 +309,7 @@ function main () {
   const keyEvent = function (key) {
     switch (key) {
     case sdk.keys.PauseBreak: // pause default.dbj
-      this.togglePause();
+      togglePause();
 
       break;
     case sdk.keys.Numpad0: // stop profile without logging character
@@ -285,7 +329,7 @@ function main () {
 
       break;
     case sdk.keys.Delete: // quit current game
-      this.exit();
+      exit();
 
       break;
     case sdk.keys.Insert: // reveal level
@@ -308,8 +352,7 @@ function main () {
         if (AutoMule.getMuleItems().length > 0) {
           console.log("ÿc2Mule triggered");
           scriptBroadcast("mule");
-          this.exit();
-
+          exit();
         } else {
           me.overhead("No items to mule.");
         }
@@ -347,24 +390,63 @@ function main () {
         if (!!itemToCheck) {
           let special = "";
           if (itemToCheck.itemType === sdk.items.type.Ring) {
-            special = (" | ÿc4TierLHS: ÿc0" + tierscore(itemToCheck, 1, sdk.body.RingRight) + " | ÿc4TierRHS: ÿc0" + tierscore(itemToCheck, 1, sdk.body.RingLeft));
+            special = (
+              " | ÿc4TierLHS: ÿc0" + tierscore(itemToCheck, 1, sdk.body.RingRight)
+              + " | ÿc4TierRHS: ÿc0" + tierscore(itemToCheck, 1, sdk.body.RingLeft)
+            );
           }
-          itemString = "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck) + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck) + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) + (special ? special : "")
-            + " | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck) + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n"
-            + "ÿc4AutoEquipKeepCheck: ÿc0" + Item.autoEquipCheck(itemToCheck, true) + " | ÿc4AutoEquipCheckSecondary: ÿc0" + Item.autoEquipCheckSecondary(itemToCheck)
-            + " | ÿc4AutoEquipKeepCheckMerc: ÿc0" + Item.autoEquipCheckMerc(itemToCheck, true) + "\nÿc4Cubing Item: ÿc0" + Cubing.keepItem(itemToCheck)
-            + " | ÿc4Runeword Item: ÿc0" + Runewords.keepItem(itemToCheck) + " | ÿc4Crafting Item: ÿc0" + CraftingSystem.keepItem(itemToCheck) + " | ÿc4SoloWants Item: ÿc0" + SoloWants.keepItem(itemToCheck)
-            + "\nÿc4ItemType: ÿc0" + itemToCheck.itemType + "| ÿc4Classid: ÿc0" + itemToCheck.classid + "| ÿc4Quality: ÿc0" + itemToCheck.quality;
-          charmString = "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck) + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck) + " | ÿc4FinalCharm: ÿc0" + CharmEquip.isFinalCharm(itemToCheck) + "\n"
-            + "ÿc4CharmType: ÿc0" + CharmEquip.getCharmType(itemToCheck) + " | ÿc4AutoEquipCharmCheck: ÿc0" + CharmEquip.check(itemToCheck) + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck);
-          generalString = "ÿc4ItemName: ÿc0" + itemToCheck.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<;.*]/, "")
-            + "\nÿc4Pickit: ÿc0" + Pickit.checkItem(itemToCheck).result + " | ÿc4NTIP.CheckItem: ÿc0" + NTIP.CheckItem(itemToCheck, false, true).result + " | ÿc4NTIP.CheckItem No Tier: ÿc0" + NTIP.CheckItem(itemToCheck, NTIP_CheckListNoTier, true).result;
+          itemString = (
+            "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck)
+            + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck)
+            + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) + (special ? special : "")
+            + " | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck)
+            + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n"
+            + "ÿc4AutoEquipKeepCheck: ÿc0" + Item.autoEquipCheck(itemToCheck, true)
+            + " | ÿc4AutoEquipCheckSecondary: ÿc0" + Item.autoEquipCheckSecondary(itemToCheck)
+            + " | ÿc4AutoEquipKeepCheckMerc: ÿc0" + Item.autoEquipCheckMerc(itemToCheck, true)
+            + "\nÿc4Cubing Item: ÿc0" + Cubing.keepItem(itemToCheck)
+            + " | ÿc4Runeword Item: ÿc0" + Runewords.keepItem(itemToCheck)
+            + " | ÿc4Crafting Item: ÿc0" + CraftingSystem.keepItem(itemToCheck)
+            + " | ÿc4SoloWants Item: ÿc0" + SoloWants.keepItem(itemToCheck)
+            + "\nÿc4ItemType: ÿc0" + itemToCheck.itemType
+            + "| ÿc4Classid: ÿc0" + itemToCheck.classid
+            + "| ÿc4Quality: ÿc0" + itemToCheck.quality
+            + "| ÿc4Ilvl: ÿc0" + itemToCheck.ilvl
+            + "| ÿc4Gid: ÿc0" + itemToCheck.gid
+          );
+          if (itemToCheck.isCharm) {
+            charmString = (
+              "ÿc4InvoQuantity: ÿc0" + NTIP.getInvoQuantity(itemToCheck)
+              + " | ÿc4hasStats: ÿc0" + NTIP.hasStats(itemToCheck)
+              + " | ÿc4FinalCharm: ÿc0" + CharmEquip.isFinalCharm(itemToCheck) + "\n"
+              + "ÿc4CharmType: ÿc0" + CharmEquip.getCharmType(itemToCheck)
+              + " | ÿc4AutoEquipCharmCheck: ÿc0" + CharmEquip.check(itemToCheck)
+              + " | ÿc4CharmTier: ÿc0" + NTIP.GetCharmTier(itemToCheck)
+            );
+          }
+          let pResult = Pickit.checkItem(itemToCheck);
+          let pString = "ÿc4Pickit: ÿc0" + pResult.result + " ÿc7Line: ÿc0" + pResult.line + "\n";
+          let sResult = NTIP.CheckItem(itemToCheck, NTIP.SoloList, true);
+          let sString = "ÿc4SoloWants: ÿc0" + sResult.result + " ÿc7Line: ÿc0" + sResult.line + "\n";
+          let nResult = NTIP.CheckItem(itemToCheck, NTIP.NoTier, true);
+          let nString = "ÿc4Solo-NoTier: ÿc0" + nResult.result + " ÿc7Line: ÿc0" + nResult.line + "\n";
+          let cResult = NTIP.CheckItem(itemToCheck, NTIP.CheckList, true);
+          let cString = "ÿc4Nip CheckList: ÿc0" + cResult.result + " ÿc7Line: ÿc0" + cResult.line + "\n";
+          generalString = (
+            "ÿc4ItemName: ÿc0" + itemToCheck.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<;.*]/, "")
+            + "\n" + pString
+            + "\n" + sString
+            + "\n" + nString
+            + "\n" + cString
+          );
         }
         
         console.log("ÿc8Kolbot-SoloPlay: ÿc2Item Info Start");
         console.log(itemString);
-        console.log("ÿc8Kolbot-SoloPlay: ÿc2Charm Info Start");
-        console.log(charmString);
+        if (charmString) {
+          console.log("ÿc8Kolbot-SoloPlay: ÿc2Charm Info Start");
+          console.log(charmString);
+        }
         console.log("ÿc8Kolbot-SoloPlay: ÿc2General Info Start");
         console.log(generalString);
         console.log("ÿc8Kolbot-SoloPlay: ÿc1****************Info End****************");
@@ -381,7 +463,7 @@ function main () {
       break;
     case sdk.keys.NumpadSlash: // re-load default
       console.log("ÿc8ToolsThread :: " + sdk.colors.Red + "Stopping threads and waiting 5 seconds to restart");
-      this.stopDefault() && delay(1e3);
+      stopDefault() && delay(1e3);
       load("libs/SoloPlay/Threads/Reload.js");
 
       break;
@@ -461,7 +543,7 @@ function main () {
       if (Config.StopOnDClone && !me.classic && me.hell) {
         D2Bot.printToConsole("Diablo Walks the Earth", sdk.colors.D2Bot.DarkGold);
         SoloEvents.cloneWalked = true;
-        this.togglePause();
+        togglePause();
         Town.goToTown();
         showConsole();
         myPrint("ÿc4Diablo Walks the Earth");
@@ -616,7 +698,7 @@ function main () {
       return timeStr;
     }
     
-    this.run = () => {
+    this.run = function () {
       if (getTickCount() - _timeout < 500) return true;
       _timeout = getTickCount();
 
@@ -670,28 +752,31 @@ function main () {
     try {
       if (me.gameReady && !me.inTown) {
         // todo - build potion list only once per iteration
-        Config.UseHP > 0 && me.hpPercent < Config.UseHP && this.drinkPotion(Common.Toolsthread.pots.Health);
-        Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && this.drinkPotion(Common.Toolsthread.pots.Rejuv);
+        Config.UseHP > 0 && me.hpPercent < Config.UseHP && drinkPotion(sdk.items.type.HealingPotion);
+        Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && drinkPotion(sdk.items.type.RejuvPotion);
 
         if (Config.LifeChicken > 0 && me.hpPercent <= Config.LifeChicken && !me.inTown) {
           if (!Developer.hideChickens) {
             D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + getAreaName(me.area) + ". Ping: " + me.ping, sdk.colors.D2Bot.Red);
           }
-          this.exit(true);
+          exit(true);
 
           return true;
         }
 
-        Config.UseMP > 0 && me.mpPercent < Config.UseMP && this.drinkPotion(Common.Toolsthread.pots.Mana);
-        Config.UseRejuvMP > 0 && me.mpPercent < Config.UseRejuvMP && this.drinkPotion(Common.Toolsthread.pots.Rejuv);
+        Config.UseMP > 0 && me.mpPercent < Config.UseMP && drinkPotion(sdk.items.type.ManaPotion);
+        Config.UseRejuvMP > 0 && me.mpPercent < Config.UseRejuvMP && drinkPotion(sdk.items.type.RejuvPotion);
 
-        (me.staminaPercent <= 20 || me.walking) && this.drinkSpecialPotion(sdk.items.StaminaPotion);
-        me.getState(sdk.states.Poison) && this.drinkSpecialPotion(sdk.items.AntidotePotion);
-        [sdk.states.Frozen, sdk.states.FrozenSolid].some(state => me.getState(state)) && this.drinkSpecialPotion(sdk.items.ThawingPotion);
+        (me.staminaPercent <= 20 || me.walking) && drinkSpecialPotion(sdk.items.StaminaPotion);
+        me.getState(sdk.states.Poison) && drinkSpecialPotion(sdk.items.AntidotePotion);
+        [sdk.states.Frozen, sdk.states.FrozenSolid]
+          .some(state => me.getState(state)) && drinkSpecialPotion(sdk.items.ThawingPotion);
 
         if (Config.ManaChicken > 0 && me.mpPercent <= Config.ManaChicken && !me.inTown) {
-          !Developer.hideChickens && D2Bot.printToConsole("Mana Chicken: (" + me.mp + "/" + me.mpmax + ") in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
-          this.exit(true);
+          if (!Developer.hideChickens) {
+            D2Bot.printToConsole("Mana Chicken: (" + me.mp + "/" + me.mpmax + ") in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
+          }
+          exit(true);
 
           return true;
         }
@@ -704,8 +789,10 @@ function main () {
           if (ironGolem) {
             // ironGolem.hpmax is bugged with BO
             if (ironGolem.hp <= Math.floor(128 * Config.IronGolemChicken / 100)) {
-              !Developer.hideChickens && D2Bot.printToConsole("Irom Golem Chicken in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
-              this.exit(true);
+              if (!Developer.hideChickens) {
+                D2Bot.printToConsole("Irom Golem Chicken in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
+              }
+              exit(true);
 
               return true;
             }
@@ -719,14 +806,16 @@ function main () {
 
             if (mercHP > 0 && merc.mode !== sdk.monsters.mode.Dead) {
               if (mercHP < Config.MercChicken) {
-                !Developer.hideChickens && D2Bot.printToConsole("Merc Chicken in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
-                this.exit(true);
+                if (!Developer.hideChickens) {
+                  D2Bot.printToConsole("Merc Chicken in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
+                }
+                exit(true);
 
                 return true;
               }
 
-              mercHP < Config.UseMercHP && this.drinkPotion(Common.Toolsthread.pots.MercHealth);
-              mercHP < Config.UseMercRejuv && this.drinkPotion(Common.Toolsthread.pots.MercRejuv);
+              mercHP < Config.UseMercHP && giveMercPotion(sdk.items.type.HealingPotion);
+              mercHP < Config.UseMercRejuv && giveMercPotion(sdk.items.type.RejuvPotion);
             }
           }
         }
@@ -755,12 +844,12 @@ function main () {
 
     if (quitFlag && canQuit && (typeof quitListDelayTime === "undefined" || getTickCount() >= quitListDelayTime)) {
       Common.Toolsthread.checkPing(false); // In case of quitlist triggering first
-      this.exit();
+      exit();
 
       break;
     }
 
-    !!restart && this.restart();
+    !!restart && restartGame();
 
     if (debugInfo.area !== getAreaName(me.area)) {
       debugInfo.area = getAreaName(me.area);
