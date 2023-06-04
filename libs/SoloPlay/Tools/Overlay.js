@@ -12,8 +12,10 @@ includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 
 /**
  * @todo Clean this up, probably needs to be entirely rewritten
+ * - show current script
  */
 const Overlay = {
+  timeOut: 0,
   resfix: { x: -10, y: me.screensize ? 0 : -120 },
   quest: { x: 8, y: 368 },
   qYMod: { 1: 368, 2: 384, 3: 384, 4: 414, 5: 384 },
@@ -23,21 +25,25 @@ const Overlay = {
   script: "",
   realm: (me.realm ? me.realm : "SinglePlayer"),
   difficulty: sdk.difficulty.nameOf(me.diff),
-  level: () => me.data.level,
+  level: function () {
+    return me.data.level;
+  },
   
   text: (function () {
     const _gameTracker = Tracker.readObj(Tracker.GTPath);
     let [_tick, _charlvl] = [0, 0];
-    
+
     const _format = function (ms = 0) {
       const hours = Math.floor(ms / 3600000);
       const minutes = Math.floor((ms % 3600000) / 60000);
       const seconds = Math.floor((ms % 60000) / 1000);
 
       /** @param {number} num */
-      const pad = (num) => (num < 10 ? '0' + num : num);
+      const pad = function (num) {
+        return (num < 10 ? "0" + num : num);
+      };
 
-      return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+      return pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
     };
 
     const _timer = function () {
@@ -210,6 +216,27 @@ const Overlay = {
       };
     };
 
+    function StatsHook (name, status, hook) {
+      this.name = name;
+      this.status = status;
+      /**
+       * @private
+       * @type {function(): Hook}
+       */
+      this._hook = hook;
+    }
+
+    /**
+     * @this {StatsHook}
+     * @returns {{ name: string, hook: Hook }}
+     */
+    StatsHook.prototype.hook = function () {
+      return {
+        name: this.name,
+        hook: this._hook()
+      };
+    };
+
     const _quests = new Map([
       // Act 1
       ["Den", new QuestHook("Den", sdk.quest.id.DenofEvil)],
@@ -221,7 +248,7 @@ const Overlay = {
       // Act 2
       ["Cube", new QuestHook("Cube", sdk.quest.id.TheHoradricStaff)],
       ["Radament", new QuestHook("Radament", sdk.quest.id.RadamentsLair)],
-      ["Horadric Staff", new QuestHook("Horadric Staff", sdk.quest.id.TheHoradricStaff)],
+      ["Staff", new QuestHook("Staff", sdk.quest.id.TheHoradricStaff)],
       ["Amulet", new QuestHook("Amulet", sdk.quest.id.TheTaintedSun)],
       ["Summoner", new QuestHook("Summoner", sdk.quest.id.TheSummoner)],
       ["Duriel", new QuestHook("Duriel", sdk.quest.id.TheSevenTombs)],
@@ -245,34 +272,63 @@ const Overlay = {
 
     const _acts = new Map([
       [1, ["Den", "Blood Raven", "Tristram", "Countess", "Smith", "Andariel"]],
-      [2, [/* "Cube",  */"Radament", "Horadric Staff", "Amulet", "Summoner", "Duriel"]],
+      [2, [/* "Cube",  */"Radament", "Staff", "Amulet", "Summoner", "Duriel"]],
       [3, ["Golden Bird", "Khalim's Will", "Lam Esen", "Travincal", "Mephisto"]],
       [4, ["Izual", "Hell Forge", "Diablo"]],
       [5, ["Shenk", "Barbies", "Anya", "Ancients", "Baal"]]
     ]);
 
+    const _res = function () {
+      return (
+        "FR: ÿc1" + me.FR
+        + "ÿc4  CR: ÿc3" + me.CR
+        + "ÿc4  LR: ÿc9" + me.LR
+        + "ÿc4  PR: ÿc2" + me.PR
+        + "ÿc4  CurrentBuild: ÿc0" + Overlay.build
+      );
+    };
+
+    const _stats = function () {
+      return (
+        "MF: ÿc8" + me.getStat(sdk.stats.MagicBonus)
+        + "ÿc4  FHR: ÿc8" + (me.FHR)
+        + "ÿc4  FBR: ÿc8" + (me.FBR)
+        + "ÿc4  FCR: ÿc8" + (me.FCR)
+        + "ÿc4  IAS: ÿc8" + (me.IAS)
+      );
+    };
+
+    const _statsMap = new Map([
+      [
+        "stats",
+        new StatsHook("stats", _stats, () => new Text(_stats(), Overlay.dashboard.x, Overlay.dashboard.y + Overlay.resfix.y + 60, 4, 13, 0))
+      ],
+      [
+        "res",
+        new StatsHook("res", _res, () => new Text(_res(), Overlay.dashboard.x, Overlay.dashboard.y + Overlay.resfix.y + 45, 4, 13, 0))
+      ],
+      [
+        "gold",
+        new StatsHook(
+          "gold",
+          function () {
+            return "ÿc6Goldÿc0: ÿc0" + me.gold;
+          },
+          function () {
+            return new Text("ÿc6Goldÿc0: ÿc0" + me.gold, 275, 586, 4, 6, 0);
+          }
+        )
+      ],
+    ]);
+
     const _font = 12;
+    /** @type {Array<{ name: string, hook: Hook }>} */
     const _qHooks = [];
+    /** @type {Array<{ name: string, hook: Hook }>} */
+    const _hooks = [];
 
     return {
       enabled: true,
-      hooks: [],
-
-      getRes: function () {
-        // Double check in case still got here before being ready
-        if (!me.gameReady || !me.ingame || !me.area) return "";
-        return ("FR: ÿc1" + me.FR + "ÿc4  CR: ÿc3" + me.CR + "ÿc4  LR: ÿc9" + me.LR + "ÿc4  PR: ÿc2" + me.PR + "ÿc4  CurrentBuild: ÿc0" + Overlay.build);
-      },
-
-      getStats: function () {
-        // Double check in case still got here before being ready
-        if (!me.gameReady || !me.ingame || !me.area) return "";
-
-        let textLine = ("MF: ÿc8" + me.getStat(sdk.stats.MagicBonus) + "ÿc4  FHR: ÿc8" + (me.FHR) + "ÿc4  FBR: ÿc8" + (me.FBR) + "ÿc4  FCR: ÿc8" + (me.FCR)
-          + "ÿc4  IAS: ÿc8" + (me.IAS));
-
-        return textLine;
-      },
 
       /**
        * @param {string} name 
@@ -301,6 +357,21 @@ const Overlay = {
         }
       },
 
+      /**
+       * @param {string} name 
+       * @returns {void}
+       */
+      updateStats: function (name) {
+        const hook = this.getHook(name, _hooks);
+        if (!hook) {
+          const stat = _statsMap.get(name);
+          if (!stat) return;
+          _hooks.push(stat.hook());
+        } else {
+          hook.hook.text = _statsMap.get(name).status();
+        }
+      },
+
       check: function () {
         if (!this.enabled || !me.gameReady || !me.ingame || !me.area || me.dead) {
           this.flush();
@@ -308,8 +379,9 @@ const Overlay = {
           return;
         }
 
-        !this.getHook("resistances", this.hooks) ? this.add("resistances") : this.getHook("resistances", this.hooks).hook.text = this.getRes();
-        !this.getHook("stats", this.hooks) ? this.add("stats") : this.getHook("stats", this.hooks).hook.text = this.getStats();
+        this.updateStats("res");
+        this.updateStats("stats");
+        this.updateStats("gold");
         !this.getHook("questheader") && this.add("questheader");
 
         _acts.get(me.act).forEach((quest) => this.updateQuest(quest));
@@ -322,20 +394,6 @@ const Overlay = {
        */
       add: function (name) {
         switch (name) {
-        case "resistances":
-          this.hooks.push({
-            name: "resistances",
-            hook: new Text(this.getRes(), Overlay.dashboard.x, Overlay.dashboard.y + Overlay.resfix.y + 45, 4, 13, 0)
-          });
-
-          break;
-        case "stats":
-          this.hooks.push({
-            name: "stats",
-            hook: new Text(this.getStats(), Overlay.dashboard.x, Overlay.dashboard.y + Overlay.resfix.y + 60, 4, 13, 0)
-          });
-
-          break;
         case "questbox":
           _qHooks.push({
             name: "questbox",
@@ -362,6 +420,11 @@ const Overlay = {
         }
       },
 
+      /**
+       * @param {string} name 
+       * @param {Array<{ name: string, hook: Hook }>} [hooks] 
+       * @returns {{ name: string, hook: Hook } | false}
+       */
       getHook: function (name, hooks) {
         while (!me.gameReady || !me.ingame || !me.area) {
           delay(500);
@@ -377,8 +440,8 @@ const Overlay = {
       },
 
       flush: function () {
-        while (this.hooks.length) {
-          this.hooks.shift().hook.remove();
+        while (_hooks.length) {
+          _hooks.shift().hook.remove();
         }
 
         while (_qHooks.length) {
@@ -388,9 +451,7 @@ const Overlay = {
       }
     };
   })(),
-
-  timeOut: 0,
-
+  
   update: function (msg = false) {
     function status () {
       let hide = [
@@ -446,7 +507,7 @@ const Overlay = {
       me.overhead("Disable All");
       Overlay.text.flush() && Overlay.quests.flush();
       [Overlay.text.enabled, Overlay.quests.enabled] = [false, false];
-      this.timeOut = getTickCount() + Time.seconds(15);
+      Overlay.timeOut = getTickCount() + Time.seconds(15);
     } else {
       Overlay.quests.flush();
       Overlay.quests.enabled = false;
