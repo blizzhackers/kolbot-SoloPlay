@@ -29,7 +29,8 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     if (mob) {
       do {
         if (mob.distance < 7 && ![sdk.monsters.Andariel].includes(mob.classid) && mob.attackable
-        && !mob.isChilled && Attack.checkResist(mob, "cold") && !checkCollision(me, mob, Coords_1.Collision.BLOCK_MISSILE)) {
+          && !mob.isChilled && Attack.checkResist(mob, "cold")
+          && !checkCollision(me, mob, Coords_1.Collision.BLOCK_MISSILE)) {
           return true;
         }
       } while (mob.getNext());
@@ -122,8 +123,8 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * @param {number} currLvl
    * @todo decide when AttackData need to be re-initialized becasue doing it every attack is a waste
    */
-  const initAttackData = (currLvl = me.charlvl) => {
-    AttackDataKeys.forEach(sk => {
+  const initAttackData = function (currLvl = me.charlvl) {
+    AttackDataKeys.forEach(function (sk) {
       if (currLvl >= AttackData[sk].reqLvl) {
         AttackData[sk].assignValues();
       }
@@ -134,8 +135,8 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * Helper function to init damage value for unit
    * @param {Monster} unit
    */
-  const setDamageValues = (unit) => {
-    AttackDataKeys.forEach(sk => {
+  const setDamageValues = function (unit) {
+    AttackDataKeys.forEach(function (sk) {
       if (AttackData[sk].have) {
         AttackData[sk].calcDmg(unit);
       }
@@ -147,7 +148,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * @param {ClassData} skill 
    * @returns {boolean}
    */
-  const isHighestDmg = (skill) => {
+  const isHighestDmg = function (skill) {
     for (let key of AttackDataKeys) {
       if (AttackData[key].dmg > skill.dmg) {
         return false;
@@ -160,6 +161,10 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * Used to handle times when there isn't a valid skill we can use, to prevent throwing error
    */
   const DummyData = new ClassData(-1, -1);
+  /**
+   * Makes checking cases with it easier
+   */
+  const TELEPORT = new ClassData(sdk.skills.Teleport, 40);
 
   /**
    * @param {Monster} unit 
@@ -167,7 +172,10 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * @todo keep track of when, what, and who we last casted on to prevent spamming charged skills in a short period of time
    */
   ClassAttack.switchCurse = function (unit, force) {
-    if (CharData.skillData.haveChargedSkill([sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken]) && unit.curseable) {
+    if (!CharData.skillData.haveChargedSkill([sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken])) {
+      return;
+    }
+    if (unit.curseable) {
       const gold = me.gold;
       const isBoss = unit.isBoss;
       const dangerZone = [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area);
@@ -203,12 +211,13 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 
   /**
    * @param {Monster} unit
+   * @param {boolean} [checkDelay]
    * @returns {dataObj}
    */
-  ClassAttack.decideDistanceSkill = function (unit) {
+  ClassAttack.decideDistanceSkill = function (unit, checkDelay = false) {
     const currLvl = me.charlvl;
     let selected = AttackDataKeys
-      .filter(sk => {
+      .filter(function (sk) {
         if (currLvl < AttackData[sk].reqLvl || AttackData[sk].range < 20) return false;
         AttackData[sk].assignValues();
         if (!AttackData[sk].have) return false;
@@ -222,11 +231,15 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
          * and we don't need to move to cast the non-timed skill.
          * 4) Anything else?
          */
-        return AttackData[sk].dmg > 0 /* && (!AttackData[k].timed || !me.skillDelay) */;
+        return AttackData[sk].dmg > 0 && (!checkDelay || (!AttackData[sk].timed || !me.skillDelay));
       })
-      .sort((a, b) => AttackData[b].dmg - AttackData[a].dmg)
+      .sort(function (a, b) {
+        return AttackData[b].dmg - AttackData[a].dmg;
+      })
       .first();
-    return typeof AttackData[selected] === "object" ? AttackData[selected] : DummyData;
+    return typeof AttackData[selected] === "object"
+      ? AttackData[selected]
+      : DummyData;
   };
 
   /**
@@ -237,7 +250,9 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * @returns {AttackResult}
    */
   ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
-    Developer.debugging.skills && console.log(sdk.colors.Green + "Test Start-----------------------------------------//");
+    if (Developer.debugging.skills) {
+      console.log(sdk.colors.Green + "Test Start-----------------------------------------//");
+    }
     // unit became invalidated
     if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
   
@@ -269,6 +284,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     }
 
     initAttackData(currLvl);
+    TELEPORT.assignValues();
 
     if (AttackData.FrostNova.have) {
       if (me.mp > AttackData.FrostNova.mana) {
@@ -276,7 +292,12 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
         let ticktwo = getTickCount();
         // if the nova cause the death of any monsters around us, its worth it
         if (GameData.calculateKillableFallensByFrostNova() > 0) {
-          Developer.debugging.skills && console.log("took " + ((getTickCount() - ticktwo) / 1000) + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens");
+          if (Developer.debugging.skills) {
+            console.log(
+              "took " + ((getTickCount() - ticktwo) / 1000)
+              + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens"
+            );
+          }
           Skill.cast(sdk.skills.FrostNova, sdk.skills.hand.Right);
         }
       }
@@ -313,13 +334,18 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     // should this return afterwards since the calulations will now be different?
     if (AttackData.StaticField.have && (AttackData.StaticField.mana * 3) < me.mp) {
       let closeMobCheck = getUnits(sdk.unittype.Monster)
-        .filter(unit => !!unit && unit.attackable && unit.distance < AttackData.StaticField.range)
-        .find(unit => Attack.checkResist(unit, "lightning") && unit.hpPercent > Config.CastStatic);
+        .filter(function (unit) {
+          return !!unit && unit.attackable && unit.distance < AttackData.StaticField.range;
+        })
+        .find(function (unit) {
+          return Attack.checkResist(unit, "lightning") && unit.hpPercent > Config.CastStatic;
+        });
       if (!!closeMobCheck && isHighestDmg(AttackData.StaticField) && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
         Developer.debugging.skills && console.log("STATIC");
         // check if we should use battle cry from cta if we have it
         battleCryCheck(closeMobCheck);
-        Skill.cast(sdk.skills.StaticField, sdk.skills.hand.Right, closeMobCheck) && Skill.cast(sdk.skills.StaticField, sdk.skills.hand.Right, closeMobCheck);
+        [sdk.skills.StaticField, sdk.skills.StaticField]
+          .every(skill => Skill.cast(skill, sdk.skills.hand.Right, closeMobCheck));
         rebuild = true;
       }
     }
@@ -333,21 +359,29 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
      * @todo static field is a good skill but if we are currently out of range, check how dangerous it is to tele to spot before choosing that as our skill
      */
     let sortedList = AttackDataKeys
-      .filter(k => AttackData[k].have && me.mp > AttackData[k].mana
-        && (!AttackData[k].timed || !me.skillDelay) && (AttackData[k].skill !== sdk.skills.StaticField || !recheckSkill))
-      .sort((a, b) => AttackData[b].dmg - AttackData[a].dmg);
+      .filter(function (k) {
+        return (AttackData[k].have && me.mp > AttackData[k].mana
+          && (!AttackData[k].timed || !me.skillDelay)
+          && (AttackData[k].skill !== sdk.skills.StaticField || !recheckSkill));
+      })
+      .sort(function (a, b) {
+        return AttackData[b].dmg - AttackData[a].dmg;
+      });
     if (!sortedList.length) return Attack.Result.FAILED;
 
     // A bit ugly but handle static and charged bolt here
     let skillCheck = (
-      (AttackData[sortedList[0]].skill === sdk.skills.StaticField && unit.distance > AttackData.StaticField.range && me.inDanger(unit, 15))
+      (AttackData[sortedList[0]].skill === sdk.skills.StaticField
+      && unit.distance > AttackData.StaticField.range && me.inDanger(unit, 15))
       || (AttackData[sortedList[0]].skill === sdk.skills.ChargedBolt && recheckSkill)
     )
       ? sortedList.at(1)
       : sortedList.at(0);
     
     /** @type {ClassData} */
-    let selectedSkill = typeof AttackData[skillCheck] === "object" ? AttackData[skillCheck] : DummyData;
+    let selectedSkill = typeof AttackData[skillCheck] === "object"
+      ? AttackData[skillCheck]
+      : DummyData;
 
     switch (selectedSkill.skill) {
     case sdk.skills.ChargedBolt:
@@ -364,7 +398,8 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 
       break;
     case sdk.skills.Attack:
-      if (!me.normal || (me.charlvl > 6 && !me.checkForMobs({ range: 10, coll: (sdk.collision.BlockWall | sdk.collision.ClosedDoor) }))) {
+      if (!me.normal || (me.charlvl > 6
+        && !me.checkForMobs({ range: 10, coll: (sdk.collision.BlockWall | sdk.collision.ClosedDoor) }))) {
         selectedSkill = DummyData;
       }
     }
@@ -373,24 +408,32 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
      * @param {Monster} unit 
      * @returns {AttackResult}
      */
-    const switchBowAttack = (unit) => {
+    const switchBowAttack = function (unit) {
       if (Attack.getIntoPosition(unit, 20, sdk.collision.Ranged)) {
         try {
           const checkForShamans = unit.isFallen && !me.inArea(sdk.areas.BloodMoor);
           for (let i = 0; i < 5 && unit.attackable; i++) {
             if (checkForShamans && !once) {
-            // before we waste time let's see if there is a shaman we should kill
+              // before we waste time let's see if there is a shaman we should kill
               const shaman = getUnits(sdk.unittype.Monster)
-                .filter(mon => mon.distance < 20 && mon.isShaman && mon.attackable)
-                .sort((a, b) => a.distance - b.distance).first();
+                .filter(function (mon) {
+                  return mon.distance < 20 && mon.isShaman && mon.attackable;
+                })
+                .sort(function (a, b) {
+                  return a.distance - b.distance;
+                })
+                .first();
               if (shaman) return ClassAttack.doAttack(shaman, null, true);
             }
             if (!Attack.useBowOnSwitch(unit, sdk.skills.Attack, i === 5)) return Attack.Result.FAILED;
             if (unit.distance < 8 || me.inDanger()) {
               if (once) return Attack.Result.FAILED;
               let closeMob = getUnits(sdk.unittype.Monster)
-                .filter(mon => mon.distance < 10 && mon.attackable && mon.gid !== gid)
-                .sort(Attack.walkingSortMonsters).first();
+                .filter(function (mon) {
+                  return mon.distance < 10 && mon.attackable && mon.gid !== gid;
+                })
+                .sort(Attack.walkingSortMonsters)
+                .first();
               if (closeMob) return ClassAttack.doAttack(closeMob, null, true);
             }
           }
@@ -405,7 +448,8 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       && (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
       && ([-1, sdk.skills.Attack].includes(selectedSkill.skill)
       || selectedSkill.mana > me.mp
-      || (selectedSkill.mana * 3 > me.mp && [sdk.skills.FireBolt, sdk.skills.ChargedBolt].includes(selectedSkill.skill)))) {
+      || (selectedSkill.mana * 3 > me.mp
+        && [sdk.skills.FireBolt, sdk.skills.ChargedBolt].includes(selectedSkill.skill)))) {
       if (switchBowAttack(unit) === Attack.Result.SUCCESS) return Attack.Result.SUCCESS;
     }
     
@@ -418,11 +462,21 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 
     switch (result) {
     case Attack.Result.FAILED:
-      Developer.debugging.skills && console.log(sdk.colors.Red + "Fail Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
+      if (Developer.debugging.skills) {
+        console.log(
+          sdk.colors.Red + "Fail Test End----Time elasped["
+          + ((getTickCount() - tick) / 1000) + " seconds]----------------------//"
+        );
+      }
       
       return Attack.Result.FAILED;
     case Attack.Result.SUCCESS:
-      Developer.debugging.skills && console.log(sdk.colors.Red + "Sucess Test End----Time elasped[" + ((getTickCount() - tick) / 1000) + " seconds]----------------------//");
+      if (Developer.debugging.skills) {
+        console.log(
+          sdk.colors.Red + "Sucess Test End----Time elasped["
+          + ((getTickCount() - tick) / 1000) + " seconds]----------------------//"
+        );
+      }
       
       return Attack.Result.SUCCESS;
     case Attack.Result.CANTATTACK: // Try to telestomp
@@ -453,12 +507,15 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
             !!spot && Pather.walkTo(spot.x, spot.y);
           }
 
-          if (Attack.checkResist(unit, "lightning") && AttackData.StaticField.have && unit.hpPercent > Config.CastStatic) {
+          if (Attack.checkResist(unit, "lightning") && AttackData.StaticField.have
+            && unit.hpPercent > Config.CastStatic) {
             Skill.cast(sdk.skills.StaticField, sdk.skills.hand.Right);
           }
 
           let closeMob = Attack.getNearestMonster({ skipGid: gid });
-          !!closeMob ? this.doCast(closeMob, selectedSkill) : haveTK && Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, unit);
+          !!closeMob
+            ? this.doCast(closeMob, selectedSkill)
+            : haveTK && Packet.telekinesis(unit);
         }
 
         return Attack.Result.SUCCESS;
@@ -488,13 +545,15 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     if (skill < 0) return Attack.Result.CANTATTACK;
 
     // print damage values
-    Developer.debugging.skills && choosenSkill.have && console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(skill) + ") DMG: " + choosenSkill.dmg);
+    if (Developer.debugging.skills && choosenSkill.have) {
+      console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(skill) + ") DMG: " + choosenSkill.dmg);
+    }
 
     if (![sdk.skills.FrostNova, sdk.skills.Nova, sdk.skills.StaticField].includes(skill)) {
       // need like a potential danger check, sometimes while me might not be immeadiate danger because there aren't a whole
       // lot of monsters around, we can suddenly be in danger if a ranged monsters hits us or if one of the monsters near us
       // does a lot of damage quickly
-      if (Skill.canUse(sdk.skills.Teleport) && me.mp > Skill.getManaCost(sdk.skills.Teleport) + mana && me.inDanger()) {
+      if (TELEPORT.have && me.mp > TELEPORT.mana + mana && me.inDanger()) {
         //console.log("FINDING NEW SPOT");
         Attack.getIntoPosition(unit, range, 0
                 | Coords_1.BlockBits.LineOfSight
@@ -509,7 +568,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       }
     }
 
-    if (skill > -1 && (!me.skillDelay || !timed)) {
+    if (!me.skillDelay || !timed) {
       let ranged = range > 4;
 
       if (skill === sdk.skills.ChargedBolt && !unit.hasEnchant(sdk.enchant.ManaBurn, sdk.enchant.ColdEnchanted)) {
@@ -520,7 +579,8 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
         if (me.hpPercent < 50 && me.mode !== sdk.player.mode.GettingHit && !me.checkForMobs({ range: 12 })) {
           console.log("Low health but safe right now, going to delay a bit");
           let tick = getTickCount();
-          const howLongToDelay = Config.AttackSkill.some(sk => sk > 1 && Skill.canUse(sk)) ? Time.seconds(2) : Time.seconds(1);
+          const howLongToDelay = Config.AttackSkill
+            .some(sk => sk > 1 && Skill.canUse(sk)) ? Time.seconds(2) : Time.seconds(1);
 
           while (getTickCount() - tick < howLongToDelay) {
             if (me.mode === sdk.player.mode.GettingHit) {
@@ -559,11 +619,14 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       }
       
       if (unit.distance > range || Coords_1.isBlockedBetween(me, unit)) {
-      // Allow short-distance walking for melee skills
-        let walk = (range < 4 || (skill === sdk.skills.ChargedBolt && range === 7)) && unit.distance < 10 && !checkCollision(me, unit, Coords_1.BlockBits.BlockWall);
+        // Allow short-distance walking for melee skills
+        let walk = (range < 4 || (skill === sdk.skills.ChargedBolt && range === 7))
+          && unit.distance < 10 && !checkCollision(me, unit, Coords_1.BlockBits.BlockWall);
       
         if (ranged) {
-          if (!Attack.getIntoPosition(unit, range, Coords_1.Collision.BLOCK_MISSILE, walk)) return Attack.Result.FAILED;
+          if (!Attack.getIntoPosition(unit, range, Coords_1.Collision.BLOCK_MISSILE, walk)) {
+            return Attack.Result.FAILED;
+          }
         } else if (!Attack.getIntoPosition(unit, range, Coords_1.BlockBits.Ranged, walk)) {
           return Attack.Result.FAILED;
         }
@@ -579,7 +642,9 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
             if (!Misc.poll(() => unit.dead || unit.hp < preHealth, 300, 50)) {
               cRetry++;
               // we still might of missed so pick another coord
-              if (!Attack.getIntoPosition(unit, (range - cRetry), Coords_1.Collision.BLOCK_MISSILE, true)) return Attack.Result.FAILED;
+              if (!Attack.getIntoPosition(unit, (range - cRetry), Coords_1.Collision.BLOCK_MISSILE, true)) {
+                return Attack.Result.FAILED;
+              }
               !unit.dead && Skill.cast(skill, Skill.getHand(skill), unit.x, unit.y);
             } else {
               break;
@@ -592,11 +657,19 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
             if (!unit.dead) {
               // if we are already in close then it might be worth it to use battle cry if we have it
               battleCryCheck(unit);
+              // if we are in danger then don't cast and move
+              if ((unit.distance <= 3 && !unit.isStunned && !unit.isFrozen) || me.inDanger()) {
+                // don't cast, just run
+                Attack.deploy(unit, 25, 5, 9);
+                return Attack.Result.FAILED;
+              }
               Skill.cast(skill, Skill.getHand(skill), unit);
               if (!Misc.poll(() => unit.dead || unit.hp < preHealth, 200, 50)) {
                 sRetry++;
                 // we still might of missed so pick another coord
-                if (!Attack.getIntoPosition(unit, (range - sRetry), Coords_1.Collision.BLOCK_MISSILE, true)) return Attack.Result.FAILED;
+                if (!Attack.getIntoPosition(unit, (range - sRetry), Coords_1.Collision.BLOCK_MISSILE, true)) {
+                  return Attack.Result.FAILED;
+                }
                 !unit.dead && Skill.cast(skill, Skill.getHand(skill), unit);
               }
 
