@@ -226,7 +226,7 @@ Unit.prototype.shouldKeep = function () {
     // or keep if item is worth selling
     || (this.getItemCost(sdk.items.cost.ToSell) / (this.sizex * this.sizey) >= (!me.inTown && me.charlvl < 12 ? 5 : me.normal ? 50 : me.nightmare ? 500 : 1000))) {
     if ((Storage.Inventory.CanFit(this) && Storage.Inventory.MoveTo(this))) {
-      !AutoEquip.wanted(this) && NTIP.CheckItem(this, NTIP_CheckListNoTier) === Pickit.Result.UNWANTED && Town.sell.push(this);
+      !AutoEquip.wanted(this) && NTIP.CheckItem(this, NTIP.CheckList) === Pickit.Result.UNWANTED && Town.sell.push(this);
       return true;
     }
   }

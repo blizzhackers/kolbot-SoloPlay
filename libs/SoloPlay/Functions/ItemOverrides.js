@@ -10,13 +10,20 @@ includeIfNotIncluded("core/Item.js");
 includeIfNotIncluded("SoloPlay/Functions/ItemPrototypes.js");
 
 Item.weaponTypes = [
-  sdk.items.type.Scepter, sdk.items.type.Wand, sdk.items.type.Staff, sdk.items.type.Bow, sdk.items.type.Axe, sdk.items.type.Club,
-  sdk.items.type.Sword, sdk.items.type.Hammer, sdk.items.type.Knife, sdk.items.type.Spear, sdk.items.type.Polearm, sdk.items.type.Crossbow,
-  sdk.items.type.Mace, sdk.items.type.ThrowingKnife, sdk.items.type.ThrowingAxe, sdk.items.type.Javelin, sdk.items.type.Orb, sdk.items.type.AmazonBow,
+  sdk.items.type.Scepter, sdk.items.type.Wand,
+  sdk.items.type.Staff, sdk.items.type.Bow,
+  sdk.items.type.Axe, sdk.items.type.Club,
+  sdk.items.type.Sword, sdk.items.type.Hammer,
+  sdk.items.type.Knife, sdk.items.type.Spear,
+  sdk.items.type.Polearm, sdk.items.type.Crossbow,
+  sdk.items.type.Mace, sdk.items.type.ThrowingKnife,
+  sdk.items.type.ThrowingAxe, sdk.items.type.Javelin,
+  sdk.items.type.Orb, sdk.items.type.AmazonBow,
   sdk.items.type.AmazonSpear, sdk.items.type.AmazonJavelin, sdk.items.type.MissilePotion
 ];
 Item.shieldTypes = [
-  sdk.items.type.Shield, sdk.items.type.AuricShields, sdk.items.type.VoodooHeads, sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver
+  sdk.items.type.Shield, sdk.items.type.AuricShields,
+  sdk.items.type.VoodooHeads, sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver
 ];
 Item.helmTypes = [
   sdk.items.type.Helm, sdk.items.type.PrimalHelm, sdk.items.type.Circlet, sdk.items.type.Pelt
@@ -30,14 +37,14 @@ Item.getQuantityOwned = function (item, skipSameItem = false) {
   if (!item) return 0;
   
   return me.getItemsEx()
-    .filter(check =>
-      check.itemType === item.itemType
-      && (!skipSameItem || check.gid !== item.gid)
-      && check.classid === item.classid
-      && check.quality === item.quality
-      && check.sockets === item.sockets
-      && check.isInStorage
-    ).length;
+    .filter(function (check) {
+      return check.itemType === item.itemType
+        && (!skipSameItem || check.gid !== item.gid)
+        && check.classid === item.classid
+        && check.quality === item.quality
+        && check.sockets === item.sockets
+        && check.isInStorage;
+    }).length;
 };
 
 /**
@@ -141,7 +148,10 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
         }
 
         if (!me.barbarian && loc === sdk.body.LeftArm && me.equipped.get(loc).tier === -1) {
-          if (me.equipped.get(sdk.body.RightArm).twoHanded && tier < me.equipped.get(sdk.body.RightArm).tier) return false;
+          if (me.equipped.get(sdk.body.RightArm).twoHanded
+            && tier < me.equipped.get(sdk.body.RightArm).tier) {
+            return false;
+          }
         }
 
         return true;
@@ -150,7 +160,7 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
          * @param {ItemUnit} item 
          * @returns {boolean}
          */
-        const checkForBetterItem = (item) => {
+        const checkForBetterItem = function (item) {
           let betterItem = me.getItemsEx()
             .filter(el => el.isInStorage && el.gid !== item.gid && el.identified && Item.getBodyLoc(el).includes(loc))
             .sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a))
@@ -205,7 +215,7 @@ Item.autoEquip = function (task = "") {
 
   me.switchWeapons(sdk.player.slot.Main);
 
-  const sortEq = (a, b) => {
+  const sortEq = function (a, b) {
     let [prioA, prioB] = [Item.canEquip(a), Item.canEquip(b)];
     if (prioA && prioB) return NTIP.GetTier(b) - NTIP.GetTier(a);
     if (prioA) return -1;
@@ -218,12 +228,12 @@ Item.autoEquip = function (task = "") {
    * @param {number} bodyLoc 
    * @param {number} tier 
    */
-  const runEquip = (item, bodyLoc, tier) => {
+  const runEquip = function (item, bodyLoc, tier) {
     let gid = item.gid;
     let prettyName = item.prettyPrint;
     console.debug(prettyName + " tier: " + tier);
 
-    if (this.equip(item, bodyLoc)) {
+    if (Item.equip(item, bodyLoc)) {
       console.log(
         "ÿc9" + task + "ÿc0 :: \n"
         + "ÿc9 - Equippedÿc0: " + prettyName + "\n"
@@ -294,6 +304,8 @@ Item.autoEquip = function (task = "") {
           if (!runEquip(item, loc, tier)) {
             continue;
           }
+          
+          break;
         }
       } else {
         if (tier > equippedItem.tier) {
@@ -307,7 +319,9 @@ Item.autoEquip = function (task = "") {
             console.log("ÿc9" + task + "ÿc0 :: TwoHandedWep better than sum tier of currently equipped main + shield hand : " + item.fname + " Tier: " + tier);
           }
 
-          if (!me.barbarian && loc === sdk.body.LeftArm && equippedItem.tier === -1 && me.equipped.get(sdk.body.RightArm).twoHanded) {
+          if (!me.barbarian && loc === sdk.body.LeftArm
+            && equippedItem.tier === -1
+            && me.equipped.get(sdk.body.RightArm).twoHanded) {
             if (tier < me.equipped.get(sdk.body.RightArm).tier) {
               continue;
             }
@@ -385,7 +399,10 @@ Item.equip = function (item, bodyLoc) {
               break;
             default:
               checkScore = NTIP.GetTier(cursorItem);
-              if (checkScore > justEquipped.tier && !item.questItem && !justEquipped.isRuneword/*Wierd bug with runewords that it'll fail to get correct item desc so don't attempt rollback*/) {
+              if (checkScore > justEquipped.tier
+                && !item.questItem
+                /*Wierd bug with runewords that it'll fail to get correct item desc so don't attempt rollback*/
+                && !justEquipped.isRuneword) {
                 console.debug("ROLLING BACK TO OLD ITEM BECAUSE IT WAS BETTER");
                 console.debug("OldItem: " + checkScore + " Just Equipped Item: " + me.equipped.get(bodyLoc).tier);
                 clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc);
@@ -425,7 +442,8 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 
     if (cursorItem) {
       // only keep wanted items
-      if ([Pickit.Result.WANTED, Pickit.Result.SOLOWANTS].includes(Pickit.checkItem(cursorItem).result) || AutoEquip.wanted(cursorItem)) {
+      if ([Pickit.Result.WANTED, Pickit.Result.SOLOWANTS].includes(Pickit.checkItem(cursorItem).result)
+        || AutoEquip.wanted(cursorItem)) {
         if (Storage.Inventory.CanFit(cursorItem)) {
           Storage.Inventory.MoveTo(cursorItem);
         } else if (Storage.Stash.CanFit(cursorItem)) {
@@ -491,7 +509,9 @@ Item.secondaryEquip = function (item, bodyLoc) {
         if (item.bodylocation === bodyLoc - 7) {
           equipped = true;
           [sdk.items.Arrows, sdk.items.Bolts].includes(item.classid) && CharData.skillData.bow.setArrowInfo(item);
-          [sdk.items.type.Bow, sdk.items.type.AmazonBow, sdk.items.type.Crossbow].includes(item.itemType) && CharData.skillData.bow.setBowInfo(item);
+          if ([sdk.items.type.Bow, sdk.items.type.AmazonBow, sdk.items.type.Crossbow].includes(item.itemType)) {
+            CharData.skillData.bow.setBowInfo(item);
+          }
           
           if (getCursorType() === 3) {
             let cursorItem = Game.getCursorUnit();
@@ -507,8 +527,7 @@ Item.secondaryEquip = function (item, bodyLoc) {
       }
     }
   } finally {
-    // Switch back to primary
-    me.weaponswitch !== 0 && me.switchWeapons(0);
+    me.switchToPrimary();
   }
 
   return equipped;
@@ -555,7 +574,7 @@ Item.autoEquipSecondary = function (task = "") {
 
   if (!items) return false;
 
-  const sortEq = (a, b) => {
+  const sortEq = function (a, b) {
     if (Item.canEquip(a)) return -1;
     if (Item.canEquip(b)) return 1;
     return 0;
@@ -876,7 +895,7 @@ Item.logItem = function (action, unit, keptLine, force) {
   const mercCheck = action.match("Merc");
   const hasTier = AutoEquip.hasTier(unit);
   const charmCheck = (unit.isCharm && CharmEquip.check(unit));
-  const nTResult = NTIP.CheckItem(unit, NTIP_CheckListNoTier) === 1;
+  const nTResult = NTIP.CheckItem(unit, NTIP.CheckList) === 1;
 
   if (!action.match("kept", "i") && !action.match("Shopped") && hasTier) {
     if (!mercCheck) {

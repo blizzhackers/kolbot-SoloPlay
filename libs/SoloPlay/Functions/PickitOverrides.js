@@ -41,40 +41,52 @@ Pickit.classicMode = me.classic;
  */
 Pickit.checkItem = function (unit) {
   const rval = NTIP.CheckItem(unit, false, true);
-  const resultObj = (result, line = null) => ({
-    result: result,
-    line: line
-  });
+  const resultObj = function (result, line = null) {
+    return {
+      result: result,
+      line: line
+    };
+  };
 
   // quick return on essentials - we know they aren't going to be in the other checks
   if (Pickit.essentials.includes(unit.itemType)) return rval;
 
   if (!Pickit.classicMode) {
-    if ([sdk.items.runes.Ral, sdk.items.runes.Ort].includes(unit.classid) && Town.repairIngredientCheck(unit)) {
+    if ([sdk.items.runes.Ral, sdk.items.runes.Ort].includes(unit.classid)
+      && Town.repairIngredientCheck(unit)) {
       return resultObj(Pickit.Result.UTILITY);
     }
 
     /**
      * Need to redo this
      */
-    if (CharData.skillData.bow.onSwitch && [sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver].includes(unit.itemType) && rval === Pickit.Result.WANTED) {
-      if ([sdk.items.type.Bow, sdk.items.type.AmazonBow].includes(CharData.skillData.bow.bowType) && unit.itemType === sdk.items.type.BowQuiver) {
+    if (CharData.skillData.bow.onSwitch
+      && [sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver].includes(unit.itemType)
+      && rval === Pickit.Result.WANTED) {
+      if ([sdk.items.type.Bow, sdk.items.type.AmazonBow].includes(CharData.skillData.bow.bowType)
+        && unit.itemType === sdk.items.type.BowQuiver) {
         return resultObj(Pickit.Result.SOLOWANTS, "Switch-Arrows");
-      } else if (CharData.skillData.bow.bowType === sdk.items.type.Crossbow && unit.itemType === sdk.items.type.CrossbowQuiver) {
+      } else if (CharData.skillData.bow.bowType === sdk.items.type.Crossbow
+        && unit.itemType === sdk.items.type.CrossbowQuiver) {
         return resultObj(Pickit.Result.SOLOWANTS, "Switch-Bolts");
       }
     }
   }
 
-  if (unit.classid === sdk.items.StaminaPotion && (me.charlvl < 18 || me.staminaPercent <= 85 || me.walking) && Item.getQuantityOwned(unit, true) < 2) {
+  if (unit.classid === sdk.items.StaminaPotion
+    && (me.charlvl < 18 || me.staminaPercent <= 85 || me.walking)
+    && Item.getQuantityOwned(unit, true) < 2) {
     return resultObj(Pickit.Result.WANTED, "LowStamina");
   }
 
-  if (unit.classid === sdk.items.AntidotePotion && me.getState(sdk.states.Poison) && Item.getQuantityOwned(unit, true) < 2) {
+  if (unit.classid === sdk.items.AntidotePotion
+    && me.getState(sdk.states.Poison) && Item.getQuantityOwned(unit, true) < 2) {
     return resultObj(Pickit.Result.WANTED, "Poisoned");
   }
 
-  if (unit.classid === sdk.items.ThawingPotion && [sdk.states.Frozen, sdk.states.FrozenSolid].some(state => me.getState(state)) && Item.getQuantityOwned(unit, true) < 2) {
+  if (unit.classid === sdk.items.ThawingPotion
+    && (me.getState(sdk.states.Frozen) || me.getState(sdk.states.FrozenSolid))
+    && Item.getQuantityOwned(unit, true) < 2) {
     return resultObj(Pickit.Result.WANTED, "Frozen");
   }
 
@@ -95,7 +107,7 @@ Pickit.checkItem = function (unit) {
       return resultObj(Pickit.Result.SOLOWANTS, "Autoequip charm Tier: " + NTIP.GetCharmTier(unit));
     }
 
-    return NTIP.CheckItem(unit, NTIP_CheckListNoTier, true);
+    return NTIP.CheckItem(unit, NTIP.NoTier, true) || NTIP.CheckItem(unit, NTIP.CheckList, true);
   }
 
   if ((NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) && unit.identified) {
@@ -111,11 +123,11 @@ Pickit.checkItem = function (unit) {
       return resultObj(Pickit.Result.SOLOWANTS, "Autoequip Secondary Tier: " + NTIP.GetSecondaryTier(unit));
     }
 
-    return NTIP.CheckItem(unit, NTIP_CheckListNoTier, true);
+    return NTIP.CheckItem(unit, NTIP.NoTier, true) || NTIP.CheckItem(unit, NTIP.CheckList, true);
   }
 
   if (rval.result === Pickit.Result.WANTED && unit.isBaseType) {
-    if (NTIP.CheckItem(unit, NTIP.SoloCheckListNoTier)) {
+    if (NTIP.CheckItem(unit, NTIP.NoTier)) {
       return resultObj(Pickit.Result.SOLOWANTS, "Base Type Item");
     }
   }
@@ -132,7 +144,8 @@ Pickit.checkItem = function (unit) {
     if (itemValuePerSquare >= 2000) {
       // If total gold is less than 500k pick up anything worth 2k gold per square to sell in town.
       return resultObj(Pickit.Result.TRASH, "Valuable Item: " + itemValue);
-    } else if (itemValuePerSquare >= Pickit.minItemKeepGoldValue() && (me.gold < Config.LowGold || unit.isInInventory)) {
+    } else if (itemValuePerSquare >= Pickit.minItemKeepGoldValue()
+      && (me.gold < Config.LowGold || unit.isInInventory)) {
       // If total gold is less than LowGold setting pick up anything worth 10 gold per square to sell in town.
       return resultObj(Pickit.Result.TRASH, "LowGold Item: " + itemValue);
     }
@@ -300,7 +313,7 @@ Pickit.canPick = function (unit) {
 
       for (i = 0; i < buffers.length; i += 1) {
         if (Config[buffers[i]]) {
-          pottype = (() => {
+          pottype = (function () {
             switch (buffers[i]) {
             case "HPBuffer":
               return sdk.items.type.HealingPotion;
@@ -328,7 +341,7 @@ Pickit.canPick = function (unit) {
             }
           }
 
-          needPots > 0 && !beltCheck && Pickit.toCursorPick.push(unit.gid);
+          needPots > 0 && !beltCheck && _toCursorPick.add(unit.gid);
         }
       }
     }
@@ -360,7 +373,8 @@ Pickit.canPick = function (unit) {
   return true;
 };
 
-Pickit.toCursorPick = [];
+/** @type {Set<number>} */
+const _toCursorPick = new Set();
 
 /**
  * @override
@@ -386,32 +400,30 @@ Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
     self.color = Item.color(unit);
     self.gold = unit.getStat(sdk.stats.Gold);
     self.dist = (unit.distance || Infinity);
-    let canTk = (Skill.haveTK && Pickit.tkable.includes(self.type) && Pickit.toCursorPick.indexOf(unit.gid) === -1
+    let canTk = (Skill.haveTK && Pickit.tkable.includes(self.type) && !_toCursorPick.has(unit.gid)
       && self.dist > 5 && self.dist < 20 && !checkCollision(me, unit, sdk.collision.WallOrRanged));
     self.useTk = canTk && (me.mpPercent > 50);
     self.picked = false;
   }
 
-  let item, tick, gid, retry = false;
   const itemCount = me.itemcount;
-  const cancelFlags = [sdk.uiflags.Inventory, sdk.uiflags.NPCMenu, sdk.uiflags.Waypoint, sdk.uiflags.Shop, sdk.uiflags.Stash, sdk.uiflags.Cube];
+  const cancelFlags = [
+    sdk.uiflags.Inventory, sdk.uiflags.NPCMenu,
+    sdk.uiflags.Waypoint, sdk.uiflags.Shop,
+    sdk.uiflags.Stash, sdk.uiflags.Cube
+  ];
 
   if (!unit || unit === undefined) return false;
 
-  if (unit.gid) {
-    gid = unit.gid;
-    item = Game.getItem(-1, -1, gid);
-  }
-
+  let retry = false;
+  const gid = unit.gid;
+  
+  let item = Game.getItem(-1, -1, gid);
   if (!item) return false;
 
-  for (let i = 0; i < cancelFlags.length; i += 1) {
-    if (getUIFlag(cancelFlags[i])) {
-      delay(500);
-      me.cancel(0);
-
-      break;
-    }
+  if (cancelFlags.some(function (flag) { return getUIFlag(flag); })) {
+    delay(500);
+    me.cancel(0);
   }
 
   const stats = new ItemStats(item);
@@ -468,21 +480,30 @@ Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
       let cursorUnit;
       itemDist = item.distance;
       // use packet first, if we fail and not using fast pick use click
-      Pickit.toCursorPick.includes(item.gid)
-        ? Packet.click(item, true) && (cursorUnit = Misc.poll(() => Game.getCursorUnit(), (itemDist > 10 ? 1000 : 250), 50)) && Storage.Inventory.MoveTo(cursorUnit)
-        : (Config.FastPick || i < 1) ? Packet.click(item) : Misc.click(0, 0, item);
+      _toCursorPick.has(item.gid)
+        ? Packet.click(item, true)
+          && (cursorUnit = Misc.poll(function () {
+            return Game.getCursorUnit();
+          }, (itemDist > 10 ? 1000 : 250), 50))
+          && Storage.Inventory.MoveTo(cursorUnit)
+        : (Config.FastPick || i < 1)
+          ? Packet.click(item)
+          : Misc.click(0, 0, item);
     }
 
-    tick = getTickCount();
+    let tick = getTickCount();
 
     while (getTickCount() - tick < (itemDist > 10 ? 2000 : 1000)) {
       item = copyUnit(item);
-      Pickit.toCursorPick.includes(item.gid) && Pickit.toCursorPick.remove(item.gid);
+      _toCursorPick.has(item.gid) && _toCursorPick.delete(item.gid);
 
       if (stats.classid === sdk.items.Gold) {
         if (!item.getStat(sdk.stats.Gold) || item.getStat(sdk.stats.Gold) < stats.gold) {
-          console.log("ÿc7Picked up " + stats.color + (item.getStat(sdk.stats.Gold) ? (item.getStat(sdk.stats.Gold) - stats.gold) : stats.gold) + " " + stats.name);
-
+          console.log(
+            "ÿc7Picked up " + stats.color
+            + (item.getStat(sdk.stats.Gold) ? (item.getStat(sdk.stats.Gold) - stats.gold) : stats.gold)
+            + " " + stats.name
+          );
           return true;
         }
       }
@@ -585,11 +606,15 @@ Pickit.checkSpotForItems = function (spot, checkVsMyDist = false, range = Config
         const itemDistFromMe = item.distance;
         if (Pickit.essentials.includes(item.itemType)) {
           if (Pickit.checkItem(item).result && Pickit.canPick(item) && Pickit.canFit(item)) {
-            checkVsMyDist && itemDistFromMe < spotDist ? Pickit.essentials.push(copyUnit(item)) : itemList.push(copyUnit(item));
+            checkVsMyDist && itemDistFromMe < spotDist
+              ? Pickit.essentials.push(copyUnit(item))
+              : itemList.push(copyUnit(item));
           }
         } else if (item.itemType === sdk.items.type.Key) {
           if (Pickit.canPick(item) && Pickit.checkItem(item).result) {
-            checkVsMyDist && itemDistFromMe < spotDist ? Pickit.pickList.push(copyUnit(item)) : itemList.push(copyUnit(item));
+            checkVsMyDist && itemDistFromMe < spotDist
+              ? Pickit.pickList.push(copyUnit(item))
+              : itemList.push(copyUnit(item));
           }
         } else if (Pickit.checkItem(item).result) {
           if (checkVsMyDist && itemDistFromMe < spotDist) {
@@ -612,15 +637,19 @@ Pickit.essentialList = [];
 Pickit.essessntialsPick = function (clearBeforePick = false, ignoreGold = false, builtList = [], once = false) {
   if (me.dead || me.inTown || (!Pickit.enabled && !clearBeforePick)) return false;
 
-  Pickit.essentialList.concat(builtList, Pickit.pickList).filter(i => !!i && Pickit.essentials.includes(i.itemType));
+  Pickit.essentialList
+    .concat(builtList, Pickit.pickList)
+    .filter(function (i) {
+      return !!i && Pickit.essentials.includes(i.itemType);
+    });
   let item = Game.getItem();
   const maxDist = Skill.haveTK ? 15 : 5;
 
   if (item) {
     do {
-      if (item.onGroundOrDropping && getDistance(me, item) <= maxDist && Pickit.essentials.includes(item.itemType)) {
+      if (item.onGroundOrDropping && item.distance <= maxDist && Pickit.essentials.includes(item.itemType)) {
         if (Pickit.essentialList.some(el => el.gid === item.gid)) continue;
-        if (item.itemType !== sdk.items.type.Gold || getDistance(me, item) < 5) {
+        if (item.itemType !== sdk.items.type.Gold || item.distance < 5) {
           Pickit.essentialList.push(copyUnit(item));
         }
       }
@@ -699,6 +728,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
   
   let needMule = false;
   const canUseMule = AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("muleInfo");
+  const _pots = [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion];
 
   while (!me.idle) {
     delay(40);
@@ -710,13 +740,15 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
     do {
       if (Pickit.ignoreList.has(item.gid)) continue;
       if (Pickit.pickList.some(el => el.gid === item.gid)) continue;
-      if (item.onGroundOrDropping && getDistance(me, item) <= range) {
+      if (item.onGroundOrDropping && item.distance <= range) {
         Pickit.pickList.push(copyUnit(item));
       }
     } while (item.getNext());
   }
 
-  if (Pickit.pickList.some(i => [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion].includes(i.itemType))) {
+  if (Pickit.pickList.some(function (el) {
+    return _pots.includes(el.itemType);
+  })) {
     me.clearBelt();
     Pickit.beltSize = Storage.BeltSize();
   }

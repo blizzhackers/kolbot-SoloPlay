@@ -364,7 +364,7 @@ const SetUp = {
   },
 
   bowQuiver: function () {
-    NTIP.resetRuntimeList();
+    NTIP.Runtime.clear();
     if (CharData.skillData.bow.onSwitch) {
       if ([sdk.items.type.Bow, sdk.items.type.AmazonBow].includes(CharData.skillData.bow.bowType)) {
         NTIP.addToRuntime("[type] == bowquiver # # [maxquantity] == 1");

@@ -56,11 +56,10 @@
           try {
             me.switchWeapons(sdk.player.slot.Secondary);
             item.drop();
+            CharData.skillData.bow.resetBowData();
           } finally {
             me.switchWeapons(sdk.player.slot.Main);
           }
-          // Item.removeItem(null, item);
-          CharData.skillData.bow.resetBowData();
         }
       });
     

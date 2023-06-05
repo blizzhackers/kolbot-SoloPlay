@@ -15,20 +15,22 @@
    */
   NPCAction.shopAt = function (npcName) {
     if (!me.inTown) return false;
-
-    // check for invaid npcs to shop at
-    if ([NPC.Kashya, NPC.Warriv, NPC.Meshif, NPC.Atma, NPC.Greiz, NPC.Tyrael, NPC.Qual_Kehk, NPC.Cain].includes(npcName.toLowerCase())) {
-      console.warn(npcName + " is an invalid npc to shop at");
-
-      return false;
-    }
-
     // keep track of where we start from
     const origAct = me.act;
     const npcAct = NPC.getAct(npcName);
     if (!npcAct.length) return false;
 
     try {
+      // check for invaid npcs to shop at
+      if ([
+        NPC.Kashya, NPC.Warriv,
+        NPC.Meshif, NPC.Atma,
+        NPC.Greiz, NPC.Tyrael,
+        NPC.Qual_Kehk, NPC.Cain
+      ].includes(npcName.toLowerCase())) {
+        throw new Error(npcName + " is an invalid npc to shop at");
+      }
+
       if (!npcAct.includes(origAct)) {
         Town.goToTown(npcAct[0]);
       }
@@ -82,7 +84,9 @@
     (Config.HPBuffer > 0 || Config.MPBuffer > 0) && getNeededBuffer();
 
     // Check if we need to buy potions based on Config.MinColumn
-    if (Config.BeltColumn.some((c, i) => ["hp", "mp"].includes(c) && col[i] > (beltSize - Math.min(Config.MinColumn[i], beltSize)))) {
+    if (Config.BeltColumn.some(function (c, i) {
+      return ["hp", "mp"].includes(c) && col[i] > (beltSize - Math.min(Config.MinColumn[i], beltSize));
+    })) {
       needPots = true;
     }
 
@@ -122,7 +126,7 @@
     // special check, sometimes our rejuv slot is empty but we do still need buffer. Check if we can buy something to slot there
     if (specialCheck && Config.BeltColumn.some((c, i) => c === "rv" && col[i] >= beltSize)) {
       let pots = [sdk.items.ThawingPotion, sdk.items.AntidotePotion, sdk.items.StaminaPotion];
-      Config.BeltColumn.forEach((c, i) => {
+      Config.BeltColumn.forEach(function (c, i) {
         if (c === "rv" && col[i] >= beltSize && pots.length) {
           let usePot = pots[0];
           let pot = npc.getItem(usePot);
@@ -163,7 +167,7 @@
     // re-check
     !needBuffer && (Config.HPBuffer > 0 || Config.MPBuffer > 0) && getNeededBuffer();
 
-    const buyHPBuffers = () => {
+    const buyHPBuffers = function () {
       if (needBuffer && buffer.hp < Config.HPBuffer) {
         for (let i = 0; i < Config.HPBuffer - buffer.hp; i += 1) {
           let pot = Town.getPotion(npc, "hp", wantedHpPot);
@@ -172,7 +176,7 @@
       }
       return true;
     };
-    const buyMPBuffers = () => {
+    const buyMPBuffers = function () {
       if (needBuffer && buffer.mp < Config.MPBuffer) {
         for (let i = 0; i < Config.MPBuffer - buffer.mp; i += 1) {
           let pot = Town.getPotion(npc, "mp", wantedMpPot);
@@ -182,7 +186,9 @@
       return true;
     };
     // priortize mana pots if caster
-    Check.currentBuild().caster ? buyMPBuffers() && buyHPBuffers() : buyHPBuffers() && buyMPBuffers();
+    Check.currentBuild().caster
+      ? buyMPBuffers() && buyHPBuffers()
+      : buyHPBuffers() && buyMPBuffers();
 
     // keep cold/pois res high with potions
     if (me.gold > 50000 && npc.getItem(sdk.items.ThawingPotion)) {
@@ -199,7 +205,9 @@
    * @returns {boolean}
    */
   NPCAction.fillTome = function (classid, force = false) {
-    const scrollId = (classid === sdk.items.TomeofTownPortal ? sdk.items.ScrollofTownPortal : sdk.items.ScrollofIdentify);
+    const scrollId = (classid === sdk.items.TomeofTownPortal
+      ? sdk.items.ScrollofTownPortal
+      : sdk.items.ScrollofIdentify);
     const have = Town.checkScrolls(classid, force);
     let myTome = me.getTome(classid);
     let invoScrolls = 0;
@@ -271,7 +279,10 @@
   };
 
   NPCAction.cainID = function (force = false) {
-    if ((!Config.CainID.Enable && !force) || !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed)) return false;
+    if ((!Config.CainID.Enable && !force)
+      || !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed)) {
+      return false;
+    }
 
     let npc = getInteractedNPC();
 
@@ -283,55 +294,54 @@
     me.cancel();
 
     let unids = me.getUnids();
+    if (!unids.length) return true;
 
-    if (unids.length) {
-      // Check if we may use Cain - number of unid items
-      if (unids.length < Config.CainID.MinUnids && !force) return false;
+    // Check if we may use Cain - number of unid items
+    if (unids.length < Config.CainID.MinUnids && !force) return false;
 
-      let cain = Town.initNPC("CainID", "cainID");
-      if (!cain) return false;
+    let cain = Town.initNPC("CainID", "cainID");
+    if (!cain) return false;
 
-      me.cancelUIFlags();
-      
-      while (unids.length) {
-        const item = unids.shift();
-        const { result, line } = Pickit.checkItem(item);
+    me.cancelUIFlags();
+    
+    while (unids.length) {
+      const item = unids.shift();
+      const { result, line } = Pickit.checkItem(item);
 
-        switch (result) {
-        case Pickit.Result.TRASH:
-          Town.sell.push(item);
+      switch (result) {
+      case Pickit.Result.TRASH:
+        Town.sell.push(item);
 
-          break;
-        case Pickit.Result.WANTED:
-        case Pickit.Result.SOLOWANTS:
-          Item.logger("Kept", item);
-          Item.logItem("Kept", item, line);
+        break;
+      case Pickit.Result.WANTED:
+      case Pickit.Result.SOLOWANTS:
+        Item.logger("Kept", item);
+        Item.logItem("Kept", item, line);
 
-          break;
-        case Pickit.Result.CUBING:
-          Item.logger("Kept", item, "Cubing-Town");
-          Cubing.update();
+        break;
+      case Pickit.Result.CUBING:
+        Item.logger("Kept", item, "Cubing-Town");
+        Cubing.update();
 
-          break;
-        case Pickit.Result.RUNEWORD:
-          Item.logger("Kept", item, "Runewords-Town");
-          Runewords.update(item.classid, item.gid);
+        break;
+      case Pickit.Result.RUNEWORD:
+        Item.logger("Kept", item, "Runewords-Town");
+        Runewords.update(item.classid, item.gid);
 
-          break;
-        case Pickit.Result.CRAFTING:
-          Item.logger("Kept", item, "CraftSys-Town");
-          CraftingSystem.update(item);
+        break;
+      case Pickit.Result.CRAFTING:
+        Item.logger("Kept", item, "CraftSys-Town");
+        CraftingSystem.update(item);
 
-          break;
-        case Pickit.Result.SOLOSYSTEM:
-          Item.logger("Kept", item, "SoloWants-Town");
-          SoloWants.update(item);
+        break;
+      case Pickit.Result.SOLOSYSTEM:
+        Item.logger("Kept", item, "SoloWants-Town");
+        SoloWants.update(item);
 
-          break;
-        case Pickit.Result.UNID:
-        default:
-          break;
-        }
+        break;
+      case Pickit.Result.UNID:
+      default:
+        break;
       }
     }
 
@@ -370,13 +380,16 @@
       }
     }
 
-    if (getTickCount() - Town.lastShopped.tick < Time.seconds(3) && Town.lastShopped.who === npc.name) return false;
+    if (getTickCount() - Town.lastShopped.tick < Time.seconds(3)
+      && Town.lastShopped.who === npc.name) {
+      return false;
+    }
     let items = npc.getItemsEx()
       .filter((item) => !Town.ignoreType(item.itemType)
         && (itemTypes.length === 0 || itemTypes.includes(item.itemType))
         && (NTIP.CheckItem(item) !== Pickit.Result.UNWANTED)
         && (startingGold - item.getItemCost(sdk.items.cost.ToBuy) > goldLimit))
-      .sort((a, b) => {
+      .sort(function (a, b) {
         let priorityA = itemTypes.includes(a.itemType);
         let priorityB = itemTypes.includes(b.itemType);
         if (priorityA && priorityB) return NTIP.GetTier(b) - NTIP.GetTier(a);
@@ -400,19 +413,21 @@
      * @param {{ result: PickitResult, line: string }} result 
      * @param {number | string} tierInfo 
      */
-    const shopReport = (item, action, result, tierInfo) => {
+    const shopReport = function (item, action, result, tierInfo) {
       action === undefined && (action = "");
       tierInfo === undefined && (tierInfo = "");
       console.log("ÿc8Kolbot-SoloPlayÿc0: " + action + (tierInfo ? " " + tierInfo : ""));
       Item.logger(action, item);
-      Developer.debugging.autoEquip && Item.logItem("Shopped " + action, item, result.line !== undefined ? result.line : "null");
+      if (Developer.debugging.autoEquip) {
+        Item.logItem("Shopped " + action, item, result.line !== undefined ? result.line : "null");
+      }
     };
 
     /**
      * Buy dependancy item if it's needed
      * @param {ItemUnit} item 
      */
-    const checkDependancy = (item) => {
+    const checkDependancy = function (item) {
       let check = Item.hasDependancy(item);
       if (check) {
         let el = npc.getItem(check);
@@ -420,15 +435,15 @@
       }
     };
 
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
+    for (let item of items) {
       const myGold = me.gold;
       const itemCost = item.getItemCost(sdk.items.cost.ToBuy);
       if (myGold < itemCost) continue;
       const { result, line } = Pickit.checkItem(item);
 
       // no tier'ed items
-      if (!lowLevelShop && result === Pickit.Result.SOLOWANTS && NTIP.CheckItem(item, NTIP.SoloCheckListNoTier, true).result !== Pickit.Result.UNWANTED) {
+      if (!lowLevelShop && result === Pickit.Result.SOLOWANTS
+        && NTIP.CheckItem(item, NTIP.NoTier, true).result !== Pickit.Result.UNWANTED) {
         try {
           if (Storage.Inventory.CanFit(item) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
             if (item.isBaseType) {
@@ -451,7 +466,9 @@
             let [mainTier] = [NTIP.GetTier(item)];
 
             // we want this to be at least a 5% increase in the tier value
-            if (Item.hasTier(item) && Item.autoEquipCheck(item) && ((Item.getEquippedItem(item.bodyLocation().first()).tier - mainTier) / (mainTier * 100)) > 5) {
+            if (Item.hasTier(item)
+              && Item.autoEquipCheck(item)
+              && ((Item.getEquippedItem(item.bodyLocation().first()).tier - mainTier) / (mainTier * 100)) > 5) {
               shopReport(item, "AutoEquip", line, (item.prettyPrint + " Tier: " + NTIP.GetTier(item)));
               item.buy() && bought++;
               Item.autoEquip("InShop");
@@ -476,7 +493,7 @@
       items = npc.getItemsEx()
         .filter((item) => !Town.ignoreType(item.itemType) && NTIP.GetMercTier(item) > 0)
         .sort((a, b) => NTIP.GetMercTier(b) - NTIP.GetMercTier(a))
-        .forEach(item => {
+        .forEach(function (item) {
           const myGold = me.gold;
           const itemCost = item.getItemCost(sdk.items.cost.ToBuy);
           if (myGold < itemCost) return;
@@ -514,15 +531,15 @@
 
     if (Town.gambleIds.size === 0) {
       // change text to classid
-      for (let i = 0; i < Config.GambleItems.length; i += 1) {
-        if (isNaN(Config.GambleItems[i])) {
-          if (NTIPAliasClassID.hasOwnProperty(Config.GambleItems[i].replace(/\s+/g, "").toLowerCase())) {
-            Town.gambleIds.add(NTIPAliasClassID[Config.GambleItems[i].replace(/\s+/g, "").toLowerCase()]);
+      for (let item of Config.GambleItems) {
+        if (isNaN(item)) {
+          if (NTIPAliasClassID.hasOwnProperty(item.replace(/\s+/g, "").toLowerCase())) {
+            Town.gambleIds.add(NTIPAliasClassID[item.replace(/\s+/g, "").toLowerCase()]);
           } else {
-            Misc.errorReport("ÿc1Invalid gamble entry:ÿc0 " + Config.GambleItems[i]);
+            Misc.errorReport("ÿc1Invalid gamble entry:ÿc0 " + item);
           }
         } else {
-          Town.gambleIds.add(Config.GambleItems[i]);
+          Town.gambleIds.add(item);
         }
       }
     }
@@ -552,10 +569,10 @@
           Town.gambleIds.has(item.classid) && items.push(copyUnit(item));
         } while (item.getNext());
 
-        for (let i = 0; i < items.length; i += 1) {
-          if (!Storage.Inventory.CanFit(items[i])) return false;
+        for (let item of items) {
+          if (!Storage.Inventory.CanFit(item)) return false;
 
-          items[i].buy(false, true);
+          item.buy(false, true);
 
           let newItem = Town.getGambledItem(list);
 
@@ -617,7 +634,10 @@
         break;
       case "buyQuiver":
         let bowCheck = me.getItemsEx()
-          .filter(el => el.isEquipped && [sdk.items.type.Bow, sdk.items.type.Crossbow, sdk.items.type.AmazonBow].includes(el.itemType))
+          .filter(function (el) {
+            return el.isEquipped
+              && [sdk.items.type.Bow, sdk.items.type.Crossbow, sdk.items.type.AmazonBow].includes(el.itemType);
+          })
           .first();
 
         if (bowCheck) {

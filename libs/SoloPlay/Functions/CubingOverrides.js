@@ -420,6 +420,7 @@ Cubing.buildRecipes = function () {
   }
 };
 
+/** @this Cubing */
 Cubing.buildLists = function () {
   CraftingSystem.checkSubrecipes();
   SoloWants.checkSubrecipes();
@@ -482,14 +483,38 @@ Cubing.buildLists = function () {
 
       // if the recipe is enabled (we have the main item), add flawless gem recipes (if needed)
 
-      if (this.subRecipes.indexOf(sdk.items.gems.Perfect.Amethyst) === -1 && (this.recipes[i].Ingredients[j] === sdk.items.gems.Perfect.Amethyst || (this.recipes[i].Ingredients[j] === "pgem" && this.gemList.indexOf(sdk.items.gems.Perfect.Amethyst) > -1))) {
-        this.recipes.push({ Ingredients: [sdk.items.gems.Flawless.Amethyst, sdk.items.gems.Flawless.Amethyst, sdk.items.gems.Flawless.Amethyst], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index });
+      if (this.subRecipes.indexOf(sdk.items.gems.Perfect.Amethyst) === -1
+        && (this.recipes[i].Ingredients[j] === sdk.items.gems.Perfect.Amethyst
+        || (this.recipes[i].Ingredients[j] === "pgem"
+        && this.gemList.indexOf(sdk.items.gems.Perfect.Amethyst) > -1))) {
+        this.recipes.push({
+          Ingredients: [
+            sdk.items.gems.Flawless.Amethyst,
+            sdk.items.gems.Flawless.Amethyst,
+            sdk.items.gems.Flawless.Amethyst
+          ],
+          Index: Recipe.Gem,
+          AlwaysEnabled: true,
+          MainRecipe: this.recipes[i].Index
+        });
         this.subRecipes.push(sdk.items.gems.Perfect.Amethyst);
       }
 
       // Make flawless amethyst
-      if (this.subRecipes.indexOf(sdk.items.gems.Flawless.Amethyst) === -1 && (this.recipes[i].Ingredients[j] === sdk.items.gems.Flawless.Amethyst || (this.recipes[i].Ingredients[j] === "fgem" && this.gemList.indexOf(sdk.items.gems.Flawless.Amethyst) > -1))) {
-        this.recipes.push({ Ingredients: [sdk.items.gems.Normal.Amethyst, sdk.items.gems.Normal.Amethyst, sdk.items.gems.Normal.Amethyst], Index: Recipe.Gem, AlwaysEnabled: true, MainRecipe: this.recipes[i].Index });
+      if (this.subRecipes.indexOf(sdk.items.gems.Flawless.Amethyst) === -1
+        && (this.recipes[i].Ingredients[j] === sdk.items.gems.Flawless.Amethyst
+        || (this.recipes[i].Ingredients[j] === "fgem"
+        && this.gemList.indexOf(sdk.items.gems.Flawless.Amethyst) > -1))) {
+        this.recipes.push({
+          Ingredients: [
+            sdk.items.gems.Normal.Amethyst,
+            sdk.items.gems.Normal.Amethyst,
+            sdk.items.gems.Normal.Amethyst
+          ],
+          Index: Recipe.Gem,
+          AlwaysEnabled: true,
+          MainRecipe: this.recipes[i].Index
+        });
         this.subRecipes.push(sdk.items.gems.Flawless.Amethyst);
       }
 
@@ -602,15 +627,23 @@ Cubing.checkItem = function (unit) {
       && unit.classid === this.validIngredients[i].classid && unit.quality === this.validIngredients[i].quality) {
       // item is better than the one we currently have, so add it to validIngredient array and remove old item
       if (unit.ilvl > this.validIngredients[i].ilvl && this.validItem(unit, this.validIngredients[i].recipe)) {
-        this.validIngredients.push({ classid: unit.classid, quality: unit.quality, ilvl: unit.ilvl, gid: unit.gid, recipe: this.validIngredients[i].recipe });
+        this.validIngredients.push({
+          classid: unit.classid,
+          quality: unit.quality,
+          ilvl: unit.ilvl,
+          gid: unit.gid,
+          recipe: this.validIngredients[i].recipe
+        });
         this.validIngredients.splice(i, 1);
         return true;
       }
     }
     // its an item meant for socketing so lets be sure we have the best base
-    if (this.validIngredients[i].recipe.Index >= Recipe.Socket.Shield && this.validIngredients[i].recipe.Index <= Recipe.Socket.Helm) {
+    if (this.validIngredients[i].recipe.Index >= Recipe.Socket.Shield
+      && this.validIngredients[i].recipe.Index <= Recipe.Socket.Helm) {
       // not the same item but the same type of item
-      if (!unit.isEquipped && unit.gid !== this.validIngredients[i].gid && unit.itemType === this.validIngredients[i].type
+      if (!unit.isEquipped && unit.gid !== this.validIngredients[i].gid
+        && unit.itemType === this.validIngredients[i].type
         && unit.quality === this.validIngredients[i].quality) {
         // console.debug(this.validIngredients[i], "\n//~~~~//\n", unit, "\n//~~~~~/\n", Item.betterThanStashed(unit, true));
         // item is better than the one we currently have, so add it to validIngredient array and remove old item
@@ -634,8 +667,8 @@ Cubing.checkItem = function (unit) {
     return true;
   }
 
-  for (let i = 0; i < this.neededIngredients.length; i++) {
-    if (unit.classid === this.neededIngredients[i].classid && this.validItem(unit, this.neededIngredients[i].recipe)) {
+  for (let el of this.neededIngredients) {
+    if (unit.classid === el.classid && this.validItem(unit, el.recipe)) {
       return true;
     }
   }
@@ -652,10 +685,13 @@ Cubing.validItem = function (unit, recipe) {
   // Don't use items in locked inventory space
   if (unit.isInInventory && Storage.Inventory.IsLocked(unit, Config.Inventory)) return false;
   // Don't use items that are wanted by other systems
-  if (Runewords.validGids.includes(unit.gid) || CraftingSystem.validGids.includes(unit.gid)) return false;
+  if (Runewords.validGids.includes(unit.gid) || CraftingSystem.validGids.includes(unit.gid)) {
+    return false;
+  }
 
   // Gems and runes
-  if ((unit.itemType >= sdk.items.type.Amethyst && unit.itemType <= sdk.items.type.Skull) || unit.itemType === sdk.items.type.Rune) {
+  if ((unit.itemType >= sdk.items.type.Amethyst
+    && unit.itemType <= sdk.items.type.Skull) || unit.itemType === sdk.items.type.Rune) {
     if (!recipe.Enabled && recipe.Ingredients[0] !== unit.classid && recipe.Ingredients[1] !== unit.classid) {
       return false;
     }
@@ -669,7 +705,7 @@ Cubing.validItem = function (unit, recipe) {
   // START
   let valid = true;
   const ntipResult = NTIP.CheckItem(unit);
-  const ntipNoTierResult = NTIP.CheckItem(unit, NTIP_CheckListNoTier);
+  const ntipNoTierResult = NTIP.CheckItem(unit, NTIP.CheckList);
 
   if (recipe.Index >= Recipe.HitPower.Helm && recipe.Index <= Recipe.Safety.Weapon) {
     if (Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) < recipe.Level) {
@@ -689,7 +725,7 @@ Cubing.validItem = function (unit, recipe) {
       if (recipe.Enabled && ntipResult === Pickit.Result.UNWANTED) return true;
     // Main item, NOT matching a pickit entry
     } else if (unit.magic && Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) >= recipe.Level
-      && NTIP.CheckItem(unit, NTIP_CheckListNoTier) === Pickit.Result.UNWANTED) {
+      && ntipNoTierResult === Pickit.Result.UNWANTED) {
       return true;
     }
 
@@ -697,7 +733,9 @@ Cubing.validItem = function (unit, recipe) {
   } else if (recipe.Index >= Recipe.Unique.Weapon.ToExceptional && recipe.Index <= Recipe.Unique.Armor.ToElite) {
     // If item is equipped, ensure we can use the upgraded version
     if (unit.isEquipped) {
-      if (me.charlvl < unit.upgradedLvlReq || me.trueStr < unit.upgradedStrReq || me.trueDex < unit.upgradedDexReq) {
+      if (me.charlvl < unit.upgradedLvlReq
+        || me.trueStr < unit.upgradedStrReq
+        || me.trueDex < unit.upgradedDexReq) {
         return false;
       }
     }
@@ -709,11 +747,12 @@ Cubing.validItem = function (unit, recipe) {
         if (valid) {
           // check to see if we are using this already and if so compare base stats to see if this one would be better
           // ignore things that get re-rolled like defense or min/max dmg just focus on base stats like enhanced defense/damage
-          let equipped = me.getItemsEx(-1, sdk.storage.Equipped).find(item => item.fname.toLowerCase().includes(recipe.Name.toLowerCase()));
+          let equipped = me.getItemsEx(-1, sdk.storage.Equipped)
+            .find(item => item.fname.toLowerCase().includes(recipe.Name.toLowerCase()));
           if (equipped) {
             switch (recipe.Name.toLowerCase()) {
             case "magefist":
-            // compare enhanced defense - keep "equal to" because base defense gets re-rolled so it might turn out better
+              // compare enhanced defense - keep "equal to" because base defense gets re-rolled so it might turn out better
               valid = (unit.getStat(sdk.stats.ArmorPercent) >= equipped.getStat(sdk.stats.ArmorPercent));
               break;
             }
@@ -735,7 +774,9 @@ Cubing.validItem = function (unit, recipe) {
   } else if (recipe.Index >= Recipe.Rare.Weapon.ToExceptional && recipe.Index <= Recipe.Rare.Armor.ToElite) {
     // If item is equipped, ensure we can use the upgraded version
     if (unit.isEquipped) {
-      if (me.charlvl < unit.upgradedLvlReq || me.trueStr < unit.upgradedStrReq || me.trueDex < unit.upgradedDexReq) {
+      if (me.charlvl < unit.upgradedLvlReq
+        || me.trueStr < unit.upgradedStrReq
+        || me.trueDex < unit.upgradedDexReq) {
         return false;
       }
     }
@@ -757,7 +798,11 @@ Cubing.validItem = function (unit, recipe) {
     // Normal item matching pickit entry, no sockets
     if (unit.normal && unit.sockets === 0) {
       if (Pickit.Result.WANTED === ntipResult
-        && [sdk.items.type.Wand, sdk.items.type.VoodooHeads, sdk.items.type.AuricShields, sdk.items.type.PrimalHelm, sdk.items.type.Pelt].includes(unit.itemType)) {
+        && [
+          sdk.items.type.Wand, sdk.items.type.VoodooHeads,
+          sdk.items.type.AuricShields, sdk.items.type.PrimalHelm,
+          sdk.items.type.Pelt
+        ].includes(unit.itemType)) {
         if (!Item.betterThanStashed(unit) || !Item.betterBaseThanWearing(unit)) return false;
       }
       switch (recipe.Ethereal) {
@@ -782,7 +827,9 @@ Cubing.validItem = function (unit, recipe) {
 
     return false;
   } else if (recipe.Index === Recipe.Reroll.Charm) {
-    if (unit.isCharm && unit.magic && (ntipResult === Pickit.Result.UNWANTED || (!CharmEquip.check(unit) && ntipNoTierResult === Pickit.Result.UNWANTED))) {
+    if (unit.isCharm && unit.magic
+      && (ntipResult === Pickit.Result.UNWANTED
+      || (!CharmEquip.check(unit) && ntipNoTierResult === Pickit.Result.UNWANTED))) {
       switch (unit.itemType) {
       case sdk.items.type.SmallCharm:
         if (unit.ilvl >= recipe.Level[unit.code].ilvl) {

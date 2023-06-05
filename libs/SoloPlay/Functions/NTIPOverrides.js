@@ -18,23 +18,40 @@ includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
 NTIPAliasStat["addfireskills"] = [sdk.stats.ElemSkill, 1];
 NTIPAliasStat["plusskillwhirlwind"] = [sdk.stats.NonClassSkill, sdk.skills.Whirlwind];
 NTIP.MAX_TIER = 100000;
-// think this might be ugly but want to work on seperating soloplay from the base so pickits don't interfere
-NTIP.RuntimeCheckList = [];
-NTIP.RuntimeStringArray = [];
-NTIP.SoloCheckList = [];
-NTIP.SoloCheckListNoTier = [];
-NTIP.SoloStringArray = [];
-NTIP.FinalGear = {
-  list: [],
-  strArray: [],
+
+/** @constructor */
+function NTIPList () {
+  /** @type {Array<Array<function>>} */
+  this.list = [];
+  /** @type {Array<{ line: string, file: string, string: string }>} */
+  this.strArray = [];
+}
+
+NTIPList.prototype.add = function (parsedLine, info) {
+  this.list.push(parsedLine);
+  this.strArray.push(info);
 };
 
-/**
- * @param {string} tierType 
- * @returns {(item: ItemUnit) => number}
- */
+NTIPList.prototype.remove = function (index) {
+  this.list.splice(index, 1);
+  this.strArray.splice(index, 1);
+};
+
+NTIPList.prototype.clear = function () {
+  this.list = [];
+  this.strArray = [];
+};
+// think this might be ugly but want to work on seperating soloplay from the base so pickits don't interfere
+NTIP.SoloList = new NTIPList();
+NTIP.Runtime = new NTIPList();
+NTIP.FinalGear = new NTIPList();
+NTIP.NoTier = new NTIPList();
+// handle regular pickits
+NTIP.CheckList = new NTIPList();
+// NTIP.CheckListNoTier = new NTIPList(); // all items in a normal pickit are treated as no tier
+
 NTIP.generateTierFunc = function (tierType) {
-  return function (item) {
+  return /** @param {ItemUnit} item */ function (item) {
     let tier = -1;
 
     const updateTier = (wanted) => {
@@ -46,12 +63,12 @@ NTIP.generateTierFunc = function (tierType) {
     };
 
     // Go through ALL lines that describe the item
-    for (let i = 0; i < NTIP.SoloCheckList.length; i += 1) {
-      if (NTIP.SoloCheckList[i].length !== 3) {
+    for (let i = 0; i < NTIP.SoloList.list.length; i++) {
+      if (NTIP.SoloList.list[i].length !== 3) {
         continue;
       }
 
-      const [type, stat, wanted] = NTIP.SoloCheckList[i];
+      const [type, stat, wanted] = NTIP.SoloList.list[i];
 
       // If the line doesnt have a tier of this type, we dont need to call it
       if (typeof wanted === "object" && wanted && typeof wanted[tierType] === "function") {
@@ -72,8 +89,13 @@ NTIP.generateTierFunc = function (tierType) {
             }
           }
         } catch (e) {
-          const info = NTIP.SoloStringArray[i];
-          Misc.errorReport("ÿc1Pickit Tier (" + tierType + ") error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message + " Trigger item: " + item.fname.split("\n").reverse().join(" "));
+          const info = NTIP.SoloList.strArray[i];
+          Misc.errorReport(
+            "ÿc1Pickit Tier (" + tierType + ") error! Line # ÿc2"
+            + info.line + " ÿc1Entry: ÿc0" + info.string
+            + " (" + info.file + ") Error message: " + e.message
+            + " Trigger item: " + item.fname.split("\n").reverse().join(" ")
+          );
         }
       }
     }
@@ -85,49 +107,43 @@ NTIP.generateTierFunc = function (tierType) {
 /**
  * @function
  * @param {ItemUnit} item
- * @returns {number}
  */
 NTIP.GetTier = NTIP.generateTierFunc("Tier");
 
 /**
  * @function
  * @param {ItemUnit} item
- * @returns {number}
  */
 NTIP.GetMercTier = NTIP.generateTierFunc("Merctier");
 
 /**
  * @function
  * @param {ItemUnit} item
- * @returns {number}
  */
 NTIP.GetCharmTier = NTIP.generateTierFunc("Charmtier");
 
 /**
  * @function
  * @param {ItemUnit} item
- * @returns {number}
  */
 NTIP.GetSecondaryTier = NTIP.generateTierFunc("Secondarytier");
 
-NTIP.addLine = function (itemString) {
+NTIP.addLine = function (itemString, filename = "Kolbot-SoloPlay") {
+  const tierdItem = itemString.toLowerCase().includes("tier");
   const info = {
-    line: NTIP.SoloCheckList.length + 1,
-    file: "Kolbot-SoloPlay",
+    line: tierdItem
+      ? NTIP.SoloList.list.length + 1
+      : NTIP.NoTier.list.length + 1,
+    file: filename,
     string: itemString
   };
 
   const line = NTIP.ParseLineInt(itemString, info);
 
   if (line) {
-    if (!itemString.toLowerCase().includes("tier")) {
-      NTIP.SoloCheckListNoTier.push(line);
-    } else {
-      NTIP.SoloCheckListNoTier.push([false, false]);
-    }
-
-    NTIP.SoloCheckList.push(line);
-    NTIP.SoloStringArray.push(info);
+    tierdItem
+      ? NTIP.SoloList.add(line, info)
+      : NTIP.NoTier.add(line, info);
   }
 
   return true;
@@ -159,8 +175,7 @@ NTIP.buildFinalGear = function (arr) {
         continue;
       }
 
-      NTIP.FinalGear.list.push(line);
-      NTIP.FinalGear.strArray.push(info);
+      NTIP.FinalGear.add(line, info);
     }
   }
 
@@ -171,7 +186,7 @@ NTIP.buildFinalGear = function (arr) {
 // so things can be deleted without affecting the entire list
 NTIP.addToRuntime = function (itemString) {
   const info = {
-    line: NTIP.RuntimeCheckList.length + 1,
+    line: NTIP.Runtime.list.length + 1,
     file: "Kolbot-SoloPlay-Runtime",
     string: itemString
   };
@@ -179,23 +194,18 @@ NTIP.addToRuntime = function (itemString) {
   const line = NTIP.ParseLineInt(itemString, info);
 
   if (line) {
-    NTIP.RuntimeCheckList.push(line);
-    NTIP.RuntimeStringArray.push(info);
+    NTIP.Runtime.add(line, info);
   }
 
   return true;
 };
 
-NTIP.resetRuntimeList = () => {
-  NTIP.RuntimeCheckList.length = 0;
-  NTIP.RuntimeStringArray.length = 0;
-};
-
 NTIP.buildList = function (...arraystoloop) {
+  const filename = (new Error()).stack.match(/[^\r\n]+/g).at(1).split("\\").last() || "";
   for (let arr of arraystoloop) {
     if (Array.isArray(arr)) {
-      for (let i = 0; i < arr.length; i++) {
-        NTIP.addLine(arr[i]);
+      for (let str of arr) {
+        NTIP.addLine(str, filename);
       }
     }
   }
@@ -203,31 +213,36 @@ NTIP.buildList = function (...arraystoloop) {
   return true;
 };
 
-NTIP.hasStats = function (item, entryList = [], verbose = false) {
-  let hasStat = false, line = "", stats;
-  const list = entryList.length ? entryList : NTIP.SoloCheckList;
-  const stringArr = entryList.length ? stringArray : NTIP.SoloStringArray;
+/**
+ * @param {ItemUnit} item 
+ * @param {NTIPList} entryList 
+ * @param {boolean} verbose 
+ */
+NTIP.hasStats = function (item, entryList, verbose = false) {
+  let stats;
+  let hasStat = false;
+  let line = "";
+  const list = entryList && entryList.hasOwnProperty("list") && entryList.list.length
+    ? entryList.list
+    : NTIP.SoloList.list;
+  const stringArr = entryList && entryList.hasOwnProperty("strArray") && entryList.strArray.length
+    ? entryList.strArray
+    : NTIP.SoloList.strArray;
 
   for (let i = 0; i < list.length; i++) {
     try {
-      // eslint-disable-next-line no-unused-vars
-      let [type, stat, wanted] = list[i];
+      let [type, stat] = list[i];
 
-      if (typeof type === "function") {
-        if (type(item)) {
-          if (typeof stat === "function") {
-            if (stat(item)) {
-              hasStat = true;
-              stats = stat;
-              line = stringArr[i].file + " #" + stringArr[i].line + " " + stringArr[i].string;
+      if (typeof type !== "function" || typeof stat !== "function") {
+        continue;
+      }
+      if (type(item)) {
+        if (stat(item)) {
+          hasStat = true;
+          stats = stat;
+          line = stringArr[i].file + " #" + stringArr[i].line + " " + stringArr[i].string;
 
-              break;
-            }
-          } else {
-            hasStat = false;
-
-            break;
-          }
+          break;
         }
       }
     } catch (e) {
@@ -247,12 +262,18 @@ NTIP.hasStats = function (item, entryList = [], verbose = false) {
 };
 
 // this method for charms needs work
-NTIP.getInvoQuantity = function (item, entryList = []) {
-  const list = entryList.length ? entryList : NTIP.SoloCheckList;
+/**
+ * @param {ItemUnit} item 
+ * @param {NTIPList} entryList 
+ */
+NTIP.getInvoQuantity = function (item, entryList) {
+  const list = entryList && entryList.hasOwnProperty("list") && entryList.list.length
+    ? entryList.list
+    : NTIP.SoloList.list;
 
-  for (let i = 0; i < list.length; i++) {
+  for (let el of list) {
     try {
-      const [type, stat, wanted] = list[i];
+      const [type, stat, wanted] = el;
 
       if (typeof type === "function") {
         if (type(item)) {
@@ -283,12 +304,18 @@ NTIP.getInvoQuantity = function (item, entryList = []) {
   return -1;
 };
 
-NTIP.getMaxQuantity = function (item, entryList = []) {
-  const list = entryList.length ? entryList : NTIP.SoloCheckList;
+/**
+ * @param {ItemUnit} item 
+ * @param {NTIPList} entryList 
+ */
+NTIP.getMaxQuantity = function (item, entryList) {
+  const list = entryList && entryList.hasOwnProperty("list") && entryList.list.length
+    ? entryList.list
+    : NTIP.SoloList.list;
 
-  for (let i = 0; i < list.length; i++) {
+  for (let el of list) {
     try {
-      let [type, stat, wanted] = list[i];
+      let [type, stat, wanted] = el;
 
       if (typeof type === "function") {
         if (type(item)) {
@@ -319,18 +346,22 @@ NTIP.getMaxQuantity = function (item, entryList = []) {
   return -1;
 };
 
+/**
+ * @param {ItemUnit} item 
+ * @param {NTIPList} entryList 
+ * @param {boolean} verbose 
+ */
 NTIP.CheckItem = function (item, entryList, verbose = false) {
   let rval = {};
   let result = 0;
   const identified = item.getFlag(sdk.items.flags.Identified);
 
   /**
-   * 
    * @param {any[]} list 
    * @param {string[]} stringArr 
    * @returns 
    */
-  const iterateList = (list, stringArr) => {
+  const iterateList = function (list, stringArr) {
     let i, num;
 
     for (i = 0; i < list.length; i++) {
@@ -351,7 +382,9 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
                     break;
                   } else {
                     // attempt at inv fix for maxquantity
-                    if (item.getParent() && item.getParent().name === me.name && item.mode === sdk.items.mode.inStorage && num === wanted.MaxQuantity) {
+                    if (item.getParent() && item.getParent().name === me.name
+                      && item.mode === sdk.items.mode.inStorage
+                      && num === wanted.MaxQuantity) {
                       result = 1;
 
                       break;
@@ -379,7 +412,9 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
                   break;
                 } else {
                   // attempt at inv fix for maxquantity
-                  if (item.getParent() && item.getParent().name === me.name && item.mode === sdk.items.mode.inStorage && num === wanted.MaxQuantity) {
+                  if (item.getParent() && item.getParent().name === me.name
+                    && item.mode === sdk.items.mode.inStorage
+                    && num === wanted.MaxQuantity) {
                     result = 1;
 
                     break;
@@ -403,7 +438,9 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
                 break;
               } else {
                 // attempt at inv fix for maxquantity
-                if (item.getParent() && item.getParent().name === me.name && item.mode === sdk.items.mode.inStorage && num === wanted.MaxQuantity) {
+                if (item.getParent() && item.getParent().name === me.name
+                  && item.mode === sdk.items.mode.inStorage
+                  && num === wanted.MaxQuantity) {
                   result = 1;
 
                   break;
@@ -426,9 +463,14 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
         showConsole();
 
         if (!entryList) {
-          Misc.errorReport("ÿc1Pickit error! Line # ÿc2" + stringArr[i].line + " ÿc1Entry: ÿc0" + stringArr[i].string + " (" + stringArr[i].file + ") Error message: " + pickError.message + " Trigger item: " + item.fname.split("\n").reverse().join(" "));
-
+          Misc.errorReport(
+            "ÿc1Pickit error! Line # ÿc2" + stringArr[i].line
+            + " ÿc1Entry: ÿc0" + stringArr[i].string + " (" + stringArr[i].file
+            + ") Error message: " + pickError.message
+            + " Trigger item: " + item.fname.split("\n").reverse().join(" ")
+          );
           list.splice(i, 1); // Remove the element from the list
+          stringArr.splice(i, 1); // Remove the element from the list
         } else {
           Misc.errorReport("ÿc1Pickit error in runeword config!");
         }
@@ -438,15 +480,17 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
     }
 
     if (verbose) {
-      rval.result = result;
-      rval.line = (() => {
-        if (stringArr[i] === undefined) return null;
-        return result === 1 ? stringArr[i].file + " #" + stringArr[i].line : null;
-      })();
-
       if (!identified && result === 1) {
-        rval.result = -1;
+        result = -1;
       }
+
+      rval.result = result;
+      rval.line = (function () {
+        if (stringArr[i] === undefined) return null;
+        return result === 1
+          ? stringArr[i].file + " #" + stringArr[i].line + " [" + stringArr[i].string + "]"
+          : null;
+      })();
 
       return rval;
     }
@@ -454,16 +498,20 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
     return result;
   };
 
-  const listOfLists = [
-    [NTIP.SoloCheckList, NTIP.SoloStringArray],
-    [NTIP_CheckList, stringArray],
-    [NTIP.RuntimeCheckList, NTIP.RuntimeStringArray]
-  ];
-  if (Array.isArray(entryList)) return iterateList(entryList, stringArray);
+  if (entryList && entryList.hasOwnProperty("list") && Array.isArray(entryList.list)) {
+    return iterateList(entryList.list, entryList.strArray);
+  }
 
-  for (let i = 0; i < listOfLists.length; i++) {
-    iterateList(listOfLists[i][0], listOfLists[i][1]);
-    if ((verbose && rval.result !== 0) || (!verbose && result !== 0)) {
+  const listOfLists = [
+    NTIP.SoloList,
+    NTIP.NoTier,
+    NTIP.Runtime,
+    NTIP.CheckList,
+  ];
+
+  for (let obj of listOfLists) {
+    iterateList(obj.list, obj.strArray);
+    if (verbose ? rval.result !== 0 : result !== 0) {
       break;
     }
   }
@@ -494,40 +542,39 @@ NTIP.OpenFile = function (filepath, notify) {
   let lines = nipfile.readAllLines();
   nipfile.close();
 
-  for (let i = 0; i < lines.length; i += 1) {
+  /**
+   * @note removed tierd check for normal pick files as soloplay handles that
+   */
+  for (let entry of lines) {
     const info = {
-      line: i + 1,
+      line: NTIP.CheckList.list.length + 1,
       file: filename,
-      string: lines[i]
+      string: entry
     };
 
-    let line = NTIP.ParseLineInt(lines[i], info);
+    let line = NTIP.ParseLineInt(entry, info);
 
     if (line) {
-      entries += 1;
-      NTIP_CheckList.push(line);
-
-      if (!lines[i].toLowerCase().match("tier")) {
-        NTIP_CheckListNoTier.push(line);
-      } else {
-        NTIP_CheckListNoTier.push([false, false]);
-      }
-
-      stringArray.push(info);
+      NTIP.CheckList.add(line, info);
+      entries++;
     }
   }
 
   if (notify) {
-    console.log("ÿc4Loaded NIP: ÿc2" + filename + "ÿc4. Lines: ÿc2" + lines.length + "ÿc4. Valid entries: ÿc2" + entries + ". ÿc4Time: ÿc2" + (getTickCount() - tick) + " ms");
+    console.log(
+      "ÿc4Loaded NIP: ÿc2" + filename + "ÿc4. Lines: ÿc2" + lines.length
+      + "ÿc4. Valid entries: ÿc2" + entries
+      + ". ÿc4Time: ÿc2" + (getTickCount() - tick) + " ms"
+    );
   }
 
   return true;
 };
 
 NTIP.ParseLineInt = function (input, info) {
-  let i, property, p_start, p_end, p_section, p_keyword, p_result, value;
+  let i, property, p_start, p_section, p_keyword, value;
 
-  p_end = input.indexOf("//");
+  let p_end = input.indexOf("//");
 
   if (p_end !== -1) {
     input = input.substring(0, p_end);
@@ -539,7 +586,31 @@ NTIP.ParseLineInt = function (input, info) {
     return null;
   }
 
-  p_result = input.split("#");
+  const _props = new Map([
+    ["wsm", 'getBaseStat("items", item.classid, "speed")'],
+    ["weaponspeed", 'getBaseStat("items", item.classid, "speed")'],
+    ["minimumsockets", 'getBaseStat("items", item.classid, "gemsockets")'],
+    ["strreq", "item.strreq"],
+    ["dexreq", "item.dexreq"],
+    ["2handed", 'getBaseStat("items", item.classid, "2handed")'],
+    ["color", "item.getColor()"],
+    ["type", "item.itemType"],
+    ["name", "item.classid"],
+    ["classid", "item.classid"],
+    ["class", "item.itemclass"],
+    ["quality", "item.quality"],
+    ["level", "item.ilvl"],
+    ["europe", '("' + me.realm.toLowerCase() + '"===" europe")'],
+    ["uswest", '("' + me.realm.toLowerCase() + '"===" uswest")'],
+    ["useast", '("' + me.realm.toLowerCase() + '"===" useast")'],
+    ["asia", '("' + me.realm.toLowerCase() + '"===" asia")'],
+    ["ladder", "me.ladder"],
+    ["hardcore", "(!!me.playertype)"],
+    ["classic", "(!me.gametype)"],
+    ["distance", "(item.onGroundOrDropping && item.distance || Infinity)"],
+  ]);
+
+  let p_result = input.split("#");
 
   if (p_result[0] && p_result[0].length > 4) {
     p_section = p_result[0].split("[");
@@ -551,47 +622,6 @@ NTIP.ParseLineInt = function (input, info) {
       property = p_section[i].substring(0, p_end - 1);
 
       switch (property) {
-      case "wsm":
-      case "weaponspeed":
-        p_result[0] += 'getBaseStat("items", item.classid, "speed")';
-
-        break;
-      case "minimumsockets":
-        p_result[0] += 'getBaseStat("items", item.classid, "gemsockets")';
-
-        break;
-      case "strreq":
-        p_result[0] += "item.strreq";
-
-        break;
-      case "dexreq":
-        p_result[0] += "item.dexreq";
-
-        break;
-      case "2handed":
-        p_result[0] += 'getBaseStat("items", item.classid, "2handed")';
-
-        break;
-      case "color":
-        p_result[0] += "item.getColor()";
-
-        break;
-      case "type":
-        p_result[0] += "item.itemType";
-
-        break;
-      case "name":
-        p_result[0] += "item.classid";
-
-        break;
-      case "class":
-        p_result[0] += "item.itemclass";
-
-        break;
-      case "quality":
-        p_result[0] += "item.quality";
-
-        break;
       case "flag":
         if (p_section[i][p_end] === "!") {
           p_result[0] += "!item.getFlag(";
@@ -600,10 +630,6 @@ NTIP.ParseLineInt = function (input, info) {
         }
 
         p_end += 2;
-
-        break;
-      case "level":
-        p_result[0] += "item.ilvl";
 
         break;
       case "prefix":
@@ -626,33 +652,13 @@ NTIP.ParseLineInt = function (input, info) {
         p_end += 2;
 
         break;
-      case "europe":
-      case "uswest":
-      case "useast":
-      case "asia":
-        p_result[0] += '("' + me.realm.toLowerCase() + '"==="' + property.toLowerCase() + '")';
-
-        break;
-      case "ladder":
-        p_result[0] += "me.ladder";
-
-        break;
-      case "hardcore":
-        p_result[0] += "(!!me.playertype)";
-
-        break;
-      case "classic":
-        p_result[0] += "(!me.gametype)";
-
-        break;
-      case "distance":
-        p_result[0] += "(item.onGroundOrDropping && item.distance || Infinity)";
-
-        break;
       default:
-        Misc.errorReport("Unknown property: " + property + " File: " + info.file + " Line: " + info.line);
-
-        return false;
+        if (!_props.has(property)) {
+          Misc.errorReport("Unknown property: " + property + " File: " + info.file + " Line: " + info.line);
+          
+          return false;
+        }
+        p_result[0] += _props.get(property);
       }
 
       for (p_start = p_end; p_end < p_section[i].length; p_end += 1) {
@@ -678,72 +684,66 @@ NTIP.ParseLineInt = function (input, info) {
       p_keyword = p_section[i].substring(p_start, p_end);
 
       if (isNaN(p_keyword)) {
-        switch (property) {
-        case "color":
-          if (NTIPAliasColor[p_keyword] === undefined) {
-            Misc.errorReport("Unknown color: " + p_keyword + " File: " + info.file + " Line: " + info.line);
+        try {
+          switch (property) {
+          case "color":
+            if (NTIPAliasColor[p_keyword] === undefined) {
+              throw new Error("Unknown color: " + p_keyword + " File: " + info.file + " Line: " + info.line);
+            }
 
-            return false;
+            p_result[0] += NTIPAliasColor[p_keyword];
+
+            break;
+          case "type":
+            if (NTIPAliasType[p_keyword] === undefined) {
+              throw new Error("Unknown type: " + p_keyword + " File: " + info.file + " Line: " + info.line);
+            }
+
+            p_result[0] += NTIPAliasType[p_keyword];
+
+            break;
+          case "name":
+            if (NTIPAliasClassID[p_keyword] === undefined) {
+              throw new Error("Unknown name: " + p_keyword + " File: " + info.file + " Line: " + info.line);
+            }
+
+            p_result[0] += NTIPAliasClassID[p_keyword];
+
+            break;
+          case "class":
+            if (NTIPAliasClass[p_keyword] === undefined) {
+              throw new Error("Unknown class: " + p_keyword + " File: " + info.file + " Line: " + info.line);
+            }
+
+            p_result[0] += NTIPAliasClass[p_keyword];
+
+            break;
+          case "quality":
+            if (NTIPAliasQuality[p_keyword] === undefined) {
+              throw new Error("Unknown quality: " + p_keyword + " File: " + info.file + " Line: " + info.line);
+            }
+
+            p_result[0] += NTIPAliasQuality[p_keyword];
+
+            break;
+          case "flag":
+            if (NTIPAliasFlag[p_keyword] === undefined) {
+              throw new Error("Unknown flag: " + p_keyword + " File: " + info.file + " Line: " + info.line);
+            }
+
+            p_result[0] += NTIPAliasFlag[p_keyword] + ")";
+
+            break;
+          case "prefix":
+          case "suffix":
+            p_result[0] += "\"" + p_keyword + "\")";
+
+            break;
           }
+        } catch (e) {
+          Misc.errorReport(e);
 
-          p_result[0] += NTIPAliasColor[p_keyword];
-
-          break;
-        case "type":
-          if (NTIPAliasType[p_keyword] === undefined) {
-            Misc.errorReport("Unknown type: " + p_keyword + " File: " + info.file + " Line: " + info.line);
-
-            return false;
-          }
-
-          p_result[0] += NTIPAliasType[p_keyword];
-
-          break;
-        case "name":
-          if (NTIPAliasClassID[p_keyword] === undefined) {
-            Misc.errorReport("Unknown name: " + p_keyword + " File: " + info.file + " Line: " + info.line);
-
-            return false;
-          }
-
-          p_result[0] += NTIPAliasClassID[p_keyword];
-
-          break;
-        case "class":
-          if (NTIPAliasClass[p_keyword] === undefined) {
-            Misc.errorReport("Unknown class: " + p_keyword + " File: " + info.file + " Line: " + info.line);
-
-            return false;
-          }
-
-          p_result[0] += NTIPAliasClass[p_keyword];
-
-          break;
-        case "quality":
-          if (NTIPAliasQuality[p_keyword] === undefined) {
-            Misc.errorReport("Unknown quality: " + p_keyword + " File: " + info.file + " Line: " + info.line);
-
-            return false;
-          }
-
-          p_result[0] += NTIPAliasQuality[p_keyword];
-
-          break;
-        case "flag":
-          if (NTIPAliasFlag[p_keyword] === undefined) {
-            Misc.errorReport("Unknown flag: " + p_keyword + " File: " + info.file + " Line: " + info.line);
-
-            return false;
-          }
-
-          p_result[0] += NTIPAliasFlag[p_keyword] + ")";
-
-          break;
-        case "prefix":
-        case "suffix":
-          p_result[0] += "\"" + p_keyword + "\")";
-
-          break;
+          return false;
         }
       } else {
         if (property === "flag" || property === "prefix" || property === "suffix") {

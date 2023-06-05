@@ -355,7 +355,7 @@
     // const eqItem = me.equipped.get(bodyloc);
     const eqItem = me.getEquippedItem(bodyloc);
 
-    const generalScore = () => {
+    const generalScore = function () {
       let generalRating = 0;
 
       // get item cbf stat from olditem equipped on body location
@@ -391,7 +391,7 @@
       ].reduce((acc, stat) => acc + item.getStatEx(stat) * _tierWeights.gen.get(stat), generalRating);
     };
 
-    const resistScore = () => {
+    const resistScore = function () {
       let resistRating = 0;
       
       // get new item stats
@@ -449,7 +449,7 @@
       ].reduce((acc, stat) => acc + item.getStatEx(stat) * _tierWeights.res.get(stat), resistRating));
     };
 
-    const buildScore = () => {
+    const buildScore = function () {
       // dirty fix maybe?
       if (me.barbarian && SetUp.currentBuild !== "Immortalwhirl" && item.strictlyTwoHanded) {
         return 0;
@@ -480,7 +480,7 @@
       return 0;
     };
 
-    const skillsScore = () => {
+    const skillsScore = function () {
       let skillsRating = [
         [sdk.stats.AllSkills, -1], [sdk.stats.AddClassSkills, me.classid], [sdk.stats.AddSkillTab, buildInfo.tabSkills],
       ].reduce((acc, [stat, subId]) => acc + item.getStatEx(stat, subId) * _tierWeights.skill.get(stat), 0);
@@ -504,7 +504,7 @@
       return skillsRating;
     };
 
-    const ctcScore = () => {
+    const ctcScore = function () {
       // chance to cast doesn't exist in classic
       if (me.classic) return 0;
 
@@ -564,7 +564,7 @@
     tier += ctcScore();
     tier += chargeditemscore(item, -1, buildInfo);
 
-    if (tier > 1 && tier < NTIP.MAX_TIER && NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
+    if (tier > 1 && tier < NTIP.MAX_TIER && NTIP.CheckItem(item, NTIP.FinalGear) === Pickit.Result.WANTED) {
       // console.debug(item.prettyPrint + "~~~" + tier);
       tier += NTIP.MAX_TIER;
     }

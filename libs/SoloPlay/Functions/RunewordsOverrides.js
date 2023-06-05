@@ -5,13 +5,55 @@
 *
 */
 
-!includeIfNotIncluded("core/Runewords.js");
+includeIfNotIncluded("core/Runewords.js");
+includeIfNotIncluded("SoloPlay/Functions/NTIPOverrides.js");
 
 Runeword.PDiamondShield = Runeword.addRuneword(
   "PDiamondShield", 3,
   [sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Diamond],
   [sdk.items.type.AnyShield]
 );
+
+Runewords.pickitEntries = new NTIPList();
+
+Runewords.init = function () {
+  if (!Config.MakeRunewords) return;
+
+  Runewords.pickitEntries.clear();
+
+  // initiate pickit entries
+  for (let entry of Config.KeepRunewords) {
+    let info = {
+      file: "Character Config",
+      line: entry
+    };
+
+    let parsedLine = NTIP.ParseLineInt(entry, info);
+    if (parsedLine) {
+      Runewords.pickitEntries.add(parsedLine, info);
+    }
+  }
+
+  // change text to classid
+  for (let i = 0; i < Config.Runewords.length; i += 1) {
+    const [runeword, base] = Config.Runewords[i];
+
+    if (!runeword.ladderRestricted()) {
+      if (isNaN(base)) {
+        if (NTIPAliasClassID.hasOwnProperty(base.replace(/\s+/g, "").toLowerCase())) {
+          Config.Runewords[i][1] = NTIPAliasClassID[base.replace(/\s+/g, "").toLowerCase()];
+        } else {
+          Misc.errorReport("ÿc1Invalid runewords entry:ÿc0 " + base);
+          Config.Runewords.splice(i, 1);
+
+          i -= 1;
+        }
+      }
+    }
+  }
+
+  this.buildLists();
+};
 
 Runewords.checkRunewords = function () {
   // keep a const reference of our items so failed checks don't remove items from the list
@@ -78,7 +120,8 @@ Runewords.getBase = function (runeword, base, ethFlag, reroll) {
          */
 
         if ((!reroll && !item.getItem() && Item.betterBaseThanWearing(item, Developer.debugging.baseCheck))
-          || (reroll && item.getItem() && !NTIP.CheckItem(item, this.pickitEntries) && !Item.autoEquipCheckMerc(item, true) && !Item.autoEquipCheck(item, true))) {
+          || (reroll && item.getItem() && !NTIP.CheckItem(item, this.pickitEntries)
+          && !Item.autoEquipCheckMerc(item, true) && !Item.autoEquipCheck(item, true))) {
           if (!ethFlag || (ethFlag === Roll.Eth && item.ethereal) || (ethFlag === Roll.NonEth && !item.ethereal)) {
             return copyUnit(item);
           }

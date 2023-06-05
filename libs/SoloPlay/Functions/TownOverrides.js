@@ -16,10 +16,11 @@ includeIfNotIncluded("core/Town.js");
 
 new Overrides.Override(Town, Town.drinkPots, function (orignal, type) {
   const objDrank = orignal(type, false);
-  const pots = {};
-  pots[sdk.items.StaminaPotion] = "stamina";
-  pots[sdk.items.AntidotePotion] = "antidote";
-  pots[sdk.items.ThawingPotion] = "thawing";
+  const pots = new Map([
+    [sdk.items.StaminaPotion, "stamina"],
+    [sdk.items.AntidotePotion, "antidote"],
+    [sdk.items.ThawingPotion, "thawing"]
+  ]);
   
   try {
     if (objDrank.potName) {
@@ -28,14 +29,18 @@ new Overrides.Override(Town, Town.drinkPots, function (orignal, type) {
       if (objID) {
         // non-english version
         if (!CharData.pots.has(objID)) {
-          typeof type === "number" ? (objID = pots[objID]) : (objID = type.toLowerCase());
+          typeof type === "number"
+            ? (objID = pots.get(objID))
+            : (objID = type.toLowerCase());
         }
 
         if (!CharData.pots.get(objID).active() || CharData.pots.get(objID).timeLeft() <= 0) {
           CharData.pots.get(objID).tick = getTickCount();
           CharData.pots.get(objID).duration = objDrank.quantity * 30 * 1000;
         } else {
-          CharData.pots.get(objID).duration += (objDrank.quantity * 30 * 1000) - (getTickCount() - CharData.pots.get(objID).tick);
+          CharData.pots.get(objID).duration += (
+            objDrank.quantity * 30 * 1000) - (getTickCount() - CharData.pots.get(objID).tick
+          );
         }
 
         console.log("ÿc9DrinkPotsÿc0 :: drank " + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Time.format(CharData.pots.get(objID).duration) + "]");
@@ -80,7 +85,12 @@ Town.ignoredItemTypes = [
  * @returns {boolean}
  */
 Town.systemsKeep = function (item) {
-  return (AutoEquip.wanted(item) || Cubing.keepItem(item) || Runewords.keepItem(item) || CraftingSystem.keepItem(item) || SoloWants.keepItem(item));
+  return (AutoEquip.wanted(item)
+    || Cubing.keepItem(item)
+    || Runewords.keepItem(item)
+    || CraftingSystem.keepItem(item)
+    || SoloWants.keepItem(item)
+  );
 };
 
 /**
@@ -89,7 +99,8 @@ Town.systemsKeep = function (item) {
  */
 Town.needForceID = function (item) {
   const result = Pickit.checkItem(item);
-  return ([Pickit.Result.WANTED, Pickit.Result.CUBING].includes(result.result) && !item.identified && AutoEquip.hasTier(item));
+  return ([Pickit.Result.WANTED, Pickit.Result.CUBING].includes(result.result)
+    && !item.identified && AutoEquip.hasTier(item));
 };
 
 Town.haveItemsToSell = function () {
@@ -98,7 +109,10 @@ Town.haveItemsToSell = function () {
     let i = Town.sell.shift();
     if (typeof i === "undefined") continue;
     let realItem = me.getItem(i.classid, -1, i.gid);
-    if (realItem && realItem.isInStorage && !Town.ignoreType(realItem.itemType) && realItem.sellable && !Town.systemsKeep(realItem)) {
+    if (realItem && realItem.isInStorage
+      && !Town.ignoreType(realItem.itemType)
+      && realItem.sellable
+      && !Town.systemsKeep(realItem)) {
       temp.push(realItem);
     }
   }
@@ -117,7 +131,6 @@ Town.sellItems = function (itemList = []) {
   if (this.initNPC("Shop", "sell")) {
     while (itemList.length) {
       let item = itemList.shift();
-      
       if (!item.isInStorage) continue;
 
       try {
@@ -231,12 +244,14 @@ Town.identify = function () {
   if (me.gold < 15000 && NPCAction.cainID(true)) return true;
   
   let list = (Storage.Inventory.Compare(Config.Inventory) || [])
-    .filter(item => !item.identified);
+    .filter(function (item) {
+      return !item.identified;
+    });
   if (!list.length) return false;
   
   // Avoid unnecessary NPC visits
   // Only unid items or sellable junk (low level) should trigger a NPC visit
-  if (!list.some(item => {
+  if (!list.some(function (item) {
     let identified = item.identified;
     if (!identified && AutoEquip.hasTier(item)) return true;
     return ([Pickit.Result.UNID, Pickit.Result.TRASH].includes(Pickit.checkItem(item).result));
@@ -246,7 +261,8 @@ Town.identify = function () {
 
   let tome = me.getTome(sdk.items.TomeofIdentify);
   // if we have a tome might as well use it - this might prevent us from having to run from one npc to another
-  if (tome && tome.getStat(sdk.stats.Quantity) > 0 && Town.getDistance(Town.tasks.get(me.act).Shop) > 5) {
+  if (tome && tome.getStat(sdk.stats.Quantity) > 0
+    && Town.getDistance(Town.tasks.get(me.act).Shop) > 5) {
     // not in the field but oh well no need to repeat the code
     if (me.fieldID() && !me.getUnids().length) {
       return true;
@@ -322,16 +338,13 @@ Town.needStash = function () {
     return true;
   }
 
-  let items = (Storage.Inventory.Compare(Config.Inventory) || [])
-    .filter(item => !Town.ignoreType(item.itemType) && (!item.isCharm || !CharmEquip.keptGids.has(item.gid)));
-
-  for (let i = 0; i < items.length; i += 1) {
-    if (Storage.Stash.CanFit(items[i])) {
-      return true;
-    }
-  }
-
-  return false;
+  return (Storage.Inventory.Compare(Config.Inventory) || [])
+    .filter(function (item) {
+      return !Town.ignoreType(item.itemType) && (!item.isCharm || !CharmEquip.keptGids.has(item.gid));
+    })
+    .some(function (item) {
+      return Storage.Stash.CanFit(item);
+    });
 };
 
 /**
@@ -358,8 +371,8 @@ Town.stash = function (stashGold = true) {
   if (items.length > 0) {
     Storage.Stash.SortItems();
 
-    items.forEach(item => {
-      if (this.canStash(item)) {
+    items.forEach(function (item) {
+      if (Town.canStash(item)) {
         const pickResult = Pickit.checkItem(item).result;
         switch (true) {
         case pickResult !== Pickit.Result.UNWANTED && pickResult !== Pickit.Result.TRASH:
@@ -385,7 +398,9 @@ Town.stash = function (stashGold = true) {
 
   // Stash gold
   if (stashGold) {
-    if (me.getStat(sdk.stats.Gold) >= Config.StashGold && me.getStat(sdk.stats.GoldBank) < 25e5 && this.openStash()) {
+    if (me.getStat(sdk.stats.Gold) >= Config.StashGold
+      && me.getStat(sdk.stats.GoldBank) < 25e5
+      && this.openStash()) {
       gold(me.getStat(sdk.stats.Gold), 3);
       delay(1000); // allow UI to initialize
       me.cancel();
@@ -425,10 +440,13 @@ Town.clearInventory = function () {
   console.debug("clearInventory: start clean-up remaining pots");
   let sellOrDrop = [];
   let potsInInventory = me.getItemsEx()
-    .filter((p) => p.isInInventory && [
-      sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion,
-      sdk.items.type.ThawingPotion, sdk.items.type.AntidotePotion, sdk.items.type.StaminaPotion
-    ].includes(p.itemType));
+    .filter(function (p) {
+      return p.isInInventory && [
+        sdk.items.type.HealingPotion, sdk.items.type.ManaPotion,
+        sdk.items.type.RejuvPotion, sdk.items.type.ThawingPotion,
+        sdk.items.type.AntidotePotion, sdk.items.type.StaminaPotion
+      ].includes(p.itemType);
+    });
 
   if (potsInInventory.length > 0) {
     let [hp, mp, rv, specials] = [[], [], [], []];
@@ -474,7 +492,10 @@ Town.clearInventory = function () {
   }
 
   if (Config.FieldID.Enabled && !me.getItem(sdk.items.TomeofIdentify)) {
-    let scrolls = me.getItemsEx().filter(i => i.isInInventory && i.classid === sdk.items.ScrollofIdentify);
+    let scrolls = me.getItemsEx()
+      .filter(function (i) {
+        return i.isInInventory && i.classid === sdk.items.ScrollofIdentify;
+      });
 
     while (scrolls.length > 2) {
       sellOrDrop.push(scrolls.shift());
@@ -483,7 +504,8 @@ Town.clearInventory = function () {
 
   // Any leftover items from a failed ID (crashed game, disconnect etc.)
   const ignoreTypes = [
-    sdk.items.type.Book, sdk.items.type.Key, sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion
+    sdk.items.type.Book, sdk.items.type.Key,
+    sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion
   ];
   let items = (Storage.Inventory.Compare(Config.Inventory) || [])
     .filter(function (item) {
@@ -495,18 +517,19 @@ Town.clearInventory = function () {
       return false;
     });
 
-  /**
-   * @type {ItemUnit[]}
-   */
+  /** @type {ItemUnit[]} */
   let sell = [];
 
   /**
    * @param {ItemUnit} item 
    * @returns {boolean}
    */
-  const classItemType = (item) => [
-    sdk.items.type.Wand, sdk.items.type.VoodooHeads, sdk.items.type.AuricShields, sdk.items.type.PrimalHelm, sdk.items.type.Pelt
-  ].includes(item.itemType);
+  const classItemType = function (item) {
+    return [
+      sdk.items.type.Wand, sdk.items.type.VoodooHeads,
+      sdk.items.type.AuricShields, sdk.items.type.PrimalHelm, sdk.items.type.Pelt
+    ].includes(item.itemType);
+  };
 
   items.length > 0 && items.forEach(function (item) {
     let result = Pickit.checkItem(item).result;
@@ -514,7 +537,7 @@ Town.clearInventory = function () {
     if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].indexOf(result) === -1) {
       if ((item.isBaseType && item.sockets > 0) || (classItemType(item) && item.normal && item.sockets === 0)) {
         if (!Item.betterThanStashed(item) && !Item.betterBaseThanWearing(item, Developer.debugging.baseCheck)) {
-          if (NTIP.CheckItem(item, NTIP_CheckListNoTier) === Pickit.Result.UNWANTED) {
+          if (NTIP.CheckItem(item, NTIP.CheckList) === Pickit.Result.UNWANTED) {
             result = Pickit.Result.TRASH;
           }
         }
@@ -525,19 +548,24 @@ Town.clearInventory = function () {
     [Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(result) && sell.push(item);
   });
 
-  sell = (sell.length > 0 ? sell.concat(sellOrDrop) : sellOrDrop.slice(0));
-  sell.length > 0 && this.initNPC("Shop", "clearInventory") && sell.forEach(function (item) {
-    try {
-      if (getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) {
-        console.log("clearInventory sell " + item.prettyPrint);
-        Item.logger("Sold", item);
-        item.sell();
-        delay(100);
+  sell = (sell.length > 0
+    ? sell.concat(sellOrDrop)
+    : sellOrDrop.slice(0)
+  );
+  if (sell.length > 0 && this.initNPC("Shop", "clearInventory")) {
+    sell.forEach(function (item) {
+      try {
+        if (getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) {
+          console.log("clearInventory sell " + item.prettyPrint);
+          Item.logger("Sold", item);
+          item.sell();
+          delay(100);
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
-  });
+    });
+  }
 
   Town.sell = [];
 
@@ -548,7 +576,9 @@ Town.clearInventory = function () {
 
 Town.clearJunk = function () {
   let junkItems = me.getItemsEx()
-    .filter(i => i.isInStorage && !Town.ignoreType(i.itemType) && i.sellable && !Town.systemsKeep(i));
+    .filter(function (i) {
+      return i.isInStorage && !Town.ignoreType(i.itemType) && i.sellable && !Town.systemsKeep(i);
+    });
   if (!junkItems.length) return false;
 
   console.log("ÿc8Start ÿc0:: ÿc8clearJunk");
@@ -564,11 +594,13 @@ Town.clearJunk = function () {
    * @param {ItemUnit} item 
    * @returns {boolean}
    */
-  const getToItem = (str = "", item = null) => {
+  const getToItem = function (str = "", item = null) {
     if (!getUIFlag(sdk.uiflags.Stash) && item.isInStash && !Town.openStash()) {
       throw new Error("ÿc9" + str + "ÿc0 :: Failed to get " + item.prettyPrint + " from stash");
     }
-    if (item.isInCube && !Cubing.emptyCube()) throw new Error("ÿc9" + str + "ÿc0 :: Failed to remove " + item.prettyPrint + " from cube");
+    if (item.isInCube && !Cubing.emptyCube()) {
+      throw new Error("ÿc9" + str + "ÿc0 :: Failed to remove " + item.prettyPrint + " from cube");
+    }
     return true;
   };
 
@@ -585,7 +617,8 @@ Town.clearJunk = function () {
       }
 
       if (pickitResult !== Pickit.Result.WANTED) {
-        if (!junk.identified && !Cubing.keepItem(junk) && !CraftingSystem.keepItem(junk) && junk.quality < sdk.items.quality.Set) {
+        if (!junk.identified && !Cubing.keepItem(junk)
+          && !CraftingSystem.keepItem(junk) && junk.quality < sdk.items.quality.Set) {
           console.log("ÿc9UnidJunkCheckÿc0 :: Junk: " + junk.prettyPrint + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
           getToItem("UnidJunkCheck", junk) && totalJunk.push(junk);
 
@@ -622,14 +655,16 @@ Town.clearJunk = function () {
 
   if (totalJunk.length > 0) {
     totalJunk
-      .sort((a, b) => b.getItemCost(sdk.items.cost.ToSell) - a.getItemCost(sdk.items.cost.ToSell))
-      .forEach(junk => {
+      .sort(function (a, b) {
+        return b.getItemCost(sdk.items.cost.ToSell) - a.getItemCost(sdk.items.cost.ToSell);
+      })
+      .forEach(function (item) {
         // extra check should ensure no pickit wanted items get sold/dropped
-        if (NTIP.CheckItem(junk, NTIP_CheckListNoTier) === Pickit.Result.WANTED) return;
-        if (junk.isInInventory || (Storage.Inventory.CanFit(junk) && Storage.Inventory.MoveTo(junk))) {
-          junkToSell.push(junk);
+        if (NTIP.CheckItem(item, NTIP.CheckList) === Pickit.Result.WANTED) return;
+        if (item.isInInventory || (Storage.Inventory.CanFit(item) && Storage.Inventory.MoveTo(item))) {
+          junkToSell.push(item);
         } else {
-          junkToDrop.push(junk);
+          junkToDrop.push(item);
         }
       });
     
@@ -638,24 +673,24 @@ Town.clearJunk = function () {
 
     if (getUIFlag(sdk.uiflags.Shop)
       || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
-      for (let i = 0; i < junkToSell.length; i++) {
-        console.log("ÿc9JunkCheckÿc0 :: Sell " + junkToSell[i].prettyPrint);
-        Item.logger("Sold", junkToSell[i]);
-        Developer.debugging.junkCheck && Item.logItem("JunkCheck Sold", junkToSell[i]);
+      for (let item of junkToSell) {
+        console.log("ÿc9JunkCheckÿc0 :: Sell " + item.prettyPrint);
+        Item.logger("Sold", item);
+        Developer.debugging.junkCheck && Item.logItem("JunkCheck Sold", item);
 
-        junkToSell[i].sell();
+        item.sell();
         delay(100);
       }
     }
 
     me.cancelUIFlags();
 
-    for (let i = 0; i < junkToDrop.length; i++) {
-      console.log("ÿc9JunkCheckÿc0 :: Drop " + junkToDrop[i].prettyPrint);
-      Item.logger("Sold", junkToDrop[i]);
-      Developer.debugging.junkCheck && Item.logItem("JunkCheck Sold", junkToDrop[i]);
+    for (let item of junkToDrop) {
+      console.log("ÿc9JunkCheckÿc0 :: Drop " + item.prettyPrint);
+      Item.logger("Sold", item);
+      Developer.debugging.junkCheck && Item.logItem("JunkCheck Sold", item);
 
-      junkToDrop[i].drop();
+      item.drop();
       delay(100);
     }
   }

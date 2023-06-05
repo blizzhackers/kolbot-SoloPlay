@@ -21,6 +21,14 @@ const CharmEquip = (function () {
    */
 
   /**
+   * @param {ItemUnit} a 
+   * @param {ItemUnit} b 
+   */
+  const sortCharms = function (a, b) {
+    return NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a);
+  };
+
+  /**
    * Iterate over charm checklist, pickit result 0 and 4 get sold
    * Otherwise if its not in the stash already and not a final charm try and stash it. I don't remember why I checked if it wasn't a final charm
    * @param {ItemUnit[]} checkList 
@@ -29,14 +37,20 @@ const CharmEquip = (function () {
   const spliceCharmCheckList = function (checkList = [], verbose = false) {
     for (let i = 0; i < checkList.length; i++) {
       const currCharm = checkList[i];
-      if (!currCharm || [Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(Pickit.checkItem(currCharm).result)) continue;
+      if (!currCharm) continue;
+      const pResult = NTIP.CheckItem(currCharm, NTIP.SoloList);
+      if (pResult === Pickit.Result.UNWANTED) {
+        continue;
+      }
       if (!currCharm.isInStash && !me.data.charmGids.includes(currCharm.gid)) {
         if (!Storage.Stash.MoveTo(currCharm)) {
           verbose && Item.logger("Dropped", currCharm);
           currCharm.drop();
         } else {
           if (verbose) {
-            Cubing.checkItem(currCharm) ? Item.logItem("Stashed Cubing Ingredient", currCharm) : Item.logItem("Stashed", currCharm);
+            Cubing.checkItem(currCharm)
+              ? Item.logItem("Stashed Cubing Ingredient", currCharm)
+              : Item.logItem("Stashed", currCharm);
           }
         }
       }
@@ -49,17 +63,21 @@ const CharmEquip = (function () {
   const spliceCharmKeepList = function (keep = [], sell = [], verbose = false) {
     if (!keep.length) return;
     const id = keep[0].classid;
-    const cInfo = (() => CharData.charms.get(id).count() || { max: 0 })();
+    const cInfo = (function () {
+      return CharData.charms.get(id).count() || { max: 0 };
+    })();
 
     // sort through kept charms
     if (keep.length > cInfo.max) {
-      keep.sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a));
+      keep.sort(sortCharms);
 
       // everything after the cap (need a better method for this in the instances where the max cap is less then leveling wanted cap)
       for (let i = cInfo.max; i < keep.length; i++) {
         if (!!keep[i].classid && !CharmEquip.check(keep[i])) {
           sell.push(keep[i]);
-          verbose && console.log("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Add " + keep[i].fname + " to checkList");
+          if (verbose) {
+            console.log("ÿc8Kolbot-SoloPlayÿc0: CharmEquip Add " + keep[i].fname + " to checkList");
+          }
           keep.splice(i, 1);
           i -= 1;
         }
@@ -73,7 +91,7 @@ const CharmEquip = (function () {
    */
   function CharmTypeEquip (classid) {
     this.classid = classid;
-    this.name = (() => {
+    this.name = (function () {
       switch (classid) {
       case sdk.items.SmallCharm:
         return "Small";
@@ -95,11 +113,14 @@ const CharmEquip = (function () {
    * @returns {{ keep: ItemUnit[], sell: ItemUnit[] }}
    */
   CharmTypeEquip.prototype.autoEquip = function (charmList = []) {
+    const _classid = this.classid;
     let items = (charmList.length ? charmList : me.getItemsEx())
-      .filter((charm) => charm.isInStorage && charm.classid === this.classid && charm.magic);
+      .filter(function (charm) {
+        return charm.isInStorage && charm.classid === _classid && charm.magic;
+      });
 
     if (!items.length) {
-      this.debugging && console.debug("No charms found");
+      this.debugging && console.debug("No charms found for " + this.name + "Charm");
       return { keep: [], sell: [] };
     }
 
@@ -124,18 +145,25 @@ const CharmEquip = (function () {
      * @param {ItemUnit} item 
      * @returns {boolean}
      */
-    hasCharmTier: (item) => me.expansion && Config.AutoEquip && NTIP.GetCharmTier(item) > 0,
+    hasCharmTier: function (item) {
+      return me.expansion && Config.AutoEquip && NTIP.GetCharmTier(item) > 0;
+    },
 
     /**
      * @param {ItemUnit} item 
      * @returns {boolean}
      */
-    isFinalCharm: (item) => me.data.charmGids.includes(item.gid),
+    isFinalCharm: function (item) {
+      return me.data.charmGids.includes(item.gid);
+    },
 
     init: function () {
       // No charms in classic
       if (me.classic) return;
-      let myCharms = me.getItemsEx().filter(item => item.isInStorage && item.isCharm && item.magic);
+      let myCharms = me.getItemsEx()
+        .filter(function (item) {
+          return item.isInStorage && item.isCharm && item.magic;
+        });
       let changed = false;
 
       const finalCharmKeys = Object.keys(me.data.charms);
@@ -151,19 +179,18 @@ const CharmEquip = (function () {
         }
       };
 
-      for (let i = 0; i < finalCharmKeys.length; i++) {
-        let cKey = finalCharmKeys[i];
-        switch (me.data.charms[cKey].classid) {
+      for (let key of finalCharmKeys) {
+        switch (me.data.charms[key].classid) {
         case sdk.items.SmallCharm:
-          check(me.data.charms[cKey].have, myCharms);
+          check(me.data.charms[key].have, myCharms);
 
           break;
         case sdk.items.LargeCharm:
-          check(me.data.charms[cKey].have, myCharms);
+          check(me.data.charms[key].have, myCharms);
 
           break;
         case sdk.items.GrandCharm:
-          check(me.data.charms[cKey].have, myCharms);
+          check(me.data.charms[key].have, myCharms);
 
           break;
         }
@@ -357,7 +384,7 @@ const CharmEquip = (function () {
      * @returns {{ skillerTypeA: ItemUnit[], skillerTypeB: ItemUnit[], skillerTypeC: ItemUnit[], resist: ItemUnit[], life: ItemUnit[], magicfind: ItemUnit[], damage: ItemUnit[], elemental: ItemUnit[], backup: ItemUnit[], keep: ItemUnit[], checkList: ItemUnit[] }}}
      */
     sort: function (items = [], verbose = false) {
-      let charms = {
+      const charms = {
         skillerTypeA: [],
         skillerTypeB: [],
         skillerTypeC: [],
@@ -376,18 +403,30 @@ const CharmEquip = (function () {
         return charms;
       }
 
-      const addToCheckList = (item) => charms.checkList.indexOf(item) === -1 && charms.checkList.push(item);
-      const addToBackUp = (item) => charms.backup.indexOf(item) === -1 && charms.backup.push(item);
+      /** @param {ItemUnit} item */
+      const addToCheckList = function (item) {
+        return charms.checkList.indexOf(item) === -1 && charms.checkList.push(item);
+      };
+      /** @param {ItemUnit} item */
+      const addToBackUp = function (item) {
+        return charms.backup.indexOf(item) === -1 && charms.backup.push(item);
+      };
 
-      const sortCharms = (arr = [], verbose = false, backUpCheck = true) => {
+      const iterateList = function (arr = [], verbose = false, backUpCheck = true) {
         let invoquantity = NTIP.getInvoQuantity(arr[0]);
         (invoquantity === undefined || invoquantity === -1) && (invoquantity = 2);
         let charmType = CharmEquip.getCharmType(arr[0]);
         verbose && console.log("Amount of " + charmType + " Charms: " + arr.length + " invoquantity: " + invoquantity);
-        arr.length > 1 && arr.sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a));
+        if (arr.length > 1) {
+          arr.sort(sortCharms);
+        }
 
         if (arr.length > invoquantity) {
-          verbose && arr.forEach((el, index) => console.log(charmType + "[" + index + "] = " + NTIP.GetCharmTier(el)));
+          if (verbose) {
+            arr.forEach(function (el, index) {
+              console.log(charmType + "[" + index + "] = " + NTIP.GetCharmTier(el));
+            });
+          }
 
           for (let i = invoquantity; i < arr.length; i++) {
             backUpCheck ? addToBackUp(arr[i]) : addToCheckList(arr[i]);
@@ -399,7 +438,7 @@ const CharmEquip = (function () {
       };
 
       verbose && console.log("Amount of items: " + items.length);
-      items.length > 1 && items.sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a));
+      items.length > 1 && items.sort(sortCharms);
 
       const finalCharmInfo = Check.finalBuild().finalCharms;
       const finalCharmKeys = Object.keys(finalCharmInfo);
@@ -438,15 +477,14 @@ const CharmEquip = (function () {
 
         let next = false;
 
-        for (let i = 0; i < finalCharmKeys.length; i++) {
-          let cKey = finalCharmKeys[i];
+        for (let key of finalCharmKeys) {
           try {
-            if (!!me.data.charms[cKey] && me.data.charms[cKey].have.indexOf(item.gid) === -1
-            && me.data.charms[cKey].have.length < me.data.charms[cKey].max) {
-              if (finalCharmInfo[cKey].stats(item)) {
+            if (!!me.data.charms[key] && me.data.charms[key].have.indexOf(item.gid) === -1
+            && me.data.charms[key].have.length < me.data.charms[key].max) {
+              if (finalCharmInfo[key].stats(item)) {
                 console.debug(item.fname);
                 me.data.charmGids.push(item.gid);
-                me.data.charms[cKey].have.push(item.gid);
+                me.data.charms[key].have.push(item.gid);
                 charms.keep.push(item);
                 found = true;
                 next = true;
@@ -497,25 +535,39 @@ const CharmEquip = (function () {
         me.update();
       }
 
-      if (!charms.skillerTypeA.length && !charms.skillerTypeB.length && !charms.skillerTypeC.length
-      && !charms.damage.length && !charms.resist.length && !charms.elemental.length && !charms.life.length && !charms.backup.length) {
+      if (Object.values(charms).every(c => !c.length)) {
         verbose && console.log("No Charms");
         return charms;
       }
 
-      charms.skillerTypeA.length > 0 && sortCharms(charms.skillerTypeA, verbose);
-      charms.skillerTypeB.length > 0 && sortCharms(charms.skillerTypeB, verbose);
-      charms.skillerTypeC.length > 0 && sortCharms(charms.skillerTypeC, verbose);
-      charms.resist.length > 0 && sortCharms(charms.resist, verbose);
-      charms.life.length > 0 && sortCharms(charms.life, verbose);
-      charms.magicfind.length > 0 && sortCharms(charms.magicfind, verbose);
-      charms.damage.length > 0 && sortCharms(charms.damage, verbose);
-      charms.elemental.length > 0 && sortCharms(charms.elemental, verbose);
+      charms.skillerTypeA.length > 0 && iterateList(charms.skillerTypeA, verbose);
+      charms.skillerTypeB.length > 0 && iterateList(charms.skillerTypeB, verbose);
+      charms.skillerTypeC.length > 0 && iterateList(charms.skillerTypeC, verbose);
+      charms.resist.length > 0 && iterateList(charms.resist, verbose);
+      charms.life.length > 0 && iterateList(charms.life, verbose);
+      charms.magicfind.length > 0 && iterateList(charms.magicfind, verbose);
+      charms.damage.length > 0 && iterateList(charms.damage, verbose);
+      charms.elemental.length > 0 && iterateList(charms.elemental, verbose);
 
       // If stats are unspecifed, this will filter charms and keep highest based on invoquantity. If no invoquantity defined it will keep two of that type
-      charms.backup.length > 0 && sortCharms(charms.backup, verbose, false);
-      charms.keep = charms.keep.concat(charms.skillerTypeA, charms.skillerTypeB, charms.skillerTypeC, charms.resist, charms.life, charms.magicfind, charms.damage, charms.elemental, charms.backup);
-      verbose && charms.checkList.forEach((el, index) => console.log("checkList[" + index + "] = " + NTIP.GetCharmTier(el) + " " + el.fname));
+      charms.backup.length > 0 && iterateList(charms.backup, verbose, false);
+      charms.keep = charms.keep.concat(
+        charms.skillerTypeA,
+        charms.skillerTypeB,
+        charms.skillerTypeC,
+        charms.resist,
+        charms.life,
+        charms.magicfind,
+        charms.damage,
+        charms.elemental,
+        charms.backup
+      );
+      if (verbose) {
+        charms.checkList
+          .forEach(function (el, index) {
+            console.log("checkList[" + index + "] = " + NTIP.GetCharmTier(el) + " " + el.fname);
+          });
+      }
     
       return charms;
     },
@@ -535,7 +587,12 @@ const CharmEquip = (function () {
 
       let lowestCharm;
       let items = me.getItemsEx()
-        .filter(charm => charm.classid === item.classid && charm.isInStorage && charm.magic && NTIP.GetCharmTier(charm) > 0);
+        .filter(function (charm) {
+          return charm.classid === item.classid
+            && charm.isInStorage
+            && charm.magic
+            && NTIP.GetCharmTier(charm) > 0;
+        });
       if (!items.length) return true;
 
       let quantityCap = NTIP.getInvoQuantity(item);
@@ -551,7 +608,7 @@ const CharmEquip = (function () {
         if (cInfo.curr && (cInfo.curr / cInfo.max) * 100 >= 75) {
         // chop off past our cap
           newList = charms.keep
-            .sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a))
+            .sort(sortCharms)
             .slice(0, cInfo.max);
           // check if it made the cut
           if (!newList.find(i => i.gid === item.gid)) return false;
@@ -566,7 +623,7 @@ const CharmEquip = (function () {
         if (cInfo.curr && (cInfo.curr / cInfo.max) * 100 >= 75) {
         // chop off past our cap
           newList = charms.keep
-            .sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a))
+            .sort(sortCharms)
             .slice(0, cInfo.max);
           // check if it made the cut
           if (!newList.find(i => i.gid === item.gid)) return false;
@@ -581,7 +638,7 @@ const CharmEquip = (function () {
         if (cInfo.curr && (cInfo.curr / cInfo.max) * 100 >= 50) {
         // chop off past our cap
           newList = charms.keep
-            .sort((a, b) => NTIP.GetCharmTier(b) - NTIP.GetCharmTier(a))
+            .sort(sortCharms)
             .slice(0, cInfo.max);
           // check if it made the cut
           if (!newList.find(i => i.gid === item.gid)) return false;
@@ -630,7 +687,9 @@ const CharmEquip = (function () {
       if (tierParamItem === tierLowestItem) {
         // console.debug("Same tier value");
         // super hacky - arbritrary comparsion of xpos if the tier value is the same
-        return (have < quantityCap) || (item.isInInventory && lowestCharm.isInInventory && item.x > lowestCharm.y) || (item.isInInventory && !lowestCharm.isInInventory);
+        return (have < quantityCap)
+          || (item.isInInventory && lowestCharm.isInInventory && item.x > lowestCharm.y)
+          || (item.isInInventory && !lowestCharm.isInInventory);
       }
 
       return (tierParamItem >= tierLowestItem);
@@ -641,9 +700,15 @@ const CharmEquip = (function () {
       if (me.classic) return;
 
       console.log("ÿc8Kolbot-SoloPlayÿc0: Entering charm auto equip");
+      const verbose = (Developer.debugging.smallCharm
+        || Developer.debugging.largeCharm
+        || Developer.debugging.grandCharm
+      );
       let tick = getTickCount();
       let charms = me.getItemsEx()
-        .filter(item => item.isInStorage && item.isCharm && item.magic);
+        .filter(function (item) {
+          return item.isInStorage && item.isCharm && item.magic;
+        });
       // don't do anything if we don't have any charms
       if ((!charms.length)
         // don't do anything if we have the same charms as last time
@@ -652,12 +717,14 @@ const CharmEquip = (function () {
         return;
       }
       CharmEquip.keptGids.clear();
-      let totalKeep = [], totalSell = [];
+      /** @type {Array<ItemUnit>} */
+      let totalKeep = [];
+      /** @type {Array<ItemUnit>} */
+      let totalSell = [];
       let GCs = CharmEquip.grandCharm(charms);
       let LCs = CharmEquip.largeCharm(charms);
       let SCs = CharmEquip.smallCharm(charms);
       let specialCharms = charms.filter((charm) => charm.unique);
-      let verbose = !!(Developer.debugging.smallCharm || Developer.debugging.largeCharm || Developer.debugging.grandCharm);
 
       if (verbose) {
         console.log("Grand Charms Keep: " + GCs.keep.length + ", Sell: " + GCs.sell.length);
@@ -675,7 +742,9 @@ const CharmEquip = (function () {
       }
       totalSell = totalSell
         .concat(SCs.sell, LCs.sell, GCs.sell)
-        .filter((charm) => NTIP.CheckItem(charm, NTIP_CheckListNoTier) === Pickit.Result.UNWANTED);
+        .filter(function (charm) {
+          return NTIP.CheckItem(charm, NTIP.CheckList) === Pickit.Result.UNWANTED;
+        });
       totalKeep.length > 0 && console.log("ÿc8Kolbot-SoloPlayÿc0: Total Charms Kept: " + totalKeep.length);
 
       if (totalSell.length > 0) {
@@ -692,23 +761,24 @@ const CharmEquip = (function () {
 
         Town.initNPC("Shop", "clearInventory");
 
-        if (getUIFlag(sdk.uiflags.Shop) || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
-          for (let i = 0; i < totalSell.length; i++) {
-            console.log("ÿc8Kolbot-SoloPlayÿc0: Sell old charm " + totalSell[i].name);
-            verbose && Item.logger("Sold", totalSell[i]);
-            verbose && Item.logItem("CharmEquip Sold", totalSell[i]);
-            totalSell[i].sell();
+        if (getUIFlag(sdk.uiflags.Shop)
+          || (Config.PacketShopping && getInteractedNPC() && getInteractedNPC().itemcount > 0)) {
+          for (let item of totalSell) {
+            console.log("ÿc8Kolbot-SoloPlayÿc0: Sell old charm " + item.name);
+            verbose && Item.logger("Sold", item);
+            verbose && Item.logItem("CharmEquip Sold", item);
+            item.sell();
           }
         }
       }
 
       if (totalKeep.length > 0) {
-        for (let i = 0; i < totalKeep.length; i++) {
-          CharmEquip.keptGids.add(totalKeep[i].gid);
-          if (totalKeep[i].isInStash && !Cubing.checkItem(totalKeep[i])) {
+        for (let item of totalKeep) {
+          CharmEquip.keptGids.add(item.gid);
+          if (item.isInStash && !Cubing.checkItem(item)) {
             !getUIFlag(sdk.uiflags.Stash) && Town.openStash() && delay(300 + me.ping);
-            if (Storage.Inventory.CanFit(totalKeep[i]) && Storage.Inventory.MoveTo(totalKeep[i])) {
-              verbose && Item.logItem("CharmEquip Equipped", totalKeep[i]);
+            if (Storage.Inventory.CanFit(item) && Storage.Inventory.MoveTo(item)) {
+              verbose && Item.logItem("CharmEquip Equipped", item);
             }
           }
         }
