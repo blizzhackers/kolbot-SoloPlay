@@ -106,16 +106,17 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
     ];
   })();
 
-  /**
-   * @param {Monster} unit 
-   * @returns {boolean}
-   */
+  /** @param {Monster} unit */
   const doCurse = function (unit) {
     if (unit === undefined || unit.dead || !unit.curseable) return false;
 
     let curse = (curseIndex
-      .filter(c => c.have() && c.useIf(unit))
-      .sort((a, b) => a.priority - b.priority)
+      .filter(function (c) {
+        return c.have() && c.useIf(unit);
+      })
+      .sort(function (a, b) {
+        return a.priority - b.priority;
+      })
       .find(c => c.manaCost() < me.mp) || false);
 
     if (curse && !unit.getState(curse.state)) {
@@ -125,7 +126,7 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
       } else {
         me.overhead(unit.name + " is blocked, skipping attempt to curse");
         let [timed, untimed] = unit.isSpecial ? [1, 2] : [3, 5];
-        ClassAttack.doCast(unit, timed, untimed);
+        ClassAttack.doCast(unit, Config.AttackSkill[timed], Config.AttackSkill[untimed]);
       }
     }
 
@@ -206,7 +207,8 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
     // maybe this should return an object with basic skill info besides the skillId. e.g timed, mana, range, and hand
     const skills = Attack.decideSkill(unit);
 
-    const switchBowAttack = (unit) => {
+    /** @param {Monster} unit */
+    const switchBowAttack = function (unit) {
       if (Attack.getIntoPosition(unit, 20, sdk.collision.Ranged)) {
         try {
           const checkForShamans = unit.isFallen && !me.inArea(sdk.areas.BloodMoor);
@@ -214,16 +216,23 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
             if (checkForShamans && !once) {
               // before we waste time let's see if there is a shaman we should kill
               const shaman = getUnits(sdk.unittype.Monster)
-                .filter(mon => mon.distance < 20 && mon.isShaman && mon.attackable)
-                .sort((a, b) => a.distance - b.distance).first();
+                .filter(function (mon) {
+                  return mon.distance < 20 && mon.isShaman && mon.attackable;
+                })
+                .sort(function (a, b) {
+                  return a.distance - b.distance;
+                }).first();
               if (shaman) return ClassAttack.doAttack(shaman, null, true);
             }
             if (!Attack.useBowOnSwitch(unit, sdk.skills.Attack, i === 5)) return Attack.Result.FAILED;
             if (unit.distance < 8 || me.inDanger()) {
               if (once) return Attack.Result.FAILED;
               let closeMob = getUnits(sdk.unittype.Monster)
-                .filter(mon => mon.distance < 10 && mon.attackable && mon.gid !== gid)
-                .sort(Attack.walkingSortMonsters).first();
+                .filter(function (mon) {
+                  return mon.distance < 10 && mon.attackable && mon.gid !== gid;
+                })
+                .sort(Attack.walkingSortMonsters)
+                .first();
               if (closeMob) return ClassAttack.doAttack(closeMob, null, true);
             }
           }
@@ -300,24 +309,30 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
     return result;
   };
 
-  // Returns: 0 - fail, 1 - success, 2 - no valid attack skills
+  /**
+   * @param {Monster} unit 
+   * @param {number} timedSkill 
+   * @param {number} untimedSkill 
+   * @returns {AttackResult}
+   */
   ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
     // No valid skills can be found
-    if (timedSkill < 0 && untimedSkill < 0) return Attack.Result.CANTATTACK;
-
+    if (timedSkill < 0 && untimedSkill < 0) {
+      return Attack.Result.CANTATTACK;
+    }
     // Check for bodies to exploit for CorpseExplosion before committing to an attack for non-summoner type necros
     if (Config.Skeletons + Config.SkeletonMages + Config.Revives === 0) {
       this.checkCorpseNearMonster(unit) && this.explodeCorpses(unit);
     }
 
+    let walk;
     let lowMana = true;
-    let walk, timedSkillRange, untimedSkillRange;
 
     if (timedSkill > -1
       && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))
       && me.mp > Skill.getManaCost(timedSkill)) {
       lowMana = false;
-      timedSkillRange = Skill.getRange(timedSkill);
+      let timedSkillRange = Skill.getRange(timedSkill);
 
       switch (timedSkill) {
       case sdk.skills.PoisonNova:
@@ -345,18 +360,24 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
 
         break;
       default:
-        if (timedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
-
+        if (timedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) {
+          return Attack.Result.FAILED;
+        }
         if (timedSkill === sdk.skills.Teeth) {
           let _coll = (sdk.collision.BlockMissile | sdk.collision.BlockWall | sdk.collision.Casting);
-          timedSkillRange = me.getMobCount(6, _coll) <= 3 ? 6 : timedSkillRange;
+          timedSkillRange = me.getMobCount(6, _coll) <= 3 ? 8 : timedSkillRange;
         }
 
         if (unit.distance > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
           // Allow short-distance walking for melee skills
-          walk = timedSkillRange < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
-
-          if (!Attack.getIntoPosition(unit, timedSkillRange, sdk.collision.Ranged, walk)) return Attack.Result.FAILED;
+          walk = (
+            timedSkillRange < 4
+            && unit.distance < 10
+            && !checkCollision(me, unit, sdk.collision.BlockWall)
+          );
+          if (!Attack.getIntoPosition(unit, timedSkillRange, sdk.collision.Ranged, walk)) {
+            return Attack.Result.FAILED;
+          }
         }
 
         if (!unit.dead) {
@@ -374,13 +395,15 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
 
     if (untimedSkill > -1 && me.mp > Skill.getManaCost(untimedSkill)) {
       lowMana = false;
-      untimedSkillRange = Skill.getRange(untimedSkill);
+      let untimedSkillRange = Skill.getRange(untimedSkill);
 
-      if (untimedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
-
+      if (untimedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) {
+        return Attack.Result.FAILED;
+      }
       if (unit.distance > untimedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
         // Allow short-distance walking for melee skills
-        walk = (Skill.getRange(untimedSkill) < 4
+        walk = (
+          untimedSkillRange < 4
           && unit.distance < 10
           && !checkCollision(me, unit, sdk.collision.BlockWall)
         );
@@ -405,15 +428,19 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
     return lowMana ? Attack.Result.NEEDMANA : Attack.Result.SUCCESS;
   };
 
+  /** @param {Monster} unit */
   ClassAttack.farCast = function (unit) {
     let timedSkill = Config.AttackSkill[1];
     let untimedSkill = Config.AttackSkill[2];
 
     // No valid skills can be found
-    if (timedSkill < 0 && untimedSkill < 0) return Attack.Result.CANTATTACK;
-
+    if (timedSkill < 0 && untimedSkill < 0) {
+      return Attack.Result.CANTATTACK;
+    }
     // Far to low a range for far casting
-    if (Skill.getRange(timedSkill) < 4 && Skill.getRange(untimedSkill) < 4) return Attack.Result.CANTATTACK;
+    if (Skill.getRange(timedSkill) < 4 && Skill.getRange(untimedSkill) < 4) {
+      return Attack.Result.CANTATTACK;
+    }
 
     // Bone prison
     if (unit.distance > 10
@@ -447,8 +474,9 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
     }
 
     if (untimedSkill > -1) {
-      if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
-
+      if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) {
+        return Attack.Result.FAILED;
+      }
       if (!unit.dead && !checkCollision(me, unit, sdk.collision.Ranged)) {
         Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
       }
@@ -461,6 +489,7 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
     return Attack.Result.SUCCESS;
   };
 
+  /** @param {Monster} unit */
   ClassAttack.explodeCorpses = function (unit) {
     if (Config.ExplodeCorpses === 0 || unit.dead) return false;
 
