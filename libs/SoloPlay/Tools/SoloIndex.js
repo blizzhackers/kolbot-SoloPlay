@@ -112,7 +112,7 @@ const SoloIndex = {
       },
       shouldRun: function () {
         switch (true) {
-        case (me.normal && (!me.tristram || me.charlvl < (me.classic || !me.barbarian ? 12 : 6) || Check.brokeAf())):
+        case (me.normal && (!me.tristram || me.charlvl < (me.classic || !me.barbarian ? 12 : 8) || Check.brokeAf())):
         case (me.nightmare && ((!me.tristram && me.charlvl < 43) || Check.brokeAf())):
         case (me.hell && ((!me.tristram && me.diffCompleted) || !this.skipIf())):
           return true;
@@ -141,6 +141,7 @@ const SoloIndex = {
         let needRunes = Check.runes();
         switch (true) {
         case (me.normal && (needRunes || Check.brokeAf())): // todo - better determination for low gold
+        case (me.barbarian && me.charlvl > 8 && me.charlvl < 12): // better for barb than trist runs
         case (me.barbarian && me.hell && me.checkItem({ name: sdk.locale.items.Lawbringer }).have):
         case (!me.normal && (Pather.canTeleport() || me.charlvl < 60)):
           return true;
@@ -150,7 +151,7 @@ const SoloIndex = {
     },
     "smith": {
       preReq: function () {
-        return me.charlvl > 8;
+        return me.charlvl > 6;
       },
       skipIf: function () {
         // todo - test leveling/experience potential
