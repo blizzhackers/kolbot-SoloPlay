@@ -18,18 +18,26 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 
   const howlCheck = function () {
     let levelCheck = (me.getSkill(sdk.skills.Howl, sdk.skills.subindex.SoftPoints) + me.charlvl + 1);
-    return getUnits(sdk.unittype.Monster).filter(function (el) {
-      return (!!el && el.attackable && el.distance < 6 && el.scareable && GameData.monsterLevel(el.classid, me.area) < levelCheck && !el.isStunned
-        && [sdk.states.BattleCry, sdk.states.AmplifyDamage, sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt].every(state => !el.getState(state))
-        && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE));
-    }).length > me.maxNearMonsters;
+    return getUnits(sdk.unittype.Monster)
+      .filter(function (el) {
+        return (!!el && el.attackable && el.distance < 6
+          && el.scareable && GameData.monsterLevel(el.classid, me.area) < levelCheck && !el.isStunned
+          && [
+            sdk.states.BattleCry, sdk.states.AmplifyDamage,
+            sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt
+          ].every(state => !el.getState(state))
+          && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE));
+      }).length > me.maxNearMonsters;
   };
 
   const battleCryCheck = function () {
     return getUnits(sdk.unittype.Monster).some(function (el) {
       if (el === undefined) return false;
       return (el.attackable && el.distance < 5 && el.curseable
-        && [sdk.states.BattleCry, sdk.states.AmplifyDamage, sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt].every(state => !el.getState(state))
+        && [
+          sdk.states.BattleCry, sdk.states.AmplifyDamage,
+          sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt
+        ].every(state => !el.getState(state))
         && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE));
     });
   };
@@ -38,9 +46,15 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
     return getUnits(sdk.unittype.Monster).some(function (el) {
       if (el === undefined) return false;
       return (el.attackable && el.distance < 5 && !(el.isSpecial) && el.curseable
-        && ![sdk.monsters.Andariel, sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal, sdk.monsters.Tentacle1,
-          sdk.monsters.BaalClone, sdk.monsters.KorlictheProtector, sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian].includes(el.classid)
-        && (!el.isStunned || getTickCount() - ClassAttack.warCryTick >= 1500) && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE));
+        && ![
+          sdk.monsters.Andariel, sdk.monsters.Duriel,
+          sdk.monsters.Mephisto, sdk.monsters.Diablo,
+          sdk.monsters.Baal, sdk.monsters.Tentacle1,
+          sdk.monsters.BaalClone, sdk.monsters.KorlictheProtector,
+          sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian
+        ].includes(el.classid)
+        && (!el.isStunned || getTickCount() - ClassAttack.warCryTick >= 1500)
+        && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE));
     });
   };
 
@@ -54,29 +68,53 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 
     let range = (!me.inArea(sdk.areas.ThroneofDestruction) ? 15 : 30);
     let rangedMobsClassIDs = [
-      sdk.monsters.Afflicted, sdk.monsters.Tainted, sdk.monsters.Misshapen1, sdk.monsters.Disfigured, sdk.monsters.Damned1, sdk.monsters.Gloam1, sdk.monsters.SwampGhost,
-      sdk.monsters.BurningSoul2, sdk.monsters.BlackSoul1, sdk.monsters.GhoulLord1, sdk.monsters.NightLord, sdk.monsters.DarkLord1, sdk.monsters.BloodLord1,
-      sdk.monsters.Banished, sdk.monsters.SkeletonArcher, sdk.monsters.ReturnedArcher1, sdk.monsters.BoneArcher1, sdk.monsters.BurningDeadArcher1, sdk.monsters.HorrorArcher1,
-      sdk.monsters.Sexton, sdk.monsters.Cantor, sdk.monsters.Heirophant1, sdk.monsters.DoomKnight, sdk.monsters.VenomLord1, sdk.monsters.Horror1, sdk.monsters.Horror2,
-      sdk.monsters.Horror3, sdk.monsters.Horror4, sdk.monsters.Horror5, sdk.monsters.Lord1, sdk.monsters.Lord2, sdk.monsters.Lord3, sdk.monsters.Lord4,
-      sdk.monsters.Lord4, sdk.monsters.Afflicted2, sdk.monsters.Tainted, sdk.monsters.Misshapen2, sdk.monsters.Disfigured2, sdk.monsters.Damned2, sdk.monsters.DarkShaman2,
+      sdk.monsters.Afflicted, sdk.monsters.Tainted,
+      sdk.monsters.Misshapen1, sdk.monsters.Disfigured,
+      sdk.monsters.Damned1, sdk.monsters.Gloam1,
+      sdk.monsters.SwampGhost, sdk.monsters.BurningSoul2,
+      sdk.monsters.BlackSoul1, sdk.monsters.GhoulLord1,
+      sdk.monsters.NightLord, sdk.monsters.DarkLord1, sdk.monsters.BloodLord1,
+      sdk.monsters.Banished, sdk.monsters.SkeletonArcher,
+      sdk.monsters.ReturnedArcher1, sdk.monsters.BoneArcher1,
+      sdk.monsters.BurningDeadArcher1, sdk.monsters.HorrorArcher1,
+      sdk.monsters.Sexton, sdk.monsters.Cantor,
+      sdk.monsters.Heirophant1, sdk.monsters.DoomKnight,
+      sdk.monsters.VenomLord1, sdk.monsters.Horror1, sdk.monsters.Horror2,
+      sdk.monsters.Horror3, sdk.monsters.Horror4,
+      sdk.monsters.Horror5, sdk.monsters.Lord1,
+      sdk.monsters.Lord2, sdk.monsters.Lord3, sdk.monsters.Lord4,
+      sdk.monsters.Lord4, sdk.monsters.Afflicted2,
+      sdk.monsters.Tainted, sdk.monsters.Misshapen2,
+      sdk.monsters.Disfigured2, sdk.monsters.Damned2, sdk.monsters.DarkShaman2,
       sdk.monsters.DevilkinShaman, sdk.monsters.DarkShaman2, sdk.monsters.DarkLord2
     ];
     let dangerousAndSummoners = [
-      sdk.monsters.Dominus2, sdk.monsters.Witch1, sdk.monsters.VileWitch2, sdk.monsters.Gloam2, sdk.monsters.BlackSoul2, sdk.monsters.BurningSoul1,
-      sdk.monsters.FallenShaman, sdk.monsters.CarverShaman2, sdk.monsters.DevilkinShaman2, sdk.monsters.DarkShaman1, sdk.monsters.HollowOne, sdk.monsters.Guardian1,
-      sdk.monsters.Unraveler1, sdk.monsters.Ancient1, sdk.monsters.BaalSubjectMummy, sdk.monsters.Council4, sdk.monsters.VenomLord2, sdk.monsters.Ancient2,
-      sdk.monsters.Ancient3, sdk.monsters.Succubusexp1, sdk.monsters.VileTemptress, sdk.monsters.StygianHarlot, sdk.monsters.Temptress1, sdk.monsters.Temptress2,
-      sdk.monsters.Dominus1, sdk.monsters.VileWitch1, sdk.monsters.StygianFury, sdk.monsters.Witch2, sdk.monsters.Witch3
+      sdk.monsters.Dominus2, sdk.monsters.Witch1,
+      sdk.monsters.VileWitch2, sdk.monsters.Gloam2,
+      sdk.monsters.BlackSoul2, sdk.monsters.BurningSoul1,
+      sdk.monsters.FallenShaman, sdk.monsters.CarverShaman2,
+      sdk.monsters.DevilkinShaman2, sdk.monsters.DarkShaman1,
+      sdk.monsters.HollowOne, sdk.monsters.Guardian1,
+      sdk.monsters.Unraveler1, sdk.monsters.Ancient1,
+      sdk.monsters.BaalSubjectMummy, sdk.monsters.Council4,
+      sdk.monsters.VenomLord2, sdk.monsters.Ancient2,
+      sdk.monsters.Ancient3, sdk.monsters.Succubusexp1,
+      sdk.monsters.VileTemptress, sdk.monsters.StygianHarlot,
+      sdk.monsters.Temptress1, sdk.monsters.Temptress2,
+      sdk.monsters.Dominus1, sdk.monsters.VileWitch1,
+      sdk.monsters.StygianFury, sdk.monsters.Witch2, sdk.monsters.Witch3
     ];
 
-    [sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary].includes(me.area) && rangedMobsClassIDs.push(sdk.monsters.Strangler1, sdk.monsters.StormCaster1);
+    if ([sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary].includes(me.area)) {
+      rangedMobsClassIDs.push(sdk.monsters.Strangler1, sdk.monsters.StormCaster1);
+    }
     
     let list = getUnits(sdk.unittype.Monster)
       .filter(function (mob) {
         return ([sdk.monsters.spectype.All, sdk.monsters.spectype.Minion].includes(mob.spectype)
           && [sdk.states.BattleCry, sdk.states.Decrepify, sdk.states.Taunt].every(state => !mob.getState(state))
-          && ((rangedMobsClassIDs.includes(mob.classid) && mob.distance <= range) || (dangerousAndSummoners.includes(mob.classid) && mob.distance <= 30)));
+          && ((rangedMobsClassIDs.includes(mob.classid) && mob.distance <= range)
+          || (dangerousAndSummoners.includes(mob.classid) && mob.distance <= 30)));
       })
       .sort(Sort.units);
 
@@ -93,7 +131,11 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
           Skill.cast(sdk.skills.WarCry, sdk.skills.hand.Right);
         }
 
-        if (!!currMob && !currMob.dead && [sdk.states.Terror, sdk.states.BattleCry, sdk.states.Decrepify, sdk.states.Taunt].every(state => !currMob.getState(state))
+        if (!!currMob && !currMob.dead
+          && [
+            sdk.states.Terror, sdk.states.BattleCry,
+            sdk.states.Decrepify, sdk.states.Taunt
+          ].every(state => !currMob.getState(state))
           && data.taunt.mana < me.mp && !Coords_1.isBlockedBetween(me, currMob)) {
           me.overhead("Taunting: " + currMob.name + " | classid: " + currMob.classid);
           Skill.cast(sdk.skills.Taunt, sdk.skills.hand.Right, currMob);
@@ -128,24 +170,31 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
     }
     
     const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
-    let attackSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
+    let attackSkill = Attack.getCustomAttack(unit)
+      ? Attack.getCustomAttack(unit)[0]
+      : Config.AttackSkill[index];
 
     if (!Attack.checkResist(unit, attackSkill)) {
       attackSkill = -1;
 
-      if (Config.AttackSkill[index + 1] > -1 && Skill.canUse(Config.AttackSkill[index + 1]) && Attack.checkResist(unit, Config.AttackSkill[index + 1])) {
+      if (Config.AttackSkill[index + 1] > -1
+        && Skill.canUse(Config.AttackSkill[index + 1])
+        && Attack.checkResist(unit, Config.AttackSkill[index + 1])) {
         attackSkill = Config.AttackSkill[index + 1];
       }
     }
 
     if (me.expansion && index === 1 && !unit.dead) {
-      if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles) && unit.curseable &&
+      if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
+        && unit.getEnchant(sdk.enchant.LightningEnchanted)
+        && !unit.getState(sdk.states.SlowMissiles) && unit.curseable &&
         (gold > 500000 && !unit.isBoss) && !checkCollision(me, unit, sdk.collision.Ranged)) {
         // Cast slow missiles
         Attack.castCharges(sdk.skills.SlowMissiles, unit);
       }
 
-      if (CharData.skillData.haveChargedSkill(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight) && unit.curseable &&
+      if (CharData.skillData.haveChargedSkill(sdk.skills.InnerSight)
+      && !unit.getState(sdk.states.InnerSight) && unit.curseable &&
         gold > 500000 && !checkCollision(me, unit, sdk.collision.Ranged)) {
         // Cast slow missiles
         Attack.castCharges(sdk.skills.InnerSight, unit);
@@ -186,18 +235,22 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
     // console.debug(data);
 
     // Low mana skill
-    if (Skill.getManaCost(attackSkill) > me.mp && Config.LowManaSkill[0] > -1 && Attack.checkResist(unit, Config.LowManaSkill[0])) {
+    if (Skill.getManaCost(attackSkill) > me.mp
+      && Config.LowManaSkill[0] > -1
+      && Attack.checkResist(unit, Config.LowManaSkill[0])) {
       attackSkill = Config.LowManaSkill[0];
     }
 
-    if ([sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy].includes(attackSkill) && !me.dualWielding || !Skill.canUse(attackSkill)) {
+    if ([sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy].includes(attackSkill)
+      && !me.dualWielding || !Skill.canUse(attackSkill)) {
       let oneHandSk = [data.bash, data.stun, data.concentrate, data.leapAttack, data.whirlwind]
         .filter((skill) => skill.have && me.mp > skill.mana)
         .sort((a, b) => GameData.physicalAttackDamage(b.skill) - GameData.physicalAttackDamage(a.skill)).first();
       attackSkill = oneHandSk ? oneHandSk.skill : 0;
     }
 
-    if (data.howl.have && attackSkill !== sdk.skills.Whirlwind && data.howl.mana < me.mp && howlCheck() && me.hpPercent <= 85) {
+    if (data.howl.have && attackSkill !== sdk.skills.Whirlwind
+      && data.howl.mana < me.mp && howlCheck() && me.hpPercent <= 85) {
       data.grimWard.have ? this.grimWard(6) : Skill.cast(sdk.skills.Howl, sdk.skills.hand.Right);
     }
 
@@ -205,7 +258,10 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 
     if (!unit.dead && data.battleCry.have && !me.skillDelay) {
       // Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
-      if ([sdk.states.BattleCry, sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt].every(state => !unit.getState(state))) {
+      if ([
+        sdk.states.BattleCry, sdk.states.Decrepify,
+        sdk.states.Terror, sdk.states.Taunt
+      ].every(state => !unit.getState(state))) {
         if (unit.distance > data.battleCry.range || checkCollision(me, unit, sdk.collision.Ranged)) {
           if (!Attack.getIntoPosition(unit, data.battleCry.range, sdk.collision.Ranged)) {
             return Attack.Result.FAILED;
@@ -222,13 +278,17 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 
     // TODO: write GameData.killableSummonsByWarCry
     if (data.warCry.have && data.warCry.mana < me.mp && !me.skillDelay && warCryCheck()) {
-      data.switchCast ? Skill.switchCast(sdk.skills.WarCry, { hand: 0 }) : Skill.cast(sdk.skills.WarCry, sdk.skills.hand.Right, unit);
+      data.switchCast
+        ? Skill.switchCast(sdk.skills.WarCry, { hand: 0 })
+        : Skill.cast(sdk.skills.WarCry, sdk.skills.hand.Right, unit);
       this.warCryTick = getTickCount();
     }
 
     // Probably going to get rid of preattack
-    if (preattack && Config.AttackSkill[0] > 0 && Config.AttackSkill[0] !== sdk.skills.WarCry && Skill.canUse(Config.AttackSkill[0])
-      && Attack.checkResist(unit, Attack.getSkillElement(Config.AttackSkill[0])) && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp)
+    if (preattack && Config.AttackSkill[0] > 0
+      && Config.AttackSkill[0] !== sdk.skills.WarCry && Skill.canUse(Config.AttackSkill[0])
+      && Attack.checkResist(unit, Attack.getSkillElement(Config.AttackSkill[0]))
+      && (Skill.getManaCost(Config.AttackSkill[0]) < me.mp)
       && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
       if (unit.distance > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
         if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), sdk.collision.Ranged)) {
@@ -243,11 +303,17 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 
     if (index === 1) {
       if (data.howl.have && attackSkill !== sdk.skills.Whirlwind && data.howl.mana < me.mp && howlCheck()) {
-        data.grimWard.have ? this.grimWard(6) : !data.warCry.have ? Skill.cast(sdk.skills.Howl, Skill.getHand(sdk.skills.Howl)) : null;
+        data.grimWard.have
+          ? this.grimWard(6)
+          : !data.warCry.have
+            ? Skill.cast(sdk.skills.Howl, Skill.getHand(sdk.skills.Howl))
+            : null;
       }
     }
 
-    if (attackSkill === sdk.skills.DoubleThrow && (me.getWeaponQuantity() <= 3 || me.getWeaponQuantity(sdk.body.LeftArm) <= 3) && data.secondary.have) {
+    if (attackSkill === sdk.skills.DoubleThrow
+      && (me.getWeaponQuantity() <= 3 || me.getWeaponQuantity(sdk.body.LeftArm) <= 3)
+      && data.secondary.have) {
       attackSkill = data.secondary.skill;
     }
 
@@ -260,8 +326,6 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
     me.weaponswitch === 1 && me.switchWeapons(0);
     // No attack skill
     if (attackSkill < 0 || !data) return Attack.Result.CANTATTACK;
-
-    let walk;
 
     switch (attackSkill) {
     case sdk.skills.Whirlwind:
@@ -280,7 +344,11 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
       }
 
       if (unit.distance > Skill.getRange(attackSkill) || checkCollision(me, unit, sdk.collision.Ranged)) {
-        walk = (Skill.getRange(attackSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall));
+        let walk = (
+          Skill.getRange(attackSkill) < 4
+          && unit.distance < 10
+          && !checkCollision(me, unit, sdk.collision.BlockWall)
+        );
 
         // think this should be re-written in pather with some form of leap pathing similar to teleport
         // leap/leap attack is incredibly useful because we can leap straight to chaos or over mobs/doors/some walls ect
@@ -301,7 +369,8 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
           Skill.cast(sdk.skills.Frenzy, Skill.getHand(sdk.skills.Frenzy), unit);
         }
 
-        if (!unit.dead && attackSkill === sdk.skills.Berserk && data.concentrate.have && me.mp > data.concentrate.mana) {
+        if (!unit.dead && attackSkill === sdk.skills.Berserk
+          && data.concentrate.have && me.mp > data.concentrate.mana) {
           Skill.cast(sdk.skills.Concentrate, Skill.getHand(sdk.skills.Concentrate), unit);
         }
 
@@ -429,8 +498,12 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
     if (!unit || !unit.dead) return false;
 
     let corpseList = getUnits(sdk.unittype.Monster)
-      .filter(mon => mon.dead && mon.distance < 30 && getDistance(mon, unit) <= range && this.checkCorpse(mon))
-      .sort(((a, b) => getDistance(a, unit) - getDistance(b, unit)));
+      .filter(function (mon) {
+        return mon.dead && mon.distance < 30 && getDistance(mon, unit) <= range && this.checkCorpse(mon);
+      })
+      .sort(function (a, b) {
+        return getDistance(a, unit) - getDistance(b, unit);
+      });
 
     for (let corpse of corpseList) {
       // corpseList uses copyUnit, so we need to get the actual corpse
@@ -439,7 +512,9 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
       if (checkCorpse && this.checkCorpse(checkCorpse)) {
         for (let j = 0; j < 3; j += 1) {
           if (Skill.cast(sdk.skills.GrimWard, sdk.skills.hand.Right, checkCorpse)) {
-            if (Misc.poll(() => checkCorpse.getState(sdk.states.CorpseNoSelect), 1000)) {
+            if (Misc.poll(function () {
+              return checkCorpse.getState(sdk.states.CorpseNoSelect);
+            }, 1000)) {
               return true;
             }
           }

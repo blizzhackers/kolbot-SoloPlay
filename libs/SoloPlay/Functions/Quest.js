@@ -10,10 +10,10 @@ const Quest = {
   preReqs: function () {
     /**
      * @param {string} task 
-     * @param {() => boolean} req 
+     * @param {function(): boolean} req 
      * @returns {boolean}
      */
-    const getReq = (task, req = () => true) => {
+    const getReq = function (task, req = () => true) {
       for (let i = 0; i < 5 && !req(); i++) {
         Loader.runScript(task);
       }
@@ -97,7 +97,14 @@ const Quest = {
     let orifice = Misc.poll(() => Game.getObject(sdk.objects.HoradricStaffHolder));
     if (!orifice) return false;
     
-    let hstaff = (me.getItem(sdk.items.quest.HoradricStaff) || Quest.cubeItems(sdk.items.quest.HoradricStaff, sdk.items.quest.ShaftoftheHoradricStaff, sdk.items.quest.ViperAmulet));
+    let hstaff = (
+      me.getItem(sdk.items.quest.HoradricStaff)
+      || Quest.cubeItems(
+        sdk.items.quest.HoradricStaff,
+        sdk.items.quest.ShaftoftheHoradricStaff,
+        sdk.items.quest.ViperAmulet
+      )
+    );
 
     if (hstaff) {
       if (hstaff.location !== sdk.storage.Inventory) {
@@ -340,7 +347,8 @@ const Quest = {
         Misc.checkQuest(sdk.quest.id.Respec, sdk.quest.states.Completed);
         delay(10 + me.ping * 2);
 
-        if (me.respec || (me.getStat(sdk.stats.NewSkills) > preSkillAmount && me.getStat(sdk.stats.StatPts) > preStatAmount)) {
+        if (me.respec || (me.getStat(sdk.stats.NewSkills) > preSkillAmount
+          && me.getStat(sdk.stats.StatPts) > preStatAmount)) {
           me.data.currentBuild = CharInfo.getActiveBuild();
           me.data[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
           CharData.updateData("me", me.data);

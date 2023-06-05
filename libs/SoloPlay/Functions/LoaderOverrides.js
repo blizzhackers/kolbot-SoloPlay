@@ -68,16 +68,21 @@ Loader.run = function () {
 
         (j === 5) && myPrint("script " + scriptName + " failed.");
       } catch (e) {
-        console.warn("ÿc8Kolbot-SoloPlayÿc0: ", (typeof e === "object" ? e.message : e));
         console.error(e);
+        // console.log("ÿc8Kolbot-SoloPlayÿc0: ", e);
       } finally {
         SoloIndex.doneList.push(scriptName);
         // skip logging if we didn't actually finish it
-        !SoloIndex.retryList.includes(scriptName) && Developer.logPerformance && Tracker.script(tick, scriptName, currentExp);
+        if (!SoloIndex.retryList.includes(scriptName) && Developer.logPerformance) {
+          Tracker.script(tick, scriptName, currentExp);
+        }
         console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Time.format(me.maxgametime));
         me.maxgametime += (getTickCount() - tick);
         console.log("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Time.format(me.maxgametime));
-        console.log("ÿc8Kolbot-SoloPlayÿc0 :: ÿc8" + scriptName + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick));
+        console.log(
+          "ÿc8Kolbot-SoloPlayÿc0 :: ÿc8" + scriptName
+          + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick)
+        );
 
         // remove script function from function scope, so it can be cleared by GC
         if (this.scriptIndex < SoloIndex.scripts.length) {
@@ -86,7 +91,7 @@ Loader.run = function () {
       }
 
       if (me.sorceress && me.hell && scriptName === "bloodraven" && me.charlvl < 68) {
-        console.debug("End-run, we are not ready to keep pushing yet");
+        console.info(false, "End-run, we are not ready to keep pushing yet");
           
         break;
       }
@@ -152,7 +157,10 @@ Loader.runScript = function (script, configOverride) {
         currentExp = me.getStat(sdk.stats.Experience);
 
         if (global[script]()) {
-          console.log(mainScriptStr + "ÿc7" + script + " :: ÿc0Complete ÿc0- ÿc7Duration: ÿc0" + (Time.format(getTickCount() - tick)));
+          console.log(
+            mainScriptStr + "ÿc7" + script
+            + " :: ÿc0Complete ÿc0- ÿc7Duration: ÿc0" + (Time.format(getTickCount() - tick))
+          );
         }
       }
     } catch (e) {

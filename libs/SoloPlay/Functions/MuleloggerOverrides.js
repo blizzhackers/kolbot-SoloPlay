@@ -24,7 +24,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
   let color = (unit.getColor() || -1);
   let code = Item.getItemCode(unit);
 
-  if (NTIP.GetMercTier(unit) > 0 || NTIP.GetTier(unit) > 0 || NTIP.GetCharmTier(unit) > 0 || NTIP.GetSecondaryTier(unit) > 0) {
+  if (AutoEquip.hasTier(unit)) {
     if (unit.mode === sdk.items.mode.inStorage && type === "Player") {
       if (unit.isCharm) {
         desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit));
@@ -71,9 +71,14 @@ MuleLogger.logEquippedItems = function () {
   let folder, string, parsedItem;
   let realm = me.realm || "Single Player";
   let finalString = "";
-  let items = me.getItemsEx().filter(item => item.isEquipped || item.isEquippedCharm || (item.isInStorage && item.itemType === sdk.items.type.Rune));
+  let items = me.getItemsEx()
+    .filter(function (item) {
+      return item.isEquipped || item.isEquippedCharm || (item.isInStorage && item.itemType === sdk.items.type.Rune);
+    })
+    .sort(function (a, b) {
+      return b.itemType - a.itemType;
+    });
   if (!items || !items.length) return;
-  items.sort((a, b) => b.itemType - a.itemType);
 
   if (!FileTools.exists("mules/" + realm)) {
     folder = dopen("mules");
@@ -90,20 +95,20 @@ MuleLogger.logEquippedItems = function () {
     folder.create(me.account);
   }
 
-  for (let i = 0; i < items.length; i += 1) {
-    parsedItem = this.logItem(items[i], true, "Player");
+  for (let item of items) {
+    parsedItem = this.logItem(item, true, "Player");
     // Always put name on Char Viewer items
     !parsedItem.header && (parsedItem.header = (me.account || "Single Player") + " / " + me.name);
     // Remove itemtype_ prefix from the name
     parsedItem.title = parsedItem.title.substr(parsedItem.title.indexOf("_") + 1);
 
-    switch (items[i].mode) {
+    switch (item.mode) {
     case sdk.items.mode.inStorage:
-      parsedItem.title += ((items[i].isInInventory && items[i].isEquippedCharm) ? " (equipped charm)" : " (in stash)");
+      parsedItem.title += ((item.isInInventory && item.isEquippedCharm) ? " (equipped charm)" : " (in stash)");
 
       break;
     case sdk.items.mode.Equipped:
-      parsedItem.title += (items[i].isOnSwap ? " (secondary equipped)" : " (equipped)");
+      parsedItem.title += (item.isOnSwap ? " (secondary equipped)" : " (equipped)");
 
       break;
     }
@@ -118,8 +123,8 @@ MuleLogger.logEquippedItems = function () {
     if (merc) {
       items = merc.getItemsEx();
 
-      for (let i = 0; i < items.length; i += 1) {
-        parsedItem = this.logItem(items[i], true, "Merc");
+      for (let item of items) {
+        parsedItem = this.logItem(item, true, "Merc");
         parsedItem.title += " (merc)";
 
         string = JSON.stringify(parsedItem);
@@ -133,6 +138,13 @@ MuleLogger.logEquippedItems = function () {
 
   // hccl = hardcore classic ladder
   // scnl = softcore expan nonladder
-  FileTools.writeText("mules/" + realm + "/" + "Kolbot-SoloPlay/" + me.account + "/" + charClass + "-" + me.profile + "-" + me.name + "." + ( me.playertype ? "hc" : "sc" ) + (me.classic ? "c" : "" ) + ( me.ladder > 0 ? "l" : "nl" ) + ".txt", finalString);
+  FileTools.writeText(
+    "mules/" + realm
+    + "/" + "Kolbot-SoloPlay/"
+    + me.account + "/" + charClass + "-" + me.profile + "-" + me.name
+    + "." + ( me.playertype ? "hc" : "sc" ) + (me.classic ? "c" : "" ) + ( me.ladder > 0 ? "l" : "nl" )
+    + ".txt",
+    finalString
+  );
   console.log("Item logging done.");
 };

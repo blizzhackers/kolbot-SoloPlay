@@ -323,10 +323,12 @@
     Config.DebugMode.Stack = true;
     let waitTick = getTickCount();
     let potTick = getTickCount();
+    let _recursion = false;
 
     // Start
     Worker.runInBackground.TownChicken = function () {
       if (getTickCount() - waitTick < 100 || SoloEvents.townChicken.disabled) return true;
+      if (_recursion) return true;
       waitTick = getTickCount();
       if (me.inTown) return true;
 
@@ -354,22 +356,7 @@
       if (shouldChicken) {
         let t4 = getTickCount();
         try {
-          // const recentChicks = lastChickens
-          // 	.slice(Math.max(lastChickens.length - 3), lastChickens.length - 1);
-
-          // const stopCurrentScript = recentChicks.length >= 2 && recentChicks
-          // 	.every(([count]) => getTickCount() - count < Time.minutes(1));
-
-          // lastChickens.push([getTickCount(), me.area, me.x, me.y]);
-
-          // if (stopCurrentScript) {
-          // 	myPrint("ÿc8TownChicken :: ÿc0Too many chickens on this script, move to next :: " + me.gold);
-          // 	goToTown();
-          // 	// scriptBroadcast("nextScript");
-          // 	me.emit("nextScript");
-          // 	return true;
-          // }
-
+          _recursion = true;
           myPrint("ÿc8TownChicken :: ÿc0Going to town. Initial Gold :: " + me.gold);
           [Attack.stopClear, SoloEvents.townChicken.running] = [true, true];
             
@@ -393,6 +380,7 @@
 
           return false;
         } finally {
+          _recursion = false;
           Packet.flash(me.gid, 100);
           console.log("ÿc8TownChicken :: Took: " + Time.format(getTickCount() - t4) + " to visit town. Ending Gold :: " + me.gold);
           [Attack.stopClear, SoloEvents.townChicken.running, townCheck] = [false, false, false];
