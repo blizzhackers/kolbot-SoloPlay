@@ -13,7 +13,11 @@
       caster: true,
       skillstab: sdk.skills.tabs.PoisonandBone,
       wantedskills: [sdk.skills.CorpseExplosion, sdk.skills.BoneSpear],
-      usefulskills: [sdk.skills.AmplifyDamage, sdk.skills.BoneArmor, sdk.skills.Decrepify, sdk.skills.BoneWall, sdk.skills.BonePrison, sdk.skills.BoneSpirit, sdk.skills.Teeth],
+      usefulskills: [
+        sdk.skills.AmplifyDamage, sdk.skills.BoneArmor,
+        sdk.skills.Decrepify, sdk.skills.BoneWall,
+        sdk.skills.BonePrison, sdk.skills.BoneSpirit, sdk.skills.Teeth
+      ],
       wantedMerc: MercData[sdk.skills.Might],
       skills: [
         // Total skills at respec = 29
@@ -33,7 +37,10 @@
       stats: [],
 
       active: function () {
-        return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.checkSkill(sdk.skills.BonePrison, sdk.skills.subindex.HardPoints) && !Check.finalBuild().active());
+        return (me.charlvl > CharInfo.respecOne
+          && me.charlvl > CharInfo.respecTwo
+          && me.checkSkill(sdk.skills.BonePrison, sdk.skills.subindex.HardPoints)
+          && !Check.finalBuild().active());
       },
 
       AutoBuildTemplate: {
@@ -58,8 +65,10 @@
       ? [
         ["dexterity", 51], ["strength", 80], ["energy", 100], ["vitality", "all"]
       ] : [
-        ["strength", 48], ["vitality", 165], ["strength", 61],
-        ["vitality", 252], ["strength", 156], ["vitality", "all"]
+        ["strength", 48], ["energy", 50],
+        ["vitality", 100], ["strength", 61],
+        ["vitality", 165], ["vitality", 252],
+        ["strength", 156], ["vitality", "all"]
       ];
     
     return build;
