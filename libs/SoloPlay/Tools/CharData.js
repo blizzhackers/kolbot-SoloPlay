@@ -136,7 +136,7 @@ const CharData = (function () {
 
       Charm.prototype.count = function () {
         let [curr, max] = [0, 0];
-        Object.keys(me.data.charms).forEach(cKey => {
+        Object.keys(me.data.charms).forEach(function (cKey) {
           if (me.data.charms[cKey].classid === this.classid) {
             curr += me.data.charms[cKey].have.length;
             max += me.data.charms[cKey].max;
@@ -149,15 +149,14 @@ const CharData = (function () {
         };
       };
       /** @type {Map<number, Charm} */
-      const charmMap = new Map();
-      charmMap.set(sdk.items.SmallCharm, new Charm(sdk.items.SmallCharm));
-      charmMap.set(sdk.items.LargeCharm, new Charm(sdk.items.LargeCharm));
-      charmMap.set(sdk.items.GrandCharm, new Charm(sdk.items.GrandCharm));
-
-      // hacky but makes sure it works with the old method
-      charmMap.set("small", charmMap.get(sdk.items.SmallCharm));
-      charmMap.set("large", charmMap.get(sdk.items.LargeCharm));
-      charmMap.set("grand", charmMap.get(sdk.items.GrandCharm));
+      const charmMap = new Map([
+        [sdk.items.SmallCharm, new Charm(sdk.items.SmallCharm)],
+        ["small", new Charm(sdk.items.SmallCharm)],
+        [sdk.items.LargeCharm, new Charm(sdk.items.LargeCharm)],
+        ["large", new Charm(sdk.items.LargeCharm)],
+        [sdk.items.GrandCharm, new Charm(sdk.items.GrandCharm)],
+        ["grand", new Charm(sdk.items.GrandCharm)]
+      ]);
 
       return charmMap;
     })(),
@@ -235,7 +234,7 @@ const CharData = (function () {
         resetBowData: function () {
           this.bowOnSwitch = false;
           [this.bowGid, this.bowType, this.arrows, this.quiverType] = [0, 0, 0, 0];
-          NTIP.resetRuntimeList();
+          NTIP.Runtime.clear();
           CharData.skillData.update();
         },
       },
@@ -261,11 +260,17 @@ const CharData = (function () {
       haveChargedSkill: function (skillid = []) {
         // convert to array if not one
         !Array.isArray(skillid) && (skillid = [skillid]);
-        return this.currentChargedSkills.some(s => skillid.includes(s));
+        return this.currentChargedSkills
+          .some(function (s) {
+            return skillid.includes(s);
+          });
       },
 
       haveChargedSkillOnSwitch: function (skillid = 0) {
-        return this.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === skillid);
+        return this.chargedSkillsOnSwitch
+          .some(function (chargeSkill) {
+            return chargeSkill.skill === skillid;
+          });
       }
     },
 

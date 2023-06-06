@@ -113,19 +113,6 @@ declare global {
     twoHandedCheck: (strict?: boolean) => boolean;
   }
 
-  // type EquippedItem = {
-  // 	classid: number;
-  // 	name: string;
-  // 	fname: string;
-  // 	quality: number;
-  // 	prefixnum: number;
-  // 	suffixnum: number;
-  // 	itemType: number;
-  // 	strreq: number;
-  // 	dexreq: number;
-  // 	sockets: number;
-  // 	getStat: (stat: number, subid: number) => number;
-  // };
   type EquippedMap = Map<number, EquippedItem>;
 
   interface MeType {
@@ -238,6 +225,13 @@ declare global {
     actMap: Map<number | symbol, number | Merc[]>;
   }
 
+  type Charge = {
+    skill: number;
+    level: number;
+    charges: number;
+    maxcharges: number;
+  };
+
   namespace Mercenary {
     let minCost: number;
 
@@ -276,6 +270,10 @@ declare global {
 
   namespace Skill {
     function switchCast(skillId: number, givenSettings: { hand?: number, x?: number, y?: number, switchBack?: boolean, oSkill?: boolean }): boolean;
+  }
+
+  namespace Pather {
+    function clearToExit(currentarea: number, targetarea: number, givenSettings: pathSettings): boolean;
   }
 
   namespace CharData {
@@ -359,6 +357,10 @@ declare global {
 
   namespace Town {
     function doChores(repair?: boolean, givenTasks?: extraTasks): boolean;
+  }
+
+  namespace LocationAction {
+    function run(): void;
   }
 }
 export{};

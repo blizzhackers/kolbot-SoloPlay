@@ -875,64 +875,56 @@ Attack.useBowOnSwitch = function (unit, skillId = 0, switchBack = true) {
 
 // maybe store the copyUnit of the item or at least gid so we don't need to iterate through all our items to find the one with the charged skill when we need it
 Attack.getCurrentChargedSkillIds = function (init = false) {
-  const chargeSkillObj = (skill, level, gid) => ({ skill: skill, level: level, gid: gid });
-  let [currentChargedSkills, chargedSkills, chargedSkillsOnSwitch] = [[], [], []];
+  /**
+   * @typedef {Object} Charge
+   * @property {number} skill
+   * @property {number} level
+   * @property {number} charges
+   * @property {number} maxcharges
+   */
+  
+  /**
+   * @constructor
+   * @param {Charge} charge
+   * @param {number} gid
+   */
+  function ChargedSkill (charge, gid) {
+    this.skill = charge.skill;
+    this.level = charge.level;
+    this.charges = charge.charges;
+    this.maxcharges = charge.maxcharges;
+    this.gid = gid;
+  }
+
+  /** @type {Array<number>} */
+  const currentChargedSkills = [];
+  /** @type {Array<ChargedSkill>[]} */
+  const [chargedSkills, chargedSkillsOnSwitch] = [[], []];
 
   // Item must be equipped - removed charms as I don't think at any point using hydra from torch has ever been worth it
   me.getItemsEx(-1)
     .filter(item => item && ((item.isEquipped /* && !item.rare */)))
     .forEach(function (item) {
       let stats = item.getStat(-2);
+      if (!stats.hasOwnProperty(sdk.stats.ChargedSkill)) return;
+      
+      /** @type {Array<Charge> | Charge} */
+      let charges = stats[sdk.stats.ChargedSkill];
+      // simplfy calc by making it an array if it isn't already
+      if (!(charges instanceof Array)) charges = [charges];
 
-      if (stats.hasOwnProperty(sdk.stats.ChargedSkill)) {
-        if (stats[sdk.stats.ChargedSkill] instanceof Array) {
-          for (let i = 0; i < stats[sdk.stats.ChargedSkill].length; i += 1) {
-            if (stats[sdk.stats.ChargedSkill][i] !== undefined) {
-              // add to total list of skillIds
-              if (stats[sdk.stats.ChargedSkill][i].charges > 0
-                && !currentChargedSkills.includes(stats[sdk.stats.ChargedSkill][i].skill)) {
-                currentChargedSkills.push(stats[sdk.stats.ChargedSkill][i].skill);
-                chargedSkills.push(chargeSkillObj(
-                  stats[sdk.stats.ChargedSkill][i].skill,
-                  stats[sdk.stats.ChargedSkill][i].level,
-                  item.gid)
-                );
-              }
+      for (let charge of charges) {
+        // add to total list of skillIds
+        if (charge.charges > 0 && !currentChargedSkills.includes(charge.skill)) {
+          currentChargedSkills.push(charge.skill);
+          chargedSkills.push(new ChargedSkill(charge, item.gid));
+        }
 
-              // add to switch only list for use with swtich casting
-              if (stats[sdk.stats.ChargedSkill][i].charges > 0
-                && !chargedSkillsOnSwitch.some(cSk => cSk.skill === stats[sdk.stats.ChargedSkill][i].skill)
-                && item.isOnSwap) {
-                chargedSkillsOnSwitch.push(chargeSkillObj(
-                  stats[sdk.stats.ChargedSkill][i].skill,
-                  stats[sdk.stats.ChargedSkill][i].level,
-                  item.gid)
-                );
-              }
-            }
-          }
-        } else {
-          // add to total list
-          if (stats[sdk.stats.ChargedSkill].charges > 0
-            && !currentChargedSkills.includes(stats[sdk.stats.ChargedSkill].skill)) {
-            currentChargedSkills.push(stats[sdk.stats.ChargedSkill].skill);
-            chargedSkills.push(chargeSkillObj(
-              stats[sdk.stats.ChargedSkill].skill,
-              stats[sdk.stats.ChargedSkill].level,
-              item.gid)
-            );
-          }
-
-          // add to switch only list for use with swtich casting
-          if (stats[sdk.stats.ChargedSkill].charges > 0
-            && !chargedSkillsOnSwitch.some(cSk => cSk.skill === stats[sdk.stats.ChargedSkill].skill)
-            && item.isOnSwap) {
-            chargedSkillsOnSwitch.push(chargeSkillObj(
-              stats[sdk.stats.ChargedSkill].skill,
-              stats[sdk.stats.ChargedSkill].level,
-              item.gid)
-            );
-          }
+        // add to switch only list for use with swtich casting
+        if (charge.charges > 0
+          && !chargedSkillsOnSwitch.some(cSk => cSk.skill === charge.skill)
+          && item.isOnSwap) {
+          chargedSkillsOnSwitch.push(new ChargedSkill(charge, item.gid));
         }
       }
     });
@@ -944,7 +936,6 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
     case Object.keys(Misc.recursiveSearch(chargedSkillsOnSwitch, CharData.skillData.chargedSkillsOnSwitch)).length > 0:
     case Object.keys(Misc.recursiveSearch(chargedSkills, CharData.skillData.chargedSkills)).length > 0:
       CharData.skillData.init(currentChargedSkills, chargedSkills, chargedSkillsOnSwitch);
-      !init && CharData.skillData.update();
       break;
     }
   }
@@ -964,26 +955,25 @@ Attack.getItemCharges = function (skillId) {
     return itemCharge.skill === skillId && itemCharge.charges > 1;
   };
 
-  // Item must equipped, or a charm in inventory
+  // Item must equipped, or a ~charm in inventory~ removed charms as I don't think at any point using hydra from torch has ever been worth it
   me.getItemsEx(-1)
-    .filter(item => item && (item.isEquipped && !item.rare || (item.isInInventory && item.isCharm)))
+    .filter(item => item && (item.isEquipped && !item.rare))
     .forEach(function (item) {
       let stats = item.getStat(-2);
+      if (!stats.hasOwnProperty(sdk.stats.ChargedSkill)) return;
 
-      if (stats.hasOwnProperty(sdk.stats.ChargedSkill)) {
-        if (stats[sdk.stats.ChargedSkill] instanceof Array) {
-          stats = stats[sdk.stats.ChargedSkill].filter(validCharge);
-          stats.length && chargedItems.push({
-            charge: stats.first(),
+      /** @type {Array<Charge> | Charge} */
+      let charges = stats[sdk.stats.ChargedSkill];
+      // simplfy calc by making it an array if it isn't already
+      if (!(charges instanceof Array)) charges = [charges];
+
+      for (let charge of charges) {
+        if (validCharge(charge)) {
+          chargedItems.push({
+            skill: charge.skill,
+            charge: charge.charges,
             item: item
           });
-        } else {
-          if (stats[sdk.stats.ChargedSkill].skill === skillId && stats[sdk.stats.ChargedSkill].charges > 1) {
-            chargedItems.push({
-              charge: stats[sdk.stats.ChargedSkill].charges,
-              item: item
-            });
-          }
         }
       }
     });
@@ -1025,7 +1015,7 @@ Attack.switchCastCharges = function (skillId, unit) {
   try {
     me.castSwitchChargedSkill(skillId, unit) && delay(25);
   } finally {
-    me.weaponswitch === 1 && me.switchWeapons(0);
+    me.switchToPrimary();
   }
 
   return true;

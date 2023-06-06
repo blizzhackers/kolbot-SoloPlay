@@ -376,8 +376,9 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 
     let chargedItems = [];
 
-    CharData.skillData.chargedSkills.forEach(function (chargeSkill) {
-      if (chargeSkill.skill === skillId) {
+    CharData.skillData.chargedSkills
+      .forEach(function (chargeSkill) {
+        if (chargeSkill.skill !== skillId) return;
         console.debug(chargeSkill);
         let item = me.getItem(-1, sdk.items.mode.Equipped, chargeSkill.gid);
         !!item && chargedItems.push({
@@ -385,14 +386,14 @@ Unit.prototype.castChargedSkillEx = function (...args) {
           level: chargeSkill.level,
           item: item
         });
-      }
-    });
+      });
 
     if (chargedItems.length === 0) {
       console.log("ÿc9CastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
       return false;
     }
 
+    /** @type {ItemUnit} */
     let chargedItem = chargedItems
       .sort(function (a, b) {
         return b.charge.level - a.charge.level;
@@ -415,7 +416,9 @@ Unit.prototype.castChargedSkillEx = function (...args) {
       if (charge instanceof Array) {
         // Filter out all other charged skills
         charge = charge
-          .filter(item => (item && item.skill === skillId) && !!item.charges)
+          .filter(function (item) {
+            return (item && item.skill === skillId) && !!item.charges;
+          })
           .first();
       } else {
         if (charge.skill !== skillId || !charge.charges) {
@@ -429,12 +432,15 @@ Unit.prototype.castChargedSkillEx = function (...args) {
 
     if (charge) {
       const usePacket = ([
-        sdk.skills.Valkyrie, sdk.skills.Decoy, sdk.skills.RaiseSkeleton, sdk.skills.ClayGolem,
-        sdk.skills.RaiseSkeletalMage, sdk.skills.BloodGolem, sdk.skills.Shout,
-        sdk.skills.IronGolem, sdk.skills.Revive, sdk.skills.Werewolf, sdk.skills.Werebear,
-        sdk.skills.OakSage, sdk.skills.SpiritWolf, sdk.skills.PoisonCreeper, sdk.skills.BattleOrders,
-        sdk.skills.SummonDireWolf, sdk.skills.Grizzly, sdk.skills.HeartofWolverine, sdk.skills.SpiritofBarbs,
-        sdk.skills.ShadowMaster, sdk.skills.ShadowWarrior, sdk.skills.BattleCommand,
+        sdk.skills.Teleport, sdk.skills.Valkyrie, sdk.skills.Decoy,
+        sdk.skills.RaiseSkeleton, sdk.skills.ClayGolem,
+        sdk.skills.RaiseSkeletalMage, sdk.skills.BloodGolem,
+        sdk.skills.IronGolem, sdk.skills.Revive,
+        sdk.skills.Werewolf, sdk.skills.Werebear,
+        sdk.skills.OakSage, sdk.skills.SpiritWolf, sdk.skills.PoisonCreeper,
+        sdk.skills.SummonDireWolf, sdk.skills.Grizzly,
+        sdk.skills.HeartofWolverine, sdk.skills.SpiritofBarbs,
+        sdk.skills.ShadowMaster, sdk.skills.ShadowWarrior
       ].indexOf(skillId) === -1);
 
       if (!usePacket) {
