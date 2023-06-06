@@ -12,7 +12,10 @@
       caster: true,
       skillstab: sdk.skills.tabs.PoisonandBone,
       wantedskills: [sdk.skills.BoneSpirit, sdk.skills.BoneSpear, sdk.skills.Teeth],
-      usefulskills: [sdk.skills.AmplifyDamage, sdk.skills.BoneArmor, sdk.skills.Decrepify, sdk.skills.BoneWall, sdk.skills.BonePrison],
+      usefulskills: [
+        sdk.skills.AmplifyDamage, sdk.skills.BoneArmor,
+        sdk.skills.Decrepify, sdk.skills.BoneWall, sdk.skills.BonePrison
+      ],
       precastSkills: [sdk.skills.BoneArmor],
       wantedMerc: MercData[sdk.skills.Might],
       skills: [
@@ -35,7 +38,8 @@
           have: [],
           classid: sdk.items.SmallCharm,
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+            return (!check.unique && check.classid === this.classid
+              && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
           }
         },
 
@@ -44,7 +48,8 @@
           have: [],
           classid: sdk.items.SmallCharm,
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (!check.unique && check.classid === this.classid
+              && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
           }
         },
 
@@ -53,7 +58,8 @@
           have: [],
           classid: sdk.items.SmallCharm,
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+            return (!check.unique && check.classid === this.classid
+              && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
           }
         },
 
@@ -62,7 +68,8 @@
           have: [],
           classid: sdk.items.GrandCharm,
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.PoisonandBone) === 1
+            return (!check.unique && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.PoisonandBone) === 1
               && check.getStat(sdk.stats.MaxHp) >= 40);
           }
         },
@@ -119,8 +126,8 @@
         // Gloves - Magefist
         "[name] == lightgauntlets && [quality] == unique # [fcr] >= 20 && [addfireskills] == 1 # [tier] == tierscore(item, 100000)",
       ] : [
-        // Weapon
-        "([type] == wand || [type] == sword && ([quality] >= magic || [flag] == runeword) || [type] == knife && [quality] >= magic) && [flag] != ethereal # [secondarymindamage] == 0 && [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+        // Weapon - White
+        "[type] == wand && [flag] == runeword # [skillbonespear] == 8 && [skillbonespirit] == 6 # [tier] == 100000",
         // Helmet - Harlequin's Crest
         "[name] == shako && [quality] == unique && [flag] != ethereal # [damageresist] == 10 # [tier] == tierscore(item, 100000)",
         // Belt - Arach's
@@ -131,8 +138,8 @@
         "[name] == battleboots && [quality] == unique && [flag] != ethereal # [itemmagicbonus] >= 50 # [tier] == tierscore(item, 5000)",
         // Armor - Enigma
         "[type] == armor && [flag] != ethereal && [flag] == runeword # [itemallskills] == 2 # [tier] == 100000",
-        // Shield
-        "([type] == shield && ([quality] >= magic || [flag] == runeword) || [type] == voodooheads) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+        // Shield - Perfect Spirit Monarch
+        "[name] == monarch && [flag] == runeword # [fcr] == 35 && [maxmana] == 112 # [tier] == 100000",
         // Final Gloves - Perfect 2x Upp'ed Magefist
         "[name] == crusadergauntlets && [quality] == unique && [flag] != ethereal # [enhanceddefense] == 30 && [addfireskills] == 1 # [tier] == 110000",
         // Gloves - 2x Upp'ed Magefist
@@ -148,8 +155,6 @@
         "[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000",
         // Switch - CTA
         "[minimumsockets] >= 5 && [flag] == runeword # [plusskillbattleorders] >= 1 # [secondarytier] == 100000",
-        // Switch - Spirit
-        "[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000",
         // Merc Armor - Fortitude
         "[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
         // Merc Final Helmet - Eth Andy's
@@ -159,6 +164,10 @@
       ];
 
     NTIP.buildList(finalGear);
+    if (me.expansion && me.equipped.get(sdk.body.RightArmSecondary).prefixnum === sdk.locale.items.CalltoArms) {
+      // Switch - Spirit
+      NTIP.addLine("[name] == monarch && [flag] == runeword # [fcr] >= 25 && [maxmana] >= 89 # [secondarytier] == 110000");
+    }
     NTIP.buildFinalGear(finalGear);
 
     return build;

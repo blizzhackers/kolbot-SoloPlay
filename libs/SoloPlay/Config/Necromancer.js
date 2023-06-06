@@ -19,6 +19,8 @@
   includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
   includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
+  const LADDER_ENABLED = (me.ladder || Developer.addLadderRW);
+  
   SetUp.include();
   SetUp.config();
 
@@ -90,14 +92,42 @@
       ? sdk.skills.PoisonExplosion
       : 0;
 
-  Config.imbueables = [
-    { name: sdk.items.DemonHead, condition: () => (me.normal && me.expansion) },
-    { name: sdk.items.HierophantTrophy, condition: () => (!me.normal && (me.charlvl < 66 || me.trueStr < 106) && me.expansion) },
-    { name: sdk.items.BloodlordSkull, condition: () => (me.equipped.get(sdk.body.LeftArm).tier < 1000 && me.expansion) },
-    { name: sdk.items.Belt, condition: () => (me.normal && (me.equipped.get(sdk.body.LeftArm).tier > 1000 || me.classic)) },
-    { name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (me.equipped.get(sdk.body.LeftArm).tier > 1000 || me.classic)) },
-    { name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.LeftArm).tier > 1000 || me.classic)) },
-  ].filter((item) => item.condition());
+  Config.imbueables = (function () {
+    /**
+     * @param {number} name 
+     * @param {function(): boolean} condition 
+     */
+    const _imbueObj = (name, condition) => ({ name: name, condition: condition });
+
+    return [
+      _imbueObj(
+        sdk.items.DemonHead,
+        () => (me.normal && me.expansion)
+      ),
+      _imbueObj(
+        sdk.items.HierophantTrophy,
+        () => (!me.normal && (me.charlvl < 66 || me.trueStr < 106) && me.expansion)
+      ),
+      _imbueObj(
+        sdk.items.BloodlordSkull,
+        () => (me.equipped.get(sdk.body.LeftArm).tier < 1000 && me.expansion)
+      ),
+      _imbueObj(
+        sdk.items.Belt,
+        () => (me.normal && (me.equipped.get(sdk.body.LeftArm).tier > 1000 || me.classic))
+      ),
+      _imbueObj(
+        sdk.items.MeshBelt,
+        () => (!me.normal && me.charlvl < 46 && me.trueStr > 58
+          && (me.equipped.get(sdk.body.LeftArm).tier > 1000 || me.classic))
+      ),
+      _imbueObj(
+        sdk.items.SpiderwebSash,
+        () => (!me.normal && me.trueStr > 50
+          && (me.equipped.get(sdk.body.LeftArm).tier > 1000 || me.classic))
+      ),
+    ].filter((item) => item.condition());
+  })();
 
   let imbueArr = SetUp.imbueItems();
 
@@ -148,6 +178,7 @@
 
     // Call to Arms
     if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
+      NTIP.addLine("[type] == staff && [quality] == Magic # [itemchargedskill] == 54 # [secondarytier] == 50000 + chargeditemscore(item, 54)");
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js");
     }
 
@@ -167,21 +198,25 @@
     }
 
     // Spirit Sword
-    if ((me.ladder || Developer.addLadderRW) && me.equipped.get(sdk.body.RightArm).tier < 777) {
+    if (LADDER_ENABLED && me.equipped.get(sdk.body.RightArm).tier < 777) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
     }
 
     // Spirit shield
-    if ((me.ladder || Developer.addLadderRW) && (me.equipped.get(sdk.body.LeftArm).tier < 1000 || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
+    if (LADDER_ENABLED
+      && (me.equipped.get(sdk.body.LeftArm).tier < 1000
+      || (me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)
+      && me.equipped.get(sdk.body.RightArmSecondary).prefixnum === sdk.locale.items.CalltoArms)) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
     }
 
     // Merc Insight
-    if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
+    if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
     }
 
-    if (!me.haveSome([{ name: sdk.locale.items.Enigma }, { name: sdk.locale.items.Bone }]) && me.equipped.get(sdk.body.Armor).tier < 650) {
+    if (!me.haveSome([{ name: sdk.locale.items.Enigma }, { name: sdk.locale.items.Bone }])
+      && me.equipped.get(sdk.body.Armor).tier < 650) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Bone.js");
     }
 
