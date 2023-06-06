@@ -249,7 +249,6 @@ Pather.teleUsingCharges = function (x, y, maxRange = 5) {
 
       while (getTickCount() - tick < Math.max(500, me.ping * 2 + 200)) {
         if (getDistance(me.x, me.y, x, y) < maxRange) {
-          me.weaponswitch !== orgSlot && me.switchWeapons(orgSlot);
           return true;
         }
 
@@ -257,11 +256,15 @@ Pather.teleUsingCharges = function (x, y, maxRange = 5) {
       }
     }
 
-    if (me.gold > me.getRepairCost() * 3 && me.canTpToTown()) {
-      console.debug("Tele-Charge repair");
-      Town.visitTown(true);
-    } else {
-      this.haveTeleCharges = false;
+    if (CharData.skillData.haveChargedSkill(sdk.skills.Teleport)
+      && !Attack.getItemCharges(sdk.skills.Teleport)) {
+
+      if (me.gold > me.getRepairCost() * 3 && me.canTpToTown()) {
+        console.debug("Tele-Charge repair");
+        Town.visitTown(true);
+      } else {
+        this.haveTeleCharges = false;
+      }
     }
 
     return false;
