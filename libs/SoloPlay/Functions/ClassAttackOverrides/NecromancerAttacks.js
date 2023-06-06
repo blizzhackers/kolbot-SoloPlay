@@ -197,8 +197,10 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
 
     if (me.expansion && index === 1 && !unit.dead) {
       if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
-        && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-        && unit.curseable && (gold > 500000 && !unit.isBoss) && !checkCollision(me, unit, sdk.collision.Ranged)) {
+        && unit.getEnchant(sdk.enchant.LightningEnchanted)
+        && !unit.getState(sdk.states.SlowMissiles)
+        && unit.curseable && (gold > 500000 && !unit.isBoss)
+        && !checkCollision(me, unit, sdk.collision.Ranged)) {
         // Cast slow missiles
         Attack.castCharges(sdk.skills.SlowMissiles, unit);
       }
@@ -294,7 +296,7 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
 
         Config.ActiveSummon && this.raiseArmy();
         this.explodeCorpses(unit);
-        this.smartCurse(unit);
+        doCurse(unit);
         let closeMob = Attack.getNearestMonster({ skipGid: gid });
         if (!!closeMob) {
           let findSkill = Attack.decideSkill(closeMob);
@@ -323,6 +325,11 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
     // Check for bodies to exploit for CorpseExplosion before committing to an attack for non-summoner type necros
     if (Config.Skeletons + Config.SkeletonMages + Config.Revives === 0) {
       this.checkCorpseNearMonster(unit) && this.explodeCorpses(unit);
+    }
+
+    if (Skill.canUse(sdk.skills.BoneArmor) && !me.getState(sdk.states.BoneArmor)) {
+      // make sure we keep this up
+      Skill.cast(sdk.skills.BoneArmor, sdk.skills.hand.Right);
     }
 
     let walk;
@@ -383,7 +390,7 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
         if (!unit.dead) {
           // Try to find better spot
           if (unit.distance < 4 && timedSkillRange > 6) {
-            Attack.deploy(unit, 4, 5, 9);
+            Attack.getIntoPosition(unit, timedSkillRange, sdk.collision.BlockMissile, true);
           }
 
           Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
