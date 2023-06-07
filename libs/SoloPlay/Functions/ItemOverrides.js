@@ -162,8 +162,15 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
          */
         const checkForBetterItem = function (item) {
           let betterItem = me.getItemsEx()
-            .filter(el => el.isInStorage && el.gid !== item.gid && el.identified && Item.getBodyLoc(el).includes(loc))
-            .sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a))
+            .filter(function (el) {
+              return el.isInStorage
+                && el.gid !== item.gid
+                && el.identified
+                && Item.getBodyLoc(el).includes(loc);
+            })
+            .sort(function (a, b) {
+              return NTIP.GetTier(b) - NTIP.GetTier(a);
+            })
             .find(el => NTIP.GetTier(el) > tier);
           return !!betterItem;
         };

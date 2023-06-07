@@ -78,20 +78,29 @@ const Mercenary = {
    * @returns {string}
    */
   getMercSkill: function (merc) {
-    !merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
+    !merc && (merc = Misc.poll(function () {
+      return me.getMerc();
+    }, 1000, 50));
     if (!merc) return false;
-    let mercSkill = (() => {
+    let mercSkill = (function () {
       switch (merc.classid) {
       case sdk.mercs.Rogue:
-        return [sdk.skills.FireArrow, sdk.skills.ColdArrow].find(s => merc.getSkill(s, sdk.skills.subindex.HardPoints));
+        return [
+          sdk.skills.FireArrow,
+          sdk.skills.ColdArrow
+        ].find(s => merc.getSkill(s, sdk.skills.subindex.HardPoints));
       case sdk.mercs.Guard:
         let checkStat = merc.getStat(sdk.stats.ModifierListSkill);
         // if ([sdk.skills.Meditation, sdk.skills.Conviction, sdk.skills.Concentration, sdk.skills.HolyFire].includes(checkStat)) {
         // 	return [sdk.skills.Prayer, sdk.skills.BlessedAim, sdk.skills.Defiance].find(s => merc.getSkill(s, sdk.skills.subindex.HardPoints));
         // }
-        if (![sdk.skills.Prayer, sdk.skills.BlessedAim, sdk.skills.Defiance, sdk.skills.HolyFreeze, sdk.skills.Might, sdk.skills.Thorns].includes(checkStat)) {
+        if (![
+          sdk.skills.Prayer, sdk.skills.BlessedAim,
+          sdk.skills.Defiance, sdk.skills.HolyFreeze,
+          sdk.skills.Might, sdk.skills.Thorns
+        ].includes(checkStat)) {
           // check items for aura granting one then subtract it's skillId
-          merc.getItemsEx().forEach(item => {
+          merc.getItemsEx().forEach(function (item) {
             if (!item.unique && !item.runeword) return false;
             switch (true) {
             case (item.getStat(sdk.stats.SkillOnAura, sdk.skills.Meditation)):
@@ -112,7 +121,11 @@ const Mercenary = {
         }
         return checkStat >= sdk.skills.Might ? checkStat : 0;
       case sdk.mercs.IronWolf:
-        return [sdk.skills.IceBlast, sdk.skills.FireBall, sdk.skills.Lightning].find(s => merc.getSkill(s, sdk.skills.subindex.HardPoints));
+        return [
+          sdk.skills.IceBlast,
+          sdk.skills.FireBall,
+          sdk.skills.Lightning
+        ].find(s => merc.getSkill(s, sdk.skills.subindex.HardPoints));
       case sdk.mercs.A5Barb:
         return sdk.skills.Bash;
       default:
@@ -128,7 +141,9 @@ const Mercenary = {
    * @returns {number}
    */
   getMercDifficulty: function (merc) {
-    !merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
+    !merc && (merc = Misc.poll(function () {
+      return me.getMerc();
+    }, 1000, 50));
     if (!merc) return false;
     if (merc.classid !== sdk.mercs.Guard) return sdk.difficulty.Normal;
 
@@ -149,7 +164,9 @@ const Mercenary = {
    * @returns {number}
    */
   getMercAct: function (merc) {
-    !merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
+    !merc && (merc = Misc.poll(function () {
+      return me.getMerc();
+    }, 1000, 50));
     if (!merc) return 0;
     return MercData.actMap.get(merc.classid) || 0;
   },
@@ -158,7 +175,9 @@ const Mercenary = {
    * @param {MercUnit} merc 
    */
   getMercInfo: function (merc) {
-    !merc && (merc = Misc.poll(() => me.getMerc(), 1000, 50));
+    !merc && (merc = Misc.poll(function () {
+      return me.getMerc();
+    }, 1000, 50));
     if (!merc) return { classid: 0, act: 0, difficulty: 0, type: "" };
     return {
       classid: merc.classid,
@@ -219,7 +238,9 @@ const Mercenary = {
     
     // lets check what our current actually merc is
     /** @type {MercUnit} */
-    let checkMyMerc = Misc.poll(() => me.getMerc(), 50, 500);
+    let checkMyMerc = Misc.poll(function () {
+      return me.getMerc();
+    }, 50, 500);
 
     const wantedSkill = (mercAct === 1
       ? "Fire Arrow" === wantedMerc.skillName
@@ -266,8 +287,15 @@ const Mercenary = {
       if (!MercLib_1.default.length) throw new Error("No mercs found");
 
       let wantedMerc = MercLib_1.default
-        .filter((merc) => merc.skills.some((skill) => (skill === null || skill === void 0 ? void 0 : skill.name) === wantedSkill))
-        .sort((a, b) => b.level - a.level)
+        .filter(function (merc) {
+          return merc.skills
+            .some(function (skill) {
+              return (skill === null || skill === void 0 ? void 0 : skill.name) === wantedSkill;
+            });
+        })
+        .sort(function (a, b) {
+          return b.level - a.level;
+        })
         .first();
       if (!wantedMerc) throw new Error("No merc found with skill " + wantedSkill);
       if (wantedMerc.cost > me.gold) {

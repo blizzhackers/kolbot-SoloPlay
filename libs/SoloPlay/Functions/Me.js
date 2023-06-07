@@ -23,8 +23,14 @@ if (!me.hasOwnProperty("dualWielding")) {
     get: function () {
       // only classes that can duel wield
       if (!me.assassin && !me.barbarian) return false;
-      let items = me.getItemsEx().filter((item) => item.isEquipped && item.isOnMain);
-      return !!items.length && items.length >= 2 && items.every((item) => !item.isShield && !getBaseStat("items", item.classid, "block"));
+      let items = me.getItemsEx()
+        .filter(function (item) {
+          return item.isEquipped && item.isOnMain;
+        });
+      return items.length >= 2
+        && items.every(function (item) {
+          return !item.isShield && !getBaseStat("items", item.classid, "block");
+        });
     }
   });
 }
@@ -364,7 +370,9 @@ if (!me.hasOwnProperty("equipped")) {
           || (item._bodylocation !== item.location && me.weaponswitch !== sdk.player.slot.Secondary))) {
           // item has changed - find the new item
           let newItem = me.getItemsEx()
-            .filter((el) => el.isEquipped && el.bodylocation === bodylocation)
+            .filter(function (el) {
+              return el.isEquipped && el.bodylocation === bodylocation;
+            })
             .first();
           bodyMap.set(bodylocation, new EquippedItem(newItem));
         }
@@ -391,8 +399,12 @@ if (!me.hasOwnProperty("equipped")) {
        */
       init: function () {
         me.getItemsEx()
-          .filter(item => item.isEquipped)
-          .forEach(item => bodyMap.set(item.bodylocation, new EquippedItem(item)));
+          .filter(function (item) {
+            return item.isEquipped;
+          })
+          .forEach(function (item) {
+            bodyMap.set(item.bodylocation, new EquippedItem(item));
+          });
       },
     };
   })();
@@ -415,14 +427,19 @@ me.canTpToTown = function () {
 
 me.getMercEx = function () {
   if (!Config.UseMerc || me.classic || me.mercrevivecost) return null;
-  let merc = Misc.poll(() => me.getMerc(), 250, 50);
+  let merc = Misc.poll(function () {
+    return me.getMerc();
+  }, 250, 50);
 
   return !!merc && !merc.dead ? merc : null;
 };
 
 me.getEquippedItem = function (bodyLoc) {
   if (!bodyLoc) return null;
-  let equippedItem = me.getItemsEx().filter(i => i.isEquipped && i.bodylocation === bodyLoc);
+  let equippedItem = me.getItemsEx()
+    .filter(function (item) {
+      return item.isEquipped && item.bodylocation === bodyLoc;
+    });
   if (!equippedItem.length) return null;
   return equippedItem.first();
 };
@@ -502,10 +519,21 @@ me.cleanUpInvoPotions = function (beltSize) {
 
   if (needCleanup) {
     const potsInInventory = me.getItemsEx()
-      .filter((p) => p.isInInventory && [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion].includes(p.itemType))
-      .sort((a, b) => a.itemType - b.itemType);
+      .filter(function (p) {
+        return p.isInInventory
+          && [
+            sdk.items.type.HealingPotion,
+            sdk.items.type.ManaPotion,
+            sdk.items.type.RejuvPotion
+          ].includes(p.itemType);
+      })
+      .sort(function (a, b) {
+        return a.itemType - b.itemType;
+      });
 
-    potsInInventory.length > 0 && console.debug("We have potions in our invo, put them in belt before we perform townchicken check");
+    if (potsInInventory.length > 0) {
+      console.debug("We have potions in our invo, put them in belt before we perform townchicken check");
+    }
     // Start interating over all the pots we have in our inventory
     beltSize > 1 && potsInInventory.forEach(function (p) {
       let moved = false;
@@ -517,12 +545,16 @@ me.cleanUpInvoPotions = function (beltSize) {
           // Pick up the potion and put it in belt if the column is empty, and we don't have any other columns empty
           // prevents shift-clicking potion into wrong column
           if (freeSpace[i] === beltSize || freeSpace.some((spot) => spot === beltSize)) {
-            let x = freeSpace[i] === beltSize ? i : (beltCapRef[i] - (freeSpace[i] * 4));
+            let x = freeSpace[i] === beltSize
+              ? i
+              : (beltCapRef[i] - (freeSpace[i] * 4));
             Packet.placeInBelt(p, x);
           } else {
             clickItemAndWait(sdk.clicktypes.click.item.ShiftLeft, p.x, p.y, p.location);
           }
-          Misc.poll(() => !me.itemoncursor, 300, 30);
+          Misc.poll(function () {
+            return !me.itemoncursor;
+          }, 300, 30);
           moved = Storage.Belt.checkColumns(beltSize)[i] === freeSpace[i] - 1;
         }
         Cubing.cursorCheck();
@@ -538,7 +570,9 @@ me.cleanUpScrolls = function (tome, scrollId) {
 
   let cleanedUp = 0;
   let myScrolls = me.getItemsEx()
-    .filter(el => el.isInInventory && el.classid === scrollId);
+    .filter(function (el) {
+      return el.isInInventory && el.classid === scrollId;
+    });
   
   if (myScrolls.length) {
     try {
@@ -548,12 +582,18 @@ me.cleanUpScrolls = function (tome, scrollId) {
         Misc.useMenu(sdk.menu.Trade) || me.cancelUIFlags();
       }
 
-      myScrolls.forEach(el => {
+      myScrolls.forEach(function (el) {
         if (tome && tome.getStat(sdk.stats.Quantity) < 20) {
           let currQuantity = tome.getStat(sdk.stats.Quantity);
           if (el.toCursor()) {
-            new PacketBuilder().byte(sdk.packets.send.ScrollToMe).dword(el.gid).dword(tome.gid).send();
-            Misc.poll(() => !me.itemoncursor, 100, 25);
+            new PacketBuilder()
+              .byte(sdk.packets.send.ScrollToMe)
+              .dword(el.gid)
+              .dword(tome.gid)
+              .send();
+            Misc.poll(function () {
+              return !me.itemoncursor;
+            }, 100, 25);
 
             if (tome.getStat(sdk.stats.Quantity) > currQuantity) {
               console.info(null, "Placed scroll in tome");
@@ -588,8 +628,11 @@ me.needPotions = function () {
     beltSize === 1 && me.cleanUpInvoPotions(beltSize);
     // now check what's in our belt
     me.getItemsEx(-1, sdk.items.mode.inBelt)
-      .filter(p => [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion].includes(p.itemType) && p.x < 4)
-      .forEach(p => {
+      .filter(function (p) {
+        return p.x < 4
+          && [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion].includes(p.itemType);
+      })
+      .forEach(function (p) {
         if (p.itemType === sdk.items.type.HealingPotion) {
           pots.hp.push(copyUnit(p));
         } else if (p.itemType === sdk.items.type.ManaPotion) {
@@ -674,10 +717,18 @@ me.clearBelt = function () {
 
 me.getIdTool = function () {
   let items = me.getItemsEx()
-    .filter((i) => i.isInInventory && [sdk.items.ScrollofIdentify, sdk.items.TomeofIdentify].includes(i.classid));
-  let scroll = items.find((i) => i.isInInventory && i.classid === sdk.items.ScrollofIdentify);
+    .filter(function (i) {
+      return i.isInInventory
+        && [sdk.items.ScrollofIdentify, sdk.items.TomeofIdentify].includes(i.classid);
+    });
+  if (!items.length) return null;
+  let scroll = items.find(function (i) {
+    return i.isInInventory && i.classid === sdk.items.ScrollofIdentify;
+  });
   if (scroll) return scroll;
-  let tome = items.find((i) => i.isInInventory && i.classid === sdk.items.TomeofIdentify);
+  let tome = items.find(function (i) {
+    return i.isInInventory && i.classid === sdk.items.TomeofIdentify;
+  });
   if (tome && tome.getStat(sdk.stats.Quantity) > 0) return tome;
 
   return null;
@@ -685,11 +736,17 @@ me.getIdTool = function () {
 
 me.getTpTool = function () {
   let items = me.getItemsEx(-1, sdk.items.mode.inStorage)
-    .filter((i) => i.isInInventory && [sdk.items.ScrollofTownPortal, sdk.items.TomeofTownPortal].includes(i.classid));
+    .filter(function (i) {
+      return i.isInInventory && [sdk.items.ScrollofTownPortal, sdk.items.TomeofTownPortal].includes(i.classid);
+    });
   if (!items.length) return null;
-  let tome = items.find((i) => i.classid === sdk.items.TomeofTownPortal && i.getStat(sdk.stats.Quantity) > 0);
+  let tome = items.find(function (i) {
+    return i.classid === sdk.items.TomeofTownPortal && i.getStat(sdk.stats.Quantity) > 0;
+  });
   if (tome) return tome;
-  let scroll = items.find((i) => i.classid === sdk.items.ScrollofTownPortal);
+  let scroll = items.find(function (i) {
+    return i.classid === sdk.items.ScrollofTownPortal;
+  });
   if (scroll) return scroll;
   return null;
 };
@@ -738,7 +795,11 @@ me.fieldID = function () {
 };
 
 me.getWeaponQuantity = function (weaponLoc = sdk.body.RightArm) {
-  let currItem = me.getItemsEx(-1, sdk.items.mode.Equipped).filter(i => i.bodylocation === weaponLoc).first();
+  let currItem = me.getItemsEx(-1, sdk.items.mode.Equipped)
+    .filter(function (i) {
+      return i.bodylocation === weaponLoc;
+    })
+    .first();
   return !!currItem ? currItem.getStat(sdk.stats.Quantity) : 0;
 };
 
@@ -808,7 +869,7 @@ me.needRepair = function () {
   let bowCheck = Attack.usingBow();
   let switchBowCheck = CharData.skillData.bow.onSwitch;
   let canAfford = me.gold >= me.getRepairCost();
-  !bowCheck && switchBowCheck && (bowCheck = (() => {
+  !bowCheck && switchBowCheck && (bowCheck = (function () {
     switch (CharData.skillData.bow.bowType) {
     case sdk.items.type.Bow:
     case sdk.items.type.AmazonBow:
@@ -821,7 +882,7 @@ me.needRepair = function () {
   })());
 
   if (bowCheck) {
-    let [quiver, inventoryQuiver] = (() => {
+    let [quiver, inventoryQuiver] = (function () {
       switch (bowCheck) {
       case "crossbow":
         return [me.getItem("cqv", sdk.items.mode.Equipped), me.getItem("cqv", sdk.items.mode.inStorage)];
@@ -833,12 +894,21 @@ me.needRepair = function () {
 
     // Out of arrows/bolts
     if (!quiver) {
-      inventoryQuiver ? switchBowCheck ? Item.secondaryEquip(inventoryQuiver, sdk.body.LeftArmSecondary) : Item.equip(inventoryQuiver, 5) : repairAction.push("buyQuiver") && repairAction.push("buyQuiver");
+      inventoryQuiver
+        ? switchBowCheck
+          ? Item.secondaryEquip(inventoryQuiver, sdk.body.LeftArmSecondary)
+          : Item.equip(inventoryQuiver, 5)
+        : repairAction.push("buyQuiver") && repairAction.push("buyQuiver");
     } else {
       let quantity = quiver.getStat(sdk.stats.Quantity);
 
-      if (typeof quantity === "number" && quantity * 100 / getBaseStat("items", quiver.classid, "maxstack") <= Config.RepairPercent) {
-        inventoryQuiver ? switchBowCheck ? Item.secondaryEquip(inventoryQuiver, sdk.body.LeftArmSecondary) : Item.equip(inventoryQuiver, 5) : repairAction.push("buyQuiver") && repairAction.push("buyQuiver");
+      if (typeof quantity === "number"
+        && quantity * 100 / getBaseStat("items", quiver.classid, "maxstack") <= Config.RepairPercent) {
+        inventoryQuiver
+          ? switchBowCheck
+            ? Item.secondaryEquip(inventoryQuiver, sdk.body.LeftArmSecondary)
+            : Item.equip(inventoryQuiver, 5)
+          : repairAction.push("buyQuiver") && repairAction.push("buyQuiver");
       }
     }
   }
@@ -854,7 +924,9 @@ me.needRepair = function () {
 me.needMerc = function () {
   if (me.classic || !Config.UseMerc || me.gold < me.mercrevivecost || me.mercrevivecost === 0) return false;
 
-  Misc.poll(() => me.gameReady, 1000, 100);
+  Misc.poll(function () {
+    return me.gameReady;
+  }, 1000, 100);
   // me.getMerc() might return null if called right after taking a portal, that's why there's retry attempts
   for (let i = 0; i < 3; i += 1) {
     let merc = me.getMercEx();

@@ -317,7 +317,8 @@ Misc.scanShrines = function (range, ignore = []) {
         // todo - check to make sure we can actually get the shrine for ones without states
         // can't grab a health shrine if we are in perfect health, can't grab mana shrine if our mana is maxed
         if (index === -1 || i <= index || this.shrineStates[i] === 0) {
-          if (shrine.objtype === Config.ScanShrines[i] && (Pather.useTeleport() || !checkCollision(me, shrine, sdk.collision.WallOrRanged))) {
+          if (shrine.objtype === Config.ScanShrines[i]
+            && (Pather.useTeleport() || !checkCollision(me, shrine, sdk.collision.WallOrRanged))) {
             this.getShrine(shrine);
 
             // Gem shrine - pick gem
@@ -447,7 +448,11 @@ Misc.unsocketItem = function (item) {
 
   try {
     // failed to move any of the items to the cube
-    if (!Storage.Cube.MoveTo(item) || !Storage.Cube.MoveTo(hel) || !Storage.Cube.MoveTo(scroll)) throw "Failed to move items to cube";
+    if (!Storage.Cube.MoveTo(item)
+      || !Storage.Cube.MoveTo(hel)
+      || !Storage.Cube.MoveTo(scroll)) {
+      throw new Error("Failed to move items to cube");
+    }
 
     // probably only happens on server crash
     if (!Cubing.openCube()) throw "Failed to open cube";
@@ -480,8 +485,12 @@ Misc.checkItemsForSocketing = function () {
   if (me.classic || !me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.ReqComplete)) return false;
 
   let items = me.getItemsEx()
-    .filter(item => item.sockets === 0 && getBaseStat("items", item.classid, "gemsockets") > 0)
-    .sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
+    .filter(function (item) {
+      return item.sockets === 0 && getBaseStat("items", item.classid, "gemsockets") > 0;
+    })
+    .sort(function (a, b) {
+      return NTIP.GetTier(b) - NTIP.GetTier(a);
+    });
 
   for (let i = 0; i < items.length; i++) {
     let curr = Config.socketables.find(({ classid }) => items[i].classid === classid);

@@ -124,7 +124,7 @@ const SetUp = {
 
     let currDiffStr = sdk.difficulty.nameOf(me.diff).toLowerCase();
 
-    if (sdk.difficulty.Difficulties.indexOf(me.data.highestDifficulty) < sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff))) {
+    if (sdk.difficulty.Difficulties.indexOf(me.data.highestDifficulty) < me.diff) {
       me.data.highestDifficulty = sdk.difficulty.nameOf(me.diff);
     }
 
@@ -150,13 +150,18 @@ const SetUp = {
       }
       
       // merc check
-      if (me.getMercEx()) {
+      /** @type {MercUnit} */
+      let merc = me.getMercEx();
+      if (merc) {
         // TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
         // can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
-        let merc = me.getMercEx();
         let mercItems = merc.getItemsEx();
         let preLength = me.data.merc.gear.length;
-        let check = me.data.merc.gear.filter(i => mercItems.some(item => item.prefixnum === i));
+        let check = me.data.merc.gear.filter(function (i) {
+          return mercItems.some(function (item) {
+            return item.prefixnum === i;
+          });
+        });
 
         if (check !== preLength) {
           mUpdate = true;
@@ -200,10 +205,9 @@ const SetUp = {
 
       const finalCharmKeys = Object.keys(me.data.charms);
       // gids change from game to game so reset our list
-      for (let i = 0; i < finalCharmKeys.length; i++) {
-        let cKey = finalCharmKeys[i];
-        if (me.data.charms[cKey].have.length) {
-          me.data.charms[cKey].have = [];
+      for (let key of finalCharmKeys) {
+        if (me.data.charms[key].have.length) {
+          me.data.charms[key].have = [];
           cUpdate = true;
         }
       }

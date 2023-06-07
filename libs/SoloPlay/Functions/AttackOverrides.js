@@ -251,7 +251,11 @@ Attack.openChests = function (range, x, y) {
 Attack.killTarget = function (name) {
   if (!name || Config.AttackSkill[1] < 0) return false;
   typeof name === "string" && (name = name.toLowerCase());
-  let target = (typeof name === "object" ? name : Misc.poll(() => Game.getMonster(name), 2000, 100));
+  let target = (typeof name === "object"
+    ? name
+    : Misc.poll(function () {
+      return Game.getMonster(name);
+    }, 2000, 100));
 
   if (!target) {
     console.warn("ÿc8KillTargetÿc0 :: " + name + " not found. Performing Attack.Clear(25)");
