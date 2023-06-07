@@ -155,6 +155,7 @@ const SetUp = {
       if (merc) {
         // TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
         // can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
+        let _tempMerc = copyObj(me.data.merc);
         let mercItems = merc.getItemsEx();
         let preLength = me.data.merc.gear.length;
         let check = me.data.merc.gear.filter(function (i) {
@@ -169,9 +170,24 @@ const SetUp = {
         }
 
         let mercInfo = Mercenary.getMercInfo(merc);
-        mercInfo.classid !== me.data.merc.classid && (me.data.merc.classid = mercInfo.classid);
-        mercInfo.act !== me.data.merc.act && (me.data.merc.act = mercInfo.act);
-        mercInfo.difficulty !== me.data.merc.difficulty && (me.data.merc.difficulty = mercInfo.difficulty);
+        if (mercInfo.classid !== me.data.merc.classid) {
+          me.data.merc.classid = mercInfo.classid;
+        }
+        if (mercInfo.act !== me.data.merc.act) {
+          me.data.merc.act = mercInfo.act;
+        }
+        if (mercInfo.difficulty !== me.data.merc.difficulty) {
+          me.data.merc.difficulty = mercInfo.difficulty;
+        }
+        if (merc.charlvl !== me.data.merc.level) {
+          me.data.merc.level = merc.charlvl;
+        }
+        if (merc.rawStrength !== me.data.merc.strength) {
+          me.data.merc.strength = merc.rawStrength;
+        }
+        if (merc.rawDexterity !== me.data.merc.dexterity) {
+          me.data.merc.dexterity = merc.rawDexterity;
+        }
 
         if (merc.classid !== sdk.mercs.Guard) {
           try {
@@ -190,6 +206,12 @@ const SetUp = {
         // // only if we have enough gold on hand to hire said merc
         // // return to our orignal difficulty afterwards
         // }
+        let changed = Misc.recursiveSearch(me.data.merc, _tempMerc);
+  
+        if (Object.keys(changed).length > 0) {
+          // CharData.updateData("merc", me.data.merc);
+          mUpdate = true;
+        }
       }
 
       // charm check
@@ -215,15 +237,11 @@ const SetUp = {
       if (!!me.shenk && me.data[currDiffStr].socketUsed === false) {
         me.data[currDiffStr].socketUsed = true;
       }
-
-      if (mUpdate) {
-        CharData.updateData("merc", me.data);
-      }
     }
 
     let changed = Misc.recursiveSearch(me.data, temp);
   
-    if (Object.keys(changed).length > 0 || cUpdate) {
+    if (cUpdate || mUpdate || Object.keys(changed).length > 0) {
       CharData.updateData("me", me.data);
     }
   },
