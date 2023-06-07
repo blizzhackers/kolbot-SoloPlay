@@ -452,6 +452,7 @@ Pather.move = function (target, givenSettings = {}) {
   const leaped = new PathAction();
   const whirled = new PathAction();
   const cleared = new PathAction();
+  const teleported = new PathAction();
 
   Pather.clearUIFlags();
 
@@ -671,6 +672,17 @@ Pather.move = function (target, givenSettings = {}) {
                 if (Skill.cast(sdk.skills.Whirlwind, sdk.skills.hand.Right, node.x, node.y)) {
                   whirled.at = getTickCount();
                   [whirled.node.x, whirled.node.y] = [node.x, node.y];
+                }
+              }
+            }
+
+            if (usingTele) {
+              if (teleported.at === 0 || getTickCount() - teleported.at > Time.seconds(3)
+                || teleported.node.distance > 5 || me.checkForMobs({ range: 6 })) {
+                // alright now if we have actually casted it set the values so we know
+                if (useTeleport ? Pather.teleportTo(node.x, node.y) : Pather.teleUsingCharges(node.x, node.y)) {
+                  teleported.at = getTickCount();
+                  [teleported.node.x, teleported.node.y] = [node.x, node.y];
                 }
               }
             }
