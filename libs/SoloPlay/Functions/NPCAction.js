@@ -696,11 +696,50 @@
         }
       }
 
+      let merc = null;
       let tick = getTickCount();
 
       while (getTickCount() - tick < 2000) {
-        if (me.getMercEx()) {
+        if ((merc = me.getMercEx())) {
           delay(Math.max(750, me.ping * 2));
+          // check stats and update if necessary
+          let _temp = copyObj(me.data.merc);
+          let mercInfo = Mercenary.getMercInfo(merc);
+          if (mercInfo.classid !== me.data.merc.classid) {
+            me.data.merc.classid = mercInfo.classid;
+          }
+          if (mercInfo.act !== me.data.merc.act) {
+            me.data.merc.act = mercInfo.act;
+          }
+          if (mercInfo.difficulty !== me.data.merc.difficulty) {
+            me.data.merc.difficulty = mercInfo.difficulty;
+          }
+          if (merc.charlvl !== me.data.merc.level) {
+            me.data.merc.level = merc.charlvl;
+          }
+          if (merc.rawStrength !== me.data.merc.strength) {
+            me.data.merc.strength = merc.rawStrength;
+          }
+          if (merc.rawDexterity !== me.data.merc.dexterity) {
+            me.data.merc.dexterity = merc.rawDexterity;
+          }
+
+          if (merc.classid !== sdk.mercs.Guard) {
+            try {
+              if (mercInfo.skillName !== me.data.merc.skillName) {
+                me.data.merc.skillName = mercInfo.skillName;
+                me.data.merc.skill = MercData.findByName(me.data.merc.skillName, me.data.merc.act).skill;
+              }
+            } catch (e) {
+              //
+            }
+          }
+          let changed = Misc.recursiveSearch(me.data.merc, _temp);
+  
+          if (Object.keys(changed).length > 0) {
+            CharData.updateData("merc", me.data.merc);
+          }
+          me.cancel();
 
           break MainLoop;
         }

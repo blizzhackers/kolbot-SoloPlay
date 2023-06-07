@@ -94,6 +94,7 @@ const CharData = (function () {
           act: 1,
           classid: sdk.mercs.Rogue,
           difficulty: sdk.difficulty.Normal,
+          level: 1,
           strength: 0,
           dexterity: 0,
           skill: 0,
@@ -187,13 +188,29 @@ const CharData = (function () {
       };
 
       /** @type {Map<number | string, BuffPot>} */
-      const _buffPots = new Map();
-      _buffPots.set(sdk.items.StaminaPotion, new BuffPot(sdk.states.StaminaPot,
-        () => Skill.canUse(sdk.skills.Vigor) || Pather.canTeleport())
-      );
-      _buffPots.set(sdk.items.ThawingPotion, new BuffPot(sdk.states.Thawing, () => me.coldRes < 75));
-      _buffPots.set(sdk.items.AntidotePotion, new BuffPot(sdk.states.Antidote, () => me.poisonRes < 75));
-
+      const _buffPots = new Map([
+        [
+          sdk.items.StaminaPotion,
+          new BuffPot(sdk.states.StaminaPot,
+            function () {
+              return Skill.canUse(sdk.skills.Vigor) || Pather.canTeleport();
+            })
+        ],
+        [
+          sdk.items.ThawingPotion,
+          new BuffPot(sdk.states.Thawing,
+            function () {
+              return me.coldRes < 75;
+            })
+        ],
+        [
+          sdk.items.AntidotePotion,
+          new BuffPot(sdk.states.Antidote,
+            function () {
+              return me.poisonRes < 75;
+            })
+        ],
+      ]);
       // hacky for now - just to handle the old way of accessing buff pots
       _buffPots.set("stamina", _buffPots.get(sdk.items.StaminaPotion));
       _buffPots.set("thawing", _buffPots.get(sdk.items.ThawingPotion));
