@@ -874,7 +874,13 @@ Item.removeItemsMerc = function () {
   return !!mercenary.getItem();
 };
 
-// Log kept item stats in the manager.
+/**
+ * Log kept item stats in the manager.
+ * @param {string} action 
+ * @param {ItemUnit} unit 
+ * @param {string} keptLine 
+ * @param {boolean} force 
+ */
 Item.logItem = function (action, unit, keptLine, force) {
   if (!this.useItemLog || unit === undefined || !unit || !unit.fname) return false;
   if (!Config.LogKeys && ["pk1", "pk2", "pk3"].includes(unit.code)) return false;
@@ -939,7 +945,10 @@ Item.logItem = function (action, unit, keptLine, force) {
     } while (sock.getNext());
   }
 
-  keptLine && (desc += ("\n\\xffc0Line: " + keptLine));
+  if (keptLine) {
+    keptLine.includes("[") && (keptLine = keptLine.split("[")[0].trim());
+    desc += ("\n\\xffc0Line: " + keptLine);
+  }
   desc += "$" + (unit.getFlag(sdk.items.flags.Ethereal) ? ":eth" : "");
 
   let itemObj = {
