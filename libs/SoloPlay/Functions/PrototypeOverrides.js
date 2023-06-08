@@ -379,7 +379,6 @@ Unit.prototype.castChargedSkillEx = function (...args) {
     CharData.skillData.chargedSkills
       .forEach(function (chargeSkill) {
         if (chargeSkill.skill !== skillId) return;
-        console.debug(chargeSkill);
         let item = me.getItem(-1, sdk.items.mode.Equipped, chargeSkill.gid);
         !!item && chargedItems.push({
           charge: chargeSkill.skill,
@@ -389,7 +388,9 @@ Unit.prototype.castChargedSkillEx = function (...args) {
       });
 
     if (chargedItems.length === 0) {
-      console.log("ÿc9CastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
+      console.error(
+        "ÿc9CastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges"
+      );
       return false;
     }
 
@@ -522,7 +523,6 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
 
     CharData.skillData.chargedSkillsOnSwitch.forEach(function (chargeSkill) {
       if (chargeSkill.skill === skillId) {
-        console.debug(chargeSkill);
         let item = me.getItem(-1, sdk.items.mode.Equipped, chargeSkill.gid);
         !!item && chargedItems.push({
           charge: chargeSkill.skill,
@@ -533,7 +533,9 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
     });
 
     if (chargedItems.length === 0) {
-      console.log("ÿc9SwitchCastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges");
+      console.error(
+        "ÿc9SwitchCastChargedSkillÿc0 :: Don't have the charged skill (" + skillId + "), or not enough charges"
+      );
       return false;
     }
 

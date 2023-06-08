@@ -86,7 +86,7 @@ AutoMule.getMuleItems = function () {
       if (AutoMule.matchItem(item, Config.AutoMule.Force.concat(Config.AutoMule.Trigger))) return true;
       // alright that handles the basics -- now normal pickit check
       return (Pickit.checkItem(item).result > 0
-        && NTIP.CheckItem(item, NTIP.CheckList, true).result === 1) || (item.isInStash && muleOrphans);
+        && NTIP.CheckItem(item, NTIP.CheckList) === 1) || (item.isInStash && muleOrphans);
     });
 
   return items;

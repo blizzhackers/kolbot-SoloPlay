@@ -272,9 +272,14 @@ Item.autoEquip = function (task = "") {
   };
 
   // stash'd unid check
-  let unids = items.filter(item => !item.identified && item.isInStash);
+  let unids = items
+    .filter(function (item) {
+      return !item.identified && item.isInStash;
+    });
   if (unids.length && NPCAction.fillTome(sdk.items.TomeofIdentify, true)) {
-    unids.forEach(item => Item.identify(item));
+    unids.forEach(function (item) {
+      Item.identify(item);
+    });
   }
 
   // ring check - sometimes a higher tier ring ends up on the wrong finger causing a rollback loop
@@ -296,7 +301,8 @@ Item.autoEquip = function (task = "") {
     if (!item.isInStorage) continue;
     let tier = NTIP.GetTier(item);
     if (tier <= 0) continue;
-    let bodyLoc = this.getBodyLoc(item);
+    /** @type {Array<number>} */
+    const bodyLoc = this.getBodyLoc(item);
 
     for (let loc of bodyLoc) {
       const equippedItem = me.equipped.get(loc);
@@ -365,9 +371,19 @@ Item.equip = function (item, bodyLoc) {
   if (item.isInCube && !Cubing.openCube()) return false;
 
   let currentEquipped = me.getItemsEx()
-    .filter(item => item.isEquipped && item.bodylocation === bodyLoc)
+    .filter(function (item) {
+      return item.isEquipped && item.bodylocation === bodyLoc;
+    })
     .first();
   if (currentEquipped) {
+    if (NTIP.GetTier(currentEquipped) > NTIP.GetTier(item)) {
+      console.debug(
+        "ÿc9Equipÿc0 ::\n"
+        + "ÿc2: Tried to equip lower tier'd item. " + item.prettyPrint + "\n"
+      );
+      console.debug(me.equipped.get(bodyLoc));
+      return false;
+    }
     console.debug(
       "ÿc9Equipÿc0 ::\n"
       + "ÿc9 - Equippingÿc0: " + item.prettyPrint + "\n"
