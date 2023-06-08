@@ -240,7 +240,7 @@ if (!me.hasOwnProperty("data")) {
 
 if (!me.hasOwnProperty("equipped")) {
   me.equipped = (function () {
-    const defaultsMap = new Map([
+    const _defaultsMap = new Map([
       ["gid", -1],
       ["classid", -1],
       ["name", ""],
@@ -266,8 +266,14 @@ if (!me.hasOwnProperty("equipped")) {
       this._item = (item instanceof Unit)
         ? copyUnit(item)
         : null;
-      this._gid = item ? item.gid : -1;
-      this._bodylocation = item ? item.bodylocation : -1;
+      /** @type {number} */
+      this._gid = item
+        ? item.gid
+        : -1;
+      /** @type {number} */
+      this._bodylocation = item
+        ? item.bodylocation
+        : -1;
 
       return new Proxy(this, {
         get: function (target, prop) {
@@ -279,7 +285,7 @@ if (!me.hasOwnProperty("equipped")) {
             return target._item[prop];
           }
 
-          return defaultsMap.get(prop);
+          return _defaultsMap.get(prop);
         }
       });
     }
@@ -340,7 +346,7 @@ if (!me.hasOwnProperty("equipped")) {
     };
 
     /** @type {Map<number, EquippedItem>} */
-    const bodyMap = new Map([
+    const _bodyMap = new Map([
       [sdk.body.Head, new EquippedItem()],
       [sdk.body.Neck, new EquippedItem()],
       [sdk.body.Armor, new EquippedItem()],
@@ -363,8 +369,8 @@ if (!me.hasOwnProperty("equipped")) {
        * @returns {EquippedItem}
        */
       get: function (bodylocation) {
-        // if (!bodyMap.has(bodylocation)) return _dummy;
-        let item = bodyMap.get(bodylocation);
+        // if (!_bodyMap.has(bodylocation)) return _dummy;
+        let item = _bodyMap.get(bodylocation);
         if (item._gid === -1
           || (item._gid !== item.gid
           || (item._bodylocation !== item.location && me.weaponswitch !== sdk.player.slot.Secondary))) {
@@ -374,24 +380,24 @@ if (!me.hasOwnProperty("equipped")) {
               return el.isEquipped && el.bodylocation === bodylocation;
             })
             .first();
-          bodyMap.set(bodylocation, new EquippedItem(newItem));
+          _bodyMap.set(bodylocation, new EquippedItem(newItem));
         }
-        return bodyMap.get(bodylocation);
+        return _bodyMap.get(bodylocation);
       },
       /**
        * @param {number} bodylocation 
        * @returns {boolean}
        */
       has: function (bodylocation) {
-        return bodyMap.has(bodylocation);
+        return _bodyMap.has(bodylocation);
       },
       /**
        * @param {number} bodylocation 
        * @param {ItemUnit} item
        */
       set: function (bodylocation, item) {
-        if (bodyMap.has(bodylocation) && item instanceof Unit) {
-          bodyMap.set(bodylocation, new EquippedItem(item));
+        if (_bodyMap.has(bodylocation) && item instanceof Unit) {
+          _bodyMap.set(bodylocation, new EquippedItem(item));
         }
       },
       /**
@@ -403,7 +409,7 @@ if (!me.hasOwnProperty("equipped")) {
             return item.isEquipped;
           })
           .forEach(function (item) {
-            bodyMap.set(item.bodylocation, new EquippedItem(item));
+            _bodyMap.set(item.bodylocation, new EquippedItem(item));
           });
       },
     };
