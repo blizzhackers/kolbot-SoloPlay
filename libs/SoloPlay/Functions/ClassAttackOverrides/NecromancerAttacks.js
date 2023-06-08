@@ -138,6 +138,8 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
   /** 
    * @todo
    *   - bonemancer specific check for using bonespear vs bone spirit
+   *   - classdata structure for attacks, necro is fairly simple as there are
+   *   only 5 attack skills, maybe take into account fireball OSkill from trangs
    */
 
   // TODO: clean this up
@@ -366,23 +368,41 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
         delay(300);
 
         break;
+      case sdk.skills.Attack:
+      case sdk.skills.PoisonDagger:
+        if (!Attack.validSpot(unit.x, unit.y)) {
+          return Attack.Result.FAILED;
+        }
+
+        if (unit.distance > Skill.getRange(timedSkill) || checkCollision(me, unit, sdk.collision.WallOrRanged)) {
+          if (!Attack.getIntoPosition(unit, Skill.getRange(timedSkill), sdk.collision.WallOrRanged, true)) {
+            return Attack.Result.FAILED;
+          }
+        }
+
+        if (unit.attackable) {
+          Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
+        }
+
+        break;
       default:
         if (timedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) {
           return Attack.Result.FAILED;
         }
+        
         if (timedSkill === sdk.skills.Teeth) {
           let _coll = (sdk.collision.BlockMissile | sdk.collision.BlockWall | sdk.collision.Casting);
           timedSkillRange = me.getMobCount(6, _coll) <= 3 ? 8 : timedSkillRange;
         }
 
-        if (unit.distance > timedSkillRange || checkCollision(me, unit, sdk.collision.Ranged)) {
+        if (unit.distance > timedSkillRange || checkCollision(me, unit, sdk.collision.BlockMissile)) {
           // Allow short-distance walking for melee skills
           walk = (
             timedSkillRange < 4
             && unit.distance < 10
             && !checkCollision(me, unit, sdk.collision.BlockWall)
           );
-          if (!Attack.getIntoPosition(unit, timedSkillRange, sdk.collision.Ranged, walk)) {
+          if (!Attack.getIntoPosition(unit, timedSkillRange, sdk.collision.BlockMissile, walk)) {
             return Attack.Result.FAILED;
           }
         }
