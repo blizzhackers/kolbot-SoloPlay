@@ -124,7 +124,8 @@ Attack.checkResist = function (unit, val = -1, maxres = 100) {
   const damageType = typeof val === "number" ? this.getSkillElement(val) : val;
   const addLowerRes = !!(
     (Skill.canUse(sdk.skills.LowerResist)
-    || CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)) && unit.curseable
+    || CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist))
+    && unit.curseable
   );
 
   // Static handler
@@ -310,8 +311,12 @@ Attack.killTarget = function (name) {
         }
       }
 
-      Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
-      attackCount > 0 && attackCount % 15 === 0 && Skill.getRange(Config.AttackSkill[1]) < 4 && Packet.flash(me.gid);
+      if (Config.Dodge && me.hpPercent <= Config.DodgeHP) {
+        this.deploy(target, Config.DodgeRange, 5, 9);
+      }
+      if (attackCount > 0 && attackCount % 15 === 0) {
+        Skill.getRange(Config.AttackSkill[1]) < 4 && Packet.flash(me.gid);
+      }
       me.overhead("KillTarget: " + target.name + " health " + target.hpPercent + " % left");
       let result = ClassAttack.doAttack(target, attackCount % 15 === 0);
 
@@ -385,8 +390,11 @@ Attack.clearPos = function (x, y, range = 15, pickit = true) {
   if (typeof (range) !== "number") throw new Error("Attack.clear: range must be a number.");
   if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0 || Attack.stopClear || !x || !y) return false;
 
-  let i, start, skillCheck;
-  let [monsterList, gidAttack] = [[], []];
+  /** @type {Map<number, { attacks: number, name: string }} */
+  const attacks = new Map();
+  /** @type {Array<Monster>} */
+  let monsterList = [];
+  let start = false;
   let [retry, attackCount] = [0, 0];
   let target = Game.getMonster();
 
@@ -394,7 +402,8 @@ Attack.clearPos = function (x, y, range = 15, pickit = true) {
     do {
       if (target.attackable && !this.skipCheck(target) && this.canAttack(target)) {
         // Speed optimization - don't go through monster list until there's at least one within clear range
-        if (!start && getDistance(target, x, y) <= range && (Pather.useTeleport() || !checkCollision(me, target, sdk.collision.WallOrRanged))) {
+        if (!start && getDistance(target, x, y) <= range
+          && (Pather.useTeleport() || !checkCollision(me, target, sdk.collision.WallOrRanged))) {
           start = true;
         }
 
@@ -410,11 +419,16 @@ Attack.clearPos = function (x, y, range = 15, pickit = true) {
     target = copyUnit(monsterList[0]);
 
     if (target.x !== undefined
-      && (getDistance(target, x, y) <= range || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range)) && target.attackable) {
-      Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
-      let checkMobAttackCount = gidAttack.find(g => g.gid === target.gid);
-      let checkAttackSkill = (!!checkMobAttackCount && checkMobAttackCount.attacks > 0 && checkMobAttackCount.attacks % 3 === 0);
-      let result = ClassAttack.doAttack(target, checkAttackSkill);
+      && (getDistance(target, x, y) <= range
+      || (this.getScarinessLevel(target) > 7 && getDistance(me, target) <= range))
+      && target.attackable) {
+      if (Config.Dodge && me.hpPercent <= Config.DodgeHP) {
+        this.deploy(target, Config.DodgeRange, 5, 9);
+      }
+
+      let _currMon = attacks.get(target.gid);
+      const checkAttackSkill = (!!_currMon && _currMon.attacks > 0 && _currMon.attacks % 3 === 0);
+      const result = ClassAttack.doAttack(target, checkAttackSkill);
 
       if (result) {
         retry = 0;
@@ -427,20 +441,20 @@ Attack.clearPos = function (x, y, range = 15, pickit = true) {
           continue;
         }
 
-        for (i = 0; i < gidAttack.length; i += 1) {
-          if (gidAttack[i].gid === target.gid) {
-            break;
-          }
+        if (!_currMon) {
+          _currMon = { attacks: 0, name: target.name };
+          attacks.set(target.gid, _currMon);
         }
 
-        (i === gidAttack.length) && gidAttack.push({ gid: target.gid, attacks: 0, name: target.name });
-        gidAttack[i].attacks += 1;
+        _currMon.attacks += 1;
         attackCount += 1;
-        let isSpecial = target.isSpecial;
-        let secAttack = me.barbarian ? (isSpecial ? 2 : 4) : 5;
+        let skillCheck;
+        const isSpecial = target.isSpecial;
+        const secAttack = me.barbarian ? (isSpecial ? 2 : 4) : 5;
 
         if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, Config.AttackSkill[isSpecial ? 1 : 3])
-          || (me.paladin && Config.AttackSkill[isSpecial ? 1 : 3] === sdk.skills.BlessedHammer && !ClassAttack.getHammerPosition(target)))) {
+          || (me.paladin && Config.AttackSkill[isSpecial ? 1 : 3] === sdk.skills.BlessedHammer
+          && !ClassAttack.getHammerPosition(target)))) {
           skillCheck = Config.AttackSkill[secAttack];
         } else {
           skillCheck = Config.AttackSkill[isSpecial ? 1 : 3];
@@ -450,7 +464,7 @@ Attack.clearPos = function (x, y, range = 15, pickit = true) {
         switch (skillCheck) {
         case sdk.skills.BlessedHammer:
           // Tele in random direction with Blessed Hammer
-          if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (isSpecial ? 4 : 2) === 0) {
+          if (_currMon.attacks > 0 && _currMon.attacks % (isSpecial ? 4 : 2) === 0) {
             let coord = CollMap.getRandCoordinate(me.x, -1, 1, me.y, -1, 1, 5);
             Pather.moveTo(coord.x, coord.y);
           }
@@ -458,7 +472,8 @@ Attack.clearPos = function (x, y, range = 15, pickit = true) {
           break;
         default:
           // Flash with melee skills
-          if (gidAttack[i].attacks > 0 && gidAttack[i].attacks % (isSpecial ? 15 : 5) === 0 && Skill.getRange(skillCheck) < 4) {
+          if (_currMon.attacks > 0 && _currMon.attacks % (isSpecial ? 15 : 5) === 0
+            && Skill.getRange(skillCheck) < 4) {
             Packet.flash(me.gid);
           }
 
@@ -466,8 +481,8 @@ Attack.clearPos = function (x, y, range = 15, pickit = true) {
         }
 
         // Skip non-unique monsters after 15 attacks, except in Throne of Destruction
-        if (!me.inArea(sdk.areas.ThroneofDestruction) && !isSpecial && gidAttack[i].attacks > 15) {
-          console.warn("ÿc1Skipping " + target.name + " " + target.gid + " " + gidAttack[i].attacks);
+        if (!me.inArea(sdk.areas.ThroneofDestruction) && !isSpecial && _currMon.attacks > 15) {
+          console.warn("ÿc1Skipping " + target.name + " " + target.gid + " " + _currMon.attacks);
           monsterList.shift();
         }
 
@@ -491,8 +506,10 @@ Attack.clearPos = function (x, y, range = 15, pickit = true) {
   pickit && Attack.openChests(range, x, y);
   attackCount > 0 && pickit && Pickit.pickItems();
   if ([x, y].distance > 5) {
-    Developer.debugging.pathing && console.debug("Returning to position " + x + "/" + y + " distance: " + [x, y].distance);
-    Pather.moveTo(x, y);
+    if (Developer.debugging.pathing) {
+      console.debug("Returning to position " + x + "/" + y + " distance: " + [x, y].distance);
+    }
+    Pather.move({ x: x, y: y }, { allowClearing: false });
   }
 
   return true;
@@ -777,7 +794,10 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit = true) {
           clearResult = Attack.Result.SUCCESS;
           if (boss && boss.gid === target.gid) {
             killedBoss = true;
-            console.log("ÿc7Cleared ÿc0:: " + (!!target.name ? target.name : bossId) + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick));
+            console.log(
+              "ÿc7Cleared ÿc0:: " + (!!target.name ? target.name : bossId)
+              + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick)
+            );
           }
           attackCount -= _currMon.attacks;
         }
@@ -1101,7 +1121,9 @@ new Overrides.Override(Attack, Attack.sortMonsters, function (orignal, unitA, un
  */
 Attack.walkingSortMonsters = function (unitA, unitB) {
   // sort main bosses first
-  if ((unitA.isPrimeEvil) && (unitB.isPrimeEvil)) return getDistance(me, unitA) - getDistance(me, unitB);
+  if ((unitA.isPrimeEvil) && (unitB.isPrimeEvil)) {
+    return getDistance(me, unitA) - getDistance(me, unitB);
+  }
   if (unitA.isPrimeEvil) return -1;
   if (unitB.isPrimeEvil) return 1;
 
@@ -1138,7 +1160,9 @@ Attack.walkingSortMonsters = function (unitA, unitB) {
 
   if (!me.inArea(sdk.areas.ClawViperTempleLvl2) && ids.includes(unitA.classid) && ids.includes(unitB.classid)) {
     // Kill "scary" uniques first (like Bishibosh)
-    if ((unitA.isUnique) && (unitB.isUnique)) return getDistance(me, unitA) - getDistance(me, unitB);
+    if ((unitA.isUnique) && (unitB.isUnique)) {
+      return getDistance(me, unitA) - getDistance(me, unitB);
+    }
     if (unitA.isUnique) return -1;
     if (unitB.isUnique) return 1;
 
@@ -1148,12 +1172,16 @@ Attack.walkingSortMonsters = function (unitA, unitB) {
   if (ids.includes(unitA.classid)) return -1;
   if (ids.includes(unitB.classid)) return 1;
 
-  if ((unitA.isSuperUnique) && (unitB.isSuperUnique)) return getDistance(me, unitA) - getDistance(me, unitB);
+  if ((unitA.isSuperUnique) && (unitB.isSuperUnique)) {
+    return getDistance(me, unitA) - getDistance(me, unitB);
+  }
   if (unitA.isSuperUnique) return -1;
   if (unitB.isSuperUnique) return 1;
 
   // fallens are annoying, put them later if we have line of sight of another monster
-  if (unitA.isFallen && unitB.isFallen) return getDistance(me, unitA) - getDistance(me, unitB);
+  if (unitA.isFallen && unitB.isFallen) {
+    return getDistance(me, unitA) - getDistance(me, unitB);
+  }
   const _coll = (sdk.collision.BlockWall | sdk.collision.LineOfSight | sdk.collision.Ranged);
   if (!unitA.isFallen && !checkCollision(me, unitA, _coll)) return -1;
   if (!unitB.isFallen && !checkCollision(me, unitA, _coll)) return 1;
@@ -1320,11 +1348,15 @@ Attack.pwnDia = function () {
             // noinspection JSBitwiseOperatorUsage
             return !(collision & (Coords_1.BlockBits.BlockWall));
           })
-          .sort((a, b) => getDistance(me, a) - getDistance(me, b))
+          .sort(function (a, b) {
+            return getDistance(me, a) - getDistance(me, b);
+          })
           .first();
         tick = getTickCount();
         if (spot !== undefined) {
-          shouldWalk(spot) ? Pather.walkTo(spot.x, spot.y) : Pather.moveTo(spot.x, spot.y, 15, false);
+          shouldWalk(spot)
+            ? Pather.walkTo(spot.x, spot.y)
+            : Pather.move(spot, { allowClearing: false, retry: 15 });
         }
       }
 
@@ -1438,7 +1470,9 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
     }
   }
 
-  return typeof index === "number" ? Pather.moveTo(grid[index].x, grid[index].y, 0) : false;
+  return typeof index === "number"
+    ? Pather.move(grid[index], { allowClearing: false })
+    : false;
 };
 
 /**
@@ -1449,6 +1483,7 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
  * @param {boolean} walk 
  * @param {boolean} force 
  * @returns {boolean}
+ * @todo maybe recursion check?
  */
 Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = false, force = false) {
   if (!unit || !unit.x || !unit.y) return false;
@@ -1460,6 +1495,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
   const caster = (force || (distance > 4 && !me.inTown && Skill.getRange(Config.AttackSkill[1]) > 8));
   const minMonCount = caster && distance < 8 ? 1 : 0;
   const _coll = (sdk.collision.WallOrRanged | sdk.collision.Objects | sdk.collision.IsOnFloor);
+  const _pathSettings = { clearSettings: { allowClearing: !useTele, range: useTele ? 10 : 5, retry: 5 } };
 
   walk === true && (walk = 1);
 
@@ -1478,10 +1514,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
       return true;
     } else {
       // don't clear while trying to reposition
-      Pather.moveToEx(
-        unit.x, unit.y,
-        { clearSettings: { allowClearing: !useTele, range: useTele ? 10 : 5 } }
-      );
+      Pather.move(unit, _pathSettings);
     }
 
     return !CollMap.checkColl(me, unit, coll);
@@ -1525,27 +1558,27 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
       }
     }
 
-    for (let i = 0; i < coords.length; i++) {
+    for (let coord of coords) {
       // Valid position found - no collision between the spot and the unit
-      if (!CollMap.checkColl({ x: coords[i].x, y: coords[i].y }, unit, coll, 1)) {
+      if (!CollMap.checkColl({ x: coord.x, y: coord.y }, unit, coll, 1)) {
         Developer.debugging.pathing && console.time("countMobs");
         const currCount = nearMobs
           .filter(function (m) {
-            return getDistance(coords[i].x, coords[i].y, m.x, m.y) < 8;
+            return getDistance(coord.x, coord.y, m.x, m.y) < 8;
           }).length;
         Developer.debugging.pathing && console.timeEnd("countMobs");
 
         // this might be a valid spot but also check the mob count at that node
         if (caster) {
-          potentialSpot.x === null && (potentialSpot = { x: coords[i].x, y: coords[i].y });
+          potentialSpot.x === null && (potentialSpot = { x: coord.x, y: coord.y });
 
           if (currCount < count) {
             count = currCount;
-            potentialSpot = { x: coords[i].x, y: coords[i].y };
+            potentialSpot = { x: coord.x, y: coord.y };
             if (Developer.debugging.pathing) {
               console.log(
-                sdk.colors.Blue + "CheckedSpot" + sdk.colors.Yellow + ": x: " + coords[i].x
-                + " y: " + coords[i].y + " mob amount: " + sdk.colors.NeonGreen + count
+                sdk.colors.Blue + "CheckedSpot" + sdk.colors.Yellow + ": x: " + coord.x
+                + " y: " + coord.y + " mob amount: " + sdk.colors.NeonGreen + count
               );
             }
           }
@@ -1562,21 +1595,18 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
         }
 
         // I am already in my optimal position
-        if (coords[i].distance < 3) return true;
+        if (coord.distance < 3) return true;
 
         // we are actually able to walk to where we want to go, hopefully prevent wall hugging
-        if (walk && (coords[i].distance < 6 || !CollMap.checkColl(me, unit, _coll))) {
-          Pather.walkTo(coords[i].x, coords[i].y, 2);
+        if (walk && (coord.distance < 6 || !CollMap.checkColl(me, unit, _coll))) {
+          Pather.walkTo(coord.x, coord.y, 2);
         } else {
-          Pather.moveToEx(
-            coords[i].x, coords[i].y,
-            { clearSettings: { allowClearing: !useTele, range: useTele ? 10 : 5, retry: 3 } }
-          );
+          Pather.move(coord, _pathSettings);
         }
         if (Developer.debugging.pathing) {
           console.log(
             sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow
-            + "Moving to: x: " + coords[i].x + " y: " + coords[i].y
+            + "Moving to: x: " + coord.x + " y: " + coord.y
             + " mob amount: " + sdk.colors.NeonGreen + currCount
           );
           console.timeEnd("getIntoPosition");
@@ -1600,7 +1630,8 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
         if (potentialSpot.distance < 6 && !CollMap.checkColl(me, potentialSpot, sdk.collision.WallOrRanged)) {
           return Pather.walkTo(potentialSpot.x, potentialSpot.y, 2);
         }
-        return Pather.moveTo(potentialSpot.x, potentialSpot.y, 1);
+        // return Pather.moveTo(potentialSpot.x, potentialSpot.y, 1);
+        return Pather.move(potentialSpot, _pathSettings);
       }
     })()) {
       if (Developer.debugging.pathing) {
