@@ -22,7 +22,8 @@ const SoloIndex = {
     "corpsefire", "mausoleum", "den", "bishibosh", "bloodraven", "tristram", "treehead",
     "countess", "smith", "pits", "jail", "boneash", "andariel", "a1chests", "cows",
     // Act 2
-    "cube", "radament", "amulet", "summoner", "maggotlair", "tombs", "ancienttunnels", "staff", "duriel",
+    "cube", "radament", "creepingfeature", "beetleburst", "amulet", "summoner",
+    "maggotlair", "tombs", "ancienttunnels", "staff", "duriel",
     // Act 3
     "lamessen", "templeruns", "lowerkurast", "eye", "heart", "brain", "travincal", "mephisto",
     // Act 4
@@ -58,7 +59,8 @@ const SoloIndex = {
     },
     "den": {
       skipIf: function () {
-        return me.den;
+        /* xp is bad in den so only run it once we can blast through*/
+        return me.den || (me.charlvl > 8 && me.charlvl < 12);
       },
       shouldRun: function () {
         if (this.skipIf()) return false;
@@ -215,7 +217,7 @@ const SoloIndex = {
     },
     "andariel": {
       skipIf: function () {
-        if (me.charlvl < 12) return true;
+        if (me.charlvl < 11) return true;
         if (!me.andariel) return false;
         if (me.hell && me.amazon && SetUp.currentBuild !== SetUp.finalBuild) return true;
         return false;
@@ -265,6 +267,18 @@ const SoloIndex = {
           return me.nightmare && me.expansion && me.charlvl > 62;
         }
         return false;
+      },
+      shouldRun: function () {
+        if (!this.preReq() || this.skipIf()) return false;
+        return true;
+      }
+    },
+    "creepingfeature": {
+      preReq: function () {
+        return (me.accessToAct(2));
+      },
+      skipIf: function () {
+        return (me.charlvl < 12 || me.charlvl > 20);
       },
       shouldRun: function () {
         if (!this.preReq() || this.skipIf()) return false;

@@ -18,9 +18,16 @@ function andariel () {
 
   let questBug = (!me.normal && !me.andariel);
 
-  Pather.checkWP(sdk.areas.CatacombsLvl2, true) ? Pather.useWaypoint(sdk.areas.CatacombsLvl2) : Pather.getWP(sdk.areas.CatacombsLvl2);
+  Pather.checkWP(sdk.areas.CatacombsLvl2, true)
+    ? Pather.useWaypoint(sdk.areas.CatacombsLvl2)
+    : Pather.getWP(sdk.areas.CatacombsLvl2);
   Precast.doPrecast(true);
   Pather.moveToExit([sdk.areas.CatacombsLvl3, sdk.areas.CatacombsLvl4], true);
+
+  if (me.charlvl < 12) {
+    myPrint("Still to early, NG");
+    return true;
+  }
 
   if (me.poisonRes < 75) {
     Town.doChores(true, { thawing: me.coldRes < 75, antidote: true });

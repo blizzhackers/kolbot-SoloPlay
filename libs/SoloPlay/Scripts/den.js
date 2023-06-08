@@ -19,7 +19,9 @@ function den () {
 
   myPrint("starting den");
 
-  me.gold > 500 && Town.initNPC("repair", "shopItems") && NPCAction.shopItems(500, [sdk.items.type.Bow, sdk.items.type.Crossbow, sdk.items.type.Belt]);
+  if (me.charlvl < 10 && me.gold > 500 && Town.initNPC("repair", "shopItems")) {
+    NPCAction.shopItems(500, [sdk.items.type.Bow, sdk.items.type.Crossbow, sdk.items.type.Belt]);
+  }
   me.gold > 1000 && Town.buyPots(12, "stamina", true);
 
   if (!Pather.checkWP(sdk.areas.ColdPlains) || me.charlvl < 4) {
@@ -30,21 +32,32 @@ function den () {
         let cPlains = Pather.getExitCoords(me.area, sdk.areas.ColdPlains);
         // sort by the ones closest to us but also by distance to cold plains exit so we end up there
         Game.getPresetObjects(me.area)
-          .filter(el => Misc.presetShrineIds.includes(el.id) || Misc.presetChestIds.includes(el.id))
-          .sort((a, b) => {
-            let [aX, aY] = [a.roomx * 5 + a.x, a.roomy * 5 + a.y];
-            let [bX, bY] = [b.roomx * 5 + b.x, b.roomy * 5 + b.y];
-            if ([aX, aY].distance < [bX, bY].distance && getDistance(aX, aY, cPlains.x, cPlains.y) > getDistance(bX, bY, cPlains.x, cPlains.y)) {
+          .filter(function (el) {
+            return sdk.shrines.Presets.includes(el.id) || sdk.objects.chestIds.includes(el.id);
+          })
+          .sort(function (a, b) {
+            const [aX, aY] = [a.roomx * 5 + a.x, a.roomy * 5 + a.y];
+            const [bX, bY] = [b.roomx * 5 + b.x, b.roomy * 5 + b.y];
+            const [aDistMe, bDistMe] = [[aX, aY].distance, [bX, bY].distance];
+            const [aDistExit, bDistExit] = [
+              getDistance(aX, aY, cPlains.x, cPlains.y),
+              getDistance(bX, bY, cPlains.x, cPlains.y)
+            ];
+            if (aDistMe < bDistMe && aDistExit > bDistExit) {
               return -1;
             }
-            if ([aX, aY].distance > [bX, bY].distance && getDistance(aX, aY, cPlains.x, cPlains.y) < getDistance(bX, bY, cPlains.x, cPlains.y)) {
+            if (aDistMe > bDistMe && aDistExit < bDistExit) {
               return 1;
             }
-            return [aX, aY].distance - [bX, bY].distance;
+            return aDistMe - bDistMe;
           })
-          .forEach(el => Pather.moveNearUnit(el, 7));
+          .forEach(function (el) {
+            Pather.moveNearUnit(el, 7);
+          });
       } else {
-        Pather.moveNearPreset(sdk.areas.BloodMoor, sdk.unittype.Object, sdk.objects.SuperChest, 8) && Misc.openChests(8);
+        if (Pather.moveNearPreset(sdk.areas.BloodMoor, sdk.unittype.Object, sdk.objects.SuperChest, 8)) {
+          Misc.openChests(8);
+        }
       }
     } catch (e) {
       console.warn(e.message ? e.message : e);
@@ -52,12 +65,20 @@ function den () {
     Pather.getWP(sdk.areas.ColdPlains);
 
     // check if we need to do chores - if so use waypoint to town (preserves portal if we made one at den) - return to cold plains using waypoint
-    Storage.Inventory.UsedSpacePercent() > 50 && Pather.useWaypoint(sdk.areas.RogueEncampment) && Town.doChores() && Pather.useWaypoint(sdk.areas.ColdPlains);
+    (Storage.Inventory.UsedSpacePercent() > 50
+      && Pather.useWaypoint(sdk.areas.RogueEncampment)
+      && Town.doChores()
+      && Pather.useWaypoint(sdk.areas.ColdPlains));
   }
 
   if (me.charlvl < 8) {
-    me.sorceress && me.charlvl >= 2 && me.charlvl < 8 && Loader.skipTown.push("bishibosh") && Loader.runScript("bishibosh");
-    me.charlvl < 6 && Loader.skipTown.push("cave") && Loader.runScript("cave");
+    if (me.sorceress && me.charlvl >= 2 && me.charlvl < 8
+      && Loader.skipTown.push("bishibosh")) {
+      Loader.runScript("bishibosh");
+    }
+    if (me.charlvl < 6 && Loader.skipTown.push("cave")) {
+      Loader.runScript("cave");
+    }
   }
 
   if (me.charlvl < 8 || me.gold < 1000) {
