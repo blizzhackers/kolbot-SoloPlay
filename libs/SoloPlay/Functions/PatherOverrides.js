@@ -10,6 +10,20 @@ includeIfNotIncluded("core/Pather.js");
 
 Developer.debugging.pathing && (PathDebug.enableHooks = true);
 
+/** @global */
+const AreaData = require("../Modules/GameData/AreaData");
+
+/**
+ * Easier way to check if you have a waypoint
+ * @param {number} area 
+ * @returns {boolean}
+ */
+me.haveWaypoint = function (area) {
+  let checkArea = AreaData.get(area);
+  if (!checkArea || !checkArea.hasWaypoint()) return false;
+  return getWaypoint(AreaData.wps.get(area));
+};
+
 Pather.inAnnoyingArea = function (currArea, includeArcane = false) {
   const areas = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3];
   includeArcane && areas.push(sdk.areas.ArcaneSanctuary);
@@ -279,7 +293,7 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
   }
 
   // only do this if we haven't initialzed our wp data
-  if (!getWaypoint(Pather.wpAreas.indexOf(area)) && !Pather.initialized) {
+  if (!me.haveWaypoint(area) && !Pather.initialized) {
     me.inTown && !getUIFlag(sdk.uiflags.Waypoint) && Town.move("waypoint");
 
     for (let i = 0; i < 15; i++) {
@@ -317,10 +331,10 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
       }
     }
     // go ahead and close out of wp menu if we don't have the wp
-    !getWaypoint(Pather.wpAreas.indexOf(area)) && getUIFlag(sdk.uiflags.Waypoint) && me.cancel();
+    !me.haveWaypoint(area) && getUIFlag(sdk.uiflags.Waypoint) && me.cancel();
   }
 
-  return getWaypoint(Pather.wpAreas.indexOf(area));
+  return me.haveWaypoint(area);
 };
 
 Pather.changeAct = function (act = me.act + 1) {
@@ -503,7 +517,7 @@ Pather.move = function (target, givenSettings = {}) {
       if (mySkElems.length && mySkElems.every(elem => areaImmunities.includes(elem))) {
         settings.clearSettings.clearPath = false;
       }
-    } else if (AreaData[me.area].hasMonsterType(sdk.monsters.type.UndeadFetish)) {
+    } else if (AreaData.get(me.area).hasMonsterType(sdk.monsters.type.UndeadFetish)) {
       settings.clearSettings.clearPath = false;
     }
   }
@@ -635,7 +649,7 @@ Pather.move = function (target, givenSettings = {}) {
               if (cleared.at === 0 || getTickCount() - cleared.at > Time.seconds(3)
                 && cleared.node.distance > 5 && me.checkForMobs({ range: 10 })) {
                 // only set that we cleared if we actually killed at least 1 mob
-                if (Attack.clear(10, null, null, null, settings.allowPicking)) {
+                if (Attack.clear(10, null, null, null, settings.allowPicking) === Attack.Result.SUCCESS) {
                   // console.debug("Cleared Node");
                   cleared.at = getTickCount();
                   [cleared.node.x, cleared.node.y] = [node.x, node.y];
@@ -772,11 +786,12 @@ Pather.moveToExit = function (targetArea, use, givenSettings = {}) {
   for (let currTarget of areas) {
     console.info(null, getAreaName(me.area) + "ÿc8 --> ÿc0" + getAreaName(currTarget));
     
-    const area = Misc.poll(() => getArea(me.area));
-    if (!area) throw new Error("moveToExit: error in getArea()");
+    // const area = Misc.poll(() => getArea(me.area));
+    // if (!area) throw new Error("moveToExit: error in getArea()");
     
     /** @type {Array<Exit>} */
-    const exits = (area.exits || []);
+    const exits = AreaData.get(me.area).getExits();
+    // const exits = (area.exits || []);
     if (!exits.length) return false;
 
     let checkExits = [];
@@ -788,7 +803,7 @@ Pather.moveToExit = function (targetArea, use, givenSettings = {}) {
     if (checkExits.length > 0) {
       // if there are multiple exits to the same location find the closest one
       let currExit = checkExits.length > 1
-        ? (() => {
+        ? (function () {
           let useExit = checkExits.shift(); // assign the first exit as a possible result
           let dist = getDistance(me.x, me.y, useExit.x, useExit.y);
           while (checkExits.length > 0) {
@@ -804,15 +819,18 @@ Pather.moveToExit = function (targetArea, use, givenSettings = {}) {
         : checkExits[0];
       let dest = this.getNearestWalkable(currExit.x, currExit.y, 5, 1);
       if (!dest) return false;
+      const node = { x: dest[0], y: dest[1] };
 
       for (let retry = 0; retry < 3; retry++) {
-        if (this.moveToEx(dest[0], dest[1], givenSettings)) {
+        if (this.move(node, givenSettings)) {
           break;
         }
 
         delay(200);
         console.log("ÿc7(moveToExit) :: ÿc0Retry: " + (retry + 1));
-        Misc.poll(() => me.gameReady, 1000, 200);
+        Misc.poll(function () {
+          return me.gameReady;
+        }, 1000, 200);
       }
 
       if (use || currTarget !== finalDest) {
@@ -821,7 +839,7 @@ Pather.moveToExit = function (targetArea, use, givenSettings = {}) {
           let targetRoom = this.getNearestRoom(currTarget);
           // might need adjustments
           if (!targetRoom) return false;
-          this.moveToEx(targetRoom[0], targetRoom[1], givenSettings);
+          this.move({ x: targetRoom[0], y: targetRoom[1] }, givenSettings);
 
           break;
         case 2: // stairs
@@ -853,7 +871,7 @@ Pather.useWaypoint = function useWaypoint (targetArea, check = false) {
     break;
   default:
     if (typeof targetArea !== "number") throw new Error("useWaypoint: Invalid targetArea parameter");
-    if (!this.wpAreas.includes(targetArea)) throw new Error("useWaypoint: Invalid area");
+    if (!AreaData.wps.has(targetArea)) throw new Error("useWaypoint: Invalid area");
 
     break;
   }
@@ -902,7 +920,9 @@ Pather.useWaypoint = function useWaypoint (targetArea, check = false) {
 
       if (useTK && !getUIFlag(sdk.uiflags.Waypoint)) {
         wp.distance > 21 && Pather.moveNearUnit(wp, 20);
-        i > 1 && checkCollision(me, wp, sdk.collision.Ranged) && Attack.getIntoPosition(wp, 20, sdk.collision.Ranged);
+        if (i > 1 && checkCollision(me, wp, sdk.collision.Ranged)) {
+          Attack.getIntoPosition(wp, 20, sdk.collision.Ranged);
+        }
         Packet.telekinesis(wp);
       } else if (!me.inTown && wp.distance > 7) {
         this.moveToUnit(wp);
@@ -944,7 +964,7 @@ Pather.useWaypoint = function useWaypoint (targetArea, check = false) {
               return true;
             }
 
-            if (!getWaypoint(this.wpAreas.indexOf(targetArea)) && me.cancel()) {
+            if (!me.haveWaypoint(targetArea) && me.cancel()) {
               me.overhead("Trying to get the waypoint");
               if (this.getWP(targetArea)) return true;
 
@@ -1061,6 +1081,10 @@ Pather.clearToExit = function (currentarea, targetarea, givenSettings = {}) {
 Pather.getWalkDistance = function (x, y, area = me.area, xx = me.x, yy = me.y, reductionType = 2, radius = 5) {
   // distance between node x and x-1
   return (getPath(area, x, y, xx, yy, reductionType, radius) || [])
-    .map((e, i, s) => i && getDistance(s[i - 1], e) || 0)
-    .reduce((acc, cur) => acc + cur, 0) || Infinity;
+    .map(function (e, i, s) {
+      return i && getDistance(s[i - 1], e) || 0;
+    })
+    .reduce(function (acc, cur) {
+      return acc + cur;
+    }, 0) || Infinity;
 };

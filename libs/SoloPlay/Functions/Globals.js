@@ -26,8 +26,6 @@ const Coords_1 = require("../Modules/Coords");
 const PotData = require("../Modules/GameData/PotData");
 /** @global */
 const GameData = require("../Modules/GameData/GameData");
-/** @global */
-const AreaData = require("../Modules/GameData/AreaData");
 
 const MYCLASSNAME = sdk.player.class.nameOf(me.classid).toLowerCase();
 includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + ".js");

@@ -8,21 +8,21 @@
  */
 // todo - remove the magic numbers here
 (function (module, require) {
-  const MonsterData = require("./MonsterData");
+  const MonsterData = require("../../../core/GameData/MonsterData");
   const AreaData = require("./AreaData");
   const MissileData = require("./MissileData");
   const Coords_1 = require("../Coords");
   const sdk = require("../../../modules/sdk");
 
-  function isAlive(unit) {
+  function isAlive (unit) {
     return Boolean(unit && unit.hp);
   }
 
-  function isEnemy(unit) {
+  function isEnemy (unit) {
     return Boolean(unit && isAlive(unit) && unit.getStat(sdk.stats.Alignment) !== 2 && typeof unit.classid === "number" && MonsterData[unit.classid].Killable);
   }
 
-  function onGround(item) {
+  function onGround (item) {
     return item.onGroundOrDropping;
   }
 
@@ -31,10 +31,15 @@
     townAreas: [0, 1, 40, 75, 103, 109],
     HPLookup: [["1", "1", "1"], ["7", "107", "830"], ["9", "113", "852"], ["12", "120", "875"], ["15", "125", "897"], ["17", "132", "920"], ["20", "139", "942"], ["23", "145", "965"], ["27", "152", "987"], ["31", "157", "1010"], ["35", "164", "1032"], ["36", "171", "1055"], ["40", "177", "1077"], ["44", "184", "1100"], ["48", "189", "1122"], ["52", "196", "1145"], ["56", "203", "1167"], ["60", "209", "1190"], ["64", "216", "1212"], ["68", "221", "1235"], ["73", "228", "1257"], ["78", "236", "1280"], ["84", "243", "1302"], ["89", "248", "1325"], ["94", "255", "1347"], ["100", "261", "1370"], ["106", "268", "1392"], ["113", "275", "1415"], ["120", "280", "1437"], ["126", "287", "1460"], ["134", "320", "1482"], ["142", "355", "1505"], ["150", "388", "1527"], ["158", "423", "1550"], ["166", "456", "1572"], ["174", "491", "1595"], ["182", "525", "1617"], ["190", "559", "1640"], ["198", "593", "1662"], ["206", "627", "1685"], ["215", "661", "1707"], ["225", "696", "1730"], ["234", "729", "1752"], ["243", "764", "1775"], ["253", "797", "1797"], ["262", "832", "1820"], ["271", "867", "1842"], ["281", "900", "1865"], ["290", "935", "1887"], ["299", "968", "1910"], ["310", "1003", "1932"], ["321", "1037", "1955"], ["331", "1071", "1977"], ["342", "1105", "2000"], ["352", "1139", "2030"], ["363", "1173", "2075"], ["374", "1208", "2135"], ["384", "1241", "2222"], ["395", "1276", "2308"], ["406", "1309", "2394"], ["418", "1344", "2480"], ["430", "1379", "2567"], ["442", "1412", "2653"], ["454", "1447", "2739"], ["466", "1480", "2825"], ["477", "1515", "2912"], ["489", "1549", "2998"], ["501", "1583", "3084"], ["513", "1617", "3170"], ["525", "1651", "3257"], ["539", "1685", "3343"], ["552", "1720", "3429"], ["565", "1753", "3515"], ["579", "1788", "3602"], ["592", "1821", "3688"], ["605", "1856", "3774"], ["618", "1891", "3860"], ["632", "1924", "3947"], ["645", "1959", "4033"], ["658", "1992", "4119"], ["673", "2027", "4205"], ["688", "2061", "4292"], ["702", "2095", "4378"], ["717", "2129", "4464"], ["732", "2163", "4550"], ["746", "2197", "4637"], ["761", "2232", "4723"], ["775", "2265", "4809"], ["790", "2300", "4895"], ["805", "2333", "4982"], ["821", "2368", "5068"], ["837", "2403", "5154"], ["853", "2436", "5240"], ["868", "2471", "5327"], ["884", "2504", "5413"], ["900", "2539", "5499"], ["916", "2573", "5585"], ["932", "2607", "5672"], ["948", "2641", "5758"], ["964", "2675", "5844"], ["982", "2709", "5930"], ["999", "2744", "6017"], ["1016", "2777", "6103"], ["1033", "2812", "6189"], ["1051", "2845", "6275"], ["1068", "2880", "6362"], ["1085", "2915", "6448"], ["1103", "2948", "6534"], ["1120", "2983", "6620"], ["1137", "3016", "6707"], ["10000", "10000", "10000"]],
     monsterLevel: function (monsterID, areaID) {
-      return me.diff ? AreaData.hasOwnProperty(areaID) && AreaData[areaID].Level : MonsterData.hasOwnProperty(monsterID) && MonsterData[monsterID].Level; // levels on nm/hell are determined by area, not by monster data
+      return (me.diff
+        ? AreaData.has(areaID) && AreaData.get(areaID).Level
+        : MonsterData.hasOwnProperty(monsterID) && MonsterData[monsterID].Level); // levels on nm/hell are determined by area, not by monster data
     },
     monsterExp: function (monsterID, areaID, adjustLevel = 0) {
-      return Experience.monsterExp[Math.min(Experience.monsterExp.length - 1, this.monsterLevel(monsterID, areaID) + adjustLevel)][me.diff] * MonsterData[monsterID].ExperienceModifier / 100;
+      return Experience.monsterExp[Math.min(
+        Experience.monsterExp.length - 1,
+        this.monsterLevel(monsterID, areaID) + adjustLevel
+      )][me.diff] * MonsterData[monsterID].ExperienceModifier / 100;
     },
     eliteExp: function (monsterID, areaID) {
       return this.monsterExp(monsterID, areaID, 2) * 3;
@@ -53,20 +58,26 @@
     },
     monsterMaxDmg: function (monsterID, areaID, adjustLevel = 0) {
       let level = this.monsterLevel(monsterID, areaID) + adjustLevel;
-      return Math.max.apply(null, [MonsterData[monsterID].Attack1MaxDmg, MonsterData[monsterID].Attack2MaxDmg, MonsterData[monsterID].Skill1MaxDmg]) * level / 100 * this.monsterDamageModifier();
+      let { Attack1MaxDmg, Attack2MaxDmg, Skill1MaxDmg } = MonsterData[monsterID];
+      return Math.max.apply(
+        null, [Attack1MaxDmg, Attack2MaxDmg, Skill1MaxDmg]
+      ) * level / 100 * this.monsterDamageModifier();
     },
     // https://www.diabloii.net/forums/threads/monster-damage-increase-per-player-count.570346/
     monsterAttack1AvgDmg: function (monsterID, areaID, adjustLevel = 0) {
       let level = this.monsterLevel(monsterID, areaID) + adjustLevel;
-      return ((MonsterData[monsterID].Attack1MinDmg + MonsterData[monsterID].Attack1MaxDmg) / 2) * level / 100 * this.monsterDamageModifier();
+      let { Attack1MinDmg, Attack1MaxDmg } = MonsterData[monsterID];
+      return ((Attack1MinDmg + Attack1MaxDmg) / 2) * level / 100 * this.monsterDamageModifier();
     },
     monsterAttack2AvgDmg: function (monsterID, areaID, adjustLevel = 0) {
       let level = this.monsterLevel(monsterID, areaID) + adjustLevel;
-      return ((MonsterData[monsterID].Attack2MinDmg + MonsterData[monsterID].Attack2MaxDmg) / 2) * level / 100 * this.monsterDamageModifier();
+      let { Attack2MinDmg, Attack2MaxDmg } = MonsterData[monsterID];
+      return ((Attack2MinDmg + Attack2MaxDmg) / 2) * level / 100 * this.monsterDamageModifier();
     },
     monsterSkill1AvgDmg: function (monsterID, areaID, adjustLevel = 0) {
       let level = this.monsterLevel(monsterID, areaID) + adjustLevel;
-      return ((MonsterData[monsterID].Skill1MinDmg + MonsterData[monsterID].Skill1MaxDmg) / 2) * level / 100 * this.monsterDamageModifier();
+      let { Skill1MinDmg, Skill1MaxDmg } = MonsterData[monsterID];
+      return ((Skill1MinDmg + Skill1MaxDmg) / 2) * level / 100 * this.monsterDamageModifier();
     },
     monsterAvgDmg: function (monsterID, areaID, adjustLevel = 0) {
       let attack1 = this.monsterAttack1AvgDmg(monsterID, areaID, adjustLevel);
@@ -77,14 +88,17 @@
       if (!dmgs.length) return 0;
       return dmgs.reduce((acc, v) => acc + v) / dmgs.length;
     },
-    averagePackSize: monsterID => (MonsterData[monsterID].GroupCount.Min + MonsterData[monsterID].MinionCount.Min + MonsterData[monsterID].GroupCount.Max + MonsterData[monsterID].MinionCount.Max) / 2,
+    averagePackSize: function (monsterID) {
+      let { GroupCount, MinionCount } = MonsterData[monsterID];
+      return (GroupCount.Min + MinionCount.Min + GroupCount.Max + MinionCount.Max) / 2;
+    },
     areaLevel: function (areaID) {
       // levels on nm/hell are determined by area, not by monster data
-      if (me.diff) return AreaData[areaID].Level;
+      if (me.diff) return AreaData.get(areaID).Level;
       
       let levels = 0, total = 0;
 
-      AreaData[areaID].forEachMonsterAndMinion((mon, rarity) => {
+      AreaData.get(areaID).forEachMonsterAndMinion(function (mon, rarity) {
         levels += mon.Level * rarity;
         total += rarity;
       });
@@ -94,7 +108,7 @@
     areaImmunities: function (areaID) {
       let resists = { Physical: 0, Magic: 0, Fire: 0, Lightning: 0, Cold: 0, Poison: 0 };
 
-      AreaData[areaID].forEachMonsterAndMinion(mon => {
+      AreaData.get(areaID).forEachMonsterAndMinion(function (mon) {
         for (let k in resists) {
           resists[k] = Math.max(resists[k], mon[k]);
         }
@@ -165,7 +179,10 @@
         }
       } while (party.getNext());
 
-      return Math.floor(exp * this.levelModifier(level, this.monsterLevel(monsterID, areaID)) * this.multiplayerModifier(gamesize) * level / total);
+      return Math.floor(
+        exp * this.levelModifier(level, this.monsterLevel(monsterID, areaID))
+        * this.multiplayerModifier(gamesize) * level / total
+      );
     },
     baseLevel: function (...skillIDs) {
       return skillIDs.reduce((total, skillID) => total + GameData.myReference.getSkill(skillID, 0), 0);
@@ -307,24 +324,106 @@
     },
     baseSkillDamage: function (skillID) { // TODO: rework skill damage to use both damage fields
       let l = this.skillLevel(skillID), m = this.skillMult[skillID] || 1;
-      let dmgFields = [["MinDam", "MinLevDam1", "MinLevDam2", "MinLevDam3", "MinLevDam4", "MinLevDam5", "MaxDam", "MaxLevDam1", "MaxLevDam2", "MaxLevDam3", "MaxLevDam4", "MaxLevDam5"], ["EMin", "EMinLev1", "EMinLev2", "EMinLev3", "EMinLev4", "EMinLev5", "EMax", "EMaxLev1", "EMaxLev2", "EMaxLev3", "EMaxLev4", "EMaxLev5"]];
+      let dmgFields = [
+        [
+          "MinDam", "MinLevDam1",
+          "MinLevDam2", "MinLevDam3",
+          "MinLevDam4", "MinLevDam5",
+          "MaxDam", "MaxLevDam1",
+          "MaxLevDam2", "MaxLevDam3",
+          "MaxLevDam4", "MaxLevDam5"
+        ],
+        [
+          "EMin", "EMinLev1",
+          "EMinLev2", "EMinLev3",
+          "EMinLev4", "EMinLev5",
+          "EMax", "EMaxLev1",
+          "EMaxLev2", "EMaxLev3",
+          "EMaxLev4", "EMaxLev5"
+        ]
+      ];
 
       if (skillID === 70) {
         return {
           type: "Physical",
-          pmin: this.stagedDamage(l, getBaseStat("skills", skillID, dmgFields[1][0]), getBaseStat("skills", skillID, dmgFields[1][1]), getBaseStat("skills", skillID, dmgFields[1][2]), getBaseStat("skills", skillID, dmgFields[1][3]), getBaseStat("skills", skillID, dmgFields[1][4]), getBaseStat("skills", skillID, dmgFields[1][5]), getBaseStat("skills", skillID, "HitShift"), m),
-          pmax: this.stagedDamage(l, getBaseStat("skills", skillID, dmgFields[1][0]), getBaseStat("skills", skillID, dmgFields[1][1]), getBaseStat("skills", skillID, dmgFields[1][2]), getBaseStat("skills", skillID, dmgFields[1][3]), getBaseStat("skills", skillID, dmgFields[1][4]), getBaseStat("skills", skillID, dmgFields[1][5]), getBaseStat("skills", skillID, "HitShift"), m),
-          min: 0, max: 0
+          pmin: this.stagedDamage(
+            l,
+            getBaseStat("skills", skillID, dmgFields[1][0]),
+            getBaseStat("skills", skillID, dmgFields[1][1]),
+            getBaseStat("skills", skillID, dmgFields[1][2]),
+            getBaseStat("skills", skillID, dmgFields[1][3]),
+            getBaseStat("skills", skillID, dmgFields[1][4]),
+            getBaseStat("skills", skillID, dmgFields[1][5]),
+            getBaseStat("skills", skillID, "HitShift"),
+            m
+          ),
+          pmax: this.stagedDamage(
+            l,
+            getBaseStat("skills", skillID, dmgFields[1][0]),
+            getBaseStat("skills", skillID, dmgFields[1][1]),
+            getBaseStat("skills", skillID, dmgFields[1][2]),
+            getBaseStat("skills", skillID, dmgFields[1][3]),
+            getBaseStat("skills", skillID, dmgFields[1][4]),
+            getBaseStat("skills", skillID, dmgFields[1][5]),
+            getBaseStat("skills", skillID, "HitShift"),
+            m
+          ),
+          min: 0,
+          max: 0
         };
       } else {
         let type = getBaseStat("skills", skillID, "EType");
 
         return {
           type: this.damageTypes[type],
-          pmin: this.stagedDamage(l, getBaseStat("skills", skillID, dmgFields[0][0]), getBaseStat("skills", skillID, dmgFields[0][1]), getBaseStat("skills", skillID, dmgFields[0][2]), getBaseStat("skills", skillID, dmgFields[0][3]), getBaseStat("skills", skillID, dmgFields[0][4]), getBaseStat("skills", skillID, dmgFields[0][5]), getBaseStat("skills", skillID, "HitShift"), m),
-          pmax: this.stagedDamage(l, getBaseStat("skills", skillID, dmgFields[0][6]), getBaseStat("skills", skillID, dmgFields[0][7]), getBaseStat("skills", skillID, dmgFields[0][8]), getBaseStat("skills", skillID, dmgFields[0][9]), getBaseStat("skills", skillID, dmgFields[0][10]), getBaseStat("skills", skillID, dmgFields[0][11]), getBaseStat("skills", skillID, "HitShift"), m),
-          min: type ? this.stagedDamage(l, getBaseStat("skills", skillID, dmgFields[1][0]), getBaseStat("skills", skillID, dmgFields[1][1]), getBaseStat("skills", skillID, dmgFields[1][2]), getBaseStat("skills", skillID, dmgFields[1][3]), getBaseStat("skills", skillID, dmgFields[1][4]), getBaseStat("skills", skillID, dmgFields[1][5]), getBaseStat("skills", skillID, "HitShift"), m) : 0,
-          max: type ? this.stagedDamage(l, getBaseStat("skills", skillID, dmgFields[1][6]), getBaseStat("skills", skillID, dmgFields[1][7]), getBaseStat("skills", skillID, dmgFields[1][8]), getBaseStat("skills", skillID, dmgFields[1][9]), getBaseStat("skills", skillID, dmgFields[1][10]), getBaseStat("skills", skillID, dmgFields[1][11]), getBaseStat("skills", skillID, "HitShift"), m) : 0
+          pmin: this.stagedDamage(
+            l,
+            getBaseStat("skills", skillID, dmgFields[0][0]),
+            getBaseStat("skills", skillID, dmgFields[0][1]),
+            getBaseStat("skills", skillID, dmgFields[0][2]),
+            getBaseStat("skills", skillID, dmgFields[0][3]),
+            getBaseStat("skills", skillID, dmgFields[0][4]),
+            getBaseStat("skills", skillID, dmgFields[0][5]),
+            getBaseStat("skills", skillID, "HitShift"),
+            m
+          ),
+          pmax: this.stagedDamage(
+            l,
+            getBaseStat("skills", skillID, dmgFields[0][6]),
+            getBaseStat("skills", skillID, dmgFields[0][7]),
+            getBaseStat("skills", skillID, dmgFields[0][8]),
+            getBaseStat("skills", skillID, dmgFields[0][9]),
+            getBaseStat("skills", skillID, dmgFields[0][10]),
+            getBaseStat("skills", skillID, dmgFields[0][11]),
+            getBaseStat("skills", skillID, "HitShift"),
+            m
+          ),
+          min: type
+            ? this.stagedDamage(
+              l,
+              getBaseStat("skills", skillID, dmgFields[1][0]),
+              getBaseStat("skills", skillID, dmgFields[1][1]),
+              getBaseStat("skills", skillID, dmgFields[1][2]),
+              getBaseStat("skills", skillID, dmgFields[1][3]),
+              getBaseStat("skills", skillID, dmgFields[1][4]),
+              getBaseStat("skills", skillID, dmgFields[1][5]),
+              getBaseStat("skills", skillID, "HitShift"),
+              m
+            )
+            : 0,
+          max: type
+            ? this.stagedDamage(
+              l,
+              getBaseStat("skills", skillID, dmgFields[1][6]),
+              getBaseStat("skills", skillID, dmgFields[1][7]),
+              getBaseStat("skills", skillID, dmgFields[1][8]),
+              getBaseStat("skills", skillID, dmgFields[1][9]),
+              getBaseStat("skills", skillID, dmgFields[1][10]),
+              getBaseStat("skills", skillID, dmgFields[1][11]),
+              getBaseStat("skills", skillID, "HitShift"),
+              m
+            )
+            : 0
         };
       }
     },
@@ -430,7 +529,7 @@
       return 0;
     },
     physicalAttackDamage: function (skillID) {
-      let dmg = (() => {
+      let dmg = (function () {
         switch (skillID) {
         case sdk.skills.Bash:
           return 45 + (5 + GameData.myReference.getSkill(skillID, 1)) + (5 * GameData.myReference.getSkill(sdk.skills.Stun, 0));
@@ -517,7 +616,9 @@
               break;
             }
 
-            if (target.gid !== unit.gid && getDistance(unit, this.novaLike[skillID] ? GameData.myReference : target) <= radius && isEnemy(unit)) {
+            if (target.gid !== unit.gid
+              && getDistance(unit, this.novaLike[skillID] ? GameData.myReference : target) <= radius
+              && isEnemy(unit)) {
               aps++;
 
               if (unit.isSpecial) {
@@ -779,7 +880,11 @@
      */
     avgSkillDamage: function (skillID, unit) {
       if (skillID === undefined || unit === undefined || !skillID || !unit || !Skill.canUse(skillID)) return 0;
-      const ampDmg = Skill.canUse(sdk.skills.AmplifyDamage) ? 100 : (Skill.canUse(sdk.skills.Decrepify) ? 50 : 0);
+      const ampDmg = Skill.canUse(sdk.skills.AmplifyDamage)
+        ? 100
+        : (Skill.canUse(sdk.skills.Decrepify)
+          ? 50
+          : 0);
 
       /**
        * 
@@ -820,7 +925,9 @@
        */
       const calculateSplashDamage = function (skill, splash, target) {
         return getUnits(sdk.unittype.Monster)
-          .filter((mon) => mon.attackable && getDistance(target, mon) < splash)
+          .filter(function (mon) {
+            return mon.attackable && getDistance(target, mon) < splash;
+          })
           .reduce(function (acc, cur) {
             let _a = GameData.skillDamage(skill, cur);
             return acc + getTotalDmg(_a, cur);
@@ -842,8 +949,12 @@
           break;
         }
         let units = getUnits(sdk.unittype.Monster)
-          .filter((mon) => mon.attackable && getDistance(mon, target) < range)
-          .sort((a, b) => getDistance(target, a) - getDistance(target, b));
+          .filter(function (mon) {
+            return mon.attackable && getDistance(mon, target) < range;
+          })
+          .sort(function (a, b) {
+            return getDistance(target, a) - getDistance(target, b);
+          });
         if (units.length === 1) {
           rawDmg = GameData.skillDamage(skill, target);
           return getTotalDmg(rawDmg, target);
@@ -926,7 +1037,9 @@
         // sum the total in the range of the volcano missiles
         // what about monsters just directly on the volcano?
         return getUnits(sdk.unittype.Monster)
-          .filter((mon) => mon.attackable && getDistance(unit, mon) < 15)
+          .filter(function (mon) {
+            return mon.attackable && getDistance(unit, mon) < 15;
+          })
           .reduce(function (acc, cur) {
             return acc + getTotalDmg(missleDmg, cur);
           }, getTotalDmg(baseDmg, unit));
@@ -1104,12 +1217,23 @@
       279: 9,
     },
     preAttackable: [
-      sdk.skills.MagicArrow, sdk.skills.FireArrow, sdk.skills.MultipleShot, sdk.skills.ExplodingArrow, sdk.skills.IceArrow, sdk.skills.GuidedArrow, sdk.skills.ImmolationArrow, sdk.skills.Strafe,
+      sdk.skills.MagicArrow, sdk.skills.FireArrow,
+      sdk.skills.MultipleShot, sdk.skills.ExplodingArrow,
+      sdk.skills.IceArrow, sdk.skills.GuidedArrow,
+      sdk.skills.ImmolationArrow, sdk.skills.Strafe,
       sdk.skills.PlagueJavelin, sdk.skills.LightningFury,
-      sdk.skills.FireBolt, sdk.skills.Inferno, sdk.skills.Blaze, sdk.skills.FireBall, sdk.skills.FireWall, sdk.skills.Meteor, sdk.skills.Hydra,
-      sdk.skills.ChargedBolt, sdk.skills.Nova, sdk.skills.Lightning, sdk.skills.ChainLightning,
-      sdk.skills.IceBolt, sdk.skills.FrostNova, sdk.skills.IceBlast, sdk.skills.Blizzard, sdk.skills.FrozenOrb,
-      sdk.skills.AmplifyDamage, sdk.skills.DimVision, sdk.skills.Weaken, sdk.skills.IronMaiden, sdk.skills.Terror, sdk.skills.Confuse, sdk.skills.LifeTap, sdk.skills.Attract, sdk.skills.Decrepify, sdk.skills.LowerResist,
+      sdk.skills.FireBolt, sdk.skills.Inferno,
+      sdk.skills.Blaze, sdk.skills.FireBall,
+      sdk.skills.FireWall, sdk.skills.Meteor, sdk.skills.Hydra,
+      sdk.skills.ChargedBolt, sdk.skills.Nova,
+      sdk.skills.Lightning, sdk.skills.ChainLightning,
+      sdk.skills.IceBolt, sdk.skills.FrostNova,
+      sdk.skills.IceBlast, sdk.skills.Blizzard, sdk.skills.FrozenOrb,
+      sdk.skills.AmplifyDamage, sdk.skills.DimVision,
+      sdk.skills.Weaken, sdk.skills.IronMaiden,
+      sdk.skills.Terror, sdk.skills.Confuse,
+      sdk.skills.LifeTap, sdk.skills.Attract,
+      sdk.skills.Decrepify, sdk.skills.LowerResist,
       sdk.skills.Teeth, sdk.skills.BoneSpear, sdk.skills.PoisonNova,
       sdk.skills.BlessedHammer,
       sdk.skills.WarCry,
@@ -1121,7 +1245,8 @@
       return stat ? (unit.getStat ? unit.getStat(stat) : MonsterData[unit][type]) : 0;
     },
     getConviction: function () {
-      let merc = GameData.myReference.getMerc(), sl = this.skillLevel(123); // conviction
+      let merc = GameData.myReference.getMerc();
+      let sl = this.skillLevel(123); // conviction
       if (( // Either me, or merc is wearing a conviction
         merc && merc.getItemsEx().filter(item => item.getPrefix(sdk.locale.items.Infinity)).first()
         || GameData.myReference.getItemsEx(-1, 1).filter(item => item.getPrefix(sdk.locale.items.Infinity)).first())) {
@@ -1405,14 +1530,14 @@
 
       skills = skills || this.allSkillDamage();
 
-      AreaData[areaID].forEachMonsterAndMinion((mon, rarity, parent) => {
+      AreaData.get(areaID).forEachMonsterAndMinion(function (mon, rarity, parent) {
         effortpool += rarity * this.monsterEffort(mon.Index, areaID, skills, parent && parent.Index).effort;
         raritypool += rarity;
 
         dmgAcc += rarity * this.monsterAvgDmg(mon.Index, areaID);
       });
 
-      // console.debug('avg dmg '+ AreaData[areaID].LocaleString+' -- ' + dmgAcc+' -- ' + avgDmg);
+      // console.debug('avg dmg '+ AreaData.get(areaID).LocaleString+' -- ' + dmgAcc+' -- ' + avgDmg);
 
       return (raritypool ? effortpool / raritypool : Infinity);
     },
@@ -1422,7 +1547,7 @@
       let effortpool = 0, raritypool = 0, dmgAcc = 0;
 
       skills = skills || this.allSkillDamage();
-      AreaData[areaID].forEachMonsterAndMinion((mon, rarity, parent) => {
+      AreaData.get(areaID).forEachMonsterAndMinion((mon, rarity, parent) => {
         effortpool += rarity * this.monsterExp(mon.Index, areaID) * this.levelModifier(GameData.myReference.charlvl, this.monsterLevel(mon.Index, areaID)) / this.monsterEffort(mon.Index, areaID, skills, parent && parent.Index).effort;
         raritypool += rarity;
 
@@ -1868,12 +1993,19 @@
     }
   };
 
-  function calculateKillableFallensByFrostNova() {
+  function calculateKillableFallensByFrostNova () {
     if (!Skill.canUse(sdk.skills.FrostNova)) return 0;
-    let fallens = [sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2];
+    const fallens = [
+      sdk.monsters.Fallen, sdk.monsters.Carver2,
+      sdk.monsters.Devilkin2, sdk.monsters.DarkOne1,
+      sdk.monsters.WarpedFallen, sdk.monsters.Carver1,
+      sdk.monsters.Devilkin, sdk.monsters.DarkOne2
+    ];
     let area = me.area;
     return getUnits(sdk.unittype.Monster)
-      .filter(unit => !!unit && fallens.includes(unit.classid) && unit.distance < 7)
+      .filter(function (unit) {
+        return !!unit && fallens.includes(unit.classid) && unit.distance < 7;
+      })
       .filter(function (unit) {
         return unit.attackable
         && typeof unit.x === "number" // happens if monster despawns
@@ -1892,14 +2024,20 @@
       }, 0);
   }
 
-  function calculateKillableSummonsByNova() {
+  function calculateKillableSummonsByNova () {
     if (!Skill.canUse(sdk.skills.Nova)) return 0;
-    let summons = [
-      sdk.monsters.Fallen, sdk.monsters.Carver2, sdk.monsters.Devilkin2, sdk.monsters.DarkOne1, sdk.monsters.WarpedFallen, sdk.monsters.Carver1, sdk.monsters.Devilkin, sdk.monsters.DarkOne2,
-      sdk.monsters.BurningDead, sdk.monsters.Returned1, sdk.monsters.Returned2, sdk.monsters.BoneWarrior1, sdk.monsters.BoneWarrior2
+    const summons = [
+      sdk.monsters.Fallen, sdk.monsters.Carver2,
+      sdk.monsters.Devilkin2, sdk.monsters.DarkOne1,
+      sdk.monsters.WarpedFallen, sdk.monsters.Carver1,
+      sdk.monsters.Devilkin, sdk.monsters.DarkOne2,
+      sdk.monsters.BurningDead, sdk.monsters.Returned1,
+      sdk.monsters.Returned2, sdk.monsters.BoneWarrior1, sdk.monsters.BoneWarrior2
     ];
     return getUnits(sdk.unittype.Monster)
-      .filter(unit => !!unit && summons.includes(unit.classid) && unit.distance < 7)
+      .filter(function (unit) {
+        return !!unit && summons.includes(unit.classid) && unit.distance < 7;
+      })
       .filter(function (unit) {
         return unit.attackable
         && typeof unit.x === "number" // happens if monster despawns
@@ -1919,7 +2057,9 @@
   Object.defineProperty(Unit.prototype, "currentVelocity", {
     get: function () {
       if (!this.isMoving || this.isFrozen) return 0;
-      const velocity = this.isRunning ? MonsterData[this.classid].Run : MonsterData[this.classid].Velocity;
+      const velocity = this.isRunning
+        ? MonsterData[this.classid].Run
+        : MonsterData[this.classid].Velocity;
       if (this.isChilled) {
         let malus = MonsterData[this.classid].ColdEffect;
         (malus > 0) && (malus = malus - 256);

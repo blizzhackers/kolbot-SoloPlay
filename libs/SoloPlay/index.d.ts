@@ -362,5 +362,79 @@ declare global {
   namespace LocationAction {
     function run(): void;
   }
+
+  class ShrineInstance {
+    constructor (shrine: ObjectUnit);
+
+    type: number;
+    classid: number;
+    state: number;
+    duration: number;
+    regenTime: number;
+    area: number;
+    x: number;
+    y: number;
+    gid: number;
+    interactedAt: number;
+
+    useable(): boolean;
+  }
+  class AreaDataInstance {
+    constructor (index: number);
+
+    LocaleString: string;
+    Index: number;
+    Act: number;
+    Level: number;
+    Size: {
+        x: number;
+        y: number;
+    };
+    SuperUnique: number[];
+    Monsters: number[];
+    MonsterDensity: number;
+    ChampionPacks: {
+      Min: number;
+      Max: number;
+    };
+    private _Waypoint: PresetObjectUnit | null;
+    Shrines: ShrineInstance[];
+    Chests: PresetObjectUnit[];
+
+    hasMonsterType (type: number): boolean;
+    forEachMonster (callback: (monster: number) => void): void;
+    forEachMonsterAndMinion (callback: (monster: number) => void): void;
+    canAccess(): boolean;
+    townArea(): AreaDataInstance;
+    getExits(): Exit[];
+    setWaypoint(wp: PresetUnit): void;
+    waypointCoords(): PresetObjectUnit | null;
+    haveWaypoint(): boolean;
+    hasWaypoint(): boolean;
+    nearestWaypointArea(): number;
+    nearestWaypointCoords(): PresetObjectUnit | null;
+    getChests(): PresetObjectUnit[];
+    addShrine(shrine: ObjectUnit): void;
+    updateShrine(shrine: ObjectUnit): void;
+    getShrines(): ShrineInstance[];
+  }
+
+  namespace AreaData {
+    /** @private */
+    const _map: Map<number, AreaDataInstance>;
+    const wps: Map<number, number>;
+    const nextAreas: Map<number, number[]>;
+    const previousAreas: Map<number, number>;
+
+    function set(key: number, value: AreaDataInstance): void;
+    function get(key: number): AreaDataInstance | undefined;
+    function has(key: number): boolean;
+    function forEach(callback: (value: AreaDataInstance, key: number) => void): void;
+    /**
+     * @description returns a random non town wp area
+     */
+    function randomWpArea(checkValid: boolean): number;
+    function getAreasWithShrine(shrineType: number): AreaDataInstance[];
+  }
 }
 export{};
