@@ -375,7 +375,7 @@ Item.equip = function (item, bodyLoc) {
       return item.isEquipped && item.bodylocation === bodyLoc;
     })
     .first();
-  if (currentEquipped) {
+  if (currentEquipped && !item.questItem) {
     if (NTIP.GetTier(currentEquipped) > NTIP.GetTier(item)) {
       console.debug(
         "ÿc9Equipÿc0 ::\n"

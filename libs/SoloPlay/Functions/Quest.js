@@ -222,8 +222,13 @@ const Quest = {
 
     if (questItem) {
       me.dualWielding && Item.removeItem(sdk.body.LeftArm);
+      if (questItem.isInStash && !Town.openStash()) {
+        console.log("ÿc8Kolbot-SoloPlayÿc0: failed to open stash. (Quest.equipItem)");
+        Item.autoEquip();
+        return false;
+      }
       
-      if (!Item.equip(questItem, loc)) {
+      if (!questItem.equip(loc)) {
         Pickit.pickItems();
         console.log("ÿc8Kolbot-SoloPlayÿc0: failed to equip " + classid + " .(Quest.equipItem)");
       }
