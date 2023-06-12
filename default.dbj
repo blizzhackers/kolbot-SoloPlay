@@ -38,17 +38,22 @@ function main () {
   clearAllEvents(); // remove any event listeners from game crash
 
   // load heartbeat if it isn't already running
-  !getScript("threads/heartbeat.js") && load("threads/heartbeat.js");
+  let _heartbeat = getScript("threads/heartbeat.js");
+  if (!_heartbeat || !_heartbeat.running) {
+    load("threads/heartbeat.js");
+  }
 
   // SoloPlay runs in it's own thread - check to ensure it exists in the files
   if (getScript("D2BotSoloPlay.dbj") && FileTools.exists("libs/SoloPlay/SoloPlay.js")) {
     load("libs/SoloPlay/SoloPlay.js");
+    getScript(true).stop(); // kill this thread
     return true;
   }
 
   // map mode runs in it's own thread
   if (getScript("d2botmap.dbj")) {
     load("libs/manualplay/threads/mapthread.js");
+    getScript(true).stop(); // kill this thread
     return true;
   }
   
@@ -57,7 +62,9 @@ function main () {
   
   // don't load default for dropper/mules
   if (getScript("D2BotDropper.dbj") || getScript("D2BotMule.dbj")) {
-    FileTools.exists("libs/ItemDB.js") && include("ItemDB.js");
+    if (FileTools.exists("libs/systems/dropper/ItemDB.js")) {
+      include("systems/dropper/ItemDB.js");
+    }
     load("threads/AreaWatcher.js");
     
     while (me.ingame) {
@@ -145,7 +152,9 @@ function main () {
 
   // Load threads
   load("threads/ToolsThread.js");
-  (Config.TownCheck || Config.TownHP > 0 || Config.TownMP > 0) && load("threads/TownChicken.js");
+  if (Config.TownCheck || Config.TownHP > 0 || Config.TownMP > 0) {
+    load("threads/TownChicken.js");
+  }
 
   if (Config.DebugMode.Stack && FileTools.exists("libs/modules/Guard.js")) {
     require("libs/modules/Guard");
@@ -179,8 +188,12 @@ function main () {
     if (Config.DebugMode.Memory) {
       delay(2000);
       getThreads()
-        .sort((a, b) => b.memory - a.memory)
-        .forEach(thread => console.debug(thread));
+        .sort(function (a, b) {
+          return b.memory - a.memory;
+        })
+        .forEach(function (thread) {
+          console.debug(thread);
+        });
     }
   }
 
