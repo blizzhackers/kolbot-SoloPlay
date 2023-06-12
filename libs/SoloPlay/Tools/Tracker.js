@@ -14,11 +14,19 @@ const Tracker = {
   LPPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-LevelingPerformance.csv",
   SPPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-ScriptPerformance.csv",
   // Leveling Performance
-  LPHeader: "Total Time,InGame Time,Split Time,Area,Character Level,Gained EXP,Gained EXP/Minute,Difficulty,Gold,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n",
+  LPHeader: "Total Time,InGame,Split Time,Area,Charlevel,Gained EXP,EXP/Minute,Difficulty,Gold,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n",
   // Script Performance
-  SPHeader: "Total Time,InGame Time,Sequence Time,Sequence,Character Level,Gained EXP,Gained EXP/Minute,EXP Gain %,Difficulty,Gold,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n",
+  SPHeader: "Total Time,InGame,Sequence,Script,Charlevel,Gained EXP,EXP/Minute,EXP Gain %,Difficulty,Gold,Fire Resist,Cold Resist,Light Resist,Poison Resist,Current Build" + "\n",
   tick: 0,
-  default: {
+  /**
+   * @typedef {Object} GameTracker
+   * @property {number} Total - Total time spent in game
+   * @property {number} InGame - Total time spent in game
+   * @property {number} OOG - Total time spent out of game
+   * @property {number} LastLevel - Time Last level reached
+   * @property {number} LastSave - Time Last save occurred
+   */
+  _default: {
     "Total": 0,
     "InGame": 0,
     "OOG": 0,
@@ -27,7 +35,7 @@ const Tracker = {
   },
 
   initialize: function () {
-    const GameTracker = Object.assign({}, this.default);
+    const GameTracker = Object.assign({}, this._default);
 
     // Create Files
     if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile)) {
@@ -42,6 +50,10 @@ const Tracker = {
     return true;
   },
 
+  /**
+   * @param {string} path 
+   * @returns {GameTracker}
+   */
   getObj: function (path) {
     let obj, OBJstring = FileAction.read(path);
 
@@ -65,6 +77,10 @@ const Tracker = {
     return false;
   },
 
+  /**
+   * @param {string} jsonPath 
+   * @returns {GameTracker}
+   */
   readObj: function (jsonPath) {
     let obj = this.getObj(jsonPath);
     return clone(obj);
@@ -88,7 +104,7 @@ const Tracker = {
   },
 
   resetGameTime: function () {
-    Tracker.writeObj(Object.assign({}, this.default), this.GTPath);
+    Tracker.writeObj(Object.assign({}, this._default), this.GTPath);
   },
 
   reset: function () {
@@ -135,13 +151,16 @@ const Tracker = {
     const currLevel = me.charlvl;
     const diffString = sdk.difficulty.nameOf(me.diff);
     const gainAMT = me.getStat(sdk.stats.Experience) - startexp;
-    const gainTime = gainAMT / (scriptTime / 60000);
-    const gainPercent = currLevel === 99 ? 0 : (gainAMT * 100 / Experience.nextExp[currLevel]).toFixed(6);
+    const gainTime = (gainAMT / (scriptTime / 60000)).toFixed(2);
+    const gainPercent = currLevel === 99
+      ? 0
+      : (gainAMT * 100 / Experience.nextExp[currLevel]).toFixed(2);
     const currentBuild = SetUp.currentBuild;
     const [GOLD, FR, CR, LR, PR] = [me.gold, me.realFR, me.realCR, me.realLR, me.realPR];
     const string = (
       Time.format(GameTracker.Total) + "," + Time.format(GameTracker.InGame) + "," + Time.format(scriptTime)
-      + "," + subscript + "," + currLevel + "," + gainAMT + "," + gainTime + "," + gainPercent + "," + diffString
+      + "," + subscript + "," + currLevel + "," + (gainAMT).toFixed(2)
+      + "," + gainTime + "," + gainPercent + "," + diffString
       + "," + GOLD + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n"
     );
 
