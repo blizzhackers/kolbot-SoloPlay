@@ -209,6 +209,8 @@ Kolbot-SoloPlay was built off the base structure of SoloLeveling by isid0re. Aut
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
+[![Donate](https://img.shields.io/badge/PayPal-Donate-blue.svg?style=for-the-badge&logo=paypal)](https://www.paypal.com/donate/?business=Y9S4AWX9QUZXW&no_recurring=0&currency_code=USD)
+
 ## License
 [GPL-3.0](https://choosealicense.com/licenses/gpl-3.0/)
 
