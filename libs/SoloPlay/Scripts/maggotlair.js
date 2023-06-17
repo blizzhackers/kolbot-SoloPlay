@@ -30,7 +30,9 @@ function maggotlair () {
 
         if (monster) {
           do {
-            if (monster.isBeetle && monster.distance <= 30 && monster.attackable) {
+            if ((monster.isBeetle || monster.isSpecial)
+              && monster.distance <= 30
+              && monster.attackable) {
               monList.push(copyUnit(monster));
             }
           } while (monster.getNext());
@@ -47,7 +49,9 @@ function maggotlair () {
   Town.doChores(false, { fullChores: true });
   myPrint("starting maggot lair beetle bursting");
 
-  Pather.checkWP(sdk.areas.FarOasis, true) ? Pather.useWaypoint(sdk.areas.FarOasis) : Pather.getWP(sdk.areas.FarOasis);
+  Pather.checkWP(sdk.areas.FarOasis, true)
+    ? Pather.useWaypoint(sdk.areas.FarOasis)
+    : Pather.getWP(sdk.areas.FarOasis);
   Precast.doPrecast(true);
   [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3].forEach((mLair, i) => {
     Pather.moveToExit(mLair, true) && clearBeetles();
