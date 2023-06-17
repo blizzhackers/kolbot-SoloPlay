@@ -11,7 +11,6 @@ function baal () {
   Config.BossPriority = false;
 
   let decoyTick = 0;
-  let decoyDuration = (me.amazon ? Skill.getDuration(sdk.skills.Decoy) : 0);
 
   const preattack = function () {
     switch (me.classid) {
@@ -19,7 +18,7 @@ function baal () {
       if (Skill.canUse(sdk.skills.Decoy)) {
         let decoy = Game.getMonster(sdk.summons.Dopplezon);
 
-        if (!decoy || (getTickCount() - decoyTick >= decoyDuration)) {
+        if (!decoy || (getTickCount() - decoyTick >= Skill.getDuration(sdk.skills.Decoy))) {
           Skill.cast(sdk.skills.Decoy, sdk.skills.hand.Right, 15092, 5028);
           decoyTick = getTickCount();
         }
@@ -28,13 +27,29 @@ function baal () {
       break;
     case sdk.player.class.Sorceress:
       if ([sdk.skills.Meteor, sdk.skills.Blizzard, sdk.skills.FrozenOrb].includes(Config.AttackSkill[1])) {
-        !me.skillDelay ? Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 15093, 5024) : delay(50);
+        !me.skillDelay
+          ? Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 15093, 5024)
+          : delay(50);
+      }
+
+      return true;
+    case sdk.player.class.Necromancer:
+      if (Config.AttackSkill[3] === sdk.skills.PoisonNova) {
+        if ([15093, 5029].distance > 3) {
+          Pather.moveTo(15093, 5029);
+        }
+
+        Skill.cast(Config.AttackSkill[3], sdk.skills.hand.Left);
+      } else if (Skill.canUse(sdk.skills.DimVision)) {
+        Skill.cast(sdk.skills.DimVision, sdk.skills.hand.Right, 15093, 5024);
       }
 
       return true;
     case sdk.player.class.Paladin:
       if (Config.AttackSkill[3] !== sdk.skills.BlessedHammer) return false;
-      [15093, 5029].distance > 3 && Pather.moveTo(15093, 5029);
+      if ([15093, 5029].distance > 3) {
+        Pather.moveTo(15093, 5029);
+      }
       Config.AttackSkill[4] > 0 && Skill.setSkill(Config.AttackSkill[4], sdk.skills.hand.Right);
 
       Skill.cast(Config.AttackSkill[3], sdk.skills.hand.Left);
@@ -113,7 +128,7 @@ function baal () {
         if (getTickCount() - tick < Time.seconds(7)) {
           if (Skill.canUse(sdk.skills.Cleansing) && me.getState(sdk.states.Poison)) {
             Skill.setSkill(sdk.skills.Cleansing, sdk.skills.hand.Right);
-            Misc.poll(() => {
+            Misc.poll(function () {
               if (Config.AttackSkill[3] === sdk.skills.BlessedHammer) {
                 Skill.cast(Config.AttackSkill[3], sdk.skills.hand.Left);
               }
@@ -137,40 +152,58 @@ function baal () {
       switch (me.classid) {
       case sdk.player.class.Amazon:
       case sdk.player.class.Sorceress:
-      case sdk.player.class.Necromancer:
       case sdk.player.class.Assassin:
-        [15116, 5026].distance > 3 && Pather.moveTo(15116, 5026);
+        if ([15116, 5026].distance > 3) {
+          Pather.moveTo(15116, 5026);
+        }
+        break;
+      case sdk.player.class.Necromancer:
+        if (Config.AttackSkill[3] === sdk.skills.BoneSpear) {
+          if ([15115, 5047].distance > 3) {
+            Pather.moveTo(15115, 5047);
+          }
+        } else if (Config.AttackSkill[3] === sdk.skills.PoisonNova) {
+          if ([15094, 5029].distance > 3) {
+            Pather.moveTo(15094, 5029);
+          }
+        }
 
         break;
       case sdk.player.class.Paladin:
         if (Config.AttackSkill[3] === sdk.skills.BlessedHammer) {
-          [15094, 5029].distance > 3 && Pather.moveTo(15094, 5029);
+          if ([15094, 5029].distance > 3) {
+            Pather.moveTo(15094, 5029);
+          }
           
           break;
         }
       // eslint-disable-next-line no-fallthrough
       case sdk.player.class.Druid:
         if ([sdk.skills.Fissure, sdk.skills.Volcano].includes(Config.AttackSkill[3])) {
-          [15116, 5026].distance > 3 && Pather.moveTo(15116, 5026);
-
+          if ([15116, 5026].distance > 3) {
+            Pather.moveTo(15116, 5026);
+          }
           break;
         }
 
         if (Config.AttackSkill[3] === sdk.skills.Tornado) {
-          [15094, 5029].distance > 3 && Pather.moveTo(15106, 5041);
-          
+          if ([15094, 5029].distance > 3) {
+            Pather.moveTo(15106, 5041);
+          }
           break;
         }
       // eslint-disable-next-line no-fallthrough
       case sdk.player.class.Barbarian:
-        [15101, 5045].distance > 3 && Pather.moveTo(15101, 5045);
-
+        if ([15101, 5045].distance > 3) {
+          Pather.moveTo(15101, 5045);
+        }
         break;
       }
 
       // If we've been in the throne for 30 minutes that's way too long
-      if (getTickCount() - totalTick > Time.minutes(30)) return false;
-
+      if (getTickCount() - totalTick > Time.minutes(30)) {
+        return false;
+      }
       delay(10);
     }
 
