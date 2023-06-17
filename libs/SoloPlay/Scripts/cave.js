@@ -7,6 +7,32 @@
 
 function cave () {
   !me.inArea(sdk.areas.ColdPlains) && Pather.journeyTo(sdk.areas.ColdPlains);
+  if (me.charlvl <= 3) {
+    // scenic route
+    [
+      Pather.getExitCoords(me.area, sdk.areas.StonyField),
+      Pather.getExitCoords(me.area, sdk.areas.BurialGrounds)
+    ].sort(function (a, b) {
+      return [a.x, a.y].distance - [b.x, b.y].distance;
+    }).forEach(function (el) {
+      Pather.moveTo(el.x, el.y);
+    });
+    Pather.moveToExit(sdk.areas.ColdPlains, true);
+  } else if (me.charlvl <= 5 && !me.haveWaypoint(sdk.areas.StonyField)) {
+    const cLvl1 = Pather.getExitCoords(me.area, sdk.areas.CaveLvl1);
+    const sFields = Pather.getExitCoords(me.area, sdk.areas.StonyField);
+    const plainsWpCoords = AreaData.get(sdk.areas.ColdPlains).waypointCoords();
+    const wpToCave = getDistance(cLvl1.x, cLvl1.y, plainsWpCoords.x, plainsWpCoords.y);
+    // const wpToStony = getDistance(sFields.x, sFields.y, plainsWpCoords.x, plainsWpCoords.y);
+    const stonyToCave = getDistance(cLvl1.x, cLvl1.y, sFields.x, sFields.y);
+    Pather.moveToExit(sdk.areas.StonyField, true);
+    Pather.getWP(sdk.areas.StonyField);
+    if (sFields.distance + stonyToCave < wpToCave) {
+      Pather.moveToExit(sdk.areas.ColdPlains, true);
+    } else {
+      Pather.useWaypoint(sdk.areas.ColdPlains);
+    }
+  }
   Pather.moveToExit([sdk.areas.CaveLvl1, sdk.areas.CaveLvl2], true, true);
 
   // coords from sonic
