@@ -75,7 +75,9 @@ function summoner () {
     Town.npcInteract("jerhyn");
   }
 
-  Pather.checkWP(sdk.areas.ArcaneSanctuary, true) ? Pather.useWaypoint(sdk.areas.ArcaneSanctuary) : Pather.getWP(sdk.areas.ArcaneSanctuary);
+  Pather.checkWP(sdk.areas.ArcaneSanctuary, true)
+    ? Pather.useWaypoint(sdk.areas.ArcaneSanctuary)
+    : Pather.getWP(sdk.areas.ArcaneSanctuary);
   Precast.doPrecast(true);
   teleportPads();
 

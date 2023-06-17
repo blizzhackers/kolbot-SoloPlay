@@ -24,7 +24,9 @@ function bloodraven () {
     } else {
       Pather.useWaypoint(sdk.areas.ColdPlains);
       if (me.charlvl < 5) {
-        SoloIndex.doneList.includes("cave") ? Attack.clearLevelUntilLevel(5) : Loader.skipTown.push("cave") && Loader.runScript("cave");
+        SoloIndex.doneList.includes("cave")
+          ? Attack.clearLevelUntilLevel(5)
+          : Loader.skipTown.push("cave") && Loader.runScript("cave");
       }
     }
   }
@@ -63,7 +65,8 @@ function bloodraven () {
 
       break;
     case sdk.game.gametype.Expansion:
-      if ((me.charlvl < 80 || me.charlvl > 85) && !((me.sorceress || me.druid || me.assassin) && me.equipped.get(sdk.body.RightArm).tier < 100000)) {
+      if ((me.charlvl < 80 || me.charlvl > 85)
+        && !((me.sorceress || me.druid || me.assassin) && me.equipped.get(sdk.body.RightArm).tier < 100000)) {
         return true;
       }
 

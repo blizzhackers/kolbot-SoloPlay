@@ -5,7 +5,7 @@
 *
 */
 
-function getkeys() {
+function getkeys () {
   Town.doChores();
 
   if (!me.findItems(sdk.items.quest.KeyofTerror) || me.findItems(sdk.items.quest.KeyofTerror).length < 3) {

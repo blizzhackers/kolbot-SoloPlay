@@ -10,7 +10,9 @@ function travincal () {
   Town.doChores(false, { fullChores: true });
   myPrint("starting travincal");
 
-  Pather.checkWP(sdk.areas.Travincal, true) ? Pather.useWaypoint(sdk.areas.Travincal) : Pather.getWP(sdk.areas.Travincal);
+  Pather.checkWP(sdk.areas.Travincal, true)
+    ? Pather.useWaypoint(sdk.areas.Travincal)
+    : Pather.getWP(sdk.areas.Travincal);
   Precast.doPrecast(true);
 
   const council = {
@@ -41,8 +43,13 @@ function travincal () {
 
     // cube flail to will
     if (!me.getItem(sdk.items.quest.KhalimsWill) && me.getItem(sdk.items.quest.KhalimsFlail)) {
-      Quest.cubeItems(sdk.items.quest.KhalimsWill,
-        sdk.quest.item.KhalimsEye, sdk.quest.item.KhalimsHeart, sdk.quest.item.KhalimsBrain, sdk.quest.item.KhalimsFlail);
+      Quest.cubeItems(
+        sdk.items.quest.KhalimsWill,
+        sdk.quest.item.KhalimsEye,
+        sdk.quest.item.KhalimsHeart,
+        sdk.quest.item.KhalimsBrain,
+        sdk.quest.item.KhalimsFlail
+      );
       delay(250 + me.ping);
     }
 

@@ -5,7 +5,7 @@
 *
 */
 
-function orgtorch() {
+function orgtorch () {
   this.doneAreas = [];
 
   // Identify & mule

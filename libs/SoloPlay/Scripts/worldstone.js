@@ -5,7 +5,7 @@
 *
 */
 
-function worldstone() {
+function worldstone () {
   myPrint("starting worldstone");
 
   Town.doChores(null, { thawing: me.coldRes < 75, antidote: me.poisonRes < 75 });

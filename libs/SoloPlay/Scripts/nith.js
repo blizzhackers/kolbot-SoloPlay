@@ -6,7 +6,7 @@
 *
 */
 
-function nith() {
+function nith () {
   Town.doChores();
   myPrint("starting nith");
 

@@ -25,14 +25,19 @@ function tombs () {
 
   for (let number = 0; number < tombID.length; number++) {
     if (SoloIndex.index.duriel.skipIf()) return true;
-    Pather.checkWP(sdk.areas.CanyonofMagic, true) ? Pather.useWaypoint(sdk.areas.CanyonofMagic) : Pather.getWP(sdk.areas.CanyonofMagic);
+    Pather.checkWP(sdk.areas.CanyonofMagic, true)
+      ? Pather.useWaypoint(sdk.areas.CanyonofMagic)
+      : Pather.getWP(sdk.areas.CanyonofMagic);
     Precast.doPrecast(true);
 
     if (Pather.moveToExit(tombID[number], true, true)) {
       me.overhead("Tomb #" + (number + 1));
       const duryTomb = getRoom().correcttomb === me.area;
 
-      let obj = Game.getPresetObject(me.area, (!duryTomb ? sdk.objects.SmallSparklyChest : sdk.objects.HoradricStaffHolder));
+      let obj = Game.getPresetObject(
+        me.area,
+        (!duryTomb ? sdk.objects.SmallSparklyChest : sdk.objects.HoradricStaffHolder)
+      );
       !!obj && Pather.moveToUnit(obj);
 
       Attack.clear(50);

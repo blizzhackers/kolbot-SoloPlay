@@ -5,7 +5,7 @@
 *
 */
 
-function river() {
+function river () {
   myPrint("starting river");
 
   Town.doChores(null, { thawing: me.coldRes < 75, antidote: me.poisonRes < 75 });

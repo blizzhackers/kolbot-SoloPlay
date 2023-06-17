@@ -5,30 +5,35 @@
 *
 */
 
-function a5chests() {
-  const areas = [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit, sdk.areas.GlacialTrail, sdk.areas.DrifterCavern, sdk.areas.IcyCellar];
-  
+function a5chests () {
+  const areas = [];
+
+  if (me.nightmare && !Pather.canTeleport()) {
+    me.charlvl >= 70
+      ? areas.push(sdk.areas.DrifterCavern, sdk.areas.IcyCellar)
+      : areas.push(sdk.areas.GlacialTrail, sdk.areas.DrifterCavern, sdk.areas.IcyCellar);
+  } else {
+    areas.push(
+      sdk.areas.Abaddon, sdk.areas.PitofAcheron,
+      sdk.areas.InfernalPit, sdk.areas.GlacialTrail,
+      sdk.areas.DrifterCavern, sdk.areas.IcyCellar
+    );
+  }
+
   myPrint("starting a5 chests");
   Town.doChores();
 
-  for (let i = 0; i < areas.length; i++) {
+  areas.forEach(function (area) {
     try {
-      if (!Pather.canTeleport() && me.nightmare && [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit].includes(areas[i])) {
-        continue;
-      } else if (!Pather.canTeleport() && me.nightmare && me.charlvl >= 70 && [sdk.areas.Abaddon, sdk.areas.PitofAcheron, sdk.areas.InfernalPit, sdk.areas.GlacialTrail, sdk.areas.DrifterCavern].includes(areas[i])) {
-        continue;
-      }
-
-      myPrint("Moving to " + getAreaName(areas[i]));
-      Pather.journeyTo(areas[i]);
+      myPrint("Moving to " + getAreaName(area));
+      Pather.journeyTo(area);
       Precast.doPrecast();
-      Misc.openChestsInArea(areas[i]);
+      Misc.openChestsInArea(area);
       Town.doChores();
     } catch (e) {
-      console.debug("ÿc8Kolbot-SoloPlayÿc0: Failed to move to " + getAreaName(areas[i]), e);
-      continue;
+      console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to move to " + getAreaName(area), e);
     }
-  }
+  });
 
   return true;
 }

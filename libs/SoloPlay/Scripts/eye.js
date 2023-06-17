@@ -9,7 +9,9 @@ function eye () {
   Town.doChores(false, { fullChores: true });
   myPrint("starting eye");
 
-  Pather.checkWP(sdk.areas.SpiderForest, true) ? Pather.useWaypoint(sdk.areas.SpiderForest) : Pather.getWP(sdk.areas.SpiderForest);
+  Pather.checkWP(sdk.areas.SpiderForest, true)
+    ? Pather.useWaypoint(sdk.areas.SpiderForest)
+    : Pather.getWP(sdk.areas.SpiderForest);
   Precast.doPrecast(true);
 
   if (!Pather.moveToExit([sdk.areas.SpiderForest, sdk.areas.SpiderCavern], true)) {

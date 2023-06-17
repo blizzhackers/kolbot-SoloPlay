@@ -16,13 +16,17 @@ function ancienttunnels () {
     Attack.clearLevel();
   } else {
     try {
-      Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.objects.SuperChest) && Misc.openChests(5) && Pickit.pickItems();
+      if (Pather.moveToPresetObject(me.area, sdk.objects.SuperChest)) {
+        Misc.openChests(5) && Pickit.pickItems();
+      }
     } catch (e) {
       console.error(e);
     }
 
     try {
-      Pather.moveToPreset(me.area, sdk.unittype.Monster, sdk.monsters.preset.DarkElder) && Attack.clear(15, 0, getLocaleString(sdk.locale.monsters.DarkElder));
+      if (Pather.moveToPresetMonster(me.area, sdk.monsters.preset.DarkElder)) {
+        Attack.clear(15, 0, getLocaleString(sdk.locale.monsters.DarkElder));
+      }
     } catch (e) {
       console.warn("ÿc8Kolbot-SoloPlayÿc0: Failed to kill Dark Elder");
     }
