@@ -938,6 +938,7 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
       if (!(charges instanceof Array)) charges = [charges];
 
       for (let charge of charges) {
+        if (!charge) continue;
         // add to total list of skillIds
         if (charge.charges > 0 && !currentChargedSkills.includes(charge.skill)) {
           currentChargedSkills.push(charge.skill);
@@ -992,6 +993,7 @@ Attack.getItemCharges = function (skillId) {
       if (!(charges instanceof Array)) charges = [charges];
 
       for (let charge of charges) {
+        if (!charge) continue;
         if (validCharge(charge)) {
           chargedItems.push({
             skill: charge.skill,
