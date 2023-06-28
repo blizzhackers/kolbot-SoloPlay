@@ -12,6 +12,36 @@
 
 includeIfNotIncluded("systems/automule/Automule.js");
 
+/**
+* @param {ItemUnit} item 
+* @param {string[] | number[]} list 
+* @returns {boolean}
+*/
+AutoMule.matchItem = function (item, list) {
+  let parsedPickit = new NTIPList();
+  let classIDs = [];
+
+  for (let i = 0; i < list.length; i += 1) {
+    let info = {
+      file: "Character Config",
+      line: list[i]
+    };
+
+    // classids
+    if (typeof list[i] === "number") {
+      classIDs.push(list[i]);
+    } else if (typeof list[i] === "string") {
+      // pickit entries
+      let parsedLine = NTIP.ParseLineInt(list[i], info);
+      if (parsedLine) {
+        parsedPickit.add(parsedLine, info);
+      }
+    }
+  }
+
+  return (classIDs.includes(item.classid) || NTIP.CheckItem(item, parsedPickit));
+};
+
 AutoMule.getMuleItems = function () {
   let info = this.getInfo();
 
@@ -62,6 +92,8 @@ AutoMule.getMuleItems = function () {
       || SoloWants.keepItem(item));
   };
 
+  const checkTorchSystem = TorchSystem.getFarmers() && TorchSystem.isFarmer();
+
   // lets be more explicit about what we want to mule
   let items = me.getItemsEx()
     .filter(function (item) {
@@ -76,12 +108,11 @@ AutoMule.getMuleItems = function () {
       // don't mule items in locked spots - not exactly applicable for soloplay but including it
       if (item.isInInventory && Storage.Inventory.IsLocked(item, Config.Inventory)) return false;
       // don't mule items wanted by one of the various systems - checks that it's not on the force mule list
-      // might be worth it to ignore force for soloplay in this case, muleing an item we need would slow down progression
       if (isWanted(item) && !AutoMule.matchItem(item, Config.AutoMule.Force.concat(Config.AutoMule.Trigger))) {
         return false;
       }
       // don't mule keys if part of torchsystem, again shouldn't really be used with soloplay but still including it
-      if (isAKey(item) && TorchSystem.getFarmers() && TorchSystem.isFarmer()) return false;
+      if (isAKey(item) && checkTorchSystem) return false;
       // we've gotten this far, mule items that are on the force list
       if (AutoMule.matchItem(item, Config.AutoMule.Force.concat(Config.AutoMule.Trigger))) return true;
       // alright that handles the basics -- now normal pickit check
