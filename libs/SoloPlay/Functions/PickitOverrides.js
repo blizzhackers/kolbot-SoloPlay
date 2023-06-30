@@ -107,7 +107,7 @@ Pickit.checkItem = function (unit) {
       return resultObj(Pickit.Result.SOLOWANTS, "Autoequip charm Tier: " + NTIP.GetCharmTier(unit));
     }
 
-    return NTIP.CheckItem(unit, NTIP.NoTier, true) || NTIP.CheckItem(unit, NTIP.CheckList, true);
+    return NTIP.CheckItem(unit, NTIP.CheckList, true);
   }
 
   if (AutoEquip.hasTier(unit) && unit.identified) {
