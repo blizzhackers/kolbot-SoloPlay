@@ -158,25 +158,22 @@ Pickit.checkItem = function (unit) {
 
 // @jaenster
 Pickit.amountOfPotsNeeded = function () {
-  let _a, _b, _c, _d;
+  /**
+   * @constructor
+   * @param {number} max 
+   */
+  function NeededPots (max) {
+    this[sdk.storage.Belt] = 0;
+    this[sdk.storage.Inventory] = max;
+  }
   let potTypes = [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion];
   let hpMax = (Array.isArray(Config.HPBuffer) ? Config.HPBuffer[1] : Config.HPBuffer);
   let mpMax = (Array.isArray(Config.MPBuffer) ? Config.MPBuffer[1] : Config.MPBuffer);
   let rvMax = (Array.isArray(Config.RejuvBuffer) ? Config.RejuvBuffer[1] : Config.RejuvBuffer);
-  let needed = (_a = {},
-  _a[sdk.items.type.HealingPotion] = (_b = {},
-  _b[sdk.storage.Belt] = 0,
-  _b[sdk.storage.Inventory] = hpMax,
-  _b),
-  _a[sdk.items.type.ManaPotion] = (_c = {},
-  _c[sdk.storage.Belt] = 0,
-  _c[sdk.storage.Inventory] = mpMax,
-  _c),
-  _a[sdk.items.type.RejuvPotion] = (_d = {},
-  _d[sdk.storage.Belt] = 0,
-  _d[sdk.storage.Inventory] = rvMax,
-  _d),
-  _a);
+  const needed = {};
+  needed[sdk.items.type.HealingPotion] = new NeededPots(hpMax);
+  needed[sdk.items.type.ManaPotion] = new NeededPots(mpMax);
+  needed[sdk.items.type.RejuvPotion] = new NeededPots(rvMax);
   if (hpMax > 0 || mpMax > 0 || rvMax > 0) {
     me.getItemsEx()
       .filter(function (pot) {
@@ -188,9 +185,13 @@ Pickit.amountOfPotsNeeded = function () {
   }
   let missing = Storage.Belt.checkColumns(Pickit.beltSize);
   Config.BeltColumn.forEach(function (column, index) {
-    if (column === "hp") {needed[sdk.items.type.HealingPotion][sdk.storage.Belt] = missing[index];}
-    if (column === "mp") {needed[sdk.items.type.ManaPotion][sdk.storage.Belt] = missing[index];}
-    if (column === "rv") {needed[sdk.items.type.RejuvPotion][sdk.storage.Belt] = missing[index];}
+    if (column === "hp") {
+      needed[sdk.items.type.HealingPotion][sdk.storage.Belt] = missing[index];
+    } else if (column === "mp") {
+      needed[sdk.items.type.ManaPotion][sdk.storage.Belt] = missing[index];
+    } else if (column === "rv") {
+      needed[sdk.items.type.RejuvPotion][sdk.storage.Belt] = missing[index];
+    }
   });
   return needed;
 };
