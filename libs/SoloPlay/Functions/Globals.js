@@ -1070,9 +1070,9 @@ const Check = {
     let goalReached = false, goal = "";
 
     switch (true) {
-    case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
+    case SetUp.finalBuild === "Bumper" && me.charlvl >= (Developer.fillAccount.Bumper.Level):
     case (SetUp.finalBuild === "Socketmule" && questCompleted(sdk.quest.id.SiegeOnHarrogath)):
-    case (SetUp.finalBuild === "Imbuemule" && questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Developer.imbueStopLevel):
+    case (SetUp.finalBuild === "Imbuemule" && questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Developer.fillAccount.Imbue.Level):
       goal = SetUp.finalBuild;
       goalReached = true;
 
@@ -1093,18 +1093,27 @@ const Check = {
 
     if (goalReached) {
       const gameObj = Developer.logPerformance ? Tracker.readObj(Tracker.GTPath) : null;
+      const saveLocation = "logs/Kolbot-SoloPlay/Account-List/" + me.realm + "/" + (me.ladder > 0 ? "Ladder" : "Non-Ladder") + "/" + (me.ladder > 0 ? "L." : "NL.") + goal + "s.Acc." + me.account + ".CharList.txt";
+      const textFile = me.account + "/" + me.charname + "/" + me.charlvl + '\n';
 
       switch (true) {
-      case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.bumpers):
-      case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.socketMules):
+      case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.Bumper.bumpers):
+      case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.SocketMules.socketMules):
+      case (SetUp.finalBuild === "Imbuemule" && Developer.fillAccount.ImbueMules.imbueMules):      
+        FileTools.appendText(saveLocation, textFile);
+        D2Bot.printToConsole("Account & Character Names are saved to: " + saveLocation, sdk.colors.D2Bot.Black);
+        delay(1000 + me.ping);
         SetUp.makeNext();
-        
+
         break;
       default:
         D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (gameObj ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
         Developer.logPerformance && Tracker.update();
+        FileTools.appendText(saveLocation, textFile);
+        D2Bot.printToConsole("Account & Character Names are saved to: " + saveLocation, sdk.colors.D2Bot.Black);
+        delay(1000 + me.ping);
         D2Bot.stop();
-      }
+     } 
     }
   },
 

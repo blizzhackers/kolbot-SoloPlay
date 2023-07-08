@@ -575,6 +575,34 @@ const locations = {};
     if (!FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName + ".json")) {
       FileTools.writeText("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName + ".json", JSON.stringify(info));
     }
+
+    // Developer Options (BSI)
+    if (Developer.fillAccountBumper.bumpers || Developer.fillAccountSocket.socketMules || Developer.fillAccountImbue.imbueMules) {
+      // Create Save Folder Location
+      if (FileTools.exists("logs/Kolbot-SoloPlay/Account-List/" + info.realm + "/" + (info.ladder > 0 ? "Ladder" : "Non-Ladder"))) {
+        return;
+      }
+
+      if (!FileTools.exists("logs/Kolbot-SoloPlay")) {
+        folder = dopen("logs");
+        folder.create("Kolbot-SoloPlay");
+      }
+
+      if (!FileTools.exists("logs/Kolbot-SoloPlay/Account-List")) {
+        folder = dopen("logs/Kolbot-SoloPlay");
+        folder.create("Account-List");
+      }
+
+      if (!FileTools.exists("logs/Kolbot-SoloPlay/Account-List/" + info.realm)) {
+        folder = dopen("logs/Kolbot-SoloPlay/Account-List");
+        folder.create(info.realm);
+      }
+
+      if (!FileTools.exists("logs/Kolbot-SoloPlay/Account-List/" + info.realm + "/" + (info.ladder > 0 ? "Ladder" : "Non-Ladder"))) {
+        folder = dopen("logs/Kolbot-SoloPlay/Account-List" + info.realm);
+        folder.create((info.ladder > 0 ? "Ladder" : "Non-Ladder"));
+      }
+    }
   };
 
   ControlAction.loginAccount = function (info) {
@@ -670,6 +698,121 @@ const locations = {};
     return rval;
   };
 
+  Starter.CharacterCountmsg = function (string) {
+    if (ControlAction.getCharacters().length >= 18) string = "Account is full.";
+    if (ControlAction.getCharacters().length <= 17) string = "Account is ready.";
+
+    return string;
+  };
+
+  Starter.getNextNum = function () {
+    const SaveLocation = "logs/Kolbot-SoloPlay/GlobalAccount.json";
+    const AccountName = (Starter.Config.GlobalAccount);
+    const AccountData = {
+      data: {
+        account: "",
+        accNum: 0
+      },
+
+      // Create a new Json file.
+      create: function () {
+        let string = JSON.stringify(this.data);
+        FileTools.writeText(SaveLocation, string);
+      },
+
+      // Read data from the Json file and return the data object.
+      read: function () {
+        let string = FileTools.readText(SaveLocation);
+        let obj = JSON.parse(string);
+
+        return obj;
+      },
+
+      // Read data from the Json file and return the account info.
+      readAcc: function () {
+        let string = FileTools.readText(SaveLocation);
+        let jsontext = JSON.parse(string);
+
+        return jsontext.account;
+      },
+
+      // Write a data object to the Json file.
+      write: function (obj) {
+        let string = JSON.stringify(obj);
+        FileTools.writeText(SaveLocation, string);
+      },
+
+      // Set next account - increase account number in the Json file.
+      nextAccount: function () {
+        let obj = AccountData.read();
+        obj.accNum += 1;
+        obj.account = AccountName + obj.accNum;
+        AccountData.write(Object.assign(this.data, { accNum: obj.accNum, account: obj.account }));
+
+        return obj.account;
+      },
+
+      createFolder: function () {
+        const folderPath = "logs/Kolbot-SoloPlay";
+        if (!FileTools.exists(folderPath)) {
+          print(sdk.colors.DarkGreen + "Global Settings" + sdk.colors.White + " :: " + sdk.colors.Blue + "Creating Kolbot-SoloPlay Folder.");
+          const folder = dopen("logs");
+          folder.create("Kolbot-SoloPlay");
+        }
+      },
+
+      initialize: function () {
+        // If file exists check for valid info.
+        if (FileTools.exists(SaveLocation)) {
+          try {
+            let jsonStr = FileTools.readText(SaveLocation);
+            let jsonObj = JSON.parse(jsonStr);
+
+            // Return filename containing correct info.
+            if (AccountName && jsonObj.account && jsonObj.account.match(AccountName)) {
+              delay(500);
+              print(sdk.colors.DarkGreen + "Global Settings" + sdk.colors.White + " :: " + sdk.colors.Blue + "Next Sequential Number.");
+              delay(250);
+              AccountData.nextAccount();
+              delay(500);
+
+              return AccountData.readAcc();
+            }
+            
+            // File exists but doesn't contain valid info - Remaking .json file.
+            if (AccountName && jsonObj.account !== AccountName) {
+              print(sdk.colors.DarkGreen + "Global Settings" + sdk.colors.White + " :: " + sdk.colors.Red + "Remove Save Location.");
+              FileTools.remove(SaveLocation);
+              delay(800);
+
+              return this.initialize();
+            }
+          } catch (e) {
+            print(e);
+          }
+        } else {
+          // Check to see if main folder exist.
+          AccountData.createFolder();
+          delay(500);
+          // Creating a new .json file.
+          print(sdk.colors.DarkGreen + "Global Settings" + sdk.colors.White + " :: " + sdk.colors.Blue + "Creating New Account.");
+          AccountData.create();
+          delay(500);
+          AccountData.nextAccount();
+          delay(rand(5000, 10000));
+
+          return AccountData.readAcc();
+        }
+        return AccountData.create();
+      }
+    };
+
+    print(sdk.colors.DarkGreen + "Initializing " + sdk.colors.White + " :: " + sdk.colors.DarkGreen + "Global Settings.");
+    AccountData.initialize();
+
+    return AccountData.readAcc();
+  };
+
   Starter.charSelectConnecting = function () {
     if (getLocation() === sdk.game.locations.CharSelectConnecting) {
       // bugged? lets see if we can unbug it
@@ -763,7 +906,7 @@ const locations = {};
               Starter.profileInfo.password = Starter.Config.GlobalAccountPassword.length > 0 ? Starter.Config.GlobalAccountPassword : Starter.randomString(12, true);
 
               try {
-                if (Starter.profileInfo.account.length > 15) throw new Error("Account name exceeds MAXIMUM length (15). Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig");
+                if (Starter.profileInfo.account.length > 15) throw new Error("Account name exceeds MAXIMUM length (15). Please enter a shorter name to restart the count.");
                 if (Starter.profileInfo.password.length > 15) throw new Error("Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig");
               } catch (e) {
                 D2Bot.printToConsole("Kolbot-SoloPlay: " + e.message, sdk.colors.D2Bot.Gold);
@@ -815,13 +958,22 @@ const locations = {};
               D2Bot.printToConsole("Character died", sdk.colors.D2Bot.Red);
               ControlAction.deleteAndRemakeChar(Starter.profileInfo);
             } else {
-              // If make character fails, check how many characters are on that account
-              if (!ControlAction.makeCharacter(Starter.profileInfo)) {
-                // Account is full
-                if (ControlAction.getCharacters().length >= 18) {
-                  D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", sdk.colors.D2Bot.Orange);
+              switch (true) {
+              case (Starter.profileInfo.tag === "Bumper" && ControlAction.getCharacters().length == (Developer.fillAccount.Bumper.Count)):               
+              case (Starter.profileInfo.tag === "Socketmule" && ControlAction.getCharacters().length == (Developer.fillAccount.SocketMules.Count)):
+              case (Starter.profileInfo.tag === "Imbuemule" && ControlAction.getCharacters().length == (Developer.fillAccount.ImbueMules.Count)):
+                D2Bot.printToConsole("Kolbot-SoloPlay: " + Starter.CharacterCountmsg(), sdk.colors.D2Bot.Orange);
+
+                if (Developer.fillAccountBumper.NextAccount) {
+                  D2Bot.setProfile("", "", "", "Normal");
+                  D2Bot.restart(true);
+                } else {
                   D2Bot.stop();
                 }
+
+                break; 
+              default:
+                ControlAction.makeCharacter(Starter.profileInfo);
               }
             }
           }
