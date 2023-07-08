@@ -577,7 +577,7 @@ const locations = {};
     }
 
     // Developer Options (BSI)
-    if (Developer.fillAccountBumper.bumpers || Developer.fillAccountSocket.socketMules || Developer.fillAccountImbue.imbueMules) {
+    if (Developer.fillAccount.Bumper.bumpers || Developer.fillAccount.SocketMules.socketMules || Developer.fillAccount.ImbueMules.imbueMules) {
       // Create Save Folder Location
       if (FileTools.exists("logs/Kolbot-SoloPlay/Account-List/" + info.realm + "/" + (info.ladder > 0 ? "Ladder" : "Non-Ladder"))) {
         return;
@@ -902,7 +902,7 @@ const locations = {};
           // new account
           if (Starter.profileInfo.account === "") {
             if (Starter.Config.GlobalAccount || Starter.Config.GlobalAccountPassword) {
-              Starter.profileInfo.account = Starter.Config.GlobalAccount.length > 0 ? Starter.Config.GlobalAccount + Starter.randomNumberString(Starter.Config.AccountSuffixLength) : Starter.randomString(12, true);
+              Starter.profileInfo.account = Starter.Config.GlobalAccount.length > 0 ? Starter.getNextNum() : Starter.randomString(12, true);
               Starter.profileInfo.password = Starter.Config.GlobalAccountPassword.length > 0 ? Starter.Config.GlobalAccountPassword : Starter.randomString(12, true);
 
               try {
@@ -963,13 +963,7 @@ const locations = {};
               case (Starter.profileInfo.tag === "Socketmule" && ControlAction.getCharacters().length == (Developer.fillAccount.SocketMules.Count)):
               case (Starter.profileInfo.tag === "Imbuemule" && ControlAction.getCharacters().length == (Developer.fillAccount.ImbueMules.Count)):
                 D2Bot.printToConsole("Kolbot-SoloPlay: " + Starter.CharacterCountmsg(), sdk.colors.D2Bot.Orange);
-
-                if (Developer.fillAccountBumper.NextAccount) {
-                  D2Bot.setProfile("", "", "", "Normal");
-                  D2Bot.restart(true);
-                } else {
-                  D2Bot.stop();
-                }
+                D2Bot.stop();
 
                 break; 
               default:
