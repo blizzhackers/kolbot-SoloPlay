@@ -14,6 +14,8 @@
 
 includeIfNotIncluded("core/Town.js");
 
+const wantedTasks = new Set();
+
 new Overrides.Override(Town, Town.drinkPots, function (orignal, type) {
   const objDrank = orignal(type, false);
   const pots = new Map([
