@@ -21,21 +21,25 @@ const Quest = {
     };
 
     if (me.accessToAct(2)) {
-      !me.cube && getReq("cube", () => me.cube);
+      !me.cube && getReq("cube", function () { return me.cube; });
 
       if (!me.staff && !me.horadricstaff) {
-        !me.amulet && getReq("amulet", () => me.amulet);
-        !me.shaft && getReq("staff", () => me.shaft);
+        !me.amulet && getReq("amulet", function () { return me.amulet; });
+        !me.shaft && getReq("staff", function () { return me.shaft; });
       }
     }
 
     if (me.accessToAct(3) && !me.travincal && !me.khalimswill) {
-      !me.eye && getReq("eye", () => me.eye);
-      !me.heart && getReq("heart", () => me.heart);
-      !me.brain && getReq("brain", () => me.brain);
+      !me.eye && getReq("eye", function () { return me.eye; });
+      !me.heart && getReq("heart", function () { return me.heart; });
+      !me.brain && getReq("brain", function () { return me.brain; });
     }
   },
 
+  /**
+   * @param {number} outcome 
+   * @param  {...number} classids 
+   */
   cubeItems: function (outcome, ...classids) {
     if (me.getItem(outcome)
       || outcome === sdk.quest.item.HoradricStaff && me.horadricstaff
@@ -62,7 +66,9 @@ const Quest = {
       }
     }
 
-    Misc.poll(() => Cubing.openCube(), 5000, 1000);
+    Misc.poll(function () {
+      return Cubing.openCube();
+    }, Time.seconds(5), 1000);
 
     let wantedItem;
     let tick = getTickCount();
@@ -94,7 +100,9 @@ const Quest = {
     if (me.horadricstaff) return true;
 
     let tick = getTickCount();
-    let orifice = Misc.poll(() => Game.getObject(sdk.objects.HoradricStaffHolder));
+    let orifice = Misc.poll(function () {
+      return Game.getObject(sdk.objects.HoradricStaffHolder);
+    });
     if (!orifice) return false;
     
     let hstaff = (
@@ -176,10 +184,11 @@ const Quest = {
     return true;
   },
 
+  /** @param {number} classid */
   stashItem: function (classid) {
     let questItem = typeof classid === "object" ? classid : me.getItem(classid);
     if (!questItem) return false;
-    myPrint("Stashing: " + questItem.fname.split("\n").reverse().join(" "));
+    myPrint("Stashing: " + questItem.prettyPrint);
 
     !me.inTown && Town.goToTown();
     Town.openStash();
@@ -203,7 +212,9 @@ const Quest = {
       if (!chest || !Misc.openChest(chest)) return false;
     }
 
-    let questItem = Misc.poll(() => Game.getItem(classid), 3000, 100 + me.ping);
+    let questItem = Misc.poll(function () {
+      return Game.getItem(classid);
+    }, 3000, 100 + me.ping);
 
     if (Storage.Inventory.CanFit(questItem)) {
       Pickit.pickItem(questItem);
@@ -216,6 +227,10 @@ const Quest = {
     return me.getItem(classid);
   },
 
+  /**
+   * @param {number} classid
+   * @param {number} loc
+   */
   equipItem: function (classid, loc) {
     let questItem = me.getItem(classid);
     !getUIFlag(sdk.uiflags.Stash) && me.cancel();
@@ -259,6 +274,7 @@ const Quest = {
     return questItem.bodylocation === loc;
   },
 
+  /** @param {number} classid */
   smashSomething: function (classid) {
     let tool = classid === sdk.objects.CompellingOrb
       ? sdk.items.quest.KhalimsWill
@@ -273,7 +289,9 @@ const Quest = {
     let questTool = me.getItem(tool);
 
     while (me.getItem(tool)) {
-      smashable.distance > 4 && Pather.moveToEx(smashable.x, smashable.y, { clearSettings: { allowClearing: false } });
+      if (smashable.distance > 4) {
+        Pather.moveToEx(smashable.x, smashable.y, { clearSettings: { allowClearing: false } });
+      }
       Skill.cast(sdk.skills.Attack, sdk.skills.hand.Right, smashable);
       smashable.interact();
 
@@ -305,13 +323,17 @@ const Quest = {
     !me.inTown && Town.goToTown();
     npcName = npcName.capitalize(true);
     Town.move(NPC[npcName]);
-    let npc = Misc.poll(() => Game.getNPC(NPC[npcName]));
+    let npc = Misc.poll(function () {
+      return Game.getNPC(NPC[npcName]);
+    });
 
     Packet.flash(me.gid);
     delay(1 + me.ping * 2);
 
     if (npc && npc.openMenu()) {
-      action.forEach(menuOption => Misc.useMenu(menuOption) && delay(100 + me.ping));
+      action.forEach(function (menuOption) {
+        Misc.useMenu(menuOption) && delay(100 + me.ping);
+      });
       return true;
     }
 
@@ -370,6 +392,7 @@ const Quest = {
   },
 
   // Credit dzik or laz unsure who for this
+  /** @param {ItemUnit} item */
   useSocketQuest: function (item = undefined) {
     if (SetUp.finalBuild === "Socketmule") return false;
 
@@ -446,6 +469,7 @@ const Quest = {
   },
 
   // Credit whoever did useSocketQuest, I modified that to come up with this
+  /** @param {ItemUnit} item */
   useImbueQuest: function (item = undefined) {
     if (SetUp.finalBuild === "Imbuemule") return false;
 
@@ -546,7 +570,7 @@ const Quest = {
       let book = me.getItem(sdk.quest.item.BookofSkill);
       if (book) {
         book.isInStash && Town.openStash() && delay(300);
-        Misc.poll(() => {
+        Misc.poll(function () {
           book.use();
           if (me.getStat(sdk.stats.NewSkills) > 0) {
             console.log("ÿc8Kolbot-SoloPlayÿc0: used Radament skill book");
@@ -582,7 +606,14 @@ const Quest = {
         !me.inTown && Town.goToTown(3);
         tome.isInStash && Town.openStash() && Storage.Inventory.MoveTo(tome) && delay(300);
         Town.npcInteract("alkor") && delay(300);
-        me.getStat(sdk.stats.StatPts) > 0 && AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
+        if (me.getStat(sdk.stats.StatPts) > 0) {
+          AutoStat.init(
+            Config.AutoStat.Build,
+            Config.AutoStat.Save,
+            Config.AutoStat.BlockChance,
+            Config.AutoStat.UseBulk
+          );
+        }
         console.log("ÿc8Kolbot-SoloPlayÿc0: LamEssen Tome completed");
       }
 
@@ -613,7 +644,8 @@ const Quest = {
       }
 
       // Killed council but haven't talked to cain
-      if (!Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, sdk.quest.states.Completed) && Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, 4)) {
+      if (!Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, sdk.quest.states.Completed)
+        && Misc.checkQuest(sdk.quest.id.TheBlackenedTemple, 4)) {
         me.overhead("Finishing Travincal by talking to cain");
         Town.goToTown(3) && Town.npcInteract("cain") && delay(300);
         me.cancel();
