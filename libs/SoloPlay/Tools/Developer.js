@@ -36,16 +36,16 @@ const Developer = {
   // @desc - set to true in use with tag Bumper, Socketmule, or Imbuemule to make next character after reaching goal until account is full
   fillAccount: {
     Bumper: {
-      bumpers: false,       // Fill account
+      enabled: false,       // Fill account
       Level: 40,            // Set stop level for bumpers (20 Normal, 40 Nightmare, 60 Hell)
       Count: 10,            // Number of character to fill on account (MAX 18)
     },
     SocketMules: {
-      socketMules: false,   // Fill account
+      enabled: false,       // Fill account
       Count: 18,            // Number of character to create on account (MAX 18)
     },
     ImbueMules: {
-      imbueMules: false,    // Fill account
+      enabled: false,       // Fill account
       Level: 30,            // Set stop level for imbueMule
       Count: 18,            // Number of character to create on account (MAX 18)
     },

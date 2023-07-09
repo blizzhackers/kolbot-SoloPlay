@@ -1072,7 +1072,7 @@ const Check = {
     switch (true) {
     case SetUp.finalBuild === "Bumper" && me.charlvl >= (Developer.fillAccount.Bumper.Level):
     case (SetUp.finalBuild === "Socketmule" && questCompleted(sdk.quest.id.SiegeOnHarrogath)):
-    case (SetUp.finalBuild === "Imbuemule" && questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Developer.fillAccount.Imbue.Level):
+    case (SetUp.finalBuild === "Imbuemule" && questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Developer.fillAccount.ImbueMules.Level):
       goal = SetUp.finalBuild;
       goalReached = true;
 
@@ -1097,9 +1097,9 @@ const Check = {
       const textFile = me.account + "/" + me.charname + "/" + me.charlvl + '\n';
 
       switch (true) {
-      case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.Bumper.bumpers):
-      case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.SocketMules.socketMules):
-      case (SetUp.finalBuild === "Imbuemule" && Developer.fillAccount.ImbueMules.imbueMules):      
+      case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.Bumper.enabled):
+      case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.SocketMules.enabled):
+      case (SetUp.finalBuild === "Imbuemule" && Developer.fillAccount.ImbueMules.enabled):      
         FileTools.appendText(saveLocation, textFile);
         D2Bot.printToConsole("Account & Character Names are saved to: " + saveLocation, sdk.colors.D2Bot.Black);
         delay(1000 + me.ping);
