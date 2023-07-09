@@ -57,10 +57,6 @@ new Overrides.Override(Town, Town.drinkPots, function (orignal, type) {
 }).apply();
 
 // ugly for now but proxy the functions I moved to Me.js in case somewhere the base functions are being used
-Town.getIdTool = () => me.getIdTool();
-Town.getTpTool = () => me.getTpTool();
-Town.needPotions = () => me.needPotions();
-Town.fieldID = () => me.fieldID();
 Town.getItemsForRepair = (repairPercent, chargedItems) => me.getItemsForRepair(repairPercent, chargedItems);
 Town.needRepair = () => me.needRepair();
 Town.buyPotions = () => NPCAction.buyPotions();
@@ -80,6 +76,155 @@ Town.ignoredItemTypes = [
   sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion, sdk.items.type.StaminaPotion,
   sdk.items.type.AntidotePotion, sdk.items.type.ThawingPotion
 ];
+
+/**
+ * @description Start a task and return the NPC Unit
+ * @param {string} task 
+ * @param {string} reason 
+ * @returns {boolean | Unit}
+ */
+Town.initNPC = function (task = "", reason = "undefined") {
+  console.info(true, reason, "initNPC");
+  task = task.capitalize(false);
+
+  delay(250);
+
+  /** @type {NPCUnit} */
+  let npc = null;
+  let wantedNpc = Town.tasks.get(me.act)[task] !== undefined
+    ? Town.tasks.get(me.act)[task]
+    : "undefined";
+  let justUseClosest = (["clearInventory", "sell"].includes(reason) && !me.getUnids().length);
+  
+  if (getUIFlag(sdk.uiflags.NPCMenu)) {
+    console.debug("Currently interacting with an npc");
+    npc = getInteractedNPC();
+  }
+
+  try {
+    if (npc) {
+      let npcName = npc.name.toLowerCase();
+      if (!justUseClosest && ((npcName !== wantedNpc)
+        // Jamella gamble fix
+        || (task === "Gamble" && npcName === NPC.Jamella))) {
+        me.cancelUIFlags();
+        npc = null;
+      }
+    } else {
+      me.cancelUIFlags();
+    }
+
+    /**
+     * we are just trying to clear our inventory, use the closest npc
+     * Things to conisder:
+     * - what if we have unid items? Should we use cain if he is closer than the npc with scrolls?
+     * - what is our next task?
+     * - would it be faster to change acts and use the closest npc?
+     */
+    if (justUseClosest) {
+      let choices = new Set();
+      let npcs = Town.tasks.get(me.act);
+      let _needPots = me.needPotions();
+      let _needRepair = me.needRepair().length > 0;
+      if (_needPots && _needRepair) {
+        if (me.act === 2) {
+          choices = new Set([npcs.Key, npcs.Repair]);
+        } else {
+          choices = new Set([npcs.Key, npcs.Repair, npcs.Gamble, npcs.Shop]);
+          // todo - handle when we are in normal and current act < 4
+          // if we are going to go to a4 for potions anyway we should go ahead and change act
+        }
+      } else if (!_needPots && _needRepair) {
+        choices.add(npcs.Repair);
+      } else if (!_needPots && !_needRepair) {
+        choices = new Set([npcs.Key, npcs.Repair, npcs.Gamble, npcs.Shop]);
+      }
+      if (choices.size) {
+        console.log("closest npc choices", choices);
+        wantedNpc = Array.from(choices.values()).sort(function (a, b) {
+          return Town.getDistance(a) - Town.getDistance(b);
+        }).first();
+        console.debug("Choosing closest npc", wantedNpc);
+      }
+    }
+
+    if (task === "Heal" && me.act === 2) {
+      // lets see if we are closer to Atma than Fara
+      if (Town.getDistance(NPC.Atma) < Town.getDistance(NPC.Fara)) {
+        wantedNpc = NPC.Atma;
+      }
+    }
+
+    if (!npc && wantedNpc !== "undefined") {
+      npc = Game.getNPC(wantedNpc);
+
+      if (!npc && this.move(wantedNpc)) {
+        npc = Game.getNPC(wantedNpc);
+      }
+    }
+
+    if (!npc || npc.area !== me.area || (!getUIFlag(sdk.uiflags.NPCMenu) && !npc.openMenu())) {
+      throw new Error("Couldn't interact with npc");
+    }
+
+    delay(40);
+
+    switch (task) {
+    case "Shop":
+    case "Repair":
+    case "Gamble":
+      if (!getUIFlag(sdk.uiflags.Shop) && !npc.startTrade(task)) {
+        throw new Error("Failed to complete " + reason + " at " + npc.name);
+      }
+      break;
+    case "Key":
+      if (!getUIFlag(sdk.uiflags.Shop) && !npc.startTrade(me.act === 3 ? "Repair" : "Shop")) {
+        throw new Error("Failed to complete " + reason + " at " + npc.name);
+      }
+      break;
+    case "CainID":
+      Misc.useMenu(sdk.menu.IdentifyItems);
+      me.cancelUIFlags();
+
+      break;
+    case "Heal":
+      if (String.isEqual(npc.name, NPC.Atma)) {
+        // prevent crash due to atma not being a shoppable npc
+        me.cancelUIFlags();
+      }
+      break;
+    }
+
+    console.info(false, "Did " + reason + " at " + npc.name, "initNPC");
+  } catch (e) {
+    console.error(e);
+
+    if (!!e.message && e.message === "Couldn't interact with npc") {
+      // getUnit bug probably, lets see if going to different act helps
+      let highestAct = me.highestAct;
+      if (highestAct === 1) return false; // can't go to any of the other acts
+      let myAct = me.act;
+      let potentialActs = [1, 2, 3, 4, 5].filter(a => a <= highestAct && a !== myAct);
+      let goTo = potentialActs[rand(0, potentialActs.length - 1)];
+      Config.DebugMode.Town && console.debug("Going to Act " + goTo + " to see if it fixes getUnit bug");
+      Town.goToTown(goTo);
+    }
+
+    return false;
+  }
+
+  Misc.poll(() => me.gameReady, 2000, 250);
+
+  if (task === "Heal") {
+    Config.DebugMode.Town && console.debug("Checking if we are frozen");
+    if (me.getState(sdk.states.Frozen)) {
+      console.log("We are frozen, lets unfreeze real quick with some thawing pots");
+      Town.buyPots(2, sdk.items.ThawingPotion, true, true, npc);
+    }
+  }
+
+  return npc;
+};
 
 /**
  * Check if any of the systems need this item
@@ -129,6 +274,7 @@ Town.haveItemsToSell = function () {
  */
 Town.sellItems = function (itemList = []) {
   !itemList.length && (itemList = Town.sell);
+  if (!itemList.length) return true;
 
   if (this.initNPC("Shop", "sell")) {
     while (itemList.length) {
@@ -184,7 +330,12 @@ Town.itemResult = function (item, result, system = "", sell = false) {
   case Pickit.Result.SOLOWANTS:
     Item.logger("Kept", item);
     Item.logItem("Kept", item, result.line);
-    system === "Field" && ((Item.autoEquipCheck(item) && Item.autoEquip("Field")) || (Item.autoEquipCheckSecondary(item) && Item.autoEquipSecondary("Field")));
+    if (system === "Field") {
+      (
+        (Item.autoEquipCheck(item) && Item.autoEquip("Field"))
+        || (Item.autoEquipCheckSecondary(item) && Item.autoEquipSecondary("Field"))
+      );
+    }
 
     break;
   case Pickit.Result.UNID:
@@ -471,6 +622,19 @@ Town.clearInventory = function () {
       })(potsInInventory.shift());
     }
 
+    /**
+     * @param {ItemUnit} a 
+     * @param {ItemUnit} b 
+     * @returns {number}
+     */
+    let sortPots = function (a, b) {
+      return a.classid - b.classid;
+    };
+    // ensures when clearing invo we don't sell high pots before low pots
+    hp.sort(sortPots);
+    mp.sort(sortPots);
+    rv.sort(sortPots);
+
     // Cleanup healing potions
     while (hp.length > Config.HPBuffer) {
       sellOrDrop.push(hp.shift());
@@ -572,6 +736,10 @@ Town.clearInventory = function () {
   Town.sell = [];
 
   console.log("ÿc8Exit clearInventory ÿc0- ÿc7Duration: ÿc0" + Time.format(getTickCount() - clearInvoTick));
+
+  if (wantedTasks.has("gamble") && Town.getDistance(Town.tasks.get(me.act).Gamble) < 10) {
+    NPCAction.gamble() && wantedTasks.delete("gamble");
+  }
 
   return true;
 };
@@ -728,7 +896,8 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 
   console.info(true);
   console.time("doChores");
-  console.debug("doChores Inital Gold :: " + me.gold);
+  let _startGold = me.gold;
+  console.debug("doChores Inital Gold :: " + _startGold);
 
   !me.inTown && Town.goToTown();
 
@@ -743,7 +912,7 @@ Town.doChores = function (repair = false, givenTasks = {}) {
    * @todo light chores if last chores was < minute? 2 minutes idk yet
    */
 
-  me.switchWeapons(Attack.getPrimarySlot());
+  me.switchToPrimary();
   extraTasks.fullChores && Quest.unfinishedQuests();
 
   // Use cainId if we are low on gold or we are closer to him than the shopNPC
@@ -755,12 +924,12 @@ Town.doChores = function (repair = false, givenTasks = {}) {
   }
 
   // maybe a check if need healing first, as we might have just used a potion
-  this.heal();
-  this.identify();
-  this.clearInventory();
+  Town.heal();
+  Town.identify();
+  Town.clearInventory();
   Town.fillTomes();
   NPCAction.buyPotions();
-  this.buyKeys();
+  Town.buyKeys();
   extraTasks.thawing && CharData.pots.get("thawing").need() && Town.buyPots(12, "Thawing", true);
   extraTasks.antidote && CharData.pots.get("antidote").need() && Town.buyPots(12, "Antidote", true);
   extraTasks.stamina && Town.buyPots(12, "Stamina", true);
@@ -781,8 +950,8 @@ Town.doChores = function (repair = false, givenTasks = {}) {
   Mercenary.hireMerc();
   Item.autoEquipMerc();
   Town.haveItemsToSell() && Town.sellItems() && me.cancelUIFlags();
-  this.clearJunk();
-  this.stash();
+  Town.clearJunk();
+  Town.stash();
 
   // check pots again, we might have enough gold now if we didn't before
   me.needPotions() && NPCAction.buyPotions() && me.cancelUIFlags();
@@ -803,9 +972,13 @@ Town.doChores = function (repair = false, givenTasks = {}) {
   }
 
   delay(300);
-  console.debug("doChores Ending Gold :: " + me.gold);
+  console.debug(
+    "doChores Ending Gold :: " + me.gold
+    + " ÿc8(ÿc7" + (me.gold - _startGold) + "ÿc8)"
+  );
   console.info(false, null, "doChores");
   Town.lastChores = getTickCount();
+  wantedTasks.clear();
 
   return true;
 };
