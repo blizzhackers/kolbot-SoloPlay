@@ -71,7 +71,7 @@ Item.identify = function (item) {
 
   if (idTool) {
     item.isInStash && Town.openStash();
-    return Town.identifyItem(item, idTool);
+    return Packet.identifyItem(item, idTool);
   }
   return false;
 };
@@ -116,7 +116,12 @@ Item.getBodyLoc = function (item) {
  */
 Item.canEquip = function (item) {
   if (!item || item.type !== sdk.unittype.Item || !item.identified) return false;
-  return me.charlvl >= item.getStat(sdk.stats.LevelReq) && me.trueStr >= item.strreq && me.trueDex >= item.dexreq;
+  return (
+    me.charlvl >= item.lvlreq
+    && me.trueStr >= item.strreq
+    && me.trueDex >= item.dexreq
+    && me.classid === item.charclass
+  );
 };
 
 /**
@@ -144,7 +149,9 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
     } else if (tier > equippedItem.tier && (basicCheck ? true : this.canEquip(item) || !item.identified)) {
       if (Item.canEquip(item)) {
         if (item.twoHanded && !me.barbarian) {
-          if (tier < me.equipped.get(sdk.body.RightArm).tier + me.equipped.get(sdk.body.LeftArm).tier) return false;
+          if (tier < me.equipped.get(sdk.body.RightArm).tier + me.equipped.get(sdk.body.LeftArm).tier) {
+            return false;
+          }
         }
 
         if (!me.barbarian && loc === sdk.body.LeftArm && me.equipped.get(loc).tier === -1) {
@@ -175,12 +182,12 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
           return !!betterItem;
         };
         // keep wanted final gear items
-        if (NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
+        if (NTIP.CheckItem(item, NTIP.FinalGear) === Pickit.Result.WANTED) {
           // don't horde items we can't equip
           return !checkForBetterItem(item);
         }
 
-        let [lvlReq, strReq, dexReq] = [item.getStat(sdk.stats.LevelReq), item.strreq, item.dexreq];
+        let [lvlReq, strReq, dexReq] = [item.lvlreq, item.strreq, item.dexreq];
 
         // todo - bit hacky, better way would be to track what stats are going to be allocated next
         if ((lvlReq - me.charlvl > 5) || (strReq - me.trueStr > 10) || (dexReq - me.trueDex > 10)) {
@@ -307,9 +314,9 @@ Item.autoEquip = function (task = "") {
     for (let loc of bodyLoc) {
       const equippedItem = me.equipped.get(loc);
       if (equippedItem.classid === sdk.items.quest.KhalimsWill) continue;
+      if (!item.identified && !Item.identify(item)) continue;
       // rings are special
       if (item.itemType === sdk.items.type.Ring) {
-        Item.identify(item);
         // have to pass in the specific location
         tier = tierscore(item, 1, loc);
 
@@ -323,8 +330,7 @@ Item.autoEquip = function (task = "") {
       } else {
         if (tier > equippedItem.tier) {
           console.debug("EquippedItem :: " + equippedItem.prettyPrint + " |ÿc0 Tier: " + equippedItem.tier);
-          Item.identify(item);
-
+          
           if (item.twoHanded && !me.barbarian) {
             if (tier < me.equipped.get(sdk.body.RightArm).tier + me.equipped.get(sdk.body.LeftArm).tier) {
               continue;
@@ -364,7 +370,7 @@ Item.equip = function (item, bodyLoc) {
   if (!this.canEquip(item)) return false;
 
   // Already equipped in the right slot
-  if (item.mode === sdk.items.mode.Equipped && item.bodylocation === bodyLoc) return true;
+  if (item.isEquipped && item.bodylocation === bodyLoc) return true;
   // failed to open stash
   if (item.isInStash && !Town.openStash()) return false;
   // failed to open cube
@@ -541,10 +547,6 @@ Item.secondaryEquip = function (item, bodyLoc) {
             !!cursorItem && !cursorItem.shouldKeep() && cursorItem.drop();
           }
 
-          if (Item.hasDependancy(item) && me.needRepair() && me.inTown) {
-            NPCAction.repair(true);
-          }
-
           return true;
         }
       }
@@ -568,7 +570,8 @@ Item.autoEquipCheckSecondary = function (item) {
   let bodyLoc = Item.getSecondaryBodyLoc(item);
 
   for (let loc of bodyLoc) {
-    if (tier > me.equipped.get(loc).secondaryTier && (Item.canEquip(item) || !item.identified)) {
+    if (tier > me.equipped.get(loc).secondaryTier
+      && (Item.canEquip(item) || !item.identified)) {
       return true;
     }
   }
@@ -659,7 +662,7 @@ Item.canEquipMerc = function (item, bodyLoc) {
   let curr = Item.getMercEquipped(bodyLoc);
 
   // Higher requirements
-  if (item.getStat(sdk.stats.LevelReq) > mercenary.getStat(sdk.stats.Level)
+  if (item.lvlreq > mercenary.getStat(sdk.stats.Level)
     || item.dexreq > mercenary.getStat(sdk.stats.Dexterity) - curr.dex
     || item.strreq > mercenary.getStat(sdk.stats.Strength) - curr.str) {
     return false;
@@ -801,7 +804,7 @@ Item.autoEquipCheckMerc = function (item, basicCheck = false) {
         return true;
       } else if (basicCheck) {
         // keep wanted final gear items
-        if (NTIP.CheckItem(item, NTIP.FinalGear.list) === Pickit.Result.WANTED) {
+        if (NTIP.CheckItem(item, NTIP.FinalGear) === Pickit.Result.WANTED) {
           return true;
         }
 
@@ -825,7 +828,7 @@ Item.autoEquipMerc = function () {
   if (!items.length) return false;
 
   function sortEq (a, b) {
-    let [prioA, prioB] = [Item.canEquip(a), Item.canEquip(b)];
+    let [prioA, prioB] = [Item.canEquipMerc(a), Item.canEquipMerc(b)];
     if (prioA && prioB) return NTIP.GetMercTier(b) - NTIP.GetMercTier(a);
     if (prioA) return -1;
     if (prioB) return 1;
@@ -843,7 +846,7 @@ Item.autoEquipMerc = function () {
     const name = item.name;
 
     for (let loc of bodyLoc) {
-      if ([sdk.storage.Inventory, sdk.storage.Stash].includes(item.location) && tier > Item.getMercEquipped(loc).tier) {
+      if (item.isInStorage && tier > Item.getMercEquipped(loc).tier) {
         Item.identify(item);
 
         console.log("Merc " + name);
@@ -868,11 +871,12 @@ Item.removeItemsMerc = function () {
   let mercenary = me.getMercEx();
   if (!mercenary) return true;
   // Sort items so we try to keep the highest tier'd items in case space in our invo is limited
-  let items = mercenary.getItemsEx().sort((a, b) => NTIP.GetMercTier(b) - NTIP.GetMercTier(a));
-
-  if (items) {
-    for (let i = 0; i < items.length; i++) {
-      clickItem(sdk.clicktypes.click.item.Mercenary, items[i].bodylocation);
+  mercenary.getItemsEx()
+    .sort(function (a, b) {
+      return NTIP.GetMercTier(b) - NTIP.GetMercTier(a);
+    })
+    .forEach(function (item) {
+      clickItem(sdk.clicktypes.click.item.Mercenary, item.bodylocation);
       delay(500 + me.ping * 2);
 
       let cursorItem = Game.getCursorUnit();
@@ -884,10 +888,8 @@ Item.removeItemsMerc = function () {
           cursorItem.drop();
         }
       }
-    }
-  }
-
-  return !!mercenary.getItem();
+    });
+  return mercenary.getItemsEx().length === 0;
 };
 
 /**
@@ -907,8 +909,8 @@ Item.logItem = function (action, unit, keptLine, force) {
   if (!Config.LogLowGems && ["gcv", "gcy", "gcb", "gcg", "gcr", "gcw", "skc", "gfv", "gfy", "gfb", "gfg", "gfr", "gfw", "skf", "gsv", "gsy", "gsb", "gsg", "gsr", "gsw", "sku"].includes(unit.code)) return false;
   if (!Config.LogHighGems && ["gzv", "gly", "glb", "glg", "glr", "glw", "skl", "gpv", "gpy", "gpb", "gpg", "gpr", "gpw", "skz"].includes(unit.code)) return false;
 
-  for (let i = 0; i < Config.SkipLogging.length; i++) {
-    if (Config.SkipLogging[i] === unit.classid || Config.SkipLogging[i] === unit.code) return false;
+  for (let skipCode of Config.SkipLogging) {
+    if (skipCode === unit.classid || skipCode === unit.code) return false;
   }
 
   let lastArea;
@@ -928,8 +930,13 @@ Item.logItem = function (action, unit, keptLine, force) {
 
   if (!action.match("kept", "i") && !action.match("Shopped") && hasTier) {
     if (!mercCheck) {
-      NTIP.GetCharmTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit)));
-      NTIP.GetTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip char tier: " + NTIP.GetTier(unit)));
+      if (unit.isCharm) {
+        NTIP.GetCharmTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit)));
+      } else {
+        let [mainTier, secTier] = [NTIP.GetTier(unit), NTIP.GetSecondaryTier(unit)];
+        mainTier > 0 && (desc += ("\n\\xffc0Autoequip tier: " + mainTier));
+        secTier > 0 && (desc += ("\n\\xffc0Autoequip Secondary tier: " + secTier));
+      }
     } else {
       desc += ("\n\\xffc0Autoequip merc tier: " + NTIP.GetMercTier(unit));
     }
