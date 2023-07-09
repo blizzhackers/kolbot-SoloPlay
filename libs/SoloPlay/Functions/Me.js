@@ -509,6 +509,43 @@ me.inDanger = function (checkLoc, range) {
  */
 me.checkSkill = (skillId = 0, subId = 0) => !!me.getSkill(skillId, subId);
 
+me.switchToPrimary = function () {
+  if (me.classic) return true;
+  return me.switchWeapons(sdk.player.slot.Main);
+};
+
+me.switchToSecondary = function () {
+  if (me.classic) return true;
+  return me.switchWeapons(sdk.player.slot.Secondary);
+};
+
+/**
+ * @description Check if healing is needed, based on character config
+ * @returns {boolean}
+ */
+me.needHealing = function () {
+  if (me.hpPercent <= Config.HealHP || me.mpPercent <= Config.HealMP) {
+    if (me.hpPercent >= 90 && me.mpPercent >= 90
+      && Town.getDistance(Town.tasks.get(me.act).Heal) > 10) {
+      // it's not convenient to heal right now, and we aren't in danger
+      return false;
+    }
+    return true;
+  }
+  if (!Config.HealStatus) return false;
+  // Status effects
+  return ([
+    sdk.states.Poison,
+    sdk.states.AmplifyDamage,
+    sdk.states.Frozen,
+    sdk.states.Weaken,
+    sdk.states.Decrepify,
+    sdk.states.LowerResist
+  ].some(function (state) {
+    return me.getState(state);
+  }));
+};
+
 me.cleanUpInvoPotions = function (beltSize) {
   beltSize === undefined && (beltSize = Storage.BeltSize());
   const beltMax = (beltSize * 4);
@@ -619,7 +656,7 @@ me.cleanUpScrolls = function (tome, scrollId) {
   return cleanedUp;
 };
 
-me.needPotions = function () {
+me.needBeltPots = function () {
   // we aren't using MinColumn if none of the values are set
   if (!Config.MinColumn.some(el => el > 0)) return false;
   // no hp pots or mp pots in Config.BeltColumn (who uses only rejuv pots?)
@@ -677,6 +714,41 @@ me.needPotions = function () {
   }
 
   return false;
+};
+
+me.needBufferPots = function () {
+  // not using buffers
+  if (Config.HPBuffer < 0 && Config.MPBuffer < 0) return false;
+  
+  // Start
+  if (me.charlvl > 2 && me.gold > 1000) {
+    const pots = { hp: 0, mp: 0, };
+    const beltSize = Storage.BeltSize();
+    
+    // only run this bit if we aren't wearing a belt for now
+    beltSize === 1 && me.cleanUpInvoPotions(beltSize);
+    // now check what's in our belt
+    me.getItemsEx()
+      .filter(function (p) {
+        return p.isInInventory
+          && [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion].includes(p.itemType);
+      })
+      .forEach(function (p) {
+        if (p.itemType === sdk.items.type.HealingPotion) {
+          pots.hp++;
+        } else if (p.itemType === sdk.items.type.ManaPotion) {
+          pots.mp++;
+        }
+      });
+
+    return (pots.mp < Config.MPBuffer || pots.hp < Config.HPBuffer);
+  }
+
+  return false;
+};
+
+me.needPotions = function () {
+  return me.needBeltPots() || me.needBufferPots();
 };
 
 me.clearBelt = function () {
@@ -832,7 +904,8 @@ me.getItemsForRepair = function (repairPercent, chargedItems) {
             let quantity = item.getStat(sdk.stats.Quantity);
 
             // Stat 254 = increased stack size
-            if (typeof quantity === "number" && quantity * 100 / (getBaseStat("items", item.classid, "maxstack") + item.getStat(sdk.stats.ExtraStack)) <= repairPercent) {
+            if (typeof quantity === "number"
+              && quantity * 100 / (getBaseStat("items", item.classid, "maxstack") + item.getStat(sdk.stats.ExtraStack)) <= repairPercent) {
               itemList.push(copyUnit(item));
             }
 
@@ -854,7 +927,8 @@ me.getItemsForRepair = function (repairPercent, chargedItems) {
           if (typeof (charge) === "object") {
             if (charge instanceof Array) {
               for (let i = 0; i < charge.length; i += 1) {
-                if (charge[i] !== undefined && charge[i].hasOwnProperty("charges") && charge[i].charges * 100 / charge[i].maxcharges <= repairPercent) {
+                if (charge[i] !== undefined && charge[i].hasOwnProperty("charges")
+                  && charge[i].charges * 100 / charge[i].maxcharges <= repairPercent) {
                   itemList.push(copyUnit(item));
                 }
               }
@@ -874,6 +948,10 @@ me.needRepair = function () {
   let repairAction = [];
   let bowCheck = Attack.usingBow();
   let switchBowCheck = CharData.skillData.bow.onSwitch;
+  if (getInteractedNPC() && !getUIFlag(sdk.uiflags.Shop)) {
+    // fix crash with d2bs
+    me.cancel();
+  }
   let canAfford = me.gold >= me.getRepairCost();
   !bowCheck && switchBowCheck && (bowCheck = (function () {
     switch (CharData.skillData.bow.bowType) {
@@ -891,10 +969,16 @@ me.needRepair = function () {
     let [quiver, inventoryQuiver] = (function () {
       switch (bowCheck) {
       case "crossbow":
-        return [me.getItem("cqv", sdk.items.mode.Equipped), me.getItem("cqv", sdk.items.mode.inStorage)];
+        return [
+          me.getItem("cqv", sdk.items.mode.Equipped),
+          me.getItem("cqv", sdk.items.mode.inStorage)
+        ];
       case "bow":
       default:
-        return [me.getItem("aqv", sdk.items.mode.Equipped), me.getItem("aqv", sdk.items.mode.inStorage)];
+        return [
+          me.getItem("aqv", sdk.items.mode.Equipped),
+          me.getItem("aqv", sdk.items.mode.inStorage)
+        ];
       }
     })();
 
@@ -905,6 +989,9 @@ me.needRepair = function () {
           ? Item.secondaryEquip(inventoryQuiver, sdk.body.LeftArmSecondary)
           : Item.equip(inventoryQuiver, 5)
         : repairAction.push("buyQuiver") && repairAction.push("buyQuiver");
+      if (me.gold < 200) {
+        return [];
+      }
     } else {
       let quantity = quiver.getStat(sdk.stats.Quantity);
 
