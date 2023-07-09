@@ -224,46 +224,52 @@
         Pather.moveToPreset(me.area, sdk.unittype.Monster, sdk.monsters.preset.Corpsefire, 0, 0, false, true);
       }
 
-      Attack.killTarget(sdk.monsters.DiabloClone);
-      Pickit.pickItems();
+      try {
+        console.log("Added dia lightning listener");
+        addEventListener("gamepacket", SoloEvents.diaEvent);
 
-      let newAnni = Game.getItem(sdk.items.SmallCharm, sdk.items.mode.onGround);
-      let oldAnni = me.findItem(sdk.items.SmallCharm, sdk.items.mode.inStorage, -1, sdk.items.quality.Unique);
+        Attack.killTarget(sdk.monsters.DiabloClone);
+        Pickit.pickItems();
 
-      if (newAnni && oldAnni) {
-        this.sendToList({ profile: me.profile, ladder: me.ladder }, 60);
+        let newAnni = Game.getItem(sdk.items.SmallCharm, sdk.items.mode.onGround);
+        let oldAnni = me.findItem(sdk.items.SmallCharm, sdk.items.mode.inStorage, -1, sdk.items.quality.Unique);
 
-        let tick = getTickCount();
+        if (newAnni && oldAnni) {
+          this.sendToList({ profile: me.profile, ladder: me.ladder }, 60);
 
-        while (getTickCount() - tick < 10000) {
-          me.overhead("Waiting to see if I get a response from other profiles");
+          let tick = getTickCount();
 
-          if (this.profileResponded) {
-            me.overhead("Recieved response, dropping old Annihilus in Rogue Encampment");
-            break;
+          while (getTickCount() - tick < 10000) {
+            me.overhead("Waiting to see if I get a response from other profiles");
+
+            if (this.profileResponded) {
+              me.overhead("Recieved response, dropping old Annihilus in Rogue Encampment");
+              break;
+            }
+
+            delay(50);
           }
 
-          delay(50);
+          if (newAnni && oldAnni && this.profileResponded) {
+            this.dropCharm(oldAnni);
+          } else {
+            me.overhead("No response from other profiles");
+          }
+
+          SoloEvents.profileResponded = false;
+          Pickit.pickItems();
         }
 
-        if (newAnni && oldAnni && this.profileResponded) {
-          this.dropCharm(oldAnni);
-        } else {
-          me.overhead("No response from other profiles");
+        if ((newAnni && oldAnni && !this.profileResponded) && AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("torchMuleInfo")) {
+          scriptBroadcast("muleAnni");
         }
-
-        SoloEvents.profileResponded = false;
-        Pickit.pickItems();
+      } finally {
+        removeEventListener("gamepacket", SoloEvents.diaEvent);
+        // Move back to where we orignally where
+        Pather.journeyTo(orginalLocation.area);
+        Pather.moveTo(orginalLocation.x, orginalLocation.y);
+        SoloEvents.cloneWalked = false;
       }
-
-      if ((newAnni && oldAnni && !this.profileResponded) && AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("torchMuleInfo")) {
-        scriptBroadcast("muleAnni");
-      }
-
-      // Move back to where we orignally where
-      Pather.journeyTo(orginalLocation.area);
-      Pather.moveTo(orginalLocation.x, orginalLocation.y);
-      SoloEvents.cloneWalked = false;
     },
 
     moveSettings: {
@@ -271,13 +277,154 @@
       allowClearing: false,
       allowPicking: false,
       allowTown: false,
+      allowNodeActions: false,
       retry: 10,
     },
 
     moveTo: function (x, y, givenSettings) {
       // Abort if dead
       if (me.dead) return false;
-      return Pather.move({ x: x, y: y }, Object.assign({}, SoloEvents.moveSettings, givenSettings));
+      /**
+      * assign settings
+      * @type {pathSettings}
+      */
+      const settings = Object.assign({}, {
+        allowTeleport: false,
+        minDist: 3,
+        retry: 10,
+        pop: false,
+        returnSpotOnError: true,
+        callback: null,
+      }, givenSettings);
+
+      /** @type {PathNode} */
+      let node = { x: x, y: y };
+
+      if (settings.minDist > 3) {
+        node = Pather.spotOnDistance(
+          node,
+          settings.minDist,
+          { returnSpotOnError: settings.returnSpotOnError, reductionType: (me.inTown ? 0 : 2) }
+        );
+      }
+      
+      let fail = 0;
+      let invalidCheck = false;
+      let cbCheck = false;
+
+      Pather.clearUIFlags();
+
+      if (typeof node.x !== "number" || typeof node.y !== "number") return false;
+      if (node.distance < 2 && !CollMap.checkColl(me, node, sdk.collision.BlockMissile, 5)) {
+        return true;
+      }
+
+      const useTeleport = (
+        settings.allowTeleport
+        && (node.distance > 15 || me.diff || me.act > 3)
+        && Pather.useTeleport()
+      );
+      const useChargedTele = settings.allowTeleport && Pather.canUseTeleCharges();
+      const usingTele = (useTeleport || useChargedTele);
+      const tpMana = Skill.getManaCost(sdk.skills.Teleport);
+      const annoyingArea = Pather.inAnnoyingArea(me.area);
+      let path = getPath(
+        me.area,
+        node.x, node.y,
+        me.x, me.y,
+        usingTele ? 1 : 0,
+        usingTele ? (annoyingArea ? 30 : Pather.teleDistance) : Pather.walkDistance
+      );
+      if (!path) throw new Error("move: Failed to generate path.");
+
+      path.reverse();
+      settings.pop && path.pop();
+      PathDebug.drawPath(path);
+      if (useTeleport && Config.TeleSwitch && path.length > 5) {
+        me.switchWeapons(Attack.getPrimarySlot() ^ 1);
+      }
+
+      while (path.length > 0) {
+        // Abort if dead
+        if (me.dead) return false;
+        // main path
+        if (Pather.recursion) {
+          Pather.currentWalkingPath = path;
+          PathDebug.drawPath(Pather.currentWalkingPath);
+        }
+        Pather.clearUIFlags();
+
+        /** @type {PathNode} */
+        node = path.shift();
+
+        if (typeof settings.callback === "function" && settings.callback()) {
+          cbCheck = true;
+          break;
+        }
+
+        if (getDistance(me, node) > 2) {
+          // Make life in Maggot Lair easier
+          if (fail >= 3 && fail % 3 === 0 && !Attack.validSpot(node.x, node.y)) {
+            invalidCheck = true;
+          }
+          // Make life in Maggot Lair easier - should this include arcane as well?
+          if (annoyingArea || invalidCheck) {
+            let adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
+
+            if (adjustedNode) {
+              [node.x, node.y] = adjustedNode;
+              invalidCheck && (invalidCheck = false);
+            }
+          }
+
+          if (useTeleport && tpMana <= me.mp
+            ? Pather.teleportTo(node.x, node.y)
+            : useChargedTele && (getDistance(me, node) >= 15 || me.inArea(sdk.areas.ThroneofDestruction))
+              ? Pather.teleUsingCharges(node.x, node.y)
+              : Pather.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
+            // we successfully moved to the node
+          } else {
+            if (!me.inTown) {
+              if (!useTeleport && (Pather.openDoors(node.x, node.y) || Pather.kickBarrels(node.x, node.y))) {
+                console.debug("Failed to walk to node, but opened door/barrel");
+                continue;
+              }
+            }
+
+            // Reduce node distance in new path
+            path = getPath(
+              me.area,
+              node.x, node.y,
+              me.x, me.y,
+              useTeleport ? 1 : 0,
+              useTeleport ? rand(25, 35) : rand(10, 15)
+            );
+            if (!path) throw new Error("moveTo: Failed to generate path.");
+
+            path.reverse();
+            PathDebug.drawPath(path);
+            settings.pop && path.pop();
+
+            if (fail > 0) {
+              console.debug("move retry " + fail);
+              Packet.flash(me.gid);
+
+              if (fail >= settings.retry) {
+                console.log("Failed move: Retry = " + settings.retry);
+                break;
+              }
+            }
+            fail++;
+          }
+        }
+
+        delay(5);
+      }
+
+      me.switchToPrimary();
+      PathDebug.removeHooks();
+
+      return cbCheck || getDistance(me, node.x, node.y) < 5;
     },
 
     skip: function () {
@@ -303,7 +450,8 @@
         }
 
         tick = getTickCount();
-        this.moveTo(15099, 5078); // Re-enter throne
+        // this.moveTo(15099, 5078); // Re-enter throne
+        Pather.walkTo(15099, 5078, 2);
 
         // 2 second delay (2000ms)
         while (getTickCount() - tick < 2000) {
@@ -311,19 +459,24 @@
         }
 
         this.moveTo(15099, 5078);
+
+        let skipFailed = getUnits(sdk.unittype.Monster)
+          .some(mon => mon.attackable
+            && mon.x >= 15072 && mon.x <= 15118
+            && mon.y >= 5002 && mon.y <= 5073
+          );
+        myPrint("skip " + (!skipFailed ? "worked" : "failed"));
       } finally {
         // Re-enable
         [Precast.enabled, Pickit.enabled] = [true, true];
         SoloEvents.townChicken.disabled = false;
       }
-
-      let skipWorked = getUnits(sdk.unittype.Monster)
-        .some(mon => mon.attackable && mon.x >= 15072 && mon.x <= 15118 && mon.y >= 5002 && mon.y <= 5079);
-      myPrint("skip " + (skipWorked ? "worked" : "failed"));
     },
 
     dodge: function () {
-      let diablo = Game.getMonster(sdk.monsters.Diablo);
+      let diablo = me.inArea(sdk.areas.ChaosSanctuary)
+        ? Game.getMonster(sdk.monsters.Diablo)
+        : Game.getMonster(sdk.monsters.DiabloClone);
       // Credit @Jaenster
       const shouldDodge = function (coord) {
         return !!diablo && getUnits(sdk.unittype.Missile)
@@ -410,7 +563,6 @@
       if (!bytes.length) return;
       // dia lightning
       if (bytes[0] === 0x4C && bytes[6] === 193) {
-        // Messaging.sendToScript(SoloEvents.filePath, "dodge");
         me.emit("soloEvent", "dodge");
       }
     },
