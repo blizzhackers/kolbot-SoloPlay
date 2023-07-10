@@ -44,9 +44,9 @@ Loader.run = function () {
   }
 
   for (this.scriptIndex = 0; this.scriptIndex < SoloIndex.scripts.length; this.scriptIndex++) {
-    !me.inTown && Town.goToTown();
-    Check.checkSpecialCase();
     const scriptName = SoloIndex.scripts[this.scriptIndex];
+    !me.inTown && !Loader.skipTown.includes(scriptName) && Town.goToTown();
+    Check.checkSpecialCase();
     if (!SoloIndex.index[scriptName]) continue;
     if (!SoloIndex.index[scriptName].shouldRun()) continue;
 
