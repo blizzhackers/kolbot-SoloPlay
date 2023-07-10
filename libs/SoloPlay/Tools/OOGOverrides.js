@@ -950,8 +950,8 @@ const LocationAction = {
                 D2Bot.stop();
               }
 
-              console.log("Kolbot-SoloPlay :: Generated account information. " + (Developer.GlobalSettings.Account.length > 0 ? "Pre-defined " : "Random ") + "account used");
-              console.log("Kolbot-SoloPlay :: Generated password information. " + (Developer.GlobalSettings.Password.length > 0 ? "Pre-defined " : "Random ") + "password used");
+              console.log("Kolbot-SoloPlay :: Generated account information. " + (Starter.Config.GlobalAccount.length > 0 ? "Pre-defined " : "Random ") + "account used");
+              console.log("Kolbot-SoloPlay :: Generated password information. " + (Starter.Config.GlobalAccountPassword.length > 0 ? "Pre-defined " : "Random ") + "password used");
               ControlAction.timeoutDelay("Generating Account Information", Starter.Config.DelayBeforeLogin * 1e3);
             } else {
               Starter.profileInfo.account = Starter.randomString(12, true);
