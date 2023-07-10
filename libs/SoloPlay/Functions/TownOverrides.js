@@ -94,7 +94,10 @@ Town.initNPC = function (task = "", reason = "undefined") {
   let wantedNpc = Town.tasks.get(me.act)[task] !== undefined
     ? Town.tasks.get(me.act)[task]
     : "undefined";
-  let justUseClosest = (["clearInventory", "sell"].includes(reason) && !me.getUnids().length);
+  const justUseClosest = (
+    ["clearinventory", "sell"].includes(reason.toLowerCase())
+    && !me.getUnids().length
+  );
   
   if (getUIFlag(sdk.uiflags.NPCMenu)) {
     console.debug("Currently interacting with an npc");
@@ -136,6 +139,11 @@ Town.initNPC = function (task = "", reason = "undefined") {
         }
       } else if (!_needPots && _needRepair) {
         choices.add(npcs.Repair);
+      } else if (_needPots && !_needRepair) {
+        choices.add(npcs.Shop);
+        if (me.act === 2) {
+          choices.add(npcs.Key);
+        }
       } else if (!_needPots && !_needRepair) {
         choices = new Set([npcs.Key, npcs.Repair, npcs.Gamble, npcs.Shop]);
       }
