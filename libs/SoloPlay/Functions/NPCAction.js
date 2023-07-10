@@ -68,7 +68,8 @@
     const getNeededBuffer = function () {
       [buffer.hp, buffer.mp] = [0, 0];
       me.getItemsEx().filter(function (p) {
-        return p.isInInventory && [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion].includes(p.itemType);
+        return p.isInInventory
+          && [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion].includes(p.itemType);
       }).forEach(function (p) {
         switch (p.itemType) {
         case sdk.items.type.HealingPotion:
@@ -120,6 +121,11 @@
       pAct >= 4 ? me.act < 4 && Town.goToTown(4) : pAct > me.act && Town.goToTown(pAct);
     }
 
+    console.debug(
+      "Buying potions, needPots: " + needPots
+      + " needBuffer: " + needBuffer
+      + " specialCheck: " + specialCheck
+    );
     let npc = Town.initNPC("Shop", "buyPotions");
     if (!npc) return false;
 
@@ -629,7 +635,7 @@
     if (Town.cubeRepair()) return true;
 
     let npc;
-    let repairAction = Town.needRepair();
+    let repairAction = me.needRepair();
     force && repairAction.indexOf("repair") === -1 && repairAction.push("repair");
     if (!repairAction || !repairAction.length) return false;
 

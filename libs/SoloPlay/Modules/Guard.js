@@ -1,4 +1,4 @@
-(function (module, require, thread) {
+(function (module, require, thread, globalThis) {
   "use strict";
   const _Messaging = require("../../modules/Messaging");
   const Worker = require("../../modules/Worker");
@@ -19,25 +19,27 @@
       * @constructor
       * @param {function():string} callback
       */
-      function UpdateableText(callback) {
+      function UpdateableText (callback) {
         let element = new Text(callback(), self.x + 15, self.y + (7 * self.hooks.length), 0, 12, 0);
         self.hooks.push(element);
         this.update = () => {
           element.text = callback();
-          element.visible = [sdk.uiflags.Inventory,
+          element.visible = [
+            sdk.uiflags.Inventory,
             sdk.uiflags.SkillWindow,
             sdk.uiflags.TradePrompt,
-            sdk.uiflags.QuickSkill].every(f => !getUIFlag(f));
+            sdk.uiflags.QuickSkill
+          ].every(function (f) {
+            return !getUIFlag(f);
+          });
         };
       }
 
       this.hooks = [];
       this.x = 500;
       this.y = 600 - (400 + (self.hooks.length * 15));
-      // this.box = new Box(this.x-2, this.y-20, 250, (self.hooks.length * 15), 0, 0.2);
 
-
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 22; i++) {
         (i => this.hooks.push(new UpdateableText(() => stack && stack.length > i && stack[i] || "")))(i);
       }
 
@@ -61,12 +63,17 @@
     let quiting = false;
     addEventListener("scriptmsg", data => data === "quit" && (quiting = true));
 
-    while (!quiting) delay(1000);
+    // eslint-disable-next-line dot-notation
+    globalThis["main"] = function () {
+      while (!quiting) delay(3);
+      //@ts-ignore
+      getScript(true).stop();
+    };
     break;
   }
   case "started": {
     let sendStack = getTickCount();
-    Worker.push(function highPrio() {
+    Worker.push(function highPrio () {
       Worker.push(highPrio);
       if ((getTickCount() - sendStack) < 200 || (sendStack = getTickCount()) && false) return true;
       _Messaging.send({ Guard: { stack: (new Error).stack } });
@@ -80,4 +87,10 @@
   }
   }
 
-}).call(null, typeof module === "object" && module || {}, typeof require === "undefined" && (include("require.js") && require) || require, getScript.startAsThread());
+}).call(
+  null,
+  typeof module === "object" && module || {},
+  typeof require === "undefined" && (include("require.js") && require) || require,
+  getScript.startAsThread(),
+  [].filter.constructor("return this")()
+);

@@ -5,6 +5,7 @@
 *
 *
 *  @typedef {import("./sdk/globals")}
+*  @typedef {import("./libs/SoloPlay/globals")}
 */
 
 // No touchy!
@@ -140,12 +141,7 @@ function main () {
     Starter.inGame && oogTick === 0 && (oogTick = getTickCount());
     Starter.isUp = "no";
 
-    try {
-      let loc = getLocation();
-      (locations[loc] !== undefined) && locations[loc](loc);
-    } catch (e) {
-      console.error(e, "LOCATION: " + getLocation());
-    }
+    LocationAction.run();
     delay(1000);
   }
 }

@@ -75,18 +75,19 @@ Pickit.checkItem = function (unit) {
 
   if (unit.classid === sdk.items.StaminaPotion
     && (me.charlvl < 18 || me.staminaPercent <= 85 || me.walking)
-    && Item.getQuantityOwned(unit, true) < 2) {
+    && me.getOwned(unit, true).length < 2) {
     return resultObj(Pickit.Result.WANTED, "LowStamina");
   }
 
   if (unit.classid === sdk.items.AntidotePotion
-    && me.getState(sdk.states.Poison) && Item.getQuantityOwned(unit, true) < 2) {
+    && me.getState(sdk.states.Poison)
+    && me.getOwned(unit, true).length < 2) {
     return resultObj(Pickit.Result.WANTED, "Poisoned");
   }
 
   if (unit.classid === sdk.items.ThawingPotion
     && (me.getState(sdk.states.Frozen) || me.getState(sdk.states.FrozenSolid))
-    && Item.getQuantityOwned(unit, true) < 2) {
+    && me.getOwned(unit, true).length < 2) {
     return resultObj(Pickit.Result.WANTED, "Frozen");
   }
 
@@ -396,9 +397,14 @@ const _toCursorPick = new Set();
  * @param {ItemUnit} unit 
  * @param {PickitResult} status 
  * @param {string} keptLine 
- * @param {boolean} clearBeforePick 
+ * @param {{ allowClear: boolean, allowMove: boolean }} givenSettings 
  */
-Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
+Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
+  if (!unit || unit === undefined) return false;
+  const _pickSettings = Object.assign({
+    allowClear: true,
+    allowMove: true
+  }, givenSettings);
   /**
    * @constructor
    * @param {ItemUnit} unit 
@@ -469,18 +475,23 @@ Pickit.pickItem = function (unit, status, keptLine, clearBeforePick = true) {
     } else {
       let checkItem = false;
       const maxDist = (Config.FastPick || i < 1) ? 8 : 5;
-      if (item.distance > maxDist || checkCollision(me, item, sdk.collision.BlockWall)) {
+      if (_pickSettings.allowMove
+        && item.distance > maxDist || checkCollision(me, item, sdk.collision.BlockWall)) {
         let coll = (sdk.collision.BlockWall | sdk.collision.Objects | sdk.collision.ClosedDoor);
 
-        if (!clearBeforePick && me.checkForMobs({ range: 5, coll: coll })) {
+        if (!_pickSettings.allowClear && me.checkForMobs({ range: 5, coll: coll })) {
           continue;
         }
 
-        if (clearBeforePick && item.checkForMobs({ range: 8, coll: coll })) {
+        if (_pickSettings.allowClear && item.checkForMobs({ range: 8, coll: coll })) {
           try {
             console.log("ÿc8PickItemÿc0 :: Clearing area around item I want to pick");
             Pickit.enabled = false;		// Don't pick while trying to clear
-            Attack.clearPos(item.x, item.y, 10, false);
+            Attack.clearPos(item.x, item.y, 10, false, function () {
+              if (!copyUnit(item).x) return true;
+              if (!item.onGroundOrDropping || me.getItem(-1, -1, gid)) return true;
+              return !item.checkForMobs({ range: 8, coll: coll });
+            });
           } finally {
             Pickit.enabled = true;		// Reset value
           }
@@ -648,11 +659,12 @@ Pickit.checkSpotForItems = function (spot, checkVsMyDist = false, range = Config
   return itemList.length > 3;
 };
 
+/** @type {ItemUnit[]} */
 Pickit.pickList = [];
 Pickit.essentialList = [];
 
 // Might need to do a global list so this function and pickItems see the same items to prevent an item from being in both
-Pickit.essessntialsPick = function (clearBeforePick = false, ignoreGold = false, builtList = [], once = false) {
+Pickit.essessntialsPick = function (clearBeforePick = false, builtList = [], once = false) {
   if (me.dead || me.inTown || (!Pickit.enabled && !clearBeforePick)) return false;
 
   Pickit.essentialList
@@ -701,33 +713,14 @@ Pickit.essessntialsPick = function (clearBeforePick = false, ignoreGold = false,
           me.fieldID() && (canFit = (currItem.gid !== undefined && Storage.Inventory.CanFit(currItem)));
         }
 
-        // Try to make room by selling items in town
-        if (!canFit) {
-          // Check if any of the current inventory items can be stashed or need to be identified and eventually sold to make room
-          if (this.canMakeRoom()) {
-            console.log("ÿc7Trying to make room for " + Item.color(currItem) + currItem.name);
-
-            // Go to town and do town chores
-            if (Town.visitTown()) {
-              // Recursive check after going to town. We need to remake item list because gids can change.
-              // Called only if room can be made so it shouldn't error out or block anything.
-              return this.essessntialsPick(clearBeforePick, ignoreGold, builtList, once);
-            }
-
-            // Town visit failed - abort
-            console.log("ÿc7Unable to make room for " + Item.color(currItem) + currItem.name);
-
-            return false;
-          }
-
-          // Can't make room
-          Item.logger("No room for", currItem);
-          console.log("ÿc7Not enough room for " + Item.color(currItem) + currItem.name);
-        }
-
         // Item can fit - pick it up
         if (canFit) {
-          let picked = this.pickItem(currItem, status.result, status.line, clearBeforePick);
+          let picked = this.pickItem(
+            currItem,
+            status.result,
+            status.line + "(essentials)",
+            { allowClear: clearBeforePick }
+          );
           if (picked && once) return true;
         }
       }
@@ -811,7 +804,15 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
         if (!canFit) {
           // Check if any of the current inventory items can be stashed or need to be identified and eventually sold to make room
           if (this.canMakeRoom()) {
-            console.log("ÿc7Trying to make room for " + Item.color(currItem) + currItem.name);
+            // if we are going to have to go to town anyway then grab what is near us
+            Pickit.pickList
+              .filter(function (el) {
+                return el.distance <= 5 && (Storage.Inventory.CanFit(el) || Pickit.canFit(el));
+              }).forEach(function (el) {
+                let _result = Pickit.checkItem(el);
+                return Pickit.pickItem(el, _result.result, _result.line + "(quick)", { allowMove: false });
+              });
+            console.log("ÿc7Trying to make room for " + Item.color(_item) + _item.name);
 
             /**
              * @todo

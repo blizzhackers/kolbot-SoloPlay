@@ -43,6 +43,8 @@ AutoMule.matchItem = function (item, list) {
 };
 
 AutoMule.getMuleItems = function () {
+  // can't mule on single player
+  if (!me.gameserverip) return [];
   let info = this.getInfo();
 
   if (!info || !info.hasOwnProperty("muleInfo")) {

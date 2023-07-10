@@ -573,7 +573,7 @@ const SetUp = {
     Config.HealStatus = true;
     Config.UseMerc = me.expansion;
     Config.MercWatch = SetUp.mercwatch;
-    Config.StashGold = me.charlvl * 100;
+    Config.StashGold = me.charlvl * 1000;
     Config.ClearInvOnStart = false;
 
     /* Inventory buffers and lock configuration. */

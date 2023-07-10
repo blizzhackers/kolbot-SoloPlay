@@ -156,10 +156,17 @@ NodeAction.pickItems = function (arg = {}) {
         const itemDist = getDistance(me, item);
         if (itemDist > maxRange) continue;
         if (totalList.some(el => el.gid === item.gid)) continue;
-        if (Pickit.essentials.includes(item.itemType)) {
-          if (itemDist <= maxDist && (item.itemType !== sdk.items.type.Gold || itemDist < 5)
-            && Pickit.checkItem(item).result && Pickit.canPick(item) && Pickit.canFit(item)) {
-            Pickit.essentialList.push(copyUnit(item));
+        if (item.itemType === sdk.items.type.Gold && Pickit.canPick(item)) {
+          itemDist < 5
+            ? Pickit.pickItem(item)
+            : Pickit.essentialList.push(copyUnit(item));
+        } else if (Pickit.essentials.includes(item.itemType)) {
+          if (itemDist <= maxDist) {
+            if (Pickit.checkItem(item).result && Pickit.canPick(item) && Pickit.canFit(item)) {
+              itemDist < 5
+                ? Pickit.pickItem(item)
+                : Pickit.essentialList.push(copyUnit(item));
+            }
           }
         } else if (itemDist <= regPickRange && item.itemType === sdk.items.type.Key) {
           if (Pickit.canPick(item) && Pickit.checkItem(item).result) {
@@ -173,7 +180,7 @@ NodeAction.pickItems = function (arg = {}) {
     
     Pickit.essentialList.length > 0 && (Pickit.essentialList = Pickit.essentialList.filter(filterJunk));
     Pickit.pickList.length > 0 && (Pickit.pickList = Pickit.pickList.filter(filterJunk));
-    Pickit.essentialList.length > 0 && Pickit.essessntialsPick(false, false);
+    Pickit.essentialList.length > 0 && Pickit.essessntialsPick(false);
     Pickit.pickList.length > 0 && Pickit.pickItems(regPickRange);
   }
 };
@@ -405,7 +412,7 @@ Pather.currentWalkingPath = [];
 
 /**
  * @param {PathNode | Unit | PresetUnit} target 
- * @param {pathSettings} givenSettings 
+ * @param {PathSettings} givenSettings 
  * @returns {boolean}
  */
 Pather.move = function (target, givenSettings = {}) {
@@ -433,8 +440,12 @@ Pather.move = function (target, givenSettings = {}) {
   const clearSettings = Object.assign({
     canTele: false,
     clearPath: false,
-    range: typeof Config.ClearPath.Range === "number" ? Config.ClearPath.Range : 10,
-    specType: typeof Config.ClearPath.Spectype === "number" ? Config.ClearPath.Spectype : 0,
+    range: (
+      typeof Config.ClearPath.Range === "number" ? Config.ClearPath.Range : 10
+    ),
+    specType: (
+      typeof Config.ClearPath.Spectype === "number" ? Config.ClearPath.Spectype : 0
+    ),
     sort: Attack.sortMonsters,
   }, settings.clearSettings);
   // set settings.clearSettings equal to the now properly asssigned clearSettings
@@ -459,6 +470,13 @@ Pather.move = function (target, givenSettings = {}) {
     this.node = { x: null, y: null };
   }
 
+  /** @param {PathNode} node */
+  PathAction.prototype.update = function (node) {
+    this.at = getTickCount();
+    this.node.x = node.x;
+    this.node.y = node.y;
+  };
+
   let fail = 0;
   let invalidCheck = false;
   let cbCheck = false;
@@ -467,11 +485,12 @@ Pather.move = function (target, givenSettings = {}) {
   const whirled = new PathAction();
   const cleared = new PathAction();
   const teleported = new PathAction();
+  const picked = new PathAction();
 
   Pather.clearUIFlags();
 
   if (typeof target.x !== "number" || typeof target.y !== "number") return false;
-  if (getDistance(me, target) < 2 && !CollMap.checkColl(me, target, Coords_1.Collision.BLOCK_MISSILE, 5)) {
+  if (target.distance < 2 && !CollMap.checkColl(me, target, sdk.collision.BlockMissile, 5)) {
     return true;
   }
 
@@ -525,15 +544,21 @@ Pather.move = function (target, givenSettings = {}) {
   path.reverse();
   settings.pop && path.pop();
   PathDebug.drawPath(path);
-  useTeleport && Config.TeleSwitch && path.length > 5 && me.switchToPrimary();
+  if (useTeleport && Config.TeleSwitch && path.length > 5) {
+    me.switchWeapons(Attack.getPrimarySlot() ^ 1);
+  }
 
   while (path.length > 0) {
     // Abort if dead
     if (me.dead) return false;
     // main path
-    Pather.recursion && (Pather.currentWalkingPath = path);
+    if (Pather.recursion) {
+      Pather.currentWalkingPath = path;
+      PathDebug.drawPath(Pather.currentWalkingPath);
+    }
     Pather.clearUIFlags();
 
+    /** @type {PathNode} */
     node = path.shift();
 
     if (typeof settings.callback === "function" && settings.callback()) {
@@ -623,40 +648,23 @@ Pather.move = function (target, givenSettings = {}) {
             } finally {
               Pather.recursion = true;
             }
+          } else {
+            if (!me.inTown && settings.allowPicking) {
+              if (picked.node.distance > 10) {
+                Pickit.essessntialsPick(false);
+                picked.update(node);
+              }
+            }
           }
         }
       } else {
         if (!me.inTown) {
-          if (!useTeleport && settings.allowClearing) {
-            let tempRange = (annoyingArea ? 5 : 10);
-            // allowed to clear so lets see if any mobs are around us
-            if (me.checkForMobs({ range: tempRange, coll: sdk.collision.BlockWalk })) {
-              // there are at least some, but lets only continue to next iteration if we actually killed something
-              if (Attack.clear(tempRange, null, null, null, settings.allowPicking) === Attack.Result.SUCCESS) {
-                // console.debug("Cleared Node");
-                continue;
-              }
-            }
-          }
           if (!useTeleport && (Pather.openDoors(node.x, node.y) || Pather.kickBarrels(node.x, node.y))) {
+            console.debug("Failed to walk to node, but opened door/barrel");
             continue;
           }
 
-          if (fail > 0 && (!useTeleport || tpMana > me.mp)) {
-            // if we are allowed to clear
-            if (settings.allowClearing) {
-              // Don't go berserk on longer paths - also check that there are even mobs blocking us
-              if (cleared.at === 0 || getTickCount() - cleared.at > Time.seconds(3)
-                && cleared.node.distance > 5 && me.checkForMobs({ range: 10 })) {
-                // only set that we cleared if we actually killed at least 1 mob
-                if (Attack.clear(10, null, null, null, settings.allowPicking) === Attack.Result.SUCCESS) {
-                  // console.debug("Cleared Node");
-                  cleared.at = getTickCount();
-                  [cleared.node.x, cleared.node.y] = [node.x, node.y];
-                }
-              }
-            }
-
+          if (/* fail > 0 &&  */(!useTeleport || tpMana > me.mp)) {
             // Leap can be helpful on long paths but make sure we don't spam it
             if (Skill.canUse(sdk.skills.LeapAttack)) {
               // we can use leapAttack, now lets see if we should - either haven't used it yet
@@ -665,8 +673,8 @@ Pather.move = function (target, givenSettings = {}) {
                 || leaped.node.distance > 5 || me.checkForMobs({ range: 6 })) {
                 // alright now if we have actually casted it set the values so we know
                 if (Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
-                  leaped.at = getTickCount();
-                  [leaped.node.x, leaped.node.y] = [node.x, node.y];
+                  leaped.update(node);
+                  if (node.distance < 5) continue; // sucessfully cleared obstacle
                 }
               }
             }
@@ -684,8 +692,8 @@ Pather.move = function (target, givenSettings = {}) {
                 || whirled.node.distance > 5 || me.checkForMobs({ range: 6 })) {
                 // alright now if we have actually casted it set the values so we know
                 if (Skill.cast(sdk.skills.Whirlwind, sdk.skills.hand.Right, node.x, node.y)) {
-                  whirled.at = getTickCount();
-                  [whirled.node.x, whirled.node.y] = [node.x, node.y];
+                  whirled.update(node);
+                  if (node.distance < 5) continue; // sucessfully cleared obstacle
                 }
               }
             }
@@ -695,8 +703,26 @@ Pather.move = function (target, givenSettings = {}) {
                 || teleported.node.distance > 5 || me.checkForMobs({ range: 6 })) {
                 // alright now if we have actually casted it set the values so we know
                 if (useTeleport ? Pather.teleportTo(node.x, node.y) : Pather.teleUsingCharges(node.x, node.y)) {
-                  teleported.at = getTickCount();
-                  [teleported.node.x, teleported.node.y] = [node.x, node.y];
+                  teleported.update(node);
+                  if (node.distance < 5) continue; // sucessfully cleared obstacle
+                }
+              }
+            }
+
+            // if we are allowed to clear
+            if (settings.allowClearing) {
+              // Don't go berserk on longer paths - also check that there are even mobs blocking us
+              if (cleared.at === 0 || getTickCount() - cleared.at > Time.seconds(3)
+                && cleared.node.distance > 5 && me.checkForMobs({ range: 10 })) {
+                // only set that we cleared if we actually killed at least 1 mob
+                if (Attack.clearPos(
+                  node.x, node.y, 10,
+                  settings.allowPicking,
+                  function () {
+                    return node.distance < 5;
+                  })) {
+                  cleared.update(node);
+                  if (node.distance < 5) continue; // sucessfully cleared obstacle
                 }
               }
             }
@@ -738,7 +764,7 @@ Pather.move = function (target, givenSettings = {}) {
     delay(5);
   }
 
-  useTeleport && Config.TeleSwitch && me.switchToPrimary();
+  me.switchToPrimary();
   PathDebug.removeHooks();
 
   return cbCheck || getDistance(me, node.x, node.y) < 5;
@@ -785,9 +811,6 @@ Pather.moveToExit = function (targetArea, use, givenSettings = {}) {
 
   for (let currTarget of areas) {
     console.info(null, getAreaName(me.area) + "ÿc8 --> ÿc0" + getAreaName(currTarget));
-    
-    // const area = Misc.poll(() => getArea(me.area));
-    // if (!area) throw new Error("moveToExit: error in getArea()");
     
     /** @type {Array<Exit>} */
     const exits = AreaData.get(me.area).getExits();
@@ -1063,7 +1086,9 @@ Pather.clearToExit = function (currentarea, targetarea, givenSettings = {}) {
     }
 
     delay(500);
-    Misc.poll(() => me.gameReady, 1000, 100);
+    Misc.poll(function () {
+      return me.gameReady;
+    }, 1000, 100);
     
     if (retry > 5) {
       console.error("ÿc2Failed to move to: ÿc0" + targetName);
@@ -1078,7 +1103,12 @@ Pather.clearToExit = function (currentarea, targetarea, givenSettings = {}) {
   return (me.area === targetarea);
 };
 
-Pather.getWalkDistance = function (x, y, area = me.area, xx = me.x, yy = me.y, reductionType = 2, radius = 5) {
+Pather.getWalkDistance = function (x, y, area, xx, yy, reductionType, radius) {
+  area === undefined && (area = me.area);
+  xx === undefined && (xx = me.x);
+  yy === undefined && (yy = me.y);
+  reductionType === undefined && (reductionType = 2);
+  radius === undefined && (radius = 5);
   // distance between node x and x-1
   return (getPath(area, x, y, xx, yy, reductionType, radius) || [])
     .map(function (e, i, s) {

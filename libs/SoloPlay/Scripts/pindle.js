@@ -10,6 +10,7 @@ function pindle () {
   Town.goToTown(5);
   myPrint("starting pindle");
 
+  Town.move("anya");
   !Pather.getPortal(sdk.areas.NihlathaksTemple) && Town.npcInteract("anya");
   if (!Pather.usePortal(sdk.areas.NihlathaksTemple)) return true;
 
@@ -17,6 +18,10 @@ function pindle () {
   Pather.moveTo(10058, 13234);
   Attack.killTarget(getLocaleString(sdk.locale.monsters.Pindleskin));
   Pickit.pickItems();
+
+  if (SoloIndex.index.nith.shouldRun()) {
+    Loader.skipTown.push("nith");
+  }
 
   return true;
 }

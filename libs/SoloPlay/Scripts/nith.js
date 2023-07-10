@@ -7,10 +7,16 @@
 */
 
 function nith () {
-  Town.doChores();
+  me.inTown && Town.doChores();
   myPrint("starting nith");
 
-  Pather.checkWP(sdk.areas.HallsofPain, true) ? Pather.useWaypoint(sdk.areas.HallsofPain) : Pather.getWP(sdk.areas.HallsofPain);
+  if (Pather.checkWP(sdk.areas.HallsofPain, true)) {
+    Pather.useWaypoint(sdk.areas.HallsofPain);
+  } else {
+    if (Pather.journeyTo(sdk.areas.NihlathaksTemple)) {
+      Pather.moveToExit([sdk.areas.HallsofAnguish, sdk.areas.HallsofPain], true);
+    }
+  }
   Precast.doPrecast(false);
 
   if (!Pather.moveToExit(sdk.areas.HallsofVaught, true)) {
@@ -19,14 +25,14 @@ function nith () {
     return true;
   }
 
-  Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.objects.NihlathaksPlatform);
-
   // Stop script in hardcore mode if vipers are found
-  if (me.hardcore && Game.getMonster(sdk.monsters.TombViper2)) {
-    console.log("Tomb Vipers found.");
-
-    return true;
-  }
+  // faster detection of TombVipers
+  Pather.moveToPresetObject(me.area, sdk.objects.NihlathaksPlatform, { callback: () => {
+    if (me.hardcore && Game.getMonster(sdk.monsters.TombViper2)) {
+      console.log("Tomb Vipers found.");
+      throw new ScriptError("Tomb Vipers found.");
+    }
+  } });
 
   Attack.killTarget(sdk.monsters.Nihlathak);
   Pickit.pickItems();

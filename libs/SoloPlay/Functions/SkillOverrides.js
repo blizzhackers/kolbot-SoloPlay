@@ -52,7 +52,9 @@ Skill.cast = function (skillId, hand, x, y, item) {
   // Check mana cost, charged skills don't use mana
   if (!item && this.getManaCost(skillId) > me.mp) {
     // Maybe delay on ALL skills that we don't have enough mana for?
-    if (Config.AttackSkill.concat([sdk.skills.StaticField, sdk.skills.Teleport]).concat(Config.LowManaSkill).includes(skillId)) {
+    if (Config.AttackSkill
+      .concat([sdk.skills.StaticField, sdk.skills.Teleport])
+      .concat(Config.LowManaSkill).includes(skillId)) {
       console.debug("Skill: " + getSkillById(skillId) + " manaCost: " + this.getManaCost(skillId) + " myMana: " + me.mp);
       delay(300);
     }
