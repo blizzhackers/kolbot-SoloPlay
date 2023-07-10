@@ -543,7 +543,6 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     }
     // No valid skills can be found
     if (skill < 0) return Attack.Result.CANTATTACK;
-
     // print damage values
     if (Developer.debugging.skills && choosenSkill.have) {
       console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(skill) + ") DMG: " + choosenSkill.dmg);
@@ -571,7 +570,8 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     if (!me.skillDelay || !timed) {
       let ranged = range > 4;
 
-      if (skill === sdk.skills.ChargedBolt && !unit.hasEnchant(sdk.enchant.ManaBurn, sdk.enchant.ColdEnchanted)) {
+      if (skill === sdk.skills.ChargedBolt
+        && !unit.hasEnchant(sdk.enchant.ManaBurn, sdk.enchant.ColdEnchanted)) {
         unit.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE) < 3 && (range = 7);
       }
 
@@ -595,7 +595,9 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
         }
       }
 
-      if (range < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
+      if (range < 4 && !Attack.validSpot(unit.x, unit.y)) {
+        return Attack.Result.FAILED;
+      }
 
       // Only delay if there are no mobs in our immediate area
       if (mana > me.mp && !me.checkForMobs({ range: 12 })) {
@@ -620,8 +622,10 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       
       if (unit.distance > range || Coords_1.isBlockedBetween(me, unit)) {
         // Allow short-distance walking for melee skills
-        let walk = (range < 4 || (skill === sdk.skills.ChargedBolt && range === 7))
-          && unit.distance < 10 && !checkCollision(me, unit, Coords_1.BlockBits.BlockWall);
+        let walk = (
+          (range < 4 || (skill === sdk.skills.ChargedBolt && range === 7))
+          && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWalk)
+        );
       
         if (ranged) {
           if (!Attack.getIntoPosition(unit, range, Coords_1.Collision.BLOCK_MISSILE, walk)) {
@@ -657,12 +661,13 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
             if (!unit.dead) {
               // if we are already in close then it might be worth it to use battle cry if we have it
               battleCryCheck(unit);
-              // if we are in danger then don't cast and move
-              if ((unit.distance <= 3 && !unit.isStunned && !unit.isFrozen) || me.inDanger()) {
-                // don't cast, just run
-                Attack.deploy(unit, 25, 5, 9);
-                return Attack.Result.FAILED;
-              }
+              // if we are in danger then don't cast and move - this is causing too much rubberbanding
+              // if (!unit.isPrimeEvil
+              //   && (unit.distance <= 3 && !unit.isStunned && !unit.isFrozen) || me.inDanger()) {
+              //   // don't cast, just run
+              //   Attack.deploy(unit, 25, 5, 9);
+              //   return Attack.Result.FAILED;
+              // }
               Skill.cast(skill, Skill.getHand(skill), unit);
               if (!Misc.poll(() => unit.dead || unit.hp < preHealth, 200, 50)) {
                 sRetry++;
@@ -701,7 +706,11 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
             if ([sdk.skills.FireBolt, sdk.skills.IceBolt].includes(skill)) {
               let preHealth = unit.hp;
               let missileDelay = GameData.timeTillMissleImpact(skill, unit);
-              missileDelay > 0 && Misc.poll(() => unit.dead || unit.hp < preHealth, missileDelay, 50);
+              if (missileDelay > 0) {
+                Misc.poll(function () {
+                  return unit.dead || unit.hp < preHealth;
+                }, missileDelay, 50);
+              }
               delay(50);
             }
           }
