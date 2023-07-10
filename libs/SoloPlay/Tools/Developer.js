@@ -2,7 +2,7 @@
 *  @filename    Developer.js
 *  @author      theBGuy
 *  @desc        Tools/Settings for Kolbot-SoloPlay
-*  @contributor Butterz - Added more options for Bumpers,Socket & Imbue 
+*  @contributor Butterz - Added more options for Bumpers,Socket & Imbue. GlobalSettings. 
 *
 */
 
@@ -12,6 +12,11 @@
  * - add name choices in similar manner, would have to experiment with max lengths allowed as a prefix
  */
 const Developer = {
+  // @desc - Global Account Settings
+  GlobalSettings: {
+    Account: "", // Set a value for global accounts. MAX Characters 12 plus Suffix Length (Total 15).
+    Password: "", // Set a value for global passwords for account generation.
+  },
   // @desc - set to true if using the PlugY mod - allows use of larger stash
   plugyMode: false,
   // @desc - log game/bot statistics to .csv files located at SoloPlay/Data/
@@ -37,7 +42,7 @@ const Developer = {
   fillAccount: {
     Bumper: {
       enabled: false,       // Fill account
-      Level: 40,            // Set stop level for bumpers (20 Normal, 40 Nightmare, 60 Hell)
+      Level: 40,            // Set stop level for bumpers (20 Normal, 40 Nightmare, 60 Hell) (The objective/target must be achieved)
       Count: 10,            // Number of character to fill on account (MAX 18)
     },
     SocketMules: {
@@ -46,7 +51,7 @@ const Developer = {
     },
     ImbueMules: {
       enabled: false,       // Fill account
-      Level: 30,            // Set stop level for imbueMule
+      Level: 30,            // Set stop level for imbueMule (The objective/target must be achieved)
       Count: 18,            // Number of character to create on account (MAX 18)
     },
   },

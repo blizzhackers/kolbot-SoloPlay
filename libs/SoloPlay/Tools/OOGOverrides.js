@@ -705,59 +705,48 @@ const locations = {};
     return string;
   };
 
-  Starter.getNextNum = function () {
+  Starter.getGlobalAccount = function () {
     const SaveLocation = "logs/Kolbot-SoloPlay/GlobalAccount.json";
-    const AccountName = (Starter.Config.GlobalAccount);
+    const AccountName = (Developer.GlobalSettings.Account);
+
     const AccountData = {
-      data: {
-        account: "",
-        accNum: 0
-      },
+      GlobalData: { Account: "", Number: 0 },
 
       // Create a new Json file.
       create: function () {
-        let string = JSON.stringify(this.data);
-        FileTools.writeText(SaveLocation, string);
+        FileTools.writeText(SaveLocation, JSON.stringify(this.GlobalData));
       },
 
       // Read data from the Json file and return the data object.
       read: function () {
-        let string = FileTools.readText(SaveLocation);
-        let obj = JSON.parse(string);
-
-        return obj;
+        return JSON.parse(FileTools.readText(SaveLocation));
       },
 
       // Read data from the Json file and return the account info.
       readAcc: function () {
-        let string = FileTools.readText(SaveLocation);
-        let jsontext = JSON.parse(string);
-
-        return jsontext.account;
+        return JSON.parse(FileTools.readText(SaveLocation)).Account;
       },
 
       // Write a data object to the Json file.
       write: function (obj) {
-        let string = JSON.stringify(obj);
-        FileTools.writeText(SaveLocation, string);
+        FileTools.writeText(SaveLocation, JSON.stringify(obj));
       },
 
       // Set next account - increase account number in the Json file.
       nextAccount: function () {
-        let obj = AccountData.read();
-        obj.accNum += 1;
-        obj.account = AccountName + obj.accNum;
-        AccountData.write(Object.assign(this.data, { accNum: obj.accNum, account: obj.account }));
+        let obj = this.read();
+        obj.Number += 1;
+        obj.Account = AccountName + obj.Number;
+        this.write(Object.assign(this.GlobalData, { Number: obj.Number, Account: obj.Account }));
 
-        return obj.account;
+        return obj.Account;
       },
 
       createFolder: function () {
         const folderPath = "logs/Kolbot-SoloPlay";
         if (!FileTools.exists(folderPath)) {
           print(sdk.colors.DarkGreen + "Global Settings" + sdk.colors.White + " :: " + sdk.colors.Blue + "Creating Kolbot-SoloPlay Folder.");
-          const folder = dopen("logs");
-          folder.create("Kolbot-SoloPlay");
+          dopen("logs").create("Kolbot-SoloPlay");
         }
       },
 
@@ -765,23 +754,22 @@ const locations = {};
         // If file exists check for valid info.
         if (FileTools.exists(SaveLocation)) {
           try {
-            let jsonStr = FileTools.readText(SaveLocation);
-            let jsonObj = JSON.parse(jsonStr);
+            let jsonObj = this.read();
 
             // Return filename containing correct info.
-            if (AccountName && jsonObj.account && jsonObj.account.match(AccountName)) {
+            if (AccountName && jsonObj.Account && jsonObj.Account.match(AccountName)) {
               delay(500);
               print(sdk.colors.DarkGreen + "Global Settings" + sdk.colors.White + " :: " + sdk.colors.Blue + "Next Sequential Number.");
               delay(250);
-              AccountData.nextAccount();
+              this.nextAccount();
               delay(500);
 
-              return AccountData.readAcc();
+              return this.readAcc();
             }
             
             // File exists but doesn't contain valid info - Remaking .json file.
-            if (AccountName && jsonObj.account !== AccountName) {
-              print(sdk.colors.DarkGreen + "Global Settings" + sdk.colors.White + " :: " + sdk.colors.Red + "Remove Save Location.");
+            if (AccountName && jsonObj.Account !== AccountName) {
+              print(sdk.colors.DarkGreen + "Global Settings" + sdk.colors.White + " :: " + sdk.colors.Red + "Removed Save Location.");
               FileTools.remove(SaveLocation);
               delay(800);
 
@@ -792,18 +780,18 @@ const locations = {};
           }
         } else {
           // Check to see if main folder exist.
-          AccountData.createFolder();
+          this.createFolder();
           delay(500);
           // Creating a new .json file.
           print(sdk.colors.DarkGreen + "Global Settings" + sdk.colors.White + " :: " + sdk.colors.Blue + "Creating New Account.");
-          AccountData.create();
+          this.create();
           delay(500);
-          AccountData.nextAccount();
+          this.nextAccount();
           delay(rand(5000, 10000));
 
-          return AccountData.readAcc();
+          return this.readAcc();
         }
-        return AccountData.create();
+        return this.create();
       }
     };
 
@@ -899,11 +887,11 @@ const locations = {};
             }
           }
         } else {
-          // new account
+          // New Account
           if (Starter.profileInfo.account === "") {
-            if (Starter.Config.GlobalAccount || Starter.Config.GlobalAccountPassword) {
-              Starter.profileInfo.account = Starter.Config.GlobalAccount.length > 0 ? Starter.getNextNum() : Starter.randomString(12, true);
-              Starter.profileInfo.password = Starter.Config.GlobalAccountPassword.length > 0 ? Starter.Config.GlobalAccountPassword : Starter.randomString(12, true);
+            if (Developer.GlobalSettings.Account || Developer.GlobalSettings.Password) {
+              Starter.profileInfo.account = Developer.GlobalSettings.Account.length > 0 ? Starter.getGlobalAccount() : Starter.randomString(12, true);
+              Starter.profileInfo.password = Developer.GlobalSettings.Password.length > 0 ? Developer.GlobalSettings.Password : Starter.randomString(12, true);
 
               try {
                 if (Starter.profileInfo.account.length > 15) throw new Error("Account name exceeds MAXIMUM length (15). Please enter a shorter name to restart the count.");
@@ -914,8 +902,8 @@ const locations = {};
                 D2Bot.stop();
               }
 
-              console.log("Kolbot-SoloPlay :: Generated account information. " + (Starter.Config.GlobalAccount.length > 0 ? "Pre-defined " : "Random ") + "account used");
-              console.log("Kolbot-SoloPlay :: Generated password information. " + (Starter.Config.GlobalAccountPassword.length > 0 ? "Pre-defined " : "Random ") + "password used");
+              console.log("Kolbot-SoloPlay :: Generated account information. " + (Developer.GlobalSettings.Account.length > 0 ? "Pre-defined " : "Random ") + "account used");
+              console.log("Kolbot-SoloPlay :: Generated password information. " + (Developer.GlobalSettings.Password.length > 0 ? "Pre-defined " : "Random ") + "password used");
               ControlAction.timeoutDelay("Generating Account Information", Starter.Config.DelayBeforeLogin * 1e3);
             } else {
               Starter.profileInfo.account = Starter.randomString(12, true);
@@ -954,7 +942,7 @@ const locations = {};
           if (!ControlAction.findCharacter(Starter.profileInfo)) {
             // Pop-up that happens when choosing a dead HC char
             if (getLocation() === sdk.game.locations.OkCenteredErrorPopUp) {
-              Controls.OkCentered.click();	// Exit from that pop-up
+              Controls.OkCentered.click();  // Exit from that pop-up
               D2Bot.printToConsole("Character died", sdk.colors.D2Bot.Red);
               ControlAction.deleteAndRemakeChar(Starter.profileInfo);
             } else {
@@ -1297,7 +1285,7 @@ const locations = {};
   locations[sdk.game.locations.LobbyPleaseWait] = (loc) => !Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, loc) && Controls.OkCentered.click();
   locations[sdk.game.locations.Lobby] = () => {
     D2Bot.updateStatus("Lobby");
-    ControlAction.saveInfo(Starter.profileInfo);
+    ControlAction.saveInfo(Starter.profileInfo || Starter.profileInfo.tag);
 
     me.blockKeys = false;
 
