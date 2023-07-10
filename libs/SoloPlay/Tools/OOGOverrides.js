@@ -577,7 +577,7 @@ const locations = {};
     }
 
     // Developer Options (BSI)
-    if (Developer.fillAccount.Bumper.bumpers || Developer.fillAccount.SocketMules.socketMules || Developer.fillAccount.ImbueMules.imbueMules) {
+    if (Starter.profileInfo.tag === "Bumper" || Starter.profileInfo.tag === "Socketmule" || Starter.profileInfo.tag === "Imbuemule") {
       // Create Save Folder Location
       if (FileTools.exists("logs/Kolbot-SoloPlay/Account-List/" + info.realm + "/" + (info.ladder > 0 ? "Ladder" : "Non-Ladder"))) {
         return;
