@@ -63,7 +63,10 @@ Misc.openChest = function (unit) {
   // Skip invalid/open and Countess chests
   if (!unit || unit.x === 12526 || unit.x === 12565 || unit.mode) return false;
   // locked chest, no keys
-  if (!me.assassin && unit.islocked && !me.findItem(sdk.items.Key, sdk.items.mode.inStorage, sdk.storage.Inventory)) return false;
+  if (!me.assassin && unit.islocked
+    && !me.findItem(sdk.items.Key, sdk.items.mode.inStorage, sdk.storage.Inventory)) {
+    return false;
+  }
 
   let specialChest = sdk.quest.chests.includes(unit.classid);
 
@@ -160,7 +163,7 @@ Misc.openChests = function (range = 15) {
      */
 
     if (unit
-      && (Pather.useTeleport() || !checkCollision(me, unit, sdk.collision.WallOrRanged))
+      && (Pather.useTeleport() || !checkCollision(me, unit, sdk.collision.BlockWalk))
       && this.openChest(unit)) {
       Pickit.pickItems();
     }
@@ -189,7 +192,7 @@ Misc.getWell = function (unit) {
       }
     }
 
-    if (Misc.poll(() => unit.mode, 1000, 50)) return true;
+    if (Misc.poll(function () { return unit.mode; }, 1000, 50)) return true;
     Packet.flash(me.gid);
   }
 
@@ -226,6 +229,33 @@ Misc.useWell = function (range = 15) {
   return true;
 };
 
+Misc.lastShrine = new function () {
+  this.tick = 0;
+  this.duration = 0;
+  this.type = -1;
+  this.state = -1;
+
+  /** @param {ObjectUnit} unit */
+  this.update = function (unit) {
+    if (!unit || !unit.hasOwnProperty("objtype")) return;
+    // we only care about tracking shrines with states
+    if (!ShrineData.getState(unit.objtype)) return;
+    this.tick = getTickCount();
+    this.type = unit.objtype;
+    this.duration = ShrineData.getDuration(unit.objtype);
+    this.state = ShrineData.getState(unit.objtype);
+  };
+
+  this.remaining = function () {
+    return this.duration - (getTickCount() - this.tick);
+  };
+
+  this.isMyCurrentState = function () {
+    if (this.state <= 0) return false;
+    return me.getState(this.state);
+  };
+};
+
 /**
  * Use a shrine Unit
  * @param {ObjectUnit} unit 
@@ -234,6 +264,10 @@ Misc.useWell = function (range = 15) {
 Misc.getShrine = function (unit) {
   if (unit.mode === sdk.objects.mode.Active) return false;
   AreaData.get(me.area).addShrine(unit);
+  if (Misc.lastShrine.remaining() > Time.seconds(30) && Misc.lastShrine.isMyCurrentState()) {
+    // skip for now, don't waste the shrine we have active
+    return false;
+  }
 
   for (let i = 0; i < 3; i++) {
     if (Skill.useTK(unit) && i < 2) {
@@ -249,6 +283,7 @@ Misc.getShrine = function (unit) {
 
     if (Misc.poll(() => unit.mode, 1000, 40)) {
       AreaData.get(me.area).updateShrine(unit);
+      Misc.lastShrine.update(unit);
       if (unit.objtype === sdk.shrines.Gem) {
         Pickit.pickItems();
       }
@@ -314,8 +349,6 @@ Misc.scanShrines = function (range, ignore = []) {
    * Fix for a3/a5 shrines
    */
   if (shrine) {
-    let index = -1;
-    
     // Build a list of nearby shrines
     do {
       if (shrine.name.toLowerCase().includes("shrine") && ShrineData.has(shrine.objtype)
@@ -324,17 +357,12 @@ Misc.scanShrines = function (range, ignore = []) {
         shrineList.push(copyUnit(shrine));
       }
     } while (shrine.getNext());
-
     if (!shrineList.length) return false;
 
     // Check if we have a shrine state, store its index if yes
-    for (let i = 0; i < this.shrineStates.length; i += 1) {
-      if (me.getState(this.shrineStates[i])) {
-        index = i;
-
-        break;
-      }
-    }
+    const index = Misc.shrineStates.findIndex(function (state) {
+      return state > 0 && me.getState(state);
+    });
 
     for (let i = 0; i < Config.ScanShrines.length; i += 1) {
       for (let shrine of shrineList) {
@@ -415,7 +443,7 @@ Misc.getShrinesInArea = function (area, type, use) {
               result = true;
 
               if (type === sdk.shrines.Gem) {
-                Pickit.pickItems();
+                Pickit.pickItems(5);
               }
               return true;
             }
