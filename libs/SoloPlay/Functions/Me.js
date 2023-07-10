@@ -1038,3 +1038,59 @@ me.sortInventory = function () {
     SetUp.sortSettings.ItemsSortedFromRight
   );
 };
+
+/**
+ * @description Returns boolean if we have all the runes given by itemInfo array
+ * @param {number[]} itemInfo - Array of rune classids
+ * @returns Boolean
+ */
+me.haveRunes = function (itemInfo = []) {
+  if (!Array.isArray(itemInfo) || typeof itemInfo[0] !== "number") return false;
+  let itemList = this.getItemsEx()
+    .filter(i => i.isInStorage && i.itemType === sdk.items.type.Rune);
+  if (!itemList.length || itemList.length < itemInfo.length) return false;
+  const checkedGids = new Set();
+
+  return itemInfo.every(function (rune) {
+    return itemList.some(function (item) {
+      if (item.classid === rune && !checkedGids.has(item.gid)) {
+        checkedGids.add(item.gid);
+        return true;
+      }
+      return false;
+    });
+  });
+};
+
+/**
+ * Get a list of items that match the given criteria.
+ * @param {ItemUnit | {
+ * itemType?: number,
+ * classid?: number,
+ * quality?: number,
+ * sockets?: number,
+ * location?: number,
+ * ethereal?: boolean,
+ * }} itemInfo 
+ * @param {boolean} skipSame
+ * @returns {ItemUnit[]}
+ */
+me.getOwned = function (itemInfo = {}, skipSame = false) {
+  let itemList = [];
+  let item = me.getItem();
+
+  if (item) {
+    do {
+      if (itemInfo.itemType !== undefined && itemInfo.itemType !== item.itemType) continue;
+      if (itemInfo.classid !== undefined && itemInfo.classid !== item.classid) continue;
+      if (itemInfo.quality !== undefined && itemInfo.quality !== item.quality) continue;
+      if (itemInfo.sockets !== undefined && itemInfo.sockets !== item.sockets) continue;
+      if (itemInfo.location !== undefined && itemInfo.location !== item.location) continue;
+      if (itemInfo.ethereal !== undefined && itemInfo.ethereal !== item.ethereal) continue;
+      if (skipSame && itemInfo.gid !== undefined && itemInfo.gid !== item.gid) continue;
+      itemList.push(copyUnit(item));
+    } while (item.getNext());
+  }
+
+  return itemList;
+};
