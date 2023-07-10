@@ -75,18 +75,19 @@ Pickit.checkItem = function (unit) {
 
   if (unit.classid === sdk.items.StaminaPotion
     && (me.charlvl < 18 || me.staminaPercent <= 85 || me.walking)
-    && Item.getQuantityOwned(unit, true) < 2) {
+    && me.getOwned(unit, true).length < 2) {
     return resultObj(Pickit.Result.WANTED, "LowStamina");
   }
 
   if (unit.classid === sdk.items.AntidotePotion
-    && me.getState(sdk.states.Poison) && Item.getQuantityOwned(unit, true) < 2) {
+    && me.getState(sdk.states.Poison)
+    && me.getOwned(unit, true).length < 2) {
     return resultObj(Pickit.Result.WANTED, "Poisoned");
   }
 
   if (unit.classid === sdk.items.ThawingPotion
     && (me.getState(sdk.states.Frozen) || me.getState(sdk.states.FrozenSolid))
-    && Item.getQuantityOwned(unit, true) < 2) {
+    && me.getOwned(unit, true).length < 2) {
     return resultObj(Pickit.Result.WANTED, "Frozen");
   }
 
