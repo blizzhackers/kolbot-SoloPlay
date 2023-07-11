@@ -729,6 +729,18 @@ const SoloIndex = {
         return true;
       }
     },
+    "nith": {
+      preReq: function () {
+        return (me.expansion && me.accessToAct(5) && me.anya);
+      },
+      skipIf: function () {
+        return !me.nightmare || !Pather.canTeleport();
+      },
+      shouldRun: function () {
+        if (!this.preReq() || this.skipIf()) return false;
+        return true;
+      }
+    },
     "ancients": {
       preReq: function () {
         return (me.expansion && me.accessToAct(5));
