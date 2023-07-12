@@ -60,7 +60,7 @@ const SoloIndex = {
     "den": {
       skipIf: function () {
         /* xp is bad in den so only run it once we can blast through*/
-        return me.den || (me.charlvl > 8 && me.charlvl < 12);
+        return me.den || (me.charlvl > 8 && me.charlvl < (me.sorceress ? 18 : 12));
       },
       shouldRun: function () {
         if (this.skipIf()) return false;
