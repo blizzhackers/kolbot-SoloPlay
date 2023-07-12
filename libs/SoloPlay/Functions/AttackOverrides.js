@@ -188,24 +188,28 @@ Attack.checkResist = function (unit, val = -1, maxres = 100) {
  */
 Attack.canAttack = function (unit) {
   if (!unit) return false;
-  if (unit.isMonster) {
-    // Unique/Champion
-    if (unit.isSpecial) {
-      if (Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[1]))
-        || Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[2]))) {
-        return true;
-      }
-    } else {
-      if (Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[3]))
-        || Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[4]))) {
-        return true;
-      }
+  if (!unit.isMonster) return false;
+  if (me.sorceress) {
+    return Config.AttackSkill.some(function (skill) {
+      return skill > -1 && Attack.checkResist(unit, Attack.getSkillElement(skill));
+    });
+  }
+  // Unique/Champion
+  if (unit.isSpecial) {
+    if (Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[1]))
+      || Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[2]))) {
+      return true;
     }
+  } else {
+    if (Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[3]))
+      || Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[4]))) {
+      return true;
+    }
+  }
 
-    if (Config.AttackSkill.length === 7) {
-      return Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[5]))
-        || Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[6]));
-    }
+  if (Config.AttackSkill.length === 7) {
+    return Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[5]))
+      || Attack.checkResist(unit, this.getSkillElement(Config.AttackSkill[6]));
   }
 
   return false;
