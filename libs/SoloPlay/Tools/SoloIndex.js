@@ -29,7 +29,7 @@ const SoloIndex = {
     // Act 4
     "izual", "hellforge", "river", "hephasto", "diablo",
     // Act 5
-    "shenk", "savebarby", "anya", "pindle", "ancients", "baal", "a5chests",
+    "shenk", "savebarby", "anya", "pindle", "nith", "ancients", "baal", "a5chests",
   ],
 
   index: {
@@ -226,6 +226,8 @@ const SoloIndex = {
       skipIf: function () {
         if (me.charlvl < 11) return true;
         if (!me.andariel) return false;
+        // nith gives better xp/min at this point
+        if (me.nightmare && me.sorceress && me.anya) return true;
         if (me.hell && me.amazon && SetUp.currentBuild !== SetUp.finalBuild) return true;
         return false;
       },
@@ -548,6 +550,9 @@ const SoloIndex = {
         return (me.accessToAct(3) && me.travincal);
       },
       skipIf: function () {
+        if (!me.mephisto) return false;
+        // nith gives better xp/min at this point
+        if (me.nightmare && me.sorceress && me.anya) return true;
         return false;
       },
       shouldRun: function () {
