@@ -847,6 +847,7 @@ me.getUnids = function () {
 me.fieldID = function () {
   let list = me.getUnids();
   if (!list) return false;
+  const loc = me.inTown ? "Town" : "Field";
 
   while (list.length > 0) {
     let idTool = me.getIdTool();
@@ -863,7 +864,7 @@ me.fieldID = function () {
       delay(50);
       result = Pickit.checkItem(item);
     }
-    Town.itemResult(item, result, "Field", false);
+    Town.itemResult(item, result, loc, false);
   }
 
   delay(200);
@@ -1067,10 +1068,12 @@ me.haveRunes = function (itemInfo = []) {
  * @param {ItemUnit | {
  * itemType?: number,
  * classid?: number,
+ * mode?: number,
  * quality?: number,
  * sockets?: number,
  * location?: number,
  * ethereal?: boolean,
+ * cb?: (item: ItemUnit) => boolean
  * }} itemInfo 
  * @param {boolean} skipSame
  * @returns {ItemUnit[]}
@@ -1083,10 +1086,12 @@ me.getOwned = function (itemInfo = {}, skipSame = false) {
     do {
       if (itemInfo.itemType !== undefined && itemInfo.itemType !== item.itemType) continue;
       if (itemInfo.classid !== undefined && itemInfo.classid !== item.classid) continue;
+      if (itemInfo.mode !== undefined && itemInfo.mode !== item.mode) continue;
       if (itemInfo.quality !== undefined && itemInfo.quality !== item.quality) continue;
       if (itemInfo.sockets !== undefined && itemInfo.sockets !== item.sockets) continue;
       if (itemInfo.location !== undefined && itemInfo.location !== item.location) continue;
       if (itemInfo.ethereal !== undefined && itemInfo.ethereal !== item.ethereal) continue;
+      if (typeof itemInfo.cb === "function" && !itemInfo.cb(item)) continue;
       if (skipSame && itemInfo.gid !== undefined && itemInfo.gid !== item.gid) continue;
       itemList.push(copyUnit(item));
     } while (item.getNext());

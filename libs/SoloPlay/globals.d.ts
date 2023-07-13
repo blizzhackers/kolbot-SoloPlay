@@ -176,10 +176,12 @@ declare global {
     getOwned(itemInfo: ItemUnit | {
       itemType?: number,
       classid?: number,
+      mode?: number,
       quality?: number,
       sockets?: number,
       location?: number,
       ethereal?: boolean,
+      cb?: (item: ItemUnit) => boolean,
     }): ItemUnit[];
   }
 
