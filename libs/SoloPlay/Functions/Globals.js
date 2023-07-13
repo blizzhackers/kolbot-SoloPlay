@@ -23,8 +23,6 @@ const Overrides = require("../../modules/Override");
 /** @global */
 const Coords_1 = require("../Modules/Coords");
 /** @global */
-const PotData = require("../Modules/GameData/PotData");
-/** @global */
 const GameData = require("../Modules/GameData/GameData");
 
 const MYCLASSNAME = sdk.player.class.nameOf(me.classid).toLowerCase();
@@ -48,7 +46,7 @@ const SetUp = {
 
   init: function () {
     // ensure finalBuild is properly formatted
-    let checkBuildTemplate = function () {
+    const checkBuildTemplate = function () {
       let build = (["Bumper", "Socketmule", "Imbuemule"].includes(SetUp.finalBuild)
         ? ["Javazon", "Cold", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid]
         : SetUp.finalBuild) + "Build";
@@ -168,8 +166,8 @@ const SetUp = {
         }
 
         let mercInfo = Mercenary.getMercInfo(merc);
-        if (mercInfo.classid !== me.data.merc.classid) {
-          me.data.merc.classid = mercInfo.classid;
+        if (merc.classid !== me.data.merc.classid) {
+          me.data.merc.classid = merc.classid;
         }
         if (mercInfo.act !== me.data.merc.act) {
           me.data.merc.act = mercInfo.act;
