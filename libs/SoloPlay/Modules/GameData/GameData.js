@@ -95,7 +95,10 @@
 
   const GameData = {
     myReference: me,
-    townAreas: [0, 1, 40, 75, 103, 109],
+    /**
+     * @param {number} monsterID 
+     * @param {number} areaID 
+     */
     monsterLevel: function (monsterID, areaID) {
       return (me.diff
         ? AreaData.has(areaID) && AreaData.get(areaID).Level
@@ -114,6 +117,10 @@
         mLvl
       )][me.diff] * ExperienceModifier / 100;
     },
+    /**
+     * @param {number} monsterID 
+     * @param {number} areaID 
+     */
     eliteExp: function (monsterID, areaID) {
       return this.monsterExp(monsterID, areaID, 2) * 3;
     },
@@ -170,10 +177,15 @@
       let attack1 = this.monsterAttack1AvgDmg(monsterID, areaID, adjustLevel);
       let attack2 = this.monsterAttack2AvgDmg(monsterID, areaID, adjustLevel);
       let skill1 = this.monsterSkill1AvgDmg(monsterID, areaID, adjustLevel);
-      let dmgs = [attack1, attack2, skill1].filter(x => x > 0);
+      let dmgs = [attack1, attack2, skill1]
+        .filter(function (x) {
+          return x > 0;
+        });
       // ignore 0 dmg to avoid reducing average
       if (!dmgs.length) return 0;
-      return dmgs.reduce((acc, v) => acc + v) / dmgs.length;
+      return dmgs.reduce(function (acc, v) {
+        return acc + v;
+      }, 0) / dmgs.length;
     },
     averagePackSize: function (monsterID) {
       let { GroupCount, MinionCount } = MonsterData.get(monsterID);
@@ -201,7 +213,10 @@
         }
       });
 
-      return Object.keys(resists).filter(key => resists[key] >= 100);
+      return Object.keys(resists)
+        .filter(function (key) {
+          return resists[key] >= 100;
+        });
     },
     levelModifier: function (clvl, mlvl) {
       let bonus;
@@ -229,7 +244,8 @@
       return (count + 1) / 2;
     },
     partyModifier: function (playerID) {
-      let party = getParty(GameData.myReference), level = 0, total = 0;
+      let party = getParty(GameData.myReference);
+      let level = 0, total = 0;
       if (!party) return 1;
 
       let partyid = party.partyid;
@@ -247,7 +263,8 @@
       return level / total;
     },
     killExp: function (playerID, monsterID, areaID) {
-      let exp = this.monsterExp(monsterID, areaID), party = getParty(GameData.myReference);
+      let exp = this.monsterExp(monsterID, areaID);
+      let party = getParty(GameData.myReference);
       if (!party) return 0;
 
       let level = 0, total = 0;
@@ -272,10 +289,14 @@
       );
     },
     baseLevel: function (...skillIDs) {
-      return skillIDs.reduce((total, skillID) => total + GameData.myReference.getSkill(skillID, 0), 0);
+      return skillIDs.reduce(function (total, skillID) {
+        return total + GameData.myReference.getSkill(skillID, 0);
+      }, 0);
     },
     skillLevel: function (...skillIDs) {
-      return skillIDs.reduce((total, skillID) => total + GameData.myReference.getSkill(skillID, 1), 0);
+      return skillIDs.reduce(function (total, skillID) {
+        return total + GameData.myReference.getSkill(skillID, 1);
+      }, 0);
     },
     skillCooldown: function (skillID) {
       return getBaseStat("Skills", skillID, "delay") !== -1;
@@ -409,7 +430,8 @@
       272: 25 / 3
     },
     baseSkillDamage: function (skillID) { // TODO: rework skill damage to use both damage fields
-      let l = this.skillLevel(skillID), m = this.skillMult[skillID] || 1;
+      let l = this.skillLevel(skillID);
+      let m = this.skillMult[skillID] || 1;
       let dmgFields = [
         [
           "MinDam", "MinLevDam1",
@@ -917,7 +939,8 @@
           break;
         }
         // No cap in classic
-        let staticCap = (me.gametype === sdk.game.gametype.Classic ? 0 : [0, 33, 50][me.diff]);
+        let staticCap = (me.gametype === sdk.game.gametype.Classic
+          ? 0 : [0, 33, 50][me.diff]);
         const [monsterId, areaId] = [unit.classid, unit.area];
         let percentLeft = (unit.hp * 100 / unit.hpmax);
         if (staticCap > percentLeft) {
@@ -1055,7 +1078,7 @@
           rawDmg = GameData.skillDamage(skill, target);
           return getTotalDmg(rawDmg, target);
         } else {
-          console.log("Units to check: " + units.length);
+          // console.log("Units to check: " + units.length);
           for (let i = 0; i < units.length; i++) {
             if (units[i] !== undefined) {
               rawDmg = GameData.skillDamage(skill, units[i]);
@@ -1343,9 +1366,13 @@
     getConviction: function () {
       let merc = GameData.myReference.getMerc();
       let sl = this.skillLevel(123); // conviction
+      /** @param {ItemUnit} item */
+      function isInfinity (item) {
+        return item.prefixnum === sdk.locale.items.Infinity;
+      }
       if (( // Either me, or merc is wearing a conviction
-        merc && merc.getItemsEx().filter(item => item.getPrefix(sdk.locale.items.Infinity)).first()
-        || GameData.myReference.getItemsEx(-1, 1).filter(item => item.getPrefix(sdk.locale.items.Infinity)).first())) {
+        merc && merc.getItemsEx().filter(isInfinity).first()
+        || GameData.myReference.getItemsEx(-1, 1).filter(isInfinity).first())) {
         sl = 12;
       }
       return sl > 0 ? Math.min(150, 30 + (sl - 1) * 5) : 0;
@@ -1420,7 +1447,9 @@
         }
       }
 
-      buffDmg = buffDmg.reduce((t, v) => t + v, 0);
+      buffDmg = buffDmg.reduce(function (t, v) {
+        return t + v;
+      }, 0);
 
       for (let sk in skillDamageInfo) {
         if (preattack && this.preAttackable.indexOf(parseInt(sk)) === -1) continue; // cant preattack this skill
@@ -1560,7 +1589,9 @@
         }
       }
 
-      buffDmg = buffDmg.reduce((t, v) => t + v, 0);
+      buffDmg = buffDmg.reduce(function (t, v) {
+        return t + v;
+      }, 0);
 
       for (let sk in skillDamageInfo) {
         if (!this.ignoreSkill[sk]) {
@@ -1627,10 +1658,10 @@
       skills = skills || this.allSkillDamage();
 
       AreaData.get(areaID).forEachMonsterAndMinion(function (mon, rarity, parent) {
-        effortpool += rarity * this.monsterEffort(mon.Index, areaID, skills, parent && parent.Index).effort;
+        effortpool += rarity * GameData.monsterEffort(mon.Index, areaID, skills, parent && parent.Index).effort;
         raritypool += rarity;
 
-        dmgAcc += rarity * this.monsterAvgDmg(mon.Index, areaID);
+        dmgAcc += rarity * GameData.monsterAvgDmg(mon.Index, areaID);
       });
 
       // console.debug('avg dmg '+ AreaData.get(areaID).LocaleString+' -- ' + dmgAcc+' -- ' + avgDmg);
@@ -1643,11 +1674,14 @@
       let effortpool = 0, raritypool = 0, dmgAcc = 0;
 
       skills = skills || this.allSkillDamage();
-      AreaData.get(areaID).forEachMonsterAndMinion((mon, rarity, parent) => {
-        effortpool += rarity * this.monsterExp(mon.Index, areaID) * this.levelModifier(GameData.myReference.charlvl, this.monsterLevel(mon.Index, areaID)) / this.monsterEffort(mon.Index, areaID, skills, parent && parent.Index).effort;
+      AreaData.get(areaID).forEachMonsterAndMinion(function (mon, rarity, parent) {
+        let monExp = GameData.monsterExp(mon.Index, areaID);
+        let lvlMod = GameData.levelModifier(GameData.myReference.charlvl, GameData.monsterLevel(mon.Index, areaID));
+        let monEffort = GameData.monsterEffort(mon.Index, areaID, skills, parent && parent.Index).effort;
+        effortpool += rarity * monExp * lvlMod / monEffort;
         raritypool += rarity;
 
-        dmgAcc += (rarity * this.monsterAvgDmg(mon.Index, areaID));
+        dmgAcc += (rarity * GameData.monsterAvgDmg(mon.Index, areaID));
       });
 
       let log = 1, avgDmg = 0;
@@ -1659,7 +1693,10 @@
       return (raritypool ? effortpool / raritypool : 0) - (avgDmg);
     },
     mostUsedSkills: function (force = false) {
-      if (!force && GameData.myReference.hasOwnProperty("__cachedMostUsedSkills") && GameData.myReference.__cachedMostUsedSkills) return GameData.myReference.__cachedMostUsedSkills;
+      if (!force && GameData.myReference.hasOwnProperty("__cachedMostUsedSkills")
+        && GameData.myReference.__cachedMostUsedSkills) {
+        return GameData.myReference.__cachedMostUsedSkills;
+      }
 
       const effort = [], uniqueSkills = [];
       for (let i = 50; i < 120; i++) {
