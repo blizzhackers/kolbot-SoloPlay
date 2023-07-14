@@ -10,50 +10,65 @@ function summoner () {
   const teleportPads = function () {
     if (!me.inArea(sdk.areas.ArcaneSanctuary) || Pather.useTeleport()) return true;
 
+    const [wpX, wpY] = [25449, 5449];
+    const tppID = [192, 304, 305, 306];
+    let ntppPath = [
+      [53, 2], [103, -3],
+      [113, -68], [173, -58],
+      [243, -73], [293, -58],
+      [353, -68], [372, -62], [342, -17]
+    ];
+    let stppPath = [
+      [-56, 2], [-128, -7],
+      [-98, 78], [-176, 62],
+      [-243, 58], [-296, 62],
+      [-372, 62], [-366, 12]
+    ];
+    let etppPath = [
+      [28, 52], [-12, 92],
+      [53, 112], [72, 118],
+      [88, 172], [54, 227],
+      [43, 247], [88, 292],
+      [82, 378], [-16, 332], [2, 353]
+    ];
+    let wtppPath = [
+      [-26, -63], [2, -121],
+      [3, -133], [62, -117],
+      [34, -183], [54, -228],
+      [43, -243], [34, -303],
+      [72, -351], [64, -368], [23, -338]
+    ];
+    const stand = Game.getPresetObject(me.area, sdk.objects.Journal).realCoords();
+    console.debug(stand.x, stand.y);
+
+    /** @type {[number, number][]} */
     let tppPath;
-    let [wpX, wpY] = [25449, 5449];
-    let ntppPath = [[53, 2], [103, -3], [113, -68], [173, -58], [243, -73], [293, -58], [353, -68], [372, -62], [342, -17]];
-    let stppPath = [[-56, 2], [-128, -7], [-98, 78], [-176, 62], [-243, 58], [-296, 62], [-372, 62], [-366, 12]];
-    let etppPath = [[28, 52], [-12, 92], [53, 112], [72, 118], [88, 172], [54, 227], [43, 247], [88, 292], [82, 378], [-16, 332], [2, 353]];
-    let wtppPath = [[-26, -63], [2, -121], [3, -133], [62, -117], [34, -183], [54, -228], [43, -243], [34, -303], [72, -351], [64, -368], [23, -338]];
-    let stand = Game.getPresetObject(me.area, sdk.objects.Journal);
-    let [tppPathX, tppPathY] = [(stand.roomx * 5 + stand.x), (stand.roomy * 5 + stand.y)];
-    console.debug(tppPathX, tppPathY);
-    let tppID = [192, 304, 305, 306];
-
-    switch (tppPathX) {
-    case 25011:
+    if (stand.x === 25011) {
       tppPath = ntppPath;
-      break;
-    case 25866:
+    } else if (stand.x === 25866) {
       tppPath = stppPath;
-      break;
-    case 25431:
-      switch (tppPathY) {
-      case 5011:
+    } else if (stand.x === 25431) {
+      if (stand.y === 5011) {
         tppPath = etppPath;
-        break;
-      case 5861:
+      } else if (stand.y === 5861) {
         tppPath = wtppPath;
-        break;
       }
-
-      break;
     }
 
-    if (getPath(me.area, me.x, me.y, tppPathX, tppPathY, 0, 10).length === 0) {
+    if (getPath(me.area, me.x, me.y, stand.x, stand.y, 0, 10).length === 0) {
       me.overhead("Using telepad layout");
 
-      for (let i = 0; i < tppPath.length; i += 1) {
+      for (let [x, y] of tppPath) {
         for (let h = 0; h < 5; h += 1) {
-          Pather.moveTo(wpX - tppPath[i][0], wpY - tppPath[i][1]);
+          // todo - these are tkable, handle that
+          Pather.moveTo(wpX - x, wpY - y);
 
-          for (let activate = 0; activate < tppID.length; activate += 1) {
-            let telepad = Game.getObject(tppID[activate]);
+          for (let id of tppID) {
+            let telepad = Game.getObject(id);
 
             if (telepad) {
               do {
-                if (Math.abs((telepad.x - (wpX - tppPath[i][0]) + (telepad.y - (wpY - tppPath[i][1])))) <= 0) {
+                if (Math.abs((telepad.x - (wpX - x) + (telepad.y - (wpY - y)))) <= 0) {
                   delay(100 + me.ping);
                   telepad.interact();
                 }
