@@ -696,17 +696,19 @@ const Check = {
   },
 
   broken: function () {
-    let gold = me.gold;
+    const gold = me.gold;
+    const rightArm = me.equipped.get(sdk.body.RightArm);
+    const leftArm = me.equipped.get(sdk.body.LeftArm);
 
     // Almost broken but not quite
-    if (((me.equipped.get(sdk.body.RightArm).durability <= 30 && me.equipped.get(sdk.body.RightArm).durability > 0)
-      || (me.equipped.get(sdk.body.LeftArm).durability <= 30 && me.equipped.get(sdk.body.LeftArm).durability > 0)
+    if (((rightArm.durability <= 30 && rightArm.durability > 0)
+      || (leftArm.durability <= 30 && leftArm.durability > 0)
       && !me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000)) {
       return 1;
     }
 
     // Broken
-    if ((me.equipped.get(sdk.body.RightArm).durability === 0 || me.equipped.get(sdk.body.LeftArm).durability === 0)
+    if ((rightArm.durability === 0 || leftArm.durability === 0)
       && me.charlvl >= 15 && !me.normal && gold < 1000) {
       return 2;
     }
@@ -733,7 +735,7 @@ const Check = {
       return false;
     case meleeChar && !me.normal:
       // check how broke we are - only for melee chars since casters don't care about weapons
-      let wep = items.filter(i => i.isEquipped && i.bodylocation === sdk.body.RightArm).first();
+      let wep = me.equipped.get(sdk.body.RightArm);
       if (!!wep && meleeChar && wep.durabilityPercent === 0) {
         // we are really broke - go back to normal
         msg = " We are broken - lets get some easy gold in normal.";
@@ -826,11 +828,24 @@ const Check = {
 
       break;
     case sdk.difficulty.Nightmare:
-      if ((me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Thul, sdk.items.runes.Ort, sdk.items.runes.Amn]) && Check.currentBuild().caster)
+      if ((me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Thul, sdk.items.runes.Ort, sdk.items.runes.Amn])
+        && Check.currentBuild().caster)
         || (!me.paladin && me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have)
-        || (me.paladin && me.haveAll([{ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }, { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.AuricShields }]))
+        || (me.paladin && me.haveAll([
+          {
+            name: sdk.locale.items.Spirit,
+            itemtype: sdk.items.type.Sword
+          },
+          {
+            name: sdk.locale.items.Spirit,
+            itemtype: sdk.items.type.AuricShields
+          }
+        ]))
         || (me.necromancer && me.checkItem({ name: sdk.locale.items.White }).have
-          && (me.checkItem({ name: sdk.locale.items.Rhyme, itemtype: sdk.items.type.VoodooHeads }).have || me.equipped.get(sdk.body.LeftArm).tier > 800))
+          && (
+            me.checkItem({ name: sdk.locale.items.Rhyme, itemtype: sdk.items.type.VoodooHeads }).have
+            || me.equipped.get(sdk.body.LeftArm).tier > 800
+          ))
         || (me.barbarian && (me.checkItem({ name: sdk.locale.items.Lawbringer }).have || me.baal))) {
         needRunes = false;
       }
@@ -847,7 +862,13 @@ const Check = {
     return needRunes;
   },
 
-  // todo: need to finish up adding locale string ids to sdk so I can remove this in favor of better me.checkItem prototype
+  /**
+   * @deprecated Use me.checkItem() instead
+   * @param {number | string} type 
+   * @param {string} [flag] 
+   * @param {string} [iName] 
+   * @returns 
+   */
   haveItem: function (type, flag, iName) {
     let [isClassID, itemCHECK, typeCHECK] = [false, false, false];
 
@@ -888,21 +909,25 @@ const Check = {
       });
     }
 
-    for (let i = 0; i < items.length; i++) {
+    const quality = (flag === "Set" || flag === "Unique" || flag === "Crafted")
+      ? sdk.items.quality[flag]
+      : undefined;
+
+    for (let item of items) {
       switch (flag) {
       case "Set":
       case "Unique":
       case "Crafted":
-        itemCHECK = !!(items[i].quality === sdk.items.quality[flag]) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
+        itemCHECK = !!(item.quality === quality) && (iName ? item.fname.toLowerCase().includes(iName) : true);
         break;
       case "Runeword":
-        itemCHECK = !!(items[i].isRuneword) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
+        itemCHECK = !!(item.isRuneword) && (iName ? item.fname.toLowerCase().includes(iName) : true);
         break;
       }
 
       // don't waste time if first condition wasn't met
       if (itemCHECK && typeof type === "number") {
-        typeCHECK = isClassID ? items[i].classid === type : items[i].itemType === type;
+        typeCHECK = isClassID ? item.classid === type : item.itemType === type;
       }
 
       if (itemCHECK && typeCHECK) {
@@ -941,54 +966,20 @@ const Check = {
           && getBaseStat("items", item.classid, "gemsockets") > 0;
       });
 
-    for (let i = 0; i < items.length; i++) {
-      itemCHECK = !!(items[i].quality === quality) && (iName ? items[i].fname.toLowerCase().includes(iName) : true);
+    for (let item of items) {
+      itemCHECK = !!(item.quality === quality) && (iName ? item.fname.toLowerCase().includes(iName) : true);
 
       // don't waste time if first condition wasn't met
-      itemCHECK && (typeCHECK = isClassID ? items[i].classid === type : items[i].itemType === type);
+      itemCHECK && (typeCHECK = isClassID ? item.classid === type : item.itemType === type);
 
       if (itemCHECK && typeCHECK) {
-        if (!socketableCHECK && items[i].getItemsEx().length === 0) {
+        if (!socketableCHECK && item.getItemsEx().length === 0) {
           return true;
         } else if (socketableCHECK) {
-          SoloWants.addToList(items[i]);
+          SoloWants.addToList(item);
 
           return true;
         }
-      }
-    }
-
-    return false;
-  },
-
-  haveBase: function (type = undefined, sockets = undefined) {
-    if (!type || !sockets) return false;
-    let isClassID = false;
-
-    switch (typeof type) {
-    case "string":
-      typeof type === "string" && (type = type.toLowerCase());
-      if (!NTIPAliasType[type] && !NTIPAliasClassID[type]) return false;
-      isClassID = !!NTIPAliasClassID[type];
-      type = isClassID ? NTIPAliasClassID[type] : NTIPAliasType[type];
-      
-      break;
-    case "number":
-      if (!Object.values(sdk.items.type).includes(type) && !Object.values(sdk.items).includes(type)) return false;
-      isClassID = Object.values(sdk.items).includes(type);
-
-      break;
-    }
-    
-    let items = me.getItemsEx()
-      .filter(function (item) {
-        return item.isBaseType && item.isInStorage && (isClassID ? item.classid === type : item.itemType === type);
-      });
-
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].sockets === sockets
-        && (isClassID ? items[i].classid === type : items[i].itemType === type)) {
-        return true;
       }
     }
 
@@ -1110,7 +1101,9 @@ const Check = {
   usePreviousSocketQuest: function () {
     if (me.classic) return;
     if (!Check.resistance().Status) {
-      if (me.weaponswitch === 0 && me.equipped.get(sdk.body.LeftArm).fname.includes("Lidless Wall") && !me.equipped.get(sdk.body.LeftArm).socketed) {
+      if (me.weaponswitch === 0
+        && me.equipped.get(sdk.body.LeftArm).fname.includes("Lidless Wall")
+        && !me.equipped.get(sdk.body.LeftArm).socketed) {
         if (!me.normal) {
           if (!me.data.normal.socketUsed) goToDifficulty(sdk.difficulty.Normal, " to use socket quest");
           if (me.hell && !me.data.nightmare.socketUsed) goToDifficulty(sdk.difficulty.Nightmare, " to use socket quest");
