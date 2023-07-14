@@ -20,6 +20,8 @@
   includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
   includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
+  const LADDER_ENABLED = (me.ladder || Developer.addLadderRW);
+  
   SetUp.include();
   SetUp.config();
 
@@ -58,7 +60,9 @@
 
   /* Attack configuration. */
   Config.AttackSkill = [-1, 0, 0, 0, 0];
-  Config.LowManaSkill = me.getSkill(sdk.skills.DoubleSwing, sdk.skills.subindex.SoftPoints) >= 9 ? [sdk.skills.DoubleSwing, 0] : [0, -1];
+  Config.LowManaSkill = me.getSkill(sdk.skills.DoubleSwing, sdk.skills.subindex.SoftPoints) >= 9
+    ? [sdk.skills.DoubleSwing, 0]
+    : [0, -1];
   Config.MaxAttackCount = 1000;
   Config.BossPriority = me.normal;
   Config.ClearType = 0;
@@ -68,14 +72,53 @@
   Config.FindItem = true; 		// Use Find Item skill on corpses after clearing.
   Config.FindItemSwitch = false; 	// Switch to non-primary slot when using Find Item skills
 
-  Config.imbueables = [
-    { name: sdk.items.AvengerGuard, condition: () => (me.normal && me.expansion) },
-    { name: sdk.items.SlayerGuard, condition: () => (!me.normal && me.trueStr >= 118 && me.expansion) },
-    { name: sdk.items.CarnageHelm, condition: () => (me.equipped.get(sdk.body.Head).tier < 100000 && me.trueStr >= 106 && me.expansion) },
-    { name: sdk.items.Belt, condition: () => (me.normal && (me.equipped.get(sdk.body.Head).tier > 100000 || me.classic)) },
-    { name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic)) },
-    { name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic)) },
-  ].filter((item) => item.condition());
+  Config.imbueables = (function () {
+    /**
+     * @param {number} name 
+     * @param {function(): boolean} condition 
+     */
+    const _imbueObj = (name, condition) => ({ name: name, condition: condition });
+
+    return [
+      _imbueObj(
+        sdk.items.AvengerGuard,
+        function () {
+          return me.normal && me.expansion;
+        }
+      ),
+      _imbueObj(
+        sdk.items.SlayerGuard,
+        function () {
+          return !me.normal && me.trueStr >= 118 && me.expansion;
+        }
+      ),
+      _imbueObj(
+        sdk.items.CarnageHelm,
+        function () {
+          return me.equipped.get(sdk.body.Head).tier < 100000 && me.trueStr >= 106 && me.expansion;
+        }
+      ),
+      _imbueObj(
+        sdk.items.Belt,
+        function () {
+          return me.normal && (me.equipped.get(sdk.body.Head).tier > 100000 || me.classic);
+        }
+      ),
+      _imbueObj(
+        sdk.items.MeshBelt,
+        function () {
+          return !me.normal && me.charlvl < 46 && me.trueStr > 58
+            && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic);
+        }
+      ),
+      _imbueObj(
+        sdk.items.SpiderwebSash,
+        function () {
+          return !me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic);
+        }
+      ),
+    ].filter((item) => item.condition());
+  })();
 
   let imbueArr = SetUp.imbueItems();
 
@@ -87,34 +130,66 @@
   case sdk.game.gametype.Expansion:
     NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
     const { basicSocketables, addSocketableObj } = require("../Utils/General");
+    
+    /** @param {ItemUnit} item */
+    const honorCheck = function (item) {
+      /** @type {GetOwnedSettings} */
+      const wanted = {
+        itemType: sdk.items.type.Sword,
+        mode: sdk.items.mode.inStorage,
+        sockets: 5,
+        /** @param {ItemUnit} item */
+        cb: function (item) {
+          return item.isBaseType;
+        }
+      };
+      return (item.ilvl >= 41 && item.isBaseType && !item.ethereal
+        && !me.getOwned(wanted).length
+        && !me.checkItem({ name: sdk.locale.items.Honor }).have);
+    };
 
     Config.socketables = Config.socketables.concat(basicSocketables.all);
     Config.socketables.push(addSocketableObj(sdk.items.Flamberge, [], [],
-      true, (item) => me.normal && me.equipped.get(sdk.body.LeftArm).tier < 600 && !Check.haveBase("sword", 5) && !me.checkItem({ name: sdk.locale.items.Honor }).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+      true,
+      /** @param {ItemUnit} item */
+      function (item) {
+        return me.normal && me.equipped.get(sdk.body.LeftArm).tier < 600 && honorCheck(item);
+      }
     ));
     Config.socketables.push(addSocketableObj(sdk.items.Zweihander, [], [],
-      true, (item) => me.equipped.get(sdk.body.LeftArm).tier < 1000 && !Check.haveBase("sword", 5) && !me.checkItem({ name: sdk.locale.items.Honor }).have && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+      true,
+      /** @param {ItemUnit} item */
+      function (item) {
+        return me.equipped.get(sdk.body.LeftArm).tier < 1000 && honorCheck(item);
+      }
     ));
 
     if (SetUp.finalBuild !== "Immortalwhirl") {
-      Config.socketables.push(addSocketableObj(sdk.items.SlayerGuard, [sdk.items.runes.Cham], [sdk.items.gems.Perfect.Ruby],
+      Config.socketables.push(addSocketableObj(sdk.items.SlayerGuard,
+        [sdk.items.runes.Cham], [sdk.items.gems.Perfect.Ruby],
         true, (item) => item.unique && !item.ethereal
       ));
     }
 
     if (["Immortalwhirl", "Singer"].indexOf(SetUp.finalBuild) === -1) {
       // Grief
-      if ((me.ladder || Developer.addLadderRW) && (!me.checkItem({ name: sdk.locale.items.Grief }).have || (SetUp.finalBuild === "Whirlwind" && me.equipped.get(sdk.body.LeftArm).prefixnum !== sdk.locale.items.Grief))) {
+      if (LADDER_ENABLED
+        && (
+          !me.checkItem({ name: sdk.locale.items.Grief }).have
+          || (SetUp.finalBuild === "Whirlwind" && me.equipped.get(sdk.body.LeftArm).prefixnum !== sdk.locale.items.Grief)
+        )) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Grief.js");
       }
 
       // Fortitude
-      if ((me.ladder || Developer.addLadderRW) && SetUp.finalBuild !== "Uberconc" && me.checkItem({ name: sdk.locale.items.Grief }).have && !me.checkItem({ name: sdk.locale.items.Fortitude, itemtype: sdk.items.type.Armor }).have) {
+      if (LADDER_ENABLED && SetUp.finalBuild !== "Uberconc"
+        && me.checkItem({ name: sdk.locale.items.Grief }).have
+        && !me.checkItem({ name: sdk.locale.items.Fortitude, itemtype: sdk.items.type.Armor }).have) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Fortitude.js");
       }
 
       // Doom
-      if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== 20532) {
+      if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== 20532) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercDoom.js");
       }
     }
@@ -142,7 +217,8 @@
       break;
     case "Singer":
       // Heart of the Oak
-      if (me.equipped.get(sdk.body.LeftArm).prefixnum !== sdk.locale.items.HeartoftheOak && me.checkItem({ name: sdk.locale.items.Enigma }).have) {
+      if (me.equipped.get(sdk.body.LeftArm).prefixnum !== sdk.locale.items.HeartoftheOak
+        && me.checkItem({ name: sdk.locale.items.Enigma }).have) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/HeartOfTheOak.js");
       }
 
@@ -154,17 +230,20 @@
       break;
     case "Immortalwhirl":
       // Infinity
-      if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
+      if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
       }
 
-      Config.socketables.push(addSocketableObj(sdk.items.AvengerGuard, [sdk.items.runes.Ber], [sdk.items.gems.Perfect.Ruby],
+      Config.socketables.push(addSocketableObj(sdk.items.AvengerGuard,
+        [sdk.items.runes.Ber], [sdk.items.gems.Perfect.Ruby],
         false, (item) => item.set && !item.ethereal
       ));
-      Config.socketables.push(addSocketableObj(sdk.items.OgreMaul, [sdk.items.runes.Shael], [],
+      Config.socketables.push(addSocketableObj(sdk.items.OgreMaul,
+        [sdk.items.runes.Shael], [],
         false, (item) => item.set && !item.ethereal
       ));
-      Config.socketables.push(addSocketableObj(sdk.items.SacredArmor, [sdk.items.runes.Ber], [sdk.items.gems.Perfect.Ruby],
+      Config.socketables.push(addSocketableObj(sdk.items.SacredArmor,
+        [sdk.items.runes.Ber], [sdk.items.gems.Perfect.Ruby],
         true, (item) => item.set && !item.ethereal
       ));
 
@@ -179,11 +258,15 @@
 
     /* Crafting */
     if (me.equipped.get(sdk.body.Neck).tier < 100000) {
-      Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Amulet]) : Config.Recipes.push([Recipe.Blood.Amulet]);
+      Check.currentBuild().caster
+        ? Config.Recipes.push([Recipe.Caster.Amulet])
+        : Config.Recipes.push([Recipe.Blood.Amulet]);
     }
 
     if (me.equipped.get(sdk.body.RingLeft).tier < 100000) {
-      Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Ring]) : Config.Recipes.push([Recipe.Blood.Ring]);
+      Check.currentBuild().caster
+        ? Config.Recipes.push([Recipe.Caster.Ring])
+        : Config.Recipes.push([Recipe.Blood.Ring]);
     }
 
     if (me.equipped.get(sdk.body.LeftArm).tier < 1370) {
@@ -260,7 +343,7 @@
     }
 
     // Merc Insight
-    if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
+    if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
     }
 
@@ -270,7 +353,7 @@
     }
 
     // Merc Fortitude
-    if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude) {
+    if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
     }
 
@@ -290,7 +373,11 @@
     }
 
     // Duress
-    if (me.equipped.get(sdk.body.Armor).tier < 600 && (me.checkItem({ name: sdk.locale.items.CrescentMoon }).have || me.equipped.get(sdk.body.LeftArm).tier > 900)) {
+    if (me.equipped.get(sdk.body.Armor).tier < 600
+      && (
+        me.checkItem({ name: sdk.locale.items.CrescentMoon }).have
+        || me.equipped.get(sdk.body.LeftArm).tier > 900
+      )) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Duress.js");
     }
 
@@ -310,7 +397,7 @@
     }
 
     // Spirit Sword
-    if ((me.ladder || Developer.addLadderRW) && me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit) {
+    if (LADDER_ENABLED && me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
     }
 

@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const Enigma = [
     "[name] == JahRune",
     "[name] == IthRune # # [maxquantity] == 1",

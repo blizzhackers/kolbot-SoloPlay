@@ -1,4 +1,4 @@
-(function() {
+(function () {
   if (!Check.haveItem("helm", "runeword", "Lore")) {
     const loreRunes = [
       "[name] == OrtRune # # [maxquantity] == 1",

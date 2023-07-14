@@ -1,17 +1,23 @@
-(function() {
+(function () {
+  const _wands = ("[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand)");
+  const _skills = ("[necromancerskills]+[poisonandboneskilltab]+[skillbonespear]+[skillbonespirit]+[skillteeth]+[skillbonewall]+[skillboneprison]+[skillamplifydamage]");
   const white = [
     "[name] == DolRune # # [maxquantity] == 1",
     "[name] == IoRune # # [maxquantity] == 1",
-    "[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand) && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1",
-    "[type] == wand && ([name] != wand && [name] != yewwand && [name] != burntwand) && [quality] == normal # ([necromancerskills]+[poisonandboneskilltab]+[skillbonespear]+[skillbonespirit]+[skillteeth]+[skillbonewall]+[skillboneprison]+[skillamplifydamage]) >= 1 && [sockets] == 0 # [maxquantity] == 1",
+    (_wands + " && [quality] >= normal && [quality] <= superior # [sockets] == 2"),
+    (_wands + " && [quality] == normal # (" + _skills + ") >= 1 && [sockets] == 0 # [maxquantity] == 1"),
   ];
   NTIP.buildList(white);
+
+  // if (me.equipped.get(sdk.body.RightArm).tier < NTIP.MAX_TIER) {
+  //   NTIP.addLine((_wands + " && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1"));
+  // }
 
   // Cube to Io rune
   if (!me.getItem(sdk.items.runes.Io)) {
     Config.Recipes.push([Recipe.Rune, "Hel Rune"]);
   }
-
+  
   Config.Runewords.push([Runeword.White, "bonewand"]);
   Config.Runewords.push([Runeword.White, "grimwand"]);
   Config.Runewords.push([Runeword.White, "petrifiedwand"]);

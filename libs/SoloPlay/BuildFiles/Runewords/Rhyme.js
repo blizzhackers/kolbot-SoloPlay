@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const rhyme = [
     "[name] == ShaelRune # # [maxquantity] == 1",
     "[name] == EthRune # # [maxquantity] == 1",

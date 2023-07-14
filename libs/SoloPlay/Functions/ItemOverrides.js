@@ -31,24 +31,6 @@ Item.helmTypes = [
 
 /**
  * @param {ItemUnit} item 
- * @param {boolean} [skipSameItem] 
- */
-Item.getQuantityOwned = function (item, skipSameItem = false) {
-  if (!item) return 0;
-  
-  return me.getItemsEx()
-    .filter(function (check) {
-      return check.itemType === item.itemType
-        && (!skipSameItem || check.gid !== item.gid)
-        && check.classid === item.classid
-        && check.quality === item.quality
-        && check.sockets === item.sockets
-        && check.isInStorage;
-    }).length;
-};
-
-/**
- * @param {ItemUnit} item 
  */
 Item.hasDependancy = function (item) {
   switch (item.itemType) {

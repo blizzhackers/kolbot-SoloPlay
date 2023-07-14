@@ -20,6 +20,17 @@
     ("(" + mid + ") && [quality] >= normal && [quality] <= superior && [flag] != runeword # [sockets] == 4 # [maxquantity] == 1"),
   ];
 
+  /** @type {GetOwnedSettings} */
+  const wanted = {
+    itemType: sdk.items.type.Polearm,
+    mode: sdk.items.mode.inStorage,
+    sockets: 4,
+    /** @param {ItemUnit} item */
+    cb: function (item) {
+      return item.isBaseType;
+    }
+  };
+
   Config.Recipes.push([Recipe.Socket.Weapon, "giantthresher"]);
   Config.Recipes.push([Recipe.Socket.Weapon, "greatpoleaxe"]);
   Config.Recipes.push([Recipe.Socket.Weapon, "crypticaxe"]);
@@ -42,10 +53,21 @@
     Config.Runewords.push([Runeword.Insight, "scythe"]);
     Config.Runewords.push([Runeword.Insight, "voulge"]);
   }
+
+  let currEquipped = Item.getMercEquipped(sdk.body.RightArm).prefixnum;
   
+  // if (currEquipped === sdk.locale.items.Insight) {
+  //   if (Storage.Stash.UsedSpacePercent() < 75
+  //     || me.haveRunes([sdk.items.runes.Ral, sdk.items.runes.Tir, sdk.items.runes.Tal, sdk.items.runes.Sol])) {
+  //     NTIP.buildList(Insight);
+  //   }
+  // } else {
+  // }
   NTIP.buildList(Insight);
 
-  if (!me.hell && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Insight && !Check.haveBase("polearm", 4)) {
+  if (!me.hell
+    && currEquipped !== sdk.locale.items.Insight
+    && !me.getOwned(wanted).length) {
     NTIP.addLine("[name] == voulge && [flag] != ethereal && [quality] == normal && [level] >= 26 && [level] <= 40 # [sockets] == 0 # [maxquantity] == 1");
   }
 

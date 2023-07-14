@@ -124,6 +124,17 @@ declare global {
 
   type EquippedMap = Map<number, EquippedItem>;
 
+  type GetOwnedSettings = {
+    itemType?: number,
+    classid?: number,
+    mode?: number,
+    quality?: number,
+    sockets?: number,
+    location?: number,
+    ethereal?: boolean,
+    cb?: (item: ItemUnit) => boolean,
+  };
+
   interface MeType {
     readonly maxNearMonsters: number;
     readonly dualWielding: boolean;
@@ -173,14 +184,7 @@ declare global {
     sortInventory(): boolean;
     cleanUpScrolls(tome: ItemUnit, scrollId: number): number;
     update(): void;
-    getOwned(itemInfo: ItemUnit | {
-      itemType?: number,
-      classid?: number,
-      quality?: number,
-      sockets?: number,
-      location?: number,
-      ethereal?: boolean,
-    }): ItemUnit[];
+    getOwned(itemInfo: ItemUnit | GetOwnedSettings): ItemUnit[];
   }
 
   interface Container {

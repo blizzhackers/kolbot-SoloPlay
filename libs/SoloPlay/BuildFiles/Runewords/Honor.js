@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const Honor = [
     "[name] == AmnRune # # [maxquantity] == 1",
     "[name] == ElRune # # [maxquantity] == 1",
@@ -8,6 +8,18 @@
   ];
   NTIP.buildList(Honor);
 
+  /** @type {GetOwnedSettings} */
+  const wanted = {
+    itemType: sdk.items.type.Sword,
+    mode: sdk.items.mode.inStorage,
+    sockets: 4,
+    ethereal: false,
+    /** @param {ItemUnit} item */
+    cb: function (item) {
+      return item.isBaseType;
+    }
+  };
+
   // Cube to Amn rune
   if (!me.getItem(sdk.items.runes.Amn)) {
     Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
@@ -15,7 +27,7 @@
 
   // Have Sol rune before looking for base
   if (me.getItem(sdk.items.runes.Sol)) {
-    if (!Check.haveBase("sword", 5)) {
+    if (!me.getOwned(wanted).length) {
       if (me.accessToAct(5) && !me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.Completed)) {
         NTIP.addLine("((me.diff == 0 && [name] == flamberge) || (me.diff > 0 && [name] == zweihander) || (me.diff == 2 && [name] == colossussword)) && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [level] >= 41 # [sockets] == 0 # [maxquantity] == 1");
       } else {

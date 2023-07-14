@@ -81,7 +81,7 @@ Town.ignoredItemTypes = [
  * @description Start a task and return the NPC Unit
  * @param {string} task 
  * @param {string} reason 
- * @returns {boolean | Unit}
+ * @returns {boolean | NPCUnit}
  */
 Town.initNPC = function (task = "", reason = "undefined") {
   console.info(true, reason, "initNPC");
@@ -232,6 +232,26 @@ Town.initNPC = function (task = "", reason = "undefined") {
   }
 
   return npc;
+};
+
+/**
+* @description Go to a town healer if we are below certain hp/mp percent or have a status effect
+*/
+Town.heal = function () {
+  if (!me.needHealing()) return true;
+  if (me.act === 3
+    && Town.getDistance(Town.tasks.get(me.act).Heal) > 10) {
+    // if we need to repair items as well or stack pots we should go ahead and change act
+    // unless we are already at our intended npc
+    let _needRepair = me.needRepair().length > 0;
+    let _needStack = CharData.pots.get("thawing").need() || CharData.pots.get("antidote").need();
+    let _needMerc = me.needMerc();
+    let _needPotions = me.normal && me.accessToAct(4) && me.needPotions();
+    if (_needRepair || _needStack || _needMerc || _needPotions) {
+      Town.goToTown(me.highestAct >= 4 ? 4 : 1);
+    }
+  }
+  return !!(this.initNPC("Heal", "heal"));
 };
 
 /**
@@ -427,6 +447,19 @@ Town.identify = function () {
     // not in the field but oh well no need to repeat the code
     if (me.fieldID() && !me.getUnids().length) {
       return true;
+    }
+  }
+
+  if (me.act === 3
+    && Town.getDistance(Town.tasks.get(me.act).Shop) > 10) {
+    // if we need to repair items as well or stack pots we should go ahead and change act
+    // unless we are already at our intended npc
+    let _needRepair = me.needRepair().length > 0;
+    let _needStack = CharData.pots.get("thawing").need() || CharData.pots.get("antidote").need();
+    let _needMerc = me.needMerc();
+    let _needPotions = me.normal && me.accessToAct(4) && me.needPotions();
+    if (_needRepair || _needStack || _needMerc || _needPotions) {
+      Town.goToTown(me.highestAct >= 4 ? 4 : 1);
     }
   }
 
@@ -726,19 +759,33 @@ Town.clearInventory = function () {
     ? sell.concat(sellOrDrop)
     : sellOrDrop.slice(0)
   );
-  if (sell.length > 0 && this.initNPC("Shop", "clearInventory")) {
-    sell.forEach(function (item) {
-      try {
-        if (getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) {
-          console.log("clearInventory sell " + item.prettyPrint);
-          Item.logger("Sold", item);
-          item.sell();
-          delay(100);
-        }
-      } catch (e) {
-        console.error(e);
+  if (sell.length > 0) {
+    if (me.act === 3
+      && Town.getDistance(Town.tasks.get(me.act).Shop) > 10) {
+      // if we need to repair items as well or stack pots we should go ahead and change act
+      // unless we are already at our intended npc
+      let _needRepair = me.needRepair().length > 0;
+      let _needStack = CharData.pots.get("thawing").need() || CharData.pots.get("antidote").need();
+      let _needMerc = me.needMerc();
+      let _needPotions = me.normal && me.accessToAct(4) && me.needPotions();
+      if (_needRepair || _needStack || _needMerc || _needPotions) {
+        Town.goToTown(me.highestAct >= 4 ? 4 : 1);
       }
-    });
+    }
+    if (this.initNPC("Shop", "clearInventory")) {
+      sell.forEach(function (item) {
+        try {
+          if (getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) {
+            console.log("clearInventory sell " + item.prettyPrint);
+            Item.logger("Sold", item);
+            item.sell();
+            delay(100);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      });
+    }
   }
 
   Town.sell = [];
@@ -925,9 +972,12 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 
   // Use cainId if we are low on gold or we are closer to him than the shopNPC
   if (me.getUnids().length) {
-    if (me.gold < 5000
-      || Town.getDistance("cain") < Town.getDistance(Town.tasks.get(me.act).Heal)) {
-      NPCAction.cainID(true);
+    // use our id tome if we have it first
+    if (!me.fieldID()) {
+      if (me.gold < 5000
+        || Town.getDistance(NPC.Cain) < Town.getDistance(Town.tasks.get(me.act).Shop)) {
+        NPCAction.cainID(true);
+      }
     }
   }
 
@@ -964,12 +1014,12 @@ Town.doChores = function (repair = false, givenTasks = {}) {
   // check pots again, we might have enough gold now if we didn't before
   me.needPotions() && NPCAction.buyPotions() && me.cancelUIFlags();
   // check repair again, we might have enough gold now if we didn't before
-  me.needRepair() && NPCAction.repair() && me.cancelUIFlags();
+  me.needRepair().length && NPCAction.repair() && me.cancelUIFlags();
 
   me.sortInventory();
   Quest.characterRespec();
 
-  me.act !== preAct && this.goToTown(preAct);
+  me.act !== preAct && Town.goToTown(preAct);
   me.cancelUIFlags();
   !me.barbarian && !Precast.checkCTA() && Precast.doPrecast(false);
   

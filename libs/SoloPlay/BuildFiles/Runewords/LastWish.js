@@ -1,4 +1,4 @@
-(function() {
+(function () {
   // Jah/Mal/Jah/Sur/Jah/Ber
   const LW = [
     "[name] == JahRune",

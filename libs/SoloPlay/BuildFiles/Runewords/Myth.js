@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const Myth = [
     "[name] == HelRune # # [maxquantity] == 1",
     "[name] == AmnRune # # [maxquantity] == 1",

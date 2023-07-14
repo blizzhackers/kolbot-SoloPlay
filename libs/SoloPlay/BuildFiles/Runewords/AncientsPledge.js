@@ -1,4 +1,4 @@
-(function() {
+(function () {
   if (!me.checkItem({ name: sdk.locale.items.AncientsPledge }).have && !me.hell) {
   // Cube to Ort rune
     if (me.normal && !me.getItem(sdk.items.runes.Ort)) {

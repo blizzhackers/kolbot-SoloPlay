@@ -1,5 +1,5 @@
-(function() {
-  if (!Check.haveItem("armor", "runeword", "Smoke") && !me.hell) {
+(function () {
+  if (!me.checkItem({ name: sdk.locale.items.Smoke }).have && !me.hell) {
   // Cube to Lum Rune
     if (!me.getItem(sdk.items.runes.Lum)) {
       Config.Recipes.push([Recipe.Rune, "Io Rune"]);

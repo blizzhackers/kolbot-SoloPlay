@@ -21,6 +21,8 @@
   includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
   includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
+  const LADDER_ENABLED = (me.ladder || Developer.addLadderRW);
+  
   SetUp.include();
   SetUp.config();
 
@@ -92,14 +94,44 @@
   NTIP.buildList(levelingTiers);
   me.expansion && NTIP.buildList(expansionTiers);
 
-  Config.imbueables = [
-    { name: sdk.items.JaredsStone, condition: () => (me.normal && me.expansion) },
-    { name: sdk.items.SwirlingCrystal, condition: () => (!me.normal && me.charlvl < 66 && me.expansion) },
-    { name: sdk.items.DimensionalShard, condition: () => (me.equipped.get(sdk.body.RightArm).tier < 777 && me.expansion) },
-    { name: sdk.items.Belt, condition: () => (me.normal && (me.equipped.get(sdk.body.RightArm).tier > 777 || me.classic)) },
-    { name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (me.equipped.get(sdk.body.RightArm).tier > 777 || me.classic)) },
-    { name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.RightArm).tier > 777 || me.classic)) },
-  ].filter((item) => item.condition());
+  Config.imbueables = (function () {
+    /**
+     * @param {number} name 
+     * @param {function(): boolean} condition 
+     */
+    const _imbueObj = (name, condition) => ({ name: name, condition: condition });
+
+    return [
+      _imbueObj(
+        sdk.items.JaredsStone,
+        () => (me.normal && me.expansion)
+      ),
+      _imbueObj(
+        sdk.items.SwirlingCrystal,
+        () => (!me.normal && me.charlvl < 66 && me.expansion)
+      ),
+      _imbueObj(
+        sdk.items.DimensionalShard,
+        () => (me.equipped.get(sdk.body.RightArm).tier < 777 && me.expansion)
+      ),
+      _imbueObj(
+        sdk.items.Belt,
+        () => (me.normal && (me.equipped.get(sdk.body.RightArm).tier > 777 || me.classic))
+      ),
+      _imbueObj(
+        sdk.items.MeshBelt,
+        () => (!me.normal
+          && me.charlvl < 46
+          && me.trueStr > 58
+          && (me.equipped.get(sdk.body.RightArm).tier > 777 || me.classic)
+        )
+      ),
+      _imbueObj(
+        sdk.items.SpiderwebSash,
+        () => (!me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.RightArm).tier > 777 || me.classic))
+      ),
+    ].filter((item) => item.condition());
+  })();
 
   let imbueArr = SetUp.imbueItems();
 
@@ -108,7 +140,9 @@
   switch (me.gametype) {
   case sdk.game.gametype.Classic:
     // Res shield
-    if ((me.equipped.get(sdk.body.LeftArm).tier < 487 && !me.equipped.get(sdk.body.RightArm).twoHanded) || (me.equipped.get(sdk.body.RightArm).tier < 487 && me.equipped.get(sdk.body.RightArm).twoHanded)) {
+    if ((me.equipped.get(sdk.body.LeftArm).tier < 487
+      && !me.equipped.get(sdk.body.RightArm).twoHanded)
+      || (me.equipped.get(sdk.body.RightArm).tier < 487 && me.equipped.get(sdk.body.RightArm).twoHanded)) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
     }
 
@@ -129,7 +163,9 @@
       
       if (!maxedMage) {
         Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
-        ["Blova", "Lightning"].includes(SetUp.finalBuild) && Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
+        if (["Blova", "Lightning"].includes(SetUp.finalBuild)) {
+          Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
+        }
       }
     }
 
@@ -140,12 +176,14 @@
     case "Blova":
     case "Lightning":
       // Infinity
-      if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
+      if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
       }
 
       // Spirit Shield
-      if ((me.ladder || Developer.addLadderRW) && SetUp.currentBuild === SetUp.finalBuild && (me.equipped.get(sdk.body.LeftArm).tier < 1000 || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
+      if (LADDER_ENABLED && SetUp.currentBuild === SetUp.finalBuild
+        && (me.equipped.get(sdk.body.LeftArm).tier < 1000
+        || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
       }
 
@@ -160,9 +198,24 @@
       }
 
       Config.socketables.push(addSocketableObj(sdk.items.Monarch, [], [],
-        !me.hell, (item) => !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+        !me.hell,
+        /** @param {ItemUnit} item */
+        function (item) {
+          /** @type {GetOwnedSettings} */
+          const wanted = {
+            classid: sdk.items.Monarch,
+            mode: sdk.items.mode.inStorage,
+            sockets: 4,
+            /** @param {ItemUnit} item */
+            cb: function (item) {
+              return item.isBaseType;
+            }
+          };
+          return !me.getOwned(wanted).length && item.ilvl >= 41 && item.isBaseType && !item.ethereal;
+        }
       ));
-      Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+      Config.socketables.push(addSocketableObj(sdk.items.Shako,
+        [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
         true, (item) => item.unique && !item.ethereal
       ));
 
@@ -172,10 +225,12 @@
     case "Meteorb":
     case "Cold":
     case "Blizzballer":
-      Config.socketables.push(addSocketableObj(sdk.items.DeathMask, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+      Config.socketables.push(addSocketableObj(sdk.items.DeathMask,
+        [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
         true, (item) => item.set && !item.ethereal
       ));
-      Config.socketables.push(addSocketableObj(sdk.items.LacqueredPlate, [sdk.items.runes.Ber], [sdk.items.gems.Perfect.Ruby],
+      Config.socketables.push(addSocketableObj(sdk.items.LacqueredPlate,
+        [sdk.items.runes.Ber], [sdk.items.gems.Perfect.Ruby],
         true, (item) => item.set && !item.ethereal
       ));
       Config.socketables.push(addSocketableObj(sdk.items.SwirlingCrystal, [sdk.items.runes.Ist], [],
@@ -192,10 +247,13 @@
 
     // Go ahead and keep two P-diamonds prior to finding a moser's unless already using a better shield
     if (!Check.haveItem("shield", "unique", "Moser's Blessed Circle")
-      && !me.haveSome([{ name: sdk.locale.items.Sanctuary }, { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield }])) {
+      && !me.haveSome([
+        { name: sdk.locale.items.Sanctuary },
+        { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield }
+      ])) {
       NTIP.addLine("[name] == perfectdiamond # # [maxquantity] == 2");
 
-      if (Item.getQuantityOwned(me.getItem(sdk.items.gems.Perfect.Diamond)) < 2) {
+      if (me.getOwned({ classid: sdk.items.gems.Perfect.Diamond }).length < 2) {
         Config.Recipes.push([Recipe.Gem, "flawlessdiamond"]);
       }
     }
@@ -203,7 +261,10 @@
     Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
 
     // Sanctuary
-    if (!me.haveSome([{ name: sdk.locale.items.Sanctuary }, { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield }])
+    if (!me.haveSome([
+      { name: sdk.locale.items.Sanctuary },
+      { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield }
+    ])
       && ["Blova", "Lightning"].indexOf(SetUp.currentBuild) === -1) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Sanctuary.js");
     }
@@ -214,12 +275,12 @@
     }
 
     // Spirit Sword
-    if ((me.ladder || Developer.addLadderRW) && me.equipped.get(sdk.body.RightArm).tier < 777) {
+    if (LADDER_ENABLED && me.equipped.get(sdk.body.RightArm).tier < 777) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
     }
 
     // Merc Insight
-    if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
+    if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
     }
 

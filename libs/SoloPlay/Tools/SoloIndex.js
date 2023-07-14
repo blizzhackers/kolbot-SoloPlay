@@ -29,7 +29,7 @@ const SoloIndex = {
     // Act 4
     "izual", "hellforge", "river", "hephasto", "diablo",
     // Act 5
-    "shenk", "savebarby", "anya", "pindle", "ancients", "baal", "a5chests",
+    "shenk", "savebarby", "anya", "pindle", "nith", "ancients", "baal", "a5chests",
   ],
 
   index: {
@@ -60,7 +60,7 @@ const SoloIndex = {
     "den": {
       skipIf: function () {
         /* xp is bad in den so only run it once we can blast through*/
-        return me.den || (me.charlvl > 8 && me.charlvl < 12);
+        return me.den || (me.charlvl > 8 && me.charlvl < (me.sorceress ? 18 : 12));
       },
       shouldRun: function () {
         if (this.skipIf()) return false;
@@ -226,6 +226,8 @@ const SoloIndex = {
       skipIf: function () {
         if (me.charlvl < 11) return true;
         if (!me.andariel) return false;
+        // nith gives better xp/min at this point
+        if (me.nightmare && me.sorceress && me.anya) return true;
         if (me.hell && me.amazon && SetUp.currentBuild !== SetUp.finalBuild) return true;
         return false;
       },
@@ -548,6 +550,9 @@ const SoloIndex = {
         return (me.accessToAct(3) && me.travincal);
       },
       skipIf: function () {
+        if (!me.mephisto) return false;
+        // nith gives better xp/min at this point
+        if (me.nightmare && me.sorceress && me.anya) return true;
         return false;
       },
       shouldRun: function () {
@@ -723,6 +728,18 @@ const SoloIndex = {
       },
       skipIf: function () {
         return false;
+      },
+      shouldRun: function () {
+        if (!this.preReq() || this.skipIf()) return false;
+        return true;
+      }
+    },
+    "nith": {
+      preReq: function () {
+        return (me.expansion && me.accessToAct(5) && me.anya);
+      },
+      skipIf: function () {
+        return !me.nightmare || !Pather.canTeleport();
       },
       shouldRun: function () {
         if (!this.preReq() || this.skipIf()) return false;

@@ -453,8 +453,12 @@ includeIfNotIncluded("core/Item.js");
 
     const defenseScoreCheck = function (base, itemToCheck) {
       let [defScoreBase, defScoreItem] = [defenseScore(base), defenseScore(itemToCheck)];
-      verbose && console.log("ÿc9betterThanStashedÿc0 :: BaseScore: ", defScoreBase, " itemToCheckScore: ", defScoreItem);
-      if (defScoreBase.def > defScoreItem.def || (defScoreBase.def === defScoreItem.def && (defScoreBase.eDef > defScoreItem.eDef || base.ilvl > itemToCheck.ilvl))) {
+      if (verbose) {
+        console.log("ÿc9betterThanStashedÿc0 :: BaseScore: ", defScoreBase, " itemToCheckScore: ", defScoreItem);
+      }
+      if (defScoreBase.def > defScoreItem.def
+        || (defScoreBase.def === defScoreItem.def
+        && (defScoreBase.eDef > defScoreItem.eDef || base.ilvl > itemToCheck.ilvl))) {
         return true;
       }
       return false;
@@ -462,11 +466,14 @@ includeIfNotIncluded("core/Item.js");
 
     const damageScoreCheck = function (base, itemToCheck) {
       let [gScoreBase, gScoreCheck] = [generalScore(base), generalScore(itemToCheck)];
-      verbose && console.log("ÿc9betterThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemToCheck));
+      if (verbose) {
+        console.log("ÿc9betterThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemToCheck));
+      }
       switch (true) {
       case (gScoreBase > gScoreCheck || (gScoreBase === gScoreCheck && base.ilvl > itemToCheck.ilvl)):
-      case (me.barbarian && (gScoreBase === gScoreCheck && Item.getQuantityOwned(base) < 2)):
-      case (me.assassin && !Check.currentBuild().caster && (gScoreBase === gScoreCheck && Item.getQuantityOwned(base) < 2)):
+      case (me.barbarian && (gScoreBase === gScoreCheck && me.getOwned(base).length < 2)):
+      case (me.assassin && !Check.currentBuild().caster
+        && (gScoreBase === gScoreCheck && me.getOwned(base).length < 2)):
         return true;
       }
       return false;

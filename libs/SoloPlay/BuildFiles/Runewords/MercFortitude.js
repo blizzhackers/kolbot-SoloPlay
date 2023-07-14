@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const fort = [
     "[name] == ElRune # # [maxquantity] == 1",
     "[name] == SolRune # # [maxquantity] == 1",

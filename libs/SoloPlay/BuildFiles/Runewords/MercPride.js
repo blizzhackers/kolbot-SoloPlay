@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const Pride = [
     "[name] == ChamRune",
     "[name] == SurRune",
