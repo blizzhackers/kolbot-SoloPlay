@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const VoiceofReason = [
     "[name] == LemRune",
     "[name] == KoRune",

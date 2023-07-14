@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const CTA = [
     "[name] == AmnRune # # [maxquantity] == 1",
     "[name] == RalRune # # [maxquantity] == 1",
@@ -8,12 +8,25 @@
   ];
   NTIP.buildList(CTA);
 
+  /** @type {GetOwnedSettings} */
+  const wanted = {
+    classid: sdk.items.CrystalSword,
+    mode: sdk.items.mode.inStorage,
+    sockets: 6,
+    /** @param {ItemUnit} item */
+    cb: function (item) {
+      return item.isBaseType;
+    }
+  };
+
   // Have Ohm before collecting base
   if (me.getItem(sdk.items.runes.Ohm)) {
     NTIP.addLine("[name] == crystalsword && [quality] >= normal && [quality] <= superior # [sockets] == 5 # [maxquantity] == 1");
 
     // Have Ohm+Mal+Ist rune but do not have a base yet
-    if (me.getItem(sdk.items.runes.Ist) && me.getItem(sdk.items.runes.Mal) && !Check.haveBase("crystalsword", 5)) {
+    if (me.getItem(sdk.items.runes.Ist)
+      && me.getItem(sdk.items.runes.Mal)
+      && !me.getOwned(wanted).length) {
       NTIP.addLine("[name] == crystalsword && [quality] == normal # [sockets] == 0 # [maxquantity] == 1");
       Config.Recipes.push([Recipe.Socket.Weapon, "crystalsword"]);
     }
@@ -33,7 +46,8 @@
     Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
     Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
 
-    if (me.checkItem({ name: sdk.locale.items.HeartoftheOak }).have || ["Zealer", "Smiter", "Auradin", "Meteorb", "Blizzballer", "Cold"].includes(SetUp.finalBuild)) {
+    if (me.checkItem({ name: sdk.locale.items.HeartoftheOak }).have
+      || ["Zealer", "Smiter", "Auradin", "Meteorb", "Blizzballer", "Cold"].includes(SetUp.finalBuild)) {
       Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
     }
   }

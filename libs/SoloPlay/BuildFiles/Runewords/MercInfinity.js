@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const Inf = [
     "[name] == BerRune",
     "[name] == MalRune",

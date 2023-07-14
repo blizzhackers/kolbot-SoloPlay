@@ -1,16 +1,20 @@
-(function() {
+(function () {
   const Steel = [
     "[name] == TirRune # # [maxquantity] == 2",
     "[name] == ElRune # # [maxquantity] == 2",
   ];
   NTIP.buildList(Steel);
+  const leftArmTier = me.equipped.get(sdk.body.LeftArm).tier;
+  const commonType = "[type] == sword && [flag] != ethereal";
+  const commonQuality = "[quality] >= normal && [quality] <= superior";
+  const commonStat = "[wsm] <= 10 && [strreq] <= 150";
 
-  if (me.equipped.get(sdk.body.LeftArm).tier < 500 && me.equipped.get(sdk.body.LeftArm).tier > 395) {
-    NTIP.addLine("[type] == sword && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [wsm] <= 10 && [strreq] <= 150 && [class] == elite # [sockets] == 2 # [maxquantity] == 1");
-  } else if (me.equipped.get(sdk.body.LeftArm).tier < 500 && me.equipped.get(sdk.body.LeftArm).tier > 278) {
-    NTIP.addLine("[type] == sword && [flag] != ethereal && [quality] >= normal && [quality] <= superior && [wsm] <= 10 && [strreq] <= 150 && [class] > normal # [sockets] == 2 # [maxquantity] == 1");
+  if (leftArmTier < 500 && leftArmTier > 395) {
+    NTIP.addLine(commonType + " && " + commonQuality + " && " + commonStat + " && [class] == elite # [sockets] == 2 # [maxquantity] == 1");
+  } else if (leftArmTier < 500 && leftArmTier > 278) {
+    NTIP.addLine(commonType + " && " + commonQuality + " && " + commonStat + " && [class] > normal # [sockets] == 2 # [maxquantity] == 1");
   } else {
-    NTIP.addLine("[type] == sword && [flag] != ethereal && [quality] == superior && [wsm] <= 10 && [strreq] <= 150 # [enhanceddamage] >= 10 && [sockets] == 2 # [maxquantity] == 1");
+    NTIP.addLine(commonType + " && [quality] == superior && " + commonStat + " # [enhanceddamage] >= 10 && [sockets] == 2 # [maxquantity] == 1");
   }
 
   Config.Runewords.push([Runeword.Steel, "shortsword"]);

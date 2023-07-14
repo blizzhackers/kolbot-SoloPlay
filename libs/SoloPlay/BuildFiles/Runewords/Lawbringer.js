@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const Lawbringer = [
     "[name] == AmnRune # # [maxquantity] == 1",
     "[name] == LemRune",

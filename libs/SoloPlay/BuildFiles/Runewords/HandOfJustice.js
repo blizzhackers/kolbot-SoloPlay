@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const HoJ = [
     "[name] == SurRune",
     "[name] == ChamRune",

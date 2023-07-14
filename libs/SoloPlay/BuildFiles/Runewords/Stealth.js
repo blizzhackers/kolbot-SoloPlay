@@ -1,5 +1,5 @@
-(function() {
-  if (!Check.haveItem("armor", "runeword", "Stealth") && me.normal) {
+(function () {
+  if (!me.checkItem({ name: sdk.locale.items.Stealth }).have && me.normal) {
     const stealthRunes = [
       "[name] == TalRune # # [maxquantity] == 1",
       "[name] == EthRune # # [maxquantity] == 1",

@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const CoH = [
     "[name] == DolRune # # [maxquantity] == 1",
     "[name] == UmRune",
@@ -6,6 +6,19 @@
     "[name] == IstRune",
   ];
   NTIP.buildList(CoH);
+
+  /** @type {GetOwnedSettings} */
+  const wanted = {
+    itemType: sdk.items.type.Armor,
+    mode: sdk.items.mode.inStorage,
+    sockets: 4,
+    ethereal: false,
+    /** @param {ItemUnit} item */
+    cb: function (item) {
+      return item.isBaseType
+        && [sdk.items.ArchonPlate, sdk.items.DuskShroud, sdk.items.Wyrmhide].includes(item.classid);
+    }
+  };
 
   // Cube to Ber rune
   if (!me.getItem(sdk.items.runes.Ber)) {
@@ -32,7 +45,7 @@
 
   // Have Ber rune before looking for normal base
   if (me.getItem(sdk.items.runes.Ber)) {
-    if (!Check.haveBase("armor", 4)) {
+    if (!me.getOwned(wanted).length) {
       NTIP.addLine("([name] == archonplate || [name] == duskshroud || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 0 # [maxquantity] == 1");
     }
 

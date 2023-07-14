@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const DreamHelm = [
     "[name] == IoRune # # [maxquantity] == 1",
     "[name] == JahRune",

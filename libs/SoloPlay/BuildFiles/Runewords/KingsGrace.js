@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const KingsGrace = [
     "[name] == AmnRune # # [maxquantity] == 1",
     "[name] == RalRune # # [maxquantity] == 1",

@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const Chaos = [
     "[name] == FalRune # # [maxquantity] == 1",
     "[name] == OhmRune",

@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const DreamShield = [
     "[name] == IoRune # # [maxquantity] == 1",
     "[name] == JahRune",
@@ -7,7 +7,18 @@
   ];
   NTIP.buildList(DreamShield);
 
-  if (!Check.haveBase("sacredtarge", 3)) {
+  /** @type {GetOwnedSettings} */
+  const wanted = {
+    classid: sdk.items.SacredTarge,
+    mode: sdk.items.mode.inStorage,
+    sockets: 3,
+    /** @param {ItemUnit} item */
+    cb: function (item) {
+      return item.isBaseType;
+    }
+  };
+
+  if (!me.getOwned(wanted).length) {
     NTIP.addLine("[name] == sacredtarge && [flag] != ethereal && [quality] == normal # [fireresist] >= 45 && [sockets] == 0 # [maxquantity] == 1");
   }
 
