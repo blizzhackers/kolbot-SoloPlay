@@ -33,8 +33,8 @@
   if (me.equipped.get(sdk.body.Neck).tier < 100000) {
     Config.GambleItems.push("Amulet");
   }
-  if (me.equipped.get(sdk.body.LeftRing).tier < 100000
-    || me.equipped.get(sdk.body.RightRing).tier < 100000) {
+  if (me.equipped.get(sdk.body.RingLeft).tier < 100000
+    || me.equipped.get(sdk.body.RingRight).tier < 100000) {
     Config.GambleItems.push("Ring");
   }
   // Config.GambleItems.push("Circlet");

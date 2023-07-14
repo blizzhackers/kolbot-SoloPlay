@@ -34,8 +34,8 @@
   if (me.equipped.get(sdk.body.Neck).tier < 100000) {
     Config.GambleItems.push("Amulet");
   }
-  if (me.equipped.get(sdk.body.LeftRing).tier < 100000
-    || me.equipped.get(sdk.body.RightRing).tier < 100000) {
+  if (me.equipped.get(sdk.body.RingLeft).tier < 100000
+    || me.equipped.get(sdk.body.RingRight).tier < 100000) {
     Config.GambleItems.push("Ring");
   }
   if (me.equipped.get(sdk.body.Head).tier < 100000) {
@@ -198,7 +198,8 @@
         ));
       }
 
-      if ((SetUp.finalBuild === "Faithbowzon") && !me.checkItem({ name: sdk.locale.items.Faith, classid: sdk.items.GrandMatronBow }).have) {
+      if ((SetUp.finalBuild === "Faithbowzon")
+        && !me.checkItem({ name: sdk.locale.items.Faith, classid: sdk.items.GrandMatronBow }).have) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Faith.js");
       }
         
