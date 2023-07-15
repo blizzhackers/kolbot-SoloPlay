@@ -234,18 +234,130 @@
     "zoo", "zoology",
   ];
 
+  const getGlobalCharacter = function () {
+    const SaveLocation = "logs/Kolbot-SoloPlay/GlobalCharacter.json";
+    const Character = (Developer.GlobalSettings.Name);
+
+    const CharData = {
+      GlobalData: { Character_Name: "", Number: 0 },
+
+      // Create a new Json file.
+      create: function () {
+        FileTools.writeText(SaveLocation, JSON.stringify(this.GlobalData));
+      },
+
+      // Read data from the Json file and return the data object.
+      read: function () {
+        return JSON.parse(FileTools.readText(SaveLocation));
+      },
+
+      // Read data from the Json file and return the name info.
+      readName: function () {
+        return JSON.parse(FileTools.readText(SaveLocation)).Character_Name;
+      },
+
+      // Write a data object to the Json file.
+      write: function (obj) {
+        FileTools.writeText(SaveLocation, JSON.stringify(obj));
+      },
+
+      // Set next character name - increase alphabet in the Json file.
+      nextChar: function () {
+        let letter = "";
+        let alphabet = "abcdefghijklmnopqrstuvwxyz";
+        let obj = this.read();
+        let num = obj.Number.toString();
+
+        if (obj.Number > 25) {
+          obj.Number = 0;
+        }
+
+        for (let i = 0; i < num.length; i += 1) {
+          letter += alphabet[parseInt(num[i], 10)];
+        }
+
+        letter += alphabet[obj.Number];
+        obj.Number = obj.Number + 1;
+        obj.Character_Name = Character + letter;
+        this.write(Object.assign(this.GlobalData, { Number: obj.Number, Character_Name: obj.Character_Name }));
+
+        return obj.Character_Name;
+      },
+
+      createFolder: function () {
+        const folderPath = "logs/Kolbot-SoloPlay";
+        if (!FileTools.exists(folderPath)) {
+          print(sdk.colors.DarkGreen + "Global Settings" + sdk.colors.White + " :: " + sdk.colors.Blue + "Creating Kolbot-SoloPlay Folder.");
+          dopen("logs").create("Kolbot-SoloPlay");
+        }
+      },
+
+      initialize: function () {
+        // If file exists check for valid info.
+        if (FileTools.exists(SaveLocation)) {
+          try {
+            let jsonObj = this.read();
+
+            // Return filename containing correct info.
+            if (Character && jsonObj.Character_Name && jsonObj.Character_Name.match(Character)) {
+              delay(500);
+              print(sdk.colors.DarkGreen + "Global Settings" + sdk.colors.White + " :: " + sdk.colors.Blue + "Successor In The Alphabetical Sequence.");
+              delay(250);
+              this.nextChar();
+              delay(500);
+
+              return this.readName();
+            }
+                  
+            // File exists but doesn't contain valid info - Remaking .json file.
+            if (Character && jsonObj.Character_Name !== Character) {
+              print(sdk.colors.DarkGreen + "Global Settings" + sdk.colors.White + " :: " + sdk.colors.Red + "Removed The Saved File Location.");
+              FileTools.remove(SaveLocation);
+              delay(800);
+
+              return this.initialize();
+            }
+          } catch (e) {
+            print(e);
+          }
+        } else {
+          // Check to see if main folder exist.
+          this.createFolder();
+          delay(250);
+          // Creating a new .json file.
+          print(sdk.colors.DarkGreen + "Global Settings" + sdk.colors.White + " :: " + sdk.colors.Blue + "Creating New Character Name.");
+          this.create();
+          delay(500);
+          this.nextChar();
+          delay(rand(5000, 10000));
+
+          return this.readName();
+        }
+        return this.create();
+      }
+    };
+
+    print(sdk.colors.DarkGreen + "Initializing " + sdk.colors.White + " :: " + sdk.colors.DarkGreen + "Global Settings.");
+    CharData.initialize();
+
+    return CharData.readName();
+  };
+
   const NameGen = function () {
-    //let random1 = Math.floor(Math.random() * (adjectives.length + 1));
-    let adjective = adjectives[rand(0, adjectives.length - 1)];
-    let list2Limit = 16 - adjective.length;
-    let list2 = nouns.filter(function (element) {
-      return element.length < list2Limit;
-    });
+    if (Developer.GlobalSettings.Enable) return getGlobalCharacter();
+    else {
+      //let random1 = Math.floor(Math.random() * (adjectives.length + 1));
+      let adjective = adjectives[rand(0, adjectives.length - 1)];
+      let list2Limit = 16 - adjective.length;
+      let list2 = nouns.filter(function (element) {
+        return element.length < list2Limit;
+      });
 
-    let noun = list2[rand(0, list2.length - 1)];
-    let namechosen = adjective + noun;
+      let noun = list2[rand(0, list2.length - 1)];
+      let namechosen = adjective + noun;
 
-    return namechosen.toLowerCase();
+      return namechosen.toLowerCase();
+    }
   };
 
   module.exports = NameGen;

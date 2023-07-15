@@ -1065,6 +1065,24 @@ const Check = {
     };
   },
 
+  generateCharacterLog: function () {
+    const folders = [
+      "logs/Kolbot-SoloPlay/Account-List",
+      "logs/Kolbot-SoloPlay/Account-List/" + me.realm,
+      "logs/Kolbot-SoloPlay/Account-List/" + me.realm + "/" + (me.ladder > 0 ? "Ladder" : "Non-Ladder")
+    ];
+
+    for (let folder of folders) {
+      if (!FileTools.exists(folder)) {
+        dopen(folder.split("/").slice(0, -1).join("/")).create(folder.split("/").pop());
+        print(sdk.colors.DarkGreen + "Creating Folders");
+        delay(2500 + me.ping);
+      } else {
+        return; // Exit the function if the folder already exists
+      }
+    }
+  },
+
   checkSpecialCase: function () {
     const questCompleted = (id) => !!Misc.checkQuest(id, sdk.quest.states.ReqComplete);
     let goalReached = false, goal = "";
@@ -1097,12 +1115,16 @@ const Check = {
       const textFile = me.account + "/" + me.charname + "/" + me.charlvl + '\n';
 
       switch (true) {
-      case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.Bumper.enabled):
-      case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.SocketMules.enabled):
-      case (SetUp.finalBuild === "Imbuemule" && Developer.fillAccount.ImbueMules.enabled):      
+      case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.Bumper.Logging):
+      case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.SocketMules.Logging):
+      case (SetUp.finalBuild === "Imbuemule" && Developer.fillAccount.ImbueMules.Logging):
+        this.generateCharacterLog();
         FileTools.appendText(saveLocation, textFile);
         D2Bot.printToConsole("Account & Character Names are saved to: " + saveLocation, sdk.colors.D2Bot.Black);
         delay(1000 + me.ping);
+      case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.Bumper.Enabled):
+      case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.SocketMules.Enabled):
+      case (SetUp.finalBuild === "Imbuemule" && Developer.fillAccount.ImbueMules.Enabled):
         SetUp.makeNext();
 
         break;

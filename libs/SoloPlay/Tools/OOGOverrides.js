@@ -575,34 +575,6 @@ const locations = {};
     if (!FileTools.exists("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName + ".json")) {
       FileTools.writeText("logs/Kolbot-SoloPlay/" + info.realm + "/" + info.charClass + "-" + info.charName + ".json", JSON.stringify(info));
     }
-
-    // Developer Options (BSI)
-    if (Starter.profileInfo.tag === "Bumper" || Starter.profileInfo.tag === "Socketmule" || Starter.profileInfo.tag === "Imbuemule") {
-      // Create Save Folder Location
-      if (FileTools.exists("logs/Kolbot-SoloPlay/Account-List/" + info.realm + "/" + (info.ladder > 0 ? "Ladder" : "Non-Ladder"))) {
-        return;
-      }
-
-      if (!FileTools.exists("logs/Kolbot-SoloPlay")) {
-        folder = dopen("logs");
-        folder.create("Kolbot-SoloPlay");
-      }
-
-      if (!FileTools.exists("logs/Kolbot-SoloPlay/Account-List")) {
-        folder = dopen("logs/Kolbot-SoloPlay");
-        folder.create("Account-List");
-      }
-
-      if (!FileTools.exists("logs/Kolbot-SoloPlay/Account-List/" + info.realm)) {
-        folder = dopen("logs/Kolbot-SoloPlay/Account-List");
-        folder.create(info.realm);
-      }
-
-      if (!FileTools.exists("logs/Kolbot-SoloPlay/Account-List/" + info.realm + "/" + (info.ladder > 0 ? "Ladder" : "Non-Ladder"))) {
-        folder = dopen("logs/Kolbot-SoloPlay/Account-List" + info.realm);
-        folder.create((info.ladder > 0 ? "Ladder" : "Non-Ladder"));
-      }
-    }
   };
 
   ControlAction.loginAccount = function (info) {
@@ -740,6 +712,11 @@ const locations = {};
         this.write(Object.assign(this.GlobalData, { Number: obj.Number, Account: obj.Account }));
 
         return obj.Account;
+      },
+
+      // Used to retrieve the account number for global characters. (Not in use yet)
+      getNumber: function () {
+        return this.read().Number;
       },
 
       createFolder: function () {
@@ -1285,7 +1262,7 @@ const locations = {};
   locations[sdk.game.locations.LobbyPleaseWait] = (loc) => !Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, loc) && Controls.OkCentered.click();
   locations[sdk.game.locations.Lobby] = () => {
     D2Bot.updateStatus("Lobby");
-    ControlAction.saveInfo(Starter.profileInfo || Starter.profileInfo.tag);
+    ControlAction.saveInfo(Starter.profileInfo);
 
     me.blockKeys = false;
 

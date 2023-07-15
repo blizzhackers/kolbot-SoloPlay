@@ -16,6 +16,8 @@ const Developer = {
   GlobalSettings: {
     Account: "", // Set a value for global accounts. MAX Characters 12 plus Suffix Length (Total 15).
     Password: "", // Set a value for global passwords for account generation.
+    Enable: false, // Set to true to use the "Global Character Name" feature.
+    Name: "", // Set a global character name.
   },
   // @desc - set to true if using the PlugY mod - allows use of larger stash
   plugyMode: false,
@@ -41,18 +43,21 @@ const Developer = {
   // @desc - set to true in use with tag Bumper, Socketmule, or Imbuemule to make next character after reaching goal until account is full
   fillAccount: {
     Bumper: {
-      enabled: false,       // Fill account
-      Level: 40,            // Set stop level for bumpers (20 Normal, 40 Nightmare, 60 Hell) (The objective/target must be achieved)
-      Count: 10,            // Number of character to fill on account (MAX 18)
+      Logging: false, // Enable logging of the account and character names in a txt file
+      Enabled: false, // Fill account
+      Level: 40, // Set stop level for bumpers (20 Normal, 40 Nightmare, 60 Hell) (The objective/target must be achieved)
+      Count: 10, // Number of character to fill on account (MAX 18)
     },
     SocketMules: {
-      enabled: false,       // Fill account
-      Count: 18,            // Number of character to create on account (MAX 18)
+      Logging: false, // Enable logging of the account and character names in a txt file
+      Enabled: false, // Fill account
+      Count: 18, // Number of character to create on account (MAX 18)
     },
     ImbueMules: {
-      enabled: false,       // Fill account
-      Level: 30,            // Set stop level for imbueMule (The objective/target must be achieved)
-      Count: 18,            // Number of character to create on account (MAX 18)
+      Logging: false, // Enable logging of the account and character names in a txt file
+      Enabled: false, // Fill account
+      Level: 30, // Set stop level for imbueMule (The objective/target must be achieved)
+      Count: 18, // Number of character to create on account (MAX 18)
     },
   },
   // @desc - stop a profile once it reaches a certain level
