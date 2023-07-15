@@ -20,6 +20,8 @@
   includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
   includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
+  const LADDER_ENABLED = (me.ladder || Developer.addLadderRW);
+  
   SetUp.include();
   SetUp.config();
 
@@ -83,14 +85,53 @@
   Config.SummonSpirit = 0; 	// 0 = disabled, 1 / "Oak Sage", 2 / "Heart of Wolverine", 3 / "Spirit of Barbs"
   Config.SummonAnimal = 0; 	// 0 = disabled, 1 or "Spirit Wolf" = summon spirit wolf, 2 or "Dire Wolf" = summon dire wolf, 3 or "Grizzly" = summon grizzly
 
-  Config.imbueables = [
-    { name: sdk.items.SpiritMask, condition: () => (me.normal) },
-    { name: sdk.items.TotemicMask, condition: () => (!me.normal && me.equipped.get(sdk.body.Head).tier < 100000 && (me.charlvl < 66 || me.trueStr < 118)) },
-    { name: sdk.items.DreamSpirit, condition: () => (me.equipped.get(sdk.body.Head).tier < 100000 && me.trueStr >= 118) },
-    { name: sdk.items.Belt, condition: () => (me.normal && (me.equipped.get(sdk.body.Head).tier > 100000)) },
-    { name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (me.equipped.get(sdk.body.Head).tier > 100000)) },
-    { name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.Head).tier > 100000)) },
-  ].filter((item) => item.condition());
+  Config.imbueables = (function () {
+    /**
+     * @param {number} name 
+     * @param {function(): boolean} condition 
+     */
+    const _imbueObj = (name, condition) => ({ name: name, condition: condition });
+
+    return [
+      _imbueObj(
+        sdk.items.SpiritMask,
+        function () {
+          return me.normal;
+        }
+      ),
+      _imbueObj(
+        sdk.items.TotemicMask,
+        function () {
+          return !me.normal && me.equipped.get(sdk.body.Head).tier < 100000 && (me.charlvl < 66 || me.trueStr < 118);
+        }
+      ),
+      _imbueObj(
+        sdk.items.DreamSpirit,
+        function () {
+          return me.equipped.get(sdk.body.Head).tier < 100000 && me.trueStr >= 118;
+        }
+      ),
+      _imbueObj(
+        sdk.items.Belt,
+        function () {
+          return me.normal && me.equipped.get(sdk.body.Head).tier > 100000;
+        }
+      ),
+      _imbueObj(
+        sdk.items.MeshBelt,
+        function () {
+          return !me.normal && me.charlvl < 46 && me.trueStr > 58
+            && (me.equipped.get(sdk.body.Head).tier > 100000);
+        }
+      ),
+      _imbueObj(
+        sdk.items.SpiderwebSash,
+        function () {
+          return !me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.Head).tier > 100000);
+        }
+      ),
+    ].filter((item) => item.condition());
+  })();
 
   let imbueArr = SetUp.imbueItems();
 
@@ -100,7 +141,21 @@
   
   Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
   Config.socketables.push(addSocketableObj(sdk.items.Monarch, [], [],
-    !me.hell, (item) => !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+    !me.hell,
+    /** @param {ItemUnit} item */
+    function (item) {
+      /** @type {GetOwnedSettings} */
+      const wanted = {
+        classid: sdk.items.Monarch,
+        mode: sdk.items.mode.inStorage,
+        sockets: 4,
+        /** @param {ItemUnit} item */
+        cb: function (item) {
+          return item.isBaseType;
+        }
+      };
+      return !me.getOwned(wanted).length && item.ilvl >= 41 && item.isBaseType && !item.ethereal;
+    }
   ));
   Config.socketables.push(addSocketableObj(sdk.items.TotemicMask, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
     true, (item) => item.unique && !item.ethereal
@@ -116,11 +171,15 @@
 
   /* Crafting */
   if (me.equipped.get(sdk.body.Neck).tier < 100000) {
-    Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Amulet]) : Config.Recipes.push([Recipe.Blood.Amulet]);
+    Check.currentBuild().caster
+      ? Config.Recipes.push([Recipe.Caster.Amulet])
+      : Config.Recipes.push([Recipe.Blood.Amulet]);
   }
 
   if (me.equipped.get(sdk.body.RingLeft).tier < 100000) {
-    Check.currentBuild().caster ? Config.Recipes.push([Recipe.Caster.Ring]) : Config.Recipes.push([Recipe.Blood.Ring]);
+    Check.currentBuild().caster
+      ? Config.Recipes.push([Recipe.Caster.Ring])
+      : Config.Recipes.push([Recipe.Blood.Ring]);
   }
 
   // FinalBuild specific setup
@@ -133,12 +192,13 @@
     }
 
     if (SetUp.finalBuild === "Elemental") {
-      Config.socketables.push(addSocketableObj(sdk.items.SkySpirit, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+      Config.socketables.push(addSocketableObj(sdk.items.SkySpirit,
+        [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
         true, (item) => item.unique && item.getStat(sdk.stats.PassiveFirePierce) === 20 && !item.ethereal
       ));
 
       // Phoenix Shield
-      if ((me.ladder || Developer.addLadderRW) && SetUp.finalBuild === "Elemental" && me.checkItem({ name: sdk.locale.items.Enigma }).have && !me.checkItem({ name: sdk.locale.items.Phoenix, itemtype: sdk.items.type.Shield }).have) {
+      if (LADDER_ENABLED && SetUp.finalBuild === "Elemental" && me.checkItem({ name: sdk.locale.items.Enigma }).have && !me.checkItem({ name: sdk.locale.items.Phoenix, itemtype: sdk.items.type.Shield }).have) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PhoneixShield.js");
       }
     }
@@ -198,17 +258,21 @@
   Check.itemSockables(sdk.items.TotemicMask, "unique", "Jalal's Mane");
 
   // Spirit Sword
-  if ((me.ladder || Developer.addLadderRW) && me.equipped.get(sdk.body.RightArm).tier < 777) {
+  if (LADDER_ENABLED && me.equipped.get(sdk.body.RightArm).tier < 777) {
     includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
   }
 
   // Spirit Shield
-  if ((me.ladder || Developer.addLadderRW) && (me.equipped.get(sdk.body.LeftArm).tier < 1000 || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
+  if (LADDER_ENABLED
+    && (
+      me.equipped.get(sdk.body.LeftArm).tier < 1000
+      || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit
+    )) {
     includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
   }
 
   // Merc Insight
-  if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
+  if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
     includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
   }
 

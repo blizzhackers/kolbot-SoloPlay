@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const Grief = [
     "[name] == EthRune # # [maxquantity] == 1",
     "[name] == TirRune # # [maxquantity] == 1",
@@ -8,10 +8,21 @@
   ];
   NTIP.buildList(Grief);
 
+  /** @type {GetOwnedSettings} */
+  const wanted = {
+    classid: sdk.items.PhaseBlade,
+    mode: sdk.items.mode.inStorage,
+    sockets: 5,
+    /** @param {ItemUnit} item */
+    cb: function (item) {
+      return item.isBaseType;
+    }
+  };
+
   if (me.getItem(sdk.items.runes.Lo)) {
     NTIP.addLine("[name] == phaseblade && [quality] >= normal && [quality] <= superior # [sockets] == 5 # [maxquantity] == 1");
 
-    if (!Check.haveBase("phaseblade", 5)) {
+    if (!me.getOwned(wanted).length) {
       NTIP.addLine("[name] == phaseblade && [quality] == normal # [sockets] == 0 # [maxquantity] == 1");
       Config.Recipes.push([Recipe.Socket.Weapon, "phaseblade"]);
     }
@@ -25,7 +36,8 @@
     Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
     Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
 
-    if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have || ["Smiter", "Zealer"].indexOf(SetUp.finalBuild) === -1) {
+    if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have
+      || ["Smiter", "Zealer"].indexOf(SetUp.finalBuild) === -1) {
       Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
     }
   }
@@ -37,8 +49,8 @@
   }
 
   if (SetUp.finalBuild === "Plaguewolf") {
-  // Only start making Grief after Chains of Honor is made
-    if (Check.haveItem("armor", "runeword", "Chains of Honor")) {
+    // Only start making Grief after Chains of Honor is made
+    if (me.checkItem({ name: sdk.locale.items.ChainsofHonor }).have) {
       Config.Runewords.push([Runeword.Grief, "phaseblade"]);
       Config.KeepRunewords.push("[type] == sword # [ias] >= 30 && [itemdeadlystrike] == 20 && [passivepoispierce] >= 20");
     }

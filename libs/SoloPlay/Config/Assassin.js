@@ -18,6 +18,8 @@
   includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
   includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
+  const LADDER_ENABLED = (me.ladder || Developer.addLadderRW);
+  
   SetUp.include();
   SetUp.config();
 
@@ -28,8 +30,13 @@
   NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
 
   /* Gambling configuration. */
-  Config.GambleItems.push("Amulet");
-  Config.GambleItems.push("Ring");
+  if (me.equipped.get(sdk.body.Neck).tier < 100000) {
+    Config.GambleItems.push("Amulet");
+  }
+  if (me.equipped.get(sdk.body.RingLeft).tier < 100000
+    || me.equipped.get(sdk.body.RingRight).tier < 100000) {
+    Config.GambleItems.push("Ring");
+  }
   // Config.GambleItems.push("Circlet");
   // Config.GambleItems.push("Coronet");
 
@@ -65,8 +72,20 @@
   
   /* Class specific configuration. */
   Config.UseTraps = true;
-  Config.Traps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry];
-  Config.BossTraps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry];
+  Config.Traps = [
+    sdk.skills.LightningSentry,
+    sdk.skills.LightningSentry,
+    sdk.skills.LightningSentry,
+    sdk.skills.DeathSentry,
+    sdk.skills.DeathSentry
+  ];
+  Config.BossTraps = [
+    sdk.skills.LightningSentry,
+    sdk.skills.LightningSentry,
+    sdk.skills.LightningSentry,
+    sdk.skills.LightningSentry,
+    sdk.skills.LightningSentry
+  ];
 
   Config.SummonShadow = me.checkSkill(sdk.skills.ShadowMaster, sdk.skills.subindex.HardPoints) ? "Master" : 0;
   Config.UseFade = me.checkSkill(sdk.skills.Fade, sdk.skills.subindex.HardPoints);
@@ -80,15 +99,53 @@
   Config.DodgeRange = 10;
   Config.DodgeHP = 75;
 
-  Config.imbueables = [
-    { name: sdk.items.Claws, condition: () => (me.normal) },
-    { name: sdk.items.HandScythe, condition: () => (!me.normal && me.equipped.get(sdk.body.RightArm).tier < 777 && (me.trueStr < 79 || me.trueDex < 79)) },
-    { name: sdk.items.GreaterTalons, condition: () => (me.equipped.get(sdk.body.RightArm).tier < 777 && me.trueStr >= 79 && me.trueDex >= 79) },
-    { name: sdk.items.Belt, condition: () => (me.normal && (me.equipped.get(sdk.body.RightArm).tier > 777)) },
-    { name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (me.equipped.get(sdk.body.RightArm).tier > 777)) },
-    { name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.RightArm).tier > 777)) },
-  ].filter((item) => item.condition());
+  Config.imbueables = (function () {
+    /**
+     * @param {number} name 
+     * @param {function(): boolean} condition 
+     */
+    const _imbueObj = (name, condition) => ({ name: name, condition: condition });
 
+    return [
+      _imbueObj(
+        sdk.items.Claws,
+        function () {
+          return me.normal;
+        }
+      ),
+      _imbueObj(
+        sdk.items.HandScythe,
+        function () {
+          return !me.normal && me.equipped.get(sdk.body.RightArm).tier < 777 && (me.trueStr < 79 || me.trueDex < 79);
+        }
+      ),
+      _imbueObj(
+        sdk.items.GreaterTalons,
+        function () {
+          return me.equipped.get(sdk.body.RightArm).tier < 777 && me.trueStr >= 79 && me.trueDex >= 79;
+        }
+      ),
+      _imbueObj(
+        sdk.items.Belt,
+        function () {
+          return me.normal && me.equipped.get(sdk.body.RightArm).tier > 777;
+        }
+      ),
+      _imbueObj(
+        sdk.items.MeshBelt,
+        function () {
+          return !me.normal && me.charlvl < 46 && me.trueStr > 58 && me.equipped.get(sdk.body.RightArm).tier > 777;
+        }
+      ),
+      _imbueObj(
+        sdk.items.SpiderwebSash,
+        function () {
+          return !me.normal && me.trueStr > 50 && me.equipped.get(sdk.body.RightArm).tier > 777;
+        }
+      ),
+    ].filter((item) => item.condition());
+  })();
+  
   let imbueArr = SetUp.imbueItems();
 
   !me.smith && NTIP.buildList(imbueArr);
@@ -97,20 +154,38 @@
   
   Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
   Config.socketables.push(addSocketableObj(sdk.items.Monarch, [], [],
-    !me.hell, (item) => !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+    !me.hell,
+    /** @param {ItemUnit} item */
+    function (item) {
+      /** @type {GetOwnedSettings} */
+      const wanted = {
+        classid: sdk.items.Monarch,
+        mode: sdk.items.mode.inStorage,
+        sockets: 4,
+        /** @param {ItemUnit} item */
+        cb: function (item) {
+          return item.isBaseType;
+        }
+      };
+      return !me.getOwned(wanted).length && item.ilvl >= 41 && item.isBaseType && !item.ethereal;
+    }
   ));
-  Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+  Config.socketables.push(addSocketableObj(
+    sdk.items.Shako,
+    [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
     true, (item) => item.unique && !item.ethereal
   ));
 
   switch (SetUp.finalBuild) {
   case "Whirlsin":
-    Config.socketables.push(addSocketableObj(sdk.items.WingedHelm, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+    Config.socketables.push(addSocketableObj(
+      sdk.items.WingedHelm,
+      [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
       true, (item) => item.unique && !item.ethereal
     ));
     
     // Pride
-    if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Pride) {
+    if ((LADDER_ENABLED) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Pride) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercPride.js");
     }
 
@@ -125,18 +200,20 @@
     }
 
     // Fortitude
-    if ((me.ladder || Developer.addLadderRW) && !me.checkItem({ name: sdk.locale.items.Fortitude, itemtype: sdk.items.type.Armor }).have) {
+    if ((LADDER_ENABLED) && !me.checkItem({ name: sdk.locale.items.Fortitude, itemtype: sdk.items.type.Armor }).have) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Fortitude.js");
     }
 
     break;
   default:
-    Config.socketables.push(addSocketableObj(sdk.items.Demonhead, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+    Config.socketables.push(addSocketableObj(
+      sdk.items.Demonhead,
+      [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
       true, (item) => item.unique && !item.ethereal
     ));
     
     // Infinity
-    if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
+    if ((LADDER_ENABLED) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
     }
 
@@ -171,17 +248,19 @@
   }
 
   // Spirit Sword
-  if ((me.ladder || Developer.addLadderRW) && me.equipped.get(sdk.body.RightArm).tier < 777) {
+  if ((LADDER_ENABLED) && me.equipped.get(sdk.body.RightArm).tier < 777) {
     includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
   }
 
   // Spirit shield
-  if ((me.ladder || Developer.addLadderRW) && (me.equipped.get(sdk.body.LeftArm).tier < 1000 || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
+  if ((LADDER_ENABLED)
+    && (me.equipped.get(sdk.body.LeftArm).tier < 1000
+    || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
     includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
   }
 
   // Merc Insight
-  if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
+  if ((LADDER_ENABLED) && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
     includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
   }
 

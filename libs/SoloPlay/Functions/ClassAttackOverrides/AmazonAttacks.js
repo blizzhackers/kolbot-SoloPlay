@@ -332,7 +332,7 @@ ClassAttack.afterAttack = function () {
     Town.visitTown(true);
   }
 
-  this.lightFuryTick = 0;
+  ClassAttack.lightFuryTick = 0;
 };
 
 /**

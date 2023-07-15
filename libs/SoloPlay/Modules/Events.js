@@ -26,7 +26,7 @@
   };
   // eslint-disable-next-line no-var
   var Events = /** @class */ (function () {
-    function Events() {
+    function Events () {
     }
     // Generic type S to give to EventHandler<S> to typehint this function gets the same this as where the event is registered
     Events.prototype.on = function (key, handler, handlerType) {
@@ -78,7 +78,13 @@
       let onceSet = ((_a = onceHandlers.get(this)) === null || _a === void 0 ? void 0 : _a.get(key));
       let restSet = ((_b = handlers.get(this)) === null || _b === void 0 ? void 0 : _b.get(key));
       // store callbacks in a set to avoid duplicate handlers
-      let callbacks = __spreadArray(__spreadArray([], (onceSet && onceSet.splice(0, onceSet.length) || [])), restSet ? restSet : []);
+      let callbacks = __spreadArray(
+        __spreadArray(
+          [],
+          (onceSet && onceSet.splice(0, onceSet.length) || [])
+        ),
+        restSet ? restSet : []
+      );
       callbacks.forEach(function (el) {
         return el.apply(_this, args);
       });

@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const Exile = [
     "[name] == VexRune",
     "[name] == OhmRune",
@@ -8,7 +8,17 @@
   ];
   NTIP.buildList(Exile);
 
-  if (!Check.haveBase("sacredtarge", 4)) {
+  const wanted = {
+    classid: sdk.items.SacredTarge,
+    mode: sdk.items.mode.inStorage,
+    sockets: 4,
+    /** @param {ItemUnit} item */
+    cb: function (item) {
+      return item.isBaseType;
+    }
+  };
+
+  if (!me.getOwned(wanted).length) {
     NTIP.addLine("[name] == sacredtarge && [quality] == normal && [flag] == ethereal # [fireresist] >= 30 && [sockets] == 0 # [maxquantity] == 1");
   }
 

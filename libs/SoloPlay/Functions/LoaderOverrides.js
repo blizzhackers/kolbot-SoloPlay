@@ -37,72 +37,72 @@ Loader.loadScripts = function () {
 
 Loader.run = function () {
   let updatedDifficulty = Check.nextDifficulty();
+  const _toolsThread = "libs/SoloPlay/Threads/ToolsThread.js";
   if (updatedDifficulty) {
     CharData.updateData("me", "setDifficulty", updatedDifficulty);
     !me.realm && Messaging.sendToScript("D2BotSoloPlay.dbj", "diffChange");
   }
 
   for (this.scriptIndex = 0; this.scriptIndex < SoloIndex.scripts.length; this.scriptIndex++) {
-    !me.inTown && Town.goToTown();
-    Check.checkSpecialCase();
     const scriptName = SoloIndex.scripts[this.scriptIndex];
+    !me.inTown && !Loader.skipTown.includes(scriptName) && Town.goToTown();
+    Check.checkSpecialCase();
+    if (!SoloIndex.index[scriptName]) continue;
+    if (!SoloIndex.index[scriptName].shouldRun()) continue;
 
-    if (SoloIndex.index[scriptName] !== undefined && SoloIndex.index[scriptName].shouldRun()) {
-      let j;
-      let tick;
-      let currentExp;
+    let j;
+    let tick;
+    let currentExp;
 
-      try {
-        includeIfNotIncluded("SoloPlay/Scripts/" + scriptName + ".js");
+    try {
+      includeIfNotIncluded("SoloPlay/Scripts/" + scriptName + ".js");
 
-        tick = getTickCount();
-        currentExp = me.getStat(sdk.stats.Experience);
-        Messaging.sendToScript("libs/SoloPlay/Threads/ToolsThread.js", JSON.stringify({ currScript: scriptName }));
-        DataFile.updateStats("lastScript", scriptName);
+      tick = getTickCount();
+      currentExp = me.getStat(sdk.stats.Experience);
+      Messaging.sendToScript(_toolsThread, JSON.stringify({ currScript: scriptName }));
+      DataFile.updateStats("lastScript", scriptName);
 
-        for (j = 0; j < 5; j += 1) {
-          if (global[scriptName]()) {
-            break;
-          }
-        }
-
-        (j === 5) && myPrint("script " + scriptName + " failed.");
-      } catch (e) {
-        console.error(e);
-        // console.log("ÿc8Kolbot-SoloPlayÿc0: ", e);
-      } finally {
-        SoloIndex.doneList.push(scriptName);
-        // skip logging if we didn't actually finish it
-        if (!SoloIndex.retryList.includes(scriptName) && Developer.logPerformance) {
-          Tracker.script(tick, scriptName, currentExp);
-        }
-        console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Time.format(me.maxgametime));
-        me.maxgametime += (getTickCount() - tick);
-        console.log("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Time.format(me.maxgametime));
-        console.log(
-          "ÿc8Kolbot-SoloPlayÿc0 :: ÿc8" + scriptName
-          + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick)
-        );
-
-        // remove script function from function scope, so it can be cleared by GC
-        if (this.scriptIndex < SoloIndex.scripts.length) {
-          delete global[scriptName];
+      for (j = 0; j < 5; j += 1) {
+        if (global[scriptName]()) {
+          break;
         }
       }
 
-      if (me.sorceress && me.hell && scriptName === "bloodraven" && me.charlvl < 68) {
-        console.info(false, "End-run, we are not ready to keep pushing yet");
-          
-        break;
+      (j === 5) && myPrint("script " + scriptName + " failed.");
+    } catch (e) {
+      console.error(e);
+    } finally {
+      SoloIndex.doneList.push(scriptName);
+      // skip logging if we didn't actually finish it
+      if (!SoloIndex.retryList.includes(scriptName) && Developer.logPerformance) {
+        Tracker.script(tick, scriptName, currentExp);
       }
+      console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Time.format(me.maxgametime));
+      me.maxgametime += (getTickCount() - tick);
+      console.log("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Time.format(me.maxgametime));
+      console.log(
+        "ÿc8Kolbot-SoloPlayÿc0 :: ÿc8" + scriptName
+        + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick)
+      );
 
-      if (me.dead) {
-        // not sure how we got here but we are dead, why did toolsthread not quit lets check it
-        let tThread = getScript("libs/SoloPlay/Threads/ToolsThread.js");
-        if (!tThread || !tThread.running) {
-          // well that explains why, toolsthread seems to have crashed lets restart it so we quit properly
-          load("libs/SoloPlay/Threads/ToolsThread.js");
-        }
+      // remove script function from function scope, so it can be cleared by GC
+      if (this.scriptIndex < SoloIndex.scripts.length) {
+        delete global[scriptName];
+      }
+    }
+
+    if (me.sorceress && me.hell && scriptName === "bloodraven" && me.charlvl < 68) {
+      console.info(false, "End-run, we are not ready to keep pushing yet");
+        
+      break;
+    }
+
+    if (me.dead) {
+      // not sure how we got here but we are dead, why did toolsthread not quit lets check it
+      let tThread = getScript("libs/SoloPlay/Threads/ToolsThread.js");
+      if (!tThread || !tThread.running) {
+        // well that explains why, toolsthread seems to have crashed lets restart it so we quit properly
+        load("libs/SoloPlay/Threads/ToolsThread.js");
       }
     }
   }

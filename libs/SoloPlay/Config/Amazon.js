@@ -20,6 +20,8 @@
   includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
   includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
+  const LADDER_ENABLED = (me.ladder || Developer.addLadderRW);
+
   SetUp.include();
   SetUp.config();
 
@@ -29,11 +31,24 @@
   //	Config.PickitFiles.push("LLD.nip");
 
   /* Gambling configuration. */
-  Config.GambleItems.push("Amulet");
-  Config.GambleItems.push("Ring");
-  Config.GambleItems.push("Circlet");
-  Config.GambleItems.push("Coronet");
+  if (me.equipped.get(sdk.body.Neck).tier < 100000) {
+    Config.GambleItems.push("Amulet");
+  }
+  if (me.equipped.get(sdk.body.RingLeft).tier < 100000
+    || me.equipped.get(sdk.body.RingRight).tier < 100000) {
+    Config.GambleItems.push("Ring");
+  }
+  if (me.equipped.get(sdk.body.Head).tier < 100000) {
+    Config.GambleItems.push("Circlet");
+    Config.GambleItems.push("Coronet");
+  }
 
+  if (me.equipped.get(sdk.body.RightArm).tier < 100000) {
+    Config.GambleItems.push("Javelin");
+    Config.GambleItems.push("Pilum");
+    Config.GambleItems.push("Short Spear");
+    Config.GambleItems.push("Throwing Spear");
+  }
   // AutoEquip setup
   const levelingTiers = [
     // Weapon
@@ -71,25 +86,59 @@
   Config.LightningFuryDelay = 10; // Lightning fury interval in seconds. LF is treated as timed skill.
   Config.SummonValkyrie = true; 	// Summon Valkyrie
 
-  Config.imbueables = [
-    { name: sdk.items.MaidenJavelin, condition: () => me.normal && me.expansion },
-    { name: sdk.items.CeremonialJavelin, condition: () => !me.normal && (me.charlvl < 48 || me.trueStr < 107 || me.trueDex < 151) && me.expansion },
-    { name: sdk.items.MatriarchalJavelin, condition: () => (me.equipped.get(sdk.body.RightArm).tier < 100000 && me.trueStr >= 107 && me.trueDex >= 151 && me.expansion) },
-    { name: sdk.items.Belt, condition: () => (me.normal && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic)) },
-    { name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic)) },
-    { name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic)) },
-  ];
+  Config.imbueables = (function () {
+    /**
+     * @param {number} name 
+     * @param {function(): boolean} condition 
+     */
+    const _imbueObj = (name, condition) => ({ name: name, condition: condition });
+
+    return [
+      _imbueObj(
+        sdk.items.MaidenJavelin,
+        function () {
+          return me.normal && me.expansion;
+        }
+      ),
+      _imbueObj(
+        sdk.items.CeremonialJavelin,
+        function () {
+          return !me.normal && (me.charlvl < 48 || me.trueStr < 107 || me.trueDex < 151) && me.expansion;
+        }
+      ),
+      _imbueObj(
+        sdk.items.MatriarchalJavelin,
+        function () {
+          return me.equipped.get(sdk.body.RightArm).tier < 100000
+            && me.trueStr >= 107 && me.trueDex >= 151 && me.expansion;
+        }
+      ),
+      _imbueObj(
+        sdk.items.Belt,
+        function () {
+          return me.normal && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic);
+        }
+      ),
+      _imbueObj(
+        sdk.items.MeshBelt,
+        function () {
+          return !me.normal && me.charlvl < 46 && me.trueStr > 58
+            && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic);
+        }
+      ),
+      _imbueObj(
+        sdk.items.SpiderwebSash,
+        function () {
+          return !me.normal && me.trueStr > 50
+            && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic);
+        }
+      ),
+    ].filter((item) => item.condition());
+  })();
 
   let imbueArr = SetUp.imbueItems();
 
   !me.smith && NTIP.buildList(imbueArr);
-
-  if (me.equipped.get(sdk.body.RightArm).tier < 100000) {
-    Config.GambleItems.push("Javelin");
-    Config.GambleItems.push("Pilum");
-    Config.GambleItems.push("Short Spear");
-    Config.GambleItems.push("Throwing Spear");
-  }
 
   switch (me.gametype) {
   case sdk.game.gametype.Classic:
@@ -104,10 +153,13 @@
     const { basicSocketables, addSocketableObj } = require("../Utils/General");
 
     Config.socketables = Config.socketables.concat(basicSocketables.all);
-    Config.socketables.push(addSocketableObj(sdk.items.Bill, [], [],
+    Config.socketables.push(addSocketableObj(
+      sdk.items.Bill, [], [],
       me.normal, (item) => item.ilvl >= 26 && item.isBaseType
     ));
-    Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+    Config.socketables.push(addSocketableObj(
+      sdk.items.Shako,
+      [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
       true, (item) => item.unique && !item.ethereal
     ));
 
@@ -129,19 +181,25 @@
     case "Witchyzon":
     case "Faithbowzon":
     case "Wfzon":
-      (["Witchyzon", "Wfzon", "Faithbowzon"].includes(SetUp.currentBuild)) && NTIP.addLine("[type] == bowquiver # # [maxquantity] == 1");
+      if (["Witchyzon", "Wfzon", "Faithbowzon"].includes(SetUp.currentBuild)) {
+        NTIP.addLine("[type] == bowquiver # # [maxquantity] == 1");
+      }
 
       if (SetUp.finalBuild === "Wfzon") {
         if (!Check.haveItem(sdk.items.HydraBow, "unique", "Windforce")) {
           NTIP.addLine("[name] == hydrabow && [quality] == unique # [manaleech] >= 6 # [maxquantity] == 1");
         }
 
-        Config.socketables.push(addSocketableObj(sdk.items.HydraBow, [sdk.items.runes.Shael], [sdk.items.runes.Amn],
-          true, (item) => item.unique
+        Config.socketables.push(addSocketableObj(
+          sdk.items.HydraBow,
+          [sdk.items.runes.Shael], [sdk.items.runes.Amn],
+          true,
+          (item) => item.unique
         ));
       }
 
-      if ((SetUp.finalBuild === "Faithbowzon") && !me.checkItem({ name: sdk.locale.items.Faith, classid: sdk.items.GrandMatronBow }).have) {
+      if ((SetUp.finalBuild === "Faithbowzon")
+        && !me.checkItem({ name: sdk.locale.items.Faith, classid: sdk.items.GrandMatronBow }).have) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Faith.js");
       }
         
@@ -155,17 +213,24 @@
       }
 
       // Spirit shield - while lvling and Wf final switch
-      if ((me.ladder || Developer.addLadderRW) && (me.equipped.get(5).tier < 1000
+      if ((LADDER_ENABLED) && (me.equipped.get(5).tier < 1000
         && (["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1)
         || (SetUp.finalBuild === "Wfzon" && me.equipped.get(12).prefixnum !== sdk.locale.items.Spirit))) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
       }
 
-      Config.socketables.push(addSocketableObj(sdk.items.DiamondBow, [sdk.items.runes.Nef, sdk.items.runes.Shael], [sdk.items.gems.Perfect.Skull],
-        false, (item) => item.unique
+      Config.socketables.push(addSocketableObj(
+        sdk.items.DiamondBow,
+        [sdk.items.runes.Nef, sdk.items.runes.Shael], [sdk.items.gems.Perfect.Skull],
+        false,
+        (item) => item.unique
       ));
-      Config.socketables.push(addSocketableObj(sdk.items.BoneVisage, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
-        true, (item) => item.unique && item.getStat(sdk.stats.LifeLeech) === 8 && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal
+      Config.socketables.push(addSocketableObj(
+        sdk.items.BoneVisage,
+        [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+        true,
+        (item) => (item.unique && item.getStat(sdk.stats.LifeLeech) === 8
+          && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal)
       ));
 
       break;
@@ -180,12 +245,15 @@
       }
 
       // Infinity
-      if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
+      if ((LADDER_ENABLED)
+        && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
       }
 
       // Spirit shield
-      if ((me.ladder || Developer.addLadderRW) && (me.equipped.get(sdk.body.LeftArm).tier < 1000 || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
+      if (LADDER_ENABLED
+        && (me.equipped.get(sdk.body.LeftArm).tier < 1000
+        || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
       }
 
@@ -205,7 +273,7 @@
     }
 
     // Merc Insight
-    if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
+    if ((LADDER_ENABLED) && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
     }
 
@@ -225,7 +293,7 @@
     }
 
     // Merc Doom
-    if ((me.ladder || Developer.addLadderRW) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== 20532 && SetUp.finalBuild !== "Javazon") {
+    if ((LADDER_ENABLED) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== 20532 && SetUp.finalBuild !== "Javazon") {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercDoom.js");
     }
 

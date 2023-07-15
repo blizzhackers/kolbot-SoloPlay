@@ -509,6 +509,43 @@ me.inDanger = function (checkLoc, range) {
  */
 me.checkSkill = (skillId = 0, subId = 0) => !!me.getSkill(skillId, subId);
 
+me.switchToPrimary = function () {
+  if (me.classic) return true;
+  return me.switchWeapons(sdk.player.slot.Main);
+};
+
+me.switchToSecondary = function () {
+  if (me.classic) return true;
+  return me.switchWeapons(sdk.player.slot.Secondary);
+};
+
+/**
+ * @description Check if healing is needed, based on character config
+ * @returns {boolean}
+ */
+me.needHealing = function () {
+  if (me.hpPercent <= Config.HealHP || me.mpPercent <= Config.HealMP) {
+    if (me.hpPercent >= 90 && me.mpPercent >= 90
+      && Town.getDistance(Town.tasks.get(me.act).Heal) > 10) {
+      // it's not convenient to heal right now, and we aren't in danger
+      return false;
+    }
+    return true;
+  }
+  if (!Config.HealStatus) return false;
+  // Status effects
+  return ([
+    sdk.states.Poison,
+    sdk.states.AmplifyDamage,
+    sdk.states.Frozen,
+    sdk.states.Weaken,
+    sdk.states.Decrepify,
+    sdk.states.LowerResist
+  ].some(function (state) {
+    return me.getState(state);
+  }));
+};
+
 me.cleanUpInvoPotions = function (beltSize) {
   beltSize === undefined && (beltSize = Storage.BeltSize());
   const beltMax = (beltSize * 4);
@@ -619,7 +656,7 @@ me.cleanUpScrolls = function (tome, scrollId) {
   return cleanedUp;
 };
 
-me.needPotions = function () {
+me.needBeltPots = function () {
   // we aren't using MinColumn if none of the values are set
   if (!Config.MinColumn.some(el => el > 0)) return false;
   // no hp pots or mp pots in Config.BeltColumn (who uses only rejuv pots?)
@@ -677,6 +714,41 @@ me.needPotions = function () {
   }
 
   return false;
+};
+
+me.needBufferPots = function () {
+  // not using buffers
+  if (Config.HPBuffer < 0 && Config.MPBuffer < 0) return false;
+  
+  // Start
+  if (me.charlvl > 2 && me.gold > 1000) {
+    const pots = { hp: 0, mp: 0, };
+    const beltSize = Storage.BeltSize();
+    
+    // only run this bit if we aren't wearing a belt for now
+    beltSize === 1 && me.cleanUpInvoPotions(beltSize);
+    // now check what's in our belt
+    me.getItemsEx()
+      .filter(function (p) {
+        return p.isInInventory
+          && [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion].includes(p.itemType);
+      })
+      .forEach(function (p) {
+        if (p.itemType === sdk.items.type.HealingPotion) {
+          pots.hp++;
+        } else if (p.itemType === sdk.items.type.ManaPotion) {
+          pots.mp++;
+        }
+      });
+
+    return (pots.mp < Config.MPBuffer || pots.hp < Config.HPBuffer);
+  }
+
+  return false;
+};
+
+me.needPotions = function () {
+  return me.needBeltPots() || me.needBufferPots();
 };
 
 me.clearBelt = function () {
@@ -775,6 +847,7 @@ me.getUnids = function () {
 me.fieldID = function () {
   let list = me.getUnids();
   if (!list) return false;
+  const loc = me.inTown ? "Town" : "Field";
 
   while (list.length > 0) {
     let idTool = me.getIdTool();
@@ -791,7 +864,7 @@ me.fieldID = function () {
       delay(50);
       result = Pickit.checkItem(item);
     }
-    Town.itemResult(item, result, "Field", false);
+    Town.itemResult(item, result, loc, false);
   }
 
   delay(200);
@@ -832,7 +905,8 @@ me.getItemsForRepair = function (repairPercent, chargedItems) {
             let quantity = item.getStat(sdk.stats.Quantity);
 
             // Stat 254 = increased stack size
-            if (typeof quantity === "number" && quantity * 100 / (getBaseStat("items", item.classid, "maxstack") + item.getStat(sdk.stats.ExtraStack)) <= repairPercent) {
+            if (typeof quantity === "number"
+              && quantity * 100 / (getBaseStat("items", item.classid, "maxstack") + item.getStat(sdk.stats.ExtraStack)) <= repairPercent) {
               itemList.push(copyUnit(item));
             }
 
@@ -854,7 +928,8 @@ me.getItemsForRepair = function (repairPercent, chargedItems) {
           if (typeof (charge) === "object") {
             if (charge instanceof Array) {
               for (let i = 0; i < charge.length; i += 1) {
-                if (charge[i] !== undefined && charge[i].hasOwnProperty("charges") && charge[i].charges * 100 / charge[i].maxcharges <= repairPercent) {
+                if (charge[i] !== undefined && charge[i].hasOwnProperty("charges")
+                  && charge[i].charges * 100 / charge[i].maxcharges <= repairPercent) {
                   itemList.push(copyUnit(item));
                 }
               }
@@ -874,6 +949,10 @@ me.needRepair = function () {
   let repairAction = [];
   let bowCheck = Attack.usingBow();
   let switchBowCheck = CharData.skillData.bow.onSwitch;
+  if (getInteractedNPC() && !getUIFlag(sdk.uiflags.Shop)) {
+    // fix crash with d2bs
+    me.cancel();
+  }
   let canAfford = me.gold >= me.getRepairCost();
   !bowCheck && switchBowCheck && (bowCheck = (function () {
     switch (CharData.skillData.bow.bowType) {
@@ -891,10 +970,16 @@ me.needRepair = function () {
     let [quiver, inventoryQuiver] = (function () {
       switch (bowCheck) {
       case "crossbow":
-        return [me.getItem("cqv", sdk.items.mode.Equipped), me.getItem("cqv", sdk.items.mode.inStorage)];
+        return [
+          me.getItem("cqv", sdk.items.mode.Equipped),
+          me.getItem("cqv", sdk.items.mode.inStorage)
+        ];
       case "bow":
       default:
-        return [me.getItem("aqv", sdk.items.mode.Equipped), me.getItem("aqv", sdk.items.mode.inStorage)];
+        return [
+          me.getItem("aqv", sdk.items.mode.Equipped),
+          me.getItem("aqv", sdk.items.mode.inStorage)
+        ];
       }
     })();
 
@@ -905,6 +990,9 @@ me.needRepair = function () {
           ? Item.secondaryEquip(inventoryQuiver, sdk.body.LeftArmSecondary)
           : Item.equip(inventoryQuiver, 5)
         : repairAction.push("buyQuiver") && repairAction.push("buyQuiver");
+      if (me.gold < 200) {
+        return [];
+      }
     } else {
       let quantity = quiver.getStat(sdk.stats.Quantity);
 
@@ -950,4 +1038,64 @@ me.sortInventory = function () {
     SetUp.sortSettings.ItemsSortedFromLeft,
     SetUp.sortSettings.ItemsSortedFromRight
   );
+};
+
+/**
+ * @description Returns boolean if we have all the runes given by itemInfo array
+ * @param {number[]} itemInfo - Array of rune classids
+ * @returns Boolean
+ */
+me.haveRunes = function (itemInfo = []) {
+  if (!Array.isArray(itemInfo) || typeof itemInfo[0] !== "number") return false;
+  let itemList = this.getItemsEx()
+    .filter(i => i.isInStorage && i.itemType === sdk.items.type.Rune);
+  if (!itemList.length || itemList.length < itemInfo.length) return false;
+  const checkedGids = new Set();
+
+  return itemInfo.every(function (rune) {
+    return itemList.some(function (item) {
+      if (item.classid === rune && !checkedGids.has(item.gid)) {
+        checkedGids.add(item.gid);
+        return true;
+      }
+      return false;
+    });
+  });
+};
+
+/**
+ * Get a list of items that match the given criteria.
+ * @param {ItemUnit | {
+ * itemType?: number,
+ * classid?: number,
+ * mode?: number,
+ * quality?: number,
+ * sockets?: number,
+ * location?: number,
+ * ethereal?: boolean,
+ * cb?: (item: ItemUnit) => boolean
+ * }} itemInfo 
+ * @param {boolean} skipSame
+ * @returns {ItemUnit[]}
+ */
+me.getOwned = function (itemInfo = {}, skipSame = false) {
+  let itemList = [];
+  let item = me.getItem();
+
+  if (item) {
+    do {
+      if (itemInfo.itemType !== undefined && itemInfo.itemType !== item.itemType) continue;
+      if (itemInfo.classid !== undefined && itemInfo.classid !== item.classid) continue;
+      if (itemInfo.mode !== undefined && itemInfo.mode !== item.mode) continue;
+      if (itemInfo.quality !== undefined && itemInfo.quality !== item.quality) continue;
+      if (itemInfo.sockets !== undefined && itemInfo.sockets !== item.sockets) continue;
+      if (itemInfo.location !== undefined && itemInfo.location !== item.location) continue;
+      if (itemInfo.ethereal !== undefined && itemInfo.ethereal !== item.ethereal) continue;
+      if (typeof itemInfo.cb === "function" && !itemInfo.cb(item)) continue;
+      if (skipSame && itemInfo.gid !== undefined && itemInfo.gid !== item.gid) continue;
+      itemList.push(copyUnit(item));
+    } while (item.getNext());
+  }
+
+  return itemList;
 };

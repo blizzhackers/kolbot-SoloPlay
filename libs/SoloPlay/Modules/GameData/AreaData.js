@@ -7,7 +7,7 @@
 */
 
 (function (module, require) {
-  const MonsterData = require("../../../core/GameData/MonsterData");
+  const MonsterData = require("./MonsterData");
   const ShrineData = require("../../../core/GameData/ShrineData");
   const QuestData = require("../../../core/GameData/QuestData");
   const MONSTER_KEYS = [
@@ -1000,7 +1000,7 @@
      */
     AreaDataInstance.prototype.hasMonsterType = function (type) {
       return this.Monsters.some(function (monId) {
-        return MonsterData[monId].Type === type;
+        return MonsterData.get(monId).Type === type;
       });
     };
     /**
@@ -1010,7 +1010,7 @@
     AreaDataInstance.prototype.forEachMonster = function (cb) {
       if (typeof cb === "function") {
         this.Monsters.forEach(function (monID) {
-          const _monster = MonsterData[monID];
+          const _monster = MonsterData.get(monID);
           return cb(
             _monster,
             _monster.Rarity * (_monster.GroupCount.Min + _monster.GroupCount.Max) / 2
@@ -1025,13 +1025,13 @@
     AreaDataInstance.prototype.forEachMonsterAndMinion = function (cb) {
       if (typeof cb === "function") {
         this.Monsters.forEach(function (monID) {
-          const _monster = MonsterData[monID];
+          const _monster = MonsterData.get(monID);
           let rarity = _monster.Rarity * (_monster.GroupCount.Min + _monster.GroupCount.Max) / 2;
           cb(_monster, rarity, null);
           _monster.Minions.forEach(function (minionID) {
             // eslint-disable-next-line max-len
             let minionrarity = (_monster.Rarity * (_monster.MinionCount.Min + _monster.MinionCount.Max) / 2 / _monster.Minions.length);
-            cb(MonsterData[minionID], minionrarity, _monster);
+            cb(MonsterData.get(minionID), minionrarity, _monster);
           });
         });
       }

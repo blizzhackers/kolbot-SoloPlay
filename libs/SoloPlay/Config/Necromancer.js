@@ -147,7 +147,21 @@
 
     Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
     Config.socketables.push(addSocketableObj(sdk.items.Monarch, [], [],
-      !me.hell, (item) => !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
+      !me.hell,
+      /** @param {ItemUnit} item */
+      function (item) {
+        /** @type {GetOwnedSettings} */
+        const wanted = {
+          classid: sdk.items.Monarch,
+          mode: sdk.items.mode.inStorage,
+          sockets: 4,
+          /** @param {ItemUnit} item */
+          cb: function (item) {
+            return item.isBaseType;
+          }
+        };
+        return !me.getOwned(wanted).length && item.ilvl >= 41 && item.isBaseType && !item.ethereal;
+      }
     ));
     Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
       true, (item) => item.unique && !item.ethereal

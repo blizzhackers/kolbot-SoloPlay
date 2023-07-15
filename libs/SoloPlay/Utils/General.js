@@ -104,16 +104,42 @@
   // spirit base
   basicSocketables.caster
     .push(addSocketableObj(sdk.items.BroadSword, [], [], true,
-      (item) => me.normal && !Check.haveBase("sword", 4)
-      && !me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have
-      && item.ilvl >= 26 && item.isBaseType && !item.ethereal
+      /** @param {ItemUnit} item */
+      function (item) {
+        /** @type {GetOwnedSettings} */
+        const wanted = {
+          itemType: sdk.items.type.Sword,
+          mode: sdk.items.mode.inStorage,
+          sockets: 4,
+          /** @param {ItemUnit} item */
+          cb: function (item) {
+            return item.isBaseType;
+          }
+        };
+        return me.normal && !me.getOwned(wanted).length
+          && !me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have
+          && item.ilvl >= 26 && item.isBaseType && !item.ethereal;
+      }
     ));
   // spirit base
   basicSocketables.caster
     .push(addSocketableObj(sdk.items.CrystalSword, [], [], true,
-      (item) => me.normal && !Check.haveBase("sword", 4)
-      && !me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have
-    && item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal
+      /** @param {ItemUnit} item */
+      function (item) {
+        /** @type {GetOwnedSettings} */
+        const wanted = {
+          itemType: sdk.items.type.Sword,
+          mode: sdk.items.mode.inStorage,
+          sockets: 4,
+          /** @param {ItemUnit} item */
+          cb: function (item) {
+            return item.isBaseType;
+          }
+        };
+        return me.normal && !me.getOwned(wanted).length
+          && !me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have
+          && item.ilvl >= 26 && item.ilvl <= 40 && item.isBaseType && !item.ethereal;
+      }
     ));
   // Lidless
   basicSocketables.caster

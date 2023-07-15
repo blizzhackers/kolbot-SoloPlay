@@ -442,10 +442,14 @@
       }
 
       return ([
-        sdk.stats.MaxFireResist, sdk.stats.MaxLightResist, sdk.stats.MaxColdResist, sdk.stats.MaxPoisonResist,
-        sdk.stats.AbsorbFire, sdk.stats.AbsorbLight, sdk.stats.AbsorbMagic, sdk.stats.AbsorbCold,
-        sdk.stats.AbsorbFirePercent, sdk.stats.AbsorbLightPercent, sdk.stats.AbsorbMagicPercent, sdk.stats.AbsorbColdPercent,
-        sdk.stats.NormalDamageReduction, sdk.stats.DamageResist, sdk.stats.MagicDamageReduction, sdk.stats.MagicResist
+        sdk.stats.MaxFireResist, sdk.stats.MaxLightResist,
+        sdk.stats.MaxColdResist, sdk.stats.MaxPoisonResist,
+        sdk.stats.AbsorbFire, sdk.stats.AbsorbLight,
+        sdk.stats.AbsorbMagic, sdk.stats.AbsorbCold,
+        sdk.stats.AbsorbFirePercent, sdk.stats.AbsorbLightPercent,
+        sdk.stats.AbsorbMagicPercent, sdk.stats.AbsorbColdPercent,
+        sdk.stats.NormalDamageReduction, sdk.stats.DamageResist,
+        sdk.stats.MagicDamageReduction, sdk.stats.MagicResist
       ].reduce((acc, stat) => acc + item.getStatEx(stat) * _tierWeights.res.get(stat), resistRating));
     };
 
@@ -458,7 +462,8 @@
       if (!buildInfo.caster
         || Config.AttackSkill.includes(sdk.skills.Attack)
         || Config.LowManaSkill.includes(sdk.skills.Attack)
-        || ([sdk.items.type.Bow, sdk.items.type.AmazonBow, sdk.items.type.Crossbow].includes(item.itemType) && CharData.skillData.bow.onSwitch)) {
+        || ([sdk.items.type.Bow, sdk.items.type.AmazonBow, sdk.items.type.Crossbow].includes(item.itemType)
+        && CharData.skillData.bow.onSwitch)) {
         let meleeRating = 0;
         const eleDmgWeight = 0.5;
         const eleDmgModifer = [sdk.items.type.Ring, sdk.items.type.Amulet].includes(item.itemType) ? 2 : 1;
@@ -482,7 +487,9 @@
 
     const skillsScore = function () {
       let skillsRating = [
-        [sdk.stats.AllSkills, -1], [sdk.stats.AddClassSkills, me.classid], [sdk.stats.AddSkillTab, buildInfo.tabSkills],
+        [sdk.stats.AllSkills, -1],
+        [sdk.stats.AddClassSkills, me.classid],
+        [sdk.stats.AddSkillTab, buildInfo.tabSkills],
       ].reduce((acc, [stat, subId]) => acc + item.getStatEx(stat, subId) * _tierWeights.skill.get(stat), 0);
       (!buildInfo.caster && item.getItemType() === "Weapon") && (skillsRating /= 4);
       const _misc = { wanted: 40, useful: 35 };
@@ -597,7 +604,10 @@
   const charmscore = function (item) {
     if (me.data.charmGids.includes(item.gid)) return 1000;
     // depending on invo space it might be worth it early on to keep 1 or 2 non-skiller grandcharms - @todo test that out
-    if (!item.unique && item.classid === sdk.items.GrandCharm && !me.getSkillTabs().some(s => item.getStatEx(sdk.stats.AddSkillTab, s))) return -1;
+    if (!item.unique && item.classid === sdk.items.GrandCharm
+      && !me.getSkillTabs().some(s => item.getStatEx(sdk.stats.AddSkillTab, s))) {
+      return -1;
+    }
     const buildInfo = Check.currentBuild();
   
     let charmRating = 1;

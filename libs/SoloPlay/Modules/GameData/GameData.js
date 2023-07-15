@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-irregular-whitespace */
 /**
@@ -8,47 +9,140 @@
  */
 // todo - remove the magic numbers here
 (function (module, require) {
-  const MonsterData = require("../../../core/GameData/MonsterData");
+  const MonsterData = require("./MonsterData");
   const AreaData = require("./AreaData");
   const MissileData = require("./MissileData");
   const Coords_1 = require("../Coords");
   const sdk = require("../../../modules/sdk");
+  const HPLookup = [
+    ["1", "1", "1"], ["7", "107", "830"],
+    ["9", "113", "852"], ["12", "120", "875"],
+    ["15", "125", "897"], ["17", "132", "920"],
+    ["20", "139", "942"], ["23", "145", "965"],
+    ["27", "152", "987"], ["31", "157", "1010"],
+    ["35", "164", "1032"], ["36", "171", "1055"],
+    ["40", "177", "1077"], ["44", "184", "1100"],
+    ["48", "189", "1122"], ["52", "196", "1145"],
+    ["56", "203", "1167"], ["60", "209", "1190"],
+    ["64", "216", "1212"], ["68", "221", "1235"],
+    ["73", "228", "1257"], ["78", "236", "1280"],
+    ["84", "243", "1302"], ["89", "248", "1325"],
+    ["94", "255", "1347"], ["100", "261", "1370"],
+    ["106", "268", "1392"], ["113", "275", "1415"],
+    ["120", "280", "1437"], ["126", "287", "1460"],
+    ["134", "320", "1482"], ["142", "355", "1505"],
+    ["150", "388", "1527"], ["158", "423", "1550"],
+    ["166", "456", "1572"], ["174", "491", "1595"],
+    ["182", "525", "1617"], ["190", "559", "1640"],
+    ["198", "593", "1662"], ["206", "627", "1685"],
+    ["215", "661", "1707"], ["225", "696", "1730"],
+    ["234", "729", "1752"], ["243", "764", "1775"],
+    ["253", "797", "1797"], ["262", "832", "1820"],
+    ["271", "867", "1842"], ["281", "900", "1865"],
+    ["290", "935", "1887"], ["299", "968", "1910"],
+    ["310", "1003", "1932"], ["321", "1037", "1955"],
+    ["331", "1071", "1977"], ["342", "1105", "2000"],
+    ["352", "1139", "2030"], ["363", "1173", "2075"],
+    ["374", "1208", "2135"], ["384", "1241", "2222"],
+    ["395", "1276", "2308"], ["406", "1309", "2394"],
+    ["418", "1344", "2480"], ["430", "1379", "2567"],
+    ["442", "1412", "2653"], ["454", "1447", "2739"],
+    ["466", "1480", "2825"], ["477", "1515", "2912"],
+    ["489", "1549", "2998"], ["501", "1583", "3084"],
+    ["513", "1617", "3170"], ["525", "1651", "3257"],
+    ["539", "1685", "3343"], ["552", "1720", "3429"],
+    ["565", "1753", "3515"], ["579", "1788", "3602"],
+    ["592", "1821", "3688"], ["605", "1856", "3774"],
+    ["618", "1891", "3860"], ["632", "1924", "3947"],
+    ["645", "1959", "4033"], ["658", "1992", "4119"],
+    ["673", "2027", "4205"], ["688", "2061", "4292"],
+    ["702", "2095", "4378"], ["717", "2129", "4464"],
+    ["732", "2163", "4550"], ["746", "2197", "4637"],
+    ["761", "2232", "4723"], ["775", "2265", "4809"],
+    ["790", "2300", "4895"], ["805", "2333", "4982"],
+    ["821", "2368", "5068"], ["837", "2403", "5154"],
+    ["853", "2436", "5240"], ["868", "2471", "5327"],
+    ["884", "2504", "5413"], ["900", "2539", "5499"],
+    ["916", "2573", "5585"], ["932", "2607", "5672"],
+    ["948", "2641", "5758"], ["964", "2675", "5844"],
+    ["982", "2709", "5930"], ["999", "2744", "6017"],
+    ["1016", "2777", "6103"], ["1033", "2812", "6189"],
+    ["1051", "2845", "6275"], ["1068", "2880", "6362"],
+    ["1085", "2915", "6448"], ["1103", "2948", "6534"],
+    ["1120", "2983", "6620"], ["1137", "3016", "6707"],
+    ["10000", "10000", "10000"]
+  ];
 
+  /** @param {Monster} unit */
   function isAlive (unit) {
     return Boolean(unit && unit.hp);
   }
 
+  /** @param {Monster} unit */
   function isEnemy (unit) {
-    return Boolean(unit && isAlive(unit) && unit.getStat(sdk.stats.Alignment) !== 2 && typeof unit.classid === "number" && MonsterData[unit.classid].Killable);
+    return Boolean(
+      unit && isAlive(unit)
+      && unit.getStat(sdk.stats.Alignment) !== 2
+      && typeof unit.classid === "number"
+      && MonsterData.get(unit.classid).Killable
+    );
   }
 
+  /** @param {ItemUnit} item */
   function onGround (item) {
     return item.onGroundOrDropping;
   }
 
   const GameData = {
     myReference: me,
-    townAreas: [0, 1, 40, 75, 103, 109],
-    HPLookup: [["1", "1", "1"], ["7", "107", "830"], ["9", "113", "852"], ["12", "120", "875"], ["15", "125", "897"], ["17", "132", "920"], ["20", "139", "942"], ["23", "145", "965"], ["27", "152", "987"], ["31", "157", "1010"], ["35", "164", "1032"], ["36", "171", "1055"], ["40", "177", "1077"], ["44", "184", "1100"], ["48", "189", "1122"], ["52", "196", "1145"], ["56", "203", "1167"], ["60", "209", "1190"], ["64", "216", "1212"], ["68", "221", "1235"], ["73", "228", "1257"], ["78", "236", "1280"], ["84", "243", "1302"], ["89", "248", "1325"], ["94", "255", "1347"], ["100", "261", "1370"], ["106", "268", "1392"], ["113", "275", "1415"], ["120", "280", "1437"], ["126", "287", "1460"], ["134", "320", "1482"], ["142", "355", "1505"], ["150", "388", "1527"], ["158", "423", "1550"], ["166", "456", "1572"], ["174", "491", "1595"], ["182", "525", "1617"], ["190", "559", "1640"], ["198", "593", "1662"], ["206", "627", "1685"], ["215", "661", "1707"], ["225", "696", "1730"], ["234", "729", "1752"], ["243", "764", "1775"], ["253", "797", "1797"], ["262", "832", "1820"], ["271", "867", "1842"], ["281", "900", "1865"], ["290", "935", "1887"], ["299", "968", "1910"], ["310", "1003", "1932"], ["321", "1037", "1955"], ["331", "1071", "1977"], ["342", "1105", "2000"], ["352", "1139", "2030"], ["363", "1173", "2075"], ["374", "1208", "2135"], ["384", "1241", "2222"], ["395", "1276", "2308"], ["406", "1309", "2394"], ["418", "1344", "2480"], ["430", "1379", "2567"], ["442", "1412", "2653"], ["454", "1447", "2739"], ["466", "1480", "2825"], ["477", "1515", "2912"], ["489", "1549", "2998"], ["501", "1583", "3084"], ["513", "1617", "3170"], ["525", "1651", "3257"], ["539", "1685", "3343"], ["552", "1720", "3429"], ["565", "1753", "3515"], ["579", "1788", "3602"], ["592", "1821", "3688"], ["605", "1856", "3774"], ["618", "1891", "3860"], ["632", "1924", "3947"], ["645", "1959", "4033"], ["658", "1992", "4119"], ["673", "2027", "4205"], ["688", "2061", "4292"], ["702", "2095", "4378"], ["717", "2129", "4464"], ["732", "2163", "4550"], ["746", "2197", "4637"], ["761", "2232", "4723"], ["775", "2265", "4809"], ["790", "2300", "4895"], ["805", "2333", "4982"], ["821", "2368", "5068"], ["837", "2403", "5154"], ["853", "2436", "5240"], ["868", "2471", "5327"], ["884", "2504", "5413"], ["900", "2539", "5499"], ["916", "2573", "5585"], ["932", "2607", "5672"], ["948", "2641", "5758"], ["964", "2675", "5844"], ["982", "2709", "5930"], ["999", "2744", "6017"], ["1016", "2777", "6103"], ["1033", "2812", "6189"], ["1051", "2845", "6275"], ["1068", "2880", "6362"], ["1085", "2915", "6448"], ["1103", "2948", "6534"], ["1120", "2983", "6620"], ["1137", "3016", "6707"], ["10000", "10000", "10000"]],
+    /**
+     * @param {number} monsterID 
+     * @param {number} areaID 
+     */
     monsterLevel: function (monsterID, areaID) {
       return (me.diff
         ? AreaData.has(areaID) && AreaData.get(areaID).Level
-        : MonsterData.hasOwnProperty(monsterID) && MonsterData[monsterID].Level); // levels on nm/hell are determined by area, not by monster data
+        : MonsterData.has(monsterID) && MonsterData.get(monsterID).Level); // levels on nm/hell are determined by area, not by monster data
     },
+    /**
+     * @param {number} monsterID 
+     * @param {number} areaID 
+     * @param {number} adjustLevel 
+     */
     monsterExp: function (monsterID, areaID, adjustLevel = 0) {
+      const mLvl = this.monsterLevel(monsterID, areaID) + adjustLevel;
+      const { ExperienceModifier } = MonsterData.get(monsterID);
       return Experience.monsterExp[Math.min(
         Experience.monsterExp.length - 1,
-        this.monsterLevel(monsterID, areaID) + adjustLevel
-      )][me.diff] * MonsterData[monsterID].ExperienceModifier / 100;
+        mLvl
+      )][me.diff] * ExperienceModifier / 100;
     },
+    /**
+     * @param {number} monsterID 
+     * @param {number} areaID 
+     */
     eliteExp: function (monsterID, areaID) {
       return this.monsterExp(monsterID, areaID, 2) * 3;
     },
+    /**
+     * @param {number} monsterID 
+     * @param {number} areaID 
+     * @param {number} adjustLevel 
+     */
     monsterAvgHP: function (monsterID, areaID, adjustLevel = 0) {
-      return this.HPLookup[Math.min(this.HPLookup.length - 1, this.monsterLevel(monsterID, areaID) + adjustLevel)][me.diff] * (getBaseStat("monstats", monsterID, "minHP") + getBaseStat("monstats", monsterID, "maxHP")) / 200;
+      const { MinHp, MaxHp } = MonsterData.get(monsterID);
+      const mLvl = this.monsterLevel(monsterID, areaID) + adjustLevel;
+      return HPLookup[Math.min(HPLookup.length - 1, mLvl)][me.diff] * (MinHp + MaxHp) / 200;
     },
+    /**
+     * @param {number} monsterID 
+     * @param {number} areaID 
+     * @param {number} adjustLevel 
+     */
     monsterMaxHP: function (monsterID, areaID, adjustLevel = 0) {
-      return this.HPLookup[Math.min(this.HPLookup.length - 1, this.monsterLevel(monsterID, areaID) + adjustLevel)][me.diff] * getBaseStat("monstats", monsterID, "maxHP") / 100;
+      const mLvl = this.monsterLevel(monsterID, areaID) + adjustLevel;
+      const { MaxHp } = MonsterData.get(monsterID);
+      return HPLookup[Math.min(HPLookup.length - 1, mLvl)][me.diff] * MaxHp / 100;
     },
     eliteAvgHP: function (monsterID, areaID) {
       return (6 - me.diff) / 2 * this.monsterAvgHP(monsterID, areaID, 2);
@@ -58,7 +152,7 @@
     },
     monsterMaxDmg: function (monsterID, areaID, adjustLevel = 0) {
       let level = this.monsterLevel(monsterID, areaID) + adjustLevel;
-      let { Attack1MaxDmg, Attack2MaxDmg, Skill1MaxDmg } = MonsterData[monsterID];
+      let { Attack1MaxDmg, Attack2MaxDmg, Skill1MaxDmg } = MonsterData.get(monsterID);
       return Math.max.apply(
         null, [Attack1MaxDmg, Attack2MaxDmg, Skill1MaxDmg]
       ) * level / 100 * this.monsterDamageModifier();
@@ -66,30 +160,35 @@
     // https://www.diabloii.net/forums/threads/monster-damage-increase-per-player-count.570346/
     monsterAttack1AvgDmg: function (monsterID, areaID, adjustLevel = 0) {
       let level = this.monsterLevel(monsterID, areaID) + adjustLevel;
-      let { Attack1MinDmg, Attack1MaxDmg } = MonsterData[monsterID];
+      let { Attack1MinDmg, Attack1MaxDmg } = MonsterData.get(monsterID);
       return ((Attack1MinDmg + Attack1MaxDmg) / 2) * level / 100 * this.monsterDamageModifier();
     },
     monsterAttack2AvgDmg: function (monsterID, areaID, adjustLevel = 0) {
       let level = this.monsterLevel(monsterID, areaID) + adjustLevel;
-      let { Attack2MinDmg, Attack2MaxDmg } = MonsterData[monsterID];
+      let { Attack2MinDmg, Attack2MaxDmg } = MonsterData.get(monsterID);
       return ((Attack2MinDmg + Attack2MaxDmg) / 2) * level / 100 * this.monsterDamageModifier();
     },
     monsterSkill1AvgDmg: function (monsterID, areaID, adjustLevel = 0) {
       let level = this.monsterLevel(monsterID, areaID) + adjustLevel;
-      let { Skill1MinDmg, Skill1MaxDmg } = MonsterData[monsterID];
+      let { Skill1MinDmg, Skill1MaxDmg } = MonsterData.get(monsterID);
       return ((Skill1MinDmg + Skill1MaxDmg) / 2) * level / 100 * this.monsterDamageModifier();
     },
     monsterAvgDmg: function (monsterID, areaID, adjustLevel = 0) {
       let attack1 = this.monsterAttack1AvgDmg(monsterID, areaID, adjustLevel);
       let attack2 = this.monsterAttack2AvgDmg(monsterID, areaID, adjustLevel);
       let skill1 = this.monsterSkill1AvgDmg(monsterID, areaID, adjustLevel);
-      let dmgs = [attack1, attack2, skill1].filter(x => x > 0);
+      let dmgs = [attack1, attack2, skill1]
+        .filter(function (x) {
+          return x > 0;
+        });
       // ignore 0 dmg to avoid reducing average
       if (!dmgs.length) return 0;
-      return dmgs.reduce((acc, v) => acc + v) / dmgs.length;
+      return dmgs.reduce(function (acc, v) {
+        return acc + v;
+      }, 0) / dmgs.length;
     },
     averagePackSize: function (monsterID) {
-      let { GroupCount, MinionCount } = MonsterData[monsterID];
+      let { GroupCount, MinionCount } = MonsterData.get(monsterID);
       return (GroupCount.Min + MinionCount.Min + GroupCount.Max + MinionCount.Max) / 2;
     },
     areaLevel: function (areaID) {
@@ -114,7 +213,10 @@
         }
       });
 
-      return Object.keys(resists).filter(key => resists[key] >= 100);
+      return Object.keys(resists)
+        .filter(function (key) {
+          return resists[key] >= 100;
+        });
     },
     levelModifier: function (clvl, mlvl) {
       let bonus;
@@ -142,7 +244,8 @@
       return (count + 1) / 2;
     },
     partyModifier: function (playerID) {
-      let party = getParty(GameData.myReference), level = 0, total = 0;
+      let party = getParty(GameData.myReference);
+      let level = 0, total = 0;
       if (!party) return 1;
 
       let partyid = party.partyid;
@@ -160,7 +263,8 @@
       return level / total;
     },
     killExp: function (playerID, monsterID, areaID) {
-      let exp = this.monsterExp(monsterID, areaID), party = getParty(GameData.myReference);
+      let exp = this.monsterExp(monsterID, areaID);
+      let party = getParty(GameData.myReference);
       if (!party) return 0;
 
       let level = 0, total = 0;
@@ -185,10 +289,14 @@
       );
     },
     baseLevel: function (...skillIDs) {
-      return skillIDs.reduce((total, skillID) => total + GameData.myReference.getSkill(skillID, 0), 0);
+      return skillIDs.reduce(function (total, skillID) {
+        return total + GameData.myReference.getSkill(skillID, 0);
+      }, 0);
     },
     skillLevel: function (...skillIDs) {
-      return skillIDs.reduce((total, skillID) => total + GameData.myReference.getSkill(skillID, 1), 0);
+      return skillIDs.reduce(function (total, skillID) {
+        return total + GameData.myReference.getSkill(skillID, 1);
+      }, 0);
     },
     skillCooldown: function (skillID) {
       return getBaseStat("Skills", skillID, "delay") !== -1;
@@ -220,7 +328,6 @@
     },
     damageTypes: ["Physical", "Fire", "Lightning", "Magic", "Cold", "Poison", "?", "?", "?", "Physical"], // 9 is Stun, but stun isn't an element
     synergyCalc: { // TODO: add melee skill damage and synergies - they are poop
-
       // sorc fire spells
       36: [47, 0.16, 56, 0.16],			// fire bolt
       41: [37, 0.13],	// inferno
@@ -323,7 +430,8 @@
       272: 25 / 3
     },
     baseSkillDamage: function (skillID) { // TODO: rework skill damage to use both damage fields
-      let l = this.skillLevel(skillID), m = this.skillMult[skillID] || 1;
+      let l = this.skillLevel(skillID);
+      let m = this.skillMult[skillID] || 1;
       let dmgFields = [
         [
           "MinDam", "MinLevDam1",
@@ -651,7 +759,15 @@
      */
     skillDamage: function (skillID, unit) {
       // TODO: caluclate basic attack damage
-      if (skillID === sdk.skills.Attack) return { type: "Physical", pmin: 2, pmax: 8, min: 0, max: 0 }; // short sword, no reqs
+      if (skillID === sdk.skills.Attack) {
+        return {
+          type: "Physical",
+          pmin: (GameData.myReference.getStat(sdk.stats.MinDamage) || 2),
+          pmax: (GameData.myReference.getStat(sdk.stats.MaxDamage) || 8),
+          min: 0,
+          max: 0
+        }; // short sword, no reqs
+      }
 
       if (this.skillLevel(skillID) < 1) {
         return {
@@ -823,7 +939,8 @@
           break;
         }
         // No cap in classic
-        let staticCap = (me.gametype === sdk.game.gametype.Classic ? 0 : [0, 33, 50][me.diff]);
+        let staticCap = (me.gametype === sdk.game.gametype.Classic
+          ? 0 : [0, 33, 50][me.diff]);
         const [monsterId, areaId] = [unit.classid, unit.area];
         let percentLeft = (unit.hp * 100 / unit.hpmax);
         if (staticCap > percentLeft) {
@@ -879,7 +996,7 @@
      * currently it would check our stats, then check amp and conviction - those could all be pre-built as they aren't going to change
      */
     avgSkillDamage: function (skillID, unit) {
-      if (skillID === undefined || unit === undefined || !skillID || !unit || !Skill.canUse(skillID)) return 0;
+      if (!skillID || !unit || !Skill.canUse(skillID)) return 0;
       const ampDmg = Skill.canUse(sdk.skills.AmplifyDamage)
         ? 100
         : (Skill.canUse(sdk.skills.Decrepify)
@@ -893,7 +1010,9 @@
        * @returns 
        */
       const getTotalDmg = function (skillData, unit) {
-        const isUndead = (typeof unit === "number" ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+        const isUndead = (typeof unit === "number"
+          ? MonsterData.get(unit).Undead
+          : MonsterData.get(unit.classid).Undead);
         const conviction = GameData.getConviction();
         let totalDmg = 0;
         let avgPDmg = (skillData.pmin + skillData.pmax) / 2;
@@ -959,7 +1078,7 @@
           rawDmg = GameData.skillDamage(skill, target);
           return getTotalDmg(rawDmg, target);
         } else {
-          console.log("Units to check: " + units.length);
+          // console.log("Units to check: " + units.length);
           for (let i = 0; i < units.length; i++) {
             if (units[i] !== undefined) {
               rawDmg = GameData.skillDamage(skill, units[i]);
@@ -1242,14 +1361,18 @@
     ],
     monsterResist: function (unit, type) {
       let stat = this.resistMap[type];
-      return stat ? (unit.getStat ? unit.getStat(stat) : MonsterData[unit][type]) : 0;
+      return stat ? (unit.getStat ? unit.getStat(stat) : MonsterData.get(unit)[type]) : 0;
     },
     getConviction: function () {
       let merc = GameData.myReference.getMerc();
       let sl = this.skillLevel(123); // conviction
+      /** @param {ItemUnit} item */
+      function isInfinity (item) {
+        return item.prefixnum === sdk.locale.items.Infinity;
+      }
       if (( // Either me, or merc is wearing a conviction
-        merc && merc.getItemsEx().filter(item => item.getPrefix(sdk.locale.items.Infinity)).first()
-        || GameData.myReference.getItemsEx(-1, 1).filter(item => item.getPrefix(sdk.locale.items.Infinity)).first())) {
+        merc && merc.getItemsEx().filter(isInfinity).first()
+        || GameData.myReference.getItemsEx(-1, 1).filter(isInfinity).first())) {
         sl = 12;
       }
       return sl > 0 ? Math.min(150, 30 + (sl - 1) * 5) : 0;
@@ -1266,7 +1389,7 @@
       const useCooldown = (typeof unit === "number" ? false : Boolean(me.skillDelay));
       const hp = this.monsterMaxHP(typeof unit === "number" ? unit : unit.classid, areaID);
       const conviction = this.getConviction(), ampDmg = this.getAmp();
-      const isUndead = (typeof unit === "number" ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+      const isUndead = (typeof unit === "number" ? MonsterData.get(unit).Undead : MonsterData.get(unit.classid).Undead);
       skillDamageInfo = skillDamageInfo || this.allSkillDamage(unit);
       console.debug(unit, "---", hp);
       // if (conviction && unit instanceof Unit && !unit.getState(sdk.states.Conviction)) conviction = 0; //ToDo; enable when fixed telestomp
@@ -1324,7 +1447,9 @@
         }
       }
 
-      buffDmg = buffDmg.reduce((t, v) => t + v, 0);
+      buffDmg = buffDmg.reduce(function (t, v) {
+        return t + v;
+      }, 0);
 
       for (let sk in skillDamageInfo) {
         if (preattack && this.preAttackable.indexOf(parseInt(sk)) === -1) continue; // cant preattack this skill
@@ -1408,7 +1533,7 @@
       let eret = { effort: Infinity, skill: -1, type: "Physical" };
       let hp = this.monsterMaxHP(typeof unit === "number" ? unit : unit.classid, areaID);
       let conviction = this.getConviction(), ampDmg = this.getAmp();
-      let isUndead = (typeof unit === "number" ? MonsterData[unit].Undead : MonsterData[unit.classid].Undead);
+      let isUndead = (typeof unit === "number" ? MonsterData.get(unit).Undead : MonsterData.get(unit.classid).Undead);
       let skillDamageInfo = this.allSkillDamage(unit);
 
       for (let sk in skillDamageInfo) {
@@ -1464,7 +1589,9 @@
         }
       }
 
-      buffDmg = buffDmg.reduce((t, v) => t + v, 0);
+      buffDmg = buffDmg.reduce(function (t, v) {
+        return t + v;
+      }, 0);
 
       for (let sk in skillDamageInfo) {
         if (!this.ignoreSkill[sk]) {
@@ -1531,10 +1658,10 @@
       skills = skills || this.allSkillDamage();
 
       AreaData.get(areaID).forEachMonsterAndMinion(function (mon, rarity, parent) {
-        effortpool += rarity * this.monsterEffort(mon.Index, areaID, skills, parent && parent.Index).effort;
+        effortpool += rarity * GameData.monsterEffort(mon.Index, areaID, skills, parent && parent.Index).effort;
         raritypool += rarity;
 
-        dmgAcc += rarity * this.monsterAvgDmg(mon.Index, areaID);
+        dmgAcc += rarity * GameData.monsterAvgDmg(mon.Index, areaID);
       });
 
       // console.debug('avg dmg '+ AreaData.get(areaID).LocaleString+' -- ' + dmgAcc+' -- ' + avgDmg);
@@ -1547,11 +1674,14 @@
       let effortpool = 0, raritypool = 0, dmgAcc = 0;
 
       skills = skills || this.allSkillDamage();
-      AreaData.get(areaID).forEachMonsterAndMinion((mon, rarity, parent) => {
-        effortpool += rarity * this.monsterExp(mon.Index, areaID) * this.levelModifier(GameData.myReference.charlvl, this.monsterLevel(mon.Index, areaID)) / this.monsterEffort(mon.Index, areaID, skills, parent && parent.Index).effort;
+      AreaData.get(areaID).forEachMonsterAndMinion(function (mon, rarity, parent) {
+        let monExp = GameData.monsterExp(mon.Index, areaID);
+        let lvlMod = GameData.levelModifier(GameData.myReference.charlvl, GameData.monsterLevel(mon.Index, areaID));
+        let monEffort = GameData.monsterEffort(mon.Index, areaID, skills, parent && parent.Index).effort;
+        effortpool += rarity * monExp * lvlMod / monEffort;
         raritypool += rarity;
 
-        dmgAcc += (rarity * this.monsterAvgDmg(mon.Index, areaID));
+        dmgAcc += (rarity * GameData.monsterAvgDmg(mon.Index, areaID));
       });
 
       let log = 1, avgDmg = 0;
@@ -1563,7 +1693,10 @@
       return (raritypool ? effortpool / raritypool : 0) - (avgDmg);
     },
     mostUsedSkills: function (force = false) {
-      if (!force && GameData.myReference.hasOwnProperty("__cachedMostUsedSkills") && GameData.myReference.__cachedMostUsedSkills) return GameData.myReference.__cachedMostUsedSkills;
+      if (!force && GameData.myReference.hasOwnProperty("__cachedMostUsedSkills")
+        && GameData.myReference.__cachedMostUsedSkills) {
+        return GameData.myReference.__cachedMostUsedSkills;
+      }
 
       const effort = [], uniqueSkills = [];
       for (let i = 50; i < 120; i++) {
@@ -2058,10 +2191,10 @@
     get: function () {
       if (!this.isMoving || this.isFrozen) return 0;
       const velocity = this.isRunning
-        ? MonsterData[this.classid].Run
-        : MonsterData[this.classid].Velocity;
+        ? MonsterData.get(this.classid).Run
+        : MonsterData.get(this.classid).Velocity;
       if (this.isChilled) {
-        let malus = MonsterData[this.classid].ColdEffect;
+        let malus = MonsterData.get(this.classid).ColdEffect;
         (malus > 0) && (malus = malus - 256);
         return Math.max(1, ~~(velocity * (1 + malus)));
       }
@@ -2069,90 +2202,95 @@
     }
   });
 
+  /**
+   * @param {number} skillId 
+   * @param {Monster} monster 
+   * @returns {PathNode}
+   */
   function targetPointForSkill (skillId, monster) {
-    if (monster === undefined || skillId === undefined || !monster.attackable) return null;
+    if (!monster || skillId === undefined || !monster.attackable) return null;
     let missileName = getBaseStat("skills", skillId, "cltmissile");
     let missile = MissileData[missileName];
     if (!missile) {
       missileName = getBaseStat("skills", skillId, "srvmissile");
       missile = MissileData[missileName];
     }
-    if (missile && missile.velocity > 0) {
-      if (monster.isMoving && (monster.targetx !== me.x || monster.targety !== me.y)) {
-        let startX = monster.x, startY = monster.y;
-        // tiles per second velocities
-        // ToDo: is monster slowed by freeze or something ?
-        let monsterVelocityTPS = monster.currentVelocity;
-        let missileVelocityTPS = missile.velocity;
-        // tiles per frame velocities
-        let monsterVelocityTPF = monsterVelocityTPS / 25;
-        let missileVelocityTPF = missileVelocityTPS / 25;
-        //console.log("monster is moving to "+monster.targetx+", "+monster.targety + " at speed "+monsterVelocity);
-        let path = getPath(monster.area, startX, startY, monster.targetx, monster.targety, 2, 1);
-        if (path && path.length) {
-        // path is reversed from target to monster, we will check from last path position (target) to monster position
-          path.reverse();
-          let [diffS, diffF, found] = [0, 0, 0];
-          let time = { missile: {}, monster: {} };
-          for (let i = 0; i < path.length; i++) {
-            let pos = path[i];
-            // ToDo : does missile spawn at me position ?
-            let distanceForMissile = getDistance(me, pos);
-            if (distanceForMissile > missile.range) {
-            // too far for missile to reach this position
-              continue;
-            }
-            let distanceForMonster = getDistance({ x: startX, y: startY }, pos);
-            let timeForMonsterF = distanceForMonster / monsterVelocityTPF;
-            // time in seconds
-            // let castTimeS = GameData.castingDuration(skillId);
-            // let timeForMissileS = distanceForMissile / missileVelocityTPS + castTimeS;
-            // time in frames
-            let castTimeF = me.castingFrames(skillId);
-            let timeForMissileF = distanceForMissile / missileVelocityTPF + castTimeF;
-            // let timeForMonsterS = distanceForMonster / monsterVelocityTPS;
-            // Todo: missile and monster size
-            // diff seconds
-            // diffS = timeForMissileS-timeForMonsterS;
-            // diff frames
-            diffF = timeForMissileF - timeForMonsterF;
-            // diff > 0 : missile will reach pos after monster
-            // diff < 0 : missile will reach pos before monster
-            // console.log("time for monster to reach "+pos+" = "+timeForMonster);
-            // console.log("time for missile to reach "+pos+" = "+timeForMissile);
-            // console.log("diff = "+diff)
-            if (i === 0 && diffF >= 0) {
-            // last path position and missile is late, we can't predict next monster target, shoot at last path position
-            // it may fail because monster may be moving at other target while missile is arriving
-            // console.log("missile will be too late");
-              found = pos;
-              // time.missile.seconds = timeForMissileS;
-              time.missile.frames = timeForMissileF;
-              // time.monster.seconds = timeForMonsterS;
-              time.monster.frames = timeForMonsterF;
-              break;
-            }
-            // the number of frames needed for unit to move 1 tile
-            let timeToMoveOneTileMonsterF = 1 / monsterVelocityTPF;
-            // let timeToMoveOneTileMissileF = 1 / missileVelocityTPF;
-            // while missile is travelling, monster will continue to move
-            // if the difference is greater than the time a monster will move 1 tile, the missile will miss
-            // todo: monster size, missile size
-            if (diffF >= -1 * timeToMoveOneTileMonsterF && diffF <= 1 * timeToMoveOneTileMonsterF) {
-              found = pos;
-              // time.missile.seconds = timeForMissileS;
-              time.missile.frames = timeForMissileF;
-              // time.monster.seconds = timeForMonsterS;
-              time.monster.frames = timeForMonsterF;
-              break;
-            }
+    if (!missile || missile.velocity <= 0) return null;
+    if (monster.isMoving && (monster.targetx !== me.x || monster.targety !== me.y)) {
+      let startX = monster.x;
+      let startY = monster.y;
+      // tiles per second velocities
+      // ToDo: is monster slowed by freeze or something ?
+      let monsterVelocityTPS = monster.currentVelocity;
+      let missileVelocityTPS = missile.velocity;
+      // tiles per frame velocities
+      let monsterVelocityTPF = monsterVelocityTPS / 25;
+      let missileVelocityTPF = missileVelocityTPS / 25;
+      //console.log("monster is moving to "+monster.targetx+", "+monster.targety + " at speed "+monsterVelocity);
+      let path = getPath(monster.area, startX, startY, monster.targetx, monster.targety, 2, 1);
+      if (path && path.length) {
+      // path is reversed from target to monster, we will check from last path position (target) to monster position
+        path.reverse();
+        let [diffS, diffF, found] = [0, 0, 0];
+        let time = { missile: {}, monster: {} };
+        for (let i = 0; i < path.length; i++) {
+          let pos = path[i];
+          // ToDo : does missile spawn at me position ?
+          let distanceForMissile = getDistance(me, pos);
+          if (distanceForMissile > missile.range) {
+          // too far for missile to reach this position
+            continue;
           }
-          if (found) {
-            // console.log("missile will hit monster in "+time.missile.seconds+" ("+time.missile.frames+") at "+found.x+", "+found.y);
-            // console.log("time for monster = "+time.monster.seconds+ " ("+time.monster.frames+")")
-            // console.log("diff missile-monster = "+diffS+ " ("+diffF+")");
-            return found;
+          let distanceForMonster = getDistance({ x: startX, y: startY }, pos);
+          let timeForMonsterF = distanceForMonster / monsterVelocityTPF;
+          // time in seconds
+          // let castTimeS = GameData.castingDuration(skillId);
+          // let timeForMissileS = distanceForMissile / missileVelocityTPS + castTimeS;
+          // time in frames
+          let castTimeF = me.castingFrames(skillId);
+          let timeForMissileF = distanceForMissile / missileVelocityTPF + castTimeF;
+          // let timeForMonsterS = distanceForMonster / monsterVelocityTPS;
+          // Todo: missile and monster size
+          // diff seconds
+          // diffS = timeForMissileS-timeForMonsterS;
+          // diff frames
+          diffF = timeForMissileF - timeForMonsterF;
+          // diff > 0 : missile will reach pos after monster
+          // diff < 0 : missile will reach pos before monster
+          // console.log("time for monster to reach "+pos+" = "+timeForMonster);
+          // console.log("time for missile to reach "+pos+" = "+timeForMissile);
+          // console.log("diff = "+diff)
+          if (i === 0 && diffF >= 0) {
+          // last path position and missile is late, we can't predict next monster target, shoot at last path position
+          // it may fail because monster may be moving at other target while missile is arriving
+          // console.log("missile will be too late");
+            found = pos;
+            // time.missile.seconds = timeForMissileS;
+            time.missile.frames = timeForMissileF;
+            // time.monster.seconds = timeForMonsterS;
+            time.monster.frames = timeForMonsterF;
+            break;
           }
+          // the number of frames needed for unit to move 1 tile
+          let timeToMoveOneTileMonsterF = 1 / monsterVelocityTPF;
+          // let timeToMoveOneTileMissileF = 1 / missileVelocityTPF;
+          // while missile is travelling, monster will continue to move
+          // if the difference is greater than the time a monster will move 1 tile, the missile will miss
+          // todo: monster size, missile size
+          if (diffF >= -1 * timeToMoveOneTileMonsterF && diffF <= 1 * timeToMoveOneTileMonsterF) {
+            found = pos;
+            // time.missile.seconds = timeForMissileS;
+            time.missile.frames = timeForMissileF;
+            // time.monster.seconds = timeForMonsterS;
+            time.monster.frames = timeForMonsterF;
+            break;
+          }
+        }
+        if (found) {
+          // console.log("missile will hit monster in "+time.missile.seconds+" ("+time.missile.frames+") at "+found.x+", "+found.y);
+          // console.log("time for monster = "+time.monster.seconds+ " ("+time.monster.frames+")")
+          // console.log("diff missile-monster = "+diffS+ " ("+diffF+")");
+          return found;
         }
       }
     }

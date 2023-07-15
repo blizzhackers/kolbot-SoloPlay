@@ -3,6 +3,15 @@ declare global {
   interface Math {
     percentDifference(value1: number, value2: number): number;
   }
+
+  interface Object {
+    mobCount(givenSettings?: {
+      range?: number,
+      coll?: number,
+      type: number,
+      ignoreClassids: number[],
+    }): number;
+  }
   
   interface ItemUnit {
     readonly isCharm: boolean;
@@ -115,6 +124,17 @@ declare global {
 
   type EquippedMap = Map<number, EquippedItem>;
 
+  type GetOwnedSettings = {
+    itemType?: number,
+    classid?: number,
+    mode?: number,
+    quality?: number,
+    sockets?: number,
+    location?: number,
+    ethereal?: boolean,
+    cb?: (item: ItemUnit) => boolean,
+  };
+
   interface MeType {
     readonly maxNearMonsters: number;
     readonly dualWielding: boolean;
@@ -140,6 +160,8 @@ declare global {
       init: () => void;
     };
 
+    switchToPrimary(): boolean;
+    switchToSecondary(): boolean;
     canTpToTown(): boolean;
     getMercEx(): MercUnit | null;
     getEquippedItem(bodyLoc: number): ItemUnit | null;
@@ -148,6 +170,8 @@ declare global {
     checkSkill(skillId: number, subId: number): boolean;
     cleanUpInvoPotions(beltSize: number): boolean;
     needPotions(): boolean;
+    needBeltPots(): boolean;
+    needBufferPots(): boolean;
     getIdTool(): ItemUnit | null;
     getTpTool(): ItemUnit | null;
     getUnids(): ItemUnit[];
@@ -160,6 +184,7 @@ declare global {
     sortInventory(): boolean;
     cleanUpScrolls(tome: ItemUnit, scrollId: number): number;
     update(): void;
+    getOwned(itemInfo: ItemUnit | GetOwnedSettings): ItemUnit[];
   }
 
   interface Container {
@@ -225,13 +250,6 @@ declare global {
     actMap: Map<number | symbol, number | Merc[]>;
   }
 
-  type Charge = {
-    skill: number;
-    level: number;
-    charges: number;
-    maxcharges: number;
-  };
-
   namespace Mercenary {
     let minCost: number;
 
@@ -246,8 +264,7 @@ declare global {
   namespace Misc {
     let townEnabled: boolean;
     let openChestsEnabled: boolean;
-    const presetShrineIds: number[];
-    const presetChestIds: number[];
+    const shrineStates: number[];
 
     function openChestsInArea(area: number, chestIds: number[], sort?: Function): boolean;
     function getExpShrine(shrineLocs: number[]): boolean;
@@ -269,11 +286,95 @@ declare global {
   }
 
   namespace Skill {
-    function switchCast(skillId: number, givenSettings: { hand?: number, x?: number, y?: number, switchBack?: boolean, oSkill?: boolean }): boolean;
+    function switchCast(
+      skillId: number,
+      givenSettings: { hand?: number, x?: number, y?: number, switchBack?: boolean, oSkill?: boolean }
+    ): boolean;
   }
 
+  type pathSettings = {
+    allowNodeActions?: boolean;
+    allowTeleport?: boolean;
+    allowClearing?: boolean;
+    allowTown?: boolean;
+    allowPicking?: boolean;
+    minDist?: number;
+    retry?: number;
+    pop?: boolean;
+    returnSpotOnError?: boolean;
+    callback?: Function;
+    clearSettings?: clearSettings;
+  };
+  type clearSettings = {
+    clearPath?: boolean;
+    range?: number;
+    specType?: number;
+    sort?: Function;
+  };
+
   namespace Pather {
+    let initialized: boolean;
+    function canTeleport(): boolean;
+    function teleUsingCharges(x: number, y: number, maxRange: number): boolean;
+    function changeAct(act: number): boolean;
+    function checkWP(area: number, keepMenuOpen?: boolean): boolean;
     function clearToExit(currentarea: number, targetarea: number, givenSettings: pathSettings): boolean;
+  }
+
+  namespace NodeAction {
+    const shrinesToIgnore: number[];
+    let enabled: boolean;
+
+    function go(arg: clearSettings): void;
+  }
+
+  namespace PathDebug {
+    function coordsInPath(path: PathNode[], x: number, y: number): boolean;
+  }
+
+  namespace Pickit {
+    function pickItem(
+      unit: ItemUnit,
+      status: PickitResult,
+      keptLine?: string,
+      givenSettings?: { allowClear: boolean, allowMove: boolean }
+    ): boolean;
+  }
+
+  namespace Attack {
+    function clearPos(
+      x: number,
+      y: number,
+      range?: number,
+      pickit?: boolean,
+      cb?: function(): boolean,
+    ): boolean;
+    function killTarget(name: Monster | string | number): boolean;
+  }
+
+  namespace ClassAttack {
+    function doAttack(unit: Monster): AttackResult;
+    function doAttack(unit: Monster, precast?: boolean): AttackResult;
+    function doAttack(unit: Monster, recheck?: boolean): AttackResult;
+    function doAttack(unit: Monster, precast?: boolean, once?: boolean): AttackResult;
+    function doCast(unit: Monster, timedSkill: number, untimedSkill: number): AttackResult;
+    function doCast(
+      unit: Monster,
+      choosenSkill: { have: boolean, skill: number, range: number, mana: number, timed: boolean }
+    ): AttackResult;
+    function afterAttack(pickit?: boolean): void;
+  }
+
+  namespace CollMap {
+    function checkColl(unitA: Unit, unitB: Unit, coll: number, thickness: number): boolean;
+  }
+
+  namespace Town {
+    function doChores(repair?: boolean, givenTasks?: extraTasks): boolean;
+  }
+
+  namespace Precast {
+    function checkCTA(): boolean;
   }
 
   namespace CharData {
@@ -295,6 +396,86 @@ declare global {
     function updateData(arg: string, property: object | string, value: any): boolean;
     /** @alias CharData.delete */
     function _delete(deleteMain: boolean): boolean;
+  }
+
+  namespace Developer {
+    const plugyMode: boolean;
+    const logPerformance: boolean;
+    const overlay: boolean;
+    const displayClockInConsole: boolean;
+    const logEquipped: boolean;
+    const hideChickens: boolean;
+    const addLadderRW: boolean;
+    const forcePacketCasting: {
+      enabled: boolean;
+      excludeProfiles: string[];
+    };
+    const fillAccount: {
+      bumpers: boolean;
+      socketMules: boolean;
+      imbueMule: boolean;
+    };
+    const imbueStopLevel: number;
+    const stopAtLevel: {
+      enabled: boolean;
+      profiles: Array<[string, number]>;
+    };
+    const developerMode: {
+      enabled: boolean;
+      profiles: string[];
+    };
+    const testingMode: {
+      enabled: boolean;
+      profiles: string[];
+    };
+    const setEmail: {
+      enabled: boolean;
+      profiles: string[];
+      realms: string[];
+    };
+    const debugging: {
+      smallCharm: boolean;
+      largeCharm: boolean;
+      grandCharm: boolean;
+      baseCheck: boolean;
+      junkCheck: boolean;
+      autoEquip: boolean;
+      crafting: boolean;
+      pathing: boolean;
+      skills: boolean;
+      showStack: {
+        enabled: boolean;
+        profiles: string[];
+      };
+    };
+  }
+
+  namespace Tracker {
+    const GTPath: string;
+    const LPPath: string;
+    const SPPath: string;
+    const LPHeader: string;
+    const SPHeader: string;
+    const tick: number;
+    interface GameTracker {
+      Total: number;
+      InGame: number;
+      OOG: number;
+      LastLevel: number;
+      LastSave: number;
+    }
+    const _default: GameTracker;
+    function initialize(): boolean;
+    function getObj(path: string): GameTracker | false;
+    function readObj(jsonPath: string): GameTracker | false;
+    function writeObj(obj: GameTracker, path: string): boolean;
+    function resetGameTime(): void;
+    function reset(): void;
+    function checkValidity(): void;
+    function totalDays(milliseconds: number): string;
+    function script(starttime: number, subscript: string, startexp: number): boolean;
+    function leveling(): boolean;
+    function update(oogTick?: number): boolean;
   }
 
   namespace SetUp {
@@ -355,13 +536,17 @@ declare global {
     fullChores?: boolean,
   };
 
-  namespace Town {
-    function doChores(repair?: boolean, givenTasks?: extraTasks): boolean;
-  }
-
   namespace LocationAction {
     function run(): void;
   }
+
+  type PresetObjectUnit = {
+    x: number;
+    y: number;
+    area: number;
+    classid: number;
+    type: number;
+	};
 
   class ShrineInstance {
     constructor (shrine: ObjectUnit);
@@ -387,8 +572,8 @@ declare global {
     Act: number;
     Level: number;
     Size: {
-        x: number;
-        y: number;
+      x: number;
+      y: number;
     };
     SuperUnique: number[];
     Monsters: number[];
@@ -435,6 +620,100 @@ declare global {
      */
     function randomWpArea(checkValid: boolean): number;
     function getAreasWithShrine(shrineType: number): AreaDataInstance[];
+  }
+
+  namespace GameData {
+    const myReference: Unit;
+    const townAreas: number[];
+
+    function monsterLevel(monsterID: number, areaID: number, adjustLevel: number): number;
+    function eliteExp(monsterID: number, areaID: number): number;
+    function monsterAvgHP(monsterID: number, areaID: number, adjustLevel: number): number;
+    function monsterMaxHP(monsterID: number, areaID: number, adjustLevel: number): number;
+    function eliteAvgHP(monsterID: number, areaID: number): number;
+    function monsterDamageModifier(): number;
+    function monsterMaxDmg(monsterID: number, areaID: number, adjustLevel: number): number;
+    function monsterAttack1AvgDmg(monsterID: number, areaID: number, adjustLevel: number): number;
+    function monsterAttack2AvgDmg(monsterID: number, areaID: number, adjustLevel: number): number;
+    function monsterSkill1AvgDmg(monsterID: number, areaID: number, adjustLevel: number): number;
+    function monsterAvgDmg(monsterID: number, areaID: number, adjustLevel: number): number;
+    function averagePackSize(monsterID: number): number;
+    function areaLevel(areaID: number): number;
+    function areaImmunites(areaID: number): string[];
+    function levelModifier(clvl: number, mlvl: number): number;
+    function multiplayerModifier(count: number): number;
+    function partyModifier(playerID: number): number;
+    function killExp(playerID: number, monsterID: number, areaID: number): number;
+    function baseLevel(...skillIDs: number[]): number;
+    function skillLevel(...skillIDs: number[]): number;
+    function skillCooldown(skillId: number): boolean;
+    function stagedDamage(
+      l: number,
+      a: number,
+      b: number,
+      c: number,
+      d: number,
+      e: number,
+      f: number,
+      hitshift: number,
+      mult: number,
+    ): number;
+    const damageTypes: string[];
+    const synergyCalc: Record<number, nuumber[]>;
+    const noMinSynergy: number[];
+    const skillMult: Record<number, number>;
+    function baseSkillDamage(skillId: number): number;
+    const skillRadius: Record<number, number>;
+    const novaLike: Record<number, boolean>;
+    const wolfBanned: Record<number, boolean>;
+    const bearBanned: Record<number, boolean>;
+    const humanBanned: Record<number, boolean>;
+    const nonDamage: Record<number, boolean>;
+    function shiftState(): string;
+    function bestForm(skillID: number): number;
+    function physicalAttackDamage(skillID: number): number;
+    function dmgModifier(skillID: number, target: Monster): number;
+
+    interface SkillDamage {
+      type: string;
+      pmin: number;
+      pmax: number;
+      min: number;
+      max: number;
+      undeadOnly?: boolean;
+    }
+    function skillDamage(skillID: number, unit?: Monster): SkillDamage;
+    function avgSkillDamage(skillID: number, unit?: Monster): number;
+    function allSkillDamage(unit: Monster): SkillDamage[];
+    const convictionEligible: Record<string, boolean>;
+    const lowerResistEligible: Record<string, boolean>;
+    const resistMap: Record<string, number>;
+    const masteryMap: Record<string, number>;
+    const pierceMap: Record<string, number>;
+    const ignoreSkill: Record<number, boolean>;
+    const buffs: Record<number, number>;
+    const preAttackable: number[];
+    function monsterResist(unit: Monster, type: string): number;
+    function getConviction(): number;
+    function getAmp(): number;
+    function monsterEffort(
+      unit: Monster,
+      areaID: number,
+      skillDamageInfo?: SkillDamage,
+      parent?: Monster,
+      preattack?: boolean,
+      all?: boolean,
+    ): { effort: number, skill: number, type: string, name?: string, cooldown?: boolean };
+    function effectiveMonsterEffort(
+      unit: Monster,
+      areaID: number
+    ): { effort: number, skill: number, type: string, name?: string, cooldown?: boolean };
+    function areaEffort(areaID: number, skills?: SkillDamage[]): number;
+    function areaSoloExp(areaID: number, skills?: SkillDamage[]): number;
+    function timeTillMissileImpact(skillId: number, monster: Monster): number;
+    function calculateKillableFallensByFrostNova(): number;
+    function calculateKillableSummonsByNova(): number;
+    function targetPointForSkill(skillId: number, monster: Monster): PathNode;
   }
 }
 export{};

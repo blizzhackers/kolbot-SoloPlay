@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const Fury = [
     "[name] == JahRune",
     "[name] == GulRune",

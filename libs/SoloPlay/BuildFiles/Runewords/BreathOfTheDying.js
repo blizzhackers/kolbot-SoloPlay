@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const BoTD = [
     "[name] == VexRune",
     "me.diff == 2 && [name] == HelRune # # [maxquantity] == 1",
@@ -10,8 +10,21 @@
   ];
   NTIP.buildList(BoTD);
 
+  /** @type {GetOwnedSettings} */
+  const wanted = {
+    classid: sdk.items.ColossusBlade,
+    mode: sdk.items.mode.inStorage,
+    sockets: 6,
+    ethereal: true,
+    /** @param {ItemUnit} item */
+    cb: function (item) {
+      return item.isBaseType;
+    }
+  };
+
   // Have Zod rune but do not have a base yet
-  if (!Check.haveBase("colossusblade", 6) && me.getItem(sdk.items.runes.Zod)) {
+  if (!me.getOwned(wanted).length
+    && me.getItem(sdk.items.runes.Zod)) {
     NTIP.addLine("[name] == colossusblade && [flag] == ethereal && [quality] == normal # [sockets] == 0 # [maxquantity] == 1");
   }
 

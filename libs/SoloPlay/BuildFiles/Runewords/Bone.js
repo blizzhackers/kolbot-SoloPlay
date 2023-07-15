@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const Bone = [
     "[name] == UmRune # # [maxquantity] == 2",
     "[name] == SolRune # # [maxquantity] == 1",
@@ -6,7 +6,7 @@
   NTIP.buildList(Bone);
 
   // Cube to Um Rune
-  if (Item.getQuantityOwned(me.getItem(sdk.items.runes.Um)) < 2) {
+  if (me.getOwned({ classid: sdk.items.runes.Um }).length < 2) {
     Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
     Config.Recipes.push([Recipe.Rune, "Fal Rune"]);
     Config.Recipes.push([Recipe.Rune, "Lem Rune"]);

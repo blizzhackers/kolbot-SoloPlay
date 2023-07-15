@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const Crescent = [
     "[name] == ShaelRune # # [maxquantity] == 2",
     "[name] == UmRune",

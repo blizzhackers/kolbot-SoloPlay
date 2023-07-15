@@ -12,8 +12,12 @@ const AutoBuild = new function AutoBuild () {
   const debug = !!Config.AutoBuild.DebugMode;
   const verbose = !!Config.AutoBuild.Verbose;
 
-  const log = (message) => FileTools.appendText(getLogFilename(), message + "\n");
-  const getCurrentScript = () => getScript(true).name.toLowerCase();
+  const log = function (message) {
+    FileTools.appendText(getLogFilename(), message + "\n");
+  };
+  const getCurrentScript = function () {
+    return getScript(true).name.toLowerCase();
+  };
 
   const buildTemplate = me.currentBuild.AutoBuildTemplate;
   let configUpdateLevel = 0;

@@ -1,5 +1,6 @@
-(function() {
-  if (!Check.haveItem("sword", "runeword", "Spirit") && !me.hell) {
+(function () {
+  if (!me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have
+    && !me.hell) {
     const SpiritSword = [
       "[name] == TalRune # # [maxquantity] == 1",
       "[name] == ThulRune # # [maxquantity] == 1",

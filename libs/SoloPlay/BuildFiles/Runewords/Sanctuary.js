@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const Sanctuary = [
     "[name] == KoRune # # [maxquantity] == 2",
     "[name] == MalRune",
@@ -18,11 +18,13 @@
     Config.Recipes.push([Recipe.Rune, "Lum Rune"]);
   }
 
-  if (!Check.haveBase("shield", 3)) {
-    NTIP.addLine("[name] == hyperion && [flag] != ethereal && [quality] == normal # [sockets] == 0 # [maxquantity] == 1");
+  if (!me.getOwned({ classid: sdk.items.Hyperion, sockets: 3 }).length) {
+    if (Storage.Stash.UsedSpacePercent() < 75) {
+      NTIP.addLine("[name] == hyperion && [flag] != ethereal && [quality] == normal # [sockets] == 0 # [maxquantity] == 1");
+      Config.Recipes.push([Recipe.Socket.Shield, "hyperion", Roll.NonEth]);
+    }
   }
 
-  Config.Recipes.push([Recipe.Socket.Shield, "hyperion", Roll.NonEth]);
   Config.Runewords.push([Runeword.Sanctuary, "hyperion"]);
 
   Config.KeepRunewords.push("[type] == shield # [fhr] >= 20 && [enhanceddefense] >= 130 && [fireresist] >= 50");

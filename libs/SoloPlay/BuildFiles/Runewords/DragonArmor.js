@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const DragonArmor = [
     "[name] == SurRune",
     "[name] == LoRune",
