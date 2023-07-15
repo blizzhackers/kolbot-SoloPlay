@@ -273,7 +273,7 @@ const SoloIndex = {
         case sdk.player.class.Druid:
           return me.nightmare && me.charlvl > 65;
         case sdk.player.class.Sorceress:
-          return me.nightmare && me.expansion && me.charlvl > 62;
+          return me.nightmare && me.expansion && me.charlvl > 50;
         }
         return false;
       },
