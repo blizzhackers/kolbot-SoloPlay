@@ -45,7 +45,9 @@ Config.init = function (notify) {
   if (Config.Silence && !Config.LocalChat.Enabled) {
     // Override the say function with print, so it just gets printed to console
     global._say = global.say;
-    global.say = (what) => console.log("Tryed to say: " + what);
+    global.say = function (what) {
+      console.log("Tryed to say: " + what);
+    };
   }
 
   try {

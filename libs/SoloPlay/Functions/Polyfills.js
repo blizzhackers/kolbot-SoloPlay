@@ -160,29 +160,6 @@ if (!Object.is) {
   });
 }
 
-// if (!Object.fromEntries) {
-//   Object.defineProperty(Object, 'fromEntries', {
-//     value: function (entries) {
-//       if (!entries /*|| !entries[Symbol.iterator]*/) { throw new Error('Object.fromEntries() requires a single iterable argument'); }
-
-//       const o = {};
-
-//       Object.keys(entries).forEach((key) => {
-//         const [k, v] = entries[key];
-
-//         o[k] = v;
-//       });
-
-//       return o;
-//     },
-//   });
-// }
-
-// // filter an object
-// Object.filter = function (obj, predicate) {
-// 	return Object.fromEntries(Object.entries(obj).filter(predicate));
-// };
-
 // https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
 if (!Array.prototype.equals) {
   // Warn if overriding existing method

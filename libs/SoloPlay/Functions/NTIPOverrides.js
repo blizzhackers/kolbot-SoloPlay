@@ -54,7 +54,7 @@ NTIP.generateTierFunc = function (tierType) {
   return /** @param {ItemUnit} item */ function (item) {
     let tier = -1;
 
-    const updateTier = (wanted) => {
+    const updateTier = function (wanted) {
       const tmpTier = wanted[tierType](item);
 
       if (tier < tmpTier) {
