@@ -1439,7 +1439,10 @@ Attack.walkingSortMonsters = function (unitA, unitB) {
 };
 
 Attack.pwnDury = function () {
-  let duriel = Misc.poll(() => Game.getMonster(sdk.monsters.Duriel));
+  const getDuriel = function () {
+    return Game.getMonster(sdk.monsters.Duriel);
+  };
+  let duriel = Misc.poll(getDuriel);
 
   if (!duriel) return false;
   const tick = getTickCount();
@@ -1457,7 +1460,7 @@ Attack.pwnDury = function () {
         break;
       }
       if (!duriel || !copyUnit(duriel).x) {
-        duriel = Misc.poll(() => Game.getMonster(-1, -1, gid), 1000, 80);
+        duriel = Misc.poll(getDuriel, 1000, 80);
         if (!duriel || !duriel.attackable) return true;
       }
       //ToDo; figure out static

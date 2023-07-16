@@ -397,7 +397,7 @@ function main () {
           }
           itemString = (
             "ÿc4MaxQuantity: ÿc0" + NTIP.getMaxQuantity(itemToCheck)
-            + " | ÿc4ItemsOwned: ÿc0" + Item.getQuantityOwned(itemToCheck)
+            + " | ÿc4ItemsOwned: ÿc0" + me.getOwned(itemToCheck).length
             + " | ÿc4Tier: ÿc0" + NTIP.GetTier(itemToCheck) + (special ? special : "")
             + " | ÿc4SecondaryTier: ÿc0" + NTIP.GetSecondaryTier(itemToCheck)
             + " | ÿc4MercTier: ÿc0" + NTIP.GetMercTier(itemToCheck) + "\n"
@@ -590,7 +590,7 @@ function main () {
     }
 
     switch (msg) {
-    case "deleteAndRemake":
+    case "remake":
       Developer.testingMode.enabled && (quitFlag = true);
 
       break;
@@ -769,8 +769,9 @@ function main () {
 
         (me.staminaPercent <= 20 || me.walking) && drinkSpecialPotion(sdk.items.StaminaPotion);
         me.getState(sdk.states.Poison) && drinkSpecialPotion(sdk.items.AntidotePotion);
-        [sdk.states.Frozen, sdk.states.FrozenSolid]
-          .some(state => me.getState(state)) && drinkSpecialPotion(sdk.items.ThawingPotion);
+        if (me.getState(sdk.states.Frozen) || me.getState(sdk.states.FrozenSolid)) {
+          drinkSpecialPotion(sdk.items.ThawingPotion);
+        }
 
         if (Config.ManaChicken > 0 && me.mpPercent <= Config.ManaChicken && !me.inTown) {
           if (!Developer.hideChickens) {
