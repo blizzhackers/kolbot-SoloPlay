@@ -156,10 +156,19 @@ Town.initNPC = function (task = "", reason = "undefined") {
       }
     }
 
-    if (task === "Heal" && me.act === 2) {
-      // lets see if we are closer to Atma than Fara
-      if (Town.getDistance(NPC.Atma) < Town.getDistance(NPC.Fara)) {
-        wantedNpc = NPC.Atma;
+    if (me.act === 2) {
+      if (task === "Heal") {
+        // lets see if we are closer to Atma than Fara
+        if (Town.getDistance(NPC.Atma) < Town.getDistance(NPC.Fara)) {
+          wantedNpc = NPC.Atma;
+        }
+      } else if (reason === "buyPotions") {
+        if (Town.getDistance(NPC.Drognan) > 10) {
+          let _needStack = CharData.pots.get("thawing").need() || CharData.pots.get("antidote").need();
+          if (_needStack) {
+            wantedNpc = NPC.Lysander;
+          }
+        }
       }
     }
 
