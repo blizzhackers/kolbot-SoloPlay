@@ -739,7 +739,10 @@ const SoloIndex = {
         return (me.expansion && me.accessToAct(5) && me.anya);
       },
       skipIf: function () {
-        return !me.nightmare || !Pather.canTeleport();
+        if (!Pather.canTeleport()) return true;
+        if (me.normal && me.charlvl < 30) return true;
+        // for now only run in norm/nightmare
+        return me.hell;
       },
       shouldRun: function () {
         if (!this.preReq() || this.skipIf()) return false;
