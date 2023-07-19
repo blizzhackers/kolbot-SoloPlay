@@ -1361,7 +1361,11 @@ const LocationAction = {
           }
         }
 
-        Starter.LocationEvents.openCreateGameWindow();
+        if (Starter.deadCheck) {
+          Controls.LobbyQuit.click();
+        } else {
+          Starter.LocationEvents.openCreateGameWindow();
+        }
       }
     ],
     [
