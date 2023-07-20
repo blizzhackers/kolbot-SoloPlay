@@ -1102,29 +1102,38 @@ const Check = {
       const gameObj = Developer.logPerformance ? Tracker.readObj(Tracker.GTPath) : null;
       const saveLocation = "logs/Kolbot-SoloPlay/Account-List/" + me.realm + "/" + (me.ladder > 0 ? "Ladder" : "Non-Ladder") + "/" + (me.ladder > 0 ? "L." : "NL.") + goal + "s.Acc." + me.account + ".CharList.txt";
       const textFile = me.account + "/" + me.charname + "/" + me.charlvl + '\n';
+      let isCaseMatched = false;
 
-      switch (true) {
-      case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.Bumper.Logging):
-      case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.SocketMules.Logging):
-      case (SetUp.finalBuild === "Imbuemule" && Developer.fillAccount.ImbueMules.Logging):
+      const generateLogAndSave = () => {
         this.generateCharacterLog();
         FileTools.appendText(saveLocation, textFile);
         D2Bot.printToConsole("Account & Character Names are saved to: " + saveLocation, sdk.colors.D2Bot.Black);
         delay(1000 + me.ping);
-      case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.Bumper.Enabled):
-      case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.SocketMules.Enabled):
-      case (SetUp.finalBuild === "Imbuemule" && Developer.fillAccount.ImbueMules.Enabled):
-        SetUp.makeNext();
+      };
 
-        break;
-      default:
+      switch (SetUp.finalBuild) {
+        case "Bumper":
+          if (Developer.fillAccount.Bumper.Logging) generateLogAndSave();
+          if (Developer.fillAccount.Bumper.Enabled) SetUp.makeNext();
+          if (!Developer.fillAccount.Bumper.Enabled) isCaseMatched = false;
+          break;
+        case "Socketmule":
+          if (Developer.fillAccount.SocketMules.Logging) generateLogAndSave();
+          if (Developer.fillAccount.SocketMules.Enabled) SetUp.makeNext();
+          if (!Developer.fillAccount.SocketMules.Enabled) isCaseMatched = false;
+          break;
+        case "Imbuemule":
+          if (Developer.fillAccount.ImbueMules.Logging) generateLogAndSave();
+          if (Developer.fillAccount.ImbueMules.Enabled) SetUp.makeNext();
+          if (!Developer.fillAccount.ImbueMules.Enabled) isCaseMatched = false;
+          break;
+      }
+
+      if (!isCaseMatched) {
         D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (gameObj ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
         Developer.logPerformance && Tracker.update();
-        FileTools.appendText(saveLocation, textFile);
-        D2Bot.printToConsole("Account & Character Names are saved to: " + saveLocation, sdk.colors.D2Bot.Black);
-        delay(1000 + me.ping);
         D2Bot.stop();
-     } 
+      }
     }
   },
 
