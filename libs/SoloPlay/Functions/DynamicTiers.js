@@ -179,12 +179,22 @@
     }
 
     chargedItems = chargedItems
-      .filter((v, i, a) => a.findIndex(el => ["skill", "level"].every(k => el[k] === v[k])) === i);
+      .filter(function (v, i, a) {
+        return a.findIndex(function (el) {
+          return ["skill", "level"].every(function (k) {
+            return el[k] === v[k];
+          });
+        }) === i;
+      });
 
     if (skillId > 0) {
       chargedItems
-        .filter(check => check.skill === skillId)
-        .forEach(el => tier += el.level * 5);
+        .filter(function (check) {
+          return check.skill === skillId;
+        })
+        .forEach(function (el) {
+          tier += el.level * 5;
+        });
     } else {
       chargedItems.forEach(function (el) {
         if (el.skill === sdk.skills.Teleport) {
@@ -252,7 +262,9 @@
       [sdk.stats.OpenWounds, 1],
       [sdk.stats.DeadlyStrike, 1.5],
       [sdk.stats.LifeLeech, 4],
+      [sdk.stats.HealAfterKill, 1],
       [sdk.stats.ManaLeech, 2],
+      [sdk.stats.ManaAfterKill, 1],
       [sdk.stats.DemonDamagePercent, 0.5],
       [sdk.stats.UndeadDamagePercent, 0.5],
       [sdk.stats.ReplenishDurability, 15],
@@ -376,7 +388,9 @@
       }
 
       // pierce/mastery's not sure how I want to weight this so for now just its base value
-      buildInfo.usefulStats.forEach(stat => generalRating += item.getStatEx(stat));
+      buildInfo.usefulStats.forEach(function (stat) {
+        generalRating += item.getStatEx(stat);
+      });
 
       // start generalRating
       !item.isRuneword && (generalRating += (item.sockets * 10)); // priortize sockets
@@ -388,7 +402,9 @@
         sdk.stats.MagicBonus, sdk.stats.GoldBonus, sdk.stats.Defense, sdk.stats.ManaRecovery,
         sdk.stats.Strength, sdk.stats.Dexterity, sdk.stats.Vitality, sdk.stats.Energy,
         sdk.stats.MaxHp, sdk.stats.MaxMana, sdk.stats.ReplenishQuantity, sdk.stats.HpRegen,
-      ].reduce((acc, stat) => acc + item.getStatEx(stat) * _tierWeights.gen.get(stat), generalRating);
+      ].reduce(function (acc, stat) {
+        return acc + item.getStatEx(stat) * _tierWeights.gen.get(stat);
+      }, generalRating);
     };
 
     const resistScore = function () {
@@ -450,7 +466,9 @@
         sdk.stats.AbsorbMagicPercent, sdk.stats.AbsorbColdPercent,
         sdk.stats.NormalDamageReduction, sdk.stats.DamageResist,
         sdk.stats.MagicDamageReduction, sdk.stats.MagicResist
-      ].reduce((acc, stat) => acc + item.getStatEx(stat) * _tierWeights.res.get(stat), resistRating));
+      ].reduce(function (acc, stat) {
+        return acc + item.getStatEx(stat) * _tierWeights.res.get(stat);
+      }, resistRating));
     };
 
     const buildScore = function () {
@@ -476,7 +494,9 @@
           sdk.stats.ReplenishDurability, sdk.stats.IgnoreTargetDefense, sdk.stats.ToHit, sdk.stats.CrushingBlow,
           sdk.stats.OpenWounds, sdk.stats.DeadlyStrike, sdk.stats.LifeLeech, sdk.stats.ManaLeech,
           sdk.stats.DemonDamagePercent, sdk.stats.UndeadDamagePercent,
-        ].reduce((acc, stat) => acc + item.getStatEx(stat) * _tierWeights.gen.get(stat), meleeRating);
+        ].reduce(function (acc, stat) {
+          return acc + item.getStatEx(stat) * _tierWeights.gen.get(stat);
+        }, meleeRating);
         buildInfo.caster && (meleeRating /= 2);
         
         return meleeRating;
@@ -490,7 +510,9 @@
         [sdk.stats.AllSkills, -1],
         [sdk.stats.AddClassSkills, me.classid],
         [sdk.stats.AddSkillTab, buildInfo.tabSkills],
-      ].reduce((acc, [stat, subId]) => acc + item.getStatEx(stat, subId) * _tierWeights.skill.get(stat), 0);
+      ].reduce(function (acc, [stat, subId]) {
+        return acc + item.getStatEx(stat, subId) * _tierWeights.skill.get(stat);
+      }, 0);
       (!buildInfo.caster && item.getItemType() === "Weapon") && (skillsRating /= 4);
       const _misc = { wanted: 40, useful: 35 };
 
@@ -554,8 +576,14 @@
       if (!ctcItems.length) return 0;
 
       ctcItems
-        .filter((v, i, a) => a.findIndex(el => ["ctcType", "skill"].every(k => el[k] === v[k])) === i)
-        .forEach(el => {
+        .filter(function (v, i, a) {
+          return a.findIndex(function (el) {
+            return ["ctcType", "skill"].every(function (k) {
+              return el[k] === v[k];
+            });
+          }) === i;
+        })
+        .forEach(function (el) {
           if (!_tierWeights.ctc.has(el.skill)) return;
           ctcRating += (el.level * _tierWeights.ctc.get(el.skill) * _tierWeights.ctc.get(el.ctcType));
         });
@@ -586,7 +614,9 @@
     let tier = 0;
 
     Check.finalBuild().precastSkills
-      .forEach(skill => tier += item.getStatEx(sdk.stats.SingleSkill, skill) * 50);
+      .forEach(function (skill) {
+        tier += item.getStatEx(sdk.stats.SingleSkill, skill) * 50;
+      });
 
     tier += item.getStatEx(sdk.stats.FCR) * 5; // add FCR
     tier += item.getStatEx(sdk.stats.FHR) * 3; // add faster hit recovery
@@ -595,7 +625,9 @@
       [sdk.stats.AllSkills, -1],
       [sdk.stats.AddClassSkills, me.classid],
       [sdk.stats.AddSkillTab, Check.finalBuild().tabSkills],
-    ].reduce((acc, [stat, subId]) => acc + item.getStatEx(stat, subId) * _tierWeights.skill.get(stat), tier);
+    ].reduce(function (acc, [stat, subId]) {
+      return acc + item.getStatEx(stat, subId) * _tierWeights.skill.get(stat);
+    }, tier);
   };
 
   /**
@@ -643,7 +675,9 @@
         sdk.stats.FireResist, sdk.stats.LightResist, sdk.stats.ColdResist, sdk.stats.PoisonResist,
         sdk.stats.FHR, sdk.stats.FRW, sdk.stats.MagicBonus, sdk.stats.GoldBonus, sdk.stats.Defense,
         sdk.stats.Strength, sdk.stats.Dexterity, sdk.stats.Vitality, sdk.stats.Energy,
-      ].reduce((acc, stat) => acc + item.getStatEx(stat) * _tierWeights.charms.get(stat), charmRating);
+      ].reduce(function (acc, stat) {
+        return acc + item.getStatEx(stat) * _tierWeights.charms.get(stat);
+      }, charmRating);
     }
     return charmRating;
   };

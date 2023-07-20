@@ -3,6 +3,8 @@
 *  @author      theBGuy
 *  @desc        Amazon fixes to improve class attack functionality
 *
+*  @typedef {import('../../../../sdk/globals')}
+*  @typedef {import('../../globals')}
 */
 
 /**
@@ -76,7 +78,8 @@ ClassAttack.doAttack = function (unit, preattack, once) {
   // Precast Section -----------------------------------------------------------------------------------------------------------------//
   if (useSkills.SlowMissiles) {
     if (!unit.getState(sdk.states.SlowMissiles)) {
-      if ((unit.distance > 3 || unit.getEnchant(sdk.enchant.LightningEnchanted)) && unit.distance < 13 && !checkCollision(me, unit, sdk.collision.Ranged)) {
+      if ((unit.distance > 3 || unit.getEnchant(sdk.enchant.LightningEnchanted))
+        && unit.distance < 13 && !checkCollision(me, unit, sdk.collision.Ranged)) {
         // Act Bosses and mini-bosses are immune to Slow Missles and pointless to use on lister or Cows, Use Inner-Sight instead
         if ([sdk.monsters.HellBovine].includes(unit.classid) || unit.isBoss) {
           // Check if already in this state
@@ -90,31 +93,44 @@ ClassAttack.doAttack = function (unit, preattack, once) {
     }
   }
 
-  if (allowThrowing && Skill.canUse(sdk.skills.LightningFury) && unit.getEnchant(sdk.enchant.ManaBurn) && unit.getMobCount(7) > 2) {
+  if (allowThrowing
+    && Skill.canUse(sdk.skills.LightningFury)
+    && unit.getEnchant(sdk.enchant.ManaBurn)
+    && unit.getMobCount(7) > 2) {
     useSkills.LightFury = true;
   }
 
-  if (allowThrowing && Skill.canUse(sdk.skills.PlagueJavelin) && unit.getEnchant(sdk.enchant.ManaBurn) && unit.getMobCount(7) > 2) {
+  if (allowThrowing
+    && Skill.canUse(sdk.skills.PlagueJavelin)
+    && unit.getEnchant(sdk.enchant.ManaBurn)
+    && unit.getMobCount(7) > 2) {
     forcePlague = true;
   }
 
   if (useSkills.InnerSight) {
-    if (!unit.getState(sdk.states.InnerSight) && unit.distance > 3 && unit.distance < 13 && !checkCollision(me, unit, sdk.collision.Ranged)) {
+    if (!unit.getState(sdk.states.InnerSight)
+      && unit.distance > 3 && unit.distance < 13
+      && !checkCollision(me, unit, sdk.collision.Ranged)) {
       Skill.cast(sdk.skills.InnerSight, sdk.skills.hand.Right, unit);
     }
   }
 
   // Handle Switch casting
-  let commonCheck = (gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
+  const commonCheck = (
+    gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area)
+  );
   if (me.expansion && index === 1 && unit.curseable) {
-    if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
-      && !unit.getState(sdk.states.LowerResist) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
+    if (commonCheck && CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
+      && !unit.getState(sdk.states.LowerResist)
+      && !checkCollision(me, unit, sdk.collision.Ranged)) {
       // Switch cast lower resist
       Attack.switchCastCharges(sdk.skills.LowerResist, unit);
     }
 
-    if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken) && !unit.getState(sdk.states.Weaken)
-      && !unit.getState(sdk.states.LowerResist) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
+    if (commonCheck && CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
+      && !unit.getState(sdk.states.Weaken)
+      && !unit.getState(sdk.states.LowerResist)
+      && !checkCollision(me, unit, sdk.collision.Ranged)) {
       // Switch cast weaken
       Attack.switchCastCharges(sdk.skills.Weaken, unit);
     }
@@ -129,12 +145,16 @@ ClassAttack.doAttack = function (unit, preattack, once) {
   if (useSkills.Decoy) {
     // Act Bosses or Immune to my main boss skill
     if ((unit.isPrimeEvil) || !Attack.checkResist(unit, Config.AttackSkill[1])) {
-      Misc.poll(() => !me.skillDelay, 1000, 40);
+      Misc.poll(function () {
+        return !me.skillDelay;
+      }, 1000, 40);
 
       // Don't use decoy if within melee distance
       if (unit.distance > 4) {
         // Check to see if decoy has already been cast
-        let decoy = Misc.poll(() => Game.getMonster(sdk.summons.Dopplezon), 1000, 10);
+        let decoy = Misc.poll(function () {
+          return Game.getMonster(sdk.summons.Dopplezon);
+        }, 1000, 10);
         
         if (!decoy && (getTickCount() - this.decoyTick >= decoyDuration) && unit.distance > 4) {
           if (unit.distance > 10 || checkCollision(me, unit, sdk.collision.Ranged)) {
@@ -157,12 +177,16 @@ ClassAttack.doAttack = function (unit, preattack, once) {
   if ((useSkills.Plague) && !Attack.checkResist(unit, "lightning")) {
     if ((unit.distance <= 15) && !checkCollision(me, unit, sdk.collision.Ranged)) {
       // Cast Slow-Missles, then proceed with Plague Jav. Lowers amount of damage from projectiles.
-      !unit.getState(sdk.states.SlowMissiles) && useSkills.SlowMissiles && Skill.cast(sdk.skills.SlowMissiles, sdk.skills.hand.Right, unit);
+      if (!unit.getState(sdk.states.SlowMissiles) && useSkills.SlowMissiles) {
+        Skill.cast(sdk.skills.SlowMissiles, sdk.skills.hand.Right, unit);
+      }
 
       // Handle Switch casting
       if (!unit.dead) {
-        if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
-          && !unit.getState(sdk.states.LowerResist) && unit.curseable && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
+        if (commonCheck && CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
+          && !unit.getState(sdk.states.LowerResist)
+          && unit.curseable
+          && !checkCollision(me, unit, sdk.collision.Ranged)) {
           // Switch cast lower resist
           Attack.switchCastCharges(sdk.skills.LowerResist, unit);
         }
@@ -195,8 +219,12 @@ ClassAttack.doAttack = function (unit, preattack, once) {
   }
 
   // Only try attacking immunes if I have my end game javelin and they aren't lightning enchanted - use jab as main attack
-  if (useSkills.Jab && !Attack.checkResist(unit, Config.AttackSkill[1]) && Attack.checkResist(unit, "physical") && !unit.getEnchant(sdk.enchant.LightningEnchanted)) {
-    if ((unit.distance > 3 || checkCollision(me, unit, sdk.collision.Ranged)) && !Attack.getIntoPosition(unit, 3, sdk.collision.BlockWall)) {
+  if (useSkills.Jab
+    && !Attack.checkResist(unit, Config.AttackSkill[1])
+    && Attack.checkResist(unit, "physical")
+    && !unit.getEnchant(sdk.enchant.LightningEnchanted)) {
+    if ((unit.distance > 3 || checkCollision(me, unit, sdk.collision.Ranged))
+      && !Attack.getIntoPosition(unit, 3, sdk.collision.BlockWall)) {
       return Attack.Result.FAILED;
     }
 
@@ -217,7 +245,8 @@ ClassAttack.doAttack = function (unit, preattack, once) {
     }
   }
 
-  if (preattack && Config.AttackSkill[0] > 0 && [sdk.skills.InnerSight, sdk.skills.SlowMissiles].indexOf(Config.AttackSkill[0]) === -1
+  if (preattack && Config.AttackSkill[0] > 0
+    && [sdk.skills.InnerSight, sdk.skills.SlowMissiles].indexOf(Config.AttackSkill[0]) === -1
     && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.skillDelay || !Skill.isTimed(Config.AttackSkill[0]))) {
     if (unit.distance > preattackRange || checkCollision(me, unit, sdk.collision.Ranged)) {
       if (!Attack.getIntoPosition(unit, preattackRange, sdk.collision.Ranged)) {
@@ -233,7 +262,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
   let mercRevive = 0;
   let skills = this.decideSkill(unit);
 
-  const switchBowAttack = (unit, attackSkill) => {
+  const switchBowAttack = function (unit, attackSkill) {
     if (Attack.getIntoPosition(unit, 20, sdk.collision.Ranged)) {
       try {
         const checkForShamans = unit.isFallen && !me.inArea(sdk.areas.BloodMoor);
@@ -241,16 +270,22 @@ ClassAttack.doAttack = function (unit, preattack, once) {
           if (checkForShamans && !once) {
             // before we waste time let's see if there is a shaman we should kill
             const shaman = getUnits(sdk.unittype.Monster)
-              .filter(mon => mon.distance < 20 && mon.isShaman && mon.attackable)
-              .sort((a, b) => a.distance - b.distance).first();
+              .filter(function (mon) {
+                return mon.distance < 20 && mon.isShaman && mon.attackable;
+              })
+              .sort(Sort.units)
+              .first();
             if (shaman) return ClassAttack.doAttack(shaman, null, true);
           }
           if (!Attack.useBowOnSwitch(unit, attackSkill, i === 5)) return Attack.Result.FAILED;
           if (unit.distance < 8 || me.inDanger()) {
             if (once) return Attack.Result.FAILED;
             let closeMob = getUnits(sdk.unittype.Monster)
-              .filter(mon => mon.distance < 10 && mon.attackable && mon.gid !== gid)
-              .sort(Attack.walkingSortMonsters).first();
+              .filter(function (mon) {
+                return mon.distance < 10 && mon.attackable && mon.gid !== gid;
+              })
+              .sort(Attack.walkingSortMonsters)
+              .first();
             if (closeMob) return ClassAttack.doAttack(closeMob, null, true);
           }
         }
@@ -266,18 +301,26 @@ ClassAttack.doAttack = function (unit, preattack, once) {
     && (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
     && (unit.distance >= 8 || (unit.isMoving && (unit.targetx !== me.x || unit.targety !== me.y)))
     && ([sdk.skills.Attack, sdk.skills.Jab].includes(skills.timed) || Skill.getManaCost(skills.timed) > me.mp)) {
-    let arrowSkill = (() => {
+    let arrowSkill = (function () {
       // todo - better determination of skills
-      if (Skill.canUse(sdk.skills.MagicArrow) && Skill.getManaCost(sdk.skills.MagicArrow) < me.mp) return sdk.skills.MagicArrow;
-      if (Skill.canUse(sdk.skills.FireArrow) && Skill.getManaCost(sdk.skills.FireArrow) < me.mp) return sdk.skills.FireArrow;
+      if (Skill.canUse(sdk.skills.MagicArrow) && Skill.getManaCost(sdk.skills.MagicArrow) < me.mp) {
+        return sdk.skills.MagicArrow;
+      }
+      if (Skill.canUse(sdk.skills.FireArrow) && Skill.getManaCost(sdk.skills.FireArrow) < me.mp) {
+        return sdk.skills.FireArrow;
+      }
       return 0;
     })();
     if (switchBowAttack(unit, arrowSkill) === Attack.Result.SUCCESS) return Attack.Result.SUCCESS;
   }
 
   if ([sdk.skills.Attack, sdk.skills.Jab].includes(skills.timed)
-    && (unit.distance >= 12 || (unit.distance > 4 && unit.isMoving && (unit.targetx !== me.x || unit.targety !== me.y)) || unit.coldEnchanted)) {
-    let item = me.getItemsEx().filter(item => item.isEquipped && item.bodylocation === sdk.body.RightArm).first();
+    && (
+      unit.distance >= 12
+      || (unit.distance > 4 && unit.isMoving && (unit.targetx !== me.x || unit.targety !== me.y))
+      || unit.coldEnchanted
+    )) {
+    let item = me.getEquippedItem(sdk.body.RightArm);
     if (item && (item.getStat(sdk.stats.Quantity) * 100 / getBaseStat("items", item.classid, "maxstack")) > 30) {
       skills.timed = sdk.skills.Throw;
     }
@@ -312,7 +355,9 @@ ClassAttack.doAttack = function (unit, preattack, once) {
         
       if (!!closeMob) {
         let findSkill = this.decideSkill(closeMob);
-        (this.doCast(closeMob, findSkill.timed, findSkill.untimed) === 1) || (Skill.canUse(sdk.skills.Decoy) && Skill.cast(sdk.skills.Decoy, sdk.skills.hand.Right, unit));
+        if (this.doCast(closeMob, findSkill.timed, findSkill.untimed) !== 1) {
+          (Skill.canUse(sdk.skills.Decoy) && Skill.cast(sdk.skills.Decoy, sdk.skills.hand.Right, unit));
+        }
       }
     }
 
@@ -367,10 +412,14 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
     case sdk.skills.Throw:
     case sdk.skills.PlagueJavelin:
     case sdk.skills.LightningFury:
-      if (timedSkill === sdk.skills.LightningFury && this.lightFuryTick && getTickCount() - this.lightFuryTick < Time.seconds(Config.LightningFuryDelay)) {
+      if (timedSkill === sdk.skills.LightningFury
+        && this.lightFuryTick
+        && getTickCount() - this.lightFuryTick < Time.seconds(Config.LightningFuryDelay)) {
         break;
       }
-      let tsRange = timedSkill === sdk.skills.Throw && (unit.isShaman || unit.isUnraveler) ? Skill.getRange(timedSkill) - 5 : Skill.getRange(timedSkill);
+      let tsRange = timedSkill === sdk.skills.Throw && (unit.isShaman || unit.isUnraveler)
+        ? Skill.getRange(timedSkill) - 5
+        : Skill.getRange(timedSkill);
       if (unit.distance > Skill.getRange(tsRange) || checkCollision(me, unit, sdk.collision.BlockMissile)) {
         if (!Attack.getIntoPosition(unit, Skill.getRange(tsRange), sdk.collision.BlockMissile)) {
           return Attack.Result.FAILED;
@@ -394,7 +443,8 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
       break;
     default:
       // If main attack skill is lightning strike and charged strike's skill level is at least level 15, check current monster count. If monster count is less than 3, use CS as its more effective with small mobs
-      if (timedSkill === sdk.skills.LightningStrike && me.getSkill(sdk.skills.ChargedStrike, sdk.skills.subindex.SoftPoints) >= 15) {
+      if (timedSkill === sdk.skills.LightningStrike
+        && me.getSkill(sdk.skills.ChargedStrike, sdk.skills.subindex.SoftPoints) >= 15) {
         if (me.getMobCount(15, Coords_1.BlockBits.LineOfSight | Coords_1.BlockBits.Ranged | Coords_1.BlockBits.ClosedDoor | Coords_1.BlockBits.BlockWall) <= 3) {
           timedSkill = sdk.skills.ChargedStrike;
         }
@@ -407,7 +457,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
         walk = (Skill.getRange(timedSkill) < 4
             && unit.distance < 10
             && !checkCollision(me, unit, sdk.collision.BlockWall)
-          );
+        );
 
         if (!Attack.getIntoPosition(unit, Skill.getRange(timedSkill), sdk.collision.Ranged, walk)) {
           return Attack.Result.FAILED;
@@ -428,7 +478,7 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
       walk = (Skill.getRange(untimedSkill) < 4
           && unit.distance < 10
           && !checkCollision(me, unit, sdk.collision.BlockWall)
-        );
+      );
 
       if (!Attack.getIntoPosition(unit, Skill.getRange(untimedSkill), sdk.collision.Ranged, walk)) {
         return Attack.Result.FAILED;
@@ -440,7 +490,9 @@ ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
     return Attack.Result.SUCCESS;
   }
 
-  Misc.poll(() => !me.skillDelay, 1000, 40);
+  Misc.poll(function () {
+    return !me.skillDelay;
+  }, 1000, 40);
 
   // Wait for Lightning Fury timeout
   while (this.lightFuryTick && getTickCount() - this.lightFuryTick < Config.LightningFuryDelay * 1000) {

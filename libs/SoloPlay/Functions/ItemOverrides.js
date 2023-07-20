@@ -479,7 +479,9 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
 /**
  * @param {ItemUnit} item 
  */
-Item.hasSecondaryTier = (item) => Config.AutoEquip && me.expansion && NTIP.GetSecondaryTier(item) > 0;
+Item.hasSecondaryTier = function (item) {
+  return Config.AutoEquip && me.expansion && NTIP.GetSecondaryTier(item) > 0;
+};
 
 /**
  * @param {ItemUnit} item 
@@ -702,7 +704,9 @@ Item.getMercEquipped = function (bodyLoc = -1) {
 
   if (mercenary) {
     let item = mercenary.getItemsEx()
-      .filter((item) => item.isEquipped && item.bodylocation === bodyLoc)
+      .filter(function (item) {
+        return item.isEquipped && item.bodylocation === bodyLoc;
+      })
       .first();
 
     if (item) {
