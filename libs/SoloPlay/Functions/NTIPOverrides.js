@@ -519,6 +519,11 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
   return verbose ? rval : result;
 };
 
+/**
+ * @param {string} filepath 
+ * @param {boolean} notify 
+ * @returns {boolean}
+ */
 NTIP.OpenFile = function (filepath, notify) {
   if (!FileTools.exists(filepath)) {
     if (notify) {
@@ -529,7 +534,7 @@ NTIP.OpenFile = function (filepath, notify) {
   }
 
   let nipfile, tick = getTickCount(), entries = 0;
-  let filename = filepath.substring(filepath.lastIndexOf("/") + 1, filepath.length);
+  const filename = filepath.substring(filepath.lastIndexOf("/") + 1, filepath.length);
 
   try {
     nipfile = File.open(filepath, 0);
@@ -540,14 +545,16 @@ NTIP.OpenFile = function (filepath, notify) {
   if (!nipfile) return false;
 
   let lines = nipfile.readAllLines();
+  let lineNumber = 1;
   nipfile.close();
 
   /**
-   * @note removed tierd check for normal pick files as soloplay handles that
+   * @note removed tier'd check for normal pick files as soloplay handles that
    */
   for (let entry of lines) {
     const info = {
-      line: NTIP.CheckList.list.length + 1,
+      index: NTIP.CheckList.list.length + 1,
+      line: lineNumber,
       file: filename,
       string: entry
     };
@@ -558,6 +565,7 @@ NTIP.OpenFile = function (filepath, notify) {
       NTIP.CheckList.add(line, info);
       entries++;
     }
+    lineNumber++;
   }
 
   if (notify) {
@@ -793,6 +801,7 @@ NTIP.ParseLineInt = function (input, info) {
       p_end = p_section[i].indexOf("]");
       p_keyword = p_section[i].substring(0, p_end);
 
+      /** @type {string} */
       let keyword = p_keyword.toLowerCase();
 
       switch (keyword) {
@@ -802,14 +811,6 @@ NTIP.ParseLineInt = function (input, info) {
 
         if (!isNaN(quantity)) {
           p_result[2].InvoQuantity = quantity;
-        }
-
-        break;
-      case "finalcharm":
-        let check = Boolean(p_section[i].split("==")[1].match(/(\b(?!split\b)[^ $]+\b)/g));
-
-        if (!isNaN(check)) {
-          p_result[2].FinalCharm = check;
         }
 
         break;
@@ -826,7 +827,7 @@ NTIP.ParseLineInt = function (input, info) {
       case "charmtier":
       case "merctier":
         try {
-          p_result[2][keyword.charAt(0).toUpperCase() + keyword.slice(1)] = (new Function("return function(item) { return " + p_section[i].split("==")[1] + ";}")).call(null); // generate function out of
+          p_result[2][keyword.capitalize()] = (new Function("return function(item) { return " + p_section[i].split("==")[1] + ";}")).call(null); // generate function out of
         } catch (e) {
           Misc.errorReport("ÿc1Pickit Tier (" + keyword + ") error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message);
         }

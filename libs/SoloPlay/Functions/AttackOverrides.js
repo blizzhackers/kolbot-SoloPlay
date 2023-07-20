@@ -1787,12 +1787,13 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
   let potentialSpot = { x: null, y: null };
   let fullDistance = distance;
 
+  const coords = [];
+  const nearMobs = getUnits(sdk.unittype.Monster)
+    .filter(function (m) {
+      return m.getStat(sdk.stats.Alignment) !== 2;
+    });
   for (let n = 0; n < 3; n += 1) {
-    const coords = [];
-    const nearMobs = getUnits(sdk.unittype.Monster)
-      .filter(function (m) {
-        return m.getStat(sdk.stats.Alignment) !== 2;
-      });
+    const temp = [];
     (n > 0) && (distance -= Math.floor(fullDistance / 3 - 1));
 
     for (let currAngle of angles) {
@@ -1804,15 +1805,16 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
       if (force && [cx, cy].distance < distance) continue;
       if (Pather.checkSpot(cx, cy, sdk.collision.BlockWall, false)) {
         coords.push({ x: cx, y: cy });
+        temp.push({ x: cx, y: cy });
       }
     }
-    if (!coords.length) continue;
+    if (!temp.length) continue;
 
     coords.sort(Sort.units);
     
     // If one of the valid positions is a position I am at already - and we aren't trying to force a new spot
     if (!force) {
-      for (let coord of coords) {
+      for (let coord of temp) {
         if ((getDistance(me, coord.x, coord.y) < 1
           && !CollMap.checkColl(unit, { x: coord.x, y: coord.y }, _coll, 1))
           || (getDistance(me, coord.x, coord.y) <= 5 && me.getMobCount(6) > 2)) {
@@ -1820,62 +1822,47 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
         }
       }
     }
+  }
+  for (let coord of coords) {
+    // Valid position found - no collision between the spot and the unit
+    if (!CollMap.checkColl({ x: coord.x, y: coord.y }, unit, coll, 1)) {
+      const currCount = nearMobs
+        .filter(function (m) {
+          return getDistance(coord.x, coord.y, m.x, m.y) < 8;
+        }).length;
 
-    for (let coord of coords) {
-      // Valid position found - no collision between the spot and the unit
-      if (!CollMap.checkColl({ x: coord.x, y: coord.y }, unit, coll, 1)) {
-        Developer.debugging.pathing && console.time("countMobs");
-        const currCount = nearMobs
-          .filter(function (m) {
-            return getDistance(coord.x, coord.y, m.x, m.y) < 8;
-          }).length;
-        Developer.debugging.pathing && console.timeEnd("countMobs");
+      // this might be a valid spot but also check the mob count at that node
+      if (caster) {
+        potentialSpot.x === null && (potentialSpot = { x: coord.x, y: coord.y });
 
-        // this might be a valid spot but also check the mob count at that node
-        if (caster) {
-          potentialSpot.x === null && (potentialSpot = { x: coord.x, y: coord.y });
-
-          if (currCount < count) {
-            count = currCount;
-            potentialSpot = { x: coord.x, y: coord.y };
-            if (Developer.debugging.pathing) {
-              console.log(
-                sdk.colors.Blue + "CheckedSpot" + sdk.colors.Yellow + ": x: " + coord.x
-                + " y: " + coord.y + " mob amount: " + sdk.colors.NeonGreen + count
-              );
-            }
-          }
-
-          if (currCount > minMonCount) {
-            if (Developer.debugging.pathing) {
-              console.log(
-                sdk.colors.Red + "Not Zero, check next: currCount: "
-                + sdk.colors.NeonGreen + " " + currCount
-              );
-            }
-            continue;
-          }
+        if (currCount < count) {
+          count = currCount;
+          potentialSpot = { x: coord.x, y: coord.y };
         }
 
-        // I am already in my optimal position
-        if (coord.distance < 3) return true;
-
-        // we are actually able to walk to where we want to go, hopefully prevent wall hugging
-        if (walk && (coord.distance < 6 || !CollMap.checkColl(me, unit, _coll))) {
-          Pather.walkTo(coord.x, coord.y, 2);
-        } else {
-          Pather.move(coord, _pathSettings);
+        if (currCount > minMonCount) {
+          continue;
         }
-        if (Developer.debugging.pathing) {
-          console.log(
-            sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow
-            + "Moving to: x: " + coord.x + " y: " + coord.y
-            + " mob amount: " + sdk.colors.NeonGreen + currCount
-          );
-          console.timeEnd("getIntoPosition");
-        }
-        return true;
       }
+
+      // I am already in my optimal position
+      if (coord.distance < 3) return true;
+
+      // we are actually able to walk to where we want to go, hopefully prevent wall hugging
+      if (walk && (coord.distance < 6 || !CollMap.checkColl(me, unit, _coll))) {
+        Pather.walkTo(coord.x, coord.y, 2);
+      } else {
+        Pather.move(coord, _pathSettings);
+      }
+      if (Developer.debugging.pathing) {
+        console.log(
+          sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow
+          + "Moving to: x: " + coord.x + " y: " + coord.y
+          + " mob amount: " + sdk.colors.NeonGreen + currCount
+        );
+        console.timeEnd("getIntoPosition");
+      }
+      return true;
     }
   }
 
