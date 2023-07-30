@@ -10,5 +10,5 @@
 
   Config.Runewords.push([Runeword.Fury, "suwayyah"]);
 
-  Config.KeepRunewords.push("[type] == assassinclaw # [itemallskills] == 2 && [ias] == 40 && [itemdeadlystrike] == 33");
+  Config.KeepRunewords.push("[type] == assassinclaw # [lifeleech] >= 6 && [ias] == 40 && [itemdeadlystrike] == 33");
 })();
