@@ -39,6 +39,10 @@ function myPrint (str = "", toConsole = false, color = 0) {
   toConsole && D2Bot.printToConsole("Kolbot-SoloPlay :: " + str, color);
 }
 
+let sharedData = {
+  goal: ""
+};
+
 // general settings
 const SetUp = {
   mercEnabled: true,
@@ -1055,37 +1059,58 @@ const Check = {
   },
 
   generateCharacterLog: function () {
-    const folders = [
-      "logs/Kolbot-SoloPlay/Account-List",
-      "logs/Kolbot-SoloPlay/Account-List/" + me.realm,
-      "logs/Kolbot-SoloPlay/Account-List/" + me.realm + "/" + (me.ladder > 0 ? "Ladder" : "Non-Ladder")
-    ];
+    let basePath = "logs/Kolbot-SoloPlay";
+    let mainPath = basePath + "/Account-List";
+    let realmPath = mainPath + "/" + me.realm;
+    let ladderType = me.ladder > 0 ? "Ladder" : "Non-Ladder";
+    let ladderTypePath = realmPath + "/" + ladderType;
+    let charLogPath = ladderTypePath + "/" + (me.ladder > 0 ? "L." : "NL.") + sharedData.goal + "s.Acc." + me.account + ".CharList.txt";
 
-    for (let folder of folders) {
-      if (!FileTools.exists(folder)) {
-        dopen(folder.split("/").slice(0, -1).join("/")).create(folder.split("/").pop());
-        print(sdk.colors.DarkGreen + "Creating Folders");
-        delay(2500 + me.ping);
-      } else {
-        return; // Exit the function if the folder already exists
-      }
+    // Data-file already exists
+    if (FileTools.exists(charLogPath)) {
+      return;
+    }
+
+    // Create necessary directories if they don't exist
+    if (!FileTools.exists(basePath)) {
+      print(sdk.colors.DarkGreen + "Creating Directory: " + basePath);
+      dopen("logs").create("Kolbot-SoloPlay");
+      delay(2500 + me.ping);
+    }
+
+    if (!FileTools.exists(mainPath)) {
+      print(sdk.colors.DarkGreen + "Creating Directory: " + mainPath);
+      dopen(basePath).create("Account-List");
+      delay(2500 + me.ping);
+    }
+
+    if (!FileTools.exists(realmPath)) {
+      print(sdk.colors.DarkGreen + "Creating Directory: " + realmPath);
+      dopen(mainPath).create(me.realm);
+      delay(2500 + me.ping);
+    }
+
+    if (!FileTools.exists(ladderTypePath)) {
+      print(sdk.colors.DarkGreen + "Creating Directory: " + ladderType);
+      dopen(realmPath).create(ladderType);
+      delay(2500 + me.ping);
     }
   },
 
   checkSpecialCase: function () {
     const questCompleted = (id) => !!Misc.checkQuest(id, sdk.quest.states.ReqComplete);
-    let goalReached = false, goal = "";
+    let goalReached = false;
 
     switch (true) {
     case SetUp.finalBuild === "Bumper" && me.charlvl >= (Developer.fillAccount.Bumper.Level):
     case (SetUp.finalBuild === "Socketmule" && questCompleted(sdk.quest.id.SiegeOnHarrogath)):
     case (SetUp.finalBuild === "Imbuemule" && questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Developer.fillAccount.ImbueMules.Level):
-      goal = SetUp.finalBuild;
+      sharedData.goal = SetUp.finalBuild;
       goalReached = true;
 
       break;
     case SetUp.stopAtLevel && me.charlvl >= SetUp.stopAtLevel:
-      goal = "Level: " + SetUp.stopAtLevel;
+      sharedData.goal = "Level: " + SetUp.stopAtLevel;
       goalReached = true;
 
       break;
@@ -1100,7 +1125,7 @@ const Check = {
 
     if (goalReached) {
       const gameObj = Developer.logPerformance ? Tracker.readObj(Tracker.GTPath) : null;
-      const saveLocation = "logs/Kolbot-SoloPlay/Account-List/" + me.realm + "/" + (me.ladder > 0 ? "Ladder" : "Non-Ladder") + "/" + (me.ladder > 0 ? "L." : "NL.") + goal + "s.Acc." + me.account + ".CharList.txt";
+      const saveLocation = "logs/Kolbot-SoloPlay/Account-List/" + me.realm + "/" + (me.ladder > 0 ? "Ladder" : "Non-Ladder") + "/" + (me.ladder > 0 ? "L." : "NL.") + sharedData.goal + "s.Acc." + me.account + ".CharList.txt";
       const textFile = me.account + "/" + me.charname + "/" + me.charlvl + '\n';
       let isCaseMatched = false;
 
@@ -1130,7 +1155,7 @@ const Check = {
       }
 
       if (!isCaseMatched) {
-        D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (gameObj ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
+        D2Bot.printToConsole("Kolbot-SoloPlay " + sharedData.goal + " goal reached." + (gameObj ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
         Developer.logPerformance && Tracker.update();
         D2Bot.stop();
       }
