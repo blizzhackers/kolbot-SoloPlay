@@ -13,7 +13,7 @@ Precast.enabled = true;
 // Can't be on a weapon due to consistent switching but
 // Clay Goldem from Stone RW, Iron Golem from Metalgrid, Posion Creeper from Carrior Wind ring, Oak, HoW, or SoB from wisp
 
-new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
+new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force, partial) {
   if (!Precast.enabled) return false;
 
   switch (me.classid) {
@@ -21,32 +21,44 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force) {
     // Force BO 30 seconds before it expires
     if (this.haveCTA > -1) {
       let forceBo = (force
-        || (getTickCount() - this.skills.battleOrders.tick >= this.skills.battleOrders.duration - 30000)
+        || Precast.skills.get(sdk.skills.BattleOrders).remaining() < 25
         || !me.getState(sdk.states.BattleCommand));
       forceBo && this.precastCTA(forceBo);
     }
 
-    if (Skill.canUse(sdk.skills.HolyShield)
-      && Math.round(Skill.getManaCost(sdk.skills.HolyShield) * 100 / me.mpmax) < 35
-      && (!me.getState(sdk.states.HolyShield) || force)) {
-      Precast.cast(sdk.skills.HolyShield);
+    if (Precast.skills.get(sdk.skills.HolyShield).needToCast(force || partial, 15)
+      && Math.round(Skill.getManaCost(sdk.skills.HolyShield) * 100 / me.mpmax) < 35) {
+      if (Precast.skills.get(sdk.skills.HolyShield).needToCast(force || partial, 15)) {
+        let _wearingShield = me.getItem(-1, sdk.items.mode.Equipped, Precast.shieldGid);
+        if (!_wearingShield) {
+          // try once to locate, in case we just swapped
+          _wearingShield = me.usingShield();
+          Precast.shieldGid = _wearingShield ? _wearingShield.gid : 0;
+          if (!_wearingShield) {
+            break;
+          }
+        }
+        if (Precast.shieldGid > 0) {
+          Precast.cast(sdk.skills.HolyShield);
+        }
+      }
     }
 
     break;
   case sdk.player.class.Barbarian:
-    let needShout = (Skill.canUse(sdk.skills.Shout) && (force || !me.getState(sdk.states.Shout)));
-    let needBo = (Skill.canUse(sdk.skills.BattleOrders) && (force || !me.getState(sdk.states.BattleOrders)));
-    let needBc = (Skill.canUse(sdk.skills.BattleCommand) && (force || !me.getState(sdk.states.BattleCommand)));
+    let needShout = (Precast.skills.get(sdk.skills.Shout).needToCast(force || partial));
+    let needBo = (Precast.skills.get(sdk.skills.BattleOrders).needToCast(force || partial));
+    let needBc = (Precast.skills.get(sdk.skills.BattleCommand).needToCast(force || partial));
 
     if (needShout || needBo || needBc) {
       let primary = Attack.getPrimarySlot();
       let { x, y } = me;
       (needBo || needBc) && me.switchWeapons(this.getBetterSlot(sdk.skills.BattleOrders));
 
-      needBc && Precast.cast(sdk.skills.BattleCommand, x, y, true);
-      needBo && Precast.cast(sdk.skills.BattleOrders, x, y, true);
-      needShout && Precast.cast(sdk.skills.Shout, x, y, true);
-      needBc && Precast.cast(sdk.skills.BattleCommand, x, y, true);
+      needBc && Precast.cast(sdk.skills.BattleCommand, x, y, false);
+      needBo && Precast.cast(sdk.skills.BattleOrders, x, y, false);
+      needShout && Precast.cast(sdk.skills.Shout, x, y, false);
+      needBc && Precast.cast(sdk.skills.BattleCommand, x, y, false);
 
       me.weaponswitch !== primary && me.switchWeapons(primary);
     }
