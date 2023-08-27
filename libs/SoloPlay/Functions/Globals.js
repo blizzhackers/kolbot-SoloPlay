@@ -2,6 +2,7 @@
 *  @filename    Globals.js
 *  @author      theBGuy
 *  @credit      alogwe
+*  @contributor Butterz
 *  @desc        Global functions for Kolbot-SoloPlay functionality
 *
 */
@@ -39,6 +40,13 @@ function myPrint (str = "", toConsole = false, color = 0) {
   toConsole && D2Bot.printToConsole("Kolbot-SoloPlay :: " + str, color);
 }
 
+/** 
+ * Calculate minGameTime based on individual profiles and their associated IP count
+ * Invokes the calculateAndSetMinGameTime() function from Developer.js
+ * Checks whether the maximum allowed IPs is below 8, and then determines the time accordingly
+ * Utilizes data from either the array values or static values in Developer.js
+ */
+const minGameTime = calculateAndSetMinGameTime();
 let sharedData = {
   goal: ""
 };
@@ -485,7 +493,7 @@ const SetUp = {
     }
 
     /* General configuration. */
-    Config.MinGameTime = 400;
+    Config.MinGameTime = minGameTime;
     Config.MaxGameTime = 7200;
     Config.MiniShopBot = true;
     Config.PacketShopping = true;

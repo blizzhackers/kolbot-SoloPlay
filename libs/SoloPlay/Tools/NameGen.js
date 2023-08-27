@@ -234,10 +234,11 @@
     "zoo", "zoology",
   ];
 
-/**
- *  @author Butterz
- *  @desc Retrieves global character information, manages character naming, and handles related operations.
- */
+  /**
+   *  @author Butterz
+   *  @desc Retrieves global character information, manages character naming, and handles related operations.
+   * 
+   */
 
   const getGlobalCharacter = function () {
     const SaveLocation = "logs/Kolbot-SoloPlay/GlobalCharacter.json";

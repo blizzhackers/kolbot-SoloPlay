@@ -209,11 +209,14 @@ function main () {
 
   // Check for experience decrease -> log death. Skip report if life chicken is disabled.
   if (stats.name === me.name && me.getStat(sdk.stats.Experience) < stats.experience && Config.LifeChicken > 0) {
-    D2Bot.printToConsole(
-      "You died in last game. | Area :: " + stats.lastArea + " | Script :: " + stats.lastScript + "\n"
-      + "Experience decreased by " + (stats.experience - me.getStat(sdk.stats.Experience)),
-      sdk.colors.D2Bot.Red
-    );
+    if (!Developer.hideDeaths) {
+      D2Bot.printToConsole(
+        "You died in last game. | Area :: " + stats.lastArea + " | Script :: " + stats.lastScript + "\n"
+        + "Experience decreased by " + (stats.experience - me.getStat(sdk.stats.Experience)),
+        sdk.colors.D2Bot.Red
+      );
+    }
+    
     DataFile.updateStats("deaths");
     D2Bot.updateDeaths();
   }

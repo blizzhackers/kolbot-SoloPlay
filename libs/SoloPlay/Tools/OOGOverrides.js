@@ -1,6 +1,7 @@
 /**
 *  @filename    OOGOverrides.js
 *  @author      theBGuy
+*  @contributor Butterz
 *  @desc        OOG.js fixes to improve functionality
 *
 */
@@ -198,6 +199,16 @@ const LocationAction = {
    * @property {boolean} expansion
    * @property {boolean} hardcore
    */
+
+  /** 
+   * Calculate minGameTime based on individual profiles and their associated IP count
+   * Invokes the calculateAndSetMinGameTime() function from Developer.js
+   * Checks whether the maximum allowed IPs is below 8, and then determines the time accordingly
+   * Utilizes data from either the array values or static values in Developer.js
+   */
+  const minGameTime = calculateAndSetMinGameTime();
+  let profileArray = Developer.ProfilesPerIP.ProfilesArray.find(profile => profile.ProfileName.toUpperCase() === me.profile.toUpperCase());
+  let numProfiles = profileArray ? profileArray.IP : Developer.ProfilesPerIP.StaticProfiles;
 
   /**
    * @param {CharInfo} info 
@@ -907,17 +918,17 @@ const LocationAction = {
               Starter.profileInfo.password = Developer.GlobalSettings.Password.length > 0 ? Developer.GlobalSettings.Password : Starter.randomString(12, true);
 
               try {
-                if (Starter.profileInfo.account.length > 15) throw new Error("Account name exceeds MAXIMUM length (15). Please enter a shorter name to restart the count.");
-                if (Starter.profileInfo.password.length > 15) throw new Error("Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig");
+                if (Starter.profileInfo.account.length > 15) throw new Error('The account name exceeds the maximum length of 15 characters, as applicable in "Developer.js". For the count to restart, kindly input a shorter name.');
+                if (Starter.profileInfo.password.length > 15) throw new Error('The password length surpasses the allowable limit of 15 characters. Kindly select a briefer password for use in "Developer.js".');
               } catch (e) {
                 D2Bot.printToConsole("Kolbot-SoloPlay: " + e.message, sdk.colors.D2Bot.Gold);
                 D2Bot.setProfile("", "", null, "Normal");
                 D2Bot.stop();
               }
 
-              console.log("Kolbot-SoloPlay :: Generated account information. " + (Developer.GlobalSettings.Account.length > 0 ? "Pre-defined " : "Random ") + "account used");
-              console.log("Kolbot-SoloPlay :: Generated password information. " + (Developer.GlobalSettings.Password.length > 0 ? "Pre-defined " : "Random ") + "password used");
-              ControlAction.timeoutDelay("Generating Account Information", Starter.Config.DelayBeforeLogin * 1e3);
+              if (Developer.GlobalSettings.Account.length == 0) console.log("Kolbot-SoloPlay :: Generated account information. Random account used");
+              if (Developer.GlobalSettings.Password.length == 0) console.log("Kolbot-SoloPlay :: Generated password information. Random password used");
+              if (Developer.GlobalSettings.Password.length == 0 || Developer.GlobalSettings.Account.length == 0) ControlAction.timeoutDelay("Generating Some Random Account Information", Starter.Config.DelayBeforeLogin * 1e3);
             } else {
               Starter.profileInfo.account = Starter.randomString(12, true);
               Starter.profileInfo.password = Starter.randomString(12, true);
@@ -959,16 +970,24 @@ const LocationAction = {
               D2Bot.printToConsole("Character died", sdk.colors.D2Bot.Red);
               ControlAction.deleteAndRemakeChar(Starter.profileInfo);
             } else {
-              switch (true) {
-              case (Starter.profileInfo.tag === "Bumper" && ControlAction.getCharacters().length == (Developer.fillAccount.Bumper.Count)):               
-              case (Starter.profileInfo.tag === "Socketmule" && ControlAction.getCharacters().length == (Developer.fillAccount.SocketMules.Count)):
-              case (Starter.profileInfo.tag === "Imbuemule" && ControlAction.getCharacters().length == (Developer.fillAccount.ImbueMules.Count)):
-                D2Bot.printToConsole("Kolbot-SoloPlay: " + Starter.CharacterCountmsg(), sdk.colors.D2Bot.Orange);
-                D2Bot.stop();
+              const characterTag = Starter.profileInfo.tag;
+              const tagToCharacterCountMap = {
+                "Bumper": Developer.fillAccount.Bumper.Count,
+                "SocketMule": Developer.fillAccount.SocketMules.Count,
+                "ImbueMule": Developer.fillAccount.ImbueMules.Count
+              };
 
-                break; 
-              default:
-                ControlAction.makeCharacter(Starter.profileInfo);
+              if (tagToCharacterCountMap.hasOwnProperty(characterTag)) {
+                const characterCountLimit = tagToCharacterCountMap[characterTag];
+
+                if (ControlAction.getCharacters().length == characterCountLimit) {
+                  D2Bot.printToConsole("Kolbot-SoloPlay: " + CharacterCountmsg(), sdk.colors.D2Bot.Orange);
+                  D2Bot.stop();
+                } else {
+                  ControlAction.makeCharacter(profileInfo);
+                }
+              } else {
+                ControlAction.makeCharacter(profileInfo);
               }
             }
           }
@@ -1182,8 +1201,9 @@ const LocationAction = {
     if (Starter.inGame || Starter.gameInfo.error) {
       !Starter.gameStart && (Starter.gameStart = DataFile.getStats().ingameTick);
 
-      if (getTickCount() - Starter.gameStart < Starter.Config.MinGameTime * 1e3) {
-        ControlAction.timeoutDelay("Min game time wait", Starter.Config.MinGameTime * 1e3 + Starter.gameStart - getTickCount());
+      if (getTickCount() - Starter.gameStart < minGameTime * 1e3) {
+        validateProfileIP(numProfiles);
+        ControlAction.timeoutDelay("Min game time wait", minGameTime * 1e3 + Starter.gameStart - getTickCount());
       }
     }
 
@@ -1437,8 +1457,9 @@ const LocationAction = {
         !Starter.firstLogin && (Starter.firstLogin = true);
         Starter.lastGameStatus === "pending" && (Starter.gameCount += 1);
 
-        if (Starter.Config.PingQuitDelay && Starter.pingQuit) {
-          ControlAction.timeoutDelay("Ping Delay", Starter.Config.PingQuitDelay * 1e3);
+        if (minGameTime && Starter.pingQuit) {
+          validateProfileIP(numProfiles);
+          ControlAction.timeoutDelay("Ping Delay", minGameTime * 1e3);
           Starter.pingQuit = false;
         }
 
@@ -1447,8 +1468,9 @@ const LocationAction = {
         if (Starter.inGame || Starter.gameInfo.error) {
           !Starter.gameStart && (Starter.gameStart = DataFile.getStats().ingameTick);
 
-          if (getTickCount() - Starter.gameStart < Starter.Config.MinGameTime * 1e3 && !joinInfo) {
-            let _waitTime = Starter.Config.MinGameTime * 1e3 + Starter.gameStart - getTickCount();
+          if (getTickCount() - Starter.gameStart < minGameTime * 1e3 && !joinInfo) {
+            let _waitTime = minGameTime * 1e3 + Starter.gameStart - getTickCount();
+            validateProfileIP(numProfiles);
             ControlAction.timeoutDelay("Min game time wait", _waitTime);
           }
         }
@@ -1521,7 +1543,8 @@ const LocationAction = {
           Starter.isUp = "no";
 
           D2Bot.printToConsole("Failed to create game");
-          ControlAction.timeoutDelay("FTJ delay", Starter.Config.FTJDelay * 1e3);
+          validateProfileIP(numProfiles);
+          ControlAction.timeoutDelay("FTJ delay", minGameTime * 1e3);
           D2Bot.updateRuns();
         }
 
