@@ -210,6 +210,12 @@ const LocationAction = {
   let profileArray = Developer.ProfilesPerIP.ProfilesArray.find(profile => profile.ProfileName.toUpperCase() === me.profile.toUpperCase());
   let numProfiles = profileArray ? profileArray.IP : Developer.ProfilesPerIP.StaticProfiles;
 
+  // Determine character and account types based on GlobalSettings and construct corresponding messages.
+  const characterType = Developer.GlobalSettings.Name.length > 0 ? "Global " : "Regular ";
+  const charMessage = "Making " + characterType + "Character: " + info.charName;
+  const accountType = Developer.GlobalSettings.Account.length > 0 ? "Global " : "Regular ";
+  const accMessage = "Making " + accountType + "Account: " + info.account;
+
   /**
    * @param {CharInfo} info 
    * @returns {boolean}
@@ -243,7 +249,7 @@ const LocationAction = {
         Developer.logPerformance && Tracker.initialize();
       }
 
-      D2Bot.updateStatus("Making Character: " + info.charName);
+      D2Bot.updateStatus(charMessage);
 
       // cycle until in lobby
       while (getLocation() !== sdk.game.locations.Lobby && !me.ingame) {
@@ -290,7 +296,7 @@ const LocationAction = {
           ControlAction.timeoutDelay("Character Name exists: " + info.charName + ". Making new Name.", 5e3);
           Starter.profileInfo.charName = info.charName = NameGen();
           Controls.OkCentered.click();
-          D2Bot.updateStatus("Making Character: " + info.charName);
+          D2Bot.updateStatus(charMessage);
 
           break;
         default:
@@ -484,7 +490,7 @@ const LocationAction = {
   ControlAction.makeAccount = function (info) {
     try {
       me.blockMouse = true;
-      D2Bot.updateStatus("Making Account: " + info.account);
+      D2Bot.updateStatus(accMessage);
 
       // cycle until in empty char screen
       while (getLocation() !== sdk.game.locations.CharSelectNoChars) {
