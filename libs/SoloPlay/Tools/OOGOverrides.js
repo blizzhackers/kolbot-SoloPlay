@@ -210,12 +210,6 @@ const LocationAction = {
   let profileArray = Developer.ProfilesPerIP.ProfilesArray.find(profile => profile.ProfileName.toUpperCase() === me.profile.toUpperCase());
   let numProfiles = profileArray ? profileArray.IP : Developer.ProfilesPerIP.StaticProfiles;
 
-  // Determine character and account types based on GlobalSettings and construct corresponding messages.
-  const characterType = Developer.GlobalSettings.Name.length > 0 ? "Global " : "Regular ";
-  const charMessage = "Making " + characterType + "Character: " + info.charName;
-  const accountType = Developer.GlobalSettings.Account.length > 0 ? "Global " : "Regular ";
-  const accMessage = "Making " + accountType + "Account: " + info.account;
-
   /**
    * @param {CharInfo} info 
    * @returns {boolean}
@@ -249,6 +243,9 @@ const LocationAction = {
         Developer.logPerformance && Tracker.initialize();
       }
 
+      // Determine character and account types based on GlobalSettings and construct corresponding messages.
+      const characterType = Developer.GlobalSettings.Name.length > 0 ? "Global " : "Regular ";
+      const charMessage = "Making " + characterType + "Character: " + info.charName;
       D2Bot.updateStatus(charMessage);
 
       // cycle until in lobby
@@ -490,6 +487,10 @@ const LocationAction = {
   ControlAction.makeAccount = function (info) {
     try {
       me.blockMouse = true;
+      
+      // Determine character and account types based on GlobalSettings and construct corresponding messages.
+      const accountType = Developer.GlobalSettings.Account.length > 0 ? "Global " : "Regular ";
+      const accMessage = "Making " + accountType + "Account: " + info.account;
       D2Bot.updateStatus(accMessage);
 
       // cycle until in empty char screen
