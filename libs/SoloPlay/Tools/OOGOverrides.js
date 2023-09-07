@@ -38,6 +38,17 @@ const LocationAction = {
     };
   })();
 
+  /**
+   * @param {Control} control
+   * @returns {string}
+   */
+  const parseControlText = (control) => {
+    if (!control) return "";
+    let text = control.getText();
+    if (!text || !text.length) return "";
+    return text.join(" ");
+  };
+
   new Overrides.Override(Starter, Starter.receiveCopyData, function (orignal, mode, msg) {
     switch (mode) {
     case 1: // Join Info
@@ -168,7 +179,7 @@ const LocationAction = {
         "\n" + sdk.colors.Red
         + "//-----------DataDump End-----------//"
       );
-    } else if (msg === "deleteAndRemake") {
+    } else if (msg === "remake") {
       Starter.deadCheck = true;
     } else {
       orignal(msg);
@@ -964,7 +975,7 @@ const LocationAction = {
         Controls.LoginErrorOk.click();
         Controls.BottomLeftExit.click();
         D2Bot.printToConsole(string);
-        ControlAction.timeoutDelay("Login Error Delay", 5 * 6e4);
+        ControlAction.timeoutDelay("Login Error Delay", Time.minutes(Starter.Config.UnableToConnectDelay));
         D2Bot.printToConsole("Login Error - Restart");
         D2Bot.restart();
 
@@ -1482,6 +1493,39 @@ const LocationAction = {
         Starter.LocationEvents.openCreateGameWindow();
       }
     ],
+    [
+      sdk.game.locations.OkCenteredErrorPopUp,
+      function () {
+        let string = parseControlText(Controls.OkCenteredText);
+
+        switch (string) {
+        case getLocaleString(sdk.locale.text.CannotCreateGamesDeadHCChar):
+          Starter.deadCheck = true;
+          Controls.OkCentered.click();
+          return;
+        case getLocaleString(sdk.locale.text.UsernameMustBeAtLeast):
+        case getLocaleString(sdk.locale.text.PasswordMustBeAtLeast):
+        case getLocaleString(sdk.locale.text.AccountMustBeAtLeast):
+        case getLocaleString(sdk.locale.text.PasswordCantBeMoreThan):
+        case getLocaleString(sdk.locale.text.AccountCantBeMoreThan):
+        case getLocaleString(sdk.locale.text.InvalidPassword):
+          D2Bot.printToConsole(string);
+          Starter.profileInfo.account = "";
+          Starter.profileInfo.password = "";
+          CharData.login.updateData({ account: "", password: "" });
+
+          break;
+        default:
+          D2Bot.updateStatus("Error");
+          D2Bot.printToConsole("Error - " + string);
+
+          break;
+        }
+        Controls.OkCentered.click();
+        
+        ControlAction.timeoutDelay("Error", Time.minutes(1));
+      }
+    ]
   ]);
 
   /**
