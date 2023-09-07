@@ -507,7 +507,7 @@
 
     const skillsScore = function () {
       let skillsRating = [
-        [sdk.stats.AllSkills, -1],
+        [sdk.stats.AllSkills, 0],
         [sdk.stats.AddClassSkills, me.classid],
         [sdk.stats.AddSkillTab, buildInfo.tabSkills],
       ].reduce(function (acc, [stat, subId]) {
@@ -519,10 +519,10 @@
       let selectedWeights = [_misc.wanted, _misc.useful];
       let selectedSkills = [buildInfo.wantedSkills, buildInfo.usefulSkills];
 
-      for (let i = 0; i < selectedWeights.length; i++) {
-        for (let j = 0; j < selectedSkills.length; j++) {
-          for (let k = 0; k < selectedSkills[j].length; k++) {
-            skillsRating += item.getStatEx(sdk.stats.SingleSkill, selectedSkills[j][k]) * selectedWeights[i];
+      for (let weight of selectedWeights) {
+        for (let type of selectedSkills) {
+          for (let skill of type) {
+            skillsRating += item.getStatEx(sdk.stats.SingleSkill, skill) * weight;
           }
         }
       }
