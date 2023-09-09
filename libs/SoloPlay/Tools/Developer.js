@@ -24,7 +24,7 @@ const Developer = {
     StaticProfiles: 1// Change this value as needed (Max amount 8 profiles per IP).
     // Array of profiles with the corresponding number of IPs being used
     ProfilesArray: [
-      //{ Profile: 'SCL-PAL-001', IPs: 1 },
+      //{ ProfileName: 'SCL-PAL-001', IPs: 1 },
       // Add more profiles here as needed
     ],
   }
