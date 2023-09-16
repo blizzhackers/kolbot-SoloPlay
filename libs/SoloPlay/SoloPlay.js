@@ -209,7 +209,7 @@ function main () {
 
   // Check for experience decrease -> log death. Skip report if life chicken is disabled.
   if (stats.name === me.name && me.getStat(sdk.stats.Experience) < stats.experience && Config.LifeChicken > 0) {
-    if (!Developer.hideDeaths) {
+    if (!Developer.Console.HideDeaths) {
       D2Bot.printToConsole(
         "You died in last game. | Area :: " + stats.lastArea + " | Script :: " + stats.lastScript + "\n"
         + "Experience decreased by " + (stats.experience - me.getStat(sdk.stats.Experience)),

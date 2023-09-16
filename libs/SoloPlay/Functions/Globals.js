@@ -539,29 +539,17 @@ const SetUp = {
     ];
 
     /* Shrine scan configuration. */
-    if (Check.currentBuild().caster) {
-      Config.ScanShrines = [
-        sdk.shrines.Refilling, sdk.shrines.Health,
-        sdk.shrines.Mana, sdk.shrines.Gem,
-        sdk.shrines.Monster, sdk.shrines.HealthExchange,
-        sdk.shrines.ManaExchange, sdk.shrines.Experience,
-        sdk.shrines.Armor, sdk.shrines.ResistFire,
-        sdk.shrines.ResistCold, sdk.shrines.ResistLightning,
-        sdk.shrines.ResistPoison, sdk.shrines.Skill,
-        sdk.shrines.ManaRecharge, sdk.shrines.Stamina
-      ];
-    } else {
-      Config.ScanShrines = [
-        sdk.shrines.Refilling, sdk.shrines.Health,
-        sdk.shrines.Mana, sdk.shrines.Gem,
-        sdk.shrines.Monster, sdk.shrines.HealthExchange,
-        sdk.shrines.ManaExchange, sdk.shrines.Experience,
-        sdk.shrines.Combat, sdk.shrines.Skill,
-        sdk.shrines.Armor, sdk.shrines.ResistFire,
-        sdk.shrines.ResistCold, sdk.shrines.ResistLightning,
-        sdk.shrines.ResistPoison, sdk.shrines.ManaRecharge, sdk.shrines.Stamina
-      ];
-    }
+    const sharedShrines = [
+      sdk.shrines.Refilling, sdk.shrines.Health,
+      sdk.shrines.Mana, sdk.shrines.Gem,
+      sdk.shrines.Monster, sdk.shrines.HealthExchange,
+      sdk.shrines.ManaExchange, sdk.shrines.Experience,
+      sdk.shrines.Armor, sdk.shrines.ResistFire,
+      sdk.shrines.ResistCold, sdk.shrines.ResistLightning,
+      sdk.shrines.ResistPoison, sdk.shrines.ManaRecharge, sdk.shrines.Stamina
+    ];
+
+    Config.ScanShrines = Check.currentBuild().caster ? [...sharedShrines, sdk.shrines.Skill] : sharedShrines;
 
     /* General logging. */
     Config.ItemInfo = false;
@@ -1135,7 +1123,7 @@ const Check = {
       const gameObj = Developer.logPerformance ? Tracker.readObj(Tracker.GTPath) : null;
       const saveLocation = "logs/Kolbot-SoloPlay/Account-List/" + me.realm + "/" + (me.ladder > 0 ? "Ladder" : "Non-Ladder") + "/" + (me.ladder > 0 ? "L." : "NL.") + sharedData.goal + "s.Acc." + me.account + ".CharList.txt";
       const textFile = me.account + "/" + me.charname + "/" + me.charlvl + '\n';
-      let isCaseMatched = false;
+      let isConfigurationCaseMatched = false;
 
       const generateLogAndSave = () => {
         this.generateCharacterLog();
@@ -1146,23 +1134,25 @@ const Check = {
 
       switch (SetUp.finalBuild) {
         case "Bumper":
-          if (Developer.fillAccount.Bumper.Logging) generateLogAndSave();
-          if (Developer.fillAccount.Bumper.Enabled) SetUp.makeNext();
-          if (!Developer.fillAccount.Bumper.Enabled) isCaseMatched = false;
+          if (Developer.fillAccount.Bumper.Logging) generateLogAndSave(); // Check if logging is enabled
+          if (Developer.fillAccount.Bumper.Enabled) SetUp.makeNext(); // Check if "Fill Account" is enabled
+          if (!Developer.fillAccount.Bumper.Enabled) isConfigurationCaseMatched = true; // If not enabled, set isConfigurationCaseMatched to true
           break;
+
         case "Socketmule":
           if (Developer.fillAccount.SocketMules.Logging) generateLogAndSave();
           if (Developer.fillAccount.SocketMules.Enabled) SetUp.makeNext();
-          if (!Developer.fillAccount.SocketMules.Enabled) isCaseMatched = false;
+          if (!Developer.fillAccount.SocketMules.Enabled) isConfigurationCaseMatched = true;
           break;
+
         case "Imbuemule":
           if (Developer.fillAccount.ImbueMules.Logging) generateLogAndSave();
           if (Developer.fillAccount.ImbueMules.Enabled) SetUp.makeNext();
-          if (!Developer.fillAccount.ImbueMules.Enabled) isCaseMatched = false;
+          if (!Developer.fillAccount.ImbueMules.Enabled) isConfigurationCaseMatched = true;
           break;
       }
 
-      if (!isCaseMatched) {
+      if (isConfigurationCaseMatched) {
         D2Bot.printToConsole("Kolbot-SoloPlay " + sharedData.goal + " goal reached." + (gameObj ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
         Developer.logPerformance && Tracker.update();
         D2Bot.stop();

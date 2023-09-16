@@ -2,7 +2,7 @@
 *  @filename    Developer.js
 *  @author      theBGuy
 *  @desc        Tools/Settings for Kolbot-SoloPlay
-*  @contributor Butterz - Added more options for Bumpers,Socket & Imbue. GlobalSettings. Profile timer Array/static.
+*  @contributor Butterz - Added more options for Bumpers,Socket & Imbue. GlobalSettings. Profile timer Array/static. DisplaySettings.
 *
 */
 
@@ -12,36 +12,54 @@
  * - add name choices in similar manner, would have to experiment with max lengths allowed as a prefix
  */
 const Developer = {
-  // @desc - Global Account Settings
+  // @desc - Global Account Configuration
   GlobalSettings: {
-    Account: "", // Set a value for global accounts. MAX Characters 12 plus Suffix Length (Total 15).
-    Password: "", // Set a value for global passwords for account generation.
-    Enable: false, // Set to true to use the "Global Character Name" feature.
-    Name: "", // Set a global character name.
+      Account: "",      // Specify a global account name (max 12 chars + suffix length, max total 15).
+      Password: "",     // Define a global password for the generated accounts.
+      // @desc - Configuration for character name.
+      Enable: false,    // Activate global character naming.
+      Name: "",         // Specify a global character name prefix.
+      // @desc - Configuration for game information.
+      GSLabel: false,   // If true, adds the global settings prefix label before the game name.
+      GameName: "",     // Core game name; the profile number will be auto-appended.
+      GamePass: ""      // Define the game's password.
   },
-  // @desc - Set the number of profiles sharing the same IP in this file
+  // @desc - Configure what information is displayed in the D2bot# status window.
+  DisplaySettings: {
+    GameType: false,        // Indicate if the game is online (showing IP Address) or offline (marked as singleplayer).
+    Online: false,          // Show the online account name (blank in singleplayer).
+    GameName: false,        // Show the game name (blank in singleplayer).
+    ClockInConsole: false   // Display Total, InGame, and OOG (Out Of Game) time.
+  },
+  // @desc - Configure profiles to manage IP usage. Helps calculate minimum game time based on profiles sharing the same IP connection to prevent temporary bans.
   ProfilesPerIP: {
-    StaticProfiles: 1// Change this value as needed (Max amount 8 profiles per IP).
-    // Array of profiles with the corresponding number of IPs being used
-    ProfilesArray: [
-      //{ ProfileName: 'SCL-PAL-001', IP: 1 },
-      // Add more profiles here as needed
-    ],
-  }
+    StaticProfiles: 1,   // Define the static number of profiles per IP (Recommended max: 8 profiles per IP).
+    
+    /**
+     * Array of profiles, each detailing the corresponding number of IPs being used.
+     * 
+     * Example of how to add to the ProfilesArray 
+     * ProfilesArray: [
+     *  { ProfileName: 'SCL-PAL-001', IP: 1 },
+     *  //Add additional profiles as required
+     * ],
+     */
+    ProfilesArray: [],
+  },
   // @desc - set to true if using the PlugY mod - allows use of larger stash
   plugyMode: false,
   // @desc - log game/bot statistics to .csv files located at SoloPlay/Data/
   logPerformance: true,
   // @desc - show in game overlay (see bottom of README.md for example)
   overlay: true,
-  // @desc - show Total, InGame, and OOG (out of game) time in the D2bot# status window
-  displayClockInConsole: false,
   // @desc - log currently equipped items to D2Bot# charviewer tab
   logEquipped: false,
-  // @desc - disable printing chicken info in D2Bot console
-  hideChickens: true,
-  // @desc - disable printing death info in D2Bot console
-  hideDeaths: true,
+  //
+  // @desc - Configuration settings for D2Bot# console message displays.
+  Console: {
+      HideChickens: true, // Set to true to suppress the display of "chicken" events in the console.
+      HideDeaths: true    // Set to true to suppress the display of character deaths events in the console.
+  },
   // @desc - enable ladder runewords in single player mode ONLY WORKS IF RUNEWORDS.TXT IS INSTALLED AND D2BS PROFILE IS CONFIGURED
   //   or patch.json has been updated (see Single Player Additions in README.md)
   addLadderRW: !me.profile.toLowerCase().contains("nl"),
@@ -51,25 +69,28 @@ const Developer = {
     // @desc - allow specific profiles to show casting animations without disabling it for every profile running (helpful when debugging)
     excludeProfiles: [""],
   },
-  // @desc - set to true in use with tag Bumper, Socketmule, or Imbuemule to make next character after reaching goal until account is full
+  // @desc - For use with Bumper, Socketmule and Imbuemule tags to continuously create characters until the account reaches its capacity or set capacity.
   fillAccount: {
-    Bumper: {
-      Logging: false, // Enable logging of the account and character names in a txt file
-      Enabled: false, // Fill account
-      Level: 40, // Set stop level for bumpers (20 Normal, 40 Nightmare, 60 Hell) (The objective/target must be achieved)
-      Count: 10, // Number of character to fill on account (MAX 18)
-    },
-    SocketMules: {
-      Logging: false, // Enable logging of the account and character names in a txt file
-      Enabled: false, // Fill account
-      Count: 18, // Number of character to create on account (MAX 18)
-    },
-    ImbueMules: {
-      Logging: false, // Enable logging of the account and character names in a txt file
-      Enabled: false, // Fill account
-      Level: 30, // Set stop level for imbueMule (The objective/target must be achieved)
-      Count: 18, // Number of character to create on account (MAX 18)
-    },
+      Bumper: {
+        Logging: false,      // Log character details to a file.
+        Enabled: false,      // Activate multi-character creation.
+        Level: 40,           // Level at which to stop: 20 (Normal), 40 (Nightmare), 60 (Hell).
+        Count: 18,           // Number of characters per account (max: 18).
+        NextAccount: false   // Use a new account when the current one is full.
+      },
+      SocketMules: {
+        Logging: false,      // Log character details to a file.
+        Enabled: false,      // Activate multi-character creation.
+        Count: 18,           // Number of characters per account (max: 18).
+        NextAccount: false   // Use a new account when the current one is full.
+      },
+      ImbueMules: {
+        Logging: false,      // Log mule details to a file.
+        Enabled: false,      // Activate multi-character creation.
+        Level: 30,           // Target level to stop. The character progresses until the imbue quest is ready, and then continues until the specified level is reached before stopping.
+        Count: 18,           // Mules to create per account (max: 18).
+        NextAccount: false   // Use a new account when the current one is full.
+      },
   },
   // @desc - stop a profile once it reaches a certain level
   stopAtLevel: {
