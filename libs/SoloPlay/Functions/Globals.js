@@ -546,10 +546,11 @@ const SetUp = {
       sdk.shrines.ManaExchange, sdk.shrines.Experience,
       sdk.shrines.Armor, sdk.shrines.ResistFire,
       sdk.shrines.ResistCold, sdk.shrines.ResistLightning,
-      sdk.shrines.ResistPoison, sdk.shrines.ManaRecharge, sdk.shrines.Stamina
+      sdk.shrines.ResistPoison, sdk.shrines.Skill,
+      sdk.shrines.ManaRecharge, sdk.shrines.Stamina
     ];
 
-    Config.ScanShrines = Check.currentBuild().caster ? [...sharedShrines, sdk.shrines.Skill] : sharedShrines;
+    Config.ScanShrines = Check.currentBuild().caster ? sharedShrines : [...sharedShrines, sdk.shrines.Combat];
 
     /* General logging. */
     Config.ItemInfo = false;
