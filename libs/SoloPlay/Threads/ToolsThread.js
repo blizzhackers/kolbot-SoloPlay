@@ -712,7 +712,7 @@ function main () {
     }
 
     function GameName () {
-      return Developer.DisplaySettings.DisplayGameName
+      return Developer.DisplaySettings.GameName
       ? "Game Name: " + me.gamename + "  |  "
       : "";
     }
