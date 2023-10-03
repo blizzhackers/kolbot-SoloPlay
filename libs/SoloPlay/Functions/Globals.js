@@ -1086,6 +1086,7 @@ const Check = {
       switch (true) {
       case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.bumpers):
       case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.socketMules):
+      case (SetUp.finalBuild === "Imbuemule" && Developer.fillAccount.imbueMule):
         SetUp.makeNext();
         
         break;
