@@ -13,6 +13,7 @@
   const AreaData = require("./AreaData");
   const MissileData = require("./MissileData");
   const Coords_1 = require("../Coords");
+  const Vector = require("../Vector");
   const sdk = require("../../../modules/sdk");
   const HPLookup = [
     ["1", "1", "1"], ["7", "107", "830"],
@@ -662,51 +663,51 @@
       let eliteBonus = (target.spectype && target.isSpecial) ? 1 : 0, hitcap = 1;
 
       switch (skillID) { // charged bolt/strike excluded, it's so unreliably random
-      case 15: // poison javalin
-      case 25: // plague javalin
-      case 16: // exploding arrow
-      case 27: // immolation arrow
-      case 31: // freezing arrow
-      case 35: // lightning fury
-      case 44: // frost nova
-      case 48: // nova
-      case 56: // meteor
-      case 59: // blizzard
-      case 64: // frozen orb
-      case 83: // poison explosion
-      case 92: // poison nova
-      case 112: // blessed hammer
-      case 154: // war cry
-      case 229: // molten boulder
-      case 234: // fissure
-      case 249: // armageddon
-      case 244: // volcano
-      case 250: // hurricane
-      case 251: // fireblast
-      case 261: // charged bolt sentry
-      case 262: // wake of fire
-      case 55: // glacial spike
-      case 47: // fire ball
-      case 42: // Static field.
-      case 38: // charged bolt
+      case sdk.skills.PoisonJavelin: // poison javalin
+      case sdk.skills.PlagueJavelin: // plague javalin
+      case sdk.skills.ExplodingArrow: // exploding arrow
+      case sdk.skills.ImmolationArrow: // immolation arrow
+      case sdk.skills.FreezingArrow: // freezing arrow
+      case sdk.skills.LightningFury: // lightning fury
+      case sdk.skills.FrostNova: // frost nova
+      case sdk.skills.Nova: // nova
+      case sdk.skills.Meteor: // meteor
+      case sdk.skills.Blizzard: // blizzard
+      case sdk.skills.FrozenOrb: // frozen orb
+      case sdk.skills.PoisonExplosion: // poison explosion
+      case sdk.skills.PoisonNova: // poison nova
+      case sdk.skills.BlessedHammer: // blessed hammer
+      case sdk.skills.WarCry: // war cry
+      case sdk.skills.MoltenBoulder: // molten boulder
+      case sdk.skills.Fissure: // fissure
+      case sdk.skills.Armageddon: // armageddon
+      case sdk.skills.Volcano: // volcano
+      case sdk.skills.Hurricane: // hurricane
+      case sdk.skills.FireBlast: // fireblast
+      case sdk.skills.ChargedBoltSentry: // charged bolt sentry
+      case sdk.skills.WakeofFire: // wake of fire
+      case sdk.skills.GlacialSpike: // glacial spike
+      case sdk.skills.FireBall: // fire ball
+      case sdk.skills.StaticField: // Static field.
+      case sdk.skills.ChargedBolt: // charged bolt
         hitcap = Infinity;
         break;
-      case 34: // lightning strike
-        hitcap = 1 + this.skillLevel(34);
+      case sdk.skills.LightningStrike: // lightning strike
+        hitcap = 1 + this.skillLevel(sdk.skills.LightningStrike);
         break;
-      case 67: // teeth
-        hitcap = 1 + this.skillLevel(67);
+      case sdk.skills.Teeth: // teeth
+        hitcap = 1 + this.skillLevel(sdk.skills.Teeth);
         break;
-      case 53: // chain lightning
-        hitcap = 5 + ((this.skillLevel(53) / 5) | 0);
+      case sdk.skills.ChainLightning: // chain lightning
+        hitcap = 5 + ((this.skillLevel(sdk.skills.ChainLightning) / 5) | 0);
         break;
-      case 24:
-        hitcap = 3 + ((this.skillLevel(24) / 5) | 0);
+      case sdk.skills.ChargedStrike:
+        hitcap = 3 + ((this.skillLevel(sdk.skills.ChargedStrike) / 5) | 0);
         break;
-      case 49: // lightning
-      case 84: // bone spear
-      case 271: // lightning sentry
-      case 276: // death sentry
+      case sdk.skills.Lightning: // lightning
+      case sdk.skills.BoneSpear: // bone spear
+      case sdk.skills.LightningSentry: // lightning sentry
+      case sdk.skills.DeathSentry: // death sentry
         hitcap = aps ? Math.sqrt(aps / Math.PI) * 2 : 1;
         break;
       default:
@@ -760,13 +761,64 @@
     skillDamage: function (skillID, unit) {
       // TODO: caluclate basic attack damage
       if (skillID === sdk.skills.Attack) {
+        let weapon = me.equipped.get(sdk.body.RightArm);
+        let [dexBonus, strBonus] = [0, 0];
+        const isEth = weapon.ethereal;
+        const minDmg = (GameData.myReference.getStat(sdk.stats.MinDamage) || 1);
+        const maxDmg = (GameData.myReference.getStat(sdk.stats.MaxDamage) || 2);
+        const wepED = (weapon.getStat(sdk.stats.EnhancedDamage) || 0);
+        const isDeadlyStrike = Math.random() < GameData.myReference.getStat(sdk.stats.DeadlyStrike) / 100;
+        console.log(isEth, minDmg, maxDmg, wepED, isDeadlyStrike);
+
+        switch (weapon.itemType) {
+        case sdk.items.type.AmazonBow:
+        case sdk.items.type.Crossbow:
+        case sdk.items.type.Bow:
+          dexBonus = (GameData.myReference.getStat(sdk.stats.Dexterity) / 100);
+
+          break;
+        case sdk.items.type.AmazonJavelin:
+        case sdk.items.type.AmazonSpear:
+          strBonus = (GameData.myReference.getStat(sdk.stats.Strength) / 80);
+          dexBonus = (GameData.myReference.getStat(sdk.stats.Dexterity) / 50);
+
+          break;
+        case sdk.items.type.HandtoHand:
+        case sdk.items.type.Knife:
+        case sdk.items.type.ThrowingAxe:
+        case sdk.items.type.ThrowingKnife:
+          strBonus = (GameData.myReference.getStat(sdk.stats.Strength) / 75);
+          dexBonus = (GameData.myReference.getStat(sdk.stats.Dexterity) / 75);
+
+          break;
+        case sdk.items.type.Hammer:
+          strBonus = (GameData.myReference.getStat(sdk.stats.Strength) / 110);
+
+          break;
+        default:
+          strBonus = (GameData.myReference.getStat(sdk.stats.Strength) / 100);
+
+          break;
+        }
+        
         return {
           type: "Physical",
-          pmin: (GameData.myReference.getStat(sdk.stats.MinDamage) || 2),
-          pmax: (GameData.myReference.getStat(sdk.stats.MaxDamage) || 8),
+          pmin: (
+            minDmg * (isEth ? 1.5 : 1)
+            // * (wepED > -1 ? (1 + wepED / 100) : 1)
+            * (1 + strBonus + dexBonus)
+            * (isDeadlyStrike ? 2 : 1)
+          ),
+          pmax: (
+            maxDmg * (isEth ? 1.5 : 1)
+            // * (wepED > -1 ? (1 + wepED / 100) : 1)
+            * (1 + strBonus + dexBonus)
+            * (isDeadlyStrike ? 2 : 1)
+          ),
           min: 0,
           max: 0
         }; // short sword, no reqs
+
       }
 
       if (this.skillLevel(skillID) < 1) {
@@ -1004,15 +1056,15 @@
           : 0);
 
       /**
-       * 
        * @param {skillDmgObj} skillData 
        * @param {Monster | number | string} unit 
        * @returns 
        */
       const getTotalDmg = function (skillData, unit) {
-        const isUndead = (typeof unit === "number"
-          ? MonsterData.get(unit).Undead
-          : MonsterData.get(unit.classid).Undead);
+        const mon = (typeof unit === "number"
+          ? MonsterData.get(unit)
+          : MonsterData.get(unit.classid));
+        const isUndead = mon.Undead;
         const conviction = GameData.getConviction();
         let totalDmg = 0;
         let avgPDmg = (skillData.pmin + skillData.pmax) / 2;
@@ -1033,6 +1085,14 @@
           resist = (resist < 100 ? Math.max(-100, resist - pierce) : 100);
           totalDmg += avgDmg * (100 - resist) / 100;
         }
+        if (typeof unit === "object") {
+          let { classid, area, charlvl } = unit;
+          let adjustLevel = charlvl - GameData.monsterLevel(classid, area);
+          let currentHealth = GameData.monsterMaxHP(classid, area, adjustLevel) / 100 * (unit.hp * 100 / unit.hpmax);
+          if (currentHealth < totalDmg) {
+            totalDmg = currentHealth;
+          }
+        }
         return totalDmg;
       };
 
@@ -1051,6 +1111,55 @@
             let _a = GameData.skillDamage(skill, cur);
             return acc + getTotalDmg(_a, cur);
           }, 0);
+      };
+
+      /**
+       * Orb travels a 9 1/3 yard straight path and sends out bolts covering a 20yard radius. We need to create 
+       * a box and check all monsters who are within that box. We can then calculate the damage of the orb 
+       * Each bolt can hit a monster only once. Maximum of 46 bolts can be fired.
+       * @param {Monster} target 
+       */
+      const calculateOrbPathDamage = function (target) {
+        let totalDmg = 0;
+        const meVec = new Vector(me.x, me.y);
+        const targetVec = new Vector(target.x, target.y);
+        const orbVec = targetVec.subtract(meVec).normalize().multiply(9.33);
+        const orbPath = Vector.path(meVec, orbVec);
+        let units = getUnits(sdk.unittype.Monster)
+          .filter(function (mon) {
+            if (!mon.attackable) return false;
+            const distInPath = orbPath
+              .toSorted(function (a, b) {
+                return getDistance(mon, a) - getDistance(mon, b);
+              }).first();
+            if (!distInPath) return false;
+            const distanceFromPath = getDistance(mon, distInPath);
+            if (distanceFromPath > 20) {
+              mon._modifier = 5;
+            } else if (distanceFromPath > 15) {
+              mon._modifier = 4;
+            } else if (distanceFromPath > 10) {
+              mon._modifier = 3;
+            } else if (distanceFromPath > 0) {
+              mon._modifier = 1;
+            }
+            return distanceFromPath < 25;
+          })
+          .sort(function (a, b) {
+            const distAFromTarget = getDistance(target, a);
+            const distAFromMe = getDistance(me, a);
+            const distBFromTarget = getDistance(target, b);
+            const distBFromMe = getDistance(me, b);
+
+            return (distAFromTarget + distAFromMe) - (distBFromTarget + distBFromMe);
+          });
+        for (let i = 0; i < units.length; i++) {
+          if (units[i] !== undefined) {
+            let _a = GameData.skillDamage(sdk.skills.FrozenOrb, units[i]);
+            totalDmg += getTotalDmg(_a, units[i]) / units[i]._modifier;
+          }
+        }
+        return totalDmg;
       };
 
       /**
@@ -1118,7 +1227,12 @@
           }, 0);
       };
 
-      const calculateThroughDamage = function () {
+      /**
+       * @param {number} skill 
+       * @param {Monster} target 
+       * @returns {number}
+       */
+      const calculateThroughDamage = function (skill, target) {
         // determine maximum potential distance of this missile
         // build points from me -> monster -> max distance
         // iterate points checking if any monsters are in the path
@@ -1127,6 +1241,44 @@
         // - check monster size, based on size the boulder may knock back or go through them
         // - if we encounter a collision that causes the boulder to burst, add explosion damage
         // 
+        const range = Skill.getRange(skill);
+        let totalDmg = 0;
+        const meVec = new Vector(me.x, me.y);
+        const targetVec = new Vector(target.x, target.y);
+        const misVec = targetVec.subtract(meVec).normalize().multiply(range);
+        const missilePath = Vector.path(meVec, misVec);
+        missilePath.sort(function (a, b) {
+          return getDistance(me, a) - getDistance(me, b);
+        });
+        // check if we run into any cast-blockers
+        let cBlockIdx = missilePath.findIndex(function (point) {
+          let coll = getCollision(me.area, point.x, point.y);
+          return (coll & sdk.collision.BlockMissile);
+        });
+        if (cBlockIdx > -1) {
+          missilePath.splice(cBlockIdx);
+        }
+        let units = getUnits(sdk.unittype.Monster)
+          .filter(function (mon) {
+            if (!mon.attackable) return false;
+            const distInPath = missilePath
+              .toSorted(function (a, b) {
+                return getDistance(mon, a) - getDistance(mon, b);
+              }).first();
+            if (!distInPath) return false;
+            const distanceFromPath = getDistance(mon, distInPath);
+            return distanceFromPath <= 3;
+          })
+          .sort(function (a, b) {
+            return getDistance(me, a) - getDistance(me, b);
+          });
+        for (let i = 0; i < units.length; i++) {
+          if (units[i] !== undefined) {
+            let _a = GameData.skillDamage(skill, units[i]);
+            totalDmg += getTotalDmg(_a, units[i]);
+          }
+        }
+        return totalDmg;
       };
 
       /**
@@ -1175,6 +1327,8 @@
        * Others?
        */
       switch (skillID) {
+      case sdk.skills.FrozenOrb:
+        return calculateOrbPathDamage(unit);
       case sdk.skills.Blizzard:
       case sdk.skills.Meteor:
       case sdk.skills.FireBall:
