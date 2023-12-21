@@ -50,85 +50,102 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     }
   };
 
-  /**
-   * @constructor
-   * @param {number} skillId
-   * @param {number} reqLvl
-   * @param {number} range
-   */
-  function ClassData (skillId = -1, range = 0) {
-    this.have = false;
-    this.skill = skillId;
-    this.range = range ? range : Skill.getRange(skillId);
-    this.mana = Infinity;
-    this.dmg = 0;
-    this.timed = Skill.isTimed(skillId);
-    this.reqLvl = getBaseStat("skills", skillId, "reqlevel");
-  }
+  const lastAttack = {
+    skill: -1,
+    count: 0,
+    gid: -1,
 
-  /**
-   * Initialize data values
-   * @param {number} [range] 
-   * @returns {void}
-   */
-  ClassData.prototype.assignValues = function (range) {
-    this.have = Skill.canUse(this.skill);
-    if (!this.have) return;
-    this.range = range || Skill.getRange(this.skill);
-    this.mana = Skill.getManaCost(this.skill);
-  };
-
-  /**
-   * Calculate effective damage for a certain monster unit
-   * @param {Monster} unit 
-   * @returns {void}
-   */
-  ClassData.prototype.calcDmg = function (unit) {
-    if (!this.have) return;
-    this.dmg = GameData.avgSkillDamage(this.skill, unit);
-  };
-
-  const AttackData = {
-    "Attack": new ClassData(sdk.skills.Attack, 4),
-    "FireBolt": new ClassData(sdk.skills.FireBolt),
-    "ChargedBolt": new ClassData(sdk.skills.ChargedBolt),
-    "IceBolt": new ClassData(sdk.skills.IceBolt),
-    "Inferno": new ClassData(sdk.skills.Inferno),
-    "Telekinesis": new ClassData(sdk.skills.Telekinesis, 20),
-    "StaticField": new ClassData(sdk.skills.StaticField),
-    "IceBlast": new ClassData(sdk.skills.IceBlast),
-    "FrostNova": new ClassData(sdk.skills.FrostNova),
-    "FireBall": new ClassData(sdk.skills.FireBall),
-    // Blaze: new ClassData(sdk.skills.Blaze),
-    "Lightning": new ClassData(sdk.skills.Lightning),
-    "Nova": new ClassData(sdk.skills.Nova),
-    "FireWall": new ClassData(sdk.skills.FireWall),
-    "ChainLightning": new ClassData(sdk.skills.ChainLightning),
-    "GlacialSpike": new ClassData(sdk.skills.GlacialSpike),
-    "Meteor": new ClassData(sdk.skills.Meteor),
-    // ThunderStorm: new ClassData(sdk.skills.ThunderStorm),
-    "Blizzard": new ClassData(sdk.skills.Blizzard),
-    "Hydra": new ClassData(sdk.skills.Hydra),
-    "FrozenOrb": new ClassData(sdk.skills.FrozenOrb),
-  };
-
-  /**
-   * The keys never change so this makes it easier to iterate without calling Object.keys each time
-   * @type {Array<keyof typeof AttackData>}
-   */
-  const AttackDataKeys = Object.keys(AttackData);
-  
-  /**
-   * Helper function to re-init AttackData
-   * @param {number} currLvl
-   * @todo decide when AttackData need to be re-initialized becasue doing it every attack is a waste
-   */
-  const initAttackData = function (currLvl = me.charlvl) {
-    AttackDataKeys.forEach(function (sk) {
-      if (currLvl >= AttackData[sk].reqLvl) {
-        AttackData[sk].assignValues();
+    setSkill: function (skill, gid) {
+      if (skill === this.skill && gid === this.gid) {
+        this.count++;
+      } else {
+        this.skill = skill;
+        this.count = 1;
+        this.gid = gid;
       }
-    });
+    },
+  };
+
+  const Skills = new Map([
+    [sdk.skills.Attack, Skill.get(sdk.skills.Attack)],
+    [sdk.skills.FireBolt, Skill.get(sdk.skills.FireBolt)],
+    [sdk.skills.ChargedBolt, Skill.get(sdk.skills.ChargedBolt)],
+    [sdk.skills.IceBolt, Skill.get(sdk.skills.IceBolt)],
+    [sdk.skills.Inferno, Skill.get(sdk.skills.Inferno)],
+    [sdk.skills.Telekinesis, Skill.get(sdk.skills.Telekinesis)],
+    [sdk.skills.StaticField, Skill.get(sdk.skills.StaticField)],
+    [sdk.skills.IceBlast, Skill.get(sdk.skills.IceBlast)],
+    [sdk.skills.FrostNova, Skill.get(sdk.skills.FrostNova)],
+    [sdk.skills.FireBall, Skill.get(sdk.skills.FireBall)],
+    [sdk.skills.Lightning, Skill.get(sdk.skills.Lightning)],
+    [sdk.skills.Nova, Skill.get(sdk.skills.Nova)],
+    [sdk.skills.FireWall, Skill.get(sdk.skills.FireWall)],
+    [sdk.skills.ChainLightning, Skill.get(sdk.skills.ChainLightning)],
+    [sdk.skills.GlacialSpike, Skill.get(sdk.skills.GlacialSpike)],
+    [sdk.skills.Meteor, Skill.get(sdk.skills.Meteor)],
+    [sdk.skills.Blizzard, Skill.get(sdk.skills.Blizzard)],
+    [sdk.skills.Hydra, Skill.get(sdk.skills.Hydra)],
+    [sdk.skills.FrozenOrb, Skill.get(sdk.skills.FrozenOrb)],
+  ]);
+
+  /**
+   * @param {Monster} unit
+   * @param {{
+   *  manaSort?: boolean,
+   *  checkSkillDelay?: boolean,
+   *  checkLast: boolean,
+   *  checkSafeStatic: boolean,
+   *  minRange?: number,
+   *  maxRange?: number
+   * }} options
+   */
+  const decideAttack = function (unit, options = {}) {
+    const overrides = Object.assign({
+      manaSort: true,
+      checkSkillDelay: false,
+      checkLast: true,
+      checkSafeStatic: true,
+      minRange: 0,
+      maxRange: 0,
+    }, options);
+    let _choices = [];
+
+    for (let [skillId, skill] of Skills) {
+      if (!skill.have()) continue;
+      if (overrides.minRange && skill.range() < overrides.minRange) continue;
+      if (overrides.maxRange && skill.range() > overrides.maxRange) continue;
+      skill._dmg = GameData.avgSkillDamage(skillId, unit);
+      _choices.push(skill);
+    }
+
+    return _choices
+      .sort(function (a, b) {
+        if (overrides.manaSort) {
+          if (b._dmg === a._dmg) {
+            return b.manaCost() - a.manaCost();
+          }
+        }
+        return b._dmg - a._dmg;
+      })
+      .find(function (skill) {
+        if (overrides.checkLast
+          && _choices.length > 2
+          && lastAttack.count > 3
+          // && skill.skillId === lastAttack.skill
+          // for now only check these two, just mixing in other attacks every third attack
+          && [sdk.skills.ChargedBolt, sdk.skills.StaticField].includes(skill.skillId)
+          && unit.gid === lastAttack.gid) {
+          return false;
+        }
+        if (overrides.checkSafeStatic
+          && _choices.length > 2
+          && skill.skillId === sdk.skills.StaticField
+          && unit.distance > skill.range()
+          && me.inDanger(unit, skill.range() + 1)) {
+          return false;
+        }
+        return (me.mp > skill.manaCost()) && (!skill.timed || !overrides.checkSkillDelay || !me.skillDelay);
+      }) || -1;
   };
 
   /**
@@ -136,21 +153,22 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * @param {Monster} unit
    */
   const setDamageValues = function (unit) {
-    AttackDataKeys.forEach(function (sk) {
-      if (AttackData[sk].have) {
-        AttackData[sk].calcDmg(unit);
-      }
-    });
+    for (let [skillId, skill] of Skills) {
+      if (!skill.have()) continue;
+      skill._dmg = GameData.avgSkillDamage(skillId, unit);
+    }
   };
 
   /**
    * Check if this skill is the most damaging
-   * @param {ClassData} skill 
+   * @param {SkillDataInfo} checkSkill 
    * @returns {boolean}
    */
-  const isHighestDmg = function (skill) {
-    for (let key of AttackDataKeys) {
-      if (AttackData[key].dmg > skill.dmg) {
+  const isHighestDmg = function (checkSkill) {
+    // eslint-disable-next-line no-unused-vars
+    for (let [_, skill] of Skills) {
+      if (!skill.have()) continue;
+      if (skill._dmg > checkSkill._dmg) {
         return false;
       }
     }
@@ -160,11 +178,23 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
   /**
    * Used to handle times when there isn't a valid skill we can use, to prevent throwing error
    */
-  const DummyData = new ClassData(-1, -1);
+  const DummyData = new function () {
+    this.have = false;
+    this.skillId = -1;
+    this.range = 0;
+    this.mana = 0;
+    this.dmg = 0;
+    this.timed = false;
+    this.reqLvl = 0;
+
+    this.manaCost = function () {
+      return 0;
+    };
+  };
   /**
    * Makes checking cases with it easier
    */
-  const TELEPORT = new ClassData(sdk.skills.Teleport, 40);
+  const TELEPORT = Skill.get(sdk.skills.Teleport);
 
   /**
    * @param {Monster} unit 
@@ -215,31 +245,16 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * @returns {dataObj}
    */
   ClassAttack.decideDistanceSkill = function (unit, checkDelay = false) {
-    const currLvl = me.charlvl;
-    let selected = AttackDataKeys
-      .filter(function (sk) {
-        if (currLvl < AttackData[sk].reqLvl || AttackData[sk].range < 20) return false;
-        AttackData[sk].assignValues();
-        if (!AttackData[sk].have) return false;
-        AttackData[sk].calcDmg(unit);
-        /**
-         * For now, no skill delay check.
-         * Things to consider:
-         * 1) If the skill we choose is timed and we are in skillDelay, how long is left to wait?
-         * 2) If not long then what is the damage difference between the skill we choose and the runner up non-timed skill
-         * 3) If the non-timed skill will do enough damage to kill this monster then use it, or if we have more than 1-2 seconds to wait
-         * and we don't need to move to cast the non-timed skill.
-         * 4) Anything else?
-         */
-        return AttackData[sk].dmg > 0 && (!checkDelay || (!AttackData[sk].timed || !me.skillDelay));
-      })
-      .sort(function (a, b) {
-        return AttackData[b].dmg - AttackData[a].dmg;
-      })
-      .first();
-    return typeof AttackData[selected] === "object"
-      ? AttackData[selected]
-      : DummyData;
+    /**
+     * For now, no skill delay check.
+     * Things to consider:
+     * 1) If the skill we choose is timed and we are in skillDelay, how long is left to wait?
+     * 2) If not long then what is the damage difference between the skill we choose and the runner up non-timed skill
+     * 3) If the non-timed skill will do enough damage to kill this monster then use it, or if we have more than 1-2 seconds to wait
+     * and we don't need to move to cast the non-timed skill.
+     * 4) Anything else?
+     */
+    return decideAttack(unit, { checkSkillDelay: checkDelay, minRange: 20 });
   };
 
   /**
@@ -283,11 +298,10 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       ClassAttack.switchCurse(unit);
     }
 
-    initAttackData(currLvl);
-    TELEPORT.assignValues();
+    TELEPORT.have();
 
-    if (AttackData.FrostNova.have) {
-      if (me.mp > AttackData.FrostNova.mana) {
+    if (Skills.get(sdk.skills.FrostNova).have()) {
+      if (me.mp > Skills.get(sdk.skills.FrostNova).manaCost()) {
         frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, sdk.skills.hand.Right);
         let ticktwo = getTickCount();
         // if the nova cause the death of any monsters around us, its worth it
@@ -303,8 +317,8 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       }
     }
 
-    if (AttackData.GlacialSpike.have) {
-      if (me.mp > AttackData.GlacialSpike.mana * 2) {
+    if (Skills.get(sdk.skills.GlacialSpike).have()) {
+      if (me.mp > Skills.get(sdk.skills.GlacialSpike).manaCost() * 2) {
         let shouldSpike = unit && unit.distance < 10 &&
         getUnits(sdk.unittype.Monster).filter(function (el) {
           return getDistance(el, unit) < 4 && slowable(el, true);
@@ -325,22 +339,25 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     
     // log damage values
     // if (Developer.debugging.skills) {
-    // 	Object.keys(data).forEach(k => typeof data[k] === "object" && console.log(getSkillById(data[k].skill) + " : " + data[k].dmg));
+    //   for (let [skillId, skill] of Skills) {
+    //     console.log(getSkillById(skillId) + " : " + skill._dmg);
+    //   }
     // }
 
     let rebuild = false;
 
     // If we have enough mana for Static and it will do more damage than our other skills then duh use it
     // should this return afterwards since the calulations will now be different?
-    if (AttackData.StaticField.have && (AttackData.StaticField.mana * 3) < me.mp) {
+    if (Skills.get(sdk.skills.StaticField).have() && (Skills.get(sdk.skills.StaticField).manaCost() * 3) < me.mp) {
       let closeMobCheck = getUnits(sdk.unittype.Monster)
         .filter(function (unit) {
-          return !!unit && unit.attackable && unit.distance < AttackData.StaticField.range;
+          return !!unit && unit.attackable && unit.distance < Skills.get(sdk.skills.StaticField).range();
         })
         .find(function (unit) {
           return Attack.checkResist(unit, "lightning") && unit.hpPercent > Config.CastStatic;
         });
-      if (!!closeMobCheck && isHighestDmg(AttackData.StaticField) && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
+      if (!!closeMobCheck && isHighestDmg(Skills.get(sdk.skills.StaticField))
+        && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
         Developer.debugging.skills && console.log("STATIC");
         // check if we should use battle cry from cta if we have it
         battleCryCheck(closeMobCheck);
@@ -356,37 +373,18 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     rebuild && setDamageValues(unit);
   
     /**
-     * @todo static field is a good skill but if we are currently out of range, check how dangerous it is to tele to spot before choosing that as our skill
+     * @todo static field is a good skill but if we are currently out of range,
+     * check how dangerous it is to tele to spot before choosing that as our skill
      */
-    let sortedList = AttackDataKeys
-      .filter(function (k) {
-        return (AttackData[k].have && me.mp > AttackData[k].mana
-          && (!AttackData[k].timed || !me.skillDelay)
-          && (AttackData[k].skill !== sdk.skills.StaticField || !recheckSkill));
-      })
-      .sort(function (a, b) {
-        return AttackData[b].dmg - AttackData[a].dmg;
-      });
-    if (!sortedList.length) return Attack.Result.FAILED;
+    let selectedSkill = decideAttack(unit);
+    if (selectedSkill === -1) return Attack.Result.FAILED;
 
-    // A bit ugly but handle static and charged bolt here
-    let skillCheck = (
-      (AttackData[sortedList[0]].skill === sdk.skills.StaticField
-      && unit.distance > AttackData.StaticField.range && me.inDanger(unit, 15))
-      || (AttackData[sortedList[0]].skill === sdk.skills.ChargedBolt && recheckSkill)
-    )
-      ? sortedList.at(1)
-      : sortedList.at(0);
-    
-    /** @type {ClassData} */
-    let selectedSkill = typeof AttackData[skillCheck] === "object"
-      ? AttackData[skillCheck]
-      : DummyData;
-
-    switch (selectedSkill.skill) {
+    switch (selectedSkill.skillId) {
     case sdk.skills.ChargedBolt:
-      if (selectedSkill.skill === sdk.skills.ChargedBolt && AttackData.IceBolt.have && slowable(unit)) {
-        selectedSkill = AttackData.IceBolt;
+      if (selectedSkill.skillId === sdk.skills.ChargedBolt
+        && Skills.get(sdk.skills.IceBolt).have()
+        && slowable(unit)) {
+        selectedSkill = Skills.get(sdk.skills.IceBolt);
       }
 
       break;
@@ -446,14 +444,14 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 
     if (CharData.skillData.bow.onSwitch
       && (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
-      && ([-1, sdk.skills.Attack].includes(selectedSkill.skill)
-      || selectedSkill.mana > me.mp
-      || (selectedSkill.mana * 3 > me.mp
-        && [sdk.skills.FireBolt, sdk.skills.ChargedBolt].includes(selectedSkill.skill)))) {
+      && ([-1, sdk.skills.Attack].includes(selectedSkill.skillId)
+      || selectedSkill.manaCost() > me.mp
+      || (selectedSkill.manaCost() * 3 > me.mp
+        && [sdk.skills.FireBolt, sdk.skills.ChargedBolt].includes(selectedSkill.skillId)))) {
       if (switchBowAttack(unit) === Attack.Result.SUCCESS) return Attack.Result.SUCCESS;
     }
     
-    if (selectedSkill === sdk.skills.Attack && me.inDanger(unit, 10)) {
+    if (selectedSkill.skillId === sdk.skills.Attack && me.inDanger(unit, 10)) {
       // try to stay safer for now, probably should see if there are any easy targets we can pick off
       return Attack.Result.CANTATTACK;
     }
@@ -477,6 +475,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
           + ((getTickCount() - tick) / 1000) + " seconds]----------------------//"
         );
       }
+      lastAttack.setSkill(selectedSkill.skillId, gid);
       
       return Attack.Result.SUCCESS;
     case Attack.Result.CANTATTACK: // Try to telestomp
@@ -507,7 +506,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
             !!spot && Pather.walkTo(spot.x, spot.y);
           }
 
-          if (Attack.checkResist(unit, "lightning") && AttackData.StaticField.have
+          if (Attack.checkResist(unit, "lightning") && Skills.get(sdk.skills.StaticField).have()
             && unit.hpPercent > Config.CastStatic) {
             Skill.cast(sdk.skills.StaticField, sdk.skills.hand.Right);
           }
@@ -530,12 +529,15 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
   /**
    * @override
    * @param {Monster} unit 
-   * @param {ClassData} choosenSkill 
+   * @param {SkillDataInfo} choosenSkill
    * @returns {AttackResult}
    */
   ClassAttack.doCast = function (unit, choosenSkill) {
     let noMana = false;
-    let { skill, range, mana, timed } = choosenSkill;
+    let skill = choosenSkill.skillId;
+    let range = choosenSkill.range();
+    let mana = choosenSkill.manaCost();
+    let timed = choosenSkill.timed;
     // unit became invalidated
     if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
     if (!!skill && me.mp < mana) {
@@ -543,16 +545,20 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     }
     // No valid skills can be found
     if (skill < 0) return Attack.Result.CANTATTACK;
+    
     // print damage values
-    if (Developer.debugging.skills && choosenSkill.have) {
-      console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(skill) + ") DMG: " + choosenSkill.dmg);
+    // if (Developer.debugging.skills && choosenSkill.have) {
+    if (Developer.debugging.skills && choosenSkill.have()) {
+      // console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(skill) + ") DMG: " + choosenSkill.dmg);
+      console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(skill) + ") DMG: " + choosenSkill._dmg);
     }
 
     if (![sdk.skills.FrostNova, sdk.skills.Nova, sdk.skills.StaticField].includes(skill)) {
       // need like a potential danger check, sometimes while me might not be immeadiate danger because there aren't a whole
       // lot of monsters around, we can suddenly be in danger if a ranged monsters hits us or if one of the monsters near us
       // does a lot of damage quickly
-      if (TELEPORT.have && me.mp > TELEPORT.mana + mana && me.inDanger()) {
+      // if (TELEPORT.have && me.mp > TELEPORT.mana + mana && me.inDanger()) {
+      if (TELEPORT.have() && me.mp > TELEPORT.manaCost() + mana && me.inDanger()) {
         //console.log("FINDING NEW SPOT");
         Attack.getIntoPosition(unit, range, 0
                 | Coords_1.BlockBits.LineOfSight
@@ -563,6 +569,11 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       } else if (me.inDanger()) {
         Attack.getIntoPosition(unit, range + 1, Coords_1.Collision.BLOCK_MISSILE, true);
       } else if (unit.distance < 3 && range > 4) {
+        // Attack.getIntoPositionEx(unit, {
+        //   range: range,
+        //   force: true,
+        //   walk: Pather.useTeleport()
+        // });
         Attack.getIntoPosition(unit, range, Coords_1.Collision.BLOCK_MISSILE, true);
       }
     }
@@ -627,13 +638,16 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
           && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWalk)
         );
       
+        // todo - handle nova/frost nova, BLOCK_MISSILE doesn't apply for them
         if (ranged) {
           if (!Attack.getIntoPosition(unit, range, Coords_1.Collision.BLOCK_MISSILE, walk)) {
             return Attack.Result.FAILED;
           }
         } else if (!Attack.getIntoPosition(unit, range, Coords_1.BlockBits.Ranged, walk)) {
           return Attack.Result.FAILED;
-        }
+        } /* else if (!Attack.getIntoPositionEx(unit, { range: range, coll: sdk.collision.LineOfSight, walk: walk })) {
+          return Attack.Result.FAILED;
+        } */
       }
 
       if (!unit.dead && !checkCollision(me, unit, Coords_1.BlockBits.Ranged)) {
@@ -678,7 +692,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
                 !unit.dead && Skill.cast(skill, Skill.getHand(skill), unit);
               }
 
-              if (AttackData.FrostNova.have && me.mp > AttackData.FrostNova.mana) {
+              if (Skills.get(sdk.skills.FrostNova).have() && me.mp > Skills.get(sdk.skills.FrostNova).manaCost()) {
                 frostNovaCheck() && Skill.cast(sdk.skills.FrostNova, sdk.skills.hand.Right);
               }
 
@@ -719,7 +733,6 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 
       return Attack.Result.SUCCESS;
     } else {
-      console.debug(choosenSkill);
       noMana = true;
     }
 
