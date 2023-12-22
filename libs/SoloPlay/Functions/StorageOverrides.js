@@ -43,7 +43,8 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
     let x, y;
 
     // Make sure it is in this container.
-    if (item.location !== this.location || (item.mode !== sdk.items.mode.inStorage && item.mode !== sdk.items.mode.inBelt)) {
+    if (item.location !== this.location
+      || (item.mode !== sdk.items.mode.inStorage && item.mode !== sdk.items.mode.inBelt)) {
       return false;
     }
 
@@ -202,10 +203,18 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
         // always sort stash left-to-right
         if (this.location === sdk.storage.Stash) {
           nPos = this.FindSpot(item);
-        } else if (this.location === sdk.storage.Inventory && ((!itemIdsLeft && !itemIdsRight) || !itemIdsLeft || itemIdsRight.includes(item.classid) || itemIdsLeft.indexOf(item.classid) === -1)) {
+        } else if (this.location === sdk.storage.Inventory
+          && (
+            (!itemIdsLeft && !itemIdsRight)
+            || !itemIdsLeft
+            || itemIdsRight.includes(item.classid)
+            || itemIdsLeft.indexOf(item.classid) === -1
+          )) {
         // sort from right by default or if specified
           nPos = this.FindSpot(item, true, false, SetUp.sortSettings.ItemsSortedFromRightPriority);
-        } else if (this.location === sdk.storage.Inventory && itemIdsRight.indexOf(item.classid) === -1 && itemIdsLeft.includes(item.classid)) {
+        } else if (this.location === sdk.storage.Inventory
+          && itemIdsRight.indexOf(item.classid) === -1
+          && itemIdsLeft.includes(item.classid)) {
         // sort from left only if specified
           nPos = this.FindSpot(item, false, false, SetUp.sortSettings.ItemsSortedFromLeftPriority);
         }
@@ -423,8 +432,19 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
   Container.prototype.MoveToSpot = function (item, mX, mY) {
     let cItem, cube;
 
+    // handle opening cube
+    if (this.location === sdk.storage.Cube || item.location === sdk.storage.Cube) {
+      cube = me.getItem(sdk.quest.item.Cube);
+      if (!cube) return false;
+      if ((cube.isInStash || item.isInStash) && !getUIFlag(sdk.uiflags.Stash) && !Town.openStash()) {
+        return false;
+      }
+    }
+
     // Cube -> Stash, must place item in inventory first
-    if (item.location === sdk.storage.Cube && this.location === sdk.storage.Stash && !Storage.Inventory.MoveTo(item)) {
+    if (item.location === sdk.storage.Cube
+      && this.location === sdk.storage.Stash
+      && !Storage.Inventory.MoveTo(item)) {
       return false;
     }
 
@@ -437,7 +457,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
     if (this.location === sdk.storage.Stash && !Town.openStash()) return false;
 
     const [orgX, orgY, orgLoc] = [item.x, item.y, item.location];
-    const moveItem = (x, y, location) => {
+    const moveItem = function (x, y, location) {
       for (let n = 0; n < 5; n += 1) {
         switch (location) {
         case sdk.storage.Belt:
@@ -452,8 +472,9 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
         case sdk.storage.Cube:
           cItem = Game.getCursorUnit();
           cube = me.getItem(sdk.quest.item.Cube);
-          (cItem !== null && cube !== null) && sendPacket(1, sdk.packets.send.ItemToCube, 4, cItem.gid, 4, cube.gid);
-
+          if (cItem !== null && cube !== null) {
+            sendPacket(1, sdk.packets.send.ItemToCube, 4, cItem.gid, 4, cube.gid);
+          }
           break;
         case sdk.storage.Stash:
           sendPacket(1, sdk.packets.send.ItemToBuffer, 4, item.gid, 4, x, 4, y, 4, 0x04);
@@ -489,11 +510,9 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
    * @param {ItemUnit} item 
    */
   Container.prototype.MoveTo = function (item) {
-    let nPos;
-
     try {
-    //Can we even fit it in here?
-      nPos = this.FindSpot(item);
+    // Can we even fit it in here?
+      let nPos = this.FindSpot(item);
       if (!nPos) return false;
 
       return this.MoveToSpot(item, nPos.y, nPos.x);
@@ -505,13 +524,11 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
   };
 
   Container.prototype.Dump = function () {
-    let x, y, string;
-
     if (this.UsedSpacePercent() > 60) {
-      for (x = 0; x < this.height; x += 1) {
-        string = "";
+      for (let x = 0; x < this.height; x += 1) {
+        let string = "";
 
-        for (y = 0; y < this.width; y += 1) {
+        for (let y = 0; y < this.width; y += 1) {
           string += (this.buffer[x][y] > 0) ? "ÿc1x" : "ÿc0o";
         }
 
@@ -543,35 +560,35 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
    * @param {number[][]} baseRef 
    */
   Container.prototype.Compare = function (baseRef) {
-    let h, w, n, item, itemList, reference;
-
     Storage.Reload();
 
     try {
-      itemList = [];
-      reference = baseRef.slice(0, baseRef.length);
+      const itemList = [];
+      const reference = baseRef.slice(0, baseRef.length);
 
-      //Insure valid reference.
-      if (typeof (reference) !== "object" || reference.length !== this.buffer.length || reference[0].length !== this.buffer[0].length) {
+      // Ensure valid reference.
+      if (typeof (reference) !== "object"
+        || reference.length !== this.buffer.length
+        || reference[0].length !== this.buffer[0].length) {
         throw new Error("Unable to compare different containers.");
       }
 
-      for (h = 0; h < this.height; h += 1) {
+      for (let h = 0; h < this.height; h += 1) {
         Loop:
-        for (w = 0; w < this.width; w += 1) {
-          item = this.itemList[this.buffer[h][w] - 1];
+        for (let w = 0; w < this.width; w += 1) {
+          const item = this.itemList[this.buffer[h][w] - 1];
 
           if (!item) {
             continue;
           }
 
-          for (n = 0; n < itemList.length; n += 1) {
+          for (let n = 0; n < itemList.length; n += 1) {
             if (itemList[n].gid === item.gid) {
               continue Loop;
             }
           }
 
-          //Check if the buffers changed and the current buffer has an item there.
+          // Check if the buffers changed and the current buffer has an item there.
           if (this.buffer[h][w] > 0 && reference[h][w] > 0) {
             itemList.push(copyUnit(item));
           }
