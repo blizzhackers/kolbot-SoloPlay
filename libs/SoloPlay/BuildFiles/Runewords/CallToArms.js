@@ -12,7 +12,7 @@
   const wanted = {
     classid: sdk.items.CrystalSword,
     mode: sdk.items.mode.inStorage,
-    sockets: 6,
+    sockets: 5,
     /** @param {ItemUnit} item */
     cb: function (item) {
       return item.isBaseType;
