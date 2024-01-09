@@ -36,8 +36,8 @@
       }
 
       this.hooks = [];
-      this.x = 500;
-      this.y = 600 - (400 + (self.hooks.length * 15));
+      this.x = me.screensize ? 500 : 400;
+      this.y = (me.screensize ? 600 : 500) - (400 + (self.hooks.length * 15));
 
       for (let i = 0; i < 22; i++) {
         (i => this.hooks.push(new UpdateableText(() => stack && stack.length > i && stack[i] || "")))(i);

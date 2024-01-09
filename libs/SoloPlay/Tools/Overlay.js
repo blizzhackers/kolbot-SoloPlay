@@ -315,7 +315,9 @@ const Overlay = {
             return "ÿc6Goldÿc0: ÿc0" + me.gold;
           },
           function () {
-            return new Text("ÿc6Goldÿc0: ÿc0" + me.gold, 275, 586, 4, 6, 0);
+            let x = me.screensize ? 275 : 195;
+            let y = Overlay.resfix.y + 586;
+            return new Text("ÿc6Goldÿc0: ÿc0" + me.gold, x, y, 4, 6, 0);
           }
         )
       ],
