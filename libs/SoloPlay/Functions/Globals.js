@@ -205,8 +205,8 @@ const SetUp = {
         let changed = Misc.recursiveSearch(me.data.merc, _tempMerc);
   
         if (Object.keys(changed).length > 0) {
-          // CharData.updateData("merc", me.data.merc);
-          mUpdate = true;
+          CharData.updateData("merc", me.data);
+          // mUpdate = true;
         }
       }
 
