@@ -595,26 +595,67 @@ Cubing.buildLists = function () {
 
 // Added try again to emptying cube if it fails it will clear inventory then organize it
 Cubing.emptyCube = function () {
-  let cube = me.getItem(sdk.items.quest.Cube);
-  let items = me.findItems(-1, -1, sdk.storage.Cube);
-  if (!cube || !items) return false;
+  const locToName = {};
+  locToName[sdk.storage.Cube] = "Cube";
+  locToName[sdk.storage.Inventory] = "Inventory";
+  locToName[sdk.storage.Stash] = "Stash";
+  /** @param {ItemUnit} item */
+  const prettyPrint = function (item) {
+    return item && ("- " + item.prettyPrint + " Location: " + (locToName[item.location] || "") + "\n");
+  };
+
+  const cube = me.getItem(sdk.items.quest.Cube);
+  if (!cube) return false;
+
+  const items = me.findItems(-1, -1, sdk.storage.Cube);
+  if (!items) return true;
+
+  items.sort(function (a, b) {
+    return b.sizex * b.sizey - a.sizex * a.sizey;
+  });
+  
+  /** @type {ItemUnit[]} */
+  const failedItems = [];
+  let [invoSorted, stashSorted, failed] = [false, false, false];
 
   while (items.length) {
-    !getUIFlag(sdk.uiflags.Cube) && Cubing.openCube();
+    const item = items[0];
 
-    if (!Storage.Stash.MoveTo(items[0]) && !Storage.Inventory.MoveTo(items[0])) {
+    item.isInCube && !getUIFlag(sdk.uiflags.Cube) && Cubing.openCube();
+
+    if (item.isInCube && Storage.Inventory.CanFit(item) && Storage.Inventory.MoveTo(item)) {
+      // Move anything we can to the inventory first, so we don't have to open/close the cube
+      items.push(item);
+      items.shift();
+      continue;
+    }
+
+    if (!invoSorted && !Storage.Inventory.CanFit(item)) {
       Town.clearInventory();
       me.sortInventory();
+      invoSorted = true;
+    }
 
-      if (!Storage.Stash.MoveTo(items[0]) && !Storage.Inventory.MoveTo(items[0])) {
-        return false;
-      }
+    if (!stashSorted && !Storage.Stash.CanFit(item)) {
+      Town.sortStash();
+      stashSorted = true;
+    }
+
+    if (!Storage.Stash.MoveTo(item)) {
+      failed = true;
+      failedItems.push(item);
     }
 
     items.shift();
   }
 
-  return true;
+  this.closeCube();
+
+  if (failed) {
+    console.log("Failed to get all items from cube to stash. Items left: \n" + failedItems.map(prettyPrint).join(", "));
+  }
+
+  return !failed;
 };
 
 /** @param {ItemUnit} unit */
