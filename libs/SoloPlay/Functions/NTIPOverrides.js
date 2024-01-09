@@ -616,6 +616,9 @@ NTIP.ParseLineInt = function (input, info) {
     ["hardcore", "(!!me.playertype)"],
     ["classic", "(!me.gametype)"],
     ["distance", "(item.onGroundOrDropping && item.distance || Infinity)"],
+    ["flag", "item.getFlag("],
+    ["prefix", "item.getPrefix("],
+    ["suffix", "item.getSuffix("]
   ]);
 
   let p_result = input.split("#");

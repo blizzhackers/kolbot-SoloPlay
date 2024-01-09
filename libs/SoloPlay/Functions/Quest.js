@@ -380,7 +380,7 @@ const Quest = {
           me.data[sdk.difficulty.nameOf(me.diff).toLowerCase()].respecUsed = true;
           CharData.updateData("me", me.data);
           delay(750 + me.ping * 2);
-          Town.clearBelt();
+          me.clearBelt();
           myPrint("respec done, restarting");
           delay(1000 + me.ping);
           scriptBroadcast("quit");

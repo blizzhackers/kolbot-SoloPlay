@@ -94,7 +94,9 @@
 
     // Check if we need any potions for buffers
     if (buffer.mp < Config.MPBuffer || buffer.hp < Config.HPBuffer) {
-      if (Config.BeltColumn.some((c, i) => col[i] >= beltSize && (!needPots || c === "rv"))) {
+      if (Config.BeltColumn.some(function (c, i) {
+        return col[i] >= beltSize && (!needPots || c === "rv");
+      })) {
         specialCheck = true;
       }
     }
@@ -109,17 +111,23 @@
     let [wantedHpPot, wantedMpPot] = [5, 5];
     // only do this if we are low on gold in the first place
     if (me.normal && me.gold < Config.LowGold) {
-      const mpPotsEffects = PotData.getMpPots().map(el => el.effect[me.classid]);
-      const hpPotsEffects = PotData.getHpPots().map(el => el.effect[me.classid]);
+      const mpPotsEffects = PotData.getMpPots().map(function (el) {
+        return el.effect[me.classid];
+      });
+      const hpPotsEffects = PotData.getHpPots().map(function (el) {
+        return el.effect[me.classid];
+      });
 
       wantedHpPot = (hpPotsEffects.findIndex(eff => me.hpmax / 2 < eff) + 1 || hpPotsEffects.length - 1);
       wantedMpPot = (mpPotsEffects.findIndex(eff => me.mpmax / 2 < eff) + 1 || mpPotsEffects.length - 1);
       console.debug("Wanted hpPot: " + wantedHpPot + " Wanted mpPot: " + wantedMpPot);
     }
 
-    if (me.normal && me.highestAct >= 4) {
-      let pAct = Math.max(wantedHpPot, wantedMpPot);
-      pAct >= 4 ? me.act < 4 && Town.goToTown(4) : pAct > me.act && Town.goToTown(pAct);
+    if (me.normal) {
+      if (me.highestAct >= 4) {
+        let pAct = Math.max(wantedHpPot, wantedMpPot);
+        pAct >= 4 ? me.act < 4 && Town.goToTown(4) : pAct > me.act && Town.goToTown(pAct);
+      }
     } else if (!me.normal && me.act === 3
       && Town.getDistance(Town.tasks.get(me.act).Shop) > 10) {
       // if we need to repair items as well or stack pots we should go ahead and change act
@@ -141,7 +149,9 @@
     if (!npc) return false;
 
     // special check, sometimes our rejuv slot is empty but we do still need buffer. Check if we can buy something to slot there
-    if (specialCheck && Config.BeltColumn.some((c, i) => c === "rv" && col[i] >= beltSize)) {
+    if (specialCheck && Config.BeltColumn.some(function (c, i) {
+      return c === "rv" && col[i] >= beltSize;
+    })) {
       let pots = [sdk.items.ThawingPotion, sdk.items.AntidotePotion, sdk.items.StaminaPotion];
       Config.BeltColumn.forEach(function (c, i) {
         if (c === "rv" && col[i] >= beltSize && pots.length) {
@@ -150,7 +160,9 @@
           if (pot) {
             Storage.Inventory.CanFit(pot) && Packet.buyItem(pot, false);
             pot = me.getItemsEx(usePot, sdk.items.mode.inStorage)
-              .filter(i => i.isInInventory)
+              .filter(function (i) {
+                return i.isInInventory;
+              })
               .first();
             !!pot && Packet.placeInBelt(pot, i);
             pots.shift();
@@ -168,7 +180,7 @@
         let pot = Town.getPotion(npc, Config.BeltColumn[i], wantedPot);
 
         if (pot) {
-          // print("ÿc2column ÿc0" + i + "ÿc2 needs ÿc0" + col[i] + " ÿc2potions");
+          // console.log("ÿc2column ÿc0" + i + "ÿc2 needs ÿc0" + col[i] + " ÿc2potions");
           // Shift+buy will trigger if there's no empty columns or if only the current column is empty
           if (useShift) {
             pot.buy(true);
@@ -247,7 +259,9 @@
       let _needStack = CharData.pots.get("thawing").need() || CharData.pots.get("antidote").need();
       let _needMerc = me.needMerc();
       if (_needRepair || _needStack || _needMerc) {
-        Town.goToTown(me.highestAct >= 4 ? 4 : 1);
+        if (!me.normal || me.accessToAct(4) || !me.needPotions()) {
+          Town.goToTown(me.highestAct >= 4 ? 4 : 1);
+        }
       }
     }
 

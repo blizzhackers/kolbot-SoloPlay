@@ -15,6 +15,7 @@ includeIfNotIncluded("SoloPlay/Functions/Polyfills.js");
  */
 if (!Unit.prototype.hasOwnProperty("isCharm")) {
   Object.defineProperty(Unit.prototype, "isCharm", {
+    /** @this {ItemUnit} */
     get: function () {
       if (this.type !== sdk.unittype.Item) return false;
       return [sdk.items.SmallCharm, sdk.items.LargeCharm, sdk.items.GrandCharm].includes(this.classid);
@@ -24,6 +25,7 @@ if (!Unit.prototype.hasOwnProperty("isCharm")) {
 
 if (!Unit.prototype.hasOwnProperty("isGem")) {
   Object.defineProperty(Unit.prototype, "isGem", {
+    /** @this {ItemUnit} */
     get: function () {
       if (this.type !== sdk.unittype.Item) return false;
       return (
@@ -36,6 +38,7 @@ if (!Unit.prototype.hasOwnProperty("isGem")) {
 
 if (!Unit.prototype.hasOwnProperty("isInsertable")) {
   Object.defineProperty(Unit.prototype, "isInsertable", {
+    /** @this {ItemUnit} */
     get: function () {
       if (this.type !== sdk.unittype.Item) return false;
       return [sdk.items.type.Jewel, sdk.items.type.Rune].includes(this.itemType) || this.isGem;
@@ -45,6 +48,7 @@ if (!Unit.prototype.hasOwnProperty("isInsertable")) {
 
 if (!Unit.prototype.hasOwnProperty("isRuneword")) {
   Object.defineProperty(Unit.prototype, "isRuneword", {
+    /** @this {ItemUnit} */
     get: function () {
       if (this.type !== sdk.unittype.Item) return false;
       return !!this.getFlag(sdk.items.flags.Runeword);
@@ -54,6 +58,7 @@ if (!Unit.prototype.hasOwnProperty("isRuneword")) {
 
 if (!Unit.prototype.hasOwnProperty("isBroken")) {
   Object.defineProperty(Unit.prototype, "isBroken", {
+    /** @this {ItemUnit} */
     get: function () {
       if (this.type !== sdk.unittype.Item) return false;
       if (this.getStat(sdk.stats.Indestructible)) return false;
@@ -64,6 +69,7 @@ if (!Unit.prototype.hasOwnProperty("isBroken")) {
 
 if (!Unit.prototype.hasOwnProperty("isStunned")) {
   Object.defineProperty(Unit.prototype, "isStunned", {
+    /** @this {Monster | Player} */
     get: function () {
       return this.getState(sdk.states.Stunned);
     },
@@ -72,6 +78,7 @@ if (!Unit.prototype.hasOwnProperty("isStunned")) {
 
 if (!Unit.prototype.hasOwnProperty("isUnderCoS")) {
   Object.defineProperty(Unit.prototype, "isUnderCoS", {
+    /** @this {Monster | Player} */
     get: function () {
       return this.getState(sdk.states.Cloaked);
     },
@@ -80,14 +87,28 @@ if (!Unit.prototype.hasOwnProperty("isUnderCoS")) {
 
 if (!Unit.prototype.hasOwnProperty("isUnderLowerRes")) {
   Object.defineProperty(Unit.prototype, "isUnderLowerRes", {
+    /** @this {Monster | Player} */
     get: function () {
       return this.getState(sdk.states.LowerResist);
     },
   });
 }
 
+if (!Unit.prototype.hasOwnProperty("size")) {
+  Object.defineProperty(Unit.prototype, "size", {
+    /** @this {Monster} */
+    get: function () {
+      if (this.type !== sdk.unittype.Monster) return 0;
+      const baseId = getBaseStat("monstats", this.classid, "baseid");
+      const size = getBaseStat("monstats2", baseId, "sizex");
+      return (typeof size !== "number" || size < 1 || size > 3) ? 3 : size;
+    },
+  });
+}
+
 if (!Unit.prototype.hasOwnProperty("isBaseType")) {
   Object.defineProperty(Unit.prototype, "isBaseType", {
+    /** @this {ItemUnit} */
     get: function () {
       if (this.type !== sdk.unittype.Item) return false;
       return [sdk.items.quality.Normal, sdk.items.quality.Superior].includes(this.quality)
