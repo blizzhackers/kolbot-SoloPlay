@@ -230,7 +230,9 @@ Town.initNPC = function (task = "", reason = "undefined") {
     return false;
   }
 
-  Misc.poll(() => me.gameReady, 2000, 250);
+  Misc.poll(function () {
+    return me.gameReady;
+  }, 2000, 250);
 
   if (task === "Heal") {
     Config.DebugMode.Town && console.debug("Checking if we are frozen");
@@ -244,10 +246,10 @@ Town.initNPC = function (task = "", reason = "undefined") {
 };
 
 /**
-* @description Go to a town healer if we are below certain hp/mp percent or have a status effect
-*/
-Town.heal = function () {
-  if (!me.needHealing()) return true;
+ * @description Go to a town healer if we are below certain hp/mp percent or have a status effect
+ */
+Town.heal = function (force = false) {
+  if (!me.needHealing() && !force) return true;
   if (me.act === 3
     && Town.getDistance(Town.tasks.get(me.act).Heal) > 10) {
     // if we need to repair items as well or stack pots we should go ahead and change act
@@ -255,9 +257,12 @@ Town.heal = function () {
     let _needRepair = me.needRepair().length > 0;
     let _needStack = CharData.pots.get("thawing").need() || CharData.pots.get("antidote").need();
     let _needMerc = me.needMerc();
-    let _needPotions = me.normal && me.accessToAct(4) && me.needPotions();
+    let _needPotions = me.needPotions();
     if (_needRepair || _needStack || _needMerc || _needPotions) {
-      Town.goToTown(me.highestAct >= 4 ? 4 : 1);
+      if (!_needPotions || !me.normal || me.accessToAct(4)) {
+        // trying to prevent us from going to a1 and ending up buying minor pots in normal
+        Town.goToTown(me.highestAct >= 4 ? 4 : 1);
+      }
     }
   }
   return !!(this.initNPC("Heal", "heal"));
@@ -776,9 +781,12 @@ Town.clearInventory = function () {
       let _needRepair = me.needRepair().length > 0;
       let _needStack = CharData.pots.get("thawing").need() || CharData.pots.get("antidote").need();
       let _needMerc = me.needMerc();
-      let _needPotions = me.normal && me.accessToAct(4) && me.needPotions();
+      let _needPotions = me.needPotions();
       if (_needRepair || _needStack || _needMerc || _needPotions) {
-        Town.goToTown(me.highestAct >= 4 ? 4 : 1);
+        if (!_needPotions || !me.normal || me.accessToAct(4)) {
+          // trying to prevent us from going to a1 and ending up buying minor pots in normal
+          Town.goToTown(me.highestAct >= 4 ? 4 : 1);
+        }
       }
     }
     if (this.initNPC("Shop", "clearInventory")) {
