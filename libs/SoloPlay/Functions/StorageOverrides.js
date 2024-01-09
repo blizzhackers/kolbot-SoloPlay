@@ -95,7 +95,9 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
         }
       }
     } catch (e2) {
-      throw new Error("Storage.IsLocked error! Item info: " + item.name + " " + item.y + " " + item.sizey + " " + item.x + " " + item.sizex + " " + item.mode + " " + item.location);
+      const { name, y, sizey, x, sizex, mode, location } = item;
+      const errMsg = "Storage.IsLocked error! Item info: ";
+      throw new Error(errMsg + name + " " + y + " " + sizey + " " + x + " " + sizex + " " + mode + " " + item.location);
     }
 
     return false;
@@ -133,7 +135,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
     let makeCubeSpot = this.MakeSpot(cube, { x: 0, y: 0 }, true); // NOTE: passing these in buffer order [h/x][w/y]
 
     if (makeCubeSpot) {
-    // this item cannot be moved
+      // this item cannot be moved
       if (makeCubeSpot === -1) return false;
       // we couldnt move the item
       if (!this.MoveToSpot(cube, makeCubeSpot.y, makeCubeSpot.x)) return false;
@@ -293,7 +295,6 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
       for (x = startY; x !== endY; x += yDir) {
       //Check if there is something in this spot.
         if (this.buffer[x][y] > 0) {
-
           // TODO: add makespot logic here. priorityClassIds should only be used when sorting -- in town, where it's safe!
           // TODO: collapse this down to just a MakeSpot(item, location) call, and have MakeSpot do the priority checks right at the top
           let bufferItemClass = this.itemList[this.buffer[x][y] - 1].classid;
@@ -314,10 +315,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
               makeSpot = this.MakeSpot(item, { x: x, y: y }); // NOTE: passing these in buffer order [h/x][w/y]
 
               if (makeSpot) {
-              // this item cannot be moved
-                if (makeSpot === -1) return false;
-
-                return makeSpot;
+                return makeSpot !== -1 ? makeSpot : false;
               }
             }
           }
@@ -325,7 +323,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
           if (item.gid === undefined) return false;
 
           // ignore same gid
-          if (item.gid !== this.itemList[this.buffer[x][y] - 1].gid ) {
+          if (item.gid !== this.itemList[this.buffer[x][y] - 1].gid) {
             continue;
           }
         }
@@ -334,8 +332,8 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
         for (nx = 0; nx < item.sizey; nx += 1) {
           for (ny = 0; ny < item.sizex; ny += 1) {
             if (this.buffer[x + nx][y + ny]) {
-            // ignore same gid
-              if (item.gid !== this.itemList[this.buffer[x + nx][y + ny] - 1].gid ) {
+              // ignore same gid
+              if (item.gid !== this.itemList[this.buffer[x + nx][y + ny] - 1].gid) {
                 continue Loop;
               }
             }
@@ -357,15 +355,22 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
   Container.prototype.MakeSpot = function (item, location, force) {
     let x, y, endx, endy, tmpLocation;
     let [itemsToMove, itemsMoved] = [[], []];
+    const {
+      ItemsSortedFromRight,
+      ItemsSortedFromLeftPriority,
+      ItemsSortedFromRightPriority
+    } = SetUp.sortSettings;
     // TODO: test the scenario where all possible items have been moved, but this item still can't be placed
     //		 e.g. if there are many LCs in an inventory and the spot for a GC can't be freed up without
     //			  moving other items that ARE NOT part of the position desired
 
     // Make sure it's a valid item and item is in a priority sorting list
     if (!item || !item.classid
-      || (SetUp.sortSettings.ItemsSortedFromRightPriority.indexOf(item.classid) === -1
-      && SetUp.sortSettings.ItemsSortedFromLeftPriority.indexOf(item.classid) === -1
-      && !force)) {
+      || (
+        ItemsSortedFromRightPriority.indexOf(item.classid) === -1
+        && ItemsSortedFromLeftPriority.indexOf(item.classid) === -1
+        && !force)
+      ) {
       return false; // only continue if the item is in the priority sort list
     }
 
@@ -403,7 +408,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
     // Move any item(s) out of the way
     if (itemsToMove.length) {
       for (let i = 0; i < itemsToMove.length; i++) {
-        let reverseX = !(SetUp.sortSettings.ItemsSortedFromRight.includes(item.classid));
+        let reverseX = !(ItemsSortedFromRight.includes(item.classid));
         tmpLocation = this.FindSpot(itemsToMove[i], reverseX, false);
         // D2Bot.printToConsole(itemsToMove[i].name + " moving from " + itemsToMove[i].x + "," + itemsToMove[i].y + " to "  + tmpLocation.y + "," + tmpLocation.x, sdk.colors.D2Bot.Gold);
 
@@ -430,22 +435,27 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
    * @param {number} mY 
    */
   Container.prototype.MoveToSpot = function (item, mX, mY) {
-    let cItem, cube;
+    let cube;
 
-    // handle opening cube
-    if (this.location === sdk.storage.Cube || item.location === sdk.storage.Cube) {
+    // handle getting to cube
+    if (this.location === sdk.storage.Cube) {
       cube = me.getItem(sdk.quest.item.Cube);
       if (!cube) return false;
-      if ((cube.isInStash || item.isInStash) && !getUIFlag(sdk.uiflags.Stash) && !Town.openStash()) {
+      if ((cube.isInStash || item.isInStash)
+        && !getUIFlag(sdk.uiflags.Stash)
+        && !Town.openStash()) {
         return false;
       }
     }
 
     // Cube -> Stash, must place item in inventory first
-    if (item.location === sdk.storage.Cube
-      && this.location === sdk.storage.Stash
-      && !Storage.Inventory.MoveTo(item)) {
-      return false;
+    if (item.isInCube && this.location === sdk.storage.Stash) {
+      cube = me.getItem(sdk.quest.item.Cube);
+      if (!cube || !Packet.itemToCursor(item)) return false;
+      cube.isInStash && Storage.Stash.CanFit(item) && Cubing.closeCube(true);
+      if (!cube.isInStash && !Storage.Inventory.MoveTo(item)) {
+        return false;
+      }
     }
 
     // Can't deal with items on ground!
@@ -458,6 +468,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 
     const [orgX, orgY, orgLoc] = [item.x, item.y, item.location];
     const moveItem = function (x, y, location) {
+      let cItem;
       for (let n = 0; n < 5; n += 1) {
         switch (location) {
         case sdk.storage.Belt:
@@ -477,6 +488,9 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
           }
           break;
         case sdk.storage.Stash:
+          if (!getUIFlag(sdk.uiflags.Stash) && !Town.openStash()) {
+            continue;
+          }
           sendPacket(1, sdk.packets.send.ItemToBuffer, 4, item.gid, 4, x, 4, y, 4, 0x04);
 
           break;
@@ -511,7 +525,8 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
    */
   Container.prototype.MoveTo = function (item) {
     try {
-    // Can we even fit it in here?
+      if (item.location === this.location) return true;
+      // Can we even fit it in here?
       let nPos = this.FindSpot(item);
       if (!nPos) return false;
 
