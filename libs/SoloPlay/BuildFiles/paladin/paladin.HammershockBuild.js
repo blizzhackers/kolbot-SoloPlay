@@ -12,7 +12,14 @@
       caster: false,
       skillstab: sdk.skills.tabs.PalaCombat,
       wantedskills: [sdk.skills.BlessedHammer, sdk.skills.HolyShock],
-      usefulskills: [sdk.skills.HolyShield, sdk.skills.ResistLightning, sdk.skills.Zeal, sdk.skills.Concentration, sdk.skills.Vigor, sdk.skills.BlessedAim],
+      usefulskills: [
+        sdk.skills.HolyShield,
+        sdk.skills.ResistLightning,
+        sdk.skills.Zeal,
+        sdk.skills.Concentration,
+        sdk.skills.Vigor,
+        sdk.skills.BlessedAim
+      ],
       precastSkills: [sdk.skills.HolyShield],
       usefulStats: [sdk.stats.PierceLtng, sdk.stats.PassiveLightningMastery, sdk.stats.PassiveLightningPierce],
       wantedMerc: MercData[sdk.skills.HolyFreeze],
@@ -36,8 +43,14 @@
           max: 6,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MaxHp) === 20
+            );
           }
         },
 
@@ -45,8 +58,14 @@
           max: 2,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MagicBonus) === 7
+            );
           }
         },
 
@@ -54,9 +73,14 @@
           max: 2,
           have: [],
           classid: sdk.items.GrandCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Offensive) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Offensive) === 1
+              && check.getStat(sdk.stats.MaxHp) >= 40
+            );
           }
         },
       },
@@ -65,7 +89,12 @@
         1:	{
           Update: function () {
             Config.Vigor = false;
-            Config.AttackSkill = [-1, sdk.skills.BlessedHammer, sdk.skills.Concentration, sdk.skills.BlessedHammer, sdk.skills.Concentration, sdk.skills.Zeal, sdk.skills.HolyShock];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.BlessedHammer, sdk.skills.Concentration,
+              sdk.skills.BlessedHammer, sdk.skills.Concentration,
+              sdk.skills.Zeal, sdk.skills.HolyShock
+            ];
             Config.LowManaSkill = [-1, -1];
             Config.SkipImmune = ["magic and lightning and physical"];	// Don't think this ever happens but should skip if it does
             Config.BeltColumn = ["hp", "hp", "mp", "rv"];
@@ -77,13 +106,19 @@
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
-        } else {
-          return Check.haveItem("scepter", "unique", "Heaven's Light") && Check.haveItem("armor", "runeword", "Enigma");
         }
+        return (
+          me.checkItem({ name: sdk.locale.items.HeavensLight }).have
+          && me.checkItem({ name: sdk.locale.items.Enigma, itemtype: sdk.items.type.Armor }).have
+        );
       },
 
       active: function () {
-        return this.respec() && (me.getSkill(sdk.skills.HolyShock, sdk.skills.subindex.HardPoints) === 20 && me.getSkill(sdk.skills.BlessedHammer, sdk.skills.subindex.HardPoints) === 20);
+        return (
+          this.respec()
+          && me.getSkill(sdk.skills.HolyShock, sdk.skills.subindex.HardPoints) === 20
+          && me.getSkill(sdk.skills.BlessedHammer, sdk.skills.subindex.HardPoints) === 20
+        );
       },
     };
 

@@ -24,6 +24,7 @@
           max: 5,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
             return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
           }
@@ -33,6 +34,7 @@
           max: 2,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
             return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
           }
@@ -42,6 +44,7 @@
           max: 1,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
             return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
           }
@@ -51,6 +54,7 @@
           max: 2,
           have: [],
           classid: sdk.items.GrandCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
             return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.JavelinandSpear) === 1
               && check.getStat(sdk.stats.MaxHp) >= 40);

@@ -8,7 +8,7 @@
 const CharInfo = {
   respecOne: me.expansion ? 26 : 26,
   respecTwo: me.expansion ? 63 : 60,
-  levelCap: (function() {
+  levelCap: (function () {
     const currentDiff = sdk.difficulty.nameOf(me.diff);
     const softcoreMode = {
       "Normal": me.expansion ? 33 : 33,

@@ -14,7 +14,12 @@
       wantedskills: [sdk.skills.Blizzard, sdk.skills.Nova],
       usefulskills: [sdk.skills.LightningMastery, sdk.skills.ColdMastery, sdk.skills.GlacialSpike],
       precastSkills: [sdk.skills.FrozenArmor],
-      usefulStats: [sdk.stats.PassiveColdPierce, sdk.stats.PassiveColdMastery, sdk.stats.PassiveLightningMastery, sdk.stats.PassiveLightningPierce],
+      usefulStats: [
+        sdk.stats.PassiveColdPierce,
+        sdk.stats.PassiveColdMastery,
+        sdk.stats.PassiveLightningMastery,
+        sdk.stats.PassiveLightningPierce
+      ],
       wantedMerc: MercData[sdk.skills.HolyFreeze],
       stats: [
         ["strength", 156], ["dexterity", 35], ["vitality", "all"]
@@ -38,6 +43,7 @@
           max: 3,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
             return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
           }
@@ -47,6 +53,7 @@
           max: 2,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
             return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
           }
@@ -56,6 +63,7 @@
           max: 3,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
             return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
           }
@@ -65,6 +73,7 @@
           max: 1,
           have: [],
           classid: sdk.items.GrandCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
             return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Lightning) === 1
               && check.getStat(sdk.stats.MaxHp) >= 40);
@@ -75,6 +84,7 @@
           max: 1,
           have: [],
           classid: sdk.items.GrandCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
             return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Cold) === 1
               && check.getStat(sdk.stats.MaxHp) >= 40);

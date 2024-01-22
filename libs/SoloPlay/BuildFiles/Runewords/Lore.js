@@ -1,5 +1,5 @@
 (function () {
-  if (!Check.haveItem("helm", "runeword", "Lore")) {
+  if (!me.checkItem({ name: sdk.locale.items.Lore }).have) {
     const loreRunes = [
       "[name] == OrtRune # # [maxquantity] == 1",
       "[name] == SolRune # # [maxquantity] == 1",

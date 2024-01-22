@@ -41,10 +41,22 @@
   Config.GambleItems.push("Coronet");
 
   // AutoEquip setup
+  const _wepTypes = [
+    "[type] == axe",
+    "[type] == club",
+    "[type] == knife",
+    "[type] == hammer",
+    "[type] == javelin",
+    "[type] == mace",
+    "[type] == orb",
+    "[type] == scepter",
+    "[type] == sword",
+    "[type] == wand",
+  ].join(" || ");
   const levelingTiers = [
     // Weapon
     "me.normal && [type] == orb && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-    "me.charlvl > 1 && ([type] == orb || [type] == wand || [type] == sword || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+    "me.charlvl > 1 && (" + _wepTypes + ") && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
     "me.classic && [type] == staff && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
     // Shield
     "[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
@@ -246,7 +258,7 @@
     }
 
     // Go ahead and keep two P-diamonds prior to finding a moser's unless already using a better shield
-    if (!Check.haveItem("shield", "unique", "Moser's Blessed Circle")
+    if (!me.checkItem({ name: sdk.locale.items.MosersBlessedCircle }).have
       && !me.haveSome([
         { name: sdk.locale.items.Sanctuary },
         { name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Shield }

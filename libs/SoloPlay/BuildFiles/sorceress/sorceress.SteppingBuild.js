@@ -19,16 +19,33 @@
       skills: [],
 
       active: function () {
-        return me.charlvl > CharInfo.respecOne && me.charlvl < CharInfo.respecTwo && me.checkSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints) && !me.checkSkill(sdk.skills.Nova, sdk.skills.subindex.HardPoints) && !me.checkSkill(sdk.skills.FireMastery, sdk.skills.subindex.HardPoints);
+        const { respecOne, respecTwo } = CharInfo;
+        return (
+          me.charlvl > respecOne && me.charlvl < respecTwo
+          && me.checkSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints)
+          && !me.checkSkill(sdk.skills.Nova, sdk.skills.subindex.HardPoints)
+          && !me.checkSkill(sdk.skills.FireMastery, sdk.skills.subindex.HardPoints)
+        );
       },
 
       AutoBuildTemplate: {
         1:	{
           Update: function () {
-            Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.IceBlast, sdk.skills.Blizzard, sdk.skills.IceBlast, -1, -1];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.Blizzard, sdk.skills.IceBlast,
+              sdk.skills.Blizzard, sdk.skills.IceBlast,
+              (me.checkSkill(sdk.skills.Lightning, sdk.skills.subindex.HardPoints)
+                ? sdk.skills.Lightning
+                : sdk.skills.StaticField
+              ), -1
+            ];
             Config.BeltColumn = ["hp", "hp", "mp", "mp"];
             Config.HPBuffer = me.expansion && !me.normal ? 2 : 5;
-            Config.MPBuffer = (me.expansion && !me.normal || Item.getMercEquipped(sdk.body.RightArm).prefixnum === sdk.locale.items.Insight) ? 2 : 5;
+            Config.MPBuffer = (
+              me.expansion
+              && !me.normal || Item.getMercEquipped(sdk.body.RightArm).prefixnum === sdk.locale.items.Insight
+            ) ? 2 : 5;
             Config.SkipImmune = ["cold"];
             SetUp.belt();
           }
@@ -74,9 +91,13 @@
         [sdk.skills.ColdMastery, 1, false],
         [sdk.skills.FrozenOrb, 1, false],
         [sdk.skills.Blizzard, 20, false],
-        [sdk.skills.IceBlast, 20, false],
-        [sdk.skills.ColdMastery, 5],
-        [sdk.skills.GlacialSpike, 20, false],
+        [sdk.skills.ChainLightning, 1],
+        [sdk.skills.LightningMastery, 1],
+        [sdk.skills.Lightning, 5, false],
+        [sdk.skills.LightningMastery, 20],
+        // [sdk.skills.IceBlast, 20, false],
+        // [sdk.skills.ColdMastery, 5],
+        // [sdk.skills.GlacialSpike, 20, false],
       ];
     
     return build;

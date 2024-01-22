@@ -72,8 +72,8 @@
   Config.ClearPath = { Range: (Pather.canTeleport() ? 30 : 20), Spectype: 0 };
 
   /* Class specific configuration. */
-  Config.Dodge = Check.haveItem("armor", "runeword", "Enigma");
-  Config.DodgeRange = Check.haveItem("armor", "runeword", "Enigma") ? 10 : 5;
+  Config.Dodge = me.checkItem({ name: sdk.locale.items.Enigma, itemtype: sdk.items.type.Armor }).have;
+  Config.DodgeRange = me.checkItem({ name: sdk.locale.items.Enigma, itemtype: sdk.items.type.Armor }).have ? 10 : 5;
   Config.DodgeHP = 90; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
 
   /* Summons. */

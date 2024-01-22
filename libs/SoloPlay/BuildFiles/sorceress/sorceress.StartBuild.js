@@ -41,7 +41,8 @@
       ],
 
       active: function () {
-        return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.ColdMastery, sdk.skills.subindex.HardPoints);
+        const { respecOne } = CharInfo;
+        return me.charlvl < respecOne && !me.checkSkill(sdk.skills.ColdMastery, sdk.skills.subindex.HardPoints);
       },
     };
 

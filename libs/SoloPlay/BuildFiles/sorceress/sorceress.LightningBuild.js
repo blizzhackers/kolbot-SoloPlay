@@ -38,8 +38,10 @@
           max: 3,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+            return (!check.unique && check.classid === this.classid
+              && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
           }
         },
 
@@ -47,8 +49,10 @@
           max: 2,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (!check.unique && check.classid === this.classid
+              & check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
           }
         },
 
@@ -56,8 +60,10 @@
           max: 1,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+            return (!check.unique && check.classid === this.classid
+              && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
           }
         },
 
@@ -65,8 +71,10 @@
           max: 2,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.MaxHp) === 20 && check.getStat(sdk.stats.MaxMana) === 17);
+            return (!check.unique && check.classid === this.classid
+              && check.getStat(sdk.stats.MaxHp) === 20 && check.getStat(sdk.stats.MaxMana) === 17);
           }
         },
 
@@ -74,8 +82,10 @@
           max: 2,
           have: [],
           classid: sdk.items.GrandCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Lightning) === 1
+            return (!check.unique && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Lightning) === 1
               && check.getStat(sdk.stats.MaxHp) >= 40);
           }
         },
@@ -84,7 +94,12 @@
       AutoBuildTemplate: {
         1:	{
           Update: function () {
-            Config.AttackSkill = [-1, sdk.skills.Lightning, sdk.skills.ChainLightning, sdk.skills.ChainLightning, sdk.skills.Lightning, -1, -1];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.Lightning, sdk.skills.ChainLightning,
+              sdk.skills.ChainLightning, sdk.skills.Lightning,
+              1, -1
+            ];
             Config.LowManaSkill = [-1, -1];
             Config.SkipImmune = ["lightning"];
           }
@@ -95,12 +110,18 @@
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
         } else {
-          return (Attack.checkInfinity() || (me.data.merc.gear.includes(sdk.locale.items.Infinity) && !Misc.poll(() => me.getMerc(), 200, 50)));
+          return (Attack.checkInfinity()
+            || (
+              me.data.merc.gear.includes(sdk.locale.items.Infinity)
+              && !Misc.poll(() => me.getMerc(), 200, 50)
+            ));
         }
       },
 
       active: function () {
-        return this.respec() && me.getSkill(sdk.skills.Lightning, sdk.skills.subindex.HardPoints) === 20 && !me.checkSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints);
+        return this.respec()
+          && me.getSkill(sdk.skills.Lightning, sdk.skills.subindex.HardPoints) === 20
+          && !me.checkSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints);
       },
     };
     

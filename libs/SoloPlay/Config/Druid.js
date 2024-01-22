@@ -240,7 +240,7 @@
       }
 
       // Don't have upgraded Ribcracker
-      if (!Check.haveItem("stalagmite", "unique", "Ribcracker")) {
+      if (!me.checkItem({ name: sdk.locale.items.Ribcracker, classid: sdk.items.Stalagmite }).have) {
         // Perfect ribcracker
         NTIP.addLine("[name] == quarterstaff && [quality] == unique # [enhanceddamage] == 300 && [ias] >= 50 # [maxquantity] == 1");
         // Perfect upped ribcracker

@@ -33,8 +33,14 @@
           max: 3,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MaxHp) === 20
+            );
           }
         },
 
@@ -42,8 +48,14 @@
           max: 2,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MagicBonus) === 7
+            );
           }
         },
 
@@ -51,8 +63,14 @@
           max: 1,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.FHR) === 5
+            );
           }
         },
 
@@ -60,9 +78,14 @@
           max: 2,
           have: [],
           classid: sdk.items.GrandCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.ShapeShifting) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.ShapeShifting) === 1
+              && check.getStat(sdk.stats.MaxHp) >= 40
+            );
           }
         },
       },
@@ -70,7 +93,12 @@
       AutoBuildTemplate: {
         1:	{
           Update: function () {
-            Config.AttackSkill = [-1, sdk.skills.Fury, sdk.skills.FeralRage, sdk.skills.Fury, sdk.skills.FeralRage, sdk.skills.Rabies, -1];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.Fury, sdk.skills.FeralRage,
+              sdk.skills.Fury, sdk.skills.FeralRage,
+              sdk.skills.Rabies, -1
+            ];
             Config.LowManaSkill = [0, 0];
             Config.Wereform = "Werewolf";
             Config.SummonAnimal = "Grizzly";
@@ -80,7 +108,10 @@
       },
 
       respec: function () {
-        return Check.haveItem("stalagmite", "unique", "Ribcracker") && Check.haveItem("armor", "runeword", "Chains of Honor");
+        return (
+          me.checkItem({ name: sdk.locale.items.Ribcracker, classid: sdk.items.Stalagmite }).have
+          && me.checkItem({ name: sdk.locale.items.ChainsofHonor, }).have
+        );
       },
 
       active: function () {

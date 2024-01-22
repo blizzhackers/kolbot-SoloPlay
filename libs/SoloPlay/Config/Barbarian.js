@@ -280,7 +280,7 @@
         Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "dimensionalblade", Roll.Eth]);
       }
 
-      if (!Check.haveItem("falcata", "unique", "Bloodletter")) {
+      if (!me.checkItem({ name: sdk.locale.items.Bloodletter, classid: sdk.items.Falcata }).have) {
         NTIP.addLine("[name] == PulRune # # [maxquantity] == 1");
         NTIP.addLine("[name] == perfectemerald # # [maxquantity] == 1");
         // Bloodletter
@@ -290,6 +290,7 @@
       }
 
       if (!Check.haveItem("dimensionalblade", "unique", "Ginther's Rift")) {
+      // if (!me.checkItem({ name: sdk.locale.items.GinthersRift, classid: sdk.items.DimensionalBlade }).have) {
         NTIP.addLine("[name] == PulRune # # [maxquantity] == 1");
         NTIP.addLine("[name] == perfectemerald # # [maxquantity] == 1");
 
@@ -310,7 +311,10 @@
     }
 
     // Voice Of Reason - Lem/Ko/El/Eld
-    if (me.equipped.get(sdk.body.RightArm).tier > 1100 && me.equipped.get(sdk.body.LeftArm).tier < 1270 && !Check.haveItem("ring", "unique", "Raven Frost")) {
+    if (me.equipped.get(sdk.body.RightArm).tier > 1100
+      && me.equipped.get(sdk.body.LeftArm).tier < 1270
+      && !me.checkItem({ name: sdk.locale.items.Ravenfrost }).have
+    ) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/VoiceOfReason.js");
     }
 

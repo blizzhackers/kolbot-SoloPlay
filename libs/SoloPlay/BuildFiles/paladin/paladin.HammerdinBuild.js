@@ -33,8 +33,10 @@
           max: 3,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+            return (!check.unique && check.classid === this.classid
+              && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
           }
         },
 
@@ -42,8 +44,10 @@
           max: 2,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (!check.unique && check.classid === this.classid
+              && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
           }
         },
 
@@ -51,8 +55,10 @@
           max: 3,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+            return (!check.unique && check.classid === this.classid
+              && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
           }
         },
 
@@ -60,8 +66,10 @@
           max: 2,
           have: [],
           classid: sdk.items.GrandCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.PalaCombat) === 1
+            return (!check.unique && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.PalaCombat) === 1
               && check.getStat(sdk.stats.MaxHp) >= 40);
           }
         },
@@ -70,7 +78,12 @@
       AutoBuildTemplate: {
         1:	{
           Update: function () {
-            Config.AttackSkill = [-1, sdk.skills.BlessedHammer, sdk.skills.Concentration, sdk.skills.BlessedHammer, sdk.skills.Concentration, sdk.skills.HolyBolt, sdk.skills.Concentration];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.BlessedHammer, sdk.skills.Concentration,
+              sdk.skills.BlessedHammer, sdk.skills.Concentration,
+              sdk.skills.HolyBolt, sdk.skills.Concentration
+            ];
             Config.LowManaSkill = [0, sdk.skills.Concentration];
 
             if (me.hell && !me.accessToAct(5)) {
@@ -86,7 +99,7 @@
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
         } else {
-          return Check.haveItem("armor", "runeword", "Enigma");
+          return me.checkItem({ name: sdk.locale.items.Enigma, itemtype: sdk.items.type.Armor }).have;
         }
       },
 

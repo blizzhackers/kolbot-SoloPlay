@@ -42,9 +42,14 @@
   Config.GambleItems.push("Coronet");
 
   let weapons = [
-    sdk.items.type.Scepter, sdk.items.type.Mace,
-    sdk.items.type.Sword, sdk.items.type.Knife, sdk.items.type.Axe,
-    sdk.items.type.Wand, sdk.items.type.Hammer, sdk.items.type.Club
+    sdk.items.type.Scepter,
+    sdk.items.type.Mace,
+    sdk.items.type.Sword,
+    sdk.items.type.Knife,
+    sdk.items.type.Axe,
+    sdk.items.type.Wand,
+    sdk.items.type.Hammer,
+    sdk.items.type.Club
   ].map(el => "[type] == " + el).join(" || ");
 
   // AutoEquip setup
@@ -205,7 +210,7 @@
         Check.itemSockables(sdk.items.GrimHelm, "unique", "Vampire Gaze");
         Check.itemSockables(sdk.items.BoneVisage, "unique", "Vampire Gaze");
 
-        if (!Check.haveItem("bonevisage", "unique", "Vampire Gaze")) {
+        if (!me.checkItem({ name: sdk.locale.items.VampireGaze, classid: sdk.items.BoneVisage }).have) {
           // Upgrade Vamp Gaze to Elite
           Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Grim Helm", Roll.NonEth]);
         }

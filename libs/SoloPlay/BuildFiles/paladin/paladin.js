@@ -8,7 +8,7 @@
 const CharInfo = {
   respecOne: 19,
   respecTwo: 0,
-  levelCap: (function() {
+  levelCap: (function () {
     const currentDiff = sdk.difficulty.nameOf(me.diff);
     const softcoreMode = {
       "Normal": me.expansion ? 33 : 33,
@@ -31,7 +31,11 @@ const CharInfo = {
 
     switch (true) {
     case currLevel < this.respecOne:
-    case !justRepeced && currLevel > this.respecOne && !me.checkSkill(sdk.skills.Concentration, sdk.skills.subindex.HardPoints):
+    case (
+      !justRepeced
+      && currLevel > this.respecOne
+      && !me.checkSkill(sdk.skills.Concentration, sdk.skills.subindex.HardPoints)
+    ):
       return "Start";
     case Check.finalBuild().respec() && justRepeced:
     case Check.finalBuild().active():

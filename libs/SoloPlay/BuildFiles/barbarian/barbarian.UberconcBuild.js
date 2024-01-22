@@ -37,8 +37,14 @@
           max: 4,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MaxHp) === 20
+            );
           }
         },
 
@@ -46,8 +52,14 @@
           max: 4,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.FHR) === 5
+            );
           }
         },
 
@@ -55,9 +67,14 @@
           max: 2,
           have: [],
           classid: sdk.items.GrandCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.BarbCombat) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.BarbCombat) === 1
+              && check.getStat(sdk.stats.MaxHp) >= 40
+            );
           }
         },
       },
@@ -65,7 +82,13 @@
       AutoBuildTemplate: {
         1:	{
           Update: function () {
-            Config.AttackSkill = [-1, sdk.skills.Concentrate, sdk.skills.Berserk, sdk.skills.Concentrate, sdk.skills.Berserk];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.Concentrate,
+              sdk.skills.Berserk,
+              sdk.skills.Concentrate,
+              sdk.skills.Berserk
+            ];
             Config.LowManaSkill = [0, 0];
             Config.BeltColumn = ["hp", "hp", "mp", "rv"];
           }
@@ -75,9 +98,11 @@
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
-        } else {
-          return me.checkItem({ name: sdk.locale.items.Grief, itemtype: sdk.items.type.Sword }).have && Check.haveItem("monarch", "unique", "Stormshield");
         }
+        return (
+          me.checkItem({ name: sdk.locale.items.Grief, itemtype: sdk.items.type.Sword }).have
+          && me.checkItem({ name: sdk.locale.items.Stormshield }).have
+        );
       },
 
       active: function () {

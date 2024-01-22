@@ -37,6 +37,7 @@
           max: 4,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
             return (!check.unique && check.classid === this.classid
               && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
@@ -47,6 +48,7 @@
           max: 3,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
             return (!check.unique && check.classid === this.classid
               && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
@@ -57,6 +59,7 @@
           max: 1,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
             return (!check.unique && check.classid === this.classid
               && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
@@ -67,6 +70,7 @@
           max: 2,
           have: [],
           classid: sdk.items.GrandCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
             return (!check.unique && check.classid === this.classid
               && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.PoisonandBone) === 1
@@ -89,7 +93,7 @@
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
         } else {
-          return Check.haveItem("armor", "runeword", "Enigma");
+          return me.checkItem({ name: sdk.locale.items.Enigma, itemtype: sdk.items.type.Armor }).have;
         }
       },
 

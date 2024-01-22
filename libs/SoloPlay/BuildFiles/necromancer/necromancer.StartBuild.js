@@ -16,11 +16,13 @@
       usefulskills: [sdk.skills.AmplifyDamage, sdk.skills.BoneArmor, sdk.skills.Decrepify, sdk.skills.BoneWall],
       wantedMerc: MercData[sdk.skills.Might],
       stats: [
-        ["strength", 20], ["vitality", 70], ["strength", 35],
+        ["strength", 20], ["energy", 45],
+        ["vitality", 70], ["strength", 35],
         ["energy", 85], ["vitality", "all"]
       ],
       skills: [
         [sdk.skills.Teeth, 4],           // charlvl 4
+        // [sdk.skills.BoneArmor, 1],       // charlvl 7
         [sdk.skills.AmplifyDamage, 1],   // charlvl 5
         [sdk.skills.ClayGolem, 1],       // charlvl 6
         [sdk.skills.BoneArmor, 1],       // charlvl 7
@@ -51,7 +53,7 @@
       Config.TownHP = me.hardcore ? 0 : 35;
       Config.BeltColumn = ["hp", "hp", "hp", "hp"];
       Config.HPBuffer = 6;
-      Config.MPBuffer = 6;
+      Config.MPBuffer = 8;
       Config.AttackSkill = [-1, 0, 0, 0, 0, -1, -1];
       Config.LowManaSkill = [0, 0];
       Config.Golem = "Clay";
@@ -64,8 +66,9 @@
           
       Config.AttackSkill = [-1, sdk.skills.Teeth, -1, sdk.skills.Teeth, -1, -1, -1];
       Config.BeltColumn = ["hp", "hp", "mp", "mp"];
-      Config.HPBuffer = 2;
-      Config.MPBuffer = 6;
+      Config.HPBuffer = Storage.BeltSize() < 4 ? 4 : 2;
+      Config.MPBuffer = 8;
+      Config.RejuvBuffer = 6;
       SetUp.belt();
     });
     build.AutoBuildTemplate[18] = buildAutoBuildTempObj(() => {

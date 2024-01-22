@@ -13,19 +13,35 @@
       skillstab: sdk.skills.tabs.Cold,
       wantedskills: [sdk.skills.Blizzard, sdk.skills.FireBall, sdk.skills.ColdMastery],
       usefulskills: [sdk.skills.GlacialSpike, sdk.skills.Meteor, sdk.skills.FireMastery, sdk.skills.StaticField],
-      usefulStats: [sdk.stats.PassiveColdPierce, sdk.stats.PassiveColdMastery, sdk.stats.PassiveFireMastery, sdk.stats.PassiveFirePierce],
+      usefulStats: [
+        sdk.stats.PassiveColdPierce,
+        sdk.stats.PassiveColdMastery,
+        sdk.stats.PassiveFireMastery,
+        sdk.stats.PassiveFirePierce
+      ],
       wantedMerc: MercData[sdk.skills.HolyFreeze],
       stats: [],
       skills: [],
 
       active: function () {
-        return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.checkSkill(sdk.skills.FireMastery, sdk.skills.subindex.HardPoints) && !Check.finalBuild().active());
+        const { respecOne, respecTwo } = CharInfo;
+        return (
+          me.charlvl > respecOne && me.charlvl > respecTwo
+          && me.checkSkill(sdk.skills.FireMastery, sdk.skills.subindex.HardPoints)
+          && !Check.finalBuild().active()
+        );
       },
 
       AutoBuildTemplate: {
         1:	{
           Update: function () {
-            Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.IceBlast, sdk.skills.Blizzard, sdk.skills.IceBlast, sdk.skills.Meteor, sdk.skills.FireBall];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.Blizzard, sdk.skills.IceBlast,
+              sdk.skills.Blizzard, sdk.skills.IceBlast,
+              sdk.skills.Meteor, sdk.skills.FireBall,
+              sdk.skills.Nova, sdk.skills.StaticField
+            ];
             Config.LowManaSkill = [-1, -1];
             Config.SkipImmune = ["fire and cold"];
             Config.BeltColumn = ["hp", "hp", "mp", "mp"];
@@ -36,7 +52,7 @@
         }
       },
     };
-    
+		
     // Has to be set after its loaded
     build.stats = me.classic
       ? [
@@ -46,7 +62,7 @@
         ["strength", 61], ["vitality", 200], ["strength", 127],
         ["vitality", 252], ["dexterity", "block"], ["vitality", "all"]
       ];
-    
+		
     build.skills = me.classic
       ? [
         // Total skills at respec = 70
@@ -74,9 +90,12 @@
         [sdk.skills.Meteor, 1],      // points left 59
         [sdk.skills.FireMastery, 1], // points left 58
         [sdk.skills.ColdMastery, 1], // points left 57
+        [sdk.skills.LightningMastery, 1], // points left 56
+        [sdk.skills.Nova, 1],        // points left 55
         [sdk.skills.FrozenOrb, 1],   // points left 51
         [sdk.skills.FireBall, 20],   // points left 32
         [sdk.skills.Blizzard, 20],   // points left 13
+        [sdk.skills.Nova, 5],        // points left 8
         [sdk.skills.IceBlast, 15],   // points left 0
         [sdk.skills.Meteor, 15],
         [sdk.skills.IceBlast, 20],
@@ -84,7 +103,7 @@
         [sdk.skills.ColdMastery, 5],
         [sdk.skills.FireBolt, 20],
       ];
-    
+		
     return build;
   })();
 })(module);

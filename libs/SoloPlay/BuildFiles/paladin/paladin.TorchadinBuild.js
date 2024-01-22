@@ -36,8 +36,14 @@
           max: 6,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MaxHp) === 20
+            );
           }
         },
 
@@ -45,8 +51,14 @@
           max: 2,
           have: [],
           classid: sdk.items.SmallCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MagicBonus) === 7
+            );
           }
         },
 
@@ -54,9 +66,14 @@
           max: 2,
           have: [],
           classid: sdk.items.GrandCharm,
+          /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Offensive) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Offensive) === 1
+              && check.getStat(sdk.stats.MaxHp) >= 40
+            );
           }
         },
       },
@@ -65,7 +82,12 @@
         1:	{
           Update: function () {
             Config.Vigor = false;
-            Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.Conviction, sdk.skills.Zeal, sdk.skills.Conviction, -1, -1];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.Zeal, sdk.skills.Conviction,
+              sdk.skills.Zeal, sdk.skills.Conviction,
+              -1, -1
+            ];
             Config.LowManaSkill = [-1, -1];
             Config.SkipImmune = ["fire and physical"];
             Config.BeltColumn = ["hp", "hp", "mp", "rv"];
@@ -77,9 +99,13 @@
       respec: function () {
         if (me.classic) {
           return false;
-        } else {
-          return me.haveAll([{ name: sdk.locale.items.HandofJustice }, { name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor }]);
         }
+        return (
+          me.haveAll([
+            { name: sdk.locale.items.HandofJustice },
+            { name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor }
+          ])
+        );
       },
 
       active: function () {
