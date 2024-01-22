@@ -122,7 +122,7 @@
           return false;
         }
         return (
-          Check.haveItem("hydrabow", "unique", "Windforce")
+          me.checkItem({ name: sdk.locale.items.Windforce, classid: sdk.items.HydraBow }).have
           || me.checkItem({ name: sdk.locale.items.WitchwildString, classid: sdk.items.DiamondBow }).have
         );
       },

@@ -186,7 +186,7 @@
       }
 
       if (SetUp.finalBuild === "Wfzon") {
-        if (!Check.haveItem(sdk.items.HydraBow, "unique", "Windforce")) {
+        if (!me.checkItem({ name: sdk.locale.items.Windforce, classid: sdk.items.HydraBow }).have) {
           NTIP.addLine("[name] == hydrabow && [quality] == unique # [manaleech] >= 6 # [maxquantity] == 1");
         }
 

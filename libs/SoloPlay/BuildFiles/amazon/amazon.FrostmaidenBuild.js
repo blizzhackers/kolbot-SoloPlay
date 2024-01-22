@@ -12,7 +12,13 @@
       caster: false,
       skillstab: sdk.skills.tabs.BowandCrossbow,
       wantedskills: [sdk.skills.Strafe, sdk.skills.FreezingArrow, sdk.skills.ExplodingArrow],
-      usefulskills: [sdk.skills.Penetrate, sdk.skills.Valkyrie, sdk.skills.Pierce, sdk.skills.IceArrow, sdk.skills.ColdArrow],
+      usefulskills: [
+        sdk.skills.Penetrate,
+        sdk.skills.Valkyrie,
+        sdk.skills.Pierce,
+        sdk.skills.IceArrow,
+        sdk.skills.ColdArrow
+      ],
       precastSkills: [sdk.skills.Valkyrie],
       wantedMerc: MercData[sdk.skills.Might],
       stats: [
@@ -36,7 +42,12 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MaxHp) === 20
+            );
           }
         },
 
@@ -46,7 +57,12 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MagicBonus) === 7
+            );
           }
         },
 
@@ -56,7 +72,12 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.FHR) === 5
+            );
           }
         },
 
@@ -66,8 +87,12 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.BowandCrossbow) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.BowandCrossbow) === 1
+              && check.getStat(sdk.stats.MaxHp) >= 40
+            );
           }
         },
 
@@ -77,8 +102,12 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.PassiveandMagic) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.PassiveandMagic) === 1
+              && check.getStat(sdk.stats.MaxHp) >= 40
+            );
           }
         },
       },
@@ -86,7 +115,12 @@
       AutoBuildTemplate: {
         1:	{
           Update: function () {
-            Config.AttackSkill = [-1, sdk.skills.FreezingArrow, -1, sdk.skills.FreezingArrow, -1, sdk.skills.Strafe, -1];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.FreezingArrow, -1,
+              sdk.skills.FreezingArrow, -1,
+              sdk.skills.Strafe, -1
+            ];
             Config.LowManaSkill = [0, -1];
           }
         },
@@ -95,9 +129,12 @@
       respec: function () {
         if (me.classic) {
           return false;
-        } else {
-          return me.haveAll([{ name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm }, { name: sdk.locale.items.Brand }, { name: sdk.locale.items.ChainsofHonor }]);
         }
+        return me.haveAll([
+          { name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm },
+          { name: sdk.locale.items.Brand },
+          { name: sdk.locale.items.ChainsofHonor }
+        ]);
       },
 
       active: function () {

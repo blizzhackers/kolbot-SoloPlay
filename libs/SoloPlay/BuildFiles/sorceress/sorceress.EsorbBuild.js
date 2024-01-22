@@ -36,7 +36,12 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MaxHp) === 20
+            );
           }
         },
 
@@ -46,7 +51,12 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MagicBonus) === 7
+            );
           }
         },
 
@@ -56,7 +66,12 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.FHR) === 5
+            );
           }
         },
 
@@ -66,8 +81,12 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Lightning) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Lightning) === 1
+              && check.getStat(sdk.stats.MaxHp) >= 40
+            );
           }
         },
 
@@ -77,8 +96,12 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Cold) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Cold) === 1
+              && check.getStat(sdk.stats.MaxHp) >= 40
+            );
           }
         },
       },
@@ -86,7 +109,12 @@
       AutoBuildTemplate: {
         1:	{
           Update: function () {
-            Config.AttackSkill = [-1, sdk.skills.FrozenOrb, sdk.skills.StaticField, sdk.skills.FrozenOrb, sdk.skills.StaticField, -1, -1];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.FrozenOrb, sdk.skills.StaticField,
+              sdk.skills.FrozenOrb, sdk.skills.StaticField,
+              -1, -1
+            ];
             Config.LowManaSkill = [-1, -1];
             Config.SkipImmune = ["cold"];
             Config.HPBuffer = me.expansion ? 1 : 5;

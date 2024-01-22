@@ -37,7 +37,12 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MaxHp) === 20
+            );
           }
         },
 
@@ -47,7 +52,12 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MagicBonus) === 7
+            );
           }
         },
 
@@ -57,8 +67,12 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Offensive) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Offensive) === 1
+              && check.getStat(sdk.stats.MaxHp) >= 40
+            );
           }
         },
       },
@@ -67,7 +81,12 @@
         1:	{
           Update: function () {
             Config.Vigor = false;
-            Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.HolyShock, sdk.skills.Zeal, sdk.skills.HolyShock, sdk.skills.Zeal, sdk.skills.HolyFreeze];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.Zeal, sdk.skills.HolyShock,
+              sdk.skills.Zeal, sdk.skills.HolyShock,
+              sdk.skills.Zeal, sdk.skills.HolyFreeze
+            ];
             Config.LowManaSkill = [-1, -1];
             Config.SkipImmune = ["lightning and cold and physical"];	// Don't think this ever happens but should skip if it does
 
@@ -79,9 +98,11 @@
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
-        } else {
-          return me.haveAll([{ name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields }, { name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm }]);
         }
+        return me.haveAll([
+          { name: sdk.locale.items.Dream, itemtype: sdk.items.type.AuricShields },
+          { name: sdk.locale.items.Dream, itemtype: sdk.items.type.Helm }
+        ]);
       },
 
       active: function () {

@@ -289,8 +289,7 @@
         NTIP.addLine("[name] == falcata && [quality] == unique && [flag] != ethereal # [enhanceddamage] >= 140 && [ias] >= 20 # [maxquantity] == 1");
       }
 
-      if (!Check.haveItem("dimensionalblade", "unique", "Ginther's Rift")) {
-      // if (!me.checkItem({ name: sdk.locale.items.GinthersRift, classid: sdk.items.DimensionalBlade }).have) {
+      if (!me.checkItem({ name: sdk.locale.items.GinthersRift, classid: sdk.items.DimensionalBlade }).have) {
         NTIP.addLine("[name] == PulRune # # [maxquantity] == 1");
         NTIP.addLine("[name] == perfectemerald # # [maxquantity] == 1");
 

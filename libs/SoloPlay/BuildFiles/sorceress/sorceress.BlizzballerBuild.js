@@ -14,7 +14,12 @@
       wantedskills: [sdk.skills.Blizzard, sdk.skills.FireBall, sdk.skills.ColdMastery],
       usefulskills: [sdk.skills.GlacialSpike, sdk.skills.Meteor, sdk.skills.FireMastery, sdk.skills.StaticField],
       precastSkills: [sdk.skills.FrozenArmor],
-      usefulStats: [sdk.stats.PassiveColdPierce, sdk.stats.PassiveColdMastery, sdk.stats.PassiveFireMastery, sdk.stats.PassiveFirePierce],
+      usefulStats: [
+        sdk.stats.PassiveColdPierce,
+        sdk.stats.PassiveColdMastery,
+        sdk.stats.PassiveFireMastery,
+        sdk.stats.PassiveFirePierce
+      ],
       wantedMerc: MercData[sdk.skills.HolyFreeze],
       stats: [
         ["energy", 50], ["strength", 48], ["vitality", 165],
@@ -44,7 +49,12 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MaxHp) === 20
+            );
           }
         },
 
@@ -54,7 +64,12 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MagicBonus) === 7
+            );
           }
         },
 
@@ -64,7 +79,12 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.FHR) === 5
+            );
           }
         },
 
@@ -74,8 +94,12 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Fire) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Fire) === 1
+              && check.getStat(sdk.stats.MaxHp) >= 40
+            );
           }
         },
 
@@ -85,8 +109,12 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Cold) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Cold) === 1
+              && check.getStat(sdk.stats.MaxHp) >= 40
+            );
           }
         },
       },
@@ -94,7 +122,12 @@
       AutoBuildTemplate: {
         1:	{
           Update: function () {
-            Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.FireBall, sdk.skills.Blizzard, sdk.skills.FireBall, sdk.skills.Meteor, sdk.skills.GlacialSpike];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.Blizzard, sdk.skills.FireBall,
+              sdk.skills.Blizzard, sdk.skills.FireBall,
+              sdk.skills.Meteor, sdk.skills.GlacialSpike
+            ];
             Config.LowManaSkill = [-1, -1];
             Config.SkipImmune = ["fire and cold"];
             Config.HPBuffer = me.expansion ? 1 : 5;
@@ -118,7 +151,11 @@
       },
 
       active: function () {
-        return this.respec() && me.getSkill(sdk.skills.FireBall, sdk.skills.subindex.HardPoints) === 20 && me.getSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints) === 20;
+        return (
+          this.respec()
+          && me.getSkill(sdk.skills.FireBall, sdk.skills.subindex.HardPoints) === 20
+          && me.getSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints) === 20
+        );
       },
     };
 
