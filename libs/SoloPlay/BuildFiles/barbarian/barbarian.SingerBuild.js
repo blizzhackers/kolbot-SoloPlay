@@ -115,7 +115,7 @@
       // Rings - SoJ
       "[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000",
       // Switch - BO sticks
-      "([type] == club || [type] == sword || [type] == knife || [type] == throwingknife || [type] == mace) && ([quality] == magic || [flag] == runeword) && [2handed] == 0 # [itemallskills]+[warcriesskilltab]+[barbarianskills] >= 1 # [secondarytier] == 100000 + secondaryscore(item)",
+      "[type] >= 1 && ([quality] == magic || [flag] == runeword) && [2handed] == 0 # [itemallskills]+[warcriesskilltab]+[barbarianskills] >= 1 # [secondarytier] == 100000 + secondaryscore(item)",
       // Merc Armor - Fortitude
       "[type] == armor && [flag] == runeword # [enhanceddefense] >= 200 && [enhanceddamage] >= 300 # [merctier] == 100000",
       // Merc Final Helmet - Eth Andy's
