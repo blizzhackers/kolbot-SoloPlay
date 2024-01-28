@@ -66,7 +66,7 @@ Item.getBodyLoc = function (item) {
   if (Item.shieldTypes.includes(item.itemType)) return [sdk.body.LeftArm];
   if (Item.helmTypes.includes(item.itemType)) return [sdk.body.Head];
   if (Item.weaponTypes.includes(item.itemType)) {
-    return me.barbarian && item.twoHanded && !item.strictlyTwoHanded
+    return me.barbarian && (!item.twoHanded || (item.twoHanded && !item.strictlyTwoHanded))
       ? [sdk.body.RightArm, sdk.body.LeftArm]
       : [sdk.body.RightArm];
   }
@@ -494,7 +494,7 @@ Item.getSecondaryBodyLoc = function (item) {
       : [sdk.body.RightArmSecondary];
   }
   if (Item.weaponTypes.includes(item.itemType)) {
-    return me.barbarian && item.twoHanded && !item.strictlyTwoHanded
+    return me.barbarian && (!item.twoHanded || (item.twoHanded && !item.strictlyTwoHanded))
       ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary]
       : [sdk.body.RightArmSecondary];
   }
