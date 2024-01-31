@@ -11,7 +11,7 @@
  * no point checking for stats that cannot ever exist. Also handle some of the misc stats that appear as they can be helpful.
  */
 
-(function () {
+(function (global) {
   /**
    * @param {ItemUnit} item 
    */
@@ -624,7 +624,7 @@
     return [
       [sdk.stats.AllSkills, -1],
       [sdk.stats.AddClassSkills, me.classid],
-      [sdk.stats.AddSkillTab, Check.finalBuild().tabSkills],
+      [sdk.stats.AddSkillTab, (me.barbarian ? sdk.skills.tabs.Warcries : Check.finalBuild().tabSkills)],
     ].reduce(function (acc, [stat, subId]) {
       return acc + item.getStatEx(stat, subId) * _tierWeights.skill.get(stat);
     }, tier);
@@ -688,4 +688,4 @@
   global.tierscore = tierscore;
   global.secondaryscore = secondaryscore;
   global.charmscore = charmscore;
-})();
+})([].filter.constructor("return this")());
