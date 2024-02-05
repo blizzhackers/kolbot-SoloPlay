@@ -2,6 +2,7 @@
 *  @filename    Globals.js
 *  @author      theBGuy
 *  @credit      alogwe
+*  @contributor Butterz
 *  @desc        Global functions for Kolbot-SoloPlay functionality
 *
 */
@@ -38,6 +39,17 @@ function myPrint (str = "", toConsole = false, color = 0) {
   }
   toConsole && D2Bot.printToConsole("Kolbot-SoloPlay :: " + str, color);
 }
+
+/** 
+ * Calculate minGameTime based on individual profiles and their associated IP count
+ * Invokes the calculateAndSetMinGameTime() function from Developer.js
+ * Checks whether the maximum allowed IPs is below 8, and then determines the time accordingly
+ * Utilizes data from either the array values or static values in Developer.js
+ */
+const minGameTime = calculateAndSetMinGameTime();
+let sharedData = {
+  goal: ""
+};
 
 // general settings
 const SetUp = {
@@ -481,7 +493,7 @@ const SetUp = {
     }
 
     /* General configuration. */
-    Config.MinGameTime = 400;
+    Config.MinGameTime = minGameTime;
     Config.MaxGameTime = 7200;
     Config.MiniShopBot = true;
     Config.PacketShopping = true;
@@ -1054,20 +1066,59 @@ const Check = {
     };
   },
 
+  generateCharacterLog: function () {
+    let basePath = "logs/Kolbot-SoloPlay";
+    let mainPath = basePath + "/Account-List";
+    let realmPath = mainPath + "/" + me.realm;
+    let ladderType = me.ladder > 0 ? "Ladder" : "Non-Ladder";
+    let ladderTypePath = realmPath + "/" + ladderType;
+    let charLogPath = ladderTypePath + "/" + (me.ladder > 0 ? "L." : "NL.") + sharedData.goal + "s.Acc." + me.account + ".CharList.txt";
+
+    // Data-file already exists
+    if (FileTools.exists(charLogPath)) {
+      return;
+    }
+
+    // Create necessary directories if they don't exist
+    if (!FileTools.exists(basePath)) {
+      print(sdk.colors.DarkGreen + "Creating Directory: " + basePath);
+      dopen("logs").create("Kolbot-SoloPlay");
+      delay(2500 + me.ping);
+    }
+
+    if (!FileTools.exists(mainPath)) {
+      print(sdk.colors.DarkGreen + "Creating Directory: " + mainPath);
+      dopen(basePath).create("Account-List");
+      delay(2500 + me.ping);
+    }
+
+    if (!FileTools.exists(realmPath)) {
+      print(sdk.colors.DarkGreen + "Creating Directory: " + realmPath);
+      dopen(mainPath).create(me.realm);
+      delay(2500 + me.ping);
+    }
+
+    if (!FileTools.exists(ladderTypePath)) {
+      print(sdk.colors.DarkGreen + "Creating Directory: " + ladderType);
+      dopen(realmPath).create(ladderType);
+      delay(2500 + me.ping);
+    }
+  },
+
   checkSpecialCase: function () {
     const questCompleted = (id) => !!Misc.checkQuest(id, sdk.quest.states.ReqComplete);
-    let goalReached = false, goal = "";
+    let goalReached = false;
 
     switch (true) {
-    case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
+    case SetUp.finalBuild === "Bumper" && me.charlvl >= (Developer.fillAccount.Bumper.Level):
     case (SetUp.finalBuild === "Socketmule" && questCompleted(sdk.quest.id.SiegeOnHarrogath)):
-    case (SetUp.finalBuild === "Imbuemule" && questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Developer.imbueStopLevel):
-      goal = SetUp.finalBuild;
+    case (SetUp.finalBuild === "Imbuemule" && questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Developer.fillAccount.ImbueMules.Level):
+      sharedData.goal = SetUp.finalBuild;
       goalReached = true;
 
       break;
     case SetUp.stopAtLevel && me.charlvl >= SetUp.stopAtLevel:
-      goal = "Level: " + SetUp.stopAtLevel;
+      sharedData.goal = "Level: " + SetUp.stopAtLevel;
       goalReached = true;
 
       break;
@@ -1082,16 +1133,39 @@ const Check = {
 
     if (goalReached) {
       const gameObj = Developer.logPerformance ? Tracker.readObj(Tracker.GTPath) : null;
+      const saveLocation = "logs/Kolbot-SoloPlay/Account-List/" + me.realm + "/" + (me.ladder > 0 ? "Ladder" : "Non-Ladder") + "/" + (me.ladder > 0 ? "L." : "NL.") + sharedData.goal + "s.Acc." + me.account + ".CharList.txt";
+      const textFile = me.account + "/" + me.charname + "/" + me.charlvl + '\n';
+      let isConfigurationCaseMatched = false;
 
-      switch (true) {
-      case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.bumpers):
-      case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.socketMules):
-      case (SetUp.finalBuild === "Imbuemule" && Developer.fillAccount.imbueMule):
-        SetUp.makeNext();
-        
-        break;
-      default:
-        D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (gameObj ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
+      const generateLogAndSave = () => {
+        this.generateCharacterLog();
+        FileTools.appendText(saveLocation, textFile);
+        D2Bot.printToConsole("Account & Character Names are saved to: " + saveLocation, sdk.colors.D2Bot.Black);
+        delay(1000 + me.ping);
+      };
+
+      switch (SetUp.finalBuild) {
+        case "Bumper":
+          if (Developer.fillAccount.Bumper.Logging) generateLogAndSave(); // Check if logging is enabled
+          if (Developer.fillAccount.Bumper.Enabled) SetUp.makeNext(); // Check if "Fill Account" is enabled
+          if (!Developer.fillAccount.Bumper.Enabled) isConfigurationCaseMatched = true; // If not enabled, set isConfigurationCaseMatched to true
+          break;
+
+        case "Socketmule":
+          if (Developer.fillAccount.SocketMules.Logging) generateLogAndSave();
+          if (Developer.fillAccount.SocketMules.Enabled) SetUp.makeNext();
+          if (!Developer.fillAccount.SocketMules.Enabled) isConfigurationCaseMatched = true;
+          break;
+
+        case "Imbuemule":
+          if (Developer.fillAccount.ImbueMules.Logging) generateLogAndSave();
+          if (Developer.fillAccount.ImbueMules.Enabled) SetUp.makeNext();
+          if (!Developer.fillAccount.ImbueMules.Enabled) isConfigurationCaseMatched = true;
+          break;
+      }
+
+      if (isConfigurationCaseMatched) {
+        D2Bot.printToConsole("Kolbot-SoloPlay " + sharedData.goal + " goal reached." + (gameObj ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
         Developer.logPerformance && Tracker.update();
         D2Bot.stop();
       }

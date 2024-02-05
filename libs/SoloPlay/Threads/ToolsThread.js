@@ -2,6 +2,7 @@
 *  @filename    ToolsThread.js
 *  @author      kolton, theBGuy (modifed for SoloPlay)
 *  @desc        modified Toolsthread for use with Kolbot-SoloPlay
+*  @contributor Butterz
 *
 */
 js_strict(true);
@@ -678,7 +679,7 @@ function main () {
       const currInGame = (getTickCount() - me.gamestarttime);
       let timeStr = " (Time: " + Time.format(currInGame) + ") ";
       
-      if (Developer.displayClockInConsole && Developer.logPerformance) {
+      if (Developer.DisplaySettings.ClockInConsole && Developer.logPerformance) {
         try {
           gameTracker === undefined && (gameTracker = Tracker.readObj(Tracker.GTPath));
           let [tTime, tInGame, tDays] = [
@@ -698,6 +699,24 @@ function main () {
       }
       return timeStr;
     }
+
+    function IPAddress () {
+      return Developer.DisplaySettings.GameType
+      ? "IP: " + Number(me.gameserverip.split(".")[3]) + "  |  "
+      : "Single Player  | ";
+    }
+
+    function AccName () {
+      return Developer.DisplaySettings.Online
+      ? "Account: " + me.account + "  |  "
+      : " ";
+    }
+
+    function GameName () {
+      return Developer.DisplaySettings.GameName
+      ? "Game Name: " + me.gamename + "  |  "
+      : "";
+    }
     
     this.run = function () {
       if (getTickCount() - _timeout < 500) return true;
@@ -709,12 +728,15 @@ function main () {
 
         try {
           statusString = [
-            (me.name + " | "),
-            ("Lvl: " + me.charlvl),
-            (" (" + Experience.progress() + "%) "),
-            ("(Diff: " + diffShort + ") "),
-            ("(A: " + getAreaName(me.area) + ") "),
-            ("(G: " + me.gold + ") "),
+            (IPAddress()),
+            (AccName()),
+            ("Character Name: " + me.name + "  |  "),
+            ("Lvl: " + me.charlvl + " "),
+            ("(" + Experience.progress() + "%)  |  "),
+            (GameName()),
+            ("Diff: " + diffShort + "  |  "),
+            ("A: " + getAreaName(me.area) + "  |  "),
+            ("G: " + me.gold + "  |  "),
             ("(F: " + me.FR + "/C: " + me.CR + "/L: " + me.LR + "/P: " + me.PR + ")"),
           ].join("");
 
@@ -757,7 +779,7 @@ function main () {
         Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && drinkPotion(sdk.items.type.RejuvPotion);
 
         if (Config.LifeChicken > 0 && me.hpPercent <= Config.LifeChicken && !me.inTown) {
-          if (!Developer.hideChickens) {
+          if (!Developer.Console.HideChickens) {
             D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + getAreaName(me.area) + ". Ping: " + me.ping, sdk.colors.D2Bot.Red);
           }
           exit(true);
@@ -775,7 +797,7 @@ function main () {
         }
 
         if (Config.ManaChicken > 0 && me.mpPercent <= Config.ManaChicken && !me.inTown) {
-          if (!Developer.hideChickens) {
+          if (!Developer.Console.HideChickens) {
             D2Bot.printToConsole("Mana Chicken: (" + me.mp + "/" + me.mpmax + ") in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
           }
           exit(true);
@@ -791,7 +813,7 @@ function main () {
           if (ironGolem) {
             // ironGolem.hpmax is bugged with BO
             if (ironGolem.hp <= Math.floor(128 * Config.IronGolemChicken / 100)) {
-              if (!Developer.hideChickens) {
+              if (!Developer.Console.HideChickens) {
                 D2Bot.printToConsole("Irom Golem Chicken in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
               }
               exit(true);
@@ -808,7 +830,7 @@ function main () {
 
             if (mercHP > 0 && merc.mode !== sdk.monsters.mode.Dead) {
               if (mercHP < Config.MercChicken) {
-                if (!Developer.hideChickens) {
+                if (!Developer.Console.HideChickens) {
                   D2Bot.printToConsole("Merc Chicken in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
                 }
                 exit(true);

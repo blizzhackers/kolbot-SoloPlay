@@ -17,11 +17,6 @@ Starter.Config.GameDoesNotExistTimeout = 600; // Seconds to wait before cancelli
 Starter.Config.DelayBeforeLogin = rand(5, 25); // Seconds to wait before logging in
 Starter.Config.VersionErrorDelay = rand(5, 30); // Seconds to wait after 'unable to identify version' message
 
-// Global Account Settings.
-Starter.Config.GlobalAccount = ""; // Set value for a global account. (MAX Characters 12 plus AccountSuffixLength) 
-Starter.Config.AccountSuffixLength = 3; // Set Global Account value for random numbers at the end of the name. (Minimum suffix 3)
-Starter.Config.GlobalAccountPassword = ""; // Set value for a global password for account generation.
-
 // Override default values for StarterConfig under here by following format
 // Starter.Config.ValueToChange = value; // Example: Starter.Config.MinGameTime = 500; // changes MinGameTime to 500 seconds
 // Profile().type === sdk.game.profiletype.SinglePlayer && (Starter.Config.CrashDelay = 2);
